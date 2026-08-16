@@ -1,4 +1,6 @@
 import type { ReactNode } from "react";
+import { adminWebMcpDescriptors } from "@/presentation/composition";
+import { WebMcpProvider } from "@/presentation/ui";
 
 /**
  * 管理画面の共通の入れ物。
@@ -12,5 +14,14 @@ export const metadata = {
 };
 
 export default function AdminLayout({ children }: { children: ReactNode }) {
-  return <>{children}</>;
+  return (
+    <>
+      {children}
+      {/*
+        管理画面を開いている AI に、読み取りだけを知らせる（WebMCP）。
+        承認・公開・調整は載せない。人が画面で確認して実行する操作だから。
+      */}
+      <WebMcpProvider descriptors={adminWebMcpDescriptors()} />
+    </>
+  );
 }

@@ -60,19 +60,56 @@ async function callServer(endpoint: string, name: string, args: Record<string, u
   return payload.result ?? { content: [{ type: "text", text: "空の応答でした" }], isError: true };
 }
 
-/** カタログを WebMCP のツール宣言に直す。読み取り専用のものだけを通す。 */
+/**
+ * 1 ページに載せてよいツールの上限。
+ *
+ * 多いほど良いものではない。選択肢が増えるほどエージェントは誤った道具を選ぶ。
+ * 読み取り専用から始めて少数に絞る、が仕様（ブログ層 §14.4）の指示。
+ */
+export const MAX_TOOLS_PER_PAGE = 6;
+
+/**
+ * ブラウザへ渡せる形のツール宣言。
+ *
+ * 実行の関数は含まない。サーバーからブラウザへ関数は渡せないため、
+ * 「何ができるか」だけを送り、呼び出し方はブラウザ側で組み立てる。
+ */
+export type WebMcpDescriptor = {
+  readonly name: string;
+  readonly description: string;
+  readonly inputSchema: unknown;
+};
+
+/** カタログを宣言に直す。読み取り専用だけを、上限の数まで。 */
+export function toWebMcpDescriptors(
+  catalog: readonly AnyToolDefinition[],
+  limit = MAX_TOOLS_PER_PAGE,
+): readonly WebMcpDescriptor[] {
+  return catalog
+    .filter((t) => t.readOnly)
+    .slice(0, limit)
+    .map((t) => ({ name: t.name, description: t.description, inputSchema: t.inputSchema }));
+}
+
+/** 宣言に「サーバーを呼ぶ」処理を付けて、登録できる形にする（ブラウザ側）。 */
+export function webMcpToolsFrom(
+  descriptors: readonly WebMcpDescriptor[],
+  endpoint = "/api/mcp",
+): WebMcpTool[] {
+  return descriptors.map((d) => ({
+    name: d.name,
+    description: d.description,
+    inputSchema: d.inputSchema,
+    execute: (args: Record<string, unknown>) => callServer(endpoint, d.name, args),
+  }));
+}
+
+/** カタログから直接ツールを作る（サーバー内で完結する経路・テスト用）。 */
 export function toWebMcpTools(
   catalog: readonly AnyToolDefinition[],
   endpoint = "/api/mcp",
 ): WebMcpTool[] {
-  return catalog
-    .filter((t) => t.readOnly)
-    .map((t) => ({
-      name: t.name,
-      description: t.description,
-      inputSchema: t.inputSchema,
-      execute: (args: Record<string, unknown>) => callServer(endpoint, t.name, args),
-    }));
+  return webMcpToolsFrom(toWebMcpDescriptors(catalog), endpoint);
 }
 
 /**

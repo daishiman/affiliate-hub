@@ -87,6 +87,7 @@ import {
   sampleProductName,
 } from "@/infrastructure/persistence/sample/ranking-sample-repository";
 import { buildToolCatalog, rankProductsTool } from "./tools/catalog";
+import { toWebMcpDescriptors, type WebMcpDescriptor } from "./tools/webmcp-adapter";
 import type { AnyToolDefinition, ToolDefinition } from "./tools/tool-definition";
 import type { RankProductsInput } from "@/application/usecases/ranking/rank-products";
 import type { RankingResult } from "@/domain/ranking";
@@ -106,6 +107,21 @@ export function createToolCatalog(): readonly AnyToolDefinition[] {
   return buildToolCatalog(createDeps());
 }
 
+/**
+ * 外から来た呼び出しの身元確認。REST も MCP もこれを通る。
+ *
+ * 読み込みを関数の中に置いているのは、Cloudflare の実行環境に依存する処理を
+ * 画面やテストの読み込み時点まで引きずり込まないため。
+ */
+export async function authenticateRequest(
+  request: Request,
+): Promise<
+  { ok: true; scope: "bearer" | "same-origin" } | { ok: false; status: number; message: string }
+> {
+  const { authenticateApiRequest } = await import("@/infrastructure/platform/api-token");
+  return authenticateApiRequest(request);
+}
+
 /** いま操作している人。認証が入るまでは見本のログイン情報を返す。 */
 export function currentActor(): Promise<ActorContext> {
   return getCurrentActor();
@@ -114,6 +130,46 @@ export function currentActor(): Promise<ActorContext> {
 /** 見本のログイン情報で動いていることを画面に出すための一文。 */
 export function actorNotice(): string {
   return sampleActorNotice();
+}
+
+/**
+ * 読者のページに載せる、AI 向けの操作宣言（WebMCP）。
+ *
+ * 3 つの決まりをここで守る。守る場所を 1 箇所にしないと、ページごとにずれる。
+ *   1. 読み取り専用だけ（`toWebMcpDescriptors` が絞る）
+ *   2. 1 ページ 6 件まで（`MAX_TOOLS_PER_PAGE`）
+ *   3. すべて通常の画面操作でも同じことができる
+ *      （順位・商品・比較・根拠・理由・代替は、いずれも読者向け画面がある）
+ */
+export function readerWebMcpDescriptors(): readonly WebMcpDescriptor[] {
+  const wanted = [
+    "list_ranking",
+    "get_product",
+    "compare_products",
+    "get_evidence",
+    "explain_ranking",
+    "find_alternatives",
+  ];
+  const catalog = createToolCatalog().filter((t) => wanted.includes(t.name));
+  return toWebMcpDescriptors(catalog);
+}
+
+/**
+ * 管理画面に載せる、AI 向けの操作宣言（WebMCP）。
+ *
+ * 状態を変える操作は載せない。承認と公開は人が画面で行う。
+ */
+export function adminWebMcpDescriptors(): readonly WebMcpDescriptor[] {
+  const wanted = [
+    "list_content_board",
+    "list_review_overdue",
+    "list_publications",
+    "list_conversions",
+    "list_metrics",
+    "list_managed_sites",
+  ];
+  const catalog = createToolCatalog().filter((t) => wanted.includes(t.name));
+  return toWebMcpDescriptors(catalog);
 }
 
 /** 順位の画面が使う入口。型が付いているので、戻り値をキャストせずに描ける。 */

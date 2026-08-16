@@ -102,6 +102,34 @@ export function SiteShell({
   );
 }
 
+/**
+ * どのブログにも属さない画面の枠（入口ページ）。
+ *
+ * ブログの枠（`SiteShell`）を流用しない。流用すると、ブログ名も方針リンクも
+ * 無いまま読者向けの見た目だけが出て、「どのブログを読んでいるのか」が
+ * 分からない画面になる。ここは「まだブログを選んでいない」状態の枠。
+ */
+export function PublicShell({
+  title,
+  children,
+}: {
+  readonly title: string;
+  readonly children: ReactNode;
+}) {
+  return (
+    <div className={styles.siteShell}>
+      <header className={styles.siteHeader}>
+        <div className={styles.siteHeaderInner}>
+          <Link href="/" className={styles.siteName}>
+            {title}
+          </Link>
+        </div>
+      </header>
+      <main className={styles.siteMain}>{children}</main>
+    </div>
+  );
+}
+
 /** 読者向けの見出しブロック。記事以外の画面（一覧・探す・方針）で使う。 */
 export function SitePage({
   title,

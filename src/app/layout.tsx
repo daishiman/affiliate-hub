@@ -1,8 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 
-import { WebMcpProvider } from "@/components/webmcp-provider";
-
 import "./globals.css";
 
 const geistSans = Geist({
@@ -27,9 +25,11 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
+        {/*
+          ページを開いている AI への公開（WebMCP）は、ここではなく画面の枠で行う。
+          全ページ共通で載せると「そのページでできないこと」まで並んでしまう。
+        */}
         {children}
-        {/* ページを開いている AI エージェントにツールを公開する (WebMCP) */}
-        <WebMcpProvider />
       </body>
     </html>
   );

@@ -52,6 +52,7 @@ export {
   type ApprovalState,
 } from "./patterns/approval";
 export { StubNotice, StubLabel } from "./patterns/stub-notice";
+export { WebMcpProvider } from "./webmcp-provider";
 
 /* --- templates --------------------------------------------------------- */
 export {
@@ -65,6 +66,7 @@ export {
 export {
   SiteShell,
   SitePage,
+  PublicShell,
   type SiteChrome,
   type SiteNavItem,
 } from "./templates/site-shell";

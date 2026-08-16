@@ -1,6 +1,7 @@
 import { domainError } from "@/domain/shared";
-import { createToolCatalog, currentActor } from "@/presentation/composition";
+import { authenticateRequest, createToolCatalog, currentActor } from "@/presentation/composition";
 import { errorResponse } from "@/presentation/http/error-response";
+import { isToolAllowedForScope, refusalReason } from "@/presentation/http/tool-scope";
 import { findTool } from "@/presentation/tools/catalog";
 import { handleToolRequest } from "@/presentation/tools/rest-adapter";
 
@@ -11,20 +12,26 @@ export const dynamic = "force-dynamic";
  *
  * ここに業務の処理は 1 行も書かない。カタログのユースケースを呼ぶだけ。
  *
- * ★ 認証が入るまでの安全側の制限:
- *   読み取り専用の操作しか受け付けない。
- *   ログインの仕組みが無い状態で書き込みを開けると、誰でも実行できてしまう。
- *   Better Auth を入れたらこの判定を外し、権限で決める。
+ * 「誰に何を許すか」は `isToolAllowedForScope` の 1 箇所で決める。
+ * MCP の入口（`/api/mcp`）もまったく同じ関数を使うので、
+ * 片方の入口だけ緩い、という状態が作れない。
  */
 export async function POST(request: Request, ctx: { params: Promise<{ tool: string }> }) {
+  const auth = await authenticateRequest(request);
+  if (!auth.ok) {
+    return Response.json({ error: auth.message }, { status: auth.status });
+  }
+
   const { tool: toolName } = await ctx.params;
   const catalog = createToolCatalog();
 
   const tool = findTool(catalog, toolName);
-  if (tool !== null && !tool.readOnly) {
+  if (tool !== null && !isToolAllowedForScope(tool, auth.scope)) {
     return errorResponse(
-      domainError("FORBIDDEN", "この操作はまだ外部から実行できません。", {
-        suggestedAction: "ログインの仕組みが入るまでお待ちください。",
+      domainError("FORBIDDEN", refusalReason(tool), {
+        suggestedAction: tool.requiresHumanApproval
+          ? "管理画面の該当ページから、担当者が確認して実行してください。"
+          : "トークンを添えて呼び出してください。",
       }),
     );
   }

@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import type { SiteBlueprint } from "@/domain/authoring";
-import { readerActor, siteUseCases } from "@/presentation/composition";
-import { ErrorView, SiteShell, type SiteChrome } from "@/presentation/ui";
+import { readerActor, readerWebMcpDescriptors, siteUseCases } from "@/presentation/composition";
+import { ErrorView, SiteShell, WebMcpProvider, type SiteChrome } from "@/presentation/ui";
 import { breadcrumbsFor, siteBasePath, toChrome } from "./view-model";
 
 /**
@@ -59,6 +59,11 @@ export async function SiteFrame({
       breadcrumbs={breadcrumbsFor(siteSlug, blueprint, trail)}
     >
       {children({ siteSlug, blueprint, chrome })}
+      {/*
+        ページを開いている AI に、この画面でできることを知らせる（WebMCP）。
+        読み取りだけ・6 件までで、すべて通常の画面操作でも同じことができる。
+      */}
+      <WebMcpProvider descriptors={readerWebMcpDescriptors()} />
     </SiteShell>
   );
 }
