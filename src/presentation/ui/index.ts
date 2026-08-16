@@ -57,6 +57,7 @@ export {
 export { StubNotice, StubLabel } from "./patterns/stub-notice";
 export { WorkBoard, type WorkBoardItem } from "./patterns/work-board";
 export { FilterBar, type FilterAxis } from "./patterns/filter-bar";
+export { MaterialReview, type MaterialFinding } from "./patterns/material-review";
 export {
   ScheduleCalendar,
   type ScheduleCalendarDay,

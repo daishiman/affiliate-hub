@@ -33,6 +33,7 @@ import {
   createListAuthorPersonasUseCase,
 } from "@/application/usecases/authoring/manage-personas";
 import { createGetGenerationMatrixUseCase } from "@/application/usecases/authoring/plan-generation-matrix";
+import { createReadWritingMethodUseCase } from "@/application/usecases/authoring/read-writing-method";
 import {
   createCancelPublicationUseCase,
   createExportManualDraftUseCase,
@@ -50,6 +51,11 @@ import {
   createListUsableMetricsUseCase,
 } from "@/application/usecases/analytics/read-metrics";
 import { createFilterMetricsUseCase } from "@/application/usecases/analytics/filter-metrics";
+import {
+  createCheckGenerationInputUseCase,
+  createReadGenerationPlanUseCase,
+  createReviewMaterialUseCase,
+} from "@/application/usecases/generation/read-generation-plan";
 import {
   createAdjustConversionUseCase,
   createGetConversionUseCase,
@@ -333,6 +339,16 @@ export function personaUseCases() {
 }
 
 /**
+ * 書き方の決めごとの入口。
+ *
+ * 節の並びや文体を 1 つ変えるときに触るのは domain の定義だけ。
+ * 画面・AI 向けの道具・生成の指示文が同じ定義を見る。
+ */
+export function writingMethodUseCases() {
+  return { readMethod: createReadWritingMethodUseCase() };
+}
+
+/**
  * 生成マトリクスの入口。
  *
  * **どの組み合わせを作るかを決める表。** 報酬のつなぎ目は渡さない。
@@ -477,6 +493,20 @@ export function analyticsUseCases() {
     listUsableMetrics: createListUsableMetricsUseCase(analytics),
     checkFeedback: createCheckFeedbackUseCase(analytics),
     filterMetrics: createFilterMetricsUseCase(analytics),
+  };
+}
+
+/**
+ * 生成の仕組みの入口。
+ *
+ * 外部に何も問い合わせない。決めごとそのものを読むだけなので、
+ * 依存を組み立てる必要が無い。
+ */
+export function generationUseCases() {
+  return {
+    readPlan: createReadGenerationPlanUseCase(),
+    checkInput: createCheckGenerationInputUseCase(),
+    reviewMaterial: createReviewMaterialUseCase(),
   };
 }
 

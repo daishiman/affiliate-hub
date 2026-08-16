@@ -586,3 +586,70 @@
   font-size: var(--text-xs);
   line-height: var(--leading-body);
 }
+
+/* --- 取り込んだ文章の確認 ------------------------------------------------ */
+
+.materialForm {
+  display: grid;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  border: var(--border-width-default) solid var(--color-border-subtle);
+  border-radius: var(--radius-md);
+  background: var(--color-surface-sunken);
+}
+
+.materialLabel {
+  color: var(--color-text-strong);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+}
+
+.materialInput {
+  padding: var(--space-2);
+  border: var(--border-width-emphasis) solid var(--color-border-default);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-default);
+  color: var(--color-text-default);
+  font-family: inherit;
+  font-size: var(--text-sm);
+  line-height: var(--leading-body);
+}
+
+.materialInput:focus-visible {
+  outline: var(--focus-ring-width) solid var(--color-focus-ring);
+  outline-offset: var(--focus-ring-offset);
+}
+
+.materialHint {
+  color: var(--color-text-muted);
+  font-size: var(--text-xs);
+  line-height: var(--leading-body);
+}
+
+.findingList {
+  display: grid;
+  gap: var(--space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.findingItem {
+  display: grid;
+  gap: var(--space-1);
+  padding: var(--space-3);
+  border-inline-start: var(--border-width-marker) solid var(--color-border-strong);
+  background: var(--color-surface-default);
+}
+
+.findingWhat {
+  color: var(--color-text-strong);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+}
+
+.findingExcerpt {
+  overflow-wrap: anywhere;
+  color: var(--color-text-muted);
+  font-size: var(--text-xs);
+}

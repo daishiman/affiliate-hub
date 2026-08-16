@@ -18,6 +18,8 @@ import {
   MATRIX_ROW_AXES,
   createGetGenerationMatrixUseCase,
 } from "@/application/usecases/authoring/plan-generation-matrix";
+import { createReadWritingMethodUseCase } from "@/application/usecases/authoring/read-writing-method";
+import { ARTICLE_TYPES } from "@/domain/authoring";
 import { CONTENT_STATES } from "@/domain/authoring";
 import { defineTool } from "./define-tool";
 import type { AnyToolDefinition } from "./tool-definition";
@@ -166,6 +168,16 @@ function personaTools(deps: AppDeps): readonly AnyToolDefinition[] {
       }),
       readOnly: true,
       useCase: createCheckFactBoundaryUseCase(personas),
+    }),
+    defineTool({
+      name: "read_writing_method",
+      description:
+        "記事の型ごとの節の並び、段落の並べ方、文体の決まり、事実の種類ごとの書き分け、読者の知識量ごとの説明の深さ、会話の決まりを返します。人が書くときも AI に書かせるときも、この 1 つの決めごとを見ます。",
+      schema: z.object({
+        articleType: z.enum(ARTICLE_TYPES as unknown as [string, ...string[]]).optional(),
+      }),
+      readOnly: true,
+      useCase: createReadWritingMethodUseCase(),
     }),
   ];
 }

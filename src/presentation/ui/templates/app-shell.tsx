@@ -43,6 +43,8 @@ export const ADMIN_NAV: readonly NavItem[] = [
   { href: "/admin/rankings", label: "評価基準と順位", requires: "content.read" },
   { href: "/admin/content", label: "記事", requires: "content.read" },
   { href: "/admin/personas", label: "書き手と読者像", requires: "content.read" },
+  { href: "/admin/writing", label: "書き方の決めごと", requires: "content.read" },
+  { href: "/admin/generation", label: "生成の仕組み", requires: "content.read" },
   { href: "/admin/sites", label: "サイト", requires: "content.read" },
   { href: "/admin/distribution", label: "配信", requires: "content.read" },
   { href: "/admin/affiliate", label: "提携と成果", requires: "affiliate.read_revenue" },

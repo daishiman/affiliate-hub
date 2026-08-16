@@ -11,6 +11,7 @@ import { affiliateTools } from "./affiliate-tools";
 import { analyticsTools } from "./analytics-tools";
 import { contentTools } from "./content-tools";
 import { distributionTools } from "./distribution-tools";
+import { generationTools } from "./generation-tools";
 import { dashboardTools } from "./dashboard-tools";
 import { platformTools } from "./platform-tools";
 import { productTools } from "./product-tools";
@@ -95,6 +96,7 @@ export function buildToolCatalog(deps: CatalogDeps): readonly AnyToolDefinition[
     ...distributionTools(deps),
     ...affiliateTools(deps),
     ...analyticsTools(deps),
+    ...generationTools(),
     ...settingsTools(deps),
   ];
 }
