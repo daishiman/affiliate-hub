@@ -88,33 +88,33 @@ RWD・a11y は全ルート共通の枠（`page-frame.tsx` と共通 UI 部品）
 
 | REQ | 要件 | 実装 | 画面 | test | 結果 |
 | --- | --- | --- | --- | --- | --- |
-| REQ-W01 | §8 記事共通構成 25セクション | `docs/spec/06-…` §3-1（定義のみ） | REQ-B03〜B06 に内包 | NOT RUN | 未着手 |
-| REQ-W02 | §9.1 ランキング記事の body 構成 | `docs/spec/06-…` §3-2 / §5 | REQ-B03 | NOT RUN | 未着手 |
-| REQ-W03 | §9.2 個別レビューの body 構成 | `docs/spec/06-…` §3-2 | REQ-B04 | NOT RUN | 未着手 |
-| REQ-W04 | §9.3 比較記事の body 構成 | `docs/spec/06-…` §3-2 | REQ-B05 | NOT RUN | 未着手 |
-| REQ-W05 | §9.4 ハウツー記事の body 構成 | `docs/spec/06-…` §3-2 | REQ-B06 | NOT RUN | 未着手 |
-| REQ-W06 | §10.1 文章の基本順序（結論→理由→根拠→具体例→例外→意味→行動） | `docs/spec/05-…` §1-1 | 画面義務なし | NOT RUN | 未着手 |
-| REQ-W07 | §10.2 事実6分類の書き分けと文中表示 | `docs/spec/05-…` §4、`src/domain/shared/data-classification.ts` | 記事本文の `data-fact-type` | NOT RUN | スタブ |
-| REQ-W08 | §10.3 スタイル規則（文長・段落・単位・日付・禁止表現） | `docs/spec/05-…` §2 | 画面義務なし | NOT RUN | 未着手 |
-| REQ-W09 | §11 会話・吹き出し（4話者・連続最大2・40〜120字・話者名表示・色以外での区別） | `docs/spec/05-…`、`src/db/schema.ts` conversationBlocks | 記事本文 | NOT RUN | スタブ |
-| REQ-W10 | §16.6 マルチサイト重複対策（10軸差別化・言い換え禁止） | `docs/spec/05-…` §6 | 画面義務なし | NOT RUN | 未着手 |
-| REQ-W11 | セクション別雛形（一文結論・リード文・評価基準・商品カード・デメリット・FAQ・最終結論） | `docs/spec/05-…` §3 | 画面義務なし | NOT RUN | 未着手 |
-| REQ-W12 | ペルソナ差分の事実境界（fact_fingerprint 不変） | `docs/spec/05-…` §5 | Persona Studio | NOT RUN | 未着手 |
+| REQ-W01 | §8 記事共通構成 25セクション | `src/domain/authoring/article-structure.ts` `COMMON_ARTICLE_SECTIONS`（25件）+ `missingSections()` を公開ゲートが使用 | `/admin/writing`（節の一覧と理由）+ REQ-B03〜B06 | PASS（`tests/domain/writing-rules.test.ts`「記事の骨格」5件） | 実装済 |
+| REQ-W02 | §9.1 ランキング記事の body 構成 | `article-structure.ts` `ARTICLE_TYPE_SECTIONS.ranking`（評価基準・検証条件・順位・商品カード・選外・用途別ベスト） | `/admin/writing?type=ranking` / REQ-B03 | PASS（同上・型ごとの必須節） | 実装済 |
+| REQ-W03 | §9.2 個別レビューの body 構成 | `ARTICLE_TYPE_SECTIONS.review`（検証条件・実測・長期使用・競合比較） | `/admin/writing?type=review` / REQ-B04 | PASS（同上） | 実装済 |
+| REQ-W04 | §9.3 比較記事の body 構成 | `ARTICLE_TYPE_SECTIONS.comparison`（差分表・用途別結論） | `/admin/writing?type=comparison` / REQ-B05 | PASS（同上） | 実装済 |
+| REQ-W05 | §9.4 ハウツー記事の body 構成 | `ARTICLE_TYPE_SECTIONS.guide`（完了後の状態・必要時間・費用・事前準備・全手順・成功状態・エラー対処・次の行動） | `/admin/writing?type=guide` / REQ-B06 | PASS（`tests/application/writing-method.test.ts`「やり方の記事」） | 実装済 |
+| REQ-W06 | §10.1 文章の基本順序（結論→理由→根拠→具体例→例外→意味→行動） | `src/domain/authoring/writing-style.ts` `PARAGRAPH_ORDER` | `/admin/writing`「段落の並べ方」 | PASS（`tests/application/writing-method.test.ts`「結論から始めて次の行動で終える」） | 実装済 |
+| REQ-W07 | §10.2 事実6分類の書き分けと文中表示 | `writing-style.ts` `FACT_LABELS` / `FACT_TONE_RULES`、表示は `src/presentation/ui/patterns/factuality.tsx` `FactSourceBadge`（記号+文字。色だけで区別しない） | `/admin/writing`「事実の種類ごとの書き分け」（バッジ実表示） | PASS（`tests/ui/fact-source.test.ts` 4件＝業務側と画面側の一覧一致 / `writing-method.test.ts`「6種類・語尾が種類ごとに違う」） | 実装済 |
+| REQ-W08 | §10.3 スタイル規則（文長・段落・単位・日付・禁止表現） | `writing-style.ts` `STYLE_RULES`（9件・理由つき）、禁止表現の実検査は `quality-check.ts` `EXAGGERATION_PATTERNS` | `/admin/writing`「文体の決まり」 | PASS（`writing-method.test.ts`「理由が付いている」/ `tests/domain/invariants.test.ts`「誇大表現を書くと止まる」） | 実装済 |
+| REQ-W09 | §11 会話・吹き出し（4話者・連続最大2・40〜120字・話者名表示・色以外での区別） | `src/domain/authoring/conversation-block.ts` `createConversationBlock` / `validateConversationFlow`（本文を挟むと連続を数え直す）。`quality-check.ts` の検査18 `conversation_flow` として公開前検査に接続済み | `/admin/writing`「会話の決まり」 | PASS（`tests/domain/writing-rules.test.ts`「吹き出し」7件 / `invariants.test.ts`「続けすぎを止める」） | 実装済 |
+| REQ-W10 | §16.6 マルチサイト重複対策（10軸差別化・言い換え禁止） | `src/domain/authoring/site-blueprint.ts` `DifferentiationAxes`（10軸）+ `differentiationGap()`（3軸以上）、`src/application/usecases/site/manage-sites.ts` が全ブログ対を判定。言い換え本文は `quality-check.ts` `similarity()` ≥0.85 で停止 | `/admin/sites`（近すぎるブログ対の警告） | PASS（`tests/domain/writing-rules.test.ts`「似たブログを増やさない」3件） | 実装済 |
+| REQ-W11 | セクション別雛形（一文結論・リード文・評価基準・商品カード・デメリット・FAQ・最終結論） | `article-structure.ts` の各 `SectionSpec.purpose`（AI への指示文と編集者への説明を兼ねる）+ `writing-style.ts` `OPENING_PATTERNS`（型ごとの書き出し） | `/admin/writing`（節ごとの「なぜ置くか」列） | PASS（`writing-method.test.ts`「どの節にも理由がある」） | 実装済 |
+| REQ-W12 | ペルソナ差分の事実境界（fact_fingerprint 不変） | `src/domain/authoring/author-persona.ts` `checkFactBoundary()`、`src/application/usecases/authoring/manage-personas.ts` | `/admin/personas` + `src/presentation/admin/fact-boundary-form.tsx` | PASS（`tests/application/manage-personas.test.ts` / `invariants.test.ts`「FACT_BOUNDARY_VIOLATED」） | 実装済 |
 
 ## E. 生成基盤（本作業で新設）
 
 | REQ | 要件 | 実装 | 画面 | test | 結果 |
 | --- | --- | --- | --- | --- | --- |
-| REQ-G01 | プロンプト設計（配置・バージョニング・7ブロック構造） | `docs/spec/07-…` §1 | 画面義務なし | NOT RUN | 未着手 |
-| REQ-G02 | 入力変数の型固定（§15.1 の必須14項目 + 3追加） | `docs/spec/07-…` §1-2 | 画面義務なし | NOT RUN | 未着手 |
-| REQ-G03 | プロンプトインジェクション対策（5対策） | `docs/spec/07-…` §1-4 | 画面義務なし | NOT RUN | 未着手 |
-| REQ-G04 | 出力契約 `generated_variant` の JSON Schema 化 | `docs/spec/07-…` §1-5 | 画面義務なし | NOT RUN | 未着手 |
-| REQ-G05 | スキル8種（構成/本文/比較表/会話/媒体変換/品質検査/広告表記/メタ） | `docs/spec/07-…` §2 | Content Matrix から起動 | NOT RUN | 未着手 |
-| REQ-G06 | サブエージェント6種（researcher/writer/fact-checker/compliance/channel/editor） | `docs/spec/07-…` §3 | Content Matrix の実行状況表示 | NOT RUN | 未着手 |
-| REQ-G07 | 執筆系と検証系の分離（GC-5） | `docs/spec/07-…` §3-2 | 画面義務なし | NOT RUN | 未着手 |
-| REQ-G08 | 承認フロー（§18.1 12段階）との接続 | `docs/spec/07-…` §3-3 | Content Matrix / 承認画面 | NOT RUN | 未着手 |
-| REQ-G09 | 評価セット 50件以上（網羅12+9+8+5 / 敵対8 / 境界8） | `docs/spec/07-…` §4 | 画面義務なし | NOT RUN | 未着手 |
-| REQ-G10 | ローンチ基準 LB-1〜LB-8 と CI 連携 | `docs/spec/07-…` §4-3 | 画面義務なし | NOT RUN | 未着手 |
+| REQ-G01 | プロンプト設計（配置・バージョニング・7ブロック構造） | `src/domain/generation/prompt-blocks.ts`（`PROMPT_BLOCKS` 7件・`promptPath()`・`requireNewVersion()` で版の上書きを禁止） | `/admin/generation`「指示文の 7 つの塊」 | PASS（`tests/domain/generation-plan.test.ts`「指示文の組み立て」7件） | 実装済 |
+| REQ-G02 | 入力変数の型固定（§15.1 の必須14項目 + 3追加） | `src/domain/generation/generation-input.ts`（18項目・`validateGenerationInput()` / `missingInputFields()`。素材は `Editorial<T>` のみ受け取り報酬情報を持ち込めない） | `/admin/generation`「渡す項目」（不足の実表示） | PASS（同テスト「渡す項目」6件） | 実装済 |
+| REQ-G03 | プロンプトインジェクション対策（5対策） | `src/domain/generation/injection-guard.ts`（7パターン検出・削除せず保留・素材に無いURLの検出・スキーマ再試行3回で失敗確定・許可capabilityの限定）、組み立ては `src/infrastructure/llm/prompt-assembly.ts` | `/admin/generation`「取り込んだ文章の確認」+ 共通部品 `MaterialReview` | PASS（同テスト「取り込んだ文章の扱い」6件・攻撃文5種を検出／通常の商品説明は誤検出なし） | 実装済 |
+| REQ-G04 | 出力契約 `generated_variant` の JSON Schema 化 | `src/domain/generation/output-contract.ts`（必須20項目・`generatedVariantJsonSchema()`・`checkOutputShape()`・`verdictMayUse()` で自己申告点数を合否から除外） | `/admin/generation`「受け取りの形」 | PASS（同テスト「受け取りの形」5件） | 実装済 |
+| REQ-G05 | スキル8種（構成/本文/比較表/会話/媒体変換/品質検査/広告表記/メタ） | `src/domain/generation/skill-catalog.ts`（8件・`dependsOn` / `skillOrderBreaches()` / `selfInspectionBreaches()`） | `/admin/generation`「手順」 | PASS（同テスト「手順と承認のつながり」2件） | 実装済 |
+| REQ-G06 | サブエージェント6種（researcher/writer/fact-checker/compliance/channel/editor） | `src/domain/generation/agent-roster.ts`（6件・`concludeRevision()` は3巡で人へ回す） | `/admin/generation`「役の分け方」 | PASS（同テスト「役の分け方」5件） | 実装済 |
+| REQ-G07 | 執筆系と検証系の分離（GC-5） | 同 `agent-roster.ts`。`AuthoringAgent \| ReviewAgent` の判別共用体で、検証役に `"generate"` 道具を持たせるとコンパイルが通らない。`freshContext: true` も型リテラル。実行時の崩れは `separationBreaches()` | 画面義務なし（`/admin/generation` に崩れ検知の警告枠） | PASS（同テスト「崩れた一覧を渡すと崩れとして返る」を含む） | 実装済 |
+| REQ-G08 | 承認フロー（§18.1 12段階）との接続 | `src/domain/generation/approval-bridge.ts` `STAGE_BRIDGE`（12段階×`advancedBy`）。`bridgeBreaches()` が `CONTENT_STATES` / `HUMAN_APPROVAL_REQUIRED` と突き合わせる | `/admin/generation`「どこから先が人の判断か」/ `/admin/content` | PASS（同テスト「人の承認が要る段階を AI が進められない」） | 実装済 |
+| REQ-G09 | 評価セット 50件以上（網羅12+9+8+5 / 敵対8 / 境界8） | `evals/generation/cases.ts`（50件）+ `quality-gates.ts` | 画面義務なし | PASS（`tests/evals/generation-eval-set.test.ts`） | 実装済 |
+| REQ-G10 | ローンチ基準 LB-1〜LB-8 と CI 連携 | `evals/generation/launch-bars.ts`（LB-1〜LB-8） | 画面義務なし | PASS（同テスト）。CI への接続は初回リリース後（`ci.yml` 未設置） | スタブ |
 
 ## F. データモデル（§21 全32エンティティ）
 
