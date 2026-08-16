@@ -56,3 +56,24 @@
   --color-accent-border: light-dark(var(--clay-500), var(--clay-700));
   --color-text-on-accent: var(--clay-950);
 }
+
+/* ---------------------------------------------------------------------- */
+/*
+ * 変更容易性シナリオ⑥（ブランド色の変更）の実測で追加したテーマ。
+ * 上書きするトークンの並びは他のテーマと完全に同じ。
+ */
+[data-brand-theme="indigo-clay"] {
+  --brand-theme-name: "Indigo × Clay";
+
+  --color-action-default: light-dark(var(--indigo-700), var(--indigo-300));
+  --color-action-hover: light-dark(var(--indigo-800), var(--indigo-100));
+  --color-action-active: light-dark(var(--indigo-900), var(--neutral-0));
+  --color-action-subtle: light-dark(var(--indigo-100), var(--indigo-950));
+  --color-text-on-action: light-dark(var(--neutral-0), var(--indigo-950));
+
+  --color-accent-default: light-dark(var(--clay-700), var(--clay-300));
+  --color-accent-hover: light-dark(var(--clay-800), var(--clay-100));
+  --color-accent-subtle: light-dark(var(--clay-100), var(--clay-900));
+  --color-accent-border: light-dark(var(--clay-500), var(--clay-700));
+  --color-text-on-accent: var(--clay-950);
+}
