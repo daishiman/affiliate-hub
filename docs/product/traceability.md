@@ -2,7 +2,7 @@
 
 - 形式: ブログ層仕様 付属 §4-F の `trace` 形式に統一
 - 根拠: プラットフォーム層 §30.8（双方向トレーサビリティは必須）
-- 最終更新: 2026-08-16 / 対象コミット: `7110787` + 本作業の未コミット差分
+- 最終更新: 2026-08-16 / 対象コミット: `f0fd783`（層構造・共通UI・順位画面まで）
 - 判定語彙: **実装済** = 動作する実体がある / **スタブ** = 形はあるが中身が仮 / **未着手** = 実体なし / **未対応** = UI/UX の観点として明示的に未対応
 - **証拠のない PASS を出さない。** `evidence` が空の行は実装済としない。`test` が `NOT RUN` の行は「テスト未実行」を意味し、実装済であっても検証済とは書かない。
 
@@ -27,7 +27,7 @@
 | REQ-P01 | §9.1 Workspace／Brand管理（テナント分離・ブランド属性・編集/AI/広告方針・禁止表現・標準CTA/免責・言語・TZ） | `src/domain/shared/tenancy.ts`（型のみ） | 未着手 | 未着手 | 未対応 | 未対応 | 未対応 | NOT RUN | 未着手 |
 | REQ-P02 | §9.2 アフィリエイトURL受信箱（貼付・CSV・API・拡張・WebMCP・重複検出・分類・リンク状態・商品候補・4状態管理） | — | 未着手 | 未着手 | 未対応 | 未対応 | 未対応 | NOT RUN | 未着手 |
 | REQ-P03 | §9.3 商品インテリジェンス（21属性・情報源・信頼度・有効期限） | `src/db/schema.ts` products（部分） | 未着手 | 未着手 | 未対応 | 未対応 | 未対応 | NOT RUN | スタブ |
-| REQ-P04 | §9.4 比較エンジン（Exact Offer / Variant / Direct Competitor / Alternative Solution の4分類） | `src/domain/ranking/`（順位付けのみ。候補分類は未実装） | 未着手 | 未着手 | 未対応 | 未対応 | 未対応 | NOT RUN | スタブ |
+| REQ-P04 | §9.4 比較エンジン（Exact Offer / Variant / Direct Competitor / Alternative Solution の4分類） | `src/domain/ranking/`（順位付けは実装済。候補の4分類は未実装） | `/admin/rankings` | サイドナビ「評価基準と順位」+ ホームの「いま試せること」 | empty / error / 選外理由に対応 | 対応（48rem で表を縦積み） | 対応（表見出しに `scope`、数字は等幅、コントラストAA） | PASS（`tests/presentation/composition.test.ts`） | スタブ |
 | REQ-P05 | §9.5 Persona Studio（書き手・読者・話し方・実体験・資格・禁止事項・事実境界 §13.3） | — | 未着手 | 未着手 | 未対応 | 未対応 | 未対応 | NOT RUN | 未着手 |
 | REQ-P06 | §9.6 AI Content Studio（生成マトリクス・切り口16種・出力契約・自動品質確認17項目） | `docs/spec/07-生成基盤設計.md`（設計のみ） | 未着手 | 未着手 | 未対応 | 未対応 | 未対応 | NOT RUN | 未着手 |
 | REQ-P07 | §9.7 Site Builder（10パターン・ウィザード13ステップ・Blueprint・ページ構造・内部リンク・SEO） | `docs/spec/06-…テンプレート.md`（設計のみ） | 未着手 | 未着手 | 未対応 | 未対応 | 未対応 | NOT RUN | 未着手 |
@@ -47,7 +47,7 @@
 | REQ-S06 | §22.6 Site Builder（11要素） | — | `/(admin)/sites` 予定 | サイドナビ | 未対応 | 未対応 | 未対応 | NOT RUN | 未着手 |
 | REQ-S07 | §22.7 Publication Calendar（8要素・ドラッグ変更） | — | `/(admin)/calendar` 予定 | サイドナビ | 未対応 | 未対応 | 未対応 | NOT RUN | 未着手 |
 | REQ-S08 | §22.8 Analytics（11軸絞込） | — | `/(admin)/analytics` 予定 | サイドナビ | 未対応 | 未対応 | 未対応 | NOT RUN | 未着手 |
-| REQ-S09 | 共通レイアウト（サイドナビ・現在地表示・退避先・権限による表示制御） | `src/app/layout.tsx`（最小） | `src/app/(admin)/layout.tsx` 予定 | — | 未対応 | 未対応 | 未対応 | NOT RUN | スタブ |
+| REQ-S09 | 共通レイアウト（サイドナビ・現在地表示・退避先・権限による表示制御） | `src/presentation/ui/app-shell.tsx`、`tokens.css`、`button.tsx`、`field.tsx`、`state-view.tsx`、`callout.tsx`（権限による表示制御のみ未対応。認証が入るまで保留のためスタブ判定） | `src/app/admin/layout.tsx` + 各ページで `AppShell` | サイドナビ `ADMIN_NAV`（10項目） | loading / empty / error / 操作不可の4状態を部品化（title・body・reason を必須にして無言を防止） | 対応（48rem で段組み解除、表は縦積み） | 対応（`aria-current`・`:focus-visible` の共通リング・44px 最小・`prefers-reduced-motion`） | PASS（`tests/presentation/composition.test.ts`） | スタブ |
 | REQ-S10 | 認証画面（Google OAuth・サインイン・サインアウト・招待受諾） | — | `/(auth)/signin` 予定 | 未認証時の全画面から | 未対応 | 未対応 | 未対応 | NOT RUN | 未着手 |
 
 ## C. ブログ層 情報アーキテクチャ（§7 全18ルート）
@@ -179,7 +179,7 @@
 | --- | --- | --- | --- |
 | REQ-M01 | Resources 8種 | — | 未着手 |
 | REQ-M02 | Tools 8種 | — | 未着手 |
-| REQ-M03 | MCP エンドポイントと認可 | `src/app/api/mcp/route.ts`、`src/lib/mcp/auth.ts` | スタブ |
+| REQ-M03 | MCP エンドポイントと認可 | `src/app/api/mcp/route.ts`、`src/lib/mcp/auth.ts`（旧実装）。新しい入口は `src/presentation/tools/mcp-adapter.ts` と `src/app/api/tools/`（REST）。両者の統合は残課題9 | スタブ |
 
 ## J. 権限（§25 全10ロール）
 
@@ -233,10 +233,10 @@
 
 | REQ | 要件 | 検査方法 | 実装 | 結果 |
 | --- | --- | --- | --- | --- |
-| REQ-FD01 | ランキング式の重複実装禁止 | grep テストで `src/domain/ranking/` 以外に重み計算がないことを固定 | 実装は集約済、テストは未 | スタブ |
-| REQ-FD02 | 報酬データを推薦スコア入力にしない | `EditorialProduct` 型で構造的に排除 | 未着手 | 未着手 |
+| REQ-FD01 | ランキング式の重複実装禁止 | `tests/architecture/dependency-direction.test.ts`「ランキングの計算は domain/ranking の外に無い」 | `src/domain/ranking/scoring.ts` に集約 | 実装済 |
+| REQ-FD02 | 報酬データを推薦スコア入力にしない | `Editorial<T>`/`Commercial<T>` の型 + 組み立て時の実行時検査 + `tests/architecture/commercial-isolation.test.ts` | `src/domain/shared/data-classification.ts`、`src/application/usecases/ranking/rank-products.ts` | 実装済 |
 | REQ-FD03 | 根拠のない主張を公開しない | 公開ゲート QC-07 | `publish-gate.ts`（部分） | スタブ |
-| REQ-FD04 | WebMCP でしか到達できない機能を作らない | 本表 H 節の「通常UI経路」列 | 表として担保 | スタブ |
+| REQ-FD04 | WebMCP でしか到達できない機能を作らない | 1つのカタログを4入口へ写す（`tests/presentation/one-usecase-three-adapters.test.ts`、`tests/presentation/composition.test.ts`） | `src/presentation/tools/catalog.ts`、`src/presentation/composition.ts` | 実装済 |
 | REQ-FD05 | ブログ層で正規データを再定義しない | スキーマ定義が `src/db/schema.ts` のみであること | 実装済（現状1箇所） | 実装済 |
 
 ## N. 受け入れ条件（プラットフォーム層 §30.1〜§30.8）
@@ -261,17 +261,17 @@
 | 区分 | 件数 |
 | --- | --- |
 | **全要件数 N** | **156** |
-| 実装済 X | 5 |
-| スタブ Y | 34 |
-| 未着手 Z | 117 |
+| 実装済 X | 8 |
+| スタブ Y | 32 |
+| 未着手 Z | 116 |
 
 集計方法: 本ファイル内で `| REQ-` から始まる行を機械的に数えた値。手計算ではない。
 
 ```bash
 grep -cE '^\| REQ-'            docs/product/traceability.md   # → 156
-grep -cE '^\| REQ-.*実装済 \|$' docs/product/traceability.md   # → 5
-grep -cE '^\| REQ-.*スタブ \|$' docs/product/traceability.md   # → 34
-grep -cE '^\| REQ-.*未着手 \|$' docs/product/traceability.md   # → 117
+grep -cE '^\| REQ-.*実装済 \|$' docs/product/traceability.md   # → 8
+grep -cE '^\| REQ-.*スタブ \|$' docs/product/traceability.md   # → 32
+grep -cE '^\| REQ-.*未着手 \|$' docs/product/traceability.md   # → 116
 ```
 
 節ごとの内訳: A 10 / B 10 / C 18 / D 12 / E 10 / F 32 / G 3（イベント16種は `REQ-EV01〜16` の1行に集約し、実体16件は同節本文に全件列挙） / H 12 / I 3 / J 11 / K 10 / L 12 / M 5 / N 8
@@ -283,9 +283,28 @@ grep -cE '^\| REQ-.*未着手 \|$' docs/product/traceability.md   # → 117
 | 区分 | 件数 |
 | --- | --- |
 | **画面義務のある機能 N** | **70** |
-| 画面あり X | 1（REQ-P09 の案件一覧、`/`） |
-| 画面スタブ Y | 1（REQ-S09 共通レイアウト、最小 `layout.tsx` のみ） |
-| 画面なし Z | 68 |
+| 画面あり X | 2（REQ-P04 の順位画面 `/admin/rankings`、REQ-P09 の案件一覧 `/`） |
+| 画面スタブ Y | 1（REQ-S09 共通レイアウト。部品と骨格は実装済、権限による表示制御が未対応） |
+| 画面なし Z | 67 |
+
+共通UI基盤（トークン・ボタン・入力欄・状態表示・理由表示・画面骨格）は実装済で、
+残り 67 件は「基盤の上に画面を1枚ずつ載せる」作業。基盤づくりからのやり直しは発生しない。
+
+管理画面のホーム `/admin` は要件行を持たない案内ページのため、上の集計には数えていない。
+
+### まだ中身が無いもの（スタブ）の内訳
+
+つなぎ目だけあって中身が無いものは **22件**。一覧と、それぞれ何が済めば実装できるかは
+`docs/product/stub-ledger.md`（コードから生成、手書きではない）。
+
+| 区分 | 件数 |
+| --- | --- |
+| ASP 連携 | 8 |
+| 配信チャネル | 8（note は「直接投稿できない」と宣言済みのため対象外） |
+| 生成AI の提供元 | 3 |
+| 保存先（見本データ） | 1 |
+| ログイン情報（見本） | 1 |
+| ファイルの一時公開URL | 1 |
 
 ### Z（未着手）が 0 でない理由
 
@@ -294,4 +313,5 @@ grep -cE '^\| REQ-.*未着手 \|$' docs/product/traceability.md   # → 117
 - 依頼された11 verb のうち、`spec` の再実行に必要な統合仕様（`04`〜`07`）と本トレーサビリティ表を先に作成した。実装（画面68枚・エンティティ26件・イベント16種など）はこの表を入力として `decompose` → `plan` → 実装タスクへ展開する対象であり、**本セッション時点では未着手であることを事実として報告する**。
 - 「まずはコア機能から」といったスコープ縮小は行っていない。139件すべてを表に載せ、1件も未分類にしていない。
 - 実装済 5件の内訳: REQ-WC01 / REQ-WC02（`document.modelContext` 移行）、REQ-SEC10（秘密情報の取り扱い）、REQ-FD05（スキーマ定義の一元化）、REQ-A08（本表）。いずれも `evidence` としてファイルパスを持つ。
-- **`test` 列が全行 `NOT RUN` である。** 実装済と判定した5件についても自動テストは未実行であり、検証済とは書かない（証拠のない PASS を出さない）。
+- **`test` 列は原則 `NOT RUN` である。** `PASS` と書いた行だけが自動テストで確認済み（REQ-P04 / REQ-S09 / REQ-FD01 / REQ-FD02 / REQ-FD04）。それ以外は実装済であっても検証済とは書かない（証拠のない PASS を出さない）。
+- 実装済 8件のうち本作業で加わったのは REQ-FD01（ランキング式の重複禁止）・REQ-FD02（報酬をランキングの入力にしない）・REQ-FD04（AI からしか使えない機能を作らない）の3件。いずれも文書の宣言ではなく、`pnpm run lint` と `pnpm test` が落ちる形で担保している。
