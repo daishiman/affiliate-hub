@@ -1,0 +1,122 @@
+{
+  "schema_version": "1.0.0",
+  "nodes": [
+    {
+      "id": "SYS-AUTH-WORKSPACE-P01",
+      "phase_ref": "P01",
+      "feature_package_id": "feature-package/feat-auth-workspace",
+      "parent_feature": "feat-auth-workspace",
+      "depends_on": []
+    },
+    {
+      "id": "SYS-AUTH-WORKSPACE-P02",
+      "phase_ref": "P02",
+      "feature_package_id": "feature-package/feat-auth-workspace",
+      "parent_feature": "feat-auth-workspace",
+      "depends_on": [
+        "SYS-AUTH-WORKSPACE-P01"
+      ]
+    },
+    {
+      "id": "SYS-AUTH-WORKSPACE-P03",
+      "phase_ref": "P03",
+      "feature_package_id": "feature-package/feat-auth-workspace",
+      "parent_feature": "feat-auth-workspace",
+      "depends_on": [
+        "SYS-AUTH-WORKSPACE-P02"
+      ]
+    },
+    {
+      "id": "SYS-AUTH-WORKSPACE-P04",
+      "phase_ref": "P04",
+      "feature_package_id": "feature-package/feat-auth-workspace",
+      "parent_feature": "feat-auth-workspace",
+      "depends_on": [
+        "SYS-AUTH-WORKSPACE-P03"
+      ]
+    },
+    {
+      "id": "SYS-AUTH-WORKSPACE-P05",
+      "phase_ref": "P05",
+      "feature_package_id": "feature-package/feat-auth-workspace",
+      "parent_feature": "feat-auth-workspace",
+      "depends_on": [
+        "SYS-AUTH-WORKSPACE-P04"
+      ]
+    },
+    {
+      "id": "SYS-AUTH-WORKSPACE-P06",
+      "phase_ref": "P06",
+      "feature_package_id": "feature-package/feat-auth-workspace",
+      "parent_feature": "feat-auth-workspace",
+      "depends_on": [
+        "SYS-AUTH-WORKSPACE-P05"
+      ]
+    },
+    {
+      "id": "SYS-AUTH-WORKSPACE-P07",
+      "phase_ref": "P07",
+      "feature_package_id": "feature-package/feat-auth-workspace",
+      "parent_feature": "feat-auth-workspace",
+      "depends_on": [
+        "SYS-AUTH-WORKSPACE-P06"
+      ]
+    },
+    {
+      "id": "SYS-AUTH-WORKSPACE-P08",
+      "phase_ref": "P08",
+      "feature_package_id": "feature-package/feat-auth-workspace",
+      "parent_feature": "feat-auth-workspace",
+      "depends_on": [
+        "SYS-AUTH-WORKSPACE-P05"
+      ]
+    },
+    {
+      "id": "SYS-AUTH-WORKSPACE-P09",
+      "phase_ref": "P09",
+      "feature_package_id": "feature-package/feat-auth-workspace",
+      "parent_feature": "feat-auth-workspace",
+      "depends_on": [
+        "SYS-AUTH-WORKSPACE-P08"
+      ]
+    },
+    {
+      "id": "SYS-AUTH-WORKSPACE-P10",
+      "phase_ref": "P10",
+      "feature_package_id": "feature-package/feat-auth-workspace",
+      "parent_feature": "feat-auth-workspace",
+      "depends_on": [
+        "SYS-AUTH-WORKSPACE-P09"
+      ]
+    },
+    {
+      "id": "SYS-AUTH-WORKSPACE-P11",
+      "phase_ref": "P11",
+      "feature_package_id": "feature-package/feat-auth-workspace",
+      "parent_feature": "feat-auth-workspace",
+      "depends_on": [
+        "SYS-AUTH-WORKSPACE-P07",
+        "SYS-AUTH-WORKSPACE-P09"
+      ]
+    },
+    {
+      "id": "SYS-AUTH-WORKSPACE-P12",
+      "phase_ref": "P12",
+      "feature_package_id": "feature-package/feat-auth-workspace",
+      "parent_feature": "feat-auth-workspace",
+      "depends_on": [
+        "SYS-AUTH-WORKSPACE-P10",
+        "SYS-AUTH-WORKSPACE-P11"
+      ]
+    },
+    {
+      "id": "SYS-AUTH-WORKSPACE-P13",
+      "phase_ref": "P13",
+      "feature_package_id": "feature-package/feat-auth-workspace",
+      "parent_feature": "feat-auth-workspace",
+      "depends_on": [
+        "SYS-AUTH-WORKSPACE-P12"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,1128 @@
+{
+  "schema_version": "1.0.0",
+  "feature_package_id": "feature-package/feat-auth-workspace",
+  "parent_feature": "feat-auth-workspace",
+  "p01_entry_gate": {
+    "selector": "parent_feature.depends_on",
+    "operator": "all",
+    "required_statuses": [
+      "done",
+      "closed"
+    ]
+  },
+  "repo_context": {
+    "config_path": ".dev-graph/config.json",
+    "repo_identity": "github:daishiman/affiliate-hub",
+    "root_resolution_source": "explicit-cli"
+  },
+  "source_lineage": {
+    "source_plugin": "system-spec-harness",
+    "source_version": "0.1.0",
+    "compile_entrypoint": "run-system-spec-compile",
+    "completeness_entrypoint": "assign-system-spec-completeness-evaluator",
+    "source_paths": [
+      "system-spec/index.md",
+      "system-spec/00-requirements-definition.md",
+      "system-spec/auth.md",
+      "system-spec/security.md",
+      "system-spec/database.md",
+      "architecture/system-spec-overview.md",
+      "docs/spec/01-要求仕様書-v1.0.md",
+      "docs/spec/ai-first-webmcp.md"
+    ],
+    "confirmed": true
+  },
+  "tasks": [
+    {
+      "id": "SYS-AUTH-WORKSPACE-P01",
+      "feature_package_id": "feature-package/feat-auth-workspace",
+      "parent_feature": "feat-auth-workspace",
+      "title": "認証/Workspace 基盤の要求ベースライン確定",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p01",
+        "feat-auth-workspace"
+      ],
+      "related_nodes": [],
+      "workstream_kind": "documentation",
+      "secondary_workstreams": [
+        "security",
+        "quality"
+      ],
+      "build_target_kind": "application-code",
+      "phase_ref": "P01",
+      "depends_on": [],
+      "write_scope": [
+        "docs/spec/feat-auth-workspace/requirements-baseline.md"
+      ],
+      "deploy_unit": "cloudflare-workers-opennext-app (Next.js 16 + OpenNext, Workers/D1/R2)",
+      "source_lineage": [
+        "system-spec/index.md",
+        "system-spec/00-requirements-definition.md",
+        "system-spec/auth.md",
+        "system-spec/security.md",
+        "system-spec/database.md",
+        "architecture/system-spec-overview.md",
+        "docs/spec/01-要求仕様書-v1.0.md",
+        "docs/spec/ai-first-webmcp.md"
+      ],
+      "classification": {
+        "confidence": 1.0,
+        "reason": "feat-auth-workspace の P01 lifecycle 責務への確定写像",
+        "candidates": [
+          {
+            "artifact_kind": "task",
+            "confidence": 1.0,
+            "candidate_path": "tasks/feat-auth-workspace/sys-auth-workspace-p01.md"
+          }
+        ]
+      },
+      "tracker_binding_intent": "beads",
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "pr_completion_policy": "linked_pr_merged_all",
+      "branch_policy": {
+        "strategy": "one-task-one-branch",
+        "worktree_lease_required": true,
+        "completion_projection": "default-branch-reconciliation",
+        "assignment_owner": "dev-graph-scheduler"
+      },
+      "acceptance": [
+        "P01: feat-auth-workspace の4件の受け入れ条件 (未ログイン遷移/workspace_id分離/標準CTA・標準免責の既定値受渡し/権限なしロールの403) を、実装着手前に一意で検証可能な要求ベースラインとして確定した状態を成立させる。"
+      ],
+      "verification": [
+        "P01 の Verification and evidence section に記載する自動コマンドと証跡パスで検証する"
+      ],
+      "rollback": "P01 の write_scope に含まれる変更を revert し、直前の promoted generation へ差し戻す",
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-08-16T21:00:00Z"
+      },
+      "graph_node_registration": {
+        "graph_node_id": "SYS-AUTH-WORKSPACE-P01",
+        "file_path": "tasks/feat-auth-workspace/sys-auth-workspace-p01.md",
+        "parent_feature": "feat-auth-workspace",
+        "feature_package_id": "feature-package/feat-auth-workspace",
+        "phase_ref": "P01"
+      }
+    },
+    {
+      "id": "SYS-AUTH-WORKSPACE-P02",
+      "feature_package_id": "feature-package/feat-auth-workspace",
+      "parent_feature": "feat-auth-workspace",
+      "title": "認証/Workspace/Brand/RBAC アーキテクチャ設計",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p02",
+        "feat-auth-workspace"
+      ],
+      "related_nodes": [],
+      "workstream_kind": "backend",
+      "secondary_workstreams": [
+        "frontend",
+        "api",
+        "data",
+        "security"
+      ],
+      "build_target_kind": "application-code",
+      "phase_ref": "P02",
+      "depends_on": [
+        "SYS-AUTH-WORKSPACE-P01"
+      ],
+      "write_scope": [
+        "docs/spec/feat-auth-workspace/architecture-design.md",
+        "architecture/system-spec-overview.md"
+      ],
+      "deploy_unit": "cloudflare-workers-opennext-app (Next.js 16 + OpenNext, Workers/D1/R2)",
+      "source_lineage": [
+        "system-spec/index.md",
+        "system-spec/00-requirements-definition.md",
+        "system-spec/auth.md",
+        "system-spec/security.md",
+        "system-spec/database.md",
+        "architecture/system-spec-overview.md",
+        "docs/spec/01-要求仕様書-v1.0.md",
+        "docs/spec/ai-first-webmcp.md"
+      ],
+      "classification": {
+        "confidence": 1.0,
+        "reason": "feat-auth-workspace の P02 lifecycle 責務への確定写像",
+        "candidates": [
+          {
+            "artifact_kind": "task",
+            "confidence": 1.0,
+            "candidate_path": "tasks/feat-auth-workspace/sys-auth-workspace-p02.md"
+          }
+        ]
+      },
+      "tracker_binding_intent": "beads",
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "pr_completion_policy": "linked_pr_merged_all",
+      "branch_policy": {
+        "strategy": "one-task-one-branch",
+        "worktree_lease_required": true,
+        "completion_projection": "default-branch-reconciliation",
+        "assignment_owner": "dev-graph-scheduler"
+      },
+      "acceptance": [
+        "P02: Better Auth + Google OAuth によるサインイン、Workspace/Brand 作成・切替、全テーブルへの workspace_id 付与、ロール別操作制限の4領域を、frontend/backend/API/data の設計として確定し、P01 のベースラインを満たす実装可能な設計状態を成立させる。"
+      ],
+      "verification": [
+        "P02 の Verification and evidence section に記載する自動コマンドと証跡パスで検証する"
+      ],
+      "rollback": "P02 の write_scope に含まれる変更を revert し、直前の promoted generation へ差し戻す",
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-08-16T21:00:00Z"
+      },
+      "graph_node_registration": {
+        "graph_node_id": "SYS-AUTH-WORKSPACE-P02",
+        "file_path": "tasks/feat-auth-workspace/sys-auth-workspace-p02.md",
+        "parent_feature": "feat-auth-workspace",
+        "feature_package_id": "feature-package/feat-auth-workspace",
+        "phase_ref": "P02"
+      }
+    },
+    {
+      "id": "SYS-AUTH-WORKSPACE-P03",
+      "feature_package_id": "feature-package/feat-auth-workspace",
+      "parent_feature": "feat-auth-workspace",
+      "title": "アーキテクチャ独立設計レビュー",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p03",
+        "feat-auth-workspace"
+      ],
+      "related_nodes": [],
+      "workstream_kind": "quality",
+      "secondary_workstreams": [
+        "security",
+        "documentation"
+      ],
+      "build_target_kind": "application-code",
+      "phase_ref": "P03",
+      "depends_on": [
+        "SYS-AUTH-WORKSPACE-P02"
+      ],
+      "write_scope": [
+        "docs/spec/feat-auth-workspace/design-review-log.md"
+      ],
+      "deploy_unit": "cloudflare-workers-opennext-app (Next.js 16 + OpenNext, Workers/D1/R2)",
+      "source_lineage": [
+        "system-spec/index.md",
+        "system-spec/00-requirements-definition.md",
+        "system-spec/auth.md",
+        "system-spec/security.md",
+        "system-spec/database.md",
+        "architecture/system-spec-overview.md",
+        "docs/spec/01-要求仕様書-v1.0.md",
+        "docs/spec/ai-first-webmcp.md"
+      ],
+      "classification": {
+        "confidence": 1.0,
+        "reason": "feat-auth-workspace の P03 lifecycle 責務への確定写像",
+        "candidates": [
+          {
+            "artifact_kind": "task",
+            "confidence": 1.0,
+            "candidate_path": "tasks/feat-auth-workspace/sys-auth-workspace-p03.md"
+          }
+        ]
+      },
+      "tracker_binding_intent": "beads",
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "pr_completion_policy": "linked_pr_merged_all",
+      "branch_policy": {
+        "strategy": "one-task-one-branch",
+        "worktree_lease_required": true,
+        "completion_projection": "default-branch-reconciliation",
+        "assignment_owner": "dev-graph-scheduler"
+      },
+      "acceptance": [
+        "P03: P02 の設計が feat-auth-workspace の4受け入れ条件を満たせる設計であることを、設計者から独立した観点でレビューし、実装着手前に整合性・網羅性を確定する。"
+      ],
+      "verification": [
+        "P03 の Verification and evidence section に記載する自動コマンドと証跡パスで検証する"
+      ],
+      "rollback": "P03 の write_scope に含まれる変更を revert し、直前の promoted generation へ差し戻す",
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-08-16T21:00:00Z"
+      },
+      "graph_node_registration": {
+        "graph_node_id": "SYS-AUTH-WORKSPACE-P03",
+        "file_path": "tasks/feat-auth-workspace/sys-auth-workspace-p03.md",
+        "parent_feature": "feat-auth-workspace",
+        "feature_package_id": "feature-package/feat-auth-workspace",
+        "phase_ref": "P03"
+      }
+    },
+    {
+      "id": "SYS-AUTH-WORKSPACE-P04",
+      "feature_package_id": "feature-package/feat-auth-workspace",
+      "parent_feature": "feat-auth-workspace",
+      "title": "受け入れ条件に基づくテストファースト設計",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p04",
+        "feat-auth-workspace"
+      ],
+      "related_nodes": [],
+      "workstream_kind": "quality",
+      "secondary_workstreams": [
+        "frontend",
+        "backend",
+        "api",
+        "data"
+      ],
+      "build_target_kind": "application-code",
+      "phase_ref": "P04",
+      "depends_on": [
+        "SYS-AUTH-WORKSPACE-P03"
+      ],
+      "write_scope": [
+        "src/lib/auth/__tests__/login-redirect.spec.ts",
+        "src/lib/workspace/__tests__/workspace-isolation.spec.ts",
+        "src/lib/brand/__tests__/brand-defaults.spec.ts",
+        "src/lib/rbac/__tests__/role-403.spec.ts",
+        "docs/spec/feat-auth-workspace/test-design.md"
+      ],
+      "deploy_unit": "cloudflare-workers-opennext-app (Next.js 16 + OpenNext, Workers/D1/R2)",
+      "source_lineage": [
+        "system-spec/index.md",
+        "system-spec/00-requirements-definition.md",
+        "system-spec/auth.md",
+        "system-spec/security.md",
+        "system-spec/database.md",
+        "architecture/system-spec-overview.md",
+        "docs/spec/01-要求仕様書-v1.0.md",
+        "docs/spec/ai-first-webmcp.md"
+      ],
+      "classification": {
+        "confidence": 1.0,
+        "reason": "feat-auth-workspace の P04 lifecycle 責務への確定写像",
+        "candidates": [
+          {
+            "artifact_kind": "task",
+            "confidence": 1.0,
+            "candidate_path": "tasks/feat-auth-workspace/sys-auth-workspace-p04.md"
+          }
+        ]
+      },
+      "tracker_binding_intent": "beads",
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "pr_completion_policy": "linked_pr_merged_all",
+      "branch_policy": {
+        "strategy": "one-task-one-branch",
+        "worktree_lease_required": true,
+        "completion_projection": "default-branch-reconciliation",
+        "assignment_owner": "dev-graph-scheduler"
+      },
+      "acceptance": [
+        "P04: 4件の受け入れ条件 (A1〜A4) それぞれについて、実装前に自動テストの契約 (前提/操作/期待結果) を確定し、P05 実装が満たすべき合格基準を実行可能な形で用意した状態を成立させる。"
+      ],
+      "verification": [
+        "P04 の Verification and evidence section に記載する自動コマンドと証跡パスで検証する"
+      ],
+      "rollback": "P04 の write_scope に含まれる変更を revert し、直前の promoted generation へ差し戻す",
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-08-16T21:00:00Z"
+      },
+      "graph_node_registration": {
+        "graph_node_id": "SYS-AUTH-WORKSPACE-P04",
+        "file_path": "tasks/feat-auth-workspace/sys-auth-workspace-p04.md",
+        "parent_feature": "feat-auth-workspace",
+        "feature_package_id": "feature-package/feat-auth-workspace",
+        "phase_ref": "P04"
+      }
+    },
+    {
+      "id": "SYS-AUTH-WORKSPACE-P05",
+      "feature_package_id": "feature-package/feat-auth-workspace",
+      "parent_feature": "feat-auth-workspace",
+      "title": "Better Auth・Workspace・RBAC 実装",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p05",
+        "feat-auth-workspace"
+      ],
+      "related_nodes": [],
+      "workstream_kind": "backend",
+      "secondary_workstreams": [
+        "frontend",
+        "api",
+        "data",
+        "security"
+      ],
+      "build_target_kind": "application-code",
+      "phase_ref": "P05",
+      "depends_on": [
+        "SYS-AUTH-WORKSPACE-P04"
+      ],
+      "write_scope": [
+        "src/lib/auth/",
+        "src/middleware.ts",
+        "src/lib/workspace/",
+        "src/lib/brand/",
+        "src/lib/rbac/",
+        "drizzle/schema/",
+        "src/app/api/"
+      ],
+      "deploy_unit": "cloudflare-workers-opennext-app (Next.js 16 + OpenNext, Workers/D1/R2)",
+      "source_lineage": [
+        "system-spec/index.md",
+        "system-spec/00-requirements-definition.md",
+        "system-spec/auth.md",
+        "system-spec/security.md",
+        "system-spec/database.md",
+        "architecture/system-spec-overview.md",
+        "docs/spec/01-要求仕様書-v1.0.md",
+        "docs/spec/ai-first-webmcp.md"
+      ],
+      "classification": {
+        "confidence": 1.0,
+        "reason": "feat-auth-workspace の P05 lifecycle 責務への確定写像",
+        "candidates": [
+          {
+            "artifact_kind": "task",
+            "confidence": 1.0,
+            "candidate_path": "tasks/feat-auth-workspace/sys-auth-workspace-p05.md"
+          }
+        ]
+      },
+      "tracker_binding_intent": "beads",
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "pr_completion_policy": "linked_pr_merged_all",
+      "branch_policy": {
+        "strategy": "one-task-one-branch",
+        "worktree_lease_required": true,
+        "completion_projection": "default-branch-reconciliation",
+        "assignment_owner": "dev-graph-scheduler"
+      },
+      "acceptance": [
+        "P05: Better Auth + Google OAuth のサインイン、Workspace/Brand の作成・切替、全テーブルへの workspace_id 付与、ロール別操作制限を実装し、P04 で設計した4テストが緑化する状態を成立させる。"
+      ],
+      "verification": [
+        "P05 の Verification and evidence section に記載する自動コマンドと証跡パスで検証する"
+      ],
+      "rollback": "P05 の write_scope に含まれる変更を revert し、直前の promoted generation へ差し戻す",
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-08-16T21:00:00Z"
+      },
+      "graph_node_registration": {
+        "graph_node_id": "SYS-AUTH-WORKSPACE-P05",
+        "file_path": "tasks/feat-auth-workspace/sys-auth-workspace-p05.md",
+        "parent_feature": "feat-auth-workspace",
+        "feature_package_id": "feature-package/feat-auth-workspace",
+        "phase_ref": "P05"
+      }
+    },
+    {
+      "id": "SYS-AUTH-WORKSPACE-P06",
+      "feature_package_id": "feature-package/feat-auth-workspace",
+      "parent_feature": "feat-auth-workspace",
+      "title": "認証/Workspace/RBAC テスト実行",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p06",
+        "feat-auth-workspace"
+      ],
+      "related_nodes": [],
+      "workstream_kind": "quality",
+      "secondary_workstreams": [
+        "frontend",
+        "backend",
+        "api",
+        "data"
+      ],
+      "build_target_kind": "application-code",
+      "phase_ref": "P06",
+      "depends_on": [
+        "SYS-AUTH-WORKSPACE-P05"
+      ],
+      "write_scope": [
+        "evidence/P06/"
+      ],
+      "deploy_unit": "cloudflare-workers-opennext-app (Next.js 16 + OpenNext, Workers/D1/R2)",
+      "source_lineage": [
+        "system-spec/index.md",
+        "system-spec/00-requirements-definition.md",
+        "system-spec/auth.md",
+        "system-spec/security.md",
+        "system-spec/database.md",
+        "architecture/system-spec-overview.md",
+        "docs/spec/01-要求仕様書-v1.0.md",
+        "docs/spec/ai-first-webmcp.md"
+      ],
+      "classification": {
+        "confidence": 1.0,
+        "reason": "feat-auth-workspace の P06 lifecycle 責務への確定写像",
+        "candidates": [
+          {
+            "artifact_kind": "task",
+            "confidence": 1.0,
+            "candidate_path": "tasks/feat-auth-workspace/sys-auth-workspace-p06.md"
+          }
+        ]
+      },
+      "tracker_binding_intent": "beads",
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "pr_completion_policy": "linked_pr_merged_all",
+      "branch_policy": {
+        "strategy": "one-task-one-branch",
+        "worktree_lease_required": true,
+        "completion_projection": "default-branch-reconciliation",
+        "assignment_owner": "dev-graph-scheduler"
+      },
+      "acceptance": [
+        "P06: P04 で設計し P05 で実装した4テストスイートを pnpm run preview (Workers ランタイム, localhost:8787) 上で実行し、4受け入れ条件それぞれが緑であることを確定する。"
+      ],
+      "verification": [
+        "P06 の Verification and evidence section に記載する自動コマンドと証跡パスで検証する"
+      ],
+      "rollback": "P06 の write_scope に含まれる変更を revert し、直前の promoted generation へ差し戻す",
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-08-16T21:00:00Z"
+      },
+      "graph_node_registration": {
+        "graph_node_id": "SYS-AUTH-WORKSPACE-P06",
+        "file_path": "tasks/feat-auth-workspace/sys-auth-workspace-p06.md",
+        "parent_feature": "feat-auth-workspace",
+        "feature_package_id": "feature-package/feat-auth-workspace",
+        "phase_ref": "P06"
+      }
+    },
+    {
+      "id": "SYS-AUTH-WORKSPACE-P07",
+      "feature_package_id": "feature-package/feat-auth-workspace",
+      "parent_feature": "feat-auth-workspace",
+      "title": "feat-auth-workspace 受け入れ判定",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p07",
+        "feat-auth-workspace"
+      ],
+      "related_nodes": [],
+      "workstream_kind": "quality",
+      "secondary_workstreams": [
+        "frontend",
+        "backend",
+        "api",
+        "data"
+      ],
+      "build_target_kind": "application-code",
+      "phase_ref": "P07",
+      "depends_on": [
+        "SYS-AUTH-WORKSPACE-P06"
+      ],
+      "write_scope": [
+        "docs/spec/feat-auth-workspace/acceptance-report.md"
+      ],
+      "deploy_unit": "cloudflare-workers-opennext-app (Next.js 16 + OpenNext, Workers/D1/R2)",
+      "source_lineage": [
+        "system-spec/index.md",
+        "system-spec/00-requirements-definition.md",
+        "system-spec/auth.md",
+        "system-spec/security.md",
+        "system-spec/database.md",
+        "architecture/system-spec-overview.md",
+        "docs/spec/01-要求仕様書-v1.0.md",
+        "docs/spec/ai-first-webmcp.md"
+      ],
+      "classification": {
+        "confidence": 1.0,
+        "reason": "feat-auth-workspace の P07 lifecycle 責務への確定写像",
+        "candidates": [
+          {
+            "artifact_kind": "task",
+            "confidence": 1.0,
+            "candidate_path": "tasks/feat-auth-workspace/sys-auth-workspace-p07.md"
+          }
+        ]
+      },
+      "tracker_binding_intent": "beads",
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "pr_completion_policy": "linked_pr_merged_all",
+      "branch_policy": {
+        "strategy": "one-task-one-branch",
+        "worktree_lease_required": true,
+        "completion_projection": "default-branch-reconciliation",
+        "assignment_owner": "dev-graph-scheduler"
+      },
+      "acceptance": [
+        "P07: P06 のテスト結果を根拠に、feat-auth-workspace の4受け入れ条件 (A1〜A4) がすべて満たされていることをpurpose 由来で判定し、実装完了を確定する。"
+      ],
+      "verification": [
+        "P07 の Verification and evidence section に記載する自動コマンドと証跡パスで検証する"
+      ],
+      "rollback": "P07 の write_scope に含まれる変更を revert し、直前の promoted generation へ差し戻す",
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-08-16T21:00:00Z"
+      },
+      "graph_node_registration": {
+        "graph_node_id": "SYS-AUTH-WORKSPACE-P07",
+        "file_path": "tasks/feat-auth-workspace/sys-auth-workspace-p07.md",
+        "parent_feature": "feat-auth-workspace",
+        "feature_package_id": "feature-package/feat-auth-workspace",
+        "phase_ref": "P07"
+      }
+    },
+    {
+      "id": "SYS-AUTH-WORKSPACE-P08",
+      "feature_package_id": "feature-package/feat-auth-workspace",
+      "parent_feature": "feat-auth-workspace",
+      "title": "workspace_id 移行とスキーマ整備",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p08",
+        "feat-auth-workspace"
+      ],
+      "related_nodes": [],
+      "workstream_kind": "data",
+      "secondary_workstreams": [
+        "backend",
+        "quality"
+      ],
+      "build_target_kind": "application-code",
+      "phase_ref": "P08",
+      "depends_on": [
+        "SYS-AUTH-WORKSPACE-P05"
+      ],
+      "write_scope": [
+        "drizzle/migrations/",
+        "docs/spec/feat-auth-workspace/migration-decision.md"
+      ],
+      "deploy_unit": "cloudflare-workers-opennext-app (Next.js 16 + OpenNext, Workers/D1/R2)",
+      "source_lineage": [
+        "system-spec/index.md",
+        "system-spec/00-requirements-definition.md",
+        "system-spec/auth.md",
+        "system-spec/security.md",
+        "system-spec/database.md",
+        "architecture/system-spec-overview.md",
+        "docs/spec/01-要求仕様書-v1.0.md",
+        "docs/spec/ai-first-webmcp.md"
+      ],
+      "classification": {
+        "confidence": 1.0,
+        "reason": "feat-auth-workspace の P08 lifecycle 責務への確定写像",
+        "candidates": [
+          {
+            "artifact_kind": "task",
+            "confidence": 1.0,
+            "candidate_path": "tasks/feat-auth-workspace/sys-auth-workspace-p08.md"
+          }
+        ]
+      },
+      "tracker_binding_intent": "beads",
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "pr_completion_policy": "linked_pr_merged_all",
+      "branch_policy": {
+        "strategy": "one-task-one-branch",
+        "worktree_lease_required": true,
+        "completion_projection": "default-branch-reconciliation",
+        "assignment_owner": "dev-graph-scheduler"
+      },
+      "acceptance": [
+        "P08: 全テーブルへの workspace_id 付与 (§26.4) が既存データとの互換性を壊さず適用できることを確定し、A2 (別Workspaceデータの非取得) を将来データに対しても継続保証する状態を成立させる。"
+      ],
+      "verification": [
+        "P08 の Verification and evidence section に記載する自動コマンドと証跡パスで検証する"
+      ],
+      "rollback": "P08 の write_scope に含まれる変更を revert し、直前の promoted generation へ差し戻す",
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-08-16T21:00:00Z"
+      },
+      "graph_node_registration": {
+        "graph_node_id": "SYS-AUTH-WORKSPACE-P08",
+        "file_path": "tasks/feat-auth-workspace/sys-auth-workspace-p08.md",
+        "parent_feature": "feat-auth-workspace",
+        "feature_package_id": "feature-package/feat-auth-workspace",
+        "phase_ref": "P08"
+      }
+    },
+    {
+      "id": "SYS-AUTH-WORKSPACE-P09",
+      "feature_package_id": "feature-package/feat-auth-workspace",
+      "parent_feature": "feat-auth-workspace",
+      "title": "品質・セキュリティ・運用保証",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p09",
+        "feat-auth-workspace"
+      ],
+      "related_nodes": [],
+      "workstream_kind": "security",
+      "secondary_workstreams": [
+        "backend",
+        "api",
+        "quality"
+      ],
+      "build_target_kind": "application-code",
+      "phase_ref": "P09",
+      "depends_on": [
+        "SYS-AUTH-WORKSPACE-P08"
+      ],
+      "write_scope": [
+        "docs/spec/feat-auth-workspace/quality-security-report.md"
+      ],
+      "deploy_unit": "cloudflare-workers-opennext-app (Next.js 16 + OpenNext, Workers/D1/R2)",
+      "source_lineage": [
+        "system-spec/index.md",
+        "system-spec/00-requirements-definition.md",
+        "system-spec/auth.md",
+        "system-spec/security.md",
+        "system-spec/database.md",
+        "architecture/system-spec-overview.md",
+        "docs/spec/01-要求仕様書-v1.0.md",
+        "docs/spec/ai-first-webmcp.md"
+      ],
+      "classification": {
+        "confidence": 1.0,
+        "reason": "feat-auth-workspace の P09 lifecycle 責務への確定写像",
+        "candidates": [
+          {
+            "artifact_kind": "task",
+            "confidence": 1.0,
+            "candidate_path": "tasks/feat-auth-workspace/sys-auth-workspace-p09.md"
+          }
+        ]
+      },
+      "tracker_binding_intent": "beads",
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "pr_completion_policy": "linked_pr_merged_all",
+      "branch_policy": {
+        "strategy": "one-task-one-branch",
+        "worktree_lease_required": true,
+        "completion_projection": "default-branch-reconciliation",
+        "assignment_owner": "dev-graph-scheduler"
+      },
+      "acceptance": [
+        "P09: workspace_id 分離とロール別403制御が、既知の迂回経路 (直接API呼び出し・クエリパラメータ改ざん等) に対しても破られないことを検証し、feat-auth-workspace のセキュリティ品質を確定する。"
+      ],
+      "verification": [
+        "P09 の Verification and evidence section に記載する自動コマンドと証跡パスで検証する"
+      ],
+      "rollback": "P09 の write_scope に含まれる変更を revert し、直前の promoted generation へ差し戻す",
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-08-16T21:00:00Z"
+      },
+      "graph_node_registration": {
+        "graph_node_id": "SYS-AUTH-WORKSPACE-P09",
+        "file_path": "tasks/feat-auth-workspace/sys-auth-workspace-p09.md",
+        "parent_feature": "feat-auth-workspace",
+        "feature_package_id": "feature-package/feat-auth-workspace",
+        "phase_ref": "P09"
+      }
+    },
+    {
+      "id": "SYS-AUTH-WORKSPACE-P10",
+      "feature_package_id": "feature-package/feat-auth-workspace",
+      "parent_feature": "feat-auth-workspace",
+      "title": "独立最終レビュー",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p10",
+        "feat-auth-workspace"
+      ],
+      "related_nodes": [],
+      "workstream_kind": "quality",
+      "secondary_workstreams": [
+        "security",
+        "documentation"
+      ],
+      "build_target_kind": "application-code",
+      "phase_ref": "P10",
+      "depends_on": [
+        "SYS-AUTH-WORKSPACE-P09"
+      ],
+      "write_scope": [
+        "docs/spec/feat-auth-workspace/final-review-log.md"
+      ],
+      "deploy_unit": "cloudflare-workers-opennext-app (Next.js 16 + OpenNext, Workers/D1/R2)",
+      "source_lineage": [
+        "system-spec/index.md",
+        "system-spec/00-requirements-definition.md",
+        "system-spec/auth.md",
+        "system-spec/security.md",
+        "system-spec/database.md",
+        "architecture/system-spec-overview.md",
+        "docs/spec/01-要求仕様書-v1.0.md",
+        "docs/spec/ai-first-webmcp.md"
+      ],
+      "classification": {
+        "confidence": 1.0,
+        "reason": "feat-auth-workspace の P10 lifecycle 責務への確定写像",
+        "candidates": [
+          {
+            "artifact_kind": "task",
+            "confidence": 1.0,
+            "candidate_path": "tasks/feat-auth-workspace/sys-auth-workspace-p10.md"
+          }
+        ]
+      },
+      "tracker_binding_intent": "beads",
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "pr_completion_policy": "linked_pr_merged_all",
+      "branch_policy": {
+        "strategy": "one-task-one-branch",
+        "worktree_lease_required": true,
+        "completion_projection": "default-branch-reconciliation",
+        "assignment_owner": "dev-graph-scheduler"
+      },
+      "acceptance": [
+        "P10: P07 受け入れ判定と P09 品質・セキュリティ保証の結果を、実装者から独立した観点で最終確認し、feat-auth-workspace の完了可否を確定する。"
+      ],
+      "verification": [
+        "P10 の Verification and evidence section に記載する自動コマンドと証跡パスで検証する"
+      ],
+      "rollback": "P10 の write_scope に含まれる変更を revert し、直前の promoted generation へ差し戻す",
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-08-16T21:00:00Z"
+      },
+      "graph_node_registration": {
+        "graph_node_id": "SYS-AUTH-WORKSPACE-P10",
+        "file_path": "tasks/feat-auth-workspace/sys-auth-workspace-p10.md",
+        "parent_feature": "feat-auth-workspace",
+        "feature_package_id": "feature-package/feat-auth-workspace",
+        "phase_ref": "P10"
+      }
+    },
+    {
+      "id": "SYS-AUTH-WORKSPACE-P11",
+      "feature_package_id": "feature-package/feat-auth-workspace",
+      "parent_feature": "feat-auth-workspace",
+      "title": "再現可能な証跡取得",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p11",
+        "feat-auth-workspace"
+      ],
+      "related_nodes": [],
+      "workstream_kind": "quality",
+      "secondary_workstreams": [
+        "documentation"
+      ],
+      "build_target_kind": "application-code",
+      "phase_ref": "P11",
+      "depends_on": [
+        "SYS-AUTH-WORKSPACE-P07",
+        "SYS-AUTH-WORKSPACE-P09"
+      ],
+      "write_scope": [
+        "evidence/P11/"
+      ],
+      "deploy_unit": "cloudflare-workers-opennext-app (Next.js 16 + OpenNext, Workers/D1/R2)",
+      "source_lineage": [
+        "system-spec/index.md",
+        "system-spec/00-requirements-definition.md",
+        "system-spec/auth.md",
+        "system-spec/security.md",
+        "system-spec/database.md",
+        "architecture/system-spec-overview.md",
+        "docs/spec/01-要求仕様書-v1.0.md",
+        "docs/spec/ai-first-webmcp.md"
+      ],
+      "classification": {
+        "confidence": 1.0,
+        "reason": "feat-auth-workspace の P11 lifecycle 責務への確定写像",
+        "candidates": [
+          {
+            "artifact_kind": "task",
+            "confidence": 1.0,
+            "candidate_path": "tasks/feat-auth-workspace/sys-auth-workspace-p11.md"
+          }
+        ]
+      },
+      "tracker_binding_intent": "beads",
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "pr_completion_policy": "linked_pr_merged_all",
+      "branch_policy": {
+        "strategy": "one-task-one-branch",
+        "worktree_lease_required": true,
+        "completion_projection": "default-branch-reconciliation",
+        "assignment_owner": "dev-graph-scheduler"
+      },
+      "acceptance": [
+        "P11: 4受け入れ条件それぞれについて、第三者が再実行して同じ結果を得られる証跡 (コマンド・出力・成果物) をpackage 内に固定した状態を成立させる。"
+      ],
+      "verification": [
+        "P11 の Verification and evidence section に記載する自動コマンドと証跡パスで検証する"
+      ],
+      "rollback": "P11 の write_scope に含まれる変更を revert し、直前の promoted generation へ差し戻す",
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-08-16T21:00:00Z"
+      },
+      "graph_node_registration": {
+        "graph_node_id": "SYS-AUTH-WORKSPACE-P11",
+        "file_path": "tasks/feat-auth-workspace/sys-auth-workspace-p11.md",
+        "parent_feature": "feat-auth-workspace",
+        "feature_package_id": "feature-package/feat-auth-workspace",
+        "phase_ref": "P11"
+      }
+    },
+    {
+      "id": "SYS-AUTH-WORKSPACE-P12",
+      "feature_package_id": "feature-package/feat-auth-workspace",
+      "parent_feature": "feat-auth-workspace",
+      "title": "ドキュメント・ランブック・引き継ぎ",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p12",
+        "feat-auth-workspace"
+      ],
+      "related_nodes": [],
+      "workstream_kind": "documentation",
+      "secondary_workstreams": [
+        "operations",
+        "quality"
+      ],
+      "build_target_kind": "application-code",
+      "phase_ref": "P12",
+      "depends_on": [
+        "SYS-AUTH-WORKSPACE-P10",
+        "SYS-AUTH-WORKSPACE-P11"
+      ],
+      "write_scope": [
+        "docs/spec/feat-auth-workspace/runbook.md",
+        "docs/spec/feat-auth-workspace/handover.md"
+      ],
+      "deploy_unit": "cloudflare-workers-opennext-app (Next.js 16 + OpenNext, Workers/D1/R2)",
+      "source_lineage": [
+        "system-spec/index.md",
+        "system-spec/00-requirements-definition.md",
+        "system-spec/auth.md",
+        "system-spec/security.md",
+        "system-spec/database.md",
+        "architecture/system-spec-overview.md",
+        "docs/spec/01-要求仕様書-v1.0.md",
+        "docs/spec/ai-first-webmcp.md"
+      ],
+      "classification": {
+        "confidence": 1.0,
+        "reason": "feat-auth-workspace の P12 lifecycle 責務への確定写像",
+        "candidates": [
+          {
+            "artifact_kind": "task",
+            "confidence": 1.0,
+            "candidate_path": "tasks/feat-auth-workspace/sys-auth-workspace-p12.md"
+          }
+        ]
+      },
+      "tracker_binding_intent": "beads",
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "pr_completion_policy": "linked_pr_merged_all",
+      "branch_policy": {
+        "strategy": "one-task-one-branch",
+        "worktree_lease_required": true,
+        "completion_projection": "default-branch-reconciliation",
+        "assignment_owner": "dev-graph-scheduler"
+      },
+      "acceptance": [
+        "P12: feat-auth-workspace の実装内容・運用手順・引き継ぎ事項を、実装に関与していない担当者でも運用・保守できる形で文書化した状態を成立させる。"
+      ],
+      "verification": [
+        "P12 の Verification and evidence section に記載する自動コマンドと証跡パスで検証する"
+      ],
+      "rollback": "P12 の write_scope に含まれる変更を revert し、直前の promoted generation へ差し戻す",
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-08-16T21:00:00Z"
+      },
+      "graph_node_registration": {
+        "graph_node_id": "SYS-AUTH-WORKSPACE-P12",
+        "file_path": "tasks/feat-auth-workspace/sys-auth-workspace-p12.md",
+        "parent_feature": "feat-auth-workspace",
+        "feature_package_id": "feature-package/feat-auth-workspace",
+        "phase_ref": "P12"
+      }
+    },
+    {
+      "id": "SYS-AUTH-WORKSPACE-P13",
+      "feature_package_id": "feature-package/feat-auth-workspace",
+      "parent_feature": "feat-auth-workspace",
+      "title": "リリース/デプロイとクローズアウト",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p13",
+        "feat-auth-workspace"
+      ],
+      "related_nodes": [],
+      "workstream_kind": "operations",
+      "secondary_workstreams": [
+        "documentation",
+        "quality"
+      ],
+      "build_target_kind": "application-code",
+      "phase_ref": "P13",
+      "depends_on": [
+        "SYS-AUTH-WORKSPACE-P12"
+      ],
+      "write_scope": [
+        "docs/spec/feat-auth-workspace/release-notes.md",
+        "system-spec/auth.md",
+        "architecture/system-spec-overview.md"
+      ],
+      "deploy_unit": "cloudflare-workers-opennext-app (Next.js 16 + OpenNext, Workers/D1/R2)",
+      "source_lineage": [
+        "system-spec/index.md",
+        "system-spec/00-requirements-definition.md",
+        "system-spec/auth.md",
+        "system-spec/security.md",
+        "system-spec/database.md",
+        "architecture/system-spec-overview.md",
+        "docs/spec/01-要求仕様書-v1.0.md",
+        "docs/spec/ai-first-webmcp.md"
+      ],
+      "classification": {
+        "confidence": 1.0,
+        "reason": "feat-auth-workspace の P13 lifecycle 責務への確定写像",
+        "candidates": [
+          {
+            "artifact_kind": "task",
+            "confidence": 1.0,
+            "candidate_path": "tasks/feat-auth-workspace/sys-auth-workspace-p13.md"
+          }
+        ]
+      },
+      "tracker_binding_intent": "beads",
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "pr_completion_policy": "linked_pr_merged_all",
+      "branch_policy": {
+        "strategy": "one-task-one-branch",
+        "worktree_lease_required": true,
+        "completion_projection": "default-branch-reconciliation",
+        "assignment_owner": "dev-graph-scheduler"
+      },
+      "acceptance": [
+        "P13: feat-auth-workspace を pnpm run preview (Workers ランタイム) 上で最終確認したうえでクローズアウトし、実行結果・判断・改善点を system-spec/architecture へ書き戻した状態を成立させる。"
+      ],
+      "verification": [
+        "P13 の Verification and evidence section に記載する自動コマンドと証跡パスで検証する"
+      ],
+      "rollback": "P13 の write_scope に含まれる変更を revert し、直前の promoted generation へ差し戻す",
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-08-16T21:00:00Z"
+      },
+      "graph_node_registration": {
+        "graph_node_id": "SYS-AUTH-WORKSPACE-P13",
+        "file_path": "tasks/feat-auth-workspace/sys-auth-workspace-p13.md",
+        "parent_feature": "feat-auth-workspace",
+        "feature_package_id": "feature-package/feat-auth-workspace",
+        "phase_ref": "P13"
+      }
+    }
+  ]
+}

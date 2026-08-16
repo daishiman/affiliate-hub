@@ -1,0 +1,13 @@
+{
+  "schema_version": "1.0.0",
+  "status": "completed",
+  "staging": ".dev-graph/staging/run-20260816-feat-auth-workspace",
+  "destination": ".dev-graph/published/generations/feature-package-feat-auth-workspace/35483f66bb1988fc2b3ede65937a16e41d29637c455a092e3fa463c0c90fbb0c",
+  "digest": "sha256:35483f66bb1988fc2b3ede65937a16e41d29637c455a092e3fa463c0c90fbb0c",
+  "feature_package_id": "feature-package/feat-auth-workspace",
+  "package_slug": "feature-package-feat-auth-workspace",
+  "generation_id": "35483f66bb1988fc2b3ede65937a16e41d29637c455a092e3fa463c0c90fbb0c",
+  "supersedes": null,
+  "receipt": ".dev-graph/published/generations/feature-package-feat-auth-workspace/35483f66bb1988fc2b3ede65937a16e41d29637c455a092e3fa463c0c90fbb0c/atomic-promotion-receipt.json",
+  "completed_at": "2026-08-16T12:39:37Z"
+}

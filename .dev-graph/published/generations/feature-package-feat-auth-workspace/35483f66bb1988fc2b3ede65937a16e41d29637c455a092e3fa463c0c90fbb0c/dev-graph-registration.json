@@ -1,0 +1,1147 @@
+{
+  "schema_version": "1.0.0",
+  "source_digest": "sha256:35483f66bb1988fc2b3ede65937a16e41d29637c455a092e3fa463c0c90fbb0c",
+  "promotion_receipt": ".dev-graph/published/generations/feature-package-feat-auth-workspace/35483f66bb1988fc2b3ede65937a16e41d29637c455a092e3fa463c0c90fbb0c/atomic-promotion-receipt.json",
+  "feature_package_id": "feature-package/feat-auth-workspace",
+  "parent_feature": "feat-auth-workspace",
+  "expected_count": 13,
+  "phase_refs": [
+    "P01",
+    "P02",
+    "P03",
+    "P04",
+    "P05",
+    "P06",
+    "P07",
+    "P08",
+    "P09",
+    "P10",
+    "P11",
+    "P12",
+    "P13"
+  ],
+  "binding_intents": {
+    "SYS-AUTH-WORKSPACE-P01": "beads",
+    "SYS-AUTH-WORKSPACE-P02": "beads",
+    "SYS-AUTH-WORKSPACE-P03": "beads",
+    "SYS-AUTH-WORKSPACE-P04": "beads",
+    "SYS-AUTH-WORKSPACE-P05": "beads",
+    "SYS-AUTH-WORKSPACE-P06": "beads",
+    "SYS-AUTH-WORKSPACE-P07": "beads",
+    "SYS-AUTH-WORKSPACE-P08": "beads",
+    "SYS-AUTH-WORKSPACE-P09": "beads",
+    "SYS-AUTH-WORKSPACE-P10": "beads",
+    "SYS-AUTH-WORKSPACE-P11": "beads",
+    "SYS-AUTH-WORKSPACE-P12": "beads",
+    "SYS-AUTH-WORKSPACE-P13": "beads"
+  },
+  "nodes": [
+    {
+      "graph_node_id": "SYS-AUTH-WORKSPACE-P01",
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "title": "認証/Workspace 基盤の要求ベースライン確定",
+      "project_id": "feature-package-feat-auth-workspace",
+      "domain": "documentation",
+      "status": "active",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p01",
+        "feat-auth-workspace"
+      ],
+      "priority": null,
+      "start_date": null,
+      "target_date": null,
+      "iteration": null,
+      "created_at": "2026-08-16T12:39:37Z",
+      "updated_at": "2026-08-16T12:39:37Z",
+      "depends_on": [],
+      "related_nodes": [],
+      "resource_scope": [
+        "docs/spec/feat-auth-workspace/requirements-baseline.md"
+      ],
+      "parent_feature": "feat-auth-workspace",
+      "feature_package_id": "feature-package/feat-auth-workspace",
+      "phase_ref": "P01",
+      "file_path": "tasks/feat-auth-workspace/sys-auth-workspace-p01.md",
+      "template_id": "task",
+      "template_version": "1.1.0",
+      "confirmation_status": "confirmed",
+      "evaluation_status": "pass",
+      "confirmation_evidence": {
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-auth-workspace/35483f66bb1988fc2b3ede65937a16e41d29637c455a092e3fa463c0c90fbb0c/plan-findings.json",
+        "evaluated_digest": "35483f66bb1988fc2b3ede65937a16e41d29637c455a092e3fa463c0c90fbb0c"
+      },
+      "source_lineage": {
+        "origin_kind": "system-dev-planner",
+        "source_plugin": "system-dev-planner",
+        "source_path": ".dev-graph/published/generations/feature-package-feat-auth-workspace/35483f66bb1988fc2b3ede65937a16e41d29637c455a092e3fa463c0c90fbb0c/task-specs/phase-01-requirements.md",
+        "source_version": "0.1.0",
+        "source_digest": "35483f66bb1988fc2b3ede65937a16e41d29637c455a092e3fa463c0c90fbb0c",
+        "imported_at": "2026-08-16T12:39:37Z"
+      },
+      "classification_confidence": 1.0,
+      "classification_reason": "feat-auth-workspace の P01 lifecycle 責務への確定写像",
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "confidence": 1.0,
+          "candidate_path": "tasks/feat-auth-workspace/sys-auth-workspace-p01.md"
+        }
+      ],
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "issue_linkage": null,
+      "tracker_binding": "repo-config-default",
+      "beads_linkage": null,
+      "github_project_linkages": [],
+      "pull_request_linkages": [],
+      "execution_contexts": [],
+      "completion_evidence": {
+        "policy": "linked_pr_merged_all",
+        "status": "in_progress",
+        "source": null,
+        "completed_at": null,
+        "reconciled_at": null,
+        "evidence_refs": []
+      },
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-08-16T21:00:00Z"
+      }
+    },
+    {
+      "graph_node_id": "SYS-AUTH-WORKSPACE-P02",
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "title": "認証/Workspace/Brand/RBAC アーキテクチャ設計",
+      "project_id": "feature-package-feat-auth-workspace",
+      "domain": "backend",
+      "status": "active",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p02",
+        "feat-auth-workspace"
+      ],
+      "priority": null,
+      "start_date": null,
+      "target_date": null,
+      "iteration": null,
+      "created_at": "2026-08-16T12:39:37Z",
+      "updated_at": "2026-08-16T12:39:37Z",
+      "depends_on": [
+        "SYS-AUTH-WORKSPACE-P01"
+      ],
+      "related_nodes": [],
+      "resource_scope": [
+        "docs/spec/feat-auth-workspace/architecture-design.md",
+        "architecture/system-spec-overview.md"
+      ],
+      "parent_feature": "feat-auth-workspace",
+      "feature_package_id": "feature-package/feat-auth-workspace",
+      "phase_ref": "P02",
+      "file_path": "tasks/feat-auth-workspace/sys-auth-workspace-p02.md",
+      "template_id": "task",
+      "template_version": "1.1.0",
+      "confirmation_status": "confirmed",
+      "evaluation_status": "pass",
+      "confirmation_evidence": {
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-auth-workspace/35483f66bb1988fc2b3ede65937a16e41d29637c455a092e3fa463c0c90fbb0c/plan-findings.json",
+        "evaluated_digest": "35483f66bb1988fc2b3ede65937a16e41d29637c455a092e3fa463c0c90fbb0c"
+      },
+      "source_lineage": {
+        "origin_kind": "system-dev-planner",
+        "source_plugin": "system-dev-planner",
+        "source_path": ".dev-graph/published/generations/feature-package-feat-auth-workspace/35483f66bb1988fc2b3ede65937a16e41d29637c455a092e3fa463c0c90fbb0c/task-specs/phase-02-architecture.md",
+        "source_version": "0.1.0",
+        "source_digest": "35483f66bb1988fc2b3ede65937a16e41d29637c455a092e3fa463c0c90fbb0c",
+        "imported_at": "2026-08-16T12:39:37Z"
+      },
+      "classification_confidence": 1.0,
+      "classification_reason": "feat-auth-workspace の P02 lifecycle 責務への確定写像",
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "confidence": 1.0,
+          "candidate_path": "tasks/feat-auth-workspace/sys-auth-workspace-p02.md"
+        }
+      ],
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "issue_linkage": null,
+      "tracker_binding": "repo-config-default",
+      "beads_linkage": null,
+      "github_project_linkages": [],
+      "pull_request_linkages": [],
+      "execution_contexts": [],
+      "completion_evidence": {
+        "policy": "linked_pr_merged_all",
+        "status": "in_progress",
+        "source": null,
+        "completed_at": null,
+        "reconciled_at": null,
+        "evidence_refs": []
+      },
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-08-16T21:00:00Z"
+      }
+    },
+    {
+      "graph_node_id": "SYS-AUTH-WORKSPACE-P03",
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "title": "アーキテクチャ独立設計レビュー",
+      "project_id": "feature-package-feat-auth-workspace",
+      "domain": "quality",
+      "status": "active",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p03",
+        "feat-auth-workspace"
+      ],
+      "priority": null,
+      "start_date": null,
+      "target_date": null,
+      "iteration": null,
+      "created_at": "2026-08-16T12:39:37Z",
+      "updated_at": "2026-08-16T12:39:37Z",
+      "depends_on": [
+        "SYS-AUTH-WORKSPACE-P02"
+      ],
+      "related_nodes": [],
+      "resource_scope": [
+        "docs/spec/feat-auth-workspace/design-review-log.md"
+      ],
+      "parent_feature": "feat-auth-workspace",
+      "feature_package_id": "feature-package/feat-auth-workspace",
+      "phase_ref": "P03",
+      "file_path": "tasks/feat-auth-workspace/sys-auth-workspace-p03.md",
+      "template_id": "task",
+      "template_version": "1.1.0",
+      "confirmation_status": "confirmed",
+      "evaluation_status": "pass",
+      "confirmation_evidence": {
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-auth-workspace/35483f66bb1988fc2b3ede65937a16e41d29637c455a092e3fa463c0c90fbb0c/plan-findings.json",
+        "evaluated_digest": "35483f66bb1988fc2b3ede65937a16e41d29637c455a092e3fa463c0c90fbb0c"
+      },
+      "source_lineage": {
+        "origin_kind": "system-dev-planner",
+        "source_plugin": "system-dev-planner",
+        "source_path": ".dev-graph/published/generations/feature-package-feat-auth-workspace/35483f66bb1988fc2b3ede65937a16e41d29637c455a092e3fa463c0c90fbb0c/task-specs/phase-03-design-review.md",
+        "source_version": "0.1.0",
+        "source_digest": "35483f66bb1988fc2b3ede65937a16e41d29637c455a092e3fa463c0c90fbb0c",
+        "imported_at": "2026-08-16T12:39:37Z"
+      },
+      "classification_confidence": 1.0,
+      "classification_reason": "feat-auth-workspace の P03 lifecycle 責務への確定写像",
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "confidence": 1.0,
+          "candidate_path": "tasks/feat-auth-workspace/sys-auth-workspace-p03.md"
+        }
+      ],
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "issue_linkage": null,
+      "tracker_binding": "repo-config-default",
+      "beads_linkage": null,
+      "github_project_linkages": [],
+      "pull_request_linkages": [],
+      "execution_contexts": [],
+      "completion_evidence": {
+        "policy": "linked_pr_merged_all",
+        "status": "in_progress",
+        "source": null,
+        "completed_at": null,
+        "reconciled_at": null,
+        "evidence_refs": []
+      },
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-08-16T21:00:00Z"
+      }
+    },
+    {
+      "graph_node_id": "SYS-AUTH-WORKSPACE-P04",
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "title": "受け入れ条件に基づくテストファースト設計",
+      "project_id": "feature-package-feat-auth-workspace",
+      "domain": "quality",
+      "status": "active",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p04",
+        "feat-auth-workspace"
+      ],
+      "priority": null,
+      "start_date": null,
+      "target_date": null,
+      "iteration": null,
+      "created_at": "2026-08-16T12:39:37Z",
+      "updated_at": "2026-08-16T12:39:37Z",
+      "depends_on": [
+        "SYS-AUTH-WORKSPACE-P03"
+      ],
+      "related_nodes": [],
+      "resource_scope": [
+        "src/lib/auth/__tests__/login-redirect.spec.ts",
+        "src/lib/workspace/__tests__/workspace-isolation.spec.ts",
+        "src/lib/brand/__tests__/brand-defaults.spec.ts",
+        "src/lib/rbac/__tests__/role-403.spec.ts",
+        "docs/spec/feat-auth-workspace/test-design.md"
+      ],
+      "parent_feature": "feat-auth-workspace",
+      "feature_package_id": "feature-package/feat-auth-workspace",
+      "phase_ref": "P04",
+      "file_path": "tasks/feat-auth-workspace/sys-auth-workspace-p04.md",
+      "template_id": "task",
+      "template_version": "1.1.0",
+      "confirmation_status": "confirmed",
+      "evaluation_status": "pass",
+      "confirmation_evidence": {
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-auth-workspace/35483f66bb1988fc2b3ede65937a16e41d29637c455a092e3fa463c0c90fbb0c/plan-findings.json",
+        "evaluated_digest": "35483f66bb1988fc2b3ede65937a16e41d29637c455a092e3fa463c0c90fbb0c"
+      },
+      "source_lineage": {
+        "origin_kind": "system-dev-planner",
+        "source_plugin": "system-dev-planner",
+        "source_path": ".dev-graph/published/generations/feature-package-feat-auth-workspace/35483f66bb1988fc2b3ede65937a16e41d29637c455a092e3fa463c0c90fbb0c/task-specs/phase-04-test-design.md",
+        "source_version": "0.1.0",
+        "source_digest": "35483f66bb1988fc2b3ede65937a16e41d29637c455a092e3fa463c0c90fbb0c",
+        "imported_at": "2026-08-16T12:39:37Z"
+      },
+      "classification_confidence": 1.0,
+      "classification_reason": "feat-auth-workspace の P04 lifecycle 責務への確定写像",
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "confidence": 1.0,
+          "candidate_path": "tasks/feat-auth-workspace/sys-auth-workspace-p04.md"
+        }
+      ],
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "issue_linkage": null,
+      "tracker_binding": "repo-config-default",
+      "beads_linkage": null,
+      "github_project_linkages": [],
+      "pull_request_linkages": [],
+      "execution_contexts": [],
+      "completion_evidence": {
+        "policy": "linked_pr_merged_all",
+        "status": "in_progress",
+        "source": null,
+        "completed_at": null,
+        "reconciled_at": null,
+        "evidence_refs": []
+      },
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-08-16T21:00:00Z"
+      }
+    },
+    {
+      "graph_node_id": "SYS-AUTH-WORKSPACE-P05",
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "title": "Better Auth・Workspace・RBAC 実装",
+      "project_id": "feature-package-feat-auth-workspace",
+      "domain": "backend",
+      "status": "active",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p05",
+        "feat-auth-workspace"
+      ],
+      "priority": null,
+      "start_date": null,
+      "target_date": null,
+      "iteration": null,
+      "created_at": "2026-08-16T12:39:37Z",
+      "updated_at": "2026-08-16T12:39:37Z",
+      "depends_on": [
+        "SYS-AUTH-WORKSPACE-P04"
+      ],
+      "related_nodes": [],
+      "resource_scope": [
+        "src/lib/auth/",
+        "src/middleware.ts",
+        "src/lib/workspace/",
+        "src/lib/brand/",
+        "src/lib/rbac/",
+        "drizzle/schema/",
+        "src/app/api/"
+      ],
+      "parent_feature": "feat-auth-workspace",
+      "feature_package_id": "feature-package/feat-auth-workspace",
+      "phase_ref": "P05",
+      "file_path": "tasks/feat-auth-workspace/sys-auth-workspace-p05.md",
+      "template_id": "task",
+      "template_version": "1.1.0",
+      "confirmation_status": "confirmed",
+      "evaluation_status": "pass",
+      "confirmation_evidence": {
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-auth-workspace/35483f66bb1988fc2b3ede65937a16e41d29637c455a092e3fa463c0c90fbb0c/plan-findings.json",
+        "evaluated_digest": "35483f66bb1988fc2b3ede65937a16e41d29637c455a092e3fa463c0c90fbb0c"
+      },
+      "source_lineage": {
+        "origin_kind": "system-dev-planner",
+        "source_plugin": "system-dev-planner",
+        "source_path": ".dev-graph/published/generations/feature-package-feat-auth-workspace/35483f66bb1988fc2b3ede65937a16e41d29637c455a092e3fa463c0c90fbb0c/task-specs/phase-05-implementation.md",
+        "source_version": "0.1.0",
+        "source_digest": "35483f66bb1988fc2b3ede65937a16e41d29637c455a092e3fa463c0c90fbb0c",
+        "imported_at": "2026-08-16T12:39:37Z"
+      },
+      "classification_confidence": 1.0,
+      "classification_reason": "feat-auth-workspace の P05 lifecycle 責務への確定写像",
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "confidence": 1.0,
+          "candidate_path": "tasks/feat-auth-workspace/sys-auth-workspace-p05.md"
+        }
+      ],
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "issue_linkage": null,
+      "tracker_binding": "repo-config-default",
+      "beads_linkage": null,
+      "github_project_linkages": [],
+      "pull_request_linkages": [],
+      "execution_contexts": [],
+      "completion_evidence": {
+        "policy": "linked_pr_merged_all",
+        "status": "in_progress",
+        "source": null,
+        "completed_at": null,
+        "reconciled_at": null,
+        "evidence_refs": []
+      },
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-08-16T21:00:00Z"
+      }
+    },
+    {
+      "graph_node_id": "SYS-AUTH-WORKSPACE-P06",
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "title": "認証/Workspace/RBAC テスト実行",
+      "project_id": "feature-package-feat-auth-workspace",
+      "domain": "quality",
+      "status": "active",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p06",
+        "feat-auth-workspace"
+      ],
+      "priority": null,
+      "start_date": null,
+      "target_date": null,
+      "iteration": null,
+      "created_at": "2026-08-16T12:39:37Z",
+      "updated_at": "2026-08-16T12:39:37Z",
+      "depends_on": [
+        "SYS-AUTH-WORKSPACE-P05"
+      ],
+      "related_nodes": [],
+      "resource_scope": [
+        "evidence/P06/"
+      ],
+      "parent_feature": "feat-auth-workspace",
+      "feature_package_id": "feature-package/feat-auth-workspace",
+      "phase_ref": "P06",
+      "file_path": "tasks/feat-auth-workspace/sys-auth-workspace-p06.md",
+      "template_id": "task",
+      "template_version": "1.1.0",
+      "confirmation_status": "confirmed",
+      "evaluation_status": "pass",
+      "confirmation_evidence": {
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-auth-workspace/35483f66bb1988fc2b3ede65937a16e41d29637c455a092e3fa463c0c90fbb0c/plan-findings.json",
+        "evaluated_digest": "35483f66bb1988fc2b3ede65937a16e41d29637c455a092e3fa463c0c90fbb0c"
+      },
+      "source_lineage": {
+        "origin_kind": "system-dev-planner",
+        "source_plugin": "system-dev-planner",
+        "source_path": ".dev-graph/published/generations/feature-package-feat-auth-workspace/35483f66bb1988fc2b3ede65937a16e41d29637c455a092e3fa463c0c90fbb0c/task-specs/phase-06-test-run.md",
+        "source_version": "0.1.0",
+        "source_digest": "35483f66bb1988fc2b3ede65937a16e41d29637c455a092e3fa463c0c90fbb0c",
+        "imported_at": "2026-08-16T12:39:37Z"
+      },
+      "classification_confidence": 1.0,
+      "classification_reason": "feat-auth-workspace の P06 lifecycle 責務への確定写像",
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "confidence": 1.0,
+          "candidate_path": "tasks/feat-auth-workspace/sys-auth-workspace-p06.md"
+        }
+      ],
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "issue_linkage": null,
+      "tracker_binding": "repo-config-default",
+      "beads_linkage": null,
+      "github_project_linkages": [],
+      "pull_request_linkages": [],
+      "execution_contexts": [],
+      "completion_evidence": {
+        "policy": "linked_pr_merged_all",
+        "status": "in_progress",
+        "source": null,
+        "completed_at": null,
+        "reconciled_at": null,
+        "evidence_refs": []
+      },
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-08-16T21:00:00Z"
+      }
+    },
+    {
+      "graph_node_id": "SYS-AUTH-WORKSPACE-P07",
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "title": "feat-auth-workspace 受け入れ判定",
+      "project_id": "feature-package-feat-auth-workspace",
+      "domain": "quality",
+      "status": "active",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p07",
+        "feat-auth-workspace"
+      ],
+      "priority": null,
+      "start_date": null,
+      "target_date": null,
+      "iteration": null,
+      "created_at": "2026-08-16T12:39:37Z",
+      "updated_at": "2026-08-16T12:39:37Z",
+      "depends_on": [
+        "SYS-AUTH-WORKSPACE-P06"
+      ],
+      "related_nodes": [],
+      "resource_scope": [
+        "docs/spec/feat-auth-workspace/acceptance-report.md"
+      ],
+      "parent_feature": "feat-auth-workspace",
+      "feature_package_id": "feature-package/feat-auth-workspace",
+      "phase_ref": "P07",
+      "file_path": "tasks/feat-auth-workspace/sys-auth-workspace-p07.md",
+      "template_id": "task",
+      "template_version": "1.1.0",
+      "confirmation_status": "confirmed",
+      "evaluation_status": "pass",
+      "confirmation_evidence": {
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-auth-workspace/35483f66bb1988fc2b3ede65937a16e41d29637c455a092e3fa463c0c90fbb0c/plan-findings.json",
+        "evaluated_digest": "35483f66bb1988fc2b3ede65937a16e41d29637c455a092e3fa463c0c90fbb0c"
+      },
+      "source_lineage": {
+        "origin_kind": "system-dev-planner",
+        "source_plugin": "system-dev-planner",
+        "source_path": ".dev-graph/published/generations/feature-package-feat-auth-workspace/35483f66bb1988fc2b3ede65937a16e41d29637c455a092e3fa463c0c90fbb0c/task-specs/phase-07-acceptance.md",
+        "source_version": "0.1.0",
+        "source_digest": "35483f66bb1988fc2b3ede65937a16e41d29637c455a092e3fa463c0c90fbb0c",
+        "imported_at": "2026-08-16T12:39:37Z"
+      },
+      "classification_confidence": 1.0,
+      "classification_reason": "feat-auth-workspace の P07 lifecycle 責務への確定写像",
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "confidence": 1.0,
+          "candidate_path": "tasks/feat-auth-workspace/sys-auth-workspace-p07.md"
+        }
+      ],
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "issue_linkage": null,
+      "tracker_binding": "repo-config-default",
+      "beads_linkage": null,
+      "github_project_linkages": [],
+      "pull_request_linkages": [],
+      "execution_contexts": [],
+      "completion_evidence": {
+        "policy": "linked_pr_merged_all",
+        "status": "in_progress",
+        "source": null,
+        "completed_at": null,
+        "reconciled_at": null,
+        "evidence_refs": []
+      },
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-08-16T21:00:00Z"
+      }
+    },
+    {
+      "graph_node_id": "SYS-AUTH-WORKSPACE-P08",
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "title": "workspace_id 移行とスキーマ整備",
+      "project_id": "feature-package-feat-auth-workspace",
+      "domain": "data",
+      "status": "active",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p08",
+        "feat-auth-workspace"
+      ],
+      "priority": null,
+      "start_date": null,
+      "target_date": null,
+      "iteration": null,
+      "created_at": "2026-08-16T12:39:37Z",
+      "updated_at": "2026-08-16T12:39:37Z",
+      "depends_on": [
+        "SYS-AUTH-WORKSPACE-P05"
+      ],
+      "related_nodes": [],
+      "resource_scope": [
+        "drizzle/migrations/",
+        "docs/spec/feat-auth-workspace/migration-decision.md"
+      ],
+      "parent_feature": "feat-auth-workspace",
+      "feature_package_id": "feature-package/feat-auth-workspace",
+      "phase_ref": "P08",
+      "file_path": "tasks/feat-auth-workspace/sys-auth-workspace-p08.md",
+      "template_id": "task",
+      "template_version": "1.1.0",
+      "confirmation_status": "confirmed",
+      "evaluation_status": "pass",
+      "confirmation_evidence": {
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-auth-workspace/35483f66bb1988fc2b3ede65937a16e41d29637c455a092e3fa463c0c90fbb0c/plan-findings.json",
+        "evaluated_digest": "35483f66bb1988fc2b3ede65937a16e41d29637c455a092e3fa463c0c90fbb0c"
+      },
+      "source_lineage": {
+        "origin_kind": "system-dev-planner",
+        "source_plugin": "system-dev-planner",
+        "source_path": ".dev-graph/published/generations/feature-package-feat-auth-workspace/35483f66bb1988fc2b3ede65937a16e41d29637c455a092e3fa463c0c90fbb0c/task-specs/phase-08-refactoring-migration.md",
+        "source_version": "0.1.0",
+        "source_digest": "35483f66bb1988fc2b3ede65937a16e41d29637c455a092e3fa463c0c90fbb0c",
+        "imported_at": "2026-08-16T12:39:37Z"
+      },
+      "classification_confidence": 1.0,
+      "classification_reason": "feat-auth-workspace の P08 lifecycle 責務への確定写像",
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "confidence": 1.0,
+          "candidate_path": "tasks/feat-auth-workspace/sys-auth-workspace-p08.md"
+        }
+      ],
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "issue_linkage": null,
+      "tracker_binding": "repo-config-default",
+      "beads_linkage": null,
+      "github_project_linkages": [],
+      "pull_request_linkages": [],
+      "execution_contexts": [],
+      "completion_evidence": {
+        "policy": "linked_pr_merged_all",
+        "status": "in_progress",
+        "source": null,
+        "completed_at": null,
+        "reconciled_at": null,
+        "evidence_refs": []
+      },
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-08-16T21:00:00Z"
+      }
+    },
+    {
+      "graph_node_id": "SYS-AUTH-WORKSPACE-P09",
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "title": "品質・セキュリティ・運用保証",
+      "project_id": "feature-package-feat-auth-workspace",
+      "domain": "security",
+      "status": "active",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p09",
+        "feat-auth-workspace"
+      ],
+      "priority": null,
+      "start_date": null,
+      "target_date": null,
+      "iteration": null,
+      "created_at": "2026-08-16T12:39:37Z",
+      "updated_at": "2026-08-16T12:39:37Z",
+      "depends_on": [
+        "SYS-AUTH-WORKSPACE-P08"
+      ],
+      "related_nodes": [],
+      "resource_scope": [
+        "docs/spec/feat-auth-workspace/quality-security-report.md"
+      ],
+      "parent_feature": "feat-auth-workspace",
+      "feature_package_id": "feature-package/feat-auth-workspace",
+      "phase_ref": "P09",
+      "file_path": "tasks/feat-auth-workspace/sys-auth-workspace-p09.md",
+      "template_id": "task",
+      "template_version": "1.1.0",
+      "confirmation_status": "confirmed",
+      "evaluation_status": "pass",
+      "confirmation_evidence": {
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-auth-workspace/35483f66bb1988fc2b3ede65937a16e41d29637c455a092e3fa463c0c90fbb0c/plan-findings.json",
+        "evaluated_digest": "35483f66bb1988fc2b3ede65937a16e41d29637c455a092e3fa463c0c90fbb0c"
+      },
+      "source_lineage": {
+        "origin_kind": "system-dev-planner",
+        "source_plugin": "system-dev-planner",
+        "source_path": ".dev-graph/published/generations/feature-package-feat-auth-workspace/35483f66bb1988fc2b3ede65937a16e41d29637c455a092e3fa463c0c90fbb0c/task-specs/phase-09-quality-assurance.md",
+        "source_version": "0.1.0",
+        "source_digest": "35483f66bb1988fc2b3ede65937a16e41d29637c455a092e3fa463c0c90fbb0c",
+        "imported_at": "2026-08-16T12:39:37Z"
+      },
+      "classification_confidence": 1.0,
+      "classification_reason": "feat-auth-workspace の P09 lifecycle 責務への確定写像",
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "confidence": 1.0,
+          "candidate_path": "tasks/feat-auth-workspace/sys-auth-workspace-p09.md"
+        }
+      ],
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "issue_linkage": null,
+      "tracker_binding": "repo-config-default",
+      "beads_linkage": null,
+      "github_project_linkages": [],
+      "pull_request_linkages": [],
+      "execution_contexts": [],
+      "completion_evidence": {
+        "policy": "linked_pr_merged_all",
+        "status": "in_progress",
+        "source": null,
+        "completed_at": null,
+        "reconciled_at": null,
+        "evidence_refs": []
+      },
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-08-16T21:00:00Z"
+      }
+    },
+    {
+      "graph_node_id": "SYS-AUTH-WORKSPACE-P10",
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "title": "独立最終レビュー",
+      "project_id": "feature-package-feat-auth-workspace",
+      "domain": "quality",
+      "status": "active",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p10",
+        "feat-auth-workspace"
+      ],
+      "priority": null,
+      "start_date": null,
+      "target_date": null,
+      "iteration": null,
+      "created_at": "2026-08-16T12:39:37Z",
+      "updated_at": "2026-08-16T12:39:37Z",
+      "depends_on": [
+        "SYS-AUTH-WORKSPACE-P09"
+      ],
+      "related_nodes": [],
+      "resource_scope": [
+        "docs/spec/feat-auth-workspace/final-review-log.md"
+      ],
+      "parent_feature": "feat-auth-workspace",
+      "feature_package_id": "feature-package/feat-auth-workspace",
+      "phase_ref": "P10",
+      "file_path": "tasks/feat-auth-workspace/sys-auth-workspace-p10.md",
+      "template_id": "task",
+      "template_version": "1.1.0",
+      "confirmation_status": "confirmed",
+      "evaluation_status": "pass",
+      "confirmation_evidence": {
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-auth-workspace/35483f66bb1988fc2b3ede65937a16e41d29637c455a092e3fa463c0c90fbb0c/plan-findings.json",
+        "evaluated_digest": "35483f66bb1988fc2b3ede65937a16e41d29637c455a092e3fa463c0c90fbb0c"
+      },
+      "source_lineage": {
+        "origin_kind": "system-dev-planner",
+        "source_plugin": "system-dev-planner",
+        "source_path": ".dev-graph/published/generations/feature-package-feat-auth-workspace/35483f66bb1988fc2b3ede65937a16e41d29637c455a092e3fa463c0c90fbb0c/task-specs/phase-10-final-review.md",
+        "source_version": "0.1.0",
+        "source_digest": "35483f66bb1988fc2b3ede65937a16e41d29637c455a092e3fa463c0c90fbb0c",
+        "imported_at": "2026-08-16T12:39:37Z"
+      },
+      "classification_confidence": 1.0,
+      "classification_reason": "feat-auth-workspace の P10 lifecycle 責務への確定写像",
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "confidence": 1.0,
+          "candidate_path": "tasks/feat-auth-workspace/sys-auth-workspace-p10.md"
+        }
+      ],
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "issue_linkage": null,
+      "tracker_binding": "repo-config-default",
+      "beads_linkage": null,
+      "github_project_linkages": [],
+      "pull_request_linkages": [],
+      "execution_contexts": [],
+      "completion_evidence": {
+        "policy": "linked_pr_merged_all",
+        "status": "in_progress",
+        "source": null,
+        "completed_at": null,
+        "reconciled_at": null,
+        "evidence_refs": []
+      },
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-08-16T21:00:00Z"
+      }
+    },
+    {
+      "graph_node_id": "SYS-AUTH-WORKSPACE-P11",
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "title": "再現可能な証跡取得",
+      "project_id": "feature-package-feat-auth-workspace",
+      "domain": "quality",
+      "status": "active",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p11",
+        "feat-auth-workspace"
+      ],
+      "priority": null,
+      "start_date": null,
+      "target_date": null,
+      "iteration": null,
+      "created_at": "2026-08-16T12:39:37Z",
+      "updated_at": "2026-08-16T12:39:37Z",
+      "depends_on": [
+        "SYS-AUTH-WORKSPACE-P07",
+        "SYS-AUTH-WORKSPACE-P09"
+      ],
+      "related_nodes": [],
+      "resource_scope": [
+        "evidence/P11/"
+      ],
+      "parent_feature": "feat-auth-workspace",
+      "feature_package_id": "feature-package/feat-auth-workspace",
+      "phase_ref": "P11",
+      "file_path": "tasks/feat-auth-workspace/sys-auth-workspace-p11.md",
+      "template_id": "task",
+      "template_version": "1.1.0",
+      "confirmation_status": "confirmed",
+      "evaluation_status": "pass",
+      "confirmation_evidence": {
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-auth-workspace/35483f66bb1988fc2b3ede65937a16e41d29637c455a092e3fa463c0c90fbb0c/plan-findings.json",
+        "evaluated_digest": "35483f66bb1988fc2b3ede65937a16e41d29637c455a092e3fa463c0c90fbb0c"
+      },
+      "source_lineage": {
+        "origin_kind": "system-dev-planner",
+        "source_plugin": "system-dev-planner",
+        "source_path": ".dev-graph/published/generations/feature-package-feat-auth-workspace/35483f66bb1988fc2b3ede65937a16e41d29637c455a092e3fa463c0c90fbb0c/task-specs/phase-11-evidence.md",
+        "source_version": "0.1.0",
+        "source_digest": "35483f66bb1988fc2b3ede65937a16e41d29637c455a092e3fa463c0c90fbb0c",
+        "imported_at": "2026-08-16T12:39:37Z"
+      },
+      "classification_confidence": 1.0,
+      "classification_reason": "feat-auth-workspace の P11 lifecycle 責務への確定写像",
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "confidence": 1.0,
+          "candidate_path": "tasks/feat-auth-workspace/sys-auth-workspace-p11.md"
+        }
+      ],
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "issue_linkage": null,
+      "tracker_binding": "repo-config-default",
+      "beads_linkage": null,
+      "github_project_linkages": [],
+      "pull_request_linkages": [],
+      "execution_contexts": [],
+      "completion_evidence": {
+        "policy": "linked_pr_merged_all",
+        "status": "in_progress",
+        "source": null,
+        "completed_at": null,
+        "reconciled_at": null,
+        "evidence_refs": []
+      },
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-08-16T21:00:00Z"
+      }
+    },
+    {
+      "graph_node_id": "SYS-AUTH-WORKSPACE-P12",
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "title": "ドキュメント・ランブック・引き継ぎ",
+      "project_id": "feature-package-feat-auth-workspace",
+      "domain": "documentation",
+      "status": "active",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p12",
+        "feat-auth-workspace"
+      ],
+      "priority": null,
+      "start_date": null,
+      "target_date": null,
+      "iteration": null,
+      "created_at": "2026-08-16T12:39:37Z",
+      "updated_at": "2026-08-16T12:39:37Z",
+      "depends_on": [
+        "SYS-AUTH-WORKSPACE-P10",
+        "SYS-AUTH-WORKSPACE-P11"
+      ],
+      "related_nodes": [],
+      "resource_scope": [
+        "docs/spec/feat-auth-workspace/runbook.md",
+        "docs/spec/feat-auth-workspace/handover.md"
+      ],
+      "parent_feature": "feat-auth-workspace",
+      "feature_package_id": "feature-package/feat-auth-workspace",
+      "phase_ref": "P12",
+      "file_path": "tasks/feat-auth-workspace/sys-auth-workspace-p12.md",
+      "template_id": "task",
+      "template_version": "1.1.0",
+      "confirmation_status": "confirmed",
+      "evaluation_status": "pass",
+      "confirmation_evidence": {
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-auth-workspace/35483f66bb1988fc2b3ede65937a16e41d29637c455a092e3fa463c0c90fbb0c/plan-findings.json",
+        "evaluated_digest": "35483f66bb1988fc2b3ede65937a16e41d29637c455a092e3fa463c0c90fbb0c"
+      },
+      "source_lineage": {
+        "origin_kind": "system-dev-planner",
+        "source_plugin": "system-dev-planner",
+        "source_path": ".dev-graph/published/generations/feature-package-feat-auth-workspace/35483f66bb1988fc2b3ede65937a16e41d29637c455a092e3fa463c0c90fbb0c/task-specs/phase-12-documentation-operations.md",
+        "source_version": "0.1.0",
+        "source_digest": "35483f66bb1988fc2b3ede65937a16e41d29637c455a092e3fa463c0c90fbb0c",
+        "imported_at": "2026-08-16T12:39:37Z"
+      },
+      "classification_confidence": 1.0,
+      "classification_reason": "feat-auth-workspace の P12 lifecycle 責務への確定写像",
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "confidence": 1.0,
+          "candidate_path": "tasks/feat-auth-workspace/sys-auth-workspace-p12.md"
+        }
+      ],
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "issue_linkage": null,
+      "tracker_binding": "repo-config-default",
+      "beads_linkage": null,
+      "github_project_linkages": [],
+      "pull_request_linkages": [],
+      "execution_contexts": [],
+      "completion_evidence": {
+        "policy": "linked_pr_merged_all",
+        "status": "in_progress",
+        "source": null,
+        "completed_at": null,
+        "reconciled_at": null,
+        "evidence_refs": []
+      },
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-08-16T21:00:00Z"
+      }
+    },
+    {
+      "graph_node_id": "SYS-AUTH-WORKSPACE-P13",
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "title": "リリース/デプロイとクローズアウト",
+      "project_id": "feature-package-feat-auth-workspace",
+      "domain": "operations",
+      "status": "active",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p13",
+        "feat-auth-workspace"
+      ],
+      "priority": null,
+      "start_date": null,
+      "target_date": null,
+      "iteration": null,
+      "created_at": "2026-08-16T12:39:37Z",
+      "updated_at": "2026-08-16T12:39:37Z",
+      "depends_on": [
+        "SYS-AUTH-WORKSPACE-P12"
+      ],
+      "related_nodes": [],
+      "resource_scope": [
+        "docs/spec/feat-auth-workspace/release-notes.md",
+        "system-spec/auth.md",
+        "architecture/system-spec-overview.md"
+      ],
+      "parent_feature": "feat-auth-workspace",
+      "feature_package_id": "feature-package/feat-auth-workspace",
+      "phase_ref": "P13",
+      "file_path": "tasks/feat-auth-workspace/sys-auth-workspace-p13.md",
+      "template_id": "task",
+      "template_version": "1.1.0",
+      "confirmation_status": "confirmed",
+      "evaluation_status": "pass",
+      "confirmation_evidence": {
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-auth-workspace/35483f66bb1988fc2b3ede65937a16e41d29637c455a092e3fa463c0c90fbb0c/plan-findings.json",
+        "evaluated_digest": "35483f66bb1988fc2b3ede65937a16e41d29637c455a092e3fa463c0c90fbb0c"
+      },
+      "source_lineage": {
+        "origin_kind": "system-dev-planner",
+        "source_plugin": "system-dev-planner",
+        "source_path": ".dev-graph/published/generations/feature-package-feat-auth-workspace/35483f66bb1988fc2b3ede65937a16e41d29637c455a092e3fa463c0c90fbb0c/task-specs/phase-13-release-deploy.md",
+        "source_version": "0.1.0",
+        "source_digest": "35483f66bb1988fc2b3ede65937a16e41d29637c455a092e3fa463c0c90fbb0c",
+        "imported_at": "2026-08-16T12:39:37Z"
+      },
+      "classification_confidence": 1.0,
+      "classification_reason": "feat-auth-workspace の P13 lifecycle 責務への確定写像",
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "confidence": 1.0,
+          "candidate_path": "tasks/feat-auth-workspace/sys-auth-workspace-p13.md"
+        }
+      ],
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "issue_linkage": null,
+      "tracker_binding": "repo-config-default",
+      "beads_linkage": null,
+      "github_project_linkages": [],
+      "pull_request_linkages": [],
+      "execution_contexts": [],
+      "completion_evidence": {
+        "policy": "linked_pr_merged_all",
+        "status": "in_progress",
+        "source": null,
+        "completed_at": null,
+        "reconciled_at": null,
+        "evidence_refs": []
+      },
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-08-16T21:00:00Z"
+      }
+    }
+  ]
+}

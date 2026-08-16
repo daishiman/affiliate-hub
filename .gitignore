@@ -32,6 +32,17 @@ coverage/
 .cache/
 .turbo/
 *.tsbuildinfo
+__pycache__/
+*.py[cod]
+.pytest_cache/
+
+# dev-graph の一時領域（正本は config.json と state/graph.json）
+.dev-graph/cache/
+.dev-graph/locks/
+.dev-graph/tmp/
+.dev-graph/state/*.lock
+eval-log/
+.codex/
 
 # エディタ・OS
 .DS_Store

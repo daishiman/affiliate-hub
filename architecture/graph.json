@@ -1,0 +1,205 @@
+{
+  "schema_version": "1.0.0",
+  "repository_id": "github:daishiman/affiliate-hub",
+  "source": ".dev-graph/state/graph.json",
+  "nodes": [
+    {
+      "id": "arch-spec-governance",
+      "kind": "architecture",
+      "title": "仕様正本とドメイン分離のアーキテクチャ",
+      "path": "architecture/arch-spec-governance.md",
+      "domain": "specification",
+      "confirmation_status": "draft"
+    },
+    {
+      "id": "arch-system-spec-overview",
+      "kind": "architecture",
+      "title": "system-spec architecture overview",
+      "path": "architecture/system-spec-overview.md",
+      "domain": "system-spec",
+      "confirmation_status": "confirmed"
+    },
+    {
+      "id": "spec-analytics-foundation",
+      "kind": "specification",
+      "title": "Analytics基盤仕様の投影",
+      "path": "specs/spec-analytics-foundation.md",
+      "domain": "specification",
+      "confirmation_status": "draft"
+    },
+    {
+      "id": "spec-gap-ledger",
+      "kind": "specification",
+      "title": "ギャップと未決事項の投影",
+      "path": "specs/spec-gap-ledger.md",
+      "domain": "specification",
+      "confirmation_status": "draft"
+    },
+    {
+      "id": "spec-product-requirements",
+      "kind": "specification",
+      "title": "プロダクト要求の投影",
+      "path": "specs/spec-product-requirements.md",
+      "domain": "specification",
+      "confirmation_status": "draft"
+    },
+    {
+      "id": "spec-reader-surface",
+      "kind": "specification",
+      "title": "読者面 Phase 0 契約の投影",
+      "path": "specs/spec-reader-surface.md",
+      "domain": "specification",
+      "confirmation_status": "draft"
+    },
+    {
+      "id": "spec-system-spec-index",
+      "kind": "specification",
+      "title": "system-spec compiled specification",
+      "path": "specs/system-spec-index.md",
+      "domain": "system-spec",
+      "confirmation_status": "confirmed"
+    }
+  ],
+  "edges": [
+    {
+      "from": "arch-spec-governance",
+      "to": "spec-analytics-foundation",
+      "type": "related"
+    },
+    {
+      "from": "arch-spec-governance",
+      "to": "spec-product-requirements",
+      "type": "related"
+    },
+    {
+      "from": "feat-affiliate-hub",
+      "to": "arch-system-spec-overview",
+      "type": "architecture_ref"
+    },
+    {
+      "from": "feat-affiliate-inbox",
+      "to": "arch-system-spec-overview",
+      "type": "architecture_ref"
+    },
+    {
+      "from": "feat-ai-assistant",
+      "to": "arch-system-spec-overview",
+      "type": "architecture_ref"
+    },
+    {
+      "from": "feat-ai-content-studio",
+      "to": "arch-system-spec-overview",
+      "type": "architecture_ref"
+    },
+    {
+      "from": "feat-analytics-insight",
+      "to": "arch-system-spec-overview",
+      "type": "architecture_ref"
+    },
+    {
+      "from": "feat-auth-workspace",
+      "to": "arch-system-spec-overview",
+      "type": "architecture_ref"
+    },
+    {
+      "from": "feat-backend-mcp",
+      "to": "arch-system-spec-overview",
+      "type": "architecture_ref"
+    },
+    {
+      "from": "feat-comparison-engine",
+      "to": "arch-system-spec-overview",
+      "type": "architecture_ref"
+    },
+    {
+      "from": "feat-compliance-disclosure",
+      "to": "arch-system-spec-overview",
+      "type": "architecture_ref"
+    },
+    {
+      "from": "feat-distribution-hub",
+      "to": "arch-system-spec-overview",
+      "type": "architecture_ref"
+    },
+    {
+      "from": "feat-editorial-workflow",
+      "to": "arch-system-spec-overview",
+      "type": "architecture_ref"
+    },
+    {
+      "from": "feat-persona-studio",
+      "to": "arch-system-spec-overview",
+      "type": "architecture_ref"
+    },
+    {
+      "from": "feat-product-intelligence",
+      "to": "arch-system-spec-overview",
+      "type": "architecture_ref"
+    },
+    {
+      "from": "feat-reader-surface",
+      "to": "arch-system-spec-overview",
+      "type": "architecture_ref"
+    },
+    {
+      "from": "feat-site-builder",
+      "to": "arch-system-spec-overview",
+      "type": "architecture_ref"
+    },
+    {
+      "from": "feat-spec-canonicalization",
+      "to": "arch-spec-governance",
+      "type": "architecture_ref"
+    },
+    {
+      "from": "feat-webmcp-surface",
+      "to": "arch-system-spec-overview",
+      "type": "architecture_ref"
+    },
+    {
+      "from": "spec-analytics-foundation",
+      "to": "spec-gap-ledger",
+      "type": "related"
+    },
+    {
+      "from": "spec-analytics-foundation",
+      "to": "spec-product-requirements",
+      "type": "related"
+    },
+    {
+      "from": "spec-gap-ledger",
+      "to": "spec-product-requirements",
+      "type": "related"
+    },
+    {
+      "from": "spec-gap-ledger",
+      "to": "spec-reader-surface",
+      "type": "related"
+    },
+    {
+      "from": "spec-product-requirements",
+      "to": "spec-analytics-foundation",
+      "type": "related"
+    },
+    {
+      "from": "spec-product-requirements",
+      "to": "spec-gap-ledger",
+      "type": "related"
+    },
+    {
+      "from": "spec-reader-surface",
+      "to": "spec-gap-ledger",
+      "type": "related"
+    },
+    {
+      "from": "spec-reader-surface",
+      "to": "spec-product-requirements",
+      "type": "related"
+    },
+    {
+      "from": "spec-system-spec-index",
+      "to": "arch-system-spec-overview",
+      "type": "architecture_ref"
+    }
+  ]
+}
