@@ -1,6 +1,6 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
-import styles from "./ui.module.css";
+import styles from "../primitives/ui.module.css";
 
 /**
  * 画面の骨格。

@@ -11,7 +11,8 @@ import { defineConfig } from "vitest/config";
 export default defineConfig({
   test: {
     environment: "node",
-    include: ["tests/**/*.test.ts"],
+    // .tsx を入れ忘れると、部品の描画テストが 1 件も走らないまま全部緑になる。
+    include: ["tests/**/*.test.ts", "tests/**/*.test.tsx"],
   },
   resolve: {
     alias: {

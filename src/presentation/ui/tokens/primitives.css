@@ -141,6 +141,10 @@
   --font-weight-semibold: 600;
   --font-weight-bold: 700;
 
+  /* 字間。小さい大文字ラベルだけ広げる（本文は 0 のまま）。 */
+  --letter-spacing-normal: 0;
+  --letter-spacing-wide: 0.04em;
+
   /* === 影 =============================================================== */
   --elevation-1: 0 1px 2px rgb(0 0 0 / 0.06), 0 1px 3px rgb(0 0 0 / 0.1);
   --elevation-2: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);

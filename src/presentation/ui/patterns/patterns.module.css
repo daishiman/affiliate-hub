@@ -1,0 +1,271 @@
+/*
+ * 仕様固有パターンの見た目。
+ *
+ * 読んでよいのは tokens/semantic.css の変数だけ。
+ * 生の色・px を書くと tests/ui/design-tokens.test.ts が落ちる。
+ */
+
+/* === 事実と推測の区別 =================================================== */
+
+.factBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius-pill);
+  font-size: var(--text-xs);
+  font-weight: var(--weight-semibold);
+  line-height: var(--leading-dense);
+  white-space: nowrap;
+}
+
+/* 色だけで区別しない。記号と文字を必ず添える（色覚と白黒印刷への対応）。 */
+.factBadgeFact {
+  background: var(--color-intent-success-subtle);
+  color: var(--color-intent-success);
+  border: var(--border-width-default) solid var(--color-intent-success);
+}
+
+.factBadgeInference {
+  background: var(--color-intent-warning-subtle);
+  color: var(--color-intent-warning);
+  border: var(--border-width-default) solid var(--color-accent-border);
+}
+
+.factBadgeOpinion {
+  background: var(--color-surface-sunken);
+  color: var(--color-text-muted);
+  border: var(--border-width-default) solid var(--color-border-default);
+}
+
+.factNote {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+  line-height: var(--leading-body);
+}
+
+/* === 根拠・出典 ========================================================= */
+
+.evidenceList {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: var(--space-2);
+}
+
+.evidenceItem {
+  display: grid;
+  gap: var(--space-1);
+  padding-inline-start: var(--space-3);
+  border-inline-start: var(--border-width-marker) solid var(--color-border-default);
+  font-size: var(--text-sm);
+  line-height: var(--leading-body);
+}
+
+.evidenceMeta {
+  color: var(--color-text-muted);
+  font-size: var(--text-xs);
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+/* === 広告表示（ステマ規制対応） ========================================= */
+
+.disclosure {
+  display: grid;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-4);
+  border: var(--border-width-emphasis) solid var(--color-accent-border);
+  border-radius: var(--radius-md);
+  background: var(--color-accent-subtle);
+  color: var(--color-text-default);
+  font-size: var(--text-sm);
+  line-height: var(--leading-body);
+}
+
+.disclosureTitle {
+  font-weight: var(--weight-bold);
+  color: var(--color-text-strong);
+}
+
+.disclosureLinks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  font-size: var(--text-xs);
+}
+
+/* === 表（順位・比較の共通土台） ========================================= */
+
+.tableWrap {
+  overflow-x: auto;
+  border: var(--border-width-default) solid var(--color-border-subtle);
+  border-radius: var(--radius-md);
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--text-sm);
+  line-height: var(--leading-dense);
+}
+
+.table caption {
+  text-align: start;
+  padding: var(--space-3) var(--space-4);
+  color: var(--color-text-muted);
+  font-size: var(--text-xs);
+}
+
+.table th,
+.table td {
+  padding: var(--space-3);
+  text-align: start;
+  border-bottom: var(--border-width-default) solid var(--color-border-subtle);
+  vertical-align: top;
+}
+
+.table thead th {
+  position: sticky;
+  top: 0;
+  z-index: var(--z-sticky);
+  background: var(--color-surface-raised);
+  color: var(--color-text-strong);
+  font-weight: var(--weight-semibold);
+}
+
+/* 行の見出し（商品名・順位）は横スクロールしても残す。 */
+.table tbody th {
+  background: var(--color-surface-default);
+  color: var(--color-text-strong);
+  font-weight: var(--weight-semibold);
+}
+
+.rank {
+  font-size: var(--text-lg);
+  font-weight: var(--weight-bold);
+  color: var(--color-text-strong);
+}
+
+.score {
+  font-variant-numeric: tabular-nums;
+}
+
+.numeric {
+  text-align: end;
+  font-variant-numeric: tabular-nums;
+}
+
+.excluded {
+  color: var(--color-text-muted);
+}
+
+/* === 評価基準の開示 ===================================================== */
+
+.criteria {
+  display: grid;
+  gap: var(--space-2);
+  margin: 0;
+  padding: var(--space-3) var(--space-4);
+  border: var(--border-width-default) solid var(--color-border-subtle);
+  border-radius: var(--radius-md);
+  background: var(--color-surface-sunken);
+  font-size: var(--text-sm);
+}
+
+.criteriaRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  align-items: baseline;
+}
+
+.criteriaWeight {
+  font-variant-numeric: tabular-nums;
+  color: var(--color-text-muted);
+}
+
+/* === 承認の流れ ========================================================= */
+
+.flow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  align-items: center;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.flowStep {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-pill);
+  border: var(--border-width-default) solid var(--color-border-default);
+  color: var(--color-text-muted);
+  font-size: var(--text-xs);
+}
+
+.flowStepDone {
+  border-color: var(--color-intent-success);
+  color: var(--color-intent-success);
+}
+
+.flowStepCurrent {
+  border-color: var(--color-accent-border);
+  border-width: var(--border-width-emphasis);
+  background: var(--color-accent-subtle);
+  color: var(--color-text-strong);
+  font-weight: var(--weight-semibold);
+}
+
+.flowSep {
+  color: var(--color-text-muted);
+}
+
+/* === 見本（スタブ）ラベル =============================================== */
+
+/*
+ * 見本であることを隠さない。
+ * 縞模様にして「本物の画面と見た目が違う」ことを一目で分かるようにする。
+ */
+.stub {
+  display: grid;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-4);
+  border: var(--border-width-emphasis) dashed var(--color-border-strong);
+  border-radius: var(--radius-md);
+  background: var(--color-surface-sunken);
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+  line-height: var(--leading-body);
+}
+
+.stubLabel {
+  display: inline-flex;
+  align-self: start;
+  align-items: center;
+  gap: var(--space-1);
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius-sm);
+  background: var(--color-border-strong);
+  color: var(--color-surface-default);
+  font-size: var(--text-xs);
+  font-weight: var(--weight-bold);
+  letter-spacing: var(--tracking-wide);
+}
+
+.stubBlocked {
+  color: var(--color-text-default);
+}
+
+@media (width < 48rem) { /* --breakpoint-md */
+  .table thead th {
+    position: static;
+  }
+}

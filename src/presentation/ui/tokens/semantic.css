@@ -118,6 +118,9 @@
   --weight-semibold: var(--font-weight-semibold);
   --weight-bold: var(--font-weight-bold);
 
+  --tracking-normal: var(--letter-spacing-normal);
+  --tracking-wide: var(--letter-spacing-wide);
+
   /* === 寸法 ============================================================= */
   --tap-target-min: var(--hit-min);
   --icon-sm: var(--glyph-sm);
