@@ -15,10 +15,19 @@ import styles from "./patterns.module.css";
 export function DisclosureNotice({
   /** 順位づけを含む記事では、報酬を順位に使っていないことも併せて出す。 */
   showRankingNote = false,
+  /**
+   * 設定で組み立てた文言。省略時は既定の文言。
+   *
+   * **画面が自由に書ける欄ではない。** 渡してよいのは
+   * ドメインの `buildVisibleMessage()` が作った文字列だけ。
+   * 設定画面が「読者に出るのと同じ見た目」で確認するために開けてある。
+   */
+  message,
   methodologyHref,
   policyHref,
 }: {
   readonly showRankingNote?: boolean;
+  readonly message?: string;
   readonly methodologyHref?: string;
   readonly policyHref?: string;
 }) {
@@ -26,7 +35,7 @@ export function DisclosureNotice({
     // role="note" ではなく region + 見出しにして、読み上げでも飛ばせるようにする。
     <aside className={styles.disclosure} aria-label={UI_COPY.disclosure.bannerTitle}>
       <span className={styles.disclosureTitle}>{UI_COPY.disclosure.bannerTitle}</span>
-      <span>{UI_COPY.disclosure.bannerBody}</span>
+      <span>{message ?? UI_COPY.disclosure.bannerBody}</span>
       {showRankingNote && <span>{UI_COPY.disclosure.rankingNote}</span>}
       {(methodologyHref !== undefined || policyHref !== undefined) && (
         <span className={styles.disclosureLinks}>

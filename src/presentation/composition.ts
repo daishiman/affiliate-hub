@@ -46,6 +46,14 @@ import {
   createListProductLinksUseCase,
 } from "@/application/usecases/monetization/manage-affiliate";
 import {
+  createGetSettingsOverviewUseCase,
+  createListAuditLogUseCase,
+  createListBrandsUseCase,
+  createListDisclosuresUseCase,
+  createListMembersUseCase,
+  createListRolesUseCase,
+} from "@/application/usecases/identity/manage-workspace";
+import {
   createCheckSiteDifferentiationUseCase,
   createGetManagedSiteUseCase,
   createListManagedSitesUseCase,
@@ -72,6 +80,7 @@ import {
 } from "@/infrastructure/persistence/sample/affiliate-sample-repository";
 import { sampleAnalyticsNotice } from "@/infrastructure/persistence/sample/analytics-sample-repository";
 import { sampleProductNotice } from "@/infrastructure/persistence/sample/product-sample-repository";
+import { sampleSettingsNotice } from "@/infrastructure/persistence/sample/settings-sample-repository";
 import {
   SAMPLE_MODEL_ID,
   SAMPLE_PRODUCTS,
@@ -293,6 +302,36 @@ export function analyticsUseCases() {
     listUsableMetrics: createListUsableMetricsUseCase(analytics),
     checkFeedback: createCheckFeedbackUseCase(analytics),
   };
+}
+
+/**
+ * 設定の入口。
+ *
+ * 役割を 1 つ増やすときに触るのは domain の権限表だけ。
+ * ここも画面も変わらず、新しい役割が一覧に現れる。
+ */
+export function settingsUseCases() {
+  const deps = createDeps();
+  const settings = {
+    workspaces: deps.workspaces,
+    memberships: deps.memberships,
+    brands: deps.brands,
+    disclosures: deps.disclosures,
+    auditLog: deps.auditLog,
+  };
+  return {
+    getOverview: createGetSettingsOverviewUseCase(settings),
+    listRoles: createListRolesUseCase(settings),
+    listMembers: createListMembersUseCase(settings),
+    listBrands: createListBrandsUseCase(settings),
+    listDisclosures: createListDisclosuresUseCase(settings),
+    listAuditLog: createListAuditLogUseCase(settings),
+  };
+}
+
+/** 設定が見本データであることを画面に出すための一文。 */
+export function settingsNotice(): string {
+  return sampleSettingsNotice();
 }
 
 /** 数字が見本データであることを画面に出すための一文。 */

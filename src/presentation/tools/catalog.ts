@@ -13,6 +13,7 @@ import { contentTools } from "./content-tools";
 import { distributionTools } from "./distribution-tools";
 import { platformTools } from "./platform-tools";
 import { productTools } from "./product-tools";
+import { settingsTools } from "./settings-tools";
 import { siteTools } from "./site-tools";
 
 /**
@@ -92,6 +93,7 @@ export function buildToolCatalog(deps: CatalogDeps): readonly AnyToolDefinition[
     ...distributionTools(deps),
     ...affiliateTools(deps),
     ...analyticsTools(deps),
+    ...settingsTools(deps),
   ];
 }
 

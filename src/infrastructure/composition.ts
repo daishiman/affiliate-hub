@@ -35,6 +35,13 @@ import {
   createSampleAffiliateProgramRepository,
   createSampleConversionRepository,
 } from "./persistence/sample/affiliate-sample-repository";
+import {
+  createSampleAuditLog,
+  createSampleBrandRepository,
+  createSampleDisclosureRepository,
+  createSampleMembershipRepository,
+  createSampleWorkspaceRepository,
+} from "./persistence/sample/settings-sample-repository";
 import { createSampleSiteRepository } from "./persistence/sample/site-sample-repository";
 
 /**
@@ -83,6 +90,13 @@ export function createDeps(): AppDeps {
     // ★ 見本データ（スタブ）。数字。本物は公開して読まれ始めてから入る。
     metrics: createSampleMetricsRepository(),
     clickTracking: createSampleClickTracking(),
+    // ★ 見本データ（スタブ）。作業場所・担当者・ブランド・広告表記・操作の記録。
+    //   本物にするには認証（Better Auth + Google）と各テーブルが要る。
+    workspaces: createSampleWorkspaceRepository(),
+    memberships: createSampleMembershipRepository(),
+    brands: createSampleBrandRepository(),
+    disclosures: createSampleDisclosureRepository(),
+    auditLog: createSampleAuditLog(),
     // ★ 見本データ（スタブ）。提携先・提携条件・成果。
     //   本物の数字には各 ASP の API 申請と、利用者ご自身による接続情報の登録が要る。
     //   ここで作るものには商業の印が付いており、順位づけへは型として渡せない。

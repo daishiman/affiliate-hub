@@ -17,6 +17,12 @@ import type {
   PublicationRepositoryPort,
 } from "./ports/distribution";
 import type { ClickTrackingPort, MetricsRepositoryPort } from "./ports/analytics";
+import type { AuditLogPort, DisclosureRepositoryPort } from "./ports/compliance";
+import type {
+  BrandRepositoryPort,
+  MembershipRepositoryPort,
+  WorkspaceRepositoryPort,
+} from "./ports/identity";
 import type {
   AffiliateAccountRepositoryPort,
   AffiliateProgramRepositoryPort,
@@ -62,6 +68,11 @@ export type AppDeps = {
   readonly manualExport: ManualExportPort;
   readonly metrics: MetricsRepositoryPort;
   readonly clickTracking: ClickTrackingPort;
+  readonly workspaces: WorkspaceRepositoryPort;
+  readonly memberships: MembershipRepositoryPort;
+  readonly brands: BrandRepositoryPort;
+  readonly disclosures: DisclosureRepositoryPort;
+  readonly auditLog: AuditLogPort;
   /**
    * ここから下は Commercial 区分。
    * 順位づけのユースケースは Editorial 印のポートしか受け取らないので、
