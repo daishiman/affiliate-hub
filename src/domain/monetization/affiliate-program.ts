@@ -103,7 +103,7 @@ export function createAffiliateAccount(input: {
   connectedAt: Date;
 }): Result<AffiliateAccount, DomainError> {
   if (input.label.trim() === "") {
-    return err(validationError("アカウントの識別名が必要です。", "label"));
+    return err(validationError("ASP アカウントの識別名が必要です。", "label"));
   }
   if (input.credentialRef && input.credentialRef.trim().length > 200) {
     return err(

@@ -92,7 +92,7 @@ export function evaluatePublishGate(input: PublishGateInput): GateResult {
     failures.push({
       requirement: "disclosure",
       message:
-        "広告表記の表示文言が空です。読者が広告関係を判別できる文章を入れてください（例: 本記事はアフィリエイト広告を含みます）。",
+        "広告表示の文言が空です。読者が広告関係を判別できる文章が必要です（文言の正本は src/presentation/ui/copy.ts の UI_COPY.disclosure）。",
     });
   }
 

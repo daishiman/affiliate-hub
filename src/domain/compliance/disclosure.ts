@@ -52,11 +52,11 @@ const DISCLOSURE_REQUIRED: ReadonlySet<RelationshipType> = new Set<RelationshipT
 
 const RELATIONSHIP_LABEL: Record<RelationshipType, string> = {
   affiliate: "アフィリエイト広告を利用しています",
-  sponsored: "スポンサー提供のコンテンツです",
+  sponsored: "スポンサー提供の記事です",
   supplied: "商品の提供を受けています",
   loaned: "商品の貸与を受けています",
   purchased: "商品は編集部が自費で購入しています",
-  paid_partnership: "有償パートナーシップによるコンテンツです",
+  paid_partnership: "有償パートナーシップによる記事です",
 };
 
 const INFLUENCE_LABEL: Record<EditorialInfluence, string> = {

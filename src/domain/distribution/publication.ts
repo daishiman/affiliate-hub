@@ -94,7 +94,7 @@ export function createPublication(input: {
   if (supportsDirectPublish(input.channelKind) && input.connectionId === null) {
     return err(
       validationError(
-        `${CHANNEL_CAPABILITIES[input.channelKind].label} へ出すには、先にアカウントの接続が必要です。`,
+        `${CHANNEL_CAPABILITIES[input.channelKind].label} へ出すには、先に接続の設定が必要です。`,
         "connectionId",
       ),
     );

@@ -215,7 +215,7 @@ export function createChannelConnection(input: {
 }): Result<ChannelConnection, DomainError> {
   if (input.accountLabel.trim() === "") {
     return err(
-      validationError("接続先のアカウント名が必要です。誤ったアカウントへの投稿を防ぎます。", "accountLabel"),
+      validationError("接続先のアカウント名が必要です。誤った接続先への投稿を防ぎます。", "accountLabel"),
     );
   }
   if (input.credentialRef.trim() === "") {
