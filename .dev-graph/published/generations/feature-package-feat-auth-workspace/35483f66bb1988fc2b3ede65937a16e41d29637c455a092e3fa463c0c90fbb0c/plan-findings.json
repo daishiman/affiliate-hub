@@ -1,0 +1,190 @@
+{
+  "schema_version": "1.0.0",
+  "plan_dir": ".dev-graph/staging/run-20260816-feat-auth-workspace",
+  "evaluator": {
+    "name": "assign-system-dev-plan-evaluator",
+    "version": "0.1.0",
+    "context": "fork"
+  },
+  "evaluated_digest": "sha256:35483f66bb1988fc2b3ede65937a16e41d29637c455a092e3fa463c0c90fbb0c",
+  "verdict": "PASS",
+  "conditions": {
+    "C1": {
+      "id": "C1",
+      "status": "PASS",
+      "summary": "feature-package/workstream-inventory/task-graph/13 task specs/handoff の parent_feature=feat-auth-workspace, feature_package_id=feature-package/feat-auth-workspace, source_feature_digest が全ファイルで一致し矛盾なし。全13 task spec の「スコープ外」節が goal-spec.scope_out (外部プラットフォームのアカウント接続/課金/SSO・SCIM) と同一文言で踏み込みを禁止しており、write_scope も各 task の責務範囲内に収まっている。",
+      "evidence": [
+        "feature-package.json#parent_feature",
+        "feature-package.json#source_feature_digest",
+        "task-specs/phase-01-requirements.md#スコープ外",
+        "task-specs/phase-05-implementation.md#スコープ外",
+        "task-specs/phase-13-release-deploy.md#スコープ外",
+        "gate:deterministic-validation"
+      ]
+    },
+    "C2": {
+      "id": "C2",
+      "status": "PASS",
+      "summary": "exact-13 (P01..P13)、13-entry workstream-inventory、13-node task-graph、必須 section (Machine-readable registration fields/目的/背景/前提条件/Workstream applicability/Architecture and deploy unit/成果物/Tracker publication/Branch and worktree execution/スコープ外/テスト戦略/Verification and evidence/Inner goal-seek execution loop/Rollout and rollback/Handoff/参照情報) がP01..P13の全13件に存在する。テスト戦略4項目 (テストレベル選定/カバレッジ目標/層別方針/保守性制約) は全13件で充足。feat-auth-workspace の受入4項目 (未ログイン遷移/別workspaceデータ不可視/標準CTA・標準免責の既定値受渡し/権限なしロールの403) は P01(要求ベースライン化)→P04(テスト設計 login-redirect/workspace-isolation/brand-defaults/role-403 の4 spec ファイル)→P05(実装)→P06(pnpm run preview 上の4スイート実行)→P07(受け入れ判定)→P09(迂回経路への横断検証)→P10(最終確認)→P11(再現可能証跡)→P12(引き継ぎ後の再検証手順)→P13(クローズアウト+system-spec/auth.md・architecture/system-spec-overview.mdへの書き戻し)まで全13task本文で意味として接地している。feature の frontmatter tags (auth/workspace/tenant/prototype-all-features) に qa-NNN 宣言が無く、feature-execution-package-contract §2.5 QA semantic coverage 検査 (qa-ref-unregistered/qa-semantic-coverage/qa-task-trace) は対象外 (feature 側で確認済み)。",
+      "evidence": [
+        "feature-package.json#task_node_ids",
+        "workstream-inventory.json#tasks",
+        "task-graph.json#nodes",
+        "task-specs/phase-04-test-design.md#テスト戦略",
+        "task-specs/phase-06-test-run.md#目的",
+        "task-specs/phase-07-acceptance.md#目的",
+        "task-specs/phase-08-refactoring-migration.md#目的",
+        "task-specs/phase-13-release-deploy.md#Inner goal-seek execution loop",
+        "gate:deterministic-validation"
+      ]
+    },
+    "C3": {
+      "id": "C3",
+      "status": "PASS",
+      "summary": "共通 parent_feature=feat-auth-workspace / feature_package_id=feature-package/feat-auth-workspace / source_feature_digest=sha256:d7802ad3e805fabe54ed93e968c4c89d74cfb9e4b0f8bf6e7cfa9509f9ce4565 が feature-package.json/task-graph.json/workstream-inventory.json/system-build-handoff.json の全件で一致。registration path は全13件が tasks/feat-auth-workspace/<小文字task-id>.md の小文字規約に一致 (機械検査済み)。全13 task spec の再実行コマンドは validate-system-plan.py --repo-root . --feature-package feature-package/feat-auth-workspace の世代非依存形で統一され、--staging は使用していない。.dev-graph/staging 文字列・TODO(human)・TBD・placeholder は package 内の全 json/md を走査して0件。repo_identity=github:daishiman/affiliate-hub は .dev-graph/config.json および goal-spec.json/system-build-handoff.json の repo_context/identity と一致し、staging directory は repo root 配下に realpath containment されている。",
+      "evidence": [
+        "task-graph.json#nodes",
+        "workstream-inventory.json#tasks[].graph_node_registration.file_path",
+        "task-specs/phase-01-requirements.md#Verification and evidence",
+        "task-specs/phase-13-release-deploy.md#Verification and evidence",
+        "system-build-handoff.json#identity",
+        "gate:deterministic-validation"
+      ]
+    },
+    "C4": {
+      "id": "C4",
+      "status": "PASS",
+      "summary": "task-graph.json の13 node は全て前方DAG (小さいphase_refから大きいphase_refへのみ) で、機械的に再検証した結果、循環・後方edge・feature外task参照 (SYS-AUTH-WORKSPACE- 以外のprefix) は0件。P01以外の12 nodeは全て1件以上のincoming edgeを持ち、orphanは0件。P08はP05から分岐しP09で合流、P11はP07/P09から合流しP12で合流する分岐/合流構造を含むが、いずれも前方方向のみ。",
+      "evidence": [
+        "task-graph.json#nodes",
+        "gate:deterministic-validation"
+      ]
+    }
+  },
+  "gate_results": [
+    {
+      "id": "deterministic-validation",
+      "name": "validate-system-plan",
+      "command": [
+        "python3",
+        ".claude/plugins/system-dev-planner/scripts/validate-system-plan.py",
+        "--repo-root",
+        ".",
+        "--config",
+        ".dev-graph/config.json",
+        "--staging",
+        ".dev-graph/staging/run-20260816-feat-auth-workspace"
+      ],
+      "exit_code": 0,
+      "conditions": [
+        "C1",
+        "C2",
+        "C3",
+        "C4"
+      ],
+      "stdout": "{\n  \"schema_version\": \"1.0.0\",\n  \"status\": \"pass\",\n  \"validated_digest\": \"sha256:35483f66bb1988fc2b3ede65937a16e41d29637c455a092e3fa463c0c90fbb0c\",\n  \"feature_package_id\": \"feature-package/feat-auth-workspace\",\n  \"parent_feature\": \"feat-auth-workspace\",\n  \"phase_refs\": [\n    \"P01\",\n    \"P02\",\n    \"P03\",\n    \"P04\",\n    \"P05\",\n    \"P06\",\n    \"P07\",\n    \"P08\",\n    \"P09\",\n    \"P10\",\n    \"P11\",\n    \"P12\",\n    \"P13\"\n  ],\n  \"contract_version\": \"1.3.0\",\n  \"contract_baseline_exemption\": false,\n  \"test_strategy_contract\": {\n    \"mode\": \"enforced\",\n    \"contract_version\": \"1.3.0\",\n    \"enforced_from\": \"1.2.0\"\n  },\n  \"rerun_command_contract\": {\n    \"mode\": \"enforced\",\n    \"contract_version\": \"1.3.0\",\n    \"enforced_from\": \"1.3.0\"\n  },\n  \"violations\": []\n}\n",
+      "stderr": ""
+    }
+  ],
+  "evaluated_inputs": [
+    {
+      "path": "feature-package.json",
+      "sha256": "8692228649d5056ce7749cc759bd186eb8876285fa86ddfd235da98bd32dc22d"
+    },
+    {
+      "path": "staging-manifest.json",
+      "sha256": "c5a4f372031215646c64ef9ea0a861d2d0939b7a581ad6299318ef6af30e0d8b"
+    },
+    {
+      "path": "system-build-handoff.json",
+      "sha256": "c6c09387b53cf1355fdf31b7c9239acda3113d764da8ae1edc363128b247f36c"
+    },
+    {
+      "path": "task-graph.json",
+      "sha256": "938b8a0d21b6eacc8c0adb4a43bcc2136d65f88943d5a931fbcb86675017d120"
+    },
+    {
+      "path": "task-specs/phase-01-requirements.md",
+      "sha256": "cb7431a77c9106e6df8ce7d073a0d45ae771551895eb1f540dc553cd316741ac"
+    },
+    {
+      "path": "task-specs/phase-02-architecture.md",
+      "sha256": "fc79b5ebebf19b74baf8929a7452deb3e7552a41f18eff2d11165536d8da7f98"
+    },
+    {
+      "path": "task-specs/phase-03-design-review.md",
+      "sha256": "9057da052bfc814bd99ceb4ef1df965f57611e9e777171738f6717a3ca9517bd"
+    },
+    {
+      "path": "task-specs/phase-04-test-design.md",
+      "sha256": "d29c0c03f65706a650bc95e68742d329f59cd3880b1d9da9c9c72c40d832aee6"
+    },
+    {
+      "path": "task-specs/phase-05-implementation.md",
+      "sha256": "49f28f3a8666e047fc82d31bc0127ddd44ff6cc51680f45c30959e9e6863633c"
+    },
+    {
+      "path": "task-specs/phase-06-test-run.md",
+      "sha256": "edd33a8f43eda39b4f5361cb6abedbc8dbc3fa817d1fef29fb8a318e69276bcf"
+    },
+    {
+      "path": "task-specs/phase-07-acceptance.md",
+      "sha256": "e91c7d83042e9616483d860d97faca8950f6617e76f4f3af29208d4a59371d7c"
+    },
+    {
+      "path": "task-specs/phase-08-refactoring-migration.md",
+      "sha256": "4ef5f610811833320ac44a97ff27a0851bb7752beddaeb702de2a80d6744398c"
+    },
+    {
+      "path": "task-specs/phase-09-quality-assurance.md",
+      "sha256": "112f8b95a2b2013270021b7540b6027839e067cd43a8b6e8758c17b43ceba7cc"
+    },
+    {
+      "path": "task-specs/phase-10-final-review.md",
+      "sha256": "fa7755b7d7b3fa044c9e7a999c73fb19e187cf190fcfdc000b73bb0fd1a57c5d"
+    },
+    {
+      "path": "task-specs/phase-11-evidence.md",
+      "sha256": "ec47921ee9b23fa8aa2271d1e1cafec4c14f534164b09268ac43953a35f329d5"
+    },
+    {
+      "path": "task-specs/phase-12-documentation-operations.md",
+      "sha256": "0039278788dde2fbb3cc5df8a38687682925cffe619e47536f3629b4c0513aee"
+    },
+    {
+      "path": "task-specs/phase-13-release-deploy.md",
+      "sha256": "47bca77ec33a1ea50a776e92d5620db16bc649f4ccf67b03a8b2d57319caef49"
+    },
+    {
+      "path": "workstream-inventory.json",
+      "sha256": "37b969fadcc51cf47ba81c8eca55eba10fdb405d49604e838388ec7457352df2"
+    }
+  ],
+  "staleness_rule": "本評価は evaluated_digest (sha256:35483f66bb1988fc2b3ede65937a16e41d29637c455a092e3fa463c0c90fbb0c) に束縛される。staging bytes が1バイトでも変化し canonical_digest が変わった場合、本 findings は無効となり再評価が必要。",
+  "findings": [
+    {
+      "severity": "info",
+      "bucket": "qa-semantic-coverage",
+      "observation": "feature-package/feat-auth-workspace の frontmatter tags に qa-NNN 宣言が無いため、feature-execution-package-contract §2.5 の QA semantic coverage 検査 (qa-ref-unregistered/qa-semantic-coverage/qa-task-trace) は対象外。将来 qa-NNN タグが追加された場合は本 package の再評価が必要になる。",
+      "evidence": [
+        "features/feat-auth-workspace.md#tags"
+      ]
+    },
+    {
+      "severity": "info",
+      "bucket": "gate-name-contract",
+      "observation": "gate_results[0].name は promote-system-plan.py が要求する厳密値 \"validate-system-plan\" に修正した (旧値は説明文を含む拡張表記だった)。判定内容・digest・stdout・conditions・command・exit_code は変更していない。",
+      "evidence": [
+        "gate:deterministic-validation"
+      ]
+    },
+    {
+      "severity": "info",
+      "bucket": "evidence-binding-contract",
+      "observation": "conditions.C1.evidence から evaluated_inputs 外の goal-spec.json#scope_out を除去し、evaluated_inputs 収録済みの task-specs/phase-01-requirements.md#スコープ外・task-specs/phase-05-implementation.md#スコープ外・task-specs/phase-13-release-deploy.md#スコープ外 へ束縛し直した。goal-spec.scope_out に基づく推論経緯は summary の文章として残している。C2/C3/C4 の evidence は全件 evaluated_inputs のpath (または gate:<id>) に既に束縛されていることを自己点検で確認済み。判定 (C1 PASS) 自体は変更していない。",
+      "evidence": [
+        "gate:deterministic-validation"
+      ]
+    }
+  ]
+}

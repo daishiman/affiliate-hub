@@ -1,0 +1,31 @@
+{
+  "graph_node_id": "feat-auth-workspace",
+  "artifact_kind": "feature",
+  "purpose": "利用者が自分のテナントとブランド設定の中だけで安全に作業できる土台をつくる",
+  "goal": "Google ログインでサインインし、Workspace と Brand を作成でき、全データが workspace_id で分離され、ロールに応じた操作制限が効いている",
+  "scope_in": [
+    "Better Auth + Google OAuth",
+    "Workspace / Brand の作成と切替",
+    "ブランド設定 (色・ロゴ・表示名・運営会社・編集方針・禁止表現・標準CTA・標準免責・言語・タイムゾーン)",
+    "ロールと権限 (§25)",
+    "全テーブルへの workspace_id 付与とテナント分離 (§26.4)"
+  ],
+  "scope_out": [
+    "外部プラットフォームのアカウント接続",
+    "課金",
+    "SSO / SCIM"
+  ],
+  "acceptance": [
+    "未ログインで管理画面を開くとログイン画面へ遷移する",
+    "別 Workspace のデータが一覧・詳細・API のいずれからも取得できない",
+    "ブランド設定の標準CTAと標準免責が記事生成の既定値として渡る",
+    "権限のないロールが公開操作を実行すると 403 になる"
+  ],
+  "architecture_refs": [
+    "architecture/system-spec-overview.md",
+    "system-spec/auth.md",
+    "system-spec/security.md",
+    "system-spec/database.md"
+  ],
+  "updated_at": "2026-08-16T12:20:00Z"
+}

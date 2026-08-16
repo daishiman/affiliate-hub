@@ -1,0 +1,101 @@
+{
+  "schema": "system-dev-planner/R1-elicit/goal-spec",
+  "run_id": "run-20260816-feat-auth-workspace",
+  "session_owner": "6f78de41-a1e7-45eb-b08c-d4a81a0becb9",
+  "generated_at": "2026-08-16T00:00:00Z",
+  "feature_id": "feat-auth-workspace",
+  "graph_node_id": "feat-auth-workspace",
+  "artifact_kind": "feature",
+  "purpose": "利用者が自分のテナントとブランド設定の中だけで安全に作業できる土台をつくる",
+  "goal": "Google ログインでサインインし、Workspace と Brand を作成でき、全データが workspace_id で分離され、ロールに応じた操作制限が効いている",
+  "scope_in": [
+    "Better Auth + Google OAuth",
+    "Workspace / Brand の作成と切替",
+    "ブランド設定 (色・ロゴ・表示名・運営会社・編集方針・禁止表現・標準CTA・標準免責・言語・タイムゾーン)",
+    "ロールと権限 (§25)",
+    "全テーブルへの workspace_id 付与とテナント分離 (§26.4)"
+  ],
+  "scope_out": [
+    "外部プラットフォームのアカウント接続",
+    "課金",
+    "SSO / SCIM"
+  ],
+  "acceptance": [
+    "未ログインで管理画面を開くとログイン画面へ遷移する",
+    "別 Workspace のデータが一覧・詳細・API のいずれからも取得できない",
+    "ブランド設定の標準CTAと標準免責が記事生成の既定値として渡る",
+    "権限のないロールが公開操作を実行すると 403 になる"
+  ],
+  "architecture_refs": [
+    "architecture/system-spec-overview.md",
+    "system-spec/auth.md",
+    "system-spec/security.md",
+    "system-spec/database.md"
+  ],
+  "lineage": {
+    "feature_context": {
+      "source_path": "features/feat-auth-workspace.context.json",
+      "source_plugin": "system-dev-planner",
+      "source_plugin_version": "0.1.0",
+      "source_digest": "sha256:d7802ad3e805fabe54ed93e968c4c89d74cfb9e4b0f8bf6e7cfa9509f9ce4565",
+      "digest_note": "caller (run-system-dev-plan / C09) 提供の feature-context ファイル bytes sha256。本 agent は再計算ツールを持たないため、caller 提供値をそのまま接地する",
+      "updated_at": "2026-08-16T12:20:00Z",
+      "graph_node_id_match": true
+    },
+    "feature_document": {
+      "source_path": "features/feat-auth-workspace.md",
+      "confirmation_status": "confirmed",
+      "evaluation_status": "pending",
+      "confirmation_evidence": {
+        "evaluated_digest": "0615d70d74973bac98929d7e3ce7b444933ac7e7280718ebbb74b8fef7676ca6",
+        "evaluator": "assign-system-spec-completeness-evaluator",
+        "evidence_ref": "system-spec/completeness-report.json"
+      }
+    },
+    "system_spec_sources": [
+      {
+        "source_path": "system-spec/index.md",
+        "role": "章一覧・収集状態インデックス",
+        "verdict": "確定 (8/8 章)"
+      },
+      {
+        "source_path": "system-spec/00-requirements-definition.md",
+        "role": "上位概念 U1-U9 正本",
+        "verdict": "confirmed"
+      },
+      {
+        "source_path": "system-spec/auth.md",
+        "role": "scope_in の Better Auth / Google OAuth / ロール権限 (§25) の技術投影",
+        "verdict": "確定"
+      },
+      {
+        "source_path": "system-spec/security.md",
+        "role": "acceptance の 403 制御・権限境界の技術投影",
+        "verdict": "確定"
+      },
+      {
+        "source_path": "system-spec/database.md",
+        "role": "workspace_id 付与とテナント分離 (§26.4) の技術投影",
+        "verdict": "確定"
+      },
+      {
+        "source_path": "architecture/system-spec-overview.md",
+        "role": "8章確定成果物の実装投影を単一 architecture context として参照",
+        "verdict": "generated (confirmed system-spec に接地)"
+      }
+    ],
+    "completeness_evaluation": {
+      "source_path": "system-spec/completeness-report.json",
+      "evaluator": "assign-system-spec-completeness-evaluator",
+      "evaluator_version": "0.1.0",
+      "verdict": "PASS",
+      "note": "6 aspect (foundation_trace/decision_guidance/matrix_coverage/design_knowledge_reflection/doc_freshness/prompt_quality) 全て PASS。既知 findings (medium 3件, low 2件) は auth/workspace の scope_in/acceptance に抵触しない"
+    }
+  },
+  "not_performed": [
+    "feature 分割",
+    "workstream 分解",
+    "P01..P13 task 生成",
+    "readiness promotion"
+  ]
+}
