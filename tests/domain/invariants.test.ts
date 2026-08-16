@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { requiredSectionsFor } from "@/domain/authoring/article-structure";
 import { createAuthorPersona, checkFactBoundary } from "@/domain/authoring/author-persona";
+import { createConversationBlock } from "@/domain/authoring/conversation-block";
 import { createContentVariant } from "@/domain/authoring/content-variant";
 import { runQualityChecks, type ChannelConstraints } from "@/domain/authoring/quality-check";
 import {
@@ -497,10 +498,38 @@ describe("自動の品質確認", () => {
 
   it("行えなかった検査は「検査していない」として残る", () => {
     const report = check("静かに動きます。デメリットは重さです。");
-    // 価格の記載が無い・機能一覧が無い・比較対象が無い・提携リンクが無い
+    // 価格の記載が無い・機能一覧が無い・比較対象が無い・提携リンクが無い・並びが未指定
     expect(report.skipped.map((s) => s.check).sort()).toEqual(
-      ["disclosure_present", "duplicate_text", "nonexistent_feature", "stale_price"].sort(),
+      [
+        "conversation_flow",
+        "disclosure_present",
+        "duplicate_text",
+        "nonexistent_feature",
+        "stale_price",
+      ].sort(),
     );
+  });
+
+  it("吹き出しの並びを渡すと、続けすぎを止める", () => {
+    const say = (role: "reader_question" | "guide_answer") => {
+      const created = createConversationBlock({
+        id: taggedString<"ConversationBlockId">(`cb_${role}`),
+        workspaceId: WS,
+        role,
+        speakerName: "山田",
+        text: "実際に 2 週間使ってみたところ、書き出しは公表値より少し遅く、9 分ほどでした。",
+        factAlsoInBody: true,
+      });
+      if (!created.ok) throw new Error(created.error.message);
+      return created.value;
+    };
+    const report = check(
+      "静かに動きます。デメリットは重さです。",
+      {},
+      { conversationSequence: [say("reader_question"), say("guide_answer"), say("reader_question")] },
+    );
+    expect(report.issues.map((i) => i.check)).toContain("conversation_flow");
+    expect(report.status).toBe("fail");
   });
 
   it("止めた理由は、そのまま読んで直せる文になっている", () => {

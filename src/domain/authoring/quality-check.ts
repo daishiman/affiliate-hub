@@ -1,5 +1,7 @@
 import type { AuthorPersona } from "./author-persona";
 import { checkFactBoundary, checkProhibitedPhrases } from "./author-persona";
+import type { ConversationSequenceItem } from "./conversation-block";
+import { validateConversationFlow } from "./conversation-block";
 import type { ContentVariant } from "./content-variant";
 
 /**
@@ -39,7 +41,8 @@ export type QualityCheckId =
   | "audience_fit" // 読者との不一致
   | "cta_overuse" // CTAの過剰
   | "missing_drawback" // デメリットの欠落
-  | "missing_citation"; // 出典の欠落
+  | "missing_citation" // 出典の欠落
+  | "conversation_flow"; // 会話・吹き出しの並び
 
 export type ChannelConstraints = {
   readonly channel: string;
@@ -64,6 +67,15 @@ export type QualityCheckContext = {
   /** 価格に言及しているか、その価格の確認日時。 */
   readonly priceCheckedAt: Date | null;
   readonly now: Date;
+  /**
+   * 本文と吹き出しの並び。渡さないと会話の検査はしない (skipped に出る)。
+   *
+   * 吹き出しだけでは「間に本文が入ったか」が分からないため、
+   * `"body"` も混ぜた並びで渡す。
+   */
+  readonly conversationSequence?: readonly ConversationSequenceItem[];
+  /** 実在の監修者が記事に割り当てられているか。専門家の注意を載せてよいかの判定に使う。 */
+  readonly hasVerifiedExpert?: boolean;
 };
 
 export type QualityReport = {
@@ -303,6 +315,22 @@ export function runQualityChecks(ctx: QualityCheckContext): QualityReport {
       severity: "error",
       message: "主張はありますが根拠が紐づいていません。出典を付けてください。",
     });
+  }
+
+  // 18. 会話・吹き出しの並び (ブログ層 §11)
+  if (ctx.conversationSequence === undefined) {
+    skipped.push({
+      check: "conversation_flow",
+      reason: "本文と吹き出しの並びが渡されていないため検査できません。",
+    });
+  } else if (ctx.conversationSequence.every((i) => i === "body")) {
+    skipped.push({ check: "conversation_flow", reason: "この記事に吹き出しがありません。" });
+  } else {
+    for (const issue of validateConversationFlow(ctx.conversationSequence, {
+      hasVerifiedExpert: ctx.hasVerifiedExpert ?? false,
+    })) {
+      issues.push({ check: "conversation_flow", severity: "error", message: issue.message });
+    }
   }
 
   const hasError = issues.some((i) => i.severity === "error");

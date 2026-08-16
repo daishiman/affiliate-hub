@@ -69,21 +69,36 @@ export type ConversationIssue = {
 };
 
 /**
+ * 記事の並び。吹き出しと本文が交互に来る。
+ *
+ * 吹き出しだけを渡すと「間に本文が入ったかどうか」が分からず、
+ * 記事全体で 3 個目の吹き出しが出た時点で必ず違反になってしまう。
+ * 本文の位置も一緒に渡す。
+ */
+export type ConversationSequenceItem = ConversationBlock | "body";
+
+/**
  * 吹き出しの並びを検査する。
  *
  * 検査する 3 点:
- *   1. 連続数が上限を超えていないか
+ *   1. 連続数が上限を超えていないか (本文を挟めば数え直す)
  *   2. 重要な事実が吹き出しだけに置かれていないか
  *   3. 専門家の注意に、実在の監修者が割り当てられているか
  */
 export function validateConversationFlow(
-  blocks: readonly ConversationBlock[],
+  sequence: readonly ConversationSequenceItem[],
   options: { hasVerifiedExpert: boolean },
 ): readonly ConversationIssue[] {
   const issues: ConversationIssue[] = [];
 
   let run = 0;
-  blocks.forEach((b, i) => {
+  sequence.forEach((item, i) => {
+    if (item === "body") {
+      // 本文が入ったので連続は途切れる。
+      run = 0;
+      return;
+    }
+    const b = item;
     run += 1;
     if (run > MAX_CONSECUTIVE_BLOCKS) {
       issues.push({
