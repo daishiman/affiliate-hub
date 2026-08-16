@@ -1,0 +1,792 @@
+{
+  "graph_revision": 18,
+  "nodes": [
+    {
+      "acceptance": [],
+      "architecture_refs": [],
+      "artifact_kind": "architecture",
+      "artifact_subtypes": [
+        "data",
+        "backend"
+      ],
+      "beads_linkage": null,
+      "classification_candidates": [
+        {
+          "artifact_kind": "architecture",
+          "candidate_path": "architecture/arch-spec-governance.md",
+          "confidence": 0.92
+        }
+      ],
+      "classification_confidence": 0.92,
+      "classification_reason": "data and backend boundaries for operator vs reader domains",
+      "completion_evidence": {
+        "completed_at": null,
+        "evidence_refs": [],
+        "policy": "manual",
+        "reconciled_at": null,
+        "source": null,
+        "status": "not_applicable"
+      },
+      "confirmation_evidence": {
+        "evaluated_digest": null,
+        "evaluator": null,
+        "evidence_ref": null
+      },
+      "confirmation_status": "draft",
+      "created_at": "2026-08-16T11:19:17Z",
+      "depends_on": [],
+      "domain": "specification",
+      "evaluation_status": "pending",
+      "execution_contexts": [],
+      "feature_package_id": null,
+      "file_path": "architecture/arch-spec-governance.md",
+      "github_project_linkages": [],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "goal": null,
+      "graph_node_id": "arch-spec-governance",
+      "implementation_readiness": {
+        "checked_at": null,
+        "missing_sections": [],
+        "status": "incomplete"
+      },
+      "issue_linkage": null,
+      "iteration": null,
+      "owners": [
+        "daishiman"
+      ],
+      "parent_feature": null,
+      "phase_ref": null,
+      "priority": null,
+      "project_id": "affiliate-hub",
+      "pull_request_linkages": [],
+      "purpose": null,
+      "related_nodes": [
+        "feat-spec-canonicalization",
+        "spec-product-requirements",
+        "spec-analytics-foundation"
+      ],
+      "resource_scope": [
+        "docs/spec",
+        "system-spec",
+        "src/db/schema.ts"
+      ],
+      "scope_in": [],
+      "scope_out": [],
+      "source_lineage": {
+        "imported_at": null,
+        "origin_kind": "manual",
+        "source_digest": null,
+        "source_path": null,
+        "source_plugin": null,
+        "source_version": null
+      },
+      "start_date": "2026-08-16",
+      "status": "draft",
+      "tags": [
+        "spec-canonicalization",
+        "mvp"
+      ],
+      "target_date": null,
+      "template_id": "architecture",
+      "template_version": "1.0.0",
+      "title": "仕様正本とドメイン分離のアーキテクチャ",
+      "tracker_binding": "none",
+      "updated_at": "2026-08-16T11:19:22.317390Z"
+    },
+    {
+      "acceptance": [],
+      "architecture_refs": [],
+      "artifact_kind": "specification",
+      "artifact_subtypes": [],
+      "beads_linkage": null,
+      "classification_candidates": [
+        {
+          "artifact_kind": "specification",
+          "candidate_path": "specs/spec-product-requirements.md",
+          "confidence": 0.92
+        }
+      ],
+      "classification_confidence": 0.92,
+      "classification_reason": "specification projection of docs/spec/01-要求仕様書-v1.0.md",
+      "completion_evidence": {
+        "completed_at": null,
+        "evidence_refs": [],
+        "policy": "manual",
+        "reconciled_at": null,
+        "source": null,
+        "status": "not_applicable"
+      },
+      "confirmation_evidence": {
+        "evaluated_digest": null,
+        "evaluator": null,
+        "evidence_ref": null
+      },
+      "confirmation_status": "draft",
+      "created_at": "2026-08-16T11:19:17Z",
+      "depends_on": [],
+      "domain": "specification",
+      "evaluation_status": "pending",
+      "execution_contexts": [],
+      "feature_package_id": null,
+      "file_path": "specs/spec-product-requirements.md",
+      "github_project_linkages": [],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "goal": null,
+      "graph_node_id": "spec-product-requirements",
+      "implementation_readiness": {
+        "checked_at": null,
+        "missing_sections": [],
+        "status": "incomplete"
+      },
+      "issue_linkage": null,
+      "iteration": null,
+      "owners": [
+        "daishiman"
+      ],
+      "parent_feature": null,
+      "phase_ref": null,
+      "priority": null,
+      "project_id": "affiliate-hub",
+      "pull_request_linkages": [],
+      "purpose": null,
+      "related_nodes": [
+        "spec-gap-ledger",
+        "spec-analytics-foundation",
+        "feat-spec-canonicalization"
+      ],
+      "resource_scope": [
+        "docs/spec/01-要求仕様書-v1.0.md"
+      ],
+      "scope_in": [],
+      "scope_out": [],
+      "source_lineage": {
+        "imported_at": "2026-08-16T11:19:17Z",
+        "origin_kind": "manual",
+        "source_digest": "9185b196b216a5e9fc5b874144bcf74912551a9ddc28a9f3be115b6e09833c92",
+        "source_path": "docs/spec/01-要求仕様書-v1.0.md",
+        "source_plugin": null,
+        "source_version": "1.0.0"
+      },
+      "start_date": "2026-08-16",
+      "status": "draft",
+      "tags": [
+        "spec-canonicalization",
+        "mvp"
+      ],
+      "target_date": null,
+      "template_id": "specification",
+      "template_version": "1.0.0",
+      "title": "プロダクト要求の投影",
+      "tracker_binding": "none",
+      "updated_at": "2026-08-16T11:19:23.123530Z"
+    },
+    {
+      "acceptance": [],
+      "architecture_refs": [],
+      "artifact_kind": "specification",
+      "artifact_subtypes": [],
+      "beads_linkage": null,
+      "classification_candidates": [
+        {
+          "artifact_kind": "specification",
+          "candidate_path": "specs/spec-analytics-foundation.md",
+          "confidence": 0.92
+        }
+      ],
+      "classification_confidence": 0.92,
+      "classification_reason": "specification projection of docs/spec/03-分析・解析基盤仕様.md",
+      "completion_evidence": {
+        "completed_at": null,
+        "evidence_refs": [],
+        "policy": "manual",
+        "reconciled_at": null,
+        "source": null,
+        "status": "not_applicable"
+      },
+      "confirmation_evidence": {
+        "evaluated_digest": null,
+        "evaluator": null,
+        "evidence_ref": null
+      },
+      "confirmation_status": "draft",
+      "created_at": "2026-08-16T11:19:17Z",
+      "depends_on": [],
+      "domain": "specification",
+      "evaluation_status": "pending",
+      "execution_contexts": [],
+      "feature_package_id": null,
+      "file_path": "specs/spec-analytics-foundation.md",
+      "github_project_linkages": [],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "goal": null,
+      "graph_node_id": "spec-analytics-foundation",
+      "implementation_readiness": {
+        "checked_at": null,
+        "missing_sections": [],
+        "status": "incomplete"
+      },
+      "issue_linkage": null,
+      "iteration": null,
+      "owners": [
+        "daishiman"
+      ],
+      "parent_feature": null,
+      "phase_ref": null,
+      "priority": null,
+      "project_id": "affiliate-hub",
+      "pull_request_linkages": [],
+      "purpose": null,
+      "related_nodes": [
+        "spec-product-requirements",
+        "spec-gap-ledger"
+      ],
+      "resource_scope": [
+        "docs/spec/03-分析・解析基盤仕様.md"
+      ],
+      "scope_in": [],
+      "scope_out": [],
+      "source_lineage": {
+        "imported_at": "2026-08-16T11:19:17Z",
+        "origin_kind": "manual",
+        "source_digest": "ed96924f70ef11408017b70c38c51dad3af3c82b4f02740965aa7cccaa7263ec",
+        "source_path": "docs/spec/03-分析・解析基盤仕様.md",
+        "source_plugin": null,
+        "source_version": "1.0.0"
+      },
+      "start_date": "2026-08-16",
+      "status": "draft",
+      "tags": [
+        "spec-canonicalization",
+        "mvp"
+      ],
+      "target_date": null,
+      "template_id": "specification",
+      "template_version": "1.0.0",
+      "title": "Analytics基盤仕様の投影",
+      "tracker_binding": "none",
+      "updated_at": "2026-08-16T11:19:24.125655Z"
+    },
+    {
+      "acceptance": [],
+      "architecture_refs": [],
+      "artifact_kind": "specification",
+      "artifact_subtypes": [],
+      "beads_linkage": null,
+      "classification_candidates": [
+        {
+          "artifact_kind": "specification",
+          "candidate_path": "specs/spec-gap-ledger.md",
+          "confidence": 0.92
+        }
+      ],
+      "classification_confidence": 0.92,
+      "classification_reason": "specification projection of docs/spec/02-補充仕様-ギャップと追加要件.md",
+      "completion_evidence": {
+        "completed_at": null,
+        "evidence_refs": [],
+        "policy": "manual",
+        "reconciled_at": null,
+        "source": null,
+        "status": "not_applicable"
+      },
+      "confirmation_evidence": {
+        "evaluated_digest": null,
+        "evaluator": null,
+        "evidence_ref": null
+      },
+      "confirmation_status": "draft",
+      "created_at": "2026-08-16T11:19:17Z",
+      "depends_on": [],
+      "domain": "specification",
+      "evaluation_status": "pending",
+      "execution_contexts": [],
+      "feature_package_id": null,
+      "file_path": "specs/spec-gap-ledger.md",
+      "github_project_linkages": [],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "goal": null,
+      "graph_node_id": "spec-gap-ledger",
+      "implementation_readiness": {
+        "checked_at": null,
+        "missing_sections": [],
+        "status": "incomplete"
+      },
+      "issue_linkage": null,
+      "iteration": null,
+      "owners": [
+        "daishiman"
+      ],
+      "parent_feature": null,
+      "phase_ref": null,
+      "priority": null,
+      "project_id": "affiliate-hub",
+      "pull_request_linkages": [],
+      "purpose": null,
+      "related_nodes": [
+        "spec-product-requirements",
+        "spec-reader-surface"
+      ],
+      "resource_scope": [
+        "docs/spec/02-補充仕様-ギャップと追加要件.md"
+      ],
+      "scope_in": [],
+      "scope_out": [],
+      "source_lineage": {
+        "imported_at": "2026-08-16T11:19:17Z",
+        "origin_kind": "manual",
+        "source_digest": "73b3204fcb5c71edf4704817b12af2d36939993ba1194bf04c1f4ceff9c8cd25",
+        "source_path": "docs/spec/02-補充仕様-ギャップと追加要件.md",
+        "source_plugin": null,
+        "source_version": "1.0.0"
+      },
+      "start_date": "2026-08-16",
+      "status": "draft",
+      "tags": [
+        "spec-canonicalization",
+        "mvp"
+      ],
+      "target_date": null,
+      "template_id": "specification",
+      "template_version": "1.0.0",
+      "title": "ギャップと未決事項の投影",
+      "tracker_binding": "none",
+      "updated_at": "2026-08-16T11:19:25.035203Z"
+    },
+    {
+      "acceptance": [],
+      "architecture_refs": [],
+      "artifact_kind": "specification",
+      "artifact_subtypes": [],
+      "beads_linkage": null,
+      "classification_candidates": [
+        {
+          "artifact_kind": "specification",
+          "candidate_path": "specs/spec-reader-surface.md",
+          "confidence": 0.92
+        }
+      ],
+      "classification_confidence": 0.92,
+      "classification_reason": "specification projection of docs/spec/ai-first-webmcp.md",
+      "completion_evidence": {
+        "completed_at": null,
+        "evidence_refs": [],
+        "policy": "manual",
+        "reconciled_at": null,
+        "source": null,
+        "status": "not_applicable"
+      },
+      "confirmation_evidence": {
+        "evaluated_digest": null,
+        "evaluator": null,
+        "evidence_ref": null
+      },
+      "confirmation_status": "draft",
+      "created_at": "2026-08-16T11:19:17Z",
+      "depends_on": [],
+      "domain": "specification",
+      "evaluation_status": "pending",
+      "execution_contexts": [],
+      "feature_package_id": null,
+      "file_path": "specs/spec-reader-surface.md",
+      "github_project_linkages": [],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "goal": null,
+      "graph_node_id": "spec-reader-surface",
+      "implementation_readiness": {
+        "checked_at": null,
+        "missing_sections": [],
+        "status": "incomplete"
+      },
+      "issue_linkage": null,
+      "iteration": null,
+      "owners": [
+        "daishiman"
+      ],
+      "parent_feature": null,
+      "phase_ref": null,
+      "priority": null,
+      "project_id": "affiliate-hub",
+      "pull_request_linkages": [],
+      "purpose": null,
+      "related_nodes": [
+        "spec-gap-ledger",
+        "spec-product-requirements"
+      ],
+      "resource_scope": [
+        "docs/spec/ai-first-webmcp.md"
+      ],
+      "scope_in": [],
+      "scope_out": [],
+      "source_lineage": {
+        "imported_at": "2026-08-16T11:19:17Z",
+        "origin_kind": "manual",
+        "source_digest": "35241bfe4e82f6536d871c179eb938681ec771991fa50a59c72d5d97d3c98713",
+        "source_path": "docs/spec/ai-first-webmcp.md",
+        "source_plugin": null,
+        "source_version": "1.0.0"
+      },
+      "start_date": "2026-08-16",
+      "status": "draft",
+      "tags": [
+        "spec-canonicalization",
+        "mvp"
+      ],
+      "target_date": null,
+      "template_id": "specification",
+      "template_version": "1.0.0",
+      "title": "読者面 Phase 0 契約の投影",
+      "tracker_binding": "none",
+      "updated_at": "2026-08-16T11:19:25.865971Z"
+    },
+    {
+      "acceptance": [],
+      "architecture_refs": [],
+      "artifact_kind": "document",
+      "artifact_subtypes": [],
+      "beads_linkage": null,
+      "classification_candidates": [
+        {
+          "artifact_kind": "document",
+          "candidate_path": "docs/doc-spec-index.md",
+          "confidence": 0.92
+        }
+      ],
+      "classification_confidence": 0.92,
+      "classification_reason": "operator document for spec precedence",
+      "completion_evidence": {
+        "completed_at": null,
+        "evidence_refs": [],
+        "policy": "manual",
+        "reconciled_at": null,
+        "source": null,
+        "status": "not_applicable"
+      },
+      "confirmation_evidence": {
+        "evaluated_digest": null,
+        "evaluator": null,
+        "evidence_ref": null
+      },
+      "confirmation_status": "draft",
+      "created_at": "2026-08-16T11:19:17Z",
+      "depends_on": [],
+      "domain": "specification",
+      "evaluation_status": "pending",
+      "execution_contexts": [],
+      "feature_package_id": null,
+      "file_path": "docs/doc-spec-index.md",
+      "github_project_linkages": [],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "goal": null,
+      "graph_node_id": "doc-spec-index",
+      "implementation_readiness": {
+        "checked_at": null,
+        "missing_sections": [],
+        "status": "incomplete"
+      },
+      "issue_linkage": null,
+      "iteration": null,
+      "layer": "spec-index",
+      "owners": [
+        "daishiman"
+      ],
+      "parent_feature": null,
+      "phase_ref": null,
+      "priority": null,
+      "project_id": "affiliate-hub",
+      "pull_request_linkages": [],
+      "purpose": null,
+      "related_nodes": [
+        "feat-spec-canonicalization"
+      ],
+      "resource_scope": [
+        "docs/spec/00-README.md"
+      ],
+      "scope_in": [],
+      "scope_out": [],
+      "source_lineage": {
+        "imported_at": null,
+        "origin_kind": "manual",
+        "source_digest": null,
+        "source_path": null,
+        "source_plugin": null,
+        "source_version": null
+      },
+      "start_date": "2026-08-16",
+      "status": "draft",
+      "tags": [
+        "spec-canonicalization",
+        "mvp"
+      ],
+      "target_date": null,
+      "template_id": "document",
+      "template_version": "1.0.0",
+      "title": "仕様正本の読み方",
+      "tracker_binding": "none",
+      "updated_at": "2026-08-16T11:19:26.686034Z"
+    },
+    {
+      "acceptance": [
+        "00-README が Phase 0 を含む優先表を持つ",
+        "database.md が Phase 1 読者テーブルを As-Is に書く",
+        "graph ノードが C02 経由で登録されている"
+      ],
+      "architecture_refs": [
+        "arch-spec-governance"
+      ],
+      "artifact_kind": "feature",
+      "artifact_subtypes": [],
+      "beads_linkage": {
+        "bd_issue_id": "ah-bgp",
+        "github_mirror": null,
+        "linked_at": "2026-08-16T11:19:58Z",
+        "sync_state": "linked"
+      },
+      "classification_candidates": [
+        {
+          "artifact_kind": "feature",
+          "candidate_path": "features/feat-spec-canonicalization.md",
+          "confidence": 0.92
+        }
+      ],
+      "classification_confidence": 0.92,
+      "classification_reason": "macro feature for spec governance derived from system-spec index",
+      "completion_evidence": {
+        "completed_at": null,
+        "evidence_refs": [],
+        "policy": "manual",
+        "reconciled_at": null,
+        "source": null,
+        "status": "in_progress"
+      },
+      "confirmation_evidence": {
+        "evaluated_digest": null,
+        "evaluator": null,
+        "evidence_ref": null
+      },
+      "confirmation_status": "draft",
+      "created_at": "2026-08-16T11:19:17Z",
+      "depends_on": [],
+      "domain": "specification",
+      "evaluation_status": "pending",
+      "execution_contexts": [],
+      "feature_package_id": null,
+      "file_path": "features/feat-spec-canonicalization.md",
+      "github_project_linkages": [],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "goal": "docs/spec の優先表、system-spec の As-Is、dev-graph と Beads で仕様整理を追跡できる",
+      "graph_node_id": "feat-spec-canonicalization",
+      "implementation_readiness": {
+        "checked_at": null,
+        "missing_sections": [],
+        "status": "incomplete"
+      },
+      "issue_linkage": null,
+      "iteration": null,
+      "mvp_alignment": {
+        "background": "要求文書と Phase 0 文書が並立し、Analytics 詳細が分散していた",
+        "mvp_fit": "enabling",
+        "purpose": "実装の前に、どれが正本かを固定する",
+        "rationale": "文書の正本がないと次の実装 feature がどの契約を満たせばよいか決まらない"
+      },
+      "owners": [
+        "daishiman"
+      ],
+      "parent_feature": null,
+      "phase_ref": null,
+      "priority": "high",
+      "project_id": "affiliate-hub",
+      "pull_request_linkages": [],
+      "purpose": "関心ごとの正本を一つにし、実装投影と現行実装の差分を混同しない",
+      "related_nodes": [
+        "task-spec-writeback",
+        "doc-spec-index"
+      ],
+      "resource_scope": [
+        "docs/spec",
+        "system-spec",
+        "features",
+        "tasks",
+        "specs",
+        "architecture"
+      ],
+      "scope_in": [
+        "正本文書と優先表",
+        "Phase 0 文書の位置づけ",
+        "system-spec の As-Is 更新",
+        "dev-graph と Beads の初期化"
+      ],
+      "scope_out": [
+        "Auth / Workspace 実装",
+        "2 D1 分離",
+        "Redirect / Insight 実装",
+        "exact-13 feature package"
+      ],
+      "source_lineage": {
+        "imported_at": "2026-08-16T11:19:17Z",
+        "origin_kind": "system-spec-harness",
+        "source_digest": "2f4b3d62f5d7a0bdc829bcf9dad18ef9caaa1c808792d83264dea6a5755f0b66",
+        "source_path": "system-spec/index.md",
+        "source_plugin": "system-spec-harness",
+        "source_version": "0.1.0"
+      },
+      "start_date": "2026-08-16",
+      "status": "draft",
+      "tags": [
+        "spec-canonicalization",
+        "mvp"
+      ],
+      "target_date": null,
+      "template_id": "feature",
+      "template_version": "1.0.0",
+      "title": "仕様正本の整理と投影",
+      "tracker_binding": "beads",
+      "updated_at": "2026-08-16T11:20:02.290088Z"
+    },
+    {
+      "acceptance": [],
+      "architecture_refs": [],
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "beads_linkage": {
+        "bd_issue_id": "ah-bvu",
+        "github_mirror": null,
+        "linked_at": "2026-08-16T11:19:58Z",
+        "sync_state": "linked"
+      },
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "candidate_path": "tasks/task-spec-writeback.md",
+          "confidence": 0.92
+        }
+      ],
+      "classification_confidence": 0.92,
+      "classification_reason": "standalone close-out task for this spec writeback",
+      "completion_evidence": {
+        "completed_at": null,
+        "evidence_refs": [],
+        "policy": "manual",
+        "reconciled_at": null,
+        "source": null,
+        "status": "in_progress"
+      },
+      "confirmation_evidence": {
+        "evaluated_digest": null,
+        "evaluator": null,
+        "evidence_ref": null
+      },
+      "confirmation_status": "draft",
+      "created_at": "2026-08-16T11:19:17Z",
+      "depends_on": [],
+      "domain": "specification",
+      "evaluation_status": "pending",
+      "execution_contexts": [],
+      "feature_package_id": null,
+      "file_path": "tasks/task-spec-writeback.md",
+      "github_project_linkages": [],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "goal": null,
+      "graph_node_id": "task-spec-writeback",
+      "implementation_readiness": {
+        "checked_at": null,
+        "missing_sections": [],
+        "status": "incomplete"
+      },
+      "issue_linkage": null,
+      "iteration": null,
+      "mvp_alignment": {
+        "background": "未追跡の仕様追加を main の Phase 0/1 と接続する必要がある",
+        "mvp_fit": "direct",
+        "purpose": "正本整理を draft PR として提出する",
+        "rationale": "今の作業そのものが成果物を提出するタスク"
+      },
+      "owners": [
+        "daishiman"
+      ],
+      "parent_feature": null,
+      "phase_ref": null,
+      "priority": "high",
+      "project_id": "affiliate-hub",
+      "pull_request_linkages": [],
+      "purpose": null,
+      "related_nodes": [
+        "feat-spec-canonicalization",
+        "arch-spec-governance"
+      ],
+      "resource_scope": [
+        "docs/spec",
+        "system-spec",
+        "specs",
+        "architecture",
+        "features",
+        "tasks",
+        ".dev-graph",
+        ".beads"
+      ],
+      "scope_in": [],
+      "scope_out": [],
+      "source_lineage": {
+        "imported_at": null,
+        "origin_kind": "manual",
+        "source_digest": null,
+        "source_path": null,
+        "source_plugin": null,
+        "source_version": null
+      },
+      "start_date": "2026-08-16",
+      "status": "draft",
+      "tags": [
+        "spec-canonicalization",
+        "mvp"
+      ],
+      "target_date": null,
+      "template_id": "task",
+      "template_version": "1.0.0",
+      "title": "仕様整理の最終レビューと draft PR",
+      "tracker_binding": "beads",
+      "updated_at": "2026-08-16T11:20:03.146226Z"
+    }
+  ],
+  "repository_id": "github:daishiman/affiliate-hub",
+  "schema_version": "1.0.0"
+}
