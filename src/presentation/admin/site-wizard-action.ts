@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import type { SiteWizardStep } from "@/domain/authoring";
 import { currentActor, siteBuilderUseCases } from "@/presentation/composition";
+import type { SiteWizardState } from "./site-wizard-state";
 
 /**
  * ブログ作成ウィザードの操作。
@@ -14,17 +15,8 @@ import { currentActor, siteBuilderUseCases } from "@/presentation/composition";
  * 書いた時点で、ブログごとにコードが増える設計に戻ってしまう。
  */
 
-export type SiteWizardState = {
-  readonly status: "idle" | "done" | "failed";
-  readonly message: string;
-  /** どの欄が原因か。欄の下に出す。 */
-  readonly field?: string;
-  /** 作れたときだけ入る。読者から見える住所。 */
-  readonly createdPath?: string;
-};
-
-export const INITIAL_SITE_WIZARD_STATE: SiteWizardState = { status: "idle", message: "" };
-
+// 型と初期値は `site-wizard-state.ts` にある。
+// `"use server"` のファイルからは非同期の関数しか外へ出せないため。
 const WIZARD_PATH = "/admin/sites/new";
 
 /** 新しい下書きを始める。始めた時点ではまだ公開されない。 */

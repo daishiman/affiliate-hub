@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { currentActor, publicationCalendarUseCases } from "@/presentation/composition";
+import type { RescheduleState } from "./reschedule-state";
 
 /**
  * 投稿予定日の変更。
@@ -13,13 +14,7 @@ import { currentActor, publicationCalendarUseCases } from "@/presentation/compos
  * そうしておけば「掴んだときだけ検査が甘い」という抜け道ができない。
  */
 
-export type RescheduleState = {
-  readonly status: "idle" | "done" | "failed";
-  readonly message: string;
-  readonly field?: string;
-};
-
-export const INITIAL_RESCHEDULE_STATE: RescheduleState = { status: "idle", message: "" };
+// 状態の型と初期値は `reschedule-state.ts` にある。
 
 export async function reschedulePublicationAction(
   _prev: RescheduleState,

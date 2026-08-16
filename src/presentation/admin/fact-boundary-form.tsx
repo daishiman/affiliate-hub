@@ -2,10 +2,8 @@
 
 import { useActionState, useState } from "react";
 import { Button, Callout, Select, TextArea, ToolForm } from "@/presentation/ui";
-import {
-  INITIAL_FACT_BOUNDARY_STATE,
-  checkFactBoundaryAction,
-} from "./fact-boundary-action";
+import { checkFactBoundaryAction } from "./fact-boundary-action";
+import { INITIAL_FACT_BOUNDARY_STATE } from "./fact-boundary-state";
 
 export type AuthorOption = { readonly value: string; readonly label: string };
 

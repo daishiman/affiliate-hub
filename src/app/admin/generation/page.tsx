@@ -250,9 +250,9 @@ export default async function GenerationPage({
       <Card>
         <h2 className={styles.sectionTitle}>下書きを作らせてみる</h2>
         <p className={styles.sectionLead}>
-          実際に押して確かめられます。18
-          項目がそろっていない状態では、何が足りないかを返して始めません。そろった状態で押すと、生成 AI
-          への接続まで進みます。接続先はまだ選定と鍵の登録が済んでいないため、そこで止まります。
+          実際に押して確かめられます。必ず要る 17
+          項目（上の表のうち「順位の決め方」以外）がそろっていない状態では、何が足りないかを返して始めません。そろった状態で押すと、生成
+          AI への接続まで進みます。接続先はまだ選定と鍵の登録が済んでいないため、そこで止まります。
         </p>
         <p className={styles.linkList}>
           <Link href="/admin/generation?trial=empty">そろっていない状態で試す</Link>

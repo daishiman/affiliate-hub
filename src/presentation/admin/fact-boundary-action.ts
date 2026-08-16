@@ -1,6 +1,7 @@
 "use server";
 
 import { currentActor, personaUseCases } from "@/presentation/composition";
+import type { FactBoundaryCheckState } from "./fact-boundary-state";
 
 /**
  * 文章が書き手の書ける範囲に収まっているかの確認。
@@ -10,19 +11,7 @@ import { currentActor, personaUseCases } from "@/presentation/composition";
  * 判定そのものは domain の純関数にあり、ここでは何も判断しない。
  */
 
-export type FactBoundaryCheckState = {
-  readonly status: "idle" | "passed" | "flagged" | "failed";
-  readonly message: string;
-  readonly field?: string;
-  /** 指摘 1 件ずつ。どこが問題かを本文の抜粋つきで出す。 */
-  readonly findings: readonly { readonly excerpt: string; readonly message: string }[];
-};
-
-export const INITIAL_FACT_BOUNDARY_STATE: FactBoundaryCheckState = {
-  status: "idle",
-  message: "",
-  findings: [],
-};
+// 状態の型と初期値は `fact-boundary-state.ts` にある。
 
 export async function checkFactBoundaryAction(
   _prev: FactBoundaryCheckState,

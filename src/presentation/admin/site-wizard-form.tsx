@@ -12,11 +12,8 @@ import {
   TextArea,
   ToolForm,
 } from "@/presentation/ui";
-import {
-  INITIAL_SITE_WIZARD_STATE,
-  createSiteFromDraftAction,
-  saveSiteDraftStepAction,
-} from "./site-wizard-action";
+import { createSiteFromDraftAction, saveSiteDraftStepAction } from "./site-wizard-action";
+import { INITIAL_SITE_WIZARD_STATE } from "./site-wizard-state";
 
 /**
  * ブログ作成ウィザードの 1 段階。

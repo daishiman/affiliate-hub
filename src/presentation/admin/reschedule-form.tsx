@@ -2,7 +2,8 @@
 
 import { useActionState, useState } from "react";
 import { Button, Callout, Field, ToolForm } from "@/presentation/ui";
-import { INITIAL_RESCHEDULE_STATE, reschedulePublicationAction } from "./reschedule-action";
+import { reschedulePublicationAction } from "./reschedule-action";
+import { INITIAL_RESCHEDULE_STATE } from "./reschedule-state";
 
 /**
  * 投稿予定日を変える欄。
