@@ -1,8 +1,8 @@
+import { AdminShell } from "@/presentation/admin/admin-shell";
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { currentActor, platformUseCases, siteSampleNotice } from "@/presentation/composition";
 import {
-  AppShell,
   Callout,
   Card,
   EmptyView,
@@ -185,7 +185,7 @@ export default async function SiteDetailPage({
 
 function Shell({ title, children }: { readonly title: string; readonly children: ReactNode }) {
   return (
-    <AppShell
+    <AdminShell
       currentPath="/admin/sites"
       breadcrumbs={[
         { label: "ホーム", href: "/admin" },
@@ -197,6 +197,6 @@ function Shell({ title, children }: { readonly title: string; readonly children:
       <Page title={title} lead="このブログの設計図です。ほかのブログとの違いはここに書いてある内容がすべてです。">
         {children}
       </Page>
-    </AppShell>
+    </AdminShell>
   );
 }

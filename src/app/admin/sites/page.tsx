@@ -1,8 +1,8 @@
+import { AdminShell } from "@/presentation/admin/admin-shell";
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { currentActor, platformUseCases, siteSampleNotice } from "@/presentation/composition";
 import {
-  AppShell,
   Callout,
   Card,
   EmptyView,
@@ -168,7 +168,7 @@ export default async function SitesPage() {
 
 function Shell({ children }: { readonly children: ReactNode }) {
   return (
-    <AppShell
+    <AdminShell
       currentPath="/admin/sites"
       breadcrumbs={[{ label: "ホーム", href: "/admin" }, { label: "サイト" }]}
       actions={<Link href="/admin/sites/new">新しいブログを作る</Link>}
@@ -179,6 +179,6 @@ function Shell({ children }: { readonly children: ReactNode }) {
       >
         {children}
       </Page>
-    </AppShell>
+    </AdminShell>
   );
 }

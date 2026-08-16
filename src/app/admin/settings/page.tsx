@@ -1,8 +1,8 @@
+import { AdminShell } from "@/presentation/admin/admin-shell";
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { currentActor, settingsNotice, settingsUseCases } from "@/presentation/composition";
 import {
-  AppShell,
   Callout,
   Card,
   DisclosureNotice,
@@ -250,6 +250,18 @@ export default async function SettingsPage() {
                         <th scope="row">記事末尾の断り書き</th>
                         <td>{b.disclaimer ?? "未設定"}</td>
                       </tr>
+                      <tr>
+                        <th scope="row">言語</th>
+                        <td>{b.locale}</td>
+                      </tr>
+                      <tr>
+                        <th scope="row">時間帯</th>
+                        <td>{b.timeZone}（投稿の予定日時はこの時間帯で読み書きします）</td>
+                      </tr>
+                      <tr>
+                        <th scope="row">標準の行動文言</th>
+                        <td>{b.defaultCta}</td>
+                      </tr>
                     </tbody>
                   </table>
                   {b.missing.length > 0 && (
@@ -371,7 +383,7 @@ export default async function SettingsPage() {
 
 function Shell({ children }: { readonly children: ReactNode }) {
   return (
-    <AppShell
+    <AdminShell
       currentPath="/admin/settings"
       breadcrumbs={[{ label: "ホーム", href: "/admin" }, { label: "設定" }]}
       actions={<Link href="/admin">ホームへ戻る</Link>}
@@ -382,6 +394,6 @@ function Shell({ children }: { readonly children: ReactNode }) {
       >
         {children}
       </Page>
-    </AppShell>
+    </AdminShell>
   );
 }

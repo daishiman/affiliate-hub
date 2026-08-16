@@ -1,8 +1,8 @@
+import { AdminShell } from "@/presentation/admin/admin-shell";
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { contentUseCases, currentActor, editorialContentNotice } from "@/presentation/composition";
 import {
-  AppShell,
   Callout,
   Card,
   EmptyView,
@@ -140,7 +140,7 @@ export default async function ContentPage() {
 
 function Shell({ children }: { readonly children: ReactNode }) {
   return (
-    <AppShell
+    <AdminShell
       currentPath="/admin/content"
       breadcrumbs={[{ label: "ホーム", href: "/admin" }, { label: "記事" }]}
       actions={<Link href="/admin">ホームへ戻る</Link>}
@@ -151,6 +151,6 @@ function Shell({ children }: { readonly children: ReactNode }) {
       >
         {children}
       </Page>
-    </AppShell>
+    </AdminShell>
   );
 }

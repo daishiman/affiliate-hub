@@ -1,3 +1,4 @@
+import { AdminShell } from "@/presentation/admin/admin-shell";
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { RescheduleForm } from "@/presentation/admin/reschedule-form";
@@ -7,7 +8,6 @@ import {
   publicationCalendarUseCases,
 } from "@/presentation/composition";
 import {
-  AppShell,
   Callout,
   Card,
   EmptyView,
@@ -200,7 +200,7 @@ function toInputValue(at: Date | null): string {
 
 function Shell({ children }: { readonly children: ReactNode }) {
   return (
-    <AppShell
+    <AdminShell
       currentPath="/admin/distribution"
       breadcrumbs={[
         { label: "ホーム", href: "/admin" },
@@ -215,6 +215,6 @@ function Shell({ children }: { readonly children: ReactNode }) {
       >
         {children}
       </Page>
-    </AppShell>
+    </AdminShell>
   );
 }

@@ -1,8 +1,8 @@
+import { AdminShell } from "@/presentation/admin/admin-shell";
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { currentActor, distributionNotice, distributionUseCases } from "@/presentation/composition";
 import {
-  AppShell,
   Callout,
   Card,
   ErrorView,
@@ -145,7 +145,7 @@ export default async function PublicationPage({
 
 function Shell({ title, children }: { readonly title: string; readonly children: ReactNode }) {
   return (
-    <AppShell
+    <AdminShell
       currentPath="/admin/distribution"
       breadcrumbs={[
         { label: "ホーム", href: "/admin" },
@@ -157,6 +157,6 @@ function Shell({ title, children }: { readonly title: string; readonly children:
       <Page title={title} lead="この配信がいまどこまで進んでいるかと、次にできることを見ます。">
         {children}
       </Page>
-    </AppShell>
+    </AdminShell>
   );
 }

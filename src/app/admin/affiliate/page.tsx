@@ -1,3 +1,4 @@
+import { AdminShell } from "@/presentation/admin/admin-shell";
 import Link from "next/link";
 import type { ReactNode } from "react";
 import {
@@ -7,7 +8,6 @@ import {
   currentActor,
 } from "@/presentation/composition";
 import {
-  AppShell,
   Callout,
   Card,
   EmptyView,
@@ -268,7 +268,7 @@ export default async function AffiliatePage({
 
 function Shell({ children }: { readonly children: ReactNode }) {
   return (
-    <AppShell
+    <AdminShell
       currentPath="/admin/affiliate"
       breadcrumbs={[{ label: "ホーム", href: "/admin" }, { label: "提携と成果" }]}
       actions={<Link href="/admin">ホームへ戻る</Link>}
@@ -279,6 +279,6 @@ function Shell({ children }: { readonly children: ReactNode }) {
       >
         {children}
       </Page>
-    </AppShell>
+    </AdminShell>
   );
 }

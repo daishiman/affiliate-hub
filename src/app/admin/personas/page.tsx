@@ -1,3 +1,4 @@
+import { AdminShell } from "@/presentation/admin/admin-shell";
 import Link from "next/link";
 import type { ReactNode } from "react";
 import {
@@ -6,7 +7,6 @@ import {
 } from "@/presentation/admin/fact-boundary-form";
 import { currentActor, personaUseCases } from "@/presentation/composition";
 import {
-  AppShell,
   Callout,
   Card,
   EmptyView,
@@ -309,7 +309,7 @@ export default async function PersonasPage() {
 
 function Shell({ children }: { readonly children: ReactNode }) {
   return (
-    <AppShell
+    <AdminShell
       currentPath="/admin/personas"
       breadcrumbs={[{ label: "ホーム", href: "/admin" }, { label: "書き手と読者像" }]}
       actions={<Link href="/admin/content">記事へ戻る</Link>}
@@ -320,6 +320,6 @@ function Shell({ children }: { readonly children: ReactNode }) {
       >
         {children}
       </Page>
-    </AppShell>
+    </AdminShell>
   );
 }

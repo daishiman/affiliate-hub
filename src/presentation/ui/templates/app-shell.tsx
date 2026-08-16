@@ -18,6 +18,16 @@ import styles from "../primitives/ui.module.css";
 export type NavItem = {
   readonly href: string;
   readonly label: string;
+  /**
+   * この項目を見せてよい人が持っている「できること」。
+   *
+   * ここに書くのは名前だけで、誰が持っているかの判定は domain 側が決める
+   * （部品に業務判断を持たせない）。null は「誰にでも見せる」。
+   *
+   * **見せない判断を画面ごとに書かない。** 1 画面でも書き忘れると、
+   * 押しても必ず断られるリンクが残る。
+   */
+  readonly requires: string | null;
 };
 
 /**
@@ -27,19 +37,34 @@ export type NavItem = {
  * 画面を足したらこの表にも足す。
  */
 export const ADMIN_NAV: readonly NavItem[] = [
-  { href: "/admin", label: "ホーム" },
-  { href: "/admin/products", label: "商品" },
-  { href: "/admin/evidence", label: "根拠" },
-  { href: "/admin/rankings", label: "評価基準と順位" },
-  { href: "/admin/content", label: "記事" },
-  { href: "/admin/personas", label: "書き手と読者像" },
-  { href: "/admin/sites", label: "サイト" },
-  { href: "/admin/distribution", label: "配信" },
-  { href: "/admin/affiliate", label: "提携と成果" },
-  { href: "/admin/inbox", label: "成果リンクの受信箱" },
-  { href: "/admin/analytics", label: "数字" },
-  { href: "/admin/settings", label: "設定" },
+  { href: "/admin", label: "ホーム", requires: null },
+  { href: "/admin/products", label: "商品", requires: "product.read" },
+  { href: "/admin/evidence", label: "根拠", requires: "content.read" },
+  { href: "/admin/rankings", label: "評価基準と順位", requires: "content.read" },
+  { href: "/admin/content", label: "記事", requires: "content.read" },
+  { href: "/admin/personas", label: "書き手と読者像", requires: "content.read" },
+  { href: "/admin/sites", label: "サイト", requires: "content.read" },
+  { href: "/admin/distribution", label: "配信", requires: "content.read" },
+  { href: "/admin/affiliate", label: "提携と成果", requires: "affiliate.read_revenue" },
+  { href: "/admin/inbox", label: "成果リンクの受信箱", requires: "affiliate.read_revenue" },
+  { href: "/admin/analytics", label: "数字", requires: "analytics.read" },
+  { href: "/admin/settings", label: "設定", requires: "content.read" },
 ];
+
+/**
+ * その人に見せる案内だけを残す。
+ *
+ * `capabilities` を渡さないときは全部見せる（読者向けの画面や、
+ * 権限の概念が無い場面で使えるようにするため）。
+ */
+export function visibleNav(
+  items: readonly NavItem[],
+  capabilities: readonly string[] | undefined,
+): readonly NavItem[] {
+  if (capabilities === undefined) return items;
+  const held = new Set(capabilities);
+  return items.filter((item) => item.requires === null || held.has(item.requires));
+}
 
 export type Breadcrumb = {
   readonly label: string;
@@ -50,19 +75,22 @@ export function AppShell({
   currentPath,
   breadcrumbs,
   actions,
+  capabilities,
   children,
 }: {
   readonly currentPath: string;
   readonly breadcrumbs: readonly Breadcrumb[];
   /** 退避先。保存・戻る・次へ。無い画面でも「一覧へ戻る」は置く。 */
   readonly actions?: ReactNode;
+  /** その人が持っている「できること」。渡すと案内が絞られる。 */
+  readonly capabilities?: readonly string[];
   readonly children: ReactNode;
 }) {
   return (
     <div className={styles.shell}>
       <nav className={styles.sidebar} aria-label="主な案内">
         <span className={styles.brandName}>affiliate-hub</span>
-        {ADMIN_NAV.map((item) => {
+        {visibleNav(ADMIN_NAV, capabilities).map((item) => {
           const current = currentPath === item.href;
           return (
             <Link

@@ -1,8 +1,8 @@
+import { AdminShell } from "@/presentation/admin/admin-shell";
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { affiliateNotice, affiliateUseCases, currentActor } from "@/presentation/composition";
 import {
-  AppShell,
   Callout,
   Card,
   ErrorView,
@@ -119,7 +119,7 @@ export default async function ConversionPage({
 
 function Shell({ title, children }: { readonly title: string; readonly children: ReactNode }) {
   return (
-    <AppShell
+    <AdminShell
       currentPath="/admin/affiliate"
       breadcrumbs={[
         { label: "ホーム", href: "/admin" },
@@ -131,6 +131,6 @@ function Shell({ title, children }: { readonly title: string; readonly children:
       <Page title={title} lead="この成果の内訳と、金額を直せるかどうかを見ます。">
         {children}
       </Page>
-    </AppShell>
+    </AdminShell>
   );
 }

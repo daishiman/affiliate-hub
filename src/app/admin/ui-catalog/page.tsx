@@ -1,3 +1,4 @@
+import { AdminShell } from "@/presentation/admin/admin-shell";
 import Link from "next/link";
 import {
   AffiliateLink,
@@ -14,7 +15,6 @@ import {
   EvidenceList,
   FactualityBadge,
   LoadingView,
-  AppShell,
   Page,
   RankingTable,
   StubLabel,
@@ -47,7 +47,7 @@ const criteria: readonly CriterionView[] = [
 
 export default function UiCatalogPage() {
   return (
-    <AppShell
+    <AdminShell
       currentPath="/admin/ui-catalog"
       breadcrumbs={[{ label: "ホーム", href: "/admin" }, { label: "部品の見本帳" }]}
     >
@@ -247,6 +247,6 @@ export default function UiCatalogPage() {
           </div>
         </Card>
       </Page>
-    </AppShell>
+    </AdminShell>
   );
 }

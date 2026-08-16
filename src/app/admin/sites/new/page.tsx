@@ -1,3 +1,4 @@
+import { AdminShell } from "@/presentation/admin/admin-shell";
 import Link from "next/link";
 import type { ReactNode } from "react";
 import type { SiteWizardStep } from "@/domain/authoring";
@@ -10,7 +11,6 @@ import {
   siteDraftSampleNotice,
 } from "@/presentation/composition";
 import {
-  AppShell,
   Button,
   Callout,
   Card,
@@ -178,7 +178,7 @@ async function DraftListView({ error }: { readonly error?: string }) {
 
 function Shell({ children }: { readonly children: ReactNode }) {
   return (
-    <AppShell
+    <AdminShell
       currentPath="/admin/sites"
       breadcrumbs={[
         { label: "ホーム", href: "/admin" },
@@ -193,6 +193,6 @@ function Shell({ children }: { readonly children: ReactNode }) {
       >
         {children}
       </Page>
-    </AppShell>
+    </AdminShell>
   );
 }

@@ -1,3 +1,4 @@
+import { AdminShell } from "@/presentation/admin/admin-shell";
 import Link from "next/link";
 import type { ReactNode } from "react";
 import {
@@ -11,7 +12,6 @@ import {
   sampleContentPackageId,
 } from "@/presentation/composition";
 import {
-  AppShell,
   Callout,
   Card,
   ErrorView,
@@ -256,7 +256,7 @@ export default async function ContentMatrixPage({
 
 function Shell({ children }: { readonly children: ReactNode }) {
   return (
-    <AppShell
+    <AdminShell
       currentPath="/admin/content"
       breadcrumbs={[
         { label: "ホーム", href: "/admin" },
@@ -271,6 +271,6 @@ function Shell({ children }: { readonly children: ReactNode }) {
       >
         {children}
       </Page>
-    </AppShell>
+    </AdminShell>
   );
 }

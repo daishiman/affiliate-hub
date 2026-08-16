@@ -1,8 +1,8 @@
+import { AdminShell } from "@/presentation/admin/admin-shell";
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { currentActor, productSampleNotice, productUseCases } from "@/presentation/composition";
 import {
-  AppShell,
   Callout,
   Card,
   ClaimStatement,
@@ -159,7 +159,7 @@ function toEvidenceView(e: {
 
 function Shell({ children }: { readonly children: ReactNode }) {
   return (
-    <AppShell
+    <AdminShell
       currentPath="/admin/evidence"
       breadcrumbs={[{ label: "ホーム", href: "/admin" }, { label: "根拠" }]}
       actions={<Link href="/admin">ホームへ戻る</Link>}
@@ -170,6 +170,6 @@ function Shell({ children }: { readonly children: ReactNode }) {
       >
         {children}
       </Page>
-    </AppShell>
+    </AdminShell>
   );
 }

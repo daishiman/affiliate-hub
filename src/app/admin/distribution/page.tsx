@@ -1,8 +1,8 @@
+import { AdminShell } from "@/presentation/admin/admin-shell";
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { currentActor, distributionNotice, distributionUseCases } from "@/presentation/composition";
 import {
-  AppShell,
   Callout,
   Card,
   EmptyView,
@@ -203,7 +203,7 @@ export default async function DistributionPage() {
 
 function Shell({ children }: { readonly children: ReactNode }) {
   return (
-    <AppShell
+    <AdminShell
       currentPath="/admin/distribution"
       breadcrumbs={[{ label: "ホーム", href: "/admin" }, { label: "配信" }]}
       actions={<Link href="/admin">ホームへ戻る</Link>}
@@ -214,6 +214,6 @@ function Shell({ children }: { readonly children: ReactNode }) {
       >
         {children}
       </Page>
-    </AppShell>
+    </AdminShell>
   );
 }

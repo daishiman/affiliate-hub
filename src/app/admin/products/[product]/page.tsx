@@ -1,3 +1,4 @@
+import { AdminShell } from "@/presentation/admin/admin-shell";
 import Link from "next/link";
 import type { ReactNode } from "react";
 import {
@@ -8,7 +9,6 @@ import {
   rankingScreenTarget,
 } from "@/presentation/composition";
 import {
-  AppShell,
   Callout,
   Card,
   ClaimStatement,
@@ -313,7 +313,7 @@ function toEvidenceView(e: {
 
 function Shell({ title, children }: { readonly title: string; readonly children: ReactNode }) {
   return (
-    <AppShell
+    <AdminShell
       currentPath="/admin/products"
       breadcrumbs={[
         { label: "ホーム", href: "/admin" },
@@ -325,6 +325,6 @@ function Shell({ title, children }: { readonly title: string; readonly children:
       <Page title={title} lead="仕様・根拠・検証記録・順位の理由をまとめて確かめます。">
         {children}
       </Page>
-    </AppShell>
+    </AdminShell>
   );
 }

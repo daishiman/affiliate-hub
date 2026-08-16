@@ -1,7 +1,14 @@
+import { AdminShell } from "@/presentation/admin/admin-shell";
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { currentActor, productSampleNotice, productUseCases } from "@/presentation/composition";
-import { AppShell, Card, EmptyView, ErrorView, Page, StubNotice } from "@/presentation/ui";
+import {
+  Card,
+  EmptyView,
+  ErrorView,
+  Page,
+  StubNotice,
+} from "@/presentation/ui";
 import styles from "../admin.module.css";
 import { ProductSearchForm } from "./product-search-form";
 
@@ -97,7 +104,7 @@ export default async function ProductsPage({
 
 function Shell({ text, children }: { readonly text: string; readonly children: ReactNode }) {
   return (
-    <AppShell
+    <AdminShell
       currentPath="/admin/products"
       breadcrumbs={[{ label: "ホーム", href: "/admin" }, { label: "商品" }]}
       actions={<Link href="/admin">ホームへ戻る</Link>}
@@ -111,6 +118,6 @@ function Shell({ text, children }: { readonly text: string; readonly children: R
         </Card>
         {children}
       </Page>
-    </AppShell>
+    </AdminShell>
   );
 }

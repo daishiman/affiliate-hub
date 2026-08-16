@@ -7,7 +7,7 @@ import type {
 import type { AuditLogEntry, Disclosure } from "@/domain/compliance";
 import { buildVisibleMessage } from "@/domain/compliance";
 import type { Brand, Membership, Workspace } from "@/domain/identity";
-import { DEFAULT_BRAND_VOICE } from "@/domain/identity";
+import { DEFAULT_BRAND_VOICE, DEFAULT_CTA, DEFAULT_LOCALE, DEFAULT_TIME_ZONE } from "@/domain/identity";
 import { ok, taggedString } from "@/domain/shared";
 import { SAMPLE_WORKSPACE_ID } from "./ranking-sample-repository";
 import { registerStub, stubCall } from "../../stub-registry";
@@ -126,6 +126,9 @@ const BRANDS: readonly Brand[] = [
     positioning: "自分で試した範囲だけを書き、試していないことは試していないと書く。",
     voice: DEFAULT_BRAND_VOICE,
     disclaimer: "価格と仕様は変わることがあります。購入前に販売ページでご確認ください。",
+    locale: DEFAULT_LOCALE,
+    timeZone: DEFAULT_TIME_ZONE,
+    defaultCta: DEFAULT_CTA,
     createdAt: new Date("2026-04-01T00:00:00Z"),
   },
   {
@@ -138,6 +141,10 @@ const BRANDS: readonly Brand[] = [
     positioning: "価格の変動を追いかけ、買い時だけを伝える。",
     voice: { ...DEFAULT_BRAND_VOICE, firstPerson: "私たち", vocabulary: "plain" },
     disclaimer: null,
+    locale: DEFAULT_LOCALE,
+    timeZone: DEFAULT_TIME_ZONE,
+    // 標準の行動文言をブランドごとに変えられることを見本で示す。
+    defaultCta: "在庫を見る",
     createdAt: new Date("2026-06-15T00:00:00Z"),
   },
 ];

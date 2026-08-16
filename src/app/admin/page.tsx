@@ -1,7 +1,7 @@
+import { AdminShell } from "@/presentation/admin/admin-shell";
 import Link from "next/link";
 import { actorNotice, createToolCatalog, currentActor, dashboardUseCases } from "@/presentation/composition";
 import {
-  AppShell,
   Callout,
   Card,
   EmptyView,
@@ -30,7 +30,7 @@ export default async function AdminHome() {
   const board = await dashboardUseCases().getDashboard.execute(actor, {});
 
   return (
-    <AppShell currentPath="/admin" breadcrumbs={[{ label: "ホーム" }]}>
+    <AdminShell currentPath="/admin" breadcrumbs={[{ label: "ホーム" }]}>
       <Page
         title="管理"
         lead="商品を調べ、根拠を集め、評価基準で並べ、記事にして配信するまでをここで行います。"
@@ -133,6 +133,6 @@ export default async function AdminHome() {
           </ul>
         </Card>
       </Page>
-    </AppShell>
+    </AdminShell>
   );
 }

@@ -1,8 +1,8 @@
+import { AdminShell } from "@/presentation/admin/admin-shell";
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { currentActor, productSampleNotice, productUseCases } from "@/presentation/composition";
 import {
-  AppShell,
   Callout,
   Card,
   ComparisonTable,
@@ -136,7 +136,7 @@ export default async function CompareProductsPage({
 
 function Shell({ children }: { readonly children: ReactNode }) {
   return (
-    <AppShell
+    <AdminShell
       currentPath="/admin/products"
       breadcrumbs={[
         { label: "ホーム", href: "/admin" },
@@ -151,6 +151,6 @@ function Shell({ children }: { readonly children: ReactNode }) {
       >
         {children}
       </Page>
-    </AppShell>
+    </AdminShell>
   );
 }

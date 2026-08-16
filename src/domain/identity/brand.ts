@@ -36,8 +36,28 @@ export type Brand = {
   readonly voice: BrandVoice;
   /** 全記事の末尾に必ず出す免責。空でもよいが、設定漏れと区別する。 */
   readonly disclaimer: string | null;
+  /**
+   * 記事の既定の言語。日付・数量の書式もこれに従う。
+   * サイトごとに変えられるが、既定はブランドが持つ。
+   */
+  readonly locale: string;
+  /**
+   * 予定日時を読み書きするときの時間帯。
+   * ここが揃っていないと、投稿カレンダーの「20日 9:00」が人によって別の時刻になる。
+   */
+  readonly timeZone: string;
+  /**
+   * 標準の行動文言（「価格を見る」など）。
+   * 記事ごとに書き起こすと、同じ運営者なのに誘い方がばらつく。
+   */
+  readonly defaultCta: string;
   readonly createdAt: Date;
 };
+
+/** 既定値。未設定と「あえてこの値」を区別できるよう、定数として置く。 */
+export const DEFAULT_LOCALE = "ja-JP";
+export const DEFAULT_TIME_ZONE = "Asia/Tokyo";
+export const DEFAULT_CTA = "価格を見る";
 
 export type BrandVoice = {
   /** 敬体/常体。サイト間で混ざると同じ運営者に見えない。 */
@@ -66,6 +86,9 @@ export function createBrand(input: {
   positioning: string;
   voice?: BrandVoice;
   disclaimer?: string | null;
+  locale?: string;
+  timeZone?: string;
+  defaultCta?: string;
   createdAt: Date;
 }): Result<Brand, DomainError> {
   if (input.displayName.trim() === "") {
@@ -88,6 +111,9 @@ export function createBrand(input: {
     positioning: input.positioning.trim(),
     voice: input.voice ?? DEFAULT_BRAND_VOICE,
     disclaimer: input.disclaimer ?? null,
+    locale: input.locale?.trim() || DEFAULT_LOCALE,
+    timeZone: input.timeZone?.trim() || DEFAULT_TIME_ZONE,
+    defaultCta: input.defaultCta?.trim() || DEFAULT_CTA,
     createdAt: input.createdAt,
   });
 }

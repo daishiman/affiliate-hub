@@ -1,10 +1,10 @@
+import { AdminShell } from "@/presentation/admin/admin-shell";
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { FEEDBACK_TARGET_LABEL } from "@/application/usecases/analytics/read-metrics";
 import { ANALYTICS_AXIS_KEYS, type AnalyticsAxisKey } from "@/domain/analytics";
 import { analyticsNotice, analyticsUseCases, currentActor } from "@/presentation/composition";
 import {
-  AppShell,
   Callout,
   Card,
   EmptyView,
@@ -288,7 +288,7 @@ export default async function AnalyticsPage({
 
 function Shell({ children }: { readonly children: ReactNode }) {
   return (
-    <AppShell
+    <AdminShell
       currentPath="/admin/analytics"
       breadcrumbs={[{ label: "ホーム", href: "/admin" }, { label: "数字" }]}
       actions={<Link href="/admin">ホームへ戻る</Link>}
@@ -299,6 +299,6 @@ function Shell({ children }: { readonly children: ReactNode }) {
       >
         {children}
       </Page>
-    </AppShell>
+    </AdminShell>
   );
 }

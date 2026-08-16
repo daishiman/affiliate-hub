@@ -1,3 +1,4 @@
+import { AdminShell } from "@/presentation/admin/admin-shell";
 import Link from "next/link";
 import type { ReactNode } from "react";
 import {
@@ -7,7 +8,13 @@ import {
   rankingTool,
 } from "@/presentation/composition";
 import { invokeTool } from "@/presentation/tools/tool-definition";
-import { AppShell, Callout, Card, EmptyView, ErrorView, Page } from "@/presentation/ui";
+import {
+  Callout,
+  Card,
+  EmptyView,
+  ErrorView,
+  Page,
+} from "@/presentation/ui";
 import styles from "../admin.module.css";
 
 export const dynamic = "force-dynamic";
@@ -137,7 +144,7 @@ export default async function RankingsPage() {
 
 function Shell({ children }: { readonly children: ReactNode }) {
   return (
-    <AppShell
+    <AdminShell
       currentPath="/admin/rankings"
       breadcrumbs={[{ label: "ホーム", href: "/admin" }, { label: "評価基準と順位" }]}
       actions={<Link href="/admin">ホームへ戻る</Link>}
@@ -148,7 +155,7 @@ function Shell({ children }: { readonly children: ReactNode }) {
       >
         {children}
       </Page>
-    </AppShell>
+    </AdminShell>
   );
 }
 

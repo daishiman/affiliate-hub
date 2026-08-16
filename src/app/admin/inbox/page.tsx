@@ -1,3 +1,4 @@
+import { AdminShell } from "@/presentation/admin/admin-shell";
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { LINK_INBOX_FILTERS, filterLabel } from "@/application/usecases/monetization/manage-link-inbox";
@@ -13,7 +14,6 @@ import {
   linkInboxUseCases,
 } from "@/presentation/composition";
 import {
-  AppShell,
   Callout,
   Card,
   EmptyView,
@@ -211,7 +211,7 @@ export default async function InboxPage({
 
 function Shell({ children }: { readonly children: ReactNode }) {
   return (
-    <AppShell
+    <AdminShell
       currentPath="/admin/inbox"
       breadcrumbs={[{ label: "ホーム", href: "/admin" }, { label: "成果リンクの受信箱" }]}
       actions={<Link href="/admin/affiliate">提携と成果へ戻る</Link>}
@@ -222,6 +222,6 @@ function Shell({ children }: { readonly children: ReactNode }) {
       >
         {children}
       </Page>
-    </AppShell>
+    </AdminShell>
   );
 }

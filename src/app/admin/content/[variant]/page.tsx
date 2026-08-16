@@ -1,9 +1,9 @@
+import { AdminShell } from "@/presentation/admin/admin-shell";
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { contentUseCases, currentActor, editorialContentNotice } from "@/presentation/composition";
 import {
   AiCannotApproveNotice,
-  AppShell,
   ApprovalBlockedNotice,
   ApprovalFlow,
   Callout,
@@ -185,7 +185,7 @@ const CHECK_LABEL: Readonly<Record<string, string>> = {
 
 function Shell({ title, children }: { readonly title: string; readonly children: ReactNode }) {
   return (
-    <AppShell
+    <AdminShell
       currentPath="/admin/content"
       breadcrumbs={[
         { label: "ホーム", href: "/admin" },
@@ -197,6 +197,6 @@ function Shell({ title, children }: { readonly title: string; readonly children:
       <Page title={title} lead="本文と自動確認の結果を見て、次の段階へ進めてよいかを判断します。">
         {children}
       </Page>
-    </AppShell>
+    </AdminShell>
   );
 }

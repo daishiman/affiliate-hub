@@ -310,6 +310,10 @@ export type BrandRow = {
   readonly voiceLabel: string;
   readonly avoidPhrases: readonly string[];
   readonly disclaimer: string | null;
+  /** 言語・時間帯・標準の行動文言。記事ごとに書き起こさないための既定値。 */
+  readonly locale: string;
+  readonly timeZone: string;
+  readonly defaultCta: string;
   /** 公開の前に埋める必要があるもの。空なら準備できている。 */
   readonly missing: readonly string[];
 };
@@ -340,6 +344,9 @@ export function createListBrandsUseCase(
         voiceLabel: `${b.voice.politeness === "polite" ? "です・ます" : "だ・である"} / 一人称「${b.voice.firstPerson}」`,
         avoidPhrases: b.voice.avoidPhrases,
         disclaimer: b.disclaimer,
+        locale: b.locale,
+        timeZone: b.timeZone,
+        defaultCta: b.defaultCta,
         missing: missingPublishReadiness(b),
       }));
 

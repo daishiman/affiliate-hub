@@ -70,6 +70,7 @@ export {
   Page,
   Card,
   ADMIN_NAV,
+  visibleNav,
   type NavItem,
   type Breadcrumb,
 } from "./templates/app-shell";
