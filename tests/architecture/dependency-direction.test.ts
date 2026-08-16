@@ -126,6 +126,29 @@ describe("Editorial と Commercial の分離", () => {
     expect(found).toEqual([]);
   });
 
+  /**
+   * ランキング式の重複実装を防ぐ (arch 受け入れ条件)。
+   *
+   * UI や WebMCP でスコアを再計算し始めると、画面と AI 回答で順位が食い違う。
+   * 重み付き合計の語彙が domain/ranking の外に現れたら失敗させる。
+   */
+  it("ランキングの計算は domain/ranking の外に無い", () => {
+    const outside = [
+      ...filesUnder("application"),
+      ...filesUnder("infrastructure"),
+      ...filesUnder("presentation"),
+    ];
+    const offenders: string[] = [];
+    for (const file of outside) {
+      const source = readFileSync(file, "utf8");
+      // 重み付き合計・閾値判定を外側で書き直していないか
+      if (/weight\s*\*|totalScore\s*=|passThreshold\s*[<>]/.test(source)) {
+        offenders.push(relative(process.cwd(), file));
+      }
+    }
+    expect(offenders).toEqual([]);
+  });
+
   it("domain/evidence と domain/product も報酬を参照しない", () => {
     const found = violations(
       [...filesUnder("domain", "evidence"), ...filesUnder("domain", "product")],
