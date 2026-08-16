@@ -7,9 +7,21 @@
 | 本番 | https://affiliate-hub.daishimanju.workers.dev | `main` |
 | 開発 | https://affiliate-hub-dev.daishimanju.workers.dev | `dev` |
 
-> **Note:** 要件は暫定です。目的・スコープは今後更新します。
+## 仕様
 
-## 概要
+構築の指針は [`docs/spec/`](./docs/spec/) にあります。
+
+| ドキュメント | 内容 |
+| --- | --- |
+| [ai-first-webmcp.md](./docs/spec/ai-first-webmcp.md) | 構築仕様書 v1.0。Phase 0〜6 の実装計画を含む |
+| [data-model-gap.md](./docs/spec/data-model-gap.md) | 仕様書のデータモデルと現在のスキーマの差分 |
+| [completion-criteria.md](./docs/spec/completion-criteria.md) | 完了条件を検証可能な形にしたチェックリスト |
+
+> **現在の実装は仕様書の Phase 1 未満です。** 下記「概要」は既存実装（運営者向けの成果管理）の
+> 説明であり、仕様書が目指す読者向けの比較メディアとは別ドメインです。差分は
+> [data-model-gap.md](./docs/spec/data-model-gap.md) を参照してください。
+
+## 概要（既存実装）
 
 - 複数 ASP にまたがる案件情報と成果データを 1 か所に集約する
 - 収益の推移を確認できるダッシュボードを提供する
