@@ -1,9 +1,17 @@
+import Link from "next/link";
 import type { ReactNode } from "react";
 import type { SiteBlueprint } from "@/domain/authoring";
 import { appearanceOptions, readAppearance } from "@/presentation/appearance";
 import { readerActor, readerWebMcpDescriptors, siteUseCases } from "@/presentation/composition";
 import type { PageKind } from "@/presentation/tools/webmcp-policy";
-import { ErrorView, SiteShell, WebMcpProvider, type SiteChrome } from "@/presentation/ui";
+import {
+  ErrorView,
+  PublicShell,
+  SitePage,
+  SiteShell,
+  WebMcpProvider,
+  type SiteChrome,
+} from "@/presentation/ui";
 import { TelemetryCollector } from "@/presentation/telemetry/collector";
 import { readConsentDecision, readConsentChoice } from "@/presentation/telemetry/consent-server";
 import { breadcrumbsFor, siteBasePath, toChrome } from "./view-model";
@@ -51,11 +59,22 @@ export async function SiteFrame({
   const result = await siteUseCases().getSite.execute(readerActor(), { siteSlug });
 
   if (!result.ok) {
+    /*
+      見つからないときも「画面」として成立させる。
+      `ErrorView` を裸で返すと、見出しも戻り先も無い行き止まりになる。
+      アドレスを打ち間違えた読者はここで詰まり、そのまま離れる。
+    */
     return (
-      <ErrorView
-        title="このブログは見つかりませんでした"
-        body={result.error.suggestedAction ?? result.error.message}
-      />
+      <PublicShell title="affiliate-hub">
+        <SitePage title="このブログは見つかりませんでした">
+          <ErrorView
+            title="指定されたブログはありません"
+            body={result.error.message}
+            suggestedAction={result.error.suggestedAction ?? "アドレスの綴りをご確認ください。"}
+            action={<Link href="/">公開中のブログの一覧を見る</Link>}
+          />
+        </SitePage>
+      </PublicShell>
     );
   }
 
@@ -117,11 +136,19 @@ export function NotFoundBody({
   readonly what: string;
   readonly siteSlug: string;
 }) {
+  /*
+    `SitePage` で包むのは飾りではない。h1 が無い画面は、
+    読み上げで開いたときに「どこに着いたのか」が一言も告げられない。
+    見えている人には「見つかりませんでした」の文字が目に入るので、
+    **この抜けは目視では発見できない。**
+  */
   return (
-    <ErrorView
-      title={`${what}が見つかりませんでした`}
-      body="URL が変わったか、公開が取り下げられた可能性があります。"
-      action={<a href={siteBasePath(siteSlug)}>トップへ戻る</a>}
-    />
+    <SitePage title={`${what}が見つかりませんでした`}>
+      <ErrorView
+        title={`${what}が見つかりませんでした`}
+        body="URL が変わったか、公開が取り下げられた可能性があります。"
+        action={<Link href={siteBasePath(siteSlug)}>トップへ戻る</Link>}
+      />
+    </SitePage>
   );
 }

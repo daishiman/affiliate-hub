@@ -13,6 +13,9 @@ export default defineConfig({
     environment: "node",
     // .tsx を入れ忘れると、部品の描画テストが 1 件も走らないまま全部緑になる。
     include: ["tests/**/*.test.ts", "tests/**/*.test.tsx"],
+    // 画面を描くのに要る「要求ごとの入れ物」をここで 1 回だけ用意する。
+    // テストファイルごとに書くと、書き忘れたファイルだけが落ちる。
+    setupFiles: ["tests/setup.ts"],
   },
   resolve: {
     alias: {
