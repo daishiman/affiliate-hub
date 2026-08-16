@@ -40,5 +40,10 @@
     "typescript": "^5",
     "wrangler": "^4.123.0"
   },
+  "pnpm": {
+    "overrides": {
+      "@esbuild-kit/core-utils>esbuild": "^0.25.0"
+    }
+  },
   "packageManager": "pnpm@10.19.0"
 }
