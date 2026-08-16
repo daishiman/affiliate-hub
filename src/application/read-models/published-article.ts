@@ -86,6 +86,34 @@ export type PublishedComparisonRow = {
   >;
 };
 
+/**
+ * 商品カード 1 枚ぶん（記事構成 `product_cards`）。
+ *
+ * 値が無い項目は**省略せず `null` で渡す**。省略できるようにすると、
+ * 商品ごとに項目の並びが変わり、読者が横に見比べられなくなる。
+ */
+export type PublishedProductCardSpec = {
+  readonly label: string;
+  readonly value: string | null;
+  /** 実測値か、公表仕様からの推測か。 */
+  readonly kind: Extract<FactKind, "fact" | "inference">;
+};
+
+export type PublishedProductCard = {
+  readonly productId: string;
+  readonly name: string;
+  readonly brand: string;
+  readonly oneLine: string;
+  readonly specs: readonly PublishedProductCardSpec[];
+  /** 価格の扱い方。金額そのものは載せない（書き写した価格は必ず古くなる）。 */
+  readonly priceNote?: string;
+  /** ASP が発行した URL。加工せずそのまま渡す。 */
+  readonly affiliateUrl?: string;
+  /** 買う導線を出せない理由。黙って消さない。 */
+  readonly blockedReason?: string;
+  readonly reviewSlug?: string;
+};
+
 export type PublishedPerson = {
   readonly slug: string;
   readonly name: string;
@@ -117,6 +145,8 @@ export type PublishedArticle = {
   readonly disclosureRequired: boolean;
   readonly sections: readonly PublishedSection[];
   readonly conversation?: readonly PublishedConversationLine[];
+  /** 商品カード。順位・レビュー・比較のどの型でも使う。 */
+  readonly productCards?: readonly PublishedProductCard[];
   /** 順位記事のときだけ入る。 */
   readonly ranking?: {
     readonly caption: string;

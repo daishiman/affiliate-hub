@@ -112,6 +112,55 @@ const LAPTOP_RANKING: PublishedArticle = {
     { speaker: "writer", text: "毎日持ち歩くなら重さも見てください。速さだけで選ぶと通勤で後悔します。" },
     { speaker: "expert", text: "計測は室温を揃えないと再現しません。この記事は 24℃ で統一しています。" },
   ],
+  // 記事構成 `product_cards`。順位表と同じ商品を、同じ項目の並びで見せる。
+  // 3 台とも同じ 4 項目で、測っていないものは値を伏せて「未計測」と出す
+  // （空欄にすると「無い」のか「測っていない」のか読者に伝わらない）。
+  productCards: [
+    {
+      productId: "p_alpha_15",
+      name: "Alpha Studio 15",
+      brand: "Alpha",
+      oneLine: "書き出しが最も速い。重さは 1.9kg。",
+      specs: [
+        { label: "4K書き出し（10分素材）", value: "6分12秒", kind: "fact" },
+        { label: "重さ", value: "1.9kg", kind: "fact" },
+        { label: "連続稼働時の動作音", value: "やや大きい", kind: "fact" },
+        { label: "色域（DCI-P3）", value: null, kind: "fact" },
+      ],
+      priceNote: "価格は変わります。最新の金額は販売ページでご確認ください。",
+      affiliateUrl: "https://example.com/click?aid=sample&pid=alpha15",
+      reviewSlug: "alpha-studio-15",
+    },
+    {
+      productId: "p_beta_14",
+      name: "Beta Creator 14",
+      brand: "Beta",
+      oneLine: "1.3kg。持ち歩く人向け。",
+      specs: [
+        { label: "4K書き出し（10分素材）", value: "8分40秒", kind: "fact" },
+        { label: "重さ", value: "1.3kg", kind: "fact" },
+        { label: "連続稼働時の動作音", value: "静か", kind: "fact" },
+        { label: "色域（DCI-P3）", value: "約95%", kind: "inference" },
+      ],
+      priceNote: "価格は変わります。最新の金額は販売ページでご確認ください。",
+      affiliateUrl: "https://example.com/click?aid=sample&pid=beta14",
+    },
+    {
+      productId: "p_gamma_16",
+      name: "Gamma Pro 16",
+      brand: "Gamma",
+      oneLine: "画面が大きい。据え置き向け。",
+      specs: [
+        { label: "4K書き出し（10分素材）", value: "6分55秒", kind: "fact" },
+        { label: "重さ", value: "2.4kg", kind: "fact" },
+        { label: "連続稼働時の動作音", value: null, kind: "fact" },
+        { label: "色域（DCI-P3）", value: null, kind: "fact" },
+      ],
+      priceNote: "価格は変わります。最新の金額は販売ページでご確認ください。",
+      // 提携していないので買う導線は出さない。理由を出して、貼り忘れと区別する。
+      blockedReason: "この商品は、いま提携している販売先がありません。",
+    },
+  ],
   ranking: {
     caption: "動画編集向けノートパソコンの順位",
     updatedAt: "2026-08-01",

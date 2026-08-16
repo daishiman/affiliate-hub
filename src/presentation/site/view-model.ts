@@ -140,6 +140,26 @@ export function toArticleView(siteSlug: string, article: PublishedArticle): Arti
       })),
     })),
     conversation: article.conversation,
+    productCards: article.productCards?.map((card) => ({
+      name: card.name,
+      brand: card.brand,
+      oneLine: card.oneLine,
+      specs: card.specs.map((spec) => ({
+        label: spec.label,
+        value: spec.value,
+        basis: spec.kind,
+      })),
+      priceNote: card.priceNote,
+      affiliateHref: card.affiliateUrl,
+      // 買う導線が無いときは、理由を必ず添える。
+      // 理由が無いと、読者には「リンクの貼り忘れ」と区別が付かない。
+      blockedReason:
+        card.affiliateUrl === undefined
+          ? (card.blockedReason ?? "この商品は、いま提携している販売先がありません。")
+          : undefined,
+      detailHref:
+        card.reviewSlug === undefined ? undefined : siteHref(siteSlug, `/reviews/${card.reviewSlug}`),
+    })),
     ranking:
       article.ranking === undefined
         ? undefined

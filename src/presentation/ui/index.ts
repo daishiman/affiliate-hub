@@ -61,6 +61,14 @@ export {
   APPROVAL_STEPS,
   type ApprovalState,
 } from "./patterns/approval";
+export {
+  Conversation,
+  SPEAKERS,
+  SPEAKER_LABEL,
+  type ConversationLine,
+  type Speaker,
+} from "./patterns/conversation";
+export { ProductCard, type ProductCardSpec } from "./patterns/product-card";
 export { StubNotice, StubLabel } from "./patterns/stub-notice";
 export { WorkBoard, type WorkBoardItem } from "./patterns/work-board";
 export { FilterBar, type FilterAxis } from "./patterns/filter-bar";

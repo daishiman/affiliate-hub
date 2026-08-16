@@ -133,11 +133,40 @@ describe("仕様固有の重要UIの一元化", () => {
       "disclosure.tsx",
       "ranking-table.tsx",
       "comparison-table.tsx",
+      "conversation.tsx",
+      "product-card.tsx",
       "approval.tsx",
       "stub-notice.tsx",
     ];
     const present = patterns.map((f) => f.split("/").pop());
     expect(required.filter((r) => !present.includes(r))).toEqual([]);
+  });
+
+  /**
+   * 使われていない共通部品を残さない。
+   *
+   * 「部品はあるが、どの画面からも呼ばれていない」状態は、
+   * 一覧の上では実装済みに見えるのに読者には何も届いていない。
+   * API はあるが画面が無い、と同じ壊れ方をする。
+   */
+  it("すべてのパターンがどこかの画面から使われている", () => {
+    const users = [...screens, ...templates].map((f) => readFileSync(f, "utf8")).join("\n");
+    const orphans: string[] = [];
+    for (const file of patterns) {
+      if (!file.endsWith(".tsx")) continue;
+      const name = file.split("/").pop() ?? "";
+      // 直接の import と、入口 (index.ts) 経由の名前つき import の両方を見る。
+      if (users.includes(`/${name.replace(/\.tsx$/, "")}"`)) continue;
+      const exported = [...readFileSync(file, "utf8").matchAll(/export function (\w+)/g)].map(
+        (m) => m[1],
+      );
+      if (exported.some((n) => new RegExp(`<${n}[\\s/>]`).test(users))) continue;
+      orphans.push(name);
+    }
+    expect(
+      orphans,
+      "どの画面からも呼ばれていない部品です。使うか、消してください。",
+    ).toEqual([]);
   });
 
   it("入口 (index.ts) から全パターンを出している", () => {
@@ -149,6 +178,8 @@ describe("仕様固有の重要UIの一元化", () => {
       "AffiliateLink",
       "RankingTable",
       "ComparisonTable",
+      "Conversation",
+      "ProductCard",
       "ApprovalFlow",
       "StubNotice",
     ]) {

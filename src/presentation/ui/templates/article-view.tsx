@@ -5,6 +5,7 @@ import { ComparisonTable, type ComparisonColumn, type ComparisonRow } from "../p
 import { DisclosureNotice } from "../patterns/disclosure";
 import { EvidenceList, type EvidenceView } from "../patterns/evidence";
 import { Conversation } from "../patterns/conversation";
+import { ProductCard, type ProductCardSpec } from "../patterns/product-card";
 import { ClaimStatement, type Factuality } from "../patterns/factuality";
 import {
   RankingTable,
@@ -50,6 +51,17 @@ export type ConversationLineView = {
   readonly text: string;
 };
 
+export type ProductCardView = {
+  readonly name: string;
+  readonly brand: string;
+  readonly oneLine: string;
+  readonly specs: readonly ProductCardSpec[];
+  readonly priceNote?: string;
+  readonly affiliateHref?: string;
+  readonly blockedReason?: string;
+  readonly detailHref?: string;
+};
+
 export type ArticleViewModel = {
   readonly title: string;
   readonly summary: string;
@@ -64,6 +76,7 @@ export type ArticleViewModel = {
   readonly policyHref: string;
   readonly sections: readonly SectionView[];
   readonly conversation?: readonly ConversationLineView[];
+  readonly productCards?: readonly ProductCardView[];
   readonly ranking?: {
     readonly caption: string;
     readonly updatedAt: string;
@@ -156,6 +169,17 @@ export function ArticleView({ article }: { readonly article: ArticleViewModel })
           columns={article.comparison.columns}
           rows={article.comparison.rows}
         />
+      )}
+
+      {article.productCards !== undefined && article.productCards.length > 0 && (
+        <section className={styles.section} aria-label="この記事で取り上げた商品">
+          <h2 className={styles.sectionHeading}>この記事で取り上げた商品</h2>
+          <div className={styles.cardList}>
+            {article.productCards.map((card) => (
+              <ProductCard key={card.name} {...card} />
+            ))}
+          </div>
+        </section>
       )}
 
       {article.conversation !== undefined && <Conversation lines={article.conversation} />}
