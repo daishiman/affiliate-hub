@@ -7,5 +7,6 @@ export * from "./content-variant";
 export * from "./conversation-block";
 export * from "./quality-check";
 export * from "./site-blueprint";
+export * from "./site-draft";
 export * from "./site-routes";
 export * from "./writing-style";

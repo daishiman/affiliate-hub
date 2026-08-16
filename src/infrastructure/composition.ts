@@ -44,6 +44,7 @@ import {
   createSampleWorkspaceRepository,
 } from "./persistence/sample/settings-sample-repository";
 import { createSampleLinkIngestionRepository } from "./persistence/sample/link-inbox-sample-repository";
+import { createSampleSiteDraftRepository } from "./persistence/sample/site-draft-sample-repository";
 import { createSampleSiteRepository } from "./persistence/sample/site-sample-repository";
 import { idGenerator } from "./platform/id-generator";
 
@@ -74,6 +75,7 @@ export function createDeps(): AppDeps {
     // ★ 見本データ（スタブ）。ブログ 2 本ぶんの設計図と記事。
     //   site_blueprints / published_articles テーブルができたら差し替える。
     sites: createSampleSiteRepository(),
+    siteDrafts: createSampleSiteDraftRepository(),
     publishedContent: createSampleContentRepository(),
     // ★ 見本（スタブ）。読者が自分で操作するもの。
     //   保存先 (KV)・計算式・問い合わせの送信先が用意できたら差し替える。

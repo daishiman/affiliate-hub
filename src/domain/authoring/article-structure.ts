@@ -10,7 +10,8 @@
  *   - 複数ブログで同じ構成を再利用でき、ブログごとにコードを分岐しない
  *   - AI 生成のプロンプトが、この一覧をそのまま出力スキーマに使える
  */
-export type ArticleType = "ranking" | "review" | "comparison" | "guide" | "tool";
+export const ARTICLE_TYPES = ["ranking", "review", "comparison", "guide", "tool"] as const;
+export type ArticleType = (typeof ARTICLE_TYPES)[number];
 
 /** セクションの識別子。文言ではなく役割で持つ (サイトごとに見出し文言を変えるため)。 */
 export type SectionId =

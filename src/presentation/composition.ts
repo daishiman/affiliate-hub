@@ -69,6 +69,13 @@ import {
   createListRolesUseCase,
 } from "@/application/usecases/identity/manage-workspace";
 import {
+  createCreateSiteFromDraftUseCase,
+  createGetSiteDraftUseCase,
+  createListSiteDraftsUseCase,
+  createSaveSiteDraftStepUseCase,
+  createStartSiteDraftUseCase,
+} from "@/application/usecases/site/build-site";
+import {
   createCheckSiteDifferentiationUseCase,
   createGetManagedSiteUseCase,
   createListManagedSitesUseCase,
@@ -86,6 +93,7 @@ import type { ActorContext } from "@/domain/shared";
 import { taggedString } from "@/domain/shared";
 import { createDeps } from "@/infrastructure/composition";
 import { sampleContentNotice } from "@/infrastructure/persistence/sample/content-sample-repository";
+import { sampleSiteDraftNotice } from "@/infrastructure/persistence/sample/site-draft-sample-repository";
 import { getCurrentActor, sampleActorNotice } from "@/infrastructure/identity/sample-actor";
 import { sampleEditorialContentNotice } from "@/infrastructure/persistence/sample/content-editorial-sample-repository";
 import { sampleDistributionNotice } from "@/infrastructure/persistence/sample/distribution-sample-repository";
@@ -525,7 +533,31 @@ export function siteSampleNotice(): string {
   return sampleContentNotice();
 }
 
+/** ブログ作成の下書きが仮置きの保存先であることを画面に出すための一文。 */
+export function siteDraftSampleNotice(): string {
+  return sampleSiteDraftNotice();
+}
+
 /** 商品の表示名。ID をそのまま画面に出さないための対応表。 */
 export function productDisplayName(productId: string): string {
   return sampleProductName(productId as never);
+}
+
+/**
+ * ブログ作成ウィザードの入口 (§16.2)。
+ *
+ * **ブログを 1 本増やすのに、コードは 1 行も書かない。**
+ * ここで作られるのは設計図のデータだけで、
+ * 読者向けの画面 (`/s/<URL名>`) は既存のものをそのまま使う。
+ */
+export function siteBuilderUseCases() {
+  const deps = createDeps();
+  const builder = { drafts: deps.siteDrafts, ids: deps.ids };
+  return {
+    listDrafts: createListSiteDraftsUseCase(builder),
+    getDraft: createGetSiteDraftUseCase(builder),
+    startDraft: createStartSiteDraftUseCase(builder),
+    saveStep: createSaveSiteDraftStepUseCase(builder),
+    createSite: createCreateSiteFromDraftUseCase(builder),
+  };
 }

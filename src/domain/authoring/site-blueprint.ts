@@ -40,7 +40,8 @@ export const SITE_PATTERNS = [
 export type SitePattern = (typeof SITE_PATTERNS)[number];
 
 /** 収益モデル。ブログの構成と CTA の既定値を決める。 */
-export type RevenueModel = "affiliate" | "ad" | "lead" | "own_product" | "mixed";
+export const REVENUE_MODELS = ["affiliate", "ad", "lead", "own_product", "mixed"] as const;
+export type RevenueModel = (typeof REVENUE_MODELS)[number];
 
 /** 固定ページ (プラットフォーム層 §16.3 / ブログ層 §7)。 */
 export const STANDARD_PAGES = [

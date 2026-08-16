@@ -55,6 +55,13 @@ export default async function SitesPage() {
         <span>{siteSampleNotice()}</span>
       </StubNotice>
 
+      <Callout
+        tone="info"
+        title="ブログを増やすのに、コードは書きません"
+        reason="13 の質問に答えると、設計図のデータが 1 本増えます。画面もルートも、いま並んでいるブログと同じものが使われます。"
+        action={<Link href="/admin/sites/new">新しいブログを作る</Link>}
+      />
+
       {list.value.total === 0 ? (
         <Card>
           <EmptyView
@@ -164,7 +171,7 @@ function Shell({ children }: { readonly children: ReactNode }) {
     <AppShell
       currentPath="/admin/sites"
       breadcrumbs={[{ label: "ホーム", href: "/admin" }, { label: "サイト" }]}
-      actions={<Link href="/admin">ホームへ戻る</Link>}
+      actions={<Link href="/admin/sites/new">新しいブログを作る</Link>}
     >
       <Page
         title="サイト"

@@ -24,6 +24,7 @@ export { TERMS, UI_COPY, term, fill, DEFAULT_LOCALE, type Locale, type TermKey }
 export { Button, type ButtonProps, type ButtonTone } from "./primitives/button";
 export { Field, type FieldProps } from "./primitives/field";
 export { Select, type SelectProps, type SelectOption } from "./primitives/select";
+export { CheckboxGroup, type CheckboxGroupProps } from "./primitives/checkbox-group";
 export { TextArea, type TextAreaProps } from "./primitives/textarea";
 export { ToolForm } from "./primitives/tool-form";
 export { Callout, type CalloutTone } from "./primitives/callout";

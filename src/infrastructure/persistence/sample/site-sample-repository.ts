@@ -3,6 +3,7 @@ import { type SiteBlueprint, createSiteBlueprint } from "@/domain/authoring";
 import { type WorkspaceId, markEditorial, ok, taggedString } from "@/domain/shared";
 import { registerStub } from "../../stub-registry";
 import { SAMPLE_WORKSPACE_ID } from "./ranking-sample-repository";
+import { createdSites } from "./site-draft-sample-repository";
 
 /**
  * ★ これは仮置きの見本データです（スタブ）。★
@@ -183,13 +184,23 @@ export function sampleSiteNotice(): string {
   return `${stub.label}で表示しています（${stub.blockedBy}が済むまでの仮です）。`;
 }
 
+/**
+ * 見本の 3 本と、ウィザードで作られたブログを合わせた一覧。
+ *
+ * **読者側の画面はこの 2 種類を区別しない。**
+ * 区別すると「見本のブログでは動くが、作ったブログでは動かない」が起きる。
+ */
+function allSites(): readonly { readonly slug: string; readonly blueprint: SiteBlueprint }[] {
+  return [...SITES, ...createdSites()];
+}
+
 export function createSampleSiteRepository(): EditorialSiteRepositoryPort {
   return markEditorial({
     async findBySlug(slug: string) {
-      return ok(SITES.find((s) => s.slug === slug)?.blueprint ?? null);
+      return ok(allSites().find((s) => s.slug === slug)?.blueprint ?? null);
     },
     async list() {
-      return ok(SITES);
+      return ok(allSites());
     },
   });
 }

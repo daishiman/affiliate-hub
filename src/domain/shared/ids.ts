@@ -47,6 +47,8 @@ export type UpdateLogId = Tagged<string, "UpdateLogId">;
 // Site (Content Authoring の配置面)
 export type SiteId = Tagged<string, "SiteId">;
 export type SiteBlueprintId = Tagged<string, "SiteBlueprintId">;
+/** ブログ作成ウィザードの下書き。設計図になる前の状態。 */
+export type SiteDraftId = Tagged<string, "SiteDraftId">;
 
 // Distribution
 export type ChannelConnectionId = Tagged<string, "ChannelConnectionId">;

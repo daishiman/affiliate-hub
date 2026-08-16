@@ -10,6 +10,7 @@ import type {
   EditorialContentPackageRepositoryPort,
   EditorialContentVariantRepositoryPort,
   EditorialPersonaRepositoryPort,
+  EditorialSiteDraftRepositoryPort,
 } from "./ports/authoring";
 import type {
   ChannelConnectionRepositoryPort,
@@ -65,6 +66,8 @@ export type AppDeps = {
   readonly contentPackages: EditorialContentPackageRepositoryPort;
   readonly contentVariants: EditorialContentVariantRepositoryPort;
   readonly personas: EditorialPersonaRepositoryPort;
+  /** ブログ作成ウィザードの下書き。ブログを増やすのはコードではなくここのデータ。 */
+  readonly siteDrafts: EditorialSiteDraftRepositoryPort;
   readonly channelConnections: ChannelConnectionRepositoryPort;
   readonly publications: PublicationRepositoryPort;
   readonly manualExport: ManualExportPort;

@@ -6,7 +6,7 @@
 「スタブ」は、つなぎ目だけあって中身がまだ無いもの。呼ぶと必ず失敗を返す。
 成功したふりをしないので、「つながっているのに結果が空」という分かりにくい壊れ方をしない。
 
-件数: 37
+件数: 38
 
 | 識別子 | 何のスタブか | つなぎ目 | 何が済めば実装できるか |
 |---|---|---|---|
@@ -42,6 +42,7 @@
 | `persistence:product-sample` | 商品と根拠（見本データ） | 商品・主張・根拠・検証記録の保存先 | products / claims / evidence / test_runs テーブルの追加とマイグレーション |
 | `persistence:ranking-sample` | ランキングの保存先（見本データ） | EditorialRankingModelRepositoryPort / EditorialScoreCardRepositoryPort | ranking_models / score_cards テーブルの追加とマイグレーション |
 | `persistence:settings-sample` | 設定（見本データ） | 作業場所・担当者・ブランド・広告表記・操作の記録の保存先 | workspaces / memberships / brands / disclosures / audit_logs テーブルの追加と、Better Auth と Google ログインの設定 |
+| `persistence:site-draft-memory` | ブログ作成の下書き（プロセス内のみ） | SiteDraftRepositoryPort | site_drafts / site_blueprints テーブルの追加と D1 への接続 |
 | `persistence:site-sample` | ブログの設計図（見本データ） | SiteRepositoryPort | site_blueprints テーブルの追加とマイグレーション |
 | `reader:contact-sink` | 問い合わせの受け取り（送信せず記録のみ） | ContactPort | Turnstile の鍵と送信元メールアドレスの登録（利用者本人が登録する） |
 | `reader:shortlist-memory` | 気になる商品の保存（処理中のメモリ） | ShortlistPort | 読者ごとの保存先 (KV 名前空間) の作成 |

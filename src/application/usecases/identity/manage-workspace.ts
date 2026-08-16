@@ -65,6 +65,7 @@ export const CAPABILITY_LABEL: Readonly<Record<Capability, string>> = {
   "workspace.manage": "設定を変える",
   "brand.manage": "ブランドを管理する",
   "site.manage": "ブログを管理する",
+  "site.draft": "新しいブログを作る",
   "member.manage": "担当者を管理する",
   "product.read": "商品を見る",
   "product.write": "商品を登録する",

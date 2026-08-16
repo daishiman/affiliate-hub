@@ -22,6 +22,16 @@ export type Capability =
   | "workspace.manage"
   | "brand.manage"
   | "site.manage"
+  /**
+   * ブログの器を作る（ウィザード）。
+   *
+   * `site.manage`（運用中のブログの設定を変える）と分けている。
+   * 器を作った時点では記事が 1 本も無く、読者に見える内容は生まれない。
+   * 記事が世に出るかどうかは `content.publish` と公開ゲートが決める。
+   * 同じ権限にまとめると、企画担当が新しいブログを試すたびに
+   * 公開の権限まで渡すことになる。
+   */
+  | "site.draft"
   | "member.manage"
   | "product.read"
   | "product.write"
@@ -55,6 +65,7 @@ const ROLE_CAPABILITIES: Readonly<Record<Role, readonly Capability[]>> = {
     "workspace.manage",
     "brand.manage",
     "site.manage",
+    "site.draft",
     "member.manage",
     "product.read",
     "product.write",
@@ -76,6 +87,7 @@ const ROLE_CAPABILITIES: Readonly<Record<Role, readonly Capability[]>> = {
   workspace_admin: [
     "brand.manage",
     "site.manage",
+    "site.draft",
     "member.manage",
     "product.read",
     "product.write",
@@ -96,6 +108,7 @@ const ROLE_CAPABILITIES: Readonly<Record<Role, readonly Capability[]>> = {
   ],
   brand_manager: [
     "site.manage",
+    "site.draft",
     "product.read",
     "product.write",
     "evidence.write",
@@ -109,7 +122,7 @@ const ROLE_CAPABILITIES: Readonly<Record<Role, readonly Capability[]>> = {
     "analytics.read",
   ],
   researcher: ["product.read", "product.write", "evidence.write", "content.read"],
-  writer: ["product.read", "content.read", "content.write", "content.generate"],
+  writer: ["product.read", "content.read", "content.write", "content.generate", "site.draft"],
   reviewer: [
     "product.read",
     "content.read",

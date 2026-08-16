@@ -5,6 +5,7 @@ import type {
   ContentState,
   ContentVariant,
   SiteBlueprint,
+  SiteDraft,
 } from "@/domain/authoring";
 import type { Editorial } from "@/domain/shared";
 import type {
@@ -14,6 +15,7 @@ import type {
   ContentPackageId,
   ContentVariantId,
   SiteBlueprintId,
+  SiteDraftId,
   SiteId,
   WorkspaceId,
 } from "@/domain/shared";
@@ -70,6 +72,24 @@ export type SiteRepositoryPort = {
   save(site: Site): PortResult<Site>;
 };
 
+/**
+ * ブログ作成ウィザードの下書き。
+ *
+ * 設計図とは別に持つ。途中の状態を設計図として保存すると、
+ * 空欄のまま公開されたブログが生まれる。
+ */
+export type SiteDraftRepositoryPort = {
+  find(workspaceId: WorkspaceId, id: SiteDraftId): PortResult<SiteDraft | null>;
+  /** 作りかけの一覧。放置された下書きに気づけるようにする。 */
+  list(workspaceId: WorkspaceId): PortResult<readonly SiteDraft[]>;
+  save(draft: SiteDraft): PortResult<SiteDraft>;
+  /**
+   * 完成した設計図をブログとして登録する。
+   * ここを通ったものだけが読者から見える。
+   */
+  publishBlueprint(slug: string, blueprint: SiteBlueprint): PortResult<SiteBlueprint>;
+};
+
 export type SiteBlueprintRepositoryPort = {
   findById(workspaceId: WorkspaceId, id: SiteBlueprintId): PortResult<SiteBlueprint | null>;
   list(workspaceId: WorkspaceId, page: Page): PortResult<Paged<SiteBlueprint>>;
@@ -86,4 +106,5 @@ export type EditorialContentPackageRepositoryPort = Editorial<ContentPackageRepo
 export type EditorialContentVariantRepositoryPort = Editorial<ContentVariantRepositoryPort>;
 export type EditorialPersonaRepositoryPort = Editorial<PersonaRepositoryPort>;
 export type EditorialSiteBlueprintRepositoryPort = Editorial<SiteBlueprintRepositoryPort>;
+export type EditorialSiteDraftRepositoryPort = Editorial<SiteDraftRepositoryPort>;
 export type EditorialPlatformSiteRepositoryPort = Editorial<SiteRepositoryPort>;
