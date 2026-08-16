@@ -4,6 +4,7 @@ import { UI_COPY } from "../copy";
 import { ComparisonTable, type ComparisonColumn, type ComparisonRow } from "../patterns/comparison-table";
 import { DisclosureNotice } from "../patterns/disclosure";
 import { EvidenceList, type EvidenceView } from "../patterns/evidence";
+import { Conversation } from "../patterns/conversation";
 import { ClaimStatement, type Factuality } from "../patterns/factuality";
 import {
   RankingTable,
@@ -77,13 +78,6 @@ export type ArticleViewModel = {
   };
   /** 中身がまだ無い記事であることの明示。見本を本物に見せない。 */
   readonly stub?: { readonly label: string; readonly blockedBy: string; readonly stubId: string };
-};
-
-const SPEAKER_LABEL: Readonly<Record<ConversationLineView["speaker"], string>> = {
-  reader: "読者",
-  writer: "書き手",
-  expert: "監修者",
-  assistant: "案内役",
 };
 
 function Section({ section }: { readonly section: SectionView }) {
@@ -164,19 +158,7 @@ export function ArticleView({ article }: { readonly article: ArticleViewModel })
         />
       )}
 
-      {article.conversation !== undefined && (
-        <section className={styles.section}>
-          <h2 className={styles.sectionHeading}>よくある行き違い</h2>
-          <div className={styles.conversation}>
-            {article.conversation.map((line, i) => (
-              <div key={i} className={styles.line}>
-                <span className={styles.speaker}>{SPEAKER_LABEL[line.speaker]}</span>
-                <p>{line.text}</p>
-              </div>
-            ))}
-          </div>
-        </section>
-      )}
+      {article.conversation !== undefined && <Conversation lines={article.conversation} />}
     </article>
   );
 }
