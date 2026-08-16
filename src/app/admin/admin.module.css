@@ -1,0 +1,135 @@
+/*
+ * 管理画面だけで使う並べ方。
+ * 色・余白・文字サイズは必ずトークン変数を使う（この値をここで作らない）。
+ */
+
+.sectionTitle {
+  margin: 0 0 var(--space-2);
+  font-size: var(--text-lg);
+  line-height: var(--leading-heading);
+  color: var(--text-strong);
+}
+
+.sectionLead {
+  margin: 0 0 var(--space-4);
+  font-size: var(--text-sm);
+  color: var(--text-muted);
+}
+
+.linkList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.linkList > li {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.linkNote {
+  font-size: var(--text-sm);
+  color: var(--text-muted);
+}
+
+/* --- 順位の表 ---------------------------------------------------------- */
+
+.rankTable {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--text-sm);
+}
+
+.rankTable th,
+.rankTable td {
+  padding: var(--space-3);
+  text-align: left;
+  border-bottom: 1px solid var(--border-subtle);
+  vertical-align: top;
+}
+
+.rankTable th {
+  color: var(--text-muted);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+/* 数字は桁を揃えて右寄せにする。並べて比べるための列なので。 */
+.numeric {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.rankBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 2rem;
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius-sm);
+  background: var(--primary-subtle);
+  color: var(--text-strong);
+  font-weight: 700;
+}
+
+.breakdown {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1) var(--space-3);
+  margin: var(--space-1) 0 0;
+  padding: 0;
+  list-style: none;
+  color: var(--text-muted);
+  font-size: var(--text-xs);
+}
+
+.criteria {
+  display: grid;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+}
+
+.criteria dt {
+  color: var(--text-strong);
+  font-weight: 600;
+}
+
+.criteria dd {
+  margin: 0 0 var(--space-2);
+  color: var(--text-muted);
+  font-size: var(--text-sm);
+}
+
+@media (width < 48rem) {
+  /* 狭い画面では表を積む。横スクロールで隠れる列を作らない。 */
+  .rankTable,
+  .rankTable tbody,
+  .rankTable tr,
+  .rankTable td {
+    display: block;
+    width: 100%;
+  }
+
+  .rankTable thead {
+    display: none;
+  }
+
+  .rankTable tr {
+    padding: var(--space-3) 0;
+    border-bottom: 1px solid var(--border-subtle);
+  }
+
+  .rankTable td {
+    padding: var(--space-1) 0;
+    border: 0;
+  }
+
+  .numeric {
+    text-align: left;
+  }
+}

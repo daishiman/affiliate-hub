@@ -104,6 +104,43 @@ const eslintConfig = defineConfig([
       ],
     },
   },
+  {
+    files: ["src/infrastructure/**/*.ts"],
+    rules: {
+      "no-restricted-imports": [
+        "error",
+        {
+          patterns: [
+            {
+              group: ["@/presentation/*", "@/components/*", "@/app/*"],
+              message:
+                "infrastructure は入口 (画面・API) を知りません。組み立ては src/presentation/composition.ts が行います。",
+            },
+          ],
+        },
+      ],
+    },
+  },
+  {
+    // presentation の中で実装を選んでよいのは composition.ts だけ。
+    // 画面や API ルートが実装を直接読むと、差し替えが全画面の書き換えになる。
+    files: ["src/presentation/**/*.ts", "src/presentation/**/*.tsx"],
+    ignores: ["src/presentation/composition.ts"],
+    rules: {
+      "no-restricted-imports": [
+        "error",
+        {
+          patterns: [
+            {
+              group: ["@/infrastructure/*"],
+              message:
+                "実装の選択は src/presentation/composition.ts に集約します。画面や API からは直接読まないでください。",
+            },
+          ],
+        },
+      ],
+    },
+  },
 ]);
 
 export default eslintConfig;

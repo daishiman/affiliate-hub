@@ -1,10 +1,7 @@
 import { z } from "zod";
 import type { RankProductsInput } from "@/application/usecases/ranking/rank-products";
 import { createRankProductsUseCase } from "@/application/usecases/ranking/rank-products";
-import type {
-  EditorialRankingModelRepositoryPort,
-  EditorialScoreCardRepositoryPort,
-} from "@/application/ports";
+import type { AppDeps } from "@/application/deps";
 import type { RankingResult } from "@/domain/ranking";
 import { domainError, err, ok } from "@/domain/shared";
 import type { DomainError, ProductId, RankingModelId, Result } from "@/domain/shared";
@@ -67,12 +64,23 @@ const rankProductsSchema = z.object({
   productIds: z.array(z.string().min(1)).min(1).max(50),
 });
 
-export type CatalogDeps = {
-  readonly rankingModels: EditorialRankingModelRepositoryPort;
-  readonly scoreCards: EditorialScoreCardRepositoryPort;
-};
+/**
+ * ツールが必要とするもの一式。
+ *
+ * 定義は application が持つ (`AppDeps`)。ここで別に並べ直すと、
+ * ポートを足したときに片方だけ古くなる。
+ */
+export type CatalogDeps = AppDeps;
 
-function rankProductsTool(deps: CatalogDeps): ToolDefinition<RankProductsInput, RankingResult> {
+/**
+ * 画面からもこれを呼ぶ。
+ *
+ * 画面用に別の呼び出し口を作らないこと。作った時点で、
+ * 画面と AI で違う順位が出る余地ができる。
+ */
+export function rankProductsTool(
+  deps: CatalogDeps,
+): ToolDefinition<RankProductsInput, RankingResult> {
   return {
     name: "rank_products",
     description:
