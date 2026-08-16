@@ -14,9 +14,9 @@
     "setup:cf-token": "node scripts/setup-cf-token.mjs",
     "cf-typegen": "wrangler types --env-interface CloudflareEnv cloudflare-env.d.ts",
     "db:generate": "drizzle-kit generate",
-    "db:migrate:local": "wrangler d1 migrations apply affiliate-hub-db-dev --local",
-    "db:migrate:dev": "wrangler d1 migrations apply affiliate-hub-db-dev --remote",
-    "db:migrate:prod": "wrangler d1 migrations apply affiliate-hub-db --remote"
+    "db:migrate:local": "wrangler d1 migrations apply DB --env dev --local",
+    "db:migrate:dev": "wrangler d1 migrations apply DB --env dev --remote",
+    "db:migrate:prod": "wrangler d1 migrations apply DB --env production --remote"
   },
   "dependencies": {
     "@opennextjs/cloudflare": "^1.20.2",
