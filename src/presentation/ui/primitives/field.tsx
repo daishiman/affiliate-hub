@@ -2,6 +2,7 @@
 
 import type { InputHTMLAttributes, KeyboardEvent, ReactNode } from "react";
 import { useId } from "react";
+import { UI_COPY, fill } from "../copy";
 import styles from "./ui.module.css";
 
 /**
@@ -26,6 +27,13 @@ import styles from "./ui.module.css";
  *
  *   4. 必須ではない欄に「任意」と書く。必須の欄に「必須」と書かない。
  *      ほとんどが必須なので、少ない方に印を付ける。
+ *
+ *   5. 文言は copy.ts の UI_COPY から取る。ここに直接書かない。
+ *
+ * --- AI から操作するための宣言 (WebMCP) ---
+ * `toolParamDescription` を渡すと `toolparamdescription` 属性として出る。
+ * これにより、同じ入力欄が「人が使うフォーム」と「AI が呼ぶ道具」の両方になる。
+ * 画面と道具で別々に定義を書くと、片方だけ古くなる。
  */
 export type FieldProps = Omit<InputHTMLAttributes<HTMLInputElement>, "value" | "onChange"> & {
   readonly label: string;
@@ -47,6 +55,11 @@ export type FieldProps = Omit<InputHTMLAttributes<HTMLInputElement>, "value" | "
   /** 手で書き換えられているか。呼び出し側が持つ。 */
   readonly overridden?: boolean;
   readonly onResetToAuto?: () => void;
+  /**
+   * この欄が AI から見て何の値かの説明 (WebMCP)。
+   * 画面のラベルと別に書けるが、意味をずらさない。
+   */
+  readonly toolParamDescription?: string;
 };
 
 /** Enter で次の欄へ。フォーム内の入力可能な要素を順に辿る。 */
@@ -74,6 +87,7 @@ export function Field({
   autoValueSource,
   overridden = false,
   onResetToAuto,
+  toolParamDescription,
   ...rest
 }: FieldProps) {
   const id = useId();
@@ -94,7 +108,7 @@ export function Field({
     <div className={styles.field}>
       <label className={styles.label} htmlFor={id}>
         {label}
-        {optional && <span className={styles.optional}>任意</span>}
+        {optional && <span className={styles.optional}>{UI_COPY.field.optional}</span>}
       </label>
 
       <input
@@ -108,19 +122,23 @@ export function Field({
         onKeyDown={handleKeyDown}
         aria-invalid={error !== null || undefined}
         aria-describedby={[hint ? hintId : null, error ? errorId : null].filter(Boolean).join(" ") || undefined}
+        toolparamdescription={toolParamDescription}
       />
 
-      {unit !== undefined && <span className={styles.hint}>単位: {unit}</span>}
+      {unit !== undefined && (
+        <span className={styles.hint}>{fill("単位: {unit}", { unit })}</span>
+      )}
 
       {showingAuto && autoValueSource !== undefined && (
-        <span className={styles.autoNote}>自動で入力しました（{autoValueSource}）。書き換えられます。</span>
+        <span className={styles.autoNote}>
+          {UI_COPY.field.autoFilled}（{UI_COPY.field.autoSource}: {autoValueSource}）
+        </span>
       )}
 
       {overridden && autoValue !== null && onResetToAuto !== undefined && (
         <span className={styles.autoNote}>
-          手で入力した値です。
           <button type="button" className={styles.resetToAuto} onClick={onResetToAuto}>
-            自動計算に戻す
+            {UI_COPY.field.resetToAuto}
           </button>
         </span>
       )}

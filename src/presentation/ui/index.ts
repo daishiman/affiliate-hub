@@ -23,6 +23,7 @@ export { TERMS, UI_COPY, term, fill, DEFAULT_LOCALE, type Locale, type TermKey }
 /* --- primitives -------------------------------------------------------- */
 export { Button, type ButtonProps, type ButtonTone } from "./primitives/button";
 export { Field, type FieldProps } from "./primitives/field";
+export { ToolForm } from "./primitives/tool-form";
 export { Callout, type CalloutTone } from "./primitives/callout";
 export { LoadingView, EmptyView, ErrorView } from "./primitives/state-view";
 
