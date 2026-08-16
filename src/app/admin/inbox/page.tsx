@@ -43,8 +43,9 @@ export default async function InboxPage({
   const filter = LINK_INBOX_FILTERS.find((f) => f === requested) ?? "all";
 
   const actor = await currentActor();
+  const useCases = await linkInboxUseCases();
   const [inbox, programs] = await Promise.all([
-    linkInboxUseCases().list.execute(actor, { state: filter }),
+    useCases.list.execute(actor, { state: filter }),
     affiliateUseCases().listPrograms.execute(actor, {}),
   ]);
 
@@ -77,7 +78,7 @@ export default async function InboxPage({
         blockedBy="link_ingestions テーブルの追加と D1 への接続"
         stubId="persistence:link-inbox-sample"
       >
-        <span>{linkInboxNotice()}</span>
+        <span>{await linkInboxNotice()}</span>
       </StubNotice>
 
       <Callout

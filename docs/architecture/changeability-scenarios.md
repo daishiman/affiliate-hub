@@ -202,17 +202,53 @@ domain の変更は 0 になるが、同時に `affiliate_commission` のよう�
 
 ---
 
-## ⑥ 保存先を D1 から別の DB へ替える（追加シナリオ）
+## ⑥ 保存先を見本データから D1 へ替える（**実測済み** 2026-08-17）
 
-| 層 | 触るファイル |
-| --- | --- |
-| domain | **なし** |
-| application | **なし**（リポジトリポートの形は変わらない） |
-| infrastructure | `src/infrastructure/persistence/*`（未作成）の実装群 |
-| presentation | なし |
+**実測済み 2026-08-17。** 成果リンク受信箱の保存先を、見本データから
+実際に D1（`link_ingestions` テーブル）へ替えて測った。
 
-**domain を触るか**: **触らない。**
+| 層 | 触るファイル | 実測 |
+| --- | --- | --- |
+| domain | `src/domain/shared/ids.ts` | **1 行**（`asLinkIngestionId` の追加。ID の作り方が無かっただけで、業務の決めごとは無変更） |
+| application | **なし** | ポート `LinkIngestionRepositoryPort` の形は 1 文字も変わっていない |
+| infrastructure | `persistence/d1/link-inbox-repository.ts`（新規）、`persistence/d1/connection.ts`（新規）、`db/schema.ts`、`drizzle/0002_*.sql`（生成）、`composition.ts` | 新規 2 ファイル + 差し替え 1 箇所 |
+| presentation | `composition.ts`、`admin/inbox-action.ts`、`app/admin/inbox/page.tsx` | 接続の取得が非同期になったための `await` 追加のみ。**表示も操作も無変更** |
+
+実測（`git diff --stat` + 新規ファイル）:
+
+```text
+ src/db/schema.ts                       | 48 +++++++++++++++++++++++++++++++++-
+ src/domain/shared/ids.ts               |  1 +
+ src/infrastructure/composition.ts      | 17 +++++++++---
+ src/presentation/composition.ts        | 20 ++++++++++----
+ src/presentation/admin/inbox-action.ts |  5 ++--
+ src/app/admin/inbox/page.tsx           |  5 ++--
+ 新規: src/infrastructure/persistence/d1/link-inbox-repository.ts
+ 新規: src/infrastructure/persistence/d1/connection.ts
+ 新規: drizzle/0002_oval_rumiko_fujikawa.sql（drizzle-kit が生成）
+```
+
+**domain を触るか**: ほぼ触らない（ID の作り方 1 行のみ）。
+不変条件・状態遷移・URL の扱いは 1 行も変わっていない。
 domain が `drizzle-orm` を import していないことは `pnpm test` が毎回確認している。
+
+**測ってみて分かったこと（当初の記述の誤り）**:
+
+1. **「presentation なし」は誤りだった。** 接続は Workers ではリクエストごとに
+   供給されるため、取得が非同期になる。同期で組み立てていた入口
+   （`linkInboxUseCases()`）が `async` になり、呼び出し側 3 ファイルに `await` が要る。
+   1 回だけの追加コストだが、「0 ファイル」ではない。
+2. **「黙って見本データに落ちる」を作らないための表示が要る。**
+   保存先が無い環境（`pnpm dev`・自動テスト）では見本データで動くので、
+   いま何で動いているかを画面に文字で出す関数（`linkInboxNotice`）も
+   非同期になった。ここを省くと「保存したのに消えた」という
+   一番原因を探しにくい壊れ方になる。
+3. **重複防止は保存先側にも要る。** アプリ側の確認だけだと、
+   2 人が同時に入れたときにすり抜ける。一意制約を
+   `link_ingestions_workspace_normalized_url_idx` として張った。
+
+残り 10 個の保存先も同じ形で置き換えられる（ポートの形は共通）。
+1 つあたり「新規ファイル 1 つ + 合成ルート 1 行 + テーブル定義」。
 
 ---
 
@@ -347,7 +383,7 @@ domain が `drizzle-orm` を import していないことは `pnpm test` が毎�
 | ③ ブログ追加 | 触らない | **1**（設定値のみ・追加 46 行） | **済**（2026-08-17。⑪ と同じ作業） |
 | ④ SNS チャネル追加 | 1 件（能力表のみ） | **3**（うち 1 は自動生成） | 済（2026-08-17 実測） |
 | ⑤ 評価軸追加 | 1 行（許可リストのみ） | **2** | 済（2026-08-17 実測） |
-| ⑥ DB 差し替え | 触らない | 実装群 | 未 |
+| ⑥ 保存先を D1 へ | **1 行**（ID の作り方のみ） | **6 変更 + 新規 3**（うち 1 は自動生成） | **済**（2026-08-17。受信箱で実測） |
 | ⑦ 認証差し替え | 触らない | 実装群 | 未 |
 | ⑧ ブランド色の変更 | 触らない | **1** | **済**（2026-08-17） |
 | ⑨ 比較表の列追加 | 触らない | **1** | **済**（2026-08-17） |

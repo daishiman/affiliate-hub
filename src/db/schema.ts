@@ -1,5 +1,13 @@
 import { sql } from "drizzle-orm";
-import { index, integer, primaryKey, real, sqliteTable, text } from "drizzle-orm/sqlite-core";
+import {
+  index,
+  integer,
+  primaryKey,
+  real,
+  sqliteTable,
+  text,
+  uniqueIndex,
+} from "drizzle-orm/sqlite-core";
 
 /**
  * このファイルは 2 つのドメインを持つ。混ぜてはいけない。
@@ -350,10 +358,48 @@ export const updateLogs = sqliteTable(
   ],
 );
 
+/**
+ * 成果リンクの受信箱 (§9.2)。運営者ドメイン。
+ *
+ * `submitted_url` は**受け取ったまま**保存する。改変は規約違反になりうる。
+ * `normalized_url` は重複判定にだけ使う形で、表示にも遷移にも使わない。
+ * 作業場所ごとの一意制約をここに置くのは、
+ * 「同じ URL が 2 回入る」を保存先の側で止めるため
+ * （アプリ側の確認だけだと、同時に 2 人が入れたときにすり抜ける）。
+ */
+export const linkIngestions = sqliteTable(
+  "link_ingestions",
+  {
+    id: text("id").primaryKey(),
+    workspaceId: text("workspace_id").notNull(),
+    submittedUrl: text("submitted_url").notNull(),
+    normalizedUrl: text("normalized_url").notNull(),
+    source: text("source", {
+      enum: ["paste", "csv", "api", "extension", "webmcp"],
+    }).notNull(),
+    submittedAt: integer("submitted_at", { mode: "timestamp" })
+      .notNull()
+      .default(sql`(unixepoch())`),
+    state: text("state", {
+      enum: ["received", "resolved", "matched", "rejected"],
+    }).notNull(),
+    programId: text("program_id"),
+    productId: text("product_id"),
+    duplicateOf: text("duplicate_of"),
+    note: text("note"),
+    rejectedReason: text("rejected_reason"),
+  },
+  (t) => [
+    index("link_ingestions_workspace_state_idx").on(t.workspaceId, t.state),
+    uniqueIndex("link_ingestions_workspace_normalized_url_idx").on(t.workspaceId, t.normalizedUrl),
+  ],
+);
+
 // 運営者ドメイン
 export type Asp = typeof asps.$inferSelect;
 export type Program = typeof programs.$inferSelect;
 export type Conversion = typeof conversions.$inferSelect;
+export type LinkIngestionRow = typeof linkIngestions.$inferSelect;
 
 // 読者ドメイン
 export type Category = typeof categories.$inferSelect;

@@ -110,3 +110,4 @@ export const asMasterBriefId = (v: string) => taggedString<"MasterBriefId">(v);
 export const asAssetId = (v: string) => taggedString<"AssetId">(v);
 export const asExperimentId = (v: string) => taggedString<"ExperimentId">(v);
 export const asTrackingLinkId = (v: string) => taggedString<"TrackingLinkId">(v);
+export const asLinkIngestionId = (v: string) => taggedString<"LinkIngestionId">(v);

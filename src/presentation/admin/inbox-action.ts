@@ -29,7 +29,8 @@ export async function submitAffiliateUrlAction(
   const url = String(formData.get("url") ?? "");
   const note = String(formData.get("note") ?? "");
 
-  const result = await linkInboxUseCases().submit.execute(await currentActor(), {
+  const submitUseCases = await linkInboxUseCases();
+  const result = await submitUseCases.submit.execute(await currentActor(), {
     url,
     // 画面から入れた、と分かるようにする。経路ごとに責任者が違う。
     source: "paste",
@@ -65,7 +66,7 @@ export async function advanceLinkIngestionAction(
   const linkIngestionId = String(formData.get("linkIngestionId") ?? "");
   const intent = String(formData.get("intent") ?? "");
   const actor = await currentActor();
-  const useCases = linkInboxUseCases();
+  const useCases = await linkInboxUseCases();
 
   if (intent === "resolve") {
     const programId = String(formData.get("programId") ?? "");

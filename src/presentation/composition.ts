@@ -115,6 +115,7 @@ import {
 } from "@/infrastructure/persistence/sample/affiliate-sample-repository";
 import { sampleAnalyticsNotice } from "@/infrastructure/persistence/sample/analytics-sample-repository";
 import { sampleLinkInboxNotice } from "@/infrastructure/persistence/sample/link-inbox-sample-repository";
+import { tryGetDb } from "@/infrastructure/persistence/d1/connection";
 import { sampleProductNotice } from "@/infrastructure/persistence/sample/product-sample-repository";
 import { sampleSettingsNotice } from "@/infrastructure/persistence/sample/settings-sample-repository";
 import {
@@ -459,8 +460,9 @@ export function affiliateUseCases() {
  * 貼り付け・広告主の確定・商品との結びつけ・対象外にする、の 4 つ。
  * 画面のボタンも、AI 向けのツールも、REST も、ここから同じものを取る。
  */
-export function linkInboxUseCases() {
-  const deps = createDeps();
+export async function linkInboxUseCases() {
+  // 保存先があれば D1、無ければ見本データ。**どちらで動いているかは画面に出す。**
+  const deps = createDeps({ db: await tryGetDb() });
   const inbox = {
     inbox: deps.linkInbox,
     programs: deps.affiliatePrograms,
@@ -476,9 +478,17 @@ export function linkInboxUseCases() {
   };
 }
 
-/** 受信箱が見本データ（この場限り）であることを画面に出すための一文。 */
-export function linkInboxNotice(): string {
-  return sampleLinkInboxNotice();
+/**
+ * 受信箱がいま何で動いているかを画面に出すための一文。
+ *
+ * 保存されるのか、この場限りで消えるのかは、
+ * 利用者にとって「使えるかどうか」が変わる違いなので、必ず出す。
+ */
+export async function linkInboxNotice(): Promise<string> {
+  const db = await tryGetDb();
+  return db === null
+    ? sampleLinkInboxNotice()
+    : "入れたリンクは保存されます（保存先: D1 の link_ingestions）。";
 }
 
 /**

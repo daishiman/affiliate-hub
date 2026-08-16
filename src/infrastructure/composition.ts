@@ -1,4 +1,8 @@
 import type { AppDeps } from "@/application/deps";
+import {
+  createCommercialD1LinkInboxRepository,
+  type DrizzleD1,
+} from "./persistence/d1/link-inbox-repository";
 import { createEventPublisher } from "./platform/queue";
 import { createSampleContentRepository } from "./persistence/sample/content-sample-repository";
 import {
@@ -61,7 +65,8 @@ import { idGenerator } from "./platform/id-generator";
  *
  * 入口ごとの組み立て（ツール一覧）は `src/presentation/composition.ts`。
  */
-export function createDeps(): AppDeps {
+export function createDeps(options: { readonly db?: DrizzleD1 | null } = {}): AppDeps {
+  const db = options.db ?? null;
   return {
     // ★ 見本データ（スタブ）。ranking_models / score_cards テーブルができたら差し替える。
     rankingModels: createSampleRankingModelRepository(),
@@ -114,8 +119,12 @@ export function createDeps(): AppDeps {
     affiliatePrograms: createSampleAffiliateProgramRepository(),
     affiliateLinks: createSampleAffiliateLinkRepository(),
     conversions: createSampleConversionRepository(),
-    // ★ 見本データ（スタブ）。貼り付けられた成果リンクの受信箱。
-    //   入れたリンクはこの場にだけ残り、しばらくすると消える（link_ingestions テーブル待ち）。
-    linkInbox: createSampleLinkIngestionRepository(),
+    // 受信箱だけは、保存先が用意できていれば本物（D1）を使う。
+    // **この 1 行が、変更容易性シナリオ ⑥ の実体。**
+    // 上の呼び出し側（ユースケース・画面・ツール）は 1 行も変わらない。
+    linkInbox:
+      db === null
+        ? createSampleLinkIngestionRepository()
+        : createCommercialD1LinkInboxRepository(db),
   };
 }
