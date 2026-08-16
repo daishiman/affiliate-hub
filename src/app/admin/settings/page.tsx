@@ -59,6 +59,17 @@ export default async function SettingsPage() {
         <span>{settingsNotice()}</span>
       </StubNotice>
 
+      <Card>
+        <h2 className={styles.sectionTitle}>ログイン</h2>
+        <p className={styles.sectionLead}>
+          いまは見本の担当者として動いています。Google でのログインをつなぐと、
+          許可した人だけが入れる状態になります。
+        </p>
+        <p className={styles.linkNote}>
+          <Link href="/signin">いま誰として動いているかを見る</Link>
+        </p>
+      </Card>
+
       {overview.value.blockedReason !== null && (
         <Callout
           tone="warn"
