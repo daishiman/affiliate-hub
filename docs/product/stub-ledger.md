@@ -6,12 +6,13 @@
 「スタブ」は、つなぎ目だけあって中身がまだ無いもの。呼ぶと必ず失敗を返す。
 成功したふりをしないので、「つながっているのに結果が空」という分かりにくい壊れ方をしない。
 
-件数: 27
+件数: 28
 
 | 識別子 | 何のスタブか | つなぎ目 | 何が済めば実装できるか |
 |---|---|---|---|
 | `asp:a8net` | A8.net との連携 | AspAdapterPort | A8.net は公開APIが限定的。成果データはCSV取込で代替する方針を決める |
 | `asp:accesstrade` | アクセストレード との連携 | AspAdapterPort | アクセストレードのAPI利用申請が必要 |
+| `asp:afb` | afb（アフィリエイトB） との連携 | AspAdapterPort | afb のパートナー審査通過とAPI利用申請が必要 |
 | `asp:amazon_associates` | Amazonアソシエイト との連携 | AspAdapterPort | PA-API 5.0 の利用資格 (売上実績) と申請が必要 |
 | `asp:direct` | 直接契約 との連携 | AspAdapterPort | 直接契約は広告主ごとに連携方法が異なる。手動登録で運用する |
 | `asp:moshimo` | もしもアフィリエイト との連携 | AspAdapterPort | もしもアフィリエイトのAPI提供条件の確認が必要 |

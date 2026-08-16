@@ -31,6 +31,7 @@ export type AspKind =
   | "a8net"
   | "moshimo"
   | "accesstrade"
+  | "afb"
   | "direct"; // 広告主と直接契約
 
 export const ASP_LABEL: Readonly<Record<AspKind, string>> = {
@@ -41,6 +42,7 @@ export const ASP_LABEL: Readonly<Record<AspKind, string>> = {
   a8net: "A8.net",
   moshimo: "もしもアフィリエイト",
   accesstrade: "アクセストレード",
+  afb: "afb（アフィリエイトB）",
   direct: "直接契約",
 };
 

@@ -44,6 +44,7 @@ const FACTORIES: Readonly<Record<AspKind, AspAdapterFactory>> = {
     createStubAspAdapter("a8net", ctx, "A8.net は公開APIが限定的。成果データはCSV取込で代替する方針を決める"),
   moshimo: (ctx) => createStubAspAdapter("moshimo", ctx, "もしもアフィリエイトのAPI提供条件の確認が必要"),
   accesstrade: (ctx) => createStubAspAdapter("accesstrade", ctx, "アクセストレードのAPI利用申請が必要"),
+  afb: (ctx) => createStubAspAdapter("afb", ctx, "afb のパートナー審査通過とAPI利用申請が必要"),
   direct: (ctx) =>
     createStubAspAdapter("direct", ctx, "直接契約は広告主ごとに連携方法が異なる。手動登録で運用する"),
 };

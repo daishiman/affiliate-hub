@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { ASP_LABEL } from "@/domain/monetization";
 import { createAspAdapter, supportedAsps } from "@/infrastructure/asp/asp-registry";
 import { createChannelConnector } from "@/infrastructure/channels/channel-registry";
 import { createLlm } from "@/infrastructure/llm/llm-provider-registry";
@@ -33,7 +34,14 @@ describe("スタブ台帳", () => {
   });
 
   it("すべての提携先に差し込み口がある", () => {
-    expect(supportedAsps()).toHaveLength(8);
+    // 個数を直接書かない。数を書くと、提携先を 1 つ足すたびに
+    // このテストも直すことになり「触るファイル数」が水増しされる。
+    // 確かめたいのは数ではなく「ドメインの一覧と差し込み口が一致していること」。
+    const declared = Object.keys(ASP_LABEL).sort();
+    const wired = supportedAsps()
+      .map((a) => a.kind)
+      .sort();
+    expect(wired, "提携先の一覧と差し込み口がずれています").toEqual(declared);
   });
 
   it("登録されたスタブには、前提条件が必ず書かれている", () => {

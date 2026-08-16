@@ -14,14 +14,36 @@
 
 ---
 
-## ① ASP を 1 つ追加する（例: もしもアフィリエイト）
+## ① ASP を 1 つ追加する（例: afb）
 
-| 層 | 触るファイル | 作業 |
+**実測済み 2026-08-17。** 一覧に無かった `afb`（アフィリエイトB）を実際に足して測った。
+
+| 層 | 触ったファイル | 作業 |
 | --- | --- | --- |
-| domain | `src/domain/monetization/affiliate-program.ts` | `AspKind` に 1 語、`ASP_LABEL` に 1 行 |
-| application | なし | `AspAdapterPort` は変わらない |
-| infrastructure | `src/infrastructure/asp/moshimo-adapter.ts`（新規・未作成） | ポートを実装する 1 ファイル |
-| presentation | なし | 選択肢は `ASP_LABEL` から自動で出る |
+| domain | `src/domain/monetization/affiliate-program.ts` **2 行** | `AspKind` に 1 語、`ASP_LABEL` に 1 行 |
+| application | **なし** | `AspAdapterPort` は変わらない |
+| infrastructure | `src/infrastructure/asp/asp-registry.ts` **1 行** | 対応表に 1 行（中身が済むまではスタブを差す） |
+| presentation | **なし** | 選択肢は `ASP_LABEL` から自動で出る |
+| 自動生成 | `docs/product/stub-ledger.md` | テストが作り直す。手で書かない |
+
+実測（`git diff --stat`）:
+
+```
+ docs/product/stub-ledger.md                  |  3 ++-
+ src/domain/monetization/affiliate-program.ts |  2 ++
+ src/infrastructure/asp/asp-registry.ts       |  1 +
+ tests/infrastructure/stub-registry.test.ts   | 10 +++++++++-
+```
+
+**測って初めて分かったこと**: `tests/infrastructure/stub-registry.test.ts` が
+提携先の数を `toHaveLength(8)` とべた書きしていた。
+これでは提携先を足すたびにテストも直すことになる（＝触るファイル数の水増し）。
+**数の比較をやめ、`ASP_LABEL` の一覧と差し込み口の一覧が一致するかの比較に直した。**
+この修正は 1 回きりで、次回からは **3 ファイル**（うち 1 つは自動生成）で済む。
+「実測しないと気づけない種類の劣化」の実例として残しておく。
+
+**本実装（API 連携）を足すとき**: `src/infrastructure/asp/afb-adapter.ts` を新規に書き、
+対応表の 1 行をスタブから差し替える。domain・application・presentation は再び無変更。
 
 **domain を触るか**: 触る（2 行）。ただし**判断ロジックには一切触らない**。
 
@@ -284,7 +306,7 @@ domain が `drizzle-orm` を import していないことは `pnpm test` が毎�
 
 | シナリオ | domain を触るか | 触るファイル数 | 実測したか |
 | --- | --- | --- | --- |
-| ① ASP 追加 | 2 行（一覧のみ） | 1 新規 | 未（実装後に実測する） |
+| ① ASP 追加 | 2 行（一覧のみ） | **3**（うち 1 は自動生成） | 済（2026-08-17 実測） |
 | ② LLM 差し替え | 触らない | 1 新規 | 未（実装後に実測する） |
 | ③ ブログ追加 | 触らない | **1**（設定値のみ・追加 46 行） | **済**（2026-08-17。⑪ と同じ作業） |
 | ④ SNS チャネル追加 | 1 行（能力表のみ） | 1 新規 | 未（実装後に実測する） |
