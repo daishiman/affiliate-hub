@@ -25,10 +25,7 @@ function pageFileFor(href: string): string {
  * 空にならないうちは「案内はあるが画面が無い」状態が残っているということ。
  * ここに書いていないリンクが壊れたら、下のテストが即座に落ちる。
  */
-const KNOWN_MISSING: readonly string[] = [
-  "/admin/analytics",
-  "/admin/settings",
-];
+const KNOWN_MISSING: readonly string[] = ["/admin/settings"];
 
 describe("管理画面の案内", () => {
   it("案内にあるリンクには必ず画面がある（未着手の一覧を除く）", () => {

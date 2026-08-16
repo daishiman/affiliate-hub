@@ -26,6 +26,10 @@ import {
   createSamplePublicationRepository,
 } from "./persistence/sample/distribution-sample-repository";
 import {
+  createSampleClickTracking,
+  createSampleMetricsRepository,
+} from "./persistence/sample/analytics-sample-repository";
+import {
   createSampleAffiliateAccountRepository,
   createSampleAffiliateLinkRepository,
   createSampleAffiliateProgramRepository,
@@ -76,6 +80,9 @@ export function createDeps(): AppDeps {
     channelConnections: createSampleChannelConnectionRepository(),
     publications: createSamplePublicationRepository(),
     manualExport: createSampleManualExport(),
+    // ★ 見本データ（スタブ）。数字。本物は公開して読まれ始めてから入る。
+    metrics: createSampleMetricsRepository(),
+    clickTracking: createSampleClickTracking(),
     // ★ 見本データ（スタブ）。提携先・提携条件・成果。
     //   本物の数字には各 ASP の API 申請と、利用者ご自身による接続情報の登録が要る。
     //   ここで作るものには商業の印が付いており、順位づけへは型として渡せない。

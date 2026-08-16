@@ -33,6 +33,11 @@ import {
   createListPublicationsUseCase,
 } from "@/application/usecases/distribution/manage-distribution";
 import {
+  createCheckFeedbackUseCase,
+  createListMetricsUseCase,
+  createListUsableMetricsUseCase,
+} from "@/application/usecases/analytics/read-metrics";
+import {
   createAdjustConversionUseCase,
   createGetConversionUseCase,
   createListAffiliateAccountsUseCase,
@@ -65,6 +70,7 @@ import {
   SAMPLE_PERIODS,
   sampleAffiliateNotice,
 } from "@/infrastructure/persistence/sample/affiliate-sample-repository";
+import { sampleAnalyticsNotice } from "@/infrastructure/persistence/sample/analytics-sample-repository";
 import { sampleProductNotice } from "@/infrastructure/persistence/sample/product-sample-repository";
 import {
   SAMPLE_MODEL_ID,
@@ -272,6 +278,26 @@ export function affiliateUseCases() {
     listProductLinks: createListProductLinksUseCase(affiliate),
     adjustConversion: createAdjustConversionUseCase(affiliate),
   };
+}
+
+/**
+ * 数字の入口。
+ *
+ * 指標を 1 つ増やすときに触るのは domain の定義表だけ。
+ * ここも画面も変わらず、数え方と「使ってよい用途」が同時に付いてくる。
+ */
+export function analyticsUseCases() {
+  const analytics = { metrics: createDeps().metrics };
+  return {
+    listMetrics: createListMetricsUseCase(analytics),
+    listUsableMetrics: createListUsableMetricsUseCase(analytics),
+    checkFeedback: createCheckFeedbackUseCase(analytics),
+  };
+}
+
+/** 数字が見本データであることを画面に出すための一文。 */
+export function analyticsNotice(): string {
+  return sampleAnalyticsNotice();
 }
 
 /** 提携と成果が見本データであることを画面に出すための一文。 */

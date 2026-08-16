@@ -16,6 +16,7 @@ import type {
   ManualExportPort,
   PublicationRepositoryPort,
 } from "./ports/distribution";
+import type { ClickTrackingPort, MetricsRepositoryPort } from "./ports/analytics";
 import type {
   AffiliateAccountRepositoryPort,
   AffiliateProgramRepositoryPort,
@@ -59,6 +60,8 @@ export type AppDeps = {
   readonly channelConnections: ChannelConnectionRepositoryPort;
   readonly publications: PublicationRepositoryPort;
   readonly manualExport: ManualExportPort;
+  readonly metrics: MetricsRepositoryPort;
+  readonly clickTracking: ClickTrackingPort;
   /**
    * ここから下は Commercial 区分。
    * 順位づけのユースケースは Editorial 印のポートしか受け取らないので、
