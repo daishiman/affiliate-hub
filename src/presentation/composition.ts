@@ -26,6 +26,13 @@ import {
   createListReviewOverdueUseCase,
 } from "@/application/usecases/content/manage-content";
 import {
+  createCancelPublicationUseCase,
+  createExportManualDraftUseCase,
+  createGetPublicationUseCase,
+  createListChannelsUseCase,
+  createListPublicationsUseCase,
+} from "@/application/usecases/distribution/manage-distribution";
+import {
   createCheckSiteDifferentiationUseCase,
   createGetManagedSiteUseCase,
   createListManagedSitesUseCase,
@@ -45,6 +52,7 @@ import { createDeps } from "@/infrastructure/composition";
 import { sampleContentNotice } from "@/infrastructure/persistence/sample/content-sample-repository";
 import { getCurrentActor, sampleActorNotice } from "@/infrastructure/identity/sample-actor";
 import { sampleEditorialContentNotice } from "@/infrastructure/persistence/sample/content-editorial-sample-repository";
+import { sampleDistributionNotice } from "@/infrastructure/persistence/sample/distribution-sample-repository";
 import { sampleProductNotice } from "@/infrastructure/persistence/sample/product-sample-repository";
 import {
   SAMPLE_MODEL_ID,
@@ -206,6 +214,33 @@ export function platformUseCases() {
     getSite: createGetManagedSiteUseCase(sites),
     checkDifferentiation: createCheckSiteDifferentiationUseCase(sites),
   };
+}
+
+/**
+ * 配信の入口。
+ *
+ * 出し先を 1 つ増やすときに触るのは、domain のチャネル能力表と
+ * つなぎ役の実装だけ。ここも画面も変わらない。
+ */
+export function distributionUseCases() {
+  const deps = createDeps();
+  const distribution = {
+    connections: deps.channelConnections,
+    publications: deps.publications,
+    manualExport: deps.manualExport,
+  };
+  return {
+    listChannels: createListChannelsUseCase(distribution),
+    listPublications: createListPublicationsUseCase(distribution),
+    getPublication: createGetPublicationUseCase(distribution),
+    exportManualDraft: createExportManualDraftUseCase(distribution),
+    cancel: createCancelPublicationUseCase(distribution),
+  };
+}
+
+/** 配信が見本データであることを画面に出すための一文。 */
+export function distributionNotice(): string {
+  return sampleDistributionNotice();
 }
 
 /** 記事が見本データであることを画面に出すための一文。 */

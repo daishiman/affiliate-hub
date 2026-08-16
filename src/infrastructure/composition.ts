@@ -20,6 +20,11 @@ import {
   createSampleContentVariantRepository,
   createSamplePersonaRepository,
 } from "./persistence/sample/content-editorial-sample-repository";
+import {
+  createSampleChannelConnectionRepository,
+  createSampleManualExport,
+  createSamplePublicationRepository,
+} from "./persistence/sample/distribution-sample-repository";
 import { createSampleSiteRepository } from "./persistence/sample/site-sample-repository";
 
 /**
@@ -60,5 +65,10 @@ export function createDeps(): AppDeps {
     contentPackages: createSampleContentPackageRepository(),
     contentVariants: createSampleContentVariantRepository(),
     personas: createSamplePersonaRepository(),
+    // ★ 見本データ（スタブ）。配信先の接続と配信の記録。
+    //   実際の投稿には各サービスの認証が要り、それは利用者ご自身が登録する。
+    channelConnections: createSampleChannelConnectionRepository(),
+    publications: createSamplePublicationRepository(),
+    manualExport: createSampleManualExport(),
   };
 }

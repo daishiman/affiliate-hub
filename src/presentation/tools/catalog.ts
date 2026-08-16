@@ -8,6 +8,7 @@ import type { ProductId, RankingModelId } from "@/domain/shared";
 import type { AnyToolDefinition, ToolDefinition } from "./tool-definition";
 import { parseWith, toJsonSchema } from "./define-tool";
 import { contentTools } from "./content-tools";
+import { distributionTools } from "./distribution-tools";
 import { platformTools } from "./platform-tools";
 import { productTools } from "./product-tools";
 import { siteTools } from "./site-tools";
@@ -81,6 +82,7 @@ export function buildToolCatalog(deps: CatalogDeps): readonly AnyToolDefinition[
     ...productTools(deps),
     ...contentTools(deps),
     ...platformTools(deps),
+    ...distributionTools(deps),
   ];
 }
 

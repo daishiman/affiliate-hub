@@ -19,6 +19,8 @@ export type PublicationRepositoryPort = {
   findByIdempotencyKey(workspaceId: WorkspaceId, key: string): PortResult<Publication | null>;
   listByVariant(workspaceId: WorkspaceId, variantId: ContentVariantId): PortResult<readonly Publication[]>;
   listDue(at: Date, limit: number): PortResult<readonly Publication[]>;
+  /** 直近の配信。運営者が「いま何が止まっているか」を見る画面の入力。 */
+  listRecent(workspaceId: WorkspaceId, limit: number): PortResult<readonly Publication[]>;
   save(publication: Publication): PortResult<Publication>;
 };
 

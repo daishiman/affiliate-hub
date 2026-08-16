@@ -12,6 +12,11 @@ import type {
   EditorialPersonaRepositoryPort,
 } from "./ports/authoring";
 import type {
+  ChannelConnectionRepositoryPort,
+  ManualExportPort,
+  PublicationRepositoryPort,
+} from "./ports/distribution";
+import type {
   EditorialContactPort,
   EditorialReaderToolPort,
   EditorialShortlistPort,
@@ -45,4 +50,7 @@ export type AppDeps = {
   readonly contentPackages: EditorialContentPackageRepositoryPort;
   readonly contentVariants: EditorialContentVariantRepositoryPort;
   readonly personas: EditorialPersonaRepositoryPort;
+  readonly channelConnections: ChannelConnectionRepositoryPort;
+  readonly publications: PublicationRepositoryPort;
+  readonly manualExport: ManualExportPort;
 };
