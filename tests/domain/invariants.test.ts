@@ -498,14 +498,17 @@ describe("自動の品質確認", () => {
 
   it("行えなかった検査は「検査していない」として残る", () => {
     const report = check("静かに動きます。デメリットは重さです。");
-    // 価格の記載が無い・機能一覧が無い・比較対象が無い・提携リンクが無い・並びが未指定
+    // 価格の記載が無い・機能一覧が無い・比較対象が無い・提携リンクが無い
+    // ・吹き出しの並びが未指定・見出しが無い・結論の照合材料が無い
     expect(report.skipped.map((s) => s.check).sort()).toEqual(
       [
+        "conclusion_mismatch",
         "conversation_flow",
         "disclosure_present",
         "duplicate_text",
         "nonexistent_feature",
         "stale_price",
+        "vague_heading",
       ].sort(),
     );
   });
@@ -530,6 +533,73 @@ describe("自動の品質確認", () => {
     );
     expect(report.issues.map((i) => i.check)).toContain("conversation_flow");
     expect(report.status).toBe("fail");
+  });
+
+  it("段落が長すぎると知らせる", () => {
+    const report = check(
+      "軽いです。静かです。速いです。持ち運べます。デメリットは重さです。",
+    );
+    expect(report.issues.map((i) => i.check)).toContain("paragraph_shape");
+  });
+
+  it("1 文が長すぎると知らせる", () => {
+    const report = check(`${"とても軽く持ち運びやすい製品で".repeat(8)}す。デメリットは重さです。`);
+    expect(report.issues.map((i) => i.check)).toContain("sentence_length");
+  });
+
+  it("見出しだけで結論が分からないと知らせる", () => {
+    const report = check("## まとめ\n静かに動きます。\nデメリットは重さです。");
+    expect(report.issues.map((i) => i.check)).toContain("vague_heading");
+  });
+
+  it("結論を入れた見出しなら通す", () => {
+    const report = check(
+      "## 動画編集用途なら A が最短で書き出せます\n静かに動きます。\nデメリットは重さです。",
+    );
+    expect(report.issues.map((i) => i.check)).not.toContain("vague_heading");
+  });
+
+  it("単位のない数字を止める", () => {
+    const report = check("重さは1.2です。デメリットは価格です。");
+    expect(report.issues.map((i) => i.check)).toContain("unit_missing");
+    expect(report.status).toBe("fail");
+  });
+
+  it("単位が付いていれば通す", () => {
+    const report = check("重さは1.2kgです。デメリットは価格です。", {
+      claimIds: [taggedString<"ClaimId">("cl_1")],
+      evidenceIds: [taggedString<"EvidenceId">("ev_1")],
+    });
+    expect(report.issues.map((i) => i.check)).not.toContain("unit_missing");
+  });
+
+  it("冒頭の結論と最終結論が食い違うと止める", () => {
+    const report = check(
+      "静かに動きます。デメリットは重さです。",
+      {},
+      {
+        openingConclusion: "動画編集をこれから始める人には A を薦めます。",
+        finalConclusion: "結論として、予算を抑えたい人には Z が唯一の選択肢です。",
+      },
+    );
+    expect(report.issues.map((i) => i.check)).toContain("conclusion_mismatch");
+  });
+
+  it("冒頭と最終の結論がそろっていれば通す", () => {
+    const report = check(
+      "静かに動きます。デメリットは重さです。",
+      {},
+      {
+        openingConclusion: "動画編集をこれから始める人には A を薦めます。",
+        finalConclusion: "動画編集をこれから始める人には、やはり A を薦めます。",
+      },
+    );
+    expect(report.issues.map((i) => i.check)).not.toContain("conclusion_mismatch");
+  });
+
+  it("「先日」のような日付は、具体的な日付に直すよう知らせる", () => {
+    const report = check("先日試したところ静かでした。デメリットは重さです。");
+    expect(report.issues.map((i) => i.check)).toContain("relative_date");
   });
 
   it("止めた理由は、そのまま読んで直せる文になっている", () => {

@@ -42,7 +42,13 @@ export type QualityCheckId =
   | "cta_overuse" // CTAの過剰
   | "missing_drawback" // デメリットの欠落
   | "missing_citation" // 出典の欠落
-  | "conversation_flow"; // 会話・吹き出しの並び
+  | "conversation_flow" // 会話・吹き出しの並び
+  | "paragraph_shape" // 段落が長い (QC-02)
+  | "sentence_length" // 1 文が長い (QC-03)
+  | "vague_heading" // 見出しだけで結論が分からない (QC-04)
+  | "unit_missing" // 数値に単位がない (QC-08)
+  | "conclusion_mismatch" // 冒頭の結論と最終結論が食い違う (QC-09)
+  | "relative_date"; // 相対的な日付表現 (QC-10)
 
 export type ChannelConstraints = {
   readonly channel: string;
@@ -76,6 +82,13 @@ export type QualityCheckContext = {
   readonly conversationSequence?: readonly ConversationSequenceItem[];
   /** 実在の監修者が記事に割り当てられているか。専門家の注意を載せてよいかの判定に使う。 */
   readonly hasVerifiedExpert?: boolean;
+  /**
+   * 冒頭の一文結論と最終結論。両方そろったときだけ食い違いを見る (QC-09)。
+   *
+   * 「読み進めた結果、冒頭と違う商品を薦められる」が最も信頼を落とす。
+   */
+  readonly openingConclusion?: string;
+  readonly finalConclusion?: string;
 };
 
 export type QualityReport = {
@@ -99,6 +112,79 @@ export const EXAGGERATION_PATTERNS: readonly { pattern: RegExp; label: string }[
 
 /** 価格の鮮度。これを超えた価格を「現在価格」として書けない。 */
 export const PRICE_STALE_HOURS = 72;
+
+/**
+ * 1 文の上限 (QC-03)。
+ *
+ * スマートフォンの 1 画面に収まる長さ。超えると読点でつないだ長文になり、
+ * 主語と述語が離れて読み違いが起きる。
+ */
+export const MAX_SENTENCE_LENGTH = 80;
+
+/** 1 段落の文の数の上限 (QC-02)。STYLE_RULES の「1 段落は原則 1〜3 文」と同じ値。 */
+export const MAX_SENTENCES_PER_PARAGRAPH = 3;
+
+/**
+ * 見出しだけでは結論が分からない書き方 (QC-04)。
+ *
+ * 拾い読みする読者は見出ししか見ない。
+ * 「まとめ」「はじめに」だけでは、読む価値があるか判断できない。
+ */
+export const VAGUE_HEADING_PATTERNS: readonly RegExp[] = [
+  /^まとめ$/,
+  /^はじめに$/,
+  /^おわりに$/,
+  /^その他$/,
+  /^ポイント$/,
+  /^注意点$/,
+  /^.{1,12}について$/,
+  /^.{1,12}とは$/,
+];
+
+/**
+ * 後から読む人に通じない日付の書き方 (QC-10)。
+ *
+ * 「先日」は書いた日を知らないと意味が定まらない。
+ * 記事は 1 年後にも読まれる。
+ */
+export const RELATIVE_DATE_PATTERNS: readonly RegExp[] = [
+  /先日/,
+  /最近/,
+  /今年/,
+  /昨年/,
+  /去年/,
+  /来年/,
+  /今月/,
+  /先月/,
+  /来月/,
+  /今週/,
+  /先週/,
+];
+
+/**
+ * 単位を付けるべき数値の手前によく出る言葉 (QC-08)。
+ *
+ * 「重さは 1.2」では比べられない。数値には単位を必ず付ける。
+ */
+export const MEASURE_WORDS: readonly string[] = [
+  "重さ",
+  "重量",
+  "容量",
+  "時間",
+  "速度",
+  "サイズ",
+  "幅",
+  "高さ",
+  "奥行",
+  "厚さ",
+  "価格",
+  "解像度",
+  "距離",
+];
+
+/** 数値の直後に来てよい単位。ここに無いものが続いたら単位なしとみなす。 */
+const UNIT_PATTERN =
+  /(時間|分|秒|ミリ秒|g|kg|mm|cm|m|km|W|Wh|mAh|V|A|円|%|倍|dB|Hz|kHz|GB|TB|MB|px|インチ|型|枚|人|件|台|個|回|日|年|ヶ月|か月)/;
 
 /** CTA が本文に何回まで出てよいか。多すぎると読者が判断材料を得る前に押される。 */
 export const MAX_CTA_OCCURRENCES = 3;
@@ -333,6 +419,89 @@ export function runQualityChecks(ctx: QualityCheckContext): QualityReport {
     }
   }
 
+  // 19. 段落と文の長さ、見出し (QC-02〜QC-04)
+  for (const p of paragraphsOf(body)) {
+    const sentences = sentencesOf(p);
+    if (sentences.length > MAX_SENTENCES_PER_PARAGRAPH) {
+      issues.push({
+        check: "paragraph_shape",
+        severity: "warning",
+        message: `1 段落に ${sentences.length} 文あります。${MAX_SENTENCES_PER_PARAGRAPH} 文までにして段落を分けてください。`,
+        excerpt: p.slice(0, 30),
+      });
+    }
+    for (const s of sentences) {
+      if ([...s].length > MAX_SENTENCE_LENGTH) {
+        issues.push({
+          check: "sentence_length",
+          severity: "warning",
+          message: `1 文が ${[...s].length} 文字あります。${MAX_SENTENCE_LENGTH} 文字までを目安に切ってください。`,
+          excerpt: s.slice(0, 30),
+        });
+      }
+    }
+  }
+
+  const headings = headingsOf(body);
+  if (headings.length === 0) {
+    skipped.push({ check: "vague_heading", reason: "本文に見出しがありません。" });
+  } else {
+    for (const h of headings) {
+      if (VAGUE_HEADING_PATTERNS.some((p) => p.test(h))) {
+        issues.push({
+          check: "vague_heading",
+          severity: "warning",
+          message: `見出し「${h}」だけでは、何が書いてあるか分かりません。結論を入れた見出しにしてください。`,
+          excerpt: h,
+        });
+      }
+    }
+  }
+
+  // 20. 数値の単位 (QC-08)
+  for (const word of MEASURE_WORDS) {
+    const re = new RegExp(`${word}[はがも]?\\s*(?:約)?(\\d+(?:\\.\\d+)?)(.{0,4})`, "g");
+    for (const m of body.matchAll(re)) {
+      if (!UNIT_PATTERN.test(m[2] ?? "")) {
+        issues.push({
+          check: "unit_missing",
+          severity: "error",
+          message: `「${word}${m[1]}」に単位がありません。単位が無い数字は比べられません。`,
+          excerpt: m[0],
+        });
+      }
+    }
+  }
+
+  // 21. 冒頭の結論と最終結論の食い違い (QC-09)
+  if (ctx.openingConclusion === undefined || ctx.finalConclusion === undefined) {
+    skipped.push({
+      check: "conclusion_mismatch",
+      reason: "冒頭の結論と最終結論のどちらかが渡されていないため照合できません。",
+    });
+  } else if (similarity(ctx.openingConclusion, ctx.finalConclusion) < 0.3) {
+    issues.push({
+      check: "conclusion_mismatch",
+      severity: "error",
+      message:
+        "冒頭に書いた結論と最終結論が食い違っています。読み進めた読者が裏切られます。どちらかへ寄せてください。",
+      excerpt: ctx.openingConclusion.slice(0, 30),
+    });
+  }
+
+  // 22. 相対的な日付 (QC-10)
+  for (const p of RELATIVE_DATE_PATTERNS) {
+    const m = body.match(p);
+    if (m) {
+      issues.push({
+        check: "relative_date",
+        severity: "warning",
+        message: `「${m[0]}」は、いつ読むかで意味が変わります。具体的な日付に置き換えてください。`,
+        excerpt: m[0],
+      });
+    }
+  }
+
   const hasError = issues.some((i) => i.severity === "error");
   const hasWarning = issues.some((i) => i.severity === "warning");
   return {
@@ -351,6 +520,31 @@ export const CTA_PHRASE_PATTERNS: readonly RegExp[] = [
   /申し込/g,
   /購入/g,
 ];
+
+/** 段落に切る。空行または改行で区切る。見出し行は段落として数えない。 */
+export function paragraphsOf(body: string): readonly string[] {
+  return body
+    .split(/\n+/)
+    .map((line) => line.trim())
+    .filter((line) => line !== "" && !line.startsWith("#"));
+}
+
+/** 文に切る。句点で切り、末尾の句点は残す (文字数に数えるため)。 */
+export function sentencesOf(paragraph: string): readonly string[] {
+  return paragraph
+    .split(/(?<=[。！？])/)
+    .map((s) => s.trim())
+    .filter((s) => s !== "");
+}
+
+/** 見出し行を取り出す。`#` 記法だけを見る。 */
+export function headingsOf(body: string): readonly string[] {
+  return body
+    .split(/\n/)
+    .map((line) => line.trim())
+    .filter((line) => line.startsWith("#"))
+    .map((line) => line.replace(/^#+\s*/, ""));
+}
 
 function countCtaPhrases(body: string): number {
   return CTA_PHRASE_PATTERNS.reduce((sum, p) => sum + (body.match(p)?.length ?? 0), 0);
