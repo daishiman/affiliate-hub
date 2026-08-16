@@ -1,8 +1,10 @@
 import { AdminShell } from "@/presentation/admin/admin-shell";
 import Link from "next/link";
 import type { ReactNode } from "react";
+import { appearanceOptions, readAppearance } from "@/presentation/appearance";
 import { currentActor, settingsNotice, settingsUseCases } from "@/presentation/composition";
 import {
+  AppearancePicker,
   Callout,
   Card,
   DisclosureNotice,
@@ -26,6 +28,9 @@ export const dynamic = "force-dynamic";
 export default async function SettingsPage() {
   const actor = await currentActor();
   const uc = settingsUseCases();
+
+  const appearance = await readAppearance();
+  const options = appearanceOptions();
 
   const [overview, roles, members, brands, disclosures, audit] = await Promise.all([
     uc.getOverview.execute(actor, {}),
@@ -68,6 +73,24 @@ export default async function SettingsPage() {
         <p className={styles.linkNote}>
           <Link href="/signin">いま誰として動いているかを見る</Link>
         </p>
+      </Card>
+
+      <Card>
+        <h2 className={styles.sectionTitle}>画面の見た目</h2>
+        <p className={styles.sectionLead}>
+          ここでの選択はあなたの手元だけに効きます。ブログの見た目（読者に見える色）は、
+          各ブログの設定で決まります。
+        </p>
+        {/*
+          読者向けブログでも同じ部品を使う（明るさだけを出す）。
+          管理画面用の見た目切り替えを別に作らないこと。
+        */}
+        <AppearancePicker
+          current={appearance}
+          schemeOptions={options.schemeOptions}
+          modeOptions={options.modeOptions}
+          description="選ぶとすぐ変わります。次に開いたときも同じ見た目になります（この端末のブラウザに覚えさせています）。"
+        />
       </Card>
 
       {overview.value.blockedReason !== null && (

@@ -1,7 +1,10 @@
 import { AdminShell } from "@/presentation/admin/admin-shell";
 import Link from "next/link";
+import { DEFAULT_APPEARANCE } from "@/domain/authoring/appearance";
+import { appearanceOptions } from "@/presentation/appearance";
 import {
   AffiliateLink,
+  AppearancePicker,
   AiCannotApproveNotice,
   ApprovalBlockedNotice,
   ApprovalFlow,
@@ -37,7 +40,17 @@ import {
 import { InputSamples } from "./input-samples";
 import styles from "../admin.module.css";
 
-export const dynamic = "force-static";
+/*
+  この画面だけ「毎回作り直さない（force-static）」にしていたが、やめた。
+  見た目の選択は cookie を読んで一番外側に当てているため、
+  作り置きの HTML では**選んだ配色が反映されない**。
+  見本帳だけ既定色のままになると、選んだ色で部品を確かめられず、
+  見本帳の役目（実物と同じものを見る）が果たせない。
+*/
+export const dynamic = "force-dynamic";
+
+/** 見本帳でも本物の選択肢を出す。ここだけ簡略化すると見本の意味が無い。 */
+const catalogOptions = appearanceOptions();
 
 /**
  * 部品の見本帳。
@@ -506,6 +519,29 @@ export default function UiCatalogPage() {
                 { label: "重さ", value: "1.8kg", basis: "fact" },
               ]}
               blockedReason="この商品は、いま提携している販売先がありません。"
+            />
+          </div>
+        </Card>
+
+        <Card>
+          <h2 className={styles.sectionTitle}>18. 見た目の切り替え</h2>
+          <p className={styles.sectionLead}>
+            管理画面と読者向けブログで同じ部品を使います。違いは「配色を選べるかどうか」だけです。
+            読者には明るさだけを開けています。配色はブログのブランドで、読者が変えるものではないためです。
+            ここで選ぶと実際に画面の色が変わり、次に開いたときも同じ見た目になります（設定の画面と同じ動きです）。
+            この見本では、いまの選択ではなく既定値から始まります。
+          </p>
+          <div className={styles.catalogStack}>
+            <AppearancePicker
+              current={DEFAULT_APPEARANCE}
+              schemeOptions={catalogOptions.schemeOptions}
+              modeOptions={catalogOptions.modeOptions}
+              legend="管理画面（配色 ＋ 明るさ）"
+            />
+            <AppearancePicker
+              current={DEFAULT_APPEARANCE}
+              modeOptions={catalogOptions.modeOptions}
+              legend="読者向けブログ（明るさだけ）"
             />
           </div>
         </Card>

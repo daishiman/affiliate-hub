@@ -1,6 +1,9 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
+import type { AppearanceValues } from "../appearance";
 import { UI_COPY } from "../copy";
+import { AppearancePicker } from "../patterns/appearance-picker";
+import type { SelectOption } from "../primitives/select";
 import styles from "./site.module.css";
 
 /**
@@ -37,11 +40,23 @@ export function SiteShell({
   chrome,
   currentPath,
   breadcrumbs,
+  appearance,
   children,
 }: {
   readonly chrome: SiteChrome;
   readonly currentPath: string;
   readonly breadcrumbs?: readonly { readonly label: string; readonly href?: string }[];
+  /**
+   * 読者がいま選んでいる明るさ。
+   *
+   * **配色の選択肢は渡さない。** 配色はブログのブランドであり、読者が選ぶものではない。
+   * 明るさだけを読者に開けているのは、暗い場所で読む人が
+   * ブログの都合で眩しい画面を強制されないようにするため。
+   */
+  readonly appearance?: {
+    readonly current: AppearanceValues;
+    readonly modeOptions: readonly SelectOption[];
+  };
   readonly children: ReactNode;
 }) {
   return (
@@ -96,6 +111,19 @@ export function SiteShell({
             </ul>
           </nav>
           <p className={styles.footerNote}>{UI_COPY.disclosure.footerNote}</p>
+          {appearance !== undefined && (
+            /*
+              管理画面と同じ部品。読者用に別の切り替えを作らない。
+              足元に置くのは、読み終わったところで目に入る位置であり、
+              かつ本文より先に現れて読む邪魔をしない位置だから。
+            */
+            <AppearancePicker
+              current={appearance.current}
+              modeOptions={appearance.modeOptions}
+              legend="読みやすさ"
+              description="暗い場所で読むときは「暗い画面」を選べます。"
+            />
+          )}
         </div>
       </footer>
     </div>

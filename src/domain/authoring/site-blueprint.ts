@@ -102,8 +102,50 @@ export const BRAND_THEMES = [
   "indigo-teal",
   "teal-clay",
   "indigo-clay",
+  // 利用者の指定した 5 系統。名札を足すだけで、部品は 1 つも変わらない。
+  "blue",
+  "pink",
+  "white",
+  "gray",
+  "green",
 ] as const;
 export type BrandTheme = (typeof BRAND_THEMES)[number];
+
+/**
+ * 画面に出す配色の名前。
+ *
+ * **CSS の `--brand-theme-name` と二重に持たない**ようにしたいところだが、
+ * CSS の値はサーバー側から読めない（読むには CSS を解析することになる）。
+ * そこで正本はこちらに置き、`tests/ui/blueprint-theme.test.ts` が
+ * CSS 側の名前と一致していることを機械で見る。ずれたらテストが落ちる。
+ */
+export const BRAND_THEME_LABELS: Readonly<Record<BrandTheme, string>> = {
+  "graphite-amber": "既定（グラファイト × アンバー）",
+  "indigo-teal": "インディゴ × ティール",
+  "teal-clay": "ティール × クレイ",
+  "indigo-clay": "インディゴ × クレイ",
+  blue: "青系",
+  pink: "ピンク系",
+  white: "ホワイト系",
+  gray: "グレー系",
+  green: "グリーン系",
+};
+
+/**
+ * 明暗の選び方。
+ *
+ * `auto` は端末の設定に従う。**これを既定にしておく**のは、
+ * 利用者が何も選ばないうちから明るい画面を強制すると、
+ * 暗い環境で読む人に眩しい画面が出るため。
+ */
+export const COLOR_MODES = ["auto", "light", "dark"] as const;
+export type ColorMode = (typeof COLOR_MODES)[number];
+
+export const COLOR_MODE_LABELS: Readonly<Record<ColorMode, string>> = {
+  auto: "端末の設定に合わせる",
+  light: "明るい画面",
+  dark: "暗い画面",
+};
 
 /**
  * 見た目の設定値。
@@ -118,7 +160,7 @@ export type ThemeTokens = {
   readonly fontBody: string;
   readonly radius: "none" | "small" | "medium" | "large";
   readonly density: "compact" | "comfortable";
-  readonly colorScheme: "auto" | "light" | "dark";
+  readonly colorScheme: ColorMode;
 };
 
 /** 既定テーマ (Mode A: Graphite × Amber)。未指定のブログはこれを使う。 */

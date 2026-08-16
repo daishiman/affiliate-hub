@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import type { SiteBlueprint } from "@/domain/authoring";
+import { appearanceOptions, readAppearance } from "@/presentation/appearance";
 import { readerActor, readerWebMcpDescriptors, siteUseCases } from "@/presentation/composition";
 import type { PageKind } from "@/presentation/tools/webmcp-policy";
 import { ErrorView, SiteShell, WebMcpProvider, type SiteChrome } from "@/presentation/ui";
@@ -59,11 +60,22 @@ export async function SiteFrame({
   const blueprint = result.value.blueprint;
   const chrome = toChrome(siteSlug, blueprint);
 
+  /*
+    読者の明るさの選択を読む。**18 本のルートで別々に読まない。**
+    配色（brandTheme）はブログの設計図が正本なので、ここでは基準として渡し、
+    読者の個人設定で上書きさせない。
+  */
+  const appearance = await readAppearance({
+    brandTheme: blueprint.theme.brandTheme,
+    colorMode: blueprint.theme.colorScheme,
+  });
+
   return (
     <SiteShell
       chrome={chrome}
       currentPath={currentPath}
       breadcrumbs={breadcrumbsFor(siteSlug, blueprint, trail)}
+      appearance={{ current: appearance, modeOptions: appearanceOptions().modeOptions }}
     >
       {children({ siteSlug, blueprint, chrome })}
       {/*

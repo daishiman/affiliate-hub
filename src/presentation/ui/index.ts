@@ -70,6 +70,13 @@ export {
 } from "./patterns/conversation";
 export { ProductCard, type ProductCardSpec } from "./patterns/product-card";
 export { StubNotice, StubLabel } from "./patterns/stub-notice";
+export { AppearancePicker } from "./patterns/appearance-picker";
+export {
+  APPEARANCE_ATTR,
+  APPEARANCE_COOKIE,
+  appearanceAttributes,
+  type AppearanceValues,
+} from "./appearance";
 export { WorkBoard, type WorkBoardItem } from "./patterns/work-board";
 export { FilterBar, type FilterAxis } from "./patterns/filter-bar";
 export { MaterialReview, type MaterialFinding } from "./patterns/material-review";

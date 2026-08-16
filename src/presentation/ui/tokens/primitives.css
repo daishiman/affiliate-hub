@@ -47,10 +47,14 @@
   --amber-900: #3a2a06;
   --amber-950: #2b1a00;
 
-  /* Green (成功) */
+  /* Green (成功 + グリーン系テーマ) */
   --green-100: #dcfce7;
+  --green-300: #86efac;
   --green-400: #4ade80;
+  --green-500: #22c55e;
   --green-700: #15803d;
+  --green-800: #166534;
+  --green-900: #0f3d21;
   --green-950: #0d2c19;
 
   /* Red (失敗・破壊的操作) */
@@ -59,11 +63,24 @@
   --red-700: #b91c1c;
   --red-950: #3a1414;
 
-  /* Blue (情報・焦点) */
+  /* Blue (情報・焦点 + 青系テーマ) */
   --blue-100: #dbeafe;
   --blue-300: #93c5fd;
+  --blue-500: #3b82f6;
   --blue-700: #1d4ed8;
+  --blue-800: #1e40af;
+  --blue-900: #172554;
   --blue-950: #12224a;
+
+  /* Pink (ピンク系テーマ) */
+  --pink-100: #fce7f3;
+  --pink-300: #f9a8d4;
+  --pink-400: #f472b6;
+  --pink-500: #ec4899;
+  --pink-700: #be185d;
+  --pink-800: #9d174d;
+  --pink-900: #4a1130;
+  --pink-950: #350b22;
 
   /* Indigo / Teal / Clay: ブランドテーマ用。既定テーマでは使わない。 */
   --indigo-100: #e0e7ff;

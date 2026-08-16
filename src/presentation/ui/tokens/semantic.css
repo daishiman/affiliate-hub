@@ -32,7 +32,22 @@
   --color-text-default: light-dark(var(--neutral-750), var(--neutral-100)); /* 11.4:1 */
   --color-text-muted: light-dark(var(--neutral-600), var(--neutral-300)); /* 6.4:1 */
   --color-text-on-action: light-dark(var(--neutral-0), var(--neutral-925));
-  --color-text-on-accent: var(--amber-950);
+  /*
+   * accent の薄い地色 (--color-accent-subtle) の上に出る文字。
+   * **明暗の両方を書く。** 以前は暗いとき用の値が無く、
+   * 暗い画面では「濃い文字 × 濃い地色」で 1.2:1 まで落ちていた
+   * (実行中のボタンと注意の吹き出しが読めない)。
+   * tests/ui/theme-contrast.test.ts が全テーマ × 両モードで見ている。
+   */
+  --color-text-on-accent: light-dark(var(--amber-950), var(--amber-100));
+
+  /*
+   * 注記のバッジ (スタブ表示など)。小さい文字を白抜きで出すため、
+   * 地色は必ず濃い側に置く。border-strong を地色に流用していたが、
+   * 12px の文字には薄すぎた (3.3:1)。
+   */
+  --color-badge-surface: light-dark(var(--neutral-600), var(--neutral-300));
+  --color-text-on-badge: light-dark(var(--neutral-0), var(--neutral-975));
 
   /* === 線 =============================================================== */
   --color-border-subtle: light-dark(var(--neutral-100), var(--neutral-800));
