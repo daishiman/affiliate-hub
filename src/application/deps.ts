@@ -2,6 +2,10 @@ import type {
   EditorialRankingModelRepositoryPort,
   EditorialScoreCardRepositoryPort,
 } from "./ports";
+import type {
+  EditorialPublishedContentPort,
+  EditorialSiteRepositoryPort,
+} from "./ports/site";
 
 /**
  * ユースケースが必要とするもの一式。
@@ -15,4 +19,6 @@ import type {
 export type AppDeps = {
   readonly rankingModels: EditorialRankingModelRepositoryPort;
   readonly scoreCards: EditorialScoreCardRepositoryPort;
+  readonly sites: EditorialSiteRepositoryPort;
+  readonly publishedContent: EditorialPublishedContentPort;
 };

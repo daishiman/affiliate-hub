@@ -23,6 +23,13 @@ export type RankingRow = {
   readonly totalScore: number;
   /** 評価軸ごとの点。criteria と同じ並び。 */
   readonly criterionScores: readonly number[];
+  /**
+   * 商品名からの行き先（個別レビュー）。
+   * 成果リンクではない。成果リンクは `AffiliateLink` を通す。
+   */
+  readonly href?: string;
+  /** 一言。数字だけでは何が違うか読者に伝わらない。 */
+  readonly note?: string;
 };
 
 export type CriterionView = {
@@ -90,7 +97,14 @@ export function RankingTable({
             {rows.map((row) => (
               <tr key={row.productId}>
                 <td className={styles.rank}>{row.rank}</td>
-                <th scope="row">{row.productName}</th>
+                <th scope="row">
+                  {row.href !== undefined ? (
+                    <a href={row.href}>{row.productName}</a>
+                  ) : (
+                    row.productName
+                  )}
+                  {row.note !== undefined && <span className={styles.rowNote}>{row.note}</span>}
+                </th>
                 <td className={styles.numeric}>{row.totalScore}</td>
                 {criteria.map((c, i) => (
                   <td key={c.key} className={styles.numeric}>

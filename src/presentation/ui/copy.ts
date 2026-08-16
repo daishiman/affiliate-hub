@@ -213,6 +213,9 @@ export const UI_COPY = {
     rankingNote: "順位づけに報酬額は使用していません。評価基準は公開しています。",
     methodologyLink: "評価方法を見る",
     policyLink: "広告に関する方針",
+    /** 全ページの足元に常時出す一文。記事だけに出すと、一覧経由の読者に伝わらない。 */
+    footerNote:
+      "当サイトは広告（アフィリエイトリンク）による収益を得ています。報酬の有無と金額は、掲載商品の選定にも順位にも影響しません。",
   },
 
   /** 順位の説明。読者にもAIにも同じ言葉で出す。 */
@@ -247,6 +250,19 @@ export const UI_COPY = {
     archived: "取り下げ済み",
     humanRequired: "公開には人の承認が必要です",
     aiCannotApprove: "AI の操作は承認とみなしません",
+  },
+
+  /** 読者向けブログの記事。 */
+  article: {
+    publishedAt: "公開",
+    updatedAt: "更新",
+    author: "書き手",
+    reviewedBy: "監修",
+    /** 一覧が 0 件のとき。読者から見て故障と区別できるようにする。 */
+    emptyListTitle: "まだ記事がありません",
+    emptyListBody: "最初の記事を準備しています。公開までしばらくお待ちください。",
+    searchEmptyTitle: "見つかりませんでした",
+    searchEmptyBody: "言葉を短くするか、別の言い方でもう一度お試しください。",
   },
 
   /** ナビゲーション。 */

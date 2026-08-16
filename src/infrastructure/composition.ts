@@ -1,8 +1,10 @@
 import type { AppDeps } from "@/application/deps";
+import { createSampleContentRepository } from "./persistence/sample/content-sample-repository";
 import {
   createSampleRankingModelRepository,
   createSampleScoreCardRepository,
 } from "./persistence/sample/ranking-sample-repository";
+import { createSampleSiteRepository } from "./persistence/sample/site-sample-repository";
 
 /**
  * 実装の組み立て。
@@ -22,5 +24,9 @@ export function createDeps(): AppDeps {
     // ★ 見本データ（スタブ）。ranking_models / score_cards テーブルができたら差し替える。
     rankingModels: createSampleRankingModelRepository(),
     scoreCards: createSampleScoreCardRepository(),
+    // ★ 見本データ（スタブ）。ブログ 2 本ぶんの設計図と記事。
+    //   site_blueprints / published_articles テーブルができたら差し替える。
+    sites: createSampleSiteRepository(),
+    publishedContent: createSampleContentRepository(),
   };
 }

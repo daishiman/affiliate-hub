@@ -1,5 +1,18 @@
+import {
+  createGetArticleUseCase,
+  createGetPersonUseCase,
+  createGetPolicyDocumentUseCase,
+  createGetSiteUseCase,
+  createListByCategoryUseCase,
+  createListCorrectionsUseCase,
+  createListRecentArticlesUseCase,
+  createListSitesUseCase,
+  createSearchArticlesUseCase,
+} from "@/application/usecases/site/read-site";
 import type { ActorContext } from "@/domain/shared";
+import { taggedString } from "@/domain/shared";
 import { createDeps } from "@/infrastructure/composition";
+import { sampleContentNotice } from "@/infrastructure/persistence/sample/content-sample-repository";
 import { getCurrentActor, sampleActorNotice } from "@/infrastructure/identity/sample-actor";
 import {
   SAMPLE_MODEL_ID,
@@ -51,6 +64,48 @@ export function rankingScreenTarget(): { modelId: string; productIds: readonly s
     modelId: String(SAMPLE_MODEL_ID),
     productIds: SAMPLE_PRODUCTS.map((p) => String(p.id)),
   };
+}
+
+/**
+ * 読者向けブログの入口。
+ *
+ * ブログ画面はこの 6 つしか呼ばない。保存先が見本から D1 に変わっても、
+ * 画面のコードは 1 行も変わらない。
+ */
+export function siteUseCases() {
+  const deps = createDeps();
+  const site = { sites: deps.sites, content: deps.publishedContent };
+  return {
+    getSite: createGetSiteUseCase(site),
+    listSites: createListSitesUseCase(site),
+    listRecent: createListRecentArticlesUseCase(site),
+    listByCategory: createListByCategoryUseCase(site),
+    getArticle: createGetArticleUseCase(site),
+    search: createSearchArticlesUseCase(site),
+    getPerson: createGetPersonUseCase(site),
+    listCorrections: createListCorrectionsUseCase(site),
+    getPolicy: createGetPolicyDocumentUseCase(site),
+  };
+}
+
+/**
+ * 読者。ログインしていない人。
+ *
+ * 公開済みの記事を読むのに権限は要らない。
+ * 公開してよいかの判定は公開時に済んでいる。
+ */
+export function readerActor(): ActorContext {
+  return {
+    workspaceId: taggedString<"WorkspaceId">("ws_public"),
+    userId: taggedString<"UserId">("anonymous"),
+    roles: [],
+    isAiServiceAccount: false,
+  };
+}
+
+/** 見本データで表示していることを読者向け画面に出すための一文。 */
+export function siteSampleNotice(): string {
+  return sampleContentNotice();
 }
 
 /** 商品の表示名。ID をそのまま画面に出さないための対応表。 */

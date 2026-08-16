@@ -10,6 +10,7 @@ import type {
 import type { EditorialScoreCard } from "@/domain/ranking";
 import type { RankingModel } from "@/domain/ranking";
 import { markEditorial, ok } from "@/domain/shared";
+import { createDeps } from "@/infrastructure/composition";
 import type { ActorContext, CategoryId, ProductId, RankingModelId, WorkspaceId } from "@/domain/shared";
 
 /**
@@ -51,7 +52,10 @@ const cards: EditorialScoreCard[] = [
   },
 ];
 
+// 差し替えたいのは順位まわりの 2 つだけ。残りは既定の組み立てをそのまま使う。
+// ここで全ポートを手で書き並べると、ポートを 1 つ足すたびにテストが壊れる。
 const catalog = buildToolCatalog({
+  ...createDeps(),
   rankingModels: markEditorial({
     findById: async () => ok(model),
     list: async () => ok({ items: [], nextCursor: null }),

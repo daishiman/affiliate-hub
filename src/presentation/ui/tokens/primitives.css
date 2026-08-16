@@ -186,4 +186,6 @@
   --measure-prose: 38rem;
   --measure-wide: 72rem;
   --measure-sidebar: 15rem;
+  /* 一覧カードの下限幅。これ以下に潰れると見出しが 3 行になり読めない。 */
+  --measure-card: 18rem;
 }

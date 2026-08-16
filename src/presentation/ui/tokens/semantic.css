@@ -135,6 +135,7 @@
   --column-max-width: var(--breakpoint-lg); /* 本文カラム */
   --readable-max-width: var(--measure-narrow); /* 説明文・空状態の本文 */
   --layout-sidebar-width: var(--measure-sidebar);
+  --card-min-width: var(--measure-card); /* 一覧カードの下限幅 */
 
   /* === 重なり順 ========================================================= */
   --z-raised: var(--layer-raised);

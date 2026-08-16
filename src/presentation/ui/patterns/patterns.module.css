@@ -150,6 +150,14 @@
   color: var(--color-text-strong);
 }
 
+/* 商品名の下に添える一言。数字だけでは違いが伝わらないため。 */
+.rowNote {
+  display: block;
+  font-size: var(--text-xs);
+  font-weight: var(--weight-normal);
+  color: var(--color-text-muted);
+}
+
 .score {
   font-variant-numeric: tabular-nums;
 }

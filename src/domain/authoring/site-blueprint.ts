@@ -87,15 +87,32 @@ export const TRUST_REQUIRED_PAGES: readonly StandardPage[] = [
 ];
 
 /**
+ * ブランドテーマの名前。
+ *
+ * **色そのものをここに持たせない。** 持たせると、
+ * 「そのブログだけ AA を割る配色」が設定値として入り込める状態になる。
+ *
+ * 実体は `src/presentation/ui/tokens/themes.css` にある
+ * 「2 段目トークン 10 個の上書き集合」。ここはその名札を指すだけ。
+ * 名前が一致していることは `tests/ui/blueprint-theme.test.ts` が確認する。
+ */
+export const BRAND_THEMES = [
+  "graphite-amber",
+  "indigo-teal",
+  "teal-clay",
+  "indigo-clay",
+] as const;
+export type BrandTheme = (typeof BRAND_THEMES)[number];
+
+/**
  * 見た目の設定値。
  *
- * 色を直接持たず、役割で持つ。ブログごとに違うのは値だけで、
- * 「primary は操作、accent は実行中の状態」という役割は変えない。
+ * 色は名前で持つ。ブログごとに違うのはこの名前と、
+ * 余白の詰め具合・角丸・書体だけ。
+ * 「操作の色」「実行中の色」という役割そのものは、どのブログでも変えない。
  */
 export type ThemeTokens = {
-  readonly primary: string;
-  readonly accent: string;
-  readonly neutral: string;
+  readonly brandTheme: BrandTheme;
   readonly fontHeading: string;
   readonly fontBody: string;
   readonly radius: "none" | "small" | "medium" | "large";
@@ -105,9 +122,7 @@ export type ThemeTokens = {
 
 /** 既定テーマ (Mode A: Graphite × Amber)。未指定のブログはこれを使う。 */
 export const DEFAULT_THEME: ThemeTokens = {
-  primary: "#2f3437",
-  accent: "#d97706",
-  neutral: "#6b7280",
+  brandTheme: "graphite-amber",
   fontHeading: "system-ui",
   fontBody: "system-ui",
   radius: "medium",
