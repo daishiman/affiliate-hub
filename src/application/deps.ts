@@ -7,6 +7,11 @@ import type {
   EditorialTestRunRepositoryPort,
 } from "./ports";
 import type {
+  EditorialContentPackageRepositoryPort,
+  EditorialContentVariantRepositoryPort,
+  EditorialPersonaRepositoryPort,
+} from "./ports/authoring";
+import type {
   EditorialContactPort,
   EditorialReaderToolPort,
   EditorialShortlistPort,
@@ -37,4 +42,7 @@ export type AppDeps = {
   readonly shortlist: EditorialShortlistPort;
   readonly readerTools: EditorialReaderToolPort;
   readonly contact: EditorialContactPort;
+  readonly contentPackages: EditorialContentPackageRepositoryPort;
+  readonly contentVariants: EditorialContentVariantRepositoryPort;
+  readonly personas: EditorialPersonaRepositoryPort;
 };

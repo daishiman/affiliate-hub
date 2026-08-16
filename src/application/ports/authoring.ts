@@ -6,6 +6,7 @@ import type {
   ContentVariant,
   SiteBlueprint,
 } from "@/domain/authoring";
+import type { Editorial } from "@/domain/shared";
 import type {
   AudiencePersonaId,
   AuthorPersonaId,
@@ -74,3 +75,15 @@ export type SiteBlueprintRepositoryPort = {
   list(workspaceId: WorkspaceId, page: Page): PortResult<Paged<SiteBlueprint>>;
   save(blueprint: SiteBlueprint): PortResult<SiteBlueprint>;
 };
+
+/**
+ * Editorial 印つきの別名。
+ *
+ * ユースケースはこちらだけを受け取る。素の型を受け取れるようにしておくと、
+ * 「報酬のポートを混ぜても型が通る」状態が復活してしまう。
+ */
+export type EditorialContentPackageRepositoryPort = Editorial<ContentPackageRepositoryPort>;
+export type EditorialContentVariantRepositoryPort = Editorial<ContentVariantRepositoryPort>;
+export type EditorialPersonaRepositoryPort = Editorial<PersonaRepositoryPort>;
+export type EditorialSiteBlueprintRepositoryPort = Editorial<SiteBlueprintRepositoryPort>;
+export type EditorialPlatformSiteRepositoryPort = Editorial<SiteRepositoryPort>;

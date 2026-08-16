@@ -15,6 +15,11 @@ import {
   createSampleProductRepository,
   createSampleTestRunRepository,
 } from "./persistence/sample/product-sample-repository";
+import {
+  createSampleContentPackageRepository,
+  createSampleContentVariantRepository,
+  createSamplePersonaRepository,
+} from "./persistence/sample/content-editorial-sample-repository";
 import { createSampleSiteRepository } from "./persistence/sample/site-sample-repository";
 
 /**
@@ -50,5 +55,10 @@ export function createDeps(): AppDeps {
     shortlist: createSampleShortlistRepository(),
     readerTools: createSampleReaderToolRepository(),
     contact: createSampleContactSink(),
+    // ★ 見本データ（スタブ）。記事の進行と書き手の設定。
+    //   content_packages / content_variants / personas テーブルができたら差し替える。
+    contentPackages: createSampleContentPackageRepository(),
+    contentVariants: createSampleContentVariantRepository(),
+    personas: createSamplePersonaRepository(),
   };
 }

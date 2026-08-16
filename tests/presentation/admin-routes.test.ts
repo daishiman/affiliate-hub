@@ -26,7 +26,6 @@ function pageFileFor(href: string): string {
  * ここに書いていないリンクが壊れたら、下のテストが即座に落ちる。
  */
 const KNOWN_MISSING: readonly string[] = [
-  "/admin/content",
   "/admin/sites",
   "/admin/distribution",
   "/admin/affiliate",

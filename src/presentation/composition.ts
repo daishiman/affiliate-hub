@@ -19,6 +19,13 @@ import {
   createSubmitContactUseCase,
 } from "@/application/usecases/site/reader-interaction";
 import {
+  createAdvanceContentStateUseCase,
+  createApproveContentUseCase,
+  createGetContentUseCase,
+  createListContentBoardUseCase,
+  createListReviewOverdueUseCase,
+} from "@/application/usecases/content/manage-content";
+import {
   createCompareProductsUseCase,
   createExplainRankingUseCase,
   createFilterProductsUseCase,
@@ -32,6 +39,7 @@ import { taggedString } from "@/domain/shared";
 import { createDeps } from "@/infrastructure/composition";
 import { sampleContentNotice } from "@/infrastructure/persistence/sample/content-sample-repository";
 import { getCurrentActor, sampleActorNotice } from "@/infrastructure/identity/sample-actor";
+import { sampleEditorialContentNotice } from "@/infrastructure/persistence/sample/content-editorial-sample-repository";
 import { sampleProductNotice } from "@/infrastructure/persistence/sample/product-sample-repository";
 import {
   SAMPLE_MODEL_ID,
@@ -156,6 +164,33 @@ export function productUseCases() {
     listTestRuns: createListTestRunsUseCase(product),
     explainRanking: createExplainRankingUseCase(product),
   };
+}
+
+/**
+ * 記事の入口（編集部向け）。
+ *
+ * 画面・REST・WebMCP・MCP が同じ 5 つを呼ぶ。
+ * 承認と状態変更は AI から呼べない（`requiresHumanApproval`）。
+ */
+export function contentUseCases() {
+  const deps = createDeps();
+  const content = {
+    packages: deps.contentPackages,
+    variants: deps.contentVariants,
+    personas: deps.personas,
+  };
+  return {
+    listBoard: createListContentBoardUseCase(content),
+    getContent: createGetContentUseCase(content),
+    listReviewOverdue: createListReviewOverdueUseCase(content),
+    advanceState: createAdvanceContentStateUseCase(content),
+    approve: createApproveContentUseCase(content),
+  };
+}
+
+/** 記事が見本データであることを画面に出すための一文。 */
+export function editorialContentNotice(): string {
+  return sampleEditorialContentNotice();
 }
 
 /** 商品・根拠が見本データであることを画面に出すための一文。 */
