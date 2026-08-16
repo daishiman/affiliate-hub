@@ -7,6 +7,7 @@ import { ok } from "@/domain/shared";
 import type { ProductId, RankingModelId } from "@/domain/shared";
 import type { AnyToolDefinition, ToolDefinition } from "./tool-definition";
 import { parseWith, toJsonSchema } from "./define-tool";
+import { productTools } from "./product-tools";
 import { siteTools } from "./site-tools";
 
 /**
@@ -72,7 +73,7 @@ export function rankProductsTool(
  * 入口 (REST / WebMCP / MCP) 側のコードは触らない。
  */
 export function buildToolCatalog(deps: CatalogDeps): readonly AnyToolDefinition[] {
-  return [rankProductsTool(deps), ...siteTools(deps)];
+  return [rankProductsTool(deps), ...siteTools(deps), ...productTools(deps)];
 }
 
 export function findTool(

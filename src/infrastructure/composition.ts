@@ -9,6 +9,12 @@ import {
   createSampleReaderToolRepository,
   createSampleShortlistRepository,
 } from "./persistence/sample/reader-interaction-sample";
+import {
+  createSampleClaimRepository,
+  createSampleEvidenceRepository,
+  createSampleProductRepository,
+  createSampleTestRunRepository,
+} from "./persistence/sample/product-sample-repository";
 import { createSampleSiteRepository } from "./persistence/sample/site-sample-repository";
 
 /**
@@ -29,6 +35,12 @@ export function createDeps(): AppDeps {
     // ★ 見本データ（スタブ）。ranking_models / score_cards テーブルができたら差し替える。
     rankingModels: createSampleRankingModelRepository(),
     scoreCards: createSampleScoreCardRepository(),
+    // ★ 見本データ（スタブ）。順位表と同じ 4 商品。products / claims /
+    //   evidence / test_runs テーブルができたら差し替える。
+    products: createSampleProductRepository(),
+    claims: createSampleClaimRepository(),
+    evidence: createSampleEvidenceRepository(),
+    testRuns: createSampleTestRunRepository(),
     // ★ 見本データ（スタブ）。ブログ 2 本ぶんの設計図と記事。
     //   site_blueprints / published_articles テーブルができたら差し替える。
     sites: createSampleSiteRepository(),

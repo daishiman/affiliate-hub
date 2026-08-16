@@ -52,27 +52,38 @@
 
 ## C. ブログ層 情報アーキテクチャ（§7 全18ルート）
 
-| REQ | ルート | 実装 | 導線 | 状態 | RWD | a11y | test | 結果 |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| REQ-B01 | `/`（トップ：10ブロック） | — | — | 未対応 | 未対応 | 未対応 | NOT RUN | 未着手 |
-| REQ-B02 | `/categories/{category}`（9ブロック） | — | トップ + グローバルナビ | 未対応 | 未対応 | 未対応 | NOT RUN | 未着手 |
-| REQ-B03 | `/best/{topic}`（ランキング記事） | — | トップ・カテゴリ | 未対応 | 未対応 | 未対応 | NOT RUN | 未着手 |
-| REQ-B04 | `/reviews/{product}`（個別レビュー） | — | ランキング商品カード | 未対応 | 未対応 | 未対応 | NOT RUN | 未着手 |
-| REQ-B05 | `/compare/{comparison}`（比較記事） | — | カテゴリ・記事内リンク | 未対応 | 未対応 | 未対応 | NOT RUN | 未着手 |
-| REQ-B06 | `/guides/{topic}`（ハウツー・初心者ガイド） | — | トップ初心者導線 | 未対応 | 未対応 | 未対応 | NOT RUN | 未着手 |
-| REQ-B07 | `/tools/{tool}`（診断・計算） | — | トップ・カテゴリ | 未対応 | 未対応 | 未対応 | NOT RUN | 未着手 |
-| REQ-B08 | `/search`（自然言語検索） | — | ヘッダ常設 | 未対応 | 未対応 | 未対応 | NOT RUN | 未着手 |
-| REQ-B09 | `/shortlist`（候補の保存） | — | 各商品カードの保存操作 | 未対応 | 未対応 | 未対応 | NOT RUN | 未着手 |
-| REQ-B10 | `/authors/{author}` | — | 記事の byline | 未対応 | 未対応 | 未対応 | NOT RUN | 未着手 |
-| REQ-B11 | `/experts/{expert}` | — | 記事の監修者表示 | 未対応 | 未対応 | 未対応 | NOT RUN | 未着手 |
-| REQ-B12 | `/methodology`（評価方法） | — | 記事の評価基準セクション | 未対応 | 未対応 | 未対応 | NOT RUN | 未着手 |
-| REQ-B13 | `/editorial-policy` | — | フッタ | 未対応 | 未対応 | 未対応 | NOT RUN | 未着手 |
-| REQ-B14 | `/advertising-policy` | — | フッタ + 記事の広告表記 | 未対応 | 未対応 | 未対応 | NOT RUN | 未着手 |
-| REQ-B15 | `/ai-policy` | — | フッタ | 未対応 | 未対応 | 未対応 | NOT RUN | 未着手 |
-| REQ-B16 | `/corrections`（訂正） | — | フッタ + 記事の訂正報告 | 未対応 | 未対応 | 未対応 | NOT RUN | 未着手 |
-| REQ-B17 | `/privacy` + `/terms` | — | フッタ | 未対応 | 未対応 | 未対応 | NOT RUN | 未着手 |
-| REQ-B18 | `/contact` | — | フッタ | 未対応 | 未対応 | 未対応 | NOT RUN | 未着手 |
+ルート表の正本は `src/presentation/site/routes.ts`。`tests/domain/site-routes.test.ts` が
+**「表にある route には画面がある」「画面には表の行がある（孤立ページ禁止）」「導線が空でない」**
+を毎回機械的に確かめる。下の表はその検査を通った状態を書き写したもの。
 
+RWD・a11y は全ルート共通の枠（`page-frame.tsx` と共通 UI 部品）で担保しており、
+`tests/ui/design-tokens.test.ts` と `tests/ui/ui-layers.test.ts` が生の色・生の px・
+層またぎの import を機械的に禁止している。個別ルートごとの再掲はしない。
+
+| REQ | ルート | 実装（画面） | 導線 | 状態 | RWD | a11y | test | 結果 |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| REQ-B01 | `/s/{site}`（トップ） | `src/app/s/[site]/page.tsx` + `presentation/site/page-frame.tsx` | 入口（サイト一覧 `/` から） | 新着0件・取得失敗に文言あり | 対応 | 対応 | PASS（`tests/domain/site-routes.test.ts`） | 実装済 |
+| REQ-B02 | `/s/{site}/categories/{category}` | `src/app/s/[site]/categories/[category]/page.tsx` | トップのカテゴリ一覧 + 共通ヘッダのナビ | 0件・失敗に文言あり | 対応 | 対応 | PASS（`tests/domain/site-routes.test.ts`） | 実装済 |
+| REQ-B03 | `/s/{site}/best/{topic}`（ランキング記事） | `src/app/s/[site]/best/[topic]/page.tsx` + `article-page.tsx` | トップ・カテゴリの記事カード | 未公開/不存在に文言あり | 対応 | 対応 | PASS（`tests/domain/site-routes.test.ts`） | 実装済 |
+| REQ-B04 | `/s/{site}/reviews/{product}` | `src/app/s/[site]/reviews/[product]/page.tsx` | ランキングの商品名・記事内リンク | 同上 | 対応 | 対応 | PASS（`tests/domain/site-routes.test.ts`） | 実装済 |
+| REQ-B05 | `/s/{site}/compare/{comparison}` | `src/app/s/[site]/compare/[comparison]/page.tsx` | カテゴリ・記事内リンク | 同上 | 対応 | 対応 | PASS（`tests/domain/site-routes.test.ts`） | 実装済 |
+| REQ-B06 | `/s/{site}/guides/{topic}` | `src/app/s/[site]/guides/[topic]/page.tsx` | トップの初心者導線・カテゴリ | 同上 | 対応 | 対応 | PASS（`tests/domain/site-routes.test.ts`） | 実装済 |
+| REQ-B07 | `/s/{site}/tools/{tool}`（診断・計算） | `src/app/s/[site]/tools/[tool]/page.tsx` + `reader-tool-form.tsx` | トップの「試せること」・カテゴリ | スタブ表示あり。計算式未登録は数値を作らず理由を返す | 対応 | 対応 | PASS（`tests/domain/site-routes.test.ts`） | スタブ |
+| REQ-B08 | `/s/{site}/search`（言葉で探す） | `src/app/s/[site]/search/page.tsx` + `search-box.tsx` | 共通ヘッダに常設 | 未入力・0件・結果・失敗の4状態 | 対応 | 対応 | PASS（`tests/domain/site-routes.test.ts`） | 実装済 |
+| REQ-B09 | `/s/{site}/shortlist`（気になる商品） | `src/app/s/[site]/shortlist/page.tsx` | 共通ヘッダ + 記事内の保存操作 | スタブ表示あり（保存先が記憶のみ） | 対応 | 対応 | PASS（`tests/domain/site-routes.test.ts`） | スタブ |
+| REQ-B10 | `/s/{site}/authors/{author}` | `src/app/s/[site]/authors/[author]/page.tsx` + `person-page.tsx` | 記事の書き手名 | 不存在に文言あり | 対応 | 対応 | PASS（`tests/domain/site-routes.test.ts`） | 実装済 |
+| REQ-B11 | `/s/{site}/experts/{expert}` | `src/app/s/[site]/experts/[expert]/page.tsx` + `person-page.tsx` | 記事の監修者表示 | 同上 | 対応 | 対応 | PASS（`tests/domain/site-routes.test.ts`） | 実装済 |
+| REQ-B12 | `/s/{site}/methodology`（評価方法） | `src/app/s/[site]/methodology/page.tsx` + `policy-page.tsx` | 記事の評価基準・フッタ | 未登録に文言あり | 対応 | 対応 | PASS（`tests/domain/site-routes.test.ts`） | 実装済 |
+| REQ-B13 | `/s/{site}/editorial-policy` | `src/app/s/[site]/editorial-policy/page.tsx` | フッタ | 同上 | 対応 | 対応 | PASS（`tests/domain/site-routes.test.ts`） | 実装済 |
+| REQ-B14 | `/s/{site}/advertising-policy` | `src/app/s/[site]/advertising-policy/page.tsx` | フッタ + 記事の広告表記 | 同上 | 対応 | 対応 | PASS（`tests/domain/site-routes.test.ts`） | 実装済 |
+| REQ-B15 | `/s/{site}/ai-policy` | `src/app/s/[site]/ai-policy/page.tsx` | フッタ | 同上 | 対応 | 対応 | PASS（`tests/domain/site-routes.test.ts`） | 実装済 |
+| REQ-B16 | `/s/{site}/corrections`（訂正） | `src/app/s/[site]/corrections/page.tsx` | フッタ + 記事の訂正報告 | 0件・失敗に文言あり | 対応 | 対応 | PASS（`tests/domain/site-routes.test.ts`） | 実装済 |
+| REQ-B17 | `/s/{site}/privacy` + `/s/{site}/terms` | `src/app/s/[site]/privacy/page.tsx`、`.../terms/page.tsx` | フッタ | 未登録に文言あり | 対応 | 対応 | PASS（`tests/domain/site-routes.test.ts`） | 実装済 |
+| REQ-B18 | `/s/{site}/contact` | `src/app/s/[site]/contact/page.tsx` + `contact-form.tsx` | フッタ | スタブ表示あり（送信先が未接続） | 対応 | 対応 | PASS（`tests/domain/site-routes.test.ts`） | スタブ |
+
+**3 本のブログすべてが同じ画面コードで動く。** ブログ名がファイル構成に
+現れていないことも同テストが検査している（`src/app/s/video-editing-gear/` のような
+フォルダを作った瞬間に落ちる）。
 ## D. 記事構成・文章（ブログ層 §8〜§11、プラットフォーム層 §16.4〜§16.6）
 
 | REQ | 要件 | 実装 | 画面 | test | 結果 |

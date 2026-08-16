@@ -1,6 +1,10 @@
 import type {
+  EditorialClaimRepositoryPort,
+  EditorialEvidenceRepositoryPort,
+  EditorialProductRepositoryPort,
   EditorialRankingModelRepositoryPort,
   EditorialScoreCardRepositoryPort,
+  EditorialTestRunRepositoryPort,
 } from "./ports";
 import type {
   EditorialContactPort,
@@ -24,6 +28,10 @@ import type {
 export type AppDeps = {
   readonly rankingModels: EditorialRankingModelRepositoryPort;
   readonly scoreCards: EditorialScoreCardRepositoryPort;
+  readonly products: EditorialProductRepositoryPort;
+  readonly claims: EditorialClaimRepositoryPort;
+  readonly evidence: EditorialEvidenceRepositoryPort;
+  readonly testRuns: EditorialTestRunRepositoryPort;
   readonly sites: EditorialSiteRepositoryPort;
   readonly publishedContent: EditorialPublishedContentPort;
   readonly shortlist: EditorialShortlistPort;

@@ -18,11 +18,21 @@ import {
   createSaveToShortlistUseCase,
   createSubmitContactUseCase,
 } from "@/application/usecases/site/reader-interaction";
+import {
+  createCompareProductsUseCase,
+  createExplainRankingUseCase,
+  createFilterProductsUseCase,
+  createFindAlternativesUseCase,
+  createGetEvidenceUseCase,
+  createGetProductUseCase,
+  createListTestRunsUseCase,
+} from "@/application/usecases/product/read-product";
 import type { ActorContext } from "@/domain/shared";
 import { taggedString } from "@/domain/shared";
 import { createDeps } from "@/infrastructure/composition";
 import { sampleContentNotice } from "@/infrastructure/persistence/sample/content-sample-repository";
 import { getCurrentActor, sampleActorNotice } from "@/infrastructure/identity/sample-actor";
+import { sampleProductNotice } from "@/infrastructure/persistence/sample/product-sample-repository";
 import {
   SAMPLE_MODEL_ID,
   SAMPLE_PRODUCTS,
@@ -118,6 +128,39 @@ export function readerUseCases() {
     runReaderTool: createRunReaderToolUseCase(reader),
     submitContact: createSubmitContactUseCase(reader),
   };
+}
+
+/**
+ * 商品・根拠の入口（編集部向け）。
+ *
+ * 画面・REST・WebMCP・MCP が呼ぶのは**同じこの 8 つ**。
+ * `src/presentation/tools/product-tools.ts` も同じユースケースを載せているので、
+ * 画面に出る内容と AI が返す内容がずれない。
+ */
+export function productUseCases() {
+  const deps = createDeps();
+  const product = {
+    products: deps.products,
+    claims: deps.claims,
+    evidence: deps.evidence,
+    testRuns: deps.testRuns,
+    rankingModels: deps.rankingModels,
+    scoreCards: deps.scoreCards,
+  };
+  return {
+    getProduct: createGetProductUseCase(product),
+    filterProducts: createFilterProductsUseCase(product),
+    compareProducts: createCompareProductsUseCase(product),
+    findAlternatives: createFindAlternativesUseCase(product),
+    getEvidence: createGetEvidenceUseCase(product),
+    listTestRuns: createListTestRunsUseCase(product),
+    explainRanking: createExplainRankingUseCase(product),
+  };
+}
+
+/** 商品・根拠が見本データであることを画面に出すための一文。 */
+export function productSampleNotice(): string {
+  return sampleProductNotice();
 }
 
 /**
