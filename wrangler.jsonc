@@ -1,0 +1,30 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "affiliate-hub",
+  "main": ".open-next/worker.js",
+  "compatibility_date": "2026-08-16",
+  "compatibility_flags": ["nodejs_compat"],
+  "assets": {
+    "directory": ".open-next/assets",
+    "binding": "ASSETS"
+  },
+  "observability": {
+    "enabled": true
+  },
+  // D1: 案件・成果データの永続化 (APAC リージョン)
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "affiliate-hub-db",
+      "database_id": "eb93e950-a8f6-407e-b3aa-372db5d98c38",
+      "migrations_dir": "drizzle"
+    }
+  ],
+  // R2: レポートCSV・スクリーンショット等の生成物置き場
+  "r2_buckets": [
+    {
+      "binding": "BUCKET",
+      "bucket_name": "affiliate-hub-assets"
+    }
+  ]
+}
