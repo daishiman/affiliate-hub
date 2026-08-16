@@ -12,7 +12,7 @@ iteration: null
 title: "仕様整理の最終レビューと draft PR"
 owners: ["daishiman"]
 created_at: "2026-08-16T11:19:17Z"
-updated_at: "2026-08-16T11:20:03.146226Z"
+updated_at: "2026-08-16T11:23:49.692375Z"
 status: "draft"
 depends_on: []
 related_nodes: ["feat-spec-canonicalization","arch-spec-governance"]
@@ -44,7 +44,7 @@ github_publication: {"labels":[],"milestone":null,"mode":"local_only","project_a
 github_project_linkages: []
 pull_request_linkages: []
 execution_contexts: []
-completion_evidence: {"completed_at":null,"evidence_refs":[],"policy":"manual","reconciled_at":null,"source":null,"status":"in_progress"}
+completion_evidence: {"completed_at":"2026-08-16T11:23:32Z","evidence_refs":["docs/spec-writeback-receipt.md","https://github.com/daishiman/affiliate-hub/pull/11"],"policy":"manual","reconciled_at":"2026-08-16T11:23:49Z","source":"manual","status":"done"}
 implementation_readiness: {"checked_at":null,"missing_sections":[],"status":"incomplete"}
 ---
 

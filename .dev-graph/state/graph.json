@@ -1,5 +1,5 @@
 {
-  "graph_revision": 18,
+  "graph_revision": 19,
   "nodes": [
     {
       "acceptance": [],
@@ -698,12 +698,15 @@
       "classification_confidence": 0.92,
       "classification_reason": "standalone close-out task for this spec writeback",
       "completion_evidence": {
-        "completed_at": null,
-        "evidence_refs": [],
+        "completed_at": "2026-08-16T11:23:32Z",
+        "evidence_refs": [
+          "docs/spec-writeback-receipt.md",
+          "https://github.com/daishiman/affiliate-hub/pull/11"
+        ],
         "policy": "manual",
-        "reconciled_at": null,
-        "source": null,
-        "status": "in_progress"
+        "reconciled_at": "2026-08-16T11:23:49Z",
+        "source": "manual",
+        "status": "done"
       },
       "confirmation_evidence": {
         "evaluated_digest": null,
@@ -784,7 +787,7 @@
       "template_version": "1.0.0",
       "title": "仕様整理の最終レビューと draft PR",
       "tracker_binding": "beads",
-      "updated_at": "2026-08-16T11:20:03.146226Z"
+      "updated_at": "2026-08-16T11:23:49.692375Z"
     }
   ],
   "repository_id": "github:daishiman/affiliate-hub",
