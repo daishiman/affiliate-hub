@@ -333,6 +333,15 @@ export function createSampleAffiliateLinkRepository(): CommercialAffiliateLinkRe
     async listByProduct(workspaceId: WorkspaceId, productId: ProductId) {
       return ok(LINKS.filter((l) => l.workspaceId === workspaceId && l.productId === productId));
     },
+    async listNeedingAttention(workspaceId: WorkspaceId, at: Date, limit: number) {
+      return ok(
+        LINKS.filter(
+          (l) =>
+            l.workspaceId === workspaceId &&
+            (l.disabledAt !== null || (l.expiresAt !== null && l.expiresAt.getTime() <= at.getTime())),
+        ).slice(0, limit),
+      );
+    },
     save: () => stubCall(stub, "提携リンクの保存"),
   });
 }

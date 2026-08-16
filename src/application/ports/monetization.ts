@@ -40,6 +40,17 @@ export type AffiliateProgramRepositoryPort = {
 export type AffiliateLinkRepositoryPort = {
   findById(workspaceId: WorkspaceId, id: AffiliateLinkId): PortResult<AffiliateLink | null>;
   listByProduct(workspaceId: WorkspaceId, productId: ProductId): PortResult<readonly AffiliateLink[]>;
+  /**
+   * 手当てが要るリンク（期限切れ・停止済み）。
+   *
+   * 全件を持ってきて呼び出し側で絞ると、リンクが増えた時点で破綻する。
+   * 「切れている」の判定は保存先が担い、ユースケースは件数と理由だけを扱う。
+   */
+  listNeedingAttention(
+    workspaceId: WorkspaceId,
+    at: Date,
+    limit: number,
+  ): PortResult<readonly AffiliateLink[]>;
   save(link: AffiliateLink): PortResult<AffiliateLink>;
 };
 

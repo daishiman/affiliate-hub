@@ -24,7 +24,12 @@ const stub = registerStub({
 export const SAMPLE_ACTOR: ActorContext = {
   workspaceId: SAMPLE_WORKSPACE_ID,
   userId: taggedString<"UserId">("u_sample"),
-  roles: ["researcher", "writer", "reviewer"],
+  /**
+   * `analyst` を足してあるのは、成果と収益の画面を実際に確かめられるようにするため。
+   * `analyst` が持つのは「数字を読む」権限だけで、承認も公開も含まれない。
+   * ここに `publisher` や `owner` を足すと、認証が無いまま公開まで通ってしまう。
+   */
+  roles: ["researcher", "writer", "reviewer", "analyst"],
   isAiServiceAccount: false,
 };
 

@@ -55,6 +55,7 @@ export {
   type ApprovalState,
 } from "./patterns/approval";
 export { StubNotice, StubLabel } from "./patterns/stub-notice";
+export { WorkBoard, type WorkBoardItem } from "./patterns/work-board";
 export { WebMcpProvider } from "./webmcp-provider";
 
 /* --- templates --------------------------------------------------------- */

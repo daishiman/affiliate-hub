@@ -11,6 +11,7 @@ import { affiliateTools } from "./affiliate-tools";
 import { analyticsTools } from "./analytics-tools";
 import { contentTools } from "./content-tools";
 import { distributionTools } from "./distribution-tools";
+import { dashboardTools } from "./dashboard-tools";
 import { platformTools } from "./platform-tools";
 import { productTools } from "./product-tools";
 import { settingsTools } from "./settings-tools";
@@ -86,6 +87,7 @@ export function rankProductsTool(
 export function buildToolCatalog(deps: CatalogDeps): readonly AnyToolDefinition[] {
   return [
     rankProductsTool(deps),
+    ...dashboardTools(deps),
     ...siteTools(deps),
     ...productTools(deps),
     ...contentTools(deps),

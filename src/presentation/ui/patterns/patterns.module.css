@@ -277,3 +277,87 @@
     position: static;
   }
 }
+
+/*
+ * 作業ボード（ホーム画面の数字）。
+ *
+ * 数字だけを並べたカードにしない。
+ * 「値」「その意味」「行き先」の 3 つを 1 枚に必ず入れる形にしてある。
+ * この 3 点を欠いた表示を作れないようにするのが、この部品を共通化した理由。
+ */
+.board {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(var(--card-min-width), 1fr));
+  gap: var(--space-3);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.boardItem {
+  display: grid;
+  align-content: start;
+  gap: var(--space-2);
+  padding: var(--space-4);
+  border: var(--border-width-default) solid var(--color-border-subtle);
+  border-inline-start: var(--border-width-marker) solid var(--color-border-default);
+  border-radius: var(--radius-md);
+  background: var(--color-surface-default);
+}
+
+.boardItemAttention {
+  border-inline-start-color: var(--color-accent-border);
+  background: var(--color-accent-subtle);
+}
+
+.boardItemProblem {
+  border-inline-start-color: var(--color-intent-danger);
+  background: var(--color-intent-danger-subtle);
+}
+
+.boardLabel {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  line-height: var(--leading-dense);
+}
+
+.boardValue {
+  color: var(--color-text-strong);
+  font-size: var(--text-2xl);
+  font-weight: var(--weight-bold);
+  line-height: var(--leading-heading);
+}
+
+.boardValueUnavailable {
+  color: var(--color-text-muted);
+  font-size: var(--text-lg);
+}
+
+.boardReason {
+  margin: 0;
+  color: var(--color-text-default);
+  font-size: var(--text-sm);
+  line-height: var(--leading-body);
+}
+
+.boardLink {
+  justify-self: start;
+  min-height: var(--tap-target-min);
+  display: inline-flex;
+  align-items: center;
+  color: var(--color-action-default);
+}
+
+/* 目には見えないが読み上げには届く文言。色だけで意味を表さないために使う。 */
+.srOnly {
+  position: absolute;
+  width: var(--sr-only-size);
+  height: var(--sr-only-size);
+  padding: 0;
+  margin: calc(-1 * var(--sr-only-size));
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}

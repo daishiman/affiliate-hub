@@ -89,6 +89,7 @@ import {
   createGetProductUseCase,
   createListTestRunsUseCase,
 } from "@/application/usecases/product/read-product";
+import { createGetDashboardUseCase } from "@/application/usecases/dashboard/read-dashboard";
 import type { ActorContext } from "@/domain/shared";
 import { taggedString } from "@/domain/shared";
 import { createDeps } from "@/infrastructure/composition";
@@ -475,6 +476,28 @@ export function settingsUseCases() {
     listBrands: createListBrandsUseCase(settings),
     listDisclosures: createListDisclosuresUseCase(settings),
     listAuditLog: createListAuditLogUseCase(settings),
+  };
+}
+
+/**
+ * ホーム画面の 11 個の数字。
+ *
+ * ここだけは編集側と商業側の両方の保存先を渡す。
+ * 読み取り専用であり、このまとまりは順位づけへは渡らない
+ * （順位づけ側が商業のポートを受け取らない型になっている）。
+ */
+export function dashboardUseCases() {
+  const deps = createDeps();
+  return {
+    getDashboard: createGetDashboardUseCase({
+      contentVariants: deps.contentVariants,
+      products: deps.products,
+      publications: deps.publications,
+      channelConnections: deps.channelConnections,
+      linkInbox: deps.linkInbox,
+      affiliateLinks: deps.affiliateLinks,
+      conversions: deps.conversions,
+    }),
   };
 }
 
