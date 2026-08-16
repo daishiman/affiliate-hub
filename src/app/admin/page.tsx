@@ -38,7 +38,7 @@ export default async function AdminHome() {
         <Callout
           tone="warn"
           title="たたき台です"
-          reason={actorNotice()}
+          reason={await actorNotice()}
           action={<Link href="/admin/settings">設定を見る</Link>}
         />
 

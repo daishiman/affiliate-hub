@@ -395,8 +395,38 @@ export const linkIngestions = sqliteTable(
   ],
 );
 
+/**
+ * ログイン状態（セッション）。
+ *
+ * **合言葉そのものを保存しない。** 保存するのは合言葉を潰した値（`token_hash`）だけ。
+ * こうしておくと、この表を読めた人でも他人になりすませない。
+ * 逆に合言葉を平文で置くと、保存先の中身が漏れた時点で全員のログインが漏れる。
+ *
+ * ログインの入口（誰がこの行を作るか）はまだ無い。作るのは Better Auth + Google の側で、
+ * それには利用者ご自身による接続情報の登録が要る。
+ * この表とその読み取りは、入口が付いた日にそのまま使える形で先に用意してある。
+ */
+export const sessions = sqliteTable(
+  "sessions",
+  {
+    /** 合言葉を SHA-256 で潰した値。合言葉そのものは保存しない。 */
+    tokenHash: text("token_hash").primaryKey(),
+    userId: text("user_id").notNull(),
+    workspaceId: text("workspace_id").notNull(),
+    createdAt: integer("created_at", { mode: "timestamp" })
+      .notNull()
+      .default(sql`(unixepoch())`),
+    /** 期限。過ぎた行は読み取り側で無効として扱う（消し忘れても効く）。 */
+    expiresAt: integer("expires_at", { mode: "timestamp" }).notNull(),
+    /** ログアウトや管理者による停止。期限内でも無効にできる。 */
+    revokedAt: integer("revoked_at", { mode: "timestamp" }),
+  },
+  (t) => [index("sessions_user_idx").on(t.userId, t.expiresAt)],
+);
+
 // 運営者ドメイン
 export type Asp = typeof asps.$inferSelect;
+export type SessionRow = typeof sessions.$inferSelect;
 export type Program = typeof programs.$inferSelect;
 export type Conversion = typeof conversions.$inferSelect;
 export type LinkIngestionRow = typeof linkIngestions.$inferSelect;

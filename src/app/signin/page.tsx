@@ -38,7 +38,7 @@ export default async function SignInPage() {
           blockedBy="Google 側でこのアプリを登録し、発行された識別子と秘密の値を利用者本人がブラウザから登録すること"
           stubId="identity:sample-actor"
         >
-          <span>{actorNotice()}</span>
+          <span>{await actorNotice()}</span>
         </StubNotice>
 
         <Callout

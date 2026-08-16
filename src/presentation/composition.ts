@@ -107,6 +107,10 @@ import { createDeps } from "@/infrastructure/composition";
 import { sampleContentNotice } from "@/infrastructure/persistence/sample/content-sample-repository";
 import { sampleSiteDraftNotice } from "@/infrastructure/persistence/sample/site-draft-sample-repository";
 import { getCurrentActor, sampleActorNotice } from "@/infrastructure/identity/sample-actor";
+import {
+  SESSION_COOKIE_NAME,
+  type ActorResolution,
+} from "@/infrastructure/identity/session-actor";
 import { sampleEditorialContentNotice } from "@/infrastructure/persistence/sample/content-editorial-sample-repository";
 import { sampleDistributionNotice } from "@/infrastructure/persistence/sample/distribution-sample-repository";
 import {
@@ -160,14 +164,67 @@ export async function authenticateRequest(
   return authenticateApiRequest(request);
 }
 
-/** いま操作している人。認証が入るまでは見本のログイン情報を返す。 */
-export function currentActor(): Promise<ActorContext> {
-  return getCurrentActor();
+/**
+ * いま操作している人を決める、唯一の場所。
+ *
+ * **ログインの仕組みを差し替えるとき変えるのは、この関数の中だけ。**
+ * 画面・ツール・API は `currentActor()` しか知らないので 1 行も変わらない
+ * （変更容易性シナリオ ⑦）。
+ *
+ * 合言葉の取り出しだけをここで行うのは、`next/headers` が画面側の道具だから。
+ * 有効かどうかの判定と権限の引き当ては infrastructure が持つ
+ * （`session-repository` と `session-actor`）。
+ */
+async function resolveActor(): Promise<ActorResolution> {
+  try {
+    const { cookies } = await import("next/headers");
+    const token = (await cookies()).get(SESSION_COOKIE_NAME)?.value ?? null;
+    if (token === null) return { kind: "anonymous" };
+
+    const db = await tryGetDb();
+    if (db === null) return { kind: "unavailable", reason: "保存先に接続できていません。" };
+
+    const { createD1SessionReader } = await import(
+      "@/infrastructure/identity/session-repository"
+    );
+    const { createSessionActorResolver } = await import(
+      "@/infrastructure/identity/session-actor"
+    );
+    return await createSessionActorResolver({
+      sessions: createD1SessionReader(db),
+      memberships: createDeps({ db }).memberships,
+    })(token);
+  } catch {
+    // 画面の外（テストや組み立て時）では合言葉を取り出せない。
+    // ここで例外を投げると、ログインと関係のない場所が落ちる。
+    return { kind: "anonymous" };
+  }
 }
 
-/** 見本のログイン情報で動いていることを画面に出すための一文。 */
-export function actorNotice(): string {
-  return sampleActorNotice();
+/**
+ * いま操作している人。
+ *
+ * ログインできていないあいだは見本のログイン情報を返す。
+ * **黙って戻さない。** どちらで動いているかは `actorNotice()` が必ず画面に出す。
+ */
+export async function currentActor(): Promise<ActorContext> {
+  const resolved = await resolveActor();
+  return resolved.kind === "actor" ? resolved.actor : getCurrentActor();
+}
+
+/** いまどの身元で動いているかを画面に出すための一文。 */
+export async function actorNotice(): Promise<string> {
+  const resolved = await resolveActor();
+  switch (resolved.kind) {
+    case "actor":
+      return "ログイン中の情報で表示しています。";
+    case "not_member":
+      return "ログインはできていますが、この作業場所の担当者として登録されていません。見本の情報で表示しています。";
+    case "unavailable":
+      return `ログイン状態を確認できませんでした（${resolved.reason}）。見本の情報で表示しています。`;
+    case "anonymous":
+      return sampleActorNotice();
+  }
 }
 
 /**

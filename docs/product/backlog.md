@@ -24,7 +24,8 @@
 | 5 | CI/CD の設置 | 保留 | 初回リリース後に行う (守る対象ができてから) |
 | 6 | 本番デプロイとタグ付け | 未着手 | 認証基盤 + 主要画面が preview で通ってから |
 | 7 | 保存先を見本データから D1 へ差し替え | 未着手 | `ranking_models` / `score_cards` テーブルとマイグレーションが前提。差し替えは `src/infrastructure/composition.ts` の2行 |
-| 8 | ログインの仕組み (Better Auth + Google) | 未着手 | いまは見本のログイン情報で動く。差し替えは `src/infrastructure/identity/sample-actor.ts` の1ファイル。これが入るまで REST の口は読み取り専用に制限してある |
+| 8 | ログインの**入口** (Better Auth + Google) | 未着手 | **確かめる側は実装済み**（`src/infrastructure/identity/session-repository.ts` / `session-actor.ts`、`sessions` 表）。残っているのは合言葉を**発行する側**で、Google 側でのアプリ登録と、利用者本人による接続情報の登録が要る。それまでは見本のログイン情報で動き、その旨を全画面に表示する。これが入るまで REST の口は読み取り専用に制限してある |
+| 8-2 | 使っていない `AuthenticationPort` の整理 | 未着手 | `src/application/ports/identity.ts` の `currentUserId()` / `profileOf()` は、合言葉を引数で受け取れない形だったため実装に使えなかった（変更容易性シナリオ ⑦ の実測で判明）。実際に使っているのは `SessionReaderPort`。宣言だけ残っていると、次の人が誤って実装しに行く |
 | 9 | 旧実装の移行 (`src/lib/mcp` `src/lib/webmcp` `src/lib/content`) | 未着手 | 新しい入口 (`src/presentation/tools/`) と二重になっている。`/api/mcp` は旧実装のまま |
 | 10 | ドメイン不変条件のテスト | 未着手 | 順位の再現性・公開ゲート・事実と推測の境界・品質検査17項目・広告表示・成果リンクの改変禁止 |
 | 11 | 仕様の未修正4点 | 保留 | `system-spec/backend.md` の記法崩れ、doctrine の接続、`decisions[]` が1件のみ、非規範メモが8章中3章。確定済み章のため再オープン手順 (`ah-bgp`) 経由でのみ修正できる |
