@@ -115,6 +115,7 @@ RWD・a11y は全ルート共通の枠（`page-frame.tsx` と共通 UI 部品）
 | REQ-G08 | 承認フロー（§18.1 12段階）との接続 | `src/domain/generation/approval-bridge.ts` `STAGE_BRIDGE`（12段階×`advancedBy`）。`bridgeBreaches()` が `CONTENT_STATES` / `HUMAN_APPROVAL_REQUIRED` と突き合わせる | `/admin/generation`「どこから先が人の判断か」/ `/admin/content` | PASS（同テスト「人の承認が要る段階を AI が進められない」） | 実装済 |
 | REQ-G09 | 評価セット 50件以上（網羅12+9+8+5 / 敵対8 / 境界8） | `evals/generation/cases.ts`（50件）+ `quality-gates.ts` | 画面義務なし | PASS（`tests/evals/generation-eval-set.test.ts`） | 実装済 |
 | REQ-G10 | ローンチ基準 LB-1〜LB-8 と CI 連携 | `evals/generation/launch-bars.ts`（LB-1〜LB-8） | 画面義務なし | PASS（同テスト）。CI への接続は初回リリース後（`ci.yml` 未設置） | スタブ |
+| REQ-G11 | 生成の実行（素材を渡して下書きを 1 本作らせる） | `src/application/usecases/generation/draft-content-variant.ts`（`LlmPort` を使う唯一のユースケース。18項目が欠けていれば呼ばない／資料は `untrustedContext` へ入れ指示欄に混ぜない／呼ぶ前に費用を見積もる／打ち切りと形違いは受け取らない）、`src/domain/generation/draft-instructions.ts`（7ブロックの文面）、`src/infrastructure/llm/llm-setup.ts`（`ACTIVE_PROVIDER` 1行が提供元を決める） | `/admin/generation`「下書きを作らせてみる」（そろっていない状態／そろった状態を実際に押して確かめられる）。REST と バックエンド MCP から `draft_content_variant`。**WebMCP には載せない**（`readOnly: false`。ページ内の AI に課金を起こさせないため） | PASS（`tests/application/draft-content-variant.test.ts` 10件） | 実装済（生成AIへの接続のみスタブ。提供元の選定と鍵の登録が済めば動く） |
 
 ## F. データモデル（§21 全32エンティティ）
 
@@ -212,7 +213,7 @@ D1 への差し替えは、この列だけを別の実装に取り替えれば�
 | REQ | 要件 | 実装 | 結果 |
 | --- | --- | --- | --- |
 | REQ-M01 | Resources 8種 | `src/presentation/tools/spec-contract.ts` `MCP_RESOURCES`（8種）+ `mcp-adapter.ts` の `resources/list` / `resources/read`。中身は必ず既存のツールから取る（読み出しを二重に書かない）。画面は `/admin/tools` | 実装済 |
-| REQ-M02 | Tools 8種 | 同 `TOOL_CONTRACT` の `mcp_tool`。**8 種中 5 種**が仕様の名前で呼べる。残り 3 種は生成AI・保存先の未実装（理由は表に明記） | スタブ |
+| REQ-M02 | Tools 8種 | 同 `TOOL_CONTRACT` の `mcp_tool`。**8 種中 6 種**が仕様の名前で呼べる（`generate_content_variants` は `draft_content_variant` として実装）。残り 2 種は方針の保存と媒体の接続情報の未登録（理由は表に明記） | スタブ |
 | REQ-M03 | MCP エンドポイントと認可 | `src/app/api/mcp/route.ts`（JSON-RPC / stateless）。認可は `authenticateRequest()` + `visibleTools()`、オリジンは `checkOrigin()`。ツールは REST・WebMCP と同じ 1 つのカタログ | 実装済 |
 
 ## J. 権限（§25 全10ロール）
@@ -302,8 +303,8 @@ D1 への差し替えは、この列だけを別の実装に取り替えれば�
 
 | 区分 | 件数 |
 | --- | --- |
-| **全要件数 N** | **171** |
-| 実装済 X | 139 |
+| **全要件数 N** | **172** |
+| 実装済 X | 140 |
 | スタブ Y | 32 |
 | 未着手 Z | **0** |
 
@@ -312,9 +313,9 @@ D1 への差し替えは、この列だけを別の実装に取り替えれば�
 ```bash
 T=docs/product/traceability.md
 # 行数
-grep -cE '^\| REQ-' $T                                  # → 171
+grep -cE '^\| REQ-' $T                                  # → 172
 # 結果の欄で分類（「実装済（保存先は見本データ）」のような但し書き付きも数える）
-grep -E '^\| REQ-' $T | grep -cE '\| \**実装済'          # → 139
+grep -E '^\| REQ-' $T | grep -cE '\| \**実装済'          # → 140
 grep -E '^\| REQ-' $T | grep -cE '\| \**スタブ'          # → 32
 grep -E '^\| REQ-' $T | grep -cE '\| \**未着手'          # → 0（該当なしなので grep は終了コード 1 を返す）
 ```
@@ -327,7 +328,7 @@ grep -E '^\| REQ-' $T | grep -cE '\| \**未着手'          # → 0（該当な�
 | B | プラットフォーム層 主要画面 | 10 | 9 | 1 | 0 |
 | C | ブログ層 情報アーキテクチャ（18ルート） | 18 | 15 | 3 | 0 |
 | D | 記事構成・文章 | 12 | 12 | 0 | 0 |
-| E | 生成基盤 | 10 | 9 | 1 | 0 |
+| E | 生成基盤 | 11 | 10 | 1 | 0 |
 | F | データモデル（32エンティティ） | 32 | 23 | 9 | 0 |
 | G | API とイベント（イベント16種を1行ずつに分解済み） | 18 | 9 | 9 | 0 |
 | H | WebMCP | 12 | 10 | 2 | 0 |
@@ -337,18 +338,18 @@ grep -E '^\| REQ-' $T | grep -cE '\| \**未着手'          # → 0（該当な�
 | L | 品質検査（QC-01〜QC-17） | 12 | 11 | 1 | 0 |
 | M | 禁止依存 | 5 | 4 | 1 | 0 |
 | N | 受け入れ条件（§30.1〜§30.8） | 8 | 8 | 0 | 0 |
-| | **合計** | **171** | **139** | **32** | **0** |
+| | **合計** | **172** | **140** | **32** | **0** |
 
 ### UI/UX（画面義務のある要件のみ）
 
-画面義務のある要件 = A(10) + B(10) + C(18) + D(12) + E(10) + F(32) = 92 行。
+画面義務のある要件 = A(10) + B(10) + C(18) + D(12) + E(11) + F(32) = 93 行。
 このうち 3 行（REQ-G07 / REQ-G09 / REQ-G10）は**画面を持たないことが正しい**要件
-（型で禁じる仕組み・評価セット・分離の担保）なので、義務のある行は **89**。
+（型で禁じる仕組み・評価セット・分離の担保）なので、義務のある行は **90**。
 
 | 区分 | 件数 |
 | --- | --- |
-| **画面義務のある機能 N** | **89** |
-| 画面あり X | **89** |
+| **画面義務のある機能 N** | **90** |
+| 画面あり X | **90** |
 | 画面なし Z | **0** |
 
 G〜N の節（API・イベント・WebMCP・MCP・権限・セキュリティ・品質検査・禁止依存・受け入れ条件）は

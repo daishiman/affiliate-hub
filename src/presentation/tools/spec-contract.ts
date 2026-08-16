@@ -259,8 +259,10 @@ export const TOOL_CONTRACT: readonly ContractEntry[] = [
     specName: "generate_content_variants",
     surface: "mcp_tool",
     purpose: "媒体ごとの原稿を作る",
-    implementedBy: null,
-    stubReason: "`generate_channel_variants` と同じ。生成AIの鍵の登録待ち。",
+    // 道具そのものは実装済み。呼ぶと素材の充足と資料の安全性まで確かめて進み、
+    // 最後の生成 AI への接続で止まる（鍵が未登録のため）。
+    // 「道具が無い」と「鍵が無い」は別のことなので、ここでは分けて扱う。
+    implementedBy: "draft_content_variant",
   },
   {
     specName: "validate_claims",
