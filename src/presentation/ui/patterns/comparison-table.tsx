@@ -2,6 +2,7 @@ import { UI_COPY } from "../copy";
 import { EmptyView } from "../primitives/state-view";
 import { FactualityBadge, type Factuality } from "./factuality";
 import { ProvenanceNote } from "./evidence";
+import { telemetryAttrs } from "../telemetry-attrs";
 import styles from "./patterns.module.css";
 
 /**
@@ -78,7 +79,12 @@ export function ComparisonTable({
         </thead>
         <tbody>
           {rows.map((row) => (
-            <tr key={row.id}>
+            // 行が「自分は比較表の行である」と名乗るだけ。送信はしない。
+            // 拾う側は画面全体で 1 つ (`presentation/telemetry/collector.tsx`)。
+            <tr
+              key={row.id}
+              {...telemetryAttrs({ kind: "comparison_row", id: row.id, label: row.label })}
+            >
               <th scope="row">{row.label}</th>
               {columns.map((col) => {
                 const cell = row.cells[col.key];

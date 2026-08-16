@@ -16,7 +16,17 @@
 | Distribution | `src/domain/distribution/` | どこへ、いつ出すか | Publication / ChannelConnection |
 | Affiliate & Monetization | `src/domain/monetization/` | 報酬・リンク・成果 | AffiliateProgram / AffiliateLink / Conversion |
 | Compliance | `src/domain/compliance/` | 広告表示・表現規制・監査 | Disclosure / PolicyRule / AuditLog |
-| Analytics | `src/domain/analytics/` | 指標と、その戻し方の規則 | MetricDefinition |
+| Analytics | `src/domain/analytics/` | 指標・計測・同意と、その戻し方の規則 | MetricDefinition / TelemetryEvent / ConsentDecision |
+
+計測（何を測るか・同意・保存期間・AI の利用と費用）は **Analytics の中に置く**。
+別コンテキストに切ると「指標」と「計測」で同じ数字を二重に定義することになり、
+`1 概念 1 定義` が崩れる。計測の記録は Analytics の中の 3 つの層に分かれる。
+
+| 置き場所 | 持つもの |
+| --- | --- |
+| `analytics/telemetry-events.ts` | 測れることの全一覧（**唯一の正本**）。送信・保存・集計の型はここから導く |
+| `analytics/consent.ts` | 測ってよいかの判断・保存期間・仮の目印の作り方 |
+| `analytics/ai-usage.ts` | モデルの価格表と、ブログ × モデルの畳み方 |
 
 ## 共有カーネル（最小限）
 
@@ -77,6 +87,8 @@
 | Evidence → Monetization | 根拠の採否が報酬で歪む | 同上 |
 | Product → Monetization | 商品情報に報酬が混ざる | 同上 |
 | Analytics の収益指標 → Ranking / 推奨 | 売れた商品を上に出す汚染 | `domain/analytics/feedback-policy.ts` |
+| 計測 → domain（実装の持ち込み） | ドメインが計測の実装を知ると差し替えられない | `TelemetrySinkPort` 経由のみ。`tests/architecture/dependency-direction.test.ts` |
+| 共通UI → 通信 | 部品が送信を持つと、部品ごとに測り方が分かれる | `tests/ui/ui-layers.test.ts`（UI に `fetch(` を書けない） |
 | domain → 外側の層 | 層の意味が消える | lint + テスト |
 
 ## コンテキスト間の言葉のずれ

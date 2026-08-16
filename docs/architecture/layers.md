@@ -79,6 +79,29 @@ R2 ストレージ、KV キャッシュ、ID 生成、秘密の取り出し。
 | 「『確認中』のバッジを黄色で出す」 | presentation | 見た目 |
 | 「報酬率」 | domain/monetization | 業務の概念。ただし Commercial 区分 |
 | 「報酬率でランキングを並べ替える」 | **どこにも置かない** | 仕様で禁止されている |
+| 「測ってよい項目の一覧」 | domain/analytics | 何を測らないかは業務（と法令）の決まり |
+| 「同意が無いときに何を測るか」 | domain/analytics | 同上。画面ごとに判断させない |
+| 「この行は比較表の行である」 | presentation/ui（部品の名乗り） | 見た目の側にしか無い情報 |
+| 「まとめて 15 秒ごとに送る」 | presentation/telemetry | 送り方の都合。業務とは無関係 |
+| 「計測をどこに貯めるか」 | infrastructure | 保存先の都合。`TelemetrySinkPort` の裏 |
+
+## 計測をどこに書くか（横断の例）
+
+計測は 4 層すべてに顔を出すため、混ざりやすい。分け方は 1 つだけ覚えればよい。
+
+```
+domain          何を測ってよいか・同意・保存期間        telemetry-events.ts / consent.ts
+  ↑
+application     記録する手順・数える手順                usecases/analytics/ + ports/telemetry.ts
+  ↑
+infrastructure  どこに貯めるか                          persistence/…/telemetry-sample-sink.ts
+  ↑
+presentation    どの要素が何かの名乗り／拾って送る       ui/telemetry-attrs.ts / telemetry/collector.tsx
+```
+
+**共通UIの部品は名乗るだけで、送らない。** 部品が送信を持つと、部品ごとに
+送り方（まとめ方・同意の見方）が分かれ、どれが正しいか分からなくなる。
+`tests/ui/ui-layers.test.ts` が UI の中に `fetch(` を書けないようにしている。
 
 ## Editorial と Commercial
 
