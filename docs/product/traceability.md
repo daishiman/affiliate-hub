@@ -118,42 +118,47 @@ RWD・a11y は全ルート共通の枠（`page-frame.tsx` と共通 UI 部品）
 
 ## F. データモデル（§21 全32エンティティ）
 
-`スキーマ` = `src/db/schema.ts` に定義あり / `ドメイン` = `src/domain/` に型あり。
+`ドメイン型` = 型と不変条件が `src/domain/` にあるか（**業務の決めごとはここにしか無い**）。
+`保存` = いまどこに置いているか。`見本データ` は `src/infrastructure/persistence/sample/` のこと。
+D1 への差し替えは、この列だけを別の実装に取り替えれば済む（画面もドメインも触らない）。
 
-| REQ | エンティティ | スキーマ | ドメイン | 管理画面 | 結果 |
+| REQ | エンティティ | ドメイン型 | 保存 | 画面 | 結果 |
 | --- | --- | --- | --- | --- | --- |
-| REQ-E01 | Workspace | 未 | `shared/tenancy.ts` 型のみ | REQ-S09 | スタブ |
-| REQ-E02 | User | 未 | 未 | REQ-S10 | 未着手 |
-| REQ-E03 | Membership | 未 | 未 | REQ-S09 | 未着手 |
-| REQ-E04 | Brand | 未 | 未 | REQ-S06 | 未着手 |
-| REQ-E05 | Site | 未 | 未 | REQ-S06 | 未着手 |
-| REQ-E06 | SiteBlueprint | 未 | 未 | REQ-S06 | 未着手 |
-| REQ-E07 | AuthorPersona | `people`（部分） | 未 | REQ-S04 | スタブ |
-| REQ-E08 | AudiencePersona | 未 | 未 | REQ-S04 | 未着手 |
-| REQ-E09 | ChannelConnection | 未 | 未 | REQ-S07 | 未着手 |
-| REQ-E10 | AffiliateAccount | `asps`（部分） | 未 | REQ-P09 | スタブ |
-| REQ-E11 | AffiliateProgram | `programs` | 未 | `/`（一覧のみ） | スタブ |
-| REQ-E12 | AffiliateLink | 未 | 未 | REQ-P09 | 未着手 |
-| REQ-E13 | TrackingLink（リポジトリ追補 §19.2.1） | 未 | 未 | REQ-P09 | 未着手 |
-| REQ-E14 | SourceArtifact | 未 | `shared/provenance.ts` 型 | REQ-S03 | スタブ |
-| REQ-E15 | Product | `products` | 未 | REQ-S03 | スタブ |
-| REQ-E16 | ProductVariant | 未 | 未 | REQ-S03 | 未着手 |
-| REQ-E17 | MerchantOffer | 未 | 未 | REQ-S03 | 未着手 |
-| REQ-E18 | ComparisonSet | 未 | 未 | REQ-S03 | 未着手 |
-| REQ-E19 | Claim | 未 | `evidence/claim.ts` | REQ-S03 | スタブ |
-| REQ-E20 | Evidence | 未 | `evidence/evidence.ts` | REQ-S03 | スタブ |
-| REQ-E21 | TestRun | 未 | 未 | REQ-S03 | 未着手 |
-| REQ-E22 | Campaign | 未 | 未 | REQ-S07 | 未着手 |
-| REQ-E23 | ContentPackage | 未 | 未 | REQ-S05 | 未着手 |
-| REQ-E24 | MasterBrief | 未 | 未 | REQ-S05 | 未着手 |
-| REQ-E25 | ContentVariant | `articles`（部分） | 未 | REQ-S05 | スタブ |
-| REQ-E26 | Asset | 未 | 未 | REQ-S06 | 未着手 |
-| REQ-E27 | Publication | 未 | 未 | REQ-S07 | 未着手 |
-| REQ-E28 | Metric | 未 | 未 | REQ-S08 | 未着手 |
-| REQ-E29 | Conversion | `conversions` | 未 | REQ-S08 | スタブ |
-| REQ-E30 | Experiment | 未 | 未 | REQ-S08 | 未着手 |
-| REQ-E31 | PolicyRule | `disclosures`（部分） | 未 | REQ-S06 | スタブ |
-| REQ-E32 | AuditLog | 未 | 未 | REQ-S09 | 未着手 |
+| REQ-E01 | Workspace | `identity/workspace.ts` | 見本データ | REQ-S09 | 実装済 |
+| REQ-E02 | User | `identity/user.ts`（認証情報を持つ場所が型に無いことをテストで固定） | 認証基盤側 | REQ-S09 | スタブ（解除条件: Google 認証の登録。秘密情報は利用者本人がブラウザから登録する） |
+| REQ-E03 | Membership | `identity/membership.ts` | 見本データ | REQ-S09 | 実装済 |
+| REQ-E04 | Brand | `identity/brand.ts` | 見本データ | REQ-S06 | 実装済 |
+| REQ-E05 | Site | `authoring/site.ts`（**広告表記が空だと公開できない**をテストで固定） | 見本データ | REQ-S06 | スタブ（解除条件: 画面がいま設計図と下書きで動いているため、公開状態の管理をこの型へ寄せる作業） |
+| REQ-E06 | SiteBlueprint | `authoring/site-blueprint.ts` | 見本データ | REQ-S06 | 実装済 |
+| REQ-E07 | AuthorPersona | `authoring/author-persona.ts` | `people` | REQ-S04 | 実装済 |
+| REQ-E08 | AudiencePersona | `authoring/audience-persona.ts` | 見本データ | REQ-S04 | 実装済 |
+| REQ-E09 | ChannelConnection | `distribution/channel.ts` | 見本データ | REQ-S07 | 実装済（各媒体への実接続のみスタブ） |
+| REQ-E10 | AffiliateAccount | `monetization/affiliate-program.ts` | `asps` | REQ-P09 | 実装済（ASP への実接続のみスタブ） |
+| REQ-E11 | AffiliateProgram | `monetization/affiliate-program.ts` | `programs` | REQ-P09 | 実装済 |
+| REQ-E12 | AffiliateLink | `monetization/affiliate-link.ts` | 見本データ | REQ-P09 | 実装済 |
+| REQ-E13 | TrackingLink（§19.2.1） | `monetization/tracking-link.ts`（**転送先を URL 文字列で持てない**ことをテストで固定） | 見本データ | REQ-P09 | スタブ（解除条件: `/go/<合言葉>` の転送経路の設置。型と判定は済んでいる） |
+| REQ-E14 | SourceArtifact | `shared/provenance.ts` | 見本データ | REQ-S03 | 実装済 |
+| REQ-E15 | Product | `product/product.ts` | `products` | REQ-S03 | 実装済 |
+| REQ-E16 | ProductVariant | `product/product.ts` | 見本データ | REQ-S03 | スタブ（解除条件: 色・容量ちがいを画面で分けて扱う要望が出たとき。いまは 1 商品 1 行で足りている） |
+| REQ-E17 | MerchantOffer | `product/merchant-offer.ts` | 見本データ | REQ-S03 | 実装済 |
+| REQ-E18 | ComparisonSet | `product/comparison.ts` | 見本データ | REQ-S03 | 実装済 |
+| REQ-E19 | Claim | `evidence/claim.ts` | 見本データ | REQ-S03 | 実装済 |
+| REQ-E20 | Evidence | `evidence/evidence.ts` | 見本データ | REQ-S03 | 実装済 |
+| REQ-E21 | TestRun | `evidence/evidence.ts` | 見本データ | REQ-S03 | 実装済 |
+| REQ-E22 | Campaign | `distribution/campaign.ts`（**報酬額を書ける場所が型に無い**ことをテストで固定） | 見本データ | REQ-S07 | スタブ（解除条件: 配信予定をまとめて扱う画面。単発の予定管理はすでに動いている） |
+| REQ-E23 | ContentPackage | `authoring/content-package.ts` | 見本データ | REQ-S05 | 実装済 |
+| REQ-E24 | MasterBrief | `authoring/master-brief.ts`（**原本に無い主張を原稿に足せない**をテストで固定） | 見本データ | REQ-S05 | スタブ（解除条件: 生成AIの呼び出し。原本から原稿を作る流れの入口がそこにある） |
+| REQ-E25 | ContentVariant | `authoring/content-variant.ts` | `articles` | REQ-S05 | 実装済 |
+| REQ-E26 | Asset | `authoring/asset.ts`（**由来・利用条件・代替テキストが無いと作れない**をテストで固定） | R2（`storage-r2.ts`） | REQ-S06 | スタブ（解除条件: 画像の登録画面。保管先の実装と型は済んでいる） |
+| REQ-E27 | Publication | `distribution/publication.ts` | 見本データ | REQ-S07 | 実装済 |
+| REQ-E28 | Metric | `analytics/metrics.ts` | 見本データ | REQ-S08 | 実装済（数字の元は見本データ） |
+| REQ-E29 | Conversion | `monetization/conversion.ts` | `conversions` | REQ-S08 | 実装済 |
+| REQ-E30 | Experiment | `analytics/experiment.ts`（**件数が足りないうちは判定できない**をテストで固定） | 見本データ | REQ-S08 | スタブ（解除条件: 実測値の取り込み。件数が無いと実験そのものが成立しない） |
+| REQ-E31 | PolicyRule | `compliance/policy-rule.ts` | `disclosures` | REQ-S06 | 実装済 |
+| REQ-E32 | AuditLog | `compliance/audit-log.ts` | 見本データ | REQ-S09 | スタブ（解除条件: 追記だけができる保存先。書き換えられる場所に置くと監査の意味が無くなるため、見本データのままにしている） |
+
+**32 件すべてにドメイン型がある。** 不変条件は `tests/domain/entity-invariants.test.ts` と
+`tests/domain/invariants.test.ts` が機械で確かめている。
 
 補助テーブル（§21 に明示はないが実装済）: `categories`, `articlePeople`, `articleProducts`, `faqs`, `updateLogs`。
 

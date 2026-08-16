@@ -63,6 +63,8 @@ export type ConversionId = Tagged<string, "ConversionId">;
 export type AffiliateIngestionId = Tagged<string, "AffiliateIngestionId">;
 /** 受信箱に入った成果リンク 1 件。上の取込とは別物なので ID も分ける。 */
 export type LinkIngestionId = Tagged<string, "LinkIngestionId">;
+/** 内部計測用の短縮リンク。ASP 発行 URL とは別物なので ID も分ける。 */
+export type TrackingLinkId = Tagged<string, "TrackingLinkId">;
 
 // Compliance
 export type DisclosureId = Tagged<string, "DisclosureId">;
@@ -104,3 +106,7 @@ export const asComparisonSetId = (v: string) => taggedString<"ComparisonSetId">(
 export const asChannelConnectionId = (v: string) => taggedString<"ChannelConnectionId">(v);
 export const asCampaignId = (v: string) => taggedString<"CampaignId">(v);
 export const asSiteBlueprintId = (v: string) => taggedString<"SiteBlueprintId">(v);
+export const asMasterBriefId = (v: string) => taggedString<"MasterBriefId">(v);
+export const asAssetId = (v: string) => taggedString<"AssetId">(v);
+export const asExperimentId = (v: string) => taggedString<"ExperimentId">(v);
+export const asTrackingLinkId = (v: string) => taggedString<"TrackingLinkId">(v);
