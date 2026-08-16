@@ -21,6 +21,18 @@ const eslintConfig = defineConfig([
     ".claude/plugins/**",
   ]),
 
+  // `_` 始まりは「今は使わないが、契約上そこにある引数」を表す。
+  // たたき台のスタブでは、本実装で使う引数を先に受け取っておくことが多い。
+  {
+    files: ["src/**/*.ts", "src/**/*.tsx", "tests/**/*.ts"],
+    rules: {
+      "@typescript-eslint/no-unused-vars": [
+        "warn",
+        { argsIgnorePattern: "^_", varsIgnorePattern: "^_", caughtErrorsIgnorePattern: "^_" },
+      ],
+    },
+  },
+
   // 依存方向の境界。編集中に気づけるよう lint でも止める。
   // 取りこぼしのない検査は tests/architecture/dependency-direction.test.ts が行う。
   {
