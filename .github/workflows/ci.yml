@@ -1,4 +1,12 @@
-name: CI
+# 検査だけを行う。壊すものは何も無い。
+#
+# 中身を**ここに書かない**。走らせる検査と順番は `quality-gates.config.mjs` が
+# 唯一の正本で、このファイルは `pnpm run verify` を呼ぶだけにしてある。
+# ここに項目を書き足した瞬間、手元と機械で別々の基準が育ち、
+# 「手元では通るのに機械で落ちる」が始まる。
+#
+# 規範: docs/spec/11-CI-CD・品質ゲート仕様.md / docs/product/ci-cd-guide.md
+name: 検査
 
 on:
   pull_request:
@@ -6,12 +14,20 @@ on:
   workflow_dispatch:
 
 concurrency:
+  # 続けて push したとき、古い実行を打ち切る。
   group: ci-${{ github.ref }}
   cancel-in-progress: true
 
+permissions:
+  contents: read
+
 jobs:
   verify:
+    name: pnpm verify
     runs-on: ubuntu-latest
+    # 暴走したジョブは既定で 6 時間走り続ける。これは節約ではなく安全弁。
+    timeout-minutes: 20
+
     steps:
       - uses: actions/checkout@v4
 
@@ -24,18 +40,16 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
 
-      - name: Lint
-        run: pnpm lint
+      # 型検査 → 書き方 → テスト → カバレッジ閾値 → 層別の記録 → 脆弱性。
+      # 順番と閾値は quality-gates.config.mjs にある。
+      #
+      # 本番ビルド (`pnpm build`) はここでは行わない。
+      # 型に必要なのは `next typegen` までで、ビルドは公開側で 1 回やれば足りる。
+      - name: 検査一式
+        run: pnpm run verify
 
-      # LayoutProps などの型は next build が .next/types に生成するため、
-      # typecheck は build のあとに走らせる必要がある
-      - name: Build
-        run: pnpm build
-
-      - name: Typecheck
-        run: pnpm typecheck
-
-      # スキーマを変更したのに db:generate を忘れていないか検出する
+      # スキーマを変えたのにマイグレーションを作り忘れていないか。
+      # 忘れると、公開したコードが存在しない列を読んで本番が落ちる。
       - name: マイグレーション未生成の検出
         run: |
           pnpm db:generate

@@ -442,13 +442,13 @@ D1 への差し替えは、この列だけを別の実装に取り替えれば�
 
 | REQ | 要件 | 実装 | 画面 | 導線 | 状態 | RWD | a11y | test | 結果 |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| REQ-CI01 | `pnpm verify` が CI とまったく同じ検査を再現する（機械の上でしか試せない状態を作らない） | `scripts/verify.mjs`、`package.json` の `verify` | — | — | — | — | — | 未実施 | 未着手 |
-| REQ-CI02 | 閾値と検査項目を**1 箇所**に集め、CI 設定と手元の設定が別々に育たないようにする | `quality-gates.config.mjs`（読み手は `vitest.config.mts` / `scripts/verify.mjs` / `scripts/coverage-report.mjs` / `tests/architecture/quality-gates.test.ts` の 4 つ） | — | — | — | — | — | 未実施 | 未着手 |
-| REQ-CI03 | 検査の順番を固定する（型 → 静的検査 → 単体 → 結合 → 画面/読み上げ → カバレッジ閾値 → ビルド → 公開） | `.github/workflows/ci.yml` と `scripts/verify.mjs` の両方で同じ順 | — | — | — | — | — | 現行の `ci.yml` は**テストを走らせていない**（lint / build / typecheck / マイグレーション未生成チェックのみ） | 未着手（現行を置き換える） |
-| REQ-CI04 | ワークフローは 3 本だけ（検査 / 公開 / データの形の変更）。重複を残さない | `.github/workflows/{ci,deploy,migrate}.yml`。現行の `deploy-dev.yml` と `deploy-prod.yml` を 1 本に統合して削除する | — | — | — | — | — | 未実施 | 未着手 |
-| REQ-CI05 | データの形の変更を自動で走らせない。手動起動＋確認文字列 `APPLY` を必須にし、順番は「形の変更 → 公開」 | `.github/workflows/migrate.yml` | — | — | — | — | — | 現行の `deploy-prod.yml` は**公開の前に本番マイグレーションを自動実行している**（この要件に反する） | 未着手（現行が違反） |
-| REQ-CI06 | 公開後のスモークテストを**間隔を空けて 2 回**行い、落ちたら緑で通さない | `.github/scripts/smoke.sh`（30 秒 → 1 回目 → 90 秒 → 2 回目） | — | — | — | — | — | 未実施 | 未着手 |
-| REQ-CI07 | 秘密情報は GitHub Secrets と Cloudflare の環境変数にだけ置く。**登録は利用者本人が行い、代行しない** | `.dev.vars.example`（値を書かない）、`docs/product/ci-cd-guide.md` §8 に本人が実行する手順 | — | — | — | — | — | リポジトリ内に秘密情報が無いことは `tests/architecture/` の契約検査で見る（未作成） | 未着手（検査部分） |
+| REQ-CI01 | `pnpm verify` が CI とまったく同じ検査を再現する（機械の上でしか試せない状態を作らない） | `scripts/verify.mjs`、`package.json` の `verify` | — | — | — | — | — | PASS。`ci.yml` の検査ステップは `pnpm run verify` の 1 行のみ。**わざと壊して確認済**（型の誤りを 1 つ入れて終了コード 1、後続 4 件は実行せず停止、案内は ci-cd-guide ④） | **実装済** |
+| REQ-CI02 | 閾値と検査項目を**1 箇所**に集め、CI 設定と手元の設定が別々に育たないようにする | `quality-gates.config.mjs`（読み手は `vitest.config.mts` / `scripts/verify.mjs` / `scripts/coverage-report.mjs` / `tests/architecture/quality-gates.test.ts` の 4 つ） | — | — | — | — | — | PASS（`tests/architecture/quality-gates.test.ts` 13 件）。`.github/workflows/` に閾値が書き写されていないことも同テストが機械的に検査する | **実装済** |
+| REQ-CI03 | 検査の順番を固定する（型 → 静的検査 → 単体 → 結合 → 画面/読み上げ → カバレッジ閾値 → ビルド → 公開） | `quality-gates.config.mjs` の `CHECKS` が唯一の正本（`ci.yml` は順番を持たない） | — | — | — | — | — | PASS。順番の固定は `quality-gates.config.mjs` 側にあり、`ci.yml` は呼ぶだけなので**ずれようがない**。ビルドは検査では行わず公開時に 1 回だけ（型の確認は `next typegen` で足りる。理由は ci-cd-guide ②） | **実装済** |
+| REQ-CI04 | ワークフローは 3 本だけ（検査 / 公開 / データの形の変更）。重複を残さない | `.github/workflows/{ci,deploy,migrate}.yml` | — | — | — | — | — | PASS。旧 `deploy-dev.yml` / `deploy-prod.yml` は削除済み。出し先は枝で決まる（`dev`→試し場 / `main`→本番） | **実装済** |
+| REQ-CI05 | データの形の変更を自動で走らせない。手動起動＋確認文字列 `APPLY` を必須にし、順番は「形の変更 → 公開」 | `.github/workflows/migrate.yml` | — | — | — | — | — | PASS。`workflow_dispatch` のみ。`confirm != 'APPLY'` で最初のステップが失敗する。適用前に `wrangler d1 export` で控えを取り、成果物として 30 日保管。`deploy.yml` にマイグレーションは 1 行も無い | **実装済** |
+| REQ-CI06 | 公開後のスモークテストを**間隔を空けて 2 回**行い、落ちたら緑で通さない | `.github/scripts/smoke.sh`（30 秒 → 1 回目 → 90 秒 → 2 回目） | — | — | — | — | — | 構文は確認済（`bash -n`）。判定は 2 回目で行い、落ちたら `exit 1`。**本番 URL に対する実行は未実施**（公開が未了のため） | **実装済**（実行は公開後） |
+| REQ-CI07 | 秘密情報は GitHub Secrets と Cloudflare の環境変数にだけ置く。**登録は利用者本人が行い、代行しない** | `.dev.vars.example`（値を書かない）、`docs/product/ci-cd-guide.md` §8 に本人が実行する手順 | — | — | — | — | — | 手順は整備済（値をコマンドに書かせない書き方、権限を絞る指定、`MCP_TOKEN` 未登録時に 503 で閉じることの説明）。リポジトリ内に秘密情報が無いことの**自動検査は未作成**（残課題 19） | 着手中（検査部分が残り） |
 | REQ-CI08 | 非エンジニアが読める運用説明（何を見ているか / 落ちたらどうするか / どう公開し、どう戻すか） | `docs/product/ci-cd-guide.md` | — | — | — | — | — | 文書のため自動検査の対象外。`docs/spec/00-README.md` からの参照切れは既存の文書検査で見る | **実装済** |
 
 **「わざと壊して赤くなることを確認する」まで済ませて初めて、この節を PASS にする。**

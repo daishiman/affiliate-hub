@@ -27,6 +27,9 @@ yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 
+# データの形を変える前に取る控え。中身は本番データそのものなので置いていかない。
+.backup/
+
 # テスト・キャッシュ
 coverage/
 .cache/
