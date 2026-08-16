@@ -1,0 +1,181 @@
+{
+  "schema": "dev-graph-requirements-handoff/v1",
+  "handoff_target": "task-graph",
+  "feature_id": "feat-auth-workspace",
+  "feature_package_id": "feature-package/feat-auth-workspace",
+  "graph_snapshot_digest": "sha256:07b7d9605438e6e26a5e1b7fb4f24ff747c12dd7484fee600fa917b2c2eca81d",
+  "graph_revision": 65,
+  "requirements_document": "docs/requirements/feat-auth-workspace-implementation-requirements.md",
+  "requirements_document_sha256": "sha256:dfbb2aa287213de39d0fbe17cdf13dea0cbdf0ad37496402125e1cedecc4bcbe",
+  "promoted_generation": ".dev-graph/published/generations/feature-package-feat-auth-workspace/35483f66bb1988fc2b3ede65937a16e41d29637c455a092e3fa463c0c90fbb0c",
+  "lineage_closure": [
+    "arch-system-spec-overview",
+    "feat-auth-workspace",
+    "SYS-AUTH-WORKSPACE-P01",
+    "SYS-AUTH-WORKSPACE-P02",
+    "SYS-AUTH-WORKSPACE-P03",
+    "SYS-AUTH-WORKSPACE-P04",
+    "SYS-AUTH-WORKSPACE-P05",
+    "SYS-AUTH-WORKSPACE-P06",
+    "SYS-AUTH-WORKSPACE-P07",
+    "SYS-AUTH-WORKSPACE-P08",
+    "SYS-AUTH-WORKSPACE-P09",
+    "SYS-AUTH-WORKSPACE-P10",
+    "SYS-AUTH-WORKSPACE-P11",
+    "SYS-AUTH-WORKSPACE-P12",
+    "SYS-AUTH-WORKSPACE-P13"
+  ],
+  "readiness": {
+    "status": "complete",
+    "missing_sections": [],
+    "remediation_owner": null
+  },
+  "gates": {
+    "C11_validate_graph_schema": {
+      "command": "validate-graph-schema.py --graph .dev-graph/state/graph.json --repo-root .",
+      "exit": 0,
+      "valid": true,
+      "violations": 0
+    },
+    "C02_saved_state": {
+      "implementation_readiness": "complete",
+      "evaluation_status": "pass",
+      "confirmation_status": "confirmed",
+      "scope": "closure 15 node"
+    },
+    "source_digest": {
+      "command": "validate-source-digest.py --registered <closure 15>",
+      "exit": 0,
+      "checked": 15,
+      "registered_mismatch": 0
+    },
+    "validate_system_plan": {
+      "command": "validate-system-plan.py --repo-root . --feature-package feature-package/feat-auth-workspace",
+      "exit": 0,
+      "status": "pass",
+      "violations": 0,
+      "contract_version": "1.3.0"
+    }
+  },
+  "tasks": [
+    {
+      "graph_node_id": "SYS-AUTH-WORKSPACE-P01",
+      "phase_ref": "P01",
+      "file_path": "tasks/feat-auth-workspace/sys-auth-workspace-p01.md",
+      "tracker_binding": "beads",
+      "depends_on": []
+    },
+    {
+      "graph_node_id": "SYS-AUTH-WORKSPACE-P02",
+      "phase_ref": "P02",
+      "file_path": "tasks/feat-auth-workspace/sys-auth-workspace-p02.md",
+      "tracker_binding": "beads",
+      "depends_on": [
+        "SYS-AUTH-WORKSPACE-P01"
+      ]
+    },
+    {
+      "graph_node_id": "SYS-AUTH-WORKSPACE-P03",
+      "phase_ref": "P03",
+      "file_path": "tasks/feat-auth-workspace/sys-auth-workspace-p03.md",
+      "tracker_binding": "beads",
+      "depends_on": [
+        "SYS-AUTH-WORKSPACE-P02"
+      ]
+    },
+    {
+      "graph_node_id": "SYS-AUTH-WORKSPACE-P04",
+      "phase_ref": "P04",
+      "file_path": "tasks/feat-auth-workspace/sys-auth-workspace-p04.md",
+      "tracker_binding": "beads",
+      "depends_on": [
+        "SYS-AUTH-WORKSPACE-P03"
+      ]
+    },
+    {
+      "graph_node_id": "SYS-AUTH-WORKSPACE-P05",
+      "phase_ref": "P05",
+      "file_path": "tasks/feat-auth-workspace/sys-auth-workspace-p05.md",
+      "tracker_binding": "beads",
+      "depends_on": [
+        "SYS-AUTH-WORKSPACE-P04"
+      ]
+    },
+    {
+      "graph_node_id": "SYS-AUTH-WORKSPACE-P06",
+      "phase_ref": "P06",
+      "file_path": "tasks/feat-auth-workspace/sys-auth-workspace-p06.md",
+      "tracker_binding": "beads",
+      "depends_on": [
+        "SYS-AUTH-WORKSPACE-P05"
+      ]
+    },
+    {
+      "graph_node_id": "SYS-AUTH-WORKSPACE-P07",
+      "phase_ref": "P07",
+      "file_path": "tasks/feat-auth-workspace/sys-auth-workspace-p07.md",
+      "tracker_binding": "beads",
+      "depends_on": [
+        "SYS-AUTH-WORKSPACE-P06"
+      ]
+    },
+    {
+      "graph_node_id": "SYS-AUTH-WORKSPACE-P08",
+      "phase_ref": "P08",
+      "file_path": "tasks/feat-auth-workspace/sys-auth-workspace-p08.md",
+      "tracker_binding": "beads",
+      "depends_on": [
+        "SYS-AUTH-WORKSPACE-P05"
+      ]
+    },
+    {
+      "graph_node_id": "SYS-AUTH-WORKSPACE-P09",
+      "phase_ref": "P09",
+      "file_path": "tasks/feat-auth-workspace/sys-auth-workspace-p09.md",
+      "tracker_binding": "beads",
+      "depends_on": [
+        "SYS-AUTH-WORKSPACE-P08"
+      ]
+    },
+    {
+      "graph_node_id": "SYS-AUTH-WORKSPACE-P10",
+      "phase_ref": "P10",
+      "file_path": "tasks/feat-auth-workspace/sys-auth-workspace-p10.md",
+      "tracker_binding": "beads",
+      "depends_on": [
+        "SYS-AUTH-WORKSPACE-P09"
+      ]
+    },
+    {
+      "graph_node_id": "SYS-AUTH-WORKSPACE-P11",
+      "phase_ref": "P11",
+      "file_path": "tasks/feat-auth-workspace/sys-auth-workspace-p11.md",
+      "tracker_binding": "beads",
+      "depends_on": [
+        "SYS-AUTH-WORKSPACE-P07",
+        "SYS-AUTH-WORKSPACE-P09"
+      ]
+    },
+    {
+      "graph_node_id": "SYS-AUTH-WORKSPACE-P12",
+      "phase_ref": "P12",
+      "file_path": "tasks/feat-auth-workspace/sys-auth-workspace-p12.md",
+      "tracker_binding": "beads",
+      "depends_on": [
+        "SYS-AUTH-WORKSPACE-P10",
+        "SYS-AUTH-WORKSPACE-P11"
+      ]
+    },
+    {
+      "graph_node_id": "SYS-AUTH-WORKSPACE-P13",
+      "phase_ref": "P13",
+      "file_path": "tasks/feat-auth-workspace/sys-auth-workspace-p13.md",
+      "tracker_binding": "beads",
+      "depends_on": [
+        "SYS-AUTH-WORKSPACE-P12"
+      ]
+    }
+  ],
+  "implementation_code_generated": 0,
+  "emitted_at": "2026-08-16T13:40:00Z"
+}

@@ -1,5 +1,5 @@
 {
-  "graph_revision": 39,
+  "graph_revision": 79,
   "nodes": [
     {
       "acceptance": [],
@@ -1010,7 +1010,12 @@
       ],
       "artifact_kind": "feature",
       "artifact_subtypes": [],
-      "beads_linkage": null,
+      "beads_linkage": {
+        "bd_issue_id": "ah-361",
+        "github_mirror": null,
+        "linked_at": "2026-08-16T13:00:16Z",
+        "sync_state": "linked"
+      },
       "classification_candidates": [
         {
           "artifact_kind": "feature",
@@ -1108,7 +1113,7 @@
       "template_version": "1.0.0",
       "title": "認証とWorkspace/Brand基盤",
       "tracker_binding": "beads",
-      "updated_at": "2026-08-16T12:39:37Z"
+      "updated_at": "2026-08-16T13:01:11.380750Z"
     },
     {
       "acceptance": [
@@ -2819,9 +2824,22 @@
       "updated_at": "2026-08-16T12:20:00Z"
     },
     {
+      "acceptance": [
+        "Automated commands: `pnpm run preview` (Workers ランタイム, localhost:8787) 上で P01 に対応する検証コマンドを実行する",
+        "Automated commands: `python3 .claude/plugins/system-dev-planner/scripts/validate-system-plan.py --repo-root . --feature-package feature-package/feat-auth-workspace` (本 package の C12 決定論検証を世代非依存に再実行する)",
+        "Required evidence: P01 の 成果物 section に記載した produced artifacts のパス"
+      ],
+      "architecture_refs": [
+        "arch-system-spec-overview"
+      ],
       "artifact_kind": "task",
       "artifact_subtypes": [],
-      "beads_linkage": null,
+      "beads_linkage": {
+        "bd_issue_id": "ah-361.1",
+        "github_mirror": null,
+        "linked_at": "2026-08-16T13:00:16Z",
+        "sync_state": "linked"
+      },
       "classification_candidates": [
         {
           "artifact_kind": "task",
@@ -2859,6 +2877,7 @@
         "mode": "local_only",
         "project_aliases": []
       },
+      "goal": "feat-auth-workspace の4件の受け入れ条件 (未ログイン遷移/workspace_id分離/標準CTA・標準免責の既定値受渡し/権限なしロールの403) を、実装着手前に一意で検証可能な要求ベースラインとして確定した状態を成立させる。",
       "graph_node_id": "SYS-AUTH-WORKSPACE-P01",
       "implementation_readiness": {
         "checked_at": "2026-08-16T21:00:00Z",
@@ -2875,9 +2894,19 @@
       "priority": null,
       "project_id": "feature-package-feat-auth-workspace",
       "pull_request_linkages": [],
+      "purpose": "feat-auth-workspace の4件の受け入れ条件 (未ログイン遷移/workspace_id分離/標準CTA・標準免責の既定値受渡し/権限なしロールの403) を、実装着手前に一意で検証可能な要求ベースラインとして確定した状態を成立させる。",
       "related_nodes": [],
       "resource_scope": [
         "docs/spec/feat-auth-workspace/requirements-baseline.md"
+      ],
+      "scope_in": [
+        "Produced artifacts: docs/spec/feat-auth-workspace/requirements-baseline.md (4受け入れ条件のトレーサビリティ表を含む)",
+        "Consumed artifacts: system-spec/00-requirements-definition.md, system-spec/auth.md, system-spec/security.md, system-spec/database.md",
+        "Write scope/touches: docs/spec/feat-auth-workspace/requirements-baseline.md"
+      ],
+      "scope_out": [
+        "feat-auth-workspace の scope_out (外部プラットフォームのアカウント接続, 課金, SSO/SCIM) に該当する変更",
+        "write_scope 外のパスへの変更"
       ],
       "source_lineage": {
         "imported_at": "2026-08-16T12:39:37Z",
@@ -2898,12 +2927,25 @@
       "template_version": "1.1.0",
       "title": "認証/Workspace 基盤の要求ベースライン確定",
       "tracker_binding": "beads",
-      "updated_at": "2026-08-16T12:39:37Z"
+      "updated_at": "2026-08-16T13:01:14.641299Z"
     },
     {
+      "acceptance": [
+        "Automated commands: `pnpm run preview` (Workers ランタイム, localhost:8787) 上で P02 に対応する検証コマンドを実行する",
+        "Automated commands: `python3 .claude/plugins/system-dev-planner/scripts/validate-system-plan.py --repo-root . --feature-package feature-package/feat-auth-workspace` (本 package の C12 決定論検証を世代非依存に再実行する)",
+        "Required evidence: P02 の 成果物 section に記載した produced artifacts のパス"
+      ],
+      "architecture_refs": [
+        "arch-system-spec-overview"
+      ],
       "artifact_kind": "task",
       "artifact_subtypes": [],
-      "beads_linkage": null,
+      "beads_linkage": {
+        "bd_issue_id": "ah-361.2",
+        "github_mirror": null,
+        "linked_at": "2026-08-16T13:00:16Z",
+        "sync_state": "linked"
+      },
       "classification_candidates": [
         {
           "artifact_kind": "task",
@@ -2943,6 +2985,7 @@
         "mode": "local_only",
         "project_aliases": []
       },
+      "goal": "Better Auth + Google OAuth によるサインイン、Workspace/Brand 作成・切替、全テーブルへの workspace_id 付与、ロール別操作制限の4領域を、frontend/backend/API/data の設計として確定し、P01 のベースラインを満たす実装可能な設計状態を成立させる。",
       "graph_node_id": "SYS-AUTH-WORKSPACE-P02",
       "implementation_readiness": {
         "checked_at": "2026-08-16T21:00:00Z",
@@ -2959,10 +3002,20 @@
       "priority": null,
       "project_id": "feature-package-feat-auth-workspace",
       "pull_request_linkages": [],
+      "purpose": "Better Auth + Google OAuth によるサインイン、Workspace/Brand 作成・切替、全テーブルへの workspace_id 付与、ロール別操作制限の4領域を、frontend/backend/API/data の設計として確定し、P01 のベースラインを満たす実装可能な設計状態を成立させる。",
       "related_nodes": [],
       "resource_scope": [
         "docs/spec/feat-auth-workspace/architecture-design.md",
         "architecture/system-spec-overview.md"
+      ],
+      "scope_in": [
+        "Produced artifacts: docs/spec/feat-auth-workspace/architecture-design.md, architecture/system-spec-overview.md (feat-auth-workspace 節)",
+        "Consumed artifacts: docs/spec/feat-auth-workspace/requirements-baseline.md, system-spec/auth.md, system-spec/database.md, system-spec/security.md",
+        "Write scope/touches: docs/spec/feat-auth-workspace/architecture-design.md, architecture/system-spec-overview.md"
+      ],
+      "scope_out": [
+        "feat-auth-workspace の scope_out (外部プラットフォームのアカウント接続, 課金, SSO/SCIM) に該当する変更",
+        "write_scope 外のパスへの変更"
       ],
       "source_lineage": {
         "imported_at": "2026-08-16T12:39:37Z",
@@ -2983,12 +3036,25 @@
       "template_version": "1.1.0",
       "title": "認証/Workspace/Brand/RBAC アーキテクチャ設計",
       "tracker_binding": "beads",
-      "updated_at": "2026-08-16T12:39:37Z"
+      "updated_at": "2026-08-16T13:01:17.955435Z"
     },
     {
+      "acceptance": [
+        "Automated commands: `pnpm run preview` (Workers ランタイム, localhost:8787) 上で P03 に対応する検証コマンドを実行する",
+        "Automated commands: `python3 .claude/plugins/system-dev-planner/scripts/validate-system-plan.py --repo-root . --feature-package feature-package/feat-auth-workspace` (本 package の C12 決定論検証を世代非依存に再実行する)",
+        "Required evidence: P03 の 成果物 section に記載した produced artifacts のパス"
+      ],
+      "architecture_refs": [
+        "arch-system-spec-overview"
+      ],
       "artifact_kind": "task",
       "artifact_subtypes": [],
-      "beads_linkage": null,
+      "beads_linkage": {
+        "bd_issue_id": "ah-361.3",
+        "github_mirror": null,
+        "linked_at": "2026-08-16T13:00:16Z",
+        "sync_state": "linked"
+      },
       "classification_candidates": [
         {
           "artifact_kind": "task",
@@ -3028,6 +3094,7 @@
         "mode": "local_only",
         "project_aliases": []
       },
+      "goal": "P02 の設計が feat-auth-workspace の4受け入れ条件を満たせる設計であることを、設計者から独立した観点でレビューし、実装着手前に整合性・網羅性を確定する。",
       "graph_node_id": "SYS-AUTH-WORKSPACE-P03",
       "implementation_readiness": {
         "checked_at": "2026-08-16T21:00:00Z",
@@ -3044,9 +3111,19 @@
       "priority": null,
       "project_id": "feature-package-feat-auth-workspace",
       "pull_request_linkages": [],
+      "purpose": "P02 の設計が feat-auth-workspace の4受け入れ条件を満たせる設計であることを、設計者から独立した観点でレビューし、実装着手前に整合性・網羅性を確定する。",
       "related_nodes": [],
       "resource_scope": [
         "docs/spec/feat-auth-workspace/design-review-log.md"
+      ],
+      "scope_in": [
+        "Produced artifacts: docs/spec/feat-auth-workspace/design-review-log.md (指摘事項と解消記録)",
+        "Consumed artifacts: docs/spec/feat-auth-workspace/architecture-design.md",
+        "Write scope/touches: docs/spec/feat-auth-workspace/design-review-log.md"
+      ],
+      "scope_out": [
+        "feat-auth-workspace の scope_out (外部プラットフォームのアカウント接続, 課金, SSO/SCIM) に該当する変更",
+        "write_scope 外のパスへの変更"
       ],
       "source_lineage": {
         "imported_at": "2026-08-16T12:39:37Z",
@@ -3067,12 +3144,25 @@
       "template_version": "1.1.0",
       "title": "アーキテクチャ独立設計レビュー",
       "tracker_binding": "beads",
-      "updated_at": "2026-08-16T12:39:37Z"
+      "updated_at": "2026-08-16T13:01:21.466055Z"
     },
     {
+      "acceptance": [
+        "Automated commands: `pnpm run preview` (Workers ランタイム, localhost:8787) 上で P04 に対応する検証コマンドを実行する",
+        "Automated commands: `python3 .claude/plugins/system-dev-planner/scripts/validate-system-plan.py --repo-root . --feature-package feature-package/feat-auth-workspace` (本 package の C12 決定論検証を世代非依存に再実行する)",
+        "Required evidence: P04 の 成果物 section に記載した produced artifacts のパス"
+      ],
+      "architecture_refs": [
+        "arch-system-spec-overview"
+      ],
       "artifact_kind": "task",
       "artifact_subtypes": [],
-      "beads_linkage": null,
+      "beads_linkage": {
+        "bd_issue_id": "ah-361.4",
+        "github_mirror": null,
+        "linked_at": "2026-08-16T13:00:16Z",
+        "sync_state": "linked"
+      },
       "classification_candidates": [
         {
           "artifact_kind": "task",
@@ -3112,6 +3202,7 @@
         "mode": "local_only",
         "project_aliases": []
       },
+      "goal": "4件の受け入れ条件 (A1〜A4) それぞれについて、実装前に自動テストの契約 (前提/操作/期待結果) を確定し、P05 実装が満たすべき合格基準を実行可能な形で用意した状態を成立させる。",
       "graph_node_id": "SYS-AUTH-WORKSPACE-P04",
       "implementation_readiness": {
         "checked_at": "2026-08-16T21:00:00Z",
@@ -3128,6 +3219,7 @@
       "priority": null,
       "project_id": "feature-package-feat-auth-workspace",
       "pull_request_linkages": [],
+      "purpose": "4件の受け入れ条件 (A1〜A4) それぞれについて、実装前に自動テストの契約 (前提/操作/期待結果) を確定し、P05 実装が満たすべき合格基準を実行可能な形で用意した状態を成立させる。",
       "related_nodes": [],
       "resource_scope": [
         "src/lib/auth/__tests__/login-redirect.spec.ts",
@@ -3135,6 +3227,15 @@
         "src/lib/brand/__tests__/brand-defaults.spec.ts",
         "src/lib/rbac/__tests__/role-403.spec.ts",
         "docs/spec/feat-auth-workspace/test-design.md"
+      ],
+      "scope_in": [
+        "Produced artifacts: src/lib/auth/__tests__/login-redirect.spec.ts, src/lib/workspace/__tests__/workspace-isolation.spec.ts, src/lib/brand/__tests__/brand-defaults.spec.ts, src/lib/rbac/__tests__/role-403.spec.ts (すべてテスト骨格であり P05 実装で緑化する)",
+        "Consumed artifacts: docs/spec/feat-auth-workspace/architecture-design.md, docs/spec/feat-auth-workspace/design-review-log.md",
+        "Write scope/touches: src/lib/auth/__tests__/login-redirect.spec.ts, src/lib/workspace/__tests__/workspace-isolation.spec.ts, src/lib/brand/__tests__/brand-defaults.spec.ts, src/lib/rbac/__tests__/role-403.spec.ts, docs/spec/feat-auth-workspace/test-design.md"
+      ],
+      "scope_out": [
+        "feat-auth-workspace の scope_out (外部プラットフォームのアカウント接続, 課金, SSO/SCIM) に該当する変更",
+        "write_scope 外のパスへの変更"
       ],
       "source_lineage": {
         "imported_at": "2026-08-16T12:39:37Z",
@@ -3155,12 +3256,25 @@
       "template_version": "1.1.0",
       "title": "受け入れ条件に基づくテストファースト設計",
       "tracker_binding": "beads",
-      "updated_at": "2026-08-16T12:39:37Z"
+      "updated_at": "2026-08-16T13:01:24.707942Z"
     },
     {
+      "acceptance": [
+        "Automated commands: `pnpm run preview` (Workers ランタイム, localhost:8787) 上で P05 に対応する検証コマンドを実行する",
+        "Automated commands: `python3 .claude/plugins/system-dev-planner/scripts/validate-system-plan.py --repo-root . --feature-package feature-package/feat-auth-workspace` (本 package の C12 決定論検証を世代非依存に再実行する)",
+        "Required evidence: P05 の 成果物 section に記載した produced artifacts のパス"
+      ],
+      "architecture_refs": [
+        "arch-system-spec-overview"
+      ],
       "artifact_kind": "task",
       "artifact_subtypes": [],
-      "beads_linkage": null,
+      "beads_linkage": {
+        "bd_issue_id": "ah-361.5",
+        "github_mirror": null,
+        "linked_at": "2026-08-16T13:00:16Z",
+        "sync_state": "linked"
+      },
       "classification_candidates": [
         {
           "artifact_kind": "task",
@@ -3200,6 +3314,7 @@
         "mode": "local_only",
         "project_aliases": []
       },
+      "goal": "Better Auth + Google OAuth のサインイン、Workspace/Brand の作成・切替、全テーブルへの workspace_id 付与、ロール別操作制限を実装し、P04 で設計した4テストが緑化する状態を成立させる。",
       "graph_node_id": "SYS-AUTH-WORKSPACE-P05",
       "implementation_readiness": {
         "checked_at": "2026-08-16T21:00:00Z",
@@ -3216,6 +3331,7 @@
       "priority": null,
       "project_id": "feature-package-feat-auth-workspace",
       "pull_request_linkages": [],
+      "purpose": "Better Auth + Google OAuth のサインイン、Workspace/Brand の作成・切替、全テーブルへの workspace_id 付与、ロール別操作制限を実装し、P04 で設計した4テストが緑化する状態を成立させる。",
       "related_nodes": [],
       "resource_scope": [
         "src/lib/auth/",
@@ -3225,6 +3341,15 @@
         "src/lib/rbac/",
         "drizzle/schema/",
         "src/app/api/"
+      ],
+      "scope_in": [
+        "Produced artifacts: src/lib/auth/ (Better Auth 設定・Google OAuth), src/middleware.ts (未ログイン時のログイン画面遷移), src/lib/workspace/ (Workspace/Brand 作成・切替・workspace_id スコープ), src/lib/rbac/ (ロール判定・403応答), drizzle/schema/ (全テーブルへの workspace_id 列)",
+        "Consumed artifacts: src/lib/auth/__tests__/*, src/lib/workspace/__tests__/*, src/lib/brand/__tests__/*, src/lib/rbac/__tests__/*",
+        "Write scope/touches: src/lib/auth/, src/middleware.ts, src/lib/workspace/, src/lib/brand/, src/lib/rbac/, drizzle/schema/, src/app/api/"
+      ],
+      "scope_out": [
+        "feat-auth-workspace の scope_out (外部プラットフォームのアカウント接続, 課金, SSO/SCIM) に該当する変更",
+        "write_scope 外のパスへの変更"
       ],
       "source_lineage": {
         "imported_at": "2026-08-16T12:39:37Z",
@@ -3245,12 +3370,26 @@
       "template_version": "1.1.0",
       "title": "Better Auth・Workspace・RBAC 実装",
       "tracker_binding": "beads",
-      "updated_at": "2026-08-16T12:39:37Z"
+      "updated_at": "2026-08-16T13:01:28.069852Z"
     },
     {
+      "acceptance": [
+        "Automated commands: `pnpm run preview` (Workers ランタイム, localhost:8787) 上で P06 に対応する検証コマンドを実行する",
+        "Automated commands: `pnpm vitest run --coverage` (単体/結合/境界値/回帰テストを実行し P06 の証跡を得る)",
+        "Automated commands: `python3 .claude/plugins/system-dev-planner/scripts/validate-system-plan.py --repo-root . --feature-package feature-package/feat-auth-workspace` (本 package の C12 決定論検証を世代非依存に再実行する)",
+        "Required evidence: P06 の 成果物 section に記載した produced artifacts のパス"
+      ],
+      "architecture_refs": [
+        "arch-system-spec-overview"
+      ],
       "artifact_kind": "task",
       "artifact_subtypes": [],
-      "beads_linkage": null,
+      "beads_linkage": {
+        "bd_issue_id": "ah-361.6",
+        "github_mirror": null,
+        "linked_at": "2026-08-16T13:00:16Z",
+        "sync_state": "linked"
+      },
       "classification_candidates": [
         {
           "artifact_kind": "task",
@@ -3290,6 +3429,7 @@
         "mode": "local_only",
         "project_aliases": []
       },
+      "goal": "P04 で設計し P05 で実装した4テストスイートを pnpm run preview (Workers ランタイム, localhost:8787) 上で実行し、4受け入れ条件それぞれが緑であることを確定する。",
       "graph_node_id": "SYS-AUTH-WORKSPACE-P06",
       "implementation_readiness": {
         "checked_at": "2026-08-16T21:00:00Z",
@@ -3306,9 +3446,19 @@
       "priority": null,
       "project_id": "feature-package-feat-auth-workspace",
       "pull_request_linkages": [],
+      "purpose": "P04 で設計し P05 で実装した4テストスイートを pnpm run preview (Workers ランタイム, localhost:8787) 上で実行し、4受け入れ条件それぞれが緑であることを確定する。",
       "related_nodes": [],
       "resource_scope": [
         "evidence/P06/"
+      ],
+      "scope_in": [
+        "Produced artifacts: evidence/P06/test-results.json, evidence/P06/coverage-summary.json",
+        "Consumed artifacts: src/lib/auth/__tests__/*, src/lib/workspace/__tests__/*, src/lib/brand/__tests__/*, src/lib/rbac/__tests__/*",
+        "Write scope/touches: evidence/P06/"
+      ],
+      "scope_out": [
+        "feat-auth-workspace の scope_out (外部プラットフォームのアカウント接続, 課金, SSO/SCIM) に該当する変更",
+        "write_scope 外のパスへの変更"
       ],
       "source_lineage": {
         "imported_at": "2026-08-16T12:39:37Z",
@@ -3329,12 +3479,26 @@
       "template_version": "1.1.0",
       "title": "認証/Workspace/RBAC テスト実行",
       "tracker_binding": "beads",
-      "updated_at": "2026-08-16T12:39:37Z"
+      "updated_at": "2026-08-16T13:01:31.416972Z"
     },
     {
+      "acceptance": [
+        "Automated commands: `pnpm run preview` (Workers ランタイム, localhost:8787) 上で P07 に対応する検証コマンドを実行する",
+        "Automated commands: `pnpm vitest run --coverage` (単体/結合/境界値/回帰テストを実行し P07 の証跡を得る)",
+        "Automated commands: `python3 .claude/plugins/system-dev-planner/scripts/validate-system-plan.py --repo-root . --feature-package feature-package/feat-auth-workspace` (本 package の C12 決定論検証を世代非依存に再実行する)",
+        "Required evidence: P07 の 成果物 section に記載した produced artifacts のパス"
+      ],
+      "architecture_refs": [
+        "arch-system-spec-overview"
+      ],
       "artifact_kind": "task",
       "artifact_subtypes": [],
-      "beads_linkage": null,
+      "beads_linkage": {
+        "bd_issue_id": "ah-361.7",
+        "github_mirror": null,
+        "linked_at": "2026-08-16T13:00:16Z",
+        "sync_state": "linked"
+      },
       "classification_candidates": [
         {
           "artifact_kind": "task",
@@ -3374,6 +3538,7 @@
         "mode": "local_only",
         "project_aliases": []
       },
+      "goal": "P06 のテスト結果を根拠に、feat-auth-workspace の4受け入れ条件 (A1〜A4) がすべて満たされていることをpurpose 由来で判定し、実装完了を確定する。",
       "graph_node_id": "SYS-AUTH-WORKSPACE-P07",
       "implementation_readiness": {
         "checked_at": "2026-08-16T21:00:00Z",
@@ -3390,9 +3555,19 @@
       "priority": null,
       "project_id": "feature-package-feat-auth-workspace",
       "pull_request_linkages": [],
+      "purpose": "P06 のテスト結果を根拠に、feat-auth-workspace の4受け入れ条件 (A1〜A4) がすべて満たされていることをpurpose 由来で判定し、実装完了を確定する。",
       "related_nodes": [],
       "resource_scope": [
         "docs/spec/feat-auth-workspace/acceptance-report.md"
+      ],
+      "scope_in": [
+        "Produced artifacts: docs/spec/feat-auth-workspace/acceptance-report.md (4条件ごとのPASS/FAIL判定と根拠)",
+        "Consumed artifacts: evidence/P06/test-results.json, evidence/P06/coverage-summary.json",
+        "Write scope/touches: docs/spec/feat-auth-workspace/acceptance-report.md"
+      ],
+      "scope_out": [
+        "feat-auth-workspace の scope_out (外部プラットフォームのアカウント接続, 課金, SSO/SCIM) に該当する変更",
+        "write_scope 外のパスへの変更"
       ],
       "source_lineage": {
         "imported_at": "2026-08-16T12:39:37Z",
@@ -3413,12 +3588,25 @@
       "template_version": "1.1.0",
       "title": "feat-auth-workspace 受け入れ判定",
       "tracker_binding": "beads",
-      "updated_at": "2026-08-16T12:39:37Z"
+      "updated_at": "2026-08-16T13:01:34.646583Z"
     },
     {
+      "acceptance": [
+        "Automated commands: `pnpm run preview` (Workers ランタイム, localhost:8787) 上で P08 に対応する検証コマンドを実行する",
+        "Automated commands: `python3 .claude/plugins/system-dev-planner/scripts/validate-system-plan.py --repo-root . --feature-package feature-package/feat-auth-workspace` (本 package の C12 決定論検証を世代非依存に再実行する)",
+        "Required evidence: P08 の 成果物 section に記載した produced artifacts のパス"
+      ],
+      "architecture_refs": [
+        "arch-system-spec-overview"
+      ],
       "artifact_kind": "task",
       "artifact_subtypes": [],
-      "beads_linkage": null,
+      "beads_linkage": {
+        "bd_issue_id": "ah-361.8",
+        "github_mirror": null,
+        "linked_at": "2026-08-16T13:00:16Z",
+        "sync_state": "linked"
+      },
       "classification_candidates": [
         {
           "artifact_kind": "task",
@@ -3458,6 +3646,7 @@
         "mode": "local_only",
         "project_aliases": []
       },
+      "goal": "全テーブルへの workspace_id 付与 (§26.4) が既存データとの互換性を壊さず適用できることを確定し、A2 (別Workspaceデータの非取得) を将来データに対しても継続保証する状態を成立させる。",
       "graph_node_id": "SYS-AUTH-WORKSPACE-P08",
       "implementation_readiness": {
         "checked_at": "2026-08-16T21:00:00Z",
@@ -3474,10 +3663,20 @@
       "priority": null,
       "project_id": "feature-package-feat-auth-workspace",
       "pull_request_linkages": [],
+      "purpose": "全テーブルへの workspace_id 付与 (§26.4) が既存データとの互換性を壊さず適用できることを確定し、A2 (別Workspaceデータの非取得) を将来データに対しても継続保証する状態を成立させる。",
       "related_nodes": [],
       "resource_scope": [
         "drizzle/migrations/",
         "docs/spec/feat-auth-workspace/migration-decision.md"
+      ],
+      "scope_in": [
+        "Produced artifacts: drizzle/migrations/ (workspace_id 列・索引の初期マイグレーション), docs/spec/feat-auth-workspace/migration-decision.md",
+        "Consumed artifacts: drizzle/schema/ (P05 実装成果物)",
+        "Write scope/touches: drizzle/migrations/, docs/spec/feat-auth-workspace/migration-decision.md"
+      ],
+      "scope_out": [
+        "feat-auth-workspace の scope_out (外部プラットフォームのアカウント接続, 課金, SSO/SCIM) に該当する変更",
+        "write_scope 外のパスへの変更"
       ],
       "source_lineage": {
         "imported_at": "2026-08-16T12:39:37Z",
@@ -3498,12 +3697,26 @@
       "template_version": "1.1.0",
       "title": "workspace_id 移行とスキーマ整備",
       "tracker_binding": "beads",
-      "updated_at": "2026-08-16T12:39:37Z"
+      "updated_at": "2026-08-16T13:01:37.844023Z"
     },
     {
+      "acceptance": [
+        "Automated commands: `pnpm run preview` (Workers ランタイム, localhost:8787) 上で P09 に対応する検証コマンドを実行する",
+        "Automated commands: `pnpm vitest run --coverage` (単体/結合/境界値/回帰テストを実行し P09 の証跡を得る)",
+        "Automated commands: `python3 .claude/plugins/system-dev-planner/scripts/validate-system-plan.py --repo-root . --feature-package feature-package/feat-auth-workspace` (本 package の C12 決定論検証を世代非依存に再実行する)",
+        "Required evidence: P09 の 成果物 section に記載した produced artifacts のパス"
+      ],
+      "architecture_refs": [
+        "arch-system-spec-overview"
+      ],
       "artifact_kind": "task",
       "artifact_subtypes": [],
-      "beads_linkage": null,
+      "beads_linkage": {
+        "bd_issue_id": "ah-361.9",
+        "github_mirror": null,
+        "linked_at": "2026-08-16T13:00:16Z",
+        "sync_state": "linked"
+      },
       "classification_candidates": [
         {
           "artifact_kind": "task",
@@ -3543,6 +3756,7 @@
         "mode": "local_only",
         "project_aliases": []
       },
+      "goal": "workspace_id 分離とロール別403制御が、既知の迂回経路 (直接API呼び出し・クエリパラメータ改ざん等) に対しても破られないことを検証し、feat-auth-workspace のセキュリティ品質を確定する。",
       "graph_node_id": "SYS-AUTH-WORKSPACE-P09",
       "implementation_readiness": {
         "checked_at": "2026-08-16T21:00:00Z",
@@ -3559,9 +3773,19 @@
       "priority": null,
       "project_id": "feature-package-feat-auth-workspace",
       "pull_request_linkages": [],
+      "purpose": "workspace_id 分離とロール別403制御が、既知の迂回経路 (直接API呼び出し・クエリパラメータ改ざん等) に対しても破られないことを検証し、feat-auth-workspace のセキュリティ品質を確定する。",
       "related_nodes": [],
       "resource_scope": [
         "docs/spec/feat-auth-workspace/quality-security-report.md"
+      ],
+      "scope_in": [
+        "Produced artifacts: docs/spec/feat-auth-workspace/quality-security-report.md",
+        "Consumed artifacts: src/lib/workspace/, src/lib/rbac/, src/app/api/",
+        "Write scope/touches: docs/spec/feat-auth-workspace/quality-security-report.md"
+      ],
+      "scope_out": [
+        "feat-auth-workspace の scope_out (外部プラットフォームのアカウント接続, 課金, SSO/SCIM) に該当する変更",
+        "write_scope 外のパスへの変更"
       ],
       "source_lineage": {
         "imported_at": "2026-08-16T12:39:37Z",
@@ -3582,12 +3806,26 @@
       "template_version": "1.1.0",
       "title": "品質・セキュリティ・運用保証",
       "tracker_binding": "beads",
-      "updated_at": "2026-08-16T12:39:37Z"
+      "updated_at": "2026-08-16T13:01:40.973534Z"
     },
     {
+      "acceptance": [
+        "Automated commands: `pnpm run preview` (Workers ランタイム, localhost:8787) 上で P10 に対応する検証コマンドを実行する",
+        "Automated commands: `pnpm vitest run --coverage` (単体/結合/境界値/回帰テストを実行し P10 の証跡を得る)",
+        "Automated commands: `python3 .claude/plugins/system-dev-planner/scripts/validate-system-plan.py --repo-root . --feature-package feature-package/feat-auth-workspace` (本 package の C12 決定論検証を世代非依存に再実行する)",
+        "Required evidence: P10 の 成果物 section に記載した produced artifacts のパス"
+      ],
+      "architecture_refs": [
+        "arch-system-spec-overview"
+      ],
       "artifact_kind": "task",
       "artifact_subtypes": [],
-      "beads_linkage": null,
+      "beads_linkage": {
+        "bd_issue_id": "ah-361.10",
+        "github_mirror": null,
+        "linked_at": "2026-08-16T13:00:16Z",
+        "sync_state": "linked"
+      },
       "classification_candidates": [
         {
           "artifact_kind": "task",
@@ -3627,6 +3865,7 @@
         "mode": "local_only",
         "project_aliases": []
       },
+      "goal": "P07 受け入れ判定と P09 品質・セキュリティ保証の結果を、実装者から独立した観点で最終確認し、feat-auth-workspace の完了可否を確定する。",
       "graph_node_id": "SYS-AUTH-WORKSPACE-P10",
       "implementation_readiness": {
         "checked_at": "2026-08-16T21:00:00Z",
@@ -3643,9 +3882,19 @@
       "priority": null,
       "project_id": "feature-package-feat-auth-workspace",
       "pull_request_linkages": [],
+      "purpose": "P07 受け入れ判定と P09 品質・セキュリティ保証の結果を、実装者から独立した観点で最終確認し、feat-auth-workspace の完了可否を確定する。",
       "related_nodes": [],
       "resource_scope": [
         "docs/spec/feat-auth-workspace/final-review-log.md"
+      ],
+      "scope_in": [
+        "Produced artifacts: docs/spec/feat-auth-workspace/final-review-log.md",
+        "Consumed artifacts: docs/spec/feat-auth-workspace/acceptance-report.md, docs/spec/feat-auth-workspace/quality-security-report.md",
+        "Write scope/touches: docs/spec/feat-auth-workspace/final-review-log.md"
+      ],
+      "scope_out": [
+        "feat-auth-workspace の scope_out (外部プラットフォームのアカウント接続, 課金, SSO/SCIM) に該当する変更",
+        "write_scope 外のパスへの変更"
       ],
       "source_lineage": {
         "imported_at": "2026-08-16T12:39:37Z",
@@ -3666,12 +3915,26 @@
       "template_version": "1.1.0",
       "title": "独立最終レビュー",
       "tracker_binding": "beads",
-      "updated_at": "2026-08-16T12:39:37Z"
+      "updated_at": "2026-08-16T13:01:44.113128Z"
     },
     {
+      "acceptance": [
+        "Automated commands: `pnpm run preview` (Workers ランタイム, localhost:8787) 上で P11 に対応する検証コマンドを実行する",
+        "Automated commands: `pnpm vitest run --coverage` (単体/結合/境界値/回帰テストを実行し P11 の証跡を得る)",
+        "Automated commands: `python3 .claude/plugins/system-dev-planner/scripts/validate-system-plan.py --repo-root . --feature-package feature-package/feat-auth-workspace` (本 package の C12 決定論検証を世代非依存に再実行する)",
+        "Required evidence: P11 の 成果物 section に記載した produced artifacts のパス"
+      ],
+      "architecture_refs": [
+        "arch-system-spec-overview"
+      ],
       "artifact_kind": "task",
       "artifact_subtypes": [],
-      "beads_linkage": null,
+      "beads_linkage": {
+        "bd_issue_id": "ah-361.11",
+        "github_mirror": null,
+        "linked_at": "2026-08-16T13:00:16Z",
+        "sync_state": "linked"
+      },
       "classification_candidates": [
         {
           "artifact_kind": "task",
@@ -3712,6 +3975,7 @@
         "mode": "local_only",
         "project_aliases": []
       },
+      "goal": "4受け入れ条件それぞれについて、第三者が再実行して同じ結果を得られる証跡 (コマンド・出力・成果物) をpackage 内に固定した状態を成立させる。",
       "graph_node_id": "SYS-AUTH-WORKSPACE-P11",
       "implementation_readiness": {
         "checked_at": "2026-08-16T21:00:00Z",
@@ -3728,9 +3992,19 @@
       "priority": null,
       "project_id": "feature-package-feat-auth-workspace",
       "pull_request_linkages": [],
+      "purpose": "4受け入れ条件それぞれについて、第三者が再実行して同じ結果を得られる証跡 (コマンド・出力・成果物) をpackage 内に固定した状態を成立させる。",
       "related_nodes": [],
       "resource_scope": [
         "evidence/P11/"
+      ],
+      "scope_in": [
+        "Produced artifacts: evidence/P11/reproduction-steps.md, evidence/P11/test-results.json, evidence/P11/coverage-summary.json",
+        "Consumed artifacts: evidence/P06/test-results.json, docs/spec/feat-auth-workspace/acceptance-report.md",
+        "Write scope/touches: evidence/P11/"
+      ],
+      "scope_out": [
+        "feat-auth-workspace の scope_out (外部プラットフォームのアカウント接続, 課金, SSO/SCIM) に該当する変更",
+        "write_scope 外のパスへの変更"
       ],
       "source_lineage": {
         "imported_at": "2026-08-16T12:39:37Z",
@@ -3751,12 +4025,25 @@
       "template_version": "1.1.0",
       "title": "再現可能な証跡取得",
       "tracker_binding": "beads",
-      "updated_at": "2026-08-16T12:39:37Z"
+      "updated_at": "2026-08-16T13:01:47.453091Z"
     },
     {
+      "acceptance": [
+        "Automated commands: `pnpm run preview` (Workers ランタイム, localhost:8787) 上で P12 に対応する検証コマンドを実行する",
+        "Automated commands: `python3 .claude/plugins/system-dev-planner/scripts/validate-system-plan.py --repo-root . --feature-package feature-package/feat-auth-workspace` (本 package の C12 決定論検証を世代非依存に再実行する)",
+        "Required evidence: P12 の 成果物 section に記載した produced artifacts のパス"
+      ],
+      "architecture_refs": [
+        "arch-system-spec-overview"
+      ],
       "artifact_kind": "task",
       "artifact_subtypes": [],
-      "beads_linkage": null,
+      "beads_linkage": {
+        "bd_issue_id": "ah-361.12",
+        "github_mirror": null,
+        "linked_at": "2026-08-16T13:00:16Z",
+        "sync_state": "linked"
+      },
       "classification_candidates": [
         {
           "artifact_kind": "task",
@@ -3797,6 +4084,7 @@
         "mode": "local_only",
         "project_aliases": []
       },
+      "goal": "feat-auth-workspace の実装内容・運用手順・引き継ぎ事項を、実装に関与していない担当者でも運用・保守できる形で文書化した状態を成立させる。",
       "graph_node_id": "SYS-AUTH-WORKSPACE-P12",
       "implementation_readiness": {
         "checked_at": "2026-08-16T21:00:00Z",
@@ -3813,10 +4101,20 @@
       "priority": null,
       "project_id": "feature-package-feat-auth-workspace",
       "pull_request_linkages": [],
+      "purpose": "feat-auth-workspace の実装内容・運用手順・引き継ぎ事項を、実装に関与していない担当者でも運用・保守できる形で文書化した状態を成立させる。",
       "related_nodes": [],
       "resource_scope": [
         "docs/spec/feat-auth-workspace/runbook.md",
         "docs/spec/feat-auth-workspace/handover.md"
+      ],
+      "scope_in": [
+        "Produced artifacts: docs/spec/feat-auth-workspace/runbook.md, docs/spec/feat-auth-workspace/handover.md",
+        "Consumed artifacts: docs/spec/feat-auth-workspace/acceptance-report.md, docs/spec/feat-auth-workspace/final-review-log.md",
+        "Write scope/touches: docs/spec/feat-auth-workspace/runbook.md, docs/spec/feat-auth-workspace/handover.md"
+      ],
+      "scope_out": [
+        "feat-auth-workspace の scope_out (外部プラットフォームのアカウント接続, 課金, SSO/SCIM) に該当する変更",
+        "write_scope 外のパスへの変更"
       ],
       "source_lineage": {
         "imported_at": "2026-08-16T12:39:37Z",
@@ -3837,12 +4135,26 @@
       "template_version": "1.1.0",
       "title": "ドキュメント・ランブック・引き継ぎ",
       "tracker_binding": "beads",
-      "updated_at": "2026-08-16T12:39:37Z"
+      "updated_at": "2026-08-16T13:01:50.646150Z"
     },
     {
+      "acceptance": [
+        "Automated commands: `pnpm run preview` (Workers ランタイム, localhost:8787) 上で P13 に対応する検証コマンドを実行する",
+        "Automated commands: `pnpm vitest run --coverage` (単体/結合/境界値/回帰テストを実行し P13 の証跡を得る)",
+        "Automated commands: `python3 .claude/plugins/system-dev-planner/scripts/validate-system-plan.py --repo-root . --feature-package feature-package/feat-auth-workspace` (本 package の C12 決定論検証を世代非依存に再実行する)",
+        "Required evidence: P13 の 成果物 section に記載した produced artifacts のパス"
+      ],
+      "architecture_refs": [
+        "arch-system-spec-overview"
+      ],
       "artifact_kind": "task",
       "artifact_subtypes": [],
-      "beads_linkage": null,
+      "beads_linkage": {
+        "bd_issue_id": "ah-361.13",
+        "github_mirror": null,
+        "linked_at": "2026-08-16T13:00:16Z",
+        "sync_state": "linked"
+      },
       "classification_candidates": [
         {
           "artifact_kind": "task",
@@ -3882,6 +4194,7 @@
         "mode": "local_only",
         "project_aliases": []
       },
+      "goal": "feat-auth-workspace を pnpm run preview (Workers ランタイム) 上で最終確認したうえでクローズアウトし、実行結果・判断・改善点を system-spec/architecture へ書き戻した状態を成立させる。",
       "graph_node_id": "SYS-AUTH-WORKSPACE-P13",
       "implementation_readiness": {
         "checked_at": "2026-08-16T21:00:00Z",
@@ -3898,11 +4211,21 @@
       "priority": null,
       "project_id": "feature-package-feat-auth-workspace",
       "pull_request_linkages": [],
+      "purpose": "feat-auth-workspace を pnpm run preview (Workers ランタイム) 上で最終確認したうえでクローズアウトし、実行結果・判断・改善点を system-spec/architecture へ書き戻した状態を成立させる。",
       "related_nodes": [],
       "resource_scope": [
         "docs/spec/feat-auth-workspace/release-notes.md",
         "system-spec/auth.md",
         "architecture/system-spec-overview.md"
+      ],
+      "scope_in": [
+        "Produced artifacts: docs/spec/feat-auth-workspace/release-notes.md (実デプロイ N/A: 理由記載を含む), system-spec/auth.md (実行結果反映), architecture/system-spec-overview.md (実行結果反映)",
+        "Consumed artifacts: docs/spec/feat-auth-workspace/runbook.md, docs/spec/feat-auth-workspace/handover.md, docs/spec/feat-auth-workspace/final-review-log.md",
+        "Write scope/touches: docs/spec/feat-auth-workspace/release-notes.md, system-spec/auth.md, architecture/system-spec-overview.md"
+      ],
+      "scope_out": [
+        "feat-auth-workspace の scope_out (外部プラットフォームのアカウント接続, 課金, SSO/SCIM) に該当する変更",
+        "write_scope 外のパスへの変更"
       ],
       "source_lineage": {
         "imported_at": "2026-08-16T12:39:37Z",
@@ -3923,7 +4246,7 @@
       "template_version": "1.1.0",
       "title": "リリース/デプロイとクローズアウト",
       "tracker_binding": "beads",
-      "updated_at": "2026-08-16T12:39:37Z"
+      "updated_at": "2026-08-16T13:01:53.889082Z"
     }
   ],
   "repository_id": "github:daishiman/affiliate-hub",
