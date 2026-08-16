@@ -39,3 +39,6 @@ coverage/
 .vscode/*
 !.vscode/extensions.json
 *.swp
+
+# Cloudflare Global API Key を一時的に置くファイル (絶対にコミットしない)
+.cf-credentials

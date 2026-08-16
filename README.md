@@ -107,10 +107,16 @@ feature/xxx ──PR──▶ dev ──自動デプロイ──▶ 開発環境
 | `CLOUDFLARE_ACCOUNT_ID` | `npx wrangler whoami` で確認 |
 
 ```bash
+# 1) 通常のターミナル (TTY あり) — 対話で入力
 pnpm setup:cf-token
+
+# 2) TTY が無い環境 (エディタ内シェル等) — ファイル経由
+#    1 行目にメールアドレス、2 行目に Global API Key を書く
+pnpm setup:cf-token < .cf-credentials && rm .cf-credentials
 ```
 
 トークンを必要最小の権限で発行し、そのまま `gh secret set` まで行います。値は画面にも出しません。
+`.cf-credentials` は `.gitignore` 済みですが、使い終わったら消してください。
 
 > **なぜ Global API Key を聞かれるのか:** wrangler の OAuth トークンでは API トークンを発行できません。
 > `wrangler login --scopes-list` に「API トークンの管理」に相当するスコープが存在せず、

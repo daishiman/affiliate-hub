@@ -3,8 +3,12 @@
  * デプロイ用の Cloudflare API トークンを「必要最小の権限で」自動発行し、
  * そのまま GitHub Secrets (CLOUDFLARE_API_TOKEN) に登録する。
  *
- * 使い方:
- *   node scripts/setup-cf-token.mjs
+ * 使い方 (どれか 1 つ):
+ *   pnpm setup:cf-token                      # 対話 (TTY のあるターミナルで)
+ *   pnpm setup:cf-token < .cf-credentials    # 1 行目にメール、2 行目に Global API Key
+ *   CLOUDFLARE_EMAIL=... CLOUDFLARE_API_KEY=... pnpm setup:cf-token
+ *
+ * .cf-credentials は .gitignore 済み。使い終わったら消すこと。
  *
  * 必要なもの: Cloudflare の Global API Key (ダッシュボード → My Profile → API Tokens)
  * ※ wrangler の OAuth トークンでは発行できない。OAuth のスコープに
@@ -15,6 +19,14 @@
 import { execFileSync } from "node:child_process";
 
 const API = "https://api.cloudflare.com/client/v4";
+
+// 失敗時にスタックトレースではなく理由だけ出す
+for (const ev of ["uncaughtException", "unhandledRejection"]) {
+  process.on(ev, (e) => {
+    console.error(`\n❌ ${e instanceof Error ? e.message : e}`);
+    process.exit(1);
+  });
+}
 
 // このプロジェクトのデプロイに必要な権限だけ。増やさないこと。
 // - Workers Scripts: Worker 本体のデプロイ
@@ -40,22 +52,55 @@ function prompt(question, { mute = false } = {}) {
     if (mute && stdin.isTTY) stdin.setRawMode(true);
 
     let buf = "";
+    const finish = () => {
+      if (mute && stdin.isTTY) stdin.setRawMode(false);
+      stdin.removeListener("data", onData);
+      stdin.removeListener("end", finish);
+      stdin.pause();
+      process.stdout.write("\n");
+      resolve(buf.trim());
+    };
     const onData = (chunk) => {
       for (const ch of chunk) {
-        if (ch === "\n" || ch === "\r") {
-          if (mute && stdin.isTTY) stdin.setRawMode(false);
-          stdin.removeListener("data", onData);
-          stdin.pause();
-          process.stdout.write("\n");
-          return resolve(buf.trim());
-        }
+        if (ch === "\n" || ch === "\r") return finish();
         if (ch === ETX) process.exit(130);
         if (ch === DEL || ch === "\b") { buf = buf.slice(0, -1); continue; }
         buf += ch;
       }
     };
     stdin.on("data", onData);
+    // stdin が閉じた場合も必ず解決させる。放置すると
+    // top-level await が宙に浮いて Node が exit 13 で落ちる。
+    stdin.on("end", finish);
   });
+}
+
+/** メールと Global API Key を、環境変数 → パイプ入力 → 対話 の順で取得する */
+async function readCredentials() {
+  if (process.env.CLOUDFLARE_EMAIL && process.env.CLOUDFLARE_API_KEY) {
+    return { email: process.env.CLOUDFLARE_EMAIL, globalKey: process.env.CLOUDFLARE_API_KEY };
+  }
+
+  // TTY が無い (パイプ / リダイレクト / CI) 場合は 2 行まとめて読む
+  if (!process.stdin.isTTY) {
+    const chunks = [];
+    for await (const c of process.stdin) chunks.push(c);
+    const lines = Buffer.concat(chunks).toString("utf8").split("\n").map((l) => l.trim()).filter(Boolean);
+    if (lines.length < 2) {
+      throw new Error(
+        "TTY が無い環境では対話入力ができません。次のどちらかで渡してください:\n" +
+          "  1) 1 行目にメール / 2 行目に Global API Key を書いたファイルを作り\n" +
+          "       pnpm setup:cf-token < .cf-credentials\n" +
+          "  2) CLOUDFLARE_EMAIL / CLOUDFLARE_API_KEY を環境変数で渡す",
+      );
+    }
+    return { email: lines[0], globalKey: lines[1] };
+  }
+
+  const email = process.env.CLOUDFLARE_EMAIL || (await prompt("Cloudflare のメールアドレス: "));
+  const globalKey =
+    process.env.CLOUDFLARE_API_KEY || (await prompt("Global API Key (入力は表示されません): ", { mute: true }));
+  return { email, globalKey };
 }
 
 async function cf(path, { auth, method = "GET", body } = {}) {
@@ -71,9 +116,7 @@ async function cf(path, { auth, method = "GET", body } = {}) {
   return json.result;
 }
 
-const email = process.env.CLOUDFLARE_EMAIL || (await prompt("Cloudflare のメールアドレス: "));
-const globalKey =
-  process.env.CLOUDFLARE_API_KEY || (await prompt("Global API Key (入力は表示されません): ", { mute: true }));
+const { email, globalKey } = await readCredentials();
 const auth = { "x-auth-email": email, "x-auth-key": globalKey };
 
 // 1. アカウント ID
