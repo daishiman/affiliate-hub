@@ -156,4 +156,25 @@ describe("Editorial と Commercial の分離", () => {
     );
     expect(found).toEqual([]);
   });
+
+  /**
+   * 外部の URL を取りに行く経路を 1 本に絞る (SEC-02)。
+   *
+   * `fetch` を各所で直接呼ぶと、転送先の再検査を通らない経路ができる。
+   * 社内アドレスへ転送する URL を渡された時点で守りが無くなるため、
+   * 入口は `infrastructure/http/guarded-fetch.ts` だけにする。
+   */
+  it("外部への取得は guarded-fetch だけが行う", () => {
+    const offenders: string[] = [];
+    for (const file of [...filesUnder("infrastructure"), ...filesUnder("application")]) {
+      const rel = relative(process.cwd(), file);
+      if (rel.endsWith("infrastructure/http/guarded-fetch.ts")) continue;
+      const source = readFileSync(file, "utf8");
+      if (/(?<![.\w])fetch\s*\(/.test(source)) offenders.push(rel);
+    }
+    expect(
+      offenders,
+      "外部の取得は guardedFetch を通してください。転送先の再検査が抜けます。",
+    ).toEqual([]);
+  });
 });
