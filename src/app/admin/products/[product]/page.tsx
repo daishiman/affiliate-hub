@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 import {
+  affiliateUseCases,
   currentActor,
   productSampleNotice,
   productUseCases,
@@ -63,11 +64,13 @@ export default async function ProductDetailPage({
   const { product, specifications, retrievedAt, validUntil } = detail.value;
   const target = rankingScreenTarget();
 
-  const [evidence, testRuns, alternatives, explained] = await Promise.all([
+  const [evidence, testRuns, alternatives, explained, links] = await Promise.all([
     uc.getEvidence.execute(actor, { productId }),
     uc.listTestRuns.execute(actor, { productId }),
     uc.findAlternatives.execute(actor, { productId }),
     uc.explainRanking.execute(actor, { ...target, productId }),
+    // 提携リンクは商業の区分。上の順位の計算とは別のつなぎ目から取る。
+    affiliateUseCases().listProductLinks.execute(actor, { productId }),
   ]);
 
   return (
@@ -223,6 +226,41 @@ export default async function ProductDetailPage({
               </tbody>
             </table>
           </>
+        )}
+      </Card>
+
+      <Card>
+        <h2 className={styles.sectionTitle}>この商品の提携リンク</h2>
+        <p className={styles.sectionLead}>
+          リンクは発行されたままの形で使います。
+          計測用の印を足すと多くの提携先で規約違反になり、成果が付かなくなるためです。
+          ここに出る内容は、上の順位の計算には一切入りません。
+        </p>
+        {!links.ok ? (
+          <ErrorView
+            title="提携リンクを出せませんでした"
+            body={links.error.message}
+            suggestedAction={links.error.suggestedAction ?? null}
+            action={<Link href="/admin/affiliate">提携と成果を見る</Link>}
+          />
+        ) : links.value.items.length === 0 ? (
+          <EmptyView
+            title="提携リンクがありません"
+            body={links.value.emptyReason ?? "この商品につながる提携リンクはまだありません。"}
+            action={<Link href="/admin/affiliate">提携と成果を見る</Link>}
+          />
+        ) : (
+          <ul className={styles.linkList}>
+            {links.value.items.map((l) => (
+              <li key={l.linkId}>
+                {l.url}
+                <span className={styles.linkNote}>
+                  {l.usable ? "使えます" : (l.blockedReason ?? "使えません")}
+                  {l.alterationProhibited ? " / 改変禁止" : ""}
+                </span>
+              </li>
+            ))}
+          </ul>
         )}
       </Card>
 

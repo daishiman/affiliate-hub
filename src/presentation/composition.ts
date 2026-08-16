@@ -33,6 +33,14 @@ import {
   createListPublicationsUseCase,
 } from "@/application/usecases/distribution/manage-distribution";
 import {
+  createAdjustConversionUseCase,
+  createGetConversionUseCase,
+  createListAffiliateAccountsUseCase,
+  createListAffiliateProgramsUseCase,
+  createListConversionsUseCase,
+  createListProductLinksUseCase,
+} from "@/application/usecases/monetization/manage-affiliate";
+import {
   createCheckSiteDifferentiationUseCase,
   createGetManagedSiteUseCase,
   createListManagedSitesUseCase,
@@ -53,6 +61,10 @@ import { sampleContentNotice } from "@/infrastructure/persistence/sample/content
 import { getCurrentActor, sampleActorNotice } from "@/infrastructure/identity/sample-actor";
 import { sampleEditorialContentNotice } from "@/infrastructure/persistence/sample/content-editorial-sample-repository";
 import { sampleDistributionNotice } from "@/infrastructure/persistence/sample/distribution-sample-repository";
+import {
+  SAMPLE_PERIODS,
+  sampleAffiliateNotice,
+} from "@/infrastructure/persistence/sample/affiliate-sample-repository";
 import { sampleProductNotice } from "@/infrastructure/persistence/sample/product-sample-repository";
 import {
   SAMPLE_MODEL_ID,
@@ -236,6 +248,40 @@ export function distributionUseCases() {
     exportManualDraft: createExportManualDraftUseCase(distribution),
     cancel: createCancelPublicationUseCase(distribution),
   };
+}
+
+/**
+ * 提携と成果の入口。
+ *
+ * ASP を 1 つ増やすときに触るのは、つなぎ役の実装だけ。
+ * ここも画面も、順位づけのコードも変わらない。
+ */
+export function affiliateUseCases() {
+  const deps = createDeps();
+  const affiliate = {
+    accounts: deps.affiliateAccounts,
+    programs: deps.affiliatePrograms,
+    links: deps.affiliateLinks,
+    conversions: deps.conversions,
+  };
+  return {
+    listAccounts: createListAffiliateAccountsUseCase(affiliate),
+    listPrograms: createListAffiliateProgramsUseCase(affiliate),
+    listConversions: createListConversionsUseCase(affiliate),
+    getConversion: createGetConversionUseCase(affiliate),
+    listProductLinks: createListProductLinksUseCase(affiliate),
+    adjustConversion: createAdjustConversionUseCase(affiliate),
+  };
+}
+
+/** 提携と成果が見本データであることを画面に出すための一文。 */
+export function affiliateNotice(): string {
+  return sampleAffiliateNotice();
+}
+
+/** 見本にある会計期間。画面の期間切り替えに使う。 */
+export function affiliatePeriods(): readonly string[] {
+  return SAMPLE_PERIODS;
 }
 
 /** 配信が見本データであることを画面に出すための一文。 */

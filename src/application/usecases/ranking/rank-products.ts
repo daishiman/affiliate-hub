@@ -33,6 +33,18 @@ import type { UseCase } from "../usecase";
 export type RankProductsDeps = {
   readonly rankingModels: EditorialRankingModelRepositoryPort;
   readonly scoreCards: EditorialScoreCardRepositoryPort;
+  /**
+   * 商業側のつなぎ目は「持てない」ことを型で宣言する。
+   *
+   * TypeScript は余分な項目が付いたオブジェクトも受け取ってしまうため、
+   * `AppDeps` をまるごと渡すと報酬のつなぎ目が紛れ込む余地が残る。
+   * ここで `never` と宣言しておくと、まるごと渡した時点で
+   * コンパイルが通らなくなる（実行するまでもなく止まる）。
+   */
+  readonly affiliateLinks?: never;
+  readonly conversions?: never;
+  readonly affiliatePrograms?: never;
+  readonly affiliateAccounts?: never;
 };
 
 export type RankProductsInput = {

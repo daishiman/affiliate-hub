@@ -25,6 +25,12 @@ import {
   createSampleManualExport,
   createSamplePublicationRepository,
 } from "./persistence/sample/distribution-sample-repository";
+import {
+  createSampleAffiliateAccountRepository,
+  createSampleAffiliateLinkRepository,
+  createSampleAffiliateProgramRepository,
+  createSampleConversionRepository,
+} from "./persistence/sample/affiliate-sample-repository";
 import { createSampleSiteRepository } from "./persistence/sample/site-sample-repository";
 
 /**
@@ -70,5 +76,12 @@ export function createDeps(): AppDeps {
     channelConnections: createSampleChannelConnectionRepository(),
     publications: createSamplePublicationRepository(),
     manualExport: createSampleManualExport(),
+    // ★ 見本データ（スタブ）。提携先・提携条件・成果。
+    //   本物の数字には各 ASP の API 申請と、利用者ご自身による接続情報の登録が要る。
+    //   ここで作るものには商業の印が付いており、順位づけへは型として渡せない。
+    affiliateAccounts: createSampleAffiliateAccountRepository(),
+    affiliatePrograms: createSampleAffiliateProgramRepository(),
+    affiliateLinks: createSampleAffiliateLinkRepository(),
+    conversions: createSampleConversionRepository(),
   };
 }

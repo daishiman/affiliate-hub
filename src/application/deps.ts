@@ -17,6 +17,12 @@ import type {
   PublicationRepositoryPort,
 } from "./ports/distribution";
 import type {
+  AffiliateAccountRepositoryPort,
+  AffiliateProgramRepositoryPort,
+  CommercialAffiliateLinkRepositoryPort,
+  CommercialConversionRepositoryPort,
+} from "./ports/monetization";
+import type {
   EditorialContactPort,
   EditorialReaderToolPort,
   EditorialShortlistPort,
@@ -53,4 +59,13 @@ export type AppDeps = {
   readonly channelConnections: ChannelConnectionRepositoryPort;
   readonly publications: PublicationRepositoryPort;
   readonly manualExport: ManualExportPort;
+  /**
+   * ここから下は Commercial 区分。
+   * 順位づけのユースケースは Editorial 印のポートしか受け取らないので、
+   * この 4 つを渡そうとするとコンパイルが通らない。
+   */
+  readonly affiliateAccounts: AffiliateAccountRepositoryPort;
+  readonly affiliatePrograms: AffiliateProgramRepositoryPort;
+  readonly affiliateLinks: CommercialAffiliateLinkRepositoryPort;
+  readonly conversions: CommercialConversionRepositoryPort;
 };

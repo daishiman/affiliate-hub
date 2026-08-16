@@ -7,6 +7,7 @@ import { ok } from "@/domain/shared";
 import type { ProductId, RankingModelId } from "@/domain/shared";
 import type { AnyToolDefinition, ToolDefinition } from "./tool-definition";
 import { parseWith, toJsonSchema } from "./define-tool";
+import { affiliateTools } from "./affiliate-tools";
 import { contentTools } from "./content-tools";
 import { distributionTools } from "./distribution-tools";
 import { platformTools } from "./platform-tools";
@@ -63,7 +64,12 @@ export function rankProductsTool(
         productIds: parsed.value.productIds as ProductId[],
       });
     },
-    useCase: createRankProductsUseCase(deps),
+    // 一式をまるごと渡さず、順位づけに要る 2 つだけを渡す。
+    // まるごと渡すと報酬のつなぎ目が紛れ込む余地が残る（型でも止まる）。
+    useCase: createRankProductsUseCase({
+      rankingModels: deps.rankingModels,
+      scoreCards: deps.scoreCards,
+    }),
   };
 }
 
@@ -83,6 +89,7 @@ export function buildToolCatalog(deps: CatalogDeps): readonly AnyToolDefinition[
     ...contentTools(deps),
     ...platformTools(deps),
     ...distributionTools(deps),
+    ...affiliateTools(deps),
   ];
 }
 

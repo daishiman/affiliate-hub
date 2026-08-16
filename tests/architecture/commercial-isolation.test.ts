@@ -4,6 +4,8 @@ import type {
   EditorialRankingModelRepositoryPort,
   EditorialScoreCardRepositoryPort,
 } from "@/application/ports/ranking";
+import { createListConversionsUseCase } from "@/application/usecases/monetization/manage-affiliate";
+import { createDeps } from "@/infrastructure/composition";
 import { markCommercial, markEditorial, readDataClass } from "@/domain/shared";
 
 /**
@@ -41,6 +43,29 @@ describe("Editorial / Commercial の遮断", () => {
       scoreCards: markEditorial({ ...stubCards }) as unknown as EditorialScoreCardRepositoryPort,
     };
     expect(() => createRankProductsUseCase(deps)).toThrow(/商業データ/);
+  });
+
+  it("つなぎ目一式をまるごと渡すことは、型として許されない", () => {
+    // この 1 行が「型で止まっている」ことの機械的な証拠。
+    // 守りが外れると @ts-expect-error が余分になり、型検査が失敗する。
+    const all = createDeps();
+    // @ts-expect-error 商業側のつなぎ目を含む一式は、順位づけへ渡せない
+    expect(() => createRankProductsUseCase(all)).toThrow(/商業データ/);
+  });
+
+  it("提携側は、商業の印が無いつなぎ目を受け取らない", () => {
+    // 印の付け忘れをここで落とす。付け忘れたまま放っておくと、
+    // 将来それを順位づけへ渡せてしまう。
+    const deps = createDeps();
+    expect(() =>
+      createListConversionsUseCase({
+        accounts: deps.affiliateAccounts,
+        programs: deps.affiliatePrograms,
+        links: deps.affiliateLinks,
+        // 印を外したものを渡す。
+        conversions: { ...deps.conversions } as typeof deps.conversions,
+      }),
+    ).toThrow(/商業データの印/);
   });
 
   it("印は実行時にも残る", () => {
