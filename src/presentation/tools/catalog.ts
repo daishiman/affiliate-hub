@@ -17,6 +17,7 @@ import { platformTools } from "./platform-tools";
 import { productTools } from "./product-tools";
 import { settingsTools } from "./settings-tools";
 import { siteTools } from "./site-tools";
+import { contractAliasTools } from "./spec-contract";
 
 /**
  * ツールの一覧。
@@ -86,7 +87,7 @@ export function rankProductsTool(
  * 入口 (REST / WebMCP / MCP) 側のコードは触らない。
  */
 export function buildToolCatalog(deps: CatalogDeps): readonly AnyToolDefinition[] {
-  return [
+  const own = [
     rankProductsTool(deps),
     ...dashboardTools(deps),
     ...siteTools(deps),
@@ -99,6 +100,9 @@ export function buildToolCatalog(deps: CatalogDeps): readonly AnyToolDefinition[
     ...generationTools(),
     ...settingsTools(deps),
   ];
+  // 仕様書 §24 の名前でも同じユースケースへ入れるようにする。
+  // 処理は増えない。名前の対応が付いていないものは載らず、スタブとして表に残る。
+  return [...own, ...contractAliasTools(own)];
 }
 
 export function findTool(

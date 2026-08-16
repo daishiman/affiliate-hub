@@ -2,6 +2,7 @@ import type { ActorContext, DomainError } from "@/domain/shared";
 import type { AnyToolDefinition } from "./tool-definition";
 import { invokeTool } from "./tool-definition";
 import { findTool } from "./catalog";
+import { MCP_RESOURCES, findResource, parseResourceUri, schemeOf } from "./spec-contract";
 import { statusOf } from "../http/error-response";
 
 /**
@@ -60,6 +61,64 @@ export async function handleJsonRpc(
             destructiveHint: t.requiresHumanApproval,
           },
         })),
+      },
+    };
+  }
+
+  // Resources は「読める場所」であって新しい処理ではない。
+  // 中身は必ず既存のツールから取る。ここで別に読み出しを書くと、
+  // ツール経由と Resource 経由で違う内容が返る余地ができる。
+  if (request.method === "resources/list") {
+    return {
+      jsonrpc: "2.0",
+      id: request.id,
+      result: {
+        resourceTemplates: MCP_RESOURCES.map((r) => ({
+          uriTemplate: r.uriTemplate,
+          name: schemeOf(r),
+          description: r.description,
+          mimeType: "application/json",
+        })),
+        resources: [],
+      },
+    };
+  }
+
+  if (request.method === "resources/read") {
+    const uri = typeof request.params?.uri === "string" ? request.params.uri : "";
+    const entry = findResource(uri);
+    const parsed = parseResourceUri(uri);
+    if (entry === null || parsed === null) {
+      return {
+        jsonrpc: "2.0",
+        id: request.id,
+        error: { code: -32602, message: `その場所は読めません: ${uri}` },
+      };
+    }
+    const tool = findTool(catalog, entry.backedBy);
+    if (tool === null) {
+      return {
+        jsonrpc: "2.0",
+        id: request.id,
+        error: { code: -32601, message: `${uri} を読む権限がありません。` },
+      };
+    }
+    const result = await invokeTool(tool, actor, { [entry.paramName]: parsed.value });
+    if (!result.ok) {
+      const asText = errorToMcpResult(result.error);
+      return {
+        jsonrpc: "2.0",
+        id: request.id,
+        error: { code: -32603, message: asText.content.map((c) => c.text).join("\n") },
+      };
+    }
+    return {
+      jsonrpc: "2.0",
+      id: request.id,
+      result: {
+        contents: [
+          { uri, mimeType: "application/json", text: JSON.stringify(result.value, null, 2) },
+        ],
       },
     };
   }

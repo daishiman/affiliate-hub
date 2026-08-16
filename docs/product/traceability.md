@@ -196,49 +196,53 @@ RWD・a11y は全ルート共通の枠（`page-frame.tsx` と共通 UI 部品）
 
 | REQ | ロール | 実装 | 画面での表現 | 結果 |
 | --- | --- | --- | --- | --- |
-| REQ-R01 | Owner | — | 権限なし状態の表示を含む | 未着手 |
-| REQ-R02 | Workspace Admin | — | 同上 | 未着手 |
-| REQ-R03 | Brand Manager | — | 同上 | 未着手 |
-| REQ-R04 | Researcher | — | 同上 | 未着手 |
-| REQ-R05 | Writer | — | 同上 | 未着手 |
-| REQ-R06 | Reviewer | — | 同上 | 未着手 |
-| REQ-R07 | Publisher | — | 同上 | 未着手 |
-| REQ-R08 | Analyst | — | 同上 | 未着手 |
-| REQ-R09 | Contributor | — | 同上 | 未着手 |
-| REQ-R10 | AI Service Account（下書き・分析のみ。原則公開不可） | — | 同上 | 未着手 |
-| REQ-R11 | 公開権限と編集権限の分離 | — | 承認フロー画面 | 未着手 |
+| REQ-R01 | Owner | `src/domain/identity/permissions.ts` `ROLE_CAPABILITIES.owner`（22 capability） | `/admin/settings`「役割ごとにできること」の表 | 実装済 |
+| REQ-R02 | Workspace Admin | 同 `workspace_admin`（owner から `workspace.manage` を除く） | 同上 | 実装済 |
+| REQ-R03 | Brand Manager | 同 `brand_manager`（ブランド配下の運営一式。会員管理と報酬管理は持たない） | 同上 | 実装済 |
+| REQ-R04 | Researcher | 同 `researcher`（商品・根拠の登録まで。記事は読むだけ） | 同上 | 実装済 |
+| REQ-R05 | Writer | 同 `writer`（下書きと生成。承認・公開は持たない） | 同上 | 実装済 |
+| REQ-R06 | Reviewer | 同 `reviewer`（事実確認・表現確認。公開は持たない） | 同上 | 実装済 |
+| REQ-R07 | Publisher | 同 `publisher`（公開のみ。本文を書き換えられない） | 同上 | 実装済 |
+| REQ-R08 | Analyst | 同 `analyst`（数字と報酬の閲覧のみ） | 同上 | 実装済 |
+| REQ-R09 | Contributor | 同 `contributor`（記事の読み書きのみ） | 同上 | 実装済 |
+| REQ-R10 | AI Service Account（下書き・分析のみ。原則公開不可） | 同 `ai_service_account`。加えて `HUMAN_ONLY_CAPABILITIES`（承認・公開・会員管理・報酬管理・書き出し）は `requireCapability()` が `isAiServiceAccount` を見て必ず拒否する | `/admin/settings`「人にしかできないこと」の枠 | 実装済 |
+| REQ-R11 | 公開権限と編集権限の分離 | `content.write` と `content.publish` を別の capability にし、`publisher` は書き込みを持たない。状態遷移は `src/domain/authoring/content-state.ts` `transition()` が AI を弾く | `/admin/content/[variant]`（承認できない理由の表示）+ `/admin/settings`（PASS: `tests/domain/invariants.test.ts` / `tests/application/manage-personas.test.ts`） | 実装済 |
 
 ## K. セキュリティ・コンプライアンス（§26、§17、ブログ層 §16.1・§17.2・§20）
 
 | REQ | 要件 | 実装 | test | 結果 |
 | --- | --- | --- | --- | --- |
-| REQ-SEC01 | §26.4 テナント分離（全クエリに workspace_id 制約） | `src/domain/shared/tenancy.ts`（型のみ） | NOT RUN | スタブ |
-| REQ-SEC02 | URL取り込みの SSRF 対策（private IP・redirect・スキーム制限） | — | NOT RUN | 未着手 |
-| REQ-SEC03 | provenance（§10.5）の記録 | `src/domain/shared/provenance.ts` | NOT RUN | スタブ |
-| REQ-SEC04 | §19.4 編集評価と報酬データの分離（Ranking Service は Editorial のみ） | `src/domain/ranking/`（型による排除は未実装） | NOT RUN | スタブ |
-| REQ-SEC05 | プロンプトインジェクション対策（ブログ層 §16.1） | `docs/spec/07-…` §1-4（設計のみ） | NOT RUN | 未着手 |
-| REQ-SEC06 | `rel="sponsored"`（ブログ層 §17.2） | — | NOT RUN | 未着手 |
-| REQ-SEC07 | 広告表示・コンプライアンス（薬機法・景表法・ASP規約） | — | NOT RUN | 未着手 |
-| REQ-SEC08 | WCAG 2.2 AA（ブログ層 §20） | — | NOT RUN | 未着手 |
-| REQ-SEC09 | 監査ログ（AuditLog） | — | NOT RUN | 未着手 |
+| REQ-SEC01 | §26.4 テナント分離（全クエリに workspace_id 制約） | `src/domain/shared/tenancy.ts` `assertSameTenant()` を 6 つのユースケース群（product / ranking / content / distribution / monetization / publication）が呼ぶ | NOT RUN（保存先が見本データのため、DB クエリ側の制約は未検証） | スタブ |
+| REQ-SEC02 | URL取り込みの SSRF 対策（private IP・redirect・スキーム制限） | 入口は `src/domain/monetization/link-ingestion.ts` `normalizeAffiliateUrl()` / `isInternalHost()`。取得は `src/infrastructure/http/guarded-fetch.ts` が転送を自動で追わず 1 ホップごとに再判定（回数5・2MB・10秒の上限つき） | PASS（`tests/infrastructure/guarded-fetch.test.ts` 9件 + `tests/architecture/dependency-direction.test.ts`「外部への取得は guarded-fetch だけが行う」） | 実装済 |
+| REQ-SEC03 | provenance（§10.5）の記録 | `src/domain/shared/provenance.ts` `createProvenance()` / `isExpired()` | NOT RUN（記録は作れるが、取得系アダプタが未接続のため実データが流れない） | スタブ |
+| REQ-SEC04 | §19.4 編集評価と報酬データの分離（Ranking Service は Editorial のみ） | `src/domain/shared/data-classification.ts` の `Editorial<T>` / `Commercial<T>`。ランキングのユースケースに報酬ポートを注入すると型が通らない | PASS（`tests/architecture/commercial-isolation.test.ts` / `dependency-direction.test.ts`「ランキングのユースケースは報酬のポートを参照しない」） | 実装済 |
+| REQ-SEC05 | プロンプトインジェクション対策（ブログ層 §16.1） | `src/domain/generation/injection-guard.ts`（7パターン検出・削除せず保留）+ `src/infrastructure/llm/prompt-assembly.ts`（指示と資料を別枠・区切り記号の無効化・資料は指示ではないと明記） | PASS（`tests/domain/generation-plan.test.ts`「取り込んだ文章の扱い」6件） | 実装済 |
+| REQ-SEC06 | `rel="sponsored"`（ブログ層 §17.2） | `src/domain/compliance/disclosure.ts` `relAttributeFor()`、表示は `src/presentation/ui/patterns/disclosure.tsx` `AffiliateLink` のみ。画面が自前で書いていないことを機械で検査 | PASS（`tests/domain/invariants.test.ts` / `tests/ui/ui-layers.test.ts`「画面が広告表示を自前で書いていない」） | 実装済 |
+| REQ-SEC07 | 広告表示・コンプライアンス（薬機法・景表法・ASP規約） | `src/domain/compliance/policy-rule.ts`（分野×出力先で絞る。根拠と代替表現が無いルールは登録できない）+ `quality-check.ts` の誇大表現・広告表記・CTA過剰。公開可否は `publish-gate.ts` | PASS（`tests/domain/invariants.test.ts` 該当群）。分野別ルールの初期データ登録は残課題 | スタブ |
+| REQ-SEC08 | WCAG 2.2 AA（ブログ層 §20） | 共通UIで担保: 触れる大きさ `--tap-target-min`、`--focus-ring-*`、`aria-current`、色以外での区別（`FactualityBadge` / `FactSourceBadge` は記号+文字）、表の `scope` / `caption` | PASS（`tests/ui/design-tokens.test.ts` / `tests/ui/patterns-render.test.tsx`）。自動計測（axe）と実機での読み上げ確認は残課題 | スタブ |
+| REQ-SEC09 | 監査ログ（AuditLog） | `src/domain/compliance/audit-log.ts` `createAuditLogEntry()` / `redactSensitive()`（秘密情報は `[記録しません]` に置換）/ `wasApprovedByHuman()` | `/admin/settings`（監査記録の一覧） | 実装済 |
 | REQ-SEC10 | 秘密情報の取り扱い（Secrets は wrangler secret、リポジトリに置かない） | `.gitignore`（`.dev.vars`） | NOT RUN | 実装済 |
 
 ## L. 品質検査（`05-文章作成メソッド仕様.md` §7 の QC-01〜QC-17）
 
 | REQ | 検査 | 実装 | 結果 |
 | --- | --- | --- | --- |
-| REQ-QC01 | QC-01 必須セクションの存在 | `src/lib/content/publish-gate.ts`（一部） | スタブ |
-| REQ-QC02 | QC-02〜QC-04 段落・文長・見出し | — | 未着手 |
-| REQ-QC03 | QC-05 禁止表現 | — | 未着手 |
-| REQ-QC04 | QC-06 事実分類の付与 | `src/domain/shared/data-classification.ts` | スタブ |
-| REQ-QC05 | QC-07 根拠のない主張 | `src/domain/evidence/claim.ts` `isClaimUsable` | スタブ |
-| REQ-QC06 | QC-08〜QC-10 単位・結論一致・日付 | — | 未着手 |
-| REQ-QC07 | QC-11 ペルソナ差分の事実境界 | — | 未着手 |
-| REQ-QC08 | QC-12 マルチサイト重複 | — | 未着手 |
-| REQ-QC09 | QC-13 広告表記 | `src/db/schema.ts` disclosures | スタブ |
-| REQ-QC10 | QC-14 会話ブロック制約 | — | 未着手 |
-| REQ-QC11 | QC-15〜QC-17 薬機法・景表法・アクセシビリティ | — | 未着手 |
-| REQ-QC12 | 公開ゲート（ブログ層 §21 の11項目） | `src/lib/content/publish-gate.ts` | スタブ |
+| REQ-QC01 | QC-01 必須セクションの存在 | `src/domain/authoring/article-structure.ts` `missingSections()` を `src/domain/compliance/publish-gate.ts` が `required_sections` として呼ぶ | 実装済 |
+| REQ-QC02 | QC-02〜QC-04 段落・文長・見出し | `quality-check.ts` `paragraph_shape`（1段落3文まで）/ `sentence_length`（1文80文字まで）/ `vague_heading`（`VAGUE_HEADING_PATTERNS`） | 実装済 |
+| REQ-QC03 | QC-05 禁止表現 | `quality-check.ts` `EXAGGERATION_PATTERNS`（8種）+ `checkProhibitedPhrases()`（書き手ごと）+ `policy-rule.ts`（分野別・登録制） | 実装済 |
+| REQ-QC04 | QC-06 事実分類の付与 | `src/domain/shared/data-classification.ts` + `writing-style.ts` `FACT_LABELS`（6種）。表示は `FactSourceBadge` | 実装済 |
+| REQ-QC05 | QC-07 根拠のない主張 | `src/domain/evidence/claim.ts` `isClaimUsable` + `quality-check.ts` `unsourced_number` / `missing_citation` | 実装済 |
+| REQ-QC06 | QC-08〜QC-10 単位・結論一致・日付 | `quality-check.ts` `unit_missing`（`MEASURE_WORDS` の後ろの数値に単位が無ければ止める）/ `conclusion_mismatch`（冒頭と最終の結論を照合）/ `relative_date`（「先日」「今年」など11種） | 実装済 |
+| REQ-QC07 | QC-11 ペルソナ差分の事実境界 | `src/domain/authoring/author-persona.ts` `checkFactBoundary()` を `quality-check.ts` `fabricated_experience` が呼ぶ | 実装済 |
+| REQ-QC08 | QC-12 マルチサイト重複 | `quality-check.ts` `similarity()`（3-gram、0.85以上で停止）+ `site-blueprint.ts` `differentiationGap()`（10軸・3軸以上） | 実装済 |
+| REQ-QC09 | QC-13 広告表記 | `quality-check.ts` `disclosure_present`（媒体が本文内表記を要求する場合も見る）+ `publish-gate.ts` `disclosure` | 実装済 |
+| REQ-QC10 | QC-14 会話ブロック制約 | `conversation-block.ts` `validateConversationFlow()` を `quality-check.ts` `conversation_flow` が呼ぶ（本文を挟むと連続を数え直す） | 実装済 |
+| REQ-QC11 | QC-15〜QC-17 薬機法・景表法・アクセシビリティ | 薬機法・景表法は `policy-rule.ts`（分野×出力先・根拠と代替表現つき）、アクセシビリティは共通UI側（REQ-SEC08）。分野別ルールの初期データは未登録 | スタブ |
+| REQ-QC12 | 公開ゲート（ブログ層 §21 の11項目） | `src/domain/compliance/publish-gate.ts` `evaluatePublishGate()`（13項目。仕組みの無いものは失敗にせず `skipped` に残す） | 実装済 |
+
+いずれの検査結果も `/admin/content/[variant]` に表示される（止めた件数・理由・
+**検査していない項目とその理由**）。「検査していないものを合格に見せない」ため、
+`skipped` を画面に出すところまでを 1 組として扱う。
 
 ## M. 禁止依存（ブログ層 §27）
 

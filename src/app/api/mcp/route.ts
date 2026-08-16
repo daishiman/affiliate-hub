@@ -63,7 +63,10 @@ export async function POST(request: Request) {
       id,
       result: {
         protocolVersion: PROTOCOL_VERSION,
-        capabilities: { tools: { listChanged: false } },
+        capabilities: {
+          tools: { listChanged: false },
+          resources: { listChanged: false, subscribe: false },
+        },
         serverInfo: { name: "affiliate-hub", version: "0.1.0" },
       },
     });
@@ -83,7 +86,8 @@ export async function POST(request: Request) {
     }
   }
 
-  if (method !== "tools/list" && method !== "tools/call") {
+  const handled = ["tools/list", "tools/call", "resources/list", "resources/read"];
+  if (!handled.includes(method)) {
     if (isNotification) return new Response(null, { status: 202 });
     return rpcError(id, -32601, `対応していないメソッドです: ${method}`);
   }

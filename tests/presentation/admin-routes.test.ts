@@ -1,4 +1,4 @@
-import { existsSync } from "node:fs";
+import { existsSync, readdirSync } from "node:fs";
 import { resolve } from "node:path";
 import { describe, expect, it } from "vitest";
 import { ADMIN_NAV } from "@/presentation/ui";
@@ -40,6 +40,22 @@ describe("管理画面の案内", () => {
     // 「壊れたリンクを見逃す穴」として残り続ける。
     const stale = KNOWN_MISSING.filter((href) => existsSync(pageFileFor(href)));
     expect(stale, "画面ができているのに未着手の一覧に残っています").toEqual([]);
+  });
+
+  it("画面があるのに案内に無い（どこからも辿り着けない）ものが無い", () => {
+    // 逆向きの壊れ方。画面を作ったが案内に足し忘れると、
+    // URL を知っている人しか使えない画面になる。
+    const adminDir = resolve(ROOT, "src/app/admin");
+    const orphans: string[] = [];
+    for (const name of readdirSync(adminDir, { withFileTypes: true })) {
+      if (!name.isDirectory()) continue;
+      // 動的な区切り（[variant] など）は親の一覧から辿るので、案内には出さない。
+      if (name.name.startsWith("[")) continue;
+      if (!existsSync(resolve(adminDir, name.name, "page.tsx"))) continue;
+      const href = `/admin/${name.name}`;
+      if (!ADMIN_NAV.some((item) => item.href === href)) orphans.push(href);
+    }
+    expect(orphans, "画面はあるが案内に載っていません").toEqual([]);
   });
 
   it("案内のリンク先はすべて /admin の下にある", () => {
