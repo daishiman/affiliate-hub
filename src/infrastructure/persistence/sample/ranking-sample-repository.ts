@@ -62,7 +62,7 @@ function buildSampleModel(): RankingModel {
     id: SAMPLE_MODEL_ID,
     workspaceId: SAMPLE_WORKSPACE_ID as WorkspaceId,
     categoryId: SAMPLE_CATEGORY_ID as CategoryId,
-    version: "2026.08-1",
+    version: "2026.08-2",
     audience: "動画編集をする人",
     criteria: [
       {
@@ -91,9 +91,16 @@ function buildSampleModel(): RankingModel {
       },
       {
         key: "price_value",
-        weight: 0.15,
+        weight: 0.1,
         measurement: "計測した性能を実売価格で割った値を正規化",
         passThreshold: 0.2,
+      },
+      {
+        // 変更容易性シナリオ⑤の実測で足した軸。コードの分岐は 1 つも増えていない。
+        key: "repairability",
+        weight: 0.05,
+        measurement: "交換部品の入手可否と、自分で開けられるかを確認",
+        passThreshold: 0.0,
       },
     ],
     effectiveFrom: new Date("2026-08-01T00:00:00Z"),
@@ -112,6 +119,7 @@ const SAMPLE_CARDS: readonly EditorialScoreCard[] = [
   {
     productId: productId("p_alpha_15"),
     scores: {
+      repairability: 0.35,
       measured_performance: 0.92,
       usability: 0.78,
       durability: 0.7,
@@ -124,6 +132,7 @@ const SAMPLE_CARDS: readonly EditorialScoreCard[] = [
   {
     productId: productId("p_beta_14"),
     scores: {
+      repairability: 0.72,
       measured_performance: 0.71,
       usability: 0.86,
       durability: 0.64,
@@ -136,6 +145,7 @@ const SAMPLE_CARDS: readonly EditorialScoreCard[] = [
   {
     productId: productId("p_gamma_16"),
     scores: {
+      repairability: 0.48,
       measured_performance: 0.88,
       usability: 0.62,
       durability: 0.81,
@@ -149,6 +159,7 @@ const SAMPLE_CARDS: readonly EditorialScoreCard[] = [
     // 合格ラインを下回る項目があるため、選外として理由付きで返る見本。
     productId: productId("p_delta_13"),
     scores: {
+      repairability: 0.66,
       measured_performance: 0.22,
       usability: 0.74,
       durability: 0.55,

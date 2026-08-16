@@ -34,6 +34,7 @@ export const ALLOWED_RANKING_CRITERIA = [
   "durability", // 耐久性
   "support", // サポート
   "price_value", // 価格妥当性 (価格そのものではなく「価格に対する価値」)
+  "repairability", // 修理のしやすさ (部品の入手性と分解可否)
 ] as const;
 
 export type AllowedCriterionKey = (typeof ALLOWED_RANKING_CRITERIA)[number];
