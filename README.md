@@ -94,8 +94,20 @@ feature/xxx ──PR──▶ dev ──自動デプロイ──▶ 開発環境
 
 | Secret | 取得元 |
 | --- | --- |
-| `CLOUDFLARE_API_TOKEN` | Cloudflare ダッシュボード → My Profile → API Tokens（要権限: Workers Scripts / D1 / R2 の編集） |
+| `CLOUDFLARE_API_TOKEN` | 下記スクリプトで自動発行（権限: Workers Scripts / D1 / R2 の編集 + Account Settings 読み取り） |
 | `CLOUDFLARE_ACCOUNT_ID` | `npx wrangler whoami` で確認 |
+
+```bash
+pnpm setup:cf-token
+```
+
+トークンを必要最小の権限で発行し、そのまま `gh secret set` まで行います。値は画面にも出しません。
+
+> **なぜ Global API Key を聞かれるのか:** wrangler の OAuth トークンでは API トークンを発行できません。
+> `wrangler login --scopes-list` に「API トークンの管理」に相当するスコープが存在せず、
+> 実際に `GET /user/tokens` を叩くと `403 / code 9109` で拒否されます。
+> トークンを作れるのは **Global API Key** か **User API Tokens: Edit を持つ既存トークン**だけです。
+> Global API Key はアカウント全権なので、このスクリプト以外では使わず、GitHub には保存しないでください。
 
 ## MCP 連携
 
