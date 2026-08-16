@@ -56,6 +56,9 @@ import {
   createReadGenerationPlanUseCase,
   createReviewMaterialUseCase,
 } from "@/application/usecases/generation/read-generation-plan";
+import { createDraftContentVariantUseCase } from "@/application/usecases/generation/draft-content-variant";
+import type { GenerationInput } from "@/domain/generation";
+import { sampleGenerationInput } from "@/infrastructure/persistence/sample/generation-sample-input";
 import {
   createAdjustConversionUseCase,
   createGetConversionUseCase,
@@ -567,15 +570,29 @@ export function analyticsUseCases() {
 /**
  * 生成の仕組みの入口。
  *
- * 外部に何も問い合わせない。決めごとそのものを読むだけなので、
- * 依存を組み立てる必要が無い。
+ * 3 つは外部に何も問い合わせない（決めごとそのものを読むだけ）。
+ * 4 つめの `draft` だけが生成 AI を実際に呼ぶ。
+ * どこの提供元を呼ぶかは `src/infrastructure/llm/llm-setup.ts` の 1 行が決めており、
+ * ここも画面も、提供元の名前を知らない。
  */
 export function generationUseCases() {
+  const deps = createDeps();
   return {
     readPlan: createReadGenerationPlanUseCase(),
     checkInput: createCheckGenerationInputUseCase(),
     reviewMaterial: createReviewMaterialUseCase(),
+    draft: createDraftContentVariantUseCase({ llm: deps.llm, costs: deps.llmCosts }),
   };
+}
+
+/**
+ * 18 項目がそろった状態の見本。
+ *
+ * **見本データ（スタブ）である。** 画面で「そろった状態」を実際に押して
+ * 確かめるためだけに置いてある。表示するときは見本であることを併記する。
+ */
+export function sampleGenerationInputForTrial(): GenerationInput {
+  return sampleGenerationInput();
 }
 
 /**

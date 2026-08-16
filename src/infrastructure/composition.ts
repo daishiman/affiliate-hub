@@ -4,6 +4,7 @@ import {
   type DrizzleD1,
 } from "./persistence/d1/link-inbox-repository";
 import { createEventPublisher } from "./platform/queue";
+import { createLlmPorts } from "./llm/llm-setup";
 import { createSampleContentRepository } from "./persistence/sample/content-sample-repository";
 import {
   createSampleRankingModelRepository,
@@ -67,6 +68,7 @@ import { idGenerator } from "./platform/id-generator";
  */
 export function createDeps(options: { readonly db?: DrizzleD1 | null } = {}): AppDeps {
   const db = options.db ?? null;
+  const llmPorts = createLlmPorts();
   return {
     // ★ 見本データ（スタブ）。ranking_models / score_cards テーブルができたら差し替える。
     rankingModels: createSampleRankingModelRepository(),
@@ -112,6 +114,10 @@ export function createDeps(options: { readonly db?: DrizzleD1 | null } = {}): Ap
     events: createEventPublisher(null),
     // ID の作り方。試験では順番に増える作りへ差し替えて、結果を読めるようにする。
     ids: idGenerator,
+    // 生成 AI。どこの提供元かは llm-setup.ts の 1 行が決める（シナリオ ②）。
+    // 鍵が未登録のあいだはスタブが失敗を返す。空の記事を作らない。
+    llm: llmPorts.llm,
+    llmCosts: llmPorts.costs,
     // ★ 見本データ（スタブ）。提携先・提携条件・成果。
     //   本物の数字には各 ASP の API 申請と、利用者ご自身による接続情報の登録が要る。
     //   ここで作るものには商業の印が付いており、順位づけへは型として渡せない。

@@ -1,8 +1,20 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { AdminShell } from "@/presentation/admin/admin-shell";
-import { currentActor, generationUseCases } from "@/presentation/composition";
-import { Callout, Card, EmptyView, ErrorView, MaterialReview, Page } from "@/presentation/ui";
+import {
+  currentActor,
+  generationUseCases,
+  sampleGenerationInputForTrial,
+} from "@/presentation/composition";
+import {
+  Callout,
+  Card,
+  EmptyView,
+  ErrorView,
+  MaterialReview,
+  Page,
+  StubNotice,
+} from "@/presentation/ui";
 import styles from "../admin.module.css";
 
 export const dynamic = "force-dynamic";
@@ -23,17 +35,24 @@ export default async function GenerationPage({
 }) {
   const params = await searchParams;
   const material = params.material ?? "";
+  // 「そろっていない状態」と「そろった状態」のどちらで試したか。
+  const trial = params.trial === "ready" ? "ready" : params.trial === "empty" ? "empty" : null;
 
   const actor = await currentActor();
   const uc = generationUseCases();
 
-  const [plan, readiness, review] = await Promise.all([
+  const [plan, readiness, review, draft] = await Promise.all([
     uc.readPlan.execute(actor, {}),
     // 何も渡していない状態を出す。「そろわないと始められない」ことを実物で示す。
     uc.checkInput.execute(actor, {}),
     material === ""
       ? Promise.resolve(null)
       : uc.reviewMaterial.execute(actor, { text: material }),
+    trial === null
+      ? Promise.resolve(null)
+      : uc.draft.execute(actor, {
+          provided: trial === "ready" ? sampleGenerationInputForTrial() : {},
+        }),
   ]);
 
   if (!plan.ok) {
@@ -226,6 +245,63 @@ export default async function GenerationPage({
             <li key={f}>{f}</li>
           ))}
         </ul>
+      </Card>
+
+      <Card>
+        <h2 className={styles.sectionTitle}>下書きを作らせてみる</h2>
+        <p className={styles.sectionLead}>
+          実際に押して確かめられます。18
+          項目がそろっていない状態では、何が足りないかを返して始めません。そろった状態で押すと、生成 AI
+          への接続まで進みます。接続先はまだ選定と鍵の登録が済んでいないため、そこで止まります。
+        </p>
+        <p className={styles.linkList}>
+          <Link href="/admin/generation?trial=empty">そろっていない状態で試す</Link>
+          {" ／ "}
+          <Link href="/admin/generation?trial=ready">そろった状態（見本の素材）で試す</Link>
+          {trial !== null && (
+            <>
+              {" ／ "}
+              <Link href="/admin/generation">結果を消す</Link>
+            </>
+          )}
+        </p>
+
+        {trial === "ready" && (
+          <StubNotice
+            what="ここで渡している 18 項目の素材"
+            blockedBy="商品・主張・根拠の各画面で承認した素材を組み立てて渡すようにすること"
+            stubId="generation:sample-input"
+          />
+        )}
+
+        {draft === null ? (
+          <EmptyView
+            title="まだ試していません"
+            body="上のどちらかを押すと、その場で結果が出ます。作った下書きは保存しません。"
+          />
+        ) : draft.ok ? (
+          <>
+            <Callout
+              tone="info"
+              title={`下書きができました（${draft.value.modelId}・${draft.value.promptVersion}）`}
+              reason={`見積り ${draft.value.estimatedCostMinor} ${draft.value.currency}。この画面では保存しません。保存と公開は担当者が別の操作で行います。`}
+            />
+            <ul className={styles.linkList}>
+              {draft.value.instructionBlocks.map((b) => (
+                <li key={b.id}>
+                  {b.label}（{b.charCount} 文字）
+                </li>
+              ))}
+            </ul>
+          </>
+        ) : (
+          <ErrorView
+            title="下書きは作られませんでした"
+            body={draft.error.message}
+            suggestedAction={draft.error.suggestedAction ?? null}
+            action={<Link href="/admin/generation">結果を消す</Link>}
+          />
+        )}
       </Card>
 
       <Card>

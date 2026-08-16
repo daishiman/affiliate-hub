@@ -20,6 +20,7 @@ import type {
 import type { ClickTrackingPort, MetricsRepositoryPort } from "./ports/analytics";
 import type { EventPublisherPort, IdGeneratorPort } from "./ports/common";
 import type { AuditLogPort, DisclosureRepositoryPort } from "./ports/compliance";
+import type { LlmCostEstimatorPort, LlmPort } from "./ports/llm";
 import type {
   BrandRepositoryPort,
   MembershipRepositoryPort,
@@ -82,6 +83,13 @@ export type AppDeps = {
   readonly events: EventPublisherPort;
   /** 新しい ID を作る。ドメインは「文字列を ID として読む」だけで、作らない。 */
   readonly ids: IdGeneratorPort;
+  /**
+   * 生成 AI。提供元の名前はここに出さない。
+   * どこの提供元を使うかは `src/infrastructure/llm/llm-setup.ts` の 1 行が決める。
+   */
+  readonly llm: LlmPort;
+  /** 呼ぶ前の費用の概算。実行してから請求で気づく、を避ける。 */
+  readonly llmCosts: LlmCostEstimatorPort;
   /**
    * ここから下は Commercial 区分。
    * 順位づけのユースケースは Editorial 印のポートしか受け取らないので、

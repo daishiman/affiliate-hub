@@ -97,7 +97,7 @@ export function buildToolCatalog(deps: CatalogDeps): readonly AnyToolDefinition[
     ...distributionTools(deps),
     ...affiliateTools(deps),
     ...analyticsTools(deps),
-    ...generationTools(),
+    ...generationTools(deps),
     ...settingsTools(deps),
   ];
   // 仕様書 §24 の名前でも同じユースケースへ入れるようにする。
