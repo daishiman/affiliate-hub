@@ -36,6 +36,12 @@ export default function AdminHome() {
                 同じ結果が、画面からも AI からも返ることを確かめられます。
               </span>
             </li>
+            <li>
+              <Link href="/admin/ui-catalog">部品の見本帳を見る</Link>
+              <span className={styles.linkNote}>
+                すべての画面で使う部品と、その状態の見え方をまとめてあります。
+              </span>
+            </li>
           </ul>
         </Card>
 

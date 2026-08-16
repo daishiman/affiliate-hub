@@ -133,3 +133,18 @@
     text-align: left;
   }
 }
+
+/* --- 部品の見本帳 ------------------------------------------------------ */
+
+/* 部品を横に並べる。折り返して縦に積むので、狭い画面でも切れない。 */
+.catalogRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  align-items: center;
+}
+
+.catalogStack {
+  display: grid;
+  gap: var(--space-4);
+}
