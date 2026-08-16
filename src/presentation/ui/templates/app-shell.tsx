@@ -32,6 +32,7 @@ export const ADMIN_NAV: readonly NavItem[] = [
   { href: "/admin/evidence", label: "根拠" },
   { href: "/admin/rankings", label: "評価基準と順位" },
   { href: "/admin/content", label: "記事" },
+  { href: "/admin/personas", label: "書き手と読者像" },
   { href: "/admin/sites", label: "サイト" },
   { href: "/admin/distribution", label: "配信" },
   { href: "/admin/affiliate", label: "提携と成果" },

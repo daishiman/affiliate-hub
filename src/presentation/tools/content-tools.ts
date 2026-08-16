@@ -7,6 +7,13 @@ import {
   createListContentBoardUseCase,
   createListReviewOverdueUseCase,
 } from "@/application/usecases/content/manage-content";
+import {
+  createCheckFactBoundaryUseCase,
+  createGetAudiencePersonaUseCase,
+  createGetAuthorPersonaUseCase,
+  createListAudiencePersonasUseCase,
+  createListAuthorPersonasUseCase,
+} from "@/application/usecases/authoring/manage-personas";
 import { CONTENT_STATES } from "@/domain/authoring";
 import { defineTool } from "./define-tool";
 import type { AnyToolDefinition } from "./tool-definition";
@@ -69,6 +76,62 @@ export function contentTools(deps: AppDeps): readonly AnyToolDefinition[] {
       readOnly: false,
       requiresHumanApproval: true,
       useCase: createApproveContentUseCase(content),
+    }),
+    ...personaTools(deps),
+  ];
+}
+
+/**
+ * 書き手と読者像の道具。
+ *
+ * すべて読み取り専用。**ここに保存の道具を置いていないのは意図的で、**
+ * 見本の保存先がまだ書き込みを受け付けないため。
+ * 「押せるが必ず失敗する」ボタンを AI にも人にも見せない。
+ */
+function personaTools(deps: AppDeps): readonly AnyToolDefinition[] {
+  const personas = { personas: deps.personas };
+
+  return [
+    defineTool({
+      name: "list_author_personas",
+      description:
+        "書き手の一覧を返します。文体・使わない言葉・書いてよい事実の範囲と、その書き手にできないことを併せて返します。",
+      schema: z.object({}),
+      readOnly: true,
+      useCase: createListAuthorPersonasUseCase(personas),
+    }),
+    defineTool({
+      name: "get_author_persona",
+      description: "書き手 1 人の設定を返します。",
+      schema: z.object({ personaId: z.string().min(1) }),
+      readOnly: true,
+      useCase: createGetAuthorPersonaUseCase(personas),
+    }),
+    defineTool({
+      name: "list_audience_personas",
+      description:
+        "読者像の一覧を返します。判断条件・信頼のために必要なもの・決めつけてはいけないことを併せて返します。",
+      schema: z.object({}),
+      readOnly: true,
+      useCase: createListAudiencePersonasUseCase(personas),
+    }),
+    defineTool({
+      name: "get_audience_persona",
+      description: "読者像 1 つの設定を返します。",
+      schema: z.object({ personaId: z.string().min(1) }),
+      readOnly: true,
+      useCase: createGetAudiencePersonaUseCase(personas),
+    }),
+    defineTool({
+      name: "check_fact_boundary",
+      description:
+        "文章がその書き手の書いてよい範囲に収まっているかを調べます。実際に試した記録が無いのに一人称の体験を書いている箇所と、使わないと決めた言葉を指摘します。",
+      schema: z.object({
+        personaId: z.string().min(1),
+        body: z.string().min(1),
+      }),
+      readOnly: true,
+      useCase: createCheckFactBoundaryUseCase(personas),
     }),
   ];
 }

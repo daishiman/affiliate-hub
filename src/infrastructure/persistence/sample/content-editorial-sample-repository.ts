@@ -10,6 +10,7 @@ import {
   type ContentPackage,
   type ContentState,
   type ContentVariant,
+  createAudiencePersona,
   createAuthorPersona,
   createContentPackage,
   createContentVariant,
@@ -89,6 +90,117 @@ const AUTHOR: AuthorPersona = unwrap(
   }),
   "書き手",
 );
+
+/**
+ * もう 1 人の書き手（ブランドキャラクター）。
+ *
+ * **わざと資格も経験年数も持たせていない。**
+ * 架空の人物に資格を名乗らせないという決まりが、
+ * 見本を作る時点で効いていることを画面で確かめられるようにするため。
+ */
+const CHARACTER_AUTHOR: AuthorPersona = unwrap(
+  createAuthorPersona({
+    id: taggedString<"AuthorPersonaId">("ap_navi") as AuthorPersonaId,
+    workspaceId: WS,
+    displayName: "ナビ（案内役）",
+    personaType: "brand_character",
+    role: "はじめての人に手順を案内する役",
+    expertise: ["用語の言いかえ"],
+    knowledgeLevel: "beginner",
+    firstPersonPronoun: "ぼく",
+    readerAddress: "きみ",
+    tone: {
+      formality: 0.3,
+      analytical: 0.4,
+      emotional: 0.6,
+      assertiveness: 0.3,
+      humor: 0.4,
+      emojiUsage: 0.2,
+    },
+    prohibitedPhrases: ["絶対", "確実に"],
+    disclosureStyle: "会話の前に1行で書く",
+    ctaStyle: "急がせない。迷ったら見送る選択も示す",
+    // 架空の人物なので、自分で試した話は書けない。
+    factBoundary: ["編集部が測った記録の紹介", "用語の説明"],
+  }),
+  "書き手（案内役）",
+);
+
+const AUTHORS: readonly AuthorPersona[] = [AUTHOR, CHARACTER_AUTHOR];
+
+/**
+ * 読者ペルソナの見本。
+ *
+ * 知識量を 3 段階そろえている。1 種類しか置かないと、
+ * 「誰に向けて書くか」で文章がどう変わるかを画面で比べられない。
+ */
+function audience(input: Parameters<typeof createAudiencePersona>[0]): AudiencePersona {
+  return unwrap(createAudiencePersona(input), `読者像（${input.name}）`);
+}
+
+const AUDIENCES: readonly AudiencePersona[] = [
+  audience({
+    id: AUDIENCE_ID,
+    workspaceId: WS,
+    name: "動画編集を始めたばかりの人",
+    primaryJob: "はじめての動画編集用ノートPCを、失敗せずに選びたい",
+    currentSituation: "手持ちのPCで書き出しに時間がかかり、作業が止まっている",
+    desiredOutcome: "予算のなかで、書き出しを待たずに編集できる機種を選べる",
+    knowledgeLevel: "beginner",
+    awarenessStage: "problem_aware",
+    painPoints: ["専門用語が多くて比べられない", "高い買い物なので外したくない"],
+    objections: ["安い機種でも足りるのではないか"],
+    decisionCriteria: ["書き出しの速さ", "価格", "重さ"],
+    budgetContext: "15万円前後まで",
+    trustRequirements: ["実際に測った数字があること", "誰が書いたか分かること"],
+    preferredDetailLevel: "standard",
+    commonQuestions: ["メモリは何GB必要ですか", "中古でも大丈夫ですか"],
+    desiredEmotionalState: "これを選べば大丈夫だと思える",
+    nextAction: "候補を2つに絞って、店頭か通販で確かめる",
+    prohibitedAssumptions: ["CPUの型番の読み方を知っている", "動画の書き出し設定を理解している"],
+  }),
+  audience({
+    id: taggedString<"AudiencePersonaId">("dp_video_intermediate") as AudiencePersonaId,
+    workspaceId: WS,
+    name: "副業で受注を始めた編集者",
+    primaryJob: "納期に間に合う作業環境へ買い替えたい",
+    currentSituation: "案件が増え、書き出し待ちが利益を圧迫している",
+    desiredOutcome: "1日の作業本数を増やせる機種に替える",
+    knowledgeLevel: "intermediate",
+    awarenessStage: "solution_aware",
+    painPoints: ["書き出し待ちの時間が読めない", "外出先での作業が続かない"],
+    objections: ["デスクトップの方が費用対効果が高いのでは"],
+    decisionCriteria: ["書き出しの速さ", "電源なしで使える時間", "静かさ"],
+    budgetContext: "25万円まで。経費で落とす",
+    timeContext: "今月中に決めたい",
+    trustRequirements: ["同じ条件で測った比較があること"],
+    preferredDetailLevel: "detailed",
+    commonQuestions: ["同じ書き出し設定での比較はありますか"],
+    desiredEmotionalState: "投資として納得できる",
+    nextAction: "比較表で上位2機種の差額と時間短縮を見比べる",
+    prohibitedAssumptions: ["色の管理まで理解している"],
+  }),
+  audience({
+    id: taggedString<"AudiencePersonaId">("dp_video_expert") as AudiencePersonaId,
+    workspaceId: WS,
+    name: "制作会社の機材担当",
+    primaryJob: "複数台をまとめて選定し、社内に説明できる根拠をそろえたい",
+    currentSituation: "更新時期が来ており、稟議の資料を作っている",
+    desiredOutcome: "測定条件つきの比較を根拠として使える",
+    knowledgeLevel: "expert",
+    awarenessStage: "product_aware",
+    painPoints: ["記事ごとに測定条件が違い、比較にならない"],
+    objections: ["提携目的の順位づけではないか"],
+    decisionCriteria: ["測定条件の明示", "書き出しの速さ", "保守のしやすさ"],
+    budgetContext: "1台あたり30万円。台数で調整する",
+    trustRequirements: ["測定条件と日付が書いてあること", "広告表示があること"],
+    preferredDetailLevel: "detailed",
+    commonQuestions: ["測定に使った素材と設定は何ですか"],
+    desiredEmotionalState: "社内に説明できる",
+    nextAction: "測定条件のページを保存して稟議に添付する",
+    prohibitedAssumptions: [],
+  }),
+];
 
 const PACKAGE: ContentPackage = unwrap(
   createContentPackage({
@@ -265,18 +377,16 @@ export function createSampleContentPackageRepository(): EditorialContentPackageR
 export function createSamplePersonaRepository(): EditorialPersonaRepositoryPort {
   return markEditorial({
     async findAuthor(_ws: WorkspaceId, id: AuthorPersonaId) {
-      return ok(id === AUTHOR_ID ? AUTHOR : null);
+      return ok(AUTHORS.find((a) => a.id === id) ?? null);
     },
-    async findAudience(_ws: WorkspaceId, _id: AudiencePersonaId) {
-      // 読者ペルソナの見本はまだ用意していない。
-      // null を返して「無い」と伝え、作り話の人物像を返さない。
-      return ok(null as AudiencePersona | null);
+    async findAudience(_ws: WorkspaceId, id: AudiencePersonaId) {
+      return ok(AUDIENCES.find((a) => a.id === id) ?? null);
     },
     async listAuthors(_ws: WorkspaceId, page: Page) {
-      return ok({ items: [AUTHOR].slice(0, page.limit), nextCursor: null });
+      return ok({ items: AUTHORS.slice(0, page.limit), nextCursor: null });
     },
-    async listAudiences(_ws: WorkspaceId, _page: Page) {
-      return ok({ items: [] as readonly AudiencePersona[], nextCursor: null });
+    async listAudiences(_ws: WorkspaceId, page: Page) {
+      return ok({ items: AUDIENCES.slice(0, page.limit), nextCursor: null });
     },
     async saveAuthor() {
       return saveRejected("書き手");

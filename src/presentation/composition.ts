@@ -26,6 +26,13 @@ import {
   createListReviewOverdueUseCase,
 } from "@/application/usecases/content/manage-content";
 import {
+  createCheckFactBoundaryUseCase,
+  createGetAudiencePersonaUseCase,
+  createGetAuthorPersonaUseCase,
+  createListAudiencePersonasUseCase,
+  createListAuthorPersonasUseCase,
+} from "@/application/usecases/authoring/manage-personas";
+import {
   createCancelPublicationUseCase,
   createExportManualDraftUseCase,
   createGetPublicationUseCase,
@@ -290,6 +297,23 @@ export function contentUseCases() {
     listReviewOverdue: createListReviewOverdueUseCase(content),
     advanceState: createAdvanceContentStateUseCase(content),
     approve: createApproveContentUseCase(content),
+  };
+}
+
+/**
+ * 書き手と読者像の入口。
+ *
+ * **記事を作る前に決めるもの。** 誰の立場で、誰に向けて書くかが決まらないと、
+ * 比較の観点も、使ってよい言い回しも決まらない。
+ */
+export function personaUseCases() {
+  const personas = { personas: createDeps().personas };
+  return {
+    listAuthors: createListAuthorPersonasUseCase(personas),
+    getAuthor: createGetAuthorPersonaUseCase(personas),
+    listAudiences: createListAudiencePersonasUseCase(personas),
+    getAudience: createGetAudiencePersonaUseCase(personas),
+    checkFactBoundary: createCheckFactBoundaryUseCase(personas),
   };
 }
 
