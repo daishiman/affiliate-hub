@@ -1,3 +1,4 @@
+import { allowedOriginsFrom, checkOrigin, originRejection } from "@/presentation/http/origin-guard";
 import { domainError } from "@/domain/shared";
 import { authenticateRequest, createToolCatalog, currentActor } from "@/presentation/composition";
 import { errorResponse } from "@/presentation/http/error-response";
@@ -17,6 +18,10 @@ export const dynamic = "force-dynamic";
  * 片方の入口だけ緩い、という状態が作れない。
  */
 export async function POST(request: Request, ctx: { params: Promise<{ tool: string }> }) {
+  // よそのサイトのページから、こちらのログイン状態を使って呼ばれるのを止める。
+  const origin = checkOrigin(request, allowedOriginsFrom(process.env as Record<string, string | undefined>));
+  if (!origin.ok) return originRejection(origin);
+
   const auth = await authenticateRequest(request);
   if (!auth.ok) {
     return Response.json({ error: auth.message }, { status: auth.status });

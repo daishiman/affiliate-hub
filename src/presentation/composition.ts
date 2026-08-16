@@ -124,6 +124,7 @@ import {
 } from "@/infrastructure/persistence/sample/ranking-sample-repository";
 import { buildToolCatalog, rankProductsTool } from "./tools/catalog";
 import { toWebMcpDescriptors, type WebMcpDescriptor } from "./tools/webmcp-adapter";
+import { toolNamesForPage, type PageKind } from "./tools/webmcp-policy";
 import type { AnyToolDefinition, ToolDefinition } from "./tools/tool-definition";
 import type { RankProductsInput } from "@/application/usecases/ranking/rank-products";
 import type { RankingResult } from "@/domain/ranking";
@@ -171,23 +172,19 @@ export function actorNotice(): string {
 /**
  * 読者のページに載せる、AI 向けの操作宣言（WebMCP）。
  *
- * 3 つの決まりをここで守る。守る場所を 1 箇所にしないと、ページごとにずれる。
+ * 4 つの決まりをここで守る。守る場所を 1 箇所にしないと、ページごとにずれる。
  *   1. 読み取り専用だけ（`toWebMcpDescriptors` が絞る）
  *   2. 1 ページ 6 件まで（`MAX_TOOLS_PER_PAGE`）
- *   3. すべて通常の画面操作でも同じことができる
- *      （順位・商品・比較・根拠・理由・代替は、いずれも読者向け画面がある）
+ *   3. ページ種別ごとに選ぶ（`PAGE_TOOLS`。記事と比較で要る道具は違う）
+ *   4. すべて通常の画面操作でも同じことができる
+ *
+ * 機能フラグ（`WEBMCP_ENABLED`）が切れていれば空を返す。
+ * 空でも画面は普通に使える（AI 向けの宣言が出ないだけ）。
  */
-export function readerWebMcpDescriptors(): readonly WebMcpDescriptor[] {
-  const wanted = [
-    "list_ranking",
-    "get_product",
-    "compare_products",
-    "get_evidence",
-    "explain_ranking",
-    "find_alternatives",
-  ];
-  const catalog = createToolCatalog().filter((t) => wanted.includes(t.name));
-  return toWebMcpDescriptors(catalog);
+export function readerWebMcpDescriptors(
+  kind: PageKind = "article",
+): readonly WebMcpDescriptor[] {
+  return descriptorsForPage(kind);
 }
 
 /**
@@ -196,16 +193,19 @@ export function readerWebMcpDescriptors(): readonly WebMcpDescriptor[] {
  * 状態を変える操作は載せない。承認と公開は人が画面で行う。
  */
 export function adminWebMcpDescriptors(): readonly WebMcpDescriptor[] {
-  const wanted = [
-    "list_content_board",
-    "list_review_overdue",
-    "list_publications",
-    "list_conversions",
-    "list_metrics",
-    "list_managed_sites",
-  ];
-  const catalog = createToolCatalog().filter((t) => wanted.includes(t.name));
-  return toWebMcpDescriptors(catalog);
+  return descriptorsForPage("admin");
+}
+
+function descriptorsForPage(kind: PageKind): readonly WebMcpDescriptor[] {
+  const wanted = toolNamesForPage(kind, process.env as Record<string, string | undefined>);
+  if (wanted.length === 0) return [];
+  // 並び順は表の順に揃える。カタログの並びに任せると、
+  // 同じページでも登録順が変わって挙動の説明が付かなくなる。
+  const catalog = createToolCatalog();
+  const picked = wanted
+    .map((name) => catalog.find((t) => t.name === name))
+    .filter((t): t is NonNullable<typeof t> => t !== undefined);
+  return toWebMcpDescriptors(picked);
 }
 
 /** 順位の画面が使う入口。型が付いているので、戻り値をキャストせずに描ける。 */

@@ -24,6 +24,7 @@ export default async function CategoryPage({
       siteSlug={site}
       currentPath={siteHref(site, path)}
       trail={result.ok ? [{ label: result.value.category.name }] : [{ label: "カテゴリー" }]}
+      pageKind="category"
     >
       {() =>
         result.ok ? (

@@ -1,3 +1,4 @@
+import { allowedOriginsFrom, checkOrigin, originRejection } from "@/presentation/http/origin-guard";
 import {
   authenticateRequest,
   createToolCatalog,
@@ -29,6 +30,10 @@ function rpcError(id: JsonRpcId, code: number, message: string) {
 }
 
 export async function POST(request: Request) {
+  // よそのサイトのページから、こちらのログイン状態を使って呼ばれるのを止める。
+  const origin = checkOrigin(request, allowedOriginsFrom(process.env as Record<string, string | undefined>));
+  if (!origin.ok) return originRejection(origin);
+
   const auth = await authenticateRequest(request);
   if (!auth.ok) {
     return new Response(JSON.stringify({ error: auth.message }), {

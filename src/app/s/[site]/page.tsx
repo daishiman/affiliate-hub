@@ -17,7 +17,7 @@ export default async function SiteHome({ params }: { params: Promise<{ site: str
   const recent = await siteUseCases().listRecent.execute(readerActor(), { siteSlug: site });
 
   return (
-    <SiteFrame siteSlug={site} currentPath={siteHref(site, "/")}>
+    <SiteFrame siteSlug={site} currentPath={siteHref(site, "/")} pageKind="site_home">
       {({ blueprint }) => (
         <SitePage title={blueprint.name} lead={blueprint.purpose} wide>
           <section>

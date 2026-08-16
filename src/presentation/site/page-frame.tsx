@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import type { SiteBlueprint } from "@/domain/authoring";
 import { readerActor, readerWebMcpDescriptors, siteUseCases } from "@/presentation/composition";
+import type { PageKind } from "@/presentation/tools/webmcp-policy";
 import { ErrorView, SiteShell, WebMcpProvider, type SiteChrome } from "@/presentation/ui";
 import { breadcrumbsFor, siteBasePath, toChrome } from "./view-model";
 
@@ -29,6 +30,7 @@ export async function SiteFrame({
   siteSlug,
   currentPath,
   trail = [],
+  pageKind = "article",
   children,
 }: {
   readonly siteSlug: string;
@@ -36,6 +38,11 @@ export async function SiteFrame({
   readonly currentPath: string;
   /** パンくずの続き。ブログ名は自動で先頭に付く。 */
   readonly trail?: readonly { readonly label: string; readonly path?: string }[];
+  /**
+   * このページの種類。ページ内 AI へ渡す道具を選ぶのに使う。
+   * 比較のページに順位の説明の道具を渡しても、押す先が無い。
+   */
+  readonly pageKind?: PageKind;
   readonly children: (ctx: SiteContext) => ReactNode;
 }) {
   const result = await siteUseCases().getSite.execute(readerActor(), { siteSlug });
@@ -62,8 +69,9 @@ export async function SiteFrame({
       {/*
         ページを開いている AI に、この画面でできることを知らせる（WebMCP）。
         読み取りだけ・6 件までで、すべて通常の画面操作でも同じことができる。
+        機能フラグが切れていれば空になり、画面はそのまま使える。
       */}
-      <WebMcpProvider descriptors={readerWebMcpDescriptors()} />
+      <WebMcpProvider descriptors={readerWebMcpDescriptors(pageKind)} />
     </SiteShell>
   );
 }

@@ -1,4 +1,5 @@
 import { readerActor, siteUseCases } from "@/presentation/composition";
+import type { PageKind } from "@/presentation/tools/webmcp-policy";
 import { ArticleView } from "@/presentation/ui";
 import { NotFoundBody, SiteFrame } from "./page-frame";
 import { siteHref, toArticleView } from "./view-model";
@@ -13,6 +14,19 @@ import { siteHref, toArticleView } from "./view-model";
  * 4 通りに分かれ、法令に関わる表示の直し漏れがそこから生まれる。
  * ルートごとの違いは URL の前半だけで、画面の中身は 1 つ。
  */
+/**
+ * URL の前半から、ページの種類を決める。
+ *
+ * 画面は 1 つでも、読者がそこでやりたいことはルートごとに違う。
+ * 比較のページに順位の説明の道具を渡しても、説明する順位がそこに無い。
+ */
+const PAGE_KIND_BY_PREFIX: Readonly<Record<string, PageKind>> = {
+  "/best": "ranking",
+  "/compare": "comparison",
+  "/reviews": "product",
+  "/guides": "article",
+};
+
 export async function ArticlePage({
   siteSlug,
   slug,
@@ -33,6 +47,7 @@ export async function ArticlePage({
       siteSlug={siteSlug}
       currentPath={siteHref(siteSlug, path)}
       trail={[{ label: routeLabel }, { label: result.ok ? result.value.title : "記事" }]}
+      pageKind={PAGE_KIND_BY_PREFIX[pathPrefix] ?? "article"}
     >
       {() =>
         result.ok ? (
