@@ -73,3 +73,59 @@ export function ClaimStatement({
     </div>
   );
 }
+
+/**
+ * 事実の出どころ 6 種類。
+ *
+ * 「根拠あり」で一括りにすると、メーカーの公表値と当サイトの実測が
+ * 同じ見た目で並ぶ。読者はそこを区別できない。
+ *
+ * 並びは domain の ClaimType と同じ。ここで型を持ち直しているのは、
+ * 共通UIが業務のきまりを読まない決まりにしているため
+ * （ずれていないことは `tests/ui/fact-source.test.ts` が見ている）。
+ */
+export type FactSource =
+  | "official"
+  | "measured"
+  | "experience"
+  | "inference"
+  | "external"
+  | "commercial";
+
+export const FACT_SOURCES: readonly FactSource[] = [
+  "official",
+  "measured",
+  "experience",
+  "inference",
+  "external",
+  "commercial",
+];
+
+/** 出どころごとの記号。色だけで区別しないため、必ず記号と文字を添える。 */
+const SOURCE_MARK: Readonly<Record<FactSource, string>> = {
+  official: "▣",
+  measured: "✓",
+  experience: "○",
+  inference: "≈",
+  external: "☺",
+  commercial: "¥",
+};
+
+/** 断定してよいか。断定できないものは推測の見た目に寄せる。 */
+const SOURCE_CLASS: Readonly<Record<FactSource, string>> = {
+  official: styles.factBadgeFact,
+  measured: styles.factBadgeFact,
+  experience: styles.factBadgeOpinion,
+  inference: styles.factBadgeInference,
+  external: styles.factBadgeOpinion,
+  commercial: styles.factBadgeInference,
+};
+
+export function FactSourceBadge({ source }: { readonly source: FactSource }) {
+  return (
+    <span className={[styles.factBadge, SOURCE_CLASS[source]].join(" ")}>
+      <span aria-hidden="true">{SOURCE_MARK[source]}</span>
+      {UI_COPY.factSource[source]}
+    </span>
+  );
+}

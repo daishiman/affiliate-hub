@@ -31,7 +31,14 @@ export { Callout, type CalloutTone } from "./primitives/callout";
 export { LoadingView, EmptyView, ErrorView } from "./primitives/state-view";
 
 /* --- patterns（仕様固有。画面ごとに書き起こさない） --------------------- */
-export { FactualityBadge, ClaimStatement, type Factuality } from "./patterns/factuality";
+export {
+  FactualityBadge,
+  ClaimStatement,
+  FactSourceBadge,
+  FACT_SOURCES,
+  type Factuality,
+  type FactSource,
+} from "./patterns/factuality";
 export { EvidenceList, ProvenanceNote, type EvidenceView } from "./patterns/evidence";
 export { DisclosureNotice, AffiliateLink } from "./patterns/disclosure";
 export {

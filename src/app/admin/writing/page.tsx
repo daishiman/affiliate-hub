@@ -2,7 +2,14 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 import { AdminShell } from "@/presentation/admin/admin-shell";
 import { currentActor, writingMethodUseCases } from "@/presentation/composition";
-import { Callout, Card, ErrorView, Page } from "@/presentation/ui";
+import {
+  Callout,
+  Card,
+  ErrorView,
+  FactSourceBadge,
+  type FactSource,
+  Page,
+} from "@/presentation/ui";
 import styles from "../admin.module.css";
 
 export const dynamic = "force-dynamic";
@@ -135,7 +142,7 @@ export default async function WritingPage({
           <thead>
             <tr>
               <th scope="col">種類</th>
-              <th scope="col">表示</th>
+              <th scope="col">記事での見え方</th>
               <th scope="col">使ってよい語尾</th>
               <th scope="col">使わない語尾</th>
             </tr>
@@ -143,8 +150,10 @@ export default async function WritingPage({
           <tbody>
             {m.factRules.map((f) => (
               <tr key={f.kind}>
-                <th scope="row">{f.kind}</th>
-                <td>{f.label}</td>
+                <th scope="row">{f.label}</th>
+                <td>
+                  <FactSourceBadge source={f.kind as FactSource} />
+                </td>
                 <td>{f.allowed.join(" / ")}</td>
                 <td>{f.forbidden.join(" / ")}</td>
               </tr>
