@@ -13,6 +13,7 @@ import {
   Card,
   ClaimStatement,
   ComparisonTable,
+  ConsentBanner,
   Conversation,
   CriteriaDisclosure,
   DisclosureNotice,
@@ -543,6 +544,21 @@ export default function UiCatalogPage() {
               modeOptions={catalogOptions.modeOptions}
               legend="読者向けブログ（明るさだけ）"
             />
+          </div>
+        </Card>
+
+        <Card>
+          <h2 className={styles.sectionTitle}>19. 計測についてのお願い</h2>
+          <p className={styles.sectionLead}>
+            読者向けブログの足元に 1 箇所だけ出します。2 つのボタンの目立ち方はわざと揃えています。
+            片方だけ目立たせて断りにくくするのは、読者をだます作りだからです。
+            断っても記事はそのまま読めます。断ると使えなくなる機能は作りません。
+            回答したあとは、下のように「いまどうなっているか」と取り消しの入口だけが残ります。
+          </p>
+          <div className={styles.catalogStack}>
+            <ConsentBanner current="unset" detailHref="/admin/ui-catalog" />
+            <ConsentBanner current="granted" detailHref="/admin/ui-catalog" />
+            <ConsentBanner current="denied" detailHref="/admin/ui-catalog" />
           </div>
         </Card>
       </Page>

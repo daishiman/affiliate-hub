@@ -85,6 +85,24 @@ export {
   type ScheduleCalendarDay,
   type ScheduleCalendarEntry,
 } from "./patterns/schedule-calendar";
+export { ConsentBanner } from "./patterns/consent-banner";
+export {
+  CONSENT_COOKIE,
+  CONSENT_COOKIE_MAX_AGE,
+  type ConsentAnswer,
+} from "./consent";
+export {
+  TELEMETRY_ATTR,
+  TELEMETRY_ELEMENT_KINDS,
+  TELEMETRY_SECTION_KINDS,
+  telemetryAttrs,
+  telemetrySectionAttrs,
+  type TelemetryAttributes,
+  type TelemetryElementKind,
+  type TelemetryMark,
+  type TelemetrySectionKind,
+  type TelemetrySectionMark,
+} from "./telemetry-attrs";
 export { WebMcpProvider } from "./webmcp-provider";
 
 /* --- templates --------------------------------------------------------- */

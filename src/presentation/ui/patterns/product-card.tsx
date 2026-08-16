@@ -1,3 +1,4 @@
+import { telemetryAttrs } from "../telemetry-attrs";
 import { AffiliateLink } from "./disclosure";
 import { FactualityBadge } from "./factuality";
 import styles from "./patterns.module.css";
@@ -35,6 +36,7 @@ export function ProductCard({
   affiliateLabel = "販売ページで確認する",
   blockedReason,
   detailHref,
+  productId,
 }: {
   readonly name: string;
   readonly brand: string;
@@ -52,9 +54,19 @@ export function ProductCard({
   /** 買う導線を出せない理由（提携終了・リンク切れなど）。黙って消さない。 */
   readonly blockedReason?: string;
   readonly detailHref?: string;
+  /** 計測用。どの商品のカードか。 */
+  readonly productId?: string;
 }) {
   return (
-    <article className={styles.productCard} aria-label={`${brand} ${name}`}>
+    <article
+      className={styles.productCard}
+      aria-label={`${brand} ${name}`}
+      {...telemetryAttrs(
+        productId === undefined
+          ? undefined
+          : { kind: "product_card", id: productId, label: name },
+      )}
+    >
       <header className={styles.productCardHeader}>
         <span className={styles.productCardBrand}>{brand}</span>
         <h3 className={styles.productCardName}>
@@ -85,7 +97,9 @@ export function ProductCard({
 
       <footer className={styles.productCardFooter}>
         {affiliateHref !== undefined ? (
-          <AffiliateLink href={affiliateHref}>{affiliateLabel}</AffiliateLink>
+          <AffiliateLink href={affiliateHref} productId={productId} placement="商品カード">
+            {affiliateLabel}
+          </AffiliateLink>
         ) : (
           <span className={styles.productCardBlocked}>
             {blockedReason ?? "販売ページへの案内は、いま用意できていません。"}

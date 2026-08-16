@@ -18,6 +18,7 @@ import type {
   PublicationRepositoryPort,
 } from "./ports/distribution";
 import type { ClickTrackingPort, MetricsRepositoryPort } from "./ports/analytics";
+import type { TelemetrySinkPort } from "./ports/telemetry";
 import type { EventPublisherPort, IdGeneratorPort } from "./ports/common";
 import type { AuditLogPort, DisclosureRepositoryPort } from "./ports/compliance";
 import type { LlmCostEstimatorPort, LlmPort } from "./ports/llm";
@@ -74,6 +75,13 @@ export type AppDeps = {
   readonly manualExport: ManualExportPort;
   readonly metrics: MetricsRepositoryPort;
   readonly clickTracking: ClickTrackingPort;
+  /**
+   * 計測の記録先。
+   *
+   * domain はこの実装を知らない。保存先を替えても、
+   * イベントの形 (domain/analytics/telemetry-events.ts) は変わらない。
+   */
+  readonly telemetry: TelemetrySinkPort;
   readonly workspaces: WorkspaceRepositoryPort;
   readonly memberships: MembershipRepositoryPort;
   readonly brands: BrandRepositoryPort;

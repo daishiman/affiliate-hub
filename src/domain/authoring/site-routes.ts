@@ -3,7 +3,8 @@ import type { SiteBlueprint, StandardPage } from "./site-blueprint";
 /**
  * ブログの画面の並び（情報アーキテクチャ）。
  *
- * ブログ層仕様 §7 の 18 ルートをここで表として持つ。
+ * ブログ層仕様 §7 の 18 ルートをここで表として持つ
+ * （加えて「計測について」を 1 本足している。測るなら説明先が要る）。
  * **ルートを画面ファイルの有無で決めない。** 表を正本にして、
  * 「表にあるのに画面が無い」「画面があるのに表に無い」を
  * `tests/domain/site-routes.test.ts` が機械的に落とす。
@@ -47,7 +48,7 @@ export type SiteRoute = {
  * 18 ルート。並びは仕様書 §7 の順。
  *
  * `/privacy` と `/terms` は仕様上 1 項目にまとめられているが、
- * 画面は別なので 2 行に分けている（合計 19 行 / 18 項目）。
+ * 画面は別なので 2 行に分けている（合計 20 行 / 18 項目 + 計測についての 1 本）。
  */
 export const SITE_ROUTES: readonly SiteRoute[] = [
   {
@@ -201,6 +202,21 @@ export const SITE_ROUTES: readonly SiteRoute[] = [
     kind: "policy",
     reachedFrom: "フッター",
     page: "privacy",
+    requiresDisclosure: false,
+  },
+  {
+    /*
+      計測についての説明。**測るなら必ず置く。**
+      「何を記録するか」の説明先が無いまま同意を求めるのは、
+      同意を取ったことにならない。`page: null` にしてあるので
+      どのブログでも必ず出る（設定で消せない）。
+    */
+    key: "measurement",
+    path: "/measurement",
+    label: "計測について",
+    kind: "policy",
+    reachedFrom: "フッター / 計測のお願い",
+    page: null,
     requiresDisclosure: false,
   },
   {

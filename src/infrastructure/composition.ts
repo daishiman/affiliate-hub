@@ -35,6 +35,7 @@ import {
   createSampleClickTracking,
   createSampleMetricsRepository,
 } from "./persistence/sample/analytics-sample-repository";
+import { createSampleTelemetrySink } from "./persistence/sample/telemetry-sample-sink";
 import {
   createSampleAffiliateAccountRepository,
   createSampleAffiliateLinkRepository,
@@ -102,6 +103,9 @@ export function createDeps(options: { readonly db?: DrizzleD1 | null } = {}): Ap
     // ★ 見本データ（スタブ）。数字。本物は公開して読まれ始めてから入る。
     metrics: createSampleMetricsRepository(),
     clickTracking: createSampleClickTracking(),
+    // ★ 仮置き（スタブ）。この実行中だけ覚える。telemetry_events テーブルが
+    //   できたらこの 1 行を差し替える。画面もイベントの形も変わらない。
+    telemetry: createSampleTelemetrySink(),
     // ★ 見本データ（スタブ）。作業場所・担当者・ブランド・広告表記・操作の記録。
     //   本物にするには認証（Better Auth + Google）と各テーブルが要る。
     workspaces: createSampleWorkspaceRepository(),

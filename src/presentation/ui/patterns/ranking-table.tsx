@@ -1,5 +1,6 @@
 import { UI_COPY, fill } from "../copy";
 import { EmptyView } from "../primitives/state-view";
+import { telemetryAttrs } from "../telemetry-attrs";
 import styles from "./patterns.module.css";
 
 /**
@@ -95,7 +96,18 @@ export function RankingTable({
           </thead>
           <tbody>
             {rows.map((row) => (
-              <tr key={row.productId}>
+              <tr
+                key={row.productId}
+                // 何位の商品が実際に選ばれているかを数える印。
+                // 順位の付け方が読者の選択と合っているかの検証に使う。
+                // **この数字は順位づけへは戻さない** (domain/analytics/feedback-policy)。
+                {...telemetryAttrs({
+                  kind: "ranking_row",
+                  id: row.productId,
+                  label: row.productName,
+                  rank: row.rank,
+                })}
+              >
                 <td className={styles.rank}>{row.rank}</td>
                 <th scope="row">
                   {row.href !== undefined ? (

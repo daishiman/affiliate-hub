@@ -2,7 +2,9 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 import type { AppearanceValues } from "../appearance";
 import { UI_COPY } from "../copy";
+import type { ConsentAnswer } from "../consent";
 import { AppearancePicker } from "../patterns/appearance-picker";
+import { ConsentBanner } from "../patterns/consent-banner";
 import type { SelectOption } from "../primitives/select";
 import styles from "./site.module.css";
 
@@ -41,6 +43,8 @@ export function SiteShell({
   currentPath,
   breadcrumbs,
   appearance,
+  consent,
+  telemetry,
   children,
 }: {
   readonly chrome: SiteChrome;
@@ -57,10 +61,23 @@ export function SiteShell({
     readonly current: AppearanceValues;
     readonly modeOptions: readonly SelectOption[];
   };
+  /**
+   * 計測についての回答。
+   *
+   * **ここ 1 箇所からしか出さない。** 画面ごとに置くと、
+   * どこかの画面だけ聞かずに測る状態になる。
+   */
+  readonly consent?: {
+    readonly current: ConsentAnswer;
+    readonly detailHref: string;
+  };
+  /** 計測を拾う部品。画面ではなく骨格に置く（置き忘れを起こさないため）。 */
+  readonly telemetry?: ReactNode;
   readonly children: ReactNode;
 }) {
   return (
     <div className={styles.siteShell} data-brand-theme={chrome.brandTheme}>
+      {telemetry}
       <header className={styles.siteHeader}>
         <div className={styles.siteHeaderInner}>
           <Link href={chrome.nav[0]?.href ?? currentPath} className={styles.siteName}>
@@ -111,6 +128,9 @@ export function SiteShell({
             </ul>
           </nav>
           <p className={styles.footerNote}>{UI_COPY.disclosure.footerNote}</p>
+          {consent !== undefined && (
+            <ConsentBanner current={consent.current} detailHref={consent.detailHref} />
+          )}
           {appearance !== undefined && (
             /*
               管理画面と同じ部品。読者用に別の切り替えを作らない。

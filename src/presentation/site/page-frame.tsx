@@ -4,6 +4,8 @@ import { appearanceOptions, readAppearance } from "@/presentation/appearance";
 import { readerActor, readerWebMcpDescriptors, siteUseCases } from "@/presentation/composition";
 import type { PageKind } from "@/presentation/tools/webmcp-policy";
 import { ErrorView, SiteShell, WebMcpProvider, type SiteChrome } from "@/presentation/ui";
+import { TelemetryCollector } from "@/presentation/telemetry/collector";
+import { readConsentDecision, readConsentChoice } from "@/presentation/telemetry/consent-server";
 import { breadcrumbsFor, siteBasePath, toChrome } from "./view-model";
 
 /**
@@ -70,12 +72,31 @@ export async function SiteFrame({
     colorMode: blueprint.theme.colorScheme,
   });
 
+  /*
+    計測してよいかを 1 箇所で決める。**18 本のルートで別々に判断しない。**
+    判定そのものは domain (`decideConsent`) が持ち、ここは結論を受け取るだけ。
+    端末の拒否表示 (DNT / GPC) と自動巡回の除外もここを通る。
+  */
+  const [decision, consentChoice] = await Promise.all([
+    readConsentDecision(),
+    readConsentChoice(),
+  ]);
+
   return (
     <SiteShell
       chrome={chrome}
       currentPath={currentPath}
       breadcrumbs={breadcrumbsFor(siteSlug, blueprint, trail)}
       appearance={{ current: appearance, modeOptions: appearanceOptions().modeOptions }}
+      consent={{ current: consentChoice, detailHref: `${siteBasePath(siteSlug)}/measurement` }}
+      telemetry={
+        <TelemetryCollector
+          siteSlug={siteSlug}
+          path={currentPath}
+          allowBehaviour={decision.allowBehaviour}
+          suppressAll={decision.suppressAll}
+        />
+      }
     >
       {children({ siteSlug, blueprint, chrome })}
       {/*

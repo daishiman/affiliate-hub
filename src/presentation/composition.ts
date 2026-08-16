@@ -51,6 +51,8 @@ import {
   createListUsableMetricsUseCase,
 } from "@/application/usecases/analytics/read-metrics";
 import { createFilterMetricsUseCase } from "@/application/usecases/analytics/filter-metrics";
+import { createAiUsageReportUseCase } from "@/application/usecases/analytics/ai-usage-report";
+import { createExplainTelemetryUseCase } from "@/application/usecases/analytics/explain-telemetry";
 import {
   createCheckGenerationInputUseCase,
   createReadGenerationPlanUseCase,
@@ -107,6 +109,7 @@ import { createGetDashboardUseCase } from "@/application/usecases/dashboard/read
 import type { ActorContext } from "@/domain/shared";
 import { taggedString } from "@/domain/shared";
 import { createDeps } from "@/infrastructure/composition";
+import { telemetryStubNotice } from "@/infrastructure/persistence/sample/telemetry-sample-sink";
 import { sampleContentNotice } from "@/infrastructure/persistence/sample/content-sample-repository";
 import { sampleSiteDraftNotice } from "@/infrastructure/persistence/sample/site-draft-sample-repository";
 import { getCurrentActor, sampleActorNotice } from "@/infrastructure/identity/sample-actor";
@@ -565,6 +568,25 @@ export function analyticsUseCases() {
     checkFeedback: createCheckFeedbackUseCase(analytics),
     filterMetrics: createFilterMetricsUseCase(analytics),
   };
+}
+
+/**
+ * 計測の入口。
+ *
+ * 記録の受け口 (`/api/telemetry`) と AI 利用の画面が同じものを使う。
+ * 記録先を差し替えるときに触るのは infrastructure の 1 行だけ。
+ */
+export function telemetryUseCases() {
+  const deps = { sink: createDeps().telemetry };
+  return {
+    aiUsage: createAiUsageReportUseCase(deps),
+    explain: createExplainTelemetryUseCase(),
+  };
+}
+
+/** 計測の記録先が仮置きであることを画面に出すための一文。 */
+export function telemetryNotice(): string {
+  return telemetryStubNotice();
 }
 
 /**

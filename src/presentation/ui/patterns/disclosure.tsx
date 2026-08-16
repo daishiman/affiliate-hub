@@ -1,4 +1,5 @@
 import { UI_COPY } from "../copy";
+import { telemetryAttrs } from "../telemetry-attrs";
 import styles from "./patterns.module.css";
 
 /**
@@ -63,12 +64,20 @@ export function AffiliateLink({
   href,
   children,
   onNavigate,
+  linkId,
+  productId,
+  placement = "本文",
 }: {
   /** ASP が発行した URL。**ここで加工しない。** */
   readonly href: string;
   readonly children: React.ReactNode;
   /** 計測用。リンク先は変えない。 */
   readonly onNavigate?: () => void;
+  /** どのリンクか。省略しても数えるが、内訳が出せなくなる。 */
+  readonly linkId?: string;
+  readonly productId?: string;
+  /** 記事のどこに置いたリンクか。 */
+  readonly placement?: string;
 }) {
   return (
     <a
@@ -77,6 +86,13 @@ export function AffiliateLink({
       target="_blank"
       onClick={onNavigate}
       data-affiliate="true"
+      // 計測の印。**部品側で必ず付ける**ので、画面が付け忘れることがない。
+      // URL そのものは印にしない（ASP のパラメータを記録に持ち込まない）。
+      {...telemetryAttrs({
+        kind: "affiliate_link",
+        id: linkId ?? productId ?? "(リンクID未設定)",
+        placement,
+      })}
     >
       {children}
     </a>

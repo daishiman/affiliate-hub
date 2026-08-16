@@ -15,6 +15,7 @@ import {
 } from "../patterns/ranking-table";
 import { StubNotice } from "../patterns/stub-notice";
 import { EmptyView } from "../primitives/state-view";
+import { type TelemetrySectionKind, telemetrySectionAttrs } from "../telemetry-attrs";
 import styles from "./site.module.css";
 
 /**
@@ -44,6 +45,12 @@ export type SectionView = {
   readonly heading: string;
   readonly paragraphs: readonly string[];
   readonly claims?: readonly ClaimView[];
+  /**
+   * 節の種類。滞在時間をこの単位で数える。
+   * 省略すると「本文」として数える。段落ごとには測らない
+   * （細かく測っても読み方は分からず、記録だけが増える）。
+   */
+  readonly kind?: TelemetrySectionKind;
 };
 
 export type ConversationLineView = {
@@ -95,7 +102,11 @@ export type ArticleViewModel = {
 
 function Section({ section }: { readonly section: SectionView }) {
   return (
-    <section className={styles.section}>
+    <section
+      className={styles.section}
+      // 節ごとの滞在時間を測る単位。拾う側が画面全体で 1 回だけ見る。
+      {...telemetrySectionAttrs({ kind: section.kind ?? "lead", id: section.id })}
+    >
       <h2 className={styles.sectionHeading}>{section.heading}</h2>
       {section.paragraphs.map((p, i) => (
         <p key={i}>{p}</p>
@@ -172,7 +183,11 @@ export function ArticleView({ article }: { readonly article: ArticleViewModel })
       )}
 
       {article.productCards !== undefined && article.productCards.length > 0 && (
-        <section className={styles.section} aria-label="この記事で取り上げた商品">
+        <section
+          className={styles.section}
+          aria-label="この記事で取り上げた商品"
+          {...telemetrySectionAttrs({ kind: "cta", id: "product-cards" })}
+        >
           <h2 className={styles.sectionHeading}>この記事で取り上げた商品</h2>
           <div className={styles.cardList}>
             {article.productCards.map((card) => (

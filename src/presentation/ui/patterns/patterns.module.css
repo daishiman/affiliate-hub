@@ -821,3 +821,60 @@
   grid-template-columns: repeat(auto-fit, minmax(var(--card-min-width), 1fr));
   gap: var(--space-4);
 }
+
+/* --- 計測についてのお願い ------------------------------------------------
+ *
+ * 読み始めを邪魔しない位置に置く（画面を覆わない）。
+ * 覆う出し方にすると、読者は中身を読まずに「許可」を押す。
+ * それは同意を取ったことにならない。
+ */
+.consentBanner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  border: var(--border-width-default) solid var(--color-border-default);
+  border-radius: var(--radius-md);
+  background: var(--color-surface-raised);
+}
+
+.consentTitle {
+  margin: 0 0 var(--space-1);
+  color: var(--color-text-strong);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+}
+
+.consentBody {
+  max-width: var(--readable-max-width);
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+  line-height: var(--leading-body);
+}
+
+/* 2 つの選択肢を同じ強さで並べる。片方だけ目立たせない。 */
+.consentActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.consentSettled {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+  line-height: var(--leading-body);
+}
+
+.consentUndo {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--color-action-default);
+  font: inherit;
+  text-decoration: underline;
+  cursor: pointer;
+}
