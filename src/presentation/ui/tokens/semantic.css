@@ -1,0 +1,197 @@
+/*
+ * トークン 2 段目: セマンティック (意味)
+ *
+ * 「何色か」ではなく「何に使う色か」を名前にする。
+ * コンポーネントが読んでよいのはこの段だけ。
+ *
+ *   良い: color: var(--color-text-muted);
+ *   悪い: color: var(--neutral-600);   ← 1 段目を直接読んでいる
+ *   悪い: color: #5c5f6a;              ← 生の値
+ *
+ * 機械チェック: tests/ui/design-tokens.test.ts が上の 2 つを落とす。
+ *
+ * --- 明暗の切り替えについて ---
+ * light-dark() を使い、1 トークンにつき定義を 1 行に保つ。
+ * 明暗で 2 ブロック書くと、片方だけ直して色がずれる事故が必ず起きる。
+ * 切り替えは color-scheme を変えるだけ (下の [data-color-mode] 参照)。
+ */
+
+:root {
+  /* 既定は端末の設定に従う。 */
+  color-scheme: light dark;
+
+  /* === 面 =============================================================== */
+  --color-surface-default: light-dark(var(--neutral-0), var(--neutral-950));
+  --color-surface-raised: light-dark(var(--neutral-25), var(--neutral-900));
+  --color-surface-sunken: light-dark(var(--neutral-50), var(--neutral-975));
+  --color-surface-overlay: light-dark(var(--neutral-0), var(--neutral-875));
+
+  /* === 文字 ============================================================= */
+  /* 併記したコントラスト比は surface-default に対する値 (WCAG 2.2 AA)。 */
+  --color-text-strong: light-dark(var(--neutral-925), var(--neutral-25)); /* 16.9:1 */
+  --color-text-default: light-dark(var(--neutral-750), var(--neutral-100)); /* 11.4:1 */
+  --color-text-muted: light-dark(var(--neutral-600), var(--neutral-300)); /* 6.4:1 */
+  --color-text-on-action: light-dark(var(--neutral-0), var(--neutral-925));
+  --color-text-on-accent: var(--amber-950);
+
+  /* === 線 =============================================================== */
+  --color-border-subtle: light-dark(var(--neutral-100), var(--neutral-800));
+  --color-border-default: light-dark(var(--neutral-200), var(--neutral-700));
+  --color-border-strong: light-dark(var(--neutral-400), var(--neutral-500));
+
+  /* === 操作 (action) ==================================================== */
+  /* 「押せるもの」の色。役割を accent と入れ替えない。 */
+  --color-action-default: light-dark(var(--neutral-750), var(--neutral-100));
+  --color-action-hover: light-dark(var(--neutral-850), var(--neutral-25));
+  --color-action-active: light-dark(var(--neutral-925), var(--neutral-0));
+  --color-action-subtle: light-dark(var(--neutral-50), var(--neutral-825));
+
+  /* === 注意・実行中 (accent) ============================================ */
+  /* 「いま動いている」「気をつけて見る」。押せることの合図には使わない。 */
+  --color-accent-default: light-dark(var(--amber-700), var(--amber-400));
+  --color-accent-hover: light-dark(var(--amber-800), var(--amber-300));
+  --color-accent-subtle: light-dark(var(--amber-100), var(--amber-900));
+  --color-accent-border: light-dark(var(--amber-500), var(--amber-700));
+
+  /* === 結果の意味 (intent) ============================================== */
+  --color-intent-success: light-dark(var(--green-700), var(--green-400));
+  --color-intent-success-subtle: light-dark(var(--green-100), var(--green-950));
+  --color-intent-danger: light-dark(var(--red-700), var(--red-400));
+  --color-intent-danger-subtle: light-dark(var(--red-100), var(--red-950));
+  --color-intent-info: light-dark(var(--blue-700), var(--blue-300));
+  --color-intent-info-subtle: light-dark(var(--blue-100), var(--blue-950));
+  /* 注意は accent と同じ色を指す。別の色を足すと信号が 5 色になり読めなくなる。 */
+  --color-intent-warning: var(--color-accent-default);
+  --color-intent-warning-subtle: var(--color-accent-subtle);
+
+  /* === 焦点 ============================================================= */
+  /* キーボード操作の現在地。太さと色は全画面で同じ。個別に上書きしない。 */
+  --color-focus-ring: light-dark(var(--blue-700), var(--blue-300));
+  --focus-ring-width: var(--width-thin);
+  --focus-ring-offset: var(--width-thin);
+
+  /* === 余白 ============================================================= */
+  --space-1: var(--size-1);
+  --space-2: var(--size-2);
+  --space-3: var(--size-3);
+  --space-4: var(--size-4);
+  --space-5: var(--size-5);
+  --space-6: var(--size-6);
+  --space-7: var(--size-7);
+  --space-8: var(--size-8);
+
+  /* === 線の太さ ========================================================= */
+  --border-width-default: var(--width-hairline);
+  --border-width-emphasis: var(--width-thin);
+  --border-width-marker: var(--width-thick); /* 引用や注意書きの左端の帯 */
+
+  /* === 角丸・影 ========================================================= */
+  --radius-sm: var(--corner-sm);
+  --radius-md: var(--corner-md);
+  --radius-lg: var(--corner-lg);
+  --radius-pill: var(--corner-full);
+  --shadow-raised: var(--elevation-1);
+  --shadow-overlay: var(--elevation-2);
+
+  /* === 動き ============================================================= */
+  /* 動きは因果の説明にだけ使う。入場は全体 300ms 以内。 */
+  --motion-fast: var(--duration-fast);
+  --motion-base: var(--duration-normal);
+  --motion-enter: var(--duration-slow);
+  --motion-ease: var(--easing-standard);
+
+  /* === 文字 ============================================================= */
+  --text-xs: var(--font-size-xs);
+  --text-sm: var(--font-size-sm);
+  --text-base: var(--font-size-md);
+  --text-lg: var(--font-size-lg);
+  --text-xl: var(--font-size-xl);
+  --text-2xl: var(--font-size-2xl);
+  --text-3xl: var(--font-size-3xl);
+
+  --leading-body: var(--line-height-loose);
+  --leading-heading: var(--line-height-tight);
+  --leading-dense: var(--line-height-normal); /* 表の中など、行数が多い場所 */
+
+  --weight-normal: var(--font-weight-normal);
+  --weight-medium: var(--font-weight-medium);
+  --weight-semibold: var(--font-weight-semibold);
+  --weight-bold: var(--font-weight-bold);
+
+  /* === 寸法 ============================================================= */
+  --tap-target-min: var(--hit-min);
+  --icon-sm: var(--glyph-sm);
+  --icon-md: var(--glyph-md);
+  --icon-lg: var(--glyph-lg);
+  /* 読み上げ専用テキストの潰し幅。0 にすると読み上げから消える端末がある。 */
+  --sr-only-size: var(--width-hairline);
+  --duration-spinner: var(--duration-spin);
+  --duration-skeleton: var(--duration-shimmer);
+  --prose-max-width: var(--measure-prose); /* 記事本文 */
+  --content-max-width: var(--measure-wide); /* 一覧・表 */
+  --column-max-width: var(--breakpoint-lg); /* 本文カラム */
+  --readable-max-width: var(--measure-narrow); /* 説明文・空状態の本文 */
+  --layout-sidebar-width: var(--measure-sidebar);
+
+  /* === 重なり順 ========================================================= */
+  --z-raised: var(--layer-raised);
+  --z-sticky: var(--layer-sticky);
+  --z-overlay: var(--layer-overlay);
+  --z-modal: var(--layer-modal);
+  --z-toast: var(--layer-toast);
+}
+
+/*
+ * 明暗の明示指定。
+ * 利用者が選んだ場合だけ設定する。既定 (auto) は :root の `light dark` のまま。
+ */
+[data-color-mode="light"] {
+  color-scheme: light;
+}
+
+[data-color-mode="dark"] {
+  color-scheme: dark;
+}
+
+/*
+ * ハイコントラスト。
+ * 色を作り直すのではなく、境界と文字を強くするだけにする。
+ * 別配色を作ると、そちらの AA 検証がもう 1 セット必要になる。
+ */
+@media (prefers-contrast: more) {
+  :root {
+    --color-text-muted: var(--color-text-default);
+    --color-border-subtle: var(--color-border-default);
+    --color-border-default: var(--color-border-strong);
+    --border-width-default: var(--width-thin);
+    --focus-ring-width: var(--width-thick);
+  }
+}
+
+/*
+ * 動きを減らす設定への対応。
+ * 「動かないと分からない」作りにしていないので、すべて止めてよい。
+ */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --motion-fast: var(--duration-instant);
+    --motion-base: var(--duration-instant);
+    --motion-enter: var(--duration-instant);
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* 焦点表示は全画面で共通。コンポーネント側で上書きしない。 */
+:where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
+  outline: var(--focus-ring-width) solid var(--color-focus-ring);
+  outline-offset: var(--focus-ring-offset);
+  border-radius: var(--radius-sm);
+}

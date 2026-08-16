@@ -1,0 +1,185 @@
+/*
+ * トークン 1 段目: プリミティブ (生の値)
+ *
+ * ここは「値そのもの」しか持たない。意味を持たせない。
+ * `--neutral-750` は「濃いグレー」であって「本文の色」ではない。
+ *
+ * ここを直接使ってよいのは 2 段目 (semantic.css) だけ。
+ * コンポーネントからは読まない。読めてしまうと、
+ * 「本文の色を変えたい」が「--neutral-750 を使っている全箇所を探す」に化ける。
+ * 機械チェック: tests/ui/design-tokens.test.ts
+ *
+ * 色は WCAG 2.2 AA を満たす組み合わせが作れる階調だけを載せている。
+ * 階調を足すときは、どの意味に使うかを semantic.css 側で先に決めてから足すこと。
+ */
+
+:root {
+  /* === 無彩色 (Graphite) ================================================= */
+  /* 明るい順。番号は「暗さ」を表す。 */
+  --neutral-0: #ffffff;
+  --neutral-25: #f7f7f8;
+  --neutral-50: #eeeef0;
+  --neutral-100: #e0e1e5;
+  --neutral-200: #c8c9cf;
+  --neutral-300: #a3a5ae;
+  --neutral-400: #8b8d97;
+  --neutral-500: #6b6e79;
+  --neutral-600: #5c5f6a;
+  --neutral-700: #3d3f47;
+  --neutral-750: #33353d;
+  --neutral-800: #2b2d33;
+  --neutral-825: #26282e;
+  --neutral-850: #24262c;
+  --neutral-875: #23252a;
+  --neutral-900: #1e1f23;
+  --neutral-925: #17181c;
+  --neutral-950: #16171a;
+  --neutral-975: #101113;
+
+  /* === 有彩色 =========================================================== */
+  /* Amber */
+  --amber-100: #fef3c7;
+  --amber-300: #fcd34d;
+  --amber-400: #fbbf24;
+  --amber-500: #f59e0b;
+  --amber-700: #b45309;
+  --amber-800: #92400e;
+  --amber-900: #3a2a06;
+  --amber-950: #2b1a00;
+
+  /* Green (成功) */
+  --green-100: #dcfce7;
+  --green-400: #4ade80;
+  --green-700: #15803d;
+  --green-950: #0d2c19;
+
+  /* Red (失敗・破壊的操作) */
+  --red-100: #fee2e2;
+  --red-400: #f87171;
+  --red-700: #b91c1c;
+  --red-950: #3a1414;
+
+  /* Blue (情報・焦点) */
+  --blue-100: #dbeafe;
+  --blue-300: #93c5fd;
+  --blue-700: #1d4ed8;
+  --blue-950: #12224a;
+
+  /* Indigo / Teal / Clay: ブランドテーマ用。既定テーマでは使わない。 */
+  --indigo-100: #e0e7ff;
+  --indigo-300: #a5b4fc;
+  --indigo-400: #818cf8;
+  --indigo-700: #4338ca;
+  --indigo-800: #3730a3;
+  --indigo-900: #1e1b4b;
+  --indigo-950: #12102e;
+
+  --teal-100: #ccfbf1;
+  --teal-300: #5eead4;
+  --teal-400: #2dd4bf;
+  --teal-500: #14b8a6;
+  --teal-700: #0f766e;
+  --teal-800: #115e59;
+  --teal-900: #042f2c;
+  --teal-950: #04211f;
+
+  --clay-100: #ffe4e0;
+  --clay-300: #fca5a0;
+  --clay-400: #f87d75;
+  --clay-500: #ef5f55;
+  --clay-700: #b23c33;
+  --clay-800: #8f2f28;
+  --clay-900: #3a1512;
+  --clay-950: #2a0f0d;
+
+  /* === 寸法 ============================================================= */
+  /* 余白は 4px 刻み。刻みを外れた値を作らない。 */
+  --size-1: 0.25rem;
+  --size-2: 0.5rem;
+  --size-3: 0.75rem;
+  --size-4: 1rem;
+  --size-5: 1.5rem;
+  --size-6: 2rem;
+  --size-7: 3rem;
+  --size-8: 4rem;
+
+  /* 線の太さ。0 と 1px を区別するために別立てにする。 */
+  --width-hairline: 1px;
+  --width-thin: 2px;
+  --width-thick: 3px;
+
+  /* 角丸 */
+  --corner-sm: 4px;
+  --corner-md: 8px;
+  --corner-lg: 12px;
+  --corner-full: 9999px;
+
+  /* アイコン。文字サイズと揃わないと行の中で浮く。 */
+  --glyph-sm: 1rem;
+  --glyph-md: 1.25rem;
+  --glyph-lg: 1.5rem;
+
+  /* 操作対象の最小寸法 (WCAG 2.2 Target Size (Minimum) 2.5.8)。 */
+  --hit-min: 44px;
+
+  /* === 文字 ============================================================= */
+  --font-size-xs: 0.75rem;
+  --font-size-sm: 0.875rem;
+  --font-size-md: 1rem;
+  --font-size-lg: 1.125rem;
+  --font-size-xl: 1.375rem;
+  --font-size-2xl: 1.75rem;
+  --font-size-3xl: 2.25rem;
+
+  /* 日本語は行間を広く取る。欧文と同じ 1.5 では詰まって読みにくい。 */
+  --line-height-tight: 1.4;
+  --line-height-normal: 1.6;
+  --line-height-loose: 1.8;
+
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+
+  /* === 影 =============================================================== */
+  --elevation-1: 0 1px 2px rgb(0 0 0 / 0.06), 0 1px 3px rgb(0 0 0 / 0.1);
+  --elevation-2: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+
+  /* === 時間 ============================================================= */
+  --duration-instant: 0ms;
+  --duration-fast: 120ms;
+  --duration-normal: 180ms;
+  --duration-slow: 240ms;
+  --duration-spin: 700ms;      /* 待機の回転 1 周 */
+  --duration-shimmer: 1400ms;  /* 読込中の骨組みの明滅 1 周 */
+  --easing-standard: cubic-bezier(0.2, 0, 0, 1);
+
+  /* === 重なり順 ========================================================= */
+  /*
+   * 数字を画面ごとに決めると、必ず「9999」が生まれて収拾がつかなくなる。
+   * 段は 6 つだけ。足したくなったら、まずどれかに入らないかを疑う。
+   */
+  --layer-base: 0;
+  --layer-raised: 10;
+  --layer-sticky: 100;
+  --layer-overlay: 200;
+  --layer-modal: 300;
+  --layer-toast: 400;
+
+  /* === 折り返し位置 ===================================================== */
+  /*
+   * CSS の @media は変数を受け取れない。値の正本はここに置き、
+   * @media には同じ値を直接書く (その行に必ずこのトークン名をコメントで添える)。
+   * Tailwind のユーティリティ側へは globals.css の @theme が同じ値を渡す。
+   */
+  --breakpoint-sm: 30rem; /* 480px 携帯 */
+  --breakpoint-md: 48rem; /* 768px 縦向きタブレット。段組みを解除する境目 */
+  --breakpoint-lg: 64rem; /* 1024px ノートPC */
+  --breakpoint-xl: 80rem; /* 1280px 広い画面。本文の最大幅はこれ以上広げない */
+
+  /* 読みやすい 1 行の長さ。日本語は 40 文字前後が上限。 */
+  --measure-narrow: 34rem;
+  --measure-prose: 38rem;
+  --measure-wide: 72rem;
+  --measure-sidebar: 15rem;
+}

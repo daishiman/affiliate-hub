@@ -7,13 +7,13 @@
   margin: 0 0 var(--space-2);
   font-size: var(--text-lg);
   line-height: var(--leading-heading);
-  color: var(--text-strong);
+  color: var(--color-text-strong);
 }
 
 .sectionLead {
   margin: 0 0 var(--space-4);
   font-size: var(--text-sm);
-  color: var(--text-muted);
+  color: var(--color-text-muted);
 }
 
 .linkList {
@@ -33,7 +33,7 @@
 
 .linkNote {
   font-size: var(--text-sm);
-  color: var(--text-muted);
+  color: var(--color-text-muted);
 }
 
 /* --- 順位の表 ---------------------------------------------------------- */
@@ -48,13 +48,13 @@
 .rankTable td {
   padding: var(--space-3);
   text-align: left;
-  border-bottom: 1px solid var(--border-subtle);
+  border-bottom: var(--border-width-default) solid var(--color-border-subtle);
   vertical-align: top;
 }
 
 .rankTable th {
-  color: var(--text-muted);
-  font-weight: 600;
+  color: var(--color-text-muted);
+  font-weight: var(--weight-semibold);
   white-space: nowrap;
 }
 
@@ -68,12 +68,12 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 2rem;
+  min-width: var(--space-6);
   padding: var(--space-1) var(--space-2);
   border-radius: var(--radius-sm);
-  background: var(--primary-subtle);
-  color: var(--text-strong);
-  font-weight: 700;
+  background: var(--color-action-subtle);
+  color: var(--color-text-strong);
+  font-weight: var(--weight-bold);
 }
 
 .breakdown {
@@ -83,7 +83,7 @@
   margin: var(--space-1) 0 0;
   padding: 0;
   list-style: none;
-  color: var(--text-muted);
+  color: var(--color-text-muted);
   font-size: var(--text-xs);
 }
 
@@ -95,17 +95,17 @@
 }
 
 .criteria dt {
-  color: var(--text-strong);
-  font-weight: 600;
+  color: var(--color-text-strong);
+  font-weight: var(--weight-semibold);
 }
 
 .criteria dd {
   margin: 0 0 var(--space-2);
-  color: var(--text-muted);
+  color: var(--color-text-muted);
   font-size: var(--text-sm);
 }
 
-@media (width < 48rem) {
+@media (width < 48rem) { /* --breakpoint-md */
   /* 狭い画面では表を積む。横スクロールで隠れる列を作らない。 */
   .rankTable,
   .rankTable tbody,
@@ -121,7 +121,7 @@
 
   .rankTable tr {
     padding: var(--space-3) 0;
-    border-bottom: 1px solid var(--border-subtle);
+    border-bottom: var(--border-width-default) solid var(--color-border-subtle);
   }
 
   .rankTable td {

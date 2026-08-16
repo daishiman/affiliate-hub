@@ -1,0 +1,58 @@
+/*
+ * トークン 3 段目: ブランドテーマ (値の差し替え)
+ *
+ * 複数ブログ・複数ブランドの見た目の違いは、このファイルの値の差だけに閉じる。
+ * ブログごとにコンポーネントを作らない。作った時点で、
+ * 「全ブログのボタンの形を変える」が「ブログの数だけ書き換える」になる。
+ *
+ * 上書きしてよいのは 2 段目 (semantic.css) のトークンだけ。
+ * 1 段目の生の値をここで作らない。作ると AA の検証がテーマの数だけ増える。
+ *
+ * 使い方: <html data-brand-theme="indigo-teal">
+ * どのサイトがどのテーマを使うかは Site Blueprint が持つ (単一の正本)。
+ * 機械チェック: tests/ui/design-tokens.test.ts が
+ *   「全テーマが同じトークン集合を上書きしている」ことを見る。
+ *   一部だけ上書きすると、そのテーマだけ既定色が混ざる。
+ *
+ * 役割は全テーマ共通で変えない:
+ *   action = 押せるもの / accent = 実行中・注意
+ */
+
+/* 既定。上書きしないことを明示するために空ではなく役割だけ書く。 */
+[data-brand-theme="graphite-amber"] {
+  --brand-theme-name: "Graphite × Amber";
+}
+
+/* ---------------------------------------------------------------------- */
+[data-brand-theme="indigo-teal"] {
+  --brand-theme-name: "Indigo × Teal";
+
+  --color-action-default: light-dark(var(--indigo-700), var(--indigo-300));
+  --color-action-hover: light-dark(var(--indigo-800), var(--indigo-100));
+  --color-action-active: light-dark(var(--indigo-900), var(--neutral-0));
+  --color-action-subtle: light-dark(var(--indigo-100), var(--indigo-950));
+  --color-text-on-action: light-dark(var(--neutral-0), var(--indigo-950));
+
+  --color-accent-default: light-dark(var(--teal-700), var(--teal-300));
+  --color-accent-hover: light-dark(var(--teal-800), var(--teal-100));
+  --color-accent-subtle: light-dark(var(--teal-100), var(--teal-900));
+  --color-accent-border: light-dark(var(--teal-500), var(--teal-700));
+  --color-text-on-accent: var(--teal-950);
+}
+
+/* ---------------------------------------------------------------------- */
+[data-brand-theme="teal-clay"] {
+  --brand-theme-name: "Teal × Clay";
+
+  --color-action-default: light-dark(var(--teal-700), var(--teal-300));
+  --color-action-hover: light-dark(var(--teal-800), var(--teal-100));
+  --color-action-active: light-dark(var(--teal-900), var(--neutral-0));
+  --color-action-subtle: light-dark(var(--teal-100), var(--teal-950));
+  --color-text-on-action: light-dark(var(--neutral-0), var(--teal-950));
+
+  --color-accent-default: light-dark(var(--clay-700), var(--clay-300));
+  --color-accent-hover: light-dark(var(--clay-800), var(--clay-100));
+  --color-accent-subtle: light-dark(var(--clay-100), var(--clay-900));
+  --color-accent-border: light-dark(var(--clay-500), var(--clay-700));
+  --color-text-on-accent: var(--clay-950);
+}

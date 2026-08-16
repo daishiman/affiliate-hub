@@ -7,16 +7,47 @@
  */
 @import "../presentation/ui/tokens.css";
 
+/*
+ * Tailwind のユーティリティへ同じトークンを渡す。
+ * ここで値を作らない。すべて var() で 2 段目を指すだけにする。
+ * こうしないと「CSS Modules の色」と「Tailwind の色」が別物になる。
+ */
 @theme inline {
-  --color-background: var(--surface-base);
-  --color-foreground: var(--text-default);
+  --color-background: var(--color-surface-default);
+  --color-foreground: var(--color-text-default);
+
+  --color-surface: var(--color-surface-default);
+  --color-raised: var(--color-surface-raised);
+  --color-sunken: var(--color-surface-sunken);
+  --color-strong: var(--color-text-strong);
+  --color-muted: var(--color-text-muted);
+  --color-action: var(--color-action-default);
+  --color-accent: var(--color-accent-default);
+  --color-success: var(--color-intent-success);
+  --color-danger: var(--color-intent-danger);
+  --color-info: var(--color-intent-info);
+
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
 
+/*
+ * 折り返し位置。
+ * CSS の @media も Tailwind の画面サイズ指定も var() を受け取れないため、
+ * ここだけは数値を直接書く必要がある。
+ * 正本は primitives.css の --breakpoint-*。
+ * ずれたら tests/ui/design-tokens.test.ts が落ちる (人の目に頼らない)。
+ */
+@theme {
+  --breakpoint-sm: 30rem;
+  --breakpoint-md: 48rem;
+  --breakpoint-lg: 64rem;
+  --breakpoint-xl: 80rem;
+}
+
 body {
-  background: var(--surface-base);
-  color: var(--text-default);
+  background: var(--color-surface-default);
+  color: var(--color-text-default);
   /* 日本語を含むため、和文フォントを持つ端末の既定書体に載せる */
   font-family: var(--font-geist-sans), system-ui, "Hiragino Sans", "Noto Sans JP", Meiryo, sans-serif;
   line-height: var(--leading-body);

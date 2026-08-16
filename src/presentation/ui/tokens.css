@@ -1,166 +1,17 @@
 /*
- * デザイントークン。
+ * デザイントークンの入口。読み込むのはこのファイル 1 本。
  *
- * 色・余白・角丸・影・動きの値を、ここ 1 箇所だけに持つ。
- * 画面ごとに色コードを直接書かない。書いた時点で「全体の色を変える」が
- * 何十ファイルの書き換えになる。
+ * 3 段構成にしてある。段を飛ばして読まないこと。
  *
- * 配色 (Mode A): Graphite × Amber
- *   primary (Graphite) = 操作できるもの
- *   accent  (Amber)    = 実行中・注意が要る状態
- * この役割は入れ替えない。役割が混ざると、利用者は色から意味を読めなくなる。
+ *   1. primitives  値そのもの        (#33353d, 1rem, 180ms …)
+ *   2. semantic    何に使う値か      (--color-text-default …)  ← コンポーネントはここだけ
+ *   3. themes      ブランドごとの差   ([data-brand-theme=…])
  *
- * コントラストは WCAG 2.2 AA (本文 4.5:1、大きな文字 3:1) を満たす組み合わせだけを載せる。
+ * 段を分ける理由は名前を増やすことではなく、「差し替え点を作る」こと。
+ * 1 段だけだと、--color-text-default: #33353d と書くしかなく、
+ * ブランドごとに色を変える口が無い。
  */
 
-:root {
-  color-scheme: light dark;
-
-  /* --- 面 --------------------------------------------------------------- */
-  --surface-base: #ffffff;
-  --surface-raised: #f7f7f8;
-  --surface-sunken: #eeeef0;
-  --surface-overlay: #ffffff;
-
-  /* --- 文字 ------------------------------------------------------------- */
-  --text-strong: #17181c; /* 見出し。base に対し 16.9:1 */
-  --text-default: #33353d; /* 本文。base に対し 11.4:1 */
-  --text-muted: #5c5f6a; /* 補足。base に対し 6.4:1 */
-  --text-on-primary: #ffffff;
-  --text-on-accent: #2b1a00;
-
-  /* --- 線 --------------------------------------------------------------- */
-  --border-subtle: #e2e2e6;
-  --border-default: #c8c9cf;
-  --border-strong: #8b8d97;
-
-  /* --- primary (Graphite): 操作 ----------------------------------------- */
-  --primary: #33353d;
-  --primary-hover: #24262c;
-  --primary-active: #17181c;
-  --primary-subtle: #eeeef0;
-
-  /* --- accent (Amber): 実行中・注意 ------------------------------------- */
-  --accent: #b45309;
-  --accent-hover: #92400e;
-  --accent-subtle: #fef3c7;
-  --accent-border: #f59e0b;
-
-  /* --- 状態 ------------------------------------------------------------- */
-  --success: #15803d;
-  --success-subtle: #dcfce7;
-  --danger: #b91c1c;
-  --danger-subtle: #fee2e2;
-  --info: #1d4ed8;
-  --info-subtle: #dbeafe;
-
-  /* --- 焦点 ------------------------------------------------------------- */
-  /* キーボード操作の現在地。太さと色を全画面で同じにする。 */
-  --focus-ring: #1d4ed8;
-  --focus-ring-width: 2px;
-  --focus-ring-offset: 2px;
-
-  /* --- 余白 (4px 刻み) --------------------------------------------------- */
-  --space-1: 0.25rem;
-  --space-2: 0.5rem;
-  --space-3: 0.75rem;
-  --space-4: 1rem;
-  --space-5: 1.5rem;
-  --space-6: 2rem;
-  --space-7: 3rem;
-
-  /* --- 角丸・影 --------------------------------------------------------- */
-  --radius-sm: 4px;
-  --radius-md: 8px;
-  --radius-lg: 12px;
-  --shadow-raised: 0 1px 2px rgb(0 0 0 / 0.06), 0 1px 3px rgb(0 0 0 / 0.1);
-  --shadow-overlay: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
-
-  /* --- 動き ------------------------------------------------------------- */
-  /* 動きは因果の説明にだけ使う。入場は全体 300ms 以内。 */
-  --motion-fast: 120ms;
-  --motion-base: 180ms;
-  --motion-enter: 240ms;
-  --motion-ease: cubic-bezier(0.2, 0, 0, 1);
-
-  /* --- 文字サイズ ------------------------------------------------------- */
-  --text-xs: 0.75rem;
-  --text-sm: 0.875rem;
-  --text-base: 1rem;
-  --text-lg: 1.125rem;
-  --text-xl: 1.375rem;
-  --text-2xl: 1.75rem;
-
-  /* 日本語は行間を広めに取る。欧文と同じ 1.5 では詰まって読みにくい。 */
-  --leading-body: 1.8;
-  --leading-heading: 1.4;
-
-  /* 操作対象の最小寸法 (WCAG 2.2 Target Size)。 */
-  --tap-target-min: 44px;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --surface-base: #16171a;
-    --surface-raised: #1e1f23;
-    --surface-sunken: #101113;
-    --surface-overlay: #23252a;
-
-    --text-strong: #f5f5f7;
-    --text-default: #dcdde1;
-    --text-muted: #a3a5ae;
-    --text-on-primary: #17181c;
-    --text-on-accent: #2b1a00;
-
-    --border-subtle: #2b2d33;
-    --border-default: #3d3f47;
-    --border-strong: #6b6e79;
-
-    --primary: #dcdde1;
-    --primary-hover: #f5f5f7;
-    --primary-active: #ffffff;
-    --primary-subtle: #26282e;
-
-    --accent: #fbbf24;
-    --accent-hover: #fcd34d;
-    --accent-subtle: #3a2a06;
-    --accent-border: #b45309;
-
-    --success: #4ade80;
-    --success-subtle: #0d2c19;
-    --danger: #f87171;
-    --danger-subtle: #3a1414;
-    --info: #93c5fd;
-    --info-subtle: #12224a;
-
-    --focus-ring: #93c5fd;
-  }
-}
-
-/*
- * 動きを減らす設定への対応。
- * 「動きが無いと分からない」作りにしていないので、すべて止めてよい。
- */
-@media (prefers-reduced-motion: reduce) {
-  :root {
-    --motion-fast: 0ms;
-    --motion-base: 0ms;
-    --motion-enter: 0ms;
-  }
-
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-    scroll-behavior: auto !important;
-  }
-}
-
-/* 焦点表示は全画面で同じ。個別に上書きしない。 */
-:where(a, button, input, select, textarea, [tabindex]):focus-visible {
-  outline: var(--focus-ring-width) solid var(--focus-ring);
-  outline-offset: var(--focus-ring-offset);
-  border-radius: var(--radius-sm);
-}
+@import "./tokens/primitives.css";
+@import "./tokens/semantic.css";
+@import "./tokens/themes.css";
