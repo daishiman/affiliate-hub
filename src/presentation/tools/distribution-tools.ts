@@ -33,6 +33,7 @@ export function distributionTools(deps: AppDeps): readonly AnyToolDefinition[] {
     connections: deps.channelConnections,
     contentVariants: deps.contentVariants,
     contentPackages: deps.contentPackages,
+    events: deps.events,
   };
   const publicationId = z.string().min(1);
 

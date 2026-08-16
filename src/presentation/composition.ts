@@ -421,6 +421,7 @@ export function publicationCalendarUseCases() {
     connections: deps.channelConnections,
     contentVariants: deps.contentVariants,
     contentPackages: deps.contentPackages,
+    events: deps.events,
   };
   return {
     getCalendar: createGetPublicationCalendarUseCase(calendar),

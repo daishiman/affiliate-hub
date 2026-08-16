@@ -18,12 +18,14 @@ import {
   type PublicationId,
   type Result,
   assertSameTenant,
+  buildEvent,
   domainError,
   err,
   ok,
   taggedString,
   validationError,
 } from "@/domain/shared";
+import type { EventPublisherPort } from "@/application/ports/common";
 import type { UseCase } from "../usecase";
 import { PUBLICATION_STATE_LABEL } from "./manage-distribution";
 
@@ -44,6 +46,11 @@ export type PublicationCalendarDeps = {
   readonly connections: ChannelConnectionRepositoryPort;
   readonly contentVariants: EditorialContentVariantRepositoryPort;
   readonly contentPackages: EditorialContentPackageRepositoryPort;
+  /**
+   * 起きたことを他の文脈へ伝える口。
+   * 配信の文脈から記事の文脈の保存処理を直接呼ばないため、ここを通す。
+   */
+  readonly events: EventPublisherPort;
 };
 
 /** 承認の進み具合。記事側の状態を、配信の言葉に言い換えたもの。 */
@@ -436,6 +443,15 @@ export function createReschedulePublicationUseCase(
 
       const saved = await deps.publications.save({ ...moved.value, scheduledAt: parsed });
       if (!saved.ok) return saved;
+
+      // 出し先と日時が決まった、を伝える（§23.2）。
+      // 伝達に失敗しても予定の変更は済んでいるので、ここで失敗にはしない。
+      // 失敗にすると「押したのに日時が変わっていない」という最も分かりにくい壊れ方になる。
+      const event = buildEvent("publication.scheduled", String(actor.workspaceId), now, {
+        publicationId: String(saved.value.id),
+        scheduledAt: parsed.toISOString(),
+      });
+      if (event.ok) await deps.events.publish(event.value);
 
       return ok({
         publicationId: String(saved.value.id),

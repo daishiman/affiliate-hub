@@ -6,7 +6,7 @@
 イベントは、ある文脈で起きたことを別の文脈へ伝えるための唯一の経路。
 別の文脈の保存処理を直接呼ばないので、受け手が増えても送り手は変わらない。
 
-件数: 16（うち実際に発行しているもの: 6）
+件数: 16（うち実際に発行しているもの: 7）
 
 | 名前 | 出す文脈 | 何が起きたか | 必ず入る項目 | 状態 | 発行場所 / 何が済めば出せるか |
 |---|---|---|---|---|---|
@@ -18,7 +18,7 @@
 | `content_package.created` | authoring | 記事のまとまり（同じ素材から作る一式）が作られた | `contentPackageId` | まだ発行していない | 記事のまとまりを作る画面と生成の起動 |
 | `content_variant.generated` | authoring | 媒体ごとの原稿ができた（まだ公開してよい状態ではない） | `variantId` | 発行あり | `src/application/usecases/content/manage-content.ts` |
 | `content_variant.approved` | authoring | 人が原稿を承認した | `variantId` `approvedBy` | 発行あり | `src/application/usecases/content/manage-content.ts` |
-| `publication.scheduled` | distribution | 出し先と日時が決まった | `publicationId` `scheduledAt` | まだ発行していない | 配信予約の実装（出し先の接続が要る） |
+| `publication.scheduled` | distribution | 出し先と日時が決まった | `publicationId` `scheduledAt` | 発行あり | `src/application/usecases/distribution/publication-calendar.ts` |
 | `publication.published` | distribution | 出し先へ公開された | `publicationId` | まだ発行していない | 配信の実行（各サービスの認証が要る） |
 | `publication.failed` | distribution | 出し先への公開に失敗した | `publicationId` `reason` | まだ発行していない | 配信の実行と失敗の取り扱い |
 | `affiliate_link.broken` | monetization | 成果リンクが切れている（読者を行き止まりに送っている） | `affiliateLinkId` `reason` | まだ発行していない | リンク切れ検出の定期実行 |

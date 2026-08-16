@@ -161,36 +161,54 @@ RWD・a11y は全ルート共通の枠（`page-frame.tsx` と共通 UI 部品）
 
 | REQ | 要件 | 実装 | test | 結果 |
 | --- | --- | --- | --- | --- |
-| REQ-API01 | §23.1 REST/RPC エンドポイント群（受信箱・商品・比較・生成・公開・分析） | `src/app/api/mcp/route.ts` のみ | NOT RUN | スタブ |
-| REQ-API02 | 認可（テナント境界・ロール）を全エンドポイントで強制 | `src/lib/mcp/auth.ts`（MCP のみ） | NOT RUN | スタブ |
-| REQ-EV01〜16 | §23.2 イベント16種（`affiliate_url.submitted` 〜 `conversion.received`） | — | NOT RUN | 未着手 |
+| REQ-API01 | §23.1 REST/RPC エンドポイント群（受信箱・商品・比較・生成・公開・分析） | `src/app/api/tools/route.ts`（一覧）と `src/app/api/tools/[tool]/route.ts`（実行）。1 つのツールカタログから全操作が出るため、業務が増えても入口は増えない | PASS（`tests/presentation/entry-points.test.ts` / `one-usecase-three-adapters.test.ts`） | 実装済 |
+| REQ-API02 | 認可（テナント境界・ロール）を全エンドポイントで強制 | `src/presentation/http/tool-scope.ts` `isToolAllowedForScope()` を REST と MCP の両方が呼ぶ。テナントは `assertSameTenant()`、ロールは `requireCapability()`。オリジン制約は `src/presentation/http/origin-guard.ts` | PASS（`tests/presentation/entry-points.test.ts` / `webmcp-policy.test.ts`「オリジン制約」） | 実装済 |
+| REQ-EV01 | `affiliate_url.submitted` | `src/domain/shared/domain-events.ts` + `manage-link-inbox.ts` で発行 | PASS（`tests/domain/domain-events.test.ts`） | 実装済 |
+| REQ-EV02 | `affiliate_url.resolved` | 同上（`manage-link-inbox.ts`） | PASS | 実装済 |
+| REQ-EV03 | `product.matched` | 同上（`manage-link-inbox.ts`） | PASS | 実装済 |
+| REQ-EV04 | `product.enriched` | 定義のみ。解除条件: 外部情報から商品属性を補う取込処理 | 台帳に記載（`docs/product/event-ledger.md`） | スタブ |
+| REQ-EV05 | `comparison.ready` | 定義のみ。解除条件: 比較候補の 4 分類（同一/派生/競合/代替）の判定処理 | 同上 | スタブ |
+| REQ-EV06 | `content_package.created` | 定義のみ。解除条件: 記事のまとまりを作る画面と生成の起動 | 同上 | スタブ |
+| REQ-EV07 | `content_variant.generated` | `manage-content.ts` で発行 | PASS | 実装済 |
+| REQ-EV08 | `content_variant.approved` | `manage-content.ts` で発行 | PASS | 実装済 |
+| REQ-EV09 | `publication.scheduled` | `publication-calendar.ts` の予定日変更で発行 | PASS | 実装済 |
+| REQ-EV10 | `publication.published` | 定義のみ。解除条件: 配信の実行（各サービスの認証が要る） | 同上 | スタブ |
+| REQ-EV11 | `publication.failed` | 定義のみ。解除条件: 配信の実行と失敗の取り扱い | 同上 | スタブ |
+| REQ-EV12 | `affiliate_link.broken` | 定義のみ。解除条件: リンク切れ検出の定期実行 | 同上 | スタブ |
+| REQ-EV13 | `affiliate_program.terminated` | 定義のみ。解除条件: ASP からの提携状態の取得 | 同上 | スタブ |
+| REQ-EV14 | `claim.expired` | 定義のみ。解除条件: 根拠の有効期限を見て回る定期実行 | 同上 | スタブ |
+| REQ-EV15 | `content.refresh_due` | `manage-content.ts` で発行 | PASS | 実装済 |
+| REQ-EV16 | `conversion.received` | 定義のみ。解除条件: ASP からの成果データ取込 | 同上 | スタブ |
 
-イベント16種の内訳: `affiliate_url.submitted` / `affiliate_url.resolved` / `product.matched` / `product.enriched` / `comparison.ready` / `content_package.created` / `content_variant.generated` / `content_variant.approved` / `publication.scheduled` / `publication.published` / `publication.failed` / `affiliate_link.broken` / `affiliate_program.terminated` / `claim.expired` / `content.refresh_due` / `conversion.received` — **全16件が未着手**。
+16 件すべてが `src/domain/shared/domain-events.ts` に定義済みで、必須項目が欠けたまま
+送ることは `buildEvent()` が型と検査で止める。**うち 7 件を実際に発行している**。
+発行していない 9 件は `docs/product/event-ledger.md`（テストが自動生成する台帳）に
+「何が済めば出せるか」つきで残す。空欄は検査で許していない。
 
 ## H. WebMCP（管理側 §24.1 / 読者側 ブログ層 §14.2）
 
 | REQ | 要件 | 実装 | 通常UI経路（FD-4） | 結果 |
 | --- | --- | --- | --- | --- |
-| REQ-WA01 | 管理側 読み取り10種（`search_affiliate_sources` 〜 `get_publication_status`） | — | REQ-S01〜S08 | 未着手 |
-| REQ-WA02 | 管理側 状態変更8種（`create_affiliate_source_draft` 〜 `publish_approved_content`）+ 確認必須 | — | REQ-S01〜S08 | 未着手 |
-| REQ-WB01 | 読者側 読み取り9種（`list_ranking`/`get_product`/`compare_products`/`get_evidence`/`list_test_runs`/`explain_ranking`/`filter_products`/`get_disclosure`/`find_alternatives`） | — | REQ-B01〜B09 | 未着手 |
-| REQ-WB02 | 読者側 状態変更1種（`submit_feedback`）+ 確認UI | — | REQ-B16 | 未着手 |
-| REQ-WC01 | `document.modelContext` を正規経路にする（CHG-001） | `src/lib/webmcp/client.ts` | — | 実装済 |
-| REQ-WC02 | 能力検出 → 非対応時は通常UIへフォールバック | `src/lib/webmcp/client.ts` `resolveModelContext()` | — | 実装済 |
-| REQ-WC03 | 機能フラグ配下での有効化 | — | — | 未着手 |
-| REQ-WC04 | 1ページ6ツール以下・読み取り専用から導入 | — | — | 未着手 |
-| REQ-WC05 | 宣言型フォーム（`toolname`/`tooldescription`/`toolparamdescription`、状態変更に `toolautosubmit` 不使用） | — | — | 未着手 |
-| REQ-WC06 | §14.6 オリジン制約 | — | — | 未着手 |
-| REQ-WC07 | §16.4 エラー形式 | — | — | 未着手 |
-| REQ-WC08 | 現行の3ツール（`list_programs`/`record_conversion`/`get_revenue_summary`）は暫定 | `src/lib/mcp/specs.ts` | `/` | スタブ |
+| REQ-WA01 | 管理側 読み取り10種（`search_affiliate_sources` 〜 `get_publication_status`） | `src/presentation/tools/spec-contract.ts` `TOOL_CONTRACT`。**10 種中 9 種が仕様の名前で呼べる**（`inspect_affiliate_url` のみスタブ）。画面は `/admin/tools` | REQ-S01〜S08 | スタブ |
+| REQ-WA02 | 管理側 状態変更8種（`create_affiliate_source_draft` 〜 `publish_approved_content`）+ 確認必須 | 同上。**8 種中 4 種**が動く。確認必須は `requiresHumanApproval` + `invokeTool()` が AI を弾く | REQ-S01〜S08 | スタブ |
+| REQ-WB01 | 読者側 読み取り9種 | 同上。**9 種すべて動く**（`get_disclosure` は `list_disclosures` の別名） | REQ-B01〜B09 | 実装済 |
+| REQ-WB02 | 読者側 状態変更1種（`submit_feedback`）+ 確認UI | `submit_contact` の別名。ページ内 AI には渡さない（`PAGE_TOOLS` は読み取りのみ） | REQ-B16 | 実装済 |
+| REQ-WC01 | `document.modelContext` を正規経路にする（CHG-001） | `src/presentation/ui/webmcp-provider.tsx` `resolveModelContext()`（`navigator` は後ろに置く旧経路） | — | 実装済 |
+| REQ-WC02 | 能力検出 → 非対応時は通常UIへフォールバック | 同上。`registerWebMcpTools()` は登録先が無ければ何もしない | — | 実装済 |
+| REQ-WC03 | 機能フラグ配下での有効化 | `src/presentation/tools/webmcp-policy.ts` `WEBMCP_ENABLED` / `isWebMcpEnabled()`。切ると渡す道具が空になり、画面はそのまま使える | PASS（`tests/presentation/webmcp-policy.test.ts`「機能フラグ」） | 実装済 |
+| REQ-WC04 | 1ページ6ツール以下・読み取り専用から導入 | 同 `PAGE_TOOLS`（7 種別ぶん）+ `MAX_TOOLS_PER_PAGE`。ページ種別は `SiteFrame` の `pageKind` から決まる | PASS（同「ページ種別ごとの道具」7件） | 実装済 |
+| REQ-WC05 | 宣言型フォーム（`toolname`/`tooldescription`/`toolparamdescription`、状態変更に `toolautosubmit` 不使用） | `src/presentation/ui/primitives/tool-form.tsx` + `field.tsx` / `textarea.tsx`。属性名が小文字で出ることを出力で確認 | PASS（`tests/ui/tool-form.test.tsx` / `webmcp-policy.test.ts`「宣言型フォーム」） | 実装済 |
+| REQ-WC06 | §14.6 オリジン制約 | `src/presentation/http/origin-guard.ts` `checkOrigin()` を `/api/mcp` と `/api/tools/[tool]` の両方が呼ぶ | PASS（`tests/presentation/webmcp-policy.test.ts`「オリジン制約」5件） | 実装済 |
+| REQ-WC07 | §16.4 エラー形式 | `src/presentation/http/error-response.ts`（REST）と `mcp-adapter.ts` `errorToMcpResult()`（MCP）。変換は 1 箇所で、必ず「次にできること」を添える | PASS（`tests/presentation/entry-points.test.ts`） | 実装済 |
+| REQ-WC08 | 現行の3ツール（`list_programs`/`record_conversion`/`get_revenue_summary`）は暫定 | 新しいカタログ（`buildToolCatalog`）へ移行済み。旧 `src/lib/mcp/specs.ts` は存在しない | — | 実装済 |
 
 ## I. バックエンドMCP（§24.3）
 
 | REQ | 要件 | 実装 | 結果 |
 | --- | --- | --- | --- |
-| REQ-M01 | Resources 8種 | — | 未着手 |
-| REQ-M02 | Tools 8種 | — | 未着手 |
-| REQ-M03 | MCP エンドポイントと認可 | `src/app/api/mcp/route.ts`、`src/lib/mcp/auth.ts`（旧実装）。新しい入口は `src/presentation/tools/mcp-adapter.ts` と `src/app/api/tools/`（REST）。両者の統合は残課題9 | スタブ |
+| REQ-M01 | Resources 8種 | `src/presentation/tools/spec-contract.ts` `MCP_RESOURCES`（8種）+ `mcp-adapter.ts` の `resources/list` / `resources/read`。中身は必ず既存のツールから取る（読み出しを二重に書かない）。画面は `/admin/tools` | 実装済 |
+| REQ-M02 | Tools 8種 | 同 `TOOL_CONTRACT` の `mcp_tool`。**8 種中 5 種**が仕様の名前で呼べる。残り 3 種は生成AI・保存先の未実装（理由は表に明記） | スタブ |
+| REQ-M03 | MCP エンドポイントと認可 | `src/app/api/mcp/route.ts`（JSON-RPC / stateless）。認可は `authenticateRequest()` + `visibleTools()`、オリジンは `checkOrigin()`。ツールは REST・WebMCP と同じ 1 つのカタログ | 実装済 |
 
 ## J. 権限（§25 全10ロール）
 
