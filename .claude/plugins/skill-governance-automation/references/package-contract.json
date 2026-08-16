@@ -1,0 +1,19 @@
+{
+  "$schema": "../../harness-creator/skills/ref-pkg-contract/schemas/package-contract.schema.json",
+  "package_mode": "bundle",
+  "plugin_name": "skill-governance-automation",
+  "entry_points": {
+    "skills": [],
+    "agents": [],
+    "commands": [],
+    "hooks": []
+  },
+  "distribution": {
+    "distributable": true,
+    "bundle_targets": ["skills-full"],
+    "category": "quality-governance",
+    "tags": ["rubric-composition", "governance-automation", "shared-scripts"]
+  },
+  "depends_on": [],
+  "pkg_checks": {}
+}

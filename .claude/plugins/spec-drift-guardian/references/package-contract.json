@@ -1,0 +1,30 @@
+{
+  "$schema": "../../harness-creator/skills/ref-pkg-contract/schemas/package-contract.schema.json",
+  "package_mode": "bundle",
+  "plugin_name": "spec-drift-guardian",
+  "entry_points": {
+    "skills": [
+      "run-spec-drift-triage",
+      "run-rubric-sync"
+    ],
+    "agents": [
+      "spec-impact-verifier",
+      "rubric-sync-auditor"
+    ],
+    "commands": [
+      "spec-drift-triage",
+      "rubric-sync"
+    ],
+    "hooks": [
+      "guard-spec-drift-close.py"
+    ]
+  },
+  "distribution": {
+    "distributable": false,
+    "bundle_targets": [],
+    "category": "developer-tools",
+    "tags": ["spec-drift", "triage", "harness-creator"]
+  },
+  "depends_on": [],
+  "pkg_checks": {}
+}
