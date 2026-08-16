@@ -16,12 +16,13 @@ import { registerStub, stubCall } from "../stub-registry";
  * (docs/architecture/changeability-scenarios.md ②)。
  * ドメインもユースケースも提供元の名前を知らない。
  */
-export type LlmProviderKind = "anthropic" | "openai" | "workers_ai";
+export type LlmProviderKind = "anthropic" | "openai" | "workers_ai" | "google_gemini";
 
 export const LLM_PROVIDER_LABEL: Readonly<Record<LlmProviderKind, string>> = {
   anthropic: "Anthropic",
   openai: "OpenAI",
   workers_ai: "Cloudflare Workers AI",
+  google_gemini: "Google Gemini",
 };
 
 export type LlmProviderContext = {
@@ -57,6 +58,7 @@ const FACTORIES: Readonly<Record<LlmProviderKind, LlmFactory>> = {
   anthropic: (ctx) => createStubLlm("anthropic", ctx),
   openai: (ctx) => createStubLlm("openai", ctx),
   workers_ai: (ctx) => createStubLlm("workers_ai", ctx),
+  google_gemini: (ctx) => createStubLlm("google_gemini", ctx),
 };
 
 export function createLlm(
