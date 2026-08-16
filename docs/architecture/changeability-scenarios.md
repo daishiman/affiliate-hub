@@ -107,14 +107,33 @@
 
 ## ④ SNS チャネルを 1 つ追加する（例: Bluesky）
 
-| 層 | 触るファイル | 作業 |
-| --- | --- | --- |
-| domain | `src/domain/distribution/channel.ts` | `ChannelKind` に 1 語、`CHANNEL_CAPABILITIES` に 1 行（文字数上限・画像枚数・出し方） |
-| application | なし | `ChannelConnectorPort` は変わらない |
-| infrastructure | `src/infrastructure/channels/bluesky-connector.ts`（新規・未作成） | 1 ファイル |
-| presentation | なし | 出し先の一覧は能力表から生成される |
+**実測済み 2026-08-17。** Bluesky を実際に足して測った。
 
-**domain を触るか**: 触る（能力表に 1 行）。判定ロジックは触らない。
+| 層 | 触ったファイル | 作業 |
+| --- | --- | --- |
+| domain | `src/domain/distribution/channel.ts` **+14 行** | `ChannelKind` に 1 語、`CHANNEL_CAPABILITIES` に 1 件（上限 300 字・画像 4 枚・出し方） |
+| application | **なし** | `ChannelConnectorPort` は変わらない |
+| infrastructure | `src/infrastructure/channels/channel-registry.ts` **1 行** | 対応表に 1 行（中身が済むまではスタブ） |
+| presentation | **なし** | 出し先の一覧は能力表から生成される |
+| 自動生成 | `docs/product/stub-ledger.md` | テストが作り直す |
+
+実測（`git diff --stat`）:
+
+```
+ docs/product/stub-ledger.md                     |  3 ++-
+ src/domain/distribution/channel.ts              | 15 ++++++++++++++-
+ src/infrastructure/channels/channel-registry.ts |  1 +
+ 3 files changed, 17 insertions(+), 2 deletions(-)
+```
+
+**手で直したテストは 0 件。** 文字数上限の検査・投稿可否の判定・画面の選択肢は
+すべて能力表から導かれているため、追加しただけで
+「300 字を超えたら止める」が全経路（画面・REST・WebMCP・MCP）で効く。
+
+**本実装（API 連携）を足すとき**: `src/infrastructure/channels/bluesky-connector.ts` を
+新規に書き、対応表の 1 行をスタブから差し替える。他の層は再び無変更。
+
+**domain を触るか**: 触る（能力表に 1 件）。判定ロジックは触らない。
 
 **能力表を domain に置いた理由**: 「280 字を超えたら公開できない」は業務の決まりごとであり、
 接続の都合ではない。ここに書いておけば、**文字数の判定は 1 箇所**で済み、
@@ -309,7 +328,7 @@ domain が `drizzle-orm` を import していないことは `pnpm test` が毎�
 | ① ASP 追加 | 2 行（一覧のみ） | **3**（うち 1 は自動生成） | 済（2026-08-17 実測） |
 | ② LLM 差し替え | 触らない | 1 新規 | 未（実装後に実測する） |
 | ③ ブログ追加 | 触らない | **1**（設定値のみ・追加 46 行） | **済**（2026-08-17。⑪ と同じ作業） |
-| ④ SNS チャネル追加 | 1 行（能力表のみ） | 1 新規 | 未（実装後に実測する） |
+| ④ SNS チャネル追加 | 1 件（能力表のみ） | **3**（うち 1 は自動生成） | 済（2026-08-17 実測） |
 | ⑤ 評価軸追加 | 1 行（許可リストのみ） | **2** | 済（2026-08-17 実測） |
 | ⑥ DB 差し替え | 触らない | 実装群 | 未 |
 | ⑦ 認証差し替え | 触らない | 実装群 | 未 |

@@ -6,7 +6,7 @@
 「スタブ」は、つなぎ目だけあって中身がまだ無いもの。呼ぶと必ず失敗を返す。
 成功したふりをしないので、「つながっているのに結果が空」という分かりにくい壊れ方をしない。
 
-件数: 28
+件数: 29
 
 | 識別子 | 何のスタブか | つなぎ目 | 何が済めば実装できるか |
 |---|---|---|---|
@@ -19,6 +19,7 @@
 | `asp:rakuten_affiliate` | 楽天アフィリエイト との連携 | AspAdapterPort | 楽天ウェブサービスのアプリID発行が必要 |
 | `asp:value_commerce` | バリューコマース との連携 | AspAdapterPort | バリューコマースのAPI利用申請と提携承認が必要 |
 | `asp:yahoo_shopping` | Yahoo!ショッピング との連携 | AspAdapterPort | Yahoo!デベロッパーネットワークのアプリケーションID発行が必要 |
+| `channel:bluesky` | Bluesky への配信 | ChannelConnectorPort | Bluesky (AT Protocol) のアプリパスワード発行が必要 |
 | `channel:instagram` | Instagram への配信 | ChannelConnectorPort | Instagram Graph API はプロアカウントと Facebook ページ連携が必要 |
 | `channel:newsletter` | メール配信 への配信 | ChannelConnectorPort | 配信基盤 (メール送信) の選定が必要 |
 | `channel:own_site` | 自社サイト への配信 | ChannelConnectorPort | サイト公開の実装 (Workers 上のレンダリング) が必要 |

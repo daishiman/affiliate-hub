@@ -28,7 +28,8 @@ export type ChannelKind =
   | "threads"
   | "note"
   | "newsletter"
-  | "wordpress";
+  | "wordpress"
+  | "bluesky";
 
 /**
  * 出稿の方式。
@@ -176,6 +177,18 @@ export const CHANNEL_CAPABILITIES: Readonly<Record<ChannelKind, ChannelCapabilit
     disclosurePlacement: "body_top",
     basisNote: "REST API を利用する。認証情報は接続設定として別管理",
   },
+  bluesky: {
+    kind: "bluesky",
+    label: "Bluesky",
+    publishMode: "api_publish",
+    maxBodyLength: 300,
+    allowsBodyLinks: true,
+    maxImages: 4,
+    supportsVideo: true,
+    allowsAffiliateLinks: true,
+    disclosurePlacement: "body_anywhere",
+    basisNote: "文字数・投稿方法は AT Protocol の仕様に従う。利用前に最新版を確認する",
+  }
 };
 
 /** 画面に「直接公開」ボタンを出してよいチャネルか。 */

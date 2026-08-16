@@ -86,6 +86,7 @@ const FACTORIES: Readonly<Record<ChannelKind, ConnectorFactory>> = {
   note: (ctx) => createStubConnector("note", "note に公開された投稿用 API は存在しない。書き出しのみを提供する", ctx),
   newsletter: (ctx) => createStubConnector("newsletter", "配信基盤 (メール送信) の選定が必要", ctx),
   wordpress: (ctx) => createStubConnector("wordpress", "接続先サイトの REST API とアプリケーションパスワードが必要", ctx),
+  bluesky: (ctx) => createStubConnector("bluesky", "Bluesky (AT Protocol) のアプリパスワード発行が必要", ctx),
 };
 
 /**
