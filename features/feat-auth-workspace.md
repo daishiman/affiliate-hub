@@ -12,7 +12,7 @@ iteration: null
 title: "認証とWorkspace/Brand基盤"
 owners: ["daishiman"]
 created_at: "2026-08-16T12:20:00Z"
-updated_at: "2026-08-16T13:01:11.380750Z"
+updated_at: "2026-08-16T14:35:00Z"
 status: "active"
 depends_on: []
 related_nodes: ["spec-system-spec-index"]
@@ -32,7 +32,7 @@ template_version: "1.0.0"
 confirmation_status: "confirmed"
 evaluation_status: "pass"
 confirmation_evidence: {"evaluated_digest":"35483f66bb1988fc2b3ede65937a16e41d29637c455a092e3fa463c0c90fbb0c","evaluator":"system-dev-plan-evaluator","evidence_ref":".dev-graph/published/generations/feature-package-feat-auth-workspace/35483f66bb1988fc2b3ede65937a16e41d29637c455a092e3fa463c0c90fbb0c/plan-findings.json"}
-source_lineage: {"imported_at":"2026-08-16T12:20:00Z","origin_kind":"generated","source_digest":"9185b196b216a5e9fc5b874144bcf74912551a9ddc28a9f3be115b6e09833c92","source_path":"docs/spec/01-要求仕様書-v1.0.md","source_plugin":"dev-graph","source_version":"0.1.0"}
+source_lineage: {"imported_at":"2026-08-16T12:20:00Z","origin_kind":"generated","source_digest":"b5fc60987cb79c08c30db4cd94b075a0bf89cd7acba7c8d1ffc8558af6439385","source_path":"docs/spec/01-要求仕様書-v1.0.md","source_plugin":"dev-graph","source_version":"0.1.0"}
 classification_confidence: 0.94
 classification_reason: "C14 macro decomposition of the approved product specification into feature-level units"
 classification_candidates: [{"artifact_kind":"feature","candidate_path":"features/feat-auth-workspace.md","confidence":0.94}]
@@ -46,6 +46,7 @@ execution_contexts: []
 completion_evidence: {"completed_at":null,"evidence_refs":[],"policy":"manual","reconciled_at":null,"source":null,"status":"in_progress"}
 implementation_readiness: {"checked_at":"2026-08-16T21:00:00Z","missing_sections":[],"status":"complete"}
 ---
+
 
 # 目的
 
@@ -82,7 +83,7 @@ Google ログインでサインインし、Workspace と Brand を作成でき�
 
 ## 機能間依存
 
-- `depends_on`: なし。本 feature は依存を持たない起点
+- `depends_on`: (なし)
 - 依存理由: 本 feature は依存を持たない起点であり、テナントと権限の土台を最初に固定する
 
 ## Handoff

@@ -3,10 +3,10 @@
   "handoff_target": "task-graph",
   "feature_id": "feat-auth-workspace",
   "feature_package_id": "feature-package/feat-auth-workspace",
-  "graph_snapshot_digest": "sha256:07b7d9605438e6e26a5e1b7fb4f24ff747c12dd7484fee600fa917b2c2eca81d",
-  "graph_revision": 65,
+  "graph_snapshot_digest": "sha256:9ae48414b8ff8b489ce13db626f0c01c578cd7f7d884f14e74e4165776c62fdb",
+  "graph_revision": 113,
   "requirements_document": "docs/requirements/feat-auth-workspace-implementation-requirements.md",
-  "requirements_document_sha256": "sha256:dfbb2aa287213de39d0fbe17cdf13dea0cbdf0ad37496402125e1cedecc4bcbe",
+  "requirements_document_sha256": "sha256:b9a763d06056b8ef52b48cbd1ef6509eee3ee0e797598ee6a29d742b467bf706",
   "promoted_generation": ".dev-graph/published/generations/feature-package-feat-auth-workspace/35483f66bb1988fc2b3ede65937a16e41d29637c455a092e3fa463c0c90fbb0c",
   "lineage_closure": [
     "arch-system-spec-overview",
@@ -177,5 +177,5 @@
     }
   ],
   "implementation_code_generated": 0,
-  "emitted_at": "2026-08-16T13:40:00Z"
+  "emitted_at": "2026-08-16T14:00:00Z"
 }

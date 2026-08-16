@@ -54,13 +54,28 @@ function toWebMcpTools(): WebMcpTool[] {
 }
 
 /**
+ * WebMCP の登録先を解決する。
+ *
+ * ブログ層仕様 §14.1 の正規経路は `document.modelContext`。
+ * `navigator.modelContext` は Chrome 150 で非推奨になったため、
+ * 旧ブラウザだけを救う legacy fallback として後ろに置く。
+ */
+function resolveModelContext(): ModelContext | undefined {
+  if (typeof document !== "undefined" && document.modelContext) {
+    return document.modelContext;
+  }
+  if (typeof navigator !== "undefined" && navigator.modelContext) {
+    return navigator.modelContext;
+  }
+  return undefined;
+}
+
+/**
  * ページを開いている AI エージェントにツールを公開する。
- * 未対応ブラウザでは何もせず、クリーンアップ関数を返す。
+ * 未対応ブラウザでは何もせず、クリーンアップ関数を返す (通常 UI へフォールバック)。
  */
 export function registerWebMcpTools(): () => void {
-  if (typeof navigator === "undefined") return () => {};
-
-  const modelContext: ModelContext | undefined = navigator.modelContext;
+  const modelContext = resolveModelContext();
   if (!modelContext) return () => {};
 
   const tools = toWebMcpTools();

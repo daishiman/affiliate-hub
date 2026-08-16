@@ -12,7 +12,7 @@ iteration: null
 title: "プロダクト要求の投影"
 owners: ["daishiman"]
 created_at: "2026-08-16T11:19:17Z"
-updated_at: "2026-08-16T11:19:23.123530Z"
+updated_at: "2026-08-16T13:45:20.038523Z"
 status: "draft"
 depends_on: []
 related_nodes: ["spec-gap-ledger","spec-analytics-foundation","feat-spec-canonicalization"]
@@ -32,7 +32,7 @@ template_version: "1.0.0"
 confirmation_status: "draft"
 evaluation_status: "pending"
 confirmation_evidence: {"evaluated_digest":null,"evaluator":null,"evidence_ref":null}
-source_lineage: {"imported_at":"2026-08-16T11:19:17Z","origin_kind":"manual","source_digest":"9185b196b216a5e9fc5b874144bcf74912551a9ddc28a9f3be115b6e09833c92","source_path":"docs/spec/01-要求仕様書-v1.0.md","source_plugin":null,"source_version":"1.0.0"}
+source_lineage: {"imported_at":"2026-08-16T11:19:17Z","origin_kind":"manual","source_digest":"b5fc60987cb79c08c30db4cd94b075a0bf89cd7acba7c8d1ffc8558af6439385","source_path":"docs/spec/01-要求仕様書-v1.0.md","source_plugin":null,"source_version":"1.0.0"}
 classification_confidence: 0.92
 classification_reason: "specification projection of docs/spec/01-要求仕様書-v1.0.md"
 classification_candidates: [{"artifact_kind":"specification","candidate_path":"specs/spec-product-requirements.md","confidence":0.92}]

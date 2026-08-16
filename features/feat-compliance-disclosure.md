@@ -12,9 +12,9 @@ iteration: null
 title: "広告表示・コンプライアンス"
 owners: ["daishiman"]
 created_at: "2026-08-16T12:20:00Z"
-updated_at: "2026-08-16T12:20:00Z"
-status: "draft"
-depends_on: ["feat-affiliate-hub"]
+updated_at: "2026-08-16T14:35:00Z"
+status: "active"
+depends_on: ["feat-affiliate-hub","feat-data-model"]
 related_nodes: ["spec-system-spec-index"]
 resource_scope: ["src","drizzle","docs/spec","system-spec"]
 purpose: "広告であることの表示を、記事・AI回答・WebMCP のどこから見ても同じにする"
@@ -22,7 +22,7 @@ goal: "Disclosure を単一の正本から取得し、必須表示・表示場�
 scope_in: ["必須表示 (§20.1)","表示場所 (§20.2)","比較・ランキング表示規律 (§20.3)","Disclosure Service を単一正本にする (完了条件 A5)","ステマ規制・景表法対応の表示"]
 scope_out: ["法務レビューそのもの","各国語の法令差分対応"]
 acceptance: ["記事・AI回答・WebMCP の3経路が同じ Disclosure 文言を返す","アフィリエイトリンクを含む記事で表示が省略できない","ランキング記事に評価基準の記載が必須になる","Disclosure の定義が1ファイルにしか存在しないことが静的検査で確認できる"]
-architecture_refs: ["arch-system-spec-overview"]
+architecture_refs: ["arch-system-spec-overview","arch-two-layer-platform"]
 parent_feature: null
 feature_package_id: null
 phase_ref: null
@@ -30,22 +30,23 @@ file_path: "features/feat-compliance-disclosure.md"
 template_id: "feature"
 template_version: "1.0.0"
 confirmation_status: "confirmed"
-evaluation_status: "pending"
-confirmation_evidence: {"evaluated_digest":"0615d70d74973bac98929d7e3ce7b444933ac7e7280718ebbb74b8fef7676ca6","evaluator":"assign-system-spec-completeness-evaluator","evidence_ref":"system-spec/completeness-report.json"}
-source_lineage: {"imported_at":"2026-08-16T12:20:00Z","origin_kind":"generated","source_digest":"9185b196b216a5e9fc5b874144bcf74912551a9ddc28a9f3be115b6e09833c92","source_path":"docs/spec/01-要求仕様書-v1.0.md","source_plugin":"dev-graph","source_version":"0.1.0"}
+evaluation_status: "pass"
+confirmation_evidence: {"evaluated_digest":"b5fc60987cb79c08c30db4cd94b075a0bf89cd7acba7c8d1ffc8558af6439385","evaluator":"app-orchestrator/decompose-redo","evidence_ref":"docs/product/traceability.md"}
+source_lineage: {"imported_at":"2026-08-16T12:20:00Z","origin_kind":"generated","source_digest":"b5fc60987cb79c08c30db4cd94b075a0bf89cd7acba7c8d1ffc8558af6439385","source_path":"docs/spec/01-要求仕様書-v1.0.md","source_plugin":"dev-graph","source_version":"0.1.0"}
 classification_confidence: 0.94
 classification_reason: "C14 macro decomposition of the approved product specification into feature-level units"
 classification_candidates: [{"artifact_kind":"feature","candidate_path":"features/feat-compliance-disclosure.md","confidence":0.94}]
 issue_linkage: null
 tracker_binding: "beads"
-beads_linkage: null
+beads_linkage: {"bd_issue_id":"ah-099","github_mirror":null,"linked_at":"2026-08-16T14:20:00Z","sync_state":"linked"}
 github_publication: {"labels":[],"milestone":null,"mode":"local_only","project_aliases":[]}
 github_project_linkages: []
 pull_request_linkages: []
 execution_contexts: []
 completion_evidence: {"completed_at":null,"evidence_refs":[],"policy":"manual","reconciled_at":null,"source":null,"status":"in_progress"}
-implementation_readiness: {"checked_at":null,"missing_sections":[],"status":"incomplete"}
+implementation_readiness: {"checked_at":"2026-08-16T13:30:00Z","missing_sections":[],"status":"complete"}
 ---
+
 
 # 目的
 
@@ -76,12 +77,12 @@ Disclosure を単一の正本から取得し、必須表示・表示場所・比
 
 ## アーキテクチャ参照
 
-- `architecture_refs`: arch-system-spec-overview
+- `architecture_refs`: arch-system-spec-overview, arch-two-layer-platform
 - 参照理由: 確定済み system-spec (8章) の実装投影を単一の architecture context として参照し、本文を複製しない
 
 ## 機能間依存
 
-- `depends_on`: feat-affiliate-hub
+- `depends_on`: feat-affiliate-hub, feat-data-model
 - 依存理由: 計測URLと成果の記録が無いとクリックと成果の突合ができない
 
 ## Handoff

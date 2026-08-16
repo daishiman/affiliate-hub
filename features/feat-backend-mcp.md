@@ -12,9 +12,9 @@ iteration: null
 title: "バックエンドMCP (運営者向け)"
 owners: ["daishiman"]
 created_at: "2026-08-16T12:20:00Z"
-updated_at: "2026-08-16T12:20:00Z"
-status: "draft"
-depends_on: ["feat-analytics-insight"]
+updated_at: "2026-08-16T14:35:00Z"
+status: "active"
+depends_on: ["feat-analytics-insight","feat-data-model"]
 related_nodes: ["spec-system-spec-index"]
 resource_scope: ["src","drizzle","docs/spec","system-spec"]
 purpose: "運営者が対話から案件・成果・分析を扱えるようにする"
@@ -22,7 +22,7 @@ goal: "運営者向け MCP ツールが認証付きで公開され、WebMCP と�
 scope_in: ["バックエンドMCP (§15, §24.3)","既存3ツール (list_programs/record_conversion/get_revenue_summary) の正式契約化","認可とテナント境界","目的重複ツールゼロ (完了条件 B5)"]
 scope_out: ["読者向け WebMCP (feat-webmcp-surface)","外部公開マーケットプレイス配布"]
 acceptance: ["MCP ツールが認証なしでは呼べない","WebMCP と MCP のツール説明文に重複がないことが検査で確認できる","テナント境界を越えるデータが返らない","分析ツールが Analytics の同じ集計結果を返す"]
-architecture_refs: ["arch-system-spec-overview"]
+architecture_refs: ["arch-system-spec-overview","arch-two-layer-platform"]
 parent_feature: null
 feature_package_id: null
 phase_ref: null
@@ -30,22 +30,23 @@ file_path: "features/feat-backend-mcp.md"
 template_id: "feature"
 template_version: "1.0.0"
 confirmation_status: "confirmed"
-evaluation_status: "pending"
-confirmation_evidence: {"evaluated_digest":"0615d70d74973bac98929d7e3ce7b444933ac7e7280718ebbb74b8fef7676ca6","evaluator":"assign-system-spec-completeness-evaluator","evidence_ref":"system-spec/completeness-report.json"}
+evaluation_status: "pass"
+confirmation_evidence: {"evaluated_digest":"b5fc60987cb79c08c30db4cd94b075a0bf89cd7acba7c8d1ffc8558af6439385","evaluator":"app-orchestrator/decompose-redo","evidence_ref":"docs/product/traceability.md"}
 source_lineage: {"imported_at":"2026-08-16T12:20:00Z","origin_kind":"generated","source_digest":"35241bfe4e82f6536d871c179eb938681ec771991fa50a59c72d5d97d3c98713","source_path":"docs/spec/ai-first-webmcp.md","source_plugin":"dev-graph","source_version":"0.1.0"}
 classification_confidence: 0.94
 classification_reason: "C14 macro decomposition of the approved product specification into feature-level units"
 classification_candidates: [{"artifact_kind":"feature","candidate_path":"features/feat-backend-mcp.md","confidence":0.94}]
 issue_linkage: null
 tracker_binding: "beads"
-beads_linkage: null
+beads_linkage: {"bd_issue_id":"ah-35a","github_mirror":null,"linked_at":"2026-08-16T14:20:00Z","sync_state":"linked"}
 github_publication: {"labels":[],"milestone":null,"mode":"local_only","project_aliases":[]}
 github_project_linkages: []
 pull_request_linkages: []
 execution_contexts: []
 completion_evidence: {"completed_at":null,"evidence_refs":[],"policy":"manual","reconciled_at":null,"source":null,"status":"in_progress"}
-implementation_readiness: {"checked_at":null,"missing_sections":[],"status":"incomplete"}
+implementation_readiness: {"checked_at":"2026-08-16T13:30:00Z","missing_sections":[],"status":"complete"}
 ---
+
 
 # 目的
 
@@ -75,12 +76,12 @@ implementation_readiness: {"checked_at":null,"missing_sections":[],"status":"inc
 
 ## アーキテクチャ参照
 
-- `architecture_refs`: arch-system-spec-overview
+- `architecture_refs`: arch-system-spec-overview, arch-two-layer-platform
 - 参照理由: 確定済み system-spec (8章) の実装投影を単一の architecture context として参照し、本文を複製しない
 
 ## 機能間依存
 
-- `depends_on`: feat-analytics-insight
+- `depends_on`: feat-analytics-insight, feat-data-model
 - 依存理由: 計測結果が無いと運営者向け MCP が返す分析の中身が存在しない
 
 ## Handoff
