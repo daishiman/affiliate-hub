@@ -26,7 +26,8 @@ import {
  * 1 つの媒体別文章 (ContentVariant) を決める。
  * Package は左側 (媒体より前) をまとめて持ち、Variant が右側を持つ。
  */
-export type FunnelStage = "awareness" | "consideration" | "decision" | "retention";
+export const FUNNEL_STAGES = ["awareness", "consideration", "decision", "retention"] as const;
+export type FunnelStage = (typeof FUNNEL_STAGES)[number];
 
 /** 切り口 (§15.3)。 */
 export const CONTENT_ANGLES = [

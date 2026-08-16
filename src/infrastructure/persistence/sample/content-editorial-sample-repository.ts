@@ -211,10 +211,12 @@ const PACKAGE: ContentPackage = unwrap(
     claimIds: [taggedString<"ClaimId">("cl_alpha_export")],
     evidenceIds: [taggedString<"EvidenceId">("ev_export_time")],
     authorPersonaId: AUTHOR_ID,
-    audiencePersonaIds: [AUDIENCE_ID],
+    // 生成マトリクスを見るには、読者が 2 人以上いる必要がある。
+    // 1 人だけだと「書き分け」の表が 1 行になり、何のための表か分からなくなる。
+    audiencePersonaIds: AUDIENCES.map((a) => a.id),
     objective: "動画編集を始めた人が、書き出しの速さで機種を選べるようにする",
     funnelStage: "consideration",
-    contentAngles: ["data_first", "comparison_first"],
+    contentAngles: ["data_first", "comparison_first", "drawback"],
   }),
   "企画",
 );

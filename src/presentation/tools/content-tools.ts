@@ -14,6 +14,10 @@ import {
   createListAudiencePersonasUseCase,
   createListAuthorPersonasUseCase,
 } from "@/application/usecases/authoring/manage-personas";
+import {
+  MATRIX_ROW_AXES,
+  createGetGenerationMatrixUseCase,
+} from "@/application/usecases/authoring/plan-generation-matrix";
 import { CONTENT_STATES } from "@/domain/authoring";
 import { defineTool } from "./define-tool";
 import type { AnyToolDefinition } from "./tool-definition";
@@ -78,6 +82,36 @@ export function contentTools(deps: AppDeps): readonly AnyToolDefinition[] {
       useCase: createApproveContentUseCase(content),
     }),
     ...personaTools(deps),
+    ...generationMatrixTools(deps),
+  ];
+}
+
+/**
+ * 生成マトリクスの道具 (§15.4・§22.5)。
+ *
+ * 読み取り専用。**表を見て決めるのは人**で、AI は表を作るところまで。
+ * どの組み合わせを作るかは編集方針そのものなので、AI に決めさせない。
+ */
+function generationMatrixTools(deps: AppDeps): readonly AnyToolDefinition[] {
+  const matrix = {
+    packages: deps.contentPackages,
+    variants: deps.contentVariants,
+    personas: deps.personas,
+  };
+
+  return [
+    defineTool({
+      name: "get_generation_matrix",
+      description:
+        "企画 1 つの生成マトリクスを返します。行は読者・切り口・購買段階のいずれか、列は媒体です。各セルには、作成済み・今回作る・今回は作らない・その媒体では作れない、のどれかと、その理由が入ります。",
+      schema: z.object({
+        packageId: z.string().min(1),
+        rowAxis: z.enum(MATRIX_ROW_AXES).optional(),
+        limit: z.number().int().positive().optional(),
+      }),
+      readOnly: true,
+      useCase: createGetGenerationMatrixUseCase(matrix),
+    }),
   ];
 }
 

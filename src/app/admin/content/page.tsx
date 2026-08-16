@@ -63,6 +63,13 @@ export default async function ContentPage() {
         action={<Link href="/admin/rankings">評価基準を見る</Link>}
       />
 
+      <Callout
+        tone="info"
+        title="どの組み合わせを作るか決める"
+        reason="1 つの企画から、誰に向けて・どの切り口で・どの媒体へ出すかを表で選べます。全部を作らず、目的が重ならない代表だけを作ります。"
+        action={<Link href="/admin/content/matrix">生成マトリクスを見る</Link>}
+      />
+
       {board.value.total === 0 ? (
         <Card>
           <EmptyView

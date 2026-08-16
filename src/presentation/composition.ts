@@ -32,6 +32,7 @@ import {
   createListAudiencePersonasUseCase,
   createListAuthorPersonasUseCase,
 } from "@/application/usecases/authoring/manage-personas";
+import { createGetGenerationMatrixUseCase } from "@/application/usecases/authoring/plan-generation-matrix";
 import {
   createCancelPublicationUseCase,
   createExportManualDraftUseCase,
@@ -315,6 +316,29 @@ export function personaUseCases() {
     getAudience: createGetAudiencePersonaUseCase(personas),
     checkFactBoundary: createCheckFactBoundaryUseCase(personas),
   };
+}
+
+/**
+ * 生成マトリクスの入口。
+ *
+ * **どの組み合わせを作るかを決める表。** 報酬のつなぎ目は渡さない。
+ * 報酬額でセルを選ぶと、記事の並びが広告の並びになる。
+ */
+export function generationMatrixUseCases() {
+  const deps = createDeps();
+  const matrix = {
+    packages: deps.contentPackages,
+    variants: deps.contentVariants,
+    personas: deps.personas,
+  };
+  return {
+    getMatrix: createGetGenerationMatrixUseCase(matrix),
+  };
+}
+
+/** 見本データで開く企画。マトリクス画面の初期表示に使う。 */
+export function sampleContentPackageId(): string {
+  return "cp_laptop_2026";
 }
 
 /**
