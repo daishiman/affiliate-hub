@@ -84,6 +84,10 @@ R2 ストレージ、KV キャッシュ、ID 生成、秘密の取り出し。
 | 「この行は比較表の行である」 | presentation/ui（部品の名乗り） | 見た目の側にしか無い情報 |
 | 「まとめて 15 秒ごとに送る」 | presentation/telemetry | 送り方の都合。業務とは無関係 |
 | 「計測をどこに貯めるか」 | infrastructure | 保存先の都合。`TelemetrySinkPort` の裏 |
+| 「変えて試してよいものの一覧」 | domain/analytics | 何を変えないかは業務（と法令）の決まり。画面に書き起こさない |
+| 「何件たまるまで差があると言わないか」 | domain/analytics | 判定の緩さは業務の決まり。画面ごとに変えさせない |
+| 「軸を並べる順番・見出しの付け方」 | presentation | 見た目。並べ替えても判定は変わらない |
+| 「配色の実験を配色に効かせる」 | presentation（既にある配色の仕組みへ流す） | 効かせ方は層ごとに違うので、軸の登録側には持たせない |
 
 ## 計測をどこに書くか（横断の例）
 
@@ -102,6 +106,27 @@ presentation    どの要素が何かの名乗り／拾って送る       ui/tel
 **共通UIの部品は名乗るだけで、送らない。** 部品が送信を持つと、部品ごとに
 送り方（まとめ方・同意の見方）が分かれ、どれが正しいか分からなくなる。
 `tests/ui/ui-layers.test.ts` が UI の中に `fetch(` を書けないようにしている。
+
+## 改善ループをどこに書くか
+
+測った数字をもとに直す側も、同じ 4 層に分かれる。
+**分析・比較・提案は軸の中身を知らない**のが要点で、ここが崩れると
+軸を足すたびにループ本体が枝分かれする。
+
+```
+domain          変えてよいものの一覧・比べ方・止め方      optimization.ts / improvement.ts /
+  ↑                                                     variant-spec.ts / loop-run.ts / loop-kinds.ts
+application     一覧を作る手順・判定を並べる手順          usecases/improvement/ + ports/improvement.ts
+  ↑
+infrastructure  設定と記録をどこに貯めるか                persistence/…/improvement-sample-repository.ts
+  ↑
+presentation    軸の一覧・判定の見せ方                    app/admin/improvement/
+```
+
+`improvement.ts` / `loop-run.ts` / `loop-kinds.ts` は**軸の名前を 1 つも持たない**。
+入ってくるのは「設定の差」と「観測値」だけなので、
+配色の実験も見出し順の実験も同じ 1 本の道を通る。
+実測は `changeability-scenarios.md` ⑭（軸を 1 つ足して 1 ファイル）。
 
 ## Editorial と Commercial
 

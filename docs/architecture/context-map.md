@@ -28,6 +28,23 @@
 | `analytics/consent.ts` | 測ってよいかの判断・保存期間・仮の目印の作り方 |
 | `analytics/ai-usage.ts` | モデルの価格表と、ブログ × モデルの畳み方 |
 
+改善ループ（測った数字をもとに直す側）も **Analytics の中に置く**。
+別コンテキストに切ると、測る側と直す側で指標の定義が 2 つになる。
+中は 5 つに分かれ、**上の 3 つは軸の中身を知らない**（軸が増えても変わらない）。
+
+| 置き場所 | 持つもの | 軸の中身を知るか |
+| --- | --- | --- |
+| `analytics/improvement.ts` | 比べ方と次の一手の作り方 | 知らない |
+| `analytics/loop-run.ts` | 1 周の状態遷移（始める・判定する・打ち切る） | 知らない |
+| `analytics/loop-kinds.ts` | ループの種類と、自動で付く歯止め | 知らない |
+| `analytics/optimization.ts` | **変えられるものの全一覧（唯一の正本）** | 知る |
+| `analytics/variant-spec.ts` | 「軸 → 値」の設定と、その差 | 軸の登録表だけ見る |
+
+**改善ループは Ranking へ触れない。** 触れるのは記事の書き直しと題材選びまでで、
+これは `optimization.ts` の `assertRegistrable` が、既にある
+`analytics/feedback-policy.ts` の判定へそのまま突き当てることで守る
+（同じ決まりを 2 か所に書かない）。
+
 ## 共有カーネル（最小限）
 
 `src/domain/shared/` に置いてよいのは、**どのコンテキストでも同じ意味を持つもの**だけ。
@@ -89,6 +106,8 @@
 | Analytics の収益指標 → Ranking / 推奨 | 売れた商品を上に出す汚染 | `domain/analytics/feedback-policy.ts` |
 | 計測 → domain（実装の持ち込み） | ドメインが計測の実装を知ると差し替えられない | `TelemetrySinkPort` 経由のみ。`tests/architecture/dependency-direction.test.ts` |
 | 共通UI → 通信 | 部品が送信を持つと、部品ごとに測り方が分かれる | `tests/ui/ui-layers.test.ts`（UI に `fetch(` を書けない） |
+| 改善ループ → Ranking / 推奨 / 合格ライン | 数字を理由に順位を動かす抜け道になる | `optimization.ts` `assertRegistrable` → `feedback-policy.ts`。`tests/domain/improvement.test.ts` |
+| 改善ループ → 根拠 / 広告表示 / アクセシビリティ / 同意の見せ方 | 減らすほど数字が良くなるので、対象にすると必ず削られる | `NON_OPTIMIZABLE` 6 件。同上 |
 | domain → 外側の層 | 層の意味が消える | lint + テスト |
 
 ## コンテキスト間の言葉のずれ
