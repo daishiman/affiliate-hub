@@ -40,5 +40,6 @@ coverage/
 !.vscode/extensions.json
 *.swp
 
-# Cloudflare Global API Key を一時的に置くファイル (絶対にコミットしない)
+# 認証情報を書いたファイルの取りこぼし防止。
+# この名前を使う手順はもう無いが、万一作られてもコミットされないよう残す。
 .cf-credentials

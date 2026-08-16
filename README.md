@@ -107,26 +107,39 @@ feature/xxx ──PR──▶ dev ──自動デプロイ──▶ 開発環境
 
 | Secret | 取得元 |
 | --- | --- |
-| `CLOUDFLARE_API_TOKEN` | 下記スクリプトで自動発行（権限: Workers Scripts / D1 / R2 の編集 + Account Settings 読み取り） |
+| `CLOUDFLARE_API_TOKEN` | Cloudflare ダッシュボードで手動発行（下記） |
 | `CLOUDFLARE_ACCOUNT_ID` | `npx wrangler whoami` で確認 |
 
-```bash
-# 1) 通常のターミナル (TTY あり) — 対話で入力
-pnpm setup:cf-token
+#### `CLOUDFLARE_API_TOKEN` の発行手順
 
-# 2) TTY が無い環境 (エディタ内シェル等) — ファイル経由
-#    1 行目にメールアドレス、2 行目に Global API Key を書く
-pnpm setup:cf-token < .cf-credentials && rm .cf-credentials
-```
+1. [API Tokens](https://dash.cloudflare.com/profile/api-tokens) → **Create Token** → **Create Custom Token**
+2. Name は `affiliate-hub-deploy`
+3. Permissions に次の 4 つを追加する
 
-トークンを必要最小の権限で発行し、そのまま `gh secret set` まで行います。値は画面にも出しません。
-`.cf-credentials` は `.gitignore` 済みですが、使い終わったら消してください。
+   | Type | リソース | レベル | 用途 |
+   | --- | --- | --- | --- |
+   | Account | Workers Scripts | Edit | Worker 本体のデプロイ |
+   | Account | Workers R2 Storage | Edit | R2 バインディング |
+   | Account | D1 | Edit | マイグレーション適用 |
+   | Account | Account Settings | Read | wrangler のアカウント解決 |
 
-> **なぜ Global API Key を聞かれるのか:** wrangler の OAuth トークンでは API トークンを発行できません。
-> `wrangler login --scopes-list` に「API トークンの管理」に相当するスコープが存在せず、
-> 実際に `GET /user/tokens` を叩くと `403 / code 9109` で拒否されます。
-> トークンを作れるのは **Global API Key** か **User API Tokens: Edit を持つ既存トークン**だけです。
-> Global API Key はアカウント全権なので、このスクリプト以外では使わず、GitHub には保存しないでください。
+4. Account Resources は `Include` → 自分のアカウント 1 つだけ
+   （`All accounts` にすると、漏れたときに他プロジェクトの Worker まで巻き込む）
+5. 作成後に表示される値を [Actions secrets](../../settings/secrets/actions) に
+   `CLOUDFLARE_API_TOKEN` として登録する
+
+> **なぜ手動なのか:** 以前はこれを自動発行する `pnpm setup:cf-token` がありましたが削除しました。
+> Cloudflare の API でトークンを発行できるのは **Global API Key** か
+> **User API Tokens: Edit を持つ既存トークン**だけで、wrangler の OAuth トークンでは
+> `GET /user/tokens` が `403 / code 9109` になり不可能です
+> （`wrangler login --scopes-list` に相当スコープが無い）。
+> つまり自動化には常にアカウント全権の Global API Key をローカルへ置く必要があり、
+> AI エージェントと同じ環境で開発する以上、その値が読み取れる状態になります。
+> 5 分で終わる手作業のために全権の資格情報を晒す取引は割に合いません。
+>
+> **トークン値は絶対にコマンドライン引数やファイルに置かないでください。**
+> CLI で登録する場合は AI エージェントの動いていないターミナルで
+> `gh secret set CLOUDFLARE_API_TOKEN` を実行し、プロンプトに貼り付けます。
 
 ## MCP 連携
 
