@@ -1,5 +1,5 @@
 {
-  "graph_revision": 22,
+  "graph_revision": 38,
   "nodes": [
     {
       "acceptance": [],
@@ -997,6 +997,1826 @@
       "title": "system-spec compiled specification",
       "tracker_binding": "none",
       "updated_at": "2026-08-16T12:08:04Z"
+    },
+    {
+      "acceptance": [
+        "未ログインで管理画面を開くとログイン画面へ遷移する",
+        "別 Workspace のデータが一覧・詳細・API のいずれからも取得できない",
+        "ブランド設定の標準CTAと標準免責が記事生成の既定値として渡る",
+        "権限のないロールが公開操作を実行すると 403 になる"
+      ],
+      "architecture_refs": [
+        "arch-system-spec-overview"
+      ],
+      "artifact_kind": "feature",
+      "artifact_subtypes": [],
+      "beads_linkage": null,
+      "classification_candidates": [
+        {
+          "artifact_kind": "feature",
+          "candidate_path": "features/feat-auth-workspace.md",
+          "confidence": 0.94
+        }
+      ],
+      "classification_confidence": 0.94,
+      "classification_reason": "C14 macro decomposition of the approved product specification into feature-level units",
+      "completion_evidence": {
+        "completed_at": null,
+        "evidence_refs": [],
+        "policy": "manual",
+        "reconciled_at": null,
+        "source": null,
+        "status": "in_progress"
+      },
+      "confirmation_evidence": {
+        "evaluated_digest": "0615d70d74973bac98929d7e3ce7b444933ac7e7280718ebbb74b8fef7676ca6",
+        "evaluator": "assign-system-spec-completeness-evaluator",
+        "evidence_ref": "system-spec/completeness-report.json"
+      },
+      "confirmation_status": "confirmed",
+      "created_at": "2026-08-16T12:20:00Z",
+      "depends_on": [],
+      "domain": "platform",
+      "evaluation_status": "pending",
+      "execution_contexts": [],
+      "feature_package_id": null,
+      "file_path": "features/feat-auth-workspace.md",
+      "github_project_linkages": [],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "goal": "Google ログインでサインインし、Workspace と Brand を作成でき、全データが workspace_id で分離され、ロールに応じた操作制限が効いている",
+      "graph_node_id": "feat-auth-workspace",
+      "implementation_readiness": {
+        "checked_at": null,
+        "missing_sections": [],
+        "status": "incomplete"
+      },
+      "issue_linkage": null,
+      "iteration": null,
+      "owners": [
+        "daishiman"
+      ],
+      "parent_feature": null,
+      "phase_ref": null,
+      "priority": "high",
+      "project_id": "affiliate-hub",
+      "pull_request_linkages": [],
+      "purpose": "利用者が自分のテナントとブランド設定の中だけで安全に作業できる土台をつくる",
+      "related_nodes": [
+        "spec-system-spec-index"
+      ],
+      "resource_scope": [
+        "src",
+        "drizzle",
+        "docs/spec",
+        "system-spec"
+      ],
+      "scope_in": [
+        "Better Auth + Google OAuth",
+        "Workspace / Brand の作成と切替",
+        "ブランド設定 (色・ロゴ・表示名・運営会社・編集方針・禁止表現・標準CTA・標準免責・言語・タイムゾーン)",
+        "ロールと権限 (§25)",
+        "全テーブルへの workspace_id 付与とテナント分離 (§26.4)"
+      ],
+      "scope_out": [
+        "外部プラットフォームのアカウント接続",
+        "課金",
+        "SSO / SCIM"
+      ],
+      "source_lineage": {
+        "imported_at": "2026-08-16T12:20:00Z",
+        "origin_kind": "generated",
+        "source_digest": "9185b196b216a5e9fc5b874144bcf74912551a9ddc28a9f3be115b6e09833c92",
+        "source_path": "docs/spec/01-要求仕様書-v1.0.md",
+        "source_plugin": "dev-graph",
+        "source_version": "0.1.0"
+      },
+      "start_date": "2026-08-16",
+      "status": "draft",
+      "tags": [
+        "auth",
+        "workspace",
+        "tenant",
+        "prototype-all-features"
+      ],
+      "target_date": null,
+      "template_id": "feature",
+      "template_version": "1.0.0",
+      "title": "認証とWorkspace/Brand基盤",
+      "tracker_binding": "beads",
+      "updated_at": "2026-08-16T12:20:00Z"
+    },
+    {
+      "acceptance": [
+        "同じURLを二度登録すると重複として検出され新規レコードが増えない",
+        "登録直後の状態が未処理として一覧に出る",
+        "CSV を取り込むと件数と失敗行が結果として表示される",
+        "取得禁止事項 (§10.4) に該当する取得を行わない"
+      ],
+      "architecture_refs": [
+        "arch-system-spec-overview"
+      ],
+      "artifact_kind": "feature",
+      "artifact_subtypes": [],
+      "beads_linkage": null,
+      "classification_candidates": [
+        {
+          "artifact_kind": "feature",
+          "candidate_path": "features/feat-affiliate-inbox.md",
+          "confidence": 0.94
+        }
+      ],
+      "classification_confidence": 0.94,
+      "classification_reason": "C14 macro decomposition of the approved product specification into feature-level units",
+      "completion_evidence": {
+        "completed_at": null,
+        "evidence_refs": [],
+        "policy": "manual",
+        "reconciled_at": null,
+        "source": null,
+        "status": "in_progress"
+      },
+      "confirmation_evidence": {
+        "evaluated_digest": "0615d70d74973bac98929d7e3ce7b444933ac7e7280718ebbb74b8fef7676ca6",
+        "evaluator": "assign-system-spec-completeness-evaluator",
+        "evidence_ref": "system-spec/completeness-report.json"
+      },
+      "confirmation_status": "confirmed",
+      "created_at": "2026-08-16T12:20:00Z",
+      "depends_on": [
+        "feat-auth-workspace"
+      ],
+      "domain": "ingestion",
+      "evaluation_status": "pending",
+      "execution_contexts": [],
+      "feature_package_id": null,
+      "file_path": "features/feat-affiliate-inbox.md",
+      "github_project_linkages": [],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "goal": "URL貼り付け・CSV・API・WebMCP の各経路から URL を登録でき、重複検出と分類を経て未処理/処理中/確認待ち/完了の状態が追える",
+      "graph_node_id": "feat-affiliate-inbox",
+      "implementation_readiness": {
+        "checked_at": null,
+        "missing_sections": [],
+        "status": "incomplete"
+      },
+      "issue_linkage": null,
+      "iteration": null,
+      "owners": [
+        "daishiman"
+      ],
+      "parent_feature": null,
+      "phase_ref": null,
+      "priority": "high",
+      "project_id": "affiliate-hub",
+      "pull_request_linkages": [],
+      "purpose": "ばらばらに配られるアフィリエイトURLを一箇所へ集め、処理状態を見失わないようにする",
+      "related_nodes": [
+        "spec-system-spec-index"
+      ],
+      "resource_scope": [
+        "src",
+        "drizzle",
+        "docs/spec",
+        "system-spec"
+      ],
+      "scope_in": [
+        "URL 貼り付け・CSV インポート・API 登録・WebMCP 送信",
+        "原本URLと正規化URLの二重保存 (§10.1)",
+        "重複検出とURL分類",
+        "リンク状態確認",
+        "商品候補表示",
+        "処理状態管理"
+      ],
+      "scope_out": [
+        "商品情報の本格的な取得と正規化 (feat-product-intelligence)",
+        "ブラウザー拡張の配布"
+      ],
+      "source_lineage": {
+        "imported_at": "2026-08-16T12:20:00Z",
+        "origin_kind": "generated",
+        "source_digest": "9185b196b216a5e9fc5b874144bcf74912551a9ddc28a9f3be115b6e09833c92",
+        "source_path": "docs/spec/01-要求仕様書-v1.0.md",
+        "source_plugin": "dev-graph",
+        "source_version": "0.1.0"
+      },
+      "start_date": "2026-08-16",
+      "status": "draft",
+      "tags": [
+        "inbox",
+        "url",
+        "import",
+        "prototype-all-features"
+      ],
+      "target_date": null,
+      "template_id": "feature",
+      "template_version": "1.0.0",
+      "title": "アフィリエイトURL受信箱",
+      "tracker_binding": "beads",
+      "updated_at": "2026-08-16T12:20:00Z"
+    },
+    {
+      "acceptance": [
+        "商品詳細の各項目に情報源と取得日時が表示される",
+        "有効期限を過ぎた価格は期限切れとして表示される",
+        "同一商品と判定された複数URLが一つの商品レコードに束ねられる",
+        "禁止された取得方法を使っていないことがコードで確認できる"
+      ],
+      "architecture_refs": [
+        "arch-system-spec-overview"
+      ],
+      "artifact_kind": "feature",
+      "artifact_subtypes": [],
+      "beads_linkage": null,
+      "classification_candidates": [
+        {
+          "artifact_kind": "feature",
+          "candidate_path": "features/feat-product-intelligence.md",
+          "confidence": 0.94
+        }
+      ],
+      "classification_confidence": 0.94,
+      "classification_reason": "C14 macro decomposition of the approved product specification into feature-level units",
+      "completion_evidence": {
+        "completed_at": null,
+        "evidence_refs": [],
+        "policy": "manual",
+        "reconciled_at": null,
+        "source": null,
+        "status": "in_progress"
+      },
+      "confirmation_evidence": {
+        "evaluated_digest": "0615d70d74973bac98929d7e3ce7b444933ac7e7280718ebbb74b8fef7676ca6",
+        "evaluator": "assign-system-spec-completeness-evaluator",
+        "evidence_ref": "system-spec/completeness-report.json"
+      },
+      "confirmation_status": "confirmed",
+      "created_at": "2026-08-16T12:20:00Z",
+      "depends_on": [
+        "feat-affiliate-inbox"
+      ],
+      "domain": "product",
+      "evaluation_status": "pending",
+      "execution_contexts": [],
+      "feature_package_id": null,
+      "file_path": "features/feat-product-intelligence.md",
+      "github_project_linkages": [],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "goal": "URLから商品を識別し、識別キー・仕様・価格・在庫・画像・情報源・信頼度・有効期限を持つ商品レコードが作られ、由来が常に辿れる",
+      "graph_node_id": "feat-product-intelligence",
+      "implementation_readiness": {
+        "checked_at": null,
+        "missing_sections": [],
+        "status": "incomplete"
+      },
+      "issue_linkage": null,
+      "iteration": null,
+      "owners": [
+        "daishiman"
+      ],
+      "parent_feature": null,
+      "phase_ref": null,
+      "priority": "high",
+      "project_id": "affiliate-hub",
+      "pull_request_linkages": [],
+      "purpose": "同じ商品の情報を何度も入力し直さずに済むよう、商品を一意に識別して一箇所に持つ",
+      "related_nodes": [
+        "spec-system-spec-index"
+      ],
+      "resource_scope": [
+        "src",
+        "drizzle",
+        "docs/spec",
+        "system-spec"
+      ],
+      "scope_in": [
+        "商品識別キー (JAN/EAN/GTIN・ASIN・SKU・型番) (§12.1)",
+        "商品属性 (§9.3)",
+        "情報源の優先順位 (§10.3) と由来記録 (§10.5)",
+        "Amazon/楽天/Yahoo/バリューコマース/ASP の情報源対応 (§11)",
+        "有効期限と再取得"
+      ],
+      "scope_out": [
+        "比較候補の抽出とスコア (feat-comparison-engine)",
+        "商品説明文の生成"
+      ],
+      "source_lineage": {
+        "imported_at": "2026-08-16T12:20:00Z",
+        "origin_kind": "generated",
+        "source_digest": "9185b196b216a5e9fc5b874144bcf74912551a9ddc28a9f3be115b6e09833c92",
+        "source_path": "docs/spec/01-要求仕様書-v1.0.md",
+        "source_plugin": "dev-graph",
+        "source_version": "0.1.0"
+      },
+      "start_date": "2026-08-16",
+      "status": "draft",
+      "tags": [
+        "product",
+        "catalog",
+        "evidence",
+        "prototype-all-features"
+      ],
+      "target_date": null,
+      "template_id": "feature",
+      "template_version": "1.0.0",
+      "title": "商品インテリジェンス",
+      "tracker_binding": "beads",
+      "updated_at": "2026-08-16T12:20:00Z"
+    },
+    {
+      "acceptance": [
+        "同じ入力を UI・AI・WebMCP へ渡すと比較結果の差分がゼロになる",
+        "報酬額を変えても並び順が変わらないことがテストで確認できる",
+        "比較候補が分類ラベル付きで表示される",
+        "ランキング根拠が各候補に表示される"
+      ],
+      "architecture_refs": [
+        "arch-system-spec-overview"
+      ],
+      "artifact_kind": "feature",
+      "artifact_subtypes": [],
+      "beads_linkage": null,
+      "classification_candidates": [
+        {
+          "artifact_kind": "feature",
+          "candidate_path": "features/feat-comparison-engine.md",
+          "confidence": 0.94
+        }
+      ],
+      "classification_confidence": 0.94,
+      "classification_reason": "C14 macro decomposition of the approved product specification into feature-level units",
+      "completion_evidence": {
+        "completed_at": null,
+        "evidence_refs": [],
+        "policy": "manual",
+        "reconciled_at": null,
+        "source": null,
+        "status": "in_progress"
+      },
+      "confirmation_evidence": {
+        "evaluated_digest": "0615d70d74973bac98929d7e3ce7b444933ac7e7280718ebbb74b8fef7676ca6",
+        "evaluator": "assign-system-spec-completeness-evaluator",
+        "evidence_ref": "system-spec/completeness-report.json"
+      },
+      "confirmation_status": "confirmed",
+      "created_at": "2026-08-16T12:20:00Z",
+      "depends_on": [
+        "feat-product-intelligence"
+      ],
+      "domain": "product",
+      "evaluation_status": "pending",
+      "execution_contexts": [],
+      "feature_package_id": null,
+      "file_path": "features/feat-comparison-engine.md",
+      "github_project_linkages": [],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "goal": "ある商品から比較候補が分類別に抽出され、報酬額に影響されない比較スコアで並び、UI・AI・WebMCP のどこから見ても同じ結果になる",
+      "graph_node_id": "feat-comparison-engine",
+      "implementation_readiness": {
+        "checked_at": null,
+        "missing_sections": [],
+        "status": "incomplete"
+      },
+      "issue_linkage": null,
+      "iteration": null,
+      "owners": [
+        "daishiman"
+      ],
+      "parent_feature": null,
+      "phase_ref": null,
+      "priority": "high",
+      "project_id": "affiliate-hub",
+      "pull_request_linkages": [],
+      "purpose": "読者が選べるように、同一商品・別販売店・代替品などの比較候補を根拠付きで並べる",
+      "related_nodes": [
+        "spec-system-spec-index"
+      ],
+      "resource_scope": [
+        "src",
+        "drizzle",
+        "docs/spec",
+        "system-spec"
+      ],
+      "scope_in": [
+        "比較候補の分類 (§12.2)",
+        "比較スコア (§12.3)",
+        "比較候補の表示契約 (§12.4)",
+        "Comparison Service を単一正本にする (完了条件 A4)",
+        "報酬非依存ランキング (原則 5.6)"
+      ],
+      "scope_out": [
+        "比較表の記事本文への埋め込み表現 (feat-reader-surface)",
+        "価格の実取得 (feat-product-intelligence)"
+      ],
+      "source_lineage": {
+        "imported_at": "2026-08-16T12:20:00Z",
+        "origin_kind": "generated",
+        "source_digest": "9185b196b216a5e9fc5b874144bcf74912551a9ddc28a9f3be115b6e09833c92",
+        "source_path": "docs/spec/01-要求仕様書-v1.0.md",
+        "source_plugin": "dev-graph",
+        "source_version": "0.1.0"
+      },
+      "start_date": "2026-08-16",
+      "status": "draft",
+      "tags": [
+        "comparison",
+        "ranking",
+        "prototype-all-features"
+      ],
+      "target_date": null,
+      "template_id": "feature",
+      "template_version": "1.0.0",
+      "title": "比較エンジン",
+      "tracker_binding": "beads",
+      "updated_at": "2026-08-16T12:20:00Z"
+    },
+    {
+      "acceptance": [
+        "書き手ペルソナに未経験の領域を書かせない制約が保存され生成入力へ渡る",
+        "読者ペルソナを切り替えると生成プロンプトの読者像が変わる",
+        "禁止表現が生成後チェックの対象になる",
+        "ペルソナ未設定では生成を開始できない"
+      ],
+      "architecture_refs": [
+        "arch-system-spec-overview"
+      ],
+      "artifact_kind": "feature",
+      "artifact_subtypes": [],
+      "beads_linkage": null,
+      "classification_candidates": [
+        {
+          "artifact_kind": "feature",
+          "candidate_path": "features/feat-persona-studio.md",
+          "confidence": 0.94
+        }
+      ],
+      "classification_confidence": 0.94,
+      "classification_reason": "C14 macro decomposition of the approved product specification into feature-level units",
+      "completion_evidence": {
+        "completed_at": null,
+        "evidence_refs": [],
+        "policy": "manual",
+        "reconciled_at": null,
+        "source": null,
+        "status": "in_progress"
+      },
+      "confirmation_evidence": {
+        "evaluated_digest": "0615d70d74973bac98929d7e3ce7b444933ac7e7280718ebbb74b8fef7676ca6",
+        "evaluator": "assign-system-spec-completeness-evaluator",
+        "evidence_ref": "system-spec/completeness-report.json"
+      },
+      "confirmation_status": "confirmed",
+      "created_at": "2026-08-16T12:20:00Z",
+      "depends_on": [
+        "feat-auth-workspace"
+      ],
+      "domain": "editorial",
+      "evaluation_status": "pending",
+      "execution_contexts": [],
+      "feature_package_id": null,
+      "file_path": "features/feat-persona-studio.md",
+      "github_project_linkages": [],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "goal": "書き手ペルソナと読者ペルソナを登録・編集でき、ブランドトーン・媒体別トーン・禁止表現・経験の範囲が生成の入力として使える",
+      "graph_node_id": "feat-persona-studio",
+      "implementation_readiness": {
+        "checked_at": null,
+        "missing_sections": [],
+        "status": "incomplete"
+      },
+      "issue_linkage": null,
+      "iteration": null,
+      "owners": [
+        "daishiman"
+      ],
+      "parent_feature": null,
+      "phase_ref": null,
+      "priority": "high",
+      "project_id": "affiliate-hub",
+      "pull_request_linkages": [],
+      "purpose": "誰が誰に向けて書くのかを明示し、媒体ごとに崩れない文章の前提を持つ",
+      "related_nodes": [
+        "spec-system-spec-index"
+      ],
+      "resource_scope": [
+        "src",
+        "drizzle",
+        "docs/spec",
+        "system-spec"
+      ],
+      "scope_in": [
+        "書き手ペルソナ (§13)",
+        "読者ペルソナ (§14)",
+        "ブランドトーン・媒体別トーン",
+        "キャラクターと吹き出し話者",
+        "禁止表現・経験の範囲・資格・専門領域・CTAスタイル",
+        "事実境界 (§13.3)"
+      ],
+      "scope_out": [
+        "生成本体 (feat-ai-content-studio)",
+        "会話ブロックの表示 (feat-reader-surface)"
+      ],
+      "source_lineage": {
+        "imported_at": "2026-08-16T12:20:00Z",
+        "origin_kind": "generated",
+        "source_digest": "9185b196b216a5e9fc5b874144bcf74912551a9ddc28a9f3be115b6e09833c92",
+        "source_path": "docs/spec/01-要求仕様書-v1.0.md",
+        "source_plugin": "dev-graph",
+        "source_version": "0.1.0"
+      },
+      "start_date": "2026-08-16",
+      "status": "draft",
+      "tags": [
+        "persona",
+        "tone",
+        "prototype-all-features"
+      ],
+      "target_date": null,
+      "template_id": "feature",
+      "template_version": "1.0.0",
+      "title": "Persona Studio",
+      "tracker_binding": "beads",
+      "updated_at": "2026-08-16T12:20:00Z"
+    },
+    {
+      "acceptance": [
+        "必須入力が欠けている状態では生成ボタンが押せない",
+        "生成された事実主張に Claim への参照が付く",
+        "一次体験の捏造がペルソナの経験範囲チェックで弾かれる",
+        "人間の承認なしに公開状態へ進めない"
+      ],
+      "architecture_refs": [
+        "arch-system-spec-overview"
+      ],
+      "artifact_kind": "feature",
+      "artifact_subtypes": [],
+      "beads_linkage": null,
+      "classification_candidates": [
+        {
+          "artifact_kind": "feature",
+          "candidate_path": "features/feat-ai-content-studio.md",
+          "confidence": 0.94
+        }
+      ],
+      "classification_confidence": 0.94,
+      "classification_reason": "C14 macro decomposition of the approved product specification into feature-level units",
+      "completion_evidence": {
+        "completed_at": null,
+        "evidence_refs": [],
+        "policy": "manual",
+        "reconciled_at": null,
+        "source": null,
+        "status": "in_progress"
+      },
+      "confirmation_evidence": {
+        "evaluated_digest": "0615d70d74973bac98929d7e3ce7b444933ac7e7280718ebbb74b8fef7676ca6",
+        "evaluator": "assign-system-spec-completeness-evaluator",
+        "evidence_ref": "system-spec/completeness-report.json"
+      },
+      "confirmation_status": "confirmed",
+      "created_at": "2026-08-16T12:20:00Z",
+      "depends_on": [
+        "feat-comparison-engine",
+        "feat-persona-studio"
+      ],
+      "domain": "editorial",
+      "evaluation_status": "pending",
+      "execution_contexts": [],
+      "feature_package_id": null,
+      "file_path": "features/feat-ai-content-studio.md",
+      "github_project_linkages": [],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "goal": "必須入力が揃った状態から構成・本文・短文・比較文・タイトル・FAQ・会話・SNS変換などを生成し、根拠確認・重複確認・ブランド適合確認を通した草稿ができる",
+      "graph_node_id": "feat-ai-content-studio",
+      "implementation_readiness": {
+        "checked_at": null,
+        "missing_sections": [],
+        "status": "incomplete"
+      },
+      "issue_linkage": null,
+      "iteration": null,
+      "owners": [
+        "daishiman"
+      ],
+      "parent_feature": null,
+      "phase_ref": null,
+      "priority": "high",
+      "project_id": "affiliate-hub",
+      "pull_request_linkages": [],
+      "purpose": "一つの商品情報から、媒体と目的の異なる原稿を根拠付きでまとめて作る",
+      "related_nodes": [
+        "spec-system-spec-index"
+      ],
+      "resource_scope": [
+        "src",
+        "drizzle",
+        "docs/spec",
+        "system-spec"
+      ],
+      "scope_in": [
+        "生成前必須入力の検査 (§15.1)",
+        "生成パターンと生成マトリクス (§15.3-15.4)",
+        "AI出力契約 (§15.5)",
+        "自動品質確認 (§15.6)",
+        "Claim と ContentVariant (§21.1-21.2)",
+        "人間承認前提 (原則 5.5)"
+      ],
+      "scope_out": [
+        "公開処理 (feat-editorial-workflow)",
+        "外部投稿 (feat-distribution-hub)"
+      ],
+      "source_lineage": {
+        "imported_at": "2026-08-16T12:20:00Z",
+        "origin_kind": "generated",
+        "source_digest": "9185b196b216a5e9fc5b874144bcf74912551a9ddc28a9f3be115b6e09833c92",
+        "source_path": "docs/spec/01-要求仕様書-v1.0.md",
+        "source_plugin": "dev-graph",
+        "source_version": "0.1.0"
+      },
+      "start_date": "2026-08-16",
+      "status": "draft",
+      "tags": [
+        "ai",
+        "generation",
+        "llm",
+        "prototype-all-features"
+      ],
+      "target_date": null,
+      "template_id": "feature",
+      "template_version": "1.0.0",
+      "title": "AI Content Studio",
+      "tracker_binding": "beads",
+      "updated_at": "2026-08-16T12:20:00Z"
+    },
+    {
+      "acceptance": [
+        "更新責任者が未設定の記事は公開操作が失敗し理由が画面に出る",
+        "次回確認日を過ぎた記事が一覧で期限切れとして検出される",
+        "/corrections から送信した訂正が管理側に届く",
+        "公開・更新のたびに UpdateLog へ履歴が残る"
+      ],
+      "architecture_refs": [
+        "arch-system-spec-overview"
+      ],
+      "artifact_kind": "feature",
+      "artifact_subtypes": [],
+      "beads_linkage": null,
+      "classification_candidates": [
+        {
+          "artifact_kind": "feature",
+          "candidate_path": "features/feat-editorial-workflow.md",
+          "confidence": 0.94
+        }
+      ],
+      "classification_confidence": 0.94,
+      "classification_reason": "C14 macro decomposition of the approved product specification into feature-level units",
+      "completion_evidence": {
+        "completed_at": null,
+        "evidence_refs": [],
+        "policy": "manual",
+        "reconciled_at": null,
+        "source": null,
+        "status": "in_progress"
+      },
+      "confirmation_evidence": {
+        "evaluated_digest": "0615d70d74973bac98929d7e3ce7b444933ac7e7280718ebbb74b8fef7676ca6",
+        "evaluator": "assign-system-spec-completeness-evaluator",
+        "evidence_ref": "system-spec/completeness-report.json"
+      },
+      "confirmation_status": "confirmed",
+      "created_at": "2026-08-16T12:20:00Z",
+      "depends_on": [
+        "feat-ai-content-studio"
+      ],
+      "domain": "editorial",
+      "evaluation_status": "pending",
+      "execution_contexts": [],
+      "feature_package_id": null,
+      "file_path": "features/feat-editorial-workflow.md",
+      "github_project_linkages": [],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "goal": "Content 状態と Publication 状態が定義通り遷移し、公開ゲートの必須項目 (更新責任者・次回確認日・免責・根拠) を満たさない記事は公開できず、訂正受付と更新履歴が残る",
+      "graph_node_id": "feat-editorial-workflow",
+      "implementation_readiness": {
+        "checked_at": null,
+        "missing_sections": [],
+        "status": "incomplete"
+      },
+      "issue_linkage": null,
+      "iteration": null,
+      "owners": [
+        "daishiman"
+      ],
+      "parent_feature": null,
+      "phase_ref": null,
+      "priority": "high",
+      "project_id": "affiliate-hub",
+      "pull_request_linkages": [],
+      "purpose": "公開してよい状態かを機械的に判定し、公開後の更新と訂正まで責任を持てるようにする",
+      "related_nodes": [
+        "spec-system-spec-index"
+      ],
+      "resource_scope": [
+        "src",
+        "drizzle",
+        "docs/spec",
+        "system-spec"
+      ],
+      "scope_in": [
+        "Content 状態 (§18.1) と Publication 状態 (§18.2)",
+        "公開ゲートの必須検査",
+        "更新責任者と次回確認日 (完了条件 C1/C3)",
+        "訂正受付 /corrections (完了条件 C2)",
+        "UpdateLog と変更履歴 (完了条件 C5)",
+        "期限切れ検出ジョブ"
+      ],
+      "scope_out": [
+        "外部プラットフォームへの投稿 (feat-distribution-hub)",
+        "記事表示 (feat-reader-surface)"
+      ],
+      "source_lineage": {
+        "imported_at": "2026-08-16T12:20:00Z",
+        "origin_kind": "generated",
+        "source_digest": "35241bfe4e82f6536d871c179eb938681ec771991fa50a59c72d5d97d3c98713",
+        "source_path": "docs/spec/ai-first-webmcp.md",
+        "source_plugin": "dev-graph",
+        "source_version": "0.1.0"
+      },
+      "start_date": "2026-08-16",
+      "status": "draft",
+      "tags": [
+        "workflow",
+        "publish-gate",
+        "correction",
+        "prototype-all-features"
+      ],
+      "target_date": null,
+      "template_id": "feature",
+      "template_version": "1.0.0",
+      "title": "編集ワークフローと公開ゲート",
+      "tracker_binding": "beads",
+      "updated_at": "2026-08-16T12:20:00Z"
+    },
+    {
+      "acceptance": [
+        "ウィザードを通すとナビゲーション・カテゴリー・ポリシーページを含むサイトが生成される",
+        "同一素材から作った複数サイトで重複対策が適用される",
+        "サイトマップと構造化データが出力される",
+        "著者ページから書き手ペルソナの情報が辿れる"
+      ],
+      "architecture_refs": [
+        "arch-system-spec-overview"
+      ],
+      "artifact_kind": "feature",
+      "artifact_subtypes": [],
+      "beads_linkage": null,
+      "classification_candidates": [
+        {
+          "artifact_kind": "feature",
+          "candidate_path": "features/feat-site-builder.md",
+          "confidence": 0.94
+        }
+      ],
+      "classification_confidence": 0.94,
+      "classification_reason": "C14 macro decomposition of the approved product specification into feature-level units",
+      "completion_evidence": {
+        "completed_at": null,
+        "evidence_refs": [],
+        "policy": "manual",
+        "reconciled_at": null,
+        "source": null,
+        "status": "in_progress"
+      },
+      "confirmation_evidence": {
+        "evaluated_digest": "0615d70d74973bac98929d7e3ce7b444933ac7e7280718ebbb74b8fef7676ca6",
+        "evaluator": "assign-system-spec-completeness-evaluator",
+        "evidence_ref": "system-spec/completeness-report.json"
+      },
+      "confirmation_status": "confirmed",
+      "created_at": "2026-08-16T12:20:00Z",
+      "depends_on": [
+        "feat-ai-content-studio"
+      ],
+      "domain": "site",
+      "evaluation_status": "pending",
+      "execution_contexts": [],
+      "feature_package_id": null,
+      "file_path": "features/feat-site-builder.md",
+      "github_project_linkages": [],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "goal": "ブログを作成ウィザードから構築でき、ページ・記事テンプレート・ブロック・ナビゲーション・カテゴリー・タグ・内部リンク・構造化データ・サイトマップ・著者ページ・ポリシーページが生成される",
+      "graph_node_id": "feat-site-builder",
+      "implementation_readiness": {
+        "checked_at": null,
+        "missing_sections": [],
+        "status": "incomplete"
+      },
+      "issue_linkage": null,
+      "iteration": null,
+      "owners": [
+        "daishiman"
+      ],
+      "parent_feature": null,
+      "phase_ref": null,
+      "priority": "high",
+      "project_id": "affiliate-hub",
+      "pull_request_linkages": [],
+      "purpose": "複数のブログを、同じ素材から重複なく構築できるようにする",
+      "related_nodes": [
+        "spec-system-spec-index"
+      ],
+      "resource_scope": [
+        "src",
+        "drizzle",
+        "docs/spec",
+        "system-spec"
+      ],
+      "scope_in": [
+        "ブログパターンとウィザード (§16.1-16.2)",
+        "サイトページと標準記事構成 (§16.3-16.4)",
+        "会話ブロック (§16.5)",
+        "マルチサイトの重複対策 (§16.6)",
+        "SEO・構造化データ・サイトマップ (§18 of ai-first-webmcp)"
+      ],
+      "scope_out": [
+        "独自ドメインのDNS運用",
+        "テーマの外部販売"
+      ],
+      "source_lineage": {
+        "imported_at": "2026-08-16T12:20:00Z",
+        "origin_kind": "generated",
+        "source_digest": "9185b196b216a5e9fc5b874144bcf74912551a9ddc28a9f3be115b6e09833c92",
+        "source_path": "docs/spec/01-要求仕様書-v1.0.md",
+        "source_plugin": "dev-graph",
+        "source_version": "0.1.0"
+      },
+      "start_date": "2026-08-16",
+      "status": "draft",
+      "tags": [
+        "site",
+        "seo",
+        "structure",
+        "prototype-all-features"
+      ],
+      "target_date": null,
+      "template_id": "feature",
+      "template_version": "1.0.0",
+      "title": "Site Builder",
+      "tracker_binding": "beads",
+      "updated_at": "2026-08-16T12:20:00Z"
+    },
+    {
+      "acceptance": [
+        "承認していない原稿は投稿できない",
+        "投稿に失敗すると理由と再試行導線が表示される",
+        "投稿成功時に投稿URLが保存される",
+        "プレビューが媒体ごとの体裁で表示される"
+      ],
+      "architecture_refs": [
+        "arch-system-spec-overview"
+      ],
+      "artifact_kind": "feature",
+      "artifact_subtypes": [],
+      "beads_linkage": null,
+      "classification_candidates": [
+        {
+          "artifact_kind": "feature",
+          "candidate_path": "features/feat-distribution-hub.md",
+          "confidence": 0.94
+        }
+      ],
+      "classification_confidence": 0.94,
+      "classification_reason": "C14 macro decomposition of the approved product specification into feature-level units",
+      "completion_evidence": {
+        "completed_at": null,
+        "evidence_refs": [],
+        "policy": "manual",
+        "reconciled_at": null,
+        "source": null,
+        "status": "in_progress"
+      },
+      "confirmation_evidence": {
+        "evaluated_digest": "0615d70d74973bac98929d7e3ce7b444933ac7e7280718ebbb74b8fef7676ca6",
+        "evaluator": "assign-system-spec-completeness-evaluator",
+        "evidence_ref": "system-spec/completeness-report.json"
+      },
+      "confirmation_status": "confirmed",
+      "created_at": "2026-08-16T12:20:00Z",
+      "depends_on": [
+        "feat-site-builder"
+      ],
+      "domain": "distribution",
+      "evaluation_status": "pending",
+      "execution_contexts": [],
+      "feature_package_id": null,
+      "file_path": "features/feat-distribution-hub.md",
+      "github_project_linkages": [],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "goal": "投稿先を接続し、プレビュー・予約・承認・投稿・再試行・更新・削除・結果取得ができ、投稿URLとエラーが記録される",
+      "graph_node_id": "feat-distribution-hub",
+      "implementation_readiness": {
+        "checked_at": null,
+        "missing_sections": [],
+        "status": "incomplete"
+      },
+      "issue_linkage": null,
+      "iteration": null,
+      "owners": [
+        "daishiman"
+      ],
+      "parent_feature": null,
+      "phase_ref": null,
+      "priority": "high",
+      "project_id": "affiliate-hub",
+      "pull_request_linkages": [],
+      "purpose": "作った原稿を、媒体ごとの条件に合わせて安全に届ける",
+      "related_nodes": [
+        "spec-system-spec-index"
+      ],
+      "resource_scope": [
+        "src",
+        "drizzle",
+        "docs/spec",
+        "system-spec"
+      ],
+      "scope_in": [
+        "Connector の基本契約 (§17.1)",
+        "現時点の連携方針と note 連携 (§17.2-17.3)",
+        "投稿前プレビュー (§17.4)",
+        "投稿の安全性 (§18.3)",
+        "予約とカレンダー"
+      ],
+      "scope_out": [
+        "各SNSの本番アカウント審査取得",
+        "広告出稿"
+      ],
+      "source_lineage": {
+        "imported_at": "2026-08-16T12:20:00Z",
+        "origin_kind": "generated",
+        "source_digest": "9185b196b216a5e9fc5b874144bcf74912551a9ddc28a9f3be115b6e09833c92",
+        "source_path": "docs/spec/01-要求仕様書-v1.0.md",
+        "source_plugin": "dev-graph",
+        "source_version": "0.1.0"
+      },
+      "start_date": "2026-08-16",
+      "status": "draft",
+      "tags": [
+        "distribution",
+        "connector",
+        "schedule",
+        "prototype-all-features"
+      ],
+      "target_date": null,
+      "template_id": "feature",
+      "template_version": "1.0.0",
+      "title": "Distribution Hub",
+      "tracker_binding": "beads",
+      "updated_at": "2026-08-16T12:20:00Z"
+    },
+    {
+      "acceptance": [
+        "ASP原本リンクと掲載計測URLが別レコードとして保存される",
+        "リンク切れが検出され対象記事が一覧できる",
+        "報酬額が編集側のランキング計算に渡っていないことがコードで確認できる",
+        "CSV取込で成果が登録される"
+      ],
+      "architecture_refs": [
+        "arch-system-spec-overview"
+      ],
+      "artifact_kind": "feature",
+      "artifact_subtypes": [],
+      "beads_linkage": null,
+      "classification_candidates": [
+        {
+          "artifact_kind": "feature",
+          "candidate_path": "features/feat-affiliate-hub.md",
+          "confidence": 0.94
+        }
+      ],
+      "classification_confidence": 0.94,
+      "classification_reason": "C14 macro decomposition of the approved product specification into feature-level units",
+      "completion_evidence": {
+        "completed_at": null,
+        "evidence_refs": [],
+        "policy": "manual",
+        "reconciled_at": null,
+        "source": null,
+        "status": "in_progress"
+      },
+      "confirmation_evidence": {
+        "evaluated_digest": "0615d70d74973bac98929d7e3ce7b444933ac7e7280718ebbb74b8fef7676ca6",
+        "evaluator": "assign-system-spec-completeness-evaluator",
+        "evidence_ref": "system-spec/completeness-report.json"
+      },
+      "confirmation_status": "confirmed",
+      "created_at": "2026-08-16T12:20:00Z",
+      "depends_on": [
+        "feat-auth-workspace",
+        "feat-affiliate-inbox"
+      ],
+      "domain": "affiliate",
+      "evaluation_status": "pending",
+      "execution_contexts": [],
+      "feature_package_id": null,
+      "file_path": "features/feat-affiliate-hub.md",
+      "github_project_linkages": [],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "goal": "ASP/広告主/プログラム/リンクと提携状態を管理でき、掲載計測URLを通じてクリックと成果が記録され、リンク切れとプログラム終了が検出される",
+      "graph_node_id": "feat-affiliate-hub",
+      "implementation_readiness": {
+        "checked_at": null,
+        "missing_sections": [],
+        "status": "incomplete"
+      },
+      "issue_linkage": null,
+      "iteration": null,
+      "owners": [
+        "daishiman"
+      ],
+      "parent_feature": null,
+      "phase_ref": null,
+      "priority": "high",
+      "project_id": "affiliate-hub",
+      "pull_request_linkages": [],
+      "purpose": "ASP・プログラム・リンク・成果・報酬を一箇所で管理し、リンク切れや終了を取りこぼさない",
+      "related_nodes": [
+        "spec-system-spec-index"
+      ],
+      "resource_scope": [
+        "src",
+        "drizzle",
+        "docs/spec",
+        "system-spec"
+      ],
+      "scope_in": [
+        "管理対象 (§19.1)",
+        "Affiliate Link (ASP原本) と Tracking Link (§19.2-19.2.1)",
+        "リンク掲載ルール (§19.3)",
+        "編集評価との分離 (§19.4)",
+        "CSV/API インポート",
+        "リンク切れ・プログラム終了検出"
+      ],
+      "scope_out": [
+        "成果の集計とKPI (feat-analytics-insight)",
+        "広告表示文言 (feat-compliance-disclosure)"
+      ],
+      "source_lineage": {
+        "imported_at": "2026-08-16T12:20:00Z",
+        "origin_kind": "generated",
+        "source_digest": "9185b196b216a5e9fc5b874144bcf74912551a9ddc28a9f3be115b6e09833c92",
+        "source_path": "docs/spec/01-要求仕様書-v1.0.md",
+        "source_plugin": "dev-graph",
+        "source_version": "0.1.0"
+      },
+      "start_date": "2026-08-16",
+      "status": "draft",
+      "tags": [
+        "affiliate",
+        "asp",
+        "tracking",
+        "prototype-all-features"
+      ],
+      "target_date": null,
+      "template_id": "feature",
+      "template_version": "1.0.0",
+      "title": "Affiliate Hub (アフィリエイト一元管理)",
+      "tracker_binding": "beads",
+      "updated_at": "2026-08-16T12:20:00Z"
+    },
+    {
+      "acceptance": [
+        "記事・AI回答・WebMCP の3経路が同じ Disclosure 文言を返す",
+        "アフィリエイトリンクを含む記事で表示が省略できない",
+        "ランキング記事に評価基準の記載が必須になる",
+        "Disclosure の定義が1ファイルにしか存在しないことが静的検査で確認できる"
+      ],
+      "architecture_refs": [
+        "arch-system-spec-overview"
+      ],
+      "artifact_kind": "feature",
+      "artifact_subtypes": [],
+      "beads_linkage": null,
+      "classification_candidates": [
+        {
+          "artifact_kind": "feature",
+          "candidate_path": "features/feat-compliance-disclosure.md",
+          "confidence": 0.94
+        }
+      ],
+      "classification_confidence": 0.94,
+      "classification_reason": "C14 macro decomposition of the approved product specification into feature-level units",
+      "completion_evidence": {
+        "completed_at": null,
+        "evidence_refs": [],
+        "policy": "manual",
+        "reconciled_at": null,
+        "source": null,
+        "status": "in_progress"
+      },
+      "confirmation_evidence": {
+        "evaluated_digest": "0615d70d74973bac98929d7e3ce7b444933ac7e7280718ebbb74b8fef7676ca6",
+        "evaluator": "assign-system-spec-completeness-evaluator",
+        "evidence_ref": "system-spec/completeness-report.json"
+      },
+      "confirmation_status": "confirmed",
+      "created_at": "2026-08-16T12:20:00Z",
+      "depends_on": [
+        "feat-affiliate-hub"
+      ],
+      "domain": "compliance",
+      "evaluation_status": "pending",
+      "execution_contexts": [],
+      "feature_package_id": null,
+      "file_path": "features/feat-compliance-disclosure.md",
+      "github_project_linkages": [],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "goal": "Disclosure を単一の正本から取得し、必須表示・表示場所・比較/ランキングの表示規律が全経路で一致する",
+      "graph_node_id": "feat-compliance-disclosure",
+      "implementation_readiness": {
+        "checked_at": null,
+        "missing_sections": [],
+        "status": "incomplete"
+      },
+      "issue_linkage": null,
+      "iteration": null,
+      "owners": [
+        "daishiman"
+      ],
+      "parent_feature": null,
+      "phase_ref": null,
+      "priority": "high",
+      "project_id": "affiliate-hub",
+      "pull_request_linkages": [],
+      "purpose": "広告であることの表示を、記事・AI回答・WebMCP のどこから見ても同じにする",
+      "related_nodes": [
+        "spec-system-spec-index"
+      ],
+      "resource_scope": [
+        "src",
+        "drizzle",
+        "docs/spec",
+        "system-spec"
+      ],
+      "scope_in": [
+        "必須表示 (§20.1)",
+        "表示場所 (§20.2)",
+        "比較・ランキング表示規律 (§20.3)",
+        "Disclosure Service を単一正本にする (完了条件 A5)",
+        "ステマ規制・景表法対応の表示"
+      ],
+      "scope_out": [
+        "法務レビューそのもの",
+        "各国語の法令差分対応"
+      ],
+      "source_lineage": {
+        "imported_at": "2026-08-16T12:20:00Z",
+        "origin_kind": "generated",
+        "source_digest": "9185b196b216a5e9fc5b874144bcf74912551a9ddc28a9f3be115b6e09833c92",
+        "source_path": "docs/spec/01-要求仕様書-v1.0.md",
+        "source_plugin": "dev-graph",
+        "source_version": "0.1.0"
+      },
+      "start_date": "2026-08-16",
+      "status": "draft",
+      "tags": [
+        "disclosure",
+        "compliance",
+        "legal",
+        "prototype-all-features"
+      ],
+      "target_date": null,
+      "template_id": "feature",
+      "template_version": "1.0.0",
+      "title": "広告表示・コンプライアンス",
+      "tracker_binding": "beads",
+      "updated_at": "2026-08-16T12:20:00Z"
+    },
+    {
+      "acceptance": [
+        "JavaScript 無効のブラウザで検索→比較→販売店選択が完走できる",
+        "AI が返す根拠が記事本文の HTML 内にも存在する",
+        "axe の自動検査で重大な問題がゼロになる",
+        "各記事に広告表示と更新責任者が表示される"
+      ],
+      "architecture_refs": [
+        "arch-system-spec-overview"
+      ],
+      "artifact_kind": "feature",
+      "artifact_subtypes": [],
+      "beads_linkage": null,
+      "classification_candidates": [
+        {
+          "artifact_kind": "feature",
+          "candidate_path": "features/feat-reader-surface.md",
+          "confidence": 0.94
+        }
+      ],
+      "classification_confidence": 0.94,
+      "classification_reason": "C14 macro decomposition of the approved product specification into feature-level units",
+      "completion_evidence": {
+        "completed_at": null,
+        "evidence_refs": [],
+        "policy": "manual",
+        "reconciled_at": null,
+        "source": null,
+        "status": "in_progress"
+      },
+      "confirmation_evidence": {
+        "evaluated_digest": "0615d70d74973bac98929d7e3ce7b444933ac7e7280718ebbb74b8fef7676ca6",
+        "evaluator": "assign-system-spec-completeness-evaluator",
+        "evidence_ref": "system-spec/completeness-report.json"
+      },
+      "confirmation_status": "confirmed",
+      "created_at": "2026-08-16T12:20:00Z",
+      "depends_on": [
+        "feat-site-builder",
+        "feat-compliance-disclosure",
+        "feat-editorial-workflow"
+      ],
+      "domain": "reader",
+      "evaluation_status": "pending",
+      "execution_contexts": [],
+      "feature_package_id": null,
+      "file_path": "features/feat-reader-surface.md",
+      "github_project_linkages": [],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "goal": "記事タイプ別の公開ページが情報アーキテクチャ通りに表示され、会話ブロック・比較表・根拠・広告表示を含み、通常UIだけで主要タスクを完了できる",
+      "graph_node_id": "feat-reader-surface",
+      "implementation_readiness": {
+        "checked_at": null,
+        "missing_sections": [],
+        "status": "incomplete"
+      },
+      "issue_linkage": null,
+      "iteration": null,
+      "owners": [
+        "daishiman"
+      ],
+      "parent_feature": null,
+      "phase_ref": null,
+      "priority": "high",
+      "project_id": "affiliate-hub",
+      "pull_request_linkages": [],
+      "purpose": "読者が JavaScript なしでも検索から比較・販売店選択まで完了できる記事面を提供する",
+      "related_nodes": [
+        "spec-system-spec-index"
+      ],
+      "resource_scope": [
+        "src",
+        "drizzle",
+        "docs/spec",
+        "system-spec"
+      ],
+      "scope_in": [
+        "情報アーキテクチャ (§7)",
+        "記事共通構成と記事タイプ (§8-9)",
+        "文章仕様と会話・吹き出し (§10-11)",
+        "コンテンツ品質 (§19)",
+        "アクセシビリティ・表示品質 (§20)",
+        "SEO・AI検索・機械可読性 (§18)"
+      ],
+      "scope_out": [
+        "AIアシスタント (feat-ai-assistant)",
+        "WebMCP (feat-webmcp-surface)"
+      ],
+      "source_lineage": {
+        "imported_at": "2026-08-16T12:20:00Z",
+        "origin_kind": "generated",
+        "source_digest": "35241bfe4e82f6536d871c179eb938681ec771991fa50a59c72d5d97d3c98713",
+        "source_path": "docs/spec/ai-first-webmcp.md",
+        "source_plugin": "dev-graph",
+        "source_version": "0.1.0"
+      },
+      "start_date": "2026-08-16",
+      "status": "draft",
+      "tags": [
+        "reader",
+        "article",
+        "a11y",
+        "prototype-all-features"
+      ],
+      "target_date": null,
+      "template_id": "feature",
+      "template_version": "1.0.0",
+      "title": "読者向け記事・比較メディア公開面",
+      "tracker_binding": "beads",
+      "updated_at": "2026-08-16T12:20:00Z"
+    },
+    {
+      "acceptance": [
+        "クリックと成果が突合され媒体別の成果が表示される",
+        "アトリビューション既定が last-click で動く",
+        "件数不足のインサイトが表示対象から除外される",
+        "保持期間を過ぎたイベントが削除される"
+      ],
+      "architecture_refs": [
+        "arch-system-spec-overview"
+      ],
+      "artifact_kind": "feature",
+      "artifact_subtypes": [],
+      "beads_linkage": null,
+      "classification_candidates": [
+        {
+          "artifact_kind": "feature",
+          "candidate_path": "features/feat-analytics-insight.md",
+          "confidence": 0.94
+        }
+      ],
+      "classification_confidence": 0.94,
+      "classification_reason": "C14 macro decomposition of the approved product specification into feature-level units",
+      "completion_evidence": {
+        "completed_at": null,
+        "evidence_refs": [],
+        "policy": "manual",
+        "reconciled_at": null,
+        "source": null,
+        "status": "in_progress"
+      },
+      "confirmation_evidence": {
+        "evaluated_digest": "0615d70d74973bac98929d7e3ce7b444933ac7e7280718ebbb74b8fef7676ca6",
+        "evaluator": "assign-system-spec-completeness-evaluator",
+        "evidence_ref": "system-spec/completeness-report.json"
+      },
+      "confirmation_status": "confirmed",
+      "created_at": "2026-08-16T12:20:00Z",
+      "depends_on": [
+        "feat-affiliate-hub",
+        "feat-distribution-hub",
+        "feat-reader-surface"
+      ],
+      "domain": "analytics",
+      "evaluation_status": "pending",
+      "execution_contexts": [],
+      "feature_package_id": null,
+      "file_path": "features/feat-analytics-insight.md",
+      "github_project_linkages": [],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "goal": "イベント取込からアトリビューション・集計・KPI・インサイトまでが動き、ペルソナ別/媒体別/切り口別/商品別/テンプレート別/AI生成パターン別の成果が画面で見られる",
+      "graph_node_id": "feat-analytics-insight",
+      "implementation_readiness": {
+        "checked_at": null,
+        "missing_sections": [],
+        "status": "incomplete"
+      },
+      "issue_linkage": null,
+      "iteration": null,
+      "owners": [
+        "daishiman"
+      ],
+      "parent_feature": null,
+      "phase_ref": null,
+      "priority": "high",
+      "project_id": "affiliate-hub",
+      "pull_request_linkages": [],
+      "purpose": "どの情報・切り口・媒体・配置が成果につながるかを、推測ではなく計測で判断できるようにする",
+      "related_nodes": [
+        "spec-system-spec-index"
+      ],
+      "resource_scope": [
+        "src",
+        "drizzle",
+        "docs/spec",
+        "system-spec"
+      ],
+      "scope_in": [
+        "イベントモデル (§2)",
+        "ディメンションモデル (§3)",
+        "KPIディクショナリ (§4)",
+        "MetricRollup (§5)",
+        "アトリビューション (§6)",
+        "Insight Engine (§7)",
+        "Analytics 画面 (§8)",
+        "プライバシー・保持期間 (§9)",
+        "Analytics API (§10)"
+      ],
+      "scope_out": [
+        "外部BIツール連携",
+        "有料広告の効果測定"
+      ],
+      "source_lineage": {
+        "imported_at": "2026-08-16T12:20:00Z",
+        "origin_kind": "generated",
+        "source_digest": "ed96924f70ef11408017b70c38c51dad3af3c82b4f02740965aa7cccaa7263ec",
+        "source_path": "docs/spec/03-分析・解析基盤仕様.md",
+        "source_plugin": "dev-graph",
+        "source_version": "0.1.0"
+      },
+      "start_date": "2026-08-16",
+      "status": "draft",
+      "tags": [
+        "analytics",
+        "kpi",
+        "insight",
+        "prototype-all-features"
+      ],
+      "target_date": null,
+      "template_id": "feature",
+      "template_version": "1.0.0",
+      "title": "Analytics & Insight Engine",
+      "tracker_binding": "beads",
+      "updated_at": "2026-08-16T12:20:00Z"
+    },
+    {
+      "acceptance": [
+        "事実回答に必ず claim_id 付きの引用が付く",
+        "引用先の記述が記事HTML内に存在する",
+        "単一コマンドで評価セットを実行できる",
+        "報酬額を変えても回答の推奨順が変わらない"
+      ],
+      "architecture_refs": [
+        "arch-system-spec-overview"
+      ],
+      "artifact_kind": "feature",
+      "artifact_subtypes": [],
+      "beads_linkage": null,
+      "classification_candidates": [
+        {
+          "artifact_kind": "feature",
+          "candidate_path": "features/feat-ai-assistant.md",
+          "confidence": 0.94
+        }
+      ],
+      "classification_confidence": 0.94,
+      "classification_reason": "C14 macro decomposition of the approved product specification into feature-level units",
+      "completion_evidence": {
+        "completed_at": null,
+        "evidence_refs": [],
+        "policy": "manual",
+        "reconciled_at": null,
+        "source": null,
+        "status": "in_progress"
+      },
+      "confirmation_evidence": {
+        "evaluated_digest": "0615d70d74973bac98929d7e3ce7b444933ac7e7280718ebbb74b8fef7676ca6",
+        "evaluator": "assign-system-spec-completeness-evaluator",
+        "evidence_ref": "system-spec/completeness-report.json"
+      },
+      "confirmation_status": "confirmed",
+      "created_at": "2026-08-16T12:20:00Z",
+      "depends_on": [
+        "feat-reader-surface"
+      ],
+      "domain": "reader",
+      "evaluation_status": "pending",
+      "execution_contexts": [],
+      "feature_package_id": null,
+      "file_path": "features/feat-ai-assistant.md",
+      "github_project_linkages": [],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "goal": "AI が事実回答に必ず引用を付け、引用が主張を支持し、不明な場合は不明と答え、報酬に影響されない回答をする",
+      "graph_node_id": "feat-ai-assistant",
+      "implementation_readiness": {
+        "checked_at": null,
+        "missing_sections": [],
+        "status": "incomplete"
+      },
+      "issue_linkage": null,
+      "iteration": null,
+      "owners": [
+        "daishiman"
+      ],
+      "parent_feature": null,
+      "phase_ref": null,
+      "priority": "high",
+      "project_id": "affiliate-hub",
+      "pull_request_linkages": [],
+      "purpose": "読者の質問に、記事の根拠に紐づいた答えだけを返す",
+      "related_nodes": [
+        "spec-system-spec-index"
+      ],
+      "resource_scope": [
+        "src",
+        "drizzle",
+        "docs/spec",
+        "system-spec"
+      ],
+      "scope_in": [
+        "AI機能 (§13)",
+        "claim_id による引用付与 (完了条件 A2)",
+        "評価セット50件と再実行コマンド (§24, 完了条件 C4)",
+        "ハルシネーション・一次体験捏造の構造的抑止"
+      ],
+      "scope_out": [
+        "WebMCP のツール公開 (feat-webmcp-surface)",
+        "記事生成 (feat-ai-content-studio)"
+      ],
+      "source_lineage": {
+        "imported_at": "2026-08-16T12:20:00Z",
+        "origin_kind": "generated",
+        "source_digest": "35241bfe4e82f6536d871c179eb938681ec771991fa50a59c72d5d97d3c98713",
+        "source_path": "docs/spec/ai-first-webmcp.md",
+        "source_plugin": "dev-graph",
+        "source_version": "0.1.0"
+      },
+      "start_date": "2026-08-16",
+      "status": "draft",
+      "tags": [
+        "ai",
+        "assistant",
+        "citation",
+        "prototype-all-features"
+      ],
+      "target_date": null,
+      "template_id": "feature",
+      "template_version": "1.0.0",
+      "title": "読者向けAIアシスタント",
+      "tracker_binding": "beads",
+      "updated_at": "2026-08-16T12:20:00Z"
+    },
+    {
+      "acceptance": [
+        "document.modelContext を削除した環境で主要タスクが完走できる",
+        "ドメインサービスが document.modelContext を直接参照していないことが静的検査で確認できる",
+        "未承認の状態変更が発生しない",
+        "WebMCP と UI の比較結果が一致する"
+      ],
+      "architecture_refs": [
+        "arch-system-spec-overview"
+      ],
+      "artifact_kind": "feature",
+      "artifact_subtypes": [],
+      "beads_linkage": null,
+      "classification_candidates": [
+        {
+          "artifact_kind": "feature",
+          "candidate_path": "features/feat-webmcp-surface.md",
+          "confidence": 0.94
+        }
+      ],
+      "classification_confidence": 0.94,
+      "classification_reason": "C14 macro decomposition of the approved product specification into feature-level units",
+      "completion_evidence": {
+        "completed_at": null,
+        "evidence_refs": [],
+        "policy": "manual",
+        "reconciled_at": null,
+        "source": null,
+        "status": "in_progress"
+      },
+      "confirmation_evidence": {
+        "evaluated_digest": "0615d70d74973bac98929d7e3ce7b444933ac7e7280718ebbb74b8fef7676ca6",
+        "evaluator": "assign-system-spec-completeness-evaluator",
+        "evidence_ref": "system-spec/completeness-report.json"
+      },
+      "confirmation_status": "confirmed",
+      "created_at": "2026-08-16T12:20:00Z",
+      "depends_on": [
+        "feat-ai-assistant",
+        "feat-comparison-engine"
+      ],
+      "domain": "reader",
+      "evaluation_status": "pending",
+      "execution_contexts": [],
+      "feature_package_id": null,
+      "file_path": "features/feat-webmcp-surface.md",
+      "github_project_linkages": [],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "goal": "WebMCP ツールが読み取り専用から段階的に公開され、限定的な状態変更は人間の承認を経てのみ確定し、非対応環境でも機能低下が限定的である",
+      "graph_node_id": "feat-webmcp-surface",
+      "implementation_readiness": {
+        "checked_at": null,
+        "missing_sections": [],
+        "status": "incomplete"
+      },
+      "issue_linkage": null,
+      "iteration": null,
+      "owners": [
+        "daishiman"
+      ],
+      "parent_feature": null,
+      "phase_ref": null,
+      "priority": "high",
+      "project_id": "affiliate-hub",
+      "pull_request_linkages": [],
+      "purpose": "エージェントが安全にサイトを操作できるようにしつつ、勝手な状態変更を構造的に起こさせない",
+      "related_nodes": [
+        "spec-system-spec-index"
+      ],
+      "resource_scope": [
+        "src",
+        "drizzle",
+        "docs/spec",
+        "system-spec"
+      ],
+      "scope_in": [
+        "WebMCP設計 (§14)",
+        "Adapter 分離 (完了条件 C6)",
+        "エージェント呼び出しだけで確定させない処理順序 (§14.5)",
+        "禁止依存の静的検査 (§27)",
+        "ローンチ基準の測定 (§24)"
+      ],
+      "scope_out": [
+        "外部エージェントの認証基盤",
+        "書き込み系ツールの全面公開"
+      ],
+      "source_lineage": {
+        "imported_at": "2026-08-16T12:20:00Z",
+        "origin_kind": "generated",
+        "source_digest": "35241bfe4e82f6536d871c179eb938681ec771991fa50a59c72d5d97d3c98713",
+        "source_path": "docs/spec/ai-first-webmcp.md",
+        "source_plugin": "dev-graph",
+        "source_version": "0.1.0"
+      },
+      "start_date": "2026-08-16",
+      "status": "draft",
+      "tags": [
+        "webmcp",
+        "agent",
+        "readonly",
+        "prototype-all-features"
+      ],
+      "target_date": null,
+      "template_id": "feature",
+      "template_version": "1.0.0",
+      "title": "WebMCP 読み取り面と限定状態変更",
+      "tracker_binding": "beads",
+      "updated_at": "2026-08-16T12:20:00Z"
+    },
+    {
+      "acceptance": [
+        "MCP ツールが認証なしでは呼べない",
+        "WebMCP と MCP のツール説明文に重複がないことが検査で確認できる",
+        "テナント境界を越えるデータが返らない",
+        "分析ツールが Analytics の同じ集計結果を返す"
+      ],
+      "architecture_refs": [
+        "arch-system-spec-overview"
+      ],
+      "artifact_kind": "feature",
+      "artifact_subtypes": [],
+      "beads_linkage": null,
+      "classification_candidates": [
+        {
+          "artifact_kind": "feature",
+          "candidate_path": "features/feat-backend-mcp.md",
+          "confidence": 0.94
+        }
+      ],
+      "classification_confidence": 0.94,
+      "classification_reason": "C14 macro decomposition of the approved product specification into feature-level units",
+      "completion_evidence": {
+        "completed_at": null,
+        "evidence_refs": [],
+        "policy": "manual",
+        "reconciled_at": null,
+        "source": null,
+        "status": "in_progress"
+      },
+      "confirmation_evidence": {
+        "evaluated_digest": "0615d70d74973bac98929d7e3ce7b444933ac7e7280718ebbb74b8fef7676ca6",
+        "evaluator": "assign-system-spec-completeness-evaluator",
+        "evidence_ref": "system-spec/completeness-report.json"
+      },
+      "confirmation_status": "confirmed",
+      "created_at": "2026-08-16T12:20:00Z",
+      "depends_on": [
+        "feat-analytics-insight"
+      ],
+      "domain": "platform",
+      "evaluation_status": "pending",
+      "execution_contexts": [],
+      "feature_package_id": null,
+      "file_path": "features/feat-backend-mcp.md",
+      "github_project_linkages": [],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "goal": "運営者向け MCP ツールが認証付きで公開され、WebMCP と目的が重複せず、分析と案件管理を対話から実行できる",
+      "graph_node_id": "feat-backend-mcp",
+      "implementation_readiness": {
+        "checked_at": null,
+        "missing_sections": [],
+        "status": "incomplete"
+      },
+      "issue_linkage": null,
+      "iteration": null,
+      "owners": [
+        "daishiman"
+      ],
+      "parent_feature": null,
+      "phase_ref": null,
+      "priority": "high",
+      "project_id": "affiliate-hub",
+      "pull_request_linkages": [],
+      "purpose": "運営者が対話から案件・成果・分析を扱えるようにする",
+      "related_nodes": [
+        "spec-system-spec-index"
+      ],
+      "resource_scope": [
+        "src",
+        "drizzle",
+        "docs/spec",
+        "system-spec"
+      ],
+      "scope_in": [
+        "バックエンドMCP (§15, §24.3)",
+        "既存3ツール (list_programs/record_conversion/get_revenue_summary) の正式契約化",
+        "認可とテナント境界",
+        "目的重複ツールゼロ (完了条件 B5)"
+      ],
+      "scope_out": [
+        "読者向け WebMCP (feat-webmcp-surface)",
+        "外部公開マーケットプレイス配布"
+      ],
+      "source_lineage": {
+        "imported_at": "2026-08-16T12:20:00Z",
+        "origin_kind": "generated",
+        "source_digest": "35241bfe4e82f6536d871c179eb938681ec771991fa50a59c72d5d97d3c98713",
+        "source_path": "docs/spec/ai-first-webmcp.md",
+        "source_plugin": "dev-graph",
+        "source_version": "0.1.0"
+      },
+      "start_date": "2026-08-16",
+      "status": "draft",
+      "tags": [
+        "mcp",
+        "backend",
+        "operator",
+        "prototype-all-features"
+      ],
+      "target_date": null,
+      "template_id": "feature",
+      "template_version": "1.0.0",
+      "title": "バックエンドMCP (運営者向け)",
+      "tracker_binding": "beads",
+      "updated_at": "2026-08-16T12:20:00Z"
     }
   ],
   "repository_id": "github:daishiman/affiliate-hub",
