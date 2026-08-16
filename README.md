@@ -66,17 +66,41 @@ pnpm preview
 | `get_revenue_summary` | 期間指定の収益集計（確定/見込みを分離） | ✅ |
 | `record_conversion` | 成果を 1 件登録 | ❌ (サーバー経由のみ) |
 
+### 認証
+
+`/api/mcp` は 2 つの経路を認証で分けています。**トークン未設定なら全拒否 (fail-closed)** です。
+
+| 経路 | 条件 | 実行できるツール |
+| --- | --- | --- |
+| 外部 MCP クライアント | `Authorization: Bearer <MCP_TOKEN>` | すべて |
+| 自サイトのブラウザ (WebMCP) | `Sec-Fetch-Site: same-origin` | 読み取り専用のみ |
+
+`Sec-Fetch-Site` はブラウザの fetch からは偽装できませんが curl 等からは付けられます。
+したがってこれは書き込みの防御ではなく「公開ページと同じ読み取り範囲を許すもの」で、
+**書き込みツールは必ず Bearer を要求します**（サーバー側でも二重に判定）。
+
+```bash
+# ローカル
+cp .dev.vars.example .dev.vars   # MCP_TOKEN を設定
+
+# 本番
+openssl rand -hex 32 | npx wrangler secret put MCP_TOKEN
+```
+
 ### Claude Code から接続する
 
 ```bash
-claude mcp add --transport http affiliate-hub https://<your-worker>.workers.dev/api/mcp
+claude mcp add --transport http affiliate-hub https://<your-worker>.workers.dev/api/mcp \
+  --header "Authorization: Bearer <MCP_TOKEN>"
 ```
 
 ### 疎通確認
 
 ```bash
-curl -s localhost:8787/api/mcp | jq
-curl -s localhost:8787/api/mcp -H 'content-type: application/json' \
+TOKEN=$(grep MCP_TOKEN .dev.vars | cut -d'"' -f2)
+curl -s localhost:8787/api/mcp -H "authorization: Bearer $TOKEN" | jq
+curl -s localhost:8787/api/mcp -H "authorization: Bearer $TOKEN" \
+  -H 'content-type: application/json' \
   -d '{"jsonrpc":"2.0","id":1,"method":"tools/list"}' | jq
 ```
 
@@ -96,6 +120,7 @@ src/
     ├── mcp/
     │   ├── specs.ts        # ツール仕様 (DB非依存・ブラウザからも import 可)
     │   ├── tools.ts        # サーバー実装 (server-only)
+    │   ├── auth.ts         # Bearer / same-origin の認証
     │   └── types.ts        # 共通型
     └── webmcp/             # ブラウザ側の登録処理
 ```
@@ -108,6 +133,9 @@ src/
   認可と集計ロジックをサーバー 1 か所に集約する。
 - **DB インスタンスはモジュールトップレベルで作らない。** Workers はリクエストごとに
   バインディングを供給するため、`getDb()` で都度取得する。
+- **MCP_TOKEN 未設定時は 503 で閉じる。** 設定漏れで書き込み口が開くより、動かないほうがよい。
+- **ツールの JSON Schema は `io: "input"` で出す。** 既定の `"output"` だと `.default()` 付きの
+  引数が required 扱いになり、AI が省略可能な引数を必須だと誤解する。
 
 ## ライセンス
 

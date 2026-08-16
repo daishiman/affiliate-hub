@@ -1,5 +1,6 @@
 import { z } from "zod";
 
+import { authenticate, type AuthScope } from "@/lib/mcp/auth";
 import { findTool, TOOLS } from "@/lib/mcp/tools";
 import { errorResult } from "@/lib/mcp/types";
 
@@ -18,6 +19,16 @@ function rpcError(id: JsonRpcId, code: number, message: string) {
   return Response.json({ jsonrpc: "2.0", id, error: { code, message } });
 }
 
+/** そのスコープでツールを実行してよいか */
+function isAllowed(exposeToBrowser: boolean, scope: AuthScope): boolean {
+  return scope === "bearer" || exposeToBrowser;
+}
+
+/** そのスコープに見せるツール一覧 */
+function visibleTools(scope: AuthScope) {
+  return TOOLS.filter((tool) => isAllowed(tool.exposeToBrowser, scope));
+}
+
 const requestSchema = z.object({
   jsonrpc: z.literal("2.0"),
   id: z.union([z.string(), z.number(), z.null()]).optional(),
@@ -32,6 +43,18 @@ const requestSchema = z.object({
  * Durable Objects なしで動くぶん、サーバー起点の通知やサンプリングは扱えない。
  */
 export async function POST(request: Request) {
+  const auth = await authenticate(request);
+  if (!auth.ok) {
+    return new Response(JSON.stringify({ error: auth.message }), {
+      status: auth.status,
+      headers: {
+        "content-type": "application/json",
+        // MCP クライアントに認証方式を伝える
+        ...(auth.status === 401 ? { "www-authenticate": 'Bearer realm="affiliate-hub"' } : {}),
+      },
+    });
+  }
+
   let body: unknown;
   try {
     body = await request.json();
@@ -65,7 +88,7 @@ export async function POST(request: Request) {
 
     case "tools/list":
       return result(id, {
-        tools: TOOLS.map((tool) => ({
+        tools: visibleTools(auth.scope).map((tool) => ({
           name: tool.name,
           title: tool.title,
           description: tool.description,
@@ -83,6 +106,12 @@ export async function POST(request: Request) {
       const tool = findTool(name);
       if (!tool) {
         return rpcError(id, -32602, `Unknown tool: ${name}`);
+      }
+      // ブラウザ経由(same-origin)では書き込み系を実行させない。
+      // WebMCP 側で公開していなくても、口が開いていれば直接叩けてしまうため
+      // サーバー側でも同じ判定をする。
+      if (!isAllowed(tool.exposeToBrowser, auth.scope)) {
+        return rpcError(id, -32602, `このツールには Bearer 認証が必要です: ${name}`);
       }
       const args = tool.inputSchema.safeParse(params.arguments ?? {});
       if (!args.success) {
@@ -105,11 +134,16 @@ export async function POST(request: Request) {
 }
 
 /** 疎通確認用。GET での SSE ストリームは stateless 構成では提供しない。 */
-export function GET() {
+export async function GET(request: Request) {
+  const auth = await authenticate(request);
+  if (!auth.ok) {
+    return Response.json({ error: auth.message }, { status: auth.status });
+  }
   return Response.json({
     name: "affiliate-hub",
     protocolVersion: PROTOCOL_VERSION,
     transport: "streamable-http (stateless)",
-    tools: TOOLS.map((t) => t.name),
+    scope: auth.scope,
+    tools: visibleTools(auth.scope).map((t) => t.name),
   });
 }
