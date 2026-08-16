@@ -3,9 +3,9 @@ import {
   type PublishedArticle,
   articleHref,
 } from "@/application/read-models/published-article";
+import type { PublicSiteBlueprint } from "@/application/usecases/site/read-site";
 import {
   type ArticleType,
-  type SiteBlueprint,
   type SiteRoute,
   buildPath,
   footerRoutes,
@@ -61,7 +61,7 @@ export function siteHref(siteSlug: string, path: string): string {
  * 中身はすべて設計図とルート表から作る。ブログごとに書き並べない。
  * 書き並べると、ブログを 1 本増やすたびに案内を作り直すことになる。
  */
-export function toChrome(siteSlug: string, blueprint: SiteBlueprint): SiteChrome {
+export function toChrome(siteSlug: string, blueprint: PublicSiteBlueprint): SiteChrome {
   const routes = routesFor(blueprint);
   const home = routes.find((r) => r.key === "home");
   const search = routes.find((r) => r.key === "search");
@@ -231,7 +231,7 @@ export function toCorrectionViews(
 /** 現在地に対応するパンくず。ルート表から作るので画面ごとに書かない。 */
 export function breadcrumbsFor(
   siteSlug: string,
-  blueprint: SiteBlueprint,
+  blueprint: PublicSiteBlueprint,
   trail: readonly { readonly label: string; readonly path?: string }[],
 ): readonly { readonly label: string; readonly href?: string }[] {
   return [

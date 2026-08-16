@@ -1,6 +1,6 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
-import type { SiteBlueprint } from "@/domain/authoring";
+import type { PublicSiteBlueprint } from "@/application/usecases/site/read-site";
 import { appearanceOptions, readAppearance } from "@/presentation/appearance";
 import { readerActor, readerWebMcpDescriptors, siteUseCases } from "@/presentation/composition";
 import type { PageKind } from "@/presentation/tools/webmcp-policy";
@@ -27,7 +27,7 @@ import { breadcrumbsFor, siteBasePath, toChrome } from "./view-model";
 
 export type SiteContext = {
   readonly siteSlug: string;
-  readonly blueprint: SiteBlueprint;
+  readonly blueprint: PublicSiteBlueprint;
   readonly chrome: SiteChrome;
 };
 

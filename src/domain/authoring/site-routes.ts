@@ -246,12 +246,19 @@ export const SITE_ROUTES: readonly SiteRoute[] = [
  * ただし信頼に関わるページ（方針・訂正・問い合わせ）は
  * `TRUST_REQUIRED_PAGES` により必ず `pages` に入るため、常に出る。
  */
-export function routesFor(blueprint: SiteBlueprint): readonly SiteRoute[] {
+/**
+ * 出す画面の一覧。
+ *
+ * 受け取るのは `pages` だけ。設計図まるごとを要求すると、
+ * 読者向けに識別子を落とした設計図をここへ渡せなくなる。
+ * **関数が実際に読む項目だけを要求する**、を型でも守る。
+ */
+export function routesFor(blueprint: Pick<SiteBlueprint, "pages">): readonly SiteRoute[] {
   return SITE_ROUTES.filter((r) => r.page === null || blueprint.pages.includes(r.page));
 }
 
 /** フッターに出すもの。信頼のための固定ページ。 */
-export function footerRoutes(blueprint: SiteBlueprint): readonly SiteRoute[] {
+export function footerRoutes(blueprint: Pick<SiteBlueprint, "pages">): readonly SiteRoute[] {
   return routesFor(blueprint).filter((r) => r.kind === "policy" || r.key === "contact");
 }
 

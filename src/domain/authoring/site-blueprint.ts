@@ -314,7 +314,7 @@ export function createSiteBlueprint(input: {
 }
 
 /** 信頼ページが揃っているか。サイト公開の前提条件。 */
-export function missingTrustPages(blueprint: SiteBlueprint): readonly StandardPage[] {
+export function missingTrustPages(blueprint: Pick<SiteBlueprint, "pages">): readonly StandardPage[] {
   return TRUST_REQUIRED_PAGES.filter((p) => !blueprint.pages.includes(p));
 }
 

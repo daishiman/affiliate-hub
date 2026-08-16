@@ -97,6 +97,24 @@ export type ManagedSiteSummary = {
   readonly launchBlockedReason: string | null;
 };
 
+/**
+ * 自分の会社のブログだけに絞る。
+ *
+ * **運営者向けの読み取りは、必ずここを通す。** 読者向け (`read-site.ts`) と違い、
+ * こちらは公開前の設計図・公開できない理由まで見える。絞り忘れると、
+ * 同じ役割を持つ別の会社の人が、他社のブログ構成をそのまま読めてしまう。
+ *
+ * 保管庫のポートは会社を引数に取らない（どの会社のものも同じ 1 つの入れ物にある）。
+ * だから絞り込みはこの層の責任になる。ポート側で絞る形に変えるなら、
+ * この関数が不要になったことを確かめてから消すこと。
+ */
+function ownedBy<T extends { readonly blueprint: SiteBlueprint }>(
+  actor: ActorContext,
+  sites: readonly T[],
+): readonly T[] {
+  return sites.filter((s) => s.blueprint.workspaceId === actor.workspaceId);
+}
+
 export type ListManagedSitesOutput = {
   readonly items: readonly ManagedSiteSummary[];
   readonly total: number;
@@ -131,10 +149,10 @@ export function createListManagedSitesUseCase(
 ): UseCase<Record<string, never>, ListManagedSitesOutput> {
   guardEditorial(deps);
   return {
-    async execute(): Promise<Result<ListManagedSitesOutput, DomainError>> {
+    async execute(actor: ActorContext): Promise<Result<ListManagedSitesOutput, DomainError>> {
       const listed = await deps.sites.list();
       if (!listed.ok) return listed;
-      const items = listed.value.map((s) => summarize(s.slug, s.blueprint));
+      const items = ownedBy(actor, listed.value).map((s) => summarize(s.slug, s.blueprint));
       return ok({
         items,
         total: items.length,
@@ -161,19 +179,21 @@ export function createGetManagedSiteUseCase(
   guardEditorial(deps);
   return {
     async execute(
-      _actor: ActorContext,
+      actor: ActorContext,
       input: GetManagedSiteInput,
     ): Promise<Result<GetManagedSiteOutput, DomainError>> {
       const found = await deps.sites.findBySlug(input.siteSlug);
       if (!found.ok) return found;
-      if (found.value === null) {
+      const blueprint = found.value;
+      // 他社のブログは「無い」と同じ応答にする。エラーの種類を分けると、
+      // 返ってくる `code` の違いだけで「その名前は実在する」と分かってしまう。
+      if (blueprint === null || blueprint.workspaceId !== actor.workspaceId) {
         return err(
           domainError("NOT_FOUND", "このブログが見つかりません。", {
             suggestedAction: "ブログの一覧から選び直してください。",
           }),
         );
       }
-      const blueprint = found.value;
       const axes = Object.entries(blueprint.differentiation).map(([key, value]) => ({
         key,
         label: DIFFERENTIATION_AXIS_LABEL[key] ?? key,
@@ -215,10 +235,11 @@ export function createCheckSiteDifferentiationUseCase(
 ): UseCase<Record<string, never>, CheckSiteDifferentiationOutput> {
   guardEditorial(deps);
   return {
-    async execute(): Promise<Result<CheckSiteDifferentiationOutput, DomainError>> {
+    async execute(actor: ActorContext): Promise<Result<CheckSiteDifferentiationOutput, DomainError>> {
       const listed = await deps.sites.list();
       if (!listed.ok) return listed;
-      const sites = listed.value;
+      // 比べる相手も自分の会社のブログだけ。他社と比べて「似ている」と言われても直せない。
+      const sites = ownedBy(actor, listed.value);
       const pairs: SiteDifferentiationPair[] = [];
       for (let i = 0; i < sites.length; i += 1) {
         for (let j = i + 1; j < sites.length; j += 1) {

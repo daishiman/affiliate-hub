@@ -1,0 +1,145 @@
+/**
+ * 道具に渡す「通る入力」を、項目名から組み立てる。
+ *
+ * 道具 95 個ぶんの入力を手で並べない。並べると、道具を 1 つ足すたびに
+ * 表を 1 行足す作業が生まれ、**足し忘れた道具だけが検査されないまま残る**。
+ * 代わりに**項目名の辞書**を持つ。`siteSlug` や `productId` は多くの道具で共通なので、
+ * 新しい道具が既知の項目名だけで出来ていれば、何もしなくても検査対象に入る。
+ *
+ * 知らない項目名が現れたときだけ、辞書に 1 行足す。
+ * そのとき落ちるのは `tool-catalog-adapters.test.ts` の「辞書の網羅」で、
+ * **黙って素通りしない**ようにしてある。
+ */
+
+import { SAMPLE_SITE_SLUG } from "@/infrastructure/persistence/sample/site-sample-repository";
+import type { AnyToolDefinition } from "@/presentation/tools/tool-definition";
+
+/**
+ * 項目名 → その項目に入れる値。
+ *
+ * 値は見本データに実在するものを使う。
+ * それらしい文字列を作ると「見つかりません」が返り、
+ * **通ったつもりで異常系だけを検査している**状態になる。
+ */
+export const FIELD_VALUES: Readonly<Record<string, unknown>> = {
+  // --- ブログと記事 ---
+  siteSlug: SAMPLE_SITE_SLUG,
+  categorySlug: "laptops",
+  slug: "laptops-for-video-editing",
+  query: "ノートパソコン",
+  kind: "author",
+  key: "methodology",
+  readerKey: "reader-test",
+
+  // --- 商品と順位 ---
+  productId: "p_alpha_15",
+  productIds: ["p_alpha_15", "p_beta_14"],
+  modelId: "rm_video_editing_laptop",
+
+  // --- 記事案と人物像 ---
+  variantId: "cv_alpha_review",
+  personaId: "ap_editor",
+  packageId: "cp_laptop_2026",
+  from: "draft",
+  to: "in_review",
+  body: "この製品の重さは 1.5kg です。",
+  text: "この文章には指示が含まれていません。",
+  provided: {},
+
+  // --- 配信 ---
+  publicationId: "pub_own_site",
+  scheduledAt: "2026-09-01T09:00:00.000Z",
+
+  // --- 収益 ---
+  period: "2026-08",
+  conversionId: "cv_2026_08_a",
+  amountMinor: 1000,
+  currency: "JPY",
+  reason: "広告主からの確定連絡にあわせて修正しました。",
+  url: "https://example.com/products/alpha-studio-15",
+  source: "manual",
+  linkIngestionId: "lnk_amazon_pc",
+  programId: "prg_amazon_pc",
+
+  // --- 数字 ---
+  target: "article_revision",
+  metricKey: "page_views",
+
+  // --- ブログ作成の下書き ---
+  draftId: "sd_sample",
+  step: 1,
+  answers: {},
+
+  // --- 読者の道具 ---
+  // 読者の道具の入力は、単位つきで人が打つものなので文字列で受ける。
+  values: { minutes: "60", bitrate: "100", months: "12" },
+  item: {
+    productId: "p_alpha_15",
+    productName: "Alpha Studio 15",
+    savedAt: "2026-08-17T00:00:00.000Z",
+  },
+};
+
+/**
+ * 項目名だけでは決まらないもの。
+ *
+ * `slug` は記事にも人物にも道具にも使われていて、同じ値では通らない。
+ * ここに置くのは**その道具に固有の事情**だけで、共通の値は辞書側に置く。
+ */
+export const TOOL_OVERRIDES: Readonly<Record<string, Readonly<Record<string, unknown>>>> = {
+  get_person: { slug: "miwa" },
+  get_reader_tool: { slug: "storage-estimator" },
+  run_reader_tool: { slug: "storage-estimator" },
+  get_policy_document: { key: "methodology" },
+  get_article: { slug: "laptops-for-video-editing" },
+  // 読者像は執筆者とは別の一覧にある。
+  get_audience_persona: { personaId: "dp_video_beginner" },
+  // 書き出しは「自動で投稿できない配信先」でしか意味を持たない。
+  export_manual_draft: { publicationId: "pub_note_manual" },
+};
+
+/**
+ * 正常系を確かめられない道具と、その理由。
+ *
+ * **空にできないからといって、黙って検査から外さない。**
+ * 外した事実がどこにも残らないと、次に見た人には「全部通っている」と見える。
+ * ここに理由つきで並べ、`tool-catalog-adapters.test.ts` が
+ * 「並んでいるものが本当に通らないか」まで確かめる。
+ */
+export const NO_HAPPY_PATH: Readonly<Record<string, string>> = {
+  get_site_draft:
+    "下書きは処理中のメモリにしか無く、先に start_site_draft を呼ばないと 1 件も存在しないため",
+  run_reader_tool:
+    "計算そのものがまだスタブで、NOT_IMPLEMENTED を返すため（返していることは検査する）",
+};
+
+/** 入力の形（JSON Schema 相当）から、必須の項目名を取り出す。 */
+export function requiredFieldsOf(tool: AnyToolDefinition): readonly string[] {
+  const required = (tool.inputSchema as { required?: unknown }).required;
+  return Array.isArray(required) ? required.filter((f): f is string => typeof f === "string") : [];
+}
+
+/** その道具に渡す「通るはずの入力」。辞書に無い項目があれば `null` を返す。 */
+export function validInputFor(tool: AnyToolDefinition): Record<string, unknown> | null {
+  const input: Record<string, unknown> = {};
+  for (const field of requiredFieldsOf(tool)) {
+    const override = TOOL_OVERRIDES[tool.name]?.[field];
+    const value = override ?? FIELD_VALUES[field];
+    if (value === undefined) return null;
+    input[field] = value;
+  }
+  return input;
+}
+
+/** 辞書に無い項目名の一覧。テストの失敗メッセージに出す。 */
+export function unknownFields(catalog: readonly AnyToolDefinition[]): readonly string[] {
+  const missing = new Set<string>();
+  for (const tool of catalog) {
+    for (const field of requiredFieldsOf(tool)) {
+      if (TOOL_OVERRIDES[tool.name]?.[field] === undefined && FIELD_VALUES[field] === undefined) {
+        missing.add(`${field}（${tool.name}）`);
+      }
+    }
+  }
+  return [...missing].sort();
+}
