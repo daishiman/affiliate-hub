@@ -26,6 +26,11 @@ import {
   createListReviewOverdueUseCase,
 } from "@/application/usecases/content/manage-content";
 import {
+  createCheckSiteDifferentiationUseCase,
+  createGetManagedSiteUseCase,
+  createListManagedSitesUseCase,
+} from "@/application/usecases/site/manage-sites";
+import {
   createCompareProductsUseCase,
   createExplainRankingUseCase,
   createFilterProductsUseCase,
@@ -185,6 +190,21 @@ export function contentUseCases() {
     listReviewOverdue: createListReviewOverdueUseCase(content),
     advanceState: createAdvanceContentStateUseCase(content),
     approve: createApproveContentUseCase(content),
+  };
+}
+
+/**
+ * サイトの管理（運営者向け）の入口。
+ *
+ * ブログを 1 本増やしても、ここも画面も変わらない。
+ * 変わるのは保存されている設計図の設定値だけ。
+ */
+export function platformUseCases() {
+  const sites = { sites: createDeps().sites };
+  return {
+    listSites: createListManagedSitesUseCase(sites),
+    getSite: createGetManagedSiteUseCase(sites),
+    checkDifferentiation: createCheckSiteDifferentiationUseCase(sites),
   };
 }
 
