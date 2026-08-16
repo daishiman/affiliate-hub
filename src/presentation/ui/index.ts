@@ -56,6 +56,11 @@ export {
 } from "./patterns/approval";
 export { StubNotice, StubLabel } from "./patterns/stub-notice";
 export { WorkBoard, type WorkBoardItem } from "./patterns/work-board";
+export {
+  ScheduleCalendar,
+  type ScheduleCalendarDay,
+  type ScheduleCalendarEntry,
+} from "./patterns/schedule-calendar";
 export { WebMcpProvider } from "./webmcp-provider";
 
 /* --- templates --------------------------------------------------------- */

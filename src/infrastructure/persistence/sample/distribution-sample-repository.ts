@@ -127,7 +127,18 @@ function publication(input: {
   };
 }
 
-const PUBLICATIONS: readonly Publication[] = [
+/**
+ * 見本の配信。
+ *
+ * `let` にしてあるのは、取りやめや予定日の変更を**その場で反映させる**ため。
+ * ただし残るのはこの処理が動いているあいだだけで、
+ * 立ち上げ直すと最初の 6 件に戻る。画面の上部にその旨を出している。
+ *
+ * 置き場所が関数の中ではなくここ（module の一番外）なのは、
+ * 組み立て（createDeps）が要求ごとに動くため。
+ * 中に置くと、変更した直後の読み出しで元の値が返る。
+ */
+let PUBLICATIONS: readonly Publication[] = [
   publication({
     id: "pub_own_site",
     kind: "own_site",
@@ -152,6 +163,32 @@ const PUBLICATIONS: readonly Publication[] = [
     connectionId: null,
     state: "MANUAL_EXPORT_READY",
     scheduledAt: null,
+  }),
+  /*
+   * 同じ日・同じ先に 3 件。
+   * 投稿カレンダーが「連投に見えます」と知らせることを、
+   * 見本のデータでも確かめられるようにするために置いている。
+   */
+  publication({
+    id: "pub_x_queued_1",
+    kind: "x",
+    connectionId: "conn_x",
+    state: "QUEUED",
+    scheduledAt: new Date("2026-08-20T09:00:00Z"),
+  }),
+  publication({
+    id: "pub_x_queued_2",
+    kind: "x",
+    connectionId: "conn_x",
+    state: "QUEUED",
+    scheduledAt: new Date("2026-08-20T13:00:00Z"),
+  }),
+  publication({
+    id: "pub_x_queued_3",
+    kind: "x",
+    connectionId: "conn_x",
+    state: "QUEUED",
+    scheduledAt: new Date("2026-08-20T18:00:00Z"),
   }),
 ];
 
@@ -198,8 +235,26 @@ export function createSamplePublicationRepository(): PublicationRepositoryPort {
     async listRecent(workspaceId, limit) {
       return ok(PUBLICATIONS.filter((p) => p.workspaceId === workspaceId).slice(0, limit));
     },
-    // 保存はできない。できたふりをすると「取りやめたのに残っている」が起きる。
-    save: () => stubCall(stub, "配信の保存"),
+    /**
+     * その場では保存する。**保つのはこの処理が動いているあいだだけ。**
+     *
+     * 保存を断る作りにしていた頃は、取りやめも予定日の変更も
+     * 必ず失敗し、画面の操作を 1 つも確かめられなかった。
+     * かといって「保存した」とだけ返して何も変えないのは
+     * もっと悪く、取りやめたはずのものが残る。
+     * そこで **実際に置き換えたうえで、仮の保存先だと画面に出す**。
+     */
+    async save(publication) {
+      const index = PUBLICATIONS.findIndex(
+        (p) => p.workspaceId === publication.workspaceId && p.id === publication.id,
+      );
+      if (index < 0) {
+        PUBLICATIONS = [...PUBLICATIONS, publication];
+      } else {
+        PUBLICATIONS = PUBLICATIONS.map((p, i) => (i === index ? publication : p));
+      }
+      return ok(publication);
+    },
   };
 }
 

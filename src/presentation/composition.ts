@@ -41,6 +41,10 @@ import {
   createListPublicationsUseCase,
 } from "@/application/usecases/distribution/manage-distribution";
 import {
+  createGetPublicationCalendarUseCase,
+  createReschedulePublicationUseCase,
+} from "@/application/usecases/distribution/publication-calendar";
+import {
   createCheckFeedbackUseCase,
   createListMetricsUseCase,
   createListUsableMetricsUseCase,
@@ -384,6 +388,26 @@ export function distributionUseCases() {
     getPublication: createGetPublicationUseCase(distribution),
     exportManualDraft: createExportManualDraftUseCase(distribution),
     cancel: createCancelPublicationUseCase(distribution),
+  };
+}
+
+/**
+ * 投稿カレンダー。
+ *
+ * 配信の一覧と同じ元データを、日付で並べ直して見せるもの。
+ * 数え直しや別の保存先を作らないので、一覧とカレンダーで件数がずれない。
+ */
+export function publicationCalendarUseCases() {
+  const deps = createDeps();
+  const calendar = {
+    publications: deps.publications,
+    connections: deps.channelConnections,
+    contentVariants: deps.contentVariants,
+    contentPackages: deps.contentPackages,
+  };
+  return {
+    getCalendar: createGetPublicationCalendarUseCase(calendar),
+    reschedule: createReschedulePublicationUseCase(calendar),
   };
 }
 

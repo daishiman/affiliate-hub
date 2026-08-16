@@ -60,6 +60,18 @@ export default async function DistributionPage() {
       />
 
       <Card>
+        <h2 className={styles.sectionTitle}>いつ出すかを見る</h2>
+        <ul className={styles.linkList}>
+          <li>
+            <Link href="/admin/distribution/calendar">投稿カレンダーを開く</Link>
+            <span className={styles.linkNote}>
+              日付ごとに並べ替えて、同じ日に同じ先へ寄っていないか、承認が済んでいるかを確かめられます。
+            </span>
+          </li>
+        </ul>
+      </Card>
+
+      <Card>
         <h2 className={styles.sectionTitle}>手当てが要る配信</h2>
         {!publications.ok ? (
           <ErrorView

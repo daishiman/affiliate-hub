@@ -361,3 +361,119 @@
   clip-path: inset(50%);
   white-space: nowrap;
 }
+
+/* --- 予定カレンダー ------------------------------------------------------ */
+
+.calendar {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+.calendarCaption {
+  text-align: start;
+  padding-block-end: var(--space-2);
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+}
+
+.calendarWeekday {
+  padding: var(--space-2);
+  border-block-end: var(--border-width-default) solid var(--color-border-default);
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  text-align: start;
+}
+
+.calendarCell {
+  vertical-align: top;
+  padding: var(--space-2);
+  border: var(--border-width-default) solid var(--color-border-subtle);
+  background: var(--color-surface-default);
+}
+
+.calendarCellToday {
+  background: var(--color-surface-sunken);
+  border-color: var(--color-border-strong);
+}
+
+.calendarEmpty {
+  border: var(--border-width-default) solid var(--color-border-subtle);
+  background: var(--color-surface-sunken);
+}
+
+.calendarDate {
+  margin: 0 0 var(--space-1);
+  color: var(--color-text-strong);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+}
+
+.calendarWarning {
+  margin: 0 0 var(--space-1);
+  padding: var(--space-1);
+  border-inline-start: var(--border-width-marker) solid var(--color-intent-warning);
+  background: var(--color-intent-warning-subtle);
+  color: var(--color-text-default);
+  font-size: var(--text-xs);
+  line-height: var(--leading-body);
+}
+
+.calendarEntries {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: var(--space-1);
+}
+
+.calendarEntry {
+  display: grid;
+  gap: var(--space-1);
+  padding: var(--space-1);
+  border-inline-start: var(--border-width-marker) solid var(--color-border-default);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-raised);
+  font-size: var(--text-xs);
+  line-height: var(--leading-body);
+}
+
+.calendarEntryAttention {
+  border-inline-start-color: var(--color-intent-danger);
+  background: var(--color-intent-danger-subtle);
+}
+
+.calendarEntryDetail {
+  color: var(--color-text-muted);
+}
+
+.calendarEntryReason {
+  color: var(--color-text-default);
+}
+
+/* 画面が狭いときは、7 列を保てないので日ごとの縦並びに切り替える。
+   横に潰して読めない表にするより、1 日ずつ順に読める形の方が使える。 */
+@media (max-width: 48rem) /* --breakpoint-md */ {
+  .calendar,
+  .calendar thead,
+  .calendar tbody,
+  .calendar tr,
+  .calendar td {
+    display: block;
+    width: 100%;
+  }
+
+  .calendar thead {
+    display: none;
+  }
+
+  .calendarEmpty {
+    display: none;
+  }
+
+  .calendarCell {
+    margin-block-end: var(--space-2);
+    border-radius: var(--radius-md);
+  }
+}

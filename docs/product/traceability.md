@@ -39,13 +39,13 @@
 
 | REQ | 要件 | 実装 | 画面 | 導線 | 状態 | RWD | a11y | test | 結果 |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| REQ-S01 | §22.1 ダッシュボード（11ウィジェット） | — | `/(admin)/dashboard` 予定 | サイドナビ先頭 | 未対応 | 未対応 | 未対応 | NOT RUN | 未着手 |
+| REQ-S01 | §22.1 ダッシュボード（11ウィジェット） | `src/application/usecases/dashboard/read-dashboard.ts`（11ウィジェットを1ユースケースで算出）、`src/presentation/tools/dashboard-tools.ts`（`get_dashboard`）、`src/presentation/ui/patterns/work-board.tsx` | `src/app/admin/page.tsx` | サイドナビ先頭 `/admin`。各ウィジェットが解消先の画面へ直リンク（行き先は `ADMIN_NAV` 内であることをテストで固定） | loading（`force-dynamic` のサーバ描画）/ empty（`EmptyView` + 手当て不要の理由）/ error（`ErrorView` + 設定への導線）/ 数えられない（値ではなく理由を表示。0件と混同しない） | 対応（`.board` が `auto-fill` グリッド） | 対応（色に加えて読み上げ用の状態語、リンクは `tap-target-min`） | PASS（`tests/application/dashboard.test.ts` 10件） | 実装済 |
 | REQ-S02 | §22.2 Affiliate Inbox（9要素） | — | `/(admin)/inbox` 予定 | サイドナビ | 未対応 | 未対応 | 未対応 | NOT RUN | 未着手 |
 | REQ-S03 | §22.3 Product Intelligence（11要素） | — | `/(admin)/products` 予定 | サイドナビ + Inbox の商品候補 | 未対応 | 未対応 | 未対応 | NOT RUN | 未着手 |
 | REQ-S04 | §22.4 Persona Studio（8要素） | — | `/(admin)/personas` 予定 | サイドナビ | 未対応 | 未対応 | 未対応 | NOT RUN | 未着手 |
 | REQ-S05 | §22.5 Content Matrix（3行軸 × 7媒体列） | — | `/(admin)/content` 予定 | サイドナビ + 商品詳細 | 未対応 | 未対応 | 未対応 | NOT RUN | 未着手 |
 | REQ-S06 | §22.6 Site Builder（11要素） | — | `/(admin)/sites` 予定 | サイドナビ | 未対応 | 未対応 | 未対応 | NOT RUN | 未着手 |
-| REQ-S07 | §22.7 Publication Calendar（8要素・ドラッグ変更） | — | `/(admin)/calendar` 予定 | サイドナビ | 未対応 | 未対応 | 未対応 | NOT RUN | 未着手 |
+| REQ-S07 | §22.7 Publication Calendar（8要素・ドラッグ変更） | `src/application/usecases/distribution/publication-calendar.ts`（媒体/接続先のアカウント/投稿予定/承認状態/キャンペーン/コンテンツパッケージ/エラーの7要素 + 予定日変更）、`src/presentation/tools/distribution-tools.ts`（`get_publication_calendar` / `reschedule_publication`（人の確認必須））、`src/presentation/ui/patterns/schedule-calendar.tsx`、`src/presentation/admin/reschedule-action.ts` / `reschedule-form.tsx` | `src/app/admin/distribution/calendar/page.tsx` | `/admin/distribution` の「いつ出すかを見る」から。カレンダー側からは各配信の詳細とパンくずで戻れる | loading（サーバ描画）/ empty（その月に予定なし + 記事の進行への導線）/ error（`ErrorView` + 一覧へ戻る）/ 操作不可（公開の権限が無い場合は変更欄を出さず理由を表示） | 対応（48rem 未満で7列を解除し日ごとの縦並び。`--breakpoint-md` の写し） | 対応（`<table>` + `scope="col"` の曜日見出し、色に頼らず注意を文で表示、変更は日時入力欄でキーボード操作可） | PASS（`tests/application/publication-calendar.test.ts` 18件） | 実装済（**ドラッグ操作のみ未実装**。キーボードで操作できないため日時入力欄を正の手段とした。掴む操作は同じユースケースを呼ぶ追加として残課題） |
 | REQ-S08 | §22.8 Analytics（11軸絞込） | — | `/(admin)/analytics` 予定 | サイドナビ | 未対応 | 未対応 | 未対応 | NOT RUN | 未着手 |
 | REQ-S09 | 共通レイアウト（サイドナビ・現在地表示・退避先・権限による表示制御） | `src/presentation/ui/app-shell.tsx`、`tokens.css`、`button.tsx`、`field.tsx`、`state-view.tsx`、`callout.tsx`（権限による表示制御のみ未対応。認証が入るまで保留のためスタブ判定） | `src/app/admin/layout.tsx` + 各ページで `AppShell` | サイドナビ `ADMIN_NAV`（10項目） | loading / empty / error / 操作不可の4状態を部品化（title・body・reason を必須にして無言を防止） | 対応（48rem で段組み解除、表は縦積み） | 対応（`aria-current`・`:focus-visible` の共通リング・44px 最小・`prefers-reduced-motion`） | PASS（`tests/presentation/composition.test.ts`） | スタブ |
 | REQ-S10 | 認証画面（Google OAuth・サインイン・サインアウト・招待受諾） | — | `/(auth)/signin` 予定 | 未認証時の全画面から | 未対応 | 未対応 | 未対応 | NOT RUN | 未着手 |

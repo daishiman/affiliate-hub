@@ -7,6 +7,10 @@ import {
   createListChannelsUseCase,
   createListPublicationsUseCase,
 } from "@/application/usecases/distribution/manage-distribution";
+import {
+  createGetPublicationCalendarUseCase,
+  createReschedulePublicationUseCase,
+} from "@/application/usecases/distribution/publication-calendar";
 import { defineTool } from "./define-tool";
 import type { AnyToolDefinition } from "./tool-definition";
 
@@ -23,6 +27,12 @@ export function distributionTools(deps: AppDeps): readonly AnyToolDefinition[] {
     connections: deps.channelConnections,
     publications: deps.publications,
     manualExport: deps.manualExport,
+  };
+  const calendar = {
+    publications: deps.publications,
+    connections: deps.channelConnections,
+    contentVariants: deps.contentVariants,
+    contentPackages: deps.contentPackages,
   };
   const publicationId = z.string().min(1);
 
@@ -64,6 +74,23 @@ export function distributionTools(deps: AppDeps): readonly AnyToolDefinition[] {
       readOnly: false,
       requiresHumanApproval: true,
       useCase: createCancelPublicationUseCase(distribution),
+    }),
+    defineTool({
+      name: "get_publication_calendar",
+      description:
+        "指定した月の投稿予定を日付ごとに返します。同じ日に同じ媒体へ寄っている、承認前のまま予約されている、失敗したまま止まっている、を日付つきで知らせます。",
+      schema: z.object({ month: z.string().optional() }),
+      readOnly: true,
+      useCase: createGetPublicationCalendarUseCase(calendar),
+    }),
+    defineTool({
+      name: "reschedule_publication",
+      description:
+        "配信の予定日時を変えます。過去の日時は指定できません。人の操作でのみ実行できます。",
+      schema: z.object({ publicationId, scheduledAt: z.string() }),
+      readOnly: false,
+      requiresHumanApproval: true,
+      useCase: createReschedulePublicationUseCase(calendar),
     }),
   ];
 }
