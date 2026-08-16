@@ -25,6 +25,7 @@ export function contentTools(deps: AppDeps): readonly AnyToolDefinition[] {
     packages: deps.contentPackages,
     variants: deps.contentVariants,
     personas: deps.personas,
+    events: deps.events,
   };
   const variantId = z.string().min(1);
   const state = z.enum(CONTENT_STATES);

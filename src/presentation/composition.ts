@@ -274,6 +274,7 @@ export function contentUseCases() {
     packages: deps.contentPackages,
     variants: deps.contentVariants,
     personas: deps.personas,
+    events: deps.events,
   };
   return {
     listBoard: createListContentBoardUseCase(content),

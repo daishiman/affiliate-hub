@@ -1,4 +1,5 @@
 import type { AppDeps } from "@/application/deps";
+import { createEventPublisher } from "./platform/queue";
 import { createSampleContentRepository } from "./persistence/sample/content-sample-repository";
 import {
   createSampleRankingModelRepository,
@@ -97,6 +98,9 @@ export function createDeps(): AppDeps {
     brands: createSampleBrandRepository(),
     disclosures: createSampleDisclosureRepository(),
     auditLog: createSampleAuditLog(),
+    // 起きたことの発行。購読側（通知・再生成・リンク切れ検出）はまだ無いので
+    // 記録だけする。購読を足すときに変えるのはこの 1 行だけ。
+    events: createEventPublisher(null),
     // ★ 見本データ（スタブ）。提携先・提携条件・成果。
     //   本物の数字には各 ASP の API 申請と、利用者ご自身による接続情報の登録が要る。
     //   ここで作るものには商業の印が付いており、順位づけへは型として渡せない。

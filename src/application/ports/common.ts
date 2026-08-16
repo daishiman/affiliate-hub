@@ -1,4 +1,4 @@
-import type { DomainError, Result } from "@/domain/shared";
+import type { DomainError, DomainEventName, Result } from "@/domain/shared";
 
 /**
  * ポート共通の型。
@@ -70,7 +70,8 @@ export type TaskQueuePort<T = unknown> = {
  * 別コンテキストのリポジトリを直接呼ばない。
  */
 export type DomainEvent = {
-  readonly name: string;
+  /** 名前は domain の一覧にあるものだけ。綴りのずれを型で止める。 */
+  readonly name: DomainEventName;
   readonly workspaceId: string;
   readonly occurredAt: Date;
   readonly payload: Readonly<Record<string, unknown>>;

@@ -13,6 +13,7 @@
 export * from "./tagged";
 export * from "./clock";
 export * from "./data-classification";
+export * from "./domain-events";
 export * from "./errors";
 export * from "./ids";
 export * from "./money";

@@ -3,6 +3,7 @@ import type {
   EditorialContentVariantRepositoryPort,
   EditorialPersonaRepositoryPort,
 } from "@/application/ports/authoring";
+import type { EventPublisherPort } from "@/application/ports/common";
 import {
   CONTENT_STATES,
   type ContentPackage,
@@ -22,12 +23,14 @@ import {
   type DomainError,
   type Result,
   assertSameTenant,
+  buildEvent,
   containsCommercial,
   domainError,
   err,
   ok,
   taggedString,
 } from "@/domain/shared";
+import type { DomainEventName } from "@/domain/shared";
 import type { UseCase } from "../usecase";
 
 /**
@@ -43,7 +46,32 @@ export type ManageContentDeps = {
   readonly packages: EditorialContentPackageRepositoryPort;
   readonly variants: EditorialContentVariantRepositoryPort;
   readonly personas: EditorialPersonaRepositoryPort;
+  /**
+   * 起きたことの発行先。
+   *
+   * 記事の文脈から配信や通知の関数を直接呼ばないために置いている。
+   * 受け手が増えても、この行より上のコードは変わらない。
+   */
+  readonly events: EventPublisherPort;
 };
+
+/**
+ * 起きたことを流す。
+ *
+ * **流せなかったことを理由に、済んだ操作を失敗にしない。**
+ * 承認は保存された時点で成立している。伝達の失敗で承認が消えると、
+ * 利用者は「押したのに承認されていない」という最も分かりにくい壊れ方に出会う。
+ */
+async function emit(
+  deps: ManageContentDeps,
+  actor: ActorContext,
+  name: DomainEventName,
+  payload: Readonly<Record<string, unknown>>,
+): Promise<void> {
+  const event = buildEvent(name, String(actor.workspaceId), new Date(), payload);
+  if (!event.ok) return;
+  await deps.events.publish(event.value);
+}
 
 function guardEditorial(deps: Record<string, unknown>, where: string): void {
   const commercial = containsCommercial(deps);
@@ -325,6 +353,14 @@ export function createAdvanceContentStateUseCase(
       const moved = transition(input.from, input.to, actor);
       if (!moved.ok) return moved;
 
+      // 進んだ先そのものが、他の文脈にとっての「起きたこと」になる。
+      if (moved.value === "GENERATED") {
+        await emit(deps, actor, "content_variant.generated", { variantId: input.variantId });
+      }
+      if (moved.value === "REFRESH_DUE") {
+        await emit(deps, actor, "content.refresh_due", { variantId: input.variantId });
+      }
+
       return ok({
         variantId: input.variantId,
         state: moved.value,
@@ -367,6 +403,11 @@ export function createApproveContentUseCase(
 
       const saved = await deps.variants.save(approved.value);
       if (!saved.ok) return saved;
+
+      await emit(deps, actor, "content_variant.approved", {
+        variantId: input.variantId,
+        approvedBy: String(actor.userId ?? "unknown"),
+      });
 
       return ok({ variantId: input.variantId, status: saved.value.status });
     },

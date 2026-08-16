@@ -17,6 +17,7 @@ import type {
   PublicationRepositoryPort,
 } from "./ports/distribution";
 import type { ClickTrackingPort, MetricsRepositoryPort } from "./ports/analytics";
+import type { EventPublisherPort } from "./ports/common";
 import type { AuditLogPort, DisclosureRepositoryPort } from "./ports/compliance";
 import type {
   BrandRepositoryPort,
@@ -73,6 +74,8 @@ export type AppDeps = {
   readonly brands: BrandRepositoryPort;
   readonly disclosures: DisclosureRepositoryPort;
   readonly auditLog: AuditLogPort;
+  /** 文脈をまたぐ連絡。別の文脈のリポジトリを直接呼ばないための唯一の経路。 */
+  readonly events: EventPublisherPort;
   /**
    * ここから下は Commercial 区分。
    * 順位づけのユースケースは Editorial 印のポートしか受け取らないので、
