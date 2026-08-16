@@ -8,6 +8,13 @@ import {
   createListConversionsUseCase,
   createListProductLinksUseCase,
 } from "@/application/usecases/monetization/manage-affiliate";
+import {
+  createListLinkInboxUseCase,
+  createMatchLinkIngestionUseCase,
+  createRejectLinkIngestionUseCase,
+  createResolveLinkIngestionUseCase,
+  createSubmitAffiliateUrlUseCase,
+} from "@/application/usecases/monetization/manage-link-inbox";
 import { defineTool } from "./define-tool";
 import type { AnyToolDefinition } from "./tool-definition";
 
@@ -86,6 +93,85 @@ export function affiliateTools(deps: AppDeps): readonly AnyToolDefinition[] {
       readOnly: false,
       requiresHumanApproval: true,
       useCase: createAdjustConversionUseCase(affiliate),
+    }),
+    ...linkInboxTools(deps),
+  ];
+}
+
+/**
+ * 成果リンク受信箱の道具。
+ *
+ * 読むものだけ AI から使える。**広告主の確定と商品との結びつけは人の操作だけ。**
+ * ここを AI に任せると、間違った広告主に結びついたリンクが記事に載り、
+ * 誰がいつそう決めたのかを後から辿れなくなる。
+ */
+function linkInboxTools(deps: AppDeps): readonly AnyToolDefinition[] {
+  const inbox = {
+    inbox: deps.linkInbox,
+    programs: deps.affiliatePrograms,
+    ids: deps.ids,
+    events: deps.events,
+  };
+
+  return [
+    defineTool({
+      name: "list_link_inbox",
+      description:
+        "貼り付けられた成果リンクの受信箱を返します。状態（未調査・広告主判明・結びつけ済み・対象外）ごとの件数と、重複している件数も返します。",
+      schema: z.object({
+        state: z.enum(["all", "received", "resolved", "matched", "rejected"]).optional(),
+      }),
+      readOnly: true,
+      useCase: createListLinkInboxUseCase(inbox),
+    }),
+    defineTool({
+      name: "submit_affiliate_url",
+      description:
+        "成果リンクの URL を受信箱に入れます。内部ネットワーク宛の URL は受け取りません。同じ URL が既にある場合も捨てずに受け取り、重複として印を付けます。人の操作でのみ実行できます。",
+      schema: z.object({
+        url: z.string().min(1),
+        source: z.enum(["paste", "csv", "api", "extension", "webmcp"]),
+        note: z.string().optional(),
+      }),
+      readOnly: false,
+      requiresHumanApproval: true,
+      useCase: createSubmitAffiliateUrlUseCase(inbox),
+    }),
+    defineTool({
+      name: "resolve_link_ingestion",
+      description:
+        "受信箱のリンクについて、どの提携プログラムのものかを確定します。人の操作でのみ実行できます。",
+      schema: z.object({
+        linkIngestionId: z.string().min(1),
+        programId: z.string().min(1),
+      }),
+      readOnly: false,
+      requiresHumanApproval: true,
+      useCase: createResolveLinkIngestionUseCase(inbox),
+    }),
+    defineTool({
+      name: "match_link_ingestion_product",
+      description:
+        "受信箱のリンクを商品に結びつけます。広告主が確定していないリンクは結びつけられません。人の操作でのみ実行できます。",
+      schema: z.object({
+        linkIngestionId: z.string().min(1),
+        productId: z.string().min(1),
+      }),
+      readOnly: false,
+      requiresHumanApproval: true,
+      useCase: createMatchLinkIngestionUseCase(inbox),
+    }),
+    defineTool({
+      name: "reject_link_ingestion",
+      description:
+        "受信箱のリンクを対象外にします。理由は必須です。人の操作でのみ実行できます。",
+      schema: z.object({
+        linkIngestionId: z.string().min(1),
+        reason: z.string().min(1),
+      }),
+      readOnly: false,
+      requiresHumanApproval: true,
+      useCase: createRejectLinkIngestionUseCase(inbox),
     }),
   ];
 }

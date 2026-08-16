@@ -6,13 +6,13 @@
 イベントは、ある文脈で起きたことを別の文脈へ伝えるための唯一の経路。
 別の文脈の保存処理を直接呼ばないので、受け手が増えても送り手は変わらない。
 
-件数: 16（うち実際に発行しているもの: 3）
+件数: 16（うち実際に発行しているもの: 6）
 
 | 名前 | 出す文脈 | 何が起きたか | 必ず入る項目 | 状態 | 発行場所 / 何が済めば出せるか |
 |---|---|---|---|---|---|
-| `affiliate_url.submitted` | monetization | 成果リンクが受信箱に入った | `ingestionId` `url` | まだ発行していない | 成果リンクの受信箱（貼付・CSV 取込）の実装 |
-| `affiliate_url.resolved` | monetization | 受信したリンクの行き先と広告主が判明した | `ingestionId` `programId` | まだ発行していない | リンク先をたどって広告主を特定する処理（ASP 接続が要る） |
-| `product.matched` | product | リンクの行き先が既知の商品と結びついた | `ingestionId` `productId` | まだ発行していない | 受信したリンクと商品を突き合わせる処理 |
+| `affiliate_url.submitted` | monetization | 成果リンクが受信箱に入った | `linkIngestionId` `url` | 発行あり | `src/application/usecases/monetization/manage-link-inbox.ts` |
+| `affiliate_url.resolved` | monetization | 受信したリンクの行き先と広告主が判明した | `linkIngestionId` `programId` | 発行あり | `src/application/usecases/monetization/manage-link-inbox.ts` |
+| `product.matched` | product | リンクの行き先が既知の商品と結びついた | `linkIngestionId` `productId` | 発行あり | `src/application/usecases/monetization/manage-link-inbox.ts` |
 | `product.enriched` | product | 商品の属性が新しい情報源で補われた | `productId` `sourceArtifactId` | まだ発行していない | 外部情報から商品属性を補う取込処理 |
 | `comparison.ready` | product | 比較の候補がそろい、比較表を作れる状態になった | `comparisonSetId` | まだ発行していない | 比較候補の 4 分類（同一/派生/競合/代替）の判定処理 |
 | `content_package.created` | authoring | 記事のまとまり（同じ素材から作る一式）が作られた | `contentPackageId` | まだ発行していない | 記事のまとまりを作る画面と生成の起動 |

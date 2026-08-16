@@ -35,6 +35,7 @@ export const ADMIN_NAV: readonly NavItem[] = [
   { href: "/admin/sites", label: "サイト" },
   { href: "/admin/distribution", label: "配信" },
   { href: "/admin/affiliate", label: "提携と成果" },
+  { href: "/admin/inbox", label: "成果リンクの受信箱" },
   { href: "/admin/analytics", label: "数字" },
   { href: "/admin/settings", label: "設定" },
 ];

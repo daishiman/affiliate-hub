@@ -38,17 +38,17 @@ export const DOMAIN_EVENTS = {
   "affiliate_url.submitted": {
     context: "monetization",
     description: "成果リンクが受信箱に入った",
-    requiredKeys: ["ingestionId", "url"],
+    requiredKeys: ["linkIngestionId", "url"],
   },
   "affiliate_url.resolved": {
     context: "monetization",
     description: "受信したリンクの行き先と広告主が判明した",
-    requiredKeys: ["ingestionId", "programId"],
+    requiredKeys: ["linkIngestionId", "programId"],
   },
   "product.matched": {
     context: "product",
     description: "リンクの行き先が既知の商品と結びついた",
-    requiredKeys: ["ingestionId", "productId"],
+    requiredKeys: ["linkIngestionId", "productId"],
   },
   "product.enriched": {
     context: "product",

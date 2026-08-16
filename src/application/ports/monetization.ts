@@ -4,6 +4,8 @@ import type {
   AffiliateProgram,
   AspKind,
   Conversion,
+  LinkIngestion,
+  LinkIngestionState,
 } from "@/domain/monetization";
 import type {
   AffiliateAccountId,
@@ -11,6 +13,7 @@ import type {
   AffiliateProgramId,
   Commercial,
   ConversionId,
+  LinkIngestionId,
   ProductId,
   WorkspaceId,
 } from "@/domain/shared";
@@ -50,6 +53,28 @@ export type ConversionRepositoryPort = {
   listByPeriod(workspaceId: WorkspaceId, period: string, page: Page): PortResult<Paged<Conversion>>;
   save(conversion: Conversion): PortResult<Conversion>;
 };
+
+/**
+ * 成果リンクの受信箱。
+ *
+ * 重複判定のために「同じ形の URL が既にあるか」を保存先へ聞く。
+ * 一覧を全部持ってきてユースケース側で探すと、件数が増えた時点で破綻する。
+ */
+export type LinkIngestionRepositoryPort = {
+  findById(workspaceId: WorkspaceId, id: LinkIngestionId): PortResult<LinkIngestion | null>;
+  list(
+    workspaceId: WorkspaceId,
+    filter: { state: LinkIngestionState | null },
+    page: Page,
+  ): PortResult<Paged<LinkIngestion>>;
+  findByNormalizedUrl(
+    workspaceId: WorkspaceId,
+    normalizedUrl: string,
+  ): PortResult<LinkIngestion | null>;
+  save(item: LinkIngestion): PortResult<LinkIngestion>;
+};
+
+export type CommercialLinkIngestionRepositoryPort = Commercial<LinkIngestionRepositoryPort>;
 
 export type CommercialAffiliateLinkRepositoryPort = Commercial<AffiliateLinkRepositoryPort>;
 export type CommercialConversionRepositoryPort = Commercial<ConversionRepositoryPort>;

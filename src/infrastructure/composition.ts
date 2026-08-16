@@ -43,7 +43,9 @@ import {
   createSampleMembershipRepository,
   createSampleWorkspaceRepository,
 } from "./persistence/sample/settings-sample-repository";
+import { createSampleLinkIngestionRepository } from "./persistence/sample/link-inbox-sample-repository";
 import { createSampleSiteRepository } from "./persistence/sample/site-sample-repository";
+import { idGenerator } from "./platform/id-generator";
 
 /**
  * 実装の組み立て。
@@ -101,6 +103,8 @@ export function createDeps(): AppDeps {
     // 起きたことの発行。購読側（通知・再生成・リンク切れ検出）はまだ無いので
     // 記録だけする。購読を足すときに変えるのはこの 1 行だけ。
     events: createEventPublisher(null),
+    // ID の作り方。試験では順番に増える作りへ差し替えて、結果を読めるようにする。
+    ids: idGenerator,
     // ★ 見本データ（スタブ）。提携先・提携条件・成果。
     //   本物の数字には各 ASP の API 申請と、利用者ご自身による接続情報の登録が要る。
     //   ここで作るものには商業の印が付いており、順位づけへは型として渡せない。
@@ -108,5 +112,8 @@ export function createDeps(): AppDeps {
     affiliatePrograms: createSampleAffiliateProgramRepository(),
     affiliateLinks: createSampleAffiliateLinkRepository(),
     conversions: createSampleConversionRepository(),
+    // ★ 見本データ（スタブ）。貼り付けられた成果リンクの受信箱。
+    //   入れたリンクはこの場にだけ残り、しばらくすると消える（link_ingestions テーブル待ち）。
+    linkInbox: createSampleLinkIngestionRepository(),
   };
 }

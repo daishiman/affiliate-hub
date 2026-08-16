@@ -57,7 +57,10 @@ export type AffiliateAccountId = Tagged<string, "AffiliateAccountId">;
 export type AffiliateProgramId = Tagged<string, "AffiliateProgramId">;
 export type AffiliateLinkId = Tagged<string, "AffiliateLinkId">;
 export type ConversionId = Tagged<string, "ConversionId">;
+/** ASP からの成果データ取り込みの実行記録。 */
 export type AffiliateIngestionId = Tagged<string, "AffiliateIngestionId">;
+/** 受信箱に入った成果リンク 1 件。上の取込とは別物なので ID も分ける。 */
+export type LinkIngestionId = Tagged<string, "LinkIngestionId">;
 
 // Compliance
 export type DisclosureId = Tagged<string, "DisclosureId">;

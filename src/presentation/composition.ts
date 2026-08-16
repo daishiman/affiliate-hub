@@ -46,6 +46,13 @@ import {
   createListProductLinksUseCase,
 } from "@/application/usecases/monetization/manage-affiliate";
 import {
+  createListLinkInboxUseCase,
+  createMatchLinkIngestionUseCase,
+  createRejectLinkIngestionUseCase,
+  createResolveLinkIngestionUseCase,
+  createSubmitAffiliateUrlUseCase,
+} from "@/application/usecases/monetization/manage-link-inbox";
+import {
   createGetSettingsOverviewUseCase,
   createListAuditLogUseCase,
   createListBrandsUseCase,
@@ -79,6 +86,7 @@ import {
   sampleAffiliateNotice,
 } from "@/infrastructure/persistence/sample/affiliate-sample-repository";
 import { sampleAnalyticsNotice } from "@/infrastructure/persistence/sample/analytics-sample-repository";
+import { sampleLinkInboxNotice } from "@/infrastructure/persistence/sample/link-inbox-sample-repository";
 import { sampleProductNotice } from "@/infrastructure/persistence/sample/product-sample-repository";
 import { sampleSettingsNotice } from "@/infrastructure/persistence/sample/settings-sample-repository";
 import {
@@ -344,6 +352,34 @@ export function affiliateUseCases() {
     listProductLinks: createListProductLinksUseCase(affiliate),
     adjustConversion: createAdjustConversionUseCase(affiliate),
   };
+}
+
+/**
+ * 成果リンク受信箱の入口。
+ *
+ * 貼り付け・広告主の確定・商品との結びつけ・対象外にする、の 4 つ。
+ * 画面のボタンも、AI 向けのツールも、REST も、ここから同じものを取る。
+ */
+export function linkInboxUseCases() {
+  const deps = createDeps();
+  const inbox = {
+    inbox: deps.linkInbox,
+    programs: deps.affiliatePrograms,
+    ids: deps.ids,
+    events: deps.events,
+  };
+  return {
+    list: createListLinkInboxUseCase(inbox),
+    submit: createSubmitAffiliateUrlUseCase(inbox),
+    resolve: createResolveLinkIngestionUseCase(inbox),
+    match: createMatchLinkIngestionUseCase(inbox),
+    reject: createRejectLinkIngestionUseCase(inbox),
+  };
+}
+
+/** 受信箱が見本データ（この場限り）であることを画面に出すための一文。 */
+export function linkInboxNotice(): string {
+  return sampleLinkInboxNotice();
 }
 
 /**
