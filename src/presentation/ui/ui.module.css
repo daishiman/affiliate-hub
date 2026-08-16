@@ -1,0 +1,411 @@
+/*
+ * 共通部品のスタイル。
+ *
+ * 値はすべて tokens.css の変数を参照する。ここに色コードを直接書かない。
+ * 画面側にもスタイルを書かない。書き始めた時点で「同じボタンなのに画面ごとに違う」
+ * が始まる。
+ */
+
+/* --- ボタン ------------------------------------------------------------- */
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  min-height: var(--tap-target-min);
+  padding: var(--space-2) var(--space-4);
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+  font-size: var(--text-base);
+  font-weight: 600;
+  line-height: 1.4;
+  cursor: pointer;
+  transition:
+    background-color var(--motion-fast) var(--motion-ease),
+    border-color var(--motion-fast) var(--motion-ease);
+}
+
+.button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+/* 主操作。1 画面に 1 つだけ。複数あると「どれを押せばよいか」が消える。 */
+.buttonPrimary {
+  background: var(--primary);
+  color: var(--text-on-primary);
+}
+.buttonPrimary:hover:not(:disabled) {
+  background: var(--primary-hover);
+}
+.buttonPrimary:active:not(:disabled) {
+  background: var(--primary-active);
+}
+
+.buttonSecondary {
+  background: var(--surface-base);
+  border-color: var(--border-default);
+  color: var(--text-default);
+}
+.buttonSecondary:hover:not(:disabled) {
+  background: var(--surface-raised);
+  border-color: var(--border-strong);
+}
+
+.buttonQuiet {
+  background: transparent;
+  color: var(--text-muted);
+}
+.buttonQuiet:hover:not(:disabled) {
+  background: var(--surface-raised);
+  color: var(--text-default);
+}
+
+/* 取り消せない操作。押す前に確認を出す前提で使う。 */
+.buttonDanger {
+  background: var(--surface-base);
+  border-color: var(--danger);
+  color: var(--danger);
+}
+.buttonDanger:hover:not(:disabled) {
+  background: var(--danger-subtle);
+}
+
+/* 実行中。accent は「いま動いている」を表す役割に固定する。 */
+.buttonBusy {
+  background: var(--accent-subtle);
+  border-color: var(--accent-border);
+  color: var(--text-on-accent);
+}
+
+.spinner {
+  width: 1em;
+  height: 1em;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  animation: spin 700ms linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* --- 入力欄 ------------------------------------------------------------- */
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  margin-bottom: var(--space-4);
+}
+
+.label {
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--text-strong);
+}
+
+.optional {
+  margin-left: var(--space-2);
+  font-weight: 400;
+  color: var(--text-muted);
+}
+
+.input {
+  min-height: var(--tap-target-min);
+  padding: var(--space-2) var(--space-3);
+  background: var(--surface-base);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
+  color: var(--text-default);
+  font-size: var(--text-base);
+}
+
+.input::placeholder {
+  color: var(--text-muted);
+}
+
+.inputInvalid {
+  border-color: var(--danger);
+}
+
+/* 自動で入った値。手で入れた値と見た目で区別する。 */
+.inputAuto {
+  background: var(--surface-raised);
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+.hint {
+  font-size: var(--text-sm);
+  color: var(--text-muted);
+  line-height: var(--leading-body);
+}
+
+.error {
+  font-size: var(--text-sm);
+  color: var(--danger);
+  line-height: var(--leading-body);
+}
+
+.autoNote {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+}
+
+.resetToAuto {
+  background: none;
+  border: none;
+  padding: 0;
+  color: var(--info);
+  font-size: var(--text-xs);
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+/* --- 説明ブロック ------------------------------------------------------- */
+
+.callout {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-4);
+  border-left: 3px solid;
+  border-radius: var(--radius-sm);
+  font-size: var(--text-sm);
+  line-height: var(--leading-body);
+}
+
+.calloutInfo {
+  background: var(--info-subtle);
+  border-color: var(--info);
+  color: var(--text-default);
+}
+.calloutWarn {
+  background: var(--accent-subtle);
+  border-color: var(--accent-border);
+  color: var(--text-on-accent);
+}
+.calloutDanger {
+  background: var(--danger-subtle);
+  border-color: var(--danger);
+  color: var(--text-default);
+}
+.calloutSuccess {
+  background: var(--success-subtle);
+  border-color: var(--success);
+  color: var(--text-default);
+}
+
+.calloutTitle {
+  font-weight: 700;
+  color: var(--text-strong);
+}
+
+.calloutAction {
+  align-self: flex-start;
+}
+
+/* --- 4 つの状態 --------------------------------------------------------- */
+
+.state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-7) var(--space-4);
+  text-align: center;
+  color: var(--text-muted);
+}
+
+.stateTitle {
+  font-size: var(--text-lg);
+  font-weight: 700;
+  color: var(--text-strong);
+}
+
+.stateBody {
+  max-width: 34rem;
+  font-size: var(--text-base);
+  line-height: var(--leading-body);
+}
+
+.skeleton {
+  width: 100%;
+  max-width: 34rem;
+  height: 1rem;
+  background: linear-gradient(
+    90deg,
+    var(--surface-sunken) 25%,
+    var(--surface-raised) 50%,
+    var(--surface-sunken) 75%
+  );
+  background-size: 200% 100%;
+  border-radius: var(--radius-sm);
+  animation: shimmer 1.4s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+  to {
+    background-position: -200% 0;
+  }
+}
+
+/* --- 画面の骨格 --------------------------------------------------------- */
+
+.shell {
+  display: grid;
+  grid-template-columns: 15rem 1fr;
+  min-height: 100dvh;
+  background: var(--surface-sunken);
+}
+
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-4);
+  background: var(--surface-base);
+  border-right: 1px solid var(--border-subtle);
+}
+
+.brandName {
+  margin-bottom: var(--space-4);
+  font-size: var(--text-lg);
+  font-weight: 700;
+  color: var(--text-strong);
+}
+
+.navLink {
+  display: block;
+  min-height: var(--tap-target-min);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-md);
+  color: var(--text-default);
+  font-size: var(--text-sm);
+  line-height: var(--tap-target-min);
+  text-decoration: none;
+}
+
+.navLink:hover {
+  background: var(--surface-raised);
+}
+
+/* 現在地。色だけでなく太字でも示す (色が見えない人にも伝わるように)。 */
+.navLinkCurrent {
+  background: var(--primary-subtle);
+  font-weight: 700;
+  color: var(--text-strong);
+}
+
+.main {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+/* 現在地と退避先は常に見える位置に固定する。 */
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding: var(--space-3) var(--space-5);
+  background: var(--surface-base);
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--text-sm);
+  color: var(--text-muted);
+}
+
+.breadcrumbCurrent {
+  font-weight: 700;
+  color: var(--text-strong);
+}
+
+.headerActions {
+  display: flex;
+  gap: var(--space-2);
+}
+
+.content {
+  flex: 1;
+  padding: var(--space-5);
+}
+
+.page {
+  max-width: 64rem;
+  margin: 0 auto;
+}
+
+.pageTitle {
+  margin: 0 0 var(--space-2);
+  font-size: var(--text-2xl);
+  font-weight: 700;
+  line-height: var(--leading-heading);
+  color: var(--text-strong);
+}
+
+.pageLead {
+  margin: 0 0 var(--space-5);
+  font-size: var(--text-base);
+  line-height: var(--leading-body);
+  color: var(--text-muted);
+}
+
+.card {
+  padding: var(--space-5);
+  background: var(--surface-base);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-raised);
+}
+
+/* 狭い画面。左の一覧は上へ回り込ませ、退避先は残す。 */
+@media (max-width: 48rem) {
+  .shell {
+    grid-template-columns: 1fr;
+  }
+
+  .sidebar {
+    flex-direction: row;
+    overflow-x: auto;
+    border-right: none;
+    border-bottom: 1px solid var(--border-subtle);
+  }
+
+  .brandName {
+    display: none;
+  }
+
+  .content {
+    padding: var(--space-4) var(--space-3);
+  }
+}
+
+/* 目には見えないが読み上げには届く文言。 */
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
