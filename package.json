@@ -9,6 +9,7 @@
     "lint": "eslint",
     "typecheck": "next typegen && tsc --noEmit",
     "test": "vitest run",
+    "test:coverage": "vitest run --coverage",
     "test:watch": "vitest",
     "preview": "opennextjs-cloudflare build && opennextjs-cloudflare preview",
     "deploy:dev": "opennextjs-cloudflare build && opennextjs-cloudflare deploy -- --env dev",
@@ -17,7 +18,8 @@
     "db:generate": "drizzle-kit generate",
     "db:migrate:local": "wrangler d1 migrations apply DB --env dev --local",
     "db:migrate:dev": "wrangler d1 migrations apply DB --env dev --remote",
-    "db:migrate:prod": "wrangler d1 migrations apply DB --env production --remote"
+    "db:migrate:prod": "wrangler d1 migrations apply DB --env production --remote",
+    "verify": "node scripts/verify.mjs"
   },
   "dependencies": {
     "@opennextjs/cloudflare": "^1.20.2",

@@ -94,8 +94,9 @@ export const STUB_PATTERNS = [
  * テストが通りやすく分母も小さい。放っておくと、ここを厚くするだけで
  * 全体の数字が上がっていく。**その差の広がりが数字合わせの兆候**である。
  *
- * 2026-08-17 の起点は +1.14pt（全体 50.85% / 実質 49.71%）。
- * これが広がる方向へ動いたら、テストを足す場所を間違えている。
+ * 起点は +11.55pt（実質 51.92% / スタブ 63.47%）で、
+ * 画面の総当たり描画を入れた時点で +0.7pt まで縮んだ。
+ * 差が広がる方向へ動いたら、テストを足す場所を間違えている。
  */
 export const MAX_STUB_GAP_POINTS = 3;
 
@@ -157,7 +158,7 @@ export const RELEASE_GATES = [
   { id: "critical-zero", label: "セキュリティ監査の CRITICAL が 0 件" },
 ];
 
-export default {
+const qualityGates = {
   GLOBAL_COVERAGE,
   LAYER_COVERAGE,
   STUB_PATTERNS,
@@ -165,3 +166,5 @@ export default {
   CHECKS,
   RELEASE_GATES,
 };
+
+export default qualityGates;
