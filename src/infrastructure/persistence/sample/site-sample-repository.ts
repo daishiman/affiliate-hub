@@ -128,9 +128,55 @@ const SMALL_KITCHEN = build(SECOND_SITE_SLUG, {
   },
 });
 
+/**
+ * 3 本目。変更容易性シナリオ⑪の実測のために足した。
+ *
+ * 足したのはこの定数 1 つと、下の一覧の 1 行だけ。
+ * 画面・部品・ルート表・テーマは 1 行も触っていない
+ * （docs/architecture/changeability-scenarios.md ⑪ に実測を記録）。
+ */
+export const THIRD_SITE_SLUG = "first-home-appliances";
+
+const FIRST_HOME = build(THIRD_SITE_SLUG, {
+  name: "はじめての家電",
+  pattern: "beginner_guide",
+  purpose: "一人暮らしを始める人が、最初に買う家電で失敗しないようにする",
+  genre: "生活家電",
+  revenueModel: "affiliate",
+  extraPages: ["search", "authors"],
+  categories: [
+    {
+      slug: "washing-machines",
+      name: "洗濯機",
+      oneLine: "設置場所の蛇口の高さと排水口の位置から選ぶ洗濯機。",
+      initialArticleTypes: ["guide", "comparison"],
+    },
+    {
+      slug: "refrigerators",
+      name: "冷蔵庫",
+      oneLine: "自炊の頻度から必要な大きさを決める冷蔵庫。",
+      initialArticleTypes: ["guide", "ranking"],
+    },
+  ],
+  theme: { brandTheme: "indigo-teal", colorScheme: "light" },
+  differentiation: {
+    targetReader: "初めて一人暮らしをする 18〜25 歳",
+    searchIntent: "何を基準に選べばよいか自体が分からない",
+    articlePurpose: "選ぶ基準そのものを先に理解させる",
+    evaluationAxis: "設置条件（搬入経路・蛇口の高さ・電源）を満たすか",
+    usageScene: "入居前に採寸せずに買おうとしている",
+    uniqueExperience: "入居前の採寸手順を写真つきで示した独自の手引き",
+    comparisonScope: "単身向けの容量帯に限定",
+    conclusionStance: "1 台に絞らず、条件別に分岐して示す",
+    internalLinkStrategy: "選び方の記事から比較記事へ落とす",
+    ctaStrategy: "配送日と設置費を確認できる販売ページのみ",
+  },
+});
+
 const SITES: readonly { readonly slug: string; readonly blueprint: SiteBlueprint }[] = [
   { slug: SAMPLE_SITE_SLUG, blueprint: VIDEO_EDITING },
   { slug: SECOND_SITE_SLUG, blueprint: SMALL_KITCHEN },
+  { slug: THIRD_SITE_SLUG, blueprint: FIRST_HOME },
 ];
 
 export function sampleSiteNotice(): string {
