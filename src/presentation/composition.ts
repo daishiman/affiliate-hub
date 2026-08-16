@@ -53,6 +53,8 @@ import {
 import { createFilterMetricsUseCase } from "@/application/usecases/analytics/filter-metrics";
 import { createAiUsageReportUseCase } from "@/application/usecases/analytics/ai-usage-report";
 import { createExplainTelemetryUseCase } from "@/application/usecases/analytics/explain-telemetry";
+import { createReviewLoopRunsUseCase } from "@/application/usecases/improvement/review-loop-runs";
+import { createListImprovementDimensionsUseCase } from "@/application/usecases/improvement/list-improvement-dimensions";
 import {
   createCheckGenerationInputUseCase,
   createReadGenerationPlanUseCase,
@@ -110,6 +112,7 @@ import type { ActorContext } from "@/domain/shared";
 import { taggedString } from "@/domain/shared";
 import { createDeps } from "@/infrastructure/composition";
 import { telemetryStubNotice } from "@/infrastructure/persistence/sample/telemetry-sample-sink";
+import { improvementStubNotice } from "@/infrastructure/persistence/sample/improvement-sample-repository";
 import { sampleContentNotice } from "@/infrastructure/persistence/sample/content-sample-repository";
 import { sampleSiteDraftNotice } from "@/infrastructure/persistence/sample/site-draft-sample-repository";
 import { getCurrentActor, sampleActorNotice } from "@/infrastructure/identity/sample-actor";
@@ -587,6 +590,25 @@ export function telemetryUseCases() {
 /** 計測の記録先が仮置きであることを画面に出すための一文。 */
 export function telemetryNotice(): string {
   return telemetryStubNotice();
+}
+
+/**
+ * 改善ループの入口。
+ *
+ * 2 つとも**軸の中身を知らない**。色の実験も構成の実験も同じ道を通る。
+ * 軸を 1 つ足したときにここが変わるなら、汎用のループになっていない。
+ */
+export function improvementUseCases() {
+  const deps = { repository: createDeps().improvement };
+  return {
+    review: createReviewLoopRunsUseCase(deps),
+    dimensions: createListImprovementDimensionsUseCase(deps),
+  };
+}
+
+/** 改善ループの記録先が見本であることを画面に出すための一文。 */
+export function improvementNotice(): string {
+  return improvementStubNotice();
 }
 
 /**

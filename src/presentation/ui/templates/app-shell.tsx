@@ -51,6 +51,7 @@ export const ADMIN_NAV: readonly NavItem[] = [
   { href: "/admin/inbox", label: "成果リンクの受信箱", requires: "affiliate.read_revenue" },
   { href: "/admin/analytics", label: "数字", requires: "analytics.read" },
   { href: "/admin/ai-usage", label: "AI の利用と費用", requires: "analytics.read" },
+  { href: "/admin/improvement", label: "改善の状況", requires: "analytics.read" },
   { href: "/admin/tools", label: "AI から使える道具", requires: "content.read" },
   { href: "/admin/ui-catalog", label: "画面部品の見本", requires: "content.read" },
   { href: "/admin/settings", label: "設定", requires: "content.read" },

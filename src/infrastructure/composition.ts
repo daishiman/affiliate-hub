@@ -36,6 +36,7 @@ import {
   createSampleMetricsRepository,
 } from "./persistence/sample/analytics-sample-repository";
 import { createSampleTelemetrySink } from "./persistence/sample/telemetry-sample-sink";
+import { createSampleImprovementRepository } from "./persistence/sample/improvement-sample-repository";
 import {
   createSampleAffiliateAccountRepository,
   createSampleAffiliateLinkRepository,
@@ -106,6 +107,9 @@ export function createDeps(options: { readonly db?: DrizzleD1 | null } = {}): Ap
     // ★ 仮置き（スタブ）。この実行中だけ覚える。telemetry_events テーブルが
     //   できたらこの 1 行を差し替える。画面もイベントの形も変わらない。
     telemetry: createSampleTelemetrySink(),
+    // ★ 見本データ（スタブ）。改善ループの記録と見せ方の設定。
+    //   読み出しは見本を返し、保存は失敗を返す（保存できたことにしない）。
+    improvement: createSampleImprovementRepository(),
     // ★ 見本データ（スタブ）。作業場所・担当者・ブランド・広告表記・操作の記録。
     //   本物にするには認証（Better Auth + Google）と各テーブルが要る。
     workspaces: createSampleWorkspaceRepository(),

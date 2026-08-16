@@ -6,7 +6,7 @@
 「スタブ」は、つなぎ目だけあって中身がまだ無いもの。呼ぶと必ず失敗を返す。
 成功したふりをしないので、「つながっているのに結果が空」という分かりにくい壊れ方をしない。
 
-件数: 39
+件数: 40
 
 | 識別子 | 何のスタブか | つなぎ目 | 何が済めば実装できるか |
 |---|---|---|---|
@@ -38,6 +38,7 @@
 | `persistence:content-editorial-sample` | 記事と書き手（見本データ） | 記事・企画・書き手の保存先 | content_packages / content_variants / personas テーブルの追加とマイグレーション |
 | `persistence:content-sample` | 公開記事の保存先（見本データ） | PublishedContentPort | content_packages / published_articles テーブルの追加とマイグレーション |
 | `persistence:distribution-sample` | 配信（見本データ） | 配信先の接続と配信記録の保存先 | channel_connections / publications テーブルの追加と、各サービスの接続設定（利用者本人による認証） |
+| `persistence:improvement-sample` | 改善ループの記録（見本データ。保存はできません） | 改善ループの記録先 | variant_specs / loop_runs / loop_observations テーブルの追加 |
 | `persistence:link-inbox-sample` | 受信箱（見本データ・この場限り） | 成果リンク受信箱の保存先 | link_ingestions テーブルの追加と D1 への接続 |
 | `persistence:product-sample` | 商品と根拠（見本データ） | 商品・主張・根拠・検証記録の保存先 | products / claims / evidence / test_runs テーブルの追加とマイグレーション |
 | `persistence:ranking-sample` | ランキングの保存先（見本データ） | EditorialRankingModelRepositoryPort / EditorialScoreCardRepositoryPort | ranking_models / score_cards テーブルの追加とマイグレーション |

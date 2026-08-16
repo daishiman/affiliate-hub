@@ -19,6 +19,7 @@ import type {
 } from "./ports/distribution";
 import type { ClickTrackingPort, MetricsRepositoryPort } from "./ports/analytics";
 import type { TelemetrySinkPort } from "./ports/telemetry";
+import type { ImprovementRepositoryPort } from "./ports/improvement";
 import type { EventPublisherPort, IdGeneratorPort } from "./ports/common";
 import type { AuditLogPort, DisclosureRepositoryPort } from "./ports/compliance";
 import type { LlmCostEstimatorPort, LlmPort } from "./ports/llm";
@@ -82,6 +83,13 @@ export type AppDeps = {
    * イベントの形 (domain/analytics/telemetry-events.ts) は変わらない。
    */
   readonly telemetry: TelemetrySinkPort;
+  /**
+   * 改善ループの記録。
+   *
+   * 見せ方の設定・1 周の記録・観測値をまとめて扱う。
+   * 軸が増えてもこの口は増えない（設定は `軸 → 値` の集まりとして 1 つの形で入る）。
+   */
+  readonly improvement: ImprovementRepositoryPort;
   readonly workspaces: WorkspaceRepositoryPort;
   readonly memberships: MembershipRepositoryPort;
   readonly brands: BrandRepositoryPort;

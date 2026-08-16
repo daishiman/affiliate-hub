@@ -5,6 +5,7 @@ export * from "./compliance";
 export * from "./distribution";
 export * from "./evidence";
 export * from "./identity";
+export * from "./improvement";
 export * from "./llm";
 export * from "./monetization";
 export * from "./product";
