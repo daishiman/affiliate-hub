@@ -1,0 +1,40 @@
+{
+  "contract_version": "1.0.0",
+  "artifacts": {
+    "index": "system-spec/index.md",
+    "requirements": "system-spec/00-requirements-definition.md",
+    "completeness": "system-spec/completeness-report.json"
+  },
+  "evidence_artifact": "completeness",
+  "output_order": ["architecture", "specification"],
+  "nodes": {
+    "architecture": {
+      "graph_node_id": "arch-system-spec-overview",
+      "artifact_kind": "architecture",
+      "artifact_subtypes": ["backend", "data", "security"],
+      "title": "system-spec architecture overview",
+      "source_artifact": "requirements",
+      "file_path": "architecture/system-spec-overview.md",
+      "architecture_refs": [],
+      "purpose": "確定済み system-spec の architecture context を参照可能にする。",
+      "goal": "仕様由来の architecture context を feature から参照できる状態。",
+      "scope_in": ["confirmed system-spec requirements artifact"],
+      "acceptance": ["source lineage と evaluator evidence を保持する", "C02 でのみ登録する"],
+      "classification_reason": "system-spec-harness が確定した architecture context の import。"
+    },
+    "specification": {
+      "graph_node_id": "spec-system-spec-index",
+      "artifact_kind": "specification",
+      "artifact_subtypes": ["api", "backend", "data", "security"],
+      "title": "system-spec compiled specification",
+      "source_artifact": "index",
+      "file_path": "specs/system-spec-index.md",
+      "architecture_refs": ["arch-system-spec-overview"],
+      "purpose": "確定済み system-spec の index を参照可能にする。",
+      "goal": "仕様と architecture context を source lineage 付きで結ぶ。",
+      "scope_in": ["confirmed system-spec index artifact"],
+      "acceptance": ["source lineage と evaluator evidence を保持する", "architecture node を参照する"],
+      "classification_reason": "system-spec-harness が compile した specification index の import。"
+    }
+  }
+}

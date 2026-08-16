@@ -1,0 +1,77 @@
+{
+  "plugins": {
+    "dev-graph": {
+      "committed_at": "2026-08-16T07:53:48+09:00",
+      "harnesshub_commit": "4aa85976f19b57f1b291fa80eae6f58d8ff008c7"
+    },
+    "extract-system-blueprint": {
+      "committed_at": "2026-08-16T07:53:48+09:00",
+      "harnesshub_commit": "4aa85976f19b57f1b291fa80eae6f58d8ff008c7"
+    },
+    "harness-creator": {
+      "committed_at": "2026-08-16T07:53:48+09:00",
+      "harnesshub_commit": "4aa85976f19b57f1b291fa80eae6f58d8ff008c7"
+    },
+    "harness-hub-publisher": {
+      "committed_at": "2026-08-16T07:53:48+09:00",
+      "harnesshub_commit": "4aa85976f19b57f1b291fa80eae6f58d8ff008c7"
+    },
+    "plugin-dev-planner": {
+      "committed_at": "2026-08-16T07:53:48+09:00",
+      "harnesshub_commit": "4aa85976f19b57f1b291fa80eae6f58d8ff008c7"
+    },
+    "prompt-creator": {
+      "committed_at": "2026-08-16T07:53:48+09:00",
+      "harnesshub_commit": "4aa85976f19b57f1b291fa80eae6f58d8ff008c7"
+    },
+    "skill-governance-adapters": {
+      "committed_at": "2026-08-16T07:53:48+09:00",
+      "harnesshub_commit": "4aa85976f19b57f1b291fa80eae6f58d8ff008c7"
+    },
+    "skill-governance-automation": {
+      "committed_at": "2026-08-16T07:53:48+09:00",
+      "harnesshub_commit": "4aa85976f19b57f1b291fa80eae6f58d8ff008c7"
+    },
+    "skill-governance-config": {
+      "committed_at": "2026-08-16T07:53:48+09:00",
+      "harnesshub_commit": "4aa85976f19b57f1b291fa80eae6f58d8ff008c7"
+    },
+    "skill-governance-hooks": {
+      "committed_at": "2026-08-16T07:53:48+09:00",
+      "harnesshub_commit": "4aa85976f19b57f1b291fa80eae6f58d8ff008c7"
+    },
+    "skill-governance-lint": {
+      "committed_at": "2026-08-16T07:53:48+09:00",
+      "harnesshub_commit": "4aa85976f19b57f1b291fa80eae6f58d8ff008c7"
+    },
+    "skill-governance-migration": {
+      "committed_at": "2026-08-16T07:53:48+09:00",
+      "harnesshub_commit": "4aa85976f19b57f1b291fa80eae6f58d8ff008c7"
+    },
+    "skill-governance-secrets": {
+      "committed_at": "2026-08-16T07:53:48+09:00",
+      "harnesshub_commit": "4aa85976f19b57f1b291fa80eae6f58d8ff008c7"
+    },
+    "skill-intake": {
+      "committed_at": "2026-08-16T07:53:48+09:00",
+      "harnesshub_commit": "4aa85976f19b57f1b291fa80eae6f58d8ff008c7"
+    },
+    "slide-report-generator": {
+      "committed_at": "2026-08-16T07:53:48+09:00",
+      "harnesshub_commit": "4aa85976f19b57f1b291fa80eae6f58d8ff008c7"
+    },
+    "spec-drift-guardian": {
+      "committed_at": "2026-08-16T07:53:48+09:00",
+      "harnesshub_commit": "4aa85976f19b57f1b291fa80eae6f58d8ff008c7"
+    },
+    "system-dev-planner": {
+      "committed_at": "2026-08-16T07:53:48+09:00",
+      "harnesshub_commit": "4aa85976f19b57f1b291fa80eae6f58d8ff008c7"
+    },
+    "system-spec-harness": {
+      "committed_at": "2026-08-16T07:53:48+09:00",
+      "harnesshub_commit": "4aa85976f19b57f1b291fa80eae6f58d8ff008c7"
+    }
+  },
+  "source": "/Users/dm/dev/dev/個人開発/HarnessHub"
+}

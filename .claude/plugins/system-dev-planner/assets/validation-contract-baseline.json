@@ -1,0 +1,163 @@
+{
+  "schema_version": "1.0.0",
+  "purpose": "promote 済み content-addressed package へ適用する C12 契約 version の台帳。digest 不変により後追い修正できない既存 generation を、promote 時点で妥当だった契約で再検証するために使う。",
+  "latest_contract_version": "1.3.0",
+  "policy": {
+    "resolution": "canonical_digest は staging-manifest.json の申告値ではなく実ファイル群から再計算した値で照合する (manifest は digest 対象集合の外にあり改ざん可能)。",
+    "fail_closed": "台帳に無い digest、および digest を再計算できない対象は latest_contract_version で検証する。台帳の欠落・削除・改変は緩和経路にならない。",
+    "scope": "免除は契約 version 間で差のある検査 (必須節集合・inner goal-seek marker・P13 writeback・テスト戦略 section・qa semantic coverage・世代非依存 rerun command) にのみ及ぶ。その他の検査は version に関係なく全て実行される。テスト戦略 section については免除されるのは「不在を許すか」だけで、本文が書かれている場合は version に関係なく同じ厳格さで検査する (strict-if-present)。",
+    "amendment": "新規エントリの追加は、当該 digest が (a) 既に promote 済みで、(b) 記載 contract_version で残違反ゼロの pass となることを確認したうえでレビューする。現行契約で pass する package は登録しない。"
+  },
+  "contract_versions": {
+    "1.0.0": {
+      "effective_until": "2026-07-22T13:53:21Z",
+      "description": "367ba5c 以前の C12 契約。必須節 14 件で、Inner goal-seek execution loop 節・system-task-goal-seek/v1 marker・P13 spec/architecture writeback marker を要求しない。"
+    },
+    "1.1.0": {
+      "effective_from": "2026-07-22T13:53:21Z",
+      "effective_until": "2026-07-25T00:00:00Z",
+      "introduced_by": "367ba5c",
+      "description": "必須節 15 件に加え、全 13 task spec へ portable methodology marker と rubric verdict=PASS の feedback loop、P13 へ spec/architecture writeback を fail-closed で要求する。テスト戦略 section と qa semantic coverage 導入前の契約。"
+    },
+    "1.2.0": {
+      "effective_from": "2026-07-25T00:00:00Z",
+      "effective_until": "2026-08-02T00:00:00Z",
+      "description": "v1.1.0 の検査に加え、全 13 task spec へ `## テスト戦略` (テストレベル選定・カバレッジ目標・層別方針・保守性制約の 4 項目を固定順) を要求し、feature の qa tag を spec-state lineage、goal-spec の意味被覆、exact-13 task trace と照合する qa semantic coverage も fail-closed で要求する。task spec 本文の再実行コマンド形式は未検査。"
+    },
+    "1.3.0": {
+      "effective_from": "2026-08-02T00:00:00Z",
+      "description": "現行 C12 契約。v1.2.0 の検査に加え、task spec 本文が validate-system-plan.py を実行コマンドとして提示する場合、promotion の atomic rename 後に解決できない --staging を禁止し、世代非依存の --feature-package <自 package の feature_package_id> を要求する (HarnessHub-ji8y)。散文中の script 名への言及は対象外で、fenced block と inline code span だけをコマンドとみなす。"
+    }
+  },
+  "packages": [
+    {
+      "canonical_digest": "sha256:98fd3cc31bb17e536f40d38cc09ef8c21116bae295e33adcd2c40df83b977f52",
+      "contract_version": "1.0.0",
+      "feature_package_id": "feature-package/feat-auth-tenancy",
+      "promoted_at": "2026-07-19T14:10:09Z"
+    },
+    {
+      "canonical_digest": "sha256:e14cceb426097994f4ba32885ed65ac825b5ce60e3a3a552f1ef1fe146e879b9",
+      "contract_version": "1.0.0",
+      "feature_package_id": "feature-package/feat-build-pipeline-board",
+      "promoted_at": "2026-07-19T14:10:56Z"
+    },
+    {
+      "canonical_digest": "sha256:a899e69eb999800a5869499783aad943cea65d394af3e3046fd6631532cf3a85",
+      "contract_version": "1.0.0",
+      "feature_package_id": "feature-package/feat-docs-cms",
+      "promoted_at": "2026-07-19T14:11:41Z"
+    },
+    {
+      "canonical_digest": "sha256:6ac94e1d58326eb092a3e9e7b3a139d4041a0a2988faa3266e4a4eaceb84a73b",
+      "contract_version": "1.0.0",
+      "feature_package_id": "feature-package/feat-domain-model-db",
+      "promoted_at": "2026-07-19T14:12:28Z"
+    },
+    {
+      "canonical_digest": "sha256:7069e34892e25830493bc3b3164f5ebba8dbf911c5054e3308bc0d6261f17817",
+      "contract_version": "1.0.0",
+      "feature_package_id": "feature-package/feat-dual-catalog-web",
+      "promoted_at": "2026-07-19T14:13:14Z"
+    },
+    {
+      "canonical_digest": "sha256:aef91f0231dbd92a359c36fe52de9defa3e85b99c9ad530b2173311cb6611927",
+      "contract_version": "1.0.0",
+      "feature_package_id": "feature-package/feat-feedback-loop",
+      "promoted_at": "2026-07-19T14:14:11Z"
+    },
+    {
+      "canonical_digest": "sha256:61fac79fec00ca6a6788ee4aa0ed2152e1ded2451ce3d8633e88c09149c96db5",
+      "contract_version": "1.0.0",
+      "feature_package_id": "feature-package/feat-hearing-intake",
+      "promoted_at": "2026-07-19T14:14:59Z"
+    },
+    {
+      "canonical_digest": "sha256:8735bb1680e29f961a3e76fc33b07944368946f486875f20e2ce77007c81b502",
+      "contract_version": "1.0.0",
+      "feature_package_id": "feature-package/feat-hub-foundation",
+      "promoted_at": "2026-07-19T14:15:47Z"
+    },
+    {
+      "canonical_digest": "sha256:03748912dcca192a93a170dc232cb8b619fefef16da2fbe0a4f11d7e0d093256",
+      "contract_version": "1.0.0",
+      "feature_package_id": "feature-package/feat-metrics-tracking",
+      "promoted_at": "2026-07-19T14:16:35Z"
+    },
+    {
+      "canonical_digest": "sha256:fd3d49521dee4c5aaf2a76aed0ca06341b7e11bbb17c483c8cfc34fbec114d3b",
+      "contract_version": "1.0.0",
+      "feature_package_id": "feature-package/feat-publish-pipeline",
+      "promoted_at": "2026-07-19T14:17:23Z"
+    },
+    {
+      "canonical_digest": "sha256:b98891c25036105636bb3f660873c81b1af6c08410f5bf1a88a43c3932eed2df",
+      "contract_version": "1.0.0",
+      "feature_package_id": "feature-package/feat-publisher-plugin",
+      "promoted_at": "2026-07-19T14:18:12Z"
+    },
+    {
+      "canonical_digest": "sha256:30b40c7f947918bd751c6a32832ea781ff6b7d8d7449d2a975c93bfc6134d00b",
+      "contract_version": "1.0.0",
+      "feature_package_id": "feature-package/feat-stage0-distribution-gate",
+      "promoted_at": "2026-07-19T14:19:08Z"
+    },
+    {
+      "canonical_digest": "sha256:7cc4cbbe32bcbdf9d8a69c1305cdfca81fe60bd36da2338c2619c1d3323142c1",
+      "contract_version": "1.0.0",
+      "feature_package_id": "feature-package/feat-tenant-data-retention",
+      "promoted_at": "2026-07-19T14:19:56Z"
+    },
+    {
+      "canonical_digest": "sha256:2b8b98b7ea12e01a3628583051d98647558e7cae652c5e38aee39a4e87046b14",
+      "contract_version": "1.0.0",
+      "feature_package_id": "feature-package/feat-user-org-admin",
+      "promoted_at": "2026-07-19T14:20:53Z"
+    },
+    {
+      "canonical_digest": "sha256:b9e6253a594b533507a73c4eb38c33f2b2fb08c8474e2ec0053aa4941e943b10",
+      "contract_version": "1.0.0",
+      "feature_package_id": "feature-package/feat-workspace-governance",
+      "promoted_at": "2026-07-19T14:21:39Z"
+    },
+    {
+      "canonical_digest": "sha256:f9dcb78262870bf542c4200647b2dd9f0e5c14a882c928a4554d5e9d67dd2e9f",
+      "contract_version": "1.0.0",
+      "feature_package_id": "feature-package/feat-dev-pipeline-improvement",
+      "promoted_at": "2026-07-21T15:39:16Z"
+    },
+    {
+      "canonical_digest": "sha256:d33c318dbf7cf3f407daf50b396531f67b365d7d8743146223f46224a8958aee",
+      "contract_version": "1.0.0",
+      "feature_package_id": "feature-package/feat-doc-governance-portability",
+      "promoted_at": "2026-07-22T02:31:19Z"
+    },
+    {
+      "canonical_digest": "sha256:9be3809dad465db6de2af20a8b475ae4d9e01d0abe544d5592f3cdf7de91a33b",
+      "contract_version": "1.0.0",
+      "feature_package_id": "feature-package/feat-dev-pipeline-improvement",
+      "promoted_at": "2026-07-22T04:16:31Z"
+    },
+    {
+      "canonical_digest": "sha256:55a34fe2a62841c0175b568204b4a1fde8e1fd04d1c0496bb4e0444e3cf86387",
+      "contract_version": "1.1.0",
+      "feature_package_id": "feature-package/feat-mvp-first-scheduling",
+      "promoted_at": "2026-07-23T07:08:08Z",
+      "note": "契約 1.2.0 (テスト戦略 section 必須化) より前に promote された世代。1.1.0 で残違反ゼロを実測確認済み。"
+    },
+    {
+      "canonical_digest": "sha256:7d185f453466523edcc7c6071fde7c24001612da367de329c10ba13c82a43bae",
+      "contract_version": "1.1.0",
+      "feature_package_id": "feature-package/feat-task-spec-test-strategy",
+      "promoted_at": "2026-07-24T23:09:08Z",
+      "note": "契約 1.2.0 を導入した feature 自身の実行計画 package。テスト戦略 section を必須化する実装より前に promote されており (bootstrap)、digest 不変ゆえ遡及追記できないため 1.1.0 で再検証する。1.1.0 で残違反ゼロを実測確認済み。"
+    },
+    {
+      "canonical_digest": "sha256:af8a73df2d7518c1dcfb972254b44ca993801e7ddac1dd1f98ab60e7d1affda6",
+      "contract_version": "1.1.0",
+      "feature_package_id": "feature-package/feat-dev-pipeline-improvement",
+      "promoted_at": "2026-07-25T16:38:15Z",
+      "note": "qa-071 semantic coverage tooling で再 plan・promote 済みの世代。並行開発された契約 1.2.0 のテスト戦略 section 必須化が後から main に統合されたため、promote 済み digest を遡及変更せず 1.1.0 で再検証する。qa-071 の登録・goal 被覆・exact-13 trace は promotion 時の contract 1.2.0 validation で violations 0 を実測済み。1.1.0 で残違反ゼロも再確認済み。"
+    }
+  ]
+}

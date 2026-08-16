@@ -1,0 +1,41 @@
+{
+  "references": [
+    {
+      "target_id": "postgres",
+      "source_url": "https://www.postgresql.org/docs/16/",
+      "official_host": "www.postgresql.org",
+      "official_publisher": "PostgreSQL Global Development Group",
+      "version": "16.1",
+      "last_updated": "2026-05-10",
+      "retrieved_at": "2026-07-11T00:00:00Z",
+      "latest_checked_at": "2026-07-11T00:00:00Z",
+      "evidence_ref": "examples/fixture-evidence/postgres.md",
+      "evidence_sha256": "57240f27db4cb7a1823b66b9c1c8fb3ca12d1bcdecc9f01537ddd9442120724e",
+      "summary": "PostgreSQL 16 公式ドキュメント"
+    },
+    {
+      "target_id": "react",
+      "source_url": "https://react.dev/reference/react",
+      "official_host": "react.dev",
+      "official_publisher": "Meta",
+      "version": "19.0",
+      "retrieved_at": "2026-07-11T00:05:00Z",
+      "latest_checked_at": "2026-07-11T00:05:00Z",
+      "evidence_ref": "examples/fixture-evidence/react.md",
+      "evidence_sha256": "b4b7877d44371494b01f2a46d9f71f441b20efc52a412e089a1fc2e6222723e6",
+      "summary": "React 19 公式リファレンス"
+    },
+    {
+      "target_id": "nodejs",
+      "source_url": "https://nodejs.org/docs/latest/api/",
+      "official_host": "nodejs.org",
+      "official_publisher": "OpenJS Foundation",
+      "version": "22.0",
+      "retrieved_at": "2026-07-11T00:10:00Z",
+      "latest_checked_at": "2026-07-11T00:10:00Z",
+      "evidence_ref": "examples/fixture-evidence/nodejs.md",
+      "evidence_sha256": "fd2a9323f5d2683e0632ff265fdf57955d1e0b21db744125c438c005bc1e112d",
+      "summary": "Node.js 22 公式 API ドキュメント"
+    }
+  ]
+}

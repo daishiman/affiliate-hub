@@ -16,6 +16,9 @@ const eslintConfig = defineConfig([
     "cloudflare-env.d.ts",
     ".open-next/**",
     ".wrangler/**",
+    // HarnessHub からベンダリングしたプラグイン。上流が真実源で本リポジトリでは編集しない
+    // (更新は .claude/scripts/sync-plugins.sh)。lint して直すと次の同期で消える。
+    ".claude/plugins/**",
   ]),
 ]);
 
