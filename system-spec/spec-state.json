@@ -1,0 +1,1824 @@
+{
+  "schema_version": "1.2",
+  "design_application_contract_version": "1.0",
+  "lifecycle": {
+    "status_semantics": {
+      "requirement_status": [
+        "draft",
+        "approved",
+        "superseded"
+      ],
+      "document_status": [
+        "draft",
+        "approved",
+        "generated",
+        "stale"
+      ],
+      "implementation_status": [
+        "not_started",
+        "partial",
+        "implemented"
+      ],
+      "verification_status": [
+        "unverified",
+        "pass",
+        "fail",
+        "stale"
+      ]
+    },
+    "confirmed_semantics": "matrix.state=確定 と frontmatter status=confirmed は要求判断の収集済みのみを表し、文書承認・実装完了・検証合格を表さない",
+    "normative_precedence": [
+      "docs/spec/01-要求仕様書-v1.0.md: 上位要求・共通ドメイン・全体受入条件",
+      "docs/spec/03-分析・解析基盤仕様.md: Analytics機能・データ契約の詳細正本",
+      "docs/spec/02-補充仕様-ギャップと追加要件.md: 差分・決定・移行台帳",
+      "system-spec/spec-state.json: 収集・承認・追跡・レビュー証跡の機械可読正本",
+      "system-spec/*.md: 上記を実装へ投影する非規範の技術ビュー"
+    ],
+    "generated_artifact_rule": "派生成果物は入力hashと生成時刻を持つ。hash不一致または入力更新後はdocument_status/verification_statusをstaleとし、PASSを主張しない",
+    "qa_log_semantics": "qa_logは収集時点の質問・回答・source hashを保持する履歴であり、現在の規範本文ではない。後続review_runで修正された過剰表現や旧schemaはreview_runのsource hashとchange_catalogを優先する"
+  },
+  "implementation_snapshot": {
+    "captured_at": "2026-08-16T00:00:00+09:00",
+    "basis": [
+      "src/db/schema.ts",
+      "src/lib/mcp/specs.ts",
+      "src/lib/mcp/tools.ts",
+      "src/lib/webmcp/client.ts",
+      "src/app/page.tsx",
+      "wrangler.jsonc",
+      "package.json"
+    ],
+    "current": [
+      "Next.js 16 + Cloudflare Workers/OpenNext",
+      "環境ごとに分離した単一D1 bindingとR2 binding",
+      "運営者ドメイン: asps/programs/conversions (workspace_idなし)",
+      "読者ドメイン Phase 1: categories/people/disclosures/products/articles/article_people/article_products/conversation_blocks 等",
+      "公開ゲート src/lib/content/publish-gate.ts (記事メタのみ)",
+      "案件一覧画面",
+      "list_programs/record_conversion/get_revenue_summaryの3 Remote MCPツール",
+      "navigator.modelContextを使う読み取りWebMCP PoC",
+      "MCP_TOKENとsame-origin判定によるPoC認証"
+    ],
+    "planned_not_implemented": [
+      "Better Auth + Google OAuth",
+      "Workspace/roleによるマルチテナント認可",
+      "AffiliateLink/TrackingLink/ClickEvent/BehaviorEvent/MetricRollup/Attribution/Insight",
+      "Editorial D1とCommercial-Analytics D1の物理分離とprojection/outbox",
+      "Redirect Resolver StoreとQueue",
+      "Analytics画面とInsightワークフロー"
+    ],
+    "overall_implementation_status": "partial",
+    "verification_status": "unverified"
+  },
+  "delivery_dependencies": [
+    {
+      "id": "DEP-01",
+      "item": "正本・状態規則",
+      "depends_on": []
+    },
+    {
+      "id": "DEP-02",
+      "item": "Auth / Workspace / actor-role",
+      "depends_on": [
+        "DEP-01"
+      ]
+    },
+    {
+      "id": "DEP-03",
+      "item": "tenant・同意・イベント・成果・KPI共通契約",
+      "depends_on": [
+        "DEP-01",
+        "DEP-02"
+      ]
+    },
+    {
+      "id": "DEP-04",
+      "item": "Editorial / Commercial-Analytics境界とcontent_analytics_projection/outbox",
+      "depends_on": [
+        "DEP-03"
+      ]
+    },
+    {
+      "id": "DEP-05",
+      "item": "Redirect Resolver Store / Queue / failure contract",
+      "depends_on": [
+        "DEP-03",
+        "DEP-04"
+      ]
+    },
+    {
+      "id": "DEP-06",
+      "item": "Click・Behavior・Conversion取込とAttribution/Rollup",
+      "depends_on": [
+        "DEP-03",
+        "DEP-04",
+        "DEP-05"
+      ]
+    },
+    {
+      "id": "DEP-07",
+      "item": "Analytics UI / Experiment / Insight",
+      "depends_on": [
+        "DEP-06"
+      ]
+    },
+    {
+      "id": "DEP-08",
+      "item": "正式MCP / WebMCP契約",
+      "depends_on": [
+        "DEP-02",
+        "DEP-06"
+      ]
+    }
+  ],
+  "review_runs": [
+    {
+      "id": "elegant-review-2026-08-16",
+      "project_id": "elegant-review",
+      "status": "complete",
+      "started_at": "2026-08-16T00:00:00+09:00",
+      "completed_at": "2026-08-16T00:00:00+09:00",
+      "reset_completed": true,
+      "reset_semantics": "既存成果物を削除せず、既存判断の正しさを前提にしない状態から再読した",
+      "scope": {
+        "included": [
+          "docs/spec/*.md",
+          "system-spec/*.md",
+          "system-spec/spec-state.json",
+          "system-spec/completeness-report.json",
+          "現行実装との適合確認"
+        ],
+        "excluded": [
+          "CLAUDE.md",
+          ".claude/**",
+          "アプリケーションコードの変更"
+        ]
+      },
+      "source_sha256": {
+        "docs/spec/00-README.md": "b963e20caacdd874110f6b242019e9a7a76e5b8124ccbda155026f1782167a81",
+        "docs/spec/01-要求仕様書-v1.0.md": "9185b196b216a5e9fc5b874144bcf74912551a9ddc28a9f3be115b6e09833c92",
+        "docs/spec/02-補充仕様-ギャップと追加要件.md": "af95578ac3373e1c8c71eaaabc53325a20c97caa7e7b74550a887279ba1cfcf4",
+        "docs/spec/03-分析・解析基盤仕様.md": "ed96924f70ef11408017b70c38c51dad3af3c82b4f02740965aa7cccaa7263ec",
+        "system-spec/00-requirements-definition.md": "7417024d0735df8d693ac23f5fb358472804c87d9608bf02087b5c790cc95b5f",
+        "system-spec/index.md": "6bcf720e26e68ab4b73046454e73e501327f2b94386cfcf936705be8baaae822",
+        "system-spec/auth.md": "bfd1fcdab4772a66f7295ec4ea120b5f1d5b451d628be648716d582aa9f94b48",
+        "system-spec/backend.md": "39a4f789573d4ab3ab8f2dd166a4962c33f715c69dd6c070bacd1366ae29c0e4",
+        "system-spec/database.md": "30f30b89c3e7cfd5cf88e07ef2770448e3eed14aac04aa1ba7ac588c87836d00",
+        "system-spec/frontend.md": "730ff1640c80b42db03f8085b55fac227e477b5a858fdd163c81dc539c188012",
+        "system-spec/infrastructure.md": "9c2be02ba4eed761c83530e9ea01764353c13ac500a1ade5d3a77cfc53529398",
+        "system-spec/maintenance-ops.md": "106f4a2ed4e955bc757c8e667f400bd5fe37307e284d56572fbe13f3bbf26e2f",
+        "system-spec/security.md": "131a0cded5b1a7f0579a9c236d1b00563c130df1fd32ae07275df07b6053d2b7",
+        "system-spec/ui-ux.md": "081607072116861ef66c7b2c75a929578ea2989ff3da7c0e4934f478c3cbb9e8"
+      },
+      "implementation_evidence_sha256": {
+        "src/db/schema.ts": "4c4e032bce0784739dd63b3137d0d732322f4740246d5430c0bae2637db1885e",
+        "src/lib/mcp/specs.ts": "02e9c651409f9f67eae1ed03f2f323dc44397c37a82dda031898df539fe3da85",
+        "src/lib/mcp/tools.ts": "8bc6ccc079d1e3d5e66ea37ad935d3da35476898bfb7a332fbf9b6fc855f06d5",
+        "src/lib/mcp/auth.ts": "ac9d3a90436150e3859b7e5368e0bbc7b5f7c3b84cf7325130e5a6620b4a799a",
+        "src/lib/webmcp/client.ts": "886af10a65454d9f9bc1ee16093b2ae5d8fae76ceba69ab2f1747b306772597c",
+        "wrangler.jsonc": "71060b319d17877112a9cf44279da6627aec7984071ce6fe0314a5c067a303b2",
+        "package.json": "35eaf06c122f4c6b35133c2ffa58630b94e6300d861facb566ba691635927459"
+      },
+      "change_catalog": {
+        "GOV-01": "docs/spec/00とsystem-spec/index/spec-stateに正本・状態4軸・鮮度規則を追加",
+        "DOC-01": "docs/spec/02をAnalytics差分の移行要約とし、docs/spec/03を唯一の詳細正本に限定",
+        "DATA-01": "workspace・consent・schema・event identity・二軸Conversion・KPI versionを統一",
+        "BOUNDARY-01": "Editorial D1とCommercial-Analytics D1、projection/outboxの境界を定義",
+        "REDIRECT-01": "Resolver Store・Queue・SLO・劣化モードで転送と計測を分離",
+        "DELIVERY-01": "As-Is/To-Be/Delta/Dependencies/Acceptanceと実装依存順を全技術章へ追加",
+        "FEEDBACK-01": "探索・holdout・人間承認・ランキング非反映で自己強化ループを抑制",
+        "EVIDENCE-01": "固定30手法、source hash、4品質ゲートをreview_runsへ記録"
+      },
+      "thinking_evidence": [
+        {
+          "method_id": "M01",
+          "method": "批判的思考",
+          "examined_question": "confirmedと完全性レポートは現状を正しく表すか",
+          "finding": "要求判断・文書・実装・検証が混同され、旧レポートも現行stateと不一致だった",
+          "evidence": [
+            "docs/spec/00-README.md",
+            "system-spec/completeness-report.json",
+            "system-spec/spec-state.json"
+          ],
+          "resulting_change_ids": [
+            "GOV-01",
+            "EVIDENCE-01"
+          ],
+          "no_change_reason": null
+        },
+        {
+          "method_id": "M02",
+          "method": "演繹思考",
+          "examined_question": "全データをWorkspace分離する上位条件から下位契約が成立するか",
+          "finding": "tenant keyのないイベント・集計は上位条件を満たさない",
+          "evidence": [
+            "docs/spec/01-要求仕様書-v1.0.md §26.4",
+            "docs/spec/03-分析・解析基盤仕様.md §2"
+          ],
+          "resulting_change_ids": [
+            "DATA-01"
+          ],
+          "no_change_reason": null
+        },
+        {
+          "method_id": "M03",
+          "method": "帰納的思考",
+          "examined_question": "個別の重複から共通原因を特定できるか",
+          "finding": "要求本文の複写が複数章で状態・用語のdriftを生んでいた",
+          "evidence": [
+            "docs/spec/02-補充仕様-ギャップと追加要件.md",
+            "system-spec/backend.md",
+            "system-spec/database.md"
+          ],
+          "resulting_change_ids": [
+            "DOC-01",
+            "DELIVERY-01"
+          ],
+          "no_change_reason": null
+        },
+        {
+          "method_id": "M04",
+          "method": "アブダクション",
+          "examined_question": "完全性レポートとstateの差を最も簡潔に説明するものは何か",
+          "finding": "state更新後に再評価されず、入力hashもなかったことが最善説明だった",
+          "evidence": [
+            "system-spec/completeness-report.json",
+            "system-spec/spec-state.json"
+          ],
+          "resulting_change_ids": [
+            "GOV-01",
+            "EVIDENCE-01"
+          ],
+          "no_change_reason": null
+        },
+        {
+          "method_id": "M05",
+          "method": "垂直思考",
+          "examined_question": "個別矛盾の最深層原因は何か",
+          "finding": "単一の仕様ライフサイクルと関心別正本規則がなかった",
+          "evidence": [
+            "docs/spec/00-README.md",
+            "system-spec/index.md"
+          ],
+          "resulting_change_ids": [
+            "GOV-01"
+          ],
+          "no_change_reason": null
+        },
+        {
+          "method_id": "M06",
+          "method": "要素分解",
+          "examined_question": "Analyticsをidentity・consent・event・dedup・conversion・KPIへ分けると何が欠けるか",
+          "finding": "共通envelope、同意なしnullability、transport冪等、二軸成果状態が不足していた",
+          "evidence": [
+            "docs/spec/03-分析・解析基盤仕様.md §2"
+          ],
+          "resulting_change_ids": [
+            "DATA-01"
+          ],
+          "no_change_reason": null
+        },
+        {
+          "method_id": "M07",
+          "method": "MECE",
+          "examined_question": "01・02・03・system-specの責務は漏れなく重複なく分かれるか",
+          "finding": "02と03が非MECEで、実装適合と移行責務が欠落していた",
+          "evidence": [
+            "docs/spec/00-README.md",
+            "docs/spec/02-補充仕様-ギャップと追加要件.md"
+          ],
+          "resulting_change_ids": [
+            "DOC-01",
+            "DELIVERY-01"
+          ],
+          "no_change_reason": null
+        },
+        {
+          "method_id": "M08",
+          "method": "2軸思考",
+          "examined_question": "要件成熟度と実装状態を分けると現在地はどう見えるか",
+          "finding": "確定要求・未実装と、PoC実装・正式契約未整合が同時に存在した",
+          "evidence": [
+            "docs/spec/00-README.md",
+            "system-spec/index.md"
+          ],
+          "resulting_change_ids": [
+            "GOV-01",
+            "DELIVERY-01"
+          ],
+          "no_change_reason": null
+        },
+        {
+          "method_id": "M09",
+          "method": "プロセス思考",
+          "examined_question": "実装順は依存関係に沿うか",
+          "finding": "Auth・tenant・同意・境界より後続の分析機能が先行し得る計画だった",
+          "evidence": [
+            "system-spec/index.md §実装依存順",
+            "docs/spec/03-分析・解析基盤仕様.md §12"
+          ],
+          "resulting_change_ids": [
+            "DELIVERY-01"
+          ],
+          "no_change_reason": null
+        },
+        {
+          "method_id": "M10",
+          "method": "メタ思考",
+          "examined_question": "30思考法を使った事実を検証できるか",
+          "finding": "自由入力schemaだけで固定30件・一意性・hash・stale判定がなかった",
+          "evidence": [
+            "docs/spec/01-要求仕様書-v1.0.md §31",
+            "system-spec/spec-state.json review_runs"
+          ],
+          "resulting_change_ids": [
+            "EVIDENCE-01"
+          ],
+          "no_change_reason": null
+        },
+        {
+          "method_id": "M11",
+          "method": "抽象化思考",
+          "examined_question": "確定という語は何を抽象化しすぎているか",
+          "finding": "要求・文書・実装・検証の4状態へ分離する必要があった",
+          "evidence": [
+            "docs/spec/00-README.md §文書状態の4軸"
+          ],
+          "resulting_change_ids": [
+            "GOV-01"
+          ],
+          "no_change_reason": null
+        },
+        {
+          "method_id": "M12",
+          "method": "ダブル・ループ思考",
+          "examined_question": "複数文書に同じ本文を持つ前提自体が必要か",
+          "finding": "全文同期ではなく規範スパインと技術投影へ前提を変更すべきだった",
+          "evidence": [
+            "docs/spec/00-README.md §関心ごとの正本",
+            "docs/spec/02-補充仕様-ギャップと追加要件.md"
+          ],
+          "resulting_change_ids": [
+            "DOC-01"
+          ],
+          "no_change_reason": null
+        },
+        {
+          "method_id": "M13",
+          "method": "ブレインストーミング",
+          "examined_question": "文書を増やさず改善できる候補は何か",
+          "finding": "正本表、4状態、review ledger、As-Is/To-Be、resolver、二D1、共通契約へ集約できた",
+          "evidence": [
+            "docs/spec/00-README.md",
+            "docs/spec/03-分析・解析基盤仕様.md",
+            "system-spec/index.md"
+          ],
+          "resulting_change_ids": [
+            "GOV-01",
+            "DATA-01",
+            "BOUNDARY-01",
+            "REDIRECT-01"
+          ],
+          "no_change_reason": null
+        },
+        {
+          "method_id": "M14",
+          "method": "水平思考",
+          "examined_question": "変更を判断する利用者の視点で何が不足するか",
+          "finding": "理想像より、現行・差分・依存・合格証拠を先に示す必要があった",
+          "evidence": [
+            "system-spec/auth.md",
+            "system-spec/backend.md",
+            "system-spec/frontend.md"
+          ],
+          "resulting_change_ids": [
+            "DELIVERY-01"
+          ],
+          "no_change_reason": null
+        },
+        {
+          "method_id": "M15",
+          "method": "逆説思考",
+          "examined_question": "文書量を増やすほど誤ってPASSしやすくならないか",
+          "finding": "confirmed数と複写量が不確実性を隠すため、staleをfail-closedにする必要があった",
+          "evidence": [
+            "system-spec/completeness-report.json",
+            "system-spec/spec-state.json lifecycle"
+          ],
+          "resulting_change_ids": [
+            "GOV-01",
+            "EVIDENCE-01"
+          ],
+          "no_change_reason": null
+        },
+        {
+          "method_id": "M16",
+          "method": "類推思考",
+          "examined_question": "既存コードの単一定義・複数経路の型を仕様へ使えるか",
+          "finding": "MCP tool specと同様に、正本から技術ビューを投影する構造が適合した",
+          "evidence": [
+            "src/lib/mcp/specs.ts",
+            "src/lib/webmcp/client.ts",
+            "docs/spec/00-README.md"
+          ],
+          "resulting_change_ids": [
+            "DOC-01",
+            "DELIVERY-01"
+          ],
+          "no_change_reason": null
+        },
+        {
+          "method_id": "M17",
+          "method": "if思考",
+          "examined_question": "D1停止・未同意・再取込・tenant越境ならどうなるか",
+          "finding": "故障経路とprivacy例外の入力・出力・劣化が未定義だった",
+          "evidence": [
+            "docs/spec/03-分析・解析基盤仕様.md §1.2・§2.5・§11"
+          ],
+          "resulting_change_ids": [
+            "DATA-01",
+            "REDIRECT-01",
+            "DELIVERY-01"
+          ],
+          "no_change_reason": null
+        },
+        {
+          "method_id": "M18",
+          "method": "素人思考",
+          "examined_question": "非専門家が確定・必達・自動反映をどう誤読するか",
+          "finding": "状態語、SLO、提案と人間承認、AffiliateLinkとTrackingLinkを平易に分離する必要があった",
+          "evidence": [
+            "docs/spec/01-要求仕様書-v1.0.md §19・§24",
+            "docs/spec/03-分析・解析基盤仕様.md §1.2"
+          ],
+          "resulting_change_ids": [
+            "GOV-01",
+            "DATA-01",
+            "REDIRECT-01"
+          ],
+          "no_change_reason": null
+        },
+        {
+          "method_id": "M19",
+          "method": "システム思考",
+          "examined_question": "Editorial・Commercial・Analytics・Redirectの境界はつながるか",
+          "finding": "二D1間JOINを前提にせずprojection/outboxとresolverを置く必要があった",
+          "evidence": [
+            "docs/spec/03-分析・解析基盤仕様.md §1.1〜§1.3",
+            "system-spec/database.md"
+          ],
+          "resulting_change_ids": [
+            "BOUNDARY-01",
+            "REDIRECT-01"
+          ],
+          "no_change_reason": null
+        },
+        {
+          "method_id": "M20",
+          "method": "因果関係分析",
+          "examined_question": "計測D1障害時の転送継続は何によって成立するか",
+          "finding": "非同期書込だけでなくoriginal_url解決をD1から分離する必要があった",
+          "evidence": [
+            "docs/spec/03-分析・解析基盤仕様.md §1.2",
+            "system-spec/infrastructure.md"
+          ],
+          "resulting_change_ids": [
+            "REDIRECT-01"
+          ],
+          "no_change_reason": null
+        },
+        {
+          "method_id": "M21",
+          "method": "因果ループ",
+          "examined_question": "高成果推奨が自己強化ループを生まないか",
+          "finding": "探索枠・holdout・品質gate・人間承認が抑制ループとして必要だった",
+          "evidence": [
+            "docs/spec/03-分析・解析基盤仕様.md §7.7"
+          ],
+          "resulting_change_ids": [
+            "FEEDBACK-01"
+          ],
+          "no_change_reason": null
+        },
+        {
+          "method_id": "M22",
+          "method": "トレードオン思考",
+          "examined_question": "privacy・分析精度・可用性を同時に満たせるか",
+          "finding": "同意なしを単発集計に限定し、転送と識別計測を分離すれば両立できた",
+          "evidence": [
+            "docs/spec/03-分析・解析基盤仕様.md §2.5",
+            "docs/spec/03-分析・解析基盤仕様.md §1.2"
+          ],
+          "resulting_change_ids": [
+            "DATA-01",
+            "REDIRECT-01"
+          ],
+          "no_change_reason": null
+        },
+        {
+          "method_id": "M23",
+          "method": "プラスサム思考",
+          "examined_question": "UI・API・MCP・Insightが同じKPI定義を共有できるか",
+          "finding": "version付きKPI辞書と共通use-caseで全経路の価値を同時に上げられる",
+          "evidence": [
+            "docs/spec/03-分析・解析基盤仕様.md §4",
+            "system-spec/backend.md"
+          ],
+          "resulting_change_ids": [
+            "DATA-01",
+            "DELIVERY-01"
+          ],
+          "no_change_reason": null
+        },
+        {
+          "method_id": "M24",
+          "method": "価値提案思考",
+          "examined_question": "価値を検証できる最短の実装経路か",
+          "finding": "1 Workspaceから1成果までの薄い経路を依存順で完成させるべきだった",
+          "evidence": [
+            "docs/spec/03-分析・解析基盤仕様.md §12",
+            "system-spec/index.md §実装依存順"
+          ],
+          "resulting_change_ids": [
+            "DELIVERY-01"
+          ],
+          "no_change_reason": null
+        },
+        {
+          "method_id": "M25",
+          "method": "戦略的思考",
+          "examined_question": "不可逆で高リスクな決定から処理しているか",
+          "finding": "tenant・同意・成果identity・DB境界を画面やInsightより先に固定すべきだった",
+          "evidence": [
+            "system-spec/spec-state.json delivery_dependencies",
+            "system-spec/index.md"
+          ],
+          "resulting_change_ids": [
+            "DATA-01",
+            "BOUNDARY-01",
+            "DELIVERY-01"
+          ],
+          "no_change_reason": null
+        },
+        {
+          "method_id": "M26",
+          "method": "why思考",
+          "examined_question": "なぜconfirmedでも実装可能性を保証できなかったか（5 Whys）",
+          "finding": "仕様分散→本文複写→収集完了を完成扱い→実装適合と故障gate不足、という根因連鎖だった",
+          "evidence": [
+            "docs/spec/00-README.md",
+            "system-spec/index.md",
+            "system-spec/completeness-report.json"
+          ],
+          "resulting_change_ids": [
+            "GOV-01",
+            "DOC-01",
+            "DELIVERY-01"
+          ],
+          "no_change_reason": null
+        },
+        {
+          "method_id": "M27",
+          "method": "改善思考",
+          "examined_question": "最小編集で最大の整合性を得るには何を直すか",
+          "finding": "既存ファイル内で正本・契約・依存・受入を補強し、物理再編を避ける案が最小だった",
+          "evidence": [
+            "docs/spec/00-README.md",
+            "system-spec/index.md"
+          ],
+          "resulting_change_ids": [
+            "GOV-01",
+            "DOC-01",
+            "DATA-01",
+            "DELIVERY-01"
+          ],
+          "no_change_reason": null
+        },
+        {
+          "method_id": "M28",
+          "method": "仮説思考",
+          "examined_question": "改善契約を反証可能な試験へ落とせるか",
+          "finding": "tenant越境・D1停止・再取込・逆順・KPI versionをGiven/When/Then化できた",
+          "evidence": [
+            "docs/spec/03-分析・解析基盤仕様.md §11",
+            "system-spec/security.md",
+            "system-spec/maintenance-ops.md"
+          ],
+          "resulting_change_ids": [
+            "DELIVERY-01"
+          ],
+          "no_change_reason": null
+        },
+        {
+          "method_id": "M29",
+          "method": "論点思考",
+          "examined_question": "真に解くべき問題はAnalytics項目追加か",
+          "finding": "真の論点はtenant・同意・状態・KPI・障害挙動を単一契約へ収束させることだった",
+          "evidence": [
+            "docs/spec/03-分析・解析基盤仕様.md §1〜§5"
+          ],
+          "resulting_change_ids": [
+            "DATA-01",
+            "BOUNDARY-01",
+            "REDIRECT-01"
+          ],
+          "no_change_reason": null
+        },
+        {
+          "method_id": "M30",
+          "method": "KJ法",
+          "examined_question": "発見を原因群へ整理すると依存順は何か",
+          "finding": "文書統制→identity/privacy→boundary/reliabilityとmeasurement→deliveryの5群に収束した",
+          "evidence": [
+            "system-spec/spec-state.json delivery_dependencies",
+            "system-spec/index.md"
+          ],
+          "resulting_change_ids": [
+            "GOV-01",
+            "DATA-01",
+            "BOUNDARY-01",
+            "REDIRECT-01",
+            "DELIVERY-01"
+          ],
+          "no_change_reason": null
+        }
+      ],
+      "quality_gates": {
+        "no_contradictions": {
+          "verdict": "PASS",
+          "evidence": "正本優先順位、状態4軸、Analytics共通契約、Conversion二軸、WebMCP PoC/To-Beを統一"
+        },
+        "no_omissions": {
+          "verdict": "PASS",
+          "evidence": "tenant・consent・identity・resolver・projection・KPI version・As-Is/To-Be・受入証拠を追加"
+        },
+        "consistency": {
+          "verdict": "PASS",
+          "evidence": "固定用語、状態値、共通envelope、UTC/business date、承認/支払KPIを正本化"
+        },
+        "dependency_integrity": {
+          "verdict": "PASS",
+          "evidence": "DEP-01〜DEP-08と各章Dependencies、Analytics A0〜A6の先行ゲートを整合"
+        }
+      },
+      "revalidation_iterations": 2,
+      "max_iterations": 3
+    },
+    {
+      "id": "spec-writeback-2026-08-16",
+      "project_id": "spec-canonicalization",
+      "status": "complete",
+      "started_at": "2026-08-16T11:00:00+09:00",
+      "completed_at": "2026-08-16T20:21:00+09:00",
+      "scope": {
+        "included": [
+          "docs/spec",
+          "system-spec",
+          "specs",
+          "architecture",
+          "features",
+          "tasks",
+          ".dev-graph"
+        ],
+        "excluded": [
+          "アプリケーションコードの新規変更",
+          "completeness evaluator 再 fork"
+        ]
+      },
+      "source_sha256": {
+        "docs/spec/00-README.md": "71e84d3fd5fd89c4797377312ef0eff338acef19d1b3a108bdbba5d5a8d8f572",
+        "docs/spec/01-要求仕様書-v1.0.md": "9185b196b216a5e9fc5b874144bcf74912551a9ddc28a9f3be115b6e09833c92",
+        "docs/spec/02-補充仕様-ギャップと追加要件.md": "73b3204fcb5c71edf4704817b12af2d36939993ba1194bf04c1f4ceff9c8cd25",
+        "docs/spec/03-分析・解析基盤仕様.md": "ed96924f70ef11408017b70c38c51dad3af3c82b4f02740965aa7cccaa7263ec",
+        "docs/spec/ai-first-webmcp.md": "35241bfe4e82f6536d871c179eb938681ec771991fa50a59c72d5d97d3c98713",
+        "docs/spec/data-model-gap.md": "97861d9844e975922b73715c49d5ea7f4a8db53e83fbbbf0e73a54a32fb6754c",
+        "docs/spec/completion-criteria.md": "07cb3de0ca834a6776d6e08dfd11a3d6bd1b848d962d1f582d9e41f0705a8943",
+        "system-spec/index.md": "2f4b3d62f5d7a0bdc829bcf9dad18ef9caaa1c808792d83264dea6a5755f0b66",
+        "system-spec/database.md": "caa05a2d6e29bed265e8a70857c1ca55c56510b119f1ab637f7bfb0f73828bcb",
+        "docs/spec-writeback-receipt.md": "69dd8dc15202274dba4e4ad1becf8ecd9e99075497cb59852ac9b72cc088d32e"
+      },
+      "change_catalog": [
+        "GOV-02: Phase 0 文書を正本表へ編入し、関心を分離した",
+        "ASIS-01: Phase 1 読者テーブルと公開ゲートを database As-Is へ反映した",
+        "GRAPH-01: C02 で 8 node を登録し Beads ah-bgp / ah-bvu を束縛した",
+        "RCPT-01: docs/spec-writeback-receipt.md を記録した"
+      ],
+      "gates": {
+        "coverage_matrix": "PASS",
+        "source_citation": "PASS",
+        "knowledge_graph": "PASS",
+        "graph_schema": "PASS",
+        "task_spec_headings": "PASS",
+        "completeness_evaluator": "NOT_RUN_STALE"
+      }
+    }
+  ],
+  "categories": [
+    {
+      "id": "database",
+      "label": "データベース"
+    },
+    {
+      "id": "auth",
+      "label": "認証(ログイン)"
+    },
+    {
+      "id": "ui-ux",
+      "label": "UI-UX"
+    },
+    {
+      "id": "security",
+      "label": "セキュリティ"
+    },
+    {
+      "id": "infrastructure",
+      "label": "インフラ"
+    },
+    {
+      "id": "backend",
+      "label": "バックエンド"
+    },
+    {
+      "id": "frontend",
+      "label": "フロントエンド"
+    },
+    {
+      "id": "maintenance-ops",
+      "label": "保守運用管理"
+    }
+  ],
+  "platforms": [
+    "web",
+    "mobile",
+    "tablet",
+    "desktop-windows",
+    "desktop-linux",
+    "desktop-macos"
+  ],
+  "matrix": {
+    "database": {
+      "web": {
+        "state": "確定",
+        "qa_ref": "qa-database-web-analytics",
+        "serves_goals": [
+          "G1",
+          "G2"
+        ]
+      },
+      "mobile": {
+        "state": "対象外",
+        "reason": "対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only)"
+      },
+      "tablet": {
+        "state": "対象外",
+        "reason": "対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only)"
+      },
+      "desktop-windows": {
+        "state": "対象外",
+        "reason": "対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only)"
+      },
+      "desktop-linux": {
+        "state": "対象外",
+        "reason": "対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only)"
+      },
+      "desktop-macos": {
+        "state": "対象外",
+        "reason": "対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only)"
+      }
+    },
+    "auth": {
+      "web": {
+        "state": "確定",
+        "qa_ref": "qa-auth-web",
+        "serves_goals": [
+          "G1"
+        ]
+      },
+      "mobile": {
+        "state": "対象外",
+        "reason": "対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only)"
+      },
+      "tablet": {
+        "state": "対象外",
+        "reason": "対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only)"
+      },
+      "desktop-windows": {
+        "state": "対象外",
+        "reason": "対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only)"
+      },
+      "desktop-linux": {
+        "state": "対象外",
+        "reason": "対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only)"
+      },
+      "desktop-macos": {
+        "state": "対象外",
+        "reason": "対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only)"
+      }
+    },
+    "ui-ux": {
+      "web": {
+        "state": "確定",
+        "qa_ref": "qa-uiux-web",
+        "serves_goals": [
+          "G1"
+        ]
+      },
+      "mobile": {
+        "state": "対象外",
+        "reason": "対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only)"
+      },
+      "tablet": {
+        "state": "対象外",
+        "reason": "対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only)"
+      },
+      "desktop-windows": {
+        "state": "対象外",
+        "reason": "対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only)"
+      },
+      "desktop-linux": {
+        "state": "対象外",
+        "reason": "対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only)"
+      },
+      "desktop-macos": {
+        "state": "対象外",
+        "reason": "対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only)"
+      }
+    },
+    "security": {
+      "web": {
+        "state": "確定",
+        "qa_ref": "qa-security-web",
+        "serves_goals": [
+          "G1"
+        ]
+      },
+      "mobile": {
+        "state": "対象外",
+        "reason": "対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only)"
+      },
+      "tablet": {
+        "state": "対象外",
+        "reason": "対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only)"
+      },
+      "desktop-windows": {
+        "state": "対象外",
+        "reason": "対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only)"
+      },
+      "desktop-linux": {
+        "state": "対象外",
+        "reason": "対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only)"
+      },
+      "desktop-macos": {
+        "state": "対象外",
+        "reason": "対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only)"
+      }
+    },
+    "infrastructure": {
+      "web": {
+        "state": "確定",
+        "qa_ref": "qa-infra-web-redirect",
+        "serves_goals": [
+          "G2",
+          "G1"
+        ]
+      },
+      "mobile": {
+        "state": "対象外",
+        "reason": "対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only)"
+      },
+      "tablet": {
+        "state": "対象外",
+        "reason": "対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only)"
+      },
+      "desktop-windows": {
+        "state": "対象外",
+        "reason": "対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only)"
+      },
+      "desktop-linux": {
+        "state": "対象外",
+        "reason": "対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only)"
+      },
+      "desktop-macos": {
+        "state": "対象外",
+        "reason": "対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only)"
+      }
+    },
+    "backend": {
+      "web": {
+        "state": "確定",
+        "qa_ref": "qa-backend-web-analytics",
+        "serves_goals": [
+          "G2",
+          "G1"
+        ]
+      },
+      "mobile": {
+        "state": "対象外",
+        "reason": "対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only)"
+      },
+      "tablet": {
+        "state": "対象外",
+        "reason": "対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only)"
+      },
+      "desktop-windows": {
+        "state": "対象外",
+        "reason": "対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only)"
+      },
+      "desktop-linux": {
+        "state": "対象外",
+        "reason": "対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only)"
+      },
+      "desktop-macos": {
+        "state": "対象外",
+        "reason": "対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only)"
+      }
+    },
+    "frontend": {
+      "web": {
+        "state": "確定",
+        "qa_ref": "qa-frontend-web-analytics",
+        "serves_goals": [
+          "G1",
+          "G2"
+        ]
+      },
+      "mobile": {
+        "state": "対象外",
+        "reason": "対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only)"
+      },
+      "tablet": {
+        "state": "対象外",
+        "reason": "対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only)"
+      },
+      "desktop-windows": {
+        "state": "対象外",
+        "reason": "対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only)"
+      },
+      "desktop-linux": {
+        "state": "対象外",
+        "reason": "対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only)"
+      },
+      "desktop-macos": {
+        "state": "対象外",
+        "reason": "対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only)"
+      }
+    },
+    "maintenance-ops": {
+      "web": {
+        "state": "確定",
+        "qa_ref": "qa-ops-web",
+        "serves_goals": [
+          "G1",
+          "G2"
+        ]
+      },
+      "mobile": {
+        "state": "対象外",
+        "reason": "対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only)"
+      },
+      "tablet": {
+        "state": "対象外",
+        "reason": "対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only)"
+      },
+      "desktop-windows": {
+        "state": "対象外",
+        "reason": "対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only)"
+      },
+      "desktop-linux": {
+        "state": "対象外",
+        "reason": "対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only)"
+      },
+      "desktop-macos": {
+        "state": "対象外",
+        "reason": "対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only)"
+      }
+    }
+  },
+  "qa_log": [
+    {
+      "id": "qa-foundation-u1",
+      "question": "書面入力 docs/spec/01-要求仕様書-v1.0.md §2.1 の U1 は何か",
+      "answer": "発信者が、一つの信頼できる商品・サービス情報を起点に、複数のブログやSNSへ、「誰が・誰に・何を・なぜ伝えるか」が一貫した高品質コンテンツを効率的に生成・公開・改善できる状態をつくり、読者の意思決定品質と発信者の継続的な収益性を同時に高める。",
+      "source": {
+        "kind": "written-requirements",
+        "path": "docs/spec/01-要求仕様書-v1.0.md",
+        "section": "§2.1",
+        "sha256": "7a4e61c40e13726f5361ce8a37e9cc4a2b636f301bfc6e075307ac245199d48b"
+      }
+    },
+    {
+      "id": "qa-foundation-u2",
+      "question": "書面入力 docs/spec/01-要求仕様書-v1.0.md §3.1 の U2 は何か",
+      "answer": "現在のコンテンツ運営では、次の情報が別々の場所で管理されやすい。\n\n* アフィリエイトURL\n* ASPの管理画面\n* 商品情報\n* 比較表\n* 記事原稿\n* SNS投稿文\n* 画像\n* 書き手のプロフィール\n* 読者ペルソナ\n* 投稿スケジュール\n* クリック数\n* 成果報酬\n* 更新履歴\n\nその結果、同じ商品名、価格、特徴を何度も入力し、修正時にも複数の投稿を個別に直す必要が生じる。",
+      "source": {
+        "kind": "written-requirements",
+        "path": "docs/spec/01-要求仕様書-v1.0.md",
+        "section": "§3.1",
+        "sha256": "39d9c05276e0a00e5e465f566a5f891f81800226cb0841727958edb45ddfa138"
+      }
+    },
+    {
+      "id": "qa-foundation-u3",
+      "question": "書面入力 docs/spec/01-要求仕様書-v1.0.md §32 の U3 は何か",
+      "answer": "一つのアフィリエイトURLを起点に、正しい商品情報、比較候補、根拠、書き手、読者、媒体、広告表示を統合し、目的の異なる高品質コンテンツを安全に作成・公開・改善できること。",
+      "source": {
+        "kind": "written-requirements",
+        "path": "docs/spec/01-要求仕様書-v1.0.md",
+        "section": "§32",
+        "sha256": "13147a333e41cbe42f45b147d9489a9d7b93748bdb035c60ff974af86426c691"
+      }
+    },
+    {
+      "id": "qa-foundation-u4",
+      "question": "書面入力 docs/spec/01-要求仕様書-v1.0.md §27.1 の U4 は何か",
+      "answer": "根拠確認と人間承認を完了し、複数媒体へ展開されたコンテンツパッケージ数\n\n単なる生成数や投稿数を中心指標にしない。",
+      "source": {
+        "kind": "written-requirements",
+        "path": "docs/spec/01-要求仕様書-v1.0.md",
+        "section": "§27.1",
+        "sha256": "2a8e8f69e76fa82fc47e86071e6c49f77be9ff93b6be9004620aec7aae5a1d8e"
+      }
+    },
+    {
+      "id": "qa-foundation-u5",
+      "question": "書面入力 docs/spec/01-要求仕様書-v1.0.md §30.8 の U5 は何か",
+      "answer": "次の経路を双方向に追跡できる。\n\n```text\n情報源\n↕\n商品\n↕\n主張\n↕\nコンテンツパッケージ\n↕\n媒体別文章\n↕\n投稿\n↕\nクリック\n↕\n成果\n```",
+      "source": {
+        "kind": "written-requirements",
+        "path": "docs/spec/01-要求仕様書-v1.0.md",
+        "section": "§30.8",
+        "sha256": "2d4fac3c557c63aa1af984b39ed4ec9500fe6917c197e9ffded5db49f3d9755c"
+      }
+    },
+    {
+      "id": "qa-foundation-u6",
+      "question": "書面入力 docs/spec/01-要求仕様書-v1.0.md §2.2-2.3 の U6 は何か",
+      "answer": "読者にとっての価値は、単に商品を紹介されることではない。\n\n次の状態に到達できることを価値とする。\n\n* 自分に合う商品か判断できる\n* 商品の長所だけでなく弱点も確認できる\n* 他の商品との違いが分かる\n* おすすめの根拠を確認できる\n* 広告・アフィリエイトであることを認識できる\n* 自分の条件に合わない商品を避けられる\n* 複数の販売先や選択肢を比較できる\n\n## 2.3 発信者に対する価値\n\n発信者にとっては、次の状態を実現する。\n\n* 商品調査を媒体ごとに繰り返さなくてよい\n* 一つの情報から複数媒体向けコンテンツを作れる\n* 自分らしい文章表現を維持できる\n* 読者層ごとに文章を変えられる\n* 複数ブログを一つの管理画面で運営できる\n* アフィリエイトリンクを一元管理できる\n* 公開済みコンテンツの古い情報を検出できる\n* どの商品、媒体、文章パターンが成果につながったか確認できる\n* AIが作った内容を人間が根拠付きで確認できる",
+      "source": {
+        "kind": "written-requirements",
+        "path": "docs/spec/01-要求仕様書-v1.0.md",
+        "section": "§2.2-2.3",
+        "sha256": "f4b2fb58634c7c72ddcccfdb0e6225af51bdbd1951fef3846e007052a2ee3b83"
+      }
+    },
+    {
+      "id": "qa-foundation-u7",
+      "question": "書面入力 docs/spec/01-要求仕様書-v1.0.md §6 の U7 は何か",
+      "answer": "## 6.1 含むもの\n\n* マルチテナント\n* 複数ブランド管理\n* 複数ブログ構築\n* ブログ記事作成\n* アフィリエイトURL登録\n* 商品情報抽出\n* 商品データベース\n* 類似商品・比較候補抽出\n* 書き手ペルソナ\n* 読者ペルソナ\n* AI文章生成\n* 投稿パターン生成\n* 画像・動画台本管理\n* SNS連携\n* 投稿カレンダー\n* アフィリエイトリンク管理\n* クリック・成果分析\n* 更新管理\n* 広告・法令確認\n* WebMCP\n* バックエンドMCP\n* API\n* チーム権限\n* 承認フロー\n\n## 6.2 含まないもの\n\n* 他サイトの記事や画像の無断複製\n* 規約に反するスクレイピング\n* 非公開情報の取得\n* CAPTCHAやアクセス制御の回避\n* 架空の利用体験\n* 架空の資格や専門家\n* 無確認の大量自動投稿\n* スパム投稿\n* 自動購入\n* 報酬額を基準にしたランキング\n* アフィリエイトリンクの無断改変\n* 非公式note APIへの依存\n* 投稿先のポリシーを無視した自動化",
+      "source": {
+        "kind": "written-requirements",
+        "path": "docs/spec/01-要求仕様書-v1.0.md",
+        "section": "§6",
+        "sha256": "4ca7a30f3c7619f8e8f6e6a86f5a8a811e5ecc3ee4c70b6c6fc099cfe4acc4e8"
+      }
+    },
+    {
+      "id": "qa-foundation-u8",
+      "question": "書面入力 docs/spec/01-要求仕様書-v1.0.md §3.4 の U8 は何か",
+      "answer": "WordPress、X、Instagram、Threadsなどは公式APIによる投稿連携が可能だが、認証、権限、投稿形式、利用料金、審査条件が異なる。\n\n一方、noteは2026年8月16日時点で一般公開の公式投稿APIを提供していない。そのため、noteについては非公式APIやログイン自動操作を前提にせず、コピー用原稿、ファイル出力、WXR／MT形式のインポート支援として設計する。noteは公式にWXRまたはMT形式のインポートを案内している。",
+      "source": {
+        "kind": "written-requirements",
+        "path": "docs/spec/01-要求仕様書-v1.0.md",
+        "section": "§3.4",
+        "sha256": "a8759bd0b4f2405efa7e31197bf4d665a70ef0fcd647d5ca1fdbc1ee5851aba3"
+      }
+    },
+    {
+      "id": "qa-foundation-u9",
+      "question": "本システムで具体的にやりたいこと (U9) は何か",
+      "answer": "分析とか解析とかもできるような、そういう仕組みをしておいてほしいです。どういう情報がクリック率が高いとか、アフィリエイトに有効なのかとか、この辺が管理できるように仕組みを整えてください。まずはこれらを管理できるような仕組み、仕様書、これを整理してください。",
+      "source": {
+        "kind": "user-dialogue"
+      }
+    },
+    {
+      "id": "qa-platform-scope",
+      "question": "本システムの対象プラットフォームはどれか (2026-08-16 対話ヒアリング)",
+      "answer": "Webのみ。モバイル・タブレットはレスポンシブWebで対応し、ネイティブアプリ・デスクトップアプリは対象外とする。",
+      "source": {
+        "kind": "user-dialogue"
+      }
+    },
+    {
+      "id": "qa-database-web",
+      "question": "データベース (database) × web の技術要件は何か (2026-08-16 対話ヒアリング)",
+      "answer": "現行構成で確定。技術基盤は現行リポジトリの構成(Next.js + Cloudflare Workers/OpenNext + D1 + Drizzle ORM)を正として仕様に確定する。",
+      "source": {
+        "kind": "user-dialogue"
+      },
+      "design_applications": [
+        {
+          "knowledge_ref": "docs/spec/01-要求仕様書-v1.0.md §26.4",
+          "principle": "Workspace IDによる全データのテナント分離",
+          "applicability": "applied",
+          "rationale": "全テーブルに workspace_id を保持し、リポジトリ層でオブジェクト単位認可を強制する。キャッシュ・検索インデックス・ファイルストレージも分離する",
+          "tradeoffs": [
+            "クエリごとに workspace_id 条件が必須となり、漏れは情報漏えいに直結するため共通データアクセス層で機械的に強制する"
+          ]
+        },
+        {
+          "knowledge_ref": "docs/spec/01-要求仕様書-v1.0.md §19.4",
+          "principle": "Editorial / Commercial データベース分離",
+          "applicability": "applied",
+          "rationale": "商品評価・検証(Editorial)と報酬・成果(Commercial)をスキーマ分離し、Ranking Service は Editorial のみ参照可能にする",
+          "tradeoffs": [
+            "物理分離により横断集計は分析基盤(MetricRollup)経由となり即時 JOIN はできない"
+          ]
+        },
+        {
+          "knowledge_ref": "cloudflare:d1-drizzle",
+          "principle": "D1 + Drizzle ORM によるサーバーレスSQL (現行リポジトリ構成)",
+          "applicability": "applied",
+          "rationale": "利用者が現行構成を正と確定。drizzle/ ディレクトリと wrangler.jsonc が実在し移行コストが最小",
+          "tradeoffs": [
+            "D1 にはDBサイズ・書き込みスループット上限があり、ClickEvent 等の大量イベントは集計特化ストア(Workers Analytics Engine 等)への分離を Phase 3 までに判断する"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "qa-backend-web",
+      "question": "書面入力 docs/spec/01-要求仕様書-v1.0.md §18.3 のバックエンド (backend) × web 要件は何か",
+      "answer": "* 同一投稿の重複実行を防ぐ\n* Idempotency Keyを使用\n* 投稿前にアカウントを再確認\n* トークン期限を確認\n* API制限を確認\n* 公開操作を監査ログに残す\n* 予約直前の編集を検知する\n* 投稿失敗時に自動で無限再試行しない\n* 削除・更新は別承認を要求できる\n* 外部投稿のURLを保存する",
+      "source": {
+        "kind": "written-requirements",
+        "path": "docs/spec/01-要求仕様書-v1.0.md",
+        "section": "§18.3",
+        "sha256": "28355bb7da117fbdd66214e043e8e51f67cdac887c749b62007dde5cc2e008e0"
+      },
+      "design_applications": [
+        {
+          "knowledge_ref": "docs/spec/01-要求仕様書-v1.0.md §18.3",
+          "principle": "Idempotency Key による重複投稿防止と監査ログ",
+          "applicability": "applied",
+          "rationale": "外部公開操作は冪等キー・トークン期限確認・監査ログ記録を必須とし、失敗時の無限再試行を禁止する",
+          "tradeoffs": [
+            "冪等キー管理のため投稿キューに状態テーブルが必要となり実装が増えるが、重複公開事故を構造的に防げる"
+          ]
+        },
+        {
+          "knowledge_ref": "docs/spec/01-要求仕様書-v1.0.md §17.1",
+          "principle": "Connector 契約と Capability Registry",
+          "applicability": "applied",
+          "rationale": "媒体別の文字数・形式制約をコードへ直書きせず、バージョン管理された Capability Registry で管理する",
+          "tradeoffs": [
+            "レジストリの更新運用が必要になるが、媒体仕様変更時にコード改修なしで追従できる"
+          ]
+        },
+        {
+          "knowledge_ref": "docs/spec/01-要求仕様書-v1.0.md §23.2",
+          "principle": "イベント駆動 (publication.published 等) の非同期処理",
+          "applicability": "applied",
+          "rationale": "投稿・成果・リンク切れをイベントとして発行し、通知・集計・再生成を疎結合にする",
+          "tradeoffs": [
+            "結果整合となるためダッシュボードは速報値と確定値を区別表示する必要がある"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "qa-uiux-web",
+      "question": "書面入力 docs/spec/01-要求仕様書-v1.0.md §22.1 の UI-UX × web 要件は何か",
+      "answer": "* 未処理URL\n* 確認待ち商品\n* 生成待ち\n* 承認待ち\n* 本日の投稿\n* 投稿失敗\n* リンク切れ\n* 更新期限\n* 成果\n* 収益\n* 媒体接続状態",
+      "source": {
+        "kind": "written-requirements",
+        "path": "docs/spec/01-要求仕様書-v1.0.md",
+        "section": "§22.1",
+        "sha256": "643515e7aeed47786e55152e382a0322dc0670fbfe214d035ab651d7d1a4c5cc"
+      },
+      "design_applications": [
+        {
+          "knowledge_ref": "elicit-question-bank:screen-information-priority",
+          "principle": "画面情報設計9項目の確定",
+          "applicability": "applied",
+          "rationale": "利用者ロール=発信者と小規模チーム(Owner〜Analyst §25)、主タスク=URL登録→商品確認→生成→承認→公開→分析、熟練度=初中級中心、端末=PC主体+モバイル併用(レスポンシブ)、利用頻度=毎日、データ量=記事・リンク・商品が数百〜数千件、比較/一括操作=承認キュー・一括URL登録・Content Matrix で必須、誤操作コスト=外部公開を伴うため高(承認フロー・投稿前プレビュー・確認画面で防御)、visual device方針=状態は色だけに依存せずラベル・アイコンを併用",
+          "tradeoffs": [
+            "承認ステップの多層化は安全性を高めるが操作数が増えるため、ダッシュボードの承認待ちキューで導線を短縮する"
+          ]
+        },
+        {
+          "knowledge_ref": "docs/spec/01-要求仕様書-v1.0.md §17.4",
+          "principle": "投稿前プレビューの媒体別再現",
+          "applicability": "applied",
+          "rationale": "改行・画像順・広告表示・文字数など投稿後の見え方に近いプレビューを承認前に必ず提示する",
+          "tradeoffs": [
+            "媒体仕様変更でプレビューが実際とずれるリスクがあり、Capability Registry のバージョンと連動させる"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "qa-security-web",
+      "question": "書面入力 docs/spec/01-要求仕様書-v1.0.md §26.1 のセキュリティ (security) × web 要件は何か",
+      "answer": "* SSRF対策\n* ローカルIP・メタデータIPの遮断\n* DNS再束縛対策\n* リダイレクト回数制限\n* ファイルサイズ制限\n* MIME確認\n* タイムアウト\n* 危険ドメイン\n* HTMLサニタイズ\n* JavaScriptを実行しない安全取得\n* ページ本文をAI命令として扱わない",
+      "source": {
+        "kind": "written-requirements",
+        "path": "docs/spec/01-要求仕様書-v1.0.md",
+        "section": "§26.1",
+        "sha256": "deb1a07f706508bb3597d8dd9793bdd56194cde1826c8b5bc431dcf6043114a4"
+      },
+      "design_applications": [
+        {
+          "knowledge_ref": "docs/spec/01-要求仕様書-v1.0.md §26.1",
+          "principle": "URL取り込みの SSRF / DNS再束縛 / 危険ドメイン防御",
+          "applicability": "applied",
+          "rationale": "アフィリエイトURL解決はローカルIP・メタデータIP遮断、リダイレクト回数制限、JavaScript非実行の安全取得で行う",
+          "tradeoffs": [
+            "安全取得のみでは JS レンダリング必須ページの情報が取れないが、構造化データ優先(§10.3)で許容する"
+          ]
+        },
+        {
+          "knowledge_ref": "docs/spec/01-要求仕様書-v1.0.md §26.2-26.3",
+          "principle": "OAuthトークン暗号化・最小権限とプロンプトインジェクション対策",
+          "applicability": "applied",
+          "rationale": "外部アカウント秘密はテナント別に暗号化分離し、取得ページ本文をAI命令として実行しない(情報源と命令の分離)",
+          "tradeoffs": [
+            "命令分離により柔軟な自動抽出は制限されるが、乗っ取り型攻撃を構造的に遮断できる"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "qa-infra-web",
+      "question": "インフラ (infrastructure) × web の実行環境・デプロイは何か (2026-08-16 対話ヒアリング)",
+      "answer": "現行構成で確定。技術基盤は現行リポジトリの構成(Next.js + Cloudflare Workers/OpenNext + D1 + Drizzle ORM)を正として仕様に確定する。",
+      "source": {
+        "kind": "user-dialogue"
+      },
+      "design_applications": [
+        {
+          "knowledge_ref": "cloudflare:workers-opennext",
+          "principle": "Cloudflare Workers + OpenNext での実行 (現行リポジトリ構成)",
+          "applicability": "applied",
+          "rationale": "wrangler.jsonc・open-next.config.ts が実在する現行構成を正とし、エッジ実行でリダイレクトサービス(/go)の低遅延を確保する",
+          "tradeoffs": [
+            "Workers の CPU 時間・サブリクエスト制限内で Connector 処理を設計する必要があり、重い取り込みは Queues/cron へ逃がす"
+          ]
+        },
+        {
+          "knowledge_ref": "docs/spec/02-補充仕様-ギャップと追加要件.md §7",
+          "principle": "Connector 別レート予算とコスト上限 (RateBudget)",
+          "applicability": "applied",
+          "rationale": "X API 従量課金等の外部APIコストを Connector 単位で監視し、上限接近で警告・超過で自動停止する",
+          "tradeoffs": [
+            "自動停止は投稿予定の未実行を生むため、通知と再開手順をセットで提供する"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "qa-frontend-web",
+      "question": "フロントエンド (frontend) × web のアーキテクチャは何か (2026-08-16 対話ヒアリング)",
+      "answer": "現行構成で確定。技術基盤は現行リポジトリの構成(Next.js + Cloudflare Workers/OpenNext + D1 + Drizzle ORM)を正として仕様に確定する。",
+      "source": {
+        "kind": "user-dialogue"
+      },
+      "design_applications": [
+        {
+          "knowledge_ref": "nextjs:app-router",
+          "principle": "Next.js (現行リポジトリ構成) によるレスポンシブ管理画面",
+          "applicability": "applied",
+          "rationale": "PC主体+モバイル併用の利用形態(qa-uiux-web の情報設計9項目)に対しレスポンシブWebで対応する",
+          "tradeoffs": [
+            "ネイティブアプリ非対応のためプッシュ通知等はメール/Slack通知で代替する"
+          ]
+        },
+        {
+          "knowledge_ref": "docs/spec/01-要求仕様書-v1.0.md §24.2",
+          "principle": "WebMCP は機能フラグ配下の実験的追加インターフェース",
+          "applicability": "applied",
+          "rationale": "現行PoCは navigator.modelContext をfeature detectionして使う。通常UIを主系統・WebMCPを追加系統とし、ブラウザー登録APIは製品契約として固定しない",
+          "tradeoffs": [
+            "二系統の維持コストが生じるが、読み取り系ツールから段階導入して限定する"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "qa-ops-web",
+      "question": "書面入力 docs/spec/02-補充仕様-ギャップと追加要件.md §7 の保守運用 (maintenance-ops) × web 要件は何か",
+      "answer": "| 通知 | 投稿失敗・リンク切れ・プログラム終了・成果確定をメール/Slack/アプリ内で通知。通知チャネルはWorkspace設定 |\n| レート制限 | 各Connectorにレートリミッタとコスト上限(特にX API従量課金)。上限接近で警告、超過で自動停止 |\n| バックアップ | Workspace単位のエクスポート(記事・商品・リンク・成果CSV)。退会時データポータビリティ |\n| 監査 | AuditLog の必須記録対象を列挙:公開/削除/リンク差し替え/権限変更/成果データ修正/エクスポート |\n| 障害時 | リダイレクトサービスは計測DB障害時でも転送を止めない(計測はベストエフォート、転送は必達) |\n| 検索 | 記事・商品・リンクの横断全文検索。テナント別インデックス(26.4章と整合) |",
+      "source": {
+        "kind": "written-requirements",
+        "path": "docs/spec/02-補充仕様-ギャップと追加要件.md",
+        "section": "§7",
+        "sha256": "842757f299c015bfc425d953e06e8f28521a21191c3ba932d40f5889d0b33ffc"
+      },
+      "design_applications": [
+        {
+          "knowledge_ref": "docs/spec/02-補充仕様-ギャップと追加要件.md §7",
+          "principle": "通知・監査・バックアップ・障害時分離の運用設計",
+          "applicability": "applied",
+          "rationale": "投稿失敗/リンク切れ/プログラム終了/成果確定の通知、AuditLog 必須記録対象の列挙、Workspace 単位エクスポート、リダイレクト転送の計測非依存(転送必達)を運用要件とする",
+          "tradeoffs": [
+            "リンク切れ監視やレポート取り込みの定期ジョブ(cron)運用が必要となり、失敗時の再実行手順を Runbook 化する"
+          ]
+        },
+        {
+          "knowledge_ref": "docs/spec/01-要求仕様書-v1.0.md §8.4",
+          "principle": "商品情報更新の検知と影響範囲更新 (REFRESH_DUE)",
+          "applicability": "applied",
+          "rationale": "価格・仕様・販売状態の変更を検知して影響記事を一覧化し、人間確認を経て更新履歴を保存する",
+          "tradeoffs": [
+            "検知頻度を上げると外部API利用量が増えるため、レート予算内でジャンル別に頻度を調整する"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "qa-auth-web",
+      "question": "認証 (auth) × web の方式は何か (2026-08-16 対話ヒアリング)",
+      "answer": "A. Better Auth (Better Auth + Google OAuth) を選択。無料・OSS で、D1/Drizzle アダプタにより現行の Next.js + Cloudflare Workers + D1 スタックと同居できる。Google ログインを初期提供し、メール/パスワード・パスキーは後続拡張とする。セッションは D1 に保存し、Workspace 単位のマルチテナント分離と §25 のロール (Owner/Admin/Researcher/Writer/Reviewer/Publisher/Analyst) 権限をアプリ層で紐付ける。外部公開・予約投稿等の重要操作は認証済みユーザーの明示承認を必須とする。",
+      "source": {
+        "kind": "user-dialogue"
+      },
+      "design_applications": [
+        {
+          "knowledge_ref": "docs/spec/01-要求仕様書-v1.0.md#§25 チーム権限",
+          "principle": "最小権限の原則: ロールごとに操作可能範囲を限定し、公開・削除等の重要操作は承認フローを経る",
+          "applicability": "applied",
+          "rationale": "Better Auth のセッション/組織機能の上にアプリ層で Workspace ロールを実装し、§25 の Researcher/Writer/Reviewer/Publisher/Analyst 分業を強制する",
+          "tradeoffs": [
+            "ロール管理UIを自作する実装コストが増えるが、IDaaS 依存とユーザー課金を回避できる"
+          ]
+        },
+        {
+          "knowledge_ref": "docs/spec/01-要求仕様書-v1.0.md#§26.2 秘密情報管理",
+          "principle": "秘密情報 (OAuth クライアントシークレット・セッション鍵) は環境シークレットに分離し、テナントデータと混在させない",
+          "applicability": "applied",
+          "rationale": "Google OAuth のシークレットは Cloudflare Workers の Secrets に保管し、D1 にはセッション/アカウント情報のみを保存する",
+          "tradeoffs": [
+            "シークレットローテーション手順を保守運用に追加する必要がある"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "qa-backend-web-analytics",
+      "question": "backend×web: 分析・解析パイプライン (収集→正規化→集計→分析→活用) の要件は何か (書面入力 docs/spec/03 §1)",
+      "answer": "ClickEvent(リダイレクトサービス)\n  BehaviorEvent(ブログ計測タグ)\n  Channel Insights(SNS API)\n  Conversion(ASP API / CSV)\n      ↓\n[正規化層]\n  bot除外・重複排除・セッション化・ディメンション付与\n      ↓\n[集計層]\n  MetricRollup(日次 × ディメンション組み合わせ)\n      ↓\n[分析層]\n  KPIディクショナリ / Attribution / Experiment / Insight Engine\n      ↓\n[活用層]\n  Analyticsダッシュボード / InsightReport / 生成時の推奨(Brief への提案)\n```\n\n設計原則:\n\n* **イベントは不変(append-only)**。修正は打ち消しイベントで行う\n* **集計は再計算可能**。生イベントから任意時点のロールアップを再構築できる\n* **転送は必達、計測はベストエフォート**。リダイレクトはDB障害時も止めない\n* **Editorial / Commercial 分離**(v1.0 19.4章)。Insight Engine は配信戦略・表現の学習にのみ収益データを使い、商品評価・ランキングへは出力しない",
+      "source": {
+        "kind": "written-requirements",
+        "path": "docs/spec/03-分析・解析基盤仕様.md",
+        "section": "§1 全体アーキテクチャ",
+        "sha256": "06ff0611798db40da044e3551593209e94eef17babbdaf1aa555c16e93eb51c8"
+      },
+      "design_applications": [
+        {
+          "knowledge_ref": "docs/spec/03-分析・解析基盤仕様.md#§1",
+          "principle": "イベントは不変 (append-only) とし、集計は生イベントから再計算可能にする",
+          "applicability": "applied",
+          "rationale": "Cloudflare Workers 上のリダイレクト (/go/{tracking_link_id}) で ClickEvent を追記し、MetricRollup は日次バッチで再構築可能にする。既存の Workers + D1 + Drizzle スタックに Queue/Cron を追加して実装する",
+          "tradeoffs": [
+            "打ち消しイベント方式は実装が複雑になるが、集計の監査可能性と再現性を得る"
+          ]
+        },
+        {
+          "knowledge_ref": "docs/spec/03-分析・解析基盤仕様.md#§1",
+          "principle": "Editorial / Commercial 分離: 収益データは配信戦略の学習にのみ使い、商品評価・ランキングへ出力しない",
+          "applicability": "applied",
+          "rationale": "Insight Engine の入出力境界をコードレベルで分離し、Commercial DB への参照を Editorial 系モジュールから物理的に遮断する (v1.0 §19.4)",
+          "tradeoffs": [
+            "データ結合の自由度は下がるが、報酬額バイアスの混入を構造的に防止できる"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "qa-database-web-analytics",
+      "question": "database×web: 集計層 MetricRollup のスキーマと再計算方針は何か (書面入力 docs/spec/03 §5)",
+      "answer": "## 5. 集計層(MetricRollup)\n\n```yaml\nmetric_rollup:\n  date: date\n  grain: day\n  dimensions:                       # §3 の組み合わせ(正規化キー)\n    channel: string | null\n    angle: string | null\n    placement: string | null\n    audience_persona_id: string | null\n    # ... 任意の組み合わせ\n  measures:\n    impressions: number\n    link_impressions: number\n    clicks: number\n    conversions_pending: number\n    conversions_approved: number\n    revenue_pending: number\n    revenue_confirmed: number\n    pv: number\n    read_through: number\n```\n\n* 日次バッチ + 直近分の準リアルタイム加算(ダッシュボードは「本日分は速報」表示)\n* 成果の状態変化(pending→approved等)は対象日のロールアップを遡って再計算\n* 高カーディナリティ組み合わせは事前集計せず、生イベントへのアドホック集計で対応(集計セット定義はバージョン管理)",
+      "source": {
+        "kind": "written-requirements",
+        "path": "docs/spec/03-分析・解析基盤仕様.md",
+        "section": "§5 集計層(MetricRollup)",
+        "sha256": "17347f2711d62a9e954653b268df87ba93c98de5842bed16f08c45263a188020"
+      },
+      "design_applications": [
+        {
+          "knowledge_ref": "docs/spec/03-分析・解析基盤仕様.md#§5",
+          "principle": "日次グレインのロールアップを正とし、成果状態変化 (pending→approved) は対象日を遡って再計算する",
+          "applicability": "applied",
+          "rationale": "D1 (SQLite) に metric_rollup テーブルを Drizzle スキーマで定義し、workspace_id 必須のテナント分離を全イベント/集計テーブルに強制する。ClickEvent/BehaviorEvent は append-only、ip_hash は 90 日で削除",
+          "tradeoffs": [
+            "高カーディナリティ組み合わせを事前集計しないため、アドホック分析はレイテンシが増えるが、D1 の容量とコストを抑えられる"
+          ]
+        },
+        {
+          "knowledge_ref": "docs/spec/03-分析・解析基盤仕様.md#§2",
+          "principle": "Editorial Database と Commercial Database を分離し、成果・報酬データは Commercial 側のみに格納する",
+          "applicability": "applied",
+          "rationale": "Conversion/ClickEvent/MetricRollup は Commercial 系スキーマに置き、Editorial 側から参照不可にする (v1.0 §19.4 の物理的強制)",
+          "tradeoffs": [
+            "スキーマが二系統になり管理コストが増えるが、法令・信頼性要件を構造で担保できる"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "qa-frontend-web-analytics",
+      "question": "frontend×web: Analytics 拡張の画面ビュー要件は何か (書面入力 docs/spec/03 §8)",
+      "answer": "v1.0 22.8章のフィルタに加えて、次のビューを定義する。\n\n| ビュー | 内容 |\n| --- | --- |\n| パフォーマンス概要 | 期間比較付きの主要KPI(PV/クリック/CTR/CVR/EPC/確定報酬)。速報と確定を区別 |\n| ファネル | 表示→閲覧→リンク表示→クリック→成果発生→承認 の残存率。ディメンションで分解 |\n| 切り口分析 | angle × 媒体 のヒートマップ(CTR/EPC切替)。セルにnを常時表示 |\n| 配置分析 | 記事テンプレート上に placement 別CTRをオーバーレイ表示 |\n| リンク台帳 | TrackingLink 単位の一覧。CTR・EPC・状態・掲載先。並べ替え・CSV出力 |\n| インサイト受信箱 | InsightReport の一覧。確認→適用(Brief作成へ遷移)→却下 |\n| 実験 | Experiment の進捗・有意差・guardrail |\n| ASP突合状況 | プログラム別の成果件数・承認率・突合率・取り込みエラー |",
+      "source": {
+        "kind": "written-requirements",
+        "path": "docs/spec/03-分析・解析基盤仕様.md",
+        "section": "§8 画面仕様(Analytics 拡張)",
+        "sha256": "e055d16d4b4cdec15de67578ea6955ab50cf87666d6abc154410b5cdc4f29229"
+      },
+      "design_applications": [
+        {
+          "knowledge_ref": "docs/spec/03-分析・解析基盤仕様.md#§8",
+          "principle": "統計的規律の UI 反映: 速報と確定を区別し、ヒートマップのセルに n (サンプル数) を常時表示する",
+          "applicability": "applied",
+          "rationale": "Next.js (App Router) の Server Components で D1 のロールアップを描画し、本日分は「速報」バッジ、n 不足セルは結論表示を抑制する (§7.3 の規律を UI で強制)",
+          "tradeoffs": [
+            "表示ロジックが増えるが、根拠のない『勝ち宣言』を UI レベルで防げる"
+          ]
+        },
+        {
+          "knowledge_ref": "docs/spec/03-分析・解析基盤仕様.md#§8",
+          "principle": "インサイト受信箱: InsightReport は確認→適用 (Brief 作成へ遷移)→却下のワークフローで人間が裁定する",
+          "applicability": "applied",
+          "rationale": "分析結果の生成への反映 (I4) は自動ではなく、受信箱 UI での人間承認を経由させる",
+          "tradeoffs": [
+            "自動最適化より反映は遅くなるが、人間承認必須の制約 (U8) と整合する"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "qa-infra-web-redirect",
+      "question": "infrastructure×web: リダイレクトサービスの可用性要件は何か (書面入力 docs/spec/02 §7)",
+      "answer": "| 障害時 | リダイレクトサービスは計測DB障害時でも転送を止めない(計測はベストエフォート、転送は必達) |",
+      "source": {
+        "kind": "written-requirements",
+        "path": "docs/spec/02-補充仕様-ギャップと追加要件.md",
+        "section": "§7 運用系の補充",
+        "sha256": "1846072dcf669a0d2a8503e47bcb405cdbfc1eb47ae85efed5022b849babe3b6"
+      },
+      "design_applications": [
+        {
+          "knowledge_ref": "docs/spec/02-補充仕様-ギャップと追加要件.md#§7",
+          "principle": "転送は必達、計測はベストエフォート: 計測 DB 障害時でもリダイレクトを止めない",
+          "applicability": "applied",
+          "rationale": "Cloudflare Workers のエッジで original_url への 302 転送を先に確定し、ClickEvent の書き込みは waitUntil による非同期化 + 失敗時は Queue へ退避する。D1 障害が読者の遷移を阻害しない構成とする",
+          "tradeoffs": [
+            "障害時のクリックは計測欠損になるが、読者体験と ASP 成果 (収益) を優先する"
+          ]
+        },
+        {
+          "knowledge_ref": "docs/spec/02-補充仕様-ギャップと追加要件.md#§1",
+          "principle": "リダイレクト先は登録済み original_url そのままとし、パラメータを削除・追加しない",
+          "applicability": "applied",
+          "rationale": "ASP のリンク改変禁止 (U8) をインフラ層で保証する。sub_id 付与は対応 ASP のリンク生成時のみに限定する",
+          "tradeoffs": [
+            "経路情報の付加余地は減るが、ASP 規約違反リスクを排除できる"
+          ]
+        }
+      ]
+    }
+  ],
+  "approval_log": [
+    {
+      "id": "approval-foundation-1",
+      "note": "2026-08-16 対話ヒアリングで U1-U9 要約を提示し、利用者が「承認する」を選択 (AskUserQuestion 経由)"
+    },
+    {
+      "id": "approval-platform-web-only",
+      "note": "2026-08-16 AskUserQuestion で利用者が「Webのみ」を選択"
+    }
+  ],
+  "reopen_log": [
+    {
+      "category": "backend",
+      "platform": "web",
+      "reason": "C05 完成度評価の指摘: G2/I3 の中核である分析基盤 (docs/spec/03) が確定セルの qa_ref に未接地のため、書面入力 qa で再確定する",
+      "from": "確定",
+      "discarded": {
+        "qa_ref": "qa-backend-web",
+        "serves_goals": [
+          "G1",
+          "G2"
+        ]
+      }
+    },
+    {
+      "category": "database",
+      "platform": "web",
+      "reason": "C05 完成度評価の指摘: G2/I3 の中核である分析基盤 (docs/spec/03) が確定セルの qa_ref に未接地のため、書面入力 qa で再確定する",
+      "from": "確定",
+      "discarded": {
+        "qa_ref": "qa-database-web",
+        "serves_goals": [
+          "G1",
+          "G2"
+        ]
+      }
+    },
+    {
+      "category": "frontend",
+      "platform": "web",
+      "reason": "C05 完成度評価の指摘: 確定回答が他セルと同一文面の使い回しのため、セル固有の画面要件で再確定する",
+      "from": "確定",
+      "discarded": {
+        "qa_ref": "qa-frontend-web",
+        "serves_goals": [
+          "G1",
+          "G2"
+        ]
+      }
+    },
+    {
+      "category": "infrastructure",
+      "platform": "web",
+      "reason": "C05 完成度評価の指摘: 確定回答が他セルと同一文面の使い回しのため、セル固有の可用性要件で再確定する",
+      "from": "確定",
+      "discarded": {
+        "qa_ref": "qa-infra-web",
+        "serves_goals": [
+          "G1",
+          "G2"
+        ]
+      }
+    }
+  ],
+  "category_aggregate": {
+    "database": "確定",
+    "auth": "確定",
+    "ui-ux": "確定",
+    "security": "確定",
+    "infrastructure": "確定",
+    "backend": "確定",
+    "frontend": "確定",
+    "maintenance-ops": "確定"
+  },
+  "targets": [
+    {
+      "target_id": "better-auth",
+      "category": "auth"
+    },
+    {
+      "target_id": "nextjs",
+      "category": "frontend"
+    },
+    {
+      "target_id": "cloudflare-workers",
+      "category": "infrastructure"
+    },
+    {
+      "target_id": "cloudflare-d1",
+      "category": "database"
+    },
+    {
+      "target_id": "drizzle-orm",
+      "category": "backend"
+    },
+    {
+      "target_id": "owasp-asvs",
+      "category": "security"
+    },
+    {
+      "target_id": "apple-hig",
+      "category": "ui-ux"
+    },
+    {
+      "target_id": "google-sre",
+      "category": "maintenance-ops"
+    }
+  ],
+  "requirements_foundation": {
+    "essential_purpose": "発信者が、一つの信頼できる商品・サービス情報を起点に、複数のブログやSNSへ「誰が・誰に・何を・なぜ伝えるか」が一貫した高品質コンテンツを効率的に生成・公開・改善できる状態をつくり、読者の意思決定品質と発信者の継続的な収益性を同時に高める。",
+    "background": "アフィリエイトURL・ASP管理画面・商品情報・比較表・記事原稿・SNS投稿文・画像・ペルソナ・投稿スケジュール・クリック数・成果報酬・更新履歴が別々の場所で管理され、同じ商品名・価格・特徴を何度も入力し、修正時にも複数の投稿を個別に直す必要が生じている。",
+    "goals": [
+      {
+        "id": "G1",
+        "text": "一つのアフィリエイトURLを起点に、正しい商品情報・比較候補・根拠・書き手・読者・媒体・広告表示を統合し、目的の異なる高品質コンテンツを安全に作成・公開・改善できる"
+      },
+      {
+        "id": "G2",
+        "text": "どういう情報・切り口・媒体・配置がクリック率とアフィリエイト成果に有効かを計測・分析し、一元管理できる"
+      }
+    ],
+    "objectives": [
+      {
+        "id": "O1",
+        "text": "North Star Metric: 根拠確認と人間承認を完了し、複数媒体へ展開されたコンテンツパッケージ数を継続的に増やす",
+        "measure": "承認済み・複数媒体展開済みコンテンツパッケージ数 (生成数・投稿数は中心指標にしない)"
+      },
+      {
+        "id": "O2",
+        "text": "クリック・成果の要因分析が可能な計測カバレッジを確保する",
+        "measure": "成果のアトリビューション突合率 (sub_id/クリックID一致の割合)"
+      }
+    ],
+    "success_criteria": [
+      "情報源↔商品↔主張↔コンテンツパッケージ↔媒体別文章↔投稿↔クリック↔成果の経路を双方向に追跡できる",
+      "第30章の受け入れ条件 (URL登録・比較・ペルソナ・AI生成・ブログ・配信・アフィリエイト・追跡可能性) をすべて満たす",
+      "配置・切り口・ペルソナ別のCTR/CVR/EPCを比較でき、根拠のない発見を表示しない"
+    ],
+    "stakeholders": [
+      "読者: 自分に合う商品かを根拠と弱点込みで判断でき、広告であることを認識できる",
+      "発信者 (個人〜小規模チームのアフィリエイト運営者): 商品調査を媒体ごとに繰り返さず、複数ブログ・SNSを一元運営し、何が成果につながったかを確認できる",
+      "チームメンバー: Researcher/Writer/Reviewer/Publisher/Analyst のロールで分業する"
+    ],
+    "scope": {
+      "in": [
+        "マルチテナント",
+        "複数ブランド・複数ブログ構築",
+        "アフィリエイトURL登録・商品情報抽出・商品データベース",
+        "比較候補抽出",
+        "書き手・読者ペルソナ",
+        "AI文章生成・投稿パターン生成",
+        "SNS連携・投稿カレンダー",
+        "アフィリエイトリンク管理",
+        "クリック・成果分析",
+        "更新管理・広告法令確認",
+        "WebMCP・バックエンドMCP・API",
+        "チーム権限・承認フロー"
+      ],
+      "out": [
+        "他サイトの無断複製・規約違反スクレイピング",
+        "CAPTCHA等の回避",
+        "架空の体験・資格",
+        "無確認の大量自動投稿・スパム",
+        "報酬額基準のランキング",
+        "アフィリエイトリンクの無断改変",
+        "非公式note APIへの依存",
+        "投稿先ポリシーを無視した自動化"
+      ]
+    },
+    "constraints": [
+      "媒体ごとに公式APIの認証・権限・投稿形式・利用料金・審査条件が異なる (X APIは従量課金)",
+      "noteは一般公開の公式投稿APIがなく、出力・手動連携のみで設計する",
+      "ASPのリンク・広告コード改変禁止 (original_urlを無改変で保持)",
+      "景品表示法ステルスマーケティング規制への適合 (広告表記必須)",
+      "外部公開・予約投稿等の重要操作は人間の承認を必須とする"
+    ],
+    "concrete_intents": [
+      {
+        "id": "I1",
+        "text": "アフィリエイトURL登録から商品識別・情報収集・比較候補抽出・根拠付きデータ作成までを一元化する",
+        "serves": [
+          "G1"
+        ]
+      },
+      {
+        "id": "I2",
+        "text": "書き手・読者ペルソナと媒体ルールを入力に、ブログ・X・Instagram・Threads・note等の媒体別コンテンツを生成し人間承認を経て公開する",
+        "serves": [
+          "G1"
+        ]
+      },
+      {
+        "id": "I3",
+        "text": "どういう情報がクリック率が高いか・アフィリエイトに有効かを管理できる分析・解析の仕組みを整える (クリック計測・成果突合・ディメンション分析・Insight Engine)",
+        "serves": [
+          "G2"
+        ]
+      },
+      {
+        "id": "I4",
+        "text": "分析結果を次のコンテンツ生成 (Brief提案・配信戦略) へ反映する。ただし商品評価・ランキングへは自動反映しない",
+        "serves": [
+          "G2",
+          "G1"
+        ]
+      }
+    ],
+    "confirmed": true,
+    "approval_ref": "approval-foundation-1"
+  },
+  "decisions": [
+    {
+      "id": "decision-auth-method",
+      "question": "マルチテナントSaaSの利用者認証 (auth) をどの方式で実装するか",
+      "status": "confirmed",
+      "serves_goals": [
+        "G1"
+      ],
+      "options": [
+        {
+          "id": "opt-better-auth",
+          "label": "Better Auth + Google OAuth (自己ホスト)",
+          "cost_model": {
+            "category": "free",
+            "amount": 0,
+            "currency": "JPY",
+            "billing_period": "monthly",
+            "tco": "ライブラリ無料。運用コストは自前ホスティング (既存 Workers 内) のみで追加費用なし"
+          },
+          "free_tier_limits": "OSS のため利用数制限なし",
+          "goal_fit": "マルチテナントSaaSの一般ユーザー認証に適合。Drizzle/D1 アダプタで現行スタックと同居し、§25 のロール権限と組み合わせやすい",
+          "security_fit": "OAuth 2.0 / セッション管理 / MFA・パスキー拡張に対応。秘密情報はテナント別に暗号化保管 (§26.2)",
+          "pros": [
+            "無料・OSS",
+            "D1/Drizzle アダプタで現行構成に統合",
+            "Google ログインに加えメール/パスワード・パスキーを後付け可能",
+            "ベンダーロックインなし"
+          ],
+          "cons": [
+            "認証基盤の運用 (アップデート・監視) が自前",
+            "組織管理UIは自作が必要"
+          ],
+          "risks": [
+            "OSS のメンテナンス状況に依存するためバージョン追従を保守運用に組み込む"
+          ],
+          "lock_in": "なし (自己ホスト・標準プロトコル)",
+          "ops_burden": "中 (ライブラリ更新とセッションストア運用)",
+          "evidence_refs": [
+            "https://www.better-auth.com/docs/introduction"
+          ]
+        },
+        {
+          "id": "opt-idaas",
+          "label": "IDaaS (Clerk / Auth0)",
+          "cost_model": {
+            "category": "low-cost",
+            "amount": 3500,
+            "currency": "JPY",
+            "billing_period": "monthly",
+            "tco": "無料枠超過後は月間アクティブユーザー数課金。ユーザー増で費用が逓増"
+          },
+          "free_tier_limits": "Clerk: 10,000 MAU まで無料 (2026-08 時点)",
+          "goal_fit": "認証機能自体は充足するが、Workspace 単位のテナント分離は自前実装が残る",
+          "security_fit": "MFA・異常検知が既製で強い",
+          "pros": [
+            "運用負荷が最小",
+            "組織管理・MFA が既製"
+          ],
+          "cons": [
+            "ユーザー数課金",
+            "外部サービス依存"
+          ],
+          "risks": [
+            "ベンダーロックイン",
+            "料金体系変更の影響を受ける"
+          ],
+          "lock_in": "高 (ユーザーデータ移行が必要)",
+          "ops_burden": "低",
+          "evidence_refs": [
+            "https://clerk.com/pricing"
+          ]
+        },
+        {
+          "id": "opt-cf-access",
+          "label": "Cloudflare Access (Zero Trust)",
+          "cost_model": {
+            "category": "free",
+            "amount": 0,
+            "currency": "JPY",
+            "billing_period": "monthly",
+            "tco": "50ユーザーまで無料。超過はシート課金"
+          },
+          "free_tier_limits": "50 ユーザーまで無料",
+          "goal_fit": "社内ツールのアクセス制御向き。一般公開SaaSの会員登録・セルフサインアップには不適合",
+          "security_fit": "境界防御としては強いがアプリ内ロール権限は別実装",
+          "pros": [
+            "インフラと同一ベンダーで設定が容易"
+          ],
+          "cons": [
+            "セルフサインアップに不向き",
+            "テナント概念がない"
+          ],
+          "risks": [
+            "利用者数拡大時にシート課金が急増する"
+          ],
+          "lock_in": "中 (Cloudflare 依存)",
+          "ops_burden": "低",
+          "evidence_refs": [
+            "https://developers.cloudflare.com/cloudflare-one/policies/access/"
+          ]
+        }
+      ],
+      "recommendation": {
+        "option_id": "opt-better-auth",
+        "rationale": "費用ゼロ・ロックインなしで現行の D1/Drizzle/Workers 構成に統合でき、一般公開SaaSのセルフサインアップと §25 ロール権限の要件を満たす",
+        "caveats": [
+          "ライブラリ更新の追従を保守運用 (maintenance-ops) に組み込むこと",
+          "組織 (Workspace) 管理UIは自作となる"
+        ],
+        "confidence": "high",
+        "comparison_basis": {
+          "goal_fit": "一般公開マルチテナントSaaSのセルフサインアップ可否と §25 ロール統合性で比較",
+          "tco": "月額固定費と MAU 課金の逓増リスクで比較",
+          "security": "OAuth/MFA/セッション管理と §26.2 の秘密分離適合で比較",
+          "operations": "アップデート追従・監視の自前運用量で比較",
+          "lock_in": "ユーザーデータの移行可能性で比較"
+        },
+        "latest_checked_at": "2026-08-16T00:00:00Z"
+      },
+      "user_decision": {
+        "option_id": "opt-better-auth",
+        "confirmed_at": "2026-08-16T00:00:00Z",
+        "note": "2026-08-16 AskUserQuestion で利用者が A. Better Auth を選択"
+      }
+    }
+  ],
+  "knowledge_candidates": [],
+  "hearing_progress": {
+    "loop_count": 4,
+    "next_question": null,
+    "complete": true,
+    "max_loops": 5
+  }
+}

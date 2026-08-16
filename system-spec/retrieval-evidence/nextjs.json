@@ -1,0 +1,9 @@
+{
+ "target_id": "nextjs",
+ "source_url": "https://nextjs.org/docs",
+ "retrieved_at": "2026-08-16T09:01:51Z",
+ "http_status": 200,
+ "content_bytes": 419100,
+ "content_sha256": "40e69b97c8d2186e17b5b7c0c1b9d6782332875f2e19c21ba6bc5ba2b5cb4cdd",
+ "page_title": "Next.js Docs | Next.js"
+}
