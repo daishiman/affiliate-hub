@@ -9,6 +9,15 @@ import {
   createListSitesUseCase,
   createSearchArticlesUseCase,
 } from "@/application/usecases/site/read-site";
+import {
+  createGetReaderToolUseCase,
+  createListReaderToolsUseCase,
+  createListShortlistUseCase,
+  createRemoveFromShortlistUseCase,
+  createRunReaderToolUseCase,
+  createSaveToShortlistUseCase,
+  createSubmitContactUseCase,
+} from "@/application/usecases/site/reader-interaction";
 import type { ActorContext } from "@/domain/shared";
 import { taggedString } from "@/domain/shared";
 import { createDeps } from "@/infrastructure/composition";
@@ -85,6 +94,29 @@ export function siteUseCases() {
     getPerson: createGetPersonUseCase(site),
     listCorrections: createListCorrectionsUseCase(site),
     getPolicy: createGetPolicyDocumentUseCase(site),
+  };
+}
+
+/**
+ * 読者が自分で操作するもの（気になる商品・診断・問い合わせ）。
+ *
+ * 画面も REST も WebMCP もここから取る。入口ごとに組み立て直さない。
+ */
+export function readerUseCases() {
+  const deps = createDeps();
+  const reader = {
+    shortlist: deps.shortlist,
+    readerTools: deps.readerTools,
+    contact: deps.contact,
+  };
+  return {
+    listShortlist: createListShortlistUseCase(reader),
+    saveToShortlist: createSaveToShortlistUseCase(reader),
+    removeFromShortlist: createRemoveFromShortlistUseCase(reader),
+    getReaderTool: createGetReaderToolUseCase(reader),
+    listReaderTools: createListReaderToolsUseCase(reader),
+    runReaderTool: createRunReaderToolUseCase(reader),
+    submitContact: createSubmitContactUseCase(reader),
   };
 }
 

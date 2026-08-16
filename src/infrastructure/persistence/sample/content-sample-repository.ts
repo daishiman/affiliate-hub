@@ -130,6 +130,7 @@ const LAPTOP_RANKING: PublishedArticle = {
         totalScore: 78,
         criterionScores: [92, 78, 70, 60, 55],
         affiliateUrl: "https://example.com/click?aid=sample&pid=alpha15",
+        reviewSlug: "alpha-studio-15",
         oneLine: "書き出しが最も速い。重さは 1.9kg。",
       },
       {
@@ -388,6 +389,7 @@ const CORRECTIONS: readonly {
   readonly id: string;
   readonly correctedAt: string;
   readonly articleSlug: string;
+  readonly articleType: PublishedArticle["type"];
   readonly articleTitle: string;
   readonly what: string;
   readonly why: string;
@@ -397,6 +399,7 @@ const CORRECTIONS: readonly {
     id: "cor_1",
     correctedAt: "2026-08-01",
     articleSlug: LAPTOP_RANKING.slug,
+    articleType: LAPTOP_RANKING.type,
     articleTitle: LAPTOP_RANKING.title,
     what: "Beta Creator 14 の重さを 1.4kg から 1.3kg に直しました。",
     why: "初出時に旧型の仕様値を参照していたため。実機を計測し直しました。",

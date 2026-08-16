@@ -3,7 +3,7 @@ import type {
   PublishedArticle,
   PublishedPerson,
 } from "@/application/read-models/published-article";
-import type { SiteBlueprint } from "@/domain/authoring";
+import type { ArticleType, SiteBlueprint } from "@/domain/authoring";
 import type { Editorial } from "@/domain/shared";
 import type { PortResult } from "./common";
 
@@ -50,6 +50,8 @@ export type PublishedContentPort = {
       readonly id: string;
       readonly correctedAt: string;
       readonly articleSlug: string;
+      /** 記事の URL を作るのに要る。訂正だけを見て記事へ戻れるようにする。 */
+      readonly articleType: ArticleType;
       readonly articleTitle: string;
       readonly what: string;
       readonly why: string;

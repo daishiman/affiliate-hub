@@ -6,7 +6,7 @@
 「スタブ」は、つなぎ目だけあって中身がまだ無いもの。呼ぶと必ず失敗を返す。
 成功したふりをしないので、「つながっているのに結果が空」という分かりにくい壊れ方をしない。
 
-件数: 24
+件数: 27
 
 | 識別子 | 何のスタブか | つなぎ目 | 何が済めば実装できるか |
 |---|---|---|---|
@@ -33,4 +33,7 @@
 | `persistence:content-sample` | 公開記事の保存先（見本データ） | PublishedContentPort | content_packages / published_articles テーブルの追加とマイグレーション |
 | `persistence:ranking-sample` | ランキングの保存先（見本データ） | EditorialRankingModelRepositoryPort / EditorialScoreCardRepositoryPort | ranking_models / score_cards テーブルの追加とマイグレーション |
 | `persistence:site-sample` | ブログの設計図（見本データ） | SiteRepositoryPort | site_blueprints テーブルの追加とマイグレーション |
+| `reader:contact-sink` | 問い合わせの受け取り（送信せず記録のみ） | ContactPort | Turnstile の鍵と送信元メールアドレスの登録（利用者本人が登録する） |
+| `reader:shortlist-memory` | 気になる商品の保存（処理中のメモリ） | ShortlistPort | 読者ごとの保存先 (KV 名前空間) の作成 |
+| `reader:tools-sample` | 診断・計算の道具（見本の定義のみ） | ReaderToolPort | 商品データの取込と、道具ごとの計算式の登録 |
 | `storage:signed-url` | ファイルの一時公開URL発行 | StoragePort.getSignedUrl | R2 の署名付きURLは公開バケットまたは Worker 経由の配信方針を決めてから実装する。現状は公開バケットの固定URLで代替できる |

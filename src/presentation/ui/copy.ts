@@ -143,6 +143,7 @@ export const UI_COPY = {
     search: "探す",
     filter: "絞り込む",
     reset: "条件を戻す",
+    run: "計算する",
     showDetails: "内訳を見る",
     hideDetails: "内訳を閉じる",
   },
@@ -263,6 +264,22 @@ export const UI_COPY = {
     emptyListBody: "最初の記事を準備しています。公開までしばらくお待ちください。",
     searchEmptyTitle: "見つかりませんでした",
     searchEmptyBody: "言葉を短くするか、別の言い方でもう一度お試しください。",
+  },
+
+  /** 探す・気になる商品・問い合わせ。読者が自分で操作する画面。 */
+  reader: {
+    searchLabel: "探したい言葉",
+    searchHint: "商品名でも、「持ち運びやすい」のような言い方でも構いません。",
+    searchSubmit: "探す",
+    searchPrompt: "言葉を入れて探してください。",
+    searchResultFormat: "「{query}」の結果 {count} 件",
+    shortlistTitle: "気になる商品",
+    shortlistEmpty: "まだ保存された商品はありません。記事の中の「気になる」から保存できます。",
+    contactLabel: "お問い合わせ内容",
+    contactEmailLabel: "返信先のメールアドレス",
+    contactSubmit: "送信する",
+    contactSending: "送信しています",
+    contactNote: "記事の誤りのご指摘は、訂正のページに記録して公開します。",
   },
 
   /** ナビゲーション。 */

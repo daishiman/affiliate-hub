@@ -3,7 +3,14 @@ import {
   type PublishedArticle,
   articleHref,
 } from "@/application/read-models/published-article";
-import { type SiteBlueprint, type SiteRoute, buildPath, footerRoutes, routesFor } from "@/domain/authoring";
+import {
+  type ArticleType,
+  type SiteBlueprint,
+  type SiteRoute,
+  buildPath,
+  footerRoutes,
+  routesFor,
+} from "@/domain/authoring";
 import type {
   ArticleCardView,
   ArticleViewModel,
@@ -98,17 +105,8 @@ export function toArticleCards(
   return summaries.map((s) => toArticleCard(siteSlug, s));
 }
 
-/**
- * 記事 1 本。
- *
- * `productReviewSlug` は順位表の商品名から個別レビューへ落とすための対応。
- * 対応が無い商品はリンクにしない（存在しないページへ送らない）。
- */
-export function toArticleView(
-  siteSlug: string,
-  article: PublishedArticle,
-  productReviewSlug: (productId: string) => string | undefined = () => undefined,
-): ArticleViewModel {
+/** 記事 1 本。順位表の商品名は、レビューがある商品だけリンクにする。 */
+export function toArticleView(siteSlug: string, article: PublishedArticle): ArticleViewModel {
   return {
     title: article.title,
     summary: article.summary,
@@ -149,21 +147,18 @@ export function toArticleView(
             caption: article.ranking.caption,
             updatedAt: article.ranking.updatedAt,
             criteria: article.ranking.criteria,
-            rows: article.ranking.entries.map((e) => {
-              const reviewSlug = productReviewSlug(e.productId);
-              return {
-                productId: e.productId,
-                rank: e.rank,
-                productName: e.productName,
-                totalScore: e.totalScore,
-                criterionScores: e.criterionScores,
-                href:
-                  reviewSlug === undefined
-                    ? undefined
-                    : siteHref(siteSlug, `/reviews/${reviewSlug}`),
-                note: e.oneLine,
-              };
-            }),
+            rows: article.ranking.entries.map((e) => ({
+              productId: e.productId,
+              rank: e.rank,
+              productName: e.productName,
+              totalScore: e.totalScore,
+              criterionScores: e.criterionScores,
+              href:
+                e.reviewSlug === undefined
+                  ? undefined
+                  : siteHref(siteSlug, `/reviews/${e.reviewSlug}`),
+              note: e.oneLine,
+            })),
             excluded: article.ranking.excluded,
           },
     comparison:
@@ -196,17 +191,18 @@ export function toCorrectionViews(
     readonly id: string;
     readonly correctedAt: string;
     readonly articleSlug: string;
+    readonly articleType: ArticleType;
     readonly articleTitle: string;
     readonly what: string;
     readonly why: string;
   }[],
-  hrefOf: (articleSlug: string) => string,
 ): readonly CorrectionView[] {
   return corrections.map((c) => ({
     id: c.id,
     correctedAt: c.correctedAt,
     articleTitle: c.articleTitle,
-    articleHref: hrefOf(c.articleSlug),
+    // 記事の URL の作り方は 1 箇所（articleHref）だけ。ここで組み立て直さない。
+    articleHref: siteHref(siteSlug, articleHref({ type: c.articleType, slug: c.articleSlug })),
     what: c.what,
     why: c.why,
   }));

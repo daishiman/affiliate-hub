@@ -4,6 +4,11 @@ import {
   createSampleRankingModelRepository,
   createSampleScoreCardRepository,
 } from "./persistence/sample/ranking-sample-repository";
+import {
+  createSampleContactSink,
+  createSampleReaderToolRepository,
+  createSampleShortlistRepository,
+} from "./persistence/sample/reader-interaction-sample";
 import { createSampleSiteRepository } from "./persistence/sample/site-sample-repository";
 
 /**
@@ -28,5 +33,10 @@ export function createDeps(): AppDeps {
     //   site_blueprints / published_articles テーブルができたら差し替える。
     sites: createSampleSiteRepository(),
     publishedContent: createSampleContentRepository(),
+    // ★ 見本（スタブ）。読者が自分で操作するもの。
+    //   保存先 (KV)・計算式・問い合わせの送信先が用意できたら差し替える。
+    shortlist: createSampleShortlistRepository(),
+    readerTools: createSampleReaderToolRepository(),
+    contact: createSampleContactSink(),
   };
 }

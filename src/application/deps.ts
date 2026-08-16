@@ -3,6 +3,11 @@ import type {
   EditorialScoreCardRepositoryPort,
 } from "./ports";
 import type {
+  EditorialContactPort,
+  EditorialReaderToolPort,
+  EditorialShortlistPort,
+} from "./ports/reader-interaction";
+import type {
   EditorialPublishedContentPort,
   EditorialSiteRepositoryPort,
 } from "./ports/site";
@@ -21,4 +26,7 @@ export type AppDeps = {
   readonly scoreCards: EditorialScoreCardRepositoryPort;
   readonly sites: EditorialSiteRepositoryPort;
   readonly publishedContent: EditorialPublishedContentPort;
+  readonly shortlist: EditorialShortlistPort;
+  readonly readerTools: EditorialReaderToolPort;
+  readonly contact: EditorialContactPort;
 };

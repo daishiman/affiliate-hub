@@ -56,6 +56,11 @@ export type PublishedRankingEntry = {
   readonly criterionScores: readonly number[];
   /** 成果リンク。無い商品もある（提携していない場合）。 */
   readonly affiliateUrl?: string;
+  /**
+   * 個別レビュー記事の名前。まだレビューを書いていない商品もあるので任意。
+   * 無いときは商品名をリンクにしない（存在しないページへ送らない）。
+   */
+  readonly reviewSlug?: string;
   readonly oneLine: string;
 };
 
