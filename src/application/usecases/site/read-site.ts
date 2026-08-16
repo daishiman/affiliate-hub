@@ -94,8 +94,16 @@ export type ListSitesOutput = readonly {
   readonly blueprint: SiteBlueprint;
 }[];
 
+/**
+ * 引数の無いユースケースの入力。
+ *
+ * `void` にすると、入力の形を JSON Schema にできず
+ * REST / WebMCP / MCP の 3 入口へ配れない。空の物として扱う。
+ */
+export type NoInput = Record<string, never>;
+
 /** 運用中のブログ一覧。プラットフォーム側の一覧画面と、ブログ間の相互リンクで使う。 */
-export function createListSitesUseCase(deps: ReadSiteDeps): UseCase<void, ListSitesOutput> {
+export function createListSitesUseCase(deps: ReadSiteDeps): UseCase<NoInput, ListSitesOutput> {
   guardEditorial(deps);
   return {
     async execute(): Promise<Result<ListSitesOutput, DomainError>> {

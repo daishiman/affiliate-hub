@@ -3,9 +3,11 @@ import type { RankProductsInput } from "@/application/usecases/ranking/rank-prod
 import { createRankProductsUseCase } from "@/application/usecases/ranking/rank-products";
 import type { AppDeps } from "@/application/deps";
 import type { RankingResult } from "@/domain/ranking";
-import { domainError, err, ok } from "@/domain/shared";
-import type { DomainError, ProductId, RankingModelId, Result } from "@/domain/shared";
+import { ok } from "@/domain/shared";
+import type { ProductId, RankingModelId } from "@/domain/shared";
 import type { AnyToolDefinition, ToolDefinition } from "./tool-definition";
+import { parseWith, toJsonSchema } from "./define-tool";
+import { siteTools } from "./site-tools";
 
 /**
  * ツールの一覧。
@@ -14,46 +16,6 @@ import type { AnyToolDefinition, ToolDefinition } from "./tool-definition";
  * 入口ごとに登録作業をしない。登録漏れによる「画面にはあるが AI からは使えない」
  * (逆も) を構造的になくす。
  */
-
-/**
- * 入力検証は zod を 1 つの正本にする。
- *
- * ここから JSON Schema を作って配るので、
- * 「ツールが宣言している形」と「実際に受け付ける形」がずれない。
- */
-function toJsonSchema(schema: z.ZodType): Readonly<Record<string, unknown>> {
-  return z.toJSONSchema(schema) as Readonly<Record<string, unknown>>;
-}
-
-function parseWith<T>(schema: z.ZodType<T>): (raw: unknown) => Result<T, DomainError> {
-  return (raw) => {
-    const result = schema.safeParse(raw);
-    if (result.success) return ok(result.data);
-    const first = result.error.issues[0];
-    return err(
-      domainError("VALIDATION_FAILED", jaMessage(first), {
-        field: first?.path.join(".") || undefined,
-        suggestedAction: "入力の形式を確認して、もう一度お試しください。",
-      }),
-    );
-  };
-}
-
-/** zod の英語メッセージのままでは利用者が直せないため、要点を日本語に置き換える。 */
-function jaMessage(issue: z.core.$ZodIssue | undefined): string {
-  if (issue === undefined) return "入力の形式が正しくありません。";
-  const where = issue.path.length > 0 ? `「${issue.path.join(".")}」` : "入力";
-  switch (issue.code) {
-    case "invalid_type":
-      return `${where}の形式が正しくありません。`;
-    case "too_small":
-      return `${where}が足りません。`;
-    case "too_big":
-      return `${where}が多すぎます。`;
-    default:
-      return `${where}を確認してください。`;
-  }
-}
 
 // ---------------------------------------------------------------------------
 // rank_products
@@ -110,7 +72,7 @@ export function rankProductsTool(
  * 入口 (REST / WebMCP / MCP) 側のコードは触らない。
  */
 export function buildToolCatalog(deps: CatalogDeps): readonly AnyToolDefinition[] {
-  return [rankProductsTool(deps)];
+  return [rankProductsTool(deps), ...siteTools(deps)];
 }
 
 export function findTool(
