@@ -190,6 +190,7 @@ export default function UiCatalogPage() {
               { key: "weight", label: "重さ", numeric: true, unit: "kg" },
               { key: "battery", label: "電池の持ち", numeric: true, unit: "時間" },
               { key: "port", label: "映像出力" },
+              { key: "display", label: "画面の大きさ", numeric: true, unit: "インチ" },
             ]}
             rows={[
               {
@@ -199,6 +200,7 @@ export default function UiCatalogPage() {
                   weight: { value: "1.32", factuality: "fact", checkedAt: "2026-03-01" },
                   battery: { value: "18", factuality: "fact", checkedAt: "2026-03-01" },
                   port: { value: "HDMI 2.1", factuality: "fact", checkedAt: "2026-03-01" },
+                  display: { value: "16.0", factuality: "fact", checkedAt: "2026-03-01" },
                 },
               },
               {
