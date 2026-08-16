@@ -1,0 +1,9 @@
+{
+ "target_id": "google-sre",
+ "source_url": "https://sre.google/sre-book/table-of-contents/",
+ "retrieved_at": "2026-08-16T09:11:22Z",
+ "http_status": 200,
+ "content_bytes": 21203,
+ "content_sha256": "340dc9874c17386f85eb636fa0f86bc21834eb745280bebb8177d07e71a22e90",
+ "page_title": "Google SRE - Site reliability engineering book Google index"
+}

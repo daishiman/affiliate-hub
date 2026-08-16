@@ -13,13 +13,19 @@
 
 | ドキュメント | 内容 |
 | --- | --- |
-| [ai-first-webmcp.md](./docs/spec/ai-first-webmcp.md) | 構築仕様書 v1.0。Phase 0〜6 の実装計画を含む |
-| [data-model-gap.md](./docs/spec/data-model-gap.md) | 仕様書のデータモデルと現在のスキーマの差分 |
-| [completion-criteria.md](./docs/spec/completion-criteria.md) | 完了条件を検証可能な形にしたチェックリスト |
+| [00-README.md](./docs/spec/00-README.md) | 正本の優先順位と文書状態の読み方 |
+| [01-要求仕様書-v1.0.md](./docs/spec/01-要求仕様書-v1.0.md) | プロダクト全体の目的と要求 |
+| [02-補充仕様-ギャップと追加要件.md](./docs/spec/02-補充仕様-ギャップと追加要件.md) | ギャップと未決事項 |
+| [03-分析・解析基盤仕様.md](./docs/spec/03-分析・解析基盤仕様.md) | 計測・成果・KPI の詳細正本 |
+| [ai-first-webmcp.md](./docs/spec/ai-first-webmcp.md) | 読者向け比較メディアと WebMCP の Phase 0 契約 |
+| [data-model-gap.md](./docs/spec/data-model-gap.md) | 運営者ドメインと読者ドメインの差分 |
+| [completion-criteria.md](./docs/spec/completion-criteria.md) | Phase 0 完了条件の検証分解 |
 
-> **現在の実装は仕様書の Phase 1 未満です。** 下記「概要」は既存実装（運営者向けの成果管理）の
-> 説明であり、仕様書が目指す読者向けの比較メディアとは別ドメインです。差分は
-> [data-model-gap.md](./docs/spec/data-model-gap.md) を参照してください。
+実装投影は [`system-spec/`](./system-spec/) にある。関心ごとの正本は [00-README.md](./docs/spec/00-README.md) を優先する。
+
+> **現在の実装は仕様の完成形ではない。** 運営者向けの案件・成果管理（既存3テーブル）と、
+> 読者向け比較メディア（Phase 1 の記事・商品スキーマと公開ゲート）が同居している。
+> 混ぜて使ってはいけない。差分は [data-model-gap.md](./docs/spec/data-model-gap.md) を参照。
 
 ## 概要（既存実装）
 

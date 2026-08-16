@@ -1,0 +1,100 @@
+{
+  "references": [
+    {
+      "target_id": "better-auth",
+      "retrieved_at": "2026-08-16T09:01:51Z",
+      "source_url": "https://www.better-auth.com/docs/introduction",
+      "official_publisher": "Better Auth",
+      "official_host": "www.better-auth.com",
+      "version": "1.6.29",
+      "latest_checked_at": "2026-08-16T09:02:16Z",
+      "evidence_ref": "system-spec/retrieval-evidence/better-auth.json",
+      "evidence_sha256": "c6d3a97c692a9c54791a1d2d678a65a0ce12a7a223a588d8e4651ac189f0cbec",
+      "summary": "Better Auth 公式ドキュメント導入章。TypeScript 向け自己ホスト認証フレームワーク。OAuth (Google 含む)・セッション管理・組織/マルチテナント・パスキー等のプラグインと Drizzle アダプタを提供。"
+    },
+    {
+      "target_id": "nextjs",
+      "retrieved_at": "2026-08-16T09:01:51Z",
+      "source_url": "https://nextjs.org/docs",
+      "official_publisher": "Vercel",
+      "official_host": "nextjs.org",
+      "version": "16.3.1",
+      "latest_checked_at": "2026-08-16T09:02:16Z",
+      "evidence_ref": "system-spec/retrieval-evidence/nextjs.json",
+      "evidence_sha256": "47a4780cf2efb4f19bc8c5fd6ddb0af10595315e4a6deafd1a653c7d8a7e4a03",
+      "summary": "Next.js 公式ドキュメント。App Router・Server Components・ルーティング/データ取得の現行仕様。frontend カテゴリの正本参照。"
+    },
+    {
+      "target_id": "cloudflare-workers",
+      "retrieved_at": "2026-08-16T09:01:51Z",
+      "source_url": "https://developers.cloudflare.com/workers/",
+      "official_publisher": "Cloudflare",
+      "official_host": "developers.cloudflare.com",
+      "last_updated": "2026-08-16",
+      "latest_checked_at": "2026-08-16T09:02:16Z",
+      "evidence_ref": "system-spec/retrieval-evidence/cloudflare-workers.json",
+      "evidence_sha256": "547273bdf05b1043873d5fb6656b50375e17d12b41b036158cb1f5e8376fdd53",
+      "summary": "Cloudflare Workers 公式ドキュメント。サーバレス実行環境・バインディング・Secrets 管理。infrastructure カテゴリと OpenNext デプロイの正本参照。"
+    },
+    {
+      "target_id": "cloudflare-d1",
+      "retrieved_at": "2026-08-16T09:01:52Z",
+      "source_url": "https://developers.cloudflare.com/d1/",
+      "official_publisher": "Cloudflare",
+      "official_host": "developers.cloudflare.com",
+      "last_updated": "2026-08-16",
+      "latest_checked_at": "2026-08-16T09:02:16Z",
+      "evidence_ref": "system-spec/retrieval-evidence/cloudflare-d1.json",
+      "evidence_sha256": "d483ea2056490c3109c32ae9503268127924f4296786c891e830137eab9f6684",
+      "summary": "Cloudflare D1 公式ドキュメント。SQLite ベースのサーバレス SQL データベース。database カテゴリ (テナント別データ・セッション保存) の正本参照。"
+    },
+    {
+      "target_id": "drizzle-orm",
+      "retrieved_at": "2026-08-16T09:01:52Z",
+      "source_url": "https://orm.drizzle.team/docs/overview",
+      "official_publisher": "Drizzle Team",
+      "official_host": "orm.drizzle.team",
+      "version": "0.45.2",
+      "latest_checked_at": "2026-08-16T09:02:16Z",
+      "evidence_ref": "system-spec/retrieval-evidence/drizzle-orm.json",
+      "evidence_sha256": "cd074133e59cdfed55b181039ac716df8afd29f05b2261f27341c035f12557e4",
+      "summary": "Drizzle ORM 公式ドキュメント概要。TypeScript ORM・スキーマ定義・マイグレーション。D1 ドライバ対応。backend カテゴリのデータアクセス正本参照。"
+    },
+    {
+      "target_id": "owasp-asvs",
+      "retrieved_at": "2026-08-16T09:11:19Z",
+      "source_url": "https://owasp.org/www-project-application-security-verification-standard/",
+      "official_publisher": "OWASP Foundation",
+      "official_host": "owasp.org",
+      "version": "5.0",
+      "latest_checked_at": "2026-08-16T09:11:39Z",
+      "evidence_ref": "system-spec/retrieval-evidence/owasp-asvs.json",
+      "evidence_sha256": "f389ec6f1d561eb5c9bb38d66506d0668ddf62f85dc01bfec06393093d2571a7",
+      "summary": "OWASP Application Security Verification Standard 公式ページ。認証・セッション・入力検証・暗号化・監査ログの検証要件。security/auth 章の doctrine authority。"
+    },
+    {
+      "target_id": "apple-hig",
+      "retrieved_at": "2026-08-16T09:11:20Z",
+      "source_url": "https://developer.apple.com/design/human-interface-guidelines",
+      "official_publisher": "Apple",
+      "official_host": "developer.apple.com",
+      "last_updated": "2026-08-16",
+      "latest_checked_at": "2026-08-16T09:11:39Z",
+      "evidence_ref": "system-spec/retrieval-evidence/apple-hig.json",
+      "evidence_sha256": "19a11d42f62d7ec8e52e08e8f2307b43f5de691cc94ddfae3cdc54de9b6c4c91",
+      "summary": "Apple Human Interface Guidelines 公式ページ。presentation concern の doctrine authority。レスポンシブ Web UI の階層・フィードバック・アクセシビリティの上流指針。"
+    },
+    {
+      "target_id": "google-sre",
+      "retrieved_at": "2026-08-16T09:11:22Z",
+      "source_url": "https://sre.google/sre-book/table-of-contents/",
+      "official_publisher": "Google",
+      "official_host": "sre.google",
+      "last_updated": "2026-08-16",
+      "latest_checked_at": "2026-08-16T09:11:39Z",
+      "evidence_ref": "system-spec/retrieval-evidence/google-sre.json",
+      "evidence_sha256": "5edf6b842e202bae47ef8ae562d632472f2d20df65392073472040f59f265658",
+      "summary": "Google SRE Book 公式目次。SLO・エラーバジェット・モニタリング・ポストモーテムの上流指針。maintenance-ops/infrastructure 章の doctrine authority。"
+    }
+  ]
+}

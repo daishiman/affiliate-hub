@@ -22,9 +22,22 @@
   "extraKnownMarketplaces": {
     "harness-hub": {
       "source": {
-        "source": "directory",
-        "path": "./"
+        "path": "./",
+        "source": "directory"
       }
     }
+  },
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "command": "bd prime --hook-json",
+            "type": "command"
+          }
+        ],
+        "matcher": ""
+      }
+    ]
   }
 }
