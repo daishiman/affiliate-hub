@@ -56,6 +56,7 @@ export {
 } from "./patterns/approval";
 export { StubNotice, StubLabel } from "./patterns/stub-notice";
 export { WorkBoard, type WorkBoardItem } from "./patterns/work-board";
+export { FilterBar, type FilterAxis } from "./patterns/filter-bar";
 export {
   ScheduleCalendar,
   type ScheduleCalendarDay,

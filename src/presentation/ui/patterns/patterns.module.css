@@ -477,3 +477,112 @@
     border-radius: var(--radius-md);
   }
 }
+
+/* --- 絞り込みの棚 -------------------------------------------------------- */
+
+.filterBar {
+  display: grid;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  border: var(--border-width-default) solid var(--color-border-subtle);
+  border-radius: var(--radius-md);
+  background: var(--color-surface-sunken);
+}
+
+.filterFields {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(var(--card-min-width), 1fr));
+  gap: var(--space-3);
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.filterLegend {
+  padding: 0;
+  color: var(--color-text-strong);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+}
+
+.filterField {
+  display: grid;
+  gap: var(--space-1);
+}
+
+.filterLabel {
+  color: var(--color-text-default);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+}
+
+/* 報酬に直結する切り口であることを、色ではなく言葉で示す。 */
+.filterCommercial {
+  color: var(--color-text-muted);
+  font-size: var(--text-xs);
+  font-weight: var(--weight-normal);
+}
+
+.filterSelect {
+  min-height: var(--tap-target-min);
+  padding: var(--space-2);
+  border: var(--border-width-emphasis) solid var(--color-border-default);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-default);
+  color: var(--color-text-default);
+  font-size: var(--text-sm);
+}
+
+.filterSelect:focus-visible {
+  outline: var(--focus-ring-width) solid var(--color-focus-ring);
+  outline-offset: var(--focus-ring-offset);
+}
+
+.filterHint {
+  color: var(--color-text-muted);
+  font-size: var(--text-xs);
+  line-height: var(--leading-body);
+}
+
+.filterActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  align-items: center;
+}
+
+.filterSubmit {
+  min-height: var(--tap-target-min);
+  padding: var(--space-2) var(--space-4);
+  border: var(--border-width-emphasis) solid var(--color-action-default);
+  border-radius: var(--radius-sm);
+  background: var(--color-action-default);
+  color: var(--color-text-on-action);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  cursor: pointer;
+}
+
+.filterSubmit:hover {
+  background: var(--color-action-hover);
+}
+
+.filterSubmit:focus-visible {
+  outline: var(--focus-ring-width) solid var(--color-focus-ring);
+  outline-offset: var(--focus-ring-offset);
+}
+
+.filterSummary {
+  margin: 0;
+  color: var(--color-text-default);
+  font-size: var(--text-sm);
+  line-height: var(--leading-body);
+}
+
+.filterUnavailable {
+  margin: 0;
+  padding-inline-start: var(--space-5);
+  color: var(--color-text-muted);
+  font-size: var(--text-xs);
+  line-height: var(--leading-body);
+}

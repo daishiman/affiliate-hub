@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { FEEDBACK_TARGET_LABEL } from "@/application/usecases/analytics/read-metrics";
+import { ANALYTICS_AXIS_KEYS, type AnalyticsAxisKey } from "@/domain/analytics";
 import { analyticsNotice, analyticsUseCases, currentActor } from "@/presentation/composition";
 import {
   AppShell,
@@ -8,6 +9,7 @@ import {
   Card,
   EmptyView,
   ErrorView,
+  FilterBar,
   Page,
   StubNotice,
 } from "@/presentation/ui";
@@ -35,19 +37,28 @@ const TARGETS = [
 export default async function AnalyticsPage({
   searchParams,
 }: {
-  readonly searchParams: Promise<{ readonly target?: string }>;
+  readonly searchParams: Promise<Record<string, string | undefined>>;
 }) {
-  const { target: requested } = await searchParams;
+  const params = await searchParams;
+  const requested = params.target;
   const target = TARGETS.includes(requested as (typeof TARGETS)[number])
     ? (requested as (typeof TARGETS)[number])
     : "article_revision";
 
+  // 11 軸の指定は URL から拾う。軸の一覧は domain の定義に従う。
+  const selectedAxes: Partial<Record<AnalyticsAxisKey, string>> = {};
+  for (const key of ANALYTICS_AXIS_KEYS) {
+    const value = params[key];
+    if (value !== undefined && value.trim() !== "") selectedAxes[key] = value;
+  }
+
   const actor = await currentActor();
   const uc = analyticsUseCases();
 
-  const [metrics, usable] = await Promise.all([
+  const [metrics, usable, filtered] = await Promise.all([
     uc.listMetrics.execute(actor, {}),
     uc.listUsableMetrics.execute(actor, { target }),
+    uc.filterMetrics.execute(actor, { axes: selectedAxes }),
   ]);
 
   if (!metrics.ok) {
@@ -138,6 +149,79 @@ export default async function AnalyticsPage({
           );
         })
       )}
+
+      <Card>
+        <h2 className={styles.sectionTitle}>切り口で絞って見る</h2>
+        {!filtered.ok ? (
+          <ErrorView
+            title="絞り込みができませんでした"
+            body={filtered.error.message}
+            suggestedAction={filtered.error.suggestedAction ?? null}
+          />
+        ) : (
+          <>
+            <FilterBar
+              legend="どの切り口で数字を見ますか"
+              action="/admin/analytics"
+              keep={{ target }}
+              clearHref={`/admin/analytics?target=${target}`}
+              summary={filtered.value.filterSummary}
+              axes={filtered.value.axes.map((a) => ({
+                key: a.key,
+                label: a.label,
+                whatItTells: a.whatItTells,
+                options: a.options,
+                selected: a.selected,
+                unavailableReason: a.unavailableReason,
+                commercial: a.commercial,
+              }))}
+            />
+
+            {filtered.value.commercialWarning === null ? null : (
+              <Callout
+                tone="warn"
+                title="この切り口の数字の使い道"
+                reason={filtered.value.commercialWarning}
+              />
+            )}
+
+            {filtered.value.emptyReason !== null ? (
+              <EmptyView title="この条件では数字が出ませんでした" body={filtered.value.emptyReason} />
+            ) : (
+              <table className={styles.rankTable}>
+                <caption>
+                  {filtered.value.filterSummary ?? "絞り込みなし（全体の数字）"}
+                </caption>
+                <thead>
+                  <tr>
+                    <th scope="col">数字</th>
+                    <th scope="col">値</th>
+                    <th scope="col">出せない理由</th>
+                    <th scope="col">編集判断への利用</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filtered.value.rows.map((r) => (
+                    <tr key={r.key}>
+                      <th scope="row">{r.label}</th>
+                      <td className={styles.numeric}>{r.valueLabel}</td>
+                      <td>{r.unavailableReason ?? "—"}</td>
+                      <td>{r.usableForEditorialJudgement ? "使えます" : "使えません"}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+
+            {filtered.value.unsplittableCount === 0 ? null : (
+              <p className={styles.linkNote}>
+                {filtered.value.unsplittableCount}
+                件の数字は、この切り口では分けて数えていません。0 件という意味ではありません。
+              </p>
+            )}
+          </>
+        )}
+      </Card>
 
       <Card>
         <h2 className={styles.sectionTitle}>用途ごとに使ってよい数字</h2>

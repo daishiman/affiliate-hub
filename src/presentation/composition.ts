@@ -49,6 +49,7 @@ import {
   createListMetricsUseCase,
   createListUsableMetricsUseCase,
 } from "@/application/usecases/analytics/read-metrics";
+import { createFilterMetricsUseCase } from "@/application/usecases/analytics/filter-metrics";
 import {
   createAdjustConversionUseCase,
   createGetConversionUseCase,
@@ -475,6 +476,7 @@ export function analyticsUseCases() {
     listMetrics: createListMetricsUseCase(analytics),
     listUsableMetrics: createListUsableMetricsUseCase(analytics),
     checkFeedback: createCheckFeedbackUseCase(analytics),
+    filterMetrics: createFilterMetricsUseCase(analytics),
   };
 }
 
