@@ -2,7 +2,7 @@ import type { TelemetrySinkPort } from "@/application/ports/telemetry";
 import {
   type TelemetryEvent,
   type TelemetryEventKey,
-  isExpired,
+  isRetentionExpired,
   rollupAiUsage,
 } from "@/domain/analytics";
 import { ok } from "@/domain/shared";
@@ -174,7 +174,7 @@ export function createSampleTelemetrySink(): TelemetrySinkPort {
 
     async purgeExpired(_workspaceId, now) {
       const before = buffer.length;
-      const kept = buffer.filter((e) => !isExpired(e.key as TelemetryEventKey, e.occurredAt, now));
+      const kept = buffer.filter((e) => !isRetentionExpired(e.key as TelemetryEventKey, e.occurredAt, now));
       buffer.length = 0;
       buffer.push(...kept);
       return ok({ deleted: before - kept.length });

@@ -13,6 +13,22 @@
 export const ARTICLE_TYPES = ["ranking", "review", "comparison", "guide", "tool"] as const;
 export type ArticleType = (typeof ARTICLE_TYPES)[number];
 
+/**
+ * 記事タイプの表示名。**ここが唯一の正本**。
+ *
+ * 全部を「〜記事」で揃えてある。作成ウィザードでは「順位づけ」、
+ * 書き方の案内では「順位をつける記事」と出ていた時期があり、
+ * 同じものを指しているのかどうかが画面をまたぐと分からなかった。
+ * 検査: tests/architecture/single-definition.test.ts
+ */
+export const ARTICLE_TYPE_LABEL: Readonly<Record<ArticleType, string>> = {
+  ranking: "順位をつける記事",
+  review: "1 つを詳しく見る記事",
+  comparison: "2 つ以上を比べる記事",
+  guide: "やり方を説明する記事",
+  tool: "計算・判定の道具のページ",
+};
+
 /** セクションの識別子。文言ではなく役割で持つ (サイトごとに見出し文言を変えるため)。 */
 export type SectionId =
   | "breadcrumb"

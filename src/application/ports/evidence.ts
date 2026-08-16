@@ -7,7 +7,7 @@ import type {
   TestRunId,
   WorkspaceId,
 } from "@/domain/shared";
-import type { Page, Paged, PortResult } from "./common";
+import type { PageRequest, Paged, PortResult } from "./common";
 
 export type ClaimRepositoryPort = {
   findById(workspaceId: WorkspaceId, id: ClaimId): PortResult<Claim | null>;
@@ -20,7 +20,7 @@ export type ClaimRepositoryPort = {
 export type EvidenceRepositoryPort = {
   findById(workspaceId: WorkspaceId, id: EvidenceId): PortResult<Evidence | null>;
   listByIds(workspaceId: WorkspaceId, ids: readonly EvidenceId[]): PortResult<readonly Evidence[]>;
-  search(workspaceId: WorkspaceId, query: { text?: string }, page: Page): PortResult<Paged<Evidence>>;
+  search(workspaceId: WorkspaceId, query: { text?: string }, page: PageRequest): PortResult<Paged<Evidence>>;
   save(evidence: Evidence): PortResult<Evidence>;
 };
 

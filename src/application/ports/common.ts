@@ -10,8 +10,14 @@ import type { DomainError, DomainEventName, Result } from "@/domain/shared";
 /** ポートの戻り値。失敗はドメインの言葉で返す (HTTP ステータスを漏らさない)。 */
 export type PortResult<T> = Promise<Result<T, DomainError>>;
 
-/** 一覧取得の共通引数。件数制限を必須にして、全件取得の事故を防ぐ。 */
-export type Page = {
+/**
+ * 一覧取得の共通引数。件数制限を必須にして、全件取得の事故を防ぐ。
+ *
+ * 名前に `Request` を付けているのは、共通 UI 側にも `Page` という
+ * 画面の枠を表す部品があるため。同じ言葉が「取得の指定」と「画面の枠」の
+ * 2 つを指すと、読む側がどちらの話か決められない。
+ */
+export type PageRequest = {
   readonly limit: number;
   readonly cursor: string | null;
 };

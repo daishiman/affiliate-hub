@@ -425,7 +425,7 @@ D1 への差し替えは、この列だけを別の実装に取り替えれば�
 | REQ-TS06 | 読み上げ検査を機械で行う（axe）。**配色 5 種 × 明暗 2 種すべて**でコントラストを確かめる | axe は `tests/support/a11y.ts` 経由で `page-render.test.tsx` が全画面に適用。コントラストは `tests/ui/theme-contrast.test.ts` が配色 5 種 × 明暗 2 種を登録表から総当たり | — | — | — | — | — | PASS | 完了 |
 | REQ-TS07 | 結合テスト（生成 → 承認 → 公開 → 計測 → 分析 → 提案 → 承認 → 再生成の 1 周）。実際の D1 とマイグレーションを使う | `tests/integration/`（未作成） | — | — | — | — | — | 未実施 | 未着手 |
 | REQ-TS08 | 境界値・異常系（0/1/上限/上限+1、空/最大/最大+1、日付と時差、ページ送りの端）。**とくに統計判定の境界**で、件数が足りないのに「差がある」と言わないこと | `tests/domain/boundaries.test.ts`（統計判定・有効期限・商品同一性・会計期間・表現ポリシー、64 件）と `tests/domain/boundaries-platform.test.ts`（契約プランの上限・役割・金額・価格の鮮度・比較表の上限・配信の状態遷移、57 件） | — | — | — | — | — | PASS（121 件） | 完了 |
-| REQ-TS09 | 契約検査（依存の向き・色や余白の直書き禁止・スタブ台帳・1 概念 1 定義・計測イベントの形が送信側と一致） | `tests/architecture/`（依存方向・商業データ遮断・Server Action）、`tests/ui/design-tokens.test.ts`、`tests/infrastructure/stub-ledger.test.ts`。**1 概念 1 定義**と**閾値の一元化**の検査は未作成 | — | — | — | — | — | 一部 PASS | 未着手（拡張） |
+| REQ-TS09 | 契約検査（依存の向き・色や余白の直書き禁止・スタブ台帳・1 概念 1 定義・計測イベントの形が送信側と一致） | `tests/architecture/`（依存方向・商業データ遮断・Server Action・**閾値の一元化** `quality-gates.test.ts`・**1 概念 1 定義** `single-definition.test.ts`・**テストの誠実さと秘密情報の混入** `test-honesty.test.ts`）、`tests/ui/design-tokens.test.ts`、`tests/infrastructure/stub-ledger.test.ts` | — | — | — | — | — | PASS。導入時に実在の重複を検出して解消済み（収益モデルの表示名が画面によって「提携販売」「成果報酬の紹介」の 2 通り、記事タイプも 2 通り、`Site` 型が 2 つ、`/s` 接頭辞が 2 か所、`Page` が「取得の指定」と「画面の枠」で衝突）。いずれも**わざと壊して赤くなることを確認済み** | 完了 |
 | REQ-TS10 | カバレッジを**層別**に測り、全体と「スタブを除いた実質」を併記する。数字合わせを禁じる | `vitest.config.mts` のカバレッジ設定、`scripts/coverage-report.mjs`、`docs/product/coverage.md` | — | — | — | — | — | 現状の実測（2026-08-17）: 全体 文 50.85% / 分岐 38.33% / 関数 49.12% / 行 53.02% | 未着手（閾値と記録の自動化） |
 
 **この節の行に画面を作らない理由**: テストは製品の機能ではなく、製品が壊れていないことの確認手段である。
@@ -448,7 +448,7 @@ D1 への差し替えは、この列だけを別の実装に取り替えれば�
 | REQ-CI04 | ワークフローは 3 本だけ（検査 / 公開 / データの形の変更）。重複を残さない | `.github/workflows/{ci,deploy,migrate}.yml` | — | — | — | — | — | PASS。旧 `deploy-dev.yml` / `deploy-prod.yml` は削除済み。出し先は枝で決まる（`dev`→試し場 / `main`→本番） | **実装済** |
 | REQ-CI05 | データの形の変更を自動で走らせない。手動起動＋確認文字列 `APPLY` を必須にし、順番は「形の変更 → 公開」 | `.github/workflows/migrate.yml` | — | — | — | — | — | PASS。`workflow_dispatch` のみ。`confirm != 'APPLY'` で最初のステップが失敗する。適用前に `wrangler d1 export` で控えを取り、成果物として 30 日保管。`deploy.yml` にマイグレーションは 1 行も無い | **実装済** |
 | REQ-CI06 | 公開後のスモークテストを**間隔を空けて 2 回**行い、落ちたら緑で通さない | `.github/scripts/smoke.sh`（30 秒 → 1 回目 → 90 秒 → 2 回目） | — | — | — | — | — | 構文は確認済（`bash -n`）。判定は 2 回目で行い、落ちたら `exit 1`。**本番 URL に対する実行は未実施**（公開が未了のため） | **実装済**（実行は公開後） |
-| REQ-CI07 | 秘密情報は GitHub Secrets と Cloudflare の環境変数にだけ置く。**登録は利用者本人が行い、代行しない** | `.dev.vars.example`（値を書かない）、`docs/product/ci-cd-guide.md` §8 に本人が実行する手順 | — | — | — | — | — | 手順は整備済（値をコマンドに書かせない書き方、権限を絞る指定、`MCP_TOKEN` 未登録時に 503 で閉じることの説明）。リポジトリ内に秘密情報が無いことの**自動検査は未作成**（残課題 19） | 着手中（検査部分が残り） |
+| REQ-CI07 | 秘密情報は GitHub Secrets と Cloudflare の環境変数にだけ置く。**登録は利用者本人が行い、代行しない** | `.dev.vars.example`（値を書かない）、`docs/product/ci-cd-guide.md` §8 に本人が実行する手順、`tests/architecture/test-honesty.test.ts`（鍵らしい形の文字列の検出と、見本に値を書いていないことの検査） | — | — | — | — | — | PASS。導入時に `.dev.vars.example` に値（`local-development-token`）が入っていたのを検出して空欄化。鍵らしい文字列を混ぜて赤くなることも確認済み | 完了 |
 | REQ-CI08 | 非エンジニアが読める運用説明（何を見ているか / 落ちたらどうするか / どう公開し、どう戻すか） | `docs/product/ci-cd-guide.md` | — | — | — | — | — | 文書のため自動検査の対象外。`docs/spec/00-README.md` からの参照切れは既存の文書検査で見る | **実装済** |
 
 **「わざと壊して赤くなることを確認する」まで済ませて初めて、この節を PASS にする。**

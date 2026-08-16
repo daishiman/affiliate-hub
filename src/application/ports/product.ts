@@ -7,7 +7,7 @@ import type {
   ProductId,
   WorkspaceId,
 } from "@/domain/shared";
-import type { Page, Paged, PortResult } from "./common";
+import type { PageRequest, Paged, PortResult } from "./common";
 
 /**
  * Product Intelligence のポート。
@@ -25,7 +25,7 @@ export type ProductRepositoryPort = {
   search(
     workspaceId: WorkspaceId,
     query: { text?: string; categoryId?: string },
-    page: Page,
+    page: PageRequest,
   ): PortResult<Paged<Product>>;
   save(product: Product): PortResult<Product>;
 };
@@ -36,7 +36,7 @@ export type MerchantOfferRepositoryPort = {
   listByMerchant(
     workspaceId: WorkspaceId,
     merchantId: MerchantId,
-    page: Page,
+    page: PageRequest,
   ): PortResult<Paged<MerchantOffer>>;
   save(offer: MerchantOffer): PortResult<MerchantOffer>;
   /** 価格が古くなった商品。更新の対象を見つける。 */

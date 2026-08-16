@@ -1,5 +1,7 @@
 import type { EditorialSiteRepositoryPort } from "@/application/ports/site";
 import {
+  REVENUE_MODEL_LABEL,
+  SITE_PATTERN_LABEL,
   type SiteBlueprint,
   type SitePattern,
   type SiteRoute,
@@ -45,28 +47,9 @@ function guardEditorial(deps: ManageSitesDeps): void {
   }
 }
 
-/** ブログパターンの表示名。識別子をそのまま画面に出さない。 */
-export const SITE_PATTERN_LABEL: Readonly<Record<SitePattern, string>> = {
-  specialist_review: "専門レビュー型",
-  comparison_lab: "比較研究所型",
-  beginner_guide: "初心者案内型",
-  personal_brand: "個人ブランド型",
-  product_discovery: "商品発見型",
-  service_signup: "サービス申込み型",
-  tool: "ツール型",
-  editorial_media: "メディア編集部型",
-  story: "ストーリー型",
-  database: "データベース型",
-};
-
-/** 収益モデルの表示名。 */
-export const REVENUE_MODEL_LABEL: Readonly<Record<string, string>> = {
-  affiliate: "提携販売",
-  ad: "広告",
-  lead: "見込み客の紹介",
-  own_product: "自社商品",
-  mixed: "組み合わせ",
-};
+// ブログパターンと収益モデルの表示名は domain（`@/domain/authoring`）が持つ。
+// 作成ウィザードと一覧で別々に持っていたため、
+// 同じ収益モデルが「提携販売」と「成果報酬の紹介」の 2 通りに見えていた。
 
 /** 差別化の 10 軸の表示名。空欄を画面で指摘できるようにするために要る。 */
 export const DIFFERENTIATION_AXIS_LABEL: Readonly<Record<string, string>> = {

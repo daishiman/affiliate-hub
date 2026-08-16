@@ -5,11 +5,11 @@ import type {
   PublicationId,
   WorkspaceId,
 } from "@/domain/shared";
-import type { Page, Paged, PortResult } from "./common";
+import type { PageRequest, Paged, PortResult } from "./common";
 
 export type ChannelConnectionRepositoryPort = {
   findById(workspaceId: WorkspaceId, id: ChannelConnectionId): PortResult<ChannelConnection | null>;
-  listByWorkspace(workspaceId: WorkspaceId, page: Page): PortResult<Paged<ChannelConnection>>;
+  listByWorkspace(workspaceId: WorkspaceId, page: PageRequest): PortResult<Paged<ChannelConnection>>;
   save(connection: ChannelConnection): PortResult<ChannelConnection>;
 };
 

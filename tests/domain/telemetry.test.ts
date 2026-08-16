@@ -7,10 +7,10 @@ import {
   TELEMETRY_EVENT_KEYS,
   type ConsentSignals,
   type TelemetryEvent,
-  buildEvent,
+  buildTelemetryEvent,
   decideConsent,
   estimateCostJpy,
-  isExpired,
+  isRetentionExpired,
   listTelemetryEvents,
   mayRecord,
   readerKeyScope,
@@ -47,7 +47,7 @@ describe("計測イベントの一覧", () => {
   });
 
   it("イベントの表そのものに、記録してはいけない項目名が入っていない", () => {
-    // 送信時の検査 (buildEvent) より前に、宣言の段階で落とす。
+    // 送信時の検査 (buildTelemetryEvent) より前に、宣言の段階で落とす。
     // 表に書けてしまうと「仕様上は取ってよい」と読めてしまう。
     const forbidden = ["ip", "ipAddress", "latitude", "longitude", "email", "prompt", "content"];
     for (const key of TELEMETRY_EVENT_KEYS) {
@@ -84,7 +84,7 @@ describe("イベントの組み立て", () => {
   const at = new Date("2026-08-17T00:00:00.000Z");
 
   it("表にない名前は送れない", () => {
-    const r = buildEvent({
+    const r = buildTelemetryEvent({
       key: "cta_click" as never,
       occurredAt: at,
       readerKey: null,
@@ -94,7 +94,7 @@ describe("イベントの組み立て", () => {
   });
 
   it("必須の項目が欠けていると落ちる", () => {
-    const r = buildEvent({
+    const r = buildTelemetryEvent({
       key: "page_view",
       occurredAt: at,
       readerKey: null,
@@ -105,7 +105,7 @@ describe("イベントの組み立て", () => {
   });
 
   it("型が違うと落ちる（数字の欄に文字を入れられない）", () => {
-    const r = buildEvent({
+    const r = buildTelemetryEvent({
       key: "scroll_depth",
       occurredAt: at,
       readerKey: null,
@@ -115,7 +115,7 @@ describe("イベントの組み立て", () => {
   });
 
   it("省略できる欄は無くてもよい", () => {
-    const r = buildEvent({
+    const r = buildTelemetryEvent({
       key: "page_view",
       occurredAt: at,
       readerKey: null,
@@ -128,7 +128,7 @@ describe("イベントの組み立て", () => {
     // 「その欄だけ捨てて残りは記録する」にしない。
     // 落とし忘れが 1 つでもあると、静かに入り続ける。
     for (const bad of [{ ip: "203.0.113.1" }, { email: "a@example.com" }, { prompt: "…" }]) {
-      const r = buildEvent({
+      const r = buildTelemetryEvent({
         key: "page_view",
         occurredAt: at,
         readerKey: null,
@@ -228,8 +228,8 @@ describe("保存する期間", () => {
   it("期限を過ぎたものは期限切れと判定される", () => {
     const at = new Date("2026-01-01T00:00:00.000Z");
     const deadline = retentionDeadline("scroll_depth", at);
-    expect(isExpired("scroll_depth", at, new Date(deadline.getTime() - 1000))).toBe(false);
-    expect(isExpired("scroll_depth", at, deadline)).toBe(true);
+    expect(isRetentionExpired("scroll_depth", at, new Date(deadline.getTime() - 1000))).toBe(false);
+    expect(isRetentionExpired("scroll_depth", at, deadline)).toBe(true);
   });
 });
 
@@ -272,7 +272,7 @@ describe("AI 利用の集計", () => {
   const usage = (
     over: Partial<Record<string, unknown>> = {},
   ): TelemetryEvent<"ai_model_usage"> => {
-    const r = buildEvent({
+    const r = buildTelemetryEvent({
       key: "ai_model_usage" as const,
       occurredAt: new Date("2026-08-17T00:00:00.000Z"),
       readerKey: null,

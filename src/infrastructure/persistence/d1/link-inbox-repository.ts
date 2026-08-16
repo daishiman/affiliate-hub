@@ -1,7 +1,7 @@
 import { and, desc, eq, lt } from "drizzle-orm";
 import type { drizzle } from "drizzle-orm/d1";
 import type { LinkIngestionRepositoryPort } from "@/application/ports/monetization";
-import type { Page, Paged, PortResult } from "@/application/ports/common";
+import type { PageRequest, Paged, PortResult } from "@/application/ports/common";
 import type { LinkIngestion, LinkIngestionState } from "@/domain/monetization";
 import {
   type AffiliateProgramId,
@@ -116,7 +116,7 @@ export function createD1LinkInboxRepository(db: DrizzleD1): LinkIngestionReposit
     async list(
       workspaceId: WorkspaceId,
       filter: { state: LinkIngestionState | null },
-      page: Page,
+      page: PageRequest,
     ): PortResult<Paged<LinkIngestion>> {
       try {
         // カーソルは「その時刻より前」。件数ではなく時刻で切るので、

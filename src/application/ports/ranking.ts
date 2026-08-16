@@ -1,6 +1,6 @@
 import type { EditorialScoreCard, RankingModel } from "@/domain/ranking";
 import type { Editorial, ProductId, RankingModelId, WorkspaceId } from "@/domain/shared";
-import type { Page, Paged, PortResult } from "./common";
+import type { PageRequest, Paged, PortResult } from "./common";
 
 /**
  * Ranking のポート。
@@ -11,7 +11,7 @@ import type { Page, Paged, PortResult } from "./common";
  */
 export type RankingModelRepositoryPort = {
   findById(workspaceId: WorkspaceId, id: RankingModelId): PortResult<RankingModel | null>;
-  list(workspaceId: WorkspaceId, page: Page): PortResult<Paged<RankingModel>>;
+  list(workspaceId: WorkspaceId, page: PageRequest): PortResult<Paged<RankingModel>>;
   save(model: RankingModel): PortResult<RankingModel>;
 };
 

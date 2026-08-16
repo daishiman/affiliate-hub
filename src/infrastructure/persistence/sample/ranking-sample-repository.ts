@@ -2,7 +2,7 @@ import type {
   EditorialRankingModelRepositoryPort,
   EditorialScoreCardRepositoryPort,
 } from "@/application/ports";
-import type { Page, Paged } from "@/application/ports/common";
+import type { PageRequest, Paged } from "@/application/ports/common";
 import { type EditorialScoreCard, type RankingModel, createRankingModel } from "@/domain/ranking";
 import {
   type CategoryId,
@@ -188,7 +188,7 @@ export function createSampleRankingModelRepository(): EditorialRankingModelRepos
       if (workspaceId !== SAMPLE_MODEL.workspaceId) return ok(null);
       return ok(id === SAMPLE_MODEL.id ? SAMPLE_MODEL : null);
     },
-    async list(workspaceId: WorkspaceId, page: Page): Promise<Result<Paged<RankingModel>, DomainError>> {
+    async list(workspaceId: WorkspaceId, page: PageRequest): Promise<Result<Paged<RankingModel>, DomainError>> {
       const items = workspaceId === SAMPLE_MODEL.workspaceId ? [SAMPLE_MODEL] : [];
       return ok({ items: items.slice(0, page.limit), nextCursor: null });
     },

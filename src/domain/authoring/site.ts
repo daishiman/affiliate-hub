@@ -132,7 +132,23 @@ export function isSiteVisible(site: Site): boolean {
   return site.status === "live";
 }
 
+/**
+ * 共通ドメインに載せるときの接頭辞。**ここが唯一の正本**。
+ *
+ * 本番では 1 ブログ = 1 ドメインなのでこの接頭辞は使わない。
+ * たたき台では 1 つの Worker に複数ブログを載せるため `/s/{ブログ名}` を前に付ける。
+ * 以前は画面側にも同じ `"/s"` があり、片方だけ直すとリンクが割れる状態だった。
+ */
+export const SITE_PATH_PREFIX = "/s";
+
+/** ブログ名から入口のパスを作る。独自ドメインを持たないブログはこちら。 */
+export function siteBasePathBySlug(slug: string): string {
+  return `${SITE_PATH_PREFIX}/${slug}`;
+}
+
 /** 公開先の URL の元になる住所。独自ドメインがあればそちらを優先する。 */
 export function siteBasePath(site: Site): string {
-  return site.customDomain === null ? `/s/${site.slug}` : `https://${site.customDomain}`;
+  return site.customDomain === null
+    ? siteBasePathBySlug(site.slug)
+    : `https://${site.customDomain}`;
 }

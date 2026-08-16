@@ -3,7 +3,7 @@ import type {
   EditorialContentVariantRepositoryPort,
   EditorialPersonaRepositoryPort,
 } from "@/application/ports/authoring";
-import type { Page } from "@/application/ports/common";
+import type { PageRequest } from "@/application/ports/common";
 import {
   type AudiencePersona,
   type AuthorPersona,
@@ -345,7 +345,7 @@ export function createSampleContentVariantRepository(): EditorialContentVariantR
     async listByPackage(_ws: WorkspaceId, packageId: ContentPackageId) {
       return ok(VARIANTS.filter((v) => v.variant.contentPackageId === packageId).map((v) => v.variant));
     },
-    async listByState(_ws: WorkspaceId, state: ContentState, page: Page) {
+    async listByState(_ws: WorkspaceId, state: ContentState, page: PageRequest) {
       const items = VARIANTS.filter((v) => v.state === state)
         .map((v) => v.variant)
         .slice(0, page.limit);
@@ -367,7 +367,7 @@ export function createSampleContentPackageRepository(): EditorialContentPackageR
     async findById(_ws: WorkspaceId, id: ContentPackageId) {
       return ok(id === PACKAGE_ID ? PACKAGE : null);
     },
-    async list(_ws: WorkspaceId, page: Page) {
+    async list(_ws: WorkspaceId, page: PageRequest) {
       return ok({ items: [PACKAGE].slice(0, page.limit), nextCursor: null });
     },
     async save() {
@@ -384,10 +384,10 @@ export function createSamplePersonaRepository(): EditorialPersonaRepositoryPort 
     async findAudience(_ws: WorkspaceId, id: AudiencePersonaId) {
       return ok(AUDIENCES.find((a) => a.id === id) ?? null);
     },
-    async listAuthors(_ws: WorkspaceId, page: Page) {
+    async listAuthors(_ws: WorkspaceId, page: PageRequest) {
       return ok({ items: AUTHORS.slice(0, page.limit), nextCursor: null });
     },
-    async listAudiences(_ws: WorkspaceId, page: Page) {
+    async listAudiences(_ws: WorkspaceId, page: PageRequest) {
       return ok({ items: AUDIENCES.slice(0, page.limit), nextCursor: null });
     },
     async saveAuthor() {

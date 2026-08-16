@@ -39,9 +39,44 @@ export const SITE_PATTERNS = [
 ] as const;
 export type SitePattern = (typeof SITE_PATTERNS)[number];
 
+/**
+ * ブログパターンの表示名。**ここが唯一の正本**。
+ *
+ * 以前は作成ウィザードと一覧画面がそれぞれ別に持っていた。
+ * 同じ値に別の呼び名が付くと、利用者は「作るときの言葉」と「見るときの言葉」を
+ * 頭の中で対応づけることになる。対応づけを利用者にさせない。
+ * 検査: tests/architecture/single-definition.test.ts
+ */
+export const SITE_PATTERN_LABEL: Readonly<Record<SitePattern, string>> = {
+  specialist_review: "専門レビュー型",
+  comparison_lab: "比較研究所型",
+  beginner_guide: "初心者案内型",
+  personal_brand: "個人ブランド型",
+  product_discovery: "商品発見型",
+  service_signup: "サービス申込み型",
+  tool: "ツール型",
+  editorial_media: "メディア編集部型",
+  story: "ストーリー型",
+  database: "データベース型",
+};
+
 /** 収益モデル。ブログの構成と CTA の既定値を決める。 */
 export const REVENUE_MODELS = ["affiliate", "ad", "lead", "own_product", "mixed"] as const;
 export type RevenueModel = (typeof REVENUE_MODELS)[number];
+
+/**
+ * 収益モデルの表示名。**ここが唯一の正本**。
+ *
+ * 「提携販売」より「成果報酬の紹介」を採る。
+ * 何が起きたらお金になるのかが言葉に入っている方を選ぶ。
+ */
+export const REVENUE_MODEL_LABEL: Readonly<Record<RevenueModel, string>> = {
+  affiliate: "成果報酬の紹介",
+  ad: "広告の掲載",
+  lead: "問い合わせの送客",
+  own_product: "自社の商品",
+  mixed: "組み合わせ",
+};
 
 /** 固定ページ (プラットフォーム層 §16.3 / ブログ層 §7)。 */
 export const STANDARD_PAGES = [

@@ -79,7 +79,7 @@ type EventSpec = {
 /**
  * 計測できることの全一覧。
  *
- * ここに無いイベントは送れない（`buildEvent` が弾く）。
+ * ここに無いイベントは送れない（`buildTelemetryEvent` が弾く）。
  * 「とりあえず全部送っておく」を防ぐため、`why` を必須にしている。
  */
 export const TELEMETRY_EVENTS = {
@@ -329,7 +329,7 @@ export function assertNoForbiddenField(
  *   2. 必須の項目が揃っているか（後から「その欄は空でした」を防ぐ）
  *   3. 記録してはいけない項目が混ざっていないか
  */
-export function buildEvent<K extends TelemetryEventKey>(input: {
+export function buildTelemetryEvent<K extends TelemetryEventKey>(input: {
   readonly key: K;
   readonly occurredAt: Date;
   readonly readerKey: string | null;

@@ -4,7 +4,7 @@ import type {
   EditorialProductRepositoryPort,
   EditorialTestRunRepositoryPort,
 } from "@/application/ports";
-import type { Page } from "@/application/ports/common";
+import type { PageRequest } from "@/application/ports/common";
 import { type Claim, type Evidence, type TestRun, createClaim, createEvidence } from "@/domain/evidence";
 import { type Product, createProduct } from "@/domain/product";
 import {
@@ -221,7 +221,7 @@ export function createSampleProductRepository(): EditorialProductRepositoryPort 
     async search(
       _ws: WorkspaceId,
       query: { text?: string; categoryId?: string },
-      page: Page,
+      page: PageRequest,
     ) {
       const text = query.text?.trim().toLowerCase() ?? "";
       const items = PRODUCTS.filter((p) => {
@@ -267,7 +267,7 @@ export function createSampleEvidenceRepository(): EditorialEvidenceRepositoryPor
       const wanted = new Set(ids.map(String));
       return ok(EVIDENCE.filter((e) => wanted.has(String(e.id))));
     },
-    async search(_ws: WorkspaceId, query: { text?: string }, page: Page) {
+    async search(_ws: WorkspaceId, query: { text?: string }, page: PageRequest) {
       const text = query.text?.trim().toLowerCase() ?? "";
       const items = EVIDENCE.filter(
         (e) => text === "" || `${e.title} ${e.excerptOrSummary}`.toLowerCase().includes(text),

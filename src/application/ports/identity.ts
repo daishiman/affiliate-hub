@@ -1,6 +1,6 @@
 import type { Brand, Membership, Workspace } from "@/domain/identity";
 import type { BrandId, MembershipId, UserId, WorkspaceId } from "@/domain/shared";
-import type { Page, Paged, PortResult } from "./common";
+import type { PageRequest, Paged, PortResult } from "./common";
 
 export type WorkspaceRepositoryPort = {
   findById(id: WorkspaceId): PortResult<Workspace | null>;
@@ -15,14 +15,14 @@ export type WorkspaceRepositoryPort = {
 
 export type BrandRepositoryPort = {
   findById(workspaceId: WorkspaceId, id: BrandId): PortResult<Brand | null>;
-  list(workspaceId: WorkspaceId, page: Page): PortResult<Paged<Brand>>;
+  list(workspaceId: WorkspaceId, page: PageRequest): PortResult<Paged<Brand>>;
   save(brand: Brand): PortResult<Brand>;
 };
 
 export type MembershipRepositoryPort = {
   findById(workspaceId: WorkspaceId, id: MembershipId): PortResult<Membership | null>;
   findByUser(workspaceId: WorkspaceId, userId: UserId): PortResult<Membership | null>;
-  list(workspaceId: WorkspaceId, page: Page): PortResult<Paged<Membership>>;
+  list(workspaceId: WorkspaceId, page: PageRequest): PortResult<Paged<Membership>>;
   save(membership: Membership): PortResult<Membership>;
   /** owner が既にいるか。owner は 1 ワークスペースに 1 人。 */
   findOwner(workspaceId: WorkspaceId): PortResult<Membership | null>;

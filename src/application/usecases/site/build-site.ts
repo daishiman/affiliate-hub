@@ -1,10 +1,13 @@
 import type { EditorialSiteDraftRepositoryPort } from "@/application/ports/authoring";
 import type { IdGeneratorPort } from "@/application/ports/common";
 import {
+  ARTICLE_TYPE_LABEL,
   ARTICLE_TYPES,
   BRAND_THEMES,
   type BrandTheme,
+  REVENUE_MODEL_LABEL,
   REVENUE_MODELS,
+  SITE_PATTERN_LABEL,
   SITE_PATTERNS,
   SITE_WIZARD_STEPS,
   SITE_WIZARD_STEP_LABEL,
@@ -268,34 +271,9 @@ export const WIZARD_CHOICES = {
   articleType: ARTICLE_TYPES,
 } as const;
 
-export const REVENUE_MODEL_LABEL: Readonly<Record<(typeof REVENUE_MODELS)[number], string>> = {
-  affiliate: "成果報酬の紹介",
-  ad: "広告の掲載",
-  lead: "問い合わせの送客",
-  own_product: "自社の商品",
-  mixed: "組み合わせ",
-};
-
-export const SITE_PATTERN_LABEL: Readonly<Record<(typeof SITE_PATTERNS)[number], string>> = {
-  specialist_review: "専門レビュー型",
-  comparison_lab: "比較研究所型",
-  beginner_guide: "初心者案内型",
-  personal_brand: "個人ブランド型",
-  product_discovery: "商品発見型",
-  service_signup: "サービス申込み型",
-  tool: "ツール型",
-  editorial_media: "メディア編集部型",
-  story: "ストーリー型",
-  database: "データベース型",
-};
-
-export const ARTICLE_TYPE_LABEL: Readonly<Record<(typeof ARTICLE_TYPES)[number], string>> = {
-  ranking: "順位づけ",
-  review: "単体のレビュー",
-  comparison: "比べる記事",
-  guide: "選び方の案内",
-  tool: "診断・計算",
-};
+// 選択肢の表示名はここで作らない。正本は domain 側（`@/domain/authoring`）にある。
+// 以前はここと一覧画面で別々に持っていて、同じ収益モデルが
+// 「成果報酬の紹介」と「提携販売」の 2 通りに見えていた。
 
 function toView(draft: SiteDraft, requested?: SiteWizardStep): SiteDraftView {
   const steps: WizardStepView[] = SITE_WIZARD_STEPS.map((step, i) => ({
