@@ -1,0 +1,101 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://harness/schemas/system-spec-state.json",
+  "title": "system-spec canonical elicitation state",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "categories",
+    "platforms",
+    "matrix",
+    "category_aggregate",
+    "requirements_foundation",
+    "qa_log",
+    "approval_log",
+    "reopen_log",
+    "targets",
+    "decisions",
+    "knowledge_candidates",
+    "hearing_progress"
+  ],
+  "properties": {
+    "schema_version": {"enum": ["1.0", "1.1"]},
+    "design_application_contract_version": {"const": "1.0"},
+    "categories": {"type": "array", "minItems": 1},
+    "platforms": {"type": "array", "minItems": 1},
+    "matrix": {"type": "object"},
+    "category_aggregate": {"type": "object"},
+    "requirements_foundation": {"type": "object"},
+    "qa_log": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/qaEntry"}
+    },
+    "approval_log": {"type": "array"},
+    "reopen_log": {"type": "array"},
+    "targets": {"type": "array"},
+    "decisions": {"type": "array"},
+    "knowledge_candidates": {"type": "array"},
+    "hearing_progress": {"type": "object"},
+    "excluded_categories": {"type": "object"}
+  },
+  "oneOf": [
+    {
+      "properties": {"schema_version": {"const": "1.0"}},
+      "not": {"required": ["design_application_contract_version"]}
+    },
+    {
+      "required": ["design_application_contract_version"],
+      "properties": {
+        "schema_version": {"const": "1.1"},
+        "design_application_contract_version": {"const": "1.0"}
+      }
+    }
+  ],
+  "$defs": {
+    "qaEntry": {
+      "type": "object",
+      "required": ["id", "question", "answer"],
+      "properties": {
+        "id": {"type": "string", "minLength": 1},
+        "question": {"type": "string", "minLength": 1},
+        "answer": {"type": "string"},
+        "source": {"type": ["object", "string"]},
+        "approval_id": {"type": "string", "minLength": 1},
+        "legacy_exempt": {"type": "boolean"},
+        "legacy_exempt_reason": {"type": "string", "minLength": 1},
+        "design_application_provenance": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["mode", "writer"],
+          "properties": {
+            "mode": {"const": "legacy_backfill"},
+            "writer": {"const": "set-qa-design-applications"}
+          }
+        },
+        "design_applications": {
+          "type": "array",
+          "minItems": 1,
+          "items": {"$ref": "#/$defs/designApplication"}
+        }
+      },
+      "additionalProperties": true
+    },
+    "designApplication": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["knowledge_ref", "principle", "applicability", "rationale", "tradeoffs"],
+      "properties": {
+        "knowledge_ref": {"type": "string", "minLength": 1},
+        "principle": {"type": "string", "minLength": 1},
+        "applicability": {"enum": ["applied", "not_applicable"]},
+        "rationale": {"type": "string", "minLength": 1},
+        "tradeoffs": {
+          "type": "array",
+          "minItems": 1,
+          "items": {"type": "string", "minLength": 1}
+        }
+      }
+    }
+  }
+}

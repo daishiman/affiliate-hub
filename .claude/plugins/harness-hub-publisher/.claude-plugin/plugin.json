@@ -1,0 +1,8 @@
+{
+  "name": "harness-hub-publisher",
+  "version": "0.1.0",
+  "description": "skills-package の公開と、Claude Code/Codexで作成したMarkdownのDocs同期をHarness Hubへ送る。業務ロジックは持たず apps/publisher CLI (@harness-hub/publisher) を呼び出すだけの薄いラッパー。動作の不具合や改善要望は /run-skill-feedback harness-hub-publisher から送る。",
+  "author": {
+    "name": "harness maintainers"
+  }
+}

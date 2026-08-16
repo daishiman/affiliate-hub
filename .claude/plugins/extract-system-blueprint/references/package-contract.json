@@ -1,0 +1,33 @@
+{
+  "$schema": "../../harness-creator/skills/ref-pkg-contract/schemas/package-contract.schema.json",
+  "package_mode": "bundle",
+  "plugin_name": "extract-system-blueprint",
+  "entry_points": {
+    "skills": [
+      "run-extract-blueprint",
+      "assign-blueprint-fidelity-evaluator",
+      "run-blueprint-apply"
+    ],
+    "agents": [
+      "frontend-surface-analyzer",
+      "backend-inference-analyzer",
+      "uiux-rationale-analyzer",
+      "content-intent-analyzer",
+      "architecture-essence-synthesizer"
+    ],
+    "commands": [
+      "extract-blueprint"
+    ],
+    "hooks": [
+      "pre-fetch-authz-guard.py"
+    ]
+  },
+  "distribution": {
+    "distributable": true,
+    "bundle_targets": [],
+    "category": "Productivity",
+    "tags": ["extraction", "blueprint", "mermaid", "documentation"]
+  },
+  "depends_on": [],
+  "pkg_checks": {}
+}

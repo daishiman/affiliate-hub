@@ -1,0 +1,31 @@
+{
+  "$schema": "../../harness-creator/skills/ref-pkg-contract/schemas/package-contract.schema.json",
+  "package_mode": "bundle",
+  "plugin_name": "prompt-creator",
+  "entry_points": {
+    "skills": [
+      "run-prompt-create",
+      "run-prompt-elicit",
+      "run-prompt-creator-7layer",
+      "assign-prompt-design-evaluator"
+    ],
+    "agents": [
+      "prompt-creator-interview-user",
+      "prompt-creator-generate-prompt",
+      "prompt-creator-review-prompt"
+    ],
+    "commands": [],
+    "hooks": []
+  },
+  "distribution": {
+    "distributable": false,
+    "bundle_targets": [],
+    "category": "developer-tools",
+    "tags": ["prompt", "7layer", "subagent"]
+  },
+  "depends_on": [
+    "harness-creator",
+    "skill-governance-lint"
+  ],
+  "pkg_checks": {}
+}

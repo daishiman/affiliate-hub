@@ -1,0 +1,209 @@
+---
+name: assign-system-spec-completeness-evaluator
+description: 生成された仕様書ドキュメントセットの完成度を独立 context で評価したいとき、上位概念trace・意思決定・マトリクス網羅性・設計知識反映・最新ドキュメント出典・prompt品質の 6 観点で合否判定したいときに使う。
+disable-model-invocation: false
+user-invocable: false
+context: fork
+argument-hint: "[--spec-dir <path>] [--output <report_path>]"
+arguments: [spec_dir, output]
+kind: assign
+prefix: assign
+role_suffix: evaluator
+version: 0.1.0
+effect: local-artifact
+owner: team-platform
+since: 2026-07-11
+source: plugins/system-spec-harness/skills/assign-system-spec-completeness-evaluator/references/scoring-rubric.json
+source-tier: internal
+last-audited: 2026-07-11
+audit-trigger: quarterly
+allowed-tools:
+  - Read
+  - Bash
+  - Task
+responsibility_refs:
+  - prompts/R1-score.md
+  - prompts/R2-delegate.md
+responsibilities:
+  - id: R1
+    name: score
+    prompt_required: true
+  - id: R2
+    name: delegate
+    prompt_required: true
+completeness_exempt:
+  - "manifest: assign evaluator is a single forked scoring gate; its rubric, schema and aggregate script are the runtime SSOT."
+rubric_refs:
+  - references/scoring-rubric.json
+reference_refs:
+  - references/resource-map.yaml
+  - references/aspect-criteria.md
+script_refs:
+  - scripts/aggregate-completeness.py
+  - scripts/audit_fork_attribution.py
+  - scripts/build-resume-receipt.py
+  - ../../scripts/validate-coverage-matrix.py
+schema_refs:
+  - schemas/completeness-findings.schema.json
+  - schemas/resume-receipt.schema.json
+agent_refs:
+  - ../../agents/system-spec-matrix-auditor.md
+  - ../../agents/system-spec-hearing-auditor.md
+  - ../../agents/system-spec-doc-freshness-auditor.md
+feedback_contract:
+  skip_reason: "assign kind は loop criteria 対象外。合否基準は checklist の 6 評価観点 (foundation_trace/decision_guidance/prompt_quality=C05 自前評価 / matrix_coverage=C07 監査 + C06 ヒアリング品質 sub-input / design_knowledge_reflection=C05 自前評価 / doc_freshness=C08 監査) の evaluator ゲート、および validate-coverage-matrix.py の決定論ゲートで担保する。"
+---
+
+# assign-system-spec-completeness-evaluator
+
+> 生成された仕様書ドキュメントセットを、上位概念trace / 意思決定根拠 / マトリクス網羅性 / deep knowledge目的適合 / 最新出典 / prompt品質の観点で評価し、観点別スコア + 総合判定 (PASS/FAIL) + 不足事項一覧を返す independent evaluator。`context:fork` で生成者と評価者を分離する。
+
+## Purpose & Output Contract
+
+**入力**: `system-spec/*.md` + index (C03 出力) / `spec-state.json` (C01) / `fetched-references.json` (C02)
+**出力**: 評価レポート (`schemas/completeness-findings.schema.json` 準拠) — 観点別スコア + 総合判定 + 不足事項一覧。PASS 時は正規 validator と fork 台帳へ束縛した `system-spec/resume-receipt.json` も生成する。
+**完了条件**: 全観点 verdict 付与 + findings[] (info 以上を最低 1 件) + 総合判定が観点スコアからの fail-closed 再導出値と一致 + 総合 FAIL 時は不足事項一覧が非空。PASS の再利用は `build-resume-receipt.py` が作った resume-receipt schema 1.1 に限る (fork 台帳 schema 1.1 / 1.2 とは別の version 軸)。
+
+各 skill 単独では見えない全体網羅性の欠落を、生成物から独立した context で評価し客観的合否を返す。
+
+## 監査 sub-agent 対応 (全 6 観点中、sub-agent 関与が判定に効く 3 観点)
+
+> 本 skill は全 6 観点 (上位概念trace / 意思決定 / マトリクス網羅性 / 設計知識反映 / 最新ドキュメント出典 / prompt品質) を採点する (schema/rubric/aggregate-completeness の正本)。うち foundation_trace / decision_guidance / prompt_quality は C05 R1-score の自前評価。以下は監査 sub-agent の関与が判定に効く 3 観点の対応表。
+
+| 観点 (aspect id) | ラベル | 評価主体 (component) | 一次根拠 |
+|---|---|---|---|
+| `matrix_coverage` | マトリクス網羅性 | `system-spec-matrix-auditor` (C07) + sub-input `system-spec-hearing-auditor` (C06) | `validate-coverage-matrix.py --require-complete` の exit0 + 意味層。C06 の 5 軸 (聞き漏れ/誘導/早期停止/セルのトレーサビリティ/foundation の利用者根拠) を網羅性・トレースの補助根拠に併せる |
+| `design_knowledge_reflection` | 設計知識反映 | C05 R1-score が自前評価 (**独立 auditor なし**) | 機械層=各章の設計知識ポインタ存在 (compile 注入) + 意味層=そのポインタ原則の確定セルへの具体適用 (存在確認だけで PASS にしない = Goodhart 防止) |
+| `doc_freshness` | 最新ドキュメント出典 | `system-spec-doc-freshness-auditor` (C08) | 二層監査 (形式=`validate-source-citation.py` / 内容鮮度=公式再照合) |
+
+> `system-spec/*.md` を読まない C06 (hearing-auditor) を設計知識反映へ束縛するのは虚偽対応のため撤去した。C06 はヒアリング品質を担い matrix_coverage の sub-input へ再配置し、設計知識反映は C05 が system-spec/*.md と resource-map から自前評価する。監査 sub-agent (C07/C08 と matrix sub-input の C06) は Task tool でそれぞれ独立 context (fork) に起動する (R2-delegate)。監査ロジックは各 agent の SSOT prompt に委ね、本 skill は結果を集約するだけで書き換えない。
+
+## 知識グラフ / doctrine の追加評価次元 (C13-C16)
+
+> 上位 6 観点の top-level 構造 (aggregate-completeness.py の 6 aspect fail-closed 集約) は不変。C13-C16 の知識グラフ / doctrine 要件は新 aspect を増やさず、既存 aspect の追加評価次元として折り込む (各 `validate-knowledge-graph.py --profile ...` の exit0 を機械層、生成物への反映を意味層で採点)。
+
+| 追加次元 | 折込先 aspect | 機械層ゲート | 意味層で拾う失敗 |
+|---|---|---|---|
+| **C13** 知識カタログが typed 辺グラフ | design_knowledge_reflection | `validate-knowledge-graph.py --profile knowledge` exit0 (循環/dangling/孤立/root到達不能 0) | knowledge-catalog の depends_on/refines/conflicts_with 型則違反・孤立 node の設計知識への未接地 |
+| **C14** elicit/compile が同一 topo_order で知識消費 | design_knowledge_reflection | 上記 `--profile knowledge --order` の topo_order を C01 R5 / C03 R2 が同一順で消費 | 上位概念→下位概念の位相順を破って下位技術を先に確定した章 |
+| **C15** doctrine anchor 1正本 + 全 category 写像全射 | design_knowledge_reflection | `validate-knowledge-graph.py --profile doctrine` exit0 (7 concern の concern_id 一意 + 各 authority 非空・全 category→concern 写像全射。authority は 4 種で concern 間共有可・authority 一意性は非検査) | 生成章に concern authority (Apple HIG/Clean Arch/OWASP/SRE) の上流指針が具体反映されず汎用ポインタ止まり |
+| **C16** 必須情報カタログの被覆 + block ゲート | matrix_coverage | `validate-knowledge-graph.py --profile required-info` exit0 (全 in-scope domain 被覆・item 最低形状・収集順序・coverage certificate) | `missing_effect=block` の item 未回答のまま confirmed に進んだ確定セル (C01 R5 収集ゲート素通り。機械層ゲート validate-knowledge-graph.py (component C14) は blocking_items 列挙のみで runtime 施行せず・決定論 writer 施行は follow-up) |
+
+> C15 の意味層は「存在確認だけで PASS にしない」= design_knowledge_reflection の Goodhart 防止と同一原則で、doctrine anchor が確定セル要件へ具体適用されているかを照合する。C16 は matrix_coverage の網羅性判定に「必須情報が block ゲートを通って確定に接地しているか」を加える。
+
+## 評価レポート形状 (schema)
+
+```
+{
+  "evaluator": {"name": "assign-system-spec-completeness-evaluator", "version": "0.1.0", "context": "fork"},
+  "verdict": "PASS" | "FAIL",
+  "audit_delegations": [
+    {"aspect": "matrix_coverage", "role": "primary",   "auditor": "system-spec-matrix-auditor",
+     "component": "C07", "dispatch": {"tool": "Task", "subagent_type": "system-spec-matrix-auditor",
+     "session_id": "...", "tool_use_id": "...", "response_sha256": "..."},
+     "verdict": "PASS", "evidence": ["..."]},
+    {"aspect": "matrix_coverage", "role": "sub_input", "auditor": "system-spec-hearing-auditor",  "component": "C06", ...},
+    {"aspect": "doc_freshness",   "role": "primary",   "auditor": "system-spec-doc-freshness-auditor", "component": "C08", ...}
+  ],
+  "aspects": {
+    "foundation_trace":             {"verdict": "...", "auditor": "assign-system-spec-completeness-evaluator", "component": "C05", "summary": "...", ...},
+    "decision_guidance":            {"verdict": "...", "auditor": "assign-system-spec-completeness-evaluator", "component": "C05", "summary": "...", ...},
+    "matrix_coverage":              {"verdict": "PASS|FAIL|INDETERMINATE", "auditor": "system-spec-matrix-auditor", "component": "C07", "summary": "...", "evidence": [...]},
+    "design_knowledge_reflection":  {"verdict": "...", "auditor": "assign-system-spec-completeness-evaluator", "component": "C05", "summary": "...", ...},
+    "doc_freshness":                {"verdict": "...", "auditor": "system-spec-doc-freshness-auditor", "component": "C08", "summary": "...", ...},
+    "prompt_quality":               {"verdict": "...", "auditor": "assign-system-spec-completeness-evaluator", "component": "C05", "summary": "...", ...}
+  },
+  "gate_results": [ {"id": "G-matrix", "name": "validate-coverage-matrix", "exit_code": 0, ...} ],
+  "findings": [ {"severity": "high|medium|low|info", "bucket": "...", "observation": "...", "suggested_fix": "..."} ],
+  "gaps": [ "不足事項1", ... ]
+}
+```
+
+## 帰属の接地 (attribution / fail-closed)
+
+> `aspects[].auditor` は評価者自身が書く文字列であり、それ単体では独立監査の実在を示さない。旧実装は定数との文字列一致しか見ておらず、**監査を 1 件も fork しない実行でも「独立 auditor が PASS を出した」と名乗るレポートが `--report` を exit 0 で通過できた**。監査 agent は `Write` を持たず自力で痕跡を残せないため、証跡は「モデルが書けない層」= PostToolUse hook に書かせる。
+
+| 必須 receipt (`audit_delegations[]`) | role | auditor | component |
+|---|---|---|---|
+| `matrix_coverage` | `primary` | `system-spec-matrix-auditor` | C07 |
+| `matrix_coverage` | `sub_input` | `system-spec-hearing-auditor` | C06 |
+| `doc_freshness` | `primary` | `system-spec-doc-freshness-auditor` | C08 |
+
+- 証跡台帳: `eval-log/system-spec-harness/audit-fork-ledger.jsonl` (writer = `hooks/record-audit-fork.py` / PostToolUse: `Task|Agent`)。`--fork-ledger` または env `SYSTEM_SPEC_AUDIT_FORK_LEDGER` で上書き可。
+- C05 自前評価の 4 観点に `primary` receipt を付けるのは **虚偽の独立性主張** として violation。
+- 台帳が無い/空 = 裏取り 0 件 → fail-closed で violation (緑にしない)。
+- **PostToolUse の per-call 契約**: 現行 PostToolUse は matching tool call ごとに 1 回、top-level `tool_use_id` と当該 call の `tool_response` を渡す。parallel dispatch 時も call ごとの hook が並行発火し、batch 全体の lifecycle は PostToolBatch が担う。writer は schema 1.2 で top-level `tool_use_id` / `verdict_state` と、**当該 per-call `tool_response` 全体**の canonical digest を記録する。nested ID block を探索して response の一部だけを digest 化しない。
+- **run/session・response・ID 束縛 (issues: HarnessHub-x4o / HarnessHub-uypz)**: schema 1.2 の receipt `dispatch.{session_id,tool,subagent_type,tool_use_id,response_sha256}` と receipt `verdict` を、台帳が hook 観測した同一 call の値へ全一致で束縛し、`verdict_state=resolved` だけを受理する。schema 1.1 台帳は `tool_use_id` を持たない legacy 互換として従来の `session_id` / tool / subagent / digest / verdict で照合する。schema 1.2 の ID 欠落・不一致を 1.1 へ downgrade して通してはならない。必須 receipt の session は単一 run に収束させ、`--session <id>` で現在 session との一致まで検査する。
+- **正式 evaluator 運用の直列化 gate**: per-call hook 仕様と parallel 対応コードの存在だけでは正式運用を parallel へ昇格しない。current runtime の fresh live-trial で 3 fork 全ての schema 1.2 行、ID / digest / verdict 照合、最終 receipt 生成が成立するまで、1 回の assistant message では 1 件だけを foreground 起動する。完全 response の最終行 `AUDIT_VERDICT` と PostToolUse 台帳行を確定してから次へ進む。parallel support は defensive hardening / canary であり正式許可ではない。
+- **background は最終 verdict ではない**: background/非同期 launch の「起動済み」応答は監査の最終 response ではない。writer は現行 `Agent` の `tool_response.status=completed` だけを verdict 確定対象とし、それ以外を marker の有無にかかわらず `verdict_state=pending` / `audit_verdict=null` にする。旧 `Task` は status 欠落を互換受理するが、status が明示された場合は `completed` 以外を未完了として扱う。現行 `Agent` の top-level `tool_use_id` 欠落も schema 1.1 へ downgrade しない。`verdict_state=pending|absent|ambiguous`、または `audit_verdict=null` の台帳行は receipt に使えない。
+- **台帳の書込み権限**: `audit-fork-ledger.jsonl` は PostToolUse hook の append-only 出力であり、評価者が手書き・補正してはならない。`prompt_sha256` / `response_sha256` が空・`manual`・64桁16進数以外、または response 最終行の `AUDIT_VERDICT` marker が無効な行は集約対象から除外される。
+- **機械層の限界 (正直な境界)**: 台帳は実際の response が返した verdict の書換えを拒否するが、監査 prompt の意味的十分性や証拠の妥当性そのものは content-review / human が検証する。台帳ファイルを意図的に改ざん可能な実行環境では hook 証跡だけで完全な敵対者耐性は得られないため、書込み権限の分離も必要である。
+
+## 総合判定 (fail-closed 集約)
+
+- 全観点PASS **かつ** high severity finding 0 件のときだけ総合 PASS。
+- 1 観点でも FAIL/INDETERMINATE、または high finding が 1 件でもあれば総合 FAIL。
+- 全観点を過不足なく評価していなければ総合 FAIL (監査観点の取りこぼしを PASS にしない)。
+- 総合判定は `scripts/aggregate-completeness.py` の `aggregate_verdict` で再導出でき、レポートの `verdict` と一致すること (総合判定が観点スコアに接地しているかの整合検査 = Goodhart 防止)。
+
+## Key Rules
+
+1. **context:fork 必須**: 生成側 (elicit/doc-fetch/compile) の「網羅できた」自己肯定バイアスを断つ。
+2. **proposer ≠ approver**: 評価者は仕様書を書き換えない (read-only)。修正は elicit/doc-fetch/compile への差し戻し (Goodhart 防止)。
+3. **決定論ゲート優先**: マトリクス網羅性は `validate-coverage-matrix.py` の exit code を一次根拠にし、自然言語で PASS 判定しない。
+4. **空 findings 禁止**: PASS 時も info severity で「確認した観点」を 1 件以上残す。
+5. **総合 FAIL は差し戻し材料付き**: gaps (不足事項一覧) を非空にし、どの skill (elicit/doc-fetch/compile) または監査再実行へ戻すかを記す。
+
+## Steps
+
+正本責務は `prompts/R1-score.md` (スコアリング) と `prompts/R2-delegate.md` (監査 fork 集約)。要約:
+
+### Step 1: 観点別監査を独立 context で集約 (R2-delegate)
+Task tool で監査 sub-agent (`system-spec-matrix-auditor` (C07) / `system-spec-hearing-auditor` (C06) / `system-spec-doc-freshness-auditor` (C08)) をそれぞれ fork する。PostToolUse 自体は per-call だが、正式 evaluator 運用は fresh live-trial で schema 1.2 の end-to-end 帰属を実証するまで **1 message = 1 foreground fork** で直列実行する。C07 は matrix_coverage、C08 は doc_freshness の一次根拠。C06 はヒアリング品質を監査し matrix_coverage の sub-input として併せる。design_knowledge_reflection は独立 auditor を立てず Step 3 で C05 自身が評価する。
+
+### Step 2: マトリクス網羅性の決定論ゲート
+```bash
+PLUGIN_ROOT=plugins/system-spec-harness
+python3 "$PLUGIN_ROOT/scripts/validate-coverage-matrix.py" --matrix <spec-state.json> --require-complete
+```
+exit0 をマトリクス網羅性観点の一次根拠にする (`scripts/aggregate-completeness.py --matrix ...` でも回収可)。
+
+続けて C13-C16 の機械層ゲートを `python3 "$PLUGIN_ROOT/skills/assign-system-spec-completeness-evaluator/scripts/aggregate-completeness.py" --knowledge-graph` (出荷 3 カタログを `validate-knowledge-graph.py` の knowledge/doctrine/required-info/cross 4 profile で独立再実行) の全 exit0 で確認する。C13/C14/C15 は design_knowledge_reflection (Step 3)、C16 は matrix_coverage の追加評価次元として意味層採点に併せる。
+
+### Step 3: 設計知識反映の自前評価 (独立 auditor なし)
+C05 R1-score が `system-spec/*.md` 各章を直接読み、`ref-system-design-knowledge/references/resource-map.yaml` 由来の設計知識ポインタの (1) 存在 (機械層) と (2) その原則が確定セル要件へ具体適用されているか (意味層) を評価する。**存在確認だけで PASS にしない** (compile が機械注入するポインタを自己循環で肯定しない = Goodhart 防止)。汎用ポインタ (resource-map 索引) のみで具体適用が無い章は medium 以上で拾う。C06 のヒアリング品質監査は本観点でなく matrix_coverage の sub-input として使う。
+
+### Step 4: レポート出力と整合検査
+`schemas/completeness-findings.schema.json` 準拠で評価レポートを出力し、Step 1 で実際に fork した監査を `audit_delegations[]` へ receipt として記録する。schema 1.2 台帳を使う receipt は hook 観測の `tool_use_id` も `dispatch` へ転記する。`scripts/aggregate-completeness.py --report <report.json>` で形状 + 総合判定整合 (fail-closed 再導出との一致) + 帰属の fork 証跡接地を検証する。
+
+総合 PASS の場合だけ、同じ report・fork ledger・具体的 session を production writer へ渡す。writer は `G-matrix` / `G-source-citation` の exit 0、report digest、ledger の response/session 帰属を再検査してから atomic に receipt を生成する。手書き receipt や test fixture の producer を実行時に使わない。
+
+```bash
+python3 scripts/build-resume-receipt.py --repo-root "$CLAUDE_PROJECT_DIR" \
+  --report system-spec/completeness-report.json \
+  --fork-ledger eval-log/system-spec-harness/audit-fork-ledger.jsonl \
+  --session <current-evaluator-session> \
+  --output system-spec/resume-receipt.json
+```
+
+## Gotchas
+
+1. 観点↔評価主体を取り違えない (マトリクス=C07 + C06 ヒアリング品質 sub-input / 設計知識=C05 自前評価・独立 auditor なし / 出典鮮度=C08)。C06 は system-spec/*.md を読まないため設計知識反映へ束縛しない。
+2. `audit_delegations[]` は「fork したことにする」ための宣言欄ではない。Step 1 で実際に Task fork した監査だけを記録する。台帳と突合されるため、fork していない監査の receipt を書いても `--report` は通らない。
+3. 決定論ゲート exit0 でも、意味層 (対象外理由の具体性 / 非公式 host / 設計知識反映の形骸化) で FAIL にしうる。
+4. high severity が 1 件でもあれば総合 FAIL。
+5. INDETERMINATE は fail-closed で FAIL に寄せ、仕様書修正でなく監査再実行/入力補完へ差し戻す。
+6. 本 skill は kind=assign のため feedback_contract.criteria は N/A (評価器自身は評価基準を携帯せず、checklist 観点 + evaluator ゲートで担保。frontmatter の skip_reason 参照)。
+7. parallel fixture / unit test が PASS しても正式 evaluator の直列化を解除しない。解除条件は current runtime の fresh live-trial で 3 件全ての schema 1.2 `tool_use_id` / whole-response digest / `verdict_state=resolved` と receipt 照合を確認すること。
+
+## Additional Resources
+
+- `references/scoring-rubric.json` — 全 6 観点機械判定ルールと fail-closed 集約ポリシー
+- `references/aspect-criteria.md` — 観点別意味判定の詳細基準 + 観点↔監査 agent 対応
+- `schemas/completeness-findings.schema.json` — 評価レポート出力スキーマ
+- `scripts/aggregate-completeness.py` — レポート形状検証 + 総合 fail-closed 集約 + 帰属の fork 証跡接地検証 (決定論)
+- `scripts/audit_fork_attribution.py` — fork 台帳集計・schema 1.2 の tool-use ID を含む receipt 照合・run/session 束縛、および schema 1.1 legacy 互換を担う import 専用モジュール。公開 CLI と総合判定は `aggregate-completeness.py` が継続して所有する
+- `scripts/build-resume-receipt.py` / `schemas/resume-receipt.schema.json` — canonical PASS report、gate 結果、fork ledger session、artifact digest に束縛した再利用 receipt の production writer / schema
+- `../../hooks/record-audit-fork.py` — 監査 fork 台帳 writer (per-tool-call PostToolUse: `Task|Agent`)。schema 1.2 の top-level `tool_use_id` / `verdict_state` / whole per-call response digest を記録する帰属検証の証跡正本
+- `prompts/R1-score.md` / `prompts/R2-delegate.md` — R1 (スコアリング) / R2 (監査 fork 集約) 責務正本
+- fork 先 agent: `../../agents/system-spec-{matrix,hearing,doc-freshness}-auditor.md`

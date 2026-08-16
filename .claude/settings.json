@@ -1,0 +1,30 @@
+{
+  "enabledPlugins": {
+    "dev-graph@harness-hub": true,
+    "extract-system-blueprint@harness-hub": true,
+    "harness-creator@harness-hub": true,
+    "harness-hub-publisher@harness-hub": true,
+    "plugin-dev-planner@harness-hub": true,
+    "prompt-creator@harness-hub": true,
+    "skill-governance-adapters@harness-hub": true,
+    "skill-governance-automation@harness-hub": true,
+    "skill-governance-config@harness-hub": true,
+    "skill-governance-hooks@harness-hub": true,
+    "skill-governance-lint@harness-hub": true,
+    "skill-governance-migration@harness-hub": true,
+    "skill-governance-secrets@harness-hub": true,
+    "skill-intake@harness-hub": true,
+    "slide-report-generator@harness-hub": true,
+    "spec-drift-guardian@harness-hub": true,
+    "system-dev-planner@harness-hub": true,
+    "system-spec-harness@harness-hub": true
+  },
+  "extraKnownMarketplaces": {
+    "harness-hub": {
+      "source": {
+        "source": "directory",
+        "path": "./"
+      }
+    }
+  }
+}
