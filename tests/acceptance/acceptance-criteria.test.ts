@@ -171,6 +171,83 @@ describe("§30.3 ペルソナ", () => {
   });
 });
 
+describe("§30.4 AI生成", () => {
+  it("ブログ・X・Instagram・note の原稿を生成できる", async () => {
+    const matrix = await value("get_generation_matrix", { packageId: "cp_laptop_2026" });
+    const channels = rows(matrix.channels).map((c) => String(c.channel));
+    for (const kind of ["own_site", "x", "instagram", "note"]) {
+      expect(channels, kind).toContain(kind);
+    }
+    // note は「下書きを書き出して人が貼る」であって、直接投稿ではない。
+    const note = rows(matrix.channels).find((c) => String(c.channel) === "note");
+    expect(String(note?.publishNote)).toContain("貼り付け");
+  });
+
+  it("素材が揃うまで生成を始められない", async () => {
+    const gate = await value("check_generation_input", {});
+    expect(gate.ready).toBe(false);
+    // 足りない項目は名前と埋め方つきで返る。「失敗しました」だけで終わらせない。
+    const missing = rows(gate.missing);
+    expect(missing.length).toBeGreaterThan(0);
+    for (const m of missing) {
+      expect(String(m.label ?? "")).not.toBe("");
+      expect(String(m.howToFill ?? "")).not.toBe("");
+    }
+  });
+
+  it("生成文から使用した主張と根拠を確認できる", async () => {
+    const content = await value("get_content", { variantId: "cv_alpha_draft" });
+    const pkg = content.package as Json;
+    const claimIds = rows(pkg.claimIds as unknown).map(String);
+    expect(claimIds.length).toBeGreaterThan(0);
+    expect(rows(pkg.evidenceIds as unknown).length).toBeGreaterThan(0);
+    // 主張から根拠へ、実際にたどれる。
+    const evidence = await value("get_evidence", { productId: String(pkg.primarySubjectId) });
+    const traced = rows(evidence.items).map((i) => String((i.claim as Json).id));
+    expect(traced).toEqual(expect.arrayContaining([claimIds[0]]));
+  });
+
+  it("広告表記を自動挿入できる", async () => {
+    const content = await value("get_content", { variantId: "cv_alpha_draft" });
+    const variant = content.variant as Json;
+    // 下書きの段階から広告表記が入っている。公開直前に足すものにしない。
+    expect(String(variant.disclosure ?? "")).toContain("アフィリエイト");
+    // AI を使ったことも同じ場所で書く（別の場所に分けると片方だけ消える）。
+    expect(String(variant.disclosure ?? "")).toContain("AI");
+  });
+
+  it("媒体ルール違反を警告できる", async () => {
+    const content = await value("get_content", { variantId: "cv_alpha_draft" });
+    const issues = rows((content.quality as Json).issues as unknown);
+    expect(issues.length).toBeGreaterThan(0);
+    // 指摘は「何が」「どこが」まで書く。直せない指摘は指摘ではない。
+    for (const issue of issues) {
+      expect(String(issue.message ?? "")).not.toBe("");
+    }
+    const kinds = issues.map((i) => String(i.check));
+    expect(kinds).toContain("unsourced_number");
+    expect(kinds).toContain("exaggeration");
+  });
+
+  it("同じ事実から異なる切り口を生成できる", async () => {
+    const content = await value("get_content", { variantId: "cv_alpha_draft" });
+    const angles = rows((content.package as Json).contentAngles as unknown).map(String);
+    // 同じ素材から 2 通り以上の書き方が用意されている。
+    expect(angles.length).toBeGreaterThan(1);
+    expect(new Set(angles).size).toBe(angles.length);
+  });
+
+  it("根拠のない主張は公開不可になる", async () => {
+    // 見本の下書きは、数値に根拠が無く「最強」と書いてある。
+    const r = await call("approve_content", { variantId: "cv_alpha_draft" }, MANAGER);
+    expect(r.ok).toBe(false);
+    if (!r.ok) {
+      // 断るだけでなく、何をすれば通るのかを返す。
+      expect(r.error.message).toContain("承認できません");
+    }
+  });
+});
+
 describe("§30.5 ブログ", () => {
   it("複数サイトを作成できる", async () => {
     const list = await value("list_managed_sites", {});
