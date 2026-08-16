@@ -28,7 +28,7 @@
 | 8-2 | 使っていない `AuthenticationPort` の整理 | 未着手 | `src/application/ports/identity.ts` の `currentUserId()` / `profileOf()` は、合言葉を引数で受け取れない形だったため実装に使えなかった（変更容易性シナリオ ⑦ の実測で判明）。実際に使っているのは `SessionReaderPort`。宣言だけ残っていると、次の人が誤って実装しに行く |
 | 9 | 旧実装の移行 (`src/lib/mcp` `src/lib/webmcp` `src/lib/content`) | 未着手 | 新しい入口 (`src/presentation/tools/`) と二重になっている。`/api/mcp` は旧実装のまま |
 | 10 | ドメイン不変条件のテスト | 未着手 | 順位の再現性・公開ゲート・事実と推測の境界・品質検査17項目・広告表示・成果リンクの改変禁止 |
-| 11 | 仕様の未修正4点 | 保留 | `system-spec/backend.md` の記法崩れ、doctrine の接続、`decisions[]` が1件のみ、非規範メモが8章中3章。確定済み章のため再オープン手順 (`ah-bgp`) 経由でのみ修正できる |
+| 11 | 仕様の未修正4点 | 保留（3件） | 内訳と現況は `docs/spec/08-仕様の未修正点.md` に記録（2026-08-17 に実地確認）。①`system-spec/backend.md` の記法崩れ ②doctrine が要件文につながっていない ③`decisions[]` が1件のみ ④非規範メモのばらつき → **④は解消済み**。①②は生成工程 (C03) の再実行、③は利用者本人の確定が要る。確定済み章のため再オープン手順 (`ah-bgp`) 経由でのみ修正できる |
 
 ## 保留の理由 (記録)
 

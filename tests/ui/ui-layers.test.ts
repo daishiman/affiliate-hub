@@ -150,7 +150,11 @@ describe("仕様固有の重要UIの一元化", () => {
    * API はあるが画面が無い、と同じ壊れ方をする。
    */
   it("すべてのパターンがどこかの画面から使われている", () => {
-    const users = [...screens, ...templates].map((f) => readFileSync(f, "utf8")).join("\n");
+    // 見本帳は「全部の部品を並べる画面」なので、ここを数に入れると
+    // どの部品も必ず使われていることになり、この検査が何も見なくなる。
+    const users = [...screens.filter((f) => !f.includes("/ui-catalog/")), ...templates]
+      .map((f) => readFileSync(f, "utf8"))
+      .join("\n");
     const orphans: string[] = [];
     for (const file of patterns) {
       if (!file.endsWith(".tsx")) continue;
@@ -185,5 +189,41 @@ describe("仕様固有の重要UIの一元化", () => {
     ]) {
       expect(index.includes(name), `${name} が入口から出ていません`).toBe(true);
     }
+  });
+
+  /**
+   * 見本帳（`/admin/ui-catalog`）に全部の部品が載っていること。
+   *
+   * 見本帳の値打ちは**網羅していること**にしかない。
+   * 1 つでも載っていない部品があると、次に画面を作る人が
+   * 「ここに無いから作る」で同じものを二重に作る。共通化はそこから崩れる。
+   *
+   * 手で目視すると必ず抜けるので、機械で見る。
+   */
+  it("見本帳に全部の部品が載っている", () => {
+    const catalog = [
+      join(ROOT, "src/app/admin/ui-catalog/page.tsx"),
+      join(ROOT, "src/app/admin/ui-catalog/input-samples.tsx"),
+    ]
+      .map((f) => readFileSync(f, "utf8"))
+      .join("\n");
+
+    const missing: string[] = [];
+    for (const file of [...primitives, ...patterns]) {
+      if (!file.endsWith(".tsx")) continue;
+      const source = readFileSync(file, "utf8");
+      const exported = [...source.matchAll(/export function (\w+)/g)].map((m) => m[1]);
+      for (const name of exported) {
+        // 見本帳が組み立てのために内部で使う包み（Provider 類）は対象外。
+        // 見た目を持たないため、並べても何も確かめられない。
+        if (name.endsWith("Provider")) continue;
+        if (new RegExp(`<${name}[\\s/>]`).test(catalog)) continue;
+        missing.push(`${relative(ROOT, file)} の ${name}`);
+      }
+    }
+    expect(
+      missing,
+      "見本帳に載っていない部品です。/admin/ui-catalog へ追加してください。",
+    ).toEqual([]);
   });
 });
