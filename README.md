@@ -2,7 +2,10 @@
 
 アフィリエイト案件と成果データを一元管理するための個人開発プロジェクト。
 
-**本番:** https://affiliate-hub.daishimanju.workers.dev
+| 環境 | URL | ブランチ |
+| --- | --- | --- |
+| 本番 | https://affiliate-hub.daishimanju.workers.dev | `main` |
+| 開発 | https://affiliate-hub-dev.daishimanju.workers.dev | `dev` |
 
 > **Note:** 要件は暫定です。目的・スコープは今後更新します。
 
@@ -39,16 +42,60 @@ pnpm dev
 pnpm preview
 ```
 
+## 環境とデプロイフロー
+
+```
+feature/xxx ──PR──▶ dev ──自動デプロイ──▶ 開発環境で確認
+                     │
+                     └──PR──▶ main ──自動デプロイ──▶ 本番
+```
+
+インフラは環境ごとに完全に分離しています。
+
+| | 開発環境 | 本番 |
+| --- | --- | --- |
+| Worker | `affiliate-hub-dev` | `affiliate-hub` |
+| D1 | `affiliate-hub-db-dev` | `affiliate-hub-db` |
+| R2 | `affiliate-hub-assets-dev` | `affiliate-hub-assets` |
+| Secret | `MCP_TOKEN` (dev 用) | `MCP_TOKEN` (本番用・別の値) |
+
+ローカル開発 (`pnpm dev` / `pnpm preview`) は **dev 側のリソース**を指します。
+事故ったときに壊れるのが dev 側になるようにするためです。
+
+> **Wrangler の落とし穴:** v4 ではトップレベルのバインディングが `env` に継承されません。
+> `wrangler.jsonc` の各 env に D1・R2 を明示しています。新しいバインディングを足すときは
+> **3 か所すべて**（トップレベル / `env.dev` / `env.production`）に書いてください。
+
 ## スクリプト
 
 | コマンド | 用途 |
 | --- | --- |
 | `pnpm dev` | Next.js 開発サーバー |
 | `pnpm preview` | workerd 上でビルド成果物を確認 |
-| `pnpm deploy` | Cloudflare Workers にデプロイ |
+| `pnpm deploy:dev` / `deploy:prod` | 各環境へデプロイ（通常は CI が実行） |
 | `pnpm cf-typegen` | バインディングの型 (`cloudflare-env.d.ts`) を生成 |
 | `pnpm db:generate` | スキーマ変更からマイグレーション SQL を生成 |
-| `pnpm db:migrate:local` / `:remote` | マイグレーション適用 |
+| `pnpm db:migrate:local` | ローカル D1 に適用 |
+| `pnpm db:migrate:dev` / `:prod` | 各環境の D1 に適用 |
+
+## CI/CD
+
+| ワークフロー | トリガー | 内容 |
+| --- | --- | --- |
+| `ci.yml` | `dev` / `main` への PR | lint → build → typecheck → マイグレーション未生成の検出 |
+| `deploy-dev.yml` | `dev` へ push | dev D1 にマイグレーション → dev へデプロイ |
+| `deploy-prod.yml` | `main` へ push | 本番 D1 にマイグレーション → 本番へデプロイ |
+
+**マイグレーションは必ずデプロイの前**に走ります。逆順だと新しいコードが存在しないカラムを
+参照する瞬間が生まれるためです。つまり後方互換なマイグレーション（カラム追加は可、
+削除は 2 段階）が前提です。
+
+### 必要な GitHub Secrets
+
+| Secret | 取得元 |
+| --- | --- |
+| `CLOUDFLARE_API_TOKEN` | Cloudflare ダッシュボード → My Profile → API Tokens（要権限: Workers Scripts / D1 / R2 の編集） |
+| `CLOUDFLARE_ACCOUNT_ID` | `npx wrangler whoami` で確認 |
 
 ## MCP 連携
 

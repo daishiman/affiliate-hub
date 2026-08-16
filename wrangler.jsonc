@@ -11,20 +11,88 @@
   "observability": {
     "enabled": true
   },
-  // D1: 案件・成果データの永続化 (APAC リージョン)
+
+  // --- 環境について ---------------------------------------------------------
+  // Wrangler v4 では「トップレベルのバインディングは env に継承されない」。
+  // そのため dev / production それぞれに D1・R2 を明示している。
+  // ここを書き忘れると、その環境からバインディングが消える (本番を誤って触ることはない)。
+  //
+  //   ローカル      : pnpm dev / pnpm preview        -> 下のトップレベル定義 (dev リソース)
+  //   dev 環境      : pnpm deploy:dev                -> env.dev
+  //   本番          : pnpm deploy:prod               -> env.production
+  //
+  // トップレベルは「ローカル開発用」として dev リソースを指す。
+  // 事故ったときに壊れるのが dev 側になるようにするため。
   "d1_databases": [
     {
       "binding": "DB",
-      "database_name": "affiliate-hub-db",
-      "database_id": "eb93e950-a8f6-407e-b3aa-372db5d98c38",
+      "database_name": "affiliate-hub-db-dev",
+      "database_id": "d1d5f90a-2ebb-43d7-89bd-7b920cdbeeba",
       "migrations_dir": "drizzle"
     }
   ],
-  // R2: レポートCSV・スクリーンショット等の生成物置き場
   "r2_buckets": [
     {
       "binding": "BUCKET",
-      "bucket_name": "affiliate-hub-assets"
+      "bucket_name": "affiliate-hub-assets-dev"
     }
-  ]
+  ],
+
+  "env": {
+    // 開発環境: dev ブランチへのマージで自動デプロイされる
+    "dev": {
+      "name": "affiliate-hub-dev",
+      "compatibility_date": "2026-08-16",
+      "compatibility_flags": ["nodejs_compat"],
+      "assets": {
+        "directory": ".open-next/assets",
+        "binding": "ASSETS"
+      },
+      "observability": {
+        "enabled": true
+      },
+      "d1_databases": [
+        {
+          "binding": "DB",
+          "database_name": "affiliate-hub-db-dev",
+          "database_id": "d1d5f90a-2ebb-43d7-89bd-7b920cdbeeba",
+          "migrations_dir": "drizzle"
+        }
+      ],
+      "r2_buckets": [
+        {
+          "binding": "BUCKET",
+          "bucket_name": "affiliate-hub-assets-dev"
+        }
+      ]
+    },
+
+    // 本番環境: main ブランチへのマージで自動デプロイされる
+    "production": {
+      "name": "affiliate-hub",
+      "compatibility_date": "2026-08-16",
+      "compatibility_flags": ["nodejs_compat"],
+      "assets": {
+        "directory": ".open-next/assets",
+        "binding": "ASSETS"
+      },
+      "observability": {
+        "enabled": true
+      },
+      "d1_databases": [
+        {
+          "binding": "DB",
+          "database_name": "affiliate-hub-db",
+          "database_id": "eb93e950-a8f6-407e-b3aa-372db5d98c38",
+          "migrations_dir": "drizzle"
+        }
+      ],
+      "r2_buckets": [
+        {
+          "binding": "BUCKET",
+          "bucket_name": "affiliate-hub-assets"
+        }
+      ]
+    }
+  }
 }
