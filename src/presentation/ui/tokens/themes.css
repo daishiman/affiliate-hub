@@ -200,3 +200,24 @@
   --color-accent-border: light-dark(var(--amber-500), var(--amber-700));
   --color-text-on-accent: light-dark(var(--amber-950), var(--amber-100));
 }
+
+/* ---------------------------------------------------------------------- */
+/*
+ * パープル系。変更容易性シナリオ⑫の実測で追加した配色。
+ * 上書きするトークンの並びは上のすべてのテーマと同一。
+ */
+[data-brand-theme="purple"] {
+  --brand-theme-name: "パープル系";
+
+  --color-action-default: light-dark(var(--purple-700), var(--purple-300));
+  --color-action-hover: light-dark(var(--purple-800), var(--purple-100));
+  --color-action-active: light-dark(var(--purple-900), var(--neutral-0));
+  --color-action-subtle: light-dark(var(--purple-100), var(--purple-950));
+  --color-text-on-action: light-dark(var(--neutral-0), var(--purple-950));
+
+  --color-accent-default: light-dark(var(--teal-700), var(--teal-300));
+  --color-accent-hover: light-dark(var(--teal-800), var(--teal-100));
+  --color-accent-subtle: light-dark(var(--teal-100), var(--teal-900));
+  --color-accent-border: light-dark(var(--teal-500), var(--teal-700));
+  --color-text-on-accent: light-dark(var(--teal-950), var(--teal-100));
+}

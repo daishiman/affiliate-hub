@@ -91,6 +91,15 @@
   --indigo-900: #1e1b4b;
   --indigo-950: #12102e;
 
+  /* Purple: 変更容易性シナリオ⑫の実測で追加した段。 */
+  --purple-100: #f3e8ff;
+  --purple-300: #d8b4fe;
+  --purple-500: #a855f7;
+  --purple-700: #7e22ce;
+  --purple-800: #6b21a8;
+  --purple-900: #3b0764;
+  --purple-950: #26043f;
+
   --teal-100: #ccfbf1;
   --teal-300: #5eead4;
   --teal-400: #2dd4bf;

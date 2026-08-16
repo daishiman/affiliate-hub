@@ -108,6 +108,7 @@ export const BRAND_THEMES = [
   "white",
   "gray",
   "green",
+  "purple",
 ] as const;
 export type BrandTheme = (typeof BRAND_THEMES)[number];
 
@@ -129,6 +130,7 @@ export const BRAND_THEME_LABELS: Readonly<Record<BrandTheme, string>> = {
   white: "ホワイト系",
   gray: "グレー系",
   green: "グリーン系",
+  purple: "パープル系",
 };
 
 /**
