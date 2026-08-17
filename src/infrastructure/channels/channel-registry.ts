@@ -76,7 +76,10 @@ function createStubConnector(
 }
 
 const FACTORIES: Readonly<Record<ChannelKind, ConnectorFactory>> = {
-  own_site: (ctx) => createStubConnector("own_site", "サイト公開の実装 (Workers 上のレンダリング) が必要", ctx),
+  // 公開ページ (src/app/s/[site]/) は既にある。足りないのは「公開する」の側で、
+  // 記事の保存先が見本のままなので、公開に切り替えても次の読み込みで元に戻る。
+  own_site: (ctx) =>
+    createStubConnector("own_site", "記事の保存先 (content:*) を D1 につなぐことが必要", ctx),
   x: (ctx) => createStubConnector("x", "X API の有料プラン契約とアプリ登録が必要", ctx),
   instagram: (ctx) =>
     createStubConnector("instagram", "Instagram Graph API はプロアカウントと Facebook ページ連携が必要", ctx),

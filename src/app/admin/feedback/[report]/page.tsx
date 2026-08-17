@@ -7,8 +7,8 @@ import {
   FeedbackPullCommand,
   FeedbackStatusForm,
 } from "@/presentation/admin/feedback-forms";
-import { currentActor, feedbackUseCases } from "@/presentation/composition";
-import { Callout, Card, ErrorView, Page, UI_COPY } from "@/presentation/ui";
+import { currentActor, feedbackCaptureNotice, feedbackUseCases } from "@/presentation/composition";
+import { Callout, Card, ErrorView, Page, StorageNotice, UI_COPY } from "@/presentation/ui";
 import styles from "../../admin.module.css";
 
 export const dynamic = "force-dynamic";
@@ -115,6 +115,9 @@ export default async function FeedbackDetailPage({
       {/* ⑤ 画面の写し */}
       <Card>
         <h2 className={styles.sectionTitle}>そのときの画面</h2>
+        {/* 何で動いているかは入口が決める。ここに条件を書くと、
+            置き場をつないだ日に画面だけが古いことを言い続ける。 */}
+        <StorageNotice status={await feedbackCaptureNotice()} />
         {v.captureUrl === null ? (
           <Callout
             tone="info"
@@ -123,8 +126,9 @@ export default async function FeedbackDetailPage({
         ) : (
           <>
             {/* 黒塗りは画素へ焼き込み済み。元の画像は保存していない。 */}
-            {/* next/image を使わない: この URL は期限つきの一時的なもので、
-                最適化のために別の場所へ複製されると、期限も保存期間も効かなくなる。 */}
+            {/* next/image を使わない: 最適化は画像を別の場所へ複製する。
+                複製された先は保存期間の外なので、「180 日で消えます」が効かなくなる。
+                取り出す口（/api/feedback-captures）を必ず毎回通す。 */}
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={v.captureUrl} alt={`${v.screenName} の画面（黒塗り済み）`} />
             <p className={styles.linkNote}>

@@ -39,6 +39,19 @@ function noticeNames(): readonly string[] {
 
 type Notices = Record<string, () => Promise<Record<string, unknown>>>;
 
+/**
+ * 「つながっている」状態の env。
+ *
+ * お知らせごとに見ている接続が違う（記録先は D1、画面の写しは R2）ので、
+ * ここには**供給されうる接続を全部**置く。1 つ足りないと、そのお知らせだけが
+ * 「つながっているのに見本と言っている」と判定されて赤くなる。
+ * 赤くなる側に倒しているのは、黙って検査の外へ出るより安全なため。
+ */
+const CONNECTED = {
+  DB: { prepare: () => ({}) },
+  BUCKET: { get: async () => null },
+} as const;
+
 async function noticesWith(env: Record<string, unknown>): Promise<Notices> {
   vi.resetModules();
   vi.doMock("@opennextjs/cloudflare", () => ({
@@ -65,7 +78,7 @@ describe("いま何で動いているかのお知らせ", () => {
   });
 
   it("接続があるときも黙らず、消えるとは言わない", async () => {
-    const mod = await noticesWith({ DB: { prepare: () => ({}) } });
+    const mod = await noticesWith(CONNECTED);
     for (const name of noticeNames()) {
       const status = await mod[name]();
       expect(status.persisted, `${name} が接続ありで見本と言っています`).toBe(true);
@@ -80,7 +93,7 @@ describe("いま何で動いているかのお知らせ", () => {
     const messages = new Map<string, string>();
     for (const name of noticeNames()) messages.set(name, String((await without[name]()).message));
 
-    const withDb = await noticesWith({ DB: { prepare: () => ({}) } });
+    const withDb = await noticesWith(CONNECTED);
     for (const name of noticeNames()) {
       const after = String((await withDb[name]()).message);
       // 同じ文が出るなら、それは条件を見ていないということ。

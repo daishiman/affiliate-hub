@@ -10,6 +10,10 @@ import {
   createD1IntegrationKeyStore,
 } from "./persistence/d1/feedback-repository";
 import { createEventPublisher } from "./platform/queue";
+import {
+  createR2FeedbackCaptureStore,
+  type CaptureBucket,
+} from "./platform/feedback-capture-r2";
 import { createLlmPorts } from "./llm/llm-setup";
 import { createSampleContentRepository } from "./persistence/sample/content-sample-repository";
 import {
@@ -81,8 +85,11 @@ import { idGenerator } from "./platform/id-generator";
  *
  * 入口ごとの組み立て（ツール一覧）は `src/presentation/composition.ts`。
  */
-export function createDeps(options: { readonly db?: DrizzleD1 | null } = {}): AppDeps {
+export function createDeps(
+  options: { readonly db?: DrizzleD1 | null; readonly bucket?: CaptureBucket | null } = {},
+): AppDeps {
   const db = options.db ?? null;
+  const bucket = options.bucket ?? null;
   const llmPorts = createLlmPorts();
   return {
     // ★ 見本データ（スタブ）。ranking_models / score_cards テーブルができたら差し替える。
@@ -126,12 +133,13 @@ export function createDeps(options: { readonly db?: DrizzleD1 | null } = {}): Ap
     //   読み出しは見本を返し、保存は失敗を返す（保存できたことにしない）。
     improvement: createSampleImprovementRepository(),
     // 改善要望と鍵は、保存先が用意できていれば本物（D1）を使う。
-    // 画面の写し（R2）だけは仮のまま。置き場は作れるが、見るための
-    // 期限つき URL を配る口がまだ無く、保存だけ本物にすると
-    // 「保存できているのに開けない」という切り分けにくい形になる。
+    // 画面の写しは置き場が別（R2）なので、判定も別にする。D1 があっても
+    // R2 が無い環境はあり得るし、その逆もある。片方の有無でもう片方を
+    // 「つながっているつもり」にしない。
     // 指示文のひな型は本物（版番号つきでコードと一緒に管理する）。
     feedback: db === null ? createSampleFeedbackRepository() : createD1FeedbackRepository(db),
-    feedbackCaptures: createSampleFeedbackCaptureStore(),
+    feedbackCaptures:
+      bucket === null ? createSampleFeedbackCaptureStore() : createR2FeedbackCaptureStore(bucket),
     handoffTemplates: createHandoffTemplates(),
     integrationKeys:
       db === null

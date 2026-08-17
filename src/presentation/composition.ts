@@ -138,6 +138,8 @@ import {
 import { sampleAnalyticsNotice } from "@/infrastructure/persistence/sample/analytics-sample-repository";
 import { sampleLinkInboxNotice } from "@/infrastructure/persistence/sample/link-inbox-sample-repository";
 import { tryGetDb } from "@/infrastructure/persistence/d1/connection";
+import { tryGetBucket } from "@/infrastructure/platform/bucket-connection";
+import { CAPTURE_RETENTION_DAYS } from "@/domain/feedback";
 import { sampleProductNotice } from "@/infrastructure/persistence/sample/product-sample-repository";
 import { sampleSettingsNotice } from "@/infrastructure/persistence/sample/settings-sample-repository";
 import {
@@ -728,7 +730,9 @@ export async function feedbackUseCases() {
   // **接続を渡す。** ここを `createDeps()` のままにすると、組み立て側で
   // D1 を選べるようにしても画面には一生届かず、つないだつもりで
   // 見本データが出続ける。実際にそうなっていた（preview で判明）。
-  const deps = createDeps({ db: await tryGetDb() });
+  // 記録先（D1）と写しの置き場（R2）は別の接続。片方だけある環境が実在するので、
+  // 両方を渡して、無い側だけが仮置きに落ちるようにする。
+  const deps = createDeps({ db: await tryGetDb(), bucket: await tryGetBucket() });
   const feedback = {
     repository: deps.feedback,
     captures: deps.feedbackCaptures,
@@ -777,7 +781,28 @@ export async function feedbackNotice(): Promise<StorageStatus> {
     message:
       db === null
         ? feedbackStubNotice()
-        : "届いた要望は保存されます（保存先: D1 の feedback_reports）。画面の写しだけはまだこの場限りで、しばらくすると消えます。",
+        : "届いた要望は保存されます（保存先: D1 の feedback_reports）。",
+  };
+}
+
+/**
+ * 画面の写しがいま何で動いているかを画面に出すための一文。
+ *
+ * 要望の文章（D1）とは**置き場が違う**ので、お知らせも分けてある。
+ * 1 つにまとめると、文章は保存されているのに写しだけ消える環境で、
+ * どちらの話をしているのか分からない一文になる。
+ */
+export async function feedbackCaptureNotice(): Promise<StorageStatus> {
+  const bucket = await tryGetBucket();
+  return {
+    persisted: bucket !== null,
+    what: "画面の写しの置き場",
+    blockedBy: "R2 バケットへの接続",
+    stubId: "storage:feedback-capture-memory",
+    message:
+      bucket === null
+        ? "画面の写しは、この実行中だけ覚える仮置きです。置き場につながっていないため、開くことはできません。"
+        : `画面の写しは保存されます（保存先: R2）。${CAPTURE_RETENTION_DAYS} 日を過ぎたものは表示しません。`,
   };
 }
 

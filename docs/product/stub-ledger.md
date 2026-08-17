@@ -11,7 +11,7 @@
 
 ## まだ中身が無いもの
 
-件数: 38
+件数: 37
 
 | 識別子 | 何のスタブか | つなぎ目 | 何が済めば実装できるか |
 |---|---|---|---|
@@ -27,7 +27,7 @@
 | `channel:bluesky` | Bluesky への配信 | ChannelConnectorPort | Bluesky (AT Protocol) のアプリパスワード発行が必要 |
 | `channel:instagram` | Instagram への配信 | ChannelConnectorPort | Instagram Graph API はプロアカウントと Facebook ページ連携が必要 |
 | `channel:newsletter` | メール配信 への配信 | ChannelConnectorPort | 配信基盤 (メール送信) の選定が必要 |
-| `channel:own_site` | 自社サイト への配信 | ChannelConnectorPort | サイト公開の実装 (Workers 上のレンダリング) が必要 |
+| `channel:own_site` | 自社サイト への配信 | ChannelConnectorPort | 記事の保存先 (content:*) を D1 につなぐことが必要 |
 | `channel:threads` | Threads への配信 | ChannelConnectorPort | Threads API のアプリ登録が必要 |
 | `channel:tiktok` | TikTok への配信 | ChannelConnectorPort | TikTok Content Posting API の審査が必要 |
 | `channel:wordpress` | WordPress への配信 | ChannelConnectorPort | 接続先サイトの REST API とアプリケーションパスワードが必要 |
@@ -47,12 +47,11 @@
 | `persistence:product-sample` | 商品と根拠（見本データ） | 商品・主張・根拠・検証記録の保存先 | products / claims / evidence / test_runs テーブルの追加とマイグレーション |
 | `persistence:ranking-sample` | ランキングの保存先（見本データ） | EditorialRankingModelRepositoryPort / EditorialScoreCardRepositoryPort | ranking_models / score_cards テーブルの追加とマイグレーション |
 | `persistence:settings-sample` | 設定（見本データ） | 作業場所・担当者・ブランド・広告表記・操作の記録の保存先 | workspaces / memberships / brands / disclosures / audit_logs テーブルの追加と、Better Auth と Google ログインの設定 |
-| `persistence:telemetry-memory` | 計測の記録（この実行中だけ覚える仮置き） | 計測の記録先 | telemetry_events / ai_model_usage テーブルの追加と、まとめ書きの設定 |
+| `persistence:telemetry-memory` | 計測の記録（この実行中だけ覚える仮置き） | 計測の記録先 | LLM 提供元の鍵（AI 利用実績の作り手）と、件数を見せる画面。加えて telemetry_events / ai_model_usage テーブルの追加 |
 | `reader:contact-sink` | 問い合わせの受け取り（送信せず記録のみ） | ContactPort | Turnstile の鍵と送信元メールアドレスの登録（利用者本人が登録する） |
 | `reader:shortlist-memory` | 気になる商品の保存（処理中のメモリ） | ShortlistPort | 読者ごとの保存先 (KV 名前空間) の作成 |
 | `reader:tools-sample` | 診断・計算の道具（見本の定義のみ） | ReaderToolPort | 商品データの取込と、道具ごとの計算式の登録 |
-| `storage:feedback-capture-memory` | 画面の写し（この実行中だけ覚える仮置き。表示用の口はまだありません） | 画面の写しの置き場 | R2 バケットと、期限つき URL を配る口の用意 |
-| `storage:signed-url` | ファイルの一時公開URL発行 | StoragePort.getSignedUrl | R2 の署名付きURLは公開バケットまたは Worker 経由の配信方針を決めてから実装する。現状は公開バケットの固定URLで代替できる |
+| `storage:signed-url` | ファイルの一時公開URL発行 | StoragePort.getSignedUrl | 画像・書き出しファイルの保存が本物になること（この置き場は現在どこからも使われていない）。配り方は写しと同じ Worker 経由に決定済み |
 
 ## 本物ができたあとの控え
 
@@ -60,7 +59,7 @@
 こちらへ回る。**消す予定は無いので、この件数は減らない。**
 何で動いているかは、必ず画面に文字で出す（黙って控えへ落ちない）。
 
-件数: 4
+件数: 5
 
 | 識別子 | 何の控えか | つなぎ目 | 本物の置き場所 |
 |---|---|---|---|
@@ -68,3 +67,4 @@
 | `persistence:link-inbox-sample` | 受信箱（見本データ・この場限り） | 成果リンク受信箱の保存先 | `src/infrastructure/persistence/d1/link-inbox-repository.ts` |
 | `persistence:site-draft-memory` | ブログ作成の下書き（プロセス内のみ） | SiteDraftRepositoryPort | `src/infrastructure/persistence/d1/site-draft-repository.ts` |
 | `persistence:site-sample` | ブログの設計図（見本データ） | SiteRepositoryPort | `src/infrastructure/persistence/d1/site-repository.ts` |
+| `storage:feedback-capture-memory` | 画面の写し（この実行中だけ覚える仮置き） | 画面の写しの置き場 | `src/infrastructure/platform/feedback-capture-r2.ts` |

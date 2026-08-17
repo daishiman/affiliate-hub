@@ -37,7 +37,9 @@ import { registerStub, stubCall, stubFailure, stubReason } from "../../stub-regi
  * 接続が供給されないので、消すと画面が開かなくなる。
  * ただし**黙って控えへ落ちることはしない**。何で動いているかは画面に文字で出す。
  *
- * 残っているのは画面の写し（R2）だけで、そちらは下の `captureStub` にある。
+ * 画面の写しも同じ形になった（本物は `../../platform/feedback-capture-r2.ts`）。
+ * ただし**判定は別**。記録先は D1、写しの置き場は R2 で、
+ * 片方だけある環境があるため、片方の有無でもう片方を決めない。
  *
  * **絞り込みは必ず workspaceId から始める。**
  * 見本であっても、ここで手を抜くと本物へ移すときに同じ手抜きが写る。
@@ -53,8 +55,9 @@ const stub = registerStub({
 const captureStub = registerStub({
   id: "storage:feedback-capture-memory",
   port: "画面の写しの置き場",
-  label: "画面の写し（この実行中だけ覚える仮置き。表示用の口はまだありません）",
-  blockedBy: "R2 バケットと、期限つき URL を配る口の用意",
+  label: "画面の写し（この実行中だけ覚える仮置き）",
+  blockedBy: "済み。置き場が無い環境（pnpm dev・自動テスト）での控えとして残す",
+  fallbackFor: "src/infrastructure/platform/feedback-capture-r2.ts",
 });
 
 export function feedbackStubNotice(): string {
