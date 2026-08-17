@@ -1,3 +1,4 @@
+import type { EditorialContentVariantRepositoryPort } from "@/application/ports/authoring";
 import type {
   ChannelConnectionRepositoryPort,
   ManualExportPort,
@@ -40,6 +41,13 @@ export type ManageDistributionDeps = {
   readonly connections: ChannelConnectionRepositoryPort;
   readonly publications: PublicationRepositoryPort;
   readonly manualExport: ManualExportPort;
+  /**
+   * 記事の本文。書き出しに要る。
+   *
+   * 配信の記録は「どこへ、どの状態で出したか」しか持たない。
+   * 貼り付ける中身は記事側にあるので、ここから読む。
+   */
+  readonly variants: EditorialContentVariantRepositoryPort;
 };
 
 /** 出し方の表示名。識別子をそのまま画面に出さない。 */
@@ -400,14 +408,26 @@ export function createExportManualDraftUseCase(
         );
       }
 
+      // 本文が要る。空のまま書き出すと、貼り付けても何も出ない下書きを渡すことになり、
+      // note へ出す唯一の道が事実上ふさがる。
+      const variant = await deps.variants.findById(actor.workspaceId, publication.variantId);
+      if (!variant.ok) return variant;
+      if (variant.value === null) {
+        return err(
+          domainError("NOT_FOUND", "この配信のもとになった記事が見つかりません。", {
+            suggestedAction: "記事の一覧から選び直して、もう一度書き出してください。",
+          }),
+        );
+      }
+
       const draft = await deps.manualExport.buildDraft({
         connectionId: publication.connectionId ?? taggedString<"ChannelConnectionId">("none"),
         idempotencyKey: publication.idempotencyKey,
-        title: null,
-        body: "",
+        title: variant.value.title,
+        body: variant.value.body,
         imageKeys: [],
         scheduledAt: publication.scheduledAt,
-        disclosureText: "",
+        disclosureText: variant.value.disclosure,
       });
       if (!draft.ok) return draft;
 

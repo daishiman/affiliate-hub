@@ -27,6 +27,7 @@ export function distributionTools(deps: AppDeps): readonly AnyToolDefinition[] {
     connections: deps.channelConnections,
     publications: deps.publications,
     manualExport: deps.manualExport,
+    variants: deps.contentVariants,
   };
   const calendar = {
     publications: deps.publications,

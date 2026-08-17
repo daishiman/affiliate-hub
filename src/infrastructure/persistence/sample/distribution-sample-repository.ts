@@ -89,7 +89,14 @@ const CONNECTIONS: readonly ChannelConnection[] = [
   }),
 ];
 
-const VARIANT_ID = taggedString<"ContentVariantId">("cv_sample_long") as ContentVariantId;
+/**
+ * 見本の配信がもとにしている記事。
+ *
+ * **記事の見本に実在する ID を指す。** 見本どうしで食い違っていると、
+ * 書き出し（note へ出す唯一の道）が「記事が見つかりません」で止まり、
+ * 実装の不具合と見分けがつかなくなる。
+ */
+const VARIANT_ID = taggedString<"ContentVariantId">("cv_alpha_review") as ContentVariantId;
 
 function publication(input: {
   id: string;

@@ -465,6 +465,7 @@ export function distributionUseCases() {
     connections: deps.channelConnections,
     publications: deps.publications,
     manualExport: deps.manualExport,
+    variants: deps.contentVariants,
   };
   return {
     listChannels: createListChannelsUseCase(distribution),
