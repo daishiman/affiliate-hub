@@ -1,5 +1,5 @@
 {
-  "graph_revision": 182,
+  "graph_revision": 185,
   "nodes": [
     {
       "acceptance": [],
@@ -6631,6 +6631,110 @@
       "title": "配信の予約を D1 へ保存する",
       "tracker_binding": "beads",
       "updated_at": "2026-08-17T08:00:15.303885Z"
+    },
+    {
+      "acceptance": [],
+      "architecture_refs": [],
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "beads_linkage": null,
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "candidate_path": "tasks/task-content-persistence.md",
+          "confidence": 0.95
+        }
+      ],
+      "classification_confidence": 0.95,
+      "classification_reason": "docs/product/backlog.md の残課題を作業単位として登録",
+      "completion_evidence": {
+        "completed_at": "2026-08-17T08:47:02Z",
+        "evidence_refs": [
+          "drizzle/0009_stiff_captain_stacy.sql",
+          "src/infrastructure/persistence/d1/content-repository.ts",
+          "src/application/usecases/content/manage-content.ts",
+          "src/presentation/admin/content-progress-action.ts",
+          "tests/integration/d1-content.test.ts",
+          "docs/product/backlog.md#38"
+        ],
+        "policy": "manual",
+        "reconciled_at": "2026-08-17T08:50:00Z",
+        "source": "manual",
+        "status": "done"
+      },
+      "confirmation_evidence": {
+        "evaluated_digest": null,
+        "evaluator": null,
+        "evidence_ref": null
+      },
+      "confirmation_status": "draft",
+      "created_at": "2026-08-17T00:00:00Z",
+      "depends_on": [],
+      "domain": "authoring",
+      "evaluation_status": "pending",
+      "execution_contexts": [],
+      "feature_package_id": null,
+      "file_path": "tasks/task-content-persistence.md",
+      "github_project_linkages": [],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "goal": null,
+      "graph_node_id": "task-content-persistence",
+      "implementation_readiness": {
+        "checked_at": null,
+        "missing_sections": [],
+        "status": "incomplete"
+      },
+      "issue_linkage": null,
+      "iteration": null,
+      "mvp_alignment": {
+        "background": "記事の進行（かんばんの位置）を保存する先がどこにも無かった",
+        "mvp_fit": "direct",
+        "purpose": "段階を進めた結果と承認が、次に開いたときも残るようにする",
+        "rationale": "進めたのに元の列に戻る状態は、操作が効いていないのか保存が壊れているのかを画面から見分けられない"
+      },
+      "owners": [
+        "daishiman"
+      ],
+      "parent_feature": null,
+      "phase_ref": null,
+      "priority": "high",
+      "project_id": "affiliate-hub",
+      "pull_request_linkages": [],
+      "purpose": null,
+      "related_nodes": [],
+      "resource_scope": [
+        "src/db",
+        "src/infrastructure/persistence",
+        "src/application",
+        "drizzle"
+      ],
+      "scope_in": [],
+      "scope_out": [],
+      "source_lineage": {
+        "imported_at": "2026-08-17T00:00:00Z",
+        "origin_kind": "manual",
+        "source_digest": null,
+        "source_path": "docs/product/backlog.md",
+        "source_plugin": null,
+        "source_version": null
+      },
+      "start_date": "2026-08-17",
+      "status": "done",
+      "tags": [
+        "backlog",
+        "mvp"
+      ],
+      "target_date": null,
+      "template_id": "task",
+      "template_version": "1.0.0",
+      "title": "記事の進行と承認を D1 へ保存する",
+      "tracker_binding": "beads",
+      "updated_at": "2026-08-17T08:47:39.355797Z"
     }
   ],
   "repository_id": "github:daishiman/affiliate-hub",

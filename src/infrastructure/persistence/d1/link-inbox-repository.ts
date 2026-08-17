@@ -12,12 +12,11 @@ import {
   asLinkIngestionId,
   asProductId,
   asWorkspaceId,
-  err,
   markCommercial,
   ok,
-  domainError,
 } from "@/domain/shared";
 import { linkIngestions, type LinkIngestionRow } from "@/db/schema";
+import { storageFailure } from "./storage-failure";
 
 /**
  * 成果リンク受信箱の保存先（D1）。
@@ -87,18 +86,6 @@ function toRow(item: LinkIngestion): LinkIngestionRow {
     note: item.note,
     rejectedReason: item.rejectedReason,
   };
-}
-
-/** 保存先が落ちたときの返し方。**握りつぶさない。** */
-function storageFailure(what: string, cause: unknown) {
-  return err(
-    domainError("UPSTREAM_UNAVAILABLE", `${what}に失敗しました。時間をおいてもう一度お試しください。`, {
-      retryable: true,
-      suggestedAction: "何度も続く場合は、保存先の状態を確認してください。",
-      // 例外の中身はそのまま出さない。接続文字列が混じることがある（§26.3）。
-      details: { reason: cause instanceof Error ? cause.name : "unknown" },
-    }),
-  );
 }
 
 export function createD1LinkInboxRepository(db: DrizzleD1): LinkIngestionRepositoryPort {

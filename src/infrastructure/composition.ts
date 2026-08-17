@@ -8,6 +8,7 @@ import {
   createD1ChannelConnectionRepository,
   createD1PublicationRepository,
 } from "./persistence/d1/distribution-repository";
+import { createD1ContentVariantRepository } from "./persistence/d1/content-repository";
 import { createD1SiteRepository } from "./persistence/d1/site-repository";
 import {
   createD1FeedbackRepository,
@@ -121,10 +122,16 @@ export function createDeps(
     shortlist: createSampleShortlistRepository(),
     readerTools: createSampleReaderToolRepository(),
     contact: createSampleContactSink(),
-    // ★ 見本データ（スタブ）。記事の進行と書き手の設定。
-    //   content_packages / content_variants / personas テーブルができたら差し替える。
+    // 記事（本文と進行の現在地）は、保存先が用意できていれば本物（D1）。
+    // 入れる口（段階を進める・承認する）が先にあるので本物にした。
+    // **見本は消さずに重ねる**（`d1/content-repository.ts` に理由）。
+    //
+    // ★ 企画と書き手はまだ見本データ（スタブ）。
+    //   表を作っていないのではなく、**作る入口がどこにも無い**ため。
+    //   入口の無い表を先に用意すると、一生埋まらない空の一覧が画面に増える。
     contentPackages: createSampleContentPackageRepository(),
-    contentVariants: createSampleContentVariantRepository(),
+    contentVariants:
+      db === null ? createSampleContentVariantRepository() : createD1ContentVariantRepository(db),
     personas: createSamplePersonaRepository(),
     // 配信の記録は、保存先が用意できていれば本物（D1）。
     // 入れる口（記事の画面の「この記事を出す」）が先にあるので本物にした。

@@ -13,6 +13,7 @@ import {
 import { type WorkspaceId, domainError, err, ok } from "@/domain/shared";
 import { type TelemetryEventRow, telemetryEvents } from "@/db/schema";
 import type { DrizzleD1 } from "./link-inbox-repository";
+import { storageFailure } from "./storage-failure";
 
 /**
  * 計測の記録先（D1）と、そこから指標を導く読み口。
@@ -31,17 +32,6 @@ import type { DrizzleD1 } from "./link-inbox-repository";
  * 件数が増えて重くなったら、そのとき初めて畳んだ表を足す。
  * **速さのために正しさを先に捨てない。**
  */
-
-/** 保存先が落ちたときの返し方。**握りつぶさない。** */
-function storageFailure(what: string, cause: unknown) {
-  return err(
-    domainError("UPSTREAM_UNAVAILABLE", `${what}に失敗しました。`, {
-      retryable: true,
-      suggestedAction: "何度も続く場合は、保存先の状態を確認してください。",
-      details: { reason: cause instanceof Error ? cause.name : "unknown" },
-    }),
-  );
-}
 
 /** 1 回の書き込みで入れる上限。受け口（/api/telemetry）の上限と揃える。 */
 const MAX_INSERT = 50;

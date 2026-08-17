@@ -4,8 +4,6 @@ import type { SiteBlueprint, SiteDraft } from "@/domain/authoring";
 import {
   type SiteDraftId,
   type WorkspaceId,
-  domainError,
-  err,
   markEditorial,
   ok,
   taggedString,
@@ -17,6 +15,7 @@ import {
   siteDrafts,
 } from "@/db/schema";
 import type { DrizzleD1 } from "./link-inbox-repository";
+import { storageFailure } from "./storage-failure";
 
 /**
  * ブログ作成ウィザードの下書きと、そこから作られたブログの保存先（D1）。
@@ -53,17 +52,6 @@ function toDraft(row: SiteDraftRow): SiteDraft {
 
 function toBlueprint(row: SiteBlueprintRow): SiteBlueprint {
   return JSON.parse(row.blueprintJson) as SiteBlueprint;
-}
-
-/** 保存先が落ちたときの返し方。**握りつぶさない。** */
-function storageFailure(what: string, cause: unknown) {
-  return err(
-    domainError("UPSTREAM_UNAVAILABLE", `${what}に失敗しました。時間をおいてもう一度お試しください。`, {
-      retryable: true,
-      suggestedAction: "何度も続く場合は、保存先の状態を確認してください。",
-      details: { reason: cause instanceof Error ? cause.name : "unknown" },
-    }),
-  );
 }
 
 export function createD1SiteDraftRepository(db: DrizzleD1): EditorialSiteDraftRepositoryPort {

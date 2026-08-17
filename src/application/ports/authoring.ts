@@ -35,6 +35,25 @@ export type ContentVariantRepositoryPort = {
   /** 次回確認日を過ぎた公開済み記事。運用の起点になる。 */
   listReviewOverdue(workspaceId: WorkspaceId, at: Date, limit: number): PortResult<readonly ContentVariant[]>;
   save(variant: ContentVariant): PortResult<ContentVariant>;
+  /**
+   * 進行の現在地（§18.1 の 12 段階）を読む。まだ記録が無ければ `null`。
+   *
+   * **本文（`ContentVariant`）とは別に持つ。** 本文は AI の出力契約（§15.5）で、
+   * 現在地は人の運用の位置。同じ型に混ぜると、AI が出力を返しただけで
+   * 段階が進んだことになりかねない。
+   */
+  findState(workspaceId: WorkspaceId, id: ContentVariantId): PortResult<ContentState | null>;
+  /**
+   * 進行の現在地を保存する。
+   *
+   * これが無かったあいだ、段階を進める操作は**何も保存せずに成功を返して**いた。
+   * 画面からは「操作が効いていない」のか「保存が壊れている」のかを区別できない。
+   */
+  saveState(
+    workspaceId: WorkspaceId,
+    id: ContentVariantId,
+    state: ContentState,
+  ): PortResult<ContentState>;
 };
 
 export type PersonaRepositoryPort = {

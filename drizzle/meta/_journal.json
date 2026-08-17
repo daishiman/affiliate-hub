@@ -64,6 +64,13 @@
       "when": 1786952627589,
       "tag": "0008_damp_xorn",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "6",
+      "when": 1786954326807,
+      "tag": "0009_stiff_captain_stacy",
+      "breakpoints": true
     }
   ]
 }

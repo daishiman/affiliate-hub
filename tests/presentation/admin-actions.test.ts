@@ -44,6 +44,10 @@ const {
   saveSiteDraftStepAction,
   startSiteDraftAction,
 } = await import("@/presentation/admin/site-wizard-action");
+const {
+  advanceContentStateAction,
+  approveContentAction,
+} = await import("@/presentation/admin/content-progress-action");
 const { personaUseCases } = await import("@/presentation/composition");
 
 function form(entries: Record<string, string | readonly string[]>): FormData {
@@ -395,5 +399,71 @@ describe("投稿予定日の変更", () => {
     expect(state.status).toBe("failed");
     // 原因の説明だけでは次の操作が決まらない。
     expect(state.message).not.toMatch(/^[A-Z_]+$/);
+  });
+});
+
+describe("記事の進行の操作", () => {
+  /**
+   * ここは D1 につながっていない状態で動かしている（見本の保存先）。
+   * つまり**進めた結果を残せない**。それでも「進めました」と返るなら、
+   * 画面だけが先に進み、開き直すと戻っているという最悪の見え方になる。
+   */
+  it("進めた段階を残せないときは、進んだと返さない", async () => {
+    const state = await advanceContentStateAction(
+      { status: "idle", message: "" },
+      form({ variantId: "cv_alpha_review", from: "FACT_CHECK", to: "COMPLIANCE_REVIEW" }),
+    );
+
+    expect(state.status).toBe("failed");
+    // 断り文句が符号のままだと、押した人には何をすればいいか分からない。
+    expect(state.message.trim()).not.toBe("");
+    expect(state.message).not.toMatch(/^[A-Z_]+$/);
+  });
+
+  it("画面を開いたままの人が古い段階から押しても、進んだと返さない", async () => {
+    const state = await advanceContentStateAction(
+      { status: "idle", message: "" },
+      form({ variantId: "cv_alpha_review", from: "GENERATED", to: "FACT_CHECK" }),
+    );
+
+    expect(state.status).toBe("failed");
+    expect(state.message).not.toMatch(/^[A-Z_]+$/);
+  });
+
+  it("欄が空のまま送られても、進んだと返さない", async () => {
+    // 画面の作り替えや古いタブから、欄が欠けた要求が来ることがある。
+    // 既定値で埋めて進めると、どの記事が動いたのか誰にも分からなくなる。
+    const state = await advanceContentStateAction({ status: "idle", message: "" }, form({}));
+
+    expect(state.status).toBe("failed");
+    expect(state.message.trim()).not.toBe("");
+  });
+
+  it("記事の指定が無い承認は、成功と返さない", async () => {
+    const state = await approveContentAction({ status: "idle", message: "" }, form({}));
+
+    expect(state.status).toBe("failed");
+    expect(state.message.trim()).not.toBe("");
+  });
+
+  it("居ない記事は承認できない", async () => {
+    const state = await approveContentAction(
+      { status: "idle", message: "" },
+      form({ variantId: "cv_missing" }),
+    );
+
+    expect(state.status).toBe("failed");
+    expect(state.message.trim()).not.toBe("");
+  });
+
+  it("確認の段階まで来ていない記事は、段階の言葉で断られる", async () => {
+    const state = await approveContentAction(
+      { status: "idle", message: "" },
+      form({ variantId: "cv_alpha_review" }),
+    );
+
+    expect(state.status).toBe("failed");
+    // 遷移表の符号（FACT_CHECK など）を画面に出さない。
+    expect(state.message).not.toContain("FACT_CHECK");
   });
 });

@@ -55,7 +55,7 @@ describe("組み立て", () => {
     expect(got.error.code).toBe("FORBIDDEN");
 
     // 押してから断るのではなく、開いた時点で理由が出ていること。
-    const detail = await contentUseCases().getContent.execute(actor, {
+    const detail = await (await contentUseCases()).getContent.execute(actor, {
       variantId: "cv_alpha_approved",
     });
     expect(detail.ok).toBe(true);

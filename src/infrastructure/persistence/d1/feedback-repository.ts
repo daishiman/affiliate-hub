@@ -38,6 +38,7 @@ import {
   integrationKeys,
 } from "@/db/schema";
 import type { DrizzleD1 } from "./link-inbox-repository";
+import { storageFailure } from "./storage-failure";
 
 /**
  * 改善要望と、取りに来るときの鍵の保存先（D1）。
@@ -66,22 +67,6 @@ import type { DrizzleD1 } from "./link-inbox-repository";
  * 中途半端に保存だけ本物にすると、「保存できているのに開けない」という
  * 最も切り分けにくい形になる。
  */
-
-/** 保存先が落ちたときの返し方。**握りつぶさない。** */
-function storageFailure(what: string, cause: unknown) {
-  return err(
-    domainError(
-      "UPSTREAM_UNAVAILABLE",
-      `${what}に失敗しました。時間をおいてもう一度お試しください。`,
-      {
-        retryable: true,
-        suggestedAction: "何度も続く場合は、保存先の状態を確認してください。",
-        // 例外の中身はそのまま出さない。接続文字列が混じることがある。
-        details: { reason: cause instanceof Error ? cause.name : "unknown" },
-      },
-    ),
-  );
-}
 
 /**
  * 日付を含む JSON の読み戻し。

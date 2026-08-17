@@ -8,7 +8,7 @@ import {
   EmptyView,
   ErrorView,
   Page,
-  StubNotice,
+  StorageNotice,
 } from "@/presentation/ui";
 import styles from "../admin.module.css";
 
@@ -23,7 +23,7 @@ export const dynamic = "force-dynamic";
  */
 export default async function ContentPage() {
   const actor = await currentActor();
-  const uc = contentUseCases();
+  const uc = await contentUseCases();
 
   const [board, overdue] = await Promise.all([
     uc.listBoard.execute(actor, {}),
@@ -48,13 +48,7 @@ export default async function ContentPage() {
 
   return (
     <Shell>
-      <StubNotice
-        what="記事の保存先"
-        blockedBy="content_packages / content_variants / personas テーブルの追加とマイグレーション"
-        stubId="persistence:content-editorial-sample"
-      >
-        <span>{editorialContentNotice()}</span>
-      </StubNotice>
+      <StorageNotice status={await editorialContentNotice()} />
 
       <Callout
         tone="info"

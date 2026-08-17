@@ -6,6 +6,7 @@ import type { LlmCostEstimatorPort, LlmPort, LlmRequest } from "@/application/po
 import type { TelemetrySinkPort } from "@/application/ports/telemetry";
 import {
   type ManageContentDeps,
+  createAdvanceContentStateUseCase,
   createApproveContentUseCase,
   createGetContentUseCase,
 } from "@/application/usecases/content/manage-content";
@@ -18,7 +19,7 @@ import { createDraftContentVariantUseCase } from "@/application/usecases/generat
 import { createRecordTelemetryUseCase } from "@/application/usecases/analytics/record-telemetry";
 import { createListMetricsUseCase } from "@/application/usecases/analytics/read-metrics";
 import { createReviewLoopRunsUseCase } from "@/application/usecases/improvement/review-loop-runs";
-import type { ContentVariant } from "@/domain/authoring";
+import type { ContentState, ContentVariant } from "@/domain/authoring";
 import type { LoopRun, TelemetryEvent, VariantSpec } from "@/domain/analytics";
 import { requiredSectionsFor } from "@/domain/authoring/article-structure";
 import { type PublishCandidate, evaluatePublishGate } from "@/domain/compliance";
@@ -93,12 +94,27 @@ const NOW = new Date("2026-08-17T00:00:00Z");
 function memoryVariants(): EditorialContentVariantRepositoryPort {
   const base = testDeps().contentVariants;
   const saved = new Map<string, ContentVariant>();
+  /**
+   * 進行の現在地も覚える。本文だけ覚えて現在地を見本に任せると、
+   * 1 周のあいだ段階が進まず、承認の手前で毎回止まる。
+   * 現在地は本文と同じ 1 か所で持つ（実際の保存先でも同じ行にある）。
+   */
+  const states = new Map<string, ContentState>();
   return markEditorial({
     ...base,
     async findById(workspaceId: WorkspaceId, id: ContentVariantId) {
       const mine = saved.get(String(id));
       if (mine !== undefined) return ok(mine);
       return base.findById(workspaceId, id);
+    },
+    async findState(workspaceId: WorkspaceId, id: ContentVariantId) {
+      const mine = states.get(String(id));
+      if (mine !== undefined) return ok(mine);
+      return base.findState(workspaceId, id);
+    },
+    async saveState(_workspaceId: WorkspaceId, id: ContentVariantId, state: ContentState) {
+      states.set(String(id), state);
+      return ok(state);
     },
     async save(variant: ContentVariant) {
       saved.set(String(variant.id), variant);
@@ -376,6 +392,15 @@ describe("1 周（作る → 承認 → 公開 → 測る → 分析 → 提案 
     // 見積りを取らずに呼んでいないこと。費用は呼ぶ前に分かる約束になっている。
     expect(drafted.value.estimatedCostMinor).toBe(30);
 
+    // ①' 表示のきまりの確認まで進める。承認はこの段の次にしか置けない。
+    //     ここを飛ばせるようにすると、確認を通っていない記事が公開まで行ける。
+    const toReview = await createAdvanceContentStateUseCase(contentDeps()).execute(owner, {
+      variantId: VARIANT_ID,
+      from: "FACT_CHECK",
+      to: "COMPLIANCE_REVIEW",
+    });
+    expect(toReview.ok, toReview.ok ? "" : toReview.error.message).toBe(true);
+
     // ② 承認。人が承認したことが記録に残る。
     const approved = await createApproveContentUseCase(contentDeps()).execute(owner, {
       variantId: VARIANT_ID,
@@ -616,12 +641,15 @@ describe("1 周（作る → 承認 → 公開 → 測る → 分析 → 提案 
 describe("本番の組み立て（見本データのまま）で 1 周を通そうとしたとき", () => {
   it("承認は成功を装わず、次に何を待てばよいかを添えて断る", async () => {
     const real = createDeps();
+    // 見本のうち、**表示のきまりの確認まで来ている 1 本**を使う。
+    // 手前の段階の記事だと、断る理由が「保存先が無い」ではなく
+    // 「まだ確認を通っていない」になり、ここで見たいことが見えない。
     const result = await createApproveContentUseCase({
       packages: real.contentPackages,
       variants: real.contentVariants,
       personas: real.personas,
       events: real.events,
-    }).execute(owner, { variantId: VARIANT_ID });
+    }).execute(owner, { variantId: "cv_beta_short" });
 
     expect(result.ok).toBe(false);
     if (result.ok) return;

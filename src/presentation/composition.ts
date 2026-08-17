@@ -472,8 +472,10 @@ export function productUseCases() {
  * 画面・REST・WebMCP・MCP が同じ 5 つを呼ぶ。
  * 承認と状態変更は AI から呼べない（`requiresHumanApproval`）。
  */
-export function contentUseCases() {
-  const deps = createDeps();
+export async function contentUseCases() {
+  // 保存先の接続をここで取る。取らないと、段階を進める操作が
+  // 見本の上で成功したように見えて、次に開いたときには消えている。
+  const deps = createDeps({ db: await tryGetDb() });
   const content = {
     packages: deps.contentPackages,
     variants: deps.contentVariants,
@@ -522,8 +524,8 @@ export function writingMethodUseCases() {
  * **どの組み合わせを作るかを決める表。** 報酬のつなぎ目は渡さない。
  * 報酬額でセルを選ぶと、記事の並びが広告の並びになる。
  */
-export function generationMatrixUseCases() {
-  const deps = createDeps();
+export async function generationMatrixUseCases() {
+  const deps = createDeps({ db: await tryGetDb() });
   const matrix = {
     packages: deps.contentPackages,
     variants: deps.contentVariants,
@@ -964,9 +966,27 @@ export async function distributionNotice(): Promise<StorageStatus> {
   };
 }
 
-/** 記事が見本データであることを画面に出すための一文。 */
-export function editorialContentNotice(): string {
-  return sampleEditorialContentNotice();
+/**
+ * 記事の画面に出す、いま何で動いているかの説明。
+ *
+ * **2 つのことを分けて書く。**
+ *   1. 記事の本文と進行の現在地が保存されるか（保存先があれば保存される）
+ *   2. 企画と書き手が見本のままであること（作る入口がまだ無い）
+ * 1 が済んだからといって 2 も済んだように読める文にすると、
+ * 「書き手を増やせない」を故障と誤解させる。
+ */
+export async function editorialContentNotice(): Promise<StorageStatus> {
+  const db = await tryGetDb();
+  return {
+    persisted: db !== null,
+    what: "記事の本文と進行の現在地の保存先",
+    blockedBy: "企画・書き手を作る入口（content_packages / personas）",
+    stubId: "persistence:content-editorial-sample",
+    message:
+      db === null
+        ? sampleEditorialContentNotice()
+        : "進めた段階と承認は保存されます（保存先: D1 の content_variants）。はじめから並んでいる記事は見本で、消さずに残してあります。企画と書き手はまだ見本です（作る入口がないため）。",
+  };
 }
 
 /** 商品・根拠が見本データであることを画面に出すための一文。 */

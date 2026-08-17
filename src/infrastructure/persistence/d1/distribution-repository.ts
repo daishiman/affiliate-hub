@@ -10,8 +10,6 @@ import {
   type ContentVariantId,
   type PublicationId,
   type WorkspaceId,
-  domainError,
-  err,
   ok,
   taggedString,
 } from "@/domain/shared";
@@ -26,6 +24,7 @@ import {
   samplePublications,
 } from "../sample/distribution-sample-repository";
 import type { DrizzleD1 } from "./link-inbox-repository";
+import { storageFailure, mergeWithSamples } from "./storage-failure";
 
 /**
  * 配信の保存先（D1）。
@@ -43,18 +42,6 @@ import type { DrizzleD1 } from "./link-inbox-repository";
  * 配信を 1 件も作れず、作った先の画面を誰も確かめられない。
  * 見本であることは画面に出している。実際の投稿は行わない。
  */
-
-/** 保存先が落ちたときの返し方。**握りつぶさない。** */
-function storageFailure(what: string, cause: unknown) {
-  return err(
-    domainError("UPSTREAM_UNAVAILABLE", `${what}に失敗しました。時間をおいてもう一度お試しください。`, {
-      retryable: true,
-      suggestedAction: "何度も続く場合は、保存先の状態を確認してください。",
-      // 例外の中身はそのまま出さない。接続文字列が混じることがある。
-      details: { reason: cause instanceof Error ? cause.name : "unknown" },
-    }),
-  );
-}
 
 /** 行 → 業務の形。ID の作り方を知っているのはこの層だけ。 */
 function toConnection(row: ChannelConnectionRow): ChannelConnection {
@@ -121,20 +108,6 @@ function toPublicationRow(item: Publication): PublicationRow {
     lastError: item.lastError,
     publishedAt: item.publishedAt,
   };
-}
-
-/**
- * 保存された分と見本を重ねる。
- *
- * **保存されたほうを先に置いてから見本で埋める。** 逆にすると、
- * 見本と同じ ID を保存し直しても古い見本が返り、取りやめが効かなくなる。
- */
-function mergeWithSamples<T extends { readonly id: unknown }>(
-  stored: readonly T[],
-  samples: readonly T[],
-): readonly T[] {
-  const taken = new Set(stored.map((item) => String(item.id)));
-  return [...stored, ...samples.filter((item) => !taken.has(String(item.id)))];
 }
 
 export function createD1ChannelConnectionRepository(db: DrizzleD1): ChannelConnectionRepositoryPort {

@@ -22,8 +22,26 @@ import type { ContentAngle, CtaType } from "./content-package";
  * LLM へ渡す出力スキーマ (infrastructure/llm) はこの型から導出する。
  * スキーマと型を別々に書くと、片方だけ直して静かに壊れる。
  */
-export type ComplianceStatus = "pass" | "warning" | "fail";
-export type ContentVariantStatus = "generated" | "review" | "approved" | "rejected" | "published";
+/**
+ * 記事 1 本の扱い。
+ *
+ * **一覧を先に置き、型はそこから導く。** 保存先の列に入れてよい値も
+ * この一覧を指す。型だけを書いて保存先へ手で写すと、値を 1 つ足した日に
+ * 業務側だけが増えて保存先が古いまま残り、「保存のときだけ失敗する」という
+ * 画面からは見えない壊れ方になる。
+ */
+export const CONTENT_VARIANT_STATUSES = [
+  "generated",
+  "review",
+  "approved",
+  "rejected",
+  "published",
+] as const;
+export type ContentVariantStatus = (typeof CONTENT_VARIANT_STATUSES)[number];
+
+/** 自動確認の結果。上と同じ理由で一覧を正本にする。 */
+export const COMPLIANCE_STATUSES = ["pass", "warning", "fail"] as const;
+export type ComplianceStatus = (typeof COMPLIANCE_STATUSES)[number];
 
 export type ContentVariant = {
   readonly id: ContentVariantId;

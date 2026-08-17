@@ -16,7 +16,7 @@ import {
  * 作っていないのか作れないのかが区別できないと、利用者は待ち続ける。
  */
 async function matrix(axis?: (typeof MATRIX_ROW_AXES)[number], limit?: number) {
-  const result = await generationMatrixUseCases().getMatrix.execute(await currentActor(), {
+  const result = await (await generationMatrixUseCases()).getMatrix.execute(await currentActor(), {
     packageId: sampleContentPackageId(),
     rowAxis: axis,
     limit,
@@ -77,7 +77,7 @@ describe("生成マトリクス", () => {
   });
 
   it("上限が 0 以下なら、直せる言葉で断る", async () => {
-    const result = await generationMatrixUseCases().getMatrix.execute(await currentActor(), {
+    const result = await (await generationMatrixUseCases()).getMatrix.execute(await currentActor(), {
       packageId: sampleContentPackageId(),
       limit: 0,
     });
@@ -87,7 +87,7 @@ describe("生成マトリクス", () => {
   });
 
   it("無い企画を指すと、見つからないと分かる誤りが返る", async () => {
-    const result = await generationMatrixUseCases().getMatrix.execute(await currentActor(), {
+    const result = await (await generationMatrixUseCases()).getMatrix.execute(await currentActor(), {
       packageId: "cp_does_not_exist",
     });
     expect(result.ok).toBe(false);

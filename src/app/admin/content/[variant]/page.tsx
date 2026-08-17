@@ -1,6 +1,10 @@
 import { AdminShell } from "@/presentation/admin/admin-shell";
 import Link from "next/link";
 import type { ReactNode } from "react";
+import {
+  AdvanceContentStateForm,
+  ApproveContentForm,
+} from "@/presentation/admin/content-progress-form";
 import { SchedulePublicationForm } from "@/presentation/admin/schedule-publication-form";
 import { contentUseCases, currentActor, editorialContentNotice } from "@/presentation/composition";
 import {
@@ -12,7 +16,7 @@ import {
   EmptyView,
   ErrorView,
   Page,
-  StubNotice,
+  StorageNotice,
   type ApprovalState,
 } from "@/presentation/ui";
 import styles from "../../admin.module.css";
@@ -34,7 +38,7 @@ export default async function ContentDetailPage({
 }) {
   const { variant: variantId } = await params;
   const actor = await currentActor();
-  const result = await contentUseCases().getContent.execute(actor, { variantId });
+  const result = await (await contentUseCases()).getContent.execute(actor, { variantId });
 
   if (!result.ok) {
     return (
@@ -49,21 +53,23 @@ export default async function ContentDetailPage({
     );
   }
 
-  const { variant, quality, authorName, approvalBlockedReason, publishBlockedReason } =
-    result.value;
+  const {
+    variant,
+    quality,
+    authorName,
+    state,
+    stateLabel,
+    nextStates,
+    approvalBlockedReason,
+    publishBlockedReason,
+  } = result.value;
   const title = variant.title ?? "（見出し未設定）";
   const errors = quality.issues.filter((i) => i.severity === "error");
   const warnings = quality.issues.filter((i) => i.severity !== "error");
 
   return (
     <Shell title={title}>
-      <StubNotice
-        what="記事の保存先"
-        blockedBy="content_packages / content_variants / personas テーブルの追加とマイグレーション"
-        stubId="persistence:content-editorial-sample"
-      >
-        <span>{editorialContentNotice()}</span>
-      </StubNotice>
+      <StorageNotice status={await editorialContentNotice()} />
 
       <Card>
         <h2 className={styles.sectionTitle}>いまの段階</h2>
@@ -80,6 +86,30 @@ export default async function ContentDetailPage({
           書き手: {authorName ?? "未設定"} / 媒体: {variant.channel} / 作成に使った指示:{" "}
           {variant.generationPromptVersion}（{variant.modelId}）
         </p>
+      </Card>
+
+      <Card>
+        <h2 className={styles.sectionTitle}>次に進める</h2>
+        {state === null ? (
+          // 分からないものを最初の段階として出さない。出すと、押しても通らない。
+          <EmptyView
+            title="進行の記録がありません"
+            body="この記事がかんばんのどの列にいるかが記録されていません。記事の一覧から開き直してください。"
+          />
+        ) : (
+          <>
+            <p className={styles.sectionLead}>
+              いまは「{stateLabel}」です。進めた段階は保存され、記事の一覧にも反映されます。
+            </p>
+            {actor.isAiServiceAccount ? null : (
+              <AdvanceContentStateForm variantId={variantId} from={state} nextStates={nextStates} />
+            )}
+            {/* 承認は人にしかできない。AI の代行では、押せる欄そのものを出さない。 */}
+            {actor.isAiServiceAccount || approvalBlockedReason !== null ? null : (
+              <ApproveContentForm variantId={variantId} />
+            )}
+          </>
+        )}
       </Card>
 
       <Card>

@@ -11,6 +11,7 @@ import {
   type ContentVariant,
   type ContentVariantStatus,
   type QualityReport,
+  HUMAN_APPROVAL_REQUIRED,
   allowedNextStates,
   approveVariant,
   runQualityChecks,
@@ -195,6 +196,25 @@ export type ContentDetail = {
   readonly authorName: string | null;
   /** 17 項目の自動確認の結果。実行しなかった項目も理由つきで含む。 */
   readonly quality: QualityReport;
+  /**
+   * いまの進行の段階（かんばんのどの列にいるか）。
+   *
+   * `null` は「まだ記録が無い」であって、最初の段階という意味ではない。
+   * 分からないものを既定値で埋めると、画面には出発点にいるように見えて、
+   * 実際には進めない（保存先の値と食い違う）ことが起きる。
+   */
+  readonly state: ContentState | null;
+  readonly stateLabel: string | null;
+  /**
+   * ここから進める先。**画面はここを見てボタンを出す。**
+   * 画面側で遷移表を書き写すと、進めない先のボタンが出る。
+   */
+  readonly nextStates: readonly {
+    readonly state: ContentState;
+    readonly label: string;
+    /** 人の操作でしか進めない先。AI の代行では進めない。 */
+    readonly humanOnly: boolean;
+  }[];
   /** 承認に進めるか。進めない場合は理由。 */
   readonly approvalBlockedReason: string | null;
   /**
@@ -255,21 +275,55 @@ export function createGetContentUseCase(
         now: new Date(),
       });
 
+      // いまどこにいるかは保存先に聞く。本文の `status` から言い当てない
+      //（承認済みの記事が「公開予約済み」なのか「公開中」なのかは status では分からない）。
+      const stored = await deps.variants.findState(actor.workspaceId, variant.id);
+      if (!stored.ok) return stored;
+      const state = stored.value;
+
       return ok({
         variant,
         package: pkg.value,
         authorName: persona.value.displayName,
         quality,
-        approvalBlockedReason:
-          quality.status === "fail"
-            ? "自動確認で直すべき指摘が出ています。指摘を解消するまで承認できません。"
-            : variant.status === "approved" || variant.status === "published"
-              ? "すでに承認済みです。"
-              : null,
+        state,
+        stateLabel: state === null ? null : CONTENT_STATE_LABEL[state],
+        nextStates:
+          state === null
+            ? []
+            : allowedNextStates(state).map((s) => ({
+                state: s,
+                label: CONTENT_STATE_LABEL[s],
+                humanOnly: HUMAN_APPROVAL_REQUIRED.has(s),
+              })),
+        approvalBlockedReason: approvalBlockedReasonFor(quality.status, variant.status, state),
         publishBlockedReason: publishBlockedReasonFor(actor, variant.status),
       });
     },
   };
+}
+
+/**
+ * 承認できない理由。できるなら null。
+ *
+ * 順番は「中身 → 済んでいるか → 段階」。中身に直すべき指摘があるうちは、
+ * 段階を進めても承認できないので、そちらを先に伝える。
+ *
+ * **段階の条件をここに書くのは、承認の本体と同じ理由を押す前に出すため。**
+ * 画面だけで判定すると、AI や REST から呼んだときに違う理由が返る。
+ */
+function approvalBlockedReasonFor(
+  qualityStatus: QualityReport["status"],
+  status: ContentVariantStatus,
+  state: ContentState | null,
+): string | null {
+  if (qualityStatus === "fail") {
+    return "自動確認で直すべき指摘が出ています。指摘を解消するまで承認できません。";
+  }
+  if (status === "approved" || status === "published") return "すでに承認済みです。";
+  // 記録が無いときは段階で断らない。分からないことを理由にすると、直しようがない。
+  if (state === null || state === "COMPLIANCE_REVIEW" || state === "APPROVED") return null;
+  return `この記事はまだ「${CONTENT_STATE_LABEL[state]}」です。上の欄で「${CONTENT_STATE_LABEL.COMPLIANCE_REVIEW}」まで進めると承認できます。`;
 }
 
 /**
@@ -376,8 +430,34 @@ export function createAdvanceContentStateUseCase(
       const loaded = await loadVariant(deps, actor, input.variantId);
       if (!loaded.ok) return loaded;
 
+      /*
+       * いまどこにいるかは**保存先に聞く**。呼び出し側が渡してきた `from` を
+       * そのまま信じない。画面を開いたまま別の人が先へ進めていた場合、
+       * 古い `from` からの遷移が通ってしまい、後から押したほうが勝つ。
+       * 記録がまだ無い場合だけ、渡された `from` を出発点として受け入れる。
+       */
+      const stored = await deps.variants.findState(actor.workspaceId, loaded.value.id);
+      if (!stored.ok) return stored;
+      if (stored.value !== null && stored.value !== input.from) {
+        return err(
+          domainError(
+            "CONFLICT",
+            `この記事はすでに「${CONTENT_STATE_LABEL[stored.value]}」まで進んでいます。`,
+            { suggestedAction: "画面を開き直してから操作してください。" },
+          ),
+        );
+      }
+
       const moved = transition(input.from, input.to, actor);
       if (!moved.ok) return moved;
+
+      /*
+       * **進んだ位置を保存してから成功を返す。** 保存を省くと、押した直後だけ
+       * 進んだように見えて、開き直すと元の列に戻る。これは画面から見ると
+       * 「操作が効いていない」のか「保存が壊れている」のかを区別できない。
+       */
+      const kept = await deps.variants.saveState(actor.workspaceId, loaded.value.id, moved.value);
+      if (!kept.ok) return kept;
 
       // 進んだ先そのものが、他の文脈にとっての「起きたこと」になる。
       if (moved.value === "GENERATED") {
@@ -427,8 +507,44 @@ export function createApproveContentUseCase(
       const approved = approveVariant(loaded.value, !actor.isAiServiceAccount);
       if (!approved.ok) return approved;
 
+      /*
+       * 承認は**進行の現在地も一緒に動かす**。
+       *
+       * 片方だけ動かすと、記事は「承認済み」なのにかんばんでは
+       * 「表示のきまりを確認中」の列に残る。同じ 1 本について
+       * 2 つの答えが同時に見える状態は、どちらが本当か誰にも決められない。
+       *
+       * 進めてよいかの判断は domain の `transition` に任せる。ここで
+       * 「承認済みなら常に APPROVED」と書くと、確認前の記事を承認する道が開く。
+       */
+      const stored = await deps.variants.findState(actor.workspaceId, loaded.value.id);
+      if (!stored.ok) return stored;
+      const from = stored.value;
+      if (from !== null && from !== "APPROVED") {
+        const moved = transition(from, "APPROVED", actor);
+        if (!moved.ok) {
+          /*
+           * ここで残るのは「確認をまだ通っていない記事の承認」だけ
+           *（AI 単独の承認は上の権限判定で止まっている）。
+           * 遷移表の言葉をそのまま出すと、押した人には何をすればよいか分からない。
+           */
+          if (moved.error.code === "FORBIDDEN") return moved;
+          return err(
+            domainError(
+              "CONFLICT",
+              `この記事はまだ「${CONTENT_STATE_LABEL[from]}」です。「${CONTENT_STATE_LABEL.COMPLIANCE_REVIEW}」まで進めてから承認してください。`,
+              { suggestedAction: "記事の進行の画面で、表示のきまりの確認まで進めてください。" },
+            ),
+          );
+        }
+      }
+
       const saved = await deps.variants.save(approved.value);
       if (!saved.ok) return saved;
+      if (from !== null && from !== "APPROVED") {
+        const kept = await deps.variants.saveState(actor.workspaceId, loaded.value.id, "APPROVED");
+        if (!kept.ok) return kept;
+      }
 
       await emit(deps, actor, "content_variant.approved", {
         variantId: input.variantId,

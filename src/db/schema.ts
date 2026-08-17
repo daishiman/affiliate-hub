@@ -14,6 +14,18 @@ import {
   type ChannelKind,
   type PublicationState,
 } from "@/domain/distribution";
+import {
+  COMPLIANCE_STATUSES,
+  CONTENT_ANGLES,
+  CONTENT_STATES,
+  CONTENT_VARIANT_STATUSES,
+  CTA_TYPES,
+  type ComplianceStatus,
+  type ContentAngle,
+  type ContentState,
+  type ContentVariantStatus,
+  type CtaType,
+} from "@/domain/authoring";
 
 /**
  * 列に入れてよい値を、**業務側の一覧から取り出す**。
@@ -27,6 +39,17 @@ const CHANNEL_KIND_VALUES = Object.keys(CHANNEL_CAPABILITIES) as [ChannelKind, .
 const PUBLICATION_STATE_VALUES = [...PUBLICATION_STATES] as [
   PublicationState,
   ...PublicationState[],
+];
+const CONTENT_STATE_VALUES = [...CONTENT_STATES] as [ContentState, ...ContentState[]];
+const CONTENT_ANGLE_VALUES = [...CONTENT_ANGLES] as [ContentAngle, ...ContentAngle[]];
+const CTA_TYPE_VALUES = [...CTA_TYPES] as [CtaType, ...CtaType[]];
+const CONTENT_VARIANT_STATUS_VALUES = [...CONTENT_VARIANT_STATUSES] as [
+  ContentVariantStatus,
+  ...ContentVariantStatus[],
+];
+const COMPLIANCE_STATUS_VALUES = [...COMPLIANCE_STATUSES] as [
+  ComplianceStatus,
+  ...ComplianceStatus[],
 ];
 
 /**
@@ -750,8 +773,71 @@ export const publications = sqliteTable(
   ],
 );
 
+/**
+ * 記事（媒体別の文章）1 本。
+ *
+ * **進行の現在地（`state`）を同じ行に持つ。** 別表にすると、記事を消したのに
+ * 現在地だけが残る、あるいはその逆が起こり、かんばんに本文の無い札が並ぶ。
+ * 一方で業務の型（`ContentVariant`）には入れていない。あれは AI の出力契約で、
+ * AI が文章を返しただけで段階が進んだことにはならないため。
+ *
+ * 企画（content_packages）と書き手（personas）はまだ表を作っていない。
+ * **作る入口がどこにも無いから**で、入口の無い表を先に作ると、
+ * 一生埋まらない空の一覧が画面に増える。
+ */
+export const contentVariants = sqliteTable(
+  "content_variants",
+  {
+    id: text("id").primaryKey(),
+    workspaceId: text("workspace_id").notNull(),
+    contentPackageId: text("content_package_id").notNull(),
+    /** 媒体。配信の出し先と同じ語彙だが、記事側は自社サイトの区分も持つため素の文字列。 */
+    channel: text("channel").notNull(),
+    format: text("format").notNull(),
+    authorPersonaId: text("author_persona_id").notNull(),
+    audiencePersonaId: text("audience_persona_id").notNull(),
+    /** 切り口。正本は domain/authoring/content-package.ts の `CONTENT_ANGLES`。 */
+    angle: text("angle", { enum: CONTENT_ANGLE_VALUES }).notNull(),
+    title: text("title"),
+    body: text("body").notNull(),
+    summary: text("summary").notNull(),
+    cta: text("cta", { enum: CTA_TYPE_VALUES }).notNull(),
+    disclosure: text("disclosure").notNull(),
+    affiliateLinkIds: text("affiliate_link_ids", { mode: "json" }).$type<string[]>().notNull(),
+    claimIds: text("claim_ids", { mode: "json" }).$type<string[]>().notNull(),
+    evidenceIds: text("evidence_ids", { mode: "json" }).$type<string[]>().notNull(),
+    /** AI が置いた仮定。読者へ「仮定」として示すので、保存しないと出せなくなる。 */
+    assumptions: text("assumptions", { mode: "json" }).$type<string[]>().notNull(),
+    platformWarnings: text("platform_warnings", { mode: "json" }).$type<string[]>().notNull(),
+    factualityScore: real("factuality_score").notNull(),
+    personaFitScore: real("persona_fit_score").notNull(),
+    channelFitScore: real("channel_fit_score").notNull(),
+    complianceStatus: text("compliance_status", { enum: COMPLIANCE_STATUS_VALUES }).notNull(),
+    /** どの指示・どのモデルで作ったか。後から原因を追えるようにするため必須。 */
+    generationPromptVersion: text("generation_prompt_version").notNull(),
+    modelId: text("model_id").notNull(),
+    status: text("status", { enum: CONTENT_VARIANT_STATUS_VALUES }).notNull(),
+    /** 進行の現在地。正本は domain/authoring/content-state.ts の `CONTENT_STATES`。 */
+    state: text("state", { enum: CONTENT_STATE_VALUES }).notNull(),
+    /**
+     * 次に見直す日。
+     *
+     * まだこれを入れる処理は無い（公開の運用が入っていないため）。
+     * 列だけ先に置いてあるのは、見直しの一覧が「現在地が REFRESH_DUE のもの」
+     * だけで動いていることを、あとから読む人に隠さないため。
+     */
+    reviewDueAt: integer("review_due_at", { mode: "timestamp" }),
+  },
+  (t) => [
+    index("content_variants_workspace_state_idx").on(t.workspaceId, t.state),
+    index("content_variants_workspace_package_idx").on(t.workspaceId, t.contentPackageId),
+    index("content_variants_review_due_idx").on(t.state, t.reviewDueAt),
+  ],
+);
+
 // 運営者ドメイン
 export type Asp = typeof asps.$inferSelect;
+export type ContentVariantRow = typeof contentVariants.$inferSelect;
 export type ChannelConnectionRow = typeof channelConnections.$inferSelect;
 export type PublicationRow = typeof publications.$inferSelect;
 export type SessionRow = typeof sessions.$inferSelect;

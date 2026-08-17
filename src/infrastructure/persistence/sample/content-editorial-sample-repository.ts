@@ -44,7 +44,9 @@ const stub = registerStub({
   id: "persistence:content-editorial-sample",
   port: "記事・企画・書き手の保存先",
   label: "記事と書き手（見本データ）",
-  blockedBy: "content_packages / content_variants / personas テーブルの追加とマイグレーション",
+  // 記事本文と進行の現在地は D1（content_variants）へつないだので、ここには残っていない。
+  // 残っているのは企画と書き手で、表が無いからではなく**作る入口がどこにも無い**ため。
+  blockedBy: "content_packages / personas テーブルの追加と、企画・書き手を作る入口",
 });
 
 export function sampleEditorialContentNotice(): string {
@@ -277,7 +279,18 @@ function variant(input: {
  * 2 本目はわざと欠陥を入れてある（数値はあるのに根拠が無い・デメリットが無い・
  * 誇大表現「最強」を含む）。自動確認が指摘を返す画面を必ず一度は通すため。
  */
-const VARIANTS: readonly { readonly state: ContentState; readonly variant: ContentVariant }[] = [
+/** 記事 1 本と、その進行の現在地。**現在地は本文とは別に持つ**（§18.1）。 */
+export type SampleVariant = { readonly state: ContentState; readonly variant: ContentVariant };
+
+/*
+ * 見本の記事。**書き換えない。**
+ *
+ * その場だけ覚えておく作りにもできるが、そうすると承認や段階の変更が
+ * 「押した直後は通り、立ち上げ直すと消える」という一番ややこしい形になる。
+ * 保存先が無い環境では、成功を装わずに断るほうが読み手を惑わせない。
+ * 保存先（D1）がある環境では、そちらが正で、ここは重ね置きにしか使わない。
+ */
+const VARIANTS: readonly SampleVariant[] = [
   {
     state: "FACT_CHECK",
     variant: variant({
@@ -363,10 +376,26 @@ function saveRejected(what: string) {
   );
 }
 
+/**
+ * 見本の記事と、その進行の現在地。**保存先（D1）版もこれを重ねて返す。**
+ *
+ * 消すと、まだ 1 本も作っていない状態でかんばんの列が全部空になり、
+ * 「まだ作っていない」のか「壊れている」のかを見分けられなくなる。
+ */
+export function sampleContentVariants(): readonly SampleVariant[] {
+  return VARIANTS;
+}
+
 export function createSampleContentVariantRepository(): EditorialContentVariantRepositoryPort {
   return markEditorial({
     async findById(_ws: WorkspaceId, id: ContentVariantId) {
       return ok(VARIANTS.find((v) => v.variant.id === id)?.variant ?? null);
+    },
+    async findState(_ws: WorkspaceId, id: ContentVariantId) {
+      return ok(VARIANTS.find((v) => v.variant.id === id)?.state ?? null);
+    },
+    async saveState() {
+      return saveRejected("記事の進行");
     },
     async listByPackage(_ws: WorkspaceId, packageId: ContentPackageId) {
       return ok(VARIANTS.filter((v) => v.variant.contentPackageId === packageId).map((v) => v.variant));

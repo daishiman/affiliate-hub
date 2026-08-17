@@ -8,7 +8,7 @@ import {
   createListContentBoardUseCase,
   createListReviewOverdueUseCase,
 } from "@/application/usecases/content/manage-content";
-import { CONTENT_STATES, type ContentVariant } from "@/domain/authoring";
+import { CONTENT_STATES, type ContentState, type ContentVariant } from "@/domain/authoring";
 import type { WorkspaceId } from "@/domain/shared";
 import { markCommercial, markEditorial, ok } from "@/domain/shared";
 import { SAMPLE_WORKSPACE_ID } from "@/infrastructure/persistence/sample/ranking-sample-repository";
@@ -59,6 +59,36 @@ function deps(over: Partial<ManageContentDeps> = {}): ManageContentDeps {
 /** 見本の記事置き場を土台に、指定の操作だけ差し替える。編集側の印は付け直す。 */
 function variantsWith(over: Record<string, unknown>): ManageContentDeps["variants"] {
   return markEditorial({ ...testDeps().contentVariants, ...over }) as ManageContentDeps["variants"];
+}
+
+/**
+ * 進行の現在地を覚えていられる記事置き場。
+ *
+ * 見本の置き場は保存を断る（保存先が無いのに成功を装わないため）ので、
+ * それでは「進めたこと」そのものを確かめられない。ここでは保存先の代わりを立てて、
+ * **進んだ位置が残るか**と**出来事が出るか**だけを見る。
+ *
+ * 記録は空から始める。空のときは呼び出し側が渡した `from` を出発点として
+ * 受け入れる決まりなので、各テストは見本の段階に縛られずに順路を選べる。
+ * 保存先に実際に書けるかどうかは D1 の結合テスト（tests/integration/d1-content.test.ts）が見る。
+ */
+function variantsRemembering(seed: Partial<Record<string, ContentState>> = {}) {
+  const states = new Map<string, ContentState>(
+    Object.entries(seed).filter((e): e is [string, ContentState] => e[1] !== undefined),
+  );
+  const saved: { current: ContentVariant | null } = { current: null };
+  const port = variantsWith({
+    findState: async (_ws: unknown, id: unknown) => ok(states.get(String(id)) ?? null),
+    saveState: async (_ws: unknown, id: unknown, state: ContentState) => {
+      states.set(String(id), state);
+      return ok(state);
+    },
+    save: async (v: ContentVariant) => {
+      saved.current = v;
+      return ok(v);
+    },
+  });
+  return { port, states, saved };
 }
 
 function personasWith(over: Record<string, unknown>): ManageContentDeps["personas"] {
@@ -327,6 +357,66 @@ describe("記事 1 本の確認", () => {
     expect(got.value.approvalBlockedReason).toContain("承認済み");
   });
 
+  it("いまの段階と、そこから進める先が一緒に返る", async () => {
+    const got = await createGetContentUseCase(deps()).execute(owner, { variantId: REVIEWABLE });
+    if (!got.ok) throw got.error;
+
+    // 見本のこの記事は事実確認中にいる。
+    expect(got.value.state).toBe("FACT_CHECK");
+    expect(got.value.stateLabel).toBe("事実確認中");
+    // 進める先は遷移表そのまま。画面が並べ直さないための材料。
+    expect(got.value.nextStates.map((n) => n.state)).toEqual([
+      "COMPLIANCE_REVIEW",
+      "GENERATED",
+      "ARCHIVED",
+    ]);
+    expect(got.value.nextStates.every((n) => n.label !== n.state)).toBe(true);
+  });
+
+  it("人の操作でしか進めない先には、その印が付く", async () => {
+    const store = variantsRemembering({ [SHORT_POST]: "COMPLIANCE_REVIEW" });
+    const got = await createGetContentUseCase(deps({ variants: store.port })).execute(owner, {
+      variantId: SHORT_POST,
+    });
+    if (!got.ok) throw got.error;
+
+    const approved = got.value.nextStates.find((n) => n.state === "APPROVED");
+    // 印が無いと、画面は承認を「段階の選択肢の 1 つ」として出してしまう。
+    expect(approved?.humanOnly).toBe(true);
+    expect(got.value.nextStates.find((n) => n.state === "FACT_CHECK")?.humanOnly).toBe(false);
+  });
+
+  it("進行の記録が無いときは、最初の段階にいることにしない", async () => {
+    const got = await createGetContentUseCase(
+      deps({ variants: variantsWith({ findState: async () => ok(null) }) }),
+    ).execute(owner, { variantId: REVIEWABLE });
+    if (!got.ok) throw got.error;
+
+    // 既定値で埋めると、画面には進めるように見えて、押しても通らない。
+    expect(got.value.state).toBeNull();
+    expect(got.value.stateLabel).toBeNull();
+    expect(got.value.nextStates).toEqual([]);
+  });
+
+  it("確認の段階まで来ていない記事は、承認できない理由が段階で返る", async () => {
+    const got = await createGetContentUseCase(deps()).execute(owner, { variantId: REVIEWABLE });
+    if (!got.ok) throw got.error;
+
+    // 押してから断るのではなく、押す前に同じ理由を出す。
+    expect(got.value.approvalBlockedReason).toContain("事実確認中");
+    expect(got.value.approvalBlockedReason).toContain("表示のきまりを確認中");
+  });
+
+  it("確認の段階まで来ている記事は、承認を止める理由が無い", async () => {
+    const store = variantsRemembering({ [REVIEWABLE]: "COMPLIANCE_REVIEW" });
+    const got = await createGetContentUseCase(deps({ variants: store.port })).execute(owner, {
+      variantId: REVIEWABLE,
+    });
+    if (!got.ok) throw got.error;
+
+    expect(got.value.approvalBlockedReason).toBeNull();
+  });
+
   it("権限が無い人には記事の中身を返さない", async () => {
     const got = await createGetContentUseCase(deps()).execute(nobody, { variantId: REVIEWABLE });
     expect(got.ok).toBe(false);
@@ -409,16 +499,48 @@ describe("見直しの時期が来たもの", () => {
 
 describe("状態を進める", () => {
   it("決められた順路は通れて、進んだ先が読める言葉で返る", async () => {
-    const got = await createAdvanceContentStateUseCase(deps()).execute(owner, {
-      variantId: FAILING_DRAFT,
-      from: "GENERATED",
-      to: "FACT_CHECK",
-    });
+    const store = variantsRemembering();
+    const got = await createAdvanceContentStateUseCase(deps({ variants: store.port })).execute(
+      owner,
+      { variantId: FAILING_DRAFT, from: "GENERATED", to: "FACT_CHECK" },
+    );
     if (!got.ok) throw got.error;
 
     expect(got.value.state).toBe("FACT_CHECK");
     expect(got.value.label).toBe("事実確認中");
     expect(got.value.variantId).toBe(FAILING_DRAFT);
+    // 返り値だけでなく、**進んだ位置が置き場に残っている**ことまで見る。
+    expect(store.states.get(FAILING_DRAFT)).toBe("FACT_CHECK");
+  });
+
+  it("進めたのに保存できなかったときは、進んだと返さない", async () => {
+    // 見本の置き場は進行を保存できない。成功を装うと、押した直後だけ動いて見える。
+    const got = await createAdvanceContentStateUseCase(deps()).execute(owner, {
+      variantId: FAILING_DRAFT,
+      from: "GENERATED",
+      to: "FACT_CHECK",
+    });
+
+    expect(got.ok).toBe(false);
+    if (got.ok) return;
+    expect(got.error.code).toBe("NOT_IMPLEMENTED");
+  });
+
+  it("画面を開いたままの人が古い段階から押しても、後から押したほうが勝たない", async () => {
+    const store = variantsRemembering({ [FAILING_DRAFT]: "FACT_CHECK" });
+    const got = await createAdvanceContentStateUseCase(deps({ variants: store.port })).execute(
+      owner,
+      // 画面には GENERATED と出ているが、置き場ではもう FACT_CHECK。
+      { variantId: FAILING_DRAFT, from: "GENERATED", to: "BRIEF_READY" },
+    );
+
+    expect(got.ok).toBe(false);
+    if (got.ok) return;
+    expect(got.error.code).toBe("CONFLICT");
+    expect(got.error.message).toContain("事実確認中");
+    expect(got.error.suggestedAction ?? "").not.toBe("");
+    // 弾いたのだから、置き場は動かない。
+    expect(store.states.get(FAILING_DRAFT)).toBe("FACT_CHECK");
   });
 
   it("承認を飛ばして公開へは進めない", async () => {
@@ -448,11 +570,9 @@ describe("状態を進める", () => {
   });
 
   it("AI のサービスアカウントでも、下書きの手前までは進められる", async () => {
-    const got = await createAdvanceContentStateUseCase(deps()).execute(aiAccount, {
-      variantId: FAILING_DRAFT,
-      from: "BRIEF_READY",
-      to: "GENERATED",
-    });
+    const got = await createAdvanceContentStateUseCase(
+      deps({ variants: variantsRemembering().port }),
+    ).execute(aiAccount, { variantId: FAILING_DRAFT, from: "BRIEF_READY", to: "GENERATED" });
     if (!got.ok) throw got.error;
 
     expect(got.value.state).toBe("GENERATED");
@@ -460,11 +580,9 @@ describe("状態を進める", () => {
 
   it("下書きができたことは、他の仕組みが受け取れる出来事として出る", async () => {
     const events = recordingEvents();
-    const got = await createAdvanceContentStateUseCase(deps({ events: events.port })).execute(owner, {
-      variantId: FAILING_DRAFT,
-      from: "BRIEF_READY",
-      to: "GENERATED",
-    });
+    const got = await createAdvanceContentStateUseCase(
+      deps({ variants: variantsRemembering().port, events: events.port }),
+    ).execute(owner, { variantId: FAILING_DRAFT, from: "BRIEF_READY", to: "GENERATED" });
 
     expect(got.ok).toBe(true);
     expect(events.names()).toContain("content_variant.generated");
@@ -474,11 +592,9 @@ describe("状態を進める", () => {
 
   it("見直しの時期に入ったことも、出来事として出る", async () => {
     const events = recordingEvents();
-    const got = await createAdvanceContentStateUseCase(deps({ events: events.port })).execute(owner, {
-      variantId: REVIEWABLE,
-      from: "PUBLISHED",
-      to: "REFRESH_DUE",
-    });
+    const got = await createAdvanceContentStateUseCase(
+      deps({ variants: variantsRemembering().port, events: events.port }),
+    ).execute(owner, { variantId: REVIEWABLE, from: "PUBLISHED", to: "REFRESH_DUE" });
 
     expect(got.ok).toBe(true);
     expect(events.names()).toEqual(["content.refresh_due"]);
@@ -486,11 +602,9 @@ describe("状態を進める", () => {
 
   it("途中の移動では、出来事を作らない", async () => {
     const events = recordingEvents();
-    const got = await createAdvanceContentStateUseCase(deps({ events: events.port })).execute(owner, {
-      variantId: FAILING_DRAFT,
-      from: "GENERATED",
-      to: "FACT_CHECK",
-    });
+    const got = await createAdvanceContentStateUseCase(
+      deps({ variants: variantsRemembering().port, events: events.port }),
+    ).execute(owner, { variantId: FAILING_DRAFT, from: "GENERATED", to: "FACT_CHECK" });
 
     expect(got.ok).toBe(true);
     expect(events.names()).toEqual([]);
@@ -510,7 +624,10 @@ describe("状態を進める", () => {
 
   it("知らせられなくても、進んだこと自体は取り消さない", async () => {
     const got = await createAdvanceContentStateUseCase(
-      deps({ events: { publish: async () => failing("通知先に繋がりません。") } }),
+      deps({
+        variants: variantsRemembering().port,
+        events: { publish: async () => failing("通知先に繋がりません。") },
+      }),
     ).execute(owner, { variantId: FAILING_DRAFT, from: "BRIEF_READY", to: "GENERATED" });
     if (!got.ok) throw got.error;
 
@@ -543,33 +660,53 @@ describe("状態を進める", () => {
 });
 
 describe("承認", () => {
-  /** 見本の保存先は保存できないので、保存だけ動くものに差し替える。 */
-  function savable(saved: { current: ContentVariant | null }): ManageContentDeps["variants"] {
-    return variantsWith({
-      save: async (v: ContentVariant) => {
-        saved.current = v;
-        return ok(v);
-      },
-    });
-  }
-
   it("人が承認すると、承認済みとして保存される", async () => {
-    const saved: { current: ContentVariant | null } = { current: null };
-    const got = await createApproveContentUseCase(deps({ variants: savable(saved) })).execute(owner, {
+    const store = variantsRemembering();
+    const got = await createApproveContentUseCase(deps({ variants: store.port })).execute(owner, {
       variantId: REVIEWABLE,
     });
     if (!got.ok) throw got.error;
 
     expect(got.value.status).toBe("approved");
-    expect(saved.current?.status).toBe("approved");
-    expect(saved.current?.id).toBe(REVIEWABLE);
+    expect(store.saved.current?.status).toBe("approved");
+    expect(store.saved.current?.id).toBe(REVIEWABLE);
+  });
+
+  it("表示のきまりの確認まで来ている記事を承認すると、かんばんの列も承認済みへ動く", async () => {
+    // 記事は「承認済み」なのに列は「確認中」のまま、という
+    // 同じ 1 本について 2 つの答えが見える状態を作らない。
+    const store = variantsRemembering({ [SHORT_POST]: "COMPLIANCE_REVIEW" });
+    const got = await createApproveContentUseCase(deps({ variants: store.port })).execute(owner, {
+      variantId: SHORT_POST,
+    });
+    if (!got.ok) throw got.error;
+
+    expect(store.states.get(SHORT_POST)).toBe("APPROVED");
+  });
+
+  it("確認をまだ通っていない記事は、承認できない理由が読める言葉で返る", async () => {
+    const store = variantsRemembering({ [REVIEWABLE]: "FACT_CHECK" });
+    const got = await createApproveContentUseCase(deps({ variants: store.port })).execute(owner, {
+      variantId: REVIEWABLE,
+    });
+
+    expect(got.ok).toBe(false);
+    if (got.ok) return;
+    expect(got.error.code).toBe("CONFLICT");
+    // 遷移表の言葉（FACT_CHECK → APPROVED）をそのまま画面へ出さない。
+    expect(got.error.message).not.toContain("FACT_CHECK");
+    expect(got.error.message).toContain("事実確認中");
+    expect(got.error.suggestedAction ?? "").not.toBe("");
+    // 承認していないのだから、本文も列も動いていない。
+    expect(store.saved.current).toBeNull();
+    expect(store.states.get(REVIEWABLE)).toBe("FACT_CHECK");
   });
 
   it("承認したことは、誰が承認したかつきで出来事になる", async () => {
     const events = recordingEvents();
-    const saved: { current: ContentVariant | null } = { current: null };
+    const store = variantsRemembering();
     const got = await createApproveContentUseCase(
-      deps({ variants: savable(saved), events: events.port }),
+      deps({ variants: store.port, events: events.port }),
     ).execute(owner, { variantId: REVIEWABLE });
 
     expect(got.ok).toBe(true);
@@ -579,8 +716,9 @@ describe("承認", () => {
   });
 
   it("AI のサービスアカウントが持ち主の権限を借りていても、単独では承認できない", async () => {
-    const saved: { current: ContentVariant | null } = { current: null };
-    const got = await createApproveContentUseCase(deps({ variants: savable(saved) })).execute(
+    const store = variantsRemembering();
+    const saved = store.saved;
+    const got = await createApproveContentUseCase(deps({ variants: store.port })).execute(
       anOwner({ workspaceId: WS, isAiServiceAccount: true }),
       { variantId: REVIEWABLE },
     );
@@ -594,8 +732,9 @@ describe("承認", () => {
   });
 
   it("自動確認で不適合の記事は承認できない", async () => {
-    const saved: { current: ContentVariant | null } = { current: null };
-    const got = await createApproveContentUseCase(deps({ variants: savable(saved) })).execute(owner, {
+    const store = variantsRemembering();
+    const saved = store.saved;
+    const got = await createApproveContentUseCase(deps({ variants: store.port })).execute(owner, {
       variantId: FAILING_DRAFT,
     });
 
@@ -607,9 +746,11 @@ describe("承認", () => {
 
   it("保存できなかったときに、承認できたと返さない", async () => {
     const events = recordingEvents();
-    const got = await createApproveContentUseCase(deps({ events: events.port })).execute(owner, {
-      variantId: REVIEWABLE,
-    });
+    // 見本の置き場は保存を断る。進行の記録はまだ無い（＝段階では止まらない）ので、
+    // ここで返るのは保存できなかったことそのものになる。
+    const got = await createApproveContentUseCase(
+      deps({ variants: variantsWith({ findState: async () => ok(null) }), events: events.port }),
+    ).execute(owner, { variantId: REVIEWABLE });
 
     expect(got.ok).toBe(false);
     if (got.ok) return;
@@ -618,9 +759,9 @@ describe("承認", () => {
   });
 
   it("知らせられなくても、承認そのものは残る", async () => {
-    const saved: { current: ContentVariant | null } = { current: null };
+    const store = variantsRemembering();
     const got = await createApproveContentUseCase(
-      deps({ variants: savable(saved), events: { publish: async () => failing("通知先が無い。") } }),
+      deps({ variants: store.port, events: { publish: async () => failing("通知先が無い。") } }),
     ).execute(owner, { variantId: REVIEWABLE });
     if (!got.ok) throw got.error;
 
@@ -628,8 +769,9 @@ describe("承認", () => {
   });
 
   it("書ける人でも、承認の権限が無ければ承認できない", async () => {
-    const saved: { current: ContentVariant | null } = { current: null };
-    const got = await createApproveContentUseCase(deps({ variants: savable(saved) })).execute(writer, {
+    const store = variantsRemembering();
+    const saved = store.saved;
+    const got = await createApproveContentUseCase(deps({ variants: store.port })).execute(writer, {
       variantId: REVIEWABLE,
     });
 
@@ -640,8 +782,8 @@ describe("承認", () => {
   });
 
   it("無い記事は承認できない", async () => {
-    const saved: { current: ContentVariant | null } = { current: null };
-    const got = await createApproveContentUseCase(deps({ variants: savable(saved) })).execute(owner, {
+    const store = variantsRemembering();
+    const got = await createApproveContentUseCase(deps({ variants: store.port })).execute(owner, {
       variantId: "cv_no_such",
     });
 
