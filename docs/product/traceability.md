@@ -119,7 +119,7 @@ RWD・a11y は全ルート共通の枠（`page-frame.tsx` と共通 UI 部品）
 | REQ-G07 | 執筆系と検証系の分離（GC-5） | 同 `agent-roster.ts`。`AuthoringAgent \| ReviewAgent` の判別共用体で、検証役に `"generate"` 道具を持たせるとコンパイルが通らない。`freshContext: true` も型リテラル。実行時の崩れは `separationBreaches()` | 画面義務なし（`/admin/generation` に崩れ検知の警告枠） | PASS（同テスト「崩れた一覧を渡すと崩れとして返る」を含む） | 実装済 |
 | REQ-G08 | 承認フロー（§18.1 12段階）との接続 | `src/domain/generation/approval-bridge.ts` `STAGE_BRIDGE`（12段階×`advancedBy`）。`bridgeBreaches()` が `CONTENT_STATES` / `HUMAN_APPROVAL_REQUIRED` と突き合わせる | `/admin/generation`「どこから先が人の判断か」/ `/admin/content` | PASS（同テスト「人の承認が要る段階を AI が進められない」） | 実装済 |
 | REQ-G09 | 評価セット 50件以上（網羅12+9+8+5 / 敵対8 / 境界8） | `evals/generation/cases.ts`（50件）+ `quality-gates.ts` | 画面義務なし | PASS（`tests/evals/generation-eval-set.test.ts`） | 実装済 |
-| REQ-G10 | ローンチ基準 LB-1〜LB-8 と CI 連携 | `evals/generation/launch-bars.ts`（LB-1〜LB-8） | 画面義務なし | PASS（同テスト）。CI への接続は初回リリース後（`ci.yml` 未設置） | スタブ |
+| REQ-G10 | ローンチ基準 LB-1〜LB-8 と CI 連携 | `evals/generation/launch-bars.ts`（LB-1〜LB-8） | PASS（同テスト）。**CI へは接続しない**（2026-08-17 決定）。`ci.yml` は設置済みなので設置待ちではなく、**基準を当てる相手である評価セット本体を「作らない」と決めた**ため（ah-gzq / REQ-CI13）。基準そのもの（LB-1〜LB-8）は判断を覆すときに要るので残す | PASS（同テスト）。CI への接続は初回リリース後（`ci.yml` 未設置） | スタブ |
 | REQ-G11 | 生成の実行（素材を渡して下書きを 1 本作らせる） | `src/application/usecases/generation/draft-content-variant.ts`（`LlmPort` を使う唯一のユースケース。18項目が欠けていれば呼ばない／資料は `untrustedContext` へ入れ指示欄に混ぜない／呼ぶ前に費用を見積もる／打ち切りと形違いは受け取らない）、`src/domain/generation/draft-instructions.ts`（7ブロックの文面）、`src/infrastructure/llm/llm-setup.ts`（`ACTIVE_PROVIDER` 1行が提供元を決める） | `/admin/generation`「下書きを作らせてみる」（そろっていない状態／そろった状態を実際に押して確かめられる）。REST と バックエンド MCP から `draft_content_variant`。**WebMCP には載せない**（`readOnly: false`。ページ内の AI に課金を起こさせないため） | PASS（`tests/application/draft-content-variant.test.ts` 10件） | 実装済（生成AIへの接続のみスタブ。提供元の選定と鍵の登録が済めば動く） |
 
 ## F. データモデル（§21 全32エンティティ）
@@ -267,7 +267,7 @@ D1 への差し替えは、この列だけを別の実装に取り替えれば�
 | REQ-QC08 | QC-12 マルチサイト重複 | `quality-check.ts` `similarity()`（3-gram、0.85以上で停止）+ `site-blueprint.ts` `differentiationGap()`（10軸・3軸以上） | 実装済 |
 | REQ-QC09 | QC-13 広告表記 | `quality-check.ts` `disclosure_present`（媒体が本文内表記を要求する場合も見る）+ `publish-gate.ts` `disclosure` | 実装済 |
 | REQ-QC10 | QC-14 会話ブロック制約 | `conversation-block.ts` `validateConversationFlow()` を `quality-check.ts` `conversation_flow` が呼ぶ（本文を挟むと連続を数え直す） | 実装済 |
-| REQ-QC11 | QC-15〜QC-17 薬機法・景表法・アクセシビリティ | 薬機法・景表法は `policy-rule.ts`（分野×出力先・根拠と代替表現つき）、アクセシビリティは共通UI側（REQ-SEC08）。分野別ルールの初期データは未登録 | スタブ |
+| REQ-QC11 | QC-15〜QC-17 薬機法・景表法・アクセシビリティ | 薬機法・景表法は `policy-rule.ts`（分野×出力先・根拠と代替表現つき）＋**初期ルール 13 件は `policy-rule-seed.ts`**（2026-08-17 に登録。例文を型で必須にし、検査 75 件で両方向の赤を実測）。アクセシビリティは共通UI側（REQ-SEC08） | PASS（`tests/domain/policy-rule-seed.test.ts` 75 件）。**まだ記事の確認から呼ばれていない**ため、違反は画面に 1 件も出ない（ah-1eg）。呼ばれないルールは無いルールと結果が 1 文字も違わないので、スタブのまま据え置く |
 | REQ-QC12 | 公開ゲート（ブログ層 §21 の11項目） | `src/domain/compliance/publish-gate.ts` `evaluatePublishGate()`（13項目。仕組みの無いものは失敗にせず `skipped` に残す） | 実装済 |
 
 いずれの検査結果も `/admin/content/[variant]` に表示される（止めた件数・理由・
