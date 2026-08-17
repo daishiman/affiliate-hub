@@ -4,7 +4,7 @@
 コンテキストをまたぐ連絡は**ドメインイベント**か**公開インターフェース（ポート）**だけとし、
 別コンテキストのリポジトリを直接呼ばない。
 
-## 9 つのコンテキスト
+## 10 のコンテキスト
 
 | コンテキスト | 置き場所 | 責務 | 中心となる集約 |
 | --- | --- | --- | --- |
@@ -17,6 +17,7 @@
 | Affiliate & Monetization | `src/domain/monetization/` | 報酬・リンク・成果 | AffiliateProgram / AffiliateLink / Conversion |
 | Compliance | `src/domain/compliance/` | 広告表示・表現規制・監査 | Disclosure / PolicyRule / AuditLog |
 | Analytics | `src/domain/analytics/` | 指標・計測・同意と、その戻し方の規則 | MetricDefinition / TelemetryEvent / ConsentDecision |
+| Product Feedback | `src/domain/feedback/` | 管理者から届いた改善要望と、作業する側への払い出し | FeedbackReport / Handoff / IntegrationKey |
 
 計測（何を測るか・同意・保存期間・AI の利用と費用）は **Analytics の中に置く**。
 別コンテキストに切ると「指標」と「計測」で同じ数字を二重に定義することになり、
@@ -44,6 +45,13 @@
 これは `optimization.ts` の `assertRegistrable` が、既にある
 `analytics/feedback-policy.ts` の判定へそのまま突き当てることで守る
 （同じ決まりを 2 か所に書かない）。
+
+改善要望（プロダクト自体を良くする側）は **Analytics の中に置かない**。
+Analytics の「軸」は数字の切り口、改善要望の「種類」は要望の分類で、
+並べると必ず取り違える。また要望は 1 件で 1 件であり標本ではないため、
+必要件数の判定に乗せると「1 人しか困っていないから直さない」になる。
+共有するのは `analytics/loop-kinds.ts` の**種類の登録表と自動で付く歯止めだけ**で、
+参照は `feedback → analytics/loop-kinds` の一方向とする。詳細は `feedback-loop.md`。
 
 ## 共有カーネル（最小限）
 
@@ -108,6 +116,8 @@
 | 共通UI → 通信 | 部品が送信を持つと、部品ごとに測り方が分かれる | `tests/ui/ui-layers.test.ts`（UI に `fetch(` を書けない） |
 | 改善ループ → Ranking / 推奨 / 合格ライン | 数字を理由に順位を動かす抜け道になる | `optimization.ts` `assertRegistrable` → `feedback-policy.ts`。`tests/domain/improvement.test.ts` |
 | 改善ループ → 根拠 / 広告表示 / アクセシビリティ / 同意の見せ方 | 減らすほど数字が良くなるので、対象にすると必ず削られる | `NON_OPTIMIZABLE` 6 件。同上 |
+| Analytics → Product Feedback | 指標の集計に人の声が混ざり、数字の意味が変わる | `tests/architecture/dependency-direction.test.ts` |
+| 改善要望の本文 → AI への命令 | 本文は利用者入力。区切りの外へ出ると、書いた内容がそのまま指示になる | `tests/domain/handoff-prompt.test.ts` |
 | domain → 外側の層 | 層の意味が消える | lint + テスト |
 
 ## コンテキスト間の言葉のずれ

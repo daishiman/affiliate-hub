@@ -1,6 +1,6 @@
 # アーキテクチャ文書
 
-「あとから変えやすいこと」を仕組みで担保するための 6 枚。
+「あとから変えやすいこと」を仕組みで担保するための 7 枚。
 新しく参加した人は、この順に読む。
 
 | # | 文書 | 何が書いてあるか | 読む場面 |
@@ -11,6 +11,7 @@
 | 4 | [ui-system.md](ui-system.md) | 見た目・言葉・操作の作法を 1 か所に集める仕組み | 画面を作るとき |
 | 5 | [testing-architecture.md](testing-architecture.md) | テストの置き場所・土台の部品・CI の流れ | テストを書くとき / 検査を足すとき |
 | 6 | [changeability-scenarios.md](changeability-scenarios.md) | よくある変更で触るファイルの記録 | 設計が崩れていないか点検するとき |
+| 7 | [feedback-loop.md](feedback-loop.md) | 改善要望の置き場所・画面の写しの作り方・指示文の組み立て | 改善要望まわりを触るとき |
 
 全体像（二層構造と外部境界）は `architecture/arch-two-layer-platform.md` にある。
 

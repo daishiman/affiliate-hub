@@ -1,5 +1,5 @@
 {
-  "graph_revision": 149,
+  "graph_revision": 177,
   "nodes": [
     {
       "acceptance": [],
@@ -5071,6 +5071,1459 @@
       "title": "Site Blueprint と記事構成テンプレート",
       "tracker_binding": "beads",
       "updated_at": "2026-08-16T14:20:00Z"
+    },
+    {
+      "acceptance": [],
+      "architecture_refs": [],
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "beads_linkage": {
+        "bd_issue_id": "ah-oq7",
+        "github_mirror": null,
+        "linked_at": "2026-08-17T02:20:00Z",
+        "sync_state": "linked"
+      },
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "candidate_path": "tasks/task-test-foundation.md",
+          "confidence": 0.95
+        }
+      ],
+      "classification_confidence": 0.95,
+      "classification_reason": "docs/product/backlog.md の残課題を作業単位として登録",
+      "completion_evidence": {
+        "completed_at": "2026-08-17T02:20:00Z",
+        "evidence_refs": [
+          "tasks/task-test-foundation.md",
+          "docs/product/traceability.md"
+        ],
+        "policy": "manual",
+        "reconciled_at": "2026-08-17T02:20:00Z",
+        "source": "manual",
+        "status": "done"
+      },
+      "confirmation_evidence": {
+        "evaluated_digest": null,
+        "evaluator": null,
+        "evidence_ref": null
+      },
+      "confirmation_status": "draft",
+      "created_at": "2026-08-17T00:00:00Z",
+      "depends_on": [],
+      "domain": "quality",
+      "evaluation_status": "pending",
+      "execution_contexts": [],
+      "feature_package_id": null,
+      "file_path": "tasks/task-test-foundation.md",
+      "github_project_linkages": [],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "goal": null,
+      "graph_node_id": "task-test-foundation",
+      "implementation_readiness": {
+        "checked_at": "2026-08-17T00:00:00Z",
+        "missing_sections": [],
+        "status": "complete"
+      },
+      "issue_linkage": null,
+      "iteration": null,
+      "mvp_alignment": {
+        "background": "型に項目を 1 つ足すたびに全テストを直す状態だった",
+        "mvp_fit": "enabling",
+        "purpose": "テストの書き換え箇所を 1 か所に閉じる",
+        "rationale": "15〜17 のテストがすべてこの土台の上に乗るため、先に無いと重複が増える"
+      },
+      "owners": [
+        "daishiman"
+      ],
+      "parent_feature": null,
+      "phase_ref": null,
+      "priority": "high",
+      "project_id": "affiliate-hub",
+      "pull_request_linkages": [],
+      "purpose": null,
+      "related_nodes": [],
+      "resource_scope": [
+        "tests/support"
+      ],
+      "scope_in": [],
+      "scope_out": [],
+      "source_lineage": {
+        "imported_at": "2026-08-17T00:00:00Z",
+        "origin_kind": "manual",
+        "source_digest": null,
+        "source_path": "docs/product/backlog.md",
+        "source_plugin": null,
+        "source_version": null
+      },
+      "start_date": "2026-08-17",
+      "status": "done",
+      "tags": [
+        "backlog",
+        "mvp"
+      ],
+      "target_date": null,
+      "template_id": "task",
+      "template_version": "1.0.0",
+      "title": "テストの土台（ファクトリ・テストダブル・時刻固定・描画補助）",
+      "tracker_binding": "beads",
+      "updated_at": "2026-08-17T02:21:00.997420Z"
+    },
+    {
+      "acceptance": [],
+      "architecture_refs": [],
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "beads_linkage": {
+        "bd_issue_id": "ah-1wf",
+        "github_mirror": null,
+        "linked_at": "2026-08-17T02:20:00Z",
+        "sync_state": "linked"
+      },
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "candidate_path": "tasks/task-api-unit-tests.md",
+          "confidence": 0.95
+        }
+      ],
+      "classification_confidence": 0.95,
+      "classification_reason": "docs/product/backlog.md の残課題を作業単位として登録",
+      "completion_evidence": {
+        "completed_at": "2026-08-17T02:20:00Z",
+        "evidence_refs": [
+          "tasks/task-api-unit-tests.md",
+          "docs/product/traceability.md"
+        ],
+        "policy": "manual",
+        "reconciled_at": "2026-08-17T02:20:00Z",
+        "source": "manual",
+        "status": "done"
+      },
+      "confirmation_evidence": {
+        "evaluated_digest": null,
+        "evaluator": null,
+        "evidence_ref": null
+      },
+      "confirmation_status": "draft",
+      "created_at": "2026-08-17T00:00:00Z",
+      "depends_on": [
+        "task-test-foundation"
+      ],
+      "domain": "quality",
+      "evaluation_status": "pending",
+      "execution_contexts": [],
+      "feature_package_id": null,
+      "file_path": "tasks/task-api-unit-tests.md",
+      "github_project_linkages": [],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "goal": null,
+      "graph_node_id": "task-api-unit-tests",
+      "implementation_readiness": {
+        "checked_at": "2026-08-17T00:00:00Z",
+        "missing_sections": [],
+        "status": "complete"
+      },
+      "issue_linkage": null,
+      "iteration": null,
+      "mvp_alignment": {
+        "background": "道具を足しても、どの入口のテストが要るか人が覚えている状態だった",
+        "mvp_fit": "enabling",
+        "purpose": "入口 3 種（REST / WebMCP / MCP）の抜けを機械的に落とす",
+        "rationale": "入口が 3 つある設計なので、手書きだと必ずどれか 1 つが抜ける"
+      },
+      "owners": [
+        "daishiman"
+      ],
+      "parent_feature": null,
+      "phase_ref": null,
+      "priority": "high",
+      "project_id": "affiliate-hub",
+      "pull_request_linkages": [],
+      "purpose": null,
+      "related_nodes": [],
+      "resource_scope": [
+        "tests/presentation"
+      ],
+      "scope_in": [],
+      "scope_out": [],
+      "source_lineage": {
+        "imported_at": "2026-08-17T00:00:00Z",
+        "origin_kind": "manual",
+        "source_digest": null,
+        "source_path": "docs/product/backlog.md",
+        "source_plugin": null,
+        "source_version": null
+      },
+      "start_date": "2026-08-17",
+      "status": "done",
+      "tags": [
+        "backlog",
+        "mvp"
+      ],
+      "target_date": null,
+      "template_id": "task",
+      "template_version": "1.0.0",
+      "title": "API の単体テストを道具の一覧から生成する",
+      "tracker_binding": "beads",
+      "updated_at": "2026-08-17T02:21:06.456075Z"
+    },
+    {
+      "acceptance": [],
+      "architecture_refs": [],
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "beads_linkage": {
+        "bd_issue_id": "ah-xct",
+        "github_mirror": null,
+        "linked_at": "2026-08-17T02:20:00Z",
+        "sync_state": "linked"
+      },
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "candidate_path": "tasks/task-ui-unit-a11y-tests.md",
+          "confidence": 0.95
+        }
+      ],
+      "classification_confidence": 0.95,
+      "classification_reason": "docs/product/backlog.md の残課題を作業単位として登録",
+      "completion_evidence": {
+        "completed_at": "2026-08-17T02:20:00Z",
+        "evidence_refs": [
+          "tasks/task-ui-unit-a11y-tests.md",
+          "docs/product/traceability.md"
+        ],
+        "policy": "manual",
+        "reconciled_at": "2026-08-17T02:20:00Z",
+        "source": "manual",
+        "status": "done"
+      },
+      "confirmation_evidence": {
+        "evaluated_digest": null,
+        "evaluator": null,
+        "evidence_ref": null
+      },
+      "confirmation_status": "draft",
+      "created_at": "2026-08-17T00:00:00Z",
+      "depends_on": [
+        "task-test-foundation"
+      ],
+      "domain": "frontend",
+      "evaluation_status": "pending",
+      "execution_contexts": [],
+      "feature_package_id": null,
+      "file_path": "tasks/task-ui-unit-a11y-tests.md",
+      "github_project_linkages": [],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "goal": null,
+      "graph_node_id": "task-ui-unit-a11y-tests",
+      "implementation_readiness": {
+        "checked_at": "2026-08-17T00:00:00Z",
+        "missing_sections": [],
+        "status": "complete"
+      },
+      "issue_linkage": null,
+      "iteration": null,
+      "mvp_alignment": {
+        "background": "画面ごとに手で確かめており、増えるほど確認が抜けていた",
+        "mvp_fit": "enabling",
+        "purpose": "画面 50 枚を総当たりで描画し、4 状態・操作・読み上げを見る",
+        "rationale": "画面は増え続けるので、総当たりの仕組みでないと網羅が崩れる"
+      },
+      "owners": [
+        "daishiman"
+      ],
+      "parent_feature": null,
+      "phase_ref": null,
+      "priority": "high",
+      "project_id": "affiliate-hub",
+      "pull_request_linkages": [],
+      "purpose": null,
+      "related_nodes": [],
+      "resource_scope": [
+        "tests/ui"
+      ],
+      "scope_in": [],
+      "scope_out": [],
+      "source_lineage": {
+        "imported_at": "2026-08-17T00:00:00Z",
+        "origin_kind": "manual",
+        "source_digest": null,
+        "source_path": "docs/product/backlog.md",
+        "source_plugin": null,
+        "source_version": null
+      },
+      "start_date": "2026-08-17",
+      "status": "done",
+      "tags": [
+        "backlog",
+        "mvp"
+      ],
+      "target_date": null,
+      "template_id": "task",
+      "template_version": "1.0.0",
+      "title": "画面の単体テストと読み上げの自動検査",
+      "tracker_binding": "beads",
+      "updated_at": "2026-08-17T02:21:11.777000Z"
+    },
+    {
+      "acceptance": [],
+      "architecture_refs": [],
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "beads_linkage": {
+        "bd_issue_id": "ah-bsx",
+        "github_mirror": null,
+        "linked_at": "2026-08-17T02:20:00Z",
+        "sync_state": "linked"
+      },
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "candidate_path": "tasks/task-integration-tests.md",
+          "confidence": 0.95
+        }
+      ],
+      "classification_confidence": 0.95,
+      "classification_reason": "docs/product/backlog.md の残課題を作業単位として登録",
+      "completion_evidence": {
+        "completed_at": "2026-08-17T02:20:00Z",
+        "evidence_refs": [
+          "tasks/task-integration-tests.md",
+          "docs/product/traceability.md"
+        ],
+        "policy": "manual",
+        "reconciled_at": "2026-08-17T02:20:00Z",
+        "source": "manual",
+        "status": "done"
+      },
+      "confirmation_evidence": {
+        "evaluated_digest": null,
+        "evaluator": null,
+        "evidence_ref": null
+      },
+      "confirmation_status": "draft",
+      "created_at": "2026-08-17T00:00:00Z",
+      "depends_on": [
+        "task-test-foundation"
+      ],
+      "domain": "quality",
+      "evaluation_status": "pending",
+      "execution_contexts": [],
+      "feature_package_id": null,
+      "file_path": "tasks/task-integration-tests.md",
+      "github_project_linkages": [],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "goal": null,
+      "graph_node_id": "task-integration-tests",
+      "implementation_readiness": {
+        "checked_at": "2026-08-17T00:00:00Z",
+        "missing_sections": [],
+        "status": "complete"
+      },
+      "issue_linkage": null,
+      "iteration": null,
+      "mvp_alignment": {
+        "background": "単体テストは両側それぞれを見ており、つなぎ目は誰の持ち物でもなかった",
+        "mvp_fit": "enabling",
+        "purpose": "部品どうしのつなぎ目を、実物の上で確かめる",
+        "rationale": "つなぎ目の不具合は単体テストの構造上、原理的に見つからない"
+      },
+      "owners": [
+        "daishiman"
+      ],
+      "parent_feature": null,
+      "phase_ref": null,
+      "priority": "high",
+      "project_id": "affiliate-hub",
+      "pull_request_linkages": [],
+      "purpose": null,
+      "related_nodes": [],
+      "resource_scope": [
+        "tests/integration",
+        "drizzle"
+      ],
+      "scope_in": [],
+      "scope_out": [],
+      "source_lineage": {
+        "imported_at": "2026-08-17T00:00:00Z",
+        "origin_kind": "manual",
+        "source_digest": null,
+        "source_path": "docs/product/backlog.md",
+        "source_plugin": null,
+        "source_version": null
+      },
+      "start_date": "2026-08-17",
+      "status": "done",
+      "tags": [
+        "backlog",
+        "mvp"
+      ],
+      "target_date": null,
+      "template_id": "task",
+      "template_version": "1.0.0",
+      "title": "結合テスト（実際の D1 / 1 周の通し）",
+      "tracker_binding": "beads",
+      "updated_at": "2026-08-17T02:21:17.428535Z"
+    },
+    {
+      "acceptance": [],
+      "architecture_refs": [],
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "beads_linkage": {
+        "bd_issue_id": "ah-7vl",
+        "github_mirror": null,
+        "linked_at": "2026-08-17T02:20:00Z",
+        "sync_state": "linked"
+      },
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "candidate_path": "tasks/task-boundary-tests.md",
+          "confidence": 0.95
+        }
+      ],
+      "classification_confidence": 0.95,
+      "classification_reason": "docs/product/backlog.md の残課題を作業単位として登録",
+      "completion_evidence": {
+        "completed_at": "2026-08-17T02:20:00Z",
+        "evidence_refs": [
+          "tasks/task-boundary-tests.md",
+          "docs/product/traceability.md"
+        ],
+        "policy": "manual",
+        "reconciled_at": "2026-08-17T02:20:00Z",
+        "source": "manual",
+        "status": "done"
+      },
+      "confirmation_evidence": {
+        "evaluated_digest": null,
+        "evaluator": null,
+        "evidence_ref": null
+      },
+      "confirmation_status": "draft",
+      "created_at": "2026-08-17T00:00:00Z",
+      "depends_on": [
+        "task-test-foundation"
+      ],
+      "domain": "quality",
+      "evaluation_status": "pending",
+      "execution_contexts": [],
+      "feature_package_id": null,
+      "file_path": "tasks/task-boundary-tests.md",
+      "github_project_linkages": [],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "goal": null,
+      "graph_node_id": "task-boundary-tests",
+      "implementation_readiness": {
+        "checked_at": "2026-08-17T00:00:00Z",
+        "missing_sections": [],
+        "status": "complete"
+      },
+      "issue_linkage": null,
+      "iteration": null,
+      "mvp_alignment": {
+        "background": "判定の境目はコードを読んでも正しさが分からない",
+        "mvp_fit": "enabling",
+        "purpose": "ちょうどの値・1 つ手前・1 つ先で判定が入れ替わることを固定する",
+        "rationale": "境目の間違いは、動いているように見えたまま結果だけが狂う"
+      },
+      "owners": [
+        "daishiman"
+      ],
+      "parent_feature": null,
+      "phase_ref": null,
+      "priority": "medium",
+      "project_id": "affiliate-hub",
+      "pull_request_linkages": [],
+      "purpose": null,
+      "related_nodes": [],
+      "resource_scope": [
+        "tests/domain"
+      ],
+      "scope_in": [],
+      "scope_out": [],
+      "source_lineage": {
+        "imported_at": "2026-08-17T00:00:00Z",
+        "origin_kind": "manual",
+        "source_digest": null,
+        "source_path": "docs/product/backlog.md",
+        "source_plugin": null,
+        "source_version": null
+      },
+      "start_date": "2026-08-17",
+      "status": "done",
+      "tags": [
+        "backlog",
+        "mvp"
+      ],
+      "target_date": null,
+      "template_id": "task",
+      "template_version": "1.0.0",
+      "title": "境界値と異常系のテスト",
+      "tracker_binding": "beads",
+      "updated_at": "2026-08-17T02:21:22.976821Z"
+    },
+    {
+      "acceptance": [],
+      "architecture_refs": [],
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "beads_linkage": {
+        "bd_issue_id": "ah-r9y",
+        "github_mirror": null,
+        "linked_at": "2026-08-17T02:20:00Z",
+        "sync_state": "linked"
+      },
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "candidate_path": "tasks/task-contract-checks.md",
+          "confidence": 0.95
+        }
+      ],
+      "classification_confidence": 0.95,
+      "classification_reason": "docs/product/backlog.md の残課題を作業単位として登録",
+      "completion_evidence": {
+        "completed_at": "2026-08-17T02:20:00Z",
+        "evidence_refs": [
+          "tasks/task-contract-checks.md",
+          "docs/product/traceability.md"
+        ],
+        "policy": "manual",
+        "reconciled_at": "2026-08-17T02:20:00Z",
+        "source": "manual",
+        "status": "done"
+      },
+      "confirmation_evidence": {
+        "evaluated_digest": null,
+        "evaluator": null,
+        "evidence_ref": null
+      },
+      "confirmation_status": "draft",
+      "created_at": "2026-08-17T00:00:00Z",
+      "depends_on": [],
+      "domain": "quality",
+      "evaluation_status": "pending",
+      "execution_contexts": [],
+      "feature_package_id": null,
+      "file_path": "tasks/task-contract-checks.md",
+      "github_project_linkages": [],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "goal": null,
+      "graph_node_id": "task-contract-checks",
+      "implementation_readiness": {
+        "checked_at": "2026-08-17T00:00:00Z",
+        "missing_sections": [],
+        "status": "complete"
+      },
+      "issue_linkage": null,
+      "iteration": null,
+      "mvp_alignment": {
+        "background": "同じ概念が画面ごとに別の名前で呼ばれていた",
+        "mvp_fit": "enabling",
+        "purpose": "設計の決めごとを、呼びかけではなく落ちる検査にする",
+        "rationale": "文書で禁止しても守られない。落ちる仕組みにしないと必ず崩れる"
+      },
+      "owners": [
+        "daishiman"
+      ],
+      "parent_feature": null,
+      "phase_ref": null,
+      "priority": "medium",
+      "project_id": "affiliate-hub",
+      "pull_request_linkages": [],
+      "purpose": null,
+      "related_nodes": [],
+      "resource_scope": [
+        "tests/architecture"
+      ],
+      "scope_in": [],
+      "scope_out": [],
+      "source_lineage": {
+        "imported_at": "2026-08-17T00:00:00Z",
+        "origin_kind": "manual",
+        "source_digest": null,
+        "source_path": "docs/product/backlog.md",
+        "source_plugin": null,
+        "source_version": null
+      },
+      "start_date": "2026-08-17",
+      "status": "done",
+      "tags": [
+        "backlog",
+        "mvp"
+      ],
+      "target_date": null,
+      "template_id": "task",
+      "template_version": "1.0.0",
+      "title": "契約検査の追加（1 概念 1 定義・閾値の一元化・秘密情報の混入）",
+      "tracker_binding": "beads",
+      "updated_at": "2026-08-17T02:21:32.978769Z"
+    },
+    {
+      "acceptance": [],
+      "architecture_refs": [],
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "beads_linkage": {
+        "bd_issue_id": "ah-0kc",
+        "github_mirror": null,
+        "linked_at": "2026-08-17T02:20:00Z",
+        "sync_state": "linked"
+      },
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "candidate_path": "tasks/task-coverage-gates.md",
+          "confidence": 0.95
+        }
+      ],
+      "classification_confidence": 0.95,
+      "classification_reason": "docs/product/backlog.md の残課題を作業単位として登録",
+      "completion_evidence": {
+        "completed_at": "2026-08-17T02:20:00Z",
+        "evidence_refs": [
+          "tasks/task-coverage-gates.md",
+          "docs/product/traceability.md"
+        ],
+        "policy": "manual",
+        "reconciled_at": "2026-08-17T02:20:00Z",
+        "source": "manual",
+        "status": "done"
+      },
+      "confirmation_evidence": {
+        "evaluated_digest": null,
+        "evaluator": null,
+        "evidence_ref": null
+      },
+      "confirmation_status": "draft",
+      "created_at": "2026-08-17T00:00:00Z",
+      "depends_on": [],
+      "domain": "quality",
+      "evaluation_status": "pending",
+      "execution_contexts": [],
+      "feature_package_id": null,
+      "file_path": "tasks/task-coverage-gates.md",
+      "github_project_linkages": [],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "goal": null,
+      "graph_node_id": "task-coverage-gates",
+      "implementation_readiness": {
+        "checked_at": "2026-08-17T00:00:00Z",
+        "missing_sections": [],
+        "status": "complete"
+      },
+      "issue_linkage": null,
+      "iteration": null,
+      "mvp_alignment": {
+        "background": "全体の 1 つの数字だけでは、薄い層が濃い層に隠れる",
+        "mvp_fit": "enabling",
+        "purpose": "テストが届いている割合を、層別とスタブ除外の実質で記録する",
+        "rationale": "数字合わせを見抜くには、層別と実質の併記が要る"
+      },
+      "owners": [
+        "daishiman"
+      ],
+      "parent_feature": null,
+      "phase_ref": null,
+      "priority": "high",
+      "project_id": "affiliate-hub",
+      "pull_request_linkages": [],
+      "purpose": null,
+      "related_nodes": [],
+      "resource_scope": [
+        "quality-gates.config.mjs",
+        "scripts/coverage-report.mjs",
+        "docs/product/coverage.md"
+      ],
+      "scope_in": [],
+      "scope_out": [],
+      "source_lineage": {
+        "imported_at": "2026-08-17T00:00:00Z",
+        "origin_kind": "manual",
+        "source_digest": null,
+        "source_path": "docs/product/backlog.md",
+        "source_plugin": null,
+        "source_version": null
+      },
+      "start_date": "2026-08-17",
+      "status": "done",
+      "tags": [
+        "backlog",
+        "mvp"
+      ],
+      "target_date": null,
+      "template_id": "task",
+      "template_version": "1.0.0",
+      "title": "カバレッジの計測・閾値・層別の記録",
+      "tracker_binding": "beads",
+      "updated_at": "2026-08-17T02:21:38.183422Z"
+    },
+    {
+      "acceptance": [],
+      "architecture_refs": [],
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "beads_linkage": {
+        "bd_issue_id": "ah-ita",
+        "github_mirror": null,
+        "linked_at": "2026-08-17T02:20:00Z",
+        "sync_state": "linked"
+      },
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "candidate_path": "tasks/task-verify-and-workflows.md",
+          "confidence": 0.95
+        }
+      ],
+      "classification_confidence": 0.95,
+      "classification_reason": "docs/product/backlog.md の残課題を作業単位として登録",
+      "completion_evidence": {
+        "completed_at": null,
+        "evidence_refs": [],
+        "policy": "manual",
+        "reconciled_at": null,
+        "source": null,
+        "status": "in_progress"
+      },
+      "confirmation_evidence": {
+        "evaluated_digest": null,
+        "evaluator": null,
+        "evidence_ref": null
+      },
+      "confirmation_status": "draft",
+      "created_at": "2026-08-17T00:00:00Z",
+      "depends_on": [],
+      "domain": "operations",
+      "evaluation_status": "pending",
+      "execution_contexts": [],
+      "feature_package_id": null,
+      "file_path": "tasks/task-verify-and-workflows.md",
+      "github_project_linkages": [],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "goal": null,
+      "graph_node_id": "task-verify-and-workflows",
+      "implementation_readiness": {
+        "checked_at": null,
+        "missing_sections": [],
+        "status": "incomplete"
+      },
+      "issue_linkage": null,
+      "iteration": null,
+      "mvp_alignment": {
+        "background": "手動デプロイでは「正しく手順を踏んだ」という申告の上に成り立っていた",
+        "mvp_fit": "enabling",
+        "purpose": "手元と機械の上で、まったく同じ検査を走らせる",
+        "rationale": "申告と実際の乖離を機械が検出できるようにする"
+      },
+      "owners": [
+        "daishiman"
+      ],
+      "parent_feature": null,
+      "phase_ref": null,
+      "priority": "high",
+      "project_id": "affiliate-hub",
+      "pull_request_linkages": [],
+      "purpose": null,
+      "related_nodes": [],
+      "resource_scope": [
+        ".github/workflows",
+        "scripts/verify.mjs"
+      ],
+      "scope_in": [],
+      "scope_out": [],
+      "source_lineage": {
+        "imported_at": "2026-08-17T00:00:00Z",
+        "origin_kind": "manual",
+        "source_digest": null,
+        "source_path": "docs/product/backlog.md",
+        "source_plugin": null,
+        "source_version": null
+      },
+      "start_date": "2026-08-17",
+      "status": "draft",
+      "tags": [
+        "backlog",
+        "mvp"
+      ],
+      "target_date": null,
+      "template_id": "task",
+      "template_version": "1.0.0",
+      "title": "`pnpm verify` と自動チェック 3 本の設置",
+      "tracker_binding": "beads",
+      "updated_at": "2026-08-17T02:21:43.593642Z"
+    },
+    {
+      "acceptance": [],
+      "architecture_refs": [],
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "beads_linkage": {
+        "bd_issue_id": "ah-gzq",
+        "github_mirror": null,
+        "linked_at": "2026-08-17T02:20:00Z",
+        "sync_state": "linked"
+      },
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "candidate_path": "tasks/task-eval-set-runner.md",
+          "confidence": 0.95
+        }
+      ],
+      "classification_confidence": 0.95,
+      "classification_reason": "docs/product/backlog.md の残課題を作業単位として登録",
+      "completion_evidence": {
+        "completed_at": null,
+        "evidence_refs": [],
+        "policy": "manual",
+        "reconciled_at": null,
+        "source": null,
+        "status": "open"
+      },
+      "confirmation_evidence": {
+        "evaluated_digest": null,
+        "evaluator": null,
+        "evidence_ref": null
+      },
+      "confirmation_status": "draft",
+      "created_at": "2026-08-17T00:00:00Z",
+      "depends_on": [],
+      "domain": "generation",
+      "evaluation_status": "pending",
+      "execution_contexts": [],
+      "feature_package_id": null,
+      "file_path": "tasks/task-eval-set-runner.md",
+      "github_project_linkages": [],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "goal": null,
+      "graph_node_id": "task-eval-set-runner",
+      "implementation_readiness": {
+        "checked_at": null,
+        "missing_sections": [],
+        "status": "incomplete"
+      },
+      "issue_linkage": null,
+      "iteration": null,
+      "mvp_alignment": {
+        "background": "ケース 51 件と合格基準は揃っているが、実行部が無い",
+        "mvp_fit": "deferred",
+        "purpose": "生成した文章が合格基準を満たすかを、実際に呼んで判定する",
+        "rationale": "生成 AI の鍵の登録（利用者本人の作業）が前提で、こちら側では解除できない"
+      },
+      "owners": [
+        "daishiman"
+      ],
+      "parent_feature": null,
+      "phase_ref": null,
+      "priority": "medium",
+      "project_id": "affiliate-hub",
+      "pull_request_linkages": [],
+      "purpose": null,
+      "related_nodes": [],
+      "resource_scope": [
+        "evals/generation"
+      ],
+      "scope_in": [],
+      "scope_out": [],
+      "source_lineage": {
+        "imported_at": "2026-08-17T00:00:00Z",
+        "origin_kind": "manual",
+        "source_digest": null,
+        "source_path": "docs/product/backlog.md",
+        "source_plugin": null,
+        "source_version": null
+      },
+      "start_date": "2026-08-17",
+      "status": "blocked",
+      "tags": [
+        "backlog",
+        "mvp"
+      ],
+      "target_date": null,
+      "template_id": "task",
+      "template_version": "1.0.0",
+      "title": "評価セットを実際に走らせる仕組み",
+      "tracker_binding": "beads",
+      "updated_at": "2026-08-17T02:21:49.358890Z"
+    },
+    {
+      "acceptance": [],
+      "architecture_refs": [],
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "beads_linkage": {
+        "bd_issue_id": "ah-q0h",
+        "github_mirror": null,
+        "linked_at": "2026-08-17T02:20:00Z",
+        "sync_state": "linked"
+      },
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "candidate_path": "tasks/task-duplicate-link-race.md",
+          "confidence": 0.95
+        }
+      ],
+      "classification_confidence": 0.95,
+      "classification_reason": "docs/product/backlog.md の残課題を作業単位として登録",
+      "completion_evidence": {
+        "completed_at": null,
+        "evidence_refs": [],
+        "policy": "manual",
+        "reconciled_at": null,
+        "source": null,
+        "status": "open"
+      },
+      "confirmation_evidence": {
+        "evaluated_digest": null,
+        "evaluator": null,
+        "evidence_ref": null
+      },
+      "confirmation_status": "draft",
+      "created_at": "2026-08-17T00:00:00Z",
+      "depends_on": [],
+      "domain": "ingestion",
+      "evaluation_status": "pending",
+      "execution_contexts": [],
+      "feature_package_id": null,
+      "file_path": "tasks/task-duplicate-link-race.md",
+      "github_project_linkages": [],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "goal": null,
+      "graph_node_id": "task-duplicate-link-race",
+      "implementation_readiness": {
+        "checked_at": null,
+        "missing_sections": [],
+        "status": "incomplete"
+      },
+      "issue_linkage": null,
+      "iteration": null,
+      "mvp_alignment": {
+        "background": "一意索引を落とした代わりに、同時に入れると印が付かず 2 行入る",
+        "mvp_fit": "deferred",
+        "purpose": "2 人が同時に同じ URL を入れたときに重複の印を付ける",
+        "rationale": "表示上の取りこぼしであってデータの破損ではない"
+      },
+      "owners": [
+        "daishiman"
+      ],
+      "parent_feature": null,
+      "phase_ref": null,
+      "priority": "low",
+      "project_id": "affiliate-hub",
+      "pull_request_linkages": [],
+      "purpose": null,
+      "related_nodes": [],
+      "resource_scope": [
+        "src/application/usecases",
+        "drizzle"
+      ],
+      "scope_in": [],
+      "scope_out": [],
+      "source_lineage": {
+        "imported_at": "2026-08-17T00:00:00Z",
+        "origin_kind": "manual",
+        "source_digest": null,
+        "source_path": "docs/product/backlog.md",
+        "source_plugin": null,
+        "source_version": null
+      },
+      "start_date": "2026-08-17",
+      "status": "draft",
+      "tags": [
+        "backlog",
+        "mvp"
+      ],
+      "target_date": null,
+      "template_id": "task",
+      "template_version": "1.0.0",
+      "title": "同時に同じリンクを貼ったときの重複の取りこぼし",
+      "tracker_binding": "beads",
+      "updated_at": "2026-08-17T02:21:55.000818Z"
+    },
+    {
+      "acceptance": [],
+      "architecture_refs": [],
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "beads_linkage": {
+        "bd_issue_id": "ah-81n",
+        "github_mirror": null,
+        "linked_at": "2026-08-17T02:20:00Z",
+        "sync_state": "linked"
+      },
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "candidate_path": "tasks/task-stub-coverage-gap.md",
+          "confidence": 0.95
+        }
+      ],
+      "classification_confidence": 0.95,
+      "classification_reason": "docs/product/backlog.md の残課題を作業単位として登録",
+      "completion_evidence": {
+        "completed_at": null,
+        "evidence_refs": [],
+        "policy": "manual",
+        "reconciled_at": null,
+        "source": null,
+        "status": "open"
+      },
+      "confirmation_evidence": {
+        "evaluated_digest": null,
+        "evaluator": null,
+        "evidence_ref": null
+      },
+      "confirmation_status": "draft",
+      "created_at": "2026-08-17T00:00:00Z",
+      "depends_on": [],
+      "domain": "quality",
+      "evaluation_status": "pending",
+      "execution_contexts": [],
+      "feature_package_id": null,
+      "file_path": "tasks/task-stub-coverage-gap.md",
+      "github_project_linkages": [],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "goal": null,
+      "graph_node_id": "task-stub-coverage-gap",
+      "implementation_readiness": {
+        "checked_at": null,
+        "missing_sections": [],
+        "status": "incomplete"
+      },
+      "issue_linkage": null,
+      "iteration": null,
+      "mvp_alignment": {
+        "background": "実測 -10.7pt。符号は安全な向きだが、検査は絶対値で見ている",
+        "mvp_fit": "deferred",
+        "purpose": "差の見方（絶対値か、片側か）を決める",
+        "rationale": "数字は既に下限を越えており、残るのは判定方法の決めだけ"
+      },
+      "owners": [
+        "daishiman"
+      ],
+      "parent_feature": null,
+      "phase_ref": null,
+      "priority": "medium",
+      "project_id": "affiliate-hub",
+      "pull_request_linkages": [],
+      "purpose": null,
+      "related_nodes": [],
+      "resource_scope": [
+        "quality-gates.config.mjs"
+      ],
+      "scope_in": [],
+      "scope_out": [],
+      "source_lineage": {
+        "imported_at": "2026-08-17T00:00:00Z",
+        "origin_kind": "manual",
+        "source_digest": null,
+        "source_path": "docs/product/backlog.md",
+        "source_plugin": null,
+        "source_version": null
+      },
+      "start_date": "2026-08-17",
+      "status": "draft",
+      "tags": [
+        "backlog",
+        "mvp"
+      ],
+      "target_date": null,
+      "template_id": "task",
+      "template_version": "1.0.0",
+      "title": "スタブと実質カバレッジの差が上限を超えている",
+      "tracker_binding": "beads",
+      "updated_at": "2026-08-17T02:22:05.194717Z"
+    },
+    {
+      "acceptance": [],
+      "architecture_refs": [],
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "beads_linkage": {
+        "bd_issue_id": "ah-538",
+        "github_mirror": null,
+        "linked_at": "2026-08-17T02:20:00Z",
+        "sync_state": "linked"
+      },
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "candidate_path": "tasks/task-telemetry-to-metrics.md",
+          "confidence": 0.95
+        }
+      ],
+      "classification_confidence": 0.95,
+      "classification_reason": "docs/product/backlog.md の残課題を作業単位として登録",
+      "completion_evidence": {
+        "completed_at": null,
+        "evidence_refs": [],
+        "policy": "manual",
+        "reconciled_at": null,
+        "source": null,
+        "status": "open"
+      },
+      "confirmation_evidence": {
+        "evaluated_digest": null,
+        "evaluator": null,
+        "evidence_ref": null
+      },
+      "confirmation_status": "draft",
+      "created_at": "2026-08-17T00:00:00Z",
+      "depends_on": [],
+      "domain": "analytics",
+      "evaluation_status": "pending",
+      "execution_contexts": [],
+      "feature_package_id": null,
+      "file_path": "tasks/task-telemetry-to-metrics.md",
+      "github_project_linkages": [],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "goal": null,
+      "graph_node_id": "task-telemetry-to-metrics",
+      "implementation_readiness": {
+        "checked_at": null,
+        "missing_sections": [],
+        "status": "incomplete"
+      },
+      "issue_linkage": null,
+      "iteration": null,
+      "mvp_alignment": {
+        "background": "1 周の結合テストで判明。両者が別々の保存先を見ている",
+        "mvp_fit": "direct",
+        "purpose": "計測の受け口と、数字を読む側を 1 本につなぐ",
+        "rationale": "つながっていないと、記録しても数字の画面が一切動かない"
+      },
+      "owners": [
+        "daishiman"
+      ],
+      "parent_feature": null,
+      "phase_ref": null,
+      "priority": "high",
+      "project_id": "affiliate-hub",
+      "pull_request_linkages": [],
+      "purpose": null,
+      "related_nodes": [],
+      "resource_scope": [
+        "src/application",
+        "src/infrastructure"
+      ],
+      "scope_in": [],
+      "scope_out": [],
+      "source_lineage": {
+        "imported_at": "2026-08-17T00:00:00Z",
+        "origin_kind": "manual",
+        "source_digest": null,
+        "source_path": "docs/product/backlog.md",
+        "source_plugin": null,
+        "source_version": null
+      },
+      "start_date": "2026-08-17",
+      "status": "draft",
+      "tags": [
+        "backlog",
+        "mvp"
+      ],
+      "target_date": null,
+      "template_id": "task",
+      "template_version": "1.0.0",
+      "title": "測ったものが分析の数字に届いていない",
+      "tracker_binding": "beads",
+      "updated_at": "2026-08-17T02:22:10.895306Z"
+    },
+    {
+      "acceptance": [],
+      "architecture_refs": [],
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "beads_linkage": {
+        "bd_issue_id": "ah-cp8",
+        "github_mirror": null,
+        "linked_at": "2026-08-17T02:20:00Z",
+        "sync_state": "linked"
+      },
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "candidate_path": "tasks/task-publication-usecase.md",
+          "confidence": 0.95
+        }
+      ],
+      "classification_confidence": 0.95,
+      "classification_reason": "docs/product/backlog.md の残課題を作業単位として登録",
+      "completion_evidence": {
+        "completed_at": null,
+        "evidence_refs": [],
+        "policy": "manual",
+        "reconciled_at": null,
+        "source": null,
+        "status": "open"
+      },
+      "confirmation_evidence": {
+        "evaluated_digest": null,
+        "evaluator": null,
+        "evidence_ref": null
+      },
+      "confirmation_status": "draft",
+      "created_at": "2026-08-17T00:00:00Z",
+      "depends_on": [],
+      "domain": "distribution",
+      "evaluation_status": "pending",
+      "execution_contexts": [],
+      "feature_package_id": null,
+      "file_path": "tasks/task-publication-usecase.md",
+      "github_project_linkages": [],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "goal": null,
+      "graph_node_id": "task-publication-usecase",
+      "implementation_readiness": {
+        "checked_at": null,
+        "missing_sections": [],
+        "status": "incomplete"
+      },
+      "issue_linkage": null,
+      "iteration": null,
+      "mvp_alignment": {
+        "background": "1 周の結合テストで判明。domain を呼んでいるのは見本データの組み立てだけ",
+        "mvp_fit": "direct",
+        "purpose": "記事の進行画面から「この記事をここへ出す」を開始できるようにする",
+        "rationale": "承認から先へ進めるのが、いまは見本にある配信を動かす操作だけになっている"
+      },
+      "owners": [
+        "daishiman"
+      ],
+      "parent_feature": null,
+      "phase_ref": null,
+      "priority": "high",
+      "project_id": "affiliate-hub",
+      "pull_request_linkages": [],
+      "purpose": null,
+      "related_nodes": [],
+      "resource_scope": [
+        "src/application/usecases",
+        "src/presentation"
+      ],
+      "scope_in": [],
+      "scope_out": [],
+      "source_lineage": {
+        "imported_at": "2026-08-17T00:00:00Z",
+        "origin_kind": "manual",
+        "source_digest": null,
+        "source_path": "docs/product/backlog.md",
+        "source_plugin": null,
+        "source_version": null
+      },
+      "start_date": "2026-08-17",
+      "status": "draft",
+      "tags": [
+        "backlog",
+        "mvp"
+      ],
+      "target_date": null,
+      "template_id": "task",
+      "template_version": "1.0.0",
+      "title": "配信を作る入口（ユースケース）が無い",
+      "tracker_binding": "beads",
+      "updated_at": "2026-08-17T02:22:16.698177Z"
+    },
+    {
+      "acceptance": [
+        "FB-AC-01〜24（docs/spec/12-改善要望フィードバック仕様.md）",
+        "黒塗りが画像そのものを塗り替えており、保存された値から元画像を取り出せない",
+        "要望の本文を指示文へ入れても、区切りの外へ出ず、命令として実行されない",
+        "指示文に氏名・メールアドレス・画像・鍵・他の作業場所のデータが 1 つも含まれない",
+        "連携の鍵が発行時に 1 度だけ表示され、保存された値から復元できない",
+        "追跡表 T 節（REQ-FB01〜12）の 12 行がすべて実装済になる"
+      ],
+      "architecture_refs": [
+        "arch-two-layer-platform"
+      ],
+      "artifact_kind": "feature",
+      "artifact_subtypes": [],
+      "beads_linkage": {
+        "bd_issue_id": "ah-w6y",
+        "github_mirror": null,
+        "linked_at": "2026-08-17T02:20:00Z",
+        "sync_state": "linked"
+      },
+      "classification_candidates": [
+        {
+          "artifact_kind": "feature",
+          "candidate_path": "features/feat-improvement-feedback.md",
+          "confidence": 0.95
+        }
+      ],
+      "classification_confidence": 0.95,
+      "classification_reason": "docs/product/backlog.md の残課題を作業単位として登録",
+      "completion_evidence": {
+        "completed_at": null,
+        "evidence_refs": [],
+        "policy": "manual",
+        "reconciled_at": null,
+        "source": null,
+        "status": "open"
+      },
+      "confirmation_evidence": {
+        "evaluated_digest": "f814f1a62e30eebb4512ba0c7964bfdb6986c4007af406aab7d8d7e58e17a856",
+        "evaluator": "app-orchestrator/decompose-redo",
+        "evidence_ref": "docs/spec/12-改善要望フィードバック仕様.md"
+      },
+      "confirmation_status": "draft",
+      "created_at": "2026-08-17T00:00:00Z",
+      "depends_on": [],
+      "domain": "operations",
+      "evaluation_status": "pending",
+      "execution_contexts": [],
+      "feature_package_id": null,
+      "file_path": "features/feat-improvement-feedback.md",
+      "github_project_linkages": [],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "goal": "右下の改善ボタンから送った要望が一覧に残り、指示文または取得の口から作業へ渡る",
+      "graph_node_id": "feat-improvement-feedback",
+      "implementation_readiness": {
+        "checked_at": null,
+        "missing_sections": [],
+        "status": "incomplete"
+      },
+      "issue_linkage": null,
+      "iteration": null,
+      "mvp_alignment": {
+        "background": "改善のやり取りが口頭と記憶に依存し、何を直すかが残らない",
+        "mvp_fit": "direct",
+        "purpose": "管理者から届いた改善要望を、作業する側へそのまま渡せるようにする",
+        "rationale": "要望が残らないと、直す判断そのものができない"
+      },
+      "owners": [
+        "daishiman"
+      ],
+      "parent_feature": null,
+      "phase_ref": null,
+      "priority": "high",
+      "project_id": "affiliate-hub",
+      "pull_request_linkages": [],
+      "purpose": "管理者から届いた改善要望を、画面の写しつきで受け取り、作業する側へ安全に渡す",
+      "related_nodes": [
+        "task-telemetry-to-metrics"
+      ],
+      "resource_scope": [
+        "src/domain/feedback",
+        "src/application/usecases/feedback",
+        "src/infrastructure",
+        "src/presentation",
+        "src/app/admin/feedback",
+        "tests"
+      ],
+      "scope_in": [
+        "全画面の右下に出る改善ボタン（共通UIの型、管理者だけ）",
+        "書き込み欄（画面名の自動記入・3 つの種類・必須と任意の欄・送る内容の開示）",
+        "画面の写しと書き込み（手書き/四角/矢印/文字/黒塗り、元に戻す、撮り直す、画像を外す）",
+        "一覧画面（状態ごとの件数・重ねられる絞り込み・まとめて払い出し）",
+        "詳細画面 10 区画（状態・メモ・扱いの決定・やり直せる操作の記録）",
+        "払い出し 2 経路（人が写して渡す / 鍵で取りに来る）と指示文の版管理",
+        "連携の鍵の発行・失効・最終利用・使える範囲"
+      ],
+      "scope_out": [
+        "読者向けの意見箱（対象は管理者だけ）",
+        "統計による判定（1 件届いたら扱いを決める。標本として扱わない）",
+        "Beads の状態をこの機能側へ写すこと（作業単位の正本は Beads）",
+        "画像を指示文へ入れること",
+        "外部のチケット管理サービスとの連携"
+      ],
+      "source_lineage": {
+        "imported_at": "2026-08-17T00:00:00Z",
+        "origin_kind": "generated",
+        "source_digest": "f814f1a62e30eebb4512ba0c7964bfdb6986c4007af406aab7d8d7e58e17a856",
+        "source_path": "docs/spec/12-改善要望フィードバック仕様.md",
+        "source_plugin": "app-orchestrator",
+        "source_version": "1.0.0"
+      },
+      "start_date": "2026-08-17",
+      "status": "draft",
+      "tags": [
+        "feedback",
+        "loop",
+        "mvp"
+      ],
+      "target_date": null,
+      "template_id": "feature",
+      "template_version": "1.0.0",
+      "title": "改善要望フィードバック（受け取り → 一覧 → 払い出し）",
+      "tracker_binding": "beads",
+      "updated_at": "2026-08-17T02:22:22.471785Z"
     }
   ],
   "repository_id": "github:daishiman/affiliate-hub",
