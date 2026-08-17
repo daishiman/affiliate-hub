@@ -13,7 +13,7 @@ import {
   ok,
   taggedString,
 } from "@/domain/shared";
-import { registerStub } from "../../stub-registry";
+import { registerStub, stubReason } from "../../stub-registry";
 import { SAMPLE_WORKSPACE_ID } from "./ranking-sample-repository";
 
 /**
@@ -35,7 +35,7 @@ const stub = registerStub({
 });
 
 export function sampleLinkInboxNotice(): string {
-  return `${stub.label}で動いています。入れたリンクはしばらくすると消えます（${stub.blockedBy}が済むまでの仮です）。`;
+  return `${stub.label}で動いています。入れたリンクはしばらくすると消えます（${stubReason(stub)}）。`;
 }
 
 const WS = SAMPLE_WORKSPACE_ID as WorkspaceId;

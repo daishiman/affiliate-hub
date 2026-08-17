@@ -3,6 +3,8 @@ import {
   createCommercialD1LinkInboxRepository,
   type DrizzleD1,
 } from "./persistence/d1/link-inbox-repository";
+import { createD1SiteDraftRepository } from "./persistence/d1/site-draft-repository";
+import { createD1SiteRepository } from "./persistence/d1/site-repository";
 import {
   createD1FeedbackRepository,
   createD1IntegrationKeyStore,
@@ -92,10 +94,12 @@ export function createDeps(options: { readonly db?: DrizzleD1 | null } = {}): Ap
     claims: createSampleClaimRepository(),
     evidence: createSampleEvidenceRepository(),
     testRuns: createSampleTestRunRepository(),
-    // ★ 見本データ（スタブ）。ブログ 2 本ぶんの設計図と記事。
-    //   site_blueprints / published_articles テーブルができたら差し替える。
-    sites: createSampleSiteRepository(),
-    siteDrafts: createSampleSiteDraftRepository(),
+    // ブログの下書きと、作られたブログは、保存先が用意できていれば本物（D1）。
+    // ここを先に本物にしたのは、**入れる口（作成ウィザード）が既にあるから**。
+    // 入れる口が無いものを本物にすると、一生埋まらない空の画面ができる。
+    // 記事の本文（published_articles）はまだ見本のまま。
+    sites: db === null ? createSampleSiteRepository() : createD1SiteRepository(db),
+    siteDrafts: db === null ? createSampleSiteDraftRepository() : createD1SiteDraftRepository(db),
     publishedContent: createSampleContentRepository(),
     // ★ 見本（スタブ）。読者が自分で操作するもの。
     //   保存先 (KV)・計算式・問い合わせの送信先が用意できたら差し替える。

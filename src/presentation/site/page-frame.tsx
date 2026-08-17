@@ -56,7 +56,7 @@ export async function SiteFrame({
   readonly pageKind?: PageKind;
   readonly children: (ctx: SiteContext) => ReactNode;
 }) {
-  const result = await siteUseCases().getSite.execute(readerActor(), { siteSlug });
+  const result = await (await siteUseCases()).getSite.execute(readerActor(), { siteSlug });
 
   if (!result.ok) {
     /*

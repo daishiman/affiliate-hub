@@ -1,7 +1,7 @@
 import type { EditorialSiteDraftRepositoryPort } from "@/application/ports/authoring";
 import type { SiteBlueprint, SiteDraft } from "@/domain/authoring";
 import { type WorkspaceId, markEditorial, ok } from "@/domain/shared";
-import { registerStub } from "../../stub-registry";
+import { registerStub, stubReason } from "../../stub-registry";
 
 /**
  * ★ これは仮置きの保存先です（スタブ）。★
@@ -17,11 +17,12 @@ const stub = registerStub({
   id: "persistence:site-draft-memory",
   port: "SiteDraftRepositoryPort",
   label: "ブログ作成の下書き（プロセス内のみ）",
-  blockedBy: "site_drafts / site_blueprints テーブルの追加と D1 への接続",
+  blockedBy: "済み。保存先が無い環境（pnpm dev・自動テスト）での控えとして残す",
+  fallbackFor: "src/infrastructure/persistence/d1/site-draft-repository.ts",
 });
 
 export function sampleSiteDraftNotice(): string {
-  return `${stub.label}は仮置きです。作ったブログはこの場では見られますが、しばらくすると消えます。`;
+  return `${stub.label}で動いています。作ったブログはこの場では見られますが、しばらくすると消えます（${stubReason(stub)}）。`;
 }
 
 /**

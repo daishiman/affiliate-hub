@@ -11,7 +11,7 @@
 
 ## まだ中身が無いもの
 
-件数: 40
+件数: 38
 
 | 識別子 | 何のスタブか | つなぎ目 | 何が済めば実装できるか |
 |---|---|---|---|
@@ -47,8 +47,6 @@
 | `persistence:product-sample` | 商品と根拠（見本データ） | 商品・主張・根拠・検証記録の保存先 | products / claims / evidence / test_runs テーブルの追加とマイグレーション |
 | `persistence:ranking-sample` | ランキングの保存先（見本データ） | EditorialRankingModelRepositoryPort / EditorialScoreCardRepositoryPort | ranking_models / score_cards テーブルの追加とマイグレーション |
 | `persistence:settings-sample` | 設定（見本データ） | 作業場所・担当者・ブランド・広告表記・操作の記録の保存先 | workspaces / memberships / brands / disclosures / audit_logs テーブルの追加と、Better Auth と Google ログインの設定 |
-| `persistence:site-draft-memory` | ブログ作成の下書き（プロセス内のみ） | SiteDraftRepositoryPort | site_drafts / site_blueprints テーブルの追加と D1 への接続 |
-| `persistence:site-sample` | ブログの設計図（見本データ） | SiteRepositoryPort | site_blueprints テーブルの追加とマイグレーション |
 | `persistence:telemetry-memory` | 計測の記録（この実行中だけ覚える仮置き） | 計測の記録先 | telemetry_events / ai_model_usage テーブルの追加と、まとめ書きの設定 |
 | `reader:contact-sink` | 問い合わせの受け取り（送信せず記録のみ） | ContactPort | Turnstile の鍵と送信元メールアドレスの登録（利用者本人が登録する） |
 | `reader:shortlist-memory` | 気になる商品の保存（処理中のメモリ） | ShortlistPort | 読者ごとの保存先 (KV 名前空間) の作成 |
@@ -62,9 +60,11 @@
 こちらへ回る。**消す予定は無いので、この件数は減らない。**
 何で動いているかは、必ず画面に文字で出す（黙って控えへ落ちない）。
 
-件数: 2
+件数: 4
 
 | 識別子 | 何の控えか | つなぎ目 | 本物の置き場所 |
 |---|---|---|---|
 | `persistence:feedback-memory` | 改善要望の記録（この実行中だけ覚える仮置き） | 改善要望の記録先 | `src/infrastructure/persistence/d1/feedback-repository.ts` |
 | `persistence:link-inbox-sample` | 受信箱（見本データ・この場限り） | 成果リンク受信箱の保存先 | `src/infrastructure/persistence/d1/link-inbox-repository.ts` |
+| `persistence:site-draft-memory` | ブログ作成の下書き（プロセス内のみ） | SiteDraftRepositoryPort | `src/infrastructure/persistence/d1/site-draft-repository.ts` |
+| `persistence:site-sample` | ブログの設計図（見本データ） | SiteRepositoryPort | `src/infrastructure/persistence/d1/site-repository.ts` |

@@ -1,14 +1,14 @@
 import { AdminShell } from "@/presentation/admin/admin-shell";
 import Link from "next/link";
 import type { ReactNode } from "react";
-import { currentActor, platformUseCases, siteSampleNotice } from "@/presentation/composition";
+import { currentActor, platformUseCases, siteStorageNotice } from "@/presentation/composition";
 import {
   Callout,
   Card,
   EmptyView,
   ErrorView,
   Page,
-  StubNotice,
+  StorageNotice,
 } from "@/presentation/ui";
 import styles from "../admin.module.css";
 
@@ -23,7 +23,7 @@ export const dynamic = "force-dynamic";
  */
 export default async function SitesPage() {
   const actor = await currentActor();
-  const uc = platformUseCases();
+  const uc = (await platformUseCases());
 
   const [list, diff] = await Promise.all([
     uc.listSites.execute(actor, {}),
@@ -47,13 +47,7 @@ export default async function SitesPage() {
 
   return (
     <Shell>
-      <StubNotice
-        what="ブログの設計図の保存先"
-        blockedBy="site_blueprints テーブルの追加とマイグレーション"
-        stubId="persistence:site-sample"
-      >
-        <span>{siteSampleNotice()}</span>
-      </StubNotice>
+      <StorageNotice status={await siteStorageNotice()} />
 
       <Callout
         tone="info"

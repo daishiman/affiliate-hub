@@ -14,7 +14,7 @@ export const dynamic = "force-dynamic";
  */
 export default async function SiteHome({ params }: { params: Promise<{ site: string }> }) {
   const { site } = await params;
-  const recent = await siteUseCases().listRecent.execute(readerActor(), { siteSlug: site });
+  const recent = await (await siteUseCases()).listRecent.execute(readerActor(), { siteSlug: site });
 
   return (
     <SiteFrame siteSlug={site} currentPath={siteHref(site, "/")} pageKind="site_home">

@@ -396,8 +396,8 @@ export function rankingScreenTarget(): { modelId: string; productIds: readonly s
  * ブログ画面はこの 6 つしか呼ばない。保存先が見本から D1 に変わっても、
  * 画面のコードは 1 行も変わらない。
  */
-export function siteUseCases() {
-  const deps = createDeps();
+export async function siteUseCases() {
+  const deps = createDeps({ db: await tryGetDb() });
   const site = { sites: deps.sites, content: deps.publishedContent };
   return {
     getSite: createGetSiteUseCase(site),
@@ -542,8 +542,8 @@ export function sampleContentPackageId(): string {
  * ブログを 1 本増やしても、ここも画面も変わらない。
  * 変わるのは保存されている設計図の設定値だけ。
  */
-export function platformUseCases() {
-  const sites = { sites: createDeps().sites };
+export async function platformUseCases() {
+  const sites = { sites: createDeps({ db: await tryGetDb() }).sites };
   return {
     listSites: createListManagedSitesUseCase(sites),
     getSite: createGetManagedSiteUseCase(sites),
@@ -916,6 +916,47 @@ export function siteDraftSampleNotice(): string {
   return sampleSiteDraftNotice();
 }
 
+/**
+ * ブログ作成の下書きがいま何で動いているかを画面に出すための一文。
+ *
+ * **画面に条件を書かせない。** 受信箱・改善要望と同じ形にしてある。
+ * ここを画面側の固定文にしていたため、保存先をつないだあとも
+ * 「しばらくすると消えます」と出続ける事故が起きた（2026-08-17）。
+ */
+export async function siteDraftNotice(): Promise<StorageStatus> {
+  const db = await tryGetDb();
+  return {
+    persisted: db !== null,
+    what: "ブログ作成の下書きの保存先",
+    blockedBy: "site_drafts / site_blueprints テーブルの追加と D1 への接続",
+    stubId: "persistence:site-draft-memory",
+    message:
+      db === null
+        ? sampleSiteDraftNotice()
+        : "作りかけの下書きも、作ったブログも保存されます（保存先: D1 の site_drafts / site_blueprints）。",
+  };
+}
+
+/**
+ * ブログの一覧がいま何で動いているかを画面に出すための一文。
+ *
+ * 保存先がつながっていても**見本の 3 本は残す**ので、
+ * 「並んでいるものの一部は見本」であることは、つながったあとも黙らない。
+ */
+export async function siteStorageNotice(): Promise<StorageStatus> {
+  const db = await tryGetDb();
+  return {
+    persisted: db !== null,
+    what: "ブログの設計図の保存先",
+    blockedBy: "site_blueprints テーブルの追加とマイグレーション",
+    stubId: "persistence:site-sample",
+    message:
+      db === null
+        ? siteSampleNotice()
+        : "作ったブログは保存されます（保存先: D1 の site_blueprints）。はじめから並んでいる 3 本は見本で、消さずに残してあります。",
+  };
+}
+
 /** 商品の表示名。ID をそのまま画面に出さないための対応表。 */
 export function productDisplayName(productId: string): string {
   return sampleProductName(productId as never);
@@ -928,8 +969,8 @@ export function productDisplayName(productId: string): string {
  * ここで作られるのは設計図のデータだけで、
  * 読者向けの画面 (`/s/<URL名>`) は既存のものをそのまま使う。
  */
-export function siteBuilderUseCases() {
-  const deps = createDeps();
+export async function siteBuilderUseCases() {
+  const deps = createDeps({ db: await tryGetDb() });
   const builder = { drafts: deps.siteDrafts, ids: deps.ids };
   return {
     listDrafts: createListSiteDraftsUseCase(builder),

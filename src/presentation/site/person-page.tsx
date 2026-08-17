@@ -19,7 +19,7 @@ export async function PersonPage({
   readonly kind: "author" | "expert";
   readonly slug: string;
 }) {
-  const result = await siteUseCases().getPerson.execute(readerActor(), {
+  const result = await (await siteUseCases()).getPerson.execute(readerActor(), {
     siteSlug,
     kind,
     slug,

@@ -19,7 +19,7 @@ export async function PolicyPage({
   readonly documentKey: string;
   readonly path: string;
 }) {
-  const result = await siteUseCases().getPolicy.execute(readerActor(), {
+  const result = await (await siteUseCases()).getPolicy.execute(readerActor(), {
     siteSlug,
     key: documentKey,
   });

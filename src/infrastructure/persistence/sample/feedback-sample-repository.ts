@@ -20,7 +20,7 @@ import {
   err,
   ok,
 } from "@/domain/shared";
-import { registerStub, stubCall, stubFailure } from "../../stub-registry";
+import { registerStub, stubCall, stubFailure, stubReason } from "../../stub-registry";
 
 /**
  * ★ これは保存先が無いときの控えです（見本データ）。★
@@ -58,7 +58,7 @@ const captureStub = registerStub({
 });
 
 export function feedbackStubNotice(): string {
-  return `${stub.label}。${stub.blockedBy}が済むまでの仮です。`;
+  return `${stub.label}。${stubReason(stub)}。`;
 }
 
 const WS = asWorkspaceId("ws_sample");

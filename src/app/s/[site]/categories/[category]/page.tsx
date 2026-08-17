@@ -12,7 +12,7 @@ export default async function CategoryPage({
   params: Promise<{ site: string; category: string }>;
 }) {
   const { site, category } = await params;
-  const result = await siteUseCases().listByCategory.execute(readerActor(), {
+  const result = await (await siteUseCases()).listByCategory.execute(readerActor(), {
     siteSlug: site,
     categorySlug: category,
   });

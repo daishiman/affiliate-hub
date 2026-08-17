@@ -17,7 +17,7 @@ export default async function CorrectionsPage({
   params: Promise<{ site: string }>;
 }) {
   const { site } = await params;
-  const result = await siteUseCases().listCorrections.execute(readerActor(), { siteSlug: site });
+  const result = await (await siteUseCases()).listCorrections.execute(readerActor(), { siteSlug: site });
 
   return (
     <SiteFrame

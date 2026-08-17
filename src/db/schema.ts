@@ -565,6 +565,62 @@ export const integrationKeyUsages = sqliteTable(
   (t) => [index("integration_key_usages_key_used_idx").on(t.keyId, t.usedAt)],
 );
 
+/**
+ * ブログ作成ウィザードの下書き（仕様 §16.2 の 13 段階）。
+ *
+ * 13 段階ぶんの記入は `draft_json` にまとめて入れる。**列に出すのは
+ * 一覧が実際に使う項目だけ**（作業場所・名前・URL 名・作ったブログ・更新日時）。
+ * 段階が 1 つ増えるたびに保存先の形を変えることになると、
+ * ウィザードの手直しに毎回マイグレーションが要る。
+ */
+export const siteDrafts = sqliteTable(
+  "site_drafts",
+  {
+    id: text("id").primaryKey(),
+    workspaceId: text("workspace_id").notNull(),
+    /** 一覧で見分けるための名前。まだ決めていない段階では空文字。 */
+    name: text("name").notNull().default(""),
+    slug: text("slug").notNull().default(""),
+    /** 作りきったら、できたブログの URL 名が入る。作りかけは NULL。 */
+    createdSiteSlug: text("created_site_slug"),
+    updatedAt: integer("updated_at", { mode: "timestamp" })
+      .notNull()
+      .default(sql`(unixepoch())`),
+    draftJson: text("draft_json").notNull(),
+  },
+  (t) => [index("site_drafts_workspace_updated_idx").on(t.workspaceId, t.updatedAt)],
+);
+
+/**
+ * ウィザードから作られたブログの設計図。
+ *
+ * **ここを通ったものだけが読者から見える。**
+ *
+ * `slug` に一意の索引を置く。読者の URL（`/s/<URL名>`）がこの値そのもので、
+ * 同じ URL 名が 2 つあると、どちらを出すか決められないためである。
+ * 受信箱の URL（重複しても受け取る）と違い、ここは重複に意味が無い。
+ * 作り直しは**上書き**として扱うので、2 回目が永久に通らない失敗にはならない。
+ */
+export const siteBlueprints = sqliteTable(
+  "site_blueprints",
+  {
+    id: text("id").primaryKey(),
+    workspaceId: text("workspace_id").notNull(),
+    slug: text("slug").notNull(),
+    name: text("name").notNull(),
+    /** 10 パターンのどれか。一覧の絞り込みに使うので列に出す。 */
+    pattern: text("pattern").notNull(),
+    publishedAt: integer("published_at", { mode: "timestamp" })
+      .notNull()
+      .default(sql`(unixepoch())`),
+    blueprintJson: text("blueprint_json").notNull(),
+  },
+  (t) => [
+    uniqueIndex("site_blueprints_slug_idx").on(t.slug),
+    index("site_blueprints_workspace_idx").on(t.workspaceId),
+  ],
+);
+
 // 運営者ドメイン
 export type Asp = typeof asps.$inferSelect;
 export type SessionRow = typeof sessions.$inferSelect;
@@ -574,6 +630,8 @@ export type LinkIngestionRow = typeof linkIngestions.$inferSelect;
 export type FeedbackReportRow = typeof feedbackReports.$inferSelect;
 export type IntegrationKeyRow = typeof integrationKeys.$inferSelect;
 export type IntegrationKeyUsageRow = typeof integrationKeyUsages.$inferSelect;
+export type SiteDraftRow = typeof siteDrafts.$inferSelect;
+export type SiteBlueprintRow = typeof siteBlueprints.$inferSelect;
 
 // 読者ドメイン
 export type Category = typeof categories.$inferSelect;

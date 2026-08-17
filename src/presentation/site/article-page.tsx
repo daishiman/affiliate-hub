@@ -39,7 +39,7 @@ export async function ArticlePage({
   readonly pathPrefix: string;
   readonly routeLabel: string;
 }) {
-  const result = await siteUseCases().getArticle.execute(readerActor(), { siteSlug, slug });
+  const result = await (await siteUseCases()).getArticle.execute(readerActor(), { siteSlug, slug });
   const path = `${pathPrefix}/${slug}`;
 
   return (

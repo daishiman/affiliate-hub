@@ -21,7 +21,7 @@ const WIZARD_PATH = "/admin/sites/new";
 
 /** 新しい下書きを始める。始めた時点ではまだ公開されない。 */
 export async function startSiteDraftAction(): Promise<void> {
-  const result = await siteBuilderUseCases().startDraft.execute(await currentActor(), {});
+  const result = await (await siteBuilderUseCases()).startDraft.execute(await currentActor(), {});
   if (!result.ok) {
     // 始められないのは権限か保存先の問題で、利用者の入力では直せない。
     redirect(`${WIZARD_PATH}?error=${encodeURIComponent(result.error.message)}`);
@@ -50,7 +50,7 @@ export async function saveSiteDraftStepAction(
     if (typeof value === "string") answers[key] = value;
   }
 
-  const result = await siteBuilderUseCases().saveStep.execute(await currentActor(), {
+  const result = await (await siteBuilderUseCases()).saveStep.execute(await currentActor(), {
     draftId,
     step,
     answers,
@@ -82,7 +82,7 @@ export async function createSiteFromDraftAction(
 ): Promise<SiteWizardState> {
   const draftId = String(formData.get("draftId") ?? "");
 
-  const result = await siteBuilderUseCases().createSite.execute(await currentActor(), { draftId });
+  const result = await (await siteBuilderUseCases()).createSite.execute(await currentActor(), { draftId });
 
   if (!result.ok) {
     return {
