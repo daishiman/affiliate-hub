@@ -116,6 +116,7 @@ import {
 import { createGetDashboardUseCase } from "@/application/usecases/dashboard/read-dashboard";
 import type { ActorContext } from "@/domain/shared";
 import { taggedString } from "@/domain/shared";
+import { type KeyScope, authorize } from "@/domain/feedback";
 import { createDeps } from "@/infrastructure/composition";
 import { telemetryStubNotice } from "@/infrastructure/persistence/sample/telemetry-sample-sink";
 import { improvementStubNotice } from "@/infrastructure/persistence/sample/improvement-sample-repository";
@@ -178,6 +179,90 @@ export async function authenticateRequest(
 > {
   const { authenticateApiRequest } = await import("@/infrastructure/platform/api-token");
   return authenticateApiRequest(request);
+}
+
+/**
+ * 取りに来た相手（Claude Code）の身元確認。
+ *
+ * `authenticateRequest` と分けてある理由は、確かめている相手が違うから。
+ * あちらは「この製品の入口を叩いてよい呼び出しか」、こちらは
+ * **「どの作業場所の、何ができる鍵か」** を決める。混ぜると、
+ * 全体の合言葉さえ知っていれば他人の要望が読めることになる。
+ *
+ * 作った身元は必ず `ai_service_account` にする。人しか押せない操作
+ * （扱いを決める・鍵を管理する）は、この身元では構造上できない。
+ */
+export type IntegrationAccessResolution =
+  | {
+      ok: true;
+      actor: ActorContext;
+      keyId: string;
+      keyLabel: string;
+      recordUsage: (fetchedCount: number) => Promise<void>;
+    }
+  | { ok: false; status: number; message: string };
+
+export async function resolveIntegrationAccess(
+  request: Request,
+  scope: KeyScope,
+): Promise<IntegrationAccessResolution> {
+  const header = request.headers.get("authorization") ?? "";
+  const value = header.startsWith("Bearer ") ? header.slice("Bearer ".length).trim() : "";
+  if (value === "") {
+    return {
+      ok: false,
+      status: 401,
+      message: "鍵がありません。Authorization ヘッダーに Bearer で付けてください。",
+    };
+  }
+
+  const keys = createDeps().integrationKeys;
+  const found = await keys.authenticate(value);
+  // 「無い鍵」と「潰れた保存先」を同じ文言で返す。どちらかを言い分けると、
+  // 存在する鍵を総当たりで探し当てる手がかりになる。
+  if (!found.ok || found.value === null) {
+    return { ok: false, status: 401, message: "この鍵では取得できません。" };
+  }
+  const key = found.value;
+
+  const now = new Date();
+  const allowed = authorize(key, scope, now);
+  if (!allowed.ok) {
+    return {
+      ok: false,
+      status: allowed.error.code === "FORBIDDEN" ? 403 : 401,
+      message: allowed.error.message,
+    };
+  }
+
+  const within = await keys.withinRateLimit(key.id, now);
+  if (!within.ok || !within.value) {
+    return {
+      ok: false,
+      status: 429,
+      message: `1 分あたり ${key.rateLimitPerMinute} 回までです。少し待ってからもう一度取りに来てください。`,
+    };
+  }
+
+  return {
+    ok: true,
+    keyId: String(key.id),
+    keyLabel: key.label,
+    actor: {
+      workspaceId: key.workspaceId,
+      userId: `鍵: ${key.label}`,
+      roles: ["ai_service_account"],
+      isAiServiceAccount: true,
+    },
+    recordUsage: async (fetchedCount: number) => {
+      await keys.recordUsage(key.workspaceId, {
+        keyId: key.id,
+        keyLabel: key.label,
+        at: now,
+        fetchedCount,
+      });
+    },
+  };
 }
 
 /**

@@ -31,12 +31,12 @@ describe("改善要望ループ（ループの 2 件目）", () => {
     expect(kind?.approver).toBe("システム管理者");
   });
 
-  it("受け取る画面ができるまで「動く」とは書かない（数だけ先に増やさない）", () => {
+  it("受け取る画面が揃ったので動く（待ちの理由も残さない）", () => {
     const kind = findLoopKind(PRODUCT_IMPROVEMENT);
-    expect(kind?.readiness).toBe("planned");
-    // 何が揃えば動くのかが書いてあること。「まだ作っていない」で止めない。
-    expect(kind?.blockedBy).toContain("受け取る画面");
-    expect(implementedLoopKinds().map((l) => l.key)).not.toContain(PRODUCT_IMPROVEMENT);
+    expect(kind?.readiness).toBe("implemented");
+    // 動くのに「動かせない理由」が残っていたら、どちらかが古い。
+    expect(kind?.blockedBy).toBeNull();
+    expect(implementedLoopKinds().map((l) => l.key)).toContain(PRODUCT_IMPROVEMENT);
   });
 
   it("外せない約束が自動で付く（定義側に転記していない）", () => {

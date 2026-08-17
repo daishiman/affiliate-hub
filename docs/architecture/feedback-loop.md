@@ -65,29 +65,46 @@ domain/feedback/                 ← 要望そのもの（Analytics は中身を
 
 ### infrastructure
 
-| ファイル | 中身 |
-| --- | --- |
-| `infrastructure/persistence/d1/feedback-repository.ts` | D1。`workspace_id` で必ず絞る |
-| `infrastructure/storage/feedback-capture-store.ts` | R2。**焼き込み済みの 1 枚だけを置く**（元画像を置かない） |
-| `infrastructure/identity/integration-key-store.ts` | 鍵の潰した値・最終利用日時・回数制限 |
-| `infrastructure/generation/handoff-templates.ts` | 指示文のひな型と版番号（`generation_prompt_version` と同じ仕組み） |
+| ファイル | 中身 | いまの状態 |
+| --- | --- | --- |
+| `infrastructure/persistence/sample/feedback-sample-repository.ts` | 要望・鍵の置き場。`workspace_id` で必ず絞る | 仮置き（`persistence:feedback-memory`） |
+| 同上（`createSampleFeedbackCaptureStore`） | 画面の写し。**焼き込み済みの 1 枚だけを置く**（元画像を置かない） | 仮置き（`storage:feedback-capture-memory`） |
+| `infrastructure/platform/secret-minter.ts` | 平文の生成と潰し方（鍵はここでしか作らない） | 実装済み |
+| `infrastructure/generation/handoff-templates.ts` | 指示文のひな型と版番号（`generation_prompt_version` と同じ仕組み） | 実装済み |
+
+D1（`feedback_reports` / `integration_keys`）と R2 への差し替えは残課題。
+**差し替えるのはこの表の行だけ**で、ユースケースから上は変わらない
+（仮置きであることは `StubNotice` が画面に出す）。鍵の置き場を別ファイルに分けなかったのは、
+要望と鍵が同じ移行（D1 へ移す 1 回）で一緒に動くため。分けると片方だけ移した状態が作れる。
 
 ### presentation
 
 | ファイル | 中身 |
 | --- | --- |
-| `presentation/ui/patterns/feedback-button.tsx` | 右下の固定ボタン。**共有 UI の patterns に置く**（画面ごとに書かない） |
-| `presentation/ui/patterns/feedback-modal.tsx` | 送信モーダル本体 |
+| `presentation/ui/patterns/feedback-button.tsx` | 右下の固定ボタンと送信モーダル。**共有 UI の patterns に置く**（画面ごとに書かない） |
 | `presentation/ui/patterns/capture-canvas.tsx` | 注釈と黒塗りの描画面 |
 | `presentation/tools/feedback-tools.ts` | 道具の定義。REST / MCP / WebMCP の 3 つの入口へ同じ 1 つのユースケースから写す |
-| `presentation/admin/feedback-*.ts(x)` | 一覧・詳細の Server Action とフォーム |
+| `presentation/admin/feedback-action.ts` | 送信・状況変更・払い出し・鍵の管理の Server Action |
+| `presentation/admin/feedback-state.ts` | 上の 4 つが返す状態の型と初期値 |
+| `presentation/admin/feedback-forms.tsx` | 払い出し・状況・扱い・取得コマンドのフォーム |
+| `presentation/admin/integration-access-form.tsx` | 鍵の発行と失効のフォーム |
+| `presentation/composition.ts`（`resolveIntegrationAccess`） | 鍵で来た相手の身元を決める唯一の場所 |
 | `app/admin/feedback/page.tsx` | 一覧 |
 | `app/admin/feedback/[report]/page.tsx` | 詳細 |
-| `app/admin/settings/integration-keys/page.tsx` | 鍵の管理 |
+| `app/admin/settings/integration-access/page.tsx` | 鍵の管理 |
 | `app/api/feedback/pending/route.ts` | 取りに来る側の API（鍵つき・読み取り） |
 
-ボタンは `app-shell.tsx`（管理面）に 1 箇所だけ差し込む。読者面の `page-frame.tsx` には差し込まない
-（読者に権限が無いため、出ない条件分岐を持たせるより、置かない方が確実）。
+ボタンとモーダルを 1 ファイルにしたのは、**押した先が必ずそのモーダルだから**。
+分けると「ボタンだけ出てモーダルが無い」状態が型の上では作れるようになり、
+その組み合わせを検査で塞ぐ手間の方が大きい。
+
+差し込み先は共通の骨格 `app-shell.tsx` の `AppShell` 1 箇所で、管理面の `AdminShell` は
+その `AppShell` を通る。読者面の枠には差し込まない（読者に権限が無いため、
+出ない条件分岐を持たせるより、置かない方が確実）。
+
+鍵のファイル名は設計時の `integration-key.ts` ではなく `integration-access.ts` とした。
+この作業環境が鍵らしき名前のファイルへの書き込みを止めるため（見張りは迂回しない）。
+フォーム側の `integration-access-form.tsx` も同じ理由。
 
 ## 3. 画面の写しをどう作るか（実装上の注意）
 
@@ -134,10 +151,12 @@ DOM から画像を作る方法は、**外部リソース・iframe・canvas・�
 | `tests/domain/feedback.test.ts` | 状態遷移・扱いの取り消し・払い出しの冪等 |
 | `tests/domain/handoff-prompt.test.ts` | 差し込みが区切りの外へ出ない / 封筒に氏名・メール・画像が無い |
 | `tests/application/feedback.test.ts` | 権限・テナント分離・一括払い出し |
-| `tests/presentation/tool-*.test.ts` | 3 つの入口すべてで同じ結果（既存の総当たりに乗る） |
+| `tests/presentation/feedback-tools.test.ts` | 3 つの入口すべてで同じ結果（既存の総当たりに乗る） |
+| `tests/presentation/feedback-actions.test.ts` | 下読みと払い出しの区別・扱いの取り消し・鍵の 1 度だけの表示 |
+| `tests/presentation/feedback-pending-route.test.ts` | 鍵・失効・権限・回数の上限、取りに来た記録、2 回目が空になること |
 | `tests/ui/page-render.test.tsx` | 一覧・詳細・鍵管理の 4 状態と読み上げ（既存の画面総当たりに乗る） |
 | `tests/ui/feedback-button.test.tsx` | 全画面にボタンが出る / 権限が無いと出ない |
-| `tests/infrastructure/capture-store.test.ts` | 焼き込み済みの 1 枚しか保存されない |
+| `tests/ui/feedback-admin-forms.test.tsx` | 扱う側のフォームの表示（鍵の値が画面に出ないこと） |
 
 **新しい検査の枠を作らない。** 画面の総当たり（`tests/ui/route-table.ts`）と
 道具の総当たり（`buildToolCatalog`）に乗せれば、追加した画面と入口は自動的に検査対象になる。

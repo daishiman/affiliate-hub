@@ -215,8 +215,8 @@ function must(input: Parameters<typeof registerLoopKind>[0]): LoopKind {
  *
  * **動くのは `content_improvement` だけ。** 残りは形だけを置いてある。
  * 形だけを置く意味は「入る隙間があること」を示すことで、
- * 中身を先に作ることではない。`product_improvement` は受け取る画面が
- * できた時点で `implemented` に変える（`blockedBy` に条件を書いてある）。
+ * 中身を先に作ることではない。`product_improvement` は受け取る画面
+ * （送る・一覧・詳細・払い出し）が揃った時点で `implemented` に変えた。
  */
 export const LOOP_KINDS: readonly LoopKind[] = [
   must({
@@ -310,9 +310,8 @@ export const LOOP_KINDS: readonly LoopKind[] = [
     key: "product_improvement",
     label: "使い勝手を直すループ",
     polarity: "negative",
-    // 受け取る画面がまだ無いので「動く」とは書かない。
-    // 画面ができた時点でここを implemented に変える。
-    readiness: "planned",
+    // 受け取る画面（右下のボタン・一覧・詳細・払い出し）が揃ったので動く。
+    readiness: "implemented",
     decisionBasis: "single_case",
     signal: "管理者から届いた改善要望（うまく動かない / 使いにくい / ほしい機能）",
     baseline: "いまの画面の振る舞い（要望を書いた人が実際に見たもの）",
@@ -323,7 +322,7 @@ export const LOOP_KINDS: readonly LoopKind[] = [
       "扱いを決めて記録したとき（対応しない・重複・廃棄も終わり）",
       "同じ要望が既にあるとき（重複としてまとめる）",
     ],
-    blockedBy: "受け取る画面と一覧・払い出しの仕組み。登録表だけでは要望を受け取れない。",
+    blockedBy: null,
     // 指標を持たない。件数で判断しないことを型で示す。
     watchedMetrics: [],
   }),

@@ -92,6 +92,16 @@ export const TERMS = {
   // 数字
   metric: "指標",
   metricSample: "計測点",
+
+  // 使い勝手を直す（改善要望）
+  // 「バグ」「チケット」「トリアージ」は辞書の禁止表に入れてある。
+  // 送る人は不具合かどうかを判定できないし、判定を求めると送られなくなる。
+  feedbackReport: "改善要望",
+  handoff: "払い出し",
+  handoffPrompt: "指示文",
+  feedbackCapture: "そのときの画面",
+  redaction: "黒塗り",
+  integrationKey: "連携の鍵",
 } as const;
 
 export type TermKey = keyof typeof TERMS;

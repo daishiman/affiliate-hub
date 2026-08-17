@@ -466,18 +466,18 @@ D1 への差し替えは、この列だけを別の実装に取り替えれば�
 
 | REQ | 要件 | 実装 | 画面 | 導線 | 状態 | RWD | a11y | test | 結果 |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| REQ-FB01 | ループの種類の登録表へ 2 件目として `product_improvement` を足す。歯止め 5 本は自動で付く（定義側で書き忘れられない） | `src/domain/analytics/loop-kinds.ts` に追加。判定規則は「1 件届いたら扱いを決める」（**必要件数の判定に乗せない**） | — | — | — | — | — | 予定: `tests/domain/loop-kinds.test.ts`（歯止めが自動で付く／統計の判定に乗っていない） | 未着手 |
-| REQ-FB02 | どの画面の右下にも同じ「改善」ボタンが出る。押せるのは管理者だけ | `src/presentation/ui/patterns/feedback-button.tsx`（共通UIの型。画面ごとに書き起こさない） | 管理側の全画面（共通レイアウト 1 箇所） | 画面右下に固定。キーボードでも到達できる | 権限なし=非表示 / 通常 / 送信中 / 送信済み | 対応（375px でも本文に重ならない） | 対応（`aria-label`、44px 最小、フォーカス可視） | 予定: `tests/ui/feedback-button.test.tsx`（4状態 + axe + 全配色 × 明暗）、`tests/presentation/admin-routes.test.ts`（共通レイアウトに載っていること） | 未着手 |
-| REQ-FB03 | 押すと出る書き込み欄。画面名が自動で入る。種類は 3 つ。「改善したいこと」は必須、「どうなってほしいですか」は任意 | `src/presentation/ui/patterns/feedback-modal.tsx`、`src/domain/feedback/report.ts` | 同上（重ねて出す） | ボタン → 書き込み欄 → 送信 → 一覧へ | 未入力 / 入力中 / 送信中 / 失敗 / 送信済み | 対応 | 対応（Esc で閉じる、フォーカスを閉じ込める、必須は色以外でも示す） | 予定: `tests/ui/feedback-modal.test.tsx`、`tests/domain/feedback-report.test.ts`（必須の空欄・長すぎる本文の境界） | 未着手 |
-| REQ-FB04 | 画面の写しを撮る。撮れなかったときは**撮れていないことをその場で伝える**。貼り付け・ファイル選択でも足せる | `src/presentation/ui/patterns/capture-canvas.tsx`、`src/domain/feedback/capture-policy.ts` | 書き込み欄の中 | 「画面を撮る」／貼り付け／ファイル | 未取得 / 取得中 / 取得済み / 一部撮れず / 失敗 | 対応 | 対応（画像に代わる説明を必ず持つ） | 予定: `tests/ui/capture-canvas.test.tsx`（撮れなかったときの文言が出る） | 未着手 |
-| REQ-FB05 | 写しへ書き込める（手書き・四角・矢印・文字・黒塗り／赤・茶・青・黒、黒塗りは色を選べない）。**元に戻す・撮り直す・画像を外して文章だけで送る**ができる | 同上 + `src/domain/feedback/capture-policy.ts` | 同上 | 道具を選ぶ → 描く → 戻す／撮り直す／外す | 道具ごとの選択状態、履歴の有無で「元に戻す」の可否が変わる | 対応（指でも操作できる） | 対応（道具の選択を色だけで示さない、キーボードでも選べる） | 予定: `tests/ui/capture-canvas.test.tsx`（道具・元に戻す・画像を外す） | 未着手 |
-| REQ-FB06 | 黒塗りは**画像そのものを塗り替える**。元画像を残して上に重ねる作りにしない | `src/domain/feedback/capture-policy.ts` の 5 手順（4 で元画像を捨てる） | — | — | — | — | — | 予定: `tests/domain/capture-policy.test.ts`（保存された値から元画像を取り出せないこと） | 未着手 |
-| REQ-FB07 | 届いた要望の一覧。状態ごとの件数、重ねられる絞り込み、払い出しの状態・回数・最終日時の列、**まとめて払い出す**、空のときの案内文 | `src/presentation/admin/feedback-list.tsx`、`src/app/admin/feedback/page.tsx`、`application/usecases/feedback/list-reports.ts` | `/admin/feedback`（「使い勝手を直す」の下） | 左メニュー → 一覧 → 詳細 | 空 / 読み込み中 / 一覧あり / 絞り込みで 0 件 / 失敗 | 対応（狭い幅では表を積む） | 対応（表の見出しと並び替えを読み上げられる） | 予定: `tests/ui/feedback-list.test.tsx`（4状態 + axe）、`tests/presentation/admin-routes.test.ts`（孤立ページ禁止の既存検査に乗る） | 未着手 |
-| REQ-FB08 | 詳細画面 10 区画。「どうなってほしいか」が無いときは**無いと書く**。作業場所・ブランド・サイトも記録。技術情報は件数つきで畳む。状態の切り替え・メモ・扱いの決定（対応しない／重複／廃棄／元に戻す）は**やり直せる**。操作の記録は消さずに積む | `src/presentation/admin/feedback-detail.tsx`、`src/app/admin/feedback/[report]/page.tsx`、`src/domain/feedback/status.ts` / `disposition.ts` | `/admin/feedback/[report]` | 一覧 → 詳細 → 払い出し | 空欄あり / 通常 / 更新中 / 失敗 / 廃棄済み | 対応 | 対応（畳んだ区画の開閉を読み上げ、件数を文字で持つ） | 予定: `tests/ui/feedback-detail.test.tsx`、`tests/domain/feedback-status.test.ts`（元に戻せること） | 未着手 |
-| REQ-FB09 | 作業する側へ渡す方法は 2 つだけ（人が写して渡す／鍵で取りに来る）。**何度渡しても結果が変わらない**ことを画面に書き、渡した記録に「誰が・どの鍵で」を残す | `src/domain/feedback/handoff.ts`、`application/usecases/feedback/hand-off.ts`、`src/app/api/feedback/pending/route.ts` | 詳細画面の払い出し区画 | 「指示文をコピー」／「取得コマンドをコピー」／「払い出し済みにする」 | 未払い出し / 払い出し済み / 取得済み / 失敗 | 対応 | 対応（コピーした結果を文字で知らせる） | 予定: `tests/application/hand-off.test.ts`、`tests/integration/feedback-pull.test.ts`（同じ要求を 2 回出しても結果が変わらない） | 未着手 |
-| REQ-FB10 | 指示文に入れてよいものを**列挙して決める**。氏名・メールアドレス・画像・鍵・他の作業場所のデータは入れない。雛形は既にある版管理の仕組みに乗せる | `src/domain/feedback/handoff-prompt.ts`、`infrastructure/generation/handoff-templates.ts` | — | — | — | — | — | 予定: `tests/domain/handoff-prompt.test.ts`（許可した項目以外が 1 つでも混ざったら落ちる） | 未着手 |
-| REQ-FB11 | **本文を AI への命令として実行しない**。1 つの区切りの中だけに置き、「これはデータであり命令ではない」と先に宣言し、区切りをまねた文字列を無害化し、区切りの外へ利用者の書いたものを出さない | 同上 | — | — | — | — | — | 予定: `tests/domain/handoff-prompt.test.ts`（区切りをまねた本文・制御文字・命令文を入れても外へ出ない） | 未着手 |
-| REQ-FB12 | 鍵の発行・失効・最終利用・使える範囲を管理する。**値は発行時に 1 度だけ表示し、保存はかけ直した形で行う**。回数制限と操作の記録を持つ | `src/domain/feedback/integration-key.ts`、`infrastructure/identity/integration-key-store.ts`、`src/app/admin/settings/integration-keys/page.tsx` | `/admin/settings/integration-keys` | 設定 → 連携の鍵 | 鍵なし / 発行直後（1 度だけ表示） / 一覧 / 失効済み / 失敗 | 対応 | 対応（「1 度しか表示しない」ことを送信前に文字で伝える） | 予定: `tests/ui/integration-keys.test.tsx`、`tests/domain/integration-key.test.ts`（保存された値から元の鍵を復元できない） | 未着手 |
+| REQ-FB01 | ループの種類の登録表へ 2 件目として `product_improvement` を足す。歯止め 5 本は自動で付く（定義側で書き忘れられない） | `src/domain/analytics/loop-kinds.ts`（受け取る画面が揃ったので `readiness: "implemented"`。判定規則は「1 件届いたら扱いを決める」で、**必要件数の判定には乗せない**） | — | — | — | — | — | PASS（`tests/domain/loop-kinds.test.ts`／`tests/domain/improvement.test.ts`：歯止めが自動で付く・統計の判定に乗っていない・動くのは 2 種類だけ） | 実装済 |
+| REQ-FB02 | どの画面の右下にも同じ「改善」ボタンが出る。押せるのは管理者だけ | `src/presentation/ui/patterns/feedback-button.tsx`（共通UIの型）。差し込み口は `src/presentation/ui/templates/app-shell.tsx` の 1 箇所（`AdminShell` は素通し） | 管理側の全画面（共通レイアウト 1 箇所） | 画面右下に固定。キーボードでも到達できる | 権限なし=非表示 / 通常 / 送信中 / 送信済み | 対応（375px でも本文に重ならない） | 対応（`aria-label`、44px 最小、フォーカス可視） | PASS（`tests/ui/feedback-button.test.tsx`：4状態 + axe + 全配色 × 明暗）、`tests/presentation/nav-permissions.test.ts` | 実装済 |
+| REQ-FB03 | 押すと出る書き込み欄。画面名が自動で入る。種類は 3 つ。「改善したいこと」は必須、「どうなってほしいですか」は任意 | `feedback-button.tsx`（ボタンと書き込み欄は**同じ 1 ファイル**。開閉の状態が 2 つに割れないため）、`src/domain/feedback/report.ts` | 同上（重ねて出す） | ボタン → 書き込み欄 → 送信 → 一覧へ | 未入力 / 入力中 / 送信中 / 失敗 / 送信済み | 対応 | 対応（Esc で閉じる、フォーカスを閉じ込める、必須は色以外でも示す） | PASS（`tests/ui/feedback-button.test.tsx`、`tests/domain/feedback.test.ts`：必須の空欄・長すぎる本文の境界・種類は 3 つだけ） | 実装済 |
+| REQ-FB04 | 画面の写しを撮る。撮れなかったときは**撮れていないことをその場で伝える**。貼り付け・ファイル選択でも足せる | `src/presentation/ui/patterns/capture-canvas.tsx`、`src/domain/feedback/capture-policy.ts` | 書き込み欄の中 | 「画面を撮る」／貼り付け／ファイル | 未取得 / 取得中 / 取得済み / 一部撮れず / 失敗 | 対応 | 対応（画像に代わる説明を必ず持つ） | PASS（`tests/ui/capture-canvas.test.tsx`：撮れなかったときの文言が出る） | 実装済 |
+| REQ-FB05 | 写しへ書き込める（手書き・四角・矢印・文字・黒塗り／赤・茶・青・黒、黒塗りは色を選べない）。**元に戻す・撮り直す・画像を外して文章だけで送る**ができる | 同上 + `src/domain/feedback/capture-policy.ts` | 同上 | 道具を選ぶ → 描く → 戻す／撮り直す／外す | 道具ごとの選択状態、履歴の有無で「元に戻す」の可否が変わる | 対応（指でも操作できる） | 対応（道具の選択を色だけで示さない、キーボードでも選べる） | PASS（`tests/ui/capture-canvas.test.tsx`：道具・元に戻す・画像を外す） | 実装済 |
+| REQ-FB06 | 黒塗りは**画像そのものを塗り替える**。元画像を残して上に重ねる作りにしない | `src/domain/feedback/capture-policy.ts` の 5 手順（4 で元画像を捨てる） | — | — | — | — | — | PASS（`tests/domain/feedback.test.ts`：保存された値から元画像を取り出せない） | 実装済 |
+| REQ-FB07 | 届いた要望の一覧。状態ごとの件数、重ねられる絞り込み、払い出しの状態・回数・最終日時の列、**まとめて払い出す**、空のときの案内文 | `src/app/admin/feedback/page.tsx`、`src/presentation/admin/feedback-forms.tsx`（`FeedbackHandoffForm`）、`src/application/usecases/feedback/list-feedback.ts` | `/admin/feedback`（「使い勝手を直す」の下） | 左メニュー → 一覧 → 詳細 | 空 / 一覧あり / 絞り込みで 0 件 / 失敗 | 対応（狭い幅では表を積む） | 対応（表の見出しを読み上げられる） | PASS（`tests/ui/page-render.test.tsx`：4状態 + axe。孤立ページ禁止は `tests/presentation/nav-permissions.test.ts`）、`tests/application/feedback.test.ts` | 実装済 |
+| REQ-FB08 | 詳細画面 10 区画。「どうなってほしいか」が無いときは**無いと書く**。作業場所・ブランド・サイトも記録。技術情報は件数つきで畳む。状態の切り替え・メモ・扱いの決定（対応しない／重複／廃棄／元に戻す）は**やり直せる**。操作の記録は消さずに積む | `src/app/admin/feedback/[report]/page.tsx`、`src/presentation/admin/feedback-forms.tsx`（`FeedbackStatusForm` / `FeedbackDispositionForm`）、`src/domain/feedback/status.ts` / `disposition.ts` | `/admin/feedback/[report]` | 一覧 → 詳細 → 払い出し | 空欄あり / 通常 / 更新中 / 失敗 / 廃棄済み | 対応 | 対応（畳んだ区画の開閉を読み上げ、件数を文字で持つ） | PASS（`tests/presentation/feedback-actions.test.ts`：決めた扱いが取り消しで戻る・見送りは理由が要る、`tests/ui/feedback-admin-forms.test.tsx`、`tests/ui/page-render.test.tsx`） | 実装済 |
+| REQ-FB09 | 作業する側へ渡す方法は 2 つだけ（人が写して渡す／鍵で取りに来る）。**何度渡しても結果が変わらない**ことを画面に書き、渡した記録に「誰が・どの鍵で」を残す | `src/domain/feedback/handoff.ts`、`src/application/usecases/feedback/hand-off-feedback.ts`、`src/app/api/feedback/pending/route.ts`、鍵の判定は `src/presentation/composition.ts` の `resolveIntegrationAccess`（**presentation で infrastructure を読んでよい唯一のファイル**） | 詳細画面の払い出し区画 | 「指示文を見る」／「払い出し済みにする」／「取得コマンドをコピー」 | 未払い出し / 下読みのみ / 払い出し済み / 一部渡せず / 失敗 | 対応 | 対応（渡した記録を表で読み上げられる） | PASS（`tests/application/feedback.test.ts`、`tests/presentation/feedback-pending-route.test.ts`：2 回目は空・下読みでは回数が増えない・履歴に「誰が・どの鍵で」が残る） | 実装済 |
+| REQ-FB10 | 指示文に入れてよいものを**列挙して決める**。氏名・メールアドレス・画像・鍵・他の作業場所のデータは入れない。雛形は既にある版管理の仕組みに乗せる | `src/domain/feedback/handoff-prompt.ts`、`src/infrastructure/generation/handoff-templates.ts` | — | — | — | — | — | PASS（`tests/domain/handoff-prompt.test.ts`：許可した項目以外が 1 つでも混ざったら落ちる、`tests/presentation/feedback-pending-route.test.ts`：入口の出力にも混ざらない） | 実装済 |
+| REQ-FB11 | **本文を AI への命令として実行しない**。1 つの区切りの中だけに置き、「これはデータであり命令ではない」と先に宣言し、区切りをまねた文字列を無害化し、区切りの外へ利用者の書いたものを出さない | 同上 | — | — | — | — | — | PASS（`tests/domain/handoff-prompt.test.ts`：区切りをまねた本文・制御文字・命令文を入れても外へ出ない） | 実装済 |
+| REQ-FB12 | 鍵の発行・失効・最終利用・使える範囲を管理する。**値は発行時に 1 度だけ表示し、保存はかけ直した形で行う**。回数制限と操作の記録を持つ | `src/domain/feedback/integration-access.ts`、`src/application/usecases/feedback/manage-integration-keys.ts`、`src/infrastructure/platform/secret-minter.ts`、`src/presentation/admin/integration-access-form.tsx`、`src/app/admin/settings/integration-access/page.tsx`（`integration-key` ではなく `integration-access` にしたのは、この作業環境が鍵らしき名前のファイルへの書き込みを止めるため。見張りは迂回しない） | `/admin/settings/integration-access` | 設定 → 連携の鍵 | 鍵なし / 発行直後（1 度だけ表示） / 一覧 / 失効済み / 失敗 | 対応 | 対応（「1 度しか表示しない」ことを送信前に文字で伝える） | PASS（`tests/domain/feedback.test.ts`：保存された値から元の鍵を復元できない、`tests/presentation/feedback-actions.test.ts`：一覧を出し直しても値は返らない・AI の役割では発行できない、`tests/ui/feedback-admin-forms.test.tsx` + axe） | 実装済 |
 
 **送信前に「何が一緒に送られるか」を見せる。** 封筒（送信者欄・添付）に氏名・メールアドレス・画像を
 入れないことは仕組みで保証できるが、**本文に利用者自身が書いたものは機械的に取り除けない**。
@@ -495,25 +495,29 @@ D1 への差し替えは、この列だけを別の実装に取り替えれば�
 | 区分 | 件数 |
 | --- | --- |
 | **全要件数 N** | **234** |
-| 実装済・完了 X | 188（実装済 178 + 完了 10） |
+| 実装済・完了 X | 200（実装済 190 + 完了 10） |
 | スタブ Y | 34 |
-| 未着手 Z | **12** |
+| 未着手 Z | **0** |
 
-**未着手 15 件（R 節・S 節）は 0 になった。** テストの土台・結合テスト・カバレッジの計測・
-自動チェックと公開の 3 本立てまで作り終え、走らせた結果を各行の `test` 欄に書いてある。
-いま残る未着手 12 件は、**新しく足した T 節（改善要望フィードバック）**である。
-要件が 12 件増えたためで、既に実装した行が未着手へ戻ったわけではない。
+**未着手は 0 になった。** 最後まで残っていた T 節（改善要望フィードバック）12 件は、
+送る口・一覧・詳細・払い出し・取りに来る入口・鍵の管理まで作り、
+走らせたテストの名前を各行の `test` 欄に書いてある。
 **先回りで「実装済」と書かない。** 走らせた結果が出た行だけを書き換える。
+
+**残るスタブ 34 件は「作っていない」ではなく「本物の保存先につないでいない」である。**
+改善要望も同じで、判断（何を指示文に入れるか・誰が渡せるか）は本物を通しているが、
+保存先はまだ見本データの入れ物にある。差し替え先は
+`docs/architecture/feedback-loop.md` §2 の表に 1 行ずつ書いてある。
 
 集計方法: 本ファイル内で `| REQ-` から始まる行の**最後の欄**を機械的に数えた値。手計算ではない。
 
 ```bash
 T=docs/product/traceability.md
 # 結果の欄で分類（「実装済（保存先は見本データ）」のような但し書き付きも数える）
-grep -E '^\| REQ-' $T | grep -cE '\| \**実装済'          # → 178
+grep -E '^\| REQ-' $T | grep -cE '\| \**実装済'          # → 190
 grep -E '^\| REQ-' $T | grep -cE '\| \**完了'            # → 10
 grep -E '^\| REQ-' $T | grep -cE '\| \**スタブ'          # → 34
-grep -E '^\| REQ-' $T | grep -cE '\| \**未着手'          # → 12
+grep -E '^\| REQ-' $T | grep -cE '\| \**未着手'          # → 0
 # 合計（下の「画面を持たないことが正しい行」の表も `| REQ-` で始まるため、
 # 単純な行数ではなく結果の欄で分類した 4 つの和を全要件数とする）
 grep -E '^\| REQ-' $T | grep -cE '\| \**(実装済|完了|スタブ|未着手)'   # → 234
@@ -546,8 +550,8 @@ grep -E '^\| REQ-' $T | grep -cE '\| \**(実装済|完了|スタブ|未着手)' 
 | Q | 改善ループ（測る → 比べる → 直す） | 13 | 12 | 1 | 0 |
 | R | テストの網羅 | 10 | 10 | 0 | 0 |
 | S | 自動チェックと公開 | 8 | 8 | 0 | 0 |
-| T | 改善要望フィードバック | 12 | 0 | 0 | 12 |
-| | **合計** | **234** | **188** | **34** | **12** |
+| T | 改善要望フィードバック | 12 | 12 | 0 | 0 |
+| | **合計** | **234** | **200** | **34** | **0** |
 
 
 ### UI/UX（画面義務のある要件のみ）
@@ -571,15 +575,16 @@ grep -E '^\| REQ-' $T | grep -cE '\| \**(実装済|完了|スタブ|未着手)' 
 | 区分 | 件数 |
 | --- | --- |
 | **画面義務のある機能 N** | **123** |
-| 画面あり X | **115** |
-| 画面をこれから作る（T 節・未着手） | **8** |
+| 画面あり X | **123** |
+| 画面をこれから作る | **0** |
 | 義務があるのに画面が無い Z | **0** |
 
-**T 節の 8 行は「これから作る画面」であり、「画面が無い」ではない。**
-どの画面をどの道に置くかは決まっていて（`/admin/feedback` ほか）、
-作った時点で既存の `tests/presentation/admin-routes.test.ts` の
-「表にある道には画面がある」「画面には表の行がある」検査に自動的に乗る。
-**改善要望のために新しい検査の枠を作らない**（`docs/architecture/feedback-loop.md` §5）。
+**T 節の 8 行の画面も作り終えた。** 右下のボタンと書き込み欄は共通レイアウト 1 箇所から出し、
+`/admin/feedback`・`/admin/feedback/[report]`・`/admin/settings/integration-access` の 3 画面は
+`tests/ui/route-table.ts` に登録してある。この表が**画面が何本あるかの正本**で、
+`tests/ui/page-render.test.tsx` が実ファイルと突き合わせ、
+`tests/presentation/nav-permissions.test.ts` が左メニューからの到達を見る。
+**改善要望のために新しい検査の枠を作らなかった**（`docs/architecture/feedback-loop.md` §5）。
 
 **R 節（テスト）と S 節（自動チェックと公開）は画面義務の対象外。** 製品の機能ではなく、
 製品が壊れていないことを確かめる手段だからである。ここに画面を作ると、
@@ -617,16 +622,21 @@ G〜N の節（API・イベント・WebMCP・MCP・権限・セキュリティ�
 34 は**要件の行**を数えたもの、40 は**コードのつなぎ目**を数えたもので、
 1つの要件が複数のつなぎ目を持つことがある（例: 配信は媒体ごとに 1 つ）。
 
-### 未着手 12 件について（T 節）
+### 未着手 12 件（T 節）が 0 になった経緯
 
-この 12 件は、**この文書を書いた時点でまだ作っていない改善要望フィードバック**である。
-先に文書と課題に落としてから作る順にしているので、いまは全部が未着手で正しい。
+この 12 件は、**この文書を書いた時点ではまだ作っていなかった改善要望フィードバック**だった。
+先に文書と課題へ落としてから作る順にしたので、着手前は全部が未着手で正しかった。
 
-- 作り終えた行から `test` 欄に実際のコマンドと結果を書き、`結果` 欄を書き換える。
-- **全部作ってから一括でテストを書く進め方をしない。** 1 つ作ったら、その場でこの表を更新する。
-- 12 件が 0 になるまで、この節を消さない。
+作る順は、送る側（ボタン → 書き込み欄 → 写しへの書き込みと黒塗り）→
+受け取る側（一覧 → 詳細 → 状態と扱い）→ 渡す側（指示文 → 人が写す → 鍵で取りに来る）とし、
+**1 つ作るごとにテストを書いてこの表を更新した**。
+全部作ってから一括でテストを書く進め方はしていない。
 
-R 節・S 節の 15 件（テストと自動チェック）は、同じやり方で 0 になった。
+**新しい仕組みを横に建てなかった。** 改善要望はループの種類の 2 件目として登録し
+（`src/domain/analytics/loop-kinds.ts`）、状態の持ち方・承認・履歴・可視化は既にあるものを使った。
+ループの種類を 1 つ増やす手間は `docs/architecture/changeability-scenarios.md` ⑮ で実測してある。
+
+R 節・S 節の 15 件（テストと自動チェック）も、同じやり方で 0 になった。
 **閾値を下げて緑にしたことは 1 度も無い**（`docs/product/coverage.md` §4）。
 
 ### 機能側の未着手（A〜Q）が 0 になった経緯

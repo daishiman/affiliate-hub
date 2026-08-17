@@ -526,9 +526,11 @@ describe("ループの 1 周", () => {
 });
 
 describe("ループの種類", () => {
-  it("いま動くのは 1 種類だけ（使われない仕組みを先回りで作らない）", () => {
-    expect(implementedLoopKinds()).toHaveLength(1);
-    expect(implementedLoopKinds()[0]?.key).toBe("content_improvement");
+  it("いま動くのは 2 種類だけ（使われない仕組みを先回りで作らない）", () => {
+    expect(implementedLoopKinds().map((l) => l.key)).toEqual([
+      "content_improvement",
+      "product_improvement",
+    ]);
   });
 
   it("まだ動かないループには、動かすのに何が要るかが必ず書いてある", () => {
