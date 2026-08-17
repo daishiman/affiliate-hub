@@ -122,3 +122,4 @@ export const asLinkIngestionId = (v: string) => taggedString<"LinkIngestionId">(
 export const asFeedbackReportId = (v: string) => taggedString<"FeedbackReportId">(v);
 export const asFeedbackCaptureId = (v: string) => taggedString<"FeedbackCaptureId">(v);
 export const asIntegrationKeyId = (v: string) => taggedString<"IntegrationKeyId">(v);
+export const asPolicyRuleId = (v: string) => taggedString<"PolicyRuleId">(v);

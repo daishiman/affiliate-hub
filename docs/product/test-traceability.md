@@ -5,8 +5,8 @@
 テスト側の `@req` 印を重ねたもの。
 
 - 最終更新: 2026-08-17
-- テストファイル: 116 件
-- 由来の要件が分かる: 79 件
+- テストファイル: 117 件
+- 由来の要件が分かる: 80 件
 - **由来不明: 37 件**（上限 37 件）
 
 由来不明とは「どの要件のために書いたのか、機械から辿れない」という意味で、
@@ -85,6 +85,7 @@
 | `tests/domain/invariants.test.ts` | REQ-SEC07, REQ-W08 | 表 |
 | `tests/domain/link-ingestion.test.ts` | REQ-S02 | 表 |
 | `tests/domain/permissions.test.ts` | REQ-API02, REQ-R11, REQ-R12 | 印 |
+| `tests/domain/policy-rule-seed.test.ts` | REQ-SEC07 | 印と表 |
 | `tests/domain/site-routes.test.ts` | REQ-B01, REQ-B02, REQ-B03, REQ-B04, REQ-B05, REQ-B06, REQ-B07, REQ-B08, REQ-B09, REQ-B10, REQ-B11, REQ-B13, REQ-B14, REQ-B15, REQ-B16, REQ-B17, REQ-B18, REQ-TM10 | 表 |
 | `tests/domain/telemetry.test.ts` | REQ-TM02, REQ-TM03, REQ-TM04, REQ-TM07, REQ-TM08, REQ-TM09 | 表 |
 | `tests/domain/writing-rules.test.ts` | REQ-W01, REQ-W09, REQ-W10 | 表 |

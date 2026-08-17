@@ -1,5 +1,5 @@
 {
-  "graph_revision": 207,
+  "graph_revision": 208,
   "nodes": [
     {
       "acceptance": [],
@@ -8605,6 +8605,102 @@
       "template_id": "task",
       "template_version": "1.0.0",
       "title": "公開の合言葉（Cloudflare の口座番号と鍵）を利用者本人が登録する",
+      "tracker_binding": "beads",
+      "updated_at": "2026-08-17T23:30:00Z"
+    },
+    {
+      "acceptance": [],
+      "architecture_refs": [],
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "beads_linkage": null,
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "candidate_path": "tasks/task-policy-check-wiring.md",
+          "confidence": 0.9
+        }
+      ],
+      "classification_confidence": 0.9,
+      "classification_reason": "ルールの一覧と当て方は揃っているが、呼び出し口と分野の欄が無く、記事から到達できない",
+      "completion_evidence": {
+        "completed_at": null,
+        "evidence_refs": [],
+        "policy": "manual",
+        "reconciled_at": null,
+        "source": "manual",
+        "status": "in_progress"
+      },
+      "confirmation_evidence": {
+        "evaluated_digest": null,
+        "evaluator": null,
+        "evidence_ref": null
+      },
+      "confirmation_status": "draft",
+      "created_at": "2026-08-17T23:30:00Z",
+      "depends_on": [],
+      "domain": "compliance",
+      "evaluation_status": "pending",
+      "execution_contexts": [],
+      "feature_package_id": null,
+      "file_path": "tasks/task-policy-check-wiring.md",
+      "github_project_linkages": [],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "goal": null,
+      "graph_node_id": "task-policy-check-wiring",
+      "implementation_readiness": {
+        "checked_at": null,
+        "missing_sections": [],
+        "status": "incomplete"
+      },
+      "issue_linkage": null,
+      "iteration": null,
+      "mvp_alignment": {
+        "background": "policy-rule-seed.ts に初期ルール 13 件が入り検査 75 件で固定したが、application 側に呼び出しが 1 つも無い",
+        "mvp_fit": "direct",
+        "purpose": "記事の確認画面で、薬機法・景表法・ASP 規約の違反が実際に出るようにする",
+        "rationale": "ルールがあっても呼ばれなければ違反は永久に 0 件で、検査があるように見えて無い"
+      },
+      "owners": [
+        "daishiman"
+      ],
+      "parent_feature": null,
+      "phase_ref": null,
+      "priority": "high",
+      "project_id": "affiliate-hub",
+      "pull_request_linkages": [],
+      "purpose": null,
+      "related_nodes": [],
+      "resource_scope": [
+        "domain",
+        "application",
+        "presentation"
+      ],
+      "scope_in": [],
+      "scope_out": [],
+      "source_lineage": {
+        "imported_at": "2026-08-17T23:30:00Z",
+        "origin_kind": "manual",
+        "source_digest": null,
+        "source_path": "src/domain/compliance/policy-rule-seed.ts",
+        "source_plugin": null,
+        "source_version": null
+      },
+      "start_date": null,
+      "status": "draft",
+      "tags": [
+        "compliance",
+        "content"
+      ],
+      "target_date": null,
+      "template_id": "task",
+      "template_version": "1.0.0",
+      "title": "表現ポリシーの検査を、記事の確認画面から実際に呼ぶ",
       "tracker_binding": "beads",
       "updated_at": "2026-08-17T23:30:00Z"
     }
