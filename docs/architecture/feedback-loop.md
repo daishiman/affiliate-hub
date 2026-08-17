@@ -41,7 +41,7 @@ domain/feedback/                 ← 要望そのもの（Analytics は中身を
 | `domain/feedback/handoff.ts` | 払い出しの状態・回数・履歴。**同じ要望から同じ指示文が出ることの保証** | 文面の組み立て |
 | `domain/feedback/handoff-prompt.ts` | 指示文の**組み立て規則**（何を入れ、何を入れないか、区切りの作り方） | ひな型の文字列そのもの |
 | `domain/feedback/capture-policy.ts` | 画像の扱いの決まり（焼き込み必須・保存期間・伏せる要素の宣言名） | 描画処理 |
-| `domain/feedback/integration-key.ts` | 鍵の権限範囲・失効・**潰した値しか持たない**こと | ハッシュの実装 |
+| `domain/feedback/integration-access.ts` | 鍵の権限範囲・失効・**潰した値しか持たない**こと | ハッシュの実装 |
 
 `handoff-prompt.ts` が持つのは「利用者由来の文字列は 1 つの区切りブロックに閉じる」という**規則**で、
 文面のひな型は `infrastructure/generation/` 側（版管理つき）に置く。
