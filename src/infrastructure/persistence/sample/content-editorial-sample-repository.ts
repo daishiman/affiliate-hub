@@ -312,6 +312,32 @@ const VARIANTS: readonly { readonly state: ContentState; readonly variant: Conte
     }),
   },
   {
+    // 承認まで進んだ 1 本。
+    //
+    // これが無いと、**配信を作る操作を誰も試せない**（承認前は断られるため）。
+    // 見本に承認済みが 1 本も無いせいで「承認から先の道が無い」ように見えていた。
+    // 承認は人が行うものなので、見本では承認済みの状態を最初から置いておく。
+    state: "APPROVED",
+    variant: {
+      ...variant({
+        id: "cv_alpha_approved",
+        channel: "own_site",
+        title: "持ち運びと書き出しの両立で選ぶノートPC",
+        body: [
+          DISCLOSURE_TEXT,
+          "4K10分の素材を同じ設定で書き出したところ、7分05秒でした。",
+          "デメリットもあります。同価格帯より画面が小さく、細かい調整はしづらいです。",
+          "詳しい比較はこちら: https://example.com/compare",
+        ].join("\n"),
+        summary:
+          "承認まで済んだ見本です。配信を作る欄はここに出ますが、実際に作るには公開の担当の権限が要ります。",
+        withClaims: true,
+        compliance: "pass",
+      }),
+      status: "approved",
+    },
+  },
+  {
     state: "COMPLIANCE_REVIEW",
     variant: variant({
       id: "cv_beta_short",

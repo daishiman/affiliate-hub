@@ -9,6 +9,7 @@ import {
   type ContentPackage,
   type ContentState,
   type ContentVariant,
+  type ContentVariantStatus,
   type QualityReport,
   allowedNextStates,
   approveVariant,
@@ -16,7 +17,7 @@ import {
   transition,
 } from "@/domain/authoring";
 import { CHANNEL_CAPABILITIES, type ChannelKind } from "@/domain/distribution";
-import { requireCapability } from "@/domain/identity";
+import { can, requireCapability } from "@/domain/identity";
 import {
   type ActorContext,
   type ContentVariantId,
@@ -196,6 +197,14 @@ export type ContentDetail = {
   readonly quality: QualityReport;
   /** 承認に進めるか。進めない場合は理由。 */
   readonly approvalBlockedReason: string | null;
+  /**
+   * 配信を作れるか。作れない場合は理由。
+   *
+   * **画面で判定しない。** 判定を画面へ写すと、REST や AI から呼んだときに
+   * 同じ理由が返らず、「画面では出せないのに AI からは出せる」が生まれる。
+   * 断る本体は配信のユースケース側にあり、ここは**押す前に伝えるため**の写し。
+   */
+  readonly publishBlockedReason: string | null;
 };
 
 export function createGetContentUseCase(
@@ -257,9 +266,26 @@ export function createGetContentUseCase(
             : variant.status === "approved" || variant.status === "published"
               ? "すでに承認済みです。"
               : null,
+        publishBlockedReason: publishBlockedReasonFor(actor, variant.status),
       });
     },
   };
+}
+
+/**
+ * 配信を作れない理由。作れるなら null。
+ *
+ * 順番は「権限 → 承認」。権限が無い人に「承認してください」と出すと、
+ * 承認しても状況が変わらず、直しようのない案内になる。
+ */
+function publishBlockedReasonFor(actor: ActorContext, status: ContentVariantStatus): string | null {
+  if (!can(actor, "content.publish")) {
+    return "この記事を出す権限がありません。配信を始められるのは公開の担当だけです。設定の担当者管理で権限を付けてもらってください。";
+  }
+  if (status !== "approved" && status !== "published") {
+    return "承認が済んでいない記事は配信できません。上の自動確認の結果を見て内容を直し、人の目で承認すると、この欄で出し先を選べるようになります。";
+  }
+  return null;
 }
 
 async function loadVariant(

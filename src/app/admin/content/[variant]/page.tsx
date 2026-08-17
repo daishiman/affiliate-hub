@@ -1,6 +1,7 @@
 import { AdminShell } from "@/presentation/admin/admin-shell";
 import Link from "next/link";
 import type { ReactNode } from "react";
+import { SchedulePublicationForm } from "@/presentation/admin/schedule-publication-form";
 import { contentUseCases, currentActor, editorialContentNotice } from "@/presentation/composition";
 import {
   AiCannotApproveNotice,
@@ -48,7 +49,8 @@ export default async function ContentDetailPage({
     );
   }
 
-  const { variant, quality, authorName, approvalBlockedReason } = result.value;
+  const { variant, quality, authorName, approvalBlockedReason, publishBlockedReason } =
+    result.value;
   const title = variant.title ?? "（見出し未設定）";
   const errors = quality.issues.filter((i) => i.severity === "error");
   const warnings = quality.issues.filter((i) => i.severity !== "error");
@@ -118,6 +120,24 @@ export default async function ContentDetailPage({
               </div>
             ))}
           </dl>
+        )}
+      </Card>
+
+      <Card>
+        <h2 className={styles.sectionTitle}>この記事を出す</h2>
+        {publishBlockedReason === null ? (
+          <>
+            <p className={styles.sectionLead}>
+              出し先と日時を決めると、配信が 1 件登録されます。ここで投稿はされません。
+              同じ記事・同じ先・同じ日時をもう一度登録しても、配信は増えません。
+            </p>
+            <SchedulePublicationForm variantId={variantId} />
+          </>
+        ) : (
+          // 欄を消して黙らない。なぜ出せないのか、次に何をすれば出せるのかを書く。
+          // 理由の文はユースケースが返す。画面でもう一度判定すると、
+          // 画面と AI で違う理由が出る（そして片方だけ古くなる）。
+          <EmptyView title="まだ配信できません" body={publishBlockedReason} />
         )}
       </Card>
 

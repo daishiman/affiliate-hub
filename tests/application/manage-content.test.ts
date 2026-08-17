@@ -43,6 +43,7 @@ const nobody = aNobody({ workspaceId: WS });
 const REVIEWABLE = "cv_alpha_review";
 const FAILING_DRAFT = "cv_alpha_draft";
 const SHORT_POST = "cv_beta_short";
+const APPROVED_POST = "cv_alpha_approved";
 
 function deps(over: Partial<ManageContentDeps> = {}): ManageContentDeps {
   const base = testDeps();
@@ -110,7 +111,7 @@ describe("進行の一覧", () => {
     }
   });
 
-  it("見本の 3 本が、それぞれの列に入っている", async () => {
+  it("見本の 4 本が、それぞれの列に入っている", async () => {
     const got = await createListContentBoardUseCase(deps()).execute(owner, {});
     if (!got.ok) throw got.error;
 
@@ -119,7 +120,9 @@ describe("進行の一覧", () => {
     expect(idsOf("GENERATED")).toContain(FAILING_DRAFT);
     expect(idsOf("FACT_CHECK")).toContain(REVIEWABLE);
     expect(idsOf("COMPLIANCE_REVIEW")).toContain(SHORT_POST);
-    expect(got.value.total).toBe(3);
+    // 承認済みが 1 本ある。これが無いと、配信を作る操作を誰も試せない。
+    expect(idsOf("APPROVED")).toContain(APPROVED_POST);
+    expect(got.value.total).toBe(4);
     expect(got.value.emptyReason).toBeNull();
   });
 

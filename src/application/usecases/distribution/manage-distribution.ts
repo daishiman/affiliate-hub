@@ -1,4 +1,5 @@
 import type { EditorialContentVariantRepositoryPort } from "@/application/ports/authoring";
+import type { IdGeneratorPort } from "@/application/ports/common";
 import type {
   ChannelConnectionRepositoryPort,
   ManualExportPort,
@@ -11,12 +12,16 @@ import {
   type Publication,
   type PublicationState,
   advance,
+  buildIdempotencyKey,
+  createPublication,
   isConnectionUsable,
   supportsDirectPublish,
 } from "@/domain/distribution";
 import { requireCapability } from "@/domain/identity";
 import {
   type ActorContext,
+  type ChannelConnectionId,
+  type ContentVariantId,
   type DomainError,
   type PublicationId,
   type Result,
@@ -25,6 +30,7 @@ import {
   err,
   ok,
   taggedString,
+  validationError,
 } from "@/domain/shared";
 import type { UseCase } from "../usecase";
 
@@ -48,6 +54,8 @@ export type ManageDistributionDeps = {
    * 貼り付ける中身は記事側にあるので、ここから読む。
    */
   readonly variants: EditorialContentVariantRepositoryPort;
+  /** ID 生成。配信を新しく作るときに要る。 */
+  readonly ids: IdGeneratorPort;
 };
 
 /** 出し方の表示名。識別子をそのまま画面に出さない。 */
@@ -438,4 +446,223 @@ export function createExportManualDraftUseCase(
       });
     },
   };
+}
+
+// --- 配信を作る -------------------------------------------------------------
+
+export type SchedulePublicationInput = {
+  readonly variantId: string;
+  readonly channelKind: ChannelKind;
+  /** 出し先のアカウント。省略したときは、使える接続が 1 つだけなら自動で決まる。 */
+  readonly connectionId?: string | null;
+  /**
+   * 予約時刻。空文字・null・省略で即時。
+   *
+   * **Date ではなく文字列で受ける。** 入口の形は道具の一覧として
+   * JSON Schema に写されるが、Date は JSON Schema で表現できず、
+   * 一覧の生成そのものが落ちる（実際に落として直した）。
+   * REST・WebMCP・画面のどれから来ても同じ形にするため、ここは文字列に揃える。
+   */
+  readonly scheduledAt?: string | null;
+};
+
+export type SchedulePublicationOutput = {
+  readonly card: PublicationCard;
+  /**
+   * 同じ要求が既にあったか。
+   *
+   * true でも失敗ではない。**同じものを 2 回作らなかった**という結果なので、
+   * 画面はエラーではなく「すでに登録済みです」と伝える。
+   */
+  readonly alreadyExisted: boolean;
+  /** 自動で投稿できない先のときの案内。null なら自動で出せる。 */
+  readonly manualExportNotice: string | null;
+};
+
+/**
+ * 「この記事を、ここへ出す」を開始する。
+ *
+ * ここが無いと、承認まで進めた記事を配信へ渡す道が無い（配信の一覧に見本が
+ * 並ぶだけで、実際には誰も新しい配信を作れない）。1 周の結合テストで
+ * この穴が見つかった（残課題 26）。
+ *
+ * --- ここで守っていること ---
+ *
+ * 1. **承認していない記事は出せない。** 状態の判断は原稿側の `status` 一つに
+ *    寄せる。画面が「承認済みの記事だけ選択肢に出す」で済ませると、
+ *    AI や API から同じ操作をされたときに素通りする。
+ *
+ * 2. **出し先のアカウントを黙って選ばない。** 使える接続が複数あるとき、
+ *    こちらで 1 つ選ぶと、意図しないアカウントへ投稿してから気づくことになる。
+ *    投稿は取り消しても「一度出た」事実が消えないので、迷ったら聞く。
+ *
+ * 3. **同じ要求は 1 件にする。** 二重クリック・再送・AI の再試行で
+ *    同じ投稿が 2 つ並ぶのを、作る時点で防ぐ。鍵の作り方は domain が持つ。
+ */
+export function createSchedulePublicationUseCase(
+  deps: ManageDistributionDeps,
+): UseCase<SchedulePublicationInput, SchedulePublicationOutput> {
+  return {
+    async execute(
+      actor: ActorContext,
+      input: SchedulePublicationInput,
+    ): Promise<Result<SchedulePublicationOutput, DomainError>> {
+      const allowed = requireCapability(actor, "content.publish", "配信の開始");
+      if (!allowed.ok) return allowed;
+
+      const variantId = taggedString<"ContentVariantId">(input.variantId) as ContentVariantId;
+
+      const variant = await deps.variants.findById(actor.workspaceId, variantId);
+      if (!variant.ok) return variant;
+      if (variant.value === null) {
+        return err(
+          domainError("NOT_FOUND", "この記事が見つかりません。", {
+            suggestedAction: "記事の一覧から選び直してください。",
+          }),
+        );
+      }
+      const sameVariant = assertSameTenant(actor, variant.value, "この記事");
+      if (!sameVariant.ok) return sameVariant;
+
+      // 承認前を通さない。ここが最後の関所で、画面の出し分けは補助でしかない。
+      if (variant.value.status !== "approved" && variant.value.status !== "published") {
+        return err(
+          domainError("CONFLICT", "承認が済んでいない記事は配信できません。", {
+            suggestedAction:
+              "記事の画面で内容を確認し、承認してから配信してください（承認は人が行います）。",
+          }),
+        );
+      }
+
+      const raw = (input.scheduledAt ?? "").trim();
+      let scheduledAt: Date | null = null;
+      if (raw !== "") {
+        const parsed = new Date(raw);
+        // 読み取れない文字列を「指定なし」に倒さない。倒すと即時投稿になる。
+        if (Number.isNaN(parsed.getTime())) {
+          return err(
+            validationError(
+              "日時の形が読み取れませんでした。日付と時刻を選び直してください。",
+              "scheduledAt",
+            ),
+          );
+        }
+        // 過ぎた時刻を黙って即時に倒さない。打ち間違いがそのまま投稿になる。
+        if (parsed.getTime() < Date.now()) {
+          return err(
+            validationError(
+              "過ぎた時刻は予約できません。いま出すなら予約時刻を空にしてください。",
+              "scheduledAt",
+            ),
+          );
+        }
+        scheduledAt = parsed;
+      }
+
+      const connectionId = await resolveConnection(deps, actor, input);
+      if (!connectionId.ok) return connectionId;
+
+      // 同じ要求が既にあれば、それを返す。作り直さない。
+      const idempotencyKey = buildIdempotencyKey({
+        variantId,
+        channelKind: input.channelKind,
+        scheduledAt,
+      });
+      const existing = await deps.publications.findByIdempotencyKey(
+        actor.workspaceId,
+        idempotencyKey,
+      );
+      if (!existing.ok) return existing;
+      if (existing.value !== null) {
+        return ok({
+          card: toCard(existing.value),
+          alreadyExisted: true,
+          manualExportNotice: manualNoticeFor(input.channelKind),
+        });
+      }
+
+      const created = createPublication({
+        id: taggedString<"PublicationId">(`pub_${deps.ids.newId()}`) as PublicationId,
+        workspaceId: actor.workspaceId,
+        variantId,
+        channelKind: input.channelKind,
+        connectionId: connectionId.value,
+        scheduledAt,
+        idempotencyKey,
+      });
+      if (!created.ok) return created;
+
+      const saved = await deps.publications.save(created.value);
+      if (!saved.ok) return saved;
+
+      return ok({
+        card: toCard(saved.value),
+        alreadyExisted: false,
+        manualExportNotice: manualNoticeFor(input.channelKind),
+      });
+    },
+  };
+}
+
+function manualNoticeFor(kind: ChannelKind): string | null {
+  if (supportsDirectPublish(kind)) return null;
+  return `${CHANNEL_CAPABILITIES[kind].label} には公開された投稿の仕組みがありません。下書きを書き出して、ご自身で投稿してください。`;
+}
+
+/**
+ * 出し先のアカウントを決める。
+ *
+ * 自動で投稿できない先（note）は接続を持たないので null を返す。
+ * 自動で投稿できる先では、**使える接続が 1 つのときだけ**自動で決める。
+ */
+async function resolveConnection(
+  deps: ManageDistributionDeps,
+  actor: ActorContext,
+  input: SchedulePublicationInput,
+): Promise<Result<ChannelConnectionId | null, DomainError>> {
+  const capability = CHANNEL_CAPABILITIES[input.channelKind];
+  if (!supportsDirectPublish(input.channelKind)) return ok(null);
+
+  const listed = await deps.connections.listByWorkspace(actor.workspaceId, {
+    limit: 100,
+    cursor: null,
+  });
+  if (!listed.ok) return listed;
+
+  const now = new Date();
+  const usable = listed.value.items.filter(
+    (c) => c.kind === input.channelKind && isConnectionUsable(c, now),
+  );
+
+  if (input.connectionId != null && input.connectionId !== "") {
+    const chosen = usable.find((c) => String(c.id) === input.connectionId);
+    if (chosen === undefined) {
+      return err(
+        domainError("NOT_FOUND", `指定された ${capability.label} の接続が使えません。`, {
+          suggestedAction:
+            "接続が取り消されているか、期限が切れています。設定の画面でつなぎ直してください。",
+        }),
+      );
+    }
+    return ok(chosen.id);
+  }
+
+  if (usable.length === 0) {
+    return err(
+      domainError("CONFLICT", `${capability.label} との接続がまだありません。`, {
+        suggestedAction: "設定の画面で接続してから、もう一度配信してください。",
+      }),
+    );
+  }
+  if (usable.length > 1) {
+    return err(
+      validationError(
+        `${capability.label} の接続が ${usable.length} つあります。どのアカウントへ出すか選んでください（${usable
+          .map((c) => c.accountLabel)
+          .join(" / ")}）。`,
+        "connectionId",
+      ),
+    );
+  }
+  return ok(usable[0]!.id);
 }

@@ -42,6 +42,7 @@ function deps(over: Partial<ManageDistributionDeps> = {}): ManageDistributionDep
     publications: base.publications,
     manualExport: base.manualExport,
     variants: base.contentVariants,
+    ids: base.ids,
     ...over,
   };
 }

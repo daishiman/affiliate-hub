@@ -49,6 +49,7 @@ export const FIELD_VALUES: Readonly<Record<string, unknown>> = {
   // --- 配信 ---
   publicationId: "pub_own_site",
   scheduledAt: "2026-09-01T09:00:00.000Z",
+  channelKind: "own_site",
 
   // --- 収益 ---
   period: "2026-08",

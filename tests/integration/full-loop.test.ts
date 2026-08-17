@@ -12,6 +12,7 @@ import {
 import {
   type ManageDistributionDeps,
   createListPublicationsUseCase,
+  createSchedulePublicationUseCase,
 } from "@/application/usecases/distribution/manage-distribution";
 import { createDraftContentVariantUseCase } from "@/application/usecases/generation/draft-content-variant";
 import { createRecordTelemetryUseCase } from "@/application/usecases/analytics/record-telemetry";
@@ -314,7 +315,11 @@ function readyCandidate(): PublishCandidate {
 
 // --- 1 周 -------------------------------------------------------------------
 
-const CONNECTION = aChannelConnection({ kind: "own_site", accountLabel: "見本ブログ" });
+const CONNECTION = aChannelConnection({
+  kind: "own_site",
+  accountLabel: "見本ブログ",
+  workspaceId: SAMPLE_WORKSPACE_ID as WorkspaceId,
+});
 
 let variants: EditorialContentVariantRepositoryPort;
 let publications: PublicationRepositoryPort;
@@ -341,10 +346,17 @@ function contentDeps(): ManageContentDeps {
 function distributionDeps(): ManageDistributionDeps {
   const base = testDeps();
   return {
-    connections: base.channelConnections,
+    // 出し先は 1 つだけ用意する。複数あると、ユースケースは
+    // 「こちらで選ばずアカウント名を挙げて聞き返す」ので 1 周が進まない。
+    // これは不便ではなく仕様（投稿は取り消しても「出た」事実が消せない）。
+    connections: {
+      ...base.channelConnections,
+      listByWorkspace: async () => ok({ items: [CONNECTION], nextCursor: null }),
+    } as ManageDistributionDeps["connections"],
     publications,
     manualExport: base.manualExport,
     variants,
+    ids: base.ids,
   };
 }
 
@@ -382,18 +394,35 @@ describe("1 周（作る → 承認 → 公開 → 測る → 分析 → 提案 
     if (!reread.ok) return;
     expect(reread.value.variant.status).toBe("approved");
 
-    // ③ 公開。公開ゲートの結果を持たずには送信へ進めない。
-    const created = createPublication({
-      id: taggedString<"PublicationId">("pub_loop_1") as PublicationId,
-      workspaceId: WS,
-      variantId: reread.value.variant.id,
+    // ③ 公開。**アプリの入口から**配信を作る。
+    // ここは以前 domain の `createPublication` を直接呼んで代用していた。
+    // 代用したままだと「1 周は回るが、画面からも AI からも始められない」に
+    // 気づけない（実際にそうなっていた。残課題 26）。
+    const scheduled = await createSchedulePublicationUseCase(distributionDeps()).execute(owner, {
+      variantId: String(reread.value.variant.id),
       channelKind: "own_site",
-      connectionId: CONNECTION.id,
-      idempotencyKey: "idem-loop-1",
     });
-    expect(created.ok).toBe(true);
-    if (!created.ok) return;
-    await publications.save(created.value);
+    expect(scheduled.ok).toBe(true);
+    if (!scheduled.ok) return;
+    expect(scheduled.value.alreadyExisted).toBe(false);
+
+    // 同じ要求をもう一度出しても増えない。二重投稿はここで止まる。
+    const again = await createSchedulePublicationUseCase(distributionDeps()).execute(owner, {
+      variantId: String(reread.value.variant.id),
+      channelKind: "own_site",
+    });
+    expect(again.ok).toBe(true);
+    if (!again.ok) return;
+    expect(again.value.alreadyExisted).toBe(true);
+    expect(again.value.card.publicationId).toBe(scheduled.value.card.publicationId);
+
+    const stored = await publications.findById(
+      WS,
+      taggedString<"PublicationId">(scheduled.value.card.publicationId) as PublicationId,
+    );
+    expect(stored.ok).toBe(true);
+    if (!stored.ok || stored.value === null) return;
+    const created = { ok: true as const, value: stored.value };
 
     const rendering = advance(created.value, "RENDERING", { at: NOW });
     expect(rendering.ok).toBe(true);

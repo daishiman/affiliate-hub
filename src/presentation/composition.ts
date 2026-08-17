@@ -40,6 +40,7 @@ import {
   createGetPublicationUseCase,
   createListChannelsUseCase,
   createListPublicationsUseCase,
+  createSchedulePublicationUseCase,
 } from "@/application/usecases/distribution/manage-distribution";
 import {
   createGetPublicationCalendarUseCase,
@@ -566,6 +567,7 @@ export function distributionUseCases() {
     publications: deps.publications,
     manualExport: deps.manualExport,
     variants: deps.contentVariants,
+    ids: deps.ids,
   };
   return {
     listChannels: createListChannelsUseCase(distribution),
@@ -573,6 +575,7 @@ export function distributionUseCases() {
     getPublication: createGetPublicationUseCase(distribution),
     exportManualDraft: createExportManualDraftUseCase(distribution),
     cancel: createCancelPublicationUseCase(distribution),
+    schedule: createSchedulePublicationUseCase(distribution),
   };
 }
 

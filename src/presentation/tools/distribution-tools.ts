@@ -6,11 +6,13 @@ import {
   createGetPublicationUseCase,
   createListChannelsUseCase,
   createListPublicationsUseCase,
+  createSchedulePublicationUseCase,
 } from "@/application/usecases/distribution/manage-distribution";
 import {
   createGetPublicationCalendarUseCase,
   createReschedulePublicationUseCase,
 } from "@/application/usecases/distribution/publication-calendar";
+import { CHANNEL_CAPABILITIES, type ChannelKind } from "@/domain/distribution";
 import { defineTool } from "./define-tool";
 import type { AnyToolDefinition } from "./tool-definition";
 
@@ -28,6 +30,7 @@ export function distributionTools(deps: AppDeps): readonly AnyToolDefinition[] {
     publications: deps.publications,
     manualExport: deps.manualExport,
     variants: deps.contentVariants,
+    ids: deps.ids,
   };
   const calendar = {
     publications: deps.publications,
@@ -68,6 +71,25 @@ export function distributionTools(deps: AppDeps): readonly AnyToolDefinition[] {
       schema: z.object({ publicationId }),
       readOnly: true,
       useCase: createExportManualDraftUseCase(distribution),
+    }),
+    defineTool({
+      name: "schedule_publication",
+      description:
+        "承認済みの記事を、指定した先へ出す配信を作ります。承認前の記事は断ります。同じ記事・同じ先・同じ時刻の要求は 1 件にまとめます。実際の投稿は配信の進行で行われます。",
+      schema: z.object({
+        variantId: z.string().min(1),
+        // 出し先は登録表から列挙する。手で並べると、チャネルを 1 つ足した日に
+        // 道具だけが古くなり、「その先は選べません」と断る理由が説明できなくなる。
+        channelKind: z.enum(
+          Object.keys(CHANNEL_CAPABILITIES) as [ChannelKind, ...ChannelKind[]],
+        ),
+        connectionId: z.string().min(1).optional(),
+        // 日時は文字列で受ける。Date は JSON Schema に写せず、道具一覧が作れなくなる。
+        scheduledAt: z.string().optional(),
+      }),
+      readOnly: false,
+      requiresHumanApproval: true,
+      useCase: createSchedulePublicationUseCase(distribution),
     }),
     defineTool({
       name: "cancel_publication",
