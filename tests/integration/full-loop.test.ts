@@ -1,3 +1,4 @@
+/** @tier 2 */
 import { beforeEach, describe, expect, it } from "vitest";
 import type { EditorialContentVariantRepositoryPort } from "@/application/ports/authoring";
 import type { PublicationRepositoryPort } from "@/application/ports/distribution";

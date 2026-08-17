@@ -1,5 +1,5 @@
 {
-  "graph_revision": 188,
+  "graph_revision": 192,
   "nodes": [
     {
       "acceptance": [],
@@ -6857,23 +6857,32 @@
       "classification_confidence": 0.95,
       "classification_reason": "docs/product/stub-ledger.md のスタブ解除を作業単位として登録",
       "completion_evidence": {
-        "completed_at": null,
-        "evidence_refs": [],
+        "completed_at": "2026-08-17T10:34:29Z",
+        "evidence_refs": [
+          "beads:ah-s26",
+          "git:f102bec",
+          "src/application/usecases/site/publish-article.ts",
+          "src/presentation/admin/publish-article-form.tsx",
+          "tests/application/publish-article.test.ts",
+          "tests/integration/d1-published-article.test.ts",
+          "drizzle/0011_fair_talkback.sql",
+          "docs/product/traceability.md#REQ-P08"
+        ],
         "policy": "manual",
-        "reconciled_at": null,
+        "reconciled_at": "2026-08-17T10:40:00Z",
         "source": "manual",
-        "status": "in_progress"
+        "status": "done"
       },
       "confirmation_evidence": {
-        "evaluated_digest": null,
-        "evaluator": null,
-        "evidence_ref": null
+        "evaluated_digest": "2498944b83e6bdcb0a260d8645014cb3f9821895b9a99e21ccc3852dfb55e0ca",
+        "evaluator": "pnpm run verify（6 検査すべて通過）と pnpm run preview（Workers ランタイム）での実測確認",
+        "evidence_ref": "tasks/task-own-site-publish.md"
       },
-      "confirmation_status": "draft",
+      "confirmation_status": "confirmed",
       "created_at": "2026-08-17T09:30:00Z",
       "depends_on": [],
       "domain": "distribution",
-      "evaluation_status": "pending",
+      "evaluation_status": "pass",
       "execution_contexts": [],
       "feature_package_id": null,
       "file_path": "tasks/task-own-site-publish.md",
@@ -6887,9 +6896,9 @@
       "goal": null,
       "graph_node_id": "task-own-site-publish",
       "implementation_readiness": {
-        "checked_at": null,
+        "checked_at": "2026-08-17T10:40:00Z",
         "missing_sections": [],
-        "status": "incomplete"
+        "status": "complete"
       },
       "issue_linkage": null,
       "iteration": null,
@@ -6926,7 +6935,7 @@
         "source_version": null
       },
       "start_date": "2026-08-17",
-      "status": "draft",
+      "status": "done",
       "tags": [
         "backlog",
         "mvp"
@@ -6936,7 +6945,301 @@
       "template_version": "1.0.0",
       "title": "自社サイトへの公開を本物にする（published_articles と own_site コネクタ）",
       "tracker_binding": "beads",
-      "updated_at": "2026-08-17T09:30:00Z"
+      "updated_at": "2026-08-17T10:35:31.680061Z"
+    },
+    {
+      "acceptance": [],
+      "architecture_refs": [],
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "beads_linkage": null,
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "candidate_path": "tasks/task-test-tier-design.md",
+          "confidence": 0.95
+        }
+      ],
+      "classification_confidence": 0.95,
+      "classification_reason": "利用者からのテスト戦略の要求を作業単位として登録",
+      "completion_evidence": {
+        "completed_at": null,
+        "evidence_refs": [],
+        "policy": "manual",
+        "reconciled_at": null,
+        "source": "manual",
+        "status": "in_progress"
+      },
+      "confirmation_evidence": {
+        "evaluated_digest": null,
+        "evaluator": null,
+        "evidence_ref": null
+      },
+      "confirmation_status": "draft",
+      "created_at": "2026-08-17T11:00:00Z",
+      "depends_on": [],
+      "domain": "quality",
+      "evaluation_status": "pending",
+      "execution_contexts": [],
+      "feature_package_id": null,
+      "file_path": "tasks/task-test-tier-design.md",
+      "github_project_linkages": [],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "goal": null,
+      "graph_node_id": "task-test-tier-design",
+      "implementation_readiness": {
+        "checked_at": null,
+        "missing_sections": [],
+        "status": "incomplete"
+      },
+      "issue_linkage": null,
+      "iteration": null,
+      "mvp_alignment": {
+        "background": "検査が 1 段しか無く、重いテストを足すと CI が回らなくなる。public リポジトリなので Actions の時間は無料であり、費用の要因は AI 評価セットだけである",
+        "mvp_fit": "enabling",
+        "purpose": "重いテストを足しても CI が回り続ける置き場所を先に作る",
+        "rationale": "順序を逆にすると、重いテストを入れてから「重いテストを消す」判断に流れる。テストを消す・skip する・閾値を下げる代わりに、実行する場所を変える"
+      },
+      "owners": [
+        "daishiman"
+      ],
+      "parent_feature": null,
+      "phase_ref": null,
+      "priority": "critical",
+      "project_id": "affiliate-hub",
+      "pull_request_linkages": [],
+      "purpose": null,
+      "related_nodes": [],
+      "resource_scope": [
+        "quality-gates.config.mjs",
+        "scripts",
+        ".github/workflows",
+        "tests/architecture"
+      ],
+      "scope_in": [],
+      "scope_out": [],
+      "source_lineage": {
+        "imported_at": "2026-08-17T11:00:00Z",
+        "origin_kind": "manual",
+        "source_digest": null,
+        "source_path": "docs/spec/10-テスト戦略仕様.md",
+        "source_plugin": null,
+        "source_version": null
+      },
+      "start_date": "2026-08-17",
+      "status": "draft",
+      "tags": [
+        "quality",
+        "testing"
+      ],
+      "target_date": null,
+      "template_id": "task",
+      "template_version": "1.0.0",
+      "title": "品質ゲートを 3 段（push / PR / 夜間）に分ける",
+      "tracker_binding": "beads",
+      "updated_at": "2026-08-17T11:00:00Z"
+    },
+    {
+      "acceptance": [],
+      "architecture_refs": [],
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "beads_linkage": null,
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "candidate_path": "tasks/task-mutation-property-testing.md",
+          "confidence": 0.95
+        }
+      ],
+      "classification_confidence": 0.95,
+      "classification_reason": "利用者からのテスト戦略の要求を作業単位として登録",
+      "completion_evidence": {
+        "completed_at": null,
+        "evidence_refs": [],
+        "policy": "manual",
+        "reconciled_at": null,
+        "source": "manual",
+        "status": "in_progress"
+      },
+      "confirmation_evidence": {
+        "evaluated_digest": null,
+        "evaluator": null,
+        "evidence_ref": null
+      },
+      "confirmation_status": "draft",
+      "created_at": "2026-08-17T11:00:00Z",
+      "depends_on": [
+        "task-test-tier-design"
+      ],
+      "domain": "quality",
+      "evaluation_status": "pending",
+      "execution_contexts": [],
+      "feature_package_id": null,
+      "file_path": "tasks/task-mutation-property-testing.md",
+      "github_project_linkages": [],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "goal": null,
+      "graph_node_id": "task-mutation-property-testing",
+      "implementation_readiness": {
+        "checked_at": null,
+        "missing_sections": [],
+        "status": "incomplete"
+      },
+      "issue_linkage": null,
+      "iteration": null,
+      "mvp_alignment": {
+        "background": "約 91% の網羅率は構造的なものでしかなく、行が正しいか・仕様を覆えているかを 1 つも言っていない。アサーションが 0 でも 100% に届く",
+        "mvp_fit": "enabling",
+        "purpose": "実装をハードコードして通したテストが、機械で見つかるようにする",
+        "rationale": "ミューテーションは「テストを外から壊して落ちるか」を測るので、構造的カバレッジが答えられない問いに答えられる"
+      },
+      "owners": [
+        "daishiman"
+      ],
+      "parent_feature": null,
+      "phase_ref": null,
+      "priority": "critical",
+      "project_id": "affiliate-hub",
+      "pull_request_linkages": [],
+      "purpose": null,
+      "related_nodes": [],
+      "resource_scope": [
+        "tests",
+        "scripts",
+        "quality-gates.config.mjs"
+      ],
+      "scope_in": [],
+      "scope_out": [],
+      "source_lineage": {
+        "imported_at": "2026-08-17T11:00:00Z",
+        "origin_kind": "manual",
+        "source_digest": null,
+        "source_path": "docs/spec/10-テスト戦略仕様.md",
+        "source_plugin": null,
+        "source_version": null
+      },
+      "start_date": "2026-08-17",
+      "status": "draft",
+      "tags": [
+        "quality",
+        "testing"
+      ],
+      "target_date": null,
+      "template_id": "task",
+      "template_version": "1.0.0",
+      "title": "テストを騙せない仕組み（ミューテーション・プロパティベース）",
+      "tracker_binding": "beads",
+      "updated_at": "2026-08-17T11:00:00Z"
+    },
+    {
+      "acceptance": [],
+      "architecture_refs": [],
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "beads_linkage": null,
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "candidate_path": "tasks/task-test-type-coverage.md",
+          "confidence": 0.95
+        }
+      ],
+      "classification_confidence": 0.95,
+      "classification_reason": "利用者からのテスト戦略の要求を作業単位として登録",
+      "completion_evidence": {
+        "completed_at": null,
+        "evidence_refs": [],
+        "policy": "manual",
+        "reconciled_at": null,
+        "source": "manual",
+        "status": "in_progress"
+      },
+      "confirmation_evidence": {
+        "evaluated_digest": null,
+        "evaluator": null,
+        "evidence_ref": null
+      },
+      "confirmation_status": "draft",
+      "created_at": "2026-08-17T11:00:00Z",
+      "depends_on": [
+        "task-test-tier-design",
+        "task-mutation-property-testing"
+      ],
+      "domain": "quality",
+      "evaluation_status": "pending",
+      "execution_contexts": [],
+      "feature_package_id": null,
+      "file_path": "tasks/task-test-type-coverage.md",
+      "github_project_linkages": [],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "goal": null,
+      "graph_node_id": "task-test-type-coverage",
+      "implementation_readiness": {
+        "checked_at": null,
+        "missing_sections": [],
+        "status": "incomplete"
+      },
+      "issue_linkage": null,
+      "iteration": null,
+      "mvp_alignment": {
+        "background": "現在の 7 種類は目盛りとして粗く、等価分割・境界値・禁止遷移・権限の「できてはいけない側」などが区別できない",
+        "mvp_fit": "enabling",
+        "purpose": "やっている種別とやっていない種別を、正直に見える形にする",
+        "rationale": "全種別を今すぐ 100% やる必要は無い。やっていないものを「やった」と書かないことが要件である"
+      },
+      "owners": [
+        "daishiman"
+      ],
+      "parent_feature": null,
+      "phase_ref": null,
+      "priority": "high",
+      "project_id": "affiliate-hub",
+      "pull_request_linkages": [],
+      "purpose": null,
+      "related_nodes": [],
+      "resource_scope": [
+        "docs",
+        "scripts",
+        "tests"
+      ],
+      "scope_in": [],
+      "scope_out": [],
+      "source_lineage": {
+        "imported_at": "2026-08-17T11:00:00Z",
+        "origin_kind": "manual",
+        "source_digest": null,
+        "source_path": "docs/spec/10-テスト戦略仕様.md",
+        "source_plugin": null,
+        "source_version": null
+      },
+      "start_date": "2026-08-17",
+      "status": "draft",
+      "tags": [
+        "quality",
+        "testing"
+      ],
+      "target_date": null,
+      "template_id": "task",
+      "template_version": "1.0.0",
+      "title": "テスト種別の網羅と、要件ごとの必須種別ゲート",
+      "tracker_binding": "beads",
+      "updated_at": "2026-08-17T11:00:00Z"
     }
   ],
   "repository_id": "github:daishiman/affiliate-hub",

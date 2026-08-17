@@ -1,15 +1,21 @@
+/** @tier 1 */
 import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import {
+  AI_EVAL_BUDGET,
   CHECKS,
   GLOBAL_COVERAGE,
   LAYER_COVERAGE,
   MAX_STUB_GAP_POINTS,
   RELEASE_GATES,
   STUB_PATTERNS,
+  TIERS,
+  TIER_IDS,
+  checksForTiers,
   judgeStubGap,
 } from "../../quality-gates.config.mjs";
+import { readTier, scanTiers } from "../../scripts/tier-scan.mjs";
 
 /**
  * 品質ゲートの正本が 1 つであり続けることを見る。
@@ -91,13 +97,81 @@ describe("検査の一覧", () => {
   });
 });
 
+describe("検査の段", () => {
+  it("すべての検査が、実在する段に属している", () => {
+    // 段の無い検査は `checksForTiers` の網から落ち、どの実行でも走らない。
+    for (const check of CHECKS) {
+      expect(TIER_IDS, `${check.id} の段 ${check.tier} は定義されていません`).toContain(check.tier);
+    }
+  });
+
+  it("すべてのテストファイルに段の印がある", () => {
+    // これが `scripts/tier-audit.mjs` と同じことを見ている理由は、
+    // 検査スクリプトそのものが CI から外されたときに気づける場所を、
+    // テスト側にも 1 つ残しておくため。
+    const bad = scanTiers(ROOT).filter((f) => f.problem !== null);
+    expect(bad.map((f) => `${f.path}（${f.problem}）`)).toEqual([]);
+  });
+
+  it("段の印が無い / 知らない番号 / 二重指定を、それぞれ見分ける", () => {
+    // 一番大事な検査なので、検査自身が壊れていないことを直接確かめる。
+    expect(readTier("describe('x', () => {})").problem).toBe("missing");
+    expect(readTier("/** @tier 1 */").problem).toBe(null);
+    expect(readTier("/** @tier 9 */").problem).toBe("unknown");
+    expect(readTier("/** @tier 1 */\n/** @tier 2 */").problem).toBe("duplicate");
+  });
+
+  it("段の指定漏れの検査が、テストを走らせる前に置かれている", () => {
+    // 後ろに置くと、印の無いテストが走らないまま緑になったあとで気づくことになる。
+    const order = CHECKS.map((c) => c.id);
+    expect(order.indexOf("tier-audit")).toBeGreaterThanOrEqual(0);
+    expect(order.indexOf("tier-audit")).toBeLessThan(order.indexOf("test"));
+  });
+
+  it("既定ではマージを止める段だけが走る", () => {
+    // 手元で `pnpm verify` を打った人を、夜間向けの 90 分に付き合わせない。
+    const ids = checksForTiers(null).map((c) => c.id);
+    const ciTiers = TIERS.filter((t) => t.runOn === "ci").map((t) => t.id);
+    for (const check of CHECKS) {
+      expect(ids.includes(check.id)).toBe(ciTiers.includes(check.tier));
+    }
+  });
+
+  it("マージを止める段は、機械の上で走る段と一致する", () => {
+    // 手元でしか走らないものにマージを止めさせると、機械は緑のまま人だけが止まる。
+    for (const tier of TIERS) {
+      if (tier.blocksMerge) expect(tier.runOn, `${tier.label}`).toBe("ci");
+    }
+  });
+
+  it("時間の目標が段の重さの順に並んでいる", () => {
+    const minutes = TIERS.map((t) => t.targetMinutes);
+    expect([...minutes].sort((a, b) => a - b)).toEqual(minutes);
+  });
+
+  it("AI 評価セットの上限が、評価セットの実件数を超えていない", () => {
+    // 上限が実件数より大きいと、上限は 1 度も効かない飾りになる。
+    expect(AI_EVAL_BUDGET.maxCases).toBeLessThanOrEqual(51);
+    expect(AI_EVAL_BUDGET.maxTokens).toBeGreaterThan(0);
+  });
+
+  it("それぞれの段に、その段にした理由が書かれている", () => {
+    for (const tier of TIERS) {
+      expect(tier.why.length, `${tier.label} に理由がありません`).toBeGreaterThan(10);
+    }
+  });
+});
+
 describe("正本がひとつであること", () => {
   it("vitest の設定が閾値を直接書かず、正本から読んでいる", () => {
     const config = read("vitest.config.mts");
     expect(config).toContain("quality-gates.config.mjs");
-    expect(config).toContain("thresholds: GLOBAL_COVERAGE");
+    // 段を絞ったときだけ判定を外すので、行の形は固定しない。
+    // 見張るのは「閾値が正本から来ていること」と「数字を直接書いていないこと」の 2 つ。
+    expect(config).toMatch(/thresholds:.*GLOBAL_COVERAGE/);
     // 「80」を直接書いていないこと。書くと、正本を直しても効かない場所が生まれる。
     expect(config).not.toMatch(/thresholds:\s*\{/);
+    expect(config).not.toMatch(/thresholds:.*\b(80|85|90)\b/);
   });
 
   it("自動化の設定ファイルに閾値や検査名を書き写していない", () => {

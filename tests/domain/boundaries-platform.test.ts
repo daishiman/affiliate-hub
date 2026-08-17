@@ -1,3 +1,4 @@
+/** @tier 1 */
 import { describe, expect, it } from "vitest";
 import { checkPolicies } from "@/domain/compliance";
 import type { GateResult } from "@/domain/compliance/publish-gate";

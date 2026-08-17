@@ -1,3 +1,4 @@
+/** @tier 1 */
 import { describe, expect, it } from "vitest";
 import { createD1ConversionRepository } from "@/infrastructure/persistence/d1/conversion-repository";
 import type { DrizzleD1 } from "@/infrastructure/persistence/d1/link-inbox-repository";

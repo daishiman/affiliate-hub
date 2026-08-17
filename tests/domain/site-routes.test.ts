@@ -1,3 +1,4 @@
+/** @tier 1 */
 import { existsSync, readdirSync, statSync } from "node:fs";
 import { join, relative } from "node:path";
 import { describe, expect, it } from "vitest";

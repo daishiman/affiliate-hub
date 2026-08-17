@@ -1,3 +1,4 @@
+/** @tier 2 */
 import { readdirSync } from "node:fs";
 import { resolve } from "node:path";
 import { describe, expect, it } from "vitest";

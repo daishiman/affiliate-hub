@@ -1,3 +1,4 @@
+/** @tier 2 */
 import { readdirSync, statSync } from "node:fs";
 import { join, relative } from "node:path";
 import { notFound } from "next/navigation";

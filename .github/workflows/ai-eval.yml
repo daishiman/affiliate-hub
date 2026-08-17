@@ -1,0 +1,56 @@
+# AI 評価セット。**手動起動のみ**。
+#
+# このリポジトリで従量課金が発生するのはここだけである
+# （GitHub Actions の標準ランナーは public リポジトリでは無料・無制限）。
+# 定期実行に載せない。載せた瞬間、誰も見ていない時間に費用が出続ける。
+#
+# 上限は `quality-gates.config.mjs` の AI_EVAL_BUDGET が正本で、
+# **途中で止まる**形で効かせる（走り終えてから超過を知らせる作りにしない）。
+#
+# 規範: docs/spec/11-CI-CD・品質ゲート仕様.md §8-4
+name: AI 評価セット
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirm:
+        description: "提供元への問い合わせが発生します。実行するには RUN と入力"
+        required: true
+        default: ""
+
+concurrency:
+  # 二重起動は費用が二重になる。打ち切らず、後から来た方を待たせる。
+  group: ai-eval
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  eval:
+    name: AI 評価セット
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+
+    steps:
+      - name: 確認文字列の検証
+        if: inputs.confirm != 'RUN'
+        run: |
+          echo "::error::confirm に RUN と入力してください（費用が発生する操作です）"
+          exit 1
+
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      # 見積りと実測の両方を出す。実測だけだと「思っていたより高かった」に気づけず、
+      # 見積りだけだと「見積りどおりだったか」が分からない。
+      - name: 評価セットの実行
+        run: node scripts/ai-eval.mjs --run

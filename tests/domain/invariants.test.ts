@@ -1,3 +1,4 @@
+/** @tier 1 */
 import { describe, expect, it } from "vitest";
 import { requiredSectionsFor } from "@/domain/authoring/article-structure";
 import { createAuthorPersona, checkFactBoundary } from "@/domain/authoring/author-persona";

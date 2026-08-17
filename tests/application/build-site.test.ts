@@ -1,3 +1,4 @@
+/** @tier 1 */
 import { describe, expect, it } from "vitest";
 import { SITE_WIZARD_STEPS } from "@/domain/authoring";
 import { currentActor, siteBuilderUseCases, siteUseCases } from "@/presentation/composition";

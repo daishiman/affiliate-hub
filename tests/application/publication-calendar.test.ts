@@ -1,3 +1,4 @@
+/** @tier 1 */
 import { describe, expect, it } from "vitest";
 import { currentActor, publicationCalendarUseCases } from "@/presentation/composition";
 

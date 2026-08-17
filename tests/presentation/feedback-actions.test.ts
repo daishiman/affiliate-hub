@@ -1,3 +1,4 @@
+/** @tier 1 */
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { ActorContext } from "@/domain/shared";
 import { SAMPLE_ACTOR } from "@/infrastructure/identity/sample-actor";

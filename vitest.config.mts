@@ -27,9 +27,17 @@ export default defineConfig({
     testTimeout: 30_000,
     coverage: {
       provider: "v8",
-      // 閾値をここに書かない。`quality-gates.config.mjs` が唯一の正本で、
-      // CI・手元・記録の 3 者が同じ数字を見る状態を崩さない。
-      thresholds: GLOBAL_COVERAGE,
+      /*
+        閾値をここに書かない。`quality-gates.config.mjs` が唯一の正本で、
+        CI・手元・記録の 3 者が同じ数字を見る状態を崩さない。
+
+        段を絞って走らせたとき（`run-tests.mjs --tier`）だけ判定を外す。
+        カバレッジは**走らせたテストの集合に対してしか測れない**ので、
+        一部の段だけで 80% を要求すると、達成する手段が「閾値を下げる」しか
+        無くなる。下げるのは禁じているので、代わりに**測らない**。
+        判定は `runOn: "ci"` の段をまとめて走らせる毎 PR で必ず行う。
+      */
+      thresholds: process.env.VITEST_TIER_PARTIAL ? undefined : GLOBAL_COVERAGE,
       /*
         測る対象を `src` 全体にする。ここを絞ると、
         **1 度も import されていないファイルが分母から消える**ため、

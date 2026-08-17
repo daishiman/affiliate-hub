@@ -1,3 +1,4 @@
+/** @tier 1 */
 import { describe, expect, it } from "vitest";
 import { MAX_REDIRECTS, checkHop, guardedFetch } from "@/infrastructure/http/guarded-fetch";
 

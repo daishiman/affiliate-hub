@@ -1,3 +1,4 @@
+/** @tier 1 */
 import { describe, expect, it } from "vitest";
 import type { Role } from "@/domain/shared";
 import { ROLE_LABEL } from "@/application/usecases/identity/manage-workspace";

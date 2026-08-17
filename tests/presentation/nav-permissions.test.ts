@@ -1,3 +1,4 @@
+/** @tier 1 */
 import { describe, expect, it } from "vitest";
 import { type Capability, capabilitiesOf } from "@/domain/identity";
 import { SAMPLE_ACTOR } from "@/infrastructure/identity/sample-actor";

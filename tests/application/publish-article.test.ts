@@ -1,3 +1,4 @@
+/** @tier 1 */
 import { beforeEach, describe, expect, it } from "vitest";
 import type {
   EditorialPublishedArticleWriterPort,

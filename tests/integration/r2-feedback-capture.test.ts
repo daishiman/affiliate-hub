@@ -1,3 +1,4 @@
+/** @tier 2 */
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import { getPlatformProxy } from "wrangler";
 import {

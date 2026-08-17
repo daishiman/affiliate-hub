@@ -1,3 +1,4 @@
+/** @tier 1 */
 import { describe, expect, it } from "vitest";
 import { buildToolCatalog } from "@/presentation/tools/catalog";
 import { handleToolRequest, describeTools } from "@/presentation/tools/rest-adapter";

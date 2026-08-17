@@ -116,9 +116,10 @@ ID と乱数も同じ。固定できない要素が 1 つでも残ると、
 | `dependency-direction.test.ts` | 層の依存方向 |
 | `commercial-isolation.test.ts` | 順位づけに報酬が入らない（型と実行時の二重） |
 | `server-action-exports.test.ts` | `"use server"` の形 |
-| `quality-gates.test.ts` | 閾値の設定と文書がずれていない |
+| `quality-gates.test.ts` | 閾値の設定と文書がずれていない / 検査の段と段の印（§6） |
 | `single-definition.test.ts` | 1 概念 1 定義（同じ意味の型が 2 か所に無い） |
-| `no-empty-tests.test.ts` | アサーションの無いテストが存在しない |
+| `test-honesty.test.ts` | アサーションの無いテストが存在しない / 鍵らしい文字列が混ざっていない |
+| `ai-eval-budget.test.ts` | AI 評価セットの費用の上限が**途中で止まる**（§6） |
 | `worker-entry.test.ts` | Worker の入口と定期実行の配線（§4-3） |
 
 `tests/infrastructure/stub-ledger.test.ts` と `stub-registry.test.ts` も
@@ -270,3 +271,34 @@ CI 側にだけ検査を足すと、手元で直せない状態が生まれる�
   `support/render.tsx` がこの作法を 1 か所に閉じ込める
 - Workers ランタイム上の確認は `pnpm run preview`（この環境では `localhost:8787`）で別に行う。
   jsdom は Workers ではないので、ここを混同しない
+
+---
+
+## 6. 検査の段（`@tier`）
+
+テストファイルは先頭に **`@tier <番号>`** を 1 行だけ持つ。
+実行場所（機械 / 手元 / 手動）はファイル側に書かず、`quality-gates.config.mjs` の
+`TIERS[].runOn` が 1 か所で決める。
+将来このリポジトリを非公開にしたとき、**テストを消すのではなく移せる**ようにするための分離である。
+
+| 段 | 置く場所（現況） | 件数 |
+| --- | --- | --- |
+| 1 | `tests/{domain,application,architecture,presentation,infrastructure,support}` | 74 |
+| 2 | `tests/{integration,ui,acceptance,evals}` | 35 |
+| 3 | （まだ無い。全体ミューテーション・負荷・見た目の回帰の置き場所） | 0 |
+
+**ディレクトリごとの既定は作っていない。** 既定があると新しいテストが黙って段を持ち、
+「段の指定漏れで CI を落とす」ゲートが永久に発火しない。段は必ず 1 ファイル 1 行で明示する。
+
+| 読み手 | 役割 |
+| --- | --- |
+| `scripts/tier-scan.mjs` | 印を読む（純粋な走査。判断を持たない） |
+| `scripts/tier-audit.mjs` | 印の無い / 知らない / 二重のファイルを見つけて落とす |
+| `scripts/run-tests.mjs` | 段で絞って走らせる。対象 0 件（1・2 段）も落とす |
+| `scripts/verify.mjs` | `--tier` を受け、`test` の実行にも同じ絞り込みを渡す |
+| `vitest.config.mts` | 段を絞ったときだけ閾値の判定を外す（`VITEST_TIER_PARTIAL`） |
+
+カバレッジ閾値は**走らせた集合に対してしか測れない**ので、段を絞ったときは
+下げるのではなく**測らない**。判定は `runOn: "ci"` の段をまとめて走らせる毎 PR で行う。
+
+規範: `docs/spec/11-CI-CD・品質ゲート仕様.md` §8

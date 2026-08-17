@@ -1,3 +1,4 @@
+/** @tier 2 */
 import { describe, expect, it } from "vitest";
 import { FACT_LABELS, FACT_TONE_RULES } from "@/domain/authoring";
 import { UI_COPY } from "@/presentation/ui/copy";

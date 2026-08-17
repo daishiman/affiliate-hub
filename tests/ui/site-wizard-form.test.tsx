@@ -1,3 +1,4 @@
+/** @tier 2 */
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 import type { SiteDraftView, WizardFieldSpec } from "@/application/usecases/site/build-site";

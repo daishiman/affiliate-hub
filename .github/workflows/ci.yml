@@ -9,6 +9,10 @@
 name: 検査
 
 on:
+  # push は 1 段（速い門）だけ。書いている最中に返ってくる速さを守る。
+  push:
+    branches-ignore: [main]
+  # PR は 1 段 + 2 段。カバレッジ閾値と層別の記録はここで判定する。
   pull_request:
     branches: [dev, main]
   workflow_dispatch:
@@ -23,7 +27,9 @@ permissions:
 
 jobs:
   verify:
-    name: pnpm verify
+    # 段の中身をここに書かない。`--tier` を渡すだけで、
+    # 何が属するかは quality-gates.config.mjs が決める。
+    name: 検査
     runs-on: ubuntu-latest
     # 暴走したジョブは既定で 6 時間走り続ける。これは節約ではなく安全弁。
     timeout-minutes: 20
@@ -40,17 +46,25 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
 
-      # 型検査 → 書き方 → テスト → カバレッジ閾値 → 層別の記録 → 脆弱性。
-      # 順番と閾値は quality-gates.config.mjs にある。
+      # push のときは 1 段だけ。順番も中身も quality-gates.config.mjs にある。
       #
       # 本番ビルド (`pnpm build`) はここでは行わない。
       # 型に必要なのは `next typegen` までで、ビルドは公開側で 1 回やれば足りる。
-      - name: 検査一式
+      - name: 検査（速い門）
+        if: github.event_name == 'push'
+        run: pnpm run verify --tier 1
+
+      # PR のときは機械の上で走る段をまとめて。
+      # カバレッジ閾値は「走らせた集合」に対してしか測れないので、
+      # 段を分けたまま判定せず、マージを止めるこの 1 回でまとめて判定する。
+      - name: 検査（速い門 + 広い門）
+        if: github.event_name != 'push'
         run: pnpm run verify
 
       # スキーマを変えたのにマイグレーションを作り忘れていないか。
       # 忘れると、公開したコードが存在しない列を読んで本番が落ちる。
       - name: マイグレーション未生成の検出
+        if: github.event_name != 'push'
         run: |
           pnpm db:generate
           if [ -n "$(git status --porcelain drizzle)" ]; then

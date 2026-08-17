@@ -1,3 +1,4 @@
+/** @tier 2 */
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 import { HUMAN_APPROVAL_REQUIRED, allowedNextStates } from "@/domain/authoring";

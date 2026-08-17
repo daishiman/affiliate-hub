@@ -12,8 +12,8 @@ iteration: null
 title: "自社サイトへの公開を本物にする（published_articles と own_site コネクタ）"
 owners: ["daishiman"]
 created_at: "2026-08-17T09:30:00Z"
-updated_at: "2026-08-17T09:30:00Z"
-status: "draft"
+updated_at: "2026-08-17T10:35:31.680061Z"
+status: "done"
 depends_on: []
 related_nodes: []
 resource_scope: ["src/db","src/infrastructure/persistence","src/infrastructure/channels","drizzle"]
@@ -30,9 +30,9 @@ phase_ref: null
 file_path: "tasks/task-own-site-publish.md"
 template_id: "task"
 template_version: "1.0.0"
-confirmation_status: "draft"
-evaluation_status: "pending"
-confirmation_evidence: {"evaluated_digest":null,"evaluator":null,"evidence_ref":null}
+confirmation_status: "confirmed"
+evaluation_status: "pass"
+confirmation_evidence: {"evaluated_digest":"2498944b83e6bdcb0a260d8645014cb3f9821895b9a99e21ccc3852dfb55e0ca","evaluator":"pnpm run verify（6 検査すべて通過）と pnpm run preview（Workers ランタイム）での実測確認","evidence_ref":"tasks/task-own-site-publish.md"}
 source_lineage: {"imported_at":"2026-08-17T09:30:00Z","origin_kind":"manual","source_digest":null,"source_path":"docs/product/stub-ledger.md","source_plugin":null,"source_version":null}
 classification_confidence: 0.95
 classification_reason: "docs/product/stub-ledger.md のスタブ解除を作業単位として登録"
@@ -44,8 +44,8 @@ github_publication: {"labels":[],"milestone":null,"mode":"local_only","project_a
 github_project_linkages: []
 pull_request_linkages: []
 execution_contexts: []
-completion_evidence: {"completed_at":null,"evidence_refs":[],"policy":"manual","reconciled_at":null,"source":"manual","status":"in_progress"}
-implementation_readiness: {"checked_at":null,"missing_sections":[],"status":"incomplete"}
+completion_evidence: {"completed_at":"2026-08-17T10:34:29Z","evidence_refs":["beads:ah-s26","git:f102bec","src/application/usecases/site/publish-article.ts","src/presentation/admin/publish-article-form.tsx","tests/application/publish-article.test.ts","tests/integration/d1-published-article.test.ts","drizzle/0011_fair_talkback.sql","docs/product/traceability.md#REQ-P08"],"policy":"manual","reconciled_at":"2026-08-17T10:40:00Z","source":"manual","status":"done"}
+implementation_readiness: {"checked_at":"2026-08-17T10:40:00Z","missing_sections":[],"status":"complete"}
 ---
 
 # 目的

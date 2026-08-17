@@ -1,3 +1,4 @@
+/** @tier 2 */
 import { afterAll, describe, expect, it, vi } from "vitest";
 import { ROUTE_CASES, importPathOf, propsOf } from "./route-table";
 import { headingLevels, intoDom, renderRoute, textOf } from "../support/render";

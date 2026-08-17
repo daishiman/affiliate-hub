@@ -1,3 +1,4 @@
+/** @tier 1 */
 import { describe, expect, it, vi } from "vitest";
 
 /**

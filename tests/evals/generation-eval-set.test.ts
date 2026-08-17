@@ -1,3 +1,4 @@
+/** @tier 2 */
 import { readFileSync, writeFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { describe, expect, it } from "vitest";

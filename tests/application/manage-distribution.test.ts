@@ -1,3 +1,4 @@
+/** @tier 1 */
 import { describe, expect, it } from "vitest";
 import {
   PUBLICATION_STATE_LABEL,

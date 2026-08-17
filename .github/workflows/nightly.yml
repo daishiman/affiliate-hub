@@ -1,0 +1,64 @@
+# 深い門（3 段）。夜間と週次に走らせ、**マージは止めない**。
+#
+# 止めないのには理由がある。夜間の赤がマージを止めると、
+# 朝いちばんに手が止まる人が出て、やがて「夜間の検査を外す」判断に流れる。
+# 外された検査は、落ちない検査より悪い（あると思われているのに無い）。
+#
+# 落ちたときにやることは 1 つ、**残課題として起票する**こと。
+# 起票は `docs/product/nightly-triage.md` の手順で人が行う
+# （bd への書き込みは正規経路だけを使うため、機械からは書かない）。
+#
+# 中身をここに書かない。何が 3 段かは `quality-gates.config.mjs` が決める。
+#
+# 規範: docs/spec/11-CI-CD・品質ゲート仕様.md §8
+name: 深い門
+
+on:
+  schedule:
+    # 毎日 18:00 UTC（日本時間の翌 3:00）。
+    - cron: "0 18 * * *"
+  workflow_dispatch:
+
+concurrency:
+  group: nightly
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  deep:
+    name: 深い門（3 段）
+    runs-on: ubuntu-latest
+    # 3 段の目標は 90 分。目標であって落とす条件ではないので、
+    # 上限はその倍に置く。ここは暴走したジョブを止めるためだけの値。
+    timeout-minutes: 180
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      # 段の印そのものは、どの段で走らせるときも先に見る。
+      # 印が無いテストは 3 段からも漏れる。
+      - name: 段の指定漏れ
+        run: node scripts/tier-audit.mjs
+
+      # 現況: 3 段に属するテストはまだ 0 件で、その場合は 0 件と表示して通る。
+      # 中身（全体ミューテーション / 負荷 / 見た目の回帰）はこれから足す。
+      # 「まだ無い」を「通った」と言い換えないために、件数を必ず出す。
+      - name: 3 段のテスト
+        run: node scripts/run-tests.mjs --tier 3
+
+      - name: 落ちたときの案内
+        if: failure()
+        run: |
+          echo "::warning::深い門が落ちました。マージは止めませんが、残課題として起票してください。"
+          echo "手順: docs/product/nightly-triage.md"

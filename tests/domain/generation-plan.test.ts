@@ -1,3 +1,4 @@
+/** @tier 1 */
 import { describe, expect, it } from "vitest";
 import { HUMAN_APPROVAL_REQUIRED } from "@/domain/authoring/content-state";
 import {

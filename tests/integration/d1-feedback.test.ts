@@ -1,3 +1,4 @@
+/** @tier 2 */
 import { readFileSync, readdirSync } from "node:fs";
 import path from "node:path";
 import { drizzle } from "drizzle-orm/d1";

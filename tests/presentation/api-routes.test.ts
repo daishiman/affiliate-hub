@@ -1,3 +1,4 @@
+/** @tier 1 */
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { AnyToolDefinition } from "@/presentation/tools/tool-definition";
 import { NO_HAPPY_PATH, validInputFor } from "./tool-inputs";

@@ -1,3 +1,4 @@
+/** @tier 1 */
 import { describe, expect, it } from "vitest";
 import { listStubs } from "@/infrastructure/stub-registry";
 import {

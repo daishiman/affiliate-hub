@@ -1,3 +1,4 @@
+/** @tier 1 */
 import { describe, expect, it } from "vitest";
 import { createToolCatalog, currentActor } from "@/presentation/composition";
 import { findTool } from "@/presentation/tools/catalog";
