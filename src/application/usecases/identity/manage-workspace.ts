@@ -221,8 +221,10 @@ export function createListRolesUseCase(
             // 機械には、人が行うと決めた操作を出さない。
             .filter((c) => !(isMachine && HUMAN_ONLY_CAPABILITIES.has(c)))
             .map((key) => ({ key, label: CAPABILITY_LABEL[key] })),
+          // 役割の表から引くと、機械の役割にはもともと入っていないため常に空になり、
+          // 「AI には何ができないのか」が画面から消える。人が行うと決めた一覧を直接出す。
           humanOnlyBlocked: isMachine
-            ? caps.filter((c) => HUMAN_ONLY_CAPABILITIES.has(c)).map((c) => CAPABILITY_LABEL[c])
+            ? [...HUMAN_ONLY_CAPABILITIES].map((c) => CAPABILITY_LABEL[c])
             : [],
         };
       });

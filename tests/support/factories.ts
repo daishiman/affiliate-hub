@@ -1,17 +1,24 @@
+import type { Disclosure } from "@/domain/compliance";
 import type { ChannelConnection, Publication } from "@/domain/distribution";
+import type { Brand, Membership, Workspace } from "@/domain/identity";
+import { DEFAULT_BRAND_VOICE } from "@/domain/identity";
 import type { Conversion } from "@/domain/monetization";
 import type { Product } from "@/domain/product/product";
 import type { Provenance } from "@/domain/shared/provenance";
 import type {
   AffiliateProgramId,
   AssetId,
+  BrandId,
   CategoryId,
   ChannelConnectionId,
   ContentVariantId,
   ConversionId,
+  DisclosureId,
+  MembershipId,
   ProductId,
   PublicationId,
   SourceArtifactId,
+  UserId,
   WorkspaceId,
 } from "@/domain/shared/ids";
 import { WORKSPACE } from "./actors";
@@ -173,6 +180,92 @@ export function aConversion(over: Partial<Conversion> = {}): Conversion {
     periodClosed: false,
     ...over,
   } as Conversion;
+}
+
+/**
+ * 作業場所（ワークスペース）。
+ *
+ * 既定は**止まっておらず、上限に余裕のある**状態。
+ * 止まっている状態を既定にすると、何も指定していないテストが
+ * 「公開できません」の経路に入り、何を確かめているのか読めなくなる。
+ */
+export function aWorkspace(over: Partial<Workspace> = {}): Workspace {
+  return {
+    id: WORKSPACE as WorkspaceId,
+    name: "テスト編集部",
+    plan: "team",
+    ownerUserId: "user-owner" as UserId,
+    timezone: "Asia/Tokyo",
+    currency: "JPY",
+    createdAt: daysFrom(NOW, -365),
+    suspendedAt: null,
+    ...over,
+  } as Workspace;
+}
+
+/**
+ * 担当者。
+ *
+ * 既定は**参加済みで解除されていない**。招待中を既定にすると、
+ * 「参加している人が何人いるか」を数えるテストが常に 0 から始まる。
+ */
+export function aMembership(over: Partial<Membership> = {}): Membership {
+  return {
+    id: nextId("mem") as MembershipId,
+    workspaceId: WORKSPACE as WorkspaceId,
+    userId: nextId("user") as UserId,
+    roles: ["writer"],
+    scopedBrandIds: [],
+    displayName: `担当者 ${seq}`,
+    invitedAt: daysFrom(NOW, -60),
+    acceptedAt: daysFrom(NOW, -59),
+    revokedAt: null,
+    ...over,
+  } as Membership;
+}
+
+/**
+ * ブランド。
+ *
+ * 既定は**公開の準備が整っている**（運営者名と問い合わせ先がある）。
+ * 欠けた状態を既定にすると、公開ゲートを見るテストが全部
+ * 「準備できていない」側に落ちる。
+ */
+export function aBrand(over: Partial<Brand> = {}): Brand {
+  return {
+    id: nextId("brand") as BrandId,
+    workspaceId: WORKSPACE as WorkspaceId,
+    displayName: "テストブランド",
+    legalName: "テスト合同会社",
+    contactEmail: "contact@example.com",
+    positioning: "実際に使った記録だけを載せます。",
+    voice: DEFAULT_BRAND_VOICE,
+    disclaimer: "記事の内容は執筆時点のものです。",
+    locale: "ja-JP",
+    timeZone: "Asia/Tokyo",
+    defaultCta: "価格を見る",
+    createdAt: daysFrom(NOW, -300),
+    ...over,
+  } as Brand;
+}
+
+/**
+ * 広告表記。
+ *
+ * 既定は**表示が必要な関係（提携）**。自費購入を既定にすると、
+ * 「表示が要るか」の判定が常に false 側になり、抜けに気づけない。
+ */
+export function aDisclosure(over: Partial<Disclosure> = {}): Disclosure {
+  return {
+    id: nextId("disc") as DisclosureId,
+    workspaceId: WORKSPACE as WorkspaceId,
+    relationshipType: "affiliate",
+    advertiserOrSupplier: "テスト広告主",
+    editorialInfluence: "none",
+    visibleMessage: "この記事にはアフィリエイト広告が含まれます。",
+    aiAssisted: false,
+    ...over,
+  } as Disclosure;
 }
 
 /**
