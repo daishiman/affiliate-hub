@@ -1,4 +1,4 @@
-/** @tier 1 */
+/** @tier 1 @req REQ-B08, REQ-B09 */
 import fc from "fast-check";
 import { describe, expect, it } from "vitest";
 import { requiredSectionsFor, type ArticleType } from "@/domain/authoring/article-structure";

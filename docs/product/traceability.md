@@ -743,3 +743,42 @@ R 節・S 節の 15 件（テストと自動チェック）も、同じやり方
 - 受け入れ条件（§30）は文書の宣言ではなく、`tests/acceptance/acceptance-criteria.test.ts` の
   39 テストとして動く。**画面や AI が使うのと同じ入口から流している**ので、
   入口の配線が外れれば落ちる。
+
+---
+
+## U. 性質（プロパティ）テストと要件の対応
+
+例で書くテストは、**書いた人が思いついた入力しか試されない**。
+ここに挙げた 5 ファイル・48 件は、入力を `fast-check` に作らせて
+「どんな入力でも成り立つはず」の側を確かめる（規範は `docs/spec/10-テスト戦略仕様.md` §11）。
+
+| REQ | 何が壊れたら落ちるか | test |
+| --- | --- | --- |
+| REQ-P02 | URL の正規化と重複判定が、順序・重複適用で結果を変える | `tests/property/normalization.property.test.ts` |
+| REQ-P03 | 商品の同一判定（JAN/ASIN/型番）が対称でなくなる | `tests/property/normalization.property.test.ts` |
+| REQ-B15 | 正規化が冪等でなくなる（2 回かけると別物になる） | `tests/property/normalization.property.test.ts` |
+| REQ-P04 | 重み付き点数の最大・最小と、順位表の最強・最弱がずれる | `tests/property/ranking.property.test.ts` |
+| REQ-B03 | 入力の並び順で順位が変わる（並べ替えが安定でない） | `tests/property/ranking.property.test.ts` |
+| REQ-B08 | 公開の門が、必要な条件を 1 つ落としても通る | `tests/property/publish-gate.property.test.ts` |
+| REQ-B09 | 広告表記・訂正方針が空でも公開できてしまう | `tests/property/publish-gate.property.test.ts` |
+| REQ-P01 | 別テナントの値が、どこかの経路で混ざる | `tests/property/tenancy.property.test.ts` |
+| REQ-E05 | 公開可否の判定がテナント境界を越える | `tests/property/tenancy.property.test.ts` |
+| REQ-E06 | 設計図の読み出しがテナント境界を越える | `tests/property/tenancy.property.test.ts` |
+| REQ-B16 | 出し分け指定の書き出しと読み戻しで内容が変わる | `tests/property/variant-spec.property.test.ts` |
+| REQ-E14 | 情報源・信頼度・有効期限が往復で欠ける | `tests/property/variant-spec.property.test.ts` |
+
+**この 5 ファイルは実際に不具合を 1 件見つけた。** `normalizeAffiliateUrl` が
+組み立て直しで符号化しておらず、`?x=b%26y%3Dz` と `?x=b&y=z` が同じ正規形になっていた。
+**別の成果リンクが互いの重複として弾かれる**状態で、
+利用者から見ると「貼ったのに受信箱に出てこない」になる（`docs/product/mutation.md` §6）。
+最小の反例は `tests/domain/link-ingestion.test.ts` に例として写してある
+（性質テストは毎回違う入力を試すので、同じ壊れ方の再現を保証しない）。
+
+### この表と `docs/product/test-traceability.md` の関係
+
+この表は**要件 → テスト**の向きしか持っていない。逆向き（テスト → 要件）は
+`node scripts/traceability.mjs` が `@req` 印から作り、`docs/product/test-traceability.md` に出す。
+**2026-08-17 の実測で、115 テストファイルのうち 39 件がどちらの向きにも出てこない。**
+由来の無いテストは実装をなぞっているだけなので、実装が間違っていても緑になる。
+上限は `quality-gates.config.mjs` の `TRACEABILITY_MAX_UNLINKED` に実測値で置いてあり、
+**上げて緑にすることを禁じている**（残課題 44 / Beads `ah-8jh`）。

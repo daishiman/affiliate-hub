@@ -127,6 +127,26 @@ export const MUTATION_SCORE = {
 export const MUTATION_MAX_CHANGED_FILES = 25;
 
 /**
+ * 「どの要件のために書いたのか分からないテスト」を許す上限（ファイル数）。
+ *
+ * 要件から書いたテストは、由来にする要件がある。
+ * **実装を見てから書いたテストには、それが無い。**
+ * 後者は「実装がそうなっているから、そう書いた」という循環で、
+ * 実装が間違っていても緑になる。ここで数えているのはその循環の量である。
+ *
+ * 2026-08-17 の実測は **39 件 / 115 件**（性質テスト 5 件に `@req` を書いた後）。
+ * 残りは既存テストで、要件表の行にも `@req` 印にも出てこない。
+ * 起点をこの実測に置き、**増える方向だけを止める**。
+ *
+ * 一度に 0 にしないのは、既存 39 件へ機械的に印を付ける作業が
+ * 「印を付けるための印」になりやすいためで、由来を確かめずに書いた `@req` は
+ * この検査を無意味にする。減らすのは残課題として 1 件ずつ行う。
+ *
+ * **上げて緑にすることを禁じる。**
+ */
+export const TRACEABILITY_MAX_UNLINKED = 39;
+
+/**
  * スタブと見なす場所。
  *
  * **カバレッジ計算から除外しない。** 除外すると、除外の線引きを動かすだけで
@@ -328,6 +348,14 @@ export const CHECKS = [
     why: "層別の下限と、スタブとの差を見る。全体 80% だけでは薄い場所が隠れる",
   },
   {
+    id: "traceability",
+    label: "テストと要件の対応",
+    command: ["node", "scripts/traceability.mjs"],
+    blocking: true,
+    tier: 2,
+    why: "**どの要件のために書いたのか辿れないテスト**が増えていないか見る。由来の無いテストは実装をなぞっているだけで、実装が間違っていても緑になる",
+  },
+  {
     id: "spec-freshness",
     label: "仕様レポートの鮮度",
     command: ["node", "scripts/spec-freshness.mjs"],
@@ -387,6 +415,7 @@ const qualityGates = {
   LAYER_COVERAGE,
   MUTATION_SCORE,
   MUTATION_MAX_CHANGED_FILES,
+  TRACEABILITY_MAX_UNLINKED,
   STUB_PATTERNS,
   MAX_STUB_GAP_POINTS,
   judgeStubGap,

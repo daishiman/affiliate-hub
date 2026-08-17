@@ -1,4 +1,4 @@
-/** @tier 1 */
+/** @tier 1 @req REQ-P04, REQ-B03 */
 import fc from "fast-check";
 import { describe, expect, it } from "vitest";
 import {

@@ -1,5 +1,5 @@
 {
-  "graph_revision": 193,
+  "graph_revision": 195,
   "nodes": [
     {
       "acceptance": [],
@@ -7253,6 +7253,201 @@
       "title": "テスト種別の網羅と、要件ごとの必須種別ゲート",
       "tracker_binding": "beads",
       "updated_at": "2026-08-17T11:00:00Z"
+    },
+    {
+      "acceptance": [],
+      "architecture_refs": [],
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "beads_linkage": null,
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "candidate_path": "tasks/task-mutation-gap-remediation.md",
+          "confidence": 0.95
+        }
+      ],
+      "classification_confidence": 0.95,
+      "classification_reason": "ミューテーションの実測から出た残課題を作業単位として登録",
+      "completion_evidence": {
+        "completed_at": null,
+        "evidence_refs": [],
+        "policy": "manual",
+        "reconciled_at": null,
+        "source": "manual",
+        "status": "open"
+      },
+      "confirmation_evidence": {
+        "evaluated_digest": null,
+        "evaluator": null,
+        "evidence_ref": null
+      },
+      "confirmation_status": "draft",
+      "created_at": "2026-08-17T12:00:00Z",
+      "depends_on": [
+        "task-mutation-property-testing"
+      ],
+      "domain": "quality",
+      "evaluation_status": "pending",
+      "execution_contexts": [],
+      "feature_package_id": null,
+      "file_path": "tasks/task-mutation-gap-remediation.md",
+      "github_project_linkages": [],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "goal": null,
+      "graph_node_id": "task-mutation-gap-remediation",
+      "implementation_readiness": {
+        "checked_at": null,
+        "missing_sections": [],
+        "status": "incomplete"
+      },
+      "issue_linkage": null,
+      "iteration": null,
+      "mvp_alignment": {
+        "background": "2026-08-17 の実測は 67.20%。生き残り 2,383 のうち 906 は「テストファイルが 1 つも無い」モジュールで、上位 10 件だけで 515 変異を占める。別枠で draft-instructions.ts は 5.6%（テストはあるのに、ほとんど何も確かめていない）",
+        "mvp_fit": "enabling",
+        "purpose": "生き残った変異を、下限を下げずにテストで潰す",
+        "rationale": "1 ファイルに 1 本足すだけで数十の変異が動くため、この時点で最も費用対効果が高い。内訳は docs/product/mutation.md §4"
+      },
+      "owners": [
+        "daishiman"
+      ],
+      "parent_feature": null,
+      "phase_ref": null,
+      "priority": "medium",
+      "project_id": "affiliate-hub",
+      "pull_request_linkages": [],
+      "purpose": null,
+      "related_nodes": [],
+      "resource_scope": [
+        "tests",
+        "src/application/usecases",
+        "src/domain"
+      ],
+      "scope_in": [],
+      "scope_out": [],
+      "source_lineage": {
+        "imported_at": "2026-08-17T12:00:00Z",
+        "origin_kind": "manual",
+        "source_digest": null,
+        "source_path": "docs/product/mutation.md",
+        "source_plugin": null,
+        "source_version": null
+      },
+      "start_date": null,
+      "status": "draft",
+      "tags": [
+        "quality",
+        "testing"
+      ],
+      "target_date": null,
+      "template_id": "task",
+      "template_version": "1.0.0",
+      "title": "ミューテーションで見えた穴を埋める（テストが無い 10 モジュール・確かめが浅い 7 モジュール）",
+      "tracker_binding": "beads",
+      "updated_at": "2026-08-17T12:00:00Z"
+    },
+    {
+      "acceptance": [],
+      "architecture_refs": [],
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "beads_linkage": null,
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "candidate_path": "tasks/task-test-requirement-tracing.md",
+          "confidence": 0.95
+        }
+      ],
+      "classification_confidence": 0.95,
+      "classification_reason": "テストと要件の対応の実測から出た残課題を作業単位として登録",
+      "completion_evidence": {
+        "completed_at": null,
+        "evidence_refs": [],
+        "policy": "manual",
+        "reconciled_at": null,
+        "source": "manual",
+        "status": "open"
+      },
+      "confirmation_evidence": {
+        "evaluated_digest": null,
+        "evaluator": null,
+        "evidence_ref": null
+      },
+      "confirmation_status": "draft",
+      "created_at": "2026-08-17T12:00:00Z",
+      "depends_on": [
+        "task-mutation-property-testing"
+      ],
+      "domain": "quality",
+      "evaluation_status": "pending",
+      "execution_contexts": [],
+      "feature_package_id": null,
+      "file_path": "tasks/task-test-requirement-tracing.md",
+      "github_project_linkages": [],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "goal": null,
+      "graph_node_id": "task-test-requirement-tracing",
+      "implementation_readiness": {
+        "checked_at": null,
+        "missing_sections": [],
+        "status": "incomplete"
+      },
+      "issue_linkage": null,
+      "iteration": null,
+      "mvp_alignment": {
+        "background": "2026-08-17 の実測で、テスト 115 ファイル中 39 ファイルが、要件表の行にも @req 印にも出てこない。上限として固定したので増えはしないが、減ってもいない",
+        "mvp_fit": "enabling",
+        "purpose": "実装をなぞって書いたテストを減らす",
+        "rationale": "由来の無いテストは「実装がそうなっているから、そう書いた」という循環で、実装が間違っていても緑になる。機械的に @req を付けて回ると検査そのものが無意味になるため、1 件ずつ由来を確かめて減らす"
+      },
+      "owners": [
+        "daishiman"
+      ],
+      "parent_feature": null,
+      "phase_ref": null,
+      "priority": "medium",
+      "project_id": "affiliate-hub",
+      "pull_request_linkages": [],
+      "purpose": null,
+      "related_nodes": [],
+      "resource_scope": [
+        "tests",
+        "docs/product/traceability.md"
+      ],
+      "scope_in": [],
+      "scope_out": [],
+      "source_lineage": {
+        "imported_at": "2026-08-17T12:00:00Z",
+        "origin_kind": "manual",
+        "source_digest": null,
+        "source_path": "docs/spec/10-テスト戦略仕様.md",
+        "source_plugin": null,
+        "source_version": null
+      },
+      "start_date": null,
+      "status": "draft",
+      "tags": [
+        "quality",
+        "testing"
+      ],
+      "target_date": null,
+      "template_id": "task",
+      "template_version": "1.0.0",
+      "title": "由来不明のテスト 39 件を、要件から辿れる形にする",
+      "tracker_binding": "beads",
+      "updated_at": "2026-08-17T12:00:00Z"
     }
   ],
   "repository_id": "github:daishiman/affiliate-hub",

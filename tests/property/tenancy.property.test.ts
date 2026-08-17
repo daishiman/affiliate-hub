@@ -1,4 +1,4 @@
-/** @tier 1 */
+/** @tier 1 @req REQ-P01, REQ-E05, REQ-E06 */
 import fc from "fast-check";
 import { describe, expect, it } from "vitest";
 import { HUMAN_ONLY_CAPABILITIES, can, capabilitiesOf, requireCapability } from "@/domain/identity";

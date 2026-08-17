@@ -128,7 +128,7 @@ static な変異はテストの絞り込みが効かず、1 個ごとに全テ�
 | 21 | `src/domain/product/product.ts` |
 
 **ここが最も費用対効果が高い。** 1 ファイルに 1 本テストを足すだけで数十の変異が動く。
-残課題として起票してある（`docs/product/backlog.md`）。
+残課題として起票してある（`docs/product/backlog.md` 項目 43 / Beads `ah-vmm`）。
 
 ### 4-2. テストはあるが、確かめが浅い
 

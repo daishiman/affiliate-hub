@@ -1,4 +1,4 @@
-/** @tier 1 */
+/** @tier 1 @req REQ-P02, REQ-P03, REQ-B15 */
 import fc from "fast-check";
 import { describe, expect, it } from "vitest";
 import { parseBrandTheme, parseColorMode, resolveAppearance } from "@/domain/authoring/appearance";
