@@ -1,4 +1,8 @@
-/** @tier 2 */
+/**
+ * @tier 2
+ * @req REQ-P08
+ * @types idempotency, db-migration
+ */
 import { readFileSync, readdirSync } from "node:fs";
 import path from "node:path";
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";

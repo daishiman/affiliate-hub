@@ -1,4 +1,8 @@
-/** @tier 1 */
+/**
+ * @tier 1
+ * @req REQ-P06, REQ-SEC05
+ * @types prompt-injection
+ */
 import { describe, expect, it } from "vitest";
 import { HUMAN_APPROVAL_REQUIRED } from "@/domain/authoring/content-state";
 import {

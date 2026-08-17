@@ -1,4 +1,8 @@
-/** @tier 1 */
+/**
+ * @tier 1
+ * @req REQ-SEC06
+ * @types equivalence
+ */
 import { describe, expect, it } from "vitest";
 import {
   DEFAULT_BRAND_VOICE,

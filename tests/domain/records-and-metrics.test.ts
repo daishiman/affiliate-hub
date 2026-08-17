@@ -1,4 +1,8 @@
-/** @tier 1 */
+/**
+ * @tier 1
+ * @req REQ-SEC09
+ * @types equivalence, audit-log
+ */
 import { describe, expect, it } from "vitest";
 import {
   REDACTED_PLACEHOLDER,

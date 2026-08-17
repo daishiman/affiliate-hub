@@ -1,4 +1,4 @@
-/** @tier 2 @req REQ-P01, REQ-P02, REQ-P03, REQ-P04, REQ-P08, REQ-P10, REQ-TH01 @types screen-states */
+/** @tier 2 @req REQ-P01, REQ-P02, REQ-P03, REQ-P04, REQ-P05, REQ-P06, REQ-P07, REQ-P08, REQ-P09, REQ-P10, REQ-TH01 @types screen-states */
 import { afterAll, describe, expect, it, vi } from "vitest";
 import { ROUTE_CASES, importPathOf, propsOf } from "./route-table";
 import { headingLevels, intoDom, renderRoute, textOf } from "../support/render";

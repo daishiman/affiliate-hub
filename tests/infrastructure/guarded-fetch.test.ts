@@ -1,6 +1,15 @@
-/** @tier 1 */
+/**
+ * @tier 1
+ * @req REQ-SEC02
+ * @types equivalence, boundary, ssrf
+ */
 import { describe, expect, it } from "vitest";
-import { MAX_REDIRECTS, checkHop, guardedFetch } from "@/infrastructure/http/guarded-fetch";
+import {
+  MAX_REDIRECTS,
+  MAX_RESPONSE_BYTES,
+  checkHop,
+  guardedFetch,
+} from "@/infrastructure/http/guarded-fetch";
 
 /**
  * 外から受け取った URL を取りに行くときの守り。
@@ -126,5 +135,63 @@ describe("転送の追いかけ方", () => {
       fetchImpl: fetcher({}),
     });
     expect(result.kind).toBe("rejected");
+  });
+});
+
+/**
+ * 上限そのものの端。
+ *
+ * 「回り続けたら止まる」だけでは、上限が 5 でも 500 でも緑になる。
+ * **ちょうど上限までは通り、1 つ超えたら止まる**ところを押さえないと、
+ * 上限を静かに緩めても誰も気づかない。
+ */
+describe("上限の端（ちょうど / 1 つ超え）", () => {
+  /** `https://example.com/0` から順に転送し、最後は本文を返す道を作る。 */
+  function chain(hops: number): Record<string, () => Response> {
+    const routes: Record<string, () => Response> = {};
+    for (let i = 0; i < hops; i += 1) {
+      routes[`https://example.com/${i}`] = () =>
+        response({ status: 302, location: `https://example.com/${i + 1}` });
+    }
+    routes[`https://example.com/${hops}`] = () => response({ body: "着いた" });
+    return routes;
+  }
+
+  it(`転送が ${MAX_REDIRECTS} 回ちょうどなら、最後まで取りに行く`, async () => {
+    const result = await guardedFetch("https://example.com/0", {
+      fetchImpl: fetcher(chain(MAX_REDIRECTS)),
+    });
+    expect(result.kind).toBe("ok");
+    if (result.kind !== "ok") return;
+    expect(result.body).toBe("着いた");
+  });
+
+  it(`転送が ${MAX_REDIRECTS + 1} 回になったら止める`, async () => {
+    const result = await guardedFetch("https://example.com/0", {
+      fetchImpl: fetcher(chain(MAX_REDIRECTS + 1)),
+    });
+    expect(result.kind).toBe("failed");
+    if (result.kind !== "failed") return;
+    expect(result.reason).toContain(String(MAX_REDIRECTS));
+  });
+
+  it("本文が上限ちょうどなら受け取る", async () => {
+    const result = await guardedFetch("https://example.com/big", {
+      fetchImpl: fetcher({
+        "https://example.com/big": () => response({ body: "a".repeat(MAX_RESPONSE_BYTES) }),
+      }),
+    });
+    expect(result.kind).toBe("ok");
+  });
+
+  it("本文が上限を 1 バイト超えたら受け取らない", async () => {
+    const result = await guardedFetch("https://example.com/big", {
+      fetchImpl: fetcher({
+        "https://example.com/big": () => response({ body: "a".repeat(MAX_RESPONSE_BYTES + 1) }),
+      }),
+    });
+    expect(result.kind).toBe("failed");
+    if (result.kind !== "failed") return;
+    expect(result.reason).toContain(String(MAX_RESPONSE_BYTES));
   });
 });

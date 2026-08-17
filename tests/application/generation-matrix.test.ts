@@ -1,4 +1,8 @@
-/** @tier 1 */
+/**
+ * @tier 1
+ * @req REQ-P06
+ * @types equivalence, boundary
+ */
 import { describe, expect, it } from "vitest";
 import {
   MATRIX_CHANNELS,

@@ -103,12 +103,27 @@ export function focusableOrder(document: Document): readonly string[] {
     "textarea:not([disabled])",
     "[tabindex]:not([tabindex='-1'])",
   ].join(",");
+  // `<label for="…">` は入力欄の**正式な名前**であり、読み上げもこれを読む。
+  // ここで拾わないと、正しく名前の付いた欄まで「名前が無い」と見えてしまう。
+  // id は React の `useId()` が作るため記号を含む。属性セレクタで引くと
+  // 書き方によっては壊れるので、先に一覧を作って引き当てる。
+  const byFor = new Map<string, string>();
+  for (const label of document.querySelectorAll("label[for]")) {
+    const target = label.getAttribute("for");
+    if (target !== null) byFor.set(target, label.textContent?.trim() ?? "");
+  }
+
   return [...document.querySelectorAll(selector)].map((el) => {
     // 空文字を「名前がある」と見なさない。`??` だけだと入力欄が必ず無名になる。
     const label =
-      [el.getAttribute("aria-label"), el.textContent?.trim(), el.getAttribute("name")].find(
-        (candidate) => candidate !== null && candidate !== undefined && candidate !== "",
-      ) ?? el.tagName.toLowerCase();
+      [
+        el.getAttribute("aria-label"),
+        byFor.get(el.getAttribute("id") ?? ""),
+        el.closest("label")?.textContent?.trim(),
+        el.textContent?.trim(),
+        el.getAttribute("name"),
+      ].find((candidate) => candidate !== null && candidate !== undefined && candidate !== "") ??
+      el.tagName.toLowerCase();
     return `${el.tagName.toLowerCase()}:${label.slice(0, 40)}`;
   });
 }

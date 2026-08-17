@@ -1,5 +1,5 @@
 {
-  "graph_revision": 209,
+  "graph_revision": 210,
   "nodes": [
     {
       "acceptance": [],
@@ -8798,6 +8798,102 @@
       "title": "生成 AI の提供元を選び、鍵を登録して下書きを 1 本作らせる",
       "tracker_binding": "beads",
       "updated_at": "2026-08-17T23:30:00Z"
+    },
+    {
+      "acceptance": [],
+      "architecture_refs": [],
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "beads_linkage": null,
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "candidate_path": "tasks/task-test-type-trait-for-secrets.md",
+          "confidence": 0.85
+        }
+      ],
+      "classification_confidence": 0.85,
+      "classification_reason": "ah-99p で 24 件中 23 件は宣言できたが、REQ-SEC10 だけは性質の語彙に対応するものが無く保留した",
+      "completion_evidence": {
+        "completed_at": null,
+        "evidence_refs": [],
+        "policy": "manual",
+        "reconciled_at": null,
+        "source": "manual",
+        "status": "in_progress"
+      },
+      "confirmation_evidence": {
+        "evaluated_digest": null,
+        "evaluator": null,
+        "evidence_ref": null
+      },
+      "confirmation_status": "draft",
+      "created_at": "2026-08-17T23:50:00Z",
+      "depends_on": [],
+      "domain": "quality",
+      "evaluation_status": "pending",
+      "execution_contexts": [],
+      "feature_package_id": null,
+      "file_path": "tasks/task-test-type-trait-for-secrets.md",
+      "github_project_linkages": [],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "goal": null,
+      "graph_node_id": "task-test-type-trait-for-secrets",
+      "implementation_readiness": {
+        "checked_at": null,
+        "missing_sections": [],
+        "status": "incomplete"
+      },
+      "issue_linkage": null,
+      "iteration": null,
+      "mvp_alignment": {
+        "background": "REQUIRED_TEST_TYPES の性質は 8 つで、入力・状態・権限・テナント・外部・画面・計算・AI文章。秘密情報の取り扱い（REQ-SEC10）はどれでもない",
+        "mvp_fit": "enabling",
+        "purpose": "秘密情報の要件に必須テスト種別を宣言できるようにする",
+        "rationale": "種別として secrets はあるのに、そこへ至る性質が無い。このままだと秘密情報の要件は永久に未宣言のまま残る"
+      },
+      "owners": [
+        "daishiman"
+      ],
+      "parent_feature": null,
+      "phase_ref": null,
+      "priority": "medium",
+      "project_id": "affiliate-hub",
+      "pull_request_linkages": [],
+      "purpose": null,
+      "related_nodes": [],
+      "resource_scope": [
+        "docs",
+        "tests"
+      ],
+      "scope_in": [],
+      "scope_out": [],
+      "source_lineage": {
+        "imported_at": "2026-08-17T23:50:00Z",
+        "origin_kind": "manual",
+        "source_digest": null,
+        "source_path": "docs/product/required-test-types.md",
+        "source_plugin": null,
+        "source_version": null
+      },
+      "start_date": null,
+      "status": "draft",
+      "tags": [
+        "quality",
+        "testing",
+        "security"
+      ],
+      "target_date": null,
+      "template_id": "task",
+      "template_version": "1.0.0",
+      "title": "秘密情報の要件に当てはまる「性質」が語彙に無い（REQ-SEC10 が宣言できない）",
+      "tracker_binding": "beads",
+      "updated_at": "2026-08-17T23:50:00Z"
     }
   ],
   "repository_id": "github:daishiman/affiliate-hub",

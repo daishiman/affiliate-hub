@@ -1,4 +1,8 @@
-/** @tier 1 */
+/**
+ * @tier 1
+ * @req REQ-P07
+ * @types equivalence, state-transition
+ */
 import { describe, expect, it } from "vitest";
 import { SITE_WIZARD_STEPS } from "@/domain/authoring";
 import { currentActor, siteBuilderUseCases, siteUseCases } from "@/presentation/composition";

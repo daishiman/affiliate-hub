@@ -22,7 +22,7 @@ import { asWorkspaceId } from "@/domain/shared";
  *
  * 規範: docs/product/traceability.md REQ-SEC07
  * @req REQ-SEC07
- * @types decision-table
+ * @types decision-table, equivalence
  */
 
 const WS = asWorkspaceId("ws_seed");

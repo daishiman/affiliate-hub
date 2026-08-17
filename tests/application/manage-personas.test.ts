@@ -1,4 +1,8 @@
-/** @tier 1 */
+/**
+ * @tier 1
+ * @req REQ-P05
+ * @types equivalence, boundary
+ */
 import { describe, expect, it } from "vitest";
 import type { EditorialPersonaRepositoryPort } from "@/application/ports/authoring";
 import {

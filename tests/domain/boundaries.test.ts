@@ -1,4 +1,4 @@
-/** @tier 1 @req REQ-P10 @types boundary */
+/** @tier 1 @req REQ-P10, REQ-P09 @types boundary */
 import { describe, expect, it } from "vitest";
 import {
   MINIMUM_DETECTABLE_EFFECT,

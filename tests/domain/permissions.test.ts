@@ -1,4 +1,10 @@
-/** @tier 1 @req REQ-R11, REQ-R12, REQ-API02 @types permission-matrix */
+/**
+ * @tier 1
+ * @req REQ-R01, REQ-R02, REQ-R03, REQ-R04, REQ-R05
+ * @req REQ-R06, REQ-R07, REQ-R08, REQ-R09, REQ-R10
+ * @req REQ-R11, REQ-R12, REQ-API02
+ * @types permission-matrix
+ */
 import { describe, expect, it } from "vitest";
 import type { Role } from "@/domain/shared";
 import { ROLE_LABEL } from "@/application/usecases/identity/manage-workspace";
@@ -92,6 +98,78 @@ describe("渡したくないものが、ついでに渡っていないか", () =
     expect(can(ai, "feedback.read")).toBe(true);
     expect(can(ai, "feedback.manage")).toBe(false);
     expect(can(ai, "content.publish")).toBe(false);
+  });
+});
+
+/**
+ * 役割 1 つずつの「持たない側」。
+ *
+ * `docs/product/traceability.md` の REQ-R01〜R10 は、役割ごとに
+ * **持っているもの**ではなく「〜は持たない」という形で書いてある。
+ * 持っている側だけを見ていると、権限を 1 つ足したときに
+ * どの役割に増えたのかが分からないまま緑になる。
+ *
+ * 表を丸ごと書き写すのは避け（写した側も一緒に直るので何も守らない）、
+ * **要件の文が「持たない」と言い切っている分だけ**を置く。
+ */
+const MUST_NOT_HAVE: Readonly<Record<string, { req: string; caps: readonly Capability[] }>> = {
+  // REQ-R02: 持ち主から作業場所そのものの管理だけを除く
+  workspace_admin: { req: "REQ-R02", caps: ["workspace.manage"] },
+  // REQ-R03: ブランド配下の運営一式。会員管理と報酬管理は持たない
+  brand_manager: {
+    req: "REQ-R03",
+    caps: ["workspace.manage", "member.manage", "affiliate.manage", "affiliate.read_revenue"],
+  },
+  // REQ-R04: 商品・根拠の登録まで。記事は読むだけ
+  researcher: {
+    req: "REQ-R04",
+    caps: ["content.write", "content.generate", "content.approve", "content.publish"],
+  },
+  // REQ-R05: 下書きと生成。承認・公開は持たない
+  writer: { req: "REQ-R05", caps: ["content.approve", "content.publish"] },
+  // REQ-R06: 事実確認・表現確認。公開は持たない
+  reviewer: { req: "REQ-R06", caps: ["content.approve", "content.publish"] },
+  // REQ-R07: 公開のみ。本文を書き換えられない
+  publisher: { req: "REQ-R07", caps: ["content.write", "content.generate", "content.approve"] },
+  // REQ-R08: 数字と報酬の閲覧のみ
+  analyst: {
+    req: "REQ-R08",
+    caps: ["content.write", "content.publish", "content.approve", "affiliate.manage"],
+  },
+  // REQ-R09: 記事の読み書きのみ
+  contributor: {
+    req: "REQ-R09",
+    caps: [
+      "content.approve",
+      "content.publish",
+      "product.write",
+      "analytics.read",
+      "site.draft",
+      "site.manage",
+    ],
+  },
+  // REQ-R10: 下書き・分析のみ。原則公開不可
+  ai_service_account: {
+    req: "REQ-R10",
+    caps: ["content.approve", "content.publish", "member.manage", "feedback.manage"],
+  },
+};
+
+describe("役割ごとに、持たないと決めたものを持っていないか", () => {
+  for (const [role, { req, caps: forbidden }] of Object.entries(MUST_NOT_HAVE)) {
+    it(`${req} ${role}: ${forbidden.join(" / ")} を持たない`, () => {
+      const held = caps(role as Role);
+      const leaked = forbidden.filter((c) => held.has(c));
+      expect(leaked).toEqual([]);
+    });
+  }
+
+  it("REQ-R01 作業場所そのものを管理できるのは持ち主だけ", () => {
+    // ここが崩れると、招待した相手に作業場所ごと渡してしまう。
+    const holders = [...HUMAN_ROLES, "ai_service_account" as Role].filter((r) =>
+      caps(r).has("workspace.manage"),
+    );
+    expect(holders).toEqual(["owner"]);
   });
 });
 
