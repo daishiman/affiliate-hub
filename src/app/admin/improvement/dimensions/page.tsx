@@ -105,7 +105,7 @@ export default async function ImprovementDimensionsPage({
       <Card>
         <h2 className={styles.sectionTitle}>ループの種類</h2>
         <p className={styles.sectionLead}>
-          いまは「悪いところを直すループ」だけが動きます。ほかは形だけ決めてあり、
+          いまは「記事を良くするループ」だけが動きます。ほかは形だけ決めてあり、
           動かすのに何が要るかを書いてあります。
         </p>
         {v.loops.map((l) => (
@@ -121,6 +121,10 @@ export default async function ImprovementDimensionsPage({
               <li>
                 決め方
                 <span className={styles.linkNote}>{l.decisionRule}</span>
+              </li>
+              <li>
+                何をもって決めるか
+                <span className={styles.linkNote}>{l.decisionBasisLabel}</span>
               </li>
               <li>
                 承認する人
