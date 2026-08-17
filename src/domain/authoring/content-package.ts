@@ -17,6 +17,7 @@ import {
   ok,
   validationError,
 } from "../shared";
+import { type PolicyDomainScope, isPolicyDomainScope } from "../compliance/policy-rule";
 
 /**
  * Content Package (プラットフォーム層 §7.3)。
@@ -92,6 +93,14 @@ export type ContentPackage = {
   readonly brandId: string;
   readonly campaignId: CampaignId | null;
   readonly primarySubjectId: ProductId;
+  /**
+   * この企画がどの分野の記事か。表現ポリシーを選ぶ唯一の手がかり。
+   *
+   * 省略できる欄にしない。既定値を置くと全部の企画が `general` になり、
+   * 薬機法・金融・賭博・酒・子ども向けのルールが 1 件も当たらないまま
+   * 「違反 0 件」で通り続ける (`docs/product/backlog.md` 項目 48)。
+   */
+  readonly domainScope: PolicyDomainScope;
   readonly comparisonSetId: ComparisonSetId | null;
   readonly claimIds: readonly ClaimId[];
   readonly evidenceIds: readonly EvidenceId[];
@@ -111,6 +120,7 @@ export function createContentPackage(input: {
   brandId: string;
   campaignId?: CampaignId | null;
   primarySubjectId: ProductId;
+  domainScope: PolicyDomainScope;
   comparisonSetId?: ComparisonSetId | null;
   claimIds: readonly ClaimId[];
   evidenceIds: readonly EvidenceId[];
@@ -129,12 +139,21 @@ export function createContentPackage(input: {
   if (input.contentAngles.length === 0) {
     return err(validationError("切り口が選ばれていません。", "contentAngles"));
   }
+  if (!isPolicyDomainScope(input.domainScope)) {
+    return err(
+      validationError(
+        "記事の分野が選ばれていません。分野が無いと、薬機法や金融のルールが当たりません。",
+        "domainScope",
+      ),
+    );
+  }
   return ok({
     id: input.id,
     workspaceId: input.workspaceId,
     brandId: input.brandId,
     campaignId: input.campaignId ?? null,
     primarySubjectId: input.primarySubjectId,
+    domainScope: input.domainScope,
     comparisonSetId: input.comparisonSetId ?? null,
     claimIds: input.claimIds,
     evidenceIds: input.evidenceIds,

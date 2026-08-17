@@ -13,6 +13,7 @@ import {
   type CategoryPlan,
   type DifferentiationAxes,
 } from "@/domain/authoring/site-blueprint";
+import { buildSeedPolicyRules, checkPolicies } from "@/domain/compliance";
 import { taggedString } from "@/domain/shared";
 
 /**
@@ -141,6 +142,7 @@ describe("記事の企画", () => {
       workspaceId: WS,
       brandId: "br_1",
       primarySubjectId: taggedString<"ProductId">("pr_1"),
+      domainScope: "general",
       claimIds: [taggedString<"ClaimId">("cl_1")],
       evidenceIds: [taggedString<"EvidenceId">("ev_1")],
       authorPersonaId: taggedString<"AuthorPersonaId">("ap_1"),
@@ -162,6 +164,15 @@ describe("記事の企画", () => {
     // 渡さなかったものは null になる（undefined を持ち回らない）。
     expect(r.value.campaignId).toBeNull();
     expect(r.value.comparisonSetId).toBeNull();
+  });
+
+  it("記事の分野が無いと作れない（分野が無い企画にはポリシーが当たらないため）", () => {
+    // 型では防げない入口（保存先からの読み戻し・道具経由の JSON）を想定して、
+    // 実行時にも断ることを固定する。既定値で general に倒すと、
+    // 薬機法・金融のルールが一度も当たらないまま「違反 0 件」で通る。
+    expect(pkg({ domainScope: undefined as never }).ok).toBe(false);
+    expect(pkg({ domainScope: "健康食品" as never }).ok).toBe(false);
+    expect(pkg({ domainScope: "health_food" }).ok).toBe(true);
   });
 
   it("達成したいこと・読者・切り口のどれが欠けても作れない", () => {
@@ -225,5 +236,66 @@ describe("記事の企画", () => {
     expect(selectRepresentativeCells(r.value, ["blog"], 0).ok).toBe(false);
     expect(selectRepresentativeCells(r.value, ["blog"], -1).ok).toBe(false);
     expect(selectRepresentativeCells(r.value, [], 5).ok).toBe(false);
+  });
+});
+
+/**
+ * 企画の分野が、実際に表現ポリシーの選別へ届いていることを固定する。
+ *
+ * 欄を足しただけでは意味が無い。**その欄がルールの当たり外れを変える**ところまで
+ * 見ていないと、あとで既定値に倒しても誰も気づかない。
+ * ここは企画（authoring）と表現ポリシー（compliance）の継ぎ目を、
+ * 呼び出し側の実装を待たずに domain の中で確かめる。
+ *
+ * @req REQ-SEC07, REQ-E23
+ * @types decision-table
+ */
+describe("企画の分野が、当たるルールを決める", () => {
+  const RULES = (() => {
+    const built = buildSeedPolicyRules(WS);
+    if (!built.ok) throw new Error("初期ルールを組み立てられません");
+    return built.value;
+  })();
+
+  /** 薬機法（健康食品）の block ルールに当たる文。 */
+  const NG_TEXT = "飲み続ければ花粉症が治ります。";
+
+  function checkFor(domainScope: Parameters<typeof pkgFactory>[0]) {
+    const r = pkgFactory(domainScope);
+    if (!r.ok) throw new Error(r.error.message);
+    return checkPolicies(RULES, {
+      text: NG_TEXT,
+      domainScope: r.value.domainScope,
+      channelScope: "own_site",
+    });
+  }
+
+  function pkgFactory(domainScope: "general" | "health_food") {
+    return createContentPackage({
+      id: taggedString<"ContentPackageId">("cp_scope"),
+      workspaceId: WS,
+      brandId: "br_1",
+      primarySubjectId: taggedString<"ProductId">("pr_1"),
+      domainScope,
+      claimIds: [],
+      evidenceIds: [],
+      authorPersonaId: taggedString<"AuthorPersonaId">("ap_1"),
+      audiencePersonaIds: [taggedString<"AudiencePersonaId">("aud_1")],
+      objective: "最初の 1 つを選べるようにする",
+      funnelStage: "consideration",
+      contentAngles: ["beginner"],
+    });
+  }
+
+  it("健康食品の企画なら、薬機法のルールが当たって公開できない", () => {
+    const result = checkFor("health_food");
+    expect(result.violations.map((v) => v.ruleName)).toContain("薬機法: 治る・完治の断定");
+    expect(result.publishable).toBe(false);
+  });
+
+  it("同じ文でも、分野ちがいの企画には当たらない", () => {
+    // ここが「当たらない」ことは正しい挙動である。
+    // 化粧品のルールが家電の記事を止めると、運用でポリシーごと切られる。
+    expect(checkFor("general").violations).toEqual([]);
   });
 });

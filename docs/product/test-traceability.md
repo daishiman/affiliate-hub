@@ -6,8 +6,8 @@
 
 - 最終更新: 2026-08-17
 - テストファイル: 119 件
-- 由来の要件が分かる: 84 件
-- **由来不明: 35 件**（上限 37 件）
+- 由来の要件が分かる: 85 件
+- **由来不明: 34 件**（上限 37 件）
 
 由来不明とは「どの要件のために書いたのか、機械から辿れない」という意味で、
 テストが無駄という意味ではない。要件から書いたなら `@req` を 1 行足せば消える。
@@ -29,7 +29,6 @@
 - `tests/domain/entity-invariants.test.ts`
 - `tests/domain/loop-kinds.test.ts`
 - `tests/domain/metrics-from-telemetry.test.ts`
-- `tests/domain/planning.test.ts`
 - `tests/infrastructure/d1-link-inbox.test.ts`
 - `tests/infrastructure/db-binding.test.ts`
 - `tests/infrastructure/session-actor.test.ts`
@@ -84,6 +83,7 @@
 | `tests/domain/invariants.test.ts` | REQ-SEC07, REQ-W08 | 表 |
 | `tests/domain/link-ingestion.test.ts` | REQ-S02 | 表 |
 | `tests/domain/permissions.test.ts` | REQ-API02, REQ-R01, REQ-R02, REQ-R03, REQ-R04, REQ-R05, REQ-R06, REQ-R07, REQ-R08, REQ-R09, REQ-R10, REQ-R11, REQ-R12 | 印 |
+| `tests/domain/planning.test.ts` | REQ-SEC07 | 表 |
 | `tests/domain/policy-rule-seed.test.ts` | REQ-QC11, REQ-SEC07 | 印と表 |
 | `tests/domain/records-and-metrics.test.ts` | REQ-SEC09 | 印 |
 | `tests/domain/site-routes.test.ts` | REQ-B01, REQ-B02, REQ-B03, REQ-B04, REQ-B05, REQ-B06, REQ-B07, REQ-B08, REQ-B09, REQ-B10, REQ-B11, REQ-B13, REQ-B14, REQ-B15, REQ-B16, REQ-B17, REQ-B18, REQ-TM10 | 表 |

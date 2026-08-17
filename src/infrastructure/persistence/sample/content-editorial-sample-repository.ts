@@ -210,6 +210,9 @@ const PACKAGE: ContentPackage = unwrap(
     workspaceId: WS,
     brandId: "brand_sample",
     primarySubjectId: SAMPLE_PRODUCTS[0]!.id,
+    // 見本は動画編集ソフトの比較なので、法令上の特別な規制は無い。
+    // 「分からないので general」ではなく「調べた結果 general」であることに注意。
+    domainScope: "general",
     claimIds: [taggedString<"ClaimId">("cl_alpha_export")],
     evidenceIds: [taggedString<"EvidenceId">("ev_export_time")],
     authorPersonaId: AUTHOR_ID,

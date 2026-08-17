@@ -20,16 +20,28 @@ import {
  * 実際のルール内容 (薬機法の表現一覧など) はワークスペースのデータとして登録する。
  */
 
-/** ルールが効く分野。記事のカテゴリーに対応する。 */
-export type PolicyDomainScope =
-  | "general"
-  | "health_food" // 健康食品 (薬機法)
-  | "cosmetics" // 化粧品 (薬機法)
-  | "medical" // 医療・医薬品
-  | "finance" // 金融商品取引法・貸金業法
-  | "gambling"
-  | "alcohol"
-  | "children"; // 子ども向け
+/**
+ * ルールが効く分野。記事のカテゴリーに対応する。
+ *
+ * 実行時の配列を正本にして型を導く。型だけで持つと、
+ * 「登録されようとしている分野が語彙に有るか」を実行時に確かめられず、
+ * 綴りの違う分野が黙って general 扱いになる。
+ */
+export const POLICY_DOMAIN_SCOPES = [
+  "general",
+  "health_food", // 健康食品 (薬機法)
+  "cosmetics", // 化粧品 (薬機法)
+  "medical", // 医療・医薬品
+  "finance", // 金融商品取引法・貸金業法
+  "gambling",
+  "alcohol",
+  "children", // 子ども向け
+] as const;
+export type PolicyDomainScope = (typeof POLICY_DOMAIN_SCOPES)[number];
+
+export function isPolicyDomainScope(value: unknown): value is PolicyDomainScope {
+  return typeof value === "string" && (POLICY_DOMAIN_SCOPES as readonly string[]).includes(value);
+}
 
 /** ルールが効く出力先。SNS は各社の規約が違う。 */
 export type PolicyChannelScope =
@@ -116,6 +128,14 @@ export function createPolicyRule(input: {
       validationError(
         "代わりの書き方が必要です。禁止だけ示すと執筆が止まります。",
         "suggestion",
+      ),
+    );
+  }
+  if (!isPolicyDomainScope(input.domainScope)) {
+    return err(
+      validationError(
+        "分野が語彙にありません。知らない分野を通すと、そのルールはどの記事にも当たりません。",
+        "domainScope",
       ),
     );
   }
