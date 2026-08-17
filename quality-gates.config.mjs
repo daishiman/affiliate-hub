@@ -101,6 +101,31 @@ export const STUB_PATTERNS = [
 export const MAX_STUB_GAP_POINTS = 3;
 
 /**
+ * スタブと実質の差の判定。**片側だけを見る。**
+ *
+ * 見張りたいのは「スタブを厚くして全体の数字を作る」という 1 方向だけである。
+ * 逆向き（実質がスタブを上回る）は本物のコードの方が厚く検査されている状態で、
+ * これは求めている姿そのものなので、止める理由が無い。
+ *
+ * 絶対値で見ると、望ましい方向へ大きく進んだときにも警告が出る。
+ * 「良くなったのに赤くなる」検査は、そのうち誰も読まなくなる。
+ *
+ * @param {number} realLines 実質（スタブを除いた）行カバレッジ
+ * @param {number} stubLines スタブのみの行カバレッジ
+ * @returns {{ gap: number, exceeded: boolean, note: string }}
+ */
+export function judgeStubGap(realLines, stubLines) {
+  const gap = Math.round((stubLines - realLines) * 100) / 100;
+  const exceeded = gap > MAX_STUB_GAP_POINTS;
+  const note = exceeded
+    ? `スタブが実質より ${gap}pt 高い（上限 ${MAX_STUB_GAP_POINTS}pt）。テストを足す場所が本物のコードではなくスタブに寄っています`
+    : gap > 0
+      ? `上限 ${MAX_STUB_GAP_POINTS}pt 以内`
+      : "スタブは実質を上回っていない（望ましい向き）";
+  return { gap, exceeded, note };
+}
+
+/**
  * 検査の並び。`scripts/verify.mjs` はこの順にそのまま実行する。
  *
  * 順番には理由がある。**安いものから先に落とす**。
@@ -139,6 +164,13 @@ export const CHECKS = [
     why: "層別の下限と、スタブとの差を見る。全体 80% だけでは薄い場所が隠れる",
   },
   {
+    id: "spec-freshness",
+    label: "仕様レポートの鮮度",
+    command: ["node", "scripts/spec-freshness.mjs"],
+    blocking: false,
+    why: "評価後に仕様書を書き換えると、古い PASS が古く見えないまま残る。指紋で気づける形にする",
+  },
+  {
     id: "audit",
     label: "依存の脆弱性",
     command: ["pnpm", "audit", "--audit-level", "high"],
@@ -163,6 +195,7 @@ const qualityGates = {
   LAYER_COVERAGE,
   STUB_PATTERNS,
   MAX_STUB_GAP_POINTS,
+  judgeStubGap,
   CHECKS,
   RELEASE_GATES,
 };

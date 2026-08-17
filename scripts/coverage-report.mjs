@@ -22,6 +22,7 @@ import {
   LAYER_COVERAGE,
   MAX_STUB_GAP_POINTS,
   STUB_PATTERNS,
+  judgeStubGap,
 } from "../quality-gates.config.mjs";
 
 const ROOT = process.cwd();
@@ -68,8 +69,11 @@ const row = (name) => Object.fromEntries(KEYS.map((k) => [k, pct(buckets.get(nam
 const overall = row("全体");
 const real = row("実質");
 const stub = row("スタブ");
-/** スタブが実質より何ポイント高いか。**広がる方向が数字合わせの兆候**。 */
-const gap = Math.round((stub.lines - real.lines) * 100) / 100;
+/**
+ * スタブが実質より何ポイント高いか。**広がる方向が数字合わせの兆候**。
+ * 判定は片側だけ（理由は `judgeStubGap` と docs/product/coverage.md §3）。
+ */
+const { gap, exceeded: gapExceeded, note: gapNote } = judgeStubGap(real.lines, stub.lines);
 
 // ─── 画面に出す ───────────────────────────────────────────
 // UTC ではなく手元の日付にする。`toISOString()` だと朝 9 時前は前日になり、
@@ -98,13 +102,10 @@ process.stdout.write(
 );
 process.stdout.write(`${pad("実質（スタブ除く）", 18)}${String(real.lines).padStart(8)}\n`);
 process.stdout.write(`${pad("スタブのみ", 18)}${String(stub.lines).padStart(8)}\n`);
-process.stdout.write(`スタブと実質の差: ${gap >= 0 ? "+" : ""}${gap}pt（上限 ${MAX_STUB_GAP_POINTS}pt）\n`);
+process.stdout.write(`スタブと実質の差: ${gap >= 0 ? "+" : ""}${gap}pt — ${gapNote}\n`);
 
-if (gap > MAX_STUB_GAP_POINTS) {
-  failures.push(
-    `スタブが実質より ${gap}pt 高い（上限 ${MAX_STUB_GAP_POINTS}pt）。` +
-      "テストを足す場所が本物のコードではなくスタブに寄っています",
-  );
+if (gapExceeded) {
+  failures.push(gapNote);
 }
 
 // ─── 記録を書き換える ─────────────────────────────────────
@@ -127,9 +128,10 @@ const block = [
   "",
   table,
   "",
-  `スタブと実質の差: **${gap >= 0 ? "+" : ""}${gap}pt**（上限 ${MAX_STUB_GAP_POINTS}pt）。`,
-  "この差が**広がる方向に動いたら**、テストを足す場所を間違えている。",
+  `スタブと実質の差: **${gap >= 0 ? "+" : ""}${gap}pt** — ${gapNote}。`,
+  `判定は片側だけ（スタブが実質を **${MAX_STUB_GAP_POINTS}pt** 超えて上回ったときだけ落とす）。`,
   "スタブは短くて分母が小さいため、そこを厚くするだけで全体の数字は上がってしまう。",
+  "逆向き（実質のほうが厚い）は求めている姿なので止めない。理由は §3。",
   "",
   "<!-- ここまで -->",
 ].join("\n");

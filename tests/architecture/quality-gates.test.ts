@@ -8,6 +8,7 @@ import {
   MAX_STUB_GAP_POINTS,
   RELEASE_GATES,
   STUB_PATTERNS,
+  judgeStubGap,
 } from "../../quality-gates.config.mjs";
 
 /**
@@ -126,6 +127,28 @@ describe("スタブの扱い", () => {
   it("スタブと実質の差に上限がある", () => {
     expect(MAX_STUB_GAP_POINTS).toBeGreaterThan(0);
     expect(MAX_STUB_GAP_POINTS).toBeLessThanOrEqual(5);
+  });
+
+  it("スタブが実質を大きく上回ったときだけ落とす（数字合わせの向き）", () => {
+    // これが検出したい事故そのもの。スタブを厚くして全体の数字を作った状態。
+    const bad = judgeStubGap(50, 50 + MAX_STUB_GAP_POINTS + 0.1);
+    expect(bad.exceeded).toBe(true);
+    expect(bad.note).toContain("スタブに寄っています");
+  });
+
+  it("実質のほうが厚いときは、どれだけ差があっても落とさない", () => {
+    // 絶対値で見ると「良くなったのに赤くなる」。
+    // 良くなって落ちる検査は、そのうち誰も読まなくなる。理由は coverage.md §3。
+    for (const stub of [49.9, 40, 10, 0]) {
+      const judged = judgeStubGap(50, stub);
+      expect(judged.exceeded, `実質50 / スタブ${stub} で落ちています`).toBe(false);
+    }
+    expect(judgeStubGap(91.9, 81.9).note).toContain("望ましい向き");
+  });
+
+  it("上限ちょうどでは落とさない（境界）", () => {
+    expect(judgeStubGap(50, 50 + MAX_STUB_GAP_POINTS).exceeded).toBe(false);
+    expect(judgeStubGap(50, 50).gap).toBe(0);
   });
 });
 

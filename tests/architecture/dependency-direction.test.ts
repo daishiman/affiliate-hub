@@ -178,3 +178,56 @@ describe("Editorial と Commercial の分離", () => {
     ).toEqual([]);
   });
 });
+
+/**
+ * 読者面と発信者面の接続境界（docs/spec/02 §9 項5 / docs/architecture/context-map.md）。
+ *
+ * 読者の画面（`/s/{site}/…`）が編集・配信・提携・設定のユースケースを直接呼べると、
+ * **編集中の状態や報酬の情報が読者側の経路に入り込む**。
+ * 読み取りモデルの中身は型で守れるが、呼び出し経路そのものは型では守れない。
+ *
+ * 接続してよいのは 3 つだけ:
+ *   - `application/read-models/`（公開済みの記事。報酬の欄を持たない形）
+ *   - `usecases/site/read-site`（どのブログか）
+ *   - `usecases/analytics/explain-telemetry`（何を測っているかの説明。読者への開示）
+ */
+describe("読者面と発信者面の接続境界", () => {
+  const readerFiles = [...filesUnder("app", "s"), ...filesUnder("presentation", "site")];
+
+  const ALLOWED_USECASES = [
+    "application/usecases/site/read-site",
+    "application/usecases/analytics/explain-telemetry",
+  ];
+
+  it("読者の画面が 1 枚以上ある（検査が空振りしていない）", () => {
+    expect(readerFiles.length).toBeGreaterThan(10);
+  });
+
+  it("読者の画面は、許した 2 つ以外のユースケースを直接呼ばない", () => {
+    const found = violations(
+      readerFiles,
+      (spec) =>
+        spec.includes("application/usecases/") && !ALLOWED_USECASES.some((a) => spec.includes(a)),
+    );
+    expect(
+      found,
+      "読者の画面から発信者側のユースケースを呼んでいます。" +
+        "公開済みの記事は application/read-models/ 経由で受け取ってください",
+    ).toEqual([]);
+  });
+
+  it("読者の画面は、提携・報酬のドメインを読まない", () => {
+    // 記事の中の成果リンクは読み取りモデルが持つ（`affiliateUrl` の 1 欄）。
+    // 金額・成果・ASP はそこに無く、読者側の経路には最初から現れない。
+    const found = violations(readerFiles, (spec) => spec.includes("domain/monetization"));
+    expect(found).toEqual([]);
+  });
+
+  it("発信者の画面は、読者向けの見せ方を組み立て直さない", () => {
+    // 逆向きも塞ぐ。管理側で同じ形を作り直すと、読者に見えるものが 2 通りになる。
+    const found = violations(filesUnder("app", "admin"), (spec) =>
+      spec.includes("presentation/site/"),
+    );
+    expect(found).toEqual([]);
+  });
+});
