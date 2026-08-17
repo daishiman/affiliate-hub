@@ -272,6 +272,22 @@
   color: var(--color-text-default);
 }
 
+/*
+ * 保存先がつながっているときの一文。
+ * 見本の枠（破線）と見た目を変える。同じ見た目にすると、
+ * 「まだ仮なのか、もう本物なのか」が一目で分からなくなる。
+ */
+.storageNotice {
+  margin: 0;
+  padding: var(--space-2) var(--space-3);
+  border-left: var(--border-width-emphasis) solid var(--color-border-strong);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-sunken);
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+  line-height: var(--leading-body);
+}
+
 @media (width < 48rem) { /* --breakpoint-md */
   .table thead th {
     position: static;

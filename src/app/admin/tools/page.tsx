@@ -24,7 +24,7 @@ export const dynamic = "force-dynamic";
  * 数字は `contractCoverage()` から取る。この画面用に数え直さない。
  */
 export default async function ToolsPage() {
-  const catalog = createToolCatalog();
+  const catalog = (await createToolCatalog());
   const coverage = contractCoverage();
   const surfaces = Object.keys(SURFACE_LABELS) as ContractSurface[];
 

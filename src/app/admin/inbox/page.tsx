@@ -19,7 +19,7 @@ import {
   EmptyView,
   ErrorView,
   Page,
-  StubNotice,
+  StorageNotice,
 } from "@/presentation/ui";
 import styles from "../admin.module.css";
 
@@ -73,13 +73,7 @@ export default async function InboxPage({
 
   return (
     <Shell>
-      <StubNotice
-        what="成果リンク受信箱の保存先"
-        blockedBy="link_ingestions テーブルの追加と D1 への接続"
-        stubId="persistence:link-inbox-sample"
-      >
-        <span>{await linkInboxNotice()}</span>
-      </StubNotice>
+      <StorageNotice status={await linkInboxNotice()} />
 
       <Callout
         tone="info"

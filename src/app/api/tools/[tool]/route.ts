@@ -28,7 +28,7 @@ export async function POST(request: Request, ctx: { params: Promise<{ tool: stri
   }
 
   const { tool: toolName } = await ctx.params;
-  const catalog = createToolCatalog();
+  const catalog = (await createToolCatalog());
 
   const tool = findTool(catalog, toolName);
   if (tool !== null && !isToolAllowedForScope(tool, auth.scope)) {

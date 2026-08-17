@@ -27,10 +27,10 @@ const LEDGER_PATH = join(process.cwd(), "docs/product/stub-ledger.md");
  * つなぎ目は「使うときに作る」ので、作らないと台帳に現れない。
  * ここで全種類を 1 つずつ作り、数え漏れをなくす。
  */
-function buildEverything(): void {
+async function buildEverything(): Promise<void> {
   const secrets = fakeSecretResolver({});
 
-  createToolCatalog();
+  await createToolCatalog();
 
   for (const asp of supportedAsps()) {
     createAspAdapter(asp.kind, { credentialRef: null, publicTrackingId: null, secrets });
@@ -86,8 +86,8 @@ function renderLedger(): string {
 }
 
 describe("スタブ台帳", () => {
-  it("すべてのスタブが名前と前提条件を名乗っている", () => {
-    buildEverything();
+  it("すべてのスタブが名前と前提条件を名乗っている", async () => {
+    await buildEverything();
     const entries = listStubs();
     expect(entries.length).toBeGreaterThan(0);
     for (const entry of entries) {
@@ -97,11 +97,11 @@ describe("スタブ台帳", () => {
     }
   });
 
-  it("控えと名乗るには、本物のファイルが実在していなければならない", () => {
+  it("控えと名乗るには、本物のファイルが実在していなければならない", async () => {
     // ここを見ないと、`fallbackFor` に文字列を書くだけで
     // 「まだ中身が無いもの」の件数を減らせてしまう。
     // 数字の作り方を、書き手の申告ではなくファイルの実在に結び付ける。
-    buildEverything();
+    await buildEverything();
     const fallbacks = listFallbacks();
     expect(fallbacks.length).toBeGreaterThan(0);
     for (const entry of fallbacks) {
@@ -110,13 +110,13 @@ describe("スタブ台帳", () => {
     }
   });
 
-  it("2 つの数を足すと全体になる（どちらかに数え漏れが出ない）", () => {
-    buildEverything();
+  it("2 つの数を足すと全体になる（どちらかに数え漏れが出ない）", async () => {
+    await buildEverything();
     expect(listUnbuiltStubs().length + listFallbacks().length).toBe(listStubs().length);
   });
 
-  it("台帳ファイルが実際の状態と一致している", () => {
-    buildEverything();
+  it("台帳ファイルが実際の状態と一致している", async () => {
+    await buildEverything();
     const expected = renderLedger();
 
     if (process.env.UPDATE_STUB_LEDGER === "1") {

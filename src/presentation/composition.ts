@@ -117,6 +117,7 @@ import { createGetDashboardUseCase } from "@/application/usecases/dashboard/read
 import type { ActorContext } from "@/domain/shared";
 import { taggedString } from "@/domain/shared";
 import { type KeyScope, authorize } from "@/domain/feedback";
+import type { StorageStatus } from "@/presentation/ui/patterns/stub-notice";
 import { createDeps } from "@/infrastructure/composition";
 import { telemetryStubNotice } from "@/infrastructure/persistence/sample/telemetry-sample-sink";
 import { improvementStubNotice } from "@/infrastructure/persistence/sample/improvement-sample-repository";
@@ -162,8 +163,11 @@ import type { RankingResult } from "@/domain/ranking";
  * 画面・REST・MCP・WebMCP はすべてこの 1 つのツール一覧を見る。
  * 入口ごとに作り直すと、片方にだけ古い定義が残る。
  */
-export function createToolCatalog(): readonly AnyToolDefinition[] {
-  return buildToolCatalog(createDeps());
+export async function createToolCatalog(): Promise<readonly AnyToolDefinition[]> {
+  // **接続を渡す。** 道具は画面と同じ処理を呼ぶのが前提なので、
+  // ここで渡し忘れると「画面には保存されているのに AI からは見えない」
+  // という、入口ごとに答えが違う状態になる。
+  return buildToolCatalog(createDeps({ db: await tryGetDb() }));
 }
 
 /**
@@ -216,7 +220,7 @@ export async function resolveIntegrationAccess(
     };
   }
 
-  const keys = createDeps().integrationKeys;
+  const keys = createDeps({ db: await tryGetDb() }).integrationKeys;
   const found = await keys.authenticate(value);
   // 「無い鍵」と「潰れた保存先」を同じ文言で返す。どちらかを言い分けると、
   // 存在する鍵を総当たりで探し当てる手がかりになる。
@@ -360,7 +364,9 @@ function descriptorsForPage(kind: PageKind): readonly WebMcpDescriptor[] {
   if (wanted.length === 0) return [];
   // 並び順は表の順に揃える。カタログの並びに任せると、
   // 同じページでも登録順が変わって挙動の説明が付かなくなる。
-  const catalog = createToolCatalog();
+  // ここで要るのは名前と入力の形だけで、中身は一度も動かさない。
+  // 保存先を待つ必要がないので接続を取りに行かない（画面の描画を遅らせない）。
+  const catalog = buildToolCatalog(createDeps());
   const picked = wanted
     .map((name) => catalog.find((t) => t.name === name))
     .filter((t): t is NonNullable<typeof t> => t !== undefined);
@@ -643,11 +649,18 @@ export async function linkInboxUseCases() {
  * 保存されるのか、この場限りで消えるのかは、
  * 利用者にとって「使えるかどうか」が変わる違いなので、必ず出す。
  */
-export async function linkInboxNotice(): Promise<string> {
+export async function linkInboxNotice(): Promise<StorageStatus> {
   const db = await tryGetDb();
-  return db === null
-    ? sampleLinkInboxNotice()
-    : "入れたリンクは保存されます（保存先: D1 の link_ingestions）。";
+  return {
+    persisted: db !== null,
+    what: "成果リンク受信箱の保存先",
+    blockedBy: "link_ingestions テーブルの追加と D1 への接続",
+    stubId: "persistence:link-inbox-sample",
+    message:
+      db === null
+        ? sampleLinkInboxNotice()
+        : "入れたリンクは保存されます（保存先: D1 の link_ingestions）。",
+  };
 }
 
 /**
@@ -711,8 +724,11 @@ export function improvementNotice(): string {
  * 画面も REST も バックエンド MCP も、ここと同じユースケースを呼ぶ
  * （道具の一覧は `tools/feedback-tools.ts`）。**入口ごとに組み立て直さない。**
  */
-export function feedbackUseCases() {
-  const deps = createDeps();
+export async function feedbackUseCases() {
+  // **接続を渡す。** ここを `createDeps()` のままにすると、組み立て側で
+  // D1 を選べるようにしても画面には一生届かず、つないだつもりで
+  // 見本データが出続ける。実際にそうなっていた（preview で判明）。
+  const deps = createDeps({ db: await tryGetDb() });
   const feedback = {
     repository: deps.feedback,
     captures: deps.feedbackCaptures,
@@ -744,9 +760,25 @@ export function feedbackUseCases() {
   };
 }
 
-/** 改善要望の記録先が仮置きであることを画面に出すための一文。 */
-export function feedbackNotice(): string {
-  return feedbackStubNotice();
+/**
+ * 改善要望がいま何で動いているかを画面に出すための一文。
+ *
+ * 受信箱（`linkInboxNotice`）と同じ形にしてある。保存されるのか、
+ * この場限りで消えるのかは、利用者にとって「使えるかどうか」が変わる違いなので、
+ * **どちらであっても黙らない**。
+ */
+export async function feedbackNotice(): Promise<StorageStatus> {
+  const db = await tryGetDb();
+  return {
+    persisted: db !== null,
+    what: "改善要望の記録先",
+    blockedBy: "feedback_reports / integration_keys テーブルの追加と D1 への接続",
+    stubId: "persistence:feedback-memory",
+    message:
+      db === null
+        ? feedbackStubNotice()
+        : "届いた要望は保存されます（保存先: D1 の feedback_reports）。画面の写しだけはまだこの場限りで、しばらくすると消えます。",
+  };
 }
 
 /**
@@ -809,8 +841,8 @@ export function settingsUseCases() {
  * 読み取り専用であり、このまとまりは順位づけへは渡らない
  * （順位づけ側が商業のポートを受け取らない型になっている）。
  */
-export function dashboardUseCases() {
-  const deps = createDeps();
+export async function dashboardUseCases() {
+  const deps = createDeps({ db: await tryGetDb() });
   return {
     getDashboard: createGetDashboardUseCase({
       contentVariants: deps.contentVariants,

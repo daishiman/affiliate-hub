@@ -40,7 +40,7 @@ export default async function FeedbackDetailPage({
 }) {
   const { report: id } = await params;
   const actor = await currentActor();
-  const read = await feedbackUseCases().read.execute(actor, { id });
+  const read = await (await feedbackUseCases()).read.execute(actor, { id });
 
   if (!read.ok) {
     return (

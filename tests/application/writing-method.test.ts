@@ -119,8 +119,8 @@ describe("書き方", () => {
 });
 
 describe("道具として使えること", () => {
-  it("read_writing_method が登録されていて、読み取りだけ", () => {
-    const tool = createToolCatalog().find((t) => t.name === "read_writing_method");
+  it("read_writing_method が登録されていて、読み取りだけ", async () => {
+    const tool = (await createToolCatalog()).find((t) => t.name === "read_writing_method");
     expect(tool).toBeDefined();
     expect(tool?.readOnly).toBe(true);
   });

@@ -303,8 +303,10 @@ describe("手順と承認のつながり", () => {
   });
 });
 
+const GENERATION_CATALOG = await createToolCatalog();
+
 describe("道具として使えること", () => {
-  const catalog = createToolCatalog();
+  const catalog = GENERATION_CATALOG;
 
   it("生成の仕組みを読む道具が 3 つ登録されている", () => {
     const names = catalog.map((t) => t.name);

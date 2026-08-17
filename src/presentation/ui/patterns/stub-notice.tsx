@@ -45,6 +45,45 @@ export function StubNotice({
 }
 
 /**
+ * いま何で動いているかの表示（保存先つき）。
+ *
+ * **画面に条件を書かせない。** これまでは画面側に
+ * 「使えるようになる条件」を文字で書いていたため、
+ * 実際に保存先をつないだあとも「まだつながっていません」と出続けた
+ * （2026-08-17、Workers 上の確認で判明）。
+ *
+ * 判断する側（`src/presentation/composition.ts` の各 `〜Notice()`）が
+ * この形で返し、画面はそれを出すだけにする。**言えることが 1 箇所になる。**
+ */
+export type StorageStatus = {
+  /** 本当に保存されるか。false のときだけ見本の枠で出す。 */
+  readonly persisted: boolean;
+  /** 何の保存先か。例:「改善要望の記録先」 */
+  readonly what: string;
+  /** 保存されないときに、何が済めば使えるようになるか。 */
+  readonly blockedBy: string;
+  /** 台帳の見出し。 */
+  readonly stubId: string;
+  /** 利用者に見せる 1 文。保存される場合も出す（黙らない）。 */
+  readonly message: string;
+};
+
+export function StorageNotice({ status }: { readonly status: StorageStatus }) {
+  if (!status.persisted) {
+    return (
+      <StubNotice what={status.what} blockedBy={status.blockedBy} stubId={status.stubId}>
+        <span>{status.message}</span>
+      </StubNotice>
+    );
+  }
+  return (
+    <p className={styles.storageNotice} data-storage="persisted" data-stub-id={status.stubId}>
+      {status.message}
+    </p>
+  );
+}
+
+/**
  * 一覧の行や表のセルなど、狭い場所に付ける小さな見本ラベル。
  * 大きな枠を出せない場所でも、見本であることは隠さない。
  */

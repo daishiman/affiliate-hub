@@ -32,7 +32,7 @@ export async function GET(request: Request) {
     return Response.json({ error: access.message }, { status: access.status });
   }
 
-  const useCases = feedbackUseCases();
+  const useCases = await feedbackUseCases();
 
   const listed = await useCases.list.execute(access.actor, {
     statuses: UNFINISHED_STATUSES,

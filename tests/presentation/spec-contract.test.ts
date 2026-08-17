@@ -21,7 +21,7 @@ import {
  * どちらかを緩めると「仕様の 36 個ぜんぶ実装済み」と言えてしまう。
  */
 
-const catalog = createToolCatalog();
+const catalog = (await createToolCatalog());
 
 describe("対応表そのもの", () => {
   it("仕様書に書かれた面ごとの個数と合っている", () => {

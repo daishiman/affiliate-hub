@@ -32,6 +32,7 @@ import {
   RankingTable,
   ScheduleCalendar,
   StubLabel,
+  StorageNotice,
   StubNotice,
   UI_COPY,
   WorkBoard,
@@ -332,6 +333,28 @@ export default function UiCatalogPage() {
             <p>
               一覧の行に付ける小さな印: 機種D <StubLabel stubId="product-import" />
             </p>
+            <p className={styles.sectionLead}>
+              保存先の状態は画面に書かず、決めている側から受け取って出します。
+              つないだあとも「まだつながっていません」と出続ける事故を防ぐためです。
+            </p>
+            <StorageNotice
+              status={{
+                persisted: false,
+                what: "改善要望の記録先",
+                blockedBy: "feedback_reports テーブルの追加と D1 への接続",
+                stubId: "persistence:feedback-memory",
+                message: "いまはこの場限りで、しばらくすると消えます。",
+              }}
+            />
+            <StorageNotice
+              status={{
+                persisted: true,
+                what: "改善要望の記録先",
+                blockedBy: "",
+                stubId: "persistence:feedback-memory",
+                message: "届いた要望は保存されます（保存先: D1 の feedback_reports）。",
+              }}
+            />
           </div>
         </Card>
 

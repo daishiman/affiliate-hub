@@ -27,7 +27,7 @@ export async function submitFeedbackAction(
 ): Promise<{ readonly message: string }> {
   const capture = submission.capture;
   const image = capture === null ? null : base64ToBytes(capture.imageBase64);
-  const result = await feedbackUseCases().submit.execute(await currentActor(), {
+  const result = await (await feedbackUseCases()).submit.execute(await currentActor(), {
     kind: submission.kind,
     body: submission.body,
     wish: submission.wish,
@@ -124,7 +124,7 @@ export async function changeFeedbackStatusAction(
     return { status: "failed", message: "何をするかが分かりませんでした。", field: "intent" };
   }
 
-  const result = await feedbackUseCases().updateStatus.execute(await currentActor(), input);
+  const result = await (await feedbackUseCases()).updateStatus.execute(await currentActor(), input);
   if (!result.ok) {
     return {
       status: "failed",
@@ -169,7 +169,7 @@ export async function handOffFeedbackAction(
     };
   }
 
-  const result = await feedbackUseCases().handOff.execute(await currentActor(), {
+  const result = await (await feedbackUseCases()).handOff.execute(await currentActor(), {
     ids,
     route: "copied_by_human",
     previewOnly,
@@ -231,7 +231,7 @@ export async function manageIntegrationAccessAction(
         ? { action: "revoke" as const, id: String(formData.get("id") ?? "") }
         : { action: "list" as const };
 
-  const result = await feedbackUseCases().keys.execute(await currentActor(), input);
+  const result = await (await feedbackUseCases()).keys.execute(await currentActor(), input);
   if (!result.ok) {
     return {
       status: "failed",

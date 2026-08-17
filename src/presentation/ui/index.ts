@@ -69,7 +69,8 @@ export {
   type Speaker,
 } from "./patterns/conversation";
 export { ProductCard, type ProductCardSpec } from "./patterns/product-card";
-export { StubNotice, StubLabel } from "./patterns/stub-notice";
+export { StubNotice, StubLabel, StorageNotice } from "./patterns/stub-notice";
+export type { StorageStatus } from "./patterns/stub-notice";
 export { AppearancePicker } from "./patterns/appearance-picker";
 export {
   APPEARANCE_ATTR,

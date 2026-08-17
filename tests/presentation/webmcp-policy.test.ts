@@ -22,7 +22,7 @@ import { allowedOriginsFrom, checkOrigin } from "@/presentation/http/origin-guar
  * ページを開いた AI がそのまま公開できてしまう。
  */
 
-const catalog = createToolCatalog();
+const catalog = (await createToolCatalog());
 const kinds = Object.keys(PAGE_TOOLS) as PageKind[];
 
 describe("ページ種別ごとの道具", () => {

@@ -72,7 +72,7 @@ function params(tool: string): { params: Promise<{ tool: string }> } {
   return { params: Promise.resolve({ tool }) };
 }
 
-const CATALOG: readonly AnyToolDefinition[] = createToolCatalog();
+const CATALOG: readonly AnyToolDefinition[] = (await createToolCatalog());
 
 /**
  * 道具は名前で決め打ちしない。

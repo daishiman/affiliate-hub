@@ -24,7 +24,7 @@ describe("組み立て", () => {
     const fromScreen = await invokeTool(rankingTool(), actor, target);
 
     // AI が使うカタログ経由の入口
-    const tool = createToolCatalog().find((t) => t.name === "rank_products");
+    const tool = (await createToolCatalog()).find((t) => t.name === "rank_products");
     expect(tool).toBeDefined();
     const fromAi = await invokeTool(tool!, actor, target);
 

@@ -16,7 +16,7 @@ import {
   ErrorView,
   FilterBar,
   Page,
-  StubNotice,
+  StorageNotice,
   UI_COPY,
   type FilterAxis,
 } from "@/presentation/ui";
@@ -56,7 +56,7 @@ export default async function FeedbackListPage({
   const includeDiscarded = params.discarded === "yes";
 
   const actor = await currentActor();
-  const listed = await feedbackUseCases().list.execute(actor, {
+  const listed = await (await feedbackUseCases()).list.execute(actor, {
     statuses: status === null ? undefined : [status],
     kinds: kind === null ? undefined : [kind],
     handedOff: handedOff === null ? undefined : handedOff,
@@ -119,13 +119,7 @@ export default async function FeedbackListPage({
 
   return (
     <Shell>
-      <StubNotice
-        what="改善要望の記録先"
-        blockedBy="feedback_reports / integration_keys テーブルと、画面の写しの置き場の用意"
-        stubId="persistence:feedback-memory"
-      >
-        <span>{feedbackNotice()}</span>
-      </StubNotice>
+      <StorageNotice status={await feedbackNotice()} />
 
       <Card>
         <h2 className={styles.sectionTitle}>いまの状況</h2>

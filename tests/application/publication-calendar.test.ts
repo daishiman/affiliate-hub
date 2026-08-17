@@ -240,7 +240,7 @@ describe("予定日の変更", () => {
 describe("画面と AI の一致", () => {
   it("カレンダーと予定日変更が、画面と同じユースケースで登録されている", async () => {
     const { createToolCatalog } = await import("@/presentation/composition");
-    const catalog = createToolCatalog();
+    const catalog = (await createToolCatalog());
 
     const read = catalog.find((t) => t.name === "get_publication_calendar");
     expect(read, "get_publication_calendar が道具の一覧にありません").toBeDefined();

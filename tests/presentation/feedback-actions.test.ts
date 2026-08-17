@@ -63,7 +63,7 @@ function form(entries: Record<string, string | readonly string[]>): FormData {
 
 /** 1 件の中身をユースケース越しに読む（画面と同じ道を通す）。 */
 async function read(id: string) {
-  const result = await feedbackUseCases().read.execute(signedIn, { id });
+  const result = await (await feedbackUseCases()).read.execute(signedIn, { id });
   if (!result.ok) throw new Error(result.error.message);
   return result.value;
 }
@@ -122,7 +122,7 @@ describe("改善したいことを送る", () => {
     expect(result.message).toContain("送りました");
     expect(result.message).not.toContain("付けられませんでした");
 
-    const listed = await feedbackUseCases().list.execute(signedIn, {});
+    const listed = await (await feedbackUseCases()).list.execute(signedIn, {});
     if (!listed.ok) throw new Error(listed.error.message);
     expect(listed.value.rows.some((r) => r.screenName === "改善要望の一覧")).toBe(true);
   });

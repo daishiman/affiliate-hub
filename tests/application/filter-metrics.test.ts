@@ -169,14 +169,14 @@ describe("お金に近い切り口の注意", () => {
 
 describe("道具としても同じことができる", () => {
   it("filter_metrics が道具の一覧に登録されている", async () => {
-    const catalog = createToolCatalog();
+    const catalog = (await createToolCatalog());
     const tool = catalog.find((t) => t.name === "filter_metrics");
     expect(tool, "filter_metrics が登録されていません").toBeDefined();
     expect(tool?.readOnly).toBe(true);
   });
 
   it("道具の説明に、分けられない指標の扱いが書いてある", async () => {
-    const catalog = createToolCatalog();
+    const catalog = (await createToolCatalog());
     const tool = catalog.find((t) => t.name === "filter_metrics");
     expect(tool?.description).toContain("分けられません");
   });

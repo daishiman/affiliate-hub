@@ -18,5 +18,5 @@ export async function GET(request: Request) {
   if (!auth.ok) {
     return Response.json({ error: auth.message }, { status: auth.status });
   }
-  return Response.json({ tools: describeTools(visibleTools(createToolCatalog(), auth.scope)) });
+  return Response.json({ tools: describeTools(visibleTools((await createToolCatalog()), auth.scope)) });
 }

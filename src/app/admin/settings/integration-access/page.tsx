@@ -32,7 +32,7 @@ export const dynamic = "force-dynamic";
  */
 export default async function IntegrationAccessPage() {
   const actor = await currentActor();
-  const listed = await feedbackUseCases().keys.execute(actor, { action: "list" });
+  const listed = await (await feedbackUseCases()).keys.execute(actor, { action: "list" });
 
   if (!listed.ok) {
     return (

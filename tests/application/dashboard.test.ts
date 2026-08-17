@@ -520,7 +520,7 @@ const SAMPLE_AT = new Date("2026-08-16T09:00:00Z");
 
 async function board() {
   const actor = await currentActor();
-  const result = await dashboardUseCases().getDashboard.execute(actor, { at: SAMPLE_AT });
+  const result = await (await dashboardUseCases()).getDashboard.execute(actor, { at: SAMPLE_AT });
   expect(result.ok, result.ok ? "" : result.error.message).toBe(true);
   if (!result.ok) throw new Error(result.error.message);
   return result.value;
@@ -592,7 +592,7 @@ describe("見本データを積んだ実際の画面", () => {
 describe("画面と AI の一致", () => {
   it("get_dashboard が、画面と同じユースケースで登録されている", async () => {
     const { createToolCatalog } = await import("@/presentation/composition");
-    const tool = createToolCatalog().find((t) => t.name === "get_dashboard");
+    const tool = (await createToolCatalog()).find((t) => t.name === "get_dashboard");
     expect(tool, "get_dashboard が道具の一覧にありません").toBeDefined();
     // ホーム画面の数字は読むだけ。ページ内の AI にも渡してよい。
     expect(tool?.readOnly).toBe(true);
