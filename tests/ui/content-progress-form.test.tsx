@@ -1,4 +1,4 @@
-/** @tier 2 */
+/** @tier 2 @req REQ-R11 @types screen-states */
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 import { HUMAN_APPROVAL_REQUIRED, allowedNextStates } from "@/domain/authoring";

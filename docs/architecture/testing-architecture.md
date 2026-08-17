@@ -233,23 +233,29 @@ docs/product/coverage.md
 - 「スタブを除いた実質カバレッジ」は、同じ設定ファイルの `stubPaths` を使って
   `coverage-report.mjs` が併記する（仕様 §2-1）
 
-### 5-1. カバレッジの外側にある 2 つの測り方
+### 5-1. カバレッジの外側にある 3 つの測り方
 
 行を通ったかどうかは、**そのテストが何かを確かめたか**を何も言っていない。
-そこで、同じ形（設定 1 か所・報告書 1 つ・門は必ず落ちることを確認）で 2 つ足してある。
+そこで、同じ形（設定 1 か所・報告書 1 つ・門は必ず落ちることを確認）で 3 つ足してある。
 
 ```
-node scripts/mutation.mjs      → reports/mutation/mutation.json → docs/product/mutation.md
-node scripts/traceability.mjs  → docs/product/test-traceability.md
+node scripts/mutation.mjs           → reports/mutation/mutation.json → docs/product/mutation.md
+node scripts/traceability.mjs       → docs/product/test-traceability.md
+node scripts/required-test-types.mjs → docs/product/required-test-types-report.md
 ```
 
 | 測るもの | 問い | 下限の正本 | 2026-08-17 の実測 |
 | --- | --- | --- | --- |
 | ミューテーション | コードを壊したらテストは落ちるか | `MUTATION_SCORE.break` | **67.20%** |
-| 要件との対応 | そのテストはどの要件から書いたのか | `TRACEABILITY_MAX_UNLINKED` | 由来不明 **39 / 115** |
+| 要件との対応 | そのテストはどの要件から書いたのか | `TRACEABILITY_MAX_UNLINKED` | 由来不明 **37 / 115** |
+| 必須種別 | その要件に、書かねばならない種別が揃っているか | `TEST_TYPES_MAX_UNDECLARED` | 未宣言 **228 / 240** |
 
-どちらも**下限（上限）を動かして緑にすることを禁じている**。
+いずれも**下限（上限）を動かして緑にすることを禁じている**。
 数字を動かす唯一の正しい手は、テストを足すことである。
+
+必須種別の側にはもう 1 つ上限がある。除外は理由を書けば通るので、
+**理由さえ書けば全部を除外にできる**からで、除外の件数も
+`TEST_TYPES_MAX_EXCLUSIONS`（実測 13 件）で縛ってある。
 
 ---
 

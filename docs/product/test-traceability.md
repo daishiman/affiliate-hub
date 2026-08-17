@@ -6,8 +6,8 @@
 
 - 最終更新: 2026-08-17
 - テストファイル: 115 件
-- 由来の要件が分かる: 76 件
-- **由来不明: 39 件**（上限 39 件）
+- 由来の要件が分かる: 78 件
+- **由来不明: 37 件**（上限 37 件）
 
 由来不明とは「どの要件のために書いたのか、機械から辿れない」という意味で、
 テストが無駄という意味ではない。要件から書いたなら `@req` を 1 行足せば消える。
@@ -49,8 +49,6 @@
 - `tests/support/support.test.ts`
 - `tests/ui/article-frame.test.tsx`
 - `tests/ui/copy-dictionary.test.ts`
-- `tests/ui/page-degraded.test.tsx`
-- `tests/ui/page-empty.test.tsx`
 - `tests/ui/site-wizard-form.test.tsx`
 - `tests/ui/telemetry-collector.test.tsx`
 
@@ -62,32 +60,32 @@
 | `tests/application/dashboard.test.ts` | REQ-S01 | 表 |
 | `tests/application/draft-content-variant.test.ts` | REQ-G11 | 表 |
 | `tests/application/feedback.test.ts` | REQ-FB07, REQ-FB09 | 表 |
-| `tests/application/filter-metrics.test.ts` | REQ-P10, REQ-S08 | 表 |
+| `tests/application/filter-metrics.test.ts` | REQ-P10, REQ-S08 | 印と表 |
 | `tests/application/generation-matrix.test.ts` | REQ-P06, REQ-S05 | 表 |
-| `tests/application/manage-content.test.ts` | REQ-R11 | 表 |
-| `tests/application/manage-personas.test.ts` | REQ-P05, REQ-R11, REQ-S04, REQ-W12 | 表 |
+| `tests/application/manage-content.test.ts` | REQ-R11 | 印 |
+| `tests/application/manage-personas.test.ts` | REQ-P05, REQ-S04, REQ-W12 | 表 |
 | `tests/application/publication-calendar.test.ts` | REQ-P08, REQ-S07 | 表 |
 | `tests/application/publish-article.test.ts` | REQ-P08 | 表 |
 | `tests/application/schedule-publication.test.ts` | REQ-P08 | 表 |
 | `tests/application/writing-method.test.ts` | REQ-W05, REQ-W06 | 表 |
 | `tests/architecture/ai-eval-budget.test.ts` | REQ-CI13 | 表 |
-| `tests/architecture/commercial-isolation.test.ts` | REQ-FD02, REQ-SEC04 | 表 |
+| `tests/architecture/commercial-isolation.test.ts` | REQ-FD02 | 表 |
 | `tests/architecture/dependency-direction.test.ts` | REQ-FD01, REQ-SEC02 | 表 |
 | `tests/architecture/quality-gates.test.ts` | REQ-CI02, REQ-CI09 | 表 |
 | `tests/architecture/server-action-exports.test.ts` | REQ-FD06 | 表 |
 | `tests/architecture/test-honesty.test.ts` | REQ-CI07 | 表 |
 | `tests/domain/authored-sections.test.ts` | REQ-P08 | 表 |
-| `tests/domain/boundaries-platform.test.ts` | REQ-TS08 | 表 |
-| `tests/domain/boundaries.test.ts` | REQ-TS08 | 表 |
+| `tests/domain/boundaries-platform.test.ts` | REQ-P04, REQ-P08, REQ-TS08 | 印と表 |
+| `tests/domain/boundaries.test.ts` | REQ-P10, REQ-TS08 | 印と表 |
 | `tests/domain/domain-events.test.ts` | REQ-EV01 | 表 |
 | `tests/domain/feedback.test.ts` | REQ-FB03, REQ-FB12 | 表 |
 | `tests/domain/generation-plan.test.ts` | REQ-G01, REQ-SEC05 | 表 |
 | `tests/domain/handoff-prompt.test.ts` | REQ-FB11 | 表 |
-| `tests/domain/improvement.test.ts` | REQ-IM01, REQ-IM05, REQ-IM06, REQ-IM07, REQ-IM08, REQ-IM09, REQ-IM10, REQ-IM11, REQ-IM12 | 表 |
-| `tests/domain/invariants.test.ts` | REQ-R11, REQ-SEC06, REQ-SEC07, REQ-W08 | 表 |
+| `tests/domain/improvement.test.ts` | REQ-IM01, REQ-IM06, REQ-IM07, REQ-IM08, REQ-IM09, REQ-IM10, REQ-IM11, REQ-IM12 | 表 |
+| `tests/domain/invariants.test.ts` | REQ-SEC07, REQ-W08 | 表 |
 | `tests/domain/link-ingestion.test.ts` | REQ-S02 | 表 |
-| `tests/domain/permissions.test.ts` | REQ-R12 | 表 |
-| `tests/domain/site-routes.test.ts` | REQ-B01, REQ-B02, REQ-B04, REQ-B05, REQ-B06, REQ-B07, REQ-B10, REQ-B11, REQ-B12, REQ-B13, REQ-B14, REQ-B17, REQ-B18, REQ-TM10 | 表 |
+| `tests/domain/permissions.test.ts` | REQ-API02, REQ-R11, REQ-R12 | 印 |
+| `tests/domain/site-routes.test.ts` | REQ-B01, REQ-B02, REQ-B03, REQ-B04, REQ-B05, REQ-B06, REQ-B07, REQ-B08, REQ-B09, REQ-B10, REQ-B11, REQ-B13, REQ-B14, REQ-B15, REQ-B16, REQ-B17, REQ-B18, REQ-TM10 | 表 |
 | `tests/domain/telemetry.test.ts` | REQ-TM02, REQ-TM03, REQ-TM04, REQ-TM07, REQ-TM08, REQ-TM09 | 表 |
 | `tests/domain/writing-rules.test.ts` | REQ-W01, REQ-W09, REQ-W10 | 表 |
 | `tests/evals/generation-eval-set.test.ts` | REQ-G09 | 表 |
@@ -102,35 +100,37 @@
 | `tests/integration/d1-published-article.test.ts` | REQ-P08 | 表 |
 | `tests/integration/d1-telemetry.test.ts` | REQ-TS07 | 表 |
 | `tests/integration/full-loop.test.ts` | REQ-TS07 | 表 |
-| `tests/presentation/admin-actions.test.ts` | REQ-P08, REQ-R11 | 表 |
+| `tests/presentation/admin-actions.test.ts` | REQ-P08 | 表 |
 | `tests/presentation/admin-routes.test.ts` | REQ-P09, REQ-S02, REQ-S03, REQ-S10 | 表 |
 | `tests/presentation/composition.test.ts` | REQ-FD04, REQ-S09 | 表 |
-| `tests/presentation/entry-points.test.ts` | REQ-API01, REQ-API02, REQ-WC07 | 表 |
+| `tests/presentation/entry-points.test.ts` | REQ-API01, REQ-WC07 | 表 |
 | `tests/presentation/feedback-actions.test.ts` | REQ-FB08, REQ-FB12 | 表 |
 | `tests/presentation/feedback-pending-route.test.ts` | REQ-FB09 | 表 |
 | `tests/presentation/nav-permissions.test.ts` | REQ-FB02, REQ-FB07 | 表 |
 | `tests/presentation/one-usecase-three-adapters.test.ts` | REQ-FD04 | 表 |
 | `tests/presentation/tool-catalog-adapters.test.ts` | REQ-TS04 | 表 |
 | `tests/presentation/webmcp-policy.test.ts` | REQ-WC03, REQ-WC06 | 表 |
-| `tests/property/normalization.property.test.ts` | REQ-B15, REQ-P02, REQ-P03 | 印と表 |
-| `tests/property/publish-gate.property.test.ts` | REQ-B08, REQ-B09 | 印と表 |
-| `tests/property/ranking.property.test.ts` | REQ-B03, REQ-P04 | 印と表 |
-| `tests/property/tenancy.property.test.ts` | REQ-E05, REQ-E06, REQ-P01 | 印と表 |
-| `tests/property/variant-spec.property.test.ts` | REQ-B16, REQ-E14 | 印と表 |
+| `tests/property/normalization.property.test.ts` | REQ-P02, REQ-P03, REQ-TH01, REQ-TH03 | 印と表 |
+| `tests/property/publish-gate.property.test.ts` | REQ-QC09, REQ-QC12, REQ-SEC06 | 印と表 |
+| `tests/property/ranking.property.test.ts` | REQ-B12, REQ-P04, REQ-SEC04 | 印と表 |
+| `tests/property/tenancy.property.test.ts` | REQ-API02, REQ-P01, REQ-R11, REQ-R12 | 印と表 |
+| `tests/property/variant-spec.property.test.ts` | REQ-E14, REQ-IM05 | 印と表 |
 | `tests/ui/adjust-conversion-form.test.tsx` | REQ-P09 | 表 |
 | `tests/ui/blueprint-theme.test.ts` | REQ-P07, REQ-TH02 | 表 |
 | `tests/ui/capture-canvas.test.tsx` | REQ-FB04, REQ-FB05 | 表 |
-| `tests/ui/content-progress-form.test.tsx` | REQ-R11 | 表 |
-| `tests/ui/design-tokens.test.ts` | REQ-S09, REQ-SEC08, REQ-TH01, REQ-TS09 | 表 |
+| `tests/ui/content-progress-form.test.tsx` | REQ-R11 | 印 |
+| `tests/ui/design-tokens.test.ts` | REQ-S09, REQ-SEC08, REQ-TS09 | 表 |
 | `tests/ui/fact-source.test.ts` | REQ-W07 | 表 |
 | `tests/ui/feedback-admin-forms.test.tsx` | REQ-FB08, REQ-FB12 | 表 |
 | `tests/ui/feedback-button.test.tsx` | REQ-FB02, REQ-FB03 | 表 |
-| `tests/ui/page-render.test.tsx` | REQ-FB07, REQ-FB08, REQ-TS05 | 表 |
+| `tests/ui/page-degraded.test.tsx` | REQ-P01, REQ-P02, REQ-P03, REQ-P04, REQ-P08, REQ-P10, REQ-TH01 | 印 |
+| `tests/ui/page-empty.test.tsx` | REQ-P01, REQ-P02, REQ-P03, REQ-P04, REQ-P08, REQ-P10, REQ-TH01 | 印 |
+| `tests/ui/page-render.test.tsx` | REQ-FB07, REQ-FB08, REQ-P01, REQ-P02, REQ-P03, REQ-P04, REQ-P08, REQ-P10, REQ-TH01, REQ-TS05 | 印と表 |
 | `tests/ui/patterns-render.test.tsx` | REQ-SEC08 | 表 |
 | `tests/ui/publish-article-form.test.tsx` | REQ-P08 | 表 |
 | `tests/ui/publish-article-result.test.tsx` | REQ-P08 | 表 |
 | `tests/ui/schedule-publication-form.test.tsx` | REQ-P08 | 表 |
 | `tests/ui/site-not-found.test.tsx` | REQ-B01 | 表 |
-| `tests/ui/theme-contrast.test.ts` | REQ-TH01, REQ-TH02, REQ-TS06 | 表 |
+| `tests/ui/theme-contrast.test.ts` | REQ-TH02, REQ-TS06 | 表 |
 | `tests/ui/tool-form.test.tsx` | REQ-WC05 | 表 |
-| `tests/ui/ui-layers.test.ts` | REQ-S09, REQ-SEC06, REQ-TH03, REQ-TM05, REQ-TM06 | 表 |
+| `tests/ui/ui-layers.test.ts` | REQ-S09, REQ-TM05, REQ-TM06 | 表 |

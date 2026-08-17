@@ -1,4 +1,4 @@
-/** @tier 1 */
+/** @tier 1 @req REQ-R11 @types state-transition */
 import { describe, expect, it } from "vitest";
 import {
   CONTENT_STATE_LABEL,

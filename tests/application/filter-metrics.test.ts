@@ -1,4 +1,4 @@
-/** @tier 1 */
+/** @tier 1 @req REQ-P10 @types equivalence */
 import { describe, expect, it } from "vitest";
 import type { AnalyticsAxisKey } from "@/domain/analytics";
 import { ANALYTICS_AXES } from "@/domain/analytics";

@@ -1,4 +1,4 @@
-/** @tier 1 @req REQ-B16, REQ-E14 */
+/** @tier 1 @req REQ-IM05, REQ-E14 @types property, state-transition */
 import fc from "fast-check";
 import { describe, expect, it } from "vitest";
 import {

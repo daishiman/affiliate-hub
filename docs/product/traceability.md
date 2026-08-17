@@ -756,15 +756,19 @@ R 節・S 節の 15 件（テストと自動チェック）も、同じやり方
 | --- | --- | --- |
 | REQ-P02 | URL の正規化と重複判定が、順序・重複適用で結果を変える | `tests/property/normalization.property.test.ts` |
 | REQ-P03 | 商品の同一判定（JAN/ASIN/型番）が対称でなくなる | `tests/property/normalization.property.test.ts` |
-| REQ-B15 | 正規化が冪等でなくなる（2 回かけると別物になる） | `tests/property/normalization.property.test.ts` |
+| REQ-TH01 | 何を渡しても外観が 1 組決まる、が崩れる（色の無い画面が出る） | `tests/property/normalization.property.test.ts` |
+| REQ-TH03 | 知らない外観名が素通しされる／本人の選択がブログ既定に負ける | `tests/property/normalization.property.test.ts` |
 | REQ-P04 | 重み付き点数の最大・最小と、順位表の最強・最弱がずれる | `tests/property/ranking.property.test.ts` |
-| REQ-B03 | 入力の並び順で順位が変わる（並べ替えが安定でない） | `tests/property/ranking.property.test.ts` |
-| REQ-B08 | 公開の門が、必要な条件を 1 つ落としても通る | `tests/property/publish-gate.property.test.ts` |
-| REQ-B09 | 広告表記・訂正方針が空でも公開できてしまう | `tests/property/publish-gate.property.test.ts` |
+| REQ-SEC04 | 報酬の情報が順位付けに混ざる | `tests/property/ranking.property.test.ts` |
+| REQ-B12 | 入力の並び順で順位が変わる（並べ替えが安定でない） | `tests/property/ranking.property.test.ts` |
+| REQ-QC12 | 公開の門が、必要な条件を 1 つ落としても通る | `tests/property/publish-gate.property.test.ts` |
+| REQ-QC09 | 広告表記が空でも公開できてしまう | `tests/property/publish-gate.property.test.ts` |
+| REQ-SEC06 | `rel="sponsored"` の付与条件が組合せで抜ける | `tests/property/publish-gate.property.test.ts` |
 | REQ-P01 | 別テナントの値が、どこかの経路で混ざる | `tests/property/tenancy.property.test.ts` |
-| REQ-E05 | 公開可否の判定がテナント境界を越える | `tests/property/tenancy.property.test.ts` |
-| REQ-E06 | 設計図の読み出しがテナント境界を越える | `tests/property/tenancy.property.test.ts` |
-| REQ-B16 | 出し分け指定の書き出しと読み戻しで内容が変わる | `tests/property/variant-spec.property.test.ts` |
+| REQ-API02 | 入口（REST / MCP / WebMCP）ごとにテナント判定がずれる | `tests/property/tenancy.property.test.ts` |
+| REQ-R11 | できてはいけない側（権限なし）が通る | `tests/property/tenancy.property.test.ts` |
+| REQ-R12 | 役割の組合せで権限判定が反転する | `tests/property/tenancy.property.test.ts` |
+| REQ-IM05 | 出し分け指定の書き出しと読み戻しで内容が変わる | `tests/property/variant-spec.property.test.ts` |
 | REQ-E14 | 情報源・信頼度・有効期限が往復で欠ける | `tests/property/variant-spec.property.test.ts` |
 
 **この 5 ファイルは実際に不具合を 1 件見つけた。** `normalizeAffiliateUrl` が
@@ -778,7 +782,7 @@ R 節・S 節の 15 件（テストと自動チェック）も、同じやり方
 
 この表は**要件 → テスト**の向きしか持っていない。逆向き（テスト → 要件）は
 `node scripts/traceability.mjs` が `@req` 印から作り、`docs/product/test-traceability.md` に出す。
-**2026-08-17 の実測で、115 テストファイルのうち 39 件がどちらの向きにも出てこない。**
+**2026-08-17 の実測で、115 テストファイルのうち 37 件がどちらの向きにも出てこない。**
 由来の無いテストは実装をなぞっているだけなので、実装が間違っていても緑になる。
 上限は `quality-gates.config.mjs` の `TRACEABILITY_MAX_UNLINKED` に実測値で置いてあり、
 **上げて緑にすることを禁じている**（残課題 44 / Beads `ah-8jh`）。

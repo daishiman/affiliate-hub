@@ -1,4 +1,4 @@
-/** @tier 1 @req REQ-P04, REQ-B03 */
+/** @tier 1 @req REQ-P04, REQ-SEC04, REQ-B12 @types property, boundary */
 import fc from "fast-check";
 import { describe, expect, it } from "vitest";
 import {

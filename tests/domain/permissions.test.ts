@@ -1,4 +1,4 @@
-/** @tier 1 */
+/** @tier 1 @req REQ-R11, REQ-R12, REQ-API02 @types permission-matrix */
 import { describe, expect, it } from "vitest";
 import type { Role } from "@/domain/shared";
 import { ROLE_LABEL } from "@/application/usecases/identity/manage-workspace";

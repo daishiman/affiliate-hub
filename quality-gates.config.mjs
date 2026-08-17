@@ -134,17 +134,109 @@ export const MUTATION_MAX_CHANGED_FILES = 25;
  * 後者は「実装がそうなっているから、そう書いた」という循環で、
  * 実装が間違っていても緑になる。ここで数えているのはその循環の量である。
  *
- * 2026-08-17 の実測は **39 件 / 115 件**（性質テスト 5 件に `@req` を書いた後）。
+ * 2026-08-17 の実測は **37 件 / 115 件**。
+ * 起点は 39 件（性質テスト 5 件に `@req` を書いた時点）で、
+ * 必須種別の宣言（§14）のために 7 ファイルへ `@req` と `@types` を足した結果 37 になった。
  * 残りは既存テストで、要件表の行にも `@req` 印にも出てこない。
- * 起点をこの実測に置き、**増える方向だけを止める**。
+ * 実測が下がったら追随させ、**増える方向だけを止める**。
  *
- * 一度に 0 にしないのは、既存 39 件へ機械的に印を付ける作業が
+ * 一度に 0 にしないのは、残り 37 件へ機械的に印を付ける作業が
  * 「印を付けるための印」になりやすいためで、由来を確かめずに書いた `@req` は
  * この検査を無意味にする。減らすのは残課題として 1 件ずつ行う。
  *
  * **上げて緑にすることを禁じる。**
  */
-export const TRACEABILITY_MAX_UNLINKED = 39;
+export const TRACEABILITY_MAX_UNLINKED = 37;
+
+/**
+ * テストの種別（語彙の正本）。
+ *
+ * 仕様 §13 の表と 1 対 1 に対応する。**ここに無い名前を印に書くと落ちる**ので、
+ * 「境界値テスト」「境界チェック」のような表記ゆれで別種別に見える事故が起きない。
+ */
+export const TEST_TYPES = {
+  equivalence: "等価分割",
+  boundary: "境界値",
+  "decision-table": "判定表",
+  "state-transition": "状態遷移（許可 + 禁止）",
+  pairwise: "ペアワイズ",
+  scenario: "シナリオ",
+  property: "性質（プロパティ）",
+  mutation: "ミューテーション",
+  contract: "API 契約（3 入口）",
+  "db-migration": "DB マイグレーション往復",
+  "db-constraint": "DB 制約",
+  "db-concurrency": "DB 同時実行",
+  "tenant-isolation": "テナント越境",
+  "infra-config": "インフラ・設定",
+  "screen-states": "画面 4 状態",
+  e2e: "E2E（実ブラウザ）",
+  keyboard: "キーボード・フォーカス",
+  visual: "見た目の回帰",
+  perf: "性能（N+1）",
+  load: "負荷",
+  idempotency: "冪等性",
+  "fault-injection": "障害注入",
+  a11y: "WCAG 2.2 AA",
+  "permission-matrix": "権限マトリクス（できてはいけない側）",
+  injection: "インジェクション",
+  "prompt-injection": "プロンプトインジェクション",
+  ssrf: "SSRF",
+  secrets: "秘密情報の漏れ",
+  redaction: "画面の写しの黒塗り",
+  "dep-audit": "依存の監査",
+  csrf: "CSRF",
+  "rate-limit": "回数制限",
+  "audit-log": "操作の記録",
+  regression: "回帰（再現テスト）",
+};
+
+/**
+ * 要件の性質 → 必須のテスト種別（仕様 §14 の表の機械可読版）。
+ *
+ * 種別を決めない場合、テストは**書きやすいところから書かれる**。
+ * その結果、難しい種別（権限のできてはいけない側・禁止された遷移）が永久に残る。
+ * ここは「何を書くか」ではなく「**何を書かずに済ませられないか**」の表である。
+ */
+export const REQUIRED_TEST_TYPES = {
+  "has-input": ["equivalence", "boundary"],
+  "has-state": ["state-transition"],
+  "has-permission": ["permission-matrix"],
+  "has-tenant": ["tenant-isolation"],
+  "has-external": ["fault-injection", "idempotency"],
+  "has-screen": ["screen-states", "a11y", "keyboard"],
+  "has-calculation": ["mutation", "boundary"],
+  "has-ai-text": ["prompt-injection"],
+};
+
+/**
+ * 必須種別を宣言していない要件を許す上限（件数）。
+ *
+ * 要件表には 240 件の要件 ID がある。全部に性質と必須種別を宣言し切るまで
+ * 検査を入れない、という順にすると**検査は永久に入らない**。
+ * そこで `TRACEABILITY_MAX_UNLINKED` と同じ形にし、
+ * **新しく足す要件には最初から宣言を要求し、既存の未宣言は増やせない**ようにする。
+ *
+ * 2026-08-17 の実測は **228 件 / 240 件**（宣言済 12 件）。
+ * この数字は「未宣言が 228 件ある」という事実の記録であって、目標ではない。
+ *
+ * **上げて緑にすることを禁じる。**
+ */
+export const TEST_TYPES_MAX_UNDECLARED = 228;
+
+/**
+ * 理由つき除外を許す上限（件数）。
+ *
+ * 除外は理由を書けば通る。**それだけだと、全部を除外にすれば緑になる。**
+ * だから理由の質（人が読む）と件数（機械が数える）の両方で縛る。
+ *
+ * 2026-08-17 の実測は **13 件**。内訳は `docs/product/required-test-types-report.md`。
+ * 大半は「対象が実在しない」（端の無い入力に境界値、スタブしかない外部に障害注入）で、
+ * 残りはキーボード操作の検査そのものが未実装であることによる。
+ *
+ * **上げて緑にすることを禁じる。**
+ */
+export const TEST_TYPES_MAX_EXCLUSIONS = 13;
 
 /**
  * スタブと見なす場所。
@@ -354,6 +446,14 @@ export const CHECKS = [
     blocking: true,
     tier: 2,
     why: "**どの要件のために書いたのか辿れないテスト**が増えていないか見る。由来の無いテストは実装をなぞっているだけで、実装が間違っていても緑になる",
+  },
+  {
+    id: "required-test-types",
+    label: "要件ごとの必須テスト種別",
+    command: ["node", "scripts/required-test-types.mjs"],
+    blocking: true,
+    tier: 2,
+    why: "種別を決めないと、テストは**書きやすいところから書かれる**。権限のできてはいけない側・禁止された遷移・障害注入が永久に残るのを止める",
   },
   {
     id: "spec-freshness",

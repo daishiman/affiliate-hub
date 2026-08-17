@@ -1,4 +1,4 @@
-/** @tier 2 */
+/** @tier 2 @req REQ-P01, REQ-P02, REQ-P03, REQ-P04, REQ-P08, REQ-P10, REQ-TH01 @types screen-states, a11y */
 import { readdirSync } from "node:fs";
 import { join, relative } from "node:path";
 import { describe, expect, it } from "vitest";
