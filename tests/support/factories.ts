@@ -1,9 +1,16 @@
+import type { ChannelConnection, Publication } from "@/domain/distribution";
+import type { Conversion } from "@/domain/monetization";
 import type { Product } from "@/domain/product/product";
 import type { Provenance } from "@/domain/shared/provenance";
 import type {
+  AffiliateProgramId,
   AssetId,
   CategoryId,
+  ChannelConnectionId,
+  ContentVariantId,
+  ConversionId,
   ProductId,
+  PublicationId,
   SourceArtifactId,
   WorkspaceId,
 } from "@/domain/shared/ids";
@@ -93,6 +100,79 @@ export function aProduct(over: Partial<Product> = {}): Product {
 /** 別の作業場所に属する商品。テナント分離の検査に使う。 */
 export function aForeignProduct(workspaceId: WorkspaceId, over: Partial<Product> = {}): Product {
   return aProduct({ workspaceId, name: "他の作業場所の商品", ...over });
+}
+
+/**
+ * 投稿（媒体へ出したもの、または出そうとしたもの）。
+ *
+ * 既定は**成功して公開済み**。失敗や予約を既定にすると、
+ * 何も指定していないテストが「止まっている投稿」として数えられ、
+ * 数を見るテストが軒並み読めなくなる。
+ */
+export function aPublication(over: Partial<Publication> = {}): Publication {
+  return {
+    id: nextId("pub") as PublicationId,
+    workspaceId: WORKSPACE as WorkspaceId,
+    variantId: nextId("cv") as ContentVariantId,
+    channelKind: "own_site",
+    connectionId: null,
+    state: "PUBLISHED",
+    scheduledAt: null,
+    idempotencyKey: nextId("idem"),
+    attempts: 1,
+    externalId: null,
+    externalUrl: null,
+    lastError: null,
+    publishedAt: NOW,
+    ...over,
+  } as Publication;
+}
+
+/**
+ * 媒体とのつながり。
+ *
+ * 既定は**期限なしで生きている**。切れているものを既定にすると、
+ * 「つながっていない媒体」の数え上げが常に 1 から始まってしまう。
+ */
+export function aChannelConnection(over: Partial<ChannelConnection> = {}): ChannelConnection {
+  return {
+    id: nextId("conn") as ChannelConnectionId,
+    workspaceId: WORKSPACE as WorkspaceId,
+    kind: "x",
+    accountLabel: "@test",
+    connectedAt: daysFrom(NOW, -30),
+    expiresAt: null,
+    revokedAt: null,
+    credentialRef: "kv://test/credential",
+    ...over,
+  } as ChannelConnection;
+}
+
+/**
+ * 成果（売れた記録）。
+ *
+ * 金額は**取り込んだままの値**だけを既定で持つ。
+ * 手修正を既定に入れると、「取込値と手修正を別枠で持つ」という
+ * 最も間違えやすい決まりを、テストが素通りさせてしまう。
+ */
+export function aConversion(over: Partial<Conversion> = {}): Conversion {
+  return {
+    id: nextId("cv-sale") as ConversionId,
+    workspaceId: WORKSPACE as WorkspaceId,
+    programId: "prog-test" as AffiliateProgramId,
+    linkId: null,
+    asp: "a8",
+    externalConversionId: nextId("ext"),
+    status: "confirmed",
+    occurredAt: NOW,
+    confirmedAt: NOW,
+    ingestedReward: { amountMinor: 100_000, currency: "JPY" },
+    adjustedReward: null,
+    adjustmentReason: null,
+    period: "2026-08",
+    periodClosed: false,
+    ...over,
+  } as Conversion;
 }
 
 /**
