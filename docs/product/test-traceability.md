@@ -96,7 +96,7 @@
 | `tests/infrastructure/guarded-fetch.test.ts` | REQ-SEC02 | 印と表 |
 | `tests/infrastructure/prompt-assembly.test.ts` | REQ-P06 | 表 |
 | `tests/infrastructure/stub-ledger.test.ts` | REQ-TS09 | 表 |
-| `tests/integration/d1-audit-log.test.ts` | REQ-SEC09 | 印 |
+| `tests/integration/d1-audit-log.test.ts` | REQ-SEC09 | 印と表 |
 | `tests/integration/d1-content.test.ts` | REQ-SEC09 | 表 |
 | `tests/integration/d1-conversion.test.ts` | REQ-P09 | 印と表 |
 | `tests/integration/d1-distribution.test.ts` | REQ-P08 | 印と表 |
