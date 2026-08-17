@@ -12,6 +12,7 @@ import {
   parseResourceUri,
   schemeOf,
 } from "@/presentation/tools/spec-contract";
+import { PAGE_TOOLS } from "@/presentation/tools/webmcp-policy";
 
 /**
  * 仕様の道具名と、実際に動くツールの対応。
@@ -75,6 +76,40 @@ describe("仕様の名前で呼べること", () => {
       (e) => e.implementedBy !== null && findTool(catalog, e.implementedBy) === null,
     ).map((e) => `${e.specName} -> ${e.implementedBy}`);
     expect(broken).toEqual([]);
+  });
+
+  /**
+   * 「実装はあるが、この面からは届かない」を、理由だけ書いて放置させない。
+   *
+   * `ah-83f` の前は、読者ページに載っている 9 件が全部この状態だった。
+   * 目録には在り、動きもするが、読者の身元では 1 件も通らない。
+   * **画面上は道具が並んで見えるので、使っても気づけない。**
+   * だから理由を書いたものは、載せる一覧から降りていることをここで固定する。
+   */
+  it("届かないと書いたものは、読者ページに載せていない", () => {
+    const readerPageTools = new Set(
+      Object.entries(PAGE_TOOLS)
+        .filter(([kind]) => kind !== "admin")
+        .flatMap(([, names]) => names),
+    );
+    const stillListed = TOOL_CONTRACT.filter(
+      (e) =>
+        e.unreachableReason !== undefined &&
+        e.surface.startsWith("webmcp_reader") &&
+        (readerPageTools.has(e.specName) || readerPageTools.has(e.implementedBy ?? "")),
+    ).map((e) => e.specName);
+    expect(
+      stillListed,
+      "届かない道具が読者ページに載ったままです。降ろすか、届く実装へ向け直してください。",
+    ).toEqual([]);
+  });
+
+  it("届かない理由は、実装があるものにだけ書く（無いものは stubReason）", () => {
+    for (const entry of TOOL_CONTRACT) {
+      if (entry.unreachableReason === undefined) continue;
+      expect(entry.implementedBy, entry.specName).not.toBeNull();
+      expect(entry.unreachableReason.length, entry.specName).toBeGreaterThan(15);
+    }
   });
 
   it("未実装のものはカタログに載せない（呼べば必ず失敗するものを載せない）", () => {

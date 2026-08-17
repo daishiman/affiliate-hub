@@ -270,33 +270,26 @@ describe("見せる範囲と実行できる範囲を一致させる", () => {
    * 身元の側の詳しい固定は `tests/presentation/api-scope-actor.test.ts`。
    */
   /**
-   * 読者ページに載せている道具は、いまは**読者の権限では動かない**。
+   * 読者ページに載せている道具は、**読者の権限で動く**。
    *
-   * 読者ページが画面に出しているデータは `read-site.ts`（権限の要らない公開の道)を
-   * 通っているのに、同じページに載せた AI 向けの道具は `read-product.ts`
-   * （`product.read` が要る管理側の道）を呼んでいる。**入口が別の道を向いている。**
+   * 以前はここで 403 を固定していた。読者ページの画面は `read-site.ts`
+   * （権限の要らない公開の道）を通るのに、同じページに載せた AI 向けの道具が
+   * `read-product.ts`（`product.read` が要る管理側の道）を呼んでいたためである。
+   * 同一サイトの呼び出しが見本の管理権限へ落ちていたあいだは通っていたので、
+   * 画面上は正常に見えていた（`ah-2ro` でその落ち込みを止めて表に出た）。
    *
-   * この食い違いは、これまで見えなかった。同一サイトの呼び出しが見本の身元
-   * （管理権限つき）へ落ちていたので、たまたま通っていたためである。
-   * 身元を読者へ直した結果、食い違いのほうが表に出た。
-   *
-   * どちらへ揃えるか（読者でも読める道へ載せ替えるか、AI 向けの案内を
-   * ログイン後だけにするか）は**公開範囲の決めごと**なので、ここでは決めない。
-   * 起票済み: `ah-83f`（`tasks/task-reader-webmcp-capability-mismatch.md`）。
-   *
-   * ここで固定するのは 1 つだけ——**黙って落ちないこと**。
-   * 理由の無い失敗だと、読者ページの AI 案内が動かない原因を誰も追えない。
+   * `ah-83f` で道具の向き先を読者ページの画面と同じ記事へ載せ替えた
+   * （`reader-tools.ts`）。だからここは**通る側**を固定する。
+   * この検査は `PAGE_TOOLS` から道具を引くので、載せる道具を差し替えると自動で追従し、
+   * うっかり管理側の道具を読者ページへ戻すと落ちる。
    */
-  it("読者ページに載せている道具は、読者の権限では断られる（理由つきで）", async () => {
+  it("読者ページに載せている道具は、読者の権限で実行できる", async () => {
     const res = await toolsCall.POST(
       post(`/api/tools/${READER_TOOL.name}`, validInputFor(READER_TOOL) ?? {}, fromOwnScreen()),
       params(READER_TOOL.name),
     );
 
-    expect(res.status).toBe(403);
-    const body = (await res.json()) as { error: { message: string; suggestedAction: string } };
-    expect(body.error.message.trim()).not.toBe("");
-    expect(body.error.suggestedAction.trim()).not.toBe("");
+    expect(res.status).toBe(200);
   });
 
   it("管理用の読み取りの道具は、ログインしていない画面からは実行できない", async () => {

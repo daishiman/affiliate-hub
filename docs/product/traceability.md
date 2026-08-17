@@ -202,7 +202,7 @@ D1 への差し替えは、この列だけを別の実装に取り替えれば�
 | --- | --- | --- | --- | --- |
 | REQ-WA01 | 管理側 読み取り10種（`search_affiliate_sources` 〜 `get_publication_status`） | `src/presentation/tools/spec-contract.ts` `TOOL_CONTRACT`。**10 種中 9 種が仕様の名前で呼べる**（`inspect_affiliate_url` のみスタブ）。画面は `/admin/tools` | REQ-S01〜S08 | スタブ |
 | REQ-WA02 | 管理側 状態変更8種（`create_affiliate_source_draft` 〜 `publish_approved_content`）+ 確認必須 | 同上。**8 種中 4 種**が動く。確認必須は `requiresHumanApproval` + `invokeTool()` が AI を弾く | REQ-S01〜S08 | スタブ |
-| REQ-WB01 | 読者側 読み取り9種 | 同上。**9 種すべて動く**（`get_disclosure` は `list_disclosures` の別名） | REQ-B01〜B09 | 実装済 |
+| REQ-WB01 | 読者側 読み取り9種 | `src/presentation/tools/reader-tools.ts`（`reader_*` 8 種）+ `src/application/usecases/site/read-article-facets.ts`。読者が見ている**記事から切り出す**ので、画面に出していない項目は原理的に出ない。**`ah-83f` まで、この 9 種は管理側の道具を指しており、読者の身元では 1 件も通らなかった**（目録には並ぶので画面上は正常に見えた）。`list_test_runs` だけは読者向けの出どころが無く、`unreachableReason` を書いてページから降ろした（残 8 種） | REQ-B01〜B09 | 実装済（8/9。`list_test_runs` は画面が先） |
 | REQ-WB02 | 読者側 状態変更1種（`submit_feedback`）+ 確認UI | `submit_contact` の別名。ページ内 AI には渡さない（`PAGE_TOOLS` は読み取りのみ） | REQ-B16 | 実装済 |
 | REQ-WC01 | `document.modelContext` を正規経路にする（CHG-001） | `src/presentation/ui/webmcp-provider.tsx` `resolveModelContext()`（`navigator` は後ろに置く旧経路） | — | 実装済 |
 | REQ-WC02 | 能力検出 → 非対応時は通常UIへフォールバック | 同上。`registerWebMcpTools()` は登録先が無ければ何もしない | — | 実装済 |

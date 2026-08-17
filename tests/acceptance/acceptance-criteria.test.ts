@@ -7,6 +7,9 @@ import { invokeTool } from "@/presentation/tools/tool-definition";
 import { createDeps } from "@/infrastructure/composition";
 import { SAMPLE_ACTOR } from "@/infrastructure/identity/sample-actor";
 import type { ActorContext } from "@/domain/shared";
+import { UI_COPY } from "@/presentation/ui/copy";
+import { readerActor } from "@/presentation/composition";
+import { SAMPLE_SITE_SLUG } from "@/infrastructure/persistence/sample/site-sample-repository";
 
 /**
  * 受け入れ条件（要求仕様 §30.1〜§30.8）。
@@ -25,6 +28,9 @@ const catalog = buildToolCatalog(createDeps());
 
 /** 報酬まわりの操作ができる担当者。見本の担当者には権限が無い。 */
 const MANAGER: ActorContext = { ...SAMPLE_ACTOR, roles: ["owner"] };
+
+/** ログインしていない読者。読者ページの道具はこの身元で動かねばならない。 */
+const READER: ActorContext = readerActor();
 
 type Json = Record<string, unknown>;
 
@@ -408,14 +414,27 @@ describe("§30.7 アフィリエイト", () => {
   });
 
   it("広告表示が記事・SNS・AI回答で一貫する（文言の出どころが1つ）", async () => {
-    const list = await value("list_disclosures", {});
+    const list = await value("list_disclosures", {}, MANAGER);
     expect(rows(list.rows).length).toBeGreaterThan(0);
-    // 仕様書の名前で呼んでも、同じ文言が返る。別の言い回しを持たない。
-    const viaSpecName = await value("get_disclosure", {});
-    expect(JSON.stringify(viaSpecName)).toBe(JSON.stringify(list));
     // 提携がある関係には rel="sponsored" が付く。
     const affiliate = rows(list.rows).find((r) => String(r.disclosureId) === "dc_affiliate");
     expect(String(affiliate?.relAttribute)).toContain("sponsored");
+
+    // 読者ページの AI が返す断りは、記事の画面に出ている文と 1 文字も違わない。
+    //
+    // 以前ここは「仕様名 get_disclosure が list_disclosures と同じ JSON を返す」
+    // を見ていた。**その別名は読者の権限では 1 度も動かなかった**ので（ah-83f）、
+    // 実際には「AI 回答での一貫性」を一度も確かめていない検査だった。
+    // AI に真偽値だけ渡すと、断りを自分の言葉で言い直す。言い直された文は
+    // こちらが法令に照らして決めた文ではない。だから文そのものを突き合わせる。
+    const forReader = await value(
+      "reader_get_disclosure",
+      { siteSlug: SAMPLE_SITE_SLUG, slug: "laptops-for-video-editing" },
+      READER,
+    );
+    expect(forReader.disclosureRequired).toBe(true);
+    expect(forReader.visibleMessage).toBe(UI_COPY.disclosure.bannerBody);
+    expect(forReader.rankingNote).toBe(UI_COPY.disclosure.rankingNote);
   });
 });
 

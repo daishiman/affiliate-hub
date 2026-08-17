@@ -16,6 +16,7 @@ import { generationTools } from "./generation-tools";
 import { dashboardTools } from "./dashboard-tools";
 import { platformTools } from "./platform-tools";
 import { productTools } from "./product-tools";
+import { readerTools } from "./reader-tools";
 import { settingsTools } from "./settings-tools";
 import { siteTools } from "./site-tools";
 import { contractAliasTools } from "./spec-contract";
@@ -92,6 +93,7 @@ export function buildToolCatalog(deps: CatalogDeps): readonly AnyToolDefinition[
     rankProductsTool(deps),
     ...dashboardTools(deps),
     ...siteTools(deps),
+    ...readerTools(deps),
     ...productTools(deps),
     ...contentTools(deps),
     ...platformTools(deps),

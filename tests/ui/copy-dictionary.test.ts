@@ -169,9 +169,17 @@ describe("画面の言葉", () => {
 
   it("広告表示の文言が 1 箇所にまとまっている", () => {
     // 法令に関わる文言を画面ごとに書くと、変更時に必ず抜けが出る。
+    //
+    // 業務側の正本（`domain/compliance/disclosure.ts` の `READER_DISCLOSURE_TEXT`）
+    // だけは対象外にする。同じ文を読者ページの AI 向けの道具も返す必要があり、
+    // 部品は業務層を読めない決まり（`ui-layers.test.ts`）のため、
+    // 画面側と業務側の 2 か所に置くほかない。
+    // **書き写しは自由にならない** — 2 つが 1 文字でも違えば
+    // `tests/ui/disclosure-text.test.ts` が落ちる。`factSource` と同じ扱い。
+    const canonical = join(ROOT, "src/domain/compliance/disclosure.ts");
     const offenders: string[] = [];
     for (const file of screenFiles) {
-      if (file.endsWith("copy.ts")) continue;
+      if (file.endsWith("copy.ts") || file === canonical) continue;
       const text = readFileSync(file, "utf8");
       if (/アフィリエイトリンクが含まれ|広告を含みます/.test(text)) {
         offenders.push(relative(ROOT, file));

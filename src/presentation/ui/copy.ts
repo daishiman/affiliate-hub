@@ -233,7 +233,16 @@ export const UI_COPY = {
 
   /** 広告表示。法令に関わるため、ここ以外に書かない。 */
   disclosure: {
-    /** 景品表示法（ステルスマーケティング告示, 2023-10-01 施行）に基づく表示。 */
+    /**
+     * 景品表示法（ステルスマーケティング告示, 2023-10-01 施行）に基づく表示。
+     *
+     * **同じ文を読者ページの AI 向けの道具（`reader_get_disclosure`）も返す。**
+     * 部品は業務層を読まない決まり（`tests/ui/ui-layers.test.ts`）なので
+     * ここでは文字を書くが、`domain/compliance/disclosure.ts` の
+     * `READER_DISCLOSURE_TEXT` と**1 文字でも違えばテストが落ちる**
+     * （`tests/ui/disclosure-text.test.ts`）。`factSource` と同じ扱い。
+     * 直すときは両方を直す。片方だけ直すと、画面と AI の断りが食い違う。
+     */
     bannerTitle: "広告を含みます",
     bannerBody:
       "この記事には広告（アフィリエイトリンク）が含まれます。リンクを経由して購入された場合、運営者に報酬が支払われることがあります。順位や評価には影響しません。",

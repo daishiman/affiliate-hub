@@ -45,6 +45,18 @@ export type ContractEntry = {
   readonly implementedBy: string | null;
   /** 未実装のときだけ書く。何が無いのか・何が済めば動くのか。 */
   readonly stubReason?: string;
+  /**
+   * 実装はあるが、**この面からは届かない**ときに書く。
+   *
+   * `stubReason`（そもそも無い）とは別の状態である。分けないと
+   * 「目録にあるから読者も呼べる」という読み違いが起きる。実際
+   * `ah-83f` の前は、読者ページに載っている 9 件が全部この状態だった
+   * （目録には在り、動きもするが、読者の身元では 1 件も通らない）。
+   *
+   * 書いたものは `PAGE_TOOLS` に載っていないことを検査で固定する。
+   * 理由だけ書いて載せたままにはできない。
+   */
+  readonly unreachableReason?: string;
 };
 
 export const TOOL_CONTRACT: readonly ContractEntry[] = [
@@ -171,59 +183,70 @@ export const TOOL_CONTRACT: readonly ContractEntry[] = [
   },
 
   // --- 読者側 WebMCP 読み取り 9 種（ブログ層 §14.2）------------------------
+  //
+  // ここは 2026-08-18（ah-83f）に向き先を差し替えた。
+  // それまでは運営側の `read-product.ts`（`product.read` が要る）を指しており、
+  // **読者の身元では 9 件とも動かなかった**。同一サイトの呼び出しが見本の管理権限へ
+  // 落ちていたあいだは通っていたので、画面上は正常に見えていた。
+  //
+  // いまは読者ページの画面と同じ記事を読む `reader-tools.ts` を指す。
+  // 名前が違うのは、運営側の同名の道具と目録の中で衝突させないため。
+  // 読者に見えるのは `reader_` の付いたほうだけである。
   {
     specName: "list_ranking",
     surface: "webmcp_reader_read",
     purpose: "順位の一覧を返す",
-    implementedBy: "list_ranking",
+    implementedBy: "reader_list_ranking",
   },
   {
     specName: "get_product",
     surface: "webmcp_reader_read",
     purpose: "商品 1 件を返す",
-    implementedBy: "get_product",
+    implementedBy: "reader_get_product",
   },
   {
     specName: "compare_products",
     surface: "webmcp_reader_read",
     purpose: "商品を並べて比べる",
-    implementedBy: "compare_products",
+    implementedBy: "reader_compare_products",
   },
   {
     specName: "get_evidence",
     surface: "webmcp_reader_read",
     purpose: "根拠を返す",
-    implementedBy: "get_evidence",
+    implementedBy: "reader_get_evidence",
   },
   {
     specName: "list_test_runs",
     surface: "webmcp_reader_read",
     purpose: "検証の記録を返す",
     implementedBy: "list_test_runs",
+    unreachableReason:
+      "検証の記録は読者ページの画面に出ていない（`PublishedArticle` にその欄が無い）。実装（`list_test_runs`）は動くが `product.read` を要求するので読者は呼べない。読者向けを作るなら記事に欄を足して画面へ先に出す必要がある。道具からだけ出すと画面より広い出口になる（残課題）。",
   },
   {
     specName: "explain_ranking",
     surface: "webmcp_reader_read",
     purpose: "その順位になった理由を返す",
-    implementedBy: "explain_ranking",
+    implementedBy: "reader_explain_ranking",
   },
   {
     specName: "filter_products",
     surface: "webmcp_reader_read",
     purpose: "条件で商品を絞り込む",
-    implementedBy: "filter_products",
+    implementedBy: "reader_filter_products",
   },
   {
     specName: "get_disclosure",
     surface: "webmcp_reader_read",
     purpose: "広告であることの表示を返す",
-    implementedBy: "list_disclosures",
+    implementedBy: "reader_get_disclosure",
   },
   {
     specName: "find_alternatives",
     surface: "webmcp_reader_read",
     purpose: "代わりになる候補を返す",
-    implementedBy: "find_alternatives",
+    implementedBy: "reader_find_alternatives",
   },
 
   // --- 読者側 WebMCP 状態変更 1 種（ブログ層 §14.2）------------------------

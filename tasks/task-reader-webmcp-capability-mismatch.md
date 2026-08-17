@@ -12,8 +12,8 @@ iteration: null
 title: "読者ページの AI 向けの道具が、読者の権限では動かない"
 owners: ["daishiman"]
 created_at: "2026-08-18T00:10:00Z"
-updated_at: "2026-08-18T00:10:00Z"
-status: "draft"
+updated_at: "2026-08-18T02:00:00Z"
+status: "done"
 depends_on: []
 related_nodes: []
 resource_scope: ["presentation","application","tests"]
@@ -30,7 +30,7 @@ phase_ref: null
 file_path: "tasks/task-reader-webmcp-capability-mismatch.md"
 template_id: "task"
 template_version: "1.0.0"
-confirmation_status: "draft"
+confirmation_status: "confirmed"
 evaluation_status: "pending"
 confirmation_evidence: {"evaluated_digest":null,"evaluator":null,"evidence_ref":null}
 source_lineage: {"imported_at":"2026-08-18T00:10:00Z","origin_kind":"manual","source_digest":null,"source_path":"src/presentation/tools/webmcp-policy.ts","source_plugin":null,"source_version":null}
@@ -44,7 +44,7 @@ github_publication: {"labels":[],"milestone":null,"mode":"local_only","project_a
 github_project_linkages: []
 pull_request_linkages: []
 execution_contexts: []
-completion_evidence: {"completed_at":null,"evidence_refs":[],"policy":"manual","reconciled_at":null,"source":"manual","status":"in_progress"}
+completion_evidence: {"completed_at":"2026-08-18T02:00:00Z","evidence_refs":["src/application/usecases/site/read-article-facets.ts","src/presentation/tools/reader-tools.ts","tests/presentation/reader-tools.test.ts","tests/ui/disclosure-text.test.ts"],"policy":"manual","reconciled_at":null,"source":"manual","status":"done"}
 implementation_readiness: {"checked_at":null,"missing_sections":[],"status":"incomplete"}
 ---
 
@@ -153,3 +153,30 @@ A で公開の読み取りを足すとき、**画面に出していない項目�
 - `src/presentation/tools/webmcp-policy.ts` の冒頭（WebMCP の 4 つの決まり）
 - `src/infrastructure/platform/api-token.ts` の冒頭（同一サイトの範囲）
 - `tasks/task-same-origin-actor-scope.md`（`ah-2ro`）
+
+## 結果（2026-08-18）
+
+**A を採った。** ただし `read-site.ts` に公開の読み取りを足すのではなく、
+読者が実際に見ている**記事から切り出す**形にした
+（`src/application/usecases/site/read-article-facets.ts`、道具は `reader_*` 8 種）。
+
+理由は上の「リスク」に書いた一点で、商品台帳へ公開の読み取りを新設すると
+「画面に出す範囲」と「道具が返す範囲」を人が二重に管理することになる。
+記事から切ると、**画面に出していない項目が道具から出ることが原理的に起きない**。
+
+着手前には見えていなかったことが 3 つある。
+
+1. `get_disclosure` も同じ壊れ方をしていた（この課題は 8 種と書いたが、実際は 9 種）
+2. `list_test_runs` は**読者向けの出どころが無い**。検証の記録を出す読者ページが
+   まだ無いので、実装が無いわけでもない。`unreachableReason` という欄を足して
+   区別できるようにし、理由を書いたものはページから降りていることを検査で固定した（残 8 種）
+3. 受け入れ条件 §30.7「広告表示が…AI回答で一貫する」の検査が、
+   **一度も AI 回答での一貫性を見ていなかった**（動かない別名どうしを比べていた）。
+   読者向けの道具が記事の画面と同じ文を返す形に直した
+
+赤は 3 方向で実測した: 道具を管理側へ向け直す / 入力の形が違う道具へ向ける /
+記事に順位があるのに空＋理由を返す。**空だけを見て通すと「全部断られている」
+状態でも緑になる**ため、中身が返ることまで見ている。
+
+`pnpm run preview` での実測は行っていない（見本データでの実行と、
+読者の身元での 1 件ずつの呼び出しは自動検査で固定した）。
