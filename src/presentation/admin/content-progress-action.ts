@@ -57,9 +57,13 @@ export async function approveContentAction(
   formData: FormData,
 ): Promise<ContentProgressState> {
   const variantId = String(formData.get("variantId") ?? "");
+  // 空欄の判定はここでしない。空のまま送ってユースケースに断らせる。
+  // 画面側でも断ると、REST や AI から呼んだときの文面と食い違う。
+  const reason = String(formData.get("reason") ?? "");
 
   const result = await (await contentUseCases()).approve.execute(await currentActor(), {
     variantId,
+    reason,
   });
 
   if (!result.ok) {

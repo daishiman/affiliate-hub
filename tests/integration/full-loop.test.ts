@@ -44,7 +44,7 @@ import { sampleGenerationInput } from "@/infrastructure/persistence/sample/gener
 import { SAMPLE_WORKSPACE_ID } from "@/infrastructure/persistence/sample/ranking-sample-repository";
 import { anOwner } from "../support/actors";
 import { aChannelConnection } from "../support/factories";
-import { recordingEvents, testDeps } from "../support/doubles";
+import { recordingAuditLog, recordingEvents, testDeps } from "../support/doubles";
 
 /**
  * 改善の 1 周を、層をまたいで端から端まで通す結合テスト。
@@ -341,12 +341,14 @@ const CONNECTION = aChannelConnection({
 let variants: EditorialContentVariantRepositoryPort;
 let publications: PublicationRepositoryPort;
 let events: ReturnType<typeof recordingEvents>;
+let auditLog: ReturnType<typeof recordingAuditLog>;
 let sink: ReturnType<typeof memorySink>;
 
 beforeEach(() => {
   variants = memoryVariants();
   publications = memoryPublications();
   events = recordingEvents();
+  auditLog = recordingAuditLog();
   sink = memorySink();
 });
 
@@ -357,6 +359,8 @@ function contentDeps(): ManageContentDeps {
     variants,
     personas: base.personas,
     policyRules: base.policyRules,
+    auditLog: auditLog.port,
+    ids: base.ids,
     events: events.port,
   };
 }
@@ -406,6 +410,7 @@ describe("1 周（作る → 承認 → 公開 → 測る → 分析 → 提案 
     // ② 承認。人が承認したことが記録に残る。
     const approved = await createApproveContentUseCase(contentDeps()).execute(owner, {
       variantId: VARIANT_ID,
+      reason: "根拠と価格の表記を確認したため。",
     });
     expect(approved.ok).toBe(true);
     if (!approved.ok) return;
@@ -651,8 +656,10 @@ describe("本番の組み立て（見本データのまま）で 1 周を通そ�
       variants: real.contentVariants,
       personas: real.personas,
       policyRules: real.policyRules,
+      auditLog: real.auditLog,
+      ids: real.ids,
       events: real.events,
-    }).execute(owner, { variantId: "cv_beta_short" });
+    }).execute(owner, { variantId: "cv_beta_short", reason: "見本での確認のため。" });
 
     expect(result.ok).toBe(false);
     if (result.ok) return;

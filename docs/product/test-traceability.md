@@ -5,9 +5,9 @@
 テスト側の `@req` 印を重ねたもの。
 
 - 最終更新: 2026-08-17
-- テストファイル: 121 件
-- 由来の要件が分かる: 87 件
-- **由来不明: 34 件**（上限 37 件）
+- テストファイル: 122 件
+- 由来の要件が分かる: 89 件
+- **由来不明: 33 件**（上限 37 件）
 
 由来不明とは「どの要件のために書いたのか、機械から辿れない」という意味で、
 テストが無駄という意味ではない。要件から書いたなら `@req` を 1 行足せば消える。
@@ -33,7 +33,6 @@
 - `tests/infrastructure/db-binding.test.ts`
 - `tests/infrastructure/session-actor.test.ts`
 - `tests/infrastructure/stub-registry.test.ts`
-- `tests/integration/d1-content.test.ts`
 - `tests/integration/d1-feedback.test.ts`
 - `tests/integration/d1-site-draft.test.ts`
 - `tests/integration/r2-feedback-capture.test.ts`
@@ -59,7 +58,7 @@
 | `tests/application/feedback.test.ts` | REQ-FB07, REQ-FB09 | 表 |
 | `tests/application/filter-metrics.test.ts` | REQ-P10, REQ-S08 | 印と表 |
 | `tests/application/generation-matrix.test.ts` | REQ-P06, REQ-S05 | 印と表 |
-| `tests/application/manage-content.test.ts` | REQ-R11, REQ-SEC07 | 印と表 |
+| `tests/application/manage-content.test.ts` | REQ-R11, REQ-SEC07, REQ-SEC09 | 印と表 |
 | `tests/application/manage-personas.test.ts` | REQ-P05, REQ-S04, REQ-W12 | 印と表 |
 | `tests/application/publication-calendar.test.ts` | REQ-P08, REQ-S07 | 表 |
 | `tests/application/publish-article.test.ts` | REQ-P08 | 表 |
@@ -97,6 +96,8 @@
 | `tests/infrastructure/guarded-fetch.test.ts` | REQ-SEC02 | 印と表 |
 | `tests/infrastructure/prompt-assembly.test.ts` | REQ-P06 | 表 |
 | `tests/infrastructure/stub-ledger.test.ts` | REQ-TS09 | 表 |
+| `tests/integration/d1-audit-log.test.ts` | REQ-SEC09 | 印 |
+| `tests/integration/d1-content.test.ts` | REQ-SEC09 | 表 |
 | `tests/integration/d1-conversion.test.ts` | REQ-P09 | 印と表 |
 | `tests/integration/d1-distribution.test.ts` | REQ-P08 | 印と表 |
 | `tests/integration/d1-link-inbox.test.ts` | REQ-S02, REQ-TS07 | 表 |

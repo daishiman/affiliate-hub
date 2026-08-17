@@ -3,8 +3,8 @@ import type {
   EditorialContentVariantRepositoryPort,
   EditorialPersonaRepositoryPort,
 } from "@/application/ports/authoring";
-import type { EventPublisherPort } from "@/application/ports/common";
-import type { PolicyRuleRepositoryPort } from "@/application/ports/compliance";
+import type { EventPublisherPort, IdGeneratorPort } from "@/application/ports/common";
+import type { AuditLogPort, PolicyRuleRepositoryPort } from "@/application/ports/compliance";
 import {
   CONTENT_STATES,
   type ContentPackage,
@@ -19,17 +19,21 @@ import {
   transition,
 } from "@/domain/authoring";
 import {
+  type AuditAction,
   type PolicyCheckResult,
   checkPolicies,
+  createAuditLogEntry,
   isPolicyChannelScope,
 } from "@/domain/compliance";
 import { CHANNEL_CAPABILITIES, type ChannelKind } from "@/domain/distribution";
 import { can, requireCapability } from "@/domain/identity";
 import {
   type ActorContext,
+  type AuditLogId,
   type ContentVariantId,
   type DomainError,
   type Result,
+  type UserId,
   assertSameTenant,
   buildEvent,
   containsCommercial,
@@ -37,6 +41,7 @@ import {
   err,
   ok,
   taggedString,
+  validationError,
 } from "@/domain/shared";
 import type { DomainEventName } from "@/domain/shared";
 import type { UseCase } from "../usecase";
@@ -63,6 +68,17 @@ export type ManageContentDeps = {
    */
   readonly policyRules: PolicyRuleRepositoryPort;
   /**
+   * 操作の記録先。
+   *
+   * **`events` と役割が違う。** `events` は他の文脈へ伝える連絡で、
+   * 届かなくても操作そのものは成立する。こちらは「人が承認した」ことの
+   * 証拠で、残っていなければ後から何も証明できない。
+   * だから失敗の扱いも逆にしてある（下の `record` を参照）。
+   */
+  readonly auditLog: AuditLogPort;
+  /** 記録に付ける ID を作る。ドメインは ID を作らない。 */
+  readonly ids: IdGeneratorPort;
+  /**
    * 起きたことの発行先。
    *
    * 記事の文脈から配信や通知の関数を直接呼ばないために置いている。
@@ -70,6 +86,81 @@ export type ManageContentDeps = {
    */
   readonly events: EventPublisherPort;
 };
+
+/**
+ * 操作を記録する。
+ *
+ * --- 記録できなかったら操作を成功にしない ---
+ * `emit`（下）とは逆にしてある。連絡は届かなくても承認は成立するが、
+ * **記録は承認が人の手で行われたことの証拠そのもの**で、
+ * 無いものは後から作れない。「承認済みだが誰が承認したか分からない記事」は、
+ * 規制対応の場面で「承認していない」と同じ扱いになる。
+ *
+ * --- 保存の後に呼ぶ ---
+ * 先に記録すると、保存が落ちたときに「起きていない承認」の証拠が残る。
+ * 順序は「起きてから記録する」で固定し、記録に失敗したときは
+ * **何が済んで何が残っているかを文面に書いて**断る。黙って成功にしない。
+ */
+async function record(
+  deps: ManageContentDeps,
+  actor: ActorContext,
+  input: {
+    readonly action: AuditAction;
+    readonly targetId: string;
+    readonly before?: Readonly<Record<string, unknown>> | null;
+    readonly after?: Readonly<Record<string, unknown>> | null;
+    readonly reason?: string | null;
+    /** 記録に失敗したときに「もう済んでいること」として画面に出す一文。 */
+    readonly doneAlready: string;
+  },
+): Promise<Result<void, DomainError>> {
+  const entry = createAuditLogEntry({
+    id: taggedString<"AuditLogId">(`al_${deps.ids.newId()}`) as AuditLogId,
+    workspaceId: actor.workspaceId,
+    action: input.action,
+    actor: {
+      userId: actor.userId === "" ? null : (taggedString<"UserId">(actor.userId) as UserId),
+      isAiServiceAccount: actor.isAiServiceAccount,
+      /*
+       * どのモデルが動かしたかは、いまの `ActorContext` に入っていない。
+       * **分からないものを埋めない。** 適当な名前を入れると、
+       * 後から「どのモデルの生成を承認したか」を調べたときに嘘を読む。
+       * 記録するには実行時の主体にモデル名を載せる必要がある（残課題）。
+       */
+      modelId: null,
+    },
+    targetType: "content_variant",
+    targetId: input.targetId,
+    before: input.before ?? null,
+    after: input.after ?? null,
+    reason: input.reason ?? null,
+    occurredAt: new Date(),
+  });
+  if (!entry.ok) return entry;
+
+  const appended = await deps.auditLog.append(entry.value);
+  if (!appended.ok) {
+    /*
+     * 保存先の言葉（「操作の記録に失敗しました」）だけを返すと、
+     * 押した人には**操作が効いたのかどうか**が分からない。
+     * 済んだことと残っていることを、両方その場で書く。
+     */
+    return err(
+      domainError(
+        "UPSTREAM_UNAVAILABLE",
+        `${input.doneAlready}。ただし、この操作を誰が行ったかの記録を残せませんでした。` +
+          "記録が無いままだと、後から「人が確認した」ことを示せません。",
+        {
+          retryable: true,
+          suggestedAction:
+            "画面を開き直して、記録が残っているか確認してください。残っていない場合は保存先の状態を確認してください。",
+          details: appended.error.details,
+        },
+      ),
+    );
+  }
+  return ok(undefined);
+}
 
 /**
  * 起きたことを流す。
@@ -571,6 +662,21 @@ export function createAdvanceContentStateUseCase(
       const kept = await deps.variants.saveState(actor.workspaceId, loaded.value.id, moved.value);
       if (!kept.ok) return kept;
 
+      /*
+       * 段階の移動を記録する。承認ほど重くはないが、
+       * **「いつ誰が取り下げたか」を後から追えるのはこの記録だけ**。
+       * 取り下げ（ARCHIVED）は本来 `content.unpublished` として理由付きで
+       * 残すべきだが、この画面はまだ理由を受け取っていない（残課題）。
+       */
+      const logged = await record(deps, actor, {
+        action: "content.state_changed",
+        targetId: input.variantId,
+        before: { state: input.from },
+        after: { state: moved.value },
+        doneAlready: `記事は「${CONTENT_STATE_LABEL[moved.value]}」へ進みました`,
+      });
+      if (!logged.ok) return logged;
+
       // 進んだ先そのものが、他の文脈にとっての「起きたこと」になる。
       if (moved.value === "GENERATED") {
         await emit(deps, actor, "content_variant.generated", { variantId: input.variantId });
@@ -590,7 +696,18 @@ export function createAdvanceContentStateUseCase(
 
 // --- 承認 -------------------------------------------------------------------
 
-export type ApproveContentInput = { readonly variantId: string };
+/**
+ * 承認の入力。
+ *
+ * `reason`（なぜ承認してよいと判断したか）を必須にしている。
+ * ドメイン側（`createAuditLogEntry` の `REASON_REQUIRED`）が承認の記録に
+ * 理由を求めるため、ここで受け取らないと**承認は必ず記録に失敗する**。
+ * 「押しただけ」の承認を記録に残しても、後から見て何を確認したのか分からない。
+ */
+export type ApproveContentInput = {
+  readonly variantId: string;
+  readonly reason: string;
+};
 
 export type ApproveContentOutput = {
   readonly variantId: string;
@@ -612,6 +729,19 @@ export function createApproveContentUseCase(
     async execute(actor, input) {
       const allowed = requireCapability(actor, "content.approve", "記事の承認");
       if (!allowed.ok) return allowed;
+
+      /*
+       * 理由は**保存より前に**見る。後ろで見ると、承認だけ済んで
+       * 記録が残らない状態が実際に作れてしまう（記録側で弾かれるため）。
+       */
+      if (input.reason.trim() === "") {
+        return err(
+          validationError(
+            "承認の理由を書いてください。何を確認したのかが残っていないと、後から「人が確認した」ことを示せません。",
+            "reason",
+          ),
+        );
+      }
 
       const loaded = await loadVariant(deps, actor, input.variantId);
       if (!loaded.ok) return loaded;
@@ -675,6 +805,21 @@ export function createApproveContentUseCase(
         const kept = await deps.variants.saveState(actor.workspaceId, loaded.value.id, "APPROVED");
         if (!kept.ok) return kept;
       }
+
+      /*
+       * **承認の記録は、連絡（`emit`）より先に、そして必ず。**
+       * これが残らなかった承認は、後から「AI が単独で通したのではない」ことを
+       * 示せない。記録できなければ成功を返さない（`record` の説明を参照）。
+       */
+      const logged = await record(deps, actor, {
+        action: "content.approved",
+        targetId: input.variantId,
+        before: { status: loaded.value.status },
+        after: { status: saved.value.status },
+        reason: input.reason,
+        doneAlready: "この記事は承認されました",
+      });
+      if (!logged.ok) return logged;
 
       await emit(deps, actor, "content_variant.approved", {
         variantId: input.variantId,

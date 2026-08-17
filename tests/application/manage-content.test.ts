@@ -15,7 +15,7 @@ import type { WorkspaceId } from "@/domain/shared";
 import { markCommercial, markEditorial, ok } from "@/domain/shared";
 import { SAMPLE_WORKSPACE_ID } from "@/infrastructure/persistence/sample/ranking-sample-repository";
 import { aNobody, anAiAccount, anAnalyst, anOutsider, anOwner, aWriter } from "../support/actors";
-import { failing, recordingEvents, testDeps } from "../support/doubles";
+import { failing, recordingAuditLog, recordingEvents, testDeps } from "../support/doubles";
 
 /**
  * 記事の進行と承認。
@@ -47,6 +47,9 @@ const FAILING_DRAFT = "cv_alpha_draft";
 const SHORT_POST = "cv_beta_short";
 const APPROVED_POST = "cv_alpha_approved";
 
+/** 承認の理由。空だと承認そのものが断られる（記録に理由が要るため）。 */
+const APPROVE_REASON = "根拠と価格の表記を確認したため。";
+
 function deps(over: Partial<ManageContentDeps> = {}): ManageContentDeps {
   const base = testDeps();
   return {
@@ -54,6 +57,10 @@ function deps(over: Partial<ManageContentDeps> = {}): ManageContentDeps {
     variants: base.contentVariants,
     personas: base.personas,
     policyRules: base.policyRules,
+    // 既定を見本（追記できない）にすると、承認のテストが全部
+    // 「記録できない」で落ちる。ここで見たいのは承認そのものなので受け皿を置く。
+    auditLog: recordingAuditLog().port,
+    ids: base.ids,
     events: base.events,
     ...over,
   };
@@ -666,6 +673,7 @@ describe("承認", () => {
   it("人が承認すると、承認済みとして保存される", async () => {
     const store = variantsRemembering();
     const got = await createApproveContentUseCase(deps({ variants: store.port })).execute(owner, {
+      reason: APPROVE_REASON,
       variantId: REVIEWABLE,
     });
     if (!got.ok) throw got.error;
@@ -680,6 +688,7 @@ describe("承認", () => {
     // 同じ 1 本について 2 つの答えが見える状態を作らない。
     const store = variantsRemembering({ [SHORT_POST]: "COMPLIANCE_REVIEW" });
     const got = await createApproveContentUseCase(deps({ variants: store.port })).execute(owner, {
+      reason: APPROVE_REASON,
       variantId: SHORT_POST,
     });
     if (!got.ok) throw got.error;
@@ -690,6 +699,7 @@ describe("承認", () => {
   it("確認をまだ通っていない記事は、承認できない理由が読める言葉で返る", async () => {
     const store = variantsRemembering({ [REVIEWABLE]: "FACT_CHECK" });
     const got = await createApproveContentUseCase(deps({ variants: store.port })).execute(owner, {
+      reason: APPROVE_REASON,
       variantId: REVIEWABLE,
     });
 
@@ -710,7 +720,7 @@ describe("承認", () => {
     const store = variantsRemembering();
     const got = await createApproveContentUseCase(
       deps({ variants: store.port, events: events.port }),
-    ).execute(owner, { variantId: REVIEWABLE });
+    ).execute(owner, { reason: APPROVE_REASON, variantId: REVIEWABLE });
 
     expect(got.ok).toBe(true);
     expect(events.names()).toEqual(["content_variant.approved"]);
@@ -723,7 +733,7 @@ describe("承認", () => {
     const saved = store.saved;
     const got = await createApproveContentUseCase(deps({ variants: store.port })).execute(
       anOwner({ workspaceId: WS, isAiServiceAccount: true }),
-      { variantId: REVIEWABLE },
+      { reason: APPROVE_REASON, variantId: REVIEWABLE },
     );
 
     expect(got.ok).toBe(false);
@@ -738,6 +748,7 @@ describe("承認", () => {
     const store = variantsRemembering();
     const saved = store.saved;
     const got = await createApproveContentUseCase(deps({ variants: store.port })).execute(owner, {
+      reason: APPROVE_REASON,
       variantId: FAILING_DRAFT,
     });
 
@@ -753,7 +764,7 @@ describe("承認", () => {
     // ここで返るのは保存できなかったことそのものになる。
     const got = await createApproveContentUseCase(
       deps({ variants: variantsWith({ findState: async () => ok(null) }), events: events.port }),
-    ).execute(owner, { variantId: REVIEWABLE });
+    ).execute(owner, { reason: APPROVE_REASON, variantId: REVIEWABLE });
 
     expect(got.ok).toBe(false);
     if (got.ok) return;
@@ -765,7 +776,7 @@ describe("承認", () => {
     const store = variantsRemembering();
     const got = await createApproveContentUseCase(
       deps({ variants: store.port, events: { publish: async () => failing("通知先が無い。") } }),
-    ).execute(owner, { variantId: REVIEWABLE });
+    ).execute(owner, { reason: APPROVE_REASON, variantId: REVIEWABLE });
     if (!got.ok) throw got.error;
 
     expect(got.value.status).toBe("approved");
@@ -775,6 +786,7 @@ describe("承認", () => {
     const store = variantsRemembering();
     const saved = store.saved;
     const got = await createApproveContentUseCase(deps({ variants: store.port })).execute(writer, {
+      reason: APPROVE_REASON,
       variantId: REVIEWABLE,
     });
 
@@ -787,6 +799,7 @@ describe("承認", () => {
   it("無い記事は承認できない", async () => {
     const store = variantsRemembering();
     const got = await createApproveContentUseCase(deps({ variants: store.port })).execute(owner, {
+      reason: APPROVE_REASON,
       variantId: "cv_no_such",
     });
 
@@ -891,7 +904,7 @@ describe("表現ポリシーの検査", () => {
     const store = variantsRemembering({ [REVIEWABLE]: "COMPLIANCE_REVIEW" });
     const got = await createApproveContentUseCase(
       await depsWith({ domainScope: "health_food", body: NG_TEXT, variants: store.port }),
-    ).execute(owner, { variantId: REVIEWABLE });
+    ).execute(owner, { reason: APPROVE_REASON, variantId: REVIEWABLE });
 
     expect(got.ok).toBe(false);
     if (got.ok) return;
@@ -906,7 +919,7 @@ describe("表現ポリシーの検査", () => {
     const store = variantsRemembering({ [REVIEWABLE]: "COMPLIANCE_REVIEW" });
     const got = await createApproveContentUseCase(
       await depsWith({ domainScope: "general", body: NG_TEXT, variants: store.port }),
-    ).execute(owner, { variantId: REVIEWABLE });
+    ).execute(owner, { reason: APPROVE_REASON, variantId: REVIEWABLE });
     if (!got.ok) throw got.error;
 
     expect(got.value.status).toBe("approved");
@@ -958,5 +971,146 @@ describe("表現ポリシーの検査", () => {
     if (!got.ok) throw got.error;
 
     expect(got.value.policy?.publishable).toBe(false);
+  });
+});
+
+/**
+ * 操作の記録（監査ログ）が、承認と段階の移動から**実際に書かれている**こと。
+ *
+ * --- なぜここで固定するか ---
+ * ドメインには記録の作り方（`createAuditLogEntry`）が最初からあり、
+ * 設定画面には読み口もあった。**書く側だけが 1 か所も無かった。**
+ * ルールが揃っていて呼ぶ場所が無い、という壊れ方は、
+ * 一覧が「0 件」と出るだけなので画面からは正常に見える。
+ * 表現ポリシー（上の describe）とまったく同じ形の穴だった。
+ *
+ * 見るのは「記録の型が正しいか」ではない（それは
+ * tests/domain/records-and-metrics.test.ts が見ている）。
+ * ここで見るのは**経路**、つまり承認を通すと記録が 1 件増えるか、
+ * 記録できないときに承認を成功として返さないか、の 2 点。
+ *
+ * 種別を `audit-log` としているのは、確かめているのが入力値の分割ではなく
+ * 「操作 → 記録」の対応そのものだから。
+ *
+ * 規範: docs/product/traceability.md REQ-SEC09
+ *
+ * @req REQ-SEC09
+ * @types audit-log
+ */
+describe("操作の記録", () => {
+  it("承認すると、誰が・何に・なぜ が 1 件記録される", async () => {
+    const log = recordingAuditLog();
+    const store = variantsRemembering();
+    const got = await createApproveContentUseCase(
+      deps({ variants: store.port, auditLog: log.port }),
+    ).execute(owner, { variantId: REVIEWABLE, reason: APPROVE_REASON });
+    if (!got.ok) throw got.error;
+
+    expect(log.actions()).toEqual(["content.approved"]);
+    const entry = log.entries()[0];
+    expect(entry?.targetType).toBe("content_variant");
+    expect(entry?.targetId).toBe(REVIEWABLE);
+    expect(String(entry?.actor.userId)).toBe(String(owner.userId));
+    // 人が承認したことを、後から型で確かめられる形で残す。
+    expect(entry?.actor.isAiServiceAccount).toBe(false);
+    expect(entry?.reason).toBe(APPROVE_REASON);
+  });
+
+  it("理由の無い承認は断る。本文も列も記録も動かない", async () => {
+    const log = recordingAuditLog();
+    const store = variantsRemembering();
+    const got = await createApproveContentUseCase(
+      deps({ variants: store.port, auditLog: log.port }),
+    ).execute(owner, { variantId: REVIEWABLE, reason: "   " });
+
+    expect(got.ok).toBe(false);
+    if (got.ok) return;
+    expect(got.error.code).toBe("VALIDATION_FAILED");
+    expect(got.error.field).toBe("reason");
+    expect(store.saved.current).toBeNull();
+    expect(log.entries()).toEqual([]);
+  });
+
+  it("記録できなかったときに、承認できたと返さない", async () => {
+    // 記録は「人が承認した」ことの証拠そのものなので、
+    // 残せなければ成功にしない。連絡（出来事）の失敗とは扱いが逆。
+    const store = variantsRemembering();
+    const got = await createApproveContentUseCase(
+      deps({
+        variants: store.port,
+        auditLog: {
+          ...recordingAuditLog().port,
+          append: async () => failing("記録先に繋がりません。"),
+        },
+      }),
+    ).execute(owner, { variantId: REVIEWABLE, reason: APPROVE_REASON });
+
+    expect(got.ok).toBe(false);
+    if (got.ok) return;
+    // 押した人には「承認は済んだが記録が無い」ことがそのまま伝わること。
+    // 「失敗しました」だけだと、もう一度押してよいのかが分からない。
+    expect(got.error.message).toContain("承認されました");
+    expect(got.error.message).toContain("記録");
+    expect(got.error.suggestedAction ?? "").not.toBe("");
+  });
+
+  it("承認できなかった記事の記録は残らない", async () => {
+    const log = recordingAuditLog();
+    const store = variantsRemembering();
+    const got = await createApproveContentUseCase(
+      deps({ variants: store.port, auditLog: log.port }),
+    ).execute(owner, { variantId: FAILING_DRAFT, reason: APPROVE_REASON });
+
+    expect(got.ok).toBe(false);
+    // 起きていない承認の証拠を作らない。
+    expect(log.entries()).toEqual([]);
+  });
+
+  it("段階を進めると、どこからどこへ動いたかが記録される", async () => {
+    const log = recordingAuditLog();
+    const store = variantsRemembering({ [FAILING_DRAFT]: "GENERATED" });
+    const got = await createAdvanceContentStateUseCase(
+      deps({ variants: store.port, auditLog: log.port }),
+    ).execute(owner, { variantId: FAILING_DRAFT, from: "GENERATED", to: "FACT_CHECK" });
+    if (!got.ok) throw got.error;
+
+    expect(log.actions()).toEqual(["content.state_changed"]);
+    const entry = log.entries()[0];
+    expect(entry?.before).toEqual({ state: "GENERATED" });
+    expect(entry?.after).toEqual({ state: "FACT_CHECK" });
+  });
+
+  it("AI が動かした操作は、人の操作として記録されない", async () => {
+    // ここを取り違えると、AI が人の権限を借りて進めた記録が
+    // 「人がやった」として読める。証拠としての意味が消える。
+    const log = recordingAuditLog();
+    const store = variantsRemembering({ [FAILING_DRAFT]: "GENERATED" });
+    const got = await createAdvanceContentStateUseCase(
+      deps({ variants: store.port, auditLog: log.port }),
+    ).execute(anOwner({ workspaceId: WS, isAiServiceAccount: true }), {
+      variantId: FAILING_DRAFT,
+      from: "GENERATED",
+      to: "FACT_CHECK",
+    });
+    if (!got.ok) throw got.error;
+
+    expect(log.entries()[0]?.actor.isAiServiceAccount).toBe(true);
+  });
+
+  it("記録できなかったときに、段階を進められたと返さない", async () => {
+    const store = variantsRemembering({ [FAILING_DRAFT]: "GENERATED" });
+    const got = await createAdvanceContentStateUseCase(
+      deps({
+        variants: store.port,
+        auditLog: {
+          ...recordingAuditLog().port,
+          append: async () => failing("記録先に繋がりません。"),
+        },
+      }),
+    ).execute(owner, { variantId: FAILING_DRAFT, from: "GENERATED", to: "FACT_CHECK" });
+
+    expect(got.ok).toBe(false);
+    if (got.ok) return;
+    expect(got.error.message).toContain("事実確認中");
   });
 });

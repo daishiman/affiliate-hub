@@ -529,6 +529,8 @@ export async function contentUseCases() {
     variants: deps.contentVariants,
     personas: deps.personas,
     policyRules: deps.policyRules,
+    auditLog: deps.auditLog,
+    ids: deps.ids,
     events: deps.events,
   };
   return {
@@ -928,8 +930,11 @@ export function sampleGenerationInputForTrial(): GenerationInput {
  * 役割を 1 つ増やすときに触るのは domain の権限表だけ。
  * ここも画面も変わらず、新しい役割が一覧に現れる。
  */
-export function settingsUseCases() {
-  const deps = createDeps();
+export async function settingsUseCases() {
+  // 操作の記録は保存先（D1）に本物がある。接続を取らずに組み立てると、
+  // 設定画面の「操作の記録」だけが見本データを読み続け、
+  // **実際に承認した記録が 1 件も出てこない**。
+  const deps = createDeps({ db: await tryGetDb() });
   const settings = {
     workspaces: deps.workspaces,
     memberships: deps.memberships,

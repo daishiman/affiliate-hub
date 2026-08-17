@@ -1,5 +1,7 @@
 import type { AppDeps } from "@/application/deps";
 import type { DomainEvent, EventPublisherPort } from "@/application/ports/common";
+import type { AuditLogPort } from "@/application/ports/compliance";
+import type { AuditLogEntry } from "@/domain/compliance";
 import { createDeps } from "@/infrastructure/composition";
 import { markCommercial, markEditorial, readDataClass } from "@/domain/shared/data-classification";
 import { type DomainError, domainError } from "@/domain/shared/errors";
@@ -101,6 +103,38 @@ export function recordingEvents(): {
     clear: () => {
       published.length = 0;
     },
+  };
+}
+
+/**
+ * 溜めておく操作の記録先。
+ *
+ * 見本の記録先（`createSampleAuditLog`）は追記を断る。保存先がまだ無いのに
+ * 成功を装わないためで、そこは変えない。ただしそのままだと
+ * **承認を扱うテストが全部「記録できない」で落ちて**、承認そのものを見られない。
+ * ここは受け皿を立てて、何が記録されたかを読めるようにする。
+ *
+ * 実際に D1 へ書けるかどうかは結合テスト（tests/integration/d1-content.test.ts）が見る。
+ */
+export function recordingAuditLog(): {
+  readonly port: AuditLogPort;
+  readonly entries: () => readonly AuditLogEntry[];
+  readonly actions: () => string[];
+} {
+  const entries: AuditLogEntry[] = [];
+  return {
+    port: {
+      append: async (entry: AuditLogEntry) => {
+        entries.push(entry);
+        return ok(entry.id);
+      },
+      listByTarget: async (_ws, targetType, targetId) =>
+        ok(entries.filter((e) => e.targetType === targetType && e.targetId === targetId)),
+      search: async (_ws, _query, page) =>
+        ok({ items: entries.slice(0, page.limit), nextCursor: null }),
+    },
+    entries: () => entries,
+    actions: () => entries.map((e) => e.action),
   };
 }
 

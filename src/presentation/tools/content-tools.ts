@@ -39,6 +39,8 @@ export function contentTools(deps: AppDeps): readonly AnyToolDefinition[] {
     variants: deps.contentVariants,
     personas: deps.personas,
     policyRules: deps.policyRules,
+    auditLog: deps.auditLog,
+    ids: deps.ids,
     events: deps.events,
   };
   const variantId = z.string().min(1);
@@ -78,8 +80,15 @@ export function contentTools(deps: AppDeps): readonly AnyToolDefinition[] {
     }),
     defineTool({
       name: "approve_content",
-      description: "記事を承認します。人の操作でのみ実行できます。",
-      schema: z.object({ variantId }),
+      description:
+        "記事を承認します。人の操作でのみ実行できます。何を確認したのかを理由として必ず添えます（記録に残ります）。",
+      schema: z.object({
+        variantId,
+        reason: z
+          .string()
+          .min(1)
+          .describe("なぜ承認してよいと判断したか。操作の記録に残ります。"),
+      }),
       readOnly: false,
       requiresHumanApproval: true,
       useCase: createApproveContentUseCase(content),

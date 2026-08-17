@@ -240,7 +240,13 @@ describe("§30.4 AI生成", () => {
 
   it("根拠のない主張は公開不可になる", async () => {
     // 見本の下書きは、数値に根拠が無く「最強」と書いてある。
-    const r = await call("approve_content", { variantId: "cv_alpha_draft" }, MANAGER);
+    // 理由は書いてある。それでも根拠が無ければ通らない、を見たいので、
+    // 理由の書き忘れで断られたのと区別できるようにしておく。
+    const r = await call(
+      "approve_content",
+      { variantId: "cv_alpha_draft", reason: "内容を確認したため。" },
+      MANAGER,
+    );
     expect(r.ok).toBe(false);
     if (!r.ok) {
       // 断るだけでなく、何をすれば通るのかを返す。

@@ -741,6 +741,52 @@ export const publishedArticles = sqliteTable(
  * 保存期間の判定はここに書かない（domain の `RETENTION_DAYS` が正本）。
  * 期限を行へ焼き込むと、方針を短くしたときに**古い行だけ長く残る**。
  */
+/**
+ * 操作の記録（監査ログ）。
+ *
+ * **足すだけの表。** 更新も削除もしない。後から書き換えられる記録は
+ * 「人が承認した」の証明にならない。読み口（`AuditLogPort`）にも
+ * update / delete を置いていない。
+ *
+ * 差分（before / after）は JSON で持つ。対象が文脈をまたぐ（記事・順位の基準・
+ * 広告表記・担当者）ので、列にすると対象ごとに表が要る。
+ * **秘密情報は入る前に落とす**（`redactSensitive`）。列で防ぐのではなく、
+ * 詰める側で機械的に置換する — 「入れないよう気をつける」は必ず破られる。
+ *
+ * 規範: docs/product/traceability.md REQ-SEC09 / `src/domain/compliance/audit-log.ts`
+ */
+export const auditLogs = sqliteTable(
+  "audit_logs",
+  {
+    id: text("id").primaryKey(),
+    workspaceId: text("workspace_id").notNull(),
+    /** 操作の種類。正本は domain/compliance/audit-log.ts の `AuditAction`。 */
+    action: text("action").notNull(),
+    /** 誰が。AI のサービスアカウントのときは null になり得る。 */
+    actorUserId: text("actor_user_id"),
+    /**
+     * AI の代行だったか。**列として持つ。**
+     * 利用者 ID の有無から推測すると、AI が人の権限を借りた操作を
+     * 後から人の操作として読んでしまう。
+     */
+    actorIsAi: integer("actor_is_ai", { mode: "boolean" }).notNull(),
+    actorModelId: text("actor_model_id"),
+    targetType: text("target_type").notNull(),
+    targetId: text("target_id").notNull(),
+    beforeJson: text("before_json"),
+    afterJson: text("after_json"),
+    /** なぜその操作をしたか。承認・取り下げ・訂正では必須（domain 側で断る）。 */
+    reason: text("reason"),
+    occurredAt: integer("occurred_at", { mode: "timestamp" }).notNull(),
+  },
+  (t) => [
+    // 「この記事に何が起きたか」を引く索引。無いと全件走査になる。
+    index("audit_logs_workspace_target_idx").on(t.workspaceId, t.targetType, t.targetId),
+    index("audit_logs_workspace_occurred_idx").on(t.workspaceId, t.occurredAt),
+    index("audit_logs_workspace_action_occurred_idx").on(t.workspaceId, t.action, t.occurredAt),
+  ],
+);
+
 export const telemetryEvents = sqliteTable(
   "telemetry_events",
   {
@@ -973,6 +1019,7 @@ export type SiteDraftRow = typeof siteDrafts.$inferSelect;
 export type SiteBlueprintRow = typeof siteBlueprints.$inferSelect;
 export type PublishedArticleRow = typeof publishedArticles.$inferSelect;
 export type TelemetryEventRow = typeof telemetryEvents.$inferSelect;
+export type AuditLogRow = typeof auditLogs.$inferSelect;
 
 // 読者ドメイン
 export type Category = typeof categories.$inferSelect;

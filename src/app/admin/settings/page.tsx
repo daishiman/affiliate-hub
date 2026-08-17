@@ -27,7 +27,7 @@ export const dynamic = "force-dynamic";
  */
 export default async function SettingsPage() {
   const actor = await currentActor();
-  const uc = settingsUseCases();
+  const uc = await settingsUseCases();
 
   const appearance = await readAppearance();
   const options = appearanceOptions();

@@ -63,6 +63,7 @@ import {
   createD1TelemetryMetricsRepository,
   createD1TelemetrySink,
 } from "./persistence/d1/telemetry-repository";
+import { createD1AuditLog } from "./persistence/d1/audit-log-repository";
 import { createSampleImprovementRepository } from "./persistence/sample/improvement-sample-repository";
 import {
   createSampleAffiliateAccountRepository,
@@ -200,7 +201,7 @@ export function createDeps(
     disclosures: createSampleDisclosureRepository(),
     // ★ 見本データ（スタブ）。中身は初期ルールそのもので、読み取りは本物と同じ結果を返す。
     policyRules: createSamplePolicyRuleRepository(),
-    auditLog: createSampleAuditLog(),
+    auditLog: db === null ? createSampleAuditLog() : createD1AuditLog(db),
     // 起きたことの発行。購読側（通知・再生成・リンク切れ検出）はまだ無いので
     // 記録だけする。購読を足すときに変えるのはこの 1 行だけ。
     events: createEventPublisher(null),

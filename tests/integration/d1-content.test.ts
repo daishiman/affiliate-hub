@@ -83,6 +83,8 @@ beforeAll(async () => {
     variants: all.contentVariants,
     personas: all.personas,
     policyRules: all.policyRules,
+    auditLog: all.auditLog,
+    ids: all.ids,
     events: all.events,
   };
 }, 60_000);
@@ -93,7 +95,11 @@ afterAll(async () => {
 
 beforeEach(async () => {
   await proxy.env.DB.prepare("DELETE FROM content_variants").run();
+  await proxy.env.DB.prepare("DELETE FROM audit_logs").run();
 });
+
+/** 承認の理由。空だと承認そのものが断られる（記録に理由が要るため）。 */
+const APPROVE_REASON = "根拠と価格の表記を確認したため。";
 
 const advance = () => createAdvanceContentStateUseCase(deps);
 const approve = () => createApproveContentUseCase(deps);
@@ -214,7 +220,7 @@ describe("進めた段階が保存される（読み直して確かめる）", (
 
 describe("承認が保存される", () => {
   it("承認したものが、読み直しても未承認に戻らない", async () => {
-    const done = await approve().execute(editor, { variantId: IN_COMPLIANCE });
+    const done = await approve().execute(editor, { variantId: IN_COMPLIANCE, reason: APPROVE_REASON });
     expect(done.ok, done.ok ? "" : done.error.message).toBe(true);
 
     const read = await detail().execute(editor, { variantId: IN_COMPLIANCE });
@@ -225,11 +231,38 @@ describe("承認が保存される", () => {
 
   it("承認すると、かんばんの列も承認済みへ動く", async () => {
     expect(await columnOf(IN_COMPLIANCE)).toBe("COMPLIANCE_REVIEW");
-    const done = await approve().execute(editor, { variantId: IN_COMPLIANCE });
+    const done = await approve().execute(editor, { variantId: IN_COMPLIANCE, reason: APPROVE_REASON });
     expect(done.ok, done.ok ? "" : done.error.message).toBe(true);
     // 記事は「承認済み」なのに列は「確認中」のまま、という
     // 同じ 1 本について 2 つの答えが見える状態を作らない。
     expect(await columnOf(IN_COMPLIANCE)).toBe("APPROVED");
+  });
+
+  /**
+   * 承認したことが、実際に保存先へ書かれていること。
+   *
+   * 受け皿を差し替えた単体テスト（tests/application/manage-content.test.ts）は
+   * 「呼ばれたか」までしか見られない。列の名前が 1 つ違うだけで
+   * 書き込みは落ちるので、**本物の表に入るところ**はここで見る。
+   *
+   * @req REQ-SEC09
+   * @types audit-log
+   */
+  it("承認したことが、操作の記録として保存先に残る", async () => {
+    const done = await approve().execute(editor, {
+      variantId: IN_COMPLIANCE,
+      reason: APPROVE_REASON,
+    });
+    expect(done.ok, done.ok ? "" : done.error.message).toBe(true);
+
+    const rows = await proxy.env.DB.prepare(
+      "SELECT action, actor_is_ai, target_id, reason FROM audit_logs WHERE action = 'content.approved'",
+    ).all<{ action: string; actor_is_ai: number; target_id: string; reason: string }>();
+    expect(rows.results.length).toBe(1);
+    expect(rows.results[0]?.target_id).toBe(IN_COMPLIANCE);
+    // 人が承認したことが、後から読める形で残っている。
+    expect(rows.results[0]?.actor_is_ai).toBe(0);
+    expect(rows.results[0]?.reason).toBe(APPROVE_REASON);
   });
 
   it("本文の保存が、進行の現在地を巻き戻さない", async () => {
@@ -239,7 +272,7 @@ describe("承認が保存される", () => {
       to: "COMPLIANCE_REVIEW",
     });
     // 承認は本文を書き換える。ここで現在地の既定値を書き込むと列が先頭へ戻る。
-    const done = await approve().execute(editor, { variantId: IN_FACT_CHECK });
+    const done = await approve().execute(editor, { variantId: IN_FACT_CHECK, reason: APPROVE_REASON });
     expect(done.ok, done.ok ? "" : done.error.message).toBe(true);
     expect(await columnOf(IN_FACT_CHECK)).toBe("APPROVED");
   });

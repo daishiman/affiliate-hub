@@ -1,7 +1,7 @@
 "use client";
 
 import { useActionState, useState } from "react";
-import { Button, Callout, Select, ToolForm } from "@/presentation/ui";
+import { Button, Callout, Select, TextArea, ToolForm } from "@/presentation/ui";
 import { advanceContentStateAction, approveContentAction } from "./content-progress-action";
 import { INITIAL_CONTENT_PROGRESS_STATE } from "./content-progress-state";
 
@@ -88,6 +88,7 @@ export function ApproveContentForm({ variantId }: { readonly variantId: string }
     approveContentAction,
     INITIAL_CONTENT_PROGRESS_STATE,
   );
+  const [reason, setReason] = useState("");
 
   return (
     <ToolForm
@@ -96,6 +97,21 @@ export function ApproveContentForm({ variantId }: { readonly variantId: string }
       toolDescription="内容を確認した人が、この記事を承認する"
     >
       <input type="hidden" name="variantId" value={variantId} />
+
+      {/*
+        理由を必須にしているのは、承認の記録に残すため。
+        空欄でも送れるようにしてあるのは、断る文面をユースケース側の
+        1 か所に置くため（画面でも断ると、AI から呼んだときと言うことが変わる）。
+      */}
+      <TextArea
+        name="reason"
+        label="承認の理由"
+        value={reason}
+        onValueChange={setReason}
+        rows={3}
+        hint="何を確認したのかを書いてください。この文は操作の記録に残り、後から「人が確認した」ことの説明になります。"
+        toolParamDescription="なぜ承認してよいと判断したか。操作の記録に残ります。"
+      />
 
       <Button type="submit" tone="primary" disabled={pending}>
         {pending ? "承認しています…" : "内容を確認したので承認する"}
