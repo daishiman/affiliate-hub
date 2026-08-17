@@ -64,9 +64,9 @@ export function feedbackCaptureHref(id: FeedbackCaptureId): string {
 /**
  * 写しを 1 枚読み出す。**保存期間を過ぎたものは無かったことにする。**
  *
- * 消す仕事（`deleteExpired`）がまだ定期実行されていないので、
- * ここで期限を見ないと「180 日で消えます」という説明だけが嘘になる。
- * 掃除が動くようになっても、この判定は残してよい（二重に守る）。
+ * 掃除（`sweepExpiredCaptures`）は 1 日 1 回しか動かないので、
+ * ここを外すと「期限は過ぎたが、まだ掃除の順番が来ていない」写しが渡ってしまう。
+ * 掃除が失敗し続けたときも、外へ出ないのはこの判定があるからである。
  */
 export async function readFeedbackCapture(
   bucket: CaptureBucket,
@@ -78,6 +78,46 @@ export async function readFeedbackCapture(
   if (object === null) return null;
   if (isCaptureExpired(object.uploaded, now)) return null;
   return await object.arrayBuffer();
+}
+
+/** 掃除が 1 度に見る件数の上限。1 回で終わらなくても、次の回が続きから拾う。 */
+const SWEEP_LIMIT = 5_000;
+
+/**
+ * **作業場所を問わず**、期限を過ぎた写しを消す。
+ *
+ * 定期実行から呼ぶ。定期実行には呼び出し元の身元が無いので、
+ * 「誰の分を消すか」を渡せない。期限の判定は作業場所に関係なく同じなので、
+ * 置き場の前置き全体を端から見る。
+ *
+ * ここが `FeedbackCaptureStoragePort` に入っていないのは、
+ * **業務の操作ではなく置き場の手入れ**だから。ユースケースから呼べる形にすると、
+ * 画面や道具の側から「他所の分まで消す」入口ができてしまう。
+ *
+ * 1 回の上限を置くのは、定期実行にも実行時間の上限があるため。
+ * 途中で終わっても消し残るだけで、消しすぎることはない
+ * （読み出し側が期限切れを渡さないので、消えるまでの間も外へは出ない）。
+ */
+export async function sweepExpiredCaptures(
+  bucket: CaptureBucket,
+  now: Date,
+): Promise<{ readonly deleted: number; readonly finished: boolean }> {
+  const prefix = "feedback-captures/";
+  let deleted = 0;
+  let seen = 0;
+  let cursor: string | undefined;
+  do {
+    const page = await bucket.list({ prefix, cursor });
+    for (const object of page.objects) {
+      seen += 1;
+      if (!isCaptureExpired(object.uploaded, now)) continue;
+      await bucket.delete(object.key);
+      deleted += 1;
+    }
+    cursor = page.truncated ? page.cursor : undefined;
+    if (seen >= SWEEP_LIMIT) return { deleted, finished: false };
+  } while (cursor !== undefined);
+  return { deleted, finished: true };
 }
 
 export function createR2FeedbackCaptureStore(bucket: CaptureBucket): FeedbackCaptureStoragePort {

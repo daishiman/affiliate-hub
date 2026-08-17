@@ -1,7 +1,10 @@
 {
   "$schema": "./node_modules/wrangler/config-schema.json",
   "name": "affiliate-hub",
-  "main": ".open-next/worker.js",
+  // OpenNext の生成物 (.open-next/worker.js) を直接指さず、それを包む入口を指す。
+  // 生成物は画面と API (fetch) しか持たず、定期実行 (scheduled) の受け口が無いため。
+  // 生成物の作り直しでこの指定が消えることはない (ビルドは既存の設定を上書きしない)。
+  "main": "worker-entry.js",
   "compatibility_date": "2026-08-16",
   "compatibility_flags": ["nodejs_compat"],
   "assets": {
@@ -10,6 +13,18 @@
   },
   "observability": {
     "enabled": true
+  },
+
+  // --- 定期実行について -----------------------------------------------------
+  // 期限 (180 日) を過ぎた画面の写しを消す。時刻は UTC 指定なので、
+  // "0 17 * * *" は日本時間の毎日 2:00。利用の少ない時間帯に寄せている。
+  //
+  // 消し忘れても画面には出ない (読み出し側が期限を見て渡さない) が、
+  // それだけだと「180 日で消えます」という説明が置き場の実態と合わなくなる。
+  //
+  // 手元で試すときは preview 中に /cdn-cgi/handler/scheduled を開く。
+  "triggers": {
+    "crons": ["0 17 * * *"]
   },
 
   // --- 環境について ---------------------------------------------------------
@@ -44,6 +59,9 @@
       "name": "affiliate-hub-dev",
       "compatibility_date": "2026-08-16",
       "compatibility_flags": ["nodejs_compat"],
+      "triggers": {
+        "crons": ["0 17 * * *"]
+      },
       "assets": {
         "directory": ".open-next/assets",
         "binding": "ASSETS"
@@ -72,6 +90,9 @@
       "name": "affiliate-hub",
       "compatibility_date": "2026-08-16",
       "compatibility_flags": ["nodejs_compat"],
+      "triggers": {
+        "crons": ["0 17 * * *"]
+      },
       "assets": {
         "directory": ".open-next/assets",
         "binding": "ASSETS"

@@ -10,6 +10,7 @@ import {
   createR2FeedbackCaptureStore,
   feedbackCaptureHref,
   readFeedbackCapture,
+  sweepExpiredCaptures,
 } from "@/infrastructure/platform/feedback-capture-r2";
 
 /**
@@ -155,6 +156,28 @@ describe("画面の写しの置き場（本物の R2）", () => {
     expect(swept.ok && swept.value.deleted).toBe(2);
     const left = await bucket.list({ prefix: `feedback-captures/${String(WS)}/` });
     expect(left.objects.length).toBe(0);
+  });
+
+  it("定期実行の掃除は、作業場所をまたいで期限切れだけを消す", async () => {
+    await store.put(WS, asFeedbackCaptureId("cap_old_mine"), anImage(23), aSubmission());
+    await store.put(OTHER_WS, asFeedbackCaptureId("cap_old_theirs"), anImage(29), aSubmission());
+
+    // まだ期限前。ここで消えたら、送った直後の要望から写しが消えることになる。
+    const early = await sweepExpiredCaptures(bucket, NOW);
+    expect(early.deleted, "期限前のものを消しました").toBe(0);
+    expect(early.finished).toBe(true);
+
+    const swept = await sweepExpiredCaptures(bucket, LATER);
+    // **作業場所を渡していないのに両方消える**ことを見る。
+    // 定期実行には呼び出し元の身元が無いので、ここが片方しか消さないと、
+    // 使っていない作業場所の写しだけが 180 日を過ぎても残り続ける。
+    expect(swept.deleted).toBe(2);
+    expect(swept.finished).toBe(true);
+
+    for (const workspace of [WS, OTHER_WS]) {
+      const left = await bucket.list({ prefix: `feedback-captures/${String(workspace)}/` });
+      expect(left.objects.length, `${String(workspace)} に残っています`).toBe(0);
+    }
   });
 
   it("掃除は、別の作業場所のものに手を出さない", async () => {
