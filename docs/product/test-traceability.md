@@ -5,8 +5,8 @@
 テスト側の `@req` 印を重ねたもの。
 
 - 最終更新: 2026-08-17
-- テストファイル: 119 件
-- 由来の要件が分かる: 85 件
+- テストファイル: 120 件
+- 由来の要件が分かる: 86 件
 - **由来不明: 34 件**（上限 37 件）
 
 由来不明とは「どの要件のために書いたのか、機械から辿れない」という意味で、
@@ -70,6 +70,7 @@
 | `tests/architecture/dependency-direction.test.ts` | REQ-FD01, REQ-SEC02 | 表 |
 | `tests/architecture/quality-gates.test.ts` | REQ-CI02, REQ-CI09 | 表 |
 | `tests/architecture/server-action-exports.test.ts` | REQ-FD06 | 表 |
+| `tests/architecture/tenant-scoped-ports.test.ts` | REQ-P01, REQ-SEC01 | 印と表 |
 | `tests/architecture/test-honesty.test.ts` | REQ-CI07 | 表 |
 | `tests/domain/authored-sections.test.ts` | REQ-P08 | 表 |
 | `tests/domain/boundaries-platform.test.ts` | REQ-P04, REQ-P08, REQ-SEC03, REQ-TS08 | 印と表 |
