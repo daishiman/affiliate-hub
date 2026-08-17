@@ -220,6 +220,15 @@ export type ConversionView = {
   readonly adjustedLabel: string | null;
   readonly adjustmentReason: string | null;
   readonly effectiveLabel: string;
+  /**
+   * この成果の通貨。
+   *
+   * 表示だけなら `effectiveLabel` で足りるが、**金額を直す欄は
+   * 入力された数がどの通貨かを知らないと保存できない**。
+   * 画面側で「たぶん円」と決め打つと、ドル建ての成果に 1500 と入れた人の
+   * 意図が黙って 1500 円になり、直したことに誰も気づけない。
+   */
+  readonly currency: CurrencyCode;
   readonly periodClosed: boolean;
 };
 
@@ -246,6 +255,9 @@ function toConversionView(c: Conversion): ConversionView {
     adjustedLabel: c.adjustedReward === null ? null : formatMoney(c.adjustedReward),
     adjustmentReason: c.adjustmentReason,
     effectiveLabel: effective === null ? "未取得" : formatMoney(effective),
+    // まだ 1 円も取り込めていない成果は通貨も決まっていない。
+    // 直す欄を出さないわけにはいかないので、既定を円とし、画面に単位を出す。
+    currency: effective?.currency ?? c.ingestedReward?.currency ?? "JPY",
     periodClosed: c.periodClosed,
   };
 }

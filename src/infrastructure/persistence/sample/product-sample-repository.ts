@@ -35,7 +35,11 @@ const stub = registerStub({
   id: "persistence:product-sample",
   port: "商品・主張・根拠・検証記録の保存先",
   label: "商品と根拠（見本データ）",
-  blockedBy: "products / claims / evidence / test_runs テーブルの追加とマイグレーション",
+  // 先に来るのは表ではなく入口。商品・主張・根拠を登録する画面と操作がまだ無く、
+  // どのユースケースからも `save` が呼ばれていない。ここで保存先だけ本物にしても、
+  // 中身を作る手段が無いので、開いた人には常に空の一覧が出るだけになる。
+  blockedBy:
+    "商品・主張・根拠を登録する入口（画面と操作）の追加。そのうえで products / claims / evidence / test_runs テーブルの追加とマイグレーション",
 });
 
 export function sampleProductNotice(): string {

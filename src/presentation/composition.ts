@@ -610,8 +610,11 @@ export async function publicationCalendarUseCases() {
  * ASP を 1 つ増やすときに触るのは、つなぎ役の実装だけ。
  * ここも画面も、順位づけのコードも変わらない。
  */
-export function affiliateUseCases() {
-  const deps = createDeps();
+export async function affiliateUseCases() {
+  // 保存先の接続をここで取る。取らないと、金額を直す操作が見本の上で
+  // 成功したように見えて、次に開くと元の額へ戻っている。
+  // 文章と違い、数字は見ただけでは戻りに気づけない。
+  const deps = createDeps({ db: await tryGetDb() });
   const affiliate = {
     accounts: deps.affiliateAccounts,
     programs: deps.affiliatePrograms,
@@ -936,6 +939,29 @@ export async function analyticsNotice(): Promise<StorageStatus> {
 /** 提携と成果が見本データであることを画面に出すための一文。 */
 export function affiliateNotice(): string {
   return sampleAffiliateNotice();
+}
+
+/**
+ * 提携と成果の画面に出す、いま何で動いているかの説明。
+ *
+ * **2 つのことを分けて書く。**
+ *   1. 手で直した金額が保存されるか（保存先があれば保存される）
+ *   2. 成果そのものがまだ見本であること（ASP の申請と接続の登録が要る）
+ * 1 が済んだからといって 2 も済んだように読める文にすると、
+ * 「本物の売上が出てこない」を故障と誤解させる。
+ */
+export async function affiliateStorageNotice(): Promise<StorageStatus> {
+  const db = await tryGetDb();
+  return {
+    persisted: db !== null,
+    what: "成果の金額の手修正の保存先",
+    blockedBy: "各 ASP の利用申請と、ご自身による接続情報の登録",
+    stubId: "persistence:affiliate-sample",
+    message:
+      db === null
+        ? sampleAffiliateNotice()
+        : "手で直した金額は保存されます（保存先: D1 の affiliate_conversions）。取り込んだ額はそのまま残します。ただし成果そのものはまだ見本で、本物の数字には各 ASP の申請と接続情報の登録が要ります。",
+  };
 }
 
 /** 見本にある会計期間。画面の期間切り替えに使う。 */

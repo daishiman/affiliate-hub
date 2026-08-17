@@ -26,6 +26,12 @@ import {
   type ContentVariantStatus,
   type CtaType,
 } from "@/domain/authoring";
+import {
+  ASP_LABEL,
+  CONVERSION_STATUSES,
+  type AspKind,
+  type ConversionStatus,
+} from "@/domain/monetization";
 
 /**
  * 列に入れてよい値を、**業務側の一覧から取り出す**。
@@ -43,6 +49,11 @@ const PUBLICATION_STATE_VALUES = [...PUBLICATION_STATES] as [
 const CONTENT_STATE_VALUES = [...CONTENT_STATES] as [ContentState, ...ContentState[]];
 const CONTENT_ANGLE_VALUES = [...CONTENT_ANGLES] as [ContentAngle, ...ContentAngle[]];
 const CTA_TYPE_VALUES = [...CTA_TYPES] as [CtaType, ...CtaType[]];
+const ASP_KIND_VALUES = Object.keys(ASP_LABEL) as [AspKind, ...AspKind[]];
+const CONVERSION_STATUS_VALUES = [...CONVERSION_STATUSES] as [
+  ConversionStatus,
+  ...ConversionStatus[],
+];
 const CONTENT_VARIANT_STATUS_VALUES = [...CONTENT_VARIANT_STATUSES] as [
   ContentVariantStatus,
   ...ContentVariantStatus[],
@@ -774,6 +785,69 @@ export const publications = sqliteTable(
 );
 
 /**
+ * 成果（ASP から取り込んだ 1 件）。
+ *
+ * **上の `conversions` を使い回さない。** あちらは最初のたたき台で作った表で、
+ * 作業場所を持たず、取込額と手修正額を 1 つの列（`amount`）で兼ねている。
+ * 兼ねると、人が直した瞬間に取込値が消え、次の取込との差分を出せなくなる。
+ * ——「直したはずが元に戻っている」「ASP 側の誤りに気づけない」のどちらも、
+ * 数字なので画面を見ても分からない。通貨・会計期間・締めの欄も無く、
+ * さらに `programs` への外部キーがあるが、その表を埋める入口がまだ無い。
+ * 足りない列を継ぎ足すより、業務の形（domain/monetization/conversion.ts）に
+ * そのまま対応する表を別に作るほうが、読む側の混乱が少ない。
+ *
+ * **取り込んだ額（`ingested_*`）と手で直した額（`adjusted_*`）を別の列で持つ。**
+ * これがこの表を作った理由そのもので、片方に寄せる形へ直してはいけない。
+ *
+ * `external_conversion_id` に一意制約を付けない。同じ成果が二度来たときに
+ * 「すでにあります」と成功で応じるのは取込のユースケース側の仕事で、
+ * 保存先が例外で弾くと、その応答が永久に通らない失敗になる
+ * （`publications` / `link_ingestions` と同じ理由）。索引だけ張る。
+ */
+export const affiliateConversions = sqliteTable(
+  "affiliate_conversions",
+  {
+    id: text("id").primaryKey(),
+    workspaceId: text("workspace_id").notNull(),
+    programId: text("program_id").notNull(),
+    /** 成果の元になったリンク。分からないまま取り込むことがあるので null 可。 */
+    linkId: text("link_id"),
+    /** ASP。正本は domain/monetization/affiliate-program.ts の `ASP_LABEL`。 */
+    asp: text("asp", { enum: ASP_KIND_VALUES }).notNull(),
+    /** ASP 側の成果 ID（正規化済み）。突合の主キー。 */
+    externalConversionId: text("external_conversion_id").notNull(),
+    /** 状態。正本は domain/monetization/conversion.ts の `CONVERSION_STATUSES`。 */
+    status: text("status", { enum: CONVERSION_STATUS_VALUES }).notNull(),
+    occurredAt: integer("occurred_at", { mode: "timestamp" }).notNull(),
+    confirmedAt: integer("confirmed_at", { mode: "timestamp" }),
+    /**
+     * 取り込んだままの額。**null は「未取得」で、0 円ではない。**
+     * 0 で埋めると、まだ金額の来ていない成果が「0 円の成果」になり、
+     * 合計だけを見ている人には両者の区別が付かなくなる。
+     */
+    ingestedAmountMinor: integer("ingested_amount_minor"),
+    ingestedCurrency: text("ingested_currency"),
+    /** 人が直した額。直していなければ null。取込額を上書きしない。 */
+    adjustedAmountMinor: integer("adjusted_amount_minor"),
+    adjustedCurrency: text("adjusted_currency"),
+    /** 直した理由。無いと、後から金額の根拠をたどれない。 */
+    adjustmentReason: text("adjustment_reason"),
+    /** 会計期間（YYYY-MM）。締めの単位。 */
+    period: text("period").notNull(),
+    /** その期間が締め済みか。締め後は取込値の変更を反映しない。 */
+    periodClosed: integer("period_closed", { mode: "boolean" }).notNull().default(false),
+  },
+  (t) => [
+    index("affiliate_conversions_workspace_period_idx").on(t.workspaceId, t.period),
+    index("affiliate_conversions_workspace_external_idx").on(
+      t.workspaceId,
+      t.asp,
+      t.externalConversionId,
+    ),
+  ],
+);
+
+/**
  * 記事（媒体別の文章）1 本。
  *
  * **進行の現在地（`state`）を同じ行に持つ。** 別表にすると、記事を消したのに
@@ -843,6 +917,7 @@ export type PublicationRow = typeof publications.$inferSelect;
 export type SessionRow = typeof sessions.$inferSelect;
 export type Program = typeof programs.$inferSelect;
 export type Conversion = typeof conversions.$inferSelect;
+export type AffiliateConversionRow = typeof affiliateConversions.$inferSelect;
 export type LinkIngestionRow = typeof linkIngestions.$inferSelect;
 export type FeedbackReportRow = typeof feedbackReports.$inferSelect;
 export type IntegrationKeyRow = typeof integrationKeys.$inferSelect;

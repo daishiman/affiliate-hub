@@ -1,5 +1,5 @@
 {
-  "graph_revision": 185,
+  "graph_revision": 187,
   "nodes": [
     {
       "acceptance": [],
@@ -6735,6 +6735,111 @@
       "title": "記事の進行と承認を D1 へ保存する",
       "tracker_binding": "beads",
       "updated_at": "2026-08-17T08:47:39.355797Z"
+    },
+    {
+      "acceptance": [],
+      "architecture_refs": [],
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "beads_linkage": null,
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "candidate_path": "tasks/task-conversion-adjustment.md",
+          "confidence": 0.95
+        }
+      ],
+      "classification_confidence": 0.95,
+      "classification_reason": "docs/product/stub-ledger.md のスタブ解除を作業単位として登録",
+      "completion_evidence": {
+        "completed_at": "2026-08-17T09:18:53Z",
+        "evidence_refs": [
+          "tests/integration/d1-conversion.test.ts",
+          "tests/infrastructure/d1-conversion-repository.test.ts",
+          "tests/ui/adjust-conversion-form.test.tsx",
+          "tests/presentation/admin-actions.test.ts",
+          "drizzle/0010_tired_adam_warlock.sql",
+          "src/infrastructure/persistence/d1/conversion-repository.ts",
+          "docs/product/backlog.md#39"
+        ],
+        "policy": "manual",
+        "reconciled_at": "2026-08-17T09:20:00Z",
+        "source": "manual",
+        "status": "done"
+      },
+      "confirmation_evidence": {
+        "evaluated_digest": null,
+        "evaluator": null,
+        "evidence_ref": null
+      },
+      "confirmation_status": "draft",
+      "created_at": "2026-08-17T09:00:00Z",
+      "depends_on": [],
+      "domain": "monetization",
+      "evaluation_status": "pending",
+      "execution_contexts": [],
+      "feature_package_id": null,
+      "file_path": "tasks/task-conversion-adjustment.md",
+      "github_project_linkages": [],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "goal": null,
+      "graph_node_id": "task-conversion-adjustment",
+      "implementation_readiness": {
+        "checked_at": null,
+        "missing_sections": [],
+        "status": "incomplete"
+      },
+      "issue_linkage": null,
+      "iteration": null,
+      "mvp_alignment": {
+        "background": "成果の保存先が見本データのままで、金額の修正は道具の口からしか呼べず、画面には「直せます」と書いてあるのに入力欄が無い",
+        "mvp_fit": "direct",
+        "purpose": "成果の金額を手で直した結果が、次に開いたときも残るようにする",
+        "rationale": "直したのに戻る状態は、操作が効いていないのか保存が壊れているのかを画面から見分けられない。ASP の資格が要るのは取り込みだけで、修正の保存には要らない"
+      },
+      "owners": [
+        "daishiman"
+      ],
+      "parent_feature": null,
+      "phase_ref": null,
+      "priority": "high",
+      "project_id": "affiliate-hub",
+      "pull_request_linkages": [],
+      "purpose": null,
+      "related_nodes": [],
+      "resource_scope": [
+        "src/db",
+        "src/infrastructure/persistence",
+        "src/presentation/admin",
+        "drizzle"
+      ],
+      "scope_in": [],
+      "scope_out": [],
+      "source_lineage": {
+        "imported_at": "2026-08-17T09:00:00Z",
+        "origin_kind": "manual",
+        "source_digest": null,
+        "source_path": "docs/product/stub-ledger.md",
+        "source_plugin": null,
+        "source_version": null
+      },
+      "start_date": "2026-08-17",
+      "status": "done",
+      "tags": [
+        "backlog",
+        "mvp"
+      ],
+      "target_date": null,
+      "template_id": "task",
+      "template_version": "1.0.0",
+      "title": "成果の金額の修正を D1 へ保存し、画面から直せるようにする",
+      "tracker_binding": "beads",
+      "updated_at": "2026-08-17T09:19:14.295618Z"
     }
   ],
   "repository_id": "github:daishiman/affiliate-hub",

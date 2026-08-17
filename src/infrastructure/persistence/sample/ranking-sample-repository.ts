@@ -33,7 +33,10 @@ const stub = registerStub({
   id: "persistence:ranking-sample",
   port: "EditorialRankingModelRepositoryPort / EditorialScoreCardRepositoryPort",
   label: "ランキングの保存先（見本データ）",
-  blockedBy: "ranking_models / score_cards テーブルの追加とマイグレーション",
+  // 表よりも先に入口が要る。順位づけの基準や採点表を作る操作がまだ無く、
+  // どのユースケースからも `save` が呼ばれていない（保存先だけ本物にしても空のまま）。
+  blockedBy:
+    "順位づけの基準と採点表を作る入口（画面と操作）の追加。そのうえで ranking_models / score_cards テーブルの追加とマイグレーション",
 });
 
 export const SAMPLE_WORKSPACE_ID = taggedString<"WorkspaceId">("ws_sample");

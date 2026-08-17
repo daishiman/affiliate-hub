@@ -71,6 +71,13 @@
       "when": 1786954326807,
       "tag": "0009_stiff_captain_stacy",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "6",
+      "when": 1786957055967,
+      "tag": "0010_tired_adam_warlock",
+      "breakpoints": true
     }
   ]
 }

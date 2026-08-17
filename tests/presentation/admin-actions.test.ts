@@ -48,6 +48,7 @@ const {
   advanceContentStateAction,
   approveContentAction,
 } = await import("@/presentation/admin/content-progress-action");
+const { adjustConversionAction } = await import("@/presentation/admin/adjust-conversion-action");
 const { personaUseCases } = await import("@/presentation/composition");
 
 function form(entries: Record<string, string | readonly string[]>): FormData {
@@ -465,5 +466,82 @@ describe("記事の進行の操作", () => {
     expect(state.status).toBe("failed");
     // 遷移表の符号（FACT_CHECK など）を画面に出さない。
     expect(state.message).not.toContain("FACT_CHECK");
+  });
+});
+
+describe("成果の金額を直す操作", () => {
+  /**
+   * ここは D1 につながっていない状態で動かしている（見本の保存先）。
+   * つまり**直した額を残せない**。それでも「直しました」と返るなら、
+   * 画面の数字だけが変わり、開き直すと元へ戻っている。
+   * 文章と違って数字は戻りに気づけず、そのまま締めの報告に使われる。
+   */
+  it("直した額を残せないときは、直したと返さない", async () => {
+    asAffiliateManager();
+    const state = await adjustConversionAction(
+      IDLE,
+      form({ conversionId: "cv_2026_08_a", amount: "1500", currency: "JPY", reason: "確定通知に合わせました。" }),
+    );
+
+    expect(state.status).toBe("failed");
+    expect(state.message.trim()).not.toBe("");
+    expect(state.message).not.toMatch(/^[A-Z_]+$/);
+  });
+
+  it("金額が空のまま送られたら、何を入れればよいかを欄の下に返す", async () => {
+    asAffiliateManager();
+    const state = await adjustConversionAction(
+      IDLE,
+      form({ conversionId: "cv_2026_08_a", amount: "", currency: "JPY", reason: "理由。" }),
+    );
+
+    expect(state.status).toBe("failed");
+    // 欄に紐づく断りは、欄の下に出せるよう `field` を返す。
+    expect(state.field).toBe("amount");
+    expect(state.message).toContain("金額");
+  });
+
+  it("理由が空のまま送られたら、直したことにしない", async () => {
+    // 金額だけ直せると、あとから見た人に「なぜこの額なのか」が残らない。
+    asAffiliateManager();
+    const state = await adjustConversionAction(
+      IDLE,
+      form({ conversionId: "cv_2026_08_a", amount: "1500", currency: "JPY", reason: "   " }),
+    );
+
+    expect(state.status).toBe("failed");
+    expect(state.message.trim()).not.toBe("");
+  });
+
+  it("締め済みの期間は直せず、次にすることが返る", async () => {
+    asAffiliateManager();
+    const state = await adjustConversionAction(
+      IDLE,
+      form({ conversionId: "cv_2026_07_a", amount: "1500", currency: "JPY", reason: "訂正。" }),
+    );
+
+    expect(state.status).toBe("failed");
+    // 「できません」で終わらせない。次の期間で調整する道を示す。
+    expect(state.message).toContain("次の期間");
+  });
+
+  it("提携を任されていない人には、権限の話として断られる", async () => {
+    // 見本のログインは数字を読む権限しか持たない。
+    signedIn = SAMPLE_ACTOR;
+    const state = await adjustConversionAction(
+      IDLE,
+      form({ conversionId: "cv_2026_08_a", amount: "1500", currency: "JPY", reason: "確認。" }),
+    );
+
+    expect(state.status).toBe("failed");
+    expect(state.message).not.toMatch(/^[A-Z_]+$/);
+  });
+
+  it("成果の指定が無いまま送られても、成功と返さない", async () => {
+    asAffiliateManager();
+    const state = await adjustConversionAction(IDLE, form({ amount: "1500", reason: "理由。" }));
+
+    expect(state.status).toBe("failed");
+    expect(state.message.trim()).not.toBe("");
   });
 });

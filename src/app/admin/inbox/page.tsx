@@ -46,7 +46,7 @@ export default async function InboxPage({
   const useCases = await linkInboxUseCases();
   const [inbox, programs] = await Promise.all([
     useCases.list.execute(actor, { state: filter }),
-    affiliateUseCases().listPrograms.execute(actor, {}),
+    (await affiliateUseCases()).listPrograms.execute(actor, {}),
   ]);
 
   if (!inbox.ok) {

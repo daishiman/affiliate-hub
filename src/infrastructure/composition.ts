@@ -9,6 +9,7 @@ import {
   createD1PublicationRepository,
 } from "./persistence/d1/distribution-repository";
 import { createD1ContentVariantRepository } from "./persistence/d1/content-repository";
+import { createD1ConversionRepository } from "./persistence/d1/conversion-repository";
 import { createD1SiteRepository } from "./persistence/d1/site-repository";
 import {
   createD1FeedbackRepository,
@@ -193,13 +194,18 @@ export function createDeps(
     // 鍵が未登録のあいだはスタブが失敗を返す。空の記事を作らない。
     llm: llmPorts.llm,
     llmCosts: llmPorts.costs,
-    // ★ 見本データ（スタブ）。提携先・提携条件・成果。
+    // ★ 見本データ（スタブ）。提携先・提携条件・提携リンク。
     //   本物の数字には各 ASP の API 申請と、利用者ご自身による接続情報の登録が要る。
     //   ここで作るものには商業の印が付いており、順位づけへは型として渡せない。
     affiliateAccounts: createSampleAffiliateAccountRepository(),
     affiliatePrograms: createSampleAffiliateProgramRepository(),
     affiliateLinks: createSampleAffiliateLinkRepository(),
-    conversions: createSampleConversionRepository(),
+    // 成果は、保存先が用意できていれば本物（D1）。取り込みはまだ ASP の
+    // 接続待ちだが、**金額を手で直す入口が画面にある**ので保存先を先に本物にした。
+    // 入口があるのに保存できないと、直した額が次に開くと元へ戻る。
+    // 数字は見ただけでは戻りに気づけず、そのまま締めの報告に使われる。
+    conversions:
+      db === null ? createSampleConversionRepository() : createD1ConversionRepository(db),
     // 受信箱だけは、保存先が用意できていれば本物（D1）を使う。
     // **この 1 行が、変更容易性シナリオ ⑥ の実体。**
     // 上の呼び出し側（ユースケース・画面・ツール）は 1 行も変わらない。

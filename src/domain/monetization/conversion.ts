@@ -23,11 +23,21 @@ import type { AspKind } from "./affiliate-program";
  *   2. 確定済みの月は、後から取込値が変わっても据え置き、差分を通知する
  *   3. 突合は正規化キーで行う
  */
-export type ConversionStatus =
-  | "pending" // 発生。未確定
-  | "approved" // 確定
-  | "rejected" // 却下
-  | "cancelled"; // 取消
+/**
+ * 成果の状態。
+ *
+ * 型ではなく**並び**で持つのは、保存先の列に「入れてよい値」として
+ * そのまま渡すため。手で書き写すと、状態を 1 つ増やしたときに
+ * 業務側だけが増えて保存先が古いまま、という食い違いが起きる。
+ */
+export const CONVERSION_STATUSES = [
+  "pending", // 発生。未確定
+  "approved", // 確定
+  "rejected", // 却下
+  "cancelled", // 取消
+] as const;
+
+export type ConversionStatus = (typeof CONVERSION_STATUSES)[number];
 
 export type Conversion = {
   readonly id: ConversionId;

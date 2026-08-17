@@ -1,14 +1,13 @@
 import { AdminShell } from "@/presentation/admin/admin-shell";
 import Link from "next/link";
 import type { ReactNode } from "react";
-import { affiliateNotice, affiliateUseCases, currentActor } from "@/presentation/composition";
 import {
-  Callout,
-  Card,
-  ErrorView,
-  Page,
-  StubNotice,
-} from "@/presentation/ui";
+  affiliateStorageNotice,
+  affiliateUseCases,
+  currentActor,
+} from "@/presentation/composition";
+import { AdjustConversionForm } from "@/presentation/admin/adjust-conversion-form";
+import { Callout, Card, ErrorView, Page, StorageNotice } from "@/presentation/ui";
 import styles from "../../admin.module.css";
 
 export const dynamic = "force-dynamic";
@@ -29,7 +28,7 @@ export default async function ConversionPage({
 }) {
   const { conversion: conversionId } = await params;
   const actor = await currentActor();
-  const uc = affiliateUseCases();
+  const uc = await affiliateUseCases();
   const result = await uc.getConversion.execute(actor, { conversionId });
 
   if (!result.ok) {
@@ -49,13 +48,7 @@ export default async function ConversionPage({
 
   return (
     <Shell title={`${advertiserName}の成果`}>
-      <StubNotice
-        what="提携先・提携条件・成果の保存先"
-        blockedBy="各 ASP の利用申請と、ご自身による接続情報の登録"
-        stubId="persistence:affiliate-sample"
-      >
-        <span>{affiliateNotice()}</span>
-      </StubNotice>
+      <StorageNotice status={await affiliateStorageNotice()} />
 
       <Card>
         <h2 className={styles.sectionTitle}>内訳</h2>
@@ -101,16 +94,15 @@ export default async function ConversionPage({
       <Card>
         <h2 className={styles.sectionTitle}>金額を直す</h2>
         {adjustable ? (
-          <p className={styles.sectionLead}>
-            この成果の金額は直せます。直すときは理由も一緒に残してください。
-            直す操作は担当者ご本人が行います。AI からは実行できません。
-          </p>
+          <>
+            <p className={styles.sectionLead}>
+              この成果の金額は直せます。直すときは理由も一緒に残してください。
+              直す操作は担当者ご本人が行います。AI からは実行できません。
+            </p>
+            <AdjustConversionForm conversionId={view.conversionId} currency={view.currency} />
+          </>
         ) : (
-          <Callout
-            tone="info"
-            title="いまは直せません"
-            reason={notAdjustableReason ?? ""}
-          />
+          <Callout tone="info" title="いまは直せません" reason={notAdjustableReason ?? ""} />
         )}
       </Card>
     </Shell>

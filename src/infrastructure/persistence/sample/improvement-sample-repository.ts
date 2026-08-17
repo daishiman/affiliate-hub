@@ -24,7 +24,10 @@ const stub = registerStub({
   id: "persistence:improvement-sample",
   port: "改善ループの記録先",
   label: "改善ループの記録（見本データ。保存はできません）",
-  blockedBy: "variant_specs / loop_runs / loop_observations テーブルの追加",
+  // 表よりも先に入口が要る。改善ループを回す操作がまだ無く、
+  // どのユースケースからも `save` が呼ばれていない（保存先だけ本物にしても空のまま）。
+  blockedBy:
+    "改善ループを回す入口（画面と操作）の追加。そのうえで variant_specs / loop_runs / loop_observations テーブルの追加",
 });
 
 export function improvementStubNotice(): string {
