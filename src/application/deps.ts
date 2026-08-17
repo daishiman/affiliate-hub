@@ -27,7 +27,11 @@ import type {
   IntegrationKeyPort,
 } from "./ports/feedback";
 import type { EventPublisherPort, IdGeneratorPort } from "./ports/common";
-import type { AuditLogPort, DisclosureRepositoryPort } from "./ports/compliance";
+import type {
+  AuditLogPort,
+  DisclosureRepositoryPort,
+  PolicyRuleRepositoryPort,
+} from "./ports/compliance";
 import type { LlmCostEstimatorPort, LlmPort } from "./ports/llm";
 import type {
   BrandRepositoryPort,
@@ -120,6 +124,14 @@ export type AppDeps = {
   readonly memberships: MembershipRepositoryPort;
   readonly brands: BrandRepositoryPort;
   readonly disclosures: DisclosureRepositoryPort;
+  /**
+   * 表現ポリシー（言ってはいけない書き方の一覧）。
+   *
+   * 記事の確認がここを読む。**読まない実装に差し替えると違反は 0 件になる**ので、
+   * 「登録されているか」ではなく「呼ばれているか」を検査で固定してある
+   * （tests/application/manage-content.test.ts）。
+   */
+  readonly policyRules: PolicyRuleRepositoryPort;
   readonly auditLog: AuditLogPort;
   /** 文脈をまたぐ連絡。別の文脈のリポジトリを直接呼ばないための唯一の経路。 */
   readonly events: EventPublisherPort;

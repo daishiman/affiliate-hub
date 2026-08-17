@@ -38,6 +38,7 @@ export function contentTools(deps: AppDeps): readonly AnyToolDefinition[] {
     packages: deps.contentPackages,
     variants: deps.contentVariants,
     personas: deps.personas,
+    policyRules: deps.policyRules,
     events: deps.events,
   };
   const variantId = z.string().min(1);

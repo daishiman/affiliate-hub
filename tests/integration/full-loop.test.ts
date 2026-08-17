@@ -356,6 +356,7 @@ function contentDeps(): ManageContentDeps {
     packages: base.contentPackages,
     variants,
     personas: base.personas,
+    policyRules: base.policyRules,
     events: events.port,
   };
 }
@@ -649,6 +650,7 @@ describe("本番の組み立て（見本データのまま）で 1 周を通そ�
       packages: real.contentPackages,
       variants: real.contentVariants,
       personas: real.personas,
+      policyRules: real.policyRules,
       events: real.events,
     }).execute(owner, { variantId: "cv_beta_short" });
 

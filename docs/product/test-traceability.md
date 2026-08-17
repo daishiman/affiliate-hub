@@ -5,8 +5,8 @@
 テスト側の `@req` 印を重ねたもの。
 
 - 最終更新: 2026-08-17
-- テストファイル: 120 件
-- 由来の要件が分かる: 86 件
+- テストファイル: 121 件
+- 由来の要件が分かる: 87 件
 - **由来不明: 34 件**（上限 37 件）
 
 由来不明とは「どの要件のために書いたのか、機械から辿れない」という意味で、
@@ -59,7 +59,7 @@
 | `tests/application/feedback.test.ts` | REQ-FB07, REQ-FB09 | 表 |
 | `tests/application/filter-metrics.test.ts` | REQ-P10, REQ-S08 | 印と表 |
 | `tests/application/generation-matrix.test.ts` | REQ-P06, REQ-S05 | 印と表 |
-| `tests/application/manage-content.test.ts` | REQ-R11 | 印 |
+| `tests/application/manage-content.test.ts` | REQ-R11, REQ-SEC07 | 印と表 |
 | `tests/application/manage-personas.test.ts` | REQ-P05, REQ-S04, REQ-W12 | 印と表 |
 | `tests/application/publication-calendar.test.ts` | REQ-P08, REQ-S07 | 表 |
 | `tests/application/publish-article.test.ts` | REQ-P08 | 表 |
@@ -85,6 +85,7 @@
 | `tests/domain/link-ingestion.test.ts` | REQ-S02 | 表 |
 | `tests/domain/permissions.test.ts` | REQ-API02, REQ-R01, REQ-R02, REQ-R03, REQ-R04, REQ-R05, REQ-R06, REQ-R07, REQ-R08, REQ-R09, REQ-R10, REQ-R11, REQ-R12 | 印 |
 | `tests/domain/planning.test.ts` | REQ-SEC07 | 表 |
+| `tests/domain/policy-channel-scope.test.ts` | REQ-SEC07 | 印と表 |
 | `tests/domain/policy-rule-seed.test.ts` | REQ-QC11, REQ-SEC07 | 印と表 |
 | `tests/domain/records-and-metrics.test.ts` | REQ-SEC09 | 印 |
 | `tests/domain/site-routes.test.ts` | REQ-B01, REQ-B02, REQ-B03, REQ-B04, REQ-B05, REQ-B06, REQ-B07, REQ-B08, REQ-B09, REQ-B10, REQ-B11, REQ-B13, REQ-B14, REQ-B15, REQ-B16, REQ-B17, REQ-B18, REQ-TM10 | 表 |

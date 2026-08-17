@@ -528,6 +528,7 @@ export async function contentUseCases() {
     packages: deps.contentPackages,
     variants: deps.contentVariants,
     personas: deps.personas,
+    policyRules: deps.policyRules,
     events: deps.events,
   };
   return {

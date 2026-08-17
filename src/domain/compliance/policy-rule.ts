@@ -43,16 +43,33 @@ export function isPolicyDomainScope(value: unknown): value is PolicyDomainScope 
   return typeof value === "string" && (POLICY_DOMAIN_SCOPES as readonly string[]).includes(value);
 }
 
-/** ルールが効く出力先。SNS は各社の規約が違う。 */
-export type PolicyChannelScope =
-  | "any"
-  | "own_site"
-  | "x"
-  | "instagram"
-  | "youtube"
-  | "tiktok"
-  | "note"
-  | "newsletter";
+/**
+ * ルールが効く出力先。SNS は各社の規約が違う。
+ *
+ * **配信できる出力先（`ChannelKind`）を 1 つ残らず含める。**
+ * 含めそこねた出力先の記事は、`any` のルールだけが当たり、
+ * その媒体固有の規約は 1 件も当たらないまま「違反 0 件」で通る。
+ * 欠けを人の目で見つけるのは無理なので、
+ * `tests/domain/policy-channel-scope.test.ts` が両方の語彙を突き合わせている。
+ */
+export const POLICY_CHANNEL_SCOPES = [
+  "any",
+  "own_site",
+  "x",
+  "instagram",
+  "youtube",
+  "tiktok",
+  "threads",
+  "note",
+  "newsletter",
+  "wordpress",
+  "bluesky",
+] as const;
+export type PolicyChannelScope = (typeof POLICY_CHANNEL_SCOPES)[number];
+
+export function isPolicyChannelScope(value: unknown): value is PolicyChannelScope {
+  return typeof value === "string" && (POLICY_CHANNEL_SCOPES as readonly string[]).includes(value);
+}
 
 export type PolicySeverity =
   | "block" // 公開させない
@@ -136,6 +153,14 @@ export function createPolicyRule(input: {
       validationError(
         "分野が語彙にありません。知らない分野を通すと、そのルールはどの記事にも当たりません。",
         "domainScope",
+      ),
+    );
+  }
+  if (!isPolicyChannelScope(input.channelScope)) {
+    return err(
+      validationError(
+        "出力先が語彙にありません。知らない出力先を通すと、そのルールはどの記事にも当たりません。",
+        "channelScope",
       ),
     );
   }

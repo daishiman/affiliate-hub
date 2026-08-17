@@ -10,6 +10,7 @@ import {
   createListReviewOverdueUseCase,
 } from "@/application/usecases/content/manage-content";
 import { CONTENT_STATES, type ContentState, type ContentVariant } from "@/domain/authoring";
+import type { PolicyDomainScope } from "@/domain/compliance";
 import type { WorkspaceId } from "@/domain/shared";
 import { markCommercial, markEditorial, ok } from "@/domain/shared";
 import { SAMPLE_WORKSPACE_ID } from "@/infrastructure/persistence/sample/ranking-sample-repository";
@@ -52,6 +53,7 @@ function deps(over: Partial<ManageContentDeps> = {}): ManageContentDeps {
     packages: base.contentPackages,
     variants: base.contentVariants,
     personas: base.personas,
+    policyRules: base.policyRules,
     events: base.events,
     ...over,
   };
@@ -791,5 +793,170 @@ describe("承認", () => {
     expect(got.ok).toBe(false);
     if (got.ok) return;
     expect(got.error.code).toBe("NOT_FOUND");
+  });
+});
+
+/**
+ * 表現ポリシー（薬機法など）が、記事の確認画面と承認の両方から**実際に呼ばれている**こと。
+ *
+ * ルールは `policy-rule-seed.ts` に 13 件登録してあり、当て方の検査も domain 側にある。
+ * それでも**呼ばれていなければ結果は 1 文字も変わらない**。
+ * 登録されたルールは、呼ばれるまでは無いルールと同じである。
+ *
+ * ここで見るのは登録内容ではなく経路そのもの。
+ *   - 分野が合う記事では止まる（当たる）
+ *   - 分野が違う記事では止まらない（当たりすぎない）
+ *   - 画面の案内と、承認の拒否が**同じ理由**で起きる
+ *   - 分野が分からないときは「違反 0 件」にせず止める
+ *
+ * 規範: tasks/task-policy-check-wiring.md / docs/product/traceability.md REQ-SEC07
+ * @req REQ-SEC07
+ * @types decision-table
+ */
+describe("表現ポリシーの検査", () => {
+  /** 薬機法の block ルール（治る・完治の断定）に当たる一文。 */
+  const NG_TEXT = "飲み続ければ花粉症が治ります。";
+
+  async function samplePackage(id: string) {
+    const found = await createGetContentUseCase(deps()).execute(owner, { variantId: id });
+    if (!found.ok) throw found.error;
+    if (found.value.package === null) throw new Error(`見本の記事 ${id} に企画がありません`);
+    return found.value.package;
+  }
+
+  /** 指定した分野の企画と、指定した本文の記事を組み合わせた依存一式。 */
+  async function depsWith(over: {
+    domainScope?: PolicyDomainScope;
+    body?: string;
+    packageMissing?: boolean;
+    variants?: ManageContentDeps["variants"];
+  }) {
+    const pkg = await samplePackage(REVIEWABLE);
+    const variant = await sampleVariant(REVIEWABLE);
+    const base = over.variants ?? deps().variants;
+    return deps({
+      packages: packagesWith({
+        findById: async () =>
+          ok(
+            over.packageMissing === true
+              ? null
+              : { ...pkg, domainScope: over.domainScope ?? pkg.domainScope },
+          ),
+      }),
+      variants: markEditorial({
+        ...base,
+        findById: async () => ok({ ...variant, body: over.body ?? variant.body }),
+      }) as ManageContentDeps["variants"],
+    });
+  }
+
+  it("薬機法の分野の記事に断定表現があると、確認画面に違反として出る", async () => {
+    const got = await createGetContentUseCase(
+      await depsWith({ domainScope: "health_food", body: NG_TEXT }),
+    ).execute(owner, { variantId: REVIEWABLE });
+    if (!got.ok) throw got.error;
+
+    expect(got.value.policyUncheckedReason).toBeNull();
+    expect(got.value.policy?.violations.map((v) => v.ruleName)).toContain(
+      "薬機法: 治る・完治の断定",
+    );
+    expect(got.value.policy?.publishable).toBe(false);
+    // 禁止だけ示して終わらせない。言い換えが無いと執筆者はそこで止まる。
+    expect(got.value.policy?.violations[0]?.suggestion.length).toBeGreaterThan(0);
+  });
+
+  it("同じ文でも、分野の違う記事には当たらない", async () => {
+    const got = await createGetContentUseCase(
+      await depsWith({ domainScope: "general", body: NG_TEXT }),
+    ).execute(owner, { variantId: REVIEWABLE });
+    if (!got.ok) throw got.error;
+
+    expect(got.value.policy?.violations.map((v) => v.ruleName)).not.toContain(
+      "薬機法: 治る・完治の断定",
+    );
+  });
+
+  it("止める違反があるあいだは、承認へ進めない理由が画面に出る", async () => {
+    const got = await createGetContentUseCase(
+      await depsWith({ domainScope: "health_food", body: NG_TEXT }),
+    ).execute(owner, { variantId: REVIEWABLE });
+    if (!got.ok) throw got.error;
+
+    expect(got.value.approvalBlockedReason).toContain("表現のきまり");
+    expect(got.value.approvalBlockedReason).toContain("薬機法: 治る・完治の断定");
+  });
+
+  it("画面で案内するだけでなく、承認そのものが断られる", async () => {
+    // 案内文だけにすると、REST や AI から直接呼んだときに素通りする。
+    const store = variantsRemembering({ [REVIEWABLE]: "COMPLIANCE_REVIEW" });
+    const got = await createApproveContentUseCase(
+      await depsWith({ domainScope: "health_food", body: NG_TEXT, variants: store.port }),
+    ).execute(owner, { variantId: REVIEWABLE });
+
+    expect(got.ok).toBe(false);
+    if (got.ok) return;
+    expect(got.error.code).toBe("CONFLICT");
+    expect(got.error.message).toContain("薬機法: 治る・完治の断定");
+    // 断ったのだから、本文も列も動いていない。
+    expect(store.saved.current).toBeNull();
+    expect(store.states.get(REVIEWABLE)).toBe("COMPLIANCE_REVIEW");
+  });
+
+  it("同じ記事でも、分野が違えば承認は通る", async () => {
+    const store = variantsRemembering({ [REVIEWABLE]: "COMPLIANCE_REVIEW" });
+    const got = await createApproveContentUseCase(
+      await depsWith({ domainScope: "general", body: NG_TEXT, variants: store.port }),
+    ).execute(owner, { variantId: REVIEWABLE });
+    if (!got.ok) throw got.error;
+
+    expect(got.value.status).toBe("approved");
+  });
+
+  it("企画が見つからないときは、違反 0 件にせず止める", async () => {
+    // 分野が分からないまま通すと、薬機法のルールが 1 件も当たっていない記事が
+    // 「指摘なし」で承認される。分からないことを緑にしない。
+    const got = await createGetContentUseCase(await depsWith({ packageMissing: true })).execute(
+      owner,
+      { variantId: REVIEWABLE },
+    );
+    if (!got.ok) throw got.error;
+
+    expect(got.value.policy).toBeNull();
+    expect(got.value.policyUncheckedReason).toContain("確認できていません");
+    expect(got.value.approvalBlockedReason).toContain("確認できていません");
+  });
+
+  it("ルールの読み出しに失敗したときは、判定を続けない", async () => {
+    const got = await createGetContentUseCase(
+      deps({
+        policyRules: {
+          ...testDeps().policyRules,
+          listEnabled: async () => failing("ポリシーの保存先に繋がりません。"),
+        },
+      }),
+    ).execute(owner, { variantId: REVIEWABLE });
+
+    expect(got.ok).toBe(false);
+    if (got.ok) return;
+    expect(got.error.code).toBe("NOT_IMPLEMENTED");
+  });
+
+  it("見出しも本文と同じく検査の対象になる", async () => {
+    // 見出しだけ規制を素通りする道を残さない。検索結果に出るのは見出しである。
+    const pkg = await samplePackage(REVIEWABLE);
+    const variant = await sampleVariant(REVIEWABLE);
+    const got = await createGetContentUseCase(
+      deps({
+        packages: packagesWith({
+          findById: async () => ok({ ...pkg, domainScope: "health_food" }),
+        }),
+        variants: variantsWith({
+          findById: async () => ok({ ...variant, title: NG_TEXT, body: "本文は問題ありません。" }),
+        }),
+      }),
+    ).execute(owner, { variantId: REVIEWABLE });
+    if (!got.ok) throw got.error;
+
+    expect(got.value.policy?.publishable).toBe(false);
   });
 });

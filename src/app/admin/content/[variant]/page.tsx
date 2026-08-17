@@ -56,6 +56,8 @@ export default async function ContentDetailPage({
   const {
     variant,
     quality,
+    policy,
+    policyUncheckedReason,
     authorName,
     state,
     stateLabel,
@@ -150,6 +152,46 @@ export default async function ContentDetailPage({
               </div>
             ))}
           </dl>
+        )}
+      </Card>
+
+      <Card>
+        <h2 className={styles.sectionTitle}>表現のきまり</h2>
+        {policy === null ? (
+          // 確認できなかったことを「指摘なし」と並べて出さない。
+          // 同じ見た目にすると、見ていない記事が見た記事と区別できなくなる。
+          <Callout
+            tone="warn"
+            title="確認できていません"
+            reason={policyUncheckedReason ?? "理由が分かりません。"}
+            action={<Link href="/admin/content">記事の一覧へ戻る</Link>}
+          />
+        ) : policy.violations.length === 0 ? (
+          <EmptyView
+            title="当たった項目はありません"
+            body="この記事の分野で登録されているきまりには当たりませんでした。登録されていない法令は確認していません。"
+          />
+        ) : (
+          <ul className={styles.linkList}>
+            {policy.violations.map((v, i) => (
+              <li key={`${String(v.ruleId)}-${i}`}>
+                <Callout
+                  tone={v.severity === "block" ? "danger" : v.severity === "warn" ? "warn" : "info"}
+                  title={v.ruleName}
+                  // 禁止だけ示すと執筆が止まる。根拠と言い換えを必ず添える。
+                  reason={`「${v.excerpt}」— ${v.basis}。${v.suggestion}`}
+                />
+              </li>
+            ))}
+          </ul>
+        )}
+        {policy !== null && policy.unevaluatedRuleIds.length > 0 && (
+          // 実行できなかったルールを黙って飛ばさない。
+          <Callout
+            tone="warn"
+            title="確認できなかったきまりがあります"
+            reason={`${policy.unevaluatedRuleIds.length}件のきまりが実行できませんでした。設定した検出条件を見直してください。`}
+          />
         )}
       </Card>
 

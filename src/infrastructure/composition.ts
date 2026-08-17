@@ -77,6 +77,7 @@ import {
   createSampleMembershipRepository,
   createSampleWorkspaceRepository,
 } from "./persistence/sample/settings-sample-repository";
+import { createSamplePolicyRuleRepository } from "./persistence/sample/policy-rule-sample-repository";
 import {
   createSampleFeedbackCaptureStore,
   createSampleFeedbackRepository,
@@ -197,6 +198,8 @@ export function createDeps(
     memberships: createSampleMembershipRepository(),
     brands: createSampleBrandRepository(),
     disclosures: createSampleDisclosureRepository(),
+    // ★ 見本データ（スタブ）。中身は初期ルールそのもので、読み取りは本物と同じ結果を返す。
+    policyRules: createSamplePolicyRuleRepository(),
     auditLog: createSampleAuditLog(),
     // 起きたことの発行。購読側（通知・再生成・リンク切れ検出）はまだ無いので
     // 記録だけする。購読を足すときに変えるのはこの 1 行だけ。

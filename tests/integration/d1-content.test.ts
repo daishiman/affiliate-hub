@@ -82,6 +82,7 @@ beforeAll(async () => {
     packages: all.contentPackages,
     variants: all.contentVariants,
     personas: all.personas,
+    policyRules: all.policyRules,
     events: all.events,
   };
 }, 60_000);
