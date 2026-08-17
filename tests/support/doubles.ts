@@ -1,6 +1,7 @@
 import type { AppDeps } from "@/application/deps";
 import type { DomainEvent, EventPublisherPort } from "@/application/ports/common";
 import { createDeps } from "@/infrastructure/composition";
+import { markCommercial, markEditorial, readDataClass } from "@/domain/shared/data-classification";
 import { type DomainError, domainError } from "@/domain/shared/errors";
 import { type Result, err, ok } from "@/domain/shared/result";
 
@@ -35,6 +36,11 @@ type DeepPartialDeps = {
  *   products: { search: async () => ok({ items: [aProduct()], nextCursor: null }) },
  * });
  * ```
+ *
+ * **Editorial / Commercial の印を引き継ぐ。** 印は列挙されない形で付いているので、
+ * 展開して組み直すと黙って消える。消えたまま渡すと、ユースケースは
+ * 組み立てた時点で「印が付いていません」と例外になり、
+ * 差し替えた中身とは何の関係も無い場所で落ちる。
  */
 export function testDeps(overrides: DeepPartialDeps = {}): AppDeps {
   const base = createDeps();
@@ -42,7 +48,14 @@ export function testDeps(overrides: DeepPartialDeps = {}): AppDeps {
   for (const [key, patch] of Object.entries(overrides)) {
     if (patch === undefined) continue;
     const original = (base as Record<string, unknown>)[key];
-    result[key] = { ...(original as object), ...(patch as object) };
+    const merged = { ...(original as object), ...(patch as object) };
+    const dataClass = readDataClass(original);
+    result[key] =
+      dataClass === "editorial"
+        ? markEditorial(merged)
+        : dataClass === "commercial"
+          ? markCommercial(merged)
+          : merged;
   }
   return result as AppDeps;
 }
