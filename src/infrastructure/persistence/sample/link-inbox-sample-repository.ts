@@ -30,7 +30,8 @@ const stub = registerStub({
   id: "persistence:link-inbox-sample",
   port: "成果リンク受信箱の保存先",
   label: "受信箱（見本データ・この場限り）",
-  blockedBy: "link_ingestions テーブルの追加と D1 への接続",
+  blockedBy: "済み。保存先が無い環境（pnpm dev・自動テスト）での控えとして残す",
+  fallbackFor: "src/infrastructure/persistence/d1/link-inbox-repository.ts",
 });
 
 export function sampleLinkInboxNotice(): string {

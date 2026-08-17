@@ -6,6 +6,7 @@ import {
   real,
   sqliteTable,
   text,
+  uniqueIndex,
 } from "drizzle-orm/sqlite-core";
 
 /**
@@ -432,12 +433,147 @@ export const sessions = sqliteTable(
   (t) => [index("sessions_user_idx").on(t.userId, t.expiresAt)],
 );
 
+/**
+ * 改善要望（仕様 §5〜§12）。
+ *
+ * 列の分け方に 1 つだけ決めごとがある。
+ * **絞り込みに使うものだけを列にし、それ以外はまとめて 1 つの文字列に入れる。**
+ * 画面の一覧が絞るのは「状態 × 種類 × 画面 × 払い出しの有無 × 廃棄したか」の 5 つで、
+ * それ以外（送信時の画面の大きさ、直前の操作、履歴）は絞りの条件にならない。
+ * 全部を列にすると、要望の中身を 1 つ増やすたびに保存先の作り替えが要る。
+ *
+ * `handoff_count` を列に持つのは、まとめて渡す画面が「まだ渡していないもの」を
+ * 絞るためである。中の履歴を開かないと分からない形にすると、
+ * 一覧の 1 行ごとに履歴を読むことになる。
+ *
+ * **本文（`body`）に一意制約や長さの制限を置かない。** 同じ人が同じことを
+ * 2 回書くのは普通に起こることで、保存先で弾くと 2 回目が永久に通らない。
+ * 長さの上限（4000 字）は domain 側が持つ（`MAX_BODY_LENGTH`）。
+ * 保存先で切ると、切られたことに誰も気づかない。
+ */
+export const feedbackReports = sqliteTable(
+  "feedback_reports",
+  {
+    id: text("id").primaryKey(),
+    workspaceId: text("workspace_id").notNull(),
+    brandId: text("brand_id"),
+    siteId: text("site_id"),
+    kind: text("kind", {
+      enum: ["not_working", "hard_to_use", "want_feature"],
+    }).notNull(),
+    body: text("body").notNull(),
+    /** どうなってほしいか。**空は「書かれていない」であり、空文字と区別する。** */
+    wish: text("wish"),
+    /** どの画面から送られたか。絞り込みに使うので列に出す。 */
+    route: text("route").notNull(),
+    /** 画面名・URL・画面の大きさ。絞らないので 1 つにまとめる。 */
+    originJson: text("origin_json").notNull(),
+    /** エラー・失敗した通信・直前の操作・伏せた件数。同上。 */
+    technicalJson: text("technical_json").notNull(),
+    captureId: text("capture_id"),
+    submittedBy: text("submitted_by").notNull(),
+    submittedAt: integer("submitted_at", { mode: "timestamp" })
+      .notNull()
+      .default(sql`(unixepoch())`),
+    status: text("status", {
+      enum: ["open", "in_progress", "resolved", "declined"],
+    }).notNull(),
+    /** 打ち切り方。状態とは別に持つ（「見送り」と「廃棄」は別のこと）。 */
+    dispositionKind: text("disposition_kind", {
+      enum: ["will_not_fix", "duplicate", "discarded"],
+    }),
+    dispositionJson: text("disposition_json"),
+    /** 渡した回数。0 なら「まだ渡していない」。 */
+    handoffCount: integer("handoff_count").notNull().default(0),
+    handoffJson: text("handoff_json").notNull(),
+    /** Beads の課題番号。1 件につき最大 1 つ。着手・完了はここへ写さない。 */
+    beadsIssueId: text("beads_issue_id"),
+    /** 履歴。**消さずに積む**ので、上書き保存でも前の行が消えない形で入れる。 */
+    historyJson: text("history_json").notNull(),
+  },
+  (t) => [
+    index("feedback_reports_workspace_status_idx").on(t.workspaceId, t.status),
+    index("feedback_reports_workspace_route_idx").on(t.workspaceId, t.route),
+    index("feedback_reports_workspace_submitted_idx").on(t.workspaceId, t.submittedAt),
+  ],
+);
+
+/**
+ * 取りに来るときの鍵（仕様 §10-3）。
+ *
+ * **平文の鍵は入らない。** 入るのは潰した値（`hashed_value`）だけで、
+ * 平文は発行の瞬間に画面へ 1 度返るきりである。
+ * `sessions` の `token_hash` と同じ考え方で、この表を読めた人でも
+ * 鍵として使えない状態にしておく。
+ *
+ * `hashed_value` に一意の索引を置く。ここは重複を許す理由が無く、
+ * 突き合わせ（`authenticate`）が毎回この列だけで引くためである。
+ * 受信箱の URL と違い、同じ値が 2 つ出ることは事故しか意味しない。
+ */
+export const integrationKeys = sqliteTable(
+  "integration_keys",
+  {
+    id: text("id").primaryKey(),
+    workspaceId: text("workspace_id").notNull(),
+    /** 何に使う鍵か。これが無いと、後から失効させてよいか判断できない。 */
+    label: text("label").notNull(),
+    /** 潰した値。平文はここへ入れない。 */
+    hashedValue: text("hashed_value").notNull(),
+    /** できること。`read` / `update_status` を並べて入れる。 */
+    scopesJson: text("scopes_json").notNull(),
+    createdBy: text("created_by").notNull(),
+    createdAt: integer("created_at", { mode: "timestamp" })
+      .notNull()
+      .default(sql`(unixepoch())`),
+    lastUsedAt: integer("last_used_at", { mode: "timestamp" }),
+    /** 失効。行は消さない。消すと「いつ誰が止めたか」が残らない。 */
+    revokedAt: integer("revoked_at", { mode: "timestamp" }),
+    rateLimitPerMinute: integer("rate_limit_per_minute").notNull().default(30),
+  },
+  (t) => [
+    uniqueIndex("integration_keys_hashed_value_idx").on(t.hashedValue),
+    index("integration_keys_workspace_idx").on(t.workspaceId),
+  ],
+);
+
+/**
+ * 鍵が使われた記録。
+ *
+ * 回数の上限（1 分あたり）を**本当に数える**ために持つ。
+ * 上限の判定を記録なしに行うと、実行中だけ覚える形にしかならず、
+ * 別のリクエストで作り直された瞬間に数が 0 に戻る。
+ *
+ * 古い行は判定に要らない。消し方は残課題（`docs/product/backlog.md`）。
+ * ここで自動削除を書かないのは、消す仕組みを入れる前に
+ * 「何日ぶん残すか」を決める必要があるからで、決める前に消すと元へ戻せない。
+ */
+export const integrationKeyUsages = sqliteTable(
+  "integration_key_usages",
+  {
+    id: text("id").primaryKey(),
+    workspaceId: text("workspace_id").notNull(),
+    keyId: text("key_id").notNull(),
+    usedAt: integer("used_at", { mode: "timestamp" }).notNull(),
+    /**
+     * そのときの鍵の名前。**鍵の表を引き直さずに読めるよう、写しを持つ。**
+     * 名前を変えても、変える前に使われた記録は当時の名前のまま残る。
+     */
+    keyLabel: text("key_label").notNull(),
+    /** その 1 回で何件持っていったか。 */
+    fetchedCount: integer("fetched_count").notNull().default(0),
+  },
+  (t) => [index("integration_key_usages_key_used_idx").on(t.keyId, t.usedAt)],
+);
+
 // 運営者ドメイン
 export type Asp = typeof asps.$inferSelect;
 export type SessionRow = typeof sessions.$inferSelect;
 export type Program = typeof programs.$inferSelect;
 export type Conversion = typeof conversions.$inferSelect;
 export type LinkIngestionRow = typeof linkIngestions.$inferSelect;
+export type FeedbackReportRow = typeof feedbackReports.$inferSelect;
+export type IntegrationKeyRow = typeof integrationKeys.$inferSelect;
+export type IntegrationKeyUsageRow = typeof integrationKeyUsages.$inferSelect;
 
 // 読者ドメイン
 export type Category = typeof categories.$inferSelect;

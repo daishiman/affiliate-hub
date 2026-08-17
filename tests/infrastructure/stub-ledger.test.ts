@@ -1,4 +1,4 @@
-import { readFileSync, writeFileSync } from "node:fs";
+import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { createAspAdapter, supportedAsps } from "@/infrastructure/asp/asp-registry";
@@ -7,7 +7,7 @@ import { LLM_PROVIDER_LABEL, createLlm } from "@/infrastructure/llm/llm-provider
 import type { LlmProviderKind } from "@/infrastructure/llm/llm-provider-registry";
 import { fakeSecretResolver } from "@/infrastructure/platform/secret-resolver";
 import "@/infrastructure/platform/storage-r2";
-import { listStubs } from "@/infrastructure/stub-registry";
+import { listFallbacks, listStubs, listUnbuiltStubs } from "@/infrastructure/stub-registry";
 import { createToolCatalog } from "@/presentation/composition";
 
 /**
@@ -46,7 +46,9 @@ function buildEverything(): void {
 }
 
 function renderLedger(): string {
-  const entries = [...listStubs()].sort((a, b) => (a.id < b.id ? -1 : 1));
+  const byId = (a: { id: string }, b: { id: string }) => (a.id < b.id ? -1 : 1);
+  const unbuilt = [...listUnbuiltStubs()].sort(byId);
+  const fallbacks = [...listFallbacks()].sort(byId);
   const lines = [
     "# まだ中身が無いもの（スタブ台帳）",
     "",
@@ -56,11 +58,28 @@ function renderLedger(): string {
     "「スタブ」は、つなぎ目だけあって中身がまだ無いもの。呼ぶと必ず失敗を返す。",
     "成功したふりをしないので、「つながっているのに結果が空」という分かりにくい壊れ方をしない。",
     "",
-    `件数: ${entries.length}`,
+    "**2 つに分けて数える。** 下の「控え」は本物ができたあとも残るもので、",
+    "まだ作っていないものと一緒に数えると、進んだのに件数が減らないという読み方になる。",
+    "",
+    "## まだ中身が無いもの",
+    "",
+    `件数: ${unbuilt.length}`,
     "",
     "| 識別子 | 何のスタブか | つなぎ目 | 何が済めば実装できるか |",
     "|---|---|---|---|",
-    ...entries.map((e) => `| \`${e.id}\` | ${e.label} | ${e.port} | ${e.blockedBy} |`),
+    ...unbuilt.map((e) => `| \`${e.id}\` | ${e.label} | ${e.port} | ${e.blockedBy} |`),
+    "",
+    "## 本物ができたあとの控え",
+    "",
+    "本物はあるが、保存先が供給されない環境（`pnpm dev`・自動テスト）では",
+    "こちらへ回る。**消す予定は無いので、この件数は減らない。**",
+    "何で動いているかは、必ず画面に文字で出す（黙って控えへ落ちない）。",
+    "",
+    `件数: ${fallbacks.length}`,
+    "",
+    "| 識別子 | 何の控えか | つなぎ目 | 本物の置き場所 |",
+    "|---|---|---|---|",
+    ...fallbacks.map((e) => `| \`${e.id}\` | ${e.label} | ${e.port} | \`${e.fallbackFor}\` |`),
     "",
   ];
   return lines.join("\n");
@@ -76,6 +95,24 @@ describe("スタブ台帳", () => {
       // 「時間が無い」は前提条件ではない。何が済めば実装できるかを書く。
       expect(entry.blockedBy.trim(), `${entry.id} に前提条件がありません`).not.toBe("");
     }
+  });
+
+  it("控えと名乗るには、本物のファイルが実在していなければならない", () => {
+    // ここを見ないと、`fallbackFor` に文字列を書くだけで
+    // 「まだ中身が無いもの」の件数を減らせてしまう。
+    // 数字の作り方を、書き手の申告ではなくファイルの実在に結び付ける。
+    buildEverything();
+    const fallbacks = listFallbacks();
+    expect(fallbacks.length).toBeGreaterThan(0);
+    for (const entry of fallbacks) {
+      const real = join(process.cwd(), String(entry.fallbackFor));
+      expect(existsSync(real), `${entry.id} の本物 ${entry.fallbackFor} がありません`).toBe(true);
+    }
+  });
+
+  it("2 つの数を足すと全体になる（どちらかに数え漏れが出ない）", () => {
+    buildEverything();
+    expect(listUnbuiltStubs().length + listFallbacks().length).toBe(listStubs().length);
   });
 
   it("台帳ファイルが実際の状態と一致している", () => {

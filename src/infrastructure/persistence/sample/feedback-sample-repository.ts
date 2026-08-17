@@ -23,16 +23,21 @@ import {
 import { registerStub, stubCall, stubFailure } from "../../stub-registry";
 
 /**
- * ★ これは仮置きの記録先です（スタブ）。★
+ * ★ これは保存先が無いときの控えです（見本データ）。★
  *
  * **この実行中だけ覚えます。再起動すると消えます。**
  * できたふりではなく、本当に受け取って本当に絞り込んでいる。
  * 置き場所がメモリなので長くは残らない。
  *
- * 本物にするには feedback_reports / feedback_captures / integration_keys
- * テーブルと、画面の写しの置き場（R2）が要る。
- * そのとき差し替えるのは composition.ts の 4 行だけで、
- * 画面もユースケースも 1 行も変わらない。
+ * 本物（D1）は `../d1/feedback-repository.ts` にある。
+ * `feedback_reports` / `integration_keys` / `integration_key_usages` の
+ * 3 つの表を作って、composition.ts の 2 行が接続の有無で選び分けている。
+ *
+ * **それでもこの実装は消せない。** Workers の外（`pnpm dev`・自動テスト）では
+ * 接続が供給されないので、消すと画面が開かなくなる。
+ * ただし**黙って控えへ落ちることはしない**。何で動いているかは画面に文字で出す。
+ *
+ * 残っているのは画面の写し（R2）だけで、そちらは下の `captureStub` にある。
  *
  * **絞り込みは必ず workspaceId から始める。**
  * 見本であっても、ここで手を抜くと本物へ移すときに同じ手抜きが写る。
@@ -41,7 +46,8 @@ const stub = registerStub({
   id: "persistence:feedback-memory",
   port: "改善要望の記録先",
   label: "改善要望の記録（この実行中だけ覚える仮置き）",
-  blockedBy: "feedback_reports / integration_keys テーブルと、画面の写しの置き場の用意",
+  blockedBy: "済み。保存先が無い環境（pnpm dev・自動テスト）での控えとして残す",
+  fallbackFor: "src/infrastructure/persistence/d1/feedback-repository.ts",
 });
 
 const captureStub = registerStub({

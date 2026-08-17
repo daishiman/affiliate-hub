@@ -25,7 +25,7 @@
 | REQ | 要件 | 実装 | 画面 | 導線 | 状態 | RWD | a11y | test | 結果 |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | REQ-P01 | §9.1 Workspace／Brand管理（テナント分離・ブランド属性・編集/AI/広告方針・禁止表現・標準CTA/免責・言語・TZ） | `src/domain/identity/workspace.ts`（プラン別の上限・稼働判定）、`src/domain/identity/brand.ts`（表示名/法的表示名/連絡先/立場/声/禁止表現/免責/言語/時間帯/標準CTA）、`src/domain/identity/membership.ts`、`src/domain/shared/tenancy.ts`、`src/application/usecases/identity/manage-workspace.ts`（概況・ロール・メンバー・ブランド・広告表記・監査ログの6ユースケース）、`src/presentation/tools/settings-tools.ts` | `src/app/admin/settings/page.tsx` | サイドナビ「設定」。ホームの「手当てが必要なもの」からも設定へ戻れる | loading（サーバ描画）/ empty（各表に「登録するとここに並びます」）/ error（`ErrorView` + ホームへ戻る）/ 操作不可（権限が無い項目は `requireCapability` で理由つきに落ちる） | 対応（`catalogStack` の縦積み。表は48remで縦積み） | 対応（`<th scope="row">` の定義表・`aria-current`・44px最小） | PASS（`tests/presentation/composition.test.ts` / `tests/presentation/admin-routes.test.ts`） | 実装済（保存先は見本データ。編集操作は残課題） |
-| REQ-P02 | §9.2 アフィリエイトURL受信箱（貼付・CSV・API・拡張・WebMCP・重複検出・分類・リンク状態・商品候補・4状態管理） | `src/domain/monetization/link-ingestion.ts`（取込元5種 `paste`/`csv`/`api`/`extension`/`webmcp`、状態4種 `received`/`resolved`/`matched`/`rejected`、`normalizeAffiliateUrl` によるURL正規化と `findDuplicate` の重複検出、`isInternalHost` の内部宛先拒否）、`src/application/usecases/monetization/manage-link-inbox.ts`、`src/presentation/tools/affiliate-tools.ts`（`submit_affiliate_url` ほか）、`src/presentation/admin/inbox-action.ts` / `inbox-forms.tsx` | `src/app/admin/inbox/page.tsx` | サイドナビ「受信箱」+ ホームの「手当てが必要なもの」 | loading / empty（貼り付け欄と使い方を出す）/ error / 操作不可（スタブ表示で「まだ保存されません」を明示） | 対応 | 対応（`ToolForm` 共通部品。入力欄にラベルと説明、送信は44px最小） | PASS（`tests/domain/link-ingestion.test.ts`） | 実装済（保存先は見本データ。CSV一括と拡張機能の入口はスタブ） |
+| REQ-P02 | §9.2 アフィリエイトURL受信箱（貼付・CSV・API・拡張・WebMCP・重複検出・分類・リンク状態・商品候補・4状態管理） | `src/domain/monetization/link-ingestion.ts`（取込元5種 `paste`/`csv`/`api`/`extension`/`webmcp`、状態4種 `received`/`resolved`/`matched`/`rejected`、`normalizeAffiliateUrl` によるURL正規化と `findDuplicate` の重複検出、`isInternalHost` の内部宛先拒否）、`src/application/usecases/monetization/manage-link-inbox.ts`、`src/presentation/tools/affiliate-tools.ts`（`submit_affiliate_url` ほか）、`src/presentation/admin/inbox-action.ts` / `inbox-forms.tsx` | `src/app/admin/inbox/page.tsx` | サイドナビ「受信箱」+ ホームの「手当てが必要なもの」 | loading / empty（貼り付け欄と使い方を出す）/ error / 操作不可（スタブ表示で「まだ保存されません」を明示） | 対応 | 対応（`ToolForm` 共通部品。入力欄にラベルと説明、送信は44px最小） | PASS（`tests/domain/link-ingestion.test.ts`） | 実装済（保存先は D1。接続が供給されない環境＝`pnpm dev`・自動テストでは見本データへ回り、そのことを画面に出す。CSV一括と拡張機能の入口はスタブ） |
 | REQ-P03 | §9.3 商品インテリジェンス（21属性・情報源・信頼度・有効期限） | `src/domain/product/product.ts`（共通属性を型で固定し、カテゴリー固有の属性は `specifications` で持つ）、`src/domain/product/product-identity.ts`（JAN/ASIN/型番による同一判定）、`src/domain/product/merchant-offer.ts`、`src/domain/shared/provenance.ts`（情報源・信頼度・有効期限）、`src/application/usecases/product/read-product.ts`、`src/presentation/tools/product-tools.ts` | `src/app/admin/products/page.tsx`、`src/app/admin/products/[product]/page.tsx` | サイドナビ「商品」+ 受信箱の商品候補 + 順位表の商品名 | loading / empty / error / 期限切れ（値を出さず「情報が古い」理由を表示） | 対応 | 対応 | PASS（`tests/presentation/admin-routes.test.ts`） | 実装済（21属性のうちカテゴリー固有分は見本データ。外部からの自動収集はスタブ） |
 | REQ-P04 | §9.4 比較エンジン（Exact Offer / Variant / Direct Competitor / Alternative Solution の4分類） | `src/domain/product/comparison.ts`（4分類 `RelationshipType` と比較セット）、`src/domain/ranking/scoring.ts`（順位の計算はここだけ）、`src/application/usecases/ranking/rank-products.ts`（報酬の型を受け取れない `Editorial<T>` 依存） | `src/app/admin/rankings/page.tsx`、`src/app/admin/products/compare/page.tsx` | サイドナビ「評価基準と順位」+ ホームの「いま試せること」+ 商品詳細の比較リンク | empty / error / 選外理由に対応 | 対応（48rem で表を縦積み） | 対応（表見出しに `scope`、数字は等幅、コントラストAA） | PASS（`tests/presentation/composition.test.ts` / `tests/architecture/commercial-isolation.test.ts`） | 実装済 |
 | REQ-P05 | §9.5 Persona Studio（書き手・読者・話し方・実体験・資格・禁止事項・事実境界 §13.3） | `src/domain/authoring/author-persona.ts`、`src/domain/authoring/audience-persona.ts`、`src/domain/authoring/writing-style.ts`、`src/application/usecases/authoring/manage-personas.ts`（事実境界の判定 `checkFactBoundary` を含む）、`src/presentation/tools/content-tools.ts`、`src/presentation/admin/fact-boundary-action.ts` / `fact-boundary-form.tsx` | `src/app/admin/personas/page.tsx` | サイドナビ「書き手と読者」+ 記事の書き手表示から | loading / empty（4箇所）/ error / 事実境界に触れる指定は理由つきで拒否 | 対応 | 対応 | PASS（`tests/application/manage-personas.test.ts`） | 実装済（保存先は見本データ） |
@@ -40,7 +40,7 @@
 | REQ | 要件 | 実装 | 画面 | 導線 | 状態 | RWD | a11y | test | 結果 |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | REQ-S01 | §22.1 ダッシュボード（11ウィジェット） | `src/application/usecases/dashboard/read-dashboard.ts`（11ウィジェットを1ユースケースで算出）、`src/presentation/tools/dashboard-tools.ts`（`get_dashboard`）、`src/presentation/ui/patterns/work-board.tsx` | `src/app/admin/page.tsx` | サイドナビ先頭 `/admin`。各ウィジェットが解消先の画面へ直リンク（行き先は `ADMIN_NAV` 内であることをテストで固定） | loading（`force-dynamic` のサーバ描画）/ empty（`EmptyView` + 手当て不要の理由）/ error（`ErrorView` + 設定への導線）/ 数えられない（値ではなく理由を表示。0件と混同しない） | 対応（`.board` が `auto-fill` グリッド） | 対応（色に加えて読み上げ用の状態語、リンクは `tap-target-min`） | PASS（`tests/application/dashboard.test.ts` 10件） | 実装済 |
-| REQ-S02 | §22.2 Affiliate Inbox（9要素） | `src/application/usecases/monetization/manage-link-inbox.ts`、`src/presentation/admin/inbox-forms.tsx` | `src/app/admin/inbox/page.tsx` | サイドナビ「受信箱」+ ホームの手当て一覧 | loading / empty / error / 保存先が仮であることのスタブ表示 | 対応 | 対応 | PASS（`tests/domain/link-ingestion.test.ts` / `tests/presentation/admin-routes.test.ts`） | 実装済（保存は見本データ） |
+| REQ-S02 | §22.2 Affiliate Inbox（9要素） | `src/application/usecases/monetization/manage-link-inbox.ts`、`src/presentation/admin/inbox-forms.tsx` | `src/app/admin/inbox/page.tsx` | サイドナビ「受信箱」+ ホームの手当て一覧 | loading / empty / error / 保存先が仮であることのスタブ表示 | 対応 | 対応 | PASS（`tests/domain/link-ingestion.test.ts` / `tests/presentation/admin-routes.test.ts` / `tests/integration/d1-link-inbox.test.ts`） | 実装済（保存先は D1。接続が無い環境では見本データへ回る） |
 | REQ-S03 | §22.3 Product Intelligence（11要素） | `src/application/usecases/product/read-product.ts`、`src/presentation/ui/patterns/evidence.tsx`（出典表示）、`factuality.tsx`（事実と推測の区別） | `src/app/admin/products/page.tsx`、`.../[product]/page.tsx`、`.../compare/page.tsx` | サイドナビ「商品」+ 受信箱の商品候補 | loading / empty / error / 情報が古いときは値を出さず理由を表示 | 対応 | 対応 | PASS（`tests/presentation/admin-routes.test.ts`） | 実装済（外部からの自動収集のみスタブ） |
 | REQ-S04 | §22.4 Persona Studio（8要素） | `src/application/usecases/authoring/manage-personas.ts`、`src/presentation/admin/fact-boundary-form.tsx` | `src/app/admin/personas/page.tsx` | サイドナビ「書き手と読者」 | loading / empty（4箇所）/ error / 事実境界を越える指定は理由つきで拒否 | 対応 | 対応 | PASS（`tests/application/manage-personas.test.ts`） | 実装済（保存は見本データ） |
 | REQ-S05 | §22.5 Content Matrix（3行軸 × 7媒体列） | `src/application/usecases/authoring/plan-generation-matrix.ts`（`selectRepresentativeCells` で代表セルを選ぶ）、`src/application/usecases/content/manage-content.ts` | `src/app/admin/content/matrix/page.tsx`、`src/app/admin/content/page.tsx`、`.../[variant]/page.tsx` | サイドナビ「記事」+ 商品詳細 | loading / empty / error / 生成の提供元が未接続であることを表示 | 対応（48rem で表を縦積み） | 対応 | PASS（`tests/application/generation-matrix.test.ts`） | 実装済（生成AIの呼び出しのみスタブ） |
@@ -506,9 +506,45 @@ D1 への差し替えは、この列だけを別の実装に取り替えれば�
 **先回りで「実装済」と書かない。** 走らせた結果が出た行だけを書き換える。
 
 **残るスタブ 34 件は「作っていない」ではなく「本物の保存先につないでいない」である。**
-改善要望も同じで、判断（何を指示文に入れるか・誰が渡せるか）は本物を通しているが、
-保存先はまだ見本データの入れ物にある。差し替え先は
-`docs/architecture/feedback-loop.md` §2 の表に 1 行ずつ書いてある。
+差し替え先は `docs/architecture/feedback-loop.md` §2 の表に 1 行ずつ書いてある。
+
+改善要望と受信箱は、2026-08-17 に**保存先を D1 へつないだ**（`feedback_reports` /
+`integration_keys` / `integration_key_usages` / `link_ingestions`）。接続が供給されない環境
+（`pnpm dev`・自動テスト）では見本データへ回るが、**黙って落ちない**（何で動いているかを画面に出す）。
+まだ残っているのは**画面の写しの置き場**（R2）で、置くこと自体はできるが期限つき URL を配る口が無い。
+
+**「スタブ」という言葉は 2 つの数え方がある。混ぜない。**
+
+| 言葉 | 数えているもの | いまの値 | 正本 |
+| --- | --- | --- | --- |
+| スタブ（要件） | 仕様の要件のうち、本物の保存先や外部接続につながっていないもの | 34 | この表の最後の欄 |
+| スタブ（つなぎ目） | コード上の差し込み口のうち、中身がまだ無いもの | 40 | `docs/product/stub-ledger.md` |
+| 控え（つなぎ目） | 本物ができたあとも、接続が無い環境用に残す見本実装 | 2 | 同上。**消す予定が無いので減らない** |
+
+要件 1 件が複数のつなぎ目を使うこともあれば、その逆もあるため、2 つの数字は一致しない。
+一致させようとせず、**どちらの数え方の話をしているかを明示する**。
+
+### Beads の課題が open なのに、この表が「実装済」なのはなぜか
+
+3 つ目の数え方がある。**Beads の 1 課題は「機能をひととおり届ける」単位**で、
+この表の 1 行は「仕様の要件 1 つ」である。要件が満たされていても、
+その機能を届けたと言うには保存先や外部接続が要る。だから両方が同時に正しい。
+
+食い違いではないことを 2026-08-17 に 1 件ずつ確かめ、
+各課題の記録へ**残っている具体物**を書いた（`bd show <id>` の NOTES）。
+
+| 課題 | この表での扱い | open のままにしている理由 |
+| --- | --- | --- |
+| `ah-87b` 読者向け公開面 | REQ-B01〜B22 実装済 | 公開記事の保存先が見本データ。外部の資格は不要 |
+| `ah-dtq` Affiliate Hub | REQ-P09 実装済 | 保存先（資格不要）＋ ASP 8 社の申請（**利用者本人**） |
+| `ah-g1i` Persona Studio | 該当行なし（書き手の管理） | `personas` の保存先。外部の資格は不要 |
+| `ah-jyn` 商品インテリジェンス | REQ-P03 実装済 | 保存先（資格不要）＋ 外部からの自動収集 |
+| `ah-mps` WebMCP の面 | REQ-API01 実装済 | 面は動く。載せる道具の**結果**が見本データ |
+| `ah-q2s` Site Blueprint | REQ-E05 スタブ | 設計図と下書きの保存先。外部の資格は不要 |
+| `ah-ejk` 編集ワークフロー | REQ-P06 / REQ-S05 実装済 | 保存先（資格不要）＋ 生成 AI の鍵（**利用者本人**） |
+
+**どれも「作っていない」ではない。** 資格が要らない 5 件は今つなげられる作業で、
+資格が要る 2 件は利用者本人の登録が済むまで動かせない。
 
 集計方法: 本ファイル内で `| REQ-` から始まる行の**最後の欄**を機械的に数えた値。手計算ではない。
 

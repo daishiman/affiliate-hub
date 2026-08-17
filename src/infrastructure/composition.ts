@@ -3,6 +3,10 @@ import {
   createCommercialD1LinkInboxRepository,
   type DrizzleD1,
 } from "./persistence/d1/link-inbox-repository";
+import {
+  createD1FeedbackRepository,
+  createD1IntegrationKeyStore,
+} from "./persistence/d1/feedback-repository";
 import { createEventPublisher } from "./platform/queue";
 import { createLlmPorts } from "./llm/llm-setup";
 import { createSampleContentRepository } from "./persistence/sample/content-sample-repository";
@@ -117,13 +121,18 @@ export function createDeps(options: { readonly db?: DrizzleD1 | null } = {}): Ap
     // ★ 見本データ（スタブ）。改善ループの記録と見せ方の設定。
     //   読み出しは見本を返し、保存は失敗を返す（保存できたことにしない）。
     improvement: createSampleImprovementRepository(),
-    // ★ 仮置き（スタブ）。改善要望はこの実行中だけ覚える。
-    //   feedback_reports / integration_keys テーブルができたら差し替える。
-    //   指示文のひな型だけは本物（版番号つきでコードと一緒に管理する）。
-    feedback: createSampleFeedbackRepository(),
+    // 改善要望と鍵は、保存先が用意できていれば本物（D1）を使う。
+    // 画面の写し（R2）だけは仮のまま。置き場は作れるが、見るための
+    // 期限つき URL を配る口がまだ無く、保存だけ本物にすると
+    // 「保存できているのに開けない」という切り分けにくい形になる。
+    // 指示文のひな型は本物（版番号つきでコードと一緒に管理する）。
+    feedback: db === null ? createSampleFeedbackRepository() : createD1FeedbackRepository(db),
     feedbackCaptures: createSampleFeedbackCaptureStore(),
     handoffTemplates: createHandoffTemplates(),
-    integrationKeys: createSampleIntegrationKeyStore({ hash: hashSecret }),
+    integrationKeys:
+      db === null
+        ? createSampleIntegrationKeyStore({ hash: hashSecret })
+        : createD1IntegrationKeyStore({ db, hash: hashSecret, newId: () => idGenerator.newId() }),
     mintSecret,
     // ★ 見本データ（スタブ）。作業場所・担当者・ブランド・広告表記・操作の記録。
     //   本物にするには認証（Better Auth + Google）と各テーブルが要る。
