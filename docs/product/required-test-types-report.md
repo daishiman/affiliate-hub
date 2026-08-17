@@ -4,8 +4,8 @@
 宣言は `docs/product/required-test-types.md`、語彙と上限は `quality-gates.config.mjs` が正本。
 
 - 最終更新: 2026-08-17
-- 要件表の要件: 240 件
-- 性質を宣言済: 12 件
+- 要件表の要件: 241 件
+- 性質を宣言済: 13 件
 - **未宣言: 228 件**（上限 228 件）
 - 理由つきの除外: 13 件（上限 13 件）
 
@@ -28,6 +28,7 @@
 | REQ-QC12 | has-calculation | `boundary` `mutation` | `mutation` | `boundary` | 
 | REQ-IM05 | has-state | `state-transition` | `state-transition` | — | 
 | REQ-TH01 | has-screen | `a11y` `keyboard` `screen-states` | `a11y` `screen-states` | `keyboard` | 
+| REQ-FB13 | has-permission, has-tenant | `permission-matrix` `tenant-isolation` | `permission-matrix` `tenant-isolation` | — | 
 
 ## 理由つき除外の中身
 

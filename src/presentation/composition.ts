@@ -324,6 +324,27 @@ export async function currentActor(): Promise<ActorContext> {
   return resolved.kind === "actor" ? resolved.actor : getCurrentActor();
 }
 
+/**
+ * **ログインできている人だけ**を返す。できていなければ `null`。
+ *
+ * `currentActor()` との違いは、**戻り先が無いこと**である。
+ * あちらは画面を動かし続けるために見本の身元へ落ちるが、その落とし方は
+ * 「画面を組み立てる」ためのもので、**中身を外へ渡す口に使ってはいけない**。
+ * 使うと、ログインしていない人が見本の権限のまま他人の画面の写しを開ける
+ * （実際にそうなっていた。残課題 28 / `ah-3n1`）。
+ *
+ * 判断の分かれ目はこうである。
+ *   - 画面を**組み立てる**    → `currentActor()`（見本で動かして、断りを画面に出す）
+ *   - 保存された中身を**渡す** → `signedInActor()`（ログインしていなければ渡さない）
+ *
+ * `unavailable`（保存先に届かない）も `null` にする。**確かめられないときは渡さない。**
+ * ここで「たぶん本人だろう」と通すと、保存先を落とせば認証を外せることになる。
+ */
+export async function signedInActor(): Promise<ActorContext | null> {
+  const resolved = await resolveActor();
+  return resolved.kind === "actor" ? resolved.actor : null;
+}
+
 /** いまどの身元で動いているかを画面に出すための一文。 */
 export async function actorNotice(): Promise<string> {
   const resolved = await resolveActor();

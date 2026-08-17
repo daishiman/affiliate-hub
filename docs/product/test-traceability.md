@@ -5,8 +5,8 @@
 テスト側の `@req` 印を重ねたもの。
 
 - 最終更新: 2026-08-17
-- テストファイル: 115 件
-- 由来の要件が分かる: 78 件
+- テストファイル: 116 件
+- 由来の要件が分かる: 79 件
 - **由来不明: 37 件**（上限 37 件）
 
 由来不明とは「どの要件のために書いたのか、機械から辿れない」という意味で、
@@ -105,6 +105,7 @@
 | `tests/presentation/composition.test.ts` | REQ-FD04, REQ-S09 | 表 |
 | `tests/presentation/entry-points.test.ts` | REQ-API01, REQ-WC07 | 表 |
 | `tests/presentation/feedback-actions.test.ts` | REQ-FB08, REQ-FB12 | 表 |
+| `tests/presentation/feedback-capture-route.test.ts` | REQ-FB13 | 印と表 |
 | `tests/presentation/feedback-pending-route.test.ts` | REQ-FB09 | 表 |
 | `tests/presentation/nav-permissions.test.ts` | REQ-FB02, REQ-FB07 | 表 |
 | `tests/presentation/one-usecase-three-adapters.test.ts` | REQ-FD04 | 表 |
