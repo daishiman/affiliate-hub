@@ -57,6 +57,22 @@ jobs:
       - name: 3 段のテスト
         run: node scripts/run-tests.mjs --tier 3
 
+      # domain + application の全体に対して、コードをわざと書き換えて
+      # テストが気づくかを見る。12 分前後かかるので 2 段には置けない。
+      # 何を走らせるかはここに書かず、quality-gates.config.mjs の 3 段が決める。
+      - name: 3 段の検査（全体ミューテーション）
+        run: node scripts/verify.mjs --tier 3
+
+      # 実測を残す。スコアは推移で見るもので、1 回の値だけでは
+      # 良くなったのか悪くなったのかが分からない。
+      - name: 実測の保存
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: mutation-report
+          path: reports/mutation/
+          retention-days: 30
+
       - name: 落ちたときの案内
         if: failure()
         run: |

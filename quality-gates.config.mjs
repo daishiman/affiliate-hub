@@ -74,6 +74,59 @@ export const LAYER_COVERAGE = [
 ];
 
 /**
+ * ミューテーションスコアの下限。
+ *
+ * 行カバレッジが答えていないことを、外から確かめるための数字である。
+ * **コードをわざと壊して、テストが落ちるか**を見る。落ちなければ、
+ * その場所には実質的にテストが無い（通っていただけ）。
+ *
+ * **`break` をゼロにしない。** ゼロにすると、走らせているだけで何も守らない状態になり、
+ * 「ミューテーションテストがあります」という説明だけが残る。
+ *
+ * 対象は `src/domain` と `src/application` だけ（`stryker.config.mjs`）。
+ * `infrastructure` / `presentation` / `app` は**対象外**で、その事実は
+ * `docs/spec/10-テスト戦略仕様.md` §10 と `docs/product/mutation.md` に書く。
+ * 覆っていない場所を書かずに「ミューテーションを入れた」と言わない。
+ *
+ * `break` は実測が出てから、その実測を下回らない位置に置く。
+ * 実測より高く置くと初日から赤になり、下げる圧力がかかる。
+ * 実測より大きく下げると、悪化しても気づけない。
+ */
+export const MUTATION_SCORE = {
+  /** ここを超えていれば良い、の目安（判定には使わない） */
+  high: 80,
+  /** ここを割ったら薄い、の目安（判定には使わない） */
+  low: 65,
+  /**
+   * **これを割ったら失敗**。実測に合わせて上げていく。下げるときは記録を残す。
+   *
+   * 2026-08-17 の実測は **67.20%**（domain + application、static 除外、
+   * 10,028 変異、16 分 5 秒）。内訳と生き残りの中身は `docs/product/mutation.md`。
+   * 実測の 2.2 ポイント下に置いてある。**これは緩めた数字ではない。**
+   * 実測ぴったりに置くと、無関係な変更で分母が動いただけで赤くなり、
+   * 「下げて緑にする」圧力が初日から掛かる。逆に大きく下げると悪化に気づけない。
+   */
+  break: 65,
+};
+
+/**
+ * 2 段（PR）で変更範囲のミューテーションを走らせる上限ファイル数。
+ *
+ * **これは「重いから省く」ための数字ではない。置き場所を決める数字である。**
+ * 実測で domain + application の全体（143 ファイル）に 12〜35 分かかった。
+ * 15 分を目標にしている 2 段にそれを置くと、PR のたびに待たされる人が出て、
+ * 遠からず「PR の門からミューテーションを外す」判断に流れる。
+ * 外された検査は、遅い検査より悪い。
+ *
+ * これを超えた PR では 2 段で測らず、**3 段（夜間）の全体実測に回す**。
+ * 検査そのものは消えていない。**測る場所が変わるだけ**で、
+ * 遅くとも翌朝には同じコードが全体として測られる。
+ *
+ * 超えたことは必ず出力する。黙って見送ると「走った」と区別がつかない。
+ */
+export const MUTATION_MAX_CHANGED_FILES = 25;
+
+/**
  * スタブと見なす場所。
  *
  * **カバレッジ計算から除外しない。** 除外すると、除外の線引きを動かすだけで
@@ -259,6 +312,14 @@ export const CHECKS = [
     why: "単体・結合・画面・契約検査はすべてここで走る。閾値未達もここで落ちる",
   },
   {
+    id: "mutation-changed",
+    label: "変更したところのミューテーション",
+    command: ["node", "scripts/mutation.mjs", "--changed"],
+    blocking: true,
+    tier: 2,
+    why: "カバレッジは「通ったか」しか見ない。**書き換えても気づかないテスト**をここで見つける",
+  },
+  {
     id: "coverage-report",
     label: "層別の記録",
     command: ["node", "scripts/coverage-report.mjs"],
@@ -281,6 +342,14 @@ export const CHECKS = [
     blocking: false,
     tier: 2,
     why: "数秒で済む。ただし上流待ちで作業が止まるのを避けるため警告どまり",
+  },
+  {
+    id: "mutation",
+    label: "全体のミューテーション",
+    command: ["node", "scripts/mutation.mjs"],
+    blocking: true,
+    tier: 3,
+    why: "domain + application の全体。12 分かかるので 2 段には置けない。夜間に測って推移を見る",
   },
 ];
 
@@ -316,6 +385,8 @@ export const RELEASE_GATES = [
 const qualityGates = {
   GLOBAL_COVERAGE,
   LAYER_COVERAGE,
+  MUTATION_SCORE,
+  MUTATION_MAX_CHANGED_FILES,
   STUB_PATTERNS,
   MAX_STUB_GAP_POINTS,
   judgeStubGap,

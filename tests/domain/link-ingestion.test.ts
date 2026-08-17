@@ -85,6 +85,22 @@ describe("受け取ってよい URL かの判定", () => {
     if (a.ok && b.ok) expect(a.value).toBe(b.value);
   });
 
+  it("値の中の & は区切りに化けない（別のリンクを重複にしない）", () => {
+    /*
+      性質テスト（tests/property/normalization.property.test.ts）が見つけた反例を、
+      最小の形で例として固定したもの。
+
+      `?x=b%26y=z` は「x という 1 つの値が b&y=z」で、
+      `?x=b&y=z`   は「x=b と y=z の 2 つ」。**別の URL である。**
+      組み立て直すときに符号化していなかったため、両方が同じ形になり、
+      片方が他方の重複として印を付けられていた。
+    */
+    const single = normalizeAffiliateUrl("https://example.invalid/p?x=b%26y%3Dz");
+    const pair = normalizeAffiliateUrl("https://example.invalid/p?x=b&y=z");
+    expect(single.ok && pair.ok).toBe(true);
+    if (single.ok && pair.ok) expect(single.value).not.toBe(pair.value);
+  });
+
   it("受け取った URL は改変せずそのまま持つ", () => {
     const item = received("https://example.invalid/p?utm_source=slack#top");
     expect(item.submittedUrl).toBe("https://example.invalid/p?utm_source=slack#top");

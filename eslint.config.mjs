@@ -19,6 +19,10 @@ const eslintConfig = defineConfig([
     // カバレッジの出力。v8 が吐く HTML の付属スクリプトまで検査すると、
     // 自分で書いていないコードの指摘が毎回並び、本当の指摘がその中に埋もれる。
     "coverage/**",
+    // ミューテーションの作業場。ソースの写しが置かれるので、
+    // 検査すると同じ指摘が 2 重に並び、実行が中断すると残骸が残り続ける。
+    ".stryker-tmp/**",
+    "reports/**",
     // HarnessHub からベンダリングしたプラグイン。上流が真実源で本リポジトリでは編集しない
     // (更新は .claude/scripts/sync-plugins.sh)。lint して直すと次の同期で消える。
     ".claude/plugins/**",

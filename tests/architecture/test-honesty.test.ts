@@ -10,12 +10,19 @@ import { describe, expect, it } from "vitest";
  * テスト**を並べると、数字は上がるのに壊れたことに気づけない状態が作れてしまう。
  * これは意図しなくても起きる（書きかけを消し忘れる、確かめる前に満足する）。
  *
- * ここで見るのは 3 つ。
+ * ここで見るのは 7 つ。
  *   1. 中身が空のテストが無いか
  *   2. 何も確かめていないテストが無いか
  *   3. 「呼ばれた回数」だけを確かめたテストが無いか（中の作りに縛られる）
+ *   4. **常に真になる確認**が無いか（`expect(true).toBe(true)` の類）
+ *   5. `.skip` / `.only` / コメントアウトされたテストが残っていないか
+ *   6. スナップショットを無条件に更新していないか
+ *   7. カバレッジの除外に、書かれた理由が付いているか
  *
- * 規範: docs/spec/10-テスト戦略仕様.md §1（数字合わせの禁止）/ §3（振る舞いを見る）
+ * 4〜7 は「テストがある」と言えてしまう形で中身が無いもの。
+ * 1〜3 と違って**書いた本人にも自覚が無いまま増える**ので、機械で見る。
+ *
+ * 規範: docs/spec/10-テスト戦略仕様.md §1（数字合わせの禁止）/ §3（振る舞いを見る）/ §12
  */
 
 const ROOT = process.cwd();
@@ -206,5 +213,162 @@ describe("秘密情報がリポジトリに入っていないこと", () => {
       .filter((line) => /^[A-Z_]+=.+/.test(line.trim()))
       .filter((line) => !/=\s*(""|''|<[^>]*>|ここに)/.test(line));
     expect(withValue, "見本に値が入っています。空欄にしてください").toEqual([]);
+  });
+});
+
+describe("確かめたふりになっていないこと", () => {
+  /**
+   * 常に真になる確認。
+   *
+   * `expect(true).toBe(true)` は、書きかけを残したときと、
+   * 「落ちないテスト」を足して件数を作ったときの両方で出る。
+   * 前者は悪意が無く、後者は自覚がある。**どちらも同じ形**なので同じ検査で捕まる。
+   *
+   * 変数どうしの比較（`expect(a).toBe(a)`）まで見に行かないのは、
+   * 名前が同じでも中身が違う場合があり、誤検出が出るため。
+   * ここでも見落とす方向に倒す。
+   */
+  const ALWAYS_TRUE = [
+    /expect\s*\(\s*true\s*\)\s*\.\s*toBe\s*\(\s*true\s*\)/,
+    /expect\s*\(\s*false\s*\)\s*\.\s*toBe\s*\(\s*false\s*\)/,
+    /expect\s*\(\s*(\d+)\s*\)\s*\.\s*toBe\s*\(\s*\1\s*\)/,
+    /expect\s*\(\s*(["'`])([\s\S]*?)\1\s*\)\s*\.\s*toBe\s*\(\s*\1\2\1\s*\)/,
+  ];
+
+  /*
+    **`toBeDefined()` だけのテストは、ここでは落とさない。**
+
+    最初は「弱い確認」として落とす作りにしたところ、4 件当たり、
+    うち 3 件は正しい確認だった（`scripts[x]` が実在するか、
+    `FACT_TONE_RULES[source]` が用意されているか、など）。
+    `toBeDefined()` は undefined なら**落ちる**ので、常に真ではない。
+
+    誤って赤くする検査は、そのうち検査ごと外される。
+    見張りたいのは「何を書いても通る形」だけなので、そこに絞る。
+    弱い確認は、ミューテーションテスト（§10）が生き残った変異として拾う。
+  */
+
+  it("常に真になる確認だけのテストが無い", () => {
+    const fake: string[] = [];
+    for (const file of ALL) {
+      for (const t of eachTest(file.source)) {
+        for (const pattern of ALWAYS_TRUE) {
+          if (pattern.test(t.body)) fake.push(`${file.path}:${t.line} 「${t.name}」`);
+        }
+      }
+    }
+    expect(
+      [...new Set(fake)],
+      "書いた式が何であっても通ります。**何が正しいのか**を書いてください",
+    ).toEqual([]);
+  });
+
+  it("止めた（.skip）テストが残っていない", () => {
+    // 止めたテストは、あるように見えて無い。
+    // 直せないなら消して残課題に書く。残すなら理由を `docs/product/backlog.md` に書く。
+    const skipped: string[] = [];
+    for (const file of ALL) {
+      const clean = withoutComments(file.source);
+      for (const match of clean.matchAll(/\b(it|describe|test)\.(skip|todo|failing)\s*\(/g)) {
+        const line = clean.slice(0, match.index ?? 0).split("\n").length;
+        skipped.push(`${file.path}:${line} ${match[1]}.${match[2]}`);
+      }
+    }
+    expect(skipped, "止めたテストが残っています。消すか、直すか、残課題へ移してください").toEqual(
+      [],
+    );
+  });
+
+  it("1 件だけ走らせる指定（.only）が残っていない", () => {
+    // `.only` を消し忘れると、**そのファイルの他のテストが全部走らない**まま緑になる。
+    // 落ちないので気づけない。ここでしか捕まらない。
+    const only: string[] = [];
+    for (const file of ALL) {
+      const clean = withoutComments(file.source);
+      for (const match of clean.matchAll(/\b(it|describe|test)\.only\s*\(/g)) {
+        const line = clean.slice(0, match.index ?? 0).split("\n").length;
+        only.push(`${file.path}:${line} ${match[1]}.only`);
+      }
+    }
+    expect(only, "他のテストが走らないまま緑になります。.only を消してください").toEqual([]);
+  });
+
+  it("コメントアウトされたテストが残っていない", () => {
+    // 消さずにコメントにすると、「あとで戻す」つもりのまま残り続ける。
+    // 残す理由があるなら残課題に書く。コードの中に置くと、誰も読まない。
+    const commented: string[] = [];
+    for (const file of ALL) {
+      file.source.split("\n").forEach((line, index) => {
+        if (/^\s*(\/\/|\*)\s*(it|test|describe)(\.\w+)?\s*\(\s*["'`]/.test(line)) {
+          commented.push(`${file.path}:${index + 1}`);
+        }
+      });
+    }
+    expect(commented, "コメントにしたテストが残っています。消して残課題へ移してください").toEqual(
+      [],
+    );
+  });
+
+  it("スナップショットを無条件に更新していない", () => {
+    // `--update` を既定にすると、**壊れた出力がそのまま正解として焼き付く**。
+    // スナップショットは「変わっていないこと」を見る道具で、変わったら人が見る。
+    const config = readFileSync(join(ROOT, "vitest.config.mts"), "utf8");
+    expect(config).not.toMatch(/updateSnapshot|snapshotOptions[\s\S]*update\s*:\s*true/);
+    const scripts = JSON.parse(readFileSync(join(ROOT, "package.json"), "utf8")).scripts as Record<
+      string,
+      string
+    >;
+    for (const [name, body] of Object.entries(scripts)) {
+      expect(body, `${name} がスナップショットを無条件に更新します`).not.toMatch(/-u\b|--update/);
+    }
+  });
+
+  it("カバレッジの除外に、書かれた理由が付いている", () => {
+    /*
+      除外は「測らない」ことなので、線引きを動かすだけで数字を作れる。
+      だから**数を制限するのではなく、理由を必須にする**。
+      数で縛ると、理由のある除外まで止まって、除外そのものを隠す方向へ行く。
+    */
+    const config = readFileSync(join(ROOT, "vitest.config.mts"), "utf8");
+    const block = config.match(/exclude:\s*\[([^\]]*)\]/);
+    expect(block, "カバレッジの除外の書き方が変わりました。この検査を直してください").not.toBeNull();
+    const entries = [...(block?.[1] ?? "").matchAll(/["'`]([^"'`]+)["'`]/g)].map((m) => m[1]);
+
+    // 除外 1 件ずつに、この表の中の理由が要る。表に無いものを足したらここが落ちる。
+    const REASONS: Record<string, string> = {
+      "src/**/*.d.ts": "型の宣言だけで、実行される行が 1 行も無い",
+      "src/**/*.css": "v8 が解析できず PARSE_ERROR が並ぶ（測定の失敗であって、除外の判断ではない）",
+    };
+    const withoutReason = entries.filter((e) => !(e in REASONS));
+    expect(
+      withoutReason,
+      "カバレッジの除外に理由がありません。" +
+        "tests/architecture/test-honesty.test.ts の REASONS に理由を書いてから除外してください",
+    ).toEqual([]);
+    expect(entries.length, "除外が 1 件も無いのに理由の表があります").toBeGreaterThan(0);
+  });
+
+  it("プラグマでカバレッジから外している場所が無い", () => {
+    // `/* v8 ignore */` は 1 行で分母を減らせる。使うなら理由を隣に書く。
+    const hits: string[] = [];
+    const walk = (dir: string) => {
+      for (const name of readdirSync(dir)) {
+        const full = join(dir, name);
+        if (statSync(full).isDirectory()) walk(full);
+        else if (/\.tsx?$/.test(full)) {
+          readFileSync(full, "utf8")
+            .split("\n")
+            .forEach((line, index) => {
+              if (/(v8|c8|istanbul)\s+ignore/.test(line)) {
+                hits.push(`${relative(ROOT, full)}:${index + 1}`);
+              }
+            });
+        }
+      }
+    };
+    walk(join(ROOT, "src"));
+    expect(hits, "プラグマでカバレッジから外しています。理由を書いてこの検査を更新してください").toEqual(
+      [],
+    );
   });
 });

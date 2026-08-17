@@ -12,8 +12,8 @@ iteration: null
 title: "品質ゲートを 3 段（push / PR / 夜間）に分ける"
 owners: ["daishiman"]
 created_at: "2026-08-17T11:00:00Z"
-updated_at: "2026-08-17T11:00:00Z"
-status: "draft"
+updated_at: "2026-08-17T10:59:28.288549Z"
+status: "done"
 depends_on: []
 related_nodes: []
 resource_scope: ["quality-gates.config.mjs","scripts",".github/workflows","tests/architecture"]
@@ -30,9 +30,9 @@ phase_ref: null
 file_path: "tasks/task-test-tier-design.md"
 template_id: "task"
 template_version: "1.0.0"
-confirmation_status: "draft"
-evaluation_status: "pending"
-confirmation_evidence: {"evaluated_digest":null,"evaluator":null,"evidence_ref":null}
+confirmation_status: "confirmed"
+evaluation_status: "pass"
+confirmation_evidence: {"evaluated_digest":"f617384ca360ac64f48db59dd47f9a3bd66f132b508725c3ae98ec371f751d80","evaluator":"pnpm run verify（7 検査すべて通過、45 秒）と、段指定の無いテストを意図的に足して赤になることの実測","evidence_ref":"git:210efdd"}
 source_lineage: {"imported_at":"2026-08-17T11:00:00Z","origin_kind":"manual","source_digest":null,"source_path":"docs/spec/10-テスト戦略仕様.md","source_plugin":null,"source_version":null}
 classification_confidence: 0.95
 classification_reason: "利用者からのテスト戦略の要求を作業単位として登録"
@@ -44,8 +44,8 @@ github_publication: {"labels":[],"milestone":null,"mode":"local_only","project_a
 github_project_linkages: []
 pull_request_linkages: []
 execution_contexts: []
-completion_evidence: {"completed_at":null,"evidence_refs":[],"policy":"manual","reconciled_at":null,"source":"manual","status":"in_progress"}
-implementation_readiness: {"checked_at":null,"missing_sections":[],"status":"incomplete"}
+completion_evidence: {"completed_at":"2026-08-17T10:59:28Z","evidence_refs":["beads:ah-7iu","git:210efdd","quality-gates.config.mjs","scripts/tier-scan.mjs","scripts/tier-audit.mjs","scripts/run-tests.mjs","scripts/ai-eval-budget.mjs",".github/workflows/nightly.yml",".github/workflows/ai-eval.yml","tests/architecture/quality-gates.test.ts","tests/architecture/ai-eval-budget.test.ts","docs/spec/11-CI-CD・品質ゲート仕様.md"],"policy":"manual","reconciled_at":"2026-08-17T10:59:28Z","source":"manual","status":"done"}
+implementation_readiness: {"checked_at":"2026-08-17T10:59:28Z","missing_sections":[],"status":"complete"}
 ---
 
 # 目的

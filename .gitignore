@@ -32,6 +32,12 @@ pnpm-debug.log*
 
 # テスト・キャッシュ
 coverage/
+# ミューテーションの作業場と出力。
+# 作業場はソースの写しで 27MB あり、実行が中断すると残り続ける。
+# 報告書は毎回数MBの生成物なので、正本は docs/product/mutation.md の実測表と
+# 夜間ワークフローの成果物（30日保存）に置き、リポジトリには入れない。
+.stryker-tmp/
+reports/
 .cache/
 .turbo/
 *.tsbuildinfo

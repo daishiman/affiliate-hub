@@ -1,5 +1,5 @@
 {
-  "graph_revision": 192,
+  "graph_revision": 193,
   "nodes": [
     {
       "acceptance": [],
@@ -6963,23 +6963,36 @@
       "classification_confidence": 0.95,
       "classification_reason": "利用者からのテスト戦略の要求を作業単位として登録",
       "completion_evidence": {
-        "completed_at": null,
-        "evidence_refs": [],
+        "completed_at": "2026-08-17T10:59:28Z",
+        "evidence_refs": [
+          "beads:ah-7iu",
+          "git:210efdd",
+          "quality-gates.config.mjs",
+          "scripts/tier-scan.mjs",
+          "scripts/tier-audit.mjs",
+          "scripts/run-tests.mjs",
+          "scripts/ai-eval-budget.mjs",
+          ".github/workflows/nightly.yml",
+          ".github/workflows/ai-eval.yml",
+          "tests/architecture/quality-gates.test.ts",
+          "tests/architecture/ai-eval-budget.test.ts",
+          "docs/spec/11-CI-CD・品質ゲート仕様.md"
+        ],
         "policy": "manual",
-        "reconciled_at": null,
+        "reconciled_at": "2026-08-17T10:59:28Z",
         "source": "manual",
-        "status": "in_progress"
+        "status": "done"
       },
       "confirmation_evidence": {
-        "evaluated_digest": null,
-        "evaluator": null,
-        "evidence_ref": null
+        "evaluated_digest": "f617384ca360ac64f48db59dd47f9a3bd66f132b508725c3ae98ec371f751d80",
+        "evaluator": "pnpm run verify（7 検査すべて通過、45 秒）と、段指定の無いテストを意図的に足して赤になることの実測",
+        "evidence_ref": "git:210efdd"
       },
-      "confirmation_status": "draft",
+      "confirmation_status": "confirmed",
       "created_at": "2026-08-17T11:00:00Z",
       "depends_on": [],
       "domain": "quality",
-      "evaluation_status": "pending",
+      "evaluation_status": "pass",
       "execution_contexts": [],
       "feature_package_id": null,
       "file_path": "tasks/task-test-tier-design.md",
@@ -6993,9 +7006,9 @@
       "goal": null,
       "graph_node_id": "task-test-tier-design",
       "implementation_readiness": {
-        "checked_at": null,
+        "checked_at": "2026-08-17T10:59:28Z",
         "missing_sections": [],
-        "status": "incomplete"
+        "status": "complete"
       },
       "issue_linkage": null,
       "iteration": null,
@@ -7032,7 +7045,7 @@
         "source_version": null
       },
       "start_date": "2026-08-17",
-      "status": "draft",
+      "status": "done",
       "tags": [
         "quality",
         "testing"
@@ -7042,7 +7055,7 @@
       "template_version": "1.0.0",
       "title": "品質ゲートを 3 段（push / PR / 夜間）に分ける",
       "tracker_binding": "beads",
-      "updated_at": "2026-08-17T11:00:00Z"
+      "updated_at": "2026-08-17T10:59:28.288549Z"
     },
     {
       "acceptance": [],

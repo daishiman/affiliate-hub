@@ -32,10 +32,17 @@ jobs:
     name: 検査
     runs-on: ubuntu-latest
     # 暴走したジョブは既定で 6 時間走り続ける。これは節約ではなく安全弁。
-    timeout-minutes: 20
+    # 2 段の目標は 15 分。目標を割るのは警告どまりなので、
+    # ここはその倍の位置に置いて、止めるのは本当に暴走したときだけにする。
+    timeout-minutes: 30
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          # 変更範囲のミューテーションが `git diff <比較元>...HEAD` を使う。
+          # 既定の浅い clone では比較元が取れず、検査が黙って見送られる。
+          # 「走らなかった」が緑に見えるのが最も危ないので、履歴ごと取る。
+          fetch-depth: 0
 
       - uses: pnpm/action-setup@v4
 
@@ -59,6 +66,10 @@ jobs:
       # 段を分けたまま判定せず、マージを止めるこの 1 回でまとめて判定する。
       - name: 検査（速い門 + 広い門）
         if: github.event_name != 'push'
+        env:
+          # 変更範囲のミューテーションが「どこからの差分か」を知るための比較元。
+          # PR の向き先をそのまま使う（dev への PR なら origin/dev）。
+          MUTATION_BASE: origin/${{ github.base_ref }}
         run: pnpm run verify
 
       # スキーマを変えたのにマイグレーションを作り忘れていないか。
