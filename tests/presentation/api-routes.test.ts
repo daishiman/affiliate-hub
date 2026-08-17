@@ -42,6 +42,7 @@ const { clearTelemetryBuffer, recentTelemetry } = await import(
 );
 const { CONSENT_COOKIE } = await import("@/presentation/telemetry/consent-server");
 const { cookieJar } = await import("../support/cookie-jar");
+const { PAGE_TOOLS } = await import("@/presentation/tools/webmcp-policy");
 
 const ORIGIN = "https://hub.test";
 
@@ -94,6 +95,32 @@ const READ_TOOL = pick(
   "読み取り専用で、通る入力を組み立てられるもの",
 );
 const HUMAN_TOOL = pick((t) => t.requiresHumanApproval === true, "人の承認が要るもの");
+
+/**
+ * 読者のページに載せている道具の名前。
+ *
+ * ここも名前で決め打ちしない。載せる一覧（`PAGE_TOOLS`）から引くので、
+ * 載せる道具を入れ替えたときに、この検査が自動で追従する。
+ * 管理画面の分（`admin`）は読者ではないので外す。
+ */
+const READER_TOOL_NAMES = new Set(
+  Object.entries(PAGE_TOOLS)
+    .filter(([kind]) => kind !== "admin")
+    .flatMap(([, names]) => names),
+);
+
+const READER_TOOL = pick(
+  (t) => READER_TOOL_NAMES.has(t.name) && t.readOnly && validInputFor(t) !== null,
+  "読者のページに載せていて、通る入力を組み立てられるもの",
+);
+const ADMIN_READ_TOOL = pick(
+  (t) =>
+    !READER_TOOL_NAMES.has(t.name) &&
+    t.readOnly &&
+    NO_HAPPY_PATH[t.name] === undefined &&
+    validInputFor(t) !== null,
+  "読者には見せていない読み取り専用で、通る入力を組み立てられるもの",
+);
 
 beforeEach(() => {
   installedToken = TOKEN;
@@ -190,7 +217,13 @@ describe("見せる範囲と実行できる範囲を一致させる", () => {
 
     expect(shown.size).toBeGreaterThan(0);
     for (const tool of CATALOG) {
-      // 一覧に出るのに呼ぶと断られる、という食い違いを作らない。
+      // 一覧に出るのに**入口で**断られる、という食い違いを作らない。
+      //
+      // 判定は 2 段ある。ここで見ているのは 1 段目（入口・読み取りかどうか）だけで、
+      // 2 段目（身元・何が読めるか）は呼んだときに効く。一覧は身元を見ていないので、
+      // ログインしていない人には「名前は出るが呼ぶと断られる」道具が残る。
+      // 名前は仕様として公開しているものなので、ここでは絞らない。
+      // 2 段目の固定は `tests/presentation/api-scope-actor.test.ts`。
       const shouldShow = tool.readOnly && tool.requiresHumanApproval !== true;
       expect(shown.has(tool.name), tool.name).toBe(shouldShow);
     }
@@ -227,13 +260,57 @@ describe("見せる範囲と実行できる範囲を一致させる", () => {
     expect(rpc.result).toBeUndefined();
   });
 
-  it("読み取りの道具を、自サイトの画面から実行できる", async () => {
+  /**
+   * 「読み取りだから自サイトの画面から実行できる」は、**2 段目の判定を忘れている**。
+   *
+   * 入口を通れるか（読み取りかどうか）と、通ったあと何が読めるか（身元）は別である。
+   * ここを 1 つにまとめていたあいだ、ログインしていない人が見本の身元で
+   * 改善要望や売上を読めていた（`ah-2ro`）。だからこの検査も 2 つに分ける。
+   *
+   * 身元の側の詳しい固定は `tests/presentation/api-scope-actor.test.ts`。
+   */
+  /**
+   * 読者ページに載せている道具は、いまは**読者の権限では動かない**。
+   *
+   * 読者ページが画面に出しているデータは `read-site.ts`（権限の要らない公開の道)を
+   * 通っているのに、同じページに載せた AI 向けの道具は `read-product.ts`
+   * （`product.read` が要る管理側の道）を呼んでいる。**入口が別の道を向いている。**
+   *
+   * この食い違いは、これまで見えなかった。同一サイトの呼び出しが見本の身元
+   * （管理権限つき）へ落ちていたので、たまたま通っていたためである。
+   * 身元を読者へ直した結果、食い違いのほうが表に出た。
+   *
+   * どちらへ揃えるか（読者でも読める道へ載せ替えるか、AI 向けの案内を
+   * ログイン後だけにするか）は**公開範囲の決めごと**なので、ここでは決めない。
+   * 起票済み: `ah-83f`（`tasks/task-reader-webmcp-capability-mismatch.md`）。
+   *
+   * ここで固定するのは 1 つだけ——**黙って落ちないこと**。
+   * 理由の無い失敗だと、読者ページの AI 案内が動かない原因を誰も追えない。
+   */
+  it("読者ページに載せている道具は、読者の権限では断られる（理由つきで）", async () => {
     const res = await toolsCall.POST(
-      post(`/api/tools/${READ_TOOL.name}`, validInputFor(READ_TOOL) ?? {}, fromOwnScreen()),
-      params(READ_TOOL.name),
+      post(`/api/tools/${READER_TOOL.name}`, validInputFor(READER_TOOL) ?? {}, fromOwnScreen()),
+      params(READER_TOOL.name),
     );
 
-    expect(res.status).toBe(200);
+    expect(res.status).toBe(403);
+    const body = (await res.json()) as { error: { message: string; suggestedAction: string } };
+    expect(body.error.message.trim()).not.toBe("");
+    expect(body.error.suggestedAction.trim()).not.toBe("");
+  });
+
+  it("管理用の読み取りの道具は、ログインしていない画面からは実行できない", async () => {
+    const res = await toolsCall.POST(
+      post(
+        `/api/tools/${ADMIN_READ_TOOL.name}`,
+        validInputFor(ADMIN_READ_TOOL) ?? {},
+        fromOwnScreen(),
+      ),
+      params(ADMIN_READ_TOOL.name),
+    );
+
+    // 入口（読み取りかどうか）は通る。断るのは身元の側である。
+    expect(res.status).toBe(403);
   });
 });
 

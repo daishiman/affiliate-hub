@@ -1,8 +1,8 @@
 import { allowedOriginsFrom, checkOrigin, originRejection } from "@/presentation/http/origin-guard";
 import {
+  actorForScope,
   authenticateRequest,
   createToolCatalog,
-  currentActor,
 } from "@/presentation/composition";
 import { handleJsonRpc, type JsonRpcRequest } from "@/presentation/tools/mcp-adapter";
 import { refusalReason, visibleTools } from "@/presentation/http/tool-scope";
@@ -97,7 +97,9 @@ export async function POST(request: Request) {
     return rpcError(id, -32601, `対応していないメソッドです: ${method}`);
   }
 
-  const actor = await currentActor();
+  // REST の入口（`/api/tools`）とまったく同じ決め方を使う。
+  // 片方だけ見本の身元へ落ちる、という状態を作らない（`ah-2ro`）。
+  const actor = await actorForScope(auth.scope);
   const rpc: JsonRpcRequest = {
     jsonrpc: "2.0",
     id,

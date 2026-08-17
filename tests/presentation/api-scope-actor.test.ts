@@ -1,0 +1,187 @@
+/**
+ * @tier 1
+ * @req REQ-API02, REQ-FB13
+ * @types permission-matrix, tenant-isolation
+ */
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+
+/**
+ * 同じサイトの画面から来た呼び出しが、**どの身元で動くか**を固定する検査。
+ *
+ * --- なぜここを機械で見るのか ---
+ *
+ * `src/infrastructure/platform/api-token.ts` には、
+ * 同一サイトからの呼び出しは「書き込みを守る仕組みではなく、
+ * **公開ページと同じ読み取り範囲**を許すだけのもの」と書いてある。
+ *
+ * ところが `/api/tools` と `/api/mcp` は、その判定を通ったあとに
+ * `currentActor()` を呼んでいた。`currentActor()` は**ログインできていないとき
+ * 見本の身元へ落ちる**。見本が持つ役割は researcher / writer / reviewer /
+ * analyst / feedback_admin で、公開ページの読者よりはるかに広い。
+ * つまり**書いてある意図と、実際に効いていた範囲がずれていた**。
+ *
+ * `ah-3n1`（画面の写しの取り出し口）とまったく同じ原因である。
+ * 見本へ落ちること自体は画面を組み立てるためには正しく、
+ * 正しい挙動を**中身を外へ渡す口**で使ったことが穴だった。
+ *
+ * --- ここで見ている 3 つ ---
+ *
+ *   1. ログインしていない同一サイトの呼び出しが、管理用の読み取りを**通せない**
+ *   2. 読者向けの読み取りは**通る**（下げすぎて読者ページの AI 案内を壊していない）
+ *   3. 鍵（Bearer）の経路は**変わっていない**
+ *
+ * 2 を一緒に見るのは、1 だけを満たすなら「同一サイトを全部断る」で緑にできてしまい、
+ * それだと WebMCP が黙って死ぬため。**閉じすぎたことも赤にする**。
+ *
+ * 規範:
+ * - `src/infrastructure/platform/api-token.ts` の冒頭（意図が書いてある場所）
+ * - `docs/product/traceability.md` REQ-API02 / REQ-FB13
+ */
+
+vi.mock("server-only", () => ({}));
+vi.mock("@opennextjs/cloudflare", () => ({
+  getCloudflareContext: async () => ({ env: { MCP_TOKEN: "test-token" } }),
+}));
+
+const { resetTestCookies } = await import("../support/cookie-jar");
+
+/** 同一サイトの画面から来た呼び出し（ブラウザが付ける見出しを再現する）。 */
+function sameOriginCall(tool: string, body: unknown = {}): Request {
+  return new Request(`https://hub.test/api/tools/${tool}`, {
+    method: "POST",
+    headers: {
+      "content-type": "application/json",
+      origin: "https://hub.test",
+      "sec-fetch-site": "same-origin",
+    },
+    body: JSON.stringify(body),
+  });
+}
+
+/** 鍵を持った呼び出し（ブラウザ以外。Origin は付かない）。 */
+function bearerCall(tool: string, body: unknown = {}): Request {
+  return new Request(`https://hub.test/api/tools/${tool}`, {
+    method: "POST",
+    headers: { "content-type": "application/json", authorization: "Bearer test-token" },
+    body: JSON.stringify(body),
+  });
+}
+
+function params(tool: string) {
+  return { params: Promise.resolve({ tool }) };
+}
+
+async function codeOf(res: Response): Promise<string> {
+  const body = (await res.json()) as { error?: { code?: string } };
+  return body.error?.code ?? "OK";
+}
+
+describe("ログインしていない同一サイトの呼び出しは、読者の範囲しか読めない", () => {
+  beforeEach(() => {
+    resetTestCookies();
+  });
+  afterEach(() => {
+    vi.resetModules();
+  });
+
+  it("改善要望の一覧は返さない（見本の身元なら読めてしまう）", async () => {
+    const route = await import("@/app/api/tools/[tool]/route");
+    const res = await route.POST(sameOriginCall("list_feedback"), params("list_feedback"));
+
+    // 見本へ落ちていると 200 で中身が返る。それがこの課題（ah-2ro）の穴だった。
+    expect(res.status).not.toBe(200);
+    expect(await codeOf(res)).toBe("FORBIDDEN");
+  });
+
+  it("成果（売上）の一覧も返さない", async () => {
+    const route = await import("@/app/api/tools/[tool]/route");
+    const res = await route.POST(
+      sameOriginCall("list_conversions", { period: "2026-08" }),
+      params("list_conversions"),
+    );
+
+    expect(res.status).not.toBe(200);
+    expect(await codeOf(res)).toBe("FORBIDDEN");
+  });
+
+  it("MCP の入口でも同じ（入口ごとに緩さが違う状態を作らない）", async () => {
+    const route = await import("@/app/api/mcp/route");
+    const res = await route.POST(
+      new Request("https://hub.test/api/mcp", {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+          origin: "https://hub.test",
+          "sec-fetch-site": "same-origin",
+        },
+        body: JSON.stringify({
+          jsonrpc: "2.0",
+          id: 1,
+          method: "tools/call",
+          params: { name: "list_feedback", arguments: {} },
+        }),
+      }),
+    );
+
+    const body = (await res.json()) as { result?: { isError?: boolean; content?: unknown } };
+    // MCP は業務の断りを「エラー扱いの結果」として返す（JSON-RPC のエラーではない）。
+    expect(body.result?.isError, JSON.stringify(body).slice(0, 300)).toBe(true);
+  });
+});
+
+describe("読者向けの読み取りは、これまでどおり通る", () => {
+  beforeEach(() => {
+    resetTestCookies();
+  });
+  afterEach(() => {
+    vi.resetModules();
+  });
+
+  it("公開されている記事の検索は同一サイトから通る（WebMCP を殺していない）", async () => {
+    const route = await import("@/app/api/tools/[tool]/route");
+    const res = await route.POST(
+      sameOriginCall("search_articles", { siteSlug: "kurashi-no-erabikata", query: "" }),
+      params("search_articles"),
+    );
+
+    // ここが FORBIDDEN になると、読者ページの AI 案内が黙って動かなくなる。
+    expect(await codeOf(res)).not.toBe("FORBIDDEN");
+  });
+});
+
+describe("鍵を持った呼び出しは変わらない", () => {
+  beforeEach(() => {
+    resetTestCookies();
+  });
+  afterEach(() => {
+    vi.resetModules();
+  });
+
+  it("Bearer なら管理用の読み取りが通る", async () => {
+    const route = await import("@/app/api/tools/[tool]/route");
+    const res = await route.POST(bearerCall("list_feedback"), params("list_feedback"));
+
+    expect(await codeOf(res)).not.toBe("FORBIDDEN");
+  });
+});
+
+describe("身元の決め方そのもの（口を 1 行触らずに穴が開くのを止める）", () => {
+  beforeEach(() => {
+    resetTestCookies();
+  });
+
+  it("ログインしていない同一サイトの身元は、読者と同じものになる", async () => {
+    const { actorForScope, readerActor } = await import("@/presentation/composition");
+
+    // 口の側の検査だけだと「たまたま今は閉じている」しか言えない。
+    // 身元の決め方が見本へ戻されたら、route.ts を 1 行も触らずに穴が開く。
+    expect(await actorForScope("same-origin")).toEqual(readerActor());
+  });
+
+  it("見本の身元は、改善要望を実際に読める（だから落ちると危ない）", async () => {
+    const { can } = await import("@/domain/identity/permissions");
+    const { SAMPLE_ACTOR } = await import("@/infrastructure/identity/sample-actor");
+
+    expect(can(SAMPLE_ACTOR, "feedback.read")).toBe(true);
+  });
+});

@@ -1,6 +1,6 @@
 import { allowedOriginsFrom, checkOrigin, originRejection } from "@/presentation/http/origin-guard";
 import { domainError } from "@/domain/shared";
-import { authenticateRequest, createToolCatalog, currentActor } from "@/presentation/composition";
+import { actorForScope, authenticateRequest, createToolCatalog } from "@/presentation/composition";
 import { errorResponse } from "@/presentation/http/error-response";
 import { isToolAllowedForScope, refusalReason } from "@/presentation/http/tool-scope";
 import { findTool } from "@/presentation/tools/catalog";
@@ -52,6 +52,8 @@ export async function POST(request: Request, ctx: { params: Promise<{ tool: stri
     );
   }
 
-  const actor = await currentActor();
+  // 身元は「入口をどう通ったか」から決める。ここで `currentActor()` を呼ぶと、
+  // ログインしていない人が見本の権限で管理用の読み取りを通せる（`ah-2ro`）。
+  const actor = await actorForScope(auth.scope);
   return handleToolRequest(catalog, actor, toolName, body);
 }

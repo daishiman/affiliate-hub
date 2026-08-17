@@ -345,6 +345,29 @@ export async function signedInActor(): Promise<ActorContext | null> {
   return resolved.kind === "actor" ? resolved.actor : null;
 }
 
+/**
+ * API の入口（`/api/tools` と `/api/mcp`）が使う身元を、**呼び出し元の種類から決める**。
+ *
+ * `api-token.ts` には、同一サイトからの呼び出しは
+ * 「公開ページと同じ読み取り範囲を許すだけのもの」と書いてある。
+ * ところが入口は `currentActor()` を呼んでいたため、ログインしていない人が
+ * **見本の身元**（researcher / writer / reviewer / analyst / feedback_admin）で
+ * 管理用の読み取りを通せていた。書いてある意図と、効いていた範囲がずれていた
+ * （残課題 28 の 2 件目 / `ah-2ro`。原因は `ah-3n1` と同じ）。
+ *
+ * 決め方はこうである。
+ *   - `bearer`      → `currentActor()`。鍵で入口を通った呼び出しで、従来どおり
+ *   - `same-origin` → ログインできていればその人、できていなければ**読者**
+ *
+ * 同一サイトを丸ごと断らないのは、読者ページの AI 向けの入口（WebMCP）が
+ * この経路を使っているため。断ると、読者ページの案内が**黙って**動かなくなる。
+ * 読者へ落とすぶんには、読者ページの画面がもともと通している範囲と同じになる。
+ */
+export async function actorForScope(scope: "bearer" | "same-origin"): Promise<ActorContext> {
+  if (scope === "bearer") return currentActor();
+  return (await signedInActor()) ?? readerActor();
+}
+
 /** いまどの身元で動いているかを画面に出すための一文。 */
 export async function actorNotice(): Promise<string> {
   const resolved = await resolveActor();
