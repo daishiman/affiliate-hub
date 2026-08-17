@@ -267,7 +267,7 @@ D1 への差し替えは、この列だけを別の実装に取り替えれば�
 | REQ-QC08 | QC-12 マルチサイト重複 | `quality-check.ts` `similarity()`（3-gram、0.85以上で停止）+ `site-blueprint.ts` `differentiationGap()`（10軸・3軸以上） | 実装済 |
 | REQ-QC09 | QC-13 広告表記 | `quality-check.ts` `disclosure_present`（媒体が本文内表記を要求する場合も見る）+ `publish-gate.ts` `disclosure` | 実装済 |
 | REQ-QC10 | QC-14 会話ブロック制約 | `conversation-block.ts` `validateConversationFlow()` を `quality-check.ts` `conversation_flow` が呼ぶ（本文を挟むと連続を数え直す） | 実装済 |
-| REQ-QC11 | QC-15〜QC-17 薬機法・景表法・アクセシビリティ | 薬機法・景表法は `policy-rule.ts`（分野×出力先・根拠と代替表現つき）＋**初期ルール 13 件は `policy-rule-seed.ts`**（2026-08-17 に登録。例文を型で必須にし、検査 75 件で両方向の赤を実測）。アクセシビリティは共通UI側（REQ-SEC08） | PASS（`tests/domain/policy-rule-seed.test.ts` 75 件）。**まだ記事の確認から呼ばれていない**ため、違反は画面に 1 件も出ない（ah-1eg）。呼ばれないルールは無いルールと結果が 1 文字も違わないので、スタブのまま据え置く |
+| REQ-QC11 | QC-15〜QC-17 薬機法・景表法・アクセシビリティ | 薬機法・景表法は `policy-rule.ts`（分野×出力先・根拠と代替表現つき）＋**初期ルール 13 件は `policy-rule-seed.ts`**（2026-08-17 に登録。例文を型で必須にし、検査 75 件で両方向の赤を実測）。アクセシビリティは共通UI側（REQ-SEC08）。**記事の確認と承認の両方から呼ばれている**（`src/application/usecases/content/manage-content.ts` が `deps.policyRules.listEnabled()` で分野ごとのきまりを取り、`checkPolicies()` に掛ける。止める判断は画面の案内だけでなく承認そのものが `CONFLICT` で断る） | PASS（`tests/domain/policy-rule-seed.test.ts` 75 件 + `tests/application/manage-content.test.ts`「表現ポリシーの検査」8 件）。赤の実測: 呼び出しを外すと 8 件のうち 5 件が落ちる。**スタブのまま据え置く理由が変わった** — 呼ばれていないからではなく、`policy_rules` テーブルが無く保存先が読み取り専用の見本（初期ルール 13 件を返すだけで、作業場所ごとの追加・無効化ができない）だから（ah-1eg / 残課題 52） |
 | REQ-QC12 | 公開ゲート（ブログ層 §21 の11項目） | `src/domain/compliance/publish-gate.ts` `evaluatePublishGate()`（13項目。仕組みの無いものは失敗にせず `skipped` に残す） | 実装済 |
 
 いずれの検査結果も `/admin/content/[variant]` に表示される（止めた件数・理由・
