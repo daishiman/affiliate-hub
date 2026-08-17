@@ -878,3 +878,128 @@
   text-decoration: underline;
   cursor: pointer;
 }
+
+
+/* --- 改善要望 ------------------------------------------------------------
+   右下固定。どの画面でも同じ位置に出す。位置が動くと「さっきのボタン」を
+   探すことになり、思いついた不満はその間に消える。 */
+.feedbackLauncher {
+  position: fixed;
+  right: var(--space-4);
+  bottom: var(--space-4);
+  z-index: var(--z-sticky);
+  padding: var(--space-2) var(--space-4);
+  border: var(--border-width-emphasis) solid var(--color-border-strong);
+  border-radius: var(--radius-pill);
+  background: var(--color-surface-raised);
+  color: var(--color-text-strong);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  box-shadow: var(--shadow-raised);
+  cursor: pointer;
+}
+
+.feedbackLauncher:hover {
+  background: var(--color-action-subtle);
+}
+
+.feedbackLauncher:focus-visible {
+  outline: var(--focus-ring-width) solid var(--color-focus-ring);
+  outline-offset: var(--focus-ring-offset);
+}
+
+.feedbackDialog {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-modal);
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: var(--space-4);
+  overflow: auto;
+  background: var(--color-scrim);
+}
+
+.feedbackPanel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  width: min(100%, var(--readable-max-width));
+  padding: var(--space-4);
+  border: var(--border-width-default) solid var(--color-border-default);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface-overlay);
+}
+
+.feedbackScreen {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+}
+
+.captureCanvas {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.captureSurface {
+  width: 100%;
+  height: auto;
+  border: var(--border-width-default) solid var(--color-border-default);
+  border-radius: var(--radius-md);
+  background: var(--color-surface-sunken);
+  touch-action: none;
+}
+
+.captureTools {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+}
+
+/* 選んでいる道具は aria-pressed で示す。色だけで示さない。 */
+.captureTool {
+  min-height: var(--tap-target-min);
+  padding: var(--space-1) var(--space-2);
+  border: var(--border-width-default) solid var(--color-border-default);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-default);
+  color: var(--color-text-default);
+  font-size: var(--text-sm);
+  cursor: pointer;
+}
+
+.captureTool[aria-pressed="true"] {
+  border-color: var(--color-action-default);
+  background: var(--color-action-subtle);
+  color: var(--color-text-strong);
+  font-weight: var(--weight-semibold);
+}
+
+.captureTool:focus-visible {
+  outline: var(--focus-ring-width) solid var(--color-focus-ring);
+  outline-offset: var(--focus-ring-offset);
+}
+
+.captureTextInput {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+}
+
+.captureActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  align-items: center;
+}
+
+.captureHint {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+  line-height: var(--leading-body);
+}

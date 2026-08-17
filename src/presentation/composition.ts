@@ -53,6 +53,12 @@ import {
 import { createFilterMetricsUseCase } from "@/application/usecases/analytics/filter-metrics";
 import { createAiUsageReportUseCase } from "@/application/usecases/analytics/ai-usage-report";
 import { createExplainTelemetryUseCase } from "@/application/usecases/analytics/explain-telemetry";
+import { createHandOffFeedbackUseCase } from "@/application/usecases/feedback/hand-off-feedback";
+import { createListFeedbackUseCase } from "@/application/usecases/feedback/list-feedback";
+import { createManageIntegrationKeysUseCase } from "@/application/usecases/feedback/manage-integration-keys";
+import { createReadFeedbackUseCase } from "@/application/usecases/feedback/read-feedback";
+import { createSubmitFeedbackUseCase } from "@/application/usecases/feedback/submit-feedback";
+import { createUpdateFeedbackStatusUseCase } from "@/application/usecases/feedback/update-feedback-status";
 import { createReviewLoopRunsUseCase } from "@/application/usecases/improvement/review-loop-runs";
 import { createListImprovementDimensionsUseCase } from "@/application/usecases/improvement/list-improvement-dimensions";
 import {
@@ -113,6 +119,7 @@ import { taggedString } from "@/domain/shared";
 import { createDeps } from "@/infrastructure/composition";
 import { telemetryStubNotice } from "@/infrastructure/persistence/sample/telemetry-sample-sink";
 import { improvementStubNotice } from "@/infrastructure/persistence/sample/improvement-sample-repository";
+import { feedbackStubNotice } from "@/infrastructure/persistence/sample/feedback-sample-repository";
 import { sampleContentNotice } from "@/infrastructure/persistence/sample/content-sample-repository";
 import { sampleSiteDraftNotice } from "@/infrastructure/persistence/sample/site-draft-sample-repository";
 import { getCurrentActor, sampleActorNotice } from "@/infrastructure/identity/sample-actor";
@@ -610,6 +617,51 @@ export function improvementUseCases() {
 /** 改善ループの記録先が見本であることを画面に出すための一文。 */
 export function improvementNotice(): string {
   return improvementStubNotice();
+}
+
+/**
+ * 改善要望の入口（2 件目のループ）。
+ *
+ * 送る・一覧・詳細・状況変更・払い出し・鍵の管理の 6 つ。
+ * 画面も REST も バックエンド MCP も、ここと同じユースケースを呼ぶ
+ * （道具の一覧は `tools/feedback-tools.ts`）。**入口ごとに組み立て直さない。**
+ */
+export function feedbackUseCases() {
+  const deps = createDeps();
+  const feedback = {
+    repository: deps.feedback,
+    captures: deps.feedbackCaptures,
+    ids: deps.ids,
+    now: () => new Date(),
+  };
+  return {
+    submit: createSubmitFeedbackUseCase(feedback),
+    list: createListFeedbackUseCase({ repository: deps.feedback }),
+    read: createReadFeedbackUseCase({
+      repository: deps.feedback,
+      captures: deps.feedbackCaptures,
+    }),
+    updateStatus: createUpdateFeedbackStatusUseCase({
+      repository: deps.feedback,
+      now: feedback.now,
+    }),
+    handOff: createHandOffFeedbackUseCase({
+      repository: deps.feedback,
+      templates: deps.handoffTemplates,
+      now: feedback.now,
+    }),
+    keys: createManageIntegrationKeysUseCase({
+      keys: deps.integrationKeys,
+      ids: deps.ids,
+      mintSecret: deps.mintSecret,
+      now: feedback.now,
+    }),
+  };
+}
+
+/** 改善要望の記録先が仮置きであることを画面に出すための一文。 */
+export function feedbackNotice(): string {
+  return feedbackStubNotice();
 }
 
 /**

@@ -56,7 +56,7 @@ import {
   createSampleIntegrationKeyStore,
 } from "./persistence/sample/feedback-sample-repository";
 import { createHandoffTemplates } from "./generation/handoff-templates";
-import { hashSecret } from "./platform/secret-minter";
+import { hashSecret, mintSecret } from "./platform/secret-minter";
 import { createSampleLinkIngestionRepository } from "./persistence/sample/link-inbox-sample-repository";
 import { createSampleSiteDraftRepository } from "./persistence/sample/site-draft-sample-repository";
 import { createSampleSiteRepository } from "./persistence/sample/site-sample-repository";
@@ -124,6 +124,7 @@ export function createDeps(options: { readonly db?: DrizzleD1 | null } = {}): Ap
     feedbackCaptures: createSampleFeedbackCaptureStore(),
     handoffTemplates: createHandoffTemplates(),
     integrationKeys: createSampleIntegrationKeyStore({ hash: hashSecret }),
+    mintSecret,
     // ★ 見本データ（スタブ）。作業場所・担当者・ブランド・広告表記・操作の記録。
     //   本物にするには認証（Better Auth + Google）と各テーブルが要る。
     workspaces: createSampleWorkspaceRepository(),

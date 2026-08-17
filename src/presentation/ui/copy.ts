@@ -298,6 +298,63 @@ export const UI_COPY = {
     contactNote: "記事の誤りのご指摘は、訂正のページに記録して公開します。",
   },
 
+  /**
+   * 改善要望。**送る側は開発の言葉を知らない前提で書く。**
+   *
+   * 「不具合」「起票」のような言葉を使うと、書ける人だけが書くようになる。
+   * ここで足りるようにしておけば、画面ごとに言い回しを作る必要がない。
+   */
+  feedback: {
+    openButton: "改善したいことを送る",
+    modalTitle: "改善したいことを送る",
+    screenLabel: "いま開いている画面",
+    kindLabel: "どれに近いですか",
+    kindNotWorking: "うまく動かない",
+    kindHardToUse: "使いにくい・直したい",
+    kindWantFeature: "こんな機能がほしい",
+    bodyLabel: "改善したいこと",
+    bodyHint: "うまく書けなくて構いません。いつ・どこで・何をしたら困ったか、思い出せる範囲で書いてください。",
+    wishLabel: "どうなってほしいですか",
+    wishHint: "思いつかなければ空のままで送れます。",
+    wishMissing: "記入はありません。",
+    disclosureTitle: "一緒に送るもの",
+    disclosureBody:
+      "画面の名前・アドレス・画面の大きさ・エラーの記録・直前の操作を一緒に送ります。お名前とメールアドレスは、作業する側へ渡す文には入りません。",
+    captureTitle: "そのときの画面",
+    captureTake: "画面の写しを撮る",
+    captureRetake: "撮り直す",
+    captureDrop: "画像を外す（文章だけで送る）",
+    captureUndo: "元に戻す",
+    capturePasteHint: "画像を貼り付ける（Ctrl+V）か、ファイルを選んでも追加できます。",
+    captureUnavailable:
+      "この環境では画面の写しを撮れません。文章だけでも送れます（貼り付けかファイル選択でも追加できます）。",
+    captureIncomplete:
+      "画面の写しは、開いている部分だけが写ります。画面の外にあるものは写りません。",
+    captureRedactHint: "見せたくないところは黒塗りで隠してください。黒塗りは画像そのものに焼き込みます。",
+    toolPen: "手書き",
+    toolRect: "四角",
+    toolArrow: "矢印",
+    toolText: "文字",
+    toolRedact: "黒塗り",
+    colorRed: "赤",
+    colorBrown: "茶",
+    colorBlue: "青",
+    colorBlack: "黒",
+    textToPlace: "入れる文字",
+    submit: "送る",
+    sending: "送っています",
+    sent: "送りました。ありがとうございます。",
+    /** 一覧・詳細で使う言い回し。 */
+    listTitle: "使い勝手を直す",
+    emptyTitle: "まだ改善要望はありません",
+    emptyBody: "画面の右下の「改善したいことを送る」から、気づいたことを送れます。",
+    handoffTitle: "作業する側へ渡す",
+    handoffCopyPrompt: "Claude Code 用の指示文をコピー",
+    handoffCopyCommand: "取得コマンドをコピー",
+    handoffMarkDone: "払い出し済みにする",
+    handoffIdempotent: "同じ要望からは、何度押しても同じ指示文が出ます。二重に作業になりません。",
+  },
+
   /** ナビゲーション。 */
   nav: {
     skipToContent: "本文へ移動",

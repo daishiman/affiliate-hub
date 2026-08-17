@@ -105,6 +105,14 @@ export type AppDeps = {
   readonly feedbackCaptures: FeedbackCaptureStoragePort;
   readonly handoffTemplates: HandoffTemplatePort;
   readonly integrationKeys: IntegrationKeyPort;
+  /**
+   * 連携の鍵の平文を作る。
+   *
+   * 作り方（乱数の取り方・長さ・ハッシュの掛け方）は infrastructure が持つ。
+   * ここを型だけにしておくのは、鍵の作り方を差し替えたときに
+   * 呼ぶ側（入口・画面）を 1 つも直さずに済ませるため。
+   */
+  readonly mintSecret: () => Promise<{ readonly plainValue: string; readonly hashedValue: string }>;
   readonly workspaces: WorkspaceRepositoryPort;
   readonly memberships: MembershipRepositoryPort;
   readonly brands: BrandRepositoryPort;

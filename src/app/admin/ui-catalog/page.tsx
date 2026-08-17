@@ -38,6 +38,7 @@ import {
   type CriterionView,
   type ScheduleCalendarDay,
 } from "@/presentation/ui";
+import { FeedbackSamples } from "./feedback-samples";
 import { InputSamples } from "./input-samples";
 import styles from "../admin.module.css";
 
@@ -560,6 +561,17 @@ export default function UiCatalogPage() {
             <ConsentBanner current="granted" detailHref="/admin/ui-catalog" />
             <ConsentBanner current="denied" detailHref="/admin/ui-catalog" />
           </div>
+        </Card>
+
+        <Card>
+          <h2 className={styles.sectionTitle}>20. 改善したいことを送る</h2>
+          <p className={styles.sectionLead}>
+            右下のボタンは、管理画面の骨格から 1 回だけ出しています。画面ごとに置くと、
+            置き忘れた画面の不満だけがどこにも届きません。画面の写しは付けても付けなくても送れます。
+            黒塗りは画像そのものに焼き込むので、あとから元の画像を取り出すことはできません。
+            この見本では、送っても記録はされません。
+          </p>
+          <FeedbackSamples />
         </Card>
       </Page>
     </AdminShell>

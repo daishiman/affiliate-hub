@@ -11,6 +11,7 @@ import { affiliateTools } from "./affiliate-tools";
 import { analyticsTools } from "./analytics-tools";
 import { contentTools } from "./content-tools";
 import { distributionTools } from "./distribution-tools";
+import { feedbackTools } from "./feedback-tools";
 import { generationTools } from "./generation-tools";
 import { dashboardTools } from "./dashboard-tools";
 import { platformTools } from "./platform-tools";
@@ -99,6 +100,7 @@ export function buildToolCatalog(deps: CatalogDeps): readonly AnyToolDefinition[
     ...analyticsTools(deps),
     ...generationTools(deps),
     ...settingsTools(deps),
+    ...feedbackTools(deps),
   ];
   // 仕様書 §24 の名前でも同じユースケースへ入れるようにする。
   // 処理は増えない。名前の対応が付いていないものは載らず、スタブとして表に残る。

@@ -70,6 +70,29 @@ export const FIELD_VALUES: Readonly<Record<string, unknown>> = {
   step: 1,
   answers: {},
 
+  // --- 改善要望 ---
+  // `id` は改善要望だけが使っている項目名。他の道具は用途つきの名前
+  // （productId / draftId など）を使うので、ここで見本の要望を 1 件指す。
+  // 他の道具が `id` を使い始めたら、その道具側で TOOL_OVERRIDES を足す。
+  id: "fb_sample_sort",
+  // 送るときに自動で付く 2 つ。画面が集めて渡す形をそのまま置く。
+  origin: {
+    screenName: "順位表",
+    url: "https://example.invalid/admin/rankings",
+    route: "/admin/rankings",
+    viewportWidth: 1440,
+    viewportHeight: 900,
+  },
+  technical: {
+    jsErrors: [],
+    failedRequests: [],
+    userAgent: "検査のため実際の環境情報は入っていません",
+    recentActions: ["画面を開いた"],
+    redactedCount: 0,
+  },
+  ids: ["fb_sample_sort"],
+  route: "copied_by_human",
+
   // --- 読者の道具 ---
   // 読者の道具の入力は、単位つきで人が打つものなので文字列で受ける。
   values: { minutes: "60", bitrate: "100", months: "12" },

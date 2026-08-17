@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
+import { FeedbackButton, type FeedbackSubmission } from "../patterns/feedback-button";
 import styles from "../primitives/ui.module.css";
 
 /**
@@ -77,11 +78,25 @@ export type Breadcrumb = {
   readonly href?: string;
 };
 
+/**
+ * 改善したいことを送る口。
+ *
+ * **骨格から 1 回だけ出す。** 画面ごとに置くと、置き忘れた画面の不満だけが
+ * どこにも届かず、しかも届いていないことに誰も気づかない。
+ */
+export type ShellFeedback = {
+  /** いま開いている画面の名前。パンくずの末尾をそのまま使う。 */
+  readonly screenName: string;
+  readonly canSubmit: boolean;
+  readonly onSubmit: (submission: FeedbackSubmission) => Promise<{ readonly message: string }>;
+};
+
 export function AppShell({
   currentPath,
   breadcrumbs,
   actions,
   capabilities,
+  feedback,
   children,
 }: {
   readonly currentPath: string;
@@ -90,6 +105,8 @@ export function AppShell({
   readonly actions?: ReactNode;
   /** その人が持っている「できること」。渡すと案内が絞られる。 */
   readonly capabilities?: readonly string[];
+  /** 渡さない場面（権限の概念が無い画面）では、ボタンを出さない。 */
+  readonly feedback?: ShellFeedback;
   readonly children: ReactNode;
 }) {
   return (
@@ -136,6 +153,15 @@ export function AppShell({
 
         <main className={styles.content}>{children}</main>
       </div>
+
+      {feedback !== undefined && (
+        <FeedbackButton
+          screenName={feedback.screenName}
+          route={currentPath}
+          canSubmit={feedback.canSubmit}
+          onSubmit={feedback.onSubmit}
+        />
+      )}
     </div>
   );
 }

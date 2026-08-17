@@ -86,6 +86,15 @@ export {
   type ScheduleCalendarEntry,
 } from "./patterns/schedule-calendar";
 export { ConsentBanner } from "./patterns/consent-banner";
+export { FeedbackButton, type FeedbackSubmission } from "./patterns/feedback-button";
+export {
+  CaptureCanvas,
+  CANVAS_TOOLS,
+  CANVAS_COLORS,
+  type BurnedCapture,
+  type CanvasTool,
+  type CanvasColor,
+} from "./patterns/capture-canvas";
 export {
   CONSENT_COOKIE,
   CONSENT_COOKIE_MAX_AGE,
