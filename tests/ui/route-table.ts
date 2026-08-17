@@ -103,9 +103,11 @@ export const ROUTE_STATE_CASES: readonly (RouteCase & { readonly state: string }
     params: { site: SITE, product: "存在しない商品" },
   },
   {
+    // 存在しないブログを指定したときは `page.tsx` が `notFound()` を投げるので、
+    // ここで描くのは受け先の `not-found.tsx` である。
+    // 「404 で返ること」自体は tests/ui/site-not-found.test.tsx が見ている。
     state: "存在しないブログを指定したとき",
-    file: "s/[site]/page.tsx",
-    params: { site: "no-such-site" },
+    file: "s/[site]/not-found.tsx",
   },
   { state: "対応待ちだけを見るとき", file: "admin/inbox/page.tsx", searchParams: { state: "pending" } },
   {

@@ -62,7 +62,7 @@ RWD・a11y は全ルート共通の枠（`page-frame.tsx` と共通 UI 部品）
 
 | REQ | ルート | 実装（画面） | 導線 | 状態 | RWD | a11y | test | 結果 |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| REQ-B01 | `/s/{site}`（トップ） | `src/app/s/[site]/page.tsx` + `presentation/site/page-frame.tsx` | 入口（サイト一覧 `/` から） | 新着0件・取得失敗に文言あり | 対応 | 対応 | PASS（`tests/domain/site-routes.test.ts`） | 実装済 |
+| REQ-B01 | `/s/{site}`（トップ） | `src/app/s/[site]/page.tsx` + `presentation/site/page-frame.tsx` + `src/app/s/[site]/not-found.tsx` | 入口（サイト一覧 `/` から） | 新着0件・取得失敗に文言あり。**無いブログ名は HTTP 404**（`SiteFrame` が `notFound()`。画面は戻り先つきのまま。読者側 20 本すべてに効く） | 対応 | 対応 | PASS（`tests/domain/site-routes.test.ts` / `tests/ui/site-not-found.test.tsx`） | 実装済 |
 | REQ-B02 | `/s/{site}/categories/{category}` | `src/app/s/[site]/categories/[category]/page.tsx` | トップのカテゴリ一覧 + 共通ヘッダのナビ | 0件・失敗に文言あり | 対応 | 対応 | PASS（`tests/domain/site-routes.test.ts`） | 実装済 |
 | REQ-B03 | `/s/{site}/best/{topic}`（ランキング記事） | `src/app/s/[site]/best/[topic]/page.tsx` + `article-page.tsx` | トップ・カテゴリの記事カード | 未公開/不存在に文言あり | 対応 | 対応 | PASS（`tests/domain/site-routes.test.ts`） | 実装済 |
 | REQ-B04 | `/s/{site}/reviews/{product}` | `src/app/s/[site]/reviews/[product]/page.tsx` | ランキングの商品名・記事内リンク | 同上 | 対応 | 対応 | PASS（`tests/domain/site-routes.test.ts`） | 実装済 |

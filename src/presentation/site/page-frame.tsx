@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { notFound } from "next/navigation";
 import type { ReactNode } from "react";
 import type { PublicSiteBlueprint } from "@/application/usecases/site/read-site";
 import { appearanceOptions, readAppearance } from "@/presentation/appearance";
@@ -6,7 +7,6 @@ import { readerActor, readerWebMcpDescriptors, siteUseCases } from "@/presentati
 import type { PageKind } from "@/presentation/tools/webmcp-policy";
 import {
   ErrorView,
-  PublicShell,
   SitePage,
   SiteShell,
   WebMcpProvider,
@@ -34,8 +34,9 @@ export type SiteContext = {
 /**
  * 設計図を読み、共通の骨格で包む。
  *
- * ブログが見つからないときは、黙って空を出さずに理由と戻り先を出す。
- * 空白の画面は、読者からは故障と区別がつかない。
+ * ブログが見つからないときは 404 を返し、理由と戻り先のある画面
+ * (`src/app/s/[site]/not-found.tsx`) へ渡す。空白の画面は読者から故障と区別がつかず、
+ * 200 のまま「見つかりません」と描くのは検索エンジンと見張りから壊れと区別がつかない。
  */
 export async function SiteFrame({
   siteSlug,
@@ -60,22 +61,15 @@ export async function SiteFrame({
 
   if (!result.ok) {
     /*
-      見つからないときも「画面」として成立させる。
-      `ErrorView` を裸で返すと、見出しも戻り先も無い行き止まりになる。
-      アドレスを打ち間違えた読者はここで詰まり、そのまま離れる。
+      見つからないときは **404 として返す**。
+      以前はここで直接「見つかりませんでした」の画面を返していたが、
+      それでは通信の答えが 200 のままで、無いブログが検索結果に載りうるし、
+      公開後の見張りからも壊れと区別が付かなかった（残課題リスト 項目 32）。
+
+      画面の中身は `src/app/s/[site]/not-found.tsx` へ移した。
+      見出し・戻り先・言い直しの案内はそのまま。素っ気なくして解決していない。
     */
-    return (
-      <PublicShell title="affiliate-hub">
-        <SitePage title="このブログは見つかりませんでした">
-          <ErrorView
-            title="指定されたブログはありません"
-            body={result.error.message}
-            suggestedAction={result.error.suggestedAction ?? "アドレスの綴りをご確認ください。"}
-            action={<Link href="/">公開中のブログの一覧を見る</Link>}
-          />
-        </SitePage>
-      </PublicShell>
-    );
+    notFound();
   }
 
   const blueprint = result.value.blueprint;
