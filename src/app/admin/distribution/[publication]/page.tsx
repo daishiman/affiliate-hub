@@ -1,4 +1,5 @@
 import { AdminShell } from "@/presentation/admin/admin-shell";
+import { PublishArticleForm } from "@/presentation/admin/publish-article-form";
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { currentActor, distributionNotice, distributionUseCases } from "@/presentation/composition";
@@ -48,6 +49,15 @@ export default async function PublicationPage({
   const draft = canDirectPublish
     ? null
     : await uc.exportManualDraft.execute(actor, { publicationId });
+
+  // 自分のブログ宛てで、まだ出していないときだけ「いまサイトに出す」を用意する。
+  // **出し終わった配信にも出すと、同じ記事が 2 度出る。**
+  // 選択肢の中身（種類ごとの欄・出し先・広告表記の文）は画面では組み立てず、
+  // ユースケースから受け取る。組み立てを画面へ写すと、AI 経路と食い違う。
+  const publishOptions =
+    card.channelKind === "own_site" && card.externalUrl === null
+      ? await uc.preparePublishArticle.execute(actor, { publicationId })
+      : null;
 
   return (
     <Shell title={`${card.channelLabel}への配信`}>
@@ -115,6 +125,27 @@ export default async function PublicationPage({
           取りやめ・再送は担当者の操作で行います。AI からは実行できません。
         </p>
       </Card>
+
+      {publishOptions === null ? null : (
+        <Card>
+          <h2 className={styles.sectionTitle}>いまサイトに出す</h2>
+          {!publishOptions.ok ? (
+            <ErrorView
+              title="出す画面を用意できませんでした"
+              body={publishOptions.error.message}
+              suggestedAction={publishOptions.error.suggestedAction ?? null}
+            />
+          ) : (
+            <>
+              <p className={styles.sectionLead}>
+                読者に見える形に整えてから出します。書き手・広告表記・次に見直す日が
+                そろっていないものは出せません。
+              </p>
+              <PublishArticleForm publicationId={publicationId} options={publishOptions.value} />
+            </>
+          )}
+        </Card>
+      )}
 
       {draft === null ? null : (
         <Card>

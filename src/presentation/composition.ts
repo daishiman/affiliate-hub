@@ -106,6 +106,10 @@ import {
   createListManagedSitesUseCase,
 } from "@/application/usecases/site/manage-sites";
 import {
+  createPreparePublishArticleUseCase,
+  createPublishArticleUseCase,
+} from "@/application/usecases/site/publish-article";
+import {
   createCompareProductsUseCase,
   createExplainRankingUseCase,
   createFilterProductsUseCase,
@@ -573,6 +577,15 @@ export async function distributionUseCases() {
     variants: deps.contentVariants,
     ids: deps.ids,
   };
+  // 自分のブログへ出す口。**配信の画面に置く**。
+  // 記事の一覧側へ置かないのは、出し先（どのブログ・どのカテゴリー）を
+  // 決めるのが配信の仕事だから。両方に置くと、同じ記事が 2 度出る。
+  const ownSite = {
+    sites: deps.sites,
+    variants: deps.contentVariants,
+    publications: deps.publications,
+    articles: deps.publishedArticles,
+  };
   return {
     listChannels: createListChannelsUseCase(distribution),
     listPublications: createListPublicationsUseCase(distribution),
@@ -580,6 +593,8 @@ export async function distributionUseCases() {
     exportManualDraft: createExportManualDraftUseCase(distribution),
     cancel: createCancelPublicationUseCase(distribution),
     schedule: createSchedulePublicationUseCase(distribution),
+    preparePublishArticle: createPreparePublishArticleUseCase(ownSite),
+    publishArticle: createPublishArticleUseCase(ownSite),
   };
 }
 
@@ -988,7 +1003,9 @@ export async function distributionNotice(): Promise<StorageStatus> {
     message:
       db === null
         ? sampleDistributionNotice()
-        : "予約・取りやめは保存されます（保存先: D1 の publications）。ただし各サービスへの実際の投稿はまだ行いません（接続の認証が未登録のため）。出し先の一覧に並んでいるのは見本です。",
+        : // 自分のブログだけは**本当に出せる**ようになったので、そこを一緒くたにしない。
+          // 「まだ投稿しません」とだけ書くと、出せるものを出せないと思わせる。
+          "予約・取りやめは保存されます（保存先: D1 の publications）。自分のブログへは、この画面の「いまサイトに出す」から実際に公開できます。X や Instagram など外部サービスへの投稿はまだ行いません（接続の認証が未登録のため）。出し先の一覧に並んでいるのは見本です。",
   };
 }
 

@@ -290,6 +290,13 @@ export const UI_COPY = {
     emptyListBody: "最初の記事を準備しています。公開までしばらくお待ちください。",
     searchEmptyTitle: "見つかりませんでした",
     searchEmptyBody: "言葉を短くするか、別の言い方でもう一度お試しください。",
+    /** 目次。節が 3 つ以上のときだけ出す（2 つ以下では逆に読みにくい）。 */
+    tocTitle: "目次",
+    /** 更新履歴。公開ゲートはこれが出ていることを前提に必須項目を通す。 */
+    historyTitle: "更新履歴",
+    historyPublished: "公開しました",
+    historyUpdated: "内容を見直しました",
+    historyNoUpdate: "公開してから直した箇所はありません。",
   },
 
   /**

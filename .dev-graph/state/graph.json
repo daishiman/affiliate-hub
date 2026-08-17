@@ -1,5 +1,5 @@
 {
-  "graph_revision": 187,
+  "graph_revision": 188,
   "nodes": [
     {
       "acceptance": [],
@@ -6840,6 +6840,103 @@
       "title": "成果の金額の修正を D1 へ保存し、画面から直せるようにする",
       "tracker_binding": "beads",
       "updated_at": "2026-08-17T09:19:14.295618Z"
+    },
+    {
+      "acceptance": [],
+      "architecture_refs": [],
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "beads_linkage": null,
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "candidate_path": "tasks/task-own-site-publish.md",
+          "confidence": 0.95
+        }
+      ],
+      "classification_confidence": 0.95,
+      "classification_reason": "docs/product/stub-ledger.md のスタブ解除を作業単位として登録",
+      "completion_evidence": {
+        "completed_at": null,
+        "evidence_refs": [],
+        "policy": "manual",
+        "reconciled_at": null,
+        "source": "manual",
+        "status": "in_progress"
+      },
+      "confirmation_evidence": {
+        "evaluated_digest": null,
+        "evaluator": null,
+        "evidence_ref": null
+      },
+      "confirmation_status": "draft",
+      "created_at": "2026-08-17T09:30:00Z",
+      "depends_on": [],
+      "domain": "distribution",
+      "evaluation_status": "pending",
+      "execution_contexts": [],
+      "feature_package_id": null,
+      "file_path": "tasks/task-own-site-publish.md",
+      "github_project_linkages": [],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "goal": null,
+      "graph_node_id": "task-own-site-publish",
+      "implementation_readiness": {
+        "checked_at": null,
+        "missing_sections": [],
+        "status": "incomplete"
+      },
+      "issue_linkage": null,
+      "iteration": null,
+      "mvp_alignment": {
+        "background": "own_site コネクタが「記事の保存先を D1 につなぐことが必要」で止まっており、PublishedContentPort も見本のまま。記事を承認して配信を予約しても、読者ページには何も出ない",
+        "mvp_fit": "direct",
+        "purpose": "書いた記事が、公開の操作のあとに実際の読者ページへ出るようにする",
+        "rationale": "項目 37・38・39 と同じ「入口と保存先の片方しか無い」形の最後の 1 つ。ここがつながると 書く→承認→予約→公開→読者が読む が初めて 1 周する。自社サイトなので外部サービスの資格が要らない"
+      },
+      "owners": [
+        "daishiman"
+      ],
+      "parent_feature": null,
+      "phase_ref": null,
+      "priority": "high",
+      "project_id": "affiliate-hub",
+      "pull_request_linkages": [],
+      "purpose": null,
+      "related_nodes": [],
+      "resource_scope": [
+        "src/db",
+        "src/infrastructure/persistence",
+        "src/infrastructure/channels",
+        "drizzle"
+      ],
+      "scope_in": [],
+      "scope_out": [],
+      "source_lineage": {
+        "imported_at": "2026-08-17T09:30:00Z",
+        "origin_kind": "manual",
+        "source_digest": null,
+        "source_path": "docs/product/stub-ledger.md",
+        "source_plugin": null,
+        "source_version": null
+      },
+      "start_date": "2026-08-17",
+      "status": "draft",
+      "tags": [
+        "backlog",
+        "mvp"
+      ],
+      "target_date": null,
+      "template_id": "task",
+      "template_version": "1.0.0",
+      "title": "自社サイトへの公開を本物にする（published_articles と own_site コネクタ）",
+      "tracker_binding": "beads",
+      "updated_at": "2026-08-17T09:30:00Z"
     }
   ],
   "repository_id": "github:daishiman/affiliate-hub",

@@ -157,6 +157,21 @@ let PUBLICATIONS: readonly Publication[] = [
     scheduledAt: null,
     externalUrl: "https://example.invalid/sample-article",
   }),
+  /*
+   * まだ出していない自分のブログ宛て。
+   *
+   * これが無いと、見本データだけで動かしたときに
+   * 「いまサイトに出す」の入口へ**一度もたどり着けない**。
+   * 出し終わった `pub_own_site` は行き止まり（公開済み）で、
+   * 入口の条件（自分のブログ宛て かつ 未公開）を満たさないため。
+   */
+  publication({
+    id: "pub_own_site_ready",
+    kind: "own_site",
+    connectionId: "conn_own_site",
+    state: "QUEUED",
+    scheduledAt: null,
+  }),
   publication({
     id: "pub_x_failed",
     kind: "x",

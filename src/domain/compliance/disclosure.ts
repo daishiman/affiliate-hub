@@ -50,7 +50,14 @@ const DISCLOSURE_REQUIRED: ReadonlySet<RelationshipType> = new Set<RelationshipT
   "paid_partnership",
 ]);
 
-const RELATIONSHIP_LABEL: Record<RelationshipType, string> = {
+/**
+ * 広告との関係の表示文。**ここが唯一の正本**。
+ *
+ * 読者へ出す文そのものなので、選ばせる画面もこの文言を使う。
+ * 画面側で「アフィリエイト」と短く書き直すと、選んだ言葉と
+ * 記事に出る言葉が違ってしまい、何を選んだのかが確かめられなくなる。
+ */
+export const RELATIONSHIP_LABEL: Record<RelationshipType, string> = {
   affiliate: "アフィリエイト広告を利用しています",
   sponsored: "スポンサー提供の記事です",
   supplied: "商品の提供を受けています",

@@ -76,10 +76,21 @@ function createStubConnector(
 }
 
 const FACTORIES: Readonly<Record<ChannelKind, ConnectorFactory>> = {
-  // 公開ページ (src/app/s/[site]/) は既にある。足りないのは「公開する」の側で、
-  // 記事の保存先が見本のままなので、公開に切り替えても次の読み込みで元に戻る。
+  /*
+   * 出す道は**もう通っている**。配信の画面の「いまサイトに出す」から
+   * `publish_article_to_own_site` を呼ぶと、D1 の published_articles に保存され、
+   * 読者ページ (src/app/s/[site]/) に出る。
+   *
+   * ここが残っているのは、この口が受け持つ**予約投稿と取り下げ**のため。
+   * 「出す」だけ本物に見せて、取り下げが黙って成功すると、
+   * 消したつもりの記事が読者に見え続ける。だから失敗を返し続ける。
+   */
   own_site: (ctx) =>
-    createStubConnector("own_site", "記事の保存先 (content:*) を D1 につなぐことが必要", ctx),
+    createStubConnector(
+      "own_site",
+      "予約投稿と取り下げ（公開済みの記事を読者ページから外す道）の実装が必要。出すだけなら配信の画面から今できる",
+      ctx,
+    ),
   x: (ctx) => createStubConnector("x", "X API の有料プラン契約とアプリ登録が必要", ctx),
   instagram: (ctx) =>
     createStubConnector("instagram", "Instagram Graph API はプロアカウントと Facebook ページ連携が必要", ctx),

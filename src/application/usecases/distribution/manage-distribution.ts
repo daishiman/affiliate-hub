@@ -11,6 +11,7 @@ import {
   type ChannelKind,
   type Publication,
   type PublicationState,
+  PUBLICATION_STATE_LABEL,
   advance,
   buildIdempotencyKey,
   createPublication,
@@ -65,19 +66,14 @@ export const PUBLISH_MODE_LABEL: Readonly<Record<string, string>> = {
   manual_export: "下書きを書き出して、ご自身で投稿する",
 };
 
-/** 配信の状態の表示名。 */
-export const PUBLICATION_STATE_LABEL: Readonly<Record<PublicationState, string>> = {
-  QUEUED: "順番待ち",
-  RENDERING: "本文を組み立て中",
-  VALIDATING: "出す前の確認中",
-  SENDING: "送信中",
-  PUBLISHED: "公開済み",
-  MANUAL_EXPORT_READY: "書き出し済み（貼り付け待ち）",
-  FAILED_VALIDATION: "確認で止まった",
-  FAILED_SEND: "送信に失敗した",
-  RETRY_SCHEDULED: "再送を待っている",
-  CANCELLED: "取りやめ",
-};
+/**
+ * 配信の状態の表示名。
+ *
+ * 正本は domain 側（`domain/distribution/publication.ts`）にある。
+ * 進めなかった理由の文を domain が組み立てるので、そちらに置いてある。
+ * ここは読み出し口を保つためだけの再輸出で、**別の表を作らない**。
+ */
+export { PUBLICATION_STATE_LABEL } from "@/domain/distribution";
 
 /** 広告表記をどこに出すかの表示名。 */
 const DISCLOSURE_PLACEMENT_LABEL: Readonly<Record<string, string>> = {

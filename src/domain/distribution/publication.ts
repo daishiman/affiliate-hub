@@ -34,6 +34,26 @@ export const PUBLICATION_STATES = [
 ] as const;
 export type PublicationState = (typeof PUBLICATION_STATES)[number];
 
+/**
+ * 配信の状態の表示名。**ここが唯一の正本**。
+ *
+ * 断りの文をここで組み立てるために、domain 側へ置いている。
+ * 表示名を上の層だけが持つと、進めなかった理由の文に `PUBLISHED` のような
+ * 内部の符号がそのまま出る。符号を見せられた人は、次に何をすればよいか分からない。
+ */
+export const PUBLICATION_STATE_LABEL: Readonly<Record<PublicationState, string>> = {
+  QUEUED: "順番待ち",
+  RENDERING: "本文を組み立て中",
+  VALIDATING: "出す前の確認中",
+  SENDING: "送信中",
+  PUBLISHED: "公開済み",
+  MANUAL_EXPORT_READY: "書き出し済み（貼り付け待ち）",
+  FAILED_VALIDATION: "確認で止まった",
+  FAILED_SEND: "送信に失敗した",
+  RETRY_SCHEDULED: "再送を待っている",
+  CANCELLED: "取りやめ",
+};
+
 const ALLOWED: Readonly<Record<PublicationState, readonly PublicationState[]>> = {
   QUEUED: ["RENDERING", "CANCELLED"],
   RENDERING: ["VALIDATING", "FAILED_VALIDATION", "CANCELLED"],
@@ -129,10 +149,21 @@ export function advance(
   context: { gate?: GateResult; at: Date },
 ): Result<Publication, DomainError> {
   if (!ALLOWED[publication.state].includes(to)) {
+    const nexts = ALLOWED[publication.state].map((s) => PUBLICATION_STATE_LABEL[s]);
     return err(
-      domainError("CONFLICT", `この配信は ${publication.state} から ${to} へ進めません。`, {
-        suggestedAction: `進める先: ${ALLOWED[publication.state].join(" / ") || "なし"}`,
-      }),
+      domainError(
+        "CONFLICT",
+        `この配信は「${PUBLICATION_STATE_LABEL[publication.state]}」なので、` +
+          `「${PUBLICATION_STATE_LABEL[to]}」へは進められません。`,
+        {
+          // 行き止まりのときに「進める先: なし」とだけ返さない。
+          // 次にできることが無いなら、別の道を示すのがここの仕事。
+          suggestedAction:
+            nexts.length === 0
+              ? "この配信はここで終わりです。やり直す場合は、記事の画面から新しい配信を作ってください。"
+              : `ここから進めるのは ${nexts.join(" / ")} です。`,
+        },
+      ),
     );
   }
 

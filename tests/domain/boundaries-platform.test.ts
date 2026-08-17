@@ -533,7 +533,26 @@ describe("配信を進めてよい順序", () => {
     const r = at(queued(), "SENDING", passed);
     expect(r.ok).toBe(false);
     // 進める先を示さないと、利用者は次に何をすればよいか分からない。
-    if (!r.ok) expect(r.error.suggestedAction).toContain("RENDERING");
+    // かつ、示すのは表示名。`RENDERING` のような内部の符号を見せられても、
+    // 受け取った人は次に何をすればよいか分からない。
+    if (!r.ok) {
+      expect(r.error.suggestedAction).toContain("本文を組み立て中");
+      expect(r.error.suggestedAction).not.toContain("RENDERING");
+      expect(r.error.message).not.toContain("QUEUED");
+      expect(r.error.message).not.toContain("SENDING");
+    }
+  });
+
+  it("行き止まりでも、次にできることを示す", () => {
+    // 「進める先: なし」とだけ返すと、受け取った人はそこで手が止まる。
+    // 進める先が無いなら、別の道（作り直し）を示すのがここの仕事。
+    const published = { ...queued(), state: "PUBLISHED" as const };
+    const r = at(published, "SENDING", passed);
+    expect(r.ok).toBe(false);
+    if (!r.ok) {
+      expect(r.error.suggestedAction).toContain("新しい配信");
+      expect(r.error.suggestedAction).not.toContain("なし");
+    }
   });
 
   it("確認の結果を渡さずに送信へ進めない", () => {

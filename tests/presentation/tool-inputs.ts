@@ -11,6 +11,7 @@
  * **黙って素通りしない**ようにしてある。
  */
 
+import { authoredSectionsFor } from "@/domain/authoring";
 import { SAMPLE_SITE_SLUG } from "@/infrastructure/persistence/sample/site-sample-repository";
 import type { AnyToolDefinition } from "@/presentation/tools/tool-definition";
 
@@ -47,9 +48,40 @@ export const FIELD_VALUES: Readonly<Record<string, unknown>> = {
   provided: {},
 
   // --- 配信 ---
-  publicationId: "pub_own_site",
+  // まだ出していない配信を指す。公開済みの `pub_own_site` を指すと、
+  // 「出せない状態だから断られた」応答を見て「通った」と数えてしまう。
+  publicationId: "pub_own_site_ready",
   scheduledAt: "2026-09-01T09:00:00.000Z",
   channelKind: "own_site",
+
+  // --- 自分のブログへ出す ---
+  // 出せる条件（書き手・広告表記・次に見直す日・根拠）を全部そろえた値を置く。
+  // 1 つでも欠かすと、断られた応答を見て「通った」と数えてしまう。
+  articleType: "guide",
+  title: "動画編集向けノートパソコンの選び方",
+  conclusion: "書き出しの速さで選ぶ。",
+  authorName: "三輪 みわ",
+  authorBio: "家電量販店で 8 年、パソコン売り場を担当。",
+  authorCredentials: ["家電量販店で 8 年勤務"],
+  relationshipType: "affiliate",
+  disclosureMessage: "アフィリエイト広告を利用しています。",
+  nextReviewOn: "2026-12-01",
+  claims: [
+    {
+      statement: "書き出し時間は 4 分 12 秒でした。",
+      sourceLabel: "編集部の実測",
+      sourceUrl: null,
+      checkedOn: "2026-08-01",
+    },
+  ],
+  // 節は記事タイプごとに決まっている。手で並べると、必要な節が増えたときに
+  // ここだけ古いままになり、断られた応答を「通った」と数えてしまう。
+  sectionBodies: Object.fromEntries(
+    authoredSectionsFor("guide").map((s) => [
+      s.id,
+      `${s.label}について、実際に確かめた内容をここに書いています。`,
+    ]),
+  ),
 
   // --- 収益 ---
   period: "2026-08",

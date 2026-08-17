@@ -4,7 +4,7 @@ import type {
   PublishedPerson,
 } from "@/application/read-models/published-article";
 import type { ArticleType, SiteBlueprint } from "@/domain/authoring";
-import type { Editorial } from "@/domain/shared";
+import type { Editorial, WorkspaceId } from "@/domain/shared";
 import type { PortResult } from "./common";
 
 /**
@@ -64,5 +64,21 @@ export type PublishedContentPort = {
   ): PortResult<{ readonly title: string; readonly body: readonly string[] } | null>;
 };
 
+/**
+ * 記事を読者ページへ出す（書き込み側）。
+ *
+ * 読み口（`PublishedContentPort`）と分ける理由:
+ * 読者向けの経路は読むだけでよく、書ける口を混ぜると、
+ * 読者からの要求で記事を書き換える経路が型の上で作れてしまう。
+ *
+ * 保存するのは**そのとき出した内容そのもの**（写し）。
+ * 人物やカテゴリーの登録内容があとで変わっても、
+ * すでに読者が読んだ記事は変わらない。
+ */
+export type PublishedArticleWriterPort = {
+  save(workspaceId: WorkspaceId, article: PublishedArticle): PortResult<true>;
+};
+
 export type EditorialSiteRepositoryPort = Editorial<SiteRepositoryPort>;
+export type EditorialPublishedArticleWriterPort = Editorial<PublishedArticleWriterPort>;
 export type EditorialPublishedContentPort = Editorial<PublishedContentPort>;

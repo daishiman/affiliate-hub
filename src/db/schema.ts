@@ -676,6 +676,53 @@ export const siteBlueprints = sqliteTable(
 );
 
 /**
+ * 読者ページへ出した記事（そのとき出した内容の**写し**）。
+ *
+ * すでにある `articles` 表とは別に置く。あちらは分類・人物・広告表記を
+ * 別表への参照で持つ形で、参照先を作る入口がまだ無い（作れない行になっている）。
+ * こちらは**出した瞬間の内容をそのまま**保存する。
+ *
+ * 内容全体は `article_json` に入れ、**列に出すのは一覧と検索が実際に使う項目だけ**。
+ * 節を 1 つ足すたびにマイグレーションが要る形にすると、記事の構成を直すのが
+ * 億劫になり、構成が古いまま固まる。
+ *
+ * 写しである理由: 人物やカテゴリーの登録内容をあとで変えても、
+ * **すでに読者が読んだ記事は変わらない**。参照で持つと、名前を直した日に
+ * 過去の全記事の署名が書き換わり、「誰が書いたか」の記録が消える。
+ *
+ * 主キーは（ブログの URL 名, 記事の URL 名）の組。読者の URL が
+ * `/s/<ブログ>/<種類>/<記事>` そのもので、同じ組が 2 つあると
+ * どちらを出すか決められない。出し直しは**上書き**として扱う。
+ */
+export const publishedArticles = sqliteTable(
+  "published_articles",
+  {
+    siteSlug: text("site_slug").notNull(),
+    slug: text("slug").notNull(),
+    workspaceId: text("workspace_id").notNull(),
+    /** 記事の種類。URL の道筋がこれで決まるので列に出す。 */
+    type: text("type").notNull(),
+    title: text("title").notNull(),
+    /** 一文の結論。一覧・検索結果にそのまま出るので列に出す。 */
+    summary: text("summary").notNull(),
+    categorySlug: text("category_slug").notNull(),
+    /** 書き手。人物ページから記事を引くので列に出す。 */
+    authorSlug: text("author_slug").notNull(),
+    authorName: text("author_name").notNull(),
+    publishedAt: text("published_at").notNull(),
+    updatedAt: text("updated_at").notNull(),
+    articleJson: text("article_json").notNull(),
+  },
+  (t) => [
+    primaryKey({ columns: [t.siteSlug, t.slug] }),
+    index("published_articles_site_category_idx").on(t.siteSlug, t.categorySlug),
+    index("published_articles_site_updated_idx").on(t.siteSlug, t.updatedAt),
+    index("published_articles_site_author_idx").on(t.siteSlug, t.authorSlug),
+    index("published_articles_workspace_idx").on(t.workspaceId),
+  ],
+);
+
+/**
  * 計測の記録（仕様 §27）。
  *
  * **事実として貯めるのはこの表だけ。** 表示回数や滞在時間といった指標は
@@ -924,6 +971,7 @@ export type IntegrationKeyRow = typeof integrationKeys.$inferSelect;
 export type IntegrationKeyUsageRow = typeof integrationKeyUsages.$inferSelect;
 export type SiteDraftRow = typeof siteDrafts.$inferSelect;
 export type SiteBlueprintRow = typeof siteBlueprints.$inferSelect;
+export type PublishedArticleRow = typeof publishedArticles.$inferSelect;
 export type TelemetryEventRow = typeof telemetryEvents.$inferSelect;
 
 // 読者ドメイン

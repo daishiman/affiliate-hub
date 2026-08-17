@@ -30,6 +30,28 @@ export type GateRequirement =
   | "required_sections" // 記事タイプの必須セクション
   | "next_review_date"; // 次回確認日 (§28 運用)
 
+/**
+ * 検査項目の表示名。**ここが唯一の正本**。
+ *
+ * 画面には識別子を出さない。「image_rights が未実施」では、
+ * 何を用意すればよいのかが読んだ人に伝わらない。
+ */
+export const GATE_REQUIREMENT_LABEL: Readonly<Record<GateRequirement, string>> = {
+  author: "著者",
+  disclosure: "広告・アフィリエイト表記",
+  evidence: "根拠",
+  update_owner: "更新責任者",
+  cta_merchant_info: "販売店の選択肢",
+  image_rights: "画像の利用許諾",
+  structured_data: "構造化データの検証",
+  mobile_check: "スマートフォン表示の確認",
+  link_check: "リンク切れの確認",
+  ai_answer_eval: "AI 回答の評価",
+  webmcp_schema_eval: "AI 向け操作の定義の検証",
+  required_sections: "記事の必須項目",
+  next_review_date: "次回確認日",
+};
+
 export type GateFailure = {
   readonly requirement: GateRequirement;
   /** 編集者がそのまま読んで直せる説明。「invalid」では直せない。 */

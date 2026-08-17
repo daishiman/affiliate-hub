@@ -27,7 +27,7 @@
 | `channel:bluesky` | Bluesky への配信 | ChannelConnectorPort | Bluesky (AT Protocol) のアプリパスワード発行が必要 |
 | `channel:instagram` | Instagram への配信 | ChannelConnectorPort | Instagram Graph API はプロアカウントと Facebook ページ連携が必要 |
 | `channel:newsletter` | メール配信 への配信 | ChannelConnectorPort | 配信基盤 (メール送信) の選定が必要 |
-| `channel:own_site` | 自社サイト への配信 | ChannelConnectorPort | 記事の保存先 (content:*) を D1 につなぐことが必要 |
+| `channel:own_site` | 自社サイト への配信 | ChannelConnectorPort | 予約投稿と取り下げ（公開済みの記事を読者ページから外す道）の実装が必要。出すだけなら配信の画面から今できる |
 | `channel:threads` | Threads への配信 | ChannelConnectorPort | Threads API のアプリ登録が必要 |
 | `channel:tiktok` | TikTok への配信 | ChannelConnectorPort | TikTok Content Posting API の審査が必要 |
 | `channel:wordpress` | WordPress への配信 | ChannelConnectorPort | 接続先サイトの REST API とアプリケーションパスワードが必要 |
@@ -41,7 +41,7 @@
 | `persistence:affiliate-sample` | 提携と成果（見本データ） | 提携先・提携条件・提携リンクの保存先 | affiliate_accounts / affiliate_programs / affiliate_links テーブルの追加と、各 ASP の API 利用申請および接続情報の登録（利用者本人による）。成果そのものの保存先は解除済み（affiliate_conversions） |
 | `persistence:click-tracking-sample` | クリックの記録（未実装） | クリック計測 | click_events テーブルと、リンクの計測識別子を発行する仕組み |
 | `persistence:content-editorial-sample` | 記事と書き手（見本データ） | 記事・企画・書き手の保存先 | content_packages / personas テーブルの追加と、企画・書き手を作る入口 |
-| `persistence:content-sample` | 公開記事の保存先（見本データ） | PublishedContentPort | content_packages / published_articles テーブルの追加とマイグレーション |
+| `persistence:content-sample` | 公開記事の保存先（見本データ） | PublishedContentPort | 保存先（D1）が結びついていない実行での代わり。結びつければ出した記事はそのまま残る |
 | `persistence:distribution-sample` | 配信（見本データ） | 配信先の接続と配信記録の保存先 | 各サービスの接続設定（利用者本人による認証） |
 | `persistence:improvement-sample` | 改善ループの記録（見本データ。保存はできません） | 改善ループの記録先 | 改善ループを回す入口（画面と操作）の追加。そのうえで variant_specs / loop_runs / loop_observations テーブルの追加 |
 | `persistence:product-sample` | 商品と根拠（見本データ） | 商品・主張・根拠・検証記録の保存先 | 商品・主張・根拠を登録する入口（画面と操作）の追加。そのうえで products / claims / evidence / test_runs テーブルの追加とマイグレーション |

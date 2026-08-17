@@ -1,4 +1,7 @@
-import type { EditorialPublishedContentPort } from "@/application/ports/site";
+import type {
+  EditorialPublishedArticleWriterPort,
+  EditorialPublishedContentPort,
+} from "@/application/ports/site";
 import {
   type ArticleSummary,
   type PublishedArticle,
@@ -6,7 +9,7 @@ import {
   toSummary,
 } from "@/application/read-models/published-article";
 import { markEditorial, ok } from "@/domain/shared";
-import { registerStub } from "../../stub-registry";
+import { registerStub, stubCall } from "../../stub-registry";
 import { SAMPLE_SITE_SLUG, SECOND_SITE_SLUG } from "./site-sample-repository";
 
 /**
@@ -26,7 +29,10 @@ const stub = registerStub({
   id: "persistence:content-sample",
   port: "PublishedContentPort",
   label: "公開記事の保存先（見本データ）",
-  blockedBy: "content_packages / published_articles テーブルの追加とマイグレーション",
+  // published_articles は D1 に作った（drizzle/0011）。保存先がつながっている場合、
+  // ここは**見本を重ねる側**として残るだけで、出した記事はちゃんと残る。
+  // ここが前に出るのは、保存先が結びついていない実行（`pnpm dev` の既定）だけ。
+  blockedBy: "保存先（D1）が結びついていない実行での代わり。結びつければ出した記事はそのまま残る",
 });
 
 const STUB_MARK = { label: "見本の記事", blockedBy: stub.blockedBy } as const;
@@ -521,6 +527,20 @@ function summaries(articles: readonly PublishedArticle[]): readonly ArticleSumma
 /** 見本の記事であることを画面に出すための一文。 */
 export function sampleContentNotice(): string {
   return `${stub.label}で表示しています（${stub.blockedBy}が済むまでの仮です）。`;
+}
+
+/**
+ * 記事を出す口の、保存先が無いとき用。
+ *
+ * **成功を返さない。** 出したのに読者ページに出ない状態を「公開しました」と
+ * 言うのが、いちばん取り返しのつかない壊れ方になる。
+ */
+export function createSamplePublishedArticleWriter(): EditorialPublishedArticleWriterPort {
+  return markEditorial({
+    async save() {
+      return stubCall<true>(stub, "記事の公開");
+    },
+  });
 }
 
 export function createSampleContentRepository(): EditorialPublishedContentPort {

@@ -1,7 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { ActorContext } from "@/domain/shared";
 import { SAMPLE_ACTOR } from "@/infrastructure/identity/sample-actor";
-import { SITE_WIZARD_STEPS } from "@/domain/authoring";
+import { SITE_WIZARD_STEPS, authoredSectionsFor } from "@/domain/authoring";
+import { SAMPLE_SITE_SLUG } from "@/infrastructure/persistence/sample/site-sample-repository";
 
 /**
  * 管理画面の「押したときに動くもの」（サーバーアクション）。
@@ -49,6 +50,7 @@ const {
   approveContentAction,
 } = await import("@/presentation/admin/content-progress-action");
 const { adjustConversionAction } = await import("@/presentation/admin/adjust-conversion-action");
+const { publishArticleAction } = await import("@/presentation/admin/publish-article-action");
 const { personaUseCases } = await import("@/presentation/composition");
 
 function form(entries: Record<string, string | readonly string[]>): FormData {
@@ -540,6 +542,173 @@ describe("成果の金額を直す操作", () => {
   it("成果の指定が無いまま送られても、成功と返さない", async () => {
     asAffiliateManager();
     const state = await adjustConversionAction(IDLE, form({ amount: "1500", reason: "理由。" }));
+
+    expect(state.status).toBe("failed");
+    expect(state.message.trim()).not.toBe("");
+  });
+});
+
+describe("自分のブログへ記事を出す操作", () => {
+  /**
+   * その記事タイプで必要な節を、全部埋めた形。
+   *
+   * 節の一覧を手で並べない。並べると、必要な節が増えたときに
+   * ここだけ古いままになり、**「出せるはずの入力」が実は出せない**状態で
+   * 検査が緑になる（断られた応答を見て通ったと数える）。
+   */
+  function filledSections(articleType: string): Record<string, string> {
+    const bodies: Record<string, string> = {};
+    for (const section of authoredSectionsFor(articleType as never)) {
+      bodies[`section:${section.id}`] =
+        `${section.label}について、実際に確かめた内容をここに書いています。`;
+    }
+    return bodies;
+  }
+
+  /** 出せる条件を全部そろえた入力。ここから 1 つずつ欠かして試す。 */
+  function fullForm(overrides: Record<string, string | readonly string[]> = {}): FormData {
+    return form({
+      ...filledSections(String(overrides.articleType ?? "guide")),
+      // まだ出していない配信を指す。公開済みの `pub_own_site` を指すと
+      // 状態の判定で先に断られ、その先（保存できるか）を一度も通らない。
+      publicationId: "pub_own_site_ready",
+      siteSlug: SAMPLE_SITE_SLUG,
+      categorySlug: "laptops",
+      articleType: "guide",
+      slug: "quiet-laptop",
+      title: "静かなノートパソコンの選び方",
+      conclusion: "書き出しの速さで選ぶ。",
+      authorName: "三輪 みわ",
+      authorBio: "家電量販店で 8 年、パソコン売り場を担当。",
+      authorCredentials: "家電量販店で 8 年勤務",
+      relationshipType: "affiliate",
+      disclosureMessage: "アフィリエイト広告を利用しています。",
+      nextReviewOn: "2026-12-01",
+      claimStatement: "書き出し時間は 4 分 12 秒でした。",
+      claimSourceLabel: "編集部の実測",
+      claimSourceUrl: "",
+      claimCheckedOn: "2026-08-01",
+      ...overrides,
+    });
+  }
+
+  function asPublisher(): void {
+    signedIn = { ...SAMPLE_ACTOR, roles: ["owner"] };
+  }
+
+  /**
+   * ここは D1 につながっていない状態で動かしている（見本の保存先）。
+   * つまり**出した記事を残せない**。それでも「出しました」と返るなら、
+   * 画面には公開済みと出るのに、読者のページには何も無い状態になる。
+   */
+  it("出した記事を残せないときは、出したと返さない", async () => {
+    asPublisher();
+    const state = await publishArticleAction(IDLE, fullForm());
+
+    expect(state.status).toBe("failed");
+    expect(state.url).toBeUndefined();
+    // 断る理由が**保存できないこと**であることまで見る。
+    // ここを「何か失敗した」で済ませると、状態の判定で先に落ちていても通ってしまう。
+    expect(state.message).toContain("保存");
+    expect(state.message).not.toMatch(/^[A-Z_]+$/);
+  });
+
+  it("すでに出した配信からは、もう一度出せない", async () => {
+    // 同じ記事が 2 度出るのを防ぐ。断り文に内部の符号を出さない。
+    asPublisher();
+    const state = await publishArticleAction(IDLE, fullForm({ publicationId: "pub_own_site" }));
+
+    expect(state.status).toBe("failed");
+    expect(state.message).not.toContain("PUBLISHED");
+    expect(state.message).not.toContain("SENDING");
+    expect(state.message).toContain("公開済み");
+  });
+
+  it("欄が 1 つも届かなくても、落ちずに断る", async () => {
+    // 途中で通信が切れた送信や、古い画面からの送信では欄が欠ける。
+    // ここで落ちると、利用者には真っ白な画面しか残らない。
+    asPublisher();
+    const state = await publishArticleAction(IDLE, new FormData());
+
+    expect(state.status).toBe("failed");
+    expect(state.message.trim()).not.toBe("");
+    expect(state.message).not.toMatch(/^[A-Z_]+$/);
+  });
+
+  it("出典の URL を書いた行は、URL を落とさずに渡す", async () => {
+    // 出典名だけ残して URL を落とすと、読者は確かめに行けない。
+    // ここが落ちていれば、断りの理由は根拠の話になる。
+    asPublisher();
+    const state = await publishArticleAction(
+      IDLE,
+      fullForm({ claimSourceUrl: "https://example.invalid/spec" }),
+    );
+
+    expect(state.field).not.toBe("claims");
+    expect(state.message).toContain("保存");
+  });
+
+  it("URL の名前が使えない形なら、欄の下に直し方を返す", async () => {
+    asPublisher();
+    const state = await publishArticleAction(IDLE, fullForm({ slug: "静かなノート" }));
+
+    expect(state.status).toBe("failed");
+    expect(state.field).toBe("slug");
+    // 「不正です」で終わらせない。何が使えるかを書く。
+    expect(state.message).toContain("ハイフン");
+  });
+
+  it("タイトルが空なら、欄の下に断りを返す", async () => {
+    asPublisher();
+    const state = await publishArticleAction(IDLE, fullForm({ title: "  " }));
+
+    expect(state.status).toBe("failed");
+    expect(state.field).toBe("title");
+  });
+
+  it("書き手の名前が空なら、出さない", async () => {
+    // 誰が書いたか分からない記事を読者に出さない。
+    asPublisher();
+    const state = await publishArticleAction(IDLE, fullForm({ authorName: "  " }));
+
+    expect(state.status).toBe("failed");
+    expect(state.field).toBe("authorName");
+  });
+
+  it("言い切りが空の行は、丸ごと捨てる（出典だけの根拠を作らない）", async () => {
+    // 空の行を捨てないと、中身の無い根拠が記事に並ぶ。
+    // 捨てられていれば、断りの理由は根拠の話にはならない。
+    asPublisher();
+    const state = await publishArticleAction(
+      IDLE,
+      fullForm({
+        claimStatement: ["書き出し時間は 4 分 12 秒でした。", "   "],
+        claimSourceLabel: ["編集部の実測", "どこかの記事"],
+        claimSourceUrl: ["", ""],
+        claimCheckedOn: ["2026-08-01", ""],
+      }),
+    );
+
+    expect(state.status).toBe("failed");
+    expect(state.field).not.toBe("claims");
+  });
+
+  it("公開を任されていない人には、権限の話として断られる", async () => {
+    signedIn = SAMPLE_ACTOR;
+    const state = await publishArticleAction(IDLE, fullForm());
+
+    expect(state.status).toBe("failed");
+    expect(state.message).not.toMatch(/^[A-Z_]+$/);
+    expect(state.message.trim()).not.toBe("");
+  });
+
+  it("自社サイト以外の配信では使えないことを、次にすることつきで返す", async () => {
+    // note のように公式の投稿の仕組みが無い先を、この操作で出したことにしない。
+    asPublisher();
+    const state = await publishArticleAction(
+      IDLE,
+      fullForm({ publicationId: "pub_note_manual" }),
+    );
 
     expect(state.status).toBe("failed");
     expect(state.message.trim()).not.toBe("");

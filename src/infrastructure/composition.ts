@@ -12,6 +12,10 @@ import { createD1ContentVariantRepository } from "./persistence/d1/content-repos
 import { createD1ConversionRepository } from "./persistence/d1/conversion-repository";
 import { createD1SiteRepository } from "./persistence/d1/site-repository";
 import {
+  createD1ContentRepository,
+  createD1PublishedArticleWriter,
+} from "./persistence/d1/published-article-repository";
+import {
   createD1FeedbackRepository,
   createD1IntegrationKeyStore,
 } from "./persistence/d1/feedback-repository";
@@ -21,7 +25,10 @@ import {
   type CaptureBucket,
 } from "./platform/feedback-capture-r2";
 import { createLlmPorts } from "./llm/llm-setup";
-import { createSampleContentRepository } from "./persistence/sample/content-sample-repository";
+import {
+  createSampleContentRepository,
+  createSamplePublishedArticleWriter,
+} from "./persistence/sample/content-sample-repository";
 import {
   createSampleRankingModelRepository,
   createSampleScoreCardRepository,
@@ -114,10 +121,16 @@ export function createDeps(
     // ブログの下書きと、作られたブログは、保存先が用意できていれば本物（D1）。
     // ここを先に本物にしたのは、**入れる口（作成ウィザード）が既にあるから**。
     // 入れる口が無いものを本物にすると、一生埋まらない空の画面ができる。
-    // 記事の本文（published_articles）はまだ見本のまま。
+    //
+    // 記事の本文（published_articles）も本物にした。**出す口（配信の画面の
+    // 「いまサイトに出す」）を先に作ってからつないでいる**。読む口だけを
+    // 本物にすると、書き込む操作が無いので一覧が永久に空のままになる。
+    // 保存先が無い環境では、出す操作は**失敗を返す**（保存できたことにしない）。
     sites: db === null ? createSampleSiteRepository() : createD1SiteRepository(db),
     siteDrafts: db === null ? createSampleSiteDraftRepository() : createD1SiteDraftRepository(db),
-    publishedContent: createSampleContentRepository(),
+    publishedContent: db === null ? createSampleContentRepository() : createD1ContentRepository(db),
+    publishedArticles:
+      db === null ? createSamplePublishedArticleWriter() : createD1PublishedArticleWriter(db),
     // ★ 見本（スタブ）。読者が自分で操作するもの。
     //   保存先 (KV)・計算式・問い合わせの送信先が用意できたら差し替える。
     shortlist: createSampleShortlistRepository(),

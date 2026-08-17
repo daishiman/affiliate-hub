@@ -100,9 +100,65 @@ export type ArticleViewModel = {
   readonly stub?: { readonly label: string; readonly blockedBy: string; readonly stubId: string };
 };
 
+/**
+ * 目次。節の見出しからその場で作る。
+ *
+ * 原稿に書かせない。手で書かせると、節を 1 つ足した日に目次だけ古くなり、
+ * 読者は「無い項目」へ飛ばされる。節が 2 つ以下のときは出さない
+ * （目次を読む手間のほうが大きい）。
+ */
+function TableOfContents({ sections }: { readonly sections: readonly SectionView[] }) {
+  if (sections.length < 3) return null;
+  return (
+    <nav className={styles.section} aria-label={UI_COPY.article.tocTitle}>
+      <h2 className={styles.sectionHeading}>{UI_COPY.article.tocTitle}</h2>
+      <ul>
+        {sections.map((s) => (
+          <li key={s.id}>
+            <a href={`#${s.id}`}>{s.heading}</a>
+          </li>
+        ))}
+      </ul>
+    </nav>
+  );
+}
+
+/**
+ * 更新履歴。公開日と更新日から作る。
+ *
+ * 直していないときに何も出さないと、「履歴が無い」のか
+ * 「まだ直していない」のかが読者に区別できない。文字で言う。
+ */
+function UpdateHistory({
+  publishedAt,
+  updatedAt,
+}: {
+  readonly publishedAt: string;
+  readonly updatedAt: string;
+}) {
+  return (
+    <section className={styles.section}>
+      <h2 className={styles.sectionHeading}>{UI_COPY.article.historyTitle}</h2>
+      <ul>
+        <li>
+          {publishedAt} {UI_COPY.article.historyPublished}
+        </li>
+        {updatedAt === publishedAt ? (
+          <li>{UI_COPY.article.historyNoUpdate}</li>
+        ) : (
+          <li>
+            {updatedAt} {UI_COPY.article.historyUpdated}
+          </li>
+        )}
+      </ul>
+    </section>
+  );
+}
+
 function Section({ section }: { readonly section: SectionView }) {
   return (
     <section
+      id={section.id}
       className={styles.section}
       // 節ごとの滞在時間を測る単位。拾う側が画面全体で 1 回だけ見る。
       {...telemetrySectionAttrs({ kind: section.kind ?? "lead", id: section.id })}
@@ -160,6 +216,8 @@ export function ArticleView({ article }: { readonly article: ArticleViewModel })
         </span>
       </div>
 
+      <TableOfContents sections={article.sections} />
+
       {article.sections.map((section) => (
         <Section key={section.id} section={section} />
       ))}
@@ -198,6 +256,8 @@ export function ArticleView({ article }: { readonly article: ArticleViewModel })
       )}
 
       {article.conversation !== undefined && <Conversation lines={article.conversation} />}
+
+      <UpdateHistory publishedAt={article.publishedAt} updatedAt={article.updatedAt} />
     </article>
   );
 }
