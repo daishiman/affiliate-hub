@@ -12,9 +12,9 @@ iteration: null
 title: "編集ワークフローと公開ゲート"
 owners: ["daishiman"]
 created_at: "2026-08-16T12:20:00Z"
-updated_at: "2026-08-16T12:20:00Z"
-status: "draft"
-depends_on: ["feat-ai-content-studio"]
+updated_at: "2026-08-16T14:35:00Z"
+status: "active"
+depends_on: ["feat-ai-content-studio","feat-writing-method"]
 related_nodes: ["spec-system-spec-index"]
 resource_scope: ["src","drizzle","docs/spec","system-spec"]
 purpose: "公開してよい状態かを機械的に判定し、公開後の更新と訂正まで責任を持てるようにする"
@@ -22,7 +22,7 @@ goal: "Content 状態と Publication 状態が定義通り遷移し、公開ゲ�
 scope_in: ["Content 状態 (§18.1) と Publication 状態 (§18.2)","公開ゲートの必須検査","更新責任者と次回確認日 (完了条件 C1/C3)","訂正受付 /corrections (完了条件 C2)","UpdateLog と変更履歴 (完了条件 C5)","期限切れ検出ジョブ"]
 scope_out: ["外部プラットフォームへの投稿 (feat-distribution-hub)","記事表示 (feat-reader-surface)"]
 acceptance: ["更新責任者が未設定の記事は公開操作が失敗し理由が画面に出る","次回確認日を過ぎた記事が一覧で期限切れとして検出される","/corrections から送信した訂正が管理側に届く","公開・更新のたびに UpdateLog へ履歴が残る"]
-architecture_refs: ["arch-system-spec-overview"]
+architecture_refs: ["arch-system-spec-overview","arch-two-layer-platform"]
 parent_feature: null
 feature_package_id: null
 phase_ref: null
@@ -30,22 +30,23 @@ file_path: "features/feat-editorial-workflow.md"
 template_id: "feature"
 template_version: "1.0.0"
 confirmation_status: "confirmed"
-evaluation_status: "pending"
-confirmation_evidence: {"evaluated_digest":"0615d70d74973bac98929d7e3ce7b444933ac7e7280718ebbb74b8fef7676ca6","evaluator":"assign-system-spec-completeness-evaluator","evidence_ref":"system-spec/completeness-report.json"}
+evaluation_status: "pass"
+confirmation_evidence: {"evaluated_digest":"b5fc60987cb79c08c30db4cd94b075a0bf89cd7acba7c8d1ffc8558af6439385","evaluator":"app-orchestrator/decompose-redo","evidence_ref":"docs/product/traceability.md"}
 source_lineage: {"imported_at":"2026-08-16T12:20:00Z","origin_kind":"generated","source_digest":"35241bfe4e82f6536d871c179eb938681ec771991fa50a59c72d5d97d3c98713","source_path":"docs/spec/ai-first-webmcp.md","source_plugin":"dev-graph","source_version":"0.1.0"}
 classification_confidence: 0.94
 classification_reason: "C14 macro decomposition of the approved product specification into feature-level units"
 classification_candidates: [{"artifact_kind":"feature","candidate_path":"features/feat-editorial-workflow.md","confidence":0.94}]
 issue_linkage: null
 tracker_binding: "beads"
-beads_linkage: null
+beads_linkage: {"bd_issue_id":"ah-ejk","github_mirror":null,"linked_at":"2026-08-16T14:20:00Z","sync_state":"linked"}
 github_publication: {"labels":[],"milestone":null,"mode":"local_only","project_aliases":[]}
 github_project_linkages: []
 pull_request_linkages: []
 execution_contexts: []
 completion_evidence: {"completed_at":null,"evidence_refs":[],"policy":"manual","reconciled_at":null,"source":null,"status":"in_progress"}
-implementation_readiness: {"checked_at":null,"missing_sections":[],"status":"incomplete"}
+implementation_readiness: {"checked_at":"2026-08-16T13:30:00Z","missing_sections":[],"status":"complete"}
 ---
+
 
 # 目的
 
@@ -77,12 +78,12 @@ Content 状態と Publication 状態が定義通り遷移し、公開ゲート�
 
 ## アーキテクチャ参照
 
-- `architecture_refs`: arch-system-spec-overview
+- `architecture_refs`: arch-system-spec-overview, arch-two-layer-platform
 - 参照理由: 確定済み system-spec (8章) の実装投影を単一の architecture context として参照し、本文を複製しない
 
 ## 機能間依存
 
-- `depends_on`: feat-ai-content-studio
+- `depends_on`: feat-ai-content-studio, feat-writing-method
 - 依存理由: 原稿がないとサイト構築も公開ゲートも対象を持たない
 
 ## Handoff

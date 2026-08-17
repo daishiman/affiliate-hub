@@ -1,0 +1,17 @@
+/*
+ * デザイントークンの入口。読み込むのはこのファイル 1 本。
+ *
+ * 3 段構成にしてある。段を飛ばして読まないこと。
+ *
+ *   1. primitives  値そのもの        (#33353d, 1rem, 180ms …)
+ *   2. semantic    何に使う値か      (--color-text-default …)  ← コンポーネントはここだけ
+ *   3. themes      ブランドごとの差   ([data-brand-theme=…])
+ *
+ * 段を分ける理由は名前を増やすことではなく、「差し替え点を作る」こと。
+ * 1 段だけだと、--color-text-default: #33353d と書くしかなく、
+ * ブランドごとに色を変える口が無い。
+ */
+
+@import "./tokens/primitives.css";
+@import "./tokens/semantic.css";
+@import "./tokens/themes.css";

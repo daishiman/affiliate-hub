@@ -1,0 +1,127 @@
+import type { ReactNode } from "react";
+import type { SiteBlueprint } from "@/domain/authoring";
+import { appearanceOptions, readAppearance } from "@/presentation/appearance";
+import { readerActor, readerWebMcpDescriptors, siteUseCases } from "@/presentation/composition";
+import type { PageKind } from "@/presentation/tools/webmcp-policy";
+import { ErrorView, SiteShell, WebMcpProvider, type SiteChrome } from "@/presentation/ui";
+import { TelemetryCollector } from "@/presentation/telemetry/collector";
+import { readConsentDecision, readConsentChoice } from "@/presentation/telemetry/consent-server";
+import { breadcrumbsFor, siteBasePath, toChrome } from "./view-model";
+
+/**
+ * ブログ画面の共通の入り口。
+ *
+ * 18 本のルートすべてがこれを通る。**画面ごとに設計図の読み込みを書かない。**
+ * 書くと、ヘッダーの作り方やブログが見つからないときの表示が画面ごとにずれる。
+ *
+ * 画面側がやるのは「本文を返す関数」を渡すことだけ。
+ */
+
+export type SiteContext = {
+  readonly siteSlug: string;
+  readonly blueprint: SiteBlueprint;
+  readonly chrome: SiteChrome;
+};
+
+/**
+ * 設計図を読み、共通の骨格で包む。
+ *
+ * ブログが見つからないときは、黙って空を出さずに理由と戻り先を出す。
+ * 空白の画面は、読者からは故障と区別がつかない。
+ */
+export async function SiteFrame({
+  siteSlug,
+  currentPath,
+  trail = [],
+  pageKind = "article",
+  children,
+}: {
+  readonly siteSlug: string;
+  /** 現在地。ヘッダーの現在地表示に使う。 */
+  readonly currentPath: string;
+  /** パンくずの続き。ブログ名は自動で先頭に付く。 */
+  readonly trail?: readonly { readonly label: string; readonly path?: string }[];
+  /**
+   * このページの種類。ページ内 AI へ渡す道具を選ぶのに使う。
+   * 比較のページに順位の説明の道具を渡しても、押す先が無い。
+   */
+  readonly pageKind?: PageKind;
+  readonly children: (ctx: SiteContext) => ReactNode;
+}) {
+  const result = await siteUseCases().getSite.execute(readerActor(), { siteSlug });
+
+  if (!result.ok) {
+    return (
+      <ErrorView
+        title="このブログは見つかりませんでした"
+        body={result.error.suggestedAction ?? result.error.message}
+      />
+    );
+  }
+
+  const blueprint = result.value.blueprint;
+  const chrome = toChrome(siteSlug, blueprint);
+
+  /*
+    読者の明るさの選択を読む。**18 本のルートで別々に読まない。**
+    配色（brandTheme）はブログの設計図が正本なので、ここでは基準として渡し、
+    読者の個人設定で上書きさせない。
+  */
+  const appearance = await readAppearance({
+    brandTheme: blueprint.theme.brandTheme,
+    colorMode: blueprint.theme.colorScheme,
+  });
+
+  /*
+    計測してよいかを 1 箇所で決める。**18 本のルートで別々に判断しない。**
+    判定そのものは domain (`decideConsent`) が持ち、ここは結論を受け取るだけ。
+    端末の拒否表示 (DNT / GPC) と自動巡回の除外もここを通る。
+  */
+  const [decision, consentChoice] = await Promise.all([
+    readConsentDecision(),
+    readConsentChoice(),
+  ]);
+
+  return (
+    <SiteShell
+      chrome={chrome}
+      currentPath={currentPath}
+      breadcrumbs={breadcrumbsFor(siteSlug, blueprint, trail)}
+      appearance={{ current: appearance, modeOptions: appearanceOptions().modeOptions }}
+      consent={{ current: consentChoice, detailHref: `${siteBasePath(siteSlug)}/measurement` }}
+      telemetry={
+        <TelemetryCollector
+          siteSlug={siteSlug}
+          path={currentPath}
+          allowBehaviour={decision.allowBehaviour}
+          suppressAll={decision.suppressAll}
+        />
+      }
+    >
+      {children({ siteSlug, blueprint, chrome })}
+      {/*
+        ページを開いている AI に、この画面でできることを知らせる（WebMCP）。
+        読み取りだけ・6 件までで、すべて通常の画面操作でも同じことができる。
+        機能フラグが切れていれば空になり、画面はそのまま使える。
+      */}
+      <WebMcpProvider descriptors={readerWebMcpDescriptors(pageKind)} />
+    </SiteShell>
+  );
+}
+
+/** 記事や人が見つからないときの表示。ここも 1 箇所にまとめる。 */
+export function NotFoundBody({
+  what,
+  siteSlug,
+}: {
+  readonly what: string;
+  readonly siteSlug: string;
+}) {
+  return (
+    <ErrorView
+      title={`${what}が見つかりませんでした`}
+      body="URL が変わったか、公開が取り下げられた可能性があります。"
+      action={<a href={siteBasePath(siteSlug)}>トップへ戻る</a>}
+    />
+  );
+}

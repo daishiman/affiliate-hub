@@ -15,6 +15,20 @@
       "when": 1786865195213,
       "tag": "0001_chemical_the_stranger",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1786910189227,
+      "tag": "0002_oval_rumiko_fujikawa",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "6",
+      "when": 1786910831502,
+      "tag": "0003_organic_blacklash",
+      "breakpoints": true
     }
   ]
 }

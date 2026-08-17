@@ -1,0 +1,172 @@
+import { readFileSync, readdirSync, statSync, writeFileSync } from "node:fs";
+import { join, resolve } from "node:path";
+import { describe, expect, it } from "vitest";
+import {
+  DOMAIN_EVENTS,
+  DOMAIN_EVENT_NAMES,
+  buildEvent,
+  describeEvent,
+  type DomainEventName,
+} from "@/domain/shared";
+
+/**
+ * 文脈をまたぐ連絡（イベント）の検査と台帳づくり。
+ *
+ * 「一覧には書いたが、どこからも出していない」を隠さない。
+ * 出していないものは台帳に「まだ出していない」と書き、
+ * 何が済めば出せるようになるかを併記する。
+ *
+ * 更新するとき: `UPDATE_EVENT_LEDGER=1 pnpm test`
+ */
+const ROOT = resolve(import.meta.dirname, "../..");
+const LEDGER_PATH = join(ROOT, "docs/product/event-ledger.md");
+
+/** 仕様（プラットフォーム層 §23.2）が挙げている 16 件。ここを正解とする。 */
+const SPEC_EVENTS = [
+  "affiliate_url.submitted",
+  "affiliate_url.resolved",
+  "product.matched",
+  "product.enriched",
+  "comparison.ready",
+  "content_package.created",
+  "content_variant.generated",
+  "content_variant.approved",
+  "publication.scheduled",
+  "publication.published",
+  "publication.failed",
+  "affiliate_link.broken",
+  "affiliate_program.terminated",
+  "claim.expired",
+  "content.refresh_due",
+  "conversion.received",
+] as const;
+
+/** まだ出していないものが、何を待っているか。空欄を許さない。 */
+const BLOCKED_BY: Readonly<Record<string, string>> = {
+  "affiliate_url.submitted": "成果リンクの受信箱（貼付・CSV 取込）の実装",
+  "affiliate_url.resolved": "リンク先をたどって広告主を特定する処理（ASP 接続が要る）",
+  "product.matched": "受信したリンクと商品を突き合わせる処理",
+  "product.enriched": "外部情報から商品属性を補う取込処理",
+  "comparison.ready": "比較候補の 4 分類（同一/派生/競合/代替）の判定処理",
+  "content_package.created": "記事のまとまりを作る画面と生成の起動",
+  "publication.scheduled": "配信予約の実装（出し先の接続が要る）",
+  "publication.published": "配信の実行（各サービスの認証が要る）",
+  "publication.failed": "配信の実行と失敗の取り扱い",
+  "affiliate_link.broken": "リンク切れ検出の定期実行",
+  "affiliate_program.terminated": "ASP からの提携状態の取得",
+  "claim.expired": "根拠の有効期限を見て回る定期実行",
+  "conversion.received": "ASP からの成果データ取込",
+};
+
+function walk(dir: string): string[] {
+  return readdirSync(dir).flatMap((name) => {
+    const path = join(dir, name);
+    return statSync(path).isDirectory() ? walk(path) : path.endsWith(".ts") ? [path] : [];
+  });
+}
+
+/** その名前を実際に発行している場所。文字列を探すのではなく、使用箇所を数える。 */
+function emissionSites(name: DomainEventName): string[] {
+  return walk(join(ROOT, "src/application"))
+    .filter((path) => readFileSync(path, "utf8").includes(`"${name}"`))
+    .map((path) => path.slice(ROOT.length + 1));
+}
+
+function renderLedger(): string {
+  const rows = DOMAIN_EVENT_NAMES.map((name) => {
+    const spec = describeEvent(name);
+    const sites = emissionSites(name);
+    return {
+      name,
+      spec,
+      sites,
+      status: sites.length > 0 ? "発行あり" : "まだ発行していない",
+      blocked: sites.length > 0 ? "—" : (BLOCKED_BY[name] ?? ""),
+    };
+  });
+  const emitted = rows.filter((r) => r.sites.length > 0).length;
+
+  return [
+    "# 文脈をまたぐ連絡（イベント台帳）",
+    "",
+    "このファイルは `tests/domain/domain-events.test.ts` が作る。手で書き換えない。",
+    "更新は `UPDATE_EVENT_LEDGER=1 pnpm test` を実行して、出た差分をそのまま保存する。",
+    "",
+    "イベントは、ある文脈で起きたことを別の文脈へ伝えるための唯一の経路。",
+    "別の文脈の保存処理を直接呼ばないので、受け手が増えても送り手は変わらない。",
+    "",
+    `件数: ${rows.length}（うち実際に発行しているもの: ${emitted}）`,
+    "",
+    "| 名前 | 出す文脈 | 何が起きたか | 必ず入る項目 | 状態 | 発行場所 / 何が済めば出せるか |",
+    "|---|---|---|---|---|---|",
+    ...rows.map(
+      (r) =>
+        `| \`${r.name}\` | ${r.spec.context} | ${r.spec.description} | ${r.spec.requiredKeys
+          .map((k) => `\`${k}\``)
+          .join(" ")} | ${r.status} | ${r.sites.length > 0 ? r.sites.map((s) => `\`${s}\``).join(" ") : r.blocked} |`,
+    ),
+    "",
+  ].join("\n");
+}
+
+describe("文脈をまたぐ連絡（イベント）", () => {
+  it("仕様の 16 件が過不足なく定義されている", () => {
+    expect([...DOMAIN_EVENT_NAMES].sort()).toEqual([...SPEC_EVENTS].sort());
+  });
+
+  it("すべてのイベントに、出す文脈・説明・必ず入る項目がある", () => {
+    for (const name of DOMAIN_EVENT_NAMES) {
+      const spec = DOMAIN_EVENTS[name];
+      expect(spec.description.trim(), `${name} に説明がありません`).not.toBe("");
+      expect(spec.requiredKeys.length, `${name} に必須項目がありません`).toBeGreaterThan(0);
+    }
+  });
+
+  it("必要な項目が欠けていたら、送る前に断る", () => {
+    const result = buildEvent("content_variant.approved", "ws_1", new Date(), {
+      variantId: "cv_1",
+    });
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.error.code).toBe("VALIDATION_FAILED");
+      expect(result.error.suggestedAction).toContain("approvedBy");
+    }
+  });
+
+  it("そろっていれば組み立てられる", () => {
+    const at = new Date("2026-08-17T00:00:00Z");
+    const result = buildEvent("content_variant.approved", "ws_1", at, {
+      variantId: "cv_1",
+      approvedBy: "u_1",
+    });
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.value.name).toBe("content_variant.approved");
+      expect(result.value.occurredAt).toBe(at);
+    }
+  });
+
+  it("まだ出していないイベントには、何を待っているかが書いてある", () => {
+    // 「時間が無い」は待ち条件ではない。何が済めば出せるかを書く。
+    for (const name of DOMAIN_EVENT_NAMES) {
+      if (emissionSites(name).length > 0) continue;
+      expect((BLOCKED_BY[name] ?? "").trim(), `${name} の待ち条件が空です`).not.toBe("");
+    }
+  });
+
+  it("台帳ファイルが実際の状態と一致している", () => {
+    const expected = renderLedger();
+    if (process.env.UPDATE_EVENT_LEDGER === "1") writeFileSync(LEDGER_PATH, expected, "utf8");
+
+    let actual = "";
+    try {
+      actual = readFileSync(LEDGER_PATH, "utf8");
+    } catch {
+      actual = "";
+    }
+    expect(
+      actual,
+      "イベント台帳が古くなっています。`UPDATE_EVENT_LEDGER=1 pnpm test` で作り直してください。",
+    ).toBe(expected);
+  });
+});

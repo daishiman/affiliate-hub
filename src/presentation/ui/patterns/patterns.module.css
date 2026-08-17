@@ -1,0 +1,880 @@
+/*
+ * 仕様固有パターンの見た目。
+ *
+ * 読んでよいのは tokens/semantic.css の変数だけ。
+ * 生の色・px を書くと tests/ui/design-tokens.test.ts が落ちる。
+ */
+
+/* === 事実と推測の区別 =================================================== */
+
+.factBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius-pill);
+  font-size: var(--text-xs);
+  font-weight: var(--weight-semibold);
+  line-height: var(--leading-dense);
+  white-space: nowrap;
+}
+
+/* 色だけで区別しない。記号と文字を必ず添える（色覚と白黒印刷への対応）。 */
+.factBadgeFact {
+  background: var(--color-intent-success-subtle);
+  color: var(--color-intent-success);
+  border: var(--border-width-default) solid var(--color-intent-success);
+}
+
+.factBadgeInference {
+  background: var(--color-intent-warning-subtle);
+  color: var(--color-intent-warning);
+  border: var(--border-width-default) solid var(--color-accent-border);
+}
+
+.factBadgeOpinion {
+  background: var(--color-surface-sunken);
+  color: var(--color-text-muted);
+  border: var(--border-width-default) solid var(--color-border-default);
+}
+
+.factNote {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+  line-height: var(--leading-body);
+}
+
+/* === 根拠・出典 ========================================================= */
+
+.evidenceList {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: var(--space-2);
+}
+
+.evidenceItem {
+  display: grid;
+  gap: var(--space-1);
+  padding-inline-start: var(--space-3);
+  border-inline-start: var(--border-width-marker) solid var(--color-border-default);
+  font-size: var(--text-sm);
+  line-height: var(--leading-body);
+}
+
+.evidenceMeta {
+  color: var(--color-text-muted);
+  font-size: var(--text-xs);
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+/* === 広告表示（ステマ規制対応） ========================================= */
+
+.disclosure {
+  display: grid;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-4);
+  border: var(--border-width-emphasis) solid var(--color-accent-border);
+  border-radius: var(--radius-md);
+  background: var(--color-accent-subtle);
+  color: var(--color-text-default);
+  font-size: var(--text-sm);
+  line-height: var(--leading-body);
+}
+
+.disclosureTitle {
+  font-weight: var(--weight-bold);
+  color: var(--color-text-strong);
+}
+
+.disclosureLinks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  font-size: var(--text-xs);
+}
+
+/* === 表（順位・比較の共通土台） ========================================= */
+
+.tableWrap {
+  overflow-x: auto;
+  border: var(--border-width-default) solid var(--color-border-subtle);
+  border-radius: var(--radius-md);
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--text-sm);
+  line-height: var(--leading-dense);
+}
+
+.table caption {
+  text-align: start;
+  padding: var(--space-3) var(--space-4);
+  color: var(--color-text-muted);
+  font-size: var(--text-xs);
+}
+
+.table th,
+.table td {
+  padding: var(--space-3);
+  text-align: start;
+  border-bottom: var(--border-width-default) solid var(--color-border-subtle);
+  vertical-align: top;
+}
+
+.table thead th {
+  position: sticky;
+  top: 0;
+  z-index: var(--z-sticky);
+  background: var(--color-surface-raised);
+  color: var(--color-text-strong);
+  font-weight: var(--weight-semibold);
+}
+
+/* 行の見出し（商品名・順位）は横スクロールしても残す。 */
+.table tbody th {
+  background: var(--color-surface-default);
+  color: var(--color-text-strong);
+  font-weight: var(--weight-semibold);
+}
+
+.rank {
+  font-size: var(--text-lg);
+  font-weight: var(--weight-bold);
+  color: var(--color-text-strong);
+}
+
+/* 商品名の下に添える一言。数字だけでは違いが伝わらないため。 */
+.rowNote {
+  display: block;
+  font-size: var(--text-xs);
+  font-weight: var(--weight-normal);
+  color: var(--color-text-muted);
+}
+
+.score {
+  font-variant-numeric: tabular-nums;
+}
+
+.numeric {
+  text-align: end;
+  font-variant-numeric: tabular-nums;
+}
+
+.excluded {
+  color: var(--color-text-muted);
+}
+
+/* === 評価基準の開示 ===================================================== */
+
+.criteria {
+  display: grid;
+  gap: var(--space-2);
+  margin: 0;
+  padding: var(--space-3) var(--space-4);
+  border: var(--border-width-default) solid var(--color-border-subtle);
+  border-radius: var(--radius-md);
+  background: var(--color-surface-sunken);
+  font-size: var(--text-sm);
+}
+
+.criteriaRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  align-items: baseline;
+}
+
+.criteriaWeight {
+  font-variant-numeric: tabular-nums;
+  color: var(--color-text-muted);
+}
+
+/* === 承認の流れ ========================================================= */
+
+.flow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  align-items: center;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.flowStep {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-pill);
+  border: var(--border-width-default) solid var(--color-border-default);
+  color: var(--color-text-muted);
+  font-size: var(--text-xs);
+}
+
+.flowStepDone {
+  border-color: var(--color-intent-success);
+  color: var(--color-intent-success);
+}
+
+.flowStepCurrent {
+  border-color: var(--color-accent-border);
+  border-width: var(--border-width-emphasis);
+  background: var(--color-accent-subtle);
+  color: var(--color-text-strong);
+  font-weight: var(--weight-semibold);
+}
+
+.flowSep {
+  color: var(--color-text-muted);
+}
+
+/* === 見本（スタブ）ラベル =============================================== */
+
+/*
+ * 見本であることを隠さない。
+ * 縞模様にして「本物の画面と見た目が違う」ことを一目で分かるようにする。
+ */
+.stub {
+  display: grid;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-4);
+  border: var(--border-width-emphasis) dashed var(--color-border-strong);
+  border-radius: var(--radius-md);
+  background: var(--color-surface-sunken);
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+  line-height: var(--leading-body);
+}
+
+.stubLabel {
+  display: inline-flex;
+  align-self: start;
+  align-items: center;
+  gap: var(--space-1);
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius-sm);
+  background: var(--color-badge-surface);
+  color: var(--color-text-on-badge);
+  font-size: var(--text-xs);
+  font-weight: var(--weight-bold);
+  letter-spacing: var(--tracking-wide);
+}
+
+.stubBlocked {
+  color: var(--color-text-default);
+}
+
+@media (width < 48rem) { /* --breakpoint-md */
+  .table thead th {
+    position: static;
+  }
+}
+
+/*
+ * 作業ボード（ホーム画面の数字）。
+ *
+ * 数字だけを並べたカードにしない。
+ * 「値」「その意味」「行き先」の 3 つを 1 枚に必ず入れる形にしてある。
+ * この 3 点を欠いた表示を作れないようにするのが、この部品を共通化した理由。
+ */
+.board {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(var(--card-min-width), 1fr));
+  gap: var(--space-3);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.boardItem {
+  display: grid;
+  align-content: start;
+  gap: var(--space-2);
+  padding: var(--space-4);
+  border: var(--border-width-default) solid var(--color-border-subtle);
+  border-inline-start: var(--border-width-marker) solid var(--color-border-default);
+  border-radius: var(--radius-md);
+  background: var(--color-surface-default);
+}
+
+.boardItemAttention {
+  border-inline-start-color: var(--color-accent-border);
+  background: var(--color-accent-subtle);
+}
+
+.boardItemProblem {
+  border-inline-start-color: var(--color-intent-danger);
+  background: var(--color-intent-danger-subtle);
+}
+
+.boardLabel {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  line-height: var(--leading-dense);
+}
+
+.boardValue {
+  color: var(--color-text-strong);
+  font-size: var(--text-2xl);
+  font-weight: var(--weight-bold);
+  line-height: var(--leading-heading);
+}
+
+.boardValueUnavailable {
+  color: var(--color-text-muted);
+  font-size: var(--text-lg);
+}
+
+.boardReason {
+  margin: 0;
+  color: var(--color-text-default);
+  font-size: var(--text-sm);
+  line-height: var(--leading-body);
+}
+
+.boardLink {
+  justify-self: start;
+  min-height: var(--tap-target-min);
+  display: inline-flex;
+  align-items: center;
+  color: var(--color-action-default);
+}
+
+/* 目には見えないが読み上げには届く文言。色だけで意味を表さないために使う。 */
+.srOnly {
+  position: absolute;
+  width: var(--sr-only-size);
+  height: var(--sr-only-size);
+  padding: 0;
+  margin: calc(-1 * var(--sr-only-size));
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* --- 予定カレンダー ------------------------------------------------------ */
+
+.calendar {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+.calendarCaption {
+  text-align: start;
+  padding-block-end: var(--space-2);
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+}
+
+.calendarWeekday {
+  padding: var(--space-2);
+  border-block-end: var(--border-width-default) solid var(--color-border-default);
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  text-align: start;
+}
+
+.calendarCell {
+  vertical-align: top;
+  padding: var(--space-2);
+  border: var(--border-width-default) solid var(--color-border-subtle);
+  background: var(--color-surface-default);
+}
+
+.calendarCellToday {
+  background: var(--color-surface-sunken);
+  border-color: var(--color-border-strong);
+}
+
+.calendarEmpty {
+  border: var(--border-width-default) solid var(--color-border-subtle);
+  background: var(--color-surface-sunken);
+}
+
+.calendarDate {
+  margin: 0 0 var(--space-1);
+  color: var(--color-text-strong);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+}
+
+.calendarWarning {
+  margin: 0 0 var(--space-1);
+  padding: var(--space-1);
+  border-inline-start: var(--border-width-marker) solid var(--color-intent-warning);
+  background: var(--color-intent-warning-subtle);
+  color: var(--color-text-default);
+  font-size: var(--text-xs);
+  line-height: var(--leading-body);
+}
+
+.calendarEntries {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: var(--space-1);
+}
+
+.calendarEntry {
+  display: grid;
+  gap: var(--space-1);
+  padding: var(--space-1);
+  border-inline-start: var(--border-width-marker) solid var(--color-border-default);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-raised);
+  font-size: var(--text-xs);
+  line-height: var(--leading-body);
+}
+
+.calendarEntryAttention {
+  border-inline-start-color: var(--color-intent-danger);
+  background: var(--color-intent-danger-subtle);
+}
+
+.calendarEntryDetail {
+  color: var(--color-text-muted);
+}
+
+.calendarEntryReason {
+  color: var(--color-text-default);
+}
+
+/* 画面が狭いときは、7 列を保てないので日ごとの縦並びに切り替える。
+   横に潰して読めない表にするより、1 日ずつ順に読める形の方が使える。 */
+@media (max-width: 48rem) /* --breakpoint-md */ {
+  .calendar,
+  .calendar thead,
+  .calendar tbody,
+  .calendar tr,
+  .calendar td {
+    display: block;
+    width: 100%;
+  }
+
+  .calendar thead {
+    display: none;
+  }
+
+  .calendarEmpty {
+    display: none;
+  }
+
+  .calendarCell {
+    margin-block-end: var(--space-2);
+    border-radius: var(--radius-md);
+  }
+}
+
+/* --- 絞り込みの棚 -------------------------------------------------------- */
+
+.filterBar {
+  display: grid;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  border: var(--border-width-default) solid var(--color-border-subtle);
+  border-radius: var(--radius-md);
+  background: var(--color-surface-sunken);
+}
+
+.filterFields {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(var(--card-min-width), 1fr));
+  gap: var(--space-3);
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.filterLegend {
+  padding: 0;
+  color: var(--color-text-strong);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+}
+
+.filterField {
+  display: grid;
+  gap: var(--space-1);
+}
+
+.filterLabel {
+  color: var(--color-text-default);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+}
+
+/* 報酬に直結する切り口であることを、色ではなく言葉で示す。 */
+.filterCommercial {
+  color: var(--color-text-muted);
+  font-size: var(--text-xs);
+  font-weight: var(--weight-normal);
+}
+
+.filterSelect {
+  min-height: var(--tap-target-min);
+  padding: var(--space-2);
+  border: var(--border-width-emphasis) solid var(--color-border-default);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-default);
+  color: var(--color-text-default);
+  font-size: var(--text-sm);
+}
+
+.filterSelect:focus-visible {
+  outline: var(--focus-ring-width) solid var(--color-focus-ring);
+  outline-offset: var(--focus-ring-offset);
+}
+
+.filterHint {
+  color: var(--color-text-muted);
+  font-size: var(--text-xs);
+  line-height: var(--leading-body);
+}
+
+.filterActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  align-items: center;
+}
+
+.filterSubmit {
+  min-height: var(--tap-target-min);
+  padding: var(--space-2) var(--space-4);
+  border: var(--border-width-emphasis) solid var(--color-action-default);
+  border-radius: var(--radius-sm);
+  background: var(--color-action-default);
+  color: var(--color-text-on-action);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  cursor: pointer;
+}
+
+.filterSubmit:hover {
+  background: var(--color-action-hover);
+}
+
+.filterSubmit:focus-visible {
+  outline: var(--focus-ring-width) solid var(--color-focus-ring);
+  outline-offset: var(--focus-ring-offset);
+}
+
+.filterSummary {
+  margin: 0;
+  color: var(--color-text-default);
+  font-size: var(--text-sm);
+  line-height: var(--leading-body);
+}
+
+.filterUnavailable {
+  margin: 0;
+  padding-inline-start: var(--space-5);
+  color: var(--color-text-muted);
+  font-size: var(--text-xs);
+  line-height: var(--leading-body);
+}
+
+/* --- 取り込んだ文章の確認 ------------------------------------------------ */
+
+.materialForm {
+  display: grid;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  border: var(--border-width-default) solid var(--color-border-subtle);
+  border-radius: var(--radius-md);
+  background: var(--color-surface-sunken);
+}
+
+.materialLabel {
+  color: var(--color-text-strong);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+}
+
+.materialInput {
+  padding: var(--space-2);
+  border: var(--border-width-emphasis) solid var(--color-border-default);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-default);
+  color: var(--color-text-default);
+  font-family: inherit;
+  font-size: var(--text-sm);
+  line-height: var(--leading-body);
+}
+
+.materialInput:focus-visible {
+  outline: var(--focus-ring-width) solid var(--color-focus-ring);
+  outline-offset: var(--focus-ring-offset);
+}
+
+.materialHint {
+  color: var(--color-text-muted);
+  font-size: var(--text-xs);
+  line-height: var(--leading-body);
+}
+
+.findingList {
+  display: grid;
+  gap: var(--space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.findingItem {
+  display: grid;
+  gap: var(--space-1);
+  padding: var(--space-3);
+  border-inline-start: var(--border-width-marker) solid var(--color-border-strong);
+  background: var(--color-surface-default);
+}
+
+.findingWhat {
+  color: var(--color-text-strong);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+}
+
+.findingExcerpt {
+  overflow-wrap: anywhere;
+  color: var(--color-text-muted);
+  font-size: var(--text-xs);
+}
+
+/* --- 会話ブロック ---------------------------------------------------- */
+
+.section {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.sectionHeading {
+  color: var(--color-text-strong);
+  font-size: var(--text-lg);
+  font-weight: var(--weight-semibold);
+  margin: 0;
+}
+
+.conversation {
+  display: grid;
+  gap: var(--space-3);
+  border-inline-start: var(--border-width-marker) solid var(--color-accent-border);
+  padding-inline-start: var(--space-4);
+}
+
+.conversationLine {
+  display: grid;
+  gap: var(--space-1);
+}
+
+.conversationSpeaker {
+  color: var(--color-text-muted);
+  font-size: var(--text-xs);
+  font-weight: var(--weight-semibold);
+  letter-spacing: var(--tracking-wide);
+}
+
+.conversationText {
+  margin: 0;
+  line-height: var(--leading-body);
+}
+
+/* --- 商品カード ------------------------------------------------------ */
+
+.productCard {
+  display: grid;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  border: var(--border-width-default) solid var(--color-border-default);
+  border-radius: var(--radius-md);
+  background: var(--color-surface-default);
+}
+
+.productCardHeader {
+  display: grid;
+  gap: var(--space-1);
+}
+
+.productCardBrand {
+  color: var(--color-text-muted);
+  font-size: var(--text-xs);
+  letter-spacing: var(--tracking-wide);
+}
+
+.productCardName {
+  margin: 0;
+  color: var(--color-text-strong);
+  font-size: var(--text-lg);
+  font-weight: var(--weight-semibold);
+}
+
+.productCardLead {
+  margin: 0;
+  color: var(--color-text-default);
+  line-height: var(--leading-body);
+}
+
+.productCardSpecs {
+  display: grid;
+  gap: var(--space-2);
+  margin: 0;
+}
+
+.productCardSpec {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  align-items: baseline;
+  justify-content: space-between;
+}
+
+.productCardSpecLabel {
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+}
+
+.productCardSpecValue {
+  display: flex;
+  gap: var(--space-2);
+  align-items: baseline;
+  margin: 0;
+  color: var(--color-text-strong);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+}
+
+.productCardMissing {
+  color: var(--color-text-muted);
+  font-weight: var(--weight-normal);
+}
+
+.productCardPrice {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: var(--text-xs);
+  line-height: var(--leading-body);
+}
+
+.productCardFooter {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  align-items: center;
+}
+
+.productCardBlocked {
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+}
+
+/* === 見た目の選択（配色 × 明暗） ======================================== */
+/*
+ * 管理画面と読者側で同じ見た目にする。
+ * ここに「管理画面のときだけ」の分岐を書かない。
+ */
+
+.appearancePicker {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  margin: 0;
+  padding: var(--space-4);
+  border: var(--border-width-default) solid var(--color-border-default);
+  border-radius: var(--radius-md);
+  background: var(--color-surface-raised);
+}
+
+.appearanceLegend {
+  padding: 0 var(--space-2);
+  color: var(--color-text-strong);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+}
+
+.appearanceNote {
+  max-width: var(--readable-max-width);
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+  line-height: var(--leading-body);
+}
+
+/*
+ * 横並びは幅がある場合だけ。狭い画面では縦に積む。
+ * 選択欄を無理に横に詰めると、ラベルが折り返して行数がそろわなくなる。
+ */
+.appearanceFields {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(var(--card-min-width), 1fr));
+  gap: var(--space-4);
+}
+
+/* --- 計測についてのお願い ------------------------------------------------
+ *
+ * 読み始めを邪魔しない位置に置く（画面を覆わない）。
+ * 覆う出し方にすると、読者は中身を読まずに「許可」を押す。
+ * それは同意を取ったことにならない。
+ */
+.consentBanner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  border: var(--border-width-default) solid var(--color-border-default);
+  border-radius: var(--radius-md);
+  background: var(--color-surface-raised);
+}
+
+.consentTitle {
+  margin: 0 0 var(--space-1);
+  color: var(--color-text-strong);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+}
+
+.consentBody {
+  max-width: var(--readable-max-width);
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+  line-height: var(--leading-body);
+}
+
+/* 2 つの選択肢を同じ強さで並べる。片方だけ目立たせない。 */
+.consentActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.consentSettled {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+  line-height: var(--leading-body);
+}
+
+.consentUndo {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--color-action-default);
+  font: inherit;
+  text-decoration: underline;
+  cursor: pointer;
+}

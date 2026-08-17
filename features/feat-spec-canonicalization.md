@@ -12,8 +12,8 @@ iteration: null
 title: "仕様正本の整理と投影"
 owners: ["daishiman"]
 created_at: "2026-08-16T11:19:17Z"
-updated_at: "2026-08-16T11:20:02.290088Z"
-status: "draft"
+updated_at: "2026-08-16T13:45:23.772678Z"
+status: "active"
 depends_on: []
 related_nodes: ["task-spec-writeback","doc-spec-index"]
 resource_scope: ["docs/spec","system-spec","features","tasks","specs","architecture"]
@@ -23,17 +23,17 @@ mvp_alignment: {"background":"要求文書と Phase 0 文書が並立し、Analy
 scope_in: ["正本文書と優先表","Phase 0 文書の位置づけ","system-spec の As-Is 更新","dev-graph と Beads の初期化"]
 scope_out: ["Auth / Workspace 実装","2 D1 分離","Redirect / Insight 実装","exact-13 feature package"]
 acceptance: ["00-README が Phase 0 を含む優先表を持つ","database.md が Phase 1 読者テーブルを As-Is に書く","graph ノードが C02 経由で登録されている"]
-architecture_refs: ["arch-spec-governance"]
+architecture_refs: ["arch-spec-governance","arch-two-layer-platform"]
 parent_feature: null
 feature_package_id: null
 phase_ref: null
 file_path: "features/feat-spec-canonicalization.md"
 template_id: "feature"
 template_version: "1.0.0"
-confirmation_status: "draft"
-evaluation_status: "pending"
-confirmation_evidence: {"evaluated_digest":null,"evaluator":null,"evidence_ref":null}
-source_lineage: {"imported_at":"2026-08-16T11:19:17Z","origin_kind":"system-spec-harness","source_digest":"2f4b3d62f5d7a0bdc829bcf9dad18ef9caaa1c808792d83264dea6a5755f0b66","source_path":"system-spec/index.md","source_plugin":"system-spec-harness","source_version":"0.1.0"}
+confirmation_status: "confirmed"
+evaluation_status: "pass"
+confirmation_evidence: {"evaluated_digest":"b5fc60987cb79c08c30db4cd94b075a0bf89cd7acba7c8d1ffc8558af6439385","evaluator":"app-orchestrator/decompose-redo","evidence_ref":"docs/product/traceability.md"}
+source_lineage: {"imported_at":"2026-08-16T11:19:17Z","origin_kind":"system-spec-harness","source_digest":"409add2dc4ceef4637f1a2048bdd9a2e54a4a9873cc4e70a9d160a13c5d63e44","source_path":"system-spec/index.md","source_plugin":"system-spec-harness","source_version":"0.1.0"}
 classification_confidence: 0.92
 classification_reason: "macro feature for spec governance derived from system-spec index"
 classification_candidates: [{"artifact_kind":"feature","candidate_path":"features/feat-spec-canonicalization.md","confidence":0.92}]
@@ -45,7 +45,7 @@ github_project_linkages: []
 pull_request_linkages: []
 execution_contexts: []
 completion_evidence: {"completed_at":null,"evidence_refs":[],"policy":"manual","reconciled_at":null,"source":null,"status":"in_progress"}
-implementation_readiness: {"checked_at":null,"missing_sections":[],"status":"incomplete"}
+implementation_readiness: {"checked_at":"2026-08-16T13:30:00Z","missing_sections":[],"status":"complete"}
 ---
 
 # 目的

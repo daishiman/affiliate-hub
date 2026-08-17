@@ -1,55 +1,45 @@
-import { z } from "zod";
-
-import { authenticate, type AuthScope } from "@/lib/mcp/auth";
-import { findTool, TOOLS } from "@/lib/mcp/tools";
-import { errorResult } from "@/lib/mcp/types";
+import { allowedOriginsFrom, checkOrigin, originRejection } from "@/presentation/http/origin-guard";
+import {
+  authenticateRequest,
+  createToolCatalog,
+  currentActor,
+} from "@/presentation/composition";
+import { handleJsonRpc, type JsonRpcRequest } from "@/presentation/tools/mcp-adapter";
+import { refusalReason, visibleTools } from "@/presentation/http/tool-scope";
+import { findTool } from "@/presentation/tools/catalog";
 
 export const dynamic = "force-dynamic";
 
-/** サーバーが実装している MCP プロトコル版 */
+/** このサーバーが実装している MCP の版 */
 const PROTOCOL_VERSION = "2025-06-18";
 
+/**
+ * バックエンド MCP の入口（JSON-RPC / Streamable HTTP・stateless）。
+ *
+ * **ここに業務の処理は 1 行も書かない。** 呼ぶのは画面・REST・WebMCP と
+ * まったく同じ 1 つのツールカタログで、違うのは「返し方」だけ。
+ * 入口ごとにツール一覧を組み直すと、片方にだけ古い定義が残る。
+ *
+ * セッションを持たないので `Mcp-Session-Id` は発行せず、1 リクエスト 1 レスポンスで終わる。
+ * そのぶんサーバー起点の通知やサンプリングは扱えない。
+ */
 type JsonRpcId = string | number | null;
-
-function result(id: JsonRpcId, value: unknown) {
-  return Response.json({ jsonrpc: "2.0", id, result: value });
-}
 
 function rpcError(id: JsonRpcId, code: number, message: string) {
   return Response.json({ jsonrpc: "2.0", id, error: { code, message } });
 }
 
-/** そのスコープでツールを実行してよいか */
-function isAllowed(exposeToBrowser: boolean, scope: AuthScope): boolean {
-  return scope === "bearer" || exposeToBrowser;
-}
-
-/** そのスコープに見せるツール一覧 */
-function visibleTools(scope: AuthScope) {
-  return TOOLS.filter((tool) => isAllowed(tool.exposeToBrowser, scope));
-}
-
-const requestSchema = z.object({
-  jsonrpc: z.literal("2.0"),
-  id: z.union([z.string(), z.number(), z.null()]).optional(),
-  method: z.string(),
-  params: z.record(z.string(), z.unknown()).optional(),
-});
-
-/**
- * Streamable HTTP (stateless) な MCP エンドポイント。
- *
- * セッションを持たないので Mcp-Session-Id は発行せず、1リクエスト1レスポンスで完結する。
- * Durable Objects なしで動くぶん、サーバー起点の通知やサンプリングは扱えない。
- */
 export async function POST(request: Request) {
-  const auth = await authenticate(request);
+  // よそのサイトのページから、こちらのログイン状態を使って呼ばれるのを止める。
+  const origin = checkOrigin(request, allowedOriginsFrom(process.env as Record<string, string | undefined>));
+  if (!origin.ok) return originRejection(origin);
+
+  const auth = await authenticateRequest(request);
   if (!auth.ok) {
     return new Response(JSON.stringify({ error: auth.message }), {
       status: auth.status,
       headers: {
         "content-type": "application/json",
-        // MCP クライアントに認証方式を伝える
         ...(auth.status === 401 ? { "www-authenticate": 'Bearer realm="affiliate-hub"' } : {}),
       },
     });
@@ -59,83 +49,67 @@ export async function POST(request: Request) {
   try {
     body = await request.json();
   } catch {
-    return rpcError(null, -32700, "Parse error");
+    return rpcError(null, -32700, "本文を読み取れませんでした。");
   }
 
-  const parsed = requestSchema.safeParse(body);
-  if (!parsed.success) {
-    return rpcError(null, -32600, "Invalid Request");
+  if (typeof body !== "object" || body === null) {
+    return rpcError(null, -32600, "JSON-RPC の形式ではありません。");
   }
+  const message = body as Record<string, unknown>;
+  const id: JsonRpcId =
+    typeof message.id === "string" || typeof message.id === "number" ? message.id : null;
+  const method = typeof message.method === "string" ? message.method : "";
+  const isNotification = message.id === undefined;
 
-  const { id = null, method, params = {} } = parsed.data;
-
-  // 通知 (id なし) は本文を返さない
-  const isNotification = parsed.data.id === undefined;
-
-  switch (method) {
-    case "initialize":
-      return result(id, {
+  // 握手と疎通は JSON-RPC の作法そのものなので、この入口が受け持つ。
+  if (method === "initialize") {
+    return Response.json({
+      jsonrpc: "2.0",
+      id,
+      result: {
         protocolVersion: PROTOCOL_VERSION,
-        capabilities: { tools: { listChanged: false } },
+        capabilities: {
+          tools: { listChanged: false },
+          resources: { listChanged: false, subscribe: false },
+        },
         serverInfo: { name: "affiliate-hub", version: "0.1.0" },
-      });
-
-    case "notifications/initialized":
-      return new Response(null, { status: 202 });
-
-    case "ping":
-      return result(id, {});
-
-    case "tools/list":
-      return result(id, {
-        tools: visibleTools(auth.scope).map((tool) => ({
-          name: tool.name,
-          title: tool.title,
-          description: tool.description,
-          // io:"input" にしないと .default() 付きの引数が required 扱いになり、
-          // クライアント(AI)が省略可能な引数を必須だと誤解する
-          inputSchema: z.toJSONSchema(tool.inputSchema, { io: "input" }),
-        })),
-      });
-
-    case "tools/call": {
-      const name = params.name;
-      if (typeof name !== "string") {
-        return rpcError(id, -32602, "params.name is required");
-      }
-      const tool = findTool(name);
-      if (!tool) {
-        return rpcError(id, -32602, `Unknown tool: ${name}`);
-      }
-      // ブラウザ経由(same-origin)では書き込み系を実行させない。
-      // WebMCP 側で公開していなくても、口が開いていれば直接叩けてしまうため
-      // サーバー側でも同じ判定をする。
-      if (!isAllowed(tool.exposeToBrowser, auth.scope)) {
-        return rpcError(id, -32602, `このツールには Bearer 認証が必要です: ${name}`);
-      }
-      const args = tool.inputSchema.safeParse(params.arguments ?? {});
-      if (!args.success) {
-        return result(id, errorResult(`引数が不正です: ${args.error.message}`));
-      }
-      try {
-        return result(id, await tool.handler(args.data));
-      } catch (cause) {
-        // ツール実行時のエラーは JSON-RPC エラーではなく isError で返す
-        // (MCP 仕様: モデルがエラー内容を読んで回復できるようにするため)
-        const message = cause instanceof Error ? cause.message : String(cause);
-        return result(id, errorResult(`ツール実行に失敗しました: ${message}`));
-      }
-    }
-
-    default:
-      if (isNotification) return new Response(null, { status: 202 });
-      return rpcError(id, -32601, `Method not found: ${method}`);
+      },
+    });
   }
+  if (method === "notifications/initialized") return new Response(null, { status: 202 });
+  if (method === "ping") return Response.json({ jsonrpc: "2.0", id, result: {} });
+
+  const catalog = visibleTools(createToolCatalog(), auth.scope);
+
+  // 見せていないツールを名指しで呼ばれたら、黙って落とさず理由を返す。
+  if (method === "tools/call") {
+    const params = (message.params ?? {}) as Record<string, unknown>;
+    const name = typeof params.name === "string" ? params.name : "";
+    const hidden = findTool(createToolCatalog(), name);
+    if (hidden !== null && findTool(catalog, name) === null) {
+      return rpcError(id, -32600, refusalReason(hidden));
+    }
+  }
+
+  const handled = ["tools/list", "tools/call", "resources/list", "resources/read"];
+  if (!handled.includes(method)) {
+    if (isNotification) return new Response(null, { status: 202 });
+    return rpcError(id, -32601, `対応していないメソッドです: ${method}`);
+  }
+
+  const actor = await currentActor();
+  const rpc: JsonRpcRequest = {
+    jsonrpc: "2.0",
+    id,
+    method,
+    params: (message.params ?? {}) as Record<string, unknown>,
+  };
+  return Response.json(await handleJsonRpc(catalog, actor, rpc));
 }
 
-/** 疎通確認用。GET での SSE ストリームは stateless 構成では提供しない。 */
+/** 疎通確認用。stateless 構成なので GET での SSE ストリームは提供しない。 */
 export async function GET(request: Request) {
-  const auth = await authenticate(request);
+  const auth = await authenticateRequest(request);
   if (!auth.ok) {
     return Response.json({ error: auth.message }, { status: auth.status });
   }
@@ -144,6 +118,6 @@ export async function GET(request: Request) {
     protocolVersion: PROTOCOL_VERSION,
     transport: "streamable-http (stateless)",
     scope: auth.scope,
-    tools: visibleTools(auth.scope).map((t) => t.name),
+    tools: visibleTools(createToolCatalog(), auth.scope).map((t) => t.name),
   });
 }

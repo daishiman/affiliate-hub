@@ -1,5 +1,13 @@
 import { sql } from "drizzle-orm";
-import { index, integer, primaryKey, real, sqliteTable, text } from "drizzle-orm/sqlite-core";
+import {
+  index,
+  integer,
+  primaryKey,
+  real,
+  sqliteTable,
+  text,
+  uniqueIndex,
+} from "drizzle-orm/sqlite-core";
 
 /**
  * このファイルは 2 つのドメインを持つ。混ぜてはいけない。
@@ -350,10 +358,78 @@ export const updateLogs = sqliteTable(
   ],
 );
 
+/**
+ * 成果リンクの受信箱 (§9.2)。運営者ドメイン。
+ *
+ * `submitted_url` は**受け取ったまま**保存する。改変は規約違反になりうる。
+ * `normalized_url` は重複判定にだけ使う形で、表示にも遷移にも使わない。
+ * 作業場所ごとの一意制約をここに置くのは、
+ * 「同じ URL が 2 回入る」を保存先の側で止めるため
+ * （アプリ側の確認だけだと、同時に 2 人が入れたときにすり抜ける）。
+ */
+export const linkIngestions = sqliteTable(
+  "link_ingestions",
+  {
+    id: text("id").primaryKey(),
+    workspaceId: text("workspace_id").notNull(),
+    submittedUrl: text("submitted_url").notNull(),
+    normalizedUrl: text("normalized_url").notNull(),
+    source: text("source", {
+      enum: ["paste", "csv", "api", "extension", "webmcp"],
+    }).notNull(),
+    submittedAt: integer("submitted_at", { mode: "timestamp" })
+      .notNull()
+      .default(sql`(unixepoch())`),
+    state: text("state", {
+      enum: ["received", "resolved", "matched", "rejected"],
+    }).notNull(),
+    programId: text("program_id"),
+    productId: text("product_id"),
+    duplicateOf: text("duplicate_of"),
+    note: text("note"),
+    rejectedReason: text("rejected_reason"),
+  },
+  (t) => [
+    index("link_ingestions_workspace_state_idx").on(t.workspaceId, t.state),
+    uniqueIndex("link_ingestions_workspace_normalized_url_idx").on(t.workspaceId, t.normalizedUrl),
+  ],
+);
+
+/**
+ * ログイン状態（セッション）。
+ *
+ * **合言葉そのものを保存しない。** 保存するのは合言葉を潰した値（`token_hash`）だけ。
+ * こうしておくと、この表を読めた人でも他人になりすませない。
+ * 逆に合言葉を平文で置くと、保存先の中身が漏れた時点で全員のログインが漏れる。
+ *
+ * ログインの入口（誰がこの行を作るか）はまだ無い。作るのは Better Auth + Google の側で、
+ * それには利用者ご自身による接続情報の登録が要る。
+ * この表とその読み取りは、入口が付いた日にそのまま使える形で先に用意してある。
+ */
+export const sessions = sqliteTable(
+  "sessions",
+  {
+    /** 合言葉を SHA-256 で潰した値。合言葉そのものは保存しない。 */
+    tokenHash: text("token_hash").primaryKey(),
+    userId: text("user_id").notNull(),
+    workspaceId: text("workspace_id").notNull(),
+    createdAt: integer("created_at", { mode: "timestamp" })
+      .notNull()
+      .default(sql`(unixepoch())`),
+    /** 期限。過ぎた行は読み取り側で無効として扱う（消し忘れても効く）。 */
+    expiresAt: integer("expires_at", { mode: "timestamp" }).notNull(),
+    /** ログアウトや管理者による停止。期限内でも無効にできる。 */
+    revokedAt: integer("revoked_at", { mode: "timestamp" }),
+  },
+  (t) => [index("sessions_user_idx").on(t.userId, t.expiresAt)],
+);
+
 // 運営者ドメイン
 export type Asp = typeof asps.$inferSelect;
+export type SessionRow = typeof sessions.$inferSelect;
 export type Program = typeof programs.$inferSelect;
 export type Conversion = typeof conversions.$inferSelect;
+export type LinkIngestionRow = typeof linkIngestions.$inferSelect;
 
 // 読者ドメイン
 export type Category = typeof categories.$inferSelect;

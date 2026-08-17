@@ -4,12 +4,12 @@
 
 ## スナップショット
 
-- graph snapshot digest: `sha256:07b7d9605438e6e26a5e1b7fb4f24ff747c12dd7484fee600fa917b2c2eca81d`
-- graph revision: 65
+- graph snapshot digest: `sha256:9ae48414b8ff8b489ce13db626f0c01c578cd7f7d884f14e74e4165776c62fdb`
+- graph revision: 113
 - feature package: `feature-package/feat-auth-workspace`
 - promoted generation digest: `sha256:35483f66bb1988fc2b3ede65937a16e41d29637c455a092e3fa463c0c90fbb0c`
 - handoff target: `task-graph`
-- emitted_at: 2026-08-16T13:40:00Z
+- emitted_at: 2026-08-16T14:00:00Z
 
 ## 目的と到達状態
 
@@ -97,3 +97,9 @@ missing sections 合計: 0 件。remediation owner: なし (全 gate PASS)。
 - target: `task-graph` build
 - handoff package: `.dev-graph/handoff/task-graph/feat-auth-workspace.json`
 - 実装コード生成: 0 件 (本書と handoff package のみ)
+
+## 二層構造との関係 (再emit時の追記)
+
+- 本 feature はプラットフォーム層の基盤であり、ブログ層 (Site の実体) のテナント境界も本 feature の `workspace_id` 束縛に従う
+- アーキテクチャ正本は `architecture/arch-two-layer-platform.md`、裁定文書は `docs/spec/04-二層構造統合仕様.md`
+- 権限10ロールの判定は `src/domain/shared/authz.ts` の単一関数へ集約し、画面側は判定結果だけを使う

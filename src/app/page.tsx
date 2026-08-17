@@ -1,76 +1,54 @@
-import { desc } from "drizzle-orm";
-
-import { getDb } from "@/db";
-import { programs } from "@/db/schema";
+import Link from "next/link";
+import { readerActor, siteSampleNotice, siteUseCases } from "@/presentation/composition";
+import { siteBasePath } from "@/presentation/site/view-model";
+import { Callout, EmptyView, ErrorView, PublicShell, SitePage } from "@/presentation/ui";
 
 export const dynamic = "force-dynamic";
 
-const yen = new Intl.NumberFormat("ja-JP", { style: "currency", currency: "JPY" });
-
-async function loadPrograms() {
-  try {
-    const db = await getDb();
-    return await db.select().from(programs).orderBy(desc(programs.updatedAt)).limit(20);
-  } catch {
-    // マイグレーション未適用など、DB がまだ使えない状態でも画面は出す
-    return null;
-  }
-}
-
+/**
+ * 入口。
+ *
+ * ここでデータの取り出し方を書かない。運用中のブログ一覧は
+ * 読者向け画面・管理画面・REST・AI がすべて同じユースケースから取る。
+ * 保存先が見本から D1 に変わっても、このファイルは 1 行も変わらない。
+ */
 export default async function Home() {
-  const rows = await loadPrograms();
+  const result = await siteUseCases().listSites.execute(readerActor(), {});
 
   return (
-    <main className="mx-auto w-full max-w-4xl px-6 py-12">
-      <header className="mb-10">
-        <h1 className="text-2xl font-semibold tracking-tight">affiliate-hub</h1>
-        <p className="mt-2 text-sm text-neutral-500">
-          アフィリエイト案件と成果データを一元管理する
-        </p>
-      </header>
+    <PublicShell title="affiliate-hub">
+      <SitePage
+        title="運営中のブログ"
+        lead="1 つの仕組みで複数のブログを動かしています。ブログを 1 本増やすときに書き足すコードはありません。"
+      >
+        <Callout tone="warn" title="たたき台です" reason={siteSampleNotice()} />
 
-      <section>
-        <h2 className="mb-4 text-sm font-medium text-neutral-500">案件</h2>
-
-        {rows === null ? (
-          <p className="rounded border border-dashed border-neutral-300 p-6 text-sm text-neutral-500">
-            データベースに接続できませんでした。
-            <code className="mx-1 rounded bg-neutral-100 px-1">pnpm db:migrate:local</code>
-            を実行してください。
-          </p>
-        ) : rows.length === 0 ? (
-          <p className="rounded border border-dashed border-neutral-300 p-6 text-sm text-neutral-500">
-            案件がまだ登録されていません。MCP ツール
-            <code className="mx-1 rounded bg-neutral-100 px-1">list_programs</code>
-            /<code className="mx-1 rounded bg-neutral-100 px-1">record_conversion</code>
-            から操作できます。
-          </p>
+        {!result.ok ? (
+          <ErrorView
+            title="ブログの一覧を取れませんでした"
+            body={result.error.suggestedAction ?? result.error.message}
+          />
+        ) : result.value.length === 0 ? (
+          <EmptyView
+            title="まだブログがありません"
+            body="管理画面のサイトから設計図を登録すると、ここに並びます。"
+            action={<Link href="/admin/sites">サイトを見る</Link>}
+          />
         ) : (
-          <ul className="divide-y divide-neutral-200 rounded border border-neutral-200">
-            {rows.map((program) => (
-              <li key={program.id} className="flex items-center justify-between px-4 py-3">
-                <div>
-                  <p className="text-sm font-medium">{program.name}</p>
-                  <p className="text-xs text-neutral-500">
-                    {program.advertiser ?? "広告主未設定"} / {program.status}
-                  </p>
-                </div>
-                <p className="text-sm tabular-nums">
-                  {program.rewardAmount !== null
-                    ? yen.format(program.rewardAmount)
-                    : program.rewardRate !== null
-                      ? `${(program.rewardRate * 100).toFixed(1)}%`
-                      : "—"}
-                </p>
+          <ul>
+            {result.value.map((site) => (
+              <li key={site.slug}>
+                <Link href={siteBasePath(site.slug)}>{site.blueprint.name}</Link>
+                <p>{site.blueprint.purpose}</p>
               </li>
             ))}
           </ul>
         )}
-      </section>
 
-      <footer className="mt-12 text-xs text-neutral-400">
-        MCP エンドポイント: <code>/api/mcp</code>
-      </footer>
-    </main>
+        <p>
+          <Link href="/admin">運営する人はこちら（管理画面）</Link>
+        </p>
+      </SitePage>
+    </PublicShell>
   );
 }

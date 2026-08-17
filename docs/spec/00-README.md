@@ -6,6 +6,7 @@
 
 | 優先 | 関心 | 正本 | 役割 |
 | --- | --- | --- | --- |
+| 0 | プラットフォーム層とブログ層の関係、同一概念の正規定義の所在、共有ドメインサービス、禁止依存 | `04-二層構造統合仕様.md` | **2本の v1.0 が同じ概念に触れる箇所の唯一の裁定文書** |
 | 1 | プロダクト目的、全体スコープ、横断原則、共通用語 | `01-要求仕様書-v1.0.md` | Product Requirements の基準文書。発信者向けコンテンツ運用基盤の目的と境界 |
 | 2 | v1.0 で不足した非Analytics要件、未決事項、移行上の補足 | `02-補充仕様-ギャップと追加要件.md` | 差分と決定待ち事項を管理する。Analytics本文は要約に留める |
 | 3 | 計測、イベント、成果、集計、KPI、アトリビューション、実験、Insight | `03-分析・解析基盤仕様.md` | **Analytics領域で唯一の詳細な規範正本** |
@@ -15,6 +16,12 @@
 | 7 | 実装への投影 | `../../system-spec/*.md` | 上記正本から導出した技術仕様。要求を変更せず、実装詳細を具体化する |
 | 8 | 仕様プロセスの機械正本 | `../../system-spec/spec-state.json` | 収集、承認、追跡、`review_runs` の状態を管理する。Markdownの要求本文の正本ではない |
 | 9 | 機械可読な検査派生物 | `../../system-spec/completeness-report.json` | `spec-state.json` と仕様から生成する完全性レポート。状態や要求を上書きしない |
+| 10 | 記事の文章そのものの作り方（順序・文体・雛形・事実と推論・ペルソナ差分・重複対策・品質検査） | `05-文章作成メソッド仕様.md` | 文章レベルの唯一の正本。構成は `06`、生成の仕組みは `07` |
+| 11 | サイトの構造パラメータと記事構成テンプレート、ウィザードとの接続 | `06-サイトブループリント-記事構成テンプレート.md` | Site Blueprint / ArticleTemplate の正本 |
+| 12 | プロンプト・スキル・サブエージェント・評価セットの設計 | `07-生成基盤設計.md` | 生成基盤の正本。実装可能な具体度で記述する |
+| 12-2 | 仕様文書そのものに残っている未修正点 | `08-仕様の未修正点.md` | 4件の内訳・深刻度・解除条件。生成工程 (C03/C01) 側の課題であり、手で直さない |
+| 13 | 要件と実装の双方向対応（§30.8） | `../product/traceability.md` | 全要件の実装状態・画面・状態表現・アクセシビリティの追跡表 |
+| 14 | 仮定・指摘・意思決定・変更の記録 | `../product/ledgers.md` | ASM / FND / ADR / CHG の台帳 |
 
 競合時は「対象の関心を特定 → その関心の正本を採用 → 派生物を再生成・同期」の順で解消する。判断不能な競合だけを未決事項へ戻し、複数の本文を同時に修正して整合させ続ける運用はしない。
 
@@ -41,6 +48,11 @@
 | `ai-first-webmcp.md` | 読者向け比較メディアと WebMCP の Phase 0 契約 | approved（Phase 0） | approved | partial（Phase 1 スキーマと公開ゲート） | unverified |
 | `data-model-gap.md` | 運営者ドメインと読者ドメインの差分 | approved（Phase 0 分析） | approved | partial | unverified |
 | `completion-criteria.md` | Phase 0 完了条件の検証分解 | approved（Phase 0） | approved | not_started | unverified |
+| `04-二層構造統合仕様.md` | プラットフォーム層とブログ層の統合ルール5条・WebMCP確定契約・禁止依存 | approved（v1.0） | approved | not_started | unverified |
+| `05-文章作成メソッド仕様.md` | 文章作成メソッド・文体規則・雛形・事実と推論・ペルソナ差分・重複対策・QC-01〜17 | approved（v1.0） | approved | not_started | unverified |
+| `06-サイトブループリント-記事構成テンプレート.md` | SiteBlueprint / ArticleTemplate のパラメータ定義とウィザード接続 | approved（v1.0） | approved | not_started | unverified |
+| `07-生成基盤設計.md` | プロンプト・スキル8種・サブエージェント6種・評価セット50件・ローンチ基準 | approved（v1.0） | approved | not_started | unverified |
+| `08-仕様の未修正点.md` | 完全性判定で挙がった4件（3件未解消 / 1件解消済み）とその解除条件 | 記録（2026-08-17 実地確認） | — | — | verified |
 
 ## As-Is / To-Be 要約
 

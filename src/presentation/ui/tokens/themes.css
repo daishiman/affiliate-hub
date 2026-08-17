@@ -1,0 +1,223 @@
+/*
+ * トークン 3 段目: ブランドテーマ (値の差し替え)
+ *
+ * 複数ブログ・複数ブランドの見た目の違いは、このファイルの値の差だけに閉じる。
+ * ブログごとにコンポーネントを作らない。作った時点で、
+ * 「全ブログのボタンの形を変える」が「ブログの数だけ書き換える」になる。
+ *
+ * 上書きしてよいのは 2 段目 (semantic.css) のトークンだけ。
+ * 1 段目の生の値をここで作らない。作ると AA の検証がテーマの数だけ増える。
+ *
+ * 使い方: <html data-brand-theme="blue" data-color-mode="dark">
+ * どのサイトがどのテーマを使うかは Site Blueprint が持つ (単一の正本)。
+ * 機械チェック: tests/ui/design-tokens.test.ts が
+ *   「全テーマが同じトークン集合を上書きしている」ことを見る。
+ *   一部だけ上書きすると、そのテーマだけ既定色が混ざる。
+ *
+ * 役割は全テーマ共通で変えない:
+ *   action = 押せるもの / accent = 実行中・注意
+ *
+ * --- 明暗との掛け合わせについて (重要) ---
+ * 外観は **配色 (data-brand-theme) × 明暗 (data-color-mode)** の 2 軸だが、
+ * **掛け合わせの数だけ定義を書かない。**
+ * 各トークンを `light-dark(明るいときの値, 暗いときの値)` の 1 行で持ち、
+ * 明暗の切り替えは `color-scheme` を変えるだけで済ませる (semantic.css 末尾)。
+ * 「青系のライト」と「青系のダーク」を別ブロックで書くと、
+ * 配色 5 種 × 明暗 2 種 = 10 ブロックになり、片方だけ直す事故が必ず起きる。
+ *
+ * ダークは明るい値の反転ではない。**暗い面の上では濃い色が沈む**ため、
+ * どの配色でも暗いとき用に明度を上げた段 (300 番台) を指している。
+ * 反転で済ませると、暗いときだけ AA を割る。
+ *
+ * 明暗どちらでも WCAG 2.2 AA を満たすことは
+ * `tests/ui/theme-contrast.test.ts` が全テーマ × 両モードで機械的に見る。
+ * テーマを 1 つ足すと、そのテーマは自動で検査対象に入る。
+ */
+
+/* 既定。上書きしないことを明示するために空ではなく役割だけ書く。 */
+[data-brand-theme="graphite-amber"] {
+  --brand-theme-name: "Graphite × Amber";
+}
+
+/* ---------------------------------------------------------------------- */
+[data-brand-theme="indigo-teal"] {
+  --brand-theme-name: "Indigo × Teal";
+
+  --color-action-default: light-dark(var(--indigo-700), var(--indigo-300));
+  --color-action-hover: light-dark(var(--indigo-800), var(--indigo-100));
+  --color-action-active: light-dark(var(--indigo-900), var(--neutral-0));
+  --color-action-subtle: light-dark(var(--indigo-100), var(--indigo-950));
+  --color-text-on-action: light-dark(var(--neutral-0), var(--indigo-950));
+
+  --color-accent-default: light-dark(var(--teal-700), var(--teal-300));
+  --color-accent-hover: light-dark(var(--teal-800), var(--teal-100));
+  --color-accent-subtle: light-dark(var(--teal-100), var(--teal-900));
+  --color-accent-border: light-dark(var(--teal-500), var(--teal-700));
+  --color-text-on-accent: light-dark(var(--teal-950), var(--teal-100));
+}
+
+/* ---------------------------------------------------------------------- */
+[data-brand-theme="teal-clay"] {
+  --brand-theme-name: "Teal × Clay";
+
+  --color-action-default: light-dark(var(--teal-700), var(--teal-300));
+  --color-action-hover: light-dark(var(--teal-800), var(--teal-100));
+  --color-action-active: light-dark(var(--teal-900), var(--neutral-0));
+  --color-action-subtle: light-dark(var(--teal-100), var(--teal-950));
+  --color-text-on-action: light-dark(var(--neutral-0), var(--teal-950));
+
+  --color-accent-default: light-dark(var(--clay-700), var(--clay-300));
+  --color-accent-hover: light-dark(var(--clay-800), var(--clay-100));
+  --color-accent-subtle: light-dark(var(--clay-100), var(--clay-900));
+  --color-accent-border: light-dark(var(--clay-500), var(--clay-700));
+  --color-text-on-accent: light-dark(var(--clay-950), var(--clay-100));
+}
+
+/* ---------------------------------------------------------------------- */
+/*
+ * 変更容易性シナリオ⑥（ブランド色の変更）の実測で追加したテーマ。
+ * 上書きするトークンの並びは他のテーマと完全に同じ。
+ */
+[data-brand-theme="indigo-clay"] {
+  --brand-theme-name: "Indigo × Clay";
+
+  --color-action-default: light-dark(var(--indigo-700), var(--indigo-300));
+  --color-action-hover: light-dark(var(--indigo-800), var(--indigo-100));
+  --color-action-active: light-dark(var(--indigo-900), var(--neutral-0));
+  --color-action-subtle: light-dark(var(--indigo-100), var(--indigo-950));
+  --color-text-on-action: light-dark(var(--neutral-0), var(--indigo-950));
+
+  --color-accent-default: light-dark(var(--clay-700), var(--clay-300));
+  --color-accent-hover: light-dark(var(--clay-800), var(--clay-100));
+  --color-accent-subtle: light-dark(var(--clay-100), var(--clay-900));
+  --color-accent-border: light-dark(var(--clay-500), var(--clay-700));
+  --color-text-on-accent: light-dark(var(--clay-950), var(--clay-100));
+}
+
+/* ====================================================================== */
+/*
+ * 以下 5 種は利用者の指定（青系・ピンク系・ホワイト系・グレー系・グリーン系）。
+ * 上書きするトークンの並びは上の 4 種とまったく同じ。
+ * **並びを揃えることが要**で、揃っていないテーマがあると
+ * そこだけ既定色が混ざる。design-tokens.test.ts がこれを見ている。
+ */
+
+/* ---------------------------------------------------------------------- */
+/*
+ * 青系。操作も注意も青の濃淡にせず、注意は teal に振ってある。
+ * 同系色 2 つだと「押せるもの」と「実行中」が明度差だけの区別になり、
+ * 小さい面積では見分けられない。
+ */
+[data-brand-theme="blue"] {
+  --brand-theme-name: "青系";
+
+  --color-action-default: light-dark(var(--blue-700), var(--blue-300));
+  --color-action-hover: light-dark(var(--blue-800), var(--blue-100));
+  --color-action-active: light-dark(var(--blue-900), var(--neutral-0));
+  --color-action-subtle: light-dark(var(--blue-100), var(--blue-950));
+  --color-text-on-action: light-dark(var(--neutral-0), var(--blue-950));
+
+  --color-accent-default: light-dark(var(--teal-700), var(--teal-300));
+  --color-accent-hover: light-dark(var(--teal-800), var(--teal-100));
+  --color-accent-subtle: light-dark(var(--teal-100), var(--teal-900));
+  --color-accent-border: light-dark(var(--teal-500), var(--teal-700));
+  --color-text-on-accent: light-dark(var(--teal-950), var(--teal-100));
+}
+
+/* ---------------------------------------------------------------------- */
+/* ピンク系。 */
+[data-brand-theme="pink"] {
+  --brand-theme-name: "ピンク系";
+
+  --color-action-default: light-dark(var(--pink-700), var(--pink-300));
+  --color-action-hover: light-dark(var(--pink-800), var(--pink-100));
+  --color-action-active: light-dark(var(--pink-900), var(--neutral-0));
+  --color-action-subtle: light-dark(var(--pink-100), var(--pink-950));
+  --color-text-on-action: light-dark(var(--neutral-0), var(--pink-950));
+
+  --color-accent-default: light-dark(var(--amber-700), var(--amber-300));
+  --color-accent-hover: light-dark(var(--amber-800), var(--amber-100));
+  --color-accent-subtle: light-dark(var(--amber-100), var(--amber-900));
+  --color-accent-border: light-dark(var(--amber-500), var(--amber-700));
+  --color-text-on-accent: light-dark(var(--amber-950), var(--amber-100));
+}
+
+/* ---------------------------------------------------------------------- */
+/*
+ * ホワイト系。**白は「色を使わない」ではない。**
+ * 操作の色まで無彩色にすると、押せるものと本文の違いが明度差だけになり、
+ * 色の見え方に条件がある人には区別できなくなる。
+ * そこで注意の側を無彩色に寄せ、**操作だけは青を残す**。
+ */
+[data-brand-theme="white"] {
+  --brand-theme-name: "ホワイト系";
+
+  --color-action-default: light-dark(var(--blue-700), var(--blue-300));
+  --color-action-hover: light-dark(var(--blue-800), var(--blue-100));
+  --color-action-active: light-dark(var(--blue-900), var(--neutral-0));
+  --color-action-subtle: light-dark(var(--neutral-25), var(--neutral-900));
+  --color-text-on-action: light-dark(var(--neutral-0), var(--blue-950));
+
+  --color-accent-default: light-dark(var(--neutral-600), var(--neutral-300));
+  --color-accent-hover: light-dark(var(--neutral-750), var(--neutral-100));
+  --color-accent-subtle: light-dark(var(--neutral-50), var(--neutral-850));
+  --color-accent-border: light-dark(var(--neutral-400), var(--neutral-600));
+  --color-text-on-accent: light-dark(var(--neutral-975), var(--neutral-25));
+}
+
+/* ---------------------------------------------------------------------- */
+/* グレー系。操作も無彩色に寄せ、注意だけ暖色を残して信号を 1 つ確保する。 */
+[data-brand-theme="gray"] {
+  --brand-theme-name: "グレー系";
+
+  --color-action-default: light-dark(var(--neutral-750), var(--neutral-100));
+  --color-action-hover: light-dark(var(--neutral-850), var(--neutral-25));
+  --color-action-active: light-dark(var(--neutral-925), var(--neutral-0));
+  --color-action-subtle: light-dark(var(--neutral-50), var(--neutral-825));
+  --color-text-on-action: light-dark(var(--neutral-0), var(--neutral-925));
+
+  --color-accent-default: light-dark(var(--amber-700), var(--amber-300));
+  --color-accent-hover: light-dark(var(--amber-800), var(--amber-100));
+  --color-accent-subtle: light-dark(var(--amber-100), var(--amber-900));
+  --color-accent-border: light-dark(var(--amber-500), var(--amber-700));
+  --color-text-on-accent: light-dark(var(--amber-950), var(--amber-100));
+}
+
+/* ---------------------------------------------------------------------- */
+/* グリーン系。 */
+[data-brand-theme="green"] {
+  --brand-theme-name: "グリーン系";
+
+  --color-action-default: light-dark(var(--green-700), var(--green-300));
+  --color-action-hover: light-dark(var(--green-800), var(--green-100));
+  --color-action-active: light-dark(var(--green-900), var(--neutral-0));
+  --color-action-subtle: light-dark(var(--green-100), var(--green-950));
+  --color-text-on-action: light-dark(var(--neutral-0), var(--green-950));
+
+  --color-accent-default: light-dark(var(--amber-700), var(--amber-300));
+  --color-accent-hover: light-dark(var(--amber-800), var(--amber-100));
+  --color-accent-subtle: light-dark(var(--amber-100), var(--amber-900));
+  --color-accent-border: light-dark(var(--amber-500), var(--amber-700));
+  --color-text-on-accent: light-dark(var(--amber-950), var(--amber-100));
+}
+
+/* ---------------------------------------------------------------------- */
+/*
+ * パープル系。変更容易性シナリオ⑫の実測で追加した配色。
+ * 上書きするトークンの並びは上のすべてのテーマと同一。
+ */
+[data-brand-theme="purple"] {
+  --brand-theme-name: "パープル系";
+
+  --color-action-default: light-dark(var(--purple-700), var(--purple-300));
+  --color-action-hover: light-dark(var(--purple-800), var(--purple-100));
+  --color-action-active: light-dark(var(--purple-900), var(--neutral-0));
+  --color-action-subtle: light-dark(var(--purple-100), var(--purple-950));
+  --color-text-on-action: light-dark(var(--neutral-0), var(--purple-950));
+
+  --color-accent-default: light-dark(var(--teal-700), var(--teal-300));
+  --color-accent-hover: light-dark(var(--teal-800), var(--teal-100));
+  --color-accent-subtle: light-dark(var(--teal-100), var(--teal-900));
+  --color-accent-border: light-dark(var(--teal-500), var(--teal-700));
+  --color-text-on-accent: light-dark(var(--teal-950), var(--teal-100));
+}
