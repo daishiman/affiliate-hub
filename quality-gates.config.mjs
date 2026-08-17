@@ -477,7 +477,7 @@ export const CHECKS = [
     command: ["node", "scripts/mutation.mjs"],
     blocking: true,
     tier: 3,
-    why: "domain + application の全体。12 分かかるので 2 段には置けない。夜間に測って推移を見る",
+    why: "domain + application の全体。CI 相当の並列度で 27 分（実測 2026-08-17）かかるので 2 段には置けない。夜間に測って推移を見る",
   },
 ];
 
@@ -485,8 +485,8 @@ export const CHECKS = [
  * `--tier` の指定から、走らせる検査を選ぶ。
  *
  * 指定が無いときは `runOn: "ci"` の段だけを走らせる。
- * 3 段は夜間・週次・手動のもので、手元で `pnpm verify` を打った人を
- * 90 分待たせる意味が無い。
+ * 3 段は夜間・手動のもので、手元で `pnpm verify` を打った人を
+ * 27 分待たせる意味が無い。
  *
  * @param {number[] | null} tiers 走らせたい段。空か null なら既定
  * @returns {typeof CHECKS}

@@ -88,7 +88,7 @@
 | `tests/domain/site-routes.test.ts` | REQ-B01, REQ-B02, REQ-B03, REQ-B04, REQ-B05, REQ-B06, REQ-B07, REQ-B08, REQ-B09, REQ-B10, REQ-B11, REQ-B13, REQ-B14, REQ-B15, REQ-B16, REQ-B17, REQ-B18, REQ-TM10 | 表 |
 | `tests/domain/telemetry.test.ts` | REQ-TM02, REQ-TM03, REQ-TM04, REQ-TM07, REQ-TM08, REQ-TM09 | 表 |
 | `tests/domain/writing-rules.test.ts` | REQ-W01, REQ-W09, REQ-W10 | 表 |
-| `tests/evals/generation-eval-set.test.ts` | REQ-G09 | 表 |
+| `tests/evals/generation-eval-set.test.ts` | REQ-CI13, REQ-G09 | 表 |
 | `tests/infrastructure/channel-connector.test.ts` | REQ-P08 | 表 |
 | `tests/infrastructure/d1-conversion-repository.test.ts` | REQ-P09 | 表 |
 | `tests/infrastructure/guarded-fetch.test.ts` | REQ-SEC02 | 表 |

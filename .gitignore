@@ -49,6 +49,8 @@ __pycache__/
 .dev-graph/cache/
 .dev-graph/locks/
 .dev-graph/tmp/
+# node 登録の入力置き場。登録が済めば正本は state/graph.json と tasks/*.md の側にある
+.dev-graph/staging/
 .dev-graph/state/*.lock
 eval-log/
 .codex/
