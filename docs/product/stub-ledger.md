@@ -11,7 +11,7 @@
 
 ## まだ中身が無いもの
 
-件数: 37
+件数: 36
 
 | 識別子 | 何のスタブか | つなぎ目 | 何が済めば実装できるか |
 |---|---|---|---|
@@ -39,7 +39,7 @@
 | `llm:openai` | OpenAI での文章生成 | LlmPort | 提供元の選定と、利用者ご自身による API キーの登録が必要 |
 | `llm:workers_ai` | Cloudflare Workers AI での文章生成 | LlmPort | 提供元の選定と、利用者ご自身による API キーの登録が必要 |
 | `persistence:affiliate-sample` | 提携と成果（見本データ） | 提携先・提携条件・成果の保存先 | affiliate_accounts / affiliate_programs / affiliate_links / conversions テーブルの追加と、各 ASP の API 利用申請および接続情報の登録（利用者本人による） |
-| `persistence:analytics-sample` | 数字（見本データ） | 指標の保存先とクリック計測 | metric_samples / click_events テーブルの追加と、公開後の実際の計測（Cloudflare Analytics の接続） |
+| `persistence:click-tracking-sample` | クリックの記録（未実装） | クリック計測 | click_events テーブルと、リンクの計測識別子を発行する仕組み |
 | `persistence:content-editorial-sample` | 記事と書き手（見本データ） | 記事・企画・書き手の保存先 | content_packages / content_variants / personas テーブルの追加とマイグレーション |
 | `persistence:content-sample` | 公開記事の保存先（見本データ） | PublishedContentPort | content_packages / published_articles テーブルの追加とマイグレーション |
 | `persistence:distribution-sample` | 配信（見本データ） | 配信先の接続と配信記録の保存先 | channel_connections / publications テーブルの追加と、各サービスの接続設定（利用者本人による認証） |
@@ -47,7 +47,6 @@
 | `persistence:product-sample` | 商品と根拠（見本データ） | 商品・主張・根拠・検証記録の保存先 | products / claims / evidence / test_runs テーブルの追加とマイグレーション |
 | `persistence:ranking-sample` | ランキングの保存先（見本データ） | EditorialRankingModelRepositoryPort / EditorialScoreCardRepositoryPort | ranking_models / score_cards テーブルの追加とマイグレーション |
 | `persistence:settings-sample` | 設定（見本データ） | 作業場所・担当者・ブランド・広告表記・操作の記録の保存先 | workspaces / memberships / brands / disclosures / audit_logs テーブルの追加と、Better Auth と Google ログインの設定 |
-| `persistence:telemetry-memory` | 計測の記録（この実行中だけ覚える仮置き） | 計測の記録先 | LLM 提供元の鍵（AI 利用実績の作り手）と、件数を見せる画面。加えて telemetry_events / ai_model_usage テーブルの追加 |
 | `reader:contact-sink` | 問い合わせの受け取り（送信せず記録のみ） | ContactPort | Turnstile の鍵と送信元メールアドレスの登録（利用者本人が登録する） |
 | `reader:shortlist-memory` | 気になる商品の保存（処理中のメモリ） | ShortlistPort | 読者ごとの保存先 (KV 名前空間) の作成 |
 | `reader:tools-sample` | 診断・計算の道具（見本の定義のみ） | ReaderToolPort | 商品データの取込と、道具ごとの計算式の登録 |
@@ -59,12 +58,14 @@
 こちらへ回る。**消す予定は無いので、この件数は減らない。**
 何で動いているかは、必ず画面に文字で出す（黙って控えへ落ちない）。
 
-件数: 5
+件数: 7
 
 | 識別子 | 何の控えか | つなぎ目 | 本物の置き場所 |
 |---|---|---|---|
+| `persistence:analytics-sample` | 数字（見本データ） | 指標の読み口 | `src/infrastructure/persistence/d1/telemetry-repository.ts` |
 | `persistence:feedback-memory` | 改善要望の記録（この実行中だけ覚える仮置き） | 改善要望の記録先 | `src/infrastructure/persistence/d1/feedback-repository.ts` |
 | `persistence:link-inbox-sample` | 受信箱（見本データ・この場限り） | 成果リンク受信箱の保存先 | `src/infrastructure/persistence/d1/link-inbox-repository.ts` |
 | `persistence:site-draft-memory` | ブログ作成の下書き（プロセス内のみ） | SiteDraftRepositoryPort | `src/infrastructure/persistence/d1/site-draft-repository.ts` |
 | `persistence:site-sample` | ブログの設計図（見本データ） | SiteRepositoryPort | `src/infrastructure/persistence/d1/site-repository.ts` |
+| `persistence:telemetry-memory` | 計測の記録（この実行中だけ覚える仮置き） | 計測の記録先 | `src/infrastructure/persistence/d1/telemetry-repository.ts` |
 | `storage:feedback-capture-memory` | 画面の写し（この実行中だけ覚える仮置き） | 画面の写しの置き場 | `src/infrastructure/platform/feedback-capture-r2.ts` |

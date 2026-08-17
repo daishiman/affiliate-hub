@@ -11,7 +11,7 @@ import {
   ErrorView,
   FilterBar,
   Page,
-  StubNotice,
+  StorageNotice,
 } from "@/presentation/ui";
 import styles from "../admin.module.css";
 
@@ -53,7 +53,7 @@ export default async function AnalyticsPage({
   }
 
   const actor = await currentActor();
-  const uc = analyticsUseCases();
+  const uc = await analyticsUseCases();
 
   const [metrics, usable, filtered] = await Promise.all([
     uc.listMetrics.execute(actor, {}),
@@ -78,13 +78,7 @@ export default async function AnalyticsPage({
 
   return (
     <Shell>
-      <StubNotice
-        what="数字の保存先と計測"
-        blockedBy="公開後の実際の計測（Cloudflare Analytics の接続）"
-        stubId="persistence:analytics-sample"
-      >
-        <span>{analyticsNotice()}</span>
-      </StubNotice>
+      <StorageNotice status={await analyticsNotice()} />
 
       <Callout
         tone="info"

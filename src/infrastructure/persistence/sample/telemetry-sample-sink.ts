@@ -6,7 +6,7 @@ import {
   rollupAiUsage,
 } from "@/domain/analytics";
 import { ok } from "@/domain/shared";
-import { registerStub, stubCall } from "../../stub-registry";
+import { registerStub, stubCall, stubReason } from "../../stub-registry";
 
 /**
  * ★ これは仮置きの記録先です（スタブ）。★
@@ -16,15 +16,12 @@ import { registerStub, stubCall } from "../../stub-registry";
  * 置き場所がメモリなので長くは残らない。
  * 画面で「計測が動いていること」を確かめるところまでを担う。
  *
- * --- 本物にするのに足りないもの（テーブルだけではない） ---
+ * --- いまの位置づけ: 本物の**控え** ---
  *
- * 入れる口は既にある（`/api/telemetry` が受け取り、画面側の収集係が送っている）。
- * それでも仮置きのままにしているのは、**読む口が無い**ため。
- *   1. 出来事の件数 (`countByEvent`) を出す画面がまだ 1 つも無い
- *   2. 唯一の読み手である `/admin/ai-usage` が読むのは AI の利用実績で、
- *      その実績を作るのは LLM の呼び出し（提供元の鍵が要る = 外部資格）
- * いま D1 につなぐと、見本が消えて**中身の無い画面だけが残る**。
- * だから鍵が入り、実際の利用実績が溜まりはじめる日まで据え置く。
+ * 保存先（`d1/telemetry-repository.ts`）ができたので、これは
+ * 「まだ作っていないもの」ではなく「接続が供給されない場所での控え」。
+ * `pnpm dev` と自動テストには D1 が渡らないので、そこで落ちる代わりに
+ * こちらへ回る（`composition.ts` の `db === null`）。
  *
  * 差し替えるのは composition.ts の 1 行だけで、
  * イベントの形も同意の判定も画面も変わらない。
@@ -33,12 +30,12 @@ const stub = registerStub({
   id: "persistence:telemetry-memory",
   port: "計測の記録先",
   label: "計測の記録（この実行中だけ覚える仮置き）",
-  blockedBy:
-    "LLM 提供元の鍵（AI 利用実績の作り手）と、件数を見せる画面。加えて telemetry_events / ai_model_usage テーブルの追加",
+  blockedBy: "済み（保存先は D1 の telemetry_events）",
+  fallbackFor: "src/infrastructure/persistence/d1/telemetry-repository.ts",
 });
 
 export function telemetryStubNotice(): string {
-  return `${stub.label}。${stub.blockedBy}が済むまでの仮です。`;
+  return `${stub.label}。${stubReason(stub)}。`;
 }
 
 /**

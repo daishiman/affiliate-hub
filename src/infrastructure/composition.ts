@@ -46,6 +46,10 @@ import {
   createSampleMetricsRepository,
 } from "./persistence/sample/analytics-sample-repository";
 import { createSampleTelemetrySink } from "./persistence/sample/telemetry-sample-sink";
+import {
+  createD1TelemetryMetricsRepository,
+  createD1TelemetrySink,
+} from "./persistence/d1/telemetry-repository";
 import { createSampleImprovementRepository } from "./persistence/sample/improvement-sample-repository";
 import {
   createSampleAffiliateAccountRepository,
@@ -123,12 +127,20 @@ export function createDeps(
     channelConnections: createSampleChannelConnectionRepository(),
     publications: createSamplePublicationRepository(),
     manualExport: createSampleManualExport(),
-    // ★ 見本データ（スタブ）。数字。本物は公開して読まれ始めてから入る。
-    metrics: createSampleMetricsRepository(),
+    // 数字は、保存先が用意できていれば**計測の記録から導く**（D1）。
+    // 指標を別の表に貯めないので、ここで渡すのは同じ接続 1 つだけ。
+    // 接続が無い環境では見本データに落ちる（何で動いているかは画面に出す）。
+    metrics:
+      db === null ? createSampleMetricsRepository() : createD1TelemetryMetricsRepository(db),
     clickTracking: createSampleClickTracking(),
-    // ★ 仮置き（スタブ）。この実行中だけ覚える。telemetry_events テーブルが
-    //   できたらこの 1 行を差し替える。画面もイベントの形も変わらない。
-    telemetry: createSampleTelemetrySink(),
+    // 計測の記録先も、保存先が用意できていれば本物（D1）。
+    // 入れる口（/api/telemetry と画面の収集係）と読む口（/admin/analytics）が
+    // 両方そろったのでつないだ。片方しか無い状態でつなぐと、
+    // 貯まるだけで誰も見ない記録か、中身の無い画面のどちらかになる。
+    telemetry:
+      db === null
+        ? createSampleTelemetrySink()
+        : createD1TelemetrySink({ db, newId: () => idGenerator.newId() }),
     // ★ 見本データ（スタブ）。改善ループの記録と見せ方の設定。
     //   読み出しは見本を返し、保存は失敗を返す（保存できたことにしない）。
     improvement: createSampleImprovementRepository(),

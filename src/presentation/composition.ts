@@ -671,8 +671,10 @@ export async function linkInboxNotice(): Promise<StorageStatus> {
  * 指標を 1 つ増やすときに触るのは domain の定義表だけ。
  * ここも画面も変わらず、数え方と「使ってよい用途」が同時に付いてくる。
  */
-export function analyticsUseCases() {
-  const analytics = { metrics: createDeps().metrics };
+export async function analyticsUseCases() {
+  // **接続を渡す。** 渡さないと、計測が D1 に貯まっていても
+  // 画面には見本の数字が出続ける（受信箱・改善要望で実際に起きた形）。
+  const analytics = { metrics: createDeps({ db: await tryGetDb() }).metrics };
   return {
     listMetrics: createListMetricsUseCase(analytics),
     listUsableMetrics: createListUsableMetricsUseCase(analytics),
@@ -687,17 +689,33 @@ export function analyticsUseCases() {
  * 記録の受け口 (`/api/telemetry`) と AI 利用の画面が同じものを使う。
  * 記録先を差し替えるときに触るのは infrastructure の 1 行だけ。
  */
-export function telemetryUseCases() {
-  const deps = { sink: createDeps().telemetry };
+export async function telemetryUseCases() {
+  const deps = { sink: createDeps({ db: await tryGetDb() }).telemetry };
   return {
     aiUsage: createAiUsageReportUseCase(deps),
     explain: createExplainTelemetryUseCase(),
   };
 }
 
-/** 計測の記録先が仮置きであることを画面に出すための一文。 */
-export function telemetryNotice(): string {
-  return telemetryStubNotice();
+/**
+ * 計測がいま何で動いているかを画面に出すための一文。
+ *
+ * 受信箱・改善要望と同じ形（`StorageStatus`）。**画面に条件を書かせない。**
+ * ここを画面側の固定文にしていたため、保存先をつないだあとも
+ * 「この実行中だけ覚えます」と出続ける事故が起きた（2026-08-17）。
+ */
+export async function telemetryNotice(): Promise<StorageStatus> {
+  const db = await tryGetDb();
+  return {
+    persisted: db !== null,
+    what: "計測の記録先",
+    blockedBy: "telemetry_events テーブルの追加と D1 への接続",
+    stubId: "persistence:telemetry-memory",
+    message:
+      db === null
+        ? telemetryStubNotice()
+        : "読まれた記録は保存されます（保存先: D1 の telemetry_events）。同意が要る記録は 90 日、回数だけの記録は 400 日で消えます。",
+  };
 }
 
 /**
@@ -886,9 +904,26 @@ export function settingsNotice(): string {
   return sampleSettingsNotice();
 }
 
-/** 数字が見本データであることを画面に出すための一文。 */
-export function analyticsNotice(): string {
-  return sampleAnalyticsNotice();
+/**
+ * 数字がいま何から出ているかを画面に出すための一文。
+ *
+ * 見本データなのか、実際の計測から導いた数字なのかは、
+ * **その数字を信じてよいかが変わる違い**なので必ず出す。
+ * 導ける指標が限られていることも、ここで一緒に伝える
+ * （画面には「未計測」とだけ出るので、理由がどこにも無いと不具合に見える）。
+ */
+export async function analyticsNotice(): Promise<StorageStatus> {
+  const db = await tryGetDb();
+  return {
+    persisted: db !== null,
+    what: "数字の出どころ",
+    blockedBy: "telemetry_events テーブルの追加と D1 への接続",
+    stubId: "persistence:analytics-sample",
+    message:
+      db === null
+        ? sampleAnalyticsNotice()
+        : "計測の記録は保存されます。数字はその記録から毎回数え直しています（数字自体は貯めません）。いま数えられるのは表示回数・リンククリック数・スクロール到達・滞在時間で、それ以外は「未計測」と出ます。",
+  };
 }
 
 /** 提携と成果が見本データであることを画面に出すための一文。 */
@@ -929,6 +964,28 @@ export function readerActor(): ActorContext {
     roles: [],
     isAiServiceAccount: false,
   };
+}
+
+/**
+ * 読者の記録を、**どの作業場所のものとして残すか**を決める。
+ *
+ * 読者自身はどこにも所属していないが、記録は
+ * 「そのブログを運営している人」の数字として読まれる必要がある。
+ * ここを `readerActor()`（所属なし）のままにすると、
+ * 計測は貯まるのに管理画面には一生出てこない。
+ * **貯まっているのに 0 と出る**のは、いちばん切り分けにくい壊れ方になる。
+ *
+ * URL 名から引けなかったときは所属なしのまま記録する（捨てない）。
+ * 捨てると、ブログの設定を直している最中の記録だけが消える。
+ */
+export async function readerActorForSite(siteSlug: string | null): Promise<ActorContext> {
+  const base = readerActor();
+  if (siteSlug === null || siteSlug === "") return base;
+  // 読者向けのユースケース（`getSite`）は、外へ出せる項目だけを返すので
+  // 作業場所を持っていない。ここは組み立ての層なので、保存先を直接引く。
+  const found = await createDeps({ db: await tryGetDb() }).sites.findBySlug(siteSlug);
+  if (!found.ok || found.value === null) return base;
+  return { ...base, workspaceId: found.value.workspaceId };
 }
 
 /** 見本データで表示していることを読者向け画面に出すための一文。 */

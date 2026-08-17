@@ -621,6 +621,47 @@ export const siteBlueprints = sqliteTable(
   ],
 );
 
+/**
+ * 計測の記録（仕様 §27）。
+ *
+ * **事実として貯めるのはこの表だけ。** 表示回数や滞在時間といった指標は
+ * 別の表に持たず、読むたびにここから導く
+ * （`src/domain/analytics/metrics-from-telemetry.ts`）。
+ * 集計済みの数字も一緒に貯めると、食い違ったときにどちらが正しいか決められない。
+ *
+ * 列に出しているのは、**絞り込みと削除に使う項目だけ**。
+ *   - `key` … 種類ごとに数える／種類ごとに保存期間が違う
+ *   - `occurred_at` … 期間で切る。集計は必ず期間つきで行う
+ *   - `site_slug` … ブログ単位で見る（`payload_json` の中を検索させない）
+ *   - `reader_key` … 読者から「消してください」と言われたときに引く列
+ * それ以外は `payload_json` にまとめる。イベントの項目が 1 つ増えるたびに
+ * マイグレーションが要る形にすると、計測を足すのが億劫になり、測らなくなる。
+ *
+ * 保存期間の判定はここに書かない（domain の `RETENTION_DAYS` が正本）。
+ * 期限を行へ焼き込むと、方針を短くしたときに**古い行だけ長く残る**。
+ */
+export const telemetryEvents = sqliteTable(
+  "telemetry_events",
+  {
+    id: text("id").primaryKey(),
+    workspaceId: text("workspace_id").notNull(),
+    /** イベントの種類。正本は domain/analytics/telemetry-events.ts。 */
+    key: text("key").notNull(),
+    occurredAt: integer("occurred_at", { mode: "timestamp" }).notNull(),
+    /** どのブログでの出来事か。ページによっては入らない（AI 利用など）。 */
+    siteSlug: text("site_slug"),
+    /** 仮の目印。同意が無いときは null のまま入る（記録自体は残す）。 */
+    readerKey: text("reader_key"),
+    payloadJson: text("payload_json").notNull(),
+  },
+  (t) => [
+    index("telemetry_events_workspace_occurred_idx").on(t.workspaceId, t.occurredAt),
+    index("telemetry_events_workspace_key_occurred_idx").on(t.workspaceId, t.key, t.occurredAt),
+    // 削除依頼のための索引。**無いと「消せます」が現実的でなくなる。**
+    index("telemetry_events_reader_idx").on(t.workspaceId, t.readerKey),
+  ],
+);
+
 // 運営者ドメイン
 export type Asp = typeof asps.$inferSelect;
 export type SessionRow = typeof sessions.$inferSelect;
@@ -632,6 +673,7 @@ export type IntegrationKeyRow = typeof integrationKeys.$inferSelect;
 export type IntegrationKeyUsageRow = typeof integrationKeyUsages.$inferSelect;
 export type SiteDraftRow = typeof siteDrafts.$inferSelect;
 export type SiteBlueprintRow = typeof siteBlueprints.$inferSelect;
+export type TelemetryEventRow = typeof telemetryEvents.$inferSelect;
 
 // 読者ドメイン
 export type Category = typeof categories.$inferSelect;

@@ -7,6 +7,7 @@ export * from "./improvement";
 export * from "./loop-kinds";
 export * from "./loop-run";
 export * from "./metrics";
+export * from "./metrics-from-telemetry";
 export * from "./optimization";
 export * from "./telemetry-events";
 export * from "./variant-spec";

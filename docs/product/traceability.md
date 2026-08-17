@@ -2,7 +2,7 @@
 
 - 形式: ブログ層仕様 付属 §4-F の `trace` 形式に統一
 - 根拠: プラットフォーム層 §30.8（双方向トレーサビリティは必須）
-- 最終更新: 2026-08-17 / 対象コミット: `d5d8905`（計測＝AI の利用と費用・読まれ方・同意まで）
+- 最終更新: 2026-08-17 / 対象: 作業中の `feat/clean-architecture-skeleton`（計測の記録を D1 へつなぎ、数字の画面まで届かせたところまで）
 - 判定語彙: **実装済** = 動作する実体がある / **スタブ** = 形はあるが中身が仮 / **未着手** = 実体なし / **未対応** = UI/UX の観点として明示的に未対応
 - **証拠のない PASS を出さない。** `evidence` が空の行は実装済としない。`test` が `NOT RUN` の行は「テスト未実行」を意味し、実装済であっても検証済とは書かない。
 
@@ -339,18 +339,18 @@ D1 への差し替えは、この列だけを別の実装に取り替えれば�
 | REQ | 要件 | 実装 | 画面 | 導線 | 状態 | RWD | a11y | test | 結果 |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | REQ-TM01 | 計測イベントの形を 1 箇所で定義し、送信・保存・集計の型をそこから導く（イベント名の文字列を各所で作らない） | `src/domain/analytics/telemetry-events.ts`（`TELEMETRY_EVENTS` 12種の表。`TelemetryPayload<K>` は手書きではなく表から導出。`buildEvent` が知らない名前・欠けた項目・型違いを入口で落とす） | 画面義務なし（型の仕組み） | — | — | — | — | PASS（`tests/domain/telemetry.test.ts` 「表にない名前は送れない」「必須の項目が欠けていると落ちる」「型が違うと落ちる」） | 実装済 |
-| REQ-TM02 | AI 利用の計測（作業場所・ブランド・ブログ・実行者・モデル・提供元・用途・プロンプトテンプレートIDと版・入出力トークン・所要時間・成否・概算費用・成果物への参照） | `src/domain/analytics/telemetry-events.ts` `ai_model_usage`（17項目）、`src/domain/analytics/ai-usage.ts`（`MODEL_PRICES` / `estimateCostJpy` / `rollupAiUsage`）、`src/application/ports/telemetry.ts` `TelemetrySinkPort.aiUsage` | `src/app/admin/ai-usage/page.tsx` | サイドナビ「AI の利用と費用」 | loading（サーバ描画）/ empty（利用が無い理由を文で表示）/ error（`ErrorView` + ホームへ戻る）/ 記録先が仮であることを `StubNotice` で明示 | 対応 | 対応（`<th scope="row">` の表、数字は等幅） | PASS（`tests/domain/telemetry.test.ts` 「AI の記録は参照 ID だけを持ち、文章そのものを持たない」ほか） | 実装済（記録先は仮置き） |
-| REQ-TM03 | ブログごと・モデルごとの利用状況と費用を見る管理画面 | `src/application/usecases/analytics/ai-usage-report.ts`（数字と一緒に**その数字の限界**を返す。概算であること、価格未登録のモデルが何件あるか） | `src/app/admin/ai-usage/page.tsx` | サイドナビ「AI の利用と費用」／「数字」から相互に行き来 | 上と同じ4状態 + 価格未登録のモデルがあるときの注意書き | 対応 | 対応 | PASS（`tests/domain/telemetry.test.ts` 「ブログ × モデルで畳み、費用の多い順に並ぶ」「失敗した呼び出しも数え、費用に含める」「価格が分からないモデルの件数が残る」） | 実装済（記録先は仮置き） |
-| REQ-TM04 | 読者の行動計測（ページ閲覧・読み進めた割合・要素ごとのクリック・節ごとの滞在時間・離脱位置・検索と絞り込み・成果リンクのクリック・内部リンクの遷移） | `src/domain/analytics/telemetry-events.ts`（`page_view` / `scroll_depth` / `section_dwell` / `element_click` / `ranking_row_click` / `affiliate_click` / `internal_link_click` / `search_performed` / `filter_changed` / `page_exit`）、`src/presentation/telemetry/collector.tsx`、`src/app/api/telemetry/route.ts` | 読者向け全ページ（`src/presentation/site/page-frame.tsx` の共通枠から 1 箇所だけ差し込む） | 読者がブログを読む操作そのもの | 同意が無いときは回数だけ数える／`suppressAll` のときは何も送らない | 対応（表示に影響しない） | 対応（`data-*` 属性のみで、読み上げ・操作に影響しない） | PASS（`tests/domain/telemetry.test.ts` 「同意が無くても、回数だけのイベントは記録できる」ほか） | 実装済（記録先は仮置き） |
+| REQ-TM02 | AI 利用の計測（作業場所・ブランド・ブログ・実行者・モデル・提供元・用途・プロンプトテンプレートIDと版・入出力トークン・所要時間・成否・概算費用・成果物への参照） | `src/domain/analytics/telemetry-events.ts` `ai_model_usage`（17項目）、`src/domain/analytics/ai-usage.ts`（`MODEL_PRICES` / `estimateCostJpy` / `rollupAiUsage`）、`src/application/ports/telemetry.ts` `TelemetrySinkPort.aiUsage` | `src/app/admin/ai-usage/page.tsx` | サイドナビ「AI の利用と費用」 | loading（サーバ描画）/ empty（利用が無い理由を文で表示）/ error（`ErrorView` + ホームへ戻る）/ 保存先の状態を `StorageNotice` で明示 | 対応 | 対応（`<th scope="row">` の表、数字は等幅） | PASS（`tests/domain/telemetry.test.ts` 「AI の記録は参照 ID だけを持ち、文章そのものを持たない」ほか） | 実装済（保存先は D1 の `telemetry_events`） |
+| REQ-TM03 | ブログごと・モデルごとの利用状況と費用を見る管理画面 | `src/application/usecases/analytics/ai-usage-report.ts`（数字と一緒に**その数字の限界**を返す。概算であること、価格未登録のモデルが何件あるか） | `src/app/admin/ai-usage/page.tsx` | サイドナビ「AI の利用と費用」／「数字」から相互に行き来 | 上と同じ4状態 + 価格未登録のモデルがあるときの注意書き | 対応 | 対応 | PASS（`tests/domain/telemetry.test.ts` 「ブログ × モデルで畳み、費用の多い順に並ぶ」「失敗した呼び出しも数え、費用に含める」「価格が分からないモデルの件数が残る」） | 実装済（保存先は D1 の `telemetry_events`） |
+| REQ-TM04 | 読者の行動計測（ページ閲覧・読み進めた割合・要素ごとのクリック・節ごとの滞在時間・離脱位置・検索と絞り込み・成果リンクのクリック・内部リンクの遷移） | `src/domain/analytics/telemetry-events.ts`（`page_view` / `scroll_depth` / `section_dwell` / `element_click` / `ranking_row_click` / `affiliate_click` / `internal_link_click` / `search_performed` / `filter_changed` / `page_exit`）、`src/presentation/telemetry/collector.tsx`、`src/app/api/telemetry/route.ts` | 読者向け全ページ（`src/presentation/site/page-frame.tsx` の共通枠から 1 箇所だけ差し込む） | 読者がブログを読む操作そのもの | 同意が無いときは回数だけ数える／`suppressAll` のときは何も送らない | 対応（表示に影響しない） | 対応（`data-*` 属性のみで、読み上げ・操作に影響しない） | PASS（`tests/domain/telemetry.test.ts` 「同意が無くても、回数だけのイベントは記録できる」ほか） | 実装済（保存先は D1 の `telemetry_events`） |
 | REQ-TM05 | 計測点を各画面に手で埋め込まない（共通UIの部品が「この要素は何か」を宣言する） | `src/presentation/ui/telemetry-attrs.ts`（要素12種・節9種の名乗り）、`patterns/disclosure.tsx`（`AffiliateLink` は**必ず**名乗るので成果リンクのクリックは取りこぼせない）、`patterns/product-card.tsx`、`patterns/ranking-table.tsx`（順位表の各行） | `src/app/admin/ui-catalog/page.tsx`（部品の見本帳） | サイドナビ「画面部品の見本」 | 印を付けない使い方（見本帳）では `undefined` を渡せば付かない | 対応 | 対応 | PASS（`tests/ui/ui-layers.test.ts` 「部品が業務判断を持っていない」「共通UIから通信しない」） | 実装済 |
-| REQ-TM06 | 節ごとの滞在時間を構造上のまとまり（導入・順位・比較・根拠・CTA など）で測る | `src/presentation/ui/templates/article-view.tsx`（節が種類を名乗る）、`src/presentation/telemetry/collector.tsx`（`IntersectionObserver` で半分見えたら計時、1 秒未満は捨てる） | 記事画面（`/s/{site}/best/*`・`/reviews/*`・`/compare/*`・`/guides/*`） | 記事を読む操作 | 見えていない節は測らない／同意が無ければ測らない | 対応 | 対応 | PASS（`tests/ui/ui-layers.test.ts`、節の種類は `TELEMETRY_SECTION_KINDS` に限定） | 実装済（記録先は仮置き） |
+| REQ-TM06 | 節ごとの滞在時間を構造上のまとまり（導入・順位・比較・根拠・CTA など）で測る | `src/presentation/ui/templates/article-view.tsx`（節が種類を名乗る）、`src/presentation/telemetry/collector.tsx`（`IntersectionObserver` で半分見えたら計時、1 秒未満は捨てる） | 記事画面（`/s/{site}/best/*`・`/reviews/*`・`/compare/*`・`/guides/*`） | 記事を読む操作 | 見えていない節は測らない／同意が無ければ測らない | 対応 | 対応 | PASS（`tests/ui/ui-layers.test.ts`、節の種類は `TELEMETRY_SECTION_KINDS` に限定） | 実装済（保存先は D1 の `telemetry_events`） |
 | REQ-TM07 | 同意管理を最初から組み込む。**同意が無くても壊れない**（誰のものか分からない形の集計だけになる） | `src/domain/analytics/consent.ts`（`decideConsent` / `mayRecord`）、`src/presentation/ui/patterns/consent-banner.tsx`（2つのボタンの目立ち方を揃える＝断りにくくしない）、`src/presentation/telemetry/consent-server.ts`（cookie とヘッダを読む唯一の場所） | 読者向け全ページの足元（`templates/site-shell.tsx`）、見本帳 §19 | ブログのどのページからでも。回答後は「いまどうなっているか」と取り消しの入口が残る | 未回答／許可／拒否の3状態すべてに表示あり。**断ると使えなくなる機能は無い** | 対応 | 対応（共通の `Button`、44px 最小、色に頼らず文で状態を伝える） | PASS（`tests/domain/telemetry.test.ts` 「黙っている人を同意した扱いにしない」「断った人は詳しい計測をしない」「同意が無くても、回数だけのイベントは記録できる」） | 実装済 |
 | REQ-TM08 | ブラウザの追跡拒否（DNT / GPC）を実際に効かせる。自動巡回とプレビューは数字に混ぜない | `src/domain/analytics/consent.ts`（判断の順番は 巡回/プレビュー → GPC/DNT → 本人の許可 の 1 通りだけ）、`src/presentation/telemetry/consent-server.ts`（読めないときは同意なしに倒す） | `/s/{site}/measurement`（決まった理由をそのまま表示） | フッター「計測について」 | 読み取りに失敗しても同意なし扱いで動く | 対応 | 対応 | PASS（`tests/domain/telemetry.test.ts` 「ブラウザの追跡拒否は、本人の許可より強い」「自動巡回とプレビューは一切記録しない」） | 実装済 |
 | REQ-TM09 | 仮名化・保存期間・削除手段（生 IP と詳しい位置は記録しない。無期限で貯めない） | `src/domain/analytics/consent.ts`（`RETENTION_DAYS` 回数のみ400日／詳しい記録90日、`retentionDeadline` / `isExpired`、`readerKeyScope` は日とブログで区切るので日をまたぐと別人）、`src/domain/analytics/telemetry-events.ts`（`FORBIDDEN_FIELDS` 17語を入口で落とす）、`src/application/ports/telemetry.ts`（`purgeExpired` / `forgetReader` を最初から port に持つ） | `/s/{site}/measurement`（保存期間を明示） | フッター「計測について」 | — | 対応 | 対応 | PASS（`tests/domain/telemetry.test.ts` 「無期限がない」「記録してはいけない項目が混ざっていたら、そのイベントごと落とす」「日をまたぐと別のものになる」「ブログをまたいで同じ人として繋がらない」） | 実装済 |
 | REQ-TM10 | 読者向けの開示ページ（何を記録し、何を記録しないか、いつ消すか、どう取り消すか） | `src/application/usecases/analytics/explain-telemetry.ts`（**内容を画面に書き起こさず登録表から生成する**。計測を 1 つ足せば説明にも自動で出る） | `src/app/s/[site]/measurement/page.tsx` | 全ページのフッター「計測について」＋同意のお願いの中のリンク | 未回答／許可／拒否のいまの状態を先頭に表示 | 対応（`PolicyView` の共通枠） | 対応 | PASS（`tests/domain/site-routes.test.ts`「表にある道には画面がある」「画面には表の行がある」。ルート表に `measurement` を追加済み） | 実装済 |
 | REQ-TM11 | 読者の体験を損なわない（本文の表示をふさがない・失敗しても記事に影響しない・まとめて送る・離脱時は `sendBeacon`） | `src/presentation/telemetry/collector.tsx`（15秒ごと／20件たまったら送る、離脱時は `sendBeacon`、送信失敗は握りつぶす）、`src/app/api/telemetry/route.ts`（**常に 204 を返す**。計測の失敗を読者に見せない。本文32KB・1回50件の上限） | 画面義務なし（送り方の決めごと） | — | — | — | — | PASS（`pnpm run build` で全ルート生成。計測は本文の描画を待たない） | 実装済 |
 | REQ-TM12 | 計測は差し替え可能な接続部にする（ドメインは計測の実装を知らない） | `src/application/ports/telemetry.ts`（`TelemetrySinkPort` / `ConsentStorePort` / `TelemetryQueryPort`）、`src/infrastructure/persistence/sample/telemetry-sample-sink.ts`、`src/infrastructure/composition.ts`（差し込みは 1 箇所） | 画面義務なし（層の分離） | — | — | — | — | PASS（`tests/architecture/dependency-direction.test.ts`「domain は infrastructure を知らない」） | 実装済 |
-| REQ-TM13 | 計測の保存先（`telemetry_events` / `ai_model_usage` テーブル） | `src/infrastructure/persistence/sample/telemetry-sample-sink.ts`（この実行中だけ覚える仮置き。書き込みは台帳に登録済み） | 画面義務なし（保存先） | — | 記録先が仮であることを `/admin/ai-usage` で明示 | — | — | PASS（`tests/infrastructure/stub-ledger.test.ts` が台帳をコードから生成） | **スタブ**（解除条件: `telemetry_events` / `ai_model_usage` テーブルの追加と、まとめ書きの設定。台帳 `persistence:telemetry-memory`） |
+| REQ-TM13 | 計測の保存先（`telemetry_events` 1 表） | `drizzle/0007_shallow_molten_man.sql`、`src/infrastructure/persistence/d1/telemetry-repository.ts`（`createD1TelemetrySink` と `createD1TelemetryMetricsRepository` が**同じ 1 表**を書き／読みする）。`sample/telemetry-sample-sink.ts` は接続の無い場所（`pnpm dev`・自動テスト）で使う**控え**として残す | 画面義務なし（保存先） | — | 保存先の状態を `/admin/analytics`・`/admin/ai-usage` の `StorageNotice` で明示 | — | — | PASS（`tests/integration/d1-telemetry.test.ts` 11 件が実際の D1 と `drizzle/*.sql` で動く） | 実装済。**AI 利用も同じ表に入れる**（別表を作らない。同じ「起きたこと」を 2 か所に分けると、どちらが本当かを決める根拠が無くなる） |
 
 **測らないと決めたもの**（要件の裏返しとして明記する）:
 
@@ -424,7 +424,7 @@ D1 への差し替えは、この列だけを別の実装に取り替えれば�
 | REQ-TS04 | API の単体テストを**入口 3 種すべて**に対して、道具の一覧から生成する（正常系・入力検証・認証認可・テナント分離・エラー形式・スタブが失敗を返すこと） | `tests/presentation/tool-catalog-adapters.test.ts`（道具の一覧と項目名の辞書 `tool-inputs.ts` から 368 件を生成。入口 3 種で正常系・入力検証・認証認可・テナント分離・エラー形式・スタブが失敗を返すことを確認）と `one-usecase-three-adapters.test.ts` | — | — | — | — | — | PASS（368 件） | 完了 |
 | REQ-TS05 | 画面の単体テスト（4 つの状態・孤立ページ禁止・入力検証・キーボード操作・フォーカス・読み上げ） | `tests/ui/page-render.test.tsx`（経路の表 `route-table.ts` から画面 50 枚を総当たり）、`patterns-render.test.tsx` / `tool-form.test.tsx`（部品） | — | — | — | — | — | PASS | 完了 |
 | REQ-TS06 | 読み上げ検査を機械で行う（axe）。**配色 5 種 × 明暗 2 種すべて**でコントラストを確かめる | axe は `tests/support/a11y.ts` 経由で `page-render.test.tsx` が全画面に適用。コントラストは `tests/ui/theme-contrast.test.ts` が配色 5 種 × 明暗 2 種を登録表から総当たり | — | — | — | — | — | PASS | 完了 |
-| REQ-TS07 | 結合テスト（生成 → 承認 → 公開 → 計測 → 分析 → 提案 → 承認 → 再生成の 1 周）。実際の D1 とマイグレーションを使う | `tests/integration/d1-link-inbox.test.ts`（wrangler の `getPlatformProxy` で workerd 上の実際の D1 を立て、`drizzle/*.sql` をそのまま流す。手書きの CREATE TABLE は使わない）と `tests/integration/full-loop.test.ts`（1 周を実際のユースケースで通す 7 件） | — | — | — | — | — | PASS。**両側から書いた**: 保存先を書ける差し替えにして 1 周が回ることを見たうえで、本番の組み立て（`createDeps()`）では未接続の段が成功を装わず次の一手つきで断ることを別に固定した。導入時に実在の不具合を検出（同じリンクの 2 回目の貼り付けが永久に失敗する／計測が数字に届かない／配信を作る入口が無い） | 完了 |
+| REQ-TS07 | 結合テスト（生成 → 承認 → 公開 → 計測 → 分析 → 提案 → 承認 → 再生成の 1 周）。実際の D1 とマイグレーションを使う | `tests/integration/d1-link-inbox.test.ts`（wrangler の `getPlatformProxy` で workerd 上の実際の D1 を立て、`drizzle/*.sql` をそのまま流す。手書きの CREATE TABLE は使わない）と `tests/integration/full-loop.test.ts`（1 周を実際のユースケースで通す 7 件） | — | — | — | — | — | PASS。**両側から書いた**: 保存先を書ける差し替えにして 1 周が回ることを見たうえで、本番の組み立て（`createDeps()`）では未接続の段が成功を装わず次の一手つきで断ることを別に固定した。導入時に実在の不具合を検出（同じリンクの 2 回目の貼り付けが永久に失敗する／計測が数字に届かない／配信を作る入口が無い）。**計測の断絶は 2026-08-17 に解消**（残課題 25、`tests/integration/d1-telemetry.test.ts`） | 完了 |
 | REQ-TS08 | 境界値・異常系（0/1/上限/上限+1、空/最大/最大+1、日付と時差、ページ送りの端）。**とくに統計判定の境界**で、件数が足りないのに「差がある」と言わないこと | `tests/domain/boundaries.test.ts`（統計判定・有効期限・商品同一性・会計期間・表現ポリシー、64 件）と `tests/domain/boundaries-platform.test.ts`（契約プランの上限・役割・金額・価格の鮮度・比較表の上限・配信の状態遷移、57 件） | — | — | — | — | — | PASS（121 件） | 完了 |
 | REQ-TS09 | 契約検査（依存の向き・色や余白の直書き禁止・スタブ台帳・1 概念 1 定義・計測イベントの形が送信側と一致） | `tests/architecture/`（依存方向・商業データ遮断・Server Action・**閾値の一元化** `quality-gates.test.ts`・**1 概念 1 定義** `single-definition.test.ts`・**テストの誠実さと秘密情報の混入** `test-honesty.test.ts`）、`tests/ui/design-tokens.test.ts`、`tests/infrastructure/stub-ledger.test.ts` | — | — | — | — | — | PASS。導入時に実在の重複を検出して解消済み（収益モデルの表示名が画面によって「提携販売」「成果報酬の紹介」の 2 通り、記事タイプも 2 通り、`Site` 型が 2 つ、`/s` 接頭辞が 2 か所、`Page` が「取得の指定」と「画面の枠」で衝突）。いずれも**わざと壊して赤くなることを確認済み** | 完了 |
 | REQ-TS10 | カバレッジを**層別**に測り、全体と「スタブを除いた実質」を併記する。数字合わせを禁じる | `vitest.config.mts` のカバレッジ設定、`scripts/coverage-report.mjs`、`docs/product/coverage.md` | — | — | — | — | — | 実測（2026-08-17、`pnpm verify` 通過時）: 全体 行 91.2% / 分岐 80.4% / 関数 86.5% / 文 89.2%。層別（行）は domain 94.3 / application 98.6 / presentation 88.7 / app 89.7 / infrastructure 78.7 で全層が下限以上。**閾値は 1 度も下げていない**（下限 80 のまま、テストを足して越えた）。スタブと実質の差 -10.7pt は**スタブ側が薄い向き**（数字合わせなら逆に振れる）だが、契約検査が絶対値で見るため上限 3pt には未達 → 残課題 24 | 完了（判定方法の見直しのみ残る） |
@@ -614,12 +614,12 @@ grep -E '^\| REQ-' $T | grep -cE '\| \**(実装済|完了|スタブ|未着手)' 
 | M | 禁止依存 | 6 | 5 | 1 | 0 |
 | N | 受け入れ条件（§30.1〜§30.8） | 8 | 8 | 0 | 0 |
 | O | 見た目の切り替え（配色 × 明暗） | 5 | 5 | 0 | 0 |
-| P | 計測（AI の利用と費用 / 読まれ方 / 同意） | 13 | 12 | 1 | 0 |
+| P | 計測（AI の利用と費用 / 読まれ方 / 同意） | 13 | 13 | 0 | 0 |
 | Q | 改善ループ（測る → 比べる → 直す） | 13 | 12 | 1 | 0 |
 | R | テストの網羅 | 10 | 10 | 0 | 0 |
 | S | 自動チェックと公開 | 8 | 8 | 0 | 0 |
 | T | 改善要望フィードバック | 12 | 12 | 0 | 0 |
-| | **合計** | **235** | **201** | **34** | **0** |
+| | **合計** | **235** | **202** | **33** | **0** |
 
 
 ### UI/UX（画面義務のある要件のみ）
@@ -634,7 +634,7 @@ grep -E '^\| REQ-' $T | grep -cE '\| \**(実装済|完了|スタブ|未着手)' 
 | REQ-TM01 | 計測イベントの型を導出する仕組み |
 | REQ-TM11 | 送り方の決めごと（読者に見せない） |
 | REQ-TM12 | 層の分離（差し替え可能な接続部） |
-| REQ-TM13 | 保存先（`/admin/ai-usage` に仮置きである旨は出る） |
+| REQ-TM13 | 保存先（`/admin/analytics`・`/admin/ai-usage` に保存先の状態は出る） |
 | REQ-IM13 | 保存先（`/admin/improvement` に仮置きである旨は出る） |
 | REQ-FB01 | ループの種類の登録表（歯止めが自動で付く仕組み） |
 | REQ-FB06 | 黒塗りの作り方（結果は写しの中に現れる） |
@@ -670,24 +670,24 @@ G〜N の節（API・イベント・WebMCP・MCP・権限・セキュリティ�
 
 ### まだ中身が無いもの（スタブ）の内訳
 
-つなぎ目だけあって中身が無いものは **40件**。一覧と、それぞれ何が済めば実装できるかは
+つなぎ目だけあって中身が無いものは **36件**（ほかに、本物ができたあと接続の無い場所で使う**控え**が 7件）。一覧と、それぞれ何が済めば実装できるかは
 `docs/product/stub-ledger.md`（`tests/infrastructure/stub-ledger.test.ts` がコードから生成。手書きではない）。
 
 | 区分 | 件数 | 解除に必要なこと |
 | --- | --- | --- |
 | ASP 連携 | 9 | 各 ASP の審査通過と API 利用申請（**秘密情報は利用者本人がブラウザから登録する**） |
 | 配信チャネル | 9 | 各媒体の開発者登録と接続情報の登録（note は公式APIが無く、「直接投稿できない」と宣言済みのため対象外） |
-| 保存先 | 13 | D1 への差し替え。見本データと同じ形を返す実装を書けば、画面もドメインも触らずに済む（計測の記録先・改善ループの記録先を含む） |
+| 保存先 | 9 | D1 への差し替え。見本データと同じ形を返す実装を書けば、画面もドメインも触らずに済む（**計測の記録先・受信箱・改善要望・ブログ設定は接続済み**。残りは記事・商品・順位・配信・報酬・改善ループ・作業場所設定と、クリックの記録） |
 | 生成AI の提供元 | 4 | 提供元の鍵の登録 |
-| 読者向け道具 | 3 | 計測データの実接続 |
+| 読者向け道具 | 3 | 商品データの取込と道具ごとの計算式、読者ごとの保存先（KV）、問い合わせの送信設定 |
 | ログイン情報 | 1 | Google 側でのアプリ登録 |
 | ファイルの一時公開URL | 1 | R2 の署名付きURL発行の実装 |
 
 呼ぶと必ず失敗を返す。**成功したふりをしない**ので、
 「つながっているのに結果が空」という分かりにくい壊れ方をしない。
 
-表の「スタブ」34行と、この40件は数え方が違う。
-34 は**要件の行**を数えたもの、40 は**コードのつなぎ目**を数えたもので、
+表の「スタブ」33行と、この36件は数え方が違う。
+33 は**要件の行**を数えたもの、36 は**コードのつなぎ目**を数えたもので、
 1つの要件が複数のつなぎ目を持つことがある（例: 配信は媒体ごとに 1 つ）。
 
 ### 未着手 12 件（T 節）が 0 になった経緯

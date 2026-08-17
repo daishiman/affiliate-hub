@@ -5,7 +5,7 @@ import type {
 } from "@/application/ports/analytics";
 import type { MetricKey, MetricSample } from "@/domain/analytics";
 import { ok } from "@/domain/shared";
-import { registerStub, stubCall } from "../../stub-registry";
+import { registerStub, stubCall, stubReason } from "../../stub-registry";
 
 /**
  * ★ これは仮置きの見本データです（スタブ）。★
@@ -17,16 +17,31 @@ import { registerStub, stubCall } from "../../stub-registry";
  * **わざと一部の指標を空にしている。** すべて埋まった状態だけを置くと、
  * 「まだ計測できていません」がどう出るかを誰も確かめないまま公開してしまう。
  */
+/**
+ * 台帳の登録を 2 つに分けている。
+ *
+ * 数字の読み口は本物ができた（計測から導く）が、クリックの記録はまだ無い。
+ * 1 件にまとめたままだと、控えに変えれば「クリックも済んだ」ことになり、
+ * 未実装のままに変えれば「数字も未実装」になる。
+ * **どちらに寄せても台帳が嘘になる**ので、分けて数える。
+ */
 const stub = registerStub({
   id: "persistence:analytics-sample",
-  port: "指標の保存先とクリック計測",
+  port: "指標の読み口",
   label: "数字（見本データ）",
-  blockedBy:
-    "metric_samples / click_events テーブルの追加と、公開後の実際の計測（Cloudflare Analytics の接続）",
+  blockedBy: "済み（計測の記録から導く。d1/telemetry-repository.ts）",
+  fallbackFor: "src/infrastructure/persistence/d1/telemetry-repository.ts",
+});
+
+const clickStub = registerStub({
+  id: "persistence:click-tracking-sample",
+  port: "クリック計測",
+  label: "クリックの記録（未実装）",
+  blockedBy: "click_events テーブルと、リンクの計測識別子を発行する仕組み",
 });
 
 export function sampleAnalyticsNotice(): string {
-  return `${stub.label}で表示しています（${stub.blockedBy}が済むまでの仮です）。`;
+  return `${stub.label}で表示しています（${stubReason(stub)}）。`;
 }
 
 /** 見本の実測値。ここに無い指標は「未計測」として画面に出る。 */
@@ -34,7 +49,9 @@ const SAMPLE_VALUES: ReadonlyArray<readonly [MetricKey, number, number | null]> 
   ["page_views", 12480, null],
   ["unique_readers", 8210, null],
   ["read_completion_rate", 0.42, 12480],
-  ["scroll_depth_p50", 0.68, 12480],
+  // 0〜100 の % で持つ（計測が送ってくる形と揃える）。0.68 にすると
+  // 本物につないだ瞬間に桁が変わり、見比べた人が壊れたと判断する。
+  ["scroll_depth_p50", 68, 12480],
   ["time_on_page_seconds", 186, null],
   ["ai_answer_count", 340, null],
   ["ai_tool_success_rate", 0.91, 340],
@@ -297,6 +314,6 @@ export function createSampleMetricsRepository(): MetricsRepositoryPort {
  */
 export function createSampleClickTracking(): ClickTrackingPort {
   return {
-    recordClick: () => stubCall(stub, "クリックの記録"),
+    recordClick: () => stubCall(clickStub, "クリックの記録"),
   };
 }

@@ -15,7 +15,7 @@ import { analyticsUseCases, createToolCatalog, currentActor } from "@/presentati
 
 async function filter(axes: Partial<Record<AnalyticsAxisKey, string>> = {}) {
   const actor = await currentActor();
-  const result = await analyticsUseCases().filterMetrics.execute(actor, { axes });
+  const result = await (await analyticsUseCases()).filterMetrics.execute(actor, { axes });
   expect(result.ok, result.ok ? "" : result.error.message).toBe(true);
   if (!result.ok) throw new Error(result.error.message);
   return result.value;
@@ -137,7 +137,7 @@ describe("いま何で絞っているかを言葉で出す", () => {
 
   it("知らない軸の指定は黙って捨てる（絞ったことにしない）", async () => {
     const actor = await currentActor();
-    const result = await analyticsUseCases().filterMetrics.execute(actor, {
+    const result = await (await analyticsUseCases()).filterMetrics.execute(actor, {
       axes: { not_an_axis: "x" } as unknown as Partial<Record<AnalyticsAxisKey, string>>,
     });
     expect(result.ok).toBe(true);
