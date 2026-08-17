@@ -8,6 +8,26 @@ import {
   text,
   uniqueIndex,
 } from "drizzle-orm/sqlite-core";
+import {
+  CHANNEL_CAPABILITIES,
+  PUBLICATION_STATES,
+  type ChannelKind,
+  type PublicationState,
+} from "@/domain/distribution";
+
+/**
+ * 列に入れてよい値を、**業務側の一覧から取り出す**。
+ *
+ * ここに手で書き写すと、出し先や状態を 1 つ足した日に、
+ * 業務側だけが増えて保存先が古いまま残る。しかも壊れ方が
+ * 「保存のときだけ失敗する」なので、画面では最後まで気づけない。
+ * 写しではなく同じものを指すことで、ずれる余地を無くしている。
+ */
+const CHANNEL_KIND_VALUES = Object.keys(CHANNEL_CAPABILITIES) as [ChannelKind, ...ChannelKind[]];
+const PUBLICATION_STATE_VALUES = [...PUBLICATION_STATES] as [
+  PublicationState,
+  ...PublicationState[],
+];
 
 /**
  * このファイルは 2 つのドメインを持つ。混ぜてはいけない。
@@ -662,8 +682,78 @@ export const telemetryEvents = sqliteTable(
   ],
 );
 
+/**
+ * 出し先の接続（どのアカウントへ出せるか）。
+ *
+ * **認証情報そのものは入れない。** 入るのは `credential_ref`＝
+ * 「どこに保管したか」の名前だけ。値を列に入れると、この表を読めた人が
+ * そのまま他人のアカウントへ投稿できてしまう。
+ *
+ * 行を作る入口（各サービスとの接続）は、利用者ご自身がブラウザで
+ * 認証するものなのでまだ無い。表と読み書きは、入口が付いた日に
+ * そのまま使える形で先に用意してある（`sessions` と同じ考え方）。
+ */
+export const channelConnections = sqliteTable(
+  "channel_connections",
+  {
+    id: text("id").primaryKey(),
+    workspaceId: text("workspace_id").notNull(),
+    /** 出し先の種類。正本は domain/distribution/channel.ts の `CHANNEL_CAPABILITIES`。 */
+    kind: text("kind", { enum: CHANNEL_KIND_VALUES }).notNull(),
+    /** 画面に出すアカウント名。**誤爆防止のために保存する**（ID だけでは誰宛か分からない）。 */
+    accountLabel: text("account_label").notNull(),
+    connectedAt: integer("connected_at", { mode: "timestamp" }).notNull(),
+    /** 認証の有効期限。null は期限なし。 */
+    expiresAt: integer("expires_at", { mode: "timestamp" }),
+    revokedAt: integer("revoked_at", { mode: "timestamp" }),
+    /** 保管先の名前。**値ではない。** */
+    credentialRef: text("credential_ref").notNull(),
+  },
+  (t) => [index("channel_connections_workspace_kind_idx").on(t.workspaceId, t.kind)],
+);
+
+/**
+ * 配信（いつ・どこへ出すか、と出した結果）。
+ *
+ * **`idempotency_key` に一意制約を付けない。** 同じ記事・同じ先・同じ日時を
+ * 二度登録したときに断るのは配信のユースケース側の仕事で、そこは
+ * 「作らずに、すでにある 1 件を返す」という成功で応じる。保存先が
+ * 一意制約で弾くと、その応答が**やり直しても永久に通らない失敗**になる
+ * （受信箱で実際にその形になった。`link_ingestions` の注記を参照）。
+ * 代わりに索引を張って、探す側を速くする。
+ */
+export const publications = sqliteTable(
+  "publications",
+  {
+    id: text("id").primaryKey(),
+    workspaceId: text("workspace_id").notNull(),
+    variantId: text("variant_id").notNull(),
+    kind: text("kind", { enum: CHANNEL_KIND_VALUES }).notNull(),
+    /** 出し先の接続。書き出し（note）だけは接続を持たないので null。 */
+    connectionId: text("connection_id"),
+    /** 状態。正本は domain/distribution/publication.ts の `PUBLICATION_STATES`。 */
+    state: text("state", { enum: PUBLICATION_STATE_VALUES }).notNull(),
+    /** 予約時刻。null は即時。 */
+    scheduledAt: integer("scheduled_at", { mode: "timestamp" }),
+    idempotencyKey: text("idempotency_key").notNull(),
+    attempts: integer("attempts").notNull().default(0),
+    externalId: text("external_id"),
+    externalUrl: text("external_url"),
+    lastError: text("last_error"),
+    publishedAt: integer("published_at", { mode: "timestamp" }),
+  },
+  (t) => [
+    index("publications_workspace_variant_idx").on(t.workspaceId, t.variantId),
+    index("publications_workspace_idempotency_idx").on(t.workspaceId, t.idempotencyKey),
+    // 予約の時間が来たものを拾う索引。無いと、送る側が毎回全件を読む。
+    index("publications_state_scheduled_idx").on(t.state, t.scheduledAt),
+  ],
+);
+
 // 運営者ドメイン
 export type Asp = typeof asps.$inferSelect;
+export type ChannelConnectionRow = typeof channelConnections.$inferSelect;
+export type PublicationRow = typeof publications.$inferSelect;
 export type SessionRow = typeof sessions.$inferSelect;
 export type Program = typeof programs.$inferSelect;
 export type Conversion = typeof conversions.$inferSelect;

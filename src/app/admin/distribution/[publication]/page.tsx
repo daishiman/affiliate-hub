@@ -7,7 +7,7 @@ import {
   Card,
   ErrorView,
   Page,
-  StubNotice,
+  StorageNotice,
 } from "@/presentation/ui";
 import styles from "../../admin.module.css";
 
@@ -27,7 +27,7 @@ export default async function PublicationPage({
 }) {
   const { publication: publicationId } = await params;
   const actor = await currentActor();
-  const uc = distributionUseCases();
+  const uc = await distributionUseCases();
   const result = await uc.getPublication.execute(actor, { publicationId });
 
   if (!result.ok) {
@@ -51,13 +51,7 @@ export default async function PublicationPage({
 
   return (
     <Shell title={`${card.channelLabel}への配信`}>
-      <StubNotice
-        what="配信先の接続と配信の記録の保存先"
-        blockedBy="channel_connections / publications テーブルの追加と、各サービスの接続設定"
-        stubId="persistence:distribution-sample"
-      >
-        <span>{distributionNotice()}</span>
-      </StubNotice>
+      <StorageNotice status={await distributionNotice()} />
 
       <Card>
         <h2 className={styles.sectionTitle}>いまの状態</h2>

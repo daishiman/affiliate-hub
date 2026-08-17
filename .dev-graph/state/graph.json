@@ -1,5 +1,5 @@
 {
-  "graph_revision": 177,
+  "graph_revision": 182,
   "nodes": [
     {
       "acceptance": [],
@@ -6117,12 +6117,14 @@
       "classification_confidence": 0.95,
       "classification_reason": "docs/product/backlog.md の残課題を作業単位として登録",
       "completion_evidence": {
-        "completed_at": null,
-        "evidence_refs": [],
+        "completed_at": "2026-08-17T00:00:00Z",
+        "evidence_refs": [
+          "docs/product/coverage.md"
+        ],
         "policy": "manual",
-        "reconciled_at": null,
-        "source": null,
-        "status": "open"
+        "reconciled_at": "2026-08-17T08:25:00Z",
+        "source": "manual",
+        "status": "done"
       },
       "confirmation_evidence": {
         "evaluated_digest": null,
@@ -6183,7 +6185,7 @@
         "source_version": null
       },
       "start_date": "2026-08-17",
-      "status": "draft",
+      "status": "done",
       "tags": [
         "backlog",
         "mvp"
@@ -6193,7 +6195,7 @@
       "template_version": "1.0.0",
       "title": "スタブと実質カバレッジの差が上限を超えている",
       "tracker_binding": "beads",
-      "updated_at": "2026-08-17T02:22:05.194717Z"
+      "updated_at": "2026-08-17T08:00:45.938104Z"
     },
     {
       "acceptance": [],
@@ -6216,12 +6218,14 @@
       "classification_confidence": 0.95,
       "classification_reason": "docs/product/backlog.md の残課題を作業単位として登録",
       "completion_evidence": {
-        "completed_at": null,
-        "evidence_refs": [],
+        "completed_at": "2026-08-17T00:00:00Z",
+        "evidence_refs": [
+          "docs/product/backlog.md#25"
+        ],
         "policy": "manual",
-        "reconciled_at": null,
-        "source": null,
-        "status": "open"
+        "reconciled_at": "2026-08-17T08:25:00Z",
+        "source": "manual",
+        "status": "done"
       },
       "confirmation_evidence": {
         "evaluated_digest": null,
@@ -6283,7 +6287,7 @@
         "source_version": null
       },
       "start_date": "2026-08-17",
-      "status": "draft",
+      "status": "done",
       "tags": [
         "backlog",
         "mvp"
@@ -6293,7 +6297,7 @@
       "template_version": "1.0.0",
       "title": "測ったものが分析の数字に届いていない",
       "tracker_binding": "beads",
-      "updated_at": "2026-08-17T02:22:10.895306Z"
+      "updated_at": "2026-08-17T08:00:52.672055Z"
     },
     {
       "acceptance": [],
@@ -6316,12 +6320,14 @@
       "classification_confidence": 0.95,
       "classification_reason": "docs/product/backlog.md の残課題を作業単位として登録",
       "completion_evidence": {
-        "completed_at": null,
-        "evidence_refs": [],
+        "completed_at": "2026-08-17T00:00:00Z",
+        "evidence_refs": [
+          "docs/product/backlog.md#26"
+        ],
         "policy": "manual",
-        "reconciled_at": null,
-        "source": null,
-        "status": "open"
+        "reconciled_at": "2026-08-17T08:25:00Z",
+        "source": "manual",
+        "status": "done"
       },
       "confirmation_evidence": {
         "evaluated_digest": null,
@@ -6383,7 +6389,7 @@
         "source_version": null
       },
       "start_date": "2026-08-17",
-      "status": "draft",
+      "status": "done",
       "tags": [
         "backlog",
         "mvp"
@@ -6393,7 +6399,7 @@
       "template_version": "1.0.0",
       "title": "配信を作る入口（ユースケース）が無い",
       "tracker_binding": "beads",
-      "updated_at": "2026-08-17T02:22:16.698177Z"
+      "updated_at": "2026-08-17T08:00:40.472573Z"
     },
     {
       "acceptance": [
@@ -6524,6 +6530,107 @@
       "title": "改善要望フィードバック（受け取り → 一覧 → 払い出し）",
       "tracker_binding": "beads",
       "updated_at": "2026-08-17T02:22:22.471785Z"
+    },
+    {
+      "acceptance": [],
+      "architecture_refs": [],
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "beads_linkage": null,
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "candidate_path": "tasks/task-distribution-persistence.md",
+          "confidence": 0.95
+        }
+      ],
+      "classification_confidence": 0.95,
+      "classification_reason": "docs/product/backlog.md の残課題を作業単位として登録",
+      "completion_evidence": {
+        "completed_at": "2026-08-17T08:20:00Z",
+        "evidence_refs": [
+          "tests/integration/d1-distribution.test.ts",
+          "drizzle/0008_damp_xorn.sql",
+          "src/infrastructure/persistence/d1/distribution-repository.ts",
+          "docs/product/backlog.md#37"
+        ],
+        "policy": "manual",
+        "reconciled_at": "2026-08-17T08:20:00Z",
+        "source": "manual",
+        "status": "done"
+      },
+      "confirmation_evidence": {
+        "evaluated_digest": null,
+        "evaluator": null,
+        "evidence_ref": null
+      },
+      "confirmation_status": "draft",
+      "created_at": "2026-08-17T00:00:00Z",
+      "depends_on": [],
+      "domain": "distribution",
+      "evaluation_status": "pending",
+      "execution_contexts": [],
+      "feature_package_id": null,
+      "file_path": "tasks/task-distribution-persistence.md",
+      "github_project_linkages": [],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "goal": null,
+      "graph_node_id": "task-distribution-persistence",
+      "implementation_readiness": {
+        "checked_at": null,
+        "missing_sections": [],
+        "status": "incomplete"
+      },
+      "issue_linkage": null,
+      "iteration": null,
+      "mvp_alignment": {
+        "background": "配信の予約はこの場限りで、処理が終わると消えていた",
+        "mvp_fit": "direct",
+        "purpose": "予約・取りやめ・予定日の変更が次に開いても残るようにする",
+        "rationale": "消えたのか、まだ出していないのかを画面から見分けられない"
+      },
+      "owners": [
+        "daishiman"
+      ],
+      "parent_feature": null,
+      "phase_ref": null,
+      "priority": "high",
+      "project_id": "affiliate-hub",
+      "pull_request_linkages": [],
+      "purpose": null,
+      "related_nodes": [],
+      "resource_scope": [
+        "src/db",
+        "src/infrastructure/persistence",
+        "drizzle"
+      ],
+      "scope_in": [],
+      "scope_out": [],
+      "source_lineage": {
+        "imported_at": "2026-08-17T00:00:00Z",
+        "origin_kind": "manual",
+        "source_digest": null,
+        "source_path": "docs/product/backlog.md",
+        "source_plugin": null,
+        "source_version": null
+      },
+      "start_date": "2026-08-17",
+      "status": "done",
+      "tags": [
+        "backlog",
+        "mvp"
+      ],
+      "target_date": null,
+      "template_id": "task",
+      "template_version": "1.0.0",
+      "title": "配信の予約を D1 へ保存する",
+      "tracker_binding": "beads",
+      "updated_at": "2026-08-17T08:00:15.303885Z"
     }
   ],
   "repository_id": "github:daishiman/affiliate-hub",

@@ -34,8 +34,11 @@ const stub = registerStub({
   id: "persistence:distribution-sample",
   port: "配信先の接続と配信記録の保存先",
   label: "配信（見本データ）",
-  blockedBy:
-    "channel_connections / publications テーブルの追加と、各サービスの接続設定（利用者本人による認証）",
+  // テーブル（channel_connections / publications）は追加済み。
+  // 保存先がある環境では D1 が使われ、ここは見本の重ね置きだけになる。
+  // 残っている条件は**認証だけ**なので、済んだものを条件に残さない。
+  // 残すと、いつまでも解除できないスタブに見えて解除条件が読まれなくなる。
+  blockedBy: "各サービスの接続設定（利用者本人による認証）",
 });
 
 export function sampleDistributionNotice(): string {
@@ -198,6 +201,26 @@ let PUBLICATIONS: readonly Publication[] = [
     scheduledAt: new Date("2026-08-20T18:00:00Z"),
   }),
 ];
+
+/**
+ * 見本の出し先。**保存先（D1）版もこれを重ねて返す。**
+ *
+ * 各サービスへの接続は利用者ご自身の認証が要るため、ここを消すと
+ * 認証が入る日まで配信を 1 件も作れず、作った先の画面を誰も確かめられない。
+ */
+export function sampleChannelConnections(): readonly ChannelConnection[] {
+  return CONNECTIONS;
+}
+
+/**
+ * 見本の配信。**保存先（D1）版もこれを重ねて返す。**
+ *
+ * 消すと、まだ 1 件も出していない状態で一覧もカレンダーも空になり、
+ * 「まだ出していない」のか「壊れている」のかを見分けられなくなる。
+ */
+export function samplePublications(): readonly Publication[] {
+  return PUBLICATIONS;
+}
 
 export function createSampleChannelConnectionRepository(): ChannelConnectionRepositoryPort {
   return {

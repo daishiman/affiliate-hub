@@ -12,8 +12,8 @@ iteration: null
 title: "スタブと実質カバレッジの差が上限を超えている"
 owners: ["daishiman"]
 created_at: "2026-08-17T00:00:00Z"
-updated_at: "2026-08-17T02:22:05.194717Z"
-status: "draft"
+updated_at: "2026-08-17T08:00:45.938104Z"
+status: "done"
 depends_on: []
 related_nodes: []
 resource_scope: ["quality-gates.config.mjs"]
@@ -44,7 +44,7 @@ github_publication: {"labels":[],"milestone":null,"mode":"local_only","project_a
 github_project_linkages: []
 pull_request_linkages: []
 execution_contexts: []
-completion_evidence: {"completed_at":null,"evidence_refs":[],"policy":"manual","reconciled_at":null,"source":null,"status":"open"}
+completion_evidence: {"completed_at":"2026-08-17T00:00:00Z","evidence_refs":["docs/product/coverage.md"],"policy":"manual","reconciled_at":"2026-08-17T08:25:00Z","source":"manual","status":"done"}
 implementation_readiness: {"checked_at":null,"missing_sections":[],"status":"incomplete"}
 ---
 

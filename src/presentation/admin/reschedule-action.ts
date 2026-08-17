@@ -23,7 +23,7 @@ export async function reschedulePublicationAction(
   const publicationId = String(formData.get("publicationId") ?? "");
   const scheduledAt = String(formData.get("scheduledAt") ?? "");
 
-  const result = await publicationCalendarUseCases().reschedule.execute(await currentActor(), {
+  const result = await (await publicationCalendarUseCases()).reschedule.execute(await currentActor(), {
     publicationId,
     scheduledAt,
   });

@@ -12,8 +12,8 @@ iteration: null
 title: "測ったものが分析の数字に届いていない"
 owners: ["daishiman"]
 created_at: "2026-08-17T00:00:00Z"
-updated_at: "2026-08-17T02:22:10.895306Z"
-status: "draft"
+updated_at: "2026-08-17T08:00:52.672055Z"
+status: "done"
 depends_on: []
 related_nodes: []
 resource_scope: ["src/application","src/infrastructure"]
@@ -44,7 +44,7 @@ github_publication: {"labels":[],"milestone":null,"mode":"local_only","project_a
 github_project_linkages: []
 pull_request_linkages: []
 execution_contexts: []
-completion_evidence: {"completed_at":null,"evidence_refs":[],"policy":"manual","reconciled_at":null,"source":null,"status":"open"}
+completion_evidence: {"completed_at":"2026-08-17T00:00:00Z","evidence_refs":["docs/product/backlog.md#25"],"policy":"manual","reconciled_at":"2026-08-17T08:25:00Z","source":"manual","status":"done"}
 implementation_readiness: {"checked_at":null,"missing_sections":[],"status":"incomplete"}
 ---
 

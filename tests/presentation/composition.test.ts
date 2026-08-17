@@ -46,7 +46,7 @@ describe("組み立て", () => {
     // 見本のログインに公開の権限を足して緑にするのは**やらない**。
     // 足すと、認証が入っていない状態のまま公開まで通ってしまう
     // （`src/infrastructure/identity/sample-actor.ts` に理由が書いてある）。
-    const got = await distributionUseCases().schedule.execute(actor, {
+    const got = await (await distributionUseCases()).schedule.execute(actor, {
       variantId: "cv_alpha_approved",
       channelKind: "own_site",
     });

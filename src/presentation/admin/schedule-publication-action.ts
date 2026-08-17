@@ -21,7 +21,7 @@ export async function schedulePublicationAction(
   const channelKind = String(formData.get("channelKind") ?? "") as ChannelKind;
   const scheduledAt = String(formData.get("scheduledAt") ?? "");
 
-  const result = await distributionUseCases().schedule.execute(await currentActor(), {
+  const result = await (await distributionUseCases()).schedule.execute(await currentActor(), {
     variantId,
     channelKind,
     scheduledAt,

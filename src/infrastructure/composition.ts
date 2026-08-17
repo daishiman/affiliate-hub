@@ -4,6 +4,10 @@ import {
   type DrizzleD1,
 } from "./persistence/d1/link-inbox-repository";
 import { createD1SiteDraftRepository } from "./persistence/d1/site-draft-repository";
+import {
+  createD1ChannelConnectionRepository,
+  createD1PublicationRepository,
+} from "./persistence/d1/distribution-repository";
 import { createD1SiteRepository } from "./persistence/d1/site-repository";
 import {
   createD1FeedbackRepository,
@@ -122,10 +126,18 @@ export function createDeps(
     contentPackages: createSampleContentPackageRepository(),
     contentVariants: createSampleContentVariantRepository(),
     personas: createSamplePersonaRepository(),
-    // ★ 見本データ（スタブ）。配信先の接続と配信の記録。
-    //   実際の投稿には各サービスの認証が要り、それは利用者ご自身が登録する。
-    channelConnections: createSampleChannelConnectionRepository(),
-    publications: createSamplePublicationRepository(),
+    // 配信の記録は、保存先が用意できていれば本物（D1）。
+    // 入れる口（記事の画面の「この記事を出す」）が先にあるので本物にした。
+    // **見本は消さずに重ねる**（`d1/distribution-repository.ts` に理由）。
+    //
+    // 実際の投稿そのものは行わない。各サービスの認証が要り、
+    // それは利用者ご自身がブラウザで登録するものだから。
+    // 出し先の接続も、行を作る入口が付くまでは見本が並ぶ。
+    channelConnections:
+      db === null
+        ? createSampleChannelConnectionRepository()
+        : createD1ChannelConnectionRepository(db),
+    publications: db === null ? createSamplePublicationRepository() : createD1PublicationRepository(db),
     manualExport: createSampleManualExport(),
     // 数字は、保存先が用意できていれば**計測の記録から導く**（D1）。
     // 指標を別の表に貯めないので、ここで渡すのは同じ接続 1 つだけ。

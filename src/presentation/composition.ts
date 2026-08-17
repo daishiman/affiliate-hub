@@ -560,8 +560,10 @@ export async function platformUseCases() {
  * 出し先を 1 つ増やすときに触るのは、domain のチャネル能力表と
  * つなぎ役の実装だけ。ここも画面も変わらない。
  */
-export function distributionUseCases() {
-  const deps = createDeps();
+export async function distributionUseCases() {
+  // 保存先の接続をここで取る。**画面ごとに取らない。**
+  // 取り方が画面ごとに分かれると、片方だけ見本のまま残る。
+  const deps = createDeps({ db: await tryGetDb() });
   const distribution = {
     connections: deps.channelConnections,
     publications: deps.publications,
@@ -585,8 +587,8 @@ export function distributionUseCases() {
  * 配信の一覧と同じ元データを、日付で並べ直して見せるもの。
  * 数え直しや別の保存先を作らないので、一覧とカレンダーで件数がずれない。
  */
-export function publicationCalendarUseCases() {
-  const deps = createDeps();
+export async function publicationCalendarUseCases() {
+  const deps = createDeps({ db: await tryGetDb() });
   const calendar = {
     publications: deps.publications,
     connections: deps.channelConnections,
@@ -939,9 +941,27 @@ export function affiliatePeriods(): readonly string[] {
   return SAMPLE_PERIODS;
 }
 
-/** 配信が見本データであることを画面に出すための一文。 */
-export function distributionNotice(): string {
-  return sampleDistributionNotice();
+/**
+ * 配信がいま何で動いているかを画面に出すための一文。
+ *
+ * ここには**2 つの別の話**が混ざるので、混ぜたまま書かない。
+ *   1. 予約したことが保存されるか（保存先の有無。D1 があれば済む）
+ *   2. 実際に各サービスへ投稿できるか（利用者ご自身の認証が要る。まだ）
+ * 1 が済んだからといって 2 も済んだように読める文にすると、
+ * 「予約したのに投稿されない」を故障と誤解させる。両方を必ず書く。
+ */
+export async function distributionNotice(): Promise<StorageStatus> {
+  const db = await tryGetDb();
+  return {
+    persisted: db !== null,
+    what: "配信の予約と出し先の記録の保存先",
+    blockedBy: "各サービスの接続設定（利用者ご自身による認証）",
+    stubId: "persistence:distribution-sample",
+    message:
+      db === null
+        ? sampleDistributionNotice()
+        : "予約・取りやめは保存されます（保存先: D1 の publications）。ただし各サービスへの実際の投稿はまだ行いません（接続の認証が未登録のため）。出し先の一覧に並んでいるのは見本です。",
+  };
 }
 
 /** 記事が見本データであることを画面に出すための一文。 */

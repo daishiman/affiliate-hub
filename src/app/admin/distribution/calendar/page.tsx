@@ -14,7 +14,7 @@ import {
   ErrorView,
   Page,
   ScheduleCalendar,
-  StubNotice,
+  StorageNotice,
 } from "@/presentation/ui";
 import styles from "../../admin.module.css";
 
@@ -37,7 +37,7 @@ export default async function PublicationCalendarPage({
 }) {
   const { month } = await searchParams;
   const actor = await currentActor();
-  const result = await publicationCalendarUseCases().getCalendar.execute(actor, { month });
+  const result = await (await publicationCalendarUseCases()).getCalendar.execute(actor, { month });
 
   if (!result.ok) {
     return (
@@ -56,13 +56,7 @@ export default async function PublicationCalendarPage({
 
   return (
     <Shell>
-      <StubNotice
-        what="配信先の接続と配信の記録の保存先"
-        blockedBy="channel_connections / publications テーブルの追加と、各サービスの接続設定"
-        stubId="persistence:distribution-sample"
-      >
-        <span>{distributionNotice()}</span>
-      </StubNotice>
+      <StorageNotice status={await distributionNotice()} />
 
       <Card>
         <h2 className={styles.sectionTitle}>{view.monthLabel}の投稿予定</h2>

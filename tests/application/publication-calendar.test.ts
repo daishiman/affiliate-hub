@@ -15,7 +15,7 @@ const MONTH = "2026-08";
 
 async function calendar(month = MONTH) {
   const actor = await currentActor();
-  const result = await publicationCalendarUseCases().getCalendar.execute(actor, { month });
+  const result = await (await publicationCalendarUseCases()).getCalendar.execute(actor, { month });
   expect(result.ok, result.ok ? "" : result.error.message).toBe(true);
   if (!result.ok) throw new Error(result.error.message);
   return result.value;
@@ -42,7 +42,7 @@ describe("月の枠", () => {
 
   it("月の指定が壊れているときは、直し方の分かる誤りを返す", async () => {
     const actor = await currentActor();
-    const result = await publicationCalendarUseCases().getCalendar.execute(actor, {
+    const result = await (await publicationCalendarUseCases()).getCalendar.execute(actor, {
       month: "2026-13",
     });
     expect(result.ok).toBe(false);
@@ -155,7 +155,7 @@ describe("予定日の変更", () => {
 
   it("公開の権限がある人には、変更できる配信が出る", async () => {
     const actor = await currentActor();
-    const result = await publicationCalendarUseCases().getCalendar.execute(await publisher(), {
+    const result = await (await publicationCalendarUseCases()).getCalendar.execute(await publisher(), {
       month: MONTH,
     });
     expect(result.ok).toBe(true);
@@ -163,7 +163,7 @@ describe("予定日の変更", () => {
     expect(result.value.canReschedule).toBe(true);
     expect(result.value.cannotRescheduleReason).toBeNull();
     // 権限を変えただけで、並ぶ件数は変わらない（見える範囲は同じ）。
-    const asViewer = await publicationCalendarUseCases().getCalendar.execute(actor, {
+    const asViewer = await (await publicationCalendarUseCases()).getCalendar.execute(actor, {
       month: MONTH,
     });
     expect(asViewer.ok).toBe(true);
@@ -173,7 +173,7 @@ describe("予定日の変更", () => {
 
   it("権限が無いまま変更を試みると断られる", async () => {
     const actor = await currentActor();
-    const result = await publicationCalendarUseCases().reschedule.execute(actor, {
+    const result = await (await publicationCalendarUseCases()).reschedule.execute(actor, {
       publicationId: "pub_anything",
       scheduledAt: "2099-01-01T00:00",
     });
@@ -184,7 +184,7 @@ describe("予定日の変更", () => {
   });
 
   it("過去の日時は受け付けない", async () => {
-    const view = await publicationCalendarUseCases().getCalendar.execute(await publisher(), {
+    const view = await (await publicationCalendarUseCases()).getCalendar.execute(await publisher(), {
       month: MONTH,
     });
     expect(view.ok).toBe(true);
@@ -195,7 +195,7 @@ describe("予定日の変更", () => {
     expect(target, "見本に、予定日を変えられる配信がありません").toBeDefined();
     if (target === undefined) return;
 
-    const result = await publicationCalendarUseCases().reschedule.execute(await publisher(), {
+    const result = await (await publicationCalendarUseCases()).reschedule.execute(await publisher(), {
       publicationId: target.publicationId,
       scheduledAt: "2020-01-01T00:00",
     });
@@ -206,7 +206,7 @@ describe("予定日の変更", () => {
   });
 
   it("見つからない配信を、黙って無視しない", async () => {
-    const result = await publicationCalendarUseCases().reschedule.execute(await publisher(), {
+    const result = await (await publicationCalendarUseCases()).reschedule.execute(await publisher(), {
       publicationId: "pub_does_not_exist",
       scheduledAt: "2099-01-01T00:00",
     });
@@ -217,7 +217,7 @@ describe("予定日の変更", () => {
   });
 
   it("先の日時へ変えると、送信の順番待ちへ戻る", async () => {
-    const view = await publicationCalendarUseCases().getCalendar.execute(await publisher(), {
+    const view = await (await publicationCalendarUseCases()).getCalendar.execute(await publisher(), {
       month: MONTH,
     });
     expect(view.ok).toBe(true);
@@ -227,7 +227,7 @@ describe("予定日の変更", () => {
     );
     if (target === undefined) return;
 
-    const result = await publicationCalendarUseCases().reschedule.execute(await publisher(), {
+    const result = await (await publicationCalendarUseCases()).reschedule.execute(await publisher(), {
       publicationId: target.publicationId,
       scheduledAt: "2099-03-04T10:30",
     });
