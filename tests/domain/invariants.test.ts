@@ -690,12 +690,14 @@ describe("自動の品質確認", () => {
     const report = check("静かに動きます。デメリットは重さです。");
     // 価格の記載が無い・機能一覧が無い・比較対象が無い・提携リンクが無い
     // ・吹き出しの並びが未指定・見出しが無い・結論の照合材料が無い
+    // ・ハッシュタグの上限を知らない
     expect(report.skipped.map((s) => s.check).sort()).toEqual(
       [
         "conclusion_mismatch",
         "conversation_flow",
         "disclosure_present",
         "duplicate_text",
+        "hashtag_fit",
         "nonexistent_feature",
         "stale_price",
         "vague_heading",

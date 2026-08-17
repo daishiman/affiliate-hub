@@ -326,7 +326,14 @@ export function runQualityChecks(ctx: QualityCheckContext): QualityReport {
 
   // 10. ハッシュタグ
   const hashtags = body.match(/#[^\s#]+/g) ?? [];
-  if (constraints.maxHashtags !== null && hashtags.length > constraints.maxHashtags) {
+  if (constraints.maxHashtags === null) {
+    // 上限を知らないことと、上限に収まっていることは違う。
+    // 黙って通すと、確認していない項目が画面上は合格として並ぶ。
+    skipped.push({
+      check: "hashtag_fit",
+      reason: `${constraints.channel} のハッシュタグの上限を持っていないため、確認していません。`,
+    });
+  } else if (hashtags.length > constraints.maxHashtags) {
     issues.push({
       check: "hashtag_fit",
       severity: "warning",
