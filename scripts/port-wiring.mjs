@@ -44,7 +44,13 @@
 
 import { readFileSync, writeFileSync } from "node:fs";
 import ts from "typescript";
-import { PORT_WIRING_MAX_UNCALLED, PORT_WIRING_MAX_EXCLUSIONS } from "../quality-gates.config.mjs";
+import {
+  PORT_WIRING_MAX_UNCALLED,
+  PORT_WIRING_MAX_EXCLUSIONS,
+  PORT_WIRING_MAX_UNRECORDED,
+  PORT_WIRING_MAX_WRITE_EXCLUSIONS,
+  PORT_WIRING_MAX_UNKNOWN_VERBS,
+} from "../quality-gates.config.mjs";
 
 const REGISTRY = "docs/product/port-wiring.md";
 const OUT = "docs/product/port-wiring-report.md";
@@ -135,6 +141,102 @@ function collectCalls(program) {
 }
 
 /**
+ * 入口から辿れるポートの手続きを集める。
+ *
+ * **同じファイルの中の補助関数を辿る。** 辿らないと、
+ * `record()` のような 1 枚かぶせた書き方が「記録していない」に化ける
+ * （実際 `manage-content.ts` がこの形で、記録は `record()` の中にある）。
+ */
+function reachablePortCalls(program, entry, localFns) {
+  const checker = program.getTypeChecker();
+  /** @type {Set<string>} */
+  const found = new Set();
+  const seen = new Set();
+
+  const walk = (node) => {
+    if (ts.isCallExpression(node)) {
+      // ポートの手続きか
+      if (ts.isPropertyAccessExpression(node.expression)) {
+        const symbol = checker.getSymbolAtLocation(node.expression.name);
+        for (const decl of symbol?.declarations ?? []) {
+          if (!ts.isMethodSignature(decl)) continue;
+          const alias = decl.parent?.parent;
+          if (alias === undefined || !ts.isTypeAliasDeclaration(alias)) continue;
+          if (!isPortFile(alias.getSourceFile().fileName)) continue;
+          found.add(`${alias.name.text}.${node.expression.name.text}`);
+        }
+      }
+      // 同じファイルの補助関数なら、その中まで見る
+      if (ts.isIdentifier(node.expression)) {
+        const name = node.expression.text;
+        const fn = localFns.get(name);
+        if (fn !== undefined && !seen.has(name)) {
+          seen.add(name);
+          walk(fn);
+        }
+      }
+    }
+    ts.forEachChild(node, walk);
+  };
+  walk(entry);
+  return found;
+}
+
+/**
+ * 「書き込みをするのに、操作の記録へ届いていない入口」を集める。
+ *
+ * これが 4 件目の穴の形である。記録の口は呼ばれている（＝上の総ざらいは緑）が、
+ * **21 ある書き込みの入口のうち届いているのは 1 つだけ**、という状態を
+ * 上の検査は原理的に拾えない。手続き単位で「1 回でも呼ばれたか」しか見ないためである。
+ */
+function collectWriteEntryPoints(program, unknownVerbs) {
+  /** @type {{name: string, file: string, writes: string[]}[]} */
+  const rows = [];
+  for (const sf of program.getSourceFiles()) {
+    if (sf.isDeclarationFile) continue;
+    if (!sf.fileName.includes("src/application/usecases/")) continue;
+
+    /** @type {Map<string, ts.Node>} 同じファイルの中の関数 */
+    const localFns = new Map();
+    ts.forEachChild(sf, (node) => {
+      if (ts.isFunctionDeclaration(node) && node.name !== undefined) {
+        localFns.set(node.name.text, node);
+      }
+      if (ts.isVariableStatement(node)) {
+        for (const d of node.declarationList.declarations) {
+          if (ts.isIdentifier(d.name) && d.initializer !== undefined) {
+            localFns.set(d.name.text, d.initializer);
+          }
+        }
+      }
+    });
+
+    ts.forEachChild(sf, (node) => {
+      if (!ts.isFunctionDeclaration(node) || node.name === undefined) return;
+      if (!/^create\w*UseCase$/.test(node.name.text)) return;
+      const isExported =
+        node.modifiers?.some((m) => m.kind === ts.SyntaxKind.ExportKeyword) === true;
+      if (!isExported) return;
+
+      const reach = reachablePortCalls(program, node, localFns);
+      // 記録そのもの（AuditLogPort）は「書き込み」に数えない。
+      // 数えると、記録を書いただけの入口が自分で自分を満たしてしまう。
+      const own = [...reach].filter((r) => !r.startsWith("AuditLogPort."));
+      const writes = own.filter((r) => classify(r.split(".")[1]) === "write");
+      for (const r of own.filter((x) => classify(x.split(".")[1]) === "unknown")) unknownVerbs.add(r);
+      if (writes.length === 0) return;
+      if (reach.has("AuditLogPort.append")) return;
+      rows.push({
+        name: node.name.text,
+        file: sf.fileName.replace(`${process.cwd()}/`, ""),
+        writes: writes.sort(),
+      });
+    });
+  }
+  return rows.sort((a, b) => (a.file + a.name).localeCompare(b.file + b.name));
+}
+
+/**
  * 理由つきの除外を読む。
  *
  * 表の形: `| Port.method | 理由 |`
@@ -159,10 +261,125 @@ function readExclusions() {
   return out;
 }
 
+/**
+ * 書き込みの入口のうち、**操作の記録へ届いていないもの**の登録簿。
+ *
+ * 表の形: `| createXxxUseCase | 理由 |`
+ * 上と同じく、理由が空のものは認めない。
+ */
+function readWriteExclusions() {
+  let text = "";
+  try {
+    text = readFileSync(REGISTRY, "utf8");
+  } catch {
+    return new Map();
+  }
+  /** @type {Map<string, string>} */
+  const out = new Map();
+  for (const line of text.split("\n")) {
+    const m = /^\|\s*`(create\w*UseCase)`\s*\|\s*([^|]*?)\s*\|/.exec(line);
+    if (m === null) continue;
+    if (m[2].trim() === "") continue;
+    out.set(m[1], m[2].trim());
+  }
+  return out;
+}
+
+/**
+ * 手続きを「読み取り / 書き込み / **判定できない**」の 3 つに分ける。
+ *
+ * --- なぜ 3 つ目が要るか ---
+ * 最初は「読み取りの語彙は狭いから、それ以外を全部書き込みとする」で書いた。
+ * 実測したら外れた。ポートには**動詞でない手続き**がある
+ * （`newId` `signedUrl` `current` `buildDraft`）。これらは読みでも書きでもなく、
+ * 「それ以外＝書き込み」にすると読み取りの入口が 10 件ほど書き込みに化けた。
+ *
+ * では書き込み側を並べればよいかというと、そちらは**並べ忘れた動詞が
+ * 黙って漏れる**。まさにこの検査自体が次の穴になる形である。
+ *
+ * よって**両方並べ、どちらにも無いものを「判定できない」として数える**。
+ * 判定できないものは緑にも赤にもせず、件数を固定して見えるようにする。
+ * 語彙が増えたらそこが動くので、**黙って漏れることがない**。
+ */
+/**
+ * 「書き込みではない」手続きの頭。
+ *
+ * *読み取り* ではなく **書き込みでない** と呼ぶのが正しい。
+ * 純粋な計算（`estimate` `buildDraft`）や採番（`newId`）は読みでも書きでもないが、
+ * **操作の記録を要求する理由が無い**という一点で読みと同じ側に置ける。
+ * ここを「読み」と呼ぶと、`newId` を読みに入れた時点で嘘になる。
+ */
+const NON_WRITE_VERBS = [
+  "get",
+  "list",
+  "find",
+  "search",
+  "read",
+  "count",
+  "exists",
+  "load",
+  "fetch",
+  "has",
+  "query",
+  "verify",
+  "check",
+  "is",
+  "signed",
+  "estimate",
+  "generate",
+  "build",
+  "run",
+  "observations",
+];
+
+/**
+ * 動詞で始まらない手続き。**頭の一致では拾えないので、名前ごと書く。**
+ *
+ * `new` や `run` を頭の一致に足すと広く効きすぎる（`newOrder` を作る手続きまで
+ * 書き込みでない側へ落ちる）。数が少ないうちは名前ごと並べるほうが安全である。
+ */
+const NON_WRITE_EXACT = new Set(["current", "newId", "aiUsage"]);
+const WRITE_VERBS = [
+  "save",
+  "create",
+  "update",
+  "delete",
+  "remove",
+  "insert",
+  "upsert",
+  "put",
+  "append",
+  "publish",
+  "record",
+  "revoke",
+  "archive",
+  "cancel",
+  "schedule",
+  "send",
+  "enqueue",
+  "write",
+  "submit",
+  "add",
+];
+const startsWithVerb = (name, verbs) => verbs.some((v) => name.startsWith(v));
+/** 書き込み / 書き込みでない / 判定できない のどれかを返す。 */
+function classify(method) {
+  if (startsWithVerb(method, WRITE_VERBS)) return "write";
+  if (NON_WRITE_EXACT.has(method)) return "read";
+  if (startsWithVerb(method, NON_WRITE_VERBS)) return "read";
+  return "unknown";
+}
+
 const program = createProgram();
 const ports = collectPorts(program);
 const called = collectCalls(program);
 const exclusions = readExclusions();
+const writeExclusions = readWriteExclusions();
+/** 読みとも書きとも判定できなかった手続き（黙って漏らさないために数える）。 */
+const unknownVerbs = new Set();
+const unrecorded = collectWriteEntryPoints(program, unknownVerbs).filter(
+  (r) => !writeExclusions.has(r.name),
+);
 
 /** @type {{port: string, method: string, file: string}[]} */
 const uncalled = [];
@@ -193,9 +410,32 @@ const lines = [
 ];
 for (const u of uncalled) lines.push(`| \`${u.port}\` | \`${u.method}\` | \`${u.file}\` |`);
 lines.push("");
+lines.push("## 書き込みなのに操作の記録へ届いていない入口");
+lines.push("");
+lines.push("上の表は「1 回でも呼ばれたか」しか見ないので、**一部の経路からしか");
+lines.push("呼ばれていない**状態を拾えない。ここはその形を見る。");
+lines.push("");
+lines.push(`- 届いていない ${unrecorded.length} 件（上限 ${PORT_WIRING_MAX_UNRECORDED}）`);
+lines.push(`- 理由つきの除外 ${writeExclusions.size} 件（上限 ${PORT_WIRING_MAX_WRITE_EXCLUSIONS}）`);
+lines.push("");
+lines.push(`- 読み書きを判定できない手続き ${unknownVerbs.size} 件（上限 ${PORT_WIRING_MAX_UNKNOWN_VERBS}）`);
+lines.push("");
+lines.push("| 入口 | 書き込んでいるもの | 場所 |");
+lines.push("| --- | --- | --- |");
+for (const r of unrecorded) {
+  lines.push(`| \`${r.name}\` | ${r.writes.map((w) => `\`${w}\``).join("<br>")} | \`${r.file}\` |`);
+}
+lines.push("");
 
-if (!process.argv.includes("--check")) {
-  writeFileSync(OUT, `${lines.join("\n")}\n`);
+if (unknownVerbs.size > 0) {
+  lines.push("### 読み書きを判定できなかった手続き");
+  lines.push("");
+  lines.push("動詞の一覧（`scripts/port-wiring.mjs` の `NON_WRITE_VERBS` / `WRITE_VERBS`）の");
+  lines.push("どちらにも当たらなかったもの。**書き込みの判定から漏れている可能性がある。**");
+  lines.push("放置してよいが、件数が増えたらどちらかへ足すこと。");
+  lines.push("");
+  for (const u of [...unknownVerbs].sort()) lines.push(`- \`${u}\``);
+  lines.push("");
 }
 
 console.log("つなぎ目の呼び出し");
@@ -203,6 +443,11 @@ console.log(`  ポート          ${ports.size}`);
 console.log(`  手続き          ${totalMethods}`);
 console.log(`  呼ばれていない  ${uncalled.length}（上限 ${PORT_WIRING_MAX_UNCALLED}）`);
 console.log(`  理由つき除外    ${exclusions.size}（上限 ${PORT_WIRING_MAX_EXCLUSIONS}）`);
+console.log("");
+console.log("書き込みなのに記録へ届いていない入口");
+console.log(`  届いていない    ${unrecorded.length}（上限 ${PORT_WIRING_MAX_UNRECORDED}）`);
+console.log(`  理由つき除外    ${writeExclusions.size}（上限 ${PORT_WIRING_MAX_WRITE_EXCLUSIONS}）`);
+console.log(`  判定できない    ${unknownVerbs.size}（上限 ${PORT_WIRING_MAX_UNKNOWN_VERBS}）`);
 console.log("");
 
 if (process.argv.includes("--list")) {
@@ -230,12 +475,47 @@ function newlyUncalled() {
   return uncalled.filter((u) => !previous.has(`${u.port}.${u.method}`));
 }
 
+/** 同じ考えで、記録へ届いていない入口の「今回から増えた分」を出す。 */
+function newlyUnrecorded() {
+  let previous;
+  try {
+    previous = new Set(
+      [...readFileSync(OUT, "utf8").matchAll(/^\|\s*`(create\w*UseCase)`\s*\|/gm)].map((m) => m[1]),
+    );
+  } catch {
+    return [];
+  }
+  return unrecorded.filter((r) => !previous.has(r.name));
+}
+
+/**
+ * **差分は、報告書を上書きする前に取る。**
+ *
+ * 以前はここが書き出しの後ろにあり、`newlyUncalled()` が
+ * 「今まさに自分が書いた一覧」を前回として読んでいた。
+ * そのため差は常に 0 件になり、落ちても「どれを壊したか」が一度も出なかった。
+ * 落ちること自体は上限で分かるが、**案内の側が黙って効かなくなっていた**。
+ */
+const fresh = newlyUncalled();
+const freshUnrecorded = newlyUnrecorded();
+
+// 落ちたときは報告書を上書きしない。
+// 上書きすると増えた 1 件が既知の一覧に混ざり、次回からは差が取れなくなる
+// （壊れた状態が「前回」として焼き付く）。
+const failing =
+  uncalled.length > PORT_WIRING_MAX_UNCALLED ||
+  exclusions.size > PORT_WIRING_MAX_EXCLUSIONS ||
+  unrecorded.length > PORT_WIRING_MAX_UNRECORDED ||
+  writeExclusions.size > PORT_WIRING_MAX_WRITE_EXCLUSIONS;
+if (!process.argv.includes("--check") && !failing) {
+  writeFileSync(OUT, `${lines.join("\n")}\n`);
+}
+
 let ng = false;
 if (uncalled.length > PORT_WIRING_MAX_UNCALLED) {
   console.log(`NG 呼ばれていない手続きが上限を ${uncalled.length - PORT_WIRING_MAX_UNCALLED} 件超えました。`);
   console.log("   足したポートを呼ぶか、理由を書いて docs/product/port-wiring.md へ登録してください。");
   console.log("   **上限を上げて緑にすることは禁止です。**");
-  const fresh = newlyUncalled();
   if (fresh.length > 0) {
     console.log("\n   今回から呼ばれなくなったもの:");
     for (const u of fresh) console.log(`   - ${u.port}.${u.method}  (${u.file})`);
@@ -247,6 +527,36 @@ if (uncalled.length > PORT_WIRING_MAX_UNCALLED) {
 }
 if (exclusions.size > PORT_WIRING_MAX_EXCLUSIONS) {
   console.log(`NG 除外が上限を ${exclusions.size - PORT_WIRING_MAX_EXCLUSIONS} 件超えました。`);
+  ng = true;
+}
+if (unrecorded.length > PORT_WIRING_MAX_UNRECORDED) {
+  console.log(
+    `NG 記録へ届いていない書き込みの入口が上限を ${unrecorded.length - PORT_WIRING_MAX_UNRECORDED} 件超えました。`,
+  );
+  console.log("   その入口から操作の記録を書くか、理由を書いて docs/product/port-wiring.md へ登録してください。");
+  console.log("   **上限を上げて緑にすることは禁止です。**");
+  if (freshUnrecorded.length > 0) {
+    console.log("\n   今回から記録へ届かなくなったもの:");
+    for (const r of freshUnrecorded) {
+      console.log(`   - ${r.name}  [${r.writes.join(" ")}]  (${r.file})`);
+    }
+  } else {
+    console.log(`\n   （前回の一覧との差が取れませんでした。全件は ${OUT} を見てください）`);
+  }
+  ng = true;
+}
+if (unknownVerbs.size > PORT_WIRING_MAX_UNKNOWN_VERBS) {
+  console.log(
+    `NG 読み書きを判定できない手続きが上限を ${unknownVerbs.size - PORT_WIRING_MAX_UNKNOWN_VERBS} 件超えました。`,
+  );
+  console.log("   NON_WRITE_VERBS か WRITE_VERBS のどちらかへ足してください（どちらか決められないなら、それは名前の側の問題）。");
+  for (const u of [...unknownVerbs].sort()) console.log(`   - ${u}`);
+  ng = true;
+}
+if (writeExclusions.size > PORT_WIRING_MAX_WRITE_EXCLUSIONS) {
+  console.log(
+    `NG 書き込み側の除外が上限を ${writeExclusions.size - PORT_WIRING_MAX_WRITE_EXCLUSIONS} 件超えました。`,
+  );
   ng = true;
 }
 if (!ng) {
