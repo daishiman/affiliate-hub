@@ -163,6 +163,20 @@ const ROLE_CAPABILITIES: Readonly<Record<Role, readonly Capability[]>> = {
   analyst: ["content.read", "analytics.read", "affiliate.read_revenue"],
   contributor: ["content.read", "content.write"],
   /**
+   * 使い勝手の担当。**改善要望まわりだけ**を持つ。
+   *
+   * 記事の権限を 1 つも入れないのが要点で、
+   * ここに `content.read` を足したくなったら、それは要望の本文へ
+   * 記事の中身を書かせている（＝要望の書き方が悪い）合図である。
+   */
+  feedback_admin: [
+    "feedback.submit",
+    "feedback.read",
+    "feedback.status_update",
+    "feedback.manage",
+    "integration_key.manage",
+  ],
+  /**
    * AI サービスアカウント。
    * 下書き・調査・生成まで。承認と公開は持たせない (§25)。
    */

@@ -22,7 +22,8 @@
 | ブランド | `Brand` | 発信主体。運営者情報・文体・免責文を持つ。1 ワークスペースに複数 | `domain/identity/brand.ts` |
 | サイト | `Site` | 1 つのブログ。ブランドに属し、ブループリントと設定値でできている | `application/ports/authoring.ts` |
 | メンバー | `Membership` | 人（または AI 用アカウント）とワークスペースの結びつき。役割を持つ | `domain/identity/membership.ts` |
-| 役割 | `Role` | owner / admin / editor / writer / reviewer / analyst / viewer / ai_service_account ほか | `domain/identity/permissions.ts` |
+| 役割 | `Role` | owner / workspace_admin / brand_manager / researcher / writer / reviewer / publisher / analyst / contributor / **feedback_admin** / ai_service_account の 11 種。日本語名は `ROLE_LABEL` が正本 | `domain/shared/tenancy.ts`（一覧）/ `domain/identity/permissions.ts`（できること） |
+| 使い勝手の担当 | `feedback_admin` | 改善要望を見る・扱いを決める・取得用の鍵を配る、だけを持つ役割。**記事の権限を 1 つも持たない**。仕様 §25 の 10 種に対する追加（改善要望の機能に伴うもの） | `domain/identity/permissions.ts` |
 | できること | `Capability` | 役割ではなく行為で権限を判定する単位（`content.publish` など） | 同上 |
 | 実行者 | `ActorContext` | 「誰が、どのワークスペースで」を全ユースケースの第 1 引数として渡すもの | `domain/shared/tenancy.ts` |
 

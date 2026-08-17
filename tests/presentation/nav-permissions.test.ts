@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { type Capability, capabilitiesOf } from "@/domain/identity";
+import { SAMPLE_ACTOR } from "@/infrastructure/identity/sample-actor";
 import { ADMIN_NAV, visibleNav } from "@/presentation/ui";
 
 /**
@@ -55,5 +56,22 @@ describe("案内の絞り込み", () => {
 
   it("権限を渡さないときは全部見せる（権限の概念が無い場面で使えるようにする）", () => {
     expect(visibleNav(ADMIN_NAV, undefined)).toHaveLength(ADMIN_NAV.length);
+  });
+
+  /**
+   * いま実際に動かせるログインは見本の 1 つだけである。
+   * その 1 つで開けない画面は、**作った本人以外には存在しないのと同じ**になる。
+   *
+   * これを入れる前、改善要望の 2 画面がまさにその状態だった
+   * （見本の担当者に `feedback.read` が無く、案内から消え、開いても断られていた）。
+   * 画面は描けていたので、描画の検査はすべて緑のまま通っていた。
+   */
+  it("いま動かせるログイン（見本）で、案内のすべての画面に行ける", () => {
+    const held = [...capabilitiesOf(SAMPLE_ACTOR.roles)].map(String);
+    const hidden = ADMIN_NAV.filter((i) => i.requires !== null && !held.includes(i.requires));
+    expect(
+      hidden.map((i) => `${i.href}（${i.requires} が要る）`),
+      "見本のログインで開けない画面があります。認証を入れるまで、誰もこの画面を確かめられません",
+    ).toEqual([]);
   });
 });

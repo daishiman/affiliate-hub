@@ -58,6 +58,7 @@ export const ROLE_LABEL: Readonly<Record<Role, string>> = {
   publisher: "公開担当",
   analyst: "数字の担当",
   contributor: "外部の書き手",
+  feedback_admin: "使い勝手の担当",
   ai_service_account: "AI（機械）",
 };
 
@@ -100,6 +101,7 @@ const ALL_ROLES: readonly Role[] = [
   "publisher",
   "analyst",
   "contributor",
+  "feedback_admin",
   "ai_service_account",
 ];
 

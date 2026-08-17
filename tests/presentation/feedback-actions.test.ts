@@ -38,6 +38,7 @@ const {
   changeFeedbackStatusAction,
   handOffFeedbackAction,
   manageIntegrationAccessAction,
+  submitFeedbackAction,
 } = await import("@/presentation/admin/feedback-action");
 const {
   INITIAL_FEEDBACK_HANDOFF_STATE,
@@ -72,7 +73,111 @@ beforeEach(() => {
   signedIn = { ...SAMPLE_ACTOR, roles: ["owner"] };
 });
 
+/** 送る側から来る 1 件分。画像だけを差し替えたい試験があるので関数にしてある。 */
+function submission(capture: Record<string, unknown> | null) {
+  return {
+    kind: "hard_to_use" as const,
+    body: "絞り込みを外すボタンが、どこにあるのか分かりませんでした。",
+    wish: "絞り込みの近くに置いてほしいです。",
+    origin: {
+      screenName: "改善要望の一覧",
+      url: "https://hub.test/admin/feedback?status=open",
+      route: "/admin/feedback",
+      viewportWidth: 1280,
+      viewportHeight: 900,
+    },
+    technical: {
+      jsErrors: [],
+      failedRequests: [],
+      userAgent: "test-agent",
+      recentActions: ["絞り込みを開いた"],
+      redactedCount: 0,
+    },
+    capture: capture as never,
+  };
+}
+
+/** 1x1 の PNG。中身は問わないが、実際に復号できる値を渡す。 */
+const TINY_PNG =
+  "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==";
+
+describe("改善したいことを送る", () => {
+  it("画像なし（文章だけ）でも送れて、礼を返す", async () => {
+    const result = await submitFeedbackAction(submission(null));
+    expect(result.message).toContain("送りました");
+  });
+
+  it("画像つきで送ると、写しが 1 件分の記録に残る", async () => {
+    const result = await submitFeedbackAction(
+      submission({
+        imageBase64: TINY_PNG,
+        redactionsBurnedIn: true,
+        retainsOriginal: false,
+        redactionCount: 2,
+        maskedElementCount: 1,
+        mimeType: "image/png",
+      }),
+    );
+    // 画像が落ちたときは、その旨が文に出る。ここでは出ないことを見る。
+    expect(result.message).toContain("送りました");
+    expect(result.message).not.toContain("付けられませんでした");
+
+    const listed = await feedbackUseCases().list.execute(signedIn, {});
+    if (!listed.ok) throw new Error(listed.error.message);
+    expect(listed.value.rows.some((r) => r.screenName === "改善要望の一覧")).toBe(true);
+  });
+
+  it("元の画像を残す作りの写しは、要望だけ受け取って画像を捨てる", async () => {
+    // 黒塗りを重ねただけの画像は、剥がせば元が見える。受け取らない。
+    const result = await submitFeedbackAction(
+      submission({
+        imageBase64: TINY_PNG,
+        redactionsBurnedIn: false,
+        retainsOriginal: true,
+        redactionCount: 1,
+        maskedElementCount: 0,
+        mimeType: "image/png",
+      }),
+    );
+
+    expect(result.message).toContain("付けられませんでした");
+  });
+
+  it("本文が空なら、次にどうすればよいかを返す", async () => {
+    const result = await submitFeedbackAction({ ...submission(null), body: "   " });
+    expect(result.message).not.toBe("");
+    expect(result.message).not.toContain("送りました");
+  });
+});
+
 describe("対応状況を変える", () => {
+  it("どの要望かが無いときは、その欄を指して断る", async () => {
+    const state = await changeFeedbackStatusAction(
+      INITIAL_FEEDBACK_STATUS_STATE,
+      form({ intent: "status", status: "in_progress" }),
+    );
+    expect(state.status).toBe("failed");
+    expect(state.field).toBe("id");
+  });
+
+  it("知らない操作は、黙って何もしないのではなく断る", async () => {
+    const state = await changeFeedbackStatusAction(
+      INITIAL_FEEDBACK_STATUS_STATE,
+      form({ id: REPORT, intent: "とりあえず保存" }),
+    );
+    expect(state.status).toBe("failed");
+    expect(state.field).toBe("intent");
+  });
+
+  it("扱いを選ばずに決めようとしたら、扱いの欄を指す", async () => {
+    const state = await changeFeedbackStatusAction(
+      INITIAL_FEEDBACK_STATUS_STATE,
+      form({ id: REPORT, intent: "dispose", reason: "理由だけ書きました。" }),
+    );
+    expect(state.status).toBe("failed");
+    expect(state.field).toBe("disposition");
+  });
+
   it("状態を進めると、その状態になったことが文で返る", async () => {
     const state = await changeFeedbackStatusAction(
       INITIAL_FEEDBACK_STATUS_STATE,
@@ -243,6 +348,46 @@ describe("取りに来るときの鍵", () => {
 
     expect(state.status).toBe("failed");
     expect(state.field).toBe("label");
+    expect(state.issuedValue).toBeNull();
+  });
+
+  it("失効させると、記録は残ると伝える", async () => {
+    const issued = await manageIntegrationAccessAction(
+      INITIAL_INTEGRATION_ACCESS_STATE,
+      form({ intent: "issue", label: "失効させる鍵", scopes: ["read", "update_status"] }),
+    );
+    expect(issued.status).toBe("done");
+
+    const { createDeps } = await import("@/infrastructure/composition");
+    const listed = await createDeps().integrationKeys.list(signedIn.workspaceId);
+    if (!listed.ok) throw new Error("鍵の一覧が読めませんでした");
+    const target = listed.value.find((k) => k.label === "失効させる鍵");
+    if (target === undefined) throw new Error("いま発行した鍵が見つかりませんでした");
+
+    const revoked = await manageIntegrationAccessAction(
+      INITIAL_INTEGRATION_ACCESS_STATE,
+      form({ intent: "revoke", id: String(target.id) }),
+    );
+    expect(revoked.status).toBe("done");
+    expect(revoked.message).toContain("記録は残ります");
+    // 失効させても値は返さない（失効の操作で鍵を知れてはいけない）
+    expect(revoked.issuedValue).toBeNull();
+  });
+
+  it("知らない鍵を失効させようとしたら、断る", async () => {
+    const state = await manageIntegrationAccessAction(
+      INITIAL_INTEGRATION_ACCESS_STATE,
+      form({ intent: "revoke", id: "ik_does_not_exist" }),
+    );
+    expect(state.status).toBe("failed");
+  });
+
+  it("できることを 1 つも選ばない鍵は発行しない", async () => {
+    const state = await manageIntegrationAccessAction(
+      INITIAL_INTEGRATION_ACCESS_STATE,
+      form({ intent: "issue", label: "何もできない鍵" }),
+    );
+    expect(state.status).toBe("failed");
     expect(state.issuedValue).toBeNull();
   });
 

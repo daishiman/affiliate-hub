@@ -216,7 +216,7 @@ D1 への差し替えは、この列だけを別の実装に取り替えれば�
 | REQ-M02 | Tools 8種 | 同 `TOOL_CONTRACT` の `mcp_tool`。**8 種中 6 種**が仕様の名前で呼べる（`generate_content_variants` は `draft_content_variant` として実装）。残り 2 種は方針の保存と媒体の接続情報の未登録（理由は表に明記） | スタブ |
 | REQ-M03 | MCP エンドポイントと認可 | `src/app/api/mcp/route.ts`（JSON-RPC / stateless）。認可は `authenticateRequest()` + `visibleTools()`、オリジンは `checkOrigin()`。ツールは REST・WebMCP と同じ 1 つのカタログ | 実装済 |
 
-## J. 権限（§25 全10ロール）
+## J. 権限（§25 全10ロール + 追加1）
 
 | REQ | ロール | 実装 | 画面での表現 | 結果 |
 | --- | --- | --- | --- | --- |
@@ -231,6 +231,7 @@ D1 への差し替えは、この列だけを別の実装に取り替えれば�
 | REQ-R09 | Contributor | 同 `contributor`（記事の読み書きのみ） | 同上 | 実装済 |
 | REQ-R10 | AI Service Account（下書き・分析のみ。原則公開不可） | 同 `ai_service_account`。加えて `HUMAN_ONLY_CAPABILITIES`（承認・公開・会員管理・報酬管理・書き出し）は `requireCapability()` が `isAiServiceAccount` を見て必ず拒否する | `/admin/settings`「人にしかできないこと」の枠 | 実装済 |
 | REQ-R11 | 公開権限と編集権限の分離 | `content.write` と `content.publish` を別の capability にし、`publisher` は書き込みを持たない。状態遷移は `src/domain/authoring/content-state.ts` `transition()` が AI を弾く | `/admin/content/[variant]`（承認できない理由の表示）+ `/admin/settings`（PASS: `tests/domain/invariants.test.ts` / `tests/application/manage-personas.test.ts`） | 実装済 |
+| REQ-R12 | Feedback Admin（**仕様 §25 に無い追加**。改善要望の機能に伴う） | 同 `feedback_admin`（`feedback.*` 4 つ + `integration_key.manage` のみ。記事の権限は 1 つも持たない）。`workspace_admin` で代用しなかったのは、要望を読ませたいだけの相手に公開の権限まで渡るため | `/admin/settings`「役割ごとにできること」の表（PASS: `tests/domain/permissions.test.ts`「使い勝手の担当は、改善要望まわりだけで、記事には一切触れない」） | 実装済 |
 
 ## K. セキュリティ・コンプライアンス（§26、§17、ブログ層 §16.1・§17.2・§20）
 
@@ -494,8 +495,8 @@ D1 への差し替えは、この列だけを別の実装に取り替えれば�
 
 | 区分 | 件数 |
 | --- | --- |
-| **全要件数 N** | **234** |
-| 実装済・完了 X | 200（実装済 190 + 完了 10） |
+| **全要件数 N** | **235** |
+| 実装済・完了 X | 201（実装済 191 + 完了 10） |
 | スタブ Y | 34 |
 | 未着手 Z | **0** |
 
@@ -514,13 +515,13 @@ D1 への差し替えは、この列だけを別の実装に取り替えれば�
 ```bash
 T=docs/product/traceability.md
 # 結果の欄で分類（「実装済（保存先は見本データ）」のような但し書き付きも数える）
-grep -E '^\| REQ-' $T | grep -cE '\| \**実装済'          # → 190
+grep -E '^\| REQ-' $T | grep -cE '\| \**実装済'          # → 191
 grep -E '^\| REQ-' $T | grep -cE '\| \**完了'            # → 10
 grep -E '^\| REQ-' $T | grep -cE '\| \**スタブ'          # → 34
 grep -E '^\| REQ-' $T | grep -cE '\| \**未着手'          # → 0
 # 合計（下の「画面を持たないことが正しい行」の表も `| REQ-` で始まるため、
 # 単純な行数ではなく結果の欄で分類した 4 つの和を全要件数とする）
-grep -E '^\| REQ-' $T | grep -cE '\| \**(実装済|完了|スタブ|未着手)'   # → 234
+grep -E '^\| REQ-' $T | grep -cE '\| \**(実装済|完了|スタブ|未着手)'   # → 235
 ```
 
 「実装済」と「完了」を分けているのは、**確かめ方が違う**ためである。
@@ -540,7 +541,7 @@ grep -E '^\| REQ-' $T | grep -cE '\| \**(実装済|完了|スタブ|未着手)' 
 | G | API とイベント（イベント16種を1行ずつに分解済み） | 18 | 9 | 9 | 0 |
 | H | WebMCP | 12 | 10 | 2 | 0 |
 | I | バックエンドMCP | 3 | 2 | 1 | 0 |
-| J | 権限（10ロール） | 11 | 11 | 0 | 0 |
+| J | 権限（10ロール + 追加1） | 12 | 12 | 0 | 0 |
 | K | セキュリティ・コンプライアンス | 10 | 6 | 4 | 0 |
 | L | 品質検査（QC-01〜QC-17） | 12 | 11 | 1 | 0 |
 | M | 禁止依存 | 6 | 5 | 1 | 0 |
@@ -551,7 +552,7 @@ grep -E '^\| REQ-' $T | grep -cE '\| \**(実装済|完了|スタブ|未着手)' 
 | R | テストの網羅 | 10 | 10 | 0 | 0 |
 | S | 自動チェックと公開 | 8 | 8 | 0 | 0 |
 | T | 改善要望フィードバック | 12 | 12 | 0 | 0 |
-| | **合計** | **234** | **200** | **34** | **0** |
+| | **合計** | **235** | **201** | **34** | **0** |
 
 
 ### UI/UX（画面義務のある要件のみ）
@@ -635,6 +636,14 @@ G〜N の節（API・イベント・WebMCP・MCP・権限・セキュリティ�
 **新しい仕組みを横に建てなかった。** 改善要望はループの種類の 2 件目として登録し
 （`src/domain/analytics/loop-kinds.ts`）、状態の持ち方・承認・履歴・可視化は既にあるものを使った。
 ループの種類を 1 つ増やす手間は `docs/architecture/changeability-scenarios.md` ⑮ で実測してある。
+
+**作ったのに誰も開けない状態だったことが、後から分かった。**
+見本のログイン（認証を入れるまでの仮の担当者）に `feedback.read` が無く、
+一覧も詳細も**常に「権限がありません」**を出し、案内からも消えていた。
+画面を描く検査は全部緑だった。描けてはいたからである。
+`feedback_admin`（記事の権限を 1 つも持たない役割）を作って見本のログインへ足し、
+`tests/presentation/nav-permissions.test.ts`「いま動かせるログイン（見本）で、案内の
+すべての画面に行ける」で固定した。**わざと元に戻して赤くなることを確認済み。**
 
 R 節・S 節の 15 件（テストと自動チェック）も、同じやり方で 0 になった。
 **閾値を下げて緑にしたことは 1 度も無い**（`docs/product/coverage.md` §4）。

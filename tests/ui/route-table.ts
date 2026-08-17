@@ -113,6 +113,44 @@ export const ROUTE_STATE_CASES: readonly (RouteCase & { readonly state: string }
     file: "admin/affiliate/page.tsx",
     searchParams: { period: "2026-07" },
   },
+  // 改善要望は「絞った状態」で見る時間が最も長い。既定の表示しか描かないと、
+  // 絞り込みの説明文・件数・空の案内という**最も読まれる部分**が一度も描かれない。
+  {
+    state: "対応状況と種類を重ねて絞ったとき",
+    file: "admin/feedback/page.tsx",
+    searchParams: { status: "in_progress", kind: "hard_to_use", handedOff: "no" },
+  },
+  {
+    state: "渡したものだけを見て 0 件になるとき",
+    file: "admin/feedback/page.tsx",
+    searchParams: { handedOff: "yes" },
+  },
+  {
+    state: "廃棄したものも見るとき",
+    file: "admin/feedback/page.tsx",
+    searchParams: { discarded: "yes" },
+  },
+  {
+    state: "知らない絞り込みの値を渡されたとき",
+    file: "admin/feedback/page.tsx",
+    // 手で URL を書き換えられても、絞り込みを無視して全件を出す（落とさない）。
+    searchParams: { status: "とりあえず保留", kind: "なんとなく", handedOff: "たぶん" },
+  },
+  {
+    state: "どうなってほしいかが書かれていない要望を開いたとき",
+    file: "admin/feedback/[report]/page.tsx",
+    params: { report: "fb_sample_draft" },
+  },
+  {
+    state: "エラーが記録されていた要望を開いたとき",
+    file: "admin/feedback/[report]/page.tsx",
+    params: { report: "fb_sample_error" },
+  },
+  {
+    state: "存在しない要望を開いたとき",
+    file: "admin/feedback/[report]/page.tsx",
+    params: { report: "fb_does_not_exist" },
+  },
 ];
 
 /** 画面を読み込むときの指定。`renderRoute` に渡す。 */

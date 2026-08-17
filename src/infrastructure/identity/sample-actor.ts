@@ -28,8 +28,13 @@ export const SAMPLE_ACTOR: ActorContext = {
    * `analyst` を足してあるのは、成果と収益の画面を実際に確かめられるようにするため。
    * `analyst` が持つのは「数字を読む」権限だけで、承認も公開も含まれない。
    * ここに `publisher` や `owner` を足すと、認証が無いまま公開まで通ってしまう。
+   *
+   * `feedback_admin` は「使い勝手を直す」の画面を実際に開けるようにするため。
+   * これが無いと、右下の改善ボタンも一覧も**常に権限の無い表示**になり、
+   * 認証を入れるまで誰もこの機能を確かめられない（実際そうなっていた）。
+   * この役割も記事の権限を 1 つも持たないので、公開は通らないままである。
    */
-  roles: ["researcher", "writer", "reviewer", "analyst"],
+  roles: ["researcher", "writer", "reviewer", "analyst", "feedback_admin"],
   isAiServiceAccount: false,
 };
 
