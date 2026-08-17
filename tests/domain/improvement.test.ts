@@ -394,6 +394,135 @@ describe("ループの 1 周", () => {
     expect(stopped.ok).toBe(true);
     if (stopped.ok) expect(stopped.value.stoppedReason).not.toBe("");
   });
+
+  it("登録されていないループの名前では作れない", () => {
+    const r = createLoopRun({
+      id: asExperimentId("run_unknown"),
+      workspaceId: WS,
+      loopKindKey: "no_such_loop",
+      siteSlug: "sample",
+      baselineSpecId: base.id,
+      candidateSpecId: cand.id,
+      diffs: diffVariantSpecs(base, cand),
+      primaryMetric: "read_completion_rate",
+      minimumSamples: DEFAULT_MINIMUM_SAMPLES,
+    });
+    expect(r.ok).toBe(false);
+    if (!r.ok) {
+      expect(r.error.code).toBe("VALIDATION_FAILED");
+      // どこを見れば正しい名前が分かるかを言う。
+      expect(r.error.suggestedAction).toContain("loop-kinds");
+    }
+  });
+
+  /** 作れないことだけを見たいときの、最小の呼び出し。 */
+  function draftWith(over: Partial<Parameters<typeof createLoopRun>[0]>) {
+    return createLoopRun({
+      id: asExperimentId("run_x"),
+      workspaceId: WS,
+      loopKindKey: "content_improvement",
+      siteSlug: "sample",
+      baselineSpecId: base.id,
+      candidateSpecId: cand.id,
+      diffs: diffVariantSpecs(base, cand),
+      primaryMetric: "read_completion_rate",
+      minimumSamples: DEFAULT_MINIMUM_SAMPLES,
+      ...over,
+    });
+  }
+
+  it("同じ設定どうしは比べられない", () => {
+    const r = draftWith({ candidateSpecId: base.id });
+    expect(r.ok).toBe(false);
+    if (!r.ok) expect(r.error.field).toBe("candidateSpecId");
+  });
+
+  it("違いが 1 つも無いものは比べられない", () => {
+    const r = draftWith({ diffs: [] });
+    expect(r.ok).toBe(false);
+    if (!r.ok) expect(r.error.field).toBe("diffs");
+  });
+
+  it("一度に変える軸は上限までなら通り、1 つ超えると断る", () => {
+    // 上限を超えると、差が出ても**どの変更のせいか**が分からなくなる。
+    const one = {
+      dimensionKey: "section_order",
+      label: "節の並び",
+      baseline: "結論が先",
+      candidate: "比較が先",
+    };
+    const atLimit = Array.from({ length: MAX_SIMULTANEOUS_DIMENSIONS }, (_, i) => ({
+      ...one,
+      dimensionKey: `dim_${i}`,
+    }));
+    expect(draftWith({ diffs: atLimit }).ok).toBe(true);
+
+    const overLimit = [...atLimit, { ...one, dimensionKey: "dim_over" }];
+    const r = draftWith({ diffs: overLimit });
+    expect(r.ok).toBe(false);
+    if (!r.ok) expect(r.error.code).toBe("INVARIANT_VIOLATED");
+  });
+
+  it("定義されていない指標では判定の土俵に上げられない", () => {
+    const r = draftWith({ primaryMetric: "no_such_metric" as never });
+    expect(r.ok).toBe(false);
+    if (!r.ok) expect(r.error.field).toBe("primaryMetric");
+  });
+
+  it("必要件数は 1 以上の整数だけ受け付ける", () => {
+    expect(draftWith({ minimumSamples: 1 }).ok).toBe(true);
+    expect(draftWith({ minimumSamples: 0 }).ok).toBe(false);
+    expect(draftWith({ minimumSamples: -1 }).ok).toBe(false);
+    // 小数は「100.5 件集まったら判定」という言えない状態を作る。
+    expect(draftWith({ minimumSamples: 100.5 }).ok).toBe(false);
+  });
+
+  it("準備中 → 実施中 → 判定済み の順にしか進めない", () => {
+    const made = draft();
+    if (!made.ok) throw new Error(made.error.message);
+
+    const started = startLoopRun(made.value, new Date("2026-01-01T00:00:00Z"));
+    if (!started.ok) throw new Error(started.error.message);
+    expect(started.value.status).toBe("running");
+    expect(started.value.startedAt).toEqual(new Date("2026-01-01T00:00:00Z"));
+
+    // 実施中のものをもう一度始められない。
+    expect(startLoopRun(started.value, new Date()).ok).toBe(false);
+    // 準備中のものをいきなり判定できない。
+    const judged = judgeComparison({
+      metric: "read_completion_rate",
+      baselineValue: 0.4,
+      baselineSamples: 900,
+      candidateValue: 0.62,
+      candidateSamples: 900,
+      minimumSamples: DEFAULT_MINIMUM_SAMPLES,
+      comparisonCount: 1,
+    });
+    if (!judged.ok) throw new Error(judged.error.message);
+    expect(concludeLoopRun(made.value, { result: judged.value, at: new Date() }).ok).toBe(false);
+
+    const concluded = concludeLoopRun(started.value, {
+      result: judged.value,
+      at: new Date("2026-02-01T00:00:00Z"),
+    });
+    expect(concluded.ok).toBe(true);
+    if (!concluded.ok) return;
+    expect(concluded.value.status).toBe("concluded");
+    expect(concluded.value.verdict).toBe(judged.value.verdict);
+    expect(concluded.value.concludedAt).toEqual(new Date("2026-02-01T00:00:00Z"));
+
+    // 終わったものは、判定し直しも打ち切りもできない。
+    expect(concludeLoopRun(concluded.value, { result: judged.value, at: new Date() }).ok).toBe(false);
+    expect(stopLoopRun(concluded.value, { reason: "やっぱりやめる", at: new Date() }).ok).toBe(false);
+  });
+
+  it("打ち切ったものは、もう一度打ち切れない", () => {
+    const made = draft();
+    if (!made.ok) throw new Error(made.error.message);
+    const stopped = stopLoopRun(made.value, { reason: "元の記事を作り直した", at: new Date() });
+    if (!stopped.ok) throw new Error(stopped.error.message);
+    expect(stopLoopRun(stopped.value, { reason: "念のため", at: new Date() }).ok).toBe(false);
+  });
 });
 
 describe("ループの種類", () => {

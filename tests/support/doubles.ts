@@ -1,7 +1,8 @@
 import type { AppDeps } from "@/application/deps";
+import type { DomainEvent, EventPublisherPort } from "@/application/ports/common";
 import { createDeps } from "@/infrastructure/composition";
 import { type DomainError, domainError } from "@/domain/shared/errors";
-import { type Result, err } from "@/domain/shared/result";
+import { type Result, err, ok } from "@/domain/shared/result";
 
 /**
  * テスト用のつなぎ目（ポート）の差し替え。
@@ -68,15 +69,21 @@ export function failing<T>(reason = "この機能はまだ繋がっていませ�
  * 出来事は他の仕組み（通知・再生成）への入力なので、
  * 名前と中身は外から見える約束にあたる。
  */
-export function recordingEvents() {
-  const published: { name: string; payload: unknown }[] = [];
+export function recordingEvents(): {
+  readonly port: EventPublisherPort;
+  readonly published: () => readonly DomainEvent[];
+  readonly names: () => string[];
+  readonly clear: () => void;
+} {
+  const published: DomainEvent[] = [];
   return {
     port: {
-      publish: async (name: string, payload: unknown) => {
-        published.push({ name, payload });
+      publish: async (event: DomainEvent) => {
+        published.push(event);
+        return ok(true as const);
       },
     },
-    published: () => published as readonly { name: string; payload: unknown }[],
+    published: () => published,
     names: () => published.map((e) => e.name),
     clear: () => {
       published.length = 0;

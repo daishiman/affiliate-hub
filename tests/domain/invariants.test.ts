@@ -3,7 +3,11 @@ import { requiredSectionsFor } from "@/domain/authoring/article-structure";
 import { createAuthorPersona, checkFactBoundary } from "@/domain/authoring/author-persona";
 import { createConversationBlock } from "@/domain/authoring/conversation-block";
 import { createContentVariant } from "@/domain/authoring/content-variant";
-import { runQualityChecks, type ChannelConstraints } from "@/domain/authoring/quality-check";
+import {
+  PRICE_STALE_HOURS,
+  runQualityChecks,
+  type ChannelConstraints,
+} from "@/domain/authoring/quality-check";
 import {
   DISCLOSURE_SURFACES,
   buildVisibleMessage,
@@ -12,11 +16,17 @@ import {
   requiresDisclosure,
   type PublishCandidate,
 } from "@/domain/compliance";
-import { assertNotAltered, createAffiliateLink } from "@/domain/monetization";
+import {
+  assertNotAltered,
+  createAffiliateLink,
+  isLinkUsable,
+  resolveOutboundUrl,
+} from "@/domain/monetization";
 import {
   ALLOWED_RANKING_CRITERIA,
   PROHIBITED_RANKING_CRITERIA,
   createRankingModel,
+  explainRank,
   rankProducts,
   type EditorialScoreCard,
 } from "@/domain/ranking";
@@ -160,6 +170,130 @@ describe("順位づけ", () => {
     if (!result.ok) return;
     expect(result.value.criteriaDisclosure.length).toBe(1);
     expect(result.value.ranked[0]?.breakdown.length).toBe(1);
+  });
+
+  it("評価基準が 1 つも無い評価方法は作れない", () => {
+    expect(model([]).ok).toBe(false);
+  });
+
+  it("知らない評価基準は、使える一覧を添えて断る", () => {
+    const r = model([{ key: "見た目の好み", weight: 1 }]);
+    expect(r.ok).toBe(false);
+    if (!r.ok) expect(r.error.message).toContain(ALLOWED_RANKING_CRITERIA[0]);
+  });
+
+  it("同じ評価基準を 2 回書けない（重みが二重に効いてしまう）", () => {
+    const key = ALLOWED_RANKING_CRITERIA[0];
+    const r = model([
+      { key, weight: 0.5 },
+      { key, weight: 0.5 },
+    ]);
+    expect(r.ok).toBe(false);
+    if (!r.ok) expect(r.error.message).toContain("重複");
+  });
+
+  it("重みと合格ラインは 0.0〜1.0 の外を受け付けない", () => {
+    const [a, b] = ALLOWED_RANKING_CRITERIA;
+    expect(model([{ key: a, weight: 1.5 }]).ok).toBe(false);
+    expect(model([{ key: a, weight: -0.1 }]).ok).toBe(false);
+
+    const overThreshold = createRankingModel({
+      id: taggedString<"RankingModelId">("rm_t"),
+      workspaceId: WS,
+      categoryId: taggedString<"CategoryId">("cat_test"),
+      version: "v1",
+      audience: "動画編集をする人",
+      criteria: [{ key: b, weight: 1, measurement: "同一条件での実測", passThreshold: 1.1 }],
+      effectiveFrom: new Date("2026-01-01T00:00:00Z"),
+    });
+    expect(overThreshold.ok).toBe(false);
+  });
+
+  it("測定方法が空だと、読者へ評価基準を出せないので断る", () => {
+    const r = createRankingModel({
+      id: taggedString<"RankingModelId">("rm_m"),
+      workspaceId: WS,
+      categoryId: taggedString<"CategoryId">("cat_test"),
+      version: "v1",
+      audience: "動画編集をする人",
+      criteria: [{ key: ALLOWED_RANKING_CRITERIA[0], weight: 1, measurement: "  ", passThreshold: 0.3 }],
+      effectiveFrom: new Date("2026-01-01T00:00:00Z"),
+    });
+    expect(r.ok).toBe(false);
+    if (!r.ok) expect(r.error.field).toBe("criteria");
+  });
+
+  it("重みの合計が 1.0 でないと断る", () => {
+    const [a, b] = ALLOWED_RANKING_CRITERIA;
+    const r = model([
+      { key: a, weight: 0.5 },
+      { key: b, weight: 0.2 },
+    ]);
+    expect(r.ok).toBe(false);
+    // いくつになっているかを出す。出さないとどこを直すか分からない。
+    if (!r.ok) expect(r.error.message).toContain("0.700");
+  });
+
+  it("評価方法のバージョンが空だと断る（過去の順位と混ざる）", () => {
+    const r = createRankingModel({
+      id: taggedString<"RankingModelId">("rm_v"),
+      workspaceId: WS,
+      categoryId: taggedString<"CategoryId">("cat_test"),
+      version: " ",
+      audience: "動画編集をする人",
+      criteria: [{ key: ALLOWED_RANKING_CRITERIA[0], weight: 1, measurement: "実測", passThreshold: 0.3 }],
+      effectiveFrom: new Date("2026-01-01T00:00:00Z"),
+    });
+    expect(r.ok).toBe(false);
+    if (!r.ok) expect(r.error.field).toBe("version");
+  });
+
+  it("点数が 0.0〜1.0 の外、または使わない項目だと順位に使えない", () => {
+    const m = model([{ key: "measured_performance", weight: 1 }]);
+    if (!m.ok) throw new Error(m.error.message);
+
+    expect(rankProducts(m.value, [card("p_a", { measured_performance: 1.2 })]).ok).toBe(false);
+    expect(rankProducts(m.value, [card("p_a", { measured_performance: Number.NaN })]).ok).toBe(false);
+    expect(
+      rankProducts(m.value, [card("p_a", { measured_performance: 0.8, price_value: 0.5 })]).ok,
+    ).toBe(false);
+  });
+
+  it("順位の理由は、上位・下位の項目つきで取り出せる", () => {
+    const m = model([
+      { key: "measured_performance", weight: 0.5 },
+      { key: "price_value", weight: 0.5 },
+    ]);
+    if (!m.ok) throw new Error(m.error.message);
+    const result = rankProducts(m.value, [
+      card("p_a", { measured_performance: 0.9, price_value: 0.4 }),
+      card("p_b", { measured_performance: 0.5, price_value: 0.5 }),
+    ]);
+    if (!result.ok) throw new Error(result.error.message);
+
+    const explained = explainRank(result.value, taggedString<"ProductId">("p_a"));
+    expect(explained.ok).toBe(true);
+    if (!explained.ok) return;
+    expect(explained.value.rank).toBe(1);
+    expect(explained.value.strongest?.key).toBe("measured_performance");
+    expect(explained.value.weakest?.key).toBe("price_value");
+    expect(explained.value.modelVersion).toBe("v1");
+  });
+
+  it("選外の商品の理由を聞くと、選外である理由がそのまま返る", () => {
+    const m = model([{ key: "measured_performance", weight: 1 }]);
+    if (!m.ok) throw new Error(m.error.message);
+    const result = rankProducts(m.value, [card("p_a", { measured_performance: 0.1 })]);
+    if (!result.ok) throw new Error(result.error.message);
+
+    const explained = explainRank(result.value, taggedString<"ProductId">("p_a"));
+    expect(explained.ok).toBe(false);
+    if (!explained.ok) expect(explained.error.message).toContain("選外");
+
+    // そもそも対象にすら入っていない商品は、別の言い方で断る。
+    const unknown = explainRank(result.value, taggedString<"ProductId">("p_zzz"));
+    expect(unknown.ok).toBe(false);
+    if (!unknown.ok) expect(unknown.error.message).toContain("対象に含まれていません");
   });
 });
 
@@ -343,6 +477,62 @@ describe("提携リンク", () => {
       createdAt: new Date("2026-08-01T00:00:00Z"),
     });
     expect(noRef.ok).toBe(false);
+  });
+
+  it("URL が空でも登録できない", () => {
+    const empty = createAffiliateLink({
+      id: taggedString<"AffiliateLinkId">("al_4"),
+      workspaceId: WS,
+      programId: taggedString<"AffiliateProgramId">("ap_1"),
+      originalUrl: "   ",
+      trackingRef: "trk_4",
+      createdAt: new Date("2026-08-01T00:00:00Z"),
+    });
+    expect(empty.ok).toBe(false);
+    if (!empty.ok) expect(empty.error.field).toBe("originalUrl");
+  });
+
+  it("読者へ出す URL は、ASP が発行したものと 1 文字も変わらない", () => {
+    if (!link.ok) throw new Error("見本のリンクを作れませんでした");
+    const out = resolveOutboundUrl(link.value);
+    expect(out.ok).toBe(true);
+    if (out.ok) expect(out.value).toBe(link.value.originalUrl);
+  });
+
+  it("改変禁止でないリンクは、変わっていても止めない", () => {
+    // 改変を許す ASP もある。禁止の印が付いているものだけを止める。
+    const free = createAffiliateLink({
+      id: taggedString<"AffiliateLinkId">("al_5"),
+      workspaceId: WS,
+      programId: taggedString<"AffiliateProgramId">("ap_1"),
+      originalUrl: "https://example.com/item",
+      alterationProhibited: false,
+      trackingRef: "trk_5",
+      createdAt: new Date("2026-08-01T00:00:00Z"),
+    });
+    if (!free.ok) throw new Error(free.error.message);
+    expect(assertNotAltered(free.value, "https://example.com/item?utm_source=blog").ok).toBe(true);
+  });
+
+  it("URL として読めない文字列でも、足された印があれば見つける", () => {
+    // URL 解析が失敗したときに黙って通すと、そこが抜け道になる。
+    if (!link.ok) throw new Error("見本のリンクを作れませんでした");
+    const broken = assertNotAltered(link.value, "not a url at all utm_source=blog");
+    expect(broken.ok).toBe(false);
+    if (!broken.ok) expect(broken.error.message).toContain("utm_source");
+  });
+
+  it("期限切れ・停止済みのリンクは使えない", () => {
+    if (!link.ok) throw new Error("見本のリンクを作れませんでした");
+    const now = new Date("2026-08-17T00:00:00Z");
+    expect(isLinkUsable(link.value, now)).toBe(true);
+
+    // 期限ちょうどは「使えない」側に倒す。切れた瞬間を跨がせない。
+    expect(isLinkUsable({ ...link.value, expiresAt: now }, now)).toBe(false);
+    expect(isLinkUsable({ ...link.value, disabledAt: now }, now)).toBe(false);
+    expect(
+      isLinkUsable({ ...link.value, expiresAt: new Date("2026-08-18T00:00:00Z") }, now),
+    ).toBe(true);
   });
 });
 
@@ -607,5 +797,160 @@ describe("自動の品質確認", () => {
     for (const issue of report.issues) {
       expect(issue.message.length, `${issue.check} の説明が短すぎます`).toBeGreaterThan(10);
     }
+  });
+
+  const SOURCED = {
+    claimIds: [taggedString<"ClaimId">("cl_1")],
+    evidenceIds: [taggedString<"EvidenceId">("ev_1")],
+  };
+
+  it("価格の確認から 72 時間ちょうどまでは通し、超えると知らせる", () => {
+    const now = new Date("2026-08-17T00:00:00Z");
+    const at = (hoursAgo: number) => new Date(now.getTime() - hoursAgo * 3_600_000);
+    const body = "価格は128000円です。デメリットは重さです。";
+
+    const fresh = check(body, SOURCED, { now, priceCheckedAt: at(PRICE_STALE_HOURS) });
+    expect(fresh.issues.map((i) => i.check)).not.toContain("stale_price");
+
+    const stale = check(body, SOURCED, { now, priceCheckedAt: at(PRICE_STALE_HOURS + 1) });
+    const issue = stale.issues.find((i) => i.check === "stale_price");
+    expect(issue).toBeDefined();
+    // 古い価格は「間違い」ではなく「確かめ直し」なので、止めずに知らせる。
+    expect(issue?.severity).toBe("warning");
+    expect(issue?.message).toContain("日経っています");
+  });
+
+  it("検証記録が無いのに使った体験を書くと止まる", () => {
+    const report = check("実際に 2 週間使ってみたところ静かでした。デメリットは重さです。", SOURCED, {
+      hasVerifiedTestRun: false,
+    });
+    const issue = report.issues.find((i) => i.check === "fabricated_experience");
+    expect(issue).toBeDefined();
+    // どこが問題の箇所かを引用する。本文が長いほどここが効く。
+    expect(issue?.excerpt).toBeTruthy();
+  });
+
+  it("機能一覧にない機能名を名乗ると知らせ、ある名前なら通す", () => {
+    const body = "「静音モード」に対応しています。デメリットは重さです。";
+    const unknown = check(body, SOURCED, { knownFeatureNames: ["エコモード"] });
+    expect(unknown.issues.map((i) => i.check)).toContain("nonexistent_feature");
+
+    const known = check(body, SOURCED, { knownFeatureNames: ["静音モード"] });
+    expect(known.issues.map((i) => i.check)).not.toContain("nonexistent_feature");
+    // 照合できたので「検査していない」にも入らない。
+    expect(known.skipped.map((s) => s.check)).not.toContain("nonexistent_feature");
+  });
+
+  it("その書き手で使わないと決めた言葉を止める", () => {
+    // 禁止語は書き手ごとに違う。全体の禁止語と混ぜない。
+    const p = persona({ prohibitedPhrases: ["激安"] });
+    const report = runQualityChecks({
+      variant: variantWith("激安で買えます。デメリットは重さです。"),
+      persona: p,
+      constraints: CONSTRAINTS,
+      hasVerifiedTestRun: true,
+      knownFeatureNames: [],
+      existingBodies: [],
+      priceCheckedAt: null,
+      now: new Date("2026-08-17T00:00:00Z"),
+    });
+    expect(report.issues.map((i) => i.check)).toContain("prohibited_phrase");
+  });
+
+  it("本文に広告表記が要る媒体で、本文に入っていないと止まる", () => {
+    const inline: ChannelConstraints = { ...CONSTRAINTS, requiresInlineDisclosure: true };
+    const withLink = {
+      ...SOURCED,
+      affiliateLinkIds: [taggedString<"AffiliateLinkId">("al_1")],
+      disclosure: "アフィリエイト広告を利用しています。",
+    };
+    const missing = check("静かに動きます。デメリットは重さです。", withLink, {
+      constraints: inline,
+    });
+    expect(missing.issues.map((i) => i.check)).toContain("disclosure_present");
+
+    const included = check(
+      "アフィリエイト広告を利用しています。静かに動きます。デメリットは重さです。",
+      withLink,
+      { constraints: inline },
+    );
+    expect(included.issues.map((i) => i.check)).not.toContain("disclosure_present");
+  });
+
+  it("媒体の文字数上限を超えると止まる", () => {
+    const short: ChannelConstraints = { ...CONSTRAINTS, maxBodyLength: 20 };
+    const report = check("静かに動きます。デメリットは重さで、そこだけは覚悟が要ります。", SOURCED, {
+      constraints: short,
+    });
+    const issue = report.issues.find((i) => i.check === "length_fit");
+    expect(issue).toBeDefined();
+    // 上限と現在の文字数の両方を出す。片方だけでは何文字削るか分からない。
+    expect(issue?.message).toContain("20");
+  });
+
+  it("ハッシュタグが推奨数を超えると知らせる", () => {
+    const tagged: ChannelConstraints = { ...CONSTRAINTS, maxHashtags: 2 };
+    const report = check("静かです。デメリットは重さです。\n#静音 #軽量 #動画編集", SOURCED, {
+      constraints: tagged,
+    });
+    expect(report.issues.map((i) => i.check)).toContain("hashtag_fit");
+  });
+
+  it("リンクを貼れない媒体に提携リンクを置くと止まる", () => {
+    const noLink: ChannelConstraints = { ...CONSTRAINTS, allowsAffiliateLink: false };
+    const report = check("静かに動きます。デメリットは重さです。", {
+      ...SOURCED,
+      affiliateLinkIds: [taggedString<"AffiliateLinkId">("al_1")],
+    }, { constraints: noLink });
+    expect(report.issues.map((i) => i.check)).toContain("channel_fit");
+  });
+
+  it("既存の記事とほぼ同じ本文を止める", () => {
+    const body = "静かに動きます。持ち運びやすい大きさです。デメリットは重さです。";
+    const same = check(body, SOURCED, { existingBodies: [body] });
+    expect(same.issues.map((i) => i.check)).toContain("duplicate_text");
+
+    const different = check(body, SOURCED, {
+      existingBodies: ["価格の見方を先に整理します。目的から選ぶと迷いません。"],
+    });
+    expect(different.issues.map((i) => i.check)).not.toContain("duplicate_text");
+  });
+
+  it("書き手らしさ・媒体との一致度が低いと知らせる", () => {
+    const report = check("静かに動きます。デメリットは重さです。", {
+      ...SOURCED,
+      personaFitScore: 0.59,
+      channelFitScore: 0.59,
+    });
+    const kinds = report.issues.map((i) => i.check);
+    expect(kinds).toContain("brand_fit");
+    expect(kinds).toContain("audience_fit");
+
+    // 0.6 ちょうどは低いとみなさない。境界をどちら側に倒すかを固定する。
+    const ok = check("静かに動きます。デメリットは重さです。", {
+      ...SOURCED,
+      personaFitScore: 0.6,
+      channelFitScore: 0.6,
+    });
+    expect(ok.issues.map((i) => i.check)).not.toContain("brand_fit");
+    expect(ok.issues.map((i) => i.check)).not.toContain("audience_fit");
+  });
+
+  it("行動を促す文が多すぎると知らせる", () => {
+    const report = check(
+      "静かです。デメリットは重さです。\n詳しくはこちら\n詳しくはこちら\n詳しくはこちら\n詳しくはこちら",
+      SOURCED,
+    );
+    expect(report.issues.map((i) => i.check)).toContain("cta_overuse");
+  });
+
+  it("吹き出しが 1 つも無い並びを渡したら、検査していないと残す", () => {
+    // 「並びを渡したのに何も言われない」を「合格」と読み違えさせない。
+    const report = check("静かに動きます。デメリットは重さです。", SOURCED, {
+      conversationSequence: ["body", "body"],
+    });
+    const skipped = report.skipped.find((s) => s.check === "conversation_flow");
+    expect(skipped).toBeDefined();
+    expect(skipped?.reason).toContain("吹き出し");
   });
 });
