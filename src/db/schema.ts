@@ -6,7 +6,6 @@ import {
   real,
   sqliteTable,
   text,
-  uniqueIndex,
 } from "drizzle-orm/sqlite-core";
 
 /**
@@ -363,9 +362,18 @@ export const updateLogs = sqliteTable(
  *
  * `submitted_url` は**受け取ったまま**保存する。改変は規約違反になりうる。
  * `normalized_url` は重複判定にだけ使う形で、表示にも遷移にも使わない。
- * 作業場所ごとの一意制約をここに置くのは、
- * 「同じ URL が 2 回入る」を保存先の側で止めるため
- * （アプリ側の確認だけだと、同時に 2 人が入れたときにすり抜ける）。
+ *
+ * **`normalized_url` に一意制約を置かない。** 以前は置いていたが、
+ * 業務側の決めごとは「重複していても受け取り、相手を指して知らせる」
+ * （`duplicate_of` 列と「消していません」の案内がその実体）であり、
+ * 保存先で弾くと 2 回目の貼り付けが**やり直しても永久に通らない失敗**になる。
+ * 実際の D1 で通したときに、その形で表面化した
+ * （`tests/integration/d1-link-inbox.test.ts`）。
+ * 索引は重複相手を引くために残す。一意にはしない。
+ *
+ * 同時に 2 人が同じ URL を入れたときは、どちらも重複の印が付かないまま
+ * 2 行入る。受信箱は重複を持てる作りなので、これは表示上の取りこぼしであって
+ * データの破損ではない。残課題として記録してある。
  */
 export const linkIngestions = sqliteTable(
   "link_ingestions",
@@ -391,7 +399,7 @@ export const linkIngestions = sqliteTable(
   },
   (t) => [
     index("link_ingestions_workspace_state_idx").on(t.workspaceId, t.state),
-    uniqueIndex("link_ingestions_workspace_normalized_url_idx").on(t.workspaceId, t.normalizedUrl),
+    index("link_ingestions_workspace_normalized_url_idx").on(t.workspaceId, t.normalizedUrl),
   ],
 );
 
