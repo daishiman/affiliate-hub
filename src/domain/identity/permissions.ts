@@ -48,7 +48,21 @@ export type Capability =
   | "affiliate.read_revenue"
   | "analytics.read"
   | "audit.read"
-  | "export.perform";
+  | "export.perform"
+  /**
+   * 改善要望まわり（使い勝手を直すループ）。
+   *
+   * 4 つに分けている理由は、**取りに来る側（Claude Code）に渡してよい範囲**が
+   * 人の管理者より狭いため。1 つにまとめると、鍵を配った瞬間に
+   * 「要望を廃棄する」「鍵を発行する」まで渡ることになる。
+   */
+  | "feedback.submit"
+  | "feedback.read"
+  | "feedback.status_update"
+  /** 扱い（対応しない・重複・廃棄）を決める・取り消す。人が決める。 */
+  | "feedback.manage"
+  /** 鍵の発行・失効。認証情報そのものを扱うため人に限る。 */
+  | "integration_key.manage";
 
 /** 人の承認が前提の操作。AI サービスアカウントには常に許可しない。 */
 export const HUMAN_ONLY_CAPABILITIES: ReadonlySet<Capability> = new Set<Capability>([
@@ -58,6 +72,8 @@ export const HUMAN_ONLY_CAPABILITIES: ReadonlySet<Capability> = new Set<Capabili
   "workspace.manage",
   "affiliate.manage",
   "export.perform",
+  "feedback.manage",
+  "integration_key.manage",
 ]);
 
 const ROLE_CAPABILITIES: Readonly<Record<Role, readonly Capability[]>> = {
@@ -83,6 +99,11 @@ const ROLE_CAPABILITIES: Readonly<Record<Role, readonly Capability[]>> = {
     "analytics.read",
     "audit.read",
     "export.perform",
+    "feedback.submit",
+    "feedback.read",
+    "feedback.status_update",
+    "feedback.manage",
+    "integration_key.manage",
   ],
   workspace_admin: [
     "brand.manage",
@@ -105,6 +126,11 @@ const ROLE_CAPABILITIES: Readonly<Record<Role, readonly Capability[]>> = {
     "analytics.read",
     "audit.read",
     "export.perform",
+    "feedback.submit",
+    "feedback.read",
+    "feedback.status_update",
+    "feedback.manage",
+    "integration_key.manage",
   ],
   brand_manager: [
     "site.manage",
@@ -120,6 +146,9 @@ const ROLE_CAPABILITIES: Readonly<Record<Role, readonly Capability[]>> = {
     "content.approve",
     "content.publish",
     "analytics.read",
+    // ブランド管理者は要望を送って一覧を見られるが、扱いを決めるのと鍵の発行はできない。
+    "feedback.submit",
+    "feedback.read",
   ],
   researcher: ["product.read", "product.write", "evidence.write", "content.read"],
   writer: ["product.read", "content.read", "content.write", "content.generate", "site.draft"],
@@ -144,6 +173,10 @@ const ROLE_CAPABILITIES: Readonly<Record<Role, readonly Capability[]>> = {
     "content.read",
     "content.write",
     "content.generate",
+    // 取りに来る側（Claude Code）。読むことと状態を進めることまで。
+    // 扱いの決定・廃棄・鍵の発行は持たない。
+    "feedback.read",
+    "feedback.status_update",
   ],
 };
 

@@ -82,6 +82,11 @@ export const CAPABILITY_LABEL: Readonly<Record<Capability, string>> = {
   "affiliate.read_revenue": "成果の金額を見る",
   "analytics.read": "数字を見る",
   "audit.read": "操作の記録を見る",
+  "feedback.submit": "改善要望を送る",
+  "feedback.read": "改善要望を見る",
+  "feedback.status_update": "改善要望の対応状況を変える",
+  "feedback.manage": "改善要望の扱いを決める",
+  "integration_key.manage": "取得用の鍵を管理する",
   "export.perform": "データを書き出す",
 };
 

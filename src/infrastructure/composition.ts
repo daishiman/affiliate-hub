@@ -50,6 +50,13 @@ import {
   createSampleMembershipRepository,
   createSampleWorkspaceRepository,
 } from "./persistence/sample/settings-sample-repository";
+import {
+  createSampleFeedbackCaptureStore,
+  createSampleFeedbackRepository,
+  createSampleIntegrationKeyStore,
+} from "./persistence/sample/feedback-sample-repository";
+import { createHandoffTemplates } from "./generation/handoff-templates";
+import { hashSecret } from "./platform/secret-minter";
 import { createSampleLinkIngestionRepository } from "./persistence/sample/link-inbox-sample-repository";
 import { createSampleSiteDraftRepository } from "./persistence/sample/site-draft-sample-repository";
 import { createSampleSiteRepository } from "./persistence/sample/site-sample-repository";
@@ -110,6 +117,13 @@ export function createDeps(options: { readonly db?: DrizzleD1 | null } = {}): Ap
     // ★ 見本データ（スタブ）。改善ループの記録と見せ方の設定。
     //   読み出しは見本を返し、保存は失敗を返す（保存できたことにしない）。
     improvement: createSampleImprovementRepository(),
+    // ★ 仮置き（スタブ）。改善要望はこの実行中だけ覚える。
+    //   feedback_reports / integration_keys テーブルができたら差し替える。
+    //   指示文のひな型だけは本物（版番号つきでコードと一緒に管理する）。
+    feedback: createSampleFeedbackRepository(),
+    feedbackCaptures: createSampleFeedbackCaptureStore(),
+    handoffTemplates: createHandoffTemplates(),
+    integrationKeys: createSampleIntegrationKeyStore({ hash: hashSecret }),
     // ★ 見本データ（スタブ）。作業場所・担当者・ブランド・広告表記・操作の記録。
     //   本物にするには認証（Better Auth + Google）と各テーブルが要る。
     workspaces: createSampleWorkspaceRepository(),

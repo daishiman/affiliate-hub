@@ -20,6 +20,12 @@ import type {
 import type { ClickTrackingPort, MetricsRepositoryPort } from "./ports/analytics";
 import type { TelemetrySinkPort } from "./ports/telemetry";
 import type { ImprovementRepositoryPort } from "./ports/improvement";
+import type {
+  FeedbackCaptureStoragePort,
+  FeedbackRepositoryPort,
+  HandoffTemplatePort,
+  IntegrationKeyPort,
+} from "./ports/feedback";
 import type { EventPublisherPort, IdGeneratorPort } from "./ports/common";
 import type { AuditLogPort, DisclosureRepositoryPort } from "./ports/compliance";
 import type { LlmCostEstimatorPort, LlmPort } from "./ports/llm";
@@ -90,6 +96,15 @@ export type AppDeps = {
    * 軸が増えてもこの口は増えない（設定は `軸 → 値` の集まりとして 1 つの形で入る）。
    */
   readonly improvement: ImprovementRepositoryPort;
+  /**
+   * 改善要望（使い勝手を直すループ）。運用のデータであり、
+   * 記事の順位づけにも売上にも入らない。`guardEditorial` の対象外だが、
+   * Editorial / Commercial のどちらでもないことが分かるようにここへまとめて置く。
+   */
+  readonly feedback: FeedbackRepositoryPort;
+  readonly feedbackCaptures: FeedbackCaptureStoragePort;
+  readonly handoffTemplates: HandoffTemplatePort;
+  readonly integrationKeys: IntegrationKeyPort;
   readonly workspaces: WorkspaceRepositoryPort;
   readonly memberships: MembershipRepositoryPort;
   readonly brands: BrandRepositoryPort;
