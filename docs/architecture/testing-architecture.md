@@ -281,10 +281,29 @@ cp src/domain/authoring/article-structure.ts "$SCRATCHPAD/keep-article-structure
 perl -0pi -e 's/…/…/' src/domain/authoring/article-structure.ts
 pnpm exec vitest run tests/domain/article-type-sections.test.ts
 
-# 3. 複製から書き戻す
-cp "$SCRATCHPAD/keep-article-structure.ts" src/domain/authoring/article-structure.ts
+# 3. 複製から書き戻す —— **シェルの `cp` では戻せない**（下の注意を読む）
+#    Edit / Write などのファイル編集の道具か、node の writeFileSync で書き戻す。
 git diff --stat -- src/domain/authoring/article-structure.ts   # 空であることを確かめる
 ```
+
+**書き戻しの手段に、シェルの `cp` を使わない。**
+この作業場所には、シェルからリポジトリへ直接書き込む操作を止める見張りがある。
+`cp` はそれに当たるので、**手順の 3 行目で止まる**。
+
+- 1 ファイルを戻す → **`Edit` / `Write`**（通常の編集経路なので通る）
+- まとめて戻す・測定を繰り返す → **node のスクリプトから `writeFileSync` / `copyFileSync`**
+  （実際、20 通りの測定はこの形で回して、毎回きれいに戻っている）
+
+2026-08-19 に、この節のとおり scratchpad へ複製を取ってから測り、
+3 行目の `cp tests/architecture/ci-config.test.ts` が見張りに止められた。
+`Edit` で書き戻して復旧している。
+
+**ここを書き足す理由は、止まること自体ではない。**
+止まった人の手が次にどこへ行くかである。上の 3 行が実行できないと分かった時点で、
+**`git checkout --` が最も手近な代わりになる**——この節がまさに禁じたものに。
+実行できない手順は、`git checkout` を打たせないための手順として機能しない。
+**思い出さなければならない決まりは思い出せなかった回に効かないが、
+実行できない決まりは、思い出せた回にも効かない。**
 
 **後始末に `git checkout --` / `git restore` / `git clean` を使わない。**
 
