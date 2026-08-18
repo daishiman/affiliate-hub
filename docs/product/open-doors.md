@@ -6,9 +6,41 @@
 **「本来」は人が宣言した意図、「いま」はコードから測った実測**である。
 この 2 つが違う行が、いま誰でも通れてしまう扉。
 
-画面を一括で守る `middleware.ts`: **無い**
+画面を一括で守る門: **ある（`src/middleware.ts`）**
 
-開いている扉: **49 件** / 全 80 件
+適用範囲: `/admin` 以下（読者のページとログインの往復は通す）
+
+開いている扉: **17 件** / 全 80 件
+
+「誰でも」と宣言してある行: **26 件**
+（宣言すればその扉は差の数から消える。だから宣言の件数そのものにも上限がある）
+
+- `src/app/page.tsx` — 入口の案内
+- `src/app/s/[site]/advertising-policy/page.tsx` — 読者向けの公開ページ
+- `src/app/s/[site]/ai-policy/page.tsx` — 読者向けの公開ページ
+- `src/app/s/[site]/authors/[author]/page.tsx` — 読者向けの公開ページ
+- `src/app/s/[site]/best/[topic]/page.tsx` — 読者向けの公開ページ
+- `src/app/s/[site]/categories/[category]/page.tsx` — 読者向けの公開ページ
+- `src/app/s/[site]/compare/[comparison]/page.tsx` — 読者向けの公開ページ
+- `src/app/s/[site]/contact/page.tsx` — 読者向けの公開ページ
+- `src/app/s/[site]/corrections/page.tsx` — 読者向けの公開ページ
+- `src/app/s/[site]/editorial-policy/page.tsx` — 読者向けの公開ページ
+- `src/app/s/[site]/experts/[expert]/page.tsx` — 読者向けの公開ページ
+- `src/app/s/[site]/guides/[topic]/page.tsx` — 読者向けの公開ページ
+- `src/app/s/[site]/measurement/page.tsx` — 読者向けの公開ページ
+- `src/app/s/[site]/methodology/page.tsx` — 読者向けの公開ページ
+- `src/app/s/[site]/page.tsx` — 読者向けの公開ページ
+- `src/app/s/[site]/privacy/page.tsx` — 読者向けの公開ページ
+- `src/app/s/[site]/reviews/[product]/page.tsx` — 読者向けの公開ページ
+- `src/app/s/[site]/search/page.tsx` — 読者向けの公開ページ
+- `src/app/s/[site]/shortlist/page.tsx` — 読者向けの公開ページ
+- `src/app/s/[site]/terms/page.tsx` — 読者向けの公開ページ
+- `src/app/s/[site]/tools/[tool]/page.tsx` — 読者向けの公開ページ
+- `src/app/signin/page.tsx` — サインイン画面
+- `src/app/api/auth/[...all]/route.ts` — ログインの入口（Google との往復）
+- `src/app/api/telemetry/route.ts` — 読者の画面から届く計測（未ログインの読者が送るので、門は置けない）
+- `src/app/go/[code]/route.ts` — 成果リンクの転送（読者がクリックする先）
+- `submitContactAction()` — 読者からの問い合わせ（公開フォーム）（src/presentation/site/contact-action.ts）
 
 うち、**誰でも実行できて取り返しがつかない操作: 6 件**
 （公開・配信・鍵の失効・削除。塞ぐ順を決めるときはここから読む）
@@ -22,7 +54,7 @@
 
 ## この数字の読み方
 
-**この 49 件は「攻撃された」ではなく「守りが無い」である。**
+**この 17 件は「攻撃された」ではなく「守りが無い」である。**
 
 危険の度合いは **「守りが無い」×「誰かが URL を知っている」** で決まる。
 いまこのアプリは本番で公開されておらず、URL を知っている人もいない。
@@ -35,6 +67,17 @@
 （自動の検査からは呼べないものなので、見る場面を人の手順として決めてある。
 決めた 2 つの場面は `docs/product/stub-ledger.md` に書いた）。
 
+**2026-08-18 に、画面の入口へ門を置いた（`src/middleware.ts`）。**
+見るのは「ログインしているか」だけで、役は見ない。通行証が無い・偽物・
+期限切れ・**保存先へ届かず確かめられない**のいずれでもログイン画面へ戻す。
+これで管理画面 32 枚が数から外れた。
+
+**ただし、変更を起こす操作はまだこの数に残っている。**
+操作は独立した URL を持たず、それを使っている画面への POST として届くので、
+実際には門の内側にある。しかし**どの操作がどの画面から呼ばれるか**は
+この検査では測れない。測れないものを「守られている」と書かない方に倒してある。
+操作の側が数から外れるのは、各操作が `signedInActor()` を使った日である。
+
 **2026-08-18 に、見本の身元から書き込みの役をすべて外した。**
 それまで「公開だけは通らない」と書いていたが、それは門が止めていたのではなく、
 見本に `publisher` と `owner` が無かっただけで、**役を 1 つ足した日に**
@@ -42,52 +85,49 @@
 記事の承認も、鍵の発行も、下書きの保存も通らない。
 **ここへ役を 1 つ足すと、その瞬間に「誰でもできること」が増える。**
 
-ただし**開いている扉の数は減っていない。** 減らせるのは認証（`ah-361`）だけで、
-いまは「開いた扉の向こうで、できることが読むだけになった」段階である。
-
 この検査が言えるのは「門を通す形になっている」ところまでで、
-「守られている」ではない。門の中身は各入口の単体テストが見る。
+「守られている」ではない。門の中身は各入口の単体テストが見る
+（入口の門は `tests/infrastructure/entry-gate.test.ts`）。
 
 ## 画面
 
-`middleware.ts` が無いので、管理画面は URL を知っていれば誰でも開ける。
-`currentActor()` が身元を解決できないと**見本の身元**へ落ちるため、
-画面の中身も空にならず、実在するデータが表示される。
+`/admin` 以下は門の内側にあり、通行証が無ければログイン画面へ戻る。
+門の外（読者のページ・ログイン画面）は誰でも開けるが、そこは意図どおりである。
 
 | 入口・操作 | 何ができるか | 本来 | いま | 差 |
 |---|---|---|---|---|
-| `src/app/admin/affiliate/[conversion]/page.tsx` | 管理画面 | ログイン | 誰でも | **開いている** |
-| `src/app/admin/affiliate/page.tsx` | 管理画面 | ログイン | 誰でも | **開いている** |
-| `src/app/admin/ai-usage/page.tsx` | 管理画面 | ログイン | 誰でも | **開いている** |
-| `src/app/admin/analytics/page.tsx` | 管理画面 | ログイン | 誰でも | **開いている** |
-| `src/app/admin/content/[variant]/page.tsx` | 管理画面 | ログイン | 誰でも | **開いている** |
-| `src/app/admin/content/matrix/page.tsx` | 管理画面 | ログイン | 誰でも | **開いている** |
-| `src/app/admin/content/page.tsx` | 管理画面 | ログイン | 誰でも | **開いている** |
-| `src/app/admin/distribution/[publication]/page.tsx` | 管理画面 | ログイン | 誰でも | **開いている** |
-| `src/app/admin/distribution/calendar/page.tsx` | 管理画面 | ログイン | 誰でも | **開いている** |
-| `src/app/admin/distribution/page.tsx` | 管理画面 | ログイン | 誰でも | **開いている** |
-| `src/app/admin/evidence/page.tsx` | 管理画面 | ログイン | 誰でも | **開いている** |
-| `src/app/admin/feedback/[report]/page.tsx` | 管理画面 | ログイン | 誰でも | **開いている** |
-| `src/app/admin/feedback/page.tsx` | 管理画面 | ログイン | 誰でも | **開いている** |
-| `src/app/admin/generation/page.tsx` | 管理画面 | ログイン | 誰でも | **開いている** |
-| `src/app/admin/improvement/dimensions/page.tsx` | 管理画面 | ログイン | 誰でも | **開いている** |
-| `src/app/admin/improvement/page.tsx` | 管理画面 | ログイン | 誰でも | **開いている** |
-| `src/app/admin/inbox/page.tsx` | 管理画面 | ログイン | 誰でも | **開いている** |
-| `src/app/admin/page.tsx` | 管理画面 | ログイン | 誰でも | **開いている** |
-| `src/app/admin/personas/page.tsx` | 管理画面 | ログイン | 誰でも | **開いている** |
-| `src/app/admin/products/[product]/page.tsx` | 管理画面 | ログイン | 誰でも | **開いている** |
-| `src/app/admin/products/compare/page.tsx` | 管理画面 | ログイン | 誰でも | **開いている** |
-| `src/app/admin/products/page.tsx` | 管理画面 | ログイン | 誰でも | **開いている** |
-| `src/app/admin/rankings/page.tsx` | 管理画面 | ログイン | 誰でも | **開いている** |
-| `src/app/admin/settings/integration-access/page.tsx` | 管理画面 | ログイン | 誰でも | **開いている** |
-| `src/app/admin/settings/llm/page.tsx` | 管理画面 | ログイン | 誰でも | **開いている** |
-| `src/app/admin/settings/page.tsx` | 管理画面 | ログイン | 誰でも | **開いている** |
-| `src/app/admin/sites/[site]/page.tsx` | 管理画面 | ログイン | 誰でも | **開いている** |
-| `src/app/admin/sites/new/page.tsx` | 管理画面 | ログイン | 誰でも | **開いている** |
-| `src/app/admin/sites/page.tsx` | 管理画面 | ログイン | 誰でも | **開いている** |
-| `src/app/admin/tools/page.tsx` | 管理画面 | ログイン | 誰でも | **開いている** |
-| `src/app/admin/ui-catalog/page.tsx` | 管理画面 | ログイン | 誰でも | **開いている** |
-| `src/app/admin/writing/page.tsx` | 管理画面 | ログイン | 誰でも | **開いている** |
+| `src/app/admin/affiliate/[conversion]/page.tsx` | 管理画面 | ログイン | ログイン | — |
+| `src/app/admin/affiliate/page.tsx` | 管理画面 | ログイン | ログイン | — |
+| `src/app/admin/ai-usage/page.tsx` | 管理画面 | ログイン | ログイン | — |
+| `src/app/admin/analytics/page.tsx` | 管理画面 | ログイン | ログイン | — |
+| `src/app/admin/content/[variant]/page.tsx` | 管理画面 | ログイン | ログイン | — |
+| `src/app/admin/content/matrix/page.tsx` | 管理画面 | ログイン | ログイン | — |
+| `src/app/admin/content/page.tsx` | 管理画面 | ログイン | ログイン | — |
+| `src/app/admin/distribution/[publication]/page.tsx` | 管理画面 | ログイン | ログイン | — |
+| `src/app/admin/distribution/calendar/page.tsx` | 管理画面 | ログイン | ログイン | — |
+| `src/app/admin/distribution/page.tsx` | 管理画面 | ログイン | ログイン | — |
+| `src/app/admin/evidence/page.tsx` | 管理画面 | ログイン | ログイン | — |
+| `src/app/admin/feedback/[report]/page.tsx` | 管理画面 | ログイン | ログイン | — |
+| `src/app/admin/feedback/page.tsx` | 管理画面 | ログイン | ログイン | — |
+| `src/app/admin/generation/page.tsx` | 管理画面 | ログイン | ログイン | — |
+| `src/app/admin/improvement/dimensions/page.tsx` | 管理画面 | ログイン | ログイン | — |
+| `src/app/admin/improvement/page.tsx` | 管理画面 | ログイン | ログイン | — |
+| `src/app/admin/inbox/page.tsx` | 管理画面 | ログイン | ログイン | — |
+| `src/app/admin/page.tsx` | 管理画面 | ログイン | ログイン | — |
+| `src/app/admin/personas/page.tsx` | 管理画面 | ログイン | ログイン | — |
+| `src/app/admin/products/[product]/page.tsx` | 管理画面 | ログイン | ログイン | — |
+| `src/app/admin/products/compare/page.tsx` | 管理画面 | ログイン | ログイン | — |
+| `src/app/admin/products/page.tsx` | 管理画面 | ログイン | ログイン | — |
+| `src/app/admin/rankings/page.tsx` | 管理画面 | ログイン | ログイン | — |
+| `src/app/admin/settings/integration-access/page.tsx` | 管理画面 | ログイン | ログイン | — |
+| `src/app/admin/settings/llm/page.tsx` | 管理画面 | ログイン | ログイン | — |
+| `src/app/admin/settings/page.tsx` | 管理画面 | ログイン | ログイン | — |
+| `src/app/admin/sites/[site]/page.tsx` | 管理画面 | ログイン | ログイン | — |
+| `src/app/admin/sites/new/page.tsx` | 管理画面 | ログイン | ログイン | — |
+| `src/app/admin/sites/page.tsx` | 管理画面 | ログイン | ログイン | — |
+| `src/app/admin/tools/page.tsx` | 管理画面 | ログイン | ログイン | — |
+| `src/app/admin/ui-catalog/page.tsx` | 管理画面 | ログイン | ログイン | — |
+| `src/app/admin/writing/page.tsx` | 管理画面 | ログイン | ログイン | — |
 | `src/app/page.tsx` | 入口の案内 | 誰でも | 誰でも | — |
 | `src/app/s/[site]/advertising-policy/page.tsx` | 読者向けの公開ページ | 誰でも | 誰でも | — |
 | `src/app/s/[site]/ai-policy/page.tsx` | 読者向けの公開ページ | 誰でも | 誰でも | — |
@@ -126,11 +166,13 @@
 
 ## 変更を起こす操作（`"use server"`）
 
-画面を開けた人は、この操作の**入口までは**そのまま通る（門が無いため）。
+操作は独立した URL を持たず、それを使っている画面への POST として届く。
+管理画面の操作は門の内側にあるが、**その対応はこの検査では測れない**ので、
+ここでは守られていない側に数えてある（実際より危ない方に倒してある）。
 そこから先は権限で断られる。2026-08-18 に見本の身元を `analyst`（読むだけ）に
 したので、いまはここに並ぶ操作のうち書き込むものは通らない。
-**これは門ができたということではない。** 見本へ役を 1 つ足せば元へ戻る。
-門ができるのは認証（`ah-361`）が入った日である。
+**これは操作の側に門ができたということではない。** 見本へ役を 1 つ足せば元へ戻る。
+操作の側が数から外れるのは、各操作が `signedInActor()` を使った日である。
 
 「取り返し」の物差しは公開・配信・失効・削除。外の世界（読者・ASP・提供元）へ
 出てしまうもの、消えて元に戻せないものを「つかない」とする。**迷ったら「つかない」に倒す。**

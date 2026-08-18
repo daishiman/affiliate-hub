@@ -4,17 +4,19 @@ import { join, relative } from "node:path";
 import { describe, expect, it } from "vitest";
 import {
   OPEN_DOORS_MAX_IRREVERSIBLE,
+  OPEN_DOORS_MAX_PUBLIC_BY_DECLARATION,
   OPEN_DOORS_MAX_UNGUARDED,
 } from "../../quality-gates.config.mjs";
 
 /**
  * **いま何が開いているか**を 1 か所に書く。
  *
- * このアプリにはまだ認証が無い。`middleware.ts` は存在せず、
- * `currentActor()` は身元を解決できないと**見本の身元へ落ちる**ので、
- * 未ログインの人が管理画面を開き、変更を起こす操作を実行できる。
+ * 2026-08-18 に入口の門（`src/middleware.ts`）が入るまで、このアプリには
+ * 画面を一括で守る場所が無く、未ログインの人が管理画面を開けていた。
+ * `currentActor()` は身元を解決できないと**見本の身元へ落ちる**ため、
+ * 画面は空にもならず、実在するデータが並んでいた。
  *
- * その事実を、感覚ではなく**コードから測って**書き出す。
+ * そういう事実を、感覚ではなく**コードから測って**書き出す。
  * 手で書いた一覧は必ず古くなり、古い一覧は「守られている」と誤って報告する。
  *
  * 測るのは 2 つ。
@@ -56,12 +58,46 @@ const rel = (file: string) => relative(ROOT, file).split("\\").join("/");
 /**
  * 画面全体を覆う門があるか。
  *
- * Next.js で全ページを一括で守れる場所は `middleware.ts` だけである。
+ * Next.js で全ページを一括で守れる場所は 1 ファイルだけで、
+ * **16 でその名前が `middleware.ts` から `proxy.ts` へ変わった**が、
+ * Cloudflare 側（`@opennextjs/cloudflare`）が新しい方をまだ受け取れないので、
+ * このアプリは `middleware.ts` のままである（理由はそのファイルの冒頭）。
+ * **両方の名前を見るのは、置き場所が移った日に黙って「門が無い」と言わないため。**
+ *
  * ここを「無ければ画面は誰でも通れる」と機械で判定しておくと、
  * 認証を入れた日にこの検査の結果が**自動で変わる**（手で直す必要がない）。
+ *
+ * **ただし、ファイルが在ることしか見ていない。** 中身が骨抜きでもここは緑になる。
+ * 門の中身は `tests/infrastructure/entry-gate.test.ts` が見る。
  */
-const hasMiddleware =
-  existsSync(join(ROOT, "src/middleware.ts")) || existsSync(join(ROOT, "middleware.ts"));
+const GATE_FILES = ["src/proxy.ts", "proxy.ts", "src/middleware.ts", "middleware.ts"];
+const gateFile = GATE_FILES.find((f) => existsSync(join(ROOT, f)));
+const hasMiddleware = gateFile !== undefined;
+const gateSource = gateFile === undefined ? "" : readFileSync(join(ROOT, gateFile), "utf8");
+
+/**
+ * その画面が、いまの門の**適用範囲に入っているか**。
+ *
+ * 門が在るだけで全画面が守られたことにしない。Next.js の門は `matcher` で
+ * 範囲を絞れるので、範囲を狭めれば守りは黙って外れる。
+ * だから「門がある」と「その URL が範囲に入っている」を別に測る。
+ */
+const gateCoversAdmin = /matcher[\s\S]{0,200}["'`]\/admin/.test(gateSource) &&
+  /decideEntry\s*\(/.test(gateSource);
+
+/** `src/app/admin/settings/page.tsx` → `/admin/settings` */
+function urlOfPage(id: string): string {
+  const path = id
+    .replace(/^src\/app/, "")
+    .replace(/\/page\.tsx$/, "")
+    // 括弧で囲んだ区切りは URL に出ない（Next.js のグループ）。
+    .replace(/\/\([^/]*\)/g, "");
+  return path === "" ? "/" : path;
+}
+
+function guardedByEntryGate(url: string): boolean {
+  return hasMiddleware && gateCoversAdmin && (url === "/admin" || url.startsWith("/admin/"));
+}
 
 /**
  * REST の入口の門を、呼んでいる関数の名前から読む。
@@ -229,8 +265,9 @@ function scanPages(): Row[] {
         id,
         what: declared?.what ?? "（宣言なし）",
         intent: declared?.intent ?? ("ログイン" as Gate),
-        // 画面を一括で守れる場所は `middleware.ts` だけ。無ければ全部通る。
-        actual: hasMiddleware ? declared?.intent ?? "ログイン" : ("誰でも" as Gate),
+        // 門の適用範囲に入っている画面だけが「ログイン」になる。
+        // 範囲の外は、門があっても誰でも通れる（そこは意図どおりのこともある）。
+        actual: guardedByEntryGate(urlOfPage(id)) ? ("ログイン" as Gate) : ("誰でも" as Gate),
       };
     })
     .sort((a, b) => (a.id < b.id ? -1 : 1));
@@ -295,6 +332,17 @@ function table(subset: readonly Row[], withReversible = false): string[] {
   ];
 }
 
+/**
+ * **「誰でも」と宣言した行そのもの。**
+ *
+ * 意図は人が書くので、行を 1 つ「誰でも」にすれば、その扉は差の数から消える。
+ * 今のところ正しく使われているが、**上限で詰まった人が最短路として選べる形**が
+ * 残っている。だから「宣言すれば数えられなくなる」を、宣言した件数ごと数える。
+ *
+ * ここを増やすには上限を上げる diff が要り、上げた事実が記録に残る。
+ */
+const declaredPublic = rows.filter((r) => r.intent === "誰でも");
+
 /** 誰でも実行できて、しかも取り返しがつかない操作。ここが一番危ない。 */
 const irreversibleAndOpen = rows.filter(
   (r) => r.kind === "操作" && r.reversible === "つかない" && r.intent !== r.actual,
@@ -311,9 +359,20 @@ function renderLedger(): string {
     "**「本来」は人が宣言した意図、「いま」はコードから測った実測**である。",
     "この 2 つが違う行が、いま誰でも通れてしまう扉。",
     "",
-    `画面を一括で守る \`middleware.ts\`: **${hasMiddleware ? "ある" : "無い"}**`,
+    `画面を一括で守る門: **${hasMiddleware ? `ある（\`${gateFile}\`）` : "無い"}**`,
+    ...(hasMiddleware
+      ? [
+          "",
+          `適用範囲: ${gateCoversAdmin ? "`/admin` 以下（読者のページとログインの往復は通す）" : "**測れませんでした**"}`,
+        ]
+      : []),
     "",
     `開いている扉: **${gaps.length} 件** / 全 ${rows.length} 件`,
+    "",
+    `「誰でも」と宣言してある行: **${declaredPublic.length} 件**`,
+    "（宣言すればその扉は差の数から消える。だから宣言の件数そのものにも上限がある）",
+    "",
+    ...declaredPublic.map((r) => `- \`${r.id}\` — ${r.what}`),
     "",
     `うち、**誰でも実行できて取り返しがつかない操作: ${irreversibleAndOpen.length} 件**`,
     "（公開・配信・鍵の失効・削除。塞ぐ順を決めるときはここから読む）",
@@ -335,6 +394,17 @@ function renderLedger(): string {
     "（自動の検査からは呼べないものなので、見る場面を人の手順として決めてある。",
     "決めた 2 つの場面は `docs/product/stub-ledger.md` に書いた）。",
     "",
+    `**2026-08-18 に、画面の入口へ門を置いた（\`${gateFile ?? "?"}\`）。**`,
+    "見るのは「ログインしているか」だけで、役は見ない。通行証が無い・偽物・",
+    "期限切れ・**保存先へ届かず確かめられない**のいずれでもログイン画面へ戻す。",
+    "これで管理画面 32 枚が数から外れた。",
+    "",
+    "**ただし、変更を起こす操作はまだこの数に残っている。**",
+    "操作は独立した URL を持たず、それを使っている画面への POST として届くので、",
+    "実際には門の内側にある。しかし**どの操作がどの画面から呼ばれるか**は",
+    "この検査では測れない。測れないものを「守られている」と書かない方に倒してある。",
+    "操作の側が数から外れるのは、各操作が `signedInActor()` を使った日である。",
+    "",
     "**2026-08-18 に、見本の身元から書き込みの役をすべて外した。**",
     "それまで「公開だけは通らない」と書いていたが、それは門が止めていたのではなく、",
     "見本に `publisher` と `owner` が無かっただけで、**役を 1 つ足した日に**",
@@ -342,17 +412,22 @@ function renderLedger(): string {
     "記事の承認も、鍵の発行も、下書きの保存も通らない。",
     "**ここへ役を 1 つ足すと、その瞬間に「誰でもできること」が増える。**",
     "",
-    "ただし**開いている扉の数は減っていない。** 減らせるのは認証（`ah-361`）だけで、",
-    "いまは「開いた扉の向こうで、できることが読むだけになった」段階である。",
-    "",
     "この検査が言えるのは「門を通す形になっている」ところまでで、",
-    "「守られている」ではない。門の中身は各入口の単体テストが見る。",
+    "「守られている」ではない。門の中身は各入口の単体テストが見る",
+    "（入口の門は `tests/infrastructure/entry-gate.test.ts`）。",
     "",
     "## 画面",
     "",
-    "`middleware.ts` が無いので、管理画面は URL を知っていれば誰でも開ける。",
-    "`currentActor()` が身元を解決できないと**見本の身元**へ落ちるため、",
-    "画面の中身も空にならず、実在するデータが表示される。",
+    ...(hasMiddleware
+      ? [
+          "`/admin` 以下は門の内側にあり、通行証が無ければログイン画面へ戻る。",
+          "門の外（読者のページ・ログイン画面）は誰でも開けるが、そこは意図どおりである。",
+        ]
+      : [
+          "画面を一括で守る門が無いので、管理画面は URL を知っていれば誰でも開ける。",
+          "`currentActor()` が身元を解決できないと**見本の身元**へ落ちるため、",
+          "画面の中身も空にならず、実在するデータが表示される。",
+        ]),
     "",
     ...table(of("画面")),
     "",
@@ -362,11 +437,13 @@ function renderLedger(): string {
     "",
     "## 変更を起こす操作（`\"use server\"`）",
     "",
-    "画面を開けた人は、この操作の**入口までは**そのまま通る（門が無いため）。",
+    "操作は独立した URL を持たず、それを使っている画面への POST として届く。",
+    "管理画面の操作は門の内側にあるが、**その対応はこの検査では測れない**ので、",
+    "ここでは守られていない側に数えてある（実際より危ない方に倒してある）。",
     "そこから先は権限で断られる。2026-08-18 に見本の身元を `analyst`（読むだけ）に",
     "したので、いまはここに並ぶ操作のうち書き込むものは通らない。",
-    "**これは門ができたということではない。** 見本へ役を 1 つ足せば元へ戻る。",
-    "門ができるのは認証（`ah-361`）が入った日である。",
+    "**これは操作の側に門ができたということではない。** 見本へ役を 1 つ足せば元へ戻る。",
+    "操作の側が数から外れるのは、各操作が `signedInActor()` を使った日である。",
     "",
     "「取り返し」の物差しは公開・配信・失効・削除。外の世界（読者・ASP・提供元）へ",
     "出てしまうもの、消えて元に戻せないものを「つかない」とする。**迷ったら「つかない」に倒す。**",
@@ -415,6 +492,29 @@ describe("いま開いている入口", () => {
       `開いている取り返しのつかない操作: ${irreversibleAndOpen.map((r) => r.id).join(" / ")}` +
         `（上限 ${OPEN_DOORS_MAX_IRREVERSIBLE} 件）。上限を上げて緑にしないでください。`,
     ).toBeLessThanOrEqual(OPEN_DOORS_MAX_IRREVERSIBLE);
+  });
+
+  it("「誰でも」と宣言した行が増えていない", () => {
+    // この一覧は人が手で書く。1 行足せば、その扉は差の数から黙って消える。
+    // 上限で詰まったとき、いちばん短い道がこれになってしまうのを塞ぐ。
+    expect(
+      declaredPublic.length,
+      `「誰でも」と宣言してある行が ${declaredPublic.length} 件` +
+        `（上限 ${OPEN_DOORS_MAX_PUBLIC_BY_DECLARATION} 件）: ` +
+        `${declaredPublic.map((r) => r.id).join(" / ")}。` +
+        "扉を数から消すために宣言を足していないか確かめてください。",
+    ).toBeLessThanOrEqual(OPEN_DOORS_MAX_PUBLIC_BY_DECLARATION);
+  });
+
+  it("門があるなら、その適用範囲も測れている", () => {
+    // ファイルが在るだけで全画面が守られたことにしない。
+    // `matcher` を狭めれば守りは黙って外れるので、範囲を別に測る。
+    if (!hasMiddleware) return;
+    expect(
+      gateCoversAdmin,
+      `${gateFile} に \`/admin\` を含む matcher と decideEntry() の呼び出しが見つかりません。` +
+        "門はあるのに管理画面が範囲の外、という状態になっていないか確かめてください。",
+    ).toBe(true);
   });
 
   it("台帳ファイルが実際の状態と一致している", () => {
