@@ -9,17 +9,17 @@ priority: "medium"
 start_date: "2026-08-19"
 target_date: null
 iteration: null
-title: "語彙に無いという理由で未宣言に残った要件が 4 件たまった"
+title: "語彙に無いという理由で未宣言に残った要件が 8 件たまった"
 owners: ["daishiman"]
 created_at: "2026-08-19T05:10:00Z"
-updated_at: "2026-08-19T05:10:00Z"
+updated_at: "2026-08-19T07:10:00Z"
 status: "draft"
 depends_on: []
 related_nodes: []
 resource_scope: ["docs","tests"]
 purpose: null
 goal: null
-mvp_alignment: {"background":"実装にも検査にも問題は無いのに、付ける名前が語彙に無いという理由で宣言できない要件が 4 件たまった","mvp_fit":"enabling","purpose":"性質の語彙の不足を 1 件として扱い、足すか足さないかを決める","rationale":"1 件ずつなら「仕方ない」で流れるが、4 件たまった時点でこれは個別の残り物ではなく語彙の不足である"}
+mvp_alignment: {"background":"実装にも検査にも問題は無いのに、付ける名前が語彙に無いという理由で宣言できない要件が 8 件たまった（2026-08-19 の FD 群で 4 件から倍になった）","mvp_fit":"enabling","purpose":"性質の語彙の不足を 1 件として扱い、足すか足さないかを決める","rationale":"1 件ずつなら「仕方ない」で流れるが、8 件たまった時点でこれは個別の残り物ではなく語彙の不足である。うち 4 件は同じ形（実装をどこに置いてよいかの禁止）で揃っている"}
 scope_in: []
 scope_out: []
 acceptance: []
@@ -35,7 +35,7 @@ evaluation_status: "pending"
 confirmation_evidence: {"evaluated_digest":null,"evaluator":null,"evidence_ref":null}
 source_lineage: {"imported_at":"2026-08-19T05:10:00Z","origin_kind":"manual","source_digest":null,"source_path":"docs/product/required-test-types.md","source_plugin":null,"source_version":null}
 classification_confidence: 0.9
-classification_reason: "TS06 / TS09 / TS10 / TM12 が同じ理由で未宣言に残ったため、4 件を 1 つの不足として立てた"
+classification_reason: "TS06 / TS09 / TS10 / TM12 が同じ理由で未宣言に残ったため 4 件を 1 つの不足として立て、2026-08-19 に FD01 / FD04 / FD05 / FD06 を足して 8 件にした"
 classification_candidates: [{"artifact_kind":"task","candidate_path":"tasks/task-test-type-vocabulary-gap.md","confidence":0.9}]
 issue_linkage: null
 tracker_binding: "beads"
@@ -63,7 +63,7 @@ implementation_readiness: {"checked_at":null,"missing_sections":[],"status":"inc
 2. **当てどころが実装に無い**（実装が変われば宣言できる。例: `REQ-CI08` `REQ-CI12`）
 3. **検査は実在して機能しているが、付ける名前が語彙に無い**
 
-3 番目が 4 件たまった。
+3 番目が 8 件たまった（2026-08-19 の FD 群の点検で 4 件から倍になった）。
 
 | 要件 | 実在する検査 | 足りないもの |
 | --- | --- | --- |
@@ -71,9 +71,19 @@ implementation_readiness: {"checked_at":null,"missing_sections":[],"status":"inc
 | `REQ-TS09` | — | 同上（テスト戦略の 4 件のうち） |
 | `REQ-TS10` | — | 同上 |
 | `REQ-TM12`（層の分離） | `tests/architecture/dependency-direction.test.ts`（**壊すと赤くなる**） | 「層の分離・依存の向き」に当たる性質 |
+| `REQ-FD01`（ランキング式の重複実装禁止） | `tests/architecture/dependency-direction.test.ts`（**壊すと赤くなる**） | 同上 |
+| `REQ-FD04`（WebMCP 専用機能を作らない） | `tests/presentation/tool-catalog-adapters.test.ts`（**別のことを見ている**。残課題 88） | 「入口をまたいで同じ機能が届く」に当たる性質 |
+| `REQ-FD05`（ブログ層で正規データを再定義しない） | `tests/architecture/single-definition.test.ts`（2026-08-19 に新設。**壊すと赤くなる**） | 「実装をどこに置いてよいか」に当たる性質 |
+| `REQ-FD06`（サーバー操作ファイルの形を揃える） | `tests/architecture/server-action-exports.test.ts`（**壊すと赤くなる**） | 同上 |
 
 **1 件ずつなら「仕方ない」で流れる。**実際、3 つの群でそのつど 1 件ずつ流れた。
-4 件並べると、これは個別の残り物ではなく**語彙の不足**である。
+8 件並べると、これは個別の残り物ではなく**語彙の不足**である。
+
+**FD 群の 4 件は、形が揃っている。**どれも「実装をどこに置いてよいか／どの向きに呼んでよいか」の
+禁止であって、入力・状態・権限・画面・計算のどれでもない。
+検査はいずれも実在し、壊せば赤くなることを 2026-08-19 に実測した（FD04 を除く。FD04 は
+検査が別のことを見ているので、残課題 88 が先である）。
+**当てどころが無いのではなく、名前が無い。**
 
 **除外の枠（7/7 満杯）はこの課題の理由ではない。**上限を上げても何も解決しない。
 除外は「宣言したうえで、この種別は**書かないと決めた**」の意味であり、ここはそうではない。
@@ -91,8 +101,8 @@ implementation_readiness: {"checked_at":null,"missing_sections":[],"status":"inc
 1. **性質を足す**（例: 層の分離・依存の向き）
 2. 足したうえで、**その性質を持つ要件を横断で洗い直す**
    （いま宣言済の要件の中にも、名乗るべきものがあるはず。ここを飛ばすと、
-   新しい性質が「この 4 件のためだけの名前」になる）
-3. **足さないと決める**。決めたなら理由を書き、以後この 4 件を「未宣言」ではなく
+   新しい性質が「この 8 件のためだけの名前」になる）
+3. **足さないと決める**。決めたなら理由を書き、以後この 8 件を「未宣言」ではなく
    **「語彙の外」として数える**（未宣言の上限に混ぜたままにしない）
 
 ## 依存関係
@@ -109,8 +119,10 @@ implementation_readiness: {"checked_at":null,"missing_sections":[],"status":"inc
 
 ## 実行手順
 
-1. 4 件の要件を 1 つずつ読み、**何を守っているのか**を 1 行で書く
-2. 4 つに共通する性質があるか見る（無ければ、まとめて 1 つの名前にしない）
+1. 8 件の要件を 1 つずつ読み、**何を守っているのか**を 1 行で書く
+2. 共通する性質があるか見る（無ければ、まとめて 1 つの名前にしない）。
+   **FD 群の 4 件 + `REQ-TM12` は「置き場所と呼ぶ向きの禁止」で揃って見える**ので、
+   ここが最初の候補である。残る `REQ-TS06` / `TS09` / `TS10` は別の形なので分けて考える
 3. 足すと決めたら、その性質から要求する種別を決める
 4. **横断で洗い直す**（`docs/product/traceability.md` の全要件に対して、
    新しい性質に当たるものを探す）
@@ -118,9 +130,11 @@ implementation_readiness: {"checked_at":null,"missing_sections":[],"status":"inc
 
 ## 受入条件
 
-- 4 件それぞれの行き先（性質を足した／語彙の外として数える）が決まっている
-- 性質を足した場合、その性質を名乗る要件が **4 件より多い**
-  （4 件だけなら、それは名前ではなく言い訳である）
+- 8 件それぞれの行き先（性質を足した／語彙の外として数える）が決まっている
+- 性質を足した場合、その性質を名乗る要件が **5 件より多い**
+  （「置き場所と呼ぶ向き」の候補はいまの時点で 5 件見えている。
+  5 件のままで足すなら、それは名前ではなく言い訳である。
+  **横断で洗い直して 5 件を超えることを確かめてから足す**）
 - 上限は下げる方向にしか動いていない
 
 ## 検証方法
@@ -153,5 +167,5 @@ implementation_readiness: {"checked_at":null,"missing_sections":[],"status":"inc
 
 ## やらないこと
 
-- 4 件を通すためだけの性質を作ること
+- 8 件を通すためだけの性質を作ること
 - 除外の上限を上げること
