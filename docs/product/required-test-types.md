@@ -51,6 +51,34 @@
 | REQ-P08 | has-state, has-external, has-screen, has-db-table | fault-injection: 各媒体への実送信がスタブで、失敗・遅延・一部成功を注入する先が無い（残課題 45） |
 | REQ-P09 | has-input, has-tenant, has-external, has-screen, has-db-table | fault-injection: ASP への実接続がスタブで、落とす外部接続が実在しない |
 | REQ-P10 | has-input, has-screen | — |
+| REQ-B01 | has-screen | — |
+| REQ-B02 | has-screen | — |
+| REQ-B03 | has-screen | — |
+| REQ-B04 | has-screen | — |
+| REQ-B05 | has-screen | — |
+| REQ-B06 | has-screen | — |
+| REQ-B07 | has-screen | — |
+| REQ-B08 | has-screen | — |
+| REQ-B09 | has-screen | — |
+| REQ-B10 | has-screen | — |
+| REQ-B11 | has-screen | — |
+| REQ-B12 | has-screen | — |
+| REQ-B13 | has-screen | — |
+| REQ-B14 | has-screen | — |
+| REQ-B15 | has-screen | — |
+| REQ-B16 | has-screen | — |
+| REQ-B17 | has-screen | — |
+| REQ-B18 | has-screen | — |
+| REQ-S01 | has-screen | — |
+| REQ-S02 | has-screen | — |
+| REQ-S03 | has-screen | — |
+| REQ-S04 | has-screen | — |
+| REQ-S05 | has-screen | — |
+| REQ-S06 | has-screen | — |
+| REQ-S07 | has-screen | — |
+| REQ-S08 | has-screen | — |
+| REQ-S09 | has-screen | — |
+| REQ-S10 | has-screen, has-permission | — |
 | REQ-API02 | has-permission, has-tenant | — |
 | REQ-R01 | has-permission | — |
 | REQ-R02 | has-permission | — |
@@ -67,6 +95,8 @@
 | REQ-QC12 | has-calculation | boundary: 公開ゲートの 13 項目は真偽の組合せで、大小の端が無い。組合せ側は性質テストが生成して当てている |
 | REQ-IM05 | has-state | — |
 | REQ-TH01 | has-screen | — |
+| REQ-TH02 | has-enumerated-input | — |
+| REQ-TH03 | has-enumerated-input | — |
 | REQ-FB13 | has-permission, has-tenant | — |
 | REQ-SEC01 | has-tenant | — |
 | REQ-SEC02 | has-input, has-user-supplied-url | — |
@@ -132,17 +162,18 @@
 
 ## 4. 未宣言の要件について（正直に書く）
 
-要件表には **241 件**の要件 ID がある。上の宣言表はそのうち **88 件**である
-（2026-08-18 に数え直した。ここは長らく 83 と書いてあったが、`ah-44d` で 5 件足した
-ぶんが反映されていなかった。**手で書いた数字は、古くなっても古く見えない**）。
-残り 153 件は未宣言で、**この検査の対象外**にある。
-この 153 が `TEST_TYPES_MAX_UNDECLARED` と一致していることが、
+要件表には **241 件**の要件 ID がある。上の宣言表はそのうち **118 件**である
+（`node scripts/required-test-types.mjs` の出力から書き写す。手で数えない。
+ここは長らく 83 と書いたまま古くなっていたことがある。
+**手で書いた数字は、古くなっても古く見えない**）。
+残り 123 件は未宣言で、**この検査の対象外**にある。
+この 123 が `TEST_TYPES_MAX_UNDECLARED` と一致していることが、
 この節の数字が実測と合っていることの確かめになる。
 
 全部に宣言を書き切るまで検査を入れない、という順にすると**検査は永久に入らない**。
 そこで `TRACEABILITY_MAX_UNLINKED` と同じ形にした。
 
-- 未宣言の上限 `TEST_TYPES_MAX_UNDECLARED` を実測に置く（置いた当初は 158。現在 153）
+- 未宣言の上限 `TEST_TYPES_MAX_UNDECLARED` を実測に置く（置いた当初は 158。現在 123）
 - **新しく足す要件は、宣言しなければ CI が落ちる**
 - 既存の未宣言は減らせるが増やせない。**上げて緑にすることを禁じる**
 
@@ -776,6 +807,121 @@ D1 版は成功する。同じ言明を両方に通す検査を書けば、こ�
 
 `property` は印として残す（どう書いたかの記録には値がある）。
 **要求はしない。**
+
+### 2026-08-18 に減らしたぶん（153 → 123）: 画面 30 件（`ah-cry`）
+
+対象は 32 件（読者側 `REQ-B01`〜`B18` / §22 の画面仕様 `REQ-S01`〜`S10` /
+外観 `REQ-TH02`〜`TH05`）。**30 件を宣言し、2 件は宣言しなかった。**
+
+#### 数え方（先に数えてから決めた）
+
+画面の検査は 1 枚ずつ手で書かれておらず、`tests/ui/route-table.ts` の表を
+総当たりする作りになっている。まずその表に何本入っているかを数えた。
+
+```
+ENTRY 2 本（`/` と `/signin`）/ ADMIN 32 本 / READER 20 本 = 54 本
+別の状態でもう一度開くもの 12 本
+```
+
+この 54 本を、次の 4 つがそれぞれ全数描いている。
+
+| テスト | 見ているもの | 種別 |
+| --- | --- | --- |
+| `tests/ui/page-render.test.tsx` | 既定の表示・見出しの階層・a11y 違反 | `screen-states` `a11y` |
+| `tests/ui/page-empty.test.tsx` | 何も登録されていないとき | `screen-states` |
+| `tests/ui/page-degraded.test.tsx` | 読み出しが全部だめなとき | `screen-states` |
+| `tests/ui/keyboard-operation.test.tsx` | 順番・辿り着けるか・名前があるか | `keyboard` |
+
+`has-screen` が要求するのは `screen-states` `a11y` `keyboard` の 3 つで、
+**この 4 ファイルで全部そろっている**。読者側 18 件の要件が
+表のどの行に当たるかを 1 件ずつ突き合わせ、`REQ-B01`〜`B18` の
+18 件すべてに描かれている行があることを確かめた（`REQ-B17` だけは
+`privacy` と `terms` の 2 行）。
+
+**つまりこの回は、足りなかったのが検査ではなく結び付けだけだった。**
+印を足すだけで済んだ数少ない回である。逆に言うと、画面を 1 枚足したときに
+要件との結びが自動で付くわけではない。表とファイルの 1 対 1 は機械が見ているが、
+**要件と表の対応は誰も見ていない。**
+
+#### `REQ-S01`〜`S08` に `has-screen` しか付けなかった理由
+
+§22 の画面仕様は、§9 の機能仕様と**同じ画面を画面の側から書いた要件**である。
+
+| §22（画面） | §9（機能）| §9 側の宣言 |
+| --- | --- | --- |
+| S02 受信箱 | P02 | has-input, has-external, has-screen, has-user-supplied-url |
+| S03 商品 | P03 | has-calculation, has-screen |
+| S04 書き手 | P05 | has-input, has-screen |
+| S05 記事 | P06 | has-input, has-screen, has-ai-text |
+| S06 ブログ | P07 | has-input, has-state, has-screen |
+| S07 配信予定 | P08 | has-state, has-external, has-screen, has-db-table |
+| S08 数字 | P10 | has-input, has-screen |
+
+数字の作り方・状態の遷移・外部接続は**すでに P 側が宣言している**。
+S 側に同じ性質を重ねると、同じ検査を 2 回数えたことになり、
+「宣言済の件数」だけが増える。**S01 だけは §9 に相手がいない**
+（11 個の数字を 1 つのユースケースで数え直す画面）。ここは
+`has-calculation` を当てたかったが、`boundary` の当てどころ（数の端）が
+今の実装に無く、理由つき除外は上限が満杯で書けない。残課題 71 に置いた。
+
+#### `REQ-S09` に `has-permission` を付けなかった理由
+
+`REQ-S09`（共通レイアウト）の要件文には「権限による表示制御」が入っている。
+性質としては `has-permission` が正しい。**付けなかったのは、当てられる検査が
+片側しか無いからである。**
+
+- `tests/ui/page-render-privileged.test.tsx` … 持ち主の身元で描いて
+  **断られていないこと**を見る（許可側）
+- `tests/ui/page-render.test.tsx` … 読むだけの身元で描くが、
+  見ているのは見出しと a11y だけで、**できない操作が出ていないことは見ていない**
+
+`permission-matrix` という名前が要求しているのは「できる側とできてはいけない側の
+両方」で、画面についてはできてはいけない側が空である。ここで `has-permission` を
+宣言すると、`page-render-privileged` の印だけで緑になる。
+**片側しか見ていない検査に、両側を見たという名前が付く。**
+残課題 72 に「読むだけの身元では公開・招待の操作が出ないことを見る」を置いた。
+
+なお `REQ-S10`（認証画面）は `has-permission` を宣言した。こちらは
+`tests/infrastructure/entry-gate.test.ts` `session-issuer.test.ts`
+`better-auth-gate.test.ts` `tests/architecture/open-doors.test.ts` が
+**入れない側を実際に見ている**（`ah-1j5` が終わるまで画面は見本のままだが、
+門の側の検査は実在する）。
+
+#### `REQ-TH02` `REQ-TH03` に `has-enumerated-input` を当てた
+
+外観の決まり方は、本人の選択 / ブログの既定 / 既定値 の 3 つの出どころと、
+配色 / 明暗 の 2 軸を突き合わせた**表**である。
+`tests/property/normalization.property.test.ts` が
+「知らない名前は必ず null」「何を渡しても有効な外観が 1 組決まる」
+「本人の選択はブログの既定より優先される」「選んでいない軸だけが既定に落ちる」を
+見ており、これは組み合わせを生成で埋めた決定表そのものなので、
+同ファイルへ `decision-table` を足した。
+
+そのとき**印と説明文の食い違いを 1 件見つけた**。同ファイルの説明文に
+「対応する要件: … REQ-B15（外観の選択）」とあったが、`REQ-B15` は読者側の
+`/s/{site}/ai-policy` で外観とは関係が無い。冒頭の印のほうは `REQ-TH03` を
+正しく指していたので、**検査は緑のまま何年でも通る**種類の食い違いだった。
+機械は印しか読まず、人は説明文しか読まない。
+
+#### 宣言しなかった 2 件
+
+| REQ | 要件 | 宣言しなかった理由 |
+| --- | --- | --- |
+| REQ-TH04 | 再マウントもチラつき（FOUC）も起こさない | **自動の検査が 1 つも無い。**要件表の PASS 欄は `pnpm run preview` で 25 ルートを目で見た記録である。性質を宣言すると、その手動の記録が自動の緑に化ける |
+| REQ-TH05 | 配色を増やすと自動でコントラスト検査に入る | 製品の振る舞いではなく**検査の仕組みそのもの**についての要件。当てるべき種別が語彙に無い（`meta` のような種別を作る話になり、この回の範囲を超える） |
+
+`REQ-TH04` は残課題 73 に置いた。**「見ていない」と書いたまま置くほうが、
+見たことにして数を 32 にするより安い。**
+
+#### 赤の実測
+
+| 外したもの | 出た失敗 |
+| --- | --- |
+| `keyboard-operation` の `@types keyboard` | `REQ-B01`〜`REQ-S10` を 1 件ずつ名指しして NG（40 件） |
+| `page-render` の `a11y` | 同じく 40 件を `a11y` 欠けとして NG |
+| `normalization.property` の `decision-table` | `REQ-TH02` `REQ-TH03` を名指しして NG |
+
+いずれも戻して緑を確認した。
 
 ### まだどの性質からも指されていない種別（`ah-0ip` の残り）
 

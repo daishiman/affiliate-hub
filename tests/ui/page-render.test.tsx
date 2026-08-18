@@ -1,4 +1,15 @@
-/** @tier 2 @req REQ-P01, REQ-P02, REQ-P03, REQ-P04, REQ-P05, REQ-P06, REQ-P07, REQ-P08, REQ-P09, REQ-P10, REQ-TH01, REQ-SEC08 @types screen-states, a11y */
+/**
+ * @tier 2
+ * @req REQ-P01, REQ-P02, REQ-P03, REQ-P04, REQ-P05
+ * @req REQ-P06, REQ-P07, REQ-P08, REQ-P09, REQ-P10
+ * @req REQ-TH01, REQ-SEC08
+ * @req REQ-B01, REQ-B02, REQ-B03, REQ-B04, REQ-B05, REQ-B06
+ * @req REQ-B07, REQ-B08, REQ-B09, REQ-B10, REQ-B11, REQ-B12
+ * @req REQ-B13, REQ-B14, REQ-B15, REQ-B16, REQ-B17, REQ-B18
+ * @req REQ-S01, REQ-S02, REQ-S03, REQ-S04, REQ-S05
+ * @req REQ-S06, REQ-S07, REQ-S08, REQ-S09, REQ-S10
+ * @types screen-states, a11y
+ */
 import { readdirSync } from "node:fs";
 import { join, relative } from "node:path";
 import { describe, expect, it } from "vitest";
@@ -16,6 +27,12 @@ import { describeViolations, findA11yViolations } from "../support/a11y";
  * 確かめるのは 3 つだけにしてある。
  * 文言そのものをここで固定すると、言い回しを直すたびに落ちるテストが 50 本増え、
  * やがて「文言を直したくないからテストを消す」に行き着く。
+ *
+ * --- 要件名が多い理由 ---
+ * `route-table.ts` の表から総当たりにしているので、**読者側 20 本と運営側 33 本が
+ * 全部ここで描かれている**。REQ-B01〜B18（読者側の各ページ）と REQ-S01〜S10
+ * （§22 の画面仕様）は、その表の行として実際に描かれているぶんだけ名乗っている。
+ * 画面を表から外せば、ここも一緒に落ちる。
  *
  * 規範: docs/spec/10-テスト戦略仕様.md §3-4 / docs/product/coverage.md §2-3
  */

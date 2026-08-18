@@ -1,4 +1,8 @@
-/** @tier 1 @req REQ-P02, REQ-P03, REQ-TH01, REQ-TH03 @types property, equivalence, idempotency */
+/**
+ * @tier 1
+ * @req REQ-P02, REQ-P03, REQ-TH01, REQ-TH02, REQ-TH03
+ * @types property, equivalence, idempotency, decision-table
+ */
 import fc from "fast-check";
 import { describe, expect, it } from "vitest";
 import { parseBrandTheme, parseColorMode, resolveAppearance } from "@/domain/authoring/appearance";
@@ -22,7 +26,17 @@ import {
  * 対称でないと、突合の向きを変えただけで同じ商品が別商品になる。
  * どちらも例のテストでは見つけにくく、性質で押さえるのが向いている。
  *
- * 対応する要件: REQ-P02（受信箱の重複検出）、REQ-P03（商品同一性）、REQ-B15（外観の選択）
+ * 対応する要件: REQ-P02（受信箱の重複検出）、REQ-P03（商品同一性）、
+ * REQ-TH02（配色の選択肢）、REQ-TH03（切り替え部品の一元化）。
+ * ここには長く「REQ-B15（外観の選択）」と書いてあったが、**REQ-B15 は読者側の
+ * `/s/{site}/ai-policy` であって外観とは関係が無い**（2026-08-18 に直した）。
+ * 冒頭の印は正しい要件を指していたので検査は緑のまま通っていた。
+ * **印と説明文がずれても、機械はどちらか一方しか見ない。**
+ *
+ * 外観の決まり方（下の「外から来た文字列を外観として読む」）は、
+ * 本人の選択 / ブログの既定 / 既定値 の 3 つの出どころと、
+ * 配色 / 明暗 の 2 軸を突き合わせた**表**である。組み合わせを手で並べる代わりに
+ * 生成で埋めているが、見ている中身は決定表そのものなので `decision-table` を名乗る。
  */
 
 describe("そろえる処理は 2 回かけても変わらない（冪等）", () => {

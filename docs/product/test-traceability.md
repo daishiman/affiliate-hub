@@ -146,7 +146,7 @@
 | `tests/presentation/tool-catalog-adapters.test.ts` | REQ-M03, REQ-TS04 | 印と表 |
 | `tests/presentation/webmcp-policy.test.ts` | REQ-WC03, REQ-WC04, REQ-WC06 | 印と表 |
 | `tests/presentation/webmcp-registration.test.ts` | REQ-WC01, REQ-WC02 | 印 |
-| `tests/property/normalization.property.test.ts` | REQ-P02, REQ-P03, REQ-TH01, REQ-TH03 | 印と表 |
+| `tests/property/normalization.property.test.ts` | REQ-P02, REQ-P03, REQ-TH01, REQ-TH02, REQ-TH03 | 印と表 |
 | `tests/property/publish-gate.property.test.ts` | REQ-QC09, REQ-QC12, REQ-SEC06 | 印と表 |
 | `tests/property/ranking.property.test.ts` | REQ-B12, REQ-P04, REQ-SEC04 | 印と表 |
 | `tests/property/tenancy.property.test.ts` | REQ-API02, REQ-P01, REQ-R11, REQ-R12, REQ-SEC01 | 印と表 |
@@ -159,14 +159,14 @@
 | `tests/ui/fact-source.test.ts` | REQ-W07 | 表 |
 | `tests/ui/feedback-admin-forms.test.tsx` | REQ-FB08, REQ-FB12 | 表 |
 | `tests/ui/feedback-button.test.tsx` | REQ-FB02, REQ-FB03 | 表 |
-| `tests/ui/keyboard-operation.test.tsx` | REQ-P01, REQ-P02, REQ-P03, REQ-P04, REQ-P05, REQ-P06, REQ-P07, REQ-P08, REQ-P09, REQ-P10, REQ-SEC08, REQ-TH01 | 印 |
+| `tests/ui/keyboard-operation.test.tsx` | REQ-B01, REQ-B02, REQ-B03, REQ-B04, REQ-B05, REQ-B06, REQ-B07, REQ-B08, REQ-B09, REQ-B10, REQ-B11, REQ-B12, REQ-B13, REQ-B14, REQ-B15, REQ-B16, REQ-B17, REQ-B18, REQ-P01, REQ-P02, REQ-P03, REQ-P04, REQ-P05, REQ-P06, REQ-P07, REQ-P08, REQ-P09, REQ-P10, REQ-S01, REQ-S02, REQ-S03, REQ-S04, REQ-S05, REQ-S06, REQ-S07, REQ-S08, REQ-S09, REQ-S10, REQ-SEC08, REQ-TH01 | 印 |
 | `tests/ui/llm-credential-forms.test.tsx` | REQ-SEC01 | 印 |
 | `tests/ui/llm-credential-page.test.tsx` | REQ-SEC01 | 印 |
 | `tests/ui/model-picker.test.tsx` | REQ-G11 | 印 |
-| `tests/ui/page-degraded.test.tsx` | REQ-P01, REQ-P02, REQ-P03, REQ-P04, REQ-P05, REQ-P06, REQ-P07, REQ-P08, REQ-P09, REQ-P10, REQ-TH01 | 印 |
-| `tests/ui/page-empty.test.tsx` | REQ-P01, REQ-P02, REQ-P03, REQ-P04, REQ-P05, REQ-P06, REQ-P07, REQ-P08, REQ-P09, REQ-P10, REQ-TH01 | 印 |
+| `tests/ui/page-degraded.test.tsx` | REQ-B01, REQ-B02, REQ-B03, REQ-B04, REQ-B05, REQ-B06, REQ-B07, REQ-B08, REQ-B09, REQ-B10, REQ-B11, REQ-B12, REQ-B13, REQ-B14, REQ-B15, REQ-B16, REQ-B17, REQ-B18, REQ-P01, REQ-P02, REQ-P03, REQ-P04, REQ-P05, REQ-P06, REQ-P07, REQ-P08, REQ-P09, REQ-P10, REQ-S01, REQ-S02, REQ-S03, REQ-S04, REQ-S05, REQ-S06, REQ-S07, REQ-S08, REQ-S09, REQ-S10, REQ-TH01 | 印 |
+| `tests/ui/page-empty.test.tsx` | REQ-B01, REQ-B02, REQ-B03, REQ-B04, REQ-B05, REQ-B06, REQ-B07, REQ-B08, REQ-B09, REQ-B10, REQ-B11, REQ-B12, REQ-B13, REQ-B14, REQ-B15, REQ-B16, REQ-B17, REQ-B18, REQ-P01, REQ-P02, REQ-P03, REQ-P04, REQ-P05, REQ-P06, REQ-P07, REQ-P08, REQ-P09, REQ-P10, REQ-S01, REQ-S02, REQ-S03, REQ-S04, REQ-S05, REQ-S06, REQ-S07, REQ-S08, REQ-S09, REQ-S10, REQ-TH01 | 印 |
 | `tests/ui/page-render-privileged.test.tsx` | REQ-S10 | 印 |
-| `tests/ui/page-render.test.tsx` | REQ-FB07, REQ-FB08, REQ-P01, REQ-P02, REQ-P03, REQ-P04, REQ-P05, REQ-P06, REQ-P07, REQ-P08, REQ-P09, REQ-P10, REQ-SEC08, REQ-TH01, REQ-TS05 | 印と表 |
+| `tests/ui/page-render.test.tsx` | REQ-B01, REQ-B02, REQ-B03, REQ-B04, REQ-B05, REQ-B06, REQ-B07, REQ-B08, REQ-B09, REQ-B10, REQ-B11, REQ-B12, REQ-B13, REQ-B14, REQ-B15, REQ-B16, REQ-B17, REQ-B18, REQ-FB07, REQ-FB08, REQ-P01, REQ-P02, REQ-P03, REQ-P04, REQ-P05, REQ-P06, REQ-P07, REQ-P08, REQ-P09, REQ-P10, REQ-S01, REQ-S02, REQ-S03, REQ-S04, REQ-S05, REQ-S06, REQ-S07, REQ-S08, REQ-S09, REQ-S10, REQ-SEC08, REQ-TH01, REQ-TS05 | 印と表 |
 | `tests/ui/patterns-render.test.tsx` | REQ-SEC08 | 表 |
 | `tests/ui/publish-article-form.test.tsx` | REQ-P08 | 表 |
 | `tests/ui/publish-article-result.test.tsx` | REQ-P08 | 表 |

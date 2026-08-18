@@ -3,6 +3,11 @@
  * @req REQ-P01, REQ-P02, REQ-P03, REQ-P04, REQ-P05
  * @req REQ-P06, REQ-P07, REQ-P08, REQ-P09, REQ-P10
  * @req REQ-TH01, REQ-SEC08
+ * @req REQ-B01, REQ-B02, REQ-B03, REQ-B04, REQ-B05, REQ-B06
+ * @req REQ-B07, REQ-B08, REQ-B09, REQ-B10, REQ-B11, REQ-B12
+ * @req REQ-B13, REQ-B14, REQ-B15, REQ-B16, REQ-B17, REQ-B18
+ * @req REQ-S01, REQ-S02, REQ-S03, REQ-S04, REQ-S05
+ * @req REQ-S06, REQ-S07, REQ-S08, REQ-S09, REQ-S10
  * @types keyboard
  */
 import { describe, expect, it } from "vitest";
