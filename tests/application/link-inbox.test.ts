@@ -13,7 +13,7 @@ import type { WorkspaceId } from "@/domain/shared";
 import { markCommercial } from "@/domain/shared";
 import { SAMPLE_WORKSPACE_ID } from "@/infrastructure/persistence/sample/ranking-sample-repository";
 import { aNobody, anAnalyst, anOwner } from "../support/actors";
-import { failing, recordingEvents, testDeps } from "../support/doubles";
+import { failing, recordingAuditLog, recordingEvents, testDeps } from "../support/doubles";
 
 /**
  * 成果リンクの受信箱。
@@ -36,8 +36,18 @@ function deps(over: Partial<ManageLinkInboxDeps> = {}): ManageLinkInboxDeps {
     programs: base.affiliatePrograms,
     ids: base.ids,
     events: base.events,
+    auditLog: recordingAuditLog().port,
+    now: () => new Date(),
     ...over,
   };
+}
+
+/** 記録まで読み返したいときの組み立て。誰が何をしたかを後から数える。 */
+function recordable(over: Partial<ManageLinkInboxDeps> = {}): ManageLinkInboxDeps & {
+  readonly audit: ReturnType<typeof recordingAuditLog>;
+} {
+  const audit = recordingAuditLog();
+  return { ...deps({ auditLog: audit.port, ...over }), audit };
 }
 
 /** 見本の受信箱を土台に、指定の操作だけ失敗させる。商業の印は付け直す。 */
@@ -415,6 +425,109 @@ describe("一覧", () => {
   it("絞り込みの表示名は、すべてを含めて言葉になっている", () => {
     expect(filterLabel("all")).toBe("すべて");
     expect(filterLabel("received")).not.toBe("received");
+  });
+});
+
+/**
+ * 誰がリンクを進めたかの記録。
+ *
+ * --- なぜ出来事とは別に要るのか ---
+ * 出来事（`events`）は受け手に知らせるためのもので、受け手がいなければ
+ * 流れなくてよい。実際「対象外にする」は 1 つも流していない。
+ * つまり記録が無いと、**捨てた操作だけ跡が 1 つも残らない**。
+ *
+ * リンク 1 本は「受け取り → 広告主 → 商品」と進み、最後は記事に出る。
+ * 提携が終わったときに外すのも、報酬の宛先を直すのも、
+ * 「誰がいつそう決めたか」を辿れることが前提になる。
+ */
+describe("誰が進めたかの記録", () => {
+  it("受け取りは、行き先のホストと重なりの有無まで残る", async () => {
+    const d = recordable();
+    const url = freshUrl();
+    const result = await createSubmitAffiliateUrlUseCase(d).execute(actor, { url, source: "paste" });
+    expect(result.ok).toBe(true);
+
+    const entry = d.audit.entries().at(-1);
+    expect(entry?.action).toBe("affiliate_link.created");
+    expect(entry?.targetType).toBe("link_ingestion");
+    expect(entry?.after).toMatchObject({ host: "example.invalid", state: "received" });
+  });
+
+  it("受け取りの記録に、貼り付けられた URL そのものは入らない", async () => {
+    const d = recordable();
+    const url = freshUrl();
+    await createSubmitAffiliateUrlUseCase(d).execute(actor, { url, source: "paste" });
+
+    /*
+     * 成果リンクの URL には、成果の割り当て先を示す文字列が入っている。
+     * 記録は後から広く読まれる場所なので、行き先のホスト名までにとどめる。
+     */
+    expect(JSON.stringify(d.audit.entries())).not.toContain(url);
+  });
+
+  it("広告主を決め直したときは、どこから変えたかが残る", async () => {
+    const d = recordable();
+    const created = await createSubmitAffiliateUrlUseCase(d).execute(actor, {
+      url: freshUrl(),
+      source: "paste",
+    });
+    if (!created.ok) throw new Error(created.error.message);
+
+    const resolve = createResolveLinkIngestionUseCase(d);
+    await resolve.execute(actor, {
+      linkIngestionId: created.value.item.id,
+      programId: "prg_rakuten_pc",
+    });
+    await resolve.execute(actor, {
+      linkIngestionId: created.value.item.id,
+      programId: "prg_amazon_pc",
+    });
+
+    // 2 回目の `before` が null だと、取り違えを直すときに元の宛先が分からない。
+    const entry = d.audit.entries().at(-1);
+    expect(entry?.before).toMatchObject({ programId: "prg_rakuten_pc" });
+    expect(entry?.after).toMatchObject({ programId: "prg_amazon_pc" });
+  });
+
+  it("対象外にしたときは、理由まで記録に残る", async () => {
+    const d = recordable();
+    const created = await createSubmitAffiliateUrlUseCase(d).execute(actor, {
+      url: freshUrl(),
+      source: "paste",
+    });
+    if (!created.ok) throw new Error(created.error.message);
+
+    await createRejectLinkIngestionUseCase(d).execute(actor, {
+      linkIngestionId: created.value.item.id,
+      reason: "提携が終了しているため。",
+    });
+
+    const entry = d.audit.entries().at(-1);
+    expect(entry?.action).toBe("affiliate_link.rejected");
+    expect(entry?.reason).toBe("提携が終了しているため。");
+  });
+
+  it("記録を残せなかったときは、どの操作も成功として返さない", async () => {
+    const url = freshUrl();
+    const broken = {
+      auditLog: {
+        ...recordingAuditLog().port,
+        append: async () => failing<never>("記録の保存先が落ちています"),
+      },
+    };
+
+    const created = await createSubmitAffiliateUrlUseCase(deps(broken)).execute(actor, {
+      url,
+      source: "paste",
+    });
+    expect(created.ok).toBe(false);
+    // 済んだこと（もう受信箱にある）を隠すと、貼った人はもう一度貼る。
+    if (!created.ok) expect(created.error.message).toContain("受信箱に入っています");
+
+    // 受け取り自体は効いている。断り文はそれと食い違ってはいけない。
+    const listed = await createListLinkInboxUseCase(deps()).execute(actor, { state: "all" });
+    expect(listed.ok).toBe(true);
+    if (listed.ok) expect(listed.value.items.some((i) => i.submittedUrl === url)).toBe(true);
   });
 });
 

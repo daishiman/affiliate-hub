@@ -2,6 +2,9 @@ import type {
   FeedbackRepositoryPort,
   HandoffTemplatePort,
 } from "@/application/ports/feedback";
+import type { IdGeneratorPort } from "@/application/ports/common";
+import type { AuditLogPort } from "@/application/ports/compliance";
+import { auditWriteFailure, buildAuditEntry } from "@/application/audit";
 import {
   type FeedbackReport,
   type HandoffRoute,
@@ -28,6 +31,16 @@ import type { UseCase } from "../usecase";
 export type HandOffFeedbackDeps = {
   readonly repository: FeedbackRepositoryPort;
   readonly templates: HandoffTemplatePort;
+  readonly ids: IdGeneratorPort;
+  /**
+   * 何を外へ出したかの記録。
+   *
+   * ここは**中身がこちらの手を離れる唯一の口**である。払い出した文面は
+   * AI の手元へ渡り、そこから先は追えない。後から
+   * 「どの要望が・いつ・どの経路で外へ出たか」を言えないと、
+   * 出してはいけないものが混ざっていたときに範囲を決められない。
+   */
+  readonly auditLog: AuditLogPort;
   readonly now: () => Date;
 };
 
@@ -153,6 +166,41 @@ export function createHandOffFeedbackUseCase(
           if (!saved.ok) {
             skipped.push({ reportId: id, reason: saved.error.message });
             continue;
+          }
+
+          /*
+           * 記録できなかったときは `skipped` へ入れずに**その場で止める**。
+           * `skipped` は「渡さなかったもの」の欄なので、渡してしまったものを
+           * そこへ入れると、一覧が嘘になる。
+           *
+           * 止めても取り返しはつく。同じ要望からは何度でも同じ文面が出るので
+           * （`HANDOFF_IDEMPOTENCY_TEXT`）、押し直しで続きから通せる。
+           *
+           * 文面そのものは記録に入れない。同じ文面かどうかは指紋で判る。
+           */
+          const entry = buildAuditEntry({ ids: deps.ids, now: deps.now }, actor, {
+            action: "feedback.handed_off",
+            targetType: "feedback_report",
+            targetId: String(report.id),
+            after: {
+              route: input.route,
+              keyId: input.route === "pulled_by_agent" ? (input.keyId ?? null) : null,
+              promptFingerprint: clean.value.fingerprint,
+              templateVersion: template.value.version,
+              // 何回目の払い出しか。同じ要望を繰り返し渡していること自体が、
+              // 後から読むときの手がかりになる。
+              handoffCount: recorded.value.entries.length,
+            },
+          });
+          if (!entry.ok) return entry;
+          const appended = await deps.auditLog.append(entry.value);
+          if (!appended.ok) {
+            return err(
+              auditWriteFailure(
+                `${prompts.length} 件は払い出し済みで、${String(report.id)} も渡した扱いになっています`,
+                appended.error.details,
+              ),
+            );
           }
         }
 

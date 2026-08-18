@@ -32,6 +32,16 @@ export type AuditAction =
   | "policy_rule.changed"
   | "affiliate_link.created"
   | "affiliate_link.changed"
+  /**
+   * 受け取った成果リンクを対象外にした。
+   *
+   * 受け取り（`created`）と、広告主・商品を決めること（`changed`）は
+   * 1 語にまとめてある（差は `after` の状態に出るので、語を分けても情報が増えない）。
+   * **対象外だけを分けているのは、理由を必須にするため**（下の `REASON_REQUIRED`）。
+   * 捨てた判断は後から必ず問われるうえ、「なぜ捨てたか」は
+   * `before` と `after` の差からは読めない。理由の欄にしか残らない。
+   */
+  | "affiliate_link.rejected"
   | "connector.connected"
   | "connector.disconnected"
   | "member.role_changed"
@@ -74,7 +84,35 @@ export type AuditAction =
    * 「いつ止めたか」が言えないと事故対応が始められないため。
    */
   | "llm_credential.registered"
-  | "llm_credential.revoked";
+  | "llm_credential.revoked"
+  /**
+   * 改善要望が届いた。
+   *
+   * **本文は記録に入れない。** 要望の本文には、送った人が画面で見ていたものが
+   * そのまま書かれる（取引先の名前・金額・個人名）。記録は後から広く読まれる場所で、
+   * ここに本文を写すと、要望の側で伏せた情報が記録の側から出てくる。
+   * 残すのは「誰が・いつ・どの画面から・どんな種類の要望を出したか」までにする。
+   */
+  | "feedback.submitted"
+  /**
+   * 改善要望の対応状況・扱いが変わった。
+   *
+   * **1 語にまとめている。** 状態を進めることと扱い（対応しない・重複・廃棄）を
+   * 決めることは同じ 1 つの口で行うので（`update-feedback-status.ts`）、
+   * 語を分けると 1 回の操作が 2 行になり、履歴の行数と操作の回数が合わなくなる。
+   * 差は `before` / `after` の状態と扱いに出る。
+   */
+  | "feedback.status_changed"
+  /**
+   * 改善要望を指示文として払い出した。
+   *
+   * **これは中身が外へ出る操作**である。払い出した文面は AI の手元へ渡り、
+   * こちらからは追えなくなる。後から「どの要望が・いつ・どの経路で外へ出たか」を
+   * 言えるようにしておく必要がある。文面そのものではなく指紋
+   * （`promptFingerprint`）を残すのは、同じ文面かどうかだけが判定できればよく、
+   * 中身を記録側へ複製する理由が無いため。
+   */
+  | "feedback.handed_off";
 
 /** 操作した主体。AI かどうかを型で残す。後から「人が承認した」を検証するため。 */
 export type AuditActor = {
@@ -109,6 +147,7 @@ const REASON_REQUIRED: ReadonlySet<AuditAction> = new Set<AuditAction>([
   "disclosure.changed",
   "member.role_changed",
   "conversion.adjusted",
+  "affiliate_link.rejected",
 ]);
 
 /**

@@ -465,8 +465,10 @@ export const AUDIT_ACTION_LABEL: Readonly<Record<AuditAction, string>> = {
   "ranking_model.changed": "評価基準を変えた",
   "disclosure.changed": "広告表記を変えた",
   "policy_rule.changed": "表記のきまりを変えた",
-  "affiliate_link.created": "提携リンクを作った",
-  "affiliate_link.changed": "提携リンクを変えた",
+  // 受信箱の 3 語。読む人が「受け取り → 宛先決め → 対象外」の順で追えるようにする。
+  "affiliate_link.created": "成果リンクを受け取った",
+  "affiliate_link.changed": "成果リンクの宛先を決めた",
+  "affiliate_link.rejected": "成果リンクを対象外にした",
   "connector.connected": "外部サービスにつないだ",
   "connector.disconnected": "外部サービスとの接続を切った",
   "member.role_changed": "担当者の役割を変えた",
@@ -478,6 +480,10 @@ export const AUDIT_ACTION_LABEL: Readonly<Record<AuditAction, string>> = {
   "integration_key.revoked": "取得用の鍵を止めた",
   "site.created": "サイトを作った",
   "conversion.adjusted": "成果の数字を手で直した",
+  // 改善要望の 3 語。「届いた → 扱いを決めた → 外へ出した」の順で追える。
+  "feedback.submitted": "改善要望が届いた",
+  "feedback.status_changed": "改善要望の扱いを変えた",
+  "feedback.handed_off": "改善要望を指示文として払い出した",
 };
 
 export type ListAuditLogInput = { readonly limit?: number };

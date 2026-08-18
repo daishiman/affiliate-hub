@@ -10,6 +10,7 @@ import type { ActorContext } from "@/domain/shared";
 import { UI_COPY } from "@/presentation/ui/copy";
 import { readerActor } from "@/presentation/composition";
 import { SAMPLE_SITE_SLUG } from "@/infrastructure/persistence/sample/site-sample-repository";
+import { recordingAuditLog } from "../support/doubles";
 
 /**
  * 受け入れ条件（要求仕様 §30.1〜§30.8）。
@@ -24,7 +25,22 @@ import { SAMPLE_SITE_SLUG } from "@/infrastructure/persistence/sample/site-sampl
  * 保存先を D1 に差し替えても、このテストは 1 行も変えずに通る。
  */
 
-const catalog = buildToolCatalog(createDeps());
+/*
+ * 記録の置き場だけは差し替える。
+ *
+ * 見本の保存先（`pnpm dev` のときに使う組み合わせ）には操作の記録を置く場所が無く、
+ * 書き足しを断る。断られると、記録を伴う書き込み（URL の受け取りなど）は
+ * **受け入れ条件の中身に入る前に止まる**。
+ *
+ * ここで見たいのは §30.1〜§30.8 の受け入れ条件であって、
+ * 「記録の置き場が無いときにどう断るか」ではない。後者は
+ * `tests/presentation/feedback-actions.test.ts` などが別に見ている。
+ *
+ * **差し替えても本番から遠ざからない。** 本番（D1）の記録は書ける側で、
+ * 断る側は `pnpm dev` のときにしか出てこない。
+ * 同じやり方を `tests/presentation/feedback-tools.test.ts` も採っている。
+ */
+const catalog = buildToolCatalog({ ...createDeps(), auditLog: recordingAuditLog().port });
 
 /** 報酬まわりの操作ができる担当者。編集部の担当者には権限が無い。 */
 const MANAGER: ActorContext = { ...SAMPLE_ACTOR, roles: ["owner"] };

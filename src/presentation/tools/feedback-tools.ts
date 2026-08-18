@@ -133,6 +133,7 @@ function submitFeedbackTool(deps: AppDeps): ToolDefinition<SubmitFeedbackInput, 
       repository: deps.feedback,
       captures: deps.feedbackCaptures,
       ids: deps.ids,
+      auditLog: deps.auditLog,
       now: () => new Date(),
     }),
   };
@@ -189,6 +190,8 @@ export function feedbackTools(deps: AppDeps): readonly AnyToolDefinition[] {
       readOnly: false,
       useCase: createUpdateFeedbackStatusUseCase({
         repository: deps.feedback,
+        ids: deps.ids,
+        auditLog: deps.auditLog,
         now: () => new Date(),
       }),
     }),
@@ -208,6 +211,8 @@ export function feedbackTools(deps: AppDeps): readonly AnyToolDefinition[] {
       useCase: createHandOffFeedbackUseCase({
         repository: deps.feedback,
         templates: deps.handoffTemplates,
+        ids: deps.ids,
+        auditLog: deps.auditLog,
         now: () => new Date(),
       }),
     }),

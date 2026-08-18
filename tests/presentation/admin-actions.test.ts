@@ -52,7 +52,9 @@ const {
 } = await import("@/presentation/admin/content-progress-action");
 const { adjustConversionAction } = await import("@/presentation/admin/adjust-conversion-action");
 const { publishArticleAction } = await import("@/presentation/admin/publish-article-action");
-const { personaUseCases, siteUseCases } = await import("@/presentation/composition");
+const { linkInboxUseCases, personaUseCases, siteUseCases } = await import(
+  "@/presentation/composition"
+);
 
 function form(entries: Record<string, string | readonly string[]>): FormData {
   const data = new FormData();
@@ -102,27 +104,43 @@ describe("受信箱の操作", () => {
     expect(state.message.trim()).not.toBe("");
   });
 
-  it("提携を扱える人なら受け取り、次にすることを返す", async () => {
+  /*
+   * この段（見本の保存先）では、受信箱を進める 4 操作はすべて断られる。
+   * 記録の保存先が無く、`createSampleAuditLog().append` が必ず失敗するため。
+   * 記事の公開・配信予定・鍵の発行も前から同じで、意図どおりである
+   * （残せない記録を「残した」ことにしないため）。
+   *
+   * 通ることを確かめる場所は `tests/integration/d1-link-inbox.test.ts`。
+   * ここで見るのは、**断られても操作そのものは効いていること**と、
+   * それが画面の文面に出ていること。ここを取り違えると、
+   * 押した人は入っていないと思ってもう一度貼り、受信箱に同じ URL が並ぶ。
+   */
+  it("提携を扱える人なら受け取る（記録が残せないことは隠さない）", async () => {
     asAffiliateManager();
-    const state = await submitAffiliateUrlAction(
-      IDLE,
-      form({ url: `https://example.invalid/asp/act-${Date.now()}`, note: "画面から貼り付け" }),
-    );
+    const url = `https://example.invalid/asp/act-${Date.now()}`;
+    const state = await submitAffiliateUrlAction(IDLE, form({ url, note: "画面から貼り付け" }));
 
-    expect(state.status).toBe("done");
-    expect(state.message).toContain("広告主");
-    expect(state.warn).toBe(false);
+    expect(state.status).toBe("failed");
+    expect(state.message).toContain("リンクは受信箱に入っています");
+
+    // 文面のとおり、本当に入っている。入っていなければ断り文の方が嘘になる。
+    const inbox = await (await linkInboxUseCases()).list.execute(SAMPLE_ACTOR, { state: "all" });
+    expect(inbox.ok).toBe(true);
+    if (inbox.ok) expect(inbox.value.items.some((i) => i.submittedUrl === url)).toBe(true);
   });
 
-  it("同じリンクを 2 回入れたときは、成功として返しつつ注意を添える", async () => {
+  it("同じリンクを 2 回入れても、どちらも消さずに受信箱へ残る", async () => {
     asAffiliateManager();
     const url = `https://example.invalid/asp/dup-${Date.now()}`;
     await submitAffiliateUrlAction(IDLE, form({ url }));
-    const again = await submitAffiliateUrlAction(IDLE, form({ url }));
+    await submitAffiliateUrlAction(IDLE, form({ url }));
 
-    // 失敗にすると「入れられなかった」と誤解される。入っているが重なっている。
-    expect(again.status).toBe("done");
-    expect(again.warn).toBe(true);
+    // 2 本目を捨てると、貼った人には「入れられなかった」ように見える。
+    const inbox = await (await linkInboxUseCases()).list.execute(SAMPLE_ACTOR, { state: "all" });
+    expect(inbox.ok).toBe(true);
+    if (inbox.ok) {
+      expect(inbox.value.items.filter((i) => i.submittedUrl === url)).toHaveLength(2);
+    }
   });
 
   it("読めない URL は、どの欄が原因かまで返す", async () => {
@@ -145,14 +163,11 @@ describe("受信箱の操作", () => {
     expect(state.message).toContain("対象外");
   });
 
-  it("広告主を決める・商品に結びつける・対象外にする、の 3 つが通る", async () => {
+  it("知らない指示は、受け取ったリンクがあっても止める", async () => {
     asAffiliateManager();
-    const created = await submitAffiliateUrlAction(
-      IDLE,
-      form({ url: `https://example.invalid/asp/flow-${Date.now()}` }),
-    );
-    expect(created.status).toBe("done");
+    await submitAffiliateUrlAction(IDLE, form({ url: `https://example.invalid/asp/flow-${Date.now()}` }));
 
+    // 入口を 1 つにまとめている以上、知らない指示を素通りさせない。
     const listed = await advanceLinkIngestionAction(IDLE, form({ intent: "unknown" }));
     expect(listed.status).toBe("failed");
   });
@@ -178,28 +193,33 @@ describe("受信箱の操作", () => {
     }
   });
 
-  it("見本の 1 件を、広告主 → 商品 → の順に進められる", async () => {
+  it("3 つの操作は、どれも済んだことを画面に出したうえで断る", async () => {
     asAffiliateManager();
     const resolved = await advanceLinkIngestionAction(
       IDLE,
       form({ linkIngestionId: "li_received_1", intent: "resolve", programId: "prg_rakuten_pc" }),
     );
-    expect(resolved.status).toBe("done");
-    expect(resolved.message).toContain("決めました");
+    expect(resolved.status).toBe("failed");
+    expect(resolved.message).toContain("広告主は決まっています");
 
     const matched = await advanceLinkIngestionAction(
       IDLE,
       form({ linkIngestionId: "li_received_1", intent: "match", productId: "p_alpha_15" }),
     );
-    expect(matched.status).toBe("done");
-    expect(matched.message).toContain("結びつけ");
+    expect(matched.status).toBe("failed");
+    expect(matched.message).toContain("商品との結びつけは済んでいます");
 
     const rejected = await advanceLinkIngestionAction(
       IDLE,
       form({ linkIngestionId: "li_received_2", intent: "reject", reason: "提携が終了しているため。" }),
     );
-    expect(rejected.status).toBe("done");
-    expect(rejected.message).toContain("理由");
+    expect(rejected.status).toBe("failed");
+    expect(rejected.message).toContain("対象外になっています");
+
+    // 3 つとも、次に何をすればよいかまで書いてある（済んだことだけで終えない）。
+    for (const state of [resolved, matched, rejected]) {
+      expect(state.message.trim().split("\n").length).toBeGreaterThan(1);
+    }
   });
 
   it("対象外にする理由が空なら、その欄を指して断る", async () => {

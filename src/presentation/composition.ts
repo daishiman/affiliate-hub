@@ -733,6 +733,8 @@ export async function linkInboxUseCases() {
     programs: deps.affiliatePrograms,
     ids: deps.ids,
     events: deps.events,
+    auditLog: deps.auditLog,
+    now: () => new Date(),
   };
   return {
     list: createListLinkInboxUseCase(inbox),
@@ -860,6 +862,7 @@ export async function feedbackUseCases() {
     repository: deps.feedback,
     captures: deps.feedbackCaptures,
     ids: deps.ids,
+    auditLog: deps.auditLog,
     now: () => new Date(),
   };
   return {
@@ -871,11 +874,15 @@ export async function feedbackUseCases() {
     }),
     updateStatus: createUpdateFeedbackStatusUseCase({
       repository: deps.feedback,
+      ids: deps.ids,
+      auditLog: deps.auditLog,
       now: feedback.now,
     }),
     handOff: createHandOffFeedbackUseCase({
       repository: deps.feedback,
       templates: deps.handoffTemplates,
+      ids: deps.ids,
+      auditLog: deps.auditLog,
       now: feedback.now,
     }),
     keys: createManageIntegrationKeysUseCase({

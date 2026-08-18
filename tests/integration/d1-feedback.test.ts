@@ -96,16 +96,26 @@ const submit = () =>
     repository: deps.feedback,
     captures: deps.feedbackCaptures,
     ids: deps.ids,
+    // 記録も本物の保存先を使う。差し替えると、この段でしか出ない
+    // 「記録は書けるが要望が書けない」ような食い違いを見逃す。
+    auditLog: deps.auditLog,
     now: () => new Date("2026-08-17T03:00:00Z"),
   });
 const list = () => createListFeedbackUseCase({ repository: deps.feedback });
 const read = () => createReadFeedbackUseCase({ repository: deps.feedback, captures: deps.feedbackCaptures });
 const updateStatus = (now = new Date("2026-08-17T04:00:00Z")) =>
-  createUpdateFeedbackStatusUseCase({ repository: deps.feedback, now: () => now });
+  createUpdateFeedbackStatusUseCase({
+    repository: deps.feedback,
+    ids: deps.ids,
+    auditLog: deps.auditLog,
+    now: () => now,
+  });
 const handOff = (now = new Date("2026-08-17T05:00:00Z")) =>
   createHandOffFeedbackUseCase({
     repository: deps.feedback,
     templates: deps.handoffTemplates,
+    ids: deps.ids,
+    auditLog: deps.auditLog,
     now: () => now,
   });
 const keys = (now = new Date("2026-08-17T06:00:00Z")) =>

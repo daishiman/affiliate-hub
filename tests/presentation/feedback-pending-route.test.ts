@@ -24,6 +24,38 @@ vi.mock("@opennextjs/cloudflare", () => ({
   getCloudflareContext: async () => ({ env: {} }),
 }));
 
+/**
+ * 操作の記録を残せる置き場に差し替える。
+ *
+ * 取りに来る操作は「渡した」という**中身が外へ出る書き込み**なので、
+ * 誰がどの鍵で持ち帰ったかを残せないときは払い出さない（502 で断る）。
+ * 見本の置き場（`pnpm dev` のときの組み合わせ）は保存先が無く書き足しを断るため、
+ * そのままだと**手前の判定を見る前に全部 502 になる**。
+ *
+ * ここで見たいのは鍵の判定と払い出しの中身なので、既定は「残せる」に倒す。
+ * 残せないときに断ること自体は `auditWritable = false` の 1 件と、
+ * `tests/presentation/feedback-actions.test.ts` が見ている。
+ */
+let auditWritable = true;
+vi.mock("@/infrastructure/persistence/sample/settings-sample-repository", async (importOriginal) => {
+  const actual = await importOriginal<Record<string, unknown>>();
+  /*
+   * 置き場はここに直接書く（`tests/support/doubles.ts` は使わない）。
+   * 差し替えの中から別の試験用ファイルを読みに行くと、
+   * そのファイルが辿る先にこの差し替え自身が入って読み込みが止まる。
+   */
+  const writable = {
+    append: async (entry: { id: unknown }) => ({ ok: true as const, value: entry.id }),
+    listByTarget: async () => ({ ok: true as const, value: [] }),
+    search: async () => ({ ok: true as const, value: { items: [], nextCursor: null } }),
+  };
+  return {
+    ...actual,
+    createSampleAuditLog: () =>
+      auditWritable ? writable : (actual.createSampleAuditLog as () => unknown)(),
+  };
+});
+
 const route = await import("@/app/api/feedback/pending/route");
 const { issueIntegrationKey } = await import("@/domain/feedback");
 const { asIntegrationKeyId, asWorkspaceId } = await import("@/domain/shared");
@@ -70,6 +102,7 @@ function withKey(plainValue: string): Record<string, string> {
 describe("取りに来る経路の手前の判定", () => {
   beforeEach(() => {
     clearFeedbackStore();
+    auditWritable = true;
   });
 
   it("鍵が無ければ 401 で、付け方を伝える", async () => {
@@ -129,6 +162,17 @@ describe("取りに来る経路の手前の判定", () => {
 describe("取りに来た結果", () => {
   beforeEach(() => {
     clearFeedbackStore();
+    auditWritable = true;
+  });
+
+  it("誰が持ち帰ったかを残せないときは払い出さない", async () => {
+    const plain = "reader-plain-value-for-tests-00000006";
+    await seedKey({ id: "ik_reader_6", plainValue: plain, scopes: ["read"] });
+    auditWritable = false;
+
+    const res = await route.GET(get(withKey(plain)));
+    // 中身が外へ出る操作なので、記録が残せないなら渡さない。
+    expect(res.status).toBe(502);
   });
 
   it("未対応でまだ渡していないものを指示文つきで返す", async () => {

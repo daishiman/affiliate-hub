@@ -89,6 +89,10 @@ beforeAll(async () => {
     programs: all.affiliatePrograms,
     ids: all.ids,
     events: all.events,
+    // 記録も本物の保存先を使う。差し替えると、この段でしか出ない
+    // 「記録は書けるが受信箱が書けない」ような食い違いを見逃す。
+    auditLog: all.auditLog,
+    now: () => new Date(),
   };
 }, 60_000);
 

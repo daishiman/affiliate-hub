@@ -21,7 +21,20 @@ import { SAMPLE_ACTOR } from "@/infrastructure/identity/sample-actor";
  * --- 差し替えているもの ---
  *   1. `next/cache` … 画面の作り直しは要求の中でしか呼べない
  *   2. ログイン情報 … 権限で断られる側も見たい
+ *   3. 操作の記録の置き場 … 既定は**書ける**側にする（下記）
  * 判断そのもの（状態の遷移・理由の要否）は本物を通す。
+ *
+ * --- なぜ記録の置き場を差し替えるのか ---
+ *
+ * 見本の組み合わせ（`pnpm dev` と同じもの）は記録の置き場を持たず、
+ * 書き足しを断る。要望を送る・扱いを変える・払い出すのどれも
+ * 記録を伴うようになったので、そのままだと**押した結果が全部「断り」**になり、
+ * この画面で見たいこと（礼を返すか・状態が進むか・回数が増えるか）へ届かない。
+ *
+ * ただし「記録が残せないときに断る」ことも、この画面でしか見られない。
+ * そこで `auditWritable` で向きを切り替えられるようにし、
+ * **既定は書ける側**、断りを見たいところだけ書けない側にする。
+ * 断りの検査を消していないことは「取りに来るときの鍵」の項で確かめられる。
  */
 
 vi.mock("next/cache", () => ({
@@ -33,6 +46,31 @@ let signedIn: ActorContext = SAMPLE_ACTOR;
 vi.mock("@/infrastructure/identity/sample-actor", async (importOriginal) => {
   const actual = await importOriginal<Record<string, unknown>>();
   return { ...actual, getCurrentActor: async () => signedIn };
+});
+
+/** 記録を残せる状態かどうか。`beforeEach` で毎回「残せる」へ戻す。 */
+let auditWritable = true;
+vi.mock("@/infrastructure/persistence/sample/settings-sample-repository", async (importOriginal) => {
+  const actual = await importOriginal<Record<string, unknown>>();
+  /*
+   * 置き場はここに直接書く（`tests/support/doubles.ts` は使わない）。
+   * 差し替えの中から別の試験用ファイルを読みに行くと、
+   * そのファイルが辿る先にこの差し替え自身が入って読み込みが止まる。
+   */
+  const written: unknown[] = [];
+  const writable = {
+    append: async (entry: { id: unknown }) => {
+      written.push(entry);
+      return { ok: true as const, value: entry.id };
+    },
+    listByTarget: async () => ({ ok: true as const, value: [] }),
+    search: async () => ({ ok: true as const, value: { items: [], nextCursor: null } }),
+  };
+  return {
+    ...actual,
+    createSampleAuditLog: () =>
+      auditWritable ? writable : (actual.createSampleAuditLog as () => unknown)(),
+  };
 });
 
 const {
@@ -72,6 +110,7 @@ async function read(id: string) {
 beforeEach(() => {
   clearFeedbackStore();
   signedIn = { ...SAMPLE_ACTOR, roles: ["owner"] };
+  auditWritable = true;
 });
 
 /** 送る側から来る 1 件分。画像だけを差し替えたい試験があるので関数にしてある。 */
@@ -317,15 +356,16 @@ describe("まとめて渡す", () => {
 
 describe("取りに来るときの鍵", () => {
   /**
-   * ここは D1 につながっていない状態で動かしている（見本の保存先）。
-   * つまり**誰が鍵を出したかを残せない**。鍵は外から中身を取りに来る入口なので、
-   * 記録が残らないまま渡すと、漏れたときにどこまで疑えばよいかが決められない。
+   * ここだけ**記録を残せない側**へ倒して動かす（`auditWritable = false`）。
+   * 鍵は外から中身を取りに来る入口なので、記録が残らないまま渡すと、
+   * 漏れたときにどこまで疑えばよいかが決められない。
    *
    * 値が一度だけ返ることや、道具の口を通しても同じであることは、
    * 記録を残せる組み合わせで `tests/application/feedback.test.ts` と
    * `tests/presentation/feedback-tools.test.ts` が見ている。
    */
   it("誰が出したかを残せないときは、鍵を渡さない", async () => {
+    auditWritable = false;
     const state = await manageIntegrationAccessAction(
       INITIAL_INTEGRATION_ACCESS_STATE,
       form({ intent: "issue", label: "手元の Claude Code", scopes: "read" }),
@@ -365,6 +405,7 @@ describe("取りに来るときの鍵", () => {
   });
 
   it("失効も、誰が止めたかを残せないときは実行しない", async () => {
+    auditWritable = false;
     // 発行そのものが断られるので、鍵は 1 つも作られていない。
     // それでも「知らない鍵」ではなく、記録の話で断ることを見る。
     const { createDeps } = await import("@/infrastructure/composition");

@@ -1,5 +1,7 @@
 import type { FeedbackCaptureStoragePort, FeedbackRepositoryPort } from "@/application/ports/feedback";
 import type { IdGeneratorPort } from "@/application/ports/common";
+import type { AuditLogPort } from "@/application/ports/compliance";
+import { auditWriteFailure, buildAuditEntry } from "@/application/audit";
 import {
   type CaptureSubmission,
   type FeedbackKind,
@@ -18,6 +20,7 @@ import {
   asFeedbackReportId,
   asSiteId,
   asUserId,
+  err,
   ok,
 } from "@/domain/shared";
 import type { UseCase } from "../usecase";
@@ -33,6 +36,13 @@ export type SubmitFeedbackDeps = {
   readonly repository: FeedbackRepositoryPort;
   readonly captures: FeedbackCaptureStoragePort;
   readonly ids: IdGeneratorPort;
+  /**
+   * 誰がこの要望を出したかの記録。
+   *
+   * 画像と扱いが違う。**画像は付属物なので、落ちても要望は残して先へ進む。**
+   * 記録は誰が出したかそのものなので、残せなかったら成功として返さない。
+   */
+  readonly auditLog: AuditLogPort;
   readonly now: () => Date;
 };
 
@@ -111,6 +121,32 @@ export function createSubmitFeedbackUseCase(
 
       const saved = await deps.repository.save(actor.workspaceId, created.value);
       if (!saved.ok) return saved;
+
+      /*
+       * **本文と要望文は記録に入れない。** 要望には、送った人がその画面で
+       * 見ていたものがそのまま書かれる（取引先の名前・金額・個人名）。
+       * 記録は後から広く読まれるので、ここへ写すと要望の側の扱いが意味を失う。
+       * 残すのは種類・出どころ・画像の有無までにする。
+       */
+      const entry = buildAuditEntry({ ids: deps.ids, now: deps.now }, actor, {
+        action: "feedback.submitted",
+        targetType: "feedback_report",
+        targetId: String(reportId),
+        after: {
+          kind: input.kind,
+          screenName: input.origin.screenName,
+          route: input.origin.route,
+          captureStored: captureId !== null,
+          // 画像を付けようとして落ちたことも残す。後から
+          // 「画像が無い要望」を見たときに、付けなかったのか落ちたのかを分けられる。
+          captureFailed: captureIssue !== null,
+        },
+      });
+      if (!entry.ok) return entry;
+      const appended = await deps.auditLog.append(entry.value);
+      if (!appended.ok) {
+        return err(auditWriteFailure("要望は届いていて、消えていません", appended.error.details));
+      }
 
       return ok({
         reportId: String(reportId),

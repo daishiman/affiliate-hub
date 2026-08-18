@@ -22,17 +22,18 @@ import { recordingAuditLog } from "../support/doubles";
  *   4. 発行した鍵の平文が、返り値の 1 回きりで、一覧には出ないこと
  */
 
-const catalog = buildToolCatalog(createDeps());
-
 /*
- * 鍵の発行だけは、**操作の記録を残せる**組み合わせで確かめる。
- * 見本の記録は書き足しを断る（保存先が無い）ので、
- * そのままでは「記録が残せないので鍵を渡さない」で止まり、
- * 道具の口を通したときの平文の扱いまで届かない。
+ * **操作の記録を残せる**組み合わせで確かめる。
+ * 見本の記録は書き足しを断る（保存先が無い）ので、そのままでは
+ * 「記録が残せないので断る」で止まり、ここで見たい中身まで届かない。
  * 記録を残せないときに断ること自体は、画面側
  * （`tests/presentation/feedback-actions.test.ts`）が見ている。
+ *
+ * 最初は鍵の発行だけをこの組み合わせにしていたが、送る・扱いを変える・
+ * 払い出すにも記録が要るようになったので、全部をこちらへ寄せた。
+ * 2 つ持つと「どちらで書くか」を毎回選ぶことになり、選び間違いに気づけない。
  */
-const recordableCatalog = buildToolCatalog({
+const catalog = buildToolCatalog({
   ...createDeps(),
   auditLog: recordingAuditLog().port,
 });
@@ -177,7 +178,7 @@ describe("送る", () => {
 
 describe("取りに来るときの鍵", () => {
   it("発行の応答にだけ平文があり、一覧には出ない", async () => {
-    const keys = findTool(recordableCatalog, "manage_integration_keys")!;
+    const keys = findTool(catalog, "manage_integration_keys")!;
 
     const issued = await invokeTool(keys, ADMIN, {
       action: "issue",

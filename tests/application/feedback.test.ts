@@ -100,11 +100,16 @@ function goodCapture(over: Partial<{ redactionsBurnedIn: boolean; retainsOrigina
 
 let deps: AppDeps;
 
-function submitUseCase(ids = seqIds("fb"), at: Date = AT) {
+function submitUseCase(
+  ids = seqIds("fb"),
+  at: Date = AT,
+  auditLog: AuditLogPort = recordingAuditLog().port,
+) {
   return createSubmitFeedbackUseCase({
     repository: deps.feedback,
     captures: deps.feedbackCaptures,
     ids,
+    auditLog,
     now: () => at,
   });
 }
@@ -112,12 +117,19 @@ function submitUseCase(ids = seqIds("fb"), at: Date = AT) {
 const listUseCase = () => createListFeedbackUseCase({ repository: deps.feedback });
 const readUseCase = () =>
   createReadFeedbackUseCase({ repository: deps.feedback, captures: deps.feedbackCaptures });
-const statusUseCase = () =>
-  createUpdateFeedbackStatusUseCase({ repository: deps.feedback, now: () => AT });
-const handoffUseCase = () =>
+const statusUseCase = (auditLog: AuditLogPort = recordingAuditLog().port) =>
+  createUpdateFeedbackStatusUseCase({
+    repository: deps.feedback,
+    ids: seqIds("al"),
+    auditLog,
+    now: () => AT,
+  });
+const handoffUseCase = (auditLog: AuditLogPort = recordingAuditLog().port) =>
   createHandOffFeedbackUseCase({
     repository: deps.feedback,
     templates: deps.handoffTemplates,
+    ids: seqIds("al"),
+    auditLog,
     now: () => AT,
   });
 
@@ -490,6 +502,114 @@ describe("払い出し", () => {
   it("見ることができない人は払い出せない", async () => {
     const handed = await handoffUseCase().execute(aNobody(), {
       ids: ["fb-1"],
+      route: "copied_by_human",
+    });
+    expect(handed.ok).toBe(false);
+  });
+});
+
+describe("誰が進めたかの記録", () => {
+  it("送ると、種類と出どころは残るが、本文は残らない", async () => {
+    const audit = recordingAuditLog();
+    const body = "取引先の A 社の見積が 1,200,000 円で表示されません。";
+
+    const sent = await submitUseCase(seqIds("fb-rec"), AT, audit.port).execute(anOwner(), {
+      kind: "not_working",
+      body,
+      origin: origin("/admin/conversions", "成果の一覧"),
+      technical: technical(),
+    });
+    expect(sent.ok).toBe(true);
+
+    expect(audit.actions()).toEqual(["feedback.submitted"]);
+    const after = audit.entries()[0]?.after as Record<string, unknown>;
+    expect(after.kind).toBe("not_working");
+    expect(after.route).toBe("/admin/conversions");
+    /*
+     * **本文が記録側へ写っていないこと。** 要望の本文には、送った人が
+     * その画面で見ていたものがそのまま書かれる（ここでは取引先名と金額）。
+     * 記録は後から広く読まれるので、写すと要望側の扱いが意味を失う。
+     */
+    expect(JSON.stringify(audit.entries())).not.toContain("A 社");
+    expect(JSON.stringify(audit.entries())).not.toContain("1,200,000");
+  });
+
+  it("扱いを変えると、変える前の状態と理由が 1 行で残る", async () => {
+    const audit = recordingAuditLog();
+    const id = await submitOne("後回しにしてよい要望です。");
+
+    const updated = await statusUseCase(audit.port).execute(anOwner(), {
+      id,
+      status: "in_progress",
+      disposition: { kind: "will_not_fix", reason: "別の画面で代用できるため" },
+    });
+    expect(updated.ok).toBe(true);
+
+    // 状態と扱いを同時に変えても **1 行**。行数と押した回数を一致させる。
+    expect(audit.actions()).toEqual(["feedback.status_changed"]);
+    const entry = audit.entries()[0]!;
+    expect((entry.before as Record<string, unknown>).status).toBe("open");
+    expect((entry.before as Record<string, unknown>).disposition).toBeNull();
+    expect((entry.after as Record<string, unknown>).disposition).toBe("will_not_fix");
+    expect(entry.reason).toBe("別の画面で代用できるため");
+  });
+
+  it("払い出すと、経路と指紋は残るが、文面そのものは残らない", async () => {
+    const audit = recordingAuditLog();
+    const id = await submitOne("払い出しの記録を見るための要望です。");
+
+    const handed = await handoffUseCase(audit.port).execute(anOwner(), {
+      ids: [id],
+      route: "copied_by_human",
+    });
+    expect(handed.ok).toBe(true);
+    if (!handed.ok) return;
+
+    expect(audit.actions()).toEqual(["feedback.handed_off"]);
+    const after = audit.entries()[0]?.after as Record<string, unknown>;
+    expect(after.route).toBe("copied_by_human");
+    expect(after.promptFingerprint).toBe(handed.value.prompts[0]?.fingerprint);
+    // 同じ文面かどうかは指紋で判る。中身を記録側へ複製する理由が無い。
+    expect(JSON.stringify(audit.entries())).not.toContain("払い出しの記録を見るための要望です。");
+  });
+
+  it("下読み（previewOnly）は、渡した扱いにならないので記録も積まない", async () => {
+    const audit = recordingAuditLog();
+    const id = await submitOne("下読みだけする要望です。");
+
+    const handed = await handoffUseCase(audit.port).execute(anOwner(), {
+      ids: [id],
+      route: "copied_by_human",
+      previewOnly: true,
+    });
+    expect(handed.ok).toBe(true);
+    // 見ただけで「渡した」が積まれると、渡した回数が実態より増える。
+    expect(audit.actions()).toEqual([]);
+  });
+
+  it("記録を残せないときは、どれも成功として返さない", async () => {
+    const broken: AuditLogPort = {
+      append: async () => failing<never>("記録の保存先に届きません"),
+      listByTarget: async () => failing<never>("記録の保存先に届きません"),
+      search: async () => failing<never>("記録の保存先に届きません"),
+    };
+    const id = await submitOne("記録が落ちる場合を見るための要望です。");
+
+    const sent = await submitUseCase(seqIds("fb-ng"), AT, broken).execute(anOwner(), {
+      kind: "hard_to_use",
+      body: "記録が落ちる場合の送信です。",
+      origin: origin(),
+      technical: technical(),
+    });
+    expect(sent.ok).toBe(false);
+    // 断り文は「済んだこと」を隠さない。隠すと、届いているのにもう一度送られる。
+    if (!sent.ok) expect(sent.error.message).toContain("要望は届いていて");
+
+    const updated = await statusUseCase(broken).execute(anOwner(), { id, status: "in_progress" });
+    expect(updated.ok).toBe(false);
+
+    const handed = await handoffUseCase(broken).execute(anOwner(), {
+      ids: [id],
       route: "copied_by_human",
     });
     expect(handed.ok).toBe(false);

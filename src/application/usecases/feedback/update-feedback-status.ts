@@ -1,4 +1,7 @@
 import type { FeedbackRepositoryPort } from "@/application/ports/feedback";
+import type { IdGeneratorPort } from "@/application/ports/common";
+import type { AuditLogPort } from "@/application/ports/compliance";
+import { auditWriteFailure, buildAuditEntry } from "@/application/audit";
 import {
   type FeedbackDisposition,
   type FeedbackStatus,
@@ -32,6 +35,16 @@ import type { UseCase } from "../usecase";
  */
 export type UpdateFeedbackStatusDeps = {
   readonly repository: FeedbackRepositoryPort;
+  readonly ids: IdGeneratorPort;
+  /**
+   * 誰が扱いを決めたかの記録。
+   *
+   * 要望そのものにも履歴（`appendHistory`）が 1 行積まれるが、**別物**である。
+   * 履歴は要望と一緒に消える・書き換わりうるものを、要望を読む人に見せるためのもの。
+   * 記録は追記しかできない側に残り、要望が消えても残る。
+   * 「対応しない」と決めた判断は、要望が片付いた後にこそ問われる。
+   */
+  readonly auditLog: AuditLogPort;
   readonly now: () => Date;
 };
 
@@ -76,6 +89,12 @@ export function createUpdateFeedbackStatusUseCase(
       if (found.value === null) return err(notFound("改善要望", input.id));
 
       const at = deps.now();
+      // 変える前の姿をここで控える。下で `report` を差し替えていくので、
+      // 保存の後に取ろうとすると、もう変わった後のものしか無い。
+      const before = {
+        status: found.value.status,
+        disposition: found.value.disposition === null ? null : found.value.disposition.kind,
+      };
       let report = found.value;
 
       if (input.status !== undefined) {
@@ -132,6 +151,30 @@ export function createUpdateFeedbackStatusUseCase(
 
       const saved = await deps.repository.save(actor.workspaceId, report);
       if (!saved.ok) return saved;
+
+      /*
+       * 状態と扱いを 1 行にまとめて残す。**1 回の操作は 1 行**にしておかないと、
+       * 記録の行数と、実際に人が押した回数が合わなくなる。
+       *
+       * 理由は扱いを決めたときのものを優先する。状態変更のメモより、
+       * 「なぜ対応しないと決めたか」のほうが後から問われる。
+       */
+      const entry = buildAuditEntry({ ids: deps.ids, now: deps.now }, actor, {
+        action: "feedback.status_changed",
+        targetType: "feedback_report",
+        targetId: String(report.id),
+        before,
+        after: {
+          status: report.status,
+          disposition: report.disposition === null ? null : report.disposition.kind,
+        },
+        reason: input.disposition?.reason ?? input.note ?? null,
+      });
+      if (!entry.ok) return entry;
+      const appended = await deps.auditLog.append(entry.value);
+      if (!appended.ok) {
+        return err(auditWriteFailure("扱いの変更は保存されています", appended.error.details));
+      }
 
       return ok({
         id: String(report.id),
