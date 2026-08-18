@@ -1,4 +1,16 @@
-/** @tier 1 */
+/**
+ * @tier 1
+ * @req REQ-G11
+ * @types equivalence, boundary, fault-injection, idempotency, prompt-injection
+ *
+ * 生成の実行（REQ-G11）の分かれ目は、ここと
+ * `tests/infrastructure/llm-providers.test.ts` の 2 つに分かれている。
+ *
+ *   ここ            呼ぶ前に止まる条件（そろっていない・保留の資料・上限超え・
+ *                   モデル未選択）と、受け取らない返答（打ち切り・形違い）、
+ *                   および**同じ入力からは同じ依頼が出て行く**こと
+ *   llm-providers   提供元 4 社の側（鍵の扱い・指示と資料の分離・偽の応答）
+ */
 import { describe, expect, it } from "vitest";
 import {
   type DraftContentVariantInput,
@@ -176,6 +188,51 @@ describe("受け取り方", () => {
     // 画面と道具の両方が同じ一覧を出せるよう、結果に含める。
     expect(result.value.notForVerdict).toContain("factuality_score");
     expect(result.value.instructionBlocks).toHaveLength(7);
+  });
+});
+
+describe("もう一度渡しても、外へ出て行くものは同じ", () => {
+  const material = {
+    label: "取り込んだページ",
+    sourceUrl: "https://example.com/a",
+    text: "この機種は軽い。",
+  };
+
+  it("同じ入力からは、字面まで同じ依頼が組み上がる", async () => {
+    // ここが揺れると、同じ素材から違う記事が出る。しかも**違いの理由が残らない**。
+    // 呼ぶたびに時刻や並び順が混ざる書き方（Date.now・Map の走査順・乱数）を
+    // 指示文へ入れた瞬間に、この検査が落ちる。
+    const input = { provided: sampleGenerationInput(), materials: [material] };
+    const first = spyLlm(validOutput());
+    const second = spyLlm(validOutput());
+
+    await run(input, first.llm);
+    await run(input, second.llm);
+
+    expect(first.calls).toHaveLength(1);
+    expect(second.calls).toEqual(first.calls);
+  });
+
+  it("見積りに渡した依頼と、実際に送った依頼が同じ", async () => {
+    // 別物なら、見積りは**送っていない依頼の値段**になる。
+    // 上限との比較も、記録に残る金額も、そこで意味を失う。
+    const estimated: LlmRequest[] = [];
+    const spyCosts: LlmCostEstimatorPort = {
+      async estimate(request) {
+        estimated.push(request);
+        return ok({ estimatedCostMinor: 30, currency: "JPY" });
+      },
+    };
+    const { llm, calls } = spyLlm(validOutput());
+    const result = await createDraftContentVariantUseCase({ llm, costs: spyCosts }).execute(actor, {
+      model: MODEL,
+      provided: sampleGenerationInput(),
+      materials: [material],
+    });
+
+    expect(result.ok).toBe(true);
+    expect(estimated).toHaveLength(1);
+    expect(estimated[0]).toEqual(calls[0]);
   });
 });
 

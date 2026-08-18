@@ -55,7 +55,7 @@
 | `tests/application/article-tracking.test.ts` | REQ-E13, REQ-P09 | 印 |
 | `tests/application/build-site.test.ts` | REQ-A05, REQ-P07, REQ-S06 | 印と表 |
 | `tests/application/dashboard.test.ts` | REQ-S01 | 表 |
-| `tests/application/draft-content-variant.test.ts` | REQ-G11 | 表 |
+| `tests/application/draft-content-variant.test.ts` | REQ-G11 | 印と表 |
 | `tests/application/feedback.test.ts` | REQ-FB07, REQ-FB09 | 表 |
 | `tests/application/filter-metrics.test.ts` | REQ-P10, REQ-S08 | 印と表 |
 | `tests/application/generation-matrix.test.ts` | REQ-A04, REQ-P06, REQ-S05 | 印と表 |
@@ -86,9 +86,9 @@
 | `tests/domain/boundaries-platform.test.ts` | REQ-P04, REQ-P08, REQ-SEC03, REQ-TS08 | 印と表 |
 | `tests/domain/boundaries.test.ts` | REQ-P09, REQ-P10, REQ-TS08 | 印と表 |
 | `tests/domain/brand-and-disclosure.test.ts` | REQ-SEC06 | 印 |
-| `tests/domain/domain-events.test.ts` | REQ-EV01 | 表 |
+| `tests/domain/domain-events.test.ts` | REQ-EV01, REQ-EV02, REQ-EV03, REQ-EV04, REQ-EV05, REQ-EV06, REQ-EV07, REQ-EV08, REQ-EV09, REQ-EV10, REQ-EV11, REQ-EV12, REQ-EV13, REQ-EV14, REQ-EV15, REQ-EV16 | 印と表 |
 | `tests/domain/feedback.test.ts` | REQ-FB03, REQ-FB12 | 表 |
-| `tests/domain/generation-plan.test.ts` | REQ-A04, REQ-G01, REQ-P06, REQ-SEC05 | 印と表 |
+| `tests/domain/generation-plan.test.ts` | REQ-A04, REQ-G01, REQ-G02, REQ-G03, REQ-G04, REQ-G05, REQ-G06, REQ-G07, REQ-G08, REQ-P06, REQ-SEC05 | 印と表 |
 | `tests/domain/handoff-prompt.test.ts` | REQ-FB11 | 表 |
 | `tests/domain/improvement.test.ts` | REQ-IM01, REQ-IM06, REQ-IM07, REQ-IM08, REQ-IM09, REQ-IM10, REQ-IM11, REQ-IM12 | 表 |
 | `tests/domain/invariants.test.ts` | REQ-SEC07, REQ-W08 | 表 |
@@ -103,7 +103,7 @@
 | `tests/domain/site-routes.test.ts` | REQ-B01, REQ-B02, REQ-B03, REQ-B04, REQ-B05, REQ-B06, REQ-B07, REQ-B08, REQ-B09, REQ-B10, REQ-B11, REQ-B13, REQ-B14, REQ-B15, REQ-B16, REQ-B17, REQ-B18, REQ-TM10 | 表 |
 | `tests/domain/telemetry.test.ts` | REQ-TM02, REQ-TM03, REQ-TM04, REQ-TM07, REQ-TM08, REQ-TM09 | 表 |
 | `tests/domain/writing-rules.test.ts` | REQ-W01, REQ-W09, REQ-W10 | 表 |
-| `tests/evals/generation-eval-set.test.ts` | REQ-CI13, REQ-G09 | 表 |
+| `tests/evals/generation-eval-set.test.ts` | REQ-CI13, REQ-G09, REQ-G10 | 印と表 |
 | `tests/infrastructure/anthropic-llm.test.ts` | REQ-SEC01, REQ-SEC05 | 印 |
 | `tests/infrastructure/better-auth-gate.test.ts` | REQ-S10 | 印 |
 | `tests/infrastructure/channel-connector.test.ts` | REQ-P08 | 表 |
@@ -132,7 +132,7 @@
 | `tests/presentation/admin-routes.test.ts` | REQ-P09, REQ-S02, REQ-S03, REQ-S10 | 表 |
 | `tests/presentation/api-scope-actor.test.ts` | REQ-API02, REQ-FB13 | 印 |
 | `tests/presentation/composition.test.ts` | REQ-FD04, REQ-S09 | 表 |
-| `tests/presentation/entry-points.test.ts` | REQ-API01, REQ-WC07 | 表 |
+| `tests/presentation/entry-points.test.ts` | REQ-API01, REQ-WC07 | 印と表 |
 | `tests/presentation/feedback-actions.test.ts` | REQ-FB08, REQ-FB12 | 表 |
 | `tests/presentation/feedback-capture-route.test.ts` | REQ-FB13 | 印と表 |
 | `tests/presentation/feedback-pending-route.test.ts` | REQ-FB09 | 表 |
@@ -140,7 +140,7 @@
 | `tests/presentation/llm-credential-actions.test.ts` | REQ-SEC01 | 印 |
 | `tests/presentation/llm-credential-entry.test.ts` | REQ-SEC01 | 印 |
 | `tests/presentation/nav-permissions.test.ts` | REQ-FB02, REQ-FB07 | 表 |
-| `tests/presentation/one-usecase-three-adapters.test.ts` | REQ-FD04 | 表 |
+| `tests/presentation/one-usecase-three-adapters.test.ts` | REQ-API01, REQ-FD04 | 印と表 |
 | `tests/presentation/tool-catalog-adapters.test.ts` | REQ-TS04 | 表 |
 | `tests/presentation/webmcp-policy.test.ts` | REQ-WC03, REQ-WC06 | 表 |
 | `tests/property/normalization.property.test.ts` | REQ-P02, REQ-P03, REQ-TH01, REQ-TH03 | 印と表 |

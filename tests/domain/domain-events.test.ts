@@ -1,4 +1,23 @@
-/** @tier 1 */
+/**
+ * @tier 1
+ * @req REQ-EV01, REQ-EV02, REQ-EV03, REQ-EV04, REQ-EV05, REQ-EV06, REQ-EV07, REQ-EV08
+ * @req REQ-EV09, REQ-EV10, REQ-EV11, REQ-EV12, REQ-EV13, REQ-EV14, REQ-EV15, REQ-EV16
+ * @types equivalence, boundary
+ *
+ * 16 件の出来事（REQ-EV01〜REQ-EV16）の分かれ目は、ここにある。
+ *
+ * 出来事は「受け手が必ず使う項目」を約束する連絡である。約束が守られる分かれ目は
+ * **そろった形と、そのすぐ隣（必須のうち 1 つだけ欠けた形）**の 2 つで、
+ * 下の「16 件のどれも、必須項目を 1 つ落とすだけで断られる」が 16 件すべてに当てている。
+ *
+ * まだどこからも出していない 9 件（`product.enriched` など）も同じ検査を通る。
+ * 出す側が未実装であることと、約束の形が決まっていることは別だからである。
+ * 出していないこと自体は台帳（`docs/product/event-ledger.md`）が数で持つ。
+ *
+ * 出す場所の側（どの状態変化で出るか）は、出す側の要件が持つ。
+ * 例: `affiliate_url.submitted` の出どころは REQ-P01 の受信箱で、
+ * その状態遷移は `tests/domain/link-ingestion.test.ts`「受信箱の 4 状態」にある。
+ */
 import { readFileSync, readdirSync, statSync, writeFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { describe, expect, it } from "vitest";
@@ -131,6 +150,31 @@ describe("文脈をまたぐ連絡（イベント）", () => {
     if (!result.ok) {
       expect(result.error.code).toBe("VALIDATION_FAILED");
       expect(result.error.suggestedAction).toContain("approvedBy");
+    }
+  });
+
+  it("16 件のどれも、必須項目を 1 つ落とすだけで断られる", () => {
+    // 1 件だけ試して済ませない。上の検査は content_variant.approved しか通らず、
+    // 残り 15 件は「必須項目を書いたが見ていない」まま緑になれてしまう。
+    // ここで見るのは**そろった状態のすぐ隣**（必須のうち 1 つだけ欠けた形）で、
+    // 通ってしまうならその 1 項目は名前だけの必須である。
+    const at = new Date("2026-08-17T00:00:00Z");
+    for (const name of DOMAIN_EVENT_NAMES) {
+      const keys = DOMAIN_EVENTS[name].requiredKeys;
+      const full = Object.fromEntries(keys.map((k) => [k, "値"]));
+      expect(buildEvent(name, "ws_1", at, full).ok, `${name} はそろえても組み立てられません`).toBe(
+        true,
+      );
+      for (const dropped of keys) {
+        const short = Object.fromEntries(keys.filter((k) => k !== dropped).map((k) => [k, "値"]));
+        const result = buildEvent(name, "ws_1", at, short);
+        expect(result.ok, `${name} から ${dropped} を落としても通ってしまいます`).toBe(false);
+        if (result.ok) continue;
+        expect(
+          result.error.suggestedAction,
+          `${name}: 落とした ${dropped} の名前が返りません`,
+        ).toContain(dropped);
+      }
     }
   });
 

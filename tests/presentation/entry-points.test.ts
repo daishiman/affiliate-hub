@@ -1,4 +1,13 @@
-/** @tier 1 */
+/**
+ * @tier 1
+ * @req REQ-API01
+ * @types permission-matrix
+ *
+ * 入口の群（REQ-API01）の分かれ目は「誰に何を許すか」で、
+ * 下の 入口 3 種 × 操作 の総当たりがそれである。
+ * 各ツールの入力の分かれ目は、そのツールの要件の側が持つ（入口は形を配るだけ）。
+ * 他の作業場所を覗けないことは `one-usecase-three-adapters.test.ts` が見ている。
+ */
 import { existsSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { describe, expect, it } from "vitest";

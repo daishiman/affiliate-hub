@@ -256,9 +256,23 @@ export const REQUIRED_TEST_TYPES = {
  * 経緯と、性質を 2 つ取り下げた理由は
  * `docs/product/required-test-types.md` §4 に書いた。
  *
+ * → **168**（宣言済 73）。生成基盤・入口・出来事の 28 件
+ * （`REQ-G01`〜`REQ-G11` / `REQ-API01` / `REQ-EV01`〜`REQ-EV16`）を宣言した（`ah-29w`）。
+ * 印を付けるために**検査を 3 つ足している**。足さずに済ませると、
+ * 次の 3 つがどれも「1 件だけ試して 16 件ぶん緑」になっていた。
+ *
+ *   1. 出来事 16 件の必須項目 … それまで 1 件（`content_variant.approved`）しか
+ *      落として試していなかった。16 件すべてで、必須のうち 1 つだけ欠けた形を試す
+ *   2. ローンチ基準の門 … `canActivatePromptVersion()` が `false` を返すことしか
+ *      見ておらず、**常に false を返す関数でも通った**。開く側も見る
+ *   3. 生成の依頼の同一性 … 同じ入力から同じ依頼が出て行くことを誰も見ていなかった
+ *
+ * 性質の当て方は `docs/product/required-test-types.md` §4 に 1 件ずつ書いた。
+ * 理由つき除外は 1 件も増やしていない（10 件のまま）。
+ *
  * **上げて緑にすることを禁じる。**
  */
-export const TEST_TYPES_MAX_UNDECLARED = 196;
+export const TEST_TYPES_MAX_UNDECLARED = 168;
 
 /**
  * 理由つき除外を許す上限（件数）。

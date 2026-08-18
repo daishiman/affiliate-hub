@@ -1,4 +1,15 @@
-/** @tier 2 */
+/**
+ * @tier 2
+ * @req REQ-G09, REQ-G10
+ * @types equivalence, boundary, state-transition
+ *
+ * G09 評価セット   「評価セットの構成」と「網羅に穴が無いこと」
+ *                   （記事タイプ・切り口・出し先・知識量を全部使っているか＝
+ *                    同値分割の網羅そのもの。件数は下限 50 と 9=3×3 の境界）
+ * G10 ローンチ基準 「ローンチ基準」（未実行なら本番へ上げられない／全部そろえば
+ *                    上げられる／止める基準が 1 つ欠けても上げられない）。
+ *                    片方向だけだと、常に false を返す関数でも通ってしまう。
+ */
 import { readFileSync, writeFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { describe, expect, it } from "vitest";
@@ -216,6 +227,32 @@ describe("ローンチ基準", () => {
 
   it("未実行のあいだは、そのプロンプト版を本番で使えない", () => {
     expect(canActivatePromptVersion()).toBe(false);
+  });
+
+  it("全部そろえば上げられる（止まりっぱなしではない）", () => {
+    // 上の検査は「いまは上げられない」しか言っていない。
+    // それだけだと `false` を返すだけの関数でも通ってしまい、
+    // **基準を満たしたときに開く**ことは誰も確かめていないことになる。
+    const allPass = LAUNCH_BARS.map((b) => ({ ...b, status: "PASS" as const }));
+    expect(canActivatePromptVersion(allPass)).toBe(true);
+  });
+
+  it("止めるべき基準が 1 つでも未実行なら上げられない", () => {
+    for (const bar of LAUNCH_BARS.filter((b) => b.blocksActivation)) {
+      const oneLeft = LAUNCH_BARS.map((b) => ({
+        ...b,
+        status: b.id === bar.id ? ("NOT RUN" as const) : ("PASS" as const),
+      }));
+      expect(canActivatePromptVersion(oneLeft), `${bar.id} が未実行でも上げられます`).toBe(false);
+    }
+  });
+
+  it("LB-8 だけは未実行でも上げられる（暫定運用の 1 つ）", () => {
+    const exceptLb8 = LAUNCH_BARS.map((b) => ({
+      ...b,
+      status: b.id === "LB-8" ? ("NOT RUN" as const) : ("PASS" as const),
+    }));
+    expect(canActivatePromptVersion(exceptLb8)).toBe(true);
   });
 
   it("LB-3 の閾値が実際の件数と一致している", () => {

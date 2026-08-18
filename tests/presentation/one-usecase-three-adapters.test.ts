@@ -1,4 +1,12 @@
-/** @tier 1 */
+/**
+ * @tier 1
+ * @req REQ-API01
+ * @types tenant-isolation
+ *
+ * 入口の群（REQ-API01）のうち、**他の作業場所を覗けないこと**はここで確かめている。
+ * 「存在しないワークスペースのデータは『見つかりません』で、権限の話にしない」が
+ * それで、権限の話に落とすと、あるかどうかが答えから漏れる。
+ */
 import { describe, expect, it } from "vitest";
 import { buildToolCatalog } from "@/presentation/tools/catalog";
 import { handleToolRequest, describeTools } from "@/presentation/tools/rest-adapter";

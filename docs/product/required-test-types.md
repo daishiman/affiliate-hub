@@ -86,16 +86,44 @@
 | REQ-A06 | has-state, has-tenant | — |
 | REQ-A07 | has-permission | — |
 | REQ-A08 | has-input | — |
+| REQ-G01 | has-input | — |
+| REQ-G02 | has-input | — |
+| REQ-G03 | has-input, has-ai-text | — |
+| REQ-G04 | has-input | — |
+| REQ-G05 | has-state | — |
+| REQ-G06 | has-input | — |
+| REQ-G07 | has-permission | — |
+| REQ-G08 | has-state, has-permission | — |
+| REQ-G09 | has-input | — |
+| REQ-G10 | has-state | — |
+| REQ-G11 | has-input, has-ai-text, has-external, has-secret | — |
+| REQ-API01 | has-permission, has-tenant | — |
+| REQ-EV01 | has-input | — |
+| REQ-EV02 | has-input | — |
+| REQ-EV03 | has-input | — |
+| REQ-EV04 | has-input | — |
+| REQ-EV05 | has-input | — |
+| REQ-EV06 | has-input | — |
+| REQ-EV07 | has-input | — |
+| REQ-EV08 | has-input | — |
+| REQ-EV09 | has-input | — |
+| REQ-EV10 | has-input | — |
+| REQ-EV11 | has-input | — |
+| REQ-EV12 | has-input | — |
+| REQ-EV13 | has-input | — |
+| REQ-EV14 | has-input | — |
+| REQ-EV15 | has-input | — |
+| REQ-EV16 | has-input | — |
 
 ## 4. 未宣言の要件について（正直に書く）
 
-要件表には **241 件**の要件 ID がある。上の宣言表はそのうち **45 件**である。
-残り 196 件は未宣言で、**この検査の対象外**にある。
+要件表には **241 件**の要件 ID がある。上の宣言表はそのうち **73 件**である。
+残り 168 件は未宣言で、**この検査の対象外**にある。
 
 全部に宣言を書き切るまで検査を入れない、という順にすると**検査は永久に入らない**。
 そこで `TRACEABILITY_MAX_UNLINKED` と同じ形にした。
 
-- 未宣言の上限 `TEST_TYPES_MAX_UNDECLARED` を実測（196）に置く
+- 未宣言の上限 `TEST_TYPES_MAX_UNDECLARED` を実測（168）に置く
 - **新しく足す要件は、宣言しなければ CI が落ちる**
 - 既存の未宣言は減らせるが増やせない。**上げて緑にすることを禁じる**
 
@@ -215,6 +243,70 @@ Google OAuth / GitHub / AWS / Slack / 秘密鍵）と、名前つきの実値代
 
 効くことは実測した。`tests/application/affiliate.test.ts` から
 `permission-matrix` の印を外すと `REQ-A07: permission-matrix` と言って落ちる。
+
+### 2026-08-18 に減らしたぶん（196 → 168）: 生成基盤・入口・出来事 28 件（`ah-29w`）
+
+`REQ-G01`〜`REQ-G11`（生成の仕組み 11 件）、`REQ-API01`（入口の群）、
+`REQ-EV01`〜`REQ-EV16`（文脈をまたぐ連絡 16 件）。
+
+**この 28 件は、印を貼るだけなら 5 分で終わった。** 検査は既にあり、
+`generation-plan.test.ts` に `@req REQ-G01`〜`REQ-G08` と
+`@types equivalence, boundary, state-transition, permission-matrix` を書けば緑になる。
+
+そうしなかったのは、3 か所で「**1 件だけ試して、全部ぶん緑**」になっていたからである。
+印は、その 3 つを直してから貼った。
+
+| 直した検査 | 直す前に見ていたもの | 通ってしまう壊れ方 |
+| --- | --- | --- |
+| `tests/domain/domain-events.test.ts` | 16 件のうち 1 件（`content_variant.approved`）だけ、必須項目を落として断られることを見ていた | 残り 15 件は `requiredKeys` に名前を書いただけで誰も試していない。空の配列にしても緑 |
+| `tests/evals/generation-eval-set.test.ts` | `canActivatePromptVersion()` が `false` を返すことだけ | **常に `false` を返す関数**でも通る。基準を満たしたときに開くことを誰も見ていない |
+| `tests/application/draft-content-variant.test.ts` | 1 回呼んだときの依頼の中身 | 呼ぶたびに指示文が変わっても気づけない（同じ素材から違う記事が出て、違いの理由が残らない） |
+
+足した検査は 3 つとも「そろった形の**すぐ隣**」を見る形にした。
+16 件のイベントは必須項目を 1 つずつ落とし、門は止める基準を 1 つずつ未実行に戻し、
+生成の依頼は 2 回組み立てて字面ごと比べる。
+
+性質の当て方は次のとおり。1 列目を要件 ID にしていない理由は 1 つ上の節と同じ。
+
+| 要件 | 性質 | 印を付けた先 | そこにある分かれ目 |
+| --- | --- | --- | --- |
+| G01 指示文の版 | has-input | `tests/domain/generation-plan.test.ts` | `v1` は版・`v0` と `draft` は版でない、いまの版は書き換えられない |
+| G02 渡す項目 | has-input | 同上 | 何も渡さない / 1 つだけ渡す / 順位の記事で順位の決め方が無い |
+| G03 取り込んだ文章 | has-input, has-ai-text | 同上 | 攻撃文 5 種は見つかり普通の商品説明は引っかからない、3 回目と 4 回目 |
+| G04 受け取りの形 | has-input | 同上 | 散文、20 のうち 1 つだけ、20 に 1 つ足した形 |
+| G05 手順 8 種 | has-state | 同上 | 前提の済んでいない手順へ進めない（`skillOrderBreaches`） |
+| G06 役 6 種 | has-input | 同上 | 書き直し 3 巡目は再試行、その次は人へ回す |
+| G07 執筆と検証の分離 | has-permission | 同上 | 役 × 道具 の総当たり（確かめる役に `generate` が 1 つも無い） |
+| G08 承認 12 段階 | has-state, has-permission | 同上 | 人の承認が要る段階を AI が進められない（`STAGE_BRIDGE`） |
+| G09 評価セット | has-input | `tests/evals/generation-eval-set.test.ts` | 記事タイプ・切り口・出し先・知識量の全区分、下限 50 件、9 = 3 × 3 |
+| G10 ローンチ基準 | has-state | 同上 | 未実行なら上げられない / 全部そろえば上げられる / 1 つ欠けても上げられない |
+| G11 生成の実行 | has-input, has-ai-text, has-external, has-secret | `draft-content-variant.test.ts` と `llm-providers.test.ts` | 呼ぶ前に止まる条件、打ち切りと形違いの応答、鍵の扱い、同じ入力から同じ依頼 |
+| API01 入口の群 | has-permission, has-tenant | `entry-points.test.ts` と `one-usecase-three-adapters.test.ts` | 入口 3 種 × 操作 の総当たり、他の作業場所は「見つかりません」 |
+| EV01〜EV16 出来事 | has-input | `tests/domain/domain-events.test.ts` | 16 件それぞれの「そろった形」と「必須のうち 1 つだけ欠けた形」 |
+
+#### 付けなかった性質と、その理由
+
+- **`REQ-API01` の `has-input`**。入口は入力の**形を配る**ところで、
+  各ツールの入力の分かれ目はそのツールの要件の側にある。
+  ここに付けると、入口 1 か所の印で全ツールの入力検査を名乗ることになる。
+- **`REQ-EV01`〜`REQ-EV16` の `has-state`**。出来事は連絡の形の約束であって、
+  状態の遷移そのものではない。どの状態変化で出るかは**出す側の要件**が持つ
+  （`affiliate_url.submitted` なら `REQ-P01` の受信箱で、遷移は
+  `tests/domain/link-ingestion.test.ts`「受信箱の 4 状態」にある）。
+  まだどこからも出していない 9 件と出している 7 件で扱いを変えていないのは、
+  出す側が未実装であることと、約束の形が決まっていることが別だからである。
+- **`REQ-G11` の `has-state`**。下書きを 1 本作らせるユースケースは何も保存しない。
+  状態が動くのは受け取った下書きを記事へ入れる側（`REQ-P07` / `REQ-G08`）である。
+
+理由つき除外は 1 件も増やしていない（10 件のまま）。
+
+効くことは実測した。印を 1 つ外すと、外した種別を名指しして終了コード 1 で落ちる。
+
+    generation-plan から permission-matrix     → REQ-G07 / REQ-G08: permission-matrix
+    domain-events から boundary                → REQ-EV01〜REQ-EV16: boundary（16 件）
+    generation-eval-set から state-transition  → REQ-G10: state-transition
+    draft-content-variant から idempotency     → REQ-G11: idempotency
+    entry-points から permission-matrix        → REQ-API01: permission-matrix
 
 ### まだどの性質からも指されていない種別（`ah-0ip` の残り）
 
