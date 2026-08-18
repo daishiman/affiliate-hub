@@ -207,6 +207,20 @@ export const REQUIRED_TEST_TYPES = {
   "has-screen": ["screen-states", "a11y", "keyboard"],
   "has-calculation": ["mutation", "boundary"],
   "has-ai-text": ["prompt-injection"],
+  /*
+   * 秘密の値（鍵・合言葉・トークン）を、保存・受け渡し・記録・表示のどれかで扱う。
+   *
+   * 足した理由。`secrets` という種別は最初から一覧にあったのに、**どの性質からも
+   * 指されていなかった**。指されない種別は一度も要求されないので、
+   * 名前があるだけで門としては無い。実際 `REQ-SEC10`（秘密をリポジトリに置かない）は
+   * 性質を宣言できず、確かめた欄が `NOT RUN` のまま残っていた。
+   *
+   * 足したときに当たったのは宣言済み 36 件のうち `REQ-SEC09` の 1 件だけで、
+   * そこは伏せ字の検査が既にあった（印だけが無かった）。
+   * 残る `ssrf` / `db-migration` / `decision-table` / `property` / `audit-log` は
+   * まだ指されていない。理由は `docs/product/required-test-types.md` §4 に書く。
+   */
+  "has-secret": ["secrets"],
 };
 
 /**
@@ -220,12 +234,17 @@ export const REQUIRED_TEST_TYPES = {
  * 2026-08-17 の実測は **205 件 / 241 件**（宣言済 36 件）。
  * この数字は「未宣言が 205 件ある」という事実の記録であって、目標ではない。
  *
- * 経緯: 228（宣言済 13）→ **205**。権限・テナント・セキュリティの 24 件のうち
+ * 経緯: 228（宣言済 13）→ 205（宣言済 36）。権限・テナント・セキュリティの 24 件のうち
  * 23 件を宣言した（`REQ-SEC10` だけは、性質の語彙に当てはまるものが無く保留）。
+ *
+ * → **204**（宣言済 37）。保留していた `REQ-SEC10` を、`has-secret` を語彙へ足して宣言した。
+ * 数の上では 1 件しか動かないが、この 1 件のために
+ * `tests/architecture/secrets-not-in-repo.test.ts` を新しく書いている
+ * （それまで確かめた欄は `NOT RUN` で、証拠は `.gitignore` の 1 行だけだった）。
  *
  * **上げて緑にすることを禁じる。**
  */
-export const TEST_TYPES_MAX_UNDECLARED = 205;
+export const TEST_TYPES_MAX_UNDECLARED = 204;
 
 /**
  * 理由つき除外を許す上限（件数）。

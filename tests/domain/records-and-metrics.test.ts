@@ -1,7 +1,7 @@
 /**
  * @tier 1
  * @req REQ-SEC09
- * @types equivalence, audit-log
+ * @types equivalence, audit-log, secrets
  */
 import { describe, expect, it } from "vitest";
 import {
