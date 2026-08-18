@@ -102,7 +102,10 @@ const KNOWN_NOT_SECRET: Record<string, string> = {
 
 /** 中身が文字でないもの（画像・フォント）は読み飛ばす。NUL を含むかで判定する。 */
 function readText(path: string): string | null {
-  let buf: Buffer;
+  // **`Buffer` として受けない。** 本番の組み立て（`next build`）では
+  // Workers 側の型が入り、`Buffer.toString("utf8")` が引数 0 個の別物になる。
+  // `Uint8Array` と `TextDecoder` はどちらの環境にもあるので、そちらで書く。
+  let buf: Uint8Array;
   try {
     buf = readFileSync(path);
   } catch {
@@ -110,7 +113,7 @@ function readText(path: string): string | null {
     return null;
   }
   if (buf.includes(0)) return null;
-  return buf.toString("utf8");
+  return new TextDecoder("utf-8").decode(buf);
 }
 
 describe("秘密の値がリポジトリに載っていない", () => {
