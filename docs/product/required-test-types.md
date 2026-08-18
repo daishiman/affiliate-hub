@@ -118,6 +118,18 @@
 | REQ-TM07 | has-enumerated-input | — |
 | REQ-TM08 | has-enumerated-input | — |
 | REQ-TM09 | has-enumerated-input, has-input, has-tenant | — |
+| REQ-E02 | has-secret | — |
+| REQ-E05 | has-state | — |
+| REQ-E09 | has-secret | — |
+| REQ-E10 | has-input, has-secret | — |
+| REQ-E11 | has-input | — |
+| REQ-E13 | has-input, has-state, has-user-supplied-url | — |
+| REQ-E15 | has-input | — |
+| REQ-E22 | has-input | — |
+| REQ-E23 | has-enumerated-input | — |
+| REQ-E24 | has-input | — |
+| REQ-E26 | has-input | — |
+| REQ-E30 | has-input, has-state | — |
 | REQ-IM05 | has-state | — |
 | REQ-TH01 | has-screen | — |
 | REQ-TH02 | has-enumerated-input | — |
@@ -190,18 +202,18 @@
 
 ## 4. 未宣言の要件について（正直に書く）
 
-要件表には **241 件**の要件 ID がある。上の宣言表はそのうち **146 件**である
+要件表には **241 件**の要件 ID がある。上の宣言表はそのうち **158 件**である
 （`node scripts/required-test-types.mjs` の出力から書き写す。手で数えない。
 ここは長らく 83 と書いたまま古くなっていたことがある。
 **手で書いた数字は、古くなっても古く見えない**）。
-残り 95 件は未宣言で、**この検査の対象外**にある。
-この 95 が `TEST_TYPES_MAX_UNDECLARED` と一致していることが、
+残り 83 件は未宣言で、**この検査の対象外**にある。
+この 83 が `TEST_TYPES_MAX_UNDECLARED` と一致していることが、
 この節の数字が実測と合っていることの確かめになる。
 
 全部に宣言を書き切るまで検査を入れない、という順にすると**検査は永久に入らない**。
 そこで `TRACEABILITY_MAX_UNLINKED` と同じ形にした。
 
-- 未宣言の上限 `TEST_TYPES_MAX_UNDECLARED` を実測に置く（置いた当初は 158。現在 95）
+- 未宣言の上限 `TEST_TYPES_MAX_UNDECLARED` を実測に置く（置いた当初は 158。現在 83）
 - **新しく足す要件は、宣言しなければ CI が落ちる**
 - 既存の未宣言は減らせるが増やせない。**上げて緑にすることを禁じる**
 
@@ -1654,6 +1666,115 @@ telemetry から外す        → REQ-TM08: decision-table, equivalence
 持つもの、保存先（`telemetry_events`）を持つものが混ざっており、
 それぞれ別の性質を当てる必要がある。**まとめて名乗ると、いちばん軽い検査で
 いちばん重い性質の名前が付く。**次の区切りで 1 つずつ数えてから宣言する。
+
+### 2026-08-19 に減らしたぶん（95 → 83）: エンティティ 12 件
+
+対象は `REQ-E02` / `E05` / `E09` / `E10` / `E11` / `E13` / `E15` / `E22` / `E23` /
+`E24` / `E26` / `E30`。
+
+#### 足す前に数えた（断る側だけが確かめられていなかった）
+
+`src/domain` にある「作る関数」39 個について、**テストから直接呼ばれているか**を数えた。
+呼ばれていないものが 4 つあった。
+
+| エンティティ | 直接呼ぶテスト | どこから呼ばれていたか |
+| --- | --- | --- |
+| **E09** ChannelConnection | **0 件** | `distribution-sample-repository.ts` が正しい値で 1 回 |
+| **E10** AffiliateAccount | **0 件** | `affiliate-sample-repository.ts` が正しい値で 1 回 |
+| **E11** AffiliateProgram | **0 件** | 同上 |
+| **E15** Product | **0 件** | `product-sample-repository.ts` が正しい値で 1 回 |
+
+4 つとも要件表の結果欄は「実装済」である。**嘘ではない。実装はある。**
+ただし通っていた道は正常系だけで、断る側は一度も通っていなかった。
+
+確かめた: この 4 つの中の断り 11 か所を `if (false)` に変えて全部走らせたところ、
+**3875 件すべてが緑**だった。同じ 11 か所に対して、新しく書いた
+`tests/domain/entity-guards.test.ts`（35 件）は **21 件が赤**になる。
+
+これは W 群・TM 群で見つけた形とも違う。W は「回している数と当てている中身が別」、
+TM は「一覧の端まで当たっていない」。ここは**入口が 1 つしかなく、そこを通る値が
+いつも正しい**。使われていることが、確かめられていることに見えていた。
+
+#### `has-input` を名乗るために端を足した
+
+既にあった `tests/domain/entity-invariants.test.ts`（26 件）は等価分割だけで、
+**端を 1 つも見ていなかった**。期間は 9/15 と 10/2、件数は 120 と 700、
+期限は 8/1 と 8/17——どれも端から離れた 2 点である。
+`has-input` は等価分割と境界値の両方を求めるので、名前だけ借りることはできない。
+端を足して 57 件にした。
+
+| 壊し方 | 赤 |
+| --- | --- |
+| キャンペーン: 終わりの端を 1 つずらす（`>=` → `>`） | 1 件 |
+| 実験: 必要件数を 1 件甘くする | 1 件 |
+| 素材: 許諾の期限ちょうどを使える側へ倒す（`>` → `>=`） | 1 件 |
+| ブログ: 終了したものも公開できるようにする | 2 件 |
+| 企画: 分野の判定を「文字列なら何でも通す」に緩める | 6 件 |
+| 実験: 開始の状態の門を外す | 2 件 |
+
+上 3 つは、端を足す前は**すべて緑のまま通っていた**壊し方である。
+
+日付・件数・文字数は実数で書いている。`campaign.endsAt` や
+`experiment.minimumSamples` から作ると、値が動いても同じ側に居続ける
+（`CONVERSATION_MAX_LENGTH + 1` と同じ形。`TM` 群の保存期間でも同じ直しをした）。
+
+#### 性質の割り当て
+
+| 要件 | 性質 | 名乗るファイル |
+| --- | --- | --- |
+| REQ-E02 User | has-secret | `entity-invariants.test.ts` |
+| REQ-E05 Site | has-state | 同上 |
+| REQ-E22 Campaign | has-input | 同上 |
+| REQ-E24 MasterBrief | has-input | 同上 |
+| REQ-E26 Asset | has-input | 同上 |
+| REQ-E30 Experiment | has-input, has-state | 同上 |
+| REQ-E09 ChannelConnection | has-secret | `entity-guards.test.ts` |
+| REQ-E10 AffiliateAccount | has-input, has-secret | 同上 |
+| REQ-E11 AffiliateProgram | has-input | 同上 |
+| REQ-E15 Product | has-input | 同上 |
+| REQ-E23 ContentPackage | has-enumerated-input | `planning.test.ts` |
+| REQ-E13 TrackingLink | has-input, has-state, has-user-supplied-url | 4 ファイル（下記） |
+
+`REQ-E13` に `has-user-supplied-url` を当てたのは、
+`quality-gates.config.mjs` の `has-user-supplied-url` のところに
+**「まだ宣言表に無いが、宣言するときに当たるのが REQ-E13」と先に書いてあった**からである。
+転送先は保存値だが、その保存値のもとは利用者が出した URL なので、行き先を利用者が決められる。
+`ssrf` は `tests/presentation/go-route.test.ts` が持っている。
+
+印を 1 つずつ外して赤を確かめた。`E13` 以外は名乗るファイルが 1 つだけである。
+
+```
+entity-guards から外す     → REQ-E09: secrets
+                              REQ-E10: boundary, equivalence, secrets
+                              REQ-E11 / E15: boundary, equivalence
+entity-invariants から外す → REQ-E02: secrets / REQ-E05: state-transition
+                              REQ-E22 / E24 / E26: boundary, equivalence
+                              REQ-E30: boundary, equivalence, state-transition
+planning から外す          → REQ-E23: decision-table, equivalence
+go-route から外す          → REQ-E13: ssrf
+```
+
+`E13` だけは `redirect-resolution.test.ts` を外しても緑のままである。
+`article-tracking.test.ts` が同じ種別を別の角度から持っているためで、
+**1 つの要件を複数のファイルが支えている数少ない例**である。ここは弱点ではない。
+
+#### 判定欄に嘘は無かった（4 件は書き方を強くした）
+
+`E02` / `E05` / `E13` / `E22` / `E23` / `E24` / `E26` / `E30` の実装欄は
+「〜をテストで固定」と書いてあり、**8 件とも実在した**。W 群・TM 群と違って、
+この群では書いてあることと実物がずれていない。
+
+代わりに `E09` / `E10` / `E11` / `E15` の結果欄（「実装済」）へ、
+**直接呼ぶテストが 1 つも無かったこと**と、今回当てた端を書き足した。
+「実装済」は嘘ではないが、それだけでは**断る側が空いていること**が読み取れない。
+
+#### この回で宣言していない E（20 件）
+
+`E01` / `E03` / `E04` / `E06` / `E07` / `E08` / `E12` / `E14` / `E16`〜`E21` /
+`E25` / `E27` / `E28` / `E29` / `E31` / `E32`。
+断りを持つものと、型だけで不変条件を持たないものが混ざっている。
+**性質が当てられないもの（型に境界が無いもの）は、除外へ回さず未宣言のまま残す。**
+除外の枠（7/7）が満杯だからではなく、**実装が境界を持てば宣言できる**からである。
 
 ## 5. 除外という逃げ道について
 

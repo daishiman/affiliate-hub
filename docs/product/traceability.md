@@ -138,13 +138,13 @@ D1 への差し替えは、この列だけを別の実装に取り替えれば�
 | REQ-E06 | SiteBlueprint | `authoring/site-blueprint.ts` | 見本データ | REQ-S06 | 実装済 |
 | REQ-E07 | AuthorPersona | `authoring/author-persona.ts` | `people` | REQ-S04 | 実装済 |
 | REQ-E08 | AudiencePersona | `authoring/audience-persona.ts` | 見本データ | REQ-S04 | 実装済 |
-| REQ-E09 | ChannelConnection | `distribution/channel.ts` | 見本データ | REQ-S07 | 実装済（各媒体への実接続のみスタブ） |
-| REQ-E10 | AffiliateAccount | `monetization/affiliate-program.ts` | `asps` | REQ-P09 | 実装済（ASP への実接続のみスタブ） |
-| REQ-E11 | AffiliateProgram | `monetization/affiliate-program.ts` | `programs` | REQ-P09 | 実装済 |
+| REQ-E09 | ChannelConnection | `distribution/channel.ts`（**認証情報の値そのものを渡すと断る**を `tests/domain/entity-guards.test.ts` で固定） | 見本データ | REQ-S07 | 実装済（各媒体への実接続のみスタブ）。**2026-08-19 まで、作る関数を直接呼ぶテストが 1 つも無かった**（見本データが正しい値で 1 回呼ぶだけで、断る道は一度も通っていなかった）。断り 3 か所を消して全部走らせても 3875 件すべてが緑だった。いまは秘密の形 6 通り・長さの端 200/201 を当てている |
+| REQ-E10 | AffiliateAccount | `monetization/affiliate-program.ts`（**鍵の値ではなく保管先の参照キーだけを持てる**を `tests/domain/entity-guards.test.ts` で固定） | `asps` | REQ-P09 | 実装済（ASP への実接続のみスタブ）。E09 と同じく **2026-08-19 まで直接呼ぶテストが無かった**。いまは長さの端 200/201 を当てている |
+| REQ-E11 | AffiliateProgram | `monetization/affiliate-program.ts`（**承認率 0〜1 と報酬率 0〜100 の端**を `tests/domain/entity-guards.test.ts` で固定） | `programs` | REQ-P09 | 実装済。**2026-08-19 まで直接呼ぶテストが無かった。**単位の違う 2 つの割合が隣り合っているため、片方の端だけ見ると取り違えに気づけない。両方の内側・外側と、上限が同じ値になったら落ちる行を置いた |
 | REQ-E12 | AffiliateLink | `monetization/affiliate-link.ts` | 見本データ | REQ-P09 | 実装済 |
 | REQ-E13 | TrackingLink（§19.2.1） | `monetization/tracking-link.ts`（**転送先を URL 文字列で持てない**ことをテストで固定）／`app/go/[code]/route.ts`（転送の入口）／`persistence/d1/redirect-repository.ts`（読む口・**発行の口**・数え上げ）／`infrastructure/persistence/tracking-issuing-writer.ts`（公開の継ぎ目）／`application/read-models/article-tracking.ts` | `redirect_resolutions` | REQ-P09 | **未完**。発行の側は実装し、本物の D1 で確かめた（`tests/integration/d1-tracking-issuance.test.ts` 8 件: 合言葉が入る／写しの作業場所が持ち主側／出し直しても増えない／転送先が変わると新規発行＋旧は 410／https 以外は発行しない／数え上げ／作業場所の往復）。転送の入口は Workers ランタイムで実機確認済み（302 の行き先が保存値と一致 / 404 / 410 / 記録が D1 に残る / 分析画面のクリック数が 0→1）。**それでも実運用では合言葉が 1 件も発行されない。** 公開の手続き（`usecases/site/publish-article.ts` の `buildArticle`）が `ranking` も `productCards` も作らないため、公開された記事には成果リンクが 1 件も載らない（`ranking` / `productCards` を持つのは見本データだけ）。発行の口は正しく繋がっているが、**その手前に流し込むものが無い**。未発行の件数は `/admin/analytics` に出す（いまは「成果リンクがまだ 1 件もありません」と出る）。完了は、公開記事へ成果リンクを載せる経路ができ、この画面の未発行が 0 件になってから。何が数えられていて何が数えられていないかは `docs/product/click-measurement.md` |
 | REQ-E14 | SourceArtifact | `shared/provenance.ts` | 見本データ | REQ-S03 | 実装済 |
-| REQ-E15 | Product | `product/product.ts` | `products` | REQ-S03 | 実装済 |
+| REQ-E15 | Product | `product/product.ts`（**識別子が 1 つも無い商品は作れない**を `tests/domain/entity-guards.test.ts` で固定） | `products` | REQ-S03 | 実装済。**2026-08-19 まで直接呼ぶテストが無かった。**識別子 0/1 件の端、販売終了日が発売日と同じ日／1 ミリ秒前の端、JAN の桁数 7/8/12/14/15 を当てている |
 | REQ-E16 | ProductVariant | `product/product.ts` | 見本データ | REQ-S03 | スタブ（解除条件: 色・容量ちがいを画面で分けて扱う要望が出たとき。いまは 1 商品 1 行で足りている） |
 | REQ-E17 | MerchantOffer | `product/merchant-offer.ts` | 見本データ | REQ-S03 | 実装済 |
 | REQ-E18 | ComparisonSet | `product/comparison.ts` | 見本データ | REQ-S03 | 実装済 |

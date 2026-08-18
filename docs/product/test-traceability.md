@@ -6,9 +6,9 @@
 テスト側の `@req` 印を重ねたもの。
 
 - 最終更新: 2026-08-18
-- テストファイル: 164 件
-- 由来の要件が分かる: 136 件
-- **由来不明: 28 件**（上限 28 件）
+- テストファイル: 165 件
+- 由来の要件が分かる: 138 件
+- **由来不明: 27 件**（上限 28 件）
 
 由来不明とは「どの要件のために書いたのか、機械から辿れない」という意味で、
 テストが無駄という意味ではない。要件から書いたなら `@req` を 1 行足せば消える。
@@ -23,7 +23,6 @@
 - `tests/architecture/single-definition.test.ts`
 - `tests/architecture/spec-freshness.test.ts`
 - `tests/architecture/worker-entry.test.ts`
-- `tests/domain/entity-invariants.test.ts`
 - `tests/domain/loop-kinds.test.ts`
 - `tests/domain/metrics-from-telemetry.test.ts`
 - `tests/infrastructure/d1-link-inbox.test.ts`
@@ -88,6 +87,8 @@
 | `tests/domain/boundaries.test.ts` | REQ-P09, REQ-P10, REQ-QC05, REQ-TS08 | 印と表 |
 | `tests/domain/brand-and-disclosure.test.ts` | REQ-SEC06 | 印 |
 | `tests/domain/domain-events.test.ts` | REQ-EV01, REQ-EV02, REQ-EV03, REQ-EV04, REQ-EV05, REQ-EV06, REQ-EV07, REQ-EV08, REQ-EV09, REQ-EV10, REQ-EV11, REQ-EV12, REQ-EV13, REQ-EV14, REQ-EV15, REQ-EV16 | 印と表 |
+| `tests/domain/entity-guards.test.ts` | REQ-E09, REQ-E10, REQ-E11, REQ-E15 | 印と表 |
+| `tests/domain/entity-invariants.test.ts` | REQ-E02, REQ-E05, REQ-E22, REQ-E24, REQ-E26, REQ-E30 | 印 |
 | `tests/domain/feedback.test.ts` | REQ-FB03, REQ-FB12 | 表 |
 | `tests/domain/generation-plan.test.ts` | REQ-A04, REQ-G01, REQ-G02, REQ-G03, REQ-G04, REQ-G05, REQ-G06, REQ-G07, REQ-G08, REQ-P06, REQ-SEC05 | 印と表 |
 | `tests/domain/handoff-prompt.test.ts` | REQ-FB11 | 表 |
@@ -184,4 +185,4 @@
 | `tests/ui/theme-contrast.test.ts` | REQ-TH02, REQ-TS06 | 表 |
 | `tests/ui/tool-form.test.tsx` | REQ-WC05 | 印と表 |
 | `tests/ui/ui-layers.test.ts` | REQ-S09, REQ-TM05, REQ-TM06 | 表 |
-<!-- 生成物の指紋 sha256:74e18a5369f1056803416fcc88f03b2d45d325d04c4eec49c8318fb6628751a1 -->
+<!-- 生成物の指紋 sha256:f46f4931d7d0dbeba500c62f7013c5a0afea5f5be2451887d0add8989ab6f85f -->

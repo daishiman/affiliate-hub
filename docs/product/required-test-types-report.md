@@ -6,8 +6,8 @@
 
 - 最終更新: 2026-08-18
 - 要件表の要件: 241 件
-- 性質を宣言済: 146 件
-- **未宣言: 95 件**（上限 95 件）
+- 性質を宣言済: 158 件
+- **未宣言: 83 件**（上限 83 件）
 - 理由つきの除外: 7 件（上限 7 件）
 
 未宣言とは「必須種別をまだ決めていない」という意味で、
@@ -94,6 +94,18 @@
 | REQ-TM07 | has-enumerated-input | `decision-table` `equivalence` | `decision-table` `equivalence` | — | 
 | REQ-TM08 | has-enumerated-input | `decision-table` `equivalence` | `decision-table` `equivalence` | — | 
 | REQ-TM09 | has-enumerated-input, has-input, has-tenant | `boundary` `decision-table` `equivalence` `tenant-isolation` | `boundary` `decision-table` `equivalence` `tenant-isolation` | — | 
+| REQ-E02 | has-secret | `secrets` | `secrets` | — | 
+| REQ-E05 | has-state | `state-transition` | `state-transition` | — | 
+| REQ-E09 | has-secret | `secrets` | `secrets` | — | 
+| REQ-E10 | has-input, has-secret | `boundary` `equivalence` `secrets` | `boundary` `equivalence` `secrets` | — | 
+| REQ-E11 | has-input | `boundary` `equivalence` | `boundary` `equivalence` | — | 
+| REQ-E13 | has-input, has-state, has-user-supplied-url | `boundary` `equivalence` `ssrf` `state-transition` | `boundary` `equivalence` `ssrf` `state-transition` | — | 
+| REQ-E15 | has-input | `boundary` `equivalence` | `boundary` `equivalence` | — | 
+| REQ-E22 | has-input | `boundary` `equivalence` | `boundary` `equivalence` | — | 
+| REQ-E23 | has-enumerated-input | `decision-table` `equivalence` | `decision-table` `equivalence` | — | 
+| REQ-E24 | has-input | `boundary` `equivalence` | `boundary` `equivalence` | — | 
+| REQ-E26 | has-input | `boundary` `equivalence` | `boundary` `equivalence` | — | 
+| REQ-E30 | has-input, has-state | `boundary` `equivalence` `state-transition` | `boundary` `equivalence` `state-transition` | — | 
 | REQ-IM05 | has-state | `state-transition` | `state-transition` | — | 
 | REQ-TH01 | has-screen | `a11y` `keyboard` `screen-states` | `a11y` `keyboard` `screen-states` | — | 
 | REQ-TH02 | has-enumerated-input | `decision-table` `equivalence` | `decision-table` `equivalence` | — | 
@@ -183,5 +195,5 @@
 
 ## 未宣言の要件
 
-`REQ-CI01` `REQ-CI02` `REQ-CI03` `REQ-CI04` `REQ-CI05` `REQ-CI06` `REQ-CI07` `REQ-CI08` `REQ-CI09` `REQ-CI10` `REQ-CI11` `REQ-CI12` `REQ-CI13` `REQ-E01` `REQ-E02` `REQ-E03` `REQ-E04` `REQ-E05` `REQ-E06` `REQ-E07` `REQ-E08` `REQ-E09` `REQ-E10` `REQ-E11` `REQ-E12` `REQ-E13` `REQ-E14` `REQ-E15` `REQ-E16` `REQ-E17` `REQ-E18` `REQ-E19` `REQ-E20` `REQ-E21` `REQ-E22` `REQ-E23` `REQ-E24` `REQ-E25` `REQ-E26` `REQ-E27` `REQ-E28` `REQ-E29` `REQ-E30` `REQ-E31` `REQ-E32` `REQ-FB01` `REQ-FB02` `REQ-FB03` `REQ-FB04` `REQ-FB05` `REQ-FB06` `REQ-FB07` `REQ-FB10` `REQ-FB11` `REQ-FD01` `REQ-FD02` `REQ-FD03` `REQ-FD04` `REQ-FD05` `REQ-FD06` `REQ-IM01` `REQ-IM02` `REQ-IM03` `REQ-IM04` `REQ-IM06` `REQ-IM07` `REQ-IM08` `REQ-IM09` `REQ-IM10` `REQ-IM11` `REQ-IM12` `REQ-IM13` `REQ-TH04` `REQ-TH05` `REQ-TM02` `REQ-TM03` `REQ-TM05` `REQ-TM06` `REQ-TM10` `REQ-TM11` `REQ-TM12` `REQ-TM13` `REQ-TS01` `REQ-TS02` `REQ-TS03` `REQ-TS04` `REQ-TS05` `REQ-TS06` `REQ-TS07` `REQ-TS08` `REQ-TS09` `REQ-TS10` `REQ-W06` `REQ-W08` `REQ-W11`
-<!-- 生成物の指紋 sha256:cd04acea2d1f1e342284dded2db27c3e59ab74388b5345c86dc75de0569982bc -->
+`REQ-CI01` `REQ-CI02` `REQ-CI03` `REQ-CI04` `REQ-CI05` `REQ-CI06` `REQ-CI07` `REQ-CI08` `REQ-CI09` `REQ-CI10` `REQ-CI11` `REQ-CI12` `REQ-CI13` `REQ-E01` `REQ-E03` `REQ-E04` `REQ-E06` `REQ-E07` `REQ-E08` `REQ-E12` `REQ-E14` `REQ-E16` `REQ-E17` `REQ-E18` `REQ-E19` `REQ-E20` `REQ-E21` `REQ-E25` `REQ-E27` `REQ-E28` `REQ-E29` `REQ-E31` `REQ-E32` `REQ-FB01` `REQ-FB02` `REQ-FB03` `REQ-FB04` `REQ-FB05` `REQ-FB06` `REQ-FB07` `REQ-FB10` `REQ-FB11` `REQ-FD01` `REQ-FD02` `REQ-FD03` `REQ-FD04` `REQ-FD05` `REQ-FD06` `REQ-IM01` `REQ-IM02` `REQ-IM03` `REQ-IM04` `REQ-IM06` `REQ-IM07` `REQ-IM08` `REQ-IM09` `REQ-IM10` `REQ-IM11` `REQ-IM12` `REQ-IM13` `REQ-TH04` `REQ-TH05` `REQ-TM02` `REQ-TM03` `REQ-TM05` `REQ-TM06` `REQ-TM10` `REQ-TM11` `REQ-TM12` `REQ-TM13` `REQ-TS01` `REQ-TS02` `REQ-TS03` `REQ-TS04` `REQ-TS05` `REQ-TS06` `REQ-TS07` `REQ-TS08` `REQ-TS09` `REQ-TS10` `REQ-W06` `REQ-W08` `REQ-W11`
+<!-- 生成物の指紋 sha256:170335bd831ed4a20934ef6c8edbee314c5695cf98649bb55091926430743281 -->

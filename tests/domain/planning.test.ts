@@ -1,4 +1,4 @@
-/** @tier 1 @req REQ-SEC07, REQ-E23 @types decision-table */
+/** @tier 1 @req REQ-SEC07, REQ-E23 @types decision-table, equivalence */
 import { describe, expect, it } from "vitest";
 import {
   canStartGeneration,
@@ -13,7 +13,7 @@ import {
   type CategoryPlan,
   type DifferentiationAxes,
 } from "@/domain/authoring/site-blueprint";
-import { buildSeedPolicyRules, checkPolicies } from "@/domain/compliance";
+import { POLICY_DOMAIN_SCOPES, buildSeedPolicyRules, checkPolicies } from "@/domain/compliance";
 import { taggedString } from "@/domain/shared";
 
 /**
@@ -173,6 +173,43 @@ describe("記事の企画", () => {
     expect(pkg({ domainScope: undefined as never }).ok).toBe(false);
     expect(pkg({ domainScope: "健康食品" as never }).ok).toBe(false);
     expect(pkg({ domainScope: "health_food" }).ok).toBe(true);
+  });
+
+  /*
+   * 分野は 8 つある。3 つだけ試すと、残り 5 つが弾かれるようになっても緑のままになる。
+   * 一覧を実装から取らずに手で書き写し、全通り並べる。
+   * ここが増えたときは、この配列を足すまで落ちる。
+   */
+  const DOMAIN_SCOPES = [
+    "general",
+    "health_food",
+    "cosmetics",
+    "medical",
+    "finance",
+    "gambling",
+    "alcohol",
+    "children",
+  ] as const;
+
+  it.each(DOMAIN_SCOPES)("分野「%s」は登録できる", (domainScope) => {
+    expect(pkg({ domainScope }).ok).toBe(true);
+  });
+
+  it("分野の一覧は 8 つで、実装と同じ並びである", () => {
+    expect(POLICY_DOMAIN_SCOPES).toEqual(DOMAIN_SCOPES);
+  });
+
+  it.each([
+    [undefined, "未指定"],
+    [null, "空"],
+    ["", "空文字"],
+    ["健康食品", "日本語の表記ゆれ"],
+    ["HEALTH_FOOD", "大文字"],
+    ["health-food", "区切り文字ちがい"],
+    ["supplement", "一覧に無い分野"],
+    [1, "数値"],
+  ])("一覧に無い %s（%s）は断る", (bad, _why) => {
+    expect(pkg({ domainScope: bad as never }).ok).toBe(false);
   });
 
   it("達成したいこと・読者・切り口のどれが欠けても作れない", () => {
