@@ -21,7 +21,7 @@ import { asWorkspaceId } from "@/domain/shared";
  * 持たせ、ここで全件に当てる。ルールを足すと自動で検査対象に入る。
  *
  * 規範: docs/product/traceability.md REQ-SEC07
- * @req REQ-SEC07
+ * @req REQ-SEC07, REQ-QC11
  * @types decision-table, equivalence
  */
 

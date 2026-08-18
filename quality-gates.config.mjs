@@ -455,9 +455,15 @@ export const REQUIRED_TEST_TYPES = {
  * `AuditAction` に `export.performed` という語だけが**使われないまま**あった。
  * 記録を足して、渡す前に断るようにしてある。
  *
+ * 2026-08-19 に 120 → 109。記事の品質 11 件（`REQ-QC01`〜`REQ-QC11`）を宣言した。
+ * この回も印を足すだけでは済まなかった — 一覧（誇大表現 8 / 見出し 8 /
+ * 相対的な日付 11 / 単位を付ける語 13 / 一人称の言い回し 6）が、
+ * **どれも 1 行だけ試されていた**。一覧の全行に当てる検査を書いてから宣言している
+ * （`tests/domain/quality-check-tables.test.ts`）。
+ *
  * **上げて緑にすることを禁じる。**
  */
-export const TEST_TYPES_MAX_UNDECLARED = 120;
+export const TEST_TYPES_MAX_UNDECLARED = 109;
 
 /**
  * 理由つき除外を許す上限（件数）。

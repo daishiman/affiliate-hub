@@ -6,8 +6,8 @@
 
 - 最終更新: 2026-08-18
 - 要件表の要件: 241 件
-- 性質を宣言済: 121 件
-- **未宣言: 120 件**（上限 120 件）
+- 性質を宣言済: 132 件
+- **未宣言: 109 件**（上限 109 件）
 - 理由つきの除外: 7 件（上限 7 件）
 
 未宣言とは「必須種別をまだ決めていない」という意味で、
@@ -68,6 +68,17 @@
 | REQ-R10 | has-permission | `permission-matrix` | `permission-matrix` | — | 
 | REQ-R11 | has-permission | `permission-matrix` | `permission-matrix` | — | 
 | REQ-R12 | has-permission | `permission-matrix` | `permission-matrix` | — | 
+| REQ-QC01 | has-enumerated-input | `decision-table` `equivalence` | `decision-table` `equivalence` | — | 
+| REQ-QC02 | has-input, has-enumerated-input | `boundary` `decision-table` `equivalence` | `boundary` `decision-table` `equivalence` | — | 
+| REQ-QC03 | has-enumerated-input | `decision-table` `equivalence` | `decision-table` `equivalence` | — | 
+| REQ-QC04 | has-enumerated-input | `decision-table` `equivalence` | `decision-table` `equivalence` | — | 
+| REQ-QC05 | has-input | `boundary` `equivalence` | `boundary` `equivalence` | — | 
+| REQ-QC06 | has-input, has-enumerated-input | `boundary` `decision-table` `equivalence` | `boundary` `decision-table` `equivalence` | — | 
+| REQ-QC07 | has-enumerated-input | `decision-table` `equivalence` | `decision-table` `equivalence` | — | 
+| REQ-QC08 | has-input | `boundary` `equivalence` | `boundary` `equivalence` | — | 
+| REQ-QC09 | has-enumerated-input | `decision-table` `equivalence` | `decision-table` `equivalence` | — | 
+| REQ-QC10 | has-input | `boundary` `equivalence` | `boundary` `equivalence` | — | 
+| REQ-QC11 | has-enumerated-input | `decision-table` `equivalence` | `decision-table` `equivalence` | — | 
 | REQ-QC12 | has-calculation | `boundary` `mutation` | `mutation` | `boundary` | 
 | REQ-IM05 | has-state | `state-transition` | `state-transition` | — | 
 | REQ-TH01 | has-screen | `a11y` `keyboard` `screen-states` | `a11y` `keyboard` `screen-states` | — | 
@@ -158,5 +169,5 @@
 
 ## 未宣言の要件
 
-`REQ-CI01` `REQ-CI02` `REQ-CI03` `REQ-CI04` `REQ-CI05` `REQ-CI06` `REQ-CI07` `REQ-CI08` `REQ-CI09` `REQ-CI10` `REQ-CI11` `REQ-CI12` `REQ-CI13` `REQ-E01` `REQ-E02` `REQ-E03` `REQ-E04` `REQ-E05` `REQ-E06` `REQ-E07` `REQ-E08` `REQ-E09` `REQ-E10` `REQ-E11` `REQ-E12` `REQ-E13` `REQ-E14` `REQ-E15` `REQ-E16` `REQ-E17` `REQ-E18` `REQ-E19` `REQ-E20` `REQ-E21` `REQ-E22` `REQ-E23` `REQ-E24` `REQ-E25` `REQ-E26` `REQ-E27` `REQ-E28` `REQ-E29` `REQ-E30` `REQ-E31` `REQ-E32` `REQ-FB01` `REQ-FB02` `REQ-FB03` `REQ-FB04` `REQ-FB05` `REQ-FB06` `REQ-FB07` `REQ-FB10` `REQ-FB11` `REQ-FD01` `REQ-FD02` `REQ-FD03` `REQ-FD04` `REQ-FD05` `REQ-FD06` `REQ-IM01` `REQ-IM02` `REQ-IM03` `REQ-IM04` `REQ-IM06` `REQ-IM07` `REQ-IM08` `REQ-IM09` `REQ-IM10` `REQ-IM11` `REQ-IM12` `REQ-IM13` `REQ-QC01` `REQ-QC02` `REQ-QC03` `REQ-QC04` `REQ-QC05` `REQ-QC06` `REQ-QC07` `REQ-QC08` `REQ-QC09` `REQ-QC10` `REQ-QC11` `REQ-TH04` `REQ-TH05` `REQ-TM01` `REQ-TM02` `REQ-TM03` `REQ-TM04` `REQ-TM05` `REQ-TM06` `REQ-TM07` `REQ-TM08` `REQ-TM09` `REQ-TM10` `REQ-TM11` `REQ-TM12` `REQ-TM13` `REQ-TS01` `REQ-TS02` `REQ-TS03` `REQ-TS04` `REQ-TS05` `REQ-TS06` `REQ-TS07` `REQ-TS08` `REQ-TS09` `REQ-TS10` `REQ-W01` `REQ-W02` `REQ-W03` `REQ-W04` `REQ-W05` `REQ-W06` `REQ-W07` `REQ-W08` `REQ-W09` `REQ-W10` `REQ-W11` `REQ-W12`
-<!-- 生成物の指紋 sha256:f0881e8e21f3f58ad2567f9f01743dd51c87e48147832ebcd6e27a35c673ecbc -->
+`REQ-CI01` `REQ-CI02` `REQ-CI03` `REQ-CI04` `REQ-CI05` `REQ-CI06` `REQ-CI07` `REQ-CI08` `REQ-CI09` `REQ-CI10` `REQ-CI11` `REQ-CI12` `REQ-CI13` `REQ-E01` `REQ-E02` `REQ-E03` `REQ-E04` `REQ-E05` `REQ-E06` `REQ-E07` `REQ-E08` `REQ-E09` `REQ-E10` `REQ-E11` `REQ-E12` `REQ-E13` `REQ-E14` `REQ-E15` `REQ-E16` `REQ-E17` `REQ-E18` `REQ-E19` `REQ-E20` `REQ-E21` `REQ-E22` `REQ-E23` `REQ-E24` `REQ-E25` `REQ-E26` `REQ-E27` `REQ-E28` `REQ-E29` `REQ-E30` `REQ-E31` `REQ-E32` `REQ-FB01` `REQ-FB02` `REQ-FB03` `REQ-FB04` `REQ-FB05` `REQ-FB06` `REQ-FB07` `REQ-FB10` `REQ-FB11` `REQ-FD01` `REQ-FD02` `REQ-FD03` `REQ-FD04` `REQ-FD05` `REQ-FD06` `REQ-IM01` `REQ-IM02` `REQ-IM03` `REQ-IM04` `REQ-IM06` `REQ-IM07` `REQ-IM08` `REQ-IM09` `REQ-IM10` `REQ-IM11` `REQ-IM12` `REQ-IM13` `REQ-TH04` `REQ-TH05` `REQ-TM01` `REQ-TM02` `REQ-TM03` `REQ-TM04` `REQ-TM05` `REQ-TM06` `REQ-TM07` `REQ-TM08` `REQ-TM09` `REQ-TM10` `REQ-TM11` `REQ-TM12` `REQ-TM13` `REQ-TS01` `REQ-TS02` `REQ-TS03` `REQ-TS04` `REQ-TS05` `REQ-TS06` `REQ-TS07` `REQ-TS08` `REQ-TS09` `REQ-TS10` `REQ-W01` `REQ-W02` `REQ-W03` `REQ-W04` `REQ-W05` `REQ-W06` `REQ-W07` `REQ-W08` `REQ-W09` `REQ-W10` `REQ-W11` `REQ-W12`
+<!-- 生成物の指紋 sha256:b3b919c20091338612c26664aeeb8b4f8ad52b539976b0d10a7ac98e551dd13c -->

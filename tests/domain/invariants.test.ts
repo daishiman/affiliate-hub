@@ -1,4 +1,8 @@
-/** @tier 1 */
+/**
+ * @tier 1
+ * @req REQ-QC02, REQ-QC05, REQ-QC06, REQ-QC08, REQ-QC09
+ * @types equivalence, boundary
+ */
 import { describe, expect, it } from "vitest";
 import { requiredSectionsFor } from "@/domain/authoring/article-structure";
 import { createAuthorPersona, checkFactBoundary } from "@/domain/authoring/author-persona";
@@ -7,6 +11,7 @@ import { createContentVariant } from "@/domain/authoring/content-variant";
 import {
   PRICE_STALE_HOURS,
   runQualityChecks,
+  similarity,
   type ChannelConstraints,
 } from "@/domain/authoring/quality-check";
 import {
@@ -955,5 +960,101 @@ describe("自動の品質確認", () => {
     const skipped = report.skipped.find((s) => s.check === "conversation_flow");
     expect(skipped).toBeDefined();
     expect(skipped?.reason).toContain("吹き出し");
+  });
+
+  /**
+   * 止める数字の端を、実数で固定する。
+   *
+   * 上の検査は「止まること」を見ているが、**どこから止まるか**を見ていない。
+   * 5 文の段落で `paragraph_shape` が出ることは、上限が 3 でも 4 でも同じである。
+   *
+   * さらに悪い形が 1 つある。**上限を定数から組み立てた入力**である。
+   *
+   *     text: "あ".repeat(CONVERSATION_MAX_LENGTH + 1)   // 必ず 1 文字超える
+   *     priceCheckedAt: at(PRICE_STALE_HOURS + 1)        // 必ず 1 時間超える
+   *
+   * この書き方は、定数をいくつに変えても**同じ側に居続ける**。
+   * 定数が 120 から 1200 になっても緑のままで、
+   * 赤くならないのに**テストの名前だけが「120 文字」と主張し続ける**。
+   * 「72 時間ちょうどまでは通し」という上の検査名も、同じ形をしている。
+   *
+   * だからここでは**定数を輸入しない**。数字は手で書く。
+   * 実装の数字が動いた日に、ここが赤くなって「決めた値が変わった」と知らせる。
+   * 値を変えてよいときは、この行も一緒に直す——**2 か所直させることが目的**である。
+   */
+  describe("止める数字の端", () => {
+    it("1 段落は 3 文まで通し、4 文で知らせる", () => {
+      const ok = check("軽いです。静かです。デメリットは重さです。", SOURCED);
+      expect(ok.issues.map((i) => i.check)).not.toContain("paragraph_shape");
+
+      const ng = check("軽いです。静かです。速いです。デメリットは重さです。", SOURCED);
+      expect(ng.issues.map((i) => i.check)).toContain("paragraph_shape");
+    });
+
+    it("1 文は 80 文字まで通し、81 文字で知らせる", () => {
+      // 句点も 1 文字として数える（実装は末尾の句点を残したまま長さを測る）。
+      const tail = "\nデメリットは重さです。";
+      const ok = check(`${"あ".repeat(79)}。${tail}`, SOURCED);
+      expect(ok.issues.map((i) => i.check)).not.toContain("sentence_length");
+
+      const ng = check(`${"あ".repeat(80)}。${tail}`, SOURCED);
+      expect(ng.issues.map((i) => i.check)).toContain("sentence_length");
+    });
+
+    it("行動を促す文は 3 箇所まで通し、4 箇所で知らせる", () => {
+      const body = (n: number) =>
+        `静かです。デメリットは重さです。${"\n詳しくはこちら".repeat(n)}`;
+      expect(check(body(3), SOURCED).issues.map((i) => i.check)).not.toContain("cta_overuse");
+      expect(check(body(4), SOURCED).issues.map((i) => i.check)).toContain("cta_overuse");
+    });
+
+    /*
+     * 近さの端（重複 0.85 / 結論の食い違い 0.3）は、実装のどこにも定数として
+     * 出ていない。`similarity(...) >= 0.85` と直に書いてある。
+     * 名前が無いものは輸入しようがないので、狙った比率の文章をこちらで作る。
+     *
+     * `similarity` は 3-gram の重なり率で、**文字がすべて別のもの**なら
+     * 長さ L の文字列は L-2 個の相異なる 3-gram を持つ。
+     * 42 文字なら 40 個。先頭 k+2 文字だけを共有させると、
+     * 重なりはちょうど k 個（またぐ 3-gram は相手側の文字を含むので当たらない）。
+     * つまり比率は k/40 で、0.025 刻みで狙える。
+     */
+    const HIRA = "あいうえおかきくけこさしすせそたちつてとなにぬねのはひふへほまみむめもやゆよらりるれろ";
+    const KATA = "アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロ";
+    /** 40 個の 3-gram を持つ文章。 */
+    const base40 = HIRA.slice(0, 42);
+    /** `base40` と 3-gram を k 個だけ共有する、同じ長さの文章。 */
+    const shares = (k: number) => HIRA.slice(0, k + 2) + KATA.slice(0, 42 - k);
+
+    it("作った文章の重なり率が、狙った値になっている", () => {
+      // 下の 2 件は、この比率が合っていることに乗っている。
+      // ここが崩れると、端を測ったつもりで別の値を測る。
+      expect(similarity(base40, shares(34))).toBeCloseTo(0.85, 10);
+      expect(similarity(base40, shares(33))).toBeCloseTo(0.825, 10);
+      expect(similarity(base40, shares(12))).toBeCloseTo(0.3, 10);
+      expect(similarity(base40, shares(11))).toBeCloseTo(0.275, 10);
+    });
+
+    it("既存の記事との近さは 0.85 ちょうどで止め、その手前は通す", () => {
+      const stop = check(base40, SOURCED, { existingBodies: [shares(34)] });
+      expect(stop.issues.map((i) => i.check)).toContain("duplicate_text");
+
+      const pass = check(base40, SOURCED, { existingBodies: [shares(33)] });
+      expect(pass.issues.map((i) => i.check)).not.toContain("duplicate_text");
+    });
+
+    it("冒頭と最終の結論は、近さ 0.3 ちょうどなら通し、その手前で止める", () => {
+      const pass = check("静かに動きます。デメリットは重さです。", SOURCED, {
+        openingConclusion: base40,
+        finalConclusion: shares(12),
+      });
+      expect(pass.issues.map((i) => i.check)).not.toContain("conclusion_mismatch");
+
+      const stop = check("静かに動きます。デメリットは重さです。", SOURCED, {
+        openingConclusion: base40,
+        finalConclusion: shares(11),
+      });
+      expect(stop.issues.map((i) => i.check)).toContain("conclusion_mismatch");
+    });
   });
 });

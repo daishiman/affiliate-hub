@@ -92,6 +92,17 @@
 | REQ-R10 | has-permission | — |
 | REQ-R11 | has-permission | — |
 | REQ-R12 | has-permission | — |
+| REQ-QC01 | has-enumerated-input | — |
+| REQ-QC02 | has-input, has-enumerated-input | — |
+| REQ-QC03 | has-enumerated-input | — |
+| REQ-QC04 | has-enumerated-input | — |
+| REQ-QC05 | has-input | — |
+| REQ-QC06 | has-input, has-enumerated-input | — |
+| REQ-QC07 | has-enumerated-input | — |
+| REQ-QC08 | has-input | — |
+| REQ-QC09 | has-enumerated-input | — |
+| REQ-QC10 | has-input | — |
+| REQ-QC11 | has-enumerated-input | — |
 | REQ-QC12 | has-calculation | boundary: 公開ゲートの 13 項目は真偽の組合せで、大小の端が無い。組合せ側は性質テストが生成して当てている |
 | REQ-IM05 | has-state | — |
 | REQ-TH01 | has-screen | — |
@@ -165,18 +176,18 @@
 
 ## 4. 未宣言の要件について（正直に書く）
 
-要件表には **241 件**の要件 ID がある。上の宣言表はそのうち **121 件**である
+要件表には **241 件**の要件 ID がある。上の宣言表はそのうち **132 件**である
 （`node scripts/required-test-types.mjs` の出力から書き写す。手で数えない。
 ここは長らく 83 と書いたまま古くなっていたことがある。
 **手で書いた数字は、古くなっても古く見えない**）。
-残り 120 件は未宣言で、**この検査の対象外**にある。
-この 120 が `TEST_TYPES_MAX_UNDECLARED` と一致していることが、
+残り 109 件は未宣言で、**この検査の対象外**にある。
+この 109 が `TEST_TYPES_MAX_UNDECLARED` と一致していることが、
 この節の数字が実測と合っていることの確かめになる。
 
 全部に宣言を書き切るまで検査を入れない、という順にすると**検査は永久に入らない**。
 そこで `TRACEABILITY_MAX_UNLINKED` と同じ形にした。
 
-- 未宣言の上限 `TEST_TYPES_MAX_UNDECLARED` を実測に置く（置いた当初は 158。現在 120）
+- 未宣言の上限 `TEST_TYPES_MAX_UNDECLARED` を実測に置く（置いた当初は 158。現在 109）
 - **新しく足す要件は、宣言しなければ CI が落ちる**
 - 既存の未宣言は減らせるが増やせない。**上げて緑にすることを禁じる**
 
@@ -1305,6 +1316,132 @@ REQ-SEC09 の必須種別（`audit-log` / `boundary` / `db-migration` / `equival
 **指されない種別は、一度も要求されない。**一覧に名前があるだけで、門としては無い。
 この 7 つは `ah-0ip` から切り出して起票した（`ah-wes` /
 `tasks/task-test-type-traits-remaining.md`）。`ssrf` から順に、**1 種別ずつ**片付ける。
+
+### 2026-08-19 に減らしたぶん（120 → 109）: 記事の品質 11 件（REQ-QC01〜QC11）
+
+QC-01〜QC-17 の品質検査である。除外は **1 件も増やしていない（7 件のまま）**。
+
+**足す前に数えた。**`quality-check.ts` と `author-persona.ts` を読んでから性質を決めた。
+読んだ結果、印を貼る前に直すべきものが 1 つ見つかった。
+
+#### 見つけたこと: 一覧で決めている検査が、一覧の 1 行だけで試されていた
+
+品質検査のうち 5 つは、正規表現や語の**一覧**が中身そのものである。
+
+| 一覧 | 行数 | 貼る前に試されていた行 |
+| --- | --- | --- |
+| `EXAGGERATION_PATTERNS`（誇大表現） | 8 | 1 |
+| `VAGUE_HEADING_PATTERNS`（結論の分からない見出し） | 8 | 1 |
+| `RELATIVE_DATE_PATTERNS`（相対的な日付） | 11 | 1 |
+| `MEASURE_WORDS`（単位を付ける語） | 13 | 1 |
+| `FIRSTHAND_EXPERIENCE_PATTERNS`（一人称の体験） | 6 | 1 |
+
+1 行だけ試すと、次の 3 つがどれも緑のまま通る。
+**一覧から語を消す** / **足した正規表現が何にも当たらない** / **書き換えて別のものを指す**。
+`domain-events.test.ts` で直したのと同じ形（16 件のうち 1 件だけを試していた）である。
+
+そこで `tests/domain/quality-check-tables.test.ts` を書いた（41 件）。
+一覧の**全行**に例を当て、**当たってはならない側**も 1 つずつ持たせている。
+
+書くときに決めたことが 2 つある。
+
+- **期待する側の数は、一覧から作らない。** 一覧を回して当てるだけだと、
+  一覧から語を消したときに**輪が縮むだけで緑になる**。例の数と一覧の数を突き合わせ、
+  `MEASURE_WORDS` は 13 語を手で書き写して `toEqual` で比べている。
+  **消えたことが緑として現れないようにする**ためである
+- **例文から一覧を作らない。** `FIRSTHAND_EXPERIENCE_PATTERNS` は
+  `checkFactBoundary()` を直に呼び、返ってくる `pattern`（当たった正規表現そのもの）で
+  行ごとに突き合わせる。当たらない行が 1 つでもあれば、その行の字面を出して落ちる
+
+#### 赤の実測（検査の側）
+
+一覧から 1 行ずつ消す・正規表現を当たらない形に書き換える、の 6 通りを実際に入れた。
+**10 件が落ちた。**
+
+    EXAGGERATION_PATTERNS から「最安」を消す   → 例の数が合わない + 「最安」は止まる
+    VAGUE_HEADING_PATTERNS から「その他」を消す → 例の数が合わない + 「その他」は知らせる
+    RELATIVE_DATE_PATTERNS から「今週」を消す   → 例の数が合わない + 「今週」は知らせる
+    MEASURE_WORDS から「奥行」を消す            → 13 語と一致しない + 単位の無い数字が止まる
+    ^.{1,12}とは$ を ^.{1,12}ときは$ へ書き換え → 「HDRとは」は知らせる
+    /体感で/ を /体感でででで/ へ書き換え        → どれかの例文で実際に止まる
+
+#### 性質の当て方
+
+線引きは既存どおり「**端があるか**」の 1 点。ただし
+**REQ-QC02 と REQ-QC06 の 2 件だけ、両方の性質を宣言した**。
+この 2 件は仕様の側で 3 つの検査を束ねており（QC-02〜QC-04 / QC-08〜QC-10）、
+束の中に**端のあるもの**（1 文 80 文字 / 冒頭と最終の結論の近さ 0.3）と
+**列挙**（見出し 8 種 / 単位を付ける語 13 語 / 相対的な日付 11 種）が同居している。
+片方だけを名乗ると、もう片方が誰にも見られないまま残る。
+**緩めたのではなく、`equivalence` `boundary` `decision-table` の 3 つとも必須になる、
+より強い側へ倒した**。「両方を名乗る要件は無い」と書いていたのは、
+1 つの入力軸について両方を名乗るなという意味で、束ねられた要件の話ではない。
+
+1 列目を要件 ID にしていないのは上の節と同じ理由である。
+
+| 要件 | 内容 | 性質 | 印を付けた先 | そこにある分かれ目 |
+| --- | --- | --- | --- | --- |
+| QC01 | 必須セクションの存在 | has-enumerated-input | `writing-rules` | 記事の型を総当たりし、広告表記・デメリット・出典・訂正報告が任意になっていないこと |
+| QC02 | 段落・文長・見出し | has-input, has-enumerated-input | `invariants` ＋ `quality-check-tables` | 3 文まで / 4 文、80 文字まで / 81 文字、見出し 8 種の全行 |
+| QC03 | 禁止表現 | has-enumerated-input | `quality-check-tables` | 誇大表現 8 種の全行と、当たってはならない文 |
+| QC04 | 事実分類の付与 | has-enumerated-input | `fact-source` | 6 種の分類ごとに、表示名・語調のきまり・画面の文言がそろっていること |
+| QC05 | 根拠のない主張 | has-input | `invariants` ＋ `boundaries` | 数値があるのに主張が無い / 主張があるのに出典が無い、有効期間の端 |
+| QC06 | 単位・結論一致・日付 | has-input, has-enumerated-input | `invariants` ＋ `quality-check-tables` | 近さ 0.3 ちょうど / その手前、単位を付ける 13 語、相対的な日付 11 種 |
+| QC07 | ペルソナ差分の事実境界 | has-enumerated-input | `quality-check-tables` | 一人称の言い回し 6 行の全行、検証記録があれば全部通ること |
+| QC08 | マルチサイト重複 | has-input | `invariants` ＋ `writing-rules` | 重なり率 0.85 ちょうど / その手前、違う軸が 2 つ / 3 つ |
+| QC09 | 広告表記 | has-enumerated-input | `invariants` ＋ `publish-gate.property` | リンクがあって表記が空、本文内表記を要求する媒体での有無 |
+| QC10 | 会話ブロック制約 | has-input | `writing-rules` | 40 文字ちょうど / 39、120 / 121、2 個続く / 3 個 |
+| QC11 | 薬機法・景表法 | has-enumerated-input | `policy-rule-seed` | 初期ルール 13 件の全行に「当たる文」と「当たってはならない文」 |
+
+#### 印を貼るために新しく書いた検査（`quality-check-tables` のほかに 8 件）
+
+宣言に必要な `boundary` が、**実在しなかった**ものがある。
+既にあった検査は上限を超えたことしか見ておらず、**通る側の端を持っていなかった**。
+
+さらに悪い形が `conversation-block` にあった。**上限を定数から組み立てた入力**である。
+
+    text: "あ".repeat(CONVERSATION_MAX_LENGTH + 1)   // 必ず 1 文字超える
+
+この書き方は、定数を 120 から 1200 にしても**同じ側に居続ける**。
+赤くならないのに、テストの名前だけが「長すぎる」と古い主張を続ける。
+足した 8 件では**定数を輸入せず、数字を手で書いた**（39 / 40 / 120 / 121 のように）。
+値を変えるときに 2 か所直させるのが目的である。
+
+- `invariants` に 5 件（3 文 / 80 文字 / 行動を促す文 3 箇所の端、重なり率 0.85、結論の近さ 0.3）
+- `writing-rules` に 3 件（40・120 文字の端、吹き出し 2 個 / 3 個、違う軸 2 つ / 3 つ）
+
+**赤の実測**: 上限を緩める向きに動かすと落ちる。
+`MAX_SENTENCE_LENGTH` 80→100 / `MAX_SENTENCES_PER_PARAGRAPH` 3→4 /
+`MAX_CTA_OCCURRENCES` 3→4 / `0.85`→`0.9` / `0.3`→`0.2` で **6 件**、
+`CONVERSATION_MIN_LENGTH` 40→30 / `CONVERSATION_MAX_LENGTH` 120→200 /
+`MAX_CONSECUTIVE_BLOCKS` 2→3 / `MIN_DIFFERENT_AXES` 3→2 で **4 件**が落ちた。
+このとき**既存の「長すぎる発言も作れない」は緑のまま**で、
+定数から組み立てた入力が上限を見ていないことが実測で出た。
+
+#### 印を外したときの赤（1 ファイルずつ）
+
+    invariants から外す            → REQ-QC02 / REQ-QC06: boundary
+                                     REQ-QC05 / REQ-QC09: equivalence
+    writing-rules から外す         → REQ-QC01: decision-table, equivalence
+                                     REQ-QC10: boundary, equivalence
+    quality-check-tables から外す  → REQ-QC02 / REQ-QC06: decision-table
+                                     REQ-QC03 / REQ-QC07: decision-table, equivalence
+    fact-source から外す           → REQ-QC04: decision-table, equivalence
+    policy-rule-seed から外す      → REQ-QC11: decision-table, equivalence
+
+#### この検査が名指しできない残り（正直に書く）
+
+**REQ-QC05 と REQ-QC08 は、印を 1 つ外しても赤にならない。**
+どちらも 2 つのファイルに分かれて置いてあり、片方だけで必須種別がそろうためである
+（QC05 は `invariants` が `equivalence` と `boundary` の両方を名乗り、
+QC08 は `invariants` と `writing-rules` がどちらも両方を名乗る）。
+印は**ファイル単位で種別を名乗る**仕組みなので、
+「この要件は 2 つのファイルの両方が要る」を表す書き方が無い。
+
+嘘の緑ではない（分かれ目は 2 か所とも実在する）が、
+**片方を消したときに、この検査は何も言わない**。
+そこが消えたときに赤くするのは vitest 側で、
+上に書いた 8 件（0.85 / 0.3 / 3 軸 / 40・120 文字）がその役をしている。
 
 ## 5. 除外という逃げ道について
 
