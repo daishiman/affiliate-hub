@@ -1,4 +1,5 @@
 import type { MetricKey, MetricSample } from "@/domain/analytics";
+import type { RedirectResolution } from "@/domain/monetization";
 import type { ArticleId, SiteId, WorkspaceId } from "@/domain/shared";
 import type { PortResult } from "./common";
 
@@ -76,16 +77,48 @@ export type MetricAxisOptions = {
 };
 
 /**
+ * 転送（`/go/<合言葉>`）のときに読む写し。
+ *
+ * 読むだけの口である。写しを作るのは公開の側で、ここからは書けない。
+ * 書ける口をここに置くと、転送の経路から転送先を差し替えられることになる。
+ *
+ * 知らない合言葉は**失敗ではなく `null`**。転送経路にとって
+ * 「知らない合言葉が来る」は普通のことで（古いリンク・打ち間違い）、
+ * 失敗にすると保存先の障害と見分けが付かなくなる。
+ */
+export type RedirectResolverPort = {
+  resolve(code: string): PortResult<RedirectResolution | null>;
+};
+
+/**
  * クリック計測。
  *
- * アフィリエイト URL を書き換えずに測るため、
- * 計測識別子 (trackingRef) とクリックを別で記録する。
+ * **アフィリエイト URL を書き換えずに測る。** URL に印を足す代わりに、
+ * こちら側に入口（`/go/<合言葉>`）を置き、押されたことはこちらで数える。
+ *
+ * --- 記録先を専用の表にしない ---
+ * ここで記録したクリックは `telemetry_events` の `affiliate_click` になる。
+ * 画面から送るクリックがすでに同じ表へ入っているので、
+ * 専用の表を足すと**同じ「クリック数」が 2 つでき、
+ * 食い違ったときにどちらが正しいか決められない**
+ * （残課題 25「事実だけを貯め、指標は毎回導く」）。
+ *
+ * --- 二重に数えない ---
+ * 同じクリックを画面側とここの両方で数えないよう、
+ * 転送の入口を通るリンクは画面側で数えない（`AffiliateLink` 部品が判断する）。
+ * どちらで数えたかは記録に残す（`recordedVia`）ので、
+ * 後から突き合わせて欠測の量を測れる。
  */
 export type ClickTrackingPort = {
+  /**
+   * 押されたことを記録する。
+   *
+   * 引数に取るのは**解決済みの写しそのもの**である。合言葉だけを渡す形にすると、
+   * 転送のために 1 回引いた表を記録のためにもう 1 回引くことになり、
+   * その間に写しが変わると転送先と記録が食い違う。
+   */
   recordClick(input: {
-    workspaceId: WorkspaceId;
-    trackingRef: string;
-    articleId: ArticleId | null;
+    resolution: RedirectResolution;
     occurredAt: Date;
   }): PortResult<true>;
 };

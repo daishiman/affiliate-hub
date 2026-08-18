@@ -2,6 +2,7 @@ import {
   type ArticleSummary,
   type PublishedArticle,
   articleHref,
+  outboundHref,
 } from "@/application/read-models/published-article";
 import type { PublicSiteBlueprint } from "@/application/usecases/site/read-site";
 import {
@@ -152,11 +153,11 @@ export function toArticleView(siteSlug: string, article: PublishedArticle): Arti
         basis: spec.kind,
       })),
       priceNote: card.priceNote,
-      affiliateHref: card.affiliateUrl,
+      affiliateHref: outboundHref(card.trackingCode, card.affiliateUrl),
       // 買う導線が無いときは、理由を必ず添える。
       // 理由が無いと、読者には「リンクの貼り忘れ」と区別が付かない。
       blockedReason:
-        card.affiliateUrl === undefined
+        card.affiliateUrl === undefined && card.trackingCode === undefined
           ? (card.blockedReason ?? "この商品は、いま提携している販売先がありません。")
           : undefined,
       detailHref:
@@ -179,6 +180,7 @@ export function toArticleView(siteSlug: string, article: PublishedArticle): Arti
                 e.reviewSlug === undefined
                   ? undefined
                   : siteHref(siteSlug, `/reviews/${e.reviewSlug}`),
+              affiliateHref: outboundHref(e.trackingCode, e.affiliateUrl),
               note: e.oneLine,
             })),
             excluded: article.ranking.excluded,

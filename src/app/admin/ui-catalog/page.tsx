@@ -254,8 +254,11 @@ export default function UiCatalogPage() {
             caption="動画編集向けノートパソコンの順位"
             criteria={criteria}
             rows={[
-              { productId: "p1", rank: 1, productName: "機種A", totalScore: 84, criterionScores: [80, 88, 83] },
-              { productId: "p2", rank: 2, productName: "機種B", totalScore: 79, criterionScores: [72, 85, 79] },
+              // 1 行目: 転送の入口を通る（サーバーが数える）
+              { productId: "p1", rank: 1, productName: "機種A", totalScore: 84, criterionScores: [80, 88, 83], affiliateHref: "/go/samplea01" },
+              // 2 行目: ASP の URL を直に出す（画面が数える）
+              { productId: "p2", rank: 2, productName: "機種B", totalScore: 79, criterionScores: [72, 85, 79], affiliateHref: "https://example.com/click?aid=123&pid=456" },
+              // 3 行目: 提携が無い。空欄にせず理由を出す
               { productId: "p3", rank: 3, productName: "機種C", totalScore: 71, criterionScores: [90, 60, 66] },
             ]}
             excluded={[{ productId: "p9", productName: "機種Z", reason: "販売終了のため" }]}

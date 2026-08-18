@@ -2,6 +2,7 @@ import type {
   ClickTrackingPort,
   MetricDimensions,
   MetricsRepositoryPort,
+  RedirectResolverPort,
 } from "@/application/ports/analytics";
 import type { MetricKey, MetricSample } from "@/domain/analytics";
 import { ok } from "@/domain/shared";
@@ -33,11 +34,26 @@ const stub = registerStub({
   fallbackFor: "src/infrastructure/persistence/d1/telemetry-repository.ts",
 });
 
+/**
+ * --- `click_events` という表は作らないことにした（記録を消さずに残す） ---
+ *
+ * この口の解除条件には、もともと「`click_events` テーブルと、リンクの計測
+ * 識別子を発行する仕組み」と書いてあった。**その表は作らない。**
+ * 画面から送るクリックはすでに `telemetry_events` の `affiliate_click` として
+ * 入っており、専用の表を足すと**同じ「クリック数」が 2 つできる**。
+ * 食い違ったときにどちらが正しいかを決める方法が無く、片方が正しいと
+ * 決められない数字は、最終的に両方が信用されなくなる。
+ *
+ * 消さずに書いてあるのは、次に読んだ人が仕様（03 §1.2）から読み直して
+ * 同じ表をもう一度作るのを防ぐためである。
+ */
 const clickStub = registerStub({
   id: "persistence:click-tracking-sample",
   port: "クリック計測",
-  label: "クリックの記録（未実装）",
-  blockedBy: "click_events テーブルと、リンクの計測識別子を発行する仕組み",
+  label: "クリックの記録（この実行では保存先が無い）",
+  blockedBy:
+    "済み（click_events 表はやめ、転送の入口 /go/ で押されたことを計測の記録へ入れる。d1/redirect-repository.ts）",
+  fallbackFor: "src/infrastructure/persistence/d1/redirect-repository.ts",
 });
 
 export function sampleAnalyticsNotice(): string {
@@ -307,13 +323,29 @@ export function createSampleMetricsRepository(): MetricsRepositoryPort {
 }
 
 /**
- * クリックの記録。
+ * クリックの記録（保存先が無い実行での控え）。
  *
- * URL を書き換えずに測るため、計測識別子とクリックを別に記録する仕組み。
- * 保存先が無いので、いまは記録できない。
+ * 本物は `d1/redirect-repository.ts` にある。保存先が結び付いていない実行
+ * （`pnpm dev`・自動テスト）ではここへ回る。
+ *
+ * **成功したふりをしない。** 記録できたことにすると、
+ * 「転送はできているのにクリック数が増えない」の原因が追えなくなる。
  */
 export function createSampleClickTracking(): ClickTrackingPort {
   return {
     recordClick: () => stubCall(clickStub, "クリックの記録"),
+  };
+}
+
+/**
+ * 転送先の読み取り（保存先が無い実行での控え）。
+ *
+ * **`null`（＝知らない合言葉）を返さない。** 返すと、保存先が無いだけなのに
+ * 「そんなリンクは無い」と読者に伝わり、リンクを消したのだと受け取られる。
+ * 失敗として返し、入口の側で「いまは確認できない」と出し分ける。
+ */
+export function createSampleRedirectResolver(): RedirectResolverPort {
+  return {
+    resolve: () => stubCall(clickStub, "転送先の読み取り"),
   };
 }

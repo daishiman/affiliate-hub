@@ -5,7 +5,7 @@ import { describe, expect, it } from "vitest";
 import { createAspAdapter, supportedAsps } from "@/infrastructure/asp/asp-registry";
 import { availableChannels, createChannelConnector } from "@/infrastructure/channels/channel-registry";
 import { LLM_PROVIDER_LABEL, createLlm } from "@/infrastructure/llm/llm-provider-registry";
-import type { LlmProviderKind } from "@/infrastructure/llm/llm-provider-registry";
+import type { LlmProviderKind } from "@/infrastructure/llm/llm-provider-catalog";
 import { fakeSecretResolver } from "@/infrastructure/platform/secret-resolver";
 import "@/infrastructure/platform/storage-r2";
 import { listFallbacks, listStubs, listUnbuiltStubs } from "@/infrastructure/stub-registry";

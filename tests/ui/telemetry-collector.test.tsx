@@ -85,8 +85,19 @@ function marked(attrs: Record<string, string>): HTMLElement {
   return el;
 }
 
+/** 印の付いたリンク。行き先で数え方が変わるので、`href` を持つ形で作る。 */
+function markedLink(href: string, attrs: Record<string, string>): HTMLElement {
+  const el = document.createElement("a");
+  el.setAttribute("href", href);
+  for (const [name, value] of Object.entries(attrs)) el.setAttribute(name, value);
+  // jsdom は本当に移動しようとして警告を出す。数え方だけを見たいので止める。
+  el.addEventListener("click", (ev) => ev.preventDefault());
+  document.body.appendChild(el);
+  return el;
+}
+
 function click(el: Element): void {
-  el.dispatchEvent(new window.MouseEvent("click", { bubbles: true }));
+  el.dispatchEvent(new window.MouseEvent("click", { bubbles: true, cancelable: true }));
 }
 
 function setVisibility(state: "visible" | "hidden"): void {
@@ -212,9 +223,54 @@ describe("同意の有無で、作るものが変わる", () => {
       path: BASE.path,
       linkId: "lk_9",
       placement: "結論",
+      // どちらの経路で数えたか。転送の入口を通らないので画面が数えた。
+      recordedVia: "browser",
     });
     // 誰が押したかは持たない。件数として数えるだけ。
     expect(events[1].payload).not.toHaveProperty("readerKey");
+  });
+
+  it("転送の入口を通る成果リンクは、画面側で数えない（二重計上を防ぐ）", async () => {
+    stubBeacon(true);
+    const { unmount } = mount({ allowBehaviour: false });
+    click(
+      markedLink("/go/abc123", {
+        "data-tel-kind": "affiliate_link",
+        "data-tel-id": "lk_go",
+        "data-tel-placement": "順位表",
+      }),
+    );
+    unmount();
+
+    // サーバー（/go/ の入口）が数える。ここでも数えるとクリック数が 2 倍になる。
+    expect(keysOf(await sent())).toEqual(["page_view"]);
+  });
+
+  it("入口を通らない成果リンクは、画面側が数える（取りこぼさない）", async () => {
+    stubBeacon(true);
+    const { unmount } = mount({ allowBehaviour: false });
+    click(
+      markedLink("https://example.com/click?aid=1", {
+        "data-tel-kind": "affiliate_link",
+        "data-tel-id": "lk_raw",
+      }),
+    );
+    unmount();
+
+    const events = await sent();
+    expect(keysOf(events)).toEqual(["page_view", "affiliate_click"]);
+    // どちらが数えたかを値として残す。両方が数え始めたらデータに現れる。
+    expect(events[1].payload).toMatchObject({ linkId: "lk_raw", recordedVia: "browser" });
+  });
+
+  it("判定は印ではなく行き先そのもので行う（印を付け忘れても二重にならない）", async () => {
+    stubBeacon(true);
+    const { unmount } = mount({ allowBehaviour: false });
+    // 「入口を通る」という印は付けていない。それでも行き先が /go/ なら数えない。
+    click(markedLink("/go/xyz789", { "data-tel-kind": "affiliate_link", "data-tel-id": "lk_2" }));
+    unmount();
+
+    expect(keysOf(await sent())).toEqual(["page_view"]);
   });
 
   it("同意があるときの目印は、同じ読者のあいだ使い回される", async () => {

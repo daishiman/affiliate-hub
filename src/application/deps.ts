@@ -17,7 +17,11 @@ import type {
   ManualExportPort,
   PublicationRepositoryPort,
 } from "./ports/distribution";
-import type { ClickTrackingPort, MetricsRepositoryPort } from "./ports/analytics";
+import type {
+  ClickTrackingPort,
+  MetricsRepositoryPort,
+  RedirectResolverPort,
+} from "./ports/analytics";
 import type { TelemetrySinkPort } from "./ports/telemetry";
 import type { ImprovementRepositoryPort } from "./ports/improvement";
 import type {
@@ -89,6 +93,8 @@ export type AppDeps = {
   readonly manualExport: ManualExportPort;
   readonly metrics: MetricsRepositoryPort;
   readonly clickTracking: ClickTrackingPort;
+  /** 転送の入口（`/go/<合言葉>`）が読む写し。読むだけで、ここからは書けない。 */
+  readonly redirectResolver: RedirectResolverPort;
   /**
    * 計測の記録先。
    *

@@ -265,6 +265,10 @@ export const UI_COPY = {
     criterionWeight: "重み",
     criterionMeasurement: "測り方",
     updatedAt: "評価日",
+    ctaColumn: "販売ページ",
+    ctaLabel: "販売ページで確認する",
+    /** 提携が無い商品を、空欄にせずこう書く。空欄は「貼り忘れ」に見える。 */
+    ctaBlocked: "案内できる販売先がありません",
   },
 
   /** 根拠の表示。出典が無いときに黙らない。 */

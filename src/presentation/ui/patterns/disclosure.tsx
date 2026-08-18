@@ -55,10 +55,17 @@ export function DisclosureNotice({
  *
  * 2 つの決まりを部品側で強制する。
  *   1. `rel` に sponsored を必ず含める（検索エンジンへの申告）
- *   2. ASP が発行した URL を**改変しない**（パラメータの付け足しをしない）
+ *   2. 渡された URL を**改変しない**（パラメータの付け足しをしない）
  *
  * href をそのまま渡すだけの薄い部品に見えるが、
  * `rel` の指定を呼び出し側に任せた時点で付け忘れが起きる。
+ *
+ * --- 数え方が 2 通りあること ---
+ * `href` には 2 種類が来る。
+ *   - 転送の入口（`/go/<合言葉>`）… サーバーが数える。画面は数えない
+ *   - ASP が発行した URL … 画面（`presentation/telemetry/collector.tsx`）が数える
+ * 見分けは**この部品ではなく行き先そのもの**で行う。ここで印を付けて渡すと、
+ * 印の付け忘れがそのまま二重計上になる。
  */
 export function AffiliateLink({
   href,
@@ -68,7 +75,10 @@ export function AffiliateLink({
   productId,
   placement = "本文",
 }: {
-  /** ASP が発行した URL。**ここで加工しない。** */
+  /**
+   * 転送の入口（`/go/<合言葉>`）か、ASP が発行した URL。
+   * どちらが来ても**ここで加工しない。**
+   */
   readonly href: string;
   readonly children: React.ReactNode;
   /** 計測用。リンク先は変えない。 */

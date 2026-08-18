@@ -67,8 +67,19 @@ describe("計測から指標を導く", () => {
       siteSlug: "s",
       linkId: "lnk_1",
       placement: "本文",
+      recordedVia: "browser",
     });
     const samples = deriveMetricSamples([click, click], FROM, NOW);
+    expect(samples.find((s) => s.key === "affiliate_click_count")?.value).toBe(2);
+  });
+
+  it("数えた経路が違っても、クリックは同じ 1 件として数える", () => {
+    // 転送の入口（サーバー）と画面の両方から届く。合算できないと、
+    // 計測リンクを設けた記事だけ数字が別建てになる。
+    const base = { path: "/a", siteSlug: "s", linkId: "lnk_1", placement: "本文" };
+    const viaRedirect = event("affiliate_click", { ...base, recordedVia: "redirect" });
+    const viaBrowser = event("affiliate_click", { ...base, recordedVia: "browser" });
+    const samples = deriveMetricSamples([viaRedirect, viaBrowser], FROM, NOW);
     expect(samples.find((s) => s.key === "affiliate_click_count")?.value).toBe(2);
   });
 

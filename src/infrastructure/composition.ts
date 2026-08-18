@@ -57,7 +57,12 @@ import {
 import {
   createSampleClickTracking,
   createSampleMetricsRepository,
+  createSampleRedirectResolver,
 } from "./persistence/sample/analytics-sample-repository";
+import {
+  createD1RedirectResolver,
+  createRedirectClickTracking,
+} from "./persistence/d1/redirect-repository";
 import { createSampleTelemetrySink } from "./persistence/sample/telemetry-sample-sink";
 import {
   createD1TelemetryMetricsRepository,
@@ -110,6 +115,17 @@ export function createDeps(
   const db = options.db ?? null;
   const bucket = options.bucket ?? null;
   const llmPorts = createLlmPorts();
+  // 計測の記録先は、保存先が用意できていれば本物（D1）。
+  // 入れる口（/api/telemetry と画面の収集係）と読む口（/admin/analytics）が
+  // 両方そろったのでつないだ。片方しか無い状態でつなぐと、
+  // 貯まるだけで誰も見ない記録か、中身の無い画面のどちらかになる。
+  //
+  // **ここで先に作っているのは、転送の入口（/go/）も同じ記録先を使うから。**
+  // 2 つ作ると、同じクリックが 2 つの経路で別々に貯まる余地ができる。
+  const telemetry =
+    db === null
+      ? createSampleTelemetrySink()
+      : createD1TelemetrySink({ db, newId: () => idGenerator.newId() });
   return {
     // ★ 見本データ（スタブ）。ranking_models / score_cards テーブルができたら差し替える。
     rankingModels: createSampleRankingModelRepository(),
@@ -167,15 +183,16 @@ export function createDeps(
     // 接続が無い環境では見本データに落ちる（何で動いているかは画面に出す）。
     metrics:
       db === null ? createSampleMetricsRepository() : createD1TelemetryMetricsRepository(db),
-    clickTracking: createSampleClickTracking(),
-    // 計測の記録先も、保存先が用意できていれば本物（D1）。
-    // 入れる口（/api/telemetry と画面の収集係）と読む口（/admin/analytics）が
-    // 両方そろったのでつないだ。片方しか無い状態でつなぐと、
-    // 貯まるだけで誰も見ない記録か、中身の無い画面のどちらかになる。
-    telemetry:
-      db === null
-        ? createSampleTelemetrySink()
-        : createD1TelemetrySink({ db, newId: () => idGenerator.newId() }),
+    // 転送の入口（/go/<合言葉>）で押されたことの記録と、転送先の読み取り。
+    //
+    // **クリックを専用の表に貯めない。** 記録先は計測と同じ `telemetry_events` で、
+    // 画面から送るクリックと同じ形（`affiliate_click`）になる。別の表にすると
+    // 同じ「クリック数」が 2 つでき、食い違ったときにどちらが正しいか決められない。
+    // 二重に数えないための印は `recordedVia`（redirect / browser）。
+    clickTracking:
+      db === null ? createSampleClickTracking() : createRedirectClickTracking({ telemetry }),
+    redirectResolver: db === null ? createSampleRedirectResolver() : createD1RedirectResolver(db),
+    telemetry,
     // ★ 見本データ（スタブ）。改善ループの記録と見せ方の設定。
     //   読み出しは見本を返し、保存は失敗を返す（保存できたことにしない）。
     improvement: createSampleImprovementRepository(),
