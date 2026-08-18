@@ -1,5 +1,5 @@
 {
-  "graph_revision": 234,
+  "graph_revision": 235,
   "nodes": [
     {
       "acceptance": [],
@@ -11022,6 +11022,102 @@
       "title": "必須でないと宣言した項目が実際には必須なので、スキーマどおりに呼ぶ AI は必ず失敗し、同じ呼び方を繰り返す",
       "tracker_binding": "beads",
       "updated_at": "2026-08-18T22:40:00Z"
+    },
+    {
+      "acceptance": [],
+      "architecture_refs": [],
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "beads_linkage": null,
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "candidate_path": "tasks/task-judgment-column-audit.md",
+          "confidence": 0.9
+        }
+      ],
+      "classification_confidence": 0.9,
+      "classification_reason": "2026-08-19 に必須テスト種別の宣言作業から見つかった、判定欄と実物のずれ",
+      "completion_evidence": {
+        "completed_at": null,
+        "evidence_refs": [],
+        "policy": "manual",
+        "reconciled_at": null,
+        "source": "manual",
+        "status": "open"
+      },
+      "confirmation_evidence": {
+        "evaluated_digest": null,
+        "evaluator": null,
+        "evidence_ref": null
+      },
+      "confirmation_status": "draft",
+      "created_at": "2026-08-19T00:00:00Z",
+      "depends_on": [],
+      "domain": "quality",
+      "evaluation_status": "pending",
+      "execution_contexts": [],
+      "feature_package_id": null,
+      "file_path": "tasks/task-judgment-column-audit.md",
+      "github_project_linkages": [],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "goal": null,
+      "graph_node_id": "task-judgment-column-audit",
+      "implementation_readiness": {
+        "checked_at": null,
+        "missing_sections": [],
+        "status": "incomplete"
+      },
+      "issue_linkage": null,
+      "iteration": null,
+      "mvp_alignment": {
+        "background": "必須テスト種別の宣言を進める中で、見た 2 群のうち 2 群で判定欄と実物のずれが出た（REQ-W03/W04 と REQ-TM04）",
+        "mvp_fit": "enabling",
+        "purpose": "判定欄の記述を、実測の引用へ置き換える",
+        "rationale": "率が 100%（分母 2 / 分子 2）なので、3 件目を待つのは分母が増えるのを待つことにしかならない"
+      },
+      "owners": [
+        "daishiman"
+      ],
+      "parent_feature": null,
+      "phase_ref": null,
+      "priority": "high",
+      "project_id": "affiliate-hub",
+      "pull_request_linkages": [],
+      "purpose": null,
+      "related_nodes": [],
+      "resource_scope": [
+        "docs",
+        "tests"
+      ],
+      "scope_in": [],
+      "scope_out": [],
+      "source_lineage": {
+        "imported_at": "2026-08-19T00:00:00Z",
+        "origin_kind": "manual",
+        "source_digest": null,
+        "source_path": "docs/product/traceability.md",
+        "source_plugin": null,
+        "source_version": null
+      },
+      "start_date": "2026-08-19",
+      "status": "draft",
+      "tags": [
+        "quality",
+        "traceability",
+        "tests"
+      ],
+      "target_date": null,
+      "template_id": "task",
+      "template_version": "1.0.0",
+      "title": "守っていないものを、守ったと書いてある — 要件表の判定欄を全件点検する",
+      "tracker_binding": "beads",
+      "updated_at": "2026-08-19T00:00:00Z"
     }
   ],
   "repository_id": "github:daishiman/affiliate-hub",
