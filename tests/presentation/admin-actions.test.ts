@@ -215,6 +215,17 @@ describe("受信箱の操作", () => {
 });
 
 describe("ブログ作成ウィザードの操作", () => {
+  /**
+   * ブログの器を作るには `site.draft` が要る。
+   *
+   * 2026-08-18 まではここで見本の身元（既定）のまま通っていた。
+   * 見本から書き込みの役を外したので、**要る役をこの検査が名乗る**形にした。
+   * 見本へ役を戻して緑にしない（`src/infrastructure/identity/sample-actor.ts`）。
+   */
+  beforeEach(() => {
+    signedIn = { ...SAMPLE_ACTOR, roles: ["writer"] };
+  });
+
   const ANSWERS: Record<string, Record<string, string>> = {
     purpose: { purpose: "はじめて一眼カメラを買う人が、レンズ選びで迷わないようにする" },
     genre: { genre: "カメラ・交換レンズ" },

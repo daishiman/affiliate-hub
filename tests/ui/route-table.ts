@@ -93,6 +93,14 @@ const ENTRY: readonly RouteCase[] = [{ file: "page.tsx" }, { file: "signin/page.
 export const ROUTE_CASES: readonly RouteCase[] = [...ENTRY, ...ADMIN, ...READER];
 
 /**
+ * 運営側の画面だけ。**権限を持った身元で描き直す**検査が使う。
+ *
+ * 既定の描画は見本の身元（読むだけ）で走るので、権限のある人にだけ見える部分は
+ * 描かれない。同じ表から回すことで、画面を足したときに両方へ自動的に入る。
+ */
+export const ADMIN_ROUTE_CASES: readonly RouteCase[] = ADMIN;
+
+/**
  * 同じ画面を別の状態でもう一度開く場合。
  *
  * 状態違いを `ROUTE_CASES` に混ぜないのは、そこが**画面の本数**を表す表であり、

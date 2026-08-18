@@ -26,15 +26,29 @@ import { SAMPLE_SITE_SLUG } from "@/infrastructure/persistence/sample/site-sampl
 
 const catalog = buildToolCatalog(createDeps());
 
-/** 報酬まわりの操作ができる担当者。見本の担当者には権限が無い。 */
+/** 報酬まわりの操作ができる担当者。編集部の担当者には権限が無い。 */
 const MANAGER: ActorContext = { ...SAMPLE_ACTOR, roles: ["owner"] };
+
+/**
+ * 編集部の担当者（この検査の既定の身元）。
+ *
+ * 2026-08-18 まではここで見本の身元（`SAMPLE_ACTOR`）をそのまま使っていた。
+ * 見本から書き込みの役を外した（`sample-actor.ts`）ので、
+ * **要る役を検査の側で名乗る**形に変えた。
+ * 見本へ役を戻して緑にしない。認証が入るまで、見本の役は
+ * 「アドレスを知っている人全員が持つ役」と同じものである。
+ */
+const STAFF: ActorContext = {
+  ...SAMPLE_ACTOR,
+  roles: ["researcher", "writer", "reviewer", "analyst"],
+};
 
 /** ログインしていない読者。読者ページの道具はこの身元で動かねばならない。 */
 const READER: ActorContext = readerActor();
 
 type Json = Record<string, unknown>;
 
-async function call(name: string, args: Json, actor: ActorContext = SAMPLE_ACTOR) {
+async function call(name: string, args: Json, actor: ActorContext = STAFF) {
   const tool = findTool(catalog, name);
   expect(tool, `ツールがありません: ${name}`).not.toBeNull();
   if (tool === null) throw new Error(name);
@@ -42,7 +56,7 @@ async function call(name: string, args: Json, actor: ActorContext = SAMPLE_ACTOR
 }
 
 /** 成功を前提に中身を取り出す。失敗していたら理由つきで落とす。 */
-async function value(name: string, args: Json, actor: ActorContext = SAMPLE_ACTOR): Promise<Json> {
+async function value(name: string, args: Json, actor: ActorContext = STAFF): Promise<Json> {
   const r = await call(name, args, actor);
   if (!r.ok) throw new Error(`${name} が失敗しました: ${r.error.message}`);
   return r.value as Json;

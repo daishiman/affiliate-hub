@@ -157,11 +157,25 @@ describe("鍵を持った呼び出しは変わらない", () => {
     vi.resetModules();
   });
 
-  it("Bearer なら管理用の読み取りが通る", async () => {
+  /**
+   * **2026-08-18 に反転した。止まったことを、そのまま記録する。**
+   *
+   * 全体の合言葉（`MCP_TOKEN`）は「この入口を叩いてよい呼び出しか」しか見ておらず、
+   * **どの作業場所の誰かを決めていない**。決まらないので身元は見本へ落ちる。
+   * 見本から書き込みの役を外した結果、この経路の権限も読むだけになった。
+   *
+   * これは抜け道を塞いだのではなく、**この経路がもともと見本の権限に
+   * ぶら下がっていた**ことが表に出たものである（`ah-3n1` / `ah-2ro` と同じ形）。
+   *
+   * 作業場所つきで取りに来る正しい道は `resolveIntegrationAccess`（連携の鍵）で、
+   * そちらは `ai_service_account` の身元を鍵から組み立てる。
+   * ここを緑に戻すために見本へ役を足さない。
+   */
+  it("Bearer だけでは管理用の読み取りは通らない（身元が決まらないため）", async () => {
     const route = await import("@/app/api/tools/[tool]/route");
     const res = await route.POST(bearerCall("list_feedback"), params("list_feedback"));
 
-    expect(await codeOf(res)).not.toBe("FORBIDDEN");
+    expect(await codeOf(res)).toBe("FORBIDDEN");
   });
 });
 
@@ -178,10 +192,28 @@ describe("身元の決め方そのもの（口を 1 行触らずに穴が開く�
     expect(await actorForScope("same-origin")).toEqual(readerActor());
   });
 
-  it("見本の身元は、改善要望を実際に読める（だから落ちると危ない）", async () => {
+  it("見本の身元は、書き込みの役を 1 つも持たない", async () => {
     const { can } = await import("@/domain/identity/permissions");
     const { SAMPLE_ACTOR } = await import("@/infrastructure/identity/sample-actor");
 
-    expect(can(SAMPLE_ACTOR, "feedback.read")).toBe(true);
+    // 2026-08-18 に反転した検査である。
+    // 以前はここで「見本でも改善要望を読める」ことを固定していた。
+    // 認証が無いまま管理画面が開く（`docs/product/open-doors.md`）以上、
+    // 見本に配った権限は**アドレスを知っている人全員に配った権限**と同じである。
+    for (const capability of [
+      "content.write",
+      "content.approve",
+      "content.publish",
+      "product.write",
+      "site.draft",
+      "feedback.manage",
+      "integration_key.manage",
+    ] as const) {
+      expect(can(SAMPLE_ACTOR, capability), `見本が ${capability} を持っています`).toBe(false);
+    }
+
+    // 読むところまでは残す。ここまで塞ぐと画面が 1 枚も開かず、
+    // 「閉じた」ではなく「壊れた」になる。
+    expect(can(SAMPLE_ACTOR, "content.read")).toBe(true);
   });
 });

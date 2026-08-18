@@ -141,7 +141,13 @@ describe("どの作業場所のものかは、URL ではなく身元から決ま
     const seen: string[] = [];
     vi.doMock("@/presentation/composition", async (importOriginal) => ({
       ...(await importOriginal<typeof import("@/presentation/composition")>()),
-      signedInActor: async () => ({ ...SAMPLE_ACTOR, workspaceId: "ws_mine" }),
+      // 要望を読む役を名乗る。見本の身元は読む役だけになったので、
+      // ここを見本のままにすると、作業場所の検査へ届く前に断られる。
+      signedInActor: async () => ({
+        ...SAMPLE_ACTOR,
+        roles: ["feedback_admin"] as const,
+        workspaceId: "ws_mine",
+      }),
     }));
     vi.doMock("@/infrastructure/platform/bucket-connection", () => ({
       tryGetBucket: async () => ({}),
@@ -174,12 +180,19 @@ describe("身元の取り方が 2 つあり、渡す口は落ちない方を使�
     expect(await signedInActor()).toBeNull();
   });
 
-  it("見本の身元は、要望を読む権限を実際に持っている（だから落ちると危ない）", async () => {
+  it("見本の身元は、要望を読むことも扱いを決めることもできない", async () => {
     const { can } = await import("@/domain/identity/permissions");
 
-    // この検査が緑であるかぎり、`currentActor()` を渡す口で使うことは穴になる。
-    // 見本から権限を外して閉じる、という直し方を選ばなかった理由でもある
-    // （外すと、認証が入るまで誰も改善要望の画面を確かめられなくなる）。
-    expect(can(SAMPLE_ACTOR, "feedback.read")).toBe(true);
+    // 2026-08-18 に反転した検査である。
+    // 以前はここで「見本でも要望を読める」ことを固定し、
+    // 「外すと認証が入るまで誰も改善要望の画面を確かめられなくなる」を
+    // 権限を残す理由にしていた。**確かめやすさを、開いたままの理由にしない。**
+    //
+    // 見本が持っていた `feedback_admin` には `integration_key.manage`
+    // （外部連携の鍵の発行と失効）も入っていた。
+    // 認証が無いまま鍵を発行できる状態だったということである。
+    expect(can(SAMPLE_ACTOR, "feedback.read")).toBe(false);
+    expect(can(SAMPLE_ACTOR, "feedback.manage")).toBe(false);
+    expect(can(SAMPLE_ACTOR, "integration_key.manage")).toBe(false);
   });
 });

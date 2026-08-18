@@ -6,6 +6,7 @@
 import { describe, expect, it } from "vitest";
 import { SITE_WIZARD_STEPS } from "@/domain/authoring";
 import { currentActor, siteBuilderUseCases, siteUseCases } from "@/presentation/composition";
+import type { ActorContext } from "@/domain/shared";
 
 /**
  * ブログ作成ウィザードの確認。
@@ -16,9 +17,21 @@ import { currentActor, siteBuilderUseCases, siteUseCases } from "@/presentation/
  * 出てくることを、人の目視ではなく機械で確かめる。
  */
 
+/**
+ * ブログを作る担当者。
+ *
+ * 見本の身元（`currentActor()`）は 2026-08-18 に読む役だけになったので、
+ * ここでは `site.draft` を持つ役を明示して呼ぶ。
+ * **見本へ役を足して緑にしない。** 見本の役は、認証が無いいま
+ * 「アドレスを知っている人全員が持つ役」と同じものである。
+ */
+async function builderActor(): Promise<ActorContext> {
+  return { ...(await currentActor()), roles: ["writer"] };
+}
+
 /** 13 段階すべてに答えた下書きを作る。答えの中身は最小限で足りる。 */
 async function completeDraft(slug: string): Promise<string> {
-  const actor = await currentActor();
+  const actor = await builderActor();
   const uc = (await siteBuilderUseCases());
 
   const started = await uc.startDraft.execute(actor, {});
@@ -74,7 +87,7 @@ async function completeDraft(slug: string): Promise<string> {
 
 describe("ブログ作成ウィザード", () => {
   it("13 段階すべてに、何を決めるかの質問が付いている", async () => {
-    const actor = await currentActor();
+    const actor = await builderActor();
     const started = await (await siteBuilderUseCases()).startDraft.execute(actor, {});
     expect(started.ok).toBe(true);
     if (!started.ok) return;
@@ -88,7 +101,7 @@ describe("ブログ作成ウィザード", () => {
   });
 
   it("始めた直後は、まだ公開されていない", async () => {
-    const actor = await currentActor();
+    const actor = await builderActor();
     const started = await (await siteBuilderUseCases()).startDraft.execute(actor, {});
     expect(started.ok).toBe(true);
     if (!started.ok) return;
@@ -98,7 +111,7 @@ describe("ブログ作成ウィザード", () => {
   });
 
   it("開いている段階の入力欄が application 層から返る（画面が欄を書き起こさない）", async () => {
-    const actor = await currentActor();
+    const actor = await builderActor();
     const started = await (await siteBuilderUseCases()).startDraft.execute(actor, {});
     expect(started.ok).toBe(true);
     if (!started.ok) return;
@@ -128,7 +141,7 @@ describe("ブログ作成ウィザード", () => {
   });
 
   it("埋まっていない段階があるうちは作れず、どこが足りないかが返る", async () => {
-    const actor = await currentActor();
+    const actor = await builderActor();
     const started = await (await siteBuilderUseCases()).startDraft.execute(actor, {});
     expect(started.ok).toBe(true);
     if (!started.ok) return;
@@ -143,7 +156,7 @@ describe("ブログ作成ウィザード", () => {
   });
 
   it("URL に使えない文字は、直し方の分かる言葉で断る", async () => {
-    const actor = await currentActor();
+    const actor = await builderActor();
     const started = await (await siteBuilderUseCases()).startDraft.execute(actor, {});
     expect(started.ok).toBe(true);
     if (!started.ok) return;
@@ -160,7 +173,7 @@ describe("ブログ作成ウィザード", () => {
   });
 
   it("カテゴリーの行の形が違うときは、その行を示して断る", async () => {
-    const actor = await currentActor();
+    const actor = await builderActor();
     const started = await (await siteBuilderUseCases()).startDraft.execute(actor, {});
     expect(started.ok).toBe(true);
     if (!started.ok) return;
@@ -177,7 +190,7 @@ describe("ブログ作成ウィザード", () => {
   });
 
   it("保存すると次の段階が開く（同じ画面に留まらない）", async () => {
-    const actor = await currentActor();
+    const actor = await builderActor();
     const started = await (await siteBuilderUseCases()).startDraft.execute(actor, {});
     expect(started.ok).toBe(true);
     if (!started.ok) return;
@@ -197,7 +210,7 @@ describe("作ったブログ", () => {
   it("読者向けの経路で、見本のブログと同じ扱いで出てくる", async () => {
     const slug = "first-lens-guide";
     const draftId = await completeDraft(slug);
-    const actor = await currentActor();
+    const actor = await builderActor();
 
     const created = await (await siteBuilderUseCases()).createSite.execute(actor, { draftId });
     expect(created.ok).toBe(true);
@@ -218,7 +231,7 @@ describe("作ったブログ", () => {
   it("ブログの一覧にも、見本と区別なく並ぶ", async () => {
     const slug = "second-lens-guide";
     const draftId = await completeDraft(slug);
-    const actor = await currentActor();
+    const actor = await builderActor();
 
     const before = await (await siteUseCases()).listSites.execute(actor, {});
     expect(before.ok).toBe(true);
@@ -238,7 +251,7 @@ describe("作ったブログ", () => {
   it("差別化の 10 軸がすべて埋まっている（言い換えブログを作らせない）", async () => {
     const slug = "third-lens-guide";
     const draftId = await completeDraft(slug);
-    const actor = await currentActor();
+    const actor = await builderActor();
 
     const created = await (await siteBuilderUseCases()).createSite.execute(actor, { draftId });
     // 10 軸のどれかが空なら createSiteBlueprint が断る。作れた時点で 10 軸が揃っている。

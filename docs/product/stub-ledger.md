@@ -91,6 +91,21 @@
 `scripts/llm-live-proof.mjs` が**本物の D1** から作る（`purpose='draft'` かつ
 `succeeded=1` の行がある提供元だけを数える。確認や失敗は数えない）。手で書かない。
 
+### この数を確かめる場面（2 つだけ。ここに書いていない場面では誰も打たない）
+
+本物の D1 が要るので、自動の検査（`pnpm run verify`）からは呼べない。
+**自動で走らないものは、走らせる場面を人の手順として書くまでが実装である。**
+書かなければ次に誰も打たない。打つ場面は次の 2 つに限る。
+
+1. **1 社ぶん下書きが 1 本出た直後** — その場で
+   `node scripts/llm-live-proof.mjs --stage D` で作り直し、
+   `node scripts/llm-live-proof.mjs --check` を通してから件数を減らす。
+   件数を先に減らして、あとで確かめる順にしない
+2. **本番へ公開すると判断する日** — `docs/product/open-doors.md` を見る回と同じ回に、
+   `node scripts/llm-live-proof.mjs --stage P --check` を通す
+
+**段 L（手元の preview）は証拠にしない。** 手元の記録は自分で行を入れられるため。
+
 **Google Gemini の注意**: `responseSchema` は JSON Schema の一部しか解釈しない。
 受け付けられない形は 400 で返る（黙って自由文には落とさない）。
 実際の鍵で呼ぶとき、最初に踏むのはたいていここである。
