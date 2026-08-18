@@ -24,6 +24,45 @@ import { llmProviderContextDouble } from "../support/doubles";
 const LEDGER_PATH = join(process.cwd(), "docs/product/stub-ledger.md");
 
 /**
+ * **実際の鍵で 1 度も呼んでいない提供元**を、台帳と同じ場所から読めるようにする。
+ *
+ * スタブ台帳の定義は「呼ぶと必ず失敗を返すもの」なので、実装が入れば件数は減る。
+ * 2026-08-18 に 4 社を繋いだとき、実際には**まだ 1 度も鍵を使っていない**のに
+ * 件数が 3 減った。減った理由は正しいが、**残っている仕事は 1 つも減っていない。**
+ *
+ * 文章の記録は次に読んだ人が読み飛ばせる。件数は飛ばせない。
+ * だからここで別の数として立てる。
+ *
+ * 数の出どころは `docs/product/llm-live-proof.json` で、これは
+ * `scripts/llm-live-proof.mjs` が**本物の D1**（`llm_usages` の
+ * `purpose = 'draft'` かつ `succeeded = 1`）から作る。手で書かない。
+ */
+const LIVE_PROOF_PATH = join(process.cwd(), "docs/product/llm-live-proof.json");
+
+/** 鍵を預けて呼ぶ提供元。Workers AI は鍵ではなく結び付けで呼ぶので入らない。 */
+const KEYED_PROVIDERS = ["anthropic", "google", "openai", "xai"] as const;
+
+type LiveProof = {
+  readonly 確認した段?: string;
+  readonly 確認日?: string;
+  readonly 証拠?: Record<
+    string,
+    { readonly usageId?: string; readonly modelId?: string; readonly stage?: string }
+  >;
+};
+
+function readLiveProof(): LiveProof {
+  try {
+    return JSON.parse(readFileSync(LIVE_PROOF_PATH, "utf8")) as LiveProof;
+  } catch {
+    return {};
+  }
+}
+
+const liveProof = readLiveProof();
+const provenProviders = Object.keys(liveProof.証拠 ?? {}).sort();
+
+/**
  * 台帳に載せるには、実装を 1 度は組み立てる必要がある。
  *
  * つなぎ目は「使うときに作る」ので、作らないと台帳に現れない。
@@ -85,6 +124,33 @@ function renderLedger(): string {
     "|---|---|---|---|",
     ...fallbacks.map((e) => `| \`${e.id}\` | ${e.label} | ${e.port} | \`${e.fallbackFor}\` |`),
     "",
+    "## 実際の鍵で 1 度も呼んでいない提供元",
+    "",
+    "上の 2 つとは別の数え方をする。**繋いだ = つながった、ではない。**",
+    "偽の応答での検査が緑になっても、それは「呼び出しの形が合っている」までで、",
+    "実際の鍵で下書きが 1 本出たことにはならない。",
+    "",
+    `**${KEYED_PROVIDERS.length - provenProviders.length} / ${KEYED_PROVIDERS.length} 社**`,
+    "",
+    "| 提供元 | 実際の鍵で呼んだか | 証拠（`llm_usages` の記録） |",
+    "|---|---|---|",
+    ...KEYED_PROVIDERS.map((id) => {
+      const proof = liveProof.証拠?.[id];
+      return proof === undefined
+        ? `| \`${id}\` | **まだ** | — |`
+        : `| \`${id}\` | 済 | \`${proof.usageId}\`（${proof.modelId} / 段 ${proof.stage}） |`;
+    }),
+    "",
+    `確認した段: ${liveProof.確認した段 ?? "未確認"} / 確認日: ${liveProof.確認日 ?? "未確認"}`,
+    "",
+    "数の出どころは `docs/product/llm-live-proof.json`。",
+    "`scripts/llm-live-proof.mjs` が**本物の D1** から作る（`purpose='draft'` かつ",
+    "`succeeded=1` の行がある提供元だけを数える。確認や失敗は数えない）。手で書かない。",
+    "",
+    "**Google Gemini の注意**: `responseSchema` は JSON Schema の一部しか解釈しない。",
+    "受け付けられない形は 400 で返る（黙って自由文には落とさない）。",
+    "実際の鍵で呼ぶとき、最初に踏むのはたいていここである。",
+    "",
   ];
   return lines.join("\n");
 }
@@ -117,6 +183,27 @@ describe("スタブ台帳", () => {
   it("2 つの数を足すと全体になる（どちらかに数え漏れが出ない）", async () => {
     await buildEverything();
     expect(listUnbuiltStubs().length + listFallbacks().length).toBe(listStubs().length);
+  });
+
+  it("「呼んだ」と名乗るには、記録の識別子が要る", () => {
+    /**
+     * ここを見ないと、提供元の名前を 1 行足すだけで
+     * 「実際の鍵で呼んだ」の件数を減らせてしまう。
+     *
+     * **この検査で防げるのは「うっかり減る」ことだけで、
+     * 意図して偽ることは防げない**（証拠の実在は D1 を読まないと分からない）。
+     * 実在は `node scripts/llm-live-proof.mjs --check` が見る。
+     */
+    for (const id of provenProviders) {
+      expect(KEYED_PROVIDERS as readonly string[], `${id} は鍵で呼ぶ提供元ではありません`).toContain(
+        id,
+      );
+      const proof = liveProof.証拠?.[id];
+      expect(proof?.usageId, `${id} に記録の識別子がありません`).toMatch(/^lu_/);
+      expect(proof?.modelId?.trim(), `${id} にモデル名がありません`).toBeTruthy();
+      // 手元の preview（段 L）は自分で行を入れられるので証拠にならない。
+      expect(["D", "P"], `${id} の段が D / P ではありません`).toContain(proof?.stage);
+    }
   });
 
   it("台帳ファイルが実際の状態と一致している", async () => {

@@ -2,7 +2,10 @@
 import { existsSync, readFileSync, readdirSync, statSync, writeFileSync } from "node:fs";
 import { join, relative } from "node:path";
 import { describe, expect, it } from "vitest";
-import { OPEN_DOORS_MAX_UNGUARDED } from "../../quality-gates.config.mjs";
+import {
+  OPEN_DOORS_MAX_IRREVERSIBLE,
+  OPEN_DOORS_MAX_UNGUARDED,
+} from "../../quality-gates.config.mjs";
 
 /**
  * **いま何が開いているか**を 1 か所に書く。
@@ -91,6 +94,8 @@ type Row = {
   readonly what: string;
   readonly intent: Gate;
   readonly actual: Gate;
+  /** 変更操作だけに付く。入口（画面・REST）には無い。 */
+  readonly reversible?: Reversible;
 };
 
 /**
@@ -126,25 +131,82 @@ const ROUTE_INTENT: Readonly<Record<string, { readonly intent: Gate; readonly wh
   },
 };
 
-const ACTION_INTENT: Readonly<Record<string, { readonly intent: Gate; readonly what: string }>> = {
-  adjustConversionAction: { intent: "ログイン", what: "成果の実績を手で直す" },
-  advanceContentStateAction: { intent: "ログイン", what: "記事の作業段階を進める" },
-  approveContentAction: { intent: "ログイン", what: "記事を承認する" },
-  checkFactBoundaryAction: { intent: "ログイン", what: "書ける範囲の判定を試す" },
-  submitFeedbackAction: { intent: "ログイン", what: "指摘を登録する" },
-  changeFeedbackStatusAction: { intent: "ログイン", what: "指摘の状態を変える" },
-  handOffFeedbackAction: { intent: "ログイン", what: "指摘を引き継ぐ" },
-  manageIntegrationAccessAction: { intent: "ログイン", what: "外部連携の鍵を作る・消す" },
-  submitAffiliateUrlAction: { intent: "ログイン", what: "成果リンクを登録する" },
-  advanceLinkIngestionAction: { intent: "ログイン", what: "成果リンクの取り込みを進める" },
-  manageLlmCredentialAction: { intent: "ログイン", what: "生成 AI の API キーを預ける・消す" },
-  publishArticleAction: { intent: "ログイン", what: "記事を公開する" },
-  reschedulePublicationAction: { intent: "ログイン", what: "投稿予定日を変える" },
-  schedulePublicationAction: { intent: "ログイン", what: "投稿を予定に入れる" },
-  startSiteDraftAction: { intent: "ログイン", what: "サイトの下書きを始める" },
-  saveSiteDraftStepAction: { intent: "ログイン", what: "サイトの下書きを保存する" },
-  createSiteFromDraftAction: { intent: "ログイン", what: "下書きからサイトを作る" },
-  submitContactAction: { intent: "誰でも", what: "読者からの問い合わせ（公開フォーム）" },
+/**
+ * **取り返しがつくか。**
+ *
+ * 判定の物差しは公開・配信・失効・削除。外の世界（読者・ASP・提供元）へ
+ * 出てしまうもの、または消えて元に戻せないものを「つかない」とする。
+ * 記録が残っていて後から直せるもの（承認・状態の移動・数字の修正）は「つく」。
+ *
+ * **迷ったら「つかない」に倒す。** 取り返しがつくものを慎重に扱っても
+ * 手間が増えるだけだが、逆は元に戻せない。
+ */
+type Reversible = "つく" | "つかない";
+
+const ACTION_INTENT: Readonly<
+  Record<string, { readonly intent: Gate; readonly what: string; readonly reversible: Reversible }>
+> = {
+  // --- 取り返しがつかない（公開・配信・失効・削除） ---
+  publishArticleAction: { intent: "ログイン", what: "記事を公開する", reversible: "つかない" },
+  schedulePublicationAction: {
+    intent: "ログイン",
+    what: "投稿を予定に入れる（時刻が来たら外へ出る）",
+    reversible: "つかない",
+  },
+  reschedulePublicationAction: {
+    intent: "ログイン",
+    what: "投稿予定日を変える（前倒しにすれば今日出せる）",
+    reversible: "つかない",
+  },
+  manageIntegrationAccessAction: {
+    intent: "ログイン",
+    what: "外部連携の鍵を作る・失効させる",
+    reversible: "つかない",
+  },
+  manageLlmCredentialAction: {
+    intent: "ログイン",
+    what: "生成 AI の API キーを預ける・消す（預けた鍵で課金が発生する）",
+    reversible: "つかない",
+  },
+  createSiteFromDraftAction: {
+    intent: "ログイン",
+    what: "下書きからサイトを作る（消す口が無い）",
+    reversible: "つかない",
+  },
+
+  // --- 取り返しがつく（記録が残り、後から直せる） ---
+  adjustConversionAction: { intent: "ログイン", what: "成果の実績を手で直す", reversible: "つく" },
+  advanceContentStateAction: {
+    intent: "ログイン",
+    what: "記事の作業段階を進める",
+    reversible: "つく",
+  },
+  approveContentAction: { intent: "ログイン", what: "記事を承認する", reversible: "つく" },
+  checkFactBoundaryAction: {
+    intent: "ログイン",
+    what: "書ける範囲の判定を試す",
+    reversible: "つく",
+  },
+  submitFeedbackAction: { intent: "ログイン", what: "指摘を登録する", reversible: "つく" },
+  changeFeedbackStatusAction: { intent: "ログイン", what: "指摘の状態を変える", reversible: "つく" },
+  handOffFeedbackAction: { intent: "ログイン", what: "指摘を引き継ぐ", reversible: "つく" },
+  submitAffiliateUrlAction: { intent: "ログイン", what: "成果リンクを登録する", reversible: "つく" },
+  advanceLinkIngestionAction: {
+    intent: "ログイン",
+    what: "成果リンクの取り込みを進める",
+    reversible: "つく",
+  },
+  startSiteDraftAction: { intent: "ログイン", what: "サイトの下書きを始める", reversible: "つく" },
+  saveSiteDraftStepAction: {
+    intent: "ログイン",
+    what: "サイトの下書きを保存する",
+    reversible: "つく",
+  },
+  submitContactAction: {
+    intent: "誰でも",
+    what: "読者からの問い合わせ（公開フォーム）",
+    reversible: "つく",
+  },
 };
 
 function scanPages(): Row[] {
@@ -199,6 +261,7 @@ function scanActions(): Row[] {
         what: `${declared?.what ?? "（宣言なし）"}（${rel(file)}）`,
         intent: declared?.intent ?? "ログイン",
         actual,
+        reversible: declared?.reversible ?? "つかない",
       });
     }
   }
@@ -208,16 +271,27 @@ function scanActions(): Row[] {
 const rows = [...scanPages(), ...scanRoutes(), ...scanActions()];
 const gaps = rows.filter((r) => r.intent !== r.actual);
 
-function table(subset: readonly Row[]): string[] {
+function table(subset: readonly Row[], withReversible = false): string[] {
+  const head = withReversible
+    ? "| 入口・操作 | 何ができるか | 本来 | いま | 差 | 取り返し |"
+    : "| 入口・操作 | 何ができるか | 本来 | いま | 差 |";
   return [
-    "| 入口・操作 | 何ができるか | 本来 | いま | 差 |",
-    "|---|---|---|---|---|",
-    ...subset.map(
-      (r) =>
-        `| \`${r.id}\` | ${r.what} | ${r.intent} | ${r.actual} | ${r.intent === r.actual ? "—" : "**開いている**"} |`,
-    ),
+    head,
+    withReversible ? "|---|---|---|---|---|---|" : "|---|---|---|---|---|",
+    ...subset.map((r) => {
+      const gap = r.intent === r.actual ? "—" : "**開いている**";
+      const tail = withReversible
+        ? ` | ${r.reversible === "つかない" ? "**つかない**" : "つく"} |`
+        : " |";
+      return `| \`${r.id}\` | ${r.what} | ${r.intent} | ${r.actual} | ${gap}${tail}`;
+    }),
   ];
 }
+
+/** 誰でも実行できて、しかも取り返しがつかない操作。ここが一番危ない。 */
+const irreversibleAndOpen = rows.filter(
+  (r) => r.kind === "操作" && r.reversible === "つかない" && r.intent !== r.actual,
+);
 
 function renderLedger(): string {
   const of = (kind: Row["kind"]) => rows.filter((r) => r.kind === kind);
@@ -233,6 +307,11 @@ function renderLedger(): string {
     `画面を一括で守る \`middleware.ts\`: **${hasMiddleware ? "ある" : "無い"}**`,
     "",
     `開いている扉: **${gaps.length} 件** / 全 ${rows.length} 件`,
+    "",
+    `うち、**誰でも実行できて取り返しがつかない操作: ${irreversibleAndOpen.length} 件**`,
+    "（公開・配信・鍵の失効・削除。塞ぐ順を決めるときはここから読む）",
+    "",
+    ...irreversibleAndOpen.map((r) => `- \`${r.id}\` — ${r.what}`),
     "",
     "この検査が言えるのは「門を通す形になっている」ところまでで、",
     "「守られている」ではない。門の中身は各入口の単体テストが見る。",
@@ -254,7 +333,17 @@ function renderLedger(): string {
     "画面を開けた人は、この操作をそのまま実行できる。",
     "**公開だけは通らない**（見本の身元に `publisher` と `owner` の役が無いため）。",
     "",
-    ...table(of("操作")),
+    "「取り返し」の物差しは公開・配信・失効・削除。外の世界（読者・ASP・提供元）へ",
+    "出てしまうもの、消えて元に戻せないものを「つかない」とする。**迷ったら「つかない」に倒す。**",
+    "取り返しがつかない操作を先に頭出しにしてある。",
+    "",
+    ...table(
+      [...of("操作")].sort((a, b) => {
+        if (a.reversible !== b.reversible) return a.reversible === "つかない" ? -1 : 1;
+        return a.id < b.id ? -1 : 1;
+      }),
+      true,
+    ),
     "",
   ].join("\n");
 }
@@ -281,6 +370,16 @@ describe("いま開いている入口", () => {
       `開いている扉が ${gaps.length} 件（上限 ${OPEN_DOORS_MAX_UNGUARDED} 件）。` +
         "上限を上げて緑にしないでください。",
     ).toBeLessThanOrEqual(OPEN_DOORS_MAX_UNGUARDED);
+  });
+
+  it("誰でも実行できる取り返しのつかない操作が増えていない", () => {
+    // 全体の件数だけを見ていると、減ったのが「下書きを保存する」でも
+    // 数字は良くなる。危ないほうを別に数えないと、塞ぐ順を見誤る。
+    expect(
+      irreversibleAndOpen.length,
+      `開いている取り返しのつかない操作: ${irreversibleAndOpen.map((r) => r.id).join(" / ")}` +
+        `（上限 ${OPEN_DOORS_MAX_IRREVERSIBLE} 件）。上限を上げて緑にしないでください。`,
+    ).toBeLessThanOrEqual(OPEN_DOORS_MAX_IRREVERSIBLE);
   });
 
   it("台帳ファイルが実際の状態と一致している", () => {

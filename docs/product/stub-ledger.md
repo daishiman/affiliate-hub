@@ -69,3 +69,28 @@
 | `persistence:site-sample` | ブログの設計図（見本データ） | SiteRepositoryPort | `src/infrastructure/persistence/d1/site-repository.ts` |
 | `persistence:telemetry-memory` | 計測の記録（この実行中だけ覚える仮置き） | 計測の記録先 | `src/infrastructure/persistence/d1/telemetry-repository.ts` |
 | `storage:feedback-capture-memory` | 画面の写し（この実行中だけ覚える仮置き） | 画面の写しの置き場 | `src/infrastructure/platform/feedback-capture-r2.ts` |
+
+## 実際の鍵で 1 度も呼んでいない提供元
+
+上の 2 つとは別の数え方をする。**繋いだ = つながった、ではない。**
+偽の応答での検査が緑になっても、それは「呼び出しの形が合っている」までで、
+実際の鍵で下書きが 1 本出たことにはならない。
+
+**4 / 4 社**
+
+| 提供元 | 実際の鍵で呼んだか | 証拠（`llm_usages` の記録） |
+|---|---|---|
+| `anthropic` | **まだ** | — |
+| `google` | **まだ** | — |
+| `openai` | **まだ** | — |
+| `xai` | **まだ** | — |
+
+確認した段: 未確認 / 確認日: 未確認
+
+数の出どころは `docs/product/llm-live-proof.json`。
+`scripts/llm-live-proof.mjs` が**本物の D1** から作る（`purpose='draft'` かつ
+`succeeded=1` の行がある提供元だけを数える。確認や失敗は数えない）。手で書かない。
+
+**Google Gemini の注意**: `responseSchema` は JSON Schema の一部しか解釈しない。
+受け付けられない形は 400 で返る（黙って自由文には落とさない）。
+実際の鍵で呼ぶとき、最初に踏むのはたいていここである。

@@ -10,6 +10,16 @@
 
 開いている扉: **49 件** / 全 79 件
 
+うち、**誰でも実行できて取り返しがつかない操作: 6 件**
+（公開・配信・鍵の失効・削除。塞ぐ順を決めるときはここから読む）
+
+- `createSiteFromDraftAction()` — 下書きからサイトを作る（消す口が無い）（src/presentation/admin/site-wizard-action.ts）
+- `manageIntegrationAccessAction()` — 外部連携の鍵を作る・失効させる（src/presentation/admin/feedback-action.ts）
+- `manageLlmCredentialAction()` — 生成 AI の API キーを預ける・消す（預けた鍵で課金が発生する）（src/presentation/admin/llm-credential-action.ts）
+- `publishArticleAction()` — 記事を公開する（src/presentation/admin/publish-article-action.ts）
+- `reschedulePublicationAction()` — 投稿予定日を変える（前倒しにすれば今日出せる）（src/presentation/admin/reschedule-action.ts）
+- `schedulePublicationAction()` — 投稿を予定に入れる（時刻が来たら外へ出る）（src/presentation/admin/schedule-publication-action.ts）
+
 この検査が言えるのは「門を通す形になっている」ところまでで、
 「守られている」ではない。門の中身は各入口の単体テストが見る。
 
@@ -93,23 +103,27 @@
 画面を開けた人は、この操作をそのまま実行できる。
 **公開だけは通らない**（見本の身元に `publisher` と `owner` の役が無いため）。
 
-| 入口・操作 | 何ができるか | 本来 | いま | 差 |
-|---|---|---|---|---|
-| `adjustConversionAction()` | 成果の実績を手で直す（src/presentation/admin/adjust-conversion-action.ts） | ログイン | 誰でも | **開いている** |
-| `advanceContentStateAction()` | 記事の作業段階を進める（src/presentation/admin/content-progress-action.ts） | ログイン | 誰でも | **開いている** |
-| `advanceLinkIngestionAction()` | 成果リンクの取り込みを進める（src/presentation/admin/inbox-action.ts） | ログイン | 誰でも | **開いている** |
-| `approveContentAction()` | 記事を承認する（src/presentation/admin/content-progress-action.ts） | ログイン | 誰でも | **開いている** |
-| `changeFeedbackStatusAction()` | 指摘の状態を変える（src/presentation/admin/feedback-action.ts） | ログイン | 誰でも | **開いている** |
-| `checkFactBoundaryAction()` | 書ける範囲の判定を試す（src/presentation/admin/fact-boundary-action.ts） | ログイン | 誰でも | **開いている** |
-| `createSiteFromDraftAction()` | 下書きからサイトを作る（src/presentation/admin/site-wizard-action.ts） | ログイン | 誰でも | **開いている** |
-| `handOffFeedbackAction()` | 指摘を引き継ぐ（src/presentation/admin/feedback-action.ts） | ログイン | 誰でも | **開いている** |
-| `manageIntegrationAccessAction()` | 外部連携の鍵を作る・消す（src/presentation/admin/feedback-action.ts） | ログイン | 誰でも | **開いている** |
-| `manageLlmCredentialAction()` | 生成 AI の API キーを預ける・消す（src/presentation/admin/llm-credential-action.ts） | ログイン | 誰でも | **開いている** |
-| `publishArticleAction()` | 記事を公開する（src/presentation/admin/publish-article-action.ts） | ログイン | 誰でも | **開いている** |
-| `reschedulePublicationAction()` | 投稿予定日を変える（src/presentation/admin/reschedule-action.ts） | ログイン | 誰でも | **開いている** |
-| `saveSiteDraftStepAction()` | サイトの下書きを保存する（src/presentation/admin/site-wizard-action.ts） | ログイン | 誰でも | **開いている** |
-| `schedulePublicationAction()` | 投稿を予定に入れる（src/presentation/admin/schedule-publication-action.ts） | ログイン | 誰でも | **開いている** |
-| `startSiteDraftAction()` | サイトの下書きを始める（src/presentation/admin/site-wizard-action.ts） | ログイン | 誰でも | **開いている** |
-| `submitAffiliateUrlAction()` | 成果リンクを登録する（src/presentation/admin/inbox-action.ts） | ログイン | 誰でも | **開いている** |
-| `submitContactAction()` | 読者からの問い合わせ（公開フォーム）（src/presentation/site/contact-action.ts） | 誰でも | 誰でも | — |
-| `submitFeedbackAction()` | 指摘を登録する（src/presentation/admin/feedback-action.ts） | ログイン | 誰でも | **開いている** |
+「取り返し」の物差しは公開・配信・失効・削除。外の世界（読者・ASP・提供元）へ
+出てしまうもの、消えて元に戻せないものを「つかない」とする。**迷ったら「つかない」に倒す。**
+取り返しがつかない操作を先に頭出しにしてある。
+
+| 入口・操作 | 何ができるか | 本来 | いま | 差 | 取り返し |
+|---|---|---|---|---|---|
+| `createSiteFromDraftAction()` | 下書きからサイトを作る（消す口が無い）（src/presentation/admin/site-wizard-action.ts） | ログイン | 誰でも | **開いている** | **つかない** |
+| `manageIntegrationAccessAction()` | 外部連携の鍵を作る・失効させる（src/presentation/admin/feedback-action.ts） | ログイン | 誰でも | **開いている** | **つかない** |
+| `manageLlmCredentialAction()` | 生成 AI の API キーを預ける・消す（預けた鍵で課金が発生する）（src/presentation/admin/llm-credential-action.ts） | ログイン | 誰でも | **開いている** | **つかない** |
+| `publishArticleAction()` | 記事を公開する（src/presentation/admin/publish-article-action.ts） | ログイン | 誰でも | **開いている** | **つかない** |
+| `reschedulePublicationAction()` | 投稿予定日を変える（前倒しにすれば今日出せる）（src/presentation/admin/reschedule-action.ts） | ログイン | 誰でも | **開いている** | **つかない** |
+| `schedulePublicationAction()` | 投稿を予定に入れる（時刻が来たら外へ出る）（src/presentation/admin/schedule-publication-action.ts） | ログイン | 誰でも | **開いている** | **つかない** |
+| `adjustConversionAction()` | 成果の実績を手で直す（src/presentation/admin/adjust-conversion-action.ts） | ログイン | 誰でも | **開いている** | つく |
+| `advanceContentStateAction()` | 記事の作業段階を進める（src/presentation/admin/content-progress-action.ts） | ログイン | 誰でも | **開いている** | つく |
+| `advanceLinkIngestionAction()` | 成果リンクの取り込みを進める（src/presentation/admin/inbox-action.ts） | ログイン | 誰でも | **開いている** | つく |
+| `approveContentAction()` | 記事を承認する（src/presentation/admin/content-progress-action.ts） | ログイン | 誰でも | **開いている** | つく |
+| `changeFeedbackStatusAction()` | 指摘の状態を変える（src/presentation/admin/feedback-action.ts） | ログイン | 誰でも | **開いている** | つく |
+| `checkFactBoundaryAction()` | 書ける範囲の判定を試す（src/presentation/admin/fact-boundary-action.ts） | ログイン | 誰でも | **開いている** | つく |
+| `handOffFeedbackAction()` | 指摘を引き継ぐ（src/presentation/admin/feedback-action.ts） | ログイン | 誰でも | **開いている** | つく |
+| `saveSiteDraftStepAction()` | サイトの下書きを保存する（src/presentation/admin/site-wizard-action.ts） | ログイン | 誰でも | **開いている** | つく |
+| `startSiteDraftAction()` | サイトの下書きを始める（src/presentation/admin/site-wizard-action.ts） | ログイン | 誰でも | **開いている** | つく |
+| `submitAffiliateUrlAction()` | 成果リンクを登録する（src/presentation/admin/inbox-action.ts） | ログイン | 誰でも | **開いている** | つく |
+| `submitContactAction()` | 読者からの問い合わせ（公開フォーム）（src/presentation/site/contact-action.ts） | 誰でも | 誰でも | — | つく |
+| `submitFeedbackAction()` | 指摘を登録する（src/presentation/admin/feedback-action.ts） | ログイン | 誰でも | **開いている** | つく |

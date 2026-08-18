@@ -646,3 +646,17 @@ export const PORT_WIRING_MAX_UNKNOWN_VERBS = 0;
  * **上げて緑にすることを禁じる。**
  */
 export const OPEN_DOORS_MAX_UNGUARDED = 49;
+
+/**
+ * **誰でも実行できて、しかも取り返しがつかない操作**の上限。
+ *
+ * 開いている扉のうち、公開・配信・鍵の失効・削除を含むもの。
+ * 全体の件数（`OPEN_DOORS_MAX_UNGUARDED`）とは別に数える。
+ * 全体が 1 件減っても、減ったのが「下書きを保存する」なら危険は変わらない。
+ *
+ * 2026-08-18 の実測は **6 件**（記事の公開 / 投稿の予約 / 予約の変更 /
+ * 外部連携の鍵の作成と失効 / 生成 AI の API キーの登録と削除 / サイトの作成）。
+ *
+ * **上げて緑にすることを禁じる。**
+ */
+export const OPEN_DOORS_MAX_IRREVERSIBLE = 6;
