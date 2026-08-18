@@ -1,5 +1,5 @@
 {
-  "graph_revision": 233,
+  "graph_revision": 234,
   "nodes": [
     {
       "acceptance": [],
@@ -10924,7 +10924,7 @@
       "template_version": "1.0.0",
       "title": "「手で書き換えない」と書いてある文書に手で書いても、内容が合っていれば緑になる",
       "tracker_binding": "beads",
-      "updated_at": "2026-08-18T13:20:00Z"
+      "updated_at": "2026-08-18T22:55:00Z"
     },
     {
       "acceptance": [],
