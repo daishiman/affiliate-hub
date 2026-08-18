@@ -1,5 +1,5 @@
 /** @tier 1 */
-import { existsSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { createAspAdapter, supportedAsps } from "@/infrastructure/asp/asp-registry";
@@ -11,6 +11,7 @@ import "@/infrastructure/platform/storage-r2";
 import { listFallbacks, listStubs, listUnbuiltStubs } from "@/infrastructure/stub-registry";
 import { createToolCatalog } from "@/presentation/composition";
 import { llmProviderContextDouble } from "../support/doubles";
+import { expectLedgerFile } from "../support/ledger-file";
 
 /**
  * 「まだ中身が無いもの」の一覧を、人が数えずに作る。
@@ -97,6 +98,7 @@ function renderLedger(): string {
     "",
     "このファイルは `tests/infrastructure/stub-ledger.test.ts` が作る。手で書き換えない。",
     "更新は `UPDATE_STUB_LEDGER=1 pnpm test` を実行して、出た差分をそのまま保存する。",
+    "末尾の指紋がその見張りで、手で 1 文字でも書くと、内容が合っていてもテストが赤くなる。",
     "",
     "「スタブ」は、つなぎ目だけあって中身がまだ無いもの。呼ぶと必ず失敗を返す。",
     "成功したふりをしないので、「つながっているのに結果が空」という分かりにくい壊れ方をしない。",
@@ -221,24 +223,13 @@ describe("スタブ台帳", () => {
     }
   });
 
-  it("台帳ファイルが実際の状態と一致している", async () => {
+  it("台帳ファイルが実際の状態と一致していて、手で書かれていない", async () => {
     await buildEverything();
-    const expected = renderLedger();
-
-    if (process.env.UPDATE_STUB_LEDGER === "1") {
-      writeFileSync(LEDGER_PATH, expected, "utf8");
-    }
-
-    let actual: string;
-    try {
-      actual = readFileSync(LEDGER_PATH, "utf8");
-    } catch {
-      actual = "";
-    }
-
-    expect(
-      actual,
+    expectLedgerFile(
+      LEDGER_PATH,
+      renderLedger(),
+      process.env.UPDATE_STUB_LEDGER === "1",
       "スタブ台帳が古くなっています。`UPDATE_STUB_LEDGER=1 pnpm test` で作り直してください。",
-    ).toBe(expected);
+    );
   });
 });

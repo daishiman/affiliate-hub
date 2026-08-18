@@ -2,6 +2,7 @@
 
 このファイルは `tests/domain/domain-events.test.ts` が作る。手で書き換えない。
 更新は `UPDATE_EVENT_LEDGER=1 pnpm test` を実行して、出た差分をそのまま保存する。
+末尾の指紋がその見張りで、手で 1 文字でも書くと、内容が合っていてもテストが赤くなる。
 
 イベントは、ある文脈で起きたことを別の文脈へ伝えるための唯一の経路。
 別の文脈の保存処理を直接呼ばないので、受け手が増えても送り手は変わらない。
@@ -26,3 +27,4 @@
 | `claim.expired` | evidence | 根拠の有効期限が切れた（その主張はもう出せない） | `claimId` | まだ発行していない | 根拠の有効期限を見て回る定期実行 |
 | `content.refresh_due` | authoring | 記事の見直し時期が来た | `variantId` | 発行あり | `src/application/usecases/content/manage-content.ts` |
 | `conversion.received` | monetization | 成果が計上された | `conversionId` | まだ発行していない | ASP からの成果データ取込 |
+<!-- 生成物の指紋 sha256:66dd31676b5b545c4ccc80902092e3a34ddbddb791306fa25419f8c5d9434607 -->

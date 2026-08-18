@@ -1,5 +1,5 @@
 /** @tier 1 */
-import { existsSync, readFileSync, readdirSync, statSync, writeFileSync } from "node:fs";
+import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
 import { join, relative } from "node:path";
 import { describe, expect, it } from "vitest";
 import {
@@ -7,6 +7,7 @@ import {
   OPEN_DOORS_MAX_PUBLIC_BY_DECLARATION,
   OPEN_DOORS_MAX_UNGUARDED,
 } from "../../quality-gates.config.mjs";
+import { expectLedgerFile } from "../support/ledger-file";
 
 /**
  * **いま何が開いているか**を 1 か所に書く。
@@ -355,6 +356,7 @@ function renderLedger(): string {
     "",
     "このファイルは `tests/architecture/open-doors.test.ts` が作る。手で書き換えない。",
     "更新は `UPDATE_OPEN_DOORS=1 pnpm vitest run tests/architecture/open-doors.test.ts`。",
+    "末尾の指紋がその見張りで、手で 1 文字でも書くと、内容が合っていてもテストが赤くなる。",
     "",
     "**「本来」は人が宣言した意図、「いま」はコードから測った実測**である。",
     "この 2 つが違う行が、いま誰でも通れてしまう扉。",
@@ -524,19 +526,12 @@ describe("いま開いている入口", () => {
     ).toBe(true);
   });
 
-  it("台帳ファイルが実際の状態と一致している", () => {
-    const expected = renderLedger();
-    if (process.env.UPDATE_OPEN_DOORS === "1") writeFileSync(LEDGER_PATH, expected, "utf8");
-
-    let actual: string;
-    try {
-      actual = readFileSync(LEDGER_PATH, "utf8");
-    } catch {
-      actual = "";
-    }
-    expect(
-      actual,
+  it("台帳ファイルが実際の状態と一致していて、手で書かれていない", () => {
+    expectLedgerFile(
+      LEDGER_PATH,
+      renderLedger(),
+      process.env.UPDATE_OPEN_DOORS === "1",
       "入口の台帳が古くなっています。`UPDATE_OPEN_DOORS=1 pnpm vitest run tests/architecture/open-doors.test.ts` で作り直してください。",
-    ).toBe(expected);
+    );
   });
 });

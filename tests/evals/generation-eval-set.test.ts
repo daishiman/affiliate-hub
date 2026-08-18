@@ -10,7 +10,7 @@
  *                    上げられる／止める基準が 1 つ欠けても上げられない）。
  *                    片方向だけだと、常に false を返す関数でも通ってしまう。
  */
-import { readFileSync, writeFileSync } from "node:fs";
+import { readFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { describe, expect, it } from "vitest";
 import { ARTICLE_TYPE_SECTIONS } from "@/domain/authoring/article-structure";
@@ -19,6 +19,7 @@ import { CHANNEL_CAPABILITIES } from "@/domain/distribution/channel";
 import { EVAL_CASES, casesByAxis, casesByCategory } from "../../evals/generation/cases";
 import { LAUNCH_BARS, canActivatePromptVersion } from "../../evals/generation/launch-bars";
 import { SPEC_QUALITY_CHECKS, SPEC_QUALITY_CHECK_IDS } from "../../evals/generation/quality-gates";
+import { expectLedgerFile } from "../support/ledger-file";
 
 /**
  * 評価セットの検査。
@@ -43,6 +44,7 @@ function renderLedger(): string {
     "",
     "このファイルは `tests/evals/generation-eval-set.test.ts` が作る。手で書き換えない。",
     "更新は `UPDATE_EVAL_LEDGER=1 pnpm test` を実行して、出た差分をそのまま保存する。",
+    "末尾の指紋がその見張りで、手で 1 文字でも書くと、内容が合っていてもテストが赤くなる。",
     "",
     "生成を直したときに「前より良くなった」と言うための物差し。",
     "**まだ生成の提供元をつないでいないため、合否は 1 件も出ていない。**",
@@ -267,19 +269,12 @@ describe("ローンチ基準", () => {
 });
 
 describe("台帳", () => {
-  it("台帳ファイルが実際の状態と一致している", () => {
-    const expected = renderLedger();
-    if (process.env.UPDATE_EVAL_LEDGER === "1") writeFileSync(LEDGER_PATH, expected, "utf8");
-
-    let actual = "";
-    try {
-      actual = readFileSync(LEDGER_PATH, "utf8");
-    } catch {
-      actual = "";
-    }
-    expect(
-      actual,
+  it("台帳ファイルが実際の状態と一致していて、手で書かれていない", () => {
+    expectLedgerFile(
+      LEDGER_PATH,
+      renderLedger(),
+      process.env.UPDATE_EVAL_LEDGER === "1",
       "評価セットの台帳が古くなっています。`UPDATE_EVAL_LEDGER=1 pnpm test` で作り直してください。",
-    ).toBe(expected);
+    );
   });
 });

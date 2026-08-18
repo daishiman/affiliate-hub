@@ -32,6 +32,7 @@ import {
   stamp,
   writeGeneratedDoc,
 } from "../../scripts/lib/generated-doc.mjs";
+import { expectLedgerFile } from "../support/ledger-file";
 
 const ROOT = process.cwd();
 
@@ -42,10 +43,18 @@ const ROOT = process.cwd();
  * この課題で塞いだ穴がそのまま開き直る（しかも開いたようには見えない）。
  */
 const STAMPED = [
+  // B: スクリプトが毎回上書きする 4 枚
   "docs/product/port-wiring-report.md",
   "docs/product/required-test-types-report.md",
   "docs/product/test-traceability.md",
   "docs/product/coverage.md",
+  // A: テストが生成結果と比べる 4 枚。**比べるだけでは足りない。**
+  // 比較が答えているのは「古くないか」で、正本を先に直してから同じ内容を
+  // 手で書けば通ってしまう。指紋は中身から作るので、そこで合わなくなる。
+  "docs/product/open-doors.md",
+  "docs/product/stub-ledger.md",
+  "docs/product/event-ledger.md",
+  "docs/product/eval-ledger.md",
 ] as const;
 
 /**
@@ -57,6 +66,19 @@ const WRITE_EXCEPTIONS: Readonly<Record<string, string>> = {
   // 記録であり、`pnpm run verify` は触らないので「黙って消える」は起きない。
   "llm-live-proof.mjs": "JSON で、コメント欄が無い（指紋を置く場所が無い）",
 };
+
+/** `tests/` の下を全部たどる。浅く見ると、深いところの書き込みを見失う。 */
+function listTestFiles(dir: string): { label: string; path: string }[] {
+  const out: { label: string; path: string }[] = [];
+  for (const entry of readdirSync(dir, { withFileTypes: true })) {
+    const path = join(dir, entry.name);
+    if (entry.isDirectory()) out.push(...listTestFiles(path));
+    else if (entry.name.endsWith(".ts") || entry.name.endsWith(".tsx")) {
+      out.push({ label: path.slice(ROOT.length + 1), path });
+    }
+  }
+  return out;
+}
 
 describe("生成物であることの保証", () => {
   it("指紋が焼かれている文書は、いまの中身と一致している", () => {
@@ -172,6 +194,25 @@ describe("生成物であることの保証", () => {
     }
   });
 
+  it("正本を先に直してから同じ内容を手で書いても、台帳は通らない", () => {
+    // **これが A の 4 枚に開いていた穴そのものである。**
+    // 内容の比較だけだと、正本を先に直してから同じ内容を手で書けば一致して通る。
+    // つまり「古くないこと」しか見ておらず、「手で書かれていないこと」は見ていない。
+    // 順番次第で捕まったり捕まらなかったりする検査は、次に同じことをする人を捕まえない。
+    const dir = mkdtempSync(join(tmpdir(), "generated-doc-"));
+    const path = join(dir, "ledger.md");
+    const 直したあとの中身 = "件数: 2";
+
+    // 手で書いた（指紋は付けない）。中身は「あるべき中身」と一致している。
+    writeFileSync(path, `${直したあとの中身}\n`, "utf8");
+    expect(() => expectLedgerFile(path, 直したあとの中身, false, "古い")).toThrow(
+      /手で書き換えられています/,
+    );
+
+    // 機械が書き直せば通る。
+    expectLedgerFile(path, 直したあとの中身, true, "古い");
+  });
+
   it("指紋を取り直して書けば通ってしまう（塞げていないことを、そう書いて固定する）", () => {
     const dir = mkdtempSync(join(tmpdir(), "generated-doc-"));
     const path = join(dir, "report.md");
@@ -191,12 +232,21 @@ describe("生成物であることの保証", () => {
     expect(digestOf("本文")).toBe(digestOf("本文\n\n"));
   });
 
-  it("docs へ書くスクリプトが、全部この道具を通っている", () => {
-    const dir = join(ROOT, "scripts");
+  it("docs へ書くスクリプトとテストが、全部この道具を通っている", () => {
+    // **スクリプトだけを見ない。** A の 4 枚を書いているのはテストのほうで、
+    // そこを見ないと「5 枚目の台帳をテストから直接書く」が素通りする。
+    // 見る範囲が生成物の置き場所より狭いと、その差が次の穴になる。
+    const files = [
+      ...readdirSync(join(ROOT, "scripts"))
+        .filter((n) => n.endsWith(".mjs"))
+        .map((n) => ({ label: `scripts/${n}`, path: join(ROOT, "scripts", n) })),
+      ...listTestFiles(join(ROOT, "tests")),
+    ];
     const offenders: string[] = [];
 
-    for (const name of readdirSync(dir).filter((n) => n.endsWith(".mjs"))) {
-      const src = readFileSync(join(dir, name), "utf8");
+    for (const { label, path } of files) {
+      const name = label.slice(label.lastIndexOf("/") + 1);
+      const src = readFileSync(path, "utf8");
 
       // `const NAME = ... "docs/..."` を集める。書き込み先が識別子で渡されるため、
       // 呼び出しの括弧の中だけを見ても行き先が分からない。
@@ -216,19 +266,22 @@ describe("生成物であることの保証", () => {
 
       if (!writesToDocs) continue;
       if (WRITE_EXCEPTIONS[name] !== undefined) continue;
+      // 道具そのものは `writeFileSync` を持っていて当然なので、ここでは数えない。
+      if (label.endsWith("scripts/lib/generated-doc.mjs")) continue;
       // **「道具を取り込んでいれば許す」にしない。** 取り込んだうえで
       // 別の行から直接書けば通ってしまい、印があることを性質の理由にすることになる。
       // 見るのは取り込みの有無ではなく、`writeFileSync` で docs を書いているかどうか。
-      offenders.push(name);
+      offenders.push(label);
     }
 
     expect(
       offenders,
       [
-        "docs/ の生成物を `writeFileSync` で直接書いているスクリプトがあります:",
-        ...offenders.map((n) => `  scripts/${n}`),
+        "docs/ の生成物を `writeFileSync` で直接書いている場所があります:",
+        ...offenders.map((n) => `  ${n}`),
         "",
-        "`scripts/lib/generated-doc.mjs` の `writeGeneratedDoc` / `writeGeneratedBlock` を通してください。",
+        "`scripts/lib/generated-doc.mjs` の `writeGeneratedDoc` / `writeGeneratedBlock`",
+        "（テストからは `tests/support/ledger-file.ts` の `expectLedgerFile`）を通してください。",
         "直接書くと、手で書かれた行が pnpm run verify で黙って消えます（緑のまま）。",
         "通せない事情があるなら WRITE_EXCEPTIONS に**理由つきで**登録してください。",
       ].join("\n"),

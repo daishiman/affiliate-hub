@@ -2,6 +2,7 @@
 
 このファイルは `tests/architecture/open-doors.test.ts` が作る。手で書き換えない。
 更新は `UPDATE_OPEN_DOORS=1 pnpm vitest run tests/architecture/open-doors.test.ts`。
+末尾の指紋がその見張りで、手で 1 文字でも書くと、内容が合っていてもテストが赤くなる。
 
 **「本来」は人が宣言した意図、「いま」はコードから測った実測**である。
 この 2 つが違う行が、いま誰でも通れてしまう扉。
@@ -205,3 +206,4 @@
 | `submitAffiliateUrlAction()` | 成果リンクを登録する（src/presentation/admin/inbox-action.ts） | ログイン | 誰でも | **開いている** | つく |
 | `submitContactAction()` | 読者からの問い合わせ（公開フォーム）（src/presentation/site/contact-action.ts） | 誰でも | 誰でも | — | つく |
 | `submitFeedbackAction()` | 指摘を登録する（src/presentation/admin/feedback-action.ts） | ログイン | 誰でも | **開いている** | つく |
+<!-- 生成物の指紋 sha256:36148ae696890c4b05e4f9fb437638efed2c69497a1fbeba935f7261fefad8d9 -->
