@@ -6,8 +6,8 @@
 
 - 最終更新: 2026-08-18
 - テストファイル: 153 件
-- 由来の要件が分かる: 118 件
-- **由来不明: 35 件**（上限 37 件）
+- 由来の要件が分かる: 121 件
+- **由来不明: 32 件**（上限 37 件）
 
 由来不明とは「どの要件のために書いたのか、機械から辿れない」という意味で、
 テストが無駄という意味ではない。要件から書いたなら `@req` を 1 行足せば消える。
@@ -15,11 +15,8 @@
 ## 由来不明のテスト
 
 - `tests/acceptance/acceptance-criteria.test.ts`
-- `tests/application/affiliate.test.ts`
 - `tests/application/link-inbox.test.ts`
-- `tests/application/manage-distribution.test.ts`
 - `tests/application/manage-workspace.test.ts`
-- `tests/application/read-product.test.ts`
 - `tests/application/read-site.test.ts`
 - `tests/application/reader-interaction.test.ts`
 - `tests/application/review-loop-runs.test.ts`
@@ -54,21 +51,24 @@
 
 | テスト | 要件 | 由来 |
 | --- | --- | --- |
+| `tests/application/affiliate.test.ts` | REQ-A07 | 印と表 |
 | `tests/application/article-tracking.test.ts` | REQ-E13, REQ-P09 | 印 |
-| `tests/application/build-site.test.ts` | REQ-P07, REQ-S06 | 印と表 |
+| `tests/application/build-site.test.ts` | REQ-A05, REQ-P07, REQ-S06 | 印と表 |
 | `tests/application/dashboard.test.ts` | REQ-S01 | 表 |
 | `tests/application/draft-content-variant.test.ts` | REQ-G11 | 表 |
 | `tests/application/feedback.test.ts` | REQ-FB07, REQ-FB09 | 表 |
 | `tests/application/filter-metrics.test.ts` | REQ-P10, REQ-S08 | 印と表 |
-| `tests/application/generation-matrix.test.ts` | REQ-P06, REQ-S05 | 印と表 |
+| `tests/application/generation-matrix.test.ts` | REQ-A04, REQ-P06, REQ-S05 | 印と表 |
 | `tests/application/list-selectable-models.test.ts` | REQ-G11 | 印 |
 | `tests/application/manage-content.test.ts` | REQ-QC11, REQ-R11, REQ-SEC07, REQ-SEC09 | 印と表 |
+| `tests/application/manage-distribution.test.ts` | REQ-A06 | 印と表 |
 | `tests/application/manage-llm-credentials.test.ts` | REQ-SEC01, REQ-SEC05 | 印 |
-| `tests/application/manage-personas.test.ts` | REQ-P05, REQ-S04, REQ-W12 | 印と表 |
+| `tests/application/manage-personas.test.ts` | REQ-A03, REQ-P05, REQ-S04, REQ-W12 | 印と表 |
 | `tests/application/outbound-href.test.ts` | REQ-E13 | 印 |
 | `tests/application/publication-calendar.test.ts` | REQ-P08, REQ-S07 | 表 |
 | `tests/application/publish-article.test.ts` | REQ-P08 | 表 |
 | `tests/application/read-llm-usage.test.ts` | REQ-SEC01 | 印 |
+| `tests/application/read-product.test.ts` | REQ-A02, REQ-A08 | 印と表 |
 | `tests/application/schedule-publication.test.ts` | REQ-P08 | 表 |
 | `tests/application/writing-method.test.ts` | REQ-W05, REQ-W06 | 表 |
 | `tests/architecture/ai-eval-budget.test.ts` | REQ-CI13 | 表 |
@@ -88,11 +88,11 @@
 | `tests/domain/brand-and-disclosure.test.ts` | REQ-SEC06 | 印 |
 | `tests/domain/domain-events.test.ts` | REQ-EV01 | 表 |
 | `tests/domain/feedback.test.ts` | REQ-FB03, REQ-FB12 | 表 |
-| `tests/domain/generation-plan.test.ts` | REQ-G01, REQ-P06, REQ-SEC05 | 印と表 |
+| `tests/domain/generation-plan.test.ts` | REQ-A04, REQ-G01, REQ-P06, REQ-SEC05 | 印と表 |
 | `tests/domain/handoff-prompt.test.ts` | REQ-FB11 | 表 |
 | `tests/domain/improvement.test.ts` | REQ-IM01, REQ-IM06, REQ-IM07, REQ-IM08, REQ-IM09, REQ-IM10, REQ-IM11, REQ-IM12 | 表 |
 | `tests/domain/invariants.test.ts` | REQ-SEC07, REQ-W08 | 表 |
-| `tests/domain/link-ingestion.test.ts` | REQ-S02 | 表 |
+| `tests/domain/link-ingestion.test.ts` | REQ-A01, REQ-S02 | 印と表 |
 | `tests/domain/llm-credential.test.ts` | REQ-SEC01 | 印 |
 | `tests/domain/permissions.test.ts` | REQ-API02, REQ-R01, REQ-R02, REQ-R03, REQ-R04, REQ-R05, REQ-R06, REQ-R07, REQ-R08, REQ-R09, REQ-R10, REQ-R11, REQ-R12 | 印 |
 | `tests/domain/planning.test.ts` | REQ-SEC07 | 表 |

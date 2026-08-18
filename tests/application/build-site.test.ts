@@ -1,7 +1,11 @@
 /**
  * @tier 1
- * @req REQ-P07
+ * @req REQ-P07, REQ-A05
  * @types equivalence, state-transition
+ *
+ * 受け入れ条件 §30.5（ブログ）の中身は、ここで確かめている。
+ * 複数のブログを作れること、ブログごとに設定を持てること、
+ * 埋まっていない段階があるうちは作れず、どこが足りないかが返ること。
  */
 import { describe, expect, it } from "vitest";
 import { SITE_WIZARD_STEPS } from "@/domain/authoring";

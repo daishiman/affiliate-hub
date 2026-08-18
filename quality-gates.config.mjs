@@ -217,8 +217,10 @@ export const REQUIRED_TEST_TYPES = {
    *
    * 足したときに当たったのは宣言済み 36 件のうち `REQ-SEC09` の 1 件だけで、
    * そこは伏せ字の検査が既にあった（印だけが無かった）。
-   * 残る `ssrf` / `db-migration` / `decision-table` / `property` / `audit-log` は
-   * まだ指されていない。理由は `docs/product/required-test-types.md` §4 に書く。
+   * 残る `ssrf` / `db-migration` / `decision-table` / `contract` / `infra-config` /
+   * `property` / `audit-log` の 7 つはまだ指されていない
+   * （初めは 5 つと書いたが `contract` と `infra-config` を数え落としていた。
+   * 2026-08-18 に訂正）。理由は `docs/product/required-test-types.md` §4 に書く。
    */
   "has-secret": ["secrets"],
 };
@@ -242,9 +244,21 @@ export const REQUIRED_TEST_TYPES = {
  * `tests/architecture/secrets-not-in-repo.test.ts` を新しく書いている
  * （それまで確かめた欄は `NOT RUN` で、証拠は `.gitignore` の 1 行だけだった）。
  *
+ * → **196**（宣言済 45）。受け入れ条件 `REQ-A01`〜`REQ-A08` の 8 件を宣言した。
+ * この 8 件は「依頼者が受け取ったときに確かめる操作」で、検証は
+ * `tests/acceptance/acceptance-criteria.test.ts` が入口から 1 本ずつ通している。
+ * ただし**入口を 1 本通すことと、必須種別を満たすことは別**である。
+ * 受け入れ用の検査には分かれ目（境界・状態の全遷移・権限の表）が無いので、
+ * 印は受け入れ用の検査ではなく、**その分かれ目を実際に持っている
+ * 単体側の検査**へ付けた（`link-ingestion` / `read-product` / `manage-personas` /
+ * `generation-matrix` / `generation-plan` / `build-site` /
+ * `manage-distribution` / `affiliate`）。
+ * 経緯と、性質を 2 つ取り下げた理由は
+ * `docs/product/required-test-types.md` §4 に書いた。
+ *
  * **上げて緑にすることを禁じる。**
  */
-export const TEST_TYPES_MAX_UNDECLARED = 204;
+export const TEST_TYPES_MAX_UNDECLARED = 196;
 
 /**
  * 理由つき除外を許す上限（件数）。

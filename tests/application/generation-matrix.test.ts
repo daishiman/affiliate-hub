@@ -1,7 +1,11 @@
 /**
  * @tier 1
- * @req REQ-P06
+ * @req REQ-P06, REQ-A04
  * @types equivalence, boundary
+ *
+ * 受け入れ条件 §30.4（AI 生成）のうち、媒体の並びに関わる分は、ここで確かめている。
+ * 4 媒体が列にあること、note を「直接公開」と書かないこと、
+ * 今回作る本数の上限が 0 以下なら直せる言葉で断ること。
  */
 import { describe, expect, it } from "vitest";
 import {

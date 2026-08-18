@@ -1,4 +1,13 @@
-/** @tier 1 */
+/**
+ * @tier 1
+ * @req REQ-A06
+ * @types state-transition, tenant-isolation, equivalence
+ *
+ * 受け入れ条件 §30.6（配信）の中身は、ここで確かめている。
+ * 進める先として出したものは必ず実際に進められること、公開済みからはどこへも進めないこと
+ * （＝同じ配信を二度進められない）、止まった理由と再試行の回数がそのまま出ること、
+ * note を自動投稿できる先として出さないこと、他の作業場所の配信は見せないこと。
+ */
 import { describe, expect, it } from "vitest";
 import {
   PUBLICATION_STATE_LABEL,

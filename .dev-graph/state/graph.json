@@ -1,5 +1,5 @@
 {
-  "graph_revision": 225,
+  "graph_revision": 227,
   "nodes": [
     {
       "acceptance": [],
@@ -10259,7 +10259,7 @@
         }
       ],
       "classification_confidence": 0.85,
-      "classification_reason": "ah-0ip の手順 6「指されない種別が他にも残るなら、その一覧と理由を §4 に書く」で洗い出した 5 件を切り出したもの",
+      "classification_reason": "ah-0ip の手順 6「指されない種別が他にも残るなら、その一覧と理由を §4 に書く」で洗い出した 7 件を切り出したもの（初出は 5 件。contract と infra-config の数え漏れを 2026-08-18 に訂正）",
       "completion_evidence": {
         "completed_at": null,
         "evidence_refs": [],
@@ -10298,7 +10298,7 @@
       "issue_linkage": null,
       "iteration": null,
       "mvp_alignment": {
-        "background": "ah-0ip で secrets は片付いた（has-secret を語彙へ足し、REQ-SEC10 を宣言し、リポジトリに秘密が載っていないかを毎回読む検査を書いた）。同じ食い違いが 5 種別に残っている",
+        "background": "ah-0ip で secrets は片付いた（has-secret を語彙へ足し、REQ-SEC10 を宣言し、リポジトリに秘密が載っていないかを毎回読む検査を書いた）。同じ食い違いが 7 種別に残っている",
         "mvp_fit": "enabling",
         "purpose": "種別の一覧にあるだけで一度も要求されない種別を無くす",
         "rationale": "どの性質からも指されない種別は、書かなくても検査が緑になる。いま印が付いているのは書いた人の善意によるもので、次に書かれる保証が無い"
@@ -10339,9 +10339,107 @@
       "target_date": null,
       "template_id": "task",
       "template_version": "1.0.0",
-      "title": "どの性質からも指されていないテスト種別 5 つを性質へ結ぶ（ssrf / decision-table / audit-log / db-migration / property）",
+      "title": "どの性質からも指されていないテスト種別 7 つを性質へ結ぶ（ssrf / decision-table / contract / infra-config / db-migration / audit-log / property）",
       "tracker_binding": "beads",
       "updated_at": "2026-08-18T08:30:00Z"
+    },
+    {
+      "acceptance": [],
+      "architecture_refs": [],
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "beads_linkage": null,
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "candidate_path": "tasks/task-required-test-types-registry-scope.md",
+          "confidence": 0.9
+        }
+      ],
+      "classification_confidence": 0.9,
+      "classification_reason": "ah-zs0 の作業中に実際に踏んだ不具合を切り出したもの",
+      "completion_evidence": {
+        "completed_at": null,
+        "evidence_refs": [],
+        "policy": "manual",
+        "reconciled_at": null,
+        "source": "manual",
+        "status": "open"
+      },
+      "confirmation_evidence": {
+        "evaluated_digest": null,
+        "evaluator": null,
+        "evidence_ref": null
+      },
+      "confirmation_status": "draft",
+      "created_at": "2026-08-18T10:00:00Z",
+      "depends_on": [],
+      "domain": "quality",
+      "evaluation_status": "pending",
+      "execution_contexts": [],
+      "feature_package_id": null,
+      "file_path": "tasks/task-required-test-types-registry-scope.md",
+      "github_project_linkages": [],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "goal": null,
+      "graph_node_id": "task-required-test-types-registry-scope",
+      "implementation_readiness": {
+        "checked_at": null,
+        "missing_sections": [],
+        "status": "incomplete"
+      },
+      "issue_linkage": null,
+      "iteration": null,
+      "mvp_alignment": {
+        "background": "ah-zs0 で docs/product/required-test-types.md §4 へ解説の表を書いたところ、1 列目が要件 ID だったために宣言表として拾われ、「除外に知らない種別 tests/domain/link-ingestion.test.ts」という意味の通らない誤りが 8 件出た",
+        "mvp_fit": "enabling",
+        "purpose": "宣言の正本が §3 の表 1 つであることを、書き方の作法ではなく仕組みで保証する",
+        "rationale": "いまは「§4 に要件 ID を先頭セルにした表を書かない」という暗黙の作法で回避している。作法は次に書く人へ伝わらない"
+      },
+      "owners": [
+        "daishiman"
+      ],
+      "parent_feature": null,
+      "phase_ref": null,
+      "priority": "low",
+      "project_id": "affiliate-hub",
+      "pull_request_linkages": [],
+      "purpose": null,
+      "related_nodes": [
+        "task-required-test-types-acceptance"
+      ],
+      "resource_scope": [
+        "scripts",
+        "docs"
+      ],
+      "scope_in": [],
+      "scope_out": [],
+      "source_lineage": {
+        "imported_at": "2026-08-18T10:00:00Z",
+        "origin_kind": "manual",
+        "source_digest": null,
+        "source_path": "scripts/required-test-types.mjs",
+        "source_plugin": null,
+        "source_version": null
+      },
+      "start_date": null,
+      "status": "draft",
+      "tags": [
+        "quality",
+        "testing",
+        "tooling"
+      ],
+      "target_date": null,
+      "template_id": "task",
+      "template_version": "1.0.0",
+      "title": "宣言表の読み取り範囲を §3 に限定する（解説の表が 2 つ目の宣言として拾われる）",
+      "tracker_binding": "beads",
+      "updated_at": "2026-08-18T10:00:00Z"
     }
   ],
   "repository_id": "github:daishiman/affiliate-hub",

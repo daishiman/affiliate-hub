@@ -1,4 +1,17 @@
-/** @tier 1 */
+/**
+ * @tier 1
+ * @req REQ-A02, REQ-A08
+ * @types equivalence, boundary, permission-matrix, tenant-isolation
+ *
+ * 受け入れ条件 §30.2（比較）と §30.8（追跡可能性）の中身は、ここで確かめている。
+ *
+ *   §30.2 → 「比較」「代わりになるもの」「報酬との分離」の 3 節
+ *   §30.8 → 「根拠」の節（事実と推測を読者へ出す言葉で区別する）
+ *
+ * `tests/acceptance/acceptance-criteria.test.ts` は同じことを入口から 1 本通すが、
+ * **1 つだけでは比較にならない**・**1 つでも引けなければ途中まで並べた表を出さない**
+ * といった分かれ目は通らない。受け入れ条件が守られているかは、その分かれ目で決まる。
+ */
 import { describe, expect, it } from "vitest";
 import {
   type ReadProductDeps,

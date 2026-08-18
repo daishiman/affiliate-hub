@@ -1,7 +1,11 @@
 /**
  * @tier 1
- * @req REQ-P06, REQ-SEC05
+ * @req REQ-P06, REQ-SEC05, REQ-A04
  * @types prompt-injection
+ *
+ * 受け入れ条件 §30.4（AI 生成）のうち、素材と指示文に関わる分は、ここで確かめている。
+ * 何も渡していなければ始められないこと、足りない項目が名前と埋め方つきで返ること、
+ * 取り込んだ文章に混ざった指示を見つけても自動で消さず保留にすること。
  */
 import { describe, expect, it } from "vitest";
 import { HUMAN_APPROVAL_REQUIRED } from "@/domain/authoring/content-state";

@@ -1,7 +1,10 @@
 /**
  * @tier 1
- * @req REQ-P05
+ * @req REQ-P05, REQ-A03
  * @types equivalence, boundary
+ *
+ * 受け入れ条件 §30.3（ペルソナ）の 4 項目は、ここで確かめている。
+ * 書き手が複数・読者が複数・組み合わせが表になる・実体験のない一人称を止める。
  */
 import { describe, expect, it } from "vitest";
 import type { EditorialPersonaRepositoryPort } from "@/application/ports/authoring";

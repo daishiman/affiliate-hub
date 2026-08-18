@@ -1,4 +1,16 @@
-/** @tier 1 */
+/**
+ * @tier 1
+ * @req REQ-A07
+ * @types permission-matrix, equivalence
+ *
+ * 受け入れ条件 §30.7（アフィリエイト）のうち、提携と成果に関わる分は、ここで確かめている。
+ * 提携が生きているかが行ごとに分かること、掲載条件が件数つきで返ること、
+ * 締め済みの期間は直せない理由を添えて直させないこと、
+ * 売上を見る権限が無ければ一覧そのものを返さないこと。
+ *
+ * リンクを改変せず持つことは `tests/domain/link-ingestion.test.ts` が、
+ * 広告表記の文言が 1 か所から出ることは `tests/domain/brand-and-disclosure.test.ts` が見ている。
+ */
 import { describe, expect, it } from "vitest";
 import {
   CONVERSION_STATUS_LABEL,
