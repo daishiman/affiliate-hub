@@ -35,7 +35,17 @@ export type AuditAction =
   | "connector.connected"
   | "connector.disconnected"
   | "member.role_changed"
-  | "export.performed";
+  | "export.performed"
+  /**
+   * 生成 AI の鍵の登録・失効。
+   *
+   * **鍵の値は before/after に入らない**（下の `redactSensitive` が落とすが、
+   * そもそも詰めない）。残すのは「誰が・どの提供元の鍵を・いつ」までである。
+   * 失効を記録するのは、漏れが疑われたときに
+   * 「いつ止めたか」が言えないと事故対応が始められないため。
+   */
+  | "llm_credential.registered"
+  | "llm_credential.revoked";
 
 /** 操作した主体。AI かどうかを型で残す。後から「人が承認した」を検証するため。 */
 export type AuditActor = {

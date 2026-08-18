@@ -471,6 +471,8 @@ export const AUDIT_ACTION_LABEL: Readonly<Record<AuditAction, string>> = {
   "connector.disconnected": "外部サービスとの接続を切った",
   "member.role_changed": "担当者の役割を変えた",
   "export.performed": "データを書き出した",
+  "llm_credential.registered": "生成 AI の API キーを登録した",
+  "llm_credential.revoked": "生成 AI の API キーを失効させた",
 };
 
 export type ListAuditLogInput = { readonly limit?: number };
