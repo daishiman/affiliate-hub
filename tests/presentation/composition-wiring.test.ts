@@ -54,16 +54,46 @@ function connectionNames(): readonly string[] {
   return [...signature.matchAll(/readonly (\w+)\?:/g)].map((m) => m[1]);
 }
 
-/** 接続 1 つにつき、それがあれば本物へ切り替わる依存の名前。 */
+/** 組み立て（`createDeps`）1 つ分の本文。次の `export` の手前まで。 */
+function createDepsBody(): string {
+  const from = INFRA.slice(INFRA.indexOf("export function createDeps("));
+  const next = from.indexOf("\nexport ");
+  return next === -1 ? from : from.slice(0, next);
+}
+
+/**
+ * 接続 1 つにつき、それがあれば本物へ切り替わる依存の名前。
+ *
+ * 見つけ方は 2 通りある。
+ *
+ *   1. 枠の中で直に分岐している（`db === null ? 見本 : 本物`）
+ *   2. 接続から**別の値を作って**、その値から枠を埋めている
+ *      （`const llmPorts = createLlmPorts(options.env ?? {})` → `llm: llmPorts.llm`）
+ *
+ * 2026-08-18 に 2 を足した。生成 AI の鍵を渡すための `env` を組み立てへ足した日、
+ * この検査は「`env` で分岐する依存が 1 つも無い」と言って落ちた。**言い分は正しい**。
+ * 1 しか見ていなかったので、接続を増やしても対象が 0 件のまま緑になる形が
+ * 残っていた（空振りを緑で通すのは、検査が無いのと同じである）。
+ * 分岐の書き方に検査を合わせるのではなく、**届き方をもう 1 通り数える**ように直した。
+ */
 function capableSlots(connection: string): readonly string[] {
-  const body = INFRA.slice(INFRA.indexOf("export function createDeps("));
+  const body = createDepsBody();
+
+  // 接続から作られた中間の値（`const 名前 = … options.接続 …`）。
+  const derived = [
+    ...body.matchAll(new RegExp(`const (\\w+) = [^\\n]*options\\.${connection}\\b`, "g")),
+  ].map((m) => m[1]);
+
   const slots: string[] = [];
   // 4 桁字下げの `名前:` を 1 つの枠とみなし、次の枠までを値として読む。
   const entries = [...body.matchAll(/^ {4}(\w+):/gm)];
   for (const [index, entry] of entries.entries()) {
     const start = entry.index ?? 0;
     const end = index + 1 < entries.length ? (entries[index + 1].index ?? body.length) : body.length;
-    if (body.slice(start, end).includes(`${connection} === null`)) slots.push(entry[1]);
+    const value = body.slice(start, end);
+    const branches = value.includes(`${connection} === null`);
+    const fromDerived = derived.some((name) => new RegExp(`\\b${name}\\.`).test(value));
+    if (branches || fromDerived) slots.push(entry[1]);
   }
   return slots;
 }

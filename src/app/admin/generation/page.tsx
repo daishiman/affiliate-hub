@@ -39,7 +39,7 @@ export default async function GenerationPage({
   const trial = params.trial === "ready" ? "ready" : params.trial === "empty" ? "empty" : null;
 
   const actor = await currentActor();
-  const uc = generationUseCases();
+  const uc = await generationUseCases();
 
   const [plan, readiness, review, draft] = await Promise.all([
     uc.readPlan.execute(actor, {}),

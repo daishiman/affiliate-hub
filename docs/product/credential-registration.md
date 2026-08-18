@@ -198,12 +198,31 @@ ASP の接続情報などは従来どおり環境変数から解決する
   まだ `createStubLlm` を返す（呼ばれると失敗を返す。固定文を返さないのは、
   生成していない記事が「生成済み」として残る事故を避けるため）。
   4 社を 1 社ずつ実装し、**1 社できるたびに実際に下書きを 1 本作って確かめる**
-- `src/infrastructure/composition.ts` の `createLlmPorts()` に Worker の env が
-  渡っていない。`LLM_KEY_ENCRYPTION_SECRET` と `LLM_PROVIDER_CATALOG` を
-  通すところまで併せて直す
-- 設定画面（登録・確認・失効）と利用量のページは未実装。
-  ユースケースは両方そろっている（`manage-llm-credentials.ts` /
-  `read-llm-usage.ts`）ので、残っているのは画面と経路だけ
+- 利用量のページは未実装（ユースケース `read-llm-usage.ts` は済んでいる）。
+  残っているのは画面だけ
+
+### つないだところ（2026-08-18）
+
+Worker の env が組み立てまで届くようになった。`src/infrastructure/app-context.ts`
+が `LLM_KEY_ENCRYPTION_SECRET` と `LLM_PROVIDER_CATALOG` を運び、
+`createDeps({ db, env })` から `createLlmPorts(options.env ?? {})` へ渡る。
+
+設定画面（登録・確認・失効）は `src/app/admin/settings/llm/page.tsx` と
+`src/presentation/admin/llm-credential-{form,action,state}.ts(x)`。
+元締めの鍵が無いあいだは登録欄を出さず、**その理由を 1 行出す**
+（3 つの理由は互いに別の文にしてある。やることが 3 つとも違うため）。
+
+渡し忘れは例外にならず「使えません」という穏やかな返答になり、
+画面は普通に描けてしまう。**壊れて見えないので気づく機会が無い。**
+実際この案件では同じ形の穴が 4 回続き、4 回とも別の作業のついでに
+偶然見つかっている。そこで渡し忘れ自体を検査で固定した
+（`tests/architecture/worker-env-wiring.test.ts`）。
+
+このとき、既にあった配線の検査（`tests/presentation/composition-wiring.test.ts`）が
+**新しい接続に対して空振りしていた**ことも分かった。接続の届き方を
+「`X === null` で分岐する」1 通りしか数えておらず、`env` から作った中間値を
+経由する形は 0 件のまま緑になっていた。**検査を弱めるのではなく、
+中間値経由も数えるよう強くした。**
 
 ### 規範
 

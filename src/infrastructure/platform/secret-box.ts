@@ -42,7 +42,7 @@ export class SecretBoxOpenError extends Error {
  * 元締めの鍵の下限。
  * 短い合言葉は総当たりで通るため、包んでいる意味が無くなる。
  */
-const MIN_MASTER_LENGTH = 32;
+export const MIN_MASTER_SECRET_LENGTH = 32;
 
 async function deriveKey(masterSecret: string): Promise<CryptoKey> {
   if (masterSecret === "") {
@@ -50,9 +50,9 @@ async function deriveKey(masterSecret: string): Promise<CryptoKey> {
       "LLM_KEY_ENCRYPTION_SECRET が設定されていません。API キーの保管は行いません。",
     );
   }
-  if (masterSecret.length < MIN_MASTER_LENGTH) {
+  if (masterSecret.length < MIN_MASTER_SECRET_LENGTH) {
     throw new SecretBoxUnavailableError(
-      `LLM_KEY_ENCRYPTION_SECRET が短すぎます（${MIN_MASTER_LENGTH} 文字以上）。`,
+      `LLM_KEY_ENCRYPTION_SECRET が短すぎます（${MIN_MASTER_SECRET_LENGTH} 文字以上）。`,
     );
   }
   const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(masterSecret));

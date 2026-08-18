@@ -1,5 +1,5 @@
 {
-  "graph_revision": 214,
+  "graph_revision": 215,
   "nodes": [
     {
       "acceptance": [],
@@ -9270,6 +9270,104 @@
       "title": "自動検査では固定したが、本物のランタイムで一度も動かしていないものを一覧にする",
       "tracker_binding": "beads",
       "updated_at": "2026-08-18T00:00:00.000000Z"
+    },
+    {
+      "acceptance": [],
+      "architecture_refs": [],
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "beads_linkage": null,
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "candidate_path": "tasks/task-llm-credential-wiring.md",
+          "confidence": 0.9
+        }
+      ],
+      "classification_confidence": 0.9,
+      "classification_reason": "実装済のユースケースが組み立てからも画面からも呼ばれていないことを両側から確認した",
+      "completion_evidence": {
+        "completed_at": null,
+        "evidence_refs": [],
+        "policy": "manual",
+        "reconciled_at": null,
+        "source": "manual",
+        "status": "in_progress"
+      },
+      "confirmation_evidence": {
+        "evaluated_digest": null,
+        "evaluator": null,
+        "evidence_ref": null
+      },
+      "confirmation_status": "draft",
+      "created_at": "2026-08-18T03:00:00Z",
+      "depends_on": [],
+      "domain": "generation",
+      "evaluation_status": "pending",
+      "execution_contexts": [],
+      "feature_package_id": null,
+      "file_path": "tasks/task-llm-credential-wiring.md",
+      "github_project_linkages": [],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "goal": null,
+      "graph_node_id": "task-llm-credential-wiring",
+      "implementation_readiness": {
+        "checked_at": null,
+        "missing_sections": [],
+        "status": "incomplete"
+      },
+      "issue_linkage": null,
+      "iteration": null,
+      "mvp_alignment": {
+        "background": "鍵の預かり所・目録・疎通確認・鍵管理ユースケース・利用量の記録は実装済だが、createDeps がその 5 つを 1 つも作っておらず画面も無い",
+        "mvp_fit": "direct",
+        "purpose": "利用者ご本人が、鍵の値をこちらへ渡さずに画面から登録できる状態にする",
+        "rationale": "ah-ag8（提供元の選定と鍵の登録）は本人の作業だが、登録する場所が無いままでは着手できない"
+      },
+      "owners": [
+        "daishiman"
+      ],
+      "parent_feature": null,
+      "phase_ref": null,
+      "priority": "high",
+      "project_id": "affiliate-hub",
+      "pull_request_linkages": [],
+      "purpose": null,
+      "related_nodes": [
+        "task-llm-provider-connection"
+      ],
+      "resource_scope": [
+        "src",
+        "tests"
+      ],
+      "scope_in": [],
+      "scope_out": [],
+      "source_lineage": {
+        "imported_at": "2026-08-18T03:00:00Z",
+        "origin_kind": "manual",
+        "source_digest": null,
+        "source_path": "src/application/usecases/generation/manage-llm-credentials.ts",
+        "source_plugin": null,
+        "source_version": null
+      },
+      "start_date": null,
+      "status": "draft",
+      "tags": [
+        "llm",
+        "settings",
+        "secrets"
+      ],
+      "target_date": null,
+      "template_id": "task",
+      "template_version": "1.0.0",
+      "title": "生成 AI の鍵を画面から登録できるようにする（設定画面と組み立ての配線）",
+      "tracker_binding": "beads",
+      "updated_at": "2026-08-18T03:00:00Z"
     }
   ],
   "repository_id": "github:daishiman/affiliate-hub",

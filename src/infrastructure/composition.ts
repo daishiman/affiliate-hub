@@ -1,4 +1,9 @@
 import type { AppDeps } from "@/application/deps";
+import type {
+  LlmConnectivityPort,
+  LlmCredentialVaultPort,
+  LlmProviderCatalogPort,
+} from "@/application/ports/llm-credential";
 import {
   createCommercialD1LinkInboxRepository,
   type DrizzleD1,
@@ -25,6 +30,11 @@ import {
   type CaptureBucket,
 } from "./platform/feedback-capture-r2";
 import { createLlmPorts } from "./llm/llm-setup";
+import { createLlmProviderCatalog } from "./llm/llm-provider-catalog";
+import { createLlmConnectivity } from "./llm/llm-connectivity";
+import { createD1LlmCredentialVault } from "./persistence/d1/llm-credential-repository";
+import { createD1LlmUsage } from "./persistence/d1/llm-usage-repository";
+import { MIN_MASTER_SECRET_LENGTH } from "./platform/secret-box";
 import {
   createSampleContentRepository,
   createSamplePublishedArticleWriter,
@@ -115,11 +125,24 @@ import { idGenerator } from "./platform/id-generator";
  * 入口ごとの組み立て（ツール一覧）は `src/presentation/composition.ts`。
  */
 export function createDeps(
-  options: { readonly db?: DrizzleD1 | null; readonly bucket?: CaptureBucket | null } = {},
+  options: {
+    readonly db?: DrizzleD1 | null;
+    readonly bucket?: CaptureBucket | null;
+    /**
+     * Worker の環境（設定値と秘密情報）。
+     *
+     * **渡さないと、鍵を登録しても提供元アダプタからは 1 件も見えない。**
+     * 既定を `{}` にしてあるのは、Workers の外（`pnpm dev`・自動テスト）でも
+     * 組み立てが動くようにするためで、本番で省いてよいという意味ではない。
+     * 入口が渡し忘れていないことは検査で固定してある
+     * （tests/architecture/worker-env-wiring.test.ts）。
+     */
+    readonly env?: Readonly<Record<string, unknown>>;
+  } = {},
 ): AppDeps {
   const db = options.db ?? null;
   const bucket = options.bucket ?? null;
-  const llmPorts = createLlmPorts();
+  const llmPorts = createLlmPorts(options.env ?? {});
   // 計測の記録先は、保存先が用意できていれば本物（D1）。
   // 入れる口（/api/telemetry と画面の収集係）と読む口（/admin/analytics）が
   // 両方そろったのでつないだ。片方しか無い状態でつなぐと、
@@ -264,5 +287,91 @@ export function createDeps(
       db === null
         ? createSampleLinkIngestionRepository()
         : createCommercialD1LinkInboxRepository(db),
+  };
+}
+
+/**
+ * 生成 AI の鍵を預かる仕組みの組み立て。
+ *
+ * --- なぜ `createDeps` に入れないか ---
+ * **預かり所は「作らない」という状態を持つ。**
+ * 元締めの鍵（`LLM_KEY_ENCRYPTION_SECRET`）が無い環境で預かり所を作ると、
+ * 包めない値を保存先へ入れる道ができる。入った時点で、平文か
+ * 開けられない塊のどちらかが残り、どちらも後から直せない。
+ *
+ * `AppDeps` の欄は全部そろっている前提で書かれているので、
+ * そこへ「無いことがある口」を混ぜると、他の 40 個の口まで
+ * 「無いかもしれない」と読む必要が出る。分けて置く。
+ *
+ * --- 使えない理由を捨てない ---
+ * 作れなかったときに `null` だけ返すと、画面は
+ * 「鍵が無い」「保存先が無い」「元締めの鍵が短い」を同じ空白として出す。
+ * 利用者のやることは 3 つとも違う。理由を持って返す。
+ */
+export type LlmCredentialManagement =
+  | {
+      readonly ready: true;
+      readonly vault: LlmCredentialVaultPort;
+      readonly catalog: LlmProviderCatalogPort;
+      readonly connectivity: LlmConnectivityPort;
+    }
+  | {
+      readonly ready: false;
+      /** なぜ登録できないか。画面にそのまま出す 1 行。 */
+      readonly reason: string;
+      /**
+       * 使えないときでも目録は返す。
+       * **鍵をどこで発行するかの案内は、登録できない状態でこそ要る。**
+       */
+      readonly catalog: LlmProviderCatalogPort;
+    };
+
+export function createLlmCredentialManagement(options: {
+  readonly db?: DrizzleD1 | null;
+  readonly env?: Readonly<Record<string, unknown>>;
+  readonly now?: () => Date;
+}): LlmCredentialManagement {
+  const db = options.db ?? null;
+  const env = options.env ?? {};
+  const now = options.now ?? (() => new Date());
+
+  const rawCatalog = typeof env.LLM_PROVIDER_CATALOG === "string" ? env.LLM_PROVIDER_CATALOG : "";
+  const catalog = createLlmProviderCatalog(rawCatalog);
+
+  if (db === null) {
+    return {
+      ready: false,
+      catalog,
+      reason:
+        "保存先（D1）につながっていないため、鍵を預かれません。公開した環境（pnpm run preview か本番）で開いてください。",
+    };
+  }
+
+  const master = typeof env.LLM_KEY_ENCRYPTION_SECRET === "string" ? env.LLM_KEY_ENCRYPTION_SECRET : "";
+  if (master === "") {
+    return {
+      ready: false,
+      catalog,
+      reason:
+        "元締めの鍵（LLM_KEY_ENCRYPTION_SECRET）が未登録のため、API キーを包めません。ご自身のターミナルで `wrangler secret put LLM_KEY_ENCRYPTION_SECRET` を実行してください（値をこの画面やチャットに貼らないでください）。",
+    };
+  }
+  if (master.length < MIN_MASTER_SECRET_LENGTH) {
+    return {
+      ready: false,
+      catalog,
+      reason: `元締めの鍵（LLM_KEY_ENCRYPTION_SECRET）が短すぎます（${MIN_MASTER_SECRET_LENGTH} 文字以上）。長いものへ入れ直してください。`,
+    };
+  }
+
+  const vault = createD1LlmCredentialVault({ db, masterSecret: master, now });
+  const usage = createD1LlmUsage({ db, ids: idGenerator, now });
+  return {
+    ready: true,
+    vault,
+    catalog,
+    // 疎通確認は鍵の値を使う。だから**預かり所そのもの**を渡す
+    // （`LlmKeyAccess` の面。応用層には型として届かない）。
+    connectivity: createLlmConnectivity({ vault, catalog, usage }),
   };
 }

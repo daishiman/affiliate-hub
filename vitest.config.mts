@@ -53,6 +53,14 @@ export default defineConfig({
   resolve: {
     alias: {
       "@": fileURLToPath(new URL("./src", import.meta.url)),
+      /*
+        `server-only` は読み込まれた時点で例外を投げる仕掛けである
+        （ブラウザ向けの束に入ったことをビルドの失敗として知らせるため）。
+        検査は Node で走るので、身代わりに差し替えないと検査のほうが落ちる。
+        **守りは外していない**: 本物を読むのは Next.js のビルドで、
+        client から読んだら壊れる性質はそのまま残る。
+      */
+      "server-only": fileURLToPath(new URL("./tests/support/server-only-stub.ts", import.meta.url)),
     },
   },
 });

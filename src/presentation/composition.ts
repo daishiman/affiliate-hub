@@ -124,7 +124,15 @@ import type { ActorContext } from "@/domain/shared";
 import { taggedString } from "@/domain/shared";
 import { type KeyScope, authorize } from "@/domain/feedback";
 import type { StorageStatus } from "@/presentation/ui/patterns/stub-notice";
-import { createDeps } from "@/infrastructure/composition";
+import { createDeps, createLlmCredentialManagement } from "@/infrastructure/composition";
+import { appContext } from "@/infrastructure/app-context";
+import {
+  createManageLlmCredentialsUseCase,
+  type ManageLlmCredentialsInput,
+  type ManageLlmCredentialsOutput,
+} from "@/application/usecases/generation/manage-llm-credentials";
+import type { LlmProviderDescriptor } from "@/application/ports/llm-credential";
+import type { UseCase } from "@/application/usecases/usecase";
 import { telemetryStubNotice } from "@/infrastructure/persistence/sample/telemetry-sample-sink";
 import { improvementStubNotice } from "@/infrastructure/persistence/sample/improvement-sample-repository";
 import { feedbackStubNotice } from "@/infrastructure/persistence/sample/feedback-sample-repository";
@@ -175,7 +183,10 @@ export async function createToolCatalog(): Promise<readonly AnyToolDefinition[]>
   // **接続を渡す。** 道具は画面と同じ処理を呼ぶのが前提なので、
   // ここで渡し忘れると「画面には保存されているのに AI からは見えない」
   // という、入口ごとに答えが違う状態になる。
-  return buildToolCatalog(createDeps({ db: await tryGetDb() }));
+  // 渡すものを名前で書く。`createDeps(context)` と書くと、
+  // 何を渡したかが呼び出し側から読めなくなり、検査も人も追えない。
+  const context = await appContext();
+  return buildToolCatalog(createDeps({ db: context.db, env: context.env }));
 }
 
 /**
@@ -912,13 +923,63 @@ export async function feedbackCaptureNotice(): Promise<StorageStatus> {
  * どこの提供元を呼ぶかは `src/infrastructure/llm/llm-setup.ts` の 1 行が決めており、
  * ここも画面も、提供元の名前を知らない。
  */
-export function generationUseCases() {
-  const deps = createDeps();
+export async function generationUseCases() {
+  // **環境も渡す。** 鍵は環境から取る。ここを `createDeps()` のままにすると、
+  // 利用者が画面から鍵を登録しても、生成の呼び出しからは 1 件も見えない。
+  const context = await appContext();
+  const deps = createDeps({ db: context.db, env: context.env });
   return {
     readPlan: createReadGenerationPlanUseCase(),
     checkInput: createCheckGenerationInputUseCase(),
     reviewMaterial: createReviewMaterialUseCase(),
     draft: createDraftContentVariantUseCase({ llm: deps.llm, costs: deps.llmCosts }),
+  };
+}
+
+/**
+ * 生成 AI の鍵を登録する画面の入口。
+ *
+ * **使える状態と使えない状態を、同じ型で返さない。**
+ * 使えないときに空の一覧を返すと、画面は「まだ登録していない」と読む。
+ * 実際には元締めの鍵が無い・保存先が無いのどちらかで、
+ * 利用者がやることは登録ではなく設定である。
+ *
+ * 使えないときも提供元の一覧だけは返す。
+ * 鍵をどこで発行するかの案内は、むしろ使えないときに要る。
+ */
+export type LlmCredentialEntry =
+  | {
+      readonly ready: true;
+      readonly manage: UseCase<ManageLlmCredentialsInput, ManageLlmCredentialsOutput>;
+    }
+  | {
+      readonly ready: false;
+      readonly reason: string;
+      readonly providers: readonly LlmProviderDescriptor[];
+    };
+
+export async function llmCredentialEntry(): Promise<LlmCredentialEntry> {
+  const context = await appContext();
+  const built = createLlmCredentialManagement(context);
+  if (!built.ready) {
+    const providers = await built.catalog.listProviders();
+    return {
+      ready: false,
+      reason: built.reason,
+      providers: providers.ok ? providers.value : [],
+    };
+  }
+  const deps = createDeps({ db: context.db, env: context.env });
+  return {
+    ready: true,
+    manage: createManageLlmCredentialsUseCase({
+      vault: built.vault,
+      catalog: built.catalog,
+      connectivity: built.connectivity,
+      auditLog: deps.auditLog,
+      ids: deps.ids,
+      now: () => new Date(),
+    }),
   };
 }
 

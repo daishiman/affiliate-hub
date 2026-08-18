@@ -76,6 +76,17 @@ export default async function SettingsPage() {
       </Card>
 
       <Card>
+        <h2 className={styles.sectionTitle}>生成 AI の API キー</h2>
+        <p className={styles.sectionLead}>
+          記事を書かせるために使う鍵を登録します。鍵が 1 つも入っていないあいだは、下書きの生成が
+          呼び出しの手前で止まります。
+        </p>
+        <p className={styles.linkNote}>
+          <Link href="/admin/settings/llm">API キーの登録と状態を見る</Link>
+        </p>
+      </Card>
+
+      <Card>
         <h2 className={styles.sectionTitle}>画面の見た目</h2>
         <p className={styles.sectionLead}>
           ここでの選択はあなたの手元だけに効きます。ブログの見た目（読者に見える色）は、

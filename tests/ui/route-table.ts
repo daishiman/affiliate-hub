@@ -52,6 +52,9 @@ const ADMIN: readonly RouteCase[] = [
   { file: "admin/rankings/page.tsx" },
   { file: "admin/settings/page.tsx" },
   { file: "admin/settings/integration-access/page.tsx" },
+  // 検査は実行環境の外で走るので、必ず「預かれない」側が描かれる。
+  // それでよい。利用者が最初に見るのはこの状態で、ここで理由が出ないと詰む。
+  { file: "admin/settings/llm/page.tsx" },
   { file: "admin/sites/page.tsx" },
   { file: "admin/sites/[site]/page.tsx", params: { site: SITE } },
   { file: "admin/sites/new/page.tsx" },

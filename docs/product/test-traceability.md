@@ -5,8 +5,8 @@
 テスト側の `@req` 印を重ねたもの。
 
 - 最終更新: 2026-08-18
-- テストファイル: 138 件
-- 由来の要件が分かる: 103 件
+- テストファイル: 143 件
+- 由来の要件が分かる: 108 件
 - **由来不明: 35 件**（上限 37 件）
 
 由来不明とは「どの要件のために書いたのか、機械から辿れない」という意味で、
@@ -78,6 +78,7 @@
 | `tests/architecture/server-action-exports.test.ts` | REQ-FD06 | 表 |
 | `tests/architecture/tenant-scoped-ports.test.ts` | REQ-P01, REQ-SEC01 | 印と表 |
 | `tests/architecture/test-honesty.test.ts` | REQ-CI07 | 表 |
+| `tests/architecture/worker-env-wiring.test.ts` | REQ-SEC01 | 印 |
 | `tests/domain/authored-sections.test.ts` | REQ-P08 | 表 |
 | `tests/domain/boundaries-platform.test.ts` | REQ-P04, REQ-P08, REQ-SEC03, REQ-TS08 | 印と表 |
 | `tests/domain/boundaries.test.ts` | REQ-P09, REQ-P10, REQ-TS08 | 印と表 |
@@ -128,6 +129,8 @@
 | `tests/presentation/feedback-capture-route.test.ts` | REQ-FB13 | 印と表 |
 | `tests/presentation/feedback-pending-route.test.ts` | REQ-FB09 | 表 |
 | `tests/presentation/go-route.test.ts` | REQ-E13 | 印 |
+| `tests/presentation/llm-credential-actions.test.ts` | REQ-SEC01 | 印 |
+| `tests/presentation/llm-credential-entry.test.ts` | REQ-SEC01 | 印 |
 | `tests/presentation/nav-permissions.test.ts` | REQ-FB02, REQ-FB07 | 表 |
 | `tests/presentation/one-usecase-three-adapters.test.ts` | REQ-FD04 | 表 |
 | `tests/presentation/tool-catalog-adapters.test.ts` | REQ-TS04 | 表 |
@@ -146,6 +149,8 @@
 | `tests/ui/feedback-admin-forms.test.tsx` | REQ-FB08, REQ-FB12 | 表 |
 | `tests/ui/feedback-button.test.tsx` | REQ-FB02, REQ-FB03 | 表 |
 | `tests/ui/keyboard-operation.test.tsx` | REQ-P01, REQ-P02, REQ-P03, REQ-P04, REQ-P05, REQ-P06, REQ-P07, REQ-P08, REQ-P09, REQ-P10, REQ-SEC08, REQ-TH01 | 印 |
+| `tests/ui/llm-credential-forms.test.tsx` | REQ-SEC01 | 印 |
+| `tests/ui/llm-credential-page.test.tsx` | REQ-SEC01 | 印 |
 | `tests/ui/page-degraded.test.tsx` | REQ-P01, REQ-P02, REQ-P03, REQ-P04, REQ-P05, REQ-P06, REQ-P07, REQ-P08, REQ-P09, REQ-P10, REQ-TH01 | 印 |
 | `tests/ui/page-empty.test.tsx` | REQ-P01, REQ-P02, REQ-P03, REQ-P04, REQ-P05, REQ-P06, REQ-P07, REQ-P08, REQ-P09, REQ-P10, REQ-TH01 | 印 |
 | `tests/ui/page-render.test.tsx` | REQ-FB07, REQ-FB08, REQ-P01, REQ-P02, REQ-P03, REQ-P04, REQ-P05, REQ-P06, REQ-P07, REQ-P08, REQ-P09, REQ-P10, REQ-SEC08, REQ-TH01, REQ-TS05 | 印と表 |
