@@ -122,6 +122,50 @@ export async function SiteFrame({
   );
 }
 
+/**
+ * 読めなかったときの、読者向けの言い方。**1 つだけ決めて全画面で使う。**
+ *
+ * 画面ごとに言い回しを変えると、読者は「これは自分のせいか、向こうの都合か」を
+ * 毎回読み解くことになる。ここを固定してあるので、検査も文言 1 つで足りる。
+ */
+export const UNAVAILABLE_NOTICE = "いま表示できません";
+
+/**
+ * 読めなかったときの表示。**「無い」と「取れなかった」を分ける。**
+ *
+ * 分けないと、保存先が落ちているだけの状態で読者に
+ * 「その記事は存在しません」と言うことになる。読者は探すのをやめ、
+ * 運営は気づけない。**どちらも画面上はきれいに見える**ので、
+ * 目で見て気づくことはできない。
+ *
+ * 分かれ目は `NOT_FOUND` かどうかの 1 点だけ。
+ * それ以外（保存先に繋がらない・上流が落ちている・まだ実装が無い）は
+ * すべて「いま表示できません」に寄せる。読者にとって差が無いからである。
+ */
+export function ReadFailureBody({
+  error,
+  what,
+  siteSlug,
+}: {
+  readonly error: { readonly code: string };
+  /** 「記事」「カテゴリー」など、読もうとしたもの。 */
+  readonly what: string;
+  readonly siteSlug: string;
+}) {
+  if (error.code === "NOT_FOUND") return <NotFoundBody what={what} siteSlug={siteSlug} />;
+
+  const title = `${what}を${UNAVAILABLE_NOTICE}`;
+  return (
+    <SitePage title={title}>
+      <ErrorView
+        title={title}
+        body="こちらの都合で読み込めませんでした。しばらくしてから、もう一度お試しください。"
+        action={<Link href={siteBasePath(siteSlug)}>トップへ戻る</Link>}
+      />
+    </SitePage>
+  );
+}
+
 /** 記事や人が見つからないときの表示。ここも 1 箇所にまとめる。 */
 export function NotFoundBody({
   what,

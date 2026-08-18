@@ -1,6 +1,6 @@
 import { readerActor, siteUseCases } from "@/presentation/composition";
 import { PolicyView, SitePage } from "@/presentation/ui";
-import { NotFoundBody, SiteFrame } from "./page-frame";
+import { ReadFailureBody, SiteFrame } from "./page-frame";
 import { siteHref } from "./view-model";
 
 /**
@@ -36,7 +36,7 @@ export async function PolicyPage({
             <PolicyView paragraphs={result.value.body} />
           </SitePage>
         ) : (
-          <NotFoundBody what="この文書" siteSlug={siteSlug} />
+          <ReadFailureBody error={result.error} what="この文書" siteSlug={siteSlug} />
         )
       }
     </SiteFrame>

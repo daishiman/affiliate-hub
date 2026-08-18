@@ -53,7 +53,8 @@ vi.mock("@/presentation/composition", async (importOriginal) => {
         value !== null &&
         typeof value === "object" &&
         typeof (value as { execute?: unknown }).execute === "function";
-      out[key] = hasExecute
+      // ブログの設計図だけは本物を通す（下の「読者側の扱い」を見よ）。
+      out[key] = hasExecute && key !== "getSite"
         ? {
             ...(value as object),
             execute: async () => {
@@ -79,16 +80,29 @@ vi.mock("@/presentation/composition", async (importOriginal) => {
 });
 
 /**
- * 運営側の画面だけを対象にする。
+ * 運営側の画面と、読者側の画面。
  *
- * 読者側は「そのブログが無い」ときに 404 を返す作りで、
- * これは白紙ではなく正しい応答なので、同じ物差しで測らない。
+ * 読者側を長らく外していた（「そのブログが無いときは 404 が正しい応答だから」）。
+ * だがそれは**ブログの設計図**が読めないときの話で、
+ * 記事・カテゴリー・人・文書・道具が読めないときの話ではない。
+ * 外していた間、読者側の 9 本は取り出しが失敗すると
+ * 「その記事は存在しません」と読者へ言っていた（`ah-cry` で実測して直した）。
+ *
+ * 設計図そのものが読めないときは、いまも 404 に潰れる。
+ * 画面の骨格（ヘッダー・配色・パンくず）が設計図から作られるためで、
+ * ここを直すには骨格に既定値が要る。別の課題として残す。
+ * だからこの検査では設計図だけ本物を通す。
  */
-const DEGRADED_CASES = ROUTE_CASES.filter((r) => r.file.startsWith("admin/"));
+const DEGRADED_CASES = ROUTE_CASES.filter(
+  (r) => r.file.startsWith("admin/") || r.file.startsWith("s/"),
+);
+
+const isReader = (file: string): boolean => file.startsWith("s/");
 
 describe("対象の画面", () => {
-  it("運営側の画面が 1 枚以上ある（絞り込みが効かなくなったら気づけるように）", () => {
-    expect(DEGRADED_CASES.length).toBeGreaterThan(10);
+  it("運営側と読者側の両方が入っている（絞り込みが効かなくなったら気づけるように）", () => {
+    expect(DEGRADED_CASES.filter((r) => !isReader(r.file)).length).toBeGreaterThan(10);
+    expect(DEGRADED_CASES.filter((r) => isReader(r.file)).length).toBeGreaterThan(10);
   });
 });
 
@@ -107,14 +121,33 @@ describe.each(DEGRADED_CASES.map((r) => [r.file, r] as const))(
       }
 
       const text = textOf(html);
-      if (seen.used) {
-        // 「0 件」と「取れていない」を同じ見た目にしないための一文。
-        expect(text).toContain("繋がっていません");
-        expect(text).toContain("接続の設定");
-      } else {
+      if (!seen.used) {
         // 保存先を見ない画面（部品の見本など）。それでも中身が空では困る。
         expect(text.length).toBeGreaterThan(100);
+        return;
       }
+
+      if (isReader(route.file)) {
+        /*
+          読者向けの言い方は 1 つに決めてある（`UNAVAILABLE_NOTICE`）。
+          運営向けの「保存先に繋がっていません／接続の設定」をそのまま読者へ
+          出さないのは、読者にできることが 1 つも無いからである。
+
+          「見つかりませんでした」が出ていないことのほうが本題である。
+          ここで**取れなかったことを、無いことにすり替えていない**かを見る。
+          すり替えると読者は探すのをやめ、運営は気づけない。
+          しかも画面は最後まできれいに見えるので、目視では発見できない。
+        */
+        expect(text).toContain("表示できません");
+        expect(text, "取れなかったものを『無い』と言っています").not.toContain(
+          "見つかりませんでした",
+        );
+        return;
+      }
+
+      // 「0 件」と「取れていない」を同じ見た目にしないための一文。
+      expect(text).toContain("繋がっていません");
+      expect(text).toContain("接続の設定");
     });
 
     it("読み上げと操作の自動検査に違反がない", async () => {

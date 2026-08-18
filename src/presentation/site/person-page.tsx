@@ -1,6 +1,6 @@
 import { readerActor, siteUseCases } from "@/presentation/composition";
 import { ArticleList, PersonView, SitePage, UI_COPY } from "@/presentation/ui";
-import { NotFoundBody, SiteFrame } from "./page-frame";
+import { ReadFailureBody, SiteFrame } from "./page-frame";
 import { siteHref, toArticleCards } from "./view-model";
 
 /**
@@ -52,7 +52,7 @@ export async function PersonPage({
             </section>
           </SitePage>
         ) : (
-          <NotFoundBody what={roleLabel} siteSlug={siteSlug} />
+          <ReadFailureBody error={result.error} what={roleLabel} siteSlug={siteSlug} />
         )
       }
     </SiteFrame>
