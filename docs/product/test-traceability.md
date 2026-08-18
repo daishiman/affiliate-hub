@@ -6,9 +6,9 @@
 テスト側の `@req` 印を重ねたもの。
 
 - 最終更新: 2026-08-18
-- テストファイル: 174 件
+- テストファイル: 175 件
 - 由来の要件が分かる: 152 件
-- **由来不明: 22 件**（上限 28 件）
+- **由来不明: 23 件**（上限 28 件）
 
 由来不明とは「どの要件のために書いたのか、機械から辿れない」という意味で、
 テストが無駄という意味ではない。要件から書いたなら `@req` を 1 行足せば消える。
@@ -19,6 +19,7 @@
 - `tests/application/manage-workspace.test.ts`
 - `tests/application/read-site.test.ts`
 - `tests/application/review-loop-runs.test.ts`
+- `tests/application/writing-method.test.ts`
 - `tests/architecture/spec-freshness.test.ts`
 - `tests/architecture/worker-entry.test.ts`
 - `tests/domain/metrics-from-telemetry.test.ts`
@@ -64,7 +65,6 @@
 | `tests/application/read-product.test.ts` | REQ-A02, REQ-A08 | 印と表 |
 | `tests/application/reader-interaction.test.ts` | REQ-TS01 | 表 |
 | `tests/application/schedule-publication.test.ts` | REQ-P08 | 印と表 |
-| `tests/application/writing-method.test.ts` | REQ-W06 | 表 |
 | `tests/architecture/ai-eval-budget.test.ts` | REQ-CI13 | 表 |
 | `tests/architecture/audit-action-emitters.test.ts` | REQ-SEC09 | 印 |
 | `tests/architecture/ci-config.test.ts` | REQ-CI01, REQ-CI02, REQ-CI03, REQ-CI04, REQ-CI05, REQ-CI06, REQ-CI07, REQ-CI09, REQ-CI10, REQ-CI11, REQ-CI13 | 印と表 |
@@ -111,6 +111,7 @@
 | `tests/domain/telemetry-tables.test.ts` | REQ-TM01, REQ-TM04, REQ-TM07, REQ-TM09 | 印と表 |
 | `tests/domain/telemetry.test.ts` | REQ-TM02, REQ-TM03, REQ-TM07, REQ-TM08 | 印と表 |
 | `tests/domain/writing-rules.test.ts` | REQ-QC01, REQ-QC08, REQ-QC10, REQ-W01, REQ-W09, REQ-W10 | 印と表 |
+| `tests/domain/writing-style-tables.test.ts` | REQ-W06, REQ-W08, REQ-W11 | 印と表 |
 | `tests/evals/generation-eval-set.test.ts` | REQ-CI13, REQ-G09, REQ-G10 | 印と表 |
 | `tests/infrastructure/anthropic-llm.test.ts` | REQ-SEC01, REQ-SEC05 | 印 |
 | `tests/infrastructure/better-auth-gate.test.ts` | REQ-S10 | 印 |
@@ -194,4 +195,4 @@
 | `tests/ui/theme-contrast.test.ts` | REQ-TH01, REQ-TH02, REQ-TS06 | 印と表 |
 | `tests/ui/tool-form.test.tsx` | REQ-WC05 | 印と表 |
 | `tests/ui/ui-layers.test.ts` | REQ-S09, REQ-TM05 | 表 |
-<!-- 生成物の指紋 sha256:f36ac419e6a72f83e193718ff7a961a8757c3aa2f2fa5169f872ac33f135dd2b -->
+<!-- 生成物の指紋 sha256:b3bbf60f68185b3b7ffceca232b1e7b3d17f504e19f44b225cd2568e4799a80d -->

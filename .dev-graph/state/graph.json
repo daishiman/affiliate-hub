@@ -1,5 +1,5 @@
 {
-  "graph_revision": 242,
+  "graph_revision": 243,
   "nodes": [
     {
       "acceptance": [],
@@ -11795,6 +11795,104 @@
       "title": "「WebMCP でしか到達できない機能を作らない」を見ている検査が無い（写しの一致と、到達できることは別）",
       "tracker_binding": "beads",
       "updated_at": "2026-08-19T06:05:00Z"
+    },
+    {
+      "acceptance": [],
+      "architecture_refs": [],
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "beads_linkage": null,
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "candidate_path": "tasks/task-layer-coverage-one-way.md",
+          "confidence": 0.9
+        }
+      ],
+      "classification_confidence": 0.9,
+      "classification_reason": "REQ-TS10 の未宣言理由を読み直したときに、コードを読んで見つけた",
+      "completion_evidence": {
+        "completed_at": null,
+        "evidence_refs": [],
+        "policy": "manual",
+        "reconciled_at": null,
+        "source": "manual",
+        "status": "open"
+      },
+      "confirmation_evidence": {
+        "evaluated_digest": null,
+        "evaluator": null,
+        "evidence_ref": null
+      },
+      "confirmation_status": "draft",
+      "created_at": "2026-08-19T07:10:00Z",
+      "depends_on": [],
+      "domain": "quality",
+      "evaluation_status": "pending",
+      "execution_contexts": [],
+      "feature_package_id": null,
+      "file_path": "tasks/task-layer-coverage-one-way.md",
+      "github_project_linkages": [],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "goal": null,
+      "graph_node_id": "task-layer-coverage-one-way",
+      "implementation_readiness": {
+        "checked_at": null,
+        "missing_sections": [],
+        "status": "incomplete"
+      },
+      "issue_linkage": null,
+      "iteration": null,
+      "mvp_alignment": {
+        "background": "tests/architecture/quality-gates.test.ts の「層の一覧が src の実際の作りと一致する」は LAYER_COVERAGE の側からしかたどっていない",
+        "mvp_fit": "enabling",
+        "purpose": "src に層が増えたときに、測られていない層が緑で通らないようにする",
+        "rationale": "測られていない層は、カバレッジの数字の外側で育つ"
+      },
+      "owners": [
+        "daishiman"
+      ],
+      "parent_feature": null,
+      "phase_ref": null,
+      "priority": "medium",
+      "project_id": "affiliate-hub",
+      "pull_request_linkages": [],
+      "purpose": null,
+      "related_nodes": [
+        "task-test-type-traits-remaining"
+      ],
+      "resource_scope": [
+        "tests",
+        "docs"
+      ],
+      "scope_in": [],
+      "scope_out": [],
+      "source_lineage": {
+        "imported_at": "2026-08-19T07:10:00Z",
+        "origin_kind": "manual",
+        "source_digest": null,
+        "source_path": "docs/product/backlog.md",
+        "source_plugin": null,
+        "source_version": null
+      },
+      "start_date": "2026-08-19",
+      "status": "draft",
+      "tags": [
+        "architecture",
+        "quality",
+        "testing"
+      ],
+      "target_date": null,
+      "template_id": "task",
+      "template_version": "1.0.0",
+      "title": "層別カバレッジの一覧が、src に層が増えた側を見ていない",
+      "tracker_binding": "beads",
+      "updated_at": "2026-08-19T07:10:00Z"
     }
   ],
   "repository_id": "github:daishiman/affiliate-hub",

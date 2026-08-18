@@ -6,8 +6,8 @@
 
 - 最終更新: 2026-08-18
 - 要件表の要件: 241 件
-- 性質を宣言済: 228 件
-- **未宣言: 13 件**（上限 13 件）
+- 性質を宣言済: 231 件
+- **未宣言: 10 件**（上限 10 件）
 - 理由つきの除外: 7 件（上限 7 件）
 
 未宣言とは「必須種別をまだ決めていない」という意味で、
@@ -85,9 +85,12 @@
 | REQ-W03 | has-enumerated-input | `decision-table` `equivalence` | `decision-table` `equivalence` | — | 
 | REQ-W04 | has-enumerated-input | `decision-table` `equivalence` | `decision-table` `equivalence` | — | 
 | REQ-W05 | has-enumerated-input | `decision-table` `equivalence` | `decision-table` `equivalence` | — | 
+| REQ-W06 | has-enumerated-input | `decision-table` `equivalence` | `decision-table` `equivalence` | — | 
 | REQ-W07 | has-enumerated-input | `decision-table` `equivalence` | `decision-table` `equivalence` | — | 
+| REQ-W08 | has-enumerated-input | `decision-table` `equivalence` | `decision-table` `equivalence` | — | 
 | REQ-W09 | has-input | `boundary` `equivalence` | `boundary` `equivalence` | — | 
 | REQ-W10 | has-input | `boundary` `equivalence` | `boundary` `equivalence` | — | 
+| REQ-W11 | has-enumerated-input | `decision-table` `equivalence` | `decision-table` `equivalence` | — | 
 | REQ-W12 | has-enumerated-input | `decision-table` `equivalence` | `decision-table` `equivalence` | — | 
 | REQ-TM01 | has-enumerated-input | `decision-table` `equivalence` | `decision-table` `equivalence` | — | 
 | REQ-TM02 | has-enumerated-input, has-calculation, has-screen | `a11y` `boundary` `decision-table` `equivalence` `keyboard` `mutation` `screen-states` | `a11y` `boundary` `decision-table` `equivalence` `keyboard` `mutation` `screen-states` | — | 
@@ -265,5 +268,5 @@
 
 ## 未宣言の要件
 
-`REQ-CI08` `REQ-CI12` `REQ-E16` `REQ-FD04` `REQ-IM13` `REQ-TH04` `REQ-TH05` `REQ-TS02` `REQ-TS03` `REQ-TS10` `REQ-W06` `REQ-W08` `REQ-W11`
-<!-- 生成物の指紋 sha256:6c1691ad5e1fb2b12dce47ccb76a35aa420b9c5d8b7a78c7afe34f4545da3138 -->
+`REQ-CI08` `REQ-CI12` `REQ-E16` `REQ-FD04` `REQ-IM13` `REQ-TH04` `REQ-TH05` `REQ-TS02` `REQ-TS03` `REQ-TS10`
+<!-- 生成物の指紋 sha256:e37f15f48ec4ef269e330f92e06d0ea3ec45fdcbd07a3a96cf3e65d946884877 -->
