@@ -7,8 +7,8 @@
 
 - 最終更新: 2026-08-18
 - テストファイル: 173 件
-- 由来の要件が分かる: 149 件
-- **由来不明: 24 件**（上限 28 件）
+- 由来の要件が分かる: 150 件
+- **由来不明: 23 件**（上限 28 件）
 
 由来不明とは「どの要件のために書いたのか、機械から辿れない」という意味で、
 テストが無駄という意味ではない。要件から書いたなら `@req` を 1 行足せば消える。
@@ -20,7 +20,6 @@
 - `tests/application/read-site.test.ts`
 - `tests/application/reader-interaction.test.ts`
 - `tests/application/review-loop-runs.test.ts`
-- `tests/architecture/single-definition.test.ts`
 - `tests/architecture/spec-freshness.test.ts`
 - `tests/architecture/worker-entry.test.ts`
 - `tests/domain/metrics-from-telemetry.test.ts`
@@ -69,7 +68,7 @@
 | `tests/architecture/ai-eval-budget.test.ts` | REQ-CI13 | 表 |
 | `tests/architecture/audit-action-emitters.test.ts` | REQ-SEC09 | 印 |
 | `tests/architecture/ci-config.test.ts` | REQ-CI01, REQ-CI02, REQ-CI03, REQ-CI04, REQ-CI05, REQ-CI06, REQ-CI07, REQ-CI09, REQ-CI10, REQ-CI11, REQ-CI13 | 印と表 |
-| `tests/architecture/commercial-isolation.test.ts` | REQ-FD02 | 表 |
+| `tests/architecture/commercial-isolation.test.ts` | REQ-FD02 | 印と表 |
 | `tests/architecture/dependency-direction.test.ts` | REQ-FD01, REQ-SEC02 | 表 |
 | `tests/architecture/generated-docs.test.ts` | REQ-TS09 | 印 |
 | `tests/architecture/llm-credential-leak.test.ts` | REQ-SEC01, REQ-SEC05 | 印 |
@@ -77,6 +76,7 @@
 | `tests/architecture/quality-gates.test.ts` | REQ-CI02, REQ-CI09 | 表 |
 | `tests/architecture/secrets-not-in-repo.test.ts` | REQ-CI07, REQ-SEC10 | 印と表 |
 | `tests/architecture/server-action-exports.test.ts` | REQ-FD06 | 表 |
+| `tests/architecture/single-definition.test.ts` | REQ-FD05 | 表 |
 | `tests/architecture/tenant-scoped-ports.test.ts` | REQ-P01, REQ-SEC01 | 印と表 |
 | `tests/architecture/test-honesty.test.ts` | REQ-CI07 | 表 |
 | `tests/architecture/worker-env-wiring.test.ts` | REQ-SEC01 | 印 |
@@ -95,7 +95,7 @@
 | `tests/domain/generation-plan.test.ts` | REQ-A04, REQ-G01, REQ-G02, REQ-G03, REQ-G04, REQ-G05, REQ-G06, REQ-G07, REQ-G08, REQ-P06, REQ-SEC05 | 印と表 |
 | `tests/domain/handoff-prompt.test.ts` | REQ-FB10, REQ-FB11 | 印と表 |
 | `tests/domain/improvement.test.ts` | REQ-IM01, REQ-IM02, REQ-IM03, REQ-IM04, REQ-IM06, REQ-IM07, REQ-IM08, REQ-IM09, REQ-IM10, REQ-IM11, REQ-IM12 | 印と表 |
-| `tests/domain/invariants.test.ts` | REQ-QC02, REQ-QC05, REQ-QC06, REQ-QC08, REQ-QC09, REQ-SEC07, REQ-W08 | 印と表 |
+| `tests/domain/invariants.test.ts` | REQ-FD03, REQ-QC02, REQ-QC05, REQ-QC06, REQ-QC08, REQ-QC09, REQ-SEC07, REQ-W08 | 印と表 |
 | `tests/domain/link-ingestion.test.ts` | REQ-A01, REQ-P02, REQ-S02 | 印と表 |
 | `tests/domain/llm-credential.test.ts` | REQ-SEC01 | 印 |
 | `tests/domain/loop-kinds.test.ts` | REQ-FB01 | 印 |
@@ -139,7 +139,7 @@
 | `tests/presentation/admin-routes.test.ts` | REQ-P09, REQ-S02, REQ-S03, REQ-S10 | 表 |
 | `tests/presentation/api-routes.test.ts` | REQ-M03, REQ-TM11, REQ-WA02, REQ-WC06 | 印 |
 | `tests/presentation/api-scope-actor.test.ts` | REQ-API02, REQ-FB13 | 印 |
-| `tests/presentation/composition.test.ts` | REQ-FD04, REQ-S09 | 表 |
+| `tests/presentation/composition.test.ts` | REQ-S09 | 表 |
 | `tests/presentation/entry-points.test.ts` | REQ-API01, REQ-TS04, REQ-WC07, REQ-WC08 | 印と表 |
 | `tests/presentation/error-format.test.ts` | REQ-WC07 | 印 |
 | `tests/presentation/feedback-actions.test.ts` | REQ-FB08, REQ-FB12 | 表 |
@@ -150,11 +150,11 @@
 | `tests/presentation/llm-credential-actions.test.ts` | REQ-SEC01 | 印 |
 | `tests/presentation/llm-credential-entry.test.ts` | REQ-SEC01 | 印 |
 | `tests/presentation/nav-permissions.test.ts` | REQ-FB02, REQ-FB07 | 表 |
-| `tests/presentation/one-usecase-three-adapters.test.ts` | REQ-API01, REQ-FD04 | 印と表 |
+| `tests/presentation/one-usecase-three-adapters.test.ts` | REQ-API01 | 印 |
 | `tests/presentation/reader-tools.test.ts` | REQ-WB01 | 印 |
 | `tests/presentation/readonly-honesty.test.ts` | REQ-WC04 | 印 |
 | `tests/presentation/spec-contract.test.ts` | REQ-M01, REQ-M02, REQ-WA01, REQ-WA02 | 印 |
-| `tests/presentation/tool-catalog-adapters.test.ts` | REQ-M03, REQ-TS04 | 印と表 |
+| `tests/presentation/tool-catalog-adapters.test.ts` | REQ-FD04, REQ-M03, REQ-TS04 | 印と表 |
 | `tests/presentation/webmcp-policy.test.ts` | REQ-WC03, REQ-WC04, REQ-WC06 | 印と表 |
 | `tests/presentation/webmcp-registration.test.ts` | REQ-WC01, REQ-WC02 | 印 |
 | `tests/property/normalization.property.test.ts` | REQ-P02, REQ-P03, REQ-TH01, REQ-TH02, REQ-TH03 | 印と表 |
@@ -193,4 +193,4 @@
 | `tests/ui/theme-contrast.test.ts` | REQ-TH02, REQ-TS06 | 表 |
 | `tests/ui/tool-form.test.tsx` | REQ-WC05 | 印と表 |
 | `tests/ui/ui-layers.test.ts` | REQ-S09, REQ-TM05 | 表 |
-<!-- 生成物の指紋 sha256:50c57f7159feb473d0aa7358896351ffe19af6e180bda38d2194673e2c6628a6 -->
+<!-- 生成物の指紋 sha256:2cc8eb74c45e74a46efeeef45b9f829c8f013f079c32a6469b201cbfe63f14f2 -->

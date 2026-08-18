@@ -150,6 +150,61 @@ describe("1 概念 1 定義", () => {
   });
 });
 
+/**
+ * 保存の形（テーブル定義）を置いてよい場所を固定する。
+ *
+ * 2026-08-19 まで、要件表 `REQ-FD05`（ブログ層で正規データを再定義しない）の
+ * 判定欄には「スキーマ定義が `src/db/schema.ts` のみであること」とだけ書いてあり、
+ * **これを見ているテストは 1 つも無かった**。しかも事実としても違っていて、
+ * `sqliteTable` は `src/db/schema.ts` と `src/db/auth-schema.ts` の 2 か所にある。
+ *
+ * 上の `PERSISTENCE_SHAPES` は「1 概念 1 定義」の走査から `schema.ts` を**除く**ための
+ * ものなので、置き場所そのものは誰も見ていなかった。除外と検査は別である。
+ */
+describe("保存の形の置き場所", () => {
+  /** テーブルを定義してよいファイル。増やすときは理由を書く。 */
+  const TABLE_HOMES: readonly { readonly path: string; readonly why: string }[] = [
+    {
+      path: "src/db/schema.ts",
+      why: "この製品のテーブルの正本。ここ 1 か所を読めば保存されている形が分かる状態を保つ",
+    },
+    {
+      path: "src/db/auth-schema.ts",
+      why: "Better Auth が形を決めているテーブル。こちらの都合で混ぜると、認証側の更新に追随できなくなる",
+    },
+  ];
+
+  const definers = tsFiles(SRC)
+    .filter((f) => /\bsqliteTable\s*\(/.test(readFileSync(f, "utf8")))
+    .map((f) => relative(ROOT, f).split("\\").join("/"))
+    .sort();
+
+  it("テーブルを定義しているファイルが見えている（検査が空振りしていない）", () => {
+    expect(definers.length).toBeGreaterThan(0);
+  });
+
+  it("テーブルを定義しているのは、決めた場所だけ", () => {
+    const homes = new Set(TABLE_HOMES.map((h) => h.path));
+    expect(
+      definers.filter((f) => !homes.has(f)),
+      "ここ以外でテーブルを定義すると、同じ概念の形が 2 通りになります。" +
+        "どうしても要るなら tests/architecture/single-definition.test.ts の " +
+        "TABLE_HOMES に理由つきで足してください。",
+    ).toEqual([]);
+  });
+
+  it("決めた場所が、実際にテーブルを定義している", () => {
+    // 移動や改名で空になった置き場所が残っていると、次に別の場所へ書かれても気づけない。
+    expect(TABLE_HOMES.map((h) => h.path).filter((p) => !definers.includes(p))).toEqual([]);
+  });
+
+  it("置き場所の例外には理由が書いてある", () => {
+    for (const home of TABLE_HOMES) {
+      expect(home.why.length, `${home.path} に理由がありません`).toBeGreaterThan(15);
+    }
+  });
+});
+
 describe("表示名の正本", () => {
   /**
    * 選択肢の表示名は domain が持ち、ユースケースは持たない。

@@ -46,6 +46,17 @@ describe("サーバー側の操作ファイル", () => {
     const offenders: string[] = [];
     for (const file of serverActionFiles) {
       const source = readFileSync(file, "utf8");
+      // `export { X }` / `export { X } from "./y"` の形。
+      // 2026-08-19 に実測: 下の `(\w+)` は `{` に一致しないので、**定数を再輸出すると
+      // 素通りしていた**。定数を隣の `*-state.ts` へ移したあと、元の場所から
+      // `export { INITIAL_STATE } from "./x-state"` と書き足すのは自然な手順なので、
+      // ここが空いていると決まりの効き目が無くなる。
+      for (const match of source.matchAll(/^export\s*\{([^}]*)\}([^\n]*)/gm)) {
+        offenders.push(
+          `${relative(ROOT, file)}: export {${match[1]}}${match[2]} — ` +
+            "再輸出も外へ出したことになります（型なら `export type { … }` と書いてください）",
+        );
+      }
       for (const match of source.matchAll(/^export\s+(?!async function )(\w+)([^\n]*)/gm)) {
         const keyword = match[1];
         // 型は実体を持たないので出しても構わない（`export type` / `export interface`）。

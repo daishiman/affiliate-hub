@@ -297,12 +297,12 @@ D1 への差し替えは、この列だけを別の実装に取り替えれば�
 
 | REQ | 要件 | 検査方法 | 実装 | 結果 |
 | --- | --- | --- | --- | --- |
-| REQ-FD01 | ランキング式の重複実装禁止 | `tests/architecture/dependency-direction.test.ts`「ランキングの計算は domain/ranking の外に無い」 | `src/domain/ranking/scoring.ts` に集約 | 実装済 |
-| REQ-FD02 | 報酬データを推薦スコア入力にしない | `Editorial<T>`/`Commercial<T>` の型 + 組み立て時の実行時検査 + `tests/architecture/commercial-isolation.test.ts` | `src/domain/shared/data-classification.ts`、`src/application/usecases/ranking/rank-products.ts` | 実装済 |
-| REQ-FD03 | 根拠のない主張を公開しない | 公開ゲート QC-07 | `publish-gate.ts`（部分） | スタブ |
-| REQ-FD04 | WebMCP でしか到達できない機能を作らない | 1つのカタログを4入口へ写す（`tests/presentation/one-usecase-three-adapters.test.ts`、`tests/presentation/composition.test.ts`） | `src/presentation/tools/catalog.ts`、`src/presentation/composition.ts` | 実装済 |
-| REQ-FD05 | ブログ層で正規データを再定義しない | スキーマ定義が `src/db/schema.ts` のみであること | 実装済（現状1箇所） | 実装済 |
-| REQ-FD06 | サーバー操作ファイルの形を揃える（`"use server"` からは非同期の関数だけを出す） | `tests/architecture/server-action-exports.test.ts`（`src` 全走査。型以外の `export` を許さない） | 状態の型と初期値は `*-state.ts` に置く（sites / fact-boundary / reschedule の3件） | 実装済 |
+| REQ-FD01 | ランキング式の重複実装禁止 | `tests/architecture/dependency-direction.test.ts`「ランキングの計算は domain/ranking の外に無い」。**見ているのは `weight *` / `totalScore =` / `passThreshold <>` の 3 つの綴りだけ**で、この 3 語を外側へ書くと落ちることは実測した。**別の変数名で書き直した重み付き合計は捕まらない**（`0.4 * quality + 0.6 * price` と `items.reduce((a,i) => a + i.w * i.v, 0)` の 2 通りを外側へ入れて緑。文字列一致の限界であって、書き方の不足ではない）。**空振り防止を足した**（`describe("検査対象そのもの")`）— 足す前は層を 1 つ改名しただけで 13 件すべて緑だった | `src/domain/ranking/scoring.ts` に集約 | 実装済 |
+| REQ-FD02 | 報酬データを推薦スコア入力にしない | `tests/architecture/commercial-isolation.test.ts`。型（`Editorial<T>` / `Commercial<T>`）と組み立て時の実行時検査の 2 段。**印 3 値 × 渡し先 2 種の総当たり 6 通りを表として置いた**（期待は実装から作らず手で書いてある）。順位づけ側と提携側のどちらの判定式を外しても 3 件赤になることを実測した。**1 通りだけ非対称**で、印の無いものは順位づけへ通る（型で止まる想定。残課題 87） | `src/domain/shared/data-classification.ts`、`src/application/usecases/ranking/rank-products.ts`、`src/application/usecases/monetization/manage-affiliate.ts` | 実装済 |
+| REQ-FD03 | 根拠のない主張を公開しない | `tests/domain/invariants.test.ts`「公開ゲート」。`evaluatePublishGate()` が「主張が 0 件」と「主張があるのに根拠が 0 件」で止める。**端を足した**（主張ちょうど 1 件 × 根拠 0/1 件）— 足す前は判定を `claimCount > 0` から `> 1` へ緩めても 96 件すべて緑で、**主張 1 件・根拠 0 件が通るようになっても誰も気づかなかった**。見ているのは**件数だけ**で、主張 10 件に根拠 1 件でも通る（ここが「部分」の中身） | `src/domain/compliance/publish-gate.ts`（件数の検査。主張ごとの突合は未実装） | 実装済（件数まで） |
+| REQ-FD04 | WebMCP でしか到達できない機能を作らない | **要件そのものを見ている検査は無い。**`tests/presentation/tool-catalog-adapters.test.ts` ほかが見ているのは「1 つのカタログが 4 入口へ同じ形で写っていること」で、カタログの群を落とすと 12〜15 件赤になることは実測した。だが**それは「入口ごとに実装が分かれていない」ことであって、「各機能が画面からも到達できる」ことではない**。WebMCP にだけ載って画面に無い道具を足しても、落ちる検査が無い（残課題 88） | `src/presentation/tools/catalog.ts`、`src/presentation/composition.ts` | 実装済（写しの一致まで） |
+| REQ-FD05 | ブログ層で正規データを再定義しない | `tests/architecture/single-definition.test.ts`「保存の形の置き場所」。**2026-08-19 に新設した** — それまで判定欄には「スキーマ定義が `src/db/schema.ts` のみであること」とだけ書いてあり、これを見ている検査は 1 つも無かった。**書いてある事実も違っていて**、`sqliteTable` は `schema.ts` と `auth-schema.ts` の 2 か所にある（後者は Better Auth が形を決めているので、理由つきで許した）。決めた場所の外でテーブルを定義すると赤になることを実測した | `src/db/schema.ts`（正本）、`src/db/auth-schema.ts`（Better Auth 側） | 実装済 |
+| REQ-FD06 | サーバー操作ファイルの形を揃える（`"use server"` からは非同期の関数だけを出す） | `tests/architecture/server-action-exports.test.ts`。対象は `"use server"` で始まる **11 ファイル**で、空振り防止（対象 0 件なら赤）も持つ。`export const` / `export default` / `export const f = async () => {}` はいずれも落ちることを実測した。**`export { X }` の再輸出だけが素通りしていたので塞いだ** — 定数を `*-state.ts` へ移したあと元の場所から再輸出するのは自然な手順なので、ここが空いていると決まりの効き目が無くなる | 状態の型と初期値は `*-state.ts` に置く（`src/presentation/admin/` に 9 件、`src/domain/authoring/content-state.ts` を含めて 10 件） | 実装済 |
 
 ## N. 受け入れ条件（プラットフォーム層 §30.1〜§30.8）
 

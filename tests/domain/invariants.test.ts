@@ -1,6 +1,6 @@
 /**
  * @tier 1
- * @req REQ-QC02, REQ-QC05, REQ-QC06, REQ-QC08, REQ-QC09
+ * @req REQ-QC02, REQ-QC05, REQ-QC06, REQ-QC08, REQ-QC09, REQ-FD03
  * @types equivalence, boundary
  */
 import { describe, expect, it } from "vitest";
@@ -351,6 +351,23 @@ describe("公開ゲート", () => {
     const result = evaluatePublishGate({ ...readyCandidate(), ...patch });
     expect(result.ok).toBe(false);
     expect(result.failures.map((f) => f.requirement)).toContain(requirement);
+  });
+
+  /**
+   * 根拠の要否の**端**を当てる（要件表 `REQ-FD03`「根拠のない主張を公開しない」）。
+   *
+   * 上の一覧には「根拠が無い」（主張 3 件・根拠 0 件）があるが、これは端から遠い。
+   * 2026-08-19 に測ったところ、判定を `claimCount > 0` から `claimCount > 1` へ
+   * 緩めても **96 件すべて緑**だった。つまり「**主張がちょうど 1 件で根拠が 0 件**」を
+   * 誰も通していない。主張 1 件は、記事を書き始めた直後のいちばん普通の状態である。
+   */
+  it.each([
+    ["主張がちょうど 1 件で、根拠が 0 件なら公開できない", 1, 0, false],
+    ["主張がちょうど 1 件で、根拠が 1 件なら公開できる", 1, 1, true],
+  ] as const)("%s", (_name, claimCount, evidenceCount, allowed) => {
+    const result = evaluatePublishGate({ ...readyCandidate(), claimCount, evidenceCount });
+    expect(result.ok).toBe(allowed);
+    if (!allowed) expect(result.failures.map((f) => f.requirement)).toContain("evidence");
   });
 
   it("止めた理由は、そのまま読んで直せる文になっている", () => {

@@ -62,6 +62,39 @@ function violations(
   return out;
 }
 
+/**
+ * 検査対象が空でないことを、層ごとに確かめる。
+ *
+ * `filesUnder()` はディレクトリが無いとき例外を握りつぶして `[]` を返す。
+ * 空の一覧に対する「違反が 0 件」は常に成り立つので、**層を 1 つ改名しただけで
+ * その層の検査が黙って緑になる**。2026-08-19 に実測した: `filesUnder("application")`
+ * / `("presentation")` / `("infrastructure")` / `("domain")` をそれぞれ存在しない名前へ
+ * 向けたところ、**4 通りとも 13 件すべて緑**だった。
+ *
+ * 下の「読者の画面が 1 枚以上ある」は `src/app` 側の別の集合を守っているので、
+ * ここが空になっても生き残る。層ごとに置かないと意味がない。
+ *
+ * 件数の下限は、いまの実数ではなく**明らかに下回ったら壊れている数**にしてある。
+ * 実数に合わせると、ファイルを 1 つ消すたびにここが赤くなって役に立たない。
+ */
+describe("検査対象そのもの", () => {
+  const LAYERS = [
+    { segments: ["domain"], least: 20 },
+    { segments: ["application"], least: 20 },
+    { segments: ["infrastructure"], least: 10 },
+    { segments: ["presentation"], least: 20 },
+    { segments: ["domain", "ranking"], least: 1 },
+  ] as const;
+
+  it.each(LAYERS)("$segments の下にファイルが見えている", ({ segments, least }) => {
+    expect(
+      filesUnder(...segments).length,
+      `src/${segments.join("/")} が見えていません。層を改名したなら、` +
+        "この一覧と各検査の呼び出しを両方直してください（片方だけ直すと黙って緑になります）",
+    ).toBeGreaterThanOrEqual(least);
+  });
+});
+
 describe("依存方向", () => {
   const domainFiles = filesUnder("domain");
 
