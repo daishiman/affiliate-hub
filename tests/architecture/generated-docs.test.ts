@@ -64,7 +64,14 @@ const STAMPED = [
 const WRITE_EXCEPTIONS: Readonly<Record<string, string>> = {
   // JSON なので `<!-- -->` の指紋を末尾に置けない。実際の鍵で人が 1 回だけ動かす
   // 記録であり、`pnpm run verify` は触らないので「黙って消える」は起きない。
-  "llm-live-proof.mjs": "JSON で、コメント欄が無い（指紋を置く場所が無い）",
+  //
+  // **理由を条件の形で書く。**「いま真であること」と「将来も真であること」は別で、
+  // `verify` の対象に入った日に、この除外は**静かに間違いになる**。
+  // 条件で書いておけば、次に読む人が真偽を確かめられる。
+  "llm-live-proof.mjs":
+    "JSON で、コメント欄が無い（指紋を置く場所が無い）。" +
+    "**この除外は `pnpm run verify` が `llm-live-proof.mjs` を呼ばないあいだだけ成り立つ。**" +
+    "verify の並びに入れる日には、先に指紋の置き方（別ファイルか JSON の一項目か）を決めること。",
 };
 
 /** `tests/` の下を全部たどる。浅く見ると、深いところの書き込みを見失う。 */
@@ -192,6 +199,30 @@ describe("生成物であることの保証", () => {
         /指紋の行が外された/,
       );
     }
+  });
+
+  it("除外の条件がまだ成り立っている（verify が llm-live-proof を呼んでいない）", async () => {
+    // **条件を文章で書くだけにしない。**「いま真であること」と「将来も真であること」は
+    // 別で、`verify` の並びに入った日にこの除外は**静かに間違いになる**。
+    // 静かに間違う記述は、間違ったようには見えない。だから条件のほうを検査にする。
+    const { CHECKS } = (await import("../../quality-gates.config.mjs")) as {
+      CHECKS: readonly { readonly command: readonly string[] }[];
+    };
+    const commands = CHECKS.flatMap((g) => g.command);
+    // **空の一覧を見ても緑になる。** 名前が変わって読めなくなった日に、
+    // この検査は「呼んでいない」と答え続ける。見えていることを先に確かめる。
+    expect(commands, "verify の一覧が読めていません（CHECKS の名前が変わった？）").toContain(
+      "scripts/port-wiring.mjs",
+    );
+    const called = commands.filter((a) => a.includes("llm-live-proof"));
+    expect(
+      called,
+      [
+        "`pnpm run verify` が llm-live-proof.mjs を呼ぶようになりました。",
+        "WRITE_EXCEPTIONS の理由（verify が触らないので黙って消えるは起きない）は、もう成り立ちません。",
+        "先に指紋の置き方（別ファイルか JSON の一項目か）を決めてから、この除外を外してください。",
+      ].join("\n"),
+    ).toEqual([]);
   });
 
   it("正本を先に直してから同じ内容を手で書いても、台帳は通らない", () => {
