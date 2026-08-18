@@ -6,8 +6,8 @@
 テスト側の `@req` 印を重ねたもの。
 
 - 最終更新: 2026-08-18
-- テストファイル: 179 件
-- 由来の要件が分かる: 156 件
+- テストファイル: 180 件
+- 由来の要件が分かる: 157 件
 - **由来不明: 23 件**（上限 28 件）
 
 由来不明とは「どの要件のために書いたのか、機械から辿れない」という意味で、
@@ -80,6 +80,7 @@
 | `tests/architecture/tenant-scoped-ports.test.ts` | REQ-P01, REQ-SEC01 | 印と表 |
 | `tests/architecture/test-foundation.test.ts` | REQ-TS01 | 印と表 |
 | `tests/architecture/test-honesty.test.ts` | REQ-CI07 | 表 |
+| `tests/architecture/webmcp-reachability.test.ts` | REQ-FD04 | 印と表 |
 | `tests/architecture/worker-env-wiring.test.ts` | REQ-SEC01 | 印 |
 | `tests/domain/article-type-sections.test.ts` | REQ-W02, REQ-W03, REQ-W04, REQ-W05 | 印と表 |
 | `tests/domain/authored-sections.test.ts` | REQ-P08 | 表 |
@@ -159,7 +160,7 @@
 | `tests/presentation/reader-tools.test.ts` | REQ-WB01 | 印 |
 | `tests/presentation/readonly-honesty.test.ts` | REQ-WC04 | 印 |
 | `tests/presentation/spec-contract.test.ts` | REQ-M01, REQ-M02, REQ-WA01, REQ-WA02 | 印 |
-| `tests/presentation/tool-catalog-adapters.test.ts` | REQ-FD04, REQ-M03, REQ-TS04 | 印と表 |
+| `tests/presentation/tool-catalog-adapters.test.ts` | REQ-M03, REQ-TS04 | 印と表 |
 | `tests/presentation/webmcp-policy.test.ts` | REQ-WC03, REQ-WC04, REQ-WC06 | 印と表 |
 | `tests/presentation/webmcp-registration.test.ts` | REQ-WC01, REQ-WC02 | 印 |
 | `tests/property/normalization.property.test.ts` | REQ-P02, REQ-P03, REQ-TH01, REQ-TH02, REQ-TH03 | 印と表 |
@@ -199,4 +200,4 @@
 | `tests/ui/theme-contrast.test.ts` | REQ-TH01, REQ-TH02, REQ-TS06 | 印と表 |
 | `tests/ui/tool-form.test.tsx` | REQ-WC05 | 印と表 |
 | `tests/ui/ui-layers.test.ts` | REQ-S09, REQ-TM05 | 表 |
-<!-- 生成物の指紋 sha256:035df0c3fcd84f0510a87821bddad2a6b446931409d1fc525f49d0ad42c70557 -->
+<!-- 生成物の指紋 sha256:af5c6770a56b7e24e0dc7e9c7ea81907da0469eb4547d32c47241c01cb6c8bbc -->
