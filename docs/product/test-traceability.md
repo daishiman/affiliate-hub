@@ -4,9 +4,9 @@
 要件 → テストの向きは `docs/product/traceability.md` が正本で、ここはその裏返しに
 テスト側の `@req` 印を重ねたもの。
 
-- 最終更新: 2026-08-17
-- テストファイル: 124 件
-- 由来の要件が分かる: 89 件
+- 最終更新: 2026-08-18
+- テストファイル: 136 件
+- 由来の要件が分かる: 101 件
 - **由来不明: 35 件**（上限 37 件）
 
 由来不明とは「どの要件のために書いたのか、機械から辿れない」という意味で、
@@ -61,14 +61,18 @@
 | `tests/application/filter-metrics.test.ts` | REQ-P10, REQ-S08 | 印と表 |
 | `tests/application/generation-matrix.test.ts` | REQ-P06, REQ-S05 | 印と表 |
 | `tests/application/manage-content.test.ts` | REQ-QC11, REQ-R11, REQ-SEC07, REQ-SEC09 | 印と表 |
+| `tests/application/manage-llm-credentials.test.ts` | REQ-SEC01, REQ-SEC05 | 印 |
 | `tests/application/manage-personas.test.ts` | REQ-P05, REQ-S04, REQ-W12 | 印と表 |
+| `tests/application/outbound-href.test.ts` | REQ-E13 | 印 |
 | `tests/application/publication-calendar.test.ts` | REQ-P08, REQ-S07 | 表 |
 | `tests/application/publish-article.test.ts` | REQ-P08 | 表 |
+| `tests/application/read-llm-usage.test.ts` | REQ-SEC01 | 印 |
 | `tests/application/schedule-publication.test.ts` | REQ-P08 | 表 |
 | `tests/application/writing-method.test.ts` | REQ-W05, REQ-W06 | 表 |
 | `tests/architecture/ai-eval-budget.test.ts` | REQ-CI13 | 表 |
 | `tests/architecture/commercial-isolation.test.ts` | REQ-FD02 | 表 |
 | `tests/architecture/dependency-direction.test.ts` | REQ-FD01, REQ-SEC02 | 表 |
+| `tests/architecture/llm-credential-leak.test.ts` | REQ-SEC01, REQ-SEC05 | 印 |
 | `tests/architecture/quality-gates.test.ts` | REQ-CI02, REQ-CI09 | 表 |
 | `tests/architecture/server-action-exports.test.ts` | REQ-FD06 | 表 |
 | `tests/architecture/tenant-scoped-ports.test.ts` | REQ-P01, REQ-SEC01 | 印と表 |
@@ -84,18 +88,25 @@
 | `tests/domain/improvement.test.ts` | REQ-IM01, REQ-IM06, REQ-IM07, REQ-IM08, REQ-IM09, REQ-IM10, REQ-IM11, REQ-IM12 | 表 |
 | `tests/domain/invariants.test.ts` | REQ-SEC07, REQ-W08 | 表 |
 | `tests/domain/link-ingestion.test.ts` | REQ-S02 | 表 |
+| `tests/domain/llm-credential.test.ts` | REQ-SEC01 | 印 |
 | `tests/domain/permissions.test.ts` | REQ-API02, REQ-R01, REQ-R02, REQ-R03, REQ-R04, REQ-R05, REQ-R06, REQ-R07, REQ-R08, REQ-R09, REQ-R10, REQ-R11, REQ-R12 | 印 |
 | `tests/domain/planning.test.ts` | REQ-SEC07 | 表 |
 | `tests/domain/policy-channel-scope.test.ts` | REQ-SEC07 | 印と表 |
 | `tests/domain/policy-rule-seed.test.ts` | REQ-QC11, REQ-SEC07 | 印と表 |
 | `tests/domain/records-and-metrics.test.ts` | REQ-SEC09 | 印 |
+| `tests/domain/redirect-resolution.test.ts` | REQ-E13 | 印 |
 | `tests/domain/site-routes.test.ts` | REQ-B01, REQ-B02, REQ-B03, REQ-B04, REQ-B05, REQ-B06, REQ-B07, REQ-B08, REQ-B09, REQ-B10, REQ-B11, REQ-B13, REQ-B14, REQ-B15, REQ-B16, REQ-B17, REQ-B18, REQ-TM10 | 表 |
 | `tests/domain/telemetry.test.ts` | REQ-TM02, REQ-TM03, REQ-TM04, REQ-TM07, REQ-TM08, REQ-TM09 | 表 |
 | `tests/domain/writing-rules.test.ts` | REQ-W01, REQ-W09, REQ-W10 | 表 |
 | `tests/evals/generation-eval-set.test.ts` | REQ-CI13, REQ-G09 | 表 |
+| `tests/infrastructure/anthropic-llm.test.ts` | REQ-SEC01, REQ-SEC05 | 印 |
 | `tests/infrastructure/channel-connector.test.ts` | REQ-P08 | 表 |
 | `tests/infrastructure/d1-conversion-repository.test.ts` | REQ-P09 | 表 |
 | `tests/infrastructure/guarded-fetch.test.ts` | REQ-SEC02 | 印と表 |
+| `tests/infrastructure/llm-connectivity.test.ts` | REQ-SEC01 | 印 |
+| `tests/infrastructure/llm-credential-vault.test.ts` | REQ-SEC01, REQ-SEC05 | 印 |
+| `tests/infrastructure/llm-provider-catalog.test.ts` | REQ-SEC01 | 印 |
+| `tests/infrastructure/llm-usage-repository.test.ts` | REQ-SEC01 | 印 |
 | `tests/infrastructure/prompt-assembly.test.ts` | REQ-P06 | 表 |
 | `tests/infrastructure/stub-ledger.test.ts` | REQ-TS09 | 表 |
 | `tests/integration/d1-audit-log.test.ts` | REQ-SEC09 | 印と表 |
@@ -114,6 +125,7 @@
 | `tests/presentation/feedback-actions.test.ts` | REQ-FB08, REQ-FB12 | 表 |
 | `tests/presentation/feedback-capture-route.test.ts` | REQ-FB13 | 印と表 |
 | `tests/presentation/feedback-pending-route.test.ts` | REQ-FB09 | 表 |
+| `tests/presentation/go-route.test.ts` | REQ-E13 | 印 |
 | `tests/presentation/nav-permissions.test.ts` | REQ-FB02, REQ-FB07 | 表 |
 | `tests/presentation/one-usecase-three-adapters.test.ts` | REQ-FD04 | 表 |
 | `tests/presentation/tool-catalog-adapters.test.ts` | REQ-TS04 | 表 |

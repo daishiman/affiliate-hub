@@ -35,11 +35,11 @@
 | `channel:youtube` | YouTube への配信 | ChannelConnectorPort | YouTube Data API のクォータ申請が必要 |
 | `identity:sample-actor` | ログイン情報（見本） | 現在のログイン利用者の取得 | Better Auth と Google ログインの設定 |
 | `llm:anthropic` | Anthropic での文章生成 | LlmPort | 提供元の選定と、利用者ご自身による API キーの登録が必要 |
-| `llm:google_gemini` | Google Gemini での文章生成 | LlmPort | 提供元の選定と、利用者ご自身による API キーの登録が必要 |
+| `llm:google` | Google Gemini での文章生成 | LlmPort | 提供元の選定と、利用者ご自身による API キーの登録が必要 |
 | `llm:openai` | OpenAI での文章生成 | LlmPort | 提供元の選定と、利用者ご自身による API キーの登録が必要 |
 | `llm:workers_ai` | Cloudflare Workers AI での文章生成 | LlmPort | 提供元の選定と、利用者ご自身による API キーの登録が必要 |
+| `llm:xai` | xAI での文章生成 | LlmPort | 提供元の選定と、利用者ご自身による API キーの登録が必要 |
 | `persistence:affiliate-sample` | 提携と成果（見本データ） | 提携先・提携条件・提携リンクの保存先 | affiliate_accounts / affiliate_programs / affiliate_links テーブルの追加と、各 ASP の API 利用申請および接続情報の登録（利用者本人による）。成果そのものの保存先は解除済み（affiliate_conversions） |
-| `persistence:click-tracking-sample` | クリックの記録（未実装） | クリック計測 | click_events テーブルと、リンクの計測識別子を発行する仕組み |
 | `persistence:content-editorial-sample` | 記事と書き手（見本データ） | 記事・企画・書き手の保存先 | content_packages / personas テーブルの追加と、企画・書き手を作る入口 |
 | `persistence:content-sample` | 公開記事の保存先（見本データ） | PublishedContentPort | 保存先（D1）が結びついていない実行での代わり。結びつければ出した記事はそのまま残る |
 | `persistence:distribution-sample` | 配信（見本データ） | 配信先の接続と配信記録の保存先 | 各サービスの接続設定（利用者本人による認証） |
@@ -59,11 +59,12 @@
 こちらへ回る。**消す予定は無いので、この件数は減らない。**
 何で動いているかは、必ず画面に文字で出す（黙って控えへ落ちない）。
 
-件数: 7
+件数: 8
 
 | 識別子 | 何の控えか | つなぎ目 | 本物の置き場所 |
 |---|---|---|---|
 | `persistence:analytics-sample` | 数字（見本データ） | 指標の読み口 | `src/infrastructure/persistence/d1/telemetry-repository.ts` |
+| `persistence:click-tracking-sample` | クリックの記録（この実行では保存先が無い） | クリック計測 | `src/infrastructure/persistence/d1/redirect-repository.ts` |
 | `persistence:feedback-memory` | 改善要望の記録（この実行中だけ覚える仮置き） | 改善要望の記録先 | `src/infrastructure/persistence/d1/feedback-repository.ts` |
 | `persistence:link-inbox-sample` | 受信箱（見本データ・この場限り） | 成果リンク受信箱の保存先 | `src/infrastructure/persistence/d1/link-inbox-repository.ts` |
 | `persistence:site-draft-memory` | ブログ作成の下書き（プロセス内のみ） | SiteDraftRepositoryPort | `src/infrastructure/persistence/d1/site-draft-repository.ts` |

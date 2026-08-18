@@ -5,8 +5,8 @@
 **製品コード（`src/application` `src/presentation` `src/app`）から**
 呼ばれていないポートの手続きの一覧。テストからの呼び出しは数えない。
 
-- ポート 56 件 / 手続き 176 件
-- 呼ばれていない 82 件（上限 82）
+- ポート 61 件 / 手続き 185 件
+- 呼ばれていない 80 件（上限 82）
 - 理由つきの除外 0 件（上限 0）
 
 | ポート | 手続き | 宣言 |
@@ -35,7 +35,6 @@
 | `ClaimRepositoryPort` | `findById` | `src/application/ports/evidence.ts` |
 | `ClaimRepositoryPort` | `listExpiringBefore` | `src/application/ports/evidence.ts` |
 | `ClaimRepositoryPort` | `save` | `src/application/ports/evidence.ts` |
-| `ClickTrackingPort` | `recordClick` | `src/application/ports/analytics.ts` |
 | `ComparisonSetRepositoryPort` | `findById` | `src/application/ports/product.ts` |
 | `ComparisonSetRepositoryPort` | `listByProduct` | `src/application/ports/product.ts` |
 | `ComparisonSetRepositoryPort` | `save` | `src/application/ports/product.ts` |
@@ -54,7 +53,6 @@
 | `ImprovementRepositoryPort` | `saveRun` | `src/application/ports/improvement.ts` |
 | `LlmPort` | `embed` | `src/application/ports/llm.ts` |
 | `LoggerPort` | `info` | `src/application/ports/common.ts` |
-| `LoggerPort` | `warn` | `src/application/ports/common.ts` |
 | `LoggerPort` | `error` | `src/application/ports/common.ts` |
 | `MembershipRepositoryPort` | `findById` | `src/application/ports/identity.ts` |
 | `MembershipRepositoryPort` | `findByUser` | `src/application/ports/identity.ts` |

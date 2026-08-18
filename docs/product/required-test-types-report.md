@@ -3,7 +3,7 @@
 `node scripts/required-test-types.mjs` が書き換える。**手で編集しない。**
 宣言は `docs/product/required-test-types.md`、語彙と上限は `quality-gates.config.mjs` が正本。
 
-- 最終更新: 2026-08-17
+- 最終更新: 2026-08-18
 - 要件表の要件: 241 件
 - 性質を宣言済: 36 件
 - **未宣言: 205 件**（上限 205 件）

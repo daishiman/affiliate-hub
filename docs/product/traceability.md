@@ -142,7 +142,7 @@ D1 への差し替えは、この列だけを別の実装に取り替えれば�
 | REQ-E10 | AffiliateAccount | `monetization/affiliate-program.ts` | `asps` | REQ-P09 | 実装済（ASP への実接続のみスタブ） |
 | REQ-E11 | AffiliateProgram | `monetization/affiliate-program.ts` | `programs` | REQ-P09 | 実装済 |
 | REQ-E12 | AffiliateLink | `monetization/affiliate-link.ts` | 見本データ | REQ-P09 | 実装済 |
-| REQ-E13 | TrackingLink（§19.2.1） | `monetization/tracking-link.ts`（**転送先を URL 文字列で持てない**ことをテストで固定） | 見本データ | REQ-P09 | スタブ（解除条件: `/go/<合言葉>` の転送経路の設置。型と判定は済んでいる） |
+| REQ-E13 | TrackingLink（§19.2.1） | `monetization/tracking-link.ts`（**転送先を URL 文字列で持てない**ことをテストで固定）／`app/go/[code]/route.ts`（転送の入口）／`persistence/d1/redirect-repository.ts` | `redirect_resolutions` | REQ-P09 | 実装済（実機での 1 周は未確認。`pnpm run preview` で `/go/` を開いてクリック数が増えることの確認が残っている） |
 | REQ-E14 | SourceArtifact | `shared/provenance.ts` | 見本データ | REQ-S03 | 実装済 |
 | REQ-E15 | Product | `product/product.ts` | `products` | REQ-S03 | 実装済 |
 | REQ-E16 | ProductVariant | `product/product.ts` | 見本データ | REQ-S03 | スタブ（解除条件: 色・容量ちがいを画面で分けて扱う要望が出たとき。いまは 1 商品 1 行で足りている） |
