@@ -1,4 +1,8 @@
-/** @tier 2 */
+/**
+ * @tier 2
+ * @req REQ-TM06, REQ-TM11
+ * @types equivalence, boundary
+ */
 // @vitest-environment jsdom
 import { act } from "react";
 import { createRoot } from "react-dom/client";
@@ -460,6 +464,17 @@ describe("どこから来て、どこまで読んだか", () => {
 });
 
 describe("節ごとの滞在時間", () => {
+  it("節の半分が見えたところで計時を始める", () => {
+    // 「見えた」の定義そのもの。**これを 0.99 に上げても 4090 件すべてが緑だった**
+    // （2026-08-19 実測）。長い節は画面に収まらないので、
+    // ほぼ全部見えることを条件にすると**長い節ほど数字が消える**。
+    // 消えても表は普通に出るので、目視では気づけない。
+    section("sec_lead", "lead");
+    const { unmount } = mount();
+    expect(FakeObserver.last?.options.threshold).toBe(0.5);
+    unmount();
+  });
+
   it("1 秒以上見えた節だけ残す。通り過ぎた節は残さない", async () => {
     const read = section("sec_conclusion", "conclusion");
     const passed = section("sec_faq", "faq");

@@ -6,8 +6,8 @@
 
 - 最終更新: 2026-08-18
 - 要件表の要件: 241 件
-- 性質を宣言済: 212 件
-- **未宣言: 29 件**（上限 29 件）
+- 性質を宣言済: 219 件
+- **未宣言: 22 件**（上限 22 件）
 - 理由つきの除外: 7 件（上限 7 件）
 
 未宣言とは「必須種別をまだ決めていない」という意味で、
@@ -90,10 +90,17 @@
 | REQ-W10 | has-input | `boundary` `equivalence` | `boundary` `equivalence` | — | 
 | REQ-W12 | has-enumerated-input | `decision-table` `equivalence` | `decision-table` `equivalence` | — | 
 | REQ-TM01 | has-enumerated-input | `decision-table` `equivalence` | `decision-table` `equivalence` | — | 
+| REQ-TM02 | has-enumerated-input, has-calculation, has-screen | `a11y` `boundary` `decision-table` `equivalence` `keyboard` `mutation` `screen-states` | `a11y` `boundary` `decision-table` `equivalence` `keyboard` `mutation` `screen-states` | — | 
+| REQ-TM03 | has-calculation, has-screen | `a11y` `boundary` `keyboard` `mutation` `screen-states` | `a11y` `boundary` `keyboard` `mutation` `screen-states` | — | 
 | REQ-TM04 | has-enumerated-input | `decision-table` `equivalence` | `decision-table` `equivalence` | — | 
+| REQ-TM05 | has-enumerated-input, has-screen | `a11y` `decision-table` `equivalence` `keyboard` `screen-states` | `a11y` `decision-table` `equivalence` `keyboard` `screen-states` | — | 
+| REQ-TM06 | has-enumerated-input, has-screen | `a11y` `decision-table` `equivalence` `keyboard` `screen-states` | `a11y` `decision-table` `equivalence` `keyboard` `screen-states` | — | 
 | REQ-TM07 | has-enumerated-input | `decision-table` `equivalence` | `decision-table` `equivalence` | — | 
 | REQ-TM08 | has-enumerated-input | `decision-table` `equivalence` | `decision-table` `equivalence` | — | 
 | REQ-TM09 | has-enumerated-input, has-input, has-tenant | `boundary` `decision-table` `equivalence` `tenant-isolation` | `boundary` `decision-table` `equivalence` `tenant-isolation` | — | 
+| REQ-TM10 | has-screen | `a11y` `keyboard` `screen-states` | `a11y` `keyboard` `screen-states` | — | 
+| REQ-TM11 | has-input | `boundary` `equivalence` | `boundary` `equivalence` | — | 
+| REQ-TM13 | has-db-table | `db-migration` | `db-migration` | — | 
 | REQ-E01 | has-input, has-enumerated-input | `boundary` `decision-table` `equivalence` | `boundary` `decision-table` `equivalence` | — | 
 | REQ-E02 | has-secret | `secrets` | `secrets` | — | 
 | REQ-E03 | has-input | `boundary` `equivalence` | `boundary` `equivalence` | — | 
@@ -249,5 +256,5 @@
 
 ## 未宣言の要件
 
-`REQ-CI08` `REQ-CI12` `REQ-E16` `REQ-FD01` `REQ-FD02` `REQ-FD03` `REQ-FD04` `REQ-FD05` `REQ-FD06` `REQ-IM13` `REQ-TH04` `REQ-TH05` `REQ-TM02` `REQ-TM03` `REQ-TM05` `REQ-TM06` `REQ-TM10` `REQ-TM11` `REQ-TM12` `REQ-TM13` `REQ-TS01` `REQ-TS02` `REQ-TS03` `REQ-TS06` `REQ-TS09` `REQ-TS10` `REQ-W06` `REQ-W08` `REQ-W11`
-<!-- 生成物の指紋 sha256:ad33a1ee18c81d9ffca129f22e8e6cc76225b215cc25a9700737671545151293 -->
+`REQ-CI08` `REQ-CI12` `REQ-E16` `REQ-FD01` `REQ-FD02` `REQ-FD03` `REQ-FD04` `REQ-FD05` `REQ-FD06` `REQ-IM13` `REQ-TH04` `REQ-TH05` `REQ-TM12` `REQ-TS01` `REQ-TS02` `REQ-TS03` `REQ-TS06` `REQ-TS09` `REQ-TS10` `REQ-W06` `REQ-W08` `REQ-W11`
+<!-- 生成物の指紋 sha256:f32dffdf28d581a44ddaac9fb351a4517f7c49ded4353d43c39d1a6bb73bf17d -->

@@ -1,7 +1,7 @@
 /**
  * @tier 1
- * @req REQ-TM08
- * @types decision-table, equivalence
+ * @req REQ-TM02, REQ-TM03, REQ-TM08
+ * @types decision-table, equivalence, boundary
  *
  * 同意の決め方は、材料 5 つの**順番が決まっている**表として見る
  * （巡回/プレビュー → GPC/DNT → 本人の許可 → 未回答）。
@@ -283,7 +283,69 @@ describe("読者の仮の目印", () => {
   });
 });
 
+describe("AI 利用の記録に、何が入っているか", () => {
+  /**
+   * `ai_model_usage` の全項目。**手で書き写した。**
+   *
+   * 実装から作ると、項目を 1 つ落としたときに期待値も一緒に落ちて緑になる。
+   *
+   * `telemetry-tables.test.ts` は必須項目を 1 つずつ落として赤にしているが、
+   * それは**必須かどうか**を見ているだけで、**一覧がそろっているか**は
+   * 誰も見ていなかった（省略できる欄は落としても誰も気づかない）。
+   *
+   * 追跡表は 2026-08-19 まで「17 項目」と書いていた。**数えると 16 である。**
+   * 数だけ書いて誰も数えていなかったので、同日、追跡表の側を実測に合わせた。
+   */
+  const EXPECTED_AI_FIELDS = [
+    "workspaceId",
+    "brandId",
+    "siteSlug",
+    "actorId",
+    "modelId",
+    "provider",
+    "usecase",
+    "promptTemplateId",
+    "promptTemplateVersion",
+    "inputTokens",
+    "outputTokens",
+    "durationMs",
+    "success",
+    "estimatedCostJpy",
+    "artifactKind",
+    "artifactId",
+  ];
+
+  const actualFields = (): readonly string[] =>
+    Object.keys(TELEMETRY_EVENTS.ai_model_usage.fields);
+
+  it("要件が並べた項目が、1 つ残らず入っている", () => {
+    for (const name of EXPECTED_AI_FIELDS) {
+      expect(actualFields(), `${name} が記録の項目から消えています`).toContain(name);
+    }
+  });
+
+  it("項目を静かに増やせない（増やすときはここも直す）", () => {
+    // 増やすこと自体は禁じない。**気づかずに増える**ことを止める。
+    // 文章そのものを入れる欄が紛れ込むのが最も怖い経路である。
+    expect([...actualFields()].sort()).toEqual([...EXPECTED_AI_FIELDS].sort());
+  });
+});
+
 describe("AI の費用", () => {
+  /** 価格表の全モデル。**手で書き写した。**表を回して数えると、1 件消えても緑になる。 */
+  const EXPECTED_PRICED_MODELS = [
+    "claude-opus-5",
+    "claude-sonnet-5",
+    "claude-haiku-4-5",
+    "workers-ai-llama",
+  ];
+
+  it("価格表から静かに 1 件消えない", () => {
+    // 消えると、そのモデルの費用が 0 ではなく「分からない」に落ちる。
+    // 画面には出るが、**合計が小さくなるだけ**なので目視では気づけない。
+    expect(MODEL_PRICES.map((p) => p.modelId)).toEqual(EXPECTED_PRICED_MODELS);
+  });
+
   it("価格表のすべてに「いつ確認したか」が書いてある", () => {
     for (const p of MODEL_PRICES) {
       expect(p.pricedAt, `${p.modelId} に確認日がありません`).toMatch(/^\d{4}-\d{2}-\d{2}$/);
@@ -302,6 +364,21 @@ describe("AI の費用", () => {
       outputTokens: 0,
     });
     expect(yen).toBe(1);
+  });
+
+  it("使っていなければ 0 円（切り上げが 1 円を作らない）", () => {
+    // 上の 1 件は「切り上げること」を見ている。切り上げは**下から** 0 を守らない。
+    // 呼び出しただけで 1 円ずつ増える実装でも、上の 1 件は緑のまま通る。
+    expect(estimateCostJpy({ modelId: MODEL_PRICES[0].modelId, inputTokens: 0, outputTokens: 0 })).toBe(0);
+  });
+
+  it("ちょうど 1 円になる量の、その前後", () => {
+    // 100 万トークンあたり 2400 円 → 1 円ぶんは 416.66… トークン。
+    const m = MODEL_PRICES[0];
+    const m2 = { modelId: m.modelId, outputTokens: 0 };
+    expect(estimateCostJpy({ ...m2, inputTokens: 1 })).toBe(1);
+    expect(estimateCostJpy({ ...m2, inputTokens: 416 })).toBe(1);
+    expect(estimateCostJpy({ ...m2, inputTokens: 417 })).toBe(2);
   });
 });
 
@@ -369,5 +446,21 @@ describe("AI 利用の集計", () => {
   it("平均時間は呼び出し回数で割る", () => {
     const rows = rollupAiUsage([usage({ durationMs: 1000 }), usage({ durationMs: 3000 })]);
     expect(rows[0].avgDurationMs).toBe(2000);
+  });
+
+  it("ブログ名とモデル名の境目が、名前の中の文字とぶつからない", () => {
+    // 「ブログが違えば混ざらない」は a と b しか使っておらず、
+    // **区切り文字を消しても緑のまま通る**（2026-08-19 に実測）。
+    // 畳む鍵は「ブログ名 + 区切り + モデル名」で作るので、
+    // 区切りが名前の中に現れうる文字（空白など）だと、
+    // 別のブログの費用が 1 行に混ざる。**混ざっても行数が減るだけで、誰も気づかない。**
+    //
+    // ここは実装の区切りが何であるかを見ない。
+    // **区切りが何であれ、この 2 件が混ざらないこと**だけを見る。
+    const rows = rollupAiUsage([
+      usage({ siteSlug: "gear", modelId: "a claude-opus-5" }),
+      usage({ siteSlug: "gear a", modelId: "claude-opus-5" }),
+    ]);
+    expect(rows).toHaveLength(2);
   });
 });

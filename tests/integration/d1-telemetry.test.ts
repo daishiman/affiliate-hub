@@ -1,4 +1,12 @@
-/** @tier 2 */
+/**
+ * @tier 2
+ * @req REQ-TM13
+ * @types db-migration
+ *
+ * 計測の保存先（`telemetry_events` 1 表）。
+ * `drizzle/*.sql` を順に当てた実物の D1 に対して書いて読む。
+ * 印が付いていなかっただけで、検査は前からここにあった。
+ */
 import { readFileSync, readdirSync } from "node:fs";
 import path from "node:path";
 import { drizzle } from "drizzle-orm/d1";

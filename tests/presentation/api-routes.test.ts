@@ -1,6 +1,7 @@
 /**
  * @tier 1
  * @req REQ-M03, REQ-WA02, REQ-WC06
+ * @req REQ-TM11
  * @types permission-matrix, equivalence, boundary
  *
  * ここが持つのは入口の手前の 3 つ。
