@@ -227,6 +227,15 @@ pnpm exec wrangler secret put LLM_KEY_ENCRYPTION_SECRET --env dev
 いずれも 100 万トークンあたり。**モデル ID の正確な文字列は未確定**なので、
 実装のときに各社の docs で 1 つずつ取る（表示名と ID が違う社がある）。
 
+見たページ（**記憶では書かない**ので、取り直すときはここから開く）:
+
+| 提供元 | 確認日 | 単価のページ |
+| --- | --- | --- |
+| Anthropic | 2026-08-18 | <https://platform.claude.com/docs/en/about-claude/pricing> |
+| OpenAI | 2026-08-18 | <https://developers.openai.com/api/docs/pricing> |
+| Google | 2026-08-18 | <https://ai.google.dev/gemini-api/docs/pricing> |
+| xAI | 2026-08-18 | <https://docs.x.ai/developers/pricing> |
+
 **単価は USD で持つ。** 円で持つには為替をこちらが決める必要があり、
 その値は必ず古くなる。しかも請求の正である提供元の数字は USD なので、
 円で持つと**照合できない概算**になる。円で見せたいときは、
@@ -236,6 +245,42 @@ pnpm exec wrangler secret put LLM_KEY_ENCRYPTION_SECRET --env dev
 OpenAI と Anthropic にも同種の段がある）、目録は 1 モデル 1 単価しか持たない。
 **安いほうを入れない。** 概算が実際より安く出ると、上限で止める仕組みが
 効かないまま請求だけ増える。
+
+### 4 社の呼び出しの形（2026-08-18 に各社の docs で確認）
+
+アダプタが写しているのはこの 4 点だけ（それ以外の手順は 4 社共通で
+`src/infrastructure/llm/providers/http-llm.ts` にある）。
+
+| 提供元 | 送り先 | 鍵の載る見出し | 形の強制 | 使った量 |
+| --- | --- | --- | --- | --- |
+| Anthropic | `POST /v1/messages` | `x-api-key` | 道具呼び出し（`tools` + `tool_choice`） | `usage.input_tokens` / `output_tokens` |
+| Google | `POST /v1beta/models/{model}:generateContent` | `x-goog-api-key` | `generationConfig.responseMimeType` + `responseSchema` | `usageMetadata.promptTokenCount` / `candidatesTokenCount` |
+| OpenAI | `POST /v1/responses` | `authorization: Bearer` | `text.format = { type: "json_schema", strict: true }` | `usage.input_tokens` / `output_tokens` |
+| xAI | `POST /v1/chat/completions` | `authorization: Bearer` | `response_format = { type: "json_schema", json_schema: { strict: true } }` | `usage.prompt_tokens` / `completion_tokens` |
+
+見たページ:
+
+| 提供元 | 確認日 | 構造化出力のページ |
+| --- | --- | --- |
+| Google | 2026-08-18 | <https://ai.google.dev/gemini-api/docs/structured-output> |
+| OpenAI | 2026-08-18 | <https://developers.openai.com/api/docs/guides/structured-outputs> |
+| xAI | 2026-08-18 | <https://docs.x.ai/docs/guides/structured-outputs> |
+
+Google は鍵を `?key=` で経路に載せる書き方も受け付けるが、**使わない**。
+経路は中継の記録に残りやすい。見出しだけに載せる。
+
+OpenAI と xAI の `strict` は「すべての項目が `required`」「`additionalProperties: false`」を
+要求するので、送る前に `toStrictSchema` で直す。**全部必須で困らない**のは、
+指示（`assemblePrompt`）が「分からない項目は null」と伝えているため。
+欄を落とすのではなく「分からなかった」と書かせるほうが、後から読む人に区別が付く。
+
+Workers AI だけはこの手順に乗らない。鍵を預からず、実行環境の結び付けで呼ぶため。
+繋ぐときは別の組み立てが要る（いまはスタブ）。
+
+**ここまでで言えるのは「呼び出しの形が合っている」ことだけである。**
+偽の応答での検査（`tests/infrastructure/llm-providers.test.ts`）が緑でも、
+実際の鍵で受け入れられるかは分からない。それを見るのは設定画面の接続確認
+（`llm-connectivity.ts`）で、鍵の登録は利用者ご本人の作業になる。
 
 ### 開発者が入れる秘密（`secret-resolver.ts` 経由）とは別物
 

@@ -5,8 +5,8 @@
 テスト側の `@req` 印を重ねたもの。
 
 - 最終更新: 2026-08-18
-- テストファイル: 143 件
-- 由来の要件が分かる: 108 件
+- テストファイル: 144 件
+- 由来の要件が分かる: 109 件
 - **由来不明: 35 件**（上限 37 件）
 
 由来不明とは「どの要件のために書いたのか、機械から辿れない」という意味で、
@@ -108,6 +108,7 @@
 | `tests/infrastructure/llm-connectivity.test.ts` | REQ-SEC01 | 印 |
 | `tests/infrastructure/llm-credential-vault.test.ts` | REQ-SEC01, REQ-SEC05 | 印 |
 | `tests/infrastructure/llm-provider-catalog.test.ts` | REQ-SEC01 | 印 |
+| `tests/infrastructure/llm-providers.test.ts` | REQ-G11, REQ-SEC01, REQ-SEC05 | 印と表 |
 | `tests/infrastructure/llm-usage-repository.test.ts` | REQ-SEC01 | 印 |
 | `tests/infrastructure/prompt-assembly.test.ts` | REQ-P06 | 表 |
 | `tests/infrastructure/stub-ledger.test.ts` | REQ-TS09 | 表 |

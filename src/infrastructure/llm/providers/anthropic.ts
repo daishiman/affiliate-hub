@@ -1,28 +1,14 @@
 import type { LlmPort, LlmRequest, LlmResponse } from "@/application/ports";
-import type { LlmKeyAccess, LlmUsageRecorder } from "../key-access";
-import type { LlmPricingLookup, ModelPricing } from "../pricing";
-import { containsSecret, redactSecretsInText } from "@/domain/generation/llm-credential";
-import {
-  type DomainError,
-  type Result,
-  type WorkspaceId,
-  domainError,
-  err,
-  ok,
-} from "@/domain/shared";
+import { type DomainError, type Result, err, ok } from "@/domain/shared";
 import { assemblePrompt } from "../prompt-assembly";
+import { type HttpLlmDeps, type ProviderSpec, createHttpLlm, unreadableReply } from "./http-llm";
 
 /**
  * Anthropic（Claude）への接続。
  *
- * --- 鍵と文章が同じ場所に来る、唯一のファイル ---
- * 呼び出しには「鍵（見出しに載せる）」と「指示・資料（本文に載せる）」の
- * 両方が要る。だからここだけは両方が同じ関数の中に現れる。
- *
- * 混ざらないようにするために、本文の組み立てを
- * **鍵を受け取らない純関数**（`buildMessagesBody`）へ出した。
- * 引数に鍵が無いので、本文へ鍵を入れることが書き方として不可能になる。
- * 「気をつける」ではなく「渡さない」で守る。
+ * 呼び出しの手順（単価を先に引く・鍵は見出しだけ・使った量を必ず記録する）は
+ * 4 社共通なので `./http-llm.ts` に置いてある。このファイルに書くのは
+ * **Anthropic だけが違うこと**、つまり送り先・見出し・本文の形・応答の読み方に限る。
  *
  * 規範: docs/product/credential-registration.md
  */
@@ -83,18 +69,12 @@ export function readReply<T>(
   fallbackModelId: string,
 ): Result<LlmResponse<T>, DomainError> {
   if (typeof reply !== "object" || reply === null) {
-    return err(domainError("UPSTREAM_UNAVAILABLE", "生成 AI の応答を読み取れませんでした。"));
+    return err(unreadableReply("unknown"));
   }
   const r = reply as AnthropicReply;
   const block = (r.content ?? []).find((b) => b.type === "tool_use" && b.name === RESULT_TOOL);
   if (block === undefined || block.input === undefined) {
-    return err(
-      domainError("UPSTREAM_UNAVAILABLE", "生成 AI が指定した形で答えませんでした。", {
-        retryable: true,
-        suggestedAction: "もう一度お試しください。続くようなら別のモデルを選んでください。",
-        details: { stopReason: r.stop_reason ?? "unknown" },
-      }),
-    );
+    return err(unreadableReply(r.stop_reason ?? "unknown"));
   }
   return ok({
     output: block.input as T,
@@ -106,168 +86,26 @@ export function readReply<T>(
   });
 }
 
-/**
- * 提供元が返した失敗を、画面に出せる形へ移す。
- *
- * **本文をそのまま載せない。** Anthropic は鍵の一部を載せた文面を
- * 返すことがある。ここでは鍵を持っているので、値そのもので突き合わせて捨てる。
- */
-function toFailure(status: number, body: string, apiKey: string): DomainError {
-  const safe = containsSecret(body, apiKey) ? "" : redactSecretsInText(body).slice(0, 300);
-  const details = { providerId: PROVIDER_ID, status, upstreamMessage: safe };
-  if (status === 401 || status === 403) {
-    return domainError("UNAUTHENTICATED", "Anthropic に API キーが受け付けられませんでした。", {
-      suggestedAction: "設定画面から API キーを登録し直してください。",
-      details,
-    });
-  }
-  if (status === 429) {
-    return domainError("RATE_LIMITED", "Anthropic の利用上限に達しました。", {
-      retryable: true,
-      suggestedAction: "しばらく待ってからお試しください。",
-      details,
-    });
-  }
-  if (status >= 500) {
-    return domainError("UPSTREAM_UNAVAILABLE", "Anthropic 側で問題が起きています。", {
-      retryable: true,
-      suggestedAction: "しばらく待ってからお試しください。",
-      details,
-    });
-  }
-  return domainError("VALIDATION_FAILED", "Anthropic への依頼が受け付けられませんでした。", {
-    suggestedAction: "選んでいるモデルが使えるかを設定画面で確認してください。",
-    details,
-  });
-}
-
-export type AnthropicLlmDeps = {
-  readonly vault: LlmKeyAccess;
-  /** 単価の引き当て。モデルは依頼ごとに変わるので、組み立て時には決まらない。 */
-  readonly pricing: LlmPricingLookup;
+export const ANTHROPIC_SPEC: ProviderSpec = {
+  providerId: PROVIDER_ID,
+  label: "Anthropic",
+  endpoint: () => ENDPOINT,
+  buildBody: buildMessagesBody,
+  headers: (apiKey) => ({
+    // 鍵が現れるのはこの 1 行だけ。本文には入らない。
+    "x-api-key": apiKey,
+    "anthropic-version": API_VERSION,
+  }),
+  readReply,
   /**
-   * 使った量の記録先。**省略できない。**
-   * 省ける形にすると、呼び出しを足すたびに記録が漏れ、
-   * 漏れても画面は何も変わらないので請求が来るまで気づけない。
+   * Anthropic は埋め込みの API を出していない。
+   * 「近い記事を探す」は別の提供元か別の手段で用意する。
    */
-  readonly usage: LlmUsageRecorder;
-  readonly fetchImpl?: typeof fetch;
+  embedRefusal: "Anthropic では類似記事の検出に対応していません。",
 };
 
-function costOf(input: number, output: number, pricing: ModelPricing): number {
-  return Math.ceil(
-    (input * pricing.inputMinorPerMillionTokens) / 1_000_000 +
-      (output * pricing.outputMinorPerMillionTokens) / 1_000_000,
-  );
-}
+export type AnthropicLlmDeps = HttpLlmDeps;
 
 export function createAnthropicLlm(deps: AnthropicLlmDeps): LlmPort {
-  const doFetch = deps.fetchImpl ?? fetch;
-
-  async function note(
-    workspaceId: WorkspaceId,
-    modelId: string,
-    pricing: ModelPricing,
-    inputTokens: number,
-    outputTokens: number,
-    succeeded: boolean,
-  ): Promise<Result<void, DomainError>> {
-    return deps.usage.record({
-      workspaceId,
-      providerId: PROVIDER_ID,
-      modelId,
-      purpose: "draft",
-      inputTokens,
-      outputTokens,
-      estimatedCostMinor: costOf(inputTokens, outputTokens, pricing),
-      currency: pricing.currency,
-      succeeded,
-    });
-  }
-
-  return {
-    async generateStructured<T>(request: LlmRequest) {
-      const modelId = request.model.modelId;
-
-      /**
-       * 単価を**呼ぶ前に**引く。
-       *
-       * 呼んでから引くと、単価の分からないモデルで一度は課金が発生し、
-       * その 1 回だけ記録に残らない（記録には単価が要る）。
-       */
-      const pricing = await deps.pricing.find(request.model);
-      if (!pricing.ok) return err(pricing.error);
-
-      // 本文を先に組み立てる。**鍵を取り出す前**に済ませることで、
-      // 鍵の見えている範囲を通信の一瞬だけに縮める。
-      const body = buildMessagesBody(request, modelId);
-
-      const called = await deps.vault.useKey({
-        workspaceId: request.workspaceId,
-        providerId: PROVIDER_ID,
-        fn: async (apiKey): Promise<Result<LlmResponse<T>, DomainError>> => {
-          const response = await doFetch(ENDPOINT, {
-            method: "POST",
-            headers: {
-              // 鍵が現れるのはこの 1 行だけ。本文には入らない。
-              "x-api-key": apiKey,
-              "anthropic-version": API_VERSION,
-              "content-type": "application/json",
-            },
-            body: JSON.stringify(body),
-          });
-
-          if (!response.ok) {
-            const text = await response.text().catch(() => "");
-            return err(toFailure(response.status, text, apiKey));
-          }
-          const parsed: unknown = await response.json().catch(() => null);
-          return readReply<T>(parsed, modelId);
-        },
-      });
-
-      if (!called.ok) {
-        // 鍵が無い・開けない・通信ごと失敗した。ここでは使った量が分からない。
-        const noted = await note(request.workspaceId, modelId, pricing.value, 0, 0, false);
-        if (!noted.ok) return noted;
-        return called;
-      }
-      const result = called.value;
-      const tokens = result.ok
-        ? { input: result.value.inputTokens, output: result.value.outputTokens }
-        : { input: 0, output: 0 };
-
-      /**
-       * 記録できなかったら、生成できていても失敗として返す。
-       *
-       * もったいないようだが、記録の落ちた呼び出しを黙って通すと
-       * 「請求は増えるのに画面のどこにも出ない使い方」が積み上がる。
-       * それに、記録先は記事の保存先と同じ D1 なので、
-       * ここが書けない状態なら下書きも保存できない。
-       */
-      const noted = await note(
-        request.workspaceId,
-        modelId,
-        pricing.value,
-        tokens.input,
-        tokens.output,
-        result.ok,
-      );
-      if (!noted.ok) return noted;
-      return result;
-    },
-
-    async embed() {
-      /**
-       * Anthropic は埋め込みの API を出していない。
-       * 「近い記事を探す」は別の提供元か別の手段で用意する。
-       * ここで 0 埋めの配列を返すと、**似ていない記事が似ていると判定される**。
-       */
-      return err(
-        domainError("NOT_SUPPORTED", "Anthropic では類似記事の検出に対応していません。", {
-          suggestedAction: "類似記事の検出には別の提供元を選んでください。",
-        }),
-      );
-    },
-  };
+  return createHttpLlm(ANTHROPIC_SPEC, deps);
 }

@@ -11,7 +11,7 @@
 
 ## まだ中身が無いもの
 
-件数: 36
+件数: 33
 
 | 識別子 | 何のスタブか | つなぎ目 | 何が済めば実装できるか |
 |---|---|---|---|
@@ -34,10 +34,7 @@
 | `channel:x` | X への配信 | ChannelConnectorPort | X API の有料プラン契約とアプリ登録が必要 |
 | `channel:youtube` | YouTube への配信 | ChannelConnectorPort | YouTube Data API のクォータ申請が必要 |
 | `identity:sample-actor` | ログイン情報（見本） | 現在のログイン利用者の取得 | Better Auth と Google ログインの設定 |
-| `llm:google` | Google Gemini での文章生成 | LlmPort | 提供元の選定と、利用者ご自身による API キーの登録が必要 |
-| `llm:openai` | OpenAI での文章生成 | LlmPort | 提供元の選定と、利用者ご自身による API キーの登録が必要 |
-| `llm:workers_ai` | Cloudflare Workers AI での文章生成 | LlmPort | 提供元の選定と、利用者ご自身による API キーの登録が必要 |
-| `llm:xai` | xAI での文章生成 | LlmPort | 提供元の選定と、利用者ご自身による API キーの登録が必要 |
+| `llm:workers_ai` | Cloudflare Workers AI での文章生成 | LlmPort | Workers AI は API キーではなく実行環境の結び付け（binding）で呼ぶ。結び付けの追加と、使うモデルの決定が必要 |
 | `persistence:affiliate-sample` | 提携と成果（見本データ） | 提携先・提携条件・提携リンクの保存先 | affiliate_accounts / affiliate_programs / affiliate_links テーブルの追加と、各 ASP の API 利用申請および接続情報の登録（利用者本人による）。成果そのものの保存先は解除済み（affiliate_conversions） |
 | `persistence:content-editorial-sample` | 記事と書き手（見本データ） | 記事・企画・書き手の保存先 | content_packages / personas テーブルの追加と、企画・書き手を作る入口 |
 | `persistence:content-sample` | 公開記事の保存先（見本データ） | PublishedContentPort | 保存先（D1）が結びついていない実行での代わり。結びつければ出した記事はそのまま残る |

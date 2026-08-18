@@ -11,6 +11,9 @@ import type { LlmKeyAccess, LlmUsageRecorder } from "./key-access";
 import type { LlmProviderKind } from "./llm-provider-catalog";
 import type { LlmPricingLookup } from "./pricing";
 import { createAnthropicLlm } from "./providers/anthropic";
+import { createGoogleLlm } from "./providers/google";
+import { createOpenAiLlm } from "./providers/openai";
+import { createXaiLlm } from "./providers/xai";
 
 /**
  * 生成 AI の提供元の登録所。
@@ -58,12 +61,12 @@ type LlmFactory = (ctx: LlmProviderContext) => LlmPort;
  * 空文字や固定文を返さないのは、生成されていない記事が
  * 「生成済み」として保存される事故を避けるため。
  */
-function createStubLlm(kind: LlmProviderKind, ctx: LlmProviderContext): LlmPort {
+function createStubLlm(kind: LlmProviderKind, ctx: LlmProviderContext, blockedBy: string): LlmPort {
   const entry = registerStub({
     id: `llm:${kind}`,
     port: "LlmPort",
     label: `${LLM_PROVIDER_LABEL[kind]} での文章生成`,
-    blockedBy: "提供元の選定と、利用者ご自身による API キーの登録が必要",
+    blockedBy,
   });
   void ctx;
   return {
@@ -72,18 +75,34 @@ function createStubLlm(kind: LlmProviderKind, ctx: LlmProviderContext): LlmPort 
   };
 }
 
+/**
+ * 組み立てに要るものは 4 社とも同じなので、そのまま渡す。
+ *
+ * 提供元ごとに引数を選び直していたころは、`fetchImpl` を 1 社だけ渡し忘れても
+ * 型が通り、**その社の検査だけが本物の通信を試みる**形が作れた。
+ */
+const http = (ctx: LlmProviderContext) => ({
+  vault: ctx.vault,
+  usage: ctx.usage,
+  pricing: ctx.pricing,
+  fetchImpl: ctx.fetchImpl,
+});
+
 const FACTORIES: Readonly<Record<LlmProviderKind, LlmFactory>> = {
-  anthropic: (ctx) =>
-    createAnthropicLlm({
-      vault: ctx.vault,
-      usage: ctx.usage,
-      pricing: ctx.pricing,
-      fetchImpl: ctx.fetchImpl,
-    }),
-  google: (ctx) => createStubLlm("google", ctx),
-  openai: (ctx) => createStubLlm("openai", ctx),
-  xai: (ctx) => createStubLlm("xai", ctx),
-  workers_ai: (ctx) => createStubLlm("workers_ai", ctx),
+  anthropic: (ctx) => createAnthropicLlm(http(ctx)),
+  google: (ctx) => createGoogleLlm(http(ctx)),
+  openai: (ctx) => createOpenAiLlm(http(ctx)),
+  xai: (ctx) => createXaiLlm(http(ctx)),
+  /**
+   * Workers AI だけは鍵の預かり所を通らない（実行環境の結び付けで呼ぶ）ので、
+   * 同じ手順に乗らない。繋ぐときは別の組み立てが要る。
+   */
+  workers_ai: (ctx) =>
+    createStubLlm(
+      "workers_ai",
+      ctx,
+      "Workers AI は API キーではなく実行環境の結び付け（binding）で呼ぶ。結び付けの追加と、使うモデルの決定が必要",
+    ),
 };
 
 export function createLlm(

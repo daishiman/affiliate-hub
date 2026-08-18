@@ -112,6 +112,35 @@ describe("疎通確認", () => {
   });
 
   it("まだ作っていない提供元は、成功にせず「未対応」と答える", async () => {
+    /**
+     * 2026-08-18 まではここが `xai` だった。4 社を繋いだので、
+     * **まだ作っていない提供元**は Workers AI だけになった（鍵ではなく
+     * 実行環境の結び付けで呼ぶため、この手順に乗らない）。
+     * 提供元の名前を差し替えただけで、見ているものは変えていない
+     * ＝「実装の無い提供元を、確認済みにしない」。
+     */
+    const usage = fakeUsage();
+    const check = createLlmConnectivity({
+      vault,
+      catalog: catalog({ workers_ai: [MODEL] }),
+      usage: usage.port,
+      fetchImpl: fetchReturning(200, PONG),
+    });
+    const result = await check.check({ workspaceId: WS, providerId: "workers_ai", modelId: "m-1" });
+    expect(result.ok).toBe(false);
+    if (result.ok) return;
+    expect(result.error.code).toBe("NOT_IMPLEMENTED");
+    expect(result.error.suggestedAction).toBeTruthy();
+  });
+
+  it("繋いだ提供元は、確認も下書きと同じ 1 本を通る", async () => {
+    /**
+     * 確認だけ別の分岐を持っていたころは、**確認は通るのに下書きは未対応**
+     * （またはその逆）という、利用者から見て説明の付かない状態が作れた。
+     * ここでは xAI に Anthropic の形の応答を返している。同じ 1 本を通っていれば
+     * xAI の読み方で読もうとして**形が違う**と答えるはずで、
+     * 「未対応」でも「成功」でもない。
+     */
     const usage = fakeUsage();
     const check = createLlmConnectivity({
       vault,
@@ -122,8 +151,10 @@ describe("疎通確認", () => {
     const result = await check.check({ workspaceId: WS, providerId: "xai", modelId: "m-1" });
     expect(result.ok).toBe(false);
     if (result.ok) return;
-    expect(result.error.code).toBe("NOT_IMPLEMENTED");
-    expect(result.error.suggestedAction).toBeTruthy();
+    expect(result.error.code).toBe("UPSTREAM_UNAVAILABLE");
+    // 呼んだので、確認として記録も残る。
+    expect(usage.entries[0]?.purpose).toBe("verification");
+    expect(usage.entries[0]?.providerId).toBe("xai");
   });
 
   it("目録の設定が壊れていたら、そのまま返す", async () => {
