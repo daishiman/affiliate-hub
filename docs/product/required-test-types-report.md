@@ -6,8 +6,8 @@
 
 - 最終更新: 2026-08-18
 - 要件表の要件: 241 件
-- 性質を宣言済: 231 件
-- **未宣言: 10 件**（上限 10 件）
+- 性質を宣言済: 232 件
+- **未宣言: 9 件**（上限 10 件）
 - 理由つきの除外: 7 件（上限 7 件）
 
 未宣言とは「必須種別をまだ決めていない」という意味で、
@@ -153,6 +153,7 @@
 | REQ-IM10 | has-enumerated-input | `decision-table` `equivalence` | `decision-table` `equivalence` | — | 
 | REQ-IM11 | has-enumerated-input | `decision-table` `equivalence` | `decision-table` `equivalence` | — | 
 | REQ-IM12 | has-enumerated-input | `decision-table` `equivalence` | `decision-table` `equivalence` | — | 
+| REQ-IM13 | has-db-table, has-tenant, has-state, has-enumerated-input | `db-migration` `decision-table` `equivalence` `state-transition` `tenant-isolation` | `db-migration` `decision-table` `equivalence` `state-transition` `tenant-isolation` | — | 
 | REQ-TH01 | has-screen, has-color-scheme-variants | `a11y` `keyboard` `screen-states` | `a11y` `keyboard` `screen-states` | — | 
 | REQ-TH02 | has-enumerated-input, has-color-scheme-variants | `a11y` `decision-table` `equivalence` | `a11y` `decision-table` `equivalence` | — | 
 | REQ-TH03 | has-enumerated-input | `decision-table` `equivalence` | `decision-table` `equivalence` | — | 
@@ -268,5 +269,5 @@
 
 ## 未宣言の要件
 
-`REQ-CI08` `REQ-CI12` `REQ-E16` `REQ-FD04` `REQ-IM13` `REQ-TH04` `REQ-TH05` `REQ-TS02` `REQ-TS03` `REQ-TS10`
-<!-- 生成物の指紋 sha256:e37f15f48ec4ef269e330f92e06d0ea3ec45fdcbd07a3a96cf3e65d946884877 -->
+`REQ-CI08` `REQ-CI12` `REQ-E16` `REQ-FD04` `REQ-TH04` `REQ-TH05` `REQ-TS02` `REQ-TS03` `REQ-TS10`
+<!-- 生成物の指紋 sha256:ff1ca84e2ba9454fcb6e95b2e24459595a784dd8a5553d1046b99a4eeb3eb5ec -->

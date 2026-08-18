@@ -12,7 +12,7 @@
 
 ## まだ中身が無いもの
 
-件数: 33
+件数: 32
 
 | 識別子 | 何のスタブか | つなぎ目 | 何が済めば実装できるか |
 |---|---|---|---|
@@ -40,7 +40,6 @@
 | `persistence:content-editorial-sample` | 記事と書き手（見本データ） | 記事・企画・書き手の保存先 | content_packages / personas テーブルの追加と、企画・書き手を作る入口 |
 | `persistence:content-sample` | 公開記事の保存先（見本データ） | PublishedContentPort | 保存先（D1）が結びついていない実行での代わり。結びつければ出した記事はそのまま残る |
 | `persistence:distribution-sample` | 配信（見本データ） | 配信先の接続と配信記録の保存先 | 各サービスの接続設定（利用者本人による認証） |
-| `persistence:improvement-sample` | 改善ループの記録（見本データ。保存はできません） | 改善ループの記録先 | 改善ループを回す入口（画面と操作）の追加。そのうえで variant_specs / loop_runs / loop_observations テーブルの追加 |
 | `persistence:policy-rule-sample` | 表現ポリシー（初期ルールのまま） | 表現ポリシーの保存先 | policy_rules テーブルの追加と、作業場所を作ったときに初期ルールを配る処理 |
 | `persistence:product-sample` | 商品と根拠（見本データ） | 商品・主張・根拠・検証記録の保存先 | 商品・主張・根拠を登録する入口（画面と操作）の追加。そのうえで products / claims / evidence / test_runs テーブルの追加とマイグレーション |
 | `persistence:ranking-sample` | ランキングの保存先（見本データ） | EditorialRankingModelRepositoryPort / EditorialScoreCardRepositoryPort | 順位づけの基準と採点表を作る入口（画面と操作）の追加。そのうえで ranking_models / score_cards テーブルの追加とマイグレーション |
@@ -56,7 +55,7 @@
 こちらへ回る。**消す予定は無いので、この件数は減らない。**
 何で動いているかは、必ず画面に文字で出す（黙って控えへ落ちない）。
 
-件数: 11
+件数: 12
 
 | 識別子 | 何の控えか | つなぎ目 | 本物の置き場所 |
 |---|---|---|---|
@@ -66,6 +65,7 @@
 | `persistence:audit-log-memory` | 操作の記録（この実行中だけ覚える仮置き） | 操作の記録先 | `src/infrastructure/persistence/d1/audit-log-repository.ts` |
 | `persistence:click-tracking-sample` | クリックの記録（この実行では保存先が無い） | クリック計測 | `src/infrastructure/persistence/d1/redirect-repository.ts` |
 | `persistence:feedback-memory` | 改善要望の記録（この実行中だけ覚える仮置き） | 改善要望の記録先 | `src/infrastructure/persistence/d1/feedback-repository.ts` |
+| `persistence:improvement-sample` | 改善ループの記録（見本データ。保存はできません） | 改善ループの記録先 | `src/infrastructure/persistence/d1/improvement-repository.ts` |
 | `persistence:link-inbox-sample` | 受信箱（見本データ・この場限り） | 成果リンク受信箱の保存先 | `src/infrastructure/persistence/d1/link-inbox-repository.ts` |
 | `persistence:site-draft-memory` | ブログ作成の下書き（プロセス内のみ） | SiteDraftRepositoryPort | `src/infrastructure/persistence/d1/site-draft-repository.ts` |
 | `persistence:site-sample` | ブログの設計図（見本データ） | SiteRepositoryPort | `src/infrastructure/persistence/d1/site-repository.ts` |
@@ -111,4 +111,4 @@
 **Google Gemini の注意**: `responseSchema` は JSON Schema の一部しか解釈しない。
 受け付けられない形は 400 で返る（黙って自由文には落とさない）。
 実際の鍵で呼ぶとき、最初に踏むのはたいていここである。
-<!-- 生成物の指紋 sha256:ce046b2c04e2f0ab029e8a7581e4f846e25f963f9cb6a1f366de8206cd716c63 -->
+<!-- 生成物の指紋 sha256:4138720e8ec8cdf9375c14b83f9ec53f1cd0a817396d3289d810ff5d77e95baf -->
