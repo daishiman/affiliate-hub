@@ -1,4 +1,8 @@
 /** @tier 1 */
+import { execFileSync } from "node:child_process";
+import { mkdtempSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { fingerprint, judgeFreshness } from "../../scripts/spec-freshness.mjs";
 
@@ -43,5 +47,68 @@ describe("仕様レポートの鮮度", () => {
     const same = "c".repeat(64);
     const judged = judgeFreshness({ inputs: { sha256: same } }, { sha256: same, fileCount: 27 });
     expect(judged.state).toBe("FRESH");
+  });
+});
+
+/**
+ * **判定した答えを、門が実際に使っているか。**
+ *
+ * 上の 5 件は `judgeFreshness` が正しく答えることだけを見ていた。それは緑のまま、
+ * 呼び出し側は答えを受け取ってから捨て、必ず 0 を返していた（2026-08-19 まで）。
+ * 「呼ばれていない」なら `grep` で気づけるが、**呼ばれて捨てている**のは気づけない。
+ * だからここは関数ではなく**終了コード**を見る。判定と門のあいだが切れたら赤くなる。
+ */
+describe("門が、判定の答えを使っている", () => {
+  const script = join(process.cwd(), "scripts/spec-freshness.mjs");
+
+  /** レポートを 1 枚だけ差し替えて門を回し、終了コードと出力を返す。 */
+  function runWith(report: unknown): { code: number; out: string } {
+    const dir = mkdtempSync(join(tmpdir(), "spec-freshness-"));
+    const path = join(dir, "report.json");
+    writeFileSync(path, JSON.stringify(report));
+    try {
+      const out = execFileSync("node", [script], {
+        cwd: process.cwd(),
+        env: { ...process.env, SPEC_FRESHNESS_REPORT: path },
+        encoding: "utf8",
+      });
+      return { code: 0, out };
+    } catch (error) {
+      const e = error as { status?: number; stdout?: string };
+      return { code: e.status ?? -1, out: e.stdout ?? "" };
+    }
+  }
+
+  it("指紋が焼かれていないレポートでは、門が落ちる", () => {
+    const { code, out } = runWith({ verdict: "PASS" });
+    expect(out).toContain("UNPINNED");
+    // PASS と書いてあっても通さない。どの仕様書に対する PASS かが分からない。
+    expect(code).toBe(1);
+  });
+
+  it("評価のあとに仕様書が変わっていたら、門が落ちる", () => {
+    const { code, out } = runWith({ verdict: "PASS", inputs: { sha256: "a".repeat(64) } });
+    expect(out).toContain("STALE");
+    expect(code).toBe(1);
+  });
+
+  it("いまの仕様書に対する判定なら、門は通る", () => {
+    const { code } = runWith({ verdict: "PASS", inputs: { sha256: fingerprint().sha256 } });
+    expect(code).toBe(0);
+  });
+
+  it("レポートが無いときも門は落ちる（消すのを逃げ道にしない）", () => {
+    const dir = mkdtempSync(join(tmpdir(), "spec-freshness-"));
+    let code = 0;
+    try {
+      execFileSync("node", [script], {
+        cwd: process.cwd(),
+        env: { ...process.env, SPEC_FRESHNESS_REPORT: join(dir, "ない.json") },
+        encoding: "utf8",
+      });
+    } catch (error) {
+      code = (error as { status?: number }).status ?? -1;
+    }
+    expect(code).toBe(1);
   });
 });

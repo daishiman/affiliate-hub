@@ -21,13 +21,35 @@
  *
  * **`--write` を、内容を再評価せずに使わないこと。**
  * それは「見ていないのに見たことにする」操作であり、この仕組みを無意味にする。
+ *
+ * --- 終了コード（2026-08-19 に足した）---
+ *
+ * `FRESH` と `--write` だけが 0 で、それ以外は 1 を返す。
+ *
+ * それまでは `judgeFreshness` の答えを**受け取ったあと捨てて**いた。
+ * 判定する側は試験されていて緑、呼び出しも `grep` で見つかる。
+ * それでも `UNPINNED` のまま何年でも緑を出せる状態だった
+ *（「呼ばれていない」より見つけにくい。**呼ばれて、答えを捨てている**）。
+ *
+ * レポートが無いときも 1 にする。無いことは「何も言えない」であって
+ * 「問題なし」ではない。ここを 0 にすると、レポートを消すのが最も静かな逃げ道になる。
  */
 import { createHash } from "node:crypto";
 import { existsSync, readFileSync, readdirSync, statSync, writeFileSync } from "node:fs";
-import { join, relative } from "node:path";
+import { join, relative, resolve } from "node:path";
 
 const ROOT = process.cwd();
-const REPORT = join(ROOT, "system-spec/completeness-report.json");
+/**
+ * 見るレポート。既定は本物で、`SPEC_FRESHNESS_REPORT` で差し替えられる。
+ *
+ * 差し替え口を開けているのは、**終了コードそのものを試験するため**である。
+ * 判定の関数だけを試験していたせいで「答えを捨てている」ことに気づけなかったので、
+ * 指紋の無いレポート・古いレポートを実際に食わせて 1 が返ることを見る
+ *（`tests/architecture/spec-freshness.test.ts`）。指紋の計算対象は変わらない。
+ */
+const REPORT = process.env.SPEC_FRESHNESS_REPORT
+  ? resolve(ROOT, process.env.SPEC_FRESHNESS_REPORT)
+  : join(ROOT, "system-spec/completeness-report.json");
 
 /** 評価の入力に含める場所。ここを増やしたら指紋は必ず変わる（それでよい）。 */
 const INPUT_DIRS = ["docs/spec", "system-spec"];
@@ -99,8 +121,9 @@ export function judgeFreshness(report, current) {
 // ─── ここから下は実行時のみ ─────────────────────────────
 if (process.argv[1] && process.argv[1].endsWith("spec-freshness.mjs")) {
   if (!existsSync(REPORT)) {
-    process.stdout.write("完全性レポートがありません（system-spec/completeness-report.json）\n");
-    process.exit(0);
+    process.stdout.write(`完全性レポートがありません（${relative(ROOT, REPORT)}）\n`);
+    process.stdout.write("「仕様を満たした」と言う根拠がありません。評価を先に通してください。\n");
+    process.exit(1);
   }
   const report = JSON.parse(readFileSync(REPORT, "utf8"));
   const current = fingerprint();
@@ -123,9 +146,16 @@ if (process.argv[1] && process.argv[1].endsWith("spec-freshness.mjs")) {
     };
     writeFileSync(REPORT, `${JSON.stringify(report, null, 1)}\n`);
     process.stdout.write("\n指紋を焼き付けました。内容を再評価せずにこれを行わないこと。\n");
-  } else if (judged.state !== "FRESH") {
+    process.exit(0);
+  }
+
+  if (judged.state !== "FRESH") {
     process.stdout.write(
       "\n再評価してから `node scripts/spec-freshness.mjs --write` で焼き付けてください。\n",
     );
+    // **判定を捨てない。** ここで 0 を返していたあいだ、この門は
+    // 「どの仕様書に対する PASS か言えない」状態を緑で通し続けていた。
+    process.exit(1);
   }
+  process.exit(0);
 }

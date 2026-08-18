@@ -1106,9 +1106,9 @@ export const CHECKS = [
     id: "spec-freshness",
     label: "仕様レポートの鮮度",
     command: ["node", "scripts/spec-freshness.mjs"],
-    blocking: false,
+    blocking: true,
     tier: 2,
-    why: "評価後に仕様書を書き換えると、古い PASS が古く見えないまま残る。指紋で気づける形にする",
+    why: "評価後に仕様書を書き換えると、古い PASS が古く見えないまま残る。指紋で気づける形にする。2026-08-19 まで警告どまりで、しかも判定の答えを捨てて必ず 0 を返していたため、指紋が無いまま緑を出し続けていた（この作業でいちばん大きい主張『仕様を全て満たした』の根拠がそれである）",
   },
   {
     id: "audit",
