@@ -125,8 +125,12 @@
 | REQ-TM10 | has-screen | — |
 | REQ-TM11 | has-input | — |
 | REQ-TM13 | has-db-table | — |
-| REQ-FD02 | has-enumerated-input | — |
+| REQ-FD02 | has-enumerated-input, has-code-placement-rule | — |
 | REQ-FD03 | has-input | — |
+| REQ-FD01 | has-code-placement-rule | — |
+| REQ-FD05 | has-code-placement-rule | — |
+| REQ-FD06 | has-code-placement-rule | — |
+| REQ-TM12 | has-code-placement-rule | — |
 | REQ-E01 | has-input, has-enumerated-input | — |
 | REQ-E02 | has-secret | — |
 | REQ-E03 | has-input | — |
@@ -178,9 +182,9 @@
 | REQ-FB12 | has-secret, has-recorded-operation | — |
 | REQ-FB13 | has-permission, has-tenant | — |
 | REQ-SEC01 | has-tenant | — |
-| REQ-SEC02 | has-input, has-user-supplied-url | — |
+| REQ-SEC02 | has-input, has-user-supplied-url, has-code-placement-rule | — |
 | REQ-SEC03 | has-input | — |
-| REQ-SEC04 | has-calculation | — |
+| REQ-SEC04 | has-calculation, has-code-placement-rule | — |
 | REQ-SEC05 | has-ai-text | — |
 | REQ-SEC06 | has-enumerated-input | — |
 | REQ-SEC07 | has-enumerated-input | — |
@@ -265,18 +269,18 @@
 
 ## 4. 未宣言の要件について（正直に書く）
 
-要件表には **241 件**の要件 ID がある。上の宣言表はそのうち **221 件**である
+要件表には **241 件**の要件 ID がある。上の宣言表はそのうち **225 件**である
 （`node scripts/required-test-types.mjs` の出力から書き写す。手で数えない。
 ここは長らく 83 と書いたまま古くなっていたことがある。
 **手で書いた数字は、古くなっても古く見えない**）。
-残り 20 件は未宣言で、**この検査の対象外**にある。
+残り 16 件は未宣言で、**この検査の対象外**にある。
 この 20 が `TEST_TYPES_MAX_UNDECLARED` と一致していることが、
 この節の数字が実測と合っていることの確かめになる。
 
 全部に宣言を書き切るまで検査を入れない、という順にすると**検査は永久に入らない**。
 そこで `TRACEABILITY_MAX_UNLINKED` と同じ形にした。
 
-- 未宣言の上限 `TEST_TYPES_MAX_UNDECLARED` を実測に置く（置いた当初は 158。現在 20）
+- 未宣言の上限 `TEST_TYPES_MAX_UNDECLARED` を実測に置く（置いた当初は 158。現在 16）
 - **新しく足す要件は、宣言しなければ CI が落ちる**
 - 既存の未宣言は減らせるが増やせない。**上げて緑にすることを禁じる**
 

@@ -69,14 +69,14 @@
 | `tests/architecture/audit-action-emitters.test.ts` | REQ-SEC09 | 印 |
 | `tests/architecture/ci-config.test.ts` | REQ-CI01, REQ-CI02, REQ-CI03, REQ-CI04, REQ-CI05, REQ-CI06, REQ-CI07, REQ-CI09, REQ-CI10, REQ-CI11, REQ-CI13 | 印と表 |
 | `tests/architecture/commercial-isolation.test.ts` | REQ-FD02 | 印と表 |
-| `tests/architecture/dependency-direction.test.ts` | REQ-FD01, REQ-SEC02 | 表 |
+| `tests/architecture/dependency-direction.test.ts` | REQ-FD01, REQ-FD02, REQ-SEC02, REQ-SEC04, REQ-TM12 | 印と表 |
 | `tests/architecture/generated-docs.test.ts` | REQ-TS09 | 印 |
 | `tests/architecture/llm-credential-leak.test.ts` | REQ-SEC01, REQ-SEC05 | 印 |
 | `tests/architecture/open-doors.test.ts` | REQ-S10 | 印と表 |
 | `tests/architecture/quality-gates.test.ts` | REQ-CI02, REQ-CI09 | 表 |
 | `tests/architecture/secrets-not-in-repo.test.ts` | REQ-CI07, REQ-SEC10 | 印と表 |
-| `tests/architecture/server-action-exports.test.ts` | REQ-FD06 | 表 |
-| `tests/architecture/single-definition.test.ts` | REQ-FD05 | 表 |
+| `tests/architecture/server-action-exports.test.ts` | REQ-FD06 | 印と表 |
+| `tests/architecture/single-definition.test.ts` | REQ-FD05 | 印と表 |
 | `tests/architecture/tenant-scoped-ports.test.ts` | REQ-P01, REQ-SEC01 | 印と表 |
 | `tests/architecture/test-honesty.test.ts` | REQ-CI07 | 表 |
 | `tests/architecture/worker-env-wiring.test.ts` | REQ-SEC01 | 印 |
@@ -193,4 +193,4 @@
 | `tests/ui/theme-contrast.test.ts` | REQ-TH02, REQ-TS06 | 表 |
 | `tests/ui/tool-form.test.tsx` | REQ-WC05 | 印と表 |
 | `tests/ui/ui-layers.test.ts` | REQ-S09, REQ-TM05 | 表 |
-<!-- 生成物の指紋 sha256:2cc8eb74c45e74a46efeeef45b9f829c8f013f079c32a6469b201cbfe63f14f2 -->
+<!-- 生成物の指紋 sha256:c6f4ef62883393242d51d312eb7f91a3837caf06591caf8e3c16bf05602593ae -->

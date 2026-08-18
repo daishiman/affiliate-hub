@@ -6,8 +6,8 @@
 
 - 最終更新: 2026-08-18
 - 要件表の要件: 241 件
-- 性質を宣言済: 221 件
-- **未宣言: 20 件**（上限 20 件）
+- 性質を宣言済: 225 件
+- **未宣言: 16 件**（上限 16 件）
 - 理由つきの除外: 7 件（上限 7 件）
 
 未宣言とは「必須種別をまだ決めていない」という意味で、
@@ -101,8 +101,12 @@
 | REQ-TM10 | has-screen | `a11y` `keyboard` `screen-states` | `a11y` `keyboard` `screen-states` | — | 
 | REQ-TM11 | has-input | `boundary` `equivalence` | `boundary` `equivalence` | — | 
 | REQ-TM13 | has-db-table | `db-migration` | `db-migration` | — | 
-| REQ-FD02 | has-enumerated-input | `decision-table` `equivalence` | `decision-table` `equivalence` | — | 
+| REQ-FD02 | has-enumerated-input, has-code-placement-rule | `code-boundary` `decision-table` `equivalence` | `code-boundary` `decision-table` `equivalence` | — | 
 | REQ-FD03 | has-input | `boundary` `equivalence` | `boundary` `equivalence` | — | 
+| REQ-FD01 | has-code-placement-rule | `code-boundary` | `code-boundary` | — | 
+| REQ-FD05 | has-code-placement-rule | `code-boundary` | `code-boundary` | — | 
+| REQ-FD06 | has-code-placement-rule | `code-boundary` | `code-boundary` | — | 
+| REQ-TM12 | has-code-placement-rule | `code-boundary` | `code-boundary` | — | 
 | REQ-E01 | has-input, has-enumerated-input | `boundary` `decision-table` `equivalence` | `boundary` `decision-table` `equivalence` | — | 
 | REQ-E02 | has-secret | `secrets` | `secrets` | — | 
 | REQ-E03 | has-input | `boundary` `equivalence` | `boundary` `equivalence` | — | 
@@ -154,9 +158,9 @@
 | REQ-FB12 | has-secret, has-recorded-operation | `audit-log` `secrets` | `audit-log` `secrets` | — | 
 | REQ-FB13 | has-permission, has-tenant | `permission-matrix` `tenant-isolation` | `permission-matrix` `tenant-isolation` | — | 
 | REQ-SEC01 | has-tenant | `tenant-isolation` | `tenant-isolation` | — | 
-| REQ-SEC02 | has-input, has-user-supplied-url | `boundary` `equivalence` `ssrf` | `boundary` `equivalence` `ssrf` | — | 
+| REQ-SEC02 | has-input, has-user-supplied-url, has-code-placement-rule | `boundary` `code-boundary` `equivalence` `ssrf` | `boundary` `code-boundary` `equivalence` `ssrf` | — | 
 | REQ-SEC03 | has-input | `boundary` `equivalence` | `boundary` `equivalence` | — | 
-| REQ-SEC04 | has-calculation | `boundary` `mutation` | `boundary` `mutation` | — | 
+| REQ-SEC04 | has-calculation, has-code-placement-rule | `boundary` `code-boundary` `mutation` | `boundary` `code-boundary` `mutation` | — | 
 | REQ-SEC05 | has-ai-text | `prompt-injection` | `prompt-injection` | — | 
 | REQ-SEC06 | has-enumerated-input | `decision-table` `equivalence` | `decision-table` `equivalence` | — | 
 | REQ-SEC07 | has-enumerated-input | `decision-table` `equivalence` | `decision-table` `equivalence` | — | 
@@ -258,5 +262,5 @@
 
 ## 未宣言の要件
 
-`REQ-CI08` `REQ-CI12` `REQ-E16` `REQ-FD01` `REQ-FD04` `REQ-FD05` `REQ-FD06` `REQ-IM13` `REQ-TH04` `REQ-TH05` `REQ-TM12` `REQ-TS01` `REQ-TS02` `REQ-TS03` `REQ-TS06` `REQ-TS09` `REQ-TS10` `REQ-W06` `REQ-W08` `REQ-W11`
-<!-- 生成物の指紋 sha256:3442d8140f176127076a4175c7aebe46595d0b70206a7234a9c52f83c41f012a -->
+`REQ-CI08` `REQ-CI12` `REQ-E16` `REQ-FD04` `REQ-IM13` `REQ-TH04` `REQ-TH05` `REQ-TS01` `REQ-TS02` `REQ-TS03` `REQ-TS06` `REQ-TS09` `REQ-TS10` `REQ-W06` `REQ-W08` `REQ-W11`
+<!-- 生成物の指紋 sha256:64afec8a81d5bcf29f8389312c978e2891e5a0cfd76157604b59c7460f762176 -->

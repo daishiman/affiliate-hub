@@ -1,4 +1,11 @@
-/** @tier 1 */
+/**
+ * @tier 1
+ * @req REQ-FD01, REQ-FD02, REQ-TM12, REQ-SEC02, REQ-SEC04
+ * @types code-boundary
+ *
+ * 印を 1 行に収めてあるのは、`scripts/required-test-types.mjs` の `@req` が
+ * 1 行しか読まないため（折り返すと 2 行目が黙って落ちる）。
+ */
 import { readFileSync, readdirSync, statSync } from "node:fs";
 import { join, relative } from "node:path";
 import { describe, expect, it } from "vitest";

@@ -12,8 +12,8 @@ iteration: null
 title: "語彙に無いという理由で未宣言に残った要件が 8 件たまった"
 owners: ["daishiman"]
 created_at: "2026-08-19T05:10:00Z"
-updated_at: "2026-08-19T07:10:00Z"
-status: "draft"
+updated_at: "2026-08-19T08:30:00Z"
+status: "done"
 depends_on: []
 related_nodes: []
 resource_scope: ["docs","tests"]
@@ -30,7 +30,7 @@ phase_ref: null
 file_path: "tasks/task-test-type-vocabulary-gap.md"
 template_id: "task"
 template_version: "1.0.0"
-confirmation_status: "draft"
+confirmation_status: "done"
 evaluation_status: "pending"
 confirmation_evidence: {"evaluated_digest":null,"evaluator":null,"evidence_ref":null}
 source_lineage: {"imported_at":"2026-08-19T05:10:00Z","origin_kind":"manual","source_digest":null,"source_path":"docs/product/required-test-types.md","source_plugin":null,"source_version":null}
@@ -49,6 +49,17 @@ implementation_readiness: {"checked_at":null,"missing_sections":[],"status":"inc
 ---
 
 # 目的
+
+> **2026-08-19 に実施済み。**`has-code-placement-rule` → `code-boundary` を足し、
+> `REQ-FD01` / `REQ-FD05` / `REQ-FD06` / `REQ-TM12` を宣言した。横断の洗い直しで
+> `REQ-FD02` / `REQ-SEC02` / `REQ-SEC04` も当たり、名乗る要件は **7 件**（受入条件の「5 件より多い」を満たす）。
+> 未宣言 20 → 16。測った結果は `docs/product/required-test-types.md` §4 の
+> 「2026-08-19: 性質を 1 つ足した」に、線の引き方は `quality-gates.config.mjs` の
+> `has-code-placement-rule` のコメントにある。
+>
+> **残した 4 件**: `REQ-FD04`（検査が別のことを見ている。残課題 88）/ `REQ-TS01` / `REQ-TS03`
+> （判定欄が実装を指していて検査が無い）/ `REQ-TS06` `REQ-TS09` `REQ-TS10`（別の形。この語彙では片付かない）。
+> **形は当たるが条件を満たさないものは、未宣言のまま残す。**
 
 **性質の語彙（`REQUIRED_TEST_TYPES`）の不足を、1 件の課題として扱う。**
 
