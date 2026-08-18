@@ -629,3 +629,20 @@ export const PORT_WIRING_MAX_WRITE_EXCLUSIONS = 0;
  * **件数を固定して見えるようにする**だけにする。
  */
 export const PORT_WIRING_MAX_UNKNOWN_VERBS = 0;
+
+/**
+ * **意図より広く開いている入口**の上限（`docs/product/open-doors.md`）。
+ *
+ * 「ログインした人だけ」と決めた入口が、実際には誰でも通れる——という差を数える。
+ * 差は `tests/architecture/open-doors.test.ts` がコードから測る。
+ * 宣言した意図とコードの実測を突き合わせるので、
+ * **意図を書き換えて差を消す**ことはできるが、そのときは意図の行が diff に出る。
+ *
+ * 2026-08-18 の実測は **49 件 / 全 79 件**（管理画面 32 枚 + 誰でも実行できる
+ * 変更操作 17 個）。`middleware.ts` が無く、`currentActor()` が解決できないと
+ * 見本の身元へ落ちるため、未ログインでも管理画面の操作が通る。
+ *
+ * この数字は事実の記録であって目標ではない。認証（`ah-361`）を入れて減らす。
+ * **上げて緑にすることを禁じる。**
+ */
+export const OPEN_DOORS_MAX_UNGUARDED = 49;
