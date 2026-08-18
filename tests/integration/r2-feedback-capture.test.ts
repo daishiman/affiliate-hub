@@ -50,8 +50,15 @@ const WS = asWorkspaceId("ws_capture_test");
 const OTHER_WS = asWorkspaceId("ws_other");
 const NOW = new Date("2026-08-17T00:00:00.000Z");
 
-/** 期限を過ぎたことにする時刻。置き場の日付は動かせないので、こちらを動かす。 */
-const LATER = new Date(NOW.getTime() + (CAPTURE_RETENTION_DAYS + 1) * 24 * 60 * 60 * 1000);
+/**
+ * 期限を過ぎたことにする時刻。置き場の日付は動かせないので、こちらを動かす。
+ *
+ * **基準は `NOW` ではなく、いまの本物の時計。** R2 が押す日付は本物の時計で、
+ * こちらだけ固定日から数えると、実際の日付が固定日を追い越した瞬間に
+ * 「期限切れのはずが 1 日足りない」となって落ちる（2026-08-18 に実際に落ちた）。
+ * 判定を緩めているのではなく、比べる 2 つの時計を揃えている。
+ */
+const LATER = new Date(Date.now() + (CAPTURE_RETENTION_DAYS + 1) * 24 * 60 * 60 * 1000);
 
 /** 塗り終わった 1 枚のつもりのバイト列。中身が png である必要はここでは無い。 */
 function anImage(seed: number): ArrayBuffer {
