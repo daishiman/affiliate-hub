@@ -6,8 +6,8 @@
 テスト側の `@req` 印を重ねたもの。
 
 - 最終更新: 2026-08-18
-- テストファイル: 162 件
-- 由来の要件が分かる: 134 件
+- テストファイル: 163 件
+- 由来の要件が分かる: 135 件
 - **由来不明: 28 件**（上限 28 件）
 
 由来不明とは「どの要件のために書いたのか、機械から辿れない」という意味で、
@@ -68,7 +68,7 @@
 | `tests/application/read-llm-usage.test.ts` | REQ-SEC01 | 印 |
 | `tests/application/read-product.test.ts` | REQ-A02, REQ-A08 | 印と表 |
 | `tests/application/schedule-publication.test.ts` | REQ-P08 | 印と表 |
-| `tests/application/writing-method.test.ts` | REQ-W05, REQ-W06 | 表 |
+| `tests/application/writing-method.test.ts` | REQ-W06 | 表 |
 | `tests/architecture/ai-eval-budget.test.ts` | REQ-CI13 | 表 |
 | `tests/architecture/audit-action-emitters.test.ts` | REQ-SEC09 | 印 |
 | `tests/architecture/commercial-isolation.test.ts` | REQ-FD02 | 表 |
@@ -82,6 +82,7 @@
 | `tests/architecture/tenant-scoped-ports.test.ts` | REQ-P01, REQ-SEC01 | 印と表 |
 | `tests/architecture/test-honesty.test.ts` | REQ-CI07 | 表 |
 | `tests/architecture/worker-env-wiring.test.ts` | REQ-SEC01 | 印 |
+| `tests/domain/article-type-sections.test.ts` | REQ-W02, REQ-W03, REQ-W04, REQ-W05 | 印と表 |
 | `tests/domain/authored-sections.test.ts` | REQ-P08 | 表 |
 | `tests/domain/boundaries-platform.test.ts` | REQ-P04, REQ-P08, REQ-SEC03, REQ-TS08 | 印と表 |
 | `tests/domain/boundaries.test.ts` | REQ-P09, REQ-P10, REQ-QC05, REQ-TS08 | 印と表 |
@@ -98,7 +99,7 @@
 | `tests/domain/planning.test.ts` | REQ-E23, REQ-SEC07 | 印と表 |
 | `tests/domain/policy-channel-scope.test.ts` | REQ-SEC07 | 印と表 |
 | `tests/domain/policy-rule-seed.test.ts` | REQ-QC11, REQ-SEC07 | 印と表 |
-| `tests/domain/quality-check-tables.test.ts` | REQ-QC02, REQ-QC03, REQ-QC06, REQ-QC07 | 印 |
+| `tests/domain/quality-check-tables.test.ts` | REQ-QC02, REQ-QC03, REQ-QC06, REQ-QC07, REQ-W12 | 印 |
 | `tests/domain/records-and-metrics.test.ts` | REQ-SEC09 | 印 |
 | `tests/domain/redirect-resolution.test.ts` | REQ-E13 | 印 |
 | `tests/domain/site-routes.test.ts` | REQ-B01, REQ-B02, REQ-B03, REQ-B04, REQ-B05, REQ-B06, REQ-B07, REQ-B08, REQ-B09, REQ-B10, REQ-B11, REQ-B13, REQ-B14, REQ-B15, REQ-B16, REQ-B17, REQ-B18, REQ-TM10 | 表 |
@@ -182,4 +183,4 @@
 | `tests/ui/theme-contrast.test.ts` | REQ-TH02, REQ-TS06 | 表 |
 | `tests/ui/tool-form.test.tsx` | REQ-WC05 | 印と表 |
 | `tests/ui/ui-layers.test.ts` | REQ-S09, REQ-TM05, REQ-TM06 | 表 |
-<!-- 生成物の指紋 sha256:e6dec69bdc35766e5fa1f1f29d7d0bfe34eec5a0ecf0ac78e7a855333962822d -->
+<!-- 生成物の指紋 sha256:edb2d565d9d706d90e5793334767a9f23d3061bd472e593c2248e53a9a4dd6c7 -->

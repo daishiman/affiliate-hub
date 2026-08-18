@@ -1,6 +1,6 @@
 /**
  * @tier 1
- * @req REQ-QC01, REQ-QC08, REQ-QC10
+ * @req REQ-QC01, REQ-QC08, REQ-QC10, REQ-W01, REQ-W09, REQ-W10
  * @types equivalence, boundary, decision-table
  */
 import { describe, expect, it } from "vitest";

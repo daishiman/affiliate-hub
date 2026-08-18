@@ -104,6 +104,15 @@
 | REQ-QC10 | has-input | — |
 | REQ-QC11 | has-enumerated-input | — |
 | REQ-QC12 | has-calculation | boundary: 公開ゲートの 13 項目は真偽の組合せで、大小の端が無い。組合せ側は性質テストが生成して当てている |
+| REQ-W01 | has-enumerated-input | — |
+| REQ-W02 | has-enumerated-input | — |
+| REQ-W03 | has-enumerated-input | — |
+| REQ-W04 | has-enumerated-input | — |
+| REQ-W05 | has-enumerated-input | — |
+| REQ-W07 | has-enumerated-input | — |
+| REQ-W09 | has-input | — |
+| REQ-W10 | has-input | — |
+| REQ-W12 | has-enumerated-input | — |
 | REQ-IM05 | has-state | — |
 | REQ-TH01 | has-screen | — |
 | REQ-TH02 | has-enumerated-input | — |
@@ -176,18 +185,18 @@
 
 ## 4. 未宣言の要件について（正直に書く）
 
-要件表には **241 件**の要件 ID がある。上の宣言表はそのうち **132 件**である
+要件表には **241 件**の要件 ID がある。上の宣言表はそのうち **141 件**である
 （`node scripts/required-test-types.mjs` の出力から書き写す。手で数えない。
 ここは長らく 83 と書いたまま古くなっていたことがある。
 **手で書いた数字は、古くなっても古く見えない**）。
-残り 109 件は未宣言で、**この検査の対象外**にある。
-この 109 が `TEST_TYPES_MAX_UNDECLARED` と一致していることが、
+残り 100 件は未宣言で、**この検査の対象外**にある。
+この 100 が `TEST_TYPES_MAX_UNDECLARED` と一致していることが、
 この節の数字が実測と合っていることの確かめになる。
 
 全部に宣言を書き切るまで検査を入れない、という順にすると**検査は永久に入らない**。
 そこで `TRACEABILITY_MAX_UNLINKED` と同じ形にした。
 
-- 未宣言の上限 `TEST_TYPES_MAX_UNDECLARED` を実測に置く（置いた当初は 158。現在 109）
+- 未宣言の上限 `TEST_TYPES_MAX_UNDECLARED` を実測に置く（置いた当初は 158。現在 100）
 - **新しく足す要件は、宣言しなければ CI が落ちる**
 - 既存の未宣言は減らせるが増やせない。**上げて緑にすることを禁じる**
 
@@ -1442,6 +1451,105 @@ QC08 は `invariants` と `writing-rules` がどちらも両方を名乗る）�
 **片方を消したときに、この検査は何も言わない**。
 そこが消えたときに赤くするのは vitest 側で、
 上に書いた 8 件（0.85 / 0.3 / 3 軸 / 40・120 文字）がその役をしている。
+
+### 2026-08-19 に減らしたぶん（109 → 100）: 書き方の決めごと 9 件
+
+対象は `REQ-W01`〜`REQ-W05` / `REQ-W07` / `REQ-W09` / `REQ-W10` / `REQ-W12`。
+`REQ-W06` / `REQ-W08` / `REQ-W11` は**宣言していない**（理由は後述）。
+
+#### 足す前に数えた（ここでも一覧が 1 行だけ試されていた）
+
+記事の型は 5 つあり、型ごとに足す節が `ARTICLE_TYPE_SECTIONS` にある。
+節の数と、名指しされていた数を数えた。
+
+| 記事の型 | 型が足す節 | 名指しされていた節 | 見ていた場所 |
+| --- | ---: | ---: | --- |
+| 順位をつける記事 | 6 | 3 | `tests/application/writing-method.test.ts` |
+| 1 つを詳しく見る記事 | 4 | **0** | 無し |
+| 2 つ以上を比べる記事 | 2 | **0** | 無し |
+| やり方を説明する記事 | 8 | 3 | `tests/application/writing-method.test.ts` |
+| 計算・判定の道具のページ | 2 | **0** | 無し |
+| 合計 | **22** | **6** | |
+
+`tests/domain/writing-rules.test.ts` の「どの型でも、広告表記・デメリット・出典・
+訂正報告は欠かせない」は 5 つの型を回しているが、当てているのは**共通の骨格の 4 節**で、
+型固有の節は 1 つも見ていない。5 つ回っているので**総当たりに見えるが、
+消えたときに赤くなるのは共通側だけ**である。
+
+要件表は `REQ-W02`〜`REQ-W04` の判定欄に「PASS（同上・型ごとの必須節）」と書いてあった。
+これは**書いた時点でも事実ではなかった**（W03 / W04 を見る検査は無かった）。
+実測で置き換えてある。
+
+#### 実測（既存の検査は消しても緑だった）
+
+`src/domain/authoring/article-structure.ts` を 3 通りに壊し、
+既存の `writing-rules` + `writing-method`（33 件）だけを走らせた。
+
+| 壊し方 | 既存 33 件 | 新しい 16 件 |
+| --- | --- | --- |
+| 1 つを詳しく見る記事から「検証条件」を消す | **33 件すべて緑** | 3 件が赤 |
+| 比べる記事から「差分表」を消す | **33 件すべて緑** | 4 件が赤 |
+| 道具のページから「計算・判定の根拠」を消す | **33 件すべて緑** | 2 件が赤 |
+
+新しく書いたのは `tests/domain/article-type-sections.test.ts`（16 件）。
+さらに 4 通りで赤を確かめた。
+
+| 壊し方 | 結果 |
+| --- | --- |
+| 順位の記事の「各商品カード」を推奨どまりへ格下げ | 2 件が赤 |
+| やり方の記事の「全手順」のラベルを変える | 1 件が赤 |
+| 追加節の差し込み位置を本文の後ろへ | 1 件が赤 |
+| 表を直さずに節を 1 つ足す | 2 件が赤 |
+
+最後の 1 行が、この検査を書いた理由そのものである。
+期待値を `ARTICLE_TYPE_SECTIONS` から作ると、**節を消しても繰り返しが 1 周
+短くなるだけで緑のまま**になる。22 個は手で書き写してあり、合計の 22 も
+実装から数えていない。
+
+#### 性質の割り当て
+
+| 要件 | 性質 | 名乗るファイル |
+| --- | --- | --- |
+| REQ-W01（共通 25 節） | has-enumerated-input | `tests/domain/writing-rules.test.ts` |
+| REQ-W02〜W05（型ごとの節） | has-enumerated-input | `tests/domain/article-type-sections.test.ts` |
+| REQ-W07（事実 6 分類） | has-enumerated-input | `tests/ui/fact-source.test.ts` |
+| REQ-W09（会話 40〜120 字・連続 2） | has-input | `tests/domain/writing-rules.test.ts` |
+| REQ-W10（10 軸・3 軸以上・0.85） | has-input | `tests/domain/writing-rules.test.ts` |
+| REQ-W12（ペルソナの事実境界 6 型） | has-enumerated-input | `tests/domain/quality-check-tables.test.ts` |
+
+W09 と W10 だけ `has-input` にしてあるのは、**端があるから**である
+（40 / 120 文字、連続 2 回、3 軸、似ている度 0.85）。
+他の 7 件は端の無い一覧なので `has-enumerated-input`。
+
+印を 1 つずつ外して赤を確かめた。9 件すべて、名指しするファイルは 1 つだけである
+（借りた名前は無い）。
+
+```
+article-type-sections から外す → REQ-W02〜W05: decision-table, equivalence
+writing-rules から外す         → REQ-W01: decision-table, equivalence
+                                 REQ-W09 / REQ-W10: boundary, equivalence
+fact-source から外す           → REQ-W07: decision-table, equivalence
+quality-check-tables から外す  → REQ-W12: decision-table, equivalence
+```
+
+#### 宣言しなかった 3 件（実装が境界を持てば宣言できる）
+
+`REQ-W06` / `REQ-W08` / `REQ-W11` は未宣言のまま残した。
+**除外の枠（7/7）へは回していない。**枠が満杯だからではなく、
+除外は「その性質が要らない理由」を書く場所であって、
+ここは性質が要るのに検査がまだ無いだけだからである。
+
+| 要件 | 一覧の件数 | いま当たっている範囲 |
+| --- | ---: | --- |
+| REQ-W06 段落の並べ方 `PARAGRAPH_ORDER` | 7 段 | 先頭「結論」と末尾「次の行動」の 2 つだけ。間の 5 段は入れ替えても緑 |
+| REQ-W08 文体の決まり `STYLE_RULES` | 9 件 | 「理由が空でない」の総当たりのみ。決まり自体を消しても、9 という数も内容も誰も見ていない |
+| REQ-W11 節ごとの雛形 `OPENING_PATTERNS` | 型ごと | **テストからの参照が 1 つも無い**。`SectionSpec.purpose` の「空でない」だけが当たっている |
+
+3 件とも、要件が求めているのは「一覧の中身が決まりどおりか」である。
+いま在るのは「一覧が空でないか」で、**中身が入れ替わっても気づけない**。
+W02〜W05 と同じ形の検査（期待値を手で書き写した表）を書けば宣言できる。
+書く前に宣言すると、`decision-table` という名前だけが付いて、
+本来その名前が守るはずの検査を消しても緑になる。
 
 ## 5. 除外という逃げ道について
 

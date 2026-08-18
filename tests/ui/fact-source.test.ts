@@ -1,6 +1,6 @@
 /**
  * @tier 2
- * @req REQ-QC04
+ * @req REQ-QC04, REQ-W07
  * @types equivalence, decision-table
  */
 import { describe, expect, it } from "vitest";

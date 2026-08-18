@@ -461,9 +461,19 @@ export const REQUIRED_TEST_TYPES = {
  * **どれも 1 行だけ試されていた**。一覧の全行に当てる検査を書いてから宣言している
  * （`tests/domain/quality-check-tables.test.ts`）。
  *
+ * 2026-08-19 に 109 → 100。書き方の決めごと 9 件（`REQ-W01`〜`W05` / `W07` /
+ * `W09` / `W10` / `W12`）を宣言した。この回も印を足すだけでは済まなかった —
+ * 記事の型ごとの節 22 個のうち、名指しされていたのは 6 個だけで、
+ * **1 つを詳しく見る記事・比べる記事・道具のページは 0 個**だった。
+ * 「検証条件」「差分表」「計算・判定の根拠」を丸ごと消しても、
+ * 既存の 33 件は全部緑のまま通った（実測）。5 つの型ぜんぶに当てる検査を
+ * 書いてから宣言している（`tests/domain/article-type-sections.test.ts`）。
+ * `REQ-W06` / `W08` / `W11` は宣言していない。理由は
+ * `docs/product/required-test-types.md` §4。
+ *
  * **上げて緑にすることを禁じる。**
  */
-export const TEST_TYPES_MAX_UNDECLARED = 109;
+export const TEST_TYPES_MAX_UNDECLARED = 100;
 
 /**
  * 理由つき除外を許す上限（件数）。

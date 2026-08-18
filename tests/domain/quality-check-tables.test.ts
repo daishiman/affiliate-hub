@@ -1,6 +1,6 @@
 /**
  * @tier 1
- * @req REQ-QC02, REQ-QC03, REQ-QC06, REQ-QC07
+ * @req REQ-QC02, REQ-QC03, REQ-QC06, REQ-QC07, REQ-W12
  * @types decision-table, equivalence
  *
  * 一覧で決めている検査を、一覧の全行に当てる。
