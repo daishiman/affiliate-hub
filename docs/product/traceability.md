@@ -163,8 +163,27 @@ D1 への差し替えは、この列だけを別の実装に取り替えれば�
 | REQ-E31 | PolicyRule | `compliance/policy-rule.ts` | `disclosures` | REQ-S06 | 実装済 |
 | REQ-E32 | AuditLog | `compliance/audit-log.ts` | 見本データ | REQ-S09 | スタブ（解除条件: 追記だけができる保存先。書き換えられる場所に置くと監査の意味が無くなるため、見本データのままにしている） |
 
-**32 件すべてにドメイン型がある。** 不変条件は `tests/domain/entity-invariants.test.ts` と
-`tests/domain/invariants.test.ts` が機械で確かめている。
+**32 件すべてにドメイン型がある。**
+
+不変条件を当てているのは `tests/domain/entity-invariants.test.ts` /
+`invariants.test.ts` / `entity-inputs.test.ts` / `entity-states.test.ts` /
+`entity-enumerations.test.ts` の 5 ファイルである。
+
+ここには 2026-08-19 まで「不変条件は前の 2 ファイルが機械で確かめている」と
+だけ書いてあったが、これは**集合についての主張で、事実ではなかった**。
+`src/domain` の断る場所 76 か所を 1 か所ずつ `if (false)` に書き換えて測ると、
+**11 か所は消しても全件（約 3960 件）が緑**だった（URL・主張文・確認者名・
+本文・プロンプト版の空、点数の 0〜1、人の確認を伴わない承認、ルール名・
+検出表現の空、分野と出力先の語彙）。2 ファイルは実在し緑だったが、
+その外に穴があった。後の 3 ファイルはこの 11 か所を塞ぐために足した。
+
+**いま言えるのはここまでである**: 76 か所を測って 11 か所が穴で、
+それを塞いだ。次に断る場所を足した回の穴は、また測らないと分からない。
+測り方は `docs/product/required-test-types.md` §4 の
+「2026-08-19 に減らしたぶん（68 → 49）」にある。
+
+`REQ-E16`（ProductVariant）だけは作る関数を持たず、断る場所が 1 つも無いため、
+境界値の当てどころが実装に存在しない（必須種別の宣言をしていない理由）。
 
 補助テーブル（§21 に明示はないが実装済）: `categories`, `articlePeople`, `articleProducts`, `faqs`, `updateLogs`。
 

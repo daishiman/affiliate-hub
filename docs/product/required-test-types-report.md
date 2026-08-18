@@ -6,8 +6,8 @@
 
 - 最終更新: 2026-08-18
 - 要件表の要件: 241 件
-- 性質を宣言済: 173 件
-- **未宣言: 68 件**（上限 68 件）
+- 性質を宣言済: 192 件
+- **未宣言: 49 件**（上限 49 件）
 - 理由つきの除外: 7 件（上限 7 件）
 
 未宣言とは「必須種別をまだ決めていない」という意味で、
@@ -94,18 +94,37 @@
 | REQ-TM07 | has-enumerated-input | `decision-table` `equivalence` | `decision-table` `equivalence` | — | 
 | REQ-TM08 | has-enumerated-input | `decision-table` `equivalence` | `decision-table` `equivalence` | — | 
 | REQ-TM09 | has-enumerated-input, has-input, has-tenant | `boundary` `decision-table` `equivalence` `tenant-isolation` | `boundary` `decision-table` `equivalence` `tenant-isolation` | — | 
+| REQ-E01 | has-input, has-enumerated-input | `boundary` `decision-table` `equivalence` | `boundary` `decision-table` `equivalence` | — | 
 | REQ-E02 | has-secret | `secrets` | `secrets` | — | 
+| REQ-E03 | has-input | `boundary` `equivalence` | `boundary` `equivalence` | — | 
+| REQ-E04 | has-input | `boundary` `equivalence` | `boundary` `equivalence` | — | 
 | REQ-E05 | has-state | `state-transition` | `state-transition` | — | 
+| REQ-E06 | has-input | `boundary` `equivalence` | `boundary` `equivalence` | — | 
+| REQ-E07 | has-input | `boundary` `equivalence` | `boundary` `equivalence` | — | 
+| REQ-E08 | has-input | `boundary` `equivalence` | `boundary` `equivalence` | — | 
 | REQ-E09 | has-secret | `secrets` | `secrets` | — | 
 | REQ-E10 | has-input, has-secret | `boundary` `equivalence` `secrets` | `boundary` `equivalence` `secrets` | — | 
 | REQ-E11 | has-input | `boundary` `equivalence` | `boundary` `equivalence` | — | 
+| REQ-E12 | has-input | `boundary` `equivalence` | `boundary` `equivalence` | — | 
 | REQ-E13 | has-input, has-state, has-user-supplied-url | `boundary` `equivalence` `ssrf` `state-transition` | `boundary` `equivalence` `ssrf` `state-transition` | — | 
+| REQ-E14 | has-input | `boundary` `equivalence` | `boundary` `equivalence` | — | 
 | REQ-E15 | has-input | `boundary` `equivalence` | `boundary` `equivalence` | — | 
+| REQ-E17 | has-input | `boundary` `equivalence` | `boundary` `equivalence` | — | 
+| REQ-E18 | has-input | `boundary` `equivalence` | `boundary` `equivalence` | — | 
+| REQ-E19 | has-input, has-state | `boundary` `equivalence` `state-transition` | `boundary` `equivalence` `state-transition` | — | 
+| REQ-E20 | has-input | `boundary` `equivalence` | `boundary` `equivalence` | — | 
+| REQ-E21 | has-input | `boundary` `equivalence` | `boundary` `equivalence` | — | 
 | REQ-E22 | has-input | `boundary` `equivalence` | `boundary` `equivalence` | — | 
 | REQ-E23 | has-enumerated-input | `decision-table` `equivalence` | `decision-table` `equivalence` | — | 
 | REQ-E24 | has-input | `boundary` `equivalence` | `boundary` `equivalence` | — | 
+| REQ-E25 | has-input, has-state | `boundary` `equivalence` `state-transition` | `boundary` `equivalence` `state-transition` | — | 
 | REQ-E26 | has-input | `boundary` `equivalence` | `boundary` `equivalence` | — | 
+| REQ-E27 | has-input, has-state | `boundary` `equivalence` `state-transition` | `boundary` `equivalence` `state-transition` | — | 
+| REQ-E28 | has-input | `boundary` `equivalence` | `boundary` `equivalence` | — | 
+| REQ-E29 | has-input | `boundary` `equivalence` | `boundary` `equivalence` | — | 
 | REQ-E30 | has-input, has-state | `boundary` `equivalence` `state-transition` | `boundary` `equivalence` `state-transition` | — | 
+| REQ-E31 | has-enumerated-input | `decision-table` `equivalence` | `decision-table` `equivalence` | — | 
+| REQ-E32 | has-enumerated-input, has-secret, has-recorded-operation | `audit-log` `decision-table` `equivalence` `secrets` | `audit-log` `decision-table` `equivalence` `secrets` | — | 
 | REQ-IM01 | has-enumerated-input | `decision-table` `equivalence` | `decision-table` `equivalence` | — | 
 | REQ-IM02 | has-enumerated-input | `decision-table` `equivalence` | `decision-table` `equivalence` | — | 
 | REQ-IM03 | has-enumerated-input | `decision-table` `equivalence` | `decision-table` `equivalence` | — | 
@@ -210,5 +229,5 @@
 
 ## 未宣言の要件
 
-`REQ-CI01` `REQ-CI02` `REQ-CI03` `REQ-CI04` `REQ-CI05` `REQ-CI06` `REQ-CI07` `REQ-CI08` `REQ-CI09` `REQ-CI10` `REQ-CI11` `REQ-CI12` `REQ-CI13` `REQ-E01` `REQ-E03` `REQ-E04` `REQ-E06` `REQ-E07` `REQ-E08` `REQ-E12` `REQ-E14` `REQ-E16` `REQ-E17` `REQ-E18` `REQ-E19` `REQ-E20` `REQ-E21` `REQ-E25` `REQ-E27` `REQ-E28` `REQ-E29` `REQ-E31` `REQ-E32` `REQ-FB01` `REQ-FB02` `REQ-FB03` `REQ-FB04` `REQ-FB05` `REQ-FB06` `REQ-FB07` `REQ-FB10` `REQ-FB11` `REQ-FD01` `REQ-FD02` `REQ-FD03` `REQ-FD04` `REQ-FD05` `REQ-FD06` `REQ-IM13` `REQ-TH04` `REQ-TH05` `REQ-TM02` `REQ-TM03` `REQ-TM05` `REQ-TM06` `REQ-TM10` `REQ-TM11` `REQ-TM12` `REQ-TM13` `REQ-TS01` `REQ-TS02` `REQ-TS03` `REQ-TS06` `REQ-TS09` `REQ-TS10` `REQ-W06` `REQ-W08` `REQ-W11`
-<!-- 生成物の指紋 sha256:a27f144ebc8b17259c339c15915b608218b574f3c138ecd5b788a5734cbabed0 -->
+`REQ-CI01` `REQ-CI02` `REQ-CI03` `REQ-CI04` `REQ-CI05` `REQ-CI06` `REQ-CI07` `REQ-CI08` `REQ-CI09` `REQ-CI10` `REQ-CI11` `REQ-CI12` `REQ-CI13` `REQ-E16` `REQ-FB01` `REQ-FB02` `REQ-FB03` `REQ-FB04` `REQ-FB05` `REQ-FB06` `REQ-FB07` `REQ-FB10` `REQ-FB11` `REQ-FD01` `REQ-FD02` `REQ-FD03` `REQ-FD04` `REQ-FD05` `REQ-FD06` `REQ-IM13` `REQ-TH04` `REQ-TH05` `REQ-TM02` `REQ-TM03` `REQ-TM05` `REQ-TM06` `REQ-TM10` `REQ-TM11` `REQ-TM12` `REQ-TM13` `REQ-TS01` `REQ-TS02` `REQ-TS03` `REQ-TS06` `REQ-TS09` `REQ-TS10` `REQ-W06` `REQ-W08` `REQ-W11`
+<!-- 生成物の指紋 sha256:7e7ae73f1b2ff28ec577fa199480102fa1ad0fb87918c2ae76692d38946af92a -->

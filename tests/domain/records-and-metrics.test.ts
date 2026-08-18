@@ -1,7 +1,11 @@
 /**
  * @tier 1
- * @req REQ-SEC09
+ * @req REQ-SEC09, REQ-E32
  * @types equivalence, audit-log, secrets
+ *
+ * REQ-E32（監査ログ）をここに結んでいるのは、記録の側（誰が・何を・理由）と
+ * 秘密の落とし方（`redactSensitive`）を当てているのがこのファイルだからで、
+ * 操作 28 種 × 理由の要否の表は `entity-enumerations.test.ts` にある。
  */
 import { describe, expect, it } from "vitest";
 import {

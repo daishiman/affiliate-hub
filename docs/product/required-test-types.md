@@ -118,18 +118,37 @@
 | REQ-TM07 | has-enumerated-input | — |
 | REQ-TM08 | has-enumerated-input | — |
 | REQ-TM09 | has-enumerated-input, has-input, has-tenant | — |
+| REQ-E01 | has-input, has-enumerated-input | — |
 | REQ-E02 | has-secret | — |
+| REQ-E03 | has-input | — |
+| REQ-E04 | has-input | — |
 | REQ-E05 | has-state | — |
+| REQ-E06 | has-input | — |
+| REQ-E07 | has-input | — |
+| REQ-E08 | has-input | — |
 | REQ-E09 | has-secret | — |
 | REQ-E10 | has-input, has-secret | — |
 | REQ-E11 | has-input | — |
+| REQ-E12 | has-input | — |
 | REQ-E13 | has-input, has-state, has-user-supplied-url | — |
+| REQ-E14 | has-input | — |
 | REQ-E15 | has-input | — |
+| REQ-E17 | has-input | — |
+| REQ-E18 | has-input | — |
+| REQ-E19 | has-input, has-state | — |
+| REQ-E20 | has-input | — |
+| REQ-E21 | has-input | — |
 | REQ-E22 | has-input | — |
 | REQ-E23 | has-enumerated-input | — |
 | REQ-E24 | has-input | — |
+| REQ-E25 | has-input, has-state | — |
 | REQ-E26 | has-input | — |
+| REQ-E27 | has-input, has-state | — |
+| REQ-E28 | has-input | — |
+| REQ-E29 | has-input | — |
 | REQ-E30 | has-input, has-state | — |
+| REQ-E31 | has-enumerated-input | — |
+| REQ-E32 | has-enumerated-input, has-secret, has-recorded-operation | — |
 | REQ-IM01 | has-enumerated-input | — |
 | REQ-IM02 | has-enumerated-input | — |
 | REQ-IM03 | has-enumerated-input | — |
@@ -217,18 +236,18 @@
 
 ## 4. 未宣言の要件について（正直に書く）
 
-要件表には **241 件**の要件 ID がある。上の宣言表はそのうち **173 件**である
+要件表には **241 件**の要件 ID がある。上の宣言表はそのうち **192 件**である
 （`node scripts/required-test-types.mjs` の出力から書き写す。手で数えない。
 ここは長らく 83 と書いたまま古くなっていたことがある。
 **手で書いた数字は、古くなっても古く見えない**）。
-残り 68 件は未宣言で、**この検査の対象外**にある。
-この 68 が `TEST_TYPES_MAX_UNDECLARED` と一致していることが、
+残り 49 件は未宣言で、**この検査の対象外**にある。
+この 49 が `TEST_TYPES_MAX_UNDECLARED` と一致していることが、
 この節の数字が実測と合っていることの確かめになる。
 
 全部に宣言を書き切るまで検査を入れない、という順にすると**検査は永久に入らない**。
 そこで `TRACEABILITY_MAX_UNLINKED` と同じ形にした。
 
-- 未宣言の上限 `TEST_TYPES_MAX_UNDECLARED` を実測に置く（置いた当初は 158。現在 68）
+- 未宣言の上限 `TEST_TYPES_MAX_UNDECLARED` を実測に置く（置いた当初は 158。現在 49）
 - **新しく足す要件は、宣言しなければ CI が落ちる**
 - 既存の未宣言は減らせるが増やせない。**上げて緑にすることを禁じる**
 
@@ -1933,6 +1952,89 @@ boundaries から外す            → 緑のまま
 `REQ-IM13`（`variant_specs` / `loop_runs` / `loop_observations` の保存先）。
 見本データだけでテーブルが存在しないため、`db-migration` の当てどころが無い。
 除外へ回さず未宣言のまま残す。**テーブルができれば宣言できる。**
+
+### 2026-08-19 に減らしたぶん（68 → 49）: データモデル 19 件
+
+対象は `REQ-E01, E03, E04, E06, E07, E08, E12, E14, E17, E18, E19, E20, E21,
+E25, E27, E28, E29, E31, E32`。
+
+#### 壊して測った: 断る場所 76 か所のうち 11 か所は、消しても緑だった
+
+宣言する前に、`src/domain` の 18 ファイルにある**断る場所（`if` で
+`Result` の失敗を返している箇所）76 か所**を 1 か所ずつ `if (false)` に
+書き換えて測った。速い部分集合（`tests/domain tests/property
+tests/application tests/presentation` / 2568 件）で赤なら確定、緑だった
+ものだけ全件（165 ファイル / 約 3960 件）を回し直した。
+
+| 見たもの | 件数 |
+| --- | ---: |
+| 断る場所 | 76 |
+| 消すと赤（誰かが見ている） | 65 |
+| **消しても緑（誰も見ていない）** | **11** |
+
+緑だった 11 か所:
+
+| ファイル | 断っていたもの |
+| --- | --- |
+| `affiliate-link.ts:60` | URL が空 |
+| `claim.ts:77` | 主張の文が空 |
+| `claim.ts:125` | 確認者の名前が空 |
+| `content-variant.ts:102` | 本文が空 |
+| `content-variant.ts:110` | 3 つの点数が 0〜1 の外 |
+| `content-variant.ts:114` | プロンプト版が空 |
+| `content-variant.ts:156` | 人が確認していない承認 |
+| `policy-rule.ts:129` | ルール名が空 |
+| `policy-rule.ts:132` | 検出する表現が空 |
+| `policy-rule.ts:151` | 分野が語彙の外 |
+| `policy-rule.ts:159` | 出力先が語彙の外 |
+
+形は前の E 群の回（95 → 83）と同じである。**入口が 1 つしかなく、
+そこを通る値がいつも正しい**（見本データが作成関数を正しい値で 1 度呼ぶだけ）。
+断る側の枝は一度も通らないので、枝ごと消えても誰も気づかない。
+
+**加えて、赤だった 65 か所も多くは「断るか」しか見ていなかった。**
+上限で断ることは見ているが、上限の 1 つ手前が通ることは見ていない。
+つまり**端は測られていなかった**。3 つの新しいファイルは、この
+「どこから断るか」を数・長さ・時刻の 3 種の端について当てている。
+
+#### 足したもの
+
+| ファイル | 当てているもの |
+| --- | --- |
+| `tests/domain/entity-inputs.test.ts` | 17 要件の入力と端（`equivalence` / `boundary`） |
+| `tests/domain/entity-states.test.ts` | E19 / E25 / E27 の状態の動き（`state-transition`） |
+| `tests/domain/entity-enumerations.test.ts` | E01 / E31 / E32 の語彙と表（`equivalence` / `decision-table`） |
+
+`REQ-E32` の `has-secret` と `has-recorded-operation` は、既にある
+`tests/domain/records-and-metrics.test.ts`（`redactSensitive` と記録の中身を
+当てている）に結んだ。ファイルを増やさず、印だけを足している。
+
+期待する一覧は**すべてテストの側に書き写した**。遷移表 10×10、プランの上限
+3×4、分野 8 種・出力先 11 種、操作 28 種と理由が要る 8 種。実装の
+`ALLOWED` / `PLAN_LIMITS` / `POLICY_DOMAIN_SCOPES` / `REASON_REQUIRED` を
+読み込んで回すと、一覧から 1 件消えたときに短くなった一覧を回して緑を返す
+（`docs/product/backlog.md` 項目 78 の 5 つ目）。遷移の総当たりは公開ゲートを
+常に「通った」にして 100 通り全部を通す。前提で狭めた側を作らない（同 6 つ目）。
+
+#### 判定欄の嘘（6 例目）
+
+`docs/product/traceability.md` F 節の末尾に、**集合についての主張**があった。
+
+> 不変条件は `tests/domain/entity-invariants.test.ts` と
+> `tests/domain/invariants.test.ts` が機械で確かめている。
+
+この 2 ファイルは実在し、いまも緑である。だが上の実測のとおり、
+**断る場所 76 か所のうち 11 か所はその外にあった。**
+`REQ-TM04` 型（検査はあるが別のことを見ている）だが、嘘の中身が
+「個別の振る舞い」ではなく「**全部を見ている**」という集合の主張である点が新しい。
+読んで確かめると本当に見える。壊して初めて外が見える。
+**集合についての主張は、読むのではなく壊して測る。**
+
+#### この回で宣言していない E（1 件）
+
+`REQ-E16`（ProductVariant）。作る関数が無く、断る場所が 1 つも無いため、
+`boundary` の当てどころが実装に存在しない。除外へ回さず未宣言のまま残す。
+除外の枠が満杯（7/7）だから書けないのではなく、**実装が境界を持てば宣言できる**。
 
 ## 5. 除外という逃げ道について
 
