@@ -5,8 +5,8 @@
 **製品コード（`src/application` `src/presentation` `src/app`）から**
 呼ばれていないポートの手続きの一覧。テストからの呼び出しは数えない。
 
-- ポート 61 件 / 手続き 185 件
-- 呼ばれていない 80 件（上限 82）
+- ポート 63 件 / 手続き 187 件
+- 呼ばれていない 81 件（上限 82）
 - 理由つきの除外 0 件（上限 0）
 
 | ポート | 手続き | 宣言 |
@@ -88,6 +88,7 @@
 | `TelemetrySinkPort` | `forgetReader` | `src/application/ports/telemetry.ts` |
 | `TestRunRepositoryPort` | `findById` | `src/application/ports/evidence.ts` |
 | `TestRunRepositoryPort` | `save` | `src/application/ports/evidence.ts` |
+| `TrackingLinkIssuerPort` | `issue` | `src/application/ports/analytics.ts` |
 | `WorkspaceRepositoryPort` | `findByOwner` | `src/application/ports/identity.ts` |
 | `WorkspaceRepositoryPort` | `save` | `src/application/ports/identity.ts` |
 | `WorkspaceRepositoryPort` | `countGenerationsThisMonth` | `src/application/ports/identity.ts` |

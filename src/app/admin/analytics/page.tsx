@@ -55,10 +55,11 @@ export default async function AnalyticsPage({
   const actor = await currentActor();
   const uc = await analyticsUseCases();
 
-  const [metrics, usable, filtered] = await Promise.all([
+  const [metrics, usable, filtered, coverage] = await Promise.all([
     uc.listMetrics.execute(actor, {}),
     uc.listUsableMetrics.execute(actor, { target }),
     uc.filterMetrics.execute(actor, { axes: selectedAxes }),
+    uc.trackingCoverage.execute(actor, {}),
   ]);
 
   if (!metrics.ok) {
@@ -79,6 +80,26 @@ export default async function AnalyticsPage({
   return (
     <Shell>
       <StorageNotice status={await analyticsNotice()} />
+
+      {/*
+        クリック数を並べる前に、その数字がどこまでを含んでいるかを出す。
+        合言葉が発行されていないリンクは ASP の URL が黙って出るだけで、
+        押されたことは 1 件も記録されない。0 件のときも書く（何も出さないと、
+        数え上げが動いていないのか本当に 0 なのかを画面から見分けられない）。
+      */}
+      {!coverage.ok ? (
+        <Callout
+          tone="warn"
+          title="突合できるリンクの件数を数えられませんでした"
+          reason={coverage.error.message}
+        />
+      ) : (
+        <Callout
+          tone={coverage.value.untracked === 0 ? "info" : "warn"}
+          title={coverage.value.headline}
+          reason={coverage.value.detail}
+        />
+      )}
 
       <Callout
         tone="info"

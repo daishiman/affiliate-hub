@@ -1,7 +1,9 @@
+import type { TrackingCoveragePort } from "@/application/ports/analytics";
 import type {
   EditorialPublishedArticleWriterPort,
   EditorialPublishedContentPort,
 } from "@/application/ports/site";
+import { countTrackingCoverage } from "@/application/read-models/article-tracking";
 import {
   type ArticleSummary,
   type PublishedArticle,
@@ -535,6 +537,25 @@ export function sampleContentNotice(): string {
  * **成功を返さない。** 出したのに読者ページに出ない状態を「公開しました」と
  * 言うのが、いちばん取り返しのつかない壊れ方になる。
  */
+/**
+ * 突合できるリンクの数え上げ（保存先が無い実行での控え）。
+ *
+ * **ここは失敗させず、実際の見本記事から数える。** 見本の記事は読者ページに
+ * そのまま出ており、合言葉を 1 つも持っていない。つまり保存先が無い実行では
+ * 「順位表に出ている成果リンクは、全部まだ突合できない」が正しい答えである。
+ * 失敗を返すと、その事実が「確認できません」に化けて見えなくなる。
+ *
+ * 記事の一覧（`ARTICLES`）がこのファイルにあるので、数える側もここへ置く。
+ * 別ファイルへ移すと、見本記事を足したときに数え上げだけ古いままになる。
+ */
+export function createSampleTrackingCoverage(): TrackingCoveragePort {
+  return {
+    async summarize() {
+      return ok(countTrackingCoverage(ARTICLES));
+    },
+  };
+}
+
 export function createSamplePublishedArticleWriter(): EditorialPublishedArticleWriterPort {
   return markEditorial({
     async save() {

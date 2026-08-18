@@ -7,7 +7,7 @@
 - 要件表の要件: 241 件
 - 性質を宣言済: 36 件
 - **未宣言: 205 件**（上限 205 件）
-- 理由つきの除外: 11 件（上限 11 件）
+- 理由つきの除外: 10 件（上限 11 件）
 
 未宣言とは「必須種別をまだ決めていない」という意味で、
 テストが無いという意味ではない。**新しい要件は宣言しないと CI が落ちる。**
@@ -24,7 +24,7 @@
 | REQ-P06 | has-input, has-screen, has-ai-text | `a11y` `boundary` `equivalence` `keyboard` `prompt-injection` `screen-states` | `a11y` `boundary` `equivalence` `keyboard` `prompt-injection` `screen-states` | — | 
 | REQ-P07 | has-input, has-state, has-screen | `a11y` `boundary` `equivalence` `keyboard` `screen-states` `state-transition` | `a11y` `equivalence` `keyboard` `screen-states` `state-transition` | `boundary` | 
 | REQ-P08 | has-state, has-external, has-screen | `a11y` `fault-injection` `idempotency` `keyboard` `screen-states` `state-transition` | `a11y` `idempotency` `keyboard` `screen-states` `state-transition` | `fault-injection` | 
-| REQ-P09 | has-input, has-tenant, has-external, has-screen | `a11y` `boundary` `equivalence` `fault-injection` `idempotency` `keyboard` `screen-states` `tenant-isolation` | `a11y` `boundary` `equivalence` `keyboard` `screen-states` `tenant-isolation` | `fault-injection` `idempotency` | 
+| REQ-P09 | has-input, has-tenant, has-external, has-screen | `a11y` `boundary` `equivalence` `fault-injection` `idempotency` `keyboard` `screen-states` `tenant-isolation` | `a11y` `boundary` `equivalence` `idempotency` `keyboard` `screen-states` `tenant-isolation` | `fault-injection` | 
 | REQ-P10 | has-input, has-screen | `a11y` `boundary` `equivalence` `keyboard` `screen-states` | `a11y` `boundary` `equivalence` `keyboard` `screen-states` | — | 
 | REQ-API02 | has-permission, has-tenant | `permission-matrix` `tenant-isolation` | `permission-matrix` `tenant-isolation` | — | 
 | REQ-R01 | has-permission | `permission-matrix` | `permission-matrix` | — | 
@@ -66,7 +66,6 @@
   - `fault-injection`: 各媒体への実送信がスタブで、失敗・遅延・一部成功を注入する先が無い（残課題 45）
 - **REQ-P09**
   - `fault-injection`: ASP への実接続がスタブで、落とす外部接続が実在しない
-  - `idempotency`: 成果の取込がスタブのため、同じ成果を 2 回受け取る経路そのものがまだ無い
 - **REQ-QC12**
   - `boundary`: 公開ゲートの 13 項目は真偽の組合せで、大小の端が無い。組合せ側は性質テストが生成して当てている
 - **REQ-SEC06**

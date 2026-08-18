@@ -5,8 +5,8 @@
 テスト側の `@req` 印を重ねたもの。
 
 - 最終更新: 2026-08-18
-- テストファイル: 136 件
-- 由来の要件が分かる: 101 件
+- テストファイル: 138 件
+- 由来の要件が分かる: 103 件
 - **由来不明: 35 件**（上限 37 件）
 
 由来不明とは「どの要件のために書いたのか、機械から辿れない」という意味で、
@@ -54,6 +54,7 @@
 
 | テスト | 要件 | 由来 |
 | --- | --- | --- |
+| `tests/application/article-tracking.test.ts` | REQ-E13, REQ-P09 | 印 |
 | `tests/application/build-site.test.ts` | REQ-P07, REQ-S06 | 印と表 |
 | `tests/application/dashboard.test.ts` | REQ-S01 | 表 |
 | `tests/application/draft-content-variant.test.ts` | REQ-G11 | 表 |
@@ -116,6 +117,7 @@
 | `tests/integration/d1-link-inbox.test.ts` | REQ-S02, REQ-TS07 | 表 |
 | `tests/integration/d1-published-article.test.ts` | REQ-P08 | 表 |
 | `tests/integration/d1-telemetry.test.ts` | REQ-TS07 | 表 |
+| `tests/integration/d1-tracking-issuance.test.ts` | REQ-E13, REQ-P09 | 印と表 |
 | `tests/integration/full-loop.test.ts` | REQ-TS07 | 表 |
 | `tests/presentation/admin-actions.test.ts` | REQ-P08 | 表 |
 | `tests/presentation/admin-routes.test.ts` | REQ-P09, REQ-S02, REQ-S03, REQ-S10 | 表 |

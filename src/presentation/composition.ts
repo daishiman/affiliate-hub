@@ -52,6 +52,7 @@ import {
   createListUsableMetricsUseCase,
 } from "@/application/usecases/analytics/read-metrics";
 import { createFilterMetricsUseCase } from "@/application/usecases/analytics/filter-metrics";
+import { createReadTrackingCoverageUseCase } from "@/application/usecases/analytics/read-tracking-coverage";
 import { createAiUsageReportUseCase } from "@/application/usecases/analytics/ai-usage-report";
 import { createExplainTelemetryUseCase } from "@/application/usecases/analytics/explain-telemetry";
 import { createHandOffFeedbackUseCase } from "@/application/usecases/feedback/hand-off-feedback";
@@ -746,12 +747,19 @@ export async function linkInboxNotice(): Promise<StorageStatus> {
 export async function analyticsUseCases() {
   // **接続を渡す。** 渡さないと、計測が D1 に貯まっていても
   // 画面には見本の数字が出続ける（受信箱・改善要望で実際に起きた形）。
-  const analytics = { metrics: createDeps({ db: await tryGetDb() }).metrics };
+  const deps = createDeps({ db: await tryGetDb() });
+  const analytics = { metrics: deps.metrics };
   return {
     listMetrics: createListMetricsUseCase(analytics),
     listUsableMetrics: createListUsableMetricsUseCase(analytics),
     checkFeedback: createCheckFeedbackUseCase(analytics),
     filterMetrics: createFilterMetricsUseCase(analytics),
+    // 数字の画面に「まだ突合できないリンクが何件あるか」を一緒に出す。
+    // クリック数だけを出すと、出ている数字が全体の一部でしかないことに
+    // 誰も気づけない（画面には何の異常も出ない）。
+    trackingCoverage: createReadTrackingCoverageUseCase({
+      trackingCoverage: deps.trackingCoverage,
+    }),
   };
 }
 

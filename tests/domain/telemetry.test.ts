@@ -125,6 +125,33 @@ describe("イベントの組み立て", () => {
     expect(r.ok).toBe(true);
   });
 
+  it("クリックは、どちらの経路で数えたかが無いと落ちる", () => {
+    // **名指しで固定する。** これは「必須の項目が欠けていると落ちる」の
+    // 一例だが、`recordedVia` が欠けたときに起きることだけが他と違う。
+    // 欠けたクリックが通ると、転送の入口と画面のどちらが数えたか分からない
+    // 行が混ざり、**二重計上が起きても数字から判定できなくなる**。
+    // 汎用の検査だけに任せると、この欄を任意に緩めたときに誰も気づかない。
+    const base = { path: "/best/x", siteSlug: "demo", linkId: "lk_1", placement: "順位表" };
+    const missing = buildTelemetryEvent({
+      key: "affiliate_click",
+      occurredAt: at,
+      readerKey: null,
+      payload: base,
+    });
+    expect(missing.ok).toBe(false);
+    if (!missing.ok) expect(missing.error.message).toContain("recordedVia");
+
+    for (const via of ["redirect", "browser"]) {
+      const r = buildTelemetryEvent({
+        key: "affiliate_click",
+        occurredAt: at,
+        readerKey: null,
+        payload: { ...base, recordedVia: via },
+      });
+      expect(r.ok, `${via} が通りませんでした`).toBe(true);
+    }
+  });
+
   it("記録してはいけない項目が混ざっていたら、そのイベントごと落とす", () => {
     // 「その欄だけ捨てて残りは記録する」にしない。
     // 落とし忘れが 1 つでもあると、静かに入り続ける。

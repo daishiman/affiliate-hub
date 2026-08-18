@@ -1,6 +1,6 @@
 /** @tier 1 */
 import { readFileSync, readdirSync } from "node:fs";
-import { join } from "node:path";
+import { join, relative, sep } from "node:path";
 import ts from "typescript";
 import { describe, expect, it } from "vitest";
 
@@ -35,6 +35,22 @@ import { describe, expect, it } from "vitest";
 
 const PORTS_DIR = join(process.cwd(), "src/application/ports");
 const DOMAIN_DIR = join(process.cwd(), "src/domain");
+const SRC_DIR = join(process.cwd(), "src");
+
+/**
+ * 読者の身元（所属なし）を表す作業場所の名前。
+ *
+ * この 1 語がどこに書かれているかが、「貯まっているのに 0」の分かれ目になる。
+ */
+const READER_WORKSPACE = "ws_public";
+
+/**
+ * 読者の身元を作ってよい唯一の場所。
+ *
+ * ここ以外で作れると、保存する側が自分で読者の身元を名乗れてしまう。
+ * `src/` からの相対で書く。
+ */
+const READER_WORKSPACE_HOME = "presentation/composition.ts";
 
 /**
  * 作業場所を引数に取らなくてよいもの。**理由を書けないものは載せられない。**
@@ -223,5 +239,78 @@ describe("保存先の入口は、必ず作業場所を伴う", () => {
     }).map((w) => `${w.file}: ${w.name} = ${w.targetText}`);
     expect(bad, "検査済みのポートを包んだ形になっていません。").toEqual([]);
     expect(PORT_WRAPPERS.length).toBeGreaterThan(5);
+  });
+});
+
+/**
+ * 読者の身元を、書ける場所ごと 1 か所に閉じる。
+ *
+ * --- なぜこれを足したか ---
+ * 「記録は貯まっているのに管理画面は 0」が、残課題 25 と 56 で 2 回起きている。
+ * どちらも、読者の作業場所（`ws_public`）で書いたものを持ち主の作業場所で
+ * 読み直していた。**画面は最後まで正常に見える**ので、人の注意では止まらない。
+ *
+ * --- この検査で止まるもの / 止まらないもの ---
+ * 止まるのは「保存する側が自分で読者の身元を名乗る」形だけである。
+ * 引数で受け取った作業場所が呼び出し元の時点で既に間違っている場合は、
+ * ここでは分からない（文字列としては同じ形なので、静的には見分けられない）。
+ * そちらは `tests/integration/d1-tracking-issuance.test.ts` の
+ * 「作業場所の往復」（持ち主で 1 件・読者で 0 件の両方を見る）が受け持つ。
+ * **この 2 つで 1 組**であり、片方だけでは越境実装が緑のまま通る。
+ */
+function sourceFilesUnder(dir: string): readonly string[] {
+  return readdirSync(dir, { withFileTypes: true }).flatMap((e) =>
+    e.isDirectory()
+      ? sourceFilesUnder(join(dir, e.name))
+      : /\.tsx?$/.test(e.name)
+        ? [join(dir, e.name)]
+        : [],
+  );
+}
+
+/**
+ * 文字列そのものを書いている箇所を、構文として拾う。
+ *
+ * grep にしないのは、説明の文章に出てくる同じ語まで拾ってしまうためである
+ * （実際、この名前は複数のファイルのコメントで説明に使われている）。
+ */
+function filesWritingReaderWorkspace(): readonly string[] {
+  const hits = new Set<string>();
+  for (const file of sourceFilesUnder(SRC_DIR)) {
+    const src = ts.createSourceFile(
+      file,
+      readFileSync(file, "utf8"),
+      ts.ScriptTarget.Latest,
+      true,
+      ts.ScriptKind.TSX,
+    );
+    const visit = (node: ts.Node): void => {
+      if (
+        (ts.isStringLiteral(node) || ts.isNoSubstitutionTemplateLiteral(node)) &&
+        node.text === READER_WORKSPACE
+      ) {
+        hits.add(relative(SRC_DIR, file).split(sep).join("/"));
+      }
+      ts.forEachChild(node, visit);
+    };
+    visit(src);
+  }
+  return [...hits].sort();
+}
+
+describe("読者の身元は 1 か所でしか作らない", () => {
+  const writers = filesWritingReaderWorkspace();
+
+  it("そもそも読み取れている（見つからないなら、この検査は何も見ていない）", () => {
+    // 走査が壊れると「違反 0 件」で緑になる。唯一の正しい 1 件が見えることを先に確かめる。
+    expect(writers).toContain(READER_WORKSPACE_HOME);
+  });
+
+  it("読者の作業場所を名乗れるのは、身元を組み立てる 1 か所だけ", () => {
+    expect(
+      writers.filter((f) => f !== READER_WORKSPACE_HOME),
+      `読者の作業場所（${READER_WORKSPACE}）を書けるのは ${READER_WORKSPACE_HOME} だけです。` +
+        "保存する側は、渡された workspaceId をそのまま使ってください。",
+    ).toEqual([]);
   });
 });

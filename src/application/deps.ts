@@ -21,6 +21,7 @@ import type {
   ClickTrackingPort,
   MetricsRepositoryPort,
   RedirectResolverPort,
+  TrackingCoveragePort,
 } from "./ports/analytics";
 import type { TelemetrySinkPort } from "./ports/telemetry";
 import type { ImprovementRepositoryPort } from "./ports/improvement";
@@ -95,6 +96,13 @@ export type AppDeps = {
   readonly clickTracking: ClickTrackingPort;
   /** 転送の入口（`/go/<合言葉>`）が読む写し。読むだけで、ここからは書けない。 */
   readonly redirectResolver: RedirectResolverPort;
+  /**
+   * 順位表の成果リンクのうち、まだ合言葉が発行されていない件数。
+   *
+   * 0 件になるまで、突合できるクリック計測は完成していない。
+   * 出しておかないと、ASP の URL が黙って出るだけで気づけない。
+   */
+  readonly trackingCoverage: TrackingCoveragePort;
   /**
    * 計測の記録先。
    *

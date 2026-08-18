@@ -28,6 +28,7 @@ import { createLlmPorts } from "./llm/llm-setup";
 import {
   createSampleContentRepository,
   createSamplePublishedArticleWriter,
+  createSampleTrackingCoverage,
 } from "./persistence/sample/content-sample-repository";
 import {
   createSampleRankingModelRepository,
@@ -58,11 +59,15 @@ import {
   createSampleClickTracking,
   createSampleMetricsRepository,
   createSampleRedirectResolver,
+  createSampleTrackingLinkIssuer,
 } from "./persistence/sample/analytics-sample-repository";
 import {
   createD1RedirectResolver,
+  createD1TrackingCoverage,
+  createD1TrackingLinkIssuer,
   createRedirectClickTracking,
 } from "./persistence/d1/redirect-repository";
+import { withTrackingLinkIssuance } from "./persistence/tracking-issuing-writer";
 import { createSampleTelemetrySink } from "./persistence/sample/telemetry-sample-sink";
 import {
   createD1TelemetryMetricsRepository,
@@ -147,8 +152,15 @@ export function createDeps(
     sites: db === null ? createSampleSiteRepository() : createD1SiteRepository(db),
     siteDrafts: db === null ? createSampleSiteDraftRepository() : createD1SiteDraftRepository(db),
     publishedContent: db === null ? createSampleContentRepository() : createD1ContentRepository(db),
-    publishedArticles:
+    //
+    // **出す口を合言葉の発行で包んでいる。** 記事を出す経路はここ 1 つなので、
+    // 包んでおけば発行が漏れない。写しに書く作業場所は `save` の引数
+    // （＝そのブログを持っている側）をそのまま使うので、読者の身元が
+    // 写しへ入る経路が型の上で存在しない（残課題 25 / 56 の再発を構造で止める）。
+    publishedArticles: withTrackingLinkIssuance(
       db === null ? createSamplePublishedArticleWriter() : createD1PublishedArticleWriter(db),
+      db === null ? createSampleTrackingLinkIssuer() : createD1TrackingLinkIssuer(db),
+    ),
     // ★ 見本（スタブ）。読者が自分で操作するもの。
     //   保存先 (KV)・計算式・問い合わせの送信先が用意できたら差し替える。
     shortlist: createSampleShortlistRepository(),
@@ -192,6 +204,11 @@ export function createDeps(
     clickTracking:
       db === null ? createSampleClickTracking() : createRedirectClickTracking({ telemetry }),
     redirectResolver: db === null ? createSampleRedirectResolver() : createD1RedirectResolver(db),
+    // 順位表に出ている成果リンクのうち、まだ合言葉が発行されていない件数。
+    // **実際に読者へ出している記事から数える**（発行の記録の側から数えない。
+    // 写しがあっても記事に合言葉が入っていなければ読者は ASP の URL を踏む）。
+    trackingCoverage:
+      db === null ? createSampleTrackingCoverage() : createD1TrackingCoverage(db),
     telemetry,
     // ★ 見本データ（スタブ）。改善ループの記録と見せ方の設定。
     //   読み出しは見本を返し、保存は失敗を返す（保存できたことにしない）。

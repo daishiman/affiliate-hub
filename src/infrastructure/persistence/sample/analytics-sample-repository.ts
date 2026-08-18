@@ -3,6 +3,7 @@ import type {
   MetricDimensions,
   MetricsRepositoryPort,
   RedirectResolverPort,
+  TrackingLinkIssuerPort,
 } from "@/application/ports/analytics";
 import type { MetricKey, MetricSample } from "@/domain/analytics";
 import { ok } from "@/domain/shared";
@@ -344,6 +345,20 @@ export function createSampleClickTracking(): ClickTrackingPort {
  * 「そんなリンクは無い」と読者に伝わり、リンクを消したのだと受け取られる。
  * 失敗として返し、入口の側で「いまは確認できない」と出し分ける。
  */
+/**
+ * 転送の写しの発行（保存先が無い実行での控え）。
+ *
+ * **成功を返さない。** 空の表を返して「発行できた」ことにすると、記事には
+ * 合言葉が入らないのに公開だけ通り、順位表は ASP の URL を出し続ける。
+ * 公開そのものは止めない（呼び出し側が失敗を飲み込む）が、
+ * 何が起きたかはここで嘘をつかない。
+ */
+export function createSampleTrackingLinkIssuer(): TrackingLinkIssuerPort {
+  return {
+    issue: () => stubCall(clickStub, "転送の写しの発行"),
+  };
+}
+
 export function createSampleRedirectResolver(): RedirectResolverPort {
   return {
     resolve: () => stubCall(clickStub, "転送先の読み取り"),
