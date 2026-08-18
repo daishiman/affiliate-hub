@@ -261,7 +261,55 @@ node scripts/required-test-types.mjs → docs/product/required-test-types-report
 
 必須種別の側にはもう 1 つ上限がある。除外は理由を書けば通るので、
 **理由さえ書けば全部を除外にできる**からで、除外の件数も
-`TEST_TYPES_MAX_EXCLUSIONS`（実測 13 件）で縛ってある。
+`TEST_TYPES_MAX_EXCLUSIONS` で縛ってある。
+
+上の表と本文の数字は**書いた日の実測**である。いまの値は
+`quality-gates.config.mjs` の定数と `docs/product/required-test-types.md` §4 を見ること。
+
+---
+
+### 5-2. 赤を測るときの後始末（`git checkout --` を使わない）
+
+「この検査は本当に落ちるのか」を確かめるには、実装や印を一時的に壊して走らせる。
+**壊したものを戻す手順を、先に決めておく。**
+
+```bash
+# 1. 壊す前に、scratchpad へ複製を取る
+cp src/domain/authoring/article-structure.ts "$SCRATCHPAD/keep-article-structure.ts"
+
+# 2. 壊して測る
+perl -0pi -e 's/…/…/' src/domain/authoring/article-structure.ts
+pnpm exec vitest run tests/domain/article-type-sections.test.ts
+
+# 3. 複製から書き戻す
+cp "$SCRATCHPAD/keep-article-structure.ts" src/domain/authoring/article-structure.ts
+git diff --stat -- src/domain/authoring/article-structure.ts   # 空であることを確かめる
+```
+
+**後始末に `git checkout --` / `git restore` / `git clean` を使わない。**
+
+理由は、これらが**区別できないから**である。作業ツリーには 2 種類のものが混ざっている。
+
+- 測定のために今さっき壊した分
+- **まだコミットしていない、正当な追加**
+
+`git checkout -- <file>` は前者だけを戻すつもりで呼ばれ、**後者も一緒に消す**。
+未追跡のファイルに至っては、エラーで止まったまま壊れた状態で残る
+（測定の途中で気づかないと、そこから先の測定結果の帰属が全部ずれる）。
+
+**この作業場所では、これで 3 人目である。**3 人とも、赤を測るために一時的に壊し、
+後始末に `git checkout` を使って、まだコミットしていない追加ごと戻している。
+3 回起きたなら、注意ではなく手順の問題として書く。
+
+複製からの書き戻しなら、戻る範囲が**複製を取った 1 ファイルの、取った時点の中身**に
+限られる。他に何が未コミットで在っても関係が無い。
+**区別できない道具は、区別できないことを忘れた回に効く。**
+
+なお、これは**検査として書けない**類の決まりである。守る対象がコードではなく
+手順そのもので、リポジトリの中に「破られた形跡」が残らない
+（消えたファイルは、最初から無かったように見える）。
+機械で止めるならシェルの実行を見張る側に置くことになるが、
+そこはこの作業場所の外（利用者本人の設定）なので、こちらからは足さない。
 
 ---
 
