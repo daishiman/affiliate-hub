@@ -26,6 +26,7 @@ import { describe, expect, it } from "vitest";
 import {
   AUDIT_ACTIONS_MAX_SAMPLE_ONLY,
   AUDIT_ACTIONS_MAX_WITHOUT_EMITTER,
+  AUDIT_ACTIONS_MIN_EMITTED,
 } from "../../quality-gates.config.mjs";
 
 const ROOT = resolve(import.meta.dirname, "../..");
@@ -111,6 +112,8 @@ describe("記録の語が、出す場所を持っているか", () => {
     // 上の 2 つは「増えたら落ちる」だけなので、**語ごと消せば緑になる。**
     // 消して減らすのは正しい直し方の 1 つだが、
     // **出していた語まで一緒に消えたときに気づけない。**
-    expect(listOf("実処理").length).toBeGreaterThanOrEqual(20);
+    // 値は `quality-gates.config.mjs` に置く。**水準はあそこ 1 つを見れば分かる**、
+    // という約束で運用しているので、下限だけここに直に書くと目に入らない。
+    expect(listOf("実処理").length).toBeGreaterThanOrEqual(AUDIT_ACTIONS_MIN_EMITTED);
   });
 });

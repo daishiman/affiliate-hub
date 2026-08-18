@@ -10,6 +10,7 @@
  * 入口の手前（身元・出所・見せる範囲）は `api-routes.test.ts` が持つ。
  */
 import { describe, expect, it } from "vitest";
+import { TENANT_ISOLATION_MIN_INSPECTED } from "../../quality-gates.config.mjs";
 import type { ActorContext } from "@/domain/shared";
 import { createDeps } from "@/infrastructure/composition";
 import { SAMPLE_ACTOR } from "@/infrastructure/identity/sample-actor";
@@ -53,6 +54,18 @@ const JAPANESE = /[ぁ-んァ-ヶー一-龥]/;
 const readOnlyTools = catalog.filter((t) => t.readOnly);
 const approvalTools = catalog.filter((t) => t.requiresHumanApproval);
 const happyPathTools = readOnlyTools.filter((t) => NO_HAPPY_PATH[t.name] === undefined);
+/**
+ * 他社の身元で呼んでみる対象。**`readOnly` で絞らない。**
+ *
+ * ここは長いあいだ `happyPathTools`（＝読み取り専用のうち正常系がある道具）
+ * だけを回していた。`readOnly` は MCP の注釈のために付けた旗であって、
+ * 「他社のデータに触れるか」とは別の問いである。
+ * **旗を 1 つの目的で書いた人の値が、黙って別の決定に効いていた。**
+ *
+ * 外れていたのは書き込みの道具で、**他社のデータを読めるより書き換えられるほうが重い。**
+ * 入力の見本が作れないものだけを外す（作れないと呼びようがない）。
+ */
+const tenantTools = catalog.filter((t) => validInputFor(t) !== undefined);
 const requiredInputTools = catalog.filter((t) => requiredFieldsOf(t).length > 0);
 
 const nameOf = (tool: AnyToolDefinition) => tool.name;
@@ -207,7 +220,7 @@ describe("認証認可", () => {
 });
 
 describe("テナント分離", () => {
-  it.each(happyPathTools.map(nameOf))("%s は、別の会社に見本データを渡さない", async (name) => {
+  it.each(tenantTools.map(nameOf))("%s は、別の会社に見本データを渡さない", async (name) => {
     const tool = catalog.find((t) => t.name === name)!;
     const result = await invokeTool(tool, OTHER_TENANT, validInputFor(tool)!);
 
@@ -219,6 +232,29 @@ describe("テナント分離", () => {
         `${name} が別の会社に ${SAMPLE_WORKSPACE_ID} のデータを返しました`,
       ).not.toContain(SAMPLE_WORKSPACE_ID);
     }
+  });
+
+  /**
+   * **上の検査は、断られた道具については何も確かめていない。**
+   *
+   * `result.ok` が false なら中身を見ずに通る。断りの理由が
+   * 「他社だから」ではなく「入力の見本が足りない」でも、同じように緑になる。
+   * 対象を `readOnly` から外して増えた 30 件は、**ほとんどがこの形**である。
+   * **件数は増えたが、守りはその分強くなっていない。**
+   *
+   * だから「中身まで見た件数」を別に数える。見本の入力を整えて `ok` が
+   * 返るようにすると増える。減ったときは、どこかの道具が呼べなくなっている。
+   */
+  it("中身まで確かめられた件数が、減っていない", async () => {
+    let inspected = 0;
+    for (const tool of tenantTools) {
+      const result = await invokeTool(tool, OTHER_TENANT, validInputFor(tool)!);
+      if (result.ok) inspected += 1;
+    }
+    expect(
+      inspected,
+      "他社の身元で ok が返る道具が減りました。見本の入力か、道具の側が変わっています。",
+    ).toBeGreaterThanOrEqual(TENANT_ISOLATION_MIN_INSPECTED);
   });
 });
 

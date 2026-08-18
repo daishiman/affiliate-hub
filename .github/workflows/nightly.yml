@@ -1,7 +1,7 @@
 # 深い門（3 段）。**マージは止めない**。
 #
-# 止めないのには理由がある。夜間の赤がマージを止めると、
-# 朝いちばんに手が止まる人が出て、やがて「夜間の検査を外す」判断に流れる。
+# 止めないのには理由がある。この門の赤がマージを止めると、
+# 手が止まる人が出て、やがて「この検査を外す」判断に流れる。
 # 外された検査は、落ちない検査より悪い（あると思われているのに無い）。
 #
 # 落ちたときにやることは 1 つ、**残課題として起票する**こと。
@@ -10,36 +10,45 @@
 #
 # 中身をここに書かない。何が 3 段かは `quality-gates.config.mjs` が決める。
 #
-# ## 走らせる頻度（公開のうちは毎日 / 非公開になったら週 1 回）
+# ## 定例をやめた（2026-08-18）
 #
-# GitHub Actions の標準ランナーは **public リポジトリでは無料・無制限**、
-# **private では月 2,000 分**（Linux は 1 倍）である。
-# いまは public なので毎日走らせる。非公開にすると枠が有限になるので週 1 回へ落とす。
+# 以前はここに `schedule: cron` があり、毎日 18:00 UTC に走っていた。
+# **やめた。** 一緒に消したのは、公開／非公開を見て曜日を判定する「予算の門」と
+# `PRIVATE_RUN_DOW` の 1 行である。あれは「どの曜日に走らせるか」を決めるための
+# 仕掛けなので、定例が無くなれば守るものが無い。
+# **動かないまま残る仕掛けは、あとから読む人に「まだ走っている」と読まれる。**
 #
-# 数字で書く（実測 27 分 0 秒 / 2026-08-17・同時実行 4）。
+# **やめた理由は「重かったから」ではない。** 実測は 27 分 0 秒（2026-08-17・同時実行 4）で、
+# 毎日走らせても収まる程度に軽かった。それでも定例は要らないと判断した。
+# 3 段が答えるのは「いま公開してよいか」であって、「昨夜の時点でどうだったか」ではない。
+# **誰も見ない緑が毎晩 1 つ増えるだけなら、それは記録であって門ではない。**
 #
-#   非公開・毎日  27 分 × 31 日 = 837 分。ほかの検査と公開（約 1,050 分）と足すと
-#                 **1,887 分 / 2,000 分 = 94%**。**収まらない。**
-#   非公開・週 1  27 分 ×  5 回 = 135 分。足して **1,185 分 / 2,000 分 = 59%**。収まる。
+# ## **代わりに、打つ場面を人の手順として書く**
 #
-# しかも非公開の標準ランナーは CPU が半分（2 コア）なので、27 分はさらに延びる。
-# よって「非公開になったら週 1 回」で確定である。**公開のうちは毎日で問題ない**
-# （分母が無いので、上の計算そのものが発生しない）。
+# 定例をやめると、この門は**誰も打たなければ一度も走らない検査**になる。
+# `llm-live-proof.mjs --check` で一度踏んだ穴と同じ形である
+# （コメントの中にだけ名前があって、打つ場面が書かれていなかった）。
+# **場面を書かずに定例だけ外すのは、検査を消したのと同じ。**
 #
-# **この切り替えを人の記憶に頼らない。** 下の「予算の門」が
-# リポジトリの公開状態を見て自動で判断する。非公開にした日に何も編集しなくてよい。
-# 頻度を変えたいときに触るのは `PRIVATE_RUN_DOW` の 1 行だけ。
+# **打つ場面は次の 3 つ。すべて人が手で `workflow_dispatch` から起動する。**
 #
-# 見積りの根拠は docs/product/ci-cd-guide.md §9（実測つき）。
+#   1. **本番へ公開すると判断する日**（必須）。
+#      `docs/product/open-doors.md` を見る回と**同じ回**に含める。
+#      公開の判断に必要なものを 1 回で揃えるためで、別の日に分けると
+#      「今日はどっちを見る日だったか」を覚えている人が要る。
+#   2. domain / application の**テストを大きく足したり消したりした直後**。
+#      3 段はテストがコードの書き換えに気づくかを見るので、
+#      テストの側が動いた回にしか意味のある差が出ない。
+#   3. **3 段に属するテストを新しく足した回**（いまは 0 件）。
+#      足した本人が 1 度打つ。打たないと、`--tier 3` が 0 件のまま通っていた頃と
+#      区別が付かない。
 #
+# 見積りと経緯は docs/product/ci-cd-guide.md §9。
 # 規範: docs/spec/11-CI-CD・品質ゲート仕様.md §8
 name: 深い門
 
 on:
-  schedule:
-    # 毎日 18:00 UTC（日本時間の翌 3:00）。
-    # 非公開のときは、この毎日の起動のうち PRIVATE_RUN_DOW の曜日だけが本実行になる。
-    - cron: "0 18 * * *"
+  # **定例は置かない**（上の理由）。人が打つときだけ走る。
   workflow_dispatch:
 
 concurrency:
@@ -48,11 +57,6 @@ concurrency:
 
 permissions:
   contents: read
-
-env:
-  # 非公開のときに深い門を走らせる曜日（0=日曜 … 6=土曜、UTC）。
-  # **頻度の正本はここ 1 行。** 公開中は無視される（毎日走る）。
-  PRIVATE_RUN_DOW: "0"
 
 jobs:
   deep:
@@ -64,111 +68,63 @@ jobs:
     timeout-minutes: 180
 
     steps:
-      # ここを最初に置く。見送るときに 10 秒で終わらせるためで、
-      # checkout や install の後に置くと、見送っても 1 分以上を毎日払うことになる。
-      - name: 予算の門（この日に走らせてよいか）
+      - name: 開始時刻
         id: budget
-        env:
-          IS_PRIVATE: ${{ github.event.repository.private }}
-          EVENT: ${{ github.event_name }}
-        run: |
-          set -euo pipefail
-          echo "started_at=$(date -u +%s)" >> "$GITHUB_OUTPUT"
-          dow=$(date -u +%w)
-
-          if [ "$EVENT" != "schedule" ]; then
-            echo "run=true" >> "$GITHUB_OUTPUT"
-            echo "手動起動なので走らせます。"
-            exit 0
-          fi
-
-          if [ "$IS_PRIVATE" != "true" ]; then
-            echo "run=true" >> "$GITHUB_OUTPUT"
-            echo "公開リポジトリです。標準ランナーは無料・無制限なので毎日走らせます。"
-            exit 0
-          fi
-
-          if [ "$dow" = "$PRIVATE_RUN_DOW" ]; then
-            echo "run=true" >> "$GITHUB_OUTPUT"
-            echo "非公開リポジトリです。週 1 回の該当日（曜日 $PRIVATE_RUN_DOW）なので走らせます。"
-            exit 0
-          fi
-
-          echo "run=false" >> "$GITHUB_OUTPUT"
-          echo "::notice::非公開リポジトリのため、深い門は週 1 回（曜日 $PRIVATE_RUN_DOW・UTC）だけ走らせます。今日は見送りました。"
-          echo "毎日に戻すには PRIVATE_RUN_DOW を消し、この判定を外してください（月 2,000 分の枠を使い切る恐れがあります）。"
+        run: echo "started_at=$(date -u +%s)" >> "$GITHUB_OUTPUT"
 
       - uses: actions/checkout@v4
-        if: steps.budget.outputs.run == 'true'
 
       - uses: pnpm/action-setup@v4
-        if: steps.budget.outputs.run == 'true'
 
       - uses: actions/setup-node@v4
-        if: steps.budget.outputs.run == 'true'
         with:
           node-version: 22
           cache: pnpm
 
       - run: pnpm install --frozen-lockfile
-        if: steps.budget.outputs.run == 'true'
 
       # 段の印そのものは、どの段で走らせるときも先に見る。
       # 印が無いテストは 3 段からも漏れる。
       - name: 段の指定漏れ
-        if: steps.budget.outputs.run == 'true'
         run: node scripts/tier-audit.mjs
 
       # 現況: 3 段に属するテストはまだ 0 件で、その場合は 0 件と表示して通る。
       # 中身（負荷 / 見た目の回帰）はこれから足す。
       # 「まだ無い」を「通った」と言い換えないために、件数を必ず出す。
       - name: 3 段のテスト
-        if: steps.budget.outputs.run == 'true'
         run: node scripts/run-tests.mjs --tier 3
 
       # domain + application の全体に対して、コードをわざと書き換えて
       # テストが気づくかを見る。手元の実測で 20 分を超えるので 2 段には置けない。
       # 何を走らせるかはここに書かず、quality-gates.config.mjs の 3 段が決める。
       - name: 3 段の検査（全体ミューテーション）
-        if: steps.budget.outputs.run == 'true'
         run: node scripts/verify.mjs --tier 3
 
       # 実測を残す。スコアは推移で見るもので、1 回の値だけでは
       # 良くなったのか悪くなったのかが分からない。
       - name: 実測の保存
-        if: always() && steps.budget.outputs.run == 'true'
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: mutation-report
           path: reports/mutation/
           retention-days: 30
 
-      # 所要時間を毎回その場で出す。
+      # 所要時間をその場で出す。
       #
-      # 使った分数を account 全体で見るには請求 API が要り、そのためには
-      # 利用者本人が作った個人アクセストークンを登録することになる。
-      # **秘密情報を 1 つ増やしてまで見張る前に、無料で分かることを先に出す。**
-      # ここに出るのは「1 回あたり何分か」と「毎日 30 日走らせたら月何分か」で、
-      # 月 2,000 分の枠に対する当たりはこれで付く。
-      #
-      # 請求 API を使った口座全体の使用量監視は残課題（ah-xp8）。
-      # **着手の合図は「非公開にした日」**で、公開のうちに作ると分母が無限なので
-      # 常に 0% を報告し続ける、落ちない見張りができあがる。
-      - name: 所要時間と月あたりの見積り
-        if: always() && steps.budget.outputs.run == 'true'
+      # **これはもう頻度の根拠ではない**（定例は無い）。
+      # 残してあるのは、打った人が「次にいつ打つか」を考えるとき、
+      # また 3 段の対象を増やすとき、1 回あたりの重さが要るからである。
+      # 月あたりの見積りは出さない。走る回数が決まっていないので、掛ける数が無い。
+      - name: 所要時間
+        if: always()
         env:
           STARTED_AT: ${{ steps.budget.outputs.started_at }}
-          IS_PRIVATE: ${{ github.event.repository.private }}
         run: |
           set -euo pipefail
           elapsed=$(( $(date -u +%s) - STARTED_AT ))
           minutes=$(( (elapsed + 59) / 60 ))   # GitHub の課金は分単位の切り上げ
           echo "今回の所要時間: ${elapsed} 秒（課金上は ${minutes} 分）"
-
-          weekly=$(( minutes * 5 ))            # 月あたり約 4.35 週 → 安全側に 5 回
-          daily=$(( minutes * 31 ))
-          echo "非公開だった場合の月あたり: 週 1 回なら約 ${weekly} 分 / 毎日なら約 ${daily} 分"
-          echo "非公開の無料枠は月 2,000 分（Linux は 1 倍）。検査・公開の分もここから出る。"
 
           {
             echo "### 深い門の実測"
@@ -176,16 +132,12 @@ jobs:
             echo "| | 値 |"
             echo "| --- | --- |"
             echo "| 今回の所要時間 | ${elapsed} 秒（課金上 ${minutes} 分） |"
-            echo "| 非公開・週 1 回なら月 | 約 ${weekly} 分 / 2,000 分 |"
-            echo "| 非公開・毎日なら月 | 約 ${daily} 分 / 2,000 分 |"
+            echo ""
+            echo "定例はありません。次に打つ場面は \`.github/workflows/nightly.yml\` 冒頭の 3 つ。"
           } >> "$GITHUB_STEP_SUMMARY"
 
-          if [ "$IS_PRIVATE" = "true" ] && [ "$weekly" -gt 1400 ]; then
-            echo "::warning::深い門だけで月 ${weekly} 分（枠 2,000 分の 70% 超）です。頻度か対象を見直してください。"
-          fi
-
       - name: 落ちたときの案内
-        if: failure() && steps.budget.outputs.run == 'true'
+        if: failure()
         run: |
           echo "::warning::深い門が落ちました。マージは止めませんが、残課題として起票してください。"
           echo "手順: docs/product/nightly-triage.md"
