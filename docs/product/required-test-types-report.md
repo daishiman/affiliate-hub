@@ -6,8 +6,8 @@
 
 - 最終更新: 2026-08-18
 - 要件表の要件: 241 件
-- 性質を宣言済: 233 件
-- **未宣言: 8 件**（上限 8 件）
+- 性質を宣言済: 234 件
+- **未宣言: 7 件**（上限 7 件）
 - 理由つきの除外: 7 件（上限 7 件）
 
 未宣言とは「必須種別をまだ決めていない」という意味で、
@@ -240,6 +240,7 @@
 | REQ-CI09 | has-runtime-config | `infra-config` | `infra-config` | — | 
 | REQ-CI10 | has-runtime-config | `infra-config` | `infra-config` | — | 
 | REQ-CI11 | has-runtime-config | `infra-config` | `infra-config` | — | 
+| REQ-CI12 | has-input | `boundary` `equivalence` | `boundary` `equivalence` | — | 
 | REQ-CI13 | has-runtime-config | `infra-config` | `infra-config` | — | 
 | REQ-FB01 | has-enumerated-input | `decision-table` `equivalence` | `decision-table` `equivalence` | — | 
 | REQ-FB02 | has-screen, has-permission | `a11y` `keyboard` `permission-matrix` `screen-states` | `a11y` `keyboard` `permission-matrix` `screen-states` | — | 
@@ -270,5 +271,5 @@
 
 ## 未宣言の要件
 
-`REQ-CI08` `REQ-CI12` `REQ-FD04` `REQ-TH04` `REQ-TH05` `REQ-TS02` `REQ-TS03` `REQ-TS10`
-<!-- 生成物の指紋 sha256:2f10fe1405b96983c9edfc773125678eec1d18051bc68a5ded2565a72cc1d39e -->
+`REQ-CI08` `REQ-FD04` `REQ-TH04` `REQ-TH05` `REQ-TS02` `REQ-TS03` `REQ-TS10`
+<!-- 生成物の指紋 sha256:18fc9dadb9ed0b4aeaec636a638261e321682a7db82a518736cbedd69cb583d5 -->
