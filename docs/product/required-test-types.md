@@ -113,6 +113,11 @@
 | REQ-W09 | has-input | — |
 | REQ-W10 | has-input | — |
 | REQ-W12 | has-enumerated-input | — |
+| REQ-TM01 | has-enumerated-input | — |
+| REQ-TM04 | has-enumerated-input | — |
+| REQ-TM07 | has-enumerated-input | — |
+| REQ-TM08 | has-enumerated-input | — |
+| REQ-TM09 | has-enumerated-input, has-input, has-tenant | — |
 | REQ-IM05 | has-state | — |
 | REQ-TH01 | has-screen | — |
 | REQ-TH02 | has-enumerated-input | — |
@@ -185,18 +190,18 @@
 
 ## 4. 未宣言の要件について（正直に書く）
 
-要件表には **241 件**の要件 ID がある。上の宣言表はそのうち **141 件**である
+要件表には **241 件**の要件 ID がある。上の宣言表はそのうち **146 件**である
 （`node scripts/required-test-types.mjs` の出力から書き写す。手で数えない。
 ここは長らく 83 と書いたまま古くなっていたことがある。
 **手で書いた数字は、古くなっても古く見えない**）。
-残り 100 件は未宣言で、**この検査の対象外**にある。
-この 100 が `TEST_TYPES_MAX_UNDECLARED` と一致していることが、
+残り 95 件は未宣言で、**この検査の対象外**にある。
+この 95 が `TEST_TYPES_MAX_UNDECLARED` と一致していることが、
 この節の数字が実測と合っていることの確かめになる。
 
 全部に宣言を書き切るまで検査を入れない、という順にすると**検査は永久に入らない**。
 そこで `TRACEABILITY_MAX_UNLINKED` と同じ形にした。
 
-- 未宣言の上限 `TEST_TYPES_MAX_UNDECLARED` を実測に置く（置いた当初は 158。現在 100）
+- 未宣言の上限 `TEST_TYPES_MAX_UNDECLARED` を実測に置く（置いた当初は 158。現在 95）
 - **新しく足す要件は、宣言しなければ CI が落ちる**
 - 既存の未宣言は減らせるが増やせない。**上げて緑にすることを禁じる**
 
@@ -1555,6 +1560,100 @@ quality-check-tables から外す  → REQ-W12: decision-table, equivalence
 W02〜W05 と同じ形の検査（期待値を手で書き写した表）を書けば宣言できる。
 書く前に宣言すると、`decision-table` という名前だけが付いて、
 本来その名前が守るはずの検査を消しても緑になる。
+
+### 2026-08-19 に減らしたぶん（100 → 95）: 計測 5 件
+
+対象は `REQ-TM01` / `TM04` / `TM07` / `TM08` / `TM09`。
+
+#### 足す前に数えた（消えていたイベントが 2 件あった）
+
+計測イベントは 12 件。**テストのどこかに名前が出てくるか**を数えた。
+
+| イベント | テストに出るか |
+| --- | --- |
+| page_view / scroll_depth / affiliate_click / page_exit | 出る（複数の場所） |
+| section_dwell / element_click / ranking_row_click / internal_link_click | 出る（1 か所） |
+| ai_model_usage / variant_exposure | 出る（1 か所） |
+| **search_performed** | **どこにも出ない** |
+| **filter_changed** | **どこにも出ない** |
+
+`REQ-TM04` は「検索と絞り込み」を明示して求めている要件である。
+表からこの 2 件を丸ごと消して全部走らせたところ、**3810 件すべてが緑**だった（実測）。
+
+禁止語（記録してはいけない項目）は 17 語。実際に送って落ちることを
+確かめてあったのは **3 語**（`ip` / `email` / `prompt`）、
+宣言の段階で見ていたのは 7 語。**残り 10 語は消しても誰も気づかない**。
+
+組み立て（`buildTelemetryEvent`）を実際に通していたイベントも
+12 件中 3 件（`page_view` / `scroll_depth` / `affiliate_click`）だけだった。
+
+#### 実測
+
+新しく書いたのは `tests/domain/telemetry-tables.test.ts`（65 件）。
+
+| 壊し方 | 新しい 65 件 |
+| --- | --- |
+| 検索と絞り込みのイベントを消す（3810 件が緑だった壊し方） | 6 件が赤 |
+| 禁止語を 3 つ消す | 4 件が赤 |
+| `page_view` の参照元を任意へ緩める | 1 件が赤 |
+| 節ごとの滞在を同意なしで測れるようにする | 1 件が赤 |
+| 禁止語の判定を完全一致から前方一致へ | 1 件が赤 |
+
+4 行目が `REQ-TM07` の要点である。**同意なしで測れるものが 1 つ増える**のは
+断った読者から取れるものが 1 つ増えることなので、増える側を名指しで固定した
+（「同意が要らないイベントは、この 4 つだけ」）。既存の
+「同意が要るイベントの判定が 1 箇所に揃っている」は期待値に
+`requiresConsent()` を使っており、**実装を実装で確かめている**ので増えても緑になる。
+
+5 行目は逆向きの端である。何でも落とすようにすると `bodyLength` のような
+真っ当な欄まで送れなくなり、禁止の一覧が使えなくなる。
+
+#### 保存期間の端を、定数から作らない形に置き直した
+
+既存の「期限を過ぎたものは期限切れと判定される」は `retentionDeadline()` から端を
+作っているので、**90 日を 9000 日に変えても同じ側に居続ける**。
+`CONVERSATION_MAX_LENGTH + 1` と同じ形である。
+90 と 400 を実数で書いた端（ちょうど / 1 ミリ秒手前 / 89 日目）を足した。
+既存のほうは消していない（別のことを見ているため）。
+
+#### 性質の割り当て
+
+| 要件 | 性質 | 名乗るファイル |
+| --- | --- | --- |
+| REQ-TM01（イベントの表 12 件） | has-enumerated-input | `telemetry-tables.test.ts` |
+| REQ-TM04（読者の行動計測 10 種） | has-enumerated-input | 同上 |
+| REQ-TM07（同意管理） | has-enumerated-input | 同上 |
+| REQ-TM09（仮名化・保存期間・削除） | has-enumerated-input, has-input, has-tenant | 同上 |
+| REQ-TM08（DNT / GPC の順番） | has-enumerated-input | `telemetry.test.ts` |
+
+`REQ-TM09` だけ 3 つ名乗る。禁止語 17 は端の無い一覧（`has-enumerated-input`）、
+保存期間は端がある（`has-input`）、目印はブログをまたがない（`has-tenant`）。
+**3 つとも当てどころが実在する**ので、まとめて 1 つに寄せない。
+
+印を 1 つずつ外して赤を確かめた。5 件すべて、名指しするファイルは 1 つだけである。
+
+```
+telemetry-tables から外す → REQ-TM01 / TM04 / TM07: decision-table, equivalence
+                            REQ-TM09: boundary, decision-table, equivalence, tenant-isolation
+telemetry から外す        → REQ-TM08: decision-table, equivalence
+```
+
+#### 要件表の判定欄に嘘が 1 件あった
+
+`REQ-TM04` の判定欄は「PASS（`telemetry.test.ts`「同意が無くても、回数だけの
+イベントは記録できる」ほか）」だった。**挙げられている検査は同意の話で、
+読者の行動計測 10 種を見ていない。**しかも 2 件は表から消しても緑だった。
+実測へ置き換え、いつまでそうだったかも欄に残してある。
+`REQ-TM01` と `REQ-TM09` は嘘ではなかったが、代表 1 件ずつしか見ていないことが
+分かる書き方へ直した（`W` 群の `REQ-W02`〜`W04` に続いて 2 例目）。
+
+#### この回で宣言していない TM（8 件）
+
+`REQ-TM02` / `TM03` / `TM05` / `TM06` / `TM10` / `TM11` / `TM12` / `TM13`。
+画面（`/admin/ai-usage`）を持つもの、送り方の端（15 秒 / 20 件 / 32KB / 50 件）を
+持つもの、保存先（`telemetry_events`）を持つものが混ざっており、
+それぞれ別の性質を当てる必要がある。**まとめて名乗ると、いちばん軽い検査で
+いちばん重い性質の名前が付く。**次の区切りで 1 つずつ数えてから宣言する。
 
 ## 5. 除外という逃げ道について
 

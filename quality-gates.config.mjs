@@ -471,9 +471,17 @@ export const REQUIRED_TEST_TYPES = {
  * `REQ-W06` / `W08` / `W11` は宣言していない。理由は
  * `docs/product/required-test-types.md` §4。
  *
+ * 2026-08-19 に 100 → 95。計測 5 件（`REQ-TM01` / `TM04` / `TM07` / `TM08` /
+ * `TM09`）を宣言した。ここでも印を足すだけでは済まなかった —
+ * 計測イベント 12 件のうち `search_performed` と `filter_changed` は
+ * **テストのどこにも出ておらず、表から消しても 3810 件すべてが緑だった**（実測）。
+ * 禁止語 17 のうち、実際に送って落ちることを確かめてあったのは 3 語。
+ * 全行に当てる検査を書いてから宣言している
+ * （`tests/domain/telemetry-tables.test.ts`）。
+ *
  * **上げて緑にすることを禁じる。**
  */
-export const TEST_TYPES_MAX_UNDECLARED = 100;
+export const TEST_TYPES_MAX_UNDECLARED = 95;
 
 /**
  * 理由つき除外を許す上限（件数）。

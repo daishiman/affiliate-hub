@@ -1,4 +1,13 @@
-/** @tier 1 */
+/**
+ * @tier 1
+ * @req REQ-TM08
+ * @types decision-table, equivalence
+ *
+ * 同意の決め方は、材料 5 つの**順番が決まっている**表として見る
+ * （巡回/プレビュー → GPC/DNT → 本人の許可 → 未回答）。
+ * 一覧の中身（イベント 12 件・禁止語 17 語）を全行に当てるのは
+ * `telemetry-tables.test.ts` のほう。
+ */
 import { describe, expect, it } from "vitest";
 import {
   DEFAULT_CONSENT_SIGNALS,
