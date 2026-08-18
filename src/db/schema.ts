@@ -32,6 +32,13 @@ import {
   type AspKind,
   type ConversionStatus,
 } from "@/domain/monetization";
+import {
+  COMPARISON_VERDICTS,
+  LOOP_RUN_STATUSES,
+  type ComparisonVerdict,
+  type LoopRunStatus,
+  type VariantSetting,
+} from "@/domain/analytics";
 
 /**
  * 列に入れてよい値を、**業務側の一覧から取り出す**。
@@ -61,6 +68,11 @@ const CONTENT_VARIANT_STATUS_VALUES = [...CONTENT_VARIANT_STATUSES] as [
 const COMPLIANCE_STATUS_VALUES = [...COMPLIANCE_STATUSES] as [
   ComplianceStatus,
   ...ComplianceStatus[],
+];
+const LOOP_RUN_STATUS_VALUES = [...LOOP_RUN_STATUSES] as [LoopRunStatus, ...LoopRunStatus[]];
+const COMPARISON_VERDICT_VALUES = [...COMPARISON_VERDICTS] as [
+  ComparisonVerdict,
+  ...ComparisonVerdict[],
 ];
 
 /**
@@ -1113,6 +1125,111 @@ export const redirectResolutions = sqliteTable(
   ],
 );
 
+// ---------------------------------------------------------------------------
+// 改善ループの記録（仕様 docs/spec/03-分析・解析基盤仕様.md §14 / REQ-IM13）
+// ---------------------------------------------------------------------------
+
+/**
+ * 見せ方の設定。
+ *
+ * 配色も見出し順も比較表の列順も、**「改善の軸 → 値」の集まり**という
+ * 1 つの形で入る（仕様 §14.2）。種類ごとに表を分けない。分けた瞬間に
+ * 比較・記録・承認・巻き戻しがその数だけ増える。
+ *
+ * `settings` を JSON の 1 列にしているのは、軸を 1 つ足すたびに
+ * **列が増えてマイグレーションが要る形にしないため**。軸の正本は
+ * `domain/analytics/optimization.ts` の登録表だけで、保存先は形を知らない。
+ * 代わりに、**入っている軸が登録表と `NON_OPTIMIZABLE` を通ることは
+ * 保存のたびに突き当てる**（`domain/analytics/loop-record.ts`）。
+ *
+ * 承認の欄が 2 つに分かれているので「誰が承認したかだけあって日時が無い」
+ * 行が書ける。書けてしまう形は保存側で断る（同じ理由で片方だけの行を
+ * 読み出し時にも承認済みとして扱わない）。
+ */
+export const variantSpecs = sqliteTable(
+  "variant_specs",
+  {
+    id: text("id").primaryKey(),
+    workspaceId: text("workspace_id").notNull(),
+    /** どのブログの設定か。一覧はここで絞る。 */
+    siteSlug: text("site_slug").notNull(),
+    label: text("label").notNull(),
+    settings: text("settings", { mode: "json" }).$type<VariantSetting[]>().notNull(),
+    /**
+     * どこから来た設定か。**記録の仕組みを 2 つ作らない**ので既存の由来をそのまま入れる。
+     *
+     * `mode: "json"` を使わず素の文字列で持つのは、由来が `Date` を 2 つ含むため。
+     * JSON にすると読み出しは文字列で返るのに、型の上では `Date` を名乗る。
+     * 型が嘘をつくと、日付の比較が黙って文字列比較になる。読む側で戻す。
+     */
+    provenanceJson: text("provenance_json").notNull(),
+    approvedBy: text("approved_by"),
+    approvedAt: integer("approved_at", { mode: "timestamp" }),
+  },
+  (t) => [index("variant_specs_workspace_site_idx").on(t.workspaceId, t.siteSlug)],
+);
+
+/**
+ * ループを 1 周まわした記録。
+ *
+ * **判定の規律（仕様 §14.3）を後から確かめられる形で持つ。**
+ * 「何の指標で見ると先に決めたか」(`primary_metric`) と
+ * 「何件そろうまで何も言わないと決めたか」(`minimum_samples`) を
+ * 行に残さないと、指標の後出しが起きたかどうかを誰も検証できない。
+ * 結果だけを保存すると、結果は残るのに前提が消える。
+ */
+export const loopRuns = sqliteTable(
+  "loop_runs",
+  {
+    id: text("id").primaryKey(),
+    workspaceId: text("workspace_id").notNull(),
+    /** ループの種類。正本は domain/analytics/loop-kinds.ts の登録表。 */
+    loopKindKey: text("loop_kind_key").notNull(),
+    siteSlug: text("site_slug").notNull(),
+    baselineSpecId: text("baseline_spec_id").notNull(),
+    candidateSpecId: text("candidate_spec_id").notNull(),
+    /** 何を変えた比較か。1〜2 件であることは保存のたびに突き当てる。 */
+    changedDimensions: text("changed_dimensions", { mode: "json" }).$type<string[]>().notNull(),
+    /** 始める前に決めた指標。**1 つだけ。** */
+    primaryMetric: text("primary_metric").notNull(),
+    minimumSamples: integer("minimum_samples").notNull(),
+    status: text("status", { enum: LOOP_RUN_STATUS_VALUES }).notNull(),
+    startedAt: integer("started_at", { mode: "timestamp" }),
+    concludedAt: integer("concluded_at", { mode: "timestamp" }),
+    verdict: text("verdict", { enum: COMPARISON_VERDICT_VALUES }),
+    stoppedReason: text("stopped_reason"),
+  },
+  (t) => [
+    index("loop_runs_workspace_site_idx").on(t.workspaceId, t.siteSlug),
+    index("loop_runs_workspace_status_idx").on(t.workspaceId, t.status),
+  ],
+);
+
+/**
+ * 1 周ぶんの観測値。
+ *
+ * **もとの設定と試した設定を必ず両方持つ**（片方だけの行が書けると、
+ * 比べる相手がいないまま数字だけある状態になる）。
+ *
+ * 主キーを (workspace_id, run_id) の組にしてあるのは
+ * `llm_credentials` と同じ理由で、**`workspace_id` を書き忘れた問い合わせが
+ * そもそも書きにくい**ようにするため。1 周につき 1 行で、観測し直したら上書きする。
+ * 上書きすると前の値が消えるので、いつ時点の観測かを `observed_at` に残す。
+ */
+export const loopObservations = sqliteTable(
+  "loop_observations",
+  {
+    workspaceId: text("workspace_id").notNull(),
+    runId: text("run_id").notNull(),
+    baselineValue: real("baseline_value").notNull(),
+    baselineSamples: integer("baseline_samples").notNull(),
+    candidateValue: real("candidate_value").notNull(),
+    candidateSamples: integer("candidate_samples").notNull(),
+    observedAt: integer("observed_at", { mode: "timestamp" }).notNull(),
+  },
+  (t) => [primaryKey({ columns: [t.workspaceId, t.runId] })],
+);
+
 /**
  * 作業場所（ワークスペース）。課金・権限・データ分離の単位。
  *
@@ -1244,6 +1361,9 @@ export type TelemetryEventRow = typeof telemetryEvents.$inferSelect;
 export type AuditLogRow = typeof auditLogs.$inferSelect;
 export type LlmCredentialRow = typeof llmCredentials.$inferSelect;
 export type LlmUsageRow = typeof llmUsages.$inferSelect;
+export type VariantSpecRow = typeof variantSpecs.$inferSelect;
+export type LoopRunRow = typeof loopRuns.$inferSelect;
+export type LoopObservationRow = typeof loopObservations.$inferSelect;
 
 // 読者ドメイン
 export type Category = typeof categories.$inferSelect;

@@ -24,14 +24,30 @@ const stub = registerStub({
   id: "persistence:improvement-sample",
   port: "改善ループの記録先",
   label: "改善ループの記録（見本データ。保存はできません）",
-  // 表よりも先に入口が要る。改善ループを回す操作がまだ無く、
-  // どのユースケースからも `save` が呼ばれていない（保存先だけ本物にしても空のまま）。
-  blockedBy:
-    "改善ループを回す入口（画面と操作）の追加。そのうえで variant_specs / loop_runs / loop_observations テーブルの追加",
+  // 表は 2026-08-19 に追加した（`d1/improvement-repository.ts`）。
+  // 保存先が用意されている環境ではそちらが動く。ここが残っているのは
+  // 保存先が無い環境（pnpm dev・自動テスト）の控えとしてで、
+  // **その環境では保存は失敗のまま**にしてある。覚えたふりをすると、
+  // 承認した設定が次の実行で消えていることに誰も気づけない。
+  //
+  // まだ残っているのは**入口**のほう。改善ループを回す操作（画面）が無く、
+  // どのユースケースからも `save〜` が呼ばれていない。
+  blockedBy: "改善ループを回す入口（画面と操作）の追加。表そのものは追加済み",
+  fallbackFor: "src/infrastructure/persistence/d1/improvement-repository.ts",
 });
 
 export function improvementStubNotice(): string {
   return `${stub.label}。${stub.blockedBy}が済むまでの仮です。`;
+}
+
+/**
+ * 画面に出す「何が済めば外れるか」。**台帳と同じ値を返す。**
+ *
+ * 画面側に同じ文を書き写すと、台帳を直した日に画面だけ古い理由を出し続ける
+ * （現に「テーブルの追加」と書いたまま、表を追加した日に古くなった）。
+ */
+export function improvementStubBlockedBy(): string {
+  return stub.blockedBy;
 }
 
 const WS = asWorkspaceId("ws_sample");
@@ -175,7 +191,7 @@ export function createSampleImprovementRepository(): ImprovementRepositoryPort {
     async listVariantSpecs(_workspaceId, _input) {
       return ok(SAMPLE_SPECS);
     },
-    async saveVariantSpec(_workspaceId, _spec) {
+    async saveVariantSpec(_workspaceId, _input) {
       // 保存できたことにしない。承認した設定が消えるのが最も分かりにくい壊れ方。
       return stubCall(stub, "見せ方の設定の保存");
     },
@@ -191,6 +207,9 @@ export function createSampleImprovementRepository(): ImprovementRepositoryPort {
     },
     async observationsOf(_workspaceId, runId) {
       return ok(SAMPLE_OBSERVATIONS[runId] ?? null);
+    },
+    async saveObservation(_workspaceId, _input) {
+      return stubCall(stub, "観測値の保存");
     },
   };
 }

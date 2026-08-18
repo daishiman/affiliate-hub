@@ -24,6 +24,7 @@ import {
   createD1FeedbackRepository,
   createD1IntegrationKeyStore,
 } from "./persistence/d1/feedback-repository";
+import { createD1ImprovementRepository } from "./persistence/d1/improvement-repository";
 import { createEventPublisher } from "./platform/queue";
 import {
   createR2FeedbackCaptureStore,
@@ -251,9 +252,13 @@ export function createDeps(
     trackingCoverage:
       db === null ? createSampleTrackingCoverage() : createD1TrackingCoverage(db),
     telemetry,
-    // ★ 見本データ（スタブ）。改善ループの記録と見せ方の設定。
-    //   読み出しは見本を返し、保存は失敗を返す（保存できたことにしない）。
-    improvement: createSampleImprovementRepository(),
+    // 改善ループの記録と見せ方の設定は、保存先が用意できていれば本物（D1）。
+    //
+    // **見本と混ぜない。** ほかの保存先は見本を重ねているが、ここは数字を伴う。
+    // 見本の「良くなった」と実測が同じ一覧に並ぶと、どちらを見て判断したのかが
+    // 後から区別できなくなる。保存先が無い環境では見本のまま（保存は失敗を返す）。
+    improvement:
+      db === null ? createSampleImprovementRepository() : createD1ImprovementRepository(db),
     // 改善要望と鍵は、保存先が用意できていれば本物（D1）を使う。
     // 画面の写しは置き場が別（R2）なので、判定も別にする。D1 があっても
     // R2 が無い環境はあり得るし、その逆もある。片方の有無でもう片方を

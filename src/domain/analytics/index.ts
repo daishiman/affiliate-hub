@@ -5,6 +5,7 @@ export * from "./experiment";
 export * from "./feedback-policy";
 export * from "./improvement";
 export * from "./loop-kinds";
+export * from "./loop-record";
 export * from "./loop-run";
 export * from "./metrics";
 export * from "./metrics-from-telemetry";

@@ -162,8 +162,11 @@ function memoryImprovement(seed: {
     async listVariantSpecs() {
       return ok(specs);
     },
-    async saveVariantSpec(_workspaceId: WorkspaceId, spec: VariantSpec) {
-      specs.push(spec);
+    async saveVariantSpec(
+      _workspaceId: WorkspaceId,
+      input: { readonly spec: VariantSpec; readonly siteSlug: string },
+    ) {
+      specs.push(input.spec);
       return ok(true as const);
     },
     async listRuns() {
@@ -175,6 +178,9 @@ function memoryImprovement(seed: {
     },
     async observationsOf(_workspaceId: WorkspaceId, runId: string) {
       return ok(seed.observations[runId] ?? null);
+    },
+    async saveObservation() {
+      return ok(true as const);
     },
   };
 }
@@ -563,7 +569,10 @@ describe("1 周（作る → 承認 → 公開 → 測る → 分析 → 提案 
 
     // ⑦ 承認（提案の側）。承認した見せ方が保存先に残ること。
     const adopted = aSpec("vs_adopted", "採用した見せ方", "bottom");
-    const savedSpec = await improvement.saveVariantSpec(WS, adopted);
+    const savedSpec = await improvement.saveVariantSpec(WS, {
+      spec: adopted,
+      siteSlug: "video-editing-gear",
+    });
     expect(savedSpec.ok).toBe(true);
     const specsAfter = await improvement.listVariantSpecs(WS);
     expect(specsAfter.ok).toBe(true);
@@ -681,7 +690,10 @@ describe("本番の組み立て（見本データのまま）で 1 周を通そ�
 
   it("採用した見せ方の保存も、同じ形で断る（黙って捨てない）", async () => {
     const real = createDeps();
-    const saved = await real.improvement.saveVariantSpec(WS, aSpec("vs_x", "試し", "top"));
+    const saved = await real.improvement.saveVariantSpec(WS, {
+      spec: aSpec("vs_x", "試し", "top"),
+      siteSlug: "video-editing-gear",
+    });
     expect(saved.ok).toBe(false);
     if (saved.ok) return;
     expect(saved.error.code).toBe("NOT_IMPLEMENTED");

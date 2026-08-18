@@ -1,7 +1,12 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { AdminShell } from "@/presentation/admin/admin-shell";
-import { currentActor, improvementNotice, improvementUseCases } from "@/presentation/composition";
+import {
+  currentActor,
+  improvementBlockedBy,
+  improvementNotice,
+  improvementUseCases,
+} from "@/presentation/composition";
 import { Callout, Card, EmptyView, ErrorView, Page, StubNotice } from "@/presentation/ui";
 import styles from "../admin.module.css";
 
@@ -48,7 +53,7 @@ export default async function ImprovementPage({
     <Shell>
       <StubNotice
         what="改善ループの記録先"
-        blockedBy="variant_specs / loop_runs / loop_observations テーブルの追加"
+        blockedBy={improvementBlockedBy()}
         stubId="persistence:improvement-sample"
       >
         <span>{improvementNotice()}</span>

@@ -136,7 +136,10 @@ import type { LlmProviderDescriptor } from "@/application/ports/llm-credential";
 import type { UseCase } from "@/application/usecases/usecase";
 import { auditLogStubNotice } from "@/infrastructure/persistence/sample/audit-log-sample-repository";
 import { telemetryStubNotice } from "@/infrastructure/persistence/sample/telemetry-sample-sink";
-import { improvementStubNotice } from "@/infrastructure/persistence/sample/improvement-sample-repository";
+import {
+  improvementStubBlockedBy,
+  improvementStubNotice,
+} from "@/infrastructure/persistence/sample/improvement-sample-repository";
 import { feedbackStubNotice } from "@/infrastructure/persistence/sample/feedback-sample-repository";
 import { sampleContentNotice } from "@/infrastructure/persistence/sample/content-sample-repository";
 import { sampleSiteDraftNotice } from "@/infrastructure/persistence/sample/site-draft-sample-repository";
@@ -865,6 +868,11 @@ export function improvementUseCases() {
 /** 改善ループの記録先が見本であることを画面に出すための一文。 */
 export function improvementNotice(): string {
   return improvementStubNotice();
+}
+
+/** 同じ画面の「何が済めば外れるか」。台帳の値をそのまま渡す。 */
+export function improvementBlockedBy(): string {
+  return improvementStubBlockedBy();
 }
 
 /**

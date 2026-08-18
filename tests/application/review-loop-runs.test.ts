@@ -107,6 +107,9 @@ function repository(over: RepoOverrides = {}): ImprovementRepositoryPort {
     async saveRun() {
       return ok(true as const);
     },
+    async saveObservation() {
+      return ok(true as const);
+    },
   };
 }
 
