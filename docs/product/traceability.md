@@ -145,7 +145,7 @@ D1 への差し替えは、この列だけを別の実装に取り替えれば�
 | REQ-E13 | TrackingLink（§19.2.1） | `monetization/tracking-link.ts`（**転送先を URL 文字列で持てない**ことをテストで固定）／`app/go/[code]/route.ts`（転送の入口）／`persistence/d1/redirect-repository.ts`（読む口・**発行の口**・数え上げ）／`infrastructure/persistence/tracking-issuing-writer.ts`（公開の継ぎ目）／`application/read-models/article-tracking.ts` | `redirect_resolutions` | REQ-P09 | **未完**。発行の側は実装し、本物の D1 で確かめた（`tests/integration/d1-tracking-issuance.test.ts` 8 件: 合言葉が入る／写しの作業場所が持ち主側／出し直しても増えない／転送先が変わると新規発行＋旧は 410／https 以外は発行しない／数え上げ／作業場所の往復）。転送の入口は Workers ランタイムで実機確認済み（302 の行き先が保存値と一致 / 404 / 410 / 記録が D1 に残る / 分析画面のクリック数が 0→1）。**それでも実運用では合言葉が 1 件も発行されない。** 公開の手続き（`usecases/site/publish-article.ts` の `buildArticle`）が `ranking` も `productCards` も作らないため、公開された記事には成果リンクが 1 件も載らない（`ranking` / `productCards` を持つのは見本データだけ）。発行の口は正しく繋がっているが、**その手前に流し込むものが無い**。未発行の件数は `/admin/analytics` に出す（いまは「成果リンクがまだ 1 件もありません」と出る）。完了は、公開記事へ成果リンクを載せる経路ができ、この画面の未発行が 0 件になってから。何が数えられていて何が数えられていないかは `docs/product/click-measurement.md` |
 | REQ-E14 | SourceArtifact | `shared/provenance.ts` | 見本データ | REQ-S03 | 実装済 |
 | REQ-E15 | Product | `product/product.ts`（**識別子が 1 つも無い商品は作れない**を `tests/domain/entity-guards.test.ts` で固定） | `products` | REQ-S03 | 実装済。**2026-08-19 まで直接呼ぶテストが無かった。**識別子 0/1 件の端、販売終了日が発売日と同じ日／1 ミリ秒前の端、JAN の桁数 7/8/12/14/15 を当てている |
-| REQ-E16 | ProductVariant | `product/product.ts` | 見本データ | REQ-S03 | スタブ（解除条件: 色・容量ちがいを画面で分けて扱う要望が出たとき。いまは 1 商品 1 行で足りている） |
+| REQ-E16 | ProductVariant | `product/product.ts`（**別に買えない枝は作れない**／**仕様の見出しと枝の値が食い違ったら断る**を `tests/domain/entity-guards.test.ts` で固定） | なし（**2026-08-19 まで「見本データ」と書いてあったが事実ではなかった**。`ProductVariant` は `src` と `tests` を通して参照 0 件で、誰も組み立てていない） | REQ-S03 | スタブ（解除条件は変わらず: 色・容量ちがいを**画面で**分けて扱う要望が出たとき。いまは 1 商品 1 行で足りている）。ただし **2026-08-19 に `createProductVariant` と断り 4 か所を足した**。画面は作っていない。**誰も作らない型は断る場所を持てず、必須種別を宣言できない**ため、当てどころのほうを先に作った。断り 4 か所を 1 か所ずつ取り払って全件走らせ、4 通りとも赤（落ちたのは新しい 8 件だけで、既存 4,294 件は全部緑だった） |
 | REQ-E17 | MerchantOffer | `product/merchant-offer.ts` | 見本データ | REQ-S03 | 実装済 |
 | REQ-E18 | ComparisonSet | `product/comparison.ts` | 見本データ | REQ-S03 | 実装済 |
 | REQ-E19 | Claim | `evidence/claim.ts` | 見本データ | REQ-S03 | 実装済 |
@@ -182,8 +182,12 @@ D1 への差し替えは、この列だけを別の実装に取り替えれば�
 測り方は `docs/product/required-test-types.md` §4 の
 「2026-08-19 に減らしたぶん（68 → 49）」にある。
 
-`REQ-E16`（ProductVariant）だけは作る関数を持たず、断る場所が 1 つも無いため、
-境界値の当てどころが実装に存在しない（必須種別の宣言をしていない理由）。
+`REQ-E16`（ProductVariant）だけは作る関数を持たず、断る場所が 1 つも無かった。
+**2026-08-19 に `createProductVariant` と断り 4 か所を足して宣言した**（`has-input`）。
+このとき分かったのは、型が在ることと使われていることは別だということである。
+`ProductVariant` は 32 件の一覧に他と同じ顔で並んでいたが、
+**`src` と `tests` を通して 1 か所も組み立てられていなかった**。
+一覧を眺めて数えるかぎり、この差は見えない。
 
 補助テーブル（§21 に明示はないが実装済）: `categories`, `articlePeople`, `articleProducts`, `faqs`, `updateLogs`。
 

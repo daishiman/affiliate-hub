@@ -6,8 +6,8 @@
 
 - 最終更新: 2026-08-18
 - 要件表の要件: 241 件
-- 性質を宣言済: 232 件
-- **未宣言: 9 件**（上限 9 件）
+- 性質を宣言済: 233 件
+- **未宣言: 8 件**（上限 8 件）
 - 理由つきの除外: 7 件（上限 7 件）
 
 未宣言とは「必須種別をまだ決めていない」という意味で、
@@ -125,6 +125,7 @@
 | REQ-E13 | has-input, has-state, has-user-supplied-url | `boundary` `equivalence` `ssrf` `state-transition` | `boundary` `equivalence` `ssrf` `state-transition` | — | 
 | REQ-E14 | has-input | `boundary` `equivalence` | `boundary` `equivalence` | — | 
 | REQ-E15 | has-input | `boundary` `equivalence` | `boundary` `equivalence` | — | 
+| REQ-E16 | has-input | `boundary` `equivalence` | `boundary` `equivalence` | — | 
 | REQ-E17 | has-input | `boundary` `equivalence` | `boundary` `equivalence` | — | 
 | REQ-E18 | has-input | `boundary` `equivalence` | `boundary` `equivalence` | — | 
 | REQ-E19 | has-input, has-state | `boundary` `equivalence` `state-transition` | `boundary` `equivalence` `state-transition` | — | 
@@ -269,5 +270,5 @@
 
 ## 未宣言の要件
 
-`REQ-CI08` `REQ-CI12` `REQ-E16` `REQ-FD04` `REQ-TH04` `REQ-TH05` `REQ-TS02` `REQ-TS03` `REQ-TS10`
-<!-- 生成物の指紋 sha256:b3ad4892431f935d3345f018fbb7370bde27d18e44d5f1495af7afbd8bbc026e -->
+`REQ-CI08` `REQ-CI12` `REQ-FD04` `REQ-TH04` `REQ-TH05` `REQ-TS02` `REQ-TS03` `REQ-TS10`
+<!-- 生成物の指紋 sha256:2f10fe1405b96983c9edfc773125678eec1d18051bc68a5ded2565a72cc1d39e -->

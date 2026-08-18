@@ -1,15 +1,16 @@
 /**
  * @tier 1
- * @req REQ-E09, REQ-E10, REQ-E11, REQ-E15
+ * @req REQ-E09, REQ-E10, REQ-E11, REQ-E15, REQ-E16
  * @types equivalence, boundary, secrets
  */
 import { describe, expect, it } from "vitest";
 import { createChannelConnection, isConnectionUsable } from "@/domain/distribution";
 import { createAffiliateAccount, createAffiliateProgram } from "@/domain/monetization";
-import { createIdentityKey, createProduct } from "@/domain/product";
+import { createIdentityKey, createProduct, createProductVariant } from "@/domain/product";
 import { createProvenance } from "@/domain/shared";
 import {
   type AffiliateAccountId,
+  type ProductVariantId,
   asAffiliateProgramId,
   asChannelConnectionId,
   asProductId,
@@ -19,6 +20,7 @@ import { taggedString } from "@/domain/shared/tagged";
 
 const asAffiliateAccountId = (v: string): AffiliateAccountId =>
   taggedString<"AffiliateAccountId">(v);
+const asProductVariantId = (v: string): ProductVariantId => taggedString<"ProductVariantId">(v);
 
 /**
  * 4 つのエンティティ（E09 接続先 / E10 ASP アカウント / E11 提携プログラム /
@@ -265,5 +267,77 @@ describe("Product（E15）: 識別子の無い商品を作らせない", () => {
     expect(createIdentityKey("gtin", "490123456789012").ok).toBe(false);
     expect(createIdentityKey("asin", "B0ABCDEFGH").ok).toBe(true);
     expect(createIdentityKey("asin", "B0ABCDEFG").ok).toBe(false);
+  });
+});
+
+/**
+ * ProductVariant（E16）。
+ *
+ * ここは「検査が別のことを見ていた」でも「断りが消せた」でもなく、
+ * **作る関数そのものが無かった**。型は 2026-08-19 まで `src` と `tests` を通して
+ * 1 か所も組み立てられておらず（`ProductVariantId` の宣言を除いて参照 0 件）、
+ * 追跡表の「見本データ」も事実ではなかった。断る場所が 0 か所なので、
+ * 必須種別（`boundary`）を宣言できない状態が正しく残っていた。
+ *
+ * 直し方は「宣言を足す」ではなく「**当てどころを作る**」である。
+ * 先に断る場所を作り、それが本当に断ることを壊して測ってから宣言する。
+ */
+describe("ProductVariant（E16）: 別に買えないものを枝ちがいにしない", () => {
+  function variant(over: Partial<Parameters<typeof createProductVariant>[0]> = {}) {
+    const jan = createIdentityKey("gtin", "4901234567900");
+    if (!jan.ok) throw new Error(jan.error.message);
+    return createProductVariant({
+      id: asProductVariantId("pv-1"),
+      workspaceId: WS,
+      productId: asProductId("pr-1"),
+      axis: "色",
+      value: "スペースグレイ",
+      identityKeys: [jan.value],
+      ...over,
+    });
+  }
+
+  it("何がどう違うかと識別子が揃っていれば作れる", () => {
+    const r = variant();
+    expect(r.ok).toBe(true);
+    if (!r.ok) return;
+    expect(r.value.axis).toBe("色");
+    expect(r.value.specifications).toEqual({});
+  });
+
+  it.each([
+    ["軸", { axis: "   " }],
+    ["値", { value: "   " }],
+  ])("%s が空欄だと作れない", (_label, over) => {
+    expect(variant(over).ok).toBe(false);
+  });
+
+  it("件数の端: 識別子 0 個は断り、1 個から通る", () => {
+    // 親商品（E15）と同じ端だが、断る理由が違う。親は「同一商品の判定」、
+    // こちらは「別に買えるものかどうか」。理由が違うので、文面も見る。
+    const zero = variant({ identityKeys: [] });
+    expect(zero.ok).toBe(false);
+    if (zero.ok) return;
+    expect(zero.error.message).toContain("別に買える");
+    expect(variant().ok).toBe(true);
+  });
+
+  it("仕様の見出しと枝ちがいの値が食い違っていたら断る", () => {
+    // 型は通る組み合わせである。通ったまま比較表に載ると、
+    // 「色: 赤」の列に青が並ぶ。黙って間違うので、作る時点で断る。
+    expect(variant({ axis: "色", value: "青", specifications: { 色: "赤" } }).ok).toBe(false);
+    expect(variant({ axis: "色", value: "赤", specifications: { 色: "赤" } }).ok).toBe(true);
+  });
+
+  it("軸に載っていない仕様は、食い違いとして扱わない", () => {
+    // 枝の軸と関係ない欄まで突き合わせると、仕様を 1 行足すたびに作れなくなる。
+    expect(variant({ axis: "色", value: "赤", specifications: { 重さ: 1200 } }).ok).toBe(true);
+  });
+
+  it("数字で書かれた仕様も、文字列の値と突き合わせる", () => {
+    // 容量のように、仕様欄が数値で枝の値が文字列になることがある。
+    // 型が違うだけで素通りすると、この断りは容量の枝には効かない。
+    expect(variant({ axis: "容量", value: "512", specifications: { 容量: 512 } }).ok).toBe(true);
+    expect(variant({ axis: "容量", value: "256", specifications: { 容量: 512 } }).ok).toBe(false);
   });
 });

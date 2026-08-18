@@ -55,6 +55,73 @@ export type ProductVariant = {
   readonly specifications: Readonly<Record<string, string | number>>;
 };
 
+/**
+ * 商品の枝ちがい (色・容量・サイズ) を作る。
+ *
+ * 2026-08-19 まで、この型には**作る関数が無かった**。型だけが在り、
+ * `src` と `tests` を通して 1 か所も組み立てていない
+ * (`ProductVariantId` の宣言を除けば参照 0 件)。追跡表の「見本データ」も
+ * 事実ではなかった。**誰も作らない型は、断る場所を持てない。**
+ *
+ * ここで作ったのは関数と断りだけで、**画面は作っていない**。追跡表に書いてある
+ * 解除条件 (色・容量ちがいを画面で分けて扱う要望が出たとき) はそのまま残る。
+ * 分けたのは、画面を作る理由と、組み立てを 1 か所に寄せる理由が別だからである。
+ */
+export function createProductVariant(input: {
+  id: ProductVariantId;
+  workspaceId: WorkspaceId;
+  productId: ProductId;
+  axis: string;
+  value: string;
+  identityKeys: readonly ProductIdentityKey[];
+  specifications?: Readonly<Record<string, string | number>>;
+}): Result<ProductVariant, DomainError> {
+  if (input.axis.trim() === "") {
+    return err(
+      validationError(
+        "何が違うのか (色・容量・サイズなど) が空です。比較表の見出しを作れません。",
+        "axis",
+      ),
+    );
+  }
+  if (input.value.trim() === "") {
+    return err(validationError("枝ちがいの値が空です。どれを指すのか決まりません。", "value"));
+  }
+  if (input.identityKeys.length === 0) {
+    // 親商品と同じ理由に見えるが、断る理由は違う。親は「同一商品の判定」で、
+    // こちらは「**別に買えるものかどうか**」である。別の識別子を持たない枝は、
+    // 買う先が親と同じなので枝ではなく、仕様欄の 1 行にすぎない。
+    return err(
+      validationError(
+        "識別子が 1 つもありません。枝ちがいは別に買えるものなので、親商品とは別の JANコード・ASIN・型番が要ります。",
+        "identityKeys",
+      ),
+    );
+  }
+  const specifications = input.specifications ?? {};
+  const declared = specifications[input.axis];
+  if (declared !== undefined && String(declared) !== input.value) {
+    // 「色: 赤」と書いてある枝の value が「青」でも、型は通る。通ったまま
+    // 比較表に載ると、見出しと中身が食い違った表が出る。**黙って間違うので、
+    // ここで断る**。同じことを画面側で直すと、画面を増やすたびに書き写しが要る。
+    return err(
+      validationError(
+        `仕様の「${input.axis}」が「${String(declared)}」なのに、枝ちがいの値が「${input.value}」です。比較表の見出しと中身が食い違います。`,
+        "specifications",
+      ),
+    );
+  }
+  return ok({
+    id: input.id,
+    workspaceId: input.workspaceId,
+    productId: input.productId,
+    axis: input.axis,
+    value: input.value,
+    identityKeys: input.identityKeys,
+    specifications,
+  });
+}
+
 export function createProduct(input: {
   id: ProductId;
   workspaceId: WorkspaceId;
