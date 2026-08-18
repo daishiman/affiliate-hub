@@ -89,9 +89,19 @@ export function distributionTools(deps: AppDeps): readonly AnyToolDefinition[] {
     defineTool({
       name: "export_manual_draft",
       description:
-        "公式の投稿の仕組みが無い先（note）向けに、貼り付け用の下書きを書き出します。投稿は行いません。",
+        "公式の投稿の仕組みが無い先（note）向けに、貼り付け用の下書きを書き出します。投稿は行いません。誰がいつ書き出したかを記録に残します。",
       schema: z.object({ publicationId }),
-      readOnly: true,
+      /*
+       * **読み取り専用ではない。** 投稿はしないが、
+       * 「誰が本文を持ち出したか」を記録に残す（仕様書 §7 の必須記録対象）。
+       * 記録は状態の変更なので、`readOnly: true` は事実と違う。
+       *
+       * ここが `true` だったあいだ、この道具は WebMCP に載っていた。
+       * つまり**ページ内の AI が記事の本文を丸ごと取り出せて、
+       * その痕跡がどこにも残らなかった**。false にすると WebMCP から外れる。
+       * 人が画面と REST から使う道は変わらない。
+       */
+      readOnly: false,
       useCase: createExportManualDraftUseCase(distribution),
     }),
     defineTool({

@@ -1,6 +1,6 @@
 /**
  * @tier 1
- * @req REQ-FB07, REQ-FB09
+ * @req REQ-FB07, REQ-FB08, REQ-FB09, REQ-FB12
  * @types audit-log, state-transition, permission-matrix, secrets
  */
 import { beforeEach, describe, expect, it } from "vitest";

@@ -106,6 +106,47 @@ async function recordScheduleChange(
   return ok(undefined);
 }
 
+/**
+ * 下書きを外へ書き出したことを記録する。
+ *
+ * **これは読み取りの操作だが、記録の義務がある。**`つなぎ目の呼び出し`
+ * （`scripts/port-wiring.mjs`）が記録を要求するのは保存先へ書く入口だけなので、
+ * ここは見張りに掛からない。掛からないが、`02-補充仕様` §7 は
+ * 必須記録対象に**エクスポート**を挙げている。
+ *
+ * 理由は、この操作が**記事の本文をまるごと人の手に渡す**ことにある。
+ * 渡した先で何が起きるかはこちらから見えないので、
+ * 「いつ・誰が・どの配信の本文を持ち出したか」がここに残っていないと、
+ * 外へ出た経路を後から辿る手段が 1 つも無い。
+ *
+ * **本文は記録に入れない。**入れると、記録そのものが本文の 2 つ目の置き場所になる。
+ * 残すのは、どの配信を・どの媒体向けに書き出したか、までにする。
+ */
+async function recordManualExport(
+  deps: ManageDistributionDeps,
+  actor: ActorContext,
+  input: {
+    readonly publicationId: string;
+    readonly channelKind: ChannelKind;
+    readonly channelLabel: string;
+  },
+): Promise<Result<void, DomainError>> {
+  const entry = buildAuditEntry({ ids: deps.ids, now: () => new Date() }, actor, {
+    action: "export.performed",
+    targetType: "publication",
+    targetId: input.publicationId,
+    after: { channelKind: input.channelKind, channelLabel: input.channelLabel },
+  });
+  if (!entry.ok) return entry;
+  const appended = await deps.auditLog.append(entry.value);
+  if (!appended.ok) {
+    // 下書きは組み立て終わっているが、**まだ渡していない**。
+    // ここで断れば、記録に残らない持ち出しは 1 件も起きない。
+    return err(auditWriteFailure("下書きは作れています", appended.error.details));
+  }
+  return ok(undefined);
+}
+
 /** 出し方の表示名。識別子をそのまま画面に出さない。 */
 export const PUBLISH_MODE_LABEL: Readonly<Record<string, string>> = {
   api_publish: "自動で投稿できる",
@@ -492,6 +533,14 @@ export function createExportManualDraftUseCase(
         disclosureText: variant.value.disclosure,
       });
       if (!draft.ok) return draft;
+
+      // 記録は**渡す前**。渡した後に書くと、記録に残らない持ち出しが起きうる。
+      const logged = await recordManualExport(deps, actor, {
+        publicationId: input.publicationId,
+        channelKind: publication.channelKind,
+        channelLabel: capability.label,
+      });
+      if (!logged.ok) return logged;
 
       return ok({
         channelLabel: capability.label,

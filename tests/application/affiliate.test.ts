@@ -1,6 +1,6 @@
 /**
  * @tier 1
- * @req REQ-A07
+ * @req REQ-A07, REQ-P09
  * @types permission-matrix, equivalence, audit-log
  *
  * 受け入れ条件 §30.7（アフィリエイト）のうち、提携と成果に関わる分は、ここで確かめている。

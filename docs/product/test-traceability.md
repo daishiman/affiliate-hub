@@ -47,12 +47,12 @@
 
 | テスト | 要件 | 由来 |
 | --- | --- | --- |
-| `tests/application/affiliate.test.ts` | REQ-A07 | 印と表 |
+| `tests/application/affiliate.test.ts` | REQ-A07, REQ-P09 | 印と表 |
 | `tests/application/article-tracking.test.ts` | REQ-E13, REQ-P09 | 印 |
 | `tests/application/build-site.test.ts` | REQ-A05, REQ-P07, REQ-S06 | 印と表 |
 | `tests/application/dashboard.test.ts` | REQ-S01 | 表 |
 | `tests/application/draft-content-variant.test.ts` | REQ-G11 | 印と表 |
-| `tests/application/feedback.test.ts` | REQ-FB07, REQ-FB09 | 印と表 |
+| `tests/application/feedback.test.ts` | REQ-FB07, REQ-FB08, REQ-FB09, REQ-FB12 | 印と表 |
 | `tests/application/filter-metrics.test.ts` | REQ-P10, REQ-S08 | 印と表 |
 | `tests/application/generation-matrix.test.ts` | REQ-A04, REQ-P06, REQ-S05 | 印と表 |
 | `tests/application/link-inbox.test.ts` | REQ-P02, REQ-S02 | 印 |

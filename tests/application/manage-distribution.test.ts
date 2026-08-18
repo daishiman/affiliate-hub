@@ -503,6 +503,50 @@ describe("手作業での書き出し", () => {
     expect(got.value.instructions.length).toBeGreaterThan(0);
   });
 
+  /*
+   * 書き出しは**読み取りの操作**なので、保存先へ書く入口を見ている
+   * `つなぎ目の呼び出し`（`scripts/port-wiring.mjs`）には掛からない。
+   * 掛からないが、`02-補充仕様` §7 は必須記録対象にエクスポートを挙げている。
+   * ここが記録されていないと、**記事の本文が人の手に渡った経路だけが
+   * どこにも残らない**（渡した先で何が起きるかは、こちらから見えない）。
+   */
+  it("書き出したことが、誰がやったかつきで記録に残る", async () => {
+    const audit = recordingAuditLog();
+    const got = await exportDraft(aPublication({ channelKind: "note" }), owner, {
+      auditLog: audit.port,
+    });
+    if (!got.ok) throw got.error;
+
+    expect(audit.actions()).toEqual(["export.performed"]);
+    const entry = audit.entries()[0];
+    expect(entry.targetType).toBe("publication");
+    expect(entry.targetId).toBe("pub-0001");
+    // どの媒体向けに持ち出したかまで。note と X では、渡した先での扱いが違う。
+    expect(entry.after).toMatchObject({ channelKind: "note" });
+    expect(entry.actor.userId).toBe(owner.userId);
+  });
+
+  it("本文は記録に入れない（記録が本文の 2 つ目の置き場所にならない）", async () => {
+    const audit = recordingAuditLog();
+    await exportDraft(aPublication({ channelKind: "note" }), owner, { auditLog: audit.port });
+
+    expect(JSON.stringify(audit.entries())).not.toContain(NOTE_BODY);
+  });
+
+  it("記録が残せなければ、下書きを渡さない", async () => {
+    const got = await exportDraft(aPublication({ channelKind: "note" }), owner, {
+      auditLog: {
+        ...recordingAuditLog().port,
+        append: async () => failing("記録の保存先に繋がりません。"),
+      } as ManageDistributionDeps["auditLog"],
+    });
+
+    expect(got.ok).toBe(false);
+    if (got.ok) return;
+    // 渡してから断ると、記録に残らない持ち出しがそのぶん起きる。
+    expect(got.error.message).toContain("下書きは作れています");
+  });
+
   it("もとの記事が見つからないときは、空の下書きを渡さない", async () => {
     const got = await exportDraft(aPublication({ channelKind: "note" }), owner, withVariant(null));
     expect(got.ok).toBe(false);

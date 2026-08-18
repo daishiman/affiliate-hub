@@ -42,14 +42,14 @@
 | REQ | 性質 | 除外と理由 |
 | --- | --- | --- |
 | REQ-P01 | has-tenant, has-permission, has-screen | — |
-| REQ-P02 | has-input, has-external, has-screen, has-user-supplied-url | fault-injection: 取込元のうち API と拡張機能がまだスタブで、落とす外部接続が実在しない（残課題 45） |
+| REQ-P02 | has-input, has-external, has-screen, has-user-supplied-url, has-recorded-operation | fault-injection: 取込元のうち API と拡張機能がまだスタブで、落とす外部接続が実在しない（残課題 45） |
 | REQ-P03 | has-calculation, has-screen | boundary: 同一判定は識別子の一致・不一致だけで、大小の端が無い |
 | REQ-P04 | has-calculation, has-screen | — |
 | REQ-P05 | has-input, has-screen | — |
 | REQ-P06 | has-input, has-screen, has-ai-text | — |
 | REQ-P07 | has-input, has-state, has-screen | boundary: ウィザードの入力は選択肢と自由記述で、長さ上限を設けていないため端が無い。上限を入れる時に同時に書く |
-| REQ-P08 | has-state, has-external, has-screen, has-db-table | fault-injection: 各媒体への実送信がスタブで、失敗・遅延・一部成功を注入する先が無い（残課題 45） |
-| REQ-P09 | has-input, has-tenant, has-external, has-screen, has-db-table | fault-injection: ASP への実接続がスタブで、落とす外部接続が実在しない |
+| REQ-P08 | has-state, has-external, has-screen, has-db-table, has-recorded-operation | fault-injection: 各媒体への実送信がスタブで、失敗・遅延・一部成功を注入する先が無い（残課題 45） |
+| REQ-P09 | has-input, has-tenant, has-external, has-screen, has-db-table, has-recorded-operation | fault-injection: ASP への実接続がスタブで、落とす外部接続が実在しない |
 | REQ-P10 | has-input, has-screen | — |
 | REQ-B01 | has-screen | — |
 | REQ-B02 | has-screen | — |
@@ -97,6 +97,9 @@
 | REQ-TH01 | has-screen | — |
 | REQ-TH02 | has-enumerated-input | — |
 | REQ-TH03 | has-enumerated-input | — |
+| REQ-FB08 | has-state, has-recorded-operation | — |
+| REQ-FB09 | has-secret, has-recorded-operation | — |
+| REQ-FB12 | has-secret, has-recorded-operation | — |
 | REQ-FB13 | has-permission, has-tenant | — |
 | REQ-SEC01 | has-tenant | — |
 | REQ-SEC02 | has-input, has-user-supplied-url | — |
@@ -106,7 +109,7 @@
 | REQ-SEC06 | has-enumerated-input | — |
 | REQ-SEC07 | has-enumerated-input | — |
 | REQ-SEC08 | has-screen | — |
-| REQ-SEC09 | has-input, has-secret, has-db-table | boundary: 監査記録の入力は操作内容と差分で、大小の端が無い。見ているのは消す / 消さないの分かれ目だけ |
+| REQ-SEC09 | has-input, has-secret, has-db-table, has-recorded-operation | boundary: 監査記録の入力は操作内容と差分で、大小の端が無い。見ているのは消す / 消さないの分かれ目だけ |
 | REQ-SEC10 | has-secret, has-runtime-config | — |
 | REQ-A01 | has-input, has-state, has-user-supplied-url | — |
 | REQ-A02 | has-input | — |
@@ -162,18 +165,18 @@
 
 ## 4. 未宣言の要件について（正直に書く）
 
-要件表には **241 件**の要件 ID がある。上の宣言表はそのうち **118 件**である
+要件表には **241 件**の要件 ID がある。上の宣言表はそのうち **121 件**である
 （`node scripts/required-test-types.mjs` の出力から書き写す。手で数えない。
 ここは長らく 83 と書いたまま古くなっていたことがある。
 **手で書いた数字は、古くなっても古く見えない**）。
-残り 123 件は未宣言で、**この検査の対象外**にある。
-この 123 が `TEST_TYPES_MAX_UNDECLARED` と一致していることが、
+残り 120 件は未宣言で、**この検査の対象外**にある。
+この 120 が `TEST_TYPES_MAX_UNDECLARED` と一致していることが、
 この節の数字が実測と合っていることの確かめになる。
 
 全部に宣言を書き切るまで検査を入れない、という順にすると**検査は永久に入らない**。
 そこで `TRACEABILITY_MAX_UNLINKED` と同じ形にした。
 
-- 未宣言の上限 `TEST_TYPES_MAX_UNDECLARED` を実測に置く（置いた当初は 158。現在 123）
+- 未宣言の上限 `TEST_TYPES_MAX_UNDECLARED` を実測に置く（置いた当初は 158。現在 120）
 - **新しく足す要件は、宣言しなければ CI が落ちる**
 - 既存の未宣言は減らせるが増やせない。**上げて緑にすることを禁じる**
 
@@ -649,7 +652,7 @@ D1 版は成功する。同じ言明を両方に通す検査を書けば、こ�
 
 `REQ-TM12` と `REQ-IM13` に当てなかったのは、**表がまだ無い**からである。
 当てれば書きようの無い要求になり、除外理由が 1 行増えるだけになる
-（除外の上限は 7 で満杯なので、そもそも書けない）。
+（**上限に空きがあっても当てない。**理由は「書けない」ではなく「対象が無い」である）。
 
 #### 赤の実測
 
@@ -764,7 +767,7 @@ D1 版は成功する。同じ言明を両方に通す検査を書けば、こ�
 `ListDisclosures` / `ListAuditLog` と、**全部が読み取りである**。
 書き込みが 1 つも無いので、記録すべき操作が無い。
 当てれば書きようの無い要求になり、除外理由が 1 行増えるだけになる
-（除外は 7/7 で満杯なので、そもそも書けない）。
+（**上限に空きがあっても当てない。**理由は「書けない」ではなく「対象が無い」である）。
 
 つまりこの性質は、**既に満たしている 1 件にしか当たらない**。
 そういう性質は門ではなく、既にあるテストの言い換えである。
@@ -784,6 +787,136 @@ D1 版は成功する。同じ言明を両方に通す検査を書けば、こ�
 **やらないと決めたので、代わりに 2 つ残した。**
 1 つは上の「読まれない場所の印」の検査（`audit-log` の印 2 つがそこにあった。
 数え間違いの元を潰した）。もう 1 つは残課題への起票である。
+
+> **2026-08-18（同日、残課題 69）に結んだ。** 上の判断は「当たる先が無いうちは
+> 結ばない」という順番の話であって、永久に結ばないという意味ではなかった。
+> 順番どおり、要件を宣言表へ載せてから結んでいる。下の節を見よ。
+> **この節の「実質 0 件」は、当時の宣言表に対する実測として正しい。**
+> 数え方は変えていない。数える相手（宣言表）が増えた。
+
+### 2026-08-18 に減らしたぶん（123 → 120）: 記録の義務 7 件（残課題 69）
+
+`audit-log` を `has-recorded-operation` に結んだ。上の「今は結ばない」から
+**順番どおりに**進めた回で、先に要件を宣言表へ載せ、そのうえで性質を当てている。
+
+#### 性質の元にしたもの
+
+**実装が `auditLog.append` を呼んでいるかどうかを条件にしなかった。**
+それを条件にすると、**呼んでいないことが「性質が無い」ことの証拠になる**。
+呼んでいない要件こそ、この性質が捕まえたい相手である。
+
+代わりに元にしたのは 2 つ。
+
+1. `docs/spec/02-補充仕様-ギャップと追加要件.md` §7 の列挙
+   （**公開 / 削除 / リンク差し替え / 権限変更 / 成果データ修正 / エクスポート**）
+2. **要件の文が記録を明示的に求めているもの**
+   （`REQ-FB09`「渡した記録に『誰が・どの鍵で』を残す」、
+   `REQ-FB12`「回数制限と操作の記録を持つ」、`REQ-FB08`「操作の記録は消さずに積む」）
+
+#### 当てた 7 件
+
+| REQ | 記録の義務がどこから来るか | 当たった先 |
+| --- | --- | --- |
+| REQ-P02 | §7「リンク差し替え」 | `link-inbox`（受け取り・広告主の差し替え・対象外。`before` / `after` の `programId` まで見る） |
+| REQ-P08 | §7「公開」「エクスポート」 | `publish-article` / `schedule-publication` / `publication-calendar` / `manage-distribution` |
+| REQ-P09 | §7「成果データ修正」 | `affiliate`（`conversion.adjusted`。修正前後の金額と理由まで見る） |
+| REQ-SEC09 | 要件そのものが監査記録 | `d1-audit-log` / `records-and-metrics` / `d1-content` / `manage-content` |
+| REQ-FB08 | 要件の文「操作の記録は消さずに積む」 | `feedback`（1 回の変更で履歴がちょうど 1 行増える／空の履歴を積まない） |
+| REQ-FB09 | 要件の文「誰が・どの鍵で」 | `feedback`（払い出しの記録） |
+| REQ-FB12 | 要件の文「操作の記録を持つ」 | `feedback`（発行と失効を別の語で残す／鍵そのものは記録に入れない） |
+
+#### 当てなかったもの
+
+| REQ | 理由 |
+| --- | --- |
+| REQ-P07 | `site.created` を出しているが、**要件の文も §7 の列挙も記録を求めていない**。**印が付いていることを、性質がある理由にしない** |
+| REQ-R11 | 承認の記録は `REQ-SEC09` が既に持っている。重ねると**同じ検査を 2 回数えた**ことになる |
+| REQ-P01 | §7 の「権限変更」に当たるが、**書く側の実装がまだ無い**（残課題 62）。実装が来た日に当たる |
+| REQ-SEC01 / REQ-SEC05 | `manage-llm-credentials` が鍵の登録・失効を記録しているが、**両要件の文はテナント分離とプロンプトインジェクションの話**であって、記録の話ではない |
+
+「削除」は当たる先が無い。**削除のユースケースがコード全体に 1 つも無い。**
+
+#### 印を足すだけでは済まなかった 1 件
+
+`REQ-P08` に性質を当てた時点で、**記録されていない持ち出しが 1 つ**残っていた。
+
+`createExportManualDraftUseCase`（手作業での書き出し）は、
+記事の本文をまるごと markdown にして人に渡す。渡した先で何が起きるかは
+こちらから見えないので、§7 は「エクスポート」を必須記録対象に挙げている。
+`AuditAction` にも `export.performed` という語が**最初から**あった。
+**その語を出す場所が、コード全体に 1 つも無かった。**
+
+見つからなかった理由がはっきりしている。
+`scripts/port-wiring.mjs` が記録を要求するのは**保存先へ書く入口だけ**で、
+書き出しは `content.read` の**読み取り**である。構造からは掛からない。
+**書き込みが無いから見張りに掛からないが、要件は記録を求めていた。**
+
+足した記録は、**渡す前**に書く。
+記録が残せなければ下書きを渡さない（渡してから断ると、
+記録に残らない持ち出しがそのぶん起きる）。本文は記録に入れない
+（入れると、記録そのものが本文の 2 つ目の置き場所になる）。
+
+#### その直しが暴いた、注釈の嘘
+
+記録を足したら、無関係に見えた `tests/presentation/tool-catalog-adapters.test.ts`
+の正常系が落ちた。見本データの `auditLog.append` は**必ず失敗するスタブ**なので、
+記録を必須にした道具はそこで断られる。
+
+落ちた場所が答えだった。この道具は `readOnly: true` で登録されていた。
+そして `readOnly` は 3 つのことに使われている
+——MCP の `readOnlyHint`、正常系を測る対象、そして **WebMCP に載せるかどうか**。
+
+つまり **`export_manual_draft` は、ページ内の AI から呼べる道具だった**。
+記事の本文を丸ごと返す道具が、**痕跡を 1 つも残さずに**呼べていた。
+
+記録は状態の変更である。`readOnly: false` へ直した
+（`src/presentation/tools/distribution-tools.ts`）。WebMCP からは外れ、
+人が画面と REST から使う道は変わらない。
+
+**注釈が嘘であることは、注釈を読んでも分からなかった。**
+記録を義務にして初めて、実装と注釈が食い違う場所が赤になった。
+`readOnly` のような**1 語で 3 つの意味を持つ印**は、
+1 つの意味が変わった日に、残りの 2 つが黙って古くなる。
+
+#### まだ出されていない操作の語
+
+`AuditAction` の **28 語**を、`src/` の中で実際に出している場所と突き合わせた
+（`export.performed` は今回 1 段目へ入った）。3 段に分かれる。
+
+| 段 | 語数 | 中身 |
+| --- | --- | --- |
+| 実処理から出している | 19 | — |
+| **見本データの中だけ** | 2 | `content.created` / `ranking_model.changed` |
+| **出す場所がどこにも無い** | 7 | `connector.connected` / `connector.disconnected` / `content.corrected` / `content.unpublished` / `disclosure.changed` / `member.role_changed` / `policy_rule.changed` |
+
+2 段目は `settings-sample-repository.ts` の中にしか無い。**画面には記録が並ぶが、
+その行を作った操作は存在しない。**見本を消した時点で 0 件になる語である。
+
+3 段目は、**機能がまだ無いもの**（`member.role_changed` は残課題 62 で
+「書く側が見本のまま」、`connector.*` は ASP 接続がスタブ）と、
+**機能はあるのに出していないもの**（`content.unpublished`。取り下げは
+`content.state_changed` に混ざっており、`manage-content.ts:668` のコメントが
+自ら「理由を受け取っていない（残課題）」と書いている）が混ざっている。
+
+**語だけがあって出す場所が無いのは、`export.performed` と同じ形**である。
+今回はそこから 1 件、実際の穴（本文を人へ渡すのに記録が無い）が出た。
+残る 9 語（2 段目 + 3 段目）は残課題 74 に置き、1 語ずつ実装と突き合わせる。
+
+#### 赤の実測
+
+| 外した印 | 落ちた要件 |
+| --- | --- |
+| `feedback` の `audit-log` | REQ-FB08 / REQ-FB09 / REQ-FB12（3 件） |
+| `link-inbox` と `affiliate` の `audit-log` | REQ-P02 / REQ-P09（2 件） |
+| 配信まわり 4 ファイル + `manage-content` の `audit-log` | REQ-P08（1 件） |
+
+`REQ-SEC09` だけは 1 ファイル外しても落ちない。**印を持つファイルが 4 つある**
+（監査記録そのものの要件なので、当然そうなる）。落とすには 4 つとも外す必要がある。
+
+書き出しの記録は、**呼び出しを外すと 2 件落ちる**ことを実測した。
+ただし「本文は記録に入れない」の 1 件は、記録が 0 件でも通る
+（空のものは本文を含まない）。**これは単独では何も証明していない検査**で、
+記録がある状態を保ったまま本文が混ざるのを止める役だけを持つ。
 
 ### 2026-08-18: `property` は結ばないと決めた（`ah-wes`）
 
@@ -862,7 +995,13 @@ S 側に同じ性質を重ねると、同じ検査を 2 回数えたことにな
 「宣言済の件数」だけが増える。**S01 だけは §9 に相手がいない**
 （11 個の数字を 1 つのユースケースで数え直す画面）。ここは
 `has-calculation` を当てたかったが、`boundary` の当てどころ（数の端）が
-今の実装に無く、理由つき除外は上限が満杯で書けない。残課題 71 に置いた。
+**今の実装に無い**。実装が端を持てば、そのまま宣言できる。
+
+**理由つき除外に載せる道は取らなかった。**除外は「宣言したうえで、
+この種別は**書かないと決めた**」の一覧であって、`REQ-S01` はそうではない
+（まだ手を付けていないだけ）。だから正しい置き場所は**未宣言の側**である。
+未宣言の上限は**下げる方向にしか動かない**ので、ここに置けば必ず目に入る。
+除外の上限（7）が満杯であることは、この判断の理由ではない。残課題 71 に置いた。
 
 #### `REQ-S09` に `has-permission` を付けなかった理由
 
