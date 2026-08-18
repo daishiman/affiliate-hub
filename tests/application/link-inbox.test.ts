@@ -1,4 +1,14 @@
-/** @tier 1 */
+/**
+ * @tier 1
+ * @req REQ-P02, REQ-S02
+ * @types audit-log, state-transition, permission-matrix
+ *
+ * 印が無かった理由は「書き忘れ」ではなく、**このファイルが要件から書かれていない**
+ * ように見えたからである。中身を読むと、受信箱の 4 状態（`received` / `resolved` /
+ * `matched` / `rejected`）と、その遷移が誰の手で起きたかの記録を、
+ * どちらも実際に見ている。名乗っていなかっただけで、要件の充足としては
+ * 1 件も数えられていなかった。
+ */
 import { describe, expect, it } from "vitest";
 import {
   createListLinkInboxUseCase,

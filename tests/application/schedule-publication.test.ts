@@ -1,4 +1,8 @@
-/** @tier 1 */
+/**
+ * @tier 1
+ * @req REQ-P08
+ * @types audit-log, idempotency
+ */
 import { describe, expect, it } from "vitest";
 import {
   type ManageDistributionDeps,

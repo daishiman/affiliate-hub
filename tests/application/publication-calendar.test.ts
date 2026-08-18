@@ -1,4 +1,8 @@
-/** @tier 1 */
+/**
+ * @tier 1
+ * @req REQ-P08, REQ-S07
+ * @types audit-log, state-transition
+ */
 import { describe, expect, it } from "vitest";
 import { currentActor, publicationCalendarUseCases } from "@/presentation/composition";
 

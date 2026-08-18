@@ -1,7 +1,7 @@
 /**
  * @tier 1
  * @req REQ-A06
- * @types state-transition, tenant-isolation, equivalence
+ * @types state-transition, tenant-isolation, equivalence, audit-log
  *
  * 受け入れ条件 §30.6（配信）の中身は、ここで確かめている。
  * 進める先として出したものは必ず実際に進められること、公開済みからはどこへも進めないこと

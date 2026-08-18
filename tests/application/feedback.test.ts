@@ -1,4 +1,8 @@
-/** @tier 1 */
+/**
+ * @tier 1
+ * @req REQ-FB07, REQ-FB09
+ * @types audit-log, state-transition, permission-matrix, secrets
+ */
 import { beforeEach, describe, expect, it } from "vitest";
 import type { AppDeps } from "@/application/deps";
 import { createHandOffFeedbackUseCase } from "@/application/usecases/feedback/hand-off-feedback";

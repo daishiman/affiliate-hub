@@ -1,7 +1,7 @@
 /**
  * @tier 1
  * @req REQ-P07, REQ-A05
- * @types equivalence, state-transition
+ * @types equivalence, state-transition, audit-log
  *
  * 受け入れ条件 §30.5（ブログ）の中身は、ここで確かめている。
  * 複数のブログを作れること、ブログごとに設定を持てること、

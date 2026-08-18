@@ -6,8 +6,8 @@
 
 - 最終更新: 2026-08-18
 - テストファイル: 156 件
-- 由来の要件が分かる: 127 件
-- **由来不明: 29 件**（上限 37 件）
+- 由来の要件が分かる: 128 件
+- **由来不明: 28 件**（上限 28 件）
 
 由来不明とは「どの要件のために書いたのか、機械から辿れない」という意味で、
 テストが無駄という意味ではない。要件から書いたなら `@req` を 1 行足せば消える。
@@ -15,7 +15,6 @@
 ## 由来不明のテスト
 
 - `tests/acceptance/acceptance-criteria.test.ts`
-- `tests/application/link-inbox.test.ts`
 - `tests/application/manage-workspace.test.ts`
 - `tests/application/read-site.test.ts`
 - `tests/application/reader-interaction.test.ts`
@@ -53,20 +52,21 @@
 | `tests/application/build-site.test.ts` | REQ-A05, REQ-P07, REQ-S06 | 印と表 |
 | `tests/application/dashboard.test.ts` | REQ-S01 | 表 |
 | `tests/application/draft-content-variant.test.ts` | REQ-G11 | 印と表 |
-| `tests/application/feedback.test.ts` | REQ-FB07, REQ-FB09 | 表 |
+| `tests/application/feedback.test.ts` | REQ-FB07, REQ-FB09 | 印と表 |
 | `tests/application/filter-metrics.test.ts` | REQ-P10, REQ-S08 | 印と表 |
 | `tests/application/generation-matrix.test.ts` | REQ-A04, REQ-P06, REQ-S05 | 印と表 |
+| `tests/application/link-inbox.test.ts` | REQ-P02, REQ-S02 | 印 |
 | `tests/application/list-selectable-models.test.ts` | REQ-G11 | 印 |
 | `tests/application/manage-content.test.ts` | REQ-QC11, REQ-R11, REQ-SEC07, REQ-SEC09 | 印と表 |
 | `tests/application/manage-distribution.test.ts` | REQ-A06 | 印と表 |
 | `tests/application/manage-llm-credentials.test.ts` | REQ-SEC01, REQ-SEC05 | 印 |
 | `tests/application/manage-personas.test.ts` | REQ-A03, REQ-P05, REQ-S04, REQ-W12 | 印と表 |
 | `tests/application/outbound-href.test.ts` | REQ-E13 | 印 |
-| `tests/application/publication-calendar.test.ts` | REQ-P08, REQ-S07 | 表 |
-| `tests/application/publish-article.test.ts` | REQ-P08 | 表 |
+| `tests/application/publication-calendar.test.ts` | REQ-P08, REQ-S07 | 印と表 |
+| `tests/application/publish-article.test.ts` | REQ-P08, REQ-R11 | 印と表 |
 | `tests/application/read-llm-usage.test.ts` | REQ-SEC01 | 印 |
 | `tests/application/read-product.test.ts` | REQ-A02, REQ-A08 | 印と表 |
-| `tests/application/schedule-publication.test.ts` | REQ-P08 | 表 |
+| `tests/application/schedule-publication.test.ts` | REQ-P08 | 印と表 |
 | `tests/application/writing-method.test.ts` | REQ-W05, REQ-W06 | 表 |
 | `tests/architecture/ai-eval-budget.test.ts` | REQ-CI13 | 表 |
 | `tests/architecture/commercial-isolation.test.ts` | REQ-FD02 | 表 |

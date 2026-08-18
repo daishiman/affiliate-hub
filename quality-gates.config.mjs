@@ -145,8 +145,15 @@ export const MUTATION_MAX_CHANGED_FILES = 25;
  * この検査を無意味にする。減らすのは残課題として 1 件ずつ行う。
  *
  * **上げて緑にすることを禁じる。**
+ *
+ * → **28**（2026-08-18、残課題 70）。`tests/application/link-inbox.test.ts` に
+ * `@req REQ-P02, REQ-S02` を書いて 1 件減り、実測が 28 になったので追随させた。
+ * ここで 37 のまま置くと、**印が 9 件ぶん外れても緑のまま**になる。
+ * この 1 件は「印を付けるための印」ではない — 受信箱の 4 状態の遷移と、
+ * その遷移が誰の手で起きたかの記録を、ファイルの中で実際に見ていることを
+ * 読んで確かめたうえで書いた。
  */
-export const TRACEABILITY_MAX_UNLINKED = 37;
+export const TRACEABILITY_MAX_UNLINKED = 28;
 
 /**
  * テストの種別（語彙の正本）。

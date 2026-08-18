@@ -1,4 +1,8 @@
-/** @tier 1 */
+/**
+ * @tier 1
+ * @req REQ-P08, REQ-R11
+ * @types audit-log, permission-matrix, equivalence
+ */
 import { beforeEach, describe, expect, it } from "vitest";
 import type {
   EditorialPublishedArticleWriterPort,
