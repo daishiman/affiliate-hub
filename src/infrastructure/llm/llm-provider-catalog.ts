@@ -78,9 +78,15 @@ const PROVIDERS: readonly LlmProviderDescriptor[] = [
  * ```json
  * { "anthropic": [
  *     { "modelId": "…", "label": "…",
- *       "inputPricePerMillionMinor": 450, "outputPricePerMillionMinor": 2250,
- *       "currency": "JPY" } ] }
+ *       "inputPricePerMillionMinor": 500, "outputPricePerMillionMinor": 2500,
+ *       "currency": "USD",
+ *       "sourceUrl": "https://…", "pricedOn": "2026-08-18" } ] }
  * ```
+ *
+ * 正本は `config/llm-provider-catalog.json` にあり、`wrangler.jsonc` の
+ * `vars` はそれを文字列にしたものを 3 か所（手元・dev・本番）へ配る。
+ * 3 か所が食い違っていないことと、`pricedOn` が古くなっていないことは
+ * `tests/infrastructure/llm-provider-catalog-config.test.ts` が見る。
  *
  * **モデル名をここに例として書き込まない。** 書くと、それが既定値のように
  * 読まれて設定されないまま残る。設定が無いときは 0 件を返し、
@@ -120,12 +126,23 @@ function parseModel(item: unknown): LlmModelDescriptor | null {
   if (typeof r.inputPricePerMillionMinor !== "number") return null;
   if (typeof r.outputPricePerMillionMinor !== "number") return null;
   if (typeof r.currency !== "string" || r.currency === "") return null;
+  /*
+    出どころと確認日は**必須**にする。
+
+    任意にすると、埋めた行と埋めていない行が混ざる。混ざった一覧からは
+    「古いのか、まだ確かめていないのか」が読めず、古さの検査も
+    「日付のある行だけ」を見ることになって、日付を消せば検査を抜けられる。
+  */
+  if (typeof r.sourceUrl !== "string" || !/^https:\/\//.test(r.sourceUrl)) return null;
+  if (typeof r.pricedOn !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(r.pricedOn)) return null;
   return {
     modelId: r.modelId,
     label: r.label,
     inputPricePerMillionMinor: r.inputPricePerMillionMinor,
     outputPricePerMillionMinor: r.outputPricePerMillionMinor,
     currency: r.currency,
+    sourceUrl: r.sourceUrl,
+    pricedOn: r.pricedOn,
   };
 }
 

@@ -1,5 +1,5 @@
 {
-  "graph_revision": 227,
+  "graph_revision": 228,
   "nodes": [
     {
       "acceptance": [],
@@ -10440,6 +10440,101 @@
       "title": "宣言表の読み取り範囲を §3 に限定する（解説の表が 2 つ目の宣言として拾われる）",
       "tracker_binding": "beads",
       "updated_at": "2026-08-18T10:00:00Z"
+    },
+    {
+      "acceptance": [],
+      "architecture_refs": [],
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "beads_linkage": null,
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "candidate_path": "tasks/task-secret-history-scan.md",
+          "confidence": 0.9
+        }
+      ],
+      "classification_confidence": 0.9,
+      "classification_reason": "既存の検査が見ていない範囲を、別の手当てとして切り出したもの",
+      "completion_evidence": {
+        "completed_at": null,
+        "evidence_refs": [],
+        "policy": "manual",
+        "reconciled_at": null,
+        "source": "manual",
+        "status": "open"
+      },
+      "confirmation_evidence": {
+        "evaluated_digest": null,
+        "evaluator": null,
+        "evidence_ref": null
+      },
+      "confirmation_status": "draft",
+      "created_at": "2026-08-18T09:00:00Z",
+      "depends_on": [],
+      "domain": "platform",
+      "evaluation_status": "pending",
+      "execution_contexts": [],
+      "feature_package_id": null,
+      "file_path": "tasks/task-secret-history-scan.md",
+      "github_project_linkages": [],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "goal": null,
+      "graph_node_id": "task-secret-history-scan",
+      "implementation_readiness": {
+        "checked_at": null,
+        "missing_sections": [],
+        "status": "incomplete"
+      },
+      "issue_linkage": null,
+      "iteration": null,
+      "mvp_alignment": {
+        "background": "tests/architecture/secrets-not-in-repo.test.ts は『これから入るのを止める』検査で、いま git が追跡しているものだけを見る。過去の履歴は見ない",
+        "mvp_fit": "enabling",
+        "purpose": "履歴に秘密が入っていないことを 1 度だけ実測し、結果を記録する",
+        "rationale": "入口を塞いだ検査が緑であることを『過去にも漏らしていない』と読み違えると、鍵の作り直しが必要な事態を見落とす"
+      },
+      "owners": [
+        "daishiman"
+      ],
+      "parent_feature": null,
+      "phase_ref": null,
+      "priority": "medium",
+      "project_id": "affiliate-hub",
+      "pull_request_linkages": [],
+      "purpose": null,
+      "related_nodes": [],
+      "resource_scope": [
+        "tests",
+        "docs"
+      ],
+      "scope_in": [],
+      "scope_out": [],
+      "source_lineage": {
+        "imported_at": "2026-08-18T09:00:00Z",
+        "origin_kind": "manual",
+        "source_digest": null,
+        "source_path": "tests/architecture/secrets-not-in-repo.test.ts",
+        "source_plugin": null,
+        "source_version": null
+      },
+      "start_date": null,
+      "status": "draft",
+      "tags": [
+        "security",
+        "secrets"
+      ],
+      "target_date": null,
+      "template_id": "task",
+      "template_version": "1.0.0",
+      "title": "秘密の値が過去の履歴に入っていないかを、1 度走査する",
+      "tracker_binding": "beads",
+      "updated_at": "2026-08-18T09:00:00Z"
     }
   ],
   "repository_id": "github:daishiman/affiliate-hub",

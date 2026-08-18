@@ -73,6 +73,8 @@ const MODEL = {
   inputPricePerMillionMinor: 450,
   outputPricePerMillionMinor: 2_250,
   currency: "JPY",
+  sourceUrl: "https://platform.claude.com/docs/en/about-claude/pricing",
+  pricedOn: "2026-08-18",
 };
 
 function fakeCatalog(models: Record<string, (typeof MODEL)[]> = { anthropic: [MODEL] }) {

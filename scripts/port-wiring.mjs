@@ -50,6 +50,7 @@ import {
   PORT_WIRING_MAX_UNRECORDED,
   PORT_WIRING_MAX_WRITE_EXCLUSIONS,
   PORT_WIRING_MAX_UNKNOWN_VERBS,
+  PORT_WIRING_MAX_AUDIT_BEST_EFFORT,
 } from "../quality-gates.config.mjs";
 
 const REGISTRY = "docs/product/port-wiring.md";
@@ -237,6 +238,97 @@ function collectWriteEntryPoints(program, unknownVerbs) {
 }
 
 /**
+ * 「記録を書きにはいくが、**書けなくても止まらない**入口」を集める。
+ *
+ * --- これが 5 つ目の穴の形である ---
+ * 上の 2 つは「記録へ**届いているか**」を見る。届いてさえいれば緑になる。
+ * ところが記録の書き足しは失敗しうる（保存先が落ちている・見本モードで
+ * 置き場が無い）。そのとき戻り値を見ずに次へ進むと、
+ * **操作は成功し、記録だけが無い**状態が残る。
+ *
+ * この状態は画面から見えない。押した人には成功として返り、
+ * 記録の一覧を後から開いた人には「その操作は無かった」ように見える。
+ * つまり**気づく機会が両側とも無い**。
+ *
+ * 判定は「`AuditLogPort.append` の呼び出しが、式のまま捨てられているか」。
+ * `const r = await …` と受けていれば、その後に見ているかどうかまでは見ない
+ * （そこは各入口の単体テストが受け持つ）。受けずに捨てている形だけを数える。
+ *
+ * **0 にはできない。** 見本モードで下書きが 1 段目から進まなくなるため、
+ * いまは 2 件（下書きの開始と段階の保存）を意図して捨てている。
+ * だから**0 にするのではなく、2 で止める**。
+ */
+function collectBestEffortAuditEntryPoints(program) {
+  const checker = program.getTypeChecker();
+  /** @type {{name: string, file: string, line: number}[]} */
+  const rows = [];
+
+  /** その呼び出しが `AuditLogPort.append` か。 */
+  const isAuditAppend = (node) => {
+    if (!ts.isCallExpression(node) || !ts.isPropertyAccessExpression(node.expression)) return false;
+    if (node.expression.name.text !== "append") return false;
+    const symbol = checker.getSymbolAtLocation(node.expression.name);
+    for (const decl of symbol?.declarations ?? []) {
+      if (!ts.isMethodSignature(decl)) continue;
+      const alias = decl.parent?.parent;
+      if (alias === undefined || !ts.isTypeAliasDeclaration(alias)) continue;
+      if (!isPortFile(alias.getSourceFile().fileName)) continue;
+      if (alias.name.text === "AuditLogPort") return true;
+    }
+    return false;
+  };
+
+  /**
+   * 戻り値が捨てられているか。
+   *
+   * `await x.append(e);` は AwaitExpression が式文の直下に来る。
+   * `const r = await x.append(e);` は変数宣言の下に来るので捨てていない。
+   */
+  const isDiscarded = (node) => {
+    const outer = node.parent !== undefined && ts.isAwaitExpression(node.parent) ? node.parent : node;
+    return outer.parent !== undefined && ts.isExpressionStatement(outer.parent);
+  };
+
+  /**
+   * その呼び出しを囲んでいる、名前の付いたいちばん内側の関数名。
+   *
+   * **入口の関数の中だけを見ては駄目である。** 記録の書き足しは
+   * `record(...)` のような同じファイルの下請けへ畳まれていることがあり
+   * （`manage-content.ts` `publication-calendar.ts` がその形）、
+   * 入口から辿る書き方だと**畳んだ瞬間に数から消える**。
+   * 消えたことは緑として現れるので、隠す手口としていちばん通りやすい。
+   * だからファイル全体を見て、名前は報告のためだけに使う。
+   */
+  const enclosingName = (node) => {
+    for (let n = node.parent; n !== undefined; n = n.parent) {
+      if (ts.isFunctionDeclaration(n) && n.name !== undefined) return n.name.text;
+      if ((ts.isFunctionExpression(n) || ts.isArrowFunction(n)) && ts.isVariableDeclaration(n.parent)) {
+        if (ts.isIdentifier(n.parent.name)) return n.parent.name.text;
+      }
+    }
+    return "(名前の無い関数)";
+  };
+
+  for (const sf of program.getSourceFiles()) {
+    if (sf.isDeclarationFile) continue;
+    if (!sf.fileName.includes("src/application/usecases/")) continue;
+
+    const walk = (n) => {
+      if (isAuditAppend(n) && isDiscarded(n)) {
+        rows.push({
+          name: enclosingName(n),
+          file: sf.fileName.replace(`${process.cwd()}/`, ""),
+          line: sf.getLineAndCharacterOfPosition(n.getStart()).line + 1,
+        });
+      }
+      ts.forEachChild(n, walk);
+    };
+    walk(sf);
+  }
+  return rows.sort((a, b) => (a.file + a.line).localeCompare(b.file + b.line));
+}
+
+/**
  * 登録簿のうち、**除外を書く見出しの下だけ**を切り出す。
  *
  * --- なぜ見出しで区切るか ---
@@ -414,6 +506,7 @@ const unknownVerbs = new Set();
 const unrecorded = collectWriteEntryPoints(program, unknownVerbs).filter(
   (r) => !writeExclusions.has(r.name),
 );
+const bestEffortAudit = collectBestEffortAuditEntryPoints(program);
 
 /** @type {{port: string, method: string, file: string}[]} */
 const uncalled = [];
@@ -461,6 +554,25 @@ for (const r of unrecorded) {
 }
 lines.push("");
 
+lines.push("## 記録が残せなくても進む入口");
+lines.push("");
+lines.push("上の 2 つは「記録へ**届いているか**」を見る。届いてさえいれば緑になる。");
+lines.push("ここは届いた先で**書けなかったときに止まるか**を見る。");
+lines.push("");
+lines.push("書けなかったのに進むと、**操作は成功し、記録だけが無い**状態が残る。");
+lines.push("押した人には成功として返り、あとで記録を開いた人には「その操作は無かった」");
+lines.push("ように見えるので、**どちらの側からも気づけない**。");
+lines.push("");
+lines.push(`- 記録が残せなくても進む入口 ${bestEffortAudit.length} 件（上限 ${PORT_WIRING_MAX_AUDIT_BEST_EFFORT}）`);
+lines.push("");
+lines.push("**0 にはできない。** 見本モードでは置き場が無く、0 にすると下書きが");
+lines.push("1 段目から進まなくなる。だから 0 ではなく、いまの実測で止める。");
+lines.push("");
+lines.push("| 入口 | 場所 |");
+lines.push("| --- | --- |");
+for (const r of bestEffortAudit) lines.push(`| \`${r.name}\` | \`${r.file}:${r.line}\` |`);
+lines.push("");
+
 if (unknownVerbs.size > 0) {
   lines.push("### 読み書きを判定できなかった手続き");
   lines.push("");
@@ -482,6 +594,10 @@ console.log("書き込みなのに記録へ届いていない入口");
 console.log(`  届いていない    ${unrecorded.length}（上限 ${PORT_WIRING_MAX_UNRECORDED}）`);
 console.log(`  理由つき除外    ${writeExclusions.size}（上限 ${PORT_WIRING_MAX_WRITE_EXCLUSIONS}）`);
 console.log(`  判定できない    ${unknownVerbs.size}（上限 ${PORT_WIRING_MAX_UNKNOWN_VERBS}）`);
+console.log("");
+console.log("記録が残せなくても進む入口");
+console.log(`  書けても書けなくても進む  ${bestEffortAudit.length}（上限 ${PORT_WIRING_MAX_AUDIT_BEST_EFFORT}）`);
+for (const r of bestEffortAudit) console.log(`  - ${r.name}  (${r.file}:${r.line})`);
 console.log("");
 
 if (process.argv.includes("--list")) {
@@ -540,7 +656,8 @@ const failing =
   uncalled.length > PORT_WIRING_MAX_UNCALLED ||
   exclusions.size > PORT_WIRING_MAX_EXCLUSIONS ||
   unrecorded.length > PORT_WIRING_MAX_UNRECORDED ||
-  writeExclusions.size > PORT_WIRING_MAX_WRITE_EXCLUSIONS;
+  writeExclusions.size > PORT_WIRING_MAX_WRITE_EXCLUSIONS ||
+  bestEffortAudit.length > PORT_WIRING_MAX_AUDIT_BEST_EFFORT;
 if (!process.argv.includes("--check") && !failing) {
   writeFileSync(OUT, `${lines.join("\n")}\n`);
 }
@@ -591,6 +708,16 @@ if (writeExclusions.size > PORT_WIRING_MAX_WRITE_EXCLUSIONS) {
   console.log(
     `NG 書き込み側の除外が上限を ${writeExclusions.size - PORT_WIRING_MAX_WRITE_EXCLUSIONS} 件超えました。`,
   );
+  ng = true;
+}
+if (bestEffortAudit.length > PORT_WIRING_MAX_AUDIT_BEST_EFFORT) {
+  console.log(
+    `NG 記録が残せなくても進む入口が上限を ${bestEffortAudit.length - PORT_WIRING_MAX_AUDIT_BEST_EFFORT} 件超えました。`,
+  );
+  console.log("   `await deps.auditLog.append(...)` の戻り値を受けて、失敗したら断ってください。");
+  console.log("   `const appended = await …; if (!appended.ok) return err(auditWriteFailure(…));`");
+  console.log("   **上限を上げて緑にすることは禁止です。**");
+  for (const r of bestEffortAudit) console.log(`   - ${r.name}  (${r.file}:${r.line})`);
   ng = true;
 }
 if (!ng) {

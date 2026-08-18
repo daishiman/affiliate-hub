@@ -18,6 +18,8 @@ const MODEL = {
   inputPricePerMillionMinor: 450,
   outputPricePerMillionMinor: 2_250,
   currency: "JPY",
+  sourceUrl: "https://platform.claude.com/docs/en/about-claude/pricing",
+  pricedOn: "2026-08-18",
 };
 
 describe("生成 AI の目録", () => {
@@ -101,6 +103,13 @@ describe("生成 AI の目録", () => {
       { label: "" },
       { currency: "" },
       { outputPricePerMillionMinor: "高い" },
+      // 出どころと確認日も必須にした（2026-08-18）。
+      // 任意にすると、埋めた行と埋めていない行が混ざり、
+      // 古さの検査が「日付のある行だけ」を見ることになって抜けられる。
+      { sourceUrl: undefined },
+      { sourceUrl: "http://example.com/pricing" },
+      { pricedOn: undefined },
+      { pricedOn: "2026/08/18" },
     ]) {
       const raw = JSON.stringify({ anthropic: [{ ...MODEL, ...patch }] });
       expect(

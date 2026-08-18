@@ -28,6 +28,8 @@ const MODEL = {
   inputPricePerMillionMinor: 450,
   outputPricePerMillionMinor: 2_250,
   currency: "JPY",
+  sourceUrl: "https://platform.claude.com/docs/en/about-claude/pricing",
+  pricedOn: "2026-08-18",
 };
 
 const catalog = (models: Record<string, (typeof MODEL)[]>): LlmProviderCatalogPort => ({

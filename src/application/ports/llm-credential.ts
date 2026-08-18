@@ -113,5 +113,23 @@ export type LlmModelDescriptor = {
   /** 100 万トークンあたりの単価（最小通貨単位）。費用見積りの入力。 */
   readonly inputPricePerMillionMinor: number;
   readonly outputPricePerMillionMinor: number;
+  /**
+   * 提供元が請求に使う通貨（いまはどこも `USD`）。
+   *
+   * **円に換算して持たない。** 換算するには為替をこちらが決める必要があり、
+   * その値は必ず古くなる。しかも請求の正本は提供元の USD なので、
+   * 円で持った瞬間に**照合できない概算**になる。
+   * 円で見せたいときは表示の段で掛ける（掛けた日付も一緒に出す）。
+   */
   readonly currency: string;
+  /**
+   * この単価を読み取った価格ページ。
+   *
+   * **1 行ごとに持つ。** 提供元ごとにまとめると、モデルを 1 つ足したときに
+   * 「同じページで確かめた」ことになってしまう。実際には
+   * 足した人が見たページは別かもしれず、後から確かめようがない。
+   */
+  readonly sourceUrl: string;
+  /** そのページを見た日（`YYYY-MM-DD`）。古さの判定はこの日付だけを見る。 */
+  readonly pricedOn: string;
 };

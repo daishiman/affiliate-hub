@@ -5,9 +5,9 @@
 テスト側の `@req` 印を重ねたもの。
 
 - 最終更新: 2026-08-18
-- テストファイル: 155 件
+- テストファイル: 156 件
 - 由来の要件が分かる: 127 件
-- **由来不明: 28 件**（上限 37 件）
+- **由来不明: 29 件**（上限 37 件）
 
 由来不明とは「どの要件のために書いたのか、機械から辿れない」という意味で、
 テストが無駄という意味ではない。要件から書いたなら `@req` を 1 行足せば消える。
@@ -28,6 +28,7 @@
 - `tests/domain/metrics-from-telemetry.test.ts`
 - `tests/infrastructure/d1-link-inbox.test.ts`
 - `tests/infrastructure/db-binding.test.ts`
+- `tests/infrastructure/llm-provider-catalog-config.test.ts`
 - `tests/infrastructure/session-actor.test.ts`
 - `tests/infrastructure/stub-registry.test.ts`
 - `tests/integration/d1-feedback.test.ts`

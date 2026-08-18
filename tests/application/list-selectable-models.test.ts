@@ -43,6 +43,8 @@ const aModel: LlmModelDescriptor = {
   inputPricePerMillionMinor: 450,
   outputPricePerMillionMinor: 2250,
   currency: "JPY",
+  sourceUrl: "https://platform.claude.com/docs/en/about-claude/pricing",
+  pricedOn: "2026-08-18",
 };
 
 function catalogWith(

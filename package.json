@@ -19,6 +19,7 @@
     "db:migrate:local": "wrangler d1 migrations apply DB --env dev --local",
     "db:migrate:dev": "wrangler d1 migrations apply DB --env dev --remote",
     "db:migrate:prod": "wrangler d1 migrations apply DB --env production --remote",
+    "catalog:sync": "node scripts/catalog-sync.mjs",
     "verify": "node scripts/verify.mjs",
     "mutation": "stryker run",
     "mutation:changed": "stryker run --since=origin/dev"

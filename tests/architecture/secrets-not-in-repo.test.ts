@@ -5,6 +5,8 @@ import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 
 /**
+ * **これは「これから入るのを止める」検査であって、「すでに履歴にあるものを見つける」検査ではない。**
+ *
  * 秘密の値がリポジトリに載っていないことを固定する。
  *
  * --- なぜ機械で読むのか ---
