@@ -41,8 +41,11 @@ export const FIELD_VALUES: Readonly<Record<string, unknown>> = {
   variantId: "cv_alpha_review",
   personaId: "ap_editor",
   packageId: "cp_laptop_2026",
-  from: "draft",
-  to: "in_review",
+  // 段階は `CONTENT_STATES` の大文字の値。2026-08-18 まで `draft` / `in_review` が
+  // 入っていたが、そんな段階は存在しない。見本の記事 `cv_alpha_review` は
+  // 「事実確認中」に居るので、次に進める先は「表示のきまりを確認中」になる。
+  from: "FACT_CHECK",
+  to: "COMPLIANCE_REVIEW",
   body: "この製品の重さは 1.5kg です。",
   text: "この文章には指示が含まれていません。",
   provided: {},
@@ -90,7 +93,10 @@ export const FIELD_VALUES: Readonly<Record<string, unknown>> = {
   currency: "JPY",
   reason: "広告主からの確定連絡にあわせて修正しました。",
   url: "https://example.com/products/alpha-studio-15",
-  source: "manual",
+  // 受け取り方は `LinkIngestionSource` の 5 つだけ（paste / csv / api / extension / webmcp）。
+  // 2026-08-18 まで `manual` が入っていて、2 つの道具が入力の検査で断られていた。
+  // 断られたところで検査は緑になるので、**間違った見本は黙って通る。**
+  source: "paste",
   linkIngestionId: "lnk_amazon_pc",
   programId: "prg_amazon_pc",
 
@@ -100,7 +106,9 @@ export const FIELD_VALUES: Readonly<Record<string, unknown>> = {
 
   // --- ブログ作成の下書き ---
   draftId: "sd_sample",
-  step: 1,
+  // 段階は文字列（`SITE_WIZARD_STEPS`）。数字を入れても入力の検査で断られるだけで、
+  // 断られたところは検査が緑になるので気づけない。
+  step: "purpose",
   answers: {},
 
   // --- 改善要望 ---
@@ -152,6 +160,11 @@ export const TOOL_OVERRIDES: Readonly<Record<string, Readonly<Record<string, unk
   get_audience_persona: { personaId: "dp_video_beginner" },
   // 書き出しは「自動で投稿できない配信先」でしか意味を持たない。
   export_manual_draft: { publicationId: "pub_note_manual" },
+  // 改善要望の種類は `FEEDBACK_KINDS` の 3 つだけ。`kind` という名前は
+  // 人物の種類（`author`）でも使われているので、辞書ごと変えずにここで上書きする。
+  submit_feedback: { kind: "not_working" },
+  // 下書きの段階は `SITE_WIZARD_STEPS` の文字列。数字ではない。
+  save_site_draft_step: { step: "purpose" },
 };
 
 /**

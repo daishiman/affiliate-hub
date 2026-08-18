@@ -1,5 +1,5 @@
 {
-  "graph_revision": 232,
+  "graph_revision": 233,
   "nodes": [
     {
       "acceptance": [],
@@ -10925,6 +10925,103 @@
       "title": "「手で書き換えない」と書いてある文書に手で書いても、内容が合っていれば緑になる",
       "tracker_binding": "beads",
       "updated_at": "2026-08-18T13:20:00Z"
+    },
+    {
+      "acceptance": [],
+      "architecture_refs": [],
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "beads_linkage": null,
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "candidate_path": "tasks/task-schema-required-lies.md",
+          "confidence": 0.9
+        }
+      ],
+      "classification_confidence": 0.9,
+      "classification_reason": "2026-08-18 に見本の入力を総当たりして見つかった、宣言と実際の必須項目のずれ",
+      "completion_evidence": {
+        "completed_at": null,
+        "evidence_refs": [],
+        "policy": "manual",
+        "reconciled_at": null,
+        "source": "manual",
+        "status": "open"
+      },
+      "confirmation_evidence": {
+        "evaluated_digest": null,
+        "evaluator": null,
+        "evidence_ref": null
+      },
+      "confirmation_status": "draft",
+      "created_at": "2026-08-18T22:40:00Z",
+      "depends_on": [],
+      "domain": "quality",
+      "evaluation_status": "pending",
+      "execution_contexts": [],
+      "feature_package_id": null,
+      "file_path": "tasks/task-schema-required-lies.md",
+      "github_project_linkages": [],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "goal": null,
+      "graph_node_id": "task-schema-required-lies",
+      "implementation_readiness": {
+        "checked_at": null,
+        "missing_sections": [],
+        "status": "incomplete"
+      },
+      "issue_linkage": null,
+      "iteration": null,
+      "mvp_alignment": {
+        "background": "道具一覧の JSON Schema が required に入れていない項目を、ユースケースが必須として断る道具が 3 件ある",
+        "mvp_fit": "enabling",
+        "purpose": "AI が読む宣言と、実際に通る入力を一致させる",
+        "rationale": "AI は宣言を信じる以外にないので、宣言が嘘だと同じ呼び方を繰り返す以外の手がかりが無い"
+      },
+      "owners": [
+        "daishiman"
+      ],
+      "parent_feature": null,
+      "phase_ref": null,
+      "priority": "medium",
+      "project_id": "affiliate-hub",
+      "pull_request_linkages": [],
+      "purpose": null,
+      "related_nodes": [],
+      "resource_scope": [
+        "src",
+        "tests",
+        "docs"
+      ],
+      "scope_in": [],
+      "scope_out": [],
+      "source_lineage": {
+        "imported_at": "2026-08-18T22:40:00Z",
+        "origin_kind": "manual",
+        "source_digest": null,
+        "source_path": "tests/presentation/tool-inputs.ts",
+        "source_plugin": null,
+        "source_version": null
+      },
+      "start_date": "2026-08-18",
+      "status": "draft",
+      "tags": [
+        "quality",
+        "tools",
+        "ai"
+      ],
+      "target_date": null,
+      "template_id": "task",
+      "template_version": "1.0.0",
+      "title": "必須でないと宣言した項目が実際には必須なので、スキーマどおりに呼ぶ AI は必ず失敗し、同じ呼び方を繰り返す",
+      "tracker_binding": "beads",
+      "updated_at": "2026-08-18T22:40:00Z"
     }
   ],
   "repository_id": "github:daishiman/affiliate-hub",
