@@ -225,6 +225,12 @@ const EXPECTED_ACTIONS: readonly AuditAction[] = [
   "feedback.submitted",
   "feedback.status_changed",
   "feedback.handed_off",
+  "variant_spec.drafted",
+  "variant_spec.approved",
+  "loop_run.started",
+  "loop_run.observed",
+  "loop_run.concluded",
+  "loop_run.stopped",
 ];
 
 /** そのうち、理由が無いと記録できないもの。同上。 */
@@ -237,9 +243,10 @@ const EXPECTED_REASON_REQUIRED: readonly AuditAction[] = [
   "member.role_changed",
   "conversion.adjusted",
   "affiliate_link.rejected",
+  "loop_run.stopped",
 ];
 
-describe("AuditLog（E32）: 操作 28 種 × 理由の要否", () => {
+describe("AuditLog（E32）: 操作 34 種 × 理由の要否", () => {
   const human = { userId: asUserId("u-1"), isAiServiceAccount: false, modelId: null };
   const entry = (action: AuditAction, reason?: string | null) =>
     createAuditLogEntry({
@@ -253,14 +260,14 @@ describe("AuditLog（E32）: 操作 28 種 × 理由の要否", () => {
       occurredAt: NOW,
     });
 
-  it("28 種すべてについて、理由が要る 8 種だけが理由なしで断られる", () => {
+  it("34 種すべてについて、理由が要る 9 種だけが理由なしで断られる", () => {
     for (const action of EXPECTED_ACTIONS) {
       const required = EXPECTED_REASON_REQUIRED.includes(action);
       expect(entry(action).ok, `${action} 理由なし`).toBe(!required);
       expect(entry(action, "編集長の判断").ok, `${action} 理由あり`).toBe(true);
     }
-    expect(EXPECTED_ACTIONS).toHaveLength(28);
-    expect(EXPECTED_REASON_REQUIRED).toHaveLength(8);
+    expect(EXPECTED_ACTIONS).toHaveLength(34);
+    expect(EXPECTED_REASON_REQUIRED).toHaveLength(9);
   });
 
   it("空白だけの理由は、書いていないものとして扱う", () => {

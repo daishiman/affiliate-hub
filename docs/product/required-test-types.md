@@ -170,10 +170,10 @@
 | REQ-IM03 | has-enumerated-input | — |
 | REQ-IM04 | has-enumerated-input | — |
 | REQ-IM05 | has-state | — |
-| REQ-IM06 | has-state | — |
+| REQ-IM06 | has-state, has-permission | — |
 | REQ-IM07 | has-input | — |
 | REQ-IM08 | has-calculation | — |
-| REQ-IM09 | has-state | — |
+| REQ-IM09 | has-state, has-screen, has-permission | — |
 | REQ-IM10 | has-enumerated-input | — |
 | REQ-IM11 | has-enumerated-input | — |
 | REQ-IM12 | has-enumerated-input | — |
@@ -2090,7 +2090,7 @@ tests/application tests/presentation` / 2568 件）で赤なら確定、緑だ�
 当てている）に結んだ。ファイルを増やさず、印だけを足している。
 
 期待する一覧は**すべてテストの側に書き写した**。遷移表 10×10、プランの上限
-3×4、分野 8 種・出力先 11 種、操作 28 種と理由が要る 8 種。実装の
+3×4、分野 8 種・出力先 11 種、操作 34 種と理由が要る 9 種。実装の
 `ALLOWED` / `PLAN_LIMITS` / `POLICY_DOMAIN_SCOPES` / `REASON_REQUIRED` を
 読み込んで回すと、一覧から 1 件消えたときに短くなった一覧を回して緑を返す
 （`docs/product/backlog.md` 項目 78 の 5 つ目）。遷移の総当たりは公開ゲートを

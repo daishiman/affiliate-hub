@@ -82,6 +82,8 @@ export const CAPABILITY_LABEL: Readonly<Record<Capability, string>> = {
   "affiliate.manage": "提携を管理する",
   "affiliate.read_revenue": "成果の金額を見る",
   "analytics.read": "数字を見る",
+  "improvement.run": "改善ループを回す",
+  "improvement.approve": "試作を承認する",
   "audit.read": "操作の記録を見る",
   "feedback.submit": "改善要望を送る",
   "feedback.read": "改善要望を見る",
@@ -487,6 +489,13 @@ export const AUDIT_ACTION_LABEL: Readonly<Record<AuditAction, string>> = {
   "feedback.submitted": "改善要望が届いた",
   "feedback.status_changed": "改善要望の扱いを変えた",
   "feedback.handed_off": "改善要望を指示文として払い出した",
+  // 改善ループの 6 語。「試作を作る → 承認する」と「始める → 測る → 決める／やめる」。
+  "variant_spec.drafted": "見せ方の試作を登録した",
+  "variant_spec.approved": "見せ方の試作を承認した",
+  "loop_run.started": "見せ方の比較を始めた",
+  "loop_run.observed": "比較の観測値を記録した",
+  "loop_run.concluded": "比較を判定した",
+  "loop_run.stopped": "比較を打ち切った",
 };
 
 export type ListAuditLogInput = { readonly limit?: number };

@@ -62,6 +62,14 @@ import { createReadFeedbackUseCase } from "@/application/usecases/feedback/read-
 import { createSubmitFeedbackUseCase } from "@/application/usecases/feedback/submit-feedback";
 import { createUpdateFeedbackStatusUseCase } from "@/application/usecases/feedback/update-feedback-status";
 import { createReviewLoopRunsUseCase } from "@/application/usecases/improvement/review-loop-runs";
+import {
+  createApproveVariantSpecUseCase,
+  createConcludeLoopRunUseCase,
+  createDraftVariantSpecUseCase,
+  createRecordLoopObservationUseCase,
+  createStartLoopRunUseCase,
+  createStopLoopRunUseCase,
+} from "@/application/usecases/improvement/run-improvement-loop";
 import { createListImprovementDimensionsUseCase } from "@/application/usecases/improvement/list-improvement-dimensions";
 import {
   createCheckGenerationInputUseCase,
@@ -860,10 +868,22 @@ export async function auditLogNotice(): Promise<StorageStatus> {
 export async function improvementUseCases() {
   // **接続を渡す。** 渡さないと、記録先の表を作っても画面には見本が出続ける。
   // 表を足した回にここを直し忘れ、`composition-wiring` の検査に捕まった。
-  const deps = { repository: createDeps({ db: await tryGetDb() }).improvement };
+  const app = createDeps({ db: await tryGetDb() });
+  const deps = { repository: app.improvement };
+  // 回す側は id と時刻が要る。読む側と同じ保存先を使う
+  // （画面用にもう 1 つ保存の道を作らない）。
+  // 回す側は id と時刻、それに**操作の記録先**が要る。読む側と同じ保存先を使う
+  // （画面用にもう 1 つ保存の道を作らない）。
+  const run = { ...deps, auditLog: app.auditLog, ids: app.ids, now: () => new Date() };
   return {
     review: createReviewLoopRunsUseCase(deps),
     dimensions: createListImprovementDimensionsUseCase(deps),
+    draftSpec: createDraftVariantSpecUseCase(run),
+    approveSpec: createApproveVariantSpecUseCase(run),
+    start: createStartLoopRunUseCase(run),
+    observe: createRecordLoopObservationUseCase(run),
+    conclude: createConcludeLoopRunUseCase(run),
+    stop: createStopLoopRunUseCase(run),
   };
 }
 

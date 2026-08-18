@@ -47,6 +47,23 @@ export type Capability =
   | "affiliate.manage"
   | "affiliate.read_revenue"
   | "analytics.read"
+  /**
+   * 改善ループを回す（試作を作る・始める・観測を書く・判定する・打ち切る）。
+   *
+   * `analytics.read`（見る）と分けている。数字を見る人と、
+   * 見せ方を変えて試す人は同じとは限らない。
+   * 分析担当に「配色を変えて試す」まで渡すと、
+   * 読者に見えるものが、編集の責任者の知らないところで動く。
+   */
+  | "improvement.run"
+  /**
+   * 試作を承認する。**人だけ**（仕様 §14.5）。
+   *
+   * 「見た目だけの変更は自動で」を許さないための分け方である。
+   * 回す権限と承認の権限を 1 つにまとめると、AI に回させた瞬間に
+   * 承認まで渡ることになり、何がいつ変わったのかを誰も把握していない状態になる。
+   */
+  | "improvement.approve"
   | "audit.read"
   | "export.perform"
   /**
@@ -74,6 +91,22 @@ export const HUMAN_ONLY_CAPABILITIES: ReadonlySet<Capability> = new Set<Capabili
   "export.perform",
   "feedback.manage",
   "integration_key.manage",
+  // 見た目だけの変更も人が承認する（仕様 §14.5）。
+  "improvement.approve",
+  /**
+   * 比較を始めるのも人だけ。
+   *
+   * 役に `ai_service_account` を配っていないので普段は届かないが、
+   * それは**配り方**の話で、役を 1 つ足した日に崩れる。
+   * 比較を始めることは読者に見えるものを変えることなので、
+   * 承認と同じ側へ置く（試験で、役に `owner` を持つ AI が
+   * 始められてしまうことが分かったため 2026-08-19 に追加）。
+   *
+   * 観測値を書くのもこの権限に含まれるため、
+   * 機械での測定を自動化したくなったら、そのときここを分ける。
+   * 締めておいて後で緩めるほうが、逆より安全である。
+   */
+  "improvement.run",
 ]);
 
 const ROLE_CAPABILITIES: Readonly<Record<Role, readonly Capability[]>> = {
@@ -97,6 +130,8 @@ const ROLE_CAPABILITIES: Readonly<Record<Role, readonly Capability[]>> = {
     "affiliate.manage",
     "affiliate.read_revenue",
     "analytics.read",
+    "improvement.run",
+    "improvement.approve",
     "audit.read",
     "export.perform",
     "feedback.submit",
@@ -124,6 +159,8 @@ const ROLE_CAPABILITIES: Readonly<Record<Role, readonly Capability[]>> = {
     "affiliate.manage",
     "affiliate.read_revenue",
     "analytics.read",
+    "improvement.run",
+    "improvement.approve",
     "audit.read",
     "export.perform",
     "feedback.submit",
@@ -146,6 +183,8 @@ const ROLE_CAPABILITIES: Readonly<Record<Role, readonly Capability[]>> = {
     "content.approve",
     "content.publish",
     "analytics.read",
+    "improvement.run",
+    "improvement.approve",
     // ブランド管理者は要望を送って一覧を見られるが、扱いを決めるのと鍵の発行はできない。
     "feedback.submit",
     "feedback.read",

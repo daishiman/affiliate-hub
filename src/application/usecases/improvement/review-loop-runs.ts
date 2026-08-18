@@ -52,6 +52,14 @@ export type LoopRunRow = {
   readonly suggestions: readonly ImprovementSuggestion[];
   /** 判定できない理由。判定できているときは null。 */
   readonly blockedReason: string | null;
+  /**
+   * 観測値がもう書かれているか。
+   *
+   * 画面が「判定する」を出してよいかの判断に使う。
+   * `blockedReason` では代用できない（観測値があっても件数不足で理由が付くため、
+   * それを目印にすると「書いたのに判定できない」に見える）。
+   */
+  readonly hasObservation: boolean;
 };
 
 export type ReviewLoopRunsOutput = {
@@ -143,6 +151,7 @@ export function createReviewLoopRunsUseCase(
               : COMPARISON_VERDICT_LABELS[result.verdict],
           suggestions: result === null ? [] : buildSuggestions(diffs, [result]),
           blockedReason,
+          hasObservation: observation !== null,
         });
       }
 

@@ -164,6 +164,14 @@ export const ROUTE_STATE_CASES: readonly (RouteCase & { readonly state: string }
     file: "admin/feedback/[report]/page.tsx",
     params: { report: "fb_does_not_exist" },
   },
+  // 改善の画面は、どのブログで試すかを決めてから**回す操作**が出る。
+  // 既定の表示だけを描くと、1 周まわす欄（登録・承認・開始・観測・判定）が
+  // 一度も描かれない。入口が無いまま「部品はある」に戻る道がここである。
+  {
+    state: "どのブログで試すかを決めたとき",
+    file: "admin/improvement/page.tsx",
+    searchParams: { site: SITE },
+  },
 ];
 
 /** 画面を読み込むときの指定。`renderRoute` に渡す。 */

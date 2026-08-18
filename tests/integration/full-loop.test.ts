@@ -688,16 +688,40 @@ describe("本番の組み立て（見本データのまま）で 1 周を通そ�
     expect(result.error.suggestedAction).toContain("保存先");
   });
 
-  it("採用した見せ方の保存も、同じ形で断る（黙って捨てない）", async () => {
+  /**
+   * ここは 2026-08-19 まで「見本でも `NOT_IMPLEMENTED` で断る」を見ていた。
+   *
+   * 画面から 1 周まわせるようにしたとき、見本の保存先を**本当に控える**形へ変えた
+   * （保存が必ず失敗する環境では、1 周が最初の一歩で止まって試せない）。
+   * つまり**前提のほうが消えた**ので、断りを見続けるのではなく、
+   * 「黙って捨てない」を今の作りに対して測り直す。見るのは 2 つである。
+   *   1. 置いてはいけない形は、D1 と同じ突き当てで断る（素通りにしない）
+   *   2. 通る形は本当に残り、読み直したときに出てくる（受け取って捨てない）
+   */
+  it("採用した見せ方は、断るか残すかのどちらかで、黙って捨てない", async () => {
     const real = createDeps();
-    const saved = await real.improvement.saveVariantSpec(WS, {
+
+    // `summary_position` は調整の軸として登録されていない。
+    const rejected = await real.improvement.saveVariantSpec(WS, {
       spec: aSpec("vs_x", "試し", "top"),
       siteSlug: "video-editing-gear",
     });
-    expect(saved.ok).toBe(false);
-    if (saved.ok) return;
-    expect(saved.error.code).toBe("NOT_IMPLEMENTED");
-    expect(saved.error.suggestedAction).not.toBeNull();
+    expect(rejected.ok).toBe(false);
+    if (rejected.ok) return;
+    // どの環境で断られたかによらず、次に何をすればよいかが必ず添う。
+    expect(rejected.error.suggestedAction).not.toBeNull();
+
+    const spec = aSpec("vs_x", "試し", "top");
+    const accepted = await real.improvement.saveVariantSpec(WS, {
+      spec: { ...spec, settings: [{ dimensionKey: "section_order", value: "比較が先" }] },
+      siteSlug: "video-editing-gear",
+    });
+    expect(accepted.ok).toBe(true);
+
+    const listed = await real.improvement.listVariantSpecs(WS, { siteSlug: "video-editing-gear" });
+    expect(listed.ok).toBe(true);
+    if (!listed.ok) return;
+    expect(listed.value.map((s) => s.id)).toContain("vs_x");
   });
 
   it("読み出しだけの段は見本データで通る（読めるものまで止めない）", async () => {

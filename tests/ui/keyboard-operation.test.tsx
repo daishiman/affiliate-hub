@@ -9,6 +9,7 @@
  * @req REQ-S01, REQ-S02, REQ-S03, REQ-S04, REQ-S05
  * @req REQ-S06, REQ-S07, REQ-S08, REQ-S09, REQ-S10
  * @req REQ-FB07
+ * @req REQ-IM09
  * @req REQ-TM02, REQ-TM03, REQ-TM05, REQ-TM06, REQ-TM10
  * @types keyboard
  */

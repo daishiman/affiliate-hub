@@ -126,7 +126,35 @@ export type AuditAction =
    * （`promptFingerprint`）を残すのは、同じ文面かどうかだけが判定できればよく、
    * 中身を記録側へ複製する理由が無いため。
    */
-  | "feedback.handed_off";
+  | "feedback.handed_off"
+  /**
+   * 見せ方の試作を登録した／承認した。
+   *
+   * **2 語に分ける。** 承認は仕様 §14.5 が人にだけ許している操作で、
+   * 後から問われるのは「誰が比較に出してよいと言ったか」である。
+   * 登録と 1 語にすると、その問いに差分から答えることになる。
+   *
+   * 承認に理由を必須にしていないのは、記事の承認（`content.approved`）と違って
+   * **この時点では何も外へ出ない**ため。外へ出るのは比較を始めたときで、
+   * そこは `loop_run.started` が残す。
+   */
+  | "variant_spec.drafted"
+  | "variant_spec.approved"
+  /**
+   * 見せ方の比較を、始めた／観測した／判定した／打ち切った。
+   *
+   * **4 語に分ける。** 配信予定（`publication.schedule_changed`）を 1 語に
+   * まとめたのは、後から知りたいことが同じ（いつ外へ出るか）だったからである。
+   * こちらは 4 つとも問いが違う。始めた＝いつから読者に 2 通りが出たか、
+   * 観測＝どの数字を根拠にしたか、判定＝何を採ったか、打ち切り＝なぜやめたか。
+   *
+   * 打ち切りだけ理由を必須にしている（下の `REASON_REQUIRED`）。
+   * やめた判断は後から必ず問われるうえ、`before` と `after` の差からは読めない。
+   */
+  | "loop_run.started"
+  | "loop_run.observed"
+  | "loop_run.concluded"
+  | "loop_run.stopped";
 
 /** 操作した主体。AI かどうかを型で残す。後から「人が承認した」を検証するため。 */
 export type AuditActor = {
@@ -162,6 +190,7 @@ const REASON_REQUIRED: ReadonlySet<AuditAction> = new Set<AuditAction>([
   "member.role_changed",
   "conversion.adjusted",
   "affiliate_link.rejected",
+  "loop_run.stopped",
 ]);
 
 /**

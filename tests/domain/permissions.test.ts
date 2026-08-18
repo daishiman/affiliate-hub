@@ -131,10 +131,19 @@ const MUST_NOT_HAVE: Readonly<Record<string, { req: string; caps: readonly Capab
   reviewer: { req: "REQ-R06", caps: ["content.approve", "content.publish"] },
   // REQ-R07: 公開のみ。本文を書き換えられない
   publisher: { req: "REQ-R07", caps: ["content.write", "content.generate", "content.approve"] },
-  // REQ-R08: 数字と報酬の閲覧のみ
+  // REQ-R08: 数字と報酬の閲覧のみ。
+  // 「閲覧のみ」なので、数字を見て**試しはじめる**側は持たない。
+  // 見る権限に回す権限を相乗りさせると、読者に見えるものが数字の担当だけで変わる。
   analyst: {
     req: "REQ-R08",
-    caps: ["content.write", "content.publish", "content.approve", "affiliate.manage"],
+    caps: [
+      "content.write",
+      "content.publish",
+      "content.approve",
+      "affiliate.manage",
+      "improvement.run",
+      "improvement.approve",
+    ],
   },
   // REQ-R09: 記事の読み書きのみ
   contributor: {

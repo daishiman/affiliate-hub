@@ -1,11 +1,19 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
+import { DEFAULT_MINIMUM_SAMPLES, METRIC_DEFINITIONS } from "@/domain/analytics";
 import { AdminShell } from "@/presentation/admin/admin-shell";
+import {
+  AdvanceLoopRunForm,
+  ApproveVariantSpecForm,
+  DraftVariantSpecForm,
+  StartLoopRunForm,
+} from "@/presentation/admin/improvement-forms";
 import {
   currentActor,
   improvementBlockedBy,
   improvementNotice,
   improvementUseCases,
+  platformUseCases,
 } from "@/presentation/composition";
 import { Callout, Card, EmptyView, ErrorView, Page, StubNotice } from "@/presentation/ui";
 import styles from "../admin.module.css";
@@ -32,7 +40,12 @@ export default async function ImprovementPage({
   const siteSlug = params.site !== undefined && params.site !== "" ? params.site : undefined;
 
   const actor = await currentActor();
-  const review = await (await improvementUseCases()).review.execute(actor, { siteSlug });
+  const uc = await improvementUseCases();
+  const review = await uc.review.execute(actor, { siteSlug });
+  // 回す側の材料（軸の一覧・登録済みの設定・ブログの一覧）。
+  // 読めなくても状況の表示は出す。ここで落とすと、見ることまでできなくなる。
+  const dimensions = await uc.dimensions.execute(actor, { siteSlug });
+  const sites = await (await platformUseCases()).listSites.execute(actor, {});
 
   if (!review.ok) {
     return (
@@ -48,6 +61,22 @@ export default async function ImprovementPage({
   }
 
   const v = review.value;
+
+  // 軸の選択肢は登録表から作る。画面に書き起こすと、軸を足した日にここだけ古くなる。
+  const dimensionOptions = dimensions.ok
+    ? dimensions.value.groups.flatMap((g) =>
+        g.dimensions.map((d) => ({ value: d.key, label: `${g.label}／${d.label}` })),
+      )
+    : [];
+  const specs = dimensions.ok ? dimensions.value.specs : [];
+  const pendingSpecs = specs
+    .filter((s) => !s.approved)
+    .map((s) => ({ value: s.id, label: `${s.label}（${s.explanation}）` }));
+  const approvedSpecs = specs
+    .filter((s) => s.approved)
+    .map((s) => ({ value: s.id, label: `${s.label}（${s.explanation}）` }));
+  const metricOptions = METRIC_DEFINITIONS.map((m) => ({ value: m.key, label: m.label }));
+  const siteOptions = sites.ok ? sites.value.items : [];
 
   return (
     <Shell>
@@ -74,6 +103,57 @@ export default async function ImprovementPage({
         {v.caveats.map((c) => (
           <Callout key={c} tone="info" title="この数字の読み方" reason={c} />
         ))}
+      </Card>
+
+      <Card>
+        <h2 className={styles.sectionTitle}>試す（1 周まわす）</h2>
+        <p className={styles.sectionLead}>
+          試作を登録する → 承認する → 比較を始める → 観測値を書く → 判定する。
+          この順番は飛ばせません。承認を挟むのは、見た目だけの変更でも人が決めるためです。
+        </p>
+
+        {!dimensions.ok ? (
+          <Callout
+            tone="warn"
+            title="いまは試作を登録できません"
+            reason={dimensions.error.message}
+          />
+        ) : siteSlug === undefined ? (
+          <>
+            <p>どのブログで試すかを先に決めてください。</p>
+            {siteOptions.length === 0 ? (
+              <p className={styles.linkNote}>
+                {sites.ok
+                  ? "まだブログがありません。先にブログを 1 つ作ってください。"
+                  : `ブログの一覧をまだ読み出せません（${sites.error.message}）。`}
+              </p>
+            ) : (
+              <ul className={styles.linkList}>
+                {siteOptions.map((s) => (
+                  <li key={s.slug}>
+                    <Link href={`/admin/improvement?site=${s.slug}`}>{s.name}</Link>
+                    <span className={styles.linkNote}>このブログで試す</span>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </>
+        ) : (
+          <>
+            <DraftVariantSpecForm
+              siteSlug={siteSlug}
+              dimensions={dimensionOptions}
+              maxSimultaneous={dimensions.value.maxSimultaneous}
+            />
+            <ApproveVariantSpecForm siteSlug={siteSlug} pendingSpecs={pendingSpecs} />
+            <StartLoopRunForm
+              siteSlug={siteSlug}
+              approvedSpecs={approvedSpecs}
+              metrics={metricOptions}
+              defaultMinimumSamples={DEFAULT_MINIMUM_SAMPLES}
+            />
+          </>
+        )}
       </Card>
 
       <Card>
@@ -145,6 +225,12 @@ export default async function ImprovementPage({
               ))}
             </ul>
           )}
+
+          <AdvanceLoopRunForm
+            runId={r.id}
+            running={r.status === "running"}
+            hasObservation={r.hasObservation}
+          />
         </Card>
       ))}
     </Shell>

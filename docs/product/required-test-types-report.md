@@ -146,10 +146,10 @@
 | REQ-IM03 | has-enumerated-input | `decision-table` `equivalence` | `decision-table` `equivalence` | — | 
 | REQ-IM04 | has-enumerated-input | `decision-table` `equivalence` | `decision-table` `equivalence` | — | 
 | REQ-IM05 | has-state | `state-transition` | `state-transition` | — | 
-| REQ-IM06 | has-state | `state-transition` | `state-transition` | — | 
+| REQ-IM06 | has-state, has-permission | `permission-matrix` `state-transition` | `permission-matrix` `state-transition` | — | 
 | REQ-IM07 | has-input | `boundary` `equivalence` | `boundary` `equivalence` | — | 
 | REQ-IM08 | has-calculation | `boundary` `mutation` | `boundary` `mutation` | — | 
-| REQ-IM09 | has-state | `state-transition` | `state-transition` | — | 
+| REQ-IM09 | has-state, has-screen, has-permission | `a11y` `keyboard` `permission-matrix` `screen-states` `state-transition` | `a11y` `keyboard` `permission-matrix` `screen-states` `state-transition` | — | 
 | REQ-IM10 | has-enumerated-input | `decision-table` `equivalence` | `decision-table` `equivalence` | — | 
 | REQ-IM11 | has-enumerated-input | `decision-table` `equivalence` | `decision-table` `equivalence` | — | 
 | REQ-IM12 | has-enumerated-input | `decision-table` `equivalence` | `decision-table` `equivalence` | — | 
@@ -270,4 +270,4 @@
 ## 未宣言の要件
 
 `REQ-CI08` `REQ-CI12` `REQ-E16` `REQ-FD04` `REQ-TH04` `REQ-TH05` `REQ-TS02` `REQ-TS03` `REQ-TS10`
-<!-- 生成物の指紋 sha256:7998f0f9909a537ecdc463532966a7efd723891ae13833849c8378b08ef4545f -->
+<!-- 生成物の指紋 sha256:b3ad4892431f935d3345f018fbb7370bde27d18e44d5f1495af7afbd8bbc026e -->
