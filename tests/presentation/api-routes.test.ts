@@ -1,4 +1,20 @@
-/** @tier 1 */
+/**
+ * @tier 1
+ * @req REQ-M03, REQ-WA02, REQ-WC06
+ * @types permission-matrix, equivalence, boundary
+ *
+ * ここが持つのは入口の手前の 3 つ。
+ *
+ *   REQ-M03   バックエンド MCP の入口と認可。「見せる範囲と実行できる範囲を
+ *             一致させる」が身元 × 道具の総当たりで、受け取る本文の分かれ目
+ *             （JSON でない / JSON だが呼び出しの形でない / 知らないメソッド）が
+ *             同値と境界に当たる
+ *   REQ-WA02  確認が要る道具を、合言葉を持っていても入口に出さないこと
+ *   REQ-WC06  §14.6 のオリジン制約。自分 / よそ / 明示的に許した先の 3 通り
+ *
+ * REQ-M03 の作業場所の分離（他のワークスペースを覗けないこと）はここには無く、
+ * `tool-catalog-adapters.test.ts` の「テナント分離」が持つ。
+ */
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { AnyToolDefinition } from "@/presentation/tools/tool-definition";
 import { NO_HAPPY_PATH, validInputFor } from "./tool-inputs";

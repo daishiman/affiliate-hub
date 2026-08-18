@@ -1,4 +1,20 @@
-/** @tier 1 */
+/**
+ * @tier 1
+ * @req REQ-M01, REQ-M02, REQ-WA01, REQ-WA02
+ * @types equivalence, boundary
+ *
+ * 仕様に並ぶ道具の数（管理側 読み取り 10 種 = REQ-WA01 / 状態変更 8 種 = REQ-WA02 /
+ * バックエンド MCP の Tools 8 種 = REQ-M02 / Resources 8 種 = REQ-M01）が
+ * 実装とどう対応するかを、ここ 1 か所で持つ。
+ *
+ * 分かれ目は「対応が付いている / スタブ / 載せない」の 3 つ（同値）と、
+ * **面ごとの個数がぴったり合うこと・集合の外を尋ねられたとき**（境界）である。
+ * 個数を見ないと、1 種こっそり落としても気づけない。
+ *
+ * 認可の側（誰が呼べるか・確認が要る道具を AI に触らせないか）はここには無い。
+ * REQ-WA02 と REQ-M03 の権限は `api-routes.test.ts`、
+ * 読者の身元から見た拒否は `reader-tools.test.ts` が持つ。
+ */
 import { describe, expect, it } from "vitest";
 import { createToolCatalog, currentActor } from "@/presentation/composition";
 import { findTool } from "@/presentation/tools/catalog";

@@ -1,4 +1,13 @@
-/** @tier 1 */
+/**
+ * @tier 1
+ * @req REQ-WB02
+ * @types permission-matrix
+ *
+ * 読者側の状態変更 1 種（REQ-WB02 = `submit_feedback`）で守るのは、
+ * **ページ内の AI にはどのページでも渡らない**ことである。
+ * 要望の本文は利用者が自由に書く文章で、そこに書かれた命令文を
+ * AI が読む経路を作らない。ページ種別 × 道具の総当たりで見ている。
+ */
 import { beforeEach, describe, expect, it } from "vitest";
 import type { ActorContext } from "@/domain/shared";
 import { createDeps } from "@/infrastructure/composition";

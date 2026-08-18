@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import {
   registerWebMcpTools,
+  resolveModelContext,
   webMcpToolsFrom,
   type ModelContextLike,
   type WebMcpDescriptor,
@@ -26,12 +27,6 @@ declare global {
   interface Navigator {
     modelContext?: ModelContextLike;
   }
-}
-
-function resolveModelContext(): ModelContextLike | undefined {
-  if (typeof document !== "undefined" && document.modelContext) return document.modelContext;
-  if (typeof navigator !== "undefined" && navigator.modelContext) return navigator.modelContext;
-  return undefined;
 }
 
 export function WebMcpProvider({

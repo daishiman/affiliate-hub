@@ -114,16 +114,26 @@
 | REQ-EV14 | has-input | — |
 | REQ-EV15 | has-input | — |
 | REQ-EV16 | has-input | — |
+| REQ-M01 | has-input | — |
+| REQ-M02 | has-input | — |
+| REQ-M03 | has-input, has-permission, has-tenant | — |
+| REQ-WA01 | has-input | — |
+| REQ-WA02 | has-input, has-permission | — |
+| REQ-WB01 | has-input, has-permission | — |
+| REQ-WB02 | has-permission | — |
+| REQ-WC02 | has-state | — |
+| REQ-WC04 | has-input | — |
+| REQ-WC06 | has-permission | — |
 
 ## 4. 未宣言の要件について（正直に書く）
 
-要件表には **241 件**の要件 ID がある。上の宣言表はそのうち **73 件**である。
-残り 168 件は未宣言で、**この検査の対象外**にある。
+要件表には **241 件**の要件 ID がある。上の宣言表はそのうち **83 件**である。
+残り 158 件は未宣言で、**この検査の対象外**にある。
 
 全部に宣言を書き切るまで検査を入れない、という順にすると**検査は永久に入らない**。
 そこで `TRACEABILITY_MAX_UNLINKED` と同じ形にした。
 
-- 未宣言の上限 `TEST_TYPES_MAX_UNDECLARED` を実測（168）に置く
+- 未宣言の上限 `TEST_TYPES_MAX_UNDECLARED` を実測（158）に置く
 - **新しく足す要件は、宣言しなければ CI が落ちる**
 - 既存の未宣言は減らせるが増やせない。**上げて緑にすることを禁じる**
 
@@ -307,6 +317,94 @@ Google OAuth / GitHub / AWS / Slack / 秘密鍵）と、名前つきの実値代
     generation-eval-set から state-transition  → REQ-G10: state-transition
     draft-content-variant から idempotency     → REQ-G11: idempotency
     entry-points から permission-matrix        → REQ-API01: permission-matrix
+
+### 2026-08-18 に減らしたぶん（168 → 158）: WebMCP・バックエンド MCP 10/15 件（`ah-44d`）
+
+15 件のうち **10 件を宣言し、5 件を保留した。** 保留の理由は下に書く。
+
+宣言のために新しく書いた検査が 1 つある。
+`tests/presentation/webmcp-registration.test.ts` で、対象は
+`resolveModelContext()` と `registerWebMcpTools()`。
+この 2 つには**検査が 1 つも無かった**。どちらも React の部品の中にあり、
+画面を描かないと触れなかったためである。そこで `resolveModelContext()` を
+`webmcp-provider.tsx` から `webmcp-adapter.ts` へ移し、登録先を引数で
+渡せるようにした。移す前は、次の 2 つがどちらも壊しても誰も落ちなかった。
+
+- **正規の経路を先に見ること**。`document.modelContext` と
+  `navigator.modelContext` の順を入れ替えても、いまのブラウザでは動いてしまう。
+  非推奨が外れた日に**黙って**止まる（落ちないので気づけない）
+- **離脱時に道具を渡し直して空にすること**。返す関数を `() => {}` にしても
+  そのページでは何も起きない。ページを離れた後、前のページの道具が
+  AI から見えたままになる
+
+#### 宣言した 10 件と、性質を当てた場所
+
+| 要件 | 内容 | 性質 | 分かれ目を持っている検査 |
+|---|---|---|---|
+| M01 | Resources 8 種 | has-input | `spec-contract`（8 種の個数一致・知らない URI） |
+| M02 | Tools 8 種 | has-input | `spec-contract`（実装済／スタブ／別名の 3 区分） |
+| M03 | MCP の入口と認可 | has-input, has-permission, has-tenant | `api-routes`（本文の形・見せる範囲と実行範囲の総当たり）＋ `tool-catalog-adapters`（テナント分離） |
+| WA01 | 管理側 読み取り 10 種 | has-input | `spec-contract` |
+| WA02 | 管理側 状態変更 8 種 ＋ 確認必須 | has-input, has-permission | `spec-contract` ＋ `api-routes`（確認が要る道具は入口に出さない） |
+| WB01 | 読者側 読み取り 9 種 | has-input, has-permission | `reader-tools`（0 件・記事無し・管理用は断る） |
+| WB02 | 読者側 状態変更 1 種 | has-permission | `feedback-tools`（ページ内 AI にはどのページでも渡さない） |
+| WC02 | 能力検出と通常 UI へのフォールバック | has-state | `webmcp-registration`（未登録 → 登録済み → 解除） |
+| WC04 | 1 ページ 6 ツール以下 | has-input | `webmcp-policy`（7 ページ種別すべてに当てて上限を見る） |
+| WC06 | §14.6 オリジン制約 | has-permission | `api-routes`（自分／よそ／明示的に許した先） |
+
+#### 保留した 5 件と、その理由
+
+`REQ-WC01`（正規経路）`REQ-WC03`（機能フラグ）`REQ-WC05`（宣言型フォーム）
+`REQ-WC07`（エラー形式）`REQ-WC08`（旧 3 ツールの扱い）の 5 件である。
+
+どれも**入力が列挙**（新経路／旧経路／無し・on／off・属性の有無・
+旧実装の有無）で、`has-input` を名乗ると必須になる `boundary` の
+当てどころが無い。大小の端が無いものに境界値は書けない。
+
+この形の要件は既に 6 件あり（`REQ-P03` `REQ-P07` `REQ-QC12` `REQ-SEC06`
+`REQ-SEC07` `REQ-SEC09`）、いずれも「`has-input` を宣言して `boundary` を
+理由つき除外」で処理している。同じやり方をすると除外が 10 → 15 になるが、
+`TEST_TYPES_MAX_EXCLUSIONS` は 11 で**空きが 1 しかない**。
+上限を動かす判断はここではしないので、5 件は未宣言のまま残した。
+
+**検査そのものは 5 件とも既にある**（機能フラグ 3 件・宣言型フォーム 6 件・
+エラー形式は `entry-points`、正規経路は今回書いた `webmcp-registration`）。
+足りないのは印であって、確かめる手ではない。
+
+根はもっと手前にある。`contract` / `infra-config` / `decision-table` といった
+種別が**どの性質からも指されていない**（下の「まだどの性質からも
+指されていない種別」）。列挙の網羅を名指しできる性質があれば、
+除外を増やさずに宣言できる。`ah-wes` を先に片付けると、この 5 件は
+除外を 1 件も使わずに済む可能性がある。
+
+#### 付けなかった性質と、その理由
+
+- **REQ-WA01 / REQ-WA02 の `has-tenant`** — 管理側の道具にも作業場所の境界は
+  あるが、それは道具ごとではなく入口が持つ約束である。
+  `tool-catalog-adapters` の「テナント分離」が 95 個の道具すべてに当てており、
+  そこは REQ-M03 が持っている。同じ検査を 2 つの要件で二重に数えない
+- **REQ-WB01 の `has-tenant`** — 「比較記事に順位を尋ねても、ほかの記事の
+  順位を返さない」は記事の境界であって、作業場所の境界ではない
+- **REQ-WC02 の `has-input`** — 登録先は「新しい経路／旧経路／無し」の
+  3 通りで、境界値の当てどころが無い。上の保留 5 件と同じ事情である。
+  状態の遷移（未登録 → 登録済み → 解除）だけを宣言した
+
+効くことは実測した。印の `@types` 行を外すと、外した種別を名指しして
+終了コード 1 で落ちる。7 ファイルすべてで確かめた。
+
+    spec-contract から外す           → REQ-M01 / REQ-M02 / REQ-WA01: boundary, equivalence
+    api-routes から外す              → REQ-M03: boundary, equivalence, permission-matrix
+                                       REQ-WA02 / REQ-WC06: permission-matrix
+    tool-catalog-adapters から外す   → REQ-M03: tenant-isolation
+    webmcp-policy から外す           → REQ-WC04: boundary, equivalence
+    reader-tools から外す            → REQ-WB01: boundary, equivalence, permission-matrix
+    feedback-tools から外す          → REQ-WB02: permission-matrix
+    webmcp-registration から外す     → REQ-WC02: state-transition
+
+新しく書いた検査の側も、実装を壊して赤になることを確かめた。
+
+    経路の優先順位を入れ替える       → 「両方あるときは、新しい経路を使う」が落ちる
+    解除で空を渡さないようにする     → 「登録すると渡り、解除すると空になる」が落ちる
 
 ### まだどの性質からも指されていない種別（`ah-0ip` の残り）
 

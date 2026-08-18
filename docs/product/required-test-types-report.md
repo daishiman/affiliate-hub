@@ -5,8 +5,8 @@
 
 - 最終更新: 2026-08-18
 - 要件表の要件: 241 件
-- 性質を宣言済: 73 件
-- **未宣言: 168 件**（上限 168 件）
+- 性質を宣言済: 83 件
+- **未宣言: 158 件**（上限 158 件）
 - 理由つきの除外: 10 件（上限 11 件）
 
 未宣言とは「必須種別をまだ決めていない」という意味で、
@@ -89,6 +89,16 @@
 | REQ-EV14 | has-input | `boundary` `equivalence` | `boundary` `equivalence` | — | 
 | REQ-EV15 | has-input | `boundary` `equivalence` | `boundary` `equivalence` | — | 
 | REQ-EV16 | has-input | `boundary` `equivalence` | `boundary` `equivalence` | — | 
+| REQ-M01 | has-input | `boundary` `equivalence` | `boundary` `equivalence` | — | 
+| REQ-M02 | has-input | `boundary` `equivalence` | `boundary` `equivalence` | — | 
+| REQ-M03 | has-input, has-permission, has-tenant | `boundary` `equivalence` `permission-matrix` `tenant-isolation` | `boundary` `equivalence` `permission-matrix` `tenant-isolation` | — | 
+| REQ-WA01 | has-input | `boundary` `equivalence` | `boundary` `equivalence` | — | 
+| REQ-WA02 | has-input, has-permission | `boundary` `equivalence` `permission-matrix` | `boundary` `equivalence` `permission-matrix` | — | 
+| REQ-WB01 | has-input, has-permission | `boundary` `equivalence` `permission-matrix` | `boundary` `equivalence` `permission-matrix` | — | 
+| REQ-WB02 | has-permission | `permission-matrix` | `permission-matrix` | — | 
+| REQ-WC02 | has-state | `state-transition` | `state-transition` | — | 
+| REQ-WC04 | has-input | `boundary` `equivalence` | `boundary` `equivalence` | — | 
+| REQ-WC06 | has-permission | `permission-matrix` | `permission-matrix` | — | 
 
 ## 理由つき除外の中身
 
@@ -114,4 +124,4 @@
 
 ## 未宣言の要件
 
-`REQ-B01` `REQ-B02` `REQ-B03` `REQ-B04` `REQ-B05` `REQ-B06` `REQ-B07` `REQ-B08` `REQ-B09` `REQ-B10` `REQ-B11` `REQ-B12` `REQ-B13` `REQ-B14` `REQ-B15` `REQ-B16` `REQ-B17` `REQ-B18` `REQ-CI01` `REQ-CI02` `REQ-CI03` `REQ-CI04` `REQ-CI05` `REQ-CI06` `REQ-CI07` `REQ-CI08` `REQ-CI09` `REQ-CI10` `REQ-CI11` `REQ-CI12` `REQ-CI13` `REQ-E01` `REQ-E02` `REQ-E03` `REQ-E04` `REQ-E05` `REQ-E06` `REQ-E07` `REQ-E08` `REQ-E09` `REQ-E10` `REQ-E11` `REQ-E12` `REQ-E13` `REQ-E14` `REQ-E15` `REQ-E16` `REQ-E17` `REQ-E18` `REQ-E19` `REQ-E20` `REQ-E21` `REQ-E22` `REQ-E23` `REQ-E24` `REQ-E25` `REQ-E26` `REQ-E27` `REQ-E28` `REQ-E29` `REQ-E30` `REQ-E31` `REQ-E32` `REQ-FB01` `REQ-FB02` `REQ-FB03` `REQ-FB04` `REQ-FB05` `REQ-FB06` `REQ-FB07` `REQ-FB08` `REQ-FB09` `REQ-FB10` `REQ-FB11` `REQ-FB12` `REQ-FD01` `REQ-FD02` `REQ-FD03` `REQ-FD04` `REQ-FD05` `REQ-FD06` `REQ-IM01` `REQ-IM02` `REQ-IM03` `REQ-IM04` `REQ-IM06` `REQ-IM07` `REQ-IM08` `REQ-IM09` `REQ-IM10` `REQ-IM11` `REQ-IM12` `REQ-IM13` `REQ-M01` `REQ-M02` `REQ-M03` `REQ-QC01` `REQ-QC02` `REQ-QC03` `REQ-QC04` `REQ-QC05` `REQ-QC06` `REQ-QC07` `REQ-QC08` `REQ-QC09` `REQ-QC10` `REQ-QC11` `REQ-S01` `REQ-S02` `REQ-S03` `REQ-S04` `REQ-S05` `REQ-S06` `REQ-S07` `REQ-S08` `REQ-S09` `REQ-S10` `REQ-TH02` `REQ-TH03` `REQ-TH04` `REQ-TH05` `REQ-TM01` `REQ-TM02` `REQ-TM03` `REQ-TM04` `REQ-TM05` `REQ-TM06` `REQ-TM07` `REQ-TM08` `REQ-TM09` `REQ-TM10` `REQ-TM11` `REQ-TM12` `REQ-TM13` `REQ-TS01` `REQ-TS02` `REQ-TS03` `REQ-TS04` `REQ-TS05` `REQ-TS06` `REQ-TS07` `REQ-TS08` `REQ-TS09` `REQ-TS10` `REQ-W01` `REQ-W02` `REQ-W03` `REQ-W04` `REQ-W05` `REQ-W06` `REQ-W07` `REQ-W08` `REQ-W09` `REQ-W10` `REQ-W11` `REQ-W12` `REQ-WA01` `REQ-WA02` `REQ-WB01` `REQ-WB02` `REQ-WC01` `REQ-WC02` `REQ-WC03` `REQ-WC04` `REQ-WC05` `REQ-WC06` `REQ-WC07` `REQ-WC08`
+`REQ-B01` `REQ-B02` `REQ-B03` `REQ-B04` `REQ-B05` `REQ-B06` `REQ-B07` `REQ-B08` `REQ-B09` `REQ-B10` `REQ-B11` `REQ-B12` `REQ-B13` `REQ-B14` `REQ-B15` `REQ-B16` `REQ-B17` `REQ-B18` `REQ-CI01` `REQ-CI02` `REQ-CI03` `REQ-CI04` `REQ-CI05` `REQ-CI06` `REQ-CI07` `REQ-CI08` `REQ-CI09` `REQ-CI10` `REQ-CI11` `REQ-CI12` `REQ-CI13` `REQ-E01` `REQ-E02` `REQ-E03` `REQ-E04` `REQ-E05` `REQ-E06` `REQ-E07` `REQ-E08` `REQ-E09` `REQ-E10` `REQ-E11` `REQ-E12` `REQ-E13` `REQ-E14` `REQ-E15` `REQ-E16` `REQ-E17` `REQ-E18` `REQ-E19` `REQ-E20` `REQ-E21` `REQ-E22` `REQ-E23` `REQ-E24` `REQ-E25` `REQ-E26` `REQ-E27` `REQ-E28` `REQ-E29` `REQ-E30` `REQ-E31` `REQ-E32` `REQ-FB01` `REQ-FB02` `REQ-FB03` `REQ-FB04` `REQ-FB05` `REQ-FB06` `REQ-FB07` `REQ-FB08` `REQ-FB09` `REQ-FB10` `REQ-FB11` `REQ-FB12` `REQ-FD01` `REQ-FD02` `REQ-FD03` `REQ-FD04` `REQ-FD05` `REQ-FD06` `REQ-IM01` `REQ-IM02` `REQ-IM03` `REQ-IM04` `REQ-IM06` `REQ-IM07` `REQ-IM08` `REQ-IM09` `REQ-IM10` `REQ-IM11` `REQ-IM12` `REQ-IM13` `REQ-QC01` `REQ-QC02` `REQ-QC03` `REQ-QC04` `REQ-QC05` `REQ-QC06` `REQ-QC07` `REQ-QC08` `REQ-QC09` `REQ-QC10` `REQ-QC11` `REQ-S01` `REQ-S02` `REQ-S03` `REQ-S04` `REQ-S05` `REQ-S06` `REQ-S07` `REQ-S08` `REQ-S09` `REQ-S10` `REQ-TH02` `REQ-TH03` `REQ-TH04` `REQ-TH05` `REQ-TM01` `REQ-TM02` `REQ-TM03` `REQ-TM04` `REQ-TM05` `REQ-TM06` `REQ-TM07` `REQ-TM08` `REQ-TM09` `REQ-TM10` `REQ-TM11` `REQ-TM12` `REQ-TM13` `REQ-TS01` `REQ-TS02` `REQ-TS03` `REQ-TS04` `REQ-TS05` `REQ-TS06` `REQ-TS07` `REQ-TS08` `REQ-TS09` `REQ-TS10` `REQ-W01` `REQ-W02` `REQ-W03` `REQ-W04` `REQ-W05` `REQ-W06` `REQ-W07` `REQ-W08` `REQ-W09` `REQ-W10` `REQ-W11` `REQ-W12` `REQ-WC01` `REQ-WC03` `REQ-WC05` `REQ-WC07` `REQ-WC08`

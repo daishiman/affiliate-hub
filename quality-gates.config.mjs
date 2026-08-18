@@ -270,9 +270,24 @@ export const REQUIRED_TEST_TYPES = {
  * 性質の当て方は `docs/product/required-test-types.md` §4 に 1 件ずつ書いた。
  * 理由つき除外は 1 件も増やしていない（10 件のまま）。
  *
+ * → **158**（宣言済 83）。WebMCP・バックエンド MCP の 15 件のうち **10 件**を宣言した
+ * （`REQ-M01`〜`REQ-M03` / `REQ-WA01` `REQ-WA02` / `REQ-WB01` `REQ-WB02` /
+ * `REQ-WC02` `REQ-WC04` `REQ-WC06`。`ah-44d`）。
+ * ここでも印だけでは済まず、`tests/presentation/webmcp-registration.test.ts` を
+ * 新しく書いている。`resolveModelContext()` と `registerWebMcpTools()` には
+ * 検査が 1 つも無かった（React の部品の中にあり、画面を描かないと触れなかった）。
+ * 正規の経路を先に見ることも、離脱時に道具を渡し直して空にすることも、
+ * 壊しても誰も落ちない状態だった。
+ *
+ * 残る 5 件（`REQ-WC01` `REQ-WC03` `REQ-WC05` `REQ-WC07` `REQ-WC08`）は
+ * 入力が列挙で `boundary` の当てどころが無く、既存の慣行どおりなら
+ * 理由つき除外になるが `TEST_TYPES_MAX_EXCLUSIONS` の空きが 1 しかない。
+ * 上限を動かす判断はここではしない。事情は
+ * `docs/product/required-test-types.md` §4 に書いた。
+ *
  * **上げて緑にすることを禁じる。**
  */
-export const TEST_TYPES_MAX_UNDECLARED = 168;
+export const TEST_TYPES_MAX_UNDECLARED = 158;
 
 /**
  * 理由つき除外を許す上限（件数）。

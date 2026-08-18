@@ -1,4 +1,14 @@
-/** @tier 1 */
+/**
+ * @tier 1
+ * @req REQ-M03
+ * @types tenant-isolation
+ *
+ * REQ-M03（バックエンド MCP の入口と認可）のうち、**作業場所をまたげないこと**は
+ * ここの「テナント分離」が持つ。道具は 95 個あり、1 個ずつ手で書くと
+ * 書いた分しか守られないため、一覧をそのまま回して全部に当てている。
+ *
+ * 入口の手前（身元・出所・見せる範囲）は `api-routes.test.ts` が持つ。
+ */
 import { describe, expect, it } from "vitest";
 import type { ActorContext } from "@/domain/shared";
 import { createDeps } from "@/infrastructure/composition";

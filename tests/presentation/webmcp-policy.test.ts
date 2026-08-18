@@ -1,4 +1,18 @@
-/** @tier 1 */
+/**
+ * @tier 1
+ * @req REQ-WC04
+ * @types equivalence, boundary
+ *
+ * 1 ページ 6 ツール以下・読み取り専用から導入（REQ-WC04）の分かれ目は
+ * 「ページ種別ごとに中身が違う」（同値）と「どのページも 6 個以下」（境界）である。
+ * ページ種別は 7 つあり、全部に当てている。
+ *
+ * このファイルには機能フラグ（REQ-WC03）・宣言型フォーム（REQ-WC05）・
+ * オリジン制約（REQ-WC06）も入っているが、印はまだ REQ-WC04 だけに付けている。
+ * WC03 と WC05 は入力が列挙（on/off・属性の有無）で `boundary` の当てどころが無く、
+ * 除外の枠が足りない。事情は `docs/product/required-test-types.md` §4 に書いた。
+ * WC06 の権限は `api-routes.test.ts` の側で見ている。
+ */
 import { readFileSync, readdirSync, statSync } from "node:fs";
 import { join, relative, resolve } from "node:path";
 import { describe, expect, it } from "vitest";

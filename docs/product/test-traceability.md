@@ -5,9 +5,9 @@
 テスト側の `@req` 印を重ねたもの。
 
 - 最終更新: 2026-08-18
-- テストファイル: 153 件
-- 由来の要件が分かる: 121 件
-- **由来不明: 32 件**（上限 37 件）
+- テストファイル: 154 件
+- 由来の要件が分かる: 126 件
+- **由来不明: 28 件**（上限 37 件）
 
 由来不明とは「どの要件のために書いたのか、機械から辿れない」という意味で、
 テストが無駄という意味ではない。要件から書いたなら `@req` を 1 行足せば消える。
@@ -33,12 +33,8 @@
 - `tests/integration/d1-feedback.test.ts`
 - `tests/integration/d1-site-draft.test.ts`
 - `tests/integration/r2-feedback-capture.test.ts`
-- `tests/presentation/api-routes.test.ts`
 - `tests/presentation/composition-wiring.test.ts`
 - `tests/presentation/contact-action.test.ts`
-- `tests/presentation/feedback-tools.test.ts`
-- `tests/presentation/reader-tools.test.ts`
-- `tests/presentation/spec-contract.test.ts`
 - `tests/presentation/storage-notice.test.ts`
 - `tests/support/support.test.ts`
 - `tests/ui/article-frame.test.tsx`
@@ -130,19 +126,24 @@
 | `tests/integration/full-loop.test.ts` | REQ-TS07 | 表 |
 | `tests/presentation/admin-actions.test.ts` | REQ-P08 | 表 |
 | `tests/presentation/admin-routes.test.ts` | REQ-P09, REQ-S02, REQ-S03, REQ-S10 | 表 |
+| `tests/presentation/api-routes.test.ts` | REQ-M03, REQ-WA02, REQ-WC06 | 印 |
 | `tests/presentation/api-scope-actor.test.ts` | REQ-API02, REQ-FB13 | 印 |
 | `tests/presentation/composition.test.ts` | REQ-FD04, REQ-S09 | 表 |
 | `tests/presentation/entry-points.test.ts` | REQ-API01, REQ-WC07 | 印と表 |
 | `tests/presentation/feedback-actions.test.ts` | REQ-FB08, REQ-FB12 | 表 |
 | `tests/presentation/feedback-capture-route.test.ts` | REQ-FB13 | 印と表 |
 | `tests/presentation/feedback-pending-route.test.ts` | REQ-FB09 | 表 |
+| `tests/presentation/feedback-tools.test.ts` | REQ-WB02 | 印 |
 | `tests/presentation/go-route.test.ts` | REQ-E13 | 印 |
 | `tests/presentation/llm-credential-actions.test.ts` | REQ-SEC01 | 印 |
 | `tests/presentation/llm-credential-entry.test.ts` | REQ-SEC01 | 印 |
 | `tests/presentation/nav-permissions.test.ts` | REQ-FB02, REQ-FB07 | 表 |
 | `tests/presentation/one-usecase-three-adapters.test.ts` | REQ-API01, REQ-FD04 | 印と表 |
-| `tests/presentation/tool-catalog-adapters.test.ts` | REQ-TS04 | 表 |
-| `tests/presentation/webmcp-policy.test.ts` | REQ-WC03, REQ-WC06 | 表 |
+| `tests/presentation/reader-tools.test.ts` | REQ-WB01 | 印 |
+| `tests/presentation/spec-contract.test.ts` | REQ-M01, REQ-M02, REQ-WA01, REQ-WA02 | 印 |
+| `tests/presentation/tool-catalog-adapters.test.ts` | REQ-M03, REQ-TS04 | 印と表 |
+| `tests/presentation/webmcp-policy.test.ts` | REQ-WC03, REQ-WC04, REQ-WC06 | 印と表 |
+| `tests/presentation/webmcp-registration.test.ts` | REQ-WC02 | 印 |
 | `tests/property/normalization.property.test.ts` | REQ-P02, REQ-P03, REQ-TH01, REQ-TH03 | 印と表 |
 | `tests/property/publish-gate.property.test.ts` | REQ-QC09, REQ-QC12, REQ-SEC06 | 印と表 |
 | `tests/property/ranking.property.test.ts` | REQ-B12, REQ-P04, REQ-SEC04 | 印と表 |

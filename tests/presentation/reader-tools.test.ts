@@ -1,4 +1,15 @@
-/** @tier 1 */
+/**
+ * @tier 1
+ * @req REQ-WB01
+ * @types permission-matrix, equivalence, boundary
+ *
+ * 読者側 読み取り 9 種（REQ-WB01）を、読者の身元で 1 つずつ呼ぶ。
+ *
+ *   同値      8 種それぞれが中身つきで返ること（面が違えば返るものも違う）
+ *   境界      絞り込みが 0 件のとき・記事が無いとき（空の成功にしない）
+ *   権限      管理用の読み取りは読者の身元では断られること、
+ *             画面に出していないものは返らないこと
+ */
 import { describe, expect, it } from "vitest";
 import { createToolCatalog, readerActor } from "@/presentation/composition";
 import { findTool } from "@/presentation/tools/catalog";
