@@ -5,8 +5,8 @@
 テスト側の `@req` 印を重ねたもの。
 
 - 最終更新: 2026-08-18
-- テストファイル: 154 件
-- 由来の要件が分かる: 126 件
+- テストファイル: 155 件
+- 由来の要件が分かる: 127 件
 - **由来不明: 28 件**（上限 37 件）
 
 由来不明とは「どの要件のために書いたのか、機械から辿れない」という意味で、
@@ -88,7 +88,7 @@
 | `tests/domain/handoff-prompt.test.ts` | REQ-FB11 | 表 |
 | `tests/domain/improvement.test.ts` | REQ-IM01, REQ-IM06, REQ-IM07, REQ-IM08, REQ-IM09, REQ-IM10, REQ-IM11, REQ-IM12 | 表 |
 | `tests/domain/invariants.test.ts` | REQ-SEC07, REQ-W08 | 表 |
-| `tests/domain/link-ingestion.test.ts` | REQ-A01, REQ-S02 | 印と表 |
+| `tests/domain/link-ingestion.test.ts` | REQ-A01, REQ-P02, REQ-S02 | 印と表 |
 | `tests/domain/llm-credential.test.ts` | REQ-SEC01 | 印 |
 | `tests/domain/permissions.test.ts` | REQ-API02, REQ-R01, REQ-R02, REQ-R03, REQ-R04, REQ-R05, REQ-R06, REQ-R07, REQ-R08, REQ-R09, REQ-R10, REQ-R11, REQ-R12 | 印 |
 | `tests/domain/planning.test.ts` | REQ-SEC07 | 表 |
@@ -129,7 +129,8 @@
 | `tests/presentation/api-routes.test.ts` | REQ-M03, REQ-WA02, REQ-WC06 | 印 |
 | `tests/presentation/api-scope-actor.test.ts` | REQ-API02, REQ-FB13 | 印 |
 | `tests/presentation/composition.test.ts` | REQ-FD04, REQ-S09 | 表 |
-| `tests/presentation/entry-points.test.ts` | REQ-API01, REQ-WC07 | 印と表 |
+| `tests/presentation/entry-points.test.ts` | REQ-API01, REQ-WC07, REQ-WC08 | 印と表 |
+| `tests/presentation/error-format.test.ts` | REQ-WC07 | 印 |
 | `tests/presentation/feedback-actions.test.ts` | REQ-FB08, REQ-FB12 | 表 |
 | `tests/presentation/feedback-capture-route.test.ts` | REQ-FB13 | 印と表 |
 | `tests/presentation/feedback-pending-route.test.ts` | REQ-FB09 | 表 |
@@ -143,7 +144,7 @@
 | `tests/presentation/spec-contract.test.ts` | REQ-M01, REQ-M02, REQ-WA01, REQ-WA02 | 印 |
 | `tests/presentation/tool-catalog-adapters.test.ts` | REQ-M03, REQ-TS04 | 印と表 |
 | `tests/presentation/webmcp-policy.test.ts` | REQ-WC03, REQ-WC04, REQ-WC06 | 印と表 |
-| `tests/presentation/webmcp-registration.test.ts` | REQ-WC02 | 印 |
+| `tests/presentation/webmcp-registration.test.ts` | REQ-WC01, REQ-WC02 | 印 |
 | `tests/property/normalization.property.test.ts` | REQ-P02, REQ-P03, REQ-TH01, REQ-TH03 | 印と表 |
 | `tests/property/publish-gate.property.test.ts` | REQ-QC09, REQ-QC12, REQ-SEC06 | 印と表 |
 | `tests/property/ranking.property.test.ts` | REQ-B12, REQ-P04, REQ-SEC04 | 印と表 |
@@ -171,5 +172,5 @@
 | `tests/ui/schedule-publication-form.test.tsx` | REQ-P08 | 表 |
 | `tests/ui/site-not-found.test.tsx` | REQ-B01 | 表 |
 | `tests/ui/theme-contrast.test.ts` | REQ-TH02, REQ-TS06 | 表 |
-| `tests/ui/tool-form.test.tsx` | REQ-WC05 | 表 |
+| `tests/ui/tool-form.test.tsx` | REQ-WC05 | 印と表 |
 | `tests/ui/ui-layers.test.ts` | REQ-S09, REQ-TM05, REQ-TM06 | 表 |

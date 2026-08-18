@@ -1,7 +1,7 @@
 /**
  * @tier 1
- * @req REQ-WC02
- * @types state-transition, equivalence
+ * @req REQ-WC01, REQ-WC02
+ * @types state-transition, equivalence, decision-table
  *
  * ページ内 AI への登録そのものを確かめる。
  *
@@ -15,11 +15,12 @@
  *   REQ-WC02  対応していない環境では**何もしない**こと、および
  *             登録した後に必ず元へ戻せること（未登録 → 登録済み → 解除）
  *
- * REQ-WC01 は宣言表にまだ載せていない。`has-input` を名乗ると `boundary` が
- * 要るが、登録先は「新しい経路 / 旧経路 / 無し」の 3 通りで大小の端が無く、
- * 理由つき除外の枠（上限 11・使用 10）が足りない。
- * 事情は `docs/product/required-test-types.md` §4 に書いた。
- * 宣言が無くても、この検査は今日から効く。
+ * REQ-WC01 は 2026-08-18 に宣言した。性質は `has-enumerated-input`
+ * （入力の軸がすべて列挙で、大小の端が無い）で、必須は等価分割と判定表。
+ * `has-input` を名乗って `boundary` を除外する形にしなかったのは、
+ * 列挙で本当に困るのが端ではなく**数え落とし**だからである。
+ * 実際、判定表にそろえたときに 4 行のうち 1 行（新しい経路だけがある）が
+ * 抜けていた。実装は正しかったが、**壊れても落ちない**状態だった。
  */
 import { describe, expect, it } from "vitest";
 import {
@@ -68,19 +69,38 @@ describe("登録先の選び方", () => {
   const newer: ModelContextLike = { provideContext: () => {} };
   const older: ModelContextLike = { registerTool: () => {} };
 
-  it("両方あるときは、新しい経路を使う", () => {
-    // 逆にすると、新しいブラウザでも旧経路に載り続け、
-    // 非推奨が外れた日に**黙って**止まる。落ちないので気づけない。
-    expect(resolveModelContext({ modelContext: newer }, { modelContext: older })).toBe(newer);
+  /*
+    条件は 2 つ（新しい経路があるか / 旧経路があるか）で、組合せは 4 通り。
+    **表にして 4 行そろえてある。**
+
+    そろえる前は 3 行しか無く、「新しい経路だけがある」が抜けていた。
+    抜けている行は、1 つずつ書いていると気づけない。3 つ書けば
+    書いた側は網羅した気になり、読む側も 3 つ並んでいれば足りて見える。
+    行数を数える下の検査が、増えた条件に気づくための唯一の手である。
+  */
+  const CASES = [
+    { 新: true, 旧: true, 期待: "新", なぜ: "非推奨が外れた日に黙って止まらないよう、新を先に見る" },
+    { 新: true, 旧: false, 期待: "新", なぜ: "旧が無くても新だけで成立する" },
+    { 新: false, 旧: true, 期待: "旧", なぜ: "まだ新に対応していないブラウザを切り捨てない" },
+    { 新: false, 旧: false, 期待: "無し", なぜ: "対応していない環境では何もしない" },
+  ] as const;
+
+  it("条件 2 つの組合せ 4 通りが、1 行も欠けずに並んでいる", () => {
+    expect(CASES.length).toBe(2 ** 2);
+    expect(new Set(CASES.map((c) => `${c.新}/${c.旧}`)).size).toBe(CASES.length);
   });
 
-  it("新しい経路が無ければ、旧経路に落ちる", () => {
-    expect(resolveModelContext({}, { modelContext: older })).toBe(older);
-  });
-
-  it("どちらも無ければ、登録先は無し", () => {
-    expect(resolveModelContext({}, {})).toBeUndefined();
-  });
+  it.each(CASES.map((c) => [`新=${c.新} 旧=${c.旧} → ${c.期待}（${c.なぜ}）`, c] as const))(
+    "%s",
+    (_name, c) => {
+      const got = resolveModelContext(
+        c.新 ? { modelContext: newer } : {},
+        c.旧 ? { modelContext: older } : {},
+      );
+      const expected = c.期待 === "新" ? newer : c.期待 === "旧" ? older : undefined;
+      expect(got).toBe(expected);
+    },
+  );
 
   it("そもそも document も navigator も無い場所でも、例外を投げない", () => {
     // サーバー側で読み込まれることがある。ここで投げると画面ごと落ちる。

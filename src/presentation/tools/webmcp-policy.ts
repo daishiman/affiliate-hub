@@ -104,7 +104,15 @@ export const PAGE_TOOLS: Readonly<Record<PageKind, readonly string[]>> = {
  */
 export const WEBMCP_FLAG = "WEBMCP_ENABLED";
 
-const OFF_VALUES = new Set(["off", "false", "0", "no", "disabled"]);
+/**
+ * 「止める」と読む値の一覧。**外へ出しているのは、検査が全通りを回れるようにするため。**
+ *
+ * ここを閉じたままにすると、検査の側で同じ一覧を書き写すことになる。
+ * 書き写した一覧は増えたときに追随しないので、値を 1 つ足しても誰も落ちない。
+ */
+export const WEBMCP_OFF_VALUES: readonly string[] = ["off", "false", "0", "no", "disabled"];
+
+const OFF_VALUES = new Set(WEBMCP_OFF_VALUES);
 
 export function isWebMcpEnabled(env: Readonly<Record<string, string | undefined>> = {}): boolean {
   const raw = env[WEBMCP_FLAG];

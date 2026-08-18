@@ -1,7 +1,7 @@
 /**
  * @tier 1
- * @req REQ-API01
- * @types permission-matrix
+ * @req REQ-API01, REQ-WC08
+ * @types permission-matrix, equivalence, decision-table
  *
  * 入口の群（REQ-API01）の分かれ目は「誰に何を許すか」で、
  * 下の 入口 3 種 × 操作 の総当たりがそれである。
@@ -11,7 +11,9 @@
 import { existsSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { describe, expect, it } from "vitest";
+import { createToolCatalog } from "@/presentation/composition";
 import { isToolAllowedForScope, refusalReason, visibleTools } from "@/presentation/http/tool-scope";
+import { findTool } from "@/presentation/tools/catalog";
 import { MAX_TOOLS_PER_PAGE, toWebMcpDescriptors } from "@/presentation/tools/webmcp-adapter";
 import type { AnyToolDefinition } from "@/presentation/tools/tool-definition";
 
@@ -22,6 +24,7 @@ import type { AnyToolDefinition } from "@/presentation/tools/tool-definition";
  * 片方だけ緩い状態は目視では見つからないので、機械で止める。
  */
 const ROOT = resolve(import.meta.dirname, "../..");
+const retiredCatalog = await createToolCatalog();
 
 function fakeTool(over: Partial<AnyToolDefinition>): AnyToolDefinition {
   return {
@@ -104,5 +107,62 @@ describe("入口の実装が 1 つであること", () => {
     // 同じ役目のコードが 2 つあると、直したつもりの方が使われていない事故が起きる。
     expect(existsSync(resolve(ROOT, "src/lib")), "src/lib が残っています").toBe(false);
     expect(existsSync(resolve(ROOT, "src/components")), "src/components が残っています").toBe(false);
+  });
+});
+
+/*
+  暫定だった 3 つのツールの後始末（REQ-WC08）。
+
+  「移行済み」と書いてあるだけでは、消えたのか名前を変えただけなのかが分からない。
+  旧名 3 つを 1 つずつ表にして、**消えたことと、その代わりがどれか**を並べる。
+  代わりが無い行は空欄のままにしてある。埋めるより、無いことを見えるようにする方が要る。
+*/
+const RETIRED_TOOLS = [
+  {
+    旧名: "list_programs",
+    後継: "list_affiliate_programs",
+    なぜ: "何の一覧かが名前から分かるようにした",
+  },
+  {
+    旧名: "get_revenue_summary",
+    後継: "list_metrics",
+    なぜ: "売上だけでなく計測値全体を 1 つの口から返す形にした",
+  },
+  {
+    旧名: "record_conversion",
+    後継: null,
+    なぜ: "成果を書き込む口は、いまのカタログに 1 つも無い（`adjust_conversion_reward` は既にある成果の金額を直すだけ）。ASP からの取り込みが未実装のため、書き込む元が無い",
+  },
+] as const;
+
+describe("暫定だった 3 ツールの後始末（判定表）", () => {
+  it("旧名 3 つが、1 つも落ちずに表に並んでいる", () => {
+    expect(RETIRED_TOOLS.length).toBe(3);
+    expect(new Set(RETIRED_TOOLS.map((t) => t.旧名)).size).toBe(3);
+  });
+
+  it("旧 `src/lib/mcp/specs.ts` は存在しない", () => {
+    expect(existsSync(resolve(ROOT, "src/lib/mcp/specs.ts"))).toBe(false);
+  });
+
+  it.each(RETIRED_TOOLS.map((t) => [t.旧名] as const))("%s: 旧名はカタログに無い", (旧名) => {
+    expect(findTool(retiredCatalog, 旧名), `${旧名} がまだ受け付けられています`).toBeNull();
+  });
+
+  it.each(
+    RETIRED_TOOLS.filter((t) => t.後継 !== null).map((t) => [t.旧名, t.後継 as string] as const),
+  )("%s の代わりが %s として実在する", (_旧名, 後継) => {
+    expect(findTool(retiredCatalog, 後継), `${後継} がありません`).not.toBeNull();
+  });
+
+  it("代わりが無い行は、無いままであることを言い切る", () => {
+    // 埋まっていない行を黙って消すと「移行済み」だけが残る。
+    const 未移行 = RETIRED_TOOLS.filter((t) => t.後継 === null).map((t) => t.旧名);
+    expect(未移行).toEqual(["record_conversion"]);
+    // 成果を書き込む口が生えたら、この検査が落ちて表を直すことになる。
+    const 書き込みの口 = retiredCatalog.filter(
+      (t) => t.readOnly !== true && /conversion/.test(t.name),
+    );
+    expect(書き込みの口.map((t) => t.name)).toEqual(["adjust_conversion_reward"]);
   });
 });

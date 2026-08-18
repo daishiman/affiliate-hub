@@ -42,7 +42,7 @@
 | REQ | 性質 | 除外と理由 |
 | --- | --- | --- |
 | REQ-P01 | has-tenant, has-permission, has-screen | — |
-| REQ-P02 | has-input, has-external, has-screen | boundary: 入力が URL 文字列で長さ上限を設けていないため、端が存在しない。上限を入れる時に同時に書く; fault-injection: 取込元のうち API と拡張機能がまだスタブで、落とす外部接続が実在しない（残課題 45） |
+| REQ-P02 | has-input, has-external, has-screen, has-user-supplied-url | fault-injection: 取込元のうち API と拡張機能がまだスタブで、落とす外部接続が実在しない（残課題 45） |
 | REQ-P03 | has-calculation, has-screen | boundary: 同一判定は識別子の一致・不一致だけで、大小の端が無い |
 | REQ-P04 | has-calculation, has-screen | — |
 | REQ-P05 | has-input, has-screen | — |
@@ -69,16 +69,16 @@
 | REQ-TH01 | has-screen | — |
 | REQ-FB13 | has-permission, has-tenant | — |
 | REQ-SEC01 | has-tenant | — |
-| REQ-SEC02 | has-input | — |
+| REQ-SEC02 | has-input, has-user-supplied-url | — |
 | REQ-SEC03 | has-input | — |
 | REQ-SEC04 | has-calculation | — |
 | REQ-SEC05 | has-ai-text | — |
-| REQ-SEC06 | has-input | boundary: 入力は関係の種類（列挙）で、大小の端が無い。組合せ側は性質テストが全通り生成して当てている |
-| REQ-SEC07 | has-input | boundary: 入力は文章とルールの照合で、大小の端が無い。効き目は「当たらねばならない文 / 当たってはならない文」で見ている |
+| REQ-SEC06 | has-enumerated-input | — |
+| REQ-SEC07 | has-enumerated-input | — |
 | REQ-SEC08 | has-screen | — |
 | REQ-SEC09 | has-input, has-secret | boundary: 監査記録の入力は操作内容と差分で、大小の端が無い。見ているのは消す / 消さないの分かれ目だけ |
 | REQ-SEC10 | has-secret | — |
-| REQ-A01 | has-input, has-state | — |
+| REQ-A01 | has-input, has-state, has-user-supplied-url | — |
 | REQ-A02 | has-input | — |
 | REQ-A03 | has-input | — |
 | REQ-A04 | has-input, has-ai-text | — |
@@ -123,7 +123,12 @@
 | REQ-WB02 | has-permission | — |
 | REQ-WC02 | has-state | — |
 | REQ-WC04 | has-input | — |
+| REQ-WC01 | has-enumerated-input | — |
+| REQ-WC03 | has-enumerated-input | — |
+| REQ-WC05 | has-enumerated-input | — |
 | REQ-WC06 | has-permission | — |
+| REQ-WC07 | has-enumerated-input | — |
+| REQ-WC08 | has-enumerated-input | — |
 
 ## 4. 未宣言の要件について（正直に書く）
 
@@ -352,7 +357,7 @@ Google OAuth / GitHub / AWS / Slack / 秘密鍵）と、名前つきの実値代
 | WC04 | 1 ページ 6 ツール以下 | has-input | `webmcp-policy`（7 ページ種別すべてに当てて上限を見る） |
 | WC06 | §14.6 オリジン制約 | has-permission | `api-routes`（自分／よそ／明示的に許した先） |
 
-#### 保留した 5 件と、その理由
+#### 残っていた 5 件（2026-08-18 に解決）
 
 `REQ-WC01`（正規経路）`REQ-WC03`（機能フラグ）`REQ-WC05`（宣言型フォーム）
 `REQ-WC07`（エラー形式）`REQ-WC08`（旧 3 ツールの扱い）の 5 件である。
@@ -361,21 +366,10 @@ Google OAuth / GitHub / AWS / Slack / 秘密鍵）と、名前つきの実値代
 旧実装の有無）で、`has-input` を名乗ると必須になる `boundary` の
 当てどころが無い。大小の端が無いものに境界値は書けない。
 
-この形の要件は既に 6 件あり（`REQ-P03` `REQ-P07` `REQ-QC12` `REQ-SEC06`
-`REQ-SEC07` `REQ-SEC09`）、いずれも「`has-input` を宣言して `boundary` を
-理由つき除外」で処理している。同じやり方をすると除外が 10 → 15 になるが、
-`TEST_TYPES_MAX_EXCLUSIONS` は 11 で**空きが 1 しかない**。
-上限を動かす判断はここではしないので、5 件は未宣言のまま残した。
-
-**検査そのものは 5 件とも既にある**（機能フラグ 3 件・宣言型フォーム 6 件・
-エラー形式は `entry-points`、正規経路は今回書いた `webmcp-registration`）。
-足りないのは印であって、確かめる手ではない。
-
-根はもっと手前にある。`contract` / `infra-config` / `decision-table` といった
-種別が**どの性質からも指されていない**（下の「まだどの性質からも
-指されていない種別」）。列挙の網羅を名指しできる性質があれば、
-除外を増やさずに宣言できる。`ah-wes` を先に片付けると、この 5 件は
-除外を 1 件も使わずに済む可能性がある。
+慣行どおりなら「`has-input` を宣言して `boundary` を理由つき除外」だが、
+それをすると除外が 10 → 15 になり、上限 11 を超える。
+**上限は動かさず、語彙の側を直した。**下の
+「2026-08-18: 語彙へ足した性質 2 つ（`ah-wes`）」を見てほしい。
 
 #### 付けなかった性質と、その理由
 
@@ -406,9 +400,92 @@ Google OAuth / GitHub / AWS / Slack / 秘密鍵）と、名前つきの実値代
     経路の優先順位を入れ替える       → 「両方あるときは、新しい経路を使う」が落ちる
     解除で空を渡さないようにする     → 「登録すると渡り、解除すると空になる」が落ちる
 
+### 2026-08-18: 語彙へ足した性質 2 つ（`ah-wes`）と、除外 11 → 7（`ah-44d` 完了）
+
+指されていなかった 7 種別のうち、**`ssrf` と `decision-table` の 2 つを性質へ結んだ**。
+結んだことで `TEST_TYPES_MAX_UNDECLARED` は 158 → 153、
+`TEST_TYPES_MAX_EXCLUSIONS` は 11 → **7** に下がった。
+**除外を使わずに 5 件を足し、しかも既存の除外が 3 件消えた。**
+
+#### `has-user-supplied-url`（→ `ssrf`）
+
+外向きに取りに行く先が、**こちらが受け取った値で決まる**という性質。
+
+線の引き方をここに書いておく。「外部と通信する」では広すぎて、提供元が
+列挙されている LLM 呼び出しや、登録済みの ASP・配信先まで巻き込む。
+それらに `ssrf` を要求しても書きようが無く、除外理由が並ぶだけになる。
+SSRF が成り立つ条件は**行き先を攻撃者が決められること**の 1 点なので、
+性質もそこだけを名指しする。
+
+**足す前に数えた**（宣言済み 83 件のうち当たったのは 3 件）。
+
+| 要件 | 当たる／当たらない | 実体 |
+| --- | --- | --- |
+| REQ-SEC02 URL 取り込みの SSRF 対策 | 当たる | `tests/infrastructure/guarded-fetch.test.ts` |
+| REQ-P02 アフィリエイト URL 受信箱 | 当たる | `tests/domain/link-ingestion.test.ts`（`isInternalHost`） |
+| REQ-A01 受け入れ条件 §30.1 | 当たる | 同上 |
+| REQ-G11 生成の実行 | 当たらない | 提供元は列挙で、行き先を利用者が決められない |
+| REQ-P09 Affiliate Hub | 当たらない | 行き先は登録済み ASP |
+| REQ-P08 配信 | 当たらない | 送信先は登録済みの媒体 |
+
+足したときに**副産物が 1 つ出た**。REQ-P02 の印を `link-ingestion.test.ts` へ
+結び直したところ、「`boundary`: 端が存在しない」という除外の理由が事実と
+食い違い、検査が落ちた（同じファイルに境界値の印が付いている）。
+除外を取り消して 10 → 9 になった。**除外の理由が古びたことを、機械が見つけた。**
+
+まだ宣言表に無いが、宣言するときに当たるのが `REQ-E13`（`/go/[code]` の転送）。
+転送先は保存値だが、その保存値のもとは利用者が出した URL である。
+
+#### `has-enumerated-input`（→ `equivalence` + `decision-table`）
+
+入力の軸が**すべて有限の列挙**で、大小・長短の端が無いという性質。
+
+`has-input` との線引きは「**端があるか**」の 1 点だけにした。
+端があるなら `has-input`（等価分割＋境界値）、端が無いならこちら
+（等価分割＋判定表）。両方を名乗る要件は無い。
+§4 の表で「線引きを決めずに足すと `has-input` と重なり、どちらを書いても
+片方が欠けたままになる」と書いていたのが、この 1 点で解ける。
+
+`decision-table` を必須にしたのは、列挙で本当に困るのが**数え落とし**だから
+である。3 つのうち 2 つだけ試しても等価分割としては成立してしまう。
+判定表は「全通りを表にして、埋まっていない行が無いこと」を名指しする。
+
+**これは逃げ道ではない。**今までこの形の要件は「`has-input` を宣言して
+`boundary` を理由つき除外」で処理してきたが、それは**端が無いことを毎回
+言い訳として書く**やり方で、数え落としのほうは誰も見ていなかった。
+
+当てはめた結果、**4 か所で数え落としが見つかった**。印だけでは済まなかった。
+
+| 要件 | 判定表にそろえて見つかったこと |
+| --- | --- |
+| REQ-WC01 登録先の選び方 | 条件 2 つ＝ 4 通りのうち 3 通りしか無く、「新しい経路だけがある」が抜けていた。実装は正しかったが、**壊れても落ちない**状態だった |
+| REQ-WC03 機能フラグ | 止める値の一覧を検査側へ書き写しており、実装にある `disabled` が試されていなかった。実装から取る形に直した（`WEBMCP_OFF_VALUES` を外へ出した） |
+| REQ-WC07 エラー形式 | `statusOf()` も `errorToMcpResult()` も `tests/` のどこからも呼ばれておらず、**番号の表を丸ごと消しても（全部 500 になっても）誰も落ちなかった**。`tests/presentation/error-format.test.ts` を新しく書いた（50 件） |
+| REQ-WC08 旧 3 ツール | 「移行済み」としか書かれておらず、`record_conversion` に代わる**書き込みの口が 1 つも無い**ことが見えていなかった。表の 1 行を空欄のまま残し、口が生えたら落ちる形にした |
+
+既に同じ形だった 2 件（`REQ-SEC06` `REQ-SEC07`）も `has-input` から
+`has-enumerated-input` へ移した。どちらも `decision-table` の実体を持っており、
+印を書き換えるだけで除外が 2 件消えた。
+
+`REQ-WC05` の印は `tests/ui/tool-form.test.tsx` **だけ**に付けている。
+`webmcp-policy.test.ts` にも宣言型フォームの節があるが、そちらへ印を付けると
+このファイルの `decision-table`（中身は REQ-WC03 のもの）が REQ-WC05 の充足として
+数えられ、**描画側の判定表を丸ごと消しても緑になる**。
+
+効くことは実測した。5 件それぞれで `decision-table` の印を外すと、
+その要件を名指しして終了コード 1 で落ちる。
+
+#### まだ結んでいない 5 種別
+
+`contract` / `infra-config` / `db-migration` / `audit-log` / `property` の 5 つは
+まだどの性質からも指されていない。事情は下の表のままである。
+
 ### まだどの性質からも指されていない種別（`ah-0ip` の残り）
 
-`secrets` は片付いたが、**同じ食い違いが 7 つ残っている**。
+**2026-08-18 に `ssrf` と `decision-table` を結んだので、残りは 5 つである**
+（下の表は 7 つのまま残してある。結んだ 2 つの行に「済」と入れた）。
+
+`secrets` は片付いたが、**同じ食い違いが 7 つあった**。
 いずれも印としては使われているが、**要求されてはいない**——
 つまり書いた人の善意だけで存在しており、書かなくても検査は緑になる。
 
@@ -420,8 +497,8 @@ Google OAuth / GitHub / AWS / Slack / 秘密鍵）と、名前つきの実値代
 | 種別 | いま印を持つファイル | 性質にするなら対象は | なぜ今回まとめてやらないか |
 | --- | --- | --- | --- |
 | `audit-log` | 5 | 記録を残す書き込みの入口（21 件） | 対象が広く、宣言表に無い要件へ一気に波及する。入口が記録へ届いているかは `scripts/port-wiring.mjs` が別途 0 件で押さえている（**テストがあるかは見ていない**ので、いずれ要る） |
-| `ssrf` | 2 | 外部へ自分で取りに行く経路（`guarded-fetch` を通る側） | 対象は狭く、次に片付けやすい。`REQ-SEC02` が `has-input` で宣言済みのため、性質を足すと同じ要件に 2 つ目の必須が乗る。その影響を確かめてから足す |
-| `decision-table` | 4 | 入力の組合せで結果が分かれる判定 | `has-input`（等価分割・境界値）と重なる。線引きを決めずに足すと、どちらを書いても片方が欠けたままになる |
+| `ssrf` | 3 | 外部へ自分で取りに行く経路（`guarded-fetch` を通る側） | **済**（2026-08-18、`has-user-supplied-url`） |
+| `decision-table` | 7 | 入力の組合せで結果が分かれる判定 | **済**（2026-08-18、`has-enumerated-input`）。`has-input` との線引きは「端があるか」の 1 点 |
 | `contract` | 3 | 3 つの入口（REST / MCP / WebMCP）を持つ要件 | 入口が 3 つあることは要件の文からは読めず、実装を見ないと分からない。性質の判定を実装依存にしてよいかを先に決める |
 | `infra-config` | 3 | 実行環境の設定に依存する要件（`env` の配線・binding） | 要件表の側に「設定」の要件がほとんど無く、当てる先が `REQ-SEC01` などに偏る。要件を足すのが先 |
 | `db-migration` | 2 | スキーマを持つ要件 | 往復の検査は `tests/integration/` 側にあり、要件ではなくテーブル単位で並んでいる。要件へ結び直す作業が先に要る |
