@@ -1,5 +1,8 @@
+import { auditWriteFailure, buildAuditEntry } from "@/application/audit";
 import type { EditorialContentVariantRepositoryPort } from "@/application/ports/authoring";
 import type { EditorialContentPackageRepositoryPort } from "@/application/ports/authoring";
+import type { IdGeneratorPort } from "@/application/ports/common";
+import type { AuditLogPort } from "@/application/ports/compliance";
 import type {
   ChannelConnectionRepositoryPort,
   PublicationRepositoryPort,
@@ -51,7 +54,43 @@ export type PublicationCalendarDeps = {
    * 配信の文脈から記事の文脈の保存処理を直接呼ばないため、ここを通す。
    */
   readonly events: EventPublisherPort;
+  /** 操作の記録。予定日を動かすと、前倒しにすれば今日出せてしまう。 */
+  readonly auditLog: AuditLogPort;
+  readonly ids: IdGeneratorPort;
 };
+
+/**
+ * 予定日を動かしたことを記録する。
+ *
+ * 一覧の上では小さな操作に見えるが、**前倒しにすればその日に外へ出る**。
+ * 出たあとで「誰がその日に変えたか」を辿れないと、範囲を確定できない。
+ *
+ * 語は配信の予約・取りやめと同じ `publication.schedule_changed` を使う。
+ * 予定日を外した場合は `after` が null になり、それが「指定なし」を表す。
+ */
+async function recordScheduleChange(
+  deps: PublicationCalendarDeps,
+  actor: ActorContext,
+  input: {
+    readonly publicationId: string;
+    readonly before: Date | null;
+    readonly after: Date | null;
+  },
+): Promise<Result<void, DomainError>> {
+  const entry = buildAuditEntry({ ids: deps.ids, now: () => new Date() }, actor, {
+    action: "publication.schedule_changed",
+    targetType: "publication",
+    targetId: input.publicationId,
+    before: { scheduledAt: input.before?.toISOString() ?? null },
+    after: { scheduledAt: input.after?.toISOString() ?? null },
+  });
+  if (!entry.ok) return entry;
+  const appended = await deps.auditLog.append(entry.value);
+  if (!appended.ok) {
+    return err(auditWriteFailure("予定日は変わっています", appended.error.details));
+  }
+  return ok(undefined);
+}
 
 /** 承認の進み具合。記事側の状態を、配信の言葉に言い換えたもの。 */
 export const APPROVAL_LABEL: Readonly<Record<string, string>> = {
@@ -412,6 +451,14 @@ export function createReschedulePublicationUseCase(
         const cleared = { ...found.value, scheduledAt: null };
         const saved = await deps.publications.save(cleared);
         if (!saved.ok) return saved;
+
+        const recordedClear = await recordScheduleChange(deps, actor, {
+          publicationId: String(saved.value.id),
+          before: found.value.scheduledAt,
+          after: null,
+        });
+        if (!recordedClear.ok) return recordedClear;
+
         return ok({
           publicationId: String(saved.value.id),
           scheduledLabel: "日時の指定なし",
@@ -443,6 +490,13 @@ export function createReschedulePublicationUseCase(
 
       const saved = await deps.publications.save({ ...moved.value, scheduledAt: parsed });
       if (!saved.ok) return saved;
+
+      const recorded = await recordScheduleChange(deps, actor, {
+        publicationId: String(saved.value.id),
+        before: found.value.scheduledAt,
+        after: parsed,
+      });
+      if (!recorded.ok) return recorded;
 
       // 出し先と日時が決まった、を伝える（§23.2）。
       // 伝達に失敗しても予定の変更は済んでいるので、ここで失敗にはしない。

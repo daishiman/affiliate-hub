@@ -1,4 +1,7 @@
+import { auditWriteFailure, buildAuditEntry } from "@/application/audit";
 import type { EditorialContentVariantRepositoryPort } from "@/application/ports/authoring";
+import type { IdGeneratorPort } from "@/application/ports/common";
+import type { AuditLogPort } from "@/application/ports/compliance";
 import type { PublicationRepositoryPort } from "@/application/ports/distribution";
 import type {
   EditorialPublishedArticleWriterPort,
@@ -65,6 +68,8 @@ export type PublishArticleDeps = {
   readonly variants: EditorialContentVariantRepositoryPort;
   readonly publications: PublicationRepositoryPort;
   readonly articles: EditorialPublishedArticleWriterPort;
+  readonly auditLog: AuditLogPort;
+  readonly ids: IdGeneratorPort;
 };
 
 /** 記事に添える言い切りと、その根拠。 */
@@ -110,6 +115,53 @@ const SLUG_PATTERN = /^[a-z0-9]+(-[a-z0-9]+)*$/;
 export function createPublishArticleUseCase(
   deps: PublishArticleDeps,
 ): UseCase<PublishArticleInput, PublishArticleOutput> {
+  /**
+   * 記事を出したことを残す。
+   *
+   * 監査ログが必ず記録すると決めている 3 つのうちの 1 つ
+   * （`audit-log.ts` 冒頭の「公開・取り下げ」）。
+   * **読者へ出した内容の履歴**なので、後から「いつ・誰が・どの URL に出したか」
+   * を言えないと、表示に問題があったときに範囲を確定できない。
+   *
+   * 本文はここに入れない。記録は履歴であって記事の保存先ではなく、
+   * 本文を入れると内容の書き換えが起きたときに 2 つの正本ができる。
+   */
+  async function record(
+    actor: ActorContext,
+    at: Date,
+    input: {
+      readonly publicationId: string;
+      readonly siteSlug: string;
+      readonly slug: string;
+      readonly title: string;
+      readonly url: string;
+    },
+  ): Promise<Result<void, DomainError>> {
+    const entry = buildAuditEntry({ ids: deps.ids, now: () => at }, actor, {
+      action: "content.published",
+      targetType: "published_article",
+      targetId: input.slug,
+      after: {
+        url: input.url,
+        title: input.title,
+        siteSlug: input.siteSlug,
+        publicationId: input.publicationId,
+      },
+    });
+    if (!entry.ok) return entry;
+    const appended = await deps.auditLog.append(entry.value);
+    if (!appended.ok) {
+      /*
+       * 記事は既に読者から見える。ここで `ok` を返すと、
+       * 「出ているのに誰が出したか分からない」状態が黙って残る。
+       * かといって「公開できませんでした」と返すと、出ているものを
+       * もう一度出そうとして同じ URL でぶつかる。**両方書く。**
+       */
+      return err(auditWriteFailure("記事は読者ページへ出ています", appended.error.details));
+    }
+    return ok(undefined);
+  }
+
   return {
     async execute(
       actor: ActorContext,
@@ -218,6 +270,17 @@ export function createPublishArticleUseCase(
       const published = recordSendSuccess(sending.value, { id: article.slug, url }, now);
       const savedPublication = await deps.publications.save(published);
       if (!savedPublication.ok) return savedPublication;
+
+      // **記録は保存の後**。先に書くと、保存が落ちたときに
+      // 「出ていない記事を公開した」証拠だけが残る。
+      const recorded = await record(actor, now, {
+        publicationId: input.publicationId,
+        siteSlug: input.siteSlug,
+        slug: article.slug,
+        title: article.title,
+        url,
+      });
+      if (!recorded.ok) return recorded;
 
       return ok({
         url,

@@ -15,7 +15,7 @@ import { ok } from "@/domain/shared";
 import { OTHER_WORKSPACE, aNobody, anOutsider, anOwner, aWriter } from "../support/actors";
 import { aChannelConnection, aPublication } from "../support/factories";
 import { NOW, daysFrom } from "../support/clock";
-import { failing, testDeps } from "../support/doubles";
+import { failing, recordingAuditLog, testDeps } from "../support/doubles";
 import { SAMPLE_WORKSPACE_ID } from "@/infrastructure/persistence/sample/ranking-sample-repository";
 
 /**
@@ -44,6 +44,8 @@ function deps(over: Partial<ManageDistributionDeps> = {}): ManageDistributionDep
     manualExport: base.manualExport,
     variants: base.contentVariants,
     ids: base.ids,
+    // 見本の記録は書き足しを断る（保存先が無い）ので、溜める版を使う。
+    auditLog: recordingAuditLog().port,
     ...over,
   };
 }
@@ -414,6 +416,39 @@ describe("取りやめ", () => {
     expect(got.ok).toBe(false);
     if (got.ok) return;
     expect(got.error.code).toBe("NOT_FOUND");
+  });
+
+  it("取りやめたことが、誰がやったかつきで記録に残る", async () => {
+    const audit = recordingAuditLog();
+    const p = aPublication({ state: "QUEUED", scheduledAt: daysFrom(NOW, 3) });
+    const got = await createCancelPublicationUseCase(
+      deps({ ...withPublication(p), auditLog: audit.port }),
+    ).execute(owner, { publicationId: String(p.id) });
+    if (!got.ok) throw got.error;
+
+    expect(audit.actions()).toEqual(["publication.schedule_changed"]);
+    const entry = audit.entries()[0];
+    // 取りやめても配信そのものは残る（状態が「取りやめ」になる）。
+    // だから「後ろが無い」ではなく「後ろの予定日が無い」で書く。
+    expect(entry.after).toMatchObject({ scheduledAt: null });
+    // 前は入っている。いつの予定を消したのかが読めないと、記録の意味が無い。
+    expect(entry.before).toMatchObject({ scheduledAt: expect.any(String) });
+  });
+
+  it("記録が残せなければ、取りやめたことにしない", async () => {
+    const got = await createCancelPublicationUseCase(
+      deps({
+        ...withPublication(aPublication({ state: "QUEUED" })),
+        auditLog: {
+          ...recordingAuditLog().port,
+          append: async () => failing("記録の保存先に繋がりません。"),
+        } as ManageDistributionDeps["auditLog"],
+      }),
+    ).execute(owner, { publicationId: "pub-0001" });
+
+    expect(got.ok).toBe(false);
+    if (got.ok) return;
+    expect(got.error.message).toContain("配信は取りやめました");
   });
 });
 

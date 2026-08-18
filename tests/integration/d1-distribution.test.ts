@@ -95,6 +95,7 @@ beforeAll(async () => {
     manualExport: all.manualExport,
     variants: all.contentVariants,
     ids: all.ids,
+    auditLog: all.auditLog,
   };
   calendarDeps = {
     publications: all.publications,
@@ -102,6 +103,8 @@ beforeAll(async () => {
     contentVariants: all.contentVariants,
     contentPackages: all.contentPackages,
     events: all.events,
+    auditLog: all.auditLog,
+    ids: all.ids,
   };
 }, 60_000);
 

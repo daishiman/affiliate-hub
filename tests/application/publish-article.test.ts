@@ -26,8 +26,10 @@ import {
   ok,
   taggedString,
 } from "@/domain/shared";
+import type { AuditLogEntry } from "@/domain/compliance";
 import { WORKSPACE, anOwner, aWriter } from "../support/actors";
 import { aPublication } from "../support/factories";
+import { failing, recordingAuditLog, testDeps } from "../support/doubles";
 
 /**
  * 記事を読者ページへ出す操作。
@@ -139,6 +141,8 @@ function fullInput(over: Partial<PublishArticleInput> = {}): PublishArticleInput
 type Harness = {
   readonly saved: PublishedArticle[];
   readonly publications: Publication[];
+  /** 操作の記録に何が積まれたか。公開は取り返しがつかないので、ここを必ず見る。 */
+  readonly audit: () => readonly AuditLogEntry[];
   readonly run: (
     input?: Partial<PublishArticleInput>,
     actor?: ReturnType<typeof anOwner>,
@@ -153,6 +157,8 @@ function harness(options: {
   readonly publication?: Publication;
   readonly variant?: ContentVariant | null;
   readonly writerFails?: boolean;
+  /** 記録だけが落ちる状況。記事は出ているのに記録が無い、を作って確かめる。 */
+  readonly auditFails?: boolean;
 } = {}): Harness {
   const saved: PublishedArticle[] = [];
   const publications: Publication[] = [];
@@ -208,11 +214,29 @@ function harness(options: {
     },
   } as unknown as EditorialPublishedArticleWriterPort;
 
-  const uc = createPublishArticleUseCase({ sites, variants, publications: pubs, articles });
-  const prepareUc = createPreparePublishArticleUseCase({ sites, variants, publications: pubs });
+  const auditLog = recordingAuditLog();
+  const base = testDeps();
+  const uc = createPublishArticleUseCase({
+    sites,
+    variants,
+    publications: pubs,
+    articles,
+    ids: base.ids,
+    auditLog: options.auditFails
+      ? { ...auditLog.port, append: async () => failing("記録の保存先に繋がりません。") }
+      : auditLog.port,
+  });
+  const prepareUc = createPreparePublishArticleUseCase({
+    sites,
+    variants,
+    publications: pubs,
+    ids: base.ids,
+    auditLog: auditLog.port,
+  });
   return {
     saved,
     publications,
+    audit: auditLog.entries,
     run: (input = {}, actor = anOwner()) => uc.execute(actor, fullInput(input)) as never,
     prepare: (input = {}, actor = anOwner()) =>
       prepareUc.execute(actor, { publicationId: "pub_own", ...input }),
@@ -293,6 +317,52 @@ describe("そろっているときの公開", () => {
     expect(result.ok).toBe(true);
     if (!result.ok) return;
     expect(result.value.skipped.length).toBeGreaterThan(0);
+  });
+});
+
+/*
+ * 公開は取り消しても「出た」事実が消せない。
+ * だから「誰が出したか」は、出した記事そのものと同じだけ大事になる。
+ */
+describe("公開したことの記録", () => {
+  it("誰が・どの記事を出したかが残る", async () => {
+    await h.run();
+    const entries = h.audit();
+    expect(entries).toHaveLength(1);
+    expect(entries[0].action).toBe("content.published");
+    expect(entries[0].targetType).toBe("published_article");
+    expect(entries[0].targetId).toBe("quiet-laptop");
+    // 読者が開く URL を残す。後から「どれのことか」を人が確かめられる形にする。
+    expect(entries[0].after).toMatchObject({
+      url: "/s/video-editing-gear/guides/quiet-laptop",
+    });
+  });
+
+  it("本文は記録に入れない（正本を 2 つ作らない）", async () => {
+    await h.run();
+    const after = JSON.stringify(h.audit()[0].after);
+    expect(after).not.toContain("寝室で使うなら");
+  });
+
+  it("記録を残せなかったときは、公開を成功として返さない", async () => {
+    const failingAudit = harness({ auditFails: true });
+    const result = await failingAudit.run();
+
+    expect(result.ok).toBe(false);
+    if (result.ok) return;
+    // 記事はもう出ている。それを隠すと、押した人はもう一度押す。
+    expect(result.error.message).toContain("読者ページへ出ています");
+    expect(result.error.message).toContain("記録");
+    expect(failingAudit.saved).toHaveLength(1);
+  });
+
+  it("公開に失敗したときは、記録も残さない", async () => {
+    const brokenWriter = harness({ writerFails: true });
+    const result = await brokenWriter.run();
+
+    expect(result.ok).toBe(false);
+    // 出ていない記事を「出した」と書いた記録が残るのがいちばん困る。
+    expect(brokenWriter.audit()).toHaveLength(0);
   });
 });
 

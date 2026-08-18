@@ -19,7 +19,8 @@ import {
   clearIntegrationKeyStore,
 } from "@/infrastructure/persistence/sample/feedback-sample-repository";
 import { OTHER_WORKSPACE, WORKSPACE, aNobody, anAiAccount, anOwner } from "../support/actors";
-import { testDeps } from "../support/doubles";
+import type { AuditLogPort } from "@/application/ports/compliance";
+import { failing, recordingAuditLog, testDeps } from "../support/doubles";
 
 /**
  * 改善要望（Product Feedback）のユースケース。
@@ -121,7 +122,7 @@ const handoffUseCase = () =>
   });
 
 /** 発行のたびに違う平文を作る。同じ値を返すと「1 回だけ」の検査が空振りする。 */
-function keysUseCase() {
+function keysUseCase(auditLog: AuditLogPort = recordingAuditLog().port) {
   let n = 0;
   return createManageIntegrationKeysUseCase({
     keys: deps.integrationKeys,
@@ -131,6 +132,7 @@ function keysUseCase() {
       return { plainValue: `plain-value-${n}`.padEnd(40, "x"), hashedValue: `hashed-${n}` };
     },
     now: () => AT,
+    auditLog,
   });
 }
 
@@ -581,5 +583,61 @@ describe("取りに来るときの鍵", () => {
 
     expect(listed.ok).toBe(true);
     if (listed.ok) expect(listed.value.emptyReason).toContain("Claude Code");
+  });
+
+  /*
+   * 鍵は外から中身を取りに来るための入口。
+   * 「いつ誰が出したか」と「いつ止めたか」が残っていないと、
+   * 漏れたかもしれないときに、どこまで疑えばよいかが決められない。
+   */
+  describe("鍵の出し入れの記録", () => {
+    it("発行と失効を、別の言葉で残す", async () => {
+      const audit = recordingAuditLog();
+      const useCase = keysUseCase(audit.port);
+
+      const issued = await useCase.execute(anOwner(), {
+        action: "issue",
+        label: "Claude Code 用",
+        scopes: ["read"],
+      });
+      if (!issued.ok) throw issued.error;
+      const id = issued.value.rows[0].id;
+      await useCase.execute(anOwner(), { action: "revoke", id });
+
+      expect(audit.actions()).toEqual(["integration_key.issued", "integration_key.revoked"]);
+      expect(audit.entries()[1].targetId).toBe(id);
+    });
+
+    it("鍵そのものは記録に入れない", async () => {
+      const audit = recordingAuditLog();
+      await keysUseCase(audit.port).execute(anOwner(), {
+        action: "issue",
+        label: "Claude Code 用",
+        scopes: ["read"],
+      });
+
+      const dumped = JSON.stringify(audit.entries());
+      // 平文も、それを潰した値も。一度だけ見せる作りをここで崩さない。
+      expect(dumped).not.toContain("plain-value");
+      expect(dumped).not.toContain("hashed-");
+    });
+
+    it("記録が残せないときは、鍵を渡さずに断る", async () => {
+      const useCase = keysUseCase({
+        ...recordingAuditLog().port,
+        append: async () => failing("記録の保存先に繋がりません。"),
+      });
+
+      const issued = await useCase.execute(anOwner(), {
+        action: "issue",
+        label: "Claude Code 用",
+        scopes: ["read"],
+      });
+
+      expect(issued.ok).toBe(false);
+      if (issued.ok) return;
+      // 一覧には並ぶが使えない鍵が残る。それを隠さず書く。
+      expect(issued.error.message).toContain("使えません");
+    });
   });
 });

@@ -237,6 +237,35 @@ function collectWriteEntryPoints(program, unknownVerbs) {
 }
 
 /**
+ * 登録簿のうち、**除外を書く見出しの下だけ**を切り出す。
+ *
+ * --- なぜ見出しで区切るか ---
+ * 最初は登録簿の全行から表を拾っていた。ところが同じファイルへ
+ * 「塞いだもの」の一覧を足したとき、**その表が黙って除外として数えられた**。
+ * 除外は上限で縛ってあるので今回は赤で気づけたが、上限に余裕がある間は
+ * 気づけない。**説明のために書いた表が、そのまま抜け道になる**形である。
+ *
+ * よって拾うのは見出しに「除外の書き方」を含む節の中だけにする。
+ * 「精査したが除外しなかったもの」「塞いだもの」は、
+ * 同じ形の表で書いても除外にならない。
+ *
+ * @param {string} text
+ */
+function sectionsForExclusions(text) {
+  const out = [];
+  let inside = false;
+  for (const line of text.split("\n")) {
+    const heading = /^#{2,4}\s+(.+)$/.exec(line);
+    if (heading !== null) {
+      inside = heading[1].includes("除外の書き方");
+      continue;
+    }
+    if (inside) out.push(line);
+  }
+  return out;
+}
+
+/**
  * 理由つきの除外を読む。
  *
  * 表の形: `| Port.method | 理由 |`
@@ -252,7 +281,7 @@ function readExclusions() {
   }
   /** @type {Map<string, string>} */
   const out = new Map();
-  for (const line of text.split("\n")) {
+  for (const line of sectionsForExclusions(text)) {
     const m = /^\|\s*`([A-Za-z]+Port)\.(\w+)`\s*\|\s*([^|]*?)\s*\|/.exec(line);
     if (m === null) continue;
     if (m[3].trim() === "") continue;
@@ -276,7 +305,7 @@ function readWriteExclusions() {
   }
   /** @type {Map<string, string>} */
   const out = new Map();
-  for (const line of text.split("\n")) {
+  for (const line of sectionsForExclusions(text)) {
     const m = /^\|\s*`(create\w*UseCase)`\s*\|\s*([^|]*?)\s*\|/.exec(line);
     if (m === null) continue;
     if (m[2].trim() === "") continue;

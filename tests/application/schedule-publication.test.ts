@@ -10,7 +10,7 @@ import { markEditorial, ok } from "@/domain/shared";
 import { OTHER_WORKSPACE, WORKSPACE, aNobody, anOwner } from "../support/actors";
 import { aChannelConnection, aPublication } from "../support/factories";
 import { NOW, daysFrom } from "../support/clock";
-import { failing, testDeps } from "../support/doubles";
+import { failing, recordingAuditLog, testDeps } from "../support/doubles";
 import { SAMPLE_WORKSPACE_ID } from "@/infrastructure/persistence/sample/ranking-sample-repository";
 
 /**
@@ -55,6 +55,8 @@ type Over = {
   findByKeyFails?: boolean;
   /** 保存された配信をここへ溜める。件数を見る検査で使う。 */
   saved?: Publication[];
+  /** 操作の記録の受け口。差し替えないときは溜める版を使う。 */
+  auditLog?: ManageDistributionDeps["auditLog"];
 };
 
 function deps(over: Over = {}): ManageDistributionDeps {
@@ -83,6 +85,7 @@ function deps(over: Over = {}): ManageDistributionDeps {
       findById: async () => ok(over.variant === undefined ? null : over.variant),
     }) as ManageDistributionDeps["variants"],
     ids: base.ids,
+    auditLog: over.auditLog ?? recordingAuditLog().port,
   };
 }
 
@@ -301,5 +304,62 @@ describe("配信を作る", () => {
     expect(got.ok).toBe(false);
     if (got.ok) return;
     expect(got.error.code).toBe("NOT_IMPLEMENTED");
+  });
+});
+
+/*
+ * 配信を作る操作は、AI からも人からも呼べる。
+ * 「誰が出すと決めたか」が残らないと、後から止めた理由を説明できない。
+ */
+describe("配信を作ったことの記録", () => {
+  it("予定を作ったことが記録に残る", async () => {
+    const audit = recordingAuditLog();
+    const got = await createSchedulePublicationUseCase(
+      deps({
+        variant: await approved(),
+        connections: [aChannelConnection({ kind: "x", workspaceId: WORKSPACE })],
+        auditLog: audit.port,
+      }),
+    ).execute(owner, { variantId: "cv_alpha_review", channelKind: "x" });
+    if (!got.ok) throw got.error;
+
+    expect(audit.actions()).toEqual(["publication.schedule_changed"]);
+    // 作ったので「前」は無い。ここが埋まっていると、変更と見分けが付かなくなる。
+    expect(audit.entries()[0].before).toBeNull();
+  });
+
+  it("同じ要求で 1 件にまとめたときは、記録を増やさない", async () => {
+    const audit = recordingAuditLog();
+    const got = await createSchedulePublicationUseCase(
+      deps({
+        variant: await approved(),
+        connections: [aChannelConnection({ kind: "x", workspaceId: WORKSPACE })],
+        existing: aPublication({ workspaceId: WORKSPACE, channelKind: "x", state: "QUEUED" }),
+        auditLog: audit.port,
+      }),
+    ).execute(owner, { variantId: "cv_alpha_review", channelKind: "x" });
+    if (!got.ok) throw got.error;
+
+    // 何も変わっていない。ここで記録を積むと、二重クリックの回数だけ
+    // 「予定を作った」が並び、後から本当の操作を数えられなくなる。
+    expect(got.value.alreadyExisted).toBe(true);
+    expect(audit.entries()).toHaveLength(0);
+  });
+
+  it("記録が残せなければ、予定を作ったことにしない", async () => {
+    const got = await createSchedulePublicationUseCase(
+      deps({
+        variant: await approved(),
+        connections: [aChannelConnection({ kind: "x", workspaceId: WORKSPACE })],
+        auditLog: {
+          ...recordingAuditLog().port,
+          append: async () => failing("記録の保存先に繋がりません。"),
+        } as ManageDistributionDeps["auditLog"],
+      }),
+    ).execute(owner, { variantId: "cv_alpha_review", channelKind: "x" });
+
+    expect(got.ok).toBe(false);
+    if (got.ok) return;
+    expect(got.error.message).toContain("配信は登録されています");
   });
 });

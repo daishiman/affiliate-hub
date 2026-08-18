@@ -382,6 +382,9 @@ function distributionDeps(): ManageDistributionDeps {
     manualExport: base.manualExport,
     variants,
     ids: base.ids,
+    // 1 周を通したときに、配信の予定を作った記録も同じ帳面へ積まれる。
+    // 別の帳面にすると「誰が何をしたか」を 1 本の並びで読めなくなる。
+    auditLog: auditLog.port,
   };
 }
 

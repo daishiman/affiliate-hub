@@ -8,6 +8,7 @@ import { buildToolCatalog, findTool } from "@/presentation/tools/catalog";
 import { handleToolRequest } from "@/presentation/tools/rest-adapter";
 import { invokeTool } from "@/presentation/tools/tool-definition";
 import { PAGE_TOOLS } from "@/presentation/tools/webmcp-policy";
+import { recordingAuditLog } from "../support/doubles";
 
 /**
  * 改善要望の道具を、入口の側から見た検査。
@@ -22,6 +23,19 @@ import { PAGE_TOOLS } from "@/presentation/tools/webmcp-policy";
  */
 
 const catalog = buildToolCatalog(createDeps());
+
+/*
+ * 鍵の発行だけは、**操作の記録を残せる**組み合わせで確かめる。
+ * 見本の記録は書き足しを断る（保存先が無い）ので、
+ * そのままでは「記録が残せないので鍵を渡さない」で止まり、
+ * 道具の口を通したときの平文の扱いまで届かない。
+ * 記録を残せないときに断ること自体は、画面側
+ * （`tests/presentation/feedback-actions.test.ts`）が見ている。
+ */
+const recordableCatalog = buildToolCatalog({
+  ...createDeps(),
+  auditLog: recordingAuditLog().port,
+});
 const ADMIN: ActorContext = { ...SAMPLE_ACTOR, roles: ["owner", ...SAMPLE_ACTOR.roles] };
 
 const FEEDBACK_TOOLS = [
@@ -163,7 +177,7 @@ describe("送る", () => {
 
 describe("取りに来るときの鍵", () => {
   it("発行の応答にだけ平文があり、一覧には出ない", async () => {
-    const keys = findTool(catalog, "manage_integration_keys")!;
+    const keys = findTool(recordableCatalog, "manage_integration_keys")!;
 
     const issued = await invokeTool(keys, ADMIN, {
       action: "issue",

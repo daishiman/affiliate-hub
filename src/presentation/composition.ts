@@ -641,6 +641,7 @@ export async function distributionUseCases() {
     manualExport: deps.manualExport,
     variants: deps.contentVariants,
     ids: deps.ids,
+    auditLog: deps.auditLog,
   };
   // 自分のブログへ出す口。**配信の画面に置く**。
   // 記事の一覧側へ置かないのは、出し先（どのブログ・どのカテゴリー）を
@@ -650,6 +651,8 @@ export async function distributionUseCases() {
     variants: deps.contentVariants,
     publications: deps.publications,
     articles: deps.publishedArticles,
+    auditLog: deps.auditLog,
+    ids: deps.ids,
   };
   return {
     listChannels: createListChannelsUseCase(distribution),
@@ -677,6 +680,8 @@ export async function publicationCalendarUseCases() {
     contentVariants: deps.contentVariants,
     contentPackages: deps.contentPackages,
     events: deps.events,
+    auditLog: deps.auditLog,
+    ids: deps.ids,
   };
   return {
     getCalendar: createGetPublicationCalendarUseCase(calendar),
@@ -875,6 +880,7 @@ export async function feedbackUseCases() {
       ids: deps.ids,
       mintSecret: deps.mintSecret,
       now: feedback.now,
+      auditLog: deps.auditLog,
     }),
   };
 }

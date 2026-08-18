@@ -234,6 +234,7 @@ export function feedbackTools(deps: AppDeps): readonly AnyToolDefinition[] {
         ids: deps.ids,
         mintSecret: deps.mintSecret,
         now: () => new Date(),
+        auditLog: deps.auditLog,
       }),
     }),
   ];

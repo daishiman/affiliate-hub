@@ -1,5 +1,7 @@
+import { auditWriteFailure, buildAuditEntry } from "@/application/audit";
 import type { EditorialContentVariantRepositoryPort } from "@/application/ports/authoring";
 import type { IdGeneratorPort } from "@/application/ports/common";
+import type { AuditLogPort } from "@/application/ports/compliance";
 import type {
   ChannelConnectionRepositoryPort,
   ManualExportPort,
@@ -57,7 +59,52 @@ export type ManageDistributionDeps = {
   readonly variants: EditorialContentVariantRepositoryPort;
   /** ID 生成。配信を新しく作るときに要る。 */
   readonly ids: IdGeneratorPort;
+  /** 操作の記録。配信予定はいずれ外へ出るので、誰が動かしたかを残す。 */
+  readonly auditLog: AuditLogPort;
 };
+
+/**
+ * 配信予定が変わったことを記録する。
+ *
+ * --- 予約・取りやめを 1 つの関数で書く理由 ---
+ * 後から読む人が知りたいのは「いつ外へ出る予定になっていたか」で、
+ * 予約も取りやめもその 1 本の線の上にある。`before` / `after` の日時に差が出る
+ * （取りやめは `after` が null）。操作ごとに書き分けると、
+ * 同じことの別名が並んで、一覧から予定の変遷を追えなくなる。
+ *
+ * **記録は保存の後に呼ぶ。** 先に書くと、保存が落ちたときに
+ * 「起きていない予約」の証拠が残る。
+ */
+async function recordScheduleChange(
+  deps: ManageDistributionDeps,
+  actor: ActorContext,
+  input: {
+    readonly publicationId: string;
+    readonly channelKind: ChannelKind;
+    /**
+     * 前の予定。**`null` は「前が無い（いま作った）」の意味**で、
+     * `{ scheduledAt: null }` は「予定日を決めずに登録されていた」の意味。
+     * ここを一緒にすると、新規作成と「予定日なしからの変更」が見分けられなくなる。
+     */
+    readonly before: { readonly scheduledAt: string | null } | null;
+    readonly after: string | null;
+    readonly doneAlready: string;
+  },
+): Promise<Result<void, DomainError>> {
+  const entry = buildAuditEntry({ ids: deps.ids, now: () => new Date() }, actor, {
+    action: "publication.schedule_changed",
+    targetType: "publication",
+    targetId: input.publicationId,
+    before: input.before,
+    after: { scheduledAt: input.after, channelKind: input.channelKind },
+  });
+  if (!entry.ok) return entry;
+  const appended = await deps.auditLog.append(entry.value);
+  if (!appended.ok) {
+    return err(auditWriteFailure(input.doneAlready, appended.error.details));
+  }
+  return ok(undefined);
+}
 
 /** 出し方の表示名。識別子をそのまま画面に出さない。 */
 export const PUBLISH_MODE_LABEL: Readonly<Record<string, string>> = {
@@ -359,6 +406,17 @@ export function createCancelPublicationUseCase(
 
       const saved = await deps.publications.save(moved.value);
       if (!saved.ok) return saved;
+
+      const recorded = await recordScheduleChange(deps, actor, {
+        publicationId: input.publicationId,
+        channelKind: saved.value.channelKind,
+        before: { scheduledAt: found.value.scheduledAt?.toISOString() ?? null },
+        // 取りやめたので、この先出る予定は無い。null がその意味を持つ。
+        after: null,
+        doneAlready: "配信は取りやめました",
+      });
+      if (!recorded.ok) return recorded;
+
       return ok({ card: toCard(saved.value) });
     },
   };
@@ -590,6 +648,16 @@ export function createSchedulePublicationUseCase(
 
       const saved = await deps.publications.save(created.value);
       if (!saved.ok) return saved;
+
+      const recorded = await recordScheduleChange(deps, actor, {
+        publicationId: String(saved.value.id),
+        channelKind: input.channelKind,
+        // 新しく作った配信なので、前の予定は無い。
+        before: null,
+        after: scheduledAt?.toISOString() ?? null,
+        doneAlready: "配信は登録されています",
+      });
+      if (!recorded.ok) return recorded;
 
       return ok({
         card: toCard(saved.value),

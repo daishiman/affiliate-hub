@@ -473,6 +473,11 @@ export const AUDIT_ACTION_LABEL: Readonly<Record<AuditAction, string>> = {
   "export.performed": "データを書き出した",
   "llm_credential.registered": "生成 AI の API キーを登録した",
   "llm_credential.revoked": "生成 AI の API キーを失効させた",
+  "publication.schedule_changed": "配信の予定を変えた",
+  "integration_key.issued": "取得用の鍵を発行した",
+  "integration_key.revoked": "取得用の鍵を止めた",
+  "site.created": "サイトを作った",
+  "conversion.adjusted": "成果の数字を手で直した",
 };
 
 export type ListAuditLogInput = { readonly limit?: number };

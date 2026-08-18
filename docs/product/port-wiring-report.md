@@ -98,19 +98,14 @@
 上の表は「1 回でも呼ばれたか」しか見ないので、**一部の経路からしか
 呼ばれていない**状態を拾えない。ここはその形を見る。
 
-- 届いていない 20 件（上限 20）
-- 理由つきの除外 0 件（上限 0）
+- 届いていない 11 件（上限 11）
+- 理由つきの除外 4 件（上限 4）
 
 - 読み書きを判定できない手続き 0 件（上限 0）
 
 | 入口 | 書き込んでいるもの | 場所 |
 | --- | --- | --- |
-| `createRecordTelemetryUseCase` | `TelemetrySinkPort.recordBatch` | `src/application/usecases/analytics/record-telemetry.ts` |
-| `createCancelPublicationUseCase` | `PublicationRepositoryPort.save` | `src/application/usecases/distribution/manage-distribution.ts` |
-| `createSchedulePublicationUseCase` | `PublicationRepositoryPort.save` | `src/application/usecases/distribution/manage-distribution.ts` |
-| `createReschedulePublicationUseCase` | `EventPublisherPort.publish`<br>`PublicationRepositoryPort.save` | `src/application/usecases/distribution/publication-calendar.ts` |
 | `createHandOffFeedbackUseCase` | `FeedbackRepositoryPort.save` | `src/application/usecases/feedback/hand-off-feedback.ts` |
-| `createManageIntegrationKeysUseCase` | `IntegrationKeyPort.revoke` | `src/application/usecases/feedback/manage-integration-keys.ts` |
 | `createSubmitFeedbackUseCase` | `FeedbackCaptureStoragePort.put`<br>`FeedbackRepositoryPort.save` | `src/application/usecases/feedback/submit-feedback.ts` |
 | `createUpdateFeedbackStatusUseCase` | `FeedbackRepositoryPort.save` | `src/application/usecases/feedback/update-feedback-status.ts` |
 | `createAdjustConversionUseCase` | `ConversionRepositoryPort.save` | `src/application/usecases/monetization/manage-affiliate.ts` |
@@ -121,8 +116,4 @@
 | `createCreateSiteFromDraftUseCase` | `SiteDraftRepositoryPort.publishBlueprint`<br>`SiteDraftRepositoryPort.save` | `src/application/usecases/site/build-site.ts` |
 | `createSaveSiteDraftStepUseCase` | `SiteDraftRepositoryPort.save` | `src/application/usecases/site/build-site.ts` |
 | `createStartSiteDraftUseCase` | `SiteDraftRepositoryPort.save` | `src/application/usecases/site/build-site.ts` |
-| `createPublishArticleUseCase` | `PublicationRepositoryPort.save`<br>`PublishedArticleWriterPort.save` | `src/application/usecases/site/publish-article.ts` |
-| `createRemoveFromShortlistUseCase` | `ShortlistPort.remove` | `src/application/usecases/site/reader-interaction.ts` |
-| `createSaveToShortlistUseCase` | `ShortlistPort.add` | `src/application/usecases/site/reader-interaction.ts` |
-| `createSubmitContactUseCase` | `ContactPort.submit` | `src/application/usecases/site/reader-interaction.ts` |
 

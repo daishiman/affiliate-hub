@@ -316,15 +316,27 @@ describe("まとめて渡す", () => {
 });
 
 describe("取りに来るときの鍵", () => {
-  it("発行したときだけ値が返り、控えるよう伝える", async () => {
+  /**
+   * ここは D1 につながっていない状態で動かしている（見本の保存先）。
+   * つまり**誰が鍵を出したかを残せない**。鍵は外から中身を取りに来る入口なので、
+   * 記録が残らないまま渡すと、漏れたときにどこまで疑えばよいかが決められない。
+   *
+   * 値が一度だけ返ることや、道具の口を通しても同じであることは、
+   * 記録を残せる組み合わせで `tests/application/feedback.test.ts` と
+   * `tests/presentation/feedback-tools.test.ts` が見ている。
+   */
+  it("誰が出したかを残せないときは、鍵を渡さない", async () => {
     const state = await manageIntegrationAccessAction(
       INITIAL_INTEGRATION_ACCESS_STATE,
       form({ intent: "issue", label: "手元の Claude Code", scopes: "read" }),
     );
 
-    expect(state.status).toBe("done");
-    expect(state.issuedValue).not.toBeNull();
-    expect(state.message).toContain("今回だけ");
+    expect(state.status).toBe("failed");
+    // 平文は一度しか出せない。断るときは必ず null で返す。
+    expect(state.issuedValue).toBeNull();
+    // 「一覧には並ぶが使えない鍵」が残る。それを隠さない。
+    expect(state.message).toContain("使えません");
+    expect(state.message).not.toMatch(/^[A-Z_]+$/);
   });
 
   it("一覧を出し直しても、値はもう返らない", async () => {
@@ -352,26 +364,22 @@ describe("取りに来るときの鍵", () => {
     expect(state.issuedValue).toBeNull();
   });
 
-  it("失効させると、記録は残ると伝える", async () => {
-    const issued = await manageIntegrationAccessAction(
-      INITIAL_INTEGRATION_ACCESS_STATE,
-      form({ intent: "issue", label: "失効させる鍵", scopes: ["read", "update_status"] }),
-    );
-    expect(issued.status).toBe("done");
-
+  it("失効も、誰が止めたかを残せないときは実行しない", async () => {
+    // 発行そのものが断られるので、鍵は 1 つも作られていない。
+    // それでも「知らない鍵」ではなく、記録の話で断ることを見る。
     const { createDeps } = await import("@/infrastructure/composition");
     const listed = await createDeps().integrationKeys.list(signedIn.workspaceId);
     if (!listed.ok) throw new Error("鍵の一覧が読めませんでした");
-    const target = listed.value.find((k) => k.label === "失効させる鍵");
-    if (target === undefined) throw new Error("いま発行した鍵が見つかりませんでした");
+    const target = listed.value[0];
+    if (target === undefined) return;
 
     const revoked = await manageIntegrationAccessAction(
       INITIAL_INTEGRATION_ACCESS_STATE,
       form({ intent: "revoke", id: String(target.id) }),
     );
-    expect(revoked.status).toBe("done");
-    expect(revoked.message).toContain("記録は残ります");
-    // 失効させても値は返さない（失効の操作で鍵を知れてはいけない）
+    expect(revoked.status).toBe("failed");
+    // いつ止めたかは、事故のときにいちばん要る。残せないなら止めたことにしない。
+    expect(revoked.message).toContain("記録");
     expect(revoked.issuedValue).toBeNull();
   });
 

@@ -1,5 +1,7 @@
 import type { IntegrationKeyPort } from "@/application/ports/feedback";
+import type { AuditLogPort } from "@/application/ports/compliance";
 import type { IdGeneratorPort } from "@/application/ports/common";
+import { auditWriteFailure, buildAuditEntry } from "@/application/audit";
 import {
   type KeyScope,
   KEY_HANDLING_TEXT,
@@ -31,6 +33,7 @@ import type { UseCase } from "../usecase";
 export type ManageIntegrationKeysDeps = {
   readonly keys: IntegrationKeyPort;
   readonly ids: IdGeneratorPort;
+  readonly auditLog: AuditLogPort;
   /** 平文と、それを潰した値を作る。domain も application も作り方を知らない。 */
   readonly mintSecret: () => Promise<{ readonly plainValue: string; readonly hashedValue: string }>;
   readonly now: () => Date;
@@ -79,6 +82,34 @@ export function createManageIntegrationKeysUseCase(
       if (!allowed.ok) return allowed;
 
       const at = deps.now();
+
+      /**
+       * 鍵の出し入れを記録する。
+       *
+       * **平文も、それを潰した値も渡さない。** 記録に残すのは
+       * 「どの鍵を・いつ・誰が」だけ。鍵そのものを記録へ入れると、
+       * 一度しか見せない作りにした意味が消える。
+       *
+       * 発行と失効は別の言葉にしてある。事故のときに知りたいのは
+       * 「いつ止めたか」で、これを「変えた」の 1 語に混ぜると読み出せない。
+       */
+      const record = async (
+        action: "integration_key.issued" | "integration_key.revoked",
+        input: { readonly keyId: string; readonly label: string; readonly scopes: readonly string[] },
+        doneAlready: string,
+      ): Promise<Result<void, DomainError>> => {
+        const entry = buildAuditEntry({ ids: deps.ids, now: deps.now }, actor, {
+          action,
+          targetType: "integration_key",
+          targetId: input.keyId,
+          after: { label: input.label, scopes: input.scopes.join(",") },
+        });
+        if (!entry.ok) return entry;
+        const appended = await deps.auditLog.append(entry.value);
+        if (!appended.ok) return err(auditWriteFailure(doneAlready, appended.error.details));
+        return ok(undefined);
+      };
+
       let issuedValue: string | null = null;
 
       if (input.action === "issue") {
@@ -96,6 +127,15 @@ export function createManageIntegrationKeysUseCase(
         if (!key.ok) return key;
         const stored = await deps.keys.issue(actor.workspaceId, key.value);
         if (!stored.ok) return stored;
+        // 記録は保存の後。先に書くと、発行できていない鍵の記録だけが残る。
+        const recorded = await record(
+          "integration_key.issued",
+          { keyId: String(key.value.id), label: input.label, scopes: input.scopes },
+          // 鍵は保存されたが、値は一度しか出せないのでここで失うことになる。
+          // 「一覧に並ぶが使えない鍵」が残るので、それを隠さず書く
+          "鍵は作られて一覧に並びます。ただし値は表示できていないので、この鍵は使えません",
+        );
+        if (!recorded.ok) return recorded;
         // 保存が済んでから平文を返す。先に返すと、保存に失敗したのに
         // 利用者が「使える鍵をもらった」と思って控えることになる。
         issuedValue = secret.plainValue;
@@ -110,6 +150,12 @@ export function createManageIntegrationKeysUseCase(
         if (!revoked.ok) return revoked;
         const applied = await deps.keys.revoke(actor.workspaceId, target.id, at);
         if (!applied.ok) return applied;
+        const recorded = await record(
+          "integration_key.revoked",
+          { keyId: String(target.id), label: target.label, scopes: target.scopes },
+          "鍵は止まっています",
+        );
+        if (!recorded.ok) return recorded;
       }
 
       const listed = await deps.keys.list(actor.workspaceId);

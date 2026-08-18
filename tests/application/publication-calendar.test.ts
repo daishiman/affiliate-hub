@@ -217,7 +217,16 @@ describe("予定日の変更", () => {
     expect(result.error.suggestedAction).not.toBeUndefined();
   });
 
-  it("先の日時へ変えると、送信の順番待ちへ戻る", async () => {
+  /*
+   * 見本のデータだけで動かしているとき（保存先がまだ無いとき）、
+   * 操作の記録は書き足せない（`createSampleAuditLog` が断る）。
+   * 予定日の変更は**誰がやったかを残せないなら実行しない**ので、
+   * ここは成功ではなく「済んだこと・残っていること」を書いた断りが返る。
+   *
+   * 成功したときの中身は、記録を残せる組み合わせで下の
+   * 「先の日時へ変えると、送信の順番待ちへ戻る」で見ている。
+   */
+  it("記録を残せないときは、予定日を変えたことにしない", async () => {
     const view = await (await publicationCalendarUseCases()).getCalendar.execute(await publisher(), {
       month: MONTH,
     });
@@ -232,9 +241,11 @@ describe("予定日の変更", () => {
       publicationId: target.publicationId,
       scheduledAt: "2099-03-04T10:30",
     });
-    expect(result.ok, result.ok ? "" : result.error.message).toBe(true);
-    if (!result.ok) return;
-    expect(result.value.message).toContain("2099");
+    expect(result.ok).toBe(false);
+    if (result.ok) return;
+    // 「失敗しました」だけにしない。何が済んでいて何が残っているかを書く。
+    expect(result.error.message).toContain("記録");
+    expect(result.error.suggestedAction ?? "").not.toBe("");
   });
 });
 
@@ -267,7 +278,7 @@ import type { PublicationState } from "@/domain/distribution";
 import { ok } from "@/domain/shared/result";
 import { aChannelConnection, aPublication } from "../support/factories";
 import { OTHER_WORKSPACE, aPublisher, aWriter } from "../support/actors";
-import { failing, recordingEvents, testDeps } from "../support/doubles";
+import { failing, recordingAuditLog, recordingEvents, testDeps } from "../support/doubles";
 
 /**
  * 見本データだけでは、状態の組み合わせを全部は作れない。
@@ -284,6 +295,8 @@ function calendarDeps(over: Partial<PublicationCalendarDeps> = {}): PublicationC
     contentVariants: base.contentVariants,
     contentPackages: base.contentPackages,
     events: base.events,
+    auditLog: recordingAuditLog().port,
+    ids: base.ids,
     ...over,
   };
 }
@@ -455,6 +468,49 @@ describe("予定日を変えたあとの状態", () => {
     expect(result.ok).toBe(false);
     if (result.ok) return;
     expect(result.error.code).not.toBe("NOT_FOUND");
+  });
+
+  it("先の日時へ変えると、送信の順番待ちへ戻る", async () => {
+    const p = aPublication({ state: "QUEUED" });
+    const result = await createReschedulePublicationUseCase(
+      calendarDeps({ publications: withPublications([p]) }),
+    ).execute(publisherActor, { publicationId: String(p.id), scheduledAt: "2099-03-04T10:30" });
+    expect(result.ok, result.ok ? "" : result.error.message).toBe(true);
+    if (!result.ok) return;
+    expect(result.value.message).toContain("2099");
+  });
+
+  it("予定日を変えたことが、誰がやったかつきで記録に残る", async () => {
+    const p = aPublication({ state: "QUEUED", scheduledAt: new Date("2026-08-20T01:00:00Z") });
+    const audit = recordingAuditLog();
+    const result = await createReschedulePublicationUseCase(
+      calendarDeps({ publications: withPublications([p]), auditLog: audit.port }),
+    ).execute(publisherActor, { publicationId: String(p.id), scheduledAt: FUTURE });
+    expect(result.ok, result.ok ? "" : result.error.message).toBe(true);
+
+    expect(audit.actions()).toContain("publication.schedule_changed");
+    const entry = audit.entries()[0];
+    // 前と後ろの両方を残す。後ろだけだと「いつから動かしたのか」が読めない。
+    expect(entry.before).not.toBeNull();
+    expect(entry.after).not.toBeNull();
+    expect(entry.targetId).toBe(String(p.id));
+  });
+
+  it("記録が残せなければ、予定日を変えたことにしない", async () => {
+    const p = aPublication({ state: "QUEUED" });
+    const result = await createReschedulePublicationUseCase(
+      calendarDeps({
+        publications: withPublications([p]),
+        auditLog: {
+          ...recordingAuditLog().port,
+          append: async () => failing("記録の保存先に繋がりません。"),
+        } as PublicationCalendarDeps["auditLog"],
+      }),
+    ).execute(publisherActor, { publicationId: String(p.id), scheduledAt: FUTURE });
+
+    expect(result.ok).toBe(false);
+    if (result.ok) return;
+    expect(result.error.message).toContain("記録");
   });
 
   it("変えたことを、他の持ち場へ伝える", async () => {

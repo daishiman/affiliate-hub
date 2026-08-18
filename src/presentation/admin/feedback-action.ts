@@ -235,7 +235,16 @@ export async function manageIntegrationAccessAction(
   if (!result.ok) {
     return {
       status: "failed",
-      message: result.error.suggestedAction ?? result.error.message,
+      /*
+       * **何が起きたか**と**次に何をするか**を両方出す。
+       * 次にすることだけを出すと、「鍵は作られたが値が出せていない」のような
+       * *すでに済んでしまったこと*が画面から消え、押した人は
+       * 何も起きなかったと思ってもう一度押す。
+       */
+      message:
+        result.error.suggestedAction === undefined
+          ? result.error.message
+          : `${result.error.message}\n${result.error.suggestedAction}`,
       field: result.error.field,
       issuedValue: null,
     };

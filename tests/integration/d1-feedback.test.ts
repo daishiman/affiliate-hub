@@ -114,6 +114,7 @@ const keys = (now = new Date("2026-08-17T06:00:00Z")) =>
     ids: deps.ids,
     mintSecret: deps.mintSecret,
     now: () => now,
+    auditLog: deps.auditLog,
   });
 
 /** 送信の入力ひな型。試験ごとに変えたいところだけ上書きする。 */

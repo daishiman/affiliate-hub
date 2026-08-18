@@ -1,5 +1,5 @@
 {
-  "graph_revision": 223,
+  "graph_revision": 224,
   "nodes": [
     {
       "acceptance": [],
@@ -10147,6 +10147,103 @@
       "title": "モデルの目録(LLM_PROVIDER_CATALOG)が未設定で、鍵を入れてもモデルが並ばない",
       "tracker_binding": "beads",
       "updated_at": "2026-08-18T07:10:00Z"
+    },
+    {
+      "acceptance": [],
+      "architecture_refs": [],
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "beads_linkage": null,
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "candidate_path": "tasks/task-audit-log-write-path-coverage.md",
+          "confidence": 0.9
+        }
+      ],
+      "classification_confidence": 0.9,
+      "classification_reason": "既存の検査が出した実測一覧を塞ぐ作業で、新機能ではない",
+      "completion_evidence": {
+        "completed_at": null,
+        "evidence_refs": [],
+        "policy": "manual",
+        "reconciled_at": null,
+        "source": "manual",
+        "status": "open"
+      },
+      "confirmation_evidence": {
+        "evaluated_digest": null,
+        "evaluator": null,
+        "evidence_ref": null
+      },
+      "confirmation_status": "draft",
+      "created_at": "2026-08-18T08:00:00Z",
+      "depends_on": [],
+      "domain": "security",
+      "evaluation_status": "pending",
+      "execution_contexts": [],
+      "feature_package_id": null,
+      "file_path": "tasks/task-audit-log-write-path-coverage.md",
+      "github_project_linkages": [],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "goal": null,
+      "graph_node_id": "task-audit-log-write-path-coverage",
+      "implementation_readiness": {
+        "checked_at": null,
+        "missing_sections": [],
+        "status": "incomplete"
+      },
+      "issue_linkage": null,
+      "iteration": null,
+      "mvp_alignment": {
+        "background": "port-wiring の 2 つ目の検査で、書き込みの入口 21 件のうち記録へ届いているのは 3 件（記事の承認・段階の移動・生成 AI の鍵）だけと実測された。公開・配信の予約・成果の調整・リンクの取り込み・サイト作成は 1 件も記録されない",
+        "mvp_fit": "enabling",
+        "purpose": "運営者の書き込み操作を、誰がいつ行ったかとして残るようにする。記録の要らない読者の操作・計測は理由つきの除外へ移す",
+        "rationale": "入口の門が入り、身元が見本ではなく実在の担当者になった。記録する相手が実在して初めて「誰がやったか」が意味を持つ。門より先にやると見本の身元しか残らなかった"
+      },
+      "owners": [
+        "daishiman"
+      ],
+      "parent_feature": null,
+      "phase_ref": null,
+      "priority": "high",
+      "project_id": "affiliate-hub",
+      "pull_request_linkages": [],
+      "purpose": null,
+      "related_nodes": [],
+      "resource_scope": [
+        "src",
+        "docs",
+        "tests"
+      ],
+      "scope_in": [],
+      "scope_out": [],
+      "source_lineage": {
+        "imported_at": "2026-08-18T08:00:00Z",
+        "origin_kind": "manual",
+        "source_digest": null,
+        "source_path": "docs/product/port-wiring-report.md",
+        "source_plugin": null,
+        "source_version": null
+      },
+      "start_date": null,
+      "status": "draft",
+      "tags": [
+        "audit-log",
+        "compliance",
+        "port-wiring"
+      ],
+      "target_date": null,
+      "template_id": "task",
+      "template_version": "1.0.0",
+      "title": "書き込みの入口 20 件が操作の記録へ届いていない",
+      "tracker_binding": "beads",
+      "updated_at": "2026-08-18T08:00:00Z"
     }
   ],
   "repository_id": "github:daishiman/affiliate-hub",

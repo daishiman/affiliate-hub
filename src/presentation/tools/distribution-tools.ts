@@ -37,6 +37,7 @@ export function distributionTools(deps: AppDeps): readonly AnyToolDefinition[] {
     manualExport: deps.manualExport,
     variants: deps.contentVariants,
     ids: deps.ids,
+    auditLog: deps.auditLog,
   };
   const calendar = {
     publications: deps.publications,
@@ -44,6 +45,8 @@ export function distributionTools(deps: AppDeps): readonly AnyToolDefinition[] {
     contentVariants: deps.contentVariants,
     contentPackages: deps.contentPackages,
     events: deps.events,
+    auditLog: deps.auditLog,
+    ids: deps.ids,
   };
   // 自分のブログへ出す口。画面（配信の詳細）と同じユースケースをここへも載せる。
   // 載せないと「画面からは出せるが AI からは出せない」が生まれ、
@@ -53,6 +56,10 @@ export function distributionTools(deps: AppDeps): readonly AnyToolDefinition[] {
     variants: deps.contentVariants,
     publications: deps.publications,
     articles: deps.publishedArticles,
+    // 記録は画面と道具の両方に配る。片方だけにすると
+    // 「AI から出したときだけ誰がやったか残らない」が生まれる。
+    auditLog: deps.auditLog,
+    ids: deps.ids,
   };
   const publicationId = z.string().min(1);
 

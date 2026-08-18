@@ -37,6 +37,35 @@ export type AuditAction =
   | "member.role_changed"
   | "export.performed"
   /**
+   * 配信予定が変わった（入れた・動かした・取り消した）。
+   *
+   * **3 つを 1 語にしている。** 予約・変更・取り消しは、後から読むときに
+   * 知りたいことが同じ（「いつ外へ出る予定になっていたか」）で、
+   * 差は `before` / `after` の日時に出る。1 操作 1 語で増やすと、
+   * 一覧を読む人が「同じことの別名」を区別できなくなる。
+   * 取り消しは `after` が null になるので、語を分けなくても読める。
+   */
+  | "publication.schedule_changed"
+  /**
+   * 外部連携の鍵の発行・失効。
+   *
+   * こちらは 2 語に分ける。生成 AI の鍵（`llm_credential.*`）と同じ理由で、
+   * 漏れが疑われたときに「**いつ止めたか**」が言えないと事故対応が始まらない。
+   * 発行と失効を 1 語にすると、止めた時刻を差分から読むことになる。
+   */
+  | "integration_key.issued"
+  | "integration_key.revoked"
+  /** ブログを作った。消す口が無いので、作られたことだけは必ず残す。 */
+  | "site.created"
+  /**
+   * 成果の実績を人が手で直した。
+   *
+   * ASP から取り込んだ数字を上書きする操作なので、**理由を必須**にしている
+   * （下の `REASON_REQUIRED`）。理由の無い金額の修正は、後から見て
+   * 誤りの訂正なのか意図的な操作なのかを区別できない。
+   */
+  | "conversion.adjusted"
+  /**
    * 生成 AI の鍵の登録・失効。
    *
    * **鍵の値は before/after に入らない**（下の `redactSensitive` が落とすが、
@@ -79,6 +108,7 @@ const REASON_REQUIRED: ReadonlySet<AuditAction> = new Set<AuditAction>([
   "ranking_model.changed",
   "disclosure.changed",
   "member.role_changed",
+  "conversion.adjusted",
 ]);
 
 /**
