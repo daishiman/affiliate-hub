@@ -1,7 +1,18 @@
 /**
  * @tier 2
  * @req REQ-S10
- * @types permission-matrix, screen-states
+ * @types screen-states
+ *
+ * **`permission-matrix` を名乗っていたが、外した。**
+ *
+ * ここが見ているのは「持ち主の身元で断られないこと」——**できる側だけ**である。
+ * `permission-matrix`（できてはいけない側）という名前は、
+ * 実際に見ているものの 2 倍を主張していた。
+ * **片側しか見ていない検査に、両側を見たという名前が付いていた。**
+ *
+ * できない側は `page-render-restricted.test.tsx` が見る。
+ * 名前を外しても、このファイルの中身は 1 行も減っていない。
+ * 減ったのは**主張のほう**である。
  */
 import { describe, expect, it, vi } from "vitest";
 import { ADMIN_ROUTE_CASES, importPathOf, propsOf } from "./route-table";

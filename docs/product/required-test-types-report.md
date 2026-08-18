@@ -52,7 +52,7 @@
 | REQ-S06 | has-screen | `a11y` `keyboard` `screen-states` | `a11y` `keyboard` `screen-states` | — | 
 | REQ-S07 | has-screen | `a11y` `keyboard` `screen-states` | `a11y` `keyboard` `screen-states` | — | 
 | REQ-S08 | has-screen | `a11y` `keyboard` `screen-states` | `a11y` `keyboard` `screen-states` | — | 
-| REQ-S09 | has-screen | `a11y` `keyboard` `screen-states` | `a11y` `keyboard` `screen-states` | — | 
+| REQ-S09 | has-screen, has-permission | `a11y` `keyboard` `permission-matrix` `screen-states` | `a11y` `keyboard` `permission-matrix` `screen-states` | — | 
 | REQ-S10 | has-screen, has-permission | `a11y` `keyboard` `permission-matrix` `screen-states` | `a11y` `keyboard` `permission-matrix` `screen-states` | — | 
 | REQ-API02 | has-permission, has-tenant | `permission-matrix` `tenant-isolation` | `permission-matrix` `tenant-isolation` | — | 
 | REQ-R01 | has-permission | `permission-matrix` | `permission-matrix` | — | 
