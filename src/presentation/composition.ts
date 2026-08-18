@@ -134,6 +134,7 @@ import {
 } from "@/application/usecases/generation/manage-llm-credentials";
 import type { LlmProviderDescriptor } from "@/application/ports/llm-credential";
 import type { UseCase } from "@/application/usecases/usecase";
+import { auditLogStubNotice } from "@/infrastructure/persistence/sample/audit-log-sample-repository";
 import { telemetryStubNotice } from "@/infrastructure/persistence/sample/telemetry-sample-sink";
 import { improvementStubNotice } from "@/infrastructure/persistence/sample/improvement-sample-repository";
 import { feedbackStubNotice } from "@/infrastructure/persistence/sample/feedback-sample-repository";
@@ -822,6 +823,28 @@ export async function telemetryNotice(): Promise<StorageStatus> {
       db === null
         ? telemetryStubNotice()
         : "読まれた記録は保存されます（保存先: D1 の telemetry_events）。同意が要る記録は 90 日、回数だけの記録は 400 日で消えます。",
+  };
+}
+
+/**
+ * 操作の記録がいま何で動いているかを画面に出すための一文。
+ *
+ * **この画面に出すことが、控えを許した条件そのものである。**
+ * 記録は「残った」と言えること自体が意味を持つ唯一の種類なので、
+ * 黙って控えへ落ちると「残っていると思われて、残っていない」になる。
+ * それは記録が無い状態より悪い。
+ */
+export async function auditLogNotice(): Promise<StorageStatus> {
+  const db = await tryGetDb();
+  return {
+    persisted: db !== null,
+    what: "操作の記録先",
+    blockedBy: "audit_logs テーブルの追加と D1 への接続",
+    stubId: "persistence:audit-log-memory",
+    message:
+      db === null
+        ? auditLogStubNotice()
+        : "誰がいつ何をしたかは保存されます（保存先: D1 の audit_logs）。後から書き換えることはできません。",
   };
 }
 

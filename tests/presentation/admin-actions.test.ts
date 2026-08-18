@@ -17,7 +17,8 @@ import { SAMPLE_SITE_SLUG } from "@/infrastructure/persistence/sample/site-sampl
  * --- 差し替えているもの ---
  *   1. `next/cache` … 画面の作り直しは「要求の中」でしか呼べない
  *   2. ログイン情報 … 役割ごとに何が断られるかを見たい
- * どちらも本物の判断（権限・状態遷移）はそのまま通る。
+ *   3. 操作の記録先 … 「残せないなら通さない」の断り方を見たい回だけ
+ * いずれも本物の判断（権限・状態遷移）はそのまま通る。
  *
  * 規範: docs/spec/10-テスト戦略仕様.md §2 / docs/architecture/testing-architecture.md §8
  */
@@ -33,6 +34,29 @@ let signedIn: ActorContext = SAMPLE_ACTOR;
 vi.mock("@/infrastructure/identity/sample-actor", async (importOriginal) => {
   const actual = await importOriginal<Record<string, unknown>>();
   return { ...actual, getCurrentActor: async () => signedIn };
+});
+
+/**
+ * 操作の記録が残せるかどうか。**既定は残せる側**（見本の控えと同じ）。
+ *
+ * 2026-08-18 に見本の記録先が「必ず断る」から
+ * 「控えへ本当に書き足す」へ変わった。それまでこの画面の操作は
+ * 記録の手前で全部断られていて、**その先で何が起きるかは誰も見ていなかった**。
+ *
+ * 断る側を消したわけではない。`auditWritable = false` にした回だけ
+ * `createUnavailableAuditLog()`（呼ぶと必ず失敗する）へ差し替える。
+ * ここを見本の実装へ戻すと、断り方を見る試験が**緑のまま何も確かめなくなる**。
+ */
+let auditWritable = true;
+vi.mock("@/infrastructure/persistence/sample/settings-sample-repository", async (importOriginal) => {
+  const actual = await importOriginal<Record<string, unknown>>();
+  return {
+    ...actual,
+    createSampleAuditLog: () =>
+      auditWritable
+        ? (actual.createSampleAuditLog as () => unknown)()
+        : (actual.createUnavailableAuditLog as () => unknown)(),
+  };
 });
 
 const {
@@ -93,6 +117,7 @@ const IDLE = { status: "idle", message: "" } as const;
 
 beforeEach(() => {
   signedIn = SAMPLE_ACTOR;
+  auditWritable = true;
 });
 
 describe("受信箱の操作", () => {
@@ -105,17 +130,18 @@ describe("受信箱の操作", () => {
   });
 
   /*
-   * この段（見本の保存先）では、受信箱を進める 4 操作はすべて断られる。
-   * 記録の保存先が無く、`createSampleAuditLog().append` が必ず失敗するため。
-   * 記事の公開・配信予定・鍵の発行も前から同じで、意図どおりである
-   * （残せない記録を「残した」ことにしないため）。
+   * 記録が残せない置き場（`createUnavailableAuditLog`）へ差し替えて動かす。
+   * 受信箱を進める 4 操作は、残せない記録を「残した」ことにしないため、
+   * その置き場では断られる。記事の公開・配信予定・鍵の発行も同じ。
    *
-   * 通ることを確かめる場所は `tests/integration/d1-link-inbox.test.ts`。
+   * 通ることを確かめる場所は `tests/integration/d1-link-inbox.test.ts` と、
+   * この下の「記録が残せる置き場では、受け取ったうえで通る」。
    * ここで見るのは、**断られても操作そのものは効いていること**と、
    * それが画面の文面に出ていること。ここを取り違えると、
    * 押した人は入っていないと思ってもう一度貼り、受信箱に同じ URL が並ぶ。
    */
   it("提携を扱える人なら受け取る（記録が残せないことは隠さない）", async () => {
+    auditWritable = false;
     asAffiliateManager();
     const url = `https://example.invalid/asp/act-${Date.now()}`;
     const state = await submitAffiliateUrlAction(IDLE, form({ url, note: "画面から貼り付け" }));
@@ -194,6 +220,7 @@ describe("受信箱の操作", () => {
   });
 
   it("3 つの操作は、どれも済んだことを画面に出したうえで断る", async () => {
+    auditWritable = false;
     asAffiliateManager();
     const resolved = await advanceLinkIngestionAction(
       IDLE,
@@ -220,6 +247,22 @@ describe("受信箱の操作", () => {
     for (const state of [resolved, matched, rejected]) {
       expect(state.message.trim().split("\n").length).toBeGreaterThan(1);
     }
+  });
+
+  /*
+   * 記録先が控えになったことで初めて通るようになった側。
+   * 断られ続けているあいだ、貼った URL が受信箱へ入ったあと
+   * **画面に何が返るかは一度も確かめられていなかった**。
+   */
+  it("記録が残せる置き場では、受け取ったうえで通る", async () => {
+    asAffiliateManager();
+    const url = `https://example.invalid/asp/ok-${Date.now()}`;
+    const state = await submitAffiliateUrlAction(IDLE, form({ url, note: "画面から貼り付け" }));
+
+    expect(state.status).toBe("done");
+    const inbox = await (await linkInboxUseCases()).list.execute(SAMPLE_ACTOR, { state: "all" });
+    expect(inbox.ok).toBe(true);
+    if (inbox.ok) expect(inbox.value.items.some((i) => i.submittedUrl === url)).toBe(true);
   });
 
   it("対象外にする理由が空なら、その欄を指して断る", async () => {
@@ -342,16 +385,17 @@ describe("ブログ作成ウィザードの操作", () => {
   });
 
   /*
-   * 見本の保存先には操作の記録を書けない（`createSampleAuditLog` の `append` は必ず失敗する）。
-   * ブログを作ると記録が要るので、この段では**必ず断られる**。
-   * それでよいと決めた理由と、本当に作れることを確かめる場所は
-   * docs/product/port-wiring.md「記録を足すと、見本モードでは操作が断られる」を見る。
+   * 記録が残せない置き場（`createUnavailableAuditLog`）へ差し替えて動かす。
+   * ブログを作ると記録が要るので、その置き場では**必ず断られる**。
+   * それでよいと決めた理由は
+   * docs/product/port-wiring.md「記録を足すと、見本モードでは操作が断られる」。
    *
    * ここで見るのは、断り方が**押した人を二度押しへ誘導しないか**である。
    * 記録は作った後に書くので、断られた時点でブログはもう読者から見えている。
    * 断り文がそれを隠すと、押した人は名前を変えてもう一度作り、同じブログが 2 本並ぶ。
    */
   it("記録を残せない段では、作れたことにせず断る", async () => {
+    auditWritable = false;
     const draftId = await completeDraftThroughForms(`action-test-${Date.now()}`);
     const state = await createSiteFromDraftAction({ status: "idle", message: "" }, form({ draftId }));
 
@@ -361,6 +405,7 @@ describe("ブログ作成ウィザードの操作", () => {
   });
 
   it("断り文が、すでに読者から見えていることを隠さない", async () => {
+    auditWritable = false;
     const slug = `action-test-${Date.now()}`;
     const draftId = await completeDraftThroughForms(slug);
     const state = await createSiteFromDraftAction({ status: "idle", message: "" }, form({ draftId }));
@@ -373,6 +418,21 @@ describe("ブログ作成ウィザードの操作", () => {
     const listed = await (await siteUseCases()).listSites.execute(SAMPLE_ACTOR, {});
     expect(listed.ok).toBe(true);
     if (listed.ok) expect(listed.value.some((s) => s.slug === slug)).toBe(true);
+  });
+
+  /*
+   * 記録先が控えになったことで初めて通るようになった側。
+   * 断られ続けているあいだ、ここから先（作った先への案内が返るか）は
+   * **一度も確かめられていなかった**。
+   */
+  it("記録が残せる置き場では、作れて、作った先への道が返る", async () => {
+    const slug = `action-test-${Date.now()}`;
+    const draftId = await completeDraftThroughForms(slug);
+    const state = await createSiteFromDraftAction({ status: "idle", message: "" }, form({ draftId }));
+
+    expect(state.status).toBe("done");
+    // 「できました」で終えない。次に開く場所が無いと、押した人はそこで止まる。
+    expect(state.createdPath ?? "").toContain(slug);
   });
 });
 

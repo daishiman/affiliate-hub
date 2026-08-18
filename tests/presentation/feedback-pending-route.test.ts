@@ -29,10 +29,14 @@ vi.mock("@opennextjs/cloudflare", () => ({
  *
  * 取りに来る操作は「渡した」という**中身が外へ出る書き込み**なので、
  * 誰がどの鍵で持ち帰ったかを残せないときは払い出さない（502 で断る）。
- * 見本の置き場（`pnpm dev` のときの組み合わせ）は保存先が無く書き足しを断るため、
- * そのままだと**手前の判定を見る前に全部 502 になる**。
+ * 見本の置き場は 2026-08-18 から控え（この実行中だけ覚える置き場）へ本当に書く。
+ * それ以前は保存先が無く書き足しを断ったため、
+ * **手前の判定を見る前に全部 502 になっていた**。
  *
  * ここで見たいのは鍵の判定と払い出しの中身なので、既定は「残せる」に倒す。
+ * 残せない側は `createUnavailableAuditLog()`（呼ぶと必ず失敗する）を指す。
+ * 見本の既定が書ける側へ移ったので、ここを見本の実装へ戻すと
+ * **502 を確かめる 1 件が黙って通らなくなる**。
  * 残せないときに断ること自体は `auditWritable = false` の 1 件と、
  * `tests/presentation/feedback-actions.test.ts` が見ている。
  */
@@ -52,7 +56,7 @@ vi.mock("@/infrastructure/persistence/sample/settings-sample-repository", async 
   return {
     ...actual,
     createSampleAuditLog: () =>
-      auditWritable ? writable : (actual.createSampleAuditLog as () => unknown)(),
+      auditWritable ? writable : (actual.createUnavailableAuditLog as () => unknown)(),
   };
 });
 

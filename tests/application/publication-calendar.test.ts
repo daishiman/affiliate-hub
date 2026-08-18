@@ -222,15 +222,18 @@ describe("予定日の変更", () => {
   });
 
   /*
-   * 見本のデータだけで動かしているとき（保存先がまだ無いとき）、
-   * 操作の記録は書き足せない（`createSampleAuditLog` が断る）。
-   * 予定日の変更は**誰がやったかを残せないなら実行しない**ので、
-   * ここは成功ではなく「済んだこと・残っていること」を書いた断りが返る。
+   * 2026-08-18 まで、ここは断りを見る試験だった。
+   * 見本の記録先が書き足しを必ず断り、予定日の変更は
+   * **誰がやったかを残せないなら実行しない**ためである。
+   * 記録先を控え（この実行中だけ覚える置き場）にしたので、
+   * 組み立て済みの入口からも最後まで通るようになった。
    *
-   * 成功したときの中身は、記録を残せる組み合わせで下の
-   * 「先の日時へ変えると、送信の順番待ちへ戻る」で見ている。
+   * 断る側が消えたわけではない。記録を残せないときの断り方と文面は、
+   * つなぎ目を差し替えられる下部の
+   * 「記録が残せなければ、予定日を変えたことにしない」が見ている。
+   * ここで見るのは、**通ったときに予定日が本当に変わっているか**である。
    */
-  it("記録を残せないときは、予定日を変えたことにしない", async () => {
+  it("組み立て済みの入口からも、予定日が本当に変わる", async () => {
     const view = await (await publicationCalendarUseCases()).getCalendar.execute(await publisher(), {
       month: MONTH,
     });
@@ -245,11 +248,19 @@ describe("予定日の変更", () => {
       publicationId: target.publicationId,
       scheduledAt: "2099-03-04T10:30",
     });
-    expect(result.ok).toBe(false);
-    if (result.ok) return;
-    // 「失敗しました」だけにしない。何が済んでいて何が残っているかを書く。
-    expect(result.error.message).toContain("記録");
-    expect(result.error.suggestedAction ?? "").not.toBe("");
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    // 返り値だけで「変わった」と言わない。読み直して同じ日時が出ることまで見る。
+    const after = await (await publicationCalendarUseCases()).getCalendar.execute(
+      await publisher(),
+      { month: "2099-03" },
+    );
+    expect(after.ok).toBe(true);
+    if (!after.ok) return;
+    const moved = after.value.days
+      .flatMap((d) => d.entries)
+      .some((e) => e.publicationId === target.publicationId);
+    expect(moved).toBe(true);
   });
 });
 

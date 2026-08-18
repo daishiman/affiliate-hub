@@ -97,7 +97,14 @@ export const FIELD_VALUES: Readonly<Record<string, unknown>> = {
   // 2026-08-18 まで `manual` が入っていて、2 つの道具が入力の検査で断られていた。
   // 断られたところで検査は緑になるので、**間違った見本は黙って通る。**
   source: "paste",
-  linkIngestionId: "lnk_amazon_pc",
+  // 受信箱の見本は `link-inbox-sample-repository.ts` の 5 件。
+  // 2026-08-18 まで `lnk_amazon_pc` という**どこにも無い id** が入っていて、
+  // 3 つの道具が「見つかりません」で止まっていた。止まったところは
+  // 検査が緑になるので、その先が一度も動いていないことに気づけない。
+  // 状態は道具ごとに要るものが違うので、既定は「受け取ったまま」の 1 件にし、
+  // 別の状態が要る道具は TOOL_OVERRIDES で指す（互いに別の行を触るので、
+  // どの順で呼んでも結果が変わらない）。
+  linkIngestionId: "li_received_1",
   programId: "prg_amazon_pc",
 
   // --- 数字 ---
@@ -164,7 +171,20 @@ export const TOOL_OVERRIDES: Readonly<Record<string, Readonly<Record<string, unk
   // 人物の種類（`author`）でも使われているので、辞書ごと変えずにここで上書きする。
   submit_feedback: { kind: "not_working" },
   // 下書きの段階は `SITE_WIZARD_STEPS` の文字列。数字ではない。
-  save_site_draft_step: { step: "purpose" },
+  // `answers` は段階ごとに必要な項目が違うので、共通の辞書には置けない
+  // （空のまま渡すと「まだ埋まっていません」で止まり、その先が動かない）。
+  save_site_draft_step: {
+    step: "purpose",
+    answers: { purpose: "はじめてレンズを買う人が、迷わず 1 本を選べるようにする" },
+  },
+  // 商品との結びつけは、広告主が決まった行にしかできない。
+  match_link_ingestion_product: { linkIngestionId: "li_resolved_1", productId: "p_alpha_15" },
+  // 対象外にするのは、まだどの状態にもなっていない行で見る
+  // （`li_received_1` は resolve の道具が触るので、別の行を指す）。
+  reject_link_ingestion: {
+    linkIngestionId: "li_received_2",
+    reason: "提携が終了しているため。",
+  },
 };
 
 /**
@@ -176,8 +196,10 @@ export const TOOL_OVERRIDES: Readonly<Record<string, Readonly<Record<string, unk
  * 「並んでいるものが本当に通らないか」まで確かめる。
  */
 export const NO_HAPPY_PATH: Readonly<Record<string, string>> = {
-  get_site_draft:
-    "下書きは処理中のメモリにしか無く、先に start_site_draft を呼ばないと 1 件も存在しないため",
+  // `get_site_draft` は 2026-08-18 にここから外れた。
+  // 見本の下書き `sd_sample` を 1 本置いたので、呼べば返るようになった。
+  // 理由が消えたら行ごと消す。理由だけ残すと、次に見た人には
+  // 「まだ通らない」と読める。
   run_reader_tool:
     "計算そのものがまだスタブで、NOT_IMPLEMENTED を返すため（返していることは検査する）",
 };

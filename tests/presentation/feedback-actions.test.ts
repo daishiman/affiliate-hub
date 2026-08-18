@@ -26,14 +26,18 @@ import { SAMPLE_ACTOR } from "@/infrastructure/identity/sample-actor";
  *
  * --- なぜ記録の置き場を差し替えるのか ---
  *
- * 見本の組み合わせ（`pnpm dev` と同じもの）は記録の置き場を持たず、
- * 書き足しを断る。要望を送る・扱いを変える・払い出すのどれも
- * 記録を伴うようになったので、そのままだと**押した結果が全部「断り」**になり、
- * この画面で見たいこと（礼を返すか・状態が進むか・回数が増えるか）へ届かない。
+ * 見本の組み合わせ（`pnpm dev` と同じもの）は 2026-08-18 から
+ * 控え（この実行中だけ覚える置き場）へ本当に書き足す。
+ * それ以前は必ず断っていたため、要望を送る・扱いを変える・払い出すの
+ * どれもが「断り」で返り、この画面で見たいこと（礼を返すか・状態が進むか・
+ * 回数が増えるか）へ届かなかった。
  *
  * ただし「記録が残せないときに断る」ことも、この画面でしか見られない。
  * そこで `auditWritable` で向きを切り替えられるようにし、
  * **既定は書ける側**、断りを見たいところだけ書けない側にする。
+ * 書けない側は `createUnavailableAuditLog()`（呼ぶと必ず失敗する）を指す。
+ * 見本の既定が書ける側へ移ったので、ここを見本の実装へ戻すと
+ * **断りの検査が黙って通らなくなる**（緑のまま、何も確かめない）。
  * 断りの検査を消していないことは「取りに来るときの鍵」の項で確かめられる。
  */
 
@@ -69,7 +73,7 @@ vi.mock("@/infrastructure/persistence/sample/settings-sample-repository", async 
   return {
     ...actual,
     createSampleAuditLog: () =>
-      auditWritable ? writable : (actual.createSampleAuditLog as () => unknown)(),
+      auditWritable ? writable : (actual.createUnavailableAuditLog as () => unknown)(),
   };
 });
 

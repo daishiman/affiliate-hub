@@ -9,6 +9,7 @@
  */
 import { describe, expect, it } from "vitest";
 import { SITE_WIZARD_STEPS } from "@/domain/authoring";
+import { createSampleAuditLog } from "@/infrastructure/persistence/sample/settings-sample-repository";
 import { currentActor, siteBuilderUseCases, siteUseCases } from "@/presentation/composition";
 import type { ActorContext } from "@/domain/shared";
 
@@ -243,42 +244,51 @@ describe("作ったブログ", () => {
    * 「作れて、読者向けの経路に出てくる」ことは
    * `tests/integration/d1-site-draft.test.ts` で、**本物の保存先の上**で見る。
    *
-   * ここ（組み立て済みの入口）で見るのはその手前。この試験の中では
-   * 記録の保存先がまだ無く、作ったことを残せない。**残せないときに
-   * 作ってしまわないこと**が、ここで守りたいことになる。
+   * --- ここで見るものが 2026-08-18 に変わった ---
+   *
+   * それまで、この段では記録の追記が必ず失敗していたので、
+   * ここで見ていたのは「残せないときに作ってしまわないこと」だった。
+   * 記録先を控え（この実行中だけ覚える置き場）にしたので、
+   * 作る操作は**この段でも最後まで通る**ようになった。
+   *
+   * 断られる側が消えたわけではない。記録が残せないときの断り方と文面は、
+   * つなぎ目を差し替えられる下部（「ブログを作ったことの記録」の
+   * 「記録を残せなかったときは、作れたこととして返さない」）が見ている。
+   * ここで見るのは、**通ったときに本当に記録が残っているか**である。
+   * 通るようになったのに記録が空なら、控えは偽の成功に戻っている。
    */
-  it("記録が残せないときは、成功として返さない", async () => {
+  it("作れて、読者向けの一覧に出てくる", async () => {
     const slug = "first-lens-guide";
     const draftId = await completeDraft(slug);
     const actor = await builderActor();
 
     const created = await (await siteBuilderUseCases()).createSite.execute(actor, { draftId });
-    expect(created.ok).toBe(false);
-    if (created.ok) return;
-    expect(created.error.message).toContain("記録");
+    expect(created.ok).toBe(true);
+
+    const after = await (await siteUseCases()).listSites.execute(actor, {});
+    expect(after.ok).toBe(true);
+    if (!after.ok) return;
+    expect(after.value.some((s) => s.slug === slug)).toBe(true);
   });
 
   /*
-   * 記録は**作った後**に書く（先に書くと、作れていないブログの記録が残る）。
-   * つまり記録に失敗した時点で、ブログはもう読者から見える。
-   * 断り文がそれを隠したら、押した人は「作られていない」と思って
-   * 名前を変えてもう一度作り、同じブログが 2 本並ぶ。
+   * 控えは「この実行中だけ覚える」置き場であって、書いたふりではない。
+   * 積んだだけで読み返せないなら、断り続けていたときと同じく
+   * **その先について何も確かめられていない**ことになる。
    */
-  it("断り文が、すでにブログが見えていることを隠さない", async () => {
+  it("作った記録が、本当に読み返せる", async () => {
     const slug = "second-lens-guide";
     const draftId = await completeDraft(slug);
     const actor = await builderActor();
 
     const created = await (await siteBuilderUseCases()).createSite.execute(actor, { draftId });
-    expect(created.ok).toBe(false);
-    if (created.ok) return;
-    expect(created.error.message).toContain("読む人からも見えます");
+    expect(created.ok).toBe(true);
 
-    const after = await (await siteUseCases()).listSites.execute(actor, {});
-    expect(after.ok).toBe(true);
-    if (!after.ok) return;
-    // 断り文の言うとおり、読者側には出ている。ここが食い違うと、どちらも信じられない。
-    expect(after.value.some((s) => s.slug === slug)).toBe(true);
+    const audit = createSampleAuditLog();
+    const found = await audit.listByTarget(actor.workspaceId, "site", slug);
+    expect(found.ok).toBe(true);
+    if (!found.ok) return;
+    expect(found.value.map((e) => e.action)).toContain("site.created");
   });
 });
 

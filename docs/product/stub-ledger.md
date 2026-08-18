@@ -43,7 +43,7 @@
 | `persistence:policy-rule-sample` | 表現ポリシー（初期ルールのまま） | 表現ポリシーの保存先 | policy_rules テーブルの追加と、作業場所を作ったときに初期ルールを配る処理 |
 | `persistence:product-sample` | 商品と根拠（見本データ） | 商品・主張・根拠・検証記録の保存先 | 商品・主張・根拠を登録する入口（画面と操作）の追加。そのうえで products / claims / evidence / test_runs テーブルの追加とマイグレーション |
 | `persistence:ranking-sample` | ランキングの保存先（見本データ） | EditorialRankingModelRepositoryPort / EditorialScoreCardRepositoryPort | 順位づけの基準と採点表を作る入口（画面と操作）の追加。そのうえで ranking_models / score_cards テーブルの追加とマイグレーション |
-| `persistence:settings-sample` | 設定（見本データ） | 作業場所・担当者・ブランド・広告表記・操作の記録の保存先 | workspaces / memberships / brands / disclosures / audit_logs テーブルの追加と、Better Auth と Google ログインの設定 |
+| `persistence:settings-sample` | 設定（見本データ） | 作業場所・担当者・ブランド・広告表記の保存先 | workspaces / memberships / brands / disclosures テーブルの追加と、Better Auth と Google ログインの設定 |
 | `reader:contact-sink` | 問い合わせの受け取り（送信せず記録のみ） | ContactPort | Turnstile の鍵と送信元メールアドレスの登録（利用者本人が登録する） |
 | `reader:shortlist-memory` | 気になる商品の保存（処理中のメモリ） | ShortlistPort | 読者ごとの保存先 (KV 名前空間) の作成 |
 | `reader:tools-sample` | 診断・計算の道具（見本の定義のみ） | ReaderToolPort | 商品データの取込と、道具ごとの計算式の登録 |
@@ -55,13 +55,14 @@
 こちらへ回る。**消す予定は無いので、この件数は減らない。**
 何で動いているかは、必ず画面に文字で出す（黙って控えへ落ちない）。
 
-件数: 10
+件数: 11
 
 | 識別子 | 何の控えか | つなぎ目 | 本物の置き場所 |
 |---|---|---|---|
 | `llm:unavailable` | 生成 AI への接続 | LlmPort | `src/infrastructure/llm/llm-provider-registry.ts` |
 | `llm:unavailable-costs` | 生成 AI の費用見積り | LlmCostEstimatorPort | `src/infrastructure/llm/llm-provider-registry.ts` |
 | `persistence:analytics-sample` | 数字（見本データ） | 指標の読み口 | `src/infrastructure/persistence/d1/telemetry-repository.ts` |
+| `persistence:audit-log-memory` | 操作の記録（この実行中だけ覚える仮置き） | 操作の記録先 | `src/infrastructure/persistence/d1/audit-log-repository.ts` |
 | `persistence:click-tracking-sample` | クリックの記録（この実行では保存先が無い） | クリック計測 | `src/infrastructure/persistence/d1/redirect-repository.ts` |
 | `persistence:feedback-memory` | 改善要望の記録（この実行中だけ覚える仮置き） | 改善要望の記録先 | `src/infrastructure/persistence/d1/feedback-repository.ts` |
 | `persistence:link-inbox-sample` | 受信箱（見本データ・この場限り） | 成果リンク受信箱の保存先 | `src/infrastructure/persistence/d1/link-inbox-repository.ts` |
