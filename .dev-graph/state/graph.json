@@ -1,5 +1,5 @@
 {
-  "graph_revision": 243,
+  "graph_revision": 254,
   "nodes": [
     {
       "acceptance": [],
@@ -11893,6 +11893,983 @@
       "title": "層別カバレッジの一覧が、src に層が増えた側を見ていない",
       "tracker_binding": "beads",
       "updated_at": "2026-08-19T07:10:00Z"
+    },
+    {
+      "acceptance": [],
+      "architecture_refs": [],
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "beads_linkage": null,
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "candidate_path": "tasks/task-spec-completeness-gaps.md",
+          "confidence": 0.9
+        }
+      ],
+      "classification_confidence": 0.9,
+      "classification_reason": "完全性評価（assign-system-spec-completeness-evaluator、verdict: FAIL）の gaps から立てた",
+      "completion_evidence": {
+        "completed_at": null,
+        "evidence_refs": [],
+        "policy": "manual",
+        "reconciled_at": null,
+        "source": "manual",
+        "status": "open"
+      },
+      "confirmation_evidence": {
+        "evaluated_digest": null,
+        "evaluator": null,
+        "evidence_ref": null
+      },
+      "confirmation_status": "draft",
+      "created_at": "2026-08-19T08:40:00Z",
+      "depends_on": [],
+      "domain": "quality",
+      "evaluation_status": "pending",
+      "execution_contexts": [],
+      "feature_package_id": null,
+      "file_path": "tasks/task-spec-completeness-gaps.md",
+      "github_project_linkages": [],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "goal": null,
+      "graph_node_id": "task-spec-completeness-gaps",
+      "implementation_readiness": {
+        "checked_at": null,
+        "missing_sections": [],
+        "status": "incomplete"
+      },
+      "issue_linkage": null,
+      "iteration": null,
+      "mvp_alignment": {
+        "background": "2026-08-19 の再評価で verdict が PASS から FAIL へ反転した。反転の理由は機械ゲート（鮮度・カバレッジ・型）ではなく意味層",
+        "mvp_fit": "enabling",
+        "purpose": "gaps 9 件を 1 束として管理し、C01 → C03 → C02 の順番を記録に残す",
+        "rationale": "9 件は 1 回の評価から出た 1 束で、順番まで共有している。バラすと、順番がどこにも書かれていない 9 件になる"
+      },
+      "owners": [
+        "daishiman"
+      ],
+      "parent_feature": null,
+      "phase_ref": null,
+      "priority": "high",
+      "project_id": "affiliate-hub",
+      "pull_request_linkages": [],
+      "purpose": null,
+      "related_nodes": [
+        "task-spec-gap-c01-spec-intake",
+        "task-spec-gap-c01-decisions",
+        "task-spec-gap-c01-qa-ref-scope",
+        "task-spec-gap-c03-doctrine-citation",
+        "task-spec-gap-c03-fence-repair",
+        "task-spec-gap-c03-nonnormative-note",
+        "task-spec-gap-c02-doc-refetch",
+        "task-spec-gap-harness-input-inventory",
+        "task-spec-gap-resume-receipt-invalid"
+      ],
+      "resource_scope": [
+        "system-spec",
+        "docs"
+      ],
+      "scope_in": [],
+      "scope_out": [],
+      "source_lineage": {
+        "imported_at": "2026-08-19T08:40:00Z",
+        "origin_kind": "manual",
+        "source_digest": null,
+        "source_path": "system-spec/completeness-report.json",
+        "source_plugin": null,
+        "source_version": null
+      },
+      "start_date": "2026-08-19",
+      "status": "draft",
+      "tags": [
+        "system-spec",
+        "quality"
+      ],
+      "target_date": null,
+      "template_id": "task",
+      "template_version": "1.0.0",
+      "title": "仕様の完全性評価が FAIL。gaps 9 件を C01 → C03 → C02 の順で片付ける",
+      "tracker_binding": "beads",
+      "updated_at": "2026-08-19T08:40:00Z"
+    },
+    {
+      "acceptance": [],
+      "architecture_refs": [],
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "beads_linkage": null,
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "candidate_path": "tasks/task-spec-gap-c01-spec-intake.md",
+          "confidence": 0.9
+        }
+      ],
+      "classification_confidence": 0.9,
+      "classification_reason": "完全性評価（assign-system-spec-completeness-evaluator、verdict: FAIL）の gaps から立てた",
+      "completion_evidence": {
+        "completed_at": null,
+        "evidence_refs": [],
+        "policy": "manual",
+        "reconciled_at": null,
+        "source": "manual",
+        "status": "open"
+      },
+      "confirmation_evidence": {
+        "evaluated_digest": null,
+        "evaluator": null,
+        "evidence_ref": null
+      },
+      "confirmation_status": "draft",
+      "created_at": "2026-08-19T08:40:00Z",
+      "depends_on": [],
+      "domain": "quality",
+      "evaluation_status": "pending",
+      "execution_contexts": [],
+      "feature_package_id": null,
+      "file_path": "tasks/task-spec-gap-c01-spec-intake.md",
+      "github_project_linkages": [],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "goal": null,
+      "graph_node_id": "task-spec-gap-c01-spec-intake",
+      "implementation_readiness": {
+        "checked_at": null,
+        "missing_sections": [],
+        "status": "incomplete"
+      },
+      "issue_linkage": null,
+      "iteration": null,
+      "mvp_alignment": {
+        "background": "完全性評価は docs/spec が 7 枚だった日の判定で、いま在る 16 枚のうち 9 枚は 1 度も参照されていない",
+        "mvp_fit": "enabling",
+        "purpose": "9 枚を書面入力 target として取り込み、影響カテゴリの確定セルを R4-reopen で再確定する",
+        "rationale": "参照されていない仕様は、満たしているかどうかを誰も見ていない。9 件のうち唯一の high であり、他の C03 側はこれの後でしか意味を持たない"
+      },
+      "owners": [
+        "daishiman"
+      ],
+      "parent_feature": null,
+      "phase_ref": null,
+      "priority": "high",
+      "project_id": "affiliate-hub",
+      "pull_request_linkages": [],
+      "purpose": null,
+      "related_nodes": [
+        "task-spec-completeness-gaps"
+      ],
+      "resource_scope": [
+        "docs",
+        "system-spec"
+      ],
+      "scope_in": [],
+      "scope_out": [],
+      "source_lineage": {
+        "imported_at": "2026-08-19T08:40:00Z",
+        "origin_kind": "manual",
+        "source_digest": null,
+        "source_path": "system-spec/completeness-report.json",
+        "source_plugin": null,
+        "source_version": null
+      },
+      "start_date": "2026-08-19",
+      "status": "draft",
+      "tags": [
+        "system-spec",
+        "quality"
+      ],
+      "target_date": null,
+      "template_id": "task",
+      "template_version": "1.0.0",
+      "title": "docs/spec 04〜12 の 9 枚（2,705 行）が書面入力に取り込まれていない",
+      "tracker_binding": "beads",
+      "updated_at": "2026-08-19T08:40:00Z"
+    },
+    {
+      "acceptance": [],
+      "architecture_refs": [],
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "beads_linkage": null,
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "candidate_path": "tasks/task-spec-gap-c01-decisions.md",
+          "confidence": 0.9
+        }
+      ],
+      "classification_confidence": 0.9,
+      "classification_reason": "完全性評価（assign-system-spec-completeness-evaluator、verdict: FAIL）の gaps から立てた",
+      "completion_evidence": {
+        "completed_at": null,
+        "evidence_refs": [],
+        "policy": "manual",
+        "reconciled_at": null,
+        "source": "manual",
+        "status": "open"
+      },
+      "confirmation_evidence": {
+        "evaluated_digest": null,
+        "evaluator": null,
+        "evidence_ref": null
+      },
+      "confirmation_status": "draft",
+      "created_at": "2026-08-19T08:40:00Z",
+      "depends_on": [],
+      "domain": "quality",
+      "evaluation_status": "pending",
+      "execution_contexts": [],
+      "feature_package_id": null,
+      "file_path": "tasks/task-spec-gap-c01-decisions.md",
+      "github_project_linkages": [],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "goal": null,
+      "graph_node_id": "task-spec-gap-c01-decisions",
+      "implementation_readiness": {
+        "checked_at": null,
+        "missing_sections": [],
+        "status": "incomplete"
+      },
+      "issue_linkage": null,
+      "iteration": null,
+      "mvp_alignment": {
+        "background": "decisions[] は decision-auth-method の 1 件だけで、D1 二系統分離・Redirect Resolver の Queue/Cron・LLM プロバイダ・UI テーマ実装方式・テスト/CI ツールが入っていない",
+        "mvp_fit": "enabling",
+        "purpose": "5 件を 2〜3 案の比較つきで記録し、利用者本人の確定を得る",
+        "rationale": "本人しか決められない境界（課金・契約・公開・技術選定の乗り換え費用）に当たる。こちらで決めると、あとで戻せない"
+      },
+      "owners": [
+        "daishiman"
+      ],
+      "parent_feature": null,
+      "phase_ref": null,
+      "priority": "medium",
+      "project_id": "affiliate-hub",
+      "pull_request_linkages": [],
+      "purpose": null,
+      "related_nodes": [
+        "task-spec-completeness-gaps"
+      ],
+      "resource_scope": [
+        "system-spec"
+      ],
+      "scope_in": [],
+      "scope_out": [],
+      "source_lineage": {
+        "imported_at": "2026-08-19T08:40:00Z",
+        "origin_kind": "manual",
+        "source_digest": null,
+        "source_path": "system-spec/completeness-report.json",
+        "source_plugin": null,
+        "source_version": null
+      },
+      "start_date": "2026-08-19",
+      "status": "draft",
+      "tags": [
+        "system-spec",
+        "quality"
+      ],
+      "target_date": null,
+      "template_id": "task",
+      "template_version": "1.0.0",
+      "title": "decisions[] が 1 件しかなく、利用者本人の確定が要る 5 件が記録されていない",
+      "tracker_binding": "beads",
+      "updated_at": "2026-08-19T08:40:00Z"
+    },
+    {
+      "acceptance": [],
+      "architecture_refs": [],
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "beads_linkage": null,
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "candidate_path": "tasks/task-spec-gap-c01-qa-ref-scope.md",
+          "confidence": 0.9
+        }
+      ],
+      "classification_confidence": 0.9,
+      "classification_reason": "完全性評価（assign-system-spec-completeness-evaluator、verdict: FAIL）の gaps から立てた",
+      "completion_evidence": {
+        "completed_at": null,
+        "evidence_refs": [],
+        "policy": "manual",
+        "reconciled_at": null,
+        "source": "manual",
+        "status": "open"
+      },
+      "confirmation_evidence": {
+        "evaluated_digest": null,
+        "evaluator": null,
+        "evidence_ref": null
+      },
+      "confirmation_status": "draft",
+      "created_at": "2026-08-19T08:40:00Z",
+      "depends_on": [],
+      "domain": "quality",
+      "evaluation_status": "pending",
+      "execution_contexts": [],
+      "feature_package_id": null,
+      "file_path": "tasks/task-spec-gap-c01-qa-ref-scope.md",
+      "github_project_linkages": [],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "goal": null,
+      "graph_node_id": "task-spec-gap-c01-qa-ref-scope",
+      "implementation_readiness": {
+        "checked_at": null,
+        "missing_sections": [],
+        "status": "incomplete"
+      },
+      "issue_linkage": null,
+      "iteration": null,
+      "mvp_alignment": {
+        "background": "database / backend / frontend / infrastructure × web の qa_ref を差し替えた結果、確定を支える回答の範囲が狭くなった",
+        "mvp_fit": "enabling",
+        "purpose": "複数 qa_ref の参照、または回答本文の統合で裏付け範囲を復元する",
+        "rationale": "裏付けが狭いことは、確定が間違っていることを意味しない。だが狭いまま確定が積み上がると、どこまでが聞いた内容かが読めなくなる"
+      },
+      "owners": [
+        "daishiman"
+      ],
+      "parent_feature": null,
+      "phase_ref": null,
+      "priority": "low",
+      "project_id": "affiliate-hub",
+      "pull_request_linkages": [],
+      "purpose": null,
+      "related_nodes": [
+        "task-spec-completeness-gaps"
+      ],
+      "resource_scope": [
+        "system-spec"
+      ],
+      "scope_in": [],
+      "scope_out": [],
+      "source_lineage": {
+        "imported_at": "2026-08-19T08:40:00Z",
+        "origin_kind": "manual",
+        "source_digest": null,
+        "source_path": "system-spec/completeness-report.json",
+        "source_plugin": null,
+        "source_version": null
+      },
+      "start_date": "2026-08-19",
+      "status": "draft",
+      "tags": [
+        "system-spec",
+        "quality"
+      ],
+      "target_date": null,
+      "template_id": "task",
+      "template_version": "1.0.0",
+      "title": "qa_ref の差し替えで、確定の裏付け範囲が狭まったままになっている",
+      "tracker_binding": "beads",
+      "updated_at": "2026-08-19T08:40:00Z"
+    },
+    {
+      "acceptance": [],
+      "architecture_refs": [],
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "beads_linkage": null,
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "candidate_path": "tasks/task-spec-gap-c03-doctrine-citation.md",
+          "confidence": 0.9
+        }
+      ],
+      "classification_confidence": 0.9,
+      "classification_reason": "完全性評価（assign-system-spec-completeness-evaluator、verdict: FAIL）の gaps から立てた",
+      "completion_evidence": {
+        "completed_at": null,
+        "evidence_refs": [],
+        "policy": "manual",
+        "reconciled_at": null,
+        "source": "manual",
+        "status": "open"
+      },
+      "confirmation_evidence": {
+        "evaluated_digest": null,
+        "evaluator": null,
+        "evidence_ref": null
+      },
+      "confirmation_status": "draft",
+      "created_at": "2026-08-19T08:40:00Z",
+      "depends_on": [
+        "task-spec-gap-c01-spec-intake"
+      ],
+      "domain": "quality",
+      "evaluation_status": "pending",
+      "execution_contexts": [],
+      "feature_package_id": null,
+      "file_path": "tasks/task-spec-gap-c03-doctrine-citation.md",
+      "github_project_linkages": [],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "goal": null,
+      "graph_node_id": "task-spec-gap-c03-doctrine-citation",
+      "implementation_readiness": {
+        "checked_at": null,
+        "missing_sections": [],
+        "status": "incomplete"
+      },
+      "issue_linkage": null,
+      "iteration": null,
+      "mvp_alignment": {
+        "background": "Apple HIG / Clean Architecture / OWASP ASVS / Google SRE の該当条項が、確定セルの要件文に 1 件も引用されていない",
+        "mvp_fit": "enabling",
+        "purpose": "各章の doctrine anchor から、該当条項を要件文へ最低 1 件引用する",
+        "rationale": "定型 1 文だけの現状は Goodhart 防止規定に抵触する。**名前を借りているだけで、条項は当たっていない**——残課題 78 の「在るものの名前は読めるが、当てている中身は別」と同じ形"
+      },
+      "owners": [
+        "daishiman"
+      ],
+      "parent_feature": null,
+      "phase_ref": null,
+      "priority": "medium",
+      "project_id": "affiliate-hub",
+      "pull_request_linkages": [],
+      "purpose": null,
+      "related_nodes": [
+        "task-spec-completeness-gaps"
+      ],
+      "resource_scope": [
+        "system-spec"
+      ],
+      "scope_in": [],
+      "scope_out": [],
+      "source_lineage": {
+        "imported_at": "2026-08-19T08:40:00Z",
+        "origin_kind": "manual",
+        "source_digest": null,
+        "source_path": "system-spec/completeness-report.json",
+        "source_plugin": null,
+        "source_version": null
+      },
+      "start_date": "2026-08-19",
+      "status": "draft",
+      "tags": [
+        "system-spec",
+        "quality"
+      ],
+      "target_date": null,
+      "template_id": "task",
+      "template_version": "1.0.0",
+      "title": "doctrine anchor が定型 1 文だけで、要件文へ条項が引かれていない",
+      "tracker_binding": "beads",
+      "updated_at": "2026-08-19T08:40:00Z"
+    },
+    {
+      "acceptance": [],
+      "architecture_refs": [],
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "beads_linkage": null,
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "candidate_path": "tasks/task-spec-gap-c03-fence-repair.md",
+          "confidence": 0.9
+        }
+      ],
+      "classification_confidence": 0.9,
+      "classification_reason": "完全性評価（assign-system-spec-completeness-evaluator、verdict: FAIL）の gaps から立てた",
+      "completion_evidence": {
+        "completed_at": null,
+        "evidence_refs": [],
+        "policy": "manual",
+        "reconciled_at": null,
+        "source": "manual",
+        "status": "open"
+      },
+      "confirmation_evidence": {
+        "evaluated_digest": null,
+        "evaluator": null,
+        "evidence_ref": null
+      },
+      "confirmation_status": "draft",
+      "created_at": "2026-08-19T08:40:00Z",
+      "depends_on": [
+        "task-spec-gap-c01-spec-intake"
+      ],
+      "domain": "quality",
+      "evaluation_status": "pending",
+      "execution_contexts": [],
+      "feature_package_id": null,
+      "file_path": "tasks/task-spec-gap-c03-fence-repair.md",
+      "github_project_linkages": [],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "goal": null,
+      "graph_node_id": "task-spec-gap-c03-fence-repair",
+      "implementation_readiness": {
+        "checked_at": null,
+        "missing_sections": [],
+        "status": "incomplete"
+      },
+      "issue_linkage": null,
+      "iteration": null,
+      "mvp_alignment": {
+        "background": "90 行目・259 行目でフェンス対が破損し、239〜266 行目が重複している。qa_log の取り込み時にフェンスが退避されていない",
+        "mvp_fit": "enabling",
+        "purpose": "取り込み時のフェンス退避で解消する",
+        "rationale": "壊れた記法は読み手にだけ影響するように見えるが、指紋・差分・検索のすべてを狂わせる。残課題 83（見えない 1 バイトで git diff が黙る）と同じ族"
+      },
+      "owners": [
+        "daishiman"
+      ],
+      "parent_feature": null,
+      "phase_ref": null,
+      "priority": "medium",
+      "project_id": "affiliate-hub",
+      "pull_request_linkages": [],
+      "purpose": null,
+      "related_nodes": [
+        "task-spec-completeness-gaps"
+      ],
+      "resource_scope": [
+        "system-spec"
+      ],
+      "scope_in": [],
+      "scope_out": [],
+      "source_lineage": {
+        "imported_at": "2026-08-19T08:40:00Z",
+        "origin_kind": "manual",
+        "source_digest": null,
+        "source_path": "system-spec/completeness-report.json",
+        "source_plugin": null,
+        "source_version": null
+      },
+      "start_date": "2026-08-19",
+      "status": "draft",
+      "tags": [
+        "system-spec",
+        "quality"
+      ],
+      "target_date": null,
+      "template_id": "task",
+      "template_version": "1.0.0",
+      "title": "backend.md のコードフェンス対が壊れ、本文が重複している",
+      "tracker_binding": "beads",
+      "updated_at": "2026-08-19T08:40:00Z"
+    },
+    {
+      "acceptance": [],
+      "architecture_refs": [],
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "beads_linkage": null,
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "candidate_path": "tasks/task-spec-gap-c03-nonnormative-note.md",
+          "confidence": 0.9
+        }
+      ],
+      "classification_confidence": 0.9,
+      "classification_reason": "完全性評価（assign-system-spec-completeness-evaluator、verdict: FAIL）の gaps から立てた",
+      "completion_evidence": {
+        "completed_at": null,
+        "evidence_refs": [],
+        "policy": "manual",
+        "reconciled_at": null,
+        "source": "manual",
+        "status": "open"
+      },
+      "confirmation_evidence": {
+        "evaluated_digest": null,
+        "evaluator": null,
+        "evidence_ref": null
+      },
+      "confirmation_status": "draft",
+      "created_at": "2026-08-19T08:40:00Z",
+      "depends_on": [
+        "task-spec-gap-c01-spec-intake"
+      ],
+      "domain": "quality",
+      "evaluation_status": "pending",
+      "execution_contexts": [],
+      "feature_package_id": null,
+      "file_path": "tasks/task-spec-gap-c03-nonnormative-note.md",
+      "github_project_linkages": [],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "goal": null,
+      "graph_node_id": "task-spec-gap-c03-nonnormative-note",
+      "implementation_readiness": {
+        "checked_at": null,
+        "missing_sections": [],
+        "status": "incomplete"
+      },
+      "issue_linkage": null,
+      "iteration": null,
+      "mvp_alignment": {
+        "background": "backend / database / infrastructure の 3 章に非規範注記が出力されていない",
+        "mvp_fit": "enabling",
+        "purpose": "全 8 章で一律に出力する",
+        "rationale": "**この件は残課題 90 と対になっている**——docs/spec/08 の ⑤ は「解消済み」と書かれていたが、語（`非規範`）で数えていたため別の文に当たっていた。文そのもの（`実装根拠に使用不可`）で数え直すと 8 章中 5 章。**直っていなかったのではなく、最初から直っていなかった**"
+      },
+      "owners": [
+        "daishiman"
+      ],
+      "parent_feature": null,
+      "phase_ref": null,
+      "priority": "low",
+      "project_id": "affiliate-hub",
+      "pull_request_linkages": [],
+      "purpose": null,
+      "related_nodes": [
+        "task-spec-completeness-gaps"
+      ],
+      "resource_scope": [
+        "system-spec",
+        "docs"
+      ],
+      "scope_in": [],
+      "scope_out": [],
+      "source_lineage": {
+        "imported_at": "2026-08-19T08:40:00Z",
+        "origin_kind": "manual",
+        "source_digest": null,
+        "source_path": "system-spec/completeness-report.json",
+        "source_plugin": null,
+        "source_version": null
+      },
+      "start_date": "2026-08-19",
+      "status": "draft",
+      "tags": [
+        "system-spec",
+        "quality"
+      ],
+      "target_date": null,
+      "template_id": "task",
+      "template_version": "1.0.0",
+      "title": "非規範注記が 8 章中 5 章にしか出ていない",
+      "tracker_binding": "beads",
+      "updated_at": "2026-08-19T08:40:00Z"
+    },
+    {
+      "acceptance": [],
+      "architecture_refs": [],
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "beads_linkage": null,
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "candidate_path": "tasks/task-spec-gap-c02-doc-refetch.md",
+          "confidence": 0.9
+        }
+      ],
+      "classification_confidence": 0.9,
+      "classification_reason": "完全性評価（assign-system-spec-completeness-evaluator、verdict: FAIL）の gaps から立てた",
+      "completion_evidence": {
+        "completed_at": null,
+        "evidence_refs": [],
+        "policy": "manual",
+        "reconciled_at": null,
+        "source": "manual",
+        "status": "open"
+      },
+      "confirmation_evidence": {
+        "evaluated_digest": null,
+        "evaluator": null,
+        "evidence_ref": null
+      },
+      "confirmation_status": "draft",
+      "created_at": "2026-08-19T08:40:00Z",
+      "depends_on": [],
+      "domain": "quality",
+      "evaluation_status": "pending",
+      "execution_contexts": [],
+      "feature_package_id": null,
+      "file_path": "tasks/task-spec-gap-c02-doc-refetch.md",
+      "github_project_linkages": [],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "goal": null,
+      "graph_node_id": "task-spec-gap-c02-doc-refetch",
+      "implementation_readiness": {
+        "checked_at": null,
+        "missing_sections": [],
+        "status": "incomplete"
+      },
+      "issue_linkage": null,
+      "iteration": null,
+      "mvp_alignment": {
+        "background": "better-auth の version が現行（1.6.30 以降）より古い。cloudflare-workers / cloudflare-d1 / apple-hig / google-sre の last_updated は取得日を代入したもので、公式が表明した値ではない",
+        "mvp_fit": "enabling",
+        "purpose": "better-auth を再取得し、4 件の last_updated を公式表明値（または版表記なしの明示）へ改める",
+        "rationale": "**取得日を last_updated として置くと、古い資料が常に新しく見える。**日付が入っていることが、新しいことの証拠に読まれる。残課題 78 の「出ていることは、使われていることではない」の日付版"
+      },
+      "owners": [
+        "daishiman"
+      ],
+      "parent_feature": null,
+      "phase_ref": null,
+      "priority": "medium",
+      "project_id": "affiliate-hub",
+      "pull_request_linkages": [],
+      "purpose": null,
+      "related_nodes": [
+        "task-spec-completeness-gaps"
+      ],
+      "resource_scope": [
+        "system-spec"
+      ],
+      "scope_in": [],
+      "scope_out": [],
+      "source_lineage": {
+        "imported_at": "2026-08-19T08:40:00Z",
+        "origin_kind": "manual",
+        "source_digest": null,
+        "source_path": "system-spec/completeness-report.json",
+        "source_plugin": null,
+        "source_version": null
+      },
+      "start_date": "2026-08-19",
+      "status": "draft",
+      "tags": [
+        "system-spec",
+        "quality"
+      ],
+      "target_date": null,
+      "template_id": "task",
+      "template_version": "1.0.0",
+      "title": "取得済みドキュメントの version と last_updated が、公式表明値になっていない",
+      "tracker_binding": "beads",
+      "updated_at": "2026-08-19T08:40:00Z"
+    },
+    {
+      "acceptance": [],
+      "architecture_refs": [],
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "beads_linkage": null,
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "candidate_path": "tasks/task-spec-gap-harness-input-inventory.md",
+          "confidence": 0.9
+        }
+      ],
+      "classification_confidence": 0.9,
+      "classification_reason": "完全性評価（assign-system-spec-completeness-evaluator、verdict: FAIL）の gaps から立てた",
+      "completion_evidence": {
+        "completed_at": null,
+        "evidence_refs": [],
+        "policy": "manual",
+        "reconciled_at": null,
+        "source": "manual",
+        "status": "open"
+      },
+      "confirmation_evidence": {
+        "evaluated_digest": null,
+        "evaluator": null,
+        "evidence_ref": null
+      },
+      "confirmation_status": "draft",
+      "created_at": "2026-08-19T08:40:00Z",
+      "depends_on": [],
+      "domain": "quality",
+      "evaluation_status": "pending",
+      "execution_contexts": [],
+      "feature_package_id": null,
+      "file_path": "tasks/task-spec-gap-harness-input-inventory.md",
+      "github_project_linkages": [],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "goal": null,
+      "graph_node_id": "task-spec-gap-harness-input-inventory",
+      "implementation_readiness": {
+        "checked_at": null,
+        "missing_sections": [],
+        "status": "incomplete"
+      },
+      "issue_linkage": null,
+      "iteration": null,
+      "mvp_alignment": {
+        "background": "C05 の出力 schema と停止条件に、docs/spec・system-spec の件数と sha256 が入っていない。resume-receipt も入力 digest へ束縛されていない",
+        "mvp_fit": "enabling",
+        "purpose": "入力インベントリを schema と停止条件へ加え、resume-receipt を入力 digest へ束縛する",
+        "rationale": "**この 1 件は、他の 8 件とは向きが違う。**8 件は仕様の中身の欠けだが、これは「欠けを見つける仕組み」の側の欠陥である。今回 FAIL が出たのは人が数え直したからで、仕組みは PASS のまま黙っていた。**gaps の 10 件目ではなく 6 番目**——別枠に数えると、次に数えたとき 1 件行方不明になる"
+      },
+      "owners": [
+        "daishiman"
+      ],
+      "parent_feature": null,
+      "phase_ref": null,
+      "priority": "medium",
+      "project_id": "affiliate-hub",
+      "pull_request_linkages": [],
+      "purpose": null,
+      "related_nodes": [
+        "task-spec-completeness-gaps"
+      ],
+      "resource_scope": [
+        "system-spec"
+      ],
+      "scope_in": [],
+      "scope_out": [],
+      "source_lineage": {
+        "imported_at": "2026-08-19T08:40:00Z",
+        "origin_kind": "manual",
+        "source_digest": null,
+        "source_path": "system-spec/completeness-report.json",
+        "source_plugin": null,
+        "source_version": null
+      },
+      "start_date": "2026-08-19",
+      "status": "draft",
+      "tags": [
+        "system-spec",
+        "quality"
+      ],
+      "target_date": null,
+      "template_id": "task",
+      "template_version": "1.0.0",
+      "title": "完全性評価の出力に入力インベントリが無く、入力が変わった PASS が古いまま有効に見える",
+      "tracker_binding": "beads",
+      "updated_at": "2026-08-19T08:40:00Z"
+    },
+    {
+      "acceptance": [],
+      "architecture_refs": [],
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "beads_linkage": null,
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "candidate_path": "tasks/task-spec-gap-resume-receipt-invalid.md",
+          "confidence": 0.9
+        }
+      ],
+      "classification_confidence": 0.9,
+      "classification_reason": "完全性評価（assign-system-spec-completeness-evaluator、verdict: FAIL）の gaps から立てた",
+      "completion_evidence": {
+        "completed_at": null,
+        "evidence_refs": [],
+        "policy": "manual",
+        "reconciled_at": null,
+        "source": "manual",
+        "status": "open"
+      },
+      "confirmation_evidence": {
+        "evaluated_digest": null,
+        "evaluator": null,
+        "evidence_ref": null
+      },
+      "confirmation_status": "draft",
+      "created_at": "2026-08-19T08:40:00Z",
+      "depends_on": [],
+      "domain": "quality",
+      "evaluation_status": "pending",
+      "execution_contexts": [],
+      "feature_package_id": null,
+      "file_path": "tasks/task-spec-gap-resume-receipt-invalid.md",
+      "github_project_linkages": [],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "goal": null,
+      "graph_node_id": "task-spec-gap-resume-receipt-invalid",
+      "implementation_readiness": {
+        "checked_at": null,
+        "missing_sections": [],
+        "status": "incomplete"
+      },
+      "issue_linkage": null,
+      "iteration": null,
+      "mvp_alignment": {
+        "background": "system-spec/resume-receipt.json は 2026-08-16 の総合 PASS に束縛された再利用 receipt で、本評価（FAIL）により無効になった",
+        "mvp_fit": "enabling",
+        "purpose": "C05 が再び PASS するまで再利用しない。**手で片付けない**",
+        "rationale": "**この課題の作業は「触らないこと」である。**落ちる形で残っているものを手で消すと、落ちていた事実まで消える。無効であることは、無効な receipt が在ることによって読める。片付けてよいのは、再び PASS が出た回だけ"
+      },
+      "owners": [
+        "daishiman"
+      ],
+      "parent_feature": null,
+      "phase_ref": null,
+      "priority": "medium",
+      "project_id": "affiliate-hub",
+      "pull_request_linkages": [],
+      "purpose": null,
+      "related_nodes": [
+        "task-spec-completeness-gaps"
+      ],
+      "resource_scope": [
+        "system-spec"
+      ],
+      "scope_in": [],
+      "scope_out": [],
+      "source_lineage": {
+        "imported_at": "2026-08-19T08:40:00Z",
+        "origin_kind": "manual",
+        "source_digest": null,
+        "source_path": "system-spec/completeness-report.json",
+        "source_plugin": null,
+        "source_version": null
+      },
+      "start_date": "2026-08-19",
+      "status": "draft",
+      "tags": [
+        "system-spec",
+        "quality"
+      ],
+      "target_date": null,
+      "template_id": "task",
+      "template_version": "1.0.0",
+      "title": "resume-receipt.json が無効な PASS に束縛されたまま残っている",
+      "tracker_binding": "beads",
+      "updated_at": "2026-08-19T08:40:00Z"
     }
   ],
   "repository_id": "github:daishiman/affiliate-hub",
