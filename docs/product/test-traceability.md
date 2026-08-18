@@ -1,12 +1,13 @@
 # テストから要件を引く表（自動生成）
 
 `node scripts/traceability.mjs` が書き換える。**手で編集しない。**
+末尾の指紋がその見張りで、手で 1 文字でも書くと次の実行が**上書きせずに止まる**（書いた行は残る）。
 要件 → テストの向きは `docs/product/traceability.md` が正本で、ここはその裏返しに
 テスト側の `@req` 印を重ねたもの。
 
 - 最終更新: 2026-08-18
-- テストファイル: 160 件
-- 由来の要件が分かる: 132 件
+- テストファイル: 161 件
+- 由来の要件が分かる: 133 件
 - **由来不明: 28 件**（上限 28 件）
 
 由来不明とは「どの要件のために書いたのか、機械から辿れない」という意味で、
@@ -72,6 +73,7 @@
 | `tests/architecture/audit-action-emitters.test.ts` | REQ-SEC09 | 印 |
 | `tests/architecture/commercial-isolation.test.ts` | REQ-FD02 | 表 |
 | `tests/architecture/dependency-direction.test.ts` | REQ-FD01, REQ-SEC02 | 表 |
+| `tests/architecture/generated-docs.test.ts` | REQ-TS09 | 印 |
 | `tests/architecture/llm-credential-leak.test.ts` | REQ-SEC01, REQ-SEC05 | 印 |
 | `tests/architecture/open-doors.test.ts` | REQ-S10 | 印と表 |
 | `tests/architecture/quality-gates.test.ts` | REQ-CI02, REQ-CI09 | 表 |
@@ -179,3 +181,4 @@
 | `tests/ui/theme-contrast.test.ts` | REQ-TH02, REQ-TS06 | 表 |
 | `tests/ui/tool-form.test.tsx` | REQ-WC05 | 印と表 |
 | `tests/ui/ui-layers.test.ts` | REQ-S09, REQ-TM05, REQ-TM06 | 表 |
+<!-- 生成物の指紋 sha256:9c30a24f0f4671c43284ae05ac69d8fd089d426aa4536ccb2a35af48b0cfe210 -->

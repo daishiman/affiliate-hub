@@ -22,8 +22,9 @@
  * 規範: docs/spec/10-テスト戦略仕様.md §12-2 / 要件表: docs/product/traceability.md
  */
 
-import { existsSync, readFileSync, readdirSync, statSync, writeFileSync } from "node:fs";
+import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
 import { join, relative } from "node:path";
+import { writeGeneratedDoc } from "./lib/generated-doc.mjs";
 import { TRACEABILITY_MAX_UNLINKED } from "../quality-gates.config.mjs";
 
 const TABLE = "docs/product/traceability.md";
@@ -141,6 +142,7 @@ const body = [
   "# テストから要件を引く表（自動生成）",
   "",
   "`node scripts/traceability.mjs` が書き換える。**手で編集しない。**",
+  "末尾の指紋がその見張りで、手で 1 文字でも書くと次の実行が**上書きせずに止まる**（書いた行は残る）。",
   "要件 → テストの向きは `docs/product/traceability.md` が正本で、ここはその裏返しに",
   "テスト側の `@req` 印を重ねたもの。",
   "",
@@ -176,7 +178,8 @@ const body = [
 ].join("\n");
 
 const check = process.argv.includes("--check");
-if (!check) writeFileSync(join(root, OUT), body, "utf8");
+// 上書きの前に指紋を見る（手で書いた行を黙って消さない）。
+if (!check) writeGeneratedDoc(join(root, OUT), body);
 
 // ── 判定 ───────────────────────────────────────────────
 console.log("\nテストと要件の対応");

@@ -42,8 +42,9 @@
  * 規範: docs/product/port-wiring.md（理由つきの除外の登録簿）
  */
 
-import { readFileSync, writeFileSync } from "node:fs";
+import { readFileSync } from "node:fs";
 import ts from "typescript";
+import { writeGeneratedDoc } from "./lib/generated-doc.mjs";
 import {
   PORT_WIRING_MAX_UNCALLED,
   PORT_WIRING_MAX_EXCLUSIONS,
@@ -524,6 +525,7 @@ const lines = [
   "# つなぎ目の呼び出し（自動生成）",
   "",
   "`node scripts/port-wiring.mjs` が書き出す。手で直さない。",
+  "末尾の指紋がその見張りで、手で 1 文字でも書くと次の実行が**上書きせずに止まる**（書いた行は残る）。",
   "",
   "**製品コード（`src/application` `src/presentation` `src/app`）から**",
   "呼ばれていないポートの手続きの一覧。テストからの呼び出しは数えない。",
@@ -659,7 +661,9 @@ const failing =
   writeExclusions.size > PORT_WIRING_MAX_WRITE_EXCLUSIONS ||
   bestEffortAudit.length > PORT_WIRING_MAX_AUDIT_BEST_EFFORT;
 if (!process.argv.includes("--check") && !failing) {
-  writeFileSync(OUT, `${lines.join("\n")}\n`);
+  // `writeGeneratedDoc` は、**上書きする前に**いまディスクにあるものの指紋を見る。
+  // 手で書き換えられていれば書かずに投げるので、書いた行は残ったまま赤になる。
+  writeGeneratedDoc(OUT, lines.join("\n"));
 }
 
 let ng = false;

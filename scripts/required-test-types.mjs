@@ -19,8 +19,9 @@
  * 規範: docs/spec/10-テスト戦略仕様.md §14
  */
 
-import { readFileSync, readdirSync, statSync, writeFileSync } from "node:fs";
+import { readFileSync, readdirSync, statSync } from "node:fs";
 import { join, relative } from "node:path";
+import { writeGeneratedDoc } from "./lib/generated-doc.mjs";
 import {
   REQUIRED_TEST_TYPES,
   TEST_TYPES,
@@ -307,6 +308,7 @@ const body = [
   "# 要件ごとの必須テスト種別（自動生成）",
   "",
   "`node scripts/required-test-types.mjs` が書き換える。**手で編集しない。**",
+  "末尾の指紋がその見張りで、手で 1 文字でも書くと次の実行が**上書きせずに止まる**（書いた行は残る）。",
   `宣言は \`${REGISTRY}\`、語彙と上限は \`quality-gates.config.mjs\` が正本。`,
   "",
   `- 最終更新: ${new Date().toISOString().slice(0, 10)}`,
@@ -358,7 +360,8 @@ const body = [
   "",
 ].join("\n");
 
-if (!process.argv.includes("--check")) writeFileSync(join(root, OUT), body, "utf8");
+// 上書きの前に指紋を見る（手で書いた行を黙って消さない）。
+if (!process.argv.includes("--check")) writeGeneratedDoc(join(root, OUT), body);
 
 console.log("\n要件ごとの必須テスト種別");
 console.log(`  要件          ${requirementRows.size}`);

@@ -1,0 +1,184 @@
+/**
+ * @tier 2
+ * @req REQ-TS09
+ * @types contract, infra-config
+ *
+ * 「機械が作る。手で書き換えない」と書いてある文書が、**本当に生成物であること**。
+ *
+ * --- なぜ検査が要るのか ---
+ *
+ * これまで、スクリプトが作る 4 枚は毎回**上書き**されていた。上書きは修復ではなく
+ * 消去なので、手で 1 行書いた人は `pnpm run verify` が緑なのを見て、
+ * 書いたものが残っていると思う。**消えたことは緑として現れる。**
+ *
+ * `scripts/lib/generated-doc.mjs` は、書く前に指紋を突き合わせて、
+ * 合わなければ**書かずに止める**。ここではその道具そのものと、
+ * **道具を通っていない書き込みが増えていないか**を見る。
+ *
+ * --- 4 度目を捕まえるのはどれか ---
+ *
+ * 「消えたことは緑として現れる」形は、この作業場所で 3 度出ている
+ * （残課題 78）。3 件目を塞ぐだけでは、4 件目もまた誰かが気づくのを待つことになる。
+ * **4 度目を捕まえるのは、この下の「道具を通らない書き込み」の検査**である。
+ * 新しく生成物を 1 枚足した人が `writeFileSync` で直接書けば、ここで落ちる。
+ */
+import { mkdtempSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+import { describe, expect, it } from "vitest";
+import {
+  digestOf,
+  inspectStamped,
+  stamp,
+  writeGeneratedDoc,
+} from "../../scripts/lib/generated-doc.mjs";
+
+const ROOT = process.cwd();
+
+/**
+ * 指紋が焼かれているべき文書。
+ *
+ * **一覧を増減どちらでも赤にする。**「焼くのをやめた」を静かに通すと、
+ * この課題で塞いだ穴がそのまま開き直る（しかも開いたようには見えない）。
+ */
+const STAMPED = [
+  "docs/product/port-wiring-report.md",
+  "docs/product/required-test-types-report.md",
+  "docs/product/test-traceability.md",
+  "docs/product/coverage.md",
+] as const;
+
+/**
+ * 道具を通さずに `docs/` へ書いてよいもの。**理由を必ず書く。**
+ * 理由の無い除外は、次に見た人には「そういうものだ」としか読めない。
+ */
+const WRITE_EXCEPTIONS: Readonly<Record<string, string>> = {
+  // JSON なので `<!-- -->` の指紋を末尾に置けない。実際の鍵で人が 1 回だけ動かす
+  // 記録であり、`pnpm run verify` は触らないので「黙って消える」は起きない。
+  "llm-live-proof.mjs": "JSON で、コメント欄が無い（指紋を置く場所が無い）",
+};
+
+describe("生成物であることの保証", () => {
+  it("指紋が焼かれている文書は、いまの中身と一致している", () => {
+    for (const rel of STAMPED) {
+      const text = readFileSync(join(ROOT, rel), "utf8");
+      const found = inspectStamped(
+        rel.endsWith("coverage.md")
+          ? (text.match(
+              /<!-- ここから下は scripts\/coverage-report\.mjs[\s\S]*?<!-- ここまで -->(?:\n<!-- 生成物の指紋[^\n]*-->)?/,
+            )?.[0] ?? "")
+          : text,
+      );
+      expect(found.state, `${rel} の指紋が中身と合っていません`).toBe("INTACT");
+    }
+  });
+
+  it("指紋を焼いている文書が、増えても減っても気づける", () => {
+    const stamped = readdirSync(join(ROOT, "docs/product"))
+      .filter((n) => n.endsWith(".md"))
+      .filter((n) => readFileSync(join(ROOT, "docs/product", n), "utf8").includes("生成物の指紋"))
+      .map((n) => `docs/product/${n}`)
+      .sort();
+    expect(stamped).toEqual([...STAMPED].sort());
+  });
+
+  it("手で 1 文字書き足すと、指紋が合わなくなる", () => {
+    const intact = stamp("これは機械が作った行です。");
+    expect(inspectStamped(intact).state).toBe("INTACT");
+    // 内容が正しいかどうかは見ていない。**手が入ったかどうか**を見ている。
+    expect(inspectStamped(intact.replace("行です。", "行です。 ここに手で足した。")).state).toBe(
+      "TAMPERED",
+    );
+  });
+
+  it("書き換えられた文書を、上書きしない（手で書いた行が残ったまま止まる）", () => {
+    const dir = mkdtempSync(join(tmpdir(), "generated-doc-"));
+    const path = join(dir, "report.md");
+
+    writeGeneratedDoc(path, "一行目\n二行目");
+    writeFileSync(path, `${readFileSync(path, "utf8")}\n手で書いた行\n`, "utf8");
+
+    // ここが要点。**投げるだけでなく、書かずに投げる。**
+    // 書いてから直すのでは、書いた本人には消えたことが見えない。
+    expect(() => writeGeneratedDoc(path, "一行目\n二行目")).toThrow(/手で書き換えられています/);
+    expect(readFileSync(path, "utf8")).toContain("手で書いた行");
+  });
+
+  it("指紋の行だけ外しても、中身が違えば止まる", () => {
+    const dir = mkdtempSync(join(tmpdir(), "generated-doc-"));
+    const path = join(dir, "report.md");
+
+    // 指紋の行だけを外し、そのうえで中身を書き換えた状態。
+    writeFileSync(path, "一行目\n手で書いた行\n", "utf8");
+    expect(() => writeGeneratedDoc(path, "一行目\n二行目")).toThrow(/指紋の行が外された/);
+
+    // 外しただけで中身が同じなら、失われるものが無いので焼き直して先へ進む。
+    // ここを止めると、戻す手段が無くなって行き止まりになる。
+    writeFileSync(path, "一行目\n二行目\n", "utf8");
+    expect(() => writeGeneratedDoc(path, "一行目\n二行目")).not.toThrow();
+    expect(inspectStamped(readFileSync(path, "utf8")).state).toBe("INTACT");
+  });
+
+  it("指紋は中身だけから決まる（末尾の空白では変わらない）", () => {
+    // 改行の付き方で指紋が変わると、中身が同じでも赤くなる。
+    // 「どうせ毎回赤い」と扱われた検査は、やがて誰も見なくなる。
+    expect(digestOf("本文")).toBe(digestOf("本文\n\n"));
+  });
+
+  it("docs へ書くスクリプトが、全部この道具を通っている", () => {
+    const dir = join(ROOT, "scripts");
+    const offenders: string[] = [];
+
+    for (const name of readdirSync(dir).filter((n) => n.endsWith(".mjs"))) {
+      const src = readFileSync(join(dir, name), "utf8");
+
+      // `const NAME = ... "docs/..."` を集める。書き込み先が識別子で渡されるため、
+      // 呼び出しの括弧の中だけを見ても行き先が分からない。
+      const docConsts = [
+        ...src.matchAll(/const\s+(\w+)\s*=\s*[^\n]*["'`]docs\/[^"'`]+["'`]/g),
+      ].map((m) => m[1]);
+      // **引数の 1 つ目だけを見ない。** `writeFileSync(join(root, OUT), …)` の形だと
+      // 1 つ目は `join(root` で切れ、行き先を見失う。見失った検査は緑になる。
+      // それは「守っている」ではなく「見ていない」なので、行ごと見る。
+      const writesToDocs = src
+        .split("\n")
+        .filter((line) => line.includes("writeFileSync("))
+        .some(
+          (line) =>
+            line.includes("docs/") || docConsts.some((c) => new RegExp(`\\b${c}\\b`).test(line)),
+        );
+
+      if (!writesToDocs) continue;
+      if (WRITE_EXCEPTIONS[name] !== undefined) continue;
+      // **「道具を取り込んでいれば許す」にしない。** 取り込んだうえで
+      // 別の行から直接書けば通ってしまい、印があることを性質の理由にすることになる。
+      // 見るのは取り込みの有無ではなく、`writeFileSync` で docs を書いているかどうか。
+      offenders.push(name);
+    }
+
+    expect(
+      offenders,
+      [
+        "docs/ の生成物を `writeFileSync` で直接書いているスクリプトがあります:",
+        ...offenders.map((n) => `  scripts/${n}`),
+        "",
+        "`scripts/lib/generated-doc.mjs` の `writeGeneratedDoc` / `writeGeneratedBlock` を通してください。",
+        "直接書くと、手で書かれた行が pnpm run verify で黙って消えます（緑のまま）。",
+        "通せない事情があるなら WRITE_EXCEPTIONS に**理由つきで**登録してください。",
+      ].join("\n"),
+    ).toEqual([]);
+  });
+
+  /*
+   * **ここに 1 本足りない。**
+   *
+   * 実際の 4 枚のどれかへ手で 1 行書き、`pnpm run verify` が
+   * **緑のまま消さずに赤くなる**ことを、実ファイルで見る検査である。
+   * 上の検査は道具そのものと配線を見ているが、実ファイルでは見ていない。
+   *
+   * 書けていないのは、この作業場所の見張り（dev-graph の
+   * `guard-graph-schema.py`）が `docs/` への手書きを止めるためで、
+   * **迂回していない**。判断待ちの残課題として、ここに置いておく。
+   * 消すときは、代わりの検査を足してから消すこと。
+   */
+});

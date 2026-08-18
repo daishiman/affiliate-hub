@@ -15,8 +15,9 @@
  * 規範: docs/spec/10-テスト戦略仕様.md §2-1
  */
 
-import { readFileSync, writeFileSync, existsSync } from "node:fs";
+import { readFileSync, existsSync } from "node:fs";
 import { join, relative } from "node:path";
+import { writeGeneratedBlock } from "./lib/generated-doc.mjs";
 import {
   GLOBAL_COVERAGE,
   LAYER_COVERAGE,
@@ -123,6 +124,7 @@ const table = [
 
 const block = [
   "<!-- ここから下は scripts/coverage-report.mjs が書き換えます。手で編集しないでください。 -->",
+  "<!-- 末尾の指紋がその見張りです。手で 1 文字でも書くと、次の実行が上書きせずに止まります（書いた行は残ります）。 -->",
   "",
   `計測日: ${today}`,
   "",
@@ -137,13 +139,12 @@ const block = [
 ].join("\n");
 
 if (existsSync(DOC)) {
-  const doc = readFileSync(DOC, "utf8");
-  const marker = /<!-- ここから下は scripts\/coverage-report\.mjs[\s\S]*?<!-- ここまで -->/;
-  writeFileSync(
-    DOC,
-    marker.test(doc) ? doc.replace(marker, block) : `${doc.trimEnd()}\n\n${block}\n`,
-    "utf8",
-  );
+  // 指紋は**囲みの中身にだけ**かける。囲みの外は人が書く場所なので、
+  // そこまで見ると本文を直すたびに赤くなり、やがて誰も見なくなる。
+  // 式が指紋の行まで拾えていないと、囲みの外に指紋が溜まっていく。
+  const marker =
+    /<!-- ここから下は scripts\/coverage-report\.mjs[\s\S]*?<!-- ここまで -->(?:\n<!-- 生成物の指紋[^\n]*-->)?/;
+  writeGeneratedBlock(DOC, marker, block);
   process.stdout.write(`\n${relative(ROOT, DOC)} を更新しました。\n`);
 }
 

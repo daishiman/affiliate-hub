@@ -1,6 +1,7 @@
 # つなぎ目の呼び出し（自動生成）
 
 `node scripts/port-wiring.mjs` が書き出す。手で直さない。
+末尾の指紋がその見張りで、手で 1 文字でも書くと次の実行が**上書きせずに止まる**（書いた行は残る）。
 
 **製品コード（`src/application` `src/presentation` `src/app`）から**
 呼ばれていないポートの手続きの一覧。テストからの呼び出しは数えない。
@@ -124,4 +125,4 @@
 | --- | --- |
 | `createStartSiteDraftUseCase` | `src/application/usecases/site/build-site.ts:417` |
 | `createSaveSiteDraftStepUseCase` | `src/application/usecases/site/build-site.ts:509` |
-
+<!-- 生成物の指紋 sha256:3be2542aaad794cfc46c63288b51d25477f37ab98f54ddb1245ca79c7353a1c4 -->

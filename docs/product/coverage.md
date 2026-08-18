@@ -96,6 +96,7 @@ node scripts/coverage-report.mjs  # 層別に割って、この文書を書き�
 | 要件と結果の対応 | `docs/product/traceability.md` R 節 |
 
 <!-- ここから下は scripts/coverage-report.mjs が書き換えます。手で編集しないでください。 -->
+<!-- 末尾の指紋がその見張りです。手で 1 文字でも書くと、次の実行が上書きせずに止まります（書いた行は残ります）。 -->
 
 計測日: 2026-08-18
 
@@ -116,3 +117,4 @@ node scripts/coverage-report.mjs  # 層別に割って、この文書を書き�
 逆向き（実質のほうが厚い）は求めている姿なので止めない。理由は §3。
 
 <!-- ここまで -->
+<!-- 生成物の指紋 sha256:cf4a2a409cd390be9e0c671f285a960c8dbfc41ab8252b00a10e26730c3cdc09 -->
