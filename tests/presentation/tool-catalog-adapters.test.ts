@@ -10,7 +10,10 @@
  * 入口の手前（身元・出所・見せる範囲）は `api-routes.test.ts` が持つ。
  */
 import { describe, expect, it } from "vitest";
-import { TENANT_ISOLATION_MIN_INSPECTED } from "../../quality-gates.config.mjs";
+import {
+  TENANT_ISOLATION_MIN_REACHED,
+  TENANT_ISOLATION_MIN_SEPARATION_PROVEN,
+} from "../../quality-gates.config.mjs";
 import type { ActorContext } from "@/domain/shared";
 import { createDeps } from "@/infrastructure/composition";
 import { SAMPLE_ACTOR } from "@/infrastructure/identity/sample-actor";
@@ -242,19 +245,50 @@ describe("テナント分離", () => {
    * 対象を `readOnly` から外して増えた 30 件は、**ほとんどがこの形**である。
    * **件数は増えたが、守りはその分強くなっていない。**
    *
-   * だから「中身まで見た件数」を別に数える。見本の入力を整えて `ok` が
-   * 返るようにすると増える。減ったときは、どこかの道具が呼べなくなっている。
+   * そこで下の 2 つを別々に数える。**混ぜてはいけない。**
    */
-  it("中身まで確かめられた件数が、減っていない", async () => {
-    let inspected = 0;
+  it("他社の身元で ok まで到達する件数が、減っていない", async () => {
+    // **これは分離の証明ではない。** `ok` が返るのは 2 通りある——
+    // 「誰が呼んでも同じ公開情報」と「他社なので該当が 0 件で、空のまま ok」。
+    // 例えば `hand_off_feedback` は他社でも ok を返すが、中身は「0 件」である。
+    // 分離は効いているが、効いていることを `ok` という値は証明していない。
+    // ここで見張っているのは「呼べる道具が減っていないこと」だけ。
+    let reached = 0;
     for (const tool of tenantTools) {
       const result = await invokeTool(tool, OTHER_TENANT, validInputFor(tool)!);
-      if (result.ok) inspected += 1;
+      if (result.ok) reached += 1;
     }
     expect(
-      inspected,
+      reached,
       "他社の身元で ok が返る道具が減りました。見本の入力か、道具の側が変わっています。",
-    ).toBeGreaterThanOrEqual(TENANT_ISOLATION_MIN_INSPECTED);
+    ).toBeGreaterThanOrEqual(TENANT_ISOLATION_MIN_REACHED);
+  });
+
+  /**
+   * **こちらが本当に守りたいもの。**
+   *
+   * 「同じ入力が、持ち主では通り、他社では断られる」を数える。
+   * この 2 つが揃って初めて、断りの理由が「他社だから」だと言える。
+   * **持ち主でも断られるなら、それは見本の入力が悪いだけ**で、
+   * 他社かどうかを一度も試していない。
+   *
+   * 上の到達数（66）とこの証明数（20）は 3 倍違う。
+   * 対象を増やすのは 1 行でできるが、証明を増やすには見本を作る作業が要る。
+   * **安く動くほうを下限にしない。**
+   */
+  it("持ち主で通り、他社で断られる件数が、減っていない", async () => {
+    let proven = 0;
+    for (const tool of tenantTools) {
+      const input = validInputFor(tool)!;
+      const mine = await invokeTool(tool, OWNER, input);
+      if (!mine.ok) continue;
+      const theirs = await invokeTool(tool, OTHER_TENANT, input);
+      if (!theirs.ok) proven += 1;
+    }
+    expect(
+      proven,
+      "分離を実際に確かめられた道具が減りました。持ち主で通らなくなったか、他社でも通るようになっています。",
+    ).toBeGreaterThanOrEqual(TENANT_ISOLATION_MIN_SEPARATION_PROVEN);
   });
 });
 
