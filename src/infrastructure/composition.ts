@@ -30,6 +30,7 @@ import {
   type CaptureBucket,
 } from "./platform/feedback-capture-r2";
 import { createLlmPorts } from "./llm/llm-setup";
+import type { LlmKeyAccess, LlmUsageRecorder } from "./llm/key-access";
 import { createLlmProviderCatalog } from "./llm/llm-provider-catalog";
 import { createLlmConnectivity } from "./llm/llm-connectivity";
 import { createD1LlmCredentialVault } from "./persistence/d1/llm-credential-repository";
@@ -142,7 +143,24 @@ export function createDeps(
 ): AppDeps {
   const db = options.db ?? null;
   const bucket = options.bucket ?? null;
-  const llmPorts = createLlmPorts(options.env ?? {});
+  /**
+   * 生成 AI。**鍵の預かり所と同じ組み立てを使う。**
+   *
+   * 別々に組み立てていたころは、鍵を登録できる状態かどうかの判定が
+   * 2 か所にあった。判定が分かれると「登録画面では登録できるのに、
+   * 生成だけが黙って失敗する」状態が作れてしまう。
+   */
+  const management = createLlmCredentialManagement({ db, env: options.env ?? {} });
+  const llmPorts = createLlmPorts(
+    management.ready
+      ? {
+          ready: true,
+          vault: management.vault,
+          usage: management.usage,
+          catalog: management.catalog,
+        }
+      : { ready: false, reason: management.reason },
+  );
   // 計測の記録先は、保存先が用意できていれば本物（D1）。
   // 入れる口（/api/telemetry と画面の収集係）と読む口（/admin/analytics）が
   // 両方そろったのでつないだ。片方しか無い状態でつなぐと、
@@ -311,7 +329,14 @@ export function createDeps(
 export type LlmCredentialManagement =
   | {
       readonly ready: true;
-      readonly vault: LlmCredentialVaultPort;
+      /**
+       * 預かり所。**2 つの面を持つ 1 つの物**である。
+       * 応用層へ渡すのは `LlmCredentialVaultPort` の面だけ（値を返す口が無い）。
+       * `LlmKeyAccess` の面は提供元アダプタにだけ渡す。
+       */
+      readonly vault: LlmCredentialVaultPort & LlmKeyAccess;
+      /** 使った量の記録先。呼び出しを組み立てるのに要る（省略できない）。 */
+      readonly usage: LlmUsageRecorder;
       readonly catalog: LlmProviderCatalogPort;
       readonly connectivity: LlmConnectivityPort;
     }
@@ -369,6 +394,7 @@ export function createLlmCredentialManagement(options: {
   return {
     ready: true,
     vault,
+    usage,
     catalog,
     // 疎通確認は鍵の値を使う。だから**預かり所そのもの**を渡す
     // （`LlmKeyAccess` の面。応用層には型として届かない）。

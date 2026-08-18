@@ -122,18 +122,30 @@ describe("生成 AI を動かす入口が実行環境を渡している", () => 
   });
 
   it("要件 4: 組み立て側が env を既定の空へ落としていない（呼び出し元の値を使う）", () => {
-    expect(INFRASTRUCTURE).toContain("createLlmPorts(options.env ?? {})");
-    // `createLlmPorts()` を引数なしで呼ぶ場所が本番側に無いこと。
-    // 引数なしでも動く（既定 `{}`）ので、書けてしまう。
-    const src = readAllSources(join(ROOT, "src"));
-    const bad = src.filter(
-      (f) =>
-        /createLlmPorts\(\s*\)/.test(stripComments(f.text)) &&
-        !f.path.endsWith("src/infrastructure/llm/llm-setup.ts"),
+    /**
+     * 以前はここで `createLlmPorts(options.env ?? {})` という**呼び方そのもの**を
+     * 期待していた。鍵の預かり所を経由する形へ変えた日にこれが落ちたが、
+     * 落ちた理由は「env が届かなくなった」ではなく「途中に 1 段はさまった」だった。
+     * 呼び方を固定すると、**中身が正しくても組み替えるたびに赤くなる**。
+     * 見るべきなのは呼び方ではなく、`env` が受け取った値のまま渡っていることである。
+     */
+    expect(INFRASTRUCTURE, "組み立てが呼び出し元の env を読んでいない").toMatch(
+      /options\.env\s*\?\?\s*\{\}/,
     );
-    expect(bad.map((f) => f.path.slice(ROOT.length + 1)), "引数なしの createLlmPorts()").toEqual(
-      [],
+
+    // 受け取った env を捨てて空で組み立て直していないこと。
+    // `createLlmCredentialManagement({ db, env: {} })` のように書くと、
+    // 型は通り、画面も描け、鍵だけが 1 件も見えない状態になる。
+    expect(stripComments(INFRASTRUCTURE), "env を空で組み立て直している").not.toMatch(
+      /env:\s*\{\s*\}/,
     );
+
+    /**
+     * ここには「引数なしの `createLlmPorts()` が無いこと」も見ていたが、消した。
+     * 引数が省略できた（既定 `{}`）ころに要る検査で、いまは引数が必須なので
+     * **書いた時点で型検査が止める**。型で止まるものを検査でもう一度見ると、
+     * 直す場所が 2 つになり、型を直した人が検査を落として当惑する。
+     */
   });
 
   it("要件 5: 生成 AI の口（deps.llm / deps.llmCosts）を読む場所が増えていない", () => {

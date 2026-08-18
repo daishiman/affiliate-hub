@@ -1,8 +1,9 @@
 import type { LlmConnectivityPort, LlmProviderCatalogPort } from "@/application/ports/llm-credential";
 import type { LlmKeyAccess, LlmUsageRecorder } from "./key-access";
-import { domainError, err, ok } from "@/domain/shared";
+import { ok } from "@/domain/shared";
 import type { WorkspaceId } from "@/domain/shared";
-import { createAnthropicLlm } from "./providers/anthropic";
+import { createRoutingLlm } from "./llm-provider-registry";
+import { createPricingLookup } from "./pricing";
 
 /**
  * 登録した鍵が実際に使えるかを 1 回だけ確かめる。
@@ -42,52 +43,33 @@ export type LlmConnectivityDeps = {
 };
 
 export function createLlmConnectivity(deps: LlmConnectivityDeps): LlmConnectivityPort {
+  /**
+   * 振り分けは**下書きと同じ 1 か所**（`createRoutingLlm`）を通す。
+   *
+   * ここに `providerId !== "anthropic"` の分岐を別に置いていたが、消した。
+   * 分岐が 2 か所あると、片方だけ提供元を足したときに
+   * **「確認は通るのに下書きは未対応」**（またはその逆）という、
+   * 利用者から見て説明の付かない状態が作れてしまう。
+   * まだ作っていない提供元はスタブが失敗を返すので、
+   * 「成功したことにする」危険は分岐を消しても増えない。
+   *
+   * 単価も目録から引く 1 本（`createPricingLookup`）に揃えてある。
+   * ここだけ別の数字を使うと、合計が合わない理由が増える。
+   */
+  const llm = createRoutingLlm({
+    vault: deps.vault,
+    pricing: createPricingLookup(deps.catalog),
+    usage: verificationUsage(deps.usage),
+    fetchImpl: deps.fetchImpl,
+  });
+
   return {
     async check(input: { workspaceId: WorkspaceId; providerId: string; modelId: string }) {
-      // 単価は目録から取る。**確認のぶんも同じ単価で記録する**
-      // （ここだけ別の数字を使うと、合計が合わない理由が増える）。
-      const models = await deps.catalog.listModels(input.providerId);
-      if (!models.ok) return models;
-      const model = models.value.find((m) => m.modelId === input.modelId);
-      if (model === undefined) {
-        return err(
-          domainError("NOT_FOUND", "選ばれたモデルが目録にありません。", {
-            suggestedAction: "画面の一覧からモデルを選び直してください。",
-            details: { providerId: input.providerId, modelId: input.modelId },
-          }),
-        );
-      }
-
-      const pricing = {
-        inputMinorPerMillionTokens: model.inputPricePerMillionMinor,
-        outputMinorPerMillionTokens: model.outputPricePerMillionMinor,
-        currency: model.currency,
-      };
-
-      /**
-       * 提供元ごとの呼び方はここで分ける。**利用者は 1 社ずつ増える。**
-       * まだ作っていない提供元は「未対応」と答える。
-       * 成功したことにすると、使えない鍵が「確認済み」として残る。
-       */
-      if (input.providerId !== "anthropic") {
-        return err(
-          domainError("NOT_IMPLEMENTED", "この提供元への接続はまだ用意できていません。", {
-            suggestedAction: "いまは Anthropic（Claude）をお使いください。",
-            details: { providerId: input.providerId },
-          }),
-        );
-      }
-
-      const llm = createAnthropicLlm({
-        vault: deps.vault,
+      const called = await llm.generateStructured<{ ok?: boolean }>({
+        ...PING_REQUEST,
         workspaceId: input.workspaceId,
-        modelId: input.modelId,
-        pricing,
-        usage: verificationUsage(deps.usage),
-        fetchImpl: deps.fetchImpl,
+        model: { providerId: input.providerId, modelId: input.modelId },
       });
-
-      const called = await llm.generateStructured<{ ok?: boolean }>(PING_REQUEST);
       if (!called.ok) return called;
       return ok(undefined);
     },

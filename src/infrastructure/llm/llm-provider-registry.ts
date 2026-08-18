@@ -3,12 +3,14 @@ import type {
   LlmPort,
   LlmRequest,
   LlmResponse,
-  SecretResolverPort,
 } from "@/application/ports";
 import { domainError, err, ok } from "@/domain/shared";
 import type { DomainError, Result } from "@/domain/shared";
 import { registerStub, stubCall } from "../stub-registry";
+import type { LlmKeyAccess, LlmUsageRecorder } from "./key-access";
 import type { LlmProviderKind } from "./llm-provider-catalog";
+import type { LlmPricingLookup } from "./pricing";
+import { createAnthropicLlm } from "./providers/anthropic";
 
 /**
  * 生成 AI の提供元の登録所。
@@ -31,10 +33,20 @@ export const LLM_PROVIDER_LABEL: Readonly<Record<LlmProviderKind, string>> = {
   workers_ai: "Cloudflare Workers AI",
 };
 
+/**
+ * 提供元アダプタを組み立てるのに要るもの。
+ *
+ * --- モデルと作業場所がここに無い理由 ---
+ * どちらも**依頼ごとに変わる**（`LlmRequest` が運ぶ）。
+ * 組み立て時に受け取る形にすると、提供元 1 つにつきモデル 1 つになり、
+ * 記事ごとに選び分けられない。
+ */
 export type LlmProviderContext = {
-  readonly credentialRef: string;
-  readonly modelId: string;
-  readonly secrets: SecretResolverPort;
+  readonly vault: LlmKeyAccess;
+  readonly usage: LlmUsageRecorder;
+  readonly pricing: LlmPricingLookup;
+  /** 検査で偽の応答を差し込むための口。本番では渡さない。 */
+  readonly fetchImpl?: typeof fetch;
 };
 
 type LlmFactory = (ctx: LlmProviderContext) => LlmPort;
@@ -61,7 +73,13 @@ function createStubLlm(kind: LlmProviderKind, ctx: LlmProviderContext): LlmPort 
 }
 
 const FACTORIES: Readonly<Record<LlmProviderKind, LlmFactory>> = {
-  anthropic: (ctx) => createStubLlm("anthropic", ctx),
+  anthropic: (ctx) =>
+    createAnthropicLlm({
+      vault: ctx.vault,
+      usage: ctx.usage,
+      pricing: ctx.pricing,
+      fetchImpl: ctx.fetchImpl,
+    }),
   google: (ctx) => createStubLlm("google", ctx),
   openai: (ctx) => createStubLlm("openai", ctx),
   xai: (ctx) => createStubLlm("xai", ctx),
@@ -79,29 +97,84 @@ export function createLlm(
   return ok(factory(ctx));
 }
 
+function isProviderKind(value: string): value is LlmProviderKind {
+  return Object.prototype.hasOwnProperty.call(FACTORIES, value);
+}
+
+/**
+ * 依頼ごとに提供元を振り分ける口。
+ *
+ * --- 「使う提供元は 1 行」をやめた ---
+ * 以前はここで 1 社に固定していた（`ACTIVE_PROVIDER`）。
+ * 記事ごとにモデルを選ぶと決めた時点で、その形は成り立たない。
+ * 固定したまま選ばせると、画面で選んだモデルと実際に呼ばれる先が食い違い、
+ * **記録には選んだほうが残る**ので、食い違いに気づく手がかりが消える。
+ *
+ * 振り分けの分岐はこの 1 か所だけにする。ここ以外に分岐を作ると、
+ * どの記事がどの提供元で書かれたのかを辿れなくなる。
+ */
+export function createRoutingLlm(ctx: LlmProviderContext): LlmPort {
+  // 提供元ごとのアダプタは 1 度だけ作る。依頼ごとに作り直すと、
+  // 接続の使い回しが効かないうえ、組み立ての失敗が呼び出しのたびに起きる。
+  const built = new Map<LlmProviderKind, LlmPort>();
+  function portFor(providerId: string): Result<LlmPort, DomainError> {
+    if (!isProviderKind(providerId)) {
+      return err(
+        domainError("NOT_SUPPORTED", "この生成AIの提供元には対応していません。", {
+          details: { providerId },
+        }),
+      );
+    }
+    const cached = built.get(providerId);
+    if (cached !== undefined) return ok(cached);
+    const made = createLlm(providerId, ctx);
+    if (made.ok) built.set(providerId, made.value);
+    return made;
+  }
+
+  return {
+    async generateStructured<T>(request: LlmRequest) {
+      const port = portFor(request.model.providerId);
+      if (!port.ok) return err(port.error);
+      return port.value.generateStructured<T>(request);
+    },
+    async embed() {
+      /**
+       * 埋め込みは依頼に提供元が乗らない（`embed(texts)` だけ）。
+       * どこへ送るかが決まらないので、ここでは断る。
+       * 0 埋めの配列を返すと、**似ていない記事が似ていると判定される**。
+       */
+      return err(
+        domainError("NOT_SUPPORTED", "類似記事の検出はまだ使えません。", {
+          suggestedAction: "どの提供元で埋め込みを作るかを決めてから繋ぎます。",
+        }),
+      );
+    },
+  };
+}
+
 /**
  * 費用の概算。
  *
- * 単価は提供元と契約で変わるため、組み立て時に外から渡す。
- * ここに定数として書き込むと、値上げのたびにコードを直すことになる。
+ * 単価は依頼で選ばれたモデルのものを引く。**見積りと記録が同じ 1 本を通る**
+ * ので、値上げで片方だけ古くなることが起きない（`./pricing.ts`）。
  */
-export function createCostEstimator(pricing: {
-  readonly inputMinorPerMillionTokens: number;
-  readonly outputMinorPerMillionTokens: number;
-  readonly currency: string;
-}): LlmCostEstimatorPort {
+export function createCostEstimator(pricing: LlmPricingLookup): LlmCostEstimatorPort {
   return {
     async estimate(request: LlmRequest) {
+      const found = await pricing.find(request.model);
+      if (!found.ok) return err(found.error);
+
       // 概算のため、日本語はおおよそ 1 トークン = 1.5 文字として数える。
       const charCount =
         request.instructions.length +
         request.untrustedContext.reduce((n, b) => n + b.text.length, 0);
       const inputTokens = Math.ceil(charCount / 1.5);
       const estimatedCostMinor = Math.ceil(
-        (inputTokens * pricing.inputMinorPerMillionTokens) / 1_000_000 +
-          (request.maxOutputTokens * pricing.outputMinorPerMillionTokens) / 1_000_000,
+        (inputTokens * found.value.inputMinorPerMillionTokens) / 1_000_000 +
+          (request.maxOutputTokens * found.value.outputMinorPerMillionTokens) / 1_000_000,
       );
-      return ok({ estimatedCostMinor, currency: pricing.currency });
+      return ok({ estimatedCostMinor, currency: found.value.currency });
     },
   };
 }

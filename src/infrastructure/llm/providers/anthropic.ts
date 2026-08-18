@@ -1,5 +1,6 @@
 import type { LlmPort, LlmRequest, LlmResponse } from "@/application/ports";
 import type { LlmKeyAccess, LlmUsageRecorder } from "../key-access";
+import type { LlmPricingLookup, ModelPricing } from "../pricing";
 import { containsSecret, redactSecretsInText } from "@/domain/generation/llm-credential";
 import {
   type DomainError,
@@ -140,17 +141,10 @@ function toFailure(status: number, body: string, apiKey: string): DomainError {
   });
 }
 
-export type AnthropicPricing = {
-  readonly inputMinorPerMillionTokens: number;
-  readonly outputMinorPerMillionTokens: number;
-  readonly currency: string;
-};
-
 export type AnthropicLlmDeps = {
   readonly vault: LlmKeyAccess;
-  readonly workspaceId: WorkspaceId;
-  readonly modelId: string;
-  readonly pricing: AnthropicPricing;
+  /** 単価の引き当て。モデルは依頼ごとに変わるので、組み立て時には決まらない。 */
+  readonly pricing: LlmPricingLookup;
   /**
    * 使った量の記録先。**省略できない。**
    * 省ける形にすると、呼び出しを足すたびに記録が漏れ、
@@ -160,7 +154,7 @@ export type AnthropicLlmDeps = {
   readonly fetchImpl?: typeof fetch;
 };
 
-function costOf(input: number, output: number, pricing: AnthropicPricing): number {
+function costOf(input: number, output: number, pricing: ModelPricing): number {
   return Math.ceil(
     (input * pricing.inputMinorPerMillionTokens) / 1_000_000 +
       (output * pricing.outputMinorPerMillionTokens) / 1_000_000,
@@ -171,31 +165,45 @@ export function createAnthropicLlm(deps: AnthropicLlmDeps): LlmPort {
   const doFetch = deps.fetchImpl ?? fetch;
 
   async function note(
+    workspaceId: WorkspaceId,
+    modelId: string,
+    pricing: ModelPricing,
     inputTokens: number,
     outputTokens: number,
     succeeded: boolean,
   ): Promise<Result<void, DomainError>> {
     return deps.usage.record({
-      workspaceId: deps.workspaceId,
+      workspaceId,
       providerId: PROVIDER_ID,
-      modelId: deps.modelId,
+      modelId,
       purpose: "draft",
       inputTokens,
       outputTokens,
-      estimatedCostMinor: costOf(inputTokens, outputTokens, deps.pricing),
-      currency: deps.pricing.currency,
+      estimatedCostMinor: costOf(inputTokens, outputTokens, pricing),
+      currency: pricing.currency,
       succeeded,
     });
   }
 
   return {
     async generateStructured<T>(request: LlmRequest) {
+      const modelId = request.model.modelId;
+
+      /**
+       * 単価を**呼ぶ前に**引く。
+       *
+       * 呼んでから引くと、単価の分からないモデルで一度は課金が発生し、
+       * その 1 回だけ記録に残らない（記録には単価が要る）。
+       */
+      const pricing = await deps.pricing.find(request.model);
+      if (!pricing.ok) return err(pricing.error);
+
       // 本文を先に組み立てる。**鍵を取り出す前**に済ませることで、
       // 鍵の見えている範囲を通信の一瞬だけに縮める。
-      const body = buildMessagesBody(request, deps.modelId);
+      const body = buildMessagesBody(request, modelId);
 
       const called = await deps.vault.useKey({
-        workspaceId: deps.workspaceId,
+        workspaceId: request.workspaceId,
         providerId: PROVIDER_ID,
         fn: async (apiKey): Promise<Result<LlmResponse<T>, DomainError>> => {
           const response = await doFetch(ENDPOINT, {
@@ -214,13 +222,13 @@ export function createAnthropicLlm(deps: AnthropicLlmDeps): LlmPort {
             return err(toFailure(response.status, text, apiKey));
           }
           const parsed: unknown = await response.json().catch(() => null);
-          return readReply<T>(parsed, deps.modelId);
+          return readReply<T>(parsed, modelId);
         },
       });
 
       if (!called.ok) {
         // 鍵が無い・開けない・通信ごと失敗した。ここでは使った量が分からない。
-        const noted = await note(0, 0, false);
+        const noted = await note(request.workspaceId, modelId, pricing.value, 0, 0, false);
         if (!noted.ok) return noted;
         return called;
       }
@@ -237,7 +245,14 @@ export function createAnthropicLlm(deps: AnthropicLlmDeps): LlmPort {
        * それに、記録先は記事の保存先と同じ D1 なので、
        * ここが書けない状態なら下書きも保存できない。
        */
-      const noted = await note(tokens.input, tokens.output, result.ok);
+      const noted = await note(
+        request.workspaceId,
+        modelId,
+        pricing.value,
+        tokens.input,
+        tokens.output,
+        result.ok,
+      );
       if (!noted.ok) return noted;
       return result;
     },

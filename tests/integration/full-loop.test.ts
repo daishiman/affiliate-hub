@@ -249,6 +249,9 @@ const costs: LlmCostEstimatorPort = {
   },
 };
 
+/** 1 周のあいだ同じモデルで書く（作り直しの比較を、モデルの違いで濁らせない）。 */
+const DRAFT_MODEL = { providerId: "anthropic", modelId: "test-model" };
+
 // --- 改善ループの種 ---------------------------------------------------------
 
 const RUN_ID = "exp_loop_1" as ExperimentId;
@@ -391,6 +394,9 @@ describe("1 周（作る → 承認 → 公開 → 測る → 分析 → 提案 
     ]);
     const drafted = await createDraftContentVariantUseCase({ llm, costs }).execute(owner, {
       provided: sampleGenerationInput(),
+      // どのモデルで書くかは依頼ごとに選ぶ。既定は置いていないので、
+      // ここを省くと 1 周は**①で止まる**（それが正しい振る舞い）。
+      model: DRAFT_MODEL,
     });
     expect(drafted.ok).toBe(true);
     if (!drafted.ok) return;
@@ -564,6 +570,7 @@ describe("1 周（作る → 承認 → 公開 → 測る → 分析 → 提案 
     // ⑧ 作り直す。同じユースケースをもう一度通り、2 本目が出る。
     const regenerated = await createDraftContentVariantUseCase({ llm, costs }).execute(owner, {
       provided: sampleGenerationInput(),
+      model: DRAFT_MODEL,
     });
     expect(regenerated.ok).toBe(true);
     if (!regenerated.ok) return;

@@ -1,5 +1,5 @@
 {
-  "graph_revision": 217,
+  "graph_revision": 218,
   "nodes": [
     {
       "acceptance": [],
@@ -9568,6 +9568,105 @@
       "title": "公開された記事に、成果リンクを載せる経路が無い",
       "tracker_binding": "beads",
       "updated_at": "2026-08-18T03:00:00Z"
+    },
+    {
+      "acceptance": [],
+      "architecture_refs": [],
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "beads_linkage": null,
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "candidate_path": "tasks/task-llm-provider-invocation.md",
+          "confidence": 0.9
+        }
+      ],
+      "classification_confidence": 0.9,
+      "classification_reason": "生成 AI の呼び出し経路を実測で辿り、スタブのままの箇所と二重定義を特定した",
+      "completion_evidence": {
+        "completed_at": null,
+        "evidence_refs": [],
+        "policy": "manual",
+        "reconciled_at": null,
+        "source": "manual",
+        "status": "in_progress"
+      },
+      "confirmation_evidence": {
+        "evaluated_digest": null,
+        "evaluator": null,
+        "evidence_ref": null
+      },
+      "confirmation_status": "draft",
+      "created_at": "2026-08-18T04:00:00Z",
+      "depends_on": [],
+      "domain": "generation",
+      "evaluation_status": "pending",
+      "execution_contexts": [],
+      "feature_package_id": null,
+      "file_path": "tasks/task-llm-provider-invocation.md",
+      "github_project_linkages": [],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "goal": null,
+      "graph_node_id": "task-llm-provider-invocation",
+      "implementation_readiness": {
+        "checked_at": null,
+        "missing_sections": [],
+        "status": "incomplete"
+      },
+      "issue_linkage": null,
+      "iteration": null,
+      "mvp_alignment": {
+        "background": "提供元の登録所 FACTORIES が 4 社ぶん全てスタブで、llm-setup.ts が使うモデル・単価・鍵の参照キーを目録とは別に持っている",
+        "mvp_fit": "direct",
+        "purpose": "鍵を登録すればそのまま記事が書ける状態まで、鍵の要らない範囲を先に済ませる",
+        "rationale": "ここが済んでいないと、鍵を登録しても呼び出しがスタブのままで何も起きない"
+      },
+      "owners": [
+        "daishiman"
+      ],
+      "parent_feature": null,
+      "phase_ref": null,
+      "priority": "high",
+      "project_id": "affiliate-hub",
+      "pull_request_linkages": [],
+      "purpose": null,
+      "related_nodes": [
+        "task-llm-provider-connection"
+      ],
+      "resource_scope": [
+        "src",
+        "tests",
+        "docs"
+      ],
+      "scope_in": [],
+      "scope_out": [],
+      "source_lineage": {
+        "imported_at": "2026-08-18T04:00:00Z",
+        "origin_kind": "manual",
+        "source_digest": null,
+        "source_path": "src/infrastructure/llm/llm-provider-registry.ts",
+        "source_plugin": null,
+        "source_version": null
+      },
+      "start_date": null,
+      "status": "draft",
+      "tags": [
+        "generation",
+        "llm",
+        "cost"
+      ],
+      "target_date": null,
+      "template_id": "task",
+      "template_version": "1.0.0",
+      "title": "4 社の呼び出しを実装し、記事ごとにモデルを選べるようにする",
+      "tracker_binding": "beads",
+      "updated_at": "2026-08-18T04:00:00Z"
     }
   ],
   "repository_id": "github:daishiman/affiliate-hub",

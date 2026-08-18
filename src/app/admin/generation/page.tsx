@@ -52,6 +52,14 @@ export default async function GenerationPage({
       ? Promise.resolve(null)
       : uc.draft.execute(actor, {
           provided: trial === "ready" ? sampleGenerationInputForTrial() : {},
+          /**
+           * **この画面にはモデルを選ぶ欄がまだ無い。**
+           *
+           * 無いからといってここで 1 つ埋めると、押した人が選んだ覚えのない
+           * モデルで記事ができ、記録にはそのモデル名だけが残る。
+           * 選ばれていないことを、選ばれていないまま渡す。
+           */
+          model: null,
         }),
   ]);
 
@@ -251,8 +259,9 @@ export default async function GenerationPage({
         <h2 className={styles.sectionTitle}>下書きを作らせてみる</h2>
         <p className={styles.sectionLead}>
           実際に押して確かめられます。必ず要る 17
-          項目（上の表のうち「順位の決め方」以外）がそろっていない状態では、何が足りないかを返して始めません。そろった状態で押すと、生成
-          AI への接続まで進みます。接続先はまだ選定と鍵の登録が済んでいないため、そこで止まります。
+          項目（上の表のうち「順位の決め方」以外）がそろっていない状態では、何が足りないかを返して始めません。そろった状態で押すと、どのモデルで書くかの確認まで進みます。
+          <strong>この画面にはモデルを選ぶ欄がまだ無いため、そこで止まります。</strong>
+          既定のモデルは置いていません（置くと、選んだ覚えのないモデルで書かれた記事が、選んで書いたものと同じ形で残ります）。
         </p>
         <p className={styles.linkList}>
           <Link href="/admin/generation?trial=empty">そろっていない状態で試す</Link>

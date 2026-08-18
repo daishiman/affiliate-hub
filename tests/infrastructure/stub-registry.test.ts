@@ -6,6 +6,7 @@ import { createChannelConnector } from "@/infrastructure/channels/channel-regist
 import { createLlm } from "@/infrastructure/llm/llm-provider-registry";
 import { listStubs } from "@/infrastructure/stub-registry";
 import { fakeSecretResolver } from "@/infrastructure/platform/secret-resolver";
+import { llmProviderContextDouble } from "../support/doubles";
 
 /**
  * スタブ台帳。
@@ -47,7 +48,10 @@ describe("スタブ台帳", () => {
 
   it("登録されたスタブには、前提条件が必ず書かれている", () => {
     // 台帳へ載せるために、まず組み立てておく
-    createLlm("anthropic", { credentialRef: "llm/main/api_key", modelId: "m", secrets });
+    // **Anthropic は使わない。** 実装が入ったのでスタブとして登録されなくなった。
+    // ここで確かめたいのは「まだ中身が無いものに前提条件が書かれている」ことなので、
+    // まだ中身の無い提供元を選ぶ。
+    createLlm("google", llmProviderContextDouble());
     createChannelConnector("x", { credentialRef: null, secrets });
 
     const stubs = listStubs();

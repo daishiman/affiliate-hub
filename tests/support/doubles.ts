@@ -1,8 +1,12 @@
 import type { AppDeps } from "@/application/deps";
 import type { DomainEvent, EventPublisherPort } from "@/application/ports/common";
 import type { AuditLogPort } from "@/application/ports/compliance";
+import type { LlmRequest } from "@/application/ports/llm";
 import type { AuditLogEntry } from "@/domain/compliance";
+import type { WorkspaceId } from "@/domain/shared";
 import { createDeps } from "@/infrastructure/composition";
+import type { LlmProviderContext } from "@/infrastructure/llm/llm-provider-registry";
+import type { LlmPricingLookup } from "@/infrastructure/llm/pricing";
 import { markCommercial, markEditorial, readDataClass } from "@/domain/shared/data-classification";
 import { type DomainError, domainError } from "@/domain/shared/errors";
 import { type Result, err, ok } from "@/domain/shared/result";
@@ -176,5 +180,54 @@ export function scriptedLlm(responses: readonly string[]) {
       return text;
     },
     calls: () => i,
+  };
+}
+
+/**
+ * 生成 AI への依頼の雛形。
+ *
+ * **どの作業場所の・どのモデルへ**は依頼が運ぶ（既定のモデルを置かないため）。
+ * 検査ごとに書き起こすと、欄が 1 つ増えるたびに全部を直すことになる。
+ */
+export function anLlmRequest(overrides: Partial<LlmRequest> = {}): LlmRequest {
+  return {
+    workspaceId: "ws_test" as WorkspaceId,
+    model: { providerId: "anthropic", modelId: "test-model" },
+    instructions: "商品の仕様を表にまとめてください。",
+    untrustedContext: [],
+    outputSchema: { type: "object" },
+    promptVersion: "v1",
+    maxOutputTokens: 1000,
+    temperature: 0.2,
+    ...overrides,
+  };
+}
+
+/** 決まった単価を返す引き当て。目録を組み立てずに単価だけ与えたいとき用。 */
+export function fixedPricing(
+  pricing: {
+    readonly inputMinorPerMillionTokens: number;
+    readonly outputMinorPerMillionTokens: number;
+    readonly currency: string;
+  } = { inputMinorPerMillionTokens: 1_000, outputMinorPerMillionTokens: 5_000, currency: "JPY" },
+): LlmPricingLookup {
+  return { find: async () => ok(pricing) };
+}
+
+/**
+ * 組み立てにだけ使う提供元の文脈。
+ *
+ * **呼ばれたら落ちる**ようにしてある。組み立てられることだけを見たい検査で、
+ * 中身が呼ばれてしまったことに気づけるようにするため
+ * （静かに空を返すと、呼んでいないつもりの検査が通ってしまう）。
+ */
+export function llmProviderContextDouble(): LlmProviderContext {
+  const notCalled = (): never => {
+    throw new Error("この検査では提供元を呼ばない");
+  };
+  return {
+    vault: { useKey: notCalled },
+    usage: { record: notCalled },
+    pricing: { find: notCalled },
   };
 }

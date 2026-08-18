@@ -6,6 +6,9 @@ import type { LlmKeyAccess, LlmUsageRecorder } from "@/infrastructure/llm/key-ac
 import { asWorkspaceId } from "@/domain/shared";
 import type { WorkspaceId } from "@/domain/shared";
 import { createAnthropicLlm } from "@/infrastructure/llm/providers/anthropic";
+import { domainError } from "@/domain/shared/errors";
+import { err } from "@/domain/shared/result";
+import { anLlmRequest, fixedPricing } from "../support/doubles";
 
 /**
  * Anthropic への接続を、実際に呼び出して確かめる。
@@ -23,7 +26,11 @@ const WS = asWorkspaceId("ws_a") as WorkspaceId;
 /** 実在の提供元の接頭辞は使わない（理由は docs/product/credential-registration.md）。 */
 const API_KEY = "pk-test-0123456789abcdefghijklmn";
 
-const REQUEST: LlmRequest = {
+const REQUEST: LlmRequest = anLlmRequest({
+  // どの作業場所の・どのモデルへ、は依頼が運ぶ。
+  // アダプタを組み立てるときに決めないので、同じアダプタで別のモデルを呼べる。
+  workspaceId: WS,
+  model: { providerId: "anthropic", modelId: "claude-opus-5" },
   instructions: "商品の要点を 3 つにまとめてください。",
   untrustedContext: [
     {
@@ -37,7 +44,7 @@ const REQUEST: LlmRequest = {
   promptVersion: "v1",
   maxOutputTokens: 500,
   temperature: 0.2,
-};
+});
 
 /**
  * 鍵を持っている預かり所の代わり。渡した処理の中でだけ値を見せる形は本物と同じ。
@@ -106,9 +113,7 @@ function build(reply: { status: number; json?: unknown; text?: string }) {
   const fetcher = fakeFetch(reply);
   const llm = createAnthropicLlm({
     vault: fakeVault(),
-    workspaceId: WS,
-    modelId: "claude-opus-5",
-    pricing: PRICING,
+    pricing: fixedPricing(PRICING),
     usage: usage.port,
     fetchImpl: fetcher.impl,
   });
@@ -159,6 +164,42 @@ describe("Anthropic への接続", () => {
     expect(entry?.inputTokens).toBe(1_000);
     // 2,250 × 1,000/1,000,000 + 11,250 × 400/1,000,000 = 2.25 + 4.5 → 切り上げ 7
     expect(entry?.estimatedCostMinor).toBe(7);
+    // 使った量が、依頼を出した作業場所の側に付くこと。
+    // 組み立て時に作業場所を決めていたころは、誰の分にも付け替えられた。
+    expect(entry?.workspaceId).toBe(WS);
+  });
+
+  it("どのモデルへ送るかは依頼が決める（組み立て時には決まっていない）", async () => {
+    const { llm, fetcher } = build({ status: 200, json: SUCCESS_REPLY });
+    await llm.generateStructured({
+      ...REQUEST,
+      model: { providerId: "anthropic", modelId: "claude-haiku-4-5-20251001" },
+    });
+    const body = JSON.parse(fetcher.sent[0]?.body ?? "{}") as { model: string };
+    expect(body.model).toBe("claude-haiku-4-5-20251001");
+  });
+
+  it("単価の分からないモデルは、提供元を呼ぶ前に止まる", async () => {
+    // 呼んでから単価を引くと、その 1 回だけ課金されて記録に残らない。
+    // 0 円として通す道を作らないことも同時に見る。
+    const usage = fakeUsage();
+    const fetcher = fakeFetch({ status: 200, json: SUCCESS_REPLY });
+    const llm = createAnthropicLlm({
+      vault: fakeVault(),
+      pricing: {
+        find: async () => err(domainError("NOT_FOUND", "選ばれたモデルが目録にありません。")),
+      },
+      usage: usage.port,
+      fetchImpl: fetcher.impl,
+    });
+
+    const result = await llm.generateStructured(REQUEST);
+    expect(result.ok).toBe(false);
+    if (result.ok) return;
+    expect(result.error.code).toBe("NOT_FOUND");
+    // 送っていない = 課金されていない。
+    expect(fetcher.sent).toHaveLength(0);
+    expect(usage.entries).toHaveLength(0);
   });
 
   it("途中で切れた答えは切れたと分かる", async () => {

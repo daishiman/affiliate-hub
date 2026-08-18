@@ -55,6 +55,20 @@ export const generationInputSchema = z.object({
 });
 
 export const draftContentVariantSchema = z.object({
+  /**
+   * どのモデルで書くか。**入口では既定を入れない。**
+   *
+   * `optional()` にしてあるのは、選ばれていないことをユースケースまで
+   * そのまま届けるためである。ここで「とりあえず先頭のモデル」を入れると、
+   * 呼び出し側は選んだつもりが無いのに、記録にはモデル名が残る。
+   * 欠けている理由を返すのはユースケースの仕事。
+   */
+  model: z
+    .object({
+      providerId: z.string().min(1),
+      modelId: z.string().min(1),
+    })
+    .optional(),
   // 「部分的に渡す」を受け付ける。欠けていることを検出して理由を返すのは
   // ユースケース側の仕事で、入口で弾くと「何が足りないか」を返せなくなる。
   provided: generationInputSchema.partial(),

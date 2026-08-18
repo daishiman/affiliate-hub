@@ -1,3 +1,4 @@
+import type { WorkspaceId } from "@/domain/shared";
 import type { PortResult } from "./common";
 
 /**
@@ -13,7 +14,33 @@ import type { PortResult } from "./common";
  */
 export type LlmMessageRole = "system" | "user" | "assistant";
 
+/**
+ * どの提供元のどのモデルへ送るか。
+ *
+ * --- なぜ依頼ごとに運ぶのか（既定のモデルを作らない） ---
+ * 組み立てのときに 1 つ決めてしまうと、記事ごとに選び分けられない。
+ * 選び分けを後から足そうとすると、**すでに既定で書かれた記事**が大量にあり、
+ * それがどのモデルの出力なのかを遡って知る手立てが無い。
+ *
+ * 依頼に載せる形にすると、選ばれていない依頼は**そもそも組み立てられない**。
+ * 「未選択のときは先頭のモデル」という分岐を書く場所が無いのが、この形の値打ちである。
+ */
+export type LlmModelSelection = {
+  readonly providerId: string;
+  readonly modelId: string;
+};
+
 export type LlmRequest = {
+  /**
+   * どの作業場所からの依頼か。
+   *
+   * 鍵は作業場所ごとに預かっているので、これが無いとどの鍵で呼ぶかが決まらない。
+   * **鍵そのものはここに載らない。** 載るのは「どこの鍵か」だけで、
+   * 値に触れるのは提供元アダプタだけである（`infrastructure/llm/key-access.ts`）。
+   */
+  readonly workspaceId: WorkspaceId;
+  /** どのモデルで書くか。既定は無い（上の説明）。 */
+  readonly model: LlmModelSelection;
   /** 指示。信頼できる自分たちの文言だけを入れる。 */
   readonly instructions: string;
   /**

@@ -62,6 +62,30 @@ function createDepsBody(): string {
 }
 
 /**
+ * `const 名前 = …;` を、**改行をまたいで**取り出す。
+ *
+ * 1 行に収まる書き方だけを見ていると、引数が増えて折り返した日に
+ * 「そんな値は無い」と読む。括弧の対応を数えて終わりを決める
+ * （`createDepsArguments` と同じ理由）。
+ */
+function constBindings(body: string): readonly { name: string; value: string }[] {
+  const out: { name: string; value: string }[] = [];
+  for (const head of body.matchAll(/const (\w+) = /g)) {
+    const start = (head.index ?? 0) + head[0].length;
+    let depth = 0;
+    let end = start;
+    for (; end < body.length; end += 1) {
+      const ch = body[end];
+      if (ch === "(" || ch === "{" || ch === "[") depth += 1;
+      else if (ch === ")" || ch === "}" || ch === "]") depth -= 1;
+      else if (ch === ";" && depth === 0) break;
+    }
+    out.push({ name: head[1], value: body.slice(start, end) });
+  }
+  return out;
+}
+
+/**
  * 接続 1 つにつき、それがあれば本物へ切り替わる依存の名前。
  *
  * 見つけ方は 2 通りある。
@@ -75,14 +99,35 @@ function createDepsBody(): string {
  * 1 しか見ていなかったので、接続を増やしても対象が 0 件のまま緑になる形が
  * 残っていた（空振りを緑で通すのは、検査が無いのと同じである）。
  * 分岐の書き方に検査を合わせるのではなく、**届き方をもう 1 通り数える**ように直した。
+ *
+ * 同じ日にもう一度落ちた。**1 段しか辿っていなかった**ためで、
+ * `env → 鍵の預かり所 → 生成 AI の口` のように途中が 2 つになると見失う。
+ * 中継を何段はさんでも「接続から作られたもの」であることは変わらないので、
+ * **辿れなくなるまで辿る**ようにした。段数を決め打ちすると、
+ * 1 段増やした日にまた同じ落ち方をする。
  */
 function capableSlots(connection: string): readonly string[] {
   const body = createDepsBody();
 
-  // 接続から作られた中間の値（`const 名前 = … options.接続 …`）。
-  const derived = [
-    ...body.matchAll(new RegExp(`const (\\w+) = [^\\n]*options\\.${connection}\\b`, "g")),
-  ].map((m) => m[1]);
+  /**
+   * 接続から作られた中間の値。直接（`options.接続`）だけでなく、
+   * **すでに接続から作られたものを使って作られたもの**も同じ扱いにする。
+   */
+  const bindings = constBindings(body);
+  const derived: string[] = [];
+  for (const binding of bindings) {
+    if (new RegExp(`options\\.${connection}\\b`).test(binding.value)) derived.push(binding.name);
+  }
+  for (let changed = true; changed; ) {
+    changed = false;
+    for (const binding of bindings) {
+      if (derived.includes(binding.name)) continue;
+      if (derived.some((name) => new RegExp(`\\b${name}\\b`).test(binding.value))) {
+        derived.push(binding.name);
+        changed = true;
+      }
+    }
+  }
 
   const slots: string[] = [];
   // 4 桁字下げの `名前:` を 1 つの枠とみなし、次の枠までを値として読む。

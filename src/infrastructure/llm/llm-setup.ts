@@ -1,84 +1,65 @@
 import type { LlmCostEstimatorPort, LlmPort } from "@/application/ports";
-import { createSecretResolver } from "../platform/secret-resolver";
-import type { LlmProviderKind } from "./llm-provider-catalog";
-import { createCostEstimator, createLlm, LLM_PROVIDER_LABEL } from "./llm-provider-registry";
+import type { LlmProviderCatalogPort } from "@/application/ports/llm-credential";
+import type { LlmKeyAccess, LlmUsageRecorder } from "./key-access";
+import { createCostEstimator, createRoutingLlm } from "./llm-provider-registry";
+import { createPricingLookup } from "./pricing";
 import { registerStub, stubCall } from "../stub-registry";
 
 /**
- * 「どの生成 AI を使うか」を決める唯一の場所。
+ * 生成 AI の組み立て。
  *
- * 提供元を替えるときに書き換えるのは、下の `ACTIVE_PROVIDER` の **1 行だけ**。
- * ドメインもユースケースも画面も触らない
- * （docs/architecture/changeability-scenarios.md ②）。
+ * --- 「使う提供元はこの 1 行」をやめた（2026-08-18） ---
+ * 以前はここに `ACTIVE_PROVIDER` があり、モデル名・単価・鍵の参照キーを
+ * 提供元ごとの表として持っていた。**同じことを目録
+ * （`llm-provider-catalog.ts`）も決めていた**ため、片方を直しても
+ * もう片方は古いまま型検査を通り、どちらが効いているのか読んでも分からなかった。
  *
- * ここに分岐を増やさないこと。
- * 「この機能のときだけ別の提供元」を書き始めると、
- * どの記事がどの提供元で書かれたのかを追えなくなる。
+ * いまは 3 つとも持たない。
+ *   - どのモデルか → 依頼が運ぶ（`LlmRequest.model`。記事ごとに選ぶ）
+ *   - 単価         → 目録の設定 1 か所（`LLM_PROVIDER_CATALOG`）
+ *   - 鍵           → 作業場所ごとの預かり所（値に触れるのはアダプタだけ）
+ *
+ * ここに残るのは「使えるかどうかの判定」だけである。
  */
 
 /**
- * ★ 提供元の切り替えはこの 1 行。
+ * 呼び出しに要るもの。**揃わなければ生成しない。**
  *
- * **いまの値は仮である。** どこの提供元を使うかはまだ決まっていない
- * （docs/spec/08-仕様の未修正点.md ③。費用と乗り換えやすさに効くため、
- * 利用者ご自身の確定が要る）。決まるまでスタブが失敗を返すので、
- * この値が何であっても記事は生成されない。
- *
- * 2026-08-17 に `google` へ書き換えて実測したところ、
- * 変わったのはこのファイルの 1 行だけだった（テスト 489 件は全て通過）。
+ * `ready: false` を理由つきにしてあるのは、利用者のやることが
+ * 「鍵を登録する」「保存先を用意する」で違うためである。
+ * 同じ空白として出すと、どちらをすればよいか分からない。
  */
-const ACTIVE_PROVIDER: LlmProviderKind = "anthropic";
+export type LlmRuntime =
+  | {
+      readonly ready: true;
+      readonly vault: LlmKeyAccess;
+      readonly usage: LlmUsageRecorder;
+      readonly catalog: LlmProviderCatalogPort;
+    }
+  | {
+      readonly ready: false;
+      readonly reason: string;
+    };
 
 /**
- * 使うモデルと認証情報の置き場所。
+ * 本物が回れない場所での受け皿。
  *
- * 鍵の値そのものはここに書かない。書けるのは**参照キー**だけで、
- * 値は利用者ご自身が別のターミナルで登録する。
- */
-const MODEL_ID: Readonly<Record<LlmProviderKind, string>> = {
-  anthropic: "claude-opus-5",
-  google: "gemini-2.5-pro",
-  openai: "gpt-5",
-  xai: "grok-4",
-  workers_ai: "@cf/meta/llama-3.3-70b-instruct",
-};
-
-const CREDENTIAL_REF: Readonly<Record<LlmProviderKind, string>> = {
-  anthropic: "llm/anthropic/api_key",
-  google: "llm/google/api_key",
-  openai: "llm/openai/api_key",
-  xai: "llm/xai/api_key",
-  workers_ai: "llm/workers_ai/account_token",
-};
-
-/**
- * 単価（100 万トークンあたり・円の最小単位）。
- *
- * 概算のための値であり、請求額ではない。
- * 提供元が値上げしたらここを直す。ユースケースは触らない。
- */
-const PRICING: Readonly<Record<LlmProviderKind, { input: number; output: number }>> = {
-  anthropic: { input: 2_250, output: 11_250 },
-  google: { input: 1_900, output: 9_500 },
-  openai: { input: 1_800, output: 9_000 },
-  xai: { input: 450, output: 2_250 },
-  workers_ai: { input: 100, output: 100 },
-};
-
-export const ACTIVE_LLM_LABEL = LLM_PROVIDER_LABEL[ACTIVE_PROVIDER];
-
-/**
- * **これはスタブである。**
- *
- * 提供元の登録所が「対応していない」と答えたときの受け皿。
  * ここで固定文を返すと、生成していない記事が生成済みとして残る。だから失敗を返す。
+ *
+ * **「まだ中身が無いもの」ではなく「控え」として数える。** 本物
+ * （`createRoutingLlm`）はもうあり、鍵の預かり所が供給されない場所
+ * （`pnpm dev`・自動テスト）でだけこちらへ回る。実装待ちの側に混ぜると、
+ * 環境の都合で未実装の件数が増減し、進み具合を表さなくなる。
  */
+const REAL_LLM = "src/infrastructure/llm/llm-provider-registry.ts";
+
 function unavailableLlm(reason: string): LlmPort {
   const entry = registerStub({
     id: "llm:unavailable",
     port: "LlmPort",
     label: "生成 AI への接続",
     blockedBy: reason,
+    fallbackFor: REAL_LLM,
   });
   return {
     generateStructured: <T>() => stubCall<T>(entry, "generateStructured") as never,
@@ -86,23 +67,40 @@ function unavailableLlm(reason: string): LlmPort {
   };
 }
 
-export function createLlmPorts(env: Readonly<Record<string, unknown>> = {}): {
+/**
+ * 見積りも同じ理由で断る。
+ *
+ * 呼べない状態で「0 円」と答えると、上限の判定を必ず通過してしまい、
+ * **止まる理由が「生成できません」だけになる**。見積りの段階で理由が出るほうが早い。
+ */
+function unavailableCosts(reason: string): LlmCostEstimatorPort {
+  const entry = registerStub({
+    id: "llm:unavailable-costs",
+    port: "LlmCostEstimatorPort",
+    label: "生成 AI の費用見積り",
+    blockedBy: reason,
+    fallbackFor: REAL_LLM,
+  });
+  return {
+    estimate: () => stubCall<{ estimatedCostMinor: number; currency: string }>(entry, "estimate"),
+  };
+}
+
+export function createLlmPorts(runtime: LlmRuntime): {
   readonly llm: LlmPort;
   readonly costs: LlmCostEstimatorPort;
 } {
-  const built = createLlm(ACTIVE_PROVIDER, {
-    credentialRef: CREDENTIAL_REF[ACTIVE_PROVIDER],
-    modelId: MODEL_ID[ACTIVE_PROVIDER],
-    secrets: createSecretResolver(env),
-  });
+  if (!runtime.ready) {
+    return { llm: unavailableLlm(runtime.reason), costs: unavailableCosts(runtime.reason) };
+  }
 
-  const pricing = PRICING[ACTIVE_PROVIDER];
+  const pricing = createPricingLookup(runtime.catalog);
   return {
-    llm: built.ok ? built.value : unavailableLlm(built.error.message),
-    costs: createCostEstimator({
-      inputMinorPerMillionTokens: pricing.input,
-      outputMinorPerMillionTokens: pricing.output,
-      currency: "JPY",
+    llm: createRoutingLlm({
+      vault: runtime.vault,
+      usage: runtime.usage,
+      pricing,
     }),
+    costs: createCostEstimator(pricing),
   };
 }

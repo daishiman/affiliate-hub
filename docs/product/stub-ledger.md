@@ -11,7 +11,7 @@
 
 ## まだ中身が無いもの
 
-件数: 37
+件数: 36
 
 | 識別子 | 何のスタブか | つなぎ目 | 何が済めば実装できるか |
 |---|---|---|---|
@@ -34,7 +34,6 @@
 | `channel:x` | X への配信 | ChannelConnectorPort | X API の有料プラン契約とアプリ登録が必要 |
 | `channel:youtube` | YouTube への配信 | ChannelConnectorPort | YouTube Data API のクォータ申請が必要 |
 | `identity:sample-actor` | ログイン情報（見本） | 現在のログイン利用者の取得 | Better Auth と Google ログインの設定 |
-| `llm:anthropic` | Anthropic での文章生成 | LlmPort | 提供元の選定と、利用者ご自身による API キーの登録が必要 |
 | `llm:google` | Google Gemini での文章生成 | LlmPort | 提供元の選定と、利用者ご自身による API キーの登録が必要 |
 | `llm:openai` | OpenAI での文章生成 | LlmPort | 提供元の選定と、利用者ご自身による API キーの登録が必要 |
 | `llm:workers_ai` | Cloudflare Workers AI での文章生成 | LlmPort | 提供元の選定と、利用者ご自身による API キーの登録が必要 |
@@ -59,10 +58,12 @@
 こちらへ回る。**消す予定は無いので、この件数は減らない。**
 何で動いているかは、必ず画面に文字で出す（黙って控えへ落ちない）。
 
-件数: 8
+件数: 10
 
 | 識別子 | 何の控えか | つなぎ目 | 本物の置き場所 |
 |---|---|---|---|
+| `llm:unavailable` | 生成 AI への接続 | LlmPort | `src/infrastructure/llm/llm-provider-registry.ts` |
+| `llm:unavailable-costs` | 生成 AI の費用見積り | LlmCostEstimatorPort | `src/infrastructure/llm/llm-provider-registry.ts` |
 | `persistence:analytics-sample` | 数字（見本データ） | 指標の読み口 | `src/infrastructure/persistence/d1/telemetry-repository.ts` |
 | `persistence:click-tracking-sample` | クリックの記録（この実行では保存先が無い） | クリック計測 | `src/infrastructure/persistence/d1/redirect-repository.ts` |
 | `persistence:feedback-memory` | 改善要望の記録（この実行中だけ覚える仮置き） | 改善要望の記録先 | `src/infrastructure/persistence/d1/feedback-repository.ts` |

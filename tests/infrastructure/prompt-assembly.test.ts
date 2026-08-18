@@ -1,24 +1,13 @@
 /** @tier 1 */
 import { describe, expect, it } from "vitest";
 import { assemblePrompt, neutralizeFences } from "@/infrastructure/llm/prompt-assembly";
-import type { LlmRequest } from "@/application/ports";
+import { anLlmRequest as request } from "../support/doubles";
 
 /**
  * 「ページ内のテキストを AI への命令として実行しない」ことを固定する。
  *
  * これは仕様の禁止事項であり、実装が変わっても崩してはならない。
  */
-function request(overrides: Partial<LlmRequest> = {}): LlmRequest {
-  return {
-    instructions: "商品の仕様を表にまとめてください。",
-    untrustedContext: [],
-    outputSchema: { type: "object" },
-    promptVersion: "v1",
-    maxOutputTokens: 1000,
-    temperature: 0.2,
-    ...overrides,
-  };
-}
 
 describe("プロンプトの組み立て", () => {
   it("取り込んだテキストは指示欄に混ざらない", () => {

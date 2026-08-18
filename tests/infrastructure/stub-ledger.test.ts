@@ -10,6 +10,7 @@ import { fakeSecretResolver } from "@/infrastructure/platform/secret-resolver";
 import "@/infrastructure/platform/storage-r2";
 import { listFallbacks, listStubs, listUnbuiltStubs } from "@/infrastructure/stub-registry";
 import { createToolCatalog } from "@/presentation/composition";
+import { llmProviderContextDouble } from "../support/doubles";
 
 /**
  * 「まだ中身が無いもの」の一覧を、人が数えずに作る。
@@ -42,7 +43,9 @@ async function buildEverything(): Promise<void> {
   }
 
   for (const kind of Object.keys(LLM_PROVIDER_LABEL) as LlmProviderKind[]) {
-    createLlm(kind, { credentialRef: "llm/default/api_key", modelId: "unset", secrets });
+    // 実装の入った提供元はここで何も登録しない（スタブではないため）。
+    // 台帳から消えることが、実装が入ったことの印になる。
+    createLlm(kind, llmProviderContextDouble());
   }
 }
 
