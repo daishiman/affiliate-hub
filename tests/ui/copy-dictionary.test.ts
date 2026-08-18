@@ -192,6 +192,49 @@ describe("画面の言葉", () => {
     ).toEqual([]);
   });
 
+  it("できない理由の差し替え文が、画面につながっていない", () => {
+    /*
+     * **呼び出しが無いことを、書き忘れではなく決定として固定する。**
+     *
+     * できない理由は `requireCapability()` が作り、画面は `Callout` の
+     * `reason`（省略できない型）へ渡す。ここに一般の差し替え文をつなぐと、
+     * 理由が作られなかったときに**それらしい文が代わりに出る**。
+     * そのとき、読み手の側にだけある文が 1 文以上あることを見ている検査
+     * （`page-render-restricted`。文言に依存しない形）は**緑になる**。
+     * 黙って消えるのではなく、**埋まって見える**という壊れ方をする。
+     *
+     * つまり、つなぐと「理由が無いこと」を隠す道具になる。
+     * 決定を文章だけで残すと、次に見た人には「つなぎ忘れ」に見えて、
+     * 親切心でつながれる。だから検査にする。
+     */
+    const users = screenFiles
+      .filter((f) => !f.endsWith(join("presentation", "ui", "copy.ts")))
+      .filter((f) => {
+        const code = readFileSync(f, "utf8")
+          .split("\n")
+          .filter((l) => {
+            const t = l.trim();
+            return !t.startsWith("//") && !t.startsWith("*") && !t.startsWith("/*");
+          })
+          .join("\n");
+        return /forbiddenTitle|forbiddenBodyFallback/.test(code);
+      })
+      .map((f) => relative(ROOT, f));
+
+    expect(
+      users,
+      [
+        "UI_COPY.state.forbidden* を画面から参照しています:",
+        ...users.map((f) => `  ${f}`),
+        "",
+        "これは「つなぎ忘れ」ではなく、つながないという決定です（理由は copy.ts に書いてあります）。",
+        "つなぐ必要が出たなら、先に page-render-restricted の検査を",
+        "「特定の理由が出ていること」を見る形へ作り直してください。",
+        "順番を逆にすると、理由が無い画面が緑のまま埋まって見えます。",
+      ].join("\n"),
+    ).toEqual([]);
+  });
+
   it("差し込みが動く", () => {
     expect(fill("{done} / {total} 件", { done: 3, total: 10 })).toBe("3 / 10 件");
     // 値が無いときは壊さず、そのまま残す（画面に undefined を出さない）

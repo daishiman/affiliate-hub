@@ -12,6 +12,12 @@ import styles from "./ui.module.css";
  *   error   … 失敗した。何が起きたか + 復帰の導線
  *   blocked … 見えるが操作できない。なぜできないか + 解決先
  *
+ * **blocked だけ、この file に部品が無い。**`Callout`（`./callout.tsx`）が受け持つ。
+ * `Callout` の `reason` は省略できない型なので、理由を書き忘れたまま出せない。
+ * ここに一般の差し替え文つきの部品を置くと、その保証が消える
+ * （理由が無いときに、それらしい文が代わりに出る）。理由は `copy.ts` の
+ * `state.forbiddenTitle` の上に書いてあり、`tests/ui/copy-dictionary.test.ts` が固定している。
+ *
  * 「空やゼロが並ぶ表示に理由を 1 行出す」ための部品でもある。
  * 理由の条件式が成立せず無言になる不具合が起きやすいので、
  * `title` と `body` を必須にして、書き忘れをコンパイルで止める。
