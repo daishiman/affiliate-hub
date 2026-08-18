@@ -5,8 +5,8 @@
 テスト側の `@req` 印を重ねたもの。
 
 - 最終更新: 2026-08-18
-- テストファイル: 158 件
-- 由来の要件が分かる: 130 件
+- テストファイル: 159 件
+- 由来の要件が分かる: 131 件
 - **由来不明: 28 件**（上限 28 件）
 
 由来不明とは「どの要件のために書いたのか、機械から辿れない」という意味で、
@@ -69,6 +69,7 @@
 | `tests/application/schedule-publication.test.ts` | REQ-P08 | 印と表 |
 | `tests/application/writing-method.test.ts` | REQ-W05, REQ-W06 | 表 |
 | `tests/architecture/ai-eval-budget.test.ts` | REQ-CI13 | 表 |
+| `tests/architecture/audit-action-emitters.test.ts` | REQ-SEC09 | 印 |
 | `tests/architecture/commercial-isolation.test.ts` | REQ-FD02 | 表 |
 | `tests/architecture/dependency-direction.test.ts` | REQ-FD01, REQ-SEC02 | 表 |
 | `tests/architecture/llm-credential-leak.test.ts` | REQ-SEC01, REQ-SEC05 | 印 |

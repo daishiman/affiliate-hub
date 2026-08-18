@@ -72,8 +72,12 @@ export function contentTools(deps: AppDeps): readonly AnyToolDefinition[] {
     defineTool({
       name: "advance_content_state",
       description:
-        "記事の段階を進めます。承認・公開予約・公開へは人の操作が必要です（AI からは実行できません）。",
-      schema: z.object({ variantId, from: state, to: state }),
+        "記事の段階を進めます。承認・公開予約・公開へは人の操作が必要です（AI からは実行できません）。読者に出ている記事を取り下げるときは理由が必要です（記録に残ります）。",
+      // 理由は取り下げのときだけ要るが、**スキーマでは任意にしてある。**
+      // 「公開中からの ARCHIVED のときだけ必須」は入力の形では表せず、
+      // 無理に表すと道具一覧の JSON Schema が読めなくなる。要否の判断は
+      // ユースケース側の 1 か所（`isUnpublishing`）に置く。
+      schema: z.object({ variantId, from: state, to: state, reason: z.string().optional() }),
       readOnly: false,
       requiresHumanApproval: true,
       useCase: createAdvanceContentStateUseCase(content),

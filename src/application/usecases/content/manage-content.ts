@@ -15,6 +15,7 @@ import {
   HUMAN_APPROVAL_REQUIRED,
   allowedNextStates,
   approveVariant,
+  isUnpublishing,
   runQualityChecks,
   transition,
 } from "@/domain/authoring";
@@ -607,6 +608,16 @@ export type AdvanceContentInput = {
   readonly variantId: string;
   readonly from: ContentState;
   readonly to: ContentState;
+  /**
+   * 取り下げの理由。
+   *
+   * **取り下げのときだけ要る。**読者に出ているものを引っ込めた判断は、
+   * 後から必ず問われるうえ、`before` と `after` の差からは読めない。
+   * それ以外の段階の移動では受け取っても使わない
+   * （空欄で送ってここに断らせる形にしてあるのは、承認と揃えるため。
+   * 画面側でも断ると、AI から呼んだときと言うことが変わる）。
+   */
+  readonly reason?: string;
 };
 
 export type AdvanceContentOutput = {
@@ -655,6 +666,37 @@ export function createAdvanceContentStateUseCase(
       if (!moved.ok) return moved;
 
       /*
+       * **読者へ出したものを引っ込めるときは、別の語で残す。**
+       * `ARCHIVED` はどの段階からも行けるので、行き先だけを見ると
+       * 「没にした」と「取り下げた」が同じ 1 語に潰れる。
+       * 前者はまだ誰の目にも触れていないが、後者は読者が見ていたものを
+       * 引っ込める操作で、仕様書 §7 の必須記録対象（公開・削除）に当たる。
+       */
+      const unpublishing = isUnpublishing(input.from, moved.value);
+
+      /*
+       * 理由の欠けは、**保存より前に**、人の言葉にして断る。
+       *
+       * 最初は保存のあとに置いていた。検査が捕まえたのはそのときで、
+       * **段階だけ ARCHIVED に進み、記録は残らない**状態になっていた。
+       * 読者からは消えているのに、なぜ消えたかがどこにも無い——
+       * これは記録が無いより悪い（消えたこと自体が事故に見える）。
+       *
+       * 最後の砦は `createAuditLogEntry` の `REASON_REQUIRED` にあるが、
+       * あちらが返すのは「`content.unpublished` には理由の記録が必要です」で、
+       * **記録の語がそのまま画面へ出る。**操作した人はその語を知らない。
+       * 砦を外すのではなく、手前に読める断りを置く。
+       */
+      if (unpublishing && (input.reason ?? "").trim() === "") {
+        return err(
+          validationError(
+            "取り下げの理由を書いてください。読者が見ていた記事を引っ込めるので、なぜ引っ込めたかが記録に残る必要があります。",
+            "reason",
+          ),
+        );
+      }
+
+      /*
        * **進んだ位置を保存してから成功を返す。** 保存を省くと、押した直後だけ
        * 進んだように見えて、開き直すと元の列に戻る。これは画面から見ると
        * 「操作が効いていない」のか「保存が壊れている」のかを区別できない。
@@ -665,14 +707,14 @@ export function createAdvanceContentStateUseCase(
       /*
        * 段階の移動を記録する。承認ほど重くはないが、
        * **「いつ誰が取り下げたか」を後から追えるのはこの記録だけ**。
-       * 取り下げ（ARCHIVED）は本来 `content.unpublished` として理由付きで
-       * 残すべきだが、この画面はまだ理由を受け取っていない（残課題）。
+       * 記録できなければ `record` が `ok: false` を返し、成功にはならない。
        */
       const logged = await record(deps, actor, {
-        action: "content.state_changed",
+        action: unpublishing ? "content.unpublished" : "content.state_changed",
         targetId: input.variantId,
         before: { state: input.from },
         after: { state: moved.value },
+        reason: unpublishing ? (input.reason ?? null) : null,
         doneAlready: `記事は「${CONTENT_STATE_LABEL[moved.value]}」へ進みました`,
       });
       if (!logged.ok) return logged;

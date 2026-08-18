@@ -1032,6 +1032,90 @@ describe("操作の記録", () => {
     expect(log.entries()).toEqual([]);
   });
 
+  /*
+   * 取り下げ（読者へ出したものを引っ込める）。
+   *
+   * ここまで、`ARCHIVED` へ移す操作はすべて `content.state_changed` の
+   * 1 語で記録されていた。**`ARCHIVED` はどの段階からも行ける**ので、
+   * 「まだ誰の目にも触れていない記事を没にした」と
+   * 「読者が見ていた記事を引っ込めた」が同じ 1 語に潰れていた。
+   * 後者は仕様書 §7 の必須記録対象（公開・削除）である。
+   */
+  it("読者へ出した記事を取り下げると、理由つきで content.unpublished が残る", async () => {
+    const log = recordingAuditLog();
+    const store = variantsRemembering({ [FAILING_DRAFT]: "PUBLISHED" });
+    const got = await createAdvanceContentStateUseCase(
+      deps({ variants: store.port, auditLog: log.port }),
+    ).execute(owner, {
+      variantId: FAILING_DRAFT,
+      from: "PUBLISHED",
+      to: "ARCHIVED",
+      reason: "紹介した商品の取り扱いが終わったため",
+    });
+    if (!got.ok) throw got.error;
+
+    expect(log.actions()).toEqual(["content.unpublished"]);
+    expect(log.entries()[0]?.reason).toBe("紹介した商品の取り扱いが終わったため");
+    expect(log.entries()[0]?.before).toEqual({ state: "PUBLISHED" });
+  });
+
+  it("まだ読者に出ていない記事を没にするのは、取り下げとして記録しない", async () => {
+    // ここに理由を求めると、片付ける手が止まって**片付けないほうが楽になる**。
+    // 誰の目にも触れていないものを消すのは、引っ込めるのとは別のことである。
+    const log = recordingAuditLog();
+    const store = variantsRemembering({ [FAILING_DRAFT]: "GENERATED" });
+    const got = await createAdvanceContentStateUseCase(
+      deps({ variants: store.port, auditLog: log.port }),
+    ).execute(owner, { variantId: FAILING_DRAFT, from: "GENERATED", to: "ARCHIVED" });
+    if (!got.ok) throw got.error;
+
+    expect(log.actions()).toEqual(["content.state_changed"]);
+    expect(log.entries()[0]?.reason).toBeNull();
+  });
+
+  it("理由の無い取り下げは断る。段階も記録も動かない", async () => {
+    const log = recordingAuditLog();
+    const store = variantsRemembering({ [FAILING_DRAFT]: "PUBLISHED" });
+    const got = await createAdvanceContentStateUseCase(
+      deps({ variants: store.port, auditLog: log.port }),
+    ).execute(owner, {
+      variantId: FAILING_DRAFT,
+      from: "PUBLISHED",
+      to: "ARCHIVED",
+      reason: "   ",
+    });
+
+    expect(got.ok).toBe(false);
+    if (got.ok) return;
+    expect(got.error.code).toBe("VALIDATION_FAILED");
+    expect(got.error.field).toBe("reason");
+    // 断り文に記録の語（content.unpublished）が出てこないこと。
+    // 操作した人はその語を知らないので、出ても直しようがない。
+    expect(got.error.message).not.toContain("content.");
+    expect(log.entries()).toEqual([]);
+    // **段階が動いていないこと**まで見る。記録だけ止めて段階が進むと、
+    // 読者からは消えているのに、なぜ消えたかがどこにも無い状態になる。
+    expect(store.states.get(FAILING_DRAFT)).toBe("PUBLISHED");
+  });
+
+  /**
+   * 公開中の段階は 3 つある（PUBLISHED / MONITORING / REFRESH_DUE）。
+   * 1 つだけ試すと、**残り 2 つから黙って消せる**まま気づけない。
+   */
+  it.each(["PUBLISHED", "MONITORING", "REFRESH_DUE"] as const)(
+    "%s からの取り下げも、理由が無ければ通らない",
+    async (from) => {
+      const log = recordingAuditLog();
+      const store = variantsRemembering({ [FAILING_DRAFT]: from });
+      const got = await createAdvanceContentStateUseCase(
+        deps({ variants: store.port, auditLog: log.port }),
+      ).execute(owner, { variantId: FAILING_DRAFT, from, to: "ARCHIVED" });
+
+      expect(got.ok, `${from} からの取り下げが理由なしで通っています`).toBe(false);
+      expect(log.entries()).toEqual([]);
+    },
+  );
+
   it("記録できなかったときに、承認できたと返さない", async () => {
     // 記録は「人が承認した」ことの証拠そのものなので、
     // 残せなければ成功にしない。連絡（出来事）の失敗とは扱いが逆。

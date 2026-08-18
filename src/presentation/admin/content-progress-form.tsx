@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState, useState } from "react";
+import { type ContentState, isUnpublishing } from "@/domain/authoring";
 import { Button, Callout, Select, TextArea, ToolForm } from "@/presentation/ui";
 import { advanceContentStateAction, approveContentAction } from "./content-progress-action";
 import { INITIAL_CONTENT_PROGRESS_STATE } from "./content-progress-state";
@@ -36,8 +37,19 @@ export function AdvanceContentStateForm({
     INITIAL_CONTENT_PROGRESS_STATE,
   );
   const [to, setTo] = useState("");
+  const [reason, setReason] = useState("");
 
   const choices = nextStates.filter((n) => !n.humanOnly);
+  /*
+   * いま選んでいるのが「取り下げ」か。
+   *
+   * 判断はドメインの `isUnpublishing` に聞く。**画面側で条件を書き直さない。**
+   * ここに `to === "ARCHIVED" && from === "PUBLISHED"` と書くと、
+   * 公開中の段階（MONITORING / REFRESH_DUE）が増えた日に、
+   * **画面は理由欄を出さないのにユースケースは理由を要求する**状態になる。
+   * 押しても断られ続けて、理由の書きようが無い画面ができる。
+   */
+  const unpublishing = isUnpublishing(from as ContentState, to as ContentState);
 
   return (
     <ToolForm
@@ -65,8 +77,29 @@ export function AdvanceContentStateForm({
             placeholder="選んでください"
             toolParamDescription="進める先の段階（COMPLIANCE_REVIEW / ARCHIVED など）"
           />
+
+          {/*
+            取り下げのときだけ理由を聞く。
+            **常に出さない**のは、没にする操作（まだ誰の目にも触れていない記事を
+            片付ける）にまで理由を書かせると、書く手が止まって
+            「片付けない」ほうが楽になるからである。
+            空欄でも送れるようにしてあるのは承認の欄と同じ理由で、
+            断る文面をユースケース側の 1 か所に置くため。
+          */}
+          {unpublishing ? (
+            <TextArea
+              name="reason"
+              label="取り下げの理由"
+              value={reason}
+              onValueChange={setReason}
+              rows={3}
+              hint="読者が見ていた記事を引っ込めます。なぜ引っ込めるのかを書いてください。この文は操作の記録に残ります。"
+              toolParamDescription="なぜ読者へ出した記事を取り下げるか。操作の記録に残ります。"
+            />
+          ) : null}
+
           <Button type="submit" tone="primary" disabled={pending || to === ""}>
-            {pending ? "進めています…" : "この段階へ進める"}
+            {pending ? "進めています…" : unpublishing ? "この記事を取り下げる" : "この段階へ進める"}
           </Button>
         </>
       )}

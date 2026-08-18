@@ -25,11 +25,18 @@ export async function advanceContentStateAction(
   const variantId = String(formData.get("variantId") ?? "");
   const from = String(formData.get("from") ?? "") as ContentState;
   const to = String(formData.get("to") ?? "") as ContentState;
+  /*
+   * 取り下げの理由。**空欄の判定はここでしない。**
+   * 空のまま送ってユースケースに断らせる（承認の欄と同じ形）。
+   * 画面側でも断ると、REST や AI から呼んだときの文面と食い違う。
+   */
+  const reason = String(formData.get("reason") ?? "");
 
   const result = await (await contentUseCases()).advanceState.execute(await currentActor(), {
     variantId,
     from,
     to,
+    reason,
   });
 
   if (!result.ok) {
