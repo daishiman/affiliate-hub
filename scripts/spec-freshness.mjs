@@ -24,7 +24,10 @@
  *
  * --- 終了コード（2026-08-19 に足した）---
  *
- * `FRESH` と `--write` だけが 0 で、それ以外は 1 を返す。
+ * **`FRESH` かつ `verdict` が `PASS`** のときと `--write` だけが 0 で、それ以外は 1 を返す。
+ *
+ * 2026-08-19 に `verdict` を足した。それまでは鮮度しか見ておらず、
+ * **判定が `FAIL` のレポートでも、焼き付けさえすれば緑**だった。
  *
  * それまでは `judgeFreshness` の答えを**受け取ったあと捨てて**いた。
  * 判定する側は試験されていて緑、呼び出しも `grep` で見つかる。
@@ -118,6 +121,41 @@ export function judgeFreshness(report, current) {
   return { state: "FRESH", message: "いまの仕様書に対する判定です" };
 }
 
+/**
+ * レポートの**判定そのもの**を見る。
+ *
+ * 鮮度だけを見る門には穴がある。**判定が `FAIL` のレポートでも、焼き付けさえすれば
+ * `FRESH` になって通る。**「いつの仕様書を見たか」は答えられるが、
+ * 「満たしているか」は誰も見ていない状態で緑になる。
+ *
+ * これは「判定を出したあと捨てている」形の 3 例目である。1 度目は `judgeFreshness` の
+ * 答えを受け取って捨てていた。2 度目は起動の応答を動いている証拠として読んだ。
+ * 3 度目は、**その 1 度目を直した門が、すぐ隣の `verdict` を見ていなかった**。
+ * 直した回にこそ隣を見る。
+ *
+ * 欄が無い場合も通さない。**消すのを逃げ道にしない**（レポート不在を 1 にしたのと同じ）。
+ *
+ * @param {{ verdict?: unknown }} report
+ */
+export function judgeVerdict(report) {
+  const verdict = report?.verdict;
+  if (typeof verdict !== "string" || verdict.trim() === "") {
+    return {
+      ok: false,
+      state: "（記載なし）",
+      message: "レポートに判定の欄がありません。満たしているかどうかを誰も言っていません",
+    };
+  }
+  if (verdict !== "PASS") {
+    return {
+      ok: false,
+      state: verdict,
+      message: "評価は済んでいますが、満たしていません。gaps を片付けてから再評価してください",
+    };
+  }
+  return { ok: true, state: verdict, message: "評価を満たしています" };
+}
+
 // ─── ここから下は実行時のみ ─────────────────────────────
 if (process.argv[1] && process.argv[1].endsWith("spec-freshness.mjs")) {
   if (!existsSync(REPORT)) {
@@ -135,7 +173,9 @@ if (process.argv[1] && process.argv[1].endsWith("spec-freshness.mjs")) {
   if (report.inputs?.sha256) {
     process.stdout.write(`  レポートが見た指紋:   ${report.inputs.sha256.slice(0, 16)}…\n`);
   }
-  process.stdout.write(`  レポートの判定:       ${report.verdict ?? "（記載なし）"}\n`);
+  const verdicted = judgeVerdict(report);
+  process.stdout.write(`  レポートの判定:       ${verdicted.state}\n`);
+  process.stdout.write(`  ${verdicted.message}\n`);
 
   if (process.argv.includes("--write")) {
     report.inputs = {
@@ -155,6 +195,15 @@ if (process.argv[1] && process.argv[1].endsWith("spec-freshness.mjs")) {
     );
     // **判定を捨てない。** ここで 0 を返していたあいだ、この門は
     // 「どの仕様書に対する PASS か言えない」状態を緑で通し続けていた。
+    process.exit(1);
+  }
+  if (!verdicted.ok) {
+    process.stdout.write(
+      "\nレポートの gaps を片付けて再評価してください。**焼き付けても、この赤は消えません。**\n",
+    );
+    // 鮮度と判定は別の問いである。「いつの仕様書を見たか」に答えられることは、
+    // 「満たしている」を少しも意味しない。ここを 0 にすると、`--write` 1 回で
+    // FAIL のレポートが緑になる。
     process.exit(1);
   }
   process.exit(0);

@@ -4,7 +4,7 @@ import { mkdtempSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
-import { fingerprint, judgeFreshness } from "../../scripts/spec-freshness.mjs";
+import { fingerprint, judgeFreshness, judgeVerdict } from "../../scripts/spec-freshness.mjs";
 
 /**
  * 仕様の完全性レポートが「いつの仕様書を見た判定か」を言えることを見る。
@@ -47,6 +47,22 @@ describe("仕様レポートの鮮度", () => {
     const same = "c".repeat(64);
     const judged = judgeFreshness({ inputs: { sha256: same } }, { sha256: same, fileCount: 27 });
     expect(judged.state).toBe("FRESH");
+  });
+
+  it("PASS 以外の判定は通さない（FAIL も、見たことのない語も）", () => {
+    // 「PASS でなければ落とす」であって「FAIL なら落とす」ではない。
+    // 後者だと、綴りが変わった日や新しい語が増えた日に黙って通る。
+    expect(judgeVerdict({ verdict: "FAIL" }).ok).toBe(false);
+    expect(judgeVerdict({ verdict: "PARTIAL" }).ok).toBe(false);
+    expect(judgeVerdict({ verdict: "pass" }).ok).toBe(false);
+    expect(judgeVerdict({ verdict: "PASS" }).ok).toBe(true);
+  });
+
+  it("判定の欄が無い・空・文字列でないものは通さない", () => {
+    expect(judgeVerdict({}).ok).toBe(false);
+    expect(judgeVerdict({ verdict: "  " }).ok).toBe(false);
+    expect(judgeVerdict({ verdict: true }).ok).toBe(false);
+    expect(judgeVerdict({}).message).toContain("誰も言っていません");
   });
 });
 
@@ -95,6 +111,27 @@ describe("門が、判定の答えを使っている", () => {
   it("いまの仕様書に対する判定なら、門は通る", () => {
     const { code } = runWith({ verdict: "PASS", inputs: { sha256: fingerprint().sha256 } });
     expect(code).toBe(0);
+  });
+
+  /**
+   * **鮮度を直した門が、すぐ隣の `verdict` を見ていなかった。**
+   *
+   * 上の 4 件は「いつの仕様書を見た判定か」だけを見ている。それが全部緑のまま、
+   * **判定が `FAIL` のレポートを焼き付ければ `FRESH` になって通る**状態だった。
+   * 「いつ見たか」に答えられることは、「満たしている」を少しも意味しない。
+   */
+  it("判定が FAIL のレポートは、焼き付いていても門が落ちる", () => {
+    const { code, out } = runWith({ verdict: "FAIL", inputs: { sha256: fingerprint().sha256 } });
+    // 鮮度のほうは通っている。それでも落ちる、が見たいこと。
+    expect(out).toContain("FRESH");
+    expect(out).toContain("満たしていません");
+    expect(code).toBe(1);
+  });
+
+  it("判定の欄が無いレポートも門が落ちる（消すのを逃げ道にしない）", () => {
+    const { code, out } = runWith({ inputs: { sha256: fingerprint().sha256 } });
+    expect(out).toContain("記載なし");
+    expect(code).toBe(1);
   });
 
   it("レポートが無いときも門は落ちる（消すのを逃げ道にしない）", () => {
