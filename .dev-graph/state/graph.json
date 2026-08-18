@@ -1,5 +1,5 @@
 {
-  "graph_revision": 219,
+  "graph_revision": 220,
   "nodes": [
     {
       "acceptance": [],
@@ -9765,6 +9765,102 @@
       "title": "MCP の Bearer 経由の管理用読み取りが、どの身元で通るか決まっていない",
       "tracker_binding": "beads",
       "updated_at": "2026-08-18T05:00:00Z"
+    },
+    {
+      "acceptance": [],
+      "architecture_refs": [],
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "beads_linkage": null,
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "candidate_path": "tasks/task-membership-write-repository.md",
+          "confidence": 0.9
+        }
+      ],
+      "classification_confidence": 0.9,
+      "classification_reason": "ログイン導入(ah-361)で読み取り側だけを本物にした結果、書き込み側の見本が残った",
+      "completion_evidence": {
+        "completed_at": null,
+        "evidence_refs": [],
+        "policy": "manual",
+        "reconciled_at": null,
+        "source": "manual",
+        "status": "in_progress"
+      },
+      "confirmation_evidence": {
+        "evaluated_digest": null,
+        "evaluator": null,
+        "evidence_ref": null
+      },
+      "confirmation_status": "draft",
+      "created_at": "2026-08-18T05:30:00Z",
+      "depends_on": [],
+      "domain": "security",
+      "evaluation_status": "pending",
+      "execution_contexts": [],
+      "feature_package_id": null,
+      "file_path": "tasks/task-membership-write-repository.md",
+      "github_project_linkages": [],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "goal": null,
+      "graph_node_id": "task-membership-write-repository",
+      "implementation_readiness": {
+        "checked_at": null,
+        "missing_sections": [],
+        "status": "incomplete"
+      },
+      "issue_linkage": null,
+      "iteration": null,
+      "mvp_alignment": {
+        "background": "ログインの導入で、権限を引く側だけを本物の登録へ差し替えた。書く側は見本のまま残っている",
+        "mvp_fit": "enabling",
+        "purpose": "招待の追加・役割の変更・担当の取り消しを、画面から保存できるようにする",
+        "rationale": "読み取りを先に本物へ差し替えたのは、そこが見本のままだとログインが成立しても全員が見本の役割で動くため。書き込みはドメインの型に招待アドレスを足す変更を伴い、幅が別物になる"
+      },
+      "owners": [
+        "daishiman"
+      ],
+      "parent_feature": null,
+      "phase_ref": null,
+      "priority": "high",
+      "project_id": "affiliate-hub",
+      "pull_request_linkages": [],
+      "purpose": null,
+      "related_nodes": [],
+      "resource_scope": [
+        "src",
+        "tests"
+      ],
+      "scope_in": [],
+      "scope_out": [],
+      "source_lineage": {
+        "imported_at": "2026-08-18T05:30:00Z",
+        "origin_kind": "manual",
+        "source_digest": null,
+        "source_path": "src/infrastructure/identity/membership-reader.ts",
+        "source_plugin": null,
+        "source_version": null
+      },
+      "start_date": null,
+      "status": "draft",
+      "tags": [
+        "security",
+        "identity",
+        "persistence"
+      ],
+      "target_date": null,
+      "template_id": "task",
+      "template_version": "1.0.0",
+      "title": "担当者の登録を書く側が見本のままで、招待を画面から出せない",
+      "tracker_binding": "beads",
+      "updated_at": "2026-08-18T05:30:00Z"
     }
   ],
   "repository_id": "github:daishiman/affiliate-hub",
