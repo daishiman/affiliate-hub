@@ -479,6 +479,9 @@ export const AUDIT_ACTION_LABEL: Readonly<Record<AuditAction, string>> = {
   "integration_key.issued": "取得用の鍵を発行した",
   "integration_key.revoked": "取得用の鍵を止めた",
   "site.created": "サイトを作った",
+  // 作る前の下書き。「始めた → 段階を埋めた」で、作るまでの道のりが追える。
+  "site_draft.started": "ブログを作り始めた",
+  "site_draft.step_saved": "ブログ作成の入力を保存した",
   "conversion.adjusted": "成果の数字を手で直した",
   // 改善要望の 3 語。「届いた → 扱いを決めた → 外へ出した」の順で追える。
   "feedback.submitted": "改善要望が届いた",

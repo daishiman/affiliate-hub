@@ -98,13 +98,11 @@
 上の表は「1 回でも呼ばれたか」しか見ないので、**一部の経路からしか
 呼ばれていない**状態を拾えない。ここはその形を見る。
 
-- 届いていない 2 件（上限 2）
+- 届いていない 0 件（上限 0）
 - 理由つきの除外 4 件（上限 4）
 
 - 読み書きを判定できない手続き 0 件（上限 0）
 
 | 入口 | 書き込んでいるもの | 場所 |
 | --- | --- | --- |
-| `createSaveSiteDraftStepUseCase` | `SiteDraftRepositoryPort.save` | `src/application/usecases/site/build-site.ts` |
-| `createStartSiteDraftUseCase` | `SiteDraftRepositoryPort.save` | `src/application/usecases/site/build-site.ts` |
 

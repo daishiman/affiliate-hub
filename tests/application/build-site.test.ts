@@ -85,6 +85,34 @@ async function completeDraft(slug: string): Promise<string> {
   return draftId;
 }
 
+describe("下書きの操作の記録", () => {
+  it("記録が残せなくても、下書きは進む", async () => {
+    /*
+     * 下書きは読者から見えず、何度でも上書きでき、捨ててもよい。
+     * 公開や鍵の発行と違い、**記録の欠けを理由に止めると、
+     * 直せる範囲の作業まで止まる**。実際に止めた版では、記録の置き場が無い段で
+     * ウィザードが 1 段目から進まなくなった。
+     * 記録が要る境目は「作った瞬間」で、そこは別の試験が押さえている。
+     */
+    const actor = await builderActor();
+    const uc = await siteBuilderUseCases();
+
+    const started = await uc.startDraft.execute(actor, {});
+    expect(started.ok).toBe(true);
+    if (!started.ok) return;
+
+    const saved = await uc.saveStep.execute(actor, {
+      draftId: started.value.draftId,
+      step: "purpose",
+      answers: { purpose: "記録が書けない段でも入力が進むことの確認" },
+    });
+    expect(saved.ok).toBe(true);
+  });
+
+  // 書ける置き場を渡したときに何が積まれるかは、
+  // つなぎ目を差し替えられるこのファイル下部（「下書きの記録の中身」）で見る。
+});
+
 describe("ブログ作成ウィザード", () => {
   it("13 段階すべてに、何を決めるかの質問が付いている", async () => {
     const actor = await builderActor();
@@ -734,5 +762,58 @@ describe("権限", () => {
       if (r.ok) continue;
       expect(r.error.code).toBe("FORBIDDEN");
     }
+  });
+});
+
+describe("下書きの記録の中身", () => {
+  it("始めたことと、埋めた段が 1 行ずつ残る", async () => {
+    const deps = buildDeps(memoryDrafts().port);
+
+    const started = await createStartSiteDraftUseCase(deps).execute(owner, {});
+    expect(started.ok).toBe(true);
+    if (!started.ok) return;
+
+    await createSaveSiteDraftStepUseCase(deps).execute(owner, {
+      draftId: started.value.draftId,
+      step: "purpose",
+      answers: { purpose: "レンズ選びで迷わせない" },
+    });
+
+    expect(deps.audit.actions()).toEqual(["site_draft.started", "site_draft.step_saved"]);
+  });
+
+  it("答えの中身は記録に写らない", async () => {
+    /*
+     * 下書きに書かれるのはブログの狙いや説明文で、後から画面で読めば済む。
+     * 記録へ写しても増える情報が無く、段階を進めるたびに
+     * 同じ文章が記録側へ積み上がるだけになる。
+     */
+    const deps = buildDeps(memoryDrafts([filledDraft()]).port);
+    const answer = "この文章は記録へ写らないこと";
+
+    await createSaveSiteDraftStepUseCase(deps).execute(owner, {
+      draftId: String(DRAFT_ID),
+      step: "purpose",
+      answers: { purpose: answer },
+    });
+
+    expect(JSON.stringify(deps.audit.entries())).not.toContain(answer);
+  });
+
+  it("どこまで埋まったかは残る（途中で止まった下書きを記録側から追える）", async () => {
+    const deps = buildDeps(memoryDrafts([filledDraft()]).port);
+
+    await createSaveSiteDraftStepUseCase(deps).execute(owner, {
+      draftId: String(DRAFT_ID),
+      step: "purpose",
+      answers: { purpose: "レンズ選びで迷わせない" },
+    });
+
+    const after = deps.audit.entries().at(-1)?.after as
+      | { step: string; doneCount: number; totalSteps: number }
+      | undefined;
+    expect(after?.step).toBe("purpose");
+    expect(after?.totalSteps).toBe(13);
+    expect(after?.doneCount).toBeGreaterThan(0);
   });
 });
