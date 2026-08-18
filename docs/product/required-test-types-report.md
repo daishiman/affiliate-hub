@@ -6,8 +6,8 @@
 
 - 最終更新: 2026-08-18
 - 要件表の要件: 241 件
-- 性質を宣言済: 227 件
-- **未宣言: 14 件**（上限 14 件）
+- 性質を宣言済: 228 件
+- **未宣言: 13 件**（上限 13 件）
 - 理由つきの除外: 7 件（上限 7 件）
 
 未宣言とは「必須種別をまだ決めていない」という意味で、
@@ -150,8 +150,8 @@
 | REQ-IM10 | has-enumerated-input | `decision-table` `equivalence` | `decision-table` `equivalence` | — | 
 | REQ-IM11 | has-enumerated-input | `decision-table` `equivalence` | `decision-table` `equivalence` | — | 
 | REQ-IM12 | has-enumerated-input | `decision-table` `equivalence` | `decision-table` `equivalence` | — | 
-| REQ-TH01 | has-screen | `a11y` `keyboard` `screen-states` | `a11y` `keyboard` `screen-states` | — | 
-| REQ-TH02 | has-enumerated-input | `decision-table` `equivalence` | `decision-table` `equivalence` | — | 
+| REQ-TH01 | has-screen, has-color-scheme-variants | `a11y` `keyboard` `screen-states` | `a11y` `keyboard` `screen-states` | — | 
+| REQ-TH02 | has-enumerated-input, has-color-scheme-variants | `a11y` `decision-table` `equivalence` | `a11y` `decision-table` `equivalence` | — | 
 | REQ-TH03 | has-enumerated-input | `decision-table` `equivalence` | `decision-table` `equivalence` | — | 
 | REQ-FB08 | has-state, has-recorded-operation | `audit-log` `state-transition` | `audit-log` `state-transition` | — | 
 | REQ-FB09 | has-secret, has-recorded-operation | `audit-log` `secrets` | `audit-log` `secrets` | — | 
@@ -210,6 +210,7 @@
 | REQ-TS05 | has-screen | `a11y` `keyboard` `screen-states` | `a11y` `keyboard` `screen-states` | — | 
 | REQ-TS07 | has-db-table | `db-migration` | `db-migration` | — | 
 | REQ-TS01 | has-code-placement-rule | `code-boundary` | `code-boundary` | — | 
+| REQ-TS06 | has-color-scheme-variants | `a11y` | `a11y` | — | 
 | REQ-TS08 | has-input | `boundary` `equivalence` | `boundary` `equivalence` | — | 
 | REQ-TS09 | has-code-placement-rule | `code-boundary` | `code-boundary` | — | 
 | REQ-WA01 | has-input | `boundary` `equivalence` | `boundary` `equivalence` | — | 
@@ -264,5 +265,5 @@
 
 ## 未宣言の要件
 
-`REQ-CI08` `REQ-CI12` `REQ-E16` `REQ-FD04` `REQ-IM13` `REQ-TH04` `REQ-TH05` `REQ-TS02` `REQ-TS03` `REQ-TS06` `REQ-TS10` `REQ-W06` `REQ-W08` `REQ-W11`
-<!-- 生成物の指紋 sha256:cf13edee34087a83e59d800645e8ca0aad4a85c9ba28f746bf5905dd7e8dfe1a -->
+`REQ-CI08` `REQ-CI12` `REQ-E16` `REQ-FD04` `REQ-IM13` `REQ-TH04` `REQ-TH05` `REQ-TS02` `REQ-TS03` `REQ-TS10` `REQ-W06` `REQ-W08` `REQ-W11`
+<!-- 生成物の指紋 sha256:6c1691ad5e1fb2b12dce47ccb76a35aa420b9c5d8b7a78c7afe34f4545da3138 -->

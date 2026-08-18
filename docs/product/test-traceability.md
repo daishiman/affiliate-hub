@@ -167,7 +167,7 @@
 | `tests/ui/ai-usage-page.test.tsx` | REQ-TM02, REQ-TM03 | 印と表 |
 | `tests/ui/article-frame.test.tsx` | REQ-TM06 | 印と表 |
 | `tests/ui/audit-log-notice.test.tsx` | REQ-SEC09 | 印 |
-| `tests/ui/blueprint-theme.test.ts` | REQ-P07, REQ-TH02 | 表 |
+| `tests/ui/blueprint-theme.test.ts` | REQ-P07, REQ-TH02, REQ-TS06 | 表 |
 | `tests/ui/capture-canvas.test.tsx` | REQ-FB04, REQ-FB05 | 印と表 |
 | `tests/ui/content-progress-form.test.tsx` | REQ-R11 | 印 |
 | `tests/ui/design-tokens.test.ts` | REQ-S09, REQ-SEC08, REQ-TS09 | 表 |
@@ -191,7 +191,7 @@
 | `tests/ui/site-not-found.test.tsx` | REQ-B01 | 表 |
 | `tests/ui/telemetry-attrs.test.tsx` | REQ-TM05, REQ-TM06 | 印と表 |
 | `tests/ui/telemetry-collector.test.tsx` | REQ-TM06, REQ-TM11 | 印と表 |
-| `tests/ui/theme-contrast.test.ts` | REQ-TH02, REQ-TS06 | 表 |
+| `tests/ui/theme-contrast.test.ts` | REQ-TH01, REQ-TH02, REQ-TS06 | 印と表 |
 | `tests/ui/tool-form.test.tsx` | REQ-WC05 | 印と表 |
 | `tests/ui/ui-layers.test.ts` | REQ-S09, REQ-TM05 | 表 |
-<!-- 生成物の指紋 sha256:ae67da12eedd666536a8f97ca4f4d7c36d2f78606721f09d015043c9ae4c4afc -->
+<!-- 生成物の指紋 sha256:f36ac419e6a72f83e193718ff7a961a8757c3aa2f2fa5169f872ac33f135dd2b -->

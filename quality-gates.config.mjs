@@ -798,8 +798,13 @@ export const REQUIRED_TEST_TYPES = {
  * `docs/product/required-test-types.md` §4 に 1 件ずつ書いた。
  * `TS02` / `TS03` は「その層にテストがあること」を言うメタ要件で、性質を持つのは
  * 個々の業務要件の側。`TS10` は `mutation` が構造上満たしようがない。
+ *
+ * 2026-08-19: 14 → 13。`REQ-TS06` を宣言した。
+ * **語彙のほうを足して解いた 2 度目**（`has-color-scheme-variants` → `a11y`）。
+ * 横断の洗い直しで `REQ-TH01` / `REQ-TH02` にも当たり、宣言済の 2 件は性質が 1 つ増えた。
+ * 足した名前が要求する内容は 3 件とも壊して赤を確認している。
  */
-export const TEST_TYPES_MAX_UNDECLARED = 14;
+export const TEST_TYPES_MAX_UNDECLARED = 13;
 
 /**
  * 理由つき除外を許す上限（件数）。

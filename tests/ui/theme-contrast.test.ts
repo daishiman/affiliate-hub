@@ -1,4 +1,11 @@
-/** @tier 2 */
+/**
+ * @tier 2
+ * @req REQ-TS06, REQ-TH01, REQ-TH02
+ * @types a11y
+ *
+ * 印を 1 行に収めてあるのは、`scripts/required-test-types.mjs` の `@req` が
+ * 1 行しか読まないため（折り返すと 2 行目が黙って落ちる）。
+ */
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
@@ -201,6 +208,34 @@ describe("配色 × 明暗のコントラスト（WCAG 2.2 AA）", () => {
     expect(PAIRS.length).toBeGreaterThan(0);
     expect(primitives.size).toBeGreaterThan(20);
     expect(semanticDefaults.size).toBeGreaterThan(20);
+  });
+
+  /*
+   * 2026-08-19 に足した。**穴を塞いだのではなく、この 1 ファイルを自足させた。**
+   *
+   * 配色を 1 つ足して themes.css に何も書かずにこのファイルだけを走らせると、
+   * テストは 23 件から 25 件に増えたうえで**全部緑**になった。増えた 2 件は
+   * `themeBlock()` が空の Map を返し、色が既定値（`semantic.css` の `:root`）に
+   * 落ちるので AA を満たしてしまう。総当たりの件数が自動で増えることと、
+   * 増えたぶんが**実際に見られていること**は別である。
+   *
+   * ただし**全部走らせれば `tests/ui/blueprint-theme.test.ts` が 2 件落ちる**
+   * （「Blueprint が選べるテーマは、すべて themes.css に実体がある」ほか）。
+   * つまり製品としての穴は空いていなかった。空いていたのは
+   * **1 ファイルだけを対象に測ったときの見え方**である。
+   * 測る範囲を狭めると、無い穴が見える（残課題 78 の族）。
+   *
+   * それでもここに置くのは、次にこのファイルだけを壊して測る人が
+   * 同じ勘違いをするのを防ぐため。下の「5 系統」の検査は同じ形だが、
+   * **利用者が名指しした 5 つだけ**が対象なので、それ以外の配色では空振りする。
+   */
+  it("登録されている配色すべてが themes.css に自分の色を持っている", () => {
+    const empty = BRAND_THEMES.filter((theme) => themeBlock(theme).size === 0);
+    expect(
+      empty,
+      "themes.css に [data-brand-theme=\"…\"] のブロックがありません。" +
+        "名札だけ足すと、その配色は既定色で検査され、**中身が空のまま合格します**",
+    ).toEqual([]);
   });
 
   it("利用者が指定した 5 系統がそろっている", () => {
