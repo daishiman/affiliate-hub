@@ -1,5 +1,5 @@
 {
-  "graph_revision": 229,
+  "graph_revision": 231,
   "nodes": [
     {
       "acceptance": [],
@@ -10630,6 +10630,204 @@
       "title": "モデルが画面に実際に並ぶところを、preview で 1 度見る",
       "tracker_binding": "beads",
       "updated_at": "2026-08-18T12:00:00Z"
+    },
+    {
+      "acceptance": [],
+      "architecture_refs": [],
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "beads_linkage": null,
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "candidate_path": "tasks/task-audit-actions-without-emitters.md",
+          "confidence": 0.9
+        }
+      ],
+      "classification_confidence": 0.9,
+      "classification_reason": "残課題 69（記録の義務を性質へ結ぶ）の作業中に AuditAction の 28 語を src/ と突き合わせて洗い出したもの。backlog.md の項目 74",
+      "completion_evidence": {
+        "completed_at": null,
+        "evidence_refs": [],
+        "policy": "manual",
+        "reconciled_at": null,
+        "source": "manual",
+        "status": "open"
+      },
+      "confirmation_evidence": {
+        "evaluated_digest": null,
+        "evaluator": null,
+        "evidence_ref": null
+      },
+      "confirmation_status": "draft",
+      "created_at": "2026-08-18T12:20:00Z",
+      "depends_on": [],
+      "domain": "quality",
+      "evaluation_status": "pending",
+      "execution_contexts": [],
+      "feature_package_id": null,
+      "file_path": "tasks/task-audit-actions-without-emitters.md",
+      "github_project_linkages": [],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "goal": null,
+      "graph_node_id": "task-audit-actions-without-emitters",
+      "implementation_readiness": {
+        "checked_at": null,
+        "missing_sections": [],
+        "status": "incomplete"
+      },
+      "issue_linkage": null,
+      "iteration": null,
+      "mvp_alignment": {
+        "background": "残課題 69 で export.performed が語だけあって出す場所が無いと分かり、調べたら実際に穴だった（記事の本文を人へ丸ごと渡すのに記録が 1 件も残らない）。同じ形が 9 語残っている",
+        "mvp_fit": "direct",
+        "purpose": "語だけがあって出す場所が無い記録を無くす",
+        "rationale": "記録の語が並んでいると、次に数える人はその操作が記録されていると思う。export.performed のときは実際に持ち出しの穴だった"
+      },
+      "owners": [
+        "daishiman"
+      ],
+      "parent_feature": null,
+      "phase_ref": null,
+      "priority": "high",
+      "project_id": "affiliate-hub",
+      "pull_request_linkages": [],
+      "purpose": null,
+      "related_nodes": [
+        "task-test-type-traits-remaining"
+      ],
+      "resource_scope": [
+        "src",
+        "tests",
+        "docs"
+      ],
+      "scope_in": [],
+      "scope_out": [],
+      "source_lineage": {
+        "imported_at": "2026-08-18T12:20:00Z",
+        "origin_kind": "manual",
+        "source_digest": null,
+        "source_path": "docs/product/backlog.md",
+        "source_plugin": null,
+        "source_version": null
+      },
+      "start_date": null,
+      "status": "draft",
+      "tags": [
+        "quality",
+        "audit",
+        "compliance"
+      ],
+      "target_date": null,
+      "template_id": "task",
+      "template_version": "1.0.0",
+      "title": "記録の語 9 つが出す場所を持っていない（AuditAction 28 語のうち実処理は 19 語）",
+      "tracker_binding": "beads",
+      "updated_at": "2026-08-18T12:20:00Z"
+    },
+    {
+      "acceptance": [],
+      "architecture_refs": [],
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "beads_linkage": null,
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "candidate_path": "tasks/task-readonly-flag-three-meanings.md",
+          "confidence": 0.9
+        }
+      ],
+      "classification_confidence": 0.9,
+      "classification_reason": "残課題 69 の作業中、readOnly: false へ直したら正常系テストの対象から外れたことで気づいたもの。backlog.md の項目 76",
+      "completion_evidence": {
+        "completed_at": null,
+        "evidence_refs": [],
+        "policy": "manual",
+        "reconciled_at": null,
+        "source": "manual",
+        "status": "open"
+      },
+      "confirmation_evidence": {
+        "evaluated_digest": null,
+        "evaluator": null,
+        "evidence_ref": null
+      },
+      "confirmation_status": "draft",
+      "created_at": "2026-08-18T12:40:00Z",
+      "depends_on": [],
+      "domain": "quality",
+      "evaluation_status": "pending",
+      "execution_contexts": [],
+      "feature_package_id": null,
+      "file_path": "tasks/task-readonly-flag-three-meanings.md",
+      "github_project_linkages": [],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "goal": null,
+      "graph_node_id": "task-readonly-flag-three-meanings",
+      "implementation_readiness": {
+        "checked_at": null,
+        "missing_sections": [],
+        "status": "incomplete"
+      },
+      "issue_linkage": null,
+      "iteration": null,
+      "mvp_alignment": {
+        "background": "残課題 69 で export_manual_draft の readOnly: true が嘘だったと分かった。旗の値そのものより、1 つの旗が 3 つの決定を兼ねていることが根である",
+        "mvp_fit": "direct",
+        "purpose": "1 つの値が黙って別の決定に効く状態を無くす",
+        "rationale": "①のつもりで書いた true が③に効いて、ページ内の AI に記事の本文を渡していた。逆に false へ直した瞬間に②から外れ、検査対象から静かに消えた"
+      },
+      "owners": [
+        "daishiman"
+      ],
+      "parent_feature": null,
+      "phase_ref": null,
+      "priority": "high",
+      "project_id": "affiliate-hub",
+      "pull_request_linkages": [],
+      "purpose": null,
+      "related_nodes": [
+        "task-audit-actions-without-emitters"
+      ],
+      "resource_scope": [
+        "src",
+        "tests",
+        "docs"
+      ],
+      "scope_in": [],
+      "scope_out": [],
+      "source_lineage": {
+        "imported_at": "2026-08-18T12:40:00Z",
+        "origin_kind": "manual",
+        "source_digest": null,
+        "source_path": "docs/product/backlog.md",
+        "source_plugin": null,
+        "source_version": null
+      },
+      "start_date": null,
+      "status": "draft",
+      "tags": [
+        "quality",
+        "security",
+        "webmcp"
+      ],
+      "target_date": null,
+      "template_id": "task",
+      "template_version": "1.0.0",
+      "title": "readOnly という 1 つの旗が 3 つの決定を兼ねている（申告 / 測定対象 / WebMCP 掲載）",
+      "tracker_binding": "beads",
+      "updated_at": "2026-08-18T12:40:00Z"
     }
   ],
   "repository_id": "github:daishiman/affiliate-hub",
