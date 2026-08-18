@@ -723,8 +723,26 @@ export const REQUIRED_TEST_TYPES = {
  * 残した `REQ-FD04` は、形は当たるが**要件そのものを見ている検査がまだ無い**（残課題 88）。
  * ここで名乗ると「見ていないもの」に名前が付く。`REQ-TS01` / `REQ-TS03` も同じ理由で残す。
  * **検査を書く前に名前だけ足すのは、数を下げるための語彙である。**
+ *
+ * 2026-08-19: 16 → 14。テスト戦略（TS）の残り 6 件を点検し、**2 件**を宣言した。
+ *
+ *   - `REQ-TS09`（契約検査）は、前の回に足した `has-code-placement-rule` が
+ *     そのまま当たる。「`contract` 単独の性質が無いから宣言できない」と
+ *     書いてあったが、**この要件が見ているのは構造の境界**であって、
+ *     語彙を足した時点で解けていた。名乗る先は
+ *     `dependency-direction.test.ts` と `single-definition.test.ts`。
+ *   - `REQ-TS01`（テストの土台を 1 箇所に集める）は、**検査を書いてから**宣言した。
+ *     判定欄が指していた検査は存在しなかった（`REQ-W03` と同じ型）。
+ *     `tests/architecture/test-foundation.test.ts` を新しく書いている。
+ *     書いた結果、**基準時刻 `NOW` を自前で書き写したテストが 3 件**見つかった
+ *     （`NOW` を動かしてもそこだけ古いまま緑で残る形）。土台へ寄せてから宣言した。
+ *
+ * 残した 4 件（`TS02` / `TS03` / `TS06` / `TS10`）の理由は
+ * `docs/product/required-test-types.md` §4 に 1 件ずつ書いた。
+ * `TS02` / `TS03` は「その層にテストがあること」を言うメタ要件で、性質を持つのは
+ * 個々の業務要件の側。`TS10` は `mutation` が構造上満たしようがない。
  */
-export const TEST_TYPES_MAX_UNDECLARED = 16;
+export const TEST_TYPES_MAX_UNDECLARED = 14;
 
 /**
  * 理由つき除外を許す上限（件数）。

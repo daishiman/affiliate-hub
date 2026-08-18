@@ -1,6 +1,6 @@
 /**
  * @tier 1
- * @req REQ-FD05
+ * @req REQ-FD05, REQ-TS09
  * @types code-boundary
  */
 import { readFileSync, readdirSync, statSync } from "node:fs";

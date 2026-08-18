@@ -44,8 +44,9 @@ import {
   asUserId,
   asWorkspaceId,
 } from "@/domain/shared";
+import { NOW } from "../support/clock";
 
-const AT = new Date("2026-08-17T09:00:00Z");
+const AT = NOW;
 const WORKSPACE = asWorkspaceId("ws-1");
 const USER = asUserId("user-1");
 

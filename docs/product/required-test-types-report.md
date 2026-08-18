@@ -6,8 +6,8 @@
 
 - 最終更新: 2026-08-18
 - 要件表の要件: 241 件
-- 性質を宣言済: 225 件
-- **未宣言: 16 件**（上限 16 件）
+- 性質を宣言済: 227 件
+- **未宣言: 14 件**（上限 14 件）
 - 理由つきの除外: 7 件（上限 7 件）
 
 未宣言とは「必須種別をまだ決めていない」という意味で、
@@ -209,7 +209,9 @@
 | REQ-TS04 | has-permission, has-tenant, has-enumerated-input | `decision-table` `equivalence` `permission-matrix` `tenant-isolation` | `decision-table` `equivalence` `permission-matrix` `tenant-isolation` | — | 
 | REQ-TS05 | has-screen | `a11y` `keyboard` `screen-states` | `a11y` `keyboard` `screen-states` | — | 
 | REQ-TS07 | has-db-table | `db-migration` | `db-migration` | — | 
+| REQ-TS01 | has-code-placement-rule | `code-boundary` | `code-boundary` | — | 
 | REQ-TS08 | has-input | `boundary` `equivalence` | `boundary` `equivalence` | — | 
+| REQ-TS09 | has-code-placement-rule | `code-boundary` | `code-boundary` | — | 
 | REQ-WA01 | has-input | `boundary` `equivalence` | `boundary` `equivalence` | — | 
 | REQ-WA02 | has-input, has-permission | `boundary` `equivalence` `permission-matrix` | `boundary` `equivalence` `permission-matrix` | — | 
 | REQ-WB01 | has-input, has-permission | `boundary` `equivalence` `permission-matrix` | `boundary` `equivalence` `permission-matrix` | — | 
@@ -262,5 +264,5 @@
 
 ## 未宣言の要件
 
-`REQ-CI08` `REQ-CI12` `REQ-E16` `REQ-FD04` `REQ-IM13` `REQ-TH04` `REQ-TH05` `REQ-TS01` `REQ-TS02` `REQ-TS03` `REQ-TS06` `REQ-TS09` `REQ-TS10` `REQ-W06` `REQ-W08` `REQ-W11`
-<!-- 生成物の指紋 sha256:64afec8a81d5bcf29f8389312c978e2891e5a0cfd76157604b59c7460f762176 -->
+`REQ-CI08` `REQ-CI12` `REQ-E16` `REQ-FD04` `REQ-IM13` `REQ-TH04` `REQ-TH05` `REQ-TS02` `REQ-TS03` `REQ-TS06` `REQ-TS10` `REQ-W06` `REQ-W08` `REQ-W11`
+<!-- 生成物の指紋 sha256:cf13edee34087a83e59d800645e8ca0aad4a85c9ba28f746bf5905dd7e8dfe1a -->

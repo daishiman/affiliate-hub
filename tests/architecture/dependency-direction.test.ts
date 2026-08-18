@@ -1,6 +1,6 @@
 /**
  * @tier 1
- * @req REQ-FD01, REQ-FD02, REQ-TM12, REQ-SEC02, REQ-SEC04
+ * @req REQ-FD01, REQ-FD02, REQ-TM12, REQ-SEC02, REQ-SEC04, REQ-TS09
  * @types code-boundary
  *
  * 印を 1 行に収めてあるのは、`scripts/required-test-types.mjs` の `@req` が

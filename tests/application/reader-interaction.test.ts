@@ -26,6 +26,7 @@ import {
   createSampleShortlistRepository,
 } from "@/infrastructure/persistence/sample/reader-interaction-sample";
 import { anOutsider } from "../support/actors";
+import { NOW } from "../support/clock";
 
 /**
  * 読者が自分で操作するもの（気になる商品・診断の道具・問い合わせ）。
@@ -43,7 +44,7 @@ import { anOutsider } from "../support/actors";
  * 規範: docs/spec/10-テスト戦略仕様.md §3-2（口の差し替えで確かめる）
  */
 
-const AT = "2026-08-17T09:00:00.000Z";
+const AT = NOW.toISOString();
 
 function anItem(over: Partial<ShortlistItem> = {}): ShortlistItem {
   return {

@@ -49,6 +49,7 @@ import {
   jpy,
   money,
 } from "@/domain/shared";
+import { NOW } from "../support/clock";
 
 /**
  * 上限・期限・状態遷移の境目。
@@ -61,7 +62,6 @@ import {
  */
 
 const WS = asWorkspaceId("ws_boundary");
-const NOW = new Date("2026-08-17T09:00:00.000Z");
 
 // ---------------------------------------------------------------------------
 // 契約プランの上限
