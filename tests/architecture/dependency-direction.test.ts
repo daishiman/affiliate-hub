@@ -40,13 +40,66 @@ function importsOf(file: string): string[] {
   return found;
 }
 
+/**
+ * 集合ごとの下限。**この表に無い集合は `filesUnder()` が受け付けない。**
+ *
+ * 下限は、いまの実数ではなく「明らかに下回ったら壊れている数」にしてある。
+ * 実数に合わせると、ファイルを 1 つ消すたびにここが赤くなって役に立たない。
+ * 右の括弧は 2026-08-19 時点の実数。
+ */
+const LEAST: Record<string, number> = {
+  domain: 40, // (93)
+  application: 25, // (61)
+  infrastructure: 30, // (74)
+  presentation: 40, // (106)
+  "domain/ranking": 2, // (3)
+  "application/usecases/ranking": 1, // (1)
+  "domain/evidence": 2, // (3)
+  "domain/product": 3, // (5)
+  "app/s": 10, // (21)
+  "presentation/site": 5, // (9)
+  "app/admin": 15, // (37)
+};
+
+/**
+ * 対象の一覧を取る。**空なら落ちる。**
+ *
+ * 以前ここはディレクトリの不在を握りつぶして `[]` を返していた。
+ * 空の一覧に対する「違反が 0 件」は常に成り立つので、**層を 1 つ改名しただけで
+ * その層の検査が黙って緑になる**。2026-08-19 に実測した: `domain` / `application` /
+ * `infrastructure` / `presentation` をそれぞれ存在しない名前へ向けたところ、
+ * **4 通りとも 13 件すべて緑**だった。
+ *
+ * 「読者の画面が 1 枚以上ある」という空振り防止は当時もあったが、あれは `app/s` 側の
+ * **別の集合**を守っていたので、ここが空になっても生き残った。
+ * **空振り防止は 1 か所にあれば足りるものではない。集合ごとに要る**（残課題 78）。
+ */
 function filesUnder(...segments: string[]): string[] {
-  const dir = join(SRC, ...segments);
-  try {
-    return listTsFiles(dir);
-  } catch {
-    return [];
+  const key = segments.join("/");
+  const least = LEAST[key];
+  if (least === undefined) {
+    throw new Error(
+      `src/${key} の下限が LEAST に書いてありません。` +
+        "集合を増やすときは下限も足してください（足さないと、その集合が空でも緑になります）",
+    );
   }
+  let files: string[];
+  try {
+    files = listTsFiles(join(SRC, ...segments));
+  } catch (cause) {
+    throw new Error(
+      `src/${key} が読めません。層を改名したなら、LEAST と各検査の呼び出しを両方直してください` +
+        "（片方だけ直すと、この検査は黙って緑になります）",
+      { cause },
+    );
+  }
+  if (files.length < least) {
+    throw new Error(
+      `src/${key} が ${files.length} 件しか見えていません（下限 ${least}）。` +
+        "検査対象が消えています。減らしたのが意図なら LEAST を下げてください",
+    );
+  }
+  return files;
 }
 
 function violations(
@@ -63,43 +116,21 @@ function violations(
 }
 
 /**
- * 検査対象が空でないことを、層ごとに確かめる。
+ * 検査対象が空でないことを、**集合ごとに**確かめる。
  *
- * `filesUnder()` はディレクトリが無いとき例外を握りつぶして `[]` を返す。
- * 空の一覧に対する「違反が 0 件」は常に成り立つので、**層を 1 つ改名しただけで
- * その層の検査が黙って緑になる**。2026-08-19 に実測した: `filesUnder("application")`
- * / `("presentation")` / `("infrastructure")` / `("domain")` をそれぞれ存在しない名前へ
- * 向けたところ、**4 通りとも 13 件すべて緑**だった。
- *
- * 下の「読者の画面が 1 枚以上ある」は `src/app` 側の別の集合を守っているので、
- * ここが空になっても生き残る。層ごとに置かないと意味がない。
- *
- * 件数の下限は、いまの実数ではなく**明らかに下回ったら壊れている数**にしてある。
- * 実数に合わせると、ファイルを 1 つ消すたびにここが赤くなって役に立たない。
+ * 各検査の中で `filesUnder()` を呼んだ時点でも落ちるが、それだと
+ * 「依存方向が破れた」のか「対象が消えた」のかが読み分けられない。
+ * ここが先に赤くなれば、直す先が対象のほうだと分かる。
  */
 describe("検査対象そのもの", () => {
-  const LAYERS = [
-    { segments: ["domain"], least: 20 },
-    { segments: ["application"], least: 20 },
-    { segments: ["infrastructure"], least: 10 },
-    { segments: ["presentation"], least: 20 },
-    { segments: ["domain", "ranking"], least: 1 },
-  ] as const;
-
-  it.each(LAYERS)("$segments の下にファイルが見えている", ({ segments, least }) => {
-    expect(
-      filesUnder(...segments).length,
-      `src/${segments.join("/")} が見えていません。層を改名したなら、` +
-        "この一覧と各検査の呼び出しを両方直してください（片方だけ直すと黙って緑になります）",
-    ).toBeGreaterThanOrEqual(least);
+  it.each(Object.keys(LEAST))("src/%s の下にファイルが見えている", (key) => {
+    expect(() => filesUnder(...key.split("/"))).not.toThrow();
   });
 });
 
 describe("依存方向", () => {
-  const domainFiles = filesUnder("domain");
-
   it("domain は外側の層に依存しない", () => {
-    const found = violations(domainFiles, (spec) =>
+    const found = violations(filesUnder("domain"), (spec) =>
       /^@\/(application|infrastructure|presentation|components|lib|db|app)\b/.test(spec) ||
       spec.startsWith("../../application") ||
       spec.startsWith("../../infrastructure"),
@@ -120,7 +151,7 @@ describe("依存方向", () => {
       "wrangler",
       "cloudflare:",
     ];
-    const found = violations(domainFiles, (spec) =>
+    const found = violations(filesUnder("domain"), (spec) =>
       forbidden.some((f) => (f.endsWith("/") || f.endsWith(":") ? spec.startsWith(f) : spec === f)),
     );
     expect(found).toEqual([]);
@@ -226,7 +257,7 @@ describe("Editorial と Commercial の分離", () => {
  *   - `usecases/analytics/explain-telemetry`（何を測っているかの説明。読者への開示）
  */
 describe("読者面と発信者面の接続境界", () => {
-  const readerFiles = [...filesUnder("app", "s"), ...filesUnder("presentation", "site")];
+  const readerFiles = () => [...filesUnder("app", "s"), ...filesUnder("presentation", "site")];
 
   const ALLOWED_USECASES = [
     "application/usecases/site/read-site",
@@ -234,12 +265,12 @@ describe("読者面と発信者面の接続境界", () => {
   ];
 
   it("読者の画面が 1 枚以上ある（検査が空振りしていない）", () => {
-    expect(readerFiles.length).toBeGreaterThan(10);
+    expect(readerFiles().length).toBeGreaterThan(10);
   });
 
   it("読者の画面は、許した 2 つ以外のユースケースを直接呼ばない", () => {
     const found = violations(
-      readerFiles,
+      readerFiles(),
       (spec) =>
         spec.includes("application/usecases/") && !ALLOWED_USECASES.some((a) => spec.includes(a)),
     );
@@ -253,7 +284,7 @@ describe("読者面と発信者面の接続境界", () => {
   it("読者の画面は、提携・報酬のドメインを読まない", () => {
     // 記事の中の成果リンクは読み取りモデルが持つ（`affiliateUrl` の 1 欄）。
     // 金額・成果・ASP はそこに無く、読者側の経路には最初から現れない。
-    const found = violations(readerFiles, (spec) => spec.includes("domain/monetization"));
+    const found = violations(readerFiles(), (spec) => spec.includes("domain/monetization"));
     expect(found).toEqual([]);
   });
 

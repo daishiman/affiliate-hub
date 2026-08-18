@@ -170,7 +170,10 @@ describe("保存の形の置き場所", () => {
     },
     {
       path: "src/db/auth-schema.ts",
-      why: "Better Auth が形を決めているテーブル。こちらの都合で混ぜると、認証側の更新に追随できなくなる",
+      why:
+        "Better Auth CLI の生成物（`src/auth.cli.ts` 冒頭の手順、`--output src/db/auth-schema.ts`）。" +
+        "手で書き換えても次の生成で消えるので、正本は Better Auth 側にある。" +
+        "`schema.ts` から再輸出しているので、読む側の入口は 1 つのまま",
     },
   ];
 
@@ -196,6 +199,27 @@ describe("保存の形の置き場所", () => {
   it("決めた場所が、実際にテーブルを定義している", () => {
     // 移動や改名で空になった置き場所が残っていると、次に別の場所へ書かれても気づけない。
     expect(TABLE_HOMES.map((h) => h.path).filter((p) => !definers.includes(p))).toEqual([]);
+  });
+
+  /**
+   * 置き場所が 2 つあること自体は問題ではない。**読む側の入口が 2 つになる**ことが問題である。
+   *
+   * `auth-schema.ts` は Better Auth CLI の生成物で、`schema.ts` が再輸出している。
+   * 再輸出が外れると、保存されている形を知るのに 2 ファイル読む必要が出る。
+   * 「1 か所を読めば分かる」は置き場所の数ではなく、**この再輸出**が支えている。
+   */
+  it("正本を 1 つ読めば、ほかの置き場所にも届く", () => {
+    const CANONICAL = "src/db/schema.ts";
+    const source = readFileSync(join(ROOT, CANONICAL), "utf8");
+    for (const home of TABLE_HOMES) {
+      if (home.path === CANONICAL) continue;
+      const name = home.path.replace(/^src\/db\//, "").replace(/\.ts$/, "");
+      expect(
+        new RegExp(`export\\s+\\*\\s+from\\s+["']\\./${name}["']`).test(source),
+        `${CANONICAL} が ${home.path} を再輸出していません。` +
+          "再輸出が無いと、保存されている形を知るのに置き場所の数だけファイルを読むことになります",
+      ).toBe(true);
+    }
   });
 
   it("置き場所の例外には理由が書いてある", () => {
