@@ -6,8 +6,8 @@
 テスト側の `@req` 印を重ねたもの。
 
 - 最終更新: 2026-08-18
-- テストファイル: 168 件
-- 由来の要件が分かる: 141 件
+- テストファイル: 169 件
+- 由来の要件が分かる: 142 件
 - **由来不明: 27 件**（上限 28 件）
 
 由来不明とは「どの要件のために書いたのか、機械から辿れない」という意味で、
@@ -70,13 +70,14 @@
 | `tests/application/writing-method.test.ts` | REQ-W06 | 表 |
 | `tests/architecture/ai-eval-budget.test.ts` | REQ-CI13 | 表 |
 | `tests/architecture/audit-action-emitters.test.ts` | REQ-SEC09 | 印 |
+| `tests/architecture/ci-config.test.ts` | REQ-CI01, REQ-CI02, REQ-CI03, REQ-CI04, REQ-CI05, REQ-CI06, REQ-CI07, REQ-CI09, REQ-CI10, REQ-CI11, REQ-CI13 | 印と表 |
 | `tests/architecture/commercial-isolation.test.ts` | REQ-FD02 | 表 |
 | `tests/architecture/dependency-direction.test.ts` | REQ-FD01, REQ-SEC02 | 表 |
 | `tests/architecture/generated-docs.test.ts` | REQ-TS09 | 印 |
 | `tests/architecture/llm-credential-leak.test.ts` | REQ-SEC01, REQ-SEC05 | 印 |
 | `tests/architecture/open-doors.test.ts` | REQ-S10 | 印と表 |
 | `tests/architecture/quality-gates.test.ts` | REQ-CI02, REQ-CI09 | 表 |
-| `tests/architecture/secrets-not-in-repo.test.ts` | REQ-SEC10 | 印と表 |
+| `tests/architecture/secrets-not-in-repo.test.ts` | REQ-CI07, REQ-SEC10 | 印と表 |
 | `tests/architecture/server-action-exports.test.ts` | REQ-FD06 | 表 |
 | `tests/architecture/tenant-scoped-ports.test.ts` | REQ-P01, REQ-SEC01 | 印と表 |
 | `tests/architecture/test-honesty.test.ts` | REQ-CI07 | 表 |
@@ -188,4 +189,4 @@
 | `tests/ui/theme-contrast.test.ts` | REQ-TH02, REQ-TS06 | 表 |
 | `tests/ui/tool-form.test.tsx` | REQ-WC05 | 印と表 |
 | `tests/ui/ui-layers.test.ts` | REQ-S09, REQ-TM05, REQ-TM06 | 表 |
-<!-- 生成物の指紋 sha256:9a8549a4dc578986094cc597f7a68f572bf973b04f5bb8aa6697d0f03457a27a -->
+<!-- 生成物の指紋 sha256:a7b62d46016400a7655409deccb05519edfebc6b62acfa87fa84299218454a43 -->

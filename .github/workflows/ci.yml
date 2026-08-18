@@ -72,14 +72,6 @@ jobs:
           MUTATION_BASE: origin/${{ github.base_ref }}
         run: pnpm run verify
 
-      # スキーマを変えたのにマイグレーションを作り忘れていないか。
-      # 忘れると、公開したコードが存在しない列を読んで本番が落ちる。
-      - name: マイグレーション未生成の検出
-        if: github.event_name != 'push'
-        run: |
-          pnpm db:generate
-          if [ -n "$(git status --porcelain drizzle)" ]; then
-            echo "::error::スキーマ変更に対するマイグレーションが未生成です。'pnpm db:generate' を実行してコミットしてください。"
-            git status --porcelain drizzle
-            exit 1
-          fi
+      # マイグレーションの作り忘れの検出は、ここではなく `pnpm run verify` の中にある
+      # （`scripts/migration-generated.mjs`）。ここに置くと機械の上でしか走らず、
+      # 手元で緑を見た人が push して初めて落ちる。REQ-CI01 が禁じているのはこの形である。

@@ -31,7 +31,7 @@ import { describe, expect, it } from "vitest";
  * 例外一覧が育って検査が読まれなくなる。
  *
  * 規範: docs/product/credential-registration.md
- * @req REQ-SEC10
+ * @req REQ-SEC10, REQ-CI07
  * @types secrets, infra-config
  */
 

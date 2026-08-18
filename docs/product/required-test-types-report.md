@@ -6,8 +6,8 @@
 
 - 最終更新: 2026-08-18
 - 要件表の要件: 241 件
-- 性質を宣言済: 192 件
-- **未宣言: 49 件**（上限 49 件）
+- 性質を宣言済: 203 件
+- **未宣言: 38 件**（上限 38 件）
 - 理由つきの除外: 7 件（上限 7 件）
 
 未宣言とは「必須種別をまだ決めていない」という意味で、
@@ -209,6 +209,17 @@
 | REQ-WC06 | has-permission | `permission-matrix` | `permission-matrix` | — | 
 | REQ-WC07 | has-enumerated-input | `decision-table` `equivalence` | `decision-table` `equivalence` | — | 
 | REQ-WC08 | has-enumerated-input | `decision-table` `equivalence` | `decision-table` `equivalence` | — | 
+| REQ-CI01 | has-runtime-config | `infra-config` | `infra-config` | — | 
+| REQ-CI02 | has-runtime-config | `infra-config` | `infra-config` | — | 
+| REQ-CI03 | has-runtime-config | `infra-config` | `infra-config` | — | 
+| REQ-CI04 | has-runtime-config | `infra-config` | `infra-config` | — | 
+| REQ-CI05 | has-runtime-config | `infra-config` | `infra-config` | — | 
+| REQ-CI06 | has-runtime-config | `infra-config` | `infra-config` | — | 
+| REQ-CI07 | has-runtime-config, has-secret | `infra-config` `secrets` | `infra-config` `secrets` | — | 
+| REQ-CI09 | has-runtime-config | `infra-config` | `infra-config` | — | 
+| REQ-CI10 | has-runtime-config | `infra-config` | `infra-config` | — | 
+| REQ-CI11 | has-runtime-config | `infra-config` | `infra-config` | — | 
+| REQ-CI13 | has-runtime-config | `infra-config` | `infra-config` | — | 
 
 ## 理由つき除外の中身
 
@@ -229,5 +240,5 @@
 
 ## 未宣言の要件
 
-`REQ-CI01` `REQ-CI02` `REQ-CI03` `REQ-CI04` `REQ-CI05` `REQ-CI06` `REQ-CI07` `REQ-CI08` `REQ-CI09` `REQ-CI10` `REQ-CI11` `REQ-CI12` `REQ-CI13` `REQ-E16` `REQ-FB01` `REQ-FB02` `REQ-FB03` `REQ-FB04` `REQ-FB05` `REQ-FB06` `REQ-FB07` `REQ-FB10` `REQ-FB11` `REQ-FD01` `REQ-FD02` `REQ-FD03` `REQ-FD04` `REQ-FD05` `REQ-FD06` `REQ-IM13` `REQ-TH04` `REQ-TH05` `REQ-TM02` `REQ-TM03` `REQ-TM05` `REQ-TM06` `REQ-TM10` `REQ-TM11` `REQ-TM12` `REQ-TM13` `REQ-TS01` `REQ-TS02` `REQ-TS03` `REQ-TS06` `REQ-TS09` `REQ-TS10` `REQ-W06` `REQ-W08` `REQ-W11`
-<!-- 生成物の指紋 sha256:7e7ae73f1b2ff28ec577fa199480102fa1ad0fb87918c2ae76692d38946af92a -->
+`REQ-CI08` `REQ-CI12` `REQ-E16` `REQ-FB01` `REQ-FB02` `REQ-FB03` `REQ-FB04` `REQ-FB05` `REQ-FB06` `REQ-FB07` `REQ-FB10` `REQ-FB11` `REQ-FD01` `REQ-FD02` `REQ-FD03` `REQ-FD04` `REQ-FD05` `REQ-FD06` `REQ-IM13` `REQ-TH04` `REQ-TH05` `REQ-TM02` `REQ-TM03` `REQ-TM05` `REQ-TM06` `REQ-TM10` `REQ-TM11` `REQ-TM12` `REQ-TM13` `REQ-TS01` `REQ-TS02` `REQ-TS03` `REQ-TS06` `REQ-TS09` `REQ-TS10` `REQ-W06` `REQ-W08` `REQ-W11`
+<!-- 生成物の指紋 sha256:b09a4bf5ed0608f34d6d627ebaba75aa8e8d58b7a50492231a035c682d2f8162 -->
