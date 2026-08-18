@@ -92,7 +92,7 @@
 | `tests/domain/link-ingestion.test.ts` | REQ-A01, REQ-P02, REQ-S02 | 印と表 |
 | `tests/domain/llm-credential.test.ts` | REQ-SEC01 | 印 |
 | `tests/domain/permissions.test.ts` | REQ-API02, REQ-R01, REQ-R02, REQ-R03, REQ-R04, REQ-R05, REQ-R06, REQ-R07, REQ-R08, REQ-R09, REQ-R10, REQ-R11, REQ-R12 | 印 |
-| `tests/domain/planning.test.ts` | REQ-SEC07 | 表 |
+| `tests/domain/planning.test.ts` | REQ-E23, REQ-SEC07 | 印と表 |
 | `tests/domain/policy-channel-scope.test.ts` | REQ-SEC07 | 印と表 |
 | `tests/domain/policy-rule-seed.test.ts` | REQ-QC11, REQ-SEC07 | 印と表 |
 | `tests/domain/records-and-metrics.test.ts` | REQ-SEC09 | 印 |
@@ -117,7 +117,7 @@
 | `tests/infrastructure/session-issuer.test.ts` | REQ-S10 | 印 |
 | `tests/infrastructure/stub-ledger.test.ts` | REQ-TS09 | 表 |
 | `tests/integration/d1-audit-log.test.ts` | REQ-SEC09 | 印と表 |
-| `tests/integration/d1-content.test.ts` | REQ-SEC09 | 表 |
+| `tests/integration/d1-content.test.ts` | REQ-SEC09 | 印と表 |
 | `tests/integration/d1-conversion.test.ts` | REQ-P09 | 印と表 |
 | `tests/integration/d1-distribution.test.ts` | REQ-P08 | 印と表 |
 | `tests/integration/d1-link-inbox.test.ts` | REQ-S02, REQ-TS07 | 表 |

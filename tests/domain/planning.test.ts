@@ -1,4 +1,4 @@
-/** @tier 1 */
+/** @tier 1 @req REQ-SEC07, REQ-E23 @types decision-table */
 import { describe, expect, it } from "vitest";
 import {
   canStartGeneration,
@@ -247,8 +247,8 @@ describe("記事の企画", () => {
  * ここは企画（authoring）と表現ポリシー（compliance）の継ぎ目を、
  * 呼び出し側の実装を待たずに domain の中で確かめる。
  *
- * @req REQ-SEC07, REQ-E23
- * @types decision-table
+ * 要件 REQ-SEC07 / REQ-E23、種別 decision-table。**印はファイル冒頭にある**
+ * （機械が読むのは先頭 40 行だけなので、ここに `@` で書いても読まれない）。
  */
 describe("企画の分野が、当たるルールを決める", () => {
   const RULES = (() => {

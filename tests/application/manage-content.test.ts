@@ -1,4 +1,4 @@
-/** @tier 1 @req REQ-R11 @types state-transition */
+/** @tier 1 @req REQ-R11, REQ-SEC07, REQ-SEC09 @types state-transition, decision-table, audit-log */
 import { describe, expect, it } from "vitest";
 import {
   CONTENT_STATE_LABEL,
@@ -823,8 +823,9 @@ describe("承認", () => {
  *   - 分野が分からないときは「違反 0 件」にせず止める
  *
  * 規範: tasks/task-policy-check-wiring.md / docs/product/traceability.md REQ-SEC07
- * @req REQ-SEC07
- * @types decision-table
+ *
+ * 要件 REQ-SEC07 / 種別 decision-table。**印はファイル冒頭にある**
+ * （機械が読むのは先頭 40 行だけなので、ここに `@` で書いても読まれない）。
  */
 describe("表現ポリシーの検査", () => {
   /** 薬機法の block ルール（治る・完治の断定）に当たる一文。 */
@@ -994,8 +995,8 @@ describe("表現ポリシーの検査", () => {
  *
  * 規範: docs/product/traceability.md REQ-SEC09
  *
- * @req REQ-SEC09
- * @types audit-log
+ * 要件 REQ-SEC09 / 種別 audit-log。**印はファイル冒頭にある**
+ * （機械が読むのは先頭 40 行だけなので、ここに `@` で書いても読まれない）。
  */
 describe("操作の記録", () => {
   it("承認すると、誰が・何に・なぜ が 1 件記録される", async () => {

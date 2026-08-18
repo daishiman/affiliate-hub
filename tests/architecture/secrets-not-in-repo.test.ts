@@ -32,7 +32,7 @@ import { describe, expect, it } from "vitest";
  *
  * 規範: docs/product/credential-registration.md
  * @req REQ-SEC10
- * @types secrets
+ * @types secrets, infra-config
  */
 
 /**

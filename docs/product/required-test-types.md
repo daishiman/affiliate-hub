@@ -48,8 +48,8 @@
 | REQ-P05 | has-input, has-screen | — |
 | REQ-P06 | has-input, has-screen, has-ai-text | — |
 | REQ-P07 | has-input, has-state, has-screen | boundary: ウィザードの入力は選択肢と自由記述で、長さ上限を設けていないため端が無い。上限を入れる時に同時に書く |
-| REQ-P08 | has-state, has-external, has-screen | fault-injection: 各媒体への実送信がスタブで、失敗・遅延・一部成功を注入する先が無い（残課題 45） |
-| REQ-P09 | has-input, has-tenant, has-external, has-screen | fault-injection: ASP への実接続がスタブで、落とす外部接続が実在しない |
+| REQ-P08 | has-state, has-external, has-screen, has-db-table | fault-injection: 各媒体への実送信がスタブで、失敗・遅延・一部成功を注入する先が無い（残課題 45） |
+| REQ-P09 | has-input, has-tenant, has-external, has-screen, has-db-table | fault-injection: ASP への実接続がスタブで、落とす外部接続が実在しない |
 | REQ-P10 | has-input, has-screen | — |
 | REQ-API02 | has-permission, has-tenant | — |
 | REQ-R01 | has-permission | — |
@@ -76,8 +76,8 @@
 | REQ-SEC06 | has-enumerated-input | — |
 | REQ-SEC07 | has-enumerated-input | — |
 | REQ-SEC08 | has-screen | — |
-| REQ-SEC09 | has-input, has-secret | boundary: 監査記録の入力は操作内容と差分で、大小の端が無い。見ているのは消す / 消さないの分かれ目だけ |
-| REQ-SEC10 | has-secret | — |
+| REQ-SEC09 | has-input, has-secret, has-db-table | boundary: 監査記録の入力は操作内容と差分で、大小の端が無い。見ているのは消す / 消さないの分かれ目だけ |
+| REQ-SEC10 | has-secret, has-runtime-config | — |
 | REQ-A01 | has-input, has-state, has-user-supplied-url | — |
 | REQ-A02 | has-input | — |
 | REQ-A03 | has-input | — |
@@ -132,13 +132,17 @@
 
 ## 4. 未宣言の要件について（正直に書く）
 
-要件表には **241 件**の要件 ID がある。上の宣言表はそのうち **83 件**である。
-残り 158 件は未宣言で、**この検査の対象外**にある。
+要件表には **241 件**の要件 ID がある。上の宣言表はそのうち **88 件**である
+（2026-08-18 に数え直した。ここは長らく 83 と書いてあったが、`ah-44d` で 5 件足した
+ぶんが反映されていなかった。**手で書いた数字は、古くなっても古く見えない**）。
+残り 153 件は未宣言で、**この検査の対象外**にある。
+この 153 が `TEST_TYPES_MAX_UNDECLARED` と一致していることが、
+この節の数字が実測と合っていることの確かめになる。
 
 全部に宣言を書き切るまで検査を入れない、という順にすると**検査は永久に入らない**。
 そこで `TRACEABILITY_MAX_UNLINKED` と同じ形にした。
 
-- 未宣言の上限 `TEST_TYPES_MAX_UNDECLARED` を実測（158）に置く
+- 未宣言の上限 `TEST_TYPES_MAX_UNDECLARED` を実測に置く（置いた当初は 158。現在 153）
 - **新しく足す要件は、宣言しなければ CI が落ちる**
 - 既存の未宣言は減らせるが増やせない。**上げて緑にすることを禁じる**
 
@@ -480,6 +484,299 @@ SSRF が成り立つ条件は**行き先を攻撃者が決められること**�
 `contract` / `infra-config` / `db-migration` / `audit-log` / `property` の 5 つは
 まだどの性質からも指されていない。事情は下の表のままである。
 
+**2026-08-18 追記**: 5 つとも決着した（経緯はすべて下の節にある）。
+
+| 種別 | どうしたか |
+| --- | --- |
+| `db-migration` | `has-db-table` に**結んだ** |
+| `infra-config` | `has-runtime-config` に**結んだ** |
+| `contract` | **結ばないと決めた**（要件ではなくつなぎ目の性質だった） |
+| `audit-log` | **今は結ばないと決めた**（当たる先が実質 0 件。要件を宣言したら再検討） |
+| `property` | **結ばないと決めた**（手法であって性質ではない、を数えて確かめた） |
+
+### 2026-08-18: `contract` は結ばないと決めた（`ah-wes`）
+
+**足す前に数えた。** 数えた結果、結ばないほうが正しいと分かった種別である。
+「結べなかった」ではなく「結ばないと決めた」なので、理由をここに残す。
+
+#### 表に書いてあった理由が、実際と違っていた
+
+上の表は `contract` の対象を「3 つの入口（REST / MCP / WebMCP）を持つ要件」と
+書いていた。**印を持つ 3 ファイルを読んだら、どれもそれではなかった。**
+
+| ファイル | `@req` | 実際に固定しているもの |
+| --- | --- | --- |
+| `tests/architecture/tenant-scoped-ports.test.ts` | REQ-SEC01, REQ-P01 | つなぎ目の形（作業場所を必ず引数に持つこと） |
+| `tests/infrastructure/llm-connectivity.test.ts` | REQ-SEC01 | 約束（作っていない提供元を成功にしない） |
+| `tests/infrastructure/llm-provider-catalog.test.ts` | REQ-SEC01 | 設定の読み取り契約 |
+
+入口の数は 1 件も見ていない。**表の「対象は」の欄が、印の実態を写していなかった。**
+この行を消さずに取り消し線で残すのは、次に読む人が同じ調べ直しをしないためである。
+
+#### 次に立てた仮説と、その数え方
+
+実態に合う性質として「**同じ約束を守る実装が 2 つ以上あるつなぎ目**」を立てた。
+
+数え方: `src/infrastructure/persistence/d1/` と同 `sample/` の両方に、
+`: XxxPort` の形で値を名乗っているポートを取り、両側に出るものを対とする。
+
+```bash
+comm -12 \
+ <(grep -rhoE "(:|=>)\s*[A-Za-z]+Port\b" src/infrastructure/persistence/d1/ | grep -oE "[A-Za-z]+Port" | sort -u) \
+ <(grep -rhoE "(:|=>)\s*[A-Za-z]+Port\b" src/infrastructure/persistence/sample/ | grep -oE "[A-Za-z]+Port" | sort -u)
+```
+
+**17 対**あった（`AuditLogPort` / `ChannelConnectionRepositoryPort` /
+`ClickTrackingPort` / `CommercialConversionRepositoryPort` /
+`EditorialContentVariantRepositoryPort` / `EditorialPublishedArticleWriterPort` /
+`EditorialPublishedContentPort` / `EditorialSiteDraftRepositoryPort` /
+`EditorialSiteRepositoryPort` / `FeedbackRepositoryPort` / `IntegrationKeyPort` /
+`MetricsRepositoryPort` / `PublicationRepositoryPort` / `RedirectResolverPort` /
+`TelemetrySinkPort` / `TrackingCoveragePort` / `TrackingLinkIssuerPort`）。
+
+**このうち、両側を同じ言明に通しているものは 0 対である。**
+両側を同じテストに読み込んでいるファイルは 7 つあるが、比較しているのは 1 か所だけで、
+それも手続きの名前が揃っているかを見る形の比較である
+（`tests/infrastructure/d1-link-inbox.test.ts:162`）。
+
+しかもその 1 か所は上の 17 対に入っていない。D1 側は `LinkIngestionRepositoryPort`、
+見本側は `CommercialLinkIngestionRepositoryPort` と、**別の型を名乗っている**。
+名前の比較が拾えているものを、型は対だと思っていない。
+
+素通り 17 件という数字だけを見れば、門を作る理由には十分に見えた。
+
+#### それでも結ばなかった理由（ここが本題）
+
+**見本版は、同じ約束を守っていない。守らないように作ってある。**
+
+見本版の書き込みは `stubCall(...)` を返す。つまり**失敗する**
+（`settings-sample-repository.ts:251` の「作業場所の保存」、
+`distribution-sample-repository.ts:252` の「接続の保存」など）。
+D1 版は成功する。同じ言明を両方に通す検査を書けば、これは必ず赤になる。
+
+赤を緑にする道は 2 つしかない。
+
+1. 見本版の書き込みを**成功したことにする** — `docs/product/stub-ledger.md` が
+   禁じていることそのもの。「つながっているのに結果が空」という、
+   いちばん分かりにくい壊れ方を作る
+2. 書き込みを検査の対象から外す — 残るのは読み取りだけで、
+   それは `d1-link-inbox.test.ts` が既にやっている形の比較に戻る
+
+**門を作ると、1 の方向へ押す力になる。**
+見本版は「本物の代わり」ではなく「**本物が無いことを声に出して言う置き換え**」である。
+別物であることが仕様なのだから、同じ約束で縛る性質は成り立たない。
+
+#### 要件の側から結ぶ道も、数えて閉じた
+
+ポート側で駄目なら要件側から、と考えて `docs/product/traceability.md` を数えた。
+**267 行**の実装欄のうち、保存先（`infrastructure/persistence`）を
+名指ししているのは **7 行**だけだった。残りは `app/admin` 35 行、
+`application/usecases` 29 行、`presentation/ui` 17 行のように、
+**画面と手続き**を指している。
+
+要件はポートを名指ししない。だから「2 つ実装があるポートに乗っている要件」を
+要件表から機械で言い当てることはできない。当てるにはユースケース層を経由した
+辿り直しが要り、それは性質の判定を実装の内部構造に依存させることになる。
+
+#### 結論
+
+`contract` は**要件の性質ではなく、つなぎ目の性質**である。
+`REQUIRED_TEST_TYPES` は要件を鍵にした仕組みなので、この種別はここに収まらない。
+印としては引き続き使ってよい（3 ファイルは有用である）が、
+**この表からは要求しない**。要求できない理由が上の 2 つで、どちらも数えて確かめた。
+
+将来やるなら置き場所は `scripts/port-wiring.mjs` の側で、
+見るものは「約束が同じか」ではなく「**約束が違うことを、画面に文字で出しているか**」
+になる。それは今 `stub-registry` が受け持っている。二重に作らない。
+
+### 2026-08-18: `db-migration` を `has-db-table` に結んだ（`ah-wes`）
+
+**足す前に数えた。** 表とマイグレーションを本当に持っている要件だけを対象にする。
+
+`docs/product/traceability.md` の実装欄が `infrastructure/persistence` を
+名指ししている行は、267 行中 **7 件**である。
+
+| REQ | 表を持つか | 宣言表 | `db-migration` の検査 |
+| --- | --- | --- | --- |
+| REQ-P08 | 持つ | 済 | `tests/integration/d1-distribution.test.ts`（印あり） |
+| REQ-P09 | 持つ | 済 | `tests/integration/d1-tracking-issuance.test.ts`（印あり） |
+| REQ-SEC09 | 持つ | 済 | `tests/integration/d1-audit-log.test.ts`（**印を足した**） |
+| REQ-E13 | 持つ | まだ | `tests/integration/d1-tracking-issuance.test.ts`（印あり） |
+| REQ-TM13 | 持つ | まだ | `tests/integration/d1-telemetry.test.ts`（検査はある。印がまだ） |
+| REQ-TM12 | **持たない** | まだ | 読み口の定義（`TelemetrySinkPort` ほか）で、表は TM13 側 |
+| REQ-IM13 | **持たない** | まだ | 見本データだけ。**保存は本当に失敗を返す** |
+
+宣言表に載っている 3 件に `has-db-table` を足した。
+当たった 3 件のうち **2 件は既に検査があり、1 件（`REQ-SEC09`）だけが印を持っていなかった**。
+
+`REQ-SEC09` に付けたのは、この検査が
+「マイグレーションで表を作る → 書いて読み戻す → **表を落とすと失敗が返る**」を
+実際に通しているからである（`d1-audit-log.test.ts` の
+「表が無ければ、空の成功ではなく失敗が返る」）。ここが握り潰されていると、
+画面には「記録 0 件」と出て**まだ何も操作していない状態と見分けが付かない**。
+この検査だけが、その見分けの付かなさを潰している。
+
+`REQ-TM12` と `REQ-IM13` に当てなかったのは、**表がまだ無い**からである。
+当てれば書きようの無い要求になり、除外理由が 1 行増えるだけになる
+（除外の上限は 7 で満杯なので、そもそも書けない）。
+
+#### 赤の実測
+
+`d1-audit-log.test.ts` の `@types` から `db-migration` を外すと、
+`REQ-SEC09: db-migration` を名指しして NG になる。戻すと OK に戻る。
+**当てた 3 件のうち 1 件は、外せば実際に落ちる。**
+
+### 2026-08-18: `infra-config` を `has-runtime-config` に結んだ（`ah-wes`）
+
+**足す前に数えた。** 当たったのは **`REQ-SEC10` の 1 件だけ**である。
+
+上の表は対象を「実行環境の設定に依存する要件」と書いていたが、
+これでは D1 も KV も R2 も入って `db-migration` と重なる。
+線を引き直して「**設定を間違えると、コードを 1 行も変えずに壊れる要件**」にした。
+
+数え方: `docs/product/traceability.md` を `wrangler` / `binding` / `env.` /
+環境変数 で引くと `REQ-CI05` / `REQ-CI07` / `REQ-SEC10` / `REQ-TS07` の 4 件が出る。
+このうち宣言表に載っているのは `REQ-SEC10` だけである。
+
+#### `REQ-SEC01` には当てなかった
+
+`infra-config` の印を持つ 3 ファイルのうち 2 つ（`worker-env-wiring` /
+`llm-credential-entry`）は `@req REQ-SEC01` を名乗っている。
+だが `REQ-SEC01` の要件の文は**テナント分離**であって、設定の話ではない。
+
+**印が付いていることを、性質がある理由にしない。**
+それを認めると、性質は「既にあるテストの集合」を後から言い換えたものになり、
+足りないものを名指しする力を失う。`contract` で同じ罠を踏みかけた（上の節）。
+
+#### `REQ-SEC10` に付けた理由
+
+`secrets-not-in-repo.test.ts` の要件 4 と 5 が、まさにこれである。
+
+- 要件 4: `wrangler.jsonc` の `vars` に秘密の名前が無い
+  — `vars` は**そのままリポジトリに載り、そのまま配られる**
+- 要件 5: 秘密の名前がブラウザへ渡る名前（`NEXT_PUBLIC_`）になっていない
+
+どちらも、置き場所を間違えても**型は通り、単体テストは緑のまま配られる**。
+配ったあとに気づく形なので、置き場所そのものを検査するしかない。
+印だけが無かったので足した。
+
+#### 赤の実測
+
+`secrets-not-in-repo.test.ts` の `@types` から `infra-config` を外すと、
+`REQ-SEC10: infra-config` を名指しして NG になる。戻すと OK に戻る。
+
+### 2026-08-18: 宣言表の読み取りが §3 の外まで拾っていた（`ah-wes` の途中で見つけた）
+
+上の `has-db-table` の経緯表を書いた直後、`node scripts/required-test-types.mjs` が
+**宣言済み 88 → 95、未宣言 153 → 149** になった。テストも宣言表も触っていないのに動いた。
+
+原因は `readRegistry()` が**この文書の全文**から
+「先頭セルが要件 ID の表の行」を拾っていたことである。
+§4 に経緯として書いた表（`| REQ-P08 | 持つ | 済 | …`）が 7 行、
+宣言として数えられていた。
+
+これは静かな抜け道である。未宣言の件数は上限
+（`TEST_TYPES_MAX_UNDECLARED`）と突き合わせる数字なので、
+**経緯を書き足すだけで上限に余裕が生まれる**。
+上限を上げるのは禁じてあるのに、分子のほうを文章で動かせてしまう。
+
+`scripts/required-test-types.mjs` に `registrySection()` を足し、
+`## 3. 宣言表` の見出しから次の `##` までだけを読むようにした。
+見出しが見つからなければ例外で止まる（黙って全文に戻らない）。
+
+**赤の実測**: この修正を入れる前は 95 / 149、入れたあとは 88 / 153。
+経緯表は今もこの文書にあるので、区切りを外せばまた 95 に戻る。
+
+### 2026-08-18: 読まれない場所に印があった（`ah-wes` の途中で見つけた）
+
+`audit-log` を数えているときに、`@types audit-log` と書いてあるのに
+機械が数えていないファイルに気づいた。印を読むのは**先頭 40 行だけ**だからである。
+
+実測 **3 ファイル 4 か所**。いずれも中身は正しく、置き場所だけが違っていた。
+
+| ファイル | 行 | 書いてあった印 |
+| --- | --- | --- |
+| `tests/application/manage-content.test.ts` | 826 | `REQ-SEC07` / `decision-table` |
+| `tests/application/manage-content.test.ts` | 997 | `REQ-SEC09` / `audit-log` |
+| `tests/domain/planning.test.ts` | 250 | `REQ-SEC07, REQ-E23` / `decision-table` |
+| `tests/integration/d1-content.test.ts` | 248 | `REQ-SEC09` / `audit-log` |
+
+**今すぐ嘘の緑になるわけではない。** 読まれない印は、満たした側にも数えられない。
+危ないのはその先で、**別の場所にあった本物の印を消したとき**である。
+赤になったファイルを開くと目の前に `@types` が書いてあるので、
+「印はあるのに落ちる」と読める。そこで疑われるのは検査のほうになる。
+
+4 か所をファイル冒頭へ移し、元の位置には `@` を使わない文で
+「印はファイル冒頭にある」と書いた（説明としての価値は残る）。
+そのうえで `markersOutsideHeader()` を足し、
+先頭 40 行より後ろに `@req` / `@types` があれば**行番号つきで落とす**ようにした。
+
+**赤の実測**: `planning.test.ts` の印を 250 行目へ戻すと
+`tests/domain/planning.test.ts: 250, 251 行目` を名指しして NG になる。
+
+### 2026-08-18: `audit-log` は今は結ばないと決めた（`ah-wes`）
+
+**足す前に数えた。** 当たる先が実質 0 件だったので、結ばない。
+
+`docs/product/traceability.md` で監査・操作の記録に触れている要件は 5 件
+（`REQ-E32` / `REQ-FB08` / `REQ-FB12` / `REQ-P01` / `REQ-SEC09`）。
+**宣言表に載っているのは `REQ-P01` と `REQ-SEC09` の 2 件だけ**である。
+
+| REQ | 当てられるか |
+| --- | --- |
+| REQ-SEC09 | 当てられるが、**既に満たしている**（`d1-audit-log` と `records-and-metrics`） |
+| REQ-P01 | **当てられない**。記録すべき書き込みが無い |
+
+`REQ-P01`（作業場所・ブランド管理）の手続きは
+`src/application/usecases/identity/manage-workspace.ts` に 6 つあるが、
+`createGetSettingsOverviewUseCase` / `ListRoles` / `ListMembers` / `ListBrands` /
+`ListDisclosures` / `ListAuditLog` と、**全部が読み取りである**。
+書き込みが 1 つも無いので、記録すべき操作が無い。
+当てれば書きようの無い要求になり、除外理由が 1 行増えるだけになる
+（除外は 7/7 で満杯なので、そもそも書けない）。
+
+つまりこの性質は、**既に満たしている 1 件にしか当たらない**。
+そういう性質は門ではなく、既にあるテストの言い換えである。
+
+#### では本当の記録の義務はどこにあるのか
+
+公開・配信・状態変更の側にある。それらの手続きは
+`scripts/port-wiring.mjs` が「記録へ届いているか」を別途 0 件で押さえているが、
+**そのことをテストが確かめているか**は見ていない。
+確かめているテストは実在する（`tests/application/publish-article.test.ts` は
+`content.published` の記録が 1 件増えることを見ている）。
+ただし**このファイルは `@req` も `@types` も持っていない**。
+
+結ぶのは、それらの要件が宣言表に載ってからでよい（残課題 45 の流れ）。
+先に性質を作ると、当たる先が無いまま語彙だけが増える。
+
+**やらないと決めたので、代わりに 2 つ残した。**
+1 つは上の「読まれない場所の印」の検査（`audit-log` の印 2 つがそこにあった。
+数え間違いの元を潰した）。もう 1 つは残課題への起票である。
+
+### 2026-08-18: `property` は結ばないと決めた（`ah-wes`）
+
+上の表は「手法であって性質ではない」と書いていた。**数えて、そのとおりだと確かめた。**
+
+`tests/property/` の 5 ファイルが名乗る要件は延べ 17 件で、
+どのファイルも `property` と**一緒に別の種別**を名乗っている。
+
+| ファイル | 一緒に名乗っている種別 |
+| --- | --- |
+| `normalization.property.test.ts` | `equivalence`, `idempotency` |
+| `publish-gate.property.test.ts` | `decision-table` |
+| `ranking.property.test.ts` | `boundary` |
+| `tenancy.property.test.ts` | `tenant-isolation`, `permission-matrix` |
+| `variant-spec.property.test.ts` | `state-transition` |
+
+つまり `property` は、**それらの種別を満たすために選んだ書き方**であって、
+別に守るべき対象ではない。ここを性質として要求すると
+「等価分割を、性質テストという書き方で書け」と命じることになる。
+書き方を命じる検査は、同じ risk を別の書き方で押さえた人を落とす。
+
+`property` は印として残す（どう書いたかの記録には値がある）。
+**要求はしない。**
+
 ### まだどの性質からも指されていない種別（`ah-0ip` の残り）
 
 **2026-08-18 に `ssrf` と `decision-table` を結んだので、残りは 5 つである**
@@ -496,13 +793,13 @@ SSRF が成り立つ条件は**行き先を攻撃者が決められること**�
 
 | 種別 | いま印を持つファイル | 性質にするなら対象は | なぜ今回まとめてやらないか |
 | --- | --- | --- | --- |
-| `audit-log` | 5 | 記録を残す書き込みの入口（21 件） | 対象が広く、宣言表に無い要件へ一気に波及する。入口が記録へ届いているかは `scripts/port-wiring.mjs` が別途 0 件で押さえている（**テストがあるかは見ていない**ので、いずれ要る） |
+| `audit-log` | 5 | 記録を残す書き込みの入口 | **今は結ばないと決めた**（2026-08-18、下の節）。当たる先が 2 件しかなく、うち 1 件は書き込みを持たない |
 | `ssrf` | 3 | 外部へ自分で取りに行く経路（`guarded-fetch` を通る側） | **済**（2026-08-18、`has-user-supplied-url`） |
 | `decision-table` | 7 | 入力の組合せで結果が分かれる判定 | **済**（2026-08-18、`has-enumerated-input`）。`has-input` との線引きは「端があるか」の 1 点 |
-| `contract` | 3 | 3 つの入口（REST / MCP / WebMCP）を持つ要件 | 入口が 3 つあることは要件の文からは読めず、実装を見ないと分からない。性質の判定を実装依存にしてよいかを先に決める |
-| `infra-config` | 3 | 実行環境の設定に依存する要件（`env` の配線・binding） | 要件表の側に「設定」の要件がほとんど無く、当てる先が `REQ-SEC01` などに偏る。要件を足すのが先 |
-| `db-migration` | 2 | スキーマを持つ要件 | 往復の検査は `tests/integration/` 側にあり、要件ではなくテーブル単位で並んでいる。要件へ結び直す作業が先に要る |
-| `property` | 5 | 手法であって性質ではない | 「性質テストを書くべき要件」を機械で言い当てられない。無理に性質を作ると、当たった要件が全部除外理由を書くことになる |
+| `contract` | 3 | ~~3 つの入口（REST / MCP / WebMCP）を持つ要件~~ | **結ばないと決めた**（2026-08-18、下の節）。ここに書いてあった理由は、印の実際の使われ方と合っていなかった |
+| `infra-config` | 3 | 設定を間違えると、コードを変えずに壊れる要件 | **済**（2026-08-18、`has-runtime-config`） |
+| `db-migration` | 2 | 表とマイグレーションを持つ要件 | **済**（2026-08-18、`has-db-table`） |
+| `property` | 5 | 手法であって性質ではない | **結ばないと決めた**（2026-08-18、下の節）。数えて確かめた |
 
 **指されない種別は、一度も要求されない。**一覧に名前があるだけで、門としては無い。
 この 7 つは `ah-0ip` から切り出して起票した（`ah-wes` /

@@ -88,7 +88,63 @@ export function readMarkers(source) {
 }
 
 /**
+ * ヘッダの外に置かれた印を見つける。
+ *
+ * **書いた印が読まれない、という壊れ方を潰すための検査である。**
+ * 印はファイルの先頭 40 行しか読まない。それより後ろに `@types audit-log` と
+ * 書いても、機械は 1 文字も見ていない。書いた人は宣言したつもりで、
+ * 検査は宣言されていないものとして数える。
+ *
+ * 今すぐ嘘の緑になるわけではない（読まれない印は、満たした側にも数えられない）。
+ * 危ないのはその先で、**別の場所にあった本物の印を消したとき**である。
+ * 赤になったファイルを開くと目の前に `@types` が書いてあるので、
+ * 「印はあるのに落ちる」と読める。そこで疑われるのは検査のほうになる。
+ *
+ * 2026-08-18 の実測で 3 ファイル 4 か所あった
+ * （`manage-content` に 2 つ、`planning`、`d1-content`）。
+ * いずれも中身は正しく、置き場所だけが違っていた。
+ *
+ * @param {string} source
+ * @returns {number[]} 1 始まりの行番号
+ */
+export function markersOutsideHeader(source) {
+  const lines = source.split("\n");
+  /** @type {number[]} */
+  const found = [];
+  for (let i = HEADER_LINES; i < lines.length; i += 1) {
+    if (/@req\s|@types\s/.test(lines[i])) found.push(i + 1);
+  }
+  return found;
+}
+
+/**
+ * 宣言表の節だけを切り出す。
+ *
+ * **見出しで区切らずに全文を走らせては駄目である。**
+ * この文書の §4 には経緯を残すための表がいくつもあり、そこにも要件 ID が並ぶ。
+ * 区切らないと、**経緯を書き足しただけで宣言済みの件数が動く**。
+ * 2026-08-18 に実際に起きた（`has-db-table` の経緯表 7 行を足したら
+ * 宣言済みが 88 → 95 になり、未宣言が 4 件減って見えた）。
+ *
+ * 未宣言の件数は上限と突き合わせる数字なので、**文章を書いただけで
+ * 上限に余裕が生まれる**のは、いちばん静かな抜け道になる。
+ *
+ * @param {string} markdown
+ * @returns {string}
+ */
+function registrySection(markdown) {
+  const lines = markdown.split("\n");
+  const start = lines.findIndex((l) => /^##\s+3\./.test(l) && l.includes("宣言表"));
+  if (start < 0) throw new Error("「## 3. 宣言表」の見出しが見つかりません。");
+  const rest = lines.slice(start + 1);
+  const end = rest.findIndex((l) => /^##\s/.test(l));
+  return (end < 0 ? rest : rest.slice(0, end)).join("\n");
+}
+
+/**
  * 宣言表を読む。列の位置ではなく「先頭セルが要件 ID の行」で拾う。
+ *
+ * 拾う範囲は §3 の中だけ（`registrySection` を見ること）。
  *
  * @param {string} markdown
  * @returns {{ req: string, traits: string[], exclusions: { type: string, reason: string }[] }[]}
@@ -96,7 +152,7 @@ export function readMarkers(source) {
 export function readRegistry(markdown) {
   /** @type {{ req: string, traits: string[], exclusions: { type: string, reason: string }[] }[]} */
   const rows = [];
-  for (const line of markdown.split("\n")) {
+  for (const line of registrySection(markdown).split("\n")) {
     if (!line.startsWith("|")) continue;
     const cells = line
       .split("|")
@@ -156,9 +212,14 @@ const covered = new Map();
 const unknownTypes = [];
 /** @type {string[]} */
 const typedButUnlinked = [];
+/** @type {{ path: string, lines: number[] }[]} */
+const strayMarkers = [];
 
 for (const path of files) {
-  const { reqs, types } = readMarkers(readFileSync(join(root, path), "utf8"));
+  const source = readFileSync(join(root, path), "utf8");
+  const stray = markersOutsideHeader(source);
+  if (stray.length > 0) strayMarkers.push({ path, lines: stray });
+  const { reqs, types } = readMarkers(source);
   if (types.length === 0) continue;
   const bad = types.filter((t) => !(t in TEST_TYPES));
   if (bad.length > 0) unknownTypes.push({ path, unknown: bad });
@@ -319,6 +380,17 @@ if (typedButUnlinked.length > 0) {
   console.error(`\nNG 種別だけ書いて要件に結んでいないテストが ${typedButUnlinked.length} 件。`);
   for (const p of typedButUnlinked) console.error(`  ${p}`);
   console.error("`@types` は `@req` と対で書きます。どの要件の充足なのかが決まらないためです。");
+  failed = true;
+}
+
+if (strayMarkers.length > 0) {
+  console.error(`\nNG 読まれない場所に印があるテストが ${strayMarkers.length} 件あります。`);
+  for (const s of strayMarkers) console.error(`  ${s.path}: ${s.lines.join(", ")} 行目`);
+  console.error(
+    `印を読むのはファイルの先頭 ${HEADER_LINES} 行だけです。そこへ移してください。\n` +
+      "読まれない印は、満たした側にも数えられません。" +
+      "**印はあるのに落ちる**という、検査のほうを疑いたくなる形で表に出ます。",
+  );
   failed = true;
 }
 

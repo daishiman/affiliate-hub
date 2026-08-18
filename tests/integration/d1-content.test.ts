@@ -1,4 +1,4 @@
-/** @tier 2 */
+/** @tier 2 @req REQ-SEC09 @types audit-log */
 import { readFileSync, readdirSync } from "node:fs";
 import path from "node:path";
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
@@ -245,8 +245,8 @@ describe("承認が保存される", () => {
    * 「呼ばれたか」までしか見られない。列の名前が 1 つ違うだけで
    * 書き込みは落ちるので、**本物の表に入るところ**はここで見る。
    *
-   * @req REQ-SEC09
-   * @types audit-log
+   * 要件 REQ-SEC09 / 種別 audit-log。**印はファイル冒頭にある**
+   * （機械が読むのは先頭 40 行だけなので、ここに `@` で書いても読まれない）。
    */
   it("承認したことが、操作の記録として保存先に残る", async () => {
     const done = await approve().execute(editor, {

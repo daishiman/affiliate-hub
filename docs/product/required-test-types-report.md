@@ -23,8 +23,8 @@
 | REQ-P05 | has-input, has-screen | `a11y` `boundary` `equivalence` `keyboard` `screen-states` | `a11y` `boundary` `equivalence` `keyboard` `screen-states` | — | 
 | REQ-P06 | has-input, has-screen, has-ai-text | `a11y` `boundary` `equivalence` `keyboard` `prompt-injection` `screen-states` | `a11y` `boundary` `equivalence` `keyboard` `prompt-injection` `screen-states` | — | 
 | REQ-P07 | has-input, has-state, has-screen | `a11y` `boundary` `equivalence` `keyboard` `screen-states` `state-transition` | `a11y` `equivalence` `keyboard` `screen-states` `state-transition` | `boundary` | 
-| REQ-P08 | has-state, has-external, has-screen | `a11y` `fault-injection` `idempotency` `keyboard` `screen-states` `state-transition` | `a11y` `idempotency` `keyboard` `screen-states` `state-transition` | `fault-injection` | 
-| REQ-P09 | has-input, has-tenant, has-external, has-screen | `a11y` `boundary` `equivalence` `fault-injection` `idempotency` `keyboard` `screen-states` `tenant-isolation` | `a11y` `boundary` `equivalence` `idempotency` `keyboard` `screen-states` `tenant-isolation` | `fault-injection` | 
+| REQ-P08 | has-state, has-external, has-screen, has-db-table | `a11y` `db-migration` `fault-injection` `idempotency` `keyboard` `screen-states` `state-transition` | `a11y` `db-migration` `idempotency` `keyboard` `screen-states` `state-transition` | `fault-injection` | 
+| REQ-P09 | has-input, has-tenant, has-external, has-screen, has-db-table | `a11y` `boundary` `db-migration` `equivalence` `fault-injection` `idempotency` `keyboard` `screen-states` `tenant-isolation` | `a11y` `boundary` `db-migration` `equivalence` `idempotency` `keyboard` `screen-states` `tenant-isolation` | `fault-injection` | 
 | REQ-P10 | has-input, has-screen | `a11y` `boundary` `equivalence` `keyboard` `screen-states` | `a11y` `boundary` `equivalence` `keyboard` `screen-states` | — | 
 | REQ-API02 | has-permission, has-tenant | `permission-matrix` `tenant-isolation` | `permission-matrix` `tenant-isolation` | — | 
 | REQ-R01 | has-permission | `permission-matrix` | `permission-matrix` | — | 
@@ -51,8 +51,8 @@
 | REQ-SEC06 | has-enumerated-input | `decision-table` `equivalence` | `decision-table` `equivalence` | — | 
 | REQ-SEC07 | has-enumerated-input | `decision-table` `equivalence` | `decision-table` `equivalence` | — | 
 | REQ-SEC08 | has-screen | `a11y` `keyboard` `screen-states` | `a11y` `keyboard` `screen-states` | — | 
-| REQ-SEC09 | has-input, has-secret | `boundary` `equivalence` `secrets` | `equivalence` `secrets` | `boundary` | 
-| REQ-SEC10 | has-secret | `secrets` | `secrets` | — | 
+| REQ-SEC09 | has-input, has-secret, has-db-table | `boundary` `db-migration` `equivalence` `secrets` | `db-migration` `equivalence` `secrets` | `boundary` | 
+| REQ-SEC10 | has-secret, has-runtime-config | `infra-config` `secrets` | `infra-config` `secrets` | — | 
 | REQ-A01 | has-input, has-state, has-user-supplied-url | `boundary` `equivalence` `ssrf` `state-transition` | `boundary` `equivalence` `ssrf` `state-transition` | — | 
 | REQ-A02 | has-input | `boundary` `equivalence` | `boundary` `equivalence` | — | 
 | REQ-A03 | has-input | `boundary` `equivalence` | `boundary` `equivalence` | — | 

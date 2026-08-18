@@ -32,7 +32,7 @@ import { SAMPLE_WORKSPACE_ID } from "@/infrastructure/persistence/sample/ranking
  * 規範: docs/product/traceability.md REQ-SEC09 / docs/spec/10-テスト戦略仕様.md §3-5
  *
  * @req REQ-SEC09
- * @types audit-log
+ * @types audit-log, db-migration
  */
 
 type TestEnv = { readonly DB: D1Database };
