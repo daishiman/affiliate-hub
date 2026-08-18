@@ -6,8 +6,8 @@
 テスト側の `@req` 印を重ねたもの。
 
 - 最終更新: 2026-08-18
-- テストファイル: 175 件
-- 由来の要件が分かる: 152 件
+- テストファイル: 177 件
+- 由来の要件が分かる: 154 件
 - **由来不明: 23 件**（上限 28 件）
 
 由来不明とは「どの要件のために書いたのか、機械から辿れない」という意味で、
@@ -100,6 +100,7 @@
 | `tests/domain/link-ingestion.test.ts` | REQ-A01, REQ-P02, REQ-S02 | 印と表 |
 | `tests/domain/llm-credential.test.ts` | REQ-SEC01 | 印 |
 | `tests/domain/loop-kinds.test.ts` | REQ-FB01 | 印 |
+| `tests/domain/loop-record.test.ts` | REQ-IM13 | 印 |
 | `tests/domain/permissions.test.ts` | REQ-API02, REQ-R01, REQ-R02, REQ-R03, REQ-R04, REQ-R05, REQ-R06, REQ-R07, REQ-R08, REQ-R09, REQ-R10, REQ-R11, REQ-R12 | 印 |
 | `tests/domain/planning.test.ts` | REQ-E23, REQ-SEC07 | 印と表 |
 | `tests/domain/policy-channel-scope.test.ts` | REQ-SEC07 | 印と表 |
@@ -132,6 +133,7 @@
 | `tests/integration/d1-content.test.ts` | REQ-SEC09 | 印と表 |
 | `tests/integration/d1-conversion.test.ts` | REQ-P09 | 印と表 |
 | `tests/integration/d1-distribution.test.ts` | REQ-P08 | 印と表 |
+| `tests/integration/d1-improvement.test.ts` | REQ-IM13 | 印 |
 | `tests/integration/d1-link-inbox.test.ts` | REQ-S02, REQ-TS07 | 印と表 |
 | `tests/integration/d1-published-article.test.ts` | REQ-P08 | 表 |
 | `tests/integration/d1-telemetry.test.ts` | REQ-TM13, REQ-TS07 | 印と表 |
@@ -195,4 +197,4 @@
 | `tests/ui/theme-contrast.test.ts` | REQ-TH01, REQ-TH02, REQ-TS06 | 印と表 |
 | `tests/ui/tool-form.test.tsx` | REQ-WC05 | 印と表 |
 | `tests/ui/ui-layers.test.ts` | REQ-S09, REQ-TM05 | 表 |
-<!-- 生成物の指紋 sha256:b3bbf60f68185b3b7ffceca232b1e7b3d17f504e19f44b225cd2568e4799a80d -->
+<!-- 生成物の指紋 sha256:b43052980a0d18949e19c1095b87462fe278690be09ede1f4c81e543af761bd4 -->

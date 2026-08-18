@@ -6,8 +6,8 @@
 **製品コード（`src/application` `src/presentation` `src/app`）から**
 呼ばれていないポートの手続きの一覧。テストからの呼び出しは数えない。
 
-- ポート 63 件 / 手続き 187 件
-- 呼ばれていない 81 件（上限 82）
+- ポート 63 件 / 手続き 188 件
+- 呼ばれていない 82 件（上限 82）
 - 理由つきの除外 0 件（上限 0）
 
 | ポート | 手続き | 宣言 |
@@ -52,6 +52,7 @@
 | `FeedbackCaptureStoragePort` | `deleteExpired` | `src/application/ports/feedback.ts` |
 | `ImprovementRepositoryPort` | `saveVariantSpec` | `src/application/ports/improvement.ts` |
 | `ImprovementRepositoryPort` | `saveRun` | `src/application/ports/improvement.ts` |
+| `ImprovementRepositoryPort` | `saveObservation` | `src/application/ports/improvement.ts` |
 | `LlmPort` | `embed` | `src/application/ports/llm.ts` |
 | `LoggerPort` | `info` | `src/application/ports/common.ts` |
 | `LoggerPort` | `error` | `src/application/ports/common.ts` |
@@ -125,4 +126,4 @@
 | --- | --- |
 | `createStartSiteDraftUseCase` | `src/application/usecases/site/build-site.ts:417` |
 | `createSaveSiteDraftStepUseCase` | `src/application/usecases/site/build-site.ts:509` |
-<!-- 生成物の指紋 sha256:3be2542aaad794cfc46c63288b51d25477f37ab98f54ddb1245ca79c7353a1c4 -->
+<!-- 生成物の指紋 sha256:cb1a1b9ebdadc7ae61788c2739899c789a4b97217c092a6cdbbae9a4da46f8d5 -->

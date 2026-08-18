@@ -857,8 +857,10 @@ export async function auditLogNotice(): Promise<StorageStatus> {
  * 2 つとも**軸の中身を知らない**。色の実験も構成の実験も同じ道を通る。
  * 軸を 1 つ足したときにここが変わるなら、汎用のループになっていない。
  */
-export function improvementUseCases() {
-  const deps = { repository: createDeps().improvement };
+export async function improvementUseCases() {
+  // **接続を渡す。** 渡さないと、記録先の表を作っても画面には見本が出続ける。
+  // 表を足した回にここを直し忘れ、`composition-wiring` の検査に捕まった。
+  const deps = { repository: createDeps({ db: await tryGetDb() }).improvement };
   return {
     review: createReviewLoopRunsUseCase(deps),
     dimensions: createListImprovementDimensionsUseCase(deps),

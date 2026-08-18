@@ -32,7 +32,7 @@ export default async function ImprovementPage({
   const siteSlug = params.site !== undefined && params.site !== "" ? params.site : undefined;
 
   const actor = await currentActor();
-  const review = await improvementUseCases().review.execute(actor, { siteSlug });
+  const review = await (await improvementUseCases()).review.execute(actor, { siteSlug });
 
   if (!review.ok) {
     return (
