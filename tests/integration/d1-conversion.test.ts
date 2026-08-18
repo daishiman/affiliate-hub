@@ -19,6 +19,7 @@ import type { ManageAffiliateDeps } from "@/application/usecases/monetization/ma
 import { type ActorContext, formatMoney } from "@/domain/shared";
 import { SAMPLE_WORKSPACE_ID } from "@/infrastructure/persistence/sample/ranking-sample-repository";
 import { anOwner, anOutsider } from "../support/actors";
+import { recordingAuditLog } from "../support/doubles";
 
 /**
  * 成果の金額の手修正を、**本物の D1 と本物のマイグレーション**で通す結合テスト。
@@ -85,6 +86,11 @@ beforeAll(async () => {
     programs: all.affiliatePrograms,
     links: all.affiliateLinks,
     conversions: all.conversions,
+    ids: all.ids,
+    // 見本の記録は書き足しを断る（保存先が無い）ので、溜める版を使う。
+    // ここで見たいのは D1 に金額が残るかで、記録の保存先は別の試験で見る。
+    auditLog: recordingAuditLog().port,
+    now: () => new Date(),
   };
 }, 60_000);
 

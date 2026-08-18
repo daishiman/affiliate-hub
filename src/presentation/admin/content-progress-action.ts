@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import type { ContentState } from "@/domain/authoring";
 import { contentUseCases, currentActor } from "@/presentation/composition";
 import type { ContentProgressState } from "./content-progress-state";
+import { refusalText } from "@/presentation/refusal-text";
 
 /**
  * 記事の画面から段階を進める操作。
@@ -35,7 +36,7 @@ export async function advanceContentStateAction(
     return {
       status: "failed",
       // 次にすることが書いてあるならそちらを出す。原因だけ出しても直せない。
-      message: result.error.suggestedAction ?? result.error.message,
+      message: refusalText(result.error),
       field: result.error.field,
     };
   }
@@ -69,7 +70,7 @@ export async function approveContentAction(
   if (!result.ok) {
     return {
       status: "failed",
-      message: result.error.suggestedAction ?? result.error.message,
+      message: refusalText(result.error),
       field: result.error.field,
     };
   }

@@ -15,7 +15,7 @@ import { markCommercial } from "@/domain/shared";
 import type { WorkspaceId } from "@/domain/shared";
 import { SAMPLE_WORKSPACE_ID } from "@/infrastructure/persistence/sample/ranking-sample-repository";
 import { aNobody, anAnalyst, anOwner } from "../support/actors";
-import { failing, testDeps } from "../support/doubles";
+import { failing, recordingAuditLog, testDeps } from "../support/doubles";
 
 /**
  * 提携（アフィリエイト）と成果。
@@ -49,6 +49,10 @@ function deps(over: Partial<ManageAffiliateDeps> = {}): ManageAffiliateDeps {
     programs: base.affiliatePrograms,
     links: base.affiliateLinks,
     conversions: base.conversions,
+    ids: base.ids,
+    // 見本の記録は書き足しを断る（保存先が無い）ので、溜める版を使う。
+    auditLog: recordingAuditLog().port,
+    now: () => new Date(),
     ...over,
   };
 }
@@ -426,6 +430,95 @@ describe("成果の手修正", () => {
     expect(adjusted.ok).toBe(false);
     if (adjusted.ok) return;
     expect(adjusted.error.code).toBe("FORBIDDEN");
+  });
+});
+
+/**
+ * 金額を手で直したことの記録。
+ *
+ * 数字は見ただけでは書き換わったことに気づけない。締めの報告に使われた後で
+ * 「誰がいつ、いくらから、いくらに、なぜ直したか」を答えられないと、
+ * ASP 側の誤りだったのか自分の入力ミスだったのかを切り分けられない。
+ */
+describe("金額を手で直したことの記録", () => {
+  /** 保存だけ通す。ここで見たいのは記録の中身で、保存の可否は別のテストで見ている。 */
+  function recordable(): {
+    readonly deps: ManageAffiliateDeps;
+    readonly audit: ReturnType<typeof recordingAuditLog>;
+  } {
+    const audit = recordingAuditLog();
+    return {
+      deps: deps({
+        conversions: conversionsThatFail({
+          save: async (c: unknown) => ({ ok: true as const, value: c }),
+        }),
+        auditLog: audit.port,
+      }),
+      audit,
+    };
+  }
+
+  it("誰が・いくらから・いくらに・なぜ直したかが残る", async () => {
+    const { deps: d, audit } = recordable();
+    const done = await createAdjustConversionUseCase(d).execute(owner, {
+      conversionId: "cv_2026_08_b",
+      amountMinor: 2000,
+      currency: "JPY",
+      reason: "ASP の確定連絡に合わせて訂正しました。",
+    });
+    if (!done.ok) throw new Error(done.error.message);
+
+    const entries = audit.entries();
+    expect(entries).toHaveLength(1);
+    const entry = entries[0];
+    expect(entry?.action).toBe("conversion.adjusted");
+    expect(entry?.targetId).toBe("cv_2026_08_b");
+    expect(String(entry?.actor.userId)).toBe(owner.userId);
+    // 直す前の額が入っていないと、差がいくらだったかを後から出せない。
+    expect(entry?.before).toMatchObject({ amountMinor: 2400, currency: "JPY" });
+    expect(entry?.after).toMatchObject({ amountMinor: 2000, currency: "JPY" });
+    expect(entry?.reason).toContain("確定連絡");
+  });
+
+  it("記録を残せなかったときは、直せたこととして返さない", async () => {
+    const d = deps({
+      conversions: conversionsThatFail({
+        save: async (c: unknown) => ({ ok: true as const, value: c }),
+      }),
+      auditLog: { ...recordingAuditLog().port, append: async () => failing("記録できません。") },
+    });
+
+    const done = await createAdjustConversionUseCase(d).execute(owner, {
+      conversionId: "cv_2026_08_b",
+      amountMinor: 2000,
+      currency: "JPY",
+      reason: "ASP の確定連絡に合わせて訂正しました。",
+    });
+
+    expect(done.ok).toBe(false);
+    if (done.ok) return;
+    // 金額はもう直っている。それを隠すと、押した人がもう一度直しにいく。
+    expect(done.error.message).toContain("2,000");
+    expect(done.error.message).toContain("記録");
+  });
+
+  it("保存に失敗したときは、記録も残さない", async () => {
+    const audit = recordingAuditLog();
+    const d = deps({
+      conversions: conversionsThatFail({ save: async () => failing() }),
+      auditLog: audit.port,
+    });
+
+    const done = await createAdjustConversionUseCase(d).execute(owner, {
+      conversionId: "cv_2026_08_b",
+      amountMinor: 2000,
+      currency: "JPY",
+      reason: "訂正します。",
+    });
+
+    expect(done.ok).toBe(false);
+    // 直っていない金額の「直した」が残ると、記録のほうが信じられなくなる。
+    expect(audit.entries()).toHaveLength(0);
   });
 });
 

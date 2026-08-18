@@ -52,7 +52,7 @@ const {
 } = await import("@/presentation/admin/content-progress-action");
 const { adjustConversionAction } = await import("@/presentation/admin/adjust-conversion-action");
 const { publishArticleAction } = await import("@/presentation/admin/publish-article-action");
-const { personaUseCases } = await import("@/presentation/composition");
+const { personaUseCases, siteUseCases } = await import("@/presentation/composition");
 
 function form(entries: Record<string, string | readonly string[]>): FormData {
   const data = new FormData();
@@ -321,14 +321,38 @@ describe("ブログ作成ウィザードの操作", () => {
     expect(state.message.trim()).not.toBe("");
   });
 
-  it("全段階に答えたら、読者が開ける場所まで含めて作られる", async () => {
+  /*
+   * 見本の保存先には操作の記録を書けない（`createSampleAuditLog` の `append` は必ず失敗する）。
+   * ブログを作ると記録が要るので、この段では**必ず断られる**。
+   * それでよいと決めた理由と、本当に作れることを確かめる場所は
+   * docs/product/port-wiring.md「記録を足すと、見本モードでは操作が断られる」を見る。
+   *
+   * ここで見るのは、断り方が**押した人を二度押しへ誘導しないか**である。
+   * 記録は作った後に書くので、断られた時点でブログはもう読者から見えている。
+   * 断り文がそれを隠すと、押した人は名前を変えてもう一度作り、同じブログが 2 本並ぶ。
+   */
+  it("記録を残せない段では、作れたことにせず断る", async () => {
     const draftId = await completeDraftThroughForms(`action-test-${Date.now()}`);
     const state = await createSiteFromDraftAction({ status: "idle", message: "" }, form({ draftId }));
 
-    expect(state.status).toBe("done");
-    // 作った本人が確かめられないと、できたかどうか分からない。
-    expect(state.createdPath).toMatch(/^\/s\//);
-    expect(state.message.trim()).not.toBe("");
+    expect(state.status).toBe("failed");
+    // 「できました」と読める場所を残さない。
+    expect(state.createdPath).toBeUndefined();
+  });
+
+  it("断り文が、すでに読者から見えていることを隠さない", async () => {
+    const slug = `action-test-${Date.now()}`;
+    const draftId = await completeDraftThroughForms(slug);
+    const state = await createSiteFromDraftAction({ status: "idle", message: "" }, form({ draftId }));
+
+    // 済んだこと（もう見えている）と、次にすること（記録の直し方）の両方が要る。
+    expect(state.message).toContain("読む人からも見えます");
+    expect(state.message.trim().split("\n").length).toBeGreaterThan(1);
+
+    // 実際に読者側の一覧へ増えている。増えていないなら断り文の方が嘘になる。
+    const listed = await (await siteUseCases()).listSites.execute(SAMPLE_ACTOR, {});
+    expect(listed.ok).toBe(true);
+    if (listed.ok) expect(listed.value.some((s) => s.slug === slug)).toBe(true);
   });
 });
 

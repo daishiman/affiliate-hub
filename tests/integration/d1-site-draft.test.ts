@@ -7,6 +7,7 @@ import { getPlatformProxy } from "wrangler";
 import * as schema from "@/db/schema";
 import { createDeps } from "@/infrastructure/composition";
 import { createD1SiteRepository } from "@/infrastructure/persistence/d1/site-repository";
+import { createGetSiteUseCase } from "@/application/usecases/site/read-site";
 import {
   type BuildSiteDeps,
   createCreateSiteFromDraftUseCase,
@@ -19,6 +20,7 @@ import { SITE_WIZARD_STEPS } from "@/domain/authoring";
 import type { ActorContext } from "@/domain/shared";
 import { SAMPLE_WORKSPACE_ID } from "@/infrastructure/persistence/sample/ranking-sample-repository";
 import { anOwner } from "../support/actors";
+import { recordingAuditLog } from "../support/doubles";
 
 /**
  * ブログ作成ウィザードを、**本物の D1 と本物のマイグレーション**で通す結合テスト。
@@ -50,6 +52,8 @@ type Proxy = Awaited<ReturnType<typeof getPlatformProxy<TestEnv>>>;
 let proxy: Proxy;
 let deps: BuildSiteDeps;
 let sites: ReturnType<typeof createD1SiteRepository>;
+/** 読者側の入口を、作る側と**同じ保存先**から組み立てるための一式。 */
+let readerSide: ReturnType<typeof createDeps>;
 
 const owner: ActorContext = anOwner({ workspaceId: SAMPLE_WORKSPACE_ID });
 
@@ -80,8 +84,16 @@ beforeAll(async () => {
   const db = drizzle(proxy.env.DB, { schema });
   // 分解して組み直すと、商業データの印が落ちる（印は入れ物ごと持ち回る）。
   const all = createDeps({ db });
-  deps = { drafts: all.siteDrafts, ids: all.ids };
+  // 見本の記録は書き足しを断る（保存先が無い）ので、溜める版を使う。
+  // ここで見たいのは D1 に下書きとブログが残るかで、記録の保存先は別の試験で見る。
+  deps = {
+    drafts: all.siteDrafts,
+    ids: all.ids,
+    auditLog: recordingAuditLog().port,
+    now: () => new Date(),
+  };
   sites = createD1SiteRepository(db);
+  readerSide = all;
 }, 60_000);
 
 afterAll(async () => {
@@ -212,6 +224,39 @@ describe("下書きから読者向けの 1 本になるまで（1 本の道）",
     expect(slugs).toContain("first-lens");
     // まだ 1 本も作っていない人の画面が空にならないよう、見本は残す。
     expect(slugs.length).toBeGreaterThan(1);
+  });
+
+  /*
+   * 下の 2 件は、以前は見本の保存先の上（単体側）で見ていた。
+   * 作ったことを記録に残すようになり、**記録の保存先が無い状態では
+   * 作れなくなった**（残せない記録を「残した」ことにしないため）。
+   * 見る値は変えずに、保存先が本物のここへ移してある。
+   */
+  it("読者向けの入口から、見本のブログと同じ扱いで引ける", async () => {
+    const draftId = await completeDraft("first-lens");
+    const created = await createCreateSiteFromDraftUseCase(deps).execute(owner, { draftId });
+    if (!created.ok) throw created.error;
+
+    expect(created.value.readerPath).toBe("/s/first-lens");
+    expect(created.value.categoryCount).toBe(2);
+    // 画面の種類は型（beginner_guide）から自動で決まる。手で並べていない。
+    expect(created.value.pageCount).toBeGreaterThan(0);
+
+    // 読者側の入口は、見本のブログと同じユースケース。
+    const site = await createGetSiteUseCase({
+      sites: readerSide.sites,
+      content: readerSide.publishedContent,
+    }).execute(owner, { siteSlug: "first-lens" });
+    expect(site.ok, "作ったブログが読者向けの経路で見つかりません").toBe(true);
+    if (!site.ok) return;
+    expect(site.value.blueprint.name).toBe("はじめてのレンズ");
+  });
+
+  it("差別化の 10 軸がすべて埋まっている（言い換えブログを作らせない）", async () => {
+    const draftId = await completeDraft("third-lens");
+    const created = await createCreateSiteFromDraftUseCase(deps).execute(owner, { draftId });
+    // 10 軸のどれかが空なら createSiteBlueprint が断る。作れた時点で 10 軸が揃っている。
+    expect(created.ok, created.ok ? "" : created.error.message).toBe(true);
   });
 
   it("同じ URL 名で作り直すと、弾かれずに差し替わる", async () => {

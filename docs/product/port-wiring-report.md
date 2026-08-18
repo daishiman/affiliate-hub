@@ -98,7 +98,7 @@
 上の表は「1 回でも呼ばれたか」しか見ないので、**一部の経路からしか
 呼ばれていない**状態を拾えない。ここはその形を見る。
 
-- 届いていない 11 件（上限 11）
+- 届いていない 9 件（上限 9）
 - 理由つきの除外 4 件（上限 4）
 
 - 読み書きを判定できない手続き 0 件（上限 0）
@@ -108,12 +108,10 @@
 | `createHandOffFeedbackUseCase` | `FeedbackRepositoryPort.save` | `src/application/usecases/feedback/hand-off-feedback.ts` |
 | `createSubmitFeedbackUseCase` | `FeedbackCaptureStoragePort.put`<br>`FeedbackRepositoryPort.save` | `src/application/usecases/feedback/submit-feedback.ts` |
 | `createUpdateFeedbackStatusUseCase` | `FeedbackRepositoryPort.save` | `src/application/usecases/feedback/update-feedback-status.ts` |
-| `createAdjustConversionUseCase` | `ConversionRepositoryPort.save` | `src/application/usecases/monetization/manage-affiliate.ts` |
 | `createMatchLinkIngestionUseCase` | `EventPublisherPort.publish`<br>`LinkIngestionRepositoryPort.save` | `src/application/usecases/monetization/manage-link-inbox.ts` |
 | `createRejectLinkIngestionUseCase` | `LinkIngestionRepositoryPort.save` | `src/application/usecases/monetization/manage-link-inbox.ts` |
 | `createResolveLinkIngestionUseCase` | `EventPublisherPort.publish`<br>`LinkIngestionRepositoryPort.save` | `src/application/usecases/monetization/manage-link-inbox.ts` |
 | `createSubmitAffiliateUrlUseCase` | `EventPublisherPort.publish`<br>`LinkIngestionRepositoryPort.save` | `src/application/usecases/monetization/manage-link-inbox.ts` |
-| `createCreateSiteFromDraftUseCase` | `SiteDraftRepositoryPort.publishBlueprint`<br>`SiteDraftRepositoryPort.save` | `src/application/usecases/site/build-site.ts` |
 | `createSaveSiteDraftStepUseCase` | `SiteDraftRepositoryPort.save` | `src/application/usecases/site/build-site.ts` |
 | `createStartSiteDraftUseCase` | `SiteDraftRepositoryPort.save` | `src/application/usecases/site/build-site.ts` |
 

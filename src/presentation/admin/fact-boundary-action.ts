@@ -1,6 +1,7 @@
 "use server";
 
 import { currentActor, personaUseCases } from "@/presentation/composition";
+import { refusalText } from "@/presentation/refusal-text";
 import type { FactBoundaryCheckState } from "./fact-boundary-state";
 
 /**
@@ -37,7 +38,7 @@ export async function checkFactBoundaryAction(
   if (!result.ok) {
     return {
       status: "failed",
-      message: result.error.suggestedAction ?? result.error.message,
+      message: refusalText(result.error),
       field: result.error.field,
       findings: [],
     };

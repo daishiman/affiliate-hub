@@ -610,9 +610,15 @@ export const PORT_WIRING_MAX_EXCLUSIONS = 0;
  * 予定日の変更（3 経路）、取得用の鍵の発行と失効。
  * 残る 11 件は、改善要望 3・受信箱 4・下書き 3・成果の手修正 1。
  *
+ * 続けて、取り返しがつかない残り 2 件を塞いで 11 → 9。
+ * ブログを作る（`createCreateSiteFromDraftUseCase`。消す口が無い）と、
+ * 成果の金額の手修正（`createAdjustConversionUseCase`。締めの報告に使われる）。
+ * 残る 9 件は、改善要望 3・受信箱 4・下書き 2。
+ * どれも**間違えたら直せる**もので、取り返しのつかない側は無くなった。
+ *
  * **上げて緑にすることを禁じる。**
  */
-export const PORT_WIRING_MAX_UNRECORDED = 11;
+export const PORT_WIRING_MAX_UNRECORDED = 9;
 
 /**
  * 書き込み側の理由つき除外の上限。

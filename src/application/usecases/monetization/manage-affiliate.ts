@@ -4,6 +4,9 @@ import type {
   CommercialAffiliateLinkRepositoryPort,
   CommercialConversionRepositoryPort,
 } from "@/application/ports/monetization";
+import type { IdGeneratorPort } from "@/application/ports/common";
+import type { AuditLogPort } from "@/application/ports/compliance";
+import { auditWriteFailure, buildAuditEntry } from "@/application/audit";
 import {
   ASP_LABEL,
   type AffiliateProgram,
@@ -51,6 +54,9 @@ export type ManageAffiliateDeps = {
   readonly programs: AffiliateProgramRepositoryPort;
   readonly links: CommercialAffiliateLinkRepositoryPort;
   readonly conversions: CommercialConversionRepositoryPort;
+  readonly ids: IdGeneratorPort;
+  readonly auditLog: AuditLogPort;
+  readonly now: () => Date;
 };
 
 function guardCommercial(deps: ManageAffiliateDeps): void {
@@ -428,8 +434,44 @@ export function createAdjustConversionUseCase(
       const adjusted = adjustReward(loaded.value, amount.value, input.reason);
       if (!adjusted.ok) return adjusted;
 
+      const before = effectiveReward(loaded.value);
+
       const saved = await deps.conversions.save(adjusted.value);
       if (!saved.ok) return saved;
+
+      /*
+       * 手で直したことを記録に残す。**記録は保存の後**に書く。
+       *
+       * 金額をここに書くのは、後から「取り込んだ値といくら違うか」を
+       * 数えられるようにするためである。**この記録が順位づけへ流れることはない。**
+       * 順位づけ側は Editorial 印のポートしか受け取れず、
+       * `AuditLogPort` はその型に当てはまらないので、経路が型として存在しない。
+       *
+       * 理由は `createAuditLogEntry` 側で必須になっている（`REASON_REQUIRED`）。
+       * 理由の無い金額の修正は、後から見て正当だったか判断できない。
+       */
+      const entry = buildAuditEntry({ ids: deps.ids, now: deps.now }, actor, {
+        action: "conversion.adjusted",
+        targetType: "conversion",
+        targetId: String(loaded.value.id),
+        before:
+          before === null
+            ? null
+            : { amountMinor: before.amountMinor, currency: before.currency },
+        after: { amountMinor: amount.value.amountMinor, currency: amount.value.currency },
+        reason: input.reason,
+      });
+      if (!entry.ok) return entry;
+      const appended = await deps.auditLog.append(entry.value);
+      if (!appended.ok) {
+        return err(
+          auditWriteFailure(
+            `金額は ${formatMoney(amount.value)} に直っています`,
+            appended.error.details,
+          ),
+        );
+      }
+
       return ok({ view: toConversionView(saved.value) });
     },
   };

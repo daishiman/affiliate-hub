@@ -705,6 +705,9 @@ export async function affiliateUseCases() {
     programs: deps.affiliatePrograms,
     links: deps.affiliateLinks,
     conversions: deps.conversions,
+    ids: deps.ids,
+    auditLog: deps.auditLog,
+    now: () => new Date(),
   };
   return {
     listAccounts: createListAffiliateAccountsUseCase(affiliate),
@@ -1281,7 +1284,12 @@ export function productDisplayName(productId: string): string {
  */
 export async function siteBuilderUseCases() {
   const deps = createDeps({ db: await tryGetDb() });
-  const builder = { drafts: deps.siteDrafts, ids: deps.ids };
+  const builder = {
+    drafts: deps.siteDrafts,
+    ids: deps.ids,
+    auditLog: deps.auditLog,
+    now: () => new Date(),
+  };
   return {
     listDrafts: createListSiteDraftsUseCase(builder),
     getDraft: createGetSiteDraftUseCase(builder),

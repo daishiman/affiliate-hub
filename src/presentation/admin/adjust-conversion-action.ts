@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import type { CurrencyCode } from "@/domain/shared";
 import { affiliateUseCases, currentActor } from "@/presentation/composition";
 import type { AdjustConversionState } from "./adjust-conversion-state";
+import { refusalText } from "@/presentation/refusal-text";
 
 /**
  * 成果の画面から金額を直す操作。
@@ -45,7 +46,7 @@ export async function adjustConversionAction(
     return {
       status: "failed",
       // 次にすることが書いてあるならそちらを出す。原因だけ出しても直せない。
-      message: result.error.suggestedAction ?? result.error.message,
+      message: refusalText(result.error),
       field: result.error.field,
     };
   }

@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { currentActor, publicationCalendarUseCases } from "@/presentation/composition";
 import type { RescheduleState } from "./reschedule-state";
+import { refusalText } from "@/presentation/refusal-text";
 
 /**
  * 投稿予定日の変更。
@@ -32,7 +33,7 @@ export async function reschedulePublicationAction(
     return {
       status: "failed",
       // 直し方が分かる言葉を優先する。原因の説明だけでは次の操作が決まらない。
-      message: result.error.suggestedAction ?? result.error.message,
+      message: refusalText(result.error),
       field: result.error.field,
     };
   }

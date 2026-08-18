@@ -1,7 +1,9 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import type { DomainError } from "@/domain/shared";
 import { currentActor, linkInboxUseCases } from "@/presentation/composition";
+import { refusalText } from "@/presentation/refusal-text";
 
 /**
  * 受信箱の操作。
@@ -40,7 +42,7 @@ export async function submitAffiliateUrlAction(
   if (!result.ok) {
     return {
       status: "failed",
-      message: result.error.suggestedAction ?? result.error.message,
+      message: refusalText(result.error),
       field: result.error.field,
     };
   }
@@ -98,14 +100,10 @@ export async function advanceLinkIngestionAction(
   };
 }
 
-function failed(error: {
-  message: string;
-  suggestedAction?: string;
-  field?: string;
-}): InboxFormState {
+function failed(error: DomainError): InboxFormState {
   return {
     status: "failed",
-    message: error.suggestedAction ?? error.message,
+    message: refusalText(error),
     field: error.field,
   };
 }

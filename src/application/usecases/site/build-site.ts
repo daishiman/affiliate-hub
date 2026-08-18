@@ -1,5 +1,7 @@
 import type { EditorialSiteDraftRepositoryPort } from "@/application/ports/authoring";
 import type { IdGeneratorPort } from "@/application/ports/common";
+import type { AuditLogPort } from "@/application/ports/compliance";
+import { auditWriteFailure, buildAuditEntry } from "@/application/audit";
 import {
   ARTICLE_TYPE_LABEL,
   ARTICLE_TYPES,
@@ -49,6 +51,8 @@ import type { UseCase } from "../usecase";
 export type BuildSiteDeps = {
   readonly drafts: EditorialSiteDraftRepositoryPort;
   readonly ids: IdGeneratorPort;
+  readonly auditLog: AuditLogPort;
+  readonly now: () => Date;
   readonly affiliateLinks?: never;
 };
 
@@ -694,6 +698,41 @@ export function createCreateSiteFromDraftUseCase(
 
       const saved = await deps.drafts.save({ ...draft, createdSiteSlug: draft.slug });
       if (!saved.ok) return saved;
+
+      /*
+       * 誰がこのブログを作ったかを残す。**記録は保存の後**に書く。
+       * 先に書くと、作れていないブログの記録だけが残る。
+       *
+       * ブログを消す口はまだ無い。つまりこれは**取り消せない操作**で、
+       * 「誰が・いつ・どんな設計で作ったか」はここでしか残せない。
+       *
+       * `recreated` を入れてあるのは、同じ下書きから 2 度目を通したときに
+       * 設計図が上書きされるため。「作った」が 2 行並んだとき、
+       * どちらが最初かを後から読めるようにしておく。
+       */
+      const entry = buildAuditEntry({ ids: deps.ids, now: deps.now }, actor, {
+        action: "site.created",
+        targetType: "site",
+        targetId: draft.slug,
+        after: {
+          name: draft.name,
+          pattern: draft.pattern,
+          revenueModel: draft.revenueModel,
+          pageCount: blueprint.value.pages.length,
+          categoryCount: blueprint.value.categories.length,
+          recreated: draft.createdSiteSlug !== null,
+        },
+      });
+      if (!entry.ok) return entry;
+      const appended = await deps.auditLog.append(entry.value);
+      if (!appended.ok) {
+        return err(
+          auditWriteFailure(
+            `「${draft.name}」は作られていて、読む人からも見えます`,
+            appended.error.details,
+          ),
+        );
+      }
 
       const trustGaps = missingTrustPages(blueprint.value);
       return ok({

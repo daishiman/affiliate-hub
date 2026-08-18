@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import type { SiteWizardStep } from "@/domain/authoring";
 import { currentActor, siteBuilderUseCases } from "@/presentation/composition";
 import type { SiteWizardState } from "./site-wizard-state";
+import { refusalText } from "@/presentation/refusal-text";
 
 /**
  * ブログ作成ウィザードの操作。
@@ -61,7 +62,7 @@ export async function saveSiteDraftStepAction(
   if (!result.ok) {
     return {
       status: "failed",
-      message: result.error.suggestedAction ?? result.error.message,
+      message: refusalText(result.error),
       field: result.error.field,
     };
   }
@@ -87,7 +88,7 @@ export async function createSiteFromDraftAction(
   if (!result.ok) {
     return {
       status: "failed",
-      message: result.error.suggestedAction ?? result.error.message,
+      message: refusalText(result.error),
       field: result.error.field,
     };
   }

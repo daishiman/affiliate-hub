@@ -65,6 +65,9 @@ describe("Editorial / Commercial の遮断", () => {
         links: deps.affiliateLinks,
         // 印を外したものを渡す。
         conversions: { ...deps.conversions } as typeof deps.conversions,
+        ids: deps.ids,
+        auditLog: deps.auditLog,
+        now: () => new Date(),
       }),
     ).toThrow(/商業データの印/);
   });

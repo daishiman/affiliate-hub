@@ -113,7 +113,13 @@ describe("書かれなかった欄", () => {
 });
 
 describe("送れなかったとき", () => {
-  it("次に何をすればよいかがあるときは、それを出す", async () => {
+  /*
+   * 次にすることだけを出すと、**何が起きたかが画面から消える**。
+   * ここでは「送信先が未設定」が消えると、送った人は本文を書き直して
+   * 何度も押すことになる（原因は本文ではないので、何度押しても同じ）。
+   * 両方を出す判断は `src/presentation/refusal-text.ts` に 1 つだけ置いてある。
+   */
+  it("起きたことと、次にすることの両方を出す", async () => {
     answer.value = err(
       domainError("NOT_IMPLEMENTED", "送信先がまだ設定されていません。", {
         suggestedAction: "運営者へ直接ご連絡ください。",
@@ -121,7 +127,8 @@ describe("送れなかったとき", () => {
     );
     const state = await submitContactAction(IDLE, form({ siteSlug: "lens-start", body: "本文" }));
     expect(state.status).toBe("failed");
-    expect(state.message).toBe("運営者へ直接ご連絡ください。");
+    expect(state.message).toContain("送信先がまだ設定されていません。");
+    expect(state.message).toContain("運営者へ直接ご連絡ください。");
   });
 
   it("次の一歩が無いときは、起きたことをそのまま出す（無言にしない）", async () => {

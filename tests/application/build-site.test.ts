@@ -207,55 +207,46 @@ describe("ブログ作成ウィザード", () => {
 });
 
 describe("作ったブログ", () => {
-  it("読者向けの経路で、見本のブログと同じ扱いで出てくる", async () => {
+  /*
+   * 「作れて、読者向けの経路に出てくる」ことは
+   * `tests/integration/d1-site-draft.test.ts` で、**本物の保存先の上**で見る。
+   *
+   * ここ（組み立て済みの入口）で見るのはその手前。この試験の中では
+   * 記録の保存先がまだ無く、作ったことを残せない。**残せないときに
+   * 作ってしまわないこと**が、ここで守りたいことになる。
+   */
+  it("記録が残せないときは、成功として返さない", async () => {
     const slug = "first-lens-guide";
     const draftId = await completeDraft(slug);
     const actor = await builderActor();
 
     const created = await (await siteBuilderUseCases()).createSite.execute(actor, { draftId });
-    expect(created.ok).toBe(true);
-    if (!created.ok) return;
-
-    expect(created.value.readerPath).toBe(`/s/${slug}`);
-    expect(created.value.categoryCount).toBe(2);
-    // 画面の種類は型（beginner_guide）から自動で決まる。手で並べていない。
-    expect(created.value.pageCount).toBeGreaterThan(0);
-
-    // 読者側の入口は、見本のブログと同じユースケース。
-    const site = await (await siteUseCases()).getSite.execute(actor, { siteSlug: slug });
-    expect(site.ok, "作ったブログが読者向けの経路で見つかりません").toBe(true);
-    if (!site.ok) return;
-    expect(site.value.blueprint.name).toBe("はじめてのレンズ");
+    expect(created.ok).toBe(false);
+    if (created.ok) return;
+    expect(created.error.message).toContain("記録");
   });
 
-  it("ブログの一覧にも、見本と区別なく並ぶ", async () => {
+  /*
+   * 記録は**作った後**に書く（先に書くと、作れていないブログの記録が残る）。
+   * つまり記録に失敗した時点で、ブログはもう読者から見える。
+   * 断り文がそれを隠したら、押した人は「作られていない」と思って
+   * 名前を変えてもう一度作り、同じブログが 2 本並ぶ。
+   */
+  it("断り文が、すでにブログが見えていることを隠さない", async () => {
     const slug = "second-lens-guide";
     const draftId = await completeDraft(slug);
     const actor = await builderActor();
 
-    const before = await (await siteUseCases()).listSites.execute(actor, {});
-    expect(before.ok).toBe(true);
-    if (!before.ok) return;
-
     const created = await (await siteBuilderUseCases()).createSite.execute(actor, { draftId });
-    expect(created.ok).toBe(true);
+    expect(created.ok).toBe(false);
+    if (created.ok) return;
+    expect(created.error.message).toContain("読む人からも見えます");
 
     const after = await (await siteUseCases()).listSites.execute(actor, {});
     expect(after.ok).toBe(true);
     if (!after.ok) return;
-
-    expect(after.value.length).toBe(before.value.length + 1);
+    // 断り文の言うとおり、読者側には出ている。ここが食い違うと、どちらも信じられない。
     expect(after.value.some((s) => s.slug === slug)).toBe(true);
-  });
-
-  it("差別化の 10 軸がすべて埋まっている（言い換えブログを作らせない）", async () => {
-    const slug = "third-lens-guide";
-    const draftId = await completeDraft(slug);
-    const actor = await builderActor();
-
-    const created = await (await siteBuilderUseCases()).createSite.execute(actor, { draftId });
-    // 10 軸のどれかが空なら createSiteBlueprint が断る。作れた時点で 10 軸が揃っている。
-    expect(created.ok).toBe(true);
   });
 });
 
@@ -276,7 +267,7 @@ import type { SiteDraftId, WorkspaceId } from "@/domain/shared/ids";
 import { ok } from "@/domain/shared/result";
 import { taggedString } from "@/domain/shared";
 import { WORKSPACE, aNobody, anOwner } from "../support/actors";
-import { failing, testDeps } from "../support/doubles";
+import { failing, recordingAuditLog, testDeps } from "../support/doubles";
 
 /**
  * 見本の保存先を使うと、途中で止まった下書き・壊れた選択肢を作れない。
@@ -306,8 +297,16 @@ function memoryDrafts(seed: readonly SiteDraft[] = []) {
   return { port, rows, published };
 }
 
-function buildDeps(drafts: BuildSiteDeps["drafts"]): BuildSiteDeps {
-  return { drafts, ids: testDeps().ids };
+/**
+ * 見本の記録は書き足しを断る（保存先が無い）ので、溜める版を使う。
+ * `audit` から、何が残ったかをそのまま読める。
+ */
+function buildDeps(
+  drafts: BuildSiteDeps["drafts"],
+  over: Partial<BuildSiteDeps> = {},
+): BuildSiteDeps & { readonly audit: ReturnType<typeof recordingAuditLog> } {
+  const audit = recordingAuditLog();
+  return { drafts, ids: testDeps().ids, auditLog: audit.port, now: () => new Date(), ...over, audit };
 }
 
 const DRAFT_ID = taggedString<"SiteDraftId">("sd_test") as SiteDraftId;
@@ -658,6 +657,60 @@ describe("ブログを作る（つなぎ目を差し替えて）", () => {
     expect(result.ok).toBe(false);
     if (result.ok) return;
     expect(result.error.code).toBe("NOT_FOUND");
+  });
+});
+
+/**
+ * ブログを消す口はまだ無い。つまり作るのは**取り消せない操作**で、
+ * 「誰が・いつ・どんな設計で作ったか」はここでしか残せない。
+ */
+describe("ブログを作ったことの記録", () => {
+  it("誰が・どのブログを作ったかが残る", async () => {
+    const deps = buildDeps(memoryDrafts([filledDraft()]).port);
+    const done = await createCreateSiteFromDraftUseCase(deps).execute(owner, {
+      draftId: String(DRAFT_ID),
+    });
+    expect(done.ok, done.ok ? "" : done.error.message).toBe(true);
+
+    const entries = deps.audit.entries();
+    expect(entries).toHaveLength(1);
+    const entry = entries[0];
+    expect(entry?.action).toBe("site.created");
+    expect(entry?.targetType).toBe("site");
+    // 「どのブログか」は URL 名で辿る。読者が見ているものと同じ手がかりにする。
+    expect(entry?.targetId).toBe("lens-start");
+    expect(String(entry?.actor.userId)).toBe(owner.userId);
+    expect(entry?.after).toMatchObject({ name: "はじめてのレンズ", recreated: false });
+  });
+
+  it("同じ下書きから作り直したときは、作り直しと分かる形で残る", async () => {
+    // 2 度目は設計図を上書きする。「作った」が 2 行並んだとき、
+    // どちらが最初かを後から読めないと、いつからいまの形なのかが分からない。
+    const drafts = memoryDrafts([filledDraft()]);
+    const deps = buildDeps(drafts.port);
+    const useCase = createCreateSiteFromDraftUseCase(deps);
+    await useCase.execute(owner, { draftId: String(DRAFT_ID) });
+    await useCase.execute(owner, { draftId: String(DRAFT_ID) });
+
+    const entries = deps.audit.entries();
+    expect(entries).toHaveLength(2);
+    expect(entries[0]?.after).toMatchObject({ recreated: false });
+    expect(entries[1]?.after).toMatchObject({ recreated: true });
+  });
+
+  it("記録を残せなかったときは、作れたこととして返さない", async () => {
+    const deps = buildDeps(memoryDrafts([filledDraft()]).port, {
+      auditLog: { ...recordingAuditLog().port, append: async () => failing("記録できません。") },
+    });
+    const done = await createCreateSiteFromDraftUseCase(deps).execute(owner, {
+      draftId: String(DRAFT_ID),
+    });
+
+    expect(done.ok).toBe(false);
+    if (done.ok) return;
+    // 「作れませんでした」だけを返さない。ブログはもう読む人から見えている。
+    expect(done.error.message).toContain("はじめてのレンズ");
+    expect(done.error.message).toContain("記録");
   });
 });
 

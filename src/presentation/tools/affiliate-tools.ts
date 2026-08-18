@@ -34,6 +34,11 @@ export function affiliateTools(deps: AppDeps): readonly AnyToolDefinition[] {
     programs: deps.affiliatePrograms,
     links: deps.affiliateLinks,
     conversions: deps.conversions,
+    ids: deps.ids,
+    // 記録は画面と道具の両方に配る。片方だけにすると
+    // 「AI から出したときだけ誰がやったか残らない」が生まれる。
+    auditLog: deps.auditLog,
+    now: () => new Date(),
   };
   const period = z
     .string()

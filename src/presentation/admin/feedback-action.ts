@@ -5,6 +5,7 @@ import { FEEDBACK_DISPOSITIONS, FEEDBACK_STATUSES, KEY_SCOPES } from "@/domain/f
 import type { FeedbackDisposition, FeedbackStatus, KeyScope } from "@/domain/feedback";
 import { currentActor, feedbackUseCases } from "@/presentation/composition";
 import type { FeedbackSubmission } from "@/presentation/ui";
+import { refusalText } from "@/presentation/refusal-text";
 import type {
   FeedbackHandoffState,
   FeedbackStatusState,
@@ -51,7 +52,7 @@ export async function submitFeedbackAction(
 
   if (!result.ok) {
     // 「送れません」だけで終わらせない。次にどうすればよいかまで返す。
-    return { message: result.error.suggestedAction ?? result.error.message };
+    return { message: refusalText(result.error) };
   }
   // 画像だけ落ちたことを黙らない。黙ると「隠したはずの箇所」の扱いが分からなくなる。
   const issue = result.value.captureIssue;
@@ -128,7 +129,7 @@ export async function changeFeedbackStatusAction(
   if (!result.ok) {
     return {
       status: "failed",
-      message: result.error.suggestedAction ?? result.error.message,
+      message: refusalText(result.error),
       field: result.error.field,
     };
   }
@@ -178,7 +179,7 @@ export async function handOffFeedbackAction(
   if (!result.ok) {
     return {
       status: "failed",
-      message: result.error.suggestedAction ?? result.error.message,
+      message: refusalText(result.error),
       prompts: [],
       skipped: [],
       idempotencyText: "",
@@ -235,16 +236,7 @@ export async function manageIntegrationAccessAction(
   if (!result.ok) {
     return {
       status: "failed",
-      /*
-       * **何が起きたか**と**次に何をするか**を両方出す。
-       * 次にすることだけを出すと、「鍵は作られたが値が出せていない」のような
-       * *すでに済んでしまったこと*が画面から消え、押した人は
-       * 何も起きなかったと思ってもう一度押す。
-       */
-      message:
-        result.error.suggestedAction === undefined
-          ? result.error.message
-          : `${result.error.message}\n${result.error.suggestedAction}`,
+      message: refusalText(result.error),
       field: result.error.field,
       issuedValue: null,
     };

@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { currentActor, llmCredentialEntry } from "@/presentation/composition";
+import { refusalText } from "@/presentation/refusal-text";
 import type { LlmCredentialState } from "./llm-credential-state";
 
 const PATH = "/admin/settings/llm";
@@ -49,7 +50,7 @@ export async function manageLlmCredentialAction(
   if (!result.ok) {
     return {
       status: "failed",
-      message: result.error.suggestedAction ?? result.error.message,
+      message: refusalText(result.error),
       field: result.error.field,
     };
   }

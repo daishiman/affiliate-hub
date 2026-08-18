@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import type { ChannelKind } from "@/domain/distribution";
 import { currentActor, distributionUseCases } from "@/presentation/composition";
 import type { SchedulePublicationState } from "./schedule-publication-state";
+import { refusalText } from "@/presentation/refusal-text";
 
 /**
  * 記事の画面から配信を作る操作。
@@ -31,7 +32,7 @@ export async function schedulePublicationAction(
     return {
       status: "failed",
       // 次にすることが書いてあるならそちらを出す。原因だけ出しても直せない。
-      message: result.error.suggestedAction ?? result.error.message,
+      message: refusalText(result.error),
       field: result.error.field,
     };
   }
