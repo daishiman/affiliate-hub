@@ -1,5 +1,5 @@
 {
-  "graph_revision": 216,
+  "graph_revision": 217,
   "nodes": [
     {
       "acceptance": [],
@@ -9467,6 +9467,107 @@
       "title": "鍵の登録画面が未ログインでも使える（本番へ出す前に塞ぐ）",
       "tracker_binding": "beads",
       "updated_at": "2026-08-18T04:00:00Z"
+    },
+    {
+      "acceptance": [],
+      "architecture_refs": [],
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "beads_linkage": null,
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "candidate_path": "tasks/task-publish-article-affiliate-links.md",
+          "confidence": 0.9
+        }
+      ],
+      "classification_confidence": 0.9,
+      "classification_reason": "公開の手続きと表現の型を実測で辿り、渡っていない箇所を特定した",
+      "completion_evidence": {
+        "completed_at": null,
+        "evidence_refs": [],
+        "policy": "manual",
+        "reconciled_at": null,
+        "source": "manual",
+        "status": "open"
+      },
+      "confirmation_evidence": {
+        "evaluated_digest": null,
+        "evaluator": null,
+        "evidence_ref": null
+      },
+      "confirmation_status": "draft",
+      "created_at": "2026-08-18T03:00:00Z",
+      "depends_on": [],
+      "domain": "affiliate",
+      "evaluation_status": "pending",
+      "execution_contexts": [],
+      "feature_package_id": null,
+      "file_path": "tasks/task-publish-article-affiliate-links.md",
+      "github_project_linkages": [],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "goal": null,
+      "graph_node_id": "task-publish-article-affiliate-links",
+      "implementation_readiness": {
+        "checked_at": null,
+        "missing_sections": [],
+        "status": "incomplete"
+      },
+      "issue_linkage": null,
+      "iteration": null,
+      "mvp_alignment": {
+        "background": "公開の手続き buildArticle が ranking も productCards も作らず、版が持つ affiliateLinkIds が公開記事へ 1 件も渡らない",
+        "mvp_fit": "direct",
+        "purpose": "実運用の記事から成果リンクが出て、押されたクリックが突合できる状態にする",
+        "rationale": "アフィリエイトの収益そのものを測る経路で、ここが 0 件だと計測の下流が全部 0 になる"
+      },
+      "owners": [
+        "daishiman"
+      ],
+      "parent_feature": null,
+      "phase_ref": null,
+      "priority": "high",
+      "project_id": "affiliate-hub",
+      "pull_request_linkages": [],
+      "purpose": null,
+      "related_nodes": [
+        "task-tracking-code-issuance",
+        "task-click-tracking-go-route"
+      ],
+      "resource_scope": [
+        "src",
+        "tests",
+        "docs",
+        "drizzle"
+      ],
+      "scope_in": [],
+      "scope_out": [],
+      "source_lineage": {
+        "imported_at": "2026-08-18T03:00:00Z",
+        "origin_kind": "manual",
+        "source_digest": null,
+        "source_path": "src/application/usecases/site/publish-article.ts",
+        "source_plugin": null,
+        "source_version": null
+      },
+      "start_date": null,
+      "status": "draft",
+      "tags": [
+        "affiliate",
+        "publish",
+        "measurement"
+      ],
+      "target_date": null,
+      "template_id": "task",
+      "template_version": "1.0.0",
+      "title": "公開された記事に、成果リンクを載せる経路が無い",
+      "tracker_binding": "beads",
+      "updated_at": "2026-08-18T03:00:00Z"
     }
   ],
   "repository_id": "github:daishiman/affiliate-hub",
