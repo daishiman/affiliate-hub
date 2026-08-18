@@ -1,4 +1,4 @@
-/** @tier 1 @req REQ-IM05, REQ-E14 @types property, state-transition */
+/** @tier 1 @req REQ-IM05, REQ-IM06, REQ-E14 @types property, state-transition */
 import fc from "fast-check";
 import { describe, expect, it } from "vitest";
 import {
@@ -184,6 +184,25 @@ describe("承認", () => {
         const second = approveVariantSpec(first.value, { approvedBy: who, at: new Date() });
         expect(second.ok).toBe(false);
         if (!second.ok) expect(second.error.code).toBe("CONFLICT");
+      }),
+    );
+  });
+
+  it("承認した人の名前が空なら承認できない", () => {
+    /*
+     * 上の試験は `fc.pre(who.trim() !== "")` で空白の承認者を**外している**。
+     * 外した先を誰も見ていなかったので、`approveVariantSpec` の
+     * 空白チェックを丸ごと消しても緑のまま通っていた（2026-08-19 に実測）。
+     * 前提で除いた側は、除いたぶんだけ別に見る。
+     */
+    fc.assert(
+      fc.property(settingsArb, fc.stringMatching(/^[ \t　]*$/), (settings, blank) => {
+        const r = approveVariantSpec(specOf("a", settings), {
+          approvedBy: blank,
+          at: new Date(),
+        });
+        expect(r.ok).toBe(false);
+        if (!r.ok) expect(r.error.code).toBe("VALIDATION_FAILED");
       }),
     );
   });

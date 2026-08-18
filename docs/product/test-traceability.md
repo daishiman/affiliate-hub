@@ -92,7 +92,7 @@
 | `tests/domain/feedback.test.ts` | REQ-FB03, REQ-FB12 | 表 |
 | `tests/domain/generation-plan.test.ts` | REQ-A04, REQ-G01, REQ-G02, REQ-G03, REQ-G04, REQ-G05, REQ-G06, REQ-G07, REQ-G08, REQ-P06, REQ-SEC05 | 印と表 |
 | `tests/domain/handoff-prompt.test.ts` | REQ-FB11 | 表 |
-| `tests/domain/improvement.test.ts` | REQ-IM01, REQ-IM06, REQ-IM07, REQ-IM08, REQ-IM09, REQ-IM10, REQ-IM11, REQ-IM12 | 表 |
+| `tests/domain/improvement.test.ts` | REQ-IM01, REQ-IM02, REQ-IM03, REQ-IM04, REQ-IM06, REQ-IM07, REQ-IM08, REQ-IM09, REQ-IM10, REQ-IM11, REQ-IM12 | 印と表 |
 | `tests/domain/invariants.test.ts` | REQ-QC02, REQ-QC05, REQ-QC06, REQ-QC08, REQ-QC09, REQ-SEC07, REQ-W08 | 印と表 |
 | `tests/domain/link-ingestion.test.ts` | REQ-A01, REQ-P02, REQ-S02 | 印と表 |
 | `tests/domain/llm-credential.test.ts` | REQ-SEC01 | 印 |
@@ -158,7 +158,7 @@
 | `tests/property/publish-gate.property.test.ts` | REQ-QC09, REQ-QC12, REQ-SEC06 | 印と表 |
 | `tests/property/ranking.property.test.ts` | REQ-B12, REQ-P04, REQ-SEC04 | 印と表 |
 | `tests/property/tenancy.property.test.ts` | REQ-API02, REQ-P01, REQ-R11, REQ-R12, REQ-SEC01 | 印と表 |
-| `tests/property/variant-spec.property.test.ts` | REQ-E14, REQ-IM05 | 印と表 |
+| `tests/property/variant-spec.property.test.ts` | REQ-E14, REQ-IM05, REQ-IM06 | 印と表 |
 | `tests/ui/adjust-conversion-form.test.tsx` | REQ-P09 | 表 |
 | `tests/ui/audit-log-notice.test.tsx` | REQ-SEC09 | 印 |
 | `tests/ui/blueprint-theme.test.ts` | REQ-P07, REQ-TH02 | 表 |
@@ -185,4 +185,4 @@
 | `tests/ui/theme-contrast.test.ts` | REQ-TH02, REQ-TS06 | 表 |
 | `tests/ui/tool-form.test.tsx` | REQ-WC05 | 印と表 |
 | `tests/ui/ui-layers.test.ts` | REQ-S09, REQ-TM05, REQ-TM06 | 表 |
-<!-- 生成物の指紋 sha256:2376f6022892890bb3f0a88dc2a429e1176cadfb115469cfeab1e47d3dec762b -->
+<!-- 生成物の指紋 sha256:854bdca652e303b0b7341bef366ad5c897a21e0f458200414d660b3474c38d61 -->

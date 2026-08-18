@@ -1,4 +1,11 @@
-/** @tier 1 */
+/**
+ * @tier 1
+ * @req REQ-IM01, REQ-IM02, REQ-IM03, REQ-IM04, REQ-IM07, REQ-IM08, REQ-IM09, REQ-IM10, REQ-IM11, REQ-IM12
+ * @types equivalence, boundary, decision-table, state-transition
+ *
+ * 印を 1 行に収めてあるのは、`scripts/required-test-types.mjs` の `@req` の
+ * 読み取りが `*` で止まるためで、折り返すと 2 行目の要件が黙って落ちる。
+ */
 import { describe, expect, it } from "vitest";
 import {
   DEFAULT_MINIMUM_SAMPLES,
@@ -630,5 +637,150 @@ describe("軸を 1 つ増やしたときの影響（変更容易性シナリオ 
       expect(findOptimizationDimension(d.key)?.label).toBe(d.label);
     }
     expect(findOptimizationDimension("brand_new_axis")).toBeNull();
+  });
+});
+
+/**
+ * 一覧そのものを、テストの側から固定する。
+ *
+ * **この節を書くまで、上の試験は一覧を回すことしかしていなかった。**
+ * 回すだけの試験は、期待値を実装から作っている。だから一覧から 1 件消えると、
+ * 残った件数を回して残った件数ぶん確かめ、**緑のまま通る**。
+ *
+ * 実測（2026-08-19、37 通りの書き換えを 1 件ずつ試した）:
+ *   - 調整してはいけないもの 6 件 → **6 件とも緑**
+ *   - 改善の軸 20 件 → 17 件が緑（赤は `section_order` / `lead_length` / `brand_theme` の 3 件だけ）
+ *   - 外せない約束 5 件 → **5 件とも緑**
+ *   - ループの種類 6 件 → 動いている 2 件だけ赤、残り 4 件は緑
+ *
+ * 中でも重いのは調整禁止の 6 件である。禁止の判定 `NON_OPTIMIZABLE_KEYS` は
+ * その一覧から作られるので、一覧から「広告であることの表示」を外すと
+ * **それを A/B 試験の軸にできるようになる**。景品表示法に関わる決まりが
+ * 消えるのに、試験は 5 件を回して 5 件とも禁止を確かめ、緑を返していた。
+ *
+ * 消えたことは緑として現れる。だから下の一覧は**実装から作らず、ここに書く**。
+ * 実装を変えたい人は、この一覧も一緒に変えることになる。それが目的である。
+ */
+describe("一覧の中身そのもの（実装から期待値を作らない）", () => {
+  const EXPECTED_NON_OPTIMIZABLE = [
+    "evidence_requirement",
+    "disclosure_presence",
+    "accessibility_level",
+    "ranking_inputs",
+    "consent_prominence",
+    "factuality_labeling",
+  ] as const;
+
+  const EXPECTED_DIMENSIONS: Readonly<Record<string, readonly string[]>> = {
+    // 要件 REQ-IM02（文章・内容の 10 軸）
+    text: [
+      "section_order",
+      "lead_length",
+      "heading_wording",
+      "sentence_length",
+      "content_angle",
+      "comparison_columns",
+      "claim_placement",
+      "cta_wording",
+      "article_length",
+      "image_placement",
+    ],
+    // 要件 REQ-IM03（見た目の 6 軸）
+    visual: [
+      "brand_theme",
+      "typography_scale",
+      "content_density",
+      "body_max_width",
+      "ranking_card_form",
+      "first_view_composition",
+    ],
+    // 要件 REQ-IM04（たどり方の 4 軸）
+    navigation: [
+      "internal_link_placement",
+      "related_articles_form",
+      "toc_form",
+      "template_by_article_type",
+    ],
+  };
+
+  const EXPECTED_GUARDRAILS = [
+    "適用は人の承認を通す（見た目だけの変更も含む）",
+    "根拠・広告表示・アクセシビリティは調整対象にしない",
+    "順位づけの入力に成果や報酬を入れない",
+    "必要件数に届くまで差があると言わない",
+    "元の設定へいつでも戻せる状態を保つ",
+  ] as const;
+
+  const EXPECTED_LOOP_KINDS = [
+    ["content_improvement", "implemented"],
+    ["topic_expansion", "planned"],
+    ["angle_exploration", "planned"],
+    ["decay_watch", "planned"],
+    ["generation_cost", "planned"],
+    ["product_improvement", "implemented"],
+  ] as const;
+
+  it("調整してはいけないものの一覧が、1 件も欠けていない", () => {
+    expect(NON_OPTIMIZABLE.map((n) => n.key)).toEqual([...EXPECTED_NON_OPTIMIZABLE]);
+  });
+
+  it("調整してはいけない 6 件は、名前を直接あてても軸にできない", () => {
+    // 上の「調整してはいけないものは、どれも軸にできない」との違いは、
+    // 回す先が実装の一覧ではなく**この 6 個の文字列**であること。
+    // 実装から 1 件消えると、この試験だけが赤くなる。
+    for (const key of EXPECTED_NON_OPTIMIZABLE) {
+      const attempt: OptimizationDimension = {
+        key,
+        label: key,
+        group: "text",
+        why: "数字が良くなるから",
+        candidateSource: "preset",
+        appliedAt: "prompt",
+        evaluatedBy: ["read_completion_rate"],
+        feedbackTarget: "article_revision",
+        reversible: true,
+      };
+      const r = assertRegistrable(attempt);
+      expect(r.ok, `${key} が軸として通ってしまった`).toBe(false);
+      if (!r.ok) expect(r.error.code).toBe("INVARIANT_VIOLATED");
+    }
+  });
+
+  it("改善の軸が、まとまりごとに 1 件も欠けていない", () => {
+    for (const [group, keys] of Object.entries(EXPECTED_DIMENSIONS)) {
+      expect(
+        OPTIMIZATION_DIMENSIONS.filter((d) => d.group === group).map((d) => d.key),
+        `${group} の軸が変わっている`,
+      ).toEqual([...keys]);
+    }
+    // まとまりを足したときにも気づけるよう、総数も突き当てる。
+    const total = Object.values(EXPECTED_DIMENSIONS).reduce((n, k) => n + k.length, 0);
+    expect(OPTIMIZATION_DIMENSIONS.length).toBe(total);
+  });
+
+  it("外せない約束が、1 件も欠けていない", () => {
+    expect(UNIVERSAL_GUARDRAILS.map((g) => g.label)).toEqual([...EXPECTED_GUARDRAILS]);
+    // 「自動で付く」ことは上の試験が見ているが、そこも一覧を回している。
+    // ここでは**この 5 個の文字列**が全ループに付いていることを見る。
+    for (const kind of LOOP_KINDS) {
+      for (const label of EXPECTED_GUARDRAILS) {
+        expect(
+          kind.guardrails.some((g) => g.label === label && g.hard),
+          `${kind.key} に「${label}」が付いていない`,
+        ).toBe(true);
+      }
+    }
+  });
+
+  it("ループの種類と、動いているかどうかが変わっていない", () => {
+    expect(LOOP_KINDS.map((k) => [k.key, k.readiness])).toEqual(
+      EXPECTED_LOOP_KINDS.map((e) => [...e]),
+    );
+    // 動いている数は要件表（REQ-IM10）の文言と直結する。
+    // ここが動いたら、表の側も直さなければならない。
+    expect(implementedLoopKinds().map((k) => k.key)).toEqual([
+      "content_improvement",
+      "product_improvement",
+    ]);
   });
 });

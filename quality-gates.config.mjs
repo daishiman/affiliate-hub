@@ -228,6 +228,22 @@ export const REQUIRED_TEST_TYPES = {
    * `property` / `audit-log` の 7 つはまだ指されていない
    * （初めは 5 つと書いたが `contract` と `infra-config` を数え落としていた。
    * 2026-08-18 に訂正）。理由は `docs/product/required-test-types.md` §4 に書く。
+   *
+   * **この 7 つの並びは、上の 5 つについて古い。**
+   * 同じ 2026-08-18 に `has-user-supplied-url`(→`ssrf`) /
+   * `has-enumerated-input`(→`decision-table`) / `has-db-table` /
+   * `has-runtime-config`(→`infra-config`) /
+   * `has-recorded-operation`(→`audit-log`) が足されて、5 つは指されるようになった。
+   * 残っているのは `contract` と `property` の 2 つである。
+   *
+   * ただし**「指されていない種別は 7 つ」という数え自体が最初から違う**。
+   * 2026-08-19 に `TEST_TYPES` の全 34 種と `REQUIRED_TEST_TYPES` の指し先を
+   * 突き合わせたところ、指されていないのは 16 種あった
+   * （`pairwise` `scenario` `property` `contract` `db-constraint` `db-concurrency`
+   * `e2e` `visual` `perf` `load` `injection` `redaction` `dep-audit` `csrf`
+   * `rate-limit` `regression`）。元の 7 つは「このとき検討した範囲の中で」の数で、
+   * 一覧全体を数えたものではなかった。
+   * 手で書いた数字は、古くなっても古く見えない。数え直した日付を添えて残す。
    */
   "has-secret": ["secrets"],
   /*
@@ -503,9 +519,22 @@ export const REQUIRED_TEST_TYPES = {
  * `TS04` の「368 件」は実測 463 件、`TS08` の「121 件」は実測 122 件で、
  * どちらも手で書いた数字が古くなっていた。
  *
+ *
+ * 2026-08-19 に 79 → 68。改善ループ 11 件（`REQ-IM01`〜`IM04` / `IM06`〜`IM12`）を
+ * 宣言した。ここで出たのは**期待値を実装から作る**形で、前の 3 回と別である。
+ * 「調整してはいけないものは、どれも軸にできない」という検査は
+ * `NON_OPTIMIZABLE` を回して `NON_OPTIMIZABLE` 由来の禁止を確かめていた。
+ * 一覧から 1 件消えると、残りを回して残りぶん確かめ、**緑のまま通る**。
+ * 一覧の 37 項目を 1 件ずつ書き換えて測ったところ **32 件が緑**だった
+ * （調整禁止 6/6・外せない約束 5/5・改善の軸 17/20・未実装ループ 4/4）。
+ * 重いのは調整禁止で、そこから「広告であることの表示」が消えると
+ * **それを A/B 試験の軸にできる**のに、誰も落ちなかった。
+ * 一覧をテスト側の文字列で固定してから宣言している（37/37 が赤になることを実測）。
+ * 判定欄の嘘は `REQ-IM10`（ループ 5 種・動くのは 1 種類 → 実測 6 種・2 種類）。
+ *
  * **上げて緑にすることを禁じる。**
  */
-export const TEST_TYPES_MAX_UNDECLARED = 79;
+export const TEST_TYPES_MAX_UNDECLARED = 68;
 
 /**
  * 理由つき除外を許す上限（件数）。
