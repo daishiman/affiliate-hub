@@ -33,6 +33,19 @@
  * 一致しなければ、指紋を消したうえで書き換えたということなので止まる。
  * この作りにしてあるので、**「初回だけ通す抜け道」を用意しなくてよい。**
  * 抜け道は、用意した回ではなく、次に誰かが使う回に効いてくる。
+ *
+ * --- 塞げていないこと（塞いだつもりで残さないために書く）---
+ *
+ * **指紋そのものを、中身と一緒に手で書き換えれば通る。**
+ * 中身を直したあと `sha256` を取り直して末尾へ書けば、この検査は INTACT と読む。
+ * 塞ぐには中身から独立した鍵が要り、鍵は AI が読める場所に置けないので、
+ * **ここでは塞げない。**塞げないものを塞いだことにしないため、明記しておく。
+ *
+ * ただし、この検査が捕まえようとしているのは**うっかり書いた人**である。
+ * 指紋を取り直してまで通す人は、自分が何をしているか分かっている。
+ * そして分かっている人の手書きは、変更の差分（`git diff`）に**生成元を
+ * 一切触らずに生成物だけが変わった**形で残るので、読む人には見える。
+ * 消えて見えなくなるのとは、残り方が違う。
  */
 import { createHash } from "node:crypto";
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
@@ -64,7 +77,10 @@ export function stamp(content) {
 /**
  * 焼いてあるものを見る。
  *
- * @returns {{ state: "INTACT" | "TAMPERED" | "UNPINNED", body: string, pinned?: string, actual?: string }}
+ * `trailing` は**指紋の行より後ろ**に書かれた行。ここも手書きなので、
+ * 消えるところだった行として数える（`body` に混ぜると指紋の照合が狂う）。
+ *
+ * @returns {{ state: "INTACT" | "TAMPERED" | "UNPINNED", body: string, trailing: string[], pinned?: string, actual?: string }}
  */
 export function inspectStamped(text) {
   const lines = text.replace(/\s+$/, "").split("\n");
@@ -72,23 +88,59 @@ export function inspectStamped(text) {
   // 末尾しか見ないと、その場合は「指紋が無い」に化けて、
   // 書き足した本人には身に覚えのない理由（指紋を外した）が返る。
   const at = lines.findLastIndex((l) => isStampLine(l));
-  if (at === -1) return { state: "UNPINNED", body: lines.join("\n") };
+  if (at === -1) return { state: "UNPINNED", body: lines.join("\n"), trailing: [] };
   const body = lines.slice(0, at).join("\n");
   const after = lines.slice(at + 1).filter((l) => l.trim() !== "");
   const line = lines[at];
   const pinned = line.slice(PREFIX.length, line.length - SUFFIX.length);
   const actual = digestOf(body);
-  if (after.length === 0 && pinned === actual) return { state: "INTACT", body };
-  return { state: "TAMPERED", body, pinned, actual };
+  if (after.length === 0 && pinned === actual) return { state: "INTACT", body, trailing: [] };
+  return { state: "TAMPERED", body, trailing: after, pinned, actual };
+}
+
+/**
+ * **消えるところだった行**を拾う。
+ *
+ * いまディスクにあって、これから書く中身には無い行が、上書きしていたら
+ * 消えていたものである。「一致しません」だけを出すと、打った人は
+ * 再生成して先へ進む。**消えかけた中身そのものを見せて初めて、
+ * 書いた本人がそこで気づける。**
+ */
+export function wouldBeLost(diskBody, nextBody) {
+  const next = new Set(nextBody.split("\n").map((l) => l.trim()));
+  return diskBody
+    .split("\n")
+    .filter((l) => l.trim() !== "" && !next.has(l.trim()))
+    .slice(0, 20);
 }
 
 /** 止めるときの言い分。**何が起きたか**と**どう戻すか**を必ず両方書く。 */
-export function tamperMessage(path, found) {
+export function tamperMessage(path, found, nextBody = "") {
+  // 指紋の後ろに書かれた行も、上書きすれば同じように消える。
+  const lost = wouldBeLost([found.body, ...(found.trailing ?? [])].join("\n"), nextBody);
+  const lostBlock =
+    lost.length === 0
+      ? ["  （消えるところだった行は見つかりませんでした。並び順だけの違いかもしれません）"]
+      : [
+          "  **上書きしていたら、この行が消えていました:**",
+          ...lost.map((l) => `    ${l}`),
+          lost.length === 20 ? "    …（20 行まで）" : "",
+        ].filter((l) => l !== "");
+
   if (found.state === "TAMPERED") {
     return [
       `${path} は、機械が作ったあとに手で書き換えられています。`,
-      `  焼いてある指紋: ${found.pinned.slice(0, 16)}…`,
-      `  いまの中身から: ${found.actual.slice(0, 16)}…`,
+      // 指紋の**後ろ**に書き足された場合は、2 つの指紋が一致する。
+      // そこで同じ 16 桁を 2 行並べると、読んだ人は「合っているのに落ちた」と
+      // 受け取って、理由を探すのをやめてしまう。何が起きたかを言葉で書く。
+      ...(found.pinned === found.actual
+        ? ["  指紋そのものは合っていますが、**指紋の行より後ろに行が足されています。**"]
+        : [
+            `  焼いてある指紋: ${found.pinned.slice(0, 16)}…`,
+            `  いまの中身から: ${found.actual.slice(0, 16)}…`,
+          ]),
+      "",
+      ...lostBlock,
       "",
       "  **書き換えずに止めました。**手で書いた行はまだそこにあります。",
       "  上書きしてしまうと、書いた本人には緑に見えたまま消えます。",
@@ -100,6 +152,8 @@ export function tamperMessage(path, found) {
   return [
     `${path} は、指紋の行が外されたうえで中身も変わっています。`,
     "  指紋を消せば通るようにはしていません。",
+    "",
+    ...lostBlock,
     "",
     `  戻すには: git checkout -- ${path}`,
   ].join("\n");
@@ -117,7 +171,7 @@ export function writeGeneratedDoc(path, body) {
     // 違うなら、指紋を外したうえで書き換えたということなので止める。
     const same = found.body.replace(/\s+$/, "") === body.replace(/\s+$/, "");
     if (found.state === "TAMPERED" || (found.state === "UNPINNED" && !same)) {
-      throw new Error(tamperMessage(path, found));
+      throw new Error(tamperMessage(path, found, body));
     }
   }
   writeFileSync(path, `${stamp(body)}\n`, "utf8");
@@ -139,7 +193,7 @@ export function writeGeneratedBlock(path, marker, block) {
     const found = inspectStamped(current);
     const same = found.body.replace(/\s+$/, "") === block.replace(/\s+$/, "");
     if (found.state === "TAMPERED" || (found.state === "UNPINNED" && !same)) {
-      throw new Error(tamperMessage(path, found));
+      throw new Error(tamperMessage(path, found, block));
     }
   }
   const stamped = stamp(block);

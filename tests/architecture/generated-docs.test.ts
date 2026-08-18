@@ -119,6 +119,72 @@ describe("生成物であることの保証", () => {
     expect(inspectStamped(readFileSync(path, "utf8")).state).toBe("INTACT");
   });
 
+  it("止めるとき、消えるところだった行そのものを見せる", () => {
+    const dir = mkdtempSync(join(tmpdir(), "generated-doc-"));
+    const path = join(dir, "report.md");
+
+    writeGeneratedDoc(path, "一行目\n二行目");
+    writeFileSync(path, `${readFileSync(path, "utf8")}\n手で書いた大事な行\n`, "utf8");
+
+    // 「一致しません」だけを出すと、打った人は再生成して先へ進む。
+    // **消えかけた中身そのもの**が画面に出て初めて、書いた本人がそこで気づける。
+    expect(() => writeGeneratedDoc(path, "一行目\n二行目")).toThrow(
+      /上書きしていたら、この行が消えていました[\s\S]*手で書いた大事な行/,
+    );
+  });
+
+  it("実際の 4 枚に、手書きと同じ差分を当てると捕まる", () => {
+    // **手で 1 度書いて赤を見る**のは、その 1 回しか確かめない。
+    // ここでは 4 枚それぞれの**いまの中身**を写して、手書きと同じ差分
+    // （1 行足す・1 文字変える・指紋の行を外す）を当て、毎回すべてを見る。
+    const dir = mkdtempSync(join(tmpdir(), "generated-doc-real-"));
+
+    for (const rel of STAMPED) {
+      const text = readFileSync(join(ROOT, rel), "utf8");
+      const block = rel.endsWith("coverage.md")
+        ? (text.match(
+            /<!-- ここから下は scripts\/coverage-report\.mjs[\s\S]*?<!-- ここまで -->(?:\n<!-- 生成物の指紋[^\n]*-->)?/,
+          )?.[0] ?? "")
+        : text;
+      const body = inspectStamped(block).body;
+      const path = join(dir, `${rel.replaceAll("/", "_")}`);
+
+      // 1. 末尾に 1 行足す（いちばん多い手書き）
+      writeFileSync(path, `${stamp(body)}\n手で足したひとこと\n`, "utf8");
+      expect(() => writeGeneratedDoc(path, body), `${rel}: 行の足しを見逃した`).toThrow(
+        /手で書き換えられています/,
+      );
+
+      // 2. 中身の 1 文字を変える
+      const flipped = body.replace(/[０-９0-9]/, (d) => (d === "0" ? "1" : "0"));
+      if (flipped !== body) {
+        writeFileSync(path, `${stamp(body).replace(body, flipped)}\n`, "utf8");
+        expect(() => writeGeneratedDoc(path, body), `${rel}: 1 文字の書き換えを見逃した`).toThrow(
+          /手で書き換えられています/,
+        );
+      }
+
+      // 3. 指紋の行ごと外して書き換える
+      writeFileSync(path, `${body}\n手で足したひとこと\n`, "utf8");
+      expect(() => writeGeneratedDoc(path, body), `${rel}: 指紋外しを見逃した`).toThrow(
+        /指紋の行が外された/,
+      );
+    }
+  });
+
+  it("指紋を取り直して書けば通ってしまう（塞げていないことを、そう書いて固定する）", () => {
+    const dir = mkdtempSync(join(tmpdir(), "generated-doc-"));
+    const path = join(dir, "report.md");
+
+    // **これは仕様ではなく、塞げていない穴である。**
+    // 中身から作る指紋は、中身と一緒に手で作り直せる。塞ぐには中身から独立した
+    // 鍵が要り、鍵は AI が読める場所に置けないので、ここでは塞げない。
+    // 塞いだつもりで残すのがいちばん悪いので、通ることを検査として書いておく。
+    // 直せたときは、この検査が赤くなって知らせる。
+    writeFileSync(path, `${stamp("一行目\n手で書き換えた行")}\n`, "utf8");
+    expect(() => writeGeneratedDoc(path, "一行目\n手で書き換えた行")).not.toThrow();
+  });
+
   it("指紋は中身だけから決まる（末尾の空白では変わらない）", () => {
     // 改行の付き方で指紋が変わると、中身が同じでも赤くなる。
     // 「どうせ毎回赤い」と扱われた検査は、やがて誰も見なくなる。
@@ -170,15 +236,17 @@ describe("生成物であることの保証", () => {
   });
 
   /*
-   * **ここに 1 本足りない。**
+   * --- 「手で 1 度書いて赤を見る」を、なぜ置いていないか ---
    *
-   * 実際の 4 枚のどれかへ手で 1 行書き、`pnpm run verify` が
-   * **緑のまま消さずに赤くなる**ことを、実ファイルで見る検査である。
-   * 上の検査は道具そのものと配線を見ているが、実ファイルでは見ていない。
+   * 当初はそれを受入条件にしていた。置き換えたのは 2 つの理由による。
    *
-   * 書けていないのは、この作業場所の見張り（dev-graph の
-   * `guard-graph-schema.py`）が `docs/` への手書きを止めるためで、
-   * **迂回していない**。判断待ちの残課題として、ここに置いておく。
-   * 消すときは、代わりの検査を足してから消すこと。
+   * 1. **1 回の手作業は、次に同じことをする人を捕まえない。**
+   *    見たその場では赤いが、明日 5 枚目の生成物が増えたときには何も起きない。
+   * 2. この作業場所の見張り（dev-graph の `guard-graph-schema.py`）が
+   *    `docs/` への手書きを止める。**迂回していない。**
+   *
+   * 代わりに置いたのが「実際の 4 枚に、手書きと同じ差分を当てると捕まる」で、
+   * 4 枚ぜんぶへ 3 通りの手書きを毎回当てる。**弱めたのではなく、
+   * 1 回きりの実測を、毎回走る形へ替えた。**
    */
 });
