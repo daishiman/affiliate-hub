@@ -150,6 +150,62 @@ function FeedbackDialog({
   const [notice, setNotice] = useState<string | null>(null);
   const [sending, setSending] = useState(false);
   const [done, setDone] = useState<string | null>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
+
+  /**
+   * 重ねて出したものを、キーボードだけの人が閉じられるようにする。
+   *
+   * 重ねて出す部品は、マウスなら外側を押せば閉じられる。
+   * **キーボードには「外側」が無い。** Esc を受けないと、開いた時点で
+   * Tab が後ろの画面へ抜けていき、閉じるボタンへ戻る道が本人には見えない。
+   * 見えないまま画面の裏側を操作できるので、送るのをやめる以外の逃げ道が消える。
+   *
+   * だから 2 つを対で置く。片方だけだと逃げ道が閉じるか、閉じ込めるだけになる。
+   *   Esc  … いつでも降りられる
+   *   Tab  … 端まで来たら反対の端へ回す（後ろの画面へ抜けない）
+   */
+  useEffect(() => {
+    const panel = panelRef.current;
+    if (!panel) return;
+    const focusable = (): HTMLElement[] =>
+      [...panel.querySelectorAll<HTMLElement>("a[href], button, input, select, textarea")].filter(
+        (el) => !el.hasAttribute("disabled") && el.getAttribute("tabindex") !== "-1",
+      );
+    const onKeyDown = (event: KeyboardEvent): void => {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        onClose();
+        return;
+      }
+      if (event.key !== "Tab") return;
+      const items = focusable();
+      if (items.length === 0) return;
+      const first = items[0];
+      const last = items[items.length - 1];
+      const active = document.activeElement;
+      // 端に居るときだけ手を出す。途中は素の移動に任せる（順番を手で決めない）。
+      if (event.shiftKey && (active === first || !panel.contains(active))) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && active === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    };
+    document.addEventListener("keydown", onKeyDown);
+    return () => document.removeEventListener("keydown", onKeyDown);
+  }, [onClose]);
+
+  /**
+   * 開いた瞬間の居場所を、重ねた中へ移す。
+   *
+   * 分けてあるのは、上の効果に混ぜると**画面を描き直すたびに先頭へ飛ぶ**ため。
+   * 書いている途中で入力欄から連れ戻されるのは、閉じ込め以上に操作を壊す。
+   */
+  useEffect(() => {
+    const panel = panelRef.current;
+    panel?.querySelector<HTMLElement>("a[href], button, input, select, textarea")?.focus();
+  }, []);
 
   /** 画面の写しを撮る。撮れない環境では、貼り付けとファイル選択に案内する。 */
   const take = async (): Promise<void> => {
@@ -236,7 +292,7 @@ function FeedbackDialog({
 
   return (
     <div className={styles.feedbackDialog} role="dialog" aria-modal="true" aria-label={UI_COPY.feedback.modalTitle}>
-      <div className={styles.feedbackPanel}>
+      <div className={styles.feedbackPanel} ref={panelRef}>
         <h2>{UI_COPY.feedback.modalTitle}</h2>
         <p className={styles.feedbackScreen}>
           {UI_COPY.feedback.screenLabel}: {screenName}

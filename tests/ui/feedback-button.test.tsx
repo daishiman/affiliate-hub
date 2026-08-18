@@ -1,8 +1,16 @@
-/** @tier 2 */
+/**
+ * @tier 2
+ * @req REQ-FB02, REQ-FB03, REQ-FB04
+ * @types screen-states, a11y, keyboard, permission-matrix
+ */
 // @vitest-environment jsdom
+import { execSync } from "node:child_process";
+import { readFileSync } from "node:fs";
 import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { BRAND_THEMES, COLOR_MODES } from "@/domain/authoring/site-blueprint";
+import { capabilitiesOf } from "@/domain/identity";
+import type { Role } from "@/domain/shared";
 import { appearanceAttributes } from "@/presentation/ui/appearance";
 import { UI_COPY } from "@/presentation/ui/copy";
 import {
@@ -62,6 +70,66 @@ describe("出す・出さない", () => {
   it("権限がある人には、押せるボタンが出る", () => {
     mount(true);
     expect(screen.getByRole("button", { name: UI_COPY.feedback.openButton })).not.toBeNull();
+  });
+});
+
+/**
+ * 役割 × 出す／出さない を、全部の役割で埋める。
+ *
+ * 上の 2 件は `canSubmit` を真偽で直に渡していて、
+ * **どの役割が真になるのかには何も触れていない。** 権限で困るのはそちら側で、
+ * 役割を 1 つ足した日に「送れるはずの人に出ない」「送れない人に出る」が生まれる。
+ *
+ * 行の抜けは型で止める。`Record<Role, boolean>` にしてあるので、
+ * `Role` に 1 つ足した時点で**この表が埋まるまで型検査が通らない**。
+ * 期待値そのものは権限表から作るのではなく手で書く。
+ * 権限表から作ると、権限表が壊れたときに期待値も一緒に壊れて緑のままになる。
+ */
+describe("役割ごとの出す・出さない", () => {
+  const EXPECTED: Record<Role, boolean> = {
+    owner: true,
+    workspace_admin: true,
+    brand_manager: true,
+    researcher: false,
+    writer: false,
+    reviewer: false,
+    publisher: false,
+    analyst: false,
+    contributor: false,
+    feedback_admin: true,
+    // 取りに来る側は読むところまで。送る側には回さない。
+    ai_service_account: false,
+  };
+
+  for (const [role, expected] of Object.entries(EXPECTED) as [Role, boolean][]) {
+    it(`${role}: ${expected ? "出る" : "出ない"}`, () => {
+      const capabilities = capabilitiesOf([role]);
+      expect(
+        capabilities.has("feedback.submit"),
+        `${role} の権限表と、この表の期待値がずれています`,
+      ).toBe(expected);
+
+      cleanup();
+      mount(capabilities.has("feedback.submit"));
+      const button = screen.queryByRole("button", { name: UI_COPY.feedback.openButton });
+      expect(button === null, `${role} への出し方が期待と逆です`).toBe(!expected);
+    });
+  }
+
+  it("役割から出し分けているのは 1 箇所だけ", () => {
+    // 出し分けを画面ごとに書けるようになった瞬間、書き忘れた画面の不満が消える。
+    // ここは「無い」ではなく「これだけ」を固定している。
+    // 見るのは「権限を持っているか」を出し分けへ変換している場所だけ。
+    // 権限名そのものは、権限表・使い道・記録の名前としても現れる。
+    const hits = execSync(
+      String.raw`git grep -l 'canSubmit' -- src || true`,
+      { cwd: process.cwd(), encoding: "utf8" },
+    )
+      .split("\n")
+      .filter(Boolean)
+      .filter((path) => /includes\("feedback\.submit"\)/.test(readFileSync(path, "utf8")))
+      .sort();
+    expect(hits).toEqual(["src/presentation/admin/admin-shell.tsx"]);
   });
 });
 
@@ -126,6 +194,63 @@ describe("送る", () => {
       false,
     );
     vi.unstubAllGlobals();
+  });
+});
+
+/**
+ * キーボードだけで開いて閉じられるか。
+ *
+ * 全画面を回す `tests/ui/keyboard-operation.test.tsx` は
+ * 「書いてある順・`tabindex`・要素の種類」しか見ていない（あちらの冒頭に書いてある）。
+ * **押した結果どうなるかは、そちらの作りでは原理的に出ない。**
+ * 重ねて出す部品はまさにそこが壊れるので、押した結果はここで見る。
+ *
+ * 重ねた中に閉じ込められること自体は、閉じる道があって初めて許される。
+ * だから Esc と Tab の回り込みは、片方だけ通っても意味が無い対で見る。
+ */
+describe("キーボードだけで操作できる", () => {
+  it("Esc で閉じる（重ねたものに、マウス以外の降り口がある）", () => {
+    mount();
+    openDialog();
+    expect(screen.queryByRole("dialog")).not.toBeNull();
+    fireEvent.keyDown(document, { key: "Escape" });
+    expect(screen.queryByRole("dialog")).toBeNull();
+  });
+
+  it("開いた時点で、居場所が重ねた中へ移る", () => {
+    mount();
+    openDialog();
+    const panel = screen.getByRole("dialog");
+    expect(panel.contains(document.activeElement)).toBe(true);
+  });
+
+  it("Tab は端で回り込み、後ろの画面へ抜けない", () => {
+    mount();
+    openDialog();
+    const panel = screen.getByRole("dialog");
+    const items = [...panel.querySelectorAll<HTMLElement>("a[href], button, input, select, textarea")];
+    expect(items.length).toBeGreaterThan(1);
+    const first = items[0];
+    const last = items[items.length - 1];
+
+    last.focus();
+    fireEvent.keyDown(document, { key: "Tab" });
+    expect(document.activeElement, "最後から次へ進むと先頭へ戻る").toBe(first);
+
+    first.focus();
+    fireEvent.keyDown(document, { key: "Tab", shiftKey: true });
+    expect(document.activeElement, "先頭から戻ると末尾へ回る").toBe(last);
+  });
+
+  it("途中の移動には手を出さない（順番を部品が決め直さない）", () => {
+    mount();
+    openDialog();
+    const panel = screen.getByRole("dialog");
+    const items = [...panel.querySelectorAll<HTMLElement>("a[href], button, input, select, textarea")];
+    // 端でないところで Tab を押しても、居場所を動かさない（素の移動に任せる）。
+    items[1].focus();
+    fireEvent.keyDown(document, { key: "Tab" });
+    expect(document.activeElement).toBe(items[1]);
   });
 });
 

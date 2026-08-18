@@ -6,8 +6,8 @@
 
 - 最終更新: 2026-08-18
 - 要件表の要件: 241 件
-- 性質を宣言済: 203 件
-- **未宣言: 38 件**（上限 38 件）
+- 性質を宣言済: 212 件
+- **未宣言: 29 件**（上限 29 件）
 - 理由つきの除外: 7 件（上限 7 件）
 
 未宣言とは「必須種別をまだ決めていない」という意味で、
@@ -220,6 +220,15 @@
 | REQ-CI10 | has-runtime-config | `infra-config` | `infra-config` | — | 
 | REQ-CI11 | has-runtime-config | `infra-config` | `infra-config` | — | 
 | REQ-CI13 | has-runtime-config | `infra-config` | `infra-config` | — | 
+| REQ-FB01 | has-enumerated-input | `decision-table` `equivalence` | `decision-table` `equivalence` | — | 
+| REQ-FB02 | has-screen, has-permission | `a11y` `keyboard` `permission-matrix` `screen-states` | `a11y` `keyboard` `permission-matrix` `screen-states` | — | 
+| REQ-FB03 | has-input, has-screen | `a11y` `boundary` `equivalence` `keyboard` `screen-states` | `a11y` `boundary` `equivalence` `keyboard` `screen-states` | — | 
+| REQ-FB04 | has-screen | `a11y` `keyboard` `screen-states` | `a11y` `keyboard` `screen-states` | — | 
+| REQ-FB05 | has-screen | `a11y` `keyboard` `screen-states` | `a11y` `keyboard` `screen-states` | — | 
+| REQ-FB06 | has-input | `boundary` `equivalence` | `boundary` `equivalence` | — | 
+| REQ-FB07 | has-screen | `a11y` `keyboard` `screen-states` | `a11y` `keyboard` `screen-states` | — | 
+| REQ-FB10 | has-enumerated-input, has-secret | `decision-table` `equivalence` `secrets` | `decision-table` `equivalence` `secrets` | — | 
+| REQ-FB11 | has-ai-text | `prompt-injection` | `prompt-injection` | — | 
 
 ## 理由つき除外の中身
 
@@ -240,5 +249,5 @@
 
 ## 未宣言の要件
 
-`REQ-CI08` `REQ-CI12` `REQ-E16` `REQ-FB01` `REQ-FB02` `REQ-FB03` `REQ-FB04` `REQ-FB05` `REQ-FB06` `REQ-FB07` `REQ-FB10` `REQ-FB11` `REQ-FD01` `REQ-FD02` `REQ-FD03` `REQ-FD04` `REQ-FD05` `REQ-FD06` `REQ-IM13` `REQ-TH04` `REQ-TH05` `REQ-TM02` `REQ-TM03` `REQ-TM05` `REQ-TM06` `REQ-TM10` `REQ-TM11` `REQ-TM12` `REQ-TM13` `REQ-TS01` `REQ-TS02` `REQ-TS03` `REQ-TS06` `REQ-TS09` `REQ-TS10` `REQ-W06` `REQ-W08` `REQ-W11`
-<!-- 生成物の指紋 sha256:b09a4bf5ed0608f34d6d627ebaba75aa8e8d58b7a50492231a035c682d2f8162 -->
+`REQ-CI08` `REQ-CI12` `REQ-E16` `REQ-FD01` `REQ-FD02` `REQ-FD03` `REQ-FD04` `REQ-FD05` `REQ-FD06` `REQ-IM13` `REQ-TH04` `REQ-TH05` `REQ-TM02` `REQ-TM03` `REQ-TM05` `REQ-TM06` `REQ-TM10` `REQ-TM11` `REQ-TM12` `REQ-TM13` `REQ-TS01` `REQ-TS02` `REQ-TS03` `REQ-TS06` `REQ-TS09` `REQ-TS10` `REQ-W06` `REQ-W08` `REQ-W11`
+<!-- 生成物の指紋 sha256:ad33a1ee18c81d9ffca129f22e8e6cc76225b215cc25a9700737671545151293 -->

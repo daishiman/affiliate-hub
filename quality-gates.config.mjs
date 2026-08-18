@@ -567,6 +567,38 @@ export const REQUIRED_TEST_TYPES = {
  * `REQ-E16`（ProductVariant）は宣言していない。作る関数が無く、断る場所が
  * 1 つも無いため、当てる先が存在しない。**除外の枠へ回さず未宣言に残す。**
  *
+ * ## 2026-08-19（38 → 29）: 改善要望の受け口 9 件
+ *
+ * 残り 38 件の内訳は **TM 8 / FD 6 / TS 6 / FB 9 / W 3 / CI 2 / TH 2 / E 1 / IM 1**。
+ * 最大の群は FB（利用者からの改善要望を受け取る仕組み）で、9 件すべてを宣言した。
+ * 性質は画面 5 / 入力 2 / 列挙 2 / 権限 1 / 鍵 1 / AI 文 1。当てたのは
+ * `tests/ui/feedback-button.test.tsx`・`tests/ui/capture-canvas.test.tsx`・
+ * `tests/domain/loop-kinds.test.ts`・`tests/domain/handoff-prompt.test.ts`・
+ * `tests/domain/feedback.test.ts`・`tests/ui/page-render.test.tsx`・
+ * `tests/ui/keyboard-operation.test.tsx`。**印を付けただけの件は 1 件も無い。**
+ *
+ * 宣言する前に 19 通り壊して測り、直したうえで 19/19 が赤になる。
+ * **端は別に当てた**（本文 4000 / 「どうなってほしいか」200 / 画像 4MiB /
+ * 画像の種類 / 保存 180 日の 7 通り）。うち **2 つは最初みどりだった**。
+ * 保存日数は境目を定数から作っていたので**定数を動かすと境目も一緒に動き**、
+ * 180 が 179 になっても通った。「どうなってほしいか」の上限は誰も見ていなかった。
+ * どちらも数そのものを名指しする形で塞ぎ、測り直して赤にしてある。
+ *
+ * 書いたばかりの検査の穴も 2 つ見つかった。禁止語の表を一覧から作ると、
+ * **一覧が縮んだ日に行も一緒に消えて緑になる**（名指しの 1 行を足した）。
+ * axe は名前の無い `role="group"` を違反として上げないので、
+ * 読み上げの検査だけでは道具の並びから名前が消えたことに気づけない
+ * （`getByRole("group", { name })` を足した）。これは
+ * **壊しても赤にならない理由が「守られていないから」ではなく
+ * 「壊し方が測定対象に届いていないから」**の 3 例目である。
+ *
+ * 判定欄の嘘が 1 つ。`REQ-FB03` に「Esc で閉じる / フォーカスを閉じ込める」と
+ * 書いてあったが、実装にどちらも無かった。**文章を直さず実装で塞いだ**
+ * （`presentation/ui/patterns/feedback-button.tsx`）。`REQ-CI01` と同じ形で、
+ * 判定欄の点検は「破れている要件を見つける作業」になる。
+ *
+ * 残り 29 件（TM 8 / FD 6 / TS 6 / W 3 / CI 2 / TH 2 / E 1 / IM 1）は次の回。
+ *
  * ## 2026-08-19（49 → 38）: CI/CD の設定 11 件
  *
  * 49 件の内訳を数えたところ **CI 13 / FB 9 / TM 8 / FD 6 / TS 6 / W 3 / TH 2 /
@@ -595,7 +627,7 @@ export const REQUIRED_TEST_TYPES = {
  *
  * **上げて緑にすることを禁じる。**
  */
-export const TEST_TYPES_MAX_UNDECLARED = 38;
+export const TEST_TYPES_MAX_UNDECLARED = 29;
 
 /**
  * 理由つき除外を許す上限（件数）。

@@ -1,4 +1,8 @@
-/** @tier 1 */
+/**
+ * @tier 1
+ * @req REQ-FB03, REQ-FB06
+ * @types equivalence, boundary
+ */
 import { describe, expect, it } from "vitest";
 import {
   ANNOTATION_TOOLS,
@@ -9,6 +13,7 @@ import {
   INCLUDE_CAPTURE_IN_PROMPT,
   KEY_SCOPES,
   MAX_BODY_LENGTH,
+  MAX_WISH_LENGTH,
   UNFINISHED_STATUSES,
   WISH_ABSENT_TEXT,
   appendHistory,
@@ -106,6 +111,17 @@ describe("改善要望を受け取る", () => {
     expect(tooLong.ok).toBe(false);
     if (tooLong.ok) return;
     expect(tooLong.error.suggestedAction).toBeTruthy();
+  });
+
+  it("「どうなってほしいか」にも上限があり、その境目で切り替わる（境界値）", () => {
+    // 本文の境目だけを見ていて、こちらは誰も見ていなかった。
+    // 上限を 1 文字動かしても緑のまま通ることを、実際に測って確かめてある。
+    expect(makeReport({ wish: "い".repeat(MAX_WISH_LENGTH - 1) }).ok).toBe(true);
+    expect(makeReport({ wish: "い".repeat(MAX_WISH_LENGTH) }).ok).toBe(true);
+    const tooLong = makeReport({ wish: "い".repeat(MAX_WISH_LENGTH + 1) });
+    expect(tooLong.ok).toBe(false);
+    if (tooLong.ok) return;
+    expect(tooLong.error.field).toBe("wish");
   });
 
   it("種類は 3 つだけ", () => {
@@ -321,6 +337,17 @@ describe("画像の扱い", () => {
     expect(
       isCaptureExpired(storedAt, new Date(storedAt.getTime() + CAPTURE_RETENTION_DAYS * day)),
     ).toBe(true);
+  });
+
+  it("保存期間は 180 日（日数そのものを押さえる）", () => {
+    // 上の 1 件は境目を定数から作っている。**定数を動かすと境目も一緒に動く**ので、
+    // 「180 日」が「179 日」に変わっても緑のまま通る（実際に測って緑だった）。
+    // 数え方の検査と、数そのものの検査は別物なので、ここで数を名指しする。
+    expect(CAPTURE_RETENTION_DAYS).toBe(180);
+    const storedAt = new Date("2026-01-01T00:00:00Z");
+    const day = 24 * 60 * 60 * 1000;
+    expect(isCaptureExpired(storedAt, new Date(storedAt.getTime() + 179 * day))).toBe(false);
+    expect(isCaptureExpired(storedAt, new Date(storedAt.getTime() + 180 * day))).toBe(true);
   });
 
   it("画像は指示文へ入れない", () => {

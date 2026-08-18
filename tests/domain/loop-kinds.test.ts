@@ -1,4 +1,8 @@
-/** @tier 1 */
+/**
+ * @tier 1
+ * @req REQ-FB01
+ * @types equivalence, decision-table
+ */
 import { describe, expect, it } from "vitest";
 
 import {
@@ -150,6 +154,64 @@ describe("決め方の指定は登録のときに検査される", () => {
     if (!r.ok) {
       expect(r.error.suggestedAction).toContain("別のループとして登録");
     }
+  });
+});
+
+/**
+ * 決め方 × 見る指標の有無を、全通り表にして埋める。
+ *
+ * 上の 3 件は「駄目な組合せ」を 2 つ名指ししているが、
+ * **名指しは数え落としに気づけない。** 決め方が 3 つ目に増えた日、
+ * 新しい行はどこにも現れないまま緑のままになる。
+ *
+ * ここは `LOOP_DECISION_BASES` から行を作るので、増えた瞬間に
+ * 「この組合せの答えが表に無い」で落ちる。表の役目はそれ 1 つである。
+ * （上の 3 件と重なるが、重なりを消すと落ちる条件も一緒に消える。残す。）
+ */
+describe("決め方 × 見る指標の全通り", () => {
+  /** 期待する答え。`決め方:指標あり?` を鍵にする。 */
+  const EXPECTED: Record<string, boolean> = {
+    "comparison:true": true,
+    "comparison:false": false,
+    "single_case:true": false,
+    "single_case:false": true,
+  };
+
+  const register = (basis: string, withMetric: boolean) =>
+    registerLoopKind({
+      key: `table_${basis}_${withMetric}`,
+      label: "表から作った一時的なループ",
+      polarity: "negative",
+      readiness: "implemented",
+      decisionBasis: basis as (typeof LOOP_DECISION_BASES)[number],
+      signal: "何かの合図",
+      baseline: "いまの状態",
+      decisionRule: "決める",
+      interventionTarget: "画面",
+      approver: "システム管理者",
+      stopConditions: ["止める条件"],
+      blockedBy: null,
+      watchedMetrics: withMetric ? ["page_views"] : [],
+    });
+
+  for (const basis of LOOP_DECISION_BASES) {
+    for (const withMetric of [true, false]) {
+      const cell = `${basis}:${withMetric}`;
+      it(`${cell} の答えが表にあり、その通りになる`, () => {
+        expect(
+          Object.hasOwn(EXPECTED, cell),
+          `${cell} の答えを表に足してください（決め方を増やしたら行も増える）`,
+        ).toBe(true);
+        expect(register(basis, withMetric).ok).toBe(EXPECTED[cell]);
+      });
+    }
+  }
+
+  it("表に、もう存在しない決め方の行が残っていない", () => {
+    const alive = new Set(
+      LOOP_DECISION_BASES.flatMap((b) => [`${b}:true`, `${b}:false`]),
+    );
+    expect(Object.keys(EXPECTED).filter((k) => !alive.has(k))).toEqual([]);
   });
 });
 

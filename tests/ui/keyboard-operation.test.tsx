@@ -8,6 +8,7 @@
  * @req REQ-B13, REQ-B14, REQ-B15, REQ-B16, REQ-B17, REQ-B18
  * @req REQ-S01, REQ-S02, REQ-S03, REQ-S04, REQ-S05
  * @req REQ-S06, REQ-S07, REQ-S08, REQ-S09, REQ-S10
+ * @req REQ-FB07
  * @types keyboard
  */
 import { describe, expect, it } from "vitest";

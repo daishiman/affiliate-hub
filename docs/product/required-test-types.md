@@ -244,21 +244,30 @@
 | REQ-CI10 | has-runtime-config | — |
 | REQ-CI11 | has-runtime-config | — |
 | REQ-CI13 | has-runtime-config | — |
+| REQ-FB01 | has-enumerated-input | — |
+| REQ-FB02 | has-screen, has-permission | — |
+| REQ-FB03 | has-input, has-screen | — |
+| REQ-FB04 | has-screen | — |
+| REQ-FB05 | has-screen | — |
+| REQ-FB06 | has-input | — |
+| REQ-FB07 | has-screen | — |
+| REQ-FB10 | has-enumerated-input, has-secret | — |
+| REQ-FB11 | has-ai-text | — |
 
 ## 4. 未宣言の要件について（正直に書く）
 
-要件表には **241 件**の要件 ID がある。上の宣言表はそのうち **203 件**である
+要件表には **241 件**の要件 ID がある。上の宣言表はそのうち **212 件**である
 （`node scripts/required-test-types.mjs` の出力から書き写す。手で数えない。
 ここは長らく 83 と書いたまま古くなっていたことがある。
 **手で書いた数字は、古くなっても古く見えない**）。
-残り 38 件は未宣言で、**この検査の対象外**にある。
-この 38 が `TEST_TYPES_MAX_UNDECLARED` と一致していることが、
+残り 29 件は未宣言で、**この検査の対象外**にある。
+この 29 が `TEST_TYPES_MAX_UNDECLARED` と一致していることが、
 この節の数字が実測と合っていることの確かめになる。
 
 全部に宣言を書き切るまで検査を入れない、という順にすると**検査は永久に入らない**。
 そこで `TRACEABILITY_MAX_UNLINKED` と同じ形にした。
 
-- 未宣言の上限 `TEST_TYPES_MAX_UNDECLARED` を実測に置く（置いた当初は 158。現在 38）
+- 未宣言の上限 `TEST_TYPES_MAX_UNDECLARED` を実測に置く（置いた当初は 158。現在 29）
 - **新しく足す要件は、宣言しなければ CI が落ちる**
 - 既存の未宣言は減らせるが増やせない。**上げて緑にすることを禁じる**
 
@@ -2127,6 +2136,67 @@ CI/CD の設定はそのまま当てはまる。**名前を借りたのではな
 つまり **`REQ-CI01` の要件そのもの（機械の上でしか試せない状態を作らない）が
 破れていた**。文章を直すのではなく、検査を `scripts/migration-generated.mjs` として
 `verify` の中へ移し、`ci.yml` から外した。**塞げる穴は、文章ではなく実装で塞ぐ。**
+
+### 2026-08-19 に減らしたぶん（38 → 29）: 改善要望の受け口 9 件
+
+残り 38 件の内訳を数えると **FB 9 / TM 8 / FD 6 / TS 6 / W 3 / CI 2 / TH 2 / E 1 / IM 1**
+で、最大の群が FB（利用者が画面から改善要望を送る仕組み）だった。9 件すべて宣言した。
+
+| 要件 | 性質 | 当てた場所 |
+|---|---|---|
+| REQ-FB01 | has-enumerated-input | `tests/domain/loop-kinds.test.ts` |
+| REQ-FB02 | has-screen, has-permission | `tests/ui/feedback-button.test.tsx` |
+| REQ-FB03 | has-input, has-screen | `tests/ui/feedback-button.test.tsx` / `tests/domain/feedback.test.ts` |
+| REQ-FB04 | has-screen | `tests/ui/feedback-button.test.tsx` / `tests/ui/capture-canvas.test.tsx` |
+| REQ-FB05 | has-screen | `tests/ui/capture-canvas.test.tsx` |
+| REQ-FB06 | has-input | `tests/domain/feedback.test.ts` |
+| REQ-FB07 | has-screen | `tests/ui/page-render.test.tsx` / `tests/ui/keyboard-operation.test.tsx` |
+| REQ-FB10 | has-enumerated-input, has-secret | `tests/domain/handoff-prompt.test.ts` |
+| REQ-FB11 | has-ai-text | `tests/domain/handoff-prompt.test.ts` |
+
+**印を付けただけの件は 1 件も無い。** 宣言する前に 19 通り壊して測り、直したうえで
+19/19 が赤になる（宣言の印 7 / 実装 12。役割による出し分けの迂回、権限名の改名、
+Esc、フォーカスの折り返し、開いたときの移動、選択の `aria-pressed`、
+まとまりの名前、区切りの無害化、無害化と番人の順番、
+差し込み一覧の縮小、禁止語一覧の縮小、知らない差し込みの黙った空欄）。
+
+#### 端は別に当てた（7 通り。最初 2 つがみどりだった）
+
+| 動かした端 | 結果 |
+|---|---|
+| 本文の上限 4000 を 1 文字ゆるめる | 赤 |
+| ちょうど 4000 文字を断る側へ入れる | 赤 |
+| 画像 4MiB ちょうどを断る側へ入れる | 赤 |
+| 保存 180 日を 179 日に縮める | **最初みどり** → 塞いで赤 |
+| 「どうなってほしいか」200 文字の端を動かす | **最初みどり** → 塞いで赤 |
+| 受け取ってよい画像の種類を差し替える | 赤 |
+| 画像の種類の検査を止める | 赤 |
+
+保存日数がみどりだったのは、境目を `CAPTURE_RETENTION_DAYS` から作っていたためで、
+**定数を動かすと境目も一緒に動く**。数え方の検査と数そのものの検査は別物なので、
+`expect(CAPTURE_RETENTION_DAYS).toBe(180)` と 179/180 日の literal を足した。
+「どうなってほしいか」の上限は、本文の端だけを見ていて誰も見ていなかった。
+
+#### 書いたばかりの検査に見つけた穴 2 つ
+
+- 禁止語の表を一覧から回して作っていた。**回して作る表は、増えたものには強く、
+  減ったものには何も言わない。**一覧が縮んだ日に行も一緒に消える。名指しの 1 行を足した。
+- axe は**名前の無い `role="group"` を違反として上げない**。読み上げの検査だけでは、
+  道具の並びから名前が消えたことに気づけなかった。`getByRole("group", { name })` を足した。
+  これは残課題 78 の②「壊しても赤にならない理由が、守られていないからではなく
+  **壊し方が測定対象に届いていないから**」の 3 例目。
+
+#### 判定欄の嘘（9 例目）
+
+`REQ-FB03` の判定欄に「Esc で閉じる / フォーカスを閉じ込める」と書いてあったが、
+**実装にどちらも無かった**。文章を直さず、`presentation/ui/patterns/feedback-button.tsx`
+に実装した。`REQ-CI01` と同じ形で、判定欄の点検は
+**破れている要件を見つける作業**になる。
+
+#### この回で宣言していない FB（0 件）
+
+FB は 9/9 宣言した。残る 29 件は TM 8 / FD 6 / TS 6 / W 3 / CI 2 / TH 2 / E 1 / IM 1 で、
+次の回に回す（CI 2 と E 1 は前の回に書いたとおり、当てどころが実装に無い）。
 
 ## 5. 除外という逃げ道について
 

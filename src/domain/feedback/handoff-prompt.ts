@@ -89,7 +89,30 @@ export function sanitizeUserText(raw: string): string {
 }
 
 /** 封筒に入れてはいけないものが混ざっていないか（仕様 §13 の 2 つ目）。 */
-const FORBIDDEN_ENVELOPE_KEYS = ["氏名", "メールアドレス", "画像", "鍵"] as const;
+export const FORBIDDEN_ENVELOPE_KEYS = ["氏名", "メールアドレス", "画像", "鍵"] as const;
+
+/**
+ * 封筒のひな型で使ってよい差し込みの名前。**ここが一覧の正本**。
+ *
+ * 外へ出しているのは、検査が「全部の名前を試す」ためである。
+ * 一覧が中に閉じていると、検査は思い付いた名前しか試せず、
+ * **増えた名前・消えた名前のどちらにも気づけない。**
+ *
+ * 下の `values` はこの並びで型を付けてあるので、
+ * 片方だけ足す／消すと型検査で落ちる（書き写しがずれない）。
+ */
+export const ENVELOPE_PLACEHOLDERS = [
+  "kind",
+  "screenName",
+  "url",
+  "route",
+  "workspaceId",
+  "brandId",
+  "siteId",
+  "jsErrorCount",
+  "failedRequestCount",
+  "redactedCount",
+] as const;
 
 /**
  * 指示文を組み立てる。
@@ -105,7 +128,7 @@ export function composeHandoffPrompt(input: {
   /** 「どうなってほしいか」が空のときに出す文。 */
   wishAbsentText: string;
 }): Result<HandoffPrompt, DomainError> {
-  const values: Readonly<Record<string, string>> = {
+  const values: Readonly<Record<(typeof ENVELOPE_PLACEHOLDERS)[number], string>> = {
     kind: FEEDBACK_KIND_LABELS[input.envelope.kind],
     screenName: input.envelope.screenName,
     url: input.envelope.url,
@@ -120,7 +143,7 @@ export function composeHandoffPrompt(input: {
 
   const unresolved: string[] = [];
   const envelope = input.envelopeTemplate.replace(/\{\{(\w+)\}\}/g, (_, key: string) => {
-    const value = values[key];
+    const value: string | undefined = (values as Record<string, string>)[key];
     if (value === undefined) {
       unresolved.push(key);
       return "";

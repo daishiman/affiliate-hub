@@ -1,4 +1,8 @@
-/** @tier 2 */
+/**
+ * @tier 2
+ * @req REQ-FB04, REQ-FB05
+ * @types screen-states, a11y, keyboard
+ */
 // @vitest-environment jsdom
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
@@ -10,6 +14,7 @@ import {
 } from "@/domain/feedback/capture-policy";
 import { UI_COPY } from "@/presentation/ui/copy";
 import { CANVAS_COLORS, CANVAS_TOOLS, CaptureCanvas } from "@/presentation/ui/patterns/capture-canvas";
+import { describeViolations, findA11yViolations } from "../support/a11y";
 
 /**
  * 印を付ける台紙。
@@ -76,6 +81,71 @@ describe("domain の決まりとの一致", () => {
     for (const color of ANNOTATION_COLORS) {
       expect(Object.values(UI_COPY.feedback)).toContain(ANNOTATION_COLOR_LABELS[color]);
     }
+  });
+});
+
+describe("読み上げ", () => {
+  it("台紙を出した状態に、機械で分かる読み上げの問題が無い", async () => {
+    const { container } = mount();
+    const violations = await findA11yViolations(
+      `<main><h1>改善したいことを送る</h1>${container.innerHTML}</main>`,
+    );
+    expect(describeViolations(violations)).toBe("");
+  });
+});
+
+/**
+ * 道具を選ぶところが、キーボードだけで届くか。
+ *
+ * ここで見ていないことを先に書く。**描く操作そのものはキーボードで置き換えていない。**
+ * 台紙は座標を受け取る作りで、代わりの操作を用意していない。
+ * だから「キーボードでも選べる」は道具・色・逃げ道までであり、
+ * 印を置くところは残っている（`docs/product/backlog.md`）。
+ *
+ * 選んだことを `aria-pressed` で持たせているのは、**選択を色だけで示さない**ため。
+ * 色だけだと、見分けの付かない人には「いま何で描いているか」が最後まで分からない。
+ */
+describe("キーボードで道具を選べる", () => {
+  it("道具・色・逃げ道は、すべて素のボタンとして置かれている", () => {
+    mount();
+    // `div` に押す動きを付けたものは、マウスからは押せてキーボードには存在しない。
+    for (const label of [
+      ...ANNOTATION_TOOLS.map((t) => ANNOTATION_TOOL_LABELS[t]),
+      UI_COPY.feedback.captureUndo,
+      UI_COPY.feedback.captureRetake,
+      UI_COPY.feedback.captureDrop,
+    ]) {
+      const el = screen.getByRole("button", { name: label });
+      expect(el.tagName.toLowerCase(), `${label} が素のボタンではありません`).toBe("button");
+    }
+  });
+
+  it("いま選んでいる道具は、色ではなく状態として読み上げられる", () => {
+    mount();
+    const pen = screen.getByRole("button", { name: ANNOTATION_TOOL_LABELS.pen });
+    const rect = screen.getByRole("button", { name: ANNOTATION_TOOL_LABELS.rect });
+    expect(pen.getAttribute("aria-pressed")).toBe("true");
+    expect(rect.getAttribute("aria-pressed")).toBe("false");
+    fireEvent.click(rect);
+    expect(screen.getByRole("button", { name: ANNOTATION_TOOL_LABELS.rect }).getAttribute("aria-pressed")).toBe("true");
+    expect(screen.getByRole("button", { name: ANNOTATION_TOOL_LABELS.pen }).getAttribute("aria-pressed")).toBe("false");
+  });
+
+  it("道具の並び・色の並びは、それぞれ名前を持つ", () => {
+    // axe はここを見ない（名前の無い `group` は違反として上がらない）。
+    // 上の読み上げ検査を緑にしたまま名前を外せたので、名指しで押さえる。
+    // **壊しても赤にならないのは、守られていないときだけとは限らない。**
+    mount();
+    expect(screen.getByRole("group", { name: UI_COPY.feedback.captureTitle })).not.toBeNull();
+    expect(screen.getByRole("group", { name: "色" })).not.toBeNull();
+  });
+
+  it("順番を手で決めていない（台紙の中に正の tabindex を置かない）", () => {
+    const { container } = mount();
+    const forced = [...container.querySelectorAll("[tabindex]")]
+      .map((el) => Number(el.getAttribute("tabindex")))
+      .filter((n) => n > 0);
+    expect(forced).toEqual([]);
   });
 });
 

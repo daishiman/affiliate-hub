@@ -7,8 +7,8 @@
 
 - 最終更新: 2026-08-18
 - テストファイル: 169 件
-- 由来の要件が分かる: 142 件
-- **由来不明: 27 件**（上限 28 件）
+- 由来の要件が分かる: 143 件
+- **由来不明: 26 件**（上限 28 件）
 
 由来不明とは「どの要件のために書いたのか、機械から辿れない」という意味で、
 テストが無駄という意味ではない。要件から書いたなら `@req` を 1 行足せば消える。
@@ -23,7 +23,6 @@
 - `tests/architecture/single-definition.test.ts`
 - `tests/architecture/spec-freshness.test.ts`
 - `tests/architecture/worker-entry.test.ts`
-- `tests/domain/loop-kinds.test.ts`
 - `tests/domain/metrics-from-telemetry.test.ts`
 - `tests/infrastructure/d1-link-inbox.test.ts`
 - `tests/infrastructure/db-binding.test.ts`
@@ -93,13 +92,14 @@
 | `tests/domain/entity-inputs.test.ts` | REQ-E01, REQ-E03, REQ-E04, REQ-E06, REQ-E07, REQ-E08, REQ-E12, REQ-E14, REQ-E17, REQ-E18, REQ-E19, REQ-E20, REQ-E21, REQ-E25, REQ-E27, REQ-E28, REQ-E29 | 印 |
 | `tests/domain/entity-invariants.test.ts` | REQ-E02, REQ-E05, REQ-E22, REQ-E24, REQ-E26, REQ-E30 | 印 |
 | `tests/domain/entity-states.test.ts` | REQ-E19, REQ-E25, REQ-E27 | 印 |
-| `tests/domain/feedback.test.ts` | REQ-FB03, REQ-FB12 | 表 |
+| `tests/domain/feedback.test.ts` | REQ-FB03, REQ-FB06, REQ-FB12 | 印と表 |
 | `tests/domain/generation-plan.test.ts` | REQ-A04, REQ-G01, REQ-G02, REQ-G03, REQ-G04, REQ-G05, REQ-G06, REQ-G07, REQ-G08, REQ-P06, REQ-SEC05 | 印と表 |
-| `tests/domain/handoff-prompt.test.ts` | REQ-FB11 | 表 |
+| `tests/domain/handoff-prompt.test.ts` | REQ-FB10, REQ-FB11 | 印と表 |
 | `tests/domain/improvement.test.ts` | REQ-IM01, REQ-IM02, REQ-IM03, REQ-IM04, REQ-IM06, REQ-IM07, REQ-IM08, REQ-IM09, REQ-IM10, REQ-IM11, REQ-IM12 | 印と表 |
 | `tests/domain/invariants.test.ts` | REQ-QC02, REQ-QC05, REQ-QC06, REQ-QC08, REQ-QC09, REQ-SEC07, REQ-W08 | 印と表 |
 | `tests/domain/link-ingestion.test.ts` | REQ-A01, REQ-P02, REQ-S02 | 印と表 |
 | `tests/domain/llm-credential.test.ts` | REQ-SEC01 | 印 |
+| `tests/domain/loop-kinds.test.ts` | REQ-FB01 | 印 |
 | `tests/domain/permissions.test.ts` | REQ-API02, REQ-R01, REQ-R02, REQ-R03, REQ-R04, REQ-R05, REQ-R06, REQ-R07, REQ-R08, REQ-R09, REQ-R10, REQ-R11, REQ-R12 | 印 |
 | `tests/domain/planning.test.ts` | REQ-E23, REQ-SEC07 | 印と表 |
 | `tests/domain/policy-channel-scope.test.ts` | REQ-SEC07 | 印と表 |
@@ -166,13 +166,13 @@
 | `tests/ui/adjust-conversion-form.test.tsx` | REQ-P09 | 表 |
 | `tests/ui/audit-log-notice.test.tsx` | REQ-SEC09 | 印 |
 | `tests/ui/blueprint-theme.test.ts` | REQ-P07, REQ-TH02 | 表 |
-| `tests/ui/capture-canvas.test.tsx` | REQ-FB04, REQ-FB05 | 表 |
+| `tests/ui/capture-canvas.test.tsx` | REQ-FB04, REQ-FB05 | 印と表 |
 | `tests/ui/content-progress-form.test.tsx` | REQ-R11 | 印 |
 | `tests/ui/design-tokens.test.ts` | REQ-S09, REQ-SEC08, REQ-TS09 | 表 |
 | `tests/ui/fact-source.test.ts` | REQ-QC04, REQ-W07 | 印と表 |
 | `tests/ui/feedback-admin-forms.test.tsx` | REQ-FB08, REQ-FB12 | 表 |
-| `tests/ui/feedback-button.test.tsx` | REQ-FB02, REQ-FB03 | 表 |
-| `tests/ui/keyboard-operation.test.tsx` | REQ-B01, REQ-B02, REQ-B03, REQ-B04, REQ-B05, REQ-B06, REQ-B07, REQ-B08, REQ-B09, REQ-B10, REQ-B11, REQ-B12, REQ-B13, REQ-B14, REQ-B15, REQ-B16, REQ-B17, REQ-B18, REQ-P01, REQ-P02, REQ-P03, REQ-P04, REQ-P05, REQ-P06, REQ-P07, REQ-P08, REQ-P09, REQ-P10, REQ-S01, REQ-S02, REQ-S03, REQ-S04, REQ-S05, REQ-S06, REQ-S07, REQ-S08, REQ-S09, REQ-S10, REQ-SEC08, REQ-TH01, REQ-TS05 | 印 |
+| `tests/ui/feedback-button.test.tsx` | REQ-FB02, REQ-FB03, REQ-FB04 | 印と表 |
+| `tests/ui/keyboard-operation.test.tsx` | REQ-B01, REQ-B02, REQ-B03, REQ-B04, REQ-B05, REQ-B06, REQ-B07, REQ-B08, REQ-B09, REQ-B10, REQ-B11, REQ-B12, REQ-B13, REQ-B14, REQ-B15, REQ-B16, REQ-B17, REQ-B18, REQ-FB07, REQ-P01, REQ-P02, REQ-P03, REQ-P04, REQ-P05, REQ-P06, REQ-P07, REQ-P08, REQ-P09, REQ-P10, REQ-S01, REQ-S02, REQ-S03, REQ-S04, REQ-S05, REQ-S06, REQ-S07, REQ-S08, REQ-S09, REQ-S10, REQ-SEC08, REQ-TH01, REQ-TS05 | 印と表 |
 | `tests/ui/llm-credential-forms.test.tsx` | REQ-SEC01 | 印 |
 | `tests/ui/llm-credential-page.test.tsx` | REQ-SEC01 | 印 |
 | `tests/ui/model-picker.test.tsx` | REQ-G11 | 印 |
@@ -189,4 +189,4 @@
 | `tests/ui/theme-contrast.test.ts` | REQ-TH02, REQ-TS06 | 表 |
 | `tests/ui/tool-form.test.tsx` | REQ-WC05 | 印と表 |
 | `tests/ui/ui-layers.test.ts` | REQ-S09, REQ-TM05, REQ-TM06 | 表 |
-<!-- 生成物の指紋 sha256:a7b62d46016400a7655409deccb05519edfebc6b62acfa87fa84299218454a43 -->
+<!-- 生成物の指紋 sha256:789b342080327c844b195900e27edcf06ea2e6396b92af66226a7b9f79bb8162 -->
