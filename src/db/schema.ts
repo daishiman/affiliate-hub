@@ -1002,8 +1002,120 @@ export const contentVariants = sqliteTable(
   ],
 );
 
+/**
+ * 生成 AI の鍵。**列に平文は入らない。**
+ *
+ * 値は `sealed_key`（AES-GCM で包んだ 1 本の文字列）だけが持ち、
+ * ほかの列はすべて「値でないもの」である。
+ * 平文を入れる列を作らないことで、うっかり書く先が存在しなくなる。
+ *
+ * 作業場所ごとに分けるため、主キーは (workspace_id, provider_id) の組にする。
+ * `id` を振って作業場所を列の 1 つにすると、
+ * **where を書き忘れた問い合わせが他の作業場所の鍵を返す**。
+ * 組の主キーなら、片方だけで引く問い合わせがそもそも書きにくい。
+ */
+export const llmCredentials = sqliteTable(
+  "llm_credentials",
+  {
+    workspaceId: text("workspace_id").notNull(),
+    /** 提供元の識別子。一覧の正本は infrastructure/llm/llm-provider-registry.ts。 */
+    providerId: text("provider_id").notNull(),
+    /** AES-GCM で包んだ鍵。`base64(iv || 暗号文)`。開けられるのは secret-box.ts だけ。 */
+    sealedKey: text("sealed_key").notNull(),
+    /** 末尾 4 文字。どの鍵が入っているかを本人が見分けるためだけに持つ。 */
+    last4: text("last4").notNull(),
+    /** "active" | "revoked"。正本は domain/generation/llm-credential.ts。 */
+    status: text("status").notNull(),
+    registeredBy: text("registered_by"),
+    registeredAt: integer("registered_at", { mode: "timestamp" }).notNull(),
+    lastVerifiedAt: integer("last_verified_at", { mode: "timestamp" }),
+    /** "ok" | "failed"。まだ確かめていなければ null。 */
+    lastVerification: text("last_verification"),
+  },
+  (t) => [primaryKey({ columns: [t.workspaceId, t.providerId] })],
+);
+
+/**
+ * 生成 AI をどれだけ使ったか。
+ *
+ * **鍵の欄はここに無い。** どの提供元・どのモデルを何トークン使ったかまでで、
+ * 誰の鍵だったかは `provider_id` から引ける（鍵は作業場所に 1 本のため）。
+ */
+export const llmUsages = sqliteTable(
+  "llm_usages",
+  {
+    id: text("id").primaryKey(),
+    workspaceId: text("workspace_id").notNull(),
+    providerId: text("provider_id").notNull(),
+    modelId: text("model_id").notNull(),
+    /** 何のための呼び出しか（下書き生成・疎通確認など）。 */
+    purpose: text("purpose").notNull(),
+    inputTokens: integer("input_tokens").notNull(),
+    outputTokens: integer("output_tokens").notNull(),
+    /**
+     * 概算の費用（最小通貨単位）。**請求の正はいつでも提供元の管理画面**で、
+     * ここは当たりを付けるための値である。単価は目録から来る。
+     */
+    estimatedCostMinor: integer("estimated_cost_minor").notNull(),
+    currency: text("currency").notNull(),
+    /** 失敗した呼び出しも残す。失敗にも料金が掛かることがあるため。 */
+    succeeded: integer("succeeded", { mode: "boolean" }).notNull(),
+    occurredAt: integer("occurred_at", { mode: "timestamp" }).notNull(),
+  },
+  (t) => [
+    index("llm_usages_workspace_occurred_idx").on(t.workspaceId, t.occurredAt),
+    index("llm_usages_workspace_provider_idx").on(t.workspaceId, t.providerId, t.occurredAt),
+  ],
+);
+
+/**
+ * 転送の写し（仕様 03 §1.2 の resolver store）。
+ *
+ * `/go/<合言葉>` を開いたときに読むのはこの表だけである。
+ * 提携リンクと計測リンクを突き合わせて解くと表を 2 つ引くことになり、
+ * **読者を待たせる経路が重くなる**。公開のときに転送へ要る値だけを写しておく。
+ *
+ * **`destination_url` は ASP が発行した URL そのもの。**
+ * 入れる前に https であることを確かめ（`isSafeDestination`）、
+ * 転送する直前にもう一度確かめる。合言葉から URL を組み立てる列は置かない
+ * ——置いた時点で、合言葉を細工すれば任意の場所へ飛ばせる入口ができる。
+ *
+ * 写しなので、元を差し替えたらこの行は**上書きせず作り直す**
+ * （仕様 §1.1「転送先原本は不変とする」）。上書きを許すと、
+ * 差し替え前に押されたクリックと差し替え後のクリックが同じ合言葉に混ざる。
+ *
+ * 規範: docs/spec/03-分析・解析基盤仕様.md §1.1 / §1.2、REQ-E13
+ */
+export const redirectResolutions = sqliteTable(
+  "redirect_resolutions",
+  {
+    /** `/go/<合言葉>` の合言葉。推測しにくい値を発行する。 */
+    code: text("code").primaryKey(),
+    workspaceId: text("workspace_id").notNull(),
+    affiliateLinkId: text("affiliate_link_id").notNull(),
+    destinationUrl: text("destination_url").notNull(),
+    /** どのブログ・どの記事・どの位置から押されたか。数える軸になる。 */
+    siteSlug: text("site_slug").notNull(),
+    articlePath: text("article_path").notNull(),
+    placement: text("placement").notNull(),
+    productId: text("product_id"),
+    state: text("state", { enum: ["active", "disabled", "expired"] })
+      .notNull()
+      .default("active"),
+    expiresAt: integer("expires_at", { mode: "timestamp" }),
+    createdAt: integer("created_at", { mode: "timestamp" })
+      .notNull()
+      .default(sql`(unixepoch())`),
+  },
+  (t) => [
+    index("redirect_resolutions_workspace_idx").on(t.workspaceId),
+    index("redirect_resolutions_site_idx").on(t.siteSlug),
+  ],
+);
+
 // 運営者ドメイン
 export type Asp = typeof asps.$inferSelect;
+export type RedirectResolutionRow = typeof redirectResolutions.$inferSelect;
 export type ContentVariantRow = typeof contentVariants.$inferSelect;
 export type ChannelConnectionRow = typeof channelConnections.$inferSelect;
 export type PublicationRow = typeof publications.$inferSelect;
@@ -1020,6 +1132,8 @@ export type SiteBlueprintRow = typeof siteBlueprints.$inferSelect;
 export type PublishedArticleRow = typeof publishedArticles.$inferSelect;
 export type TelemetryEventRow = typeof telemetryEvents.$inferSelect;
 export type AuditLogRow = typeof auditLogs.$inferSelect;
+export type LlmCredentialRow = typeof llmCredentials.$inferSelect;
+export type LlmUsageRow = typeof llmUsages.$inferSelect;
 
 // 読者ドメイン
 export type Category = typeof categories.$inferSelect;

@@ -330,6 +330,8 @@ const NON_WRITE_VERBS = [
   "build",
   "run",
   "observations",
+  // 期間の合計を返すだけ。何も書き換えないので記録は要らない。
+  "summarize",
 ];
 
 /**
@@ -360,6 +362,9 @@ const WRITE_VERBS = [
   "write",
   "submit",
   "add",
+  // 鍵を預ける。`save` と同じ側だが、預かり所の語彙としては `store` が自然なので
+  // 名前を曲げずに語彙のほうを足す。
+  "store",
 ];
 const startsWithVerb = (name, verbs) => verbs.some((v) => name.startsWith(v));
 /** 書き込み / 書き込みでない / 判定できない のどれかを返す。 */

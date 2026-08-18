@@ -9,6 +9,7 @@ export * from "./approval-bridge";
 export * from "./draft-instructions";
 export * from "./generation-input";
 export * from "./injection-guard";
+export * from "./llm-credential";
 export * from "./output-contract";
 export * from "./prompt-blocks";
 export * from "./skill-catalog";

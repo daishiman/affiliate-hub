@@ -8,6 +8,7 @@ import type {
 import { domainError, err, ok } from "@/domain/shared";
 import type { DomainError, Result } from "@/domain/shared";
 import { registerStub, stubCall } from "../stub-registry";
+import type { LlmProviderKind } from "./llm-provider-catalog";
 
 /**
  * 生成 AI の提供元の登録所。
@@ -15,14 +16,19 @@ import { registerStub, stubCall } from "../stub-registry";
  * 差し替えのときに触るのはこの表と実装 1 ファイルだけ
  * (docs/architecture/changeability-scenarios.md ②)。
  * ドメインもユースケースも提供元の名前を知らない。
+ *
+ * --- 提供元の種類はここで定義しない ---
+ * `LlmProviderKind` は目録（`llm-provider-catalog.ts`）が持つ。
+ * 同じ union を 2 か所に書いていたところ、片方に `xai` を足しても
+ * もう片方は 4 社のままで、型検査は通ってしまった。
+ * 「どの提供元があるか」の答えは 1 つでなければならない。
  */
-export type LlmProviderKind = "anthropic" | "openai" | "workers_ai" | "google_gemini";
-
 export const LLM_PROVIDER_LABEL: Readonly<Record<LlmProviderKind, string>> = {
   anthropic: "Anthropic",
+  google: "Google Gemini",
   openai: "OpenAI",
+  xai: "xAI",
   workers_ai: "Cloudflare Workers AI",
-  google_gemini: "Google Gemini",
 };
 
 export type LlmProviderContext = {
@@ -56,9 +62,10 @@ function createStubLlm(kind: LlmProviderKind, ctx: LlmProviderContext): LlmPort 
 
 const FACTORIES: Readonly<Record<LlmProviderKind, LlmFactory>> = {
   anthropic: (ctx) => createStubLlm("anthropic", ctx),
+  google: (ctx) => createStubLlm("google", ctx),
   openai: (ctx) => createStubLlm("openai", ctx),
+  xai: (ctx) => createStubLlm("xai", ctx),
   workers_ai: (ctx) => createStubLlm("workers_ai", ctx),
-  google_gemini: (ctx) => createStubLlm("google_gemini", ctx),
 };
 
 export function createLlm(

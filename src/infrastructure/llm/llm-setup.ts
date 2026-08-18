@@ -1,11 +1,7 @@
 import type { LlmCostEstimatorPort, LlmPort } from "@/application/ports";
 import { createSecretResolver } from "../platform/secret-resolver";
-import {
-  type LlmProviderKind,
-  createCostEstimator,
-  createLlm,
-  LLM_PROVIDER_LABEL,
-} from "./llm-provider-registry";
+import type { LlmProviderKind } from "./llm-provider-catalog";
+import { createCostEstimator, createLlm, LLM_PROVIDER_LABEL } from "./llm-provider-registry";
 import { registerStub, stubCall } from "../stub-registry";
 
 /**
@@ -28,7 +24,7 @@ import { registerStub, stubCall } from "../stub-registry";
  * 利用者ご自身の確定が要る）。決まるまでスタブが失敗を返すので、
  * この値が何であっても記事は生成されない。
  *
- * 2026-08-17 に `google_gemini` へ書き換えて実測したところ、
+ * 2026-08-17 に `google` へ書き換えて実測したところ、
  * 変わったのはこのファイルの 1 行だけだった（テスト 489 件は全て通過）。
  */
 const ACTIVE_PROVIDER: LlmProviderKind = "anthropic";
@@ -41,16 +37,18 @@ const ACTIVE_PROVIDER: LlmProviderKind = "anthropic";
  */
 const MODEL_ID: Readonly<Record<LlmProviderKind, string>> = {
   anthropic: "claude-opus-5",
+  google: "gemini-2.5-pro",
   openai: "gpt-5",
+  xai: "grok-4",
   workers_ai: "@cf/meta/llama-3.3-70b-instruct",
-  google_gemini: "gemini-2.5-pro",
 };
 
 const CREDENTIAL_REF: Readonly<Record<LlmProviderKind, string>> = {
   anthropic: "llm/anthropic/api_key",
+  google: "llm/google/api_key",
   openai: "llm/openai/api_key",
+  xai: "llm/xai/api_key",
   workers_ai: "llm/workers_ai/account_token",
-  google_gemini: "llm/google_gemini/api_key",
 };
 
 /**
@@ -61,9 +59,10 @@ const CREDENTIAL_REF: Readonly<Record<LlmProviderKind, string>> = {
  */
 const PRICING: Readonly<Record<LlmProviderKind, { input: number; output: number }>> = {
   anthropic: { input: 2_250, output: 11_250 },
+  google: { input: 1_900, output: 9_500 },
   openai: { input: 1_800, output: 9_000 },
+  xai: { input: 450, output: 2_250 },
   workers_ai: { input: 100, output: 100 },
-  google_gemini: { input: 1_900, output: 9_500 },
 };
 
 export const ACTIVE_LLM_LABEL = LLM_PROVIDER_LABEL[ACTIVE_PROVIDER];
