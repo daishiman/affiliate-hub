@@ -187,6 +187,10 @@
 | REQ-M01 | has-input | — |
 | REQ-M02 | has-input | — |
 | REQ-M03 | has-input, has-permission, has-tenant | — |
+| REQ-TS04 | has-permission, has-tenant, has-enumerated-input | — |
+| REQ-TS05 | has-screen | — |
+| REQ-TS07 | has-db-table | — |
+| REQ-TS08 | has-input | — |
 | REQ-WA01 | has-input | — |
 | REQ-WA02 | has-input, has-permission | — |
 | REQ-WB01 | has-input, has-permission | — |
@@ -202,18 +206,18 @@
 
 ## 4. 未宣言の要件について（正直に書く）
 
-要件表には **241 件**の要件 ID がある。上の宣言表はそのうち **158 件**である
+要件表には **241 件**の要件 ID がある。上の宣言表はそのうち **162 件**である
 （`node scripts/required-test-types.mjs` の出力から書き写す。手で数えない。
 ここは長らく 83 と書いたまま古くなっていたことがある。
 **手で書いた数字は、古くなっても古く見えない**）。
-残り 83 件は未宣言で、**この検査の対象外**にある。
-この 83 が `TEST_TYPES_MAX_UNDECLARED` と一致していることが、
+残り 79 件は未宣言で、**この検査の対象外**にある。
+この 79 が `TEST_TYPES_MAX_UNDECLARED` と一致していることが、
 この節の数字が実測と合っていることの確かめになる。
 
 全部に宣言を書き切るまで検査を入れない、という順にすると**検査は永久に入らない**。
 そこで `TRACEABILITY_MAX_UNLINKED` と同じ形にした。
 
-- 未宣言の上限 `TEST_TYPES_MAX_UNDECLARED` を実測に置く（置いた当初は 158。現在 83）
+- 未宣言の上限 `TEST_TYPES_MAX_UNDECLARED` を実測に置く（置いた当初は 158。現在 79）
 - **新しく足す要件は、宣言しなければ CI が落ちる**
 - 既存の未宣言は減らせるが増やせない。**上げて緑にすることを禁じる**
 
@@ -1767,6 +1771,82 @@ go-route から外す          → REQ-E13: ssrf
 代わりに `E09` / `E10` / `E11` / `E15` の結果欄（「実装済」）へ、
 **直接呼ぶテストが 1 つも無かったこと**と、今回当てた端を書き足した。
 「実装済」は嘘ではないが、それだけでは**断る側が空いていること**が読み取れない。
+
+### 2026-08-19 に減らしたぶん（83 → 79）: テスト戦略 4 件
+
+対象は `REQ-TS04` / `TS05` / `TS07` / `TS08`。10 件のうち 4 件しか宣言していない。
+**この群は「残り 6 件を宣言しない」ことのほうが結論である。**
+
+#### 宣言した 4 件
+
+| 要件 | 性質 | 名乗るファイル |
+| --- | --- | --- |
+| REQ-TS04 入口 3 種への総当たり | has-permission, has-tenant, has-enumerated-input | `tool-catalog-adapters.test.ts` / `entry-points.test.ts` |
+| REQ-TS05 画面の単体テスト | has-screen | `page-render.test.tsx` / `keyboard-operation.test.tsx` |
+| REQ-TS07 実際の D1 とマイグレーション | has-db-table | `d1-link-inbox.test.ts` |
+| REQ-TS08 境界値・異常系 | has-input | `boundaries.test.ts` / `boundaries-platform.test.ts` |
+
+印を 1 つずつ外して赤を確かめた（7 通りのうち 6 通りが赤）。
+
+```
+tool-catalog-adapters から外す → REQ-TS04: tenant-isolation
+entry-points から外す          → REQ-TS04: decision-table, equivalence, permission-matrix
+page-render から外す           → REQ-TS05: a11y, screen-states
+keyboard-operation から外す    → REQ-TS05: keyboard
+d1-link-inbox から外す         → REQ-TS07: db-migration
+boundaries-platform から外す   → REQ-TS08: equivalence
+boundaries から外す            → 緑のまま
+```
+
+最後の 1 つが緑なのは、`boundaries-platform.test.ts` が `boundary` を別に持っているため。
+`REQ-E13` と同じ「1 つの要件を複数のファイルが支えている」形で、弱点ではない。
+
+#### 宣言しなかった 6 件と、その理由
+
+| 要件 | なぜ宣言しないか |
+| --- | --- |
+| `TS01` 土台を 1 箇所に集める | 土台そのものには入力の端も状態も無い。**性質が無い** |
+| `TS02` 業務の決まりごとの単体テスト | 「`tests/domain/` が存在すること」を言うメタ要件。性質を持つのは個々の業務要件の側で、そちらは既に宣言済み |
+| `TS03` 手順の単体テスト | 同上。「外側をテストダブルに差し替える」は**差し替えの要求**であって障害注入ではない。`has-external` を借りると `fault-injection` を名乗ることになる |
+| `TS06` 読み上げ検査とコントラスト | 実体は `a11y` とコントラストの総当たりだが、`a11y` だけを求める性質が語彙に無い。`has-screen` を借りると `screen-states` と `keyboard` まで名乗ることになり、この要件が求めていないものを名乗る |
+| `TS09` 契約検査 | 種別 `contract` はどの性質にも束ねていない（意図的）。`has-runtime-config` を借りると `infra-config` を名乗るが、`TS09` が見ているのは設定ではなく構造 |
+| `TS10` カバレッジを層別に測る | `has-calculation` は `mutation` を求め、`mutation` は要件表の実装欄が `src/domain` / `src/application` を指すかで決まる。`TS10` の実装は `vitest.config.mts` と `scripts/` なので**満たしようがない** |
+
+**性質が無いものに、性質の名前を借りない。** 借りると、本来その性質を持つべき検査を
+消しても緑になる。`TS06` と `TS09` は「当てどころはあるが、語彙の側に対応する性質が無い」
+形で、**除外の枠（7/7、満杯）へ回すのではなく未宣言のまま残す**のが正しい。
+除外の枠が空いても、この 2 件は書けない。**語彙に `a11y` 単独・`contract` 単独の
+性質が増えれば宣言できる。**
+
+#### 判定欄に嘘があった（1 件）
+
+**`TS01` の「土台自身は `tests/architecture/` の契約検査で『各テストが自前で
+組み立てていないこと』を見る」——この検査は存在しない。**
+
+`tests/architecture/` の 15 ファイルの `describe` を全部読んで確かめた。
+あるのは依存方向・Editorial/Commercial の遮断・鍵の漏れ・生成された文書であることの保証・閾値の一元化・
+入口の一覧・Server Action・テストの誠実さ（空のテスト・`.skip`・`.only`）・
+仕様の鮮度・1 概念 1 定義・秘密の値・Worker の配線・保存先の作業場所であり、
+**「テストが `tests/support/` を通しているか」を見るものは 1 つも無い。**
+
+これは残課題 80 の分類でいうと `REQ-W03` / `W04` と同じ**「検査が存在しない」**側である
+（`REQ-TM04` の「検査はあるが別のことを見ていた」ではない）。
+`test-honesty.test.ts` は名前が近いので当たっていそうに見えるが、
+見ているのは**テストが何かを確かめているか**であって、
+**何を使って組み立てたか**ではない。
+
+同じ欄の後半（「型に項目を 1 つ足したときの書き換えが 1 箇所に閉じることを実測済み」）は
+実測の記録であって検査ではない。**実測は 1 度きりで、次に崩れたときに知らせない。**
+
+#### 手で書いた件数が 2 つとも古かった
+
+| 要件 | 判定欄の数字 | 実測（2026-08-19） |
+| --- | --- | --- |
+| `TS04` | 368 件 | **463 件** |
+| `TS08` | 121 件 | **122 件**（64 + 58） |
+
+どちらも「増えている」ので害は小さいが、**手で書いた数字は古くなっても古く見えない**
+（残課題 78 の族）。判定欄を実測へ置き換えた。
 
 #### この回で宣言していない E（20 件）
 

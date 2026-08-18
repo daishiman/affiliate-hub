@@ -1,6 +1,6 @@
 /**
  * @tier 1
- * @req REQ-API01, REQ-WC08
+ * @req REQ-API01, REQ-WC08, REQ-TS04
  * @types permission-matrix, equivalence, decision-table
  *
  * 入口の群（REQ-API01）の分かれ目は「誰に何を許すか」で、

@@ -1,4 +1,4 @@
-/** @tier 1 @req REQ-P08, REQ-P04, REQ-SEC03 @types boundary, state-transition, equivalence */
+/** @tier 1 @req REQ-P08, REQ-P04, REQ-SEC03, REQ-TS08 @types boundary, state-transition, equivalence */
 import { describe, expect, it } from "vitest";
 import { checkPolicies } from "@/domain/compliance";
 import type { GateResult } from "@/domain/compliance/publish-gate";

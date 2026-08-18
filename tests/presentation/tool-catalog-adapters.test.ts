@@ -1,6 +1,6 @@
 /**
  * @tier 1
- * @req REQ-M03
+ * @req REQ-M03, REQ-TS04
  * @types tenant-isolation
  *
  * REQ-M03（バックエンド MCP の入口と認可）のうち、**作業場所をまたげないこと**は
