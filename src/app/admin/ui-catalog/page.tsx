@@ -26,6 +26,7 @@ import {
   FilterBar,
   LoadingView,
   MaterialReview,
+  ModelPicker,
   Page,
   ProductCard,
   ProvenanceNote,
@@ -37,6 +38,7 @@ import {
   UI_COPY,
   WorkBoard,
   type CriterionView,
+  type ModelPickerGroup,
   type ScheduleCalendarDay,
 } from "@/presentation/ui";
 import { FeedbackSamples } from "./feedback-samples";
@@ -72,6 +74,66 @@ const criteria: readonly CriterionView[] = [
   { key: "quiet", label: "静音性", weight: 0.3, measurement: "1m 地点の騒音値（dB）" },
   { key: "speed", label: "書き出し速度", weight: 0.4, measurement: "同一素材の書き出し時間（秒）" },
   { key: "value", label: "価格性能比", weight: 0.3, measurement: "総合点 ÷ 実売価格" },
+];
+
+/**
+ * モデル選びの見本。
+ *
+ * 「選べる」だけでなく、**選べない 3 通り**を並べてある。
+ * 鍵がまだ／設定がまだ／そもそも枠だけ、は画面では全部同じ空白に見えるが、
+ * 利用者がやることは全部違う。ここで並べておかないと、
+ * 実装で 1 つの「使えません」に潰されたことに気づけない。
+ */
+const sampleModelGroups: readonly ModelPickerGroup[] = [
+  {
+    providerId: "anthropic",
+    label: "Anthropic",
+    unavailableReason: null,
+    models: [
+      {
+        modelId: "sample-fast",
+        label: "速いほう",
+        inputPricePerMillionMinor: 450,
+        outputPricePerMillionMinor: 2250,
+        currency: "JPY",
+      },
+      {
+        modelId: "sample-careful",
+        label: "丁寧なほう",
+        inputPricePerMillionMinor: 2250,
+        outputPricePerMillionMinor: 11250,
+        currency: "JPY",
+      },
+    ],
+  },
+  {
+    providerId: "google",
+    label: "Google",
+    unavailableReason:
+      "この提供元の API キーがまだ登録されていません（失効させた場合も同じ表示になります）。",
+    models: [
+      {
+        modelId: "sample-google",
+        label: "標準",
+        inputPricePerMillionMinor: 300,
+        outputPricePerMillionMinor: 1200,
+        currency: "JPY",
+      },
+    ],
+  },
+  {
+    providerId: "openai",
+    label: "OpenAI",
+    unavailableReason:
+      "選べるモデルが設定されていません。管理者が目録（LLM_PROVIDER_CATALOG）へ単価つきで登録するまで使えません。",
+    models: [],
+  },
+  {
+    providerId: "workers_ai",
+    label: "Workers AI",
+    unavailableReason: "この提供元は枠として残してあるだけで、いまは使えません。",
+    models: [],
+  },
 ];
 
 /**
@@ -598,6 +660,25 @@ export default function UiCatalogPage() {
             この見本では、送っても記録はされません。
           </p>
           <FeedbackSamples />
+        </Card>
+
+        <Card>
+          <h2 className={styles.sectionTitle}>21. どのモデルで書くか選ぶ</h2>
+          <p className={styles.sectionLead}>
+            既定のモデルは置きません。置くと、選んだ覚えのないモデルで書かれた記事が、
+            選んで書いたものと同じ形で残ります。使えない提供元も隠さず、
+            「鍵がまだ」「設定がまだ」「そもそも枠だけ」を別々の言葉で出します。
+            単価は選ぶ時点で見せます（押したあとでは、高いほうを選んだことに気づくのが請求のときになります）。
+          </p>
+          <ModelPicker
+            action="/admin/ui-catalog"
+            fieldName="model"
+            separator="::"
+            selected=""
+            emptyReason={null}
+            submitLabel="このモデルで下書きを作る"
+            groups={sampleModelGroups}
+          />
         </Card>
       </Page>
     </AdminShell>

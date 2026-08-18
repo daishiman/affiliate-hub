@@ -5,8 +5,8 @@
 テスト側の `@req` 印を重ねたもの。
 
 - 最終更新: 2026-08-18
-- テストファイル: 150 件
-- 由来の要件が分かる: 115 件
+- テストファイル: 152 件
+- 由来の要件が分かる: 117 件
 - **由来不明: 35 件**（上限 37 件）
 
 由来不明とは「どの要件のために書いたのか、機械から辿れない」という意味で、
@@ -61,6 +61,7 @@
 | `tests/application/feedback.test.ts` | REQ-FB07, REQ-FB09 | 表 |
 | `tests/application/filter-metrics.test.ts` | REQ-P10, REQ-S08 | 印と表 |
 | `tests/application/generation-matrix.test.ts` | REQ-P06, REQ-S05 | 印と表 |
+| `tests/application/list-selectable-models.test.ts` | REQ-G11 | 印 |
 | `tests/application/manage-content.test.ts` | REQ-QC11, REQ-R11, REQ-SEC07, REQ-SEC09 | 印と表 |
 | `tests/application/manage-llm-credentials.test.ts` | REQ-SEC01, REQ-SEC05 | 印 |
 | `tests/application/manage-personas.test.ts` | REQ-P05, REQ-S04, REQ-W12 | 印と表 |
@@ -157,6 +158,7 @@
 | `tests/ui/keyboard-operation.test.tsx` | REQ-P01, REQ-P02, REQ-P03, REQ-P04, REQ-P05, REQ-P06, REQ-P07, REQ-P08, REQ-P09, REQ-P10, REQ-SEC08, REQ-TH01 | 印 |
 | `tests/ui/llm-credential-forms.test.tsx` | REQ-SEC01 | 印 |
 | `tests/ui/llm-credential-page.test.tsx` | REQ-SEC01 | 印 |
+| `tests/ui/model-picker.test.tsx` | REQ-G11 | 印 |
 | `tests/ui/page-degraded.test.tsx` | REQ-P01, REQ-P02, REQ-P03, REQ-P04, REQ-P05, REQ-P06, REQ-P07, REQ-P08, REQ-P09, REQ-P10, REQ-TH01 | 印 |
 | `tests/ui/page-empty.test.tsx` | REQ-P01, REQ-P02, REQ-P03, REQ-P04, REQ-P05, REQ-P06, REQ-P07, REQ-P08, REQ-P09, REQ-P10, REQ-TH01 | 印 |
 | `tests/ui/page-render-privileged.test.tsx` | REQ-S10 | 印 |

@@ -1,5 +1,5 @@
 {
-  "graph_revision": 222,
+  "graph_revision": 223,
   "nodes": [
     {
       "acceptance": [],
@@ -10051,6 +10051,102 @@
       "title": "入口の門を proxy.ts へ移す(OpenNext が Node middleware を受け取れたら)",
       "tracker_binding": "beads",
       "updated_at": "2026-08-18T06:35:00Z"
+    },
+    {
+      "acceptance": [],
+      "architecture_refs": [],
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "beads_linkage": null,
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "candidate_path": "tasks/task-llm-provider-catalog-not-configured.md",
+          "confidence": 0.9
+        }
+      ],
+      "classification_confidence": 0.9,
+      "classification_reason": "設定が空のため、実装済みの経路が手元で動かない",
+      "completion_evidence": {
+        "completed_at": null,
+        "evidence_refs": [],
+        "policy": "manual",
+        "reconciled_at": null,
+        "source": "manual",
+        "status": "open"
+      },
+      "confirmation_evidence": {
+        "evaluated_digest": null,
+        "evaluator": null,
+        "evidence_ref": null
+      },
+      "confirmation_status": "draft",
+      "created_at": "2026-08-18T07:10:00Z",
+      "depends_on": [],
+      "domain": "platform",
+      "evaluation_status": "pending",
+      "execution_contexts": [],
+      "feature_package_id": null,
+      "file_path": "tasks/task-llm-provider-catalog-not-configured.md",
+      "github_project_linkages": [],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "goal": null,
+      "graph_node_id": "task-llm-provider-catalog-not-configured",
+      "implementation_readiness": {
+        "checked_at": null,
+        "missing_sections": [],
+        "status": "incomplete"
+      },
+      "issue_linkage": null,
+      "iteration": null,
+      "mvp_alignment": {
+        "background": "生成画面へモデルを選ぶ欄を入れたが、手元の preview では 5 提供元すべてが『選べるモデルがありません』になる。目録(LLM_PROVIDER_CATALOG)が空だからである",
+        "mvp_fit": "enabling",
+        "purpose": "単価つきのモデル目録を設定し、選べるモデルが実際に並ぶ状態にする",
+        "rationale": "単価は目録からしか引けない(infrastructure/llm/pricing.ts)。目録が空だと、鍵を登録してもモデルは 1 つも並ばず下書きは作れない。つまり鍵より目録が先である"
+      },
+      "owners": [
+        "daishiman"
+      ],
+      "parent_feature": null,
+      "phase_ref": null,
+      "priority": "high",
+      "project_id": "affiliate-hub",
+      "pull_request_linkages": [],
+      "purpose": null,
+      "related_nodes": [],
+      "resource_scope": [
+        "src",
+        "docs"
+      ],
+      "scope_in": [],
+      "scope_out": [],
+      "source_lineage": {
+        "imported_at": "2026-08-18T07:10:00Z",
+        "origin_kind": "manual",
+        "source_digest": null,
+        "source_path": "src/infrastructure/llm/llm-provider-catalog.ts",
+        "source_plugin": null,
+        "source_version": null
+      },
+      "start_date": null,
+      "status": "draft",
+      "tags": [
+        "llm",
+        "settings",
+        "cost"
+      ],
+      "target_date": null,
+      "template_id": "task",
+      "template_version": "1.0.0",
+      "title": "モデルの目録(LLM_PROVIDER_CATALOG)が未設定で、鍵を入れてもモデルが並ばない",
+      "tracker_binding": "beads",
+      "updated_at": "2026-08-18T07:10:00Z"
     }
   ],
   "repository_id": "github:daishiman/affiliate-hub",

@@ -82,6 +82,11 @@ export { WorkBoard, type WorkBoardItem } from "./patterns/work-board";
 export { FilterBar, type FilterAxis } from "./patterns/filter-bar";
 export { MaterialReview, type MaterialFinding } from "./patterns/material-review";
 export {
+  ModelPicker,
+  type ModelPickerGroup,
+  type ModelPickerModel,
+} from "./patterns/model-picker";
+export {
   ScheduleCalendar,
   type ScheduleCalendarDay,
   type ScheduleCalendarEntry,

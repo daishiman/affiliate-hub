@@ -12,9 +12,14 @@ import {
   EmptyView,
   ErrorView,
   MaterialReview,
+  ModelPicker,
   Page,
   StubNotice,
 } from "@/presentation/ui";
+import {
+  MODEL_CHOICE_SEPARATOR,
+  selectModelFromRows,
+} from "@/application/usecases/generation/list-selectable-models";
 import styles from "../admin.module.css";
 
 export const dynamic = "force-dynamic";
@@ -37,9 +42,23 @@ export default async function GenerationPage({
   const material = params.material ?? "";
   // 「そろっていない状態」と「そろった状態」のどちらで試したか。
   const trial = params.trial === "ready" ? "ready" : params.trial === "empty" ? "empty" : null;
+  // 画面で選ばれたモデル。**ここではまだ「文字列が届いた」だけである。**
+  const modelChoice = params.model ?? "";
 
   const actor = await currentActor();
   const uc = await generationUseCases();
+
+  const models = await uc.listModels.execute(actor, {});
+  const modelRows = models.ok ? models.value.rows : [];
+  /**
+   * 届いた文字列を、選ばれたモデルへ直す。
+   *
+   * **一覧に無ければ `null` のまま渡す。** URL は誰でも書けるので、
+   * 届いた値をそのままモデルの指定として使うと、目録に無い名前で
+   * 呼び出しに行ける。選ばれていないものは、選ばれていないまま渡す。
+   */
+  const model = modelChoice === "" ? null : selectModelFromRows(modelRows, modelChoice);
+  const modelChoiceRejected = modelChoice !== "" && model === null;
 
   const [plan, readiness, review, draft] = await Promise.all([
     uc.readPlan.execute(actor, {}),
@@ -52,14 +71,7 @@ export default async function GenerationPage({
       ? Promise.resolve(null)
       : uc.draft.execute(actor, {
           provided: trial === "ready" ? sampleGenerationInputForTrial() : {},
-          /**
-           * **この画面にはモデルを選ぶ欄がまだ無い。**
-           *
-           * 無いからといってここで 1 つ埋めると、押した人が選んだ覚えのない
-           * モデルで記事ができ、記録にはそのモデル名だけが残る。
-           * 選ばれていないことを、選ばれていないまま渡す。
-           */
-          model: null,
+          model,
         }),
   ]);
 
@@ -259,14 +271,43 @@ export default async function GenerationPage({
         <h2 className={styles.sectionTitle}>下書きを作らせてみる</h2>
         <p className={styles.sectionLead}>
           実際に押して確かめられます。必ず要る 17
-          項目（上の表のうち「順位の決め方」以外）がそろっていない状態では、何が足りないかを返して始めません。そろった状態で押すと、どのモデルで書くかの確認まで進みます。
-          <strong>この画面にはモデルを選ぶ欄がまだ無いため、そこで止まります。</strong>
+          項目（上の表のうち「順位の決め方」以外）がそろっていない状態では、何が足りないかを返して始めません。
+          そろった状態で押すと、選んだモデルで下書きを 1 本作ります。
+          <strong>先にどのモデルで書くかを選んでください。</strong>
           既定のモデルは置いていません（置くと、選んだ覚えのないモデルで書かれた記事が、選んで書いたものと同じ形で残ります）。
         </p>
+
+        {!models.ok ? (
+          <ErrorView
+            title="選べるモデルを出せませんでした"
+            body={models.error.message}
+            suggestedAction={models.error.suggestedAction ?? null}
+          />
+        ) : (
+          <ModelPicker
+            action="/admin/generation"
+            fieldName="model"
+            separator={MODEL_CHOICE_SEPARATOR}
+            groups={models.value.rows}
+            selected={model === null ? "" : modelChoice}
+            emptyReason={models.value.emptyReason}
+            hiddenFields={trial === null ? [] : [{ name: "trial", value: trial }]}
+            submitLabel="このモデルを選ぶ"
+          />
+        )}
+
+        {modelChoiceRejected && (
+          <Callout
+            tone="warn"
+            title="選ばれたモデルは一覧にありません"
+            reason="いま選べるモデルの一覧に無い組み合わせが届いたため、選ばれていないものとして扱いました。上の欄から選び直してください（鍵を失効させた直後や、目録から外れたモデルを開いたままだったときに起きます）。"
+          />
+        )}
+
         <p className={styles.linkList}>
-          <Link href="/admin/generation?trial=empty">そろっていない状態で試す</Link>
+          <Link href={trialHref("empty", modelChoice)}>そろっていない状態で試す</Link>
           {" ／ "}
-          <Link href="/admin/generation?trial=ready">そろった状態（見本の素材）で試す</Link>
+          <Link href={trialHref("ready", modelChoice)}>そろった状態（見本の素材）で試す</Link>
           {trial !== null && (
             <>
               {" ／ "}
@@ -344,6 +385,18 @@ export default async function GenerationPage({
       </Card>
     </Shell>
   );
+}
+
+/**
+ * 試す入口の行き先。
+ *
+ * **選んだモデルを持ち回る。** 落とすと、押すたびに選び直しになり、
+ * そのうち誰かが「初期値を入れよう」と言い出す。
+ */
+function trialHref(trial: "empty" | "ready", modelChoice: string): string {
+  const query = new URLSearchParams({ trial });
+  if (modelChoice !== "") query.set("model", modelChoice);
+  return `/admin/generation?${query.toString()}`;
 }
 
 function Shell({ children }: { readonly children: ReactNode }) {

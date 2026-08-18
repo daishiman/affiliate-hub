@@ -69,6 +69,7 @@ import {
   createReviewMaterialUseCase,
 } from "@/application/usecases/generation/read-generation-plan";
 import { createDraftContentVariantUseCase } from "@/application/usecases/generation/draft-content-variant";
+import { createListSelectableModelsUseCase } from "@/application/usecases/generation/list-selectable-models";
 import type { GenerationInput } from "@/domain/generation";
 import { sampleGenerationInput } from "@/infrastructure/persistence/sample/generation-sample-input";
 import {
@@ -924,19 +925,30 @@ export async function feedbackCaptureNotice(): Promise<StorageStatus> {
  * 生成の仕組みの入口。
  *
  * 3 つは外部に何も問い合わせない（決めごとそのものを読むだけ）。
- * 4 つめの `draft` だけが生成 AI を実際に呼ぶ。
+ * `draft` だけが生成 AI を実際に呼ぶ。
  * どこの提供元を呼ぶかは `src/infrastructure/llm/llm-setup.ts` の 1 行が決めており、
  * ここも画面も、提供元の名前を知らない。
+ *
+ * `listModels` は選ぶ欄のための読み取りである。鍵の管理（`llmCredentialEntry`）とは
+ * 別に組み立てている。あちらは `integration_key.manage` が要り、
+ * 書く人に管理権限を配らないとモデルが選べない形にしたくないため。
  */
 export async function generationUseCases() {
   // **環境も渡す。** 鍵は環境から取る。ここを `createDeps()` のままにすると、
   // 利用者が画面から鍵を登録しても、生成の呼び出しからは 1 件も見えない。
   const context = await appContext();
   const deps = createDeps({ db: context.db, env: context.env });
+  const management = createLlmCredentialManagement(context);
   return {
     readPlan: createReadGenerationPlanUseCase(),
     checkInput: createCheckGenerationInputUseCase(),
     reviewMaterial: createReviewMaterialUseCase(),
+    listModels: createListSelectableModelsUseCase({
+      catalog: management.catalog,
+      credentials: management.ready
+        ? { available: true, vault: management.vault }
+        : { available: false, reason: management.reason },
+    }),
     draft: createDraftContentVariantUseCase({ llm: deps.llm, costs: deps.llmCosts }),
   };
 }
