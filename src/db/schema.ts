@@ -1113,7 +1113,117 @@ export const redirectResolutions = sqliteTable(
   ],
 );
 
+/**
+ * 作業場所（ワークスペース）。課金・権限・データ分離の単位。
+ *
+ * ここまで全部のテーブルが `workspace_id` を持っているのに、
+ * **その `workspace_id` が指す先だけが無かった。** 見本データの中にしか
+ * 存在しなかったため、ログインした人をどの作業場所へ入れるかが決められなかった。
+ */
+export const workspaces = sqliteTable("workspaces", {
+  id: text("id").primaryKey(),
+  name: text("name").notNull(),
+  plan: text("plan", { enum: ["solo", "team", "business"] })
+    .notNull()
+    .default("solo"),
+  ownerUserId: text("owner_user_id").notNull(),
+  timezone: text("timezone").notNull().default("Asia/Tokyo"),
+  currency: text("currency").notNull().default("JPY"),
+  createdAt: integer("created_at", { mode: "timestamp" })
+    .notNull()
+    .default(sql`(unixepoch())`),
+  /** 停止。行を消さずに止める。消すと、その作業場所の記録が全部孤児になる。 */
+  suspendedAt: integer("suspended_at", { mode: "timestamp" }),
+});
+
+/**
+ * 担当者の登録。**権限の正本はここ 1 か所。**
+ *
+ * ログインの合言葉の中に権限を書き込まない。書き込むと、担当を外した人の権限が
+ * その合言葉が切れるまで残る（`session-actor.ts` 冒頭）。
+ *
+ * `user_id` は認証基盤（Better Auth）の `user.id` と同じ値を入れる。
+ * ただし**外部キーは張らない**。張ると、認証基盤の版を上げてテーブルの形が
+ * 変わった日に、業務側のテーブルが道連れになる。
+ * つなぎ目は値の一致だけにして、片方だけを差し替えられる状態を保つ。
+ *
+ * --- 招待はアドレスで書く。`user_id` は後から埋まる ---
+ *
+ * 初めてログインする人の `user.id` は、ログインするまで存在しない。
+ * よって招待の時点で書けるのは**アドレス**だけで、`user_id` は `null` で始まり、
+ * 本人が初めて入った瞬間に埋まる（`session-issuer.ts`）。
+ *
+ * この形にしないと「最初に入った人を自動で管理者にする」ような特例が要る。
+ * 特例は認証が入ったあとも残り、後から誰も外せなくなる。
+ * **入ってよい人は必ず、入る前に行がある。**
+ */
+export const memberships = sqliteTable(
+  "memberships",
+  {
+    id: text("id").primaryKey(),
+    workspaceId: text("workspace_id").notNull(),
+    /** 認証基盤の `user.id`。`null` は「招待済みだが、まだ一度も入っていない」。 */
+    userId: text("user_id"),
+    /** 招待したアドレス。小文字で入れる。Google が返す値と突き合わせる唯一の手がかり。 */
+    invitedEmail: text("invited_email").notNull(),
+    roles: text("roles", { mode: "json" }).$type<string[]>().notNull(),
+    /** 空配列は「作業場所の全体」。ブランド単位で担当を分けるときだけ入れる。 */
+    scopedBrandIds: text("scoped_brand_ids", { mode: "json" })
+      .$type<string[]>()
+      .notNull(),
+    displayName: text("display_name").notNull(),
+    invitedAt: integer("invited_at", { mode: "timestamp" })
+      .notNull()
+      .default(sql`(unixepoch())`),
+    /** 招待を受けた日。null は「まだ入っていない」。 */
+    acceptedAt: integer("accepted_at", { mode: "timestamp" }),
+    /** 担当から外した日。行は消さない。消すと過去の操作の記録が誰のものか分からなくなる。 */
+    revokedAt: integer("revoked_at", { mode: "timestamp" }),
+  },
+  (t) => [
+    // 同じ人が同じ作業場所に 2 行あると、どちらの役割が効くかが実行順で決まる。
+    // 招待はアドレスで一意にする。`user_id` は埋まるまで null なので、こちらが正。
+    uniqueIndex("memberships_workspace_email_idx").on(t.workspaceId, t.invitedEmail),
+    index("memberships_user_idx").on(t.userId),
+  ],
+);
+
+/**
+ * 断ったログインの試み。
+ *
+ * **残すのは日時とアドレスと理由だけ。** 合言葉・トークン・Google から返る値は
+ * 1 つも残さない。ここに残す目的は「誰かが入ろうとしているか」を後から見ることで、
+ * 入れなかった人を再現することではない。
+ *
+ * 入れた状態（セッション）は作らないので、この表に `session_id` は無い。
+ * 「入れないアカウントに、中途半端に途中まで入られる」状態を作らないためである。
+ */
+export const signinDenials = sqliteTable(
+  "signin_denials",
+  {
+    id: text("id").primaryKey(),
+    at: integer("at", { mode: "timestamp" })
+      .notNull()
+      .default(sql`(unixepoch())`),
+    /** 断った相手。Google が本人確認済みとして返したアドレスをそのまま小文字で。 */
+    email: text("email").notNull(),
+    /**
+     * 断った理由。画面には出さない（出すと、どれが登録済みかを教えることになる）。
+     *
+     * `no_membership` は「アドレスは許可されているが、担当者の登録が無い」。
+     * 名簿だけ直して招待を忘れた状態がこれで、他の 2 つと原因も直し方も違う。
+     */
+    reason: text("reason", {
+      enum: ["not_allowed", "email_unverified", "no_membership"],
+    }).notNull(),
+  },
+  (t) => [index("signin_denials_email_idx").on(t.email, t.at)],
+);
+
 // 運営者ドメイン
+export type WorkspaceRow = typeof workspaces.$inferSelect;
+export type MembershipRow = typeof memberships.$inferSelect;
+export type SigninDenialRow = typeof signinDenials.$inferSelect;
 export type Asp = typeof asps.$inferSelect;
 export type RedirectResolutionRow = typeof redirectResolutions.$inferSelect;
 export type ContentVariantRow = typeof contentVariants.$inferSelect;
@@ -1146,3 +1256,14 @@ export type ArticleProduct = typeof articleProducts.$inferSelect;
 export type ConversationBlock = typeof conversationBlocks.$inferSelect;
 export type Faq = typeof faqs.$inferSelect;
 export type UpdateLog = typeof updateLogs.$inferSelect;
+
+/**
+ * 認証基盤（Better Auth）が使うテーブル。
+ *
+ * **中身を手で書かない。** 形は Better Auth の CLI が出したものを
+ * `auth-schema.ts` へそのまま置いてある（`src/auth.cli.ts` の冒頭に手順）。
+ * ここから出しているのは、マイグレーションの生成が
+ * `src/db/schema.ts` だけを見ているためである。
+ * 出し忘れると、テーブルが本番に作られないままログインだけが動く形になる。
+ */
+export * from "./auth-schema";

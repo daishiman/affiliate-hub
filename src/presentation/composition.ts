@@ -314,9 +314,14 @@ async function resolveActor(): Promise<ActorResolution> {
     const { createSessionActorResolver } = await import(
       "@/infrastructure/identity/session-actor"
     );
+    const { createD1MembershipReader } = await import(
+      "@/infrastructure/identity/membership-reader"
+    );
     return await createSessionActorResolver({
       sessions: createD1SessionReader(db),
-      memberships: createDeps({ db }).memberships,
+      // 権限は**本物の登録**から引く。ここを見本のままにすると、
+      // ログインが成立しても全員が見本の役割で動く。
+      memberships: createD1MembershipReader(db),
     })(token);
   } catch {
     // 画面の外（テストや組み立て時）では合言葉を取り出せない。

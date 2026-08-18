@@ -121,6 +121,13 @@ const ROUTE_INTENT: Readonly<Record<string, { readonly intent: Gate; readonly wh
     intent: "ログイン",
     what: "指摘に添えた画面の写しの取り出し",
   },
+  "src/app/api/auth/[...all]/route.ts": {
+    // ログインの入口そのもの。ここに門を置くと、誰もログインできない。
+    // 「誰でも叩ける」のは意図どおりで、通してよい相手かの判定は
+    // この先（`better-auth.ts` の名簿と担当者の登録）が行う。
+    intent: "誰でも",
+    what: "ログインの入口（Google との往復）",
+  },
   "src/app/api/telemetry/route.ts": {
     intent: "誰でも",
     what: "読者の画面から届く計測（未ログインの読者が送るので、門は置けない）",

@@ -5,8 +5,8 @@
 テスト側の `@req` 印を重ねたもの。
 
 - 最終更新: 2026-08-18
-- テストファイル: 146 件
-- 由来の要件が分かる: 111 件
+- テストファイル: 149 件
+- 由来の要件が分かる: 114 件
 - **由来不明: 35 件**（上限 37 件）
 
 由来不明とは「どの要件のために書いたのか、機械から辿れない」という意味で、
@@ -103,6 +103,7 @@
 | `tests/domain/writing-rules.test.ts` | REQ-W01, REQ-W09, REQ-W10 | 表 |
 | `tests/evals/generation-eval-set.test.ts` | REQ-CI13, REQ-G09 | 表 |
 | `tests/infrastructure/anthropic-llm.test.ts` | REQ-SEC01, REQ-SEC05 | 印 |
+| `tests/infrastructure/better-auth-gate.test.ts` | REQ-S10 | 印 |
 | `tests/infrastructure/channel-connector.test.ts` | REQ-P08 | 表 |
 | `tests/infrastructure/d1-conversion-repository.test.ts` | REQ-P09 | 表 |
 | `tests/infrastructure/guarded-fetch.test.ts` | REQ-SEC02 | 印と表 |
@@ -111,7 +112,9 @@
 | `tests/infrastructure/llm-provider-catalog.test.ts` | REQ-SEC01 | 印 |
 | `tests/infrastructure/llm-providers.test.ts` | REQ-G11, REQ-SEC01, REQ-SEC05 | 印と表 |
 | `tests/infrastructure/llm-usage-repository.test.ts` | REQ-SEC01 | 印 |
+| `tests/infrastructure/membership-reader.test.ts` | REQ-S10 | 印 |
 | `tests/infrastructure/prompt-assembly.test.ts` | REQ-P06 | 表 |
+| `tests/infrastructure/session-issuer.test.ts` | REQ-S10 | 印 |
 | `tests/infrastructure/stub-ledger.test.ts` | REQ-TS09 | 表 |
 | `tests/integration/d1-audit-log.test.ts` | REQ-SEC09 | 印と表 |
 | `tests/integration/d1-content.test.ts` | REQ-SEC09 | 表 |
