@@ -1,5 +1,5 @@
 {
-  "graph_revision": 215,
+  "graph_revision": 216,
   "nodes": [
     {
       "acceptance": [],
@@ -9368,6 +9368,105 @@
       "title": "生成 AI の鍵を画面から登録できるようにする（設定画面と組み立ての配線）",
       "tracker_binding": "beads",
       "updated_at": "2026-08-18T03:00:00Z"
+    },
+    {
+      "acceptance": [],
+      "architecture_refs": [],
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "beads_linkage": null,
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "candidate_path": "tasks/task-llm-settings-auth-gate.md",
+          "confidence": 0.9
+        }
+      ],
+      "classification_confidence": 0.9,
+      "classification_reason": "権限の経路を actor の作り方まで辿って実測した",
+      "completion_evidence": {
+        "completed_at": null,
+        "evidence_refs": [],
+        "policy": "manual",
+        "reconciled_at": null,
+        "source": "manual",
+        "status": "in_progress"
+      },
+      "confirmation_evidence": {
+        "evaluated_digest": null,
+        "evaluator": null,
+        "evidence_ref": null
+      },
+      "confirmation_status": "draft",
+      "created_at": "2026-08-18T04:00:00Z",
+      "depends_on": [],
+      "domain": "generation",
+      "evaluation_status": "pending",
+      "execution_contexts": [],
+      "feature_package_id": null,
+      "file_path": "tasks/task-llm-settings-auth-gate.md",
+      "github_project_linkages": [],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "goal": null,
+      "graph_node_id": "task-llm-settings-auth-gate",
+      "implementation_readiness": {
+        "checked_at": null,
+        "missing_sections": [],
+        "status": "incomplete"
+      },
+      "issue_linkage": null,
+      "iteration": null,
+      "mvp_alignment": {
+        "background": "セッションを発行する実装が無く、全リクエストが SAMPLE_ACTOR になる。その役割は integration_key.manage を持つため、鍵の登録・失効が未ログインで通る",
+        "mvp_fit": "direct",
+        "purpose": "鍵の登録画面を本番へ出せる状態にする",
+        "rationale": "鍵は金銭に直結し、失効させると保管していた値も消えて戻せない"
+      },
+      "owners": [
+        "daishiman"
+      ],
+      "parent_feature": null,
+      "phase_ref": null,
+      "priority": "high",
+      "project_id": "affiliate-hub",
+      "pull_request_linkages": [],
+      "purpose": null,
+      "related_nodes": [
+        "task-llm-credential-wiring"
+      ],
+      "resource_scope": [
+        "src",
+        "tests",
+        "docs"
+      ],
+      "scope_in": [],
+      "scope_out": [],
+      "source_lineage": {
+        "imported_at": "2026-08-18T04:00:00Z",
+        "origin_kind": "manual",
+        "source_digest": null,
+        "source_path": "src/presentation/admin/llm-credential-action.ts",
+        "source_plugin": null,
+        "source_version": null
+      },
+      "start_date": null,
+      "status": "draft",
+      "tags": [
+        "llm",
+        "secrets",
+        "auth"
+      ],
+      "target_date": null,
+      "template_id": "task",
+      "template_version": "1.0.0",
+      "title": "鍵の登録画面が未ログインでも使える（本番へ出す前に塞ぐ）",
+      "tracker_binding": "beads",
+      "updated_at": "2026-08-18T04:00:00Z"
     }
   ],
   "repository_id": "github:daishiman/affiliate-hub",

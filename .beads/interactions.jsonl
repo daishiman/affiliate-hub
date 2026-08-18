@@ -42,3 +42,4 @@
 {"id":"int-4b642ce286f75eae08d8c68b58811e21","kind":"field_change","created_at":"2026-08-18T01:21:23.592115Z","actor":"daishiman","issue_id":"ah-dok","extra":{"field":"status","new_value":"in_progress","old_value":"open"}}
 {"id":"int-a31dd7ed99cfc84de9fd553f93310af8","kind":"field_change","created_at":"2026-08-18T01:35:04.109327Z","actor":"daishiman","issue_id":"ah-nuy","extra":{"field":"status","new_value":"in_progress","old_value":"open"}}
 {"id":"int-711ad9de998644857752b6a2938d7536","kind":"field_change","created_at":"2026-08-18T01:35:04.110566Z","actor":"daishiman","issue_id":"ah-nuy","extra":{"field":"assignee","new_value":"daishiman","old_value":""}}
+{"id":"int-7e9e955c4df6098488b18488936d19ca","kind":"field_change","created_at":"2026-08-18T02:06:10.300924Z","actor":"daishiman","issue_id":"ah-nuy","extra":{"field":"status","new_value":"closed","old_value":"in_progress","reason":"設定画面（登録・確認・失効）と env の配線を実装し、verify 11 門すべて緑。ea4d5f5。利用量ページは別件。"}}
