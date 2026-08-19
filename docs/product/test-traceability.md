@@ -6,8 +6,8 @@
 テスト側の `@req` 印を重ねたもの。
 
 - 最終更新: 2026-08-19
-- テストファイル: 190 件
-- 由来の要件が分かる: 162 件
+- テストファイル: 193 件
+- 由来の要件が分かる: 165 件
 - **由来不明: 28 件**（上限 28 件）
 
 由来不明とは「どの要件のために書いたのか、機械から辿れない」という意味で、
@@ -72,12 +72,14 @@
 | `tests/application/schedule-publication.test.ts` | REQ-P08 | 印と表 |
 | `tests/architecture/ai-eval-budget.test.ts` | REQ-CI13 | 表 |
 | `tests/architecture/audit-action-emitters.test.ts` | REQ-SEC09 | 印 |
+| `tests/architecture/chapter-regeneration-floor.test.ts` | REQ-TS15 | 印と表 |
 | `tests/architecture/ci-budget.test.ts` | REQ-CI12 | 印と表 |
 | `tests/architecture/ci-config.test.ts` | REQ-CI01, REQ-CI02, REQ-CI03, REQ-CI04, REQ-CI05, REQ-CI06, REQ-CI07, REQ-CI09, REQ-CI10, REQ-CI11, REQ-CI13 | 印と表 |
 | `tests/architecture/commercial-isolation.test.ts` | REQ-FD02 | 印と表 |
 | `tests/architecture/dependency-direction.test.ts` | REQ-FD01, REQ-FD02, REQ-SEC02, REQ-SEC04, REQ-TM12, REQ-TS09 | 印と表 |
 | `tests/architecture/doc-source-version-gap.test.ts` | REQ-TS14 | 印と表 |
 | `tests/architecture/doctrine-citation-gap.test.ts` | REQ-TS13 | 印と表 |
+| `tests/architecture/form2-population-floor.test.ts` | REQ-TS17 | 印と表 |
 | `tests/architecture/generated-docs.test.ts` | REQ-TS09 | 印 |
 | `tests/architecture/llm-credential-leak.test.ts` | REQ-SEC01, REQ-SEC05 | 印 |
 | `tests/architecture/open-doors.test.ts` | REQ-S10, REQ-TS12 | 印と表 |
@@ -92,6 +94,7 @@
 | `tests/architecture/test-honesty.test.ts` | REQ-CI07 | 表 |
 | `tests/architecture/webmcp-reachability.test.ts` | REQ-FD04 | 印と表 |
 | `tests/architecture/worker-env-wiring.test.ts` | REQ-SEC01 | 印 |
+| `tests/architecture/writer-absence.test.ts` | REQ-TS16 | 印と表 |
 | `tests/domain/article-type-sections.test.ts` | REQ-W02, REQ-W03, REQ-W04, REQ-W05 | 印と表 |
 | `tests/domain/authored-sections.test.ts` | REQ-P08 | 表 |
 | `tests/domain/boundaries-platform.test.ts` | REQ-P04, REQ-P08, REQ-SEC03, REQ-TS01, REQ-TS08 | 印と表 |
@@ -210,4 +213,4 @@
 | `tests/ui/theme-contrast.test.ts` | REQ-TH01, REQ-TH02, REQ-TS06 | 印と表 |
 | `tests/ui/tool-form.test.tsx` | REQ-WC05 | 印と表 |
 | `tests/ui/ui-layers.test.ts` | REQ-S09, REQ-TM05 | 表 |
-<!-- 生成物の指紋 sha256:dea76afb882da6abc405be389920e01eb54f9d8f1f65360e3a0e0d51fcfe25c6 -->
+<!-- 生成物の指紋 sha256:09e67b48c7bc840b3e1fbc465fc00ac7139ca19ec2edefa1cea052da0503d33d -->
