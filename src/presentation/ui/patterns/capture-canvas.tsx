@@ -197,9 +197,10 @@ export function CaptureCanvas({
   };
 
   /**
-   * ここから下の 3 つは**座標だけを受け取る**。
-   * ポインタとキーボードで別々の描き方を持つと、片方だけ直る日が来る
-   * （実際、長らくポインタの経路しか無かった。`docs/product/backlog.md` 項目 82）。
+   * ここから下の 3 つは**出来事（ポインタ／キー）を受け取らない**。受け取るのは
+   * 座標と、描くものの種類だけである。ポインタとキーボードで別々の描き方を持つと、
+   * 片方だけ直る日が来る（実際、長らくポインタの経路しか無かった。
+   * `docs/product/backlog.md` 項目 82）。
    */
 
   /** 文字を 1 つ置く。置けたかどうかを返す（空のままなら置かない）。 */
@@ -210,13 +211,23 @@ export function CaptureCanvas({
     return true;
   };
 
-  const beginAt = (at: Point): void => {
+  /**
+   * 引きずって描くものを 1 つ始める。
+   *
+   * **`drawTool` を引数で受け、そこから `"text"` を外してあるのが本体である。**
+   * 文字は押した時点で `placeText` が置き終えるので、ここへは来ない。
+   * その「来ない」を、中で早期に弾く形ではなく**呼ぶ側に証明させる形**で書いた。
+   * 中で弾くと、`"text"` で呼んでも何も起きないまま通ってしまい、
+   * 型が言うのは「来ない」ではなく「来ても黙って無視する」になる。
+   * 引数で外しておけば、`"text"` を弾き忘れた呼び出しはその場で型検査に当たる。
+   */
+  const beginAt = (at: Point, drawTool: Exclude<CanvasTool, "text">): void => {
     setDrawing(
-      tool === "pen"
+      drawTool === "pen"
         ? { tool: "pen", color, points: [at] }
-        : tool === "redact"
+        : drawTool === "redact"
           ? { tool: "redact", from: at, to: at }
-          : { tool, color, from: at, to: at },
+          : { tool: drawTool, color, from: at, to: at },
     );
   };
 
@@ -237,7 +248,7 @@ export function CaptureCanvas({
       placeText(at);
       return;
     }
-    beginAt(at);
+    beginAt(at, tool);
   };
 
   const move = (event: React.PointerEvent<HTMLCanvasElement>): void => {
@@ -291,7 +302,7 @@ export function CaptureCanvas({
         setStage("placed");
         return;
       }
-      beginAt(at);
+      beginAt(at, tool);
       setStage("anchored");
       return;
     }
