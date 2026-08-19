@@ -268,12 +268,18 @@ describe("詰まり具合", () => {
     const withinGaps = items - ungrouped - groups; // 12
     const tap = 44; // --hit-min
     const label = 22; // --text-xs 12px × 行送り 1.5 ＋ padding 上下 4
+    // **群間と群内はトークン名も書き写さない。**2026-08-19 に境目を 24px → 16px へ
+    // 詰めたとき、ここに `--space-2` と `--space-3` を書き写していたせいで、
+    // CSS だけが変わってこの計算が古い値のまま緑に残った。値と同じく、
+    // **どのトークンを使っているかも実物から引く。**
+    const between = ruleBody(css, ".navGroup + .navGroup");
     const minHeight =
       px("--space-4") * 2 + // 器の上下
       items * tap +
       groups * label +
-      withinGaps * px("--space-1") + // 群内
-      (groups - 1) * (px("--space-2") + 1 + px("--space-3")); // 群間
+      withinGaps * px(spaceVar(ruleBody(css, ".navGroup"), "gap")) + // 群内
+      (groups - 1) *
+        (px(spaceVar(between, "margin-top")) + 1 + px(spaceVar(between, "padding-top"))); // 群間
 
     // 低いほうのよくある画面の高さ（1440×900 の作業領域）を下回らないこと。
     expect(minHeight, `${minHeight}px`).toBeGreaterThan(760);
