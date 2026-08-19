@@ -210,6 +210,33 @@ def test_regression_20260816_fetch_day_substituted_into_last_updated():
         assert any(tid in f for f in substitutions), tid
 
 
+def test_content_copyright_can_still_put_a_non_date_into_last_updated():
+    """塞げていない穴を検査として残す (直っていないことの記録であって、正しさの記録ではない)。
+
+    現状: `freshness_source: "content-copyright"` の record は、更新日の表明が無いことを
+    表す欄が無いため、copyright 年を `last_updated` に入れるしかない。google-sre が
+    `last_updated: "2017"` になっているのがそれで、**隣の freshness_source を読まない
+    相手には「2017 年に更新された」という誤った主張**として読める。
+
+    塞げない理由 (難しいからではない): schema が `version` と `last_updated` の
+    どちらか必須 (anyOf) にしているため、「出典は更新日を表明していない」を
+    表現できる値が存在しない。両方 null にすると record 自体が schema 違反になる。
+    欄を増やすのは schema の破壊的変更であり、gap 2 の範囲外である。
+
+    **反転条件**: 「表明が無い」を表現できる欄 (例: `freshness_declared: false`) が
+    schema にできた日に、この検査を反転させて
+    「`content-copyright` の record は `last_updated` を持たないこと」へ変える。
+    **消さない。** 消すと、穴が塞がったのか忘れられたのかが区別できなくなる。
+    """
+    findings = _findings_for(
+        {"version": None, "last_updated": "2017", "freshness_source": "content-copyright"}
+    )
+    assert findings == [], (
+        "この record は現状 C13 を通る。通らなくなったのなら穴が塞がったということなので、"
+        "この検査を docstring の反転条件どおり反転させること: " + repr(findings)
+    )
+
+
 def test_regression_f84o_c19_r2_fabricated_citations_fail():
     """20260804T003000Z-f84o-c19-r2 の未来日時 + 同一時刻捏造を固定する。"""
     targets = {"targets": [{"target_id": "next-js"}, {"target_id": "fastapi"}, {"target_id": "redis"}]}
