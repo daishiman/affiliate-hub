@@ -242,6 +242,7 @@
 | REQ-TS06 | has-color-scheme-variants | — |
 | REQ-TS08 | has-input | — |
 | REQ-TS09 | has-code-placement-rule | — |
+| REQ-TS11 | has-known-breakage | — |
 | REQ-WA01 | has-input | — |
 | REQ-WA02 | has-input, has-permission | — |
 | REQ-WB01 | has-input, has-permission | — |
