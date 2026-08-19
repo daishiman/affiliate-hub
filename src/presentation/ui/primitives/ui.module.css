@@ -335,7 +335,7 @@
    **上の余白はここではなく `.navGroup + .navGroup` が持つ。**
    両方に置くと、境目の広さが 2 箇所に散って、比を決められなくなる。
 
-   一覧は 1 画面に収まらない（`tests/ui/nav-density.test.ts` が
+   一覧は 1 画面に収まらない（`tests/ui/layout-density.test.ts` が
    トークンの値から高さを出して確かめている）ので、**見出しを追従させる。**
    畳まないのは、移動のための面を畳むと「いつも同じ場所にある」が壊れるため
    （理由は docs/product/design-decisions.md）。 */
