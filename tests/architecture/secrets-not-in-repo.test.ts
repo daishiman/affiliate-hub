@@ -239,8 +239,47 @@ describe("秘密の値がリポジトリに載っていない", () => {
       }
     }
 
-    // この枝で書いたコミットの本文。`main` に入ったものは直せないので見ない。
-    const log = execFileSync("git", ["log", "--format=%h%x01%B%x02", "main..HEAD"], {
+    /*
+     * この枝で書いたコミットの本文。取り込み先に入ったものは直せないので見ない。
+     *
+     * **基点の名前は環境によって違う。** CI のチェックアウトは PR の枝しか作らないので、
+     * ローカル枝 `main` は存在しない（`fetch-depth: 0` なので履歴自体はある）。
+     * 手元では `main` があるため、手元だけ通って CI だけ落ちる。
+     * 順に試して**最初に解決できたもの**を使う。
+     */
+    const baseCandidates = [
+      process.env.GITHUB_BASE_REF ? `origin/${process.env.GITHUB_BASE_REF}` : null,
+      "main",
+      "origin/main",
+    ].filter((r): r is string => typeof r === "string" && r !== "");
+
+    let base: string | null = null;
+    for (const ref of baseCandidates) {
+      try {
+        execFileSync("git", ["rev-parse", "--verify", "--quiet", `${ref}^{commit}`], {
+          cwd: process.cwd(),
+          encoding: "utf8",
+          stdio: ["ignore", "pipe", "ignore"],
+        });
+        base = ref;
+        break;
+      } catch {
+        // この候補は解決できない。次を試す。**全部だめだったときは下で落とす。**
+        continue;
+      }
+    }
+
+    /*
+     * **ここを握り潰さない。** 基点が無いときにコミット本文の走査を飛ばすと、
+     * 秘密の断片を探す側が CI で永久に動かないまま緑になる。
+     * 「読めなかった」は「無かった」ではない。
+     */
+    expect(
+      base,
+      `比較の基点が見つからないので、この枝のコミット本文を読めていません（試した候補: ${baseCandidates.join(", ")}）。読めていない検査は通してはいけません`,
+    ).not.toBeNull();
+
+    const log = execFileSync("git", ["log", "--format=%h%x01%B%x02", `${base}..HEAD`], {
       cwd: process.cwd(),
       encoding: "utf8",
       maxBuffer: 32 * 1024 * 1024,
