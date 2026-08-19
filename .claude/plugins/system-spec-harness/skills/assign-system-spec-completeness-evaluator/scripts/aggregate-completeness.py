@@ -51,6 +51,104 @@ from audit_fork_attribution import (  # noqa: E402
     required_delegations,
     validate_attribution,
 )
+from spec_input_inventory import build_inventory  # noqa: E402
+
+
+#: 出力契約の正本。**写さずに読む。**
+REPORT_SCHEMA_PATH = _SCRIPT_DIR.parent / "schemas" / "completeness-findings.schema.json"
+
+
+def load_report_schema() -> dict:
+    return json.loads(REPORT_SCHEMA_PATH.read_text(encoding="utf-8"))
+
+
+def validate_declared_shape(report: dict, schema: dict | None = None) -> list[str]:
+    """schema が宣言した最上位の欄だけを通し、宣言された必須欄の欠落を咎める。
+
+    --- なぜこれを足したか ---
+
+    `completeness-findings.schema.json` は 2026-08-20 まで、リポジトリ全体で
+    **1 か所からしか参照されていなかった**。その 1 か所 (test_aggregate_completeness の
+    `test_schema_and_rubric_match_the_aggregate_contract`) は schema の形を定数と
+    突き合わせるだけで、**レポートの実体を 1 件も検証していなかった**。
+    つまり schema は宣言されていて、誰も執行していなかった。
+
+    `additionalProperties: false` に反する欄を書いても咎める者が居ない状態は、
+    書いた人からは「守られている」ように見える。**欄を足すことと、欄が守られる
+    ことは別である。**gap 6 で `inputs` を足すなら、同じ回に執行を置かないと、
+    次に誰かが宣言外の欄を書いたときにまた誰も気づかない。
+
+    --- この検査が見ていない範囲 (過大に読まないこと) ---
+
+    これは JSON Schema の完全な実装**ではない**。最上位の未知欄・必須欄と
+    `inputs` の形だけを見る。入れ子の全規則 (aspects や audit_delegations の
+    細目) は従来どおり `validate_report` の個別検査と、jsonschema を使える
+    テスト側の全文検証 (`test_report_instances_satisfy_the_declared_schema`) が持つ。
+    CLI 側で jsonschema へ依存しないのは、この script の依存契約が
+    `dependencies: []` であるため。**「入っていれば検証する」形にはしない** —
+    それは執行されない schema と同じ病気を、別の名前で戻すことになる。
+    """
+    schema = schema if schema is not None else load_report_schema()
+    violations: list[str] = []
+    declared = schema.get("properties", {})
+    if schema.get("additionalProperties") is False:
+        unknown = sorted(set(report) - set(declared))
+        if unknown:
+            violations.append(
+                f"report: schema が宣言していない最上位の欄 {unknown} "
+                "(additionalProperties: false)"
+            )
+    for key in schema.get("required", []):
+        if key not in report:
+            violations.append(f"report: schema 必須の最上位の欄 {key!r} が無い")
+
+    inputs_schema = declared.get("inputs", {})
+    if "inputs" in report:
+        violations.extend(_validate_inputs(report["inputs"], inputs_schema))
+    return violations
+
+
+def _validate_inputs(inputs, inputs_schema: dict) -> list[str]:
+    """入力インベントリの形を schema から導いて検査する。
+
+    ここが空欄でも通ると、レポートは「どの版の仕様書を見たか」を名乗れないまま
+    緑になり、gap 6 が塞いだはずの穴が開いたままになる。
+    """
+    violations: list[str] = []
+    if not isinstance(inputs, dict):
+        return ["inputs: オブジェクトでない"]
+    declared = inputs_schema.get("properties", {})
+    if inputs_schema.get("additionalProperties") is False:
+        unknown = sorted(set(inputs) - set(declared))
+        if unknown:
+            violations.append(f"inputs: schema が宣言していない欄 {unknown}")
+    for key in inputs_schema.get("required", []):
+        if key not in inputs:
+            violations.append(f"inputs: 必須の欄 {key!r} が無い")
+
+    digest = inputs.get("sha256")
+    if not (isinstance(digest, str) and len(digest) == 64 and all(c in "0123456789abcdef" for c in digest)):
+        violations.append(f"inputs.sha256={digest!r} が 64 桁の 16 進でない")
+
+    files = inputs.get("files")
+    if not isinstance(files, list) or not files:
+        violations.append("inputs.files: 非空配列でない (何を読んだのか言えていない)")
+        return violations
+    count = inputs.get("file_count")
+    if count != len(files):
+        violations.append(
+            f"inputs.file_count={count!r} が files の実件数 {len(files)} と不一致 "
+            "(数えた対象と並べた対象が違う)"
+        )
+    item_required = declared.get("files", {}).get("items", {}).get("required", [])
+    for index, entry in enumerate(files):
+        if not isinstance(entry, dict):
+            violations.append(f"inputs.files[{index}]: オブジェクトでない")
+            continue
+        for key in item_required:
+            if key not in entry:
+                violations.append(f"inputs.files[{index}]: 必須の欄 {key!r} が無い")
+    return violations
 
 
 def aggregate_verdict(aspect_verdicts: dict, high_count: int) -> str:
@@ -75,6 +173,8 @@ def validate_report(
     violations: list[str] = []
     if not isinstance(report, dict):
         return ["report: オブジェクトでない"]
+
+    violations.extend(validate_declared_shape(report))
 
     evaluator = report.get("evaluator")
     if not isinstance(evaluator, dict):
@@ -152,6 +252,30 @@ def validate_report(
     return violations
 
 
+def validate_inputs_against_tree(report: dict, spec_root: Path | str) -> list[str]:
+    """レポートが名乗る指紋を、実際のツリーから計算し直して突き合わせる。
+
+    宣言された指紋は自己申告にすぎない。**評価が読んだと言っている物と、
+    いま在る物が同じか**は、数え直さないと分からない。ここが無いと、
+    入力が変わったあとの PASS が古いまま有効に見え続ける (gap 6 の本体)。
+
+    不一致は「悪い」ではなく「この判定はいまの仕様書について何も言っていない」
+    を意味する。再評価が要る、というだけである。
+    """
+    current = build_inventory(spec_root)
+    declared = report.get("inputs")
+    if not isinstance(declared, dict):
+        return ["inputs が無いため、いまの仕様書と突き合わせられない"]
+    if declared.get("sha256") != current["sha256"]:
+        return [
+            f"inputs.sha256 がいまの入力と不一致 "
+            f"(レポート {str(declared.get('sha256'))[:16]}… / いま {current['sha256'][:16]}… "
+            f"/ いまの件数 {current['file_count']}) "
+            "— 評価後に入力が変わっている。この判定は現状について何も言っていない"
+        ]
+    return []
+
+
 def _plugin_root() -> Path:
     """.../skills/<skill>/scripts/aggregate-completeness.py から plugin root を返す。"""
     return Path(__file__).resolve().parents[3]
@@ -218,6 +342,10 @@ def main(argv: list | None = None) -> int:
     parser.add_argument("--matrix", help="spec-state.json のパス (matrix gate を実行)")
     parser.add_argument("--require-complete", action="store_true", help="matrix gate を未収集 0 必須で実行")
     parser.add_argument("--knowledge-graph", action="store_true", help="C13-C16 の 4 profile gate を実行")
+    parser.add_argument(
+        "--spec-root",
+        help="指定すると入力インベントリを数え直し、レポートが名乗る指紋と突き合わせる (入力が変わった PASS を通さない)",
+    )
     args = parser.parse_args(argv)
     if not args.report and not args.matrix and not args.knowledge_graph:
         parser.error("--report / --matrix / --knowledge-graph のいずれかが必要")
@@ -245,6 +373,8 @@ def main(argv: list | None = None) -> int:
             return 2
         ledger = load_fork_ledger(args.fork_ledger or default_ledger_path())
         violations = validate_report(report, ledger, expected_session=args.session)
+        if args.spec_root:
+            violations.extend(validate_inputs_against_tree(report, args.spec_root))
         if violations:
             for message in violations:
                 print(f"VIOLATION: {message}", file=sys.stderr)

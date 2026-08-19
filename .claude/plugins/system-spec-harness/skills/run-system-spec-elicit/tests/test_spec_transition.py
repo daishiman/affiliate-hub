@@ -428,7 +428,9 @@ def test_cli_legacy_state_is_read_only_until_explicit_init_migration(tmp_path):
         str(migrated_path),
     ]) == 0
     migrated = json.loads(migrated_path.read_text(encoding="utf-8"))
-    assert migrated["schema_version"] == "1.1"
+    # 移行先は現行版 (1.2)。同じ test の TransitionError 文面も
+    # 「init --state で schema 1.2 へ移行してから更新すること」と言っている。
+    assert migrated["schema_version"] == mod.CURRENT_STATE_SCHEMA_VERSION == "1.2"
     assert migrated["design_application_contract_version"] == "1.0"
     assert all(
         cell == {"state": "未収集"}
@@ -444,6 +446,10 @@ def test_cli_legacy_state_is_read_only_until_explicit_init_migration(tmp_path):
         {},
         {"schema_version": "1.1"},
         {"schema_version": "1.1", "design_application_contract_version": "2.0"},
+        # 1.1 + 1.0 は 2026-08-19 まで「現行」だった形。版が上がった以上、
+        # これも現行ではない。**版だけ上げて中身の無い state を通さない**のと
+        # 同じ理由で、古い版を黙って受け入れる口も残さない。
+        {"schema_version": "1.1", "design_application_contract_version": "1.0"},
         {"schema_version": "1.0", "design_application_contract_version": "1.0"},
         {"schema_version": "2.0"},
     ],
@@ -455,4 +461,4 @@ def test_init_rejects_noncanonical_existing_state_instead_of_repairing(broken):
 
 def test_cli_stdout_emit(capsys):
     assert mod.main(["init", "--taxonomy", str(TAXONOMY)]) == 0
-    assert json.loads(capsys.readouterr().out)["schema_version"] == "1.1"
+    assert json.loads(capsys.readouterr().out)["schema_version"] == mod.CURRENT_STATE_SCHEMA_VERSION == "1.2"

@@ -176,6 +176,8 @@ C05 R1-score が `system-spec/*.md` 各章を直接読み、`ref-system-design-k
 ### Step 4: レポート出力と整合検査
 `schemas/completeness-findings.schema.json` 準拠で評価レポートを出力し、Step 1 で実際に fork した監査を `audit_delegations[]` へ receipt として記録する。schema 1.2 台帳を使う receipt は hook 観測の `tool_use_id` も `dispatch` へ転記する。`scripts/aggregate-completeness.py --report <report.json>` で形状 + 総合判定整合 (fail-closed 再導出との一致) + 帰属の fork 証跡接地を検証する。
 
+**入力インベントリ (`inputs`) を必ず載せる。**`scripts/spec_input_inventory.py` の `build_inventory()` で求め、手で書かない。指紋は path と各ファイルの sha256 だけから作り、**mtime は材料に入れない** (mtime は中身が変わらなくても clone や checkout で動くため、混ぜると誰も書き換えていないのに毎回 STALE になり、赤が読まれなくなる)。`--spec-root <repo>` を付けると、レポートが名乗る指紋をツリーから数え直して突き合わせる。この欄が無いあいだ、レポートは「どの版の仕様書に対する判定か」を自分で名乗れず、**評価後に仕様書を書き換えても PASS が古いまま有効に見え続ける**。
+
 総合 PASS の場合だけ、同じ report・fork ledger・具体的 session を production writer へ渡す。writer は `G-matrix` / `G-source-citation` の exit 0、report digest、ledger の response/session 帰属を再検査してから atomic に receipt を生成する。手書き receipt や test fixture の producer を実行時に使わない。
 
 ```bash
@@ -202,6 +204,7 @@ python3 scripts/build-resume-receipt.py --repo-root "$CLAUDE_PROJECT_DIR" \
 - `references/aspect-criteria.md` — 観点別意味判定の詳細基準 + 観点↔監査 agent 対応
 - `schemas/completeness-findings.schema.json` — 評価レポート出力スキーマ
 - `scripts/aggregate-completeness.py` — レポート形状検証 + 総合 fail-closed 集約 + 帰属の fork 証跡接地検証 (決定論)
+- `scripts/spec_input_inventory.py` — 入力インベントリ (件数・sha256・mtime) と指紋。`scripts/spec-freshness.mjs` と同じ定義を持ち、同一ツリーでの一致を `tests/test_spec_input_inventory.py` が縛る
 - `scripts/audit_fork_attribution.py` — fork 台帳集計・schema 1.2 の tool-use ID を含む receipt 照合・run/session 束縛、および schema 1.1 legacy 互換を担う import 専用モジュール。公開 CLI と総合判定は `aggregate-completeness.py` が継続して所有する
 - `scripts/build-resume-receipt.py` / `schemas/resume-receipt.schema.json` — canonical PASS report、gate 結果、fork ledger session、artifact digest に束縛した再利用 receipt の production writer / schema
 - `../../hooks/record-audit-fork.py` — 監査 fork 台帳 writer (per-tool-call PostToolUse: `Task|Agent`)。schema 1.2 の top-level `tool_use_id` / `verdict_state` / whole per-call response digest を記録する帰属検証の証跡正本

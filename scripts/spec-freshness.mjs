@@ -89,6 +89,11 @@ export function fingerprint() {
   const perFile = files.map((f) => ({
     path: f,
     sha256: createHash("sha256").update(readFileSync(join(ROOT, f))).digest("hex"),
+    // **指紋の材料ではない。**人が読むための情報として残すだけ。
+    // mtime は中身が 1 バイトも変わらなくても動く（clone、checkout、touch）。
+    // 下の combined へ混ぜると、誰も書き換えていないのに毎回 STALE になり、
+    // 「どうせ毎回赤い」と扱われて本物の書き換えを報せる力を失う。
+    mtime: Math.floor(statSync(join(ROOT, f)).mtimeMs / 1000),
   }));
   const combined = createHash("sha256")
     .update(perFile.map((e) => `${e.path}:${e.sha256}`).join("\n"))

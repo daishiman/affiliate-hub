@@ -140,3 +140,131 @@ def test_main_report_and_matrix_paths(tmp_path):
     matrix = tmp_path / "spec-state.json"
     write_matrix(matrix)
     assert MOD.main(["--matrix", str(matrix), "--require-complete"]) == 0
+
+
+# ─── 出力契約の執行 (gap 6 で足した) ─────────────────────────────
+#
+# 2026-08-20 まで `completeness-findings.schema.json` は、リポジトリ全体で
+# `test_schema_and_rubric_match_the_aggregate_contract` 1 か所からしか
+# 参照されていなかった。そこは schema の形を定数と突き合わせるだけで、
+# **レポートの実体を 1 件も検証していなかった。**
+# schema は宣言されていて、執行されていなかった。
+#
+# 執行されない schema は、書いた人には「守られている」ように見える。
+# **欄を足すことと、欄が守られることは別である。**
+
+
+def test_report_instances_satisfy_the_declared_schema():
+    """レポート実体を schema 全文で検証する (jsonschema が使えるテスト側の層)。"""
+    jsonschema = pytest.importorskip("jsonschema")
+    schema = MOD.load_report_schema()
+    jsonschema.validate(golden_report(), schema)
+
+
+def test_the_schema_validation_can_fail():
+    """陽性対照: 宣言外の欄を足せば、全文検証は落ちる。
+
+    これが無いと `validate` が何も見ない壊れ方をしたとき上が無条件に緑になる。
+    """
+    jsonschema = pytest.importorskip("jsonschema")
+    schema = MOD.load_report_schema()
+    report = golden_report()
+    report["undeclared_field"] = "宣言されていない欄"
+    with pytest.raises(jsonschema.ValidationError):
+        jsonschema.validate(report, schema)
+
+
+def test_an_undeclared_top_level_field_is_refused_by_the_cli_path():
+    """CLI 側 (jsonschema 非依存) でも宣言外の欄を咎める。
+
+    C05 が実際に通す門はこちら。テスト側だけが見ている状態は、
+    「誰も見ていない」に限りなく近い。
+    """
+    report = golden_report()
+    report["inputs_"] = {"file_count": 1}
+    violations = MOD.validate_report(report, golden_ledger())
+    assert any("schema が宣言していない最上位の欄" in message for message in violations)
+
+
+def test_a_report_without_inputs_is_refused():
+    """入力インベントリの無いレポートを通さない。
+
+    これが通ると、レポートは『どの版の仕様書に対する判定か』を名乗れないまま
+    緑になり、評価後に仕様書を書き換えても PASS が古いまま有効に見え続ける。
+    """
+    report = golden_report()
+    del report["inputs"]
+    violations = MOD.validate_report(report, golden_ledger())
+    assert any("'inputs' が無い" in message for message in violations)
+
+
+def test_the_counted_and_the_listed_inputs_must_agree():
+    """数えた件数と並べた対象が食い違うレポートを通さない。"""
+    report = golden_report()
+    report["inputs"]["file_count"] = 99
+    violations = MOD.validate_report(report, golden_ledger())
+    assert any("実件数" in message for message in violations)
+
+
+def test_a_file_entry_without_mtime_is_refused():
+    """per-file の欄は schema から導く。mtime は指紋に入らないが、記録は要る。"""
+    report = golden_report()
+    del report["inputs"]["files"][0]["mtime"]
+    violations = MOD.validate_report(report, golden_ledger())
+    assert any("'mtime' が無い" in message for message in violations)
+
+
+def test_inputs_are_checked_against_the_actual_tree(tmp_path):
+    """宣言された指紋を、実際のツリーから数え直して突き合わせる。"""
+    (tmp_path / "system-spec").mkdir(parents=True)
+    (tmp_path / "system-spec" / "index.md").write_text("中身", encoding="utf-8")
+
+    import sys
+
+    sys.path.insert(0, str(SKILL_DIR / "scripts"))
+    from spec_input_inventory import build_inventory
+
+    report = golden_report(inputs=build_inventory(tmp_path))
+    assert MOD.validate_inputs_against_tree(report, tmp_path) == []
+
+    # 陽性対照: 評価後に入力が変われば、同じ突き合わせが落ちる。
+    (tmp_path / "system-spec" / "index.md").write_text("書き換えた", encoding="utf-8")
+    stale = MOD.validate_inputs_against_tree(report, tmp_path)
+    assert len(stale) == 1
+    assert "評価後に入力が変わっている" in stale[0]
+
+
+def test_the_declared_draft_actually_resolves_to_a_validator():
+    """宣言した `$schema` が、実在する draft に解決されることを縛る。
+
+    2026-08-20 まで、この schema は `https://json-schema.org/draft-07/schema#` を
+    名乗っていた。draft-07 の正しい URI は **`http://`** であり、`https://` は
+    どの validator も知らない。結果、jsonschema は黙って別の draft
+    (2020-12) へ落ちて検証していた。**宣言した draft と、実際に適用される
+    規則が違う**状態である。
+
+    これは「執行されていない schema」の一段深い形だった。仮に誰かが執行を
+    足しても、**足した本人が思っている規則とは別の規則で緑が出る。**
+    しかも既定では警告 (DeprecationWarning) しか出ないので、気づく手がかりが
+    ログの片隅にしか残らない。
+    """
+    jsonschema = pytest.importorskip("jsonschema")
+    from jsonschema.validators import validator_for
+
+    schema = MOD.load_report_schema()
+    chosen = validator_for(schema)
+    assert chosen is jsonschema.Draft7Validator, (
+        f"宣言 {schema['$schema']!r} が {chosen.__name__} に解決された。"
+        "宣言した draft と適用される規則が食い違っている"
+    )
+    chosen.check_schema(schema)
+
+
+def test_the_draft_resolution_check_can_fail():
+    """陽性対照: 知られていない URI を名乗れば、上の主張は落ちる。"""
+    jsonschema = pytest.importorskip("jsonschema")
+    from jsonschema.validators import validator_for
+
+    schema = dict(MOD.load_report_schema())
+    schema["$schema"] = "https://json-schema.org/draft-07/schema#"
+    assert validator_for(schema) is not jsonschema.Draft7Validator

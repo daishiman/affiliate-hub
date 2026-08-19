@@ -1,5 +1,5 @@
 {
-  "schema_version": "1.1",
+  "schema_version": "1.2",
   "design_application_contract_version": "1.0",
   "categories": [
     {
@@ -454,10 +454,15 @@
   },
   "decisions": [],
   "knowledge_candidates": [],
+  "lifecycle": {},
+  "implementation_snapshot": {},
+  "delivery_dependencies": [],
+  "review_runs": [],
   "hearing_progress": {
     "loop_count": 4,
     "next_question": null,
     "complete": true,
-    "max_loops": 5
+    "max_loops": 5,
+    "max_loops_policy": "strict"
   }
 }
