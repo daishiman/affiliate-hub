@@ -88,13 +88,75 @@ GOAL_SPEC_CATEGORIES = (
     "maintenance-ops",
 )
 DESIGN_APPLICATION_CONTRACT_VERSION = "1.0"
-CURRENT_STATE_SCHEMA_VERSION = "1.1"
+CURRENT_STATE_SCHEMA_VERSION = "1.2"
+INTERMEDIATE_STATE_SCHEMA_VERSION = "1.1"
 LEGACY_STATE_SCHEMA_VERSION = "1.0"
+# この検証器が『規則を書いた版』の一覧。ここに無い版の state は、規則が当たっていないのに
+# 緑が出る (= 版を上げるだけで検査を素通りできる) ため、未知の版そのものを違反にする。
+SUPPORTED_STATE_SCHEMA_VERSIONS = (
+    LEGACY_STATE_SCHEMA_VERSION,
+    INTERMEDIATE_STATE_SCHEMA_VERSION,
+    CURRENT_STATE_SCHEMA_VERSION,
+)
+# 最新版が要求する追加節は schema 側の oneOf 分岐が正本。ここで一覧を書き写すと
+# 二重管理になって片方だけ古くなるので、schema ファイルから読み出す。
+STATE_SCHEMA_PATH = HERE.parent / "schemas" / "spec-state.schema.json"
 DESIGN_APPLICATION_STATES = {"applied", "not_applicable"}
 LEGACY_BACKFILL_PROVENANCE = {
     "mode": "legacy_backfill",
     "writer": "set-qa-design-applications",
 }
+
+
+def _current_version_required_sections() -> list[str]:
+    """最新版 state が持つべき追加節を schema の oneOf 分岐から読み出す。
+
+    `CURRENT_STATE_SCHEMA_VERSION` を上げるだけでは、上げた版が何を要求するかは決まらない。
+    要求の実体は schema 側にあるので、そこを引いて『版を名乗るなら中身も在る』を照合する。
+    schema が読めない場合は空を返さず呼び出し側へ違反として渡す (fail-closed)。
+    """
+    schema = json.loads(STATE_SCHEMA_PATH.read_text(encoding="utf-8"))
+    for branch in schema.get("oneOf", []):
+        version = (
+            branch.get("properties", {}).get("schema_version", {}).get("const")
+        )
+        if version == CURRENT_STATE_SCHEMA_VERSION:
+            return [
+                key
+                for key in branch.get("required", [])
+                if key not in ("schema_version", "design_application_contract_version")
+            ]
+    raise KeyError(
+        f"schema に schema_version={CURRENT_STATE_SCHEMA_VERSION!r} の分岐が無い"
+    )
+
+
+def _validate_state_schema_version(data: dict) -> list[str]:
+    """state が名乗る版を、この検証器が規則を書いた版と突き合わせる。
+
+    版の定数が定義されているだけで一度も読まれないと、新しい版の state が
+    『検査された』顔をして通り抜ける。ここが唯一その定数を読む場所である。
+    """
+    schema_version = data.get("schema_version")
+    if schema_version not in SUPPORTED_STATE_SCHEMA_VERSIONS:
+        return [
+            f"schema_version={schema_version!r}: この検証器が規則を持つ版は "
+            f"{list(SUPPORTED_STATE_SCHEMA_VERSIONS)} のみ "
+            "(未知の版は検査されないまま緑になるため違反として扱う)"
+        ]
+    if schema_version != CURRENT_STATE_SCHEMA_VERSION:
+        return []
+    try:
+        required = _current_version_required_sections()
+    except (OSError, ValueError, KeyError) as exc:
+        return [f"state schema を参照できない ({exc})"]
+    missing = [key for key in required if key not in data]
+    if missing:
+        return [
+            f"schema_version={CURRENT_STATE_SCHEMA_VERSION!r} を名乗るが "
+            f"{missing} が欠落 (版だけ上げて中身の無い state は通さない)"
+        ]
+    return []
 
 
 def _validate_design_application_provenance(entry: dict) -> list[str]:
@@ -330,6 +392,7 @@ def validate(data: dict, require_complete: bool = False) -> list[str]:
 
     if require_complete:
         schema_version = data.get("schema_version")
+        findings.extend(_validate_state_schema_version(data))
         marker_present = "design_application_contract_version" in data
         if not marker_present and schema_version != LEGACY_STATE_SCHEMA_VERSION:
             findings.append(

@@ -15,7 +15,17 @@ from state_transition_common import (
 CATEGORY_ID_RE = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
 APPLICATION_STATES = {"applied", "not_applicable"}
 DESIGN_APPLICATION_CONTRACT_VERSION = "1.0"
-CURRENT_STATE_SCHEMA_VERSION = "1.1"
+CURRENT_STATE_SCHEMA_VERSION = "1.2"
+
+# 1.2 で増えた 4 節。**版の門を 1.2 へ上げるだけでは保守にならない**ので、
+# ここに名前を置いて bootstrap の生成物と往復の保全チェックの両方から参照する。
+# 「版は 1.2 と名乗るが 4 節が無い state」を writer が作らないための当てどころである。
+SCHEMA_1_2_SECTIONS = (
+    "lifecycle",
+    "implementation_snapshot",
+    "delivery_dependencies",
+    "review_runs",
+)
 
 
 def normalize_design_applications(raw: object) -> list[dict]:
@@ -165,6 +175,12 @@ def bootstrap_state() -> dict:
         "category_aggregate": {}, "targets": [], "requirements_foundation": empty_foundation(),
         "decisions": [], "knowledge_candidates": [],
         "hearing_progress": {"loop_count": 0, "next_question": None, "complete": False},
+        # 1.2 を名乗る以上、4 節は空でも必ず在る形で出す。schema の 1.2 分岐が
+        # この 4 節を required にしているので、欠けた state はここで作れない。
+        "lifecycle": {},
+        "implementation_snapshot": {},
+        "delivery_dependencies": [],
+        "review_runs": [],
     }
 
 

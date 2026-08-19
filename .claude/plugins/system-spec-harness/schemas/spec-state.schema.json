@@ -20,7 +20,7 @@
     "hearing_progress"
   ],
   "properties": {
-    "schema_version": {"enum": ["1.0", "1.1"]},
+    "schema_version": {"enum": ["1.0", "1.1", "1.2"]},
     "design_application_contract_version": {"const": "1.0"},
     "categories": {"type": "array", "minItems": 1},
     "platforms": {"type": "array", "minItems": 1},
@@ -37,7 +37,11 @@
     "decisions": {"type": "array"},
     "knowledge_candidates": {"type": "array"},
     "hearing_progress": {"type": "object"},
-    "excluded_categories": {"type": "object"}
+    "excluded_categories": {"type": "object"},
+    "lifecycle": {"type": "object"},
+    "implementation_snapshot": {"type": "object"},
+    "delivery_dependencies": {"type": "array"},
+    "review_runs": {"type": "array"}
   },
   "oneOf": [
     {
@@ -48,6 +52,20 @@
       "required": ["design_application_contract_version"],
       "properties": {
         "schema_version": {"const": "1.1"},
+        "design_application_contract_version": {"const": "1.0"}
+      }
+    },
+    {
+      "comment": "1.2 は 1.1 に 4 節を足した版。版だけ上げて中身の無い state を通さないため、4 節を required にする。版の門を外すだけの変更は、この required で落ちる。",
+      "required": [
+        "design_application_contract_version",
+        "lifecycle",
+        "implementation_snapshot",
+        "delivery_dependencies",
+        "review_runs"
+      ],
+      "properties": {
+        "schema_version": {"const": "1.2"},
         "design_application_contract_version": {"const": "1.0"}
       }
     }

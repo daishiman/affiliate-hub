@@ -46,6 +46,7 @@ from state_transition_knowledge import set_knowledge_candidate
 from state_transition_matrix import (
     CURRENT_STATE_SCHEMA_VERSION,
     DESIGN_APPLICATION_CONTRACT_VERSION,
+    SCHEMA_1_2_SECTIONS,
     add_category,
     apply_cell_op,
     apply_turn,
@@ -69,8 +70,38 @@ def _require_writable_state(state: dict) -> None:
         != DESIGN_APPLICATION_CONTRACT_VERSION
     ):
         raise TransitionError(
-            "legacy spec-state は読み取り専用。init --state で schema 1.1 / "
-            "design_application_contract_version 1.0 へ移行してから更新すること"
+            f"legacy spec-state は読み取り専用。init --state で schema "
+            f"{CURRENT_STATE_SCHEMA_VERSION} / design_application_contract_version "
+            f"{DESIGN_APPLICATION_CONTRACT_VERSION} へ移行してから更新すること"
+        )
+
+
+def _snapshot_versioned_sections(state: dict) -> dict:
+    """1.2 固有 4 節の『読んだときの姿』を控える。"""
+    return {name: state[name] for name in SCHEMA_1_2_SECTIONS if name in state}
+
+
+def _require_sections_preserved(before: dict, state: dict) -> None:
+    """読んだときに在った 1.2 固有 4 節が、書き戻しで落ちていないことを確かめる。
+
+    版の門を 1.2 へ上げただけだと、**通るようになったぶん黙って壊れる**余地が生まれる。
+    拒否されていたあいだは気づけたが、通る writer が 4 節を落とすと誰も気づかない。
+    そこで「読めた節は書き戻しでも在る」ことを、transition のたびに機械で押さえる。
+    """
+    lost = sorted(name for name in before if name not in state)
+    if lost:
+        raise TransitionError(
+            "1.2 固有節が transition で失われた: " + ", ".join(lost) +
+            "。器に合わせて中身を削らないこと"
+        )
+    changed = sorted(
+        name
+        for name, value in before.items()
+        if type(state.get(name)) is not type(value)
+    )
+    if changed:
+        raise TransitionError(
+            "1.2 固有節の型が transition で変わった: " + ", ".join(changed)
         )
 
 
@@ -159,6 +190,7 @@ def main(argv: list[str]) -> int:
         else:
             state = load_json(args.state)
             _require_writable_state(state)
+            sections_before = _snapshot_versioned_sections(state)
             if args.cmd == "add-category":
                 add_category(state, load_json_arg(args.category))
             elif args.cmd == "apply":
@@ -185,6 +217,7 @@ def main(argv: list[str]) -> int:
                     if isinstance(value, dict) and "design_applications" in value
                     else value,
                 )
+            _require_sections_preserved(sections_before, state)
             _emit(state, args.out or args.state)
     except TransitionError as exc:
         print(f"TransitionError: {exc}", file=sys.stderr)
