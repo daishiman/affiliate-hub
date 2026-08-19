@@ -12,6 +12,7 @@
     "test:coverage": "vitest run --coverage",
     "test:watch": "vitest",
     "preview": "opennextjs-cloudflare build && opennextjs-cloudflare preview",
+    "preview:static": "tsx --require ./scripts/lib/css-module-hook.cjs scripts/write-static-preview.tsx",
     "deploy:dev": "opennextjs-cloudflare build && opennextjs-cloudflare deploy -- --env dev",
     "deploy:prod": "opennextjs-cloudflare build && opennextjs-cloudflare deploy -- --env production",
     "cf-typegen": "wrangler types --env-interface CloudflareEnv cloudflare-env.d.ts",
@@ -53,7 +54,9 @@
     "eslint-config-next": "16.3.1",
     "fast-check": "^4.9.0",
     "jsdom": "^30.0.1",
+    "postcss": "^8.5.26",
     "tailwindcss": "^4",
+    "tsx": "^4.23.12",
     "typescript": "^5",
     "vitest": "^4.1.10",
     "wrangler": "^4.123.0"

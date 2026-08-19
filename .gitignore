@@ -55,6 +55,11 @@ __pycache__/
 eval-log/
 .codex/
 
+# ログイン不要の「静止した写し」。`pnpm run preview:static` が焼く 1 枚で、
+# 中身は CSS を丸ごと埋めた 90KB 超の生成物。実物が変われば焼き直すもので、
+# 入れておくと差分が毎回まるごと入れ替わり、しかも古い写しが正本の顔で残る。
+docs/product/preview/
+
 # エディタ・OS
 .DS_Store
 .idea/
