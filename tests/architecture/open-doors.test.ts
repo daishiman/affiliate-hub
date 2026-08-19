@@ -6,6 +6,8 @@ import {
   OPEN_DOORS_MAX_IRREVERSIBLE,
   OPEN_DOORS_MAX_PUBLIC_BY_DECLARATION,
   OPEN_DOORS_MAX_UNGUARDED,
+  OPEN_DOORS_MIN_ACTIONS,
+  OPEN_DOORS_MIN_IRREVERSIBLE_MARKED,
 } from "../../quality-gates.config.mjs";
 import { expectLedgerFile } from "../support/ledger-file";
 
@@ -427,10 +429,14 @@ function table(subset: readonly Row[], withReversible = false): string[] {
  */
 const declaredPublic = rows.filter((r) => r.intent === "誰でも");
 
+/** 走査が見つけた「変更を起こす入口」。**上限 0 を支える母集団**（下限 ④ の対象）。 */
+const actionRows = rows.filter((r) => r.kind === "操作");
+
+/** そのうち「取り返しがつかない」と印が付いているもの。守られているかは見ない。 */
+const irreversibleMarked = actionRows.filter((r) => r.reversible === "つかない");
+
 /** 誰でも実行できて、しかも取り返しがつかない操作。ここが一番危ない。 */
-const irreversibleAndOpen = rows.filter(
-  (r) => r.kind === "操作" && r.reversible === "つかない" && r.intent !== r.actual,
-);
+const irreversibleAndOpen = irreversibleMarked.filter((r) => r.intent !== r.actual);
 
 function renderLedger(): string {
   const of = (kind: Row["kind"]) => rows.filter((r) => r.kind === kind);
@@ -659,6 +665,78 @@ describe("いま開いている入口", () => {
       `開いている取り返しのつかない操作: ${irreversibleAndOpen.map((r) => r.id).join(" / ")}` +
         `（上限 ${OPEN_DOORS_MAX_IRREVERSIBLE} 件）。上限を上げて緑にしないでください。`,
     ).toBeLessThanOrEqual(OPEN_DOORS_MAX_IRREVERSIBLE);
+  });
+
+  /*
+   * --- ここから 4 本で 1 組（②③④）。ばらして読まないこと ---
+   *
+   * 上の 2 本は上限 0 で、**悪くなる方向**を止める。以下の 2 本は下限で、
+   * **母集団が痩せる方向**を止める。0 の上限に残る唯一の逃げ道は、塞ぐことではなく
+   * **走査を狭めること**である（`"use server"` の判定を変える、切り出しを狭める、
+   * 対象フォルダを外す。どれも「片付け」の顔をして通る）。
+   * **向きが逆であることが仕掛けの本体**なので、揃えないこと。
+   * 値の由来は `quality-gates.config.mjs` の doc を参照（台帳からは取っていない）。
+   */
+  it("変更を起こす入口の総数が減っていない", () => {
+    expect(
+      actionRows.length,
+      `走査が見つけた変更操作が ${actionRows.length} 個です（下限 ${OPEN_DOORS_MIN_ACTIONS} 個）。` +
+        "上の「開いている扉 0 件」は、扉を見つけられていないことによる 0 かもしれません。" +
+        "走査（scanActions）が狭まっていないか先に見てください。",
+    ).toBeGreaterThanOrEqual(OPEN_DOORS_MIN_ACTIONS);
+  });
+
+  it("「取り返しがつかない」と印が付いた操作が減っていない", () => {
+    // 上限 0 のもう 1 つの逃げ道は、印そのものを外すこと。
+    // 印は人が付ける（ACTION_INTENT の reversible）ので、外しても悪意の証拠が残らない。
+    expect(
+      irreversibleMarked.length,
+      `取り返しがつかないと印が付いた操作が ${irreversibleMarked.length} 個です` +
+        `（下限 ${OPEN_DOORS_MIN_IRREVERSIBLE_MARKED} 個）。` +
+        "印を外して上限 0 を満たしていないか確かめてください。",
+    ).toBeGreaterThanOrEqual(OPEN_DOORS_MIN_IRREVERSIBLE_MARKED);
+  });
+
+  /**
+   * **件数ではなく名指しで見る。**
+   *
+   * 上の 2 本の上限は「何件あるか」を見ている。件数は母集団が縮んでも小さくなるので、
+   * 0 件という結果だけからは「守られている」と「見つけていない」を区別できない。
+   * こちらは**印が付いた操作を 1 つずつ引いて、門を通しているかを直接見る**。
+   * 見つけられなかった操作は数から消えるのではなく、床（上の 2 本）で赤くなる。
+   */
+  it("取り返しがつかない操作は、1 つ残らず門を通している", () => {
+    const naked = irreversibleMarked
+      .filter((r) => r.actual !== "ログイン")
+      .map((r) => `${r.id} — ${r.what}（本来 ${r.intent} / いま ${r.actual}）`);
+    expect(
+      naked,
+      `取り返しがつかないのに門を通していない操作があります:\n${naked.join("\n")}\n` +
+        "signedInActor() を通し、null のときは値を読む前に断ってください。",
+    ).toEqual([]);
+  });
+
+  it("その 0 件は、名指しの側が動いた結果である", () => {
+    /*
+     * 上は 0 を主張する。**印が付いた操作が 1 つも無くても同じ 0 になる。**
+     * 合成した行を 1 つ流して、名指しの側が実際に当てられることを見る。
+     * （母集団が空でないことは、上の 2 本の床が別に見ている。）
+     */
+    const synthetic: Row = {
+      kind: "操作",
+      id: "合成例()",
+      what: "門を通していない取り返しのつかない操作",
+      intent: "ログイン",
+      actual: "誰でも",
+      reversible: "つかない",
+    };
+    const naked = [synthetic].filter(
+      (r) => r.kind === "操作" && r.reversible === "つかない" && r.actual !== "ログイン",
+    );
+    expect(
+      naked.length,
+      "見つかるはずの合成例を名指しできませんでした。上の 0 件は信用できません。",
+    ).toBe(1);
   });
 
   it("「誰でも」と宣言した行が増えていない", () => {
