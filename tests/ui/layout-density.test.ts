@@ -118,16 +118,24 @@ describe("詰まり具合", () => {
     // 近接の原理は距離のほうが強い。**先に決めた目標は「群間 ÷ 群内 >= 4」**で、
     // 値はそのあとに入れた。ここが赤くなったら、値ではなく比のほうを先に決め直す。
     //
-    // **数えるのは「この境目のために足した余白」だけである。**（2026-08-19 に直した）
-    // 最初は親の `gap` まで足した合計で比を取っていた。それだと、境目のために
-    // 何も足していなくても親の余白のぶんで比が出てしまい、**測りたいものと
-    // 数えている単位が食い違う。**床を上げても、親の余白が乗る事実は残る。
+    // **比は 2 つの単位で取る。**（2026-08-19 に足した）どちらも床は 4。
+    // 2 つは別の問いに答えているので、片方がもう片方の置き換えにはならない。
     //
-    // 引いたもの 2 つと、その根拠:
-    //   - `.sidebar` の `gap` … サイドバーの子すべての間に入る。**分類を全部消しても残る**
-    //   - 線そのものの太さ   … これは「線」であって「余白」ではない。
-    //                          線の有無は下の `toMatch` が別に見ているので、
-    //                          余白へ混ぜると同じものを 2 回数えることになる
+    //   知覚 … 親の `gap` まで含んだ合計。**見る人の目に入るのは合計のほう。**
+    //   意図 … この境目のために足した分だけ。`.sidebar` の `gap`（分類を全部
+    //          消しても残る）と線の太さ（「線」であって「余白」ではない。有無は
+    //          下の `toMatch` が別に見るので、混ぜると 2 回数えることになる）を引く。
+    //
+    // **最初は知覚の側だけで測っていて、それが抜けた。**境目のために何も足さなくても
+    // 親の余白のぶんで比が出るため。床を上げる直し方は誤りで、上げても親の余白が
+    // 乗る事実は残り、画面の余白設計が変わった日にまた同じところで外す。
+    //
+    // **いま知っておくべきこと: 床がどちらも 4 のあいだ、知覚の側は 1 度も赤くならない。**
+    // 知覚 ＝ 意図 ＋ `gap` ＋ 線 で、足すものが負にならないから、
+    // **知覚が床を割るときは意図が必ず先に割る。**つまりこの 2 行目は、いまは
+    // 見張りとして働いていない（飾りである）。残してあるのは、**知覚の側の床を
+    // 意図と別に決め直したときに、置き場所が既にある**ようにするため。
+    // 決め直すまでは「2 つ見ている」と数えないこと。
     const css = readFileSync(SHELL_CSS, "utf8");
     const px = pxOfSpaceToken();
 
@@ -137,15 +145,23 @@ describe("詰まり具合", () => {
     );
 
     const withinGap = px(spaceVar(ruleBody(css, ".navGroup"), "gap"));
-    const betweenGap =
+    const addedGap =
       px(spaceVar(between, "margin-top")) +
       px(spaceVar(between, "padding-top")) +
       px(spaceVar(ruleBody(css, ".navGroupLabel"), "padding")); // 1 つ目 = 上
+    const perceivedGap =
+      addedGap +
+      px(spaceVar(ruleBody(css, ".sidebar"), "gap")) +
+      1; // 線そのもの
 
     expect(withinGap, "群内の余白が読めない").toBeGreaterThan(0);
     expect(
-      betweenGap / withinGap,
-      `境目のために足した余白 ${betweenGap}px / 群内 ${withinGap}px`,
+      addedGap / withinGap,
+      `【意図】境目のために足した余白 ${addedGap}px / 群内 ${withinGap}px`,
+    ).toBeGreaterThanOrEqual(4);
+    expect(
+      perceivedGap / withinGap,
+      `【知覚】目に入る合計 ${perceivedGap}px / 群内 ${withinGap}px`,
     ).toBeGreaterThanOrEqual(4);
   });
 
