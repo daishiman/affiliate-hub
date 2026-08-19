@@ -101,6 +101,32 @@ function guardedByEntryGate(url: string): boolean {
 }
 
 /**
+ * 注釈を落として、**動くところだけ**を残す。
+ *
+ * --- なぜ要るのか（2026-08-19 に実際に起きたこと） ---
+ * 下の 2 つは名前を正規表現で探している。探す先がファイル全文だったので、
+ * **doc comment に `signedInActor()` と書いただけのファイルが「ログイン」に数えられた。**
+ * 見つかった経緯そのものが厄介で、`manageLlmCredentialAction()` を直したとき、
+ * 直しと一緒に「`currentActor()` ではなく `signedInActor()` を使う」という
+ * **説明も足した**。門を戻して壊れることを確かめたら、緑のままだった。
+ * 説明のほうが門として数えられていたのである。
+ *
+ * これは「守りを増やす」より先に直すものである。**数え方が説明に反応する限り、
+ * 一覧の件数は守りの数ではなく、その語を書いた回数になる。**
+ * しかも向きが最悪で、**ちゃんと説明を書いた人ほど数字がよくなる。**
+ *
+ * --- ここが見ていないもの ---
+ * 文字列の中は落としていない。`"signedInActor("` と書いた文字列があれば、
+ * いまでも門と数えられる。落としていない理由は、同じファイルの `matcher` の
+ * 判定が文字列 `"/admin"` を見ているためで、一律に落とすと**そちらが黙って壊れる**。
+ * 文字列に関数呼び出しの形を書く動機は無いので、いまは注釈だけを落とす。
+ * 文字列で抜けた例を 1 件でも見たら、そのときは判定を構文解析へ移すこと。
+ */
+function codeOnly(source: string): string {
+  return source.replace(/\/\*[\s\S]*?\*\//g, " ").replace(/(^|[^:])\/\/[^\n]*/g, "$1");
+}
+
+/**
  * REST の入口の門を、呼んでいる関数の名前から読む。
  *
  * 実装の中身ではなく名前で見ているので、**関数の中身が骨抜きになっても
@@ -108,9 +134,10 @@ function guardedByEntryGate(url: string): boolean {
  * までで、「守られている」ではない。中身は各入口の単体テストが見る。
  */
 function gateOfRoute(source: string): Gate {
-  if (/authenticate(Api)?Request\s*\(/.test(source)) return "鍵";
-  if (/resolveIntegrationAccess\s*\(/.test(source)) return "鍵";
-  if (/signedInActor\s*\(/.test(source)) return "ログイン";
+  const code = codeOnly(source);
+  if (/authenticate(Api)?Request\s*\(/.test(code)) return "鍵";
+  if (/resolveIntegrationAccess\s*\(/.test(code)) return "鍵";
+  if (/signedInActor\s*\(/.test(code)) return "ログイン";
   return "誰でも";
 }
 
@@ -121,7 +148,7 @@ function gateOfRoute(source: string): Gate {
  * `signedInActor()` は落ちない。`readerActor()` は読者そのもの＝誰でも。
  */
 function gateOfActor(source: string): Gate {
-  if (/\bsignedInActor\s*\(/.test(source)) return "ログイン";
+  if (/\bsignedInActor\s*\(/.test(codeOnly(source))) return "ログイン";
   return "誰でも";
 }
 
@@ -506,6 +533,38 @@ describe("いま開いている入口", () => {
       undeclared,
       "意図の宣言がありません。tests/architecture/open-doors.test.ts の *_INTENT に足してください。",
     ).toEqual([]);
+  });
+
+  /**
+   * 数える側が動いていることを、合成した見本で示す。
+   *
+   * 件数は「見つからなかった」でも小さくなる。測る側が壊れていても
+   * 同じ小ささが出るので、**件数だけでは守りの数を主張できない**。
+   * だから、見つかるはずの形と、見つかってはいけない形を 1 つずつ食わせる。
+   *
+   * 下の 2 件は 2026-08-19 に実際に抜けた形である（注釈に書いただけの門）。
+   */
+  it("門を呼んでいるファイルは「ログイン」と数えられる", () => {
+    expect(gateOfActor(`const a = await signedInActor();`)).toBe("ログイン");
+  });
+
+  it("注釈に名前が出てくるだけのファイルは「ログイン」と数えない", () => {
+    // ここが「ログイン」に戻ったら、説明を書き足すだけで扉が数から消える。
+    expect(gateOfActor(`/** signedInActor() を使うこと。 */\nconst a = await currentActor();`)).toBe(
+      "誰でも",
+    );
+  });
+
+  it("行注釈に名前が出てくるだけのファイルも「ログイン」と数えない", () => {
+    expect(gateOfActor(`// signedInActor() へ替える\nconst a = await currentActor();`)).toBe(
+      "誰でも",
+    );
+  });
+
+  it("REST の入口でも、注釈の名前を門と数えない", () => {
+    expect(gateOfRoute(`/** signedInActor() で判定する。 */\nconst a = await currentActor();`)).toBe(
+      "誰でも",
+    );
   });
 
   it("開いている扉が増えていない", () => {

@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { currentActor, llmCredentialEntry } from "@/presentation/composition";
+import { llmCredentialEntry, signedInActor } from "@/presentation/composition";
 import { refusalText } from "@/presentation/refusal-text";
 import type { LlmCredentialState } from "./llm-credential-state";
 
@@ -19,11 +19,30 @@ const PATH = "/admin/settings/llm";
  * `formData` から取り出した値は、そのままユースケースへ渡して終わりである。
  * 戻り値・記録・ログ・再描画のどれにも載せない。
  * 失敗したときも入力欄へ戻さない（戻すと、失敗した鍵が画面に残り続ける）。
+ *
+ * --- ログインを見るのは、いちばん先である ---
+ * `currentActor()` ではなく `signedInActor()` を使う。前者は確かめられないとき
+ * 見本の身元へ落ちるので、**ログインしていない人の入力が預かり所まで届く。**
+ * いま見本の身元は `analyst` だけを持つため、その先の役の確認で断られる。
+ * だが役の一覧は人が編集する表で、1 行足せば戻る。断りが役に寄りかかっている限り、
+ * **塞がっているように見えて、塞いでいるのは別の場所である。**
+ *
+ * 確かめられないとき（`unavailable`）も断る。渡してよいか分からないものは渡さない。
+ * `formData` を読む前に断るので、鍵の値はこの関数の中にも入らない。
  */
 export async function manageLlmCredentialAction(
   _prev: LlmCredentialState,
   formData: FormData,
 ): Promise<LlmCredentialState> {
+  const actor = await signedInActor();
+  if (actor === null) {
+    return {
+      status: "failed",
+      message:
+        "ログインしていないため、鍵の登録・失効・疎通確認はできません。\nログインしてからやり直してください。",
+    };
+  }
+
   const intent = String(formData.get("intent") ?? "");
   const providerId = String(formData.get("providerId") ?? "");
 
@@ -37,7 +56,6 @@ export async function manageLlmCredentialAction(
     return { status: "failed", message: entry.reason };
   }
 
-  const actor = await currentActor();
   const result = await entry.manage.execute(
     actor,
     intent === "register"

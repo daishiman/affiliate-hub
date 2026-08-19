@@ -1764,10 +1764,16 @@ export const TENANT_ISOLATION_MIN_SEPARATION_PROVEN = 28;
  * どの操作がどの画面から呼ばれるかは測れないので、危ない方に倒して数えてある。
  * ここが減るのは各操作が `signedInActor()` を使った日である。
  *
+ * **2026-08-19、`manageLlmCredentialAction()` が `signedInActor()` へ替わって 16 件になった。**
+ * 減った分だけこの数字も下げる。下げないと「16 件まで減ったのに 17 件へ戻れる」
+ * 状態が残り、**戻った日に赤くならない**。上限は、いま在る状態にくっついていないと
+ * 上限ではない。残り 16 件のうち 15 件は同じ形（`currentActor()` を使う変更操作）で、
+ * 同じ直し方で外れる。
+ *
  * この数字は事実の記録であって目標ではない。
  * **上げて緑にすることを禁じる。下げる方向にだけ動かす。**
  */
-export const OPEN_DOORS_MAX_UNGUARDED = 17;
+export const OPEN_DOORS_MAX_UNGUARDED = 16;
 
 /**
  * **誰でも実行できて、しかも取り返しがつかない操作**の上限。
@@ -1779,9 +1785,15 @@ export const OPEN_DOORS_MAX_UNGUARDED = 17;
  * 2026-08-18 の実測は **6 件**（記事の公開 / 投稿の予約 / 予約の変更 /
  * 外部連携の鍵の作成と失効 / 生成 AI の API キーの登録と削除 / サイトの作成）。
  *
+ * **2026-08-19、生成 AI の API キーの口が外れて 5 件になった。**
+ * 残る 5 件のうち **`manageIntegrationAccessAction()` は同じ「鍵」の口**である
+ * （外部連携の鍵の作成と失効。`src/presentation/admin/feedback-action.ts`）。
+ * 秘密情報の入口を 2 つ数えていて、閉めたのは片方だけである。
+ * 片方だけ閉めた状態で「鍵の穴を塞いだ」と読まないための注記である。
+ *
  * **上げて緑にすることを禁じる。**
  */
-export const OPEN_DOORS_MAX_IRREVERSIBLE = 6;
+export const OPEN_DOORS_MAX_IRREVERSIBLE = 5;
 
 /**
  * **「誰でも」と宣言した行**の上限。

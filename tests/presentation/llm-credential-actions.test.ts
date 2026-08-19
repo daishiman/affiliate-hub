@@ -32,15 +32,30 @@ type Executed = { actor: unknown; input: unknown };
 const executed: Executed[] = [];
 let entry: unknown = null;
 let result: unknown = null;
+/** ログインしている人。`null` は「ログインしていない／確かめられない」。 */
+let signedIn: unknown = null;
 
 vi.mock("@/presentation/composition", async (importOriginal) => {
   const actual = await importOriginal<Record<string, unknown>>();
-  return { ...actual, llmCredentialEntry: async () => entry };
+  return { ...actual, llmCredentialEntry: async () => entry, signedInActor: async () => signedIn };
 });
 
 const { manageLlmCredentialAction } = await import("@/presentation/admin/llm-credential-action");
 
 const SECRET = "sk-test-do-not-echo-0123456789";
+
+/**
+ * ログインできている人。**見本の身元 (`SAMPLE_ACTOR`) と別物にしてある。**
+ *
+ * 同じにすると、ログインを見ずに見本へ落ちる作りでも
+ * 「身元が渡っている」の試験が緑になり、陽性対照として働かない。
+ */
+const SIGNED_IN_ACTOR = {
+  workspaceId: "ws_signed_in",
+  userId: "u_signed_in",
+  roles: ["owner"],
+  isAiServiceAccount: false,
+};
 
 /** 使える状態の入口。呼ばれた内容を控えて、決めた結果を返す。 */
 function readyEntry() {
@@ -69,6 +84,7 @@ beforeEach(() => {
   executed.length = 0;
   entry = readyEntry();
   result = ok();
+  signedIn = SIGNED_IN_ACTOR;
 });
 
 describe("生成 AI の鍵の操作", () => {
@@ -161,5 +177,129 @@ describe("生成 AI の鍵の操作", () => {
     expect(state.status).toBe("failed");
     expect(state.field).toBe("apiKey");
     expect(state.message).toContain("短すぎます");
+  });
+});
+
+/**
+ * ログインしていない人がこの操作を押したとき。
+ *
+ * --- なぜ「断られること」ではなく「届かないこと」を見るのか ---
+ * 断りは 2 か所で起こりうる。ログインを見て断る（画面側）と、
+ * 役を見て断る（ユースケース側の `integration_key.manage`）である。
+ * いま見本の身元は `analyst` だけを持つので、後者でも断られる。
+ * つまり**断りだけを見ると、ログインを一切見ていない作りでも緑になる。**
+ *
+ * 役の一覧は人が編集する表であり、1 行足せば戻る。
+ * ログインを見ていないことのほうが原因なので、原因の側を固定する。
+ * そのために見るのは「**預かり所へ届いたかどうか**」——
+ * 届いていたら、鍵の値は既に画面の外へ出ている。
+ *
+ * 要件と種別の印はファイルの先頭に 1 度だけ書く（先頭 40 行しか読まれない）。
+ * ここに書き足すと、印はあるのに数えられないものが増える。
+ */
+describe("ログインしていない人からの操作", () => {
+  beforeEach(() => {
+    signedIn = null;
+  });
+
+  it("登録は預かり所へ届かない", async () => {
+    await manageLlmCredentialAction(
+      INITIAL_LLM_CREDENTIAL_STATE,
+      form({ intent: "register", providerId: "anthropic", apiKey: SECRET }),
+    );
+    expect(executed).toHaveLength(0);
+  });
+
+  it("登録は失敗として返る", async () => {
+    const state = await manageLlmCredentialAction(
+      INITIAL_LLM_CREDENTIAL_STATE,
+      form({ intent: "register", providerId: "anthropic", apiKey: SECRET }),
+    );
+    expect(state.status).toBe("failed");
+  });
+
+  it("断る理由が画面に出る", async () => {
+    // 無言で失敗させない。押した人には、鍵が悪いのか自分が誰か分からないのかが要る。
+    const state = await manageLlmCredentialAction(
+      INITIAL_LLM_CREDENTIAL_STATE,
+      form({ intent: "register", providerId: "anthropic", apiKey: SECRET }),
+    );
+    expect(state.message).toContain("ログイン");
+  });
+
+  it("断ったときの戻り値に、入力した鍵が混ざらない", async () => {
+    const state = await manageLlmCredentialAction(
+      INITIAL_LLM_CREDENTIAL_STATE,
+      form({ intent: "register", providerId: "anthropic", apiKey: SECRET }),
+    );
+    expect(JSON.stringify(state)).not.toContain(SECRET);
+  });
+
+  it("失効は預かり所へ届かない", async () => {
+    await manageLlmCredentialAction(
+      INITIAL_LLM_CREDENTIAL_STATE,
+      form({ intent: "revoke", providerId: "anthropic" }),
+    );
+    expect(executed).toHaveLength(0);
+  });
+
+  it("失効は失敗として返る", async () => {
+    const state = await manageLlmCredentialAction(
+      INITIAL_LLM_CREDENTIAL_STATE,
+      form({ intent: "revoke", providerId: "anthropic" }),
+    );
+    expect(state.status).toBe("failed");
+  });
+
+  it("疎通確認は預かり所へ届かない", async () => {
+    await manageLlmCredentialAction(
+      INITIAL_LLM_CREDENTIAL_STATE,
+      form({ intent: "verify", providerId: "anthropic", modelId: "m-1" }),
+    );
+    expect(executed).toHaveLength(0);
+  });
+
+  it("疎通確認は失敗として返る", async () => {
+    const state = await manageLlmCredentialAction(
+      INITIAL_LLM_CREDENTIAL_STATE,
+      form({ intent: "verify", providerId: "anthropic", modelId: "m-1" }),
+    );
+    expect(state.status).toBe("failed");
+  });
+
+  it("預かり所が使える状態かどうかを尋ねる前に断る", async () => {
+    // 使えない状態のときの理由（「元締めの鍵が未登録です」）を、
+    // ログインしていない人へ返さない。**在庫の有無は店の中の話である。**
+    entry = { ready: false, reason: "元締めの鍵が未登録です。", providers: [] };
+    const state = await manageLlmCredentialAction(
+      INITIAL_LLM_CREDENTIAL_STATE,
+      form({ intent: "register", providerId: "anthropic", apiKey: SECRET }),
+    );
+    expect(state.message).not.toContain("元締め");
+  });
+});
+
+/**
+ * 陽性対照。**「全部断る」で直したときに、ここが赤くなる。**
+ *
+ * ログインを見る作りへ替えるとき、いちばん静かな壊し方は
+ * 「常に断る」である。上の 9 件はそれでも全部緑になる。
+ */
+describe("ログインしている人からの操作", () => {
+  it("登録は預かり所へ届く", async () => {
+    await manageLlmCredentialAction(
+      INITIAL_LLM_CREDENTIAL_STATE,
+      form({ intent: "register", providerId: "anthropic", apiKey: SECRET }),
+    );
+    expect(executed).toHaveLength(1);
+  });
+
+  it("ログインできている人の身元が、そのまま手続きへ渡る", async () => {
+    // 見本の身元へ落ちる作りだと、ここが `SAMPLE_ACTOR` になって赤くなる。
+    await manageLlmCredentialAction(
+      INITIAL_LLM_CREDENTIAL_STATE,
+      form({ intent: "register", providerId: "anthropic", apiKey: SECRET }),
+    );
+    expect(executed[0]?.actor).toBe(SIGNED_IN_ACTOR);
   });
 });
