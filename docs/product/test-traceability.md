@@ -6,8 +6,8 @@
 テスト側の `@req` 印を重ねたもの。
 
 - 最終更新: 2026-08-19
-- テストファイル: 186 件
-- 由来の要件が分かる: 158 件
+- テストファイル: 187 件
+- 由来の要件が分かる: 159 件
 - **由来不明: 28 件**（上限 28 件）
 
 由来不明とは「どの要件のために書いたのか、機械から辿れない」という意味で、
@@ -83,6 +83,7 @@
 | `tests/architecture/secrets-not-in-repo.test.ts` | REQ-CI07, REQ-SEC10 | 印と表 |
 | `tests/architecture/server-action-exports.test.ts` | REQ-FD06 | 印と表 |
 | `tests/architecture/single-definition.test.ts` | REQ-FD05, REQ-TS09 | 印と表 |
+| `tests/architecture/spec-chapter-fences.test.ts` | REQ-TS11 | 印と表 |
 | `tests/architecture/tenant-scoped-ports.test.ts` | REQ-P01, REQ-SEC01 | 印と表 |
 | `tests/architecture/test-foundation.test.ts` | REQ-TS01 | 印と表 |
 | `tests/architecture/test-honesty.test.ts` | REQ-CI07 | 表 |
@@ -206,4 +207,4 @@
 | `tests/ui/theme-contrast.test.ts` | REQ-TH01, REQ-TH02, REQ-TS06 | 印と表 |
 | `tests/ui/tool-form.test.tsx` | REQ-WC05 | 印と表 |
 | `tests/ui/ui-layers.test.ts` | REQ-S09, REQ-TM05 | 表 |
-<!-- 生成物の指紋 sha256:071121b6728de141320caa48593732e200abc521677764ec4fbe0df3475aa13f -->
+<!-- 生成物の指紋 sha256:ab9468574ae22f155a27210a50f78fbf0e216f082850d3bd93e43aeaeaaa1b06 -->
