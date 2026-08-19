@@ -1,6 +1,7 @@
 /** @tier 1 */
 import { describe, expect, it } from "vitest";
 import { createReadWritingMethodUseCase } from "@/application/usecases/authoring/read-writing-method";
+import { CONVERSATION_MAX_LENGTH, CONVERSATION_MIN_LENGTH } from "@/domain/authoring/conversation-block";
 import { createToolCatalog } from "@/presentation/composition";
 import type { ActorContext } from "@/domain/shared";
 import { taggedString } from "@/domain/shared";
@@ -111,8 +112,11 @@ describe("書き方", () => {
 
   it("会話は長さと連続回数に上限がある", async () => {
     const c = (await read()).conversation;
-    expect(c.minLength).toBe(40);
-    expect(c.maxLength).toBe(120);
+    // **ここに 40 / 120 と書き写してはいけない。**この検査の目的は
+    // 「画面に出る数が domain の定義から来ていること」で、書き写すと
+    // 定義が動いても気づかないまま緑が出る（＝目的そのものが消える）。
+    expect(c.minLength).toBe(CONVERSATION_MIN_LENGTH);
+    expect(c.maxLength).toBe(CONVERSATION_MAX_LENGTH);
     expect(c.maxConsecutive).toBe(2);
     expect(c.basePattern[0]).toBe("本文");
     expect(c.rule).toContain("本文にも書きます");

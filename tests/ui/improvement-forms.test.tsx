@@ -6,6 +6,7 @@
 // @vitest-environment jsdom
 import { act, cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { DEFAULT_MINIMUM_SAMPLES } from "@/domain/analytics";
 import { asPartOfPage, describeViolations, findA11yViolations } from "../support/a11y";
 
 /**
@@ -131,7 +132,7 @@ describe("比較を始める欄", () => {
         siteSlug="video-editing-gear"
         approvedSpecs={[SPECS[0]]}
         metrics={METRICS}
-        defaultMinimumSamples={200}
+        defaultMinimumSamples={DEFAULT_MINIMUM_SAMPLES}
       />,
     );
 
@@ -145,14 +146,14 @@ describe("比較を始める欄", () => {
         siteSlug="video-editing-gear"
         approvedSpecs={SPECS}
         metrics={METRICS}
-        defaultMinimumSamples={200}
+        defaultMinimumSamples={DEFAULT_MINIMUM_SAMPLES}
       />,
     );
 
     const field = screen.getByRole("textbox", { name: /判定に必要な件数/ }) as HTMLInputElement;
     // 別の場所に「既定は 200 です」と書いて空欄にすると、
     // 手で 0 と書かれたときに「既定のまま」と見分けられなくなる。
-    expect(field.value).toBe("200");
+    expect(field.value).toBe(String(DEFAULT_MINIMUM_SAMPLES));
   });
 });
 
@@ -206,7 +207,7 @@ describe("読み上げと操作の自動検査", () => {
           siteSlug="video-editing-gear"
           approvedSpecs={SPECS}
           metrics={METRICS}
-          defaultMinimumSamples={200}
+          defaultMinimumSamples={DEFAULT_MINIMUM_SAMPLES}
         />
         <AdvanceLoopRunForm runId="run_body_width" running hasObservation />
       </>,

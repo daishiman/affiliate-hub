@@ -7,6 +7,7 @@
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import {
+  ALLOWED_CAPTURE_MIME,
   ANNOTATION_COLORS,
   ANNOTATION_TOOLS,
   ANNOTATION_TOOL_LABELS,
@@ -446,7 +447,9 @@ describe("描画面がある環境", () => {
     expect(exported.count).toBe(1);
     // 手書きは黒塗りではない。数を多く申告すると domain 側の検査と食い違う。
     expect(exported.redactionCount).toBe(2);
-    expect(exported.type).toBe("image/png");
+    // 画面が書き出す形式は、domain 側が受け取ると決めた形式そのものでなければならない。
+    // ここに "image/png" と書き写すと、受け取り側だけが変わったときに気づけない。
+    expect(exported.type).toBe(ALLOWED_CAPTURE_MIME);
   });
 
   it("画像が作れなかったときは、付けたことにしない", () => {

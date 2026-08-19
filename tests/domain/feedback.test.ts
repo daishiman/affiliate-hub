@@ -29,6 +29,7 @@ import {
   isCaptureExpired,
   isDiscarded,
   isRevoked,
+  REDACT_COLOR,
   issueIntegrationKey,
   linkBeadsIssue,
   markUsed,
@@ -326,7 +327,7 @@ describe("画像の扱い", () => {
 
   it("黒塗りだけは色を選べない", () => {
     expect(canChooseColor("redact")).toBe(false);
-    expect(colorFor("redact", "red")).toBe("black");
+    expect(colorFor("redact", "red")).toBe(REDACT_COLOR);
     expect(colorFor("pen", "red")).toBe("red");
     expect([...ANNOTATION_TOOLS]).toContain("redact");
   });
