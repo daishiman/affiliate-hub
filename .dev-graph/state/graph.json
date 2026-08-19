@@ -1,5 +1,5 @@
 {
-  "graph_revision": 260,
+  "graph_revision": 262,
   "nodes": [
     {
       "acceptance": [],
@@ -13444,6 +13444,198 @@
       "title": "見張りが書き手を見ていないことを検査として固定する",
       "tracker_binding": "beads",
       "updated_at": "2026-08-19T00:00:00Z"
+    },
+    {
+      "acceptance": [],
+      "architecture_refs": [],
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "beads_linkage": null,
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "candidate_path": "tasks/task-design-tokens-blind-spot.md",
+          "confidence": 0.9
+        }
+      ],
+      "classification_confidence": 0.9,
+      "classification_reason": "残課題 78 ㉝ の (iii)（隠す向き）の実例として、82 の実装中に向こうから出てきた",
+      "completion_evidence": {
+        "completed_at": null,
+        "evidence_refs": [],
+        "policy": "manual",
+        "reconciled_at": null,
+        "source": "manual",
+        "status": "open"
+      },
+      "confirmation_evidence": {
+        "evaluated_digest": null,
+        "evaluator": null,
+        "evidence_ref": null
+      },
+      "confirmation_status": "draft",
+      "created_at": "2026-08-19T08:00:00Z",
+      "depends_on": [],
+      "domain": "quality",
+      "evaluation_status": "pending",
+      "execution_contexts": [],
+      "feature_package_id": null,
+      "file_path": "tasks/task-design-tokens-blind-spot.md",
+      "github_project_linkages": [],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "goal": null,
+      "graph_node_id": "task-design-tokens-blind-spot",
+      "implementation_readiness": {
+        "checked_at": null,
+        "missing_sections": [],
+        "status": "incomplete"
+      },
+      "issue_linkage": null,
+      "iteration": null,
+      "mvp_alignment": {
+        "background": "82 の実装中、canvas へ直書きした色が検査に引っかかり、定数表へ括り出したら緑になった。色は 1 つも変わっていない",
+        "mvp_fit": "enabling",
+        "purpose": "色の検査が実際に見ている範囲を、正当な例外と死角に分けて書き直す",
+        "rationale": "死角は正当なものと不当なものを区別しない。次に不当なものが同じ場所へ入っても同じように緑になる"
+      },
+      "owners": [
+        "daishiman"
+      ],
+      "parent_feature": null,
+      "phase_ref": null,
+      "priority": "medium",
+      "project_id": "affiliate-hub",
+      "pull_request_linkages": [],
+      "purpose": null,
+      "related_nodes": [],
+      "resource_scope": [
+        "docs",
+        "tests"
+      ],
+      "scope_in": [],
+      "scope_out": [],
+      "source_lineage": {
+        "imported_at": "2026-08-19T08:00:00Z",
+        "origin_kind": "manual",
+        "source_digest": null,
+        "source_path": "docs/product/backlog.md",
+        "source_plugin": null,
+        "source_version": null
+      },
+      "start_date": "2026-08-19",
+      "status": "draft",
+      "tags": [
+        "quality",
+        "testing",
+        "design-tokens"
+      ],
+      "target_date": null,
+      "template_id": "task",
+      "template_version": "1.0.0",
+      "title": "design-tokens の色の検査に死角がある（定数表へ括り出すと見えなくなる）",
+      "tracker_binding": "beads",
+      "updated_at": "2026-08-19T08:00:00Z"
+    },
+    {
+      "acceptance": [],
+      "architecture_refs": [],
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "beads_linkage": null,
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "candidate_path": "tasks/task-capture-element-selection.md",
+          "confidence": 0.9
+        }
+      ],
+      "classification_confidence": 0.9,
+      "classification_reason": "残課題 82 の実装時に本命として検討し、範囲が大きいと測って見送った案",
+      "completion_evidence": {
+        "completed_at": null,
+        "evidence_refs": [],
+        "policy": "manual",
+        "reconciled_at": null,
+        "source": "manual",
+        "status": "open"
+      },
+      "confirmation_evidence": {
+        "evaluated_digest": null,
+        "evaluator": null,
+        "evidence_ref": null
+      },
+      "confirmation_status": "draft",
+      "created_at": "2026-08-19T08:00:00Z",
+      "depends_on": [],
+      "domain": "quality",
+      "evaluation_status": "pending",
+      "execution_contexts": [],
+      "feature_package_id": null,
+      "file_path": "tasks/task-capture-element-selection.md",
+      "github_project_linkages": [],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "goal": null,
+      "graph_node_id": "task-capture-element-selection",
+      "implementation_readiness": {
+        "checked_at": null,
+        "missing_sections": [],
+        "status": "incomplete"
+      },
+      "issue_linkage": null,
+      "iteration": null,
+      "mvp_alignment": {
+        "background": "82 でキーボードから座標を動かせるようにしたが、座標を動かす操作そのものが読み上げ利用者には届きにくい",
+        "mvp_fit": "enabling",
+        "purpose": "「3 番目の見出しを隠す」のように、座標を扱わずに黒塗りの対象を選べる道を用意する",
+        "rationale": "82 の本命はこちらだったが、撮る側から要素の一覧を渡す必要があり、82 より大きい"
+      },
+      "owners": [
+        "daishiman"
+      ],
+      "parent_feature": null,
+      "phase_ref": null,
+      "priority": "medium",
+      "project_id": "affiliate-hub",
+      "pull_request_linkages": [],
+      "purpose": null,
+      "related_nodes": [],
+      "resource_scope": [
+        "docs",
+        "tests"
+      ],
+      "scope_in": [],
+      "scope_out": [],
+      "source_lineage": {
+        "imported_at": "2026-08-19T08:00:00Z",
+        "origin_kind": "manual",
+        "source_digest": null,
+        "source_path": "docs/product/backlog.md",
+        "source_plugin": null,
+        "source_version": null
+      },
+      "start_date": "2026-08-19",
+      "status": "draft",
+      "tags": [
+        "a11y",
+        "ui",
+        "quality"
+      ],
+      "target_date": null,
+      "template_id": "task",
+      "template_version": "1.0.0",
+      "title": "台紙の黒塗りを、座標ではなく要素の一覧から選べるようにする",
+      "tracker_binding": "beads",
+      "updated_at": "2026-08-19T08:00:00Z"
     }
   ],
   "repository_id": "github:daishiman/affiliate-hub",
