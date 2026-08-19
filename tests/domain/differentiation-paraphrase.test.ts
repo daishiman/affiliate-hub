@@ -1,7 +1,7 @@
 /**
  * @tier 1
  * @req REQ-W10
- * @types equivalence, boundary-value
+ * @types equivalence, boundary
  *
  * 差別化の 10 軸が、**言い換えを別物と数えていないか**を見る。
  *
