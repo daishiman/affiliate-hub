@@ -6,9 +6,9 @@
 テスト側の `@req` 印を重ねたもの。
 
 - 最終更新: 2026-08-19
-- テストファイル: 184 件
+- テストファイル: 186 件
 - 由来の要件が分かる: 158 件
-- **由来不明: 26 件**（上限 28 件）
+- **由来不明: 28 件**（上限 28 件）
 
 由来不明とは「どの要件のために書いたのか、機械から辿れない」という意味で、
 テストが無駄という意味ではない。要件から書いたなら `@req` を 1 行足せば消える。
@@ -20,7 +20,9 @@
 - `tests/application/read-site.test.ts`
 - `tests/application/review-loop-runs.test.ts`
 - `tests/application/writing-method.test.ts`
+- `tests/architecture/guard-inline-python-hole.test.ts`
 - `tests/architecture/spec-freshness.test.ts`
+- `tests/architecture/spec-state-writer-gap.test.ts`
 - `tests/architecture/worker-entry.test.ts`
 - `tests/domain/metrics-from-telemetry.test.ts`
 - `tests/infrastructure/d1-link-inbox.test.ts`
@@ -204,4 +206,4 @@
 | `tests/ui/theme-contrast.test.ts` | REQ-TH01, REQ-TH02, REQ-TS06 | 印と表 |
 | `tests/ui/tool-form.test.tsx` | REQ-WC05 | 印と表 |
 | `tests/ui/ui-layers.test.ts` | REQ-S09, REQ-TM05 | 表 |
-<!-- 生成物の指紋 sha256:807c24ff1f21f6fe9b832ce4c01bb36038ad5470e33cade25b451f32133eb869 -->
+<!-- 生成物の指紋 sha256:071121b6728de141320caa48593732e200abc521677764ec4fbe0df3475aa13f -->

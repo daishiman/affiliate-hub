@@ -1,5 +1,5 @@
 {
-  "graph_revision": 258,
+  "graph_revision": 260,
   "nodes": [
     {
       "acceptance": [],
@@ -13251,6 +13251,197 @@
       "template_id": "task",
       "template_version": "1.0.0",
       "title": "qa_log の sha256 が何の指紋かを検査として固定する",
+      "tracker_binding": "beads",
+      "updated_at": "2026-08-19T00:00:00Z"
+    },
+    {
+      "acceptance": [],
+      "architecture_refs": [],
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "beads_linkage": null,
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "candidate_path": "tasks/task-spec-state-writer-gap.md",
+          "confidence": 0.9
+        }
+      ],
+      "classification_confidence": 0.9,
+      "classification_reason": "single standalone task, no feature package",
+      "completion_evidence": {
+        "completed_at": null,
+        "evidence_refs": [],
+        "policy": "manual",
+        "reconciled_at": null,
+        "source": "manual",
+        "status": "open"
+      },
+      "confirmation_evidence": {
+        "evaluated_digest": null,
+        "evaluator": null,
+        "evidence_ref": null
+      },
+      "confirmation_status": "draft",
+      "created_at": "2026-08-19T00:00:00Z",
+      "depends_on": [],
+      "domain": "specification",
+      "evaluation_status": "pending",
+      "execution_contexts": [],
+      "feature_package_id": null,
+      "file_path": "tasks/task-spec-state-writer-gap.md",
+      "github_project_linkages": [],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "goal": null,
+      "graph_node_id": "task-spec-state-writer-gap",
+      "implementation_readiness": {
+        "checked_at": null,
+        "missing_sections": [],
+        "status": "incomplete"
+      },
+      "issue_linkage": null,
+      "iteration": null,
+      "mvp_alignment": {
+        "background": "正本は schema_version 1.2 だが、repo 内の writer は 1.1 を要求し一度も動かない。1.2 固有 3 節を書くコードも 0 件",
+        "mvp_fit": "enabling",
+        "purpose": "版の食い違いと書く当てどころの不在を検査にし、書けるようになった日に赤くする",
+        "rationale": "本文に「保守できません」と書くだけでは、保守できるようになった日にも古く見えないまま残る"
+      },
+      "owners": [
+        "daishiman"
+      ],
+      "parent_feature": null,
+      "phase_ref": null,
+      "priority": "high",
+      "project_id": "affiliate-hub",
+      "pull_request_linkages": [],
+      "purpose": null,
+      "related_nodes": [],
+      "resource_scope": [
+        "tests",
+        "system-spec",
+        "docs"
+      ],
+      "scope_in": [],
+      "scope_out": [],
+      "source_lineage": {
+        "imported_at": null,
+        "origin_kind": "manual",
+        "source_digest": null,
+        "source_path": null,
+        "source_plugin": null,
+        "source_version": null
+      },
+      "start_date": "2026-08-19",
+      "status": "draft",
+      "tags": [
+        "system-spec",
+        "known-limit"
+      ],
+      "target_date": null,
+      "template_id": "task",
+      "template_version": "1.0.0",
+      "title": "正本を保守できる writer が無いことを検査として固定する",
+      "tracker_binding": "beads",
+      "updated_at": "2026-08-19T00:00:00Z"
+    },
+    {
+      "acceptance": [],
+      "architecture_refs": [],
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "beads_linkage": null,
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "candidate_path": "tasks/task-guard-inline-python-hole.md",
+          "confidence": 0.9
+        }
+      ],
+      "classification_confidence": 0.9,
+      "classification_reason": "single standalone task, no feature package",
+      "completion_evidence": {
+        "completed_at": null,
+        "evidence_refs": [],
+        "policy": "manual",
+        "reconciled_at": null,
+        "source": "manual",
+        "status": "open"
+      },
+      "confirmation_evidence": {
+        "evaluated_digest": null,
+        "evaluator": null,
+        "evidence_ref": null
+      },
+      "confirmation_status": "draft",
+      "created_at": "2026-08-19T00:00:00Z",
+      "depends_on": [],
+      "domain": "specification",
+      "evaluation_status": "pending",
+      "execution_contexts": [],
+      "feature_package_id": null,
+      "file_path": "tasks/task-guard-inline-python-hole.md",
+      "github_project_linkages": [],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "goal": null,
+      "graph_node_id": "task-guard-inline-python-hole",
+      "implementation_readiness": {
+        "checked_at": null,
+        "missing_sections": [],
+        "status": "incomplete"
+      },
+      "issue_linkage": null,
+      "iteration": null,
+      "mvp_alignment": {
+        "background": "正規 writer を通さない python スクリプトから正本を 3 回書き換えたが、見張りは 3 回とも通した",
+        "mvp_fit": "enabling",
+        "purpose": "見張りが書込の形は見るが書き手は見ないことを検査にし、印の仕組みが足された日に赤くする",
+        "rationale": "いま塞ぐとプラグイン側に手が入る。塞ぐまでのあいだ、穴を本文ではなく検査に持たせる"
+      },
+      "owners": [
+        "daishiman"
+      ],
+      "parent_feature": null,
+      "phase_ref": null,
+      "priority": "high",
+      "project_id": "affiliate-hub",
+      "pull_request_linkages": [],
+      "purpose": null,
+      "related_nodes": [],
+      "resource_scope": [
+        "tests",
+        "docs"
+      ],
+      "scope_in": [],
+      "scope_out": [],
+      "source_lineage": {
+        "imported_at": null,
+        "origin_kind": "manual",
+        "source_digest": null,
+        "source_path": null,
+        "source_plugin": null,
+        "source_version": null
+      },
+      "start_date": "2026-08-19",
+      "status": "draft",
+      "tags": [
+        "tooling",
+        "known-limit"
+      ],
+      "target_date": null,
+      "template_id": "task",
+      "template_version": "1.0.0",
+      "title": "見張りが書き手を見ていないことを検査として固定する",
       "tracker_binding": "beads",
       "updated_at": "2026-08-19T00:00:00Z"
     }

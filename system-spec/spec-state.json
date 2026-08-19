@@ -2345,7 +2345,7 @@
     {
       "id": "decision-editorial-commercial-split",
       "question": "Editorial（編集評価）と Commercial（報酬・成果）のデータを、D1 でどう分けるか",
-      "status": "recommended_pending_confirmation",
+      "status": "confirmed",
       "serves_goals": [
         "G1",
         "G2"
@@ -2435,12 +2435,20 @@
           "operations": "1 本案が優位。2 本案はマイグレーションとバックアップが 2 系統になる",
           "lock_in": "差なし。どちらも D1 で、相互に移れる"
         }
+      },
+      "user_decision": {
+        "option_id": "opt-two-databases",
+        "confirmed_at": "2026-08-19T00:00:00Z",
+        "decided_by": "利用者本人",
+        "confirmation_mode": "推奨への一任 (候補の比較根拠を示したうえでの委任)",
+        "note": "利用者本人が「お任せ、ベストプラクティスで選定」と回答。推奨どおり採用。本番データがまだ無い (ah-08q 未着手) ため、いま分けるのが最も安く、本番データに触る境界にも当たらない。運用開始後に分けると移送が要る。",
+        "recorded_with": "キャッシュ側 install (system-spec-harness 0.1.2) の apply-spec-transition.py で書いた。この writer は state の schema_version を検査しない（門が無い）。プロジェクト側の writer は 1.1 との exact 一致を要求するため、1.2 のこの正本には届かない。門を通したのではなく、門が無い writer で書いた。"
       }
     },
     {
       "id": "decision-redirect-measurement-async",
       "question": "リダイレクトの計測（ClickEvent の記録）を、転送を止めずにどう書くか",
-      "status": "recommended_pending_confirmation",
+      "status": "confirmed",
       "serves_goals": [
         "G2",
         "G1"
@@ -2557,12 +2565,20 @@
           "operations": "直書きがいちばん軽い。Queues は滞留、退避+Cron は回収を見る必要がある",
           "lock_in": "Queues が最も強い（Cloudflare 固有）。他 2 案は移しやすい"
         }
+      },
+      "user_decision": {
+        "option_id": "opt-waituntil-fallback-cron",
+        "confirmed_at": "2026-08-19T00:00:00Z",
+        "decided_by": "利用者本人",
+        "confirmation_mode": "推奨への一任 (候補の比較根拠を示したうえでの委任)",
+        "note": "利用者本人が「お任せ、ベストプラクティスで選定」と回答。推奨どおり採用。有料プランの契約状態はこちらから確かめられないが、この推奨はその事実に依存しない(無料の範囲で成立する)。Queues は費用のかかる上げ方なので caveats に置き、必要になった時点で別途判断する。",
+        "recorded_with": "キャッシュ側 install (system-spec-harness 0.1.2) の apply-spec-transition.py で書いた。この writer は state の schema_version を検査しない（門が無い）。プロジェクト側の writer は 1.1 との exact 一致を要求するため、1.2 のこの正本には届かない。門を通したのではなく、門が無い writer で書いた。"
       }
     },
     {
       "id": "decision-llm-provider",
       "question": "記事生成に使う LLM プロバイダを 1 社に固定するか、複数を持つか",
-      "status": "recommended_pending_confirmation",
+      "status": "confirmed",
       "serves_goals": [
         "G1"
       ],
@@ -2681,12 +2697,20 @@
           "operations": "1 社固定と Workers AI が軽い。複数社は単価表の更新が要る",
           "lock_in": "複数社が最も低い。1 社固定と Workers AI は高い"
         }
+      },
+      "user_decision": {
+        "option_id": "opt-catalog-multi",
+        "confirmed_at": "2026-08-19T00:00:00Z",
+        "decided_by": "利用者本人",
+        "confirmation_mode": "推奨への一任 (候補の比較根拠を示したうえでの委任)",
+        "note": "利用者本人が「お任せ、ベストプラクティスで選定」と回答。推奨どおり採用。鍵は利用者本人がブラウザまたは別の端末で登録する。鍵の値をこちらで受け取らないし、要求もしない。",
+        "recorded_with": "キャッシュ側 install (system-spec-harness 0.1.2) の apply-spec-transition.py で書いた。この writer は state の schema_version を検査しない（門が無い）。プロジェクト側の writer は 1.1 との exact 一致を要求するため、1.2 のこの正本には届かない。門を通したのではなく、門が無い writer で書いた。"
       }
     },
     {
       "id": "decision-ui-theme-implementation",
       "question": "配色と明暗の 2 軸を、どの技術で実装するか",
-      "status": "recommended_pending_confirmation",
+      "status": "confirmed",
       "serves_goals": [
         "G1"
       ],
@@ -2769,6 +2793,14 @@
           "operations": "light-dark() が優位。配色を増やしたときの作業量が一定",
           "lock_in": "light-dark() は標準で、乗り換え先が要らない"
         }
+      },
+      "user_decision": {
+        "option_id": "opt-css-light-dark",
+        "confirmed_at": "2026-08-19T00:00:00Z",
+        "decided_by": "利用者本人",
+        "confirmation_mode": "推奨への一任 (候補の比較根拠を示したうえでの委任)",
+        "note": "利用者本人が「お任せ、ベストプラクティスで選定」と回答。推奨どおり採用。",
+        "recorded_with": "キャッシュ側 install (system-spec-harness 0.1.2) の apply-spec-transition.py で書いた。この writer は state の schema_version を検査しない（門が無い）。プロジェクト側の writer は 1.1 との exact 一致を要求するため、1.2 のこの正本には届かない。門を通したのではなく、門が無い writer で書いた。"
       }
     },
     {
@@ -2846,11 +2878,12 @@
       ],
       "recommendation": {
         "option_id": "opt-keep-current",
-        "rationale": "11 §8 は「重いテストを足す前に置き場所を先に作る」と書いていて、置き場（3 段）は既にある。だが 3 段は 2026-08-18 に定例をやめており、いまは誰かが打たなければ一度も走らない。そこへ基準画像を持つ検査を足すと、走らない検査が 1 つ増えるだけになる可能性が高い。配色を増やす作業に着手する回に、打つ場面を決めてから足すのが順序として正しい。",
+        "rationale": "結論は現行のままだが、これは「Playwright は不要」という判断ではない。10 の 7 種のうち見た目の回帰だけは現行で測れておらず、その穴は実在する。足さない理由は必要性ではなく走らせ方にある。11 §8-2 の 3 段 (手動・止めない) は 2026-08-18 に定例をやめており、いま基準画像を持つ検査を足すと、誰も打たない検査が 1 つ増えるだけになる。基準画像は、打たれないあいだ古くなり続け、次に打った人が「全部落ちるので基準を上書きする」に流れる。それは閾値を下げるのと同じである。したがって、走る段が決まるまで保留する。保留のあいだ穴は開いたままなので、穴そのもの(見た目の崩れを自動で見つける手段が無いこと) を本文ではなく検査として固定し、画像比較の仕組みが足された日に赤くなる形にしておく (ah-h57)。",
         "caveats": [
-          "見た目の回帰は、当面ぶん測れないままである（残課題として残る。無いことを無いと書く）",
-          "足すなら、同じ回に「いつ打つか」を文書へ書く。場面を書かずに足すと、名前だけの検査になる",
-          "配色を 1 つ増やす作業が決まった時点で、この判断は見直す"
+          "これは「不要と判断した」ではなく「走る段が決まるまで保留した」である。次に読む人が前者と読み違えないよう、この一文を消さない",
+          "保留のあいだ、見た目の回帰は測れない。穴は ah-h57 の検査として固定してあり、本文ではなく検査が現状を知らせる",
+          "見直しの引き金は 2 つ: 3 段を打つ場面が決まったとき / 配色を 1 つ増やす作業が決まったとき。どちらか先に来たほうで再評価する",
+          "足すと決めたときは、同じ回に「いつ打つか」を文書へ書く。場面を書かずに足すと、名前だけの検査になる"
         ],
         "confidence": "medium",
         "latest_checked_at": "2026-08-19T00:00:00Z",
@@ -2858,10 +2891,11 @@
           "goal_fit": "見た目の回帰だけは Playwright が優位。それ以外の 6 種は現行で足りている",
           "tco": "どちらも 0 円。公開リポジトリの標準ランナーは無料",
           "security": "差なし",
-          "operations": "現行が優位。Playwright は基準画像の管理が増える",
+          "operations": "現行が優位。Playwright は基準画像の管理が増えるうえ、その基準を打つ場面がいま決まっていない (3 段の定例を 2026-08-18 にやめている)",
           "lock_in": "差なし。どちらも移しやすい"
         }
-      }
+      },
+      "recorded_with": "キャッシュ側 install (system-spec-harness 0.1.2) の apply-spec-transition.py で書いた。この writer は state の schema_version を検査しない（門が無い）。プロジェクト側の writer は 1.1 との exact 一致を要求するため、1.2 のこの正本には届かない。門を通したのではなく、門が無い writer で書いた。"
     }
   ],
   "knowledge_candidates": [],
