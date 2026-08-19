@@ -54,7 +54,43 @@ function sharedDom(): JSDOM {
   return shared;
 }
 
+/**
+ * 4 つの入れ物すべてを返す版。
+ *
+ * `findA11yViolations` は違反だけを返す。**それだけでは「規則が緑だった」と
+ * 「規則が判定できなかった」が同じ「何も出ない」に見える。**
+ * どの規則がどの入れ物へ入ったかを数える検査（`tests/ui/axe-rule-coverage.test.ts`）が
+ * ここを使う。**通り道は 1 本のまま**にしておかないと、
+ * 数えている経路と本物の検査の経路が別々に動いてしまう。
+ */
+export type A11yBuckets = {
+  readonly violations: readonly string[];
+  readonly passes: readonly string[];
+  readonly incomplete: readonly string[];
+  readonly inapplicable: readonly string[];
+};
+
+export async function runA11y(html: string): Promise<A11yBuckets> {
+  const raw = await runAxe(html);
+  return {
+    violations: raw.violations.map((r) => r.id),
+    passes: raw.passes.map((r) => r.id),
+    incomplete: raw.incomplete.map((r) => r.id),
+    inapplicable: raw.inapplicable.map((r) => r.id),
+  };
+}
+
 export async function findA11yViolations(html: string): Promise<readonly A11yViolation[]> {
+  const result = await runAxe(html);
+  return result.violations.map((v) => ({
+    id: v.id,
+    impact: v.impact ?? "unknown",
+    help: v.help,
+    targets: v.nodes.flatMap((n) => n.target.map(String)),
+  }));
+}
+
+async function runAxe(html: string) {
   const dom = sharedDom();
   dom.window.document.body.innerHTML = html;
 
@@ -75,12 +111,7 @@ export async function findA11yViolations(html: string): Promise<readonly A11yVio
       // ここで有効にしても、jsdom は実際の描画色を持たないため必ず「判定不能」になる。
       rules: { "color-contrast": { enabled: false } },
     });
-    return result.violations.map((v) => ({
-      id: v.id,
-      impact: v.impact ?? "unknown",
-      help: v.help,
-      targets: v.nodes.flatMap((n) => n.target.map(String)),
-    }));
+    return result;
   } finally {
     g.window = saved.window;
     g.document = saved.document;
