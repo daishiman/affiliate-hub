@@ -303,11 +303,50 @@
   gap: var(--space-1);
 }
 
+/*
+ * 分類の境目。**線と余白の 2 つで作る。**
+ *
+ * 線だけを引いて余白を変えないと、線は「飾り」に見えてまとまりとして読まれない。
+ * 近接の原理は距離のほうが強いので、**先に比を決めてから値を入れた**:
+ *
+ *   決めた目標 … 群間 ÷ 群内 >= 4
+ *   入れた値   … 群内 4px（`.navGroup` の gap）／
+ *                群間 33px（`.sidebar` の gap 8 + margin-top 8 + 線 1 + padding-top 12 +
+ *                見出しの padding-top 4）→ **比 8.25**
+ *
+ * 線の上下も揃えてある（上 16px / 下 16px）。ずれていると、
+ * 線がどちらの群のものか分からなくなる。
+ *
+ * **線は飾りなので支援技術には渡さない。** 要素を足さず罫線で描いているので、
+ * 読み上げには何も増えない。まとまりの伝達は `role="group"` と見出しが持つ。
+ *
+ * `+` を使うので、**6 分類なら線は 5 本**になる（先頭には付かない）。
+ * 分類の外の「ホーム」との間にも線は入らない。
+ */
+.navGroup + .navGroup {
+  margin-top: var(--space-2);
+  padding-top: var(--space-3);
+  border-top: var(--border-width-default) solid var(--color-border-subtle);
+}
+
 /* 分類の見出し。項目より小さく弱く出す。
-   見出しが項目より目立つと、行き先ではなく分類名を押そうとしてしまう。 */
+   見出しが項目より目立つと、行き先ではなく分類名を押そうとしてしまう。
+
+   **上の余白はここではなく `.navGroup + .navGroup` が持つ。**
+   両方に置くと、境目の広さが 2 箇所に散って、比を決められなくなる。
+
+   一覧は 1 画面に収まらない（`tests/ui/nav-density.test.ts` が
+   トークンの値から高さを出して確かめている）ので、**見出しを追従させる。**
+   畳まないのは、移動のための面を畳むと「いつも同じ場所にある」が壊れるため
+   （理由は docs/product/design-decisions.md）。 */
 .navGroupLabel {
-  margin: var(--space-3) 0 var(--space-1);
-  padding: 0 var(--space-3);
+  position: sticky;
+  top: 0;
+  z-index: var(--z-raised);
+  margin: 0 0 var(--space-1);
+  padding: var(--space-1) var(--space-3);
+  /* 追従した見出しの下を項目が素通りしていくので、背景を敷いて重なりを断つ。 */
+  background: var(--color-surface-default);
   font-size: var(--text-xs);
   font-weight: var(--weight-bold);
   line-height: var(--leading-body);
@@ -469,9 +508,23 @@
     gap: var(--space-2);
   }
 
+  /* 横に並ぶので、境目の線も横に倒す。**本数は 5 本のまま。**
+     上の罫線を残すと、横並びの帯の上にもう 1 本線が乗って帯が二重に見える。 */
+  .navGroup + .navGroup {
+    margin-top: 0;
+    padding-top: 0;
+    margin-left: var(--space-2);
+    padding-left: var(--space-3);
+    border-top: none;
+    border-left: var(--border-width-default) solid var(--color-border-subtle);
+  }
+
   .navGroupLabel {
+    /* 横一列では縦に送らないので、追従させる相手がいない。 */
+    position: static;
     margin: 0;
     padding: 0;
+    background: none;
     white-space: nowrap;
   }
 

@@ -48,3 +48,36 @@ describe("案内の分類の読み上げ", () => {
     expect(html).not.toContain('role="group"');
   });
 });
+
+/**
+ * 分類の境目（2026-08-19、利用者の「各分類ごとに横線を引いて区切りが分かるように」）。
+ *
+ * **線は罫線で描き、要素を足さない。** 足すと読み上げに「区切り」が 5 回挟まり、
+ * まとまりを伝えている見出しと二重になる。見えるものを増やすために
+ * 聞こえるものまで増やさない、という分け方をここで固定する。
+ */
+describe("分類の境目", () => {
+  it("分類は 6 つ、境目は 5 つ（外側には付かない）", () => {
+    // 線の本数そのものは CSS の `+` が決めるので数えられない。
+    // 数えられるのは**間の数**で、それが 5 であることは分類の数で決まる。
+    // 分類が増減したらここが赤くなり、線の本数の話に戻れる。
+    expect(ADMIN_NAV_GROUPS).toHaveLength(6);
+    expect(ADMIN_NAV_GROUPS.length - 1).toBe(5);
+  });
+
+  it("見出しは分類の数だけ出る（線だけで済ませていない）", () => {
+    // 線だけを引くと、まとまりはあるのに**それが何のまとまりかが言葉にならない**。
+    const html = markup();
+    expect((html.match(/<h2 id="nav-group-/g) ?? []).length).toBe(ADMIN_NAV_GROUPS.length);
+  });
+
+  it("境目のために要素を足していない（読み上げに区切りが増えない）", () => {
+    const html = markup();
+    const sidebar = html.slice(html.indexOf("<nav"), html.indexOf("</nav>"));
+    expect(sidebar).not.toContain("<hr");
+    expect(sidebar).not.toContain('role="separator"');
+    // 飾りを `aria-hidden` で隠すのは、そもそも飾りの要素を足したときの後始末である。
+    // 罫線で描いていれば足す必要が無い。
+    expect(sidebar).not.toContain("aria-hidden");
+  });
+});
