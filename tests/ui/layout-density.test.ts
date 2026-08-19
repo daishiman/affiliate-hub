@@ -117,6 +117,17 @@ describe("詰まり具合", () => {
     // **線だけを引いて余白を変えないと、線は飾りに見えてまとまりとして読まれない。**
     // 近接の原理は距離のほうが強い。**先に決めた目標は「群間 ÷ 群内 >= 4」**で、
     // 値はそのあとに入れた。ここが赤くなったら、値ではなく比のほうを先に決め直す。
+    //
+    // **数えるのは「この境目のために足した余白」だけである。**（2026-08-19 に直した）
+    // 最初は親の `gap` まで足した合計で比を取っていた。それだと、境目のために
+    // 何も足していなくても親の余白のぶんで比が出てしまい、**測りたいものと
+    // 数えている単位が食い違う。**床を上げても、親の余白が乗る事実は残る。
+    //
+    // 引いたもの 2 つと、その根拠:
+    //   - `.sidebar` の `gap` … サイドバーの子すべての間に入る。**分類を全部消しても残る**
+    //   - 線そのものの太さ   … これは「線」であって「余白」ではない。
+    //                          線の有無は下の `toMatch` が別に見ているので、
+    //                          余白へ混ぜると同じものを 2 回数えることになる
     const css = readFileSync(SHELL_CSS, "utf8");
     const px = pxOfSpaceToken();
 
@@ -126,17 +137,16 @@ describe("詰まり具合", () => {
     );
 
     const withinGap = px(spaceVar(ruleBody(css, ".navGroup"), "gap"));
-    const sidebarGap = px(spaceVar(ruleBody(css, ".sidebar"), "gap"));
-    const labelPadTop = px(spaceVar(ruleBody(css, ".navGroupLabel"), "padding")); // 1 つ目 = 上
     const betweenGap =
-      sidebarGap +
       px(spaceVar(between, "margin-top")) +
-      1 + // 線そのもの
       px(spaceVar(between, "padding-top")) +
-      labelPadTop;
+      px(spaceVar(ruleBody(css, ".navGroupLabel"), "padding")); // 1 つ目 = 上
 
     expect(withinGap, "群内の余白が読めない").toBeGreaterThan(0);
-    expect(betweenGap / withinGap, `群間 ${betweenGap}px / 群内 ${withinGap}px`).toBeGreaterThanOrEqual(4);
+    expect(
+      betweenGap / withinGap,
+      `境目のために足した余白 ${betweenGap}px / 群内 ${withinGap}px`,
+    ).toBeGreaterThanOrEqual(4);
   });
 
   it("線を引いているのは隣り合わせの規則だけ（＝分類 6 つなら線は 5 本）", () => {
