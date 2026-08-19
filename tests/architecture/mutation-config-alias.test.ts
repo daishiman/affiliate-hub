@@ -27,8 +27,15 @@
  * **別名を減らす向きで緑にしない。**足りないほうを足して直す。
  */
 import { describe, expect, it } from "vitest";
-import mainConfig from "../../vitest.config.mts";
-import mutationConfig from "../../vitest.mutation.config.mts";
+/*
+ * **`.mjs` と書いて `.mts` を読む。**`.mts` と書くと tsc が TS5097 で落ちる
+ * （`allowImportingTsExtensions` が要る）。この作業場所ではその設定を入れず、
+ * TypeScript の決まりどおり「出力側の拡張子で書く」に合わせる。
+ * tsc は `.mjs` を `.mts` へ、vite も TS からの読み込みでは同じ対応づけをする。
+ * **設定を緩めて黙らせる形にしない。**
+ */
+import mainConfig from "../../vitest.config.mjs";
+import mutationConfig from "../../vitest.mutation.config.mjs";
 
 type AliasMap = Readonly<Record<string, string>>;
 
