@@ -6,8 +6,8 @@
 テスト側の `@req` 印を重ねたもの。
 
 - 最終更新: 2026-08-19
-- テストファイル: 196 件
-- 由来の要件が分かる: 168 件
+- テストファイル: 197 件
+- 由来の要件が分かる: 169 件
 - **由来不明: 28 件**（上限 28 件）
 
 由来不明とは「どの要件のために書いたのか、機械から辿れない」という意味で、
@@ -175,6 +175,7 @@
 | `tests/presentation/readonly-honesty.test.ts` | REQ-WC04 | 印 |
 | `tests/presentation/spec-contract.test.ts` | REQ-M01, REQ-M02, REQ-WA01, REQ-WA02 | 印 |
 | `tests/presentation/tool-catalog-adapters.test.ts` | REQ-M03, REQ-TS04 | 印と表 |
+| `tests/presentation/tool-declaration-truth.test.ts` | REQ-M03 | 印 |
 | `tests/presentation/webmcp-policy.test.ts` | REQ-WC03, REQ-WC04, REQ-WC06 | 印と表 |
 | `tests/presentation/webmcp-registration.test.ts` | REQ-WC01, REQ-WC02 | 印 |
 | `tests/property/normalization.property.test.ts` | REQ-P02, REQ-P03, REQ-TH01, REQ-TH02, REQ-TH03 | 印と表 |
@@ -216,4 +217,4 @@
 | `tests/ui/theme-contrast.test.ts` | REQ-TH01, REQ-TH02, REQ-TS06 | 印と表 |
 | `tests/ui/tool-form.test.tsx` | REQ-WC05 | 印と表 |
 | `tests/ui/ui-layers.test.ts` | REQ-S09, REQ-TM05 | 表 |
-<!-- 生成物の指紋 sha256:d54eed80cb0073a0bc561ed5c3801890945a7daf77e4ad259b3e22412809de48 -->
+<!-- 生成物の指紋 sha256:5665586e1407a84b7917d80fb53be742dfa59c6e4a54296c52cd3474cb1724f0 -->

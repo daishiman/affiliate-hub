@@ -12,6 +12,7 @@
  */
 
 import { authoredSectionsFor } from "@/domain/authoring";
+import { sampleGenerationInput } from "@/infrastructure/persistence/sample/generation-sample-input";
 import { SAMPLE_SITE_SLUG } from "@/infrastructure/persistence/sample/site-sample-repository";
 import type { AnyToolDefinition } from "@/presentation/tools/tool-definition";
 
@@ -179,6 +180,27 @@ export const TOOL_OVERRIDES: Readonly<Record<string, Readonly<Record<string, unk
   },
   // 商品との結びつけは、広告主が決まった行にしかできない。
   match_link_ingestion_product: { linkIngestionId: "li_resolved_1", productId: "p_alpha_15" },
+  // 鍵の道具は選択肢（一覧・発行・失効）に分かれている。先頭の枝は「一覧」で、
+  // これだけが何も壊さずに呼べる。`action` は他の道具では使われない項目名なので、
+  // 辞書ではなくここに置く。
+  manage_integration_keys: { action: "list" },
+  // 対応状況の変更は「状態・扱いの決定・取り消し」のどれか 1 つが要る。
+  // 先頭の枝は状態なので、通る状態を 1 つ置く（`status` は他の道具でも使われうる
+  // 名前で、要望の状態はこの道具に固有）。
+  update_feedback_status: { status: "in_progress" },
+  // 下書きを作らせる道具は、18 項目そろった素材とモデルの指定が要る。
+  // 見本の素材は画面の「試す」で使っているものと同じ 1 本を使う。
+  // 別に組み立てると、画面で通るものと検査で通るものが分かれる。
+  draft_content_variant: {
+    model: { providerId: "openai", modelId: "gpt-4o-mini" },
+    provided: sampleGenerationInput(),
+  },
+  // 仕様書の名前でも同じ道具に入る（`spec-contract.ts`）。
+  // 別名の側も同じ入力で呼べることを、ここで一緒に見る。
+  generate_content_variants: {
+    model: { providerId: "openai", modelId: "gpt-4o-mini" },
+    provided: sampleGenerationInput(),
+  },
   // 対象外にするのは、まだどの状態にもなっていない行で見る
   // （`li_received_1` は resolve の道具が触るので、別の行を指す）。
   reject_link_ingestion: {
@@ -204,10 +226,24 @@ export const NO_HAPPY_PATH: Readonly<Record<string, string>> = {
     "計算そのものがまだスタブで、NOT_IMPLEMENTED を返すため（返していることは検査する）",
 };
 
-/** 入力の形（JSON Schema 相当）から、必須の項目名を取り出す。 */
+function requiredList(schema: unknown): readonly string[] {
+  const value = (schema as { required?: unknown } | null)?.required;
+  return Array.isArray(value) ? value.filter((f): f is string => typeof f === "string") : [];
+}
+
+/**
+ * 入力の形（JSON Schema 相当）から、必須の項目名を取り出す。
+ *
+ * 選択肢（`oneOf` / `anyOf`）があるときは、**先頭の枝**の必須も足す。
+ * 呼ぶ側はどれか 1 つの枝を満たせばよいので、どれを選ぶかを決めておかないと
+ * 「宣言どおりの入力」が 1 つに定まらない。先頭にしてあるのは、
+ * 定義に書いた順が変われば検査の入力も変わり、差分に現れるからである。
+ */
 export function requiredFieldsOf(tool: AnyToolDefinition): readonly string[] {
-  const required = (tool.inputSchema as { required?: unknown }).required;
-  return Array.isArray(required) ? required.filter((f): f is string => typeof f === "string") : [];
+  const schema = tool.inputSchema as { oneOf?: unknown; anyOf?: unknown };
+  const branches = schema.oneOf ?? schema.anyOf;
+  const first = Array.isArray(branches) && branches.length > 0 ? requiredList(branches[0]) : [];
+  return [...new Set([...requiredList(tool.inputSchema), ...first])];
 }
 
 /** その道具に渡す「通るはずの入力」。辞書に無い項目があれば `null` を返す。 */

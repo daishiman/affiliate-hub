@@ -62,6 +62,27 @@ const captureSchema = z.object({
   mimeType: z.string().min(1),
 });
 
+const dispositionSchema = z.object({
+  kind: z.enum(FEEDBACK_DISPOSITIONS),
+  reason: z.string().min(1),
+  duplicateOf: z.string().nullable().optional(),
+});
+
+/**
+ * 対応状況を変えるときに受け付ける項目。
+ *
+ * これだけでは「何も指定していない入力」も通ってしまう。
+ * **通したうえで**ユースケースが「変更する内容が指定されていません。」と断る。
+ * 宣言（`declaredSchema`）のほうでは、通らない組み合わせを外してある。
+ */
+const updateStatusFields = z.object({
+  id: z.string().min(1),
+  status: statusSchema.optional(),
+  note: z.string().nullable().optional(),
+  disposition: dispositionSchema.optional(),
+  undoDisposition: z.boolean().optional(),
+});
+
 const submitSchema = z.object({
   kind: kindSchema,
   body: z.string().min(1),
@@ -173,20 +194,18 @@ export function feedbackTools(deps: AppDeps): readonly AnyToolDefinition[] {
     defineTool({
       name: "update_feedback_status",
       description:
-        "改善要望の対応状況を変えます。扱いの決定（対応しない・重複・廃棄）と取り消しは、人だけが行えます。",
-      schema: z.object({
-        id: z.string().min(1),
-        status: statusSchema.optional(),
-        note: z.string().nullable().optional(),
-        disposition: z
-          .object({
-            kind: z.enum(FEEDBACK_DISPOSITIONS),
-            reason: z.string().min(1),
-            duplicateOf: z.string().nullable().optional(),
-          })
-          .optional(),
-        undoDisposition: z.boolean().optional(),
-      }),
+        "改善要望の対応状況を変えます。状態・扱いの決定・取り消しのうち、少なくとも 1 つを指定してください（メモだけでは変わりません）。" +
+        "扱いの決定（対応しない・重複・廃棄）と取り消しは、人だけが行えます。",
+      schema: updateStatusFields,
+      // 「状態・扱いの決定・取り消しのどれか 1 つ以上」は、1 つの `required` では書けない。
+      // 選択肢に分けて、**どの選択肢を選んでも 1 つは入っている**形で宣言する。
+      // 受け付ける側（`schema`）を分けないのは、断り文をユースケースの
+      //「変更する内容が指定されていません。」のまま残すためである。
+      declaredSchema: z.union([
+        updateStatusFields.extend({ status: statusSchema }),
+        updateStatusFields.extend({ disposition: dispositionSchema }),
+        updateStatusFields.extend({ undoDisposition: z.literal(true) }),
+      ]),
       readOnly: false,
       useCase: createUpdateFeedbackStatusUseCase({
         repository: deps.feedback,
