@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { FEEDBACK_DISPOSITIONS, FEEDBACK_STATUSES, KEY_SCOPES } from "@/domain/feedback";
 import type { FeedbackDisposition, FeedbackStatus, KeyScope } from "@/domain/feedback";
-import { currentActor, feedbackUseCases } from "@/presentation/composition";
+import { currentActor, feedbackUseCases, signedInActor } from "@/presentation/composition";
 import type { FeedbackSubmission } from "@/presentation/ui";
 import { refusalText } from "@/presentation/refusal-text";
 import type {
@@ -211,11 +211,38 @@ export async function handOffFeedbackAction(
  *
  * 平文が通るのは戻り値の 1 か所だけ。**ここでログに出さない・保存しない。**
  * 出した瞬間、鍵を知る必要のない場所が鍵を知ることになる。
+ *
+ * --- ログインを見るのは、いちばん先である ---
+ * `currentActor()` ではなく `signedInActor()` を使う。前者は確かめられないとき
+ * **見本の身元へ落ちる**ので、ログインしていない人の操作が預かり所まで届く。
+ * 2026-08-19 の実測では、未ログインのまま鍵が発行されて平文が戻り値に載り、
+ * 既に在る鍵を失効させることもできていた（`ah-3xv`）。
+ *
+ * そのとき本番で断られていたのは、見本の身元が持つ役（`analyst`）が
+ * `integration_key.manage` を持たないからである。だが役の一覧は人が編集する表で、
+ * **1 行足せば戻る。** 断りが役に寄りかかっている限り、塞がっているように見えて、
+ * 塞いでいるのは別の場所である。
+ *
+ * `ah-5lo`（生成 AI の鍵）と直し方は同じだが、**危ないものの向きが逆である。**
+ * あちらは鍵の値が `formData` から入ってくる側で、こちらは `issuedValue` に
+ * 平文が入って**出ていく**側である。同じ理由で危ないと書くと、次に読む人が向きを取り違える。
+ *
+ * 確かめられないとき（`unavailable`）も断る。渡してよいか分からないものは渡さない。
  */
 export async function manageIntegrationAccessAction(
   _prev: IntegrationAccessState,
   formData: FormData,
 ): Promise<IntegrationAccessState> {
+  const actor = await signedInActor();
+  if (actor === null) {
+    return {
+      status: "failed",
+      message:
+        "ログインしていないため、取りに来るときの鍵の一覧・発行・失効はできません。\nログインしてからやり直してください。",
+      issuedValue: null,
+    };
+  }
+
   const intent = String(formData.get("intent") ?? "list");
 
   const input =
@@ -232,7 +259,7 @@ export async function manageIntegrationAccessAction(
         ? { action: "revoke" as const, id: String(formData.get("id") ?? "") }
         : { action: "list" as const };
 
-  const result = await (await feedbackUseCases()).keys.execute(await currentActor(), input);
+  const result = await (await feedbackUseCases()).keys.execute(actor, input);
   if (!result.ok) {
     return {
       status: "failed",

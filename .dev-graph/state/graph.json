@@ -1,5 +1,5 @@
 {
-  "graph_revision": 262,
+  "graph_revision": 263,
   "nodes": [
     {
       "acceptance": [],
@@ -13636,6 +13636,105 @@
       "title": "台紙の黒塗りを、座標ではなく要素の一覧から選べるようにする",
       "tracker_binding": "beads",
       "updated_at": "2026-08-19T08:00:00Z"
+    },
+    {
+      "acceptance": [],
+      "architecture_refs": [],
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "beads_linkage": null,
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "candidate_path": "tasks/task-integration-key-action-gate.md",
+          "confidence": 0.9
+        }
+      ],
+      "classification_confidence": 0.9,
+      "classification_reason": "ah-5lo を塞ぐ作業中に、同族の実測（変更操作で currentActor() を呼ぶ 16 件 / 9 ファイル）を数える途中で向こうから出てきた",
+      "completion_evidence": {
+        "completed_at": null,
+        "evidence_refs": [],
+        "policy": "manual",
+        "reconciled_at": null,
+        "source": "manual",
+        "status": "open"
+      },
+      "confirmation_evidence": {
+        "evaluated_digest": null,
+        "evaluator": null,
+        "evidence_ref": null
+      },
+      "confirmation_status": "draft",
+      "created_at": "2026-08-19T11:00:00Z",
+      "depends_on": [],
+      "domain": "security",
+      "evaluation_status": "pending",
+      "execution_contexts": [],
+      "feature_package_id": null,
+      "file_path": "tasks/task-integration-key-action-gate.md",
+      "github_project_linkages": [],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "goal": null,
+      "graph_node_id": "task-integration-key-action-gate",
+      "implementation_readiness": {
+        "checked_at": null,
+        "missing_sections": [],
+        "status": "incomplete"
+      },
+      "issue_linkage": null,
+      "iteration": null,
+      "mvp_alignment": {
+        "background": "ah-5lo で生成 AI の鍵の口 (manageLlmCredentialAction) を signedInActor() で塞いだが、同じ日の実測で、外部連携の鍵を作成・失効する manageIntegrationAccessAction (src/presentation/admin/feedback-action.ts) が同じ形のまま残っていることが分かった。こちらは currentActor() を呼び、身元を確かめられないとき見本の身元へ落ちる",
+        "mvp_fit": "enabling",
+        "purpose": "外部連携の鍵の作成・失効を、formData を読む前にログインで断る形へ替える",
+        "rationale": "秘密情報の入口を 1 つだけ塞ぐと、塞いだ側の記録だけが残り、残った側は「見張られている入口の一覧」に載らない。片方だけ塞ぐと、同じ壊れがもう片方から出る"
+      },
+      "owners": [
+        "daishiman"
+      ],
+      "parent_feature": null,
+      "phase_ref": null,
+      "priority": "critical",
+      "project_id": "affiliate-hub",
+      "pull_request_linkages": [],
+      "purpose": null,
+      "related_nodes": [
+        "task-signed-in-actor-for-mutations",
+        "task-llm-settings-auth-gate"
+      ],
+      "resource_scope": [
+        "src",
+        "tests"
+      ],
+      "scope_in": [],
+      "scope_out": [],
+      "source_lineage": {
+        "imported_at": "2026-08-19T11:00:00Z",
+        "origin_kind": "manual",
+        "source_digest": null,
+        "source_path": "docs/product/open-doors.md",
+        "source_plugin": null,
+        "source_version": null
+      },
+      "start_date": "2026-08-19",
+      "status": "draft",
+      "tags": [
+        "security",
+        "identity",
+        "secrets"
+      ],
+      "target_date": null,
+      "template_id": "task",
+      "template_version": "1.0.0",
+      "title": "秘密情報の入口は 2 つあり、閉めたのは片方だけ（外部連携の鍵が未ログインで作れる）",
+      "tracker_binding": "beads",
+      "updated_at": "2026-08-19T11:00:00Z"
     }
   ],
   "repository_id": "github:daishiman/affiliate-hub",

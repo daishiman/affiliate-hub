@@ -337,21 +337,58 @@ function scanRoutes(): Row[] {
     .sort((a, b) => (a.id < b.id ? -1 : 1));
 }
 
+/**
+ * `"use server"` のファイルを、**トップレベルの宣言ごとに切り分ける。**
+ *
+ * --- なぜ要るのか（2026-08-19 に実際に起きたこと） ---
+ * 下の `scanActions()` は、**ファイル 1 枚につき 1 回**だけ門を読み、
+ * その結果をそのファイルの全操作へ配っていた。だから
+ * `feedback-action.ts` の `manageIntegrationAccessAction()` だけを直した日に、
+ * 同じファイルに居るだけの `submitFeedbackAction()` /
+ * `changeFeedbackStatusAction()` / `handOffFeedbackAction()` の 3 件まで
+ * 「ログイン」へ変わった。実測では 16 件が 12 件になり、**直していない 3 件が
+ * 黙って数から消えた。**
+ *
+ * 向きが最悪である。**1 つ直すと、隣の直していないものまで数から消える。**
+ * 同じファイルに操作を足すほど、1 回の直しで消える件数が増える。
+ *
+ * --- 切り方 ---
+ * 行頭の `function` / `const` を境目にする。波括弧の対応で切らないのは、
+ * 引数や戻り値の型に `{` が出るためである（`Promise<{ readonly message: string }>`）。
+ * そこを掴むと、本体ではなく**型注釈**を本体として読む。
+ *
+ * 境目から次の境目までなので、あいだに挟まる注釈は**次の宣言のものでも
+ * 前の塊に入る。** 門の判定は `codeOnly()` を通してから見るので、
+ * 注釈が混ざっても数には出ない。
+ */
+function topLevelChunks(source: string): { name: string; text: string }[] {
+  const marks = [
+    ...source.matchAll(/^(?:export\s+)?(?:async\s+)?(?:function|const)\s+(\w+)/gm),
+  ];
+  return marks.map((m, i) => ({
+    name: m[1] ?? "",
+    text: source.slice(m.index, i + 1 < marks.length ? marks[i + 1].index : source.length),
+  }));
+}
+
 function scanActions(): Row[] {
   const rows: Row[] = [];
   for (const file of sourceFiles) {
     const source = read(file);
     if (!/^\s*["']use server["']/.test(source)) continue;
-    const actual = gateOfActor(source);
+    const chunks = topLevelChunks(source);
     for (const match of source.matchAll(/^export async function (\w+)/gm)) {
       const name = match[1];
       const declared = ACTION_INTENT[name];
+      // **その操作の中で**門を通しているかを見る。同じファイルに居るだけの
+      // 隣の操作の門を借りない（借りると、1 つ直すたびに隣まで数から消える）。
+      const chunk = chunks.find((c) => c.name === name);
       rows.push({
         kind: "操作",
         id: `${name}()`,
         what: `${declared?.what ?? "（宣言なし）"}（${rel(file)}）`,
         intent: declared?.intent ?? "ログイン",
-        actual,
+        actual: gateOfActor(chunk?.text ?? ""),
         reversible: declared?.reversible ?? "つかない",
       });
     }
@@ -559,6 +596,45 @@ describe("いま開いている入口", () => {
     expect(gateOfActor(`// signedInActor() へ替える\nconst a = await currentActor();`)).toBe(
       "誰でも",
     );
+  });
+
+  /**
+   * 1 枚のファイルに操作が 2 つあり、**片方だけ**が門を通している見本。
+   *
+   * 2026-08-19 に実際に抜けた形である。ファイル単位で門を読んでいたため、
+   * 片方を直すと、直していないもう片方まで「ログイン」に数えられた。
+   * 戻り値の型に波括弧を入れてあるのは、そこを本体と取り違える切り方
+   * （最初の `{` から対応を取る）でも落ちるようにするため。
+   */
+  const TWO_ACTIONS = [
+    '"use server";',
+    "",
+    "export async function guarded(): Promise<{ readonly message: string }> {",
+    "  const a = await signedInActor();",
+    "  return { message: String(a) };",
+    "}",
+    "",
+    "export async function unguarded(): Promise<void> {",
+    "  const a = await currentActor();",
+    "  void a;",
+    "}",
+  ].join("\n");
+
+  const chunkOf = (name: string) =>
+    topLevelChunks(TWO_ACTIONS).find((c) => c.name === name)?.text ?? "";
+
+  it("同じファイルに居るだけの操作は、隣の門を借りない", () => {
+    expect(
+      gateOfActor(chunkOf("unguarded")),
+      "隣の操作の門を借りています。1 つ直すたびに、直していないものまで数から消えます",
+    ).toBe("誰でも");
+  });
+
+  it("門を通している操作を取りこぼさない", () => {
+    expect(
+      gateOfActor(chunkOf("guarded")),
+      "本物の門が読めていません。切り出しが本体ではなく型注釈を掴んでいないか確かめてください",
+    ).toBe("ログイン");
   });
 
   it("REST の入口でも、注釈の名前を門と数えない", () => {
