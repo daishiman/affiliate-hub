@@ -179,7 +179,12 @@ describe("秘密情報がリポジトリに入っていないこと", () => {
 
   it("鍵らしい形の文字列が 1 つも無い", () => {
     const hits: string[] = [];
-    for (const file of trackedFiles()) {
+    const files = trackedFiles();
+    // **数える対象そのものの床。**「鍵が 0 件」は、鍵が無いときと
+    // 走査先が空になったときの両方で出る。`walk` は無いフォルダを黙って飛ばす作りなので、
+    // 走査先の名前が変わっただけで全部飛び、この検査は緑のまま黙る。下げない。
+    expect(files.length, "走査先が空です。dirs の指す場所が変わっていないか確かめてください").toBeGreaterThanOrEqual(200);
+    for (const file of files) {
       const rel = relative(ROOT, file).split("\\").join("/");
       if (rel === "tests/architecture/test-honesty.test.ts") continue; // 探し方を書いてある本人
       let source: string;
@@ -208,8 +213,13 @@ describe("秘密情報がリポジトリに入っていないこと", () => {
     } catch {
       expect.fail(".dev.vars.example がありません。何を登録するのかが分からなくなります");
     }
-    const withValue = example
-      .split("\n")
+    const declarations = example.split("\n").filter((line) => /^[A-Z_]+=/.test(line.trim()));
+    // **数える対象そのものの床。**「値が入っている行 0 件」は、空欄が守られているときと
+    // 見本そのものが空になったときの両方で出る。見本が空なら何を登録するか分からなくなり、
+    // 守れているのではなく守る対象が消えている。下げない。
+    expect(declarations.length, "見本に登録するものが 1 つも書いてありません").toBeGreaterThanOrEqual(1);
+
+    const withValue = declarations
       .filter((line) => /^[A-Z_]+=.+/.test(line.trim()))
       .filter((line) => !/=\s*(""|''|<[^>]*>|ここに)/.test(line));
     expect(withValue, "見本に値が入っています。空欄にしてください").toEqual([]);

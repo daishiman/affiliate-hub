@@ -52,6 +52,15 @@ function scriptThatWritesCanonicalState(): string {
 
 describe("見張りは書込の形を見るが、書き手は見ない (穴の監視)", () => {
   it("正本を書き換える中身を .py に移すと、見張りは通してしまう", () => {
+    // **数える対象そのものの床。**下の `code === 0` は「見張りが通した」ときと
+    // 「見張りが何も見ていない」ときの両方で出る。見張りが空ファイルになっても 0 は出る。
+    // **止まる例を同じ検査の中に置いて、見張りが生きていることを先に示す。**下げない。
+    const alive = ask({
+      tool_name: "Bash",
+      tool_input: { command: `python3 -c "open('system-spec/spec-state.json','w')"` },
+    });
+    expect(alive.code, "見張りが止めるはずのものを止めていません。穴の監視の前に、見張り自体を確かめてください").toBe(2);
+
     const script = scriptThatWritesCanonicalState();
     // 中身は確かに正本への書込を含んでいる。見張りが読めば止められるはずのもの。
     expect(readFileSync(script, "utf8")).toContain("system-spec/spec-state.json");

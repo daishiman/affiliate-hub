@@ -63,6 +63,11 @@ const sources = pythonSources(WRITER_DIR).map((f) => ({
 describe("正本を保守できる writer が無い", () => {
   it("正本の版と、この repo の writer が宣言する版が食い違っている", () => {
     const state = JSON.parse(readFileSync(STATE, "utf8")) as { schema_version: string };
+    // **数える対象そのものの床。**writer のフォルダが空になっても
+    // 「食い違っている」は成立してしまう（見つからないので一致もしない）。
+    // 床が無いと、writer が消えた日にこの検査は緑のまま黙る。下げない。
+    expect(sources.length, "writer の .py が見つかりません。走査先が変わっていないか確かめてください").toBeGreaterThanOrEqual(5);
+
     const declared = sources
       .flatMap((s) => [...s.text.matchAll(/CURRENT_STATE_SCHEMA_VERSION\s*=\s*"([^"]+)"/g)])
       .map((m) => m[1]);
@@ -79,6 +84,12 @@ describe("正本を保守できる writer が無い", () => {
   it("1.2 で増えた節を書くコードが、この repo の writer に 1 行も無い", () => {
     // 版の門だけを外しても保守にはならない。書く当てどころが無いままだからである。
     // どれか 1 つでも書けるようになったら、ここが赤くなる。
+    //
+    // **数える対象そのものの床。**2026-08-19 に node で実測した: 走査対象が 5 件でも
+    // 0 件でも、下の `found` は同じ `[]` になる。**0 は「書く場所が無い」ときと
+    // 「何も見ていない」ときの両方で出る。**床が無いと区別できない。下げない。
+    expect(sources.length, "writer の .py が見つかりません。走査先が変わっていないか確かめてください").toBeGreaterThanOrEqual(5);
+
     const found: string[] = [];
     for (const section of UNMAINTAINED_SECTIONS) {
       for (const s of sources) {

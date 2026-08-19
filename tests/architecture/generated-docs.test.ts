@@ -273,6 +273,13 @@ describe("生成物であることの保証", () => {
         .map((n) => ({ label: `scripts/${n}`, path: join(ROOT, "scripts", n) })),
       ...listTestFiles(join(ROOT, "tests")),
     ];
+    // **数える対象そのものの床。**「違反 0 件」は、違反が無いときと
+    // 走査先が空になったときの両方で出る。2 つの入口を別々に張るのは、
+    // 片方が消えたときにもう片方の数で埋め合わせられないようにするため。下げない。
+    const scriptCount = files.filter((f) => f.label.startsWith("scripts/")).length;
+    expect(scriptCount, "scripts/*.mjs が見つかりません").toBeGreaterThanOrEqual(15);
+    expect(files.length - scriptCount, "tests 配下が見つかりません").toBeGreaterThanOrEqual(200);
+
     const offenders: string[] = [];
 
     for (const { label, path } of files) {
