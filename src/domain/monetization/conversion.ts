@@ -3,6 +3,7 @@ import {
   type AffiliateLinkId,
   type AffiliateProgramId,
   type ConversionId,
+  type CurrencyCode,
   type DomainError,
   type Money,
   type Result,
@@ -105,6 +106,20 @@ export function createConversion(input: {
     periodClosed: false,
   });
 }
+
+/**
+ * まだ 1 円も取り込めていない成果を手で直すときの、欄に出す通貨。
+ *
+ * **ワークスペースの既定通貨 (`DEFAULT_WORKSPACE_CURRENCY`) とは別物である。**
+ * あちらは「編集部の価格表示の基準」で業務上の既定、こちらは「通貨が決まっていない成果に
+ * 直す欄を出さないわけにはいかない」ための当座の置きで、実体が違う。値がたまたま同じなので
+ * 片方にまとめたくなるが、まとめると**間違った出典が付く**（値は合うので誰も疑わない）。
+ *
+ * ここに 1 つだけ置く理由は逆に明確で、成果の一覧が出す通貨 (`toConversionView`) と
+ * 手直しの受け取り (`adjustConversionAction`) は**同じ欄の往復**であり、
+ * 食い違うと直した金額の通貨が変わってしまうため、同じ 1 つでなければならない。
+ */
+export const DEFAULT_REWARD_CURRENCY: CurrencyCode = "JPY";
 
 /** 実際に使う金額。手修正があればそちらを優先する。 */
 export function effectiveReward(c: Conversion): Money | null {

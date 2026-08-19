@@ -17,6 +17,8 @@ import {
   DEFAULT_CTA,
   DEFAULT_LOCALE,
   DEFAULT_TIME_ZONE,
+  DEFAULT_WORKSPACE_CURRENCY,
+  DEFAULT_WORKSPACE_TIME_ZONE,
   HUMAN_ONLY_CAPABILITIES,
 } from "@/domain/identity";
 import { ok } from "@/domain/shared";
@@ -87,8 +89,8 @@ describe("設定の概要", () => {
 
     expect(got.value.planLabel).toBe("ひとり用");
     expect(got.value.workspaceName).toBe("テスト編集部");
-    expect(got.value.timezone).toBe("Asia/Tokyo");
-    expect(got.value.currency).toBe("JPY");
+    expect(got.value.timezone).toBe(DEFAULT_WORKSPACE_TIME_ZONE);
+    expect(got.value.currency).toBe(DEFAULT_WORKSPACE_CURRENCY);
   });
 
   it("使っている数と上限を、3 つとも出す", async () => {

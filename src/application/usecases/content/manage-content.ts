@@ -209,6 +209,15 @@ export const CONTENT_STATE_LABEL: Readonly<Record<ContentState, string>> = {
 
 // --- 進行の一覧（かんばん） -------------------------------------------------
 
+/**
+ * かんばんの**列 1 本ごと**に読み込む既定の件数。
+ *
+ * `read-site.ts` の `DEFAULT_LIST_LIMIT`（読者に見せる記事一覧）と値は同じだが、
+ * 数えている軸が違う（あちらは一覧全体、こちらは列ごと）。**同じ値でも意味が違えば
+ * 名前を分ける** — まとめると、片方の都合で動かしたときにもう片方が黙って動く。
+ */
+export const DEFAULT_BOARD_LIMIT_PER_STATE = 20;
+
 export type ContentCard = {
   readonly variantId: string;
   readonly title: string;
@@ -246,7 +255,7 @@ export function createListContentBoardUseCase(
       const allowed = requireCapability(actor, "content.read", "記事の参照");
       if (!allowed.ok) return allowed;
 
-      const limit = input.limitPerState ?? 20;
+      const limit = input.limitPerState ?? DEFAULT_BOARD_LIMIT_PER_STATE;
       const columns: ContentColumn[] = [];
       let total = 0;
 
@@ -568,6 +577,9 @@ async function loadVariant(
 
 // --- 見直しの時期が来たもの -------------------------------------------------
 
+/** 見直しの期日を過ぎた記事を、件数の指定が無いときに何件まで取りに行くか。 */
+export const DEFAULT_REVIEW_OVERDUE_LIMIT = 20;
+
 export type ListReviewOverdueInput = { readonly limit?: number };
 
 export type ReviewOverdueOutput = {
@@ -587,7 +599,7 @@ export function createListReviewOverdueUseCase(
       const listed = await deps.variants.listReviewOverdue(
         actor.workspaceId,
         new Date(),
-        input.limit ?? 20,
+        input.limit ?? DEFAULT_REVIEW_OVERDUE_LIMIT,
       );
       if (!listed.ok) return listed;
 

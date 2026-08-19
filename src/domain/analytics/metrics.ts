@@ -72,6 +72,14 @@ const M = (
   usableForEditorialJudgement: category !== "commercial",
 });
 
+/**
+ * 期間の指定が無いときに何日ぶんを見るか。
+ *
+ * 数字の一覧・絞り込み・AI の利用状況の 3 箇所が素の字で `30` と書いていた。
+ * 3 つとも「既定で見る日数」という同じ意味なので 1 つの名前にまとめる。
+ */
+export const DEFAULT_METRICS_WINDOW_DAYS = 30;
+
 export const METRIC_DEFINITIONS: readonly MetricDefinition[] = [
   // howCounted は「集計がいま実際にしていること」を書く。
   // 計測から導く指標 (metrics-from-telemetry.ts) は、畳み方まで含めて書く。

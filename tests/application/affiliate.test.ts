@@ -23,6 +23,7 @@ import {
   createListProductLinksUseCase,
   rewardModelLabel,
 } from "@/application/usecases/monetization/manage-affiliate";
+import { DEFAULT_REWARD_CURRENCY } from "@/domain/monetization";
 import { markCommercial } from "@/domain/shared";
 import type { WorkspaceId } from "@/domain/shared";
 import { SAMPLE_WORKSPACE_ID } from "@/infrastructure/persistence/sample/ranking-sample-repository";
@@ -214,6 +215,12 @@ describe("成果の一覧", () => {
     const unknown = listed.value.items.find((c) => c.ingestedLabel === "未取得");
     expect(unknown).toBeDefined();
     expect(unknown?.effectiveLabel).toBe("未取得");
+
+    // 金額は未取得でも、直す欄は出さないわけにいかないので通貨だけは決まる。
+    // **ここに "JPY" と書き写してはいけない。**この行の目的は「欄に出る通貨が
+    // domain の既定から来ていること」で、書き写すと既定が動いても緑のままになる。
+    // ワークスペースの既定通貨ではなく、成果の既定を読む（値は同じで、意味が違う）。
+    expect(unknown?.currency).toBe(DEFAULT_REWARD_CURRENCY);
   });
 
   it("手で直した成果は、取り込んだ値も残したまま返す", async () => {

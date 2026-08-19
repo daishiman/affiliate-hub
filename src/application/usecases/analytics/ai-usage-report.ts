@@ -1,6 +1,7 @@
 import type { TelemetrySinkPort } from "@/application/ports/telemetry";
 import {
   type AiUsageRollup,
+  DEFAULT_METRICS_WINDOW_DAYS,
   MODEL_PRICES,
   findModelPrice,
   totalAiCost,
@@ -55,7 +56,7 @@ export function createAiUsageReportUseCase(
       const allowed = requireCapability(actor, "analytics.read", "AI 利用状況の参照");
       if (!allowed.ok) return allowed;
 
-      const days = input.days ?? 30;
+      const days = input.days ?? DEFAULT_METRICS_WINDOW_DAYS;
       const to = new Date();
       const from = new Date(to.getTime() - days * 24 * 60 * 60 * 1000);
 

@@ -14,6 +14,7 @@ import {
   type Conversion,
   type ConversionStatus,
   type RewardModel,
+  DEFAULT_REWARD_CURRENCY,
   adjustReward,
   effectiveReward,
   isProgramActive,
@@ -263,7 +264,7 @@ function toConversionView(c: Conversion): ConversionView {
     effectiveLabel: effective === null ? "未取得" : formatMoney(effective),
     // まだ 1 円も取り込めていない成果は通貨も決まっていない。
     // 直す欄を出さないわけにはいかないので、既定を円とし、画面に単位を出す。
-    currency: effective?.currency ?? c.ingestedReward?.currency ?? "JPY",
+    currency: effective?.currency ?? c.ingestedReward?.currency ?? DEFAULT_REWARD_CURRENCY,
     periodClosed: c.periodClosed,
   };
 }
