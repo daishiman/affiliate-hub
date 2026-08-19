@@ -26,12 +26,15 @@
     {"target_id":"react","retrieved_at":"2026-07-11T00:00:00Z",
      "source_url":"https://react.dev/reference/react","official_publisher":"Meta",
      "official_host":"react.dev","version":"19.0",
+     "freshness_source":"page-declared",
      "latest_checked_at":"2026-07-11T00:00:00Z",
      "evidence_ref":"system-spec/retrieval-evidence/react.json",
      "evidence_sha256":"<sha256>","summary":"..."}
   ]}
   ```
 - **必須フィールド**: `target_id` / `retrieved_at` / `source_url` / `official_publisher` / `official_host` / `latest_checked_at` / `evidence_ref` / `evidence_sha256` / `summary`、および `version` か `last_updated` のいずれか。`evidence_ref` は project root からの相対パス、`evidence_sha256` は小文字16進数64桁である。
+- **`version` / `last_updated` の意味 (出典側の属性である)**: `version` は **その出典が説明している対象の版**であり、**この repo が依存している版ではない**。依存版を書くと、依存を意図的に固定した瞬間に C08 の鮮度監査が永久 FAIL になり、監査が「上げろ」以外を言えなくなる。例: docs が版を表明しない rolling doc なら、`version` には publisher の配布 registry が示す現行版を入れる (`freshness_source: "publisher-registry"`)。手元の `node_modules` の版は入れない。
+- **`freshness_source` (値の由来の申告)**: `page-declared` (出典本文/構造化データが自ら表明) / `http-last-modified` (HTTP ヘッダのみ・本文に表明なし) / `publisher-registry` (配布 registry の発行記録) / `content-copyright` (copyright 年のみ・更新日ではない) / `undeclared` (どこにも表明なし。このとき version/last_updated は空)。**取得日を `version`/`last_updated` へ代入しない**。取得日と同日の値は `page-declared` の申告があるときだけ通る (C13 が決定論で拒否する)。由来は `evidence_ref` の証跡ファイルにも書き、どの文字列を根拠にしたかを追えるようにする。
 - **全件対応**: `spec-state.targets[]` (または R1 の取得対象一覧) の各 `target_id` に record が 1 件対応し、欠落 0・重複 0。
 - **host 一致**: `source_url` の host が `official_host` と一致する (`build-fetched-references.py` が導出/検証)。
 
