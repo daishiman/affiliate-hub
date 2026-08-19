@@ -1,6 +1,7 @@
 /** @tier 1 */
 import { describe, expect, it } from "vitest";
 import {
+  SECRET_MATCH_PREFIX_LENGTH,
   SECRET_REDACTED,
   checkApiKeyShape,
   containsSecret,
@@ -110,5 +111,53 @@ describe("値そのものでの突き合わせ", () => {
 
   it("短すぎる値では突き合わせない（短い文字列はどこにでも現れるため）", () => {
     expect(containsSecret("abcd is here", "abcd")).toBe(false);
+  });
+});
+
+/**
+ * 漏洩検出の照合幅（`SECRET_MATCH_PREFIX_LENGTH`）。
+ *
+ * **この値は登録の下限とは別物で、上げると検出が鈍る。**
+ * 提供元のエラー本文に鍵の頭だけが引用されて返ることがあるので、
+ * 頭から何文字ぶんを照合するかを決めているのがこの値である。
+ * 上げると「より長く一致しないと漏洩と見なさない」ので、見逃す範囲が広がる。
+ *
+ * 2026-08-19 まで、これは登録の下限と同じ 1 つの定数だった。
+ * **鍵の最小長を上げるという正しい判断が、漏洩検出を黙って鈍らせる形**で、
+ * しかも試験からの参照が 0 件だったので、その日に赤くなるものが無かった。
+ *
+ * ここで固定するのは値ではなく**関係**である。値そのものを写しても、
+ * 実装が変わったときテストが黙って追従するだけで、何も守れない。
+ */
+describe("漏洩検出の照合幅", () => {
+  /**
+   * **これが、照合幅を上げた日に赤くなる 1 件。**
+   *
+   * 照合幅が登録の下限を超えると、`containsSecret` は
+   * 「正しく登録された最短の鍵」を長さ不足と見なして突き合わせを諦める。
+   * つまり**登録は通るのに漏洩は検出されない鍵**ができる。
+   * 定数を読まずに、登録を通る最短の値を実際に探して確かめる。
+   */
+  it("登録を通る最短の鍵は、漏洩検出でも捕まえられる", () => {
+    let shortest = "";
+    for (let n = 1; n <= 600; n += 1) {
+      const candidate = `pk-${"a".repeat(n)}`;
+      if (checkApiKeyShape(candidate).ok) {
+        shortest = candidate;
+        break;
+      }
+    }
+    expect(shortest).not.toBe("");
+    expect(containsSecret(`error: ${shortest} は無効です`, shortest)).toBe(true);
+  });
+
+  it("照合幅ちょうどの引用は捕まえる", () => {
+    const quoted = VALID.slice(0, SECRET_MATCH_PREFIX_LENGTH);
+    expect(containsSecret(`error: ${quoted}…`, VALID)).toBe(true);
+  });
+
+  it("照合幅に 1 文字足りない引用は捕まえない（ここが検出の端）", () => {
+    const quoted = VALID.slice(0, SECRET_MATCH_PREFIX_LENGTH - 1);
+    expect(containsSecret(`error: ${quoted}…`, VALID)).toBe(false);
   });
 });

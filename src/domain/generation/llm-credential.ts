@@ -85,7 +85,7 @@ const MAX_KEY_LENGTH = 512;
  * 鍵の最小長を上げるのは正しい理由で起こりうるが、それに引きずられて
  * ここが上がると、安全性を上げたつもりで安全性を下げることになる。
  */
-const SECRET_MATCH_PREFIX_LENGTH = 20;
+export const SECRET_MATCH_PREFIX_LENGTH = 20;
 
 /** 空白や改行を含む鍵は、貼り付け事故（前後の空白・複数行の選択）である。 */
 const HAS_WHITESPACE = /\s/;
