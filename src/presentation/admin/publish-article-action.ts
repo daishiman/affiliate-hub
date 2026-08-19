@@ -3,8 +3,9 @@
 import { revalidatePath } from "next/cache";
 import type { ArticleType } from "@/domain/authoring";
 import type { RelationshipType } from "@/domain/compliance";
-import { currentActor, distributionUseCases } from "@/presentation/composition";
+import { distributionUseCases, signedInActor } from "@/presentation/composition";
 import type { PublishArticleFormState } from "./publish-article-state";
+import { notSignedInText } from "@/presentation/refusal-text";
 
 /** 1 行 1 件のものを配列にする。空行は落とす。 */
 function toLines(value: string): readonly string[] {
@@ -58,16 +59,33 @@ function readSectionBodies(formData: FormData): Record<string, string> {
  * `publishArticle` ユースケースを呼ぶ。出してよいかの判定（広告表記・
  * 書き手・次回確認日・根拠）は全てユースケースの向こう側にあり、
  * 画面へ写さない。写した時点で「画面からは止まるが AI からは出せる」が生まれる。
+ *
+ * --- 身元の取り方について ---
+ * `currentActor()` ではなく `signedInActor()` を使う。前者は身元を
+ * 確かめられないとき**見本の身元へ落ちる**ので、ログインしていない人の操作が
+ * ユースケースまで届く。届いた先で断られる回もあるが、断っているのは
+ * **役の一覧**（`src/domain/identity/permissions.ts`）で、あれは人が編集する表である。
+ * 表に 1 行足せば戻る場所を、唯一の砦にしない。
+ *
+ * 記事の公開は**押した後に元へ戻す口が無い**。出た記事は読者から見え、
+ * 検索にも載る。だから読む前に断る（`ah-dao`）。
  */
 export async function publishArticleAction(
   _prev: PublishArticleFormState,
   formData: FormData,
 ): Promise<PublishArticleFormState> {
+  const actor = await signedInActor();
+  if (actor === null) {
+    // **`formData` を読む前に断る。** 読んでから断ると、断り文が
+    // 「この欄が足りません」に化けて、押した人は欄を埋めて何度も試す。
+    return { status: "failed", message: notSignedInText("記事の公開") };
+  }
+
   const publicationId = String(formData.get("publicationId") ?? "");
   const relationship = String(formData.get("relationshipType") ?? "");
   const nextReviewOn = String(formData.get("nextReviewOn") ?? "").trim();
 
-  const result = await (await distributionUseCases()).publishArticle.execute(await currentActor(), {
+  const result = await (await distributionUseCases()).publishArticle.execute(actor, {
     publicationId,
     siteSlug: String(formData.get("siteSlug") ?? ""),
     categorySlug: String(formData.get("categorySlug") ?? ""),

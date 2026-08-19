@@ -3,9 +3,9 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import type { SiteWizardStep } from "@/domain/authoring";
-import { currentActor, siteBuilderUseCases } from "@/presentation/composition";
+import { currentActor, siteBuilderUseCases, signedInActor } from "@/presentation/composition";
 import type { SiteWizardState } from "./site-wizard-state";
-import { refusalText } from "@/presentation/refusal-text";
+import { notSignedInText, refusalText } from "@/presentation/refusal-text";
 
 /**
  * ブログ作成ウィザードの操作。
@@ -76,14 +76,34 @@ export async function saveSiteDraftStepAction(
  *
  * ここで増えるのは設計図のデータだけ。画面もルートも既存のものを使う。
  * 作った直後に `/s/<URL名>` を開けば、見本のブログと同じ画面が出る。
+ *
+ * --- 身元の取り方について ---
+ * `currentActor()` ではなく `signedInActor()` を使う。前者は身元を
+ * 確かめられないとき**見本の身元へ落ちる**ので、ログインしていない人の操作が
+ * ユースケースまで届く。届いた先の砦は**役の一覧**で、あれは人が編集する表である。
+ *
+ * ブログを作るのは**取り返しがつかない**。消す口はどこにも無く、
+ * 作った時点で読者からも見える。2026-08-19 の実測では、ログインしていない状態で
+ * ブログが本当に 1 本増えた（7 本 → 8 本、`ah-dao`）。
+ *
+ * 同じファイルの `startSiteDraftAction` / `saveSiteDraftStepAction` はまだ
+ * `currentActor()` のままである。下書きは作り直せる・上書きできるので、
+ * 取り返しがつかない側から先に塞いだ。残りは `docs/product/open-doors.md` に載っている。
  */
 export async function createSiteFromDraftAction(
   _prev: SiteWizardState,
   formData: FormData,
 ): Promise<SiteWizardState> {
+  const actor = await signedInActor();
+  if (actor === null) {
+    // **`formData` を読む前に断る。** 読んでから断ると、断り文が
+    // 「下書きが選ばれていません」に化けて、押した人は選び直して何度も試す。
+    return { status: "failed", message: notSignedInText("ブログの作成") };
+  }
+
   const draftId = String(formData.get("draftId") ?? "");
 
-  const result = await (await siteBuilderUseCases()).createSite.execute(await currentActor(), { draftId });
+  const result = await (await siteBuilderUseCases()).createSite.execute(actor, { draftId });
 
   if (!result.ok) {
     return {

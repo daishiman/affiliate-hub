@@ -37,6 +37,23 @@ vi.mock("@/infrastructure/identity/sample-actor", async (importOriginal) => {
 });
 
 /**
+ * ログインできているかどうか。**誰であるか（`signedIn`）とは別の軸である。**
+ *
+ * `currentActor()` は身元を確かめられないとき見本の身元へ落ちる。
+ * 落ちた先が誰かは `signedIn` が決め、そもそも落ちたのかどうかはここが決める。
+ * 1 つの変数にまとめると、役を替える試験とログインを外す試験が同じ変数を奪い合い、
+ * どちらかが**緑のまま何も確かめなくなる**。
+ *
+ * `false` は「ログインしていない」と「保存先に届かず確かめられない」の両方を指す。
+ * 断る側から見ると同じもので、`signedInActor()` はどちらも `null` を返す。
+ */
+let loggedIn = true;
+vi.mock("@/presentation/composition", async (importOriginal) => {
+  const actual = await importOriginal<Record<string, unknown>>();
+  return { ...actual, signedInActor: async () => (loggedIn ? signedIn : null) };
+});
+
+/**
  * 操作の記録が残せるかどうか。**既定は残せる側**（見本の控えと同じ）。
  *
  * 2026-08-18 に見本の記録先が「必ず断る」から
@@ -76,6 +93,9 @@ const {
 } = await import("@/presentation/admin/content-progress-action");
 const { adjustConversionAction } = await import("@/presentation/admin/adjust-conversion-action");
 const { publishArticleAction } = await import("@/presentation/admin/publish-article-action");
+const { schedulePublicationAction } = await import(
+  "@/presentation/admin/schedule-publication-action"
+);
 const { linkInboxUseCases, personaUseCases, siteUseCases } = await import(
   "@/presentation/composition"
 );
@@ -117,6 +137,7 @@ const IDLE = { status: "idle", message: "" } as const;
 
 beforeEach(() => {
   signedIn = SAMPLE_ACTOR;
+  loggedIn = true;
   auditWritable = true;
 });
 
@@ -434,6 +455,57 @@ describe("ブログ作成ウィザードの操作", () => {
     // 「できました」で終えない。次に開く場所が無いと、押した人はそこで止まる。
     expect(state.createdPath ?? "").toContain(slug);
   });
+
+  /**
+   * ログインしていない人に、ブログを作らせない。
+   *
+   * --- なぜ役ではなく入口で断るのか ---
+   * `currentActor()` は身元を確かめられないとき**見本の身元へ落ちる**ので、
+   * ログインしていない人の操作が預かり所まで届く。断られる回もあるが、
+   * 断っているのは**役の一覧**（`src/domain/identity/permissions.ts`）で、
+   * あれは人が編集する表である。**1 行足せば戻る。**
+   *
+   * --- なぜ下書きを先に完成させるのか ---
+   * 居ない下書き（`sd_missing`）で測ると、ログインを見なくても
+   * 「その下書きが無い」で断られる。それでは塞ぐ前から緑になり、
+   * 穴の証拠にならない。**本来なら本当に作れる下書き**を先に用意し、
+   * その状態でログインだけを外す（`ah-dao`）。
+   *
+   * 下書きを作る側（`startSiteDraftAction` / `saveSiteDraftStepAction`）は
+   * ログインしたまま通す。あそこも塞ぐが、塞ぐと下書きが用意できなくなり、
+   * ここが「下書きが無いから断られた」に化けて、また何も見なくなる。
+   */
+  it("ログインしていない人は、ブログを作れない", async () => {
+    const draftId = await completeDraftThroughForms(`action-test-${Date.now()}`);
+    loggedIn = false;
+    const state = await createSiteFromDraftAction({ status: "idle", message: "" }, form({ draftId }));
+    expect(state.status, "ログインを見ずにブログが作れています").toBe("failed");
+  });
+
+  it("ログインしていない人が押しても、ブログは 1 本も増えない", async () => {
+    // 断りの**形**ではなく、**増えたかどうか**を見る。
+    // ブログを消す口はどこにも無いので、1 本増えたら戻せない。
+    // 形だけを見ていると、断り文を出しながら裏で作る形が緑のまま通る。
+    const slug = `action-test-${Date.now()}`;
+    const draftId = await completeDraftThroughForms(slug);
+
+    const before = await (await siteUseCases()).listSites.execute(SAMPLE_ACTOR, {});
+    if (!before.ok) throw new Error("ブログの一覧が読めませんでした");
+
+    loggedIn = false;
+    await createSiteFromDraftAction({ status: "idle", message: "" }, form({ draftId }));
+
+    const after = await (await siteUseCases()).listSites.execute(SAMPLE_ACTOR, {});
+    if (!after.ok) throw new Error("ブログの一覧が読めませんでした");
+    expect(after.value.length, "断ったはずのブログが増えています").toBe(before.value.length);
+  });
+
+  it("ログインしていない断りは、理由が画面に出る", async () => {
+    const draftId = await completeDraftThroughForms(`action-test-${Date.now()}`);
+    loggedIn = false;
+    const state = await createSiteFromDraftAction({ status: "idle", message: "" }, form({ draftId }));
+    expect(state.message, "断る理由が画面に出ていません").toContain("ログイン");
+  });
 });
 
 describe("事実の範囲の確認", () => {
@@ -518,6 +590,29 @@ describe("投稿予定日の変更", () => {
     expect(state.status).toBe("failed");
     // 原因の説明だけでは次の操作が決まらない。
     expect(state.message).not.toMatch(/^[A-Z_]+$/);
+  });
+
+  /**
+   * ログインしていない人に、予定日を動かさせない。
+   *
+   * `currentActor()` は身元を確かめられないとき**見本の身元へ落ちる**ので、
+   * ログインしていない人の操作が預かり所まで届く（`ah-dao`）。
+   * 予定日を**前へ**動かすと、まだ確認していない記事が先に外へ出ていく。
+   * 出た後に引き戻す口は無い。
+   *
+   * ここで見るのは断りの**文**である。`status: "failed"` だけを見ると、
+   * ログインを見なくても「その配信が見つかりません」で断られてしまい、
+   * 塞ぐ前から緑になる。文が「ログイン」を指しているかどうかだけが、
+   * **どちらの理由で断ったか**を分ける。
+   */
+  it("ログインしていない断りは、理由が画面に出る", async () => {
+    signedIn = { ...SAMPLE_ACTOR, roles: ["owner"] };
+    loggedIn = false;
+    const state = await reschedulePublicationAction(
+      { status: "idle", message: "" },
+      form({ publicationId: "pub_own_site_ready", scheduledAt: "2026-09-01T10:00" }),
+    );
+    expect(state.message, "断る理由が画面に出ていません").toContain("ログイン");
   });
 });
 
@@ -828,5 +923,67 @@ describe("自分のブログへ記事を出す操作", () => {
 
     expect(state.status).toBe("failed");
     expect(state.message.trim()).not.toBe("");
+  });
+
+  /**
+   * ログインしていない人に、記事を出させない。
+   *
+   * --- なぜ役ではなく入口で断るのか ---
+   * `currentActor()` は身元を確かめられないとき**見本の身元へ落ちる**ので、
+   * ログインしていない人の操作が預かり所まで届く。届いた先で断られる回もあるが、
+   * 断っているのは**役の一覧**（`src/domain/identity/permissions.ts`）で、
+   * あれは人が編集する表である。**1 行足せば戻る。**
+   *
+   * だから `asPublisher()`（役では断られない人）のまま `loggedIn` だけを外す。
+   * 役で断られる人で測ると、入口が開いていても役が塞いでくれて緑になり、
+   * ここは**何も見ていないまま緑**になる。
+   *
+   * --- なぜ断りの「文」だけを見るのか ---
+   * `status: "failed"` は塞ぐ前から出る。この操作は見本の保存先が
+   * 「まだ実装されていません」で先に止めるためで、**ログインを見なくても
+   * 失敗する**。だから `status` を見る検査は、塞いでも壊しても色が変わらない。
+   * 色が変わらない検査は、在るだけで見張っていない。
+   *
+   * 文が「ログイン」を指しているかどうかだけが、**どちらの理由で断ったか**を
+   * 分ける。2026-08-19 の実測でここは赤（`ah-dao`）。
+   */
+  it("ログインしていない断りは、理由が画面に出る", async () => {
+    asPublisher();
+    loggedIn = false;
+    const state = await publishArticleAction(IDLE, fullForm());
+    expect(state.message, "断る理由が画面に出ていません").toContain("ログイン");
+  });
+});
+
+/**
+ * 記事の画面から配信を予約する操作。
+ *
+ * ログインの有無だけを見る。ここには元から `describe` が無く、
+ * この操作は `docs/product/open-doors.md` の
+ * 「誰でも実行できて取り返しがつかない操作」に入っていた（`ah-dao`）。
+ *
+ * 予約が入ると、決めた時刻に外へ出ていく。押した後に止める口が無い。
+ */
+describe("配信を予約する操作", () => {
+  beforeEach(() => {
+    // 役では断られない人にしておく。役に頼った緑を作らないため。
+    signedIn = { ...SAMPLE_ACTOR, roles: ["owner"] };
+  });
+
+  /**
+   * 見るのは断りの**文**だけである。`status: "failed"` は塞ぐ前から出る。
+   * 見本の記事が「承認が済んでいない」で先に止まるためで、
+   * **ログインを見なくても失敗する**。色が変わらない検査を置いても、
+   * 在るだけで見張っていない。
+   *
+   * 文が「ログイン」を指しているかどうかだけが、どちらの理由で断ったかを分ける。
+   */
+  it("ログインしていない断りは、理由が画面に出る", async () => {
+    loggedIn = false;
+    const state = await schedulePublicationAction(
+      IDLE,
+      form({ variantId: "cv_alpha_review", channelKind: "own_site", scheduledAt: "2026-09-01T10:00" }),
+    );
+    expect(state.message, "断る理由が画面に出ていません").toContain("ログイン");
   });
 });

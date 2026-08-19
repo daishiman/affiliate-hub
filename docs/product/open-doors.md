@@ -11,7 +11,7 @@
 
 適用範囲: `/admin` 以下（読者のページとログインの往復は通す）
 
-開いている扉: **15 件** / 全 84 件
+開いている扉: **11 件** / 全 84 件
 
 「誰でも」と宣言してある行: **26 件**
 （宣言すればその扉は差の数から消える。だから宣言の件数そのものにも上限がある）
@@ -43,17 +43,13 @@
 - `src/app/go/[code]/route.ts` — 成果リンクの転送（読者がクリックする先）
 - `submitContactAction()` — 読者からの問い合わせ（公開フォーム）（src/presentation/site/contact-action.ts）
 
-うち、**誰でも実行できて取り返しがつかない操作: 4 件**
+うち、**誰でも実行できて取り返しがつかない操作: 0 件**
 （公開・配信・鍵の失効・削除。塞ぐ順を決めるときはここから読む）
 
-- `createSiteFromDraftAction()` — 下書きからサイトを作る（消す口が無い）（src/presentation/admin/site-wizard-action.ts）
-- `publishArticleAction()` — 記事を公開する（src/presentation/admin/publish-article-action.ts）
-- `reschedulePublicationAction()` — 投稿予定日を変える（前倒しにすれば今日出せる）（src/presentation/admin/reschedule-action.ts）
-- `schedulePublicationAction()` — 投稿を予定に入れる（時刻が来たら外へ出る）（src/presentation/admin/schedule-publication-action.ts）
 
 ## この数字の読み方
 
-**この 15 件は「攻撃された」ではなく「守りが無い」である。**
+**この 11 件は「攻撃された」ではなく「守りが無い」である。**
 
 危険の度合いは **「守りが無い」×「誰かが URL を知っている」** で決まる。
 いまこのアプリは本番で公開されておらず、URL を知っている人もいない。
@@ -191,12 +187,12 @@
 | 入口・操作 | 何ができるか | 本来 | いま | 差 | 取り返し |
 |---|---|---|---|---|---|
 | `advanceLoopRunAction()` | 比較に観測値を書く・判定する・打ち切る（判定は採用した見せ方を残す）（src/presentation/admin/improvement-action.ts） | ログイン | ログイン | — | **つかない** |
-| `createSiteFromDraftAction()` | 下書きからサイトを作る（消す口が無い）（src/presentation/admin/site-wizard-action.ts） | ログイン | 誰でも | **開いている** | **つかない** |
+| `createSiteFromDraftAction()` | 下書きからサイトを作る（消す口が無い）（src/presentation/admin/site-wizard-action.ts） | ログイン | ログイン | — | **つかない** |
 | `manageIntegrationAccessAction()` | 外部連携の鍵を作る・失効させる（src/presentation/admin/feedback-action.ts） | ログイン | ログイン | — | **つかない** |
 | `manageLlmCredentialAction()` | 生成 AI の API キーを預ける・消す（預けた鍵で課金が発生する）（src/presentation/admin/llm-credential-action.ts） | ログイン | ログイン | — | **つかない** |
-| `publishArticleAction()` | 記事を公開する（src/presentation/admin/publish-article-action.ts） | ログイン | 誰でも | **開いている** | **つかない** |
-| `reschedulePublicationAction()` | 投稿予定日を変える（前倒しにすれば今日出せる）（src/presentation/admin/reschedule-action.ts） | ログイン | 誰でも | **開いている** | **つかない** |
-| `schedulePublicationAction()` | 投稿を予定に入れる（時刻が来たら外へ出る）（src/presentation/admin/schedule-publication-action.ts） | ログイン | 誰でも | **開いている** | **つかない** |
+| `publishArticleAction()` | 記事を公開する（src/presentation/admin/publish-article-action.ts） | ログイン | ログイン | — | **つかない** |
+| `reschedulePublicationAction()` | 投稿予定日を変える（前倒しにすれば今日出せる）（src/presentation/admin/reschedule-action.ts） | ログイン | ログイン | — | **つかない** |
+| `schedulePublicationAction()` | 投稿を予定に入れる（時刻が来たら外へ出る）（src/presentation/admin/schedule-publication-action.ts） | ログイン | ログイン | — | **つかない** |
 | `startLoopRunAction()` | 見せ方の比較を始める（2 通りが読者へ配られ始める）（src/presentation/admin/improvement-action.ts） | ログイン | ログイン | — | **つかない** |
 | `adjustConversionAction()` | 成果の実績を手で直す（src/presentation/admin/adjust-conversion-action.ts） | ログイン | 誰でも | **開いている** | つく |
 | `advanceContentStateAction()` | 記事の作業段階を進める（src/presentation/admin/content-progress-action.ts） | ログイン | 誰でも | **開いている** | つく |
@@ -212,4 +208,4 @@
 | `submitAffiliateUrlAction()` | 成果リンクを登録する（src/presentation/admin/inbox-action.ts） | ログイン | 誰でも | **開いている** | つく |
 | `submitContactAction()` | 読者からの問い合わせ（公開フォーム）（src/presentation/site/contact-action.ts） | 誰でも | 誰でも | — | つく |
 | `submitFeedbackAction()` | 指摘を登録する（src/presentation/admin/feedback-action.ts） | ログイン | 誰でも | **開いている** | つく |
-<!-- 生成物の指紋 sha256:7128deec8af7487b9e03b707887e038e02d19a36c6e814aba4af0271270bda8d -->
+<!-- 生成物の指紋 sha256:201ab85148c9c529be0e28a38bc2b09a72a9be929a684f9e934c5428a92ee3a1 -->
