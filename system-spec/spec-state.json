@@ -2069,6 +2069,24 @@
       "platform": "web",
       "reason": "C01 差し戻し: docs/spec/04〜12 の 9 枚 (2,705 行) が書面入力 target に取り込まれておらず、この確定はその 9 枚を見ずに出されている。R4-reopen で取り込み後に再確定する。",
       "from": "確定"
+    },
+    {
+      "category": "backend",
+      "platform": "web",
+      "reason": "backend.md の 2 点を直すため。(1) 非規範注記 (本章内の ref-system-design-knowledge 参照は非規範・取得証跡なし・実装根拠に使用不可) が 5 章にあって本章に無い (C05 gap 6)。(2) コードフェンス対の破損 (90 行目・259 行目)。qa_log の回答本文が閉じフェンスだけを持ち開きフェンスを持たないため、章に 2 度出力された結果、開いたままの塊が 169 行を飲み込んでいる (C05 gap 4)。要件文の内容は変えない。表示の壊れと注記の欠落だけを直す。compile は走らせない (確定章 8 枚の全書き直しになるため)。",
+      "from": "確定"
+    },
+    {
+      "category": "database",
+      "platform": "web",
+      "reason": "database.md に非規範注記 (本章内の ref-system-design-knowledge 参照は非規範・取得証跡なし・実装根拠に使用不可) が無い (C05 gap 6)。5 章にあって 3 章に無い状態を一律にする。要件文の内容は変えない。compile は走らせない。",
+      "from": "確定"
+    },
+    {
+      "category": "infrastructure",
+      "platform": "web",
+      "reason": "infrastructure.md に非規範注記 (本章内の ref-system-design-knowledge 参照は非規範・取得証跡なし・実装根拠に使用不可) が無い (C05 gap 6)。5 章にあって 3 章に無い状態を一律にする。要件文の内容は変えない。compile は走らせない。",
+      "from": "確定"
     }
   ],
   "category_aggregate": {

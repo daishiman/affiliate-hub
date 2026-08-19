@@ -15,6 +15,8 @@ serves_goals: [G2, G1]
 
 `confirmed` は要求判断と採用方針が確定していることを表す。**実装済み・デプロイ済み・検証済みを表さない**。実装状態は、以下の As-Is / Delta と Acceptance evidence で別に判定する。
 
+- 本章内の `ref-system-design-knowledge/...` 参照は**非規範・取得証跡なし・実装根拠に使用不可**。規範根拠は `docs/spec/03` §1、`00-requirements-definition.md`、および本章の「最新ドキュメント出典」に記録した公式出典とする。
+
 ### As-Is（2026-08-16 のリポジトリ実体）
 
 - Next.js / OpenNext の単一アプリ内に、D1 を直接読む stateless MCP PoC がある。
@@ -71,7 +73,10 @@ serves_goals: [G2, G1]
 
 **質問**: backend×web: 分析・解析パイプライン (収集→正規化→集計→分析→活用) の要件は何か (書面入力 docs/spec/03 §1)
 
-**回答**: ClickEvent(リダイレクトサービス)
+**回答**:
+
+```
+ClickEvent(リダイレクトサービス)
   BehaviorEvent(ブログ計測タグ)
   Channel Insights(SNS API)
   Conversion(ASP API / CSV)
@@ -240,7 +245,10 @@ consumerとproviderの独立変更を支える安定した契約を作り、再�
 
 ##### 確定内容 qa-backend-web-analytics (対応セル: web)
 
-- 確定要件: ClickEvent(リダイレクトサービス)
+- 確定要件:
+
+```
+ClickEvent(リダイレクトサービス)
   BehaviorEvent(ブログ計測タグ)
   Channel Insights(SNS API)
   Conversion(ASP API / CSV)
