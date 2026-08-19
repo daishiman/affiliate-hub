@@ -361,11 +361,13 @@ describe("確かめたふりになっていないこと", () => {
   it("プラグマでカバレッジから外している場所が無い", () => {
     // `/* v8 ignore */` は 1 行で分母を減らせる。使うなら理由を隣に書く。
     const hits: string[] = [];
+    let scanned = 0;
     const walk = (dir: string) => {
       for (const name of readdirSync(dir)) {
         const full = join(dir, name);
         if (statSync(full).isDirectory()) walk(full);
         else if (/\.tsx?$/.test(full)) {
+          scanned++;
           readFileSync(full, "utf8")
             .split("\n")
             .forEach((line, index) => {
@@ -377,6 +379,12 @@ describe("確かめたふりになっていないこと", () => {
       }
     };
     walk(join(ROOT, "src"));
+    // **母集団の床**（残課題 78 ㉗）。下の 0 件は「プラグマが無い」ときにも
+    // 「`src` を歩けていない・拡張子の判定が変わった」ときにも同じ形で出る。
+    // 走査件数の床が無いと、その 2 つを見分けられないまま緑になる。
+    expect(scanned, "src の .ts/.tsx をほとんど歩けていません。歩く側を先に疑うこと").toBeGreaterThan(
+      300,
+    );
     expect(hits, "プラグマでカバレッジから外しています。理由を書いてこの検査を更新してください").toEqual(
       [],
     );
