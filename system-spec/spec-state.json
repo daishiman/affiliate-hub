@@ -759,7 +759,7 @@
     "database": {
       "web": {
         "state": "確定",
-        "qa_ref": "qa-database-web-analytics",
+        "qa_ref": "qa-database-web-spec-intake",
         "serves_goals": [
           "G1",
           "G2"
@@ -818,7 +818,7 @@
     "ui-ux": {
       "web": {
         "state": "確定",
-        "qa_ref": "qa-uiux-web",
+        "qa_ref": "qa-uiux-web-spec-intake",
         "serves_goals": [
           "G1"
         ]
@@ -847,7 +847,7 @@
     "security": {
       "web": {
         "state": "確定",
-        "qa_ref": "qa-security-web",
+        "qa_ref": "qa-security-web-spec-intake",
         "serves_goals": [
           "G1"
         ]
@@ -876,7 +876,7 @@
     "infrastructure": {
       "web": {
         "state": "確定",
-        "qa_ref": "qa-infra-web-redirect",
+        "qa_ref": "qa-infra-web-spec-intake",
         "serves_goals": [
           "G2",
           "G1"
@@ -906,7 +906,7 @@
     "backend": {
       "web": {
         "state": "確定",
-        "qa_ref": "qa-backend-web-analytics",
+        "qa_ref": "qa-backend-web-spec-intake",
         "serves_goals": [
           "G2",
           "G1"
@@ -936,7 +936,7 @@
     "frontend": {
       "web": {
         "state": "確定",
-        "qa_ref": "qa-frontend-web-analytics",
+        "qa_ref": "qa-frontend-web-spec-intake",
         "serves_goals": [
           "G1",
           "G2"
@@ -966,7 +966,7 @@
     "maintenance-ops": {
       "web": {
         "state": "確定",
-        "qa_ref": "qa-ops-web",
+        "qa_ref": "qa-ops-web-spec-intake",
         "serves_goals": [
           "G1",
           "G2"
@@ -1476,6 +1476,277 @@
           ]
         }
       ]
+    },
+    {
+      "id": "qa-backend-web-spec-intake",
+      "question": "backend×web: 二層構造での WebMCP 契約・禁止依存・生成基盤の設計制約は何か (書面入力 docs/spec/04 §3 §4 / 05 / 07 §0)",
+      "answer": "| 登録先 | **`document.modelContext`**。`navigator.modelContext` は Chrome 150 で非推奨のため legacy fallback 専用（CHG-001） |\n| ツール数 | 1ページあたり原則6個以下 |\n| FD-1 | ランキング式を UI 層・WebMCP 層へ重複実装する |\n| FD-2 | 報酬データを推薦スコアの入力にする |\n| FD-4 | WebMCP でしか到達できない機能を作る |",
+      "source": {
+        "kind": "written-requirements",
+        "path": "docs/spec/04-二層構造統合仕様.md",
+        "section": "§3 WebMCP の確定契約 / §4 禁止依存",
+        "sha256": "4fdfcbbda7cb8013859d8bba99d71eae535d2cb14c7410cde4c97e79836add39"
+      },
+      "design_applications": [
+        {
+          "knowledge_ref": "docs/spec/04-二層構造統合仕様.md#§2-3",
+          "principle": "ランキング計算・比較候補の分類・公開ゲート判定・広告表記の要否判定は src/lib/domain/ の純関数 1 箇所に置き、管理画面・公開ブログ・WebMCP・MCP のすべてがそこを呼ぶ",
+          "applicability": "applied",
+          "rationale": "計算の正本を 1 箇所に固定し、呼び出し側 (画面 / WebMCP / MCP) は結果を描画するだけにする。重複実装は FD-1 として grep テストで落とす",
+          "tradeoffs": [
+            "経路ごとの最適化余地は減るが、経路によって順位が食い違う事態を構造的に排除できる"
+          ]
+        },
+        {
+          "knowledge_ref": "docs/spec/04-二層構造統合仕様.md#§3",
+          "principle": "WebMCP の登録先は document.modelContext。navigator.modelContext は legacy fallback 専用で、1 ページあたりのツールは原則 6 個以下",
+          "applicability": "applied",
+          "rationale": "能力検出を先に行い、非対応環境は通常 UI へ落とす。ページ種別ごとに登録するツールを 6 個以下に選択する",
+          "tradeoffs": [
+            "ページごとに公開ツールを選ぶ手間が増えるが、モデル側の選択誤りを減らせる"
+          ]
+        },
+        {
+          "knowledge_ref": "docs/spec/04-二層構造統合仕様.md#§4",
+          "principle": "禁止依存 FD-1〜FD-5。特に FD-4「WebMCP でしか到達できない機能を作る」は、全 WebMCP ツールに対応する通常 UI 経路が存在することをトレーサビリティ表で確認する",
+          "applicability": "applied",
+          "rationale": "WebMCP は追加の入口であって唯一の入口ではない。docs/product/traceability.md の導線列で対応 UI を必須にする",
+          "tradeoffs": [
+            "UI 側の実装が常に先行するため WebMCP の追加が遅くなるが、機能フラグを落としたときに使えなくなる機能が生じない"
+          ]
+        },
+        {
+          "knowledge_ref": "docs/spec/07-生成基盤設計.md#§0",
+          "principle": "生成基盤の設計制約 GC-1〜GC-6。AI に自由に書かせず、承認済みの事実・根拠・ペルソナ・媒体ルールを入力として与えて生成させる (GC-1)。レビュー系は執筆系と分離し自作自演の検証にしない (GC-5)",
+          "applicability": "applied",
+          "rationale": "プロンプト入力変数を必須項目に固定し、欠落があれば生成を実行しない。Writer と Fact-checker / Compliance-reviewer を別サブエージェント・別コンテキストに置く",
+          "tradeoffs": [
+            "入力を揃えるまで生成できず着手が遅れるが、根拠のない文章が生成物として残らない"
+          ]
+        },
+        {
+          "knowledge_ref": "docs/spec/05-文章作成メソッド仕様.md#§1",
+          "principle": "執筆順序（結論→理由→根拠→具体例→例外→読者にとっての意味→次の行動）を節単位で必ず 1 周させる。根拠の段は省略不可",
+          "applicability": "applied",
+          "rationale": "生成の出力契約をこの 7 段の構造体にし、根拠の段が空のまま公開ゲートを通らないようにする",
+          "tradeoffs": [
+            "文章の自由度は下がるが、根拠のない主張が節の単位で検出できる"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "qa-database-web-spec-intake",
+      "question": "database×web: SiteBlueprint はどのパラメータを持ち、どの検証で BLOCK するか (書面入力 docs/spec/06 §2)",
+      "answer": "| BP-01 | `ranking_model_id` が他サイトの Blueprint と重複しない | BLOCK（§16.6 言い換え記事の防止） |\n| BP-02 | `ranking_inputs_prohibited` に報酬関連フィールドが全件含まれる | BLOCK（§19.4） |\n| BP-03 | `audience_persona_ids` が1件以上 | BLOCK |\n| BP-04 | `disclosure_policy_id` が実在する Disclosure を指す | BLOCK |",
+      "source": {
+        "kind": "written-requirements",
+        "path": "docs/spec/06-サイトブループリント-記事構成テンプレート.md",
+        "section": "§2 SiteBlueprint のパラメータ定義",
+        "sha256": "affcf046f43d0f2a71ca7ee485b2108ac7e49c4a1645bb3dd3984c7a36b0e01b"
+      },
+      "design_applications": [
+        {
+          "knowledge_ref": "docs/spec/06-サイトブループリント-記事構成テンプレート.md#§2",
+          "principle": "SiteBlueprint はウィザード 13 ステップと 1 対 1 で対応するパラメータ集合であり、blueprint_id と version を持ち変更時にインクリメントする",
+          "applicability": "applied",
+          "rationale": "Blueprint を 1 テーブルの版付きレコードとして持ち、Site から version 付きで参照する。ステップの追加はパラメータの追加として表現し、別テーブルを増やさない",
+          "tradeoffs": [
+            "1 レコードが大きくなるが、ウィザードの並びと保存形が一致し対応の追跡が容易になる"
+          ]
+        },
+        {
+          "knowledge_ref": "docs/spec/06-サイトブループリント-記事構成テンプレート.md#§2-1",
+          "principle": "BP-01〜BP-06 の検証規則。BP-01（ranking_model_id のサイト間重複）と BP-02（報酬関連フィールドが ranking_inputs_prohibited に全件含まれる）は BLOCK",
+          "applicability": "applied",
+          "rationale": "検証をアプリ層だけに置かず、ranking_model_id には一意制約を張る。BP-02 は報酬関連フィールドの一覧を 1 箇所に持ち、差集合が空でなければ保存を拒否する",
+          "tradeoffs": [
+            "Blueprint の保存が失敗しやすくなるが、言い換え記事と報酬由来の順位づけを保存の時点で止められる"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "qa-uiux-web-spec-intake",
+      "question": "ui-ux×web: 配色と明暗をどのモデルで持つか (書面入力 docs/spec/09 §2)",
+      "answer": "見た目は **2 つの独立した軸**で決まる。\n| 配色 | `BrandTheme` | 青系 / ピンク系 / ホワイト系 / グレー系 / グリーン系 … |\n| 明暗 | `ColorMode` | 端末に合わせる / 明るい / 暗い |\n**「青系のダークモード」という 1 つの名前を作らない。**",
+      "source": {
+        "kind": "written-requirements",
+        "path": "docs/spec/09-UIテーマ仕様.md",
+        "section": "§2 2 軸モデル（掛け合わせを設定として持たない）",
+        "sha256": "774ed94c561f830e3201a4040d82dbfab2453bbf02a7916601514e5121b9b96d"
+      },
+      "design_applications": [
+        {
+          "knowledge_ref": "docs/spec/09-UIテーマ仕様.md#§2",
+          "principle": "配色 (BrandTheme) と明暗 (ColorMode) を独立した 2 軸のまま持ち、掛け合わせを 1 つの名前にしない。実際の色は light-dark() が解く",
+          "applicability": "applied",
+          "rationale": "設定値を 2 つの列として保存し、CSS 側は light-dark() で 1 定義にする。配色を 1 つ増やしても設定値は 1 つしか増えない",
+          "tradeoffs": [
+            "色の指定が CSS の関数任せになり個別の微調整はしにくいが、テーマ数 × モード数の組み合わせ爆発が設定に出てこない"
+          ]
+        },
+        {
+          "knowledge_ref": "docs/spec/09-UIテーマ仕様.md#§2-2",
+          "principle": "配色名・明暗名は cookie と URL から来る利用者が書き換えられる値であり、知らない名前は必ず既定へ落とす (parseBrandTheme / parseColorMode)",
+          "applicability": "applied",
+          "rationale": "外から来た文字列は必ず解析関数を通してから属性へ入れる。素通しにすると「色が半分だけ既定」の壊れて見えない画面になる",
+          "tradeoffs": [
+            "未知のテーマ名を後から足す際に解析関数の更新漏れが起きうるが、その場合も既定色で読める画面になる"
+          ]
+        },
+        {
+          "knowledge_ref": "docs/spec/09-UIテーマ仕様.md#§4",
+          "principle": "コントラストの下限は動かさない",
+          "applicability": "applied",
+          "rationale": "下限をテーマ追加時の検査として置き、配色を増やすたびに全組み合わせで測る。読めない配色は追加しない",
+          "tradeoffs": [
+            "採用できる配色が狭まるが、下限を都度ゆるめる判断が発生しない"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "qa-infra-web-spec-intake",
+      "question": "infrastructure×web: 検査をどの段で走らせ、どこでマージを止めるか (書面入力 docs/spec/11 §8)",
+      "answer": "| 1 速い門 | push / PR | 5 分 | **止める** |\n| 2 広い門 | PR | 15 分 | **止める** |\n| 3 深い門 | **手動のみ** | 40 分（実測 27 分） | 止めない |\n**実行時間は費用の要因ではない。** したがって「時間を減らすために CI からテストを外す」判断はしない。",
+      "source": {
+        "kind": "written-requirements",
+        "path": "docs/spec/11-CI-CD・品質ゲート仕様.md",
+        "section": "§8 検査の段",
+        "sha256": "0ef468386395f4f42b54613cb9dd7a456f4fb50e57e1cd229aea4bff22038eb8"
+      },
+      "design_applications": [
+        {
+          "knowledge_ref": "docs/spec/11-CI-CD・品質ゲート仕様.md#§8-2",
+          "principle": "検査を 3 段に分け、1 段と 2 段はマージを止め、3 段は手動のみで止めない。重いテストを足す前に置き場所を先に作る",
+          "applicability": "applied",
+          "rationale": "段の定義を quality-gates.config.mjs の TIERS 1 箇所に置き、手元 (pnpm run verify) と CI が同じ表を読む。段を増やす前に走らせる場所を決める",
+          "tradeoffs": [
+            "3 段は誰かが打たなければ走らないため、打つ場面を文書に書かないと存在しない検査になる"
+          ]
+        },
+        {
+          "knowledge_ref": "docs/spec/11-CI-CD・品質ゲート仕様.md#§8-1",
+          "principle": "実行時間は費用の要因ではない (公開リポジトリの標準ランナーは無料)。時間を理由に CI からテストを外さない",
+          "applicability": "applied",
+          "rationale": "時間の超過は警告として表示するだけで、終了コードに混ぜない。落とす理由は検査の失敗だけに限る",
+          "tradeoffs": [
+            "遅い検査が放置されうるが、時間を守るためにテストを削る力が働かない"
+          ]
+        },
+        {
+          "knowledge_ref": "docs/spec/11-CI-CD・品質ゲート仕様.md#§2",
+          "principle": "手元と CI を同じにする。CI がやることを別の場所に書き写さない",
+          "applicability": "applied",
+          "rationale": "CI のワークフローは pnpm run verify を呼ぶだけにし、走らせるものと順番は設定 1 箇所が決める",
+          "tradeoffs": [
+            "CI 固有の細かな制御はしにくいが、「手元では通るのに機械で落ちる」が構造的に起きない"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "qa-security-web-spec-intake",
+      "question": "security×web: 秘密情報をどこに置き、誰が登録するか (書面入力 docs/spec/11 §5)",
+      "answer": "- API キー・トークンは **GitHub Secrets と Cloudflare の環境変数**で管理する。\n- **リポジトリのファイル、コマンドライン、AI が読める場所に置かない。**\n  登録は利用者本人が、ブラウザまたは本人のターミナルで行う。代行しない。\n- ログに秘密情報を出さない（`echo ${{ secrets.X }}` を書かない）。",
+      "source": {
+        "kind": "written-requirements",
+        "path": "docs/spec/11-CI-CD・品質ゲート仕様.md",
+        "section": "§5 秘密情報",
+        "sha256": "ce690b428667e8c2a2aca891acc9bf3725852f7d9edfdd5a812365a06d4aaadf"
+      },
+      "design_applications": [
+        {
+          "knowledge_ref": "docs/spec/11-CI-CD・品質ゲート仕様.md#§5",
+          "principle": "秘密情報はリポジトリのファイル・コマンドライン・AI が読める場所に置かない。登録は利用者本人がブラウザまたは本人のターミナルで行い、代行しない",
+          "applicability": "applied",
+          "rationale": ".dev.vars.example は値を含まない見本のまま維持し、実値は GitHub Secrets と Cloudflare の環境変数にだけ置く。手順書には値を書かせる形のコマンド例を載せない",
+          "tradeoffs": [
+            "登録の代行ができないため利用者の手数が増えるが、鍵の値がコマンド履歴やコンテキストへ残らない"
+          ]
+        },
+        {
+          "knowledge_ref": "docs/spec/11-CI-CD・品質ゲート仕様.md#§5",
+          "principle": "API トークンの権限は最小にする (Workers Scripts 編集 / D1 編集 / R2 編集のうち必要なものだけ、対象アカウントは 1 つに限定)",
+          "applicability": "applied",
+          "rationale": "用途ごとにトークンを分け、発行時に対象アカウントを 1 つへ絞る。1 本の万能トークンを使い回さない",
+          "tradeoffs": [
+            "トークンの本数が増えて管理対象が増えるが、漏れたときの影響範囲がその用途に閉じる"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "qa-frontend-web-spec-intake",
+      "question": "frontend×web: 改善要望の送信モーダルは何を見せ、何を強制しないか (書面入力 docs/spec/12 §5)",
+      "answer": "- **FB-AC-07**: 「この画面から一緒に送られるもの」を展開でき、自動収集される項目を送信前に確認できる。隠さない。\n- **FB-AC-09**: 画面の写しが**完全でないことがある**ため、注意文を常に表示し、プレビューを見てから送る。完全性を保証しない。\n- **FB-AC-10**: 「撮り直す」「**画像を外す（文章だけで送る）**」を常に選べる。**画像なしでも送信は成立する。**",
+      "source": {
+        "kind": "written-requirements",
+        "path": "docs/spec/12-改善要望フィードバック仕様.md",
+        "section": "§5 送信モーダル（FB-AC-04〜10）",
+        "sha256": "8328a140b5c41a4eb0b2b7d64ab0b26330d3f7a30bb1882d18855c81bfa2b0f0"
+      },
+      "design_applications": [
+        {
+          "knowledge_ref": "docs/spec/12-改善要望フィードバック仕様.md#§5",
+          "principle": "自動収集される項目は送信前に展開して確認できる (FB-AC-07)。画面の写しの不完全さを常に表示し、完全性を保証しない (FB-AC-09)",
+          "applicability": "applied",
+          "rationale": "収集項目の一覧は送信処理と同じ 1 つの定義から描く。表示用に別の一覧を持つと、収集を増やしたときに表示だけ古くなる",
+          "tradeoffs": [
+            "モーダルの情報量が増えるが、送信者が何を送るのかを知らないまま送る状態が無くなる"
+          ]
+        },
+        {
+          "knowledge_ref": "docs/spec/12-改善要望フィードバック仕様.md#§5",
+          "principle": "画像なしでも送信は成立する (FB-AC-10)。任意欄が空のとき、詳細画面では「本人からの記入はありません」と明示する (FB-AC-06)",
+          "applicability": "applied",
+          "rationale": "画像取得の失敗を送信の失敗にしない。空欄は欄ごと消さず、記入が無かったことを文で出す。この文言が出ることをテストで固定する",
+          "tradeoffs": [
+            "空欄でも要素が残るため画面はやや長くなるが、「書かれなかった」と「表示していない」を読み分けられる"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "qa-ops-web-spec-intake",
+      "question": "maintenance-ops×web: カバレッジの数字を偽らないための規律は何か (書面入力 docs/spec/10 §2、08 ⑤)",
+      "answer": "| アサーションの無いテスト | 実行するだけで「通った」ことになる。壊れても赤くならない |\n| スタブを厚くテストして全体を押し上げる | **最も壊れると痛い場所は覆われないまま数字だけ上がる** |\n| 閾値を下げて緑にする | 下げた記録が残らなければ、次の人は「元から 60% だった」と思う |\n| 到達しにくい分岐を消して分母を減らす | 異常系を削るのは、異常系を守らないという意思決定である |",
+      "source": {
+        "kind": "written-requirements",
+        "path": "docs/spec/10-テスト戦略仕様.md",
+        "section": "§2 数字を偽らないための規律",
+        "sha256": "782dd7de344548dd5335ac61487730c26b63dcb407f5a9d70ed22f8edda96598"
+      },
+      "design_applications": [
+        {
+          "knowledge_ref": "docs/spec/10-テスト戦略仕様.md#§2-1",
+          "principle": "スタブをカバレッジ計算から除外しない。加えて「スタブを除いた実質カバレッジ」を併記し、差が開いたら手抜きの合図とする",
+          "applicability": "applied",
+          "rationale": "docs/product/coverage.md に全体と実質の 2 段を必ず並べる。1 つの数字にまとめない",
+          "tradeoffs": [
+            "数字が 2 つになり読むのに手間がかかるが、スタブを厚く覆って全体を押し上げる手が効かなくなる"
+          ]
+        },
+        {
+          "knowledge_ref": "docs/spec/10-テスト戦略仕様.md#§2-2",
+          "principle": "層別に測る。domain と application が最も壊れると痛い層なので、ここに高い水準を要求する",
+          "applicability": "applied",
+          "rationale": "閾値は層ごとに quality-gates.config.mjs へ置き、上限・下限は下げる方向にしか動かさない",
+          "tradeoffs": [
+            "層の切り方を変えると閾値の比較ができなくなるため、層の定義自体を動かしにくくなる"
+          ]
+        },
+        {
+          "knowledge_ref": "docs/spec/08-仕様の未修正点.md#⑤",
+          "principle": "古い判定は古く見えない。完全性評価が現在の仕様書の一部しか見ていない状態を、見張り (pnpm run verify の「仕様レポートの鮮度」) が落ちる側で表す",
+          "applicability": "applied",
+          "rationale": "指紋の焼き付け (scripts/spec-freshness.mjs --write) は再評価が PASS した後にだけ行う。先に焼くと「いまの仕様書に対する PASS」という嘘が 1 コマンドで作れる",
+          "tradeoffs": [
+            "再評価が済むまで門が赤のままになるが、赤であること自体が未解消の告知になる"
+          ]
+        }
+      ]
     }
   ],
   "approval_log": [
@@ -1540,6 +1811,48 @@
           "G2"
         ]
       }
+    },
+    {
+      "category": "backend",
+      "platform": "web",
+      "reason": "C01 差し戻し: docs/spec/04〜12 の 9 枚 (2,705 行) が書面入力 target に取り込まれておらず、この確定はその 9 枚を見ずに出されている。R4-reopen で取り込み後に再確定する。",
+      "from": "確定"
+    },
+    {
+      "category": "database",
+      "platform": "web",
+      "reason": "C01 差し戻し: docs/spec/04〜12 の 9 枚 (2,705 行) が書面入力 target に取り込まれておらず、この確定はその 9 枚を見ずに出されている。R4-reopen で取り込み後に再確定する。",
+      "from": "確定"
+    },
+    {
+      "category": "ui-ux",
+      "platform": "web",
+      "reason": "C01 差し戻し: docs/spec/04〜12 の 9 枚 (2,705 行) が書面入力 target に取り込まれておらず、この確定はその 9 枚を見ずに出されている。R4-reopen で取り込み後に再確定する。",
+      "from": "確定"
+    },
+    {
+      "category": "infrastructure",
+      "platform": "web",
+      "reason": "C01 差し戻し: docs/spec/04〜12 の 9 枚 (2,705 行) が書面入力 target に取り込まれておらず、この確定はその 9 枚を見ずに出されている。R4-reopen で取り込み後に再確定する。",
+      "from": "確定"
+    },
+    {
+      "category": "security",
+      "platform": "web",
+      "reason": "C01 差し戻し: docs/spec/04〜12 の 9 枚 (2,705 行) が書面入力 target に取り込まれておらず、この確定はその 9 枚を見ずに出されている。R4-reopen で取り込み後に再確定する。",
+      "from": "確定"
+    },
+    {
+      "category": "frontend",
+      "platform": "web",
+      "reason": "C01 差し戻し: docs/spec/04〜12 の 9 枚 (2,705 行) が書面入力 target に取り込まれておらず、この確定はその 9 枚を見ずに出されている。R4-reopen で取り込み後に再確定する。",
+      "from": "確定"
+    },
+    {
+      "category": "maintenance-ops",
+      "platform": "web",
+      "reason": "C01 差し戻し: docs/spec/04〜12 の 9 枚 (2,705 行) が書面入力 target に取り込まれておらず、この確定はその 9 枚を見ずに出されている。R4-reopen で取り込み後に再確定する。",
+      "from": "確定"
     }
   ],
   "category_aggregate": {
@@ -1816,7 +2129,7 @@
   ],
   "knowledge_candidates": [],
   "hearing_progress": {
-    "loop_count": 4,
+    "loop_count": 7,
     "next_question": null,
     "complete": true,
     "max_loops": 5

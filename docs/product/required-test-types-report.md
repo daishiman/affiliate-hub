@@ -4,7 +4,7 @@
 末尾の指紋がその見張りで、手で 1 文字でも書くと次の実行が**上書きせずに止まる**（書いた行は残る）。
 宣言は `docs/product/required-test-types.md`、語彙と上限は `quality-gates.config.mjs` が正本。
 
-- 最終更新: 2026-08-18
+- 最終更新: 2026-08-19
 - 要件表の要件: 241 件
 - 性質を宣言済: 234 件
 - **未宣言: 7 件**（上限 7 件）
@@ -272,4 +272,4 @@
 ## 未宣言の要件
 
 `REQ-CI08` `REQ-FD04` `REQ-TH04` `REQ-TH05` `REQ-TS02` `REQ-TS03` `REQ-TS10`
-<!-- 生成物の指紋 sha256:18fc9dadb9ed0b4aeaec636a638261e321682a7db82a518736cbedd69cb583d5 -->
+<!-- 生成物の指紋 sha256:2eccd6a21175a650f408151ec8f29303ea532a66e32aca226a9facae9ca3d299 -->
