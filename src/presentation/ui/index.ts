@@ -126,8 +126,13 @@ export {
   Page,
   Card,
   ADMIN_NAV,
+  ADMIN_NAV_GROUPS,
+  UNGROUPED_NAV_HREFS,
   visibleNav,
+  groupedNav,
   type NavItem,
+  type NavGroup,
+  type GroupedNav,
   type Breadcrumb,
 } from "./templates/app-shell";
 export {
