@@ -357,8 +357,9 @@ export default async function SettingsPage() {
                     {d.relationshipLabel}
                     {d.required ? "（表示が必要）" : "（表示は不要）"}
                   </h3>
-                  {/* 読者に出るものと同じ見た目で確かめる。別の書き方を画面用に作らない。 */}
-                  <DisclosureNotice message={d.visibleMessage} />
+                  {/* 読者に出るものと同じ見た目で確かめる。別の書き方を画面用に作らない。
+                      一覧なので目印にはしない（同じ名前の目印が行の数だけ並ぶため）。 */}
+                  <DisclosureNotice asLandmark={false} message={d.visibleMessage} />
                   <table className={styles.rankTable}>
                     <tbody>
                       <tr>

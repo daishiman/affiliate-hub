@@ -6,7 +6,7 @@
 // @vitest-environment jsdom
 import { act, cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { describeViolations, findA11yViolations } from "../support/a11y";
+import { asPartOfPage, describeViolations, findA11yViolations } from "../support/a11y";
 
 /**
  * 改善ループを回す操作部品。
@@ -212,7 +212,7 @@ describe("読み上げと操作の自動検査", () => {
       </>,
     );
 
-    const violations = await findA11yViolations(container.innerHTML);
+    const violations = await findA11yViolations(asPartOfPage(container.innerHTML));
     expect(violations, describeViolations(violations)).toEqual([]);
   });
 });

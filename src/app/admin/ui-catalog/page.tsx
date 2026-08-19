@@ -297,8 +297,15 @@ export default function UiCatalogPage() {
             法令に関わる表示です。画面ごとに書かず、必ずこの部品を使います。
           </p>
           <div className={styles.catalogStack}>
-            <DisclosureNotice />
-            <DisclosureNotice showRankingNote methodologyHref="/methodology" policyHref="/policy" />
+            {/* 見本帳では同じ部品を並べて見比べる。目印にすると同じ名前が並び、
+                読み上げの目印の一覧で見分けが付かなくなる（`landmark-unique`）。 */}
+            <DisclosureNotice asLandmark={false} />
+            <DisclosureNotice
+              asLandmark={false}
+              showRankingNote
+              methodologyHref="/methodology"
+              policyHref="/policy"
+            />
             <p>
               成果リンクの例:{" "}
               <AffiliateLink href="https://example.com/click?aid=123&pid=456">

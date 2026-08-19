@@ -3,7 +3,7 @@
 import { act, cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { KEY_SCOPES, KEY_SCOPE_LABELS } from "@/domain/feedback";
-import { describeViolations, findA11yViolations } from "../support/a11y";
+import { asPartOfPage, describeViolations, findA11yViolations } from "../support/a11y";
 
 /**
  * 改善要望を扱う側の操作部品。
@@ -344,7 +344,7 @@ describe("鍵の発行と失効", () => {
 
   it("読み上げでも使える（発行の欄）", async () => {
     const { container } = render(<IssueIntegrationAccessForm />);
-    const violations = await findA11yViolations(container.innerHTML);
+    const violations = await findA11yViolations(asPartOfPage(container.innerHTML));
     expect(violations, describeViolations(violations)).toHaveLength(0);
   });
 });

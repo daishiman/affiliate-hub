@@ -19,12 +19,63 @@ export type A11yViolation = {
 };
 
 /**
- * 見る基準。**WCAG 2.2 AA まで**。
+ * 見る基準。**WCAG 2.2 AA まで + best-practice**。
  *
  * AAA を入れないのは、AAA が「満たすことが望ましいが常には満たせない」水準として
  * 定義されているためで、落ちても直せない指摘が並ぶと検査全体が無視されるようになる。
+ *
+ * --- `best-practice` を入れた理由（2026-08-19） ---
+ * 「当たる規則が 28 件から 45 件へ増えるから」ではない。
+ * **`landmark-unique` の違反が現に出ていて、それが見えていなかったから**である。
+ * `/admin/settings` と `/admin/ui-catalog` が、同じ名前の目印（広告表示のお知らせ）を
+ * 1 画面に 2 つ出していた。読み上げの目印一覧でどちらがどちらか見分けが付かない状態が、
+ * WCAG の等級だけを見ていたときには 1 度も赤くならなかった。
+ * 広げた時点で出た件数と直し方は docs/product/backlog.md の 84 に実測として残してある。
  */
-const TAGS = ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa"];
+export const A11Y_TAGS: readonly string[] = [
+  "wcag2a",
+  "wcag2aa",
+  "wcag21a",
+  "wcag21aa",
+  "wcag22aa",
+  "best-practice",
+];
+
+/**
+ * **止めている規則。1 件ずつ理由を書く。**
+ *
+ * 止めるのは、赤が出たときに最も簡単な逃げ道になる。
+ * だから止めた件数そのものに上限を張り（`tests/ui/axe-rule-coverage.test.ts`）、
+ * **理由の書かれていない項目を 0 件で固定**してある。
+ * `reason` は空文字列を書けてしまう（型では止まらない）ので、あの検査は壊せる。
+ */
+export type DisabledRule = { readonly id: string; readonly reason: string };
+
+export const DISABLED_RULES: readonly DisabledRule[] = [
+  {
+    id: "color-contrast",
+    reason:
+      "色のコントラストは別で見る（配色 5 種 × 明暗 2 種を tests/ui/theme-contrast.test.ts が登録表から総当たりしている）。ここで有効にしても、jsdom は実際の描画色を持たないため必ず「判定不能」になる",
+  },
+];
+
+/** 理由が書かれていない項目。**この関数が本物の検査と同じ通り道を通る。** */
+export function disabledRulesWithoutReason(
+  rules: readonly DisabledRule[] = DISABLED_RULES,
+): readonly string[] {
+  return rules.filter((r) => r.reason.trim().length === 0).map((r) => r.id);
+}
+
+/** いま `A11Y_TAGS` で有効になっている規則の一覧。**手書きの定数ではなく axe に訊く。** */
+export async function enabledRuleIds(): Promise<readonly string[]> {
+  const axe = (await import("axe-core")).default;
+  const off = new Set(DISABLED_RULES.map((r) => r.id));
+  return axe
+    .getRules()
+    .filter((r) => r.tags.some((t) => A11Y_TAGS.includes(t)))
+    .map((r) => r.ruleId)
+    .filter((id) => !off.has(id));
+}
 
 /**
  * HTML の断片を検査する。
@@ -80,6 +131,21 @@ export async function runA11y(html: string): Promise<A11yBuckets> {
   };
 }
 
+/**
+ * 画面の一部（部品ひとつ）を、画面に置かれた姿にしてから渡す。
+ *
+ * **部品だけを渡すと、画面にしか答えられない問いに部品が答えさせられる。**
+ * 例: `region`（画面の中身はすべて目印の中にあること）は、
+ * `<main>` を持っているのは画面の側なので、部品だけを渡すと必ず違反になる。
+ * これは部品の欠陥ではなく**渡し方の欠陥**である。
+ *
+ * 逆に、画面まるごとを検査するときはこれを使わないこと。
+ * 使うと `<main>` が二重になり、本物の欠け（画面が目印を持っていない）が隠れる。
+ */
+export function asPartOfPage(html: string): string {
+  return `<main>${html}</main>`;
+}
+
 export async function findA11yViolations(html: string): Promise<readonly A11yViolation[]> {
   const result = await runAxe(html);
   return result.violations.map((v) => ({
@@ -105,11 +171,10 @@ async function runAxe(html: string) {
   try {
     const axe = (await import("axe-core")).default;
     const result = await axe.run(dom.window.document, {
-      runOnly: { type: "tag", values: TAGS },
-      // 色のコントラストは別で見る（配色 5 種 × 明暗 2 種を
-      // tests/ui/theme-contrast.test.ts が登録表から総当たりしている）。
-      // ここで有効にしても、jsdom は実際の描画色を持たないため必ず「判定不能」になる。
-      rules: { "color-contrast": { enabled: false } },
+      runOnly: { type: "tag", values: [...A11Y_TAGS] },
+      // 止める規則は `DISABLED_RULES` から組み立てる。
+      // ここへ直接書くと、理由つきの一覧が**飾りになる**（一覧に無い規則も止められてしまう）。
+      rules: Object.fromEntries(DISABLED_RULES.map((r) => [r.id, { enabled: false }])),
     });
     return result;
   } finally {
