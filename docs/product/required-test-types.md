@@ -245,6 +245,7 @@
 | REQ-TS11 | has-known-breakage | — |
 | REQ-TS12 | has-input | — |
 | REQ-TS13 | has-input | — |
+| REQ-TS14 | has-input | — |
 | REQ-WA01 | has-input | — |
 | REQ-WA02 | has-input, has-permission | — |
 | REQ-WB01 | has-input, has-permission | — |
