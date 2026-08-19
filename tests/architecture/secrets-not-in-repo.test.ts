@@ -116,6 +116,87 @@ function readText(path: string): string | null {
   return new TextDecoder("utf-8").decode(buf);
 }
 
+/**
+ * 要件 6 が使う道具。**この repo が浅いか。**
+ *
+ * 浅いと親コミットのオブジェクトが手元に無く、下の `classifyHex` が
+ * 「オブジェクトではない」側へ倒れる。**そのとき除外は効かず、誤検出が戻る。**
+ * 今の CI は `fetch-depth: 0` なので起きないが、起きたときに黙って
+ * 誤検出が増えるのではなく「除外できなかった」と数で分かるようにする。
+ */
+const SHALLOW: boolean = (() => {
+  try {
+    return (
+      execFileSync("git", ["rev-parse", "--is-shallow-repository"], {
+        cwd: process.cwd(),
+        encoding: "utf8",
+      }).trim() === "true"
+    );
+  } catch {
+    // 判定そのものができないなら、除外が効かないかもしれない側へ倒す。
+    return true;
+  }
+})();
+
+/**
+ * 16 進の並びの素性。
+ * - `git-object`: git が実体として解決できた。コミット等の id であって秘密ではない。
+ * - `not-an-object`: 解決できなかった。**秘密の断片の疑いとして残す。**
+ * - `cannot-tell`: 判定そのものができなかった。**残した上で別に数える。**
+ */
+type HexKind = "git-object" | "not-an-object" | "cannot-tell";
+
+/**
+ * **なぜ「git が解決できるか」で除外してよいか。**
+ *
+ * 秘密はランダムな値なので、この repo の git オブジェクトの id には当たらない。
+ * 作為で当てることもできない（当てるには先にその id のオブジェクトを作る必要がある）。
+ * つまりこの除外は**通り道にならない**。ファイル単位・行単位の除外とはそこが違う。
+ *
+ * **`--no-merges` で逃がさないのはこのためである。**合成マージの本文を落とすだけなら
+ * `--no-merges` でも緑になるが、この枝が持つ本物のマージコミット（2026-08-19 実測で 3 本）
+ * も一緒に読まなくなる。**緑になる直し方と、検出が保たれる直し方は別物である。**
+ */
+function classifyHex(hex: string): HexKind {
+  try {
+    execFileSync("git", ["rev-parse", "--verify", "--quiet", `${hex}^{object}`], {
+      cwd: process.cwd(),
+      encoding: "utf8",
+      stdio: ["ignore", "pipe", "ignore"],
+    });
+    return "git-object";
+  } catch (error) {
+    const status = (error as { status?: unknown }).status;
+    // 終了コード 1 = 「そんなオブジェクトは無い」。それ以外は git 側の都合で判定不能。
+    if (status === 1) return SHALLOW ? "cannot-tell" : "not-an-object";
+    return "cannot-tell";
+  }
+}
+
+/** `[0-9a-f]` が 16 文字以上続く並び。前後が英数字なら当てない
+ * （長い識別子の一部を切り出して当たるのを避ける）。 */
+const HEX_RUN = /(?<![0-9a-zA-Z])[0-9a-f]{16,}(?![0-9a-zA-Z])/g;
+const labelled = (before: string, value: string) =>
+  value.length === 64 && /sha256:\s*$/.test(before);
+
+/** 走査の途中経過。**除外した数を持ち歩く**ので、0 件のとき「無かった」のか
+ * 「全部外した」のかが後から言える。 */
+type HandWrittenScan = { hits: string[]; excluded: number; undetermined: number };
+
+function scanHandWritten(where: string, text: string, acc: HandWrittenScan): void {
+  for (const m of text.matchAll(HEX_RUN)) {
+    if (labelled(text.slice(0, m.index), m[0])) continue;
+    const kind = classifyHex(m[0]);
+    if (kind === "git-object") {
+      acc.excluded += 1;
+      continue;
+    }
+    // 判定できなかったものは**通さない**。数だけ別に持つ。
+    if (kind === "cannot-tell") acc.undetermined += 1;
+    acc.hits.push(`${where}（${m[0].length} 文字。値は出しません）`);
+  }
+}
+
 describe("秘密の値がリポジトリに載っていない", () => {
   it("要件 1: 追跡しているファイルに、秘密の値の形をしたものが 1 つも無い", () => {
     const hits: string[] = [];
@@ -212,20 +293,12 @@ describe("秘密の値がリポジトリに載っていない", () => {
    * 閾値を下げるか、下げずに済ませるかは、こちらでは決めない。
    */
   it("要件 6: 手で書いた記録に、値の断片が貼られていない", () => {
-    // `[0-9a-f]` が 16 文字以上続く並び。前後が英数字なら当てない
-    // （長い識別子の一部を切り出して当たるのを避ける）。
-    const HEX_RUN = /(?<![0-9a-zA-Z])[0-9a-f]{16,}(?![0-9a-zA-Z])/g;
-    const labelled = (before: string, value: string) =>
-      value.length === 64 && /sha256:\s*$/.test(before);
-
-    const hits: string[] = [];
+    const acc: HandWrittenScan = { hits: [], excluded: 0, undetermined: 0 };
+    const hits = acc.hits;
     let scanned = 0;
     const scan = (where: string, text: string) => {
       scanned += 1;
-      for (const m of text.matchAll(HEX_RUN)) {
-        if (labelled(text.slice(0, m.index), m[0])) continue;
-        hits.push(`${where}（${m[0].length} 文字。値は出しません）`);
-      }
+      scanHandWritten(where, text, acc);
     };
 
     // 手で書いた欄。生成された欄（`file_path` など）は見ない。
@@ -302,9 +375,20 @@ describe("秘密の値がリポジトリに載っていない", () => {
       `読んだ記録が ${scanned} 件しかありません（床 400 件）。読む先が変わっていないか先に見てください`,
     ).toBeGreaterThanOrEqual(400);
 
+    /*
+     * **除外した数を必ず出す。**除外は検査を弱める形なので、黙って効かせない。
+     * 何件外したかが見えていないと、次にここが 0 件を返したとき、それが
+     * 「無かった」なのか「全部外した」なのかを誰も言えない。
+     * `undetermined` は「判定そのものができなかった」数で、除外の数には混ぜない
+     * （混ぜると、除外が壊れたことが除外の成功に見える）。
+     */
+    const tally =
+      `git オブジェクトとして解決したので除外: ${acc.excluded} 件 / ` +
+      `判定できなかったので残した: ${acc.undetermined} 件（浅いクローン: ${SHALLOW ? "はい" : "いいえ"}）`;
+
     expect(
       hits,
-      `手で書いた記録に値の断片が入っています:\n${hits.join("\n")}\n値ではなく事実を書いてください（例:「平文の鍵が戻り値に載った」）`,
+      `手で書いた記録に値の断片が入っています:\n${hits.join("\n")}\n${tally}\n値ではなく事実を書いてください（例:「平文の鍵が戻り値に載った」）`,
     ).toEqual([]);
   });
 
@@ -327,6 +411,47 @@ describe("秘密の値がリポジトリに載っていない", () => {
     const m = [...text.matchAll(/(?<![0-9a-zA-Z])[0-9a-f]{16,}(?![0-9a-zA-Z])/g)][0];
     const passes = m?.[0].length === 64 && /sha256:\s*$/.test(text.slice(0, m.index));
     expect(passes, "札の付いた 64 桁の指紋が通りません").toBe(true);
+  });
+
+  /*
+   * **除外を入れたので、対照も 2 つ要る。**
+   *
+   * 「git オブジェクトに解決する hex は除外する」は検査を弱める形である。
+   * 弱め方が効きすぎれば検出が死に、効かなければ誤検出が戻る。
+   * **片方の餌だけでは、どちらが起きたか区別できない。**
+   * 落ちる餌だけなら除外が効いていない場合を見逃し、
+   * 通る餌だけなら検出そのものが死んでいる場合を見逃す。
+   *
+   * **対照の生存は二値（出た／出ない）ではない。**期待件数まで固定する。
+   * 件数を見ずに「出た」だけを見ると、対照が部分的に死んでも正常な顔で通り抜ける。
+   * 期待値は先に書く: 落ちる餌 = 当たり 1 件・除外 0 件、通る餌 = 当たり 0 件・除外 1 件。
+   */
+  it("要件 6 の除外が効きすぎていない（git に解決しない 40 桁は当たる）", () => {
+    // 40 桁ちょうどだが、この repo のどのオブジェクトでもない並び。
+    const notAnObject = `${"f".repeat(39)}e`;
+    const acc: HandWrittenScan = { hits: [], excluded: 0, undetermined: 0 };
+    scanHandWritten("対照", `平文の鍵が戻り値に載った（${notAnObject}）`, acc);
+
+    expect(acc.hits, "git に解決しない 40 桁が当たりません（探す側が死んでいます）").toHaveLength(1);
+    expect(acc.excluded, "秘密の疑いのある値が除外されました（除外が効きすぎています）").toBe(0);
+    // 浅いクローンでは「オブジェクトが無い」と「そもそも判定できない」が区別できない。
+    expect(acc.undetermined, "判定できなかった件数が想定と違います").toBe(SHALLOW ? 1 : 0);
+  });
+
+  it("要件 6 の除外が効いている（実在するコミットの 40 桁 SHA は除外される）", () => {
+    const realSha = execFileSync("git", ["rev-parse", "HEAD"], {
+      cwd: process.cwd(),
+      encoding: "utf8",
+    }).trim();
+    expect(realSha, "HEAD の SHA が 40 桁で取れません").toHaveLength(40);
+
+    const acc: HandWrittenScan = { hits: [], excluded: 0, undetermined: 0 };
+    // `sha256:` の札は付けない。**札ではなく、git が解けたことで通っている**のを見る。
+    scanHandWritten("対照", `直前の版（${realSha}）へ戻した`, acc);
+
+    expect(acc.excluded, "実在するコミットの SHA が除外されません（除外が効いていません）").toBe(1);
+    expect(acc.hits, "実在するコミットの SHA が当たってしまいました").toHaveLength(0);
+    expect(acc.undetermined, "判定できなかった件数が想定と違います").toBe(0);
   });
 
   it("要件 5: 秘密の名前がブラウザへ渡る名前になっていない", () => {
