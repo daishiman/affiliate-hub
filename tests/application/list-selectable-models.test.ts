@@ -29,6 +29,8 @@ const writer: ActorContext = {
   workspaceId: taggedString("ws_test"),
   roles: ["writer"],
   isAiServiceAccount: false,
+  // 身元を確かめてある人。ここは権限の検査で、ログインの有無は見ていない。
+  identified: true,
 };
 
 /** 生成の権限を持たない役（読むことと分析だけ）。 */

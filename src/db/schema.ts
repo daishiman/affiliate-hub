@@ -782,6 +782,16 @@ export const auditLogs = sqliteTable(
      * 後から人の操作として読んでしまう。
      */
     actorIsAi: integer("actor_is_ai", { mode: "boolean" }).notNull(),
+    /**
+     * その身元を照合して確かめてあったか。**列として持つ。**
+     * 利用者 ID の有無から推測できない——確かめていない身元にも名前は付いている
+     * （読者は `anonymous`、見本は `u_sample`）。推測にすると、
+     * 誰でもない人が押した承認を後から「人が承認した」と読んでしまう。
+     *
+     * 既存の行の既定は 1（確かめてある）。この列を足す前に書かれた行は、
+     * 断りが働いていた頃のもので、確かめていない身元では 1 行も書かれていない。
+     */
+    actorIdentified: integer("actor_identified", { mode: "boolean" }).notNull().default(true),
     actorModelId: text("actor_model_id"),
     targetType: text("target_type").notNull(),
     targetId: text("target_id").notNull(),

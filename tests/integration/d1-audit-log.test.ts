@@ -67,6 +67,7 @@ function anEntry(over: {
   readonly occurredAt: Date;
   readonly userId?: string | null;
   readonly isAi?: boolean;
+  readonly identified?: boolean;
   readonly before?: Readonly<Record<string, unknown>> | null;
 }): AuditLogEntry {
   const isAi = over.isAi ?? false;
@@ -79,6 +80,9 @@ function anEntry(over: {
         over.userId === null ? null : (taggedString<"UserId">(over.userId ?? "u_owner") as UserId),
       isAiServiceAccount: isAi,
       modelId: null,
+      // 名前を渡さない呼び出し（`userId: null`）は、既定で確かめていない身元にする。
+      // 名前があっても確かめていない場合（読者の `anonymous`）は明示して渡す。
+      identified: over.identified ?? over.userId !== null,
     },
     targetType: "content_variant",
     targetId: over.targetId ?? "cv_alpha_review",
@@ -230,6 +234,45 @@ describe("操作の記録（D1）", () => {
     if (!got.ok) throw got.error;
     expect(got.value[0]?.actor.isAiServiceAccount).toBe(true);
     expect(got.value[0]?.actor.userId).toBeNull();
+  });
+
+  /*
+   * **印は列で持っている。** 名前の有無から読み直せない——確かめていない身元にも
+   * 名前は付いている（読者は `anonymous`、見本は `u_sample`）。
+   * 保存の往復でこの印が落ちると、読者が押した操作が後から
+   * 「人が確認した」として読まれる。落ちたことは画面にも記録にも出ない。
+   */
+  it("確かめていない身元の印が、保存の往復で消えない", async () => {
+    await repo.append(
+      anEntry({
+        id: "al_unverified",
+        userId: "anonymous",
+        identified: false,
+        occurredAt: T("2026-08-18T01:00:00Z"),
+      }),
+    );
+
+    const got = await repo.listByTarget(WS, "content_variant", "cv_alpha_review");
+    if (!got.ok) throw got.error;
+    const row = got.value.find((e) => String(e.id) === "al_unverified");
+    expect(row?.actor.userId, "名前まで落ちています。読者と見本が区別できなくなります。").toBe(
+      "anonymous",
+    );
+    expect(
+      row?.actor.identified,
+      "確かめていない印が往復で消えました。名前が残っているので、確かめた身元に見えます。",
+    ).toBe(false);
+  });
+
+  it("確かめた身元の印も、保存の往復で消えない", async () => {
+    await repo.append(
+      anEntry({ id: "al_verified", userId: "u_owner", occurredAt: T("2026-08-18T02:00:00Z") }),
+    );
+
+    const got = await repo.listByTarget(WS, "content_variant", "cv_alpha_review");
+    if (!got.ok) throw got.error;
+    const row = got.value.find((e) => String(e.id) === "al_verified");
+    expect(row?.actor.identified, "確かめた身元まで false になっています。").toBe(true);
   });
 
   it("表が無ければ、空の成功ではなく失敗が返る", async () => {

@@ -247,7 +247,12 @@ const EXPECTED_REASON_REQUIRED: readonly AuditAction[] = [
 ];
 
 describe("AuditLog（E32）: 操作 34 種 × 理由の要否", () => {
-  const human = { userId: asUserId("u-1"), isAiServiceAccount: false, modelId: null };
+  const human = {
+    userId: asUserId("u-1"),
+    isAiServiceAccount: false,
+    modelId: null,
+    identified: true,
+  };
   const entry = (action: AuditAction, reason?: string | null) =>
     createAuditLogEntry({
       id: taggedString<"AuditLogId">("al-1"),

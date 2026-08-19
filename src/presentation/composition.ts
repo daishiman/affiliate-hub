@@ -289,6 +289,10 @@ export async function resolveIntegrationAccess(
       userId: `鍵: ${key.label}`,
       roles: ["ai_service_account"],
       isAiServiceAccount: true,
+      // 誰もログインしていないが、**どの鍵か**は照合してある。
+      // だから記録に「鍵: ○○」と残してよい。人ではないことは
+      // `isAiServiceAccount` の側が持っている。
+      identified: true,
     },
     recordUsage: async (fetchedCount: number) => {
       await keys.recordUsage(key.workspaceId, {
@@ -1254,6 +1258,14 @@ export function readerActor(): ActorContext {
     userId: taggedString<"UserId">("anonymous"),
     roles: [],
     isAiServiceAccount: false,
+    /**
+     * **確かめていない。** `anonymous` は誰でもある。
+     *
+     * この身元でも操作の記録は残る（残さないと「誰も押していない」と
+     * 「押したが記録を断った」が区別できない）。残る記録には
+     * 確かめていない印が付き、`wasApprovedByHuman()` は人の承認として数えない。
+     */
+    identified: false,
   };
 }
 

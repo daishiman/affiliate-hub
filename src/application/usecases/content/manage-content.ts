@@ -3,6 +3,7 @@ import type {
   EditorialContentVariantRepositoryPort,
   EditorialPersonaRepositoryPort,
 } from "@/application/ports/authoring";
+import { auditActorOf } from "@/application/audit";
 import type { EventPublisherPort, IdGeneratorPort } from "@/application/ports/common";
 import type { AuditLogPort, PolicyRuleRepositoryPort } from "@/application/ports/compliance";
 import {
@@ -119,17 +120,14 @@ async function record(
     id: taggedString<"AuditLogId">(`al_${deps.ids.newId()}`) as AuditLogId,
     workspaceId: actor.workspaceId,
     action: input.action,
-    actor: {
-      userId: actor.userId === "" ? null : (taggedString<"UserId">(actor.userId) as UserId),
-      isAiServiceAccount: actor.isAiServiceAccount,
-      /*
-       * どのモデルが動かしたかは、いまの `ActorContext` に入っていない。
-       * **分からないものを埋めない。** 適当な名前を入れると、
-       * 後から「どのモデルの生成を承認したか」を調べたときに嘘を読む。
-       * 記録するには実行時の主体にモデル名を載せる必要がある（残課題）。
-       */
-      modelId: null,
-    },
+    /*
+     * 身元を記録の形へ移すのは `auditActorOf()` の 1 本だけにする。
+     * ここは以前この場で組み立てており、`actor.userId === ""` を
+     * 「身元が無い」の印にしていた。空文字を入れる場所は 1 つも無かったので、
+     * この分岐は一度も真にならなかった（2026-08-19 に消した）。
+     * 組み立てを 2 か所に置くと、片方だけ印を足したときに気づけない。
+     */
+    actor: auditActorOf(actor),
     targetType: "content_variant",
     targetId: input.targetId,
     before: input.before ?? null,

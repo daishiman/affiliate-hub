@@ -50,6 +50,7 @@ const actorArb = (workspaceId: string) =>
         userId: "u_prop",
         roles,
         isAiServiceAccount: isAi,
+        identified: true,
       }),
     ),
   );
@@ -68,6 +69,7 @@ describe("テナントの境界", () => {
             userId: "u_prop",
             roles: ["owner"],
             isAiServiceAccount: false,
+            identified: true,
           };
           const result = assertSameTenant(
             actor,
@@ -94,6 +96,7 @@ describe("テナントの境界", () => {
             userId: "u_prop",
             roles: ["owner"],
             isAiServiceAccount: false,
+            identified: true,
           };
           const result = assertSameTenant(
             actor,
@@ -114,7 +117,7 @@ describe("テナントの境界", () => {
         const id = taggedString<"WorkspaceId">(ws);
         const entity = { workspaceId: id, payload: "x" };
         const result = assertSameTenant(
-          { workspaceId: id, userId: "u", roles: [], isAiServiceAccount: false },
+          { workspaceId: id, userId: "u", roles: [], isAiServiceAccount: false, identified: true },
           entity,
           "記事",
         );
@@ -143,6 +146,7 @@ describe("権限の性質", () => {
           userId: "u_ai",
           roles,
           isAiServiceAccount: true,
+          identified: true,
         };
         expect(can(actor, cap)).toBe(false);
         const required = requireCapability(actor, cap, "この操作");
@@ -170,6 +174,7 @@ describe("権限の性質", () => {
               userId: "u",
               roles: [],
               isAiServiceAccount: isAi,
+              identified: true,
             },
             cap,
           ),
@@ -197,6 +202,7 @@ describe("権限の性質", () => {
           userId: "u",
           roles: have,
           isAiServiceAccount: false,
+          identified: true,
         };
         const expected = have.includes("owner") || want.some((w) => have.includes(w));
         expect(requireRole(actor, "この操作", ...want).ok).toBe(expected);

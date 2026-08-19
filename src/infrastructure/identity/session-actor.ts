@@ -68,6 +68,9 @@ export function createSessionActorResolver(deps: {
         // 人が使っている経路なので、AI サービスアカウントではない。
         // AI の入口は別に身元確認を持つ（`api-token`）。
         isAiServiceAccount: false,
+        // ここへ来るのは、合言葉を保存先で照合し、担当者の登録も引けた場合だけ。
+        // 上の分岐がすべて `anonymous` / `not_member` / `unavailable` を返し切っている。
+        identified: true,
       },
     };
   };

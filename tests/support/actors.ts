@@ -22,6 +22,7 @@ type ActorOverrides = {
   readonly userId?: string;
   readonly roles?: readonly Role[];
   readonly isAiServiceAccount?: boolean;
+  readonly identified?: boolean;
 };
 
 function actor(userId: string, roles: readonly Role[], over: ActorOverrides = {}): ActorContext {
@@ -30,6 +31,18 @@ function actor(userId: string, roles: readonly Role[], over: ActorOverrides = {}
     userId: over.userId ?? userId,
     roles: over.roles ?? roles,
     isAiServiceAccount: over.isAiServiceAccount ?? roles.includes("ai_service_account"),
+    /**
+     * ここの既定は `true`。**ここに並ぶのは全員、身元を確かめてある人**である。
+     *
+     * `aNobody` も含めて `true` にしてあるのは、あれが「権限を 1 つも持たない人」で
+     * あって「ログインしていない人」ではないため。両者はよく混ざるが、
+     * 断られ方が違う（前者は権限で、後者は身元で断られる）。
+     *
+     * 確かめていない身元でテストしたいときは、本番のコードが実際に返すもの
+     * （`readerActor()` / `SAMPLE_ACTOR`）を使う。ここに偽物を足すと、
+     * 本番に無い形だけを直して通せてしまう。
+     */
+    identified: over.identified ?? true,
   };
 }
 

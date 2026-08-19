@@ -81,6 +81,8 @@ const actor: ActorContext = {
   userId: "u_1",
   roles: ["owner"],
   isAiServiceAccount: false,
+  // 身元を確かめてある人。ここは権限の検査で、ログインの有無は見ていない。
+  identified: true,
 };
 
 const args = { modelId: "rm_1", productIds: ["p_low", "p_high"] };

@@ -58,7 +58,13 @@ const SEED_ENTRIES: readonly AuditLogEntry[] = [
     id: taggedString<"AuditLogId">("al_3"),
     workspaceId: SAMPLE_WORKSPACE_ID,
     action: "content.approved",
-    actor: { userId: taggedString<"UserId">("u_owner"), isAiServiceAccount: false, modelId: null },
+    actor: {
+      userId: taggedString<"UserId">("u_owner"),
+      isAiServiceAccount: false,
+      modelId: null,
+      // 見本の持ち主は、ログイン済みの人として置いてある。
+      identified: true,
+    },
     targetType: "content_package",
     targetId: "cp_alpha_01",
     before: null,
@@ -74,6 +80,8 @@ const SEED_ENTRIES: readonly AuditLogEntry[] = [
       userId: taggedString<"UserId">("u_ai"),
       isAiServiceAccount: true,
       modelId: "見本モデル",
+      // 鍵で入った AI として置いてある（鍵を照合して入る道筋）。
+      identified: true,
     },
     targetType: "content_package",
     targetId: "cp_alpha_01",
@@ -86,7 +94,13 @@ const SEED_ENTRIES: readonly AuditLogEntry[] = [
     id: taggedString<"AuditLogId">("al_1"),
     workspaceId: SAMPLE_WORKSPACE_ID,
     action: "ranking_model.changed",
-    actor: { userId: taggedString<"UserId">("u_owner"), isAiServiceAccount: false, modelId: null },
+    actor: {
+      userId: taggedString<"UserId">("u_owner"),
+      isAiServiceAccount: false,
+      modelId: null,
+      // 見本の持ち主は、ログイン済みの人として置いてある。
+      identified: true,
+    },
     targetType: "ranking_model",
     targetId: "rm_sample_v1",
     before: null,

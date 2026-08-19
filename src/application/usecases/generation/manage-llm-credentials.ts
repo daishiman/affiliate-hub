@@ -1,3 +1,4 @@
+import { auditActorOf } from "@/application/audit";
 import type { AuditLogPort } from "@/application/ports/compliance";
 import type { IdGeneratorPort } from "@/application/ports/common";
 import type {
@@ -109,11 +110,8 @@ export function createManageLlmCredentialsUseCase(
       id: taggedString<"AuditLogId">(`al_${deps.ids.newId()}`) as AuditLogId,
       workspaceId: actor.workspaceId,
       action,
-      actor: {
-        userId: taggedString<"UserId">(actor.userId) as UserId,
-        isAiServiceAccount: false,
-        modelId: null,
-      },
+      // 身元を記録の形へ移すのは `auditActorOf()` の 1 本だけにする（2026-08-19）。
+      actor: auditActorOf(actor),
       targetType: "llm_credential",
       targetId: providerId,
       after: { providerId, last4 },

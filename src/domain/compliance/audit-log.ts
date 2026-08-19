@@ -162,6 +162,22 @@ export type AuditActor = {
   readonly isAiServiceAccount: boolean;
   /** AI の場合のモデル識別子。人の操作なら null。 */
   readonly modelId: string | null;
+  /**
+   * この身元を、**何かと照合して確かめてあるか**（`ActorContext.identified` の写し）。
+   *
+   * 確かめてある: 本人のログイン、鍵で入った AI。
+   * 確かめていない: 読者（`anonymous` は誰でもある）、見本（ログインを解決できなかった落ち先）。
+   *
+   * **`userId` の有無から推測しない。列として持つ理由は `isAiServiceAccount` と同じ。**
+   * 確かめていない身元にも名前は付いている（`anonymous` / `u_sample`）ので、
+   * 名前があることは確かめたことを意味しない。推測にすると、
+   * 読者が押した操作を後から「人が確認した」と読んでしまう。
+   *
+   * **この印が false でも記録は残す。** 残さないと、
+   * 「誰も押していない」と「押したが記録を断った」が後から区別できなくなる。
+   * 区別を付けるのは記録する / しないではなく、この印である。
+   */
+  readonly identified: boolean;
 };
 
 export type AuditLogEntry = {
@@ -228,11 +244,23 @@ export function createAuditLogEntry(input: {
   if (input.targetType.trim() === "" || input.targetId.trim() === "") {
     return err(validationError("監査ログには対象の種類と ID が必要です。", "targetId"));
   }
-  if (input.actor.userId === null && !input.actor.isAiServiceAccount) {
-    return err(
-      validationError("操作した主体が特定できません。匿名の操作は記録できません。", "actor"),
-    );
-  }
+  /*
+   * **確かめていない身元でも断らない（2026-08-19 に変えた）。**
+   *
+   * ここは以前「操作した主体が特定できません。匿名の操作は記録できません。」で
+   * 断っていた。ただし断る条件は `userId === null` で、`auditActorOf` が
+   * null を作るのは `actor.userId === ""` のときだけだった。空文字を入れる場所は
+   * 1 つも無かったので、この断りは**一度も働いていなかった**。
+   *
+   * 印（`identified`）を入れて初めて働くようになったが、そこで断ると
+   * 読者や見本の身元で通っていた操作が全部止まる。止めるのが正しい場面もあるが、
+   * 記録を断ることは**操作を断ること**とは別で、ここは記録の側である。
+   * 残さないほうが危ない——「誰も押していない」と「押したが記録を断った」が
+   * 同じ「行が無い」に化ける。
+   *
+   * よって記録は残し、確かめていないことは `actor.identified` に残す。
+   * 「人が承認した」を数えるのは `wasApprovedByHuman()` で、そちらが印を見る。
+   */
   const reason = input.reason?.trim() ?? "";
   if (REASON_REQUIRED.has(input.action) && reason === "") {
     return err(
@@ -257,6 +285,15 @@ export function createAuditLogEntry(input: {
  * 承認が人によって行われたことを、記録から確認する。
  *
  * 公開前の最終確認と、規制対応の説明の両方で使う。
+ *
+ * 3 つを同時に満たすものだけを数える:
+ *   1. AI の代行ではない（`isAiServiceAccount`）
+ *   2. 身元に名前が付いている（`userId !== null`）
+ *   3. **その名前を照合して確かめてある**（`identified`）
+ *
+ * 3 が要るのは、確かめていない身元にも名前が付いているからである
+ * （読者は `anonymous`、見本は `u_sample`）。2 だけで数えると、
+ * 誰でもない人が押した承認が「人が承認した」に化ける。
  */
 export function wasApprovedByHuman(entries: readonly AuditLogEntry[], targetId: string): boolean {
   return entries.some(
@@ -264,6 +301,7 @@ export function wasApprovedByHuman(entries: readonly AuditLogEntry[], targetId: 
       e.targetId === targetId &&
       e.action === "content.approved" &&
       !e.actor.isAiServiceAccount &&
-      e.actor.userId !== null,
+      e.actor.userId !== null &&
+      e.actor.identified,
   );
 }

@@ -1,5 +1,5 @@
 {
-  "graph_revision": 264,
+  "graph_revision": 265,
   "nodes": [
     {
       "acceptance": [],
@@ -13832,6 +13832,102 @@
       "title": "鍵の登録画面の断りを、利用者本人が画面で 1 周見る",
       "tracker_binding": "beads",
       "updated_at": "2026-08-19T13:00:00Z"
+    },
+    {
+      "acceptance": [],
+      "architecture_refs": [],
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "beads_linkage": null,
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "candidate_path": "tasks/task-currency-mix-in-approved-total.md",
+          "confidence": 0.9
+        }
+      ],
+      "classification_confidence": 0.9,
+      "classification_reason": "合計のループを読んで、上書きが起きる行を特定した",
+      "completion_evidence": {
+        "completed_at": null,
+        "evidence_refs": [],
+        "policy": "manual",
+        "reconciled_at": null,
+        "source": "manual",
+        "status": "in_progress"
+      },
+      "confirmation_evidence": {
+        "evaluated_digest": null,
+        "evaluator": null,
+        "evidence_ref": null
+      },
+      "confirmation_status": "draft",
+      "created_at": "2026-08-19T13:30:00Z",
+      "depends_on": [],
+      "domain": "monetization",
+      "evaluation_status": "pending",
+      "execution_contexts": [],
+      "feature_package_id": null,
+      "file_path": "tasks/task-currency-mix-in-approved-total.md",
+      "github_project_linkages": [],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "goal": null,
+      "graph_node_id": "task-currency-mix-in-approved-total",
+      "implementation_readiness": {
+        "checked_at": null,
+        "missing_sections": [],
+        "status": "incomplete"
+      },
+      "issue_linkage": null,
+      "iteration": null,
+      "mvp_alignment": {
+        "background": "src/application/usecases/monetization/manage-affiliate.ts の確定分合計のループで currency = amount.currency が毎回上書きされる",
+        "mvp_fit": "direct",
+        "purpose": "通貨が混ざった期間の金額表示を、嘘のない形にする",
+        "rationale": "最小単位を跨いで足したうえ、最後の 1 件の通貨の記号を付けて表示するため、桁が合わない数字が金額として出る"
+      },
+      "owners": [
+        "daishiman"
+      ],
+      "parent_feature": null,
+      "phase_ref": null,
+      "priority": "high",
+      "project_id": "affiliate-hub",
+      "pull_request_linkages": [],
+      "purpose": null,
+      "related_nodes": [],
+      "resource_scope": [
+        "src",
+        "tests"
+      ],
+      "scope_in": [],
+      "scope_out": [],
+      "source_lineage": {
+        "imported_at": "2026-08-19T13:30:00Z",
+        "origin_kind": "manual",
+        "source_digest": null,
+        "source_path": "src/application/usecases/monetization/manage-affiliate.ts",
+        "source_plugin": null,
+        "source_version": null
+      },
+      "start_date": null,
+      "status": "draft",
+      "tags": [
+        "money",
+        "currency",
+        "aggregation"
+      ],
+      "target_date": null,
+      "template_id": "task",
+      "template_version": "1.0.0",
+      "title": "確定分の合計が、通貨の違う成果を足して最後の 1 件の通貨で表示する",
+      "tracker_binding": "beads",
+      "updated_at": "2026-08-19T13:30:00Z"
     }
   ],
   "repository_id": "github:daishiman/affiliate-hub",

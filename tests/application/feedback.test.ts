@@ -49,6 +49,8 @@ const aBrandManager = (over: { workspaceId?: typeof WORKSPACE } = {}): ActorCont
   userId: "user-brand",
   roles: ["brand_manager"] as readonly Role[],
   isAiServiceAccount: false,
+  // 身元を確かめてある人。ここは権限の検査で、ログインの有無は見ていない。
+  identified: true,
 });
 
 /** 別の作業場所の所有者。権限はあるが、こちらの要望は見えてはいけない。 */

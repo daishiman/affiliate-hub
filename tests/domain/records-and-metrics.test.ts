@@ -150,8 +150,18 @@ describe("検証記録 (TestRun)", () => {
 });
 
 describe("監査ログ", () => {
-  const human: AuditActor = { userId: asUserId("u_1"), isAiServiceAccount: false, modelId: null };
-  const ai: AuditActor = { userId: null, isAiServiceAccount: true, modelId: "model-x" };
+  const human: AuditActor = {
+    userId: asUserId("u_1"),
+    isAiServiceAccount: false,
+    modelId: null,
+    identified: true,
+  };
+  const ai: AuditActor = {
+    userId: null,
+    isAiServiceAccount: true,
+    modelId: "model-x",
+    identified: true,
+  };
 
   function entry(over: Partial<Parameters<typeof createAuditLogEntry>[0]> = {}) {
     return createAuditLogEntry({
@@ -171,10 +181,29 @@ describe("監査ログ", () => {
     expect(entry({ targetId: "" }).ok).toBe(false);
   });
 
-  it("人でも AI でもない匿名の操作は記録できない", () => {
-    const r = entry({ actor: { userId: null, isAiServiceAccount: false, modelId: null } });
-    expect(r.ok).toBe(false);
-    if (!r.ok) expect(r.error.field).toBe("actor");
+  /*
+   * 2026-08-19 に要件が変わった。以前ここは「匿名の操作は記録できない」を
+   * 確かめていたが、断る条件は `userId === null` で、身元を写す側が
+   * null を作るのは `userId === ""` のときだけだった。空文字を入れる場所は
+   * 1 つも無く、この断りは一度も働いていなかった。
+   *
+   * 印（`identified`）を入れて働くようにしたうえで、**断るのをやめた**。
+   * 記録を残さないと「誰も押していない」と「押したが記録を断った」が
+   * 同じ「行が無い」に化ける。区別は印の側で付ける。
+   */
+  it("確かめていない身元の操作も記録は残り、確かめていないことが記録に残る", () => {
+    const r = entry({
+      actor: { userId: null, isAiServiceAccount: false, modelId: null, identified: false },
+    });
+    expect(r.ok).toBe(true);
+  });
+
+  it("確かめていない身元の記録には、確かめていない印が付く", () => {
+    const r = entry({
+      actor: { userId: null, isAiServiceAccount: false, modelId: null, identified: false },
+    });
+    if (!r.ok) throw new Error("記録が作れませんでした");
+    expect(r.value.actor.identified).toBe(false);
   });
 
   it("AI の操作は主体が特定できるので記録できる", () => {
@@ -242,6 +271,32 @@ describe("監査ログ", () => {
     // AI が承認しても「人が承認した」にはならない。ここが緩むと §26 の意味が消える。
     expect(wasApprovedByHuman(entries, "cp_ai")).toBe(false);
     expect(wasApprovedByHuman(entries, "cp_unknown")).toBe(false);
+  });
+
+  /*
+   * 名前が付いていることは、確かめたことを意味しない。
+   * 読者は `anonymous`、見本は `u_sample` という名前を持っている。
+   * 印を見ないと、誰でもない人が押した承認が「人が承認した」に化ける。
+   */
+  it("確かめていない身元の承認は、人の承認として数えない", () => {
+    const unverified: AuditActor = {
+      userId: asUserId("anonymous"),
+      isAiServiceAccount: false,
+      modelId: null,
+      identified: false,
+    };
+    const r = createAuditLogEntry({
+      id: taggedString<"AuditLogId">("al_unverified"),
+      workspaceId: WS,
+      action: "content.approved",
+      actor: unverified,
+      targetType: "content_package",
+      targetId: "cp_unverified",
+      reason: "確かめていない身元からの承認",
+      occurredAt: new Date("2026-01-10T00:00:00Z"),
+    });
+    if (!r.ok) throw new Error("記録が作れませんでした");
+    expect(wasApprovedByHuman([r.value], "cp_unverified")).toBe(false);
   });
 });
 

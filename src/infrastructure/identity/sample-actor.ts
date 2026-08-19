@@ -61,6 +61,15 @@ export const SAMPLE_ACTOR: ActorContext = {
    */
   roles: ["analyst"],
   isAiServiceAccount: false,
+  /**
+   * **確かめていない。** `u_sample` は誰も指していない名前である。
+   *
+   * ここを `true` にすると、ログインを解決できなかったときの画面の操作が
+   * 「u_sample という人がやった」として操作の記録に残る。
+   * 記録は後から「人が承認した」を説明するために読むので、そこに嘘があると
+   * 記録そのものが使えなくなる。
+   */
+  identified: false,
 };
 
 export function sampleActorNotice(): string {
