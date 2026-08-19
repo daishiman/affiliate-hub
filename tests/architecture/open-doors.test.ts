@@ -684,6 +684,84 @@ describe("いま開いている入口", () => {
     ).toBe(true);
   });
 
+  /**
+   * ログインしていないときの断り文の**出どころ**を 1 つに保つ。
+   *
+   * 扉を塞ぐと、塞いだ数だけ断り文が要る。そのとき最も短い道は、
+   * 隣のファイルから文をコピーすることである。写した瞬間は同じ文なので
+   * 何も壊れないが、次に文言を直す人は 1 か所しか直さない。
+   * こうして**同じ断りなのに画面ごとに言うことが違う**状態が、静かにできる。
+   *
+   * 実際に 2 件そうなっていた（`llm-credential-action.ts` と
+   * `manageIntegrationAccessAction`）。どちらも `notSignedInText()` を
+   * 作る前に書かれたもので、悪意も手抜きも無い。だから検査で固定する。
+   *
+   * 向きに注意: これは**上限 0** で、悪くなる方向を止める道具である。
+   * 断り文の言い回しを変えたくなったら `notSignedInText()` の中を直す。
+   * ここを緩めて写しを許す方向へは動かさない。
+   */
+  const REFUSAL_PREFIX = "ログインしていないため、";
+  const REFUSAL_SOURCE = "src/presentation/refusal-text.ts";
+  const findHandWrittenRefusals = (files: readonly string[]): readonly string[] =>
+    files.filter((f) => rel(f) !== REFUSAL_SOURCE && read(f).includes(`"${REFUSAL_PREFIX}`));
+
+  /*
+   * 床の値は、件数が分かってから張った（実測 2026-08-19: 走査対象 417 件 /
+   * `notSignedInText()` を使っている側 11 件）。
+   *
+   * 350 と 8 にしたのは、通常の整理で走査対象が 67 件・出どころが 3 件も減ることは
+   * まず無く、減っていたら「片付いた」より「集め方が壊れた」を先に疑うべきだからである。
+   * 実測ちょうどに張ると、ファイルを 1 つ動かしただけで赤くなって
+   * **床が狼少年になる**。狼少年になった床は、次に上げ下げされる。
+   */
+  const FLOOR_SCANNED = 350;
+  const FLOOR_REFUSAL_USERS = 8;
+
+  it("ログインしていないときの断り文を、手で写しているファイルが無い", () => {
+    /*
+     * expect が 3 つあるのは、**前が落ちたら後ろは意味を失う**順に並べているからである。
+     * 「手で写したファイルが 0 件」は、走査対象が空でも、断り文を出す側が消えても、
+     * 同じ 0 になる。0 の理由を 1 つに絞るために、母集団の床を先に置く。
+     */
+    expect(
+      sourceFiles.length,
+      `走査対象が ${sourceFiles.length} 件しかありません（床 ${FLOOR_SCANNED} 件）。` +
+        "手で写したファイルの 0 件は、探していないことによる 0 かもしれません。",
+    ).toBeGreaterThanOrEqual(FLOOR_SCANNED);
+
+    const users = sourceFiles.filter((f) => read(f).includes("notSignedInText(")).length;
+    expect(
+      users,
+      `${REFUSAL_SOURCE} の notSignedInText() を使っている側が ${users} 件しかありません` +
+        `（床 ${FLOOR_REFUSAL_USERS} 件）。断り文そのものが消えていないか確かめてください。`,
+    ).toBeGreaterThanOrEqual(FLOOR_REFUSAL_USERS);
+
+    const written = findHandWrittenRefusals(sourceFiles).map(rel);
+    expect(
+      written.length,
+      `断り文を手で書いているファイルが ${written.length} 件: ${written.join(" / ")}。` +
+        `${REFUSAL_SOURCE} の notSignedInText() から取ってください。` +
+        "同じ文を各所へ写すと、直すときに片方だけ古くなります。",
+    ).toBe(0);
+  });
+
+  it("その 0 件は、見つける側が動いた結果である", () => {
+    /*
+     * 上の検査は 0 を主張する。0 は「本当に無い」ときと
+     * 「探し方が壊れていて何も見つけられない」ときの**両方で出る**。
+     * どちらなのかは 0 という数字からは分からない。
+     *
+     * そこで、見つかるはずのものを 1 つ用意して同じ探し方にかける。
+     * ここが緑なら、上の 0 は「探した結果の 0」である。
+     */
+    const decoy = join(ROOT, "tests/architecture/open-doors.test.ts");
+    expect(
+      findHandWrittenRefusals([decoy]).length,
+      "見つかるはずの合成例（このファイル自身）を見つけられませんでした。" +
+        "探し方のほうが壊れています。上の 0 件は信用できません。",
+    ).toBe(1);
+  });
+
   it("台帳ファイルが実際の状態と一致していて、手で書かれていない", () => {
     expectLedgerFile(
       LEDGER_PATH,

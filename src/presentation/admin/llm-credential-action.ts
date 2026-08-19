@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { llmCredentialEntry, signedInActor } from "@/presentation/composition";
-import { refusalText } from "@/presentation/refusal-text";
+import { notSignedInText, refusalText } from "@/presentation/refusal-text";
 import type { LlmCredentialState } from "./llm-credential-state";
 
 const PATH = "/admin/settings/llm";
@@ -36,11 +36,9 @@ export async function manageLlmCredentialAction(
 ): Promise<LlmCredentialState> {
   const actor = await signedInActor();
   if (actor === null) {
-    return {
-      status: "failed",
-      message:
-        "ログインしていないため、鍵の登録・失効・疎通確認はできません。\nログインしてからやり直してください。",
-    };
+    // 断り文はここに書かず `notSignedInText()` から取る。同じ文を各所へ写すと、
+    // 直すときに片方だけ古くなり、**同じ断りなのに画面ごとに言うことが違う**状態になる。
+    return { status: "failed", message: notSignedInText("鍵の登録・失効・疎通確認") };
   }
 
   const intent = String(formData.get("intent") ?? "");

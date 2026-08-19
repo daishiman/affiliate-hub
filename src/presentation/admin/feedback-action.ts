@@ -292,10 +292,11 @@ export async function manageIntegrationAccessAction(
 ): Promise<IntegrationAccessState> {
   const actor = await signedInActor();
   if (actor === null) {
+    // 断り文はここに書かず `notSignedInText()` から取る。同じ文を各所へ写すと、
+    // 直すときに片方だけ古くなり、**同じ断りなのに画面ごとに言うことが違う**状態になる。
     return {
       status: "failed",
-      message:
-        "ログインしていないため、取りに来るときの鍵の一覧・発行・失効はできません。\nログインしてからやり直してください。",
+      message: notSignedInText("取りに来るときの鍵の一覧・発行・失効"),
       issuedValue: null,
     };
   }
