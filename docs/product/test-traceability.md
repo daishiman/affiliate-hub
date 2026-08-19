@@ -6,8 +6,8 @@
 テスト側の `@req` 印を重ねたもの。
 
 - 最終更新: 2026-08-19
-- テストファイル: 198 件
-- 由来の要件が分かる: 170 件
+- テストファイル: 199 件
+- 由来の要件が分かる: 171 件
 - **由来不明: 28 件**（上限 28 件）
 
 由来不明とは「どの要件のために書いたのか、機械から辿れない」という意味で、
@@ -72,6 +72,7 @@
 | `tests/application/schedule-publication.test.ts` | REQ-P08 | 印と表 |
 | `tests/architecture/ai-eval-budget.test.ts` | REQ-CI13 | 表 |
 | `tests/architecture/audit-action-emitters.test.ts` | REQ-SEC09 | 印 |
+| `tests/architecture/backlog-item-floor.test.ts` | REQ-TS17 | 印 |
 | `tests/architecture/chapter-regeneration-floor.test.ts` | REQ-TS15 | 印と表 |
 | `tests/architecture/ci-budget.test.ts` | REQ-CI12 | 印と表 |
 | `tests/architecture/ci-config.test.ts` | REQ-CI01, REQ-CI02, REQ-CI03, REQ-CI04, REQ-CI05, REQ-CI06, REQ-CI07, REQ-CI09, REQ-CI10, REQ-CI11, REQ-CI13 | 印と表 |
@@ -218,4 +219,4 @@
 | `tests/ui/tool-form.test.tsx` | REQ-WC05 | 印と表 |
 | `tests/ui/ui-layers.test.ts` | REQ-S09, REQ-TM05 | 表 |
 | `tests/visual/visual-regression.test.ts` | REQ-TS12 | 印 |
-<!-- 生成物の指紋 sha256:003ad81630c89680d497a3f8ec2aaa9deb3d1e29b247575053db699cf32b7429 -->
+<!-- 生成物の指紋 sha256:25f1a7c933513cf537a1b24f206334f6ac47bcc59214b605fedf4eee717c47a0 -->
