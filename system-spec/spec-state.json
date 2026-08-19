@@ -2357,6 +2357,119 @@
           }
         ]
       }
+    },
+    {
+      "category": "database",
+      "platform": "web",
+      "reason": "gap 1 (C05 gaps[0]) の確定セル記録と decisions[] 6 件を章へ手編集で載せるため、正規経路で章保護を解除する。あわせて記録: 2026-08-20 の実測で (1) 章の「カテゴリ別収集状態」が名指しする根拠 qa は 8 カテゴリ中 7 件が正本 qa_ref と不一致 (一致は auth のみ)、(2) 正本 qa-database-web-spec-intake の回答に埋まった MetricRollup 定義は章より古く、正本の本文を章へ複製すると章が退行する。よって gaps[0] は本文複製ではなく確定セル記録 (qa_ref / serves_goals / required-info / 出典 path・節・sha256) の掲載で実行する。再確定は reopen_log[].discarded と同じ値で行う。",
+      "from": "確定",
+      "discarded": {
+        "qa_ref": "qa-database-web-spec-intake",
+        "serves_goals": [
+          "G1",
+          "G2"
+        ]
+      }
+    },
+    {
+      "category": "auth",
+      "platform": "web",
+      "reason": "gap 1 (C05 gaps[0]) の確定セル記録と decisions[] 6 件を章へ手編集で載せるため、正規経路で章保護を解除する。あわせて記録: 2026-08-20 の実測で (1) 章の「カテゴリ別収集状態」が名指しする根拠 qa は 8 カテゴリ中 7 件が正本 qa_ref と不一致 (一致は auth のみ)、(2) 正本 qa-database-web-spec-intake の回答に埋まった MetricRollup 定義は章より古く、正本の本文を章へ複製すると章が退行する。よって gaps[0] は本文複製ではなく確定セル記録 (qa_ref / serves_goals / required-info / 出典 path・節・sha256) の掲載で実行する。再確定は reopen_log[].discarded と同じ値で行う。",
+      "from": "確定",
+      "discarded": {
+        "qa_ref": "qa-auth-web",
+        "serves_goals": [
+          "G1"
+        ],
+        "required_info": [
+          {
+            "item_id": "auth-model",
+            "missing_effect": "block",
+            "status": "grounded",
+            "grounded_by": "qa-auth-web"
+          }
+        ]
+      }
+    },
+    {
+      "category": "backend",
+      "platform": "web",
+      "reason": "gap 1 (C05 gaps[0]) の確定セル記録と decisions[] 6 件を章へ手編集で載せるため、正規経路で章保護を解除する。あわせて記録: 2026-08-20 の実測で (1) 章の「カテゴリ別収集状態」が名指しする根拠 qa は 8 カテゴリ中 7 件が正本 qa_ref と不一致 (一致は auth のみ)、(2) 正本 qa-database-web-spec-intake の回答に埋まった MetricRollup 定義は章より古く、正本の本文を章へ複製すると章が退行する。よって gaps[0] は本文複製ではなく確定セル記録 (qa_ref / serves_goals / required-info / 出典 path・節・sha256) の掲載で実行する。再確定は reopen_log[].discarded と同じ値で行う。",
+      "from": "確定",
+      "discarded": {
+        "qa_ref": "qa-backend-web-spec-intake",
+        "serves_goals": [
+          "G2",
+          "G1"
+        ],
+        "required_info": [
+          {
+            "item_id": "domain-model",
+            "missing_effect": "block",
+            "status": "grounded",
+            "grounded_by": "qa-backend-web-spec-intake"
+          }
+        ]
+      }
+    },
+    {
+      "category": "frontend",
+      "platform": "web",
+      "reason": "gap 1 (C05 gaps[0]) の確定セル記録と decisions[] 6 件を章へ手編集で載せるため、正規経路で章保護を解除する。あわせて記録: 2026-08-20 の実測で (1) 章の「カテゴリ別収集状態」が名指しする根拠 qa は 8 カテゴリ中 7 件が正本 qa_ref と不一致 (一致は auth のみ)、(2) 正本 qa-database-web-spec-intake の回答に埋まった MetricRollup 定義は章より古く、正本の本文を章へ複製すると章が退行する。よって gaps[0] は本文複製ではなく確定セル記録 (qa_ref / serves_goals / required-info / 出典 path・節・sha256) の掲載で実行する。再確定は reopen_log[].discarded と同じ値で行う。",
+      "from": "確定",
+      "discarded": {
+        "qa_ref": "qa-frontend-web-spec-intake",
+        "serves_goals": [
+          "G1",
+          "G2"
+        ]
+      }
+    },
+    {
+      "category": "infrastructure",
+      "platform": "web",
+      "reason": "gap 1 (C05 gaps[0]) の確定セル記録と decisions[] 6 件を章へ手編集で載せるため、正規経路で章保護を解除する。あわせて記録: 2026-08-20 の実測で (1) 章の「カテゴリ別収集状態」が名指しする根拠 qa は 8 カテゴリ中 7 件が正本 qa_ref と不一致 (一致は auth のみ)、(2) 正本 qa-database-web-spec-intake の回答に埋まった MetricRollup 定義は章より古く、正本の本文を章へ複製すると章が退行する。よって gaps[0] は本文複製ではなく確定セル記録 (qa_ref / serves_goals / required-info / 出典 path・節・sha256) の掲載で実行する。再確定は reopen_log[].discarded と同じ値で行う。",
+      "from": "確定",
+      "discarded": {
+        "qa_ref": "qa-infra-web-spec-intake",
+        "serves_goals": [
+          "G2",
+          "G1"
+        ]
+      }
+    },
+    {
+      "category": "maintenance-ops",
+      "platform": "web",
+      "reason": "gap 1 (C05 gaps[0]) の確定セル記録と decisions[] 6 件を章へ手編集で載せるため、正規経路で章保護を解除する。あわせて記録: 2026-08-20 の実測で (1) 章の「カテゴリ別収集状態」が名指しする根拠 qa は 8 カテゴリ中 7 件が正本 qa_ref と不一致 (一致は auth のみ)、(2) 正本 qa-database-web-spec-intake の回答に埋まった MetricRollup 定義は章より古く、正本の本文を章へ複製すると章が退行する。よって gaps[0] は本文複製ではなく確定セル記録 (qa_ref / serves_goals / required-info / 出典 path・節・sha256) の掲載で実行する。再確定は reopen_log[].discarded と同じ値で行う。",
+      "from": "確定",
+      "discarded": {
+        "qa_ref": "qa-ops-web-spec-intake",
+        "serves_goals": [
+          "G1",
+          "G2"
+        ]
+      }
+    },
+    {
+      "category": "security",
+      "platform": "web",
+      "reason": "gap 1 (C05 gaps[0]) の確定セル記録と decisions[] 6 件を章へ手編集で載せるため、正規経路で章保護を解除する。あわせて記録: 2026-08-20 の実測で (1) 章の「カテゴリ別収集状態」が名指しする根拠 qa は 8 カテゴリ中 7 件が正本 qa_ref と不一致 (一致は auth のみ)、(2) 正本 qa-database-web-spec-intake の回答に埋まった MetricRollup 定義は章より古く、正本の本文を章へ複製すると章が退行する。よって gaps[0] は本文複製ではなく確定セル記録 (qa_ref / serves_goals / required-info / 出典 path・節・sha256) の掲載で実行する。再確定は reopen_log[].discarded と同じ値で行う。",
+      "from": "確定",
+      "discarded": {
+        "qa_ref": "qa-security-web-spec-intake",
+        "serves_goals": [
+          "G1"
+        ],
+        "required_info": [
+          {
+            "item_id": "security-posture",
+            "missing_effect": "block",
+            "status": "grounded",
+            "grounded_by": "qa-security-web-spec-intake"
+          }
+        ]
+      }
     }
   ],
   "category_aggregate": {

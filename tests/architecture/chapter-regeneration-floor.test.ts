@@ -65,19 +65,26 @@ import { describe, expect, it } from "vitest";
  *
  * **【2026-08-20 訂正】ここには以前「00 には 6 件とも既に載っている（L80 の表）」と
  * 書いてあった。これは誤りである。**実測すると `00-requirements-definition.md` の
- * `## 意思決定支援 (decisions)` は**見出しと表ヘッダは在るが、行は 1 本しかない** —
+ * `## 意思決定支援 (decisions)` は**見出しと表ヘッダは在るが、行は 1 本しかなかった** —
  * `decision-auth-method` だけである。残り 5 件
  * （`decision-editorial-commercial-split` / `decision-redirect-measurement-async` /
  * `decision-llm-provider` / `decision-ui-theme-implementation` /
- * `decision-test-ci-tooling`）は id でも question 本文でも 0 回。
- * つまり**載っていないのは 8 章の側だけでなく、00 章の側も 5/6 が載っていない。**
+ * `decision-test-ci-tooling`）は id でも question 本文でも 0 回だった。
+ * つまり**載っていないのは 8 章の側だけでなく、00 章の側も 5/6 が載っていなかった。**
  *
  * 誤りの形は「表の見出しが在る」ことを「中身が在る」と読んだもので、
  * **器を見て中身を数えなかった**。この説明文は検査の対象外なので、
  * 誤っていても赤くならずに残り続けた（**説明文には門が無い**）。
  *
- * なお 00 での載り方が `{'category': 'free', 'amount': 0, ...}` という
+ * **【2026-08-20 追記・同じ日のうちに】上の段落は過去形へ直してある。**
+ * gap 1 の着地で残り 5 件を 00 章へ手で書き足し、いまは **6/6 が載っている**
+ * （`grep -o 'decision-[a-z-]*' system-spec/00-requirements-definition.md | sort -u` で 6 種）。
+ * **直した当人がこの説明文を古いまま残せば、上でわざわざ書いた誤りを自分で繰り返すことになる。**
+ * 門が無い文は、直した人が同じ便で直すしかない。
+ *
+ * なお 00 での 1 行目の載り方が `{'category': 'free', 'amount': 0, ...}` という
  * **Python の dict をそのまま文字列にした形**である点は、実測でも変わらず正しい。
+ * **手で足した 5 行はこの形に寄せていない**（寄せると読めない形が 6 行へ増える）。
  * 残課題 78 ⑫ の 3 例目（指摘の一文が名指しした場所だけが外れている）。
  */
 
@@ -110,7 +117,30 @@ function measure(text: string) {
   };
 }
 
-/** 11 節の形（As-Is / To-Be / Delta を別々に持つ章）。 */
+/**
+ * ── 2026-08-20: 節が 2 つ増えた（gap 1 の着地）────────────────────
+ *
+ * `## 確定セルの記録 (正本 spec-state.json)` と `## 意思決定 (decisions)` を
+ * `カテゴリ別収集状態` の直後へ入れた。gaps[0] が求めていた
+ * 「確定セル内容と decisions[] 6 件を本文へ載せる」を、**再生成ではなく手編集**で
+ * 実行した結果である（理由は `system-spec/database.md` の
+ * `### 本節を「転記」に留めた理由` に 1 か所だけ書いてある）。
+ *
+ * **節の検査は等号のままにした。**上の「増えるのは通す」は行数・見出し数・表の行数、
+ * つまり**量**の床についての話である。節の一覧を「含んでいれば通る」に緩めると、
+ * 削除・並べ替えは止まるが**無断の追加**が止まらなくなる。3 つの保護のうち 1 つを
+ * 落とすことになるので、代わりに**実物のほうを一覧へ書き写した**。
+ * 緩めていない——**当てる先を今日の形に更新しただけ**である。
+ *
+ * **ui-ux だけ旧い形のまま残してある（`SHAPE_A`）。**この章の web セルは
+ * `screen-information-priority` が未接地で、再確定できていないため gap 1 を
+ * まだ載せていない。載った日にこの検査は**赤くなり**、
+ * 「ui-ux も `SHAPE_A_WITH_CELL_RECORD` へ移す」ことを知らせる。
+ * **旧い形が 1 つ残っていること自体が、残っている作業の目印である。**
+ * 先回りで揃えると、その目印が消える。
+ */
+
+/** 11 節の形（As-Is / To-Be / Delta を別々に持つ章）。**gap 1 未了の章だけが使う。** */
 const SHAPE_A = [
   "状態の意味 (State semantics)",
   "As-Is",
@@ -125,10 +155,29 @@ const SHAPE_A = [
   "最新ドキュメント出典",
 ] as const;
 
-/** 6 節の形（`状態の意味と実装差分` 1 節にまとめてある章）。 */
+/** 11 節の形に、gap 1 の 2 節を加えたもの（13 節）。 */
+const SHAPE_A_WITH_CELL_RECORD = [
+  "状態の意味 (State semantics)",
+  "As-Is",
+  "To-Be",
+  "Delta",
+  "Dependencies",
+  "Acceptance evidence",
+  "カテゴリ別収集状態",
+  "確定セルの記録 (正本 spec-state.json)",
+  "意思決定 (decisions)",
+  "確定内容 (質疑録)",
+  "上流指針 (doctrine anchor)",
+  "適用された設計知識",
+  "最新ドキュメント出典",
+] as const;
+
+/** 6 節の形（`状態の意味と実装差分` 1 節にまとめてある章）に、gap 1 の 2 節を加えたもの（8 節）。 */
 const SHAPE_B = [
   "状態の意味と実装差分",
   "カテゴリ別収集状態",
+  "確定セルの記録 (正本 spec-state.json)",
+  "意思決定 (decisions)",
   "確定内容 (質疑録)",
   "上流指針 (doctrine anchor)",
   "適用された設計知識",
@@ -155,7 +204,7 @@ type Chapter = {
 const CHAPTERS: readonly Chapter[] = [
   {
     name: "auth",
-    sections: SHAPE_A,
+    sections: SHAPE_A_WITH_CELL_RECORD,
     tables: [
       ["To-Be", 5],
       ["Acceptance evidence", 6],
@@ -196,7 +245,7 @@ const CHAPTERS: readonly Chapter[] = [
   },
   {
     name: "frontend",
-    sections: SHAPE_A,
+    sections: SHAPE_A_WITH_CELL_RECORD,
     tables: [
       ["To-Be", 5],
       ["Acceptance evidence", 5],
@@ -225,7 +274,7 @@ const CHAPTERS: readonly Chapter[] = [
   },
   {
     name: "maintenance-ops",
-    sections: SHAPE_A,
+    sections: SHAPE_A_WITH_CELL_RECORD,
     tables: [
       ["To-Be", 8],
       ["Acceptance evidence", 8],
@@ -241,7 +290,7 @@ const CHAPTERS: readonly Chapter[] = [
   },
   {
     name: "security",
-    sections: SHAPE_A,
+    sections: SHAPE_A_WITH_CELL_RECORD,
     tables: [
       ["To-Be", 6],
       ["Acceptance evidence", 6],
