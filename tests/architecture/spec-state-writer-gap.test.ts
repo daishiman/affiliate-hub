@@ -1,5 +1,5 @@
 /** @tier 1 */
-import { readFileSync, readdirSync, statSync } from "node:fs";
+import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
 import { join, relative } from "node:path";
 import { describe, expect, it } from "vitest";
 
@@ -37,6 +37,21 @@ const WRITER_DIR = join(
   ROOT,
   ".claude/plugins/system-spec-harness/skills/run-system-spec-elicit/scripts",
 );
+
+/**
+ * 収集マトリクスの gate。**版を見ていないことを、ここで固定する。**
+ *
+ * この gate は正本と同じ名前の定数 `CURRENT_STATE_SCHEMA_VERSION = "1.1"` を
+ * 持っているが、**同じファイルの中で 1 度も読まれていない。**
+ * つまり `1.2` の正本を食わせても exit 0 になる。
+ * 6 つの gate が緑だったうちの 1 つは、「合格した」ではなく「その軸を見ていない」。
+ */
+const MATRIX_GATE = ".claude/plugins/system-spec-harness/scripts/validate-coverage-matrix.py";
+
+/** その名前が何回現れるか。定義だけなら 1、読んでいる場所があれば 2 以上。 */
+function countMentions(text: string): number {
+  return [...text.matchAll(/CURRENT_STATE_SCHEMA_VERSION/g)].length;
+}
 
 /** 1.2 で増えた節のうち、writer 側に当てどころが 1 つも無いもの。 */
 const UNMAINTAINED_SECTIONS = [
@@ -104,6 +119,61 @@ describe("正本を保守できる writer が無い", () => {
       found,
       `${found.join("\n")}\n書けるようになっています。この検査を消して、書き直しへ移ってください`,
     ).toStrictEqual([]);
+  });
+
+  /**
+   * --- この 2 件が赤くなったときの読み方（意味が 2 通りある） ---
+   *
+   *   (1) **定数が読まれるようになった** — gate が版を見始めた。よいことである。
+   *       そのときは、この 2 件を消して「gate は版を見ている」側の検査へ書き直す。
+   *   (2) **ファイルが消えた・場所が変わった** — キット更新で入れ替わった。
+   *       塞がったのではない。走査先を直すか、見張れなくなった事実を書き残す。
+   *
+   * **どちらでも赤くなるのが正しい。**赤は「直せ」ではなく「世界が変わったから見に来い」
+   * である。区別が付くように、2 件を分けてある——(2) なら下の「在る」が先に落ちる。
+   *
+   * 見張る先がキット配布物であることは承知している。入れ替わったときに
+   * 「塞がった」と読み違えないための書き分けが、上の 2 通りである。
+   */
+  it("版を見ない gate のファイルが、まだそこに在る", () => {
+    expect(
+      existsSync(join(ROOT, MATRIX_GATE)),
+      `${MATRIX_GATE} が見つかりません。塞がったのではなく、見張る先が動いた可能性があります`,
+    ).toBe(true);
+  });
+
+  it("版の定数は定義されるだけで、1 度も読まれていない", () => {
+    const text = readFileSync(join(ROOT, MATRIX_GATE), "utf8");
+    const hits = countMentions(text);
+    // 1 = 定義行だけ。2 以上になったら、誰かが読み始めた＝(1) の赤である。
+    // 0 は定義ごと消えた形で、これも「見張れなくなった」側なので落とす。
+    expect(
+      hits,
+      `${MATRIX_GATE} に現れる回数が ${hits} です。` +
+        "1 なら定義だけ（誰も読んでいない）。2 以上なら読まれ始めたので、この検査を書き直してください。" +
+        "0 なら定義ごと消えています",
+    ).toBe(1);
+  });
+
+  /**
+   * --- 数える側が動いていることの陽性対照 ---
+   *
+   * 上の「1 度も読まれていない」は **1 を主張する検査**である。
+   * 数え方が壊れて常に 1 を返しても、同じ緑が出る。だから 1 以外を作れることを
+   * ここで示す。見張り先そのもの（`.claude/plugins/` 配下＝キット配布物）は
+   * 測定のためにも書き換えない約束なので、**合成見本で数える側だけを動かす。**
+   *
+   * これは「壊して赤を見る」の代わりではない。壊せない場所を見張っているときの、
+   * 数える側が生きていることの示し方である。
+   */
+  it("読み始めた形の見本では、数が 2 になる", () => {
+    const sample = 'CURRENT_STATE_SCHEMA_VERSION = "1.1"\nif v != CURRENT_STATE_SCHEMA_VERSION:\n';
+    expect(countMentions(sample), "読む行を足しても数が動かないなら、数え方が壊れています").toBe(2);
+  });
+
+  it("定義ごと消えた形の見本では、数が 0 になる", () => {
+    const sample = 'STATE_SCHEMA = "1.1"\nprint(STATE_SCHEMA)\n';
+    expect(countMentions(sample), "定義が無い見本で 0 にならないなら、数え方が壊れています").toBe(0);
   });
 
   it("正本には、いま保守できない節が実際に中身を持っている", () => {

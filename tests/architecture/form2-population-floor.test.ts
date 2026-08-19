@@ -94,10 +94,12 @@ function testFiles(dir: string, out: string[] = []): string[] {
   return out;
 }
 
-/** `it(...)` を波括弧の対応で切り出す。行数で切ると入れ子で位置を間違える。 */
-function itBlocks(text: string): { head: string; body: string; line: number }[] {
-  const out: { head: string; body: string; line: number }[] = [];
-  const re = /\bit(?:\.each\([\s\S]*?\))?\s*\(/g;
+/** 波括弧の対応で塊を切り出す。行数や文字数で切ると入れ子で位置を間違える。 */
+function blocks(
+  text: string,
+  re: RegExp,
+): { name: string; head: string; body: string; line: number }[] {
+  const out: { name: string; head: string; body: string; line: number }[] = [];
   let m: RegExpExecArray | null;
   while ((m = re.exec(text))) {
     const open = text.indexOf("{", m.index);
@@ -112,12 +114,41 @@ function itBlocks(text: string): { head: string; body: string; line: number }[] 
       }
     }
     out.push({
+      name: m[1] ?? "",
       head: text.slice(m.index, text.indexOf("\n", m.index)).trim(),
       body: text.slice(open, i + 1),
       line: text.slice(0, m.index).split("\n").length,
     });
   }
   return out;
+}
+
+/** `it(...)` の塊。 */
+function itBlocks(text: string) {
+  return blocks(text, /\bit(?:\.each\([\s\S]*?\))?\s*\(/g);
+}
+
+/**
+ * 走査を含む関数の名前。**本体の中だけを見る。**
+ *
+ * 2026-08-19 まで「関数の宣言から 800 字以内に `readdirSync` があるか」で見ていた。
+ * 文字数の窓は関数の切れ目を知らないので、**走査と無関係な短い関数のすぐ後ろに
+ * 走査する関数が並んでいるだけで、前者が走査関数と数えられる。**
+ * しかも非貪欲の 1 マッチが両方を飲み込むため、**本物のほうは取りこぼす。**
+ * 誤検出と取りこぼしが 1 件ずつ出て、合計だけが合っていた
+ * （この検査の doc comment が「互いに逆向きで相殺」と警告していたのと同じ形の再発）。
+ * 実測: 誤検出 `countMentions` / 取りこぼし `site-routes.test.ts` の `actualRoutePaths`。
+ *
+ * **新旧どちらの定義でも数えた**（2026-08-19）:
+ *   旧（文字数の窓）… 族 48 / 床なし 25 / 族外 259
+ *   新（波括弧の対応）… 族 47 / 床なし 25 / 族外 260
+ * 露出した 1 件（`site-routes.test.ts` の「2 本目のブログ専用の画面ファイルは 1 つも無い」）に
+ * **床を足して 24 へ戻した。上限は上げていない。**
+ */
+function gatheringFns(text: string): string[] {
+  return blocks(text, /function\s+(\w+)\s*\(/g)
+    .filter((b) => /readdirSync|globSync/.test(b.body))
+    .map((b) => b.name);
 }
 
 /**
@@ -130,9 +161,7 @@ function itBlocks(text: string): { head: string; body: string; line: number }[] 
  * そこで (1) 走査を含む関数の名前を先に集め (2) その関数を呼んでいる変数も母集団と見なす。
  */
 function gatheredVars(text: string): string[] {
-  const fns = [...text.matchAll(/function\s+(\w+)\s*\([^)]*\)[\s\S]{0,800}?(readdirSync|globSync)/g)].map(
-    (m) => m[1],
-  );
+  const fns = gatheringFns(text);
   const via = fns.length > 0 ? `|${fns.join("|")}` : "";
   const source = new RegExp(`readdirSync|globSync|pythonSources|walk\\(${via}`);
   // **先読みで見る。**`([\s\S]{0,300})` を捕捉で書くと `lastIndex` が 300 字進み、
@@ -179,6 +208,33 @@ describe("0 を主張する検査に、母集団の床が同居しているこ�
     expect(literalOnly, "族に入らないものが 1 件も見つかりません。判別が効いていません").toBeGreaterThan(
       0,
     );
+  });
+
+  /**
+   * --- 走査関数の見分け方の陽性対照 ---
+   *
+   * 見分け方が「関数の宣言から一定の文字数」だったとき、**隣に走査関数が並んでいる**
+   * という配置だけで結果が変わった。並び順は中身と関係が無いので、
+   * **見本は「走査しない短い関数のすぐ後ろに走査関数がある」形にしてある。**
+   * 文字数の窓に戻したら、この 2 件が落ちる。
+   */
+  const NEIGHBOURS = [
+    "function tiny(s: string): number { return s.length; }",
+    "function scan(dir: string) { return readdirSync(dir); }",
+  ].join("\n");
+
+  it("走査しない関数は、隣に走査関数があっても数えない", () => {
+    expect(
+      gatheringFns(NEIGHBOURS),
+      "並び順だけで走査関数と数えています。文字数の窓に戻っていないか確かめてください",
+    ).not.toContain("tiny");
+  });
+
+  it("走査する関数を取りこぼさない", () => {
+    expect(
+      gatheringFns(NEIGHBOURS),
+      "本物の走査関数が見つかりません。母集団が族外へ落ちます",
+    ).toContain("scan");
   });
 
   it("族そのものが減っていない（検査を消して数字を良くする道を塞ぐ）", () => {

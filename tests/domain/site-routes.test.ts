@@ -125,6 +125,11 @@ describe("ブログを増やしても画面は増えない", () => {
 
   it("2 本目のブログ専用の画面ファイルは 1 つも無い", () => {
     const paths = actualRoutePaths();
+    // **母集団の床。**画面を歩けていないと `perBlog` は空になり、
+    // 「専用ファイルが 1 つも無い」は**何も見ていないときにも成立する。**
+    // 60 行目の同じ床に揃えてある。下げない。
+    expect(paths.length, "画面のファイルを歩けていません").toBeGreaterThan(5);
+
     const perBlog = paths.filter(
       (p) => p.includes(SAMPLE_SITE_SLUG) || p.includes(SECOND_SITE_SLUG),
     );
