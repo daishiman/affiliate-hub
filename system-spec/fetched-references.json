@@ -2,15 +2,16 @@
   "references": [
     {
       "target_id": "better-auth",
-      "retrieved_at": "2026-08-16T09:01:51Z",
+      "retrieved_at": "2026-08-19T15:30:39Z",
       "source_url": "https://www.better-auth.com/docs/introduction",
       "official_publisher": "Better Auth",
       "official_host": "www.better-auth.com",
-      "version": "1.6.29",
-      "latest_checked_at": "2026-08-16T09:02:16Z",
+      "version": "1.7.1",
+      "freshness_source": "publisher-registry",
+      "latest_checked_at": "2026-08-19T15:30:39Z",
       "evidence_ref": "system-spec/retrieval-evidence/better-auth.json",
-      "evidence_sha256": "c6d3a97c692a9c54791a1d2d678a65a0ce12a7a223a588d8e4651ac189f0cbec",
-      "summary": "Better Auth 公式ドキュメント導入章。TypeScript 向け自己ホスト認証フレームワーク。OAuth (Google 含む)・セッション管理・組織/マルチテナント・パスキー等のプラグインと Drizzle アダプタを提供。"
+      "evidence_sha256": "0e7f11353a036d1008d3b2ac662ea4c9b360e5289ce9e8621b29d2e0d2240ad0",
+      "summary": "Better Auth 公式ドキュメント導入章。TypeScript 向け自己ホスト認証フレームワーク。OAuth (Google 含む)・セッション管理・組織/マルチテナント・パスキー等のプラグインと Drizzle アダプタを提供。docs は rolling で版を表明しないため、version は publisher の配布 registry が示す現行版 1.7.1 (この repo の導入版 1.7.0 とは別物。version は出典が説明している対象の版である)。"
     },
     {
       "target_id": "nextjs",
@@ -26,26 +27,28 @@
     },
     {
       "target_id": "cloudflare-workers",
-      "retrieved_at": "2026-08-16T09:01:51Z",
+      "retrieved_at": "2026-08-19T15:30:39Z",
       "source_url": "https://developers.cloudflare.com/workers/",
       "official_publisher": "Cloudflare",
       "official_host": "developers.cloudflare.com",
-      "last_updated": "2026-08-16",
-      "latest_checked_at": "2026-08-16T09:02:16Z",
+      "last_updated": "2026-04-23",
+      "freshness_source": "page-declared",
+      "latest_checked_at": "2026-08-19T15:30:39Z",
       "evidence_ref": "system-spec/retrieval-evidence/cloudflare-workers.json",
-      "evidence_sha256": "547273bdf05b1043873d5fb6656b50375e17d12b41b036158cb1f5e8376fdd53",
+      "evidence_sha256": "025bcc8c92dd177ddf4b4c7572297ca1da11162bc8f5969c71ca73af5806d061",
       "summary": "Cloudflare Workers 公式ドキュメント。サーバレス実行環境・バインディング・Secrets 管理。infrastructure カテゴリと OpenNext デプロイの正本参照。"
     },
     {
       "target_id": "cloudflare-d1",
-      "retrieved_at": "2026-08-16T09:01:52Z",
+      "retrieved_at": "2026-08-19T15:30:39Z",
       "source_url": "https://developers.cloudflare.com/d1/",
       "official_publisher": "Cloudflare",
       "official_host": "developers.cloudflare.com",
-      "last_updated": "2026-08-16",
-      "latest_checked_at": "2026-08-16T09:02:16Z",
+      "last_updated": "2026-04-30",
+      "freshness_source": "page-declared",
+      "latest_checked_at": "2026-08-19T15:30:39Z",
       "evidence_ref": "system-spec/retrieval-evidence/cloudflare-d1.json",
-      "evidence_sha256": "d483ea2056490c3109c32ae9503268127924f4296786c891e830137eab9f6684",
+      "evidence_sha256": "6ea3397a7cf078533681c82161bf96b2cd7bb75df124c0a2676b2449a2c232f5",
       "summary": "Cloudflare D1 公式ドキュメント。SQLite ベースのサーバレス SQL データベース。database カテゴリ (テナント別データ・セッション保存) の正本参照。"
     },
     {
@@ -74,27 +77,29 @@
     },
     {
       "target_id": "apple-hig",
-      "retrieved_at": "2026-08-16T09:11:20Z",
+      "retrieved_at": "2026-08-19T15:30:40Z",
       "source_url": "https://developer.apple.com/design/human-interface-guidelines",
       "official_publisher": "Apple",
       "official_host": "developer.apple.com",
-      "last_updated": "2026-08-16",
-      "latest_checked_at": "2026-08-16T09:11:39Z",
+      "last_updated": "2026-08-06",
+      "freshness_source": "http-last-modified",
+      "latest_checked_at": "2026-08-19T15:30:40Z",
       "evidence_ref": "system-spec/retrieval-evidence/apple-hig.json",
-      "evidence_sha256": "19a11d42f62d7ec8e52e08e8f2307b43f5de691cc94ddfae3cdc54de9b6c4c91",
-      "summary": "Apple Human Interface Guidelines 公式ページ。presentation concern の doctrine authority。レスポンシブ Web UI の階層・フィードバック・アクセシビリティの上流指針。"
+      "evidence_sha256": "6d2ff53c5d32a4336e463e6f00926e34520e96c1929fb6bb82f494802eceab3c",
+      "summary": "Apple Human Interface Guidelines 公式ページ。presentation concern の doctrine authority。レスポンシブ Web UI の階層・フィードバック・アクセシビリティの上流指針。本文に日付・版の表明は無く、HTTP Last-Modified のみが 2026-08-06 を示す。2026-08-16 取得分と content_sha256 が一致し内容は不変。"
     },
     {
       "target_id": "google-sre",
-      "retrieved_at": "2026-08-16T09:11:22Z",
+      "retrieved_at": "2026-08-19T15:30:40Z",
       "source_url": "https://sre.google/sre-book/table-of-contents/",
       "official_publisher": "Google",
       "official_host": "sre.google",
-      "last_updated": "2026-08-16",
-      "latest_checked_at": "2026-08-16T09:11:39Z",
+      "last_updated": "2017",
+      "freshness_source": "content-copyright",
+      "latest_checked_at": "2026-08-19T15:30:40Z",
       "evidence_ref": "system-spec/retrieval-evidence/google-sre.json",
-      "evidence_sha256": "5edf6b842e202bae47ef8ae562d632472f2d20df65392073472040f59f265658",
-      "summary": "Google SRE Book 公式目次。SLO・エラーバジェット・モニタリング・ポストモーテムの上流指針。maintenance-ops/infrastructure 章の doctrine authority。"
+      "evidence_sha256": "ddb488d397c1d7c77ff792f4464d98e08124fa8677fdd88ec6daa782d69add5b",
+      "summary": "Google SRE Book 公式目次。SLO・エラーバジェット・モニタリング・ポストモーテムの上流指針。maintenance-ops/infrastructure 章の doctrine authority。更新日の表明は無く、本文が言う最新の年は Copyright 2017 のみ (HTTP last-modified 2025-02-03 はファイルの更新であって内容の更新ではないため採らない)。"
     }
   ]
 }

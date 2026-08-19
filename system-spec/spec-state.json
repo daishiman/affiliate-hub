@@ -790,6 +790,14 @@
       "web": {
         "state": "確定",
         "qa_ref": "qa-auth-web",
+        "required_info": [
+          {
+            "item_id": "auth-model",
+            "missing_effect": "block",
+            "status": "grounded",
+            "grounded_by": "qa-auth-web"
+          }
+        ],
         "serves_goals": [
           "G1"
         ]
@@ -821,6 +829,26 @@
         "qa_ref": "qa-uiux-web-spec-intake",
         "serves_goals": [
           "G1"
+        ],
+        "required_info": [
+          {
+            "item_id": "product-goal",
+            "missing_effect": "block",
+            "status": "grounded",
+            "grounded_by": "qa-foundation-u1"
+          },
+          {
+            "item_id": "screen-information-priority",
+            "missing_effect": "block",
+            "status": "ungrounded",
+            "reason": "UI は存在するが、確定を支える qa-uiux-web-spec-intake はダッシュボード指標一覧 (docs/spec/01 §22.1) と配色・明暗の2軸モデル (docs/spec/09 §2) の 2 件で、completion_rule が要求する 9 項目 (利用者ロール・主タスク・熟練度・端末・利用頻度・データ量・比較/一括操作・誤操作コスト・情報優先度/省略/密度) をいずれも含まない。ゲート導入前に確定したセルの負債として記録する"
+          },
+          {
+            "item_id": "target-platforms",
+            "missing_effect": "block",
+            "status": "grounded",
+            "grounded_by": "qa-platform-scope"
+          }
         ]
       },
       "mobile": {
@@ -848,6 +876,14 @@
       "web": {
         "state": "確定",
         "qa_ref": "qa-security-web-spec-intake",
+        "required_info": [
+          {
+            "item_id": "security-posture",
+            "missing_effect": "block",
+            "status": "grounded",
+            "grounded_by": "qa-security-web-spec-intake"
+          }
+        ],
         "serves_goals": [
           "G1"
         ]
@@ -907,6 +943,14 @@
       "web": {
         "state": "確定",
         "qa_ref": "qa-backend-web-spec-intake",
+        "required_info": [
+          {
+            "item_id": "domain-model",
+            "missing_effect": "block",
+            "status": "grounded",
+            "grounded_by": "qa-backend-web-spec-intake"
+          }
+        ],
         "serves_goals": [
           "G2",
           "G1"
@@ -2087,6 +2131,232 @@
       "platform": "web",
       "reason": "infrastructure.md に非規範注記 (本章内の ref-system-design-knowledge 参照は非規範・取得証跡なし・実装根拠に使用不可) が無い (C05 gap 6)。5 章にあって 3 章に無い状態を一律にする。要件文の内容は変えない。compile は走らせない。",
       "from": "確定"
+    },
+    {
+      "category": "database",
+      "platform": "web",
+      "reason": "gap 3 の「条項引用の可否」節を章本文へ明示するため、正規経路で章保護を解除する。あわせて記録: 2026-08-20 に compile 出力(scratchpad)と本番章を突き合わせた結果、章の規範本文 366 行(To-Be 契約表 DB-*/BE-*/INF-*/*-REQ-*/*-ACC-*、故障モード、初期 SLO、Acceptance evidence、index の状態軸)が正本にも生成器にも存在せず、compile は仕様書を消すことが判明した。したがって章の更新は compile ではなく手編集で行う。次に reopen する人はこの測定をやり直さなくてよい。再確定は reopen_log[].discarded と同じ qa_ref / serves_goals / required_info で行う。",
+      "from": "確定",
+      "discarded": {
+        "qa_ref": "qa-database-web-spec-intake",
+        "serves_goals": [
+          "G1",
+          "G2"
+        ]
+      }
+    },
+    {
+      "category": "auth",
+      "platform": "web",
+      "reason": "gap 3 の「条項引用の可否」節を章本文へ明示するため、正規経路で章保護を解除する。あわせて記録: 2026-08-20 に compile 出力(scratchpad)と本番章を突き合わせた結果、章の規範本文 366 行(To-Be 契約表 DB-*/BE-*/INF-*/*-REQ-*/*-ACC-*、故障モード、初期 SLO、Acceptance evidence、index の状態軸)が正本にも生成器にも存在せず、compile は仕様書を消すことが判明した。したがって章の更新は compile ではなく手編集で行う。次に reopen する人はこの測定をやり直さなくてよい。再確定は reopen_log[].discarded と同じ qa_ref / serves_goals / required_info で行う。",
+      "from": "確定",
+      "discarded": {
+        "qa_ref": "qa-auth-web",
+        "serves_goals": [
+          "G1"
+        ],
+        "required_info": [
+          {
+            "item_id": "auth-model",
+            "missing_effect": "block",
+            "status": "grounded",
+            "grounded_by": "qa-auth-web"
+          }
+        ]
+      }
+    },
+    {
+      "category": "security",
+      "platform": "web",
+      "reason": "gap 3 の「条項引用の可否」節を章本文へ明示するため、正規経路で章保護を解除する。あわせて記録: 2026-08-20 に compile 出力(scratchpad)と本番章を突き合わせた結果、章の規範本文 366 行(To-Be 契約表 DB-*/BE-*/INF-*/*-REQ-*/*-ACC-*、故障モード、初期 SLO、Acceptance evidence、index の状態軸)が正本にも生成器にも存在せず、compile は仕様書を消すことが判明した。したがって章の更新は compile ではなく手編集で行う。次に reopen する人はこの測定をやり直さなくてよい。再確定は reopen_log[].discarded と同じ qa_ref / serves_goals / required_info で行う。",
+      "from": "確定",
+      "discarded": {
+        "qa_ref": "qa-security-web-spec-intake",
+        "serves_goals": [
+          "G1"
+        ],
+        "required_info": [
+          {
+            "item_id": "security-posture",
+            "missing_effect": "block",
+            "status": "grounded",
+            "grounded_by": "qa-security-web-spec-intake"
+          }
+        ]
+      }
+    },
+    {
+      "category": "infrastructure",
+      "platform": "web",
+      "reason": "gap 3 の「条項引用の可否」節を章本文へ明示するため、正規経路で章保護を解除する。あわせて記録: 2026-08-20 に compile 出力(scratchpad)と本番章を突き合わせた結果、章の規範本文 366 行(To-Be 契約表 DB-*/BE-*/INF-*/*-REQ-*/*-ACC-*、故障モード、初期 SLO、Acceptance evidence、index の状態軸)が正本にも生成器にも存在せず、compile は仕様書を消すことが判明した。したがって章の更新は compile ではなく手編集で行う。次に reopen する人はこの測定をやり直さなくてよい。再確定は reopen_log[].discarded と同じ qa_ref / serves_goals / required_info で行う。",
+      "from": "確定",
+      "discarded": {
+        "qa_ref": "qa-infra-web-spec-intake",
+        "serves_goals": [
+          "G2",
+          "G1"
+        ]
+      }
+    },
+    {
+      "category": "backend",
+      "platform": "web",
+      "reason": "gap 3 の「条項引用の可否」節を章本文へ明示するため、正規経路で章保護を解除する。あわせて記録: 2026-08-20 に compile 出力(scratchpad)と本番章を突き合わせた結果、章の規範本文 366 行(To-Be 契約表 DB-*/BE-*/INF-*/*-REQ-*/*-ACC-*、故障モード、初期 SLO、Acceptance evidence、index の状態軸)が正本にも生成器にも存在せず、compile は仕様書を消すことが判明した。したがって章の更新は compile ではなく手編集で行う。次に reopen する人はこの測定をやり直さなくてよい。再確定は reopen_log[].discarded と同じ qa_ref / serves_goals / required_info で行う。",
+      "from": "確定",
+      "discarded": {
+        "qa_ref": "qa-backend-web-spec-intake",
+        "serves_goals": [
+          "G2",
+          "G1"
+        ],
+        "required_info": [
+          {
+            "item_id": "domain-model",
+            "missing_effect": "block",
+            "status": "grounded",
+            "grounded_by": "qa-backend-web-spec-intake"
+          }
+        ]
+      }
+    },
+    {
+      "category": "frontend",
+      "platform": "web",
+      "reason": "gap 3 の「条項引用の可否」節を章本文へ明示するため、正規経路で章保護を解除する。あわせて記録: 2026-08-20 に compile 出力(scratchpad)と本番章を突き合わせた結果、章の規範本文 366 行(To-Be 契約表 DB-*/BE-*/INF-*/*-REQ-*/*-ACC-*、故障モード、初期 SLO、Acceptance evidence、index の状態軸)が正本にも生成器にも存在せず、compile は仕様書を消すことが判明した。したがって章の更新は compile ではなく手編集で行う。次に reopen する人はこの測定をやり直さなくてよい。再確定は reopen_log[].discarded と同じ qa_ref / serves_goals / required_info で行う。",
+      "from": "確定",
+      "discarded": {
+        "qa_ref": "qa-frontend-web-spec-intake",
+        "serves_goals": [
+          "G1",
+          "G2"
+        ]
+      }
+    },
+    {
+      "category": "maintenance-ops",
+      "platform": "web",
+      "reason": "gap 3 の「条項引用の可否」節を章本文へ明示するため、正規経路で章保護を解除する。あわせて記録: 2026-08-20 に compile 出力(scratchpad)と本番章を突き合わせた結果、章の規範本文 366 行(To-Be 契約表 DB-*/BE-*/INF-*/*-REQ-*/*-ACC-*、故障モード、初期 SLO、Acceptance evidence、index の状態軸)が正本にも生成器にも存在せず、compile は仕様書を消すことが判明した。したがって章の更新は compile ではなく手編集で行う。次に reopen する人はこの測定をやり直さなくてよい。再確定は reopen_log[].discarded と同じ qa_ref / serves_goals / required_info で行う。",
+      "from": "確定",
+      "discarded": {
+        "qa_ref": "qa-ops-web-spec-intake",
+        "serves_goals": [
+          "G1",
+          "G2"
+        ]
+      }
+    },
+    {
+      "category": "database",
+      "platform": "web",
+      "reason": "gap 1 (C05 gaps[0]) の「確定セル内容と decisions[] 6 件を本文へ載せる」を章へ手編集で反映するため、正規経路で章保護を解除する。あわせて記録: 2026-08-20 の実測で、章の「カテゴリ別収集状態」が根拠として名指しする qa は 8 カテゴリ中 7 件が正本の qa_ref と食い違っていた (章は qa-*-analytics / qa-*-web など intake 前の質疑を指し、正本は qa-*-spec-intake を指す。一致は auth のみ)。また decisions 6 件は 00 章に 1 件 (decision-auth-method) しか載っておらず、技術 8 章には 0 件だった。反映は compile では行えない。compile は章の規範本文 366 行 (ファイル内 distinct 合計。出現回数では 374、10 枚横断 distinct では 316) を消すことが 2026-08-20 に測定済みである。再確定は reopen_log[].discarded と同じ qa_ref / serves_goals / required_info で行う。",
+      "from": "確定",
+      "discarded": {
+        "qa_ref": "qa-database-web-spec-intake",
+        "serves_goals": [
+          "G1",
+          "G2"
+        ]
+      }
+    },
+    {
+      "category": "auth",
+      "platform": "web",
+      "reason": "gap 1 (C05 gaps[0]) の「確定セル内容と decisions[] 6 件を本文へ載せる」を章へ手編集で反映するため、正規経路で章保護を解除する。あわせて記録: 2026-08-20 の実測で、章の「カテゴリ別収集状態」が根拠として名指しする qa は 8 カテゴリ中 7 件が正本の qa_ref と食い違っていた (章は qa-*-analytics / qa-*-web など intake 前の質疑を指し、正本は qa-*-spec-intake を指す。一致は auth のみ)。また decisions 6 件は 00 章に 1 件 (decision-auth-method) しか載っておらず、技術 8 章には 0 件だった。反映は compile では行えない。compile は章の規範本文 366 行 (ファイル内 distinct 合計。出現回数では 374、10 枚横断 distinct では 316) を消すことが 2026-08-20 に測定済みである。再確定は reopen_log[].discarded と同じ qa_ref / serves_goals / required_info で行う。",
+      "from": "確定",
+      "discarded": {
+        "qa_ref": "qa-auth-web",
+        "serves_goals": [
+          "G1"
+        ],
+        "required_info": [
+          {
+            "item_id": "auth-model",
+            "missing_effect": "block",
+            "status": "grounded",
+            "grounded_by": "qa-auth-web"
+          }
+        ]
+      }
+    },
+    {
+      "category": "backend",
+      "platform": "web",
+      "reason": "gap 1 (C05 gaps[0]) の「確定セル内容と decisions[] 6 件を本文へ載せる」を章へ手編集で反映するため、正規経路で章保護を解除する。あわせて記録: 2026-08-20 の実測で、章の「カテゴリ別収集状態」が根拠として名指しする qa は 8 カテゴリ中 7 件が正本の qa_ref と食い違っていた (章は qa-*-analytics / qa-*-web など intake 前の質疑を指し、正本は qa-*-spec-intake を指す。一致は auth のみ)。また decisions 6 件は 00 章に 1 件 (decision-auth-method) しか載っておらず、技術 8 章には 0 件だった。反映は compile では行えない。compile は章の規範本文 366 行 (ファイル内 distinct 合計。出現回数では 374、10 枚横断 distinct では 316) を消すことが 2026-08-20 に測定済みである。再確定は reopen_log[].discarded と同じ qa_ref / serves_goals / required_info で行う。",
+      "from": "確定",
+      "discarded": {
+        "qa_ref": "qa-backend-web-spec-intake",
+        "serves_goals": [
+          "G2",
+          "G1"
+        ],
+        "required_info": [
+          {
+            "item_id": "domain-model",
+            "missing_effect": "block",
+            "status": "grounded",
+            "grounded_by": "qa-backend-web-spec-intake"
+          }
+        ]
+      }
+    },
+    {
+      "category": "frontend",
+      "platform": "web",
+      "reason": "gap 1 (C05 gaps[0]) の「確定セル内容と decisions[] 6 件を本文へ載せる」を章へ手編集で反映するため、正規経路で章保護を解除する。あわせて記録: 2026-08-20 の実測で、章の「カテゴリ別収集状態」が根拠として名指しする qa は 8 カテゴリ中 7 件が正本の qa_ref と食い違っていた (章は qa-*-analytics / qa-*-web など intake 前の質疑を指し、正本は qa-*-spec-intake を指す。一致は auth のみ)。また decisions 6 件は 00 章に 1 件 (decision-auth-method) しか載っておらず、技術 8 章には 0 件だった。反映は compile では行えない。compile は章の規範本文 366 行 (ファイル内 distinct 合計。出現回数では 374、10 枚横断 distinct では 316) を消すことが 2026-08-20 に測定済みである。再確定は reopen_log[].discarded と同じ qa_ref / serves_goals / required_info で行う。",
+      "from": "確定",
+      "discarded": {
+        "qa_ref": "qa-frontend-web-spec-intake",
+        "serves_goals": [
+          "G1",
+          "G2"
+        ]
+      }
+    },
+    {
+      "category": "infrastructure",
+      "platform": "web",
+      "reason": "gap 1 (C05 gaps[0]) の「確定セル内容と decisions[] 6 件を本文へ載せる」を章へ手編集で反映するため、正規経路で章保護を解除する。あわせて記録: 2026-08-20 の実測で、章の「カテゴリ別収集状態」が根拠として名指しする qa は 8 カテゴリ中 7 件が正本の qa_ref と食い違っていた (章は qa-*-analytics / qa-*-web など intake 前の質疑を指し、正本は qa-*-spec-intake を指す。一致は auth のみ)。また decisions 6 件は 00 章に 1 件 (decision-auth-method) しか載っておらず、技術 8 章には 0 件だった。反映は compile では行えない。compile は章の規範本文 366 行 (ファイル内 distinct 合計。出現回数では 374、10 枚横断 distinct では 316) を消すことが 2026-08-20 に測定済みである。再確定は reopen_log[].discarded と同じ qa_ref / serves_goals / required_info で行う。",
+      "from": "確定",
+      "discarded": {
+        "qa_ref": "qa-infra-web-spec-intake",
+        "serves_goals": [
+          "G2",
+          "G1"
+        ]
+      }
+    },
+    {
+      "category": "maintenance-ops",
+      "platform": "web",
+      "reason": "gap 1 (C05 gaps[0]) の「確定セル内容と decisions[] 6 件を本文へ載せる」を章へ手編集で反映するため、正規経路で章保護を解除する。あわせて記録: 2026-08-20 の実測で、章の「カテゴリ別収集状態」が根拠として名指しする qa は 8 カテゴリ中 7 件が正本の qa_ref と食い違っていた (章は qa-*-analytics / qa-*-web など intake 前の質疑を指し、正本は qa-*-spec-intake を指す。一致は auth のみ)。また decisions 6 件は 00 章に 1 件 (decision-auth-method) しか載っておらず、技術 8 章には 0 件だった。反映は compile では行えない。compile は章の規範本文 366 行 (ファイル内 distinct 合計。出現回数では 374、10 枚横断 distinct では 316) を消すことが 2026-08-20 に測定済みである。再確定は reopen_log[].discarded と同じ qa_ref / serves_goals / required_info で行う。",
+      "from": "確定",
+      "discarded": {
+        "qa_ref": "qa-ops-web-spec-intake",
+        "serves_goals": [
+          "G1",
+          "G2"
+        ]
+      }
+    },
+    {
+      "category": "security",
+      "platform": "web",
+      "reason": "gap 1 (C05 gaps[0]) の「確定セル内容と decisions[] 6 件を本文へ載せる」を章へ手編集で反映するため、正規経路で章保護を解除する。あわせて記録: 2026-08-20 の実測で、章の「カテゴリ別収集状態」が根拠として名指しする qa は 8 カテゴリ中 7 件が正本の qa_ref と食い違っていた (章は qa-*-analytics / qa-*-web など intake 前の質疑を指し、正本は qa-*-spec-intake を指す。一致は auth のみ)。また decisions 6 件は 00 章に 1 件 (decision-auth-method) しか載っておらず、技術 8 章には 0 件だった。反映は compile では行えない。compile は章の規範本文 366 行 (ファイル内 distinct 合計。出現回数では 374、10 枚横断 distinct では 316) を消すことが 2026-08-20 に測定済みである。再確定は reopen_log[].discarded と同じ qa_ref / serves_goals / required_info で行う。",
+      "from": "確定",
+      "discarded": {
+        "qa_ref": "qa-security-web-spec-intake",
+        "serves_goals": [
+          "G1"
+        ],
+        "required_info": [
+          {
+            "item_id": "security-posture",
+            "missing_effect": "block",
+            "status": "grounded",
+            "grounded_by": "qa-security-web-spec-intake"
+          }
+        ]
+      }
     }
   ],
   "category_aggregate": {
@@ -2824,7 +3094,7 @@
     {
       "id": "decision-test-ci-tooling",
       "question": "テストと CI の道具立てを、いまの構成のまま進めるか変えるか",
-      "status": "recommended_pending_confirmation",
+      "status": "confirmed",
       "serves_goals": [
         "G1",
         "G2"
@@ -2898,9 +3168,9 @@
         "option_id": "opt-keep-current",
         "rationale": "結論は現行のままだが、これは「Playwright は不要」という判断ではない。10 の 7 種のうち見た目の回帰だけは現行で測れておらず、その穴は実在する。足さない理由は必要性ではなく走らせ方にある。11 §8-2 の 3 段 (手動・止めない) は 2026-08-18 に定例をやめており、いま基準画像を持つ検査を足すと、誰も打たない検査が 1 つ増えるだけになる。基準画像は、打たれないあいだ古くなり続け、次に打った人が「全部落ちるので基準を上書きする」に流れる。それは閾値を下げるのと同じである。したがって、走る段が決まるまで保留する。保留のあいだ穴は開いたままなので、穴そのもの(見た目の崩れを自動で見つける手段が無いこと) を本文ではなく検査として固定し、画像比較の仕組みが足された日に赤くなる形にしておく (ah-h57)。",
         "caveats": [
-          "これは「不要と判断した」ではなく「走る段が決まるまで保留した」である。次に読む人が前者と読み違えないよう、この一文を消さない",
+          "これは「不要と判断した」ではなく「走る段が決まるまで保留した」である。次に読む人が前者と読み違えないよう、この一文を消さない —— 【2026-08-20 追記。上の一文は原文のまま残してある】2026-08-20、利用者本人が opt-keep-current を直接選び、状態は保留から確定へ変わった。したがって現在の事実は「現行の 7 種で足りていると確定した」である。上の一文は保留を確定と読み違えさせないために置かれた。いまは逆向き (確定を保留と読み違える) を防ぐ必要が生じたので、同じ目的のために追記した。消去ではなく更新である。",
           "保留のあいだ、見た目の回帰は測れない。穴は ah-h57 の検査として固定してあり、本文ではなく検査が現状を知らせる",
-          "見直しの引き金は 2 つ: 3 段を打つ場面が決まったとき / 配色を 1 つ増やす作業が決まったとき。どちらか先に来たほうで再評価する",
+          "見直しの引き金は 2 つ: 3 段を打つ場面が決まったとき / 配色を 1 つ増やす作業が決まったとき。どちらか先に来たほうで再評価する。確定は「もう二度と見直さない」という意味ではない",
           "足すと決めたときは、同じ回に「いつ打つか」を文書へ書く。場面を書かずに足すと、名前だけの検査になる"
         ],
         "confidence": "medium",
@@ -2913,7 +3183,14 @@
           "lock_in": "差なし。どちらも移しやすい"
         }
       },
-      "recorded_with": "キャッシュ側 install (system-spec-harness 0.1.2) の apply-spec-transition.py で書いた。この writer は state の schema_version を検査しない（門が無い）。プロジェクト側の writer は 1.1 との exact 一致を要求するため、1.2 のこの正本には届かない。門を通したのではなく、門が無い writer で書いた。"
+      "user_decision": {
+        "option_id": "opt-keep-current",
+        "confirmed_at": "2026-08-20T00:00:00Z",
+        "verbatim": "現行のままで確定",
+        "provenance": "利用者本人が 2 つの選択肢 (「現行のままで確定」/「まだ保留のまま」) から直接選んだ結果である。AI の推奨をそのまま確定へ昇格させたものではなく、オーケストレーターが代理で決めたものでもない。選択肢の提示と回答の受け取りはオーケストレーターが行い、上記 verbatim は利用者の回答原文である。",
+        "why_this_distinction_is_recorded": "この記録を書いた実装担当は、当初『オーケストレーターからの伝聞だけでは status を confirmed にできない』として作業を止めた。gap 4 が求めているのは『利用者本人の確定』であり、伝聞を確定として書けば、この gap が存在する理由そのもの (本人しか決められないことを本人に確かめる) を空洞化させるためである。とくにこの決定は、recommendation の caveats が『不要と判断した』と『走る段が決まるまで保留した』を明確に区別しており、確定 (opt-keep-current) と保留はそもそも別の状態である。どちらを意味していたかは本人にしか決められない。次にこの記録を更新する人も、同じ区別を保つこと: 推奨・伝聞・代理判断のいずれも user_decision には入れない。"
+      },
+      "recorded_with": "プロジェクト側 install (.claude/plugins/system-spec-harness) の apply-spec-transition.py set-decision で書いた。この writer は schema_version の門を持ち、正本の 1.2 を受理する。以前この record を書いた際は『門が無い writer で書いた』状態だった (gap 5) が、schema・writer・網羅性検証を 1.2 まで通した (5534f4c) ため、今回は門を通って書かれている。"
     }
   ],
   "knowledge_candidates": [],
@@ -2921,6 +3198,13 @@
     "loop_count": 7,
     "next_question": null,
     "complete": true,
-    "max_loops": 5
+    "max_loops": 5,
+    "max_loops_policy": "strict",
+    "limit_overrun": {
+      "loop_count": 7,
+      "max_loops": 5,
+      "reason": "loop_count=7 は max_loops=5 を超えているが、これは上限が緩められた結果ではない。run_chunk は上限に達した時点で break し、loop_count を処理済み件数で置き直すため、この writer を通るかぎり loop_count <= max_loops は構造的に破れない。したがって 7 > 5 は『上限を超えて回した』記録ではなく、『この writer を通らずに書かれた』ことの痕跡である (gap 5 と同一原因。当時の decision record にも「門が無い writer で書いた」と明記されている)。数を 5 へ丸めれば辻褄は合うが、丸めた瞬間に迂回の唯一の痕跡が消えるため、値は保存し、意味のほうを記録する。max_loops_policy=strict と併せて読むこと: 上限は厳格であり、この超過は上限の性格ではなく経路の異常を示す。",
+      "recorded_at": "2026-08-20T00:00:00Z"
+    }
   }
 }

@@ -1,9 +1,20 @@
 {
  "target_id": "google-sre",
  "source_url": "https://sre.google/sre-book/table-of-contents/",
- "retrieved_at": "2026-08-16T09:11:22Z",
+ "retrieved_at": "2026-08-19T15:30:40Z",
  "http_status": 200,
  "content_bytes": 21203,
  "content_sha256": "340dc9874c17386f85eb636fa0f86bc21834eb745280bebb8177d07e71a22e90",
- "page_title": "Google SRE - Site reliability engineering book Google index"
+ "page_title": "Google SRE - Site reliability engineering book Google index",
+ "freshness_extraction": {
+  "freshness_source": "content-copyright",
+  "value": "2017",
+  "found_in": [
+   "Copyright © 2017 Google, Inc. Published by O'Reilly Media"
+  ],
+  "http_last_modified": "2025-02-03",
+  "body_declares_update_date": false,
+  "body_search_method": "本文 21203 bytes 全体に apple-hig と同じ 3 通りを適用: (1) 4 桁年トークン → 2017 が 1 件、実体は copyright 行。(2) 日付語彙 → 同じ copyright 行 1 件のみ。(3) 構造化日付 → 0 件。",
+  "note": "copyright 年は更新日ではない。HTTP last-modified の 2025-02-03 を last_updated へ採ると静的コンテンツの鮮度を過大に見せるため採らない。出典自身が言っている最新の年だけを記録する。"
+ }
 }

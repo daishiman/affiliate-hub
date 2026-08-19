@@ -1,5 +1,5 @@
 {
-  "schema_version": "1.1",
+  "schema_version": "1.2",
   "design_application_contract_version": "1.0",
   "categories": [
     {
@@ -73,7 +73,15 @@
     "auth": {
       "web": {
         "state": "確定",
-        "qa_ref": "qa-002"
+        "qa_ref": "qa-002",
+        "required_info": [
+          {
+            "item_id": "auth-model",
+            "missing_effect": "block",
+            "status": "grounded",
+            "grounded_by": "qa-002"
+          }
+        ]
       },
       "mobile": {
         "state": "対象外",
@@ -99,7 +107,27 @@
     "ui-ux": {
       "web": {
         "state": "確定",
-        "qa_ref": "qa-003"
+        "qa_ref": "qa-003",
+        "required_info": [
+          {
+            "item_id": "product-goal",
+            "missing_effect": "block",
+            "status": "grounded",
+            "grounded_by": "qa-000"
+          },
+          {
+            "item_id": "screen-information-priority",
+            "missing_effect": "block",
+            "status": "grounded",
+            "grounded_by": "qa-003"
+          },
+          {
+            "item_id": "target-platforms",
+            "missing_effect": "block",
+            "status": "grounded",
+            "grounded_by": "qa-000"
+          }
+        ]
       },
       "mobile": {
         "state": "対象外",
@@ -125,7 +153,15 @@
     "security": {
       "web": {
         "state": "確定",
-        "qa_ref": "qa-004"
+        "qa_ref": "qa-004",
+        "required_info": [
+          {
+            "item_id": "security-posture",
+            "missing_effect": "block",
+            "status": "grounded",
+            "grounded_by": "qa-004"
+          }
+        ]
       },
       "mobile": {
         "state": "対象外",
@@ -251,6 +287,11 @@
   },
   "qa_log": [
     {
+      "id": "qa-000",
+      "question": "このシステムの目的と対象利用者は何ですか? 対象プラットフォームはどれですか?",
+      "answer": "社内の申請業務を一箇所で処理できるようにし、申請者と承認者の待ち時間を減らす。対象利用者は社内従業員と承認権限を持つ管理者。本システムは社内向け Web アプリのみ。モバイル/タブレット/デスクトップは全カテゴリで対象外。"
+    },
+    {
       "id": "qa-001",
       "question": "データベース（database）× Web の要件は?",
       "answer": "PostgreSQL 15。ユーザー/請求/監査ログの3スキーマ。日次バックアップ。",
@@ -310,10 +351,15 @@
   },
   "decisions": [],
   "knowledge_candidates": [],
+  "lifecycle": {},
+  "implementation_snapshot": {},
+  "delivery_dependencies": [],
+  "review_runs": [],
   "hearing_progress": {
     "loop_count": 5,
     "next_question": "インフラ（infrastructure）× Web（web）は対象ですか? 対象なら要件を、非対象なら理由を教えてください。",
     "complete": false,
-    "max_loops": 5
+    "max_loops": 5,
+    "max_loops_policy": "strict"
   }
 }

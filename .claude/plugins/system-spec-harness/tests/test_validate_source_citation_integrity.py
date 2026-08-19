@@ -127,6 +127,116 @@ def test_cli_requires_repo_root_and_accepts_matching_evidence(tmp_path):
     ) == 0
 
 
+def _findings_for(ref_patch: dict) -> list[str]:
+    targets, refs = _valid_citation()
+    refs["references"][0].update(ref_patch)
+    return c13.validate(targets, refs, now=datetime(2026, 8, 3, tzinfo=timezone.utc))
+
+
+def test_an_untouched_record_is_not_dragged_in_by_the_freshness_check():
+    """代入していない record を巻き込まないこと。巻き込む検査は外される。"""
+    targets, refs = _valid_citation()
+    findings = c13.validate(targets, refs, now=datetime(2026, 8, 3, tzinfo=timezone.utc))
+    assert [f for f in findings if "取得日" in f or "freshness_source" in f] == []
+
+
+def test_last_updated_equal_to_the_retrieval_day_is_a_violation():
+    findings = _findings_for({"last_updated": "2026-07-11"})
+    assert any("取得日の代入の疑い" in f and "last_updated" in f for f in findings)
+
+
+def test_the_check_also_looks_at_latest_checked_at_not_only_retrieved_at():
+    findings = _findings_for(
+        {"latest_checked_at": "2026-07-20T00:00:00Z", "last_updated": "2026-07-20"}
+    )
+    assert any("取得日の代入の疑い" in f for f in findings)
+
+
+def test_a_date_moved_into_the_version_field_is_still_caught():
+    """last_updated だけを見ると、値を隣の欄へ移すだけで抜けられる。"""
+    findings = _findings_for({"version": "2026-07-11"})
+    assert any("取得日の代入の疑い" in f and "version" in f for f in findings)
+
+
+def test_page_declared_is_the_only_way_out_of_the_substitution_check():
+    findings = _findings_for(
+        {"last_updated": "2026-07-11", "freshness_source": "page-declared"}
+    )
+    assert [f for f in findings if "取得日の代入の疑い" in f] == []
+    for escape in ("http-last-modified", "publisher-registry", "content-copyright"):
+        findings = _findings_for({"last_updated": "2026-07-11", "freshness_source": escape})
+        assert any("取得日の代入の疑い" in f for f in findings), escape
+
+
+def test_an_unknown_freshness_source_is_a_violation():
+    findings = _findings_for({"freshness_source": "trust-me"})
+    assert any("freshness_source='trust-me'" in f or "'trust-me'" in f for f in findings)
+
+
+def test_undeclared_must_not_carry_a_value():
+    findings = _findings_for({"freshness_source": "undeclared"})
+    assert any("出典が表明していない値の記入" in f for f in findings)
+
+
+def test_regression_20260816_fetch_day_substituted_into_last_updated():
+    """実物の 2026-08-16 版で 4 件あった取得日代入を固定する。
+
+    C08 (LLM 監査) が 2 度検出しながら 2 度とも残った欠陥である。record 内 2 欄の
+    突合だけで判定できるので、形式層で決定論に落とす。
+    """
+    tids = ("cloudflare-workers", "cloudflare-d1", "apple-hig", "google-sre")
+    targets = {"targets": [{"target_id": t} for t in tids]}
+    refs = {
+        "references": [
+            {
+                "target_id": tid,
+                "retrieved_at": f"2026-08-16T09:11:{20 + i}Z",
+                "source_url": f"https://{tid}.example/docs",
+                "official_publisher": tid,
+                "official_host": f"{tid}.example",
+                "last_updated": "2026-08-16",
+                "latest_checked_at": "2026-08-16T09:11:39Z",
+                "evidence_ref": f"evidence/{tid}.json",
+                "evidence_sha256": "0" * 64,
+                "summary": "s",
+            }
+            for i, tid in enumerate(tids)
+        ]
+    }
+    findings = c13.validate(targets, refs, now=datetime(2026, 8, 20, tzinfo=timezone.utc))
+    substitutions = [f for f in findings if "取得日の代入の疑い" in f]
+    assert len(substitutions) == 4, findings
+    for tid in tids:
+        assert any(tid in f for f in substitutions), tid
+
+
+def test_content_copyright_can_still_put_a_non_date_into_last_updated():
+    """塞げていない穴を検査として残す (直っていないことの記録であって、正しさの記録ではない)。
+
+    現状: `freshness_source: "content-copyright"` の record は、更新日の表明が無いことを
+    表す欄が無いため、copyright 年を `last_updated` に入れるしかない。google-sre が
+    `last_updated: "2017"` になっているのがそれで、**隣の freshness_source を読まない
+    相手には「2017 年に更新された」という誤った主張**として読める。
+
+    塞げない理由 (難しいからではない): schema が `version` と `last_updated` の
+    どちらか必須 (anyOf) にしているため、「出典は更新日を表明していない」を
+    表現できる値が存在しない。両方 null にすると record 自体が schema 違反になる。
+    欄を増やすのは schema の破壊的変更であり、gap 2 の範囲外である。
+
+    **反転条件**: 「表明が無い」を表現できる欄 (例: `freshness_declared: false`) が
+    schema にできた日に、この検査を反転させて
+    「`content-copyright` の record は `last_updated` を持たないこと」へ変える。
+    **消さない。** 消すと、穴が塞がったのか忘れられたのかが区別できなくなる。
+    """
+    findings = _findings_for(
+        {"version": None, "last_updated": "2017", "freshness_source": "content-copyright"}
+    )
+    assert findings == [], (
+        "この record は現状 C13 を通る。通らなくなったのなら穴が塞がったということなので、"
+        "この検査を docstring の反転条件どおり反転させること: " + repr(findings)
+    )
+
+
 def test_regression_f84o_c19_r2_fabricated_citations_fail():
     """20260804T003000Z-f84o-c19-r2 の未来日時 + 同一時刻捏造を固定する。"""
     targets = {"targets": [{"target_id": "next-js"}, {"target_id": "fastapi"}, {"target_id": "redis"}]}

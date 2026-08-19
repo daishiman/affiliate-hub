@@ -12,10 +12,21 @@ from state_transition_common import (
     has_entry,
     normalize_serves,
 )
+from state_transition_required_info import normalize_required_info
 CATEGORY_ID_RE = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
 APPLICATION_STATES = {"applied", "not_applicable"}
 DESIGN_APPLICATION_CONTRACT_VERSION = "1.0"
-CURRENT_STATE_SCHEMA_VERSION = "1.1"
+CURRENT_STATE_SCHEMA_VERSION = "1.2"
+
+# 1.2 で増えた 4 節。**版の門を 1.2 へ上げるだけでは保守にならない**ので、
+# ここに名前を置いて bootstrap の生成物と往復の保全チェックの両方から参照する。
+# 「版は 1.2 と名乗るが 4 節が無い state」を writer が作らないための当てどころである。
+SCHEMA_1_2_SECTIONS = (
+    "lifecycle",
+    "implementation_snapshot",
+    "delivery_dependencies",
+    "review_runs",
+)
 
 
 def normalize_design_applications(raw: object) -> list[dict]:
@@ -148,6 +159,54 @@ def count_unresolved(state: dict) -> int:
     )
 
 
+# max_loops の性格。run_chunk は上限に達した時点で break し、loop_count を
+# 処理済み件数で置き直すため、この writer を通るかぎり loop_count <= max_loops は
+# 構造的に破れない。つまり上限は「目安」ではなく厳格である。
+# 破れている state が在れば、それは上限を緩めた証拠ではなく、この writer を
+# 通っていない証拠になる。state から後者を読み取れるようにするのがこの定数の役目。
+LOOP_LIMIT_POLICY_STRICT = "strict"
+LOOP_LIMIT_POLICY_SOFT = "soft"
+LOOP_LIMIT_POLICIES = (LOOP_LIMIT_POLICY_STRICT, LOOP_LIMIT_POLICY_SOFT)
+
+
+def loop_limit_is_violated(progress: dict) -> bool:
+    """hearing_progress が上限超過を抱えているか。"""
+    loop_count = progress.get("loop_count")
+    max_loops = progress.get("max_loops")
+    if not isinstance(loop_count, int) or not isinstance(max_loops, int):
+        return False
+    return loop_count > max_loops
+
+
+def set_hearing_limit_policy(state: dict, policy: str, overrun: dict | None = None) -> None:
+    """上限の性格を state へ明示し、超過が在る場合はその由来を併記する。
+
+    超過している値そのものは書き換えない。7 を 5 へ丸めれば数は揃うが、
+    揃えた瞬間に「writer を通らずに書かれた」という唯一の痕跡が消える。
+    直すべきは数ではなく、数が語っている事実を読めるようにすることである。
+    """
+    if policy not in LOOP_LIMIT_POLICIES:
+        raise TransitionError(
+            f"hearing_progress: max_loops_policy={policy!r} が許容値外 {list(LOOP_LIMIT_POLICIES)}"
+        )
+    progress = state.setdefault("hearing_progress", {})
+    progress["max_loops_policy"] = policy
+    if loop_limit_is_violated(progress):
+        if not isinstance(overrun, dict) or not str(overrun.get("reason", "")).strip():
+            raise TransitionError(
+                "hearing_progress: loop_count が max_loops を超えている state には "
+                "overrun.reason が必須 (超過を無記名で通さない)"
+            )
+        progress["limit_overrun"] = {
+            "loop_count": progress.get("loop_count"),
+            "max_loops": progress.get("max_loops"),
+            "reason": overrun["reason"],
+            "recorded_at": overrun.get("recorded_at"),
+        }
+    else:
+        progress.pop("limit_overrun", None)
+
+
 def _refresh_hearing_progress(state: dict) -> None:
     """Keep the resumable progress fields consistent with the matrix."""
     progress = state.setdefault("hearing_progress", {})
@@ -165,6 +224,12 @@ def bootstrap_state() -> dict:
         "category_aggregate": {}, "targets": [], "requirements_foundation": empty_foundation(),
         "decisions": [], "knowledge_candidates": [],
         "hearing_progress": {"loop_count": 0, "next_question": None, "complete": False},
+        # 1.2 を名乗る以上、4 節は空でも必ず在る形で出す。schema の 1.2 分岐が
+        # この 4 節を required にしているので、欠けた state はここで作れない。
+        "lifecycle": {},
+        "implementation_snapshot": {},
+        "delivery_dependencies": [],
+        "review_runs": [],
     }
 
 
@@ -278,7 +343,9 @@ def apply_cell_op(state: dict, op: dict) -> None:
             raise TransitionError(f"reopen には reason が必須: {category}/{platform}")
         discarded = {
             key: list(cell[key]) if isinstance(cell[key], list) else cell[key]
-            for key in ("qa_ref", "serves_goals", "serves_intents")
+            # required_info もここへ入れる。入れないと reopen で充足記録だけが
+            # 黙って消え、再確定のときに「元は何が接地していたか」を誰も引けない。
+            for key in ("qa_ref", "serves_goals", "serves_intents", "required_info")
             if key in cell
         }
         log_entry = {
@@ -320,12 +387,42 @@ def apply_cell_op(state: dict, op: dict) -> None:
             )
         cell["approval_ref"] = approval_ref
         return
+    if action == "set-required-info":
+        # ゲートが無かった時代に確定したセルへ、C16 の充足状態を後から物質化する。
+        # 確定セル限定の後付け annotation という点で set-serves / set-approval と同型。
+        # **既存記録の上書きは拒否する。**許すと、confirm のゲートを通した記録を
+        # あとから ungrounded へ書き換える経路になり、ゲートが実質無効になる。
+        if current != "確定":
+            raise TransitionError(
+                f"set-required-info 不可: {category}/{platform} は '{current}' (確定セルのみ充足状態を付与できる)"
+            )
+        entries = normalize_required_info(
+            state, category, op.get("required_info"), allow_ungrounded=True
+        )
+        if not entries:
+            raise TransitionError(
+                f"set-required-info: {category} に記録すべき missing_effect=block item が無い"
+            )
+        existing = cell.get("required_info")
+        if existing is not None and existing != entries:
+            raise TransitionError(
+                f"set-required-info: 既存 required_info の上書きは拒否: {category}/{platform}"
+            )
+        cell["required_info"] = entries
+        return
     if current == "確定":
         raise TransitionError(f"確定セルの直接変更は拒否: {category}/{platform}。変更は R4-reopen を経由すること")
     if action == "confirm":
         if not op.get("qa_ref"):
             raise TransitionError(f"confirm には qa_ref が必須: {category}/{platform}")
+        # C16 block ゲート。当該 category に掛かる block item が全て接地または
+        # 理由付き N/A でなければ、ここで確定を拒否する。事後監査ではなく確定の瞬間に止める。
+        required_info = normalize_required_info(
+            state, category, op.get("required_info"), allow_ungrounded=False
+        )
         next_cell = {"state": "確定", "qa_ref": op["qa_ref"]}
+        if required_info:
+            next_cell["required_info"] = required_info
         serves = normalize_serves(op.get("serves_goals"))
         if serves:
             next_cell["serves_goals"] = serves
@@ -442,4 +539,7 @@ def run_chunk(state: dict, turns: list[dict], max_loops: int = 5) -> int:
     recompute_aggregates(state)
     _refresh_hearing_progress(state)
     state["hearing_progress"]["max_loops"] = max_loops
+    # 上限を書くときは、その上限がどちらの性格かも同時に書く。max_loops だけが
+    # 在って policy が無い state は「5 は目安か絶対か」を読む側に推測させる。
+    state["hearing_progress"]["max_loops_policy"] = LOOP_LIMIT_POLICY_STRICT
     return processed

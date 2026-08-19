@@ -87,7 +87,7 @@ feedback_contract:
 | **C13** 知識カタログが typed 辺グラフ | design_knowledge_reflection | `validate-knowledge-graph.py --profile knowledge` exit0 (循環/dangling/孤立/root到達不能 0) | knowledge-catalog の depends_on/refines/conflicts_with 型則違反・孤立 node の設計知識への未接地 |
 | **C14** elicit/compile が同一 topo_order で知識消費 | design_knowledge_reflection | 上記 `--profile knowledge --order` の topo_order を C01 R5 / C03 R2 が同一順で消費 | 上位概念→下位概念の位相順を破って下位技術を先に確定した章 |
 | **C15** doctrine anchor 1正本 + 全 category 写像全射 | design_knowledge_reflection | `validate-knowledge-graph.py --profile doctrine` exit0 (7 concern の concern_id 一意 + 各 authority 非空・全 category→concern 写像全射。authority は 4 種で concern 間共有可・authority 一意性は非検査) | 生成章に concern authority (Apple HIG/Clean Arch/OWASP/SRE) の上流指針が具体反映されず汎用ポインタ止まり |
-| **C16** 必須情報カタログの被覆 + block ゲート | matrix_coverage | `validate-knowledge-graph.py --profile required-info` exit0 (全 in-scope domain 被覆・item 最低形状・収集順序・coverage certificate) | `missing_effect=block` の item 未回答のまま confirmed に進んだ確定セル (C01 R5 収集ゲート素通り。機械層ゲート validate-knowledge-graph.py (component C14) は blocking_items 列挙のみで runtime 施行せず・決定論 writer 施行は follow-up) |
+| **C16** 必須情報カタログの被覆 + block ゲート | matrix_coverage | `validate-knowledge-graph.py --profile required-info` exit0 (全 in-scope domain 被覆・item 最低形状・収集順序・coverage certificate) | `missing_effect=block` の item 未回答のまま confirmed に進んだ確定セル (C01 R5 収集ゲート素通り。機械層ゲート validate-knowledge-graph.py (component C14) は blocking_items 列挙のみで runtime 施行せず・決定論 writer 施行は apply-spec-transition の confirm op へ組込済み)。確定セルの `required_info[].status` が `ungrounded` のものはゲート導入前の負債として FAIL 側に数える |
 
 > C15 の意味層は「存在確認だけで PASS にしない」= design_knowledge_reflection の Goodhart 防止と同一原則で、doctrine anchor が確定セル要件へ具体適用されているかを照合する。C16 は matrix_coverage の網羅性判定に「必須情報が block ゲートを通って確定に接地しているか」を加える。
 
@@ -176,6 +176,8 @@ C05 R1-score が `system-spec/*.md` 各章を直接読み、`ref-system-design-k
 ### Step 4: レポート出力と整合検査
 `schemas/completeness-findings.schema.json` 準拠で評価レポートを出力し、Step 1 で実際に fork した監査を `audit_delegations[]` へ receipt として記録する。schema 1.2 台帳を使う receipt は hook 観測の `tool_use_id` も `dispatch` へ転記する。`scripts/aggregate-completeness.py --report <report.json>` で形状 + 総合判定整合 (fail-closed 再導出との一致) + 帰属の fork 証跡接地を検証する。
 
+**入力インベントリ (`inputs`) を必ず載せる。**`scripts/spec_input_inventory.py` の `build_inventory()` で求め、手で書かない。指紋は path と各ファイルの sha256 だけから作り、**mtime は材料に入れない** (mtime は中身が変わらなくても clone や checkout で動くため、混ぜると誰も書き換えていないのに毎回 STALE になり、赤が読まれなくなる)。`--spec-root <repo>` を付けると、レポートが名乗る指紋をツリーから数え直して突き合わせる。この欄が無いあいだ、レポートは「どの版の仕様書に対する判定か」を自分で名乗れず、**評価後に仕様書を書き換えても PASS が古いまま有効に見え続ける**。
+
 総合 PASS の場合だけ、同じ report・fork ledger・具体的 session を production writer へ渡す。writer は `G-matrix` / `G-source-citation` の exit 0、report digest、ledger の response/session 帰属を再検査してから atomic に receipt を生成する。手書き receipt や test fixture の producer を実行時に使わない。
 
 ```bash
@@ -202,6 +204,7 @@ python3 scripts/build-resume-receipt.py --repo-root "$CLAUDE_PROJECT_DIR" \
 - `references/aspect-criteria.md` — 観点別意味判定の詳細基準 + 観点↔監査 agent 対応
 - `schemas/completeness-findings.schema.json` — 評価レポート出力スキーマ
 - `scripts/aggregate-completeness.py` — レポート形状検証 + 総合 fail-closed 集約 + 帰属の fork 証跡接地検証 (決定論)
+- `scripts/spec_input_inventory.py` — 入力インベントリ (件数・sha256・mtime) と指紋。`scripts/spec-freshness.mjs` と同じ定義を持ち、同一ツリーでの一致を `tests/test_spec_input_inventory.py` が縛る
 - `scripts/audit_fork_attribution.py` — fork 台帳集計・schema 1.2 の tool-use ID を含む receipt 照合・run/session 束縛、および schema 1.1 legacy 互換を担う import 専用モジュール。公開 CLI と総合判定は `aggregate-completeness.py` が継続して所有する
 - `scripts/build-resume-receipt.py` / `schemas/resume-receipt.schema.json` — canonical PASS report、gate 結果、fork ledger session、artifact digest に束縛した再利用 receipt の production writer / schema
 - `../../hooks/record-audit-fork.py` — 監査 fork 台帳 writer (per-tool-call PostToolUse: `Task|Agent`)。schema 1.2 の top-level `tool_use_id` / `verdict_state` / whole per-call response digest を記録する帰属検証の証跡正本

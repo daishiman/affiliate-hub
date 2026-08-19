@@ -40,6 +40,7 @@ record 素材 (入力) の期待形状:
 from __future__ import annotations
 
 import argparse
+import importlib.util
 import json
 import re
 import sys
@@ -67,6 +68,10 @@ OUTPUT_FIELD_ORDER = (
     "official_host",
     "version",
     "last_updated",
+    # 出力キーの allowlist なので、載せ忘れた欄は黙って落ちる (下の dict 内包表記)。
+    # freshness_source を落とすと、出典自身の表明 (page-declared) が writer を通った
+    # 瞬間に消え、C13 の取得日代入検査で正当な当日更新まで違反になる。
+    "freshness_source",
     "latest_checked_at",
     "evidence_ref",
     "evidence_sha256",
@@ -76,6 +81,20 @@ OUTPUT_FIELD_ORDER = (
 
 class RecordError(Exception):
     """record 素材が形状契約に反するときに送出する。"""
+
+
+_C13_CACHE = {}
+
+
+def _c13():
+    """C13 (validate-source-citation.py) を読み込む。ハイフン名なので importlib で解く。"""
+    if "mod" not in _C13_CACHE:
+        path = Path(__file__).resolve().parents[3] / "scripts" / "validate-source-citation.py"
+        spec = importlib.util.spec_from_file_location("_c13_for_builder", path)
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        _C13_CACHE["mod"] = module
+    return _C13_CACHE["mod"]
 
 
 def norm_host(host: str) -> str:
@@ -128,6 +147,14 @@ def build_record(rec: dict) -> dict:
 
     normalized = dict(rec)
     normalized["official_host"] = host
+
+    # 取得日代入と freshness_source の妥当性は C13 の関数をそのまま呼ぶ。ここで同じ規則を
+    # 書き直すと、片方だけ直された日に writer が黙って緩む (block 判定を C14 の証書へ
+    # 一本化したのと同じ理由)。判定の定義は 1 箇所にしか置かない。
+    freshness = _c13().freshness_findings(str(tid), normalized)
+    if freshness:
+        raise RecordError("; ".join(freshness))
+
     return {k: normalized[k] for k in OUTPUT_FIELD_ORDER if normalized.get(k)}
 
 

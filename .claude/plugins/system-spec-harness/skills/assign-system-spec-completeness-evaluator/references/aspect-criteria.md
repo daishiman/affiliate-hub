@@ -37,8 +37,10 @@
   exit0 (全 in-scope domain 被覆・item 最低形状・収集順序・coverage certificate) を機械層根拠にする。
   `missing_effect=block` の item が未回答のまま確定 (confirmed) へ進んだ確定セルは C01 R5 収集ゲート
   素通り (機械層ゲート validate-knowledge-graph.py (component C14) は coverage certificate に blocking_items を列挙するのみで runtime 施行はせず、決定論 writer
-  施行 = apply-spec-transition への block 検査組込は follow-up。収集すべき必須情報の欠落) として
-  matrix_coverage を FAIL に寄せる。
+  施行 = apply-spec-transition の confirm op への block 検査組込は済み。収集すべき必須情報の欠落) として
+  matrix_coverage を FAIL に寄せる。writer 施行後に確定したセルは block item ごとの充足状態を
+  `cell.required_info[]` に持つ。`status` が `ungrounded` のものはゲート導入前に確定したセルの
+  負債記録なので、残っている間は当該セルを FAIL 側に数える。
 
 ### 2. 設計知識反映 (design_knowledge_reflection / C05 自前評価・独立 auditor なし)
 - 本観点は独立 auditor を立てず C05 R1-score が `system-spec/*.md` と `resource-map.yaml` を直接読んで評価する

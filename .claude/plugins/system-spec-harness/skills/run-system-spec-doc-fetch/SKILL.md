@@ -82,13 +82,14 @@ feedback_contract: # per-skill 評価基準 (component-inventory.json C02 SSOT)
   {"target_id":"react","retrieved_at":"2026-07-11T00:00:00Z",
    "source_url":"https://react.dev/reference/react","official_publisher":"Meta",
    "official_host":"react.dev","version":"19.0",
+   "freshness_source":"page-declared",
    "latest_checked_at":"2026-07-11T00:00:00Z",
    "evidence_ref":"system-spec/retrieval-evidence/react.json",
    "evidence_sha256":"<sha256>","summary":"..."}
 ]}
 ```
 
-- 必須: `target_id` / `retrieved_at` / `source_url` / `official_publisher` / `official_host` / `latest_checked_at` / `evidence_ref` / `evidence_sha256` / `summary`、および `version` か `last_updated` のいずれか。`evidence_ref` は project root 相対、`evidence_sha256` はその実ファイルの小文字16進数64桁 SHA-256 とする。
+- 必須: `target_id` / `retrieved_at` / `source_url` / `official_publisher` / `official_host` / `latest_checked_at` / `evidence_ref` / `evidence_sha256` / `summary`、および `version` か `last_updated` のいずれか。値には由来の申告 `freshness_source` (`page-declared`/`http-last-modified`/`publisher-registry`/`content-copyright`/`undeclared`) を添える。`evidence_ref` は project root 相対、`evidence_sha256` はその実ファイルの小文字16進数64桁 SHA-256 とする。
 - 全件対応: `spec-state.targets[]` の各 `target_id` に record が 1 件対応 (欠落 0・重複 0)。
 - host 一致: `source_url` の host が `official_host` と一致する。
 
@@ -121,6 +122,7 @@ feedback_contract: # per-skill 評価基準 (component-inventory.json C02 SSOT)
 - [ ] R1 が `spec-state.json` 由来の取得対象一覧 (`target_id` 群) を捏造 0 で確定している
 - [ ] R2 が各対象の公式 host を特定し、非公式ソースで穴埋めしていない (未取得は理由付きで明示)
 - [ ] 各 record が必須フィールドを充足し version か `last_updated` のいずれかを持つ
+- [ ] `version`/`last_updated` が取得日の代入でなく、`freshness_source` で由来を申告している
 - [ ] 各 record が実 WebFetch の最小取得証跡を `system-spec/retrieval-evidence/<target_id>.json` に残し、repo 相対 `evidence_ref` と SHA-256 `evidence_sha256` でその内容へ束縛している
 - [ ] `source_url` の host が `official_host` と一致している
 - [ ] 対象一覧と `fetched-references.json` が全件対応 (欠落 0・重複 0)
@@ -155,9 +157,10 @@ python3 scripts/validate-source-citation.py \
 
 1. 公式 host を一意に特定できない対象は「未取得 (要確認)」に倒す。非公式で埋めない。
 2. `source_url` は必ず `official_host` 配下のページにする (host 不一致は IN1 で弾かれる)。
-3. version が数値化されない技術はページ最終更新日を `last_updated` に記録する (version と両欠落は FAIL)。
-4. 同一技術が複数カテゴリに跨っても `target_id` は 1 件に束ねる (重複は FAIL)。
-5. ヒアリング中裏取り (経路 b) では対象をユーザー指定分に絞ってよいが、記録形状と検証は同一。
+3. version が数値化されない技術は**出典が自ら表明している**更新日を `last_updated` に記録し、`freshness_source` でその由来を申告する (version と両欠落は FAIL)。**取得日を代入しない** — 出典が何も表明していないときに取得日で埋めるのが最も起きやすい誤りで、C13 が決定論で拒否する。表明が本文に無いなら HTTP `Last-Modified` (`http-last-modified`)、copyright 年しか無いならその年 (`content-copyright`)、rolling doc で版が registry にしか無いなら registry の現行版 (`publisher-registry`) を、いずれも由来を申告して記録する。どれも無ければ `undeclared` として空にし、record を FAIL させる (埋めない)。
+4. `version` は**その出典が説明している対象の版**であり、この repo が依存している版ではない。依存版を書くと、依存固定が C08 の鮮度監査で永久 FAIL になる。
+5. 同一技術が複数カテゴリに跨っても `target_id` は 1 件に束ねる (重複は FAIL)。
+6. ヒアリング中裏取り (経路 b) では対象をユーザー指定分に絞ってよいが、記録形状と検証は同一。
 
 ## Additional Resources
 
