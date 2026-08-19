@@ -12,18 +12,21 @@ import { ADMIN_NAV, ADMIN_NAV_GROUPS, UNGROUPED_NAV_HREFS } from "@/presentation
  * ここで見ているのは崩れではなく、**崩れを生んだ書き方が戻ってきたこと**である。
  * 崩れ全般を捕まえていると読み違えないよう、この区別を消さないこと。
  *
- * 見ているのは 9 点:
+ * 見ているのは 10 点。**ただし 6 はいま働いていない**（理由はその `it` に書いた）ので、
+ * **見張りとして数えられるのは 9 点である。**
+ *
  *   1. 指の当たり判定の値を行送りに使わない（1 行が不要に 16px 高くなる）
  *   2. 押せるものの高さの下限は残っている（1 を直すときに一緒に消しやすい）
  *   3. 画面の器が縦の間隔を持つ（無いとカードどうしが線で接する）
  *   4. 読ませる文に行の長さの上限がある（無いと画面幅ぶん 1 行が伸びる）
- *   5. 分類の境目が線と余白の両方でできている（線だけだと飾りに見える）
- *   6. 線を引いている規則が `+` の 1 つだけ（＝本数が分類の数から導ける）
- *   7. 線の上下が揃っている（どちらの群の線か分からなくならない）
- *   8. 一覧が 1 画面に収まらない（＝追従が要る、という前提そのものの見張り）
- *   9. 見本帳の「直す前」が、直す前の値を保っている（消えると見比べが無意味になる）
+ *   5. 境目のために足した余白が、群内の 4 倍以上ある（意図の側）
+ *   6. 目に入る境目の広さも、群内の 4 倍以上ある（知覚の側）**← いま働いていない**
+ *   7. 線を引いている規則が `+` の 1 つだけ（＝本数が分類の数から導ける）
+ *   8. 線の上下が揃っている（どちらの群の線か分からなくならない）
+ *   9. 一覧が 1 画面に収まらない（＝追従が要る、という前提そのものの見張り）
+ *  10. 見本帳の「直す前」が、直す前の値を保っている（消えると見比べが無意味になる）
  *
- * 5〜8 は 2026-08-19、利用者の「各分類ごとに横線を引いて区切りが分かるように」から。
+ * 5〜9 は 2026-08-19、利用者の「各分類ごとに横線を引いて区切りが分かるように」から。
  * 判断の理由は `docs/product/design-decisions.md`。
  */
 
@@ -64,6 +67,22 @@ function pxOfSpaceToken(): (name: string) => number {
     const rem = new RegExp(`${alias![1]}:\\s*([0-9.]+)rem`).exec(primitives);
     expect(rem, `${alias![1]} が primitives.css にありません`).not.toBeNull();
     return Number(rem![1]) * 16;
+  };
+}
+
+/**
+ * 分類の余白を 2 つの単位で出す。**2 本の検査が同じ数え方を使うために 1 箇所に置く。**
+ * 別々に書くと、片方の単位だけ直したときにもう片方が古い数え方で緑に残る。
+ */
+function gaps(css: string): { withinGap: number; addedGap: number } {
+  const px = pxOfSpaceToken();
+  const between = ruleBody(css, ".navGroup + .navGroup");
+  return {
+    withinGap: px(spaceVar(ruleBody(css, ".navGroup"), "gap")),
+    addedGap:
+      px(spaceVar(between, "margin-top")) +
+      px(spaceVar(between, "padding-top")) +
+      px(spaceVar(ruleBody(css, ".navGroupLabel"), "padding")), // 1 つ目 = 上
   };
 }
 
@@ -130,38 +149,46 @@ describe("詰まり具合", () => {
     // 親の余白のぶんで比が出るため。床を上げる直し方は誤りで、上げても親の余白が
     // 乗る事実は残り、画面の余白設計が変わった日にまた同じところで外す。
     //
-    // **いま知っておくべきこと: 床がどちらも 4 のあいだ、知覚の側は 1 度も赤くならない。**
-    // 知覚 ＝ 意図 ＋ `gap` ＋ 線 で、足すものが負にならないから、
-    // **知覚が床を割るときは意図が必ず先に割る。**つまりこの 2 行目は、いまは
-    // 見張りとして働いていない（飾りである）。残してあるのは、**知覚の側の床を
-    // 意図と別に決め直したときに、置き場所が既にある**ようにするため。
-    // 決め直すまでは「2 つ見ている」と数えないこと。
+    // **この床には単独の検出力がある**（実測）: 群内の余白を `--space-2` へ広げると
+    // ここだけが赤（24/8 ＝ 3.0）で、知覚の側もほかの検査も全部緑になる。
+    // 知覚の側の状況は次の `it` に書いてある。
     const css = readFileSync(SHELL_CSS, "utf8");
-    const px = pxOfSpaceToken();
 
     const between = ruleBody(css, ".navGroup + .navGroup");
     expect(between, "境目の線が無い").toMatch(
       /border-top:\s*var\(--border-width-default\)\s+solid\s+var\(--color-border-subtle\)/,
     );
 
-    const withinGap = px(spaceVar(ruleBody(css, ".navGroup"), "gap"));
-    const addedGap =
-      px(spaceVar(between, "margin-top")) +
-      px(spaceVar(between, "padding-top")) +
-      px(spaceVar(ruleBody(css, ".navGroupLabel"), "padding")); // 1 つ目 = 上
-    const perceivedGap =
-      addedGap +
-      px(spaceVar(ruleBody(css, ".sidebar"), "gap")) +
-      1; // 線そのもの
-
+    const { withinGap, addedGap } = gaps(css);
     expect(withinGap, "群内の余白が読めない").toBeGreaterThan(0);
     expect(
       addedGap / withinGap,
-      `【意図】境目のために足した余白 ${addedGap}px / 群内 ${withinGap}px`,
+      `境目のために足した余白 ${addedGap}px / 群内 ${withinGap}px`,
     ).toBeGreaterThanOrEqual(4);
+  });
+
+  it("目に入る境目の広さも、群内の 4 倍を下回らない（知覚の側）", () => {
+    // **上の「意図」とは別の問いに答えている。**見る人の目に入るのは合計のほうなので、
+    // 知覚を見るならこちらが正しい。上だけだと、**群内を広げたのに親の `gap` が
+    // 乗ったままで気づけない**、という逆向きの抜け方が開く。
+    //
+    // **1 つの `it` に 2 つ入れない。**前が落ちると後ろが評価されず、
+    // 「もう片方はどうだったのか」が失敗の記録に残らない。
+    //
+    // **いま知っておくべきこと: 床がどちらも 4 のあいだ、この検査は 1 度も赤くならない。**
+    // 知覚 ＝ 意図 ＋ `gap` ＋ 線 で、足すものが負にならないので、
+    // **知覚が床を割るときは意図が必ず先に割る**（上が緑でここだけ赤、は在り得ない）。
+    // 探して見つからないのではなく、式から在り得ない。
+    // **だからいまのこれは見張りではなく飾りである。**残してあるのは、知覚の床を
+    // 意図と別に決め直したときの置き場所としてで、決め直すまで「2 つ見ている」と
+    // 数えないこと。決め方の候補は docs/product/design-decisions.md §1。
+    const css = readFileSync(SHELL_CSS, "utf8");
+    const px = pxOfSpaceToken();
+    const { withinGap, addedGap } = gaps(css);
+    const perceivedGap = addedGap + px(spaceVar(ruleBody(css, ".sidebar"), "gap")) + 1; // 線そのもの
     expect(
       perceivedGap / withinGap,
-      `【知覚】目に入る合計 ${perceivedGap}px / 群内 ${withinGap}px`,
+      `目に入る合計 ${perceivedGap}px / 群内 ${withinGap}px`,
     ).toBeGreaterThanOrEqual(4);
   });
 
