@@ -790,9 +790,6 @@
       "web": {
         "state": "確定",
         "qa_ref": "qa-auth-web",
-        "serves_goals": [
-          "G1"
-        ],
         "required_info": [
           {
             "item_id": "auth-model",
@@ -800,6 +797,9 @@
             "status": "grounded",
             "grounded_by": "qa-auth-web"
           }
+        ],
+        "serves_goals": [
+          "G1"
         ]
       },
       "mobile": {
@@ -876,9 +876,6 @@
       "web": {
         "state": "確定",
         "qa_ref": "qa-security-web-spec-intake",
-        "serves_goals": [
-          "G1"
-        ],
         "required_info": [
           {
             "item_id": "security-posture",
@@ -886,6 +883,9 @@
             "status": "grounded",
             "grounded_by": "qa-security-web-spec-intake"
           }
+        ],
+        "serves_goals": [
+          "G1"
         ]
       },
       "mobile": {
@@ -943,10 +943,6 @@
       "web": {
         "state": "確定",
         "qa_ref": "qa-backend-web-spec-intake",
-        "serves_goals": [
-          "G2",
-          "G1"
-        ],
         "required_info": [
           {
             "item_id": "domain-model",
@@ -954,6 +950,10 @@
             "status": "grounded",
             "grounded_by": "qa-backend-web-spec-intake"
           }
+        ],
+        "serves_goals": [
+          "G2",
+          "G1"
         ]
       },
       "mobile": {
@@ -2131,6 +2131,119 @@
       "platform": "web",
       "reason": "infrastructure.md に非規範注記 (本章内の ref-system-design-knowledge 参照は非規範・取得証跡なし・実装根拠に使用不可) が無い (C05 gap 6)。5 章にあって 3 章に無い状態を一律にする。要件文の内容は変えない。compile は走らせない。",
       "from": "確定"
+    },
+    {
+      "category": "database",
+      "platform": "web",
+      "reason": "gap 3 の「条項引用の可否」節を章本文へ明示するため、正規経路で章保護を解除する。あわせて記録: 2026-08-20 に compile 出力(scratchpad)と本番章を突き合わせた結果、章の規範本文 366 行(To-Be 契約表 DB-*/BE-*/INF-*/*-REQ-*/*-ACC-*、故障モード、初期 SLO、Acceptance evidence、index の状態軸)が正本にも生成器にも存在せず、compile は仕様書を消すことが判明した。したがって章の更新は compile ではなく手編集で行う。次に reopen する人はこの測定をやり直さなくてよい。再確定は reopen_log[].discarded と同じ qa_ref / serves_goals / required_info で行う。",
+      "from": "確定",
+      "discarded": {
+        "qa_ref": "qa-database-web-spec-intake",
+        "serves_goals": [
+          "G1",
+          "G2"
+        ]
+      }
+    },
+    {
+      "category": "auth",
+      "platform": "web",
+      "reason": "gap 3 の「条項引用の可否」節を章本文へ明示するため、正規経路で章保護を解除する。あわせて記録: 2026-08-20 に compile 出力(scratchpad)と本番章を突き合わせた結果、章の規範本文 366 行(To-Be 契約表 DB-*/BE-*/INF-*/*-REQ-*/*-ACC-*、故障モード、初期 SLO、Acceptance evidence、index の状態軸)が正本にも生成器にも存在せず、compile は仕様書を消すことが判明した。したがって章の更新は compile ではなく手編集で行う。次に reopen する人はこの測定をやり直さなくてよい。再確定は reopen_log[].discarded と同じ qa_ref / serves_goals / required_info で行う。",
+      "from": "確定",
+      "discarded": {
+        "qa_ref": "qa-auth-web",
+        "serves_goals": [
+          "G1"
+        ],
+        "required_info": [
+          {
+            "item_id": "auth-model",
+            "missing_effect": "block",
+            "status": "grounded",
+            "grounded_by": "qa-auth-web"
+          }
+        ]
+      }
+    },
+    {
+      "category": "security",
+      "platform": "web",
+      "reason": "gap 3 の「条項引用の可否」節を章本文へ明示するため、正規経路で章保護を解除する。あわせて記録: 2026-08-20 に compile 出力(scratchpad)と本番章を突き合わせた結果、章の規範本文 366 行(To-Be 契約表 DB-*/BE-*/INF-*/*-REQ-*/*-ACC-*、故障モード、初期 SLO、Acceptance evidence、index の状態軸)が正本にも生成器にも存在せず、compile は仕様書を消すことが判明した。したがって章の更新は compile ではなく手編集で行う。次に reopen する人はこの測定をやり直さなくてよい。再確定は reopen_log[].discarded と同じ qa_ref / serves_goals / required_info で行う。",
+      "from": "確定",
+      "discarded": {
+        "qa_ref": "qa-security-web-spec-intake",
+        "serves_goals": [
+          "G1"
+        ],
+        "required_info": [
+          {
+            "item_id": "security-posture",
+            "missing_effect": "block",
+            "status": "grounded",
+            "grounded_by": "qa-security-web-spec-intake"
+          }
+        ]
+      }
+    },
+    {
+      "category": "infrastructure",
+      "platform": "web",
+      "reason": "gap 3 の「条項引用の可否」節を章本文へ明示するため、正規経路で章保護を解除する。あわせて記録: 2026-08-20 に compile 出力(scratchpad)と本番章を突き合わせた結果、章の規範本文 366 行(To-Be 契約表 DB-*/BE-*/INF-*/*-REQ-*/*-ACC-*、故障モード、初期 SLO、Acceptance evidence、index の状態軸)が正本にも生成器にも存在せず、compile は仕様書を消すことが判明した。したがって章の更新は compile ではなく手編集で行う。次に reopen する人はこの測定をやり直さなくてよい。再確定は reopen_log[].discarded と同じ qa_ref / serves_goals / required_info で行う。",
+      "from": "確定",
+      "discarded": {
+        "qa_ref": "qa-infra-web-spec-intake",
+        "serves_goals": [
+          "G2",
+          "G1"
+        ]
+      }
+    },
+    {
+      "category": "backend",
+      "platform": "web",
+      "reason": "gap 3 の「条項引用の可否」節を章本文へ明示するため、正規経路で章保護を解除する。あわせて記録: 2026-08-20 に compile 出力(scratchpad)と本番章を突き合わせた結果、章の規範本文 366 行(To-Be 契約表 DB-*/BE-*/INF-*/*-REQ-*/*-ACC-*、故障モード、初期 SLO、Acceptance evidence、index の状態軸)が正本にも生成器にも存在せず、compile は仕様書を消すことが判明した。したがって章の更新は compile ではなく手編集で行う。次に reopen する人はこの測定をやり直さなくてよい。再確定は reopen_log[].discarded と同じ qa_ref / serves_goals / required_info で行う。",
+      "from": "確定",
+      "discarded": {
+        "qa_ref": "qa-backend-web-spec-intake",
+        "serves_goals": [
+          "G2",
+          "G1"
+        ],
+        "required_info": [
+          {
+            "item_id": "domain-model",
+            "missing_effect": "block",
+            "status": "grounded",
+            "grounded_by": "qa-backend-web-spec-intake"
+          }
+        ]
+      }
+    },
+    {
+      "category": "frontend",
+      "platform": "web",
+      "reason": "gap 3 の「条項引用の可否」節を章本文へ明示するため、正規経路で章保護を解除する。あわせて記録: 2026-08-20 に compile 出力(scratchpad)と本番章を突き合わせた結果、章の規範本文 366 行(To-Be 契約表 DB-*/BE-*/INF-*/*-REQ-*/*-ACC-*、故障モード、初期 SLO、Acceptance evidence、index の状態軸)が正本にも生成器にも存在せず、compile は仕様書を消すことが判明した。したがって章の更新は compile ではなく手編集で行う。次に reopen する人はこの測定をやり直さなくてよい。再確定は reopen_log[].discarded と同じ qa_ref / serves_goals / required_info で行う。",
+      "from": "確定",
+      "discarded": {
+        "qa_ref": "qa-frontend-web-spec-intake",
+        "serves_goals": [
+          "G1",
+          "G2"
+        ]
+      }
+    },
+    {
+      "category": "maintenance-ops",
+      "platform": "web",
+      "reason": "gap 3 の「条項引用の可否」節を章本文へ明示するため、正規経路で章保護を解除する。あわせて記録: 2026-08-20 に compile 出力(scratchpad)と本番章を突き合わせた結果、章の規範本文 366 行(To-Be 契約表 DB-*/BE-*/INF-*/*-REQ-*/*-ACC-*、故障モード、初期 SLO、Acceptance evidence、index の状態軸)が正本にも生成器にも存在せず、compile は仕様書を消すことが判明した。したがって章の更新は compile ではなく手編集で行う。次に reopen する人はこの測定をやり直さなくてよい。再確定は reopen_log[].discarded と同じ qa_ref / serves_goals / required_info で行う。",
+      "from": "確定",
+      "discarded": {
+        "qa_ref": "qa-ops-web-spec-intake",
+        "serves_goals": [
+          "G1",
+          "G2"
+        ]
+      }
     }
   ],
   "category_aggregate": {
