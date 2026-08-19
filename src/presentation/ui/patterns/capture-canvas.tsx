@@ -60,6 +60,43 @@ const COLOR_CODE: Readonly<Record<CanvasColor, string>> = {
 /** 黒塗りは色を選ばせない。薄い色で塗ると隠れないため。 */
 const REDACT_CODE = "#000000";
 
+/**
+ * 位置の目印の 2 色。下の画像が何色か分からないので、明暗を重ねる。
+ *
+ * 上の `COLOR_CODE` と同じく、ここだけは CSS の変数を使えない
+ * （canvas は画素へ直に書くので、テーマの切り替えが届かない）。
+ */
+const CARET_CODE = { light: "#ffffff", dark: "#101010" } as const;
+
+/**
+ * 矢印キー 1 回で動く画素数。**Shift を添えると 1 画素ずつ動く。**
+ *
+ * 大きい刻みだけだと、隠したい範囲の縁が合わない（黒塗りは縁が合わないと
+ * はみ出すか、隠しきれないかのどちらかになる）。細かい刻みだけだと、
+ * 端から端まで押し続けることになる。両方要る。
+ */
+export const CANVAS_KEY_STEP = 16;
+export const CANVAS_KEY_FINE_STEP = 1;
+
+const ARROW_DELTA: Readonly<Record<string, Point>> = {
+  ArrowUp: { x: 0, y: -1 },
+  ArrowDown: { x: 0, y: 1 },
+  ArrowLeft: { x: -1, y: 0 },
+  ArrowRight: { x: 1, y: 0 },
+};
+
+/** キーボードで操作しているときの、いまの段。読み上げる文はここから引く。 */
+type KeyStage = "idle" | "anchored" | "placed" | "cancelled";
+
+const STAGE_TEXT: Readonly<Record<KeyStage, string>> = {
+  idle: UI_COPY.feedback.captureKeyboardIdle,
+  anchored: UI_COPY.feedback.captureKeyboardAnchored,
+  placed: UI_COPY.feedback.captureKeyboardPlaced,
+  cancelled: UI_COPY.feedback.captureKeyboardCancelled,
+};
+
+const clamp = (value: number, max: number): number => Math.min(Math.max(value, 0), max);
+
 type Shape =
   | { readonly tool: "pen"; readonly color: CanvasColor; readonly points: readonly Point[] }
   | { readonly tool: "rect" | "arrow"; readonly color: CanvasColor; readonly from: Point; readonly to: Point }
@@ -96,8 +133,32 @@ export function CaptureCanvas({
   const [color, setColor] = useState<CanvasColor>("red");
   const [text, setText] = useState("");
   const [drawing, setDrawing] = useState<Shape | null>(null);
+  /**
+   * キーボードで動かしている位置。**触るまでは null。**
+   * null のあいだは画素へ何も描かないし、読み上げも黙っている
+   * （ポインタで作った写しに、十字が焼き込まれて出ていかないように）。
+   */
+  const [caret, setCaret] = useState<Point | null>(null);
+  const [stage, setStage] = useState<KeyStage>("idle");
   /** canvas を使えない環境（描画機能のない実行環境など）。黙って空の画像を作らない。 */
   const [unavailable, setUnavailable] = useState(false);
+
+  /**
+   * 1 枚ぶんを描く。`withCaret` は**外へ出す 1 枚では false** にする。
+   * 位置の印はキーボードの人のための目印であって、写しの中身ではない。
+   * 焼き込んだまま出すと、送られた側には消せない丸が乗る。
+   */
+  const paintFrame = useCallback(
+    (ctx: CanvasRenderingContext2D, canvas: HTMLCanvasElement, withCaret: boolean) => {
+      const image = imageRef.current;
+      if (image) ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
+      for (const shape of [...shapes, ...(drawing ? [drawing] : [])]) {
+        paint(ctx, shape);
+      }
+      if (withCaret && caret) paintCaret(ctx, caret);
+    },
+    [shapes, drawing, caret],
+  );
 
   const redraw = useCallback(() => {
     const canvas = canvasRef.current;
@@ -106,12 +167,8 @@ export function CaptureCanvas({
       setUnavailable(true);
       return;
     }
-    const image = imageRef.current;
-    if (image) ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
-    for (const shape of [...shapes, ...(drawing ? [drawing] : [])]) {
-      paint(ctx, shape);
-    }
-  }, [shapes, drawing]);
+    paintFrame(ctx, canvas, true);
+  }, [paintFrame]);
 
   useEffect(() => {
     const image = new Image();
@@ -139,13 +196,21 @@ export function CaptureCanvas({
     return { x: (event.clientX - box.left) * scaleX, y: (event.clientY - box.top) * scaleY };
   };
 
-  const start = (event: React.PointerEvent<HTMLCanvasElement>): void => {
-    const at = pointOf(event);
-    if (tool === "text") {
-      // 文字は「入れる文字」が空なら置かない。空の印は誰にも読めない。
-      if (text.trim() !== "") setShapes((prev) => [...prev, { tool: "text", color, at, text }]);
-      return;
-    }
+  /**
+   * ここから下の 3 つは**座標だけを受け取る**。
+   * ポインタとキーボードで別々の描き方を持つと、片方だけ直る日が来る
+   * （実際、長らくポインタの経路しか無かった。`docs/product/backlog.md` 項目 82）。
+   */
+
+  /** 文字を 1 つ置く。置けたかどうかを返す（空のままなら置かない）。 */
+  const placeText = (at: Point): boolean => {
+    // 文字は「入れる文字」が空なら置かない。空の印は誰にも読めない。
+    if (text.trim() === "") return false;
+    setShapes((prev) => [...prev, { tool: "text", color, at, text }]);
+    return true;
+  };
+
+  const beginAt = (at: Point): void => {
     setDrawing(
       tool === "pen"
         ? { tool: "pen", color, points: [at] }
@@ -155,9 +220,8 @@ export function CaptureCanvas({
     );
   };
 
-  const move = (event: React.PointerEvent<HTMLCanvasElement>): void => {
+  const extendTo = (at: Point): void => {
     if (!drawing) return;
-    const at = pointOf(event);
     if (drawing.tool === "pen") {
       setDrawing({ ...drawing, points: [...drawing.points, at] });
       return;
@@ -167,22 +231,94 @@ export function CaptureCanvas({
     setDrawing({ ...drawing, to: at });
   };
 
+  const start = (event: React.PointerEvent<HTMLCanvasElement>): void => {
+    const at = pointOf(event);
+    if (tool === "text") {
+      placeText(at);
+      return;
+    }
+    beginAt(at);
+  };
+
+  const move = (event: React.PointerEvent<HTMLCanvasElement>): void => {
+    if (!drawing) return;
+    extendTo(pointOf(event));
+  };
+
   const end = (): void => {
     if (!drawing) return;
     setShapes((prev) => [...prev, drawing]);
     setDrawing(null);
   };
 
+  /**
+   * キーボードだけで印を 1 つ置く経路。
+   *
+   * 矢印キーで位置を動かし、Enter で始点、もう一度 Enter で確定する。
+   * ポインタの「押す → 引きずる → 離す」を、そのまま 3 つのキーへ写している。
+   *
+   * **位置を読み上げるところまでが経路である。**画素の座標は画面のどこにも
+   * 出ていないので、数で言わないと「置いたが、どこに置いたか分からない」で終わる。
+   */
+  const onCanvasKeyDown = (event: React.KeyboardEvent<HTMLCanvasElement>): void => {
+    const canvas = event.currentTarget;
+    // 初めて触ったときは真ん中から。端から始めると、画面の中身まで押し続けることになる。
+    const at = caret ?? { x: Math.round(canvas.width / 2), y: Math.round(canvas.height / 2) };
+    const delta = ARROW_DELTA[event.key];
+
+    if (delta) {
+      event.preventDefault();
+      const step = event.shiftKey ? CANVAS_KEY_FINE_STEP : CANVAS_KEY_STEP;
+      const next = {
+        x: clamp(at.x + delta.x * step, canvas.width),
+        y: clamp(at.y + delta.y * step, canvas.height),
+      };
+      setCaret(next);
+      if (drawing) extendTo(next);
+      setStage(drawing ? "anchored" : "idle");
+      return;
+    }
+
+    if (event.key === "Enter" || event.key === " ") {
+      event.preventDefault();
+      setCaret(at);
+      if (tool === "text") {
+        setStage(placeText(at) ? "placed" : "idle");
+        return;
+      }
+      if (drawing) {
+        end();
+        setStage("placed");
+        return;
+      }
+      beginAt(at);
+      setStage("anchored");
+      return;
+    }
+
+    if (event.key === "Escape") {
+      event.preventDefault();
+      // やめたものが残ると、消し方が分からないまま送ることになる。
+      setDrawing(null);
+      setStage("cancelled");
+    }
+  };
+
   const undo = (): void => setShapes((prev) => prev.slice(0, -1));
 
   const exportImage = (): void => {
     const canvas = canvasRef.current;
-    if (!canvas || unavailable) return;
+    const ctx = canvas?.getContext("2d") ?? null;
+    if (!canvas || !ctx || unavailable) return;
+    // 位置の印を外した 1 枚を作ってから写す。目印は送るものではない。
+    paintFrame(ctx, canvas, false);
     const redactionCount = shapes.filter((s) => s.tool === "redact").length;
     canvas.toBlob((blob) => {
       // ここで出るのは印を焼き込んだあとの 1 枚だけ。元画像は渡さない。
       if (blob) onExport({ blob, redactionCount });
     }, "image/png");
+    // 画面のほうは目印を戻す。消えると、次にどこから広げるのか分からなくなる。
+    redraw();
   };
 
   return (
@@ -228,15 +364,30 @@ export function CaptureCanvas({
         </label>
       ) : null}
 
+      <p className={styles.captureHint} id="capture-keyboard-hint">
+        {UI_COPY.feedback.captureKeyboardHint}
+      </p>
+
       <canvas
         ref={canvasRef}
         className={styles.captureSurface}
         aria-label={UI_COPY.feedback.captureTitle}
+        aria-describedby="capture-keyboard-hint"
+        // 台紙そのものへ Tab で届かないと、道具を選ぶところまでしか進めない。
+        tabIndex={0}
+        onKeyDown={onCanvasKeyDown}
         onPointerDown={start}
         onPointerMove={move}
         onPointerUp={end}
         onPointerLeave={end}
       />
+
+      {/* 画素の座標は画面のどこにも出ていない。数で言わないと、置いた場所が分からない。 */}
+      <p className={styles.captureHint} aria-live="polite">
+        {caret === null
+          ? ""
+          : `${UI_COPY.feedback.captureKeyboardPosition} 横 ${Math.round(caret.x)}・縦 ${Math.round(caret.y)}。${STAGE_TEXT[stage]}`}
+      </p>
 
       <p className={styles.captureHint}>
         {UI_COPY.feedback.captureIncomplete}
@@ -259,6 +410,24 @@ export function CaptureCanvas({
       </div>
     </div>
   );
+}
+
+/**
+ * キーボードで動かしている位置の目印。
+ *
+ * 二重の輪にしてあるのは、**下の画像の色が分からない**ため。
+ * 1 色で描くと、同じ色の場所では見えなくなる。
+ */
+function paintCaret(ctx: CanvasRenderingContext2D, at: Point): void {
+  ctx.lineWidth = 2;
+  ctx.strokeStyle = CARET_CODE.light;
+  ctx.beginPath();
+  ctx.arc(at.x, at.y, 8, 0, Math.PI * 2);
+  ctx.stroke();
+  ctx.strokeStyle = CARET_CODE.dark;
+  ctx.beginPath();
+  ctx.arc(at.x, at.y, 6, 0, Math.PI * 2);
+  ctx.stroke();
 }
 
 /** 1 つの印を画素へ描く。**重ねるのではなく描く**のが要点。 */

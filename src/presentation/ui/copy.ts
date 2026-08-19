@@ -410,6 +410,20 @@ export const UI_COPY = {
     colorBlue: "青",
     colorBlack: "黒",
     textToPlace: "入れる文字",
+    /**
+     * 台紙をキーボードだけで使うときの言い回し。
+     *
+     * 印の位置は画素の座標なので、**見えない人には画面から一切分からない。**
+     * 位置と、いま始点を決めたのかどうかを、文字にして読み上げへ渡す。
+     * ここが無いと、経路だけはあるが「どこに置いたか分からないまま置く」になる。
+     */
+    captureKeyboardHint:
+      "キーボードでも印を付けられます。台紙へ移動して、矢印キーで位置を動かし、Enter で始点を決め、もう一度 Enter で確定します。Esc でやめられます。Shift を添えると細かく動きます。",
+    captureKeyboardPosition: "位置",
+    captureKeyboardIdle: "始点を決めていません",
+    captureKeyboardAnchored: "始点を決めました。もう一度 Enter で確定します",
+    captureKeyboardPlaced: "印を確定しました",
+    captureKeyboardCancelled: "描きかけをやめました",
     submit: "送る",
     sending: "送っています",
     sent: "送りました。ありがとうございます。",

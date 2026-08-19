@@ -12,8 +12,8 @@ iteration: null
 title: "描く操作がポインタのみで、キーボードから行えない"
 owners: ["daishiman"]
 created_at: "2026-08-19T02:00:00Z"
-updated_at: "2026-08-19T02:00:00Z"
-status: "draft"
+updated_at: "2026-08-19T07:30:00Z"
+status: "done"
 depends_on: []
 related_nodes: []
 resource_scope: ["docs","tests"]
@@ -44,7 +44,7 @@ github_publication: {"labels":[],"milestone":null,"mode":"local_only","project_a
 github_project_linkages: []
 pull_request_linkages: []
 execution_contexts: []
-completion_evidence: {"completed_at":null,"evidence_refs":[],"policy":"manual","reconciled_at":null,"source":"manual","status":"open"}
+completion_evidence: {"completed_at":"2026-08-19T07:30:00Z","evidence_refs":["tests/ui/capture-canvas.test.tsx"],"policy":"manual","reconciled_at":null,"source":"manual","status":"closed"}
 implementation_readiness: {"checked_at":null,"missing_sections":[],"status":"incomplete"}
 ---
 
@@ -154,3 +154,29 @@ implementation_readiness: {"checked_at":null,"missing_sections":[],"status":"inc
 
 - `REQ-FB05` の a11y 欄を、実装を動かさずに書き換えること
 - ポインタでの描画を落とすこと
+
+## 結果（2026-08-19）
+
+**採った道は「出力と成果物」の 2 つ目**（矢印キーで動かし `Enter` で確定・`Esc` で取り消し）。
+本命に挙げていた 3 つ目（画面の要素の一覧から選ぶ）は**採らなかった**。
+台紙が受け取るのは画像 1 枚と自動で隠した数だけで、**要素の形をどこからも知らない**。
+渡すには撮る側から要素の一覧を通す必要があり、この課題より大きくなる。
+座標を扱わせない道そのものは筋がよいので、別の課題として残す価値がある。
+
+**置き場所は `tests/ui/keyboard-operation.test.tsx` ではなく `tests/ui/capture-canvas.test.tsx`。**
+前者は `route-table.ts` から全画面を静的に回す作りで、`fireEvent.keyDown` を打てない。
+打てない場所に置くと、緑になっても何も見ていないことになる。
+
+手順 1（先に赤を見る）は実測した: 先に書いた 7 件のうち **6 件が赤**。
+残り 1 件は退行の見張り（目印を常に描いていないこと）で、実装前から緑である。
+そのあと足した 2 件は、**壊して赤を見て**から入れた——
+外へ出す 1 枚に目印を焼き込む形にすると 1 件、目印を常に描く形にすると 3 件が落ちる
+（後者で落ちる 3 件のうち 2 件は既存の検査。**新しい 1 件だけが落ちるわけではない**）。
+
+`REQ-FB05` の a11y 欄は「一部」から「対応」へ戻した。
+戻した根拠は文ではなく describe「キーボードだけで印を置ける」9 件である（欄にもそう書いた）。
+
+**要件に無い失敗が 1 つ出た。** 位置の目印を画素へ描く以上、そのまま `toBlob` すると
+送られた側に**消せない丸が焼き込まれる**。経路を足したから生まれた壊れ方で、
+元の要件のどこにも書かれていない。`toBlob` の直前に目印を外した 1 枚を描き直し、
+`toBlob` を呼んだ瞬間の命令列を検査で押さえている。
