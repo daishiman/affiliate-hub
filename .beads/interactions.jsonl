@@ -56,3 +56,4 @@
 {"id":"int-e6fc9c96e9f9dc33f7fe1091529a4ea9","kind":"field_change","created_at":"2026-08-18T23:27:59.528652Z","actor":"daishiman","issue_id":"ah-abs","extra":{"field":"status","new_value":"closed","old_value":"in_progress","reason":"手で書いた対応表 111 行と突き合わせ検査 9 件を追加。4 通り壊して 4 通り赤を実測。commit 14ea160"}}
 {"id":"int-9fe2405fbe5f1ba8e7d309235cb9e614","kind":"field_change","created_at":"2026-08-19T00:13:49.512037Z","actor":"daishiman","issue_id":"ah-v8y","extra":{"field":"status","new_value":"in_progress","old_value":"open"}}
 {"id":"int-3d5eccf0991480c2c1b6fe4a1d0a4d53","kind":"field_change","created_at":"2026-08-19T00:17:43.44354Z","actor":"daishiman","issue_id":"ah-nq1","extra":{"field":"status","new_value":"in_progress","old_value":"open"}}
+{"id":"int-603896629dfcb5900e7e3de5e6b931f7","kind":"field_change","created_at":"2026-08-19T00:29:52.066419Z","actor":"daishiman","issue_id":"ah-kte","extra":{"field":"status","new_value":"in_progress","old_value":"open"}}

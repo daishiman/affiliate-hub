@@ -2341,6 +2341,527 @@
         "confirmed_at": "2026-08-16T00:00:00Z",
         "note": "2026-08-16 AskUserQuestion で利用者が A. Better Auth を選択"
       }
+    },
+    {
+      "id": "decision-editorial-commercial-split",
+      "question": "Editorial（編集評価）と Commercial（報酬・成果）のデータを、D1 でどう分けるか",
+      "status": "recommended_pending_confirmation",
+      "serves_goals": [
+        "G1",
+        "G2"
+      ],
+      "options": [
+        {
+          "id": "opt-single-db-schema-split",
+          "label": "D1 は 1 本のまま、テーブル名前空間と型で分ける",
+          "cost_model": {
+            "category": "free",
+            "amount": 0,
+            "currency": "JPY",
+            "billing_period": "monthly",
+            "tco": "追加費用なし。いまの構成（DB バインディング 1 本）のまま"
+          },
+          "free_tier_limits": "D1 無料枠の範囲内（現行と同じ 1 データベース）",
+          "goal_fit": "G2（成果の一元管理）には都合がよい。同じ DB なので集計を SQL の JOIN で書ける",
+          "security_fit": "境界はコードの中だけにある。SQL を 1 行書けば報酬額をランキングの入力に混ぜられる",
+          "pros": [
+            "いまの構成から何も変えない",
+            "集計クエリが 1 本で書ける",
+            "マイグレーションの管理先が 1 つ"
+          ],
+          "cons": [
+            "§19.4 の禁止（報酬を推薦スコアの入力にしない）を、コードの外から確かめられない",
+            "禁止依存 FD-2 の担保が型だけになり、型を外せば通る"
+          ],
+          "risks": [
+            "境界を越える SQL が 1 本混ざっても、画面からは何も変わって見えない（残課題 51 と同じ形）"
+          ],
+          "lock_in": "なし",
+          "ops_burden": "低（現行のまま）",
+          "evidence_refs": [
+            "https://developers.cloudflare.com/d1/",
+            "https://orm.drizzle.team/docs/overview"
+          ]
+        },
+        {
+          "id": "opt-two-databases",
+          "label": "D1 を 2 本に分け、バインディングを分ける（DB_EDITORIAL / DB_COMMERCIAL）",
+          "cost_model": {
+            "category": "free",
+            "amount": 0,
+            "currency": "JPY",
+            "billing_period": "monthly",
+            "tco": "D1 は無料枠内で複数データベースを持てるため追加費用なし。作業費は移行の 1 回ぶん"
+          },
+          "free_tier_limits": "D1 無料枠の範囲内（データベース数の上限は無料枠でも 1 本ではない）",
+          "goal_fit": "G1（安全な作成・公開）に直結。ランキング計算の関数へ Commercial のバインディングを渡さなければ、混ぜようがない",
+          "security_fit": "境界が**バインディングの有無**になる。混ぜるには設定ファイルを書き換える必要があり、差分に必ず現れる",
+          "pros": [
+            "§19.4 と FD-2 を、コードではなく構成で担保できる",
+            "越境が git の差分に出る（wrangler.jsonc の変更として見える）",
+            "Commercial 側だけを別の保管期間・別の権限で扱える"
+          ],
+          "cons": [
+            "DB をまたぐ JOIN が書けない。突合はアプリ側で ID を突き合わせる",
+            "マイグレーションが 2 系統になる",
+            "既存テーブルの引っ越しが 1 回必要"
+          ],
+          "risks": [
+            "アプリ側の突合を書き間違えると、集計がずれる（SQL の JOIN より落ちにくいので気づきにくい）",
+            "2 本の間で整合が必要な操作は、トランザクションで守れない"
+          ],
+          "lock_in": "なし（どちらも D1）",
+          "ops_burden": "中（マイグレーション 2 系統・バックアップ 2 本）",
+          "evidence_refs": [
+            "https://developers.cloudflare.com/d1/",
+            "https://orm.drizzle.team/docs/overview"
+          ]
+        }
+      ],
+      "recommendation": {
+        "option_id": "opt-two-databases",
+        "rationale": "禁止（報酬額をランキングの入力にしない）は仕様の中でいちばん強い制約で、二層のどの経路からも迂回できない位置で担保すると 04 §2-4 が書いている。1 本のままだと、その位置がコードの中にしかない。2 本にすると、越えるには設定を書き換えるしかなくなり、越えたことが差分に残る。残課題 51 で実際に踏んだ「宣言だけが守っていて、画面からは何も変わって見えない」形を、ここでは最初から避けられる。",
+        "caveats": [
+          "既存テーブルの引っ越しが 1 回必要で、その回だけは本番データを触る",
+          "DB をまたぐ集計はアプリ側の突合になるため、突合のテストを先に書く",
+          "分けたあとも、Commercial の値を関数の引数として渡せば混ざる。バインディングの分離は「うっかり」を防ぐが「意図」は防がない"
+        ],
+        "confidence": "high",
+        "latest_checked_at": "2026-08-19T00:00:00Z",
+        "comparison_basis": {
+          "goal_fit": "G1 の安全性を構成で担保できる 2 本案が優位。G2 の集計しやすさだけは 1 本案が優位",
+          "tco": "どちらも無料枠内。差は移行の作業費 1 回ぶんだけ",
+          "security": "2 本案が明確に優位。境界がコードの外（バインディング）に出る",
+          "operations": "1 本案が優位。2 本案はマイグレーションとバックアップが 2 系統になる",
+          "lock_in": "差なし。どちらも D1 で、相互に移れる"
+        }
+      }
+    },
+    {
+      "id": "decision-redirect-measurement-async",
+      "question": "リダイレクトの計測（ClickEvent の記録）を、転送を止めずにどう書くか",
+      "status": "recommended_pending_confirmation",
+      "serves_goals": [
+        "G2",
+        "G1"
+      ],
+      "options": [
+        {
+          "id": "opt-waituntil-direct",
+          "label": "ctx.waitUntil で D1 へ直接書く",
+          "cost_model": {
+            "category": "free",
+            "amount": 0,
+            "currency": "JPY",
+            "billing_period": "monthly",
+            "tco": "追加費用なし。いまの構成のまま"
+          },
+          "free_tier_limits": "D1 の書き込み無料枠の範囲内",
+          "goal_fit": "G2（計測）を最短で満たす。転送は先に返すので読者を待たせない",
+          "security_fit": "外部サービスを増やさないぶん、秘密情報の置き場も増えない",
+          "pros": [
+            "部品が増えない",
+            "書いた瞬間に集計へ反映される",
+            "実装がいちばん短い"
+          ],
+          "cons": [
+            "D1 が落ちている間のクリックは、記録が消える（退避先が無い）"
+          ],
+          "risks": [
+            "障害の時間帯だけ成果が欠測し、あとから埋められない"
+          ],
+          "lock_in": "なし",
+          "ops_burden": "低",
+          "evidence_refs": [
+            "https://developers.cloudflare.com/workers/"
+          ]
+        },
+        {
+          "id": "opt-queues",
+          "label": "Cloudflare Queues へ積み、consumer が D1 へ書く",
+          "cost_model": {
+            "category": "low-cost",
+            "amount": 750,
+            "currency": "JPY",
+            "billing_period": "monthly",
+            "tco": "Queues は Workers 有料プラン（$5/月、約 750 円）が前提。現在この契約が有効かは未確認で、本人確認が要る"
+          },
+          "free_tier_limits": "無料プランでは使えない（有料プランの中に含まれる）",
+          "goal_fit": "G2 の欠測をいちばん減らす。再試行と順序が仕組みとして付く",
+          "security_fit": "秘密情報は増えない（バインディング経由）",
+          "pros": [
+            "再試行が仕組みとして付く",
+            "D1 の一時的な障害を吸収できる",
+            "書き込みをまとめられる"
+          ],
+          "cons": [
+            "有料プランが前提",
+            "部品が 1 つ増え、詰まったときの見張りが要る"
+          ],
+          "risks": [
+            "契約が無料プランのままだと、そもそも動かない（実装してから気づくと痛い）"
+          ],
+          "lock_in": "中（Cloudflare 固有。他所へ移すと書き直し）",
+          "ops_burden": "中（キューの滞留を見る必要がある）",
+          "evidence_refs": [
+            "https://developers.cloudflare.com/queues/"
+          ]
+        },
+        {
+          "id": "opt-waituntil-fallback-cron",
+          "label": "ctx.waitUntil で D1 へ書き、失敗ぶんだけ R2 へ退避して Cron で回収する",
+          "cost_model": {
+            "category": "free",
+            "amount": 0,
+            "currency": "JPY",
+            "billing_period": "monthly",
+            "tco": "追加費用なし。Cron Triggers は無料枠にあり、退避は R2 の既存バケットを使う"
+          },
+          "free_tier_limits": "Cron Triggers・R2 とも既存の無料枠の範囲内",
+          "goal_fit": "G2 の欠測を、有料プランを増やさずに減らせる。G1 の「転送は必達」も保てる",
+          "security_fit": "外部サービスを増やさない。退避先は既存の R2 で、公開しない",
+          "pros": [
+            "無料枠のまま欠測を減らせる",
+            "既に Cron Triggers を使っている（画面の写しの掃除、日本時間 2:00）ので、置き場が既にある",
+            "契約状態に依存しない"
+          ],
+          "cons": [
+            "回収までに時差がある（最大 1 日）",
+            "退避と回収のコードを自分で持つ"
+          ],
+          "risks": [
+            "回収の失敗が静かに起きうる。回収の結果を記録し、溜まったら気づける形にしないと、退避先が墓場になる"
+          ],
+          "lock_in": "低（Cron と R2 は置き換えやすい）",
+          "ops_burden": "中（回収の見張りが要る）",
+          "evidence_refs": [
+            "https://developers.cloudflare.com/workers/configuration/cron-triggers/",
+            "https://developers.cloudflare.com/r2/"
+          ]
+        }
+      ],
+      "recommendation": {
+        "option_id": "opt-waituntil-fallback-cron",
+        "rationale": "02 §7 と既存の qa は「転送は必達、計測はベストエフォート」と書いている。3 案とも転送は止めないので、差は欠測をどこまで減らすかと、その値段である。Queues がいちばん堅いが有料プランが前提で、いまその契約が有効かを私は確かめられない。退避＋Cron は無料枠のままで欠測をほぼ同じだけ減らせ、Cron の置き場は既にある。契約が確かめられたあとで Queues へ移ることもできる（退避のコードは捨てられる）。",
+        "caveats": [
+          "回収が静かに失敗すると退避先が墓場になる。回収した件数と残件数を記録し、残件が増え続けたら赤くする",
+          "有料プランが既に有効なら Queues のほうが素直。契約状態は本人しか確かめられない",
+          "最大 1 日の時差があるため、当日の速報値は「まだ確定していない」と画面に出す（03 §8 の速報と確定の区別）"
+        ],
+        "confidence": "medium",
+        "latest_checked_at": "2026-08-19T00:00:00Z",
+        "comparison_basis": {
+          "goal_fit": "欠測の少なさは Queues > 退避+Cron > 直書き。転送の必達は 3 案とも同じ",
+          "tco": "直書きと退避+Cron は 0 円。Queues は有料プラン 750 円/月が前提",
+          "security": "3 案とも秘密情報を増やさない。差は無い",
+          "operations": "直書きがいちばん軽い。Queues は滞留、退避+Cron は回収を見る必要がある",
+          "lock_in": "Queues が最も強い（Cloudflare 固有）。他 2 案は移しやすい"
+        }
+      }
+    },
+    {
+      "id": "decision-llm-provider",
+      "question": "記事生成に使う LLM プロバイダを 1 社に固定するか、複数を持つか",
+      "status": "recommended_pending_confirmation",
+      "serves_goals": [
+        "G1"
+      ],
+      "options": [
+        {
+          "id": "opt-single-anthropic",
+          "label": "Anthropic 1 社に固定する",
+          "cost_model": {
+            "category": "paid",
+            "amount": 1,
+            "currency": "USD",
+            "billing_period": "monthly",
+            "tco": "従量課金。金額は生成量に比例し、下限は無い（1 は「0 ではない」ことを表す最小値）"
+          },
+          "free_tier_limits": "無料枠なし（従量課金のみ）",
+          "goal_fit": "G1 の品質は満たしやすいが、値上げ・提供停止のときに逃げ場が無い",
+          "security_fit": "鍵が 1 本で済む。置き場も 1 つ",
+          "pros": [
+            "実装が最も短い",
+            "プロンプトを 1 社の癖に合わせて詰められる",
+            "鍵の管理先が 1 つ"
+          ],
+          "cons": [
+            "値上げ・提供停止・品質変化のときに逃げ場が無い",
+            "用途ごとに安いモデルを選べない"
+          ],
+          "risks": [
+            "1 社の障害が、生成機能そのものの停止になる"
+          ],
+          "lock_in": "高（プロンプトが 1 社の形に寄る）",
+          "ops_burden": "低",
+          "evidence_refs": [
+            "https://docs.claude.com/"
+          ]
+        },
+        {
+          "id": "opt-catalog-multi",
+          "label": "単価表（config/llm-provider-catalog.json）を正本に、複数社を差し替え可能にする（現行）",
+          "cost_model": {
+            "category": "paid",
+            "amount": 1,
+            "currency": "USD",
+            "billing_period": "monthly",
+            "tco": "従量課金。用途ごとに安いモデルを選べるぶん、1 社固定より下がる方向に動く"
+          },
+          "free_tier_limits": "無料枠なし（従量課金のみ）",
+          "goal_fit": "G1 に適合。長い記事は高いモデル、判定は安いモデル、と用途で分けられる",
+          "security_fit": "鍵が社数ぶん増える。増えたぶんだけ置き場と権限の管理が要る",
+          "pros": [
+            "既に実装されている（wrangler の LLM_PROVIDER_CATALOG と同期の検査つき）",
+            "単価が vars にあるので、値上げに気づける（secret にすると読めなくなる）",
+            "1 社が落ちても他社へ回せる"
+          ],
+          "cons": [
+            "鍵が増える",
+            "プロバイダごとの出力差を吸収する層が要る"
+          ],
+          "risks": [
+            "どの社をどの用途に当てるかが決まっていないと、いちばん高い社が既定になりがち"
+          ],
+          "lock_in": "低",
+          "ops_burden": "中（単価表の更新が要る。更新は catalog:sync がある）",
+          "evidence_refs": [
+            "https://docs.claude.com/",
+            "https://ai.google.dev/gemini-api/docs",
+            "https://platform.openai.com/docs"
+          ]
+        },
+        {
+          "id": "opt-workers-ai",
+          "label": "Workers AI（Cloudflare のモデル）を主にする",
+          "cost_model": {
+            "category": "low-cost",
+            "amount": 750,
+            "currency": "JPY",
+            "billing_period": "monthly",
+            "tco": "Workers 有料プランの中に無料枠があり、超過分が従量。現在の契約状態は未確認"
+          },
+          "free_tier_limits": "有料プランに日次の無料枠がある（無料プランでは使えない）",
+          "goal_fit": "G1 の品質要求（根拠つきの長文）に対しては、モデルの選択肢が狭い",
+          "security_fit": "鍵が不要（バインディング経由）。秘密情報が 1 つ減るのは大きい",
+          "pros": [
+            "鍵を持たなくてよい",
+            "同じプラットフォーム内で完結し、遅延が小さい",
+            "無料枠がある"
+          ],
+          "cons": [
+            "長文・根拠つきの生成では選べるモデルが限られる",
+            "有料プランが前提"
+          ],
+          "risks": [
+            "品質が足りずに結局よそへ出すことになり、両方の実装を抱える"
+          ],
+          "lock_in": "高（Cloudflare 固有）",
+          "ops_burden": "低",
+          "evidence_refs": [
+            "https://developers.cloudflare.com/workers-ai/",
+            "https://developers.cloudflare.com/ai-gateway/"
+          ]
+        }
+      ],
+      "recommendation": {
+        "option_id": "opt-catalog-multi",
+        "rationale": "既に実装があり、単価表を vars に置いて値上げに気づけるようにしてある。07 §0 の GC-5（レビュー系は執筆系と分離し、自作自演の検証にしない）は、書き手と検査役に別のモデルを当てられるほうが素直に満たせる。1 社固定はいまより短くなるが、既にある仕組みを捨てることになる。",
+        "caveats": [
+          "鍵が社数ぶん増える。登録は本人がブラウザで行い、こちらでは受け取らない（11 §5）",
+          "どの用途にどの社を当てるかが未定のままだと、いちばん高い社が既定になる。用途ごとの既定を決める必要がある",
+          "単価表の pricedOn は 2026-08-18 のまま。実費の見積りは llm-cost-simulator で別途取る"
+        ],
+        "confidence": "medium",
+        "latest_checked_at": "2026-08-19T00:00:00Z",
+        "comparison_basis": {
+          "goal_fit": "長文＋根拠の品質は 1 社固定と複数社が同等。Workers AI は選択肢が狭い",
+          "tco": "複数社が最も下がる方向（用途ごとに安いモデルを選べる）。Workers AI は無料枠があるが有料プラン前提",
+          "security": "Workers AI が優位（鍵が要らない）。複数社は鍵が最も増える",
+          "operations": "1 社固定と Workers AI が軽い。複数社は単価表の更新が要る",
+          "lock_in": "複数社が最も低い。1 社固定と Workers AI は高い"
+        }
+      }
+    },
+    {
+      "id": "decision-ui-theme-implementation",
+      "question": "配色と明暗の 2 軸を、どの技術で実装するか",
+      "status": "recommended_pending_confirmation",
+      "serves_goals": [
+        "G1"
+      ],
+      "options": [
+        {
+          "id": "opt-css-light-dark",
+          "label": "CSS の light-dark() と data 属性（配色は属性、明暗は color-scheme）",
+          "cost_model": {
+            "category": "free",
+            "amount": 0,
+            "currency": "JPY",
+            "billing_period": "monthly",
+            "tco": "追加費用なし。ブラウザの標準機能"
+          },
+          "free_tier_limits": "制限なし",
+          "goal_fit": "09 §2 の 2 軸モデルをそのまま表現できる。掛け合わせを設定値にしない",
+          "security_fit": "外から来る値（cookie / URL）は解析関数を通して既定へ落とす形が書きやすい",
+          "pros": [
+            "配色を 1 つ増やしても設定値は 1 つしか増えない",
+            "部品ごとに明暗の分岐を書かなくてよい（09 §5）",
+            "依存を増やさない"
+          ],
+          "cons": [
+            "light-dark() を解さない古いブラウザでは既定色になる"
+          ],
+          "risks": [
+            "色の定義が CSS に散ると、コントラストの下限を測る場所が分かりにくくなる"
+          ],
+          "lock_in": "なし（標準）",
+          "ops_burden": "低",
+          "evidence_refs": [
+            "https://developer.mozilla.org/en-US/docs/Web/CSS/color_value/light-dark"
+          ]
+        },
+        {
+          "id": "opt-tailwind-dark-class",
+          "label": "Tailwind の dark: クラスと、配色ごとのクラス群",
+          "cost_model": {
+            "category": "free",
+            "amount": 0,
+            "currency": "JPY",
+            "billing_period": "monthly",
+            "tco": "追加費用なし。Tailwind は既に入っている"
+          },
+          "free_tier_limits": "制限なし",
+          "goal_fit": "掛け合わせがクラス名に出る。配色 × 明暗の数だけクラスが増え、09 §2 が禁じた形に近づく",
+          "security_fit": "差は無い",
+          "pros": [
+            "既に Tailwind を使っている",
+            "書いた場所で色が読める"
+          ],
+          "cons": [
+            "配色を 1 つ増やすたびに、全部品のクラスが増える",
+            "部品の中に明暗の分岐が書かれる（09 §5 が禁じている）"
+          ],
+          "risks": [
+            "増やすのが面倒になり、配色を増やさない方向へ運用が寄る"
+          ],
+          "lock_in": "中（Tailwind の書き方に寄る）",
+          "ops_burden": "中",
+          "evidence_refs": [
+            "https://tailwindcss.com/docs/dark-mode"
+          ]
+        }
+      ],
+      "recommendation": {
+        "option_id": "opt-css-light-dark",
+        "rationale": "09 §2 は「掛け合わせを設定として持たない」と書いており、light-dark() は掛け合わせを CSS 側で解く仕組みそのものである。Tailwind のクラス方式は、禁じられている掛け合わせがクラス名として現れる。Tailwind は配置と余白に使い、色だけこの方式にすれば両方使える。",
+        "caveats": [
+          "色の定義を 1 か所へ集めないと、コントラストの下限（09 §4）を測る対象が散る",
+          "cookie と URL から来る名前は必ず解析関数を通す（09 §2-2）。素通しにすると壊れて見えない画面になる",
+          "light-dark() を解さない環境では既定色になる。それが読める色であることを確かめる"
+        ],
+        "confidence": "high",
+        "latest_checked_at": "2026-08-19T00:00:00Z",
+        "comparison_basis": {
+          "goal_fit": "light-dark() が明確に優位。09 §2 の 2 軸をそのまま表現できる",
+          "tco": "どちらも 0 円",
+          "security": "差なし",
+          "operations": "light-dark() が優位。配色を増やしたときの作業量が一定",
+          "lock_in": "light-dark() は標準で、乗り換え先が要らない"
+        }
+      }
+    },
+    {
+      "id": "decision-test-ci-tooling",
+      "question": "テストと CI の道具立てを、いまの構成のまま進めるか変えるか",
+      "status": "recommended_pending_confirmation",
+      "serves_goals": [
+        "G1",
+        "G2"
+      ],
+      "options": [
+        {
+          "id": "opt-keep-current",
+          "label": "現行のまま（Vitest / Stryker / fast-check / axe-core / GitHub Actions）",
+          "cost_model": {
+            "category": "free",
+            "amount": 0,
+            "currency": "JPY",
+            "billing_period": "monthly",
+            "tco": "追加費用なし。公開リポジトリの標準ランナーは無料・無制限（11 §8-1 の実測）"
+          },
+          "free_tier_limits": "公開リポジトリでは実行時間の制限なし",
+          "goal_fit": "10 の 7 種のうち、単体・契約・境界値・ミューテーション・性質・読み上げを既に覆っている",
+          "security_fit": "秘密情報を増やさない。CI から外部サービスを呼ばない",
+          "pros": [
+            "既に 181 のテストファイルが動いている",
+            "3 段の置き場が既にあり、重いものを移せる（11 §8-2）",
+            "道具を増やさないぶん、守るものが増えない"
+          ],
+          "cons": [
+            "見た目の回帰（ビジュアルリグレッション）を測る道具が無い"
+          ],
+          "risks": [
+            "見た目の崩れは、画面のテストでは捕まらないまま残る"
+          ],
+          "lock_in": "低",
+          "ops_burden": "低（現行のまま）",
+          "evidence_refs": [
+            "https://vitest.dev/",
+            "https://stryker-mutator.io/docs/",
+            "https://docs.github.com/en/actions"
+          ]
+        },
+        {
+          "id": "opt-add-playwright",
+          "label": "Playwright を足し、3 段で見た目の回帰と実ブラウザの通しを測る",
+          "cost_model": {
+            "category": "free",
+            "amount": 0,
+            "currency": "JPY",
+            "billing_period": "monthly",
+            "tco": "公開リポジトリの標準ランナーは無料。実行時間が伸びるが 11 §8-1 のとおり費用ではない"
+          },
+          "free_tier_limits": "公開リポジトリでは実行時間の制限なし",
+          "goal_fit": "10 §7 の見た目の回帰を初めて測れる。9 の配色 × 明暗の組み合わせを実際に描いて確かめられる",
+          "security_fit": "差は無い",
+          "pros": [
+            "配色を増やしたときに、全組み合わせのコントラストを実描画で測れる",
+            "3 段（手動・止めない）に置けるので、速い門は重くならない"
+          ],
+          "cons": [
+            "画像の基準を持つことになり、基準の更新が新しい仕事として増える",
+            "3 段は誰かが打たないと走らない（11 §8-2）。打つ場面を書かないと存在しない検査になる"
+          ],
+          "risks": [
+            "基準画像の更新が面倒になり、落ちたら基準を上書きする運用に流れる（それは閾値を下げるのと同じ）"
+          ],
+          "lock_in": "低",
+          "ops_burden": "中（基準画像の管理）",
+          "evidence_refs": [
+            "https://playwright.dev/",
+            "https://vitest.dev/"
+          ]
+        }
+      ],
+      "recommendation": {
+        "option_id": "opt-keep-current",
+        "rationale": "11 §8 は「重いテストを足す前に置き場所を先に作る」と書いていて、置き場（3 段）は既にある。だが 3 段は 2026-08-18 に定例をやめており、いまは誰かが打たなければ一度も走らない。そこへ基準画像を持つ検査を足すと、走らない検査が 1 つ増えるだけになる可能性が高い。配色を増やす作業に着手する回に、打つ場面を決めてから足すのが順序として正しい。",
+        "caveats": [
+          "見た目の回帰は、当面ぶん測れないままである（残課題として残る。無いことを無いと書く）",
+          "足すなら、同じ回に「いつ打つか」を文書へ書く。場面を書かずに足すと、名前だけの検査になる",
+          "配色を 1 つ増やす作業が決まった時点で、この判断は見直す"
+        ],
+        "confidence": "medium",
+        "latest_checked_at": "2026-08-19T00:00:00Z",
+        "comparison_basis": {
+          "goal_fit": "見た目の回帰だけは Playwright が優位。それ以外の 6 種は現行で足りている",
+          "tco": "どちらも 0 円。公開リポジトリの標準ランナーは無料",
+          "security": "差なし",
+          "operations": "現行が優位。Playwright は基準画像の管理が増える",
+          "lock_in": "差なし。どちらも移しやすい"
+        }
+      }
     }
   ],
   "knowledge_candidates": [],
