@@ -24,7 +24,7 @@ import {
   rewardModelLabel,
 } from "@/application/usecases/monetization/manage-affiliate";
 import { DEFAULT_REWARD_CURRENCY } from "@/domain/monetization";
-import { markCommercial } from "@/domain/shared";
+import { formatMoney, markCommercial } from "@/domain/shared";
 import type { WorkspaceId } from "@/domain/shared";
 import { SAMPLE_WORKSPACE_ID } from "@/infrastructure/persistence/sample/ranking-sample-repository";
 import { aNobody, anAnalyst, anOwner } from "../support/actors";
@@ -253,6 +253,12 @@ describe("成果の一覧", () => {
     expect(listed.value.total).toBe(0);
     expect(listed.value.emptyReason).toContain("2026-01");
     expect(listed.value.closed).toBe(false);
+
+    // 1 件も無いと合計の初期値がそのまま表示に出る。ここだけが、その通貨を
+    // 外から見られる唯一の場所になっている。**"¥0" と書き写してはいけない。**
+    expect(listed.value.approvedTotalLabel).toBe(
+      formatMoney({ amountMinor: 0, currency: DEFAULT_REWARD_CURRENCY }),
+    );
   });
 
   it("取れなかったときは、0 件として見せない", async () => {

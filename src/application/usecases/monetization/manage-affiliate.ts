@@ -292,7 +292,11 @@ export function createListConversionsUseCase(
 
       // 確定分だけを合計する。未確定を足すと、入ってこない金額を見込みにしてしまう。
       let approvedMinor = 0;
-      let currency: CurrencyCode = "JPY";
+      // 確定した成果が 1 件も無いと、この初期値がそのまま合計の表示に出る。
+      // つまり「通貨が 1 件も決まっていないときに出る通貨」で、28 行上の
+      // `toConversionView` の既定と同じもの。同じ画面の item と合計が
+      // 別々の通貨を出すことは有り得ないので、1 つを共有する。
+      let currency: CurrencyCode = DEFAULT_REWARD_CURRENCY;
       for (const c of raw) {
         if (c.status !== "approved") continue;
         const amount = effectiveReward(c);
