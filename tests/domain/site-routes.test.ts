@@ -46,6 +46,8 @@ function actualRoutePaths(): string[] {
 
 describe("ブログのルート表", () => {
   it("表にあるルートには、必ず画面のファイルがある", () => {
+    // **母集団の床**（残課題 78 ㉗）。ルート表が空でも同じ 0 件が出る。
+    expect(SITE_ROUTES.length, "ルート表が空です").toBeGreaterThan(5);
     const missing = SITE_ROUTES.filter(
       (route) => !existsSync(join(APP_SITE_DIR, toSegments(route.path), "page.tsx")),
     ).map((r) => r.path);
@@ -54,6 +56,8 @@ describe("ブログのルート表", () => {
   });
 
   it("画面のファイルには、必ず表の行がある（孤立した画面を作らない）", () => {
+    // **母集団の床**（残課題 78 ㉗）。画面を 1 つも歩けていなくても同じ 0 件が出る。
+    expect(actualRoutePaths().length, "画面のファイルを歩けていません").toBeGreaterThan(5);
     const declared = new Set(SITE_ROUTES.map((r) => toSegments(r.path)));
     const orphans = actualRoutePaths().filter((p) => !declared.has(p));
 

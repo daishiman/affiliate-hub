@@ -86,6 +86,9 @@ function expectHeadingStructure(html: string): void {
 
 describe("画面の一覧", () => {
   it("経路の表と実在するファイルが 1 対 1 で対応する", () => {
+    // **母集団の床**（残課題 78 ㉗）。両側とも空なら「1 対 1」は自明に成り立つ。
+    expect(pageFilesOnDisk().length, "画面のファイルを歩けていません").toBeGreaterThan(20);
+    expect(ROUTE_CASES.length, "経路の表が空です").toBeGreaterThan(20);
     // 片方向（表 → ファイル）だけだと、新しい画面を足しても気づけない。
     // **足りない側と余っている側の両方**を出す。
     const onDisk = pageFilesOnDisk();

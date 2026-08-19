@@ -191,6 +191,9 @@ describe("保存の形の置き場所", () => {
   });
 
   it("テーブルを定義しているのは、決めた場所だけ", () => {
+    // **母集団の床**（残課題 78 ㉗）。0 件は「余分な定義が無い」でも
+    // 「走査が空振りしている」でも出る。
+    expect(definers.length, "定義しているファイルを 1 つも見つけられていません").toBeGreaterThan(1);
     const homes = new Set(TABLE_HOMES.map((h) => h.path));
     expect(
       definers.filter((f) => !homes.has(f)),
@@ -201,6 +204,8 @@ describe("保存の形の置き場所", () => {
   });
 
   it("決めた場所が、実際にテーブルを定義している", () => {
+    // **母集団の床**（残課題 78 ㉗）。置き場所の表が空でも同じ 0 件が出る。
+    expect(TABLE_HOMES.length, "置き場所の表が空です").toBeGreaterThan(1);
     // 移動や改名で空になった置き場所が残っていると、次に別の場所へ書かれても気づけない。
     expect(TABLE_HOMES.map((h) => h.path).filter((p) => !definers.includes(p))).toEqual([]);
   });

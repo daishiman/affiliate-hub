@@ -4,10 +4,10 @@
  * @types contract, boundary, equivalence
  *
  * `equivalence` を名乗る根拠: この検査の本体は**母集団をテストの外から実行時に集めているか
- * どうか**での 2 分割で、族（34 件）と族に入らないもの（266 件）がその 2 クラスである。
+ * どうか**での 2 分割で、族（47 件）と族に入らないもの（253 件）がその 2 クラスである。
  * 検査 1 は**両方のクラスが空でないこと**を見ている。片方だけを見ると、
  * 分割そのものが壊れて全部が片側へ落ちたときに気づけない。
- * `boundary` の根拠は 0 件・上限 25 件・下限 34 件という境目そのものを見ていること。
+ * `boundary` の根拠は 0 件・上限 25 件・下限 47 件という境目そのものを見ていること。
  *
  * 「0 件である」と主張している検査に、**その 0 の母集団の件数の床**が同居しているか。
  *
@@ -100,6 +100,29 @@ function itBlocks(text: string): { head: string; body: string; line: number }[] 
   return out;
 }
 
+/**
+ * 「母集団を実行時に集めた」変数の名前を集める。**2 段で見る。**
+ *
+ * 直に `readdirSync` を書いた変数だけを見ていたときは、
+ * `const ALL = testFiles(TESTS).map(...)` のように**集める処理を関数へ出した形**を
+ * 取りこぼしていた（`tests/architecture/test-honesty.test.ts` の `ALL`。7 件が族外へ落ちていた）。
+ * **集める処理は関数に切り出されるのが普通なので、直書きだけを見る数え方は構造的に過小になる。**
+ * そこで (1) 走査を含む関数の名前を先に集め (2) その関数を呼んでいる変数も母集団と見なす。
+ */
+function gatheredVars(text: string): string[] {
+  const fns = [...text.matchAll(/function\s+(\w+)\s*\([^)]*\)[\s\S]{0,800}?(readdirSync|globSync)/g)].map(
+    (m) => m[1],
+  );
+  const via = fns.length > 0 ? `|${fns.join("|")}` : "";
+  const source = new RegExp(`readdirSync|globSync|pythonSources|walk\\(${via}`);
+  // **先読みで見る。**`([\s\S]{0,300})` を捕捉で書くと `lastIndex` が 300 字進み、
+  // その中にある次の `const` を丸ごと飛ばす。1 度そう書いて、
+  // 拾えるはずの変数が抜けたまま数が出た（数え直しの 5 度目、2026-08-19）。
+  return [...text.matchAll(/const\s+(\w+)\s*=\s*(?=([\s\S]{0,300}))/g)]
+    .filter((m) => source.test(m[2].split(/\n\s*(?:const|let|function|describe|it)\b/)[0]))
+    .map((m) => m[1]);
+}
+
 type Unit = { where: string; floored: boolean };
 
 function survey(): { family: Unit[]; literalOnly: number } {
@@ -109,9 +132,7 @@ function survey(): { family: Unit[]; literalOnly: number } {
     // この検査自身は数えない。自分の中の正規表現が族に見えてしまう。
     if (file.endsWith("form2-population-floor.test.ts")) continue;
     const text = readFileSync(file, "utf8");
-    const topVars = [...text.matchAll(/const\s+(\w+)\s*=\s*[^\n;]*(readdirSync|pythonSources|walk\()/g)].map(
-      (m) => m[1],
-    );
+    const topVars = gatheredVars(text);
     for (const b of itBlocks(text)) {
       if (!EMPTY.test(b.body)) continue;
       const gathers =
