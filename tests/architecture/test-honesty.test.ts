@@ -76,6 +76,18 @@ function eachTest(source: string): { name: string; body: string; line: number }[
  */
 const ASSERTS = /\bexpect\s*\(|\bexpect[A-Z]\w*\s*\(|\bassert\b|\.rejects\b|\.resolves\b/;
 
+/**
+ * 歩いたテストファイル。**この 1 本が、下の 7 つの検査すべての母集団である。**
+ *
+ * だから `testFiles()` が 1 つも返さなくなると、7 か所の
+ * `expect(ALL.length …).toBeGreaterThan(150)` が**同時に**赤くなる。
+ *
+ * **その 7 件の赤は、7 つの別々の問題ではない。1 つの原因を指している。**
+ * 赤の件数を問題の件数として読むと、「テスト基盤が 7 か所壊れた」に見えるが、
+ * 直す場所は `testFiles()` か `TESTS` のどちらか 1 つである。
+ * 逆に、7 件のうち一部だけが赤いなら、それは母集団ではなく
+ * その検査固有の問題である（そちらは 7 件を数える意味がある）。
+ */
 const ALL = testFiles(TESTS).map((file) => ({
   path: relative(ROOT, file).split("\\").join("/"),
   source: readFileSync(file, "utf8"),

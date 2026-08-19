@@ -125,6 +125,16 @@ describe("画面の言葉", () => {
   it("使ってはいけない言い換えが画面のコードに混ざっていない", () => {
     const banned = readBannedWords();
     const allowed = readAllowedCompounds();
+    // **床は歩く側と探す側の両方に置く**（残課題 78 ㉗）。下の `offenders` の 0 件は
+    // 「違反が無い」でも「画面のファイルを 1 つも歩けていない」でも
+    // 「禁止語を 1 つも読めていない」でも出る。
+    //
+    // ここに `allowed`（例外の辞書）の床だけがあった間、`form2-population-floor` は
+    // この検査を「床あり」と数えていた。**数えられていたのは床の有無であって、
+    // それが母集団に掛かっているかではない。**当たっていたのは「床が要る」のほうで、
+    // 「もう在る」は当たっていなかった。
+    expect(screenFiles.length, "画面のファイルを歩けていません").toBeGreaterThan(10);
+    expect(banned.length, "使ってはいけない言い換えを読めていません").toBeGreaterThan(5);
     expect(allowed.length, "辞書の例外行が読めていません").toBeGreaterThan(0);
     const offenders: string[] = [];
 
