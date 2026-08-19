@@ -267,7 +267,21 @@
   background: var(--color-surface-sunken);
 }
 
+/*
+ * 左の案内。
+ *
+ * **画面に貼り付けて、はみ出したぶんはこの中だけで送る。**
+ * これが無いと、案内の高さがそのままページの高さになり、本文を下へ送ったときに
+ * 案内も一緒に上へ抜けていく。骨格の約束（現在地と退避先は常に見える）が破れる。
+ * 19 項目 + 6 分類は 1 画面に収まらないので、収める方向ではなく
+ * 「はみ出しても消えない」方向で解く。
+ */
 .sidebar {
+  position: sticky;
+  top: 0;
+  align-self: start;
+  max-height: 100dvh;
+  overflow-y: auto;
   display: flex;
   flex-direction: column;
   gap: var(--space-2);
@@ -302,13 +316,23 @@
 }
 
 .navLink {
-  display: block;
+  /* 行送りで中央に寄せていたのをやめたので、寄せ方はここで持つ。
+     block のままだと、下限の高さだけ確保された箱の上端に文字が張り付く。 */
+  display: flex;
+  align-items: center;
   min-height: var(--tap-target-min);
   padding: var(--space-2) var(--space-3);
   border-radius: var(--radius-md);
   color: var(--color-text-default);
   font-size: var(--text-sm);
-  line-height: var(--tap-target-min);
+  /*
+   * **行送りに指の当たり判定の値を使わない。**
+   * ここは以前 44px（押せる大きさの下限）を行送りにしていた。
+   * 高さの下限は上の min-height が既に保証しているので、行送りにも同じ値を置くと
+   * 1 行 44px + 上下の余白 16px = 60px になり、44px でよいところが 16px 高くなる。
+   * 19 項目で 304px。指の当たり判定は min-height が持つので、ここは文の行送りに戻す。
+   */
+  line-height: var(--leading-body);
   text-decoration: none;
 }
 
@@ -366,21 +390,43 @@
   padding: var(--space-5);
 }
 
+/*
+ * 画面 1 枚ぶんの器。
+ *
+ * **縦の間隔をここ 1 箇所で持つ。** 以前は `.card` にも `.stub` にも外余白が無く、
+ * 中身を 2 つ以上置いた画面ではカードどうしが線で接し、1 枚の大きな灰色の板に見えていた。
+ * 置く側（各画面）に余白を書かせると、書き忘れた画面だけが接する。
+ *
+ * 幅の上限は「一覧・表」の 72rem。以前は「本文カラム」の 64rem を中身の種類に関係なく
+ * 当てていたが、管理画面の中身はほとんどが一覧・表・入力欄で、本文ではない。
+ * 読ませる文の行の長さは `.pageLead` と `.sectionLead` が別に絞る。
+ */
 .page {
-  max-width: var(--column-max-width);
+  display: grid;
+  gap: var(--space-4);
+  align-content: start;
+  max-width: var(--content-max-width);
   margin: 0 auto;
 }
 
+/* 見出しと説明文は 1 組。間隔だけ上の gap より詰めて、続きものだと分かるようにする。 */
+.pageHead {
+  display: grid;
+  gap: var(--space-2);
+}
+
 .pageTitle {
-  margin: 0 0 var(--space-2);
+  margin: 0;
   font-size: var(--text-2xl);
   font-weight: var(--weight-bold);
   line-height: var(--leading-heading);
   color: var(--color-text-strong);
 }
 
+/* この画面で何ができるかの 1 文。読ませる文なので行の長さを絞る（`.sectionLead` と同じ理由）。 */
 .pageLead {
-  margin: 0 0 var(--space-5);
+  max-width: var(--readable-max-width);
+  margin: 0;
   font-size: var(--text-base);
   line-height: var(--leading-body);
   color: var(--color-text-muted);
@@ -401,6 +447,11 @@
   }
 
   .sidebar {
+    /* 横一列に戻すので、縦に送る仕掛けと高さの上限は外す。
+       残すと、上に貼り付いた帯の中で縦スクロールが起きる。 */
+    position: static;
+    max-height: none;
+    overflow-y: visible;
     flex-direction: row;
     overflow-x: auto;
     border-right: none;

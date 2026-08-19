@@ -10,7 +10,16 @@
   color: var(--color-text-strong);
 }
 
+/*
+ * 節の説明文。
+ *
+ * **行の長さに上限を置く。** 置かないと、画面を広げたぶんだけ 1 行が伸びる。
+ * 幅 1024px・16px の文字で 1 行 64 字になり、行を追うときに戻り先を見失う。
+ * 上限は 34rem（全角で約 34 字）。表やカードは広く使ってよいが、
+ * 読ませる文だけは別に絞る。
+ */
 .sectionLead {
+  max-width: var(--readable-max-width);
   margin: 0 0 var(--space-4);
   font-size: var(--text-sm);
   color: var(--color-text-muted);
@@ -147,4 +156,96 @@
 .catalogStack {
   display: grid;
   gap: var(--space-4);
+}
+
+/* --- 詰まり具合の見比べ -------------------------------------------------- */
+/*
+ * 直す前と直したあとを、同じ画面に同じ大きさで並べる。
+ *
+ * **直したあとだけを見せない。** 直したあとだけだと「これで詰まっているのか、
+ * これが直った姿なのか」が分からない。差が見えて初めて、次に同じ症状を見つけられる。
+ * 「前」の側は、直す前の値をこの見本のためだけに書き戻したもの。
+ * 部品の側の値を変えているわけではないので、ここを直しても画面は変わらない。
+ */
+.densityPair {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(var(--card-min-width), 1fr));
+  gap: var(--space-4);
+}
+
+.densitySide {
+  display: grid;
+  align-content: start;
+  gap: var(--space-2);
+  padding: var(--space-3);
+  border: var(--border-width-default) solid var(--color-border-subtle);
+  border-radius: var(--radius-md);
+  background: var(--color-surface-sunken);
+}
+
+.densityLabel {
+  font-size: var(--text-xs);
+  font-weight: var(--weight-bold);
+  letter-spacing: var(--tracking-wide);
+  color: var(--color-text-muted);
+}
+
+/* 案内の 1 行。左が直す前（行送りに 44px を使っていた）、右が直したあと。 */
+.densityNavRow {
+  display: block;
+  min-height: var(--tap-target-min);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-md);
+  background: var(--color-surface-default);
+  font-size: var(--text-sm);
+  line-height: var(--tap-target-min);
+}
+
+.densityNavRowFixed {
+  display: flex;
+  align-items: center;
+  min-height: var(--tap-target-min);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-md);
+  background: var(--color-surface-default);
+  font-size: var(--text-sm);
+  line-height: var(--leading-body);
+}
+
+.densityNavList {
+  display: grid;
+  gap: var(--space-1);
+}
+
+/* カードどうしの間隔。左は間隔が無く、線どうしが接して 1 枚の板に見える。 */
+.densityCards {
+  display: grid;
+  gap: 0;
+}
+
+.densityCardsFixed {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.densityCard {
+  padding: var(--space-3);
+  border: var(--border-width-default) solid var(--color-border-subtle);
+  border-radius: var(--radius-md);
+  background: var(--color-surface-default);
+  font-size: var(--text-sm);
+}
+
+/* 読ませる文の行の長さ。左は器の幅いっぱいまで伸びる。 */
+.densityProse {
+  font-size: var(--text-sm);
+  line-height: var(--leading-body);
+  color: var(--color-text-muted);
+}
+
+.densityProseFixed {
+  max-width: var(--readable-max-width);
+  font-size: var(--text-sm);
+  line-height: var(--leading-body);
+  color: var(--color-text-muted);
 }

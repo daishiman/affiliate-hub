@@ -294,8 +294,12 @@ export function Page({
 }) {
   return (
     <div className={styles.page}>
-      <h1 className={styles.pageTitle}>{title}</h1>
-      <p className={styles.pageLead}>{lead}</p>
+      {/* 見出しと説明文をひとまとめにする。ばらばらに置くと、
+          画面全体の縦の間隔と、見出し・説明文の間隔を 1 箇所で決められない。 */}
+      <header className={styles.pageHead}>
+        <h1 className={styles.pageTitle}>{title}</h1>
+        <p className={styles.pageLead}>{lead}</p>
+      </header>
       {children}
     </div>
   );

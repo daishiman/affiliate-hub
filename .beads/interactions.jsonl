@@ -59,3 +59,4 @@
 {"id":"int-603896629dfcb5900e7e3de5e6b931f7","kind":"field_change","created_at":"2026-08-19T00:29:52.066419Z","actor":"daishiman","issue_id":"ah-kte","extra":{"field":"status","new_value":"in_progress","old_value":"open"}}
 {"id":"int-157c69790d4fdc29a80b7afd0efb392b","kind":"field_change","created_at":"2026-08-19T00:53:38.693192Z","actor":"daishiman","issue_id":"ah-szx","extra":{"field":"status","new_value":"in_progress","old_value":"open"}}
 {"id":"int-0c4c202f041e5a2b7474a63d98d193ac","kind":"field_change","created_at":"2026-08-19T01:03:48.558768Z","actor":"daishiman","issue_id":"ah-szx","extra":{"field":"status","new_value":"closed","old_value":"in_progress","reason":"分類 6 群を実装し、4 通りの壊し方で赤を確認した。preview の実 HTML は curl が断られて未確認"}}
+{"id":"int-e804d89c032859f541f8610af5a0ee7c","kind":"field_change","created_at":"2026-08-19T01:04:13.18939Z","actor":"daishiman","issue_id":"ah-pwp","extra":{"field":"status","new_value":"in_progress","old_value":"open"}}
