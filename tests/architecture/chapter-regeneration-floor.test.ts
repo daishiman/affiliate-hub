@@ -61,11 +61,23 @@ import { describe, expect, it } from "vitest";
  *
  * ── 分かったこと: gaps[0] も名指しを外している ────────────────────
  *
- * gaps[0] は「decisions[] 6 件を本文へ載せる」と言うが、
- * **`00-requirements-definition.md` には 6 件とも既に載っている**（L80 の表）。
- * 載っていないのは 8 章の側である。しかも 00 での載り方は
- * `{'category': 'free', 'amount': 0, ...}` という **Python の dict をそのまま
- * 文字列にした形**で、構造を人の読む形へ直さずに埋めてある。
+ * gaps[0] は「decisions[] 6 件を本文へ載せる」と言う。
+ *
+ * **【2026-08-20 訂正】ここには以前「00 には 6 件とも既に載っている（L80 の表）」と
+ * 書いてあった。これは誤りである。**実測すると `00-requirements-definition.md` の
+ * `## 意思決定支援 (decisions)` は**見出しと表ヘッダは在るが、行は 1 本しかない** —
+ * `decision-auth-method` だけである。残り 5 件
+ * （`decision-editorial-commercial-split` / `decision-redirect-measurement-async` /
+ * `decision-llm-provider` / `decision-ui-theme-implementation` /
+ * `decision-test-ci-tooling`）は id でも question 本文でも 0 回。
+ * つまり**載っていないのは 8 章の側だけでなく、00 章の側も 5/6 が載っていない。**
+ *
+ * 誤りの形は「表の見出しが在る」ことを「中身が在る」と読んだもので、
+ * **器を見て中身を数えなかった**。この説明文は検査の対象外なので、
+ * 誤っていても赤くならずに残り続けた（**説明文には門が無い**）。
+ *
+ * なお 00 での載り方が `{'category': 'free', 'amount': 0, ...}` という
+ * **Python の dict をそのまま文字列にした形**である点は、実測でも変わらず正しい。
  * 残課題 78 ⑫ の 3 例目（指摘の一文が名指しした場所だけが外れている）。
  */
 

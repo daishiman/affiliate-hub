@@ -2244,6 +2244,119 @@
           "G2"
         ]
       }
+    },
+    {
+      "category": "database",
+      "platform": "web",
+      "reason": "gap 1 (C05 gaps[0]) の「確定セル内容と decisions[] 6 件を本文へ載せる」を章へ手編集で反映するため、正規経路で章保護を解除する。あわせて記録: 2026-08-20 の実測で、章の「カテゴリ別収集状態」が根拠として名指しする qa は 8 カテゴリ中 7 件が正本の qa_ref と食い違っていた (章は qa-*-analytics / qa-*-web など intake 前の質疑を指し、正本は qa-*-spec-intake を指す。一致は auth のみ)。また decisions 6 件は 00 章に 1 件 (decision-auth-method) しか載っておらず、技術 8 章には 0 件だった。反映は compile では行えない。compile は章の規範本文 366 行 (ファイル内 distinct 合計。出現回数では 374、10 枚横断 distinct では 316) を消すことが 2026-08-20 に測定済みである。再確定は reopen_log[].discarded と同じ qa_ref / serves_goals / required_info で行う。",
+      "from": "確定",
+      "discarded": {
+        "qa_ref": "qa-database-web-spec-intake",
+        "serves_goals": [
+          "G1",
+          "G2"
+        ]
+      }
+    },
+    {
+      "category": "auth",
+      "platform": "web",
+      "reason": "gap 1 (C05 gaps[0]) の「確定セル内容と decisions[] 6 件を本文へ載せる」を章へ手編集で反映するため、正規経路で章保護を解除する。あわせて記録: 2026-08-20 の実測で、章の「カテゴリ別収集状態」が根拠として名指しする qa は 8 カテゴリ中 7 件が正本の qa_ref と食い違っていた (章は qa-*-analytics / qa-*-web など intake 前の質疑を指し、正本は qa-*-spec-intake を指す。一致は auth のみ)。また decisions 6 件は 00 章に 1 件 (decision-auth-method) しか載っておらず、技術 8 章には 0 件だった。反映は compile では行えない。compile は章の規範本文 366 行 (ファイル内 distinct 合計。出現回数では 374、10 枚横断 distinct では 316) を消すことが 2026-08-20 に測定済みである。再確定は reopen_log[].discarded と同じ qa_ref / serves_goals / required_info で行う。",
+      "from": "確定",
+      "discarded": {
+        "qa_ref": "qa-auth-web",
+        "serves_goals": [
+          "G1"
+        ],
+        "required_info": [
+          {
+            "item_id": "auth-model",
+            "missing_effect": "block",
+            "status": "grounded",
+            "grounded_by": "qa-auth-web"
+          }
+        ]
+      }
+    },
+    {
+      "category": "backend",
+      "platform": "web",
+      "reason": "gap 1 (C05 gaps[0]) の「確定セル内容と decisions[] 6 件を本文へ載せる」を章へ手編集で反映するため、正規経路で章保護を解除する。あわせて記録: 2026-08-20 の実測で、章の「カテゴリ別収集状態」が根拠として名指しする qa は 8 カテゴリ中 7 件が正本の qa_ref と食い違っていた (章は qa-*-analytics / qa-*-web など intake 前の質疑を指し、正本は qa-*-spec-intake を指す。一致は auth のみ)。また decisions 6 件は 00 章に 1 件 (decision-auth-method) しか載っておらず、技術 8 章には 0 件だった。反映は compile では行えない。compile は章の規範本文 366 行 (ファイル内 distinct 合計。出現回数では 374、10 枚横断 distinct では 316) を消すことが 2026-08-20 に測定済みである。再確定は reopen_log[].discarded と同じ qa_ref / serves_goals / required_info で行う。",
+      "from": "確定",
+      "discarded": {
+        "qa_ref": "qa-backend-web-spec-intake",
+        "serves_goals": [
+          "G2",
+          "G1"
+        ],
+        "required_info": [
+          {
+            "item_id": "domain-model",
+            "missing_effect": "block",
+            "status": "grounded",
+            "grounded_by": "qa-backend-web-spec-intake"
+          }
+        ]
+      }
+    },
+    {
+      "category": "frontend",
+      "platform": "web",
+      "reason": "gap 1 (C05 gaps[0]) の「確定セル内容と decisions[] 6 件を本文へ載せる」を章へ手編集で反映するため、正規経路で章保護を解除する。あわせて記録: 2026-08-20 の実測で、章の「カテゴリ別収集状態」が根拠として名指しする qa は 8 カテゴリ中 7 件が正本の qa_ref と食い違っていた (章は qa-*-analytics / qa-*-web など intake 前の質疑を指し、正本は qa-*-spec-intake を指す。一致は auth のみ)。また decisions 6 件は 00 章に 1 件 (decision-auth-method) しか載っておらず、技術 8 章には 0 件だった。反映は compile では行えない。compile は章の規範本文 366 行 (ファイル内 distinct 合計。出現回数では 374、10 枚横断 distinct では 316) を消すことが 2026-08-20 に測定済みである。再確定は reopen_log[].discarded と同じ qa_ref / serves_goals / required_info で行う。",
+      "from": "確定",
+      "discarded": {
+        "qa_ref": "qa-frontend-web-spec-intake",
+        "serves_goals": [
+          "G1",
+          "G2"
+        ]
+      }
+    },
+    {
+      "category": "infrastructure",
+      "platform": "web",
+      "reason": "gap 1 (C05 gaps[0]) の「確定セル内容と decisions[] 6 件を本文へ載せる」を章へ手編集で反映するため、正規経路で章保護を解除する。あわせて記録: 2026-08-20 の実測で、章の「カテゴリ別収集状態」が根拠として名指しする qa は 8 カテゴリ中 7 件が正本の qa_ref と食い違っていた (章は qa-*-analytics / qa-*-web など intake 前の質疑を指し、正本は qa-*-spec-intake を指す。一致は auth のみ)。また decisions 6 件は 00 章に 1 件 (decision-auth-method) しか載っておらず、技術 8 章には 0 件だった。反映は compile では行えない。compile は章の規範本文 366 行 (ファイル内 distinct 合計。出現回数では 374、10 枚横断 distinct では 316) を消すことが 2026-08-20 に測定済みである。再確定は reopen_log[].discarded と同じ qa_ref / serves_goals / required_info で行う。",
+      "from": "確定",
+      "discarded": {
+        "qa_ref": "qa-infra-web-spec-intake",
+        "serves_goals": [
+          "G2",
+          "G1"
+        ]
+      }
+    },
+    {
+      "category": "maintenance-ops",
+      "platform": "web",
+      "reason": "gap 1 (C05 gaps[0]) の「確定セル内容と decisions[] 6 件を本文へ載せる」を章へ手編集で反映するため、正規経路で章保護を解除する。あわせて記録: 2026-08-20 の実測で、章の「カテゴリ別収集状態」が根拠として名指しする qa は 8 カテゴリ中 7 件が正本の qa_ref と食い違っていた (章は qa-*-analytics / qa-*-web など intake 前の質疑を指し、正本は qa-*-spec-intake を指す。一致は auth のみ)。また decisions 6 件は 00 章に 1 件 (decision-auth-method) しか載っておらず、技術 8 章には 0 件だった。反映は compile では行えない。compile は章の規範本文 366 行 (ファイル内 distinct 合計。出現回数では 374、10 枚横断 distinct では 316) を消すことが 2026-08-20 に測定済みである。再確定は reopen_log[].discarded と同じ qa_ref / serves_goals / required_info で行う。",
+      "from": "確定",
+      "discarded": {
+        "qa_ref": "qa-ops-web-spec-intake",
+        "serves_goals": [
+          "G1",
+          "G2"
+        ]
+      }
+    },
+    {
+      "category": "security",
+      "platform": "web",
+      "reason": "gap 1 (C05 gaps[0]) の「確定セル内容と decisions[] 6 件を本文へ載せる」を章へ手編集で反映するため、正規経路で章保護を解除する。あわせて記録: 2026-08-20 の実測で、章の「カテゴリ別収集状態」が根拠として名指しする qa は 8 カテゴリ中 7 件が正本の qa_ref と食い違っていた (章は qa-*-analytics / qa-*-web など intake 前の質疑を指し、正本は qa-*-spec-intake を指す。一致は auth のみ)。また decisions 6 件は 00 章に 1 件 (decision-auth-method) しか載っておらず、技術 8 章には 0 件だった。反映は compile では行えない。compile は章の規範本文 366 行 (ファイル内 distinct 合計。出現回数では 374、10 枚横断 distinct では 316) を消すことが 2026-08-20 に測定済みである。再確定は reopen_log[].discarded と同じ qa_ref / serves_goals / required_info で行う。",
+      "from": "確定",
+      "discarded": {
+        "qa_ref": "qa-security-web-spec-intake",
+        "serves_goals": [
+          "G1"
+        ],
+        "required_info": [
+          {
+            "item_id": "security-posture",
+            "missing_effect": "block",
+            "status": "grounded",
+            "grounded_by": "qa-security-web-spec-intake"
+          }
+        ]
+      }
     }
   ],
   "category_aggregate": {
