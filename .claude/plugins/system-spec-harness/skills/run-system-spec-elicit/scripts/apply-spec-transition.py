@@ -46,8 +46,10 @@ from state_transition_knowledge import set_knowledge_candidate
 from state_transition_matrix import (
     CURRENT_STATE_SCHEMA_VERSION,
     DESIGN_APPLICATION_CONTRACT_VERSION,
+    LOOP_LIMIT_POLICIES,
     SCHEMA_1_2_SECTIONS,
     add_category,
+    set_hearing_limit_policy,
     apply_cell_op,
     apply_turn,
     bootstrap_state,
@@ -181,6 +183,17 @@ def main(argv: list[str]) -> int:
         help="design_applications JSON配列または JSON ファイル",
     )
     qa_design.add_argument("--out")
+    limit = sub.add_parser(
+        "set-hearing-policy",
+        help="hearing_progress の上限 (max_loops) が厳格かソフトかを明示する",
+    )
+    limit.add_argument("--state", required=True)
+    limit.add_argument("--policy", required=True, choices=list(LOOP_LIMIT_POLICIES))
+    limit.add_argument(
+        "--overrun",
+        help="loop_count が max_loops を超えている場合の由来 JSON (reason 必須)",
+    )
+    limit.add_argument("--out")
     args = parser.parse_args(argv)
     try:
         if args.cmd == "bootstrap":
@@ -216,6 +229,12 @@ def main(argv: list[str]) -> int:
                     value["design_applications"]
                     if isinstance(value, dict) and "design_applications" in value
                     else value,
+                )
+            elif args.cmd == "set-hearing-policy":
+                set_hearing_limit_policy(
+                    state,
+                    args.policy,
+                    load_json_arg(args.overrun) if args.overrun else None,
                 )
             _require_sections_preserved(sections_before, state)
             _emit(state, args.out or args.state)

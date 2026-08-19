@@ -158,6 +158,54 @@ def count_unresolved(state: dict) -> int:
     )
 
 
+# max_loops の性格。run_chunk は上限に達した時点で break し、loop_count を
+# 処理済み件数で置き直すため、この writer を通るかぎり loop_count <= max_loops は
+# 構造的に破れない。つまり上限は「目安」ではなく厳格である。
+# 破れている state が在れば、それは上限を緩めた証拠ではなく、この writer を
+# 通っていない証拠になる。state から後者を読み取れるようにするのがこの定数の役目。
+LOOP_LIMIT_POLICY_STRICT = "strict"
+LOOP_LIMIT_POLICY_SOFT = "soft"
+LOOP_LIMIT_POLICIES = (LOOP_LIMIT_POLICY_STRICT, LOOP_LIMIT_POLICY_SOFT)
+
+
+def loop_limit_is_violated(progress: dict) -> bool:
+    """hearing_progress が上限超過を抱えているか。"""
+    loop_count = progress.get("loop_count")
+    max_loops = progress.get("max_loops")
+    if not isinstance(loop_count, int) or not isinstance(max_loops, int):
+        return False
+    return loop_count > max_loops
+
+
+def set_hearing_limit_policy(state: dict, policy: str, overrun: dict | None = None) -> None:
+    """上限の性格を state へ明示し、超過が在る場合はその由来を併記する。
+
+    超過している値そのものは書き換えない。7 を 5 へ丸めれば数は揃うが、
+    揃えた瞬間に「writer を通らずに書かれた」という唯一の痕跡が消える。
+    直すべきは数ではなく、数が語っている事実を読めるようにすることである。
+    """
+    if policy not in LOOP_LIMIT_POLICIES:
+        raise TransitionError(
+            f"hearing_progress: max_loops_policy={policy!r} が許容値外 {list(LOOP_LIMIT_POLICIES)}"
+        )
+    progress = state.setdefault("hearing_progress", {})
+    progress["max_loops_policy"] = policy
+    if loop_limit_is_violated(progress):
+        if not isinstance(overrun, dict) or not str(overrun.get("reason", "")).strip():
+            raise TransitionError(
+                "hearing_progress: loop_count が max_loops を超えている state には "
+                "overrun.reason が必須 (超過を無記名で通さない)"
+            )
+        progress["limit_overrun"] = {
+            "loop_count": progress.get("loop_count"),
+            "max_loops": progress.get("max_loops"),
+            "reason": overrun["reason"],
+            "recorded_at": overrun.get("recorded_at"),
+        }
+    else:
+        progress.pop("limit_overrun", None)
+
+
 def _refresh_hearing_progress(state: dict) -> None:
     """Keep the resumable progress fields consistent with the matrix."""
     progress = state.setdefault("hearing_progress", {})
@@ -458,4 +506,7 @@ def run_chunk(state: dict, turns: list[dict], max_loops: int = 5) -> int:
     recompute_aggregates(state)
     _refresh_hearing_progress(state)
     state["hearing_progress"]["max_loops"] = max_loops
+    # 上限を書くときは、その上限がどちらの性格かも同時に書く。max_loops だけが
+    # 在って policy が無い state は「5 は目安か絶対か」を読む側に推測させる。
+    state["hearing_progress"]["max_loops_policy"] = LOOP_LIMIT_POLICY_STRICT
     return processed

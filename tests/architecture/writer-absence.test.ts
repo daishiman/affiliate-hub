@@ -31,7 +31,7 @@ import { describe, expect, it } from "vitest";
  * 「`loop_count` は直近 1 invocation の turn 数。累計ではない」と定めており、
  * writer は `apply-spec-transition.py` だけである。
  *
- * **なのに現状は 7 / 5 である。**つまりこれは「上限が緩い」ではなく、
+ * **当時の現状は 7 / 5 だった。**つまりこれは「上限が緩い」ではなく、
  * **上限を守る唯一の経路を通らずに state が書かれた**痕跡である。
  * C05 の gaps[7] は「超過した状態の扱いを定義せよ」と読んでいるが、
  * 定義すべきは扱いではなく、**通っていないという事実のほう**である。
@@ -39,15 +39,23 @@ import { describe, expect, it } from "vitest";
  * これは C05 の新規 medium（`recorded_with` の自己申告「`schema_version` を
  * 検査しない writer で書いた」）と**同じ 1 つの欠陥**を、別の経路から見たものである。
  * 効くのは、**申告は消せるが、矛盾した数値は消せない**からである。
- * 申告を消しても 7 / 5 は残り、同じ結論に到達できる。当てどころは `ah-4l5` / 残課題 94。
+ * 申告を消しても 7 / 5 は残り、同じ結論に到達できる。
  *
- * **向きに注意（②の形）**: ここで固定しているのは**違反している状態そのもの**である。
- * 検査したい不変則は `loop_count <= max_loops` だが、それを直接書くと今日から赤で入り、
- * 見張り全体が止まる。代わりに「**いま違反していること**」を緑で固定し、
- * **検査を持つ writer を通して書き直された日に赤くなる**ようにしてある。
- * その日に、この describe を `toBeLessThanOrEqual` へ**反転させて残すこと。消さない。**
- * （不変則そのものを今日から赤で入れる形に変えるべきかは、判断を仰いでいる。
- *   反転は 1 行なので、指示があればそちらへ倒す。）
+ * ── A は反転した（2026-08-20）。B は反転していない ──────────────────
+ *
+ * A の欠陥は塞がった。schema・writer・網羅性検査を 1.2 まで通したので、
+ * 正本は検査を持つ writer から書けるようになった（commit 5534f4c 系列）。
+ *
+ * **ただし 7 / 5 という数字は残してある。丸めていない。**
+ * `toBeLessThanOrEqual` へ反転させれば数は揃うが、揃えるには 7 を 5 へ書き換える
+ * しかない。そして書き換えた瞬間、**迂回が起きたという唯一の痕跡が消える。**
+ * 直すべきは数ではなく、数が語っている事実を読めるようにすることである。
+ * よって A は「数が揃ったこと」ではなく、**超過が記名で保存されていること**へ
+ * 反転させた。`max_loops_policy` で上限が厳格だと分かり、`limit_overrun.reason` で
+ * なぜ超過が残っているかが分かる。**誰かが黙って 7 を 5 に丸めた日に、ここが赤くなる。**
+ *
+ * B（採否の欄に書き手が居ない）は**今回の作業で塞いでいない。**元の向きのまま残す。
+ * A と B を同じ回に反転させると、片方しか直っていないのに両方直ったように見える。
  *
  * ── B. 書き手が存在しない欄 (`design_applications.applicability`) ────────
  *
@@ -75,7 +83,13 @@ const ROOT = process.cwd();
 const state = JSON.parse(
   readFileSync(join(ROOT, "system-spec/spec-state.json"), "utf8"),
 ) as {
-  hearing_progress: { loop_count: number; max_loops: number; complete: boolean };
+  hearing_progress: {
+    loop_count: number;
+    max_loops: number;
+    complete: boolean;
+    max_loops_policy?: string;
+    limit_overrun?: { loop_count: number; max_loops: number; reason: string };
+  };
   qa_log: Array<{ design_applications?: Array<{ applicability: string }> }>;
 };
 
@@ -95,13 +109,31 @@ function countApplicability(log: typeof state.qa_log): Record<string, number> {
   return counts;
 }
 
-describe("A. state が writer を通らずに書かれている (塞げていないことの固定)", () => {
+describe("A. writer を通らずに書かれた痕跡が、記名で保存されている (塞がったことの固定)", () => {
   const p = state.hearing_progress;
 
-  it("`loop_count` が `max_loops` を超えている——writer を通れば起きない", () => {
+  it("超過した数字そのものは丸めずに残っている", () => {
+    // 5 へ丸めれば不変則は成立するが、成立させた瞬間に迂回の痕跡が消える。
+    // 誰かが「数を揃える」方向へ直した日に、ここが赤くなる。
     expect(p.loop_count).toBe(7);
     expect(p.max_loops).toBe(5);
     expect(writerInvariantHolds(p)).toBe(false);
+  });
+
+  it("上限が厳格かソフトかを、state だけを読んで判別できる", () => {
+    // 元の欠陥は「7 > 5 が何を意味するか state から読めない」ことだった。
+    // max_loops だけが在って性格が書いていないと、5 が目安か絶対かを読む側が推測する。
+    expect(p.max_loops_policy).toBe("strict");
+  });
+
+  it("超過が無記名で残っていない——なぜ残っているかが書かれている", () => {
+    expect(p.limit_overrun, "超過の由来が消えています").toBeDefined();
+    expect(p.limit_overrun?.loop_count).toBe(p.loop_count);
+    expect(p.limit_overrun?.max_loops).toBe(p.max_loops);
+    expect(
+      (p.limit_overrun?.reason ?? "").length,
+      "超過の理由が空です。無記名の超過は、上限が緩いのか経路が異常なのかを区別できません",
+    ).toBeGreaterThan(0);
   });
 
   it("超えたまま `complete: true` になっている（止まった形跡が無い）", () => {
@@ -122,7 +154,8 @@ describe("A. state が writer を通らずに書かれている (塞げていな
   });
 });
 
-describe("B. 採否の欄に書き手が居ない (塞げていないことの固定)", () => {
+// B は 2026-08-20 時点で塞いでいない。A と違い、向きはそのままである。
+describe("B. 採否の欄に書き手が居ない (塞げていないことの固定・未着手)", () => {
   const counts = countApplicability(state.qa_log);
 
   it("`applicability` は 70 件すべて `applied`——不採用が一度も無い", () => {
