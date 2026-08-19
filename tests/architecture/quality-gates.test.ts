@@ -9,7 +9,12 @@ import {
   LAYER_COVERAGE,
   MAX_STUB_GAP_POINTS,
   RELEASE_GATES,
+  REQUIRED_TEST_TYPES,
   STUB_PATTERNS,
+  TEST_TYPES,
+  TEST_TYPES_MAX_STRAY,
+  TEST_TYPES_MAX_UNPOINTED,
+  TEST_TYPES_MIN_VOCABULARY,
   TIERS,
   TIER_IDS,
   checksForTiers,
@@ -223,6 +228,54 @@ describe("スタブの扱い", () => {
   it("上限ちょうどでは落とさない（境界）", () => {
     expect(judgeStubGap(50, 50 + MAX_STUB_GAP_POINTS).exceeded).toBe(false);
     expect(judgeStubGap(50, 50).gap).toBe(0);
+  });
+});
+
+/**
+ * 種別の語彙そのものを見る 3 つ。
+ *
+ * 見ているのは「要件が宣言できているか」ではなく、**語彙の側**である。
+ * `TEST_TYPES` に載っているのにどの性質からも指されていない語は一度も要求されず、
+ * **名前があるだけで門としては存在していない**（残課題 78 ⑯）。
+ *
+ * **向きが逆の 2 つを対にしてある。**指されていない数の上限だけを張ると、
+ * その語を一覧から**消せば下がる**。消える候補は `visual` `e2e` `perf` `load`
+ * `injection` `csrf` `rate-limit` で、どれも仕様が要求しているのにまだ書けていない
+ * 検査の名前である。だから語数に下限を張り、消す道を塞ぐ。
+ * 2 つが揃うと、上限を下げる道が「実際に指す」だけになる。
+ */
+describe("種別の語彙", () => {
+  /** 一覧に載っている語と、要求している側の突き合わせ。読まずに数える。 */
+  const pointed = new Set(Object.values(REQUIRED_TEST_TYPES).flat());
+  const vocabulary = Object.keys(TEST_TYPES);
+  const unpointed = vocabulary.filter((type) => !pointed.has(type));
+  const stray = [...pointed].filter((type) => !vocabulary.includes(type));
+
+  it("指されていない種別は上限以内（下げる方向にしか動かさない）", () => {
+    expect(
+      unpointed.length,
+      `どの性質からも指されていない種別: ${unpointed.join(", ")}`,
+    ).toBeLessThanOrEqual(TEST_TYPES_MAX_UNPOINTED);
+  });
+
+  it("語彙を減らして上限を満たす道は塞いである（上げる方向にしか動かさない）", () => {
+    // これが無いと、書けていない検査の名前を消すだけで上の検査が緑になる。
+    // 名前が無い穴は、穴として数えられない。
+    expect(vocabulary.length).toBeGreaterThanOrEqual(TEST_TYPES_MIN_VOCABULARY);
+  });
+
+  it("一覧に無い語を要求していない", () => {
+    // 要求はされるが名乗りようが無い状態になる。除外理由が並ぶだけで門は何も見ない。
+    expect(stray.length, `一覧に無いのに指されている: ${stray.join(", ")}`).toBe(
+      TEST_TYPES_MAX_STRAY,
+    );
+  });
+
+  it("2 つの数字は逆向きに張ってある（揃えると抜け道が開く）", () => {
+    // 片方だけを見た人が「向きを揃えよう」と言い出したときのための検査。
+    // 上限は実測ちょうど、下限も実測ちょうど。余裕は「動かしてよい幅」として使われる。
+    expect(TEST_TYPES_MAX_UNPOINTED).toBe(unpointed.length);
+    expect(TEST_TYPES_MIN_VOCABULARY).toBe(vocabulary.length);
   });
 });
 
