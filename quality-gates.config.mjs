@@ -245,6 +245,25 @@ export const REQUIRED_TEST_TYPES = {
    * `rate-limit` `regression`）。元の 7 つは「このとき検討した範囲の中で」の数で、
    * 一覧全体を数えたものではなかった。
    * 手で書いた数字は、古くなっても古く見えない。数え直した日付を添えて残す。
+   *
+   * **上の「34 種 / 16 種」は、同じ 2026-08-19 のうちに古くなった。**
+   * 数えたあとで `code-boundary`（`has-code-placement-rule` の指し先）が足されて
+   * 一覧が 35 種になり、さらに `regression` が `has-known-breakage` から
+   * 指されるようになった。**書いた時点では正しく、正しいまま偽になる**形なので、
+   * 上の段は消さずに残し、ここに数え直しを重ねる。
+   *
+   * 数え直し（2026-08-19、上の段より後）:
+   *   一覧          35 種
+   *   指されている  20 種
+   *   指されていない 15 種
+   *     `pairwise` `scenario` `property` `contract` `db-constraint`
+   *     `db-concurrency` `e2e` `visual` `perf` `load` `injection`
+   *     `redaction` `dep-audit` `csrf` `rate-limit`
+   *   一覧に無いのに指されている語  0 件
+   *
+   * **指されない種別は一度も要求されないので、名前があるだけで門としては
+   * 存在していない。**しかも一覧を眺めた人には全部使われているように見える。
+   * 読んで判断せず、突き合わせて数えること（残課題 78 ⑯）。
    */
   "has-secret": ["secrets"],
   /*
