@@ -12,6 +12,7 @@ from state_transition_common import (
     has_entry,
     normalize_serves,
 )
+from state_transition_required_info import normalize_required_info
 CATEGORY_ID_RE = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
 APPLICATION_STATES = {"applied", "not_applicable"}
 DESIGN_APPLICATION_CONTRACT_VERSION = "1.0"
@@ -342,7 +343,9 @@ def apply_cell_op(state: dict, op: dict) -> None:
             raise TransitionError(f"reopen には reason が必須: {category}/{platform}")
         discarded = {
             key: list(cell[key]) if isinstance(cell[key], list) else cell[key]
-            for key in ("qa_ref", "serves_goals", "serves_intents")
+            # required_info もここへ入れる。入れないと reopen で充足記録だけが
+            # 黙って消え、再確定のときに「元は何が接地していたか」を誰も引けない。
+            for key in ("qa_ref", "serves_goals", "serves_intents", "required_info")
             if key in cell
         }
         log_entry = {
@@ -384,12 +387,42 @@ def apply_cell_op(state: dict, op: dict) -> None:
             )
         cell["approval_ref"] = approval_ref
         return
+    if action == "set-required-info":
+        # ゲートが無かった時代に確定したセルへ、C16 の充足状態を後から物質化する。
+        # 確定セル限定の後付け annotation という点で set-serves / set-approval と同型。
+        # **既存記録の上書きは拒否する。**許すと、confirm のゲートを通した記録を
+        # あとから ungrounded へ書き換える経路になり、ゲートが実質無効になる。
+        if current != "確定":
+            raise TransitionError(
+                f"set-required-info 不可: {category}/{platform} は '{current}' (確定セルのみ充足状態を付与できる)"
+            )
+        entries = normalize_required_info(
+            state, category, op.get("required_info"), allow_ungrounded=True
+        )
+        if not entries:
+            raise TransitionError(
+                f"set-required-info: {category} に記録すべき missing_effect=block item が無い"
+            )
+        existing = cell.get("required_info")
+        if existing is not None and existing != entries:
+            raise TransitionError(
+                f"set-required-info: 既存 required_info の上書きは拒否: {category}/{platform}"
+            )
+        cell["required_info"] = entries
+        return
     if current == "確定":
         raise TransitionError(f"確定セルの直接変更は拒否: {category}/{platform}。変更は R4-reopen を経由すること")
     if action == "confirm":
         if not op.get("qa_ref"):
             raise TransitionError(f"confirm には qa_ref が必須: {category}/{platform}")
+        # C16 block ゲート。当該 category に掛かる block item が全て接地または
+        # 理由付き N/A でなければ、ここで確定を拒否する。事後監査ではなく確定の瞬間に止める。
+        required_info = normalize_required_info(
+            state, category, op.get("required_info"), allow_ungrounded=False
+        )
         next_cell = {"state": "確定", "qa_ref": op["qa_ref"]}
+        if required_info:
+            next_cell["required_info"] = required_info
         serves = normalize_serves(op.get("serves_goals"))
         if serves:
             next_cell["serves_goals"] = serves

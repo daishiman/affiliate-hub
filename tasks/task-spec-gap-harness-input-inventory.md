@@ -86,6 +86,19 @@ C05 の出力 schema と停止条件に、docs/spec・system-spec の件数と s
 
 `system-spec/`
 
+> **2026-08-20 追記 — この欄には従っていない。従わなかった理由を残す。**
+> この gap の欠陥は `.claude/plugins/system-spec-harness/` の中だけに在る
+> (C05 の出力 schema `completeness-findings.schema.json`、停止条件 `R1-score.md` 5.3、
+> 受領書の生成器と schema)。実際の修正は **`system-spec/` を 1 行も触っていない**。
+>
+> この欄は生成された定型に近い。`tasks/task-spec-gap-*.md` 9 件のうち 7 件が
+> `system-spec/` のみ、2 件が `docs/` を併記するだけで、**どれも plugin を挙げていない**
+> (分母は `ls tasks/task-spec-gap-*.md | wc -l` = 9)。
+> gap 本文が名指ししている当てどころと食い違うので、**gap 本文を優先した**。
+>
+> 次に別の gap を扱う人へ: この欄と gap 本文が食い違う場合が在る。
+> 欄を信じて `system-spec/` だけを探すと、当てどころが見つからない。
+
 ## Write scope と競合制約
 
 `system-spec/`。ほかの子とは触る場所が分かれている。

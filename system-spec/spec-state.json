@@ -792,6 +792,14 @@
         "qa_ref": "qa-auth-web",
         "serves_goals": [
           "G1"
+        ],
+        "required_info": [
+          {
+            "item_id": "auth-model",
+            "missing_effect": "block",
+            "status": "grounded",
+            "grounded_by": "qa-auth-web"
+          }
         ]
       },
       "mobile": {
@@ -821,6 +829,26 @@
         "qa_ref": "qa-uiux-web-spec-intake",
         "serves_goals": [
           "G1"
+        ],
+        "required_info": [
+          {
+            "item_id": "product-goal",
+            "missing_effect": "block",
+            "status": "grounded",
+            "grounded_by": "qa-foundation-u1"
+          },
+          {
+            "item_id": "screen-information-priority",
+            "missing_effect": "block",
+            "status": "ungrounded",
+            "reason": "UI は存在するが、確定を支える qa-uiux-web-spec-intake はダッシュボード指標一覧 (docs/spec/01 §22.1) と配色・明暗の2軸モデル (docs/spec/09 §2) の 2 件で、completion_rule が要求する 9 項目 (利用者ロール・主タスク・熟練度・端末・利用頻度・データ量・比較/一括操作・誤操作コスト・情報優先度/省略/密度) をいずれも含まない。ゲート導入前に確定したセルの負債として記録する"
+          },
+          {
+            "item_id": "target-platforms",
+            "missing_effect": "block",
+            "status": "grounded",
+            "grounded_by": "qa-platform-scope"
+          }
         ]
       },
       "mobile": {
@@ -850,6 +878,14 @@
         "qa_ref": "qa-security-web-spec-intake",
         "serves_goals": [
           "G1"
+        ],
+        "required_info": [
+          {
+            "item_id": "security-posture",
+            "missing_effect": "block",
+            "status": "grounded",
+            "grounded_by": "qa-security-web-spec-intake"
+          }
         ]
       },
       "mobile": {
@@ -910,6 +946,14 @@
         "serves_goals": [
           "G2",
           "G1"
+        ],
+        "required_info": [
+          {
+            "item_id": "domain-model",
+            "missing_effect": "block",
+            "status": "grounded",
+            "grounded_by": "qa-backend-web-spec-intake"
+          }
         ]
       },
       "mobile": {
