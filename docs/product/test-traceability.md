@@ -6,8 +6,8 @@
 テスト側の `@req` 印を重ねたもの。
 
 - 最終更新: 2026-08-19
-- テストファイル: 188 件
-- 由来の要件が分かる: 160 件
+- テストファイル: 189 件
+- 由来の要件が分かる: 161 件
 - **由来不明: 28 件**（上限 28 件）
 
 由来不明とは「どの要件のために書いたのか、機械から辿れない」という意味で、
@@ -76,6 +76,7 @@
 | `tests/architecture/ci-config.test.ts` | REQ-CI01, REQ-CI02, REQ-CI03, REQ-CI04, REQ-CI05, REQ-CI06, REQ-CI07, REQ-CI09, REQ-CI10, REQ-CI11, REQ-CI13 | 印と表 |
 | `tests/architecture/commercial-isolation.test.ts` | REQ-FD02 | 印と表 |
 | `tests/architecture/dependency-direction.test.ts` | REQ-FD01, REQ-FD02, REQ-SEC02, REQ-SEC04, REQ-TM12, REQ-TS09 | 印と表 |
+| `tests/architecture/doctrine-citation-gap.test.ts` | REQ-TS13 | 印と表 |
 | `tests/architecture/generated-docs.test.ts` | REQ-TS09 | 印 |
 | `tests/architecture/llm-credential-leak.test.ts` | REQ-SEC01, REQ-SEC05 | 印 |
 | `tests/architecture/open-doors.test.ts` | REQ-S10, REQ-TS12 | 印と表 |
@@ -208,4 +209,4 @@
 | `tests/ui/theme-contrast.test.ts` | REQ-TH01, REQ-TH02, REQ-TS06 | 印と表 |
 | `tests/ui/tool-form.test.tsx` | REQ-WC05 | 印と表 |
 | `tests/ui/ui-layers.test.ts` | REQ-S09, REQ-TM05 | 表 |
-<!-- 生成物の指紋 sha256:e42135704888f15e0d8c451442e97f8c1e2fa7f0c49982d1ec8f25546604c33b -->
+<!-- 生成物の指紋 sha256:5368ef061625d99e96fb6445a9b372db46b5cc75f4059762053a24fbd76311ad -->

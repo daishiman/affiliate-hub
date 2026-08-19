@@ -5,8 +5,8 @@
 宣言は `docs/product/required-test-types.md`、語彙と上限は `quality-gates.config.mjs` が正本。
 
 - 最終更新: 2026-08-19
-- 要件表の要件: 243 件
-- 性質を宣言済: 236 件
+- 要件表の要件: 244 件
+- 性質を宣言済: 237 件
 - **未宣言: 7 件**（上限 7 件）
 - 理由つきの除外: 7 件（上限 7 件）
 
@@ -220,6 +220,7 @@
 | REQ-TS09 | has-code-placement-rule | `code-boundary` | `code-boundary` | — | 
 | REQ-TS11 | has-known-breakage | `regression` | `regression` | — | 
 | REQ-TS12 | has-input | `boundary` `equivalence` | `boundary` `equivalence` | — | 
+| REQ-TS13 | has-input | `boundary` `equivalence` | `boundary` `equivalence` | — | 
 | REQ-WA01 | has-input | `boundary` `equivalence` | `boundary` `equivalence` | — | 
 | REQ-WA02 | has-input, has-permission | `boundary` `equivalence` `permission-matrix` | `boundary` `equivalence` `permission-matrix` | — | 
 | REQ-WB01 | has-input, has-permission | `boundary` `equivalence` `permission-matrix` | `boundary` `equivalence` `permission-matrix` | — | 
@@ -274,4 +275,4 @@
 ## 未宣言の要件
 
 `REQ-CI08` `REQ-FD04` `REQ-TH04` `REQ-TH05` `REQ-TS02` `REQ-TS03` `REQ-TS10`
-<!-- 生成物の指紋 sha256:36ddd7c5a3640b405c40c1be5180e431b9af6c0bb8ae9294a21e8a8165c72221 -->
+<!-- 生成物の指紋 sha256:184b86c759377b83d48264f0287eb10f919cc033ec28a2eb1210a4214b4baac8 -->
