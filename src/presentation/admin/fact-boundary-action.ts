@@ -1,7 +1,7 @@
 "use server";
 
-import { currentActor, personaUseCases } from "@/presentation/composition";
-import { refusalText } from "@/presentation/refusal-text";
+import { personaUseCases, signedInActor } from "@/presentation/composition";
+import { notSignedInText, refusalText } from "@/presentation/refusal-text";
 import type { FactBoundaryCheckState } from "./fact-boundary-state";
 
 /**
@@ -14,10 +14,27 @@ import type { FactBoundaryCheckState } from "./fact-boundary-state";
 
 // 状態の型と初期値は `fact-boundary-state.ts` にある。
 
+/**
+ * --- 身元の取り方について ---
+ * `currentActor()` ではなく `signedInActor()` を使う。前者は身元を
+ * 確かめられないとき**見本の身元へ落ちる**ので、ログインしていない人の操作が
+ * ユースケースまで届く。届いた先の砦は**役の一覧**で、あれは人が編集する表である。
+ *
+ * ここは何も書き換えないが、通ると**書き手の記録（何を試したか）が外から引ける**。
+ * 誰の体験が記録済みかは、記事を書いた人の行動そのものである。
+ * 2026-08-19 の実測では、ログインしていない状態で判定が本当に通った（`ah-dao`）。
+ */
 export async function checkFactBoundaryAction(
   _prev: FactBoundaryCheckState,
   formData: FormData,
 ): Promise<FactBoundaryCheckState> {
+  const actor = await signedInActor();
+  if (actor === null) {
+    // **`formData` を読む前に断る。** 読んでから断ると、断り文が
+    // 「文章を入れてください」に化けて、押した人は文章を変えて何度も試す。
+    return { status: "failed", message: notSignedInText("書ける範囲の確認"), findings: [] };
+  }
+
   const personaId = String(formData.get("personaId") ?? "");
   const body = String(formData.get("body") ?? "");
 
@@ -30,7 +47,7 @@ export async function checkFactBoundaryAction(
     };
   }
 
-  const result = await personaUseCases().checkFactBoundary.execute(await currentActor(), {
+  const result = await personaUseCases().checkFactBoundary.execute(actor, {
     personaId,
     body,
   });

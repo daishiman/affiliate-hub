@@ -2,8 +2,8 @@
 
 import { revalidatePath } from "next/cache";
 import type { DomainError } from "@/domain/shared";
-import { currentActor, linkInboxUseCases } from "@/presentation/composition";
-import { refusalText } from "@/presentation/refusal-text";
+import { linkInboxUseCases, signedInActor } from "@/presentation/composition";
+import { notSignedInText, refusalText } from "@/presentation/refusal-text";
 
 /**
  * 受信箱の操作。
@@ -24,15 +24,31 @@ export type InboxFormState = {
 
 const INBOX_PATH = "/admin/inbox";
 
+/**
+ * --- 身元の取り方について ---
+ * `currentActor()` ではなく `signedInActor()` を使う。前者は身元を
+ * 確かめられないとき**見本の身元へ落ちる**ので、ログインしていない人の操作が
+ * ユースケースまで届く。届いた先の砦は**役の一覧**で、あれは人が編集する表である。
+ *
+ * 2026-08-19 の実測では、ログインしていない状態で URL が本当に受信箱へ入った
+ * （`ah-dao`）。受信箱は誰でも書ける置き場ではない。
+ */
 export async function submitAffiliateUrlAction(
   _prev: InboxFormState,
   formData: FormData,
 ): Promise<InboxFormState> {
+  const actor = await signedInActor();
+  if (actor === null) {
+    // **`formData` を読む前に断る。** 読んでから断ると、断り文が
+    // 「URL を入れてください」に化けて、押した人は URL を直して何度も試す。
+    return { status: "failed", message: notSignedInText("リンクの登録") };
+  }
+
   const url = String(formData.get("url") ?? "");
   const note = String(formData.get("note") ?? "");
 
   const submitUseCases = await linkInboxUseCases();
-  const result = await submitUseCases.submit.execute(await currentActor(), {
+  const result = await submitUseCases.submit.execute(actor, {
     url,
     // 画面から入れた、と分かるようにする。経路ごとに責任者が違う。
     source: "paste",
@@ -60,14 +76,25 @@ export async function submitAffiliateUrlAction(
  *
  * 3 つの操作を 1 つの入口にまとめている。
  * ボタンごとに入口を分けると、権限の確認を書き忘れる箇所が 3 倍になる。
+ *
+ * 身元も同じ理由でここ 1 か所で確かめる。`currentActor()` は身元を
+ * 確かめられないとき**見本の身元へ落ちる**ので、`signedInActor()` を使う。
+ * 2026-08-19 の実測では、ログインしていない状態で取り込みが本当に進んだ
+ * （「対象外にしました。理由も一緒に残しています。」が返った。`ah-dao`）。
  */
 export async function advanceLinkIngestionAction(
   _prev: InboxFormState,
   formData: FormData,
 ): Promise<InboxFormState> {
+  const actor = await signedInActor();
+  if (actor === null) {
+    // **`formData` を読む前に断る。** 読んでから断ると、断り文が
+    // 「理由を書いてください」に化けて、押した人は理由を書いて何度も試す。
+    return { status: "failed", message: notSignedInText("受信箱の操作") };
+  }
+
   const linkIngestionId = String(formData.get("linkIngestionId") ?? "");
   const intent = String(formData.get("intent") ?? "");
-  const actor = await currentActor();
   const useCases = await linkInboxUseCases();
 
   if (intent === "resolve") {

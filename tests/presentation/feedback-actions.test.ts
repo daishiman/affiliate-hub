@@ -211,6 +211,36 @@ describe("改善したいことを送る", () => {
     expect(result.message).not.toBe("");
     expect(result.message).not.toContain("送りました");
   });
+
+  /**
+   * ログインしていない人に、要望を送らせない。
+   *
+   * `currentActor()` は身元を確かめられないとき**見本の身元へ落ちる**ので、
+   * ログインしていない人の操作が預かり所まで届く。届いた先の砦は
+   * **役の一覧**（`src/domain/identity/permissions.ts`）で、あれは人が編集する表である。
+   *
+   * 要望は消せるので「取り返しがつく」側だが、開いていると
+   * **誰でも書ける置き場**になり、画像も一緒に預かってしまう（`ah-dao`）。
+   */
+  it("ログインしていない人は、要望を送れない", async () => {
+    loggedIn = false;
+    const result = await submitFeedbackAction(submission(null));
+    expect(result.message, "断る理由が画面に出ていません").toContain("ログイン");
+  });
+
+  it("ログインしていない人が押しても、要望は 1 件も増えない", async () => {
+    // 断りの**形**ではなく、**増えたかどうか**を見る。
+    // 形だけを見ていると、断り文を出しながら裏で受け取る形が緑のまま通る。
+    const before = await (await feedbackUseCases()).list.execute(signedIn, {});
+    if (!before.ok) throw new Error("要望の一覧が読めませんでした");
+
+    loggedIn = false;
+    await submitFeedbackAction(submission(null));
+
+    const after = await (await feedbackUseCases()).list.execute(signedIn, {});
+    if (!after.ok) throw new Error("要望の一覧が読めませんでした");
+    expect(after.value.rows.length, "断ったはずの要望が増えています").toBe(before.value.rows.length);
+  });
 });
 
 describe("対応状況を変える", () => {
@@ -323,6 +353,39 @@ describe("対応状況を変える", () => {
     );
     expect(state.status).toBe("failed");
   });
+
+  /**
+   * ログインしていない人に、対応状況を変えさせない。
+   *
+   * 役では断られない人（`owner`）にしたまま `loggedIn` だけを外す。
+   * 役で断られる人で測ると、入口が開いていても役が塞いでくれて緑になり、
+   * この節はまるごと何も見ていないことになる。
+   *
+   * 断っているのは**役の一覧**（`src/domain/identity/permissions.ts`）で、
+   * あれは人が編集する表である。**1 行足せば戻る。**
+   *
+   * 通る入力（`in_progress`）で測る。空の指示だとログインを見なくても
+   * 入力不備で断られ、塞ぐ前から `failed` が出て色が変わらない。
+   */
+  it("ログインしていない人は、対応状況を変えられない", async () => {
+    loggedIn = false;
+    const state = await changeFeedbackStatusAction(
+      INITIAL_FEEDBACK_STATUS_STATE,
+      form({ id: REPORT, intent: "status", status: "in_progress" }),
+    );
+    expect(state.message, "断る理由が画面に出ていません").toContain("ログイン");
+  });
+
+  it("ログインしていない人が押しても、対応状況は変わらない", async () => {
+    // 断りの**形**ではなく、**保存された中身**を見る。
+    // 形だけを見ていると、断り文を出しながら裏で書き換える形が緑のまま通る。
+    loggedIn = false;
+    await changeFeedbackStatusAction(
+      INITIAL_FEEDBACK_STATUS_STATE,
+      form({ id: REPORT, intent: "status", status: "in_progress" }),
+    );
+    expect((await read(REPORT)).statusLabel, "断ったはずの状態が変わっています").not.toBe("対応中");
+  });
 });
 
 describe("まとめて渡す", () => {
@@ -374,6 +437,36 @@ describe("まとめて渡す", () => {
     expect(state.skipped).toHaveLength(1);
     expect(state.skipped[0]?.reportId).toBe("fb_does_not_exist");
     expect(state.skipped[0]?.reason).not.toBe("");
+  });
+
+  /**
+   * ログインしていない人に、まとめて渡させない。
+   *
+   * 渡す操作は**外の道具（AI）へ中身を出す**ので、届いてしまえば戻せない。
+   * 役では断られない人（`owner`）にしたまま `loggedIn` だけを外す。
+   *
+   * 回数は 0 から始まるので、`toBe(0)` で測ると「渡らなかった」と
+   * 「そもそも数え始めていない」が同じ緑になる。**前後の差**で見る。
+   */
+  it("ログインしていない人は、まとめて渡せない", async () => {
+    loggedIn = false;
+    const state = await handOffFeedbackAction(
+      INITIAL_FEEDBACK_HANDOFF_STATE,
+      form({ ids: REPORT, intent: "handoff" }),
+    );
+    expect(state.message, "断る理由が画面に出ていません").toContain("ログイン");
+  });
+
+  it("ログインしていない人が押しても、渡した回数は増えない", async () => {
+    const before = (await read(REPORT)).handoffCount;
+
+    loggedIn = false;
+    await handOffFeedbackAction(
+      INITIAL_FEEDBACK_HANDOFF_STATE,
+      form({ ids: REPORT, intent: "handoff" }),
+    );
+
+    expect((await read(REPORT)).handoffCount, "断ったはずの受け渡しが記録されています").toBe(before);
   });
 });
 

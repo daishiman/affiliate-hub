@@ -296,6 +296,53 @@ describe("受信箱の操作", () => {
     expect(state.status).toBe("failed");
     expect(state.field).toBe("reason");
   });
+
+  /**
+   * ログインしていない人に、受信箱を触らせない。
+   *
+   * `currentActor()` は身元を確かめられないとき**見本の身元へ落ちる**ので、
+   * ログインしていない人の操作が預かり所まで届く。届いた先の砦は
+   * **役の一覧**（`src/domain/identity/permissions.ts`）で、あれは人が編集する表である。
+   *
+   * `asAffiliateManager()`（役では断られない人）のまま `loggedIn` だけを外す。
+   * 役で断られる人で測ると、入口が開いていても役が塞いでくれて緑になり、
+   * ここは**何も見ていないまま緑**になる（`ah-dao`）。
+   */
+  it("ログインしていない人は、リンクを登録できない", async () => {
+    asAffiliateManager();
+    loggedIn = false;
+    const state = await submitAffiliateUrlAction(
+      IDLE,
+      form({ url: `https://example.invalid/asp/no-login-${Date.now()}`, note: "画面から貼り付け" }),
+    );
+    expect(state.status, "ログインを見ずにリンクが登録できています").toBe("failed");
+  });
+
+  it("ログインしていない人が押しても、受信箱には入らない", async () => {
+    // 断りの**形**ではなく、**入ったかどうか**を見る。
+    // 形だけを見ていると、断り文を出しながら裏で入れる形が緑のまま通る。
+    asAffiliateManager();
+    const url = `https://example.invalid/asp/no-login-store-${Date.now()}`;
+    loggedIn = false;
+    await submitAffiliateUrlAction(IDLE, form({ url }));
+
+    const inbox = await (await linkInboxUseCases()).list.execute(SAMPLE_ACTOR, { state: "all" });
+    if (!inbox.ok) throw new Error("受信箱が読めませんでした");
+    expect(
+      inbox.value.items.some((i) => i.submittedUrl === url),
+      "断ったはずのリンクが受信箱に入っています",
+    ).toBe(false);
+  });
+
+  it("ログインしていない人は、取り込みを進められない", async () => {
+    asAffiliateManager();
+    loggedIn = false;
+    const state = await advanceLinkIngestionAction(
+      IDLE,
+      form({ linkIngestionId: "li_matched_1", intent: "reject", reason: "対象外にします。" }),
+    );
+    expect(state.message, "断る理由が画面に出ていません").toContain("ログイン");
+  });
 });
 
 describe("ブログ作成ウィザードの操作", () => {
@@ -472,8 +519,9 @@ describe("ブログ作成ウィザードの操作", () => {
    * その状態でログインだけを外す（`ah-dao`）。
    *
    * 下書きを作る側（`startSiteDraftAction` / `saveSiteDraftStepAction`）は
-   * ログインしたまま通す。あそこも塞ぐが、塞ぐと下書きが用意できなくなり、
-   * ここが「下書きが無いから断られた」に化けて、また何も見なくなる。
+   * **ログインしたまま通す**。あちらも塞いであるので、先にログインを外すと
+   * 下書きが用意できず、ここが「下書きが無いから断られた」に化けて、
+   * また何も見なくなる。`loggedIn = false` は下書きが揃ってから外すこと。
    */
   it("ログインしていない人は、ブログを作れない", async () => {
     const draftId = await completeDraftThroughForms(`action-test-${Date.now()}`);
@@ -504,6 +552,36 @@ describe("ブログ作成ウィザードの操作", () => {
     const draftId = await completeDraftThroughForms(`action-test-${Date.now()}`);
     loggedIn = false;
     const state = await createSiteFromDraftAction({ status: "idle", message: "" }, form({ draftId }));
+    expect(state.message, "断る理由が画面に出ていません").toContain("ログイン");
+  });
+
+  /**
+   * 下書きを作る側・保存する側も、ログインしていない人には触らせない。
+   *
+   * 下書きは作り直せるので「取り返しがつく」側だが、開いたままだと
+   * **中身が読める**（保存すると、次に開いたとき前の答えが見える）。
+   * 誰でも下書きを増やせる状態も、預かり所を無料の置き場として使わせる。
+   *
+   * `startSiteDraftAction` は状態を返さず `redirect()` を投げるので、
+   * 断りは行き先の `?error=` に載る。`movedTo()` で行き先を受け取り、
+   * `decodeURIComponent` してから読む（`encodeURIComponent` で包まれるため）。
+   */
+  it("ログインしていない人は、下書きを始められない", async () => {
+    loggedIn = false;
+    const moved = await movedTo(() => startSiteDraftAction());
+    expect(decodeURIComponent(moved), "断る理由が行き先に載っていません").toContain("ログイン");
+  });
+
+  it("ログインしていない人は、下書きを保存できない", async () => {
+    // 有効な下書きを先に作ってからログインだけを外す。
+    // 居ない下書きで測ると「その下書きが無い」で断られ、塞ぐ前から緑になる。
+    const started = await movedTo(() => startSiteDraftAction());
+    const draftId = new URL(started, "https://example.invalid").searchParams.get("draftId") ?? "";
+    loggedIn = false;
+    const state = await saveSiteDraftStepAction(
+      { status: "idle", message: "" },
+      form({ draftId, step: "purpose", ...ANSWERS.purpose }),
+    );
     expect(state.message, "断る理由が画面に出ていません").toContain("ログイン");
   });
 });
@@ -567,6 +645,36 @@ describe("事実の範囲の確認", () => {
       expect(finding.excerpt.trim()).not.toBe("");
       expect(finding.message.trim()).not.toBe("");
     }
+  });
+
+  /**
+   * ログインしていない人に、判定を回させない。
+   *
+   * 書き換えは起きないので「取り返しがつく」側だが、通ると
+   * **書き手の記録（何を試したか）が外から引ける**。誰の体験が記録済みかは、
+   * 記事を書いた人の行動そのものである。
+   *
+   * 上の「公表値に基づく書き方は通る」と同じ入力で測る。**本来なら通る指示**を
+   * 渡して初めて、通ってしまうことが見える（`ah-dao`）。
+   */
+  it("ログインしていない人には、判定を返さない", async () => {
+    const personaId = await anAuthorId();
+    loggedIn = false;
+    const state = await checkFactBoundaryAction(
+      { status: "idle", message: "", findings: [] },
+      form({ personaId, body: "メーカーの公表値では、書き出し時間は前の型より短くなっています。" }),
+    );
+    expect(state.status, "ログインを見ずに判定が通っています").toBe("failed");
+  });
+
+  it("ログインしていない断りは、理由が画面に出る", async () => {
+    const personaId = await anAuthorId();
+    loggedIn = false;
+    const state = await checkFactBoundaryAction(
+      { status: "idle", message: "", findings: [] },
+      form({ personaId, body: "メーカーの公表値では、書き出し時間は前の型より短くなっています。" }),
+    );
+    expect(state.message, "断る理由が画面に出ていません").toContain("ログイン");
   });
 });
 
@@ -680,6 +788,33 @@ describe("記事の進行の操作", () => {
     // 遷移表の符号（FACT_CHECK など）を画面に出さない。
     expect(state.message).not.toContain("FACT_CHECK");
   });
+
+  /**
+   * ログインしていない人に、記事の段階を動かさせない。
+   *
+   * 段階は戻せるので「取り返しがつく」側だが、承認まで進むと
+   * **配信の予約が通るようになる**。配信は取り返しがつかない。
+   * つまりここは、取り返しがつかない扉の 1 つ手前の踏み台である。
+   */
+  it("ログインしていない人は、段階を進められない", async () => {
+    signedIn = { ...SAMPLE_ACTOR, roles: ["owner"] };
+    loggedIn = false;
+    const state = await advanceContentStateAction(
+      { status: "idle", message: "" },
+      form({ variantId: "cv_alpha_review", from: "FACT_CHECK", to: "COMPLIANCE_REVIEW" }),
+    );
+    expect(state.message, "断る理由が画面に出ていません").toContain("ログイン");
+  });
+
+  it("ログインしていない人は、記事を承認できない", async () => {
+    signedIn = { ...SAMPLE_ACTOR, roles: ["owner"] };
+    loggedIn = false;
+    const state = await approveContentAction(
+      { status: "idle", message: "" },
+      form({ variantId: "cv_alpha_review" }),
+    );
+    expect(state.message, "断る理由が画面に出ていません").toContain("ログイン");
+  });
 });
 
 describe("成果の金額を直す操作", () => {
@@ -712,6 +847,7 @@ describe("成果の金額を直す操作", () => {
     // 欄に紐づく断りは、欄の下に出せるよう `field` を返す。
     expect(state.field).toBe("amount");
     expect(state.message).toContain("金額");
+
   });
 
   it("理由が空のまま送られたら、直したことにしない", async () => {
@@ -756,6 +892,25 @@ describe("成果の金額を直す操作", () => {
 
     expect(state.status).toBe("failed");
     expect(state.message.trim()).not.toBe("");
+  });
+
+  /**
+   * ログインしていない人に、金額を直させない。
+   *
+   * 直した額は履歴に残るので「取り返しがつく」側だが、
+   * **締めの報告に使われる数字**である。文章と違って数字は、
+   * 変わっていても読んだ人が気づけない。
+   *
+   * `asAffiliateManager()`（役では断られない人）のまま `loggedIn` だけを外す。
+   */
+  it("ログインしていない断りは、理由が画面に出る", async () => {
+    asAffiliateManager();
+    loggedIn = false;
+    const state = await adjustConversionAction(
+      IDLE,
+      form({ conversionId: "cv_2026_08_a", amount: "1500", currency: "JPY", reason: "確定通知に合わせました。" }),
+    );
+    expect(state.message, "断る理由が画面に出ていません").toContain("ログイン");
   });
 });
 

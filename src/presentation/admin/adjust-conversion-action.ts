@@ -2,9 +2,9 @@
 
 import { revalidatePath } from "next/cache";
 import type { CurrencyCode } from "@/domain/shared";
-import { affiliateUseCases, currentActor } from "@/presentation/composition";
+import { affiliateUseCases, signedInActor } from "@/presentation/composition";
 import type { AdjustConversionState } from "./adjust-conversion-state";
-import { refusalText } from "@/presentation/refusal-text";
+import { notSignedInText, refusalText } from "@/presentation/refusal-text";
 
 /**
  * 成果の画面から金額を直す操作。
@@ -17,11 +17,27 @@ import { refusalText } from "@/presentation/refusal-text";
  * この操作は**担当者ご本人が行う**もので、AI からは実行させない
  * （金額は業務の数字そのもので、ページ内の文章を命令として読み込んだ AI に
  * 触らせてよいものではない）。制限はユースケースの権限確認で効かせている。
+ *
+ * --- 身元の取り方について ---
+ * `currentActor()` ではなく `signedInActor()` を使う。前者は身元を
+ * 確かめられないとき**見本の身元へ落ちる**ので、ログインしていない人の操作が
+ * ユースケースまで届く。「担当者ご本人が行う」と決めた操作を、
+ * 誰か分からないまま通してしまう（`ah-dao`）。
+ *
+ * 直した額は履歴に残るので「取り返しがつく」側だが、**締めの報告に使われる数字**である。
+ * 文章と違って数字は、変わっていても読んだ人が気づけない。
  */
 export async function adjustConversionAction(
   _prev: AdjustConversionState,
   formData: FormData,
 ): Promise<AdjustConversionState> {
+  const actor = await signedInActor();
+  if (actor === null) {
+    // **`formData` を読む前に断る。** 読んでから断ると、断り文が
+    // 「金額を入れてください」に化けて、押した人は金額を入れて何度も試す。
+    return { status: "failed", message: notSignedInText("成果の金額の修正") };
+  }
+
   const conversionId = String(formData.get("conversionId") ?? "");
   const rawAmount = String(formData.get("amount") ?? "").trim();
   const currency = String(formData.get("currency") ?? "JPY") as CurrencyCode;
@@ -35,7 +51,7 @@ export async function adjustConversionAction(
   const amountMinor = Number(rawAmount);
 
   const uc = await affiliateUseCases();
-  const result = await uc.adjustConversion.execute(await currentActor(), {
+  const result = await uc.adjustConversion.execute(actor, {
     conversionId,
     amountMinor,
     currency,

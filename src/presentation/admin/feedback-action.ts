@@ -3,9 +3,12 @@
 import { revalidatePath } from "next/cache";
 import { FEEDBACK_DISPOSITIONS, FEEDBACK_STATUSES, KEY_SCOPES } from "@/domain/feedback";
 import type { FeedbackDisposition, FeedbackStatus, KeyScope } from "@/domain/feedback";
-import { currentActor, feedbackUseCases, signedInActor } from "@/presentation/composition";
+// `currentActor` はもう使わない。このファイルの 4 つの操作はすべて
+// `signedInActor()` を通す（`ah-dao`）。import を残すと、次に書く人が
+// 「使ってよいもの」と読んで戻してしまう。
+import { feedbackUseCases, signedInActor } from "@/presentation/composition";
 import type { FeedbackSubmission } from "@/presentation/ui";
-import { refusalText } from "@/presentation/refusal-text";
+import { notSignedInText, refusalText } from "@/presentation/refusal-text";
 import type {
   FeedbackHandoffState,
   FeedbackStatusState,
@@ -22,13 +25,29 @@ import type {
  *
  * 権限（`feedback.submit` を持っているか）はユースケース側が見る。
  * ここで見ると、入口ごとに判定が分かれて片方が緩くなる。
+ *
+ * --- 身元の取り方について ---
+ * `currentActor()` ではなく `signedInActor()` を使う。前者は身元を
+ * 確かめられないとき**見本の身元へ落ちる**ので、ログインしていない人の操作が
+ * ユースケースまで届く。届いた先の砦は**役の一覧**で、あれは人が編集する表である。
+ *
+ * 要望は消せるので「取り返しがつく」側だが、開いていると
+ * **誰でも書ける置き場**になり、画面の写し（画像）まで一緒に預かってしまう。
+ * 2026-08-19 の実測では、ログインしていない状態で要望が本当に 1 件増えた（`ah-dao`）。
  */
 export async function submitFeedbackAction(
   submission: FeedbackSubmission,
 ): Promise<{ readonly message: string }> {
+  const actor = await signedInActor();
+  if (actor === null) {
+    // **`submission` を読む前に断る。** 読んでから断ると、断り文が
+    // 「本文を書いてください」に化けて、押した人は本文を直して何度も試す。
+    return { message: notSignedInText("要望の送信") };
+  }
+
   const capture = submission.capture;
   const image = capture === null ? null : base64ToBytes(capture.imageBase64);
-  const result = await (await feedbackUseCases()).submit.execute(await currentActor(), {
+  const result = await (await feedbackUseCases()).submit.execute(actor, {
     kind: submission.kind,
     body: submission.body,
     wish: submission.wish,
@@ -78,11 +97,24 @@ function refresh(id: string): void {
  * 3 つを 1 つの関数にしてあるのは、ユースケース側が 1 つの口だからである
  * （`update_feedback_status`）。画面側だけ 3 つに割ると、
  * 「状態は変わったが扱いは変わっていない」中途半端な結果が生まれる道ができる。
+ *
+ * --- 身元の取り方について ---
+ * `currentActor()` は身元を確かめられないとき見本の身元へ落ちるため、
+ * `signedInActor()` を使う。状態は戻せるので「取り返しがつく」側だが、
+ * **「対応済み」にされた要望は誰も見に来なくなる**。消されるより静かに効く。
+ * 2026-08-19 の実測では、ログインしていない状態で状態が本当に「対応中」へ変わった（`ah-dao`）。
  */
 export async function changeFeedbackStatusAction(
   _prev: FeedbackStatusState,
   formData: FormData,
 ): Promise<FeedbackStatusState> {
+  const actor = await signedInActor();
+  if (actor === null) {
+    // **`formData` を読む前に断る。** 読んでから断ると、断り文が
+    // 「変更後の状態を選んでください」に化けて、押した人は選び直して何度も試す。
+    return { status: "failed", message: notSignedInText("対応状況の変更") };
+  }
+
   const id = String(formData.get("id") ?? "");
   const intent = String(formData.get("intent") ?? "");
   const note = String(formData.get("note") ?? "");
@@ -125,7 +157,7 @@ export async function changeFeedbackStatusAction(
     return { status: "failed", message: "何をするかが分かりませんでした。", field: "intent" };
   }
 
-  const result = await (await feedbackUseCases()).updateStatus.execute(await currentActor(), input);
+  const result = await (await feedbackUseCases()).updateStatus.execute(actor, input);
   if (!result.ok) {
     return {
       status: "failed",
@@ -151,11 +183,36 @@ export async function changeFeedbackStatusAction(
  * 下読み（`preview`）と払い出し（`handoff`）を分けてあるのは、
  * **見ただけで「渡した」ことにしない**ため。渡した記録は、
  * 後から「これは誰が持って行ったのか」を答えるための唯一の手がかりになる。
+ *
+ * --- 身元の取り方について ---
+ * `currentActor()` は身元を確かめられないとき見本の身元へ落ちるため、
+ * `signedInActor()` を使う。ここは**中身を外の道具（AI）へ出す口**で、
+ * 出てしまえば戻せない。渡した記録に残る名前も、誰か分からないまま
+ * 見本の身元で埋まってしまい、「誰が持って行ったのか」に答えられなくなる。
+ * 2026-08-19 の実測では、ログインしていない状態で渡した回数が本当に増えた（`ah-dao`）。
+ *
+ * 断るときの `previewOnly` は `true` にする。`formData` を読む前に断るので
+ * 押した人がどちらを押したかは分からないが、**渡していない**ことだけは確かで、
+ * `true` はそれを指す。`false` にすると「渡した」と読める状態が画面に残る。
  */
 export async function handOffFeedbackAction(
   _prev: FeedbackHandoffState,
   formData: FormData,
 ): Promise<FeedbackHandoffState> {
+  const actor = await signedInActor();
+  if (actor === null) {
+    // **`formData` を読む前に断る。** 読んでから断ると、断り文が
+    // 「先に、渡したい要望を選んでください」に化けて、押した人は選び直して何度も試す。
+    return {
+      status: "failed",
+      message: notSignedInText("要望の受け渡し"),
+      prompts: [],
+      skipped: [],
+      idempotencyText: "",
+      previewOnly: true,
+    };
+  }
+
   const ids = formData.getAll("ids").map(String).filter((v) => v !== "");
   const previewOnly = String(formData.get("intent") ?? "preview") !== "handoff";
 
@@ -170,7 +227,7 @@ export async function handOffFeedbackAction(
     };
   }
 
-  const result = await (await feedbackUseCases()).handOff.execute(await currentActor(), {
+  const result = await (await feedbackUseCases()).handOff.execute(actor, {
     ids,
     route: "copied_by_human",
     previewOnly,

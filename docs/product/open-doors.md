@@ -11,7 +11,7 @@
 
 適用範囲: `/admin` 以下（読者のページとログインの往復は通す）
 
-開いている扉: **11 件** / 全 84 件
+開いている扉: **0 件** / 全 84 件
 
 「誰でも」と宣言してある行: **26 件**
 （宣言すればその扉は差の数から消える。だから宣言の件数そのものにも上限がある）
@@ -49,7 +49,7 @@
 
 ## この数字の読み方
 
-**この 11 件は「攻撃された」ではなく「守りが無い」である。**
+**この 0 件は「攻撃された」ではなく「守りが無い」である。**
 
 危険の度合いは **「守りが無い」×「誰かが URL を知っている」** で決まる。
 いまこのアプリは本番で公開されておらず、URL を知っている人もいない。
@@ -194,18 +194,18 @@
 | `reschedulePublicationAction()` | 投稿予定日を変える（前倒しにすれば今日出せる）（src/presentation/admin/reschedule-action.ts） | ログイン | ログイン | — | **つかない** |
 | `schedulePublicationAction()` | 投稿を予定に入れる（時刻が来たら外へ出る）（src/presentation/admin/schedule-publication-action.ts） | ログイン | ログイン | — | **つかない** |
 | `startLoopRunAction()` | 見せ方の比較を始める（2 通りが読者へ配られ始める）（src/presentation/admin/improvement-action.ts） | ログイン | ログイン | — | **つかない** |
-| `adjustConversionAction()` | 成果の実績を手で直す（src/presentation/admin/adjust-conversion-action.ts） | ログイン | 誰でも | **開いている** | つく |
-| `advanceContentStateAction()` | 記事の作業段階を進める（src/presentation/admin/content-progress-action.ts） | ログイン | 誰でも | **開いている** | つく |
-| `advanceLinkIngestionAction()` | 成果リンクの取り込みを進める（src/presentation/admin/inbox-action.ts） | ログイン | 誰でも | **開いている** | つく |
-| `approveContentAction()` | 記事を承認する（src/presentation/admin/content-progress-action.ts） | ログイン | 誰でも | **開いている** | つく |
+| `adjustConversionAction()` | 成果の実績を手で直す（src/presentation/admin/adjust-conversion-action.ts） | ログイン | ログイン | — | つく |
+| `advanceContentStateAction()` | 記事の作業段階を進める（src/presentation/admin/content-progress-action.ts） | ログイン | ログイン | — | つく |
+| `advanceLinkIngestionAction()` | 成果リンクの取り込みを進める（src/presentation/admin/inbox-action.ts） | ログイン | ログイン | — | つく |
+| `approveContentAction()` | 記事を承認する（src/presentation/admin/content-progress-action.ts） | ログイン | ログイン | — | つく |
 | `approveVariantSpecAction()` | 見せ方の試作を承認する（比較に出せる状態にする）（src/presentation/admin/improvement-action.ts） | ログイン | ログイン | — | つく |
-| `changeFeedbackStatusAction()` | 指摘の状態を変える（src/presentation/admin/feedback-action.ts） | ログイン | 誰でも | **開いている** | つく |
-| `checkFactBoundaryAction()` | 書ける範囲の判定を試す（src/presentation/admin/fact-boundary-action.ts） | ログイン | 誰でも | **開いている** | つく |
+| `changeFeedbackStatusAction()` | 指摘の状態を変える（src/presentation/admin/feedback-action.ts） | ログイン | ログイン | — | つく |
+| `checkFactBoundaryAction()` | 書ける範囲の判定を試す（src/presentation/admin/fact-boundary-action.ts） | ログイン | ログイン | — | つく |
 | `draftVariantSpecAction()` | 見せ方の試作を登録する（src/presentation/admin/improvement-action.ts） | ログイン | ログイン | — | つく |
-| `handOffFeedbackAction()` | 指摘を引き継ぐ（src/presentation/admin/feedback-action.ts） | ログイン | 誰でも | **開いている** | つく |
-| `saveSiteDraftStepAction()` | サイトの下書きを保存する（src/presentation/admin/site-wizard-action.ts） | ログイン | 誰でも | **開いている** | つく |
-| `startSiteDraftAction()` | サイトの下書きを始める（src/presentation/admin/site-wizard-action.ts） | ログイン | 誰でも | **開いている** | つく |
-| `submitAffiliateUrlAction()` | 成果リンクを登録する（src/presentation/admin/inbox-action.ts） | ログイン | 誰でも | **開いている** | つく |
+| `handOffFeedbackAction()` | 指摘を引き継ぐ（src/presentation/admin/feedback-action.ts） | ログイン | ログイン | — | つく |
+| `saveSiteDraftStepAction()` | サイトの下書きを保存する（src/presentation/admin/site-wizard-action.ts） | ログイン | ログイン | — | つく |
+| `startSiteDraftAction()` | サイトの下書きを始める（src/presentation/admin/site-wizard-action.ts） | ログイン | ログイン | — | つく |
+| `submitAffiliateUrlAction()` | 成果リンクを登録する（src/presentation/admin/inbox-action.ts） | ログイン | ログイン | — | つく |
 | `submitContactAction()` | 読者からの問い合わせ（公開フォーム）（src/presentation/site/contact-action.ts） | 誰でも | 誰でも | — | つく |
-| `submitFeedbackAction()` | 指摘を登録する（src/presentation/admin/feedback-action.ts） | ログイン | 誰でも | **開いている** | つく |
-<!-- 生成物の指紋 sha256:201ab85148c9c529be0e28a38bc2b09a72a9be929a684f9e934c5428a92ee3a1 -->
+| `submitFeedbackAction()` | 指摘を登録する（src/presentation/admin/feedback-action.ts） | ログイン | ログイン | — | つく |
+<!-- 生成物の指紋 sha256:85c4d65f53bff41faae3471ac6ddcb36c79fa4fd59576a180a077867a2e49d0a -->
