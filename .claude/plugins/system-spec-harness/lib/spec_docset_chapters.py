@@ -11,6 +11,7 @@ from spec_docset_catalog import (
     _ref_version,
     _row,
 )
+from spec_docset_citation import render_clause_citation
 
 # レンダリング (章 / index) — 純関数                                            #
 # --------------------------------------------------------------------------- #
@@ -204,6 +205,7 @@ def render_doctrine_anchor(cat_id: str) -> str:
         "- 本章の確定内容 (質疑録) は上記 authority を上流指針として適用する。"
         "具体技術の選定はこの指針に従属し、指針との乖離は再オープン (R4-reopen) の根拠になる。",
     ]
+    lines += render_clause_citation(concern_ids, concerns)
     return "\n".join(lines)
 
 

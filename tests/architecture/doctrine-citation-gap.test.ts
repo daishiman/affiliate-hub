@@ -182,21 +182,74 @@ describe("上流指針の条項が要件文へ引かれていない (塞げて�
 
   /**
    * 塞げない理由 1 の当てどころ。証跡が節名を持ち始めたら赤くなる。
+   *
+   * `freshness_extraction` は 2026-08-20 に足した欄で、**節名ではない**。
+   * 「その record の更新日表明をどこからどう取ったか」だけを持ち、
+   * 章・節・見出しの類は一切入らない。よってこの検査の趣旨
+   * (証跡から条項は引けない = doctrine の引用根拠に使えない) は保たれている。
+   * 欄が増えたこと自体はここで固定し、増えた欄が節名を持ち込んだら
+   * 下の EVIDENCE_KEYS 検査が赤くなる。
    */
-  it("取得証跡は節名を持っていない（hash と page_title だけ）", () => {
+  const EVIDENCE_BASE_KEYS = [
+    "content_bytes",
+    "content_sha256",
+    "http_status",
+    "page_title",
+    "retrieved_at",
+    "source_url",
+    "target_id",
+  ];
+
+  it("取得証跡は節名を持っていない（hash と page_title と鮮度の由来だけ）", () => {
     for (const id of ["owasp-asvs", "apple-hig", "google-sre"]) {
       const evidence = JSON.parse(
         readFileSync(join(ROOT, `system-spec/retrieval-evidence/${id}.json`), "utf8"),
       ) as Record<string, unknown>;
-      expect(Object.keys(evidence).sort(), `${id}.json の欄`).toEqual([
-        "content_bytes",
-        "content_sha256",
-        "http_status",
-        "page_title",
-        "retrieved_at",
-        "source_url",
-        "target_id",
-      ]);
+      const extra = Object.keys(evidence).filter((k) => !EVIDENCE_BASE_KEYS.includes(k));
+      expect(extra.sort(), `${id}.json の想定外の欄`).toEqual(
+        id === "owasp-asvs" ? [] : ["freshness_extraction"],
+      );
     }
+  });
+
+  /**
+   * `freshness_extraction` を「とりあえず全件に足す」で緑にできないようにする。
+   *
+   * 由来を知らない record に由来を書けば捏造になる。だから証跡側の
+   * `freshness_extraction` の有無は、`fetched-references.json` 側の
+   * `freshness_source` の申告の有無と **一致していなければならない**。
+   * 片側だけ足した瞬間にここが赤くなる。
+   */
+  it("鮮度の由来は、申告のある record にだけ証跡がある", () => {
+    const refs = JSON.parse(
+      readFileSync(join(ROOT, "system-spec/fetched-references.json"), "utf8"),
+    ) as { references: { target_id: string; freshness_source?: string }[] };
+
+    // 母集団の床。record が消えれば mismatched は自明に [] になり、
+    // 「食い違いが無い」と「数える対象が消えた」を見分けられなくなる。
+    expect(
+      refs.references.length,
+      "取得 record が消えていない（0 が母集団消失で出ていないこと）",
+    ).toBeGreaterThanOrEqual(8);
+    expect(
+      refs.references.filter((r) => r.freshness_source).length,
+      "申告を持つ record が消えていない（全件が申告なしになれば検査は空回りする）",
+    ).toBeGreaterThanOrEqual(5);
+
+    const mismatched: string[] = [];
+    for (const ref of refs.references) {
+      const evidence = JSON.parse(
+        readFileSync(
+          join(ROOT, `system-spec/retrieval-evidence/${ref.target_id}.json`),
+          "utf8",
+        ),
+      ) as Record<string, unknown>;
+      const declared = Boolean(ref.freshness_source);
+      const evidenced = "freshness_extraction" in evidence;
+      if (declared !== evidenced) {
+        mismatched.push(`${ref.target_id}: 申告=${declared} 証跡=${evidenced}`);
+      }
+    }
+    expect(mismatched, "申告と証跡の食い違い").toEqual([]);
   });
 });

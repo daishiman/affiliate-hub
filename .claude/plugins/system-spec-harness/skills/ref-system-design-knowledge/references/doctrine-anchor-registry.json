@@ -3,19 +3,84 @@
   "description": "システム構築カテゴリを設計 concern に分解し、各 concern に doctrine anchor (上流指針の正本) を 1 concern 1 authority で固定する registry (goal-spec C15)。authority は 4 種で application-architecture↔data-access 等の複数 concern に共有されうる (authority 一意ではない)。C03 (run-system-spec-compile) が各章生成時に category→concern→authority を上流判断として反映する。具体技術は直書きせず上流工程を導く。形状・concern_id 一意性・カテゴリ写像全射・orphan concern は validate-knowledge-graph.py --profile doctrine が、意味反映は content-review/human が検証する。",
   "validated_by": "validate-knowledge-graph.py --profile doctrine",
   "mapping_rule": "正本単位は system category でなく design concern。1 category は複数 concern を持てるが、各 concern の authority は 1 つだけ (authority 種類は 4・concern 間で共有されうる)。未帰属 category は owner/reason/approval_state 付き pending 例外として compile を保留する。",
+  "clause_citation_policy": {
+    "note": "authority を上流指針として掲げることと、その authority の条項を要件文の根拠として引けることは別である。前者は registry の帰属だけで成立するが、後者は『その条項が取得物の中に実在すること』を要する。concern ごとの clause_citation がこの区別を持つ。",
+    "states": {
+      "available": "取得物の中に条項が実在し、引用できる。cited_clauses と citation_scope を必須とする。citation_scope には『取得物のどこまでを根拠にできるか』を書く (目次しか取得していないなら章の存在・番号・題・URL まで)。",
+      "unavailable": "引けない。reason_class で理由の種類を区別する。"
+    },
+    "reason_class": {
+      "not-in-fetch-targets": "取得対象一覧に入っていない。取れば可になる。C02 で解消しうる。",
+      "fetched-but-no-body": "取得したが本文が入っていない (JS シェル・landing page 等)。取得経路を変えれば可になる。",
+      "no-retrieval-path": "この作業場所に取得経路が原理的に無い (書籍等)。反転先は無い。"
+    },
+    "why_the_three_are_separated": "3 種を『条項引用不可』の一語に潰すと、塞げる穴と塞げない穴が同じ顔になる。次に読む人は、書籍を取りにいこうとするか、取れる workbook を諦めるか、どちらかを必ず間違える。unavailable の 3 種をまとめないこと。",
+    "reversal_rule": "塞げる 2 種 (not-in-fetch-targets / fetched-but-no-body) は reversal に『取得できた日に何をするか』を先に書く。塞げない 1 種 (no-retrieval-path) は reversal を null とし、reversal_note に『反転先が無い理由』を難しさではなく作業場所の制約の形で書く。"
+  },
   "freshness_policy": {
     "note": "doctrine authority (OWASP ASVS 版改訂・Apple HIG 改称・SRE 書籍更新等) は経年変化するため、knowledge-catalog と同様に鮮度監査対象とする。open-world-knowledge-lifecycle.md の freshness audit に doctrine registry も含める。",
     "audit_trigger": "official-update",
     "revalidate_cadence": "quarterly"
   },
   "concerns": [
-    {"concern_id": "presentation", "authority": "Apple Human Interface Guidelines", "source_ref": "https://developer.apple.com/design/human-interface-guidelines", "guides": "画面設計・操作フロー・情報階層・アクセシビリティの上流原則", "freshness_class": "standard-tracked", "last_checked_at": "2026-07-12", "revalidate_on": "Apple HIG の年次改訂/改称"},
-    {"concern_id": "application-architecture", "authority": "Robert C. Martin — Clean Architecture", "source_ref": "Clean Architecture (2017), the Dependency Rule", "guides": "レイヤ境界・依存方向 (内向き)・ユースケース中心設計", "freshness_class": "foundational-stable", "last_checked_at": "2026-07-12", "revalidate_on": "新版書籍/公式訂正"},
-    {"concern_id": "data-access", "authority": "Robert C. Martin — Clean Architecture", "source_ref": "Clean Architecture — gateways/repositories boundary", "guides": "永続化を境界の外側へ追い出し interface adapter で隔離する", "freshness_class": "foundational-stable", "last_checked_at": "2026-07-12", "revalidate_on": "新版書籍/公式訂正"},
-    {"concern_id": "authentication", "authority": "OWASP ASVS + Secrets Management Cheat Sheet", "source_ref": "https://owasp.org/www-project-application-security-verification-standard/", "guides": "認証方式・セッション・資格情報/シークレット/API キーの取扱いの上流指針", "freshness_class": "standard-tracked", "last_checked_at": "2026-07-12", "revalidate_on": "OWASP ASVS 版改訂"},
-    {"concern_id": "security", "authority": "OWASP ASVS + Secrets Management Cheat Sheet", "source_ref": "https://owasp.org/www-project-application-security-verification-standard/", "guides": "脅威モデル・入力検証・暗号化・監査ログの上流指針", "freshness_class": "standard-tracked", "last_checked_at": "2026-07-12", "revalidate_on": "OWASP ASVS 版改訂"},
-    {"concern_id": "reliability", "authority": "Google SRE", "source_ref": "https://sre.google/books/", "guides": "SLO/エラーバジェット・冗長性・スケーリング・監視の上流指針", "freshness_class": "standard-tracked", "last_checked_at": "2026-07-12", "revalidate_on": "SRE 書籍/公式ガイド更新"},
-    {"concern_id": "operations", "authority": "Google SRE", "source_ref": "https://sre.google/workbook/", "guides": "運用手順・障害対応・トイル削減・ポストモーテムの上流指針", "freshness_class": "standard-tracked", "last_checked_at": "2026-07-12", "revalidate_on": "SRE Workbook 更新"}
+    {"concern_id": "presentation", "authority": "Apple Human Interface Guidelines", "source_ref": "https://developer.apple.com/design/human-interface-guidelines", "guides": "画面設計・操作フロー・情報階層・アクセシビリティの上流原則", "freshness_class": "standard-tracked", "last_checked_at": "2026-07-12", "revalidate_on": "Apple HIG の年次改訂/改称",
+     "clause_citation": {
+       "state": "unavailable",
+       "reason_class": "fetched-but-no-body",
+       "reason": "apple-hig は取得済み (retrieval-evidence/apple-hig.json, 17681 B) だが、取得物は JavaScript シェルで本文を含まない。可視テキストは 'This page requires JavaScript. Please turn on JavaScript in your browser and refresh the page to view its content.' のみ、見出し 1 件 (同文)、テキストを持つリンク 0 件。取得できているのはページの殻であって内容ではないため、引くべき条項がそもそも取得物に存在しない。",
+       "reversal": "JS 実行後の DOM を取得できる経路 (browser-render 等) で本文を取得できた日に state を available へ変え、cited_clauses を埋め、検査を『この章は条項を引いていること』側へ反転させる。取得経路を変えれば塞がる穴であって、塞げない穴ではない。"
+     }},
+    {"concern_id": "application-architecture", "authority": "Robert C. Martin — Clean Architecture", "source_ref": "Clean Architecture (2017), the Dependency Rule", "guides": "レイヤ境界・依存方向 (内向き)・ユースケース中心設計", "freshness_class": "foundational-stable", "last_checked_at": "2026-07-12", "revalidate_on": "新版書籍/公式訂正",
+     "clause_citation": {
+       "state": "unavailable",
+       "reason_class": "no-retrieval-path",
+       "reason": "authority が書籍 (Clean Architecture, 2017) で、source_ref も URL ではなく書名と規則名の記述。fetched-references.json の取得対象 8 件のいずれでもなく、retrieval-evidence にも record が存在しない。この作業場所には書籍本文を取得する経路が無い。",
+       "reversal": null,
+       "reversal_note": "反転先は無い。理由は難しさではなく、この作業場所が書籍本文を取得できないこと。fetched-but-no-body と not-in-fetch-targets は取得すれば塞がるが、これは塞がらない。3 種を『条項引用不可』の一語に潰すと、次に読む人が書籍を取りにいくか、取れるものを諦めるかのどちらかを必ず間違える。reason_class を消さないこと。"
+     }},
+    {"concern_id": "data-access", "authority": "Robert C. Martin — Clean Architecture", "source_ref": "Clean Architecture — gateways/repositories boundary", "guides": "永続化を境界の外側へ追い出し interface adapter で隔離する", "freshness_class": "foundational-stable", "last_checked_at": "2026-07-12", "revalidate_on": "新版書籍/公式訂正",
+     "clause_citation": {
+       "state": "unavailable",
+       "reason_class": "no-retrieval-path",
+       "reason": "application-architecture と同一 authority (書籍)。取得経路が無い点も同じ。",
+       "reversal": null,
+       "reversal_note": "反転先は無い。application-architecture の reversal_note と同じ理由。"
+     }},
+    {"concern_id": "authentication", "authority": "OWASP ASVS + Secrets Management Cheat Sheet", "source_ref": "https://owasp.org/www-project-application-security-verification-standard/", "guides": "認証方式・セッション・資格情報/シークレット/API キーの取扱いの上流指針", "freshness_class": "standard-tracked", "last_checked_at": "2026-07-12", "revalidate_on": "OWASP ASVS 版改訂",
+     "clause_citation": {
+       "state": "unavailable",
+       "reason_class": "fetched-but-no-body",
+       "reason": "owasp-asvs は取得済み (retrieval-evidence/owasp-asvs.json, 67761 B) だが、取得したのは project landing page であって ASVS 本体ではない。ASVS の章番号・要件番号は本体側にあり landing page には無いため、引くべき条項が取得物に存在しない。",
+       "reversal": "章番号・要件番号を持つ ASVS 本体 (公式配布の要件文書) を targets[] に足して取得できた日に state を available へ変え、cited_clauses を埋め、検査を『この章は条項を引いていること』側へ反転させる。取得すれば塞がる穴であって、塞げない穴ではない。"
+     }},
+    {"concern_id": "security", "authority": "OWASP ASVS + Secrets Management Cheat Sheet", "source_ref": "https://owasp.org/www-project-application-security-verification-standard/", "guides": "脅威モデル・入力検証・暗号化・監査ログの上流指針", "freshness_class": "standard-tracked", "last_checked_at": "2026-07-12", "revalidate_on": "OWASP ASVS 版改訂",
+     "clause_citation": {
+       "state": "unavailable",
+       "reason_class": "fetched-but-no-body",
+       "reason": "authentication と同一 authority・同一取得物 (landing page)。条項が取得物に無い点も同じ。",
+       "reversal": "authentication の reversal と同じ。ASVS 本体を取得できた日に両 concern を同時に available へ変える。"
+     }},
+    {"concern_id": "reliability", "authority": "Google SRE", "source_ref": "https://sre.google/books/", "guides": "SLO/エラーバジェット・冗長性・スケーリング・監視の上流指針", "freshness_class": "standard-tracked", "last_checked_at": "2026-07-12", "revalidate_on": "SRE 書籍/公式ガイド更新",
+     "clause_citation": {
+       "state": "available",
+       "evidence_target_id": "google-sre",
+       "evidence_url": "https://sre.google/sre-book/table-of-contents/",
+       "citation_scope": "取得済みなのは目次 (table of contents) のみ。引用根拠にできるのは『その章が存在すること・章番号・章題・正規 URL』まで。章本文は未取得のため、章の中の主張を要約して要件文の根拠にすることはできない。それをやると、取得していない内容を出典に帰属させることになる (C05 が実在しない日付 2026-07-03 を公式表明値として書いたのと同じ形)。",
+       "cited_clauses": [
+         {"chapter": 4, "title": "Service Level Objectives", "url": "https://sre.google/sre-book/service-level-objectives/"},
+         {"chapter": 6, "title": "Monitoring Distributed Systems", "url": "https://sre.google/sre-book/monitoring-distributed-systems/"},
+         {"chapter": 24, "title": "Distributed Periodic Scheduling with Cron", "url": "https://sre.google/sre-book/distributed-periodic-scheduling/"},
+         {"chapter": 26, "title": "Data Integrity: What You Read Is What You Wrote", "url": "https://sre.google/sre-book/data-integrity/"}
+       ],
+       "note": "source_ref は https://sre.google/books/ だが、実際に取得したのは sre-book の目次ページ。evidence_url が実物。"
+     }},
+    {"concern_id": "operations", "authority": "Google SRE", "source_ref": "https://sre.google/workbook/", "guides": "運用手順・障害対応・トイル削減・ポストモーテムの上流指針", "freshness_class": "standard-tracked", "last_checked_at": "2026-07-12", "revalidate_on": "SRE Workbook 更新",
+     "clause_citation": {
+       "state": "unavailable",
+       "reason_class": "not-in-fetch-targets",
+       "reason": "この concern の source_ref は SRE Workbook (https://sre.google/workbook/) だが、fetched-references.json の取得対象 8 件に含まれていない。取得していないものの章番号は引けない。同じ Google SRE でも reliability が引く sre-book とは別の本であり、sre-book の目次で workbook を代用することはできない。",
+       "reversal": "targets[] に SRE Workbook を足して C02 で取得できた日に state を available へ変え、cited_clauses を埋め、検査を『この章は条項を引いていること』側へ反転させる。取得すれば塞がる穴であって、塞げない穴ではない。"
+     }}
   ],
   "categories": ["database", "auth", "ui-ux", "security", "infrastructure", "backend", "frontend", "maintenance-ops"],
   "category_concern_map": {
