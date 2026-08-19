@@ -1,7 +1,13 @@
 /**
  * @tier 1
  * @req REQ-TS18
- * @types regression, equivalence, boundary, contract
+ * @types regression, equivalence, boundary
+ *
+ * **`contract` を名乗っていたが外した**（2026-08-19）。`contract` は
+ * 「API 契約（3 入口）」であり、この検査は画面・REST・WebMCP のどれも通っていない。
+ * 見ているのは python のコンパイラ 1 本である。要件の側も
+ * `has-known-breakage, has-input` だけで `contract` を求めていない。
+ * **満たしていない種別の名前を借りない。**外して、飾りが付いていた事実をここに残す。
  *
  * 章のコード塊が本文を飲み込む壊れを、**生成物ではなく生成側**で見る。
  *
