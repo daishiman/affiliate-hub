@@ -317,6 +317,167 @@ def set_qa_scope_notes(state: dict, qa_id: str, raw: object) -> None:
     entry["scope_notes"] = normalized
 
 
+SPLIT_BUNDLE_WRITER = "split-qa-bundle"
+
+
+def _answer_sections(answer: str) -> "dict[str, str]":
+    """回答本文を `### ` 見出し単位へ割る。見出し行そのものを key にする。
+
+    `scope_notes.topics[].answer_span` は見出し行を逐語で持っているので、
+    ここで見出しを作り直さず、在る見出しをそのまま key にして突き合わせる。
+    """
+    sections: dict[str, str] = {}
+    current: str | None = None
+    buffer: list[str] = []
+    for line in answer.split("\n"):
+        if line.startswith("### "):
+            if current is not None:
+                sections[current] = "\n".join(buffer).strip()
+            current = line.strip()
+            buffer = []
+        else:
+            buffer.append(line)
+    if current is not None:
+        sections[current] = "\n".join(buffer).strip()
+    return sections
+
+
+def _application_key(application: dict) -> tuple:
+    """design_application の同一性キー。全欄を使う (一部だけだと別物が同じに見える)。"""
+    return (
+        application.get("knowledge_ref"),
+        application.get("principle"),
+        application.get("applicability"),
+        application.get("rationale"),
+        tuple(application.get("tradeoffs") or []),
+    )
+
+
+def split_qa_bundle(state: dict, qa_id: str) -> None:
+    """束ねた qa entry を論点ごとに解く。**取り込み元が実在し同一のときだけ。**
+
+    束ねが生まれた理由は `bundling_reason` に逐語で残っている —
+    「qa_ref は 1 件しか持てないため (決定論ゲートが文字列で照合する)」。
+    セルが複数の裏付けを引けなかったので、本文の側を 1 件へ寄せていた。
+    `qa_refs[]` でセルが複数引けるようになったので、寄せる必要が無くなった。
+
+    **本文を削るのは、削るものが他所に byte 単位で在るときだけである。**
+    取り込まれた節は取り込み元 entry の `answer` と完全一致していなければならず、
+    1 文字でも違えば「取り込みではなく編集」なので拒否する。ここを緩めると、
+    束ねを解く操作が本文を失う操作になる。同じ理由で design_applications も
+    取り込み元が持っているものだけを外す。
+
+    **何を削るかは引数で受け取らない。**`scope_notes.topics` と取り込み元 entry を
+    writer が自分で引く。渡せると、渡す側がどの節を「取り込みだった」と名乗るか
+    選べてしまい、自分の本文を他所のせいにして消せる。
+    """
+    if not isinstance(qa_id, str) or not qa_id.strip():
+        raise TransitionError(f"{SPLIT_BUNDLE_WRITER}: qa_id は非空文字列必須")
+    qa_id = qa_id.strip()
+    entries = {
+        candidate["id"]: candidate
+        for candidate in state.get("qa_log", [])
+        if isinstance(candidate, dict) and isinstance(candidate.get("id"), str)
+    }
+    entry = entries.get(qa_id)
+    if entry is None:
+        raise TransitionError(f"{SPLIT_BUNDLE_WRITER}: qa_log に存在しない qa_id: {qa_id}")
+
+    notes = entry.get("scope_notes")
+    if not isinstance(notes, dict) or not notes.get("bundled"):
+        raise TransitionError(
+            f"{SPLIT_BUNDLE_WRITER}: {qa_id} は scope_notes.bundled=true でない "
+            "(束ねていない entry を解くことはできない)"
+        )
+    topics = notes.get("topics")
+    if not isinstance(topics, list) or not topics:
+        raise TransitionError(f"{SPLIT_BUNDLE_WRITER}: {qa_id} の scope_notes.topics が非空配列でない")
+
+    sections = _answer_sections(entry.get("answer") or "")
+    own_span: str | None = None
+    absorbed: list[str] = []
+    for index, topic in enumerate(topics):
+        if not isinstance(topic, dict):
+            raise TransitionError(f"{SPLIT_BUNDLE_WRITER}: topics[{index}] が object でない")
+        origin_id = topic.get("origin_qa_id")
+        span = (topic.get("answer_span") or "").strip()
+        if not isinstance(origin_id, str) or not origin_id:
+            raise TransitionError(f"{SPLIT_BUNDLE_WRITER}: topics[{index}].origin_qa_id が非空文字列でない")
+        if span not in sections:
+            raise TransitionError(
+                f"{SPLIT_BUNDLE_WRITER}: topics[{index}].answer_span が本文に見つからない: {span!r}"
+            )
+        if origin_id == qa_id:
+            if own_span is not None:
+                raise TransitionError(f"{SPLIT_BUNDLE_WRITER}: {qa_id} 自身の節が 2 つ在る")
+            own_span = span
+            continue
+        origin = entries.get(origin_id)
+        if origin is None:
+            raise TransitionError(
+                f"{SPLIT_BUNDLE_WRITER}: 取り込み元 {origin_id} が qa_log に無い "
+                "(本文を削ると内容が失われるため解けない)"
+            )
+        if sections[span] != (origin.get("answer") or "").strip():
+            raise TransitionError(
+                f"{SPLIT_BUNDLE_WRITER}: 節 {span!r} が取り込み元 {origin_id} の回答と一致しない "
+                "(取り込みではなく編集された本文なので、削ると内容が失われる)"
+            )
+        absorbed.append(origin_id)
+
+    if own_span is None:
+        raise TransitionError(
+            f"{SPLIT_BUNDLE_WRITER}: {qa_id} 自身を origin とする topic が無い "
+            "(自分の節が特定できないと、何を残すか決められない)"
+        )
+    if not absorbed:
+        raise TransitionError(f"{SPLIT_BUNDLE_WRITER}: {qa_id} に取り込まれた他 entry の節が無い")
+
+    # 取り込み元が持つ設計適用だけを外す。自分の設計適用と同一内容のものは
+    # どちらの由来か決められないので**残す** (消す側へ倒すと自分の記録が消える)。
+    foreign: set[tuple] = set()
+    for origin_id in absorbed:
+        for application in entries[origin_id].get("design_applications", []) or []:
+            if isinstance(application, dict):
+                foreign.add(_application_key(application))
+    kept = [
+        application
+        for application in entry.get("design_applications", []) or []
+        if _application_key(application) not in foreign
+    ]
+    if not kept:
+        raise TransitionError(
+            f"{SPLIT_BUNDLE_WRITER}: {qa_id} の design_applications が全て取り込み元由来になる "
+            "(自分の設計適用が残らない entry は解けない)"
+        )
+
+    entry["answer"] = sections[own_span]
+    entry["design_applications"] = kept
+    notes["bundled"] = False
+    notes["split_with"] = SPLIT_BUNDLE_WRITER
+    notes["split_on"] = datetime.date.today().isoformat()
+    notes["absorbed_origins_released"] = sorted(absorbed)
+    notes["bundling_reason"] = (
+        "**この束ねは解消済みである。**束ねの理由は「qa_ref が 1 件しか持てない」ことだった。"
+        "セルが qa_refs[] で複数の裏付けを引けるようになったので、本文を 1 件へ寄せる必要が"
+        "無くなり、取り込んでいた節を外した。外した節は取り込み元 entry ("
+        + ", ".join(sorted(absorbed))
+        + ") に byte 単位で同一のまま在り、writer が一致を確かめてから外している。"
+        "下の topics は、どの節がどの entry へ戻ったかの対応として残してある。"
+    )
+
+    # 裏付けの範囲はセル側の qa_refs[] へ移す。**引数で受け取らず topics から導く。**
+    for category, platform in _confirmed_cells_citing(state, qa_id):
+        cell = state["matrix"][category][platform]
+        refs = [qa_id] + [origin for origin in sorted(absorbed)]
+        existing = cell.get("qa_refs")
+        if existing is not None and existing != refs:
+            raise TransitionError(
+                f"{SPLIT_BUNDLE_WRITER}: 既存 qa_refs と異なる内容の再適用は拒否: {category}/{platform}"
+            )
+        cell["qa_refs"] = refs
+
+
 WRITTEN_UP_WRITER = "set-qa-written-up"
 
 

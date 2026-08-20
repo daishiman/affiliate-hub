@@ -770,6 +770,11 @@
             "checked_with": "record-required-info-check",
             "blocking_item_count": 0
           }
+        ],
+        "qa_refs": [
+          "qa-database-web-spec-intake",
+          "qa-database-web",
+          "qa-database-web-analytics"
         ]
       },
       "mobile": {
@@ -914,6 +919,10 @@
             "checked_with": "record-required-info-check",
             "blocking_item_count": 1
           }
+        ],
+        "qa_refs": [
+          "qa-security-web-spec-intake",
+          "qa-security-web"
         ]
       },
       "mobile": {
@@ -951,6 +960,11 @@
             "checked_with": "record-required-info-check",
             "blocking_item_count": 0
           }
+        ],
+        "qa_refs": [
+          "qa-infra-web-spec-intake",
+          "qa-infra-web",
+          "qa-infra-web-redirect"
         ]
       },
       "mobile": {
@@ -996,6 +1010,11 @@
             "checked_with": "record-required-info-check",
             "blocking_item_count": 1
           }
+        ],
+        "qa_refs": [
+          "qa-backend-web-spec-intake",
+          "qa-backend-web",
+          "qa-backend-web-analytics"
         ]
       },
       "mobile": {
@@ -1033,6 +1052,11 @@
             "checked_with": "record-required-info-check",
             "blocking_item_count": 0
           }
+        ],
+        "qa_refs": [
+          "qa-frontend-web-spec-intake",
+          "qa-frontend-web",
+          "qa-frontend-web-analytics"
         ]
       },
       "mobile": {
@@ -1070,6 +1094,10 @@
             "checked_with": "record-required-info-check",
             "blocking_item_count": 0
           }
+        ],
+        "qa_refs": [
+          "qa-ops-web-spec-intake",
+          "qa-ops-web"
         ]
       },
       "mobile": {
@@ -1605,7 +1633,7 @@
     {
       "id": "qa-backend-web-spec-intake",
       "question": "backend×web: 二層構造での WebMCP 契約・禁止依存・生成基盤の設計制約は何か (書面入力 docs/spec/04 §3 §4 / 05 / 07 §0)",
-      "answer": "この確定を支える回答は 3 件ある。qa_ref は 1 件しか持てない（決定論ゲートが文字列で照合する）ため、本文を統合して裏付けの範囲を保つ。出典は節ごとに記す。\n\n### qa-backend-web（docs/spec/01-要求仕様書-v1.0.md §18.3）\n\n* 同一投稿の重複実行を防ぐ\n* Idempotency Keyを使用\n* 投稿前にアカウントを再確認\n* トークン期限を確認\n* API制限を確認\n* 公開操作を監査ログに残す\n* 予約直前の編集を検知する\n* 投稿失敗時に自動で無限再試行しない\n* 削除・更新は別承認を要求できる\n* 外部投稿のURLを保存する\n\n### qa-backend-web-analytics（docs/spec/03-分析・解析基盤仕様.md §1 全体アーキテクチャ）\n\nClickEvent(リダイレクトサービス)\n  BehaviorEvent(ブログ計測タグ)\n  Channel Insights(SNS API)\n  Conversion(ASP API / CSV)\n      ↓\n[正規化層]\n  bot除外・重複排除・セッション化・ディメンション付与\n      ↓\n[集計層]\n  MetricRollup(日次 × ディメンション組み合わせ)\n      ↓\n[分析層]\n  KPIディクショナリ / Attribution / Experiment / Insight Engine\n      ↓\n[活用層]\n  Analyticsダッシュボード / InsightReport / 生成時の推奨(Brief への提案)\n```\n\n設計原則:\n\n* **イベントは不変(append-only)**。修正は打ち消しイベントで行う\n* **集計は再計算可能**。生イベントから任意時点のロールアップを再構築できる\n* **転送は必達、計測はベストエフォート**。リダイレクトはDB障害時も止めない\n* **Editorial / Commercial 分離**(v1.0 19.4章)。Insight Engine は配信戦略・表現の学習にのみ収益データを使い、商品評価・ランキングへは出力しない\n\n### qa-backend-web-spec-intake（docs/spec/04-二層構造統合仕様.md §3 WebMCP の確定契約 / §4 禁止依存）\n\n| 登録先 | **`document.modelContext`**。`navigator.modelContext` は Chrome 150 で非推奨のため legacy fallback 専用（CHG-001） |\n| ツール数 | 1ページあたり原則6個以下 |\n| FD-1 | ランキング式を UI 層・WebMCP 層へ重複実装する |\n| FD-2 | 報酬データを推薦スコアの入力にする |\n| FD-4 | WebMCP でしか到達できない機能を作る |",
+      "answer": "| 登録先 | **`document.modelContext`**。`navigator.modelContext` は Chrome 150 で非推奨のため legacy fallback 専用（CHG-001） |\n| ツール数 | 1ページあたり原則6個以下 |\n| FD-1 | ランキング式を UI 層・WebMCP 層へ重複実装する |\n| FD-2 | 報酬データを推薦スコアの入力にする |\n| FD-4 | WebMCP でしか到達できない機能を作る |",
       "source": {
         "kind": "written-requirements",
         "path": "docs/spec/04-二層構造統合仕様.md",
@@ -1613,51 +1641,6 @@
         "sha256": "101ad27f5bf796c7180815bd2d1e582f9378b645c5aea9e9f1d65330af27b6ef"
       },
       "design_applications": [
-        {
-          "knowledge_ref": "docs/spec/01-要求仕様書-v1.0.md §18.3",
-          "principle": "Idempotency Key による重複投稿防止と監査ログ",
-          "applicability": "applied",
-          "rationale": "外部公開操作は冪等キー・トークン期限確認・監査ログ記録を必須とし、失敗時の無限再試行を禁止する",
-          "tradeoffs": [
-            "冪等キー管理のため投稿キューに状態テーブルが必要となり実装が増えるが、重複公開事故を構造的に防げる"
-          ]
-        },
-        {
-          "knowledge_ref": "docs/spec/01-要求仕様書-v1.0.md §17.1",
-          "principle": "Connector 契約と Capability Registry",
-          "applicability": "applied",
-          "rationale": "媒体別の文字数・形式制約をコードへ直書きせず、バージョン管理された Capability Registry で管理する",
-          "tradeoffs": [
-            "レジストリの更新運用が必要になるが、媒体仕様変更時にコード改修なしで追従できる"
-          ]
-        },
-        {
-          "knowledge_ref": "docs/spec/01-要求仕様書-v1.0.md §23.2",
-          "principle": "イベント駆動 (publication.published 等) の非同期処理",
-          "applicability": "applied",
-          "rationale": "投稿・成果・リンク切れをイベントとして発行し、通知・集計・再生成を疎結合にする",
-          "tradeoffs": [
-            "結果整合となるためダッシュボードは速報値と確定値を区別表示する必要がある"
-          ]
-        },
-        {
-          "knowledge_ref": "docs/spec/03-分析・解析基盤仕様.md#§1",
-          "principle": "イベントは不変 (append-only) とし、集計は生イベントから再計算可能にする",
-          "applicability": "applied",
-          "rationale": "Cloudflare Workers 上のリダイレクト (/go/{tracking_link_id}) で ClickEvent を追記し、MetricRollup は日次バッチで再構築可能にする。既存の Workers + D1 + Drizzle スタックに Queue/Cron を追加して実装する",
-          "tradeoffs": [
-            "打ち消しイベント方式は実装が複雑になるが、集計の監査可能性と再現性を得る"
-          ]
-        },
-        {
-          "knowledge_ref": "docs/spec/03-分析・解析基盤仕様.md#§1",
-          "principle": "Editorial / Commercial 分離: 収益データは配信戦略の学習にのみ使い、商品評価・ランキングへ出力しない",
-          "applicability": "applied",
-          "rationale": "Insight Engine の入出力境界をコードレベルで分離し、Commercial DB への参照を Editorial 系モジュールから物理的に遮断する (v1.0 §19.4)",
-          "tradeoffs": [
-            "データ結合の自由度は下がるが、報酬額バイアスの混入を構造的に防止できる"
-          ]
-        },
         {
           "knowledge_ref": "docs/spec/04-二層構造統合仕様.md#§2-3",
           "principle": "ランキング計算・比較候補の分類・公開ゲート判定・広告表記の要否判定は src/lib/domain/ の純関数 1 箇所に置き、管理画面・公開ブログ・WebMCP・MCP のすべてがそこを呼ぶ",
@@ -1705,7 +1688,7 @@
         }
       ],
       "scope_notes": {
-        "bundled": true,
+        "bundled": false,
         "topics": [
           {
             "topic_id": "qa-backend-web",
@@ -1733,13 +1716,19 @@
           }
         ],
         "recorded_with": "set-qa-scope-notes",
-        "bundling_reason": "この entry は複数回の質疑の回答本文を統合して 1 件になっている。qa_ref は 1 件しか持てないため (決定論ゲートが文字列で照合する)、束ねを解消せず本文を統合して裏付けの範囲を保った経緯がある。**注記を付けても束ねは解消していない。**下の topics は、統合済み本文のどの節がどの質疑由来で、そのうちどれが確定セルの裏付けかを機械が読める形にしただけである。"
+        "bundling_reason": "**この束ねは解消済みである。**束ねの理由は「qa_ref が 1 件しか持てない」ことだった。セルが qa_refs[] で複数の裏付けを引けるようになったので、本文を 1 件へ寄せる必要が無くなり、取り込んでいた節を外した。外した節は取り込み元 entry (qa-backend-web, qa-backend-web-analytics) に byte 単位で同一のまま在り、writer が一致を確かめてから外している。下の topics は、どの節がどの entry へ戻ったかの対応として残してある。",
+        "split_with": "split-qa-bundle",
+        "split_on": "2026-08-21",
+        "absorbed_origins_released": [
+          "qa-backend-web",
+          "qa-backend-web-analytics"
+        ]
       }
     },
     {
       "id": "qa-database-web-spec-intake",
       "question": "database×web: SiteBlueprint はどのパラメータを持ち、どの検証で BLOCK するか (書面入力 docs/spec/06 §2)",
-      "answer": "この確定を支える回答は 3 件ある。qa_ref は 1 件しか持てない（決定論ゲートが文字列で照合する）ため、本文を統合して裏付けの範囲を保つ。出典は節ごとに記す。\n\n### qa-database-web（出典未記載）\n\n現行構成で確定。技術基盤は現行リポジトリの構成(Next.js + Cloudflare Workers/OpenNext + D1 + Drizzle ORM)を正として仕様に確定する。\n\n### qa-database-web-analytics（docs/spec/03-分析・解析基盤仕様.md §5 集計層(MetricRollup)）\n\n## 5. 集計層(MetricRollup)\n\n```yaml\nmetric_rollup:\n  date: date\n  grain: day\n  dimensions:                       # §3 の組み合わせ(正規化キー)\n    channel: string | null\n    angle: string | null\n    placement: string | null\n    audience_persona_id: string | null\n    # ... 任意の組み合わせ\n  measures:\n    impressions: number\n    link_impressions: number\n    clicks: number\n    conversions_pending: number\n    conversions_approved: number\n    revenue_pending: number\n    revenue_confirmed: number\n    pv: number\n    read_through: number\n```\n\n* 日次バッチ + 直近分の準リアルタイム加算(ダッシュボードは「本日分は速報」表示)\n* 成果の状態変化(pending→approved等)は対象日のロールアップを遡って再計算\n* 高カーディナリティ組み合わせは事前集計せず、生イベントへのアドホック集計で対応(集計セット定義はバージョン管理)\n\n### qa-database-web-spec-intake（docs/spec/06-サイトブループリント-記事構成テンプレート.md §2 SiteBlueprint のパラメータ定義）\n\n| BP-01 | `ranking_model_id` が他サイトの Blueprint と重複しない | BLOCK（§16.6 言い換え記事の防止） |\n| BP-02 | `ranking_inputs_prohibited` に報酬関連フィールドが全件含まれる | BLOCK（§19.4） |\n| BP-03 | `audience_persona_ids` が1件以上 | BLOCK |\n| BP-04 | `disclosure_policy_id` が実在する Disclosure を指す | BLOCK |",
+      "answer": "| BP-01 | `ranking_model_id` が他サイトの Blueprint と重複しない | BLOCK（§16.6 言い換え記事の防止） |\n| BP-02 | `ranking_inputs_prohibited` に報酬関連フィールドが全件含まれる | BLOCK（§19.4） |\n| BP-03 | `audience_persona_ids` が1件以上 | BLOCK |\n| BP-04 | `disclosure_policy_id` が実在する Disclosure を指す | BLOCK |",
       "source": {
         "kind": "written-requirements",
         "path": "docs/spec/06-サイトブループリント-記事構成テンプレート.md",
@@ -1747,51 +1736,6 @@
         "sha256": "d53fe38abd234fffa7905c74000b7198c025e5c84cbb019b88fa30245c99e18b"
       },
       "design_applications": [
-        {
-          "knowledge_ref": "docs/spec/01-要求仕様書-v1.0.md §26.4",
-          "principle": "Workspace IDによる全データのテナント分離",
-          "applicability": "applied",
-          "rationale": "全テーブルに workspace_id を保持し、リポジトリ層でオブジェクト単位認可を強制する。キャッシュ・検索インデックス・ファイルストレージも分離する",
-          "tradeoffs": [
-            "クエリごとに workspace_id 条件が必須となり、漏れは情報漏えいに直結するため共通データアクセス層で機械的に強制する"
-          ]
-        },
-        {
-          "knowledge_ref": "docs/spec/01-要求仕様書-v1.0.md §19.4",
-          "principle": "Editorial / Commercial データベース分離",
-          "applicability": "applied",
-          "rationale": "商品評価・検証(Editorial)と報酬・成果(Commercial)をスキーマ分離し、Ranking Service は Editorial のみ参照可能にする",
-          "tradeoffs": [
-            "物理分離により横断集計は分析基盤(MetricRollup)経由となり即時 JOIN はできない"
-          ]
-        },
-        {
-          "knowledge_ref": "cloudflare:d1-drizzle",
-          "principle": "D1 + Drizzle ORM によるサーバーレスSQL (現行リポジトリ構成)",
-          "applicability": "applied",
-          "rationale": "利用者が現行構成を正と確定。drizzle/ ディレクトリと wrangler.jsonc が実在し移行コストが最小",
-          "tradeoffs": [
-            "D1 にはDBサイズ・書き込みスループット上限があり、ClickEvent 等の大量イベントは集計特化ストア(Workers Analytics Engine 等)への分離を Phase 3 までに判断する"
-          ]
-        },
-        {
-          "knowledge_ref": "docs/spec/03-分析・解析基盤仕様.md#§5",
-          "principle": "日次グレインのロールアップを正とし、成果状態変化 (pending→approved) は対象日を遡って再計算する",
-          "applicability": "applied",
-          "rationale": "D1 (SQLite) に metric_rollup テーブルを Drizzle スキーマで定義し、workspace_id 必須のテナント分離を全イベント/集計テーブルに強制する。ClickEvent/BehaviorEvent は append-only、ip_hash は 90 日で削除",
-          "tradeoffs": [
-            "高カーディナリティ組み合わせを事前集計しないため、アドホック分析はレイテンシが増えるが、D1 の容量とコストを抑えられる"
-          ]
-        },
-        {
-          "knowledge_ref": "docs/spec/03-分析・解析基盤仕様.md#§2",
-          "principle": "Editorial Database と Commercial Database を分離し、成果・報酬データは Commercial 側のみに格納する",
-          "applicability": "applied",
-          "rationale": "Conversion/ClickEvent/MetricRollup は Commercial 系スキーマに置き、Editorial 側から参照不可にする (v1.0 §19.4 の物理的強制)",
-          "tradeoffs": [
-            "スキーマが二系統になり管理コストが増えるが、法令・信頼性要件を構造で担保できる"
-          ]
-        },
         {
           "knowledge_ref": "docs/spec/06-サイトブループリント-記事構成テンプレート.md#§2",
           "principle": "SiteBlueprint はウィザード 13 ステップと 1 対 1 で対応するパラメータ集合であり、blueprint_id と version を持ち変更時にインクリメントする",
@@ -1812,7 +1756,7 @@
         }
       ],
       "scope_notes": {
-        "bundled": true,
+        "bundled": false,
         "topics": [
           {
             "topic_id": "qa-database-web",
@@ -1840,7 +1784,13 @@
           }
         ],
         "recorded_with": "set-qa-scope-notes",
-        "bundling_reason": "この entry は複数回の質疑の回答本文を統合して 1 件になっている。qa_ref は 1 件しか持てないため (決定論ゲートが文字列で照合する)、束ねを解消せず本文を統合して裏付けの範囲を保った経緯がある。**注記を付けても束ねは解消していない。**下の topics は、統合済み本文のどの節がどの質疑由来で、そのうちどれが確定セルの裏付けかを機械が読める形にしただけである。"
+        "bundling_reason": "**この束ねは解消済みである。**束ねの理由は「qa_ref が 1 件しか持てない」ことだった。セルが qa_refs[] で複数の裏付けを引けるようになったので、本文を 1 件へ寄せる必要が無くなり、取り込んでいた節を外した。外した節は取り込み元 entry (qa-database-web, qa-database-web-analytics) に byte 単位で同一のまま在り、writer が一致を確かめてから外している。下の topics は、どの節がどの entry へ戻ったかの対応として残してある。",
+        "split_with": "split-qa-bundle",
+        "split_on": "2026-08-21",
+        "absorbed_origins_released": [
+          "qa-database-web",
+          "qa-database-web-analytics"
+        ]
       }
     },
     {
@@ -1904,7 +1854,7 @@
     {
       "id": "qa-infra-web-spec-intake",
       "question": "infrastructure×web: 検査をどの段で走らせ、どこでマージを止めるか (書面入力 docs/spec/11 §8)",
-      "answer": "この確定を支える回答は 3 件ある。qa_ref は 1 件しか持てない（決定論ゲートが文字列で照合する）ため、本文を統合して裏付けの範囲を保つ。出典は節ごとに記す。\n\n### qa-infra-web（出典未記載）\n\n現行構成で確定。技術基盤は現行リポジトリの構成(Next.js + Cloudflare Workers/OpenNext + D1 + Drizzle ORM)を正として仕様に確定する。\n\n### qa-infra-web-redirect（docs/spec/02-補充仕様-ギャップと追加要件.md §7 運用系の補充）\n\n| 障害時 | リダイレクトサービスは計測DB障害時でも転送を止めない(計測はベストエフォート、転送は必達) |\n\n### qa-infra-web-spec-intake（docs/spec/11-CI-CD・品質ゲート仕様.md §8 検査の段）\n\n| 1 速い門 | push / PR | 5 分 | **止める** |\n| 2 広い門 | PR | 15 分 | **止める** |\n| 3 深い門 | **手動のみ** | 40 分（実測 27 分） | 止めない |\n**実行時間は費用の要因ではない。** したがって「時間を減らすために CI からテストを外す」判断はしない。",
+      "answer": "| 1 速い門 | push / PR | 5 分 | **止める** |\n| 2 広い門 | PR | 15 分 | **止める** |\n| 3 深い門 | **手動のみ** | 40 分（実測 27 分） | 止めない |\n**実行時間は費用の要因ではない。** したがって「時間を減らすために CI からテストを外す」判断はしない。",
       "source": {
         "kind": "written-requirements",
         "path": "docs/spec/11-CI-CD・品質ゲート仕様.md",
@@ -1912,42 +1862,6 @@
         "sha256": "2168cedf14afef2f3aee7b7863fade240ab3710fd26f2051a6198db46034ff77"
       },
       "design_applications": [
-        {
-          "knowledge_ref": "cloudflare:workers-opennext",
-          "principle": "Cloudflare Workers + OpenNext での実行 (現行リポジトリ構成)",
-          "applicability": "applied",
-          "rationale": "wrangler.jsonc・open-next.config.ts が実在する現行構成を正とし、エッジ実行でリダイレクトサービス(/go)の低遅延を確保する",
-          "tradeoffs": [
-            "Workers の CPU 時間・サブリクエスト制限内で Connector 処理を設計する必要があり、重い取り込みは Queues/cron へ逃がす"
-          ]
-        },
-        {
-          "knowledge_ref": "docs/spec/02-補充仕様-ギャップと追加要件.md §7",
-          "principle": "Connector 別レート予算とコスト上限 (RateBudget)",
-          "applicability": "applied",
-          "rationale": "X API 従量課金等の外部APIコストを Connector 単位で監視し、上限接近で警告・超過で自動停止する",
-          "tradeoffs": [
-            "自動停止は投稿予定の未実行を生むため、通知と再開手順をセットで提供する"
-          ]
-        },
-        {
-          "knowledge_ref": "docs/spec/02-補充仕様-ギャップと追加要件.md#§7",
-          "principle": "転送は必達、計測はベストエフォート: 計測 DB 障害時でもリダイレクトを止めない",
-          "applicability": "applied",
-          "rationale": "Cloudflare Workers のエッジで original_url への 302 転送を先に確定し、ClickEvent の書き込みは waitUntil による非同期化 + 失敗時は Queue へ退避する。D1 障害が読者の遷移を阻害しない構成とする",
-          "tradeoffs": [
-            "障害時のクリックは計測欠損になるが、読者体験と ASP 成果 (収益) を優先する"
-          ]
-        },
-        {
-          "knowledge_ref": "docs/spec/02-補充仕様-ギャップと追加要件.md#§1",
-          "principle": "リダイレクト先は登録済み original_url そのままとし、パラメータを削除・追加しない",
-          "applicability": "applied",
-          "rationale": "ASP のリンク改変禁止 (U8) をインフラ層で保証する。sub_id 付与は対応 ASP のリンク生成時のみに限定する",
-          "tradeoffs": [
-            "経路情報の付加余地は減るが、ASP 規約違反リスクを排除できる"
-          ]
-        },
         {
           "knowledge_ref": "docs/spec/11-CI-CD・品質ゲート仕様.md#§8-2",
           "principle": "検査を 3 段に分け、1 段と 2 段はマージを止め、3 段は手動のみで止めない。重いテストを足す前に置き場所を先に作る",
@@ -1977,7 +1891,7 @@
         }
       ],
       "scope_notes": {
-        "bundled": true,
+        "bundled": false,
         "topics": [
           {
             "topic_id": "qa-infra-web",
@@ -2005,13 +1919,19 @@
           }
         ],
         "recorded_with": "set-qa-scope-notes",
-        "bundling_reason": "この entry は複数回の質疑の回答本文を統合して 1 件になっている。qa_ref は 1 件しか持てないため (決定論ゲートが文字列で照合する)、束ねを解消せず本文を統合して裏付けの範囲を保った経緯がある。**注記を付けても束ねは解消していない。**下の topics は、統合済み本文のどの節がどの質疑由来で、そのうちどれが確定セルの裏付けかを機械が読める形にしただけである。"
+        "bundling_reason": "**この束ねは解消済みである。**束ねの理由は「qa_ref が 1 件しか持てない」ことだった。セルが qa_refs[] で複数の裏付けを引けるようになったので、本文を 1 件へ寄せる必要が無くなり、取り込んでいた節を外した。外した節は取り込み元 entry (qa-infra-web, qa-infra-web-redirect) に byte 単位で同一のまま在り、writer が一致を確かめてから外している。下の topics は、どの節がどの entry へ戻ったかの対応として残してある。",
+        "split_with": "split-qa-bundle",
+        "split_on": "2026-08-21",
+        "absorbed_origins_released": [
+          "qa-infra-web",
+          "qa-infra-web-redirect"
+        ]
       }
     },
     {
       "id": "qa-security-web-spec-intake",
       "question": "security×web: 秘密情報をどこに置き、誰が登録するか (書面入力 docs/spec/11 §5)",
-      "answer": "この確定を支える回答は 2 件ある。qa_ref は 1 件しか持てない（決定論ゲートが文字列で照合する）ため、本文を統合して裏付けの範囲を保つ。出典は節ごとに記す。\n\n### qa-security-web（docs/spec/01-要求仕様書-v1.0.md §26.1）\n\n* SSRF対策\n* ローカルIP・メタデータIPの遮断\n* DNS再束縛対策\n* リダイレクト回数制限\n* ファイルサイズ制限\n* MIME確認\n* タイムアウト\n* 危険ドメイン\n* HTMLサニタイズ\n* JavaScriptを実行しない安全取得\n* ページ本文をAI命令として扱わない\n\n### qa-security-web-spec-intake（docs/spec/11-CI-CD・品質ゲート仕様.md §5 秘密情報）\n\n- API キー・トークンは **GitHub Secrets と Cloudflare の環境変数**で管理する。\n- **リポジトリのファイル、コマンドライン、AI が読める場所に置かない。**\n  登録は利用者本人が、ブラウザまたは本人のターミナルで行う。代行しない。\n- ログに秘密情報を出さない（`echo ${{ secrets.X }}` を書かない）。",
+      "answer": "- API キー・トークンは **GitHub Secrets と Cloudflare の環境変数**で管理する。\n- **リポジトリのファイル、コマンドライン、AI が読める場所に置かない。**\n  登録は利用者本人が、ブラウザまたは本人のターミナルで行う。代行しない。\n- ログに秘密情報を出さない（`echo ${{ secrets.X }}` を書かない）。",
       "source": {
         "kind": "written-requirements",
         "path": "docs/spec/11-CI-CD・品質ゲート仕様.md",
@@ -2019,24 +1939,6 @@
         "sha256": "738f03377e2a57aad0e73121b50214ee0ac049f5fabfcca4a156fef1e54213d0"
       },
       "design_applications": [
-        {
-          "knowledge_ref": "docs/spec/01-要求仕様書-v1.0.md §26.1",
-          "principle": "URL取り込みの SSRF / DNS再束縛 / 危険ドメイン防御",
-          "applicability": "applied",
-          "rationale": "アフィリエイトURL解決はローカルIP・メタデータIP遮断、リダイレクト回数制限、JavaScript非実行の安全取得で行う",
-          "tradeoffs": [
-            "安全取得のみでは JS レンダリング必須ページの情報が取れないが、構造化データ優先(§10.3)で許容する"
-          ]
-        },
-        {
-          "knowledge_ref": "docs/spec/01-要求仕様書-v1.0.md §26.2-26.3",
-          "principle": "OAuthトークン暗号化・最小権限とプロンプトインジェクション対策",
-          "applicability": "applied",
-          "rationale": "外部アカウント秘密はテナント別に暗号化分離し、取得ページ本文をAI命令として実行しない(情報源と命令の分離)",
-          "tradeoffs": [
-            "命令分離により柔軟な自動抽出は制限されるが、乗っ取り型攻撃を構造的に遮断できる"
-          ]
-        },
         {
           "knowledge_ref": "docs/spec/11-CI-CD・品質ゲート仕様.md#§5",
           "principle": "秘密情報はリポジトリのファイル・コマンドライン・AI が読める場所に置かない。登録は利用者本人がブラウザまたは本人のターミナルで行い、代行しない",
@@ -2057,7 +1959,7 @@
         }
       ],
       "scope_notes": {
-        "bundled": true,
+        "bundled": false,
         "topics": [
           {
             "topic_id": "qa-security-web",
@@ -2078,13 +1980,18 @@
           }
         ],
         "recorded_with": "set-qa-scope-notes",
-        "bundling_reason": "この entry は複数回の質疑の回答本文を統合して 1 件になっている。qa_ref は 1 件しか持てないため (決定論ゲートが文字列で照合する)、束ねを解消せず本文を統合して裏付けの範囲を保った経緯がある。**注記を付けても束ねは解消していない。**下の topics は、統合済み本文のどの節がどの質疑由来で、そのうちどれが確定セルの裏付けかを機械が読める形にしただけである。"
+        "bundling_reason": "**この束ねは解消済みである。**束ねの理由は「qa_ref が 1 件しか持てない」ことだった。セルが qa_refs[] で複数の裏付けを引けるようになったので、本文を 1 件へ寄せる必要が無くなり、取り込んでいた節を外した。外した節は取り込み元 entry (qa-security-web) に byte 単位で同一のまま在り、writer が一致を確かめてから外している。下の topics は、どの節がどの entry へ戻ったかの対応として残してある。",
+        "split_with": "split-qa-bundle",
+        "split_on": "2026-08-21",
+        "absorbed_origins_released": [
+          "qa-security-web"
+        ]
       }
     },
     {
       "id": "qa-frontend-web-spec-intake",
       "question": "frontend×web: 改善要望の送信モーダルは何を見せ、何を強制しないか (書面入力 docs/spec/12 §5)",
-      "answer": "この確定を支える回答は 3 件ある。qa_ref は 1 件しか持てない（決定論ゲートが文字列で照合する）ため、本文を統合して裏付けの範囲を保つ。出典は節ごとに記す。\n\n### qa-frontend-web（出典未記載）\n\n現行構成で確定。技術基盤は現行リポジトリの構成(Next.js + Cloudflare Workers/OpenNext + D1 + Drizzle ORM)を正として仕様に確定する。\n\n### qa-frontend-web-analytics（docs/spec/03-分析・解析基盤仕様.md §8 画面仕様(Analytics 拡張)）\n\nv1.0 22.8章のフィルタに加えて、次のビューを定義する。\n\n| ビュー | 内容 |\n| --- | --- |\n| パフォーマンス概要 | 期間比較付きの主要KPI(PV/クリック/CTR/CVR/EPC/確定報酬)。速報と確定を区別 |\n| ファネル | 表示→閲覧→リンク表示→クリック→成果発生→承認 の残存率。ディメンションで分解 |\n| 切り口分析 | angle × 媒体 のヒートマップ(CTR/EPC切替)。セルにnを常時表示 |\n| 配置分析 | 記事テンプレート上に placement 別CTRをオーバーレイ表示 |\n| リンク台帳 | TrackingLink 単位の一覧。CTR・EPC・状態・掲載先。並べ替え・CSV出力 |\n| インサイト受信箱 | InsightReport の一覧。確認→適用(Brief作成へ遷移)→却下 |\n| 実験 | Experiment の進捗・有意差・guardrail |\n| ASP突合状況 | プログラム別の成果件数・承認率・突合率・取り込みエラー |\n\n### qa-frontend-web-spec-intake（docs/spec/12-改善要望フィードバック仕様.md §5 送信モーダル（FB-AC-04〜10））\n\n- **FB-AC-07**: 「この画面から一緒に送られるもの」を展開でき、自動収集される項目を送信前に確認できる。隠さない。\n- **FB-AC-09**: 画面の写しが**完全でないことがある**ため、注意文を常に表示し、プレビューを見てから送る。完全性を保証しない。\n- **FB-AC-10**: 「撮り直す」「**画像を外す（文章だけで送る）**」を常に選べる。**画像なしでも送信は成立する。**",
+      "answer": "- **FB-AC-07**: 「この画面から一緒に送られるもの」を展開でき、自動収集される項目を送信前に確認できる。隠さない。\n- **FB-AC-09**: 画面の写しが**完全でないことがある**ため、注意文を常に表示し、プレビューを見てから送る。完全性を保証しない。\n- **FB-AC-10**: 「撮り直す」「**画像を外す（文章だけで送る）**」を常に選べる。**画像なしでも送信は成立する。**",
       "source": {
         "kind": "written-requirements",
         "path": "docs/spec/12-改善要望フィードバック仕様.md",
@@ -2092,42 +1999,6 @@
         "sha256": "ccd052dfcbf69cbd8a0b5b4d16f2912267dd15afef81fb3dd23717ba50a36c39"
       },
       "design_applications": [
-        {
-          "knowledge_ref": "nextjs:app-router",
-          "principle": "Next.js (現行リポジトリ構成) によるレスポンシブ管理画面",
-          "applicability": "applied",
-          "rationale": "PC主体+モバイル併用の利用形態(qa-uiux-web の情報設計9項目)に対しレスポンシブWebで対応する",
-          "tradeoffs": [
-            "ネイティブアプリ非対応のためプッシュ通知等はメール/Slack通知で代替する"
-          ]
-        },
-        {
-          "knowledge_ref": "docs/spec/01-要求仕様書-v1.0.md §24.2",
-          "principle": "WebMCP は機能フラグ配下の実験的追加インターフェース",
-          "applicability": "applied",
-          "rationale": "現行PoCは navigator.modelContext をfeature detectionして使う。通常UIを主系統・WebMCPを追加系統とし、ブラウザー登録APIは製品契約として固定しない",
-          "tradeoffs": [
-            "二系統の維持コストが生じるが、読み取り系ツールから段階導入して限定する"
-          ]
-        },
-        {
-          "knowledge_ref": "docs/spec/03-分析・解析基盤仕様.md#§8",
-          "principle": "統計的規律の UI 反映: 速報と確定を区別し、ヒートマップのセルに n (サンプル数) を常時表示する",
-          "applicability": "applied",
-          "rationale": "Next.js (App Router) の Server Components で D1 のロールアップを描画し、本日分は「速報」バッジ、n 不足セルは結論表示を抑制する (§7.3 の規律を UI で強制)",
-          "tradeoffs": [
-            "表示ロジックが増えるが、根拠のない『勝ち宣言』を UI レベルで防げる"
-          ]
-        },
-        {
-          "knowledge_ref": "docs/spec/03-分析・解析基盤仕様.md#§8",
-          "principle": "インサイト受信箱: InsightReport は確認→適用 (Brief 作成へ遷移)→却下のワークフローで人間が裁定する",
-          "applicability": "applied",
-          "rationale": "分析結果の生成への反映 (I4) は自動ではなく、受信箱 UI での人間承認を経由させる",
-          "tradeoffs": [
-            "自動最適化より反映は遅くなるが、人間承認必須の制約 (U8) と整合する"
-          ]
-        },
         {
           "knowledge_ref": "docs/spec/12-改善要望フィードバック仕様.md#§5",
           "principle": "自動収集される項目は送信前に展開して確認できる (FB-AC-07)。画面の写しの不完全さを常に表示し、完全性を保証しない (FB-AC-09)",
@@ -2148,7 +2019,7 @@
         }
       ],
       "scope_notes": {
-        "bundled": true,
+        "bundled": false,
         "topics": [
           {
             "topic_id": "qa-frontend-web",
@@ -2176,13 +2047,19 @@
           }
         ],
         "recorded_with": "set-qa-scope-notes",
-        "bundling_reason": "この entry は複数回の質疑の回答本文を統合して 1 件になっている。qa_ref は 1 件しか持てないため (決定論ゲートが文字列で照合する)、束ねを解消せず本文を統合して裏付けの範囲を保った経緯がある。**注記を付けても束ねは解消していない。**下の topics は、統合済み本文のどの節がどの質疑由来で、そのうちどれが確定セルの裏付けかを機械が読める形にしただけである。"
+        "bundling_reason": "**この束ねは解消済みである。**束ねの理由は「qa_ref が 1 件しか持てない」ことだった。セルが qa_refs[] で複数の裏付けを引けるようになったので、本文を 1 件へ寄せる必要が無くなり、取り込んでいた節を外した。外した節は取り込み元 entry (qa-frontend-web, qa-frontend-web-analytics) に byte 単位で同一のまま在り、writer が一致を確かめてから外している。下の topics は、どの節がどの entry へ戻ったかの対応として残してある。",
+        "split_with": "split-qa-bundle",
+        "split_on": "2026-08-21",
+        "absorbed_origins_released": [
+          "qa-frontend-web",
+          "qa-frontend-web-analytics"
+        ]
       }
     },
     {
       "id": "qa-ops-web-spec-intake",
       "question": "maintenance-ops×web: カバレッジの数字を偽らないための規律は何か (書面入力 docs/spec/10 §2、08 ⑤)",
-      "answer": "この確定を支える回答は 2 件ある。qa_ref は 1 件しか持てない（決定論ゲートが文字列で照合する）ため、本文を統合して裏付けの範囲を保つ。出典は節ごとに記す。\n\n### qa-ops-web（docs/spec/02-補充仕様-ギャップと追加要件.md §7）\n\n| 通知 | 投稿失敗・リンク切れ・プログラム終了・成果確定をメール/Slack/アプリ内で通知。通知チャネルはWorkspace設定 |\n| レート制限 | 各Connectorにレートリミッタとコスト上限(特にX API従量課金)。上限接近で警告、超過で自動停止 |\n| バックアップ | Workspace単位のエクスポート(記事・商品・リンク・成果CSV)。退会時データポータビリティ |\n| 監査 | AuditLog の必須記録対象を列挙:公開/削除/リンク差し替え/権限変更/成果データ修正/エクスポート |\n| 障害時 | リダイレクトサービスは計測DB障害時でも転送を止めない(計測はベストエフォート、転送は必達) |\n| 検索 | 記事・商品・リンクの横断全文検索。テナント別インデックス(26.4章と整合) |\n\n### qa-ops-web-spec-intake（docs/spec/10-テスト戦略仕様.md §2 数字を偽らないための規律）\n\n| アサーションの無いテスト | 実行するだけで「通った」ことになる。壊れても赤くならない |\n| スタブを厚くテストして全体を押し上げる | **最も壊れると痛い場所は覆われないまま数字だけ上がる** |\n| 閾値を下げて緑にする | 下げた記録が残らなければ、次の人は「元から 60% だった」と思う |\n| 到達しにくい分岐を消して分母を減らす | 異常系を削るのは、異常系を守らないという意思決定である |",
+      "answer": "| アサーションの無いテスト | 実行するだけで「通った」ことになる。壊れても赤くならない |\n| スタブを厚くテストして全体を押し上げる | **最も壊れると痛い場所は覆われないまま数字だけ上がる** |\n| 閾値を下げて緑にする | 下げた記録が残らなければ、次の人は「元から 60% だった」と思う |\n| 到達しにくい分岐を消して分母を減らす | 異常系を削るのは、異常系を守らないという意思決定である |",
       "source": {
         "kind": "written-requirements",
         "path": "docs/spec/10-テスト戦略仕様.md",
@@ -2190,24 +2067,6 @@
         "sha256": "2c6b9edb34293ed9481df28c12f8b8343a21d99ab275d2c6e6984293d1b82430"
       },
       "design_applications": [
-        {
-          "knowledge_ref": "docs/spec/02-補充仕様-ギャップと追加要件.md §7",
-          "principle": "通知・監査・バックアップ・障害時分離の運用設計",
-          "applicability": "applied",
-          "rationale": "投稿失敗/リンク切れ/プログラム終了/成果確定の通知、AuditLog 必須記録対象の列挙、Workspace 単位エクスポート、リダイレクト転送の計測非依存(転送必達)を運用要件とする",
-          "tradeoffs": [
-            "リンク切れ監視やレポート取り込みの定期ジョブ(cron)運用が必要となり、失敗時の再実行手順を Runbook 化する"
-          ]
-        },
-        {
-          "knowledge_ref": "docs/spec/01-要求仕様書-v1.0.md §8.4",
-          "principle": "商品情報更新の検知と影響範囲更新 (REFRESH_DUE)",
-          "applicability": "applied",
-          "rationale": "価格・仕様・販売状態の変更を検知して影響記事を一覧化し、人間確認を経て更新履歴を保存する",
-          "tradeoffs": [
-            "検知頻度を上げると外部API利用量が増えるため、レート予算内でジャンル別に頻度を調整する"
-          ]
-        },
         {
           "knowledge_ref": "docs/spec/10-テスト戦略仕様.md#§2-1",
           "principle": "スタブをカバレッジ計算から除外しない。加えて「スタブを除いた実質カバレッジ」を併記し、差が開いたら手抜きの合図とする",
@@ -2237,7 +2096,7 @@
         }
       ],
       "scope_notes": {
-        "bundled": true,
+        "bundled": false,
         "topics": [
           {
             "topic_id": "qa-ops-web",
@@ -2258,7 +2117,12 @@
           }
         ],
         "recorded_with": "set-qa-scope-notes",
-        "bundling_reason": "この entry は複数回の質疑の回答本文を統合して 1 件になっている。qa_ref は 1 件しか持てないため (決定論ゲートが文字列で照合する)、束ねを解消せず本文を統合して裏付けの範囲を保った経緯がある。**注記を付けても束ねは解消していない。**下の topics は、統合済み本文のどの節がどの質疑由来で、そのうちどれが確定セルの裏付けかを機械が読める形にしただけである。"
+        "bundling_reason": "**この束ねは解消済みである。**束ねの理由は「qa_ref が 1 件しか持てない」ことだった。セルが qa_refs[] で複数の裏付けを引けるようになったので、本文を 1 件へ寄せる必要が無くなり、取り込んでいた節を外した。外した節は取り込み元 entry (qa-ops-web) に byte 単位で同一のまま在り、writer が一致を確かめてから外している。下の topics は、どの節がどの entry へ戻ったかの対応として残してある。",
+        "split_with": "split-qa-bundle",
+        "split_on": "2026-08-21",
+        "absorbed_origins_released": [
+          "qa-ops-web"
+        ]
       }
     },
     {

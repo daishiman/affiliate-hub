@@ -132,7 +132,37 @@
         },
         "scope_notes": {
           "type": "object",
-          "description": "set-qa-scope-notes が追記する論点範囲の注記。question / answer は書き換えない"
+          "description": "set-qa-scope-notes が追記する論点範囲の注記。question / answer は書き換えない。split-qa-bundle は例外的に answer を『自分の節だけ』へ縮めるが、削る節が origin entry の answer と byte 一致することを確かめてからでないと縮めない (一致しなければ拒否する) ので、内容は失われない",
+          "properties": {
+            "bundled": {
+              "type": "boolean",
+              "description": "この entry が複数論点の答えを 1 本文へ寄せた状態か。**true から false へ落とせるのは split-qa-bundle だけ**で、そのとき answer から他論点の節が実際に取り除かれる。手で false にすると『束ねていない』と名乗るだけの束ね entry が作れる"
+            },
+            "bundling_reason": {
+              "type": "string",
+              "minLength": 1,
+              "description": "束ねた理由を逐語で残す欄。束ねが解けた後も消さずに書き換える — なぜ束ねが起きたか (セルが qa を 1 件しか引けなかった) が消えると、同じ迂回がまた起きる"
+            },
+            "topics": {
+              "type": "array",
+              "description": "この本文が覆う論点と、その節がどの entry 由来か (origin_qa_id)。split-qa-bundle はこれを頼りに節を origin へ返す"
+            },
+            "split_with": {
+              "type": "string",
+              "description": "束ねを解いた writer 名。呼び出し側から受け取らず writer が書く"
+            },
+            "split_on": {
+              "type": "string",
+              "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+              "description": "束ねを解いた日"
+            },
+            "absorbed_origins_released": {
+              "type": "array",
+              "uniqueItems": true,
+              "items": {"type": "string", "minLength": 1},
+              "description": "この entry へ寄せられていて、束ね解除で自分の entry へ戻された論点の origin id。**追記の記録であって参照ではない** — セルがどの entry を引くかは matrix cell 側の qa_refs が持つ"
+            }
+          }
         },
         "written_up": {
           "type": "array",
@@ -160,6 +190,13 @@
       "properties": {
         "state": {"enum": ["未収集", "確定", "対象外"]},
         "qa_ref": {"type": "string", "minLength": 1},
+        "qa_refs": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {"type": "string", "minLength": 1},
+          "description": "このセルの確定を支える qa_log entry の**全件**。**`qa_ref` を置き換えない。**`qa_ref` は決定論ゲートが文字列で照合する主参照として残り、この欄はそこへ収まりきらない裏付けを足す (先頭要素は `qa_ref` と一致する)。この欄が無かったあいだ、セルは 1 件しか引けなかったため、複数の質疑を 1 entry へ本文ごと寄せる『束ね』が起きていた (qa_log[].scope_notes.bundling_reason に逐語で残っている)。単数欄を消さないのは、`qa_ref` を読む側が harness の内外に多数在り、消せばそれらが黙って壊れるからである"
+        },
         "serves_goals": {"type": "array"},
         "serves_intents": {"type": "array"},
         "reason": {"type": "string", "minLength": 1},

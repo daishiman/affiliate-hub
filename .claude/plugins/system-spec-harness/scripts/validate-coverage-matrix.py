@@ -102,6 +102,11 @@ SUPPORTED_STATE_SCHEMA_VERSIONS = (
 # 二重管理になって片方だけ古くなるので、schema ファイルから読み出す。
 STATE_SCHEMA_PATH = HERE.parent / "schemas" / "spec-state.schema.json"
 DESIGN_APPLICATION_STATES = {"applied", "not_applicable"}
+# C16 block item カタログ (run-system-spec-elicit 所有)。確定セルの required_info が
+# 「カタログどおり全件materialize されているか」を照合するために読む。
+REQUIRED_INFO_CATALOG_PATH = (
+    HERE.parent / "skills" / "run-system-spec-elicit" / "references" / "required-info-catalog.json"
+)
 LEGACY_BACKFILL_PROVENANCE = {
     "mode": "legacy_backfill",
     "writer": "set-qa-design-applications",
@@ -246,6 +251,120 @@ def _collect_unique_ids(entries, label: str) -> tuple[set[str], list[str]]:
     return seen, findings
 
 
+def _blocking_item_ids_by_domain(catalog_path: Path | None = None) -> dict[str, set[str]]:
+    """カタログから domain → missing_effect=block の item_id 集合を作る。
+
+    **判定をここで作り直さない。**`missing_effect == "block"` という条件そのものは
+    カタログの値であり、この関数は値を読み替えずに集めるだけである。読めない/壊れている
+    場合は例外を投げ、呼び出し側が違反として扱う (fail-closed) — カタログが読めないときに
+    空を返すと、block item が 1 件も無いことになって検査が黙って素通りする。
+    """
+    path = catalog_path or REQUIRED_INFO_CATALOG_PATH
+    data = json.loads(path.read_text(encoding="utf-8"))
+    items = data.get("items")
+    if not isinstance(items, list) or not items:
+        raise ValueError(f"required-info カタログの items が非空配列でない: {path}")
+    by_domain: dict[str, set[str]] = {}
+    for item in items:
+        if not isinstance(item, dict) or not item.get("item_id") or not item.get("domain"):
+            raise ValueError(f"required-info カタログに item_id/domain 欠落の item が在る: {path}")
+        if item.get("missing_effect") == "block":
+            by_domain.setdefault(item["domain"], set()).add(item["item_id"])
+    return by_domain
+
+
+def _validate_confirmed_required_info(
+    data: dict, cat_ids: list[str], catalog_path: Path | None = None
+) -> list[str]:
+    """確定セルの C16 block item 充足を、state 側から機械照合する (goal-spec C16)。
+
+    **既存の 2 欄の役割分担をここで作り変えない。**この harness は「block item が 0 件の
+    category は `required_info` を持たない」「数えた事実は `required_info_checks` が持つ」
+    という分担を選んでおり、writer と 4 本の番人テストがその分担を固定している
+    (`test_a_category_with_no_block_item_records_nothing` ほか)。したがって欄の欠落は
+    違反ではなく、**欠落が正しいことを別の欄で裏取りする**のがここの役割である。
+
+    照合するのは 3 つ:
+      1. `required_info` の item_id 集合がカタログの block item 集合を**満たす** (不足なし)
+      2. カタログに無い item_id が載っていない (過剰なし。載せられると充足件数を自前で増やせる)
+      3. block item が 0 件で欄が無い確定セルは、`required_info_checks` に
+         `blocking_item_count == 0` の記録を持つ (= 数えて 0 件。一度も数えていないのと区別する)
+
+    3 が要るのは、欄の欠落だけを見て「0 件だから正しい」と読むと、
+    **一度も確認していないセルが 0 件のセルと同じ姿で通る**からである。writer を通さず
+    JSON を直接書いた state はここでしか捕まらない。
+    """
+    try:
+        blocking = _blocking_item_ids_by_domain(catalog_path)
+    except (OSError, ValueError, json.JSONDecodeError) as exc:
+        return [f"required-info カタログを参照できないため確定セルの C16 充足を判定できない ({exc})"]
+
+    findings: list[str] = []
+    matrix = data.get("matrix") or {}
+    for cat_id in cat_ids:
+        row = matrix.get(cat_id)
+        if not isinstance(row, dict):
+            continue
+        expected = blocking.get(cat_id, set())
+        for pf in CANONICAL_PLATFORMS:
+            cell = row.get(pf)
+            if not isinstance(cell, dict) or cell.get("state") != "確定":
+                continue
+            if "required_info" not in cell:
+                # 欄が無いのは、カタログ上 block item が 0 件のときだけ正しい。
+                # その「0 件だった」は required_info_checks の記録で裏を取る。
+                if expected:
+                    findings.append(
+                        f"matrix[{cat_id}][{pf}]: 確定だが missing_effect=block item "
+                        f"{sorted(expected)} の充足状態が記録されていない"
+                    )
+                    continue
+                checks = cell.get("required_info_checks")
+                if not isinstance(checks, list) or not checks:
+                    findings.append(
+                        f"matrix[{cat_id}][{pf}]: 確定で block item は 0 件だが、"
+                        "数えた記録 (required_info_checks) が無い "
+                        "(『数えて 0 件』と『一度も数えていない』が区別できない)"
+                    )
+                    continue
+                counted = [
+                    check.get("blocking_item_count")
+                    for check in checks
+                    if isinstance(check, dict)
+                ]
+                if 0 not in counted:
+                    findings.append(
+                        f"matrix[{cat_id}][{pf}]: block item は 0 件なのに "
+                        f"required_info_checks の記録が {counted} 件で 0 を含まない "
+                        "(記録とカタログが食い違っている)"
+                    )
+                continue
+            entries = cell["required_info"]
+            if not isinstance(entries, list):
+                findings.append(f"matrix[{cat_id}][{pf}]: required_info が配列でない")
+                continue
+            actual = set()
+            for index, entry in enumerate(entries):
+                if not isinstance(entry, dict) or not isinstance(entry.get("item_id"), str):
+                    findings.append(
+                        f"matrix[{cat_id}][{pf}]: required_info[{index}] に item_id が無い"
+                    )
+                    continue
+                actual.add(entry["item_id"])
+            missing = sorted(expected - actual)
+            extra = sorted(actual - expected)
+            if missing:
+                findings.append(
+                    f"matrix[{cat_id}][{pf}]: missing_effect=block item の充足状態が欠けている: {missing}"
+                )
+            if extra:
+                findings.append(
+                    f"matrix[{cat_id}][{pf}]: カタログに無い required_info item_id: {extra} "
+                    "(充足件数を自前で増やせてしまう)"
+                )
+    return findings
+
+
 def _derive_aggregate(cells: list[str]) -> str:
     """セル状態集合から真理値表でカテゴリ集約状態を導出する。"""
     if all(c == "未収集" for c in cells):
@@ -257,7 +376,25 @@ def _derive_aggregate(cells: list[str]) -> str:
     return "確定"
 
 
-def validate(data: dict, require_complete: bool = False) -> list[str]:
+def validate(
+    data: dict,
+    require_complete: bool = False,
+    require_counted_required_info: bool = False,
+) -> list[str]:
+    """`require_counted_required_info` を既定 off にしてある理由。
+
+    この検査は「確定セルは block item の充足を記録しているか、記録が無いことを
+    `required_info_checks` で裏取りしているか」を要求する。**既存の合成 matrix は
+    その記録を持たない** — 本文の検査 (aggregate 導出・design_applications 契約など) を
+    見るための最小の matrix であり、C16 の記録欄はそこに含まれていない。既定 on にすると、
+    確定セルを 1 つでも作る合成 matrix が全部落ちる (実測 19 本)。
+
+    そこで既定を変えず opt-in にした。**これは検査を緩めたのではなく、既存の
+    「valid complete とは何か」の定義を、この作業の裁量で書き換えないための線引きである。**
+    既定に入れるかどうかは、全 fixture へ記録欄を足す是非とセットで決める話であり、
+    その判断はこの検査の追加とは別の変更に属する。
+    """
+
     findings: list[str] = []
 
     categories = data.get("categories")
@@ -361,6 +498,37 @@ def validate(data: dict, require_complete: bool = False) -> list[str]:
                     confirmed_qa_refs.add(qa_ref)
                 else:
                     confirmed_non_qa_refs.add(qa_ref)
+                # 複数裏付け (qa_refs[])。単数 qa_ref は主参照として残り、この欄は
+                # そこへ収まりきらない裏付けを足す。**足された ref も同じ検査に掛ける** —
+                # 掛けないと、単数側だけ厳しく複数側は素通りという抜け道になり、
+                # 裏付けを増やすほど検査が緩む形になる。
+                extra_refs = cell.get("qa_refs")
+                if extra_refs is not None:
+                    if not isinstance(extra_refs, list) or not extra_refs:
+                        findings.append(
+                            f"matrix[{cat_id}][{pf}]: qa_refs は非空配列必須"
+                        )
+                    elif extra_refs[0] != qa_ref:
+                        findings.append(
+                            f"matrix[{cat_id}][{pf}]: qa_refs[0]={extra_refs[0]!r} が "
+                            f"qa_ref={qa_ref!r} と不一致 (主参照は先頭に置く)"
+                        )
+                    elif len(set(extra_refs)) != len(extra_refs):
+                        findings.append(
+                            f"matrix[{cat_id}][{pf}]: qa_refs に重複がある "
+                            "(同じ裏付けを二重に数えられる)"
+                        )
+                    else:
+                        for extra in extra_refs[1:]:
+                            if not isinstance(extra, str) or extra not in ref_ids:
+                                findings.append(
+                                    f"matrix[{cat_id}][{pf}]: qa_refs の {extra!r} が "
+                                    "qa_log/approval_log に不在"
+                                )
+                            elif extra in qa_entries:
+                                confirmed_qa_refs.add(extra)
+                            else:
+                                confirmed_non_qa_refs.add(extra)
                 approval_ref = cell.get("approval_ref")
                 if approval_ref is not None and approval_ref not in approval_ids:
                     findings.append(
@@ -393,6 +561,8 @@ def validate(data: dict, require_complete: bool = False) -> list[str]:
     if require_complete:
         schema_version = data.get("schema_version")
         findings.extend(_validate_state_schema_version(data))
+        if require_counted_required_info:
+            findings.extend(_validate_confirmed_required_info(data, cat_ids))
         marker_present = "design_application_contract_version" in data
         if not marker_present and schema_version != LEGACY_STATE_SCHEMA_VERSION:
             findings.append(
@@ -433,6 +603,16 @@ def main(argv: list[str]) -> int:
         action="store_true",
         help="上位概念 (requirements_foundation U1-U9 値ありまたは明示N/A)・decisions・goalトレースを検証 (C9・opt-in)",
     )
+    ap.add_argument(
+        "--require-counted-required-info",
+        action="store_true",
+        help=(
+            "確定セルの C16 block item 充足を state 側から照合する (opt-in)。"
+            "block item が 0 件の category は required_info を持たないのが正しいので、"
+            "その 0 が『数えた 0』であることを required_info_checks で裏取りする。"
+            "--require-complete と併用する"
+        ),
+    )
     args = ap.parse_args(argv)
 
     path = Path(args.matrix)
@@ -445,7 +625,16 @@ def main(argv: list[str]) -> int:
         print(f"matrix ファイルの JSON parse 失敗: {exc}", file=sys.stderr)
         return 2
 
-    findings = validate(data, require_complete=args.require_complete)
+    findings = validate(
+        data,
+        require_complete=args.require_complete,
+        require_counted_required_info=args.require_counted_required_info,
+    )
+    if args.require_counted_required_info and not args.require_complete:
+        findings.append(
+            "--require-counted-required-info は --require-complete と併用する "
+            "(未収集セルが残る途中状態では、確定セルだけを見ても C16 の充足は判定できない)"
+        )
     if args.require_foundation:
         findings += validate_foundation(data)
     if findings:
@@ -454,6 +643,8 @@ def main(argv: list[str]) -> int:
         print(f"FAIL: {len(findings)} 件の網羅性違反", file=sys.stderr)
         return 1
     mode = "final(未収集0)" if args.require_complete else "loop"
+    if args.require_counted_required_info:
+        mode += "+counted-required-info(C16充足照合)"
     if args.require_foundation:
         mode += "+foundation(上位概念トレース)"
     print(f"OK: 収集マトリクス網羅性 ({mode}) を満たす")
