@@ -1467,7 +1467,16 @@
           }
         ],
         "recorded_with": "set-qa-scope-notes"
-      }
+      },
+      "written_up": [
+        {
+          "path": "docs/spec/dialogue-confirmations.md",
+          "sha256": "1312a2372403173dc8b57112ae0178d713c93a05471124e201e084bf0da8daa1",
+          "recorded_on": "2026-08-20",
+          "recorded_with": "set-qa-written-up",
+          "section": "## 1. 認証方式（auth × web）"
+        }
+      ]
     },
     {
       "id": "qa-backend-web-analytics",
@@ -2313,7 +2322,16 @@
           }
         ],
         "recorded_with": "set-qa-scope-notes"
-      }
+      },
+      "written_up": [
+        {
+          "path": "docs/spec/dialogue-confirmations.md",
+          "sha256": "1312a2372403173dc8b57112ae0178d713c93a05471124e201e084bf0da8daa1",
+          "recorded_on": "2026-08-20",
+          "recorded_with": "set-qa-written-up",
+          "section": "## 2. 主要画面の情報優先度（ui-ux × web）"
+        }
+      ]
     }
   ],
   "approval_log": [
