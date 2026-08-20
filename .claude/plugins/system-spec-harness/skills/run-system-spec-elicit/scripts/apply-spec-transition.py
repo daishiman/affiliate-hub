@@ -3,7 +3,7 @@
 # name: apply-spec-transition
 # version: 0.2.0
 # purpose: spec-state の単一 writer CLI。各責務は state_transition_{matrix,foundation,knowledge}.py へ分離する。
-# inputs: [bootstrap|init|add-category|apply|chunk|aggregate|set-targets|set-foundation|set-decision|set-knowledge-candidate|set-qa-design-applications|set-qa-scope-notes|set-qa-written-up|set-hearing-policy|enable-asks-for]
+# inputs: [bootstrap|init|add-category|apply|chunk|aggregate|set-targets|set-foundation|set-decision|set-knowledge-candidate|set-qa-design-applications|set-qa-scope-notes|split-qa-bundle|set-qa-written-up|set-hearing-policy|enable-asks-for]
 # outputs: [spec-state.json or stdout]
 # network: false
 # write-scope: spec-state.json
@@ -63,6 +63,7 @@ from state_transition_matrix import (
     set_qa_scope_notes,
     set_qa_written_up,
     set_targets,
+    split_qa_bundle,
 )
 from state_transition_matrix import enable_asks_for_contract
 
@@ -198,6 +199,19 @@ def main(argv: list[str]) -> int:
         help="scope_notes JSON object またはそれを収めた JSON ファイル",
     )
     scope_notes.add_argument("--out")
+    split_bundle = sub.add_parser(
+        "split-qa-bundle",
+        help="束ねた qa entry を論点ごとに解き、裏付けの範囲をセルの qa_refs[] へ移す",
+        description=(
+            "**何を削るかは引数で受け取らない。**scope_notes.topics と取り込み元 entry を "
+            "writer が自分で引き、取り込まれた節が取り込み元の回答と byte 単位で一致する"
+            "ときだけ外す。渡せると、渡す側がどの節を『取り込みだった』と名乗るか選べ、"
+            "自分の本文を他所のせいにして消せる。"
+        ),
+    )
+    split_bundle.add_argument("--state", required=True)
+    split_bundle.add_argument("--qa-id", required=True)
+    split_bundle.add_argument("--out")
     limit = sub.add_parser(
         "set-hearing-policy",
         help="hearing_progress の上限 (max_loops) が厳格かソフトかを明示する",
@@ -284,6 +298,8 @@ def main(argv: list[str]) -> int:
                     state,
                     [entry["id"] for entry in state.get("qa_log", []) if isinstance(entry, dict)],
                 )
+            elif args.cmd == "split-qa-bundle":
+                split_qa_bundle(state, args.qa_id)
             elif args.cmd == "set-qa-written-up":
                 set_qa_written_up(state, args.qa_id, args.path, args.section)
             elif args.cmd == "set-hearing-policy":
