@@ -1,7 +1,10 @@
 """Foundation and decision transitions for the spec-state single writer."""
 from __future__ import annotations
 
-from foundation_provenance import validate_foundation_source_indexes
+from foundation_provenance import (
+    validate_foundation_scope_coverage,
+    validate_foundation_source_indexes,
+)
 from state_transition_common import (
     DECISION_COMPARISON_AXES,
     DECISION_COST_CATEGORIES,
@@ -72,6 +75,14 @@ def set_foundation(state: dict, foundation: dict) -> None:
         source_findings = validate_foundation_source_indexes(state)
         if source_findings:
             raise TransitionError("確定条件不足: " + "; ".join(source_findings))
+        # 出典検査 (上) は qa_log の答えが改竄されていないかを見るだけで、
+        # foundation の値には一度も触れない。名前は出典検査だが出典を見ていない。
+        # 2026-08-20 の実測: この欠陥のせいで書面 §6 の 4 項目が state から消えたまま
+        # 3 回のヒアリング監査 (08-16 / 08-18 / 08-19) を通過した。下の被覆検査が
+        # 「foundation の値が原文を覆っているか」を見る側である。
+        coverage_findings = validate_foundation_scope_coverage(state, merged)
+        if coverage_findings:
+            raise TransitionError("確定条件不足: " + "; ".join(coverage_findings))
     merged["confirmed"] = confirmed
     state["requirements_foundation"] = merged
 
