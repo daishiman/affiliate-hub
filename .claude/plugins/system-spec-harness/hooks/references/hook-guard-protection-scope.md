@@ -148,10 +148,23 @@ ID 欠落・不一致を 1.1 扱いへ downgrade してはならない。
 - hook が無効化された環境では台帳が空になる。その場合 consumer は fail-closed で「帰属未接地」の
   violation を出す (緑にはならない = 安全側)。
 - background / 非同期 launch の「起動受理」response は監査の最終応答ではない。`AUDIT_VERDICT` が
-  未確定の `pending` / `absent` 行を completion receipt に使わず、最終応答を得られる foreground 実行へ戻す。
-- parallel call の schema 1.2 対応は defensive hardening と canary 検証の対象であり、正式 evaluator
-  運用の parallel 許可を意味しない。fresh live-trial で 3 fork 全ての per-call 台帳行、ID / digest /
-  verdict 照合、最終 receipt 生成を実証するまでは **1 message = 1 foreground fork** の直列運用を維持する。
+  未確定の `pending` / `absent` 行を completion receipt に使わない。**この禁止は撤回していない。**
+  救済は「foreground へ戻す」ことではなく、**当該監査を起動し直す**ことである
+  (**配線修正は過去行を遡及解決しない**: 既に書かれた `pending` 起動行は追記でしか解決されず、
+  後から補正して receipt に使うことはできない)。
+- **撤回 (2026-08-21): 「1 message = 1 foreground fork」の直列運用は帰属の条件ではない。**
+  撤回した理由は `skills/assign-system-spec-completeness-evaluator/prompts/R2-delegate.md` §1.1 の
+  来歴のとおりで、`SubagentStop` payload が起動時の `tool_use_id` を運ばない (hook 側 `toolUseID` は
+  `randomUUID()`) 以上、**時間順で台帳行と fork を対応づける前提が実行環境に無い**ためである。
+  **この版から消えた項目と、消えた理由**:
+  - 「fresh live-trial を実証するまで直列運用を維持する」という保留条件 —— 維持しても帰属が成立
+    しないので、実証の有無に関わらず条件として機能しない。
+  - 「parallel 許可を意味しない」という許可制の言い回し —— dispatch の順序・同時性を帰属の根拠に
+    しない以上、許可・不許可を語る対象そのものが無くなった。
+  **緩めた分を受け止める逆向きの要求** (これが無いなら撤回は選べない): 順序の保証が失われた分、
+  **`agent_id` の照合が唯一の帰属根拠**になる。起動行と解決行が `agent_id` 一致で畳み込めない fork は
+  receipt にできず、引き当てが 0 件でも 2 件以上でも resolved にしない (fail-closed)。ID の欠落・重複・
+  不一致で止める規律は、直列運用の時代より**重い**。
 - guard hook と同じく **表層的な adversarial evasion は設計上許容**する。狙いは「fork を省略した実行が
   独立監査を名乗って機械層を通過する」という現実に観測された失敗の遮断。
 
@@ -162,5 +175,9 @@ ID 欠落・不一致を 1.1 扱いへ downgrade してはならない。
   `skills/assign-system-spec-completeness-evaluator/tests/test_audit_fork_attribution.py`、
   集約・CLI 側は `tests/test_aggregate_completeness.py`。共通 fixture は
   `tests/completeness_test_support.py` に置き、責務別テストを 500 行以下に保つ。
-- unit / fixture の parallel 対応 PASS は defensive hardening の証跡であり、正式運用の直列 gate を
-  解除しない。解除には current hook runtime による fresh live-trial 証跡を別途要求する。
+- 直列 gate は撤回したので、その解除条件 (fresh live-trial 証跡) も消えた。**代わりに残る門は
+  `agent_id` の畳み込みである**: unit / fixture の PASS は畳み込み実装の証跡にすぎず、実行時に
+  起動行と解決行が揃わない fork を receipt にできる根拠にはならない。
+- 供給側の停止条件は
+  `skills/assign-system-spec-completeness-evaluator/tests/test_supply_neutrality.py` が固定する
+  (proposer ≠ approver。監査 fork へ渡す prompt は所在のみで構成し、読みを渡さない)。
