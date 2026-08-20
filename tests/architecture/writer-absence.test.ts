@@ -24,7 +24,7 @@ import { describe, expect, it } from "vitest";
  *
  * ── A. writer を通っていない痕跡 (`loop_count` > `max_loops`) ──────────
  *
- * `run_chunk`（`state_transition_matrix.py:547-578`）は `processed >= max_loops` で break し、
+ * `run_chunk`（`state_transition_matrix.py:547-588`）は `processed >= max_loops` で break し、
  * 最後に `loop_count` と `max_loops` の両方を書く。**この writer は上限超えを
  * 作り出せない**（書き込む値は必ず `max_loops` 以下から取る）。契約
  * （`spec-state-contract.md` §hearing_progress の意味論）も
@@ -35,8 +35,11 @@ import { describe, expect, it } from "vitest";
  * と書いてあった。**それは今は偽である。**当時の `run_chunk` は無条件に
  * `loop_count = 0` を代入してから処理済み件数を書いていたため、7 / 5 の記録を持つ
  * state にこの writer を通すと、**下の A が見張っている当の 7 が消えた**——
- * 記録を守るための仕掛けを、記録を書く道具が壊していた。そこで
- * `max(prior, processed)` へ直した（下限を上げる向きの変更）。結果、writer は
+ * 記録を守るための仕掛けを、記録を書く道具が壊していた。そこで床を
+ * `prior if prior > max_loops else 0` に絞り、**超過があるときだけ**既存値を守る形へ
+ * 直した（下限を上げる向きの変更）。最初は無条件の `max(prior, processed)` にしたが、
+ * それだと通常時の意味まで「これまでの最大値」へ変わり、超過と無関係な golden
+ * fixture が動いた——**記録を守るための修正が、別の記録を書き換えていた。**結果、writer は
  * 既存の超過を**保存する**ようになり、「この経路を通れば必ず 5 以下」は成り立たなくなった。
  * 成り立つのは「**この writer が新たな超過を生み出すことはない**」のほうである。
  * A が見ているのは後者ではなく「超過が記名で保存されているか」なので、A の主張は変わらない。

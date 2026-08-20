@@ -106,22 +106,30 @@ def test_five_loop_resume_persists_state():
     assert state == json.loads(GOLDEN_RESUME.read_text(encoding="utf-8"))
 
 
-# ── 2026-08-20: GOLDEN_FINAL の loop_count を 4 → 5 へ直した ────────────
+# ── 2026-08-20: GOLDEN_FINAL の loop_count は 4 のままである ────────────
 #
-# run_chunk が loop_count を無条件に 0 へ落とすのをやめ、`max(既存, 処理済み件数)`
-# にしたため。1 回目のチャンクで 5、2 回目で 4 を処理するので、以前は最後の 4 が
-# 残り、いまは高い側の 5 が残る。
+# 経緯を残す。**一度 5 へ書き換えて、戻した。**
 #
-# **これは数を大きく見せるための変更ではない。**元の作りは、上限超過の記録
-# (limit_overrun) を持つ state に 1 件通すだけでその値を消してしまい、
+# run_chunk が loop_count を無条件に 0 へ落とすため、上限超過の記録
+# (limit_overrun) を持つ state に 1 件通すだけでその値が消えていた。
 # set_hearing_limit_policy が「丸めると迂回の唯一の痕跡が消える」と書いて
-# 禁じている操作を、writer 自身が実行していた。
-# 直したのは state ではなく writer のほうである。
+# 禁じている操作を、writer 自身が実行していた——これは直す必要があった。
 #
-# 副作用として loop_count の意味が「この呼び出しで処理した件数」から
-# 「これまでの最大値」へ変わった。**どちらも通算値ではない**（5 の次に 4 を
-# 処理しても 9 にはならない）ので、この欄から総ターン数は読めない。
-# 読めないことは前からで、変わったのは減らなくなったことだけである。
+# 最初の直しは `max(既存, 処理済み件数)` で、超過は守れたが**通常時の意味まで
+# 変えた**。1 回目 5・2 回目 4 を処理するこの golden は、以前の 4（直近 1
+# invocation の件数）から 5（これまでの最大値）へ動いた。契約は
+# 「直近 1 invocation の turn 数。累計ではない」と定めているので、これは
+# 契約を黙って書き換える形だった。**記録を守るための修正が、別の記録を
+# 書き換えていた。**
+#
+# いまの writer は床を `既存 if 既存 > 上限 else 0` に絞ってあり、**超過があるとき
+# だけ**既存値を守る。通常時の意味は元のままなので、この値は 4 に戻っている。
+# 見分けは `test_run_chunk_does_not_carry_over_a_normal_prior_count`（既存 4・
+# 2 ターン → 2）と `test_run_chunk_does_not_erase_an_existing_overrun`（既存 7 →
+# 7）の対で固定してある。
+#
+# なお 4 も 5 も**通算値ではない**（5 の次に 4 を処理しても 9 にはならない）。
+# この欄から総ターン数は読めない。それは前からそうである。
 def test_resume_then_finish_reaches_complete():
     turns = _turns()
     state = mod.init_state(_taxonomy())

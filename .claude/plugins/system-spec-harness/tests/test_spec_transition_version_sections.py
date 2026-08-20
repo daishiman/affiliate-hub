@@ -214,6 +214,41 @@ def test_run_chunk_cannot_raise_the_count_past_the_limit() -> None:
     assert not module.loop_limit_is_violated(progress)
 
 
+def test_run_chunk_does_not_carry_over_a_normal_prior_count() -> None:
+    """超過が無いときは、前回値を持ち越さないこと（守る対象を超過だけに絞る）。
+
+    最初の直しは `max(既存, 処理済み)` だった。超過は確かに守れるが、**通常時の
+    loop_count の意味まで「これまでの最大値」へ変わる**。契約
+    (`spec-state-contract.md` §hearing_progress) は「直近 1 invocation の turn 数。
+    累計ではない」と定めているので、これは契約のほうを黙って書き換える形だった。
+
+    実害も出た。超過と何の関係も無い golden fixture
+    (`expected-final-spec-state.json`) の loop_count が 4 → 5 へ動いた。
+    **記録を守るための修正が、別の記録を書き換えていた。**
+
+    この検査はその 2 つを見分ける。既存 4・上限 5・2 ターンのとき:
+      - `max(既存, 処理済み)` なら 4（前回値を持ち越す）
+      - `max(超過だけの床, 処理済み)` なら 2（直近 1 invocation の件数）
+    **2 であること**を固定する。対になる検査は
+    `test_run_chunk_does_not_erase_an_existing_overrun`（超過があるときは減らない）。
+    片方だけだと、どちらかの意味へ黙って寄っていける。
+    """
+    module = _matrix_module()
+    state = _current_state()
+    state["categories"] = []
+    state["matrix"] = {}
+    state["hearing_progress"] = {"loop_count": 4, "max_loops": 5}
+
+    processed = module.run_chunk(state, [{"ops": []} for _ in range(2)], max_loops=5)
+    progress = state["hearing_progress"]
+
+    # 母集団の床: 実際に 2 件処理されたこと。0 件なら「4 でない」は
+    # 何も起きなかっただけになる。
+    assert processed == 2
+    assert progress["loop_count"] == 2
+    assert not module.loop_limit_is_violated(progress)
+
+
 def test_an_overrun_cannot_be_recorded_without_saying_why() -> None:
     """超過を無記名で通すと、迂回の痕跡が『ただの数字』になる。"""
     module = _matrix_module()

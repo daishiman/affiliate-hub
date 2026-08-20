@@ -38,9 +38,67 @@ function testFiles(dir: string): string[] {
   return out;
 }
 
-/** コメントを消す。説明文の中に書いた例を、本物のテストと数えないため。 */
+/**
+ * コメントを消す。説明文の中に書いた例を、本物のテストと数えないため。
+ *
+ * ── 2026-08-20: 2 パス（ブロック → 行）から 1 パス走査へ直した ──────────
+ *
+ * 旧版は `/\*[\s\S]*?\*\//` を先に、`^\s*\/\/.*$` を後に掛けていた。
+ * この順だと、**行コメントの中に書いた slash-star がブロックコメントの開始と
+ * 読まれ、次の star-slash までのコードが丸ごと空白化される。**
+ * `// 詳しくは system-spec/(星).md を見よ` と 1 行書くだけで、以降の
+ * `expect(...)` が検査から消える。**回避経路として成立していた**——
+ * 何も確かめていないテストの直前にその 1 行を置けば、この検査は黙る。
+ * 2026-08-20 に実際に誤検出が出て見つかった。
+ *
+ * 直したのは順番ではなく読み方である。左から 1 回だけ走査し、
+ * **文字列リテラル・行コメント・ブロックコメントを同時に見分ける。**
+ * 文字列の中の slash-slash や slash-star はコメントではないので、そのまま残す。
+ *
+ * 向きは**厳しくなる側**である。旧版は行頭の行コメントしか消しておらず、
+ * 行末に付けた `// expect(x).toBe(y) みたいに書く` のような説明が
+ * 「確かめている」と数えられていた。いまは数えない。
+ * 改行の数は変えない（行番号がずれると報告が指す場所が狂う）。
+ */
 function withoutComments(source: string): string {
-  return source.replace(/\/\*[\s\S]*?\*\//g, (m) => m.replace(/[^\n]/g, " ")).replace(/^\s*\/\/.*$/gm, "");
+  const blank = (s: string) => s.replace(/[^\n]/g, " ");
+  let out = "";
+  let i = 0;
+  while (i < source.length) {
+    const c = source[i];
+    if (c === "/" && source[i + 1] === "*") {
+      const end = source.indexOf("*/", i + 2);
+      const stop = end === -1 ? source.length : end + 2;
+      out += blank(source.slice(i, stop));
+      i = stop;
+    } else if (c === "/" && source[i + 1] === "/") {
+      const end = source.indexOf("\n", i);
+      const stop = end === -1 ? source.length : end;
+      out += blank(source.slice(i, stop));
+      i = stop;
+    } else if (c === '"' || c === "'" || c === "`") {
+      let j = i + 1;
+      while (j < source.length) {
+        if (source[j] === "\\") {
+          j += 2;
+          continue;
+        }
+        if (source[j] === c) {
+          j += 1;
+          break;
+        }
+        // ` 以外は行をまたがない。閉じ忘れでファイル末尾まで飲み込まないため。
+        if (c !== "`" && source[j] === "\n") break;
+        j += 1;
+      }
+      out += source.slice(i, j);
+      i = j;
+    } else {
+      out += c;
+      i += 1;
+    }
+  }
+  return out;
 }
 
 /**

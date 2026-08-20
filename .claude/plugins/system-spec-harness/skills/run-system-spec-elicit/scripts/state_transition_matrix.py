@@ -547,11 +547,20 @@ def next_unresolved_question(state: dict) -> str | None:
 def run_chunk(state: dict, turns: list[dict], max_loops: int = 5) -> int:
     """ターン列を 1 invocation ぶん適用する。
 
-    loop_count は **減らさない**。既存値と処理済み件数の大きいほうを残す。
-    以前は無条件に 0 へ落としてから処理済み件数を書いていたため、
+    loop_count の意味は契約どおり **直近 1 invocation の turn 数**である。累計ではない。
+    通常時（既存値が max_loops 以下）は、その意味のまま処理済み件数で置き直す。
+
+    **例外は、既存値が max_loops を超えているときだけ。**そのときは既存値を床にし、
+    下回らないようにする。以前は無条件に 0 へ落としてから処理済み件数を書いていたため、
     上限超過の記録 (limit_overrun) を持つ state にこの writer を通すと、
     その記録が指している当の値が消えた。**記録を守るための仕掛けを、
     記録を書く道具が壊していた。**
+
+    床を `prior` ではなく `prior if prior > max_loops else 0` にしてあるのが要点である。
+    無条件に `max(prior, processed)` にすると超過は確かに守れるが、**通常時の意味まで
+    「これまでの最大値」へ変わってしまう**——超過と無関係な golden fixture
+    (`expected-final-spec-state.json`) の値が動いたのがその証拠だった。
+    **記録を守るための修正が、別の記録を書き換えていた。**守る対象は超過だけでよい。
 
     これは下限を上げる向きの変更である。7 を 1 にするのが緩める向き、
     7 を守るのが厳しい向き。新しく書き込む値は依然 max_loops 以下なので、
@@ -561,14 +570,15 @@ def run_chunk(state: dict, turns: list[dict], max_loops: int = 5) -> int:
     prior = progress.get("loop_count")
     if not isinstance(prior, int) or isinstance(prior, bool) or prior < 0:
         prior = 0
-    progress["loop_count"] = prior
+    floor = prior if prior > max_loops else 0
+    progress["loop_count"] = floor
     processed = 0
     for turn in turns:
         if processed >= max_loops:
             break
         apply_turn(state, turn)
         processed += 1
-        progress["loop_count"] = max(prior, processed)
+        progress["loop_count"] = max(floor, processed)
     recompute_aggregates(state)
     _refresh_hearing_progress(state)
     state["hearing_progress"]["max_loops"] = max_loops

@@ -409,9 +409,10 @@ describe("8 章を再生成しても痩せないこと (C03 の事前の床)", (
     const GAP1_SECTIONS = ["確定セルの記録 (正本 spec-state.json)", "意思決定 (decisions)"];
 
     // (b) 実物を読んで数える。表の宣言ではなく `system-spec` 配下の .md の中身を見る。
-    //     （ここに star-slash を書かないこと。test-honesty のコメント除去が
-    //      行コメント内の slash-star をブロック開始と読み、以降の expect を
-    //      見失って「何も確かめていないテスト」と誤検出する。2026-08-20 に実際に起きた。）
+    //     （2026-08-20: ここに slash-star と書いたら test-honesty のコメント除去が
+    //      それをブロックコメントの開始と読み、以降の expect を見失って
+    //      「何も確かめていないテスト」と誤検出した。検出器側を 1 パス走査へ直したので
+    //      いまは書いてよい。文言を変えて逃げると、穴のほうが残っていた。）
     const withoutGap1 = CHAPTERS.filter((c) => {
       const sections = measure(read(c.name)).sections;
       return !GAP1_SECTIONS.every((s) => sections.includes(s));

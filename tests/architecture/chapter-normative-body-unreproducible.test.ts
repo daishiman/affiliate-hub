@@ -3,15 +3,17 @@
  * @req REQ-TS15
  * @types equivalence, boundary
  *
- * `equivalence` を名乗る根拠: 要件 ID を「章にある / 生成器出力にある」の 2 クラスへ分け、
- * **両方を見る**。片方（生成器出力が 0 件）だけを見ると、正規表現が何にも当たらない日にも
- * 同じ 0 が出る。章側の床（65 件以上）を同居させて、判定側が動いていることを示す。
+ * `equivalence` を名乗る根拠: 規範定義本文を「章にある / 生成器出力にある」の 2 クラスへ分け、
+ * **両方を見る**。片方（生成器出力が 0 件）だけを見ると、探し方が何にも当たらない日にも
+ * 同じ 0 が出る。章側の床（65 件以上）と「章には 65/65 在る」対照を同居させて、
+ * 判定側が動いていることを示す。
  * `boundary` の根拠: 交差が **ちょうど 0 件**という境目そのものを見ていること。
  *
  * ── 主張 ───────────────────────────────────────────────
  *
- * **生成器 (`compile-spec-doc.py`) の出力には、章にある要件 ID
- * (`DB-*` / `BE-*` / `INF-*` / `*-REQ-*` / `*-ACC-*`) が 1 件も含まれない。**
+ * **生成器 (`compile-spec-doc.py`) の出力には、章にある要件
+ * (`DB-*` / `BE-*` / `INF-*` / `*-REQ-*` / `*-ACC-*`) の**定義本文**が 1 件も含まれない。**
+ * ID そのものは引用として 2 件現れるが、それは定義ではない（下の 2026-08-20 の節を見ること）。
  *
  * つまり `system-spec/*.md` は生成器の出力ではない。生成器で作り直すと、
  * いま章にある規範本文が消える。`chapter-regeneration-floor.test.ts`
@@ -25,13 +27,51 @@
  * 描けない。塞ぐには規範本文を正本へ移す作業が要り、それは章の書き直しであって
  * 検査の書き直しではない。
  *
+ * ── 2026-08-20: 代理指標が壊れ、測る対象を 2 本に割った ─────────────
+ *
+ * この検査は元々「**素の ID** が生成器出力に 1 件も現れない」で測っていた。
+ * 素の ID の出現は、規範定義が再現されていないことの**代理**に置いた目印である。
+ *
+ * ui-ux×web の確定で、正本の qa_log に「`system-spec/ui-ux.md` の `UIUX-REQ-001` は
+ * …と書いている」という**章を出典として名指しした食い違い記録**が入った。
+ * その瞬間、素の ID は生成器出力に現れるようになった——**規範定義は 1 文字も
+ * 移っていないのに**である。代理が代理として成立しなくなった。
+ *
+ * そこで測る対象を 2 本に割った。**片方だけでは足りない。**
+ *
+ *   (1) **主張の本体**: 章の表の「1 列目が要件 ID である行」の 2 列目全文が、
+ *       生成器出力に含まれないこと。**0 件。遊び無し。**
+ *       素の ID より厳しい——ID が引用で出るだけでは赤くならないが、
+ *       定義文が 1 文字違わず出たら赤くなる。
+ *   (2) **引用のほう**: 出力に現れる素の ID の**異なり数**に上限 2（実測 2、遊び 0）、
+ *       **かつ**各出現が属する `##` 節が章ファイルを名指ししていること。
+ *
+ * **(2) は 0 → 2 の緩和ではない。**0 のままなのは (1) の定義側で、上限 2 が乗るのは
+ * 引用という別の対象である。**同じ数字でも対象が違う。**
+ * （同じ対象の上限を 0 → 2 へ上げる形は緩和であり、それはしていない。）
+ *
+ * 2026-08-20 の実測（分母つき）:
+ *   - 定義行が取れた ID: **65 / 65**（章の素の ID 総数 65 と一致。取りこぼし 0）
+ *   - 定義全文が生成器出力にある: **0 / 65**。章にある: **65 / 65**（探し方が動いている対照）
+ *   - 出力の素の ID: **8 行 / 異なり 2**（`UIUX-REQ-001`, `UIUX-REQ-003`）。
+ *     8 行すべてが `## 既存記録との食い違い（均さずに両方残す）` 節の中にあり、
+ *     その節は `system-spec/ui-ux.md` を名指ししている。
+ *
  * ── 反転先（塞がった日にすること。先に書いておく）──────────────────
  *
- * **規範本文が正本へ移り、生成器が描けるようになった日に、この検査は赤くなる。
- * そのとき削除せず「章の要件 ID がすべて生成器出力にも現れること」へ反転させる。**
+ * **定義全文が出力に現れた日に (1) が赤くなる。そのとき削除せず
+ * 「章の全 ID の定義全文が出力にもあること」へ反転させる。**
  * 消すと、移したものが後で失われても誰も気づかない状態へ帰る。
  * 反転後は `expect(missing).toHaveLength(0)` の向きになり、床（65 件以上）は
  * そのまま母集団の担保として残す。
+ * **(2) の上限 2 は、定義が移った時点で役目が変わる**（引用と定義の区別が
+ * 意味を失う）ので、(1) の反転と**同時に**見直すこと。片方だけ反転させると、
+ * 「引用しか無い」前提のまま定義を通す穴になる。
+ *
+ * **予告が外れた事実を残す（2026-08-20）**: 旧版の反転先は「全 ID が出力に現れる」か
+ * 「0 件のまま」かの二択で書いてあった。実際に来たのは**どちらでもない中間**
+ * ——65 件中 2 件だけが、定義ではなく引用として現れる形だった。
+ * 反転先を書くときは「全か無か」で書けると思わないこと。
  *
  * ── 陽性対照 ──────────────────────────────────────────
  *
@@ -81,6 +121,93 @@ const COMPILER = join(
 
 /** 章の規範本文が使っている要件 ID の形。 */
 const REQUIREMENT_ID = /\b[A-Z][A-Z0-9]*-(?:REQ|ACC)-\d+\b|\b(?:DB|BE|INF)-[A-Z]+-\d+\b/g;
+
+/** 上と同じ形を、セル全体との一致に使う版（`g` を付けない。`lastIndex` を持ち回らないため）。 */
+const REQUIREMENT_ID_EXACT =
+  /^(?:[A-Z][A-Z0-9]*-(?:REQ|ACC)-\d+|(?:DB|BE|INF)-[A-Z]+-\d+)$/;
+
+/**
+ * markdown の表を列へ割る。
+ *
+ * **`\|` で退避したパイプを区切りと読まないこと。**素朴に `split("|")` すると
+ * `DB-STATE-01`（`approval_status = pending \| approved \| …`）が 10 列に割れ、
+ * 定義本文が途中で切れる。切れた文字列は生成器出力に当たらないので、
+ * **交差 0 件が「本当に無い」ではなく「探し方が短すぎた」で出る。**
+ * 2026-08-20 に実際にそれで 65 件中 2 件を取りこぼした。
+ */
+function cellsOf(line: string): string[] {
+  return line
+    .split(/(?<!\\)\|/)
+    .slice(1, -1)
+    .map((s) => s.trim());
+}
+
+/**
+ * 章の表から「要件 ID → 定義本文（その行の 2 列目全文）」を取る。
+ *
+ * `## To-Be` だけを見ないこと。To-Be 表を持つのは 11 節の形の 5 章だけで、
+ * `*-ACC-*` と `DB/BE/INF-*` は Acceptance evidence 表や 6 節の形の章にある。
+ * **表の見出しではなく「1 列目が要件 ID である行」で拾う**と 65 件すべて取れる
+ * （2026-08-20 実測: 2 列 24 件 + 3 列 41 件 = 65 件、床 65 と一致）。
+ */
+function definitionsInChapters(): Map<string, { def: string; file: string }> {
+  const defs = new Map<string, { def: string; file: string }>();
+  for (const name of markdownIn(SPEC_DIR)) {
+    for (const line of readFileSync(join(SPEC_DIR, name), "utf8").split("\n")) {
+      if (!line.startsWith("|")) continue;
+      const cells = cellsOf(line);
+      if (cells.length < 2 || !REQUIREMENT_ID_EXACT.test(cells[0])) continue;
+      if (!defs.has(cells[0])) defs.set(cells[0], { def: cells[1], file: name });
+    }
+  }
+  return defs;
+}
+
+/** 素の ID の出現 1 件ぶん。`namesChapter` は「その `##` 節が章ファイルを名指ししているか」。 */
+type Occurrence = { file: string; line: number; ids: string[]; namesChapter: boolean };
+
+/**
+ * ディレクトリ内の .md から素の ID の出現を拾い、**その出現が属する `##` 節**が
+ * 章ファイル（`system-spec/….md`）を名指ししているかを併せて返す。
+ *
+ * 節の粒度を `##` にしてある。`###` まで細かくすると、同じ 1 つの食い違い記録が
+ * 小見出しで分割され、**名指しの無い小見出しの側だけが違反に見える。**
+ * 名指しは記録の単位で 1 回あればよく、段落ごとに繰り返すものではない。
+ */
+function bareIdOccurrences(dir: string): Occurrence[] {
+  const out: Occurrence[] = [];
+  for (const name of markdownIn(dir)) {
+    const lines = readFileSync(join(dir, name), "utf8").split("\n");
+    const heads = lines.flatMap((l, i) => (/^##\s/.test(l) ? [i] : []));
+    lines.forEach((line, i) => {
+      const ids = line.match(REQUIREMENT_ID);
+      if (!ids) return;
+      const start = heads.filter((h) => h <= i).pop() ?? 0;
+      const end = heads.find((h) => h > i) ?? lines.length;
+      out.push({
+        file: name,
+        line: i + 1,
+        ids,
+        namesChapter: /`?system-spec\/[a-z-]+\.md`?/.test(lines.slice(start, end).join("\n")),
+      });
+    });
+  }
+  return out;
+}
+
+/**
+ * 生成器出力に現れてよい**素の ID の異なり数**の上限。2026-08-20 実測 2、遊び 0。
+ *
+ * **これは「0 件」を 2 へ緩めたものではない。**0 のままなのは定義本文のほう
+ * （`definitionsInChapters()` との交差）で、この 2 が乗っているのは
+ * **引用という別の対象**である。同じ数字でも対象が違う。
+ * 上限だけを単独で置くと、引用文から章名を消せば「引用に見えない素の ID」が
+ * 2 件まで通るので、**必ず名指し条件と対で**張ること。
+ */
+const QUOTED_ID_CAP = 2;
+
+/** 定義本文の最短の長さの床。2026-08-20 実測 10 字。短い定義に痩せると偶然一致しやすくなる。 */
+const SHORTEST_DEFINITION_FLOOR = 10;
 
 /** 正本 decisions[] 由来で、生成器が確かに描く ID（陽性対照）。 */
 const POSITIVE_CONTROL = "decision-auth-method";
@@ -145,18 +272,48 @@ describe("章の規範本文は生成器で再現できない (REQ-TS15 / 塞げ
     expect(hits.length).toBeGreaterThanOrEqual(1);
   });
 
-  it("生成器出力に章の要件 ID は 1 件も現れない（塞げない穴。塞がった日に赤くなる）", () => {
+  it("生成器出力に章の規範定義本文は 1 件も現れない（塞げない穴。塞がった日に赤くなる）", () => {
     const out = compileToTemp();
-    const chapter = idsIn(SPEC_DIR);
-    const generated = idsIn(out);
+    const defs = definitionsInChapters();
+    const outText = markdownIn(out)
+      .map((n) => readFileSync(join(out, n), "utf8"))
+      .join("\n");
 
-    // 母集団の床を同じ it() の中に置く。章側が空でも 0 件は出るため。
-    expect(chapter.size).toBeGreaterThanOrEqual(CHAPTER_ID_FLOOR);
+    // 母集団の床を同じ it() の中に置く。定義が 1 件も取れなくても 0 件は出るため。
+    expect(defs.size).toBeGreaterThanOrEqual(CHAPTER_ID_FLOOR);
+    // 定義が痩せて数文字になると、偶然一致で 0 件が崩れる／逆に当たらなくなる。
+    expect(Math.min(...[...defs.values()].map((d) => d.def.length))).toBeGreaterThanOrEqual(
+      SHORTEST_DEFINITION_FLOOR,
+    );
+    // 対照: 探し方が動いていること。定義本文は章側には必ず在る（そこから取ったので）。
+    const specText = markdownIn(SPEC_DIR)
+      .map((n) => readFileSync(join(SPEC_DIR, n), "utf8"))
+      .join("\n");
+    expect([...defs.values()].filter((d) => specText.includes(d.def))).toHaveLength(defs.size);
 
-    const shared = [...chapter].filter((id) => generated.has(id)).sort();
-    expect(shared).toEqual([]);
+    const reproduced = [...defs]
+      .filter(([, d]) => outText.includes(d.def))
+      .map(([id]) => id)
+      .sort();
+    expect(reproduced).toEqual([]);
+  });
 
-    // 反転先: 規範本文が正本へ移ったら、上を toEqual([...chapter].sort()) へ書き換える。
+  it("素の ID が出力に現れるのは、章を名指しした記録の中だけ（異なり数 上限 2）", () => {
+    const out = compileToTemp();
+    const occurrences = bareIdOccurrences(out);
+
+    // **母集団の床。**出現 0 件でも下の 2 つは緑になる。0 になった日は
+    // 「引用が消えた」ので、この検査は削除ではなく反転（上限の役目の見直し）へ回すこと。
+    expect(occurrences.length).toBeGreaterThan(0);
+
+    const distinct = [...new Set(occurrences.flatMap((o) => o.ids))].sort();
+    expect(distinct.length).toBeLessThanOrEqual(QUOTED_ID_CAP);
+
+    // 上限と対。名指しの無い素の出現は 1 件でも不可。
+    const unnamed = occurrences
+      .filter((o) => !o.namesChapter)
+      .map((o) => `${o.file}:${o.line} ${o.ids.join(",")}`);
+    expect(unnamed).toEqual([]);
   });
 
   it("生成器は章の枚数ぶんを出す（出力が痩せて 0 件になっていない）", () => {
@@ -164,9 +321,9 @@ describe("章の規範本文は生成器で再現できない (REQ-TS15 / 塞げ
     expect(markdownIn(out).length).toBe(markdownIn(SPEC_DIR).length);
   });
 
-  it("要件 ID は正本にも生成器ソースにも無い（『塞げない理由』の裏取り）", () => {
-    const chapter = [...idsIn(SPEC_DIR)];
-    expect(chapter.length).toBeGreaterThanOrEqual(CHAPTER_ID_FLOOR);
+  it("規範定義本文は正本にも生成器ソースにも無い（『塞げない理由』の裏取り）", () => {
+    const defs = definitionsInChapters();
+    expect(defs.size).toBeGreaterThanOrEqual(CHAPTER_ID_FLOOR);
 
     const state = readFileSync(join(SPEC_DIR, "spec-state.json"), "utf8");
     const libDir = join(ROOT, ".claude/plugins/system-spec-harness/lib");
@@ -179,7 +336,14 @@ describe("章の規範本文は生成器で再現できない (REQ-TS15 / 塞げ
     expect(state).toContain(POSITIVE_CONTROL);
     expect(libSource.length).toBeGreaterThan(0);
 
-    const reachable = chapter.filter((id) => state.includes(id) || libSource.includes(id));
+    // 見るのは ID ではなく**定義本文**である。ID の素の出現は 2026-08-20 以降、
+    // 正本の食い違い記録に 2 件ある（上の「素の ID が出力に現れるのは…」が別枠で見ている）。
+    // ここが見張るのは「規範を描く材料が正本／生成器側に無い」ことのほうで、
+    // **ID が引用されていることはその材料にならない。**
+    const reachable = [...defs]
+      .filter(([, d]) => state.includes(d.def) || libSource.includes(d.def))
+      .map(([id]) => id)
+      .sort();
     expect(reachable).toEqual([]);
   });
 
