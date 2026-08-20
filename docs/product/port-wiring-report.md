@@ -7,7 +7,7 @@
 呼ばれていないポートの手続きの一覧。テストからの呼び出しは数えない。
 
 - ポート 63 件 / 手続き 188 件
-- 呼ばれていない 79 件（上限 82）
+- 呼ばれていない 79 件（上限 79）
 - 理由つきの除外 0 件（上限 0）
 
 | ポート | 手続き | 宣言 |
@@ -123,4 +123,4 @@
 | --- | --- |
 | `createStartSiteDraftUseCase` | `src/application/usecases/site/build-site.ts:417` |
 | `createSaveSiteDraftStepUseCase` | `src/application/usecases/site/build-site.ts:509` |
-<!-- 生成物の指紋 sha256:aa67f9ef2cbba371b922a2a3cbaf17b405f4f375e7eae61089e78569acfcd5a6 -->
+<!-- 生成物の指紋 sha256:63c29bf03cdd1659bd3d60a4d876620abd6fba137047d971a58a77e44055fb1e -->

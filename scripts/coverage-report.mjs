@@ -19,17 +19,24 @@ import { readFileSync, existsSync } from "node:fs";
 import { join, relative } from "node:path";
 import { writeGeneratedBlock } from "./lib/generated-doc.mjs";
 import {
+  COVERAGE_AXES,
   GLOBAL_COVERAGE,
   LAYER_COVERAGE,
   MAX_STUB_GAP_POINTS,
   STUB_PATTERNS,
+  judgeLayerCoverage,
   judgeStubGap,
 } from "../quality-gates.config.mjs";
+
+/** 表示名。軸そのものの一覧は `COVERAGE_AXES` が正本で、ここでは持たない。 */
+const AXIS_LABEL = { lines: "行", branches: "分岐", functions: "関数", statements: "文" };
 
 const ROOT = process.cwd();
 const SUMMARY = join(ROOT, "coverage/coverage-summary.json");
 const DOC = join(ROOT, "docs/product/coverage.md");
-const KEYS = ["lines", "branches", "functions", "statements"];
+// **2 つ目の一覧を作らない。**軸の正本は `COVERAGE_AXES` 1 つで、
+// ここに別の並びを書くと、片方だけ増えた日に静かに食い違う。
+const KEYS = COVERAGE_AXES;
 
 if (!existsSync(SUMMARY)) {
   process.stderr.write(
@@ -83,23 +90,33 @@ const now = new Date();
 const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
 const pad = (s, n) => String(s).padEnd(n, " ");
 process.stdout.write(`\nカバレッジ（${today} 実測）\n`);
-process.stdout.write(`${pad("対象", 18)}${["行", "分岐", "関数", "文", "下限"].map((h) => h.padStart(8)).join("")}\n`);
+process.stdout.write(`${pad("対象", 18)}${COVERAGE_AXES.map((a) => AXIS_LABEL[a].padStart(8)).join("")}\n`);
 
 let failures = [];
 for (const layer of LAYER_COVERAGE) {
   const r = row(layer.layer);
-  const ok = r.lines >= layer.target;
-  if (!ok) failures.push(`${layer.layer} の行 ${r.lines}%（下限 ${layer.target}%）`);
+  // **4 列すべてを見る。**かつては `r.lines >= layer.target` だけを見ながら
+  // 4 列を表示していたので、下限の無い列（分岐・関数・文）が守られていると誤読された。
+  // 実測 2026-08-21: app の分岐 62.5 が、隣に印刷された 70 を下回ったまま緑を通っていた。
+  // 判定式はここに書かない。`judgeLayerCoverage` を呼ぶ（正本は quality-gates.config.mjs）。
+  // ここに式を持つと、外から合成例（分岐 62.5 など）を通せず、今回の穴が再び黙って通る。
+  const shortfalls = judgeLayerCoverage(r, layer);
+  const ok = shortfalls.length === 0;
+  failures.push(...shortfalls);
+  // 下限は**軸ごとに**印刷する。1 つの「下限」列を 4 列の隣に置くと、
+  // その 1 個が 4 列すべてに効いていると読める（それが 2026-08-21 まで実際に起きていた）。
   process.stdout.write(
-    `${pad(layer.layer, 18)}${[r.lines, r.branches, r.functions, r.statements, layer.target]
-      .map((v) => String(v).padStart(8))
-      .join("")}${ok ? "" : "  ← 不足"}\n`,
+    `${pad(layer.layer, 18)}${COVERAGE_AXES.map((a) => String(r[a]).padStart(8)).join("")}${ok ? "" : "  ← 不足"}\n`,
+  );
+  process.stdout.write(
+    `${pad("  └ 下限", 18)}${COVERAGE_AXES.map((a) => String(layer.floors[a]).padStart(8)).join("")}\n`,
   );
 }
 process.stdout.write(
-  `${pad("全体", 18)}${[overall.lines, overall.branches, overall.functions, overall.statements, GLOBAL_COVERAGE.lines]
-    .map((v) => String(v).padStart(8))
-    .join("")}\n`,
+  `${pad("全体", 18)}${COVERAGE_AXES.map((a) => String(overall[a]).padStart(8)).join("")}\n`,
+);
+process.stdout.write(
+  `${pad("  └ 下限", 18)}${COVERAGE_AXES.map((a) => String(GLOBAL_COVERAGE[a]).padStart(8)).join("")}\n`,
 );
 process.stdout.write(`${pad("実質（スタブ除く）", 18)}${String(real.lines).padStart(8)}\n`);
 process.stdout.write(`${pad("スタブのみ", 18)}${String(stub.lines).padStart(8)}\n`);
@@ -111,11 +128,15 @@ if (gapExceeded) {
 
 // ─── 記録を書き換える ─────────────────────────────────────
 const table = [
-  "| 層 | 行 | 分岐 | 関数 | 文 | 下限 | 判定 |",
-  "|---|---:|---:|---:|---:|---:|---|",
+  // 下限は軸ごとに `実測 / 下限` の形で並べる。1 列にまとめると 4 列すべてに
+  // 効いていると読める（2026-08-21 まで実際にそう読めていた）。
+  "| 層 | 行 | 分岐 | 関数 | 文 | 判定 |",
+  "|---|---:|---:|---:|---:|---|",
   ...LAYER_COVERAGE.map((l) => {
     const r = row(l.layer);
-    return `| ${l.dir} | ${r.lines} | ${r.branches} | ${r.functions} | ${r.statements} | ${l.target} | ${r.lines >= l.target ? "達成" : "不足"} |`;
+    const cells = COVERAGE_AXES.map((a) => `${r[a]} / ${l.floors[a]}`);
+    const ok = judgeLayerCoverage(r, l).length === 0;
+    return `| ${l.dir} | ${cells.join(" | ")} | ${ok ? "達成" : "不足"} |`;
   }),
   `| **全体** | ${overall.lines} | ${overall.branches} | ${overall.functions} | ${overall.statements} | ${GLOBAL_COVERAGE.lines} | ${overall.lines >= GLOBAL_COVERAGE.lines ? "達成" : "不足"} |`,
   `| 実質（スタブ除く） | ${real.lines} | ${real.branches} | ${real.functions} | ${real.statements} | — | — |`,

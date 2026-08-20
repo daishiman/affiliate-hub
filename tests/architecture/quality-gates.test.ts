@@ -17,7 +17,9 @@ import {
   TEST_TYPES_MIN_VOCABULARY,
   TIERS,
   TIER_IDS,
+  COVERAGE_AXES,
   checksForTiers,
+  judgeLayerCoverage,
   judgeStubGap,
 } from "../../quality-gates.config.mjs";
 import { readTier, scanTiers } from "../../scripts/tier-scan.mjs";
@@ -62,6 +64,127 @@ describe("閾値の置き場所", () => {
     for (const layer of LAYER_COVERAGE) {
       expect(layer.why.length, `${layer.layer} に理由がありません`).toBeGreaterThan(10);
     }
+  });
+});
+
+/**
+ * 2026-08-21 に見つけた穴を、文章ではなく検査にする。
+ *
+ * それまで `scripts/coverage-report.mjs` は行の 1 列だけを見ながら 4 列を表示し、
+ * 隣に「下限」の列を置いて「すべての層が下限を満たしています」と出していた。
+ * `app` の分岐 62.5 は、印刷された 70 を下回ったまま緑を通っていた。
+ *
+ * ここで固定するのは数字ではなく**形**である——
+ * 「表示している列すべてに門があること」と「その門が実際に噛むこと」。
+ */
+describe("層別カバレッジの床", () => {
+  it("すべての層が、表示する 4 軸すべてに床を宣言している", () => {
+    // 1 軸でも欠けると `judgeLayerCoverage` の比較が `undefined` 相手になり、
+    // **その軸は常に達成**になる。表には出続けるので、誰も欠けたと気づかない。
+    for (const layer of LAYER_COVERAGE) {
+      for (const axis of COVERAGE_AXES) {
+        expect(
+          typeof layer.floors?.[axis],
+          `${layer.layer} に ${axis} の床がありません（門の無い列が表に並びます）`,
+        ).toBe("number");
+      }
+    }
+  });
+
+  it("軸の一覧が 4 本を割らない（上の検査を、軸を消して満たせないようにする）", () => {
+    // 上の検査は「宣言された軸すべて」を回るので、**軸そのものを消せば必ず通る**。
+    // 数えている対象を消して数字を満たす形なので、逆向きの下限で受け止める。
+    // 増やす方向は妨げない。減らす方向だけを止める。
+    expect(
+      COVERAGE_AXES.length,
+      "COVERAGE_AXES が 4 本を割っています。軸を消して床の検査を満たす形は禁止です",
+    ).toBeGreaterThanOrEqual(4);
+    expect(new Set(COVERAGE_AXES).size).toBe(COVERAGE_AXES.length);
+  });
+
+  it("行の床は、宣言した target と同じ値である", () => {
+    // 別の数を置くと、`target` と `floors.lines` のどちらが本物か分からなくなり、
+    // 片方だけ下げても「もう片方は下げていない」と言えてしまう。
+    for (const layer of LAYER_COVERAGE) {
+      expect(layer.floors.lines, `${layer.layer} の floors.lines が target と違います`).toBe(
+        layer.target,
+      );
+    }
+  });
+
+  it("床を下回った軸を実際に見つける（合成例による陽性対照）", () => {
+    // **0 件を返す検査は、0 の作り方を 2 通り持たないと 0 を主張できない。**
+    // 対象が健全でも、判定側が壊れていても、同じ「不足なし」が出る。
+    // そこで、床をちょうど 1pt 割る合成値を軸ごとに 1 つずつ通して、噛むことを見る。
+    const layer = LAYER_COVERAGE.find((l) => l.layer === "app");
+    if (!layer) throw new Error("app 層が LAYER_COVERAGE にありません");
+
+    // 名前を ASCII にしているのは好みではない。`const 満たす` と書くと整形の過程で
+    // 空白が落ち、`const満たす` という 1 個の識別子になって ReferenceError になった。
+    const atFloor = Object.fromEntries(COVERAGE_AXES.map((a) => [a, layer.floors[a]]));
+    expect(judgeLayerCoverage(atFloor, layer), "床ちょうどは達成のはず").toEqual([]);
+
+    for (const axis of COVERAGE_AXES) {
+      const below = { ...atFloor, [axis]: layer.floors[axis] - 1 };
+      const found = judgeLayerCoverage(below, layer);
+      expect(found.length, `${axis} を 1pt 割ったのに検出されません`).toBe(1);
+      expect(found[0]).toContain(String(layer.floors[axis]));
+    }
+
+    // 実際に起きていた形そのもの: 分岐 62.5 が、隣に印刷された 70 の下で緑を通っていた。
+    // 床が 70 だったなら赤くなるはずだったことを、ここで固定する。
+    expect(
+      judgeLayerCoverage(
+        { ...atFloor, branches: 62.5 },
+        { layer: "app", floors: { ...layer.floors, branches: 70 } },
+      ),
+    ).toHaveLength(1);
+  });
+
+  it("既知の不足: app の分岐の床は、宣言した target に届いていない", () => {
+    // **塞げていないことを、文章ではなく検査にする。**
+    // 2026-08-21 の穴を塞ぐとき、直し方を 2 つ比べて (B)「4 列に床を張り、
+    // 行以外は実測で凍結」を採った。(A)「4 列とも target で見る」を採らなかったのは、
+    // それが**穴を塞ぐ作業ではなく、塞いだあとに現れる別の課題**だからである。
+    // その課題がここに残っている: app の分岐は実測 62.5 で、宣言した 70 に 7.5pt 足りない。
+    //
+    // 本文に「まだ届いていません」と書くだけでは、届いた日にも古く見えないまま残る。
+    // ここに置けば、**届いて床を 70 へ上げた日にこの検査が赤くなって知らせる。**
+    //
+    // 反転先（赤くなった日に、消さずにこう書き換える）:
+    //   `expect(app.floors.branches).toBe(app.target)` へ反転させ、
+    //   さらに全層について `floors[axis] >= target` を要求する形へ広げる。
+    //   消すと、届いた状態が後で戻っても誰も気づかない状態へ帰る。
+    const app = LAYER_COVERAGE.find((l) => l.layer === "app");
+    if (!app) throw new Error("app 層が LAYER_COVERAGE にありません");
+    expect(
+      app.floors.branches,
+      "app の分岐が target に届きました。この検査を消さず、反転先（上の注釈）へ書き換えてください",
+    ).toBeLessThan(app.target);
+  });
+
+  it("判定式が scripts/coverage-report.mjs の中に埋め戻されていない", () => {
+    // 式がスクリプトの中にあると、外から合成例を通せない。
+    // 実際、この穴が 1 度も検出されなかった理由がそれである。
+    const script = read("scripts/coverage-report.mjs");
+    expect(script, "judgeLayerCoverage を呼ばずに判定しています").toContain("judgeLayerCoverage(");
+
+    // **注釈を数えない。**最初に書いたときこれを忘れ、「昔はこう書いていた」と
+    // 説明している注釈そのものを式として拾って赤くなった。
+    // 昔の形を説明できなくなる検査は、やがて説明のほうが消される。
+    const code = script
+      .split("\n")
+      .filter((line) => !/^\s*(?:\/\/|\/\*|\*)/.test(line))
+      .join("\n");
+    expect(
+      /r(?:\.\w+|\[[^\]]+\])\s*>=\s*layer\.target/.test(code),
+      "1 列だけを見る比較（r.lines >= layer.target の形）が戻っています",
+    ).toBe(false);
+
+    // 注釈を外したことで検査が何も見なくなっていないか、合成例で確かめる。
+    expect(/r(?:\.\w+|\[[^\]]+\])\s*>=\s*layer\.target/.test("  const ok = r.lines >= layer.target;")).toBe(
+      true,
+    );
   });
 });
 

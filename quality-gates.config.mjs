@@ -39,39 +39,92 @@ export const GLOBAL_COVERAGE = {
  *
  * `target` に届くまでの経過は `current` に実測を書く（手で書かない。
  * `scripts/coverage-report.mjs` が更新する）。
+ *
+ * --- なぜ `floors` が要るのか（2026-08-21 に見つけた穴）---
+ *
+ * それまで `scripts/coverage-report.mjs` の判定は `r.lines >= layer.target` の 1 行だけで、
+ * **見ていたのは「行」の 1 列だけだった。**それなのに表には行・分岐・関数・文の 4 列が並び、
+ * その隣に「下限」の列が置かれ、最後に「すべての層が下限を満たしています」と出ていた。
+ * 実測: `app` の分岐は 62.5 で、**隣に印刷された 70 を 7.5pt 下回ったまま緑を通っていた。**
+ * 全体側 (`GLOBAL_COVERAGE.branches = 80`) も全体 81.1 で通るので、
+ * **層ごとの分岐はどこからも見られていなかった。**
+ *
+ * これは閾値が甘かったのではなく、**閾値の無い列を、閾値のある列の隣に並べて表示していた**話である。
+ * 数字が並んでいること自体が「守られている」という誤読を作る（78 番 (82) の変種）。
+ *
+ * 直し方を 2 つ比べた。
+ *   (A) 4 列すべてを `target` で見る → `app` の分岐 62.5 が即座に赤。本当の不足が出るが、
+ *       それは**この穴を塞ぐ作業ではなく、塞いだあとに現れる別の課題**である。
+ *   (B) 4 列すべてに床を張り、行は宣言どおり `target`、残り 3 列は**今日の実測で凍結**する。
+ * (B) を採った。**下げる方向の変更を 1 つも含まない**——無かった門を足しただけである。
+ * (A) が要求する「`app` の分岐を 70 まで上げる」は残課題として別に立てる。
+ *
+ * `floors.lines` は必ず `target` と同じ値にする（別の数を置くと、どちらが本物か分からなくなる）。
+ * 残り 3 列は実測の**整数切り捨て**。実測ちょうどに置くと小数のゆらぎで赤が出て、
+ * 「どうせ不安定」と扱われて門が読まれなくなる。切り捨てぶん（1pt 未満）の余白は承知のうえ。
+ * **上げる方向にしか動かさない。**
+ *
+ * 2026-08-21 実測（`pnpm verify` の「層別の記録」、単位は %、対象は `src/<層>` 配下）:
+ *   domain 96.4/93.7/94/95.4  application 97.4/85.1/98.6/91.8
+ *   presentation 90.9/80.7/87.4/89.5  app 88.1/62.5/86.7/87.3
+ *   infrastructure 82.6/74.2/81.3/81   （行/分岐/関数/文）
  */
 export const LAYER_COVERAGE = [
   {
     layer: "domain",
     dir: "src/domain",
     target: 90,
+    floors: { lines: 90, branches: 93, functions: 94, statements: 95 },
     why: "業務の決まりごと。壊れると仕様違反がそのまま本番に出る",
   },
   {
     layer: "application",
     dir: "src/application",
     target: 85,
+    floors: { lines: 85, branches: 85, functions: 98, statements: 91 },
     why: "手順。外側はポートで差し替えられるので、厚く書けない言い訳が無い",
   },
   {
     layer: "presentation",
     dir: "src/presentation",
     target: 75,
+    floors: { lines: 75, branches: 80, functions: 87, statements: 89 },
     why: "入口の配線。ここが外れると、正しいドメインが呼ばれないまま画面が動く",
   },
   {
     layer: "app",
     dir: "src/app",
     target: 70,
+    floors: { lines: 70, branches: 62, functions: 86, statements: 87 },
     why: "画面そのもの。4 つの状態と孤立ページを見る。見た目の網羅は追わない",
   },
   {
     layer: "infrastructure",
     dir: "src/infrastructure",
     target: 70,
+    floors: { lines: 70, branches: 74, functions: 81, statements: 81 },
     why: "道具。スタブが多く、実接続後に再評価する",
   },
 ];
+
+/** `floors` が覆う軸。**減らせないように数で縛る**（下の検査が使う）。 */
+export const COVERAGE_AXES = ["lines", "branches", "functions", "statements"];
+
+/**
+ * 層 1 つの判定。**判定式をスクリプトの中に埋めない。**
+ * 埋めると外から試せず、「4 列表示して 1 列しか見ていない」形が起きても
+ * 誰も合成例を通せない。実際、2026-08-21 まで起きていたのがそれである。
+ *
+ * @param {Record<string, number>} measured 実測（軸名 → %）
+ * @param {{layer: string, floors: Record<string, number>}} layer
+ * @returns {string[]} 不足の説明。空なら達成。
+ */
+export function judgeLayerCoverage(measured, layer) {
+  const label = { lines: "行", branches: "分岐", functions: "関数", statements: "文" };
+  return COVERAGE_AXES.filter((axis) => measured[axis] < layer.floors[axis]).map(
+    (axis) => `${layer.layer} の ${label[axis]} ${measured[axis]}%（下限 ${layer.floors[axis]}%）`,
+  );
+}
 
 /**
  * ミューテーションスコアの下限。
@@ -1496,10 +1549,16 @@ export default qualityGates;
  * この数字は「呼ばれていない口が 82 件ある」という事実の記録であって、目標ではない。
  * 大半は保存先や機能そのものがまだ無いもので、機能が乗るたびに減る。
  *
+ * 2026-08-21 の実測は **79 件**（`node scripts/port-wiring.mjs` の「呼ばれていない」行、
+ * 単位は手続き、対象は `src/**` のポート手続き、比較の基点は上の 2026-08-18 の 82）。
+ * 上の 82 は消さない——**日付つきの観測は、世界が変わっても偽にはならず、履歴になる。**
+ * 82 のまま置くと 3 件ぶんの余白ができ、口を 3 つ足して誰も呼ばなくても緑のままになる。
+ * そこで上限を実測へ詰めて 79 にする。
+ *
  * **上げて緑にすることを禁じる。** ポートを足すときは、
  * 呼ぶ場所を同じ変更の中で作る。作れないなら理由を登録簿へ書く。
  */
-export const PORT_WIRING_MAX_UNCALLED = 82;
+export const PORT_WIRING_MAX_UNCALLED = 79;
 
 /**
  * 理由つきの除外の上限。
