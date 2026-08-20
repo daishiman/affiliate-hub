@@ -763,6 +763,13 @@
         "serves_goals": [
           "G1",
           "G2"
+        ],
+        "required_info_checks": [
+          {
+            "checked_on": "2026-08-20",
+            "checked_with": "record-required-info-check",
+            "blocking_item_count": 0
+          }
         ]
       },
       "mobile": {
@@ -800,6 +807,13 @@
         ],
         "serves_goals": [
           "G1"
+        ],
+        "required_info_checks": [
+          {
+            "checked_on": "2026-08-20",
+            "checked_with": "record-required-info-check",
+            "blocking_item_count": 1
+          }
         ]
       },
       "mobile": {
@@ -849,6 +863,13 @@
         ],
         "serves_goals": [
           "G1"
+        ],
+        "required_info_checks": [
+          {
+            "checked_on": "2026-08-20",
+            "checked_with": "record-required-info-check",
+            "blocking_item_count": 3
+          }
         ]
       },
       "mobile": {
@@ -886,6 +907,13 @@
         ],
         "serves_goals": [
           "G1"
+        ],
+        "required_info_checks": [
+          {
+            "checked_on": "2026-08-20",
+            "checked_with": "record-required-info-check",
+            "blocking_item_count": 1
+          }
         ]
       },
       "mobile": {
@@ -916,6 +944,13 @@
         "serves_goals": [
           "G2",
           "G1"
+        ],
+        "required_info_checks": [
+          {
+            "checked_on": "2026-08-20",
+            "checked_with": "record-required-info-check",
+            "blocking_item_count": 0
+          }
         ]
       },
       "mobile": {
@@ -954,6 +989,13 @@
         "serves_goals": [
           "G2",
           "G1"
+        ],
+        "required_info_checks": [
+          {
+            "checked_on": "2026-08-20",
+            "checked_with": "record-required-info-check",
+            "blocking_item_count": 1
+          }
         ]
       },
       "mobile": {
@@ -984,6 +1026,13 @@
         "serves_goals": [
           "G1",
           "G2"
+        ],
+        "required_info_checks": [
+          {
+            "checked_on": "2026-08-20",
+            "checked_with": "record-required-info-check",
+            "blocking_item_count": 0
+          }
         ]
       },
       "mobile": {
@@ -1014,6 +1063,13 @@
         "serves_goals": [
           "G1",
           "G2"
+        ],
+        "required_info_checks": [
+          {
+            "checked_on": "2026-08-20",
+            "checked_with": "record-required-info-check",
+            "blocking_item_count": 0
+          }
         ]
       },
       "mobile": {
