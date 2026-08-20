@@ -206,8 +206,47 @@ def test_source_gaps_respects_field_sources():
     foundation["essential_purpose"] = "目的"
     assert "essential_purpose" in fp.foundation_source_gaps(foundation)
     foundation["provenance"]["field_sources"] = [
-        {"field": "essential_purpose", "path": "docs/x.md", "section": "§1", "quote": "目的"}
+        {"field": "essential_purpose", "kind": "written-requirements",
+         "path": "docs/x.md", "section": "§1", "quote": "目的"}
     ]
+    assert "essential_purpose" not in fp.foundation_source_gaps(foundation)
+
+
+def test_empty_source_record_does_not_count_as_a_source():
+    """**欄名だけの札は出典として数えない。**
+
+    数えると、上限 (FOUNDATION_MAX_UNSOURCED) は札を並べるだけで満たせる。
+    上限は「実物を指す出典が無い欄」を数えるための道具なので、指していない札を
+    数えた時点で道具ではなくなる。
+    """
+    foundation = make_foundation()
+    foundation["essential_purpose"] = "目的"
+    foundation["provenance"]["field_sources"] = [{"field": "essential_purpose"}]
+    assert "essential_purpose" in fp.foundation_source_gaps(foundation)
+    findings = fp.validate_foundation_source_records(foundation)
+    assert len(findings) == 1
+    assert "kind=None が許容値外" in findings[0]
+
+    # 種類ごとに何が要るか。written-requirements は path と quote。
+    foundation["provenance"]["field_sources"] = [
+        {"field": "essential_purpose", "kind": "written-requirements", "path": "docs/x.md"}
+    ]
+    findings = fp.validate_foundation_source_records(foundation)
+    assert len(findings) == 1 and "quote が必須" in findings[0]
+    assert "essential_purpose" in fp.foundation_source_gaps(foundation)
+
+    # user-dialogue は qa_id。
+    foundation["provenance"]["field_sources"] = [
+        {"field": "essential_purpose", "kind": "user-dialogue"}
+    ]
+    findings = fp.validate_foundation_source_records(foundation)
+    assert len(findings) == 1 and "qa_id が必須" in findings[0]
+
+    # 対になる緑: 揃えば数える。
+    foundation["provenance"]["field_sources"] = [
+        {"field": "essential_purpose", "kind": "user-dialogue", "qa_id": "qa-foundation-u1"}
+    ]
+    assert fp.validate_foundation_source_records(foundation) == []
     assert "essential_purpose" not in fp.foundation_source_gaps(foundation)
 
 
@@ -271,35 +310,38 @@ def test_writer_rejects_confirm_without_coverage():
 # --------------------------------------------------------------------------- #
 # 出典なし欄の上限 (門)                                                          #
 # --------------------------------------------------------------------------- #
-def test_cap_rejects_fourteen():
-    """**この 14 は定数から作らない。**
+def test_cap_rejects_twelve():
+    """**この 12 は定数から作らない。**
 
     最初この本数を `FOUNDATION_MAX_UNSOURCED + 1` で作ろうとしたが、それだと
-    上限を 13 から 999 へ上げても例が一緒に伸び、検査は緑のままになる。
+    上限を 11 から 999 へ上げても例が一緒に伸び、検査は緑のままになる。
     2026-08-20 に scope 被覆側で同じ形の欠陥を実際に作って踏んでいる
     (`SCOPE_NOTE_SPAN_MIN_LEN` の床テスト)。**測る側が測られる側を参照して
     いると、緩めたことを検出できない。**
+
+    上限を下げるたびにこの本数も手で書き直す。手間はわざと残してある。
+    定数に追随させた瞬間、この検査は上限の見張りをやめる。
     """
     foundation = make_foundation()
-    foundation["constraints"] = [f"制約{i}" for i in range(14)]
+    foundation["constraints"] = [f"制約{i}" for i in range(12)]
     findings = fp.validate_foundation_unsourced_cap(foundation)
     assert len(findings) == 1
-    assert "14 件で上限 13 件を超えた" in findings[0]
+    assert "12 件で上限 11 件を超えた" in findings[0]
     # 超えた分は名前を添えて返す。除外は消去ではない。
-    assert "constraints[13]" in findings[0]
+    assert "constraints[11]" in findings[0]
 
 
-def test_cap_allows_thirteen():
+def test_cap_allows_eleven():
     """対になる緑。これが無いと「何を渡しても落ちる門」を作っただけかもしれない。"""
     foundation = make_foundation()
-    foundation["constraints"] = [f"制約{i}" for i in range(13)]
-    assert len(fp.foundation_source_gaps(foundation)) == 13
+    foundation["constraints"] = [f"制約{i}" for i in range(11)]
+    assert len(fp.foundation_source_gaps(foundation)) == 11
     assert fp.validate_foundation_unsourced_cap(foundation) == []
 
 
 def test_cap_is_not_raised():
-    """上限は下げる方向にしか動かさない。13 -> 12 は可、13 -> 14 は不可。"""
-    assert fp.FOUNDATION_MAX_UNSOURCED <= 13
+    """上限は下げる方向にしか動かさない。11 -> 10 は可、11 -> 12 は不可。"""
+    assert fp.FOUNDATION_MAX_UNSOURCED <= 11
 
 
 def test_writer_enforces_the_cap():
@@ -328,7 +370,9 @@ def test_writer_enforces_the_cap():
         "success_criteria": ["基準"],
         "stakeholders": ["利用者"],
         "scope": {"in": ["あ・い", "う"], "out": ["か", "き"]},
-        "constraints": [f"制約{i}" for i in range(14)],
+        # constraints 以外の欄が 8 件を出す。4 件足して 12 件、上限 11 を 1 件超える。
+        # (この 12 も定数から作らない。理由は test_cap_rejects_twelve と同じ。)
+        "constraints": [f"制約{i}" for i in range(4)],
         "concrete_intents": [{"id": "I1", "text": "やること", "serves": ["G1"]}],
         "confirmed": True,
         "approval_ref": "appr-1",
@@ -336,12 +380,12 @@ def test_writer_enforces_the_cap():
     }
     with pytest.raises(stc.TransitionError) as excinfo:
         stf.set_foundation(copy.deepcopy(state), copy.deepcopy(foundation))
-    assert "上限 13 件を超えた" in str(excinfo.value)
+    assert "上限 11 件を超えた" in str(excinfo.value)
 
-    # 対になる緑: constraints を減らして 13 件へ収めれば同じ foundation が通る。
-    # constraints 以外の欄が 8 件あるので 5 件で 13 件ちょうどになる。
+    # 対になる緑: constraints を減らして 11 件へ収めれば同じ foundation が通る。
+    # constraints 以外の欄が 8 件あるので 3 件で 11 件ちょうどになる。
     passing_foundation = copy.deepcopy(foundation)
-    passing_foundation["constraints"] = [f"制約{i}" for i in range(5)]
+    passing_foundation["constraints"] = [f"制約{i}" for i in range(3)]
     passing = copy.deepcopy(state)
     stf.set_foundation(passing, passing_foundation)
     assert passing["requirements_foundation"]["confirmed"] is True

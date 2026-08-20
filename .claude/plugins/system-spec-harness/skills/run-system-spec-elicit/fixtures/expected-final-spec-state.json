@@ -499,7 +499,26 @@
       }
     ],
     "confirmed": true,
-    "approval_ref": "appr-foundation"
+    "approval_ref": "appr-foundation",
+    "provenance": {
+      "field_sources": [
+        {
+          "field": "essential_purpose",
+          "kind": "user-dialogue",
+          "qa_id": "qa-foundation-u1"
+        },
+        {
+          "field": "background",
+          "kind": "user-dialogue",
+          "qa_id": "qa-foundation-u2"
+        },
+        {
+          "field": "goals[0]",
+          "kind": "user-dialogue",
+          "qa_id": "qa-foundation-u3"
+        }
+      ]
+    }
   },
   "decisions": [],
   "knowledge_candidates": [],

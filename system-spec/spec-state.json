@@ -3111,6 +3111,21 @@
       },
       "field_sources": [
         {
+          "field": "goals[0]",
+          "kind": "written-requirements",
+          "path": "docs/spec/01-要求仕様書-v1.0.md",
+          "section": "§32 (L2441)",
+          "quote": "一つのアフィリエイトURLを起点に、正しい商品情報、比較候補、根拠、書き手、読者、媒体、広告表示を統合し、目的の異なる高品質コンテンツを安全に作成・公開・改善できること。"
+        },
+        {
+          "field": "goals[1]",
+          "kind": "written-requirements",
+          "path": "docs/spec/01-要求仕様書-v1.0.md",
+          "section": "§2.3 (L112)",
+          "quote": "* どの商品、媒体、文章パターンが成果につながったか確認できる",
+          "note": "G2 は §32 (U3 の sha256 束縛済み原文) に対応記述が無い。§2.3 の 2 行へ分かれて在る。L110 の「* アフィリエイトリンクを一元管理できる」が「一元管理」側の対応。"
+        },
+        {
           "field": "objectives[0]",
           "kind": "written-requirements",
           "path": "docs/spec/01-要求仕様書-v1.0.md",

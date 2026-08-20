@@ -63,6 +63,19 @@ def _valid_foundation() -> dict:
         "concrete_intents": [{"id": "I1", "text": "日次バックアップ", "serves": ["G1"]}],
         "confirmed": True,
         "approval_ref": "appr-foundation",
+        # 出典なし欄の上限は本番 state の実測値へ追随して下がる。この fixture は
+        # 12 欄あるので、札が 0 枚だと「何も間違っていないのに落ちる fixture」に
+        # なる。札を足すのは上限を上げるのとは違う (空札は弾かれる)。
+        "provenance": {
+            "field_sources": [
+                {"field": "essential_purpose", "kind": "user-dialogue",
+                 "qa_id": "qa-foundation-u1"},
+                {"field": "background", "kind": "user-dialogue",
+                 "qa_id": "qa-foundation-u2"},
+                {"field": "goals[0]", "kind": "user-dialogue",
+                 "qa_id": "qa-foundation-u3"},
+            ]
+        },
     }
 
 

@@ -269,15 +269,16 @@ def validate_foundation_scope_coverage(data: dict, foundation: dict) -> list[str
 # 明示 N/A の欄は数えない (値が無いので出典の付けようがない)。
 #
 # 上限。2026-08-20 実測: 分母 47 (値を持つ葉の総数。scope 以外 23 + scope 24)、
-# 出典なし 13。基点は system-spec/spec-state.json。
+# 出典なし 11。基点は system-spec/spec-state.json。
+# 推移: 43 (門を置く前) -> 14 -> 13 (objectives[1]) -> 11 (goals[0] / goals[1])。
 #
-# この 13 は「出典が無い」ではなく「実物を引いて確かめられていない」件数である。
+# この 11 は「出典が無い」ではなく「実物を引いて確かめられていない」件数である。
 # 2 つは違う。ただしそれは上限を置かない理由にならない。**上限は「これ以上悪く
 # しない」ための道具であって「ここまでで良い」という目標ではない。**調べれば付く
 # ものが後で付けば件数は下がり、下がった値が新しい天井になる。
 #
-# 以後この値は下げる方向にしか動かさない (13 -> 12 は可、13 -> 14 は不可)。
-FOUNDATION_MAX_UNSOURCED = 13
+# 以後この値は下げる方向にしか動かさない (11 -> 10 は可、11 -> 12 は不可)。
+FOUNDATION_MAX_UNSOURCED = 11
 SOURCE_GAP_SCALARS = ("essential_purpose", "background")
 SOURCE_GAP_LISTS = (
     ("goals", "text"), ("objectives", "text"), ("objectives", "measure"),
@@ -286,14 +287,60 @@ SOURCE_GAP_LISTS = (
 )
 
 
+SOURCE_RECORD_REQUIRED = {
+    "written-requirements": ("path", "quote"),
+    "user-dialogue": ("qa_id",),
+}
+
+
+def source_record_defects(record) -> list[str]:
+    """field_sources の 1 件が出典として成立しているか。成立していない理由を返す。
+
+    **欄名を書くだけで出典ありに数えられる門は、門ではない。**
+    上限 (FOUNDATION_MAX_UNSOURCED) は「出典の無い欄の数」を縛るので、
+    `{"field": "constraints[0]"}` だけの空札が出典として通ると、上限は
+    札を並べるだけで満たせてしまう。数えるのは札ではなく、実物を指している札。
+    """
+    if not isinstance(record, dict):
+        return [f"field_sources の要素が object でない: {record!r}"]
+    field = record.get("field")
+    if not isinstance(field, str) or not field.strip():
+        return [f"field_sources: field が空 ({record!r})"]
+    kind = record.get("kind")
+    if kind not in SOURCE_RECORD_REQUIRED:
+        return [f"field_sources[{field}]: kind={kind!r} が許容値外"]
+    defects = []
+    for key in SOURCE_RECORD_REQUIRED[kind]:
+        value = record.get(key)
+        if not isinstance(value, str) or not value.strip():
+            defects.append(f"field_sources[{field}]: kind={kind} には {key} が必須")
+    return defects
+
+
+def validate_foundation_source_records(foundation: dict) -> list[str]:
+    """成立していない出典札を名前つきで返す。黙って無視しない。"""
+    provenance = foundation.get("provenance") if isinstance(foundation, dict) else None
+    provenance = provenance if isinstance(provenance, dict) else {}
+    findings: list[str] = []
+    for record in (provenance.get("field_sources") or []):
+        findings.extend(
+            f"requirements_foundation: {d}" for d in source_record_defects(record)
+        )
+    return findings
+
+
 def foundation_source_gaps(foundation: dict) -> list[str]:
-    """出典 (provenance.field_sources または scope 被覆申告) の無い欄のパス一覧。"""
+    """出典 (provenance.field_sources または scope 被覆申告) の無い欄のパス一覧。
+
+    成立していない札 (`source_record_defects` が理由を返す札) は数えない。
+    数えると、空札を並べるだけで上限を満たせる。
+    """
     provenance = foundation.get("provenance") if isinstance(foundation, dict) else None
     provenance = provenance if isinstance(provenance, dict) else {}
     attributed = {
         record.get("field")
         for record in (provenance.get("field_sources") or [])
-        if isinstance(record, dict) and isinstance(record.get("field"), str)
+        if not source_record_defects(record)
     }
     gaps: list[str] = []
 

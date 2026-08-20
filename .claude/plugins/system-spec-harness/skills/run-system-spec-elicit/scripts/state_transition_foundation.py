@@ -4,6 +4,7 @@ from __future__ import annotations
 from foundation_provenance import (
     validate_foundation_scope_coverage,
     validate_foundation_source_indexes,
+    validate_foundation_source_records,
     validate_foundation_unsourced_cap,
 )
 from state_transition_common import (
@@ -86,6 +87,11 @@ def set_foundation(state: dict, foundation: dict) -> None:
             raise TransitionError("確定条件不足: " + "; ".join(coverage_findings))
         # 被覆検査は scope しか見ない。scope 以外の欄が出典なしのまま増えるのを
         # 止めるのがこの上限である。上限は下げる方向にしか動かさない。
+        # 空札 (欄名だけで実物を指していない出典) を先に落とす。落とさないと
+        # 下の上限が札の枚数で満たせてしまう。
+        record_findings = validate_foundation_source_records(merged)
+        if record_findings:
+            raise TransitionError("確定条件不足: " + "; ".join(record_findings))
         cap_findings = validate_foundation_unsourced_cap(merged)
         if cap_findings:
             raise TransitionError("確定条件不足: " + "; ".join(cap_findings))

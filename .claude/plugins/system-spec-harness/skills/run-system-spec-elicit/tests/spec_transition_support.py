@@ -37,6 +37,23 @@ def valid_foundation() -> dict:
         "confirmed": True,
         "approval_ref": "appr-foundation",
         "approval_note": "上位概念 U1-U9 をユーザーと確認し合意した",
+        # 出典なし欄の上限 (FOUNDATION_MAX_UNSOURCED) は本番 state の実測値へ
+        # 追随して下がる。この fixture は 12 欄あるので、上限が 11 を下回ると
+        # 「何も間違っていないのに落ちる fixture」になる。
+        # **ここで札を増やして通すのは、上限を上げるのとは違う。**
+        # 上限は「実物を指す出典の無い欄」を数えるので、fixture の値が実際に
+        # 出てきた場所 (下の qa turn) を指す札を書くのは、緩めるのではなく
+        # 本番と同じ形にすることである。空札は source_record_defects が弾く。
+        "provenance": {
+            "field_sources": [
+                {"field": "essential_purpose", "kind": "user-dialogue",
+                 "qa_id": "qa-foundation-u1"},
+                {"field": "background", "kind": "user-dialogue",
+                 "qa_id": "qa-foundation-u2"},
+                {"field": "goals[0]", "kind": "user-dialogue",
+                 "qa_id": "qa-foundation-u3"},
+            ]
+        },
     }
 
 

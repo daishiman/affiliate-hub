@@ -10,7 +10,12 @@ import re
 from datetime import datetime
 from urllib.parse import urlsplit
 
-from foundation_provenance import validate_foundation_source_indexes
+from foundation_provenance import (
+    validate_foundation_scope_coverage,
+    validate_foundation_source_indexes,
+    validate_foundation_source_records,
+    validate_foundation_unsourced_cap,
+)
 
 DECISION_COST_CATEGORIES = {"free", "low-cost", "paid", "unknown"}
 DECISION_COMPARISON_AXES = ("goal_fit", "tco", "security", "operations", "lock_in")
@@ -274,6 +279,15 @@ def validate_foundation(data: dict) -> list[str]:
                 f"requirements_foundation: approval_ref={approval_ref!r} が approval_log に不在"
             )
         findings.extend(validate_foundation_source_indexes(data))
+        # writer (set_foundation) と同じ 2 門を read-only 経路にも置く。
+        # **片側だけの門は、通らない側から入られたら意味を持たない。**
+        # この repo には writer を迂回した記録が現に 2 件あり、その経路から入ると
+        # scope 被覆も出典なし上限も一度も評価されないまま exit 0 になっていた。
+        # 追加する側は writer と同じ関数を呼ぶ (判定を 2 箇所へ書くと、片方だけ
+        # 直したときに「どちらが本物か」が決められなくなる)。
+        findings.extend(validate_foundation_scope_coverage(data, rf))
+        findings.extend(validate_foundation_source_records(rf))
+        findings.extend(validate_foundation_unsourced_cap(rf))
     goals = rf.get("goals") or []
     if _is_explicit_na(goals):
         goals = []
