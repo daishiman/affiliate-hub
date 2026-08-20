@@ -23,11 +23,17 @@ def test_audit_fork_attribution_is_bound_by_agent_id() -> None:
     「撤回した」という文の中に残るので、語の在否を見る検査は撤回に気づかない。
     見るべきは、束縛の根拠 (`agent_id`) と、撤回で失われた保証 (順序の保証) と、
     撤回していない禁止 (起動受理を verdict にしない) が条文として在ることである。
+
+    **これは下限であり、上げる方向にしか動かさない。**行走査の門を撤回した分は
+    ここで受け止める (下の RETRACTED_GATE の受け止め先 3 を参照)。
     """
     for name, text in _contract_texts().items():
         assert "PostToolUse" in text, name
         assert "SubagentStop" in text, name
         assert "agent_id" in text, name
+        # 帰属根拠。順序へ戻すにはこの 2 つを削るしかない。
+        assert "唯一の帰属根拠" in text, name
+        assert "順序・同時性" in text, name
         # 撤回で失われた保証。ここが消えたら、順序に頼る推論が黙って戻る。
         assert "順序の保証" in text, name
         # 配線を直しても過去の pending 行は resolved にならない。
@@ -36,8 +42,9 @@ def test_audit_fork_attribution_is_bound_by_agent_id() -> None:
         assert "撤回していない" in text, name
 
 
-# 直列化の到達点を指す印。禁止しているのは語ではなく到達点なので、
-# 特定の一文ではなくこの 2 つの印で拾う。
+# 直列化の話題を指す印。**これは規則性の判定器ではない。**印を含む行を拾うだけで、
+# その行が禁止を述べているのか遵守を述べているのかは区別しない (下の
+# test_marks_detector_cannot_tell_polarity がその区別ができないことを固定している)。
 # **この一覧は伸ばさない。**同義語を足しても外側は残り続け、一覧が具体的で
 # 網羅的に見えるほど外側を確かめる動機が減る。取りこぼしは KNOWN_BLIND_SPOT
 # のほうへ「種類」として記録する。
@@ -56,40 +63,41 @@ def _normalize(line: str) -> str:
     return re.sub(r"\s+", " ", folded)
 
 
-def states_serialization_in_force(line: str) -> bool:
-    """その行が「直列化を、いま効いている規則として」述べているか。
+def mentions_serialization_marks(line: str) -> bool:
+    """その行が直列化の印を**含むか**だけを返す。規則かどうかは判定しない。
 
-    撤回の文脈 (同一行に「撤回」) を伴う言及は来歴なので規則ではない。
+    名前を弱いほうへ直してある。以前は `states_serialization_in_force` と名乗って
+    いたが、名乗っていた判定はこの実装にはできない (下の 2 つの test を参照)。
     """
     folded = _normalize(line)
-    if not any(mark in folded for mark in SERIALIZATION_MARKS):
-        return False
-    return "撤回" not in folded
+    return any(mark in folded for mark in SERIALIZATION_MARKS)
 
 
 # 印を含む表記ゆれ。ここに並ぶのは「同じ語の書き方違い」だけで、言い換えでは
 # ない。例を足して緑にする作業に意味があるのはこの一覧までである。
-NOTATION_VARIANTS_IN_FORCE = (
-    "正式 evaluator は 1 message = 1 foreground fork で直列化する。",
-    "正式 evaluator は 1 メッセージ = 1 foreground fork で直列化する。",
+# 印は 2 つあるので、**印ごとに分けて置く**。両方の印を含む例だけで測ると、
+# 片方の印だけで捕まっていた可能性を排除できない (交絡)。
+NOTATION_VARIANTS_FORK_MARK = (
+    "正式 evaluator は 1 message = 1 foreground fork で運用する。",
+    "正式 evaluator は 1 メッセージ = 1 foreground fork で運用する。",
     "正式 evaluator は 1 message  =  1 foreground fork とする。",
     "1 Message = 1 Foreground Fork で運用する。",
     "dispatch one message per foreground fork.",
+)
+NOTATION_VARIANTS_SERIAL_MARK = (
     "監査 fork は必ず 1 件ずつ直列に起動する。",
+    "監査 fork は必ず 1 件ずつ直列に起動すること。",
 )
 
 # **塞げていない穴を、文章ではなく検査として残す。**
 #
-# 種類: **印を一つも使わずに直列化を述べる同義語**。この門は印 (SERIALIZATION_MARKS)
-# の在否でしか拾えないので、印を持たない言い方は原理的に素通りする。下は同じ
-# 1 種類の実例であって、一覧ではない。**足りない例を足す形で運用しない** —
-# 例を増やしても種類は 1 つのままで、増やした分だけ「網羅した」という誤読が
-# 育つ。次に別の同義語が出てきたら、それはこの種類の新しい実例であって、
-# 新しい穴ではない。
-#
-# 反転先: 印に頼らずこの種類を拾えるようになった日に、実例を
-# NOTATION_VARIANTS_IN_FORCE 側の検査へ移して本 test を削る。
-# 印の一覧を長くする方向では移さない。
+# 種類 1: **印を一つも使わない同義語**。印の在否でしか見ていないので、印を持たない
+# 言い方は原理的に素通りする。下は同じ 1 種類の実例であって一覧ではない。
+# **足りない例を足す形で運用しない** — 例を増やしても種類は 1 つのままで、
+# 増やした分だけ「網羅した」という誤読が育つ。次に別の同義語が出てきたら、
+# それはこの種類の新しい実例であって新しい穴ではない。
+# 反転先: 印に頼らずこの種類を拾えるようになった日に、実例を表記ゆれ側の検査へ
+# 移して本 test を削る。印の一覧を長くする方向では移さない。
 KNOWN_BLIND_SPOT_KIND = "印を持たない同義語 (直列化を SERIALIZATION_MARKS 抜きで述べる)"
 KNOWN_BLIND_SPOT_EXAMPLES = (
     "前の fork の完全応答を受け取ってから次の 1 件を起動する。",
@@ -97,47 +105,77 @@ KNOWN_BLIND_SPOT_EXAMPLES = (
     "fork は逐次実行する (並走させない)。",
 )
 
-# 拾ってはいけないもの。来歴の言及と、直列化と無関係な記述。
-NOT_IN_FORCE = (
-    "「1 message = 1 foreground fork」という手段は撤回する。",
-    "3 監査は独立 context で並走し得る。",
-    "PostToolUse は matching tool call ごとに発火する。",
+# 種類 2: **極性**。印の在否は、その文が禁止を述べているのか遵守を述べているのか、
+# 引用しているだけなのかを区別しない。下の 3 例はいずれも「直列化しない」と
+# 正しく書いた文だが、印を含むので同じように拾われる。
+POLARITY_INDISTINGUISHABLE_EXAMPLES = (
+    "直列化は行わない。fork は並走してよい。",
+    "foreground fork という語は本文書では使わない。",
+    "直列実行を前提にした記述は全て削除済みである。",
 )
 
 
-def test_gate_catches_notation_variants_of_the_retracted_means() -> None:
-    for example in NOTATION_VARIANTS_IN_FORCE:
-        assert states_serialization_in_force(example), example
+def test_marks_detector_catches_notation_variants_per_mark() -> None:
+    for example in NOTATION_VARIANTS_FORK_MARK:
+        assert "直列" not in example, f"交絡: {example}"
+        assert mentions_serialization_marks(example), example
+    for example in NOTATION_VARIANTS_SERIAL_MARK:
+        assert "foreground fork" not in example.casefold(), f"交絡: {example}"
+        assert mentions_serialization_marks(example), example
 
 
-def test_gate_ignores_retraction_and_unrelated_lines() -> None:
-    for example in NOT_IN_FORCE:
-        assert not states_serialization_in_force(example), example
-
-
-def test_known_blind_spot_kind_is_recorded_as_a_hole() -> None:
-    """塞げていない「種類」を検査として書く (doc comment の反転先を参照)。
-
-    実例が全て素通りすることを固定する。1 件でも捕まるようになったら、それは
-    種類が塞がり始めた合図なので、この test を消して実例を上の検査へ移す。
-    """
+def test_marks_detector_is_blind_to_synonyms() -> None:
+    """塞げていない「種類」を検査として書く (doc comment の反転先を参照)。"""
     assert KNOWN_BLIND_SPOT_KIND
     for example in KNOWN_BLIND_SPOT_EXAMPLES:
-        assert not states_serialization_in_force(example), example
+        assert not mentions_serialization_marks(example), example
 
 
-def test_retracted_means_is_never_stated_as_in_force() -> None:
-    """直列化が、いま効いている規則として 3 文書のどこにも書かれていないこと。
+def test_marks_detector_cannot_tell_polarity() -> None:
+    """**印の在否では極性を判定できない**ことを、実行できる事実として固定する。
 
-    印を使わない言い換えは素通りする (上の hole test を参照)。素通りの範囲では
-    `test_audit_fork_attribution_is_bound_by_agent_id` の下限が対になるが、
-    **対は言い換えを塞いでいない**。塞ぎ切れていない事実のほうを残してある。
+    肯定文 (直列化する) と否定文 (直列化しない) が同じ結果になることを示す。
+    これがこの道具の性能上限なので、**この道具を「規則として述べているか」の
+    門に昇格させてはならない**。昇格させると、直列化を否定する正しい記述が
+    赤くなり、書き手は話題自体を避けるようになる。避けられた話題は文書から
+    消え、消えたものは名乗り出ない。門が改善を罰する向きに効く形である。
+
+    反転先: 極性を判定できる手段を得た日に、この test を「否定文を拾わない」
+    検査へ書き換える。否定語の一覧を足す方向では反転させない (肯定と否定の
+    語彙は対称に無限で、一覧は必ず外側を残す)。
     """
-    for name, text in _contract_texts().items():
-        for lineno, line in enumerate(text.splitlines(), start=1):
-            assert not states_serialization_in_force(line), (
-                f"{name}:{lineno} が直列化をいま効いている規則として述べている"
-            )
+    positive = "監査 fork は必ず 1 件ずつ直列に起動する。"
+    assert mentions_serialization_marks(positive)
+    for negative in POLARITY_INDISTINGUISHABLE_EXAMPLES:
+        assert mentions_serialization_marks(negative) == mentions_serialization_marks(
+            positive
+        ), negative
+
+
+# **撤回した門についての記録。**
+#
+# ここには以前 `test_retracted_means_is_never_stated_as_in_force` があり、3 文書の
+# 全行を走査して「印を含み『撤回』を含まない行」を赤にしていた。撤回した理由は
+# 上の 2 つの test が示すとおりで、この判定器には (1) 印を持たない同義語が見えず、
+# (2) 極性が区別できない。(2) のほうが重い。「直列化は行わない」と正しく書くと
+# 赤くなり、通すには同じ行に「撤回」の 2 文字を置くしかなかった。書き手が学ぶのは
+# 話題に触れないことで、それは文書から話題を消す。
+#
+# **緩めた分の受け止め先** (ここが無いなら撤回は選べない):
+#   1. 実行側の門。`scripts/audit_fork_attribution.py` の畳み込みが、起動行と
+#      `agent_id` 一致の解決行が揃わない fork を receipt にしない。文書に何を
+#      書いても、順序を根拠に receipt を作ることはできない。
+#   2. hook 側の門。`hooks/record-audit-fork.py` の `resolvable_launch` が、
+#      引き当て 0 件・2 件以上・最終行が marker でない応答を resolved にしない。
+#   3. 文書側の下限。`test_audit_fork_attribution_is_bound_by_agent_id` が、
+#      帰属根拠 (`agent_id` / 唯一の帰属根拠 / 順序・同時性は根拠にしない) と
+#      失われた保証 (順序の保証) と遡及しない条項と、撤回していない禁止の
+#      在ることを 3 文書に要求する。帰属根拠を順序へ戻すには、これらの条文を
+#      削るしかなく、削れば赤くなる。**下限は上げる方向にしか動かさない。**
+#
+# 受け止められないもの: 帰属根拠に触れずに、運用上の推奨として直列化を書き足す
+# 形。これは receipt の作られ方を変えないので、害が無い側に倒して受け入れる。
+RETRACTED_GATE = "test_retracted_means_is_never_stated_as_in_force (極性を判定できないため撤回)"
 
 
 def test_three_auditors_keep_the_complete_response_binding() -> None:
