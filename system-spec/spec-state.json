@@ -2870,10 +2870,12 @@
       "in": [
         "マルチテナント",
         "複数ブランド・複数ブログ構築",
+        "ブログ記事作成",
         "アフィリエイトURL登録・商品情報抽出・商品データベース",
         "比較候補抽出",
         "書き手・読者ペルソナ",
         "AI文章生成・投稿パターン生成",
+        "画像・動画台本管理",
         "SNS連携・投稿カレンダー",
         "アフィリエイトリンク管理",
         "クリック・成果分析",
@@ -2883,9 +2885,11 @@
       ],
       "out": [
         "他サイトの無断複製・規約違反スクレイピング",
-        "CAPTCHA等の回避",
+        "非公開情報の取得",
+        "CAPTCHAやアクセス制御の回避",
         "架空の体験・資格",
         "無確認の大量自動投稿・スパム",
+        "自動購入",
         "報酬額基準のランキング",
         "アフィリエイトリンクの無断改変",
         "非公式note APIへの依存",
@@ -2931,7 +2935,253 @@
       }
     ],
     "confirmed": true,
-    "approval_ref": "approval-foundation-1"
+    "approval_ref": "approval-foundation-1",
+    "provenance": {
+      "scope": {
+        "source_qa_id": "qa-foundation-u7",
+        "sections": {
+          "in": {
+            "heading": "## 6.1 含むもの",
+            "items": [
+              {
+                "item": "マルチテナント",
+                "covers": [
+                  1
+                ]
+              },
+              {
+                "item": "複数ブランド・複数ブログ構築",
+                "covers": [
+                  2,
+                  3
+                ]
+              },
+              {
+                "item": "ブログ記事作成",
+                "covers": [
+                  4
+                ]
+              },
+              {
+                "item": "アフィリエイトURL登録・商品情報抽出・商品データベース",
+                "covers": [
+                  5,
+                  6,
+                  7
+                ]
+              },
+              {
+                "item": "比較候補抽出",
+                "covers": [
+                  8
+                ]
+              },
+              {
+                "item": "書き手・読者ペルソナ",
+                "covers": [
+                  9,
+                  10
+                ]
+              },
+              {
+                "item": "AI文章生成・投稿パターン生成",
+                "covers": [
+                  11,
+                  12
+                ]
+              },
+              {
+                "item": "画像・動画台本管理",
+                "covers": [
+                  13
+                ]
+              },
+              {
+                "item": "SNS連携・投稿カレンダー",
+                "covers": [
+                  14,
+                  15
+                ]
+              },
+              {
+                "item": "アフィリエイトリンク管理",
+                "covers": [
+                  16
+                ]
+              },
+              {
+                "item": "クリック・成果分析",
+                "covers": [
+                  17
+                ]
+              },
+              {
+                "item": "更新管理・広告法令確認",
+                "covers": [
+                  18,
+                  19
+                ]
+              },
+              {
+                "item": "WebMCP・バックエンドMCP・API",
+                "covers": [
+                  20,
+                  21,
+                  22
+                ]
+              },
+              {
+                "item": "チーム権限・承認フロー",
+                "covers": [
+                  23,
+                  24
+                ]
+              }
+            ]
+          },
+          "out": {
+            "heading": "## 6.2 含まないもの",
+            "items": [
+              {
+                "item": "他サイトの無断複製・規約違反スクレイピング",
+                "covers": [
+                  1,
+                  2
+                ]
+              },
+              {
+                "item": "非公開情報の取得",
+                "covers": [
+                  3
+                ]
+              },
+              {
+                "item": "CAPTCHAやアクセス制御の回避",
+                "covers": [
+                  4
+                ]
+              },
+              {
+                "item": "架空の体験・資格",
+                "covers": [
+                  5,
+                  6
+                ]
+              },
+              {
+                "item": "無確認の大量自動投稿・スパム",
+                "covers": [
+                  7,
+                  8
+                ]
+              },
+              {
+                "item": "自動購入",
+                "covers": [
+                  9
+                ]
+              },
+              {
+                "item": "報酬額基準のランキング",
+                "covers": [
+                  10
+                ]
+              },
+              {
+                "item": "アフィリエイトリンクの無断改変",
+                "covers": [
+                  11
+                ]
+              },
+              {
+                "item": "非公式note APIへの依存",
+                "covers": [
+                  12
+                ]
+              },
+              {
+                "item": "投稿先ポリシーを無視した自動化",
+                "covers": [
+                  13
+                ]
+              }
+            ]
+          }
+        }
+      },
+      "field_sources": [
+        {
+          "field": "objectives[0]",
+          "kind": "written-requirements",
+          "path": "docs/spec/01-要求仕様書-v1.0.md",
+          "section": "§27.1",
+          "quote": "根拠確認と人間承認を完了し、複数媒体へ展開されたコンテンツパッケージ数"
+        },
+        {
+          "field": "objectives[0].measure",
+          "kind": "written-requirements",
+          "path": "docs/spec/01-要求仕様書-v1.0.md",
+          "section": "§27.1",
+          "quote": "単なる生成数や投稿数を中心指標にしない。"
+        },
+        {
+          "field": "objectives[1]",
+          "kind": "written-requirements",
+          "path": "docs/spec/03-分析・解析基盤仕様.md",
+          "section": "§7.1 (L489)",
+          "quote": "蓄積されたロールアップから「クリック率・成果に効いている要因」を定期的に抽出し"
+        },
+        {
+          "field": "objectives[1].measure",
+          "kind": "written-requirements",
+          "path": "docs/spec/03-分析・解析基盤仕様.md",
+          "section": "L475",
+          "quote": "突合率(sub_id一致の割合)自体を運用KPIとし、sub_id非対応プログラムには「詳細分析不可」バッジを付ける"
+        },
+        {
+          "field": "success_criteria[0]",
+          "kind": "written-requirements",
+          "path": "docs/spec/01-要求仕様書-v1.0.md",
+          "section": "§30.8",
+          "quote": "## 30.8 追跡可能性"
+        },
+        {
+          "field": "success_criteria[1]",
+          "kind": "written-requirements",
+          "path": "docs/spec/01-要求仕様書-v1.0.md",
+          "section": "§30 (L2278)",
+          "quote": "# 30. 受け入れ条件"
+        },
+        {
+          "field": "success_criteria[2]",
+          "kind": "written-requirements",
+          "path": "docs/spec/03-分析・解析基盤仕様.md",
+          "section": "L683",
+          "quote": "| パフォーマンス概要 | 期間比較付きの主要KPI(PV/クリック/CTR/発生・承認CVR/承認・支払EPC/承認・支払報酬)。watermarkによる速報・確定・遅延を区別 |"
+        },
+        {
+          "field": "stakeholders[0]",
+          "kind": "written-requirements",
+          "path": "docs/spec/01-要求仕様書-v1.0.md",
+          "section": "§2.2",
+          "quote": "## 2.2 読者に対する価値"
+        },
+        {
+          "field": "stakeholders[1]",
+          "kind": "written-requirements",
+          "path": "docs/spec/01-要求仕様書-v1.0.md",
+          "section": "§2.3",
+          "quote": "## 2.3 発信者に対する価値"
+        },
+        {
+          "field": "stakeholders[2]",
+          "kind": "written-requirements",
+          "path": "docs/spec/01-要求仕様書-v1.0.md",
+          "section": "§25 (L2006-2019)",
+          "quote": "# 25. 権限"
+        }
+      ]
+    }
   },
   "decisions": [
     {

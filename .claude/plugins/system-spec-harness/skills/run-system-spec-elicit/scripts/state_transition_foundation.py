@@ -4,6 +4,7 @@ from __future__ import annotations
 from foundation_provenance import (
     validate_foundation_scope_coverage,
     validate_foundation_source_indexes,
+    validate_foundation_unsourced_cap,
 )
 from state_transition_common import (
     DECISION_COMPARISON_AXES,
@@ -83,6 +84,11 @@ def set_foundation(state: dict, foundation: dict) -> None:
         coverage_findings = validate_foundation_scope_coverage(state, merged)
         if coverage_findings:
             raise TransitionError("確定条件不足: " + "; ".join(coverage_findings))
+        # 被覆検査は scope しか見ない。scope 以外の欄が出典なしのまま増えるのを
+        # 止めるのがこの上限である。上限は下げる方向にしか動かさない。
+        cap_findings = validate_foundation_unsourced_cap(merged)
+        if cap_findings:
+            raise TransitionError("確定条件不足: " + "; ".join(cap_findings))
     merged["confirmed"] = confirmed
     state["requirements_foundation"] = merged
 

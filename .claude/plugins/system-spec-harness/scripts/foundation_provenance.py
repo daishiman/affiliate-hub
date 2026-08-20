@@ -267,6 +267,17 @@ def validate_foundation_scope_coverage(data: dict, foundation: dict) -> list[str
 #   concrete_intents[i].text = 各要素 1 欄
 #   scope.in[i] / scope.out[i] = 各要素 1 欄 (被覆申告があれば出典ありと数える)
 # 明示 N/A の欄は数えない (値が無いので出典の付けようがない)。
+#
+# 上限。2026-08-20 実測: 分母 47 (値を持つ葉の総数。scope 以外 23 + scope 24)、
+# 出典なし 13。基点は system-spec/spec-state.json。
+#
+# この 13 は「出典が無い」ではなく「実物を引いて確かめられていない」件数である。
+# 2 つは違う。ただしそれは上限を置かない理由にならない。**上限は「これ以上悪く
+# しない」ための道具であって「ここまでで良い」という目標ではない。**調べれば付く
+# ものが後で付けば件数は下がり、下がった値が新しい天井になる。
+#
+# 以後この値は下げる方向にしか動かさない (13 -> 12 は可、13 -> 14 は不可)。
+FOUNDATION_MAX_UNSOURCED = 13
 SOURCE_GAP_SCALARS = ("essential_purpose", "background")
 SOURCE_GAP_LISTS = (
     ("goals", "text"), ("objectives", "text"), ("objectives", "measure"),
@@ -321,3 +332,18 @@ def foundation_source_gaps(foundation: dict) -> list[str]:
                 if isinstance(item, str) and item.strip() and item not in covered:
                     gaps.append(f"scope.{side}[{index}]")
     return gaps
+
+
+def validate_foundation_unsourced_cap(foundation: dict) -> list[str]:
+    """出典の無い欄が上限を超えていないか。超えた分は名前を添えて返す。
+
+    **除外は消去ではない。**上限内に収まっている場合も、収まっている件数と
+    その一覧は呼び出し側から `foundation_source_gaps` で取れる形に残してある。
+    """
+    gaps = foundation_source_gaps(foundation)
+    if len(gaps) <= FOUNDATION_MAX_UNSOURCED:
+        return []
+    return [
+        f"requirements_foundation: 出典の無い欄が {len(gaps)} 件で上限 "
+        f"{FOUNDATION_MAX_UNSOURCED} 件を超えた: {gaps}"
+    ]

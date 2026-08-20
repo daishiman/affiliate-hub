@@ -268,6 +268,85 @@ def test_writer_rejects_confirm_without_coverage():
     assert passing["requirements_foundation"]["confirmed"] is True
 
 
+# --------------------------------------------------------------------------- #
+# 出典なし欄の上限 (門)                                                          #
+# --------------------------------------------------------------------------- #
+def test_cap_rejects_fourteen():
+    """**この 14 は定数から作らない。**
+
+    最初この本数を `FOUNDATION_MAX_UNSOURCED + 1` で作ろうとしたが、それだと
+    上限を 13 から 999 へ上げても例が一緒に伸び、検査は緑のままになる。
+    2026-08-20 に scope 被覆側で同じ形の欠陥を実際に作って踏んでいる
+    (`SCOPE_NOTE_SPAN_MIN_LEN` の床テスト)。**測る側が測られる側を参照して
+    いると、緩めたことを検出できない。**
+    """
+    foundation = make_foundation()
+    foundation["constraints"] = [f"制約{i}" for i in range(14)]
+    findings = fp.validate_foundation_unsourced_cap(foundation)
+    assert len(findings) == 1
+    assert "14 件で上限 13 件を超えた" in findings[0]
+    # 超えた分は名前を添えて返す。除外は消去ではない。
+    assert "constraints[13]" in findings[0]
+
+
+def test_cap_allows_thirteen():
+    """対になる緑。これが無いと「何を渡しても落ちる門」を作っただけかもしれない。"""
+    foundation = make_foundation()
+    foundation["constraints"] = [f"制約{i}" for i in range(13)]
+    assert len(fp.foundation_source_gaps(foundation)) == 13
+    assert fp.validate_foundation_unsourced_cap(foundation) == []
+
+
+def test_cap_is_not_raised():
+    """上限は下げる方向にしか動かさない。13 -> 12 は可、13 -> 14 は不可。"""
+    assert fp.FOUNDATION_MAX_UNSOURCED <= 13
+
+
+def test_writer_enforces_the_cap():
+    """門は書き手から呼ばれていなければ存在しない。"""
+    import state_transition_common as stc
+    import state_transition_foundation as stf
+
+    state = {
+        "approval_log": [{"id": "appr-1", "note": "合意"}],
+        "requirements_foundation": {},
+        "qa_log": [
+            {
+                "id": f"qa-foundation-u{n}",
+                "question": f"利用者との対話で U{n} は何か",
+                "answer": ANSWER if n == 7 else f"U{n} の答え",
+                "source": {"kind": "user-dialogue"},
+            }
+            for n in range(1, 10)
+        ],
+    }
+    foundation = {
+        "essential_purpose": "目的",
+        "background": "背景",
+        "goals": [{"id": "G1", "text": "ゴール"}],
+        "objectives": [{"id": "O1", "text": "目標", "measure": "指標"}],
+        "success_criteria": ["基準"],
+        "stakeholders": ["利用者"],
+        "scope": {"in": ["あ・い", "う"], "out": ["か", "き"]},
+        "constraints": [f"制約{i}" for i in range(14)],
+        "concrete_intents": [{"id": "I1", "text": "やること", "serves": ["G1"]}],
+        "confirmed": True,
+        "approval_ref": "appr-1",
+        "provenance": make_foundation()["provenance"],
+    }
+    with pytest.raises(stc.TransitionError) as excinfo:
+        stf.set_foundation(copy.deepcopy(state), copy.deepcopy(foundation))
+    assert "上限 13 件を超えた" in str(excinfo.value)
+
+    # 対になる緑: constraints を減らして 13 件へ収めれば同じ foundation が通る。
+    # constraints 以外の欄が 8 件あるので 5 件で 13 件ちょうどになる。
+    passing_foundation = copy.deepcopy(foundation)
+    passing_foundation["constraints"] = [f"制約{i}" for i in range(5)]
+    passing = copy.deepcopy(state)
+    stf.set_foundation(passing, passing_foundation)
+    assert passing["requirements_foundation"]["confirmed"] is True
+
+
 def test_provenance_is_an_accepted_foundation_key():
     """FOUNDATION_KEYS に無いキーは set_foundation が未知キーとして弾く。"""
     import state_transition_common as stc
