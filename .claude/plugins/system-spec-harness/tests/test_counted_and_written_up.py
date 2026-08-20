@@ -435,9 +435,14 @@ def _declared_names() -> set[str]:
     return declared
 
 
-# 2026-08-20 実測 (分母 = 上の AST 走査が見つけた欄名 37 件)。
+# 2026-08-20 実測 (分母 = 上の AST 走査が見つけた欄名 37 件) は 10 だった。
+# 2026-08-21 に **9** へ下げる。分母は 47 件へ増えている
+# (`python3` / 単位は欄名 / 対象は writer が literal で書く欄名 / 基点は上の 2026-08-20)。
+# 減ったのは `scope_notes.topics[]` に items schema を足して `answer_span` と
+# `released_section_heading` が名前を持ったため。**分母が増えて未宣言が減った**ので、
+# 数えている対象を消して満たしたのではない。
 # 以後この上限は**下げる方向にしか動かさない**。
-UNDECLARED_FIELD_MAX = 10
+UNDECLARED_FIELD_MAX = 9
 # 上限だけでは抜けられる — 数えている対象 (writer が書く欄) を消せば上限は満たせる。
 # 逆向きの下限を対で置く。以後この下限は**上げる方向にしか動かさない**。
 WRITER_FIELD_MIN = 37

@@ -342,6 +342,59 @@ def _answer_sections(answer: str) -> "dict[str, str]":
     return sections
 
 
+def _verbatim_anchor(origin_id: str, answer: str, writer: str) -> str:
+    """`answer` の中に逐語で 1 箇所だけ在る錨を取る (先頭の非空行)。
+
+    **錨は本文から取る。呼び出し側から受け取らない。**受け取れると、本文に無い文字列を
+    「ここが裏付けだ」と名乗れる。writer が実物から切り出して、1 箇所であることを
+    確かめてから書くので、指し先の無い注記は原理的に書けない。
+
+    塞げていないところ: 先頭行が定型文 (「現行構成で確定。…」) の entry が 3 件在り、
+    錨だけでは entry を見分けられない。指し先は `(origin_qa_id, answer_span)` の対で
+    決まるので鎖は切れないが、**錨単独では出典にならない**。
+    """
+    first = next((line.strip() for line in answer.split("\n") if line.strip()), "")
+    if not first:
+        raise TransitionError(f"{writer}: {origin_id} の answer が空で、錨を取れない")
+    if answer.count(first) != 1:
+        raise TransitionError(
+            f"{writer}: {origin_id} の先頭行が本文に {answer.count(first)} 箇所在り、錨にならない: {first!r}"
+        )
+    return first
+
+
+def _reanchor_topics(entries: dict, topics: list, writer: str) -> list:
+    """指し先を失った `answer_span` を、`origin_qa_id` の本文へ張り直す。
+
+    **束ねを解くと `answer_span` は指し先を失う。**束ねていた頃の span は
+    束ね本文の `### 見出し` 行で、束ねを解くと見出しごと消えるためである
+    (2026-08-21 実測: 18 論点中 16 件が 0 箇所)。節の中身は origin entry へ
+    byte 一致のまま在るので、**指す先を「束ね本文」から「origin の本文」へ移す**。
+    これで鎖は セル → 論点 → 実在する本文 に戻り、規則も 1 本になる——
+    *`answer_span` は `origin_qa_id` の entry の本文に逐語で 1 箇所在る*。
+
+    **解決している span は触らない。**触れると、この writer が「動いている指し先を
+    別の場所へ移す道具」になる。直すのは壊れているものだけ。
+    """
+    changed: list[str] = []
+    for index, topic in enumerate(topics):
+        origin_id = topic.get("origin_qa_id")
+        origin = entries.get(origin_id) if isinstance(origin_id, str) else None
+        if origin is None:
+            raise TransitionError(f"{writer}: topics[{index}].origin_qa_id が qa_log に無い: {origin_id!r}")
+        answer = origin.get("answer") or ""
+        span = topic.get("answer_span") or ""
+        if span and answer.count(span) == 1:
+            continue  # すでに解決している。動かさない。
+        anchor = _verbatim_anchor(origin_id, answer, writer)
+        # 消える見出し行は出典 (`docs/spec/03-…§5`) を持っていた。捨てずに残す。
+        if span and "released_section_heading" not in topic:
+            topic["released_section_heading"] = span
+        topic["answer_span"] = anchor
+        changed.append(topic.get("topic_id") or origin_id)
+    return changed
+
+
 def _application_key(application: dict) -> tuple:
     """design_application の同一性キー。全欄を使う (一部だけだと別物が同じに見える)。"""
     return (
@@ -453,6 +506,10 @@ def split_qa_bundle(state: dict, qa_id: str) -> None:
 
     entry["answer"] = sections[own_span]
     entry["design_applications"] = kept
+    # 本文を縮めた**直後に**指し先を張り直す。ここを別便へ回すと、その間の
+    # spec-state は「セルが引く論点の本文が何処にも無い」状態で出荷される
+    # (2026-08-21 に実際そうなった)。縮めると壊れるものは、縮めた者が直す。
+    _reanchor_topics(entries, topics, SPLIT_BUNDLE_WRITER)
     notes["bundled"] = False
     notes["split_with"] = SPLIT_BUNDLE_WRITER
     notes["split_on"] = datetime.date.today().isoformat()
@@ -476,6 +533,44 @@ def split_qa_bundle(state: dict, qa_id: str) -> None:
                 f"{SPLIT_BUNDLE_WRITER}: 既存 qa_refs と異なる内容の再適用は拒否: {category}/{platform}"
             )
         cell["qa_refs"] = refs
+
+
+REANCHOR_WRITER = "reanchor-split-scope-notes"
+
+
+def reanchor_split_scope_notes(state: dict, qa_id: str) -> None:
+    """束ね解除で指し先を失った `scope_notes.topics[].answer_span` を張り直す。
+
+    直す操作もまた writer を通す。手で JSON を書くと、本文に無い文字列を span に
+    名乗れてしまい、**壊れた鎖を「直した」と書くだけ**になる。この writer は錨を
+    `origin_qa_id` の本文から切り出すので、実在しない指し先は書けない。
+
+    解決している span には触らない (`_reanchor_topics` 参照)。よって
+    2 度目の実行は何も変えず、動いている指し先を移す道具にもならない。
+    """
+    if not isinstance(qa_id, str) or not qa_id.strip():
+        raise TransitionError(f"{REANCHOR_WRITER}: qa_id は非空文字列必須")
+    qa_id = qa_id.strip()
+    entries = {
+        candidate["id"]: candidate
+        for candidate in state.get("qa_log", [])
+        if isinstance(candidate, dict) and isinstance(candidate.get("id"), str)
+    }
+    entry = entries.get(qa_id)
+    if entry is None:
+        raise TransitionError(f"{REANCHOR_WRITER}: qa_log に存在しない qa_id: {qa_id}")
+    notes = entry.get("scope_notes")
+    if not isinstance(notes, dict):
+        raise TransitionError(f"{REANCHOR_WRITER}: {qa_id} に scope_notes が無い")
+    topics = notes.get("topics")
+    if not isinstance(topics, list) or not topics:
+        raise TransitionError(f"{REANCHOR_WRITER}: {qa_id} の scope_notes.topics が非空配列でない")
+
+    changed = _reanchor_topics(entries, topics, REANCHOR_WRITER)
+    if not changed:
+        return
+    notes["reanchored_with"] = REANCHOR_WRITER
+    notes["reanchored_on"] = datetime.date.today().isoformat()
 
 
 WRITTEN_UP_WRITER = "set-qa-written-up"

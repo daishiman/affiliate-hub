@@ -62,6 +62,11 @@ type ScopeNotes = {
   topics: Topic[];
   recorded_with: string;
   bundling_reason?: string;
+  split_with?: string;
+  split_on?: string;
+  absorbed_origins_released?: string[];
+  reanchored_with?: string;
+  reanchored_on?: string;
 };
 type QaEntry = {
   id: string;
@@ -69,7 +74,7 @@ type QaEntry = {
   answer: string;
   scope_notes?: ScopeNotes;
 };
-type Cell = { state: string; qa_ref?: string };
+type Cell = { state: string; qa_ref?: string; qa_refs?: string[] };
 
 function readState(): {
   matrix: Record<string, Record<string, Cell>>;
@@ -79,15 +84,55 @@ function readState(): {
 }
 
 function confirmedCells(matrix: Record<string, Record<string, Cell>>) {
-  const out: { category: string; platform: string; qaRef: string }[] = [];
+  const out: { category: string; platform: string; qaRef: string; qaRefs: string[] }[] = [];
   for (const [category, row] of Object.entries(matrix)) {
     for (const [platform, cell] of Object.entries(row)) {
       if (cell.state === "確定") {
-        out.push({ category, platform, qaRef: cell.qa_ref ?? "" });
+        // `qa_refs` が無いセルは束ねが要らなかったセル。`qa_ref` 1 件に落とす。
+        out.push({
+          category,
+          platform,
+          qaRef: cell.qa_ref ?? "",
+          qaRefs: cell.qa_refs ?? (cell.qa_ref ? [cell.qa_ref] : []),
+        });
       }
     }
   }
   return out.sort((a, b) => `${a.category}/${a.platform}`.localeCompare(`${b.category}/${b.platform}`));
+}
+
+/**
+ * 逐語 span が解決しない論点を挙げる。**指し先は `origin_qa_id` の entry の本文**。
+ *
+ * 2026-08-20 まではこの関数の役目を「注記を持つ entry 自身の本文」に対して行っていた。
+ * 束ねていた頃は span が束ね本文の `### 見出し` 行だったので、それで解決した。
+ * 束ねを解くと見出しごと消えるので、18 論点中 16 件が 0 箇所になった（2026-08-21 実測）。
+ * **節の中身は origin entry へ byte 一致のまま在る**ので、鎖を切らずに指す先を移せる。
+ * 規則は 1 本になった——*span は `origin_qa_id` の本文に逐語で 1 箇所在る*。
+ * 束ねていない entry（origin が自分自身）も同じ規則で通るので、分岐は要らない。
+ */
+function collectBrokenSpans(entries: QaEntry[], byId: Map<string, QaEntry>): string[] {
+  const broken: string[] = [];
+  for (const entry of entries) {
+    const notes = entry.scope_notes!;
+    if (notes.recorded_with !== "set-qa-scope-notes") {
+      broken.push(`${entry.id}: recorded_with=${notes.recorded_with}`);
+    }
+    for (const topic of notes.topics) {
+      const origin = topic.origin_qa_id ? byId.get(topic.origin_qa_id) : undefined;
+      if (!origin) {
+        broken.push(`${entry.id}/${topic.topic_id}: origin_qa_id=${topic.origin_qa_id} が qa_log に無い`);
+        continue;
+      }
+      const occurrences = origin.answer.split(topic.answer_span).length - 1;
+      if (occurrences !== 1) {
+        broken.push(
+          `${entry.id}/${topic.topic_id}: span が ${occurrences} 箇所（origin=${origin.id}）`,
+        );
+      }
+    }
+  }
+  return broken;
 }
 
 /** 確定セルの件数。48 セル中 確定 8 / 対象外 40 / 未収集 0（2026-08-20 実測）。 */
@@ -102,6 +147,21 @@ const QA_LOG_MIN = 30;
  * だから件数のほうを見張る。**この上限は下げる方向にしか動かさない。**
  */
 const UNREFERENCED_BUNDLED_CAP = 1;
+/** 束ね解除を通った entry の下限。2026-08-21 実測 6。減る方向は記録の消失を意味する。 */
+const SPLIT_ENTRY_MIN = 6;
+/**
+ * 取り込み元へ戻した論点の下限。2026-08-21 実測 **10**
+ * （backend 2 / database 2 / infra 2 / security 1 / frontend 2 / ops 1）。
+ * **上げる方向にしか動かさない。**
+ */
+const RELEASED_ORIGIN_MIN = 10;
+/**
+ * 本文に `### ` 節を 2 つ以上持つ entry の上限。2026-08-21 実測 2、遊び 0。
+ * 中身は `qa-uiux-web-spec-intake`（指す者を失った旧束ね）と
+ * `qa-uiux-web-screen-priority`（節見出しで区切った 1 論点の逐語記録）。
+ * **束ねが戻れば増える。上限は下げる方向にしか動かさない。**
+ */
+const MULTI_SECTION_CAP = 2;
 
 describe("確定セルの裏付け範囲は機械が読める", () => {
   it("確定 8 セルそれぞれに、その論点を名乗る注記がある（母集団の床を同居させる）", () => {
@@ -130,7 +190,7 @@ describe("確定セルの裏付け範囲は機械が読める", () => {
     expect(uncovered).toStrictEqual([]);
   });
 
-  it("注記は正規 writer を通っており、逐語 span が本文に 1 箇所だけある", () => {
+  it("注記は正規 writer を通っており、逐語 span が origin の本文に 1 箇所だけある", () => {
     const { qa_log } = readState();
     expect(qa_log.length).toBeGreaterThanOrEqual(QA_LOG_MIN);
 
@@ -138,53 +198,102 @@ describe("確定セルの裏付け範囲は機械が読める", () => {
     // 床: 注記が 1 件も無ければ、下の検証はすべて空回りで緑になる。
     expect(annotated.length).toBe(CONFIRMED_CELL_COUNT);
 
-    const broken: string[] = [];
-    for (const entry of annotated) {
-      const notes = entry.scope_notes!;
-      if (notes.recorded_with !== "set-qa-scope-notes") {
-        broken.push(`${entry.id}: recorded_with=${notes.recorded_with}`);
-      }
-      for (const topic of notes.topics) {
-        const occurrences = entry.answer.split(topic.answer_span).length - 1;
-        if (occurrences !== 1) {
-          broken.push(`${entry.id}/${topic.topic_id}: span が ${occurrences} 箇所`);
-        }
-      }
-    }
+    const byId = new Map(qa_log.map((entry) => [entry.id, entry]));
+    const broken = collectBrokenSpans(annotated, byId);
     expect(broken).toStrictEqual([]);
+
+    // 0 件は「良くなった」ときと「見つける側が壊れた」ときの両方で出る。
+    // 合成例を同じ `it()` で通し、検出側が動いていることを示す（残課題 78 ⑳）。
+    const decoy: QaEntry = {
+      id: "decoy",
+      question: "",
+      answer: "本文",
+      scope_notes: {
+        bundled: false,
+        recorded_with: "set-qa-scope-notes",
+        topics: [
+          {
+            topic_id: "decoy-topic",
+            covers_cell: null,
+            answer_span: "この文字列は本文に無い",
+            note: "",
+            origin_qa_id: "decoy",
+          },
+        ],
+      },
+    };
+    expect(collectBrokenSpans([decoy], new Map([["decoy", decoy]]))).toStrictEqual([
+      "decoy/decoy-topic: span が 0 箇所（origin=decoy）",
+    ]);
   });
 
-  it("注記を足しても束ねは解消していない（bundled=true の entry は理由を欄に持つ）", () => {
+  it("束ねは解消済みで、解消の記録が残っている（②→⑤ の反転: 戻った日に赤くなる）", () => {
     const { qa_log } = readState();
-    const bundled = qa_log.filter((entry) => entry.scope_notes?.bundled);
-    // 床: 束ねた entry が 0 件になったら、この検査は空回りする。
-    expect(bundled.length).toBeGreaterThanOrEqual(6);
 
-    const withoutReason = bundled
+    // ── ここは向きが反転している ────────────────────────────────
+    // 2026-08-20 まで、この `it()` は「束ねはまだ解消していない」を固定していた
+    // （`bundled.length >= 6`）。塞げない穴を検査として書く形（残課題 78 ②）である。
+    // 2026-08-21 に qa_refs[] が入って束ねが解け、その検査は赤くなって役目を終えた。
+    // **消さずに向きを反転させる**（⑤）。消すと、束ねが戻っても誰も気づかない。
+    expect(qa_log.filter((entry) => entry.scope_notes?.bundled).length).toBe(0);
+
+    // 解消の記録を持つ entry。**理由の文面は解消後も消さずに残す**
+    // （なぜ束ねが起きたかが消えると、同じ迂回がまた起きる）。
+    const split = qa_log.filter((entry) => entry.scope_notes?.split_with);
+    // 床: 解消済みが 0 件なら、下の検証は空回りする。2026-08-21 実測 6。
+    expect(split.length).toBeGreaterThanOrEqual(SPLIT_ENTRY_MIN);
+
+    const withoutReason = split
       .filter((entry) => !entry.scope_notes?.bundling_reason?.trim())
       .map((entry) => entry.id);
     expect(withoutReason).toStrictEqual([]);
 
-    // 束ねが残っている事実そのものを、注記の文面が言っていること。
-    const silent = bundled
+    // 束ねが**在った**事実そのものを、注記の文面が言っていること。
+    const silent = split
       .filter((entry) => !entry.scope_notes!.bundling_reason!.includes("束ね"))
       .map((entry) => entry.id);
     expect(silent).toStrictEqual([]);
+
+    // 外した節は、戻した先が書いてあること（追記の記録であって参照ではない）。
+    const unreleased = split
+      .filter((entry) => (entry.scope_notes!.absorbed_origins_released ?? []).length === 0)
+      .map((entry) => entry.id);
+    expect(unreleased).toStrictEqual([]);
   });
 
-  it("確定セルから指されていない束ね entry は 1 件以下（指されないものは見えなくなる）", () => {
+  it("戻した論点は確定セルの qa_refs[] から引けている（指されないものは見えなくなる）", () => {
     const { matrix, qa_log } = readState();
     expect(qa_log.length).toBeGreaterThanOrEqual(QA_LOG_MIN);
 
-    const referenced = new Set(confirmedCells(matrix).map((cell) => cell.qaRef));
-    // 「束ねた entry」の見分けは本文の節見出しの数で行う（読んで判断しない）。
-    const bundledIds = qa_log
+    // ── ここも反転している ──────────────────────────────────────
+    // 旧: 「束ねた entry のうち、確定セルから指されていないものは 1 件以下」。
+    // 束ねを解いた今、危ないのは逆側である——**本文を戻した先の entry を、
+    // どのセルも引かなくなること**。戻した瞬間に見えなくなっては、解いた意味が無い。
+    const cells = confirmedCells(matrix);
+    const reachable = new Set(cells.flatMap((cell) => cell.qaRefs));
+    const stranded: string[] = [];
+    for (const entry of qa_log) {
+      for (const origin of entry.scope_notes?.absorbed_origins_released ?? []) {
+        if (!reachable.has(origin)) stranded.push(`${entry.id} → ${origin}`);
+      }
+    }
+    // 床: 戻した論点が 0 件なら上は空回りする。2026-08-21 実測 10 件。
+    const releasedCount = qa_log.reduce(
+      (sum, entry) => sum + (entry.scope_notes?.absorbed_origins_released ?? []).length,
+      0,
+    );
+    expect(releasedCount).toBeGreaterThanOrEqual(RELEASED_ORIGIN_MIN);
+    expect(stranded).toStrictEqual([]);
+
+    // 束ねが戻っていないことを、本文の形からも見る（読んで判断しない）。
+    // **これは上限で、下げる方向にしか動かさない。**2026-08-21 実測 2、遊び 0。
+    const multiSection = qa_log
       .filter((entry) => (entry.answer.match(/^### /gm) ?? []).length >= 2)
       .map((entry) => entry.id);
-    // 床: 束ねた entry を 1 件も見つけられていないなら、下の 0 件は測れていない。
-    expect(bundledIds.length).toBeGreaterThanOrEqual(6);
+    expect(multiSection.length).toBeLessThanOrEqual(MULTI_SECTION_CAP);
 
-    const unreferenced = bundledIds.filter((id) => !referenced.has(id));
+    const referenced = new Set(cells.map((cell) => cell.qaRef));
+    const unreferenced = multiSection.filter((id) => !referenced.has(id));
     expect(unreferenced.length).toBeLessThanOrEqual(UNREFERENCED_BUNDLED_CAP);
   });
 });

@@ -109,6 +109,20 @@ import { describe, expect, it } from "vitest";
  */
 
 const ROOT = process.cwd();
+
+/**
+ * 同一性キーに使う全 5 欄を型にも書く。**`as any` で黙らせない**——
+ * 欄名を綴り間違えると `undefined` が混ざり、別物が同じ種類に見える。
+ * 欄の一覧は writer の `_application_key` と同じで、片方だけ増えれば型検査が知らせる。
+ */
+type DesignApplication = {
+  applicability: string;
+  knowledge_ref?: string;
+  principle?: string;
+  rationale?: string;
+  tradeoffs?: string[];
+};
+
 const state = JSON.parse(
   readFileSync(join(ROOT, "system-spec/spec-state.json"), "utf8"),
 ) as {
@@ -119,7 +133,7 @@ const state = JSON.parse(
     max_loops_policy?: string;
     limit_overrun?: { loop_count: number; max_loops: number; reason: string };
   };
-  qa_log: Array<{ design_applications?: Array<{ applicability: string }> }>;
+  qa_log: Array<{ design_applications?: DesignApplication[] }>;
 };
 
 /** `run_chunk` を通っていれば必ず成立する不変則。通っていなければ壊れる。 */
@@ -191,13 +205,46 @@ describe("B. 採否の欄に書き手が居ない (塞げていないことの�
    * 2026-08-20: 70 → 74。`qa-uiux-web-screen-priority` を追記した際に
    * `design_applications` が 4 件増えた（`applied` のみ）。
    *
-   * **これは緩めていない。**この検査の主張は「`not_applicable` が 1 件も無い」であって、
-   * 74 は**その 0 件を出した母数**である。母数を据え置くと、欄が増えても数字が合わず、
-   * 「0 件」がどれだけの中の 0 件なのかが読めなくなる。緩める形は逆——
-   * `not_applicable` を許す側へ動かすことであり、それはしていない。
+   * 2026-08-21: 74 → **52**。束ね解除（`split-qa-bundle`）が、束ね entry が
+   * 取り込み元と重複して抱えていた写しを外した。
+   *
+   * **数が減ったのに緩めていない、と言うには裏取りが要る。**減り方には
+   * 「写しが消えた」と「中身が消えた」の 2 通りが在り、総数だけでは区別できない。
+   * 実測（`node`、単位は design_application、対象は `qa_log[].design_applications`、
+   * 基点は merge 前の `HEAD^1:system-spec/spec-state.json`）:
+   *   総数 74 → 52 ／ **種類 50 → 50** ／ **完全に消えた種類 0**
+   * 同一性キーは writer と同じ全 5 欄
+   * (knowledge_ref, principle, applicability, rationale, tradeoffs)。
+   * つまり減ったのは重複の写しだけである。
+   *
+   * この検査の主張は「`not_applicable` が 1 件も無い」であって、52 は**その 0 件を
+   * 出した母数**である。緩める形は逆——`not_applicable` を許す側へ動かすこと。
    */
-  it("`applicability` は 74 件すべて `applied`——不採用が一度も無い", () => {
-    expect(counts).toEqual({ applied: 74 });
+  it("`applicability` は 52 件すべて `applied`——不採用が一度も無い", () => {
+    expect(counts).toEqual({ applied: 52 });
+  });
+
+  /**
+   * 総数は**重複を消しても減る**ので、母数の床としては弱い。
+   * 中身が失われる方向だけを捕まえる軸を別に置く——**種類の数**である。
+   * 種類が減るのは、写しの整理では起きず、記録が消えたときだけ起きる。
+   * **この下限は上げる方向にしか動かさない。**2026-08-21 実測 50。
+   */
+  it("設計適用の種類は 50 を下回らない（写しの整理と記録の消失を分ける）", () => {
+    const kinds = new Set(
+      state.qa_log.flatMap((qa) =>
+        (qa.design_applications ?? []).map((a) =>
+          JSON.stringify([
+            a.knowledge_ref,
+            a.principle,
+            a.applicability,
+            a.rationale,
+            a.tradeoffs ?? [],
+          ]),
+        ),
+      ),
+    );
+    expect(kinds.size).toBeGreaterThanOrEqual(50);
   });
 
   it("schema は 2 値を許している（器の側は不採用を受け取れる）", () => {
@@ -213,7 +260,7 @@ describe("B. 採否の欄に書き手が居ない (塞げていないことの�
 
   /**
    * 数える側が効いていることを示す。`not_applicable` を書く側が現れた日に、
-   * 上の `{ applied: 74 }` が赤くなる——**そのとき ⑪ が塞がっている。**
+   * 上の `{ applied: 52 }` が赤くなる——**そのとき ⑪ が塞がっている。**
    * 塞がった日に、この describe を「不採用が 1 件以上ある」へ反転させて残すこと。
    */
   it("不採用を 1 件混ぜると数えられる（見つける側が動いている）", () => {
@@ -222,7 +269,7 @@ describe("B. 採否の欄に書き手が居ない (塞げていないことの�
       { design_applications: [{ applicability: "not_applicable" }] },
     ];
     expect(countApplicability(withRejection)).toEqual({
-      applied: 74,
+      applied: 52,
       not_applicable: 1,
     });
   });

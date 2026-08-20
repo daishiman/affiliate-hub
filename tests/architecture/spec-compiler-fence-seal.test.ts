@@ -52,8 +52,16 @@ function qaLog(): Qa[] {
   return spec.qa_log ?? [];
 }
 
-/** 正本側の壊れ。**いま残っている件数を固定し、直った日に赤くなる。** */
-const UNBALANCED_ANSWERS = 2;
+/**
+ * 正本側の壊れ。**いま残っている件数を固定し、直った日に赤くなる。**
+ *
+ * 2026-08-21: 2 → **1**。減ったのは直したからではなく、`split-qa-bundle` が
+ * `qa-backend-web-spec-intake` へ寄せてあった**写しの節**を取り込み元へ戻したためで、
+ * 同じ壊れが 2 箇所に見えていたのが 1 箇所になった。壊れそのもの
+ * （`qa-backend-web-analytics` の閉じていないフェンス）は**まだ在る**。
+ * 「件数が減った」を「直った」と読むと、写しを消すだけで緑にできる道が開く。
+ */
+const UNBALANCED_ANSWERS = 1;
 /** 母集団の床。0 件は「壊れが消えた」でも「qa_log を読めていない」でも出る（残課題 78 ㉗）。 */
 const QA_LOG_FLOOR = 20;
 
@@ -72,7 +80,9 @@ describe("章のコード塊が本文を飲み込む壊れを、生成側で見�
     const broken = qaLog()
       .filter((qa) => fenceCount(qa.answer ?? "") % 2 === 1)
       .map((qa) => qa.qa_id ?? qa.id ?? "(id なし)");
-    expect(broken.sort()).toStrictEqual(["qa-backend-web-analytics", "qa-backend-web-spec-intake"]);
+    // 完全一致で押さえる。件数だけだと、別の entry が壊れて 1 件のまま入れ替わっても通る。
+    expect(broken.sort()).toStrictEqual(["qa-backend-web-analytics"]);
+    expect(broken.length).toBe(UNBALANCED_ANSWERS);
   });
 
   it("フェンスの数え方が両方向に効いている（通る例と止まる例）", () => {

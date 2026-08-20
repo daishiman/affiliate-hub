@@ -1693,16 +1693,18 @@
           {
             "topic_id": "qa-backend-web",
             "covers_cell": null,
-            "answer_span": "### qa-backend-web（docs/spec/01-要求仕様書-v1.0.md §18.3）",
+            "answer_span": "* 同一投稿の重複実行を防ぐ",
             "note": "統合前の質疑由来の節。確定セルの裏付けではないが、統合時に範囲を保つため本文へ残してある。裏付けでないものを裏付けと名乗らせないため covers_cell は null にしてある。",
-            "origin_qa_id": "qa-backend-web"
+            "origin_qa_id": "qa-backend-web",
+            "released_section_heading": "### qa-backend-web（docs/spec/01-要求仕様書-v1.0.md §18.3）"
           },
           {
             "topic_id": "qa-backend-web-analytics",
             "covers_cell": null,
-            "answer_span": "### qa-backend-web-analytics（docs/spec/03-分析・解析基盤仕様.md §1 全体アーキテクチャ）",
+            "answer_span": "ClickEvent(リダイレクトサービス)",
             "note": "統合前の質疑由来の節。確定セルの裏付けではないが、統合時に範囲を保つため本文へ残してある。裏付けでないものを裏付けと名乗らせないため covers_cell は null にしてある。",
-            "origin_qa_id": "qa-backend-web-analytics"
+            "origin_qa_id": "qa-backend-web-analytics",
+            "released_section_heading": "### qa-backend-web-analytics（docs/spec/03-分析・解析基盤仕様.md §1 全体アーキテクチャ）"
           },
           {
             "topic_id": "qa-backend-web-spec-intake",
@@ -1710,9 +1712,10 @@
               "category": "backend",
               "platform": "web"
             },
-            "answer_span": "### qa-backend-web-spec-intake（docs/spec/04-二層構造統合仕様.md §3 WebMCP の確定契約 / §4 禁止依存）",
+            "answer_span": "| 登録先 | **`document.modelContext`**。`navigator.modelContext` は Chrome 150 で非推奨のため legacy fallback 専用（CHG-001） |",
             "note": "この節が確定セルの直接の裏付けである。R4-reopen の理由に「書面入力 qa で再確定する」とあり、再確定を出したのはこの書面入力の節である。",
-            "origin_qa_id": "qa-backend-web-spec-intake"
+            "origin_qa_id": "qa-backend-web-spec-intake",
+            "released_section_heading": "### qa-backend-web-spec-intake（docs/spec/04-二層構造統合仕様.md §3 WebMCP の確定契約 / §4 禁止依存）"
           }
         ],
         "recorded_with": "set-qa-scope-notes",
@@ -1722,7 +1725,9 @@
         "absorbed_origins_released": [
           "qa-backend-web",
           "qa-backend-web-analytics"
-        ]
+        ],
+        "reanchored_with": "reanchor-split-scope-notes",
+        "reanchored_on": "2026-08-21"
       }
     },
     {
@@ -1761,16 +1766,18 @@
           {
             "topic_id": "qa-database-web",
             "covers_cell": null,
-            "answer_span": "### qa-database-web（出典未記載）",
+            "answer_span": "現行構成で確定。技術基盤は現行リポジトリの構成(Next.js + Cloudflare Workers/OpenNext + D1 + Drizzle ORM)を正として仕様に確定する。",
             "note": "統合前の質疑由来の節。確定セルの裏付けではないが、統合時に範囲を保つため本文へ残してある。裏付けでないものを裏付けと名乗らせないため covers_cell は null にしてある。",
-            "origin_qa_id": "qa-database-web"
+            "origin_qa_id": "qa-database-web",
+            "released_section_heading": "### qa-database-web（出典未記載）"
           },
           {
             "topic_id": "qa-database-web-analytics",
             "covers_cell": null,
-            "answer_span": "### qa-database-web-analytics（docs/spec/03-分析・解析基盤仕様.md §5 集計層(MetricRollup)）",
+            "answer_span": "## 5. 集計層(MetricRollup)",
             "note": "統合前の質疑由来の節。確定セルの裏付けではないが、統合時に範囲を保つため本文へ残してある。裏付けでないものを裏付けと名乗らせないため covers_cell は null にしてある。",
-            "origin_qa_id": "qa-database-web-analytics"
+            "origin_qa_id": "qa-database-web-analytics",
+            "released_section_heading": "### qa-database-web-analytics（docs/spec/03-分析・解析基盤仕様.md §5 集計層(MetricRollup)）"
           },
           {
             "topic_id": "qa-database-web-spec-intake",
@@ -1778,9 +1785,10 @@
               "category": "database",
               "platform": "web"
             },
-            "answer_span": "### qa-database-web-spec-intake（docs/spec/06-サイトブループリント-記事構成テンプレート.md §2 SiteBlueprint のパラメータ定義）",
+            "answer_span": "| BP-01 | `ranking_model_id` が他サイトの Blueprint と重複しない | BLOCK（§16.6 言い換え記事の防止） |",
             "note": "この節が確定セルの直接の裏付けである。R4-reopen の理由に「書面入力 qa で再確定する」とあり、再確定を出したのはこの書面入力の節である。",
-            "origin_qa_id": "qa-database-web-spec-intake"
+            "origin_qa_id": "qa-database-web-spec-intake",
+            "released_section_heading": "### qa-database-web-spec-intake（docs/spec/06-サイトブループリント-記事構成テンプレート.md §2 SiteBlueprint のパラメータ定義）"
           }
         ],
         "recorded_with": "set-qa-scope-notes",
@@ -1790,7 +1798,9 @@
         "absorbed_origins_released": [
           "qa-database-web",
           "qa-database-web-analytics"
-        ]
+        ],
+        "reanchored_with": "reanchor-split-scope-notes",
+        "reanchored_on": "2026-08-21"
       }
     },
     {
@@ -1896,16 +1906,18 @@
           {
             "topic_id": "qa-infra-web",
             "covers_cell": null,
-            "answer_span": "### qa-infra-web（出典未記載）",
+            "answer_span": "現行構成で確定。技術基盤は現行リポジトリの構成(Next.js + Cloudflare Workers/OpenNext + D1 + Drizzle ORM)を正として仕様に確定する。",
             "note": "統合前の質疑由来の節。確定セルの裏付けではないが、統合時に範囲を保つため本文へ残してある。裏付けでないものを裏付けと名乗らせないため covers_cell は null にしてある。",
-            "origin_qa_id": "qa-infra-web"
+            "origin_qa_id": "qa-infra-web",
+            "released_section_heading": "### qa-infra-web（出典未記載）"
           },
           {
             "topic_id": "qa-infra-web-redirect",
             "covers_cell": null,
-            "answer_span": "### qa-infra-web-redirect（docs/spec/02-補充仕様-ギャップと追加要件.md §7 運用系の補充）",
+            "answer_span": "| 障害時 | リダイレクトサービスは計測DB障害時でも転送を止めない(計測はベストエフォート、転送は必達) |",
             "note": "統合前の質疑由来の節。確定セルの裏付けではないが、統合時に範囲を保つため本文へ残してある。裏付けでないものを裏付けと名乗らせないため covers_cell は null にしてある。",
-            "origin_qa_id": "qa-infra-web-redirect"
+            "origin_qa_id": "qa-infra-web-redirect",
+            "released_section_heading": "### qa-infra-web-redirect（docs/spec/02-補充仕様-ギャップと追加要件.md §7 運用系の補充）"
           },
           {
             "topic_id": "qa-infra-web-spec-intake",
@@ -1913,9 +1925,10 @@
               "category": "infrastructure",
               "platform": "web"
             },
-            "answer_span": "### qa-infra-web-spec-intake（docs/spec/11-CI-CD・品質ゲート仕様.md §8 検査の段）",
+            "answer_span": "| 1 速い門 | push / PR | 5 分 | **止める** |",
             "note": "この節が確定セルの直接の裏付けである。R4-reopen の理由に「書面入力 qa で再確定する」とあり、再確定を出したのはこの書面入力の節である。",
-            "origin_qa_id": "qa-infra-web-spec-intake"
+            "origin_qa_id": "qa-infra-web-spec-intake",
+            "released_section_heading": "### qa-infra-web-spec-intake（docs/spec/11-CI-CD・品質ゲート仕様.md §8 検査の段）"
           }
         ],
         "recorded_with": "set-qa-scope-notes",
@@ -1925,7 +1938,9 @@
         "absorbed_origins_released": [
           "qa-infra-web",
           "qa-infra-web-redirect"
-        ]
+        ],
+        "reanchored_with": "reanchor-split-scope-notes",
+        "reanchored_on": "2026-08-21"
       }
     },
     {
@@ -1964,9 +1979,10 @@
           {
             "topic_id": "qa-security-web",
             "covers_cell": null,
-            "answer_span": "### qa-security-web（docs/spec/01-要求仕様書-v1.0.md §26.1）",
+            "answer_span": "* SSRF対策",
             "note": "統合前の質疑由来の節。確定セルの裏付けではないが、統合時に範囲を保つため本文へ残してある。裏付けでないものを裏付けと名乗らせないため covers_cell は null にしてある。",
-            "origin_qa_id": "qa-security-web"
+            "origin_qa_id": "qa-security-web",
+            "released_section_heading": "### qa-security-web（docs/spec/01-要求仕様書-v1.0.md §26.1）"
           },
           {
             "topic_id": "qa-security-web-spec-intake",
@@ -1974,9 +1990,10 @@
               "category": "security",
               "platform": "web"
             },
-            "answer_span": "### qa-security-web-spec-intake（docs/spec/11-CI-CD・品質ゲート仕様.md §5 秘密情報）",
+            "answer_span": "- API キー・トークンは **GitHub Secrets と Cloudflare の環境変数**で管理する。",
             "note": "この節が確定セルの直接の裏付けである。R4-reopen の理由に「書面入力 qa で再確定する」とあり、再確定を出したのはこの書面入力の節である。",
-            "origin_qa_id": "qa-security-web-spec-intake"
+            "origin_qa_id": "qa-security-web-spec-intake",
+            "released_section_heading": "### qa-security-web-spec-intake（docs/spec/11-CI-CD・品質ゲート仕様.md §5 秘密情報）"
           }
         ],
         "recorded_with": "set-qa-scope-notes",
@@ -1985,7 +2002,9 @@
         "split_on": "2026-08-21",
         "absorbed_origins_released": [
           "qa-security-web"
-        ]
+        ],
+        "reanchored_with": "reanchor-split-scope-notes",
+        "reanchored_on": "2026-08-21"
       }
     },
     {
@@ -2024,16 +2043,18 @@
           {
             "topic_id": "qa-frontend-web",
             "covers_cell": null,
-            "answer_span": "### qa-frontend-web（出典未記載）",
+            "answer_span": "現行構成で確定。技術基盤は現行リポジトリの構成(Next.js + Cloudflare Workers/OpenNext + D1 + Drizzle ORM)を正として仕様に確定する。",
             "note": "統合前の質疑由来の節。確定セルの裏付けではないが、統合時に範囲を保つため本文へ残してある。裏付けでないものを裏付けと名乗らせないため covers_cell は null にしてある。",
-            "origin_qa_id": "qa-frontend-web"
+            "origin_qa_id": "qa-frontend-web",
+            "released_section_heading": "### qa-frontend-web（出典未記載）"
           },
           {
             "topic_id": "qa-frontend-web-analytics",
             "covers_cell": null,
-            "answer_span": "### qa-frontend-web-analytics（docs/spec/03-分析・解析基盤仕様.md §8 画面仕様(Analytics 拡張)）",
+            "answer_span": "v1.0 22.8章のフィルタに加えて、次のビューを定義する。",
             "note": "統合前の質疑由来の節。確定セルの裏付けではないが、統合時に範囲を保つため本文へ残してある。裏付けでないものを裏付けと名乗らせないため covers_cell は null にしてある。",
-            "origin_qa_id": "qa-frontend-web-analytics"
+            "origin_qa_id": "qa-frontend-web-analytics",
+            "released_section_heading": "### qa-frontend-web-analytics（docs/spec/03-分析・解析基盤仕様.md §8 画面仕様(Analytics 拡張)）"
           },
           {
             "topic_id": "qa-frontend-web-spec-intake",
@@ -2041,9 +2062,10 @@
               "category": "frontend",
               "platform": "web"
             },
-            "answer_span": "### qa-frontend-web-spec-intake（docs/spec/12-改善要望フィードバック仕様.md §5 送信モーダル（FB-AC-04〜10））",
+            "answer_span": "- **FB-AC-07**: 「この画面から一緒に送られるもの」を展開でき、自動収集される項目を送信前に確認できる。隠さない。",
             "note": "この節が確定セルの直接の裏付けである。R4-reopen の理由に「書面入力 qa で再確定する」とあり、再確定を出したのはこの書面入力の節である。",
-            "origin_qa_id": "qa-frontend-web-spec-intake"
+            "origin_qa_id": "qa-frontend-web-spec-intake",
+            "released_section_heading": "### qa-frontend-web-spec-intake（docs/spec/12-改善要望フィードバック仕様.md §5 送信モーダル（FB-AC-04〜10））"
           }
         ],
         "recorded_with": "set-qa-scope-notes",
@@ -2053,7 +2075,9 @@
         "absorbed_origins_released": [
           "qa-frontend-web",
           "qa-frontend-web-analytics"
-        ]
+        ],
+        "reanchored_with": "reanchor-split-scope-notes",
+        "reanchored_on": "2026-08-21"
       }
     },
     {
@@ -2101,9 +2125,10 @@
           {
             "topic_id": "qa-ops-web",
             "covers_cell": null,
-            "answer_span": "### qa-ops-web（docs/spec/02-補充仕様-ギャップと追加要件.md §7）",
+            "answer_span": "| 通知 | 投稿失敗・リンク切れ・プログラム終了・成果確定をメール/Slack/アプリ内で通知。通知チャネルはWorkspace設定 |",
             "note": "統合前の質疑由来の節。確定セルの裏付けではないが、統合時に範囲を保つため本文へ残してある。裏付けでないものを裏付けと名乗らせないため covers_cell は null にしてある。",
-            "origin_qa_id": "qa-ops-web"
+            "origin_qa_id": "qa-ops-web",
+            "released_section_heading": "### qa-ops-web（docs/spec/02-補充仕様-ギャップと追加要件.md §7）"
           },
           {
             "topic_id": "qa-ops-web-spec-intake",
@@ -2111,9 +2136,10 @@
               "category": "maintenance-ops",
               "platform": "web"
             },
-            "answer_span": "### qa-ops-web-spec-intake（docs/spec/10-テスト戦略仕様.md §2 数字を偽らないための規律）",
+            "answer_span": "| アサーションの無いテスト | 実行するだけで「通った」ことになる。壊れても赤くならない |",
             "note": "この節が確定セルの直接の裏付けである。R4-reopen の理由に「書面入力 qa で再確定する」とあり、再確定を出したのはこの書面入力の節である。",
-            "origin_qa_id": "qa-ops-web-spec-intake"
+            "origin_qa_id": "qa-ops-web-spec-intake",
+            "released_section_heading": "### qa-ops-web-spec-intake（docs/spec/10-テスト戦略仕様.md §2 数字を偽らないための規律）"
           }
         ],
         "recorded_with": "set-qa-scope-notes",
@@ -2122,7 +2148,9 @@
         "split_on": "2026-08-21",
         "absorbed_origins_released": [
           "qa-ops-web"
-        ]
+        ],
+        "reanchored_with": "reanchor-split-scope-notes",
+        "reanchored_on": "2026-08-21"
       }
     },
     {

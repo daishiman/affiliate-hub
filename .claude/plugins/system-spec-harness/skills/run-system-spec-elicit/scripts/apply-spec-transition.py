@@ -3,7 +3,7 @@
 # name: apply-spec-transition
 # version: 0.2.0
 # purpose: spec-state の単一 writer CLI。各責務は state_transition_{matrix,foundation,knowledge}.py へ分離する。
-# inputs: [bootstrap|init|add-category|apply|chunk|aggregate|set-targets|set-foundation|set-decision|set-knowledge-candidate|set-qa-design-applications|set-qa-scope-notes|split-qa-bundle|set-qa-written-up|set-hearing-policy|enable-asks-for]
+# inputs: [bootstrap|init|add-category|apply|chunk|aggregate|set-targets|set-foundation|set-decision|set-knowledge-candidate|set-qa-design-applications|set-qa-scope-notes|split-qa-bundle|reanchor-split-scope-notes|set-qa-written-up|set-hearing-policy|enable-asks-for]
 # outputs: [spec-state.json or stdout]
 # network: false
 # write-scope: spec-state.json
@@ -57,6 +57,7 @@ from state_transition_matrix import (
     derive_aggregate,
     init_state,
     next_unresolved_question,
+    reanchor_split_scope_notes,
     recompute_aggregates,
     run_chunk,
     set_qa_design_applications,
@@ -212,6 +213,18 @@ def main(argv: list[str]) -> int:
     split_bundle.add_argument("--state", required=True)
     split_bundle.add_argument("--qa-id", required=True)
     split_bundle.add_argument("--out")
+    reanchor = sub.add_parser(
+        "reanchor-split-scope-notes",
+        help="束ね解除で指し先を失った answer_span を、origin entry の本文へ張り直す",
+        description=(
+            "**錨は引数で受け取らない。**origin entry の本文から writer が切り出し、"
+            "逐語で 1 箇所であることを確かめてから書く。すでに解決している span には"
+            "触らないので、2 度目の実行は何も変えない。"
+        ),
+    )
+    reanchor.add_argument("--state", required=True)
+    reanchor.add_argument("--qa-id", required=True)
+    reanchor.add_argument("--out")
     limit = sub.add_parser(
         "set-hearing-policy",
         help="hearing_progress の上限 (max_loops) が厳格かソフトかを明示する",
@@ -300,6 +313,8 @@ def main(argv: list[str]) -> int:
                 )
             elif args.cmd == "split-qa-bundle":
                 split_qa_bundle(state, args.qa_id)
+            elif args.cmd == "reanchor-split-scope-notes":
+                reanchor_split_scope_notes(state, args.qa_id)
             elif args.cmd == "set-qa-written-up":
                 set_qa_written_up(state, args.qa_id, args.path, args.section)
             elif args.cmd == "set-hearing-policy":

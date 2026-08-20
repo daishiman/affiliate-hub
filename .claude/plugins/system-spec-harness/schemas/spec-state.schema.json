@@ -145,7 +145,38 @@
             },
             "topics": {
               "type": "array",
-              "description": "この本文が覆う論点と、その節がどの entry 由来か (origin_qa_id)。split-qa-bundle はこれを頼りに節を origin へ返す"
+              "description": "この本文が覆う論点と、その節がどの entry 由来か (origin_qa_id)。split-qa-bundle はこれを頼りに節を origin へ返す。**answer_span は origin_qa_id の entry の本文に逐語で 1 箇所在る** — 束ねを解くと束ね本文の見出し行は消えるので、指し先は origin 側で決まる。外した見出しは出典 (docs/spec/… §N) を持っていたので released_section_heading に残す",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "topic_id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "この論点の名前。entry 内で一意"
+                  },
+                  "covers_cell": {
+                    "description": "この論点が裏付けている確定セル。裏付けでなければ null",
+                    "type": ["object", "null"]
+                  },
+                  "answer_span": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "origin_qa_id の entry の本文に逐語で 1 箇所在る文字列。writer が本文から切り出す (呼び出し側から受け取らない — 受け取れると本文に無い文字列を裏付けと名乗れる)"
+                  },
+                  "note": {
+                    "type": "string",
+                    "description": "この論点が何を覆っているかの説明"
+                  },
+                  "origin_qa_id": {
+                    "type": ["string", "null"],
+                    "description": "この節がどの entry 由来か。束ね解除で節を返す先であり、answer_span の指し先を決める entry でもある"
+                  },
+                  "released_section_heading": {
+                    "type": "string",
+                    "description": "束ね解除で消えた `### 見出し` 行。出典 (docs/spec/… §N) を持っていたので、指し先を張り直した後も捨てずに残す"
+                  }
+                }
+              }
             },
             "split_with": {
               "type": "string",
@@ -155,6 +186,15 @@
               "type": "string",
               "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
               "description": "束ねを解いた日"
+            },
+            "reanchored_with": {
+              "type": "string",
+              "description": "指し先を張り直した writer 名 (reanchor-split-scope-notes)。呼び出し側から受け取らず writer が書く"
+            },
+            "reanchored_on": {
+              "type": "string",
+              "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+              "description": "指し先を張り直した日。何も壊れていなければ書かれない — 書かれていること自体が、指し先が壊れていた記録である"
             },
             "absorbed_origins_released": {
               "type": "array",
