@@ -421,18 +421,24 @@ def resolve_asks_for(state: dict, qa_id: str, raw: object) -> list[dict] | None:
     )
 
 
-def asks_for_drift(state: dict, qa_id: str) -> list[tuple[str, str]]:
+def asks_for_drift(state: dict, qa_id: str) -> list[tuple[str, str]] | None:
     """狙っていなかったのに、この qa を引いて確定したセルを返す。
 
     **束ねが後から発覚した形**であり、軸2 が名乗りに頼らず見られる差である。
-    `asks_for` を持たない entry は判定不能として空を返す (0 件と混同しないこと)。
+
+    **戻り値は 3 種類ある。**`None` = 判定不能 (`asks_for` を持たない entry、または
+    entry が無い)、`[]` = 狙いどおりで 0 件、非空 = 狙い外の確定。判定不能と 0 件を
+    同じ `[]` で返すと、**呼び出し側が「調べたが無かった」と読める。**legacy entry は
+    30 件あるので、その誤読は「束ねは無い」という結論を静かに作る。型で分けておけば、
+    `if drift:` と書いた呼び出し側は判定不能を素通りさせるが、`is None` を書かねば
+    ならない側は判定不能に気付く。
     """
     entry = next(
         (candidate for candidate in state.get("qa_log", []) if candidate.get("id") == qa_id),
         None,
     )
     if entry is None or not entry.get("asks_for"):
-        return []
+        return None
     intended = {
         (item["category"], item["platform"]) for item in entry["asks_for"] if "category" in item
     }

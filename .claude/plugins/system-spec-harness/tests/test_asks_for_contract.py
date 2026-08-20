@@ -207,15 +207,48 @@ def test_drift_reports_cells_confirmed_outside_the_declared_targets():
     assert stm.asks_for_drift(state, "qa-new-1") == []
 
 
-def test_drift_on_an_entry_without_asks_for_is_not_a_zero_finding():
-    """**0 の作り方が 2 通りある。**判定不能 (legacy) と 0 件 (狙いどおり) が同じ空を
-    返すので、呼ぶ側は `asks_for` の有無を先に見なければならない。この事実を
-    検査として置いておく。"""
+def test_drift_on_an_entry_without_asks_for_is_undecidable_not_zero():
+    """**判定不能と 0 件を型で分ける。**
+
+    もとはこの検査が「両方 `[]` になる」という危険を*記録*していた。記録は危険が
+    在ることを残すだけで、呼び出し側が `[]` を「調べたが無かった」と読む道は
+    開いたままだった。legacy entry は 30 件あるので、その誤読は「束ねは無い」という
+    結論を静かに作る。呼び出し側がまだ 1 つも無いうちに分けてある。
+
+    `None` = 判定不能 / `[]` = 狙いどおりで 0 件。
+    """
     state = _state()
     stm.apply_turn(state, _turn("qa-old-1"))
     state["matrix"]["database"]["web"] = {"state": "確定", "qa_ref": "qa-old-1"}
     assert "asks_for" not in state["qa_log"][0]
-    assert stm.asks_for_drift(state, "qa-old-1") == []
+    assert stm.asks_for_drift(state, "qa-old-1") is None
+    # 存在しない qa_id も判定不能側 (「無い entry に束ねは無い」とは言えない)
+    assert stm.asks_for_drift(state, "qa-nonexistent") is None
+
+
+def test_known_unclosable_hole_deleting_the_key_re_opens_enablement():
+    """**この門の内側では塞げない穴を、検査として置く。**
+
+    `enable_asks_for_contract` の再設定拒否は `state["asks_for_contract"]` が在ることに
+    依存している。JSON からそのキーを削れば、もう一度有効化でき、legacy 集合を
+    別の id へ差し替えられる。
+
+    **塞げない理由**: 塞ぐには state 全体の完全性を保証する鍵 (署名や封印) が要り、
+    その鍵はこの作業場所には置けない。読める場所に鍵を置けば、鍵ごと書き換えられる
+    ので守りにならないからである。難しいのではなく、**ここには置けない**。
+    state の手編集を禁じているのは約束であって検査ではない、という事実がここに残る。
+
+    **反転先**: state の完全性を別の鍵で守れるようになった日。そのときこの検査は
+    赤くなり、「もう通らない」と知らせる。**`enable_asks_for_contract` の中に
+    別のフラグを足す方向では塞がらない。**同じ JSON の中にある印は、同じ手で消せる。
+    """
+    state = _state()
+    stm.apply_turn(state, _turn("qa-old-1"))
+    stm.apply_turn(state, _turn("qa-old-2", asks_for=[{"u": "U1"}]))
+    stm.enable_asks_for_contract(state, ["qa-old-1"])
+    del state["asks_for_contract"]  # JSON を手で編集した場合と同じ状態
+    stm.enable_asks_for_contract(state, ["qa-old-1", "qa-old-2"])
+    assert state["asks_for_contract"]["legacy_ids"] == ["qa-old-1", "qa-old-2"]
 
 
 # ── 塞げていない穴 (案 2) ─────────────────────────────────────────────────
