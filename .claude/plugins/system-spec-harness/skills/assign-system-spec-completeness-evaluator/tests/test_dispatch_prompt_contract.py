@@ -1,4 +1,6 @@
 """C05 監査 fork の完全 response 台帳束縛を静的に固定する。"""
+import re
+import unicodedata
 from pathlib import Path
 
 
@@ -34,17 +36,75 @@ def test_audit_fork_attribution_is_bound_by_agent_id() -> None:
         assert "撤回していない" in text, name
 
 
-def test_retracted_means_is_never_stated_as_in_force() -> None:
-    """撤回した手段の語が、撤回の文脈から離れて再び規則として現れないこと。
+# 直列化の到達点を指す印。禁止しているのは語ではなく到達点なので、
+# 特定の一文ではなくこの 2 つの印で拾う。表記ゆれ (全角、空白の数、
+# 「メッセージ」表記、英語の言い換え) は正規化で潰す。
+SERIALIZATION_MARKS = ("foreground fork", "直列")
 
-    語を消せばこの検査は素通りするので、上の test が `agent_id` / 順序の保証 /
-    撤回していない、の下限を張って対にしてある。片方だけでは抜けられる。
+
+def _normalize(line: str) -> str:
+    folded = unicodedata.normalize("NFKC", line)
+    folded = folded.replace("メッセージ", "message")
+    return re.sub(r"\s+", " ", folded)
+
+
+def states_serialization_in_force(line: str) -> bool:
+    """その行が「直列化を、いま効いている規則として」述べているか。
+
+    撤回の文脈 (同一行に「撤回」) を伴う言及は来歴なので規則ではない。
     """
-    means = "1 message = 1 foreground fork"
+    folded = _normalize(line)
+    if not any(mark in folded for mark in SERIALIZATION_MARKS):
+        return False
+    return "撤回" not in folded
+
+
+# 同じ到達点を述べる合成例。門を直すたびにこの一覧で測り直す。
+PARAPHRASES_IN_FORCE = (
+    "正式 evaluator は 1 message = 1 foreground fork で直列化する。",
+    "正式 evaluator は 1 メッセージ = 1 foreground fork で直列化する。",
+    "dispatch one message per foreground fork.",
+    "正式 evaluator は 1 message  =  1 foreground fork とする。",
+    "監査 fork は必ず 1 件ずつ直列に起動する。",
+)
+
+# **塞げていない穴を、文章ではなく検査として残す。**
+# 直列化は「印になる語を一つも使わずに」述べられる。下の例がそれで、現在の門は
+# 拾えない。拾えないことをここで固定しておくと、次に読む人が「この門は全ての
+# 言い換えを塞いでいる」と誤読できなくなる。
+# 反転先: 印に頼らずこの形を拾えるようにした日に、この例を PARAPHRASES_IN_FORCE
+# へ移して本 test を削る。印の一覧を長くする方向では移さない (一覧が具体的で
+# 網羅的に見えるほど、外側を確かめる動機が減るため)。
+PARAPHRASE_NOT_CAUGHT = "前の fork の完全応答を受け取ってから次の 1 件を起動する。"
+
+
+def test_gate_catches_paraphrases_of_the_retracted_means() -> None:
+    for example in PARAPHRASES_IN_FORCE:
+        assert states_serialization_in_force(example), example
+
+
+def test_gate_ignores_retraction_context() -> None:
+    retraction = "「1 message = 1 foreground fork」で直列化する手段は撤回した。"
+    assert not states_serialization_in_force(retraction)
+
+
+def test_known_uncaught_paraphrase_is_recorded_as_a_hole() -> None:
+    """塞げていないことを検査として書く (doc comment の反転先を参照)。"""
+    assert not states_serialization_in_force(PARAPHRASE_NOT_CAUGHT)
+
+
+def test_retracted_means_is_never_stated_as_in_force() -> None:
+    """直列化が、いま効いている規則として 3 文書のどこにも書かれていないこと。
+
+    印を使わない言い換えは素通りする (上の hole test を参照)。素通りの範囲では
+    `test_audit_fork_attribution_is_bound_by_agent_id` の下限が対になるが、
+    **対は言い換えを塞いでいない**。塞ぎ切れていない事実のほうを残してある。
+    """
     for name, text in _contract_texts().items():
         for lineno, line in enumerate(text.splitlines(), start=1):
-            if means in line:
-                assert "撤回" in line, f"{name}:{lineno} が撤回の文脈なしに手段を規則として述べている"
+            assert not states_serialization_in_force(line), (
+                f"{name}:{lineno} が直列化をいま効いている規則として述べている"
+            )
 
 
 def test_three_auditors_keep_the_complete_response_binding() -> None:
