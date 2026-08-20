@@ -159,11 +159,28 @@ def count_unresolved(state: dict) -> int:
     )
 
 
-# max_loops の性格。run_chunk は上限に達した時点で break し、loop_count を
-# 処理済み件数で置き直すため、この writer を通るかぎり loop_count <= max_loops は
-# 構造的に破れない。つまり上限は「目安」ではなく厳格である。
-# 破れている state が在れば、それは上限を緩めた証拠ではなく、この writer を
+# max_loops の性格。run_chunk は上限に達した時点で break するため、
+# **この writer が loop_count を max_loops より上へ上げることはできない**。
+# つまり上限は「目安」ではなく厳格である。
+# 上限を超えた値が在れば、それは上限を緩めた証拠ではなく、この writer を
 # 通っていない証拠になる。state から後者を読み取れるようにするのがこの定数の役目。
+#
+# ── 2026-08-20: 「置き直す」から「大きいほうを残す」へ ────────────────
+#
+# 以前ここには「loop_count を処理済み件数で**置き直す**ため」と書いてあった。
+# 実際そう書かれていて、そこが壊れていた。既存値 7 の state に run_chunk を
+# 1 件通すと 7 → 1 になり、**set_hearing_limit_policy が守っている痕跡を、
+# 記録を書く道具のほうが消していた**（下の docstring「7 を 5 へ丸めれば数は
+# 揃うが、揃えた瞬間に唯一の痕跡が消える」が、丸める側ではなく writer に
+# よって実行されていた）。
+#
+# いまは `max(既存, 処理済み件数)` にしてある。**上へ動かす向きの変更ではない。**
+# run_chunk が書き込む新しい値は依然 max_loops 以下で、超過値を新たに作ることは
+# できない。変わったのは「既にあった超過値を消さない」ことだけである。
+# したがって上の推論——超過値はこの writer の外から来た——は**そのまま成り立つ**。
+# 「この writer を通った state は必ず上限以下」ではなく、
+# 「この writer は上限超えを**生み出せない**」が正確な言い方であり、
+# 痕跡の根拠として要るのは後者のほうである。
 LOOP_LIMIT_POLICY_STRICT = "strict"
 LOOP_LIMIT_POLICY_SOFT = "soft"
 LOOP_LIMIT_POLICIES = (LOOP_LIMIT_POLICY_STRICT, LOOP_LIMIT_POLICY_SOFT)
@@ -528,14 +545,30 @@ def next_unresolved_question(state: dict) -> str | None:
 
 
 def run_chunk(state: dict, turns: list[dict], max_loops: int = 5) -> int:
+    """ターン列を 1 invocation ぶん適用する。
+
+    loop_count は **減らさない**。既存値と処理済み件数の大きいほうを残す。
+    以前は無条件に 0 へ落としてから処理済み件数を書いていたため、
+    上限超過の記録 (limit_overrun) を持つ state にこの writer を通すと、
+    その記録が指している当の値が消えた。**記録を守るための仕掛けを、
+    記録を書く道具が壊していた。**
+
+    これは下限を上げる向きの変更である。7 を 1 にするのが緩める向き、
+    7 を守るのが厳しい向き。新しく書き込む値は依然 max_loops 以下なので、
+    **この writer が上限超えを生み出せない**という性質は変わらない。
+    """
+    progress = state["hearing_progress"]
+    prior = progress.get("loop_count")
+    if not isinstance(prior, int) or isinstance(prior, bool) or prior < 0:
+        prior = 0
+    progress["loop_count"] = prior
     processed = 0
-    state["hearing_progress"]["loop_count"] = 0
     for turn in turns:
         if processed >= max_loops:
             break
         apply_turn(state, turn)
         processed += 1
-        state["hearing_progress"]["loop_count"] = processed
+        progress["loop_count"] = max(prior, processed)
     recompute_aggregates(state)
     _refresh_hearing_progress(state)
     state["hearing_progress"]["max_loops"] = max_loops

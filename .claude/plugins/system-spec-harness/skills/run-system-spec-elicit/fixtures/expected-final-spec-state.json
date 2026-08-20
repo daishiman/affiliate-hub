@@ -508,7 +508,7 @@
   "delivery_dependencies": [],
   "review_runs": [],
   "hearing_progress": {
-    "loop_count": 4,
+    "loop_count": 5,
     "next_question": null,
     "complete": true,
     "max_loops": 5,

@@ -24,12 +24,28 @@ import { describe, expect, it } from "vitest";
  *
  * ── A. writer を通っていない痕跡 (`loop_count` > `max_loops`) ──────────
  *
- * `run_chunk`（`state_transition_matrix.py:433-445`）は、ループ前に `loop_count = 0` を
- * 代入し、`processed >= max_loops` で break し、最後に `loop_count = processed` と
- * `max_loops` の両方を書く。**この経路を通る限り `loop_count <= max_loops` は
- * 構造的に成立する。**契約（`spec-state-contract.md` §hearing_progress の意味論）も
+ * `run_chunk`（`state_transition_matrix.py:547-578`）は `processed >= max_loops` で break し、
+ * 最後に `loop_count` と `max_loops` の両方を書く。**この writer は上限超えを
+ * 作り出せない**（書き込む値は必ず `max_loops` 以下から取る）。契約
+ * （`spec-state-contract.md` §hearing_progress の意味論）も
  * 「`loop_count` は直近 1 invocation の turn 数。累計ではない」と定めており、
  * writer は `apply-spec-transition.py` だけである。
+ *
+ * ── 2026-08-20 訂正: 上の一文は以前「`loop_count <= max_loops` は構造的に成立する」
+ * と書いてあった。**それは今は偽である。**当時の `run_chunk` は無条件に
+ * `loop_count = 0` を代入してから処理済み件数を書いていたため、7 / 5 の記録を持つ
+ * state にこの writer を通すと、**下の A が見張っている当の 7 が消えた**——
+ * 記録を守るための仕掛けを、記録を書く道具が壊していた。そこで
+ * `max(prior, processed)` へ直した（下限を上げる向きの変更）。結果、writer は
+ * 既存の超過を**保存する**ようになり、「この経路を通れば必ず 5 以下」は成り立たなくなった。
+ * 成り立つのは「**この writer が新たな超過を生み出すことはない**」のほうである。
+ * A が見ているのは後者ではなく「超過が記名で保存されているか」なので、A の主張は変わらない。
+ *
+ * なお `system-spec/spec-state.json` の `hearing_progress.limit_overrun.reason` にも
+ * 同じ偽になった一文が残っている。**まだ直せていない**（正本を読むだけの測定が
+ * 見張りの inline-python 判定に遮断されるため。回避はしない）。下の A は
+ * `reason.length` しか見ないので、この矛盾で赤くはならない——**つまりこの訂正コメントが、
+ * 今のところ唯一の目印である。**
  *
  * **当時の現状は 7 / 5 だった。**つまりこれは「上限が緩い」ではなく、
  * **上限を守る唯一の経路を通らずに state が書かれた**痕跡である。
@@ -158,8 +174,17 @@ describe("A. writer を通らずに書かれた痕跡が、記名で保存され
 describe("B. 採否の欄に書き手が居ない (塞げていないことの固定・未着手)", () => {
   const counts = countApplicability(state.qa_log);
 
-  it("`applicability` は 70 件すべて `applied`——不採用が一度も無い", () => {
-    expect(counts).toEqual({ applied: 70 });
+  /**
+   * 2026-08-20: 70 → 74。`qa-uiux-web-screen-priority` を追記した際に
+   * `design_applications` が 4 件増えた（`applied` のみ）。
+   *
+   * **これは緩めていない。**この検査の主張は「`not_applicable` が 1 件も無い」であって、
+   * 74 は**その 0 件を出した母数**である。母数を据え置くと、欄が増えても数字が合わず、
+   * 「0 件」がどれだけの中の 0 件なのかが読めなくなる。緩める形は逆——
+   * `not_applicable` を許す側へ動かすことであり、それはしていない。
+   */
+  it("`applicability` は 74 件すべて `applied`——不採用が一度も無い", () => {
+    expect(counts).toEqual({ applied: 74 });
   });
 
   it("schema は 2 値を許している（器の側は不採用を受け取れる）", () => {
@@ -175,7 +200,7 @@ describe("B. 採否の欄に書き手が居ない (塞げていないことの�
 
   /**
    * 数える側が効いていることを示す。`not_applicable` を書く側が現れた日に、
-   * 上の `{ applied: 70 }` が赤くなる——**そのとき ⑪ が塞がっている。**
+   * 上の `{ applied: 74 }` が赤くなる——**そのとき ⑪ が塞がっている。**
    * 塞がった日に、この describe を「不採用が 1 件以上ある」へ反転させて残すこと。
    */
   it("不採用を 1 件混ぜると数えられる（見つける側が動いている）", () => {
@@ -184,7 +209,7 @@ describe("B. 採否の欄に書き手が居ない (塞げていないことの�
       { design_applications: [{ applicability: "not_applicable" }] },
     ];
     expect(countApplicability(withRejection)).toEqual({
-      applied: 70,
+      applied: 74,
       not_applicable: 1,
     });
   });

@@ -125,19 +125,92 @@ def _matrix_module():
 def test_the_loop_limit_is_strict_by_construction() -> None:
     """上限が『目安』か『絶対』かは、書いてある値ではなく writer の作りが決めている。
 
-    run_chunk は上限で break し loop_count を処理済み件数で置き直すので、
-    この writer を通る限り loop_count > max_loops は作れない。state に
-    max_loops_policy=strict と書くのは、その作りを読み手に開示するためである。
+    run_chunk は上限で break するので、**この writer は loop_count > max_loops を
+    生み出せない**。state に max_loops_policy=strict と書くのは、その作りを
+    読み手に開示するためである。
+
+    【2026-08-20 訂正】以前ここには「loop_count を処理済み件数で**置き直す**ので、
+    この writer を通る限り loop_count > max_loops は作れない」と書いてあった。
+    前半は実装のとおりだったが、その置き直しが既存の超過値を消していた
+    （下の test_run_chunk_does_not_erase_an_existing_overrun を参照）。
+    後半の「通る限り上限以下」も、いまは成り立たない——**超過値を持つ state を
+    通しても、その値は残る。**必要な性質は「通った後は上限以下」ではなく
+    「**この writer からは超過値が生まれない**」のほうで、そちらは変わっていない。
+    下の 2 件はその区別をそれぞれ別に押さえている。
     """
     module = _matrix_module()
     state = _current_state()
     state["categories"] = []
     state["matrix"] = {}
+    # 母集団の床: 出発点が 0 であること。ここが最初から 7 なら、下の
+    # 「上限以下」は writer の性質ではなく初期値をなぞっているだけになる。
+    assert state["hearing_progress"]["loop_count"] == 0
     processed = module.run_chunk(state, [{"ops": []} for _ in range(9)], max_loops=5)
     progress = state["hearing_progress"]
     assert processed == 5
     assert progress["loop_count"] <= progress["max_loops"]
     assert progress["max_loops_policy"] == module.LOOP_LIMIT_POLICY_STRICT
+    assert not module.loop_limit_is_violated(progress)
+
+
+def test_run_chunk_does_not_erase_an_existing_overrun() -> None:
+    """記録を書く道具が、記録を守る仕掛けを壊さないこと。
+
+    set_hearing_limit_policy の docstring は「7 を 5 へ丸めれば数は揃うが、
+    揃えた瞬間に『writer を通らずに書かれた』という唯一の痕跡が消える」と書いて、
+    **丸めることを禁じている**。ところが run_chunk のほうは loop_count を無条件に
+    0 へ落としてから処理済み件数を書いていたので、7 を持つ state に 1 件通すだけで
+    7 → 1 になった。**禁じている当の操作を、writer が黙って実行していた。**
+
+    直したのは state ではなく writer である。手で state を戻すと、正規 writer を
+    通らない書き込みがもう 1 件増えるだけで、痕跡はさらに読めなくなる。
+
+    向き: これは**下限を上げる**変更である。7 を 1 にするのが緩める向き、
+    7 を守るのが厳しい向き。上限（max_loops）は動かしていない。
+    """
+    module = _matrix_module()
+    state = _current_state()
+    state["categories"] = []
+    state["matrix"] = {}
+    state["hearing_progress"] = {
+        "loop_count": 7,
+        "max_loops": 5,
+        "max_loops_policy": module.LOOP_LIMIT_POLICY_STRICT,
+        "limit_overrun": {"loop_count": 7, "max_loops": 5, "reason": "writer を通らずに書かれた"},
+    }
+
+    processed = module.run_chunk(state, [{"ops": []}], max_loops=5)
+    progress = state["hearing_progress"]
+
+    # 母集団の床: 実際に 1 件処理されたこと。0 件なら「減らなかった」は
+    # 何もしなかっただけで、壊しようのない緑になる。
+    assert processed == 1
+    # 本体: 減らない。
+    assert progress["loop_count"] == 7
+    # 痕跡そのものも残る。値だけ残って理由が消えれば、ただの数字に戻る。
+    assert progress["limit_overrun"]["reason"]
+    assert module.loop_limit_is_violated(progress)
+
+
+def test_run_chunk_cannot_raise_the_count_past_the_limit() -> None:
+    """減らさないようにした結果、上へ抜けられるようになっていないこと（反対向き）。
+
+    `max(既存, 処理済み)` は既存値を守るためのものであって、上限を持ち上げる
+    ためのものではない。既存値が上限以下なら、run_chunk が書く値も上限以下に
+    留まる。**この writer からは超過値が生まれない**という、痕跡の推論が
+    寄りかかっている性質そのものである。
+    """
+    module = _matrix_module()
+    state = _current_state()
+    state["categories"] = []
+    state["matrix"] = {}
+    state["hearing_progress"] = {"loop_count": 4, "max_loops": 5}
+
+    processed = module.run_chunk(state, [{"ops": []} for _ in range(9)], max_loops=5)
+    progress = state["hearing_progress"]
+
+    assert processed == 5
+    assert progress["loop_count"] == 5
     assert not module.loop_limit_is_violated(progress)
 
 

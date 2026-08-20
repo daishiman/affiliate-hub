@@ -106,6 +106,22 @@ def test_five_loop_resume_persists_state():
     assert state == json.loads(GOLDEN_RESUME.read_text(encoding="utf-8"))
 
 
+# ── 2026-08-20: GOLDEN_FINAL の loop_count を 4 → 5 へ直した ────────────
+#
+# run_chunk が loop_count を無条件に 0 へ落とすのをやめ、`max(既存, 処理済み件数)`
+# にしたため。1 回目のチャンクで 5、2 回目で 4 を処理するので、以前は最後の 4 が
+# 残り、いまは高い側の 5 が残る。
+#
+# **これは数を大きく見せるための変更ではない。**元の作りは、上限超過の記録
+# (limit_overrun) を持つ state に 1 件通すだけでその値を消してしまい、
+# set_hearing_limit_policy が「丸めると迂回の唯一の痕跡が消える」と書いて
+# 禁じている操作を、writer 自身が実行していた。
+# 直したのは state ではなく writer のほうである。
+#
+# 副作用として loop_count の意味が「この呼び出しで処理した件数」から
+# 「これまでの最大値」へ変わった。**どちらも通算値ではない**（5 の次に 4 を
+# 処理しても 9 にはならない）ので、この欄から総ターン数は読めない。
+# 読めないことは前からで、変わったのは減らなくなったことだけである。
 def test_resume_then_finish_reaches_complete():
     turns = _turns()
     state = mod.init_state(_taxonomy())

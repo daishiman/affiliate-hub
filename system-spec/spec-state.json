@@ -826,10 +826,7 @@
     "ui-ux": {
       "web": {
         "state": "確定",
-        "qa_ref": "qa-uiux-web-spec-intake",
-        "serves_goals": [
-          "G1"
-        ],
+        "qa_ref": "qa-uiux-web-screen-priority",
         "required_info": [
           {
             "item_id": "product-goal",
@@ -840,8 +837,8 @@
           {
             "item_id": "screen-information-priority",
             "missing_effect": "block",
-            "status": "ungrounded",
-            "reason": "UI は存在するが、確定を支える qa-uiux-web-spec-intake はダッシュボード指標一覧 (docs/spec/01 §22.1) と配色・明暗の2軸モデル (docs/spec/09 §2) の 2 件で、completion_rule が要求する 9 項目 (利用者ロール・主タスク・熟練度・端末・利用頻度・データ量・比較/一括操作・誤操作コスト・情報優先度/省略/密度) をいずれも含まない。ゲート導入前に確定したセルの負債として記録する"
+            "status": "grounded",
+            "grounded_by": "qa-uiux-web-screen-priority"
           },
           {
             "item_id": "target-platforms",
@@ -849,6 +846,9 @@
             "status": "grounded",
             "grounded_by": "qa-platform-scope"
           }
+        ],
+        "serves_goals": [
+          "G1"
         ]
       },
       "mobile": {
@@ -2007,6 +2007,53 @@
           ]
         }
       ]
+    },
+    {
+      "id": "qa-uiux-web-screen-priority",
+      "question": "ui-ux×web: 人が読む・判断する・操作する UI について、主要画面ごとの利用者ロール・主タスク・熟練度・端末・利用頻度・データ量・比較/一括操作の要否・誤操作コスト・情報の優先/補助/省略と密度をどうするか (2026-08-20 対話ヒアリング)",
+      "answer": "利用者本人の回答を逐語で記録する。以下 9 項目は代理推定ではなく本人回答である。\n\n| 項目 | 利用者の回答 |\n|---|---|\n| 利用者ロール | 運営者本人 |\n| 利用頻度 | 週 1 回程度 |\n| 熟練度 | 反復利用する本人（初回向けの説明より、前回からの変化が分かることを優先） |\n| 主タスク（優先順） | 利用者は「3,1,2の優先度」と回答。提示した選択肢は 1=手を入れるべきもの（未処理 URL・承認待ち・投稿失敗・リンク切れ・更新期限切れ）／2=成果と収益の数字（発生見込・承認・支払）／3=記事ごとの成績比較。したがって ①記事ごとの成績比較 ②手を入れるべきもの ③成果と収益の数字 |\n| 端末 | PC 中心（キーボードとマウス） |\n| データ量 | 数百件規模まで増える |\n| 比較・一括操作 | あり。並べて比べる／絞り込む／複数選んでまとめて処理する／書き出す |\n| 誤操作コスト | 公開・削除・リンク差し替えは確認必須（プレビューと明示承認を経由）。それ以外は取り消せる |\n| visual device 方針 | 情報量優先。一画面に多くを出し、ラベルと区切りで見分ける。色だけに意味を持たせない |\n\n## 既存記録との食い違い（均さずに両方残す）\n\n**この節は利用者の回答ではない。**上の表と混ぜて読まないために区切ってある。食い違いを消して片方だけを残すと、どちらが一次根拠だったかが後から引けなくなる。\n\n### (1) 主タスクの優先順 ↔ UIUX-REQ-001\n\n`system-spec/ui-ux.md` の `UIUX-REQ-001` は「一覧ではなく『今、利用者が判断・回復すべき業務状態』を優先順位にし」と書いている。利用者は**記事ごとの成績比較を第 1 位**に置き、業務状態の回復を第 2 位に置いた。**順位が入れ替わっている。**\n\n一次根拠は利用者回答である。`UIUX-REQ-001` は書面 (`docs/spec/01` §17.4/§22、`docs/spec/03` §7〜§8) から後に導かれた設計判断であり、本人に確認したものではない。ただし `UIUX-REQ-001` を本記録で無効化はしない——両者は「先頭に何を置くか」で争っているだけで、「業務状態を出すこと」自体は利用者も第 2 位として要求している。**解消は設計側の判断であって、収集の記録が勝手に決めることではない。**\n\n### (2) 利用頻度 ↔ 既存 design_applications の代理推定\n\n`qa-uiux-web-spec-intake` の `design_applications[0]` (`elicit-question-bank:screen-information-priority`) は、同じ 9 項目を**書面からの代理推定**で既に埋めている。本人回答と照合すると 9 軸中 3 軸が食い違う（分母 = カタログ completion_rule の 9 軸）:\n\n| 軸 | 代理推定 (既存) | 本人回答 (今回) |\n|---|---|---|\n| 利用頻度 | 毎日 | 週 1 回程度 |\n| 端末 | PC主体+モバイル併用(レスポンシブ) | PC 中心（キーボードとマウス） |\n| 熟練度 | 初中級中心 | 反復利用する本人 |\n\n残る 6 軸（ロール／主タスクの構成要素／データ量／比較・一括操作／誤操作コスト／visual device 方針）は方向が一致する。**既存の代理推定を消さない。**消すと「この章は一度、聞かずに埋められた」という事実が引けなくなる。C16 の block ゲートが求めているのは利用者根拠への接地であって、過去の推定の抹消ではない。\n\n### (3) 週 1 回であることの帰結（設計側への申し送り。ここでは確定しない）\n\n毎日開く前提の「同じ手順を速く回す」最適化より、**「前回以降に何が変わったか」**が効く。既存章はこの想定を持っていない。設計判断は ui-ux 章側で行う。",
+      "source": {
+        "kind": "user-dialogue"
+      },
+      "design_applications": [
+        {
+          "knowledge_ref": "elicit-question-bank:screen-information-priority",
+          "principle": "画面情報設計 9 項目を、代理推定ではなく利用者本人の回答で確定する",
+          "applicability": "applied",
+          "rationale": "9 軸すべてに本人回答がある。ロール=運営者本人、主タスク優先順=①成績比較 ②回復すべき業務状態 ③成果・収益、熟練度=反復利用する本人、端末=PC 中心、利用頻度=週 1 回、データ量=数百件、比較/一括操作=あり(並べる・絞る・まとめて処理・書き出す)、誤操作コスト=公開/削除/リンク差し替えのみ確認必須で他は取り消し可、visual device=情報量優先・ラベルと区切りで見分ける・色だけに意味を持たせない",
+          "tradeoffs": [
+            "本人回答の主タスク優先順は既存 UIUX-REQ-001 と先頭が入れ替わる。均さず両方を記録し、解消は設計側の判断に残す",
+            "同じ 9 軸を書面から埋めた既存の代理推定が qa-uiux-web-spec-intake に残る。消さないので、読む側は 2 つの記録を見ることになる。どちらが一次根拠かは各記録の source が示す"
+          ]
+        },
+        {
+          "knowledge_ref": "user-dialogue:2026-08-20#利用頻度",
+          "principle": "週 1 回の利用では、速さより「前回以降の変化」が効く",
+          "applicability": "applied",
+          "rationale": "毎日開く前提だと最適化の対象は手順の反復速度になるが、週 1 回だと前回の記憶が消えているため、まず差分を提示しないと利用者は自分の作業位置を復元できない",
+          "tradeoffs": [
+            "差分の基準時刻をどこに置くか(前回ログイン/前回操作/固定期間)を決める必要があり、既存章はこの想定を持っていない"
+          ]
+        },
+        {
+          "knowledge_ref": "user-dialogue:2026-08-20#誤操作コスト",
+          "principle": "確認を要求する操作を、外部へ出る 3 種(公開・削除・リンク差し替え)に限定する",
+          "applicability": "applied",
+          "rationale": "利用者は「それ以外は取り消せる」と回答した。全操作へ確認を掛けると週 1 回のまとめ処理で手数が増え、確認そのものが読み飛ばされる。確認の価値は掛ける範囲を絞ることで保たれる",
+          "tradeoffs": [
+            "取り消し可能であることを実装が保証しなければならない。確認を外した操作に取り消し経路が無いと、この判断は安全側の根拠を失う"
+          ]
+        },
+        {
+          "knowledge_ref": "user-dialogue:2026-08-20#visual-device",
+          "principle": "情報量優先。密度はラベルと区切りで支え、色に意味を担わせない",
+          "applicability": "applied",
+          "rationale": "数百件を並べて比べる用途では余白優先の設計だと一度に見える件数が足りない。色だけに意味を持たせない点は既存 UIUX-REQ-003 (速報/確定・n不足) と同方向で、こちらは食い違わない",
+          "tradeoffs": [
+            "密度を上げると走査しづらくなるため、区切りとラベルの設計が失敗すると情報量優先がそのまま可読性の低下になる"
+          ]
+        }
+      ]
     }
   ],
   "approval_log": [
@@ -2467,6 +2514,70 @@
             "missing_effect": "block",
             "status": "grounded",
             "grounded_by": "qa-security-web-spec-intake"
+          }
+        ]
+      }
+    },
+    {
+      "category": "ui-ux",
+      "platform": "web",
+      "reason": "screen-information-priority が status=ungrounded の負債として確定していた (C16 block ゲート導入前の確定)。2026-08-20 に利用者本人からカタログ completion_rule の 9 項目すべての回答を得たため、正規 R4-reopen を経て利用者根拠へ接地させた上で再確定する",
+      "from": "確定",
+      "discarded": {
+        "qa_ref": "qa-uiux-web-spec-intake",
+        "serves_goals": [
+          "G1"
+        ],
+        "required_info": [
+          {
+            "item_id": "product-goal",
+            "missing_effect": "block",
+            "status": "grounded",
+            "grounded_by": "qa-foundation-u1"
+          },
+          {
+            "item_id": "screen-information-priority",
+            "missing_effect": "block",
+            "status": "ungrounded",
+            "reason": "UI は存在するが、確定を支える qa-uiux-web-spec-intake はダッシュボード指標一覧 (docs/spec/01 §22.1) と配色・明暗の2軸モデル (docs/spec/09 §2) の 2 件で、completion_rule が要求する 9 項目 (利用者ロール・主タスク・熟練度・端末・利用頻度・データ量・比較/一括操作・誤操作コスト・情報優先度/省略/密度) をいずれも含まない。ゲート導入前に確定したセルの負債として記録する"
+          },
+          {
+            "item_id": "target-platforms",
+            "missing_effect": "block",
+            "status": "grounded",
+            "grounded_by": "qa-platform-scope"
+          }
+        ]
+      }
+    },
+    {
+      "category": "ui-ux",
+      "platform": "web",
+      "reason": "gap 1 (確定セルの記録・意思決定) と gap 3 (条項引用の可否) の 2 節を ui-ux.md へ載せるための解錠。内容の変更ではなく、正本が既に持っている確定内容を章へ転記する作業である。転記後に同じ qa_ref (qa-uiux-web-screen-priority) と同じ required_info で再確定する",
+      "from": "確定",
+      "discarded": {
+        "qa_ref": "qa-uiux-web-screen-priority",
+        "serves_goals": [
+          "G1"
+        ],
+        "required_info": [
+          {
+            "item_id": "product-goal",
+            "missing_effect": "block",
+            "status": "grounded",
+            "grounded_by": "qa-foundation-u1"
+          },
+          {
+            "item_id": "screen-information-priority",
+            "missing_effect": "block",
+            "status": "grounded",
+            "grounded_by": "qa-uiux-web-screen-priority"
+          },
+          {
+            "item_id": "target-platforms",
+            "missing_effect": "block",
+            "status": "grounded",
+            "grounded_by": "qa-platform-scope"
           }
         ]
       }

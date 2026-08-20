@@ -183,12 +183,15 @@ describe("章の規範本文は生成器で再現できない (REQ-TS15 / 塞げ
     expect(reachable).toEqual([]);
   });
 
-  it("2026-08-20 に追記した『条項引用の可否』節は 7 章とも生成器を往復する", () => {
+  // 2026-08-20 夕: 7 → 8。ui-ux.md にも『条項引用の可否』を載せたため、
+  // 8 章すべてが対象になった。**見る章が増える向きの変更である。**
+  // 減らす向き（8 → 7）は、節を落とした章を見逃すことになるので不可。
+  it("2026-08-20 に追記した『条項引用の可否』節は 8 章とも生成器を往復する", () => {
     const out = compileToTemp();
     const withSection = markdownIn(SPEC_DIR).filter((n) =>
       readFileSync(join(SPEC_DIR, n), "utf8").includes("条項引用の可否"),
     );
-    expect(withSection).toHaveLength(7);
+    expect(withSection).toHaveLength(8);
     for (const name of withSection) {
       expect(
         readFileSync(join(out, name), "utf8"),
