@@ -78,11 +78,18 @@ describe("閾値の置き場所", () => {
  * 「表示している列すべてに門があること」と「その門が実際に噛むこと」。
  */
 describe("層別カバレッジの床", () => {
+  // 設定は .mjs なので `COVERAGE_AXES` は `string[]` として入ってくる。
+  // そのまま `floors[axis]` を書くと型検査だけが赤くなる（vitest は通る）。
+  // **`as any` で黙らせない**——軸名の綴りを間違えたときに気づけなくなる。
+  // 床の鍵の型を正本にして、そこへ寄せる。
+  type Axis = keyof (typeof LAYER_COVERAGE)[number]["floors"];
+  const AXES = COVERAGE_AXES as Axis[];
+
   it("すべての層が、表示する 4 軸すべてに床を宣言している", () => {
     // 1 軸でも欠けると `judgeLayerCoverage` の比較が `undefined` 相手になり、
     // **その軸は常に達成**になる。表には出続けるので、誰も欠けたと気づかない。
     for (const layer of LAYER_COVERAGE) {
-      for (const axis of COVERAGE_AXES) {
+      for (const axis of AXES) {
         expect(
           typeof layer.floors?.[axis],
           `${layer.layer} に ${axis} の床がありません（門の無い列が表に並びます）`,
@@ -121,10 +128,10 @@ describe("層別カバレッジの床", () => {
 
     // 名前を ASCII にしているのは好みではない。`const 満たす` と書くと整形の過程で
     // 空白が落ち、`const満たす` という 1 個の識別子になって ReferenceError になった。
-    const atFloor = Object.fromEntries(COVERAGE_AXES.map((a) => [a, layer.floors[a]]));
+    const atFloor = Object.fromEntries(AXES.map((a) => [a, layer.floors[a]]));
     expect(judgeLayerCoverage(atFloor, layer), "床ちょうどは達成のはず").toEqual([]);
 
-    for (const axis of COVERAGE_AXES) {
+    for (const axis of AXES) {
       const below = { ...atFloor, [axis]: layer.floors[axis] - 1 };
       const found = judgeLayerCoverage(below, layer);
       expect(found.length, `${axis} を 1pt 割ったのに検出されません`).toBe(1);
