@@ -37,13 +37,21 @@ def test_audit_fork_attribution_is_bound_by_agent_id() -> None:
 
 
 # 直列化の到達点を指す印。禁止しているのは語ではなく到達点なので、
-# 特定の一文ではなくこの 2 つの印で拾う。表記ゆれ (全角、空白の数、
-# 「メッセージ」表記、英語の言い換え) は正規化で潰す。
+# 特定の一文ではなくこの 2 つの印で拾う。
+# **この一覧は伸ばさない。**同義語を足しても外側は残り続け、一覧が具体的で
+# 網羅的に見えるほど外側を確かめる動機が減る。取りこぼしは KNOWN_BLIND_SPOT
+# のほうへ「種類」として記録する。
 SERIALIZATION_MARKS = ("foreground fork", "直列")
 
 
 def _normalize(line: str) -> str:
-    folded = unicodedata.normalize("NFKC", line)
+    """表記ゆれだけを潰す。言い換えは潰さない (潰せない)。
+
+    畳む軸は正規化の種類ごとに決まっており、「正規化した」と書いただけでは
+    どの軸も畳まれない。ここで畳んでいるのは全角/半角 (NFKC)、大小文字
+    (casefold)、空白の数、「メッセージ」表記の 4 軸だけである。
+    """
+    folded = unicodedata.normalize("NFKC", line).casefold()
     folded = folded.replace("メッセージ", "message")
     return re.sub(r"\s+", " ", folded)
 
@@ -59,38 +67,63 @@ def states_serialization_in_force(line: str) -> bool:
     return "撤回" not in folded
 
 
-# 同じ到達点を述べる合成例。門を直すたびにこの一覧で測り直す。
-PARAPHRASES_IN_FORCE = (
+# 印を含む表記ゆれ。ここに並ぶのは「同じ語の書き方違い」だけで、言い換えでは
+# ない。例を足して緑にする作業に意味があるのはこの一覧までである。
+NOTATION_VARIANTS_IN_FORCE = (
     "正式 evaluator は 1 message = 1 foreground fork で直列化する。",
     "正式 evaluator は 1 メッセージ = 1 foreground fork で直列化する。",
-    "dispatch one message per foreground fork.",
     "正式 evaluator は 1 message  =  1 foreground fork とする。",
+    "1 Message = 1 Foreground Fork で運用する。",
+    "dispatch one message per foreground fork.",
     "監査 fork は必ず 1 件ずつ直列に起動する。",
 )
 
 # **塞げていない穴を、文章ではなく検査として残す。**
-# 直列化は「印になる語を一つも使わずに」述べられる。下の例がそれで、現在の門は
-# 拾えない。拾えないことをここで固定しておくと、次に読む人が「この門は全ての
-# 言い換えを塞いでいる」と誤読できなくなる。
-# 反転先: 印に頼らずこの形を拾えるようにした日に、この例を PARAPHRASES_IN_FORCE
-# へ移して本 test を削る。印の一覧を長くする方向では移さない (一覧が具体的で
-# 網羅的に見えるほど、外側を確かめる動機が減るため)。
-PARAPHRASE_NOT_CAUGHT = "前の fork の完全応答を受け取ってから次の 1 件を起動する。"
+#
+# 種類: **印を一つも使わずに直列化を述べる同義語**。この門は印 (SERIALIZATION_MARKS)
+# の在否でしか拾えないので、印を持たない言い方は原理的に素通りする。下は同じ
+# 1 種類の実例であって、一覧ではない。**足りない例を足す形で運用しない** —
+# 例を増やしても種類は 1 つのままで、増やした分だけ「網羅した」という誤読が
+# 育つ。次に別の同義語が出てきたら、それはこの種類の新しい実例であって、
+# 新しい穴ではない。
+#
+# 反転先: 印に頼らずこの種類を拾えるようになった日に、実例を
+# NOTATION_VARIANTS_IN_FORCE 側の検査へ移して本 test を削る。
+# 印の一覧を長くする方向では移さない。
+KNOWN_BLIND_SPOT_KIND = "印を持たない同義語 (直列化を SERIALIZATION_MARKS 抜きで述べる)"
+KNOWN_BLIND_SPOT_EXAMPLES = (
+    "前の fork の完全応答を受け取ってから次の 1 件を起動する。",
+    "監査 fork はシリアルに 1 件ずつ起動すること。",
+    "fork は逐次実行する (並走させない)。",
+)
+
+# 拾ってはいけないもの。来歴の言及と、直列化と無関係な記述。
+NOT_IN_FORCE = (
+    "「1 message = 1 foreground fork」という手段は撤回する。",
+    "3 監査は独立 context で並走し得る。",
+    "PostToolUse は matching tool call ごとに発火する。",
+)
 
 
-def test_gate_catches_paraphrases_of_the_retracted_means() -> None:
-    for example in PARAPHRASES_IN_FORCE:
+def test_gate_catches_notation_variants_of_the_retracted_means() -> None:
+    for example in NOTATION_VARIANTS_IN_FORCE:
         assert states_serialization_in_force(example), example
 
 
-def test_gate_ignores_retraction_context() -> None:
-    retraction = "「1 message = 1 foreground fork」で直列化する手段は撤回した。"
-    assert not states_serialization_in_force(retraction)
+def test_gate_ignores_retraction_and_unrelated_lines() -> None:
+    for example in NOT_IN_FORCE:
+        assert not states_serialization_in_force(example), example
 
 
-def test_known_uncaught_paraphrase_is_recorded_as_a_hole() -> None:
-    """塞げていないことを検査として書く (doc comment の反転先を参照)。"""
-    assert not states_serialization_in_force(PARAPHRASE_NOT_CAUGHT)
+def test_known_blind_spot_kind_is_recorded_as_a_hole() -> None:
+    """塞げていない「種類」を検査として書く (doc comment の反転先を参照)。
+
+    実例が全て素通りすることを固定する。1 件でも捕まるようになったら、それは
+    種類が塞がり始めた合図なので、この test を消して実例を上の検査へ移す。
+    """
+    assert KNOWN_BLIND_SPOT_KIND
+    for example in KNOWN_BLIND_SPOT_EXAMPLES:
+        assert not states_serialization_in_force(example), example
 
 
 def test_retracted_means_is_never_stated_as_in_force() -> None:
