@@ -102,6 +102,15 @@ def test_false_independence_unknown_agent_duplicate_and_verdict_mismatch_are_rej
     assert any("緩い" in item for item in MOD.validate_attribution(report, golden_ledger()))
 
 
+SUB_INPUT_AUDITOR = "system-spec-hearing-auditor"
+
+# **下限。**語彙 (MOD.DOWNGRADE_REASONS) のうち「根拠があれば受理され、根拠が無ければ
+# 弾かれる」ことを実際に走らせて確かめられたコードの数の床。
+# 上限 MOD.MAX_DOWNGRADE_REASONS と噛み合っており、**上限を満たすために語彙を消すと
+# ここが割れる。**片方だけを都合で動かせないようにするための対である。
+MIN_GROUNDED_DOWNGRADE_REASONS = 2
+
+
 def _downgraded(aspect="matrix_coverage", verdict="FAIL", **downgrade):
     """primary receipt は PASS のまま、観点だけを厳しくした report を作る。"""
     report = golden_report()
@@ -111,12 +120,50 @@ def _downgraded(aspect="matrix_coverage", verdict="FAIL", **downgrade):
     return report
 
 
+def _with_failing_sub_input(report):
+    """matrix_coverage の sub_input receipt だけを FAIL にし、台帳もそこへ合わせる。
+
+    `sub_input_fail` の根拠は**実在する sub_input receipt の verdict** なので、
+    宣言だけでなく台帳側も FAIL でなければ receipt 照合で落ちる。
+    """
+    for delegation in report["audit_delegations"]:
+        if delegation["role"] == "sub_input":
+            delegation["verdict"] = "FAIL"
+            delegation["dispatch"]["response_sha256"] = response_digest(SUB_INPUT_AUDITOR, "FAIL")
+    ledger = golden_ledger()
+    ledger["receipts"][SUB_INPUT_AUDITOR]["sess-1"] = {
+        response_digest(SUB_INPUT_AUDITOR, "FAIL"): {"tool_name": "Task", "verdict": "FAIL"},
+    }
+    return report, ledger
+
+
+def _grounded_case(reason):
+    """`reason` の根拠が**実在する** (report, ledger) を返す。"""
+    declaration = {"from": "PASS", "reason": reason, "detail": f"{reason} の実況"}
+    if reason == "sub_input_fail":
+        return _with_failing_sub_input(_downgraded(**declaration))
+    if reason == "provenance_contamination":
+        ledger = golden_ledger()
+        ledger["malformed"] = 3
+        return _downgraded(**declaration), ledger
+    raise AssertionError(f"語彙 {reason!r} に根拠ありの事例が用意されていない")
+
+
+def _ungrounded_case(reason):
+    """`reason` の根拠が**存在しない** (report, ledger) を返す。
+
+    golden は sub_input=PASS / 台帳の破損行 0 なので、どちらのコードも裏が取れない。
+    """
+    declaration = {"from": "PASS", "reason": reason, "detail": f"{reason} と名乗るだけ"}
+    return _downgraded(**declaration), golden_ledger()
+
+
 def test_aspect_may_be_stricter_than_its_primary_receipt_when_declared():
-    """**完全一致の撤回で開いた向き。**sub_input FAIL や来歴汚染を理由に、観点だけを
-    厳しく見たことを機械層が表現できる。以前はこれが表現できず、C05 は緩い側へ
-    寄せるか receipt を書き換える (緑化と同じ操作) しかなかった。"""
-    report = _downgraded(**{"from": "PASS", "reason": "sub_input が FAIL のため primary の PASS を額面どおり採れない"})
-    assert MOD.validate_attribution(report, golden_ledger()) == []
+    """**完全一致の撤回で開いた向き。**sub_input FAIL を根拠に、観点だけを厳しく
+    見たことを機械層が表現できる。以前はこれが表現できず、C05 は緩い側へ寄せるか
+    receipt を書き換える (緑化と同じ操作) しかなかった。"""
+    report, ledger = _grounded_case("sub_input_fail")
+    assert MOD.validate_attribution(report, ledger) == []
 
 
 def test_aspect_stricter_without_a_declaration_is_rejected():
@@ -128,13 +175,73 @@ def test_aspect_stricter_without_a_declaration_is_rejected():
 
 def test_downgrade_declaration_must_name_the_receipt_it_came_from():
     """`from` を要るのは取り違え防止。別のずれ向けの宣言を流用させない。"""
-    report = _downgraded(**{"from": "INDETERMINATE", "reason": "来歴汚染"})
-    assert any("一致しない" in item for item in MOD.validate_attribution(report, golden_ledger()))
+    report, ledger = _grounded_case("sub_input_fail")
+    report["aspects"]["matrix_coverage"]["verdict_downgrade"]["from"] = "INDETERMINATE"
+    assert any("一致しない" in item for item in MOD.validate_attribution(report, ledger))
 
 
-def test_downgrade_declaration_needs_a_non_empty_reason():
-    report = _downgraded(**{"from": "PASS", "reason": "   "})
-    assert any("reason が非空文字列でない" in item for item in MOD.validate_attribution(report, golden_ledger()))
+def test_free_text_reason_can_no_longer_buy_a_downgrade():
+    """**自由文の理由は受けない。**「理由さえ書けば通る」形だと、この門は消えたのと
+    同じになる。語彙の外の文字列はコードとして解釈されず弾かれる。"""
+    report = _downgraded(**{"from": "PASS", "reason": "今日は雨だから", "detail": "本文はある"})
+    violations = MOD.validate_attribution(report, golden_ledger())
+    assert any("降格事由は列挙された語彙のみ" in item for item in violations)
+
+
+def test_downgrade_needs_a_detail_body_alongside_the_code():
+    """コードだけでは、その観点で何が起きたかが後から読めない。"""
+    report, ledger = _grounded_case("sub_input_fail")
+    report["aspects"]["matrix_coverage"]["verdict_downgrade"]["detail"] = "   "
+    assert any("detail が非空文字列でない" in item for item in MOD.validate_attribution(report, ledger))
+
+
+def test_every_downgrade_reason_must_be_grounded_in_an_observable_fact():
+    """**語彙コードを名乗るだけでは通らない。**各コードには機械で引ける裏が要る。
+
+    `sub_input_fail` は当該観点の sub_input receipt が PASS でないこと、
+    `provenance_contamination` は台帳に破損行があること。裏が無いまま名乗った場合、
+    どちらも fail-closed で弾かれる。
+    """
+    for reason in sorted(MOD.DOWNGRADE_REASONS):
+        report, ledger = _ungrounded_case(reason)
+        violations = MOD.validate_attribution(report, ledger)
+        assert any(reason in item for item in violations), reason
+
+
+def test_downgrade_vocabulary_is_pinned_between_a_cap_and_a_floor():
+    """**逆向きの対。**上限だけ置くと、数えている対象を消して満たせてしまう。
+
+    - **上限** `MOD.MAX_DOWNGRADE_REASONS`: 語彙の件数。事由を足して「何でも通る」
+      形へ戻す道を塞ぐ。
+    - **下限** `MIN_GROUNDED_DOWNGRADE_REASONS`: 語彙のうち、根拠ありで受理され・
+      根拠なしで弾かれることを**実際に走らせて**確かめられた件数。語彙を消して
+      上限を満たす道を塞ぐ。
+
+    語彙を足すと上限が割れ、語彙を消すと下限が割れる。上下が噛み合っているので、
+    語彙を動かすときは両方を同時に、意図をもって動かすしかない。
+    """
+    assert len(MOD.DOWNGRADE_REASONS) <= MOD.MAX_DOWNGRADE_REASONS
+
+    grounded = set()
+    for reason in MOD.DOWNGRADE_REASONS:
+        accept_report, accept_ledger = _grounded_case(reason)
+        reject_report, reject_ledger = _ungrounded_case(reason)
+        accepted = MOD.validate_attribution(accept_report, accept_ledger) == []
+        rejected = any(
+            reason in item for item in MOD.validate_attribution(reject_report, reject_ledger)
+        )
+        if accepted and rejected:
+            grounded.add(reason)
+
+    assert len(grounded) >= MIN_GROUNDED_DOWNGRADE_REASONS
+    # 語彙に「根拠の引き方はあるが実際には効いていない」コードを残させない。
+    assert grounded == set(MOD.DOWNGRADE_REASONS)
+
+
+def test_the_vocabulary_is_exactly_the_grounding_table():
+    """**根拠の引き方を持たないコードは存在できない。**語彙は対応表の鍵そのもの。
+    ここが割れると、コードを足すだけで素通りする欄が作れる。"""
+    assert MOD.DOWNGRADE_REASONS == frozenset(MOD.DOWNGRADE_REASON_GROUNDS)
 
 
 def test_promotion_is_never_allowed_even_with_a_declaration():
@@ -143,32 +250,57 @@ def test_promotion_is_never_allowed_even_with_a_declaration():
     report = golden_report()
     report["audit_delegations"][0]["verdict"] = "FAIL"
     report["aspects"]["matrix_coverage"]["verdict_downgrade"] = {
-        "from": "FAIL", "reason": "統括の判断で問題なしとした",
+        "from": "FAIL", "reason": "sub_input_fail", "detail": "統括の判断で問題なしとした",
     }
     violations = MOD.validate_attribution(report, golden_ledger())
     assert any("緩い" in item for item in violations)
     assert not any("verdict_downgrade の宣言が無い" in item for item in violations)
 
 
-def test_known_hole_the_downgrade_reason_text_is_not_verifiable():
+def test_promotion_stays_blocked_even_when_the_reason_is_fully_grounded():
+    """**根拠を本物にしても昇格は開かない。**語彙化で「根拠さえ揃えば通る」形に
+    なっていないことを確かめる。sub_input を実際に FAIL にし、台帳も破損行つきにして、
+    それでも receipt=FAIL / 観点=PASS が弾かれ続けることを固定する。
+
+    向きの判定は宣言を読む**前**に返しているので、根拠の充実は昇格側へ効かない。
+    """
+    report, ledger = _with_failing_sub_input(golden_report())
+    ledger["malformed"] = 5
+    report["audit_delegations"][0]["verdict"] = "FAIL"
+    report["audit_delegations"][0]["dispatch"]["response_sha256"] = response_digest(
+        "system-spec-matrix-auditor", "FAIL"
+    )
+    ledger["receipts"]["system-spec-matrix-auditor"]["sess-1"] = {
+        response_digest("system-spec-matrix-auditor", "FAIL"): {"tool_name": "Task", "verdict": "FAIL"},
+    }
+    report["aspects"]["matrix_coverage"]["verdict"] = "PASS"
+    report["aspects"]["matrix_coverage"]["verdict_downgrade"] = {
+        "from": "FAIL", "reason": "sub_input_fail", "detail": "根拠は本物だが向きが逆",
+    }
+    violations = MOD.validate_attribution(report, ledger)
+    assert any("緩い" in item for item in violations)
+
+
+def test_known_hole_the_downgrade_detail_body_is_not_verifiable():
     """**塞げていない穴を種類として書く。**
 
-    種類:「宣言の**本文**が本当かどうかは機械層で判定できない」。下では
-    まったく無関係な理由を書いても通る。確かめられるのは**向き** (厳しくなる側だけ)
-    と**元の値** (`from`) の 2 つだけである。
+    種類:「宣言の `detail` **本文**が本当かどうかは機械層で判定できない」。下では
+    根拠 (sub_input=FAIL) は本物だが、本文は事実と無関係でも通る。
 
-    **塞がない理由**: 本文を検査するには理由の語の一覧 (sub_input FAIL / 来歴汚染 /
-    …) を作ることになり、一覧の外側は必ず残る。しかも一覧を作ると、書き手は
-    一覧の語に寄せて書くようになり、本当の理由が文書から消える。
-    **受け止めているもの**: 向きが縛ってあるので、この欄で作れるのは自分の観点を
+    **以前との違い**: 穴は `reason` から `detail` へ縮んだ。受理を決める 3 つ
+    (向き・`from`・語彙コードに対応する根拠) はいずれも機械で引ける。本文は
+    受理の条件ではなく、人が後から読むための記録である。
+
+    **塞がない理由**: 本文と根拠の対応を機械で確かめるには自然文の含意判定が要る。
+    **受け止めているもの**: 本文が嘘でも、向きが縛ってあるので作れるのは自分の観点を
     より厳しくすることだけで、緑化には使えない。
 
-    反転先: 理由の根拠を機械で引ける形 (sub_input receipt の verdict や来歴の
-    汚染記録への参照) を宣言へ要求できるようになった日。**理由語の一覧を足す方向では
-    反転させない。**
+    反転先: `detail` から sub_input receipt や台帳の破損行へ**構造化された参照**
+    (行 id 等) を要求できるようになった日。本文の自然文検査では反転させない。
     """
-    report = _downgraded(**{"from": "PASS", "reason": "今日は雨だから"})
-    assert MOD.validate_attribution(report, golden_ledger()) == []
+    report, ledger = _grounded_case("sub_input_fail")
+    report["aspects"]["matrix_coverage"]["verdict_downgrade"]["detail"] = "今日は雨だから"
+    assert MOD.validate_attribution(report, ledger) == []
 
 
 def test_agent_tool_rows_and_reforks_are_accepted():

@@ -18,7 +18,9 @@ import json
 import pytest
 
 from completeness_test_support import AGGREGATE as MOD
-from completeness_test_support import SKILL_DIR, golden_ledger, golden_report, write_ledger, write_matrix
+from completeness_test_support import (
+    SKILL_DIR, golden_ledger, golden_report, response_digest, write_ledger, write_matrix,
+)
 
 
 def test_all_pass_no_high_is_pass():
@@ -168,10 +170,13 @@ def test_a_declared_downgrade_passes_both_the_schema_and_the_cli_path():
     `additionalProperties: false` が同じ欄を落とすので、機械層はその欄を**一度も
     受け取れない**。表現できるようにしたつもりで、実際には通り道が無い状態になる。
     schema 側と CLI 側の両方で通ることをここで縛る。
+
+    `reason` は列挙コード、`detail` は本文で、schema の enum / required と検査側の
+    語彙がずれていればここが落ちる。
     """
     jsonschema = pytest.importorskip("jsonschema")
     # 観点が FAIL になれば総合も FAIL へ落ちる (既存の再導出)。緩める向きではないので
-    # そこは変えない。receipt は PASS のまま = これが降格である。
+    # そこは変えない。primary receipt は PASS のまま = これが降格である。
     report = golden_report(
         verdict="FAIL",
         gaps=["[matrix_coverage / high] sub_input が FAIL のため matrix_coverage は未確定"],
@@ -179,10 +184,21 @@ def test_a_declared_downgrade_passes_both_the_schema_and_the_cli_path():
     report["aspects"]["matrix_coverage"]["verdict"] = "FAIL"
     report["aspects"]["matrix_coverage"]["verdict_downgrade"] = {
         "from": "PASS",
-        "reason": "sub_input が FAIL のため primary の PASS を額面どおり採れない",
+        "reason": "sub_input_fail",
+        "detail": "sub_input が FAIL のため primary の PASS を額面どおり採れない",
+    }
+    # 語彙コードには機械で引ける裏が要る。sub_input receipt と台帳を実際に FAIL へ寄せる。
+    sub_input_auditor = "system-spec-hearing-auditor"
+    for delegation in report["audit_delegations"]:
+        if delegation["role"] == "sub_input":
+            delegation["verdict"] = "FAIL"
+            delegation["dispatch"]["response_sha256"] = response_digest(sub_input_auditor, "FAIL")
+    ledger = golden_ledger()
+    ledger["receipts"][sub_input_auditor]["sess-1"] = {
+        response_digest(sub_input_auditor, "FAIL"): {"tool_name": "Task", "verdict": "FAIL"},
     }
     jsonschema.validate(report, MOD.load_report_schema())
-    assert MOD.validate_report(report, golden_ledger()) == []
+    assert MOD.validate_report(report, ledger) == []
 
 
 def test_the_schema_validation_can_fail():

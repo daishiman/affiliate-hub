@@ -73,6 +73,65 @@ OVERALL_VERDICTS = {"PASS", "FAIL"}
 # PASS の観点) は理由の有無にかかわらず許さない。緩める向きを理由つきで許すと、
 # 理由欄が緑化の通り道になる。
 VERDICT_SEVERITY = {"PASS": 0, "INDETERMINATE": 1, "FAIL": 2}
+
+# 降格を正当化できる**事由の語彙**。自由文字列ではなく、ここに在るコードだけを受ける。
+#
+# 以前は `reason` が非空の自由文字列で足りていた。それだと「厳しくする向き」に限って
+# あっても、**何を根拠に厳しくしたのかが機械層から一切引けない**。本文は人しか読めず、
+# 無関係な文 (「今日は雨だから」) でも通った。向きが縛ってあるので緑化には使えないが、
+# 降格そのものが説明不能な操作として残る。
+#
+# そこで語彙を**閉じた列挙**にし、さらに各コードへ**機械で引ける根拠**を結び付ける。
+# コードは `DOWNGRADE_REASON_GROUNDS` の鍵そのものなので、**根拠の引き方を持たない
+# コードは存在できない。**語彙だけ足して素通りさせる形を作れない。
+#
+# 本文は捨てない。`detail` に非空で書かせる (語彙へ寄せた結果、本当の理由が文書から
+# 消えるのを防ぐ)。ただし `detail` は**受理の条件ではない**。受理を決めるのは
+# 向き・`from`・そして語彙コードに対応する根拠の 3 つである。
+#
+# 上限 MAX_DOWNGRADE_REASONS と下限 MIN_GROUNDED_DOWNGRADE_REASONS が
+# tests/test_audit_fork_attribution.py で噛み合っている。語彙を足すと上限が割れ、
+# 語彙を消すと下限が割れる。どちらか片方の都合では動かせない。
+MAX_DOWNGRADE_REASONS = 2
+
+
+def _ground_sub_input_fail(aspect: str, sub_input: dict | None, ledger: dict) -> str:
+    """`sub_input_fail`: 当該観点の sub_input receipt が実在し PASS でないこと。"""
+    if not isinstance(sub_input, dict):
+        return (
+            f"aspects[{aspect}].verdict_downgrade.reason='sub_input_fail' だが"
+            f" {aspect} に sub_input receipt が無い (根拠として引ける sub_input が存在しない)"
+        )
+    verdict = sub_input.get("verdict")
+    if verdict == "PASS":
+        return (
+            f"aspects[{aspect}].verdict_downgrade.reason='sub_input_fail' だが"
+            f" {aspect} の sub_input receipt は verdict=PASS (FAIL でないものを FAIL 扱いにできない)"
+        )
+    return ""
+
+
+def _ground_provenance_contamination(aspect: str, sub_input: dict | None, ledger: dict) -> str:
+    """`provenance_contamination`: 台帳に破損行が実在すること。
+
+    来歴が汚れているという主張は、台帳の破損行という**観測できる跡**を持つ。
+    跡が無いなら、receipt を額面どおり採れない理由も無い。
+    """
+    malformed = ledger.get("malformed", 0) if isinstance(ledger, dict) else 0
+    if not isinstance(malformed, int) or malformed < 1:
+        return (
+            f"aspects[{aspect}].verdict_downgrade.reason='provenance_contamination' だが"
+            " fork 台帳に破損行が 1 件も無い (来歴汚染を裏取りできる跡が存在しない)"
+        )
+    return ""
+
+
+# 語彙 = この対応表の鍵。根拠の引き方を持たないコードは作れない。
+DOWNGRADE_REASON_GROUNDS = {
+    "sub_input_fail": _ground_sub_input_fail,
+    "provenance_contamination": _ground_provenance_contamination,
+}
+DOWNGRADE_REASONS = frozenset(DOWNGRADE_REASON_GROUNDS)
 SEVERITIES = {"high", "medium", "low", "info"}
 SUB_INPUT_AUDITORS: dict[str, dict[str, str]] = {
     "matrix_coverage": {"auditor": "system-spec-hearing-auditor", "component": "C06"},
@@ -458,18 +517,29 @@ def _verdict_shift_violations(
     receipt_verdict: str,
     aspect_verdict: str,
     aspect_value: object,
+    sub_input: dict | None = None,
+    ledger: dict | None = None,
 ) -> list[str]:
     """primary receipt verdict と観点 verdict がずれているときの可否を返す。
 
-    **厳しくなる向きだけを、宣言つきで許す。**宣言は `aspects[<観点>].verdict_downgrade`
-    で、`from` (元の receipt verdict) と `reason` (非空) を要る。`from` を要るのは
-    取り違え防止で、別の receipt のずれを流用した宣言を弾く。
+    **厳しくなる向きだけを、根拠つきで許す。**宣言は `aspects[<観点>].verdict_downgrade`
+    で、次の 4 つを要る。
 
-    **塞げていないところ**: `reason` の**本文が本当かどうかは機械層では判定できない。**
-    ここで確かめられるのは「向き」と「元の値」だけである。本文を検査しようとすると
-    語の一覧 (sub_input FAIL / 来歴汚染 / …) を作ることになり、一覧の外側は必ず残る。
-    向きを縛ってあるので、この欄で作れるのは**自分の観点をより厳しくすること**だけで、
-    緑化には使えない。それがこの設計で受け止めている範囲である。
+    1. `from` = 元の primary receipt verdict。取り違え防止 (別のずれ向けの宣言の流用を弾く)。
+    2. `reason` = `DOWNGRADE_REASONS` の**列挙されたコード**。自由文字列は受けない。
+    3. `reason` に対応する**機械で引ける根拠**が実在すること
+       (`sub_input_fail` なら当該観点の sub_input receipt が PASS でない、
+        `provenance_contamination` なら台帳に破損行がある)。
+    4. `detail` = 非空の本文。人が読む本当の理由をここへ残す (語彙へ寄せた結果、
+       実際の事情が文書から消えるのを防ぐ)。
+
+    **緩くなる向き** (FAIL の receipt に PASS の観点) は、宣言の有無にかかわらず
+    弾く。理由つきで緩められると理由欄が緑化の通り道になる。この判定は宣言を読む
+    前に返しており、`verdict_downgrade` を足しても昇格側は開かない。
+
+    **塞げていないところ**: `detail` の本文が本当かどうかは機械層では判定できない。
+    ただし `detail` は**受理の条件ではない**。受理を決めるのは向き・`from`・根拠の 3 つ
+    で、いずれも機械で引ける。
     """
     if VERDICT_SEVERITY[aspect_verdict] < VERDICT_SEVERITY[receipt_verdict]:
         return [
@@ -489,8 +559,23 @@ def _verdict_shift_violations(
             f" primary receipt verdict={receipt_verdict!r} と一致しない (別のずれの宣言を流用している疑い)"
         )
     reason = declared.get("reason")
-    if not isinstance(reason, str) or not reason.strip():
-        problems.append(f"aspects[{aspect}].verdict_downgrade.reason が非空文字列でない")
+    if reason not in DOWNGRADE_REASONS:
+        problems.append(
+            f"aspects[{aspect}].verdict_downgrade.reason={reason!r} が"
+            f" {sorted(DOWNGRADE_REASONS)} 外 (降格事由は列挙された語彙のみ。自由文の理由では降格できない)"
+        )
+    else:
+        ungrounded = DOWNGRADE_REASON_GROUNDS[reason](
+            aspect, sub_input, ledger if isinstance(ledger, dict) else {}
+        )
+        if ungrounded:
+            problems.append(ungrounded)
+    detail = declared.get("detail")
+    if not isinstance(detail, str) or not detail.strip():
+        problems.append(
+            f"aspects[{aspect}].verdict_downgrade.detail が非空文字列でない"
+            " (語彙コードだけでは、その観点で何が起きたかが後から読めない)"
+        )
     return problems
 
 
@@ -565,7 +650,13 @@ def validate_attribution(
             if aspect_verdict in ASPECT_VERDICTS and delegation_verdict != aspect_verdict:
                 violations.extend(
                     _verdict_shift_violations(
-                        aspect, label, delegation_verdict, aspect_verdict, aspect_value
+                        aspect,
+                        label,
+                        delegation_verdict,
+                        aspect_verdict,
+                        aspect_value,
+                        sub_input=seen.get((aspect, "sub_input")),
+                        ledger=ledger,
                     )
                 )
         evidence = delegation.get("evidence")
