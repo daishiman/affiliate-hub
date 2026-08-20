@@ -1395,7 +1395,23 @@
             "シークレットローテーション手順を保守運用に追加する必要がある"
           ]
         }
-      ]
+      ],
+      "scope_notes": {
+        "bundled": false,
+        "topics": [
+          {
+            "topic_id": "qa-auth-web",
+            "covers_cell": {
+              "category": "auth",
+              "platform": "web"
+            },
+            "answer_span": "A. Better Auth (Better Auth + Google OAuth) を選択。",
+            "note": "1 回の対話ヒアリングの回答であり、他の質疑を統合していない。この 1 論点がそのまま auth×web の確定の裏付けである。bundled=false は writer が「論点 1 件かつこの entry を引く確定セル 1 件」を検証して通した結果であり、手で名乗ったものではない。",
+            "origin_qa_id": "qa-auth-web"
+          }
+        ],
+        "recorded_with": "set-qa-scope-notes"
+      }
     },
     {
       "id": "qa-backend-web-analytics",
@@ -1622,7 +1638,38 @@
             "文章の自由度は下がるが、根拠のない主張が節の単位で検出できる"
           ]
         }
-      ]
+      ],
+      "scope_notes": {
+        "bundled": true,
+        "topics": [
+          {
+            "topic_id": "qa-backend-web",
+            "covers_cell": null,
+            "answer_span": "### qa-backend-web（docs/spec/01-要求仕様書-v1.0.md §18.3）",
+            "note": "統合前の質疑由来の節。確定セルの裏付けではないが、統合時に範囲を保つため本文へ残してある。裏付けでないものを裏付けと名乗らせないため covers_cell は null にしてある。",
+            "origin_qa_id": "qa-backend-web"
+          },
+          {
+            "topic_id": "qa-backend-web-analytics",
+            "covers_cell": null,
+            "answer_span": "### qa-backend-web-analytics（docs/spec/03-分析・解析基盤仕様.md §1 全体アーキテクチャ）",
+            "note": "統合前の質疑由来の節。確定セルの裏付けではないが、統合時に範囲を保つため本文へ残してある。裏付けでないものを裏付けと名乗らせないため covers_cell は null にしてある。",
+            "origin_qa_id": "qa-backend-web-analytics"
+          },
+          {
+            "topic_id": "qa-backend-web-spec-intake",
+            "covers_cell": {
+              "category": "backend",
+              "platform": "web"
+            },
+            "answer_span": "### qa-backend-web-spec-intake（docs/spec/04-二層構造統合仕様.md §3 WebMCP の確定契約 / §4 禁止依存）",
+            "note": "この節が確定セルの直接の裏付けである。R4-reopen の理由に「書面入力 qa で再確定する」とあり、再確定を出したのはこの書面入力の節である。",
+            "origin_qa_id": "qa-backend-web-spec-intake"
+          }
+        ],
+        "recorded_with": "set-qa-scope-notes",
+        "bundling_reason": "この entry は複数回の質疑の回答本文を統合して 1 件になっている。qa_ref は 1 件しか持てないため (決定論ゲートが文字列で照合する)、束ねを解消せず本文を統合して裏付けの範囲を保った経緯がある。**注記を付けても束ねは解消していない。**下の topics は、統合済み本文のどの節がどの質疑由来で、そのうちどれが確定セルの裏付けかを機械が読める形にしただけである。"
+      }
     },
     {
       "id": "qa-database-web-spec-intake",
@@ -1698,7 +1745,38 @@
             "Blueprint の保存が失敗しやすくなるが、言い換え記事と報酬由来の順位づけを保存の時点で止められる"
           ]
         }
-      ]
+      ],
+      "scope_notes": {
+        "bundled": true,
+        "topics": [
+          {
+            "topic_id": "qa-database-web",
+            "covers_cell": null,
+            "answer_span": "### qa-database-web（出典未記載）",
+            "note": "統合前の質疑由来の節。確定セルの裏付けではないが、統合時に範囲を保つため本文へ残してある。裏付けでないものを裏付けと名乗らせないため covers_cell は null にしてある。",
+            "origin_qa_id": "qa-database-web"
+          },
+          {
+            "topic_id": "qa-database-web-analytics",
+            "covers_cell": null,
+            "answer_span": "### qa-database-web-analytics（docs/spec/03-分析・解析基盤仕様.md §5 集計層(MetricRollup)）",
+            "note": "統合前の質疑由来の節。確定セルの裏付けではないが、統合時に範囲を保つため本文へ残してある。裏付けでないものを裏付けと名乗らせないため covers_cell は null にしてある。",
+            "origin_qa_id": "qa-database-web-analytics"
+          },
+          {
+            "topic_id": "qa-database-web-spec-intake",
+            "covers_cell": {
+              "category": "database",
+              "platform": "web"
+            },
+            "answer_span": "### qa-database-web-spec-intake（docs/spec/06-サイトブループリント-記事構成テンプレート.md §2 SiteBlueprint のパラメータ定義）",
+            "note": "この節が確定セルの直接の裏付けである。R4-reopen の理由に「書面入力 qa で再確定する」とあり、再確定を出したのはこの書面入力の節である。",
+            "origin_qa_id": "qa-database-web-spec-intake"
+          }
+        ],
+        "recorded_with": "set-qa-scope-notes",
+        "bundling_reason": "この entry は複数回の質疑の回答本文を統合して 1 件になっている。qa_ref は 1 件しか持てないため (決定論ゲートが文字列で照合する)、束ねを解消せず本文を統合して裏付けの範囲を保った経緯がある。**注記を付けても束ねは解消していない。**下の topics は、統合済み本文のどの節がどの質疑由来で、そのうちどれが確定セルの裏付けかを機械が読める形にしただけである。"
+      }
     },
     {
       "id": "qa-uiux-web-spec-intake",
@@ -1832,7 +1910,38 @@
             "CI 固有の細かな制御はしにくいが、「手元では通るのに機械で落ちる」が構造的に起きない"
           ]
         }
-      ]
+      ],
+      "scope_notes": {
+        "bundled": true,
+        "topics": [
+          {
+            "topic_id": "qa-infra-web",
+            "covers_cell": null,
+            "answer_span": "### qa-infra-web（出典未記載）",
+            "note": "統合前の質疑由来の節。確定セルの裏付けではないが、統合時に範囲を保つため本文へ残してある。裏付けでないものを裏付けと名乗らせないため covers_cell は null にしてある。",
+            "origin_qa_id": "qa-infra-web"
+          },
+          {
+            "topic_id": "qa-infra-web-redirect",
+            "covers_cell": null,
+            "answer_span": "### qa-infra-web-redirect（docs/spec/02-補充仕様-ギャップと追加要件.md §7 運用系の補充）",
+            "note": "統合前の質疑由来の節。確定セルの裏付けではないが、統合時に範囲を保つため本文へ残してある。裏付けでないものを裏付けと名乗らせないため covers_cell は null にしてある。",
+            "origin_qa_id": "qa-infra-web-redirect"
+          },
+          {
+            "topic_id": "qa-infra-web-spec-intake",
+            "covers_cell": {
+              "category": "infrastructure",
+              "platform": "web"
+            },
+            "answer_span": "### qa-infra-web-spec-intake（docs/spec/11-CI-CD・品質ゲート仕様.md §8 検査の段）",
+            "note": "この節が確定セルの直接の裏付けである。R4-reopen の理由に「書面入力 qa で再確定する」とあり、再確定を出したのはこの書面入力の節である。",
+            "origin_qa_id": "qa-infra-web-spec-intake"
+          }
+        ],
+        "recorded_with": "set-qa-scope-notes",
+        "bundling_reason": "この entry は複数回の質疑の回答本文を統合して 1 件になっている。qa_ref は 1 件しか持てないため (決定論ゲートが文字列で照合する)、束ねを解消せず本文を統合して裏付けの範囲を保った経緯がある。**注記を付けても束ねは解消していない。**下の topics は、統合済み本文のどの節がどの質疑由来で、そのうちどれが確定セルの裏付けかを機械が読める形にしただけである。"
+      }
     },
     {
       "id": "qa-security-web-spec-intake",
@@ -1881,7 +1990,31 @@
             "トークンの本数が増えて管理対象が増えるが、漏れたときの影響範囲がその用途に閉じる"
           ]
         }
-      ]
+      ],
+      "scope_notes": {
+        "bundled": true,
+        "topics": [
+          {
+            "topic_id": "qa-security-web",
+            "covers_cell": null,
+            "answer_span": "### qa-security-web（docs/spec/01-要求仕様書-v1.0.md §26.1）",
+            "note": "統合前の質疑由来の節。確定セルの裏付けではないが、統合時に範囲を保つため本文へ残してある。裏付けでないものを裏付けと名乗らせないため covers_cell は null にしてある。",
+            "origin_qa_id": "qa-security-web"
+          },
+          {
+            "topic_id": "qa-security-web-spec-intake",
+            "covers_cell": {
+              "category": "security",
+              "platform": "web"
+            },
+            "answer_span": "### qa-security-web-spec-intake（docs/spec/11-CI-CD・品質ゲート仕様.md §5 秘密情報）",
+            "note": "この節が確定セルの直接の裏付けである。R4-reopen の理由に「書面入力 qa で再確定する」とあり、再確定を出したのはこの書面入力の節である。",
+            "origin_qa_id": "qa-security-web-spec-intake"
+          }
+        ],
+        "recorded_with": "set-qa-scope-notes",
+        "bundling_reason": "この entry は複数回の質疑の回答本文を統合して 1 件になっている。qa_ref は 1 件しか持てないため (決定論ゲートが文字列で照合する)、束ねを解消せず本文を統合して裏付けの範囲を保った経緯がある。**注記を付けても束ねは解消していない。**下の topics は、統合済み本文のどの節がどの質疑由来で、そのうちどれが確定セルの裏付けかを機械が読める形にしただけである。"
+      }
     },
     {
       "id": "qa-frontend-web-spec-intake",
@@ -1948,7 +2081,38 @@
             "空欄でも要素が残るため画面はやや長くなるが、「書かれなかった」と「表示していない」を読み分けられる"
           ]
         }
-      ]
+      ],
+      "scope_notes": {
+        "bundled": true,
+        "topics": [
+          {
+            "topic_id": "qa-frontend-web",
+            "covers_cell": null,
+            "answer_span": "### qa-frontend-web（出典未記載）",
+            "note": "統合前の質疑由来の節。確定セルの裏付けではないが、統合時に範囲を保つため本文へ残してある。裏付けでないものを裏付けと名乗らせないため covers_cell は null にしてある。",
+            "origin_qa_id": "qa-frontend-web"
+          },
+          {
+            "topic_id": "qa-frontend-web-analytics",
+            "covers_cell": null,
+            "answer_span": "### qa-frontend-web-analytics（docs/spec/03-分析・解析基盤仕様.md §8 画面仕様(Analytics 拡張)）",
+            "note": "統合前の質疑由来の節。確定セルの裏付けではないが、統合時に範囲を保つため本文へ残してある。裏付けでないものを裏付けと名乗らせないため covers_cell は null にしてある。",
+            "origin_qa_id": "qa-frontend-web-analytics"
+          },
+          {
+            "topic_id": "qa-frontend-web-spec-intake",
+            "covers_cell": {
+              "category": "frontend",
+              "platform": "web"
+            },
+            "answer_span": "### qa-frontend-web-spec-intake（docs/spec/12-改善要望フィードバック仕様.md §5 送信モーダル（FB-AC-04〜10））",
+            "note": "この節が確定セルの直接の裏付けである。R4-reopen の理由に「書面入力 qa で再確定する」とあり、再確定を出したのはこの書面入力の節である。",
+            "origin_qa_id": "qa-frontend-web-spec-intake"
+          }
+        ],
+        "recorded_with": "set-qa-scope-notes",
+        "bundling_reason": "この entry は複数回の質疑の回答本文を統合して 1 件になっている。qa_ref は 1 件しか持てないため (決定論ゲートが文字列で照合する)、束ねを解消せず本文を統合して裏付けの範囲を保った経緯がある。**注記を付けても束ねは解消していない。**下の topics は、統合済み本文のどの節がどの質疑由来で、そのうちどれが確定セルの裏付けかを機械が読める形にしただけである。"
+      }
     },
     {
       "id": "qa-ops-web-spec-intake",
@@ -2006,7 +2170,31 @@
             "再評価が済むまで門が赤のままになるが、赤であること自体が未解消の告知になる"
           ]
         }
-      ]
+      ],
+      "scope_notes": {
+        "bundled": true,
+        "topics": [
+          {
+            "topic_id": "qa-ops-web",
+            "covers_cell": null,
+            "answer_span": "### qa-ops-web（docs/spec/02-補充仕様-ギャップと追加要件.md §7）",
+            "note": "統合前の質疑由来の節。確定セルの裏付けではないが、統合時に範囲を保つため本文へ残してある。裏付けでないものを裏付けと名乗らせないため covers_cell は null にしてある。",
+            "origin_qa_id": "qa-ops-web"
+          },
+          {
+            "topic_id": "qa-ops-web-spec-intake",
+            "covers_cell": {
+              "category": "maintenance-ops",
+              "platform": "web"
+            },
+            "answer_span": "### qa-ops-web-spec-intake（docs/spec/10-テスト戦略仕様.md §2 数字を偽らないための規律）",
+            "note": "この節が確定セルの直接の裏付けである。R4-reopen の理由に「書面入力 qa で再確定する」とあり、再確定を出したのはこの書面入力の節である。",
+            "origin_qa_id": "qa-ops-web-spec-intake"
+          }
+        ],
+        "recorded_with": "set-qa-scope-notes",
+        "bundling_reason": "この entry は複数回の質疑の回答本文を統合して 1 件になっている。qa_ref は 1 件しか持てないため (決定論ゲートが文字列で照合する)、束ねを解消せず本文を統合して裏付けの範囲を保った経緯がある。**注記を付けても束ねは解消していない。**下の topics は、統合済み本文のどの節がどの質疑由来で、そのうちどれが確定セルの裏付けかを機械が読める形にしただけである。"
+      }
     },
     {
       "id": "qa-uiux-web-screen-priority",
@@ -2053,7 +2241,23 @@
             "密度を上げると走査しづらくなるため、区切りとラベルの設計が失敗すると情報量優先がそのまま可読性の低下になる"
           ]
         }
-      ]
+      ],
+      "scope_notes": {
+        "bundled": false,
+        "topics": [
+          {
+            "topic_id": "qa-uiux-web-screen-priority",
+            "covers_cell": {
+              "category": "ui-ux",
+              "platform": "web"
+            },
+            "answer_span": "利用者本人の回答を逐語で記録する。以下 9 項目は代理推定ではなく本人回答である。",
+            "note": "1 回の聞き取りの回答であり、他の質疑を統合していない。以降の「既存記録との食い違い」節は本人回答ではなく突き合わせの記録で、本文中にその旨が明示されているため別論点として数えない。なお ui-ux×web は 2026-08-20 の R4-reopen で qa_ref が qa-uiux-web-spec-intake からこの entry へ移っている。移る前の qa-uiux-web-spec-intake は束ねられたまま、どの確定セルからも指されていない状態で残る。",
+            "origin_qa_id": "qa-uiux-web-screen-priority"
+          }
+        ],
+        "recorded_with": "set-qa-scope-notes"
+      }
     }
   ],
   "approval_log": [
@@ -3427,8 +3631,8 @@
     "limit_overrun": {
       "loop_count": 7,
       "max_loops": 5,
-      "reason": "loop_count=7 は max_loops=5 を超えているが、これは上限が緩められた結果ではない。run_chunk は上限に達した時点で break し、loop_count を処理済み件数で置き直すため、この writer を通るかぎり loop_count <= max_loops は構造的に破れない。したがって 7 > 5 は『上限を超えて回した』記録ではなく、『この writer を通らずに書かれた』ことの痕跡である (gap 5 と同一原因。当時の decision record にも「門が無い writer で書いた」と明記されている)。数を 5 へ丸めれば辻褄は合うが、丸めた瞬間に迂回の唯一の痕跡が消えるため、値は保存し、意味のほうを記録する。max_loops_policy=strict と併せて読むこと: 上限は厳格であり、この超過は上限の性格ではなく経路の異常を示す。",
-      "recorded_at": "2026-08-20T00:00:00Z"
+      "reason": "loop_count=7 は max_loops=5 を超えているが、これは上限が緩められた結果ではない。run_chunk は処理件数が max_loops に達した時点で break し、その回に処理した件数を loop_count へ書くため、この writer 単独では max_loops を超える loop_count を作らない。他方 2026-08-20 以降、渡された state が既に max_loops を超えている場合に限り、その値を床として保存する (floor = prior if prior > max_loops else 0)。したがって『この writer を通した state は必ず上限以下』は成り立たない——成り立たせないことが意図である。通しただけで超過の痕跡が消えるほうが危険だからである。7 > 5 が示すのは『上限を超えて回した』ことではなく『この writer を通らずに書かれた』ことであり、gap 5 と同一原因である (decisions の recorded_with 1 件に『以前この record を書いた際は門が無い writer で書いた状態だった (gap 5)』と残っている)。数を 5 へ丸めれば辻褄は合うが、丸めた瞬間に迂回の唯一の痕跡が消えるため、値は保存し意味のほうを記録する。max_loops_policy=strict と併せて読むこと: 上限は厳格であり、この超過は上限の性格ではなく経路の異常を示す。",
+      "recorded_at": "2026-08-20T10:10:00Z"
     }
   }
 }

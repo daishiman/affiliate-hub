@@ -129,6 +129,191 @@ def set_qa_design_applications(state: dict, qa_id: str, raw: object) -> None:
     entry.pop("legacy_exempt_reason", None)
 
 
+SCOPE_NOTE_WRITER = "set-qa-scope-notes"
+# `answer_span` の長さの床。2026-08-20 実測: 注記対象 8 entry から取れる節見出し 19 件の
+# 最短が 23 字 (`### qa-infra-web（出典未記載）`) なので 20 に置いた (遊び 3)。
+# 床が無いと「。」1 文字でも部分文字列は成立し、**逐語引用したという主張だけが通る**。
+# 以後この値は上げる方向にしか動かさない (下げるのは検査を緩める向き)。
+SCOPE_NOTE_SPAN_MIN_LEN = 20
+
+
+def _confirmed_cells_citing(state: dict, qa_id: str) -> list[tuple[str, str]]:
+    """確定セルのうち、根拠として qa_id を引いているものを列挙する。"""
+    found: list[tuple[str, str]] = []
+    for category, row in (state.get("matrix") or {}).items():
+        if not isinstance(row, dict):
+            continue
+        for platform, cell in row.items():
+            if not isinstance(cell, dict):
+                continue
+            if cell.get("state") == "確定" and cell.get("qa_ref") == qa_id:
+                found.append((category, platform))
+    return sorted(found)
+
+
+def normalize_scope_notes(raw: object, entry: dict, refs: list[tuple[str, str]]) -> dict:
+    """範囲注記を検証して正規形へ落とす。問答本文 (question/answer) には触らない。
+
+    束ねを **解消しない**。1 entry が複数論点を抱えている事実はそのまま残り、
+    どの論点がどの確定セルの裏付けかが機械で読めるようになるだけである。
+    だから `bundled` は注記の飾りではなく、writer が計算して突き合わせる値にしてある。
+    """
+    if not isinstance(raw, dict):
+        raise TransitionError(f"{SCOPE_NOTE_WRITER}: scope_notes は object 必須")
+
+    topics = raw.get("topics")
+    if not isinstance(topics, list) or not topics:
+        raise TransitionError(f"{SCOPE_NOTE_WRITER}: topics は非空配列必須")
+
+    answer = entry.get("answer")
+    if not isinstance(answer, str) or not answer.strip():
+        raise TransitionError(f"{SCOPE_NOTE_WRITER}: answer が空の entry には注記できない")
+
+    bundled = raw.get("bundled")
+    if not isinstance(bundled, bool):
+        raise TransitionError(f"{SCOPE_NOTE_WRITER}: bundled は真偽値必須")
+
+    # `bundled` を手で false にすれば束ねが消えたことになる、という抜け道を塞ぐ。
+    # false を名乗れるのは「論点が 1 件で、この entry を引く確定セルも 1 件」のときだけ。
+    if bundled and len(topics) < 2:
+        raise TransitionError(
+            f"{SCOPE_NOTE_WRITER}: bundled=true は topics 2 件以上のときのみ "
+            f"(topics={len(topics)})"
+        )
+    if not bundled and (len(topics) != 1 or len(refs) != 1):
+        raise TransitionError(
+            f"{SCOPE_NOTE_WRITER}: bundled=false は topics 1 件かつ確定セル 1 件のときのみ "
+            f"(topics={len(topics)}, 確定セル={len(refs)})"
+        )
+
+    reason = raw.get("bundling_reason")
+    if bundled and (not isinstance(reason, str) or not reason.strip()):
+        raise TransitionError(
+            f"{SCOPE_NOTE_WRITER}: bundled=true には非空の bundling_reason が必須 "
+            "(束ねが残っている事実を欄に持たせる)"
+        )
+
+    normalized_topics = []
+    seen_ids: set[str] = set()
+    covered: list[tuple[str, str]] = []
+    for index, topic in enumerate(topics):
+        where = f"{SCOPE_NOTE_WRITER}: topics[{index}]"
+        if not isinstance(topic, dict):
+            raise TransitionError(f"{where} は object 必須")
+
+        topic_id = topic.get("topic_id")
+        if not isinstance(topic_id, str) or not topic_id.strip():
+            raise TransitionError(f"{where}.topic_id は非空文字列必須")
+        topic_id = topic_id.strip()
+        if topic_id in seen_ids:
+            raise TransitionError(f"{where}.topic_id が重複: {topic_id}")
+        seen_ids.add(topic_id)
+
+        span = topic.get("answer_span")
+        if not isinstance(span, str):
+            raise TransitionError(f"{where}.answer_span は文字列必須")
+        if len(span) < SCOPE_NOTE_SPAN_MIN_LEN:
+            raise TransitionError(
+                f"{where}.answer_span が短すぎる ({len(span)} 字 < "
+                f"{SCOPE_NOTE_SPAN_MIN_LEN} 字)。短い断片は逐語引用の証明にならない"
+            )
+        occurrences = answer.count(span)
+        if occurrences == 0:
+            raise TransitionError(
+                f"{where}.answer_span が answer に存在しない (注記が問答を作文している)"
+            )
+        if occurrences > 1:
+            raise TransitionError(
+                f"{where}.answer_span が answer に {occurrences} 箇所ある。"
+                "位置を特定できない引用は範囲注記として機能しない"
+            )
+
+        note = topic.get("note")
+        if not isinstance(note, str) or not note.strip():
+            raise TransitionError(f"{where}.note は非空文字列必須")
+
+        cell = topic.get("covers_cell")
+        normalized_cell = None
+        if cell is not None:
+            if not isinstance(cell, dict):
+                raise TransitionError(f"{where}.covers_cell は object または null")
+            category = cell.get("category")
+            platform = cell.get("platform")
+            if not isinstance(category, str) or not category.strip():
+                raise TransitionError(f"{where}.covers_cell.category は非空文字列必須")
+            if not isinstance(platform, str) or not platform.strip():
+                raise TransitionError(f"{where}.covers_cell.platform は非空文字列必須")
+            key = (category.strip(), platform.strip())
+            if key not in refs:
+                raise TransitionError(
+                    f"{where}.covers_cell={key} は、この entry を qa_ref に持つ確定セルではない"
+                )
+            if key in covered:
+                raise TransitionError(f"{where}.covers_cell={key} を複数の topic が名乗っている")
+            covered.append(key)
+            normalized_cell = {"category": key[0], "platform": key[1]}
+
+        normalized_topics.append(
+            {
+                "topic_id": topic_id,
+                "covers_cell": normalized_cell,
+                "answer_span": span,
+                "note": note.strip(),
+                "origin_qa_id": (topic.get("origin_qa_id") or "").strip() or None,
+            }
+        )
+
+    missing = [cell for cell in refs if cell not in covered]
+    if missing:
+        raise TransitionError(
+            f"{SCOPE_NOTE_WRITER}: この entry を引く確定セル {missing} を名乗る topic が無い"
+        )
+
+    # covers_cell を全部 null にすれば上の `missing` 検査は素通りする——refs が空の
+    # entry なら missing も空になるからである。**どのセルの裏付けでもない注記は、
+    # 範囲注記ではなく感想である。**確定セルから指されていない entry に注記を付けて
+    # 「範囲を明示した」と名乗れる道を、ここで閉じる。
+    if not covered:
+        raise TransitionError(
+            f"{SCOPE_NOTE_WRITER}: covers_cell を持つ topic が 1 件も無い。"
+            "確定セルから指されていない entry には範囲注記を付けられない"
+        )
+
+    normalized = {
+        "bundled": bundled,
+        "topics": normalized_topics,
+        "recorded_with": SCOPE_NOTE_WRITER,
+    }
+    if bundled:
+        normalized["bundling_reason"] = reason.strip()
+    return normalized
+
+
+def set_qa_scope_notes(state: dict, qa_id: str, raw: object) -> None:
+    """束ねた問答の「どの論点がどのセルの裏付けか」を、本文を書き換えずに追記する。
+
+    `set_qa_design_applications` の流儀に合わせる (同一内容の再適用は通し、
+    異なる内容の再適用は拒否)。先例がある欄に別の流儀を持ち込まない。
+    """
+    if not isinstance(qa_id, str) or not qa_id.strip():
+        raise TransitionError(f"{SCOPE_NOTE_WRITER}: qa_id は非空文字列必須")
+    qa_id = qa_id.strip()
+    entry = next(
+        (candidate for candidate in state.get("qa_log", []) if candidate.get("id") == qa_id),
+        None,
+    )
+    if entry is None:
+        raise TransitionError(f"{SCOPE_NOTE_WRITER}: qa_log に存在しない qa_id: {qa_id}")
+
+    normalized = normalize_scope_notes(raw, entry, _confirmed_cells_citing(state, qa_id))
+    existing = entry.get("scope_notes")
+    if existing is not None and existing != normalized:
+        raise TransitionError(
+            f"{SCOPE_NOTE_WRITER}: 既存 scope_notes と異なる内容の再適用は拒否: {qa_id}"
+        )
+    entry["scope_notes"] = normalized
+
+
 def derive_aggregate(cells: list[str]) -> str:
     if not cells or all(state == "未収集" for state in cells):
         return "未着手"

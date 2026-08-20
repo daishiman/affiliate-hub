@@ -3,7 +3,7 @@
 # name: apply-spec-transition
 # version: 0.2.0
 # purpose: spec-state の単一 writer CLI。各責務は state_transition_{matrix,foundation,knowledge}.py へ分離する。
-# inputs: [bootstrap|init|add-category|apply|chunk|aggregate|set-targets|set-foundation|set-decision|set-knowledge-candidate|set-qa-design-applications]
+# inputs: [bootstrap|init|add-category|apply|chunk|aggregate|set-targets|set-foundation|set-decision|set-knowledge-candidate|set-qa-design-applications|set-qa-scope-notes|set-hearing-policy]
 # outputs: [spec-state.json or stdout]
 # network: false
 # write-scope: spec-state.json
@@ -60,6 +60,7 @@ from state_transition_matrix import (
     recompute_aggregates,
     run_chunk,
     set_qa_design_applications,
+    set_qa_scope_notes,
     set_targets,
 )
 
@@ -183,6 +184,18 @@ def main(argv: list[str]) -> int:
         help="design_applications JSON配列または JSON ファイル",
     )
     qa_design.add_argument("--out")
+    scope_notes = sub.add_parser(
+        "set-qa-scope-notes",
+        help="束ねた qa の論点範囲を、質問・回答を保ったまま注記として追記",
+    )
+    scope_notes.add_argument("--state", required=True)
+    scope_notes.add_argument("--qa-id", required=True)
+    scope_notes.add_argument(
+        "--scope-notes",
+        required=True,
+        help="scope_notes JSON object またはそれを収めた JSON ファイル",
+    )
+    scope_notes.add_argument("--out")
     limit = sub.add_parser(
         "set-hearing-policy",
         help="hearing_progress の上限 (max_loops) が厳格かソフトかを明示する",
@@ -228,6 +241,15 @@ def main(argv: list[str]) -> int:
                     args.qa_id,
                     value["design_applications"]
                     if isinstance(value, dict) and "design_applications" in value
+                    else value,
+                )
+            elif args.cmd == "set-qa-scope-notes":
+                value = load_json_arg(args.scope_notes)
+                set_qa_scope_notes(
+                    state,
+                    args.qa_id,
+                    value["scope_notes"]
+                    if isinstance(value, dict) and "scope_notes" in value
                     else value,
                 )
             elif args.cmd == "set-hearing-policy":

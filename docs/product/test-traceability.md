@@ -5,9 +5,9 @@
 要件 → テストの向きは `docs/product/traceability.md` が正本で、ここはその裏返しに
 テスト側の `@req` 印を重ねたもの。
 
-- 最終更新: 2026-08-19
-- テストファイル: 203 件
-- 由来の要件が分かる: 175 件
+- 最終更新: 2026-08-20
+- テストファイル: 204 件
+- 由来の要件が分かる: 176 件
 - **由来不明: 28 件**（上限 28 件）
 
 由来不明とは「どの要件のために書いたのか、機械から辿れない」という意味で、
@@ -87,6 +87,7 @@
 | `tests/architecture/llm-credential-leak.test.ts` | REQ-SEC01, REQ-SEC05 | 印 |
 | `tests/architecture/mutation-config-alias.test.ts` | REQ-CI09, REQ-TS09 | 印 |
 | `tests/architecture/open-doors.test.ts` | REQ-S10, REQ-TS12 | 印と表 |
+| `tests/architecture/qa-scope-notes-coverage.test.ts` | REQ-TS19 | 印と表 |
 | `tests/architecture/quality-gates.test.ts` | REQ-CI02, REQ-CI09 | 表 |
 | `tests/architecture/schema-version-prose-drift.test.ts` | REQ-TS16 | 印 |
 | `tests/architecture/secrets-not-in-repo.test.ts` | REQ-CI07, REQ-SEC10 | 印と表 |
@@ -223,4 +224,4 @@
 | `tests/ui/theme-contrast.test.ts` | REQ-TH01, REQ-TH02, REQ-TS06 | 印と表 |
 | `tests/ui/tool-form.test.tsx` | REQ-WC05 | 印と表 |
 | `tests/ui/ui-layers.test.ts` | REQ-S09, REQ-TM05 | 表 |
-<!-- 生成物の指紋 sha256:f2c6aad099d69baef3771ede27fd017928ea7c1e4c873fae6ac5038ea90b750d -->
+<!-- 生成物の指紋 sha256:68d2fe85bf8d0da40bcd5d50a6a1356329100336eb348e93ea863f236a3708ea -->

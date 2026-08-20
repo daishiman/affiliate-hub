@@ -4,9 +4,9 @@
 末尾の指紋がその見張りで、手で 1 文字でも書くと次の実行が**上書きせずに止まる**（書いた行は残る）。
 宣言は `docs/product/required-test-types.md`、語彙と上限は `quality-gates.config.mjs` が正本。
 
-- 最終更新: 2026-08-19
-- 要件表の要件: 249 件
-- 性質を宣言済: 242 件
+- 最終更新: 2026-08-20
+- 要件表の要件: 250 件
+- 性質を宣言済: 243 件
 - **未宣言: 7 件**（上限 7 件）
 - 理由つきの除外: 7 件（上限 7 件）
 
@@ -226,6 +226,7 @@
 | REQ-TS16 | has-input | `boundary` `equivalence` | `boundary` `equivalence` | — | 
 | REQ-TS17 | has-input | `boundary` `equivalence` | `boundary` `equivalence` | — | 
 | REQ-TS18 | has-known-breakage, has-input | `boundary` `equivalence` `regression` | `boundary` `equivalence` `regression` | — | 
+| REQ-TS19 | has-input | `boundary` `equivalence` | `boundary` `equivalence` | — | 
 | REQ-WA01 | has-input | `boundary` `equivalence` | `boundary` `equivalence` | — | 
 | REQ-WA02 | has-input, has-permission | `boundary` `equivalence` `permission-matrix` | `boundary` `equivalence` `permission-matrix` | — | 
 | REQ-WB01 | has-input, has-permission | `boundary` `equivalence` `permission-matrix` | `boundary` `equivalence` `permission-matrix` | — | 
@@ -280,4 +281,4 @@
 ## 未宣言の要件
 
 `REQ-CI08` `REQ-FD04` `REQ-TH04` `REQ-TH05` `REQ-TS02` `REQ-TS03` `REQ-TS10`
-<!-- 生成物の指紋 sha256:606b2966b0eff57f06de5dc0b7bd1cbabfbfa644fd3219653eab7c20aefec0da -->
+<!-- 生成物の指紋 sha256:38e6acc68ed2db677dd7b36b27b14ecaa6cfcc5b97a802738245c37f4a68c3ce -->

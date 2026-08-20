@@ -250,6 +250,7 @@
 | REQ-TS16 | has-input | — |
 | REQ-TS17 | has-input | — |
 | REQ-TS18 | has-known-breakage, has-input | — |
+| REQ-TS19 | has-input | — |
 | REQ-WA01 | has-input | — |
 | REQ-WA02 | has-input, has-permission | — |
 | REQ-WB01 | has-input, has-permission | — |
