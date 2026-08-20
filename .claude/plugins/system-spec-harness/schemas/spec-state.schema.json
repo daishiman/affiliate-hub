@@ -37,6 +37,16 @@
     "decisions": {"type": "array"},
     "knowledge_candidates": {"type": "array"},
     "hearing_progress": {"type": "object"},
+    "asks_for_contract": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["version", "legacy_ids"],
+      "description": "asks_for (質問が狙った対象) の必須化契約。有効化した state では、以後に追記される qa_log entry は asks_for を持たなければならない (持たない新規 entry は legacy ではなく違反)。legacy_ids は有効化した時点で qa_log に実在した id の集合で、件数ではなく id で凍結する — 件数だけだと入れ替えが通る。この欄が無い state は従来どおり asks_for 無しで書ける (段階的採用)。塞げていない穴: この JSON からこの欄を消せば再有効化が通る。塞ぐには state の完全性を守る鍵が別に要る",
+      "properties": {
+        "version": {"const": "1.0"},
+        "legacy_ids": {"type": "array", "items": {"type": "string", "minLength": 1}, "maxItems": 30}
+      }
+    },
     "excluded_categories": {"type": "object"},
     "lifecycle": {"type": "object"},
     "implementation_snapshot": {"type": "object"},

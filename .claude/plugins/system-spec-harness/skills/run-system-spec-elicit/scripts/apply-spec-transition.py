@@ -3,7 +3,7 @@
 # name: apply-spec-transition
 # version: 0.2.0
 # purpose: spec-state の単一 writer CLI。各責務は state_transition_{matrix,foundation,knowledge}.py へ分離する。
-# inputs: [bootstrap|init|add-category|apply|chunk|aggregate|set-targets|set-foundation|set-decision|set-knowledge-candidate|set-qa-design-applications|set-qa-scope-notes|set-hearing-policy]
+# inputs: [bootstrap|init|add-category|apply|chunk|aggregate|set-targets|set-foundation|set-decision|set-knowledge-candidate|set-qa-design-applications|set-qa-scope-notes|set-hearing-policy|enable-asks-for]
 # outputs: [spec-state.json or stdout]
 # network: false
 # write-scope: spec-state.json
@@ -63,6 +63,7 @@ from state_transition_matrix import (
     set_qa_scope_notes,
     set_targets,
 )
+from state_transition_matrix import enable_asks_for_contract
 
 
 def _require_writable_state(state: dict) -> None:
@@ -207,6 +208,17 @@ def main(argv: list[str]) -> int:
         help="loop_count が max_loops を超えている場合の由来 JSON (reason 必須)",
     )
     limit.add_argument("--out")
+    asks_for = sub.add_parser(
+        "enable-asks-for",
+        help="asks_for 契約を有効化する (以後の新規 qa entry に asks_for を必須にする)",
+        description=(
+            "legacy 除外の id は**引数で受け取らない**。有効化した時点の qa_log の id を"
+            "そのまま凍結する。名簿を外から渡せると、渡す側が誰を除外するか選べてしまい、"
+            "『有効化時点で実在した entry だけ』という時点の縛りが名乗りに変わる。"
+        ),
+    )
+    asks_for.add_argument("--state", required=True)
+    asks_for.add_argument("--out")
     args = parser.parse_args(argv)
     try:
         if args.cmd == "bootstrap":
@@ -251,6 +263,11 @@ def main(argv: list[str]) -> int:
                     value["scope_notes"]
                     if isinstance(value, dict) and "scope_notes" in value
                     else value,
+                )
+            elif args.cmd == "enable-asks-for":
+                enable_asks_for_contract(
+                    state,
+                    [entry["id"] for entry in state.get("qa_log", []) if isinstance(entry, dict)],
                 )
             elif args.cmd == "set-hearing-policy":
                 set_hearing_limit_policy(

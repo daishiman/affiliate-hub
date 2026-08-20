@@ -31,6 +31,7 @@
 """
 from __future__ import annotations
 
+import json
 import sys
 from pathlib import Path
 
@@ -100,6 +101,25 @@ def test_legacy_max_is_thirty_and_only_moves_down():
     `asks_for` を持つものは 0 件 (分母 30 = qa_log entry 数)。遊びは 0 なので、
     上げる方向は除外枠を増やす向きにしかならない。"""
     assert stm.ASKS_FOR_LEGACY_MAX == 30
+
+
+def test_published_schema_mirrors_the_cap_and_accepts_the_contract():
+    """**上限を 2 か所に書いたので、ずれないよう縛る。**
+
+    `spec-state.schema.json` の top-level は `additionalProperties: false` なので、
+    schema へ欄を通さない限り、契約を有効化した state は published schema から
+    弾かれる。検査だけ足して通り道が無い状態を作らないための対。
+    あわせて schema 側 `maxItems` が定数から離れないことを固定する
+    (定数を下げて schema を置き去りにすると、schema 側だけ緩いままになる)。
+    """
+    schema = json.loads(
+        (Path(__file__).resolve().parent.parent / "schemas" / "spec-state.schema.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    contract = schema["properties"]["asks_for_contract"]
+    assert contract["properties"]["legacy_ids"]["maxItems"] == stm.ASKS_FOR_LEGACY_MAX
+    assert contract["properties"]["version"]["const"] == stm.ASKS_FOR_CONTRACT_VERSION
 
 
 def test_legacy_over_the_cap_is_rejected():

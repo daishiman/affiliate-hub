@@ -3899,5 +3899,40 @@
       "reason": "loop_count=7 は max_loops=5 を超えているが、これは上限が緩められた結果ではない。run_chunk は処理件数が max_loops に達した時点で break し、その回に処理した件数を loop_count へ書くため、この writer 単独では max_loops を超える loop_count を作らない。他方 2026-08-20 以降、渡された state が既に max_loops を超えている場合に限り、その値を床として保存する (floor = prior if prior > max_loops else 0)。したがって『この writer を通した state は必ず上限以下』は成り立たない——成り立たせないことが意図である。通しただけで超過の痕跡が消えるほうが危険だからである。7 > 5 が示すのは『上限を超えて回した』ことではなく『この writer を通らずに書かれた』ことであり、gap 5 と同一原因である (decisions の recorded_with 1 件に『以前この record を書いた際は門が無い writer で書いた状態だった (gap 5)』と残っている)。数を 5 へ丸めれば辻褄は合うが、丸めた瞬間に迂回の唯一の痕跡が消えるため、値は保存し意味のほうを記録する。max_loops_policy=strict と併せて読むこと: 上限は厳格であり、この超過は上限の性格ではなく経路の異常を示す。",
       "recorded_at": "2026-08-20T10:10:00Z"
     }
+  },
+  "asks_for_contract": {
+    "version": "1.0",
+    "legacy_ids": [
+      "qa-auth-web",
+      "qa-backend-web",
+      "qa-backend-web-analytics",
+      "qa-backend-web-spec-intake",
+      "qa-database-web",
+      "qa-database-web-analytics",
+      "qa-database-web-spec-intake",
+      "qa-foundation-u1",
+      "qa-foundation-u2",
+      "qa-foundation-u3",
+      "qa-foundation-u4",
+      "qa-foundation-u5",
+      "qa-foundation-u6",
+      "qa-foundation-u7",
+      "qa-foundation-u8",
+      "qa-foundation-u9",
+      "qa-frontend-web",
+      "qa-frontend-web-analytics",
+      "qa-frontend-web-spec-intake",
+      "qa-infra-web",
+      "qa-infra-web-redirect",
+      "qa-infra-web-spec-intake",
+      "qa-ops-web",
+      "qa-ops-web-spec-intake",
+      "qa-platform-scope",
+      "qa-security-web",
+      "qa-security-web-spec-intake",
+      "qa-uiux-web",
+      "qa-uiux-web-screen-priority",
+      "qa-uiux-web-spec-intake"
+    ]
   }
 }
