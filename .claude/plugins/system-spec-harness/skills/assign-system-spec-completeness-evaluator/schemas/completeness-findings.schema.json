@@ -92,11 +92,12 @@
         "verdict_downgrade": {
           "type": "object",
           "additionalProperties": false,
-          "required": ["from", "reason"],
-          "description": "primary receipt の verdict より観点側を**厳しく**採ったことの宣言。sub_input が FAIL / 来歴が汚れている等で、receipt を額面どおり採れないときに使う。緩める向き (receipt=FAIL に対し観点=PASS 等) はこの宣言があっても不可 — 理由つきで緩められると、理由欄が緑化の通り道になる。reason の**本文が本当かどうかは機械層で判定できない**ため、確かめているのは向きと from の 2 つだけである",
+          "required": ["from", "reason", "detail"],
+          "description": "primary receipt の verdict より観点側を**厳しく**採ったことの宣言。sub_input が FAIL / 来歴が汚れている等で、receipt を額面どおり採れないときに使う。緩める向き (receipt=FAIL に対し観点=PASS 等) はこの宣言があっても不可 — 理由つきで緩められると、理由欄が緑化の通り道になる。reason は**列挙されたコードのみ**で、各コードには機械で引ける根拠 (sub_input receipt の verdict / 台帳の破損行) が要る。自由文は detail へ書き、受理の条件には使わない",
           "properties": {
             "from": {"type": "string", "enum": ["PASS", "FAIL", "INDETERMINATE"], "description": "元になった primary receipt の verdict。一致必須 (別のずれ向けの宣言を流用させない)"},
-            "reason": {"type": "string", "minLength": 1}
+            "reason": {"type": "string", "enum": ["sub_input_fail", "provenance_contamination"], "description": "降格事由のコード。audit_fork_attribution.DOWNGRADE_REASON_GROUNDS の鍵と一致必須。sub_input_fail=当該観点の sub_input receipt が PASS でないこと / provenance_contamination=fork 台帳に破損行があること。いずれも集約器が実在を確かめ、根拠が引けない宣言は fail-closed で拒否される"},
+            "detail": {"type": "string", "minLength": 1, "description": "その観点で何が起きたかの本文。語彙コードだけでは後から読めないため必須だが、**受理の条件ではない** (本文の真偽は機械層で判定できない)"}
           }
         }
       }
@@ -122,7 +123,7 @@
             "response_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$", "description": "PostToolUse hook が観測した監査 response の canonical sha256。台帳に同一 session・subagent・tool・digest の行があり、そこに記録された audit_verdict が receipt.verdict と一致するときだけ帰属と判定の裏取りが成立する"}
           }
         },
-        "verdict": {"type": "string", "enum": ["PASS", "FAIL", "INDETERMINATE"], "description": "role=primary のとき aspects[aspect].verdict と一致必須 (監査判定の忠実転記)。ただし観点側が**より厳しい** verdict を採る場合だけ、aspects[aspect].verdict_downgrade の宣言つきでずれてよい。緩める向きは宣言があっても不可"},
+        "verdict": {"type": "string", "enum": ["PASS", "FAIL", "INDETERMINATE"], "description": "role=primary のとき aspects[aspect].verdict と一致必須 (監査判定の忠実転記)。ただし観点側が**より厳しい** verdict を採る場合だけ、aspects[aspect].verdict_downgrade の宣言つきでずれてよい。宣言には列挙された reason コードと、そのコードに対応する機械で引ける根拠が要る。緩める向きは宣言があっても不可"},
         "evidence": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}}
       }
     },
