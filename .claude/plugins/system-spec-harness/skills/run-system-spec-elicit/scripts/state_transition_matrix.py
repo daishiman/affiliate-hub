@@ -314,6 +314,131 @@ def set_qa_scope_notes(state: dict, qa_id: str, raw: object) -> None:
     entry["scope_notes"] = normalized
 
 
+ASKS_FOR_CONTRACT_VERSION = "1.0"
+ASKS_FOR_WRITER = "asks-for"
+# legacy 除外の上限。2026-08-20 実測: 正本 `system-spec/spec-state.json` の qa_log は
+# 30 entry で、`asks_for` を持つものは 0 件 (分母 30 = qa_log entry 数)。
+#
+# **上限より先に効かせるのは id の集合のほうである。**件数だけを縛ると、古い id を
+# 外して新しい id を入れる入れ替えが通り、除外枠が無期限に生き続ける。だから
+# `enable_asks_for_contract` は「有効化の時点で qa_log に実在する id」しか legacy に
+# 登録させない。未来の id を先に登録する道をそこで閉じる。
+# 以後この値は下げる方向にしか動かさない (30 -> 29 は可、30 -> 31 は不可)。
+ASKS_FOR_LEGACY_MAX = 30
+U_ITEM_RE = re.compile(r"^U[1-9]$")
+
+
+def normalize_asks_for(raw: object, state: dict, where: str) -> list[dict]:
+    """質問が狙った対象 (セル / U 欄) を正規化する。
+
+    これは **軸2 (誘導質問) の束ねを外から測るための分母**である。論点そのものは
+    質問文の中にしか無く、名乗りを突き合わせる相手がいない。狙った対象なら質問の
+    外側に置けるので、後から `asks_for` に無いセルが同じ qa を引いて確定した場合に
+    「狙っていなかった論点を同じ問答で確定させた」が差として現れる。
+    """
+    if not isinstance(raw, list) or not raw:
+        raise TransitionError(f"{where} は非空配列必須")
+    known_categories = {
+        category.get("id") for category in state.get("categories", []) if isinstance(category, dict)
+    }
+    normalized: list[dict] = []
+    seen: set[tuple] = set()
+    for index, item in enumerate(raw):
+        label = f"{where}[{index}]"
+        if not isinstance(item, dict):
+            raise TransitionError(f"{label} は object 必須")
+        if "u" in item:
+            u_item = item.get("u")
+            if not isinstance(u_item, str) or not U_ITEM_RE.match(u_item.strip()):
+                raise TransitionError(f"{label}.u は U1〜U9 必須")
+            key = ("u", u_item.strip())
+            entry = {"u": u_item.strip()}
+        else:
+            category = item.get("category")
+            platform = item.get("platform")
+            if not isinstance(category, str) or category.strip() not in known_categories:
+                raise TransitionError(
+                    f"{label}.category={category!r} は state の categories に実在しない"
+                )
+            if not isinstance(platform, str) or platform.strip() not in CANONICAL_PLATFORMS:
+                raise TransitionError(f"{label}.platform={platform!r} は canonical platform 必須")
+            key = ("cell", category.strip(), platform.strip())
+            entry = {"category": category.strip(), "platform": platform.strip()}
+        if key in seen:
+            raise TransitionError(f"{label} が重複: {key}")
+        seen.add(key)
+        normalized.append(entry)
+    return normalized
+
+
+def enable_asks_for_contract(state: dict, legacy_ids: list[str]) -> None:
+    """`asks_for` の必須化を有効にし、既存 entry だけを legacy として凍結する。
+
+    **1 度しか呼べない。**再有効化を許すと legacy 集合を差し替えられる。
+    """
+    if state.get("asks_for_contract") is not None:
+        raise TransitionError(f"{ASKS_FOR_WRITER}: asks_for_contract は再設定できない")
+    if not isinstance(legacy_ids, list):
+        raise TransitionError(f"{ASKS_FOR_WRITER}: legacy_ids は配列必須")
+    existing = [entry.get("id") for entry in state.get("qa_log", [])]
+    frozen: list[str] = []
+    for qa_id in legacy_ids:
+        if not isinstance(qa_id, str) or not qa_id.strip():
+            raise TransitionError(f"{ASKS_FOR_WRITER}: legacy_ids の要素は非空文字列必須")
+        qa_id = qa_id.strip()
+        # 有効化の時点で実在しない id は登録できない。ここが入れ替えの防波堤で、
+        # 上限 (件数) だけでは塞げない。
+        if qa_id not in existing:
+            raise TransitionError(
+                f"{ASKS_FOR_WRITER}: legacy_ids={qa_id} は有効化時点の qa_log に実在しない"
+            )
+        if qa_id in frozen:
+            raise TransitionError(f"{ASKS_FOR_WRITER}: legacy_ids が重複: {qa_id}")
+        frozen.append(qa_id)
+    if len(frozen) > ASKS_FOR_LEGACY_MAX:
+        raise TransitionError(
+            f"{ASKS_FOR_WRITER}: legacy 除外は {ASKS_FOR_LEGACY_MAX} 件までで、"
+            f"{len(frozen)} 件は超過"
+        )
+    state["asks_for_contract"] = {
+        "version": ASKS_FOR_CONTRACT_VERSION,
+        "legacy_ids": sorted(frozen),
+    }
+
+
+def resolve_asks_for(state: dict, qa_id: str, raw: object) -> list[dict] | None:
+    """新規 entry に載せる `asks_for` を決める。契約が無い state では従来どおり。"""
+    contract = state.get("asks_for_contract")
+    if raw is not None:
+        return normalize_asks_for(raw, state, f"{ASKS_FOR_WRITER}: asks_for")
+    if contract is None:
+        return None
+    # 契約が有効な state で `asks_for` を持たない新規 entry は **legacy ではなく違反**。
+    # legacy は有効化時点で実在した id だけの集合であり、その id は has_entry で
+    # 追記が止まるため、新規 entry が legacy に混ざる経路は無い。
+    raise TransitionError(
+        f"{ASKS_FOR_WRITER}: asks_for 必須 (契約 {contract.get('version')} 有効): {qa_id}"
+    )
+
+
+def asks_for_drift(state: dict, qa_id: str) -> list[tuple[str, str]]:
+    """狙っていなかったのに、この qa を引いて確定したセルを返す。
+
+    **束ねが後から発覚した形**であり、軸2 が名乗りに頼らず見られる差である。
+    `asks_for` を持たない entry は判定不能として空を返す (0 件と混同しないこと)。
+    """
+    entry = next(
+        (candidate for candidate in state.get("qa_log", []) if candidate.get("id") == qa_id),
+        None,
+    )
+    if entry is None or not entry.get("asks_for"):
+        return []
+    intended = {
+        (item["category"], item["platform"]) for item in entry["asks_for"] if "category" in item
+    }
+    return [cell for cell in _confirmed_cells_citing(state, qa_id) if cell not in intended]
+
+
 def derive_aggregate(cells: list[str]) -> str:
     if not cells or all(state == "未収集" for state in cells):
         return "未着手"
@@ -696,6 +821,9 @@ def apply_turn(state: dict, turn: dict) -> None:
         entry = {"id": qa_id, "question": turn.get("question", ""), "answer": turn.get("answer", "")}
         if "source" in turn:
             entry["source"] = turn["source"]
+        resolved_asks_for = resolve_asks_for(state, qa_id, turn.get("asks_for"))
+        if resolved_asks_for is not None:
+            entry["asks_for"] = resolved_asks_for
         if normalized_design_applications is not None:
             entry["design_applications"] = normalized_design_applications
         elif "design_applications" in turn:
