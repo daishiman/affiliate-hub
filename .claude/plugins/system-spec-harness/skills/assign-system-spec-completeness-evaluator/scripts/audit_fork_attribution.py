@@ -60,6 +60,19 @@ ASPECTS: dict[str, dict[str, str]] = {
 }
 ASPECT_VERDICTS = {"PASS", "FAIL", "INDETERMINATE"}
 OVERALL_VERDICTS = {"PASS", "FAIL"}
+
+# 観点 verdict の**厳しさ**の順序。大きいほど厳しい。
+#
+# 以前は primary receipt verdict と観点 verdict の**完全一致**を強制していた。その形だと、
+# sub_input が FAIL でも、来歴が汚れていて primary の判定を額面どおり採れなくても、
+# 観点側は receipt の PASS をそのまま書くしかない。**機械層が「より厳しく見た」を
+# 表現できない**ので、C05 は緩い側へ寄せるか、receipt を書き換える (それは緑化と
+# 同じ操作) しかなかった。
+#
+# そこで**厳しくなる向きだけ**を、宣言つきで許す。緩くなる向き (FAIL の receipt に
+# PASS の観点) は理由の有無にかかわらず許さない。緩める向きを理由つきで許すと、
+# 理由欄が緑化の通り道になる。
+VERDICT_SEVERITY = {"PASS": 0, "INDETERMINATE": 1, "FAIL": 2}
 SEVERITIES = {"high", "medium", "low", "info"}
 SUB_INPUT_AUDITORS: dict[str, dict[str, str]] = {
     "matrix_coverage": {"auditor": "system-spec-hearing-auditor", "component": "C06"},
@@ -439,6 +452,48 @@ def ledger_corroborates(delegation: dict, ledger: dict) -> tuple[bool, str]:
     return True, ""
 
 
+def _verdict_shift_violations(
+    aspect: str,
+    label: str,
+    receipt_verdict: str,
+    aspect_verdict: str,
+    aspect_value: object,
+) -> list[str]:
+    """primary receipt verdict と観点 verdict がずれているときの可否を返す。
+
+    **厳しくなる向きだけを、宣言つきで許す。**宣言は `aspects[<観点>].verdict_downgrade`
+    で、`from` (元の receipt verdict) と `reason` (非空) を要る。`from` を要るのは
+    取り違え防止で、別の receipt のずれを流用した宣言を弾く。
+
+    **塞げていないところ**: `reason` の**本文が本当かどうかは機械層では判定できない。**
+    ここで確かめられるのは「向き」と「元の値」だけである。本文を検査しようとすると
+    語の一覧 (sub_input FAIL / 来歴汚染 / …) を作ることになり、一覧の外側は必ず残る。
+    向きを縛ってあるので、この欄で作れるのは**自分の観点をより厳しくすること**だけで、
+    緑化には使えない。それがこの設計で受け止めている範囲である。
+    """
+    if VERDICT_SEVERITY[aspect_verdict] < VERDICT_SEVERITY[receipt_verdict]:
+        return [
+            f"{label}.verdict={receipt_verdict!r} より aspects[{aspect}].verdict={aspect_verdict!r} が"
+            " 緩い (独立監査の判定を緩める向きの書き換えは理由の有無にかかわらず不可)"
+        ]
+    declared = aspect_value.get("verdict_downgrade") if isinstance(aspect_value, dict) else None
+    if not isinstance(declared, dict):
+        return [
+            f"{label}.verdict={receipt_verdict!r} と aspects[{aspect}].verdict={aspect_verdict!r} の差に"
+            " aspects[].verdict_downgrade の宣言が無い (厳しくした理由が記録されていない)"
+        ]
+    problems: list[str] = []
+    if declared.get("from") != receipt_verdict:
+        problems.append(
+            f"aspects[{aspect}].verdict_downgrade.from={declared.get('from')!r} が"
+            f" primary receipt verdict={receipt_verdict!r} と一致しない (別のずれの宣言を流用している疑い)"
+        )
+    reason = declared.get("reason")
+    if not isinstance(reason, str) or not reason.strip():
+        problems.append(f"aspects[{aspect}].verdict_downgrade.reason が非空文字列でない")
+    return problems
+
+
 def validate_attribution(
     report: dict, ledger: dict | None = None, expected_session: str | None = None
 ) -> list[str]:
@@ -508,9 +563,10 @@ def validate_attribution(
             aspect_value = aspects.get(aspect)
             aspect_verdict = aspect_value.get("verdict") if isinstance(aspect_value, dict) else None
             if aspect_verdict in ASPECT_VERDICTS and delegation_verdict != aspect_verdict:
-                violations.append(
-                    f"{label}.verdict={delegation_verdict!r} が aspects[{aspect}].verdict={aspect_verdict!r} と不一致 "
-                    "(独立監査の判定が観点 verdict へ忠実に転記されていない)"
+                violations.extend(
+                    _verdict_shift_violations(
+                        aspect, label, delegation_verdict, aspect_verdict, aspect_value
+                    )
                 )
         evidence = delegation.get("evidence")
         if not isinstance(evidence, list) or not evidence:

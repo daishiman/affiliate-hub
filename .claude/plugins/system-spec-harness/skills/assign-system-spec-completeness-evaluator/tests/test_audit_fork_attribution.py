@@ -98,7 +98,77 @@ def test_false_independence_unknown_agent_duplicate_and_verdict_mismatch_are_rej
     assert any("重複" in item for item in MOD.validate_attribution(golden_report(delegations=delegations + [delegations[0]]), golden_ledger()))
     report = golden_report()
     report["audit_delegations"][0]["verdict"] = "FAIL"
-    assert any("忠実に転記" in item for item in MOD.validate_attribution(report, golden_ledger()))
+    # receipt が FAIL で観点が PASS = **緩める向き**。ここは完全一致を撤回した後も塞がっている。
+    assert any("緩い" in item for item in MOD.validate_attribution(report, golden_ledger()))
+
+
+def _downgraded(aspect="matrix_coverage", verdict="FAIL", **downgrade):
+    """primary receipt は PASS のまま、観点だけを厳しくした report を作る。"""
+    report = golden_report()
+    report["aspects"][aspect]["verdict"] = verdict
+    if downgrade:
+        report["aspects"][aspect]["verdict_downgrade"] = downgrade
+    return report
+
+
+def test_aspect_may_be_stricter_than_its_primary_receipt_when_declared():
+    """**完全一致の撤回で開いた向き。**sub_input FAIL や来歴汚染を理由に、観点だけを
+    厳しく見たことを機械層が表現できる。以前はこれが表現できず、C05 は緩い側へ
+    寄せるか receipt を書き換える (緑化と同じ操作) しかなかった。"""
+    report = _downgraded(**{"from": "PASS", "reason": "sub_input が FAIL のため primary の PASS を額面どおり採れない"})
+    assert MOD.validate_attribution(report, golden_ledger()) == []
+
+
+def test_aspect_stricter_without_a_declaration_is_rejected():
+    """厳しくする向きも**無条件では通さない**。理由が残らないと、後から
+    「なぜ FAIL なのか」が名乗りの外に出ない。"""
+    violations = MOD.validate_attribution(_downgraded(), golden_ledger())
+    assert any("verdict_downgrade の宣言が無い" in item for item in violations)
+
+
+def test_downgrade_declaration_must_name_the_receipt_it_came_from():
+    """`from` を要るのは取り違え防止。別のずれ向けの宣言を流用させない。"""
+    report = _downgraded(**{"from": "INDETERMINATE", "reason": "来歴汚染"})
+    assert any("一致しない" in item for item in MOD.validate_attribution(report, golden_ledger()))
+
+
+def test_downgrade_declaration_needs_a_non_empty_reason():
+    report = _downgraded(**{"from": "PASS", "reason": "   "})
+    assert any("reason が非空文字列でない" in item for item in MOD.validate_attribution(report, golden_ledger()))
+
+
+def test_promotion_is_never_allowed_even_with_a_declaration():
+    """**昇格方向は理由があっても通さない。**理由つきで緩める道を開くと、
+    理由欄そのものが緑化の通り道になる。receipt=FAIL / 観点=PASS で確かめる。"""
+    report = golden_report()
+    report["audit_delegations"][0]["verdict"] = "FAIL"
+    report["aspects"]["matrix_coverage"]["verdict_downgrade"] = {
+        "from": "FAIL", "reason": "統括の判断で問題なしとした",
+    }
+    violations = MOD.validate_attribution(report, golden_ledger())
+    assert any("緩い" in item for item in violations)
+    assert not any("verdict_downgrade の宣言が無い" in item for item in violations)
+
+
+def test_known_hole_the_downgrade_reason_text_is_not_verifiable():
+    """**塞げていない穴を種類として書く。**
+
+    種類:「宣言の**本文**が本当かどうかは機械層で判定できない」。下では
+    まったく無関係な理由を書いても通る。確かめられるのは**向き** (厳しくなる側だけ)
+    と**元の値** (`from`) の 2 つだけである。
+
+    **塞がない理由**: 本文を検査するには理由の語の一覧 (sub_input FAIL / 来歴汚染 /
+    …) を作ることになり、一覧の外側は必ず残る。しかも一覧を作ると、書き手は
+    一覧の語に寄せて書くようになり、本当の理由が文書から消える。
+    **受け止めているもの**: 向きが縛ってあるので、この欄で作れるのは自分の観点を
+    より厳しくすることだけで、緑化には使えない。
+
+    反転先: 理由の根拠を機械で引ける形 (sub_input receipt の verdict や来歴の
+    汚染記録への参照) を宣言へ要求できるようになった日。**理由語の一覧を足す方向では
+    反転させない。**
+    """
+    report = _downgraded(**{"from": "PASS", "reason": "今日は雨だから"})
+    assert MOD.validate_attribution(report, golden_ledger()) == []
 
 
 def test_agent_tool_rows_and_reforks_are_accepted():

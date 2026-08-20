@@ -161,6 +161,30 @@ def test_report_instances_satisfy_the_declared_schema():
     jsonschema.validate(golden_report(), schema)
 
 
+def test_a_declared_downgrade_passes_both_the_schema_and_the_cli_path():
+    """**欄を足しただけで終わらせない。**
+
+    `verdict_downgrade` を検査側 (audit_fork_attribution) だけに足すと、schema の
+    `additionalProperties: false` が同じ欄を落とすので、機械層はその欄を**一度も
+    受け取れない**。表現できるようにしたつもりで、実際には通り道が無い状態になる。
+    schema 側と CLI 側の両方で通ることをここで縛る。
+    """
+    jsonschema = pytest.importorskip("jsonschema")
+    # 観点が FAIL になれば総合も FAIL へ落ちる (既存の再導出)。緩める向きではないので
+    # そこは変えない。receipt は PASS のまま = これが降格である。
+    report = golden_report(
+        verdict="FAIL",
+        gaps=["[matrix_coverage / high] sub_input が FAIL のため matrix_coverage は未確定"],
+    )
+    report["aspects"]["matrix_coverage"]["verdict"] = "FAIL"
+    report["aspects"]["matrix_coverage"]["verdict_downgrade"] = {
+        "from": "PASS",
+        "reason": "sub_input が FAIL のため primary の PASS を額面どおり採れない",
+    }
+    jsonschema.validate(report, MOD.load_report_schema())
+    assert MOD.validate_report(report, golden_ledger()) == []
+
+
 def test_the_schema_validation_can_fail():
     """陽性対照: 宣言外の欄を足せば、全文検証は落ちる。
 

@@ -88,7 +88,17 @@
         "auditor": {"type": "string", "minLength": 1},
         "component": {"type": "string", "minLength": 1},
         "summary": {"type": "string", "minLength": 1},
-        "evidence": {"type": "array", "items": {"type": "string"}}
+        "evidence": {"type": "array", "items": {"type": "string"}},
+        "verdict_downgrade": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["from", "reason"],
+          "description": "primary receipt の verdict より観点側を**厳しく**採ったことの宣言。sub_input が FAIL / 来歴が汚れている等で、receipt を額面どおり採れないときに使う。緩める向き (receipt=FAIL に対し観点=PASS 等) はこの宣言があっても不可 — 理由つきで緩められると、理由欄が緑化の通り道になる。reason の**本文が本当かどうかは機械層で判定できない**ため、確かめているのは向きと from の 2 つだけである",
+          "properties": {
+            "from": {"type": "string", "enum": ["PASS", "FAIL", "INDETERMINATE"], "description": "元になった primary receipt の verdict。一致必須 (別のずれ向けの宣言を流用させない)"},
+            "reason": {"type": "string", "minLength": 1}
+          }
+        }
       }
     },
     "audit_delegation": {
@@ -112,7 +122,7 @@
             "response_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$", "description": "PostToolUse hook が観測した監査 response の canonical sha256。台帳に同一 session・subagent・tool・digest の行があり、そこに記録された audit_verdict が receipt.verdict と一致するときだけ帰属と判定の裏取りが成立する"}
           }
         },
-        "verdict": {"type": "string", "enum": ["PASS", "FAIL", "INDETERMINATE"], "description": "role=primary のとき aspects[aspect].verdict と一致必須 (監査判定の忠実転記)"},
+        "verdict": {"type": "string", "enum": ["PASS", "FAIL", "INDETERMINATE"], "description": "role=primary のとき aspects[aspect].verdict と一致必須 (監査判定の忠実転記)。ただし観点側が**より厳しい** verdict を採る場合だけ、aspects[aspect].verdict_downgrade の宣言つきでずれてよい。緩める向きは宣言があっても不可"},
         "evidence": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}}
       }
     },
