@@ -131,6 +131,31 @@ def test_marks_detector_is_blind_to_synonyms() -> None:
         assert not mentions_serialization_marks(example), example
 
 
+# 種類 3: **宣言した 4 軸の外にある表記ゆれ。**`_normalize` が畳むと宣言したのは
+# NFKC・casefold・空白の数・「メッセージ」表記の 4 つだけである。語の**内側**に
+# 空白を差し込む形と、読みをカナへ置き換える形は、そのどれにも当たらない。
+# **これは種類 1 (同義語) とは別の種類である** — 語を言い換えていないのに外れる。
+# **足りない例を足す形で運用しない。**「全角空白」を畳めば `直・列` が残り、
+# 中黒を畳めば `直_列` が残る。挿入できる文字は有限ではない。
+# 反転先: 語の内側の区切り文字に依存せず印を拾える手段 (形態素解析・読み正規化) を
+# 得た日に、この test を表記ゆれ側の検査へ移す。**畳む軸を 1 つずつ足す方向では
+# 反転させない** (軸を足すたびに宣言と実装がずれ、何を畳んだかが読めなくなる)。
+NORMALIZATION_MISSES = (
+    ("直　列", "語の内側に全角空白を挿入 (空白の数ではなく位置の問題)"),
+    ("チョクレツ", "漢字表記をカナの読みへ置換"),
+)
+
+
+def test_normalization_misses_are_recorded_as_a_kind() -> None:
+    """宣言した 4 軸の外にある表記ゆれを、種類として固定する。"""
+    for example, reason in NORMALIZATION_MISSES:
+        assert reason
+        # 交絡を排する: これらが外れるのは同義語だからではなく、正規化の軸の外だから。
+        assert not mentions_serialization_marks(example), example
+    # 対: 宣言した軸の内側 (全角/半角) は畳めている。常に赤い記録ではない。
+    assert mentions_serialization_marks("直列")
+
+
 def test_marks_detector_cannot_tell_polarity() -> None:
     """**印の在否では極性を判定できない**ことを、実行できる事実として固定する。
 
