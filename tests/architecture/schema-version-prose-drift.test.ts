@@ -33,20 +33,46 @@
  * 主張**を書き込むことになる。**いま在る誤りを、より見えにくい誤りに置き換えるだけ**
  * になるので、直さずに固定する（REQ-TS14 と同じ理由）。
  *
- * ── 反転先（塞がった日にすること。先に書いておく）──────────────────
+ * ── 2026-08-20: 穴を説明した文章が、穴が塞がった証拠として数えられた ─────────
  *
- * **散文が定数へ追随するようになった日に、この検査は赤くなる。そのとき削除せず
- * 「散文の宣言版と `CURRENT_STATE_SCHEMA_VERSION` が一致すること」へ反転させる。**
- * 具体的には `expect(prose).not.toBe(constant)` を `toBe` へ、
- * 「突き合わせ経路 0 本」を「1 本以上」へ向きを変える。
- * 消すと、いったん揃えた版が次の版上げでまた離れても誰も気づかない状態へ帰る。
+ * この検査は当初、harness の `.py` を**素のテキスト**で見て「契約 md の名前と定数名の
+ * 両方に触れているファイル = 突き合わせ経路」と数えていた。ところがこの穴の理由を
+ * `test_spec_transition_version_sections.py` の docstring へ丁寧に書いたところ、
+ * **その説明文が「経路が 1 本できた」と判定されて検査が赤くなった。**
+ * 主張（突き合わせる書き手は居ない）は真のままで、**代役の指標だけが壊れた。**
  *
- * 2026-08-20 実測（分母は各 it() 内に併記）: 定数 `1.2` / 正本 `1.2` /
- * 散文 `1.1`、散文と定数を同時に参照する `.py` は harness 配下 59 本中 **0 本**。
+ * **説明を書くほど門が緑に近づく。**これは
+ * `withoutComments`（散文をコードと読んだ）、hook の inline-python 判定（読みを書きと
+ * 読んだ）に続く 3 例目だが、**前 2 つより悪い形**である。前 2 つは誤検出だったが、
+ * これは「穴を誠実に記録する」という**正しい行いが、そのまま穴を消す**。
+ * **これは「塞げない穴を固定する検査」全部に効く。**穴の説明はその穴の近くに書かれ、
+ * 穴を数える検査は語の一致でその近くを見る。だから **数えるのはコードだけ**にし、
+ * 散文は**別枠で上限を張って**見る（下の (2)）。直し方は「文言を変えて逃げる」ではない。
+ * 文言を変えて緑にすると、次に書いた誰かの説明でまた赤くなり、そのたびに説明が削られる。
+ *
+ * ── 反転先（塞がった日にすること。両方を 1 箇所に書く）────────────────
+ *
+ * **散文が定数へ追随するようになった日に、この検査は赤くなる。そのとき削除せず反転させる。**
+ * 反転は 2 本あり、**片方だけ書き換えると、もう片方が古い前提のまま門として残る。**
+ *
+ *   (1) 「散文と定数を突き合わせる**実行経路**が 0 本」→「**1 本以上**」へ。
+ *       あわせて `expect(prose).not.toContain(constant)` を `toContain` へ。
+ *   (2) 「言及だけのファイルは上限 1」は、そのとき**役目が変わる**。
+ *       真の書き手ができれば、その周りの説明文（設計メモ・テストの docstring）は
+ *       自然に増える。**言及数を抑える意味が消えるので、上限は捨てる。**
+ *       代わりに残すのは対で張ってある側——「契約 md を開いているのは
+ *       (1) が数える経路だけであること」。上限を惰性で残すと、
+ *       **書き手を説明する文章が上限に当たって、書いた人が説明を削る**という、
+ *       いま起きたのと同じ壊れ方が向きを変えて戻ってくる。
+ *
+ * 2026-08-20 実測（分母は各 it() 内に併記）: 定数 `1.2` / 正本 `1.2` / 散文 `1.1`、
+ * harness 配下の `.py` は **59 本**。素のテキストで両語を含む **1 本**、
+ * **コードで両語を含む 0 本**、コードで定数名を含む 6 本、コードで契約 md 名を含む 0 本。
  */
 import { readFileSync, readdirSync, statSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
+import { stripPythonComments } from "./helpers/strip-comments";
 
 const ROOT = join(import.meta.dirname, "..", "..");
 const HARNESS = join(ROOT, ".claude/plugins/system-spec-harness");
@@ -82,6 +108,29 @@ function pythonFiles(dir: string, found: string[] = []): string[] {
   return found;
 }
 
+const CONSTANT_NAME = "CURRENT_STATE_SCHEMA_VERSION";
+const CONTRACT_TOKEN = "spec-state-contract";
+
+/**
+ * 契約 md を**開いている**形。パスを名指ししてファイルを読む書き方を見る。
+ *
+ * 語の共起ではなく「実際に開いているか」を見るのは、上限 1 と対にするためである。
+ * 上限だけだと、真の突き合わせ経路を書いた人が定数名をコメントへ逃がせば
+ * 「言及 1 件」の枠に収まって通る。
+ */
+const CONTRACT_OPEN = /(?:open|read_text|read_bytes|Path)\s*\([^)\n]*contract[^)\n]*/;
+
+/** 言及だけのファイルの上限。2026-08-20 実測 1、遊び 0。上げない。 */
+const MENTION_ONLY_CAP = 1;
+
+/** harness 配下の .py を「素のテキスト」と「コメント・docstring を落としたコード」で持つ。 */
+function harnessSources(): { path: string; text: string; code: string }[] {
+  return pythonFiles(HARNESS).map((path) => {
+    const text = readFileSync(path, "utf8");
+    return { path: path.slice(ROOT.length + 1), text, code: stripPythonComments(text) };
+  });
+}
+
 describe("schema 版の散文ずれ (REQ-TS16 / 書き手が居ない側の固定)", () => {
   it("母集団: 契約の散文は版を 1 件以上宣言している", () => {
     // 0 件なら以下の「食い違っている」は、宣言が無いだけで同じ見え方になる。
@@ -102,33 +151,50 @@ describe("schema 版の散文ずれ (REQ-TS16 / 書き手が居ない側の固�
     // 反転先: 上の 1 行を expect(prose).toContain(constant) へ書き換える。
   });
 
-  it("穴の理由: 散文と定数を突き合わせる経路が 0 本（器はあるが渡す側が居ない）", () => {
-    const files = pythonFiles(HARNESS);
-    expect(files.length).toBeGreaterThanOrEqual(50); // 母集団の床
+  it("穴の理由: 散文と定数を突き合わせる**実行経路**が 0 本（器はあるが渡す側が居ない）", () => {
+    const sources = harnessSources();
+    expect(sources.length).toBeGreaterThanOrEqual(50); // 母集団の床
 
-    const sources = files.map((path) => ({ path, text: readFileSync(path, "utf8") }));
+    // 陽性対照: 定数を**コードで**参照するファイルは在る（剥がしすぎていない）。
+    expect(
+      sources.filter((f) => f.code.includes(CONSTANT_NAME)).length,
+    ).toBeGreaterThanOrEqual(1);
 
-    // 陽性対照: 定数を参照するファイル自体は存在する（探し方が動いている）。
-    const knowsConstant = sources.filter((f) =>
-      f.text.includes("CURRENT_STATE_SCHEMA_VERSION"),
-    );
-    expect(knowsConstant.length).toBeGreaterThanOrEqual(1);
+    // 陽性対照 2: 契約 md を名指しするファイルは在る（**素のテキストでは** 4 本）。
+    // ここだけコードではなく素のテキストで見ている。コードでの言及は 0 本であり、
+    // それこそがこの検査の主張なので、対照に使うと自分の結論を対照にすることになる。
+    expect(
+      sources.filter((f) => f.text.includes(CONTRACT_TOKEN)).length,
+    ).toBeGreaterThanOrEqual(1);
 
-    // 陽性対照 2: 契約 md を名指しするファイルも存在する（片側だけなら在る）。
-    const knowsContract = sources.filter((f) => f.text.includes("spec-state-contract"));
-    expect(knowsContract.length).toBeGreaterThanOrEqual(1);
-
-    // 穴: 両方を同時に見ているファイルは無い。
+    // 穴: 両方を**コードで**同時に見ているファイルは無い。
     const both = sources
-      .filter(
-        (f) =>
-          f.text.includes("spec-state-contract") &&
-          f.text.includes("CURRENT_STATE_SCHEMA_VERSION"),
-      )
-      .map((f) => f.path.slice(ROOT.length + 1));
+      .filter((f) => f.code.includes(CONTRACT_TOKEN) && f.code.includes(CONSTANT_NAME))
+      .map((f) => f.path);
     expect(both).toEqual([]);
+  });
 
-    // 反転先: 上の 1 行を expect(both.length).toBeGreaterThanOrEqual(1) へ。
+  it("言及だけのファイルは 1 本以下で、どれも契約 md を開いていない", () => {
+    const sources = harnessSources();
+    expect(sources.length).toBeGreaterThanOrEqual(50); // 母集団の床
+
+    // 素のテキストでは両方を持つが、コードでは持たない = **説明文で触れているだけ**。
+    const mentionOnly = sources.filter(
+      (f) =>
+        f.text.includes(CONTRACT_TOKEN) &&
+        f.text.includes(CONSTANT_NAME) &&
+        !(f.code.includes(CONTRACT_TOKEN) && f.code.includes(CONSTANT_NAME)),
+    );
+
+    // 上限。2026-08-20 実測 1、遊び 0。
+    expect(mentionOnly.map((f) => f.path).sort().length).toBeLessThanOrEqual(MENTION_ONLY_CAP);
+
+    // 上限と対。上限だけだと、真の突き合わせを書いた人が定数名をコメントへ逃がせば
+    // 「言及 1 件」の枠で通ってしまう。**開いていないこと**を併せて見る。
+    const opensContract = mentionOnly
+      .filter((f) => CONTRACT_OPEN.test(f.code))
+      .map((f) => f.path);
+    expect(opensContract).toEqual([]);
   });
 
   /**

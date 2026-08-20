@@ -2,6 +2,7 @@
 import { readFileSync, readdirSync, statSync } from "node:fs";
 import { join, relative } from "node:path";
 import { describe, expect, it } from "vitest";
+import { stripTypeScriptComments } from "./helpers/strip-comments";
 
 /**
  * テストの数と割合が、実態より良く見えないようにする。
@@ -41,7 +42,7 @@ function testFiles(dir: string): string[] {
 /**
  * コメントを消す。説明文の中に書いた例を、本物のテストと数えないため。
  *
- * ── 2026-08-20: 2 パス（ブロック → 行）から 1 パス走査へ直した ──────────
+ * ── 2026-08-20: 2 パス（ブロック → 行）から 1 パス走査へ直し、共通化した ──────
  *
  * 旧版は `/\*[\s\S]*?\*\//` を先に、`^\s*\/\/.*$` を後に掛けていた。
  * この順だと、**行コメントの中に書いた slash-star がブロックコメントの開始と
@@ -51,55 +52,17 @@ function testFiles(dir: string): string[] {
  * 何も確かめていないテストの直前にその 1 行を置けば、この検査は黙る。
  * 2026-08-20 に実際に誤検出が出て見つかった。
  *
- * 直したのは順番ではなく読み方である。左から 1 回だけ走査し、
- * **文字列リテラル・行コメント・ブロックコメントを同時に見分ける。**
- * 文字列の中の slash-slash や slash-star はコメントではないので、そのまま残す。
+ * 直したのは順番ではなく読み方である。走査の本体は
+ * `./helpers/strip-comments.ts` に 1 本だけ置いてある。**同じ日に
+ * `schema-version-prose-drift.test.ts` が python 側でまったく同じ欠陥
+ * （docstring をコードと数える）を出したためで、2 通りに直すと
+ * 片方だけ直る日が来る。**言語ごとの違いは設定だけにしてある。
  *
  * 向きは**厳しくなる側**である。旧版は行頭の行コメントしか消しておらず、
  * 行末に付けた `// expect(x).toBe(y) みたいに書く` のような説明が
  * 「確かめている」と数えられていた。いまは数えない。
- * 改行の数は変えない（行番号がずれると報告が指す場所が狂う）。
  */
-function withoutComments(source: string): string {
-  const blank = (s: string) => s.replace(/[^\n]/g, " ");
-  let out = "";
-  let i = 0;
-  while (i < source.length) {
-    const c = source[i];
-    if (c === "/" && source[i + 1] === "*") {
-      const end = source.indexOf("*/", i + 2);
-      const stop = end === -1 ? source.length : end + 2;
-      out += blank(source.slice(i, stop));
-      i = stop;
-    } else if (c === "/" && source[i + 1] === "/") {
-      const end = source.indexOf("\n", i);
-      const stop = end === -1 ? source.length : end;
-      out += blank(source.slice(i, stop));
-      i = stop;
-    } else if (c === '"' || c === "'" || c === "`") {
-      let j = i + 1;
-      while (j < source.length) {
-        if (source[j] === "\\") {
-          j += 2;
-          continue;
-        }
-        if (source[j] === c) {
-          j += 1;
-          break;
-        }
-        // ` 以外は行をまたがない。閉じ忘れでファイル末尾まで飲み込まないため。
-        if (c !== "`" && source[j] === "\n") break;
-        j += 1;
-      }
-      out += source.slice(i, j);
-      i = j;
-    } else {
-      out += c;
-      i += 1;
-    }
-  }
-  return out;
-}
+const withoutComments = stripTypeScriptComments;
 
 /**
  * `it("…", () => { … })` を 1 件ずつ取り出す。
