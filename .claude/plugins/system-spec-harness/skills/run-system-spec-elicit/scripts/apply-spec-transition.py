@@ -3,7 +3,7 @@
 # name: apply-spec-transition
 # version: 0.2.0
 # purpose: spec-state の単一 writer CLI。各責務は state_transition_{matrix,foundation,knowledge}.py へ分離する。
-# inputs: [bootstrap|init|add-category|apply|chunk|aggregate|set-targets|set-foundation|set-decision|set-knowledge-candidate|set-qa-design-applications|set-qa-scope-notes|set-hearing-policy|enable-asks-for]
+# inputs: [bootstrap|init|add-category|apply|chunk|aggregate|set-targets|set-foundation|set-decision|set-knowledge-candidate|set-qa-design-applications|set-qa-scope-notes|set-qa-written-up|set-hearing-policy|enable-asks-for]
 # outputs: [spec-state.json or stdout]
 # network: false
 # write-scope: spec-state.json
@@ -61,6 +61,7 @@ from state_transition_matrix import (
     run_chunk,
     set_qa_design_applications,
     set_qa_scope_notes,
+    set_qa_written_up,
     set_targets,
 )
 from state_transition_matrix import enable_asks_for_contract
@@ -219,6 +220,20 @@ def main(argv: list[str]) -> int:
     )
     asks_for.add_argument("--state", required=True)
     asks_for.add_argument("--out")
+    written_up = sub.add_parser(
+        "set-qa-written-up",
+        help="対話で聞いた問答を文書へ書き起こした事実を追記する",
+        description=(
+            "sha256 と日付は**引数で受け取らない**。writer が実ファイルを読んで計算する。"
+            "受け取ると、書き起こしていない内容の指紋を名乗れる。"
+            "元の source は書き換えない — 対話で聞いた事実と、それを書き起こした事実は別の 2 件である。"
+        ),
+    )
+    written_up.add_argument("--state", required=True)
+    written_up.add_argument("--qa-id", required=True)
+    written_up.add_argument("--path", required=True, help="書き起こし先ファイル (実在必須)")
+    written_up.add_argument("--section", help="節の見出しやアンカー (任意)")
+    written_up.add_argument("--out")
     args = parser.parse_args(argv)
     try:
         if args.cmd == "bootstrap":
@@ -269,6 +284,8 @@ def main(argv: list[str]) -> int:
                     state,
                     [entry["id"] for entry in state.get("qa_log", []) if isinstance(entry, dict)],
                 )
+            elif args.cmd == "set-qa-written-up":
+                set_qa_written_up(state, args.qa_id, args.path, args.section)
             elif args.cmd == "set-hearing-policy":
                 set_hearing_limit_policy(
                     state,

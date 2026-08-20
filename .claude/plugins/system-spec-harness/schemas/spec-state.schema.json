@@ -24,7 +24,13 @@
     "design_application_contract_version": {"const": "1.0"},
     "categories": {"type": "array", "minItems": 1},
     "platforms": {"type": "array", "minItems": 1},
-    "matrix": {"type": "object"},
+    "matrix": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": {"$ref": "#/$defs/matrixCell"}
+      }
+    },
     "category_aggregate": {"type": "object"},
     "requirements_foundation": {"type": "object"},
     "qa_log": {
@@ -105,9 +111,93 @@
           "type": "array",
           "minItems": 1,
           "items": {"$ref": "#/$defs/designApplication"}
+        },
+        "asks_for": {
+          "type": "array",
+          "minItems": 1,
+          "description": "この質問が狙った対象 (セル または U 欄)。asks_for_contract が有効な state では新規 entry に必須。空配列を許さないのは、『狙いが無い』と『狙いを書いていない』を同じ姿にしないため",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "oneOf": [
+              {"required": ["category", "platform"]},
+              {"required": ["u"]}
+            ],
+            "properties": {
+              "category": {"type": "string", "minLength": 1},
+              "platform": {"type": "string", "minLength": 1},
+              "u": {"type": "string", "pattern": "^U[1-9]$"}
+            }
+          }
+        },
+        "scope_notes": {
+          "type": "object",
+          "description": "set-qa-scope-notes が追記する論点範囲の注記。question / answer は書き換えない"
+        },
+        "written_up": {
+          "type": "array",
+          "minItems": 1,
+          "description": "この問答の内容を文書へ書き起こした記録 (set-qa-written-up)。**追記専用で、既存要素は書き換えない。**元の source は永久に書き換えない — 対話で聞いた事実を後から『文書に書いてあった』ことにするのは偽造であり、書き起こしたという別の事実として足す。sha256 は writer が実ファイルを読んで計算し、呼び出し側からは受け取らない。空配列を許さないのは、『一度も書き起こしていない』(欄が無い) と『書き起こしを 0 件と記録した』を同じ姿にしないため",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["path", "sha256", "recorded_on", "recorded_with"],
+            "properties": {
+              "path": {"type": "string", "minLength": 1},
+              "section": {"type": "string", "minLength": 1},
+              "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+              "recorded_on": {"type": "string", "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"},
+              "recorded_with": {"const": "set-qa-written-up"}
+            }
+          }
         }
       },
       "additionalProperties": true
+    },
+    "matrixCell": {
+      "type": "object",
+      "description": "マトリクスの 1 セル。writer が書く欄をここで名前として宣言する。additionalProperties は開けたままにしてある — 閉じると、既存 state に在って未把握の欄が黙って落ちるのではなく弾かれる形になり、閉じる前に全欄の棚卸しが要る。開いている以上『schema を通した』は名前の宣言までであり、姿の検査ではない",
+      "properties": {
+        "state": {"enum": ["未収集", "確定", "対象外"]},
+        "qa_ref": {"type": "string", "minLength": 1},
+        "serves_goals": {"type": "array"},
+        "serves_intents": {"type": "array"},
+        "reason": {"type": "string", "minLength": 1},
+        "approval_ref": {"type": "string", "minLength": 1},
+        "reopened_from": {"type": "string", "minLength": 1},
+        "reopen_reason": {"type": "string", "minLength": 1},
+        "required_info": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["item_id", "missing_effect", "status"],
+            "properties": {
+              "item_id": {"type": "string", "minLength": 1},
+              "missing_effect": {"type": "string", "minLength": 1},
+              "status": {"enum": ["grounded", "not_applicable", "ungrounded"]},
+              "grounded_by": {"type": "string", "minLength": 1},
+              "reason": {"type": "string", "minLength": 1}
+            }
+          }
+        },
+        "required_info_checks": {
+          "type": "array",
+          "minItems": 1,
+          "description": "block item を**数えた事実**の記録 (record-required-info-check)。`required_info` が無いことには 2 通りの由来がある — 数えたら 0 件だった / 一度も数えていない。writer は block item が 0 件のセルへ required_info を書かない (書けば『0 件なのに記録が在る』が作れてしまう) ので、数えた事実は別の欄で持つ。**この欄が無い = 一度も数えていない。欄が在って blocking_item_count=0 = 数えて 0 件だった。**空配列を許さないのは、その区別をまた 1 つの姿へ潰さないため。追記専用。塞げていないところ: 記録された件数が、そのとき本当に数えた結果かは機械層で確かめられない。確かめているのは記録が在ることだけである",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["checked_on", "checked_with", "blocking_item_count"],
+            "properties": {
+              "checked_on": {"type": "string", "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"},
+              "checked_with": {"const": "record-required-info-check"},
+              "blocking_item_count": {"type": "integer", "minimum": 0}
+            }
+          }
+        }
+      }
     },
     "designApplication": {
       "type": "object",

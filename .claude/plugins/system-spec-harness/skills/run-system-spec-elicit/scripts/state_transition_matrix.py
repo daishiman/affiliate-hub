@@ -1,7 +1,10 @@
 """Matrix, log, and resumable-chunk transitions owned by the spec-state writer."""
 from __future__ import annotations
 
+import datetime
+import hashlib
 import re
+from pathlib import Path
 
 from state_transition_common import (
     CANONICAL_PLATFORMS,
@@ -12,7 +15,7 @@ from state_transition_common import (
     has_entry,
     normalize_serves,
 )
-from state_transition_required_info import normalize_required_info
+from state_transition_required_info import blocking_items_for_category, normalize_required_info
 CATEGORY_ID_RE = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
 APPLICATION_STATES = {"applied", "not_applicable"}
 DESIGN_APPLICATION_CONTRACT_VERSION = "1.0"
@@ -312,6 +315,71 @@ def set_qa_scope_notes(state: dict, qa_id: str, raw: object) -> None:
             f"{SCOPE_NOTE_WRITER}: 既存 scope_notes と異なる内容の再適用は拒否: {qa_id}"
         )
     entry["scope_notes"] = normalized
+
+
+WRITTEN_UP_WRITER = "set-qa-written-up"
+
+
+def set_qa_written_up(state: dict, qa_id: str, path: object, section: object = None) -> None:
+    """対話で聞いた内容を文書へ書き起こした事実を、**追記**として残す。
+
+    **`source` は書き換えない。**対話で聞いた事実を後から「文書に書いてあった」ことに
+    するのは偽造で、entry を分割して聞いていない質問を作るのと同じ構造である。実際に
+    起きたことは 2 つ — 対話で聞いた (source) / それを文書へ書き起こした (written_up) —
+    なので、2 つとも残す。この欄が在っても `source.kind` は永久に `user-dialogue` のまま。
+
+    **sha256 は呼び出し側から受け取らない。**受け取ると、書き起こしていない内容の指紋を
+    名乗れる。writer が実ファイルを読んで計算する。日付も writer が付ける。
+
+    塞げていないところ: 指紋は「その時点でそのファイルがそう在った」ことしか示さない。
+    **その節に本当にこの問答の内容が書かれているかは機械層で確かめられない。**
+    """
+    if not isinstance(qa_id, str) or not qa_id.strip():
+        raise TransitionError(f"{WRITTEN_UP_WRITER}: qa_id は非空文字列必須")
+    qa_id = qa_id.strip()
+    entry = next(
+        (candidate for candidate in state.get("qa_log", []) if candidate.get("id") == qa_id),
+        None,
+    )
+    if entry is None:
+        raise TransitionError(f"{WRITTEN_UP_WRITER}: qa_log に存在しない qa_id: {qa_id}")
+    if not isinstance(path, str) or not path.strip():
+        raise TransitionError(f"{WRITTEN_UP_WRITER}: path は非空文字列必須")
+    path = path.strip()
+    target = Path(path)
+    if not target.is_file():
+        raise TransitionError(f"{WRITTEN_UP_WRITER}: 書き起こし先が実在しない: {path}")
+    record = {
+        "path": path,
+        "sha256": hashlib.sha256(target.read_bytes()).hexdigest(),
+        "recorded_on": datetime.date.today().isoformat(),
+        "recorded_with": WRITTEN_UP_WRITER,
+    }
+    if section is not None:
+        if not isinstance(section, str) or not section.strip():
+            raise TransitionError(f"{WRITTEN_UP_WRITER}: section を渡すなら非空文字列必須")
+        record["section"] = section.strip()
+    existing = entry.get("written_up")
+    if existing is None:
+        # 追記専用。空配列では作らない (「一度も書き起こしていない」と同じ姿にしない)。
+        entry["written_up"] = [record]
+        return
+    if not isinstance(existing, list) or not existing:
+        raise TransitionError(
+            f"{WRITTEN_UP_WRITER}: 既存 written_up が非空配列でない: {qa_id}"
+        )
+    for previous in existing:
+        if not isinstance(previous, dict):
+            continue
+        if (
+            previous.get("path") == record["path"]
+            and previous.get("section") == record.get("section")
+            and previous.get("sha256") == record["sha256"]
+        ):
+            raise TransitionError(
+                f"{WRITTEN_UP_WRITER}: 同じ path・section・sha256 の記録が既に在る: {qa_id} ({path})"
+            )
+    existing.append(record)
 
 
 ASKS_FOR_CONTRACT_VERSION = "1.0"
@@ -678,7 +746,15 @@ def apply_cell_op(state: dict, op: dict) -> None:
             key: list(cell[key]) if isinstance(cell[key], list) else cell[key]
             # required_info もここへ入れる。入れないと reopen で充足記録だけが
             # 黙って消え、再確定のときに「元は何が接地していたか」を誰も引けない。
-            for key in ("qa_ref", "serves_goals", "serves_intents", "required_info")
+            # required_info_checks も同様。reopen で「数えた事実」が黙って消えると、
+            # 再確定したセルが「一度も数えていない」姿へ戻る。
+            for key in (
+                "qa_ref",
+                "serves_goals",
+                "serves_intents",
+                "required_info",
+                "required_info_checks",
+            )
             if key in cell
         }
         log_entry = {
@@ -742,6 +818,54 @@ def apply_cell_op(state: dict, op: dict) -> None:
                 f"set-required-info: 既存 required_info の上書きは拒否: {category}/{platform}"
             )
         cell["required_info"] = entries
+        return
+    if action == "record-required-info-check":
+        # **数えた事実を残す欄。`set-required-info` の拒否は緩めない。**
+        #
+        # writer は「block item が 0 件の category に required_info を書く」ことを拒む。
+        # 正しい拒否だが、そのぶん確定セルの `required_info` 欠落には由来が 2 つ生まれる
+        # — 数えたら 0 件だった / 一度も数えていない。読む側にはどちらも同じ「欄が無い」
+        # に見え、`asks_for_drift` で一度直したのと同じ「判定不能と 0 件の同一視」に戻る。
+        #
+        # 件数は**引数で受け取らない**。呼び出し側が件数を渡せると、渡す側が何件だったと
+        # 名乗るかを選べる (legacy_ids を引数から外したのと同じ理由)。ここでは writer が
+        # 同じカタログを自分で引いて数える。日付も同様に writer が付ける。
+        #
+        # 塞げていないところ: **記録された件数が、そのとき本当に数えた結果かは機械層で
+        # 確かめられない。**この JSON を writer の外で書けば、数えていない件数を置ける。
+        # 確かめているのは「記録が在ること」だけである。
+        if current != "確定":
+            raise TransitionError(
+                f"record-required-info-check 不可: {category}/{platform} は '{current}' "
+                "(確定セルのみ数えた事実を記録できる)"
+            )
+        record = {
+            "checked_on": datetime.date.today().isoformat(),
+            "checked_with": "record-required-info-check",
+            "blocking_item_count": len(blocking_items_for_category(state, category)),
+        }
+        checks = cell.get("required_info_checks")
+        if checks is None:
+            # 追記専用。空配列で作らない — 空配列は「数えて 0 件」と読める姿になり、
+            # 分けようとしている 2 つをまた 1 つへ潰す。
+            cell["required_info_checks"] = [record]
+            return
+        if not isinstance(checks, list) or not checks:
+            raise TransitionError(
+                f"record-required-info-check: 既存 required_info_checks が非空配列でない: "
+                f"{category}/{platform}"
+            )
+        if any(
+            existing.get("checked_on") == record["checked_on"]
+            and existing.get("blocking_item_count") == record["blocking_item_count"]
+            for existing in checks
+            if isinstance(existing, dict)
+        ):
+            raise TransitionError(
+                f"record-required-info-check: 同じ日に同じ件数の記録が既に在る: "
+                f"{category}/{platform} ({record['checked_on']} / {record['blocking_item_count']} 件)"
+            )
+        checks.append(record)
         return
     if current == "確定":
         raise TransitionError(f"確定セルの直接変更は拒否: {category}/{platform}。変更は R4-reopen を経由すること")
