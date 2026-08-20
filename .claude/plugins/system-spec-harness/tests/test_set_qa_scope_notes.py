@@ -228,6 +228,44 @@ def test_rejects_when_a_citing_confirmed_cell_is_uncovered():
         stm.set_qa_scope_notes(state, "qa-db", notes)
 
 
+def test_coverage_check_fires_when_two_cells_cite_and_one_is_unnamed():
+    """**被覆検査の陽性対照。**確定セル 2 件・名乗り 1 件で `missing` が出ること。
+
+    2026-08-20 実測: 正本 `system-spec/spec-state.json` では、1 つの qa を引く確定セルの
+    分布が {0 件: 22, 1 件: 8} で、**2 件以上は 0 件**である (分母 30 = qa_log entry 数)。
+    つまりこの被覆検査は実データで一度も発火していない。0 件を報告するときは検出側が
+    動くことを合成例で示す、という規律は門にも同じく効く。ここがその合成例である。
+
+    見るべきは raise することだけではない。**名乗られなかった側 (mobile) が例外文言に
+    名前で現れること**が被覆の値打ちで、残った側だけを数える検査では出せない。
+    """
+    state = _state()
+    state["matrix"]["database"]["mobile"] = {"state": "確定", "qa_ref": "qa-db"}
+    notes = _notes()
+    notes["topics"][1]["covers_cell"] = {"category": "database", "platform": "web"}
+    # mobile を名乗る topic が無い。topics[0] は covers_cell=None のまま。
+    with pytest.raises(TransitionError, match="名乗る topic が無い") as caught:
+        stm.set_qa_scope_notes(state, "qa-db", notes)
+    assert "mobile" in str(caught.value)
+    assert "scope_notes" not in state["qa_log"][0]
+
+
+def test_coverage_check_passes_when_both_citing_cells_are_named():
+    """陽性対照の対。両方名乗れば通る (常に赤い検査ではないことを示す)。"""
+    state = _state()
+    state["matrix"]["database"]["mobile"] = {"state": "確定", "qa_ref": "qa-db"}
+    notes = _notes()
+    notes["topics"][0]["covers_cell"] = {"category": "database", "platform": "mobile"}
+    notes["topics"][1]["covers_cell"] = {"category": "database", "platform": "web"}
+    stm.set_qa_scope_notes(state, "qa-db", notes)
+    covered = {
+        (t["covers_cell"]["category"], t["covers_cell"]["platform"])
+        for t in state["qa_log"][0]["scope_notes"]["topics"]
+        if t["covers_cell"]
+    }
+    assert covered == {("database", "web"), ("database", "mobile")}
+
+
 def test_rejects_notes_whose_topics_are_all_null_cells():
     """確定セルから指されていない entry には注記を付けられない。
 
