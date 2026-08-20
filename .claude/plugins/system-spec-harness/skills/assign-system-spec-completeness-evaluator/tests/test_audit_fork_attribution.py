@@ -263,6 +263,101 @@ def test_unknown_or_missing_ledger_schema_is_malformed(tmp_path):
     assert MOD.load_fork_ledger(path)["malformed"] == 2
 
 
+# --------------------------------------------------------------------------- #
+# schema 1.3: 非同期完了の畳み込み                                                #
+# --------------------------------------------------------------------------- #
+def _async_pair(index: int = 0):
+    """pending の起動行と、それに対応する解決行を返す。"""
+    report, records = _schema12_fixture()
+    launch = records[index]
+    final_digest = launch["response_sha256"]
+    launch = {
+        **launch,
+        "record_kind": "launch",
+        "agent_id": "agent-abc123",
+        "response_sha256": "a" * 64,  # 起動受理の digest (最終応答ではない)
+        "audit_verdict": None,
+        "verdict_state": "pending",
+    }
+    resolution = {
+        "schema_version": "1.3",
+        "record_kind": "resolution",
+        "ts": "2026-08-20T00:00:00Z",
+        "session_id": launch["session_id"],
+        "tool_use_id": launch["tool_use_id"],
+        "subagent_type": launch["subagent_type"],
+        "tool_name": launch["tool_name"],
+        "agent_id": launch["agent_id"],
+        "prompt_sha256": launch["prompt_sha256"],
+        "response_sha256": final_digest,
+        "audit_verdict": records[index]["audit_verdict"],
+        "verdict_state": "resolved",
+        "cwd": "/tmp/project",
+    }
+    return report, records, launch, resolution
+
+
+def test_launch_and_resolution_rows_fold_into_one_receipt(tmp_path):
+    """起動行 (pending) + 解決行 = 1 件の resolved receipt。**上書きではなく畳み込み。**"""
+    path = tmp_path / "audit-fork-ledger.jsonl"
+    report, records, launch, resolution = _async_pair()
+    rows = [launch] + records[1:] + [resolution]
+    ledger = _load_schema12_ledger(path, rows)
+    folded = ledger["receipts_v12"]["sess-1"][launch["tool_use_id"]]
+    assert len(folded) == 1
+    assert folded[0]["verdict_state"] == "resolved"
+    assert folded[0]["verdict"] == resolution["audit_verdict"]
+    # verdict を載せているのは最終応答のほう。起動時の digest は捨てずに残す。
+    assert folded[0]["response_sha256"] == resolution["response_sha256"]
+    assert folded[0]["launch_response_sha256"] == "a" * 64
+    # 畳み込めた pending 行に付けた malformed は取り消す (本物の破損と混ぜない)。
+    assert ledger["malformed"] == 0
+    assert MOD.validate_attribution(report, ledger) == []
+
+
+def test_pending_launch_without_resolution_stays_unusable(tmp_path):
+    """対になる赤。解決行が来なければ receipt には使えない。"""
+    path = tmp_path / "audit-fork-ledger.jsonl"
+    report, records, launch, _ = _async_pair()
+    ledger = _load_schema12_ledger(path, [launch] + records[1:])
+    assert ledger["malformed"] == 1
+    assert MOD.validate_attribution(report, ledger)
+
+
+def test_two_resolutions_for_one_launch_are_refused(tmp_path):
+    """**先に書かれた解決行を後から来た行で上書きしない。**
+
+    上書きを許すと、後から任意の verdict を差し込める。決められないものは使わない。
+    """
+    path = tmp_path / "audit-fork-ledger.jsonl"
+    report, records, launch, resolution = _async_pair()
+    second = {**resolution, "audit_verdict": "FAIL", "ts": "2026-08-20T01:00:00Z"}
+    ledger = _load_schema12_ledger(path, [launch] + records[1:] + [resolution, second])
+    folded = ledger["receipts_v12"]["sess-1"][launch["tool_use_id"]]
+    assert folded[0]["verdict_state"] == "pending", "2 通目が来たのに畳み込んだ"
+    assert MOD.validate_attribution(report, ledger)
+
+
+def test_resolution_with_mismatched_agent_id_is_refused(tmp_path):
+    """ID の一致だけが唯一の帰属根拠。順序という第二の手がかりは非同期化で失われた。"""
+    path = tmp_path / "audit-fork-ledger.jsonl"
+    report, records, launch, resolution = _async_pair()
+    for broken in ({**resolution, "agent_id": "別のID"}, {**resolution, "agent_id": None}):
+        ledger = _load_schema12_ledger(path, [launch] + records[1:] + [broken])
+        folded = ledger["receipts_v12"]["sess-1"][launch["tool_use_id"]]
+        assert folded[0]["verdict_state"] == "pending"
+        assert MOD.validate_attribution(report, ledger)
+
+
+def test_resolution_without_a_launch_row_promotes_nothing(tmp_path):
+    """解決行だけが台帳にあっても、起動していない fork へ帰属させない。"""
+    path = tmp_path / "audit-fork-ledger.jsonl"
+    report, records, _, resolution = _async_pair()
+    ledger = _load_schema12_ledger(path, records[1:] + [resolution])
+    assert resolution["tool_use_id"] not in ledger["receipts_v12"].get("sess-1", {})
+    assert MOD.validate_attribution(report, ledger)
+
+
 def _load_hook():
     path = PLUGIN_ROOT / "hooks" / "record-audit-fork.py"
     spec = importlib.util.spec_from_file_location("record_audit_fork", path)

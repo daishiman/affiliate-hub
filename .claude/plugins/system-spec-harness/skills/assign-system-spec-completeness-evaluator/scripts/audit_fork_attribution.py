@@ -70,6 +70,27 @@ LEDGER_RELPATH = Path("eval-log") / "system-spec-harness" / "audit-fork-ledger.j
 LEDGER_TOOL_NAMES = ("Task", "Agent")
 LEDGER_SCHEMA_LEGACY = "1.1"
 LEDGER_SCHEMA_TOOL_USE = "1.2"
+# schema 1.3 = 非同期完了の解決行 (record_kind="resolution")。起動行 (1.2) とは別の行で
+# 追記され、読み手が (session_id, tool_use_id) で畳み込む。
+#
+# ## 読み手契約 (2026-08-20)
+#
+# - 起動行と解決行は**別の行**である。台帳は append-only なので、解決は追記でしか起きない。
+# - 畳み込みの単位は (session_id, tool_use_id)。**解決行の tool_use_id は起動行から
+#   写したものであり、SubagentStop payload には存在しない** (payload が運ぶのは agent_id)。
+# - 起動行がちょうど 1 件、解決行がちょうど 1 件のときだけ畳み込む。
+#   **解決行が 2 件以上あるときは fail-closed で捨てる。**先に書かれた解決行を後から
+#   来た行で上書きする形は作らない。上書きを許すと、後から任意の verdict を差し込める。
+# - 解決行の agent_id / subagent_type / tool_name が起動行と一致しないときは畳み込まない。
+#   非同期化で順序の保証が失われた以上、ID の一致だけが唯一の帰属根拠である。
+# - 畳み込み後の receipt は verdict / verdict_state / response_sha256 を**解決行から**採る。
+#   verdict を載せているのは最終応答のほうであり、起動受理ではないため。起動時の digest は
+#   launch_response_sha256 として残す (捨てると起動と完了の対応を後から追えない)。
+# - **配線を直しても過去の pending 行は遡って resolved にならない。**台帳を書けるのは
+#   hook だけで、読み手も R2 も過去行を補正しない。解決行は新しい実行でしか生まれない。
+LEDGER_SCHEMA_RESOLUTION = "1.3"
+LEDGER_RECORD_KIND_LAUNCH = "launch"
+LEDGER_RECORD_KIND_RESOLUTION = "resolution"
 PROMPT_SHA256_RE = re.compile(r"^[0-9a-f]{64}$")
 RESPONSE_SHA256_RE = re.compile(r"^[0-9a-f]{64}$")
 
@@ -110,6 +131,7 @@ def empty_ledger() -> dict:
         "sessions": {},
         "receipts": {},
         "receipts_v12": {},
+        "resolutions": {},
         "malformed": 0,
     }
 
@@ -130,12 +152,15 @@ def load_fork_ledger(path) -> dict:
             "sessions": {},
             "receipts": {},
             "receipts_v12": {},
+            "resolutions": {},
             "malformed": 0,
         }
     dispatched: dict[str, int] = {}
     sessions: dict[str, dict[str, int]] = {}
     receipts: dict[str, dict[str, dict[str, dict[str, str]]]] = {}
     receipts_v12: dict[str, dict[str, list[dict[str, str]]]] = {}
+    resolutions: dict[str, dict[str, list[dict[str, str]]]] = {}
+    pending_penalty: dict[tuple, int] = {}
     malformed = 0
     try:
         lines = ledger_path.read_text(encoding="utf-8").splitlines()
@@ -147,6 +172,7 @@ def load_fork_ledger(path) -> dict:
             "sessions": {},
             "receipts": {},
             "receipts_v12": {},
+            "resolutions": {},
             "malformed": 0,
         }
     for line in lines:
@@ -161,7 +187,11 @@ def load_fork_ledger(path) -> dict:
             malformed += 1
             continue
         schema_version = record.get("schema_version")
-        if schema_version not in {LEDGER_SCHEMA_LEGACY, LEDGER_SCHEMA_TOOL_USE}:
+        if schema_version not in {
+            LEDGER_SCHEMA_LEGACY,
+            LEDGER_SCHEMA_TOOL_USE,
+            LEDGER_SCHEMA_RESOLUTION,
+        }:
             malformed += 1
             continue
         subagent_type = record.get("subagent_type")
@@ -187,15 +217,25 @@ def load_fork_ledger(path) -> dict:
             "response_sha256": response_sha256,
             "verdict": audit_verdict,
         }
-        if schema_version == LEDGER_SCHEMA_TOOL_USE:
+        if schema_version in (LEDGER_SCHEMA_TOOL_USE, LEDGER_SCHEMA_RESOLUTION):
             tool_use_id = record.get("tool_use_id")
             if not isinstance(tool_use_id, str) or not tool_use_id:
                 malformed += 1
                 continue
             receipt["verdict_state"] = record.get("verdict_state")
+            receipt["agent_id"] = record.get("agent_id")
+            if record.get("record_kind") == LEDGER_RECORD_KIND_RESOLUTION:
+                resolutions.setdefault(session_id, {}).setdefault(tool_use_id, []).append(receipt)
+                continue
             receipts_v12.setdefault(session_id, {}).setdefault(tool_use_id, []).append(receipt)
             if record.get("verdict_state") != "resolved" or audit_verdict not in ASPECT_VERDICTS:
                 malformed += 1
+                # 未確定の起動行に付けた malformed は、解決行が来て畳み込めたら取り消す。
+                # 取り消さないと「非同期で起動した」だけで台帳が壊れているように見え、
+                # 本物の破損と区別が付かなくなる。
+                pending_penalty[(session_id, tool_use_id)] = (
+                    pending_penalty.get((session_id, tool_use_id), 0) + 1
+                )
             continue
         if audit_verdict not in ASPECT_VERDICTS:
             malformed += 1
@@ -204,6 +244,41 @@ def load_fork_ledger(path) -> dict:
         by_session = sessions.setdefault(subagent_type, {})
         by_session[session_id] = by_session.get(session_id, 0) + 1
         receipts.setdefault(subagent_type, {}).setdefault(session_id, {})[response_sha256] = receipt
+
+    # 非同期完了の畳み込み (schema 1.3)。契約は LEDGER_SCHEMA_RESOLUTION の comment 参照。
+    # **上書きではなく畳み込みである。**起動行を書き換えるのではなく、起動行と解決行が
+    # 1 対 1 に対応したときだけ、読み手が 1 件の receipt として解釈する。
+    for session_id, by_tool_use in resolutions.items():
+        for tool_use_id, candidates in by_tool_use.items():
+            launches = receipts_v12.get(session_id, {}).get(tool_use_id, [])
+            if len(candidates) != 1 or len(launches) != 1:
+                # 解決行が複数 = どれが本物か決められない。先に書かれた行を後の行で
+                # 上書きしない以上、決められないものは使わない (fail-closed)。
+                malformed += len(candidates)
+                continue
+            resolution = candidates[0]
+            launch = launches[0]
+            mismatched = [
+                name
+                for name in ("agent_id", "subagent_type", "tool_name")
+                if resolution.get(name) != launch.get(name)
+            ]
+            if mismatched or not resolution.get("agent_id"):
+                # agent_id が欠落・不一致なら帰属根拠が無い。順序という第二の手がかりは
+                # 非同期化で失われているので、ここで妥協すると帰属が推測になる。
+                malformed += len(candidates)
+                continue
+            if (
+                resolution.get("verdict_state") != "resolved"
+                or resolution.get("verdict") not in ASPECT_VERDICTS
+            ):
+                malformed += len(candidates)
+                continue
+            launch["launch_response_sha256"] = launch.get("response_sha256")
+            launch["response_sha256"] = resolution.get("response_sha256")
+            launch["verdict"] = resolution.get("verdict")
+            launch["verdict_state"] = resolution.get("verdict_state")
+            malformed -= pending_penalty.pop((session_id, tool_use_id), 0)
 
     # schema 1.2 の識別子は session 内で一意でなければならない。候補を list のまま保持し、
     # 重複・競合を last-write-wins に潰さず照合時にも fail-closed で拒否する。
@@ -226,6 +301,7 @@ def load_fork_ledger(path) -> dict:
         "sessions": sessions,
         "receipts": receipts,
         "receipts_v12": receipts_v12,
+        "resolutions": resolutions,
         "malformed": malformed,
     }
 

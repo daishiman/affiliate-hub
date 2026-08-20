@@ -464,5 +464,221 @@ class EndToEndTest(unittest.TestCase):
             self.assertEqual(proc.returncode, 0, "観測専用 hook が session を blocking した")
 
 
+def _async_launch_payload(subagent_type: str, tool_use_id: str, agent_id: str) -> dict:
+    """非同期起動の PostToolUse payload (status=async_launched)。
+
+    2026-08-20 の実測形。応答本文はまだ無く、metadata に agentId だけが載る。
+    **これは起動受理であって最終応答ではない。**
+    """
+    payload = _payload(subagent_type, tool_name="Agent")
+    payload["tool_use_id"] = tool_use_id
+    payload["tool_response"] = {
+        "status": "async_launched",
+        "agentId": agent_id,
+        "content": [{"type": "text", "text": f"Agent started with ID: {agent_id}"}],
+    }
+    return payload
+
+
+def _stop_payload(agent_id: str, message: str, session_id: str = "sess-1") -> dict:
+    """SubagentStop payload。
+
+    **起点の tool_use_id を運んでいない。**実行中バイナリ (2.1.237) の payload 構築は
+    {hook_event_name, agent_id, agent_type, agent_transcript_path, last_assistant_message}
+    で、hook 起動時の toolUseID は randomUUID() である。ここを模して、意図的に
+    tool_use_id を入れない。**入れて書いたテストは、実物には無い手がかりを前提にする。**
+    """
+    return {
+        "hook_event_name": "SubagentStop",
+        "session_id": session_id,
+        "cwd": "/tmp/project",
+        "agent_id": agent_id,
+        "agent_type": "system-spec-matrix-auditor",
+        "agent_transcript_path": "/tmp/transcript.jsonl",
+        "last_assistant_message": message,
+    }
+
+
+class AsyncResolutionTest(unittest.TestCase):
+    """非同期完了を agent_id で起動行へ束ねる (schema 1.3)。
+
+    ## この配線は 2026-08-20 のセッションでは発火を実証できていない
+
+    plugin の `hooks/hooks.json` は**セッション開始時に読まれ、セッション中の変更は
+    反映されない**。陽性対照として、既に発火が確認できている PreToolUse の `Bash`
+    matcher へ同じ probe を登録して Bash を実行したが、probe の出力ファイルは作られ
+    なかった。したがって「書いたものが動かない」ではなく「登録が読まれていない」で
+    あることまでは切り分けたが、SubagentStop → hook → 台帳の実配線は未実証である。
+
+    **塞げていない穴は文章ではなく検査として書く**、というのが当プロジェクトの規律なので、
+    ここに検査として残す。以下は組み立て層 (build_resolution) の契約だけを固定しており、
+    **イベントが実際に届くかは検査していない**。
+
+    ### 塞がった日の反転先
+
+    新しいセッション (hooks.json 登録が読まれた状態) で監査 fork を 1 件実行し、台帳に
+    `record_kind=resolution` / `verdict_state=resolved` の行が生まれることを確認できた日に、
+    このクラスへ end-to-end の検査を 1 本足し、この doc comment を削る。
+    それまでは「未実証」が正しい記述である。
+    """
+
+    KNOWN = {_MATRIX_AUDITOR, _HEARING_AUDITOR, _DOC_AUDITOR}
+    AGENT_ID = "ae3fdebd381359d47"
+    TID = "toolu_async_1"
+
+    def _launch_row(self, **overrides) -> dict:
+        row = hook.build_record(
+            _async_launch_payload(_MATRIX_AUDITOR, self.TID, self.AGENT_ID), self.KNOWN
+        )
+        row.update(overrides)
+        return row
+
+    def test_async_launch_records_agent_id_and_stays_pending(self):
+        row = self._launch_row()
+        self.assertEqual(row["verdict_state"], hook.VERDICT_STATE_PENDING)
+        self.assertIsNone(row["audit_verdict"])
+        self.assertEqual(row["agent_id"], self.AGENT_ID)
+        self.assertEqual(row["record_kind"], hook.RECORD_KIND_LAUNCH)
+
+    def test_resolution_binds_verdict_to_the_launch_row(self):
+        launch = self._launch_row()
+        payload = _stop_payload(self.AGENT_ID, "所見\nAUDIT_VERDICT: PASS")
+        res = hook.build_resolution(payload, self.KNOWN, [launch])
+        self.assertIsNotNone(res)
+        self.assertEqual(res["schema_version"], hook.RESOLUTION_SCHEMA_VERSION)
+        self.assertEqual(res["record_kind"], hook.RECORD_KIND_RESOLUTION)
+        self.assertEqual(res["audit_verdict"], "PASS")
+        self.assertEqual(res["verdict_state"], hook.VERDICT_STATE_RESOLVED)
+        # 帰属先は起動行。SubagentStop payload 側の文脈ではない。
+        self.assertEqual(res["tool_use_id"], self.TID)
+        self.assertEqual(res["session_id"], launch["session_id"])
+        self.assertEqual(res["subagent_type"], launch["subagent_type"])
+        self.assertEqual(res["agent_id"], self.AGENT_ID)
+
+    def test_launch_without_agent_id_can_never_be_resolved(self):
+        """条件 1。**記録が無い起動行は、後から resolved にできない。**"""
+        launch = self._launch_row(agent_id=None)
+        payload = _stop_payload(self.AGENT_ID, "所見\nAUDIT_VERDICT: PASS")
+        self.assertIsNone(hook.build_resolution(payload, self.KNOWN, [launch]))
+
+    def test_zero_or_multiple_matches_are_not_resolved(self):
+        """条件 2。**一意でない照合は帰属ではない。**
+
+        直列実行が保証していた「時間順で対応が一意に決まる」が失われた以上、
+        agent_id の照合だけが唯一の帰属根拠になる。0 件も 2 件も根拠にならない。
+        """
+        payload = _stop_payload(self.AGENT_ID, "所見\nAUDIT_VERDICT: PASS")
+        self.assertIsNone(hook.build_resolution(payload, self.KNOWN, []))
+        other = self._launch_row(tool_use_id="toolu_async_2")
+        self.assertIsNone(
+            hook.build_resolution(payload, self.KNOWN, [self._launch_row(), other])
+        )
+        # 別 agent_id の起動行しかない場合も引き当てない。
+        self.assertIsNone(
+            hook.build_resolution(payload, self.KNOWN, [self._launch_row(agent_id="別のID")])
+        )
+
+    def test_marker_must_be_the_final_line(self):
+        """条件 3。本文中に marker があっても最終行でなければ採らない。"""
+        launch = self._launch_row()
+        buried = _stop_payload(
+            self.AGENT_ID, "AUDIT_VERDICT: PASS\nこのあとに考察を書き足してしまった"
+        )
+        self.assertIsNone(hook.build_resolution(buried, self.KNOWN, [launch]))
+        # 対になる緑: 最終行なら採る。
+        ok = _stop_payload(self.AGENT_ID, "考察\nAUDIT_VERDICT: PASS")
+        self.assertIsNotNone(hook.build_resolution(ok, self.KNOWN, [launch]))
+
+    def test_invalid_marker_value_is_not_resolved(self):
+        launch = self._launch_row()
+        payload = _stop_payload(self.AGENT_ID, "所見\nAUDIT_VERDICT: MOSTLY_FINE")
+        self.assertIsNone(hook.build_resolution(payload, self.KNOWN, [launch]))
+
+    def test_second_resolution_for_the_same_agent_is_refused(self):
+        """条件 4。**先に書かれた解決行を後から上書きする形は作らない。**"""
+        launch = self._launch_row()
+        payload = _stop_payload(self.AGENT_ID, "所見\nAUDIT_VERDICT: PASS")
+        first = hook.build_resolution(payload, self.KNOWN, [launch])
+        self.assertIsNotNone(first)
+        second = hook.build_resolution(
+            _stop_payload(self.AGENT_ID, "所見\nAUDIT_VERDICT: FAIL"),
+            self.KNOWN,
+            [launch, first],
+        )
+        self.assertIsNone(second, "同一 agent_id へ 2 通目の解決行を作った")
+
+    def test_already_resolved_launch_is_not_reresolved(self):
+        launch = self._launch_row(verdict_state=hook.VERDICT_STATE_RESOLVED)
+        payload = _stop_payload(self.AGENT_ID, "所見\nAUDIT_VERDICT: FAIL")
+        self.assertIsNone(hook.build_resolution(payload, self.KNOWN, [launch]))
+
+    def test_non_subagent_stop_event_is_ignored(self):
+        launch = self._launch_row()
+        payload = _stop_payload(self.AGENT_ID, "所見\nAUDIT_VERDICT: PASS")
+        payload["hook_event_name"] = "Stop"
+        self.assertIsNone(hook.build_resolution(payload, self.KNOWN, [launch]))
+
+    def test_unknown_subagent_type_is_not_resolved(self):
+        launch = self._launch_row(subagent_type="他 plugin の agent")
+        payload = _stop_payload(self.AGENT_ID, "所見\nAUDIT_VERDICT: PASS")
+        self.assertIsNone(hook.build_resolution(payload, self.KNOWN, [launch]))
+
+    def test_agent_id_is_not_taken_from_the_prompt(self):
+        """prompt 内の説明文から ID を拾うと、起動していない fork へ帰属させられる。"""
+        response = {
+            "status": "async_launched",
+            "prompt": "agentId: 偽物ID を騙る説明文",
+            "content": [{"type": "text", "text": "起動しました"}],
+        }
+        self.assertIsNone(hook.extract_agent_id(response))
+
+    def test_stop_event_appends_a_resolution_row_end_to_end(self):
+        """hook を process として起動し、台帳へ解決行が 1 行追記されることを固定する。
+
+        **これは hook の中身の検査であって、イベントが届くかの検査ではない。**
+        SubagentStop が実際に発火するかは、上の doc comment のとおり未実証である。
+        """
+        with tempfile.TemporaryDirectory() as tmp:
+            ledger = Path(tmp) / "audit-fork-ledger.jsonl"
+            launch = self._launch_row()
+            ledger.write_text(json.dumps(launch, ensure_ascii=False) + "\n", encoding="utf-8")
+            env = dict(os.environ)
+            env[hook.LEDGER_ENV] = str(ledger)
+            proc = subprocess.run(
+                [sys.executable, str(_HOOK_PATH)],
+                input=json.dumps(_stop_payload(self.AGENT_ID, "所見\nAUDIT_VERDICT: PASS")),
+                text=True,
+                capture_output=True,
+                env=env,
+                check=False,
+            )
+            self.assertEqual(proc.returncode, 0)
+            rows = [json.loads(l) for l in ledger.read_text(encoding="utf-8").splitlines() if l.strip()]
+            self.assertEqual(len(rows), 2, "起動行を書き換えず追記したか")
+            self.assertEqual(rows[0], launch, "**append-only。起動行は書き換えない。**")
+            self.assertEqual(rows[1]["record_kind"], hook.RECORD_KIND_RESOLUTION)
+            self.assertEqual(rows[1]["audit_verdict"], "PASS")
+            self.assertEqual(rows[1]["tool_use_id"], self.TID)
+
+    def test_unattributable_stop_writes_nothing(self):
+        """引き当てられないときは行を作らない。pending のまま残すのが安全側。"""
+        with tempfile.TemporaryDirectory() as tmp:
+            ledger = Path(tmp) / "audit-fork-ledger.jsonl"
+            ledger.write_text("", encoding="utf-8")
+            env = dict(os.environ)
+            env[hook.LEDGER_ENV] = str(ledger)
+            proc = subprocess.run(
+                [sys.executable, str(_HOOK_PATH)],
+                input=json.dumps(_stop_payload("見知らぬID", "所見\nAUDIT_VERDICT: PASS")),
+                text=True,
+                capture_output=True,
+                env=env,
+                check=False,
+            )
+            self.assertEqual(proc.returncode, 0)
+            self.assertEqual(ledger.read_text(encoding="utf-8"), "")
+            self.assertIn("一意に帰属できません", proc.stderr)
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -112,7 +112,7 @@
 - 呼び出し元: system-spec-harness の完成度ゲート (compile 後)。後続: FAIL は elicit/doc-fetch/compile へ差し戻し。
 
 ### 6.2 並列性
-- 単発 (1 spec-set = 1評価)。sub-agent 担当監査の context は独立だが、R2-delegate は PostToolUse 台帳に完全 response を束縛するため **1 message = 1 foreground fork** で直列 dispatch する。
+- 単発 (1 spec-set = 1評価)。sub-agent 担当監査の context は独立で、dispatch の順序・同時性は帰属の根拠にしない。R2-delegate は PostToolUse の起動行と SubagentStop の解決行を `agent_id` で畳み込んで完全 response を束縛する (schema 1.3)。**「1 message = 1 foreground fork」の直列 dispatch は手段として撤回した** (`SubagentStop` payload が起動時の `tool_use_id` を運ばないため。失われるのは順序の保証で、以後 `agent_id` の照合が唯一の帰属根拠になる)。**background/非同期 launch の受理応答を verdict として扱わない禁止は撤回していない。**配線修正は過去行を遡及解決しないので、pending のまま残った起動行は receipt に使えない。条文は R2-delegate §1.1。
 
 ## Layer 7: 提示
 

@@ -134,7 +134,7 @@ feedback_contract:
 - 台帳が無い/空 = 裏取り 0 件 → fail-closed で violation (緑にしない)。
 - **PostToolUse の per-call 契約**: 現行 PostToolUse は matching tool call ごとに 1 回、top-level `tool_use_id` と当該 call の `tool_response` を渡す。parallel dispatch 時も call ごとの hook が並行発火し、batch 全体の lifecycle は PostToolBatch が担う。writer は schema 1.2 で top-level `tool_use_id` / `verdict_state` と、**当該 per-call `tool_response` 全体**の canonical digest を記録する。nested ID block を探索して response の一部だけを digest 化しない。
 - **run/session・response・ID 束縛 (issues: HarnessHub-x4o / HarnessHub-uypz)**: schema 1.2 の receipt `dispatch.{session_id,tool,subagent_type,tool_use_id,response_sha256}` と receipt `verdict` を、台帳が hook 観測した同一 call の値へ全一致で束縛し、`verdict_state=resolved` だけを受理する。schema 1.1 台帳は `tool_use_id` を持たない legacy 互換として従来の `session_id` / tool / subagent / digest / verdict で照合する。schema 1.2 の ID 欠落・不一致を 1.1 へ downgrade して通してはならない。必須 receipt の session は単一 run に収束させ、`--session <id>` で現在 session との一致まで検査する。
-- **正式 evaluator 運用の直列化 gate**: per-call hook 仕様と parallel 対応コードの存在だけでは正式運用を parallel へ昇格しない。current runtime の fresh live-trial で 3 fork 全ての schema 1.2 行、ID / digest / verdict 照合、最終 receipt 生成が成立するまで、1 回の assistant message では 1 件だけを foreground 起動する。完全 response の最終行 `AUDIT_VERDICT` と PostToolUse 台帳行を確定してから次へ進む。parallel support は defensive hardening / canary であり正式許可ではない。
+- **正式 evaluator 運用の帰属 gate (schema 1.3)**: 帰属は起動行 (PostToolUse, `record_kind=launch`) と解決行 (SubagentStop, `record_kind=resolution`) を `(session_id, tool_use_id)` で畳み込み、両行の `agent_id` / `subagent_type` / `tool_name` が全一致し解決行が `verdict_state=resolved` のときだけ成立する。同一 `agent_id` に解決行が 2 件以上来たら後勝ちにせず fail-closed。**「1 message = 1 foreground fork」で直列化する手段は撤回した**——`SubagentStop` payload は `agent_id` を運ぶが起動時の `tool_use_id` を運ばず (hook 側 `toolUseID` は `randomUUID()`)、時間順で台帳行と fork を対応づける前提が実行環境に無いため。撤回で**失われるのは順序の保証**であり、以後 `agent_id` の照合が唯一の帰属根拠になる。よって ID の欠落・重複・不一致で resolved にしない規律は以前より重い。**配線修正は過去行を遡及解決しない**: 既存の `verdict_state=pending` 起動行は pending のまま残り、receipt に使うには監査を起動し直すほかない。詳細な条文は `prompts/R2-delegate.md` §1.1。
 - **background は最終 verdict ではない**: background/非同期 launch の「起動済み」応答は監査の最終 response ではない。writer は現行 `Agent` の `tool_response.status=completed` だけを verdict 確定対象とし、それ以外を marker の有無にかかわらず `verdict_state=pending` / `audit_verdict=null` にする。旧 `Task` は status 欠落を互換受理するが、status が明示された場合は `completed` 以外を未完了として扱う。現行 `Agent` の top-level `tool_use_id` 欠落も schema 1.1 へ downgrade しない。`verdict_state=pending|absent|ambiguous`、または `audit_verdict=null` の台帳行は receipt に使えない。
 - **台帳の書込み権限**: `audit-fork-ledger.jsonl` は PostToolUse hook の append-only 出力であり、評価者が手書き・補正してはならない。`prompt_sha256` / `response_sha256` が空・`manual`・64桁16進数以外、または response 最終行の `AUDIT_VERDICT` marker が無効な行は集約対象から除外される。
 - **機械層の限界 (正直な境界)**: 台帳は実際の response が返した verdict の書換えを拒否するが、監査 prompt の意味的十分性や証拠の妥当性そのものは content-review / human が検証する。台帳ファイルを意図的に改ざん可能な実行環境では hook 証跡だけで完全な敵対者耐性は得られないため、書込み権限の分離も必要である。
@@ -159,7 +159,7 @@ feedback_contract:
 正本責務は `prompts/R1-score.md` (スコアリング) と `prompts/R2-delegate.md` (監査 fork 集約)。要約:
 
 ### Step 1: 観点別監査を独立 context で集約 (R2-delegate)
-Task tool で監査 sub-agent (`system-spec-matrix-auditor` (C07) / `system-spec-hearing-auditor` (C06) / `system-spec-doc-freshness-auditor` (C08)) をそれぞれ fork する。PostToolUse 自体は per-call だが、正式 evaluator 運用は fresh live-trial で schema 1.2 の end-to-end 帰属を実証するまで **1 message = 1 foreground fork** で直列実行する。C07 は matrix_coverage、C08 は doc_freshness の一次根拠。C06 はヒアリング品質を監査し matrix_coverage の sub-input として併せる。design_knowledge_reflection は独立 auditor を立てず Step 3 で C05 自身が評価する。
+Task tool で監査 sub-agent (`system-spec-matrix-auditor` (C07) / `system-spec-hearing-auditor` (C06) / `system-spec-doc-freshness-auditor` (C08)) をそれぞれ fork する。PostToolUse 自体は per-call である。dispatch の順序・同時性は帰属の根拠にせず、receipt にできるのは起動行と `agent_id` 一致の解決行が畳み込めた fork だけとする (schema 1.3)。**「1 message = 1 foreground fork」の直列実行は手段として撤回した**が、**background/非同期 launch の受理応答を verdict として扱わない禁止は撤回していない**。C07 は matrix_coverage、C08 は doc_freshness の一次根拠。C06 はヒアリング品質を監査し matrix_coverage の sub-input として併せる。design_knowledge_reflection は独立 auditor を立てず Step 3 で C05 自身が評価する。
 
 ### Step 2: マトリクス網羅性の決定論ゲート
 ```bash
@@ -196,7 +196,7 @@ python3 scripts/build-resume-receipt.py --repo-root "$CLAUDE_PROJECT_DIR" \
 4. high severity が 1 件でもあれば総合 FAIL。
 5. INDETERMINATE は fail-closed で FAIL に寄せ、仕様書修正でなく監査再実行/入力補完へ差し戻す。
 6. 本 skill は kind=assign のため feedback_contract.criteria は N/A (評価器自身は評価基準を携帯せず、checklist 観点 + evaluator ゲートで担保。frontmatter の skip_reason 参照)。
-7. parallel fixture / unit test が PASS しても正式 evaluator の直列化を解除しない。解除条件は current runtime の fresh live-trial で 3 件全ての schema 1.2 `tool_use_id` / whole-response digest / `verdict_state=resolved` と receipt 照合を確認すること。
+7. unit test / fixture が PASS しても、それは帰属が実 runtime で成立した証拠にならない。receipt を書けるのは、その run の台帳に起動行と `agent_id` 一致の解決行が実際に並び、畳み込みが成立した監査だけである。畳み込めない fork は何件走らせても receipt にできず、`verdict_state=pending` のまま残った行は起動し直す以外に解決しない。
 
 ## Additional Resources
 
