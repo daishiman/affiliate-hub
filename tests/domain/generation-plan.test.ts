@@ -52,6 +52,7 @@ import {
   promptPath,
   requireNewVersion,
   reviewMaterial,
+  PROMPT_ROOT,
   selfInspectionBreaches,
   separationBreaches,
   skillOrderBreaches,
@@ -163,8 +164,10 @@ describe("指示文の組み立て", () => {
   });
 
   it("指示文の置き場所は版ごとに分かれる", () => {
+    // 置き場所の根は実物から引く。版・名前・種別は**引数そのもの**なので素の字で残す
+    // （ここまで組み立てで書くと、promptPath の中身をもう一度書くだけになり何も見なくなる）。
     expect(promptPath("v1", "article-body", "ranking")).toBe(
-      "prompts/generation/v1/article-body.ranking.md",
+      `${PROMPT_ROOT}/v1/article-body.ranking.md`,
     );
   });
 });

@@ -6,8 +6,8 @@
 テスト側の `@req` 印を重ねたもの。
 
 - 最終更新: 2026-08-20
-- テストファイル: 204 件
-- 由来の要件が分かる: 176 件
+- テストファイル: 207 件
+- 由来の要件が分かる: 179 件
 - **由来不明: 28 件**（上限 28 件）
 
 由来不明とは「どの要件のために書いたのか、機械から辿れない」という意味で、
@@ -73,6 +73,7 @@
 | `tests/application/schedule-publication.test.ts` | REQ-P08 | 印と表 |
 | `tests/architecture/ai-eval-budget.test.ts` | REQ-CI13 | 表 |
 | `tests/architecture/audit-action-emitters.test.ts` | REQ-SEC09 | 印 |
+| `tests/architecture/backlog-item-floor.test.ts` | REQ-TS17 | 印 |
 | `tests/architecture/chapter-normative-body-unreproducible.test.ts` | REQ-TS15 | 印 |
 | `tests/architecture/chapter-regeneration-floor.test.ts` | REQ-TS15 | 印と表 |
 | `tests/architecture/ci-budget.test.ts` | REQ-CI12 | 印と表 |
@@ -83,6 +84,7 @@
 | `tests/architecture/doctrine-citation-gap.test.ts` | REQ-TS13 | 印と表 |
 | `tests/architecture/doctrine-clause-citation.test.ts` | REQ-TS13 | 印 |
 | `tests/architecture/form2-population-floor.test.ts` | REQ-TS17 | 印と表 |
+| `tests/architecture/generated-doc-freshness.test.ts` | REQ-TS09 | 印 |
 | `tests/architecture/generated-docs.test.ts` | REQ-TS09 | 印 |
 | `tests/architecture/llm-credential-leak.test.ts` | REQ-SEC01, REQ-SEC05 | 印 |
 | `tests/architecture/mutation-config-alias.test.ts` | REQ-CI09, REQ-TS09 | 印 |
@@ -224,4 +226,5 @@
 | `tests/ui/theme-contrast.test.ts` | REQ-TH01, REQ-TH02, REQ-TS06 | 印と表 |
 | `tests/ui/tool-form.test.tsx` | REQ-WC05 | 印と表 |
 | `tests/ui/ui-layers.test.ts` | REQ-S09, REQ-TM05 | 表 |
-<!-- 生成物の指紋 sha256:68d2fe85bf8d0da40bcd5d50a6a1356329100336eb348e93ea863f236a3708ea -->
+| `tests/visual/visual-regression.test.ts` | REQ-TS12 | 印 |
+<!-- 生成物の指紋 sha256:9ea65fe5c0b433104463a280723b5933f3c29769e58caacf0d083345672ffbf0 -->

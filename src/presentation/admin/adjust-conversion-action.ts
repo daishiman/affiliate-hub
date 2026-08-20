@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { DEFAULT_REWARD_CURRENCY } from "@/domain/monetization";
 import type { CurrencyCode } from "@/domain/shared";
 import { affiliateUseCases, signedInActor } from "@/presentation/composition";
 import type { AdjustConversionState } from "./adjust-conversion-state";
@@ -40,7 +41,7 @@ export async function adjustConversionAction(
 
   const conversionId = String(formData.get("conversionId") ?? "");
   const rawAmount = String(formData.get("amount") ?? "").trim();
-  const currency = String(formData.get("currency") ?? "JPY") as CurrencyCode;
+  const currency = String(formData.get("currency") ?? DEFAULT_REWARD_CURRENCY) as CurrencyCode;
   const reason = String(formData.get("reason") ?? "");
 
   // 空欄をそのまま渡すと「金額は最小単位の整数で指定してください」と返る。

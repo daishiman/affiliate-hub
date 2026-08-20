@@ -16,6 +16,8 @@ import {
   coversBrand,
   createMembership,
   createWorkspace,
+  DEFAULT_WORKSPACE_CURRENCY,
+  DEFAULT_WORKSPACE_TIME_ZONE,
   isActiveMembership,
   limitsOf,
 } from "@/domain/identity";
@@ -140,8 +142,8 @@ describe("プランごとの上限", () => {
 
   it("時間帯と通貨は、指定が無ければ日本の既定になる", () => {
     const ws = workspace("solo");
-    expect(ws.timezone).toBe("Asia/Tokyo");
-    expect(ws.currency).toBe("JPY");
+    expect(ws.timezone).toBe(DEFAULT_WORKSPACE_TIME_ZONE);
+    expect(ws.currency).toBe(DEFAULT_WORKSPACE_CURRENCY);
   });
 });
 

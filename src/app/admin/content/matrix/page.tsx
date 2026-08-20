@@ -2,6 +2,8 @@ import { AdminShell } from "@/presentation/admin/admin-shell";
 import Link from "next/link";
 import type { ReactNode } from "react";
 import {
+  DEFAULT_MATRIX_LIMIT,
+  DEFAULT_MATRIX_ROW_AXIS,
   MATRIX_ROW_AXES,
   MATRIX_ROW_AXIS_LABEL,
   type MatrixRowAxis,
@@ -41,8 +43,8 @@ export default async function ContentMatrixPage({
 }) {
   const { axis: requestedAxis, limit: requestedLimit } = await searchParams;
   const axis: MatrixRowAxis =
-    MATRIX_ROW_AXES.find((a) => a === requestedAxis) ?? "audience";
-  const limit = LIMIT_CHOICES.find((l) => String(l) === requestedLimit) ?? 12;
+    MATRIX_ROW_AXES.find((a) => a === requestedAxis) ?? DEFAULT_MATRIX_ROW_AXIS;
+  const limit = LIMIT_CHOICES.find((l) => String(l) === requestedLimit) ?? DEFAULT_MATRIX_LIMIT;
 
   const result = await (await generationMatrixUseCases()).getMatrix.execute(await currentActor(), {
     packageId: sampleContentPackageId(),

@@ -9,6 +9,7 @@ import { createAuthorPersona, checkFactBoundary } from "@/domain/authoring/autho
 import { createConversationBlock } from "@/domain/authoring/conversation-block";
 import { createContentVariant } from "@/domain/authoring/content-variant";
 import {
+  MAX_SENTENCE_LENGTH,
   PRICE_STALE_HOURS,
   runQualityChecks,
   similarity,
@@ -1008,13 +1009,16 @@ describe("自動の品質確認", () => {
       expect(ng.issues.map((i) => i.check)).toContain("paragraph_shape");
     });
 
-    it("1 文は 80 文字まで通し、81 文字で知らせる", () => {
-      // 句点も 1 文字として数える（実装は末尾の句点を残したまま長さを測る）。
+    it(`1 文は ${MAX_SENTENCE_LENGTH} 文字まで通し、${MAX_SENTENCE_LENGTH + 1} 文字で知らせる`, () => {
+      // 句点も 1 文字として数える（実装は末尾の句点を残したまま長さを測る）ので、
+      // 「あ」を上限より 1 つ少なく並べたところが**ちょうど上限**になる。
+      // ここに 79 / 80 と書き写すと、上限が動いた日に**境目でない場所**を
+      // 境目として測り続ける（それでも緑は出る）。
       const tail = "\nデメリットは重さです。";
-      const ok = check(`${"あ".repeat(79)}。${tail}`, SOURCED);
+      const ok = check(`${"あ".repeat(MAX_SENTENCE_LENGTH - 1)}。${tail}`, SOURCED);
       expect(ok.issues.map((i) => i.check)).not.toContain("sentence_length");
 
-      const ng = check(`${"あ".repeat(80)}。${tail}`, SOURCED);
+      const ng = check(`${"あ".repeat(MAX_SENTENCE_LENGTH)}。${tail}`, SOURCED);
       expect(ng.issues.map((i) => i.check)).toContain("sentence_length");
     });
 

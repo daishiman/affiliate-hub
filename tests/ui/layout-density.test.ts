@@ -51,21 +51,75 @@ function ruleBody(css: string, selector: string): string {
 }
 
 /**
- * 余白のトークンを px に直す。
+ * トークンの値を、意味の段から素の段までたどって生の文字列で返す。
  *
  * **値をここに書き写さない。** 書き写すと、トークン側を変えたときに
- * この検査だけが古い値のまま緑で残る。2 段（意味 → 素）とも実物から引く。
+ * この検査だけが古い値のまま緑で残る。
+ *
+ * 余白（`rem`）だけでなく、大きさ（`44px`）・線の太さ（`1px`）・
+ * 行送り（`1.8` の単位なし）も同じ道で引けるようにしてある。
+ * 種類ごとに別の読み方を書くと、読み方を足し忘れた種類だけが
+ * **書き写しに戻る**（実際そうなっていた）。
  */
-function pxOfSpaceToken(): (name: string) => number {
-  const semantic = readFileSync(join(ROOT, "src/presentation/ui/tokens/semantic.css"), "utf8");
-  const primitives = readFileSync(join(ROOT, "src/presentation/ui/tokens/primitives.css"), "utf8");
-  return (name: string) => {
-    const alias = new RegExp(`${name}:\\s*var\\((--[a-z0-9-]+)\\)`).exec(semantic);
-    expect(alias, `${name} が semantic.css にありません`).not.toBeNull();
-    const rem = new RegExp(`${alias![1]}:\\s*([0-9.]+)rem`).exec(primitives);
-    expect(rem, `${alias![1]} が primitives.css にありません`).not.toBeNull();
-    return Number(rem![1]) * 16;
+function tokenValue(): (name: string) => string {
+  const sources = ["tokens/semantic.css", "tokens/primitives.css"].map((rel) =>
+    readFileSync(join(UI_DIR, rel), "utf8"),
+  );
+  const resolve = (name: string, depth = 0): string => {
+    expect(depth, `${name} のたどりが深すぎます（循環？）`).toBeLessThan(8);
+    for (const css of sources) {
+      // **最初の定義を採る。** `@media (prefers-contrast: more)` の中に
+      // 上書きが並んでいるので、後ろから採ると既定ではない値を読む。
+      const found = new RegExp(`(?:^|\\n)\\s*${name}:\\s*([^;]+);`).exec(css);
+      if (found === null) continue;
+      const raw = found[1].trim();
+      const alias = /^var\((--[a-z0-9-]+)\)$/.exec(raw);
+      return alias === null ? raw : resolve(alias[1], depth + 1);
+    }
+    throw new Error(`${name} がトークンの定義に見つかりません`);
   };
+  return resolve;
+}
+
+/** トークンを px に直す。`rem` も `px` も受ける。 */
+function pxOfToken(resolve: (name: string) => string, name: string): number {
+  const raw = resolve(name);
+  const rem = /^([0-9.]+)rem$/.exec(raw);
+  if (rem !== null) return Number(rem[1]) * 16;
+  const px = /^([0-9.]+)px$/.exec(raw);
+  expect(px, `${name} は px でも rem でもありません: ${raw}`).not.toBeNull();
+  return Number(px![1]);
+}
+
+/** 行送りのような単位の無いトークン。 */
+function ratioOfToken(resolve: (name: string) => string, name: string): number {
+  const raw = resolve(name);
+  expect(/^[0-9.]+$/.test(raw), `${name} は単位の無い数ではありません: ${raw}`).toBe(true);
+  return Number(raw);
+}
+
+/** 余白のトークンを px に直す（上の道の、`--space-*` 向けの入口）。 */
+function pxOfSpaceToken(): (name: string) => number {
+  const resolve = tokenValue();
+  return (name: string) => pxOfToken(resolve, name);
+}
+
+/**
+ * 規則の中の `プロパティ: …` から、`index` 番目の `var(--token)` の名前を取り出す。
+ *
+ * **値だけでなくトークン名も実物から引くための道具。**
+ * `padding: var(--space-1) var(--space-3)` なら 0 が上下、1 が左右。
+ * `border-top: var(--border-width-default) solid var(--color-…)` なら 0 が太さ。
+ */
+function varOf(body: string, property: string, index = 0): string {
+  const line = new RegExp(`(?:^|\\n)\\s*${property}:\\s*([^;]+);`).exec(body);
+  expect(line, `${property} が見つかりません`).not.toBeNull();
+  const names = [...line![1].matchAll(/var\((--[a-z0-9-]+)\)/g)].map((m) => m[1]);
+  expect(
+    names.length,
+    `${property} の ${index + 1} 番目が var() で書かれていません: ${line![1].trim()}`,
+  ).toBeGreaterThan(index);
+  return names[index];
 }
 
 /**
@@ -266,24 +320,69 @@ describe("詰まり具合", () => {
     // 群内の隙間は「分類に入っている項目の数 − 分類の数」。
     // 分類の外の項目は隙間を作らないので、items からそのぶんを引く。
     const withinGaps = items - ungrouped - groups; // 12
-    const tap = 44; // --hit-min
-    const label = 22; // --text-xs 12px × 行送り 1.5 ＋ padding 上下 4
     // **群間と群内はトークン名も書き写さない。**2026-08-19 に境目を 24px → 16px へ
     // 詰めたとき、ここに `--space-2` と `--space-3` を書き写していたせいで、
     // CSS だけが変わってこの計算が古い値のまま緑に残った。値と同じく、
     // **どのトークンを使っているかも実物から引く。**
+    //
+    // 同じ理由で、押せる大きさ・見出しの高さ・器の余白・線の太さも実物から引く。
+    // 以前はここに `44` `22` `--space-4` `1` を書き写していた。書き写しは
+    // **CSS が変わっても赤くならない**ので、古い計算が緑のまま残る。
+    // 直したときに 22 が 29.6 へ動いた（行送りを 1.5 と書き写していたが、
+    // 実物は `--leading-body` → 1.8 で、上下の余白も 4 ではなく 8 だった）。
+    // **数が悪い方へ動いてもそれが実測なので、そのまま採る。**
+    const resolve = tokenValue();
     const between = ruleBody(css, ".navGroup + .navGroup");
+    const sidebar = ruleBody(css, ".sidebar");
+    const navLink = ruleBody(css, ".navLink");
+    const groupLabel = ruleBody(css, ".navGroupLabel");
+
+    const tap = pxOfToken(resolve, varOf(navLink, "min-height"));
+    const label =
+      pxOfToken(resolve, varOf(groupLabel, "font-size")) *
+        ratioOfToken(resolve, varOf(groupLabel, "line-height")) +
+      pxOfToken(resolve, varOf(groupLabel, "padding", 0)) * 2; // 上下
+    const border = pxOfToken(resolve, varOf(between, "border-top", 0));
+
     const minHeight =
-      px("--space-4") * 2 + // 器の上下
+      pxOfToken(resolve, varOf(sidebar, "padding")) * 2 + // 器の上下
       items * tap +
       groups * label +
       withinGaps * px(spaceVar(ruleBody(css, ".navGroup"), "gap")) + // 群内
       (groups - 1) *
-        (px(spaceVar(between, "margin-top")) + 1 + px(spaceVar(between, "padding-top"))); // 群間
+        (px(spaceVar(between, "margin-top")) + border + px(spaceVar(between, "padding-top"))); // 群間
 
     // 低いほうのよくある画面の高さ（1440×900 の作業領域）を下回らないこと。
     expect(minHeight, `${minHeight}px`).toBeGreaterThan(760);
     expect(ruleBody(css, ".navGroupLabel")).toContain("position: sticky");
+  });
+
+  it("実物から引く道具が、読めていないときに緑にならない", () => {
+    // **書き写しをやめた代わりに、読み取りが増えた。**
+    // 読み取りが黙って 0 や undefined を返すと、書き写しより悪くなる
+    // （書き写しは少なくとも値が見えている）。だから読めない形は必ず投げる。
+    const resolve = tokenValue();
+
+    // トークン名は規則の実物から出ている。
+    expect(varOf(".x {\n  min-height: var(--tap-target-min);\n}", "min-height")).toBe(
+      "--tap-target-min",
+    );
+    // 2 つ並ぶ余白は、上下と左右を取り違えない。
+    const padding = ".x {\n  padding: var(--space-1) var(--space-3);\n}";
+    expect(varOf(padding, "padding", 0)).toBe("--space-1");
+    expect(varOf(padding, "padding", 1)).toBe("--space-3");
+    // 線の宣言からは、太さのトークンだけを取る（色ではない）。
+    expect(
+      varOf(".x {\n  border-top: var(--border-width-default) solid var(--color-border-subtle);\n}", "border-top", 0),
+    ).toBe("--border-width-default");
+
+    // 無いものを読もうとしたら投げる。
+    expect(() => resolve("--この名前は無い")).toThrow(/トークンの定義に見つかりません/);
+    expect(() => varOf(".x {\n  padding: 8px;\n}", "padding")).toThrow();
+    // 意味の段から素の段まで、実際にたどれている（別名のまま返していない）。
+    expect(resolve("--tap-target-min")).toMatch(/^[0-9.]+px$/);
+    expect(pxOfToken(resolve, "--border-width-default")).toBeGreaterThan(0);
+    expect(ratioOfToken(resolve, "--leading-body")).toBeGreaterThan(1);
   });
 
   it("見本帳の「直す前」は、直す前の値を保っている", () => {

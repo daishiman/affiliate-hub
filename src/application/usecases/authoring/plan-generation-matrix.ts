@@ -50,6 +50,16 @@ export type PlanGenerationMatrixDeps = {
 export const MATRIX_ROW_AXES = ["audience", "angle", "funnel"] as const;
 export type MatrixRowAxis = (typeof MATRIX_ROW_AXES)[number];
 
+/**
+ * 指定が無いときの行の軸と生成数の上限。
+ *
+ * 画面（`app/admin/content/matrix/page.tsx`）が同じ 2 つを素の字で書き写していた。
+ * 画面は値を明示して渡すので、いまは**画面の側の既定だけが効いている**。
+ * 名前を付けて両方から読ませると、片方だけ動かしたときに食い違いが表に出る。
+ */
+export const DEFAULT_MATRIX_ROW_AXIS: MatrixRowAxis = "audience";
+export const DEFAULT_MATRIX_LIMIT = 12;
+
 export const MATRIX_ROW_AXIS_LABEL: Readonly<Record<MatrixRowAxis, string>> = {
   audience: "読者",
   angle: "切り口",
@@ -207,8 +217,8 @@ export function createGetGenerationMatrixUseCase(
       const allowed = requireCapability(actor, "content.read", "生成マトリクス");
       if (!allowed.ok) return allowed;
 
-      const axis: MatrixRowAxis = input.rowAxis ?? "audience";
-      const limit = input.limit ?? 12;
+      const axis: MatrixRowAxis = input.rowAxis ?? DEFAULT_MATRIX_ROW_AXIS;
+      const limit = input.limit ?? DEFAULT_MATRIX_LIMIT;
       if (limit <= 0) {
         return err(validationError("生成数の上限は 1 以上で指定してください。", "limit"));
       }

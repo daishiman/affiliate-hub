@@ -13,7 +13,17 @@ import type { LlmRequest, UntrustedBlock } from "@/application/ports";
  *   4. 出力はスキーマ検証を通す。自由文をそのまま公開しない。
  */
 const FENCE = "<<<UNTRUSTED_SOURCE>>>";
-const FENCE_END = "<<<END_UNTRUSTED_SOURCE>>>";
+
+/**
+ * 枠の終わりの記号。
+ *
+ * `export` しているのは、検査 (`tests/infrastructure/prompt-assembly.test.ts`) が
+ * 「枠の終わりが末尾の 1 箇所だけ」を数えるのに、この記号そのものを必要とするため。
+ * **書き写されている間、その検査は静かに無内容になりうる** — 記号を変えると、
+ * 攻撃側の仕込みも数える鍵も古い記号のままになり、資料に紛れ込んだ古い記号は
+ * 無効化されないのに、数えた結果は 1 のままで緑が出る。
+ */
+export const FENCE_END = "<<<END_UNTRUSTED_SOURCE>>>";
 
 /** 資料の中に区切り記号を書いて枠を抜ける手口を防ぐ。 */
 export function neutralizeFences(text: string): string {

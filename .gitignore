@@ -60,6 +60,11 @@ eval-log/
 # 入れておくと差分が毎回まるごと入れ替わり、しかも古い写しが正本の顔で残る。
 docs/product/preview/
 
+# 見た目の回帰で赤が出たときに書き出す「いまの絵」と「違った場所」。
+# 見て直すためだけのもので、正本は tests/visual/baseline/ の見本の側にある。
+# 入れておくと、赤が出るたびに数MBの絵が履歴へ積み上がる。
+tests/visual/__diff__/
+
 # エディタ・OS
 .DS_Store
 .idea/

@@ -13,7 +13,14 @@ import {
   createListMembersUseCase,
   createListRolesUseCase,
 } from "@/application/usecases/identity/manage-workspace";
-import { HUMAN_ONLY_CAPABILITIES } from "@/domain/identity";
+import {
+  DEFAULT_CTA,
+  DEFAULT_LOCALE,
+  DEFAULT_TIME_ZONE,
+  DEFAULT_WORKSPACE_CURRENCY,
+  DEFAULT_WORKSPACE_TIME_ZONE,
+  HUMAN_ONLY_CAPABILITIES,
+} from "@/domain/identity";
 import { ok } from "@/domain/shared";
 import { aNobody, anAnalyst, anOwner, aWriter } from "../support/actors";
 import { aBrand, aDisclosure, aMembership, aWorkspace } from "../support/factories";
@@ -82,8 +89,8 @@ describe("設定の概要", () => {
 
     expect(got.value.planLabel).toBe("ひとり用");
     expect(got.value.workspaceName).toBe("テスト編集部");
-    expect(got.value.timezone).toBe("Asia/Tokyo");
-    expect(got.value.currency).toBe("JPY");
+    expect(got.value.timezone).toBe(DEFAULT_WORKSPACE_TIME_ZONE);
+    expect(got.value.currency).toBe(DEFAULT_WORKSPACE_CURRENCY);
   });
 
   it("使っている数と上限を、3 つとも出す", async () => {
@@ -375,9 +382,9 @@ describe("ブランドの公開準備", () => {
 
   it("記事の既定値（言語・時間帯・行動文言）を持ち出す", async () => {
     const view = await brands(withBrands([aBrand()]));
-    expect(view.rows[0].locale).toBe("ja-JP");
-    expect(view.rows[0].timeZone).toBe("Asia/Tokyo");
-    expect(view.rows[0].defaultCta).toBe("価格を見る");
+    expect(view.rows[0].locale).toBe(DEFAULT_LOCALE);
+    expect(view.rows[0].timeZone).toBe(DEFAULT_TIME_ZONE);
+    expect(view.rows[0].defaultCta).toBe(DEFAULT_CTA);
   });
 
   it("1 件も無いときは、その意味を書く", async () => {

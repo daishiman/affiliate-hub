@@ -4,6 +4,7 @@ import {
   type MetricCategory,
   type MetricKey,
   type MetricSample,
+  DEFAULT_METRICS_WINDOW_DAYS,
   METRIC_DEFINITIONS,
   allowedMetricsFor,
   assertFeedbackAllowed,
@@ -102,7 +103,7 @@ export function createListMetricsUseCase(deps: ReadMetricsDeps): UseCase<ListMet
       const allowed = requireCapability(actor, "analytics.read", "数字の参照");
       if (!allowed.ok) return allowed;
 
-      const days = input.days ?? 30;
+      const days = input.days ?? DEFAULT_METRICS_WINDOW_DAYS;
       const to = new Date();
       const from = new Date(to.getTime() - days * 24 * 60 * 60 * 1000);
 

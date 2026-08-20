@@ -23,7 +23,8 @@ import {
   createListProductLinksUseCase,
   rewardModelLabel,
 } from "@/application/usecases/monetization/manage-affiliate";
-import { markCommercial } from "@/domain/shared";
+import { DEFAULT_REWARD_CURRENCY } from "@/domain/monetization";
+import { formatMoney, markCommercial } from "@/domain/shared";
 import type { WorkspaceId } from "@/domain/shared";
 import { SAMPLE_WORKSPACE_ID } from "@/infrastructure/persistence/sample/ranking-sample-repository";
 import { aNobody, anAnalyst, anOwner } from "../support/actors";
@@ -214,6 +215,12 @@ describe("成果の一覧", () => {
     const unknown = listed.value.items.find((c) => c.ingestedLabel === "未取得");
     expect(unknown).toBeDefined();
     expect(unknown?.effectiveLabel).toBe("未取得");
+
+    // 金額は未取得でも、直す欄は出さないわけにいかないので通貨だけは決まる。
+    // **ここに "JPY" と書き写してはいけない。**この行の目的は「欄に出る通貨が
+    // domain の既定から来ていること」で、書き写すと既定が動いても緑のままになる。
+    // ワークスペースの既定通貨ではなく、成果の既定を読む（値は同じで、意味が違う）。
+    expect(unknown?.currency).toBe(DEFAULT_REWARD_CURRENCY);
   });
 
   it("手で直した成果は、取り込んだ値も残したまま返す", async () => {
@@ -246,6 +253,12 @@ describe("成果の一覧", () => {
     expect(listed.value.total).toBe(0);
     expect(listed.value.emptyReason).toContain("2026-01");
     expect(listed.value.closed).toBe(false);
+
+    // 1 件も無いと合計の初期値がそのまま表示に出る。ここだけが、その通貨を
+    // 外から見られる唯一の場所になっている。**"¥0" と書き写してはいけない。**
+    expect(listed.value.approvedTotalLabel).toBe(
+      formatMoney({ amountMinor: 0, currency: DEFAULT_REWARD_CURRENCY }),
+    );
   });
 
   it("取れなかったときは、0 件として見せない", async () => {

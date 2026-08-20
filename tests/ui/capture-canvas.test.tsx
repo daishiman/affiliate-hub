@@ -7,6 +7,7 @@
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import {
+  ALLOWED_CAPTURE_MIME,
   ANNOTATION_COLORS,
   ANNOTATION_TOOLS,
   ANNOTATION_TOOL_LABELS,
@@ -18,6 +19,7 @@ import {
   CANVAS_KEY_STEP,
   CANVAS_TOOLS,
   CaptureCanvas,
+  REDACT_CODE,
 } from "@/presentation/ui/patterns/capture-canvas";
 import { describeViolations, findA11yViolations } from "../support/a11y";
 
@@ -332,7 +334,9 @@ describe("描画面がある環境", () => {
 
     const filled = draws.filter((d) => d.op === "fillRect");
     expect(filled.length).toBeGreaterThan(0);
-    for (const d of filled) expect(d.fillStyle).toBe("#000000");
+    // **"#000000" と書き写してはいけない。**塗り色を薄くしても緑のままになり、
+    // 「隠れていない黒塗り」を素通しする（この検査の目的そのものが消える）。
+    for (const d of filled) expect(d.fillStyle).toBe(REDACT_CODE);
     expect(filled.at(-1)?.args).toEqual([10, 20, 50, 30]);
   });
 
@@ -446,7 +450,9 @@ describe("描画面がある環境", () => {
     expect(exported.count).toBe(1);
     // 手書きは黒塗りではない。数を多く申告すると domain 側の検査と食い違う。
     expect(exported.redactionCount).toBe(2);
-    expect(exported.type).toBe("image/png");
+    // 画面が書き出す形式は、domain 側が受け取ると決めた形式そのものでなければならない。
+    // ここに "image/png" と書き写すと、受け取り側だけが変わったときに気づけない。
+    expect(exported.type).toBe(ALLOWED_CAPTURE_MIME);
   });
 
   it("画像が作れなかったときは、付けたことにしない", () => {
@@ -508,7 +514,7 @@ describe("描画面がある環境", () => {
       const filled = draws.filter((d) => d.op === "fillRect");
       expect(filled.length, "黒塗りが画素へ描かれていません").toBeGreaterThan(0);
       // 薄い色で塗れないことは、ポインタのときと同じ決まりで見る。
-      for (const d of filled) expect(d.fillStyle).toBe("#000000");
+      for (const d of filled) expect(d.fillStyle).toBe(REDACT_CODE);
       expect(filled.at(-1)?.args).toEqual([cx, cy, CANVAS_KEY_STEP * 2, CANVAS_KEY_STEP]);
       expect(
         screen.getByRole("button", { name: UI_COPY.feedback.captureUndo }).hasAttribute("disabled"),

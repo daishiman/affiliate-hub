@@ -59,8 +59,33 @@ export type LlmCredentialSummary = {
  * 綴りの検査を提供元ごとにやりたい場合は、提供元の目録側へ置く
  * （`LlmProviderCatalogPort` の `keyPattern`）。
  */
+/**
+ * 登録できる鍵の下限。**切れ端を貼り付けた事故を弾くための値。**
+ *
+ * 動かすとどちらへ倒れるか: **上げると安全側**（短い値をより多く弾く）。
+ * 下げると、鍵の一部だけを貼った登録が通ってしまう。
+ *
+ * **`SECRET_MATCH_PREFIX_LENGTH` と同じ 20 だが、別の値である。**
+ * 2026-08-19 まで 1 つの `MIN_KEY_LENGTH` を両方で使っていた。
+ * その状態だと、ここを上げた日に漏洩検出（下記）が黙って鈍る。
+ * 値が同じことは、束ねてよい理由にならない。
+ */
 const MIN_KEY_LENGTH = 20;
 const MAX_KEY_LENGTH = 512;
+
+/**
+ * 漏洩検出で、鍵の頭を何文字ぶん照合するか（`containsSecret`）。
+ *
+ * 動かすとどちらへ倒れるか: **上げると危険側。**
+ * より長く一致しないと漏洩を検出しなくなる＝**検出が鈍る**。
+ * 下げると検出は鋭くなるが、短いほど無関係な文字列に当たる
+ * （偶然の一致で「漏れている」と言い出す）。
+ *
+ * **登録の下限 `MIN_KEY_LENGTH` と一緒に動かしてはいけない。**
+ * 鍵の最小長を上げるのは正しい理由で起こりうるが、それに引きずられて
+ * ここが上がると、安全性を上げたつもりで安全性を下げることになる。
+ */
+export const SECRET_MATCH_PREFIX_LENGTH = 20;
 
 /** 空白や改行を含む鍵は、貼り付け事故（前後の空白・複数行の選択）である。 */
 const HAS_WHITESPACE = /\s/;
@@ -150,8 +175,10 @@ export function redactSecretsInText(text: string): string {
  * `true` が返ったら、その文字列は外へ出してはいけない。
  */
 export function containsSecret(text: string, apiKey: string): boolean {
-  if (apiKey.length < MIN_KEY_LENGTH) return false;
+  // 照合幅に満たない値は、頭を取っても意味のある一致にならないので見ない。
+  // ここは登録の下限ではなく、**下の照合幅そのものの前提**である。
+  if (apiKey.length < SECRET_MATCH_PREFIX_LENGTH) return false;
   if (text.includes(apiKey)) return true;
   // 末尾を落として貼られる（`sk-abc…` と省略される）ことがあるので、頭も見る
-  return text.includes(apiKey.slice(0, MIN_KEY_LENGTH));
+  return text.includes(apiKey.slice(0, SECRET_MATCH_PREFIX_LENGTH));
 }

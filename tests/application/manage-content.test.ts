@@ -2,6 +2,7 @@
 import { describe, expect, it } from "vitest";
 import {
   CONTENT_STATE_LABEL,
+  DEFAULT_REVIEW_OVERDUE_LIMIT,
   type ManageContentDeps,
   createAdvanceContentStateUseCase,
   createApproveContentUseCase,
@@ -469,7 +470,9 @@ describe("見直しの時期が来たもの", () => {
     ).execute(owner, {});
 
     expect(got.ok).toBe(true);
-    expect(asked).toBe(20);
+    // 実物に名前が付いたので読める。素の字だったころは、ユースケース側の
+    // 無名の `20` と検査側の `20` が別々に動けた。
+    expect(asked).toBe(DEFAULT_REVIEW_OVERDUE_LIMIT);
   });
 
   it("件数を指定すると、その数がそのまま渡る", async () => {

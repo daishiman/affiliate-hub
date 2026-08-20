@@ -1,7 +1,14 @@
 import type { Disclosure } from "@/domain/compliance";
 import type { ChannelConnection, Publication } from "@/domain/distribution";
 import type { Brand, Membership, Workspace } from "@/domain/identity";
-import { DEFAULT_BRAND_VOICE } from "@/domain/identity";
+import {
+  DEFAULT_BRAND_VOICE,
+  DEFAULT_CTA,
+  DEFAULT_LOCALE,
+  DEFAULT_TIME_ZONE,
+  DEFAULT_WORKSPACE_CURRENCY,
+  DEFAULT_WORKSPACE_TIME_ZONE,
+} from "@/domain/identity";
 import type { Conversion } from "@/domain/monetization";
 import type { Product } from "@/domain/product/product";
 import type { Provenance } from "@/domain/shared/provenance";
@@ -195,8 +202,10 @@ export function aWorkspace(over: Partial<Workspace> = {}): Workspace {
     name: "テスト編集部",
     plan: "team",
     ownerUserId: "user-owner" as UserId,
-    timezone: "Asia/Tokyo",
-    currency: "JPY",
+    // ワークスペースの既定そのもの。素の字で置くと、既定が動いた日に
+    // この雛形だけが古い値を配り、それを使う検査は全部そのまま緑になる。
+    timezone: DEFAULT_WORKSPACE_TIME_ZONE,
+    currency: DEFAULT_WORKSPACE_CURRENCY,
     createdAt: daysFrom(NOW, -365),
     suspendedAt: null,
     ...over,
@@ -241,9 +250,11 @@ export function aBrand(over: Partial<Brand> = {}): Brand {
     positioning: "実際に使った記録だけを載せます。",
     voice: DEFAULT_BRAND_VOICE,
     disclaimer: "記事の内容は執筆時点のものです。",
-    locale: "ja-JP",
-    timeZone: "Asia/Tokyo",
-    defaultCta: "価格を見る",
+    // すぐ上の voice と同じで、ここは「ブランドの既定値」を置いている場所である。
+    // 素の字で書くと、既定値が変わった日にこの雛形だけが古い値を配り続ける。
+    locale: DEFAULT_LOCALE,
+    timeZone: DEFAULT_TIME_ZONE,
+    defaultCta: DEFAULT_CTA,
     createdAt: daysFrom(NOW, -300),
     ...over,
   } as Brand;

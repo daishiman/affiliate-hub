@@ -11,6 +11,16 @@ import { type Result, err, ok } from "./result";
  */
 export type CurrencyCode = "JPY" | "USD";
 
+/*
+ * ここに「既定の通貨」を 1 つ置きたくなるが、置かない。
+ *
+ * 素の字の `"JPY"` は 3 箇所に在り、最初はまとめて `DEFAULT_CURRENCY` にした。
+ * 数え直すと**同じ値の理由が 2 種類**だった: 編集部の価格表示の基準
+ * (`DEFAULT_WORKSPACE_CURRENCY`) と、通貨未確定の成果を直す欄の当座の置き
+ * (`DEFAULT_REWARD_CURRENCY`)。片方が動く日に、もう片方まで動いてしまう。
+ * **「同じ値が複数箇所にある」は、名前を付ける合図であって、1 つにまとめる合図ではない。**
+ */
+
 export type Money = {
   readonly amountMinor: number;
   readonly currency: CurrencyCode;
