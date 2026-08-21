@@ -575,6 +575,26 @@ def reanchor_split_scope_notes(state: dict, qa_id: str) -> None:
 
 REQUOTE_WRITER = "requote-written-source"
 
+_BLOCK_QUOTE_RE = re.compile(r"^>\s*")
+
+
+def undecorate_line(line: str) -> str:
+    """行頭の markdown 引用ブロック記号 (`> `) を落とす。
+
+    **落として良い記号と、落としてはいけない文字の境目**: ここで落とすのは
+    「その行が引用ブロックに属する」という**文書の組版**だけである。表の区切り (`|`)
+    や箇条の印 (`- `) は落とさない——落とすと、列を削った行や項目を削った行が
+    一致してしまい、切り詰めを通す穴になる。`> ` は行の中身を 1 文字も変えないので、
+    落としても引用の同一性は保たれる。
+
+    2026-08-21 実測: この正規化で逐語でない entry が 9 件から 6 件へ減った。減った
+    3 件 (`qa-foundation-u1` / `u3` / `u4`) は**元から文書の文と 1 字も違わず**、
+    行頭の `> ` だけが差だった。**数が減ったのは直したからではなく、
+    数え方が間違っていたからである。**
+    """
+    return _BLOCK_QUOTE_RE.sub("", line)
+
+
 _TABLE_ROW_RE = re.compile(r"^\|\s*([^|]+?)\s*\|")
 _BULLET_ID_RE = re.compile(r"^([-*]\s+\*\*[^*]+\*\*\s*[:：])")
 
@@ -674,13 +694,15 @@ def requote_written_source(state: dict, qa_id: str) -> "list[str]":
 
     document = target.read_text(encoding="utf-8")
     doc_lines = logical_document_lines(document)
-    quoted = set(doc_lines)
+    quoted = {undecorate_line(line) for line in doc_lines}
     repaired: list[str] = []
     out: list[str] = []
-    # **引用する側も同じ関数で畳んでから見る。**折り返しの位置が違うだけの行を
-    # 「文書に無い」と読むと、直す必要の無いものを書き換えてしまう。
+    # **引用する側も同じ関数で畳み、同じ正規化を通してから見る。**折り返しの位置や
+    # 行頭の `> ` が違うだけの行を「文書に無い」と読むと、直す必要の無いものを
+    # 書き換えてしまう。ここは `unquoted_answer_lines` と同じ判定でなければならない
+    # ——片方だけ緩いと、「照合は通るのに requote が書き換える」形になる。
     for stripped in logical_document_lines(entry.get("answer") or ""):
-        if stripped in quoted:
+        if undecorate_line(stripped) in quoted:
             out.append(stripped)
             continue
         anchor = quotation_anchor(stripped)
@@ -726,9 +748,23 @@ def unquoted_answer_lines(answer: str, document: str) -> "list[str]":
     **畳むのは文書側だけでは足りない。**引用する側も、文書と同じ折り返しのまま
     持っていることがある (2026-08-21: `qa-security-web-spec-intake` がそうだった)。
     片側だけ畳むと、**中身は完全に同じなのに一致しない**。両側を同じ関数で畳む。
+
+    **体裁の記号は中身ではない。**markdown の引用ブロック (`> `) は文書側の飾りで、
+    引く側がそれを落として持つのは書き換えではない。ここを見落として 2026-08-21 に
+    `qa-foundation-u1` / `u3` / `u4` を「別の文へ言い換えた要約」と誤判定した。実際は
+    3 件とも文書の文と 1 字も違わず、違いは行頭の `> ` だけだった。**誤判定のまま
+    直す側へ回れば、文書の原文を要約で上書きしていた。**部分一致・折り返しに続いて
+    同じ形で 3 度踏んでいる——**体裁の正規化を済ませてから完全一致を見る。**
+
+    正規化を足しても切り詰めは通らない: `> ` を落とした**残り全体**の完全一致を
+    要求するので、末尾の列を削った行は依然として一致しない。
     """
-    quoted = set(logical_document_lines(document))
-    return [line for line in logical_document_lines(answer) if line not in quoted]
+    quoted = {undecorate_line(line) for line in logical_document_lines(document)}
+    return [
+        line
+        for line in logical_document_lines(answer)
+        if undecorate_line(line) not in quoted
+    ]
 
 
 def reseal_written_source(state: dict, qa_id: str) -> None:

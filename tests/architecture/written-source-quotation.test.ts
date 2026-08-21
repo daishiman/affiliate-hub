@@ -68,10 +68,22 @@ function logicalLines(text: string): string[] {
   return out;
 }
 
+/**
+ * 行頭の markdown 引用ブロック記号 (`> `) を落とす。
+ *
+ * **体裁の記号は中身ではない。**落とすのは「その行が引用ブロックに属する」という
+ * 文書の組版だけで、表の区切り (`|`) や箇条の印 (`- `) は落とさない——落とすと
+ * 列や項目を削った行が一致してしまい、切り詰めを通す穴になる。
+ * （writer 側の `undecorate_line` と同じ規則。片方だけ変えると割れる。）
+ */
+function undecorate(line: string): string {
+  return line.replace(/^>\s*/, "");
+}
+
 /** 回答の非空行のうち、文書の論理行に**完全一致で**無いもの。 */
 function unquotedLines(answer: string, document: string): string[] {
-  const quoted = new Set(logicalLines(document));
-  return logicalLines(answer).filter((line) => !quoted.has(line));
+  const quoted = new Set(logicalLines(document).map(undecorate));
+  return logicalLines(answer).filter((line) => !quoted.has(undecorate(line)));
 }
 
 function writtenEntries(): Qa[] {
@@ -94,12 +106,18 @@ function notVerbatim(): string[] {
 }
 
 /**
- * まだ引用になっていない entry の**上限**。2026-08-21 実測 **9**
+ * まだ引用になっていない entry の**上限**。2026-08-21 実測 **6**
  * （`node` / 単位は qa_log entry / 分母は `source.kind=written-requirements` かつ
  * `source.path` を持つ 23 件 / 基点は同日の修復前 14 件）。
  * **下げる方向にしか動かさない。**
+ *
+ * 9 → 6 の内訳: **entry は 1 件も直していない。**引用ブロック記号 (`> `) を
+ * 体裁として正規化したことで、元から逐語だった 3 件 (`qa-foundation-u1` / `u3` /
+ * `u4`) が「逐語でない」から外れた。**数え方が間違っていたのであって、
+ * 中身が良くなったのではない。**下げる方向なので上限もここへ合わせる——
+ * 誤検出のぶんを上限に残しておくと、その 3 件ぶんだけ本物の違反を隠せる枠になる。
  */
-const NOT_VERBATIM_MAX = 9;
+const NOT_VERBATIM_MAX = 6;
 /**
  * 分母の**下限**。上限だけでは抜けられる——`written-requirements` を名乗る entry を
  * 減らせば、逐語でない件数も一緒に減る。向きが逆のこの床と対にして初めて門になる。
@@ -147,6 +165,18 @@ describe("文書を根拠と名乗る回答が、本当にその文書の文で�
     expect(unquotedLines("| 段 | 誰が | 落ちたら |", doc)).toStrictEqual(["| 段 | 誰が | 落ちたら |"]);
     // 文書に無い文を足した行も通さない
     expect(unquotedLines("- **X-01**: 前半、後半。隠さない。", doc)).toHaveLength(1);
+  });
+
+  it("引用ブロック記号は体裁として落とすが、切り詰めは通さない", () => {
+    // 2026-08-21: ここを見落として u1/u3/u4 を「言い換えた要約」と誤判定した。
+    // 実際は行頭の `> ` だけが差で、中身は 1 字も違わなかった。
+    const doc = "> 目指す状態は次のとおりである。\n> | 段 | 誰が | 中身 |\n";
+    expect(unquotedLines("目指す状態は次のとおりである。", doc)).toStrictEqual([]);
+    expect(unquotedLines("> 目指す状態は次のとおりである。", doc)).toStrictEqual([]);
+    // **正規化しても切り詰めは通らない。**`> ` を落とした残り全体の完全一致を要求する。
+    expect(unquotedLines("| 段 | 誰が |", doc)).toStrictEqual(["| 段 | 誰が |"]);
+    // 引用ブロックの中に在っても、足した文は通らない
+    expect(unquotedLines("目指す状態は次のとおりである。ただし例外がある。", doc)).toHaveLength(1);
   });
 });
 

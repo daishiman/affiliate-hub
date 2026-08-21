@@ -118,6 +118,50 @@ def test_folding_is_applied_to_the_quoting_side_too():
     assert stm.unquoted_answer_lines(answer, DOC) == []
 
 
+# ── (g) 体裁の記号は中身ではない ───────────────────────────────────────────
+BQ_DOC = "> 目指す状態は次のとおりである。\n> | 段 | 誰が | 中身 |\n"
+
+
+def test_block_quote_marker_is_decoration_not_content():
+    """**2026-08-21 に誤判定した形。**文書側が `> ` で始まり、引く側が落としている。
+
+    この 3 件 (`qa-foundation-u1` / `u3` / `u4`) を「別の文へ言い換えた要約」と
+    読み、直す側へ回れば**文書の原文を要約で上書きしていた。**部分一致・折り返しに
+    続いて同じ形で 3 度目である。
+    """
+    assert stm.unquoted_answer_lines("目指す状態は次のとおりである。\n", BQ_DOC) == []
+    # 引く側が `> ` を保ったままでも通る (両側を同じ関数で正規化する)
+    assert stm.unquoted_answer_lines("> 目指す状態は次のとおりである。\n", BQ_DOC) == []
+
+
+def test_normalizing_the_marker_does_not_reopen_truncation():
+    """**正規化は切り詰めを通す穴にならない。**`> ` を落とした残り全体の完全一致を要求する。"""
+    truncated = "| 段 | 誰が |"
+    assert stm.unquoted_answer_lines(truncated + "\n", BQ_DOC) == [truncated]
+    added = "目指す状態は次のとおりである。ただし例外がある。"
+    assert stm.unquoted_answer_lines(added + "\n", BQ_DOC) == [added]
+
+
+def test_only_the_block_quote_marker_is_stripped():
+    """表の区切りや箇条の印は落とさない。落とすと列や項目を削った行が一致してしまう。"""
+    assert stm.undecorate_line("> 本文") == "本文"
+    assert stm.undecorate_line("| 段 | 誰が |") == "| 段 | 誰が |"
+    assert stm.undecorate_line("- **X-01**: 本文") == "- **X-01**: 本文"
+
+
+def test_requote_leaves_a_block_quoted_line_alone(tmp_path: Path):
+    """照合が通る行を requote が書き換えないこと。
+
+    片方だけ緩いと「照合は通るのに requote が書き換える」形になる。
+    """
+    target = tmp_path / "bq.md"
+    target.write_text(BQ_DOC, encoding="utf-8")
+    answer = "目指す状態は次のとおりである。\n"
+    state = _state(target, answer)
+    assert stm.requote_written_source(state, "qa-x") == []
+    assert _entry(state)["answer"] == answer  # 触らない
+
+
 # ── (b) 部分一致では通さない ────────────────────────────────────────────────
 def test_truncated_table_row_is_not_a_quotation():
     """**これが実際の抜け道だった。**末尾の列を削った行は元の行の前方一致部分なので、
