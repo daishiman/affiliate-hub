@@ -53,6 +53,33 @@ INPUT_EXTENSIONS = (".md",)
 INPUT_FILES = ("system-spec/spec-state.json",)
 
 
+def is_input(relative: str) -> bool:
+    """その相対 path が入力として数えられるか。
+
+    ツリーを歩く側 (`_iter_files`) と、ツリーを**作る**側 (受入 fixture) が
+    同じ判定を使うための口。判定を写すと、fixture だけが古い規則で数える形で
+    ずれ、しかも fixture は自分の指紋と一致するので緑のまま気づけない。
+    """
+    posix = Path(relative).as_posix()
+    if posix in INPUT_FILES:
+        return True
+    if not any(posix.endswith(ext) for ext in INPUT_EXTENSIONS):
+        return False
+    return any(posix == d or posix.startswith(f"{d}/") for d in INPUT_DIRS)
+
+
+def fold(entries) -> str:
+    """`[{path, sha256}, ...]` を指紋 1 個へ畳む。**mtime は入らない。**
+
+    畳み方の定義はここ 1 箇所だけに置く。写した先が 1 つでもあると、
+    その写しが古びたときに「中身は同じなのに STALE」が出る。
+    """
+    ordered = sorted(entries, key=lambda entry: entry["path"])
+    return hashlib.sha256(
+        "\n".join(f"{entry['path']}:{entry['sha256']}" for entry in ordered).encode("utf-8")
+    ).hexdigest()
+
+
 def _iter_files(root: Path) -> list[str]:
     found: list[str] = []
     for directory in INPUT_DIRS:
@@ -90,10 +117,7 @@ def build_inventory(root: Path | str | None = None) -> dict:
                 "mtime": int((base / relative).stat().st_mtime),
             }
         )
-    combined = hashlib.sha256(
-        "\n".join(f"{entry['path']}:{entry['sha256']}" for entry in entries).encode("utf-8")
-    ).hexdigest()
-    return {"file_count": len(entries), "sha256": combined, "files": entries}
+    return {"file_count": len(entries), "sha256": fold(entries), "files": entries}
 
 
 def combined_digest(root: Path | str | None = None) -> str:
