@@ -1425,12 +1425,16 @@
     {
       "id": "qa-ops-web",
       "question": "書面入力 docs/spec/02-補充仕様-ギャップと追加要件.md §7 の保守運用 (maintenance-ops) × web 要件は何か",
-      "answer": "| 通知 | 投稿失敗・リンク切れ・プログラム終了・成果確定をメール/Slack/アプリ内で通知。通知チャネルはWorkspace設定 |\n| レート制限 | 各Connectorにレートリミッタとコスト上限(特にX API従量課金)。上限接近で警告、超過で自動停止 |\n| バックアップ | Workspace単位のエクスポート(記事・商品・リンク・成果CSV)。退会時データポータビリティ |\n| 監査 | AuditLog の必須記録対象を列挙:公開/削除/リンク差し替え/権限変更/成果データ修正/エクスポート |\n| 障害時 | リダイレクトサービスは計測DB障害時でも転送を止めない(計測はベストエフォート、転送は必達) |\n| 検索 | 記事・商品・リンクの横断全文検索。テナント別インデックス(26.4章と整合) |",
+      "answer": "| 通知 | 投稿失敗・リンク切れ・プログラム終了・成果確定をメール/Slack/アプリ内で通知。通知チャネルはWorkspace設定 |\n| レート制限 | 各Connectorにレートリミッタとコスト上限(特にX API従量課金)。上限接近で警告、超過で自動停止 |\n| バックアップ | Workspace単位のエクスポート(記事・商品・リンク・成果CSV)。退会時データポータビリティ |\n| 監査 | AuditLog の必須記録対象を列挙:公開/削除/リンク差し替え/権限変更/成果データ修正/エクスポート |\n| 障害時 | リダイレクトはresolver storeで転送先を解決し、計測eventをQueueへ非同期配送する。SLOと劣化モードは`03` §1を正とする |\n| 検索 | 記事・商品・リンクの横断全文検索。テナント別インデックス(26.4章と整合) |",
       "source": {
         "kind": "written-requirements",
         "path": "docs/spec/02-補充仕様-ギャップと追加要件.md",
         "section": "§7",
-        "sha256": "842757f299c015bfc425d953e06e8f28521a21191c3ba932d40f5889d0b33ffc"
+        "sha256": "1e6a2838d374427a26d0cd7e4628164170ed67d92eb19bff2b989741907e39ea",
+        "requoted_with": "requote-written-source",
+        "requoted_on": "2026-08-21",
+        "resealed_with": "reseal-written-source",
+        "resealed_on": "2026-08-21"
       },
       "design_applications": [
         {
@@ -1571,12 +1575,16 @@
     {
       "id": "qa-frontend-web-analytics",
       "question": "frontend×web: Analytics 拡張の画面ビュー要件は何か (書面入力 docs/spec/03 §8)",
-      "answer": "v1.0 22.8章のフィルタに加えて、次のビューを定義する。\n\n| ビュー | 内容 |\n| --- | --- |\n| パフォーマンス概要 | 期間比較付きの主要KPI(PV/クリック/CTR/CVR/EPC/確定報酬)。速報と確定を区別 |\n| ファネル | 表示→閲覧→リンク表示→クリック→成果発生→承認 の残存率。ディメンションで分解 |\n| 切り口分析 | angle × 媒体 のヒートマップ(CTR/EPC切替)。セルにnを常時表示 |\n| 配置分析 | 記事テンプレート上に placement 別CTRをオーバーレイ表示 |\n| リンク台帳 | TrackingLink 単位の一覧。CTR・EPC・状態・掲載先。並べ替え・CSV出力 |\n| インサイト受信箱 | InsightReport の一覧。確認→適用(Brief作成へ遷移)→却下 |\n| 実験 | Experiment の進捗・有意差・guardrail |\n| ASP突合状況 | プログラム別の成果件数・承認率・突合率・取り込みエラー |",
+      "answer": "v1.0 22.8章のフィルタに加えて、次のビューを定義する。\n| ビュー | 内容 |\n| --- | --- |\n| パフォーマンス概要 | 期間比較付きの主要KPI(PV/クリック/CTR/発生・承認CVR/承認・支払EPC/承認・支払報酬)。watermarkによる速報・確定・遅延を区別 |\n| ファネル | 表示→閲覧→リンク表示→クリック→成果発生→承認→支払 の残存率。consent区分と対象ディメンションを表示 |\n| 切り口分析 | angle × 媒体 のヒートマップ(CTR/EPC切替)。セルにnを常時表示 |\n| 配置分析 | 記事テンプレート上に placement 別CTRをオーバーレイ表示 |\n| リンク台帳 | TrackingLink 単位の一覧。CTR・EPC・状態・掲載先。並べ替え・CSV出力 |\n| インサイト受信箱 | InsightReport の一覧。確認→適用(Brief作成へ遷移)→却下 |\n| 実験 | Experiment の事前登録値、探索率、holdout、進捗、信頼区間、guardrail |\n| ASP突合状況 | プログラム別の成果件数・承認率・突合率・取り込みエラー |",
       "source": {
         "kind": "written-requirements",
         "path": "docs/spec/03-分析・解析基盤仕様.md",
         "section": "§8 画面仕様(Analytics 拡張)",
-        "sha256": "e055d16d4b4cdec15de67578ea6955ab50cf87666d6abc154410b5cdc4f29229"
+        "sha256": "8c2f8f1c28a097dae0020bce61c19ea83882a0572938457b5470ab4a889fff81",
+        "requoted_with": "requote-written-source",
+        "requoted_on": "2026-08-21",
+        "resealed_with": "reseal-written-source",
+        "resealed_on": "2026-08-21"
       },
       "design_applications": [
         {
@@ -1602,12 +1610,16 @@
     {
       "id": "qa-infra-web-redirect",
       "question": "infrastructure×web: リダイレクトサービスの可用性要件は何か (書面入力 docs/spec/02 §7)",
-      "answer": "| 障害時 | リダイレクトサービスは計測DB障害時でも転送を止めない(計測はベストエフォート、転送は必達) |",
+      "answer": "| 障害時 | リダイレクトはresolver storeで転送先を解決し、計測eventをQueueへ非同期配送する。SLOと劣化モードは`03` §1を正とする |",
       "source": {
         "kind": "written-requirements",
         "path": "docs/spec/02-補充仕様-ギャップと追加要件.md",
         "section": "§7 運用系の補充",
-        "sha256": "1846072dcf669a0d2a8503e47bcb405cdbfc1eb47ae85efed5022b849babe3b6"
+        "sha256": "c01a06e1f5221c8e30ffe2cf40e4a8e60c4261e41ea6cf598b77c7dae6caaf2e",
+        "requoted_with": "requote-written-source",
+        "requoted_on": "2026-08-21",
+        "resealed_with": "reseal-written-source",
+        "resealed_on": "2026-08-21"
       },
       "design_applications": [
         {
@@ -1924,7 +1936,7 @@
           {
             "topic_id": "qa-infra-web-redirect",
             "covers_cell": null,
-            "answer_span": "| 障害時 | リダイレクトサービスは計測DB障害時でも転送を止めない(計測はベストエフォート、転送は必達) |",
+            "answer_span": "| 障害時 | リダイレクトはresolver storeで転送先を解決し、計測eventをQueueへ非同期配送する。SLOと劣化モードは`03` §1を正とする |",
             "note": "統合前の質疑由来の節。確定セルの裏付けではないが、統合時に範囲を保つため本文へ残してある。裏付けでないものを裏付けと名乗らせないため covers_cell は null にしてある。",
             "origin_qa_id": "qa-infra-web-redirect",
             "released_section_heading": "### qa-infra-web-redirect（docs/spec/02-補充仕様-ギャップと追加要件.md §7 運用系の補充）"
