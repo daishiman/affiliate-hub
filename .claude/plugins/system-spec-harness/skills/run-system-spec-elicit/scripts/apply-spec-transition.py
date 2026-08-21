@@ -3,7 +3,7 @@
 # name: apply-spec-transition
 # version: 0.2.0
 # purpose: spec-state の単一 writer CLI。各責務は state_transition_{matrix,foundation,knowledge}.py へ分離する。
-# inputs: [bootstrap|init|add-category|apply|chunk|aggregate|set-targets|set-foundation|set-decision|set-knowledge-candidate|set-qa-design-applications|set-qa-scope-notes|split-qa-bundle|reanchor-split-scope-notes|requote-written-source|reseal-written-source|set-qa-written-up|set-hearing-policy|enable-asks-for]
+# inputs: [bootstrap|init|add-category|apply|chunk|aggregate|set-targets|set-foundation|seal-foundation-sources|set-decision|set-knowledge-candidate|set-qa-design-applications|set-qa-scope-notes|split-qa-bundle|reanchor-split-scope-notes|requote-written-source|reseal-written-source|set-qa-written-up|set-hearing-policy|enable-asks-for]
 # outputs: [spec-state.json or stdout]
 # network: false
 # write-scope: spec-state.json
@@ -41,7 +41,11 @@ from state_transition_common import (
     is_explicit_na as _is_explicit_na,
     normalize_serves as _normalize_serves,
 )
-from state_transition_foundation import set_decision, set_foundation
+from state_transition_foundation import (
+    seal_foundation_sources,
+    set_decision,
+    set_foundation,
+)
 from state_transition_knowledge import set_knowledge_candidate
 from state_transition_matrix import (
     CURRENT_STATE_SCHEMA_VERSION,
@@ -209,6 +213,13 @@ def main(argv: list[str]) -> int:
     foundation.add_argument("--state", required=True)
     foundation.add_argument("--foundation", required=True, help="foundation JSON文字列またはファイル")
     foundation.add_argument("--out")
+    seal = sub.add_parser(
+        "seal-foundation-sources",
+        help="requirements_foundation の書面根拠を実ファイルへ照合してから封をする",
+    )
+    seal.add_argument("--state", required=True)
+    seal.add_argument("--out")
+    # sha256 は引数で受け取らない。writer が path のファイルを読んで計算する。
     decision = sub.add_parser("set-decision", help="意思決定支援 record を upsert")
     decision.add_argument("--state", required=True)
     decision.add_argument("--decision", required=True, help="decision JSON文字列またはファイル")
@@ -351,6 +362,12 @@ def main(argv: list[str]) -> int:
                 set_targets(state, value["targets"] if isinstance(value, dict) and "targets" in value else value)
             elif args.cmd == "set-foundation":
                 set_foundation(state, load_json_arg(args.foundation))
+            elif args.cmd == "seal-foundation-sources":
+                summary = seal_foundation_sources(state)
+                print(
+                    f"封: 書面 {summary['sealed']} 件 / 対話 {summary['dialogue']} 件 "
+                    f"/ 全 {summary['total']} 件",
+                )
             elif args.cmd == "set-decision":
                 set_decision(state, load_json_arg(args.decision))
             elif args.cmd == "set-knowledge-candidate":

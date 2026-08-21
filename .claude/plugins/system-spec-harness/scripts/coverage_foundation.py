@@ -12,6 +12,7 @@ from urllib.parse import urlsplit
 
 from foundation_provenance import (
     validate_foundation_scope_coverage,
+    validate_foundation_sealed_sources,
     validate_foundation_source_indexes,
     validate_foundation_source_records,
     validate_foundation_unsourced_cap,
@@ -288,6 +289,12 @@ def validate_foundation(data: dict) -> list[str]:
         findings.extend(validate_foundation_scope_coverage(data, rf))
         findings.extend(validate_foundation_source_records(rf))
         findings.extend(validate_foundation_unsourced_cap(rf))
+        # 3 門目。上の 2 門は「札が在るか」を見るが、札が**実物を指しているか**は
+        # 見ない。書面根拠は path のファイルへ照合してはじめて出典になる。
+        # この門だけは writer 側に対を置けない (封は state が在ってからでないと
+        # 打てないので、確定条件にすると堂々巡りになる)。詳しくは
+        # FOUNDATION_MAX_UNSEALED の注記。
+        findings.extend(validate_foundation_sealed_sources(rf))
     goals = rf.get("goals") or []
     if _is_explicit_na(goals):
         goals = []

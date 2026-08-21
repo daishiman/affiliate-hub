@@ -44,6 +44,10 @@ def valid_foundation() -> dict:
         # 上限は「実物を指す出典の無い欄」を数えるので、fixture の値が実際に
         # 出てきた場所 (下の qa turn) を指す札を書くのは、緩めるのではなく
         # 本番と同じ形にすることである。空札は source_record_defects が弾く。
+        #
+        # 2026-08-21: 上限が 11 -> 0 へ下がったので、この注記が予告していた
+        # 「札を増やす」を実行した。qa turn は FOUNDATION_U_LABELS と 1:1 で
+        # U1..U9 に対応するので、欄はその番号の turn を指す。
         "provenance": {
             "field_sources": [
                 {"field": "essential_purpose", "kind": "user-dialogue",
@@ -52,7 +56,29 @@ def valid_foundation() -> dict:
                  "qa_id": "qa-foundation-u2"},
                 {"field": "goals[0]", "kind": "user-dialogue",
                  "qa_id": "qa-foundation-u3"},
-            ]
+                {"field": "goals[1]", "kind": "user-dialogue",
+                 "qa_id": "qa-foundation-u3"},
+                {"field": "objectives[0]", "kind": "user-dialogue",
+                 "qa_id": "qa-foundation-u4"},
+                {"field": "objectives[0].measure", "kind": "user-dialogue",
+                 "qa_id": "qa-foundation-u4"},
+                {"field": "success_criteria[0]", "kind": "user-dialogue",
+                 "qa_id": "qa-foundation-u5"},
+                {"field": "stakeholders[0]", "kind": "user-dialogue",
+                 "qa_id": "qa-foundation-u6"},
+                {"field": "constraints[0]", "kind": "user-dialogue",
+                 "qa_id": "qa-foundation-u8"},
+                {"field": "concrete_intents[0]", "kind": "user-dialogue",
+                 "qa_id": "qa-foundation-u9"},
+            ],
+            # scope は欄ごとの札ではなく被覆申告で数える (SCOPE_SIDES)。
+            "scope": {
+                "source_qa_id": "qa-foundation-u7",
+                "sections": {
+                    "in": {"items": [{"item": "請求管理", "covers": [1]}]},
+                    "out": {"items": [{"item": "給与計算", "covers": [1]}]},
+                },
+            },
         },
     }
 

@@ -32,7 +32,20 @@
       }
     },
     "category_aggregate": {"type": "object"},
-    "requirements_foundation": {"type": "object"},
+    "requirements_foundation": {
+      "type": "object",
+      "properties": {
+        "provenance": {
+          "type": "object",
+          "properties": {
+            "field_sources": {
+              "type": "array",
+              "items": {"$ref": "#/$defs/foundationFieldSource"}
+            }
+          }
+        }
+      }
+    },
     "qa_log": {
       "type": "array",
       "items": {"$ref": "#/$defs/qaEntry"}
@@ -104,6 +117,33 @@
     }
   ],
   "$defs": {
+    "foundationFieldSource": {
+      "type": "object",
+      "required": ["field", "kind"],
+      "properties": {
+        "field": {"type": "string", "minLength": 1},
+        "kind": {"enum": ["written-requirements", "user-dialogue"]},
+        "path": {"type": "string", "minLength": 1},
+        "section": {"type": "string"},
+        "quote": {"type": "string", "minLength": 1},
+        "qa_id": {"type": "string", "minLength": 1},
+        "note": {"type": "string"},
+        "sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$",
+          "description": "path のファイル全体の指紋。**seal-foundation-sources が実ファイルを読んで打刻する欄で、呼び出し側からは渡せない** (set-foundation は渡されたら拒否する)。指紋だけでは中身を見ていないので、封は quote が原文に literal で在ることも併せて確かめる"
+        },
+        "sealed_on": {
+          "type": "string",
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+          "description": "封を打った日 (UTC)。writer が打刻する欄"
+        },
+        "sealed_with": {
+          "const": "seal-foundation-sources",
+          "description": "封を打った writer 名。自己申告させないため const で縛る"
+        }
+      }
+    },
     "qaEntry": {
       "type": "object",
       "required": ["id", "question", "answer"],

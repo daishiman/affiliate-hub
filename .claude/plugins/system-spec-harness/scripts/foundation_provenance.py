@@ -278,7 +278,17 @@ def validate_foundation_scope_coverage(data: dict, foundation: dict) -> list[str
 # ものが後で付けば件数は下がり、下がった値が新しい天井になる。
 #
 # 以後この値は下げる方向にしか動かさない (11 -> 10 は可、11 -> 12 は不可)。
-FOUNDATION_MAX_UNSOURCED = 11
+#
+# 2026-08-21 実測: 出典なし **0 件** (分母は上と同じ 47)。11 件の内訳は
+# essential_purpose / background / constraints[0..4] / concrete_intents[0..3] で、
+# すべて docs/spec/01-要求仕様書-v1.0.md の実在行 (§2.1 L85 / §3.1 L121 /
+# §3.4 L184,L186 / §10.1 L767 / §20 L1614 / §5.5 L326 / §1 L38,L44,L50 /
+# §27.5 L2174) へ結線し、`seal-foundation-sources` で原文照合と sha256 打刻を
+# 済ませた。推移: 43 -> 14 -> 13 -> 11 -> 0。
+#
+# **0 は「もう調べなくてよい」ではない。**欄が増えれば分母が増え、出典を付けずに
+# 増やした日にここが赤くなる。それがこの 0 の役目である。
+FOUNDATION_MAX_UNSOURCED = 0
 SOURCE_GAP_SCALARS = ("essential_purpose", "background")
 SOURCE_GAP_LISTS = (
     ("goals", "text"), ("objectives", "text"), ("objectives", "measure"),
@@ -393,4 +403,54 @@ def validate_foundation_unsourced_cap(foundation: dict) -> list[str]:
     return [
         f"requirements_foundation: 出典の無い欄が {len(gaps)} 件で上限 "
         f"{FOUNDATION_MAX_UNSOURCED} 件を超えた: {gaps}"
+    ]
+
+
+# 封のない書面根拠の上限。2026-08-21 実測 0 件 (書面 23 件すべてに
+# `seal-foundation-sources` が原文照合と sha256 打刻を済ませてある)。
+# 下げる方向にしか動かさない。
+#
+# **なぜ set_foundation の確定条件にしないか。**封は `path` のファイルを読んで
+# 打つので、封を打つには先に foundation が state に無ければならない。確定条件に
+# すると「封が無いから確定できない・確定できないから封が打てない」で永久に
+# 進まなくなる。だから書き込み時ではなく**読み取り側の門**で見る。
+# C05 が 2026-08-21 に「決定論ゲートは本欠陥を検出せず exit 0」と報告したのが、
+# ちょうどこの門である。
+FOUNDATION_MAX_UNSEALED = 0
+
+
+def foundation_unsealed_sources(foundation: dict) -> list[str]:
+    """書面根拠のうち、実ファイルへ照合されていない (封の無い) 欄の一覧。
+
+    `kind == "user-dialogue"` は照合先が qa_log の中なので封の対象外
+    (`validate_foundation_source_indexes` が別に見ている)。
+    """
+    provenance = foundation.get("provenance") if isinstance(foundation, dict) else None
+    provenance = provenance if isinstance(provenance, dict) else {}
+    unsealed = []
+    for record in provenance.get("field_sources") or []:
+        if not isinstance(record, dict) or record.get("kind") != "written-requirements":
+            continue
+        if source_record_defects(record):
+            continue  # 成立していない札は上の上限が別に落とす。二重に数えない。
+        if not record.get("sha256") or record.get("sealed_with") != "seal-foundation-sources":
+            unsealed.append(str(record.get("field")))
+    return unsealed
+
+
+def validate_foundation_sealed_sources(foundation: dict) -> list[str]:
+    """封の無い書面根拠が上限を超えていないか。
+
+    **sha256 が在るだけでは足りない。**指紋は「文書が動いていないこと」しか
+    示さないので、`sealed_with` で「writer が実ファイルを読んで打った」ことまで
+    見る。呼び出し側から sha256 を渡す道は `set_foundation` が塞いである
+    (`_reject_sealed_claims`)。
+    """
+    unsealed = foundation_unsealed_sources(foundation)
+    if len(unsealed) <= FOUNDATION_MAX_UNSEALED:
+        return []
+    return [
+        f"requirements_foundation: 原文へ照合されていない書面根拠が {len(unsealed)} 件で"
+        f"上限 {FOUNDATION_MAX_UNSEALED} 件を超えた: {unsealed}"
+        " (apply-spec-transition.py seal-foundation-sources を通してください)"
     ]

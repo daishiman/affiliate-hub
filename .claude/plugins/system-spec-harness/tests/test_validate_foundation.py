@@ -66,15 +66,27 @@ def _valid_foundation() -> dict:
         # 出典なし欄の上限は本番 state の実測値へ追随して下がる。この fixture は
         # 12 欄あるので、札が 0 枚だと「何も間違っていないのに落ちる fixture」に
         # なる。札を足すのは上限を上げるのとは違う (空札は弾かれる)。
+        # 2026-08-21: 上限が 11 -> 0 へ下がったので、上の注記が予告していた
+        # 「札を足す」を全欄へ実行した。qa turn は U1..U9 と 1:1 で対応する。
         "provenance": {
             "field_sources": [
-                {"field": "essential_purpose", "kind": "user-dialogue",
-                 "qa_id": "qa-foundation-u1"},
-                {"field": "background", "kind": "user-dialogue",
-                 "qa_id": "qa-foundation-u2"},
-                {"field": "goals[0]", "kind": "user-dialogue",
-                 "qa_id": "qa-foundation-u3"},
-            ]
+                {"field": field, "kind": "user-dialogue", "qa_id": f"qa-foundation-u{n}"}
+                for field, n in (
+                    ("essential_purpose", 1), ("background", 2),
+                    ("goals[0]", 3), ("goals[1]", 3),
+                    ("objectives[0]", 4), ("objectives[0].measure", 4),
+                    ("success_criteria[0]", 5), ("stakeholders[0]", 6),
+                    ("constraints[0]", 8), ("concrete_intents[0]", 9),
+                )
+            ],
+            # scope は欄ごとの札ではなく被覆申告で数える。
+            "scope": {
+                "source_qa_id": "qa-foundation-u7",
+                "sections": {
+                    "in": {"items": [{"item": "請求", "covers": [1]}]},
+                    "out": {"items": [{"item": "給与", "covers": [1]}]},
+                },
+            },
         },
     }
 
@@ -232,6 +244,10 @@ def test_foundation_duplicate_goal_id_fails():
 def test_foundation_unique_goal_ids_keep_passing():
     d = _valid_state()
     d["requirements_foundation"]["goals"].append({"id": "G3", "text": "追加ゴール"})
+    # 上限が 0 なので、欄を足したら札も足す。**足さずに通るなら上限が効いていない。**
+    d["requirements_foundation"]["provenance"]["field_sources"].append(
+        {"field": "goals[2]", "kind": "user-dialogue", "qa_id": "qa-foundation-u3"}
+    )
     assert c12.validate_foundation(d) == []
 
 

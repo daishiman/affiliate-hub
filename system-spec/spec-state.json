@@ -3342,7 +3342,10 @@
           "kind": "written-requirements",
           "path": "docs/spec/01-要求仕様書-v1.0.md",
           "section": "§32 (L2441)",
-          "quote": "一つのアフィリエイトURLを起点に、正しい商品情報、比較候補、根拠、書き手、読者、媒体、広告表示を統合し、目的の異なる高品質コンテンツを安全に作成・公開・改善できること。"
+          "quote": "一つのアフィリエイトURLを起点に、正しい商品情報、比較候補、根拠、書き手、読者、媒体、広告表示を統合し、目的の異なる高品質コンテンツを安全に作成・公開・改善できること。",
+          "sha256": "b5fc60987cb79c08c30db4cd94b075a0bf89cd7acba7c8d1ffc8558af6439385",
+          "sealed_on": "2026-08-21",
+          "sealed_with": "seal-foundation-sources"
         },
         {
           "field": "goals[1]",
@@ -3350,77 +3353,220 @@
           "path": "docs/spec/01-要求仕様書-v1.0.md",
           "section": "§2.3 (L112)",
           "quote": "* どの商品、媒体、文章パターンが成果につながったか確認できる",
-          "note": "G2 は §32 (U3 の sha256 束縛済み原文) に対応記述が無い。§2.3 の 2 行へ分かれて在る。L110 の「* アフィリエイトリンクを一元管理できる」が「一元管理」側の対応。"
+          "note": "G2 は §32 (U3 の sha256 束縛済み原文) に対応記述が無い。§2.3 の 2 行へ分かれて在る。L110 の「* アフィリエイトリンクを一元管理できる」が「一元管理」側の対応。",
+          "sha256": "b5fc60987cb79c08c30db4cd94b075a0bf89cd7acba7c8d1ffc8558af6439385",
+          "sealed_on": "2026-08-21",
+          "sealed_with": "seal-foundation-sources"
         },
         {
           "field": "objectives[0]",
           "kind": "written-requirements",
           "path": "docs/spec/01-要求仕様書-v1.0.md",
           "section": "§27.1",
-          "quote": "根拠確認と人間承認を完了し、複数媒体へ展開されたコンテンツパッケージ数"
+          "quote": "根拠確認と人間承認を完了し、複数媒体へ展開されたコンテンツパッケージ数",
+          "sha256": "b5fc60987cb79c08c30db4cd94b075a0bf89cd7acba7c8d1ffc8558af6439385",
+          "sealed_on": "2026-08-21",
+          "sealed_with": "seal-foundation-sources"
         },
         {
           "field": "objectives[0].measure",
           "kind": "written-requirements",
           "path": "docs/spec/01-要求仕様書-v1.0.md",
           "section": "§27.1",
-          "quote": "単なる生成数や投稿数を中心指標にしない。"
+          "quote": "単なる生成数や投稿数を中心指標にしない。",
+          "sha256": "b5fc60987cb79c08c30db4cd94b075a0bf89cd7acba7c8d1ffc8558af6439385",
+          "sealed_on": "2026-08-21",
+          "sealed_with": "seal-foundation-sources"
         },
         {
           "field": "objectives[1]",
           "kind": "written-requirements",
           "path": "docs/spec/03-分析・解析基盤仕様.md",
           "section": "§7.1 (L489)",
-          "quote": "蓄積されたロールアップから「クリック率・成果に効いている要因」を定期的に抽出し"
+          "quote": "蓄積されたロールアップから「クリック率・成果に効いている要因」を定期的に抽出し",
+          "sha256": "5d84913a2422b9e697422b0656f90cf90633b0bd75adcebe0c6696e01fc9e45f",
+          "sealed_on": "2026-08-21",
+          "sealed_with": "seal-foundation-sources"
         },
         {
           "field": "objectives[1].measure",
           "kind": "written-requirements",
           "path": "docs/spec/03-分析・解析基盤仕様.md",
           "section": "L475",
-          "quote": "突合率(sub_id一致の割合)自体を運用KPIとし、sub_id非対応プログラムには「詳細分析不可」バッジを付ける"
+          "quote": "突合率(sub_id一致の割合)自体を運用KPIとし、sub_id非対応プログラムには「詳細分析不可」バッジを付ける",
+          "sha256": "5d84913a2422b9e697422b0656f90cf90633b0bd75adcebe0c6696e01fc9e45f",
+          "sealed_on": "2026-08-21",
+          "sealed_with": "seal-foundation-sources"
         },
         {
           "field": "success_criteria[0]",
           "kind": "written-requirements",
           "path": "docs/spec/01-要求仕様書-v1.0.md",
           "section": "§30.8",
-          "quote": "## 30.8 追跡可能性"
+          "quote": "## 30.8 追跡可能性",
+          "sha256": "b5fc60987cb79c08c30db4cd94b075a0bf89cd7acba7c8d1ffc8558af6439385",
+          "sealed_on": "2026-08-21",
+          "sealed_with": "seal-foundation-sources"
         },
         {
           "field": "success_criteria[1]",
           "kind": "written-requirements",
           "path": "docs/spec/01-要求仕様書-v1.0.md",
           "section": "§30 (L2278)",
-          "quote": "# 30. 受け入れ条件"
+          "quote": "# 30. 受け入れ条件",
+          "sha256": "b5fc60987cb79c08c30db4cd94b075a0bf89cd7acba7c8d1ffc8558af6439385",
+          "sealed_on": "2026-08-21",
+          "sealed_with": "seal-foundation-sources"
         },
         {
           "field": "success_criteria[2]",
           "kind": "written-requirements",
           "path": "docs/spec/03-分析・解析基盤仕様.md",
           "section": "L683",
-          "quote": "| パフォーマンス概要 | 期間比較付きの主要KPI(PV/クリック/CTR/発生・承認CVR/承認・支払EPC/承認・支払報酬)。watermarkによる速報・確定・遅延を区別 |"
+          "quote": "| パフォーマンス概要 | 期間比較付きの主要KPI(PV/クリック/CTR/発生・承認CVR/承認・支払EPC/承認・支払報酬)。watermarkによる速報・確定・遅延を区別 |",
+          "sha256": "5d84913a2422b9e697422b0656f90cf90633b0bd75adcebe0c6696e01fc9e45f",
+          "sealed_on": "2026-08-21",
+          "sealed_with": "seal-foundation-sources"
         },
         {
           "field": "stakeholders[0]",
           "kind": "written-requirements",
           "path": "docs/spec/01-要求仕様書-v1.0.md",
           "section": "§2.2",
-          "quote": "## 2.2 読者に対する価値"
+          "quote": "## 2.2 読者に対する価値",
+          "sha256": "b5fc60987cb79c08c30db4cd94b075a0bf89cd7acba7c8d1ffc8558af6439385",
+          "sealed_on": "2026-08-21",
+          "sealed_with": "seal-foundation-sources"
         },
         {
           "field": "stakeholders[1]",
           "kind": "written-requirements",
           "path": "docs/spec/01-要求仕様書-v1.0.md",
           "section": "§2.3",
-          "quote": "## 2.3 発信者に対する価値"
+          "quote": "## 2.3 発信者に対する価値",
+          "sha256": "b5fc60987cb79c08c30db4cd94b075a0bf89cd7acba7c8d1ffc8558af6439385",
+          "sealed_on": "2026-08-21",
+          "sealed_with": "seal-foundation-sources"
         },
         {
           "field": "stakeholders[2]",
           "kind": "written-requirements",
           "path": "docs/spec/01-要求仕様書-v1.0.md",
           "section": "§25 (L2006-2019)",
-          "quote": "# 25. 権限"
+          "quote": "# 25. 権限",
+          "sha256": "b5fc60987cb79c08c30db4cd94b075a0bf89cd7acba7c8d1ffc8558af6439385",
+          "sealed_on": "2026-08-21",
+          "sealed_with": "seal-foundation-sources"
+        },
+        {
+          "field": "essential_purpose",
+          "kind": "written-requirements",
+          "path": "docs/spec/01-要求仕様書-v1.0.md",
+          "section": "§2.1 (L85)",
+          "quote": "> 発信者が、一つの信頼できる商品・サービス情報を起点に、複数のブログやSNSへ、「誰が・誰に・何を・なぜ伝えるか」が一貫した高品質コンテンツを効率的に生成・公開・改善できる状態をつくり、読者の意思決定品質と発信者の継続的な収益性を同時に高める。",
+          "sha256": "b5fc60987cb79c08c30db4cd94b075a0bf89cd7acba7c8d1ffc8558af6439385",
+          "sealed_on": "2026-08-21",
+          "sealed_with": "seal-foundation-sources"
+        },
+        {
+          "field": "background",
+          "kind": "written-requirements",
+          "path": "docs/spec/01-要求仕様書-v1.0.md",
+          "section": "§3.1 (L121)",
+          "quote": "現在のコンテンツ運営では、次の情報が別々の場所で管理されやすい。",
+          "sha256": "b5fc60987cb79c08c30db4cd94b075a0bf89cd7acba7c8d1ffc8558af6439385",
+          "sealed_on": "2026-08-21",
+          "sealed_with": "seal-foundation-sources"
+        },
+        {
+          "field": "constraints[0]",
+          "kind": "written-requirements",
+          "path": "docs/spec/01-要求仕様書-v1.0.md",
+          "section": "§3.4 (L184)",
+          "quote": "WordPress、X、Instagram、Threadsなどは公式APIによる投稿連携が可能だが、認証、権限、投稿形式、利用料金、審査条件が異なる。",
+          "sha256": "b5fc60987cb79c08c30db4cd94b075a0bf89cd7acba7c8d1ffc8558af6439385",
+          "sealed_on": "2026-08-21",
+          "sealed_with": "seal-foundation-sources"
+        },
+        {
+          "field": "constraints[1]",
+          "kind": "written-requirements",
+          "path": "docs/spec/01-要求仕様書-v1.0.md",
+          "section": "§3.4 (L186)",
+          "quote": "一方、noteは2026年8月16日時点で一般公開の公式投稿APIを提供していない。そのため、noteについては非公式APIやログイン自動操作を前提にせず、コピー用原稿、ファイル出力、WXR／MT形式のインポート支援として設計する。noteは公式にWXRまたはMT形式のインポートを案内している。",
+          "sha256": "b5fc60987cb79c08c30db4cd94b075a0bf89cd7acba7c8d1ffc8558af6439385",
+          "sealed_on": "2026-08-21",
+          "sealed_with": "seal-foundation-sources"
+        },
+        {
+          "field": "constraints[2]",
+          "kind": "written-requirements",
+          "path": "docs/spec/01-要求仕様書-v1.0.md",
+          "section": "§10.1 (L767)",
+          "quote": "`original_url` は、成果計測に必要な情報を保持するため変更しない。",
+          "sha256": "b5fc60987cb79c08c30db4cd94b075a0bf89cd7acba7c8d1ffc8558af6439385",
+          "sealed_on": "2026-08-21",
+          "sealed_with": "seal-foundation-sources"
+        },
+        {
+          "field": "constraints[3]",
+          "kind": "written-requirements",
+          "path": "docs/spec/01-要求仕様書-v1.0.md",
+          "section": "§20 (L1614)",
+          "quote": "日本では、広告であるにもかかわらず広告であることを判別しにくい表示が、景品表示法上のステルスマーケティング規制の対象となる。",
+          "sha256": "b5fc60987cb79c08c30db4cd94b075a0bf89cd7acba7c8d1ffc8558af6439385",
+          "sealed_on": "2026-08-21",
+          "sealed_with": "seal-foundation-sources"
+        },
+        {
+          "field": "constraints[4]",
+          "kind": "written-requirements",
+          "path": "docs/spec/01-要求仕様書-v1.0.md",
+          "section": "§5.5 (L326)",
+          "quote": "外部公開、予約投稿、個人情報送信、アフィリエイトリンク挿入などの重要操作は、原則として人間の確認を経る。",
+          "sha256": "b5fc60987cb79c08c30db4cd94b075a0bf89cd7acba7c8d1ffc8558af6439385",
+          "sealed_on": "2026-08-21",
+          "sealed_with": "seal-foundation-sources"
+        },
+        {
+          "field": "concrete_intents[0]",
+          "kind": "written-requirements",
+          "path": "docs/spec/01-要求仕様書-v1.0.md",
+          "section": "§1 (L38)",
+          "quote": "同一商品・類似商品・比較候補を抽出",
+          "sha256": "b5fc60987cb79c08c30db4cd94b075a0bf89cd7acba7c8d1ffc8558af6439385",
+          "sealed_on": "2026-08-21",
+          "sealed_with": "seal-foundation-sources"
+        },
+        {
+          "field": "concrete_intents[1]",
+          "kind": "written-requirements",
+          "path": "docs/spec/01-要求仕様書-v1.0.md",
+          "section": "§1 (L44)",
+          "quote": "ブログ・X・Instagram・Threads・note等の媒体別に文章を生成",
+          "sha256": "b5fc60987cb79c08c30db4cd94b075a0bf89cd7acba7c8d1ffc8558af6439385",
+          "sealed_on": "2026-08-21",
+          "sealed_with": "seal-foundation-sources"
+        },
+        {
+          "field": "concrete_intents[2]",
+          "kind": "written-requirements",
+          "path": "docs/spec/01-要求仕様書-v1.0.md",
+          "section": "§1 (L50)",
+          "quote": "クリック・成果・反応を収集",
+          "sha256": "b5fc60987cb79c08c30db4cd94b075a0bf89cd7acba7c8d1ffc8558af6439385",
+          "sealed_on": "2026-08-21",
+          "sealed_with": "seal-foundation-sources"
+        },
+        {
+          "field": "concrete_intents[3]",
+          "kind": "written-requirements",
+          "path": "docs/spec/01-要求仕様書-v1.0.md",
+          "section": "§27.5 (L2174)",
+          "quote": "商品の編集評価には自動反映しない。",
+          "sha256": "b5fc60987cb79c08c30db4cd94b075a0bf89cd7acba7c8d1ffc8558af6439385",
+          "sealed_on": "2026-08-21",
+          "sealed_with": "seal-foundation-sources"
         }
       ]
     }

@@ -516,8 +516,68 @@
           "field": "goals[0]",
           "kind": "user-dialogue",
           "qa_id": "qa-foundation-u3"
+        },
+        {
+          "field": "goals[1]",
+          "kind": "user-dialogue",
+          "qa_id": "qa-foundation-u3"
+        },
+        {
+          "field": "objectives[0]",
+          "kind": "user-dialogue",
+          "qa_id": "qa-foundation-u4"
+        },
+        {
+          "field": "objectives[0].measure",
+          "kind": "user-dialogue",
+          "qa_id": "qa-foundation-u4"
+        },
+        {
+          "field": "success_criteria[0]",
+          "kind": "user-dialogue",
+          "qa_id": "qa-foundation-u5"
+        },
+        {
+          "field": "stakeholders[0]",
+          "kind": "user-dialogue",
+          "qa_id": "qa-foundation-u6"
+        },
+        {
+          "field": "constraints[0]",
+          "kind": "user-dialogue",
+          "qa_id": "qa-foundation-u8"
+        },
+        {
+          "field": "concrete_intents[0]",
+          "kind": "user-dialogue",
+          "qa_id": "qa-foundation-u9"
         }
-      ]
+      ],
+      "scope": {
+        "source_qa_id": "qa-foundation-u7",
+        "sections": {
+          "in": {
+            "items": [
+              {
+                "item": "請求管理",
+                "covers": [
+                  1
+                ]
+              }
+            ]
+          },
+          "out": {
+            "items": [
+              {
+                "item": "給与計算",
+                "covers": [
+                  1
+                ]
+              }
+            ]
+          }
+        }
+      }
     }
   },
   "decisions": [],
