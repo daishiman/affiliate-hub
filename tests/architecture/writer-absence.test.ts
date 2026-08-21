@@ -83,6 +83,38 @@ import { describe, expect, it } from "vitest";
  * 反転させた。`max_loops_policy` で上限が厳格だと分かり、`limit_overrun.reason` で
  * なぜ超過が残っているかが分かる。**誰かが黙って 7 を 5 に丸めた日に、ここが赤くなる。**
  *
+ * ── A は 2 度目の反転をした（2026-08-21）──────────────────────────
+ *
+ * 上の 2 行が予告していた赤が、実際に出た。**ただし丸めたからではない。**
+ * 7 は writer 経由では動かない値だった（実測: `run_chunk` に 0 turns を渡しても
+ * 3 turns を渡しても 7 のまま。prior=2 の対照は 0 になったので、床の仕掛け自体は
+ * 生きている）。残る道は `init_state` で `loop_count: 0` を書き直すことだけで、
+ * それは**ヒアリングを通し直す**という意味になる。利用者がその道を選んだ。
+ *
+ * 通し直しの前に穴が 1 つ見つかった。`reopen` は退避一覧へ `qa_refs` を入れて
+ * おらず、`qa_refs` を書ける writer は `split-qa-bundle` だけで、それは
+ * `bundled=true` を要求する。つまり **reopen を通ると 6 セルの裏付けの範囲が
+ * 二度と戻せなかった**（実測: 確定 8 / うち qa_refs 6 / reopen 後の退避 0 /
+ * `split-qa-bundle` 再実行は 6 件とも拒否）。先に退避一覧へ `qa_refs` を足し、
+ * **退避された値からだけ書き戻す** `restore-qa-refs` を作ってから通した。
+ *
+ * 結果 `loop_count` は 3 になった。**これは丸めた 5 ではなく、writer が最後の
+ * invocation の turn 数として書いた値である。**48 セルは通し直しの前後で
+ * 完全一致した（`checked_on` だけが当日へ動く。writer が日付を自分で付けるため）。
+ *
+ * よって A は「超過が記名で保存されている」から**「不変則が writer 由来で成立し、
+ * そこへ至った経路が記名で残っている」**へ反転させた。**上限だけでは足りない。**
+ * `loop_count <= max_loops` は 7 を 5 へ書き換えても満たせる——元のコメントが
+ * 名指しで警告していた迂回そのものである。そこで向きが逆の床
+ * (`REDO_TRACE_MIN`) と対にした。数を丸める道では床に当たり、通し直す道でしか
+ * 両方を満たせない。**逆向きであることが仕掛けの本体である。**
+ *
+ * **⑤ 次の反転先**: `limit_overrun` が再び現れた日（= 超過がまた起きた日）、
+ * 床の側は役目を終える。そのとき消さず、「超過が在るなら `limit_overrun` に
+ * 由来が在り、その由来が現行 writer の挙動と矛盾しない」へ反転させる。
+ * 痕跡の在り処が `reopen_log` から `limit_overrun` へ戻るだけで、
+ * 「無記名の超過を作らせない」という主張は変わらない。
+ *
  * B（採否の欄に書き手が居ない）は**今回の作業で塞いでいない。**元の向きのまま残す。
  * A と B を同じ回に反転させると、片方しか直っていないのに両方直ったように見える。
  *
@@ -134,6 +166,7 @@ const state = JSON.parse(
     limit_overrun?: { loop_count: number; max_loops: number; reason: string };
   };
   qa_log: Array<{ design_applications?: DesignApplication[] }>;
+  reopen_log: Array<{ reason?: string; discarded?: Record<string, unknown> }>;
 };
 
 /** `run_chunk` を通っていれば必ず成立する不変則。通っていなければ壊れる。 */
@@ -152,31 +185,59 @@ function countApplicability(log: typeof state.qa_log): Record<string, number> {
   return counts;
 }
 
-describe("A. writer を通らずに書かれた痕跡が、記名で保存されている (塞がったことの固定)", () => {
+/**
+ * 通し直しの痕跡の**下限**。2026-08-21 実測 **8**
+ * （`python3 3.11.4` / 単位は `reopen_log` entry / 分母は `reopen_log` 全 45 件 /
+ * 基点は通し直し前の 37 件）。**上げる方向にしか動かさない。**
+ *
+ * **この床が上の不変則と対になっている。**不変則だけなら、7 を 5 へ書き換えても
+ * 満たせる——それは元のコメントが名指しで警告していた迂回そのものである。
+ * 床が在ると、不変則を満たすには「通し直した記録が 8 件在る」ことも要る。
+ * 数を丸める道では床に当たり、通し直す道でしか両方を満たせない。
+ */
+const REDO_TRACE_MIN = 8;
+
+/** 通し直しで reopen された記録。`reason` の名乗りで数える。 */
+function redoTrace(log: Array<{ reason?: string; discarded?: Record<string, unknown> }>) {
+  return log.filter((entry) => (entry.reason ?? "").includes("通し直す"));
+}
+
+describe("A. 上限の不変則が writer 由来で成立し、そこへ至った経路が記名で残っている", () => {
   const p = state.hearing_progress;
 
-  it("超過した数字そのものは丸めずに残っている", () => {
-    // 5 へ丸めれば不変則は成立するが、成立させた瞬間に迂回の痕跡が消える。
-    // 誰かが「数を揃える」方向へ直した日に、ここが赤くなる。
-    expect(p.loop_count).toBe(7);
-    expect(p.max_loops).toBe(5);
-    expect(writerInvariantHolds(p)).toBe(false);
+  it("writer の不変則が成立している", () => {
+    // **2026-08-21 に反転した。**以前ここは「7 / 5 のまま残っている」を固定していた。
+    // 塞ぎ方は「数を丸める」ではなく「ヒアリングを通し直す」だったので、
+    // 3 は writer (`run_chunk`) が最後の invocation の turn 数として書いた値である。
+    expect(writerInvariantHolds(p)).toBe(true);
+    expect(p.loop_count).toBeLessThanOrEqual(p.max_loops);
   });
 
   it("上限が厳格かソフトかを、state だけを読んで判別できる", () => {
     // 元の欠陥は「7 > 5 が何を意味するか state から読めない」ことだった。
     // max_loops だけが在って性格が書いていないと、5 が目安か絶対かを読む側が推測する。
+    // **不変則が成立した今も消さない。**超過が無いことと、上限の性格が書いてあることは別である。
     expect(p.max_loops_policy).toBe("strict");
   });
 
-  it("超過が無記名で残っていない——なぜ残っているかが書かれている", () => {
-    expect(p.limit_overrun, "超過の由来が消えています").toBeDefined();
-    expect(p.limit_overrun?.loop_count).toBe(p.loop_count);
-    expect(p.limit_overrun?.max_loops).toBe(p.max_loops);
+  it("超過の記録が消えているなら、消えた理由が記名で残っている", () => {
+    // **これが床の側。**`limit_overrun` が無いことは、
+    //   (a) 通し直して超過が実際に無くなった / (b) 誰かが記録ごと消した
+    // の 2 通りで作れる。区別は「通し直した痕跡が在るか」でしか付かない。
+    if (p.limit_overrun !== undefined) return; // 超過が在るなら由来は limit_overrun 側に在る
+    const trace = redoTrace(state.reopen_log);
     expect(
-      (p.limit_overrun?.reason ?? "").length,
-      "超過の理由が空です。無記名の超過は、上限が緩いのか経路が異常なのかを区別できません",
-    ).toBeGreaterThan(0);
+      trace.length,
+      "超過の記録が消えているのに、通し直した痕跡が reopen_log に在りません",
+    ).toBeGreaterThanOrEqual(REDO_TRACE_MIN);
+  });
+
+  it("通し直しで捨てた記録は、捨てずに退避されている", () => {
+    // 通し直しは確定セルを一度崩す。崩したときに何が載っていたかが残っていなければ、
+    // 「通し直した」は「作り直した」と区別が付かない。
+    const trace = redoTrace(state.reopen_log);
+    const withRefs = trace.filter((entry) => (entry.discarded ?? {}).qa_refs !== undefined);
+    expect(withRefs.length, "qa_refs を退避した記録が減っています").toBeGreaterThanOrEqual(6);
   });
 
   it("超えたまま `complete: true` になっている（止まった形跡が無い）", () => {
@@ -194,6 +255,17 @@ describe("A. writer を通らずに書かれた痕跡が、記名で保存され
     { loop_count: 6, max_loops: 5, holds: false },
   ])("loop_count=$loop_count / max_loops=$max_loops は $holds", ({ holds, ...p2 }) => {
     expect(writerInvariantHolds(p2)).toBe(holds);
+  });
+
+  /**
+   * 床の側の数え方が効いていることを示す。**8 件という数は、数える側が
+   * 何も当たらなくても 0 として出る**ので、当たる例と当たらない例を並べる。
+   */
+  it("通し直しの痕跡を数える側が、両方向に動いている", () => {
+    expect(redoTrace([{ reason: "ヒアリングを通し直す (2026-08-21)" }])).toHaveLength(1);
+    // 通し直し以外の reopen は数えない——数えると、無関係な reopen で床を満たせる
+    expect(redoTrace([{ reason: "回答が古くなったので聞き直す" }])).toHaveLength(0);
+    expect(redoTrace([{}])).toHaveLength(0);
   });
 });
 

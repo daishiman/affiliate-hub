@@ -728,6 +728,117 @@ def requote_written_source(state: dict, qa_id: str) -> "list[str]":
     return repaired
 
 
+REQUOTE_SECTION_WRITER = "requote-written-section"
+
+_SECTION_REF_RE = re.compile(r"^§\s*(\d+)\s+(\S.*)$")
+_HEADING_RE = re.compile(r"^(#+)\s*(.*?)\s*$")
+
+
+def resolve_declared_section(document: str, section: str) -> "tuple[int, int]":
+    """entry が名乗る `source.section` を、文書の見出し 1 つへ解決して範囲を返す。
+
+    **錨を引数で受け取らないのは行単位の requote と同じ。**呼ぶ側は「どの節を引いた
+    ことにするか」を選べない——`source.section` は entry 自身が既に名乗っている値で、
+    ここで新たに決めるものではない。
+
+    認めるのは `§<数字> <題>` の形だけで、`§2.1` や `§2.2-2.3` のような枝番・範囲は
+    解決しない (`§3 … / §4 …` のような複数指定も同じ)。**節が 1 つに決まらないなら、
+    どこを引き直すのかも決まらない。**見出しは `^#+ <数字>. <題>$` にちょうど 1 行
+    一致することを要求し、0 行でも 2 行以上でも書かずに止める。
+
+    返すのは `(見出しの行番号, 節の終わり)` で、終わりは**同じ深さ以下の次の見出し**の
+    直前。深い見出し (`###`) は節の中身なので含める。
+    """
+    ref = _SECTION_REF_RE.match(section.strip())
+    if ref is None:
+        raise TransitionError(
+            f"{REQUOTE_SECTION_WRITER}: source.section {section!r} は "
+            "`§<数字> <題>` の形でないので、文書のどの節かを決められない"
+        )
+    number, title = ref.group(1), ref.group(2)
+    wanted = re.compile(rf"^(#+)\s*{re.escape(number)}\.\s*{re.escape(title)}\s*$")
+    lines = document.split("\n")
+    hits = [index for index, line in enumerate(lines) if wanted.match(line)]
+    if len(hits) != 1:
+        raise TransitionError(
+            f"{REQUOTE_SECTION_WRITER}: {section!r} に一致する見出しが "
+            f"{len(hits)} 行ある (1 行でなければ、どの節を引いたか決められない)"
+        )
+    start = hits[0]
+    depth = len(wanted.match(lines[start]).group(1))
+    end = len(lines)
+    for index in range(start + 1, len(lines)):
+        heading = _HEADING_RE.match(lines[index])
+        if heading and heading.group(1) and len(heading.group(1)) <= depth:
+            end = index
+            break
+    return start, end
+
+
+def requote_written_section(state: dict, qa_id: str) -> bool:
+    """節ごと書き換わった引用を、**その entry が名乗る節の現在の本文で置き換える。**
+
+    行単位の `requote_written_source` が使えない形がある (2026-08-21 実測):
+    `qa-database-web-analytics` の引く `§5` は、`date:` が `business_date:` へ、
+    `revenue_pending: number` が `decimal` へ変わり、`成果の状態変化…` の 1 項目は
+    **文書から消えていた。**消えた行に対応する文書行は無いので、錨で 1 対 1 に
+    引き直すことができない。**節が版ごと書き換わったのであって、行が動いたのではない。**
+
+    向きは行単位のときと同じ: `kind=written-requirements` は「文書にこう書いてある」と
+    いう主張なので、食い違ったら正しいのは文書で、state を文書へ合わせる。
+
+    **行単位より危ない。**回答まるごとを差し替えるので、回答に引用でない文
+    (書いた人の補足) が混ざっていれば、それも消える。だから下の門で拒否する。
+    """
+    if not isinstance(qa_id, str) or not qa_id.strip():
+        raise TransitionError(f"{REQUOTE_SECTION_WRITER}: qa_id は非空文字列必須")
+    qa_id = qa_id.strip()
+    entry = next(
+        (candidate for candidate in state.get("qa_log", []) if candidate.get("id") == qa_id),
+        None,
+    )
+    if entry is None:
+        raise TransitionError(f"{REQUOTE_SECTION_WRITER}: qa_log に存在しない qa_id: {qa_id}")
+    source = entry.get("source")
+    if not isinstance(source, dict) or source.get("kind") != "written-requirements":
+        raise TransitionError(
+            f"{REQUOTE_SECTION_WRITER}: {qa_id} は source.kind=written-requirements でない"
+        )
+    path = source.get("path")
+    if not isinstance(path, str) or not path.strip():
+        raise TransitionError(f"{REQUOTE_SECTION_WRITER}: {qa_id} の source.path が非空文字列でない")
+    target = Path(path.strip())
+    if not target.is_file():
+        raise TransitionError(f"{REQUOTE_SECTION_WRITER}: {qa_id} の source.path が実在しない: {path}")
+    section = source.get("section")
+    if not isinstance(section, str) or not section.strip():
+        raise TransitionError(
+            f"{REQUOTE_SECTION_WRITER}: {qa_id} は source.section を名乗っていないので、"
+            "引き直す節を決められない"
+        )
+
+    document = target.read_text(encoding="utf-8")
+    start, end = resolve_declared_section(document, section)
+    body = "\n".join(document.split("\n")[start:end]).strip("\n")
+
+    old_lines = logical_document_lines(entry.get("answer") or "")
+    section_quoted = {undecorate_line(line) for line in logical_document_lines(body)}
+    # 節の外から引いている行 = 差し替えると行き先を失う行。
+    outside = [line for line in old_lines if undecorate_line(line) not in section_quoted]
+
+    # TODO(human): 節ごとの差し替えを拒否する条件をここに書く。
+    # 満たさないときは TransitionError を投げ、満たすときは何もせず下へ抜ける。
+    # 使える材料: old_lines (差し替え前の論理行) / outside (節の外から引いている行) /
+    #             section_quoted (節の中にある行の集合) / qa_id / section
+
+    if body == (entry.get("answer") or "").strip("\n"):
+        return False
+    entry["answer"] = body
+    source["requoted_with"] = REQUOTE_SECTION_WRITER
+    source["requoted_on"] = datetime.date.today().isoformat()
+    return True
+
+
 RESEAL_WRITER = "reseal-written-source"
 
 
@@ -1264,8 +1375,16 @@ def apply_cell_op(state: dict, op: dict) -> None:
             # 黙って消え、再確定のときに「元は何が接地していたか」を誰も引けない。
             # required_info_checks も同様。reopen で「数えた事実」が黙って消えると、
             # 再確定したセルが「一度も数えていない」姿へ戻る。
+            # qa_refs も同じ理由で入れる。**2026-08-21 に、入っていないことを実測した。**
+            # 確定 8 セルのうち 6 セルが qa_refs を持つのに、reopen の discarded には
+            # 1 件も載らなかった。しかも qa_refs を書ける writer は split-qa-bundle
+            # だけで、それは `scope_notes.bundled=true` を要求する——解除済みの 6 件は
+            # 全部拒否されるので、**一度 reopen したら二度と戻せない。**
+            # 「reopen で黙って消え、再確定のときに元は何が接地していたかを誰も引けない」
+            # という上の理由が、そのまま当てはまる。
             for key in (
                 "qa_ref",
+                "qa_refs",
                 "serves_goals",
                 "serves_intents",
                 "required_info",
@@ -1382,6 +1501,70 @@ def apply_cell_op(state: dict, op: dict) -> None:
                 f"{category}/{platform} ({record['checked_on']} / {record['blocking_item_count']} 件)"
             )
         checks.append(record)
+        return
+    if action == "restore-qa-refs":
+        # **reopen で退避した `qa_refs` を、退避された値からだけ書き戻す窓口。**
+        #
+        # なぜ要るか: `qa_refs` を書ける writer は `split-qa-bundle` だけで、それは
+        # `scope_notes.bundled=true` を要求する。束ね解除済みの entry では拒否されるので、
+        # reopen → 再確定を通ると **裏付けの範囲が二度と戻せない**。退避する側 (上の
+        # `discarded`) を直しただけでは、戻す道が無いままである。
+        #
+        # **引数で受け取らない。**`op` から refs を読めるようにすると、呼ぶ側が
+        # 「このセルはこの entry 群に裏付けられている」と名乗る内容を選べてしまう。
+        # `split-qa-bundle` が topics から導いて引数を拒んだのと同じ理由で、ここは
+        # `reopen_log[].discarded.qa_refs` だけを出所にする。
+        #
+        # 退避値をそのまま戻すだけでは足りない: reopen 後に**別の qa_ref で再確定**した
+        # セルへ古い refs を貼ると、裏付けが黙って別の主張へ付け替わる。`split-qa-bundle`
+        # が持っていた不変条件 (`refs[0]` は、そのセルが引いている entry 自身) を
+        # ここでも門にして、付け替えを機械で止める。
+        #
+        # 塞げていないところ: reopen_log を writer の外で書き換えれば、任意の refs を
+        # 「退避されていた値」として置ける。これは discarded 全体と同じ穴で、ここだけ
+        # 閉じられるものではない。
+        if current != "確定":
+            raise TransitionError(
+                f"restore-qa-refs 不可: {category}/{platform} は '{current}' "
+                "(再確定したセルにしか書き戻せない)"
+            )
+        preserved = None
+        for log_entry in state.get("reopen_log") or []:
+            if not isinstance(log_entry, dict):
+                continue
+            if log_entry.get("category") != category or log_entry.get("platform") != platform:
+                continue
+            discarded = log_entry.get("discarded")
+            if isinstance(discarded, dict) and discarded.get("qa_refs"):
+                # 同じセルが複数回 reopen されうるので、**最後に退避された値**を採る。
+                preserved = list(discarded["qa_refs"])
+        if preserved is None:
+            raise TransitionError(
+                f"restore-qa-refs: {category}/{platform} の reopen_log に退避された qa_refs が無い"
+                " (書き戻せるのは退避された値だけで、無いものを作ることはしない)"
+            )
+        known = {entry.get("id") for entry in state.get("qa_log") or [] if isinstance(entry, dict)}
+        missing = [ref for ref in preserved if ref not in known]
+        if missing:
+            raise TransitionError(
+                f"restore-qa-refs: 退避された qa_refs に qa_log へ存在しない id が在る: "
+                f"{category}/{platform} ({', '.join(missing)})"
+            )
+        if preserved[0] != cell.get("qa_ref"):
+            raise TransitionError(
+                f"restore-qa-refs: 退避された qa_refs の先頭 {preserved[0]!r} が、再確定後の "
+                f"qa_ref {cell.get('qa_ref')!r} と違う: {category}/{platform} "
+                "(別の主張へ裏付けを付け替えることになるため拒否)"
+            )
+        existing = cell.get("qa_refs")
+        if existing is not None:
+            if existing != preserved:
+                raise TransitionError(
+                    f"restore-qa-refs: 既存 qa_refs と異なる内容の書き戻しは拒否: "
+                    f"{category}/{platform}"
+                )
+            return
+        cell["qa_refs"] = preserved
         return
     if current == "確定":
         raise TransitionError(f"確定セルの直接変更は拒否: {category}/{platform}。変更は R4-reopen を経由すること")

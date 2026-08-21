@@ -766,7 +766,7 @@
         ],
         "required_info_checks": [
           {
-            "checked_on": "2026-08-20",
+            "checked_on": "2026-08-21",
             "checked_with": "record-required-info-check",
             "blocking_item_count": 0
           }
@@ -815,7 +815,7 @@
         ],
         "required_info_checks": [
           {
-            "checked_on": "2026-08-20",
+            "checked_on": "2026-08-21",
             "checked_with": "record-required-info-check",
             "blocking_item_count": 1
           }
@@ -871,7 +871,7 @@
         ],
         "required_info_checks": [
           {
-            "checked_on": "2026-08-20",
+            "checked_on": "2026-08-21",
             "checked_with": "record-required-info-check",
             "blocking_item_count": 3
           }
@@ -915,7 +915,7 @@
         ],
         "required_info_checks": [
           {
-            "checked_on": "2026-08-20",
+            "checked_on": "2026-08-21",
             "checked_with": "record-required-info-check",
             "blocking_item_count": 1
           }
@@ -956,7 +956,7 @@
         ],
         "required_info_checks": [
           {
-            "checked_on": "2026-08-20",
+            "checked_on": "2026-08-21",
             "checked_with": "record-required-info-check",
             "blocking_item_count": 0
           }
@@ -1006,7 +1006,7 @@
         ],
         "required_info_checks": [
           {
-            "checked_on": "2026-08-20",
+            "checked_on": "2026-08-21",
             "checked_with": "record-required-info-check",
             "blocking_item_count": 1
           }
@@ -1048,7 +1048,7 @@
         ],
         "required_info_checks": [
           {
-            "checked_on": "2026-08-20",
+            "checked_on": "2026-08-21",
             "checked_with": "record-required-info-check",
             "blocking_item_count": 0
           }
@@ -1090,7 +1090,7 @@
         ],
         "required_info_checks": [
           {
-            "checked_on": "2026-08-20",
+            "checked_on": "2026-08-21",
             "checked_with": "record-required-info-check",
             "blocking_item_count": 0
           }
@@ -2783,6 +2783,235 @@
           }
         ]
       }
+    },
+    {
+      "category": "auth",
+      "platform": "web",
+      "reason": "loop_count を writer 生成値へ戻すためヒアリングを通し直す (2026-08-21)",
+      "from": "確定",
+      "discarded": {
+        "qa_ref": "qa-auth-web",
+        "serves_goals": [
+          "G1"
+        ],
+        "required_info": [
+          {
+            "item_id": "auth-model",
+            "missing_effect": "block",
+            "status": "grounded",
+            "grounded_by": "qa-auth-web"
+          }
+        ],
+        "required_info_checks": [
+          {
+            "checked_on": "2026-08-20",
+            "checked_with": "record-required-info-check",
+            "blocking_item_count": 1
+          }
+        ]
+      }
+    },
+    {
+      "category": "backend",
+      "platform": "web",
+      "reason": "loop_count を writer 生成値へ戻すためヒアリングを通し直す (2026-08-21)",
+      "from": "確定",
+      "discarded": {
+        "qa_ref": "qa-backend-web-spec-intake",
+        "qa_refs": [
+          "qa-backend-web-spec-intake",
+          "qa-backend-web",
+          "qa-backend-web-analytics"
+        ],
+        "serves_goals": [
+          "G2",
+          "G1"
+        ],
+        "required_info": [
+          {
+            "item_id": "domain-model",
+            "missing_effect": "block",
+            "status": "grounded",
+            "grounded_by": "qa-backend-web-spec-intake"
+          }
+        ],
+        "required_info_checks": [
+          {
+            "checked_on": "2026-08-20",
+            "checked_with": "record-required-info-check",
+            "blocking_item_count": 1
+          }
+        ]
+      }
+    },
+    {
+      "category": "database",
+      "platform": "web",
+      "reason": "loop_count を writer 生成値へ戻すためヒアリングを通し直す (2026-08-21)",
+      "from": "確定",
+      "discarded": {
+        "qa_ref": "qa-database-web-spec-intake",
+        "qa_refs": [
+          "qa-database-web-spec-intake",
+          "qa-database-web",
+          "qa-database-web-analytics"
+        ],
+        "serves_goals": [
+          "G1",
+          "G2"
+        ],
+        "required_info_checks": [
+          {
+            "checked_on": "2026-08-20",
+            "checked_with": "record-required-info-check",
+            "blocking_item_count": 0
+          }
+        ]
+      }
+    },
+    {
+      "category": "frontend",
+      "platform": "web",
+      "reason": "loop_count を writer 生成値へ戻すためヒアリングを通し直す (2026-08-21)",
+      "from": "確定",
+      "discarded": {
+        "qa_ref": "qa-frontend-web-spec-intake",
+        "qa_refs": [
+          "qa-frontend-web-spec-intake",
+          "qa-frontend-web",
+          "qa-frontend-web-analytics"
+        ],
+        "serves_goals": [
+          "G1",
+          "G2"
+        ],
+        "required_info_checks": [
+          {
+            "checked_on": "2026-08-20",
+            "checked_with": "record-required-info-check",
+            "blocking_item_count": 0
+          }
+        ]
+      }
+    },
+    {
+      "category": "infrastructure",
+      "platform": "web",
+      "reason": "loop_count を writer 生成値へ戻すためヒアリングを通し直す (2026-08-21)",
+      "from": "確定",
+      "discarded": {
+        "qa_ref": "qa-infra-web-spec-intake",
+        "qa_refs": [
+          "qa-infra-web-spec-intake",
+          "qa-infra-web",
+          "qa-infra-web-redirect"
+        ],
+        "serves_goals": [
+          "G2",
+          "G1"
+        ],
+        "required_info_checks": [
+          {
+            "checked_on": "2026-08-20",
+            "checked_with": "record-required-info-check",
+            "blocking_item_count": 0
+          }
+        ]
+      }
+    },
+    {
+      "category": "maintenance-ops",
+      "platform": "web",
+      "reason": "loop_count を writer 生成値へ戻すためヒアリングを通し直す (2026-08-21)",
+      "from": "確定",
+      "discarded": {
+        "qa_ref": "qa-ops-web-spec-intake",
+        "qa_refs": [
+          "qa-ops-web-spec-intake",
+          "qa-ops-web"
+        ],
+        "serves_goals": [
+          "G1",
+          "G2"
+        ],
+        "required_info_checks": [
+          {
+            "checked_on": "2026-08-20",
+            "checked_with": "record-required-info-check",
+            "blocking_item_count": 0
+          }
+        ]
+      }
+    },
+    {
+      "category": "security",
+      "platform": "web",
+      "reason": "loop_count を writer 生成値へ戻すためヒアリングを通し直す (2026-08-21)",
+      "from": "確定",
+      "discarded": {
+        "qa_ref": "qa-security-web-spec-intake",
+        "qa_refs": [
+          "qa-security-web-spec-intake",
+          "qa-security-web"
+        ],
+        "serves_goals": [
+          "G1"
+        ],
+        "required_info": [
+          {
+            "item_id": "security-posture",
+            "missing_effect": "block",
+            "status": "grounded",
+            "grounded_by": "qa-security-web-spec-intake"
+          }
+        ],
+        "required_info_checks": [
+          {
+            "checked_on": "2026-08-20",
+            "checked_with": "record-required-info-check",
+            "blocking_item_count": 1
+          }
+        ]
+      }
+    },
+    {
+      "category": "ui-ux",
+      "platform": "web",
+      "reason": "loop_count を writer 生成値へ戻すためヒアリングを通し直す (2026-08-21)",
+      "from": "確定",
+      "discarded": {
+        "qa_ref": "qa-uiux-web-screen-priority",
+        "serves_goals": [
+          "G1"
+        ],
+        "required_info": [
+          {
+            "item_id": "product-goal",
+            "missing_effect": "block",
+            "status": "grounded",
+            "grounded_by": "qa-foundation-u1"
+          },
+          {
+            "item_id": "screen-information-priority",
+            "missing_effect": "block",
+            "status": "grounded",
+            "grounded_by": "qa-uiux-web-screen-priority"
+          },
+          {
+            "item_id": "target-platforms",
+            "missing_effect": "block",
+            "status": "grounded",
+            "grounded_by": "qa-platform-scope"
+          }
+        ],
+        "required_info_checks": [
+          {
+            "checked_on": "2026-08-20",
+            "checked_with": "record-required-info-check",
+            "blocking_item_count": 3
+          }
+        ]
+      }
     }
   ],
   "category_aggregate": {
@@ -3886,17 +4115,11 @@
   ],
   "knowledge_candidates": [],
   "hearing_progress": {
-    "loop_count": 7,
+    "loop_count": 3,
     "next_question": null,
     "complete": true,
     "max_loops": 5,
-    "max_loops_policy": "strict",
-    "limit_overrun": {
-      "loop_count": 7,
-      "max_loops": 5,
-      "reason": "loop_count=7 は max_loops=5 を超えているが、これは上限が緩められた結果ではない。run_chunk は処理件数が max_loops に達した時点で break し、その回に処理した件数を loop_count へ書くため、この writer 単独では max_loops を超える loop_count を作らない。他方 2026-08-20 以降、渡された state が既に max_loops を超えている場合に限り、その値を床として保存する (floor = prior if prior > max_loops else 0)。したがって『この writer を通した state は必ず上限以下』は成り立たない——成り立たせないことが意図である。通しただけで超過の痕跡が消えるほうが危険だからである。7 > 5 が示すのは『上限を超えて回した』ことではなく『この writer を通らずに書かれた』ことであり、gap 5 と同一原因である (decisions の recorded_with 1 件に『以前この record を書いた際は門が無い writer で書いた状態だった (gap 5)』と残っている)。数を 5 へ丸めれば辻褄は合うが、丸めた瞬間に迂回の唯一の痕跡が消えるため、値は保存し意味のほうを記録する。max_loops_policy=strict と併せて読むこと: 上限は厳格であり、この超過は上限の性格ではなく経路の異常を示す。",
-      "recorded_at": "2026-08-20T10:10:00Z"
-    }
+    "max_loops_policy": "strict"
   },
   "asks_for_contract": {
     "version": "1.0",
