@@ -1,14 +1,25 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
-import { AdminShell } from "@/presentation/admin/admin-shell";
 import {
   RegisterLlmKeyForm,
   RevokeLlmKeyForm,
   VerifyLlmKeyForm,
 } from "@/presentation/admin/llm-credential-form";
 import { LLM_KEY_SHOWN_ONCE_TEXT } from "@/application/usecases/generation/manage-llm-credentials";
+import { AdminShell } from "@/presentation/admin/admin-shell";
 import { currentActor, llmCredentialEntry } from "@/presentation/composition";
-import { Callout, Card, EmptyView, ErrorView, Page } from "@/presentation/ui";
+import {
+  Callout,
+  Card,
+  DataTable,
+  EmptyView,
+  ErrorView,
+  Note,
+  Page,
+  SectionHeading,
+  StackedList,
+  StackedRow,
+} from "@/presentation/ui";
 import styles from "../../admin.module.css";
 
 export const dynamic = "force-dynamic";
@@ -35,16 +46,16 @@ export default async function LlmCredentialSettingsPage() {
       <Shell>
         <Callout tone="warn" title="いま API キーを預かれません" reason={entry.reason} />
         <Card>
-          <h2 className={styles.sectionTitle}>鍵を発行できる場所</h2>
+          <SectionHeading level={2}>鍵を発行できる場所</SectionHeading>
           {entry.providers.length === 0 ? (
             <EmptyView
               title="提供元の設定が入っていません"
               body="使える提供元は LLM_PROVIDER_CATALOG から読みます。設定が入るとここに並びます。"
             />
           ) : (
-            <ul className={styles.linkList}>
+            <StackedList>
               {entry.providers.map((p) => (
-                <li key={p.providerId}>
+                <StackedRow key={p.providerId}>
                   {p.label}
                   {p.keyIssueUrl === "" ? null : (
                     <>
@@ -54,13 +65,13 @@ export default async function LlmCredentialSettingsPage() {
                       </a>
                     </>
                   )}
-                </li>
+                </StackedRow>
               ))}
-            </ul>
+            </StackedList>
           )}
-          <p className={styles.linkNote}>
+          <Note>
             先に鍵を取っておいても構いません。上の理由が解消されたあと、この画面から登録できます。
-          </p>
+          </Note>
         </Card>
       </Shell>
     );
@@ -90,57 +101,67 @@ export default async function LlmCredentialSettingsPage() {
       <Callout tone="warn" title="登録した鍵は二度と表示されません" reason={LLM_KEY_SHOWN_ONCE_TEXT} />
 
       <Card>
-        <h2 className={styles.sectionTitle}>提供元ごとの状態</h2>
+        <SectionHeading level={2}>提供元ごとの状態</SectionHeading>
         {rows.length === 0 ? (
           <EmptyView
             title="使える提供元がありません"
             body={emptyReason ?? "提供元の設定が入るとここに並びます。"}
           />
         ) : (
-          <table className={styles.rankTable}>
-            <caption>
-              出ているのは末尾 4 文字だけです。鍵の値そのものは、この画面のどこにも渡していません。
-            </caption>
-            <thead>
-              <tr>
-                <th scope="col">提供元</th>
-                <th scope="col">鍵</th>
-                <th scope="col">状態</th>
-                <th scope="col">最後に確かめた日</th>
-                <th scope="col">選べるモデル</th>
-              </tr>
-            </thead>
-            <tbody>
-              {rows.map((r) => (
-                <tr key={r.providerId}>
-                  <th scope="row">
+          <DataTable
+            caption="出ているのは末尾 4 文字だけです。鍵の値そのものは、この画面のどこにも渡していません。"
+            columns={[
+              {
+                key: "provider",
+                header: "提供元",
+                rowHeader: true,
+                cell: (r) => (
+                  <>
                     {r.label}
                     {r.required && <span className={styles.linkNote}>（必須）</span>}
-                  </th>
-                  <td>{r.credential === null ? "未登録" : `末尾 ${r.credential.last4}`}</td>
-                  {/*
-                    「使えない理由」を状態の欄に出す。別の欄に分けると、
-                    表を横に読まないと理由に行き着かない。
-                  */}
-                  <td>{r.unavailableReason ?? "使えます"}</td>
-                  <td>
-                    {r.credential?.lastVerifiedAt == null
-                      ? "確かめていません"
-                      : `${r.credential.lastVerifiedAt.toLocaleString("ja-JP")}（${
-                          r.credential.lastVerification === "ok" ? "つながりました" : "失敗しました"
-                        }）`}
-                  </td>
-                  <td className={styles.numeric}>{r.models.length}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+                  </>
+                ),
+              },
+              {
+                key: "credential",
+                header: "鍵",
+                cell: (r) => (r.credential === null ? "未登録" : `末尾 ${r.credential.last4}`),
+              },
+              {
+                /*
+                  「使えない理由」を状態の欄に出す。別の欄に分けると、
+                  表を横に読まないと理由に行き着かない。
+                */
+                key: "state",
+                header: "状態",
+                cell: (r) => r.unavailableReason ?? "使えます",
+              },
+              {
+                key: "verifiedAt",
+                header: "最後に確かめた日",
+                cell: (r) =>
+                  r.credential?.lastVerifiedAt == null
+                    ? "確かめていません"
+                    : `${r.credential.lastVerifiedAt.toLocaleString("ja-JP")}（${
+                        r.credential.lastVerification === "ok" ? "つながりました" : "失敗しました"
+                      }）`,
+              },
+              {
+                key: "models",
+                header: "選べるモデル",
+                align: "numeric",
+                cell: (r) => r.models.length,
+              },
+            ]}
+            rows={rows}
+            rowKey={(r) => r.providerId}
+          />
         )}
       </Card>
 
       {rows.map((r) => (
         <Card key={`ops-${r.providerId}`}>
-          <h2 className={styles.sectionTitle}>{r.label}</h2>
+          <SectionHeading level={2}>{r.label}</SectionHeading>
           {r.unavailableReason !== null && (
             <Callout tone="info" title="いまは使えません" reason={r.unavailableReason} />
           )}
@@ -150,10 +171,10 @@ export default async function LlmCredentialSettingsPage() {
             登録できても呼べる先が無く、「入れたのに何も起きない」で終わるため。
           */}
           {r.models.length === 0 ? (
-            <p className={styles.linkNote}>
+            <Note>
               選べるモデルが無いため、いまは登録できません。管理者が LLM_PROVIDER_CATALOG
               を設定すると、ここに登録の欄が出ます。
-            </p>
+            </Note>
           ) : (
             <>
               <RegisterLlmKeyForm

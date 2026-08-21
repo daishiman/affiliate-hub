@@ -1,4 +1,4 @@
-/** @tier 1 */
+/** @tier 1 @req REQ-FB04 */
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";

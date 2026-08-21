@@ -1,17 +1,20 @@
+import { type AuthorOption, FactBoundaryCheckForm } from "@/presentation/admin/fact-boundary-form";
 import { AdminShell } from "@/presentation/admin/admin-shell";
 import Link from "next/link";
 import type { ReactNode } from "react";
-import {
-  type AuthorOption,
-  FactBoundaryCheckForm,
-} from "@/presentation/admin/fact-boundary-form";
 import { currentActor, personaUseCases } from "@/presentation/composition";
 import {
   Callout,
   Card,
+  DataTable,
+  DefinitionList,
   EmptyView,
   ErrorView,
+  Note,
   Page,
+  SectionHeading,
+  StackedList,
+  StackedRow,
   StubNotice,
 } from "@/presentation/ui";
 import styles from "../admin.module.css";
@@ -73,7 +76,7 @@ export default async function PersonasPage() {
       />
 
       <Card>
-        <h2 className={styles.sectionTitle}>書き手（{authors.value.total}人）</h2>
+        <SectionHeading level={2}>書き手（{authors.value.total}人）</SectionHeading>
         <p className={styles.sectionLead}>
           記事の署名になる人です。名乗れる資格と、書ける事実の範囲がそれぞれ決まっています。
         </p>
@@ -87,82 +90,65 @@ export default async function PersonasPage() {
         ) : (
           authors.value.items.map((author) => (
             <div key={author.personaId} className={styles.catalogStack}>
-              <h3 className={styles.sectionTitle}>
+              <SectionHeading level={3}>
                 {author.displayName}（{author.personaTypeLabel}）
-              </h3>
+              </SectionHeading>
               <p className={styles.sectionLead}>{author.role}</p>
 
-              <dl className={styles.criteria}>
-                <div>
-                  <dt>読者の知識量の想定</dt>
-                  <dd>{author.knowledgeLabel}</dd>
-                </div>
-                <div>
-                  <dt>経験年数</dt>
-                  <dd>{author.experienceYearsLabel}</dd>
-                </div>
-                <div>
-                  <dt>一人称</dt>
-                  <dd>{author.firstPersonPronoun}</dd>
-                </div>
-                <div>
-                  <dt>読者の呼び方</dt>
-                  <dd>{author.readerAddress}</dd>
-                </div>
-                <div>
-                  <dt>実際に試した記録</dt>
-                  <dd className={styles.numeric}>{author.verifiedExperienceCount}件</dd>
-                </div>
-              </dl>
+              <DefinitionList
+                items={[
+                  { term: "読者の知識量の想定", description: author.knowledgeLabel },
+                  { term: "経験年数", description: author.experienceYearsLabel },
+                  { term: "一人称", description: author.firstPersonPronoun },
+                  { term: "読者の呼び方", description: author.readerAddress },
+                  {
+                    term: "実際に試した記録",
+                    description: `${author.verifiedExperienceCount}件`,
+                    align: "numeric",
+                  },
+                ]}
+              />
 
-              <table className={styles.rankTable}>
-                <caption>文体の決め方</caption>
-                <thead>
-                  <tr>
-                    <th scope="col">項目</th>
-                    <th scope="col">度合い</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {author.toneLabels.map((tone) => (
-                    <tr key={tone.axis}>
-                      <th scope="row">{tone.axis}</th>
-                      <td>{tone.label}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+              <DataTable
+                caption="文体の決め方"
+                columns={[
+                  { key: "axis", header: "項目", rowHeader: true, cell: (t) => t.axis },
+                  { key: "label", header: "度合い", cell: (t) => t.label },
+                ]}
+                rows={author.toneLabels}
+                rowKey={(t) => t.axis}
+              />
 
-              <h4 className={styles.sectionTitle}>名乗れる資格</h4>
+              <SectionHeading level={4}>名乗れる資格</SectionHeading>
               {author.verifiedCredentials.length === 0 ? (
-                <p className={styles.linkNote}>
+                <Note>
                   確認済みの資格はありません。資格を前提にした書き方はできません。
-                </p>
+                </Note>
               ) : (
-                <ul className={styles.linkList}>
+                <StackedList>
                   {author.verifiedCredentials.map((c) => (
-                    <li key={c}>{c}</li>
+                    <StackedRow key={c}>{c}</StackedRow>
                   ))}
-                </ul>
+                </StackedList>
               )}
 
-              <h4 className={styles.sectionTitle}>書いてよい事実の範囲</h4>
+              <SectionHeading level={4}>書いてよい事実の範囲</SectionHeading>
               {author.factBoundary.length === 0 ? (
-                <p className={styles.linkNote}>
+                <Note>
                   まだ決まっていません。決まるまでこの書き手では公開できません。
-                </p>
+                </Note>
               ) : (
-                <ul className={styles.linkList}>
+                <StackedList>
                   {author.factBoundary.map((b) => (
-                    <li key={b}>{b}</li>
+                    <StackedRow key={b}>{b}</StackedRow>
                   ))}
-                </ul>
+                </StackedList>
               )}
 
               {author.prohibitedPhrases.length > 0 ? (
-                <p className={styles.linkNote}>
+                <Note>
                   使わないと決めた言葉: {author.prohibitedPhrases.join("、")}
-                </p>
+                </Note>
               ) : null}
 
               {author.limitations.map((limitation) => (
@@ -174,7 +160,7 @@ export default async function PersonasPage() {
       </Card>
 
       <Card>
-        <h2 className={styles.sectionTitle}>書ける範囲か調べる</h2>
+        <SectionHeading level={2}>書ける範囲か調べる</SectionHeading>
         <p className={styles.sectionLead}>
           下書きを貼り付けると、その書き手が書ける事実の範囲に収まっているかを調べます。
           記事を作ったあと、人が直したあと、公開の直前の 3 回とも、同じ判定を使っています。
@@ -190,7 +176,7 @@ export default async function PersonasPage() {
       </Card>
 
       <Card>
-        <h2 className={styles.sectionTitle}>読者像</h2>
+        <SectionHeading level={2}>読者像</SectionHeading>
         <p className={styles.sectionLead}>
           記事を読む人です。何に困っていて、何を基準に選ぶかが、比較の観点になります。
         </p>
@@ -208,88 +194,65 @@ export default async function PersonasPage() {
           />
         ) : (
           <>
-            <dl className={styles.criteria}>
-              {Object.entries(audiences.value.countsByKnowledge).map(([label, count]) => (
-                <div key={label}>
-                  <dt>{label}</dt>
-                  <dd className={styles.numeric}>{count}人</dd>
-                </div>
-              ))}
-            </dl>
-            <p className={styles.linkNote}>
+            <DefinitionList
+              items={Object.entries(audiences.value.countsByKnowledge).map(([label, count]) => ({
+                term: label,
+                description: `${count}人`,
+                align: "numeric" as const,
+              }))}
+            />
+            <Note>
               知識量が 1 種類に偏っていると、同じ書き方の記事ばかりになります。
-            </p>
+            </Note>
 
             {audiences.value.items.map((audience) => (
               <div key={audience.personaId} className={styles.catalogStack}>
-                <h3 className={styles.sectionTitle}>{audience.name}</h3>
+                <SectionHeading level={3}>{audience.name}</SectionHeading>
                 <p className={styles.sectionLead}>{audience.primaryJob}</p>
 
-                <dl className={styles.criteria}>
-                  <div>
-                    <dt>今の状況</dt>
-                    <dd>{audience.currentSituation}</dd>
-                  </div>
-                  <div>
-                    <dt>望んでいること</dt>
-                    <dd>{audience.desiredOutcome}</dd>
-                  </div>
-                  <div>
-                    <dt>知識量</dt>
-                    <dd>{audience.knowledgeLabel}</dd>
-                  </div>
-                  <div>
-                    <dt>どこまで知っているか</dt>
-                    <dd>{audience.awarenessLabel}</dd>
-                  </div>
-                  <div>
-                    <dt>読みたい詳しさ</dt>
-                    <dd>{audience.detailLabel}</dd>
-                  </div>
-                  <div>
-                    <dt>予算の事情</dt>
-                    <dd>{audience.budgetContext ?? "—"}</dd>
-                  </div>
-                  <div>
-                    <dt>時間の事情</dt>
-                    <dd>{audience.timeContext ?? "—"}</dd>
-                  </div>
-                  <div>
-                    <dt>読んだあとにしてほしいこと</dt>
-                    <dd>{audience.nextAction}</dd>
-                  </div>
-                </dl>
-                <p className={styles.linkNote}>
+                <DefinitionList
+                  items={[
+                    { term: "今の状況", description: audience.currentSituation },
+                    { term: "望んでいること", description: audience.desiredOutcome },
+                    { term: "知識量", description: audience.knowledgeLabel },
+                    { term: "どこまで知っているか", description: audience.awarenessLabel },
+                    { term: "読みたい詳しさ", description: audience.detailLabel },
+                    { term: "予算の事情", description: audience.budgetContext ?? "—" },
+                    { term: "時間の事情", description: audience.timeContext ?? "—" },
+                    { term: "読んだあとにしてほしいこと", description: audience.nextAction },
+                  ]}
+                />
+                <Note>
                   「—」は、まだ決まっていないという意味です。該当なしではありません。
-                </p>
+                </Note>
 
-                <h4 className={styles.sectionTitle}>選ぶときの基準</h4>
-                <ul className={styles.linkList}>
+                <SectionHeading level={4}>選ぶときの基準</SectionHeading>
+                <StackedList>
                   {audience.decisionCriteria.map((c) => (
-                    <li key={c}>{c}</li>
+                    <StackedRow key={c}>{c}</StackedRow>
                   ))}
-                </ul>
+                </StackedList>
 
-                <h4 className={styles.sectionTitle}>困っていること</h4>
-                <ul className={styles.linkList}>
+                <SectionHeading level={4}>困っていること</SectionHeading>
+                <StackedList>
                   {audience.painPoints.map((p) => (
-                    <li key={p}>{p}</li>
+                    <StackedRow key={p}>{p}</StackedRow>
                   ))}
-                </ul>
+                </StackedList>
 
-                <h4 className={styles.sectionTitle}>読む前に感じている引っかかり</h4>
-                <ul className={styles.linkList}>
+                <SectionHeading level={4}>読む前に感じている引っかかり</SectionHeading>
+                <StackedList>
                   {audience.objections.map((o) => (
-                    <li key={o}>{o}</li>
+                    <StackedRow key={o}>{o}</StackedRow>
                   ))}
-                </ul>
+                </StackedList>
 
-                <h4 className={styles.sectionTitle}>信じてもらうために要ること</h4>
-                <ul className={styles.linkList}>
+                <SectionHeading level={4}>信じてもらうために要ること</SectionHeading>
+                <StackedList>
                   {audience.trustRequirements.map((t) => (
-                    <li key={t}>{t}</li>
+                    <StackedRow key={t}>{t}</StackedRow>
                   ))}
-                </ul>
+                </StackedList>
 
                 {audience.prohibitedAssumptions.length > 0 ? (
                   <Callout

@@ -6,8 +6,13 @@ import { currentActor, distributionNotice, distributionUseCases } from "@/presen
 import {
   Callout,
   Card,
+  DefinitionList,
   ErrorView,
+  Note,
   Page,
+  SectionHeading,
+  StackedList,
+  StackedRow,
   StorageNotice,
 } from "@/presentation/ui";
 import styles from "../../admin.module.css";
@@ -64,33 +69,29 @@ export default async function PublicationPage({
       <StorageNotice status={await distributionNotice()} />
 
       <Card>
-        <h2 className={styles.sectionTitle}>いまの状態</h2>
-        <dl className={styles.criteria}>
-          <div>
-            <dt>状態</dt>
-            <dd>{card.stateLabel}</dd>
-          </div>
-          <div>
-            <dt>出し方</dt>
-            <dd>{publishModeLabel}</dd>
-          </div>
-          <div>
-            <dt>予定</dt>
-            <dd>{card.scheduledAt === null ? "すぐに出す" : card.scheduledAt.toLocaleString("ja-JP")}</dd>
-          </div>
-          <div>
-            <dt>送信を試した回数</dt>
-            <dd className={styles.numeric}>{card.attempts}回</dd>
-          </div>
-          <div>
-            <dt>もとの記事</dt>
-            <dd>
-              <Link href={`/admin/content/${encodeURIComponent(card.variantId)}`}>
-                記事を見る
-              </Link>
-            </dd>
-          </div>
-        </dl>
+        <SectionHeading level={2}>いまの状態</SectionHeading>
+        <DefinitionList
+          items={[
+            { term: "状態", description: card.stateLabel },
+            { term: "出し方", description: publishModeLabel },
+            {
+              term: "予定",
+              description:
+                card.scheduledAt === null
+                  ? "すぐに出す"
+                  : card.scheduledAt.toLocaleString("ja-JP"),
+            },
+            { term: "送信を試した回数", description: `${card.attempts}回`, align: "numeric" },
+            {
+              term: "もとの記事",
+              description: (
+                <Link href={`/admin/content/${encodeURIComponent(card.variantId)}`}>
+                  記事を見る
+                </Link>
+              ),
+            },
+          ]}
+        />
 
         {card.lastError === null ? null : (
           <Callout tone="danger" title="送信できませんでした" reason={card.lastError} />
@@ -99,27 +100,27 @@ export default async function PublicationPage({
           <Callout tone="info" title="自動では投稿できません" reason={blockedReason} />
         )}
         {card.externalUrl === null ? null : (
-          <p className={styles.linkNote}>
+          <Note>
             公開先:{" "}
             <a href={card.externalUrl} rel="noreferrer noopener" target="_blank">
               {card.externalUrl}
             </a>
-          </p>
+          </Note>
         )}
       </Card>
 
       <Card>
-        <h2 className={styles.sectionTitle}>ここから進める先</h2>
+        <SectionHeading level={2}>ここから進める先</SectionHeading>
         {nextStates.length === 0 ? (
           <p className={styles.sectionLead}>
             この配信はここで終わりです。進める先はありません。
           </p>
         ) : (
-          <ul className={styles.linkList}>
+          <StackedList>
             {nextStates.map((s) => (
-              <li key={s.state}>{s.label}</li>
+              <StackedRow key={s.state}>{s.label}</StackedRow>
             ))}
-          </ul>
+          </StackedList>
         )}
         <p className={styles.sectionLead}>
           取りやめ・再送は担当者の操作で行います。AI からは実行できません。
@@ -128,7 +129,7 @@ export default async function PublicationPage({
 
       {publishOptions === null ? null : (
         <Card>
-          <h2 className={styles.sectionTitle}>いまサイトに出す</h2>
+          <SectionHeading level={2}>いまサイトに出す</SectionHeading>
           {!publishOptions.ok ? (
             <ErrorView
               title="出す画面を用意できませんでした"
@@ -149,7 +150,7 @@ export default async function PublicationPage({
 
       {draft === null ? null : (
         <Card>
-          <h2 className={styles.sectionTitle}>貼り付け用の下書き</h2>
+          <SectionHeading level={2}>貼り付け用の下書き</SectionHeading>
           {!draft.ok ? (
             <ErrorView
               title="下書きを書き出せませんでした"

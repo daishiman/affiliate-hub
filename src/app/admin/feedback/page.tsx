@@ -1,10 +1,10 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 import {
-  FEEDBACK_KINDS,
   FEEDBACK_KIND_LABELS,
-  FEEDBACK_STATUSES,
+  FEEDBACK_KINDS,
   FEEDBACK_STATUS_LABELS,
+  FEEDBACK_STATUSES,
 } from "@/domain/feedback";
 import { FeedbackHandoffForm } from "@/presentation/admin/feedback-forms";
 import { AdminShell } from "@/presentation/admin/admin-shell";
@@ -12,13 +12,17 @@ import { currentActor, feedbackNotice, feedbackUseCases } from "@/presentation/c
 import {
   Callout,
   Card,
+  DefinitionList,
   EmptyView,
   ErrorView,
   FilterBar,
+  Note,
   Page,
+  SectionHeading,
+  SeeAlso,
   StorageNotice,
-  UI_COPY,
   type FilterAxis,
+  UI_COPY,
 } from "@/presentation/ui";
 import styles from "../admin.module.css";
 
@@ -122,22 +126,21 @@ export default async function FeedbackListPage({
       <StorageNotice status={await feedbackNotice()} />
 
       <Card>
-        <h2 className={styles.sectionTitle}>いまの状況</h2>
-        <dl className={styles.criteria}>
-          {FEEDBACK_STATUSES.map((s) => (
-            <div key={s}>
-              <dt>{FEEDBACK_STATUS_LABELS[s]}</dt>
-              <dd className={styles.numeric}>{counts[s]}件</dd>
-            </div>
-          ))}
-        </dl>
-        <p className={styles.linkNote}>
+        <SectionHeading level={2}>いまの状況</SectionHeading>
+        <DefinitionList
+          items={FEEDBACK_STATUSES.map((s) => ({
+            term: FEEDBACK_STATUS_LABELS[s],
+            description: `${counts[s]}件`,
+            align: "numeric" as const,
+          }))}
+        />
+        <Note>
           この件数は、いま絞り込んで見えている分の数です。絞り込みを外した全体の数ではありません。
-        </p>
+        </Note>
       </Card>
 
       <Card>
-        <h2 className={styles.sectionTitle}>絞り込む</h2>
+        <SectionHeading level={2}>絞り込む</SectionHeading>
         <FilterBar
           axes={axes}
           action="/admin/feedback"
@@ -146,17 +149,25 @@ export default async function FeedbackListPage({
           summary={active.length === 0 ? null : `いま ${active.join("・")} で絞っています。`}
           clearHref="/admin/feedback"
         />
-        <p className={styles.linkNote}>
+        {/*
+          **6 箇所のうち、ここだけ行き先が「別の画面」ではない。**残り 5 つは
+          別の画面へ連れて行くが、これは同じ一覧の絞り込みを切り替えているだけである。
+          役としては**絞り込みの軸**で、置き場は上の `FilterBar` の中が正しい
+          （`axes` に載っていない軸が 1 本だけ外に出ている状態）。
+          いま `SeeAlso` にしてあるのは、`FilterBar` の口を広げる判断を
+          このついでに済ませないためで、**同じだと判定したからではない**（残課題 153）。
+        */}
+        <SeeAlso>
           {includeDiscarded ? (
             <Link href="/admin/feedback">廃棄したものを隠す</Link>
           ) : (
             <Link href="/admin/feedback?discarded=yes">廃棄したものも見る（消していません）</Link>
           )}
-        </p>
+        </SeeAlso>
       </Card>
 
       <Card>
-        <h2 className={styles.sectionTitle}>届いている要望</h2>
+        <SectionHeading level={2}>届いている要望</SectionHeading>
         {rows.length === 0 ? (
           <EmptyView
             title={UI_COPY.feedback.emptyTitle}
@@ -165,6 +176,14 @@ export default async function FeedbackListPage({
           />
         ) : (
           <FeedbackHandoffForm>
+            {/* 横へ流す器。`tabIndex` が無いとキーボードで動かせない
+                （`DataTable` と同じ理由。`admin.module.css` の `.rankTableWrap` を読むこと）。 */}
+            <div
+              className={styles.rankTableWrap}
+              role="group"
+              aria-label="受け取った指摘の一覧"
+              tabIndex={0}
+            >
             <table className={styles.rankTable}>
               <caption>
                 新しい順に並べています。渡したいものにチェックを付けて、下のボタンを押してください。
@@ -211,9 +230,10 @@ export default async function FeedbackListPage({
                 ))}
               </tbody>
             </table>
-            <p className={styles.linkNote}>
+            </div>
+            <Note>
               「—」は、まだ決まっていない・まだ起きていないという意味です。該当なしではありません。
-            </p>
+            </Note>
           </FeedbackHandoffForm>
         )}
       </Card>

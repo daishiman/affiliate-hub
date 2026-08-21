@@ -1,4 +1,4 @@
-/** @tier 1 */
+/** @tier 1 @req REQ-B18, REQ-API01 */
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { ContactMessage } from "@/application/ports/reader-interaction";
 import { domainError, err, ok } from "@/domain/shared";

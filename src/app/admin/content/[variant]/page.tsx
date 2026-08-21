@@ -5,6 +5,7 @@ import {
   AdvanceContentStateForm,
   ApproveContentForm,
 } from "@/presentation/admin/content-progress-form";
+import { qualityCheckLabel } from "@/presentation/admin/quality-check-labels";
 import { SchedulePublicationForm } from "@/presentation/admin/schedule-publication-form";
 import { contentUseCases, currentActor, editorialContentNotice } from "@/presentation/composition";
 import {
@@ -13,9 +14,13 @@ import {
   ApprovalFlow,
   Callout,
   Card,
+  DefinitionList,
   EmptyView,
   ErrorView,
   Page,
+  SectionHeading,
+  StackedList,
+  StackedRow,
   StorageNotice,
   type ApprovalState,
 } from "@/presentation/ui";
@@ -28,8 +33,12 @@ export const dynamic = "force-dynamic";
  *
  * **自動確認の結果を「合格」だけで済ませない。**
  * 実行しなかった項目も理由つきで並べる。
- * 出さないと「17 項目すべて確認済み」と読まれ、
+ * 出さないと「24 項目すべて確認済み」と読まれ、
  * 実際には見ていない観点が見落とされる。
+ *
+ * 名前は `qualityCheckLabel()` で言い換える。**言い換え表は全域**で、
+ * 検査を足した日に書き足すまで型が通らない（2026-08-21 以前は 7 件欠けており、
+ * `vague_heading` のような識別子が編集者の画面にそのまま出ていた）。
  */
 export default async function ContentDetailPage({
   params,
@@ -74,7 +83,7 @@ export default async function ContentDetailPage({
       <StorageNotice status={await editorialContentNotice()} />
 
       <Card>
-        <h2 className={styles.sectionTitle}>いまの段階</h2>
+        <SectionHeading level={2}>いまの段階</SectionHeading>
         <ApprovalFlow current={approvalStateOf(variant.status)} />
         {actor.isAiServiceAccount ? (
           <AiCannotApproveNotice action={<Link href="/admin/content">記事の一覧へ</Link>} />
@@ -91,7 +100,7 @@ export default async function ContentDetailPage({
       </Card>
 
       <Card>
-        <h2 className={styles.sectionTitle}>次に進める</h2>
+        <SectionHeading level={2}>次に進める</SectionHeading>
         {state === null ? (
           // 分からないものを最初の段階として出さない。出すと、押しても通らない。
           <EmptyView
@@ -115,7 +124,7 @@ export default async function ContentDetailPage({
       </Card>
 
       <Card>
-        <h2 className={styles.sectionTitle}>自動確認の結果</h2>
+        <SectionHeading level={2}>自動確認の結果</SectionHeading>
         <p className={styles.sectionLead}>
           直すべき指摘 {errors.length}件 / 気をつける点 {warnings.length}件 / 確認しなかった項目{" "}
           {quality.skipped.length}件
@@ -127,36 +136,34 @@ export default async function ContentDetailPage({
             body="自動で確認できる範囲では問題は見つかりませんでした。人の目での確認は別に必要です。"
           />
         ) : (
-          <ul className={styles.linkList}>
+          <StackedList>
             {quality.issues.map((issue, i) => (
-              <li key={`${issue.check}-${i}`}>
+              <StackedRow key={`${issue.check}-${i}`}>
                 <Callout
                   tone={issue.severity === "error" ? "danger" : "warn"}
-                  title={CHECK_LABEL[issue.check] ?? issue.check}
+                  title={qualityCheckLabel(issue.check)}
                   reason={issue.message}
                 />
-              </li>
+              </StackedRow>
             ))}
-          </ul>
+          </StackedList>
         )}
 
-        <h3 className={styles.sectionTitle}>確認しなかった項目</h3>
+        <SectionHeading level={3}>確認しなかった項目</SectionHeading>
         {quality.skipped.length === 0 ? (
           <p className={styles.sectionLead}>すべての項目を確認しました。</p>
         ) : (
-          <dl className={styles.criteria}>
-            {quality.skipped.map((s) => (
-              <div key={s.check}>
-                <dt>{CHECK_LABEL[s.check] ?? s.check}</dt>
-                <dd>{s.reason}</dd>
-              </div>
-            ))}
-          </dl>
+          <DefinitionList
+            items={quality.skipped.map((s) => ({
+              term: qualityCheckLabel(s.check),
+              description: s.reason,
+            }))}
+          />
         )}
       </Card>
 
       <Card>
-        <h2 className={styles.sectionTitle}>表現のきまり</h2>
+        <SectionHeading level={2}>表現のきまり</SectionHeading>
         {policy === null ? (
           // 確認できなかったことを「指摘なし」と並べて出さない。
           // 同じ見た目にすると、見ていない記事が見た記事と区別できなくなる。
@@ -172,18 +179,18 @@ export default async function ContentDetailPage({
             body="この記事の分野で登録されているきまりには当たりませんでした。登録されていない法令は確認していません。"
           />
         ) : (
-          <ul className={styles.linkList}>
+          <StackedList>
             {policy.violations.map((v, i) => (
-              <li key={`${String(v.ruleId)}-${i}`}>
+              <StackedRow key={`${String(v.ruleId)}-${i}`}>
                 <Callout
                   tone={v.severity === "block" ? "danger" : v.severity === "warn" ? "warn" : "info"}
                   title={v.ruleName}
                   // 禁止だけ示すと執筆が止まる。根拠と言い換えを必ず添える。
                   reason={`「${v.excerpt}」— ${v.basis}。${v.suggestion}`}
                 />
-              </li>
+              </StackedRow>
             ))}
-          </ul>
+          </StackedList>
         )}
         {policy !== null && policy.unevaluatedRuleIds.length > 0 && (
           // 実行できなかったルールを黙って飛ばさない。
@@ -196,7 +203,7 @@ export default async function ContentDetailPage({
       </Card>
 
       <Card>
-        <h2 className={styles.sectionTitle}>この記事を出す</h2>
+        <SectionHeading level={2}>この記事を出す</SectionHeading>
         {publishBlockedReason === null ? (
           <>
             <p className={styles.sectionLead}>
@@ -214,7 +221,7 @@ export default async function ContentDetailPage({
       </Card>
 
       <Card>
-        <h2 className={styles.sectionTitle}>本文</h2>
+        <SectionHeading level={2}>本文</SectionHeading>
         <p className={styles.sectionLead}>{variant.summary}</p>
         {variant.body.split("\n").map((line, i) => (
           <p key={`${i}-${line.slice(0, 8)}`}>{line}</p>
@@ -223,15 +230,15 @@ export default async function ContentDetailPage({
 
       {variant.assumptions.length === 0 ? null : (
         <Card>
-          <h2 className={styles.sectionTitle}>AI が置いた仮定</h2>
+          <SectionHeading level={2}>AI が置いた仮定</SectionHeading>
           <p className={styles.sectionLead}>
             これは確かめられた内容ではありません。読者にも仮定として示します。
           </p>
-          <ul className={styles.linkList}>
+          <StackedList>
             {variant.assumptions.map((a) => (
-              <li key={a}>{a}</li>
+              <StackedRow key={a}>{a}</StackedRow>
             ))}
-          </ul>
+          </StackedList>
         </Card>
       )}
     </Shell>
@@ -253,27 +260,6 @@ function approvalStateOf(status: string): ApprovalState {
       return "draft";
   }
 }
-
-/** 検査の識別子をそのまま出さない。編集者が読んで直せる言葉にする。 */
-const CHECK_LABEL: Readonly<Record<string, string>> = {
-  unsourced_number: "根拠のない数値",
-  stale_price: "古い価格",
-  fabricated_experience: "書ける範囲を超えた体験",
-  nonexistent_feature: "登録にない機能名",
-  exaggeration: "言い過ぎの表現",
-  prohibited_phrase: "この書き手では使わない言葉",
-  disclosure_present: "広告表示",
-  link_present: "リンクの欠落",
-  length_fit: "文字数",
-  hashtag_fit: "ハッシュタグの数",
-  channel_fit: "媒体のきまりとの不一致",
-  duplicate_text: "既存記事との重複",
-  brand_fit: "書き手らしさ",
-  audience_fit: "読者との合い方",
-  cta_overuse: "行動を促す文の多さ",
-  missing_drawback: "デメリットの欠落",
-  missing_citation: "出典の欠落",
-};
 
 function Shell({ title, children }: { readonly title: string; readonly children: ReactNode }) {
   return (

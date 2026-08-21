@@ -4,6 +4,12 @@ import type {
   CommercialAffiliateLinkRepositoryPort,
   CommercialConversionRepositoryPort,
 } from "@/application/ports/monetization";
+import type { EditorialArticleOfferPort } from "@/application/ports/site";
+import {
+  type ArticleOffer,
+  type ArticleOfferDisplay,
+  toArticleOffer,
+} from "@/application/read-models/article-offer";
 import {
   type AffiliateAccount,
   type AffiliateLink,
@@ -24,6 +30,7 @@ import {
   type ProductId,
   type WorkspaceId,
   markCommercial,
+  markEditorial,
   money,
   ok,
   taggedString,
@@ -347,6 +354,52 @@ export function createSampleAffiliateLinkRepository(): CommercialAffiliateLinkRe
       );
     },
     save: () => stubCall(stub, "提携リンクの保存"),
+  });
+}
+
+/**
+ * 記事に載せる写しの見本。
+ *
+ * **見本にも商品名を持たせる。** 名前が無いと、公開しても名前の無いカードが
+ * 出るか、カードそのものが出ない。どちらも「成果リンクが出ている」ことを
+ * 確かめられない状態になる。
+ *
+ * 期限切れのリンク（`lnk_direct_soft`）はわざと混ぜてある。
+ * 「切れたリンクは URL を出さず、理由を出す」が見本のままでも確かめられる。
+ */
+const OFFER_DISPLAY: Readonly<Record<string, ArticleOfferDisplay>> = {
+  lnk_amazon_pc: {
+    productName: "Alpha Studio 15",
+    brand: "Alpha",
+    oneLine: "書き出しの速さと持ち運びやすさの釣り合いが取れた機種。",
+  },
+  lnk_direct_soft: {
+    productName: "Delta Light 13",
+    brand: "Delta",
+    oneLine: "最も軽く電池が長持ちする。書き出しは時間がかかる。",
+  },
+};
+
+/**
+ * 成果リンクの ID から、記事に載せる写しを引く（見本）。
+ *
+ * 報酬を持たない形しか返さないので、記事の組み立てへ渡してよい
+ * （Editorial の印を付ける理由は `d1/affiliate-link-repository.ts` 冒頭）。
+ */
+export function createSampleArticleOfferReader(): EditorialArticleOfferPort {
+  return markEditorial({
+    async listByIds(workspaceId: WorkspaceId, affiliateLinkIds: readonly string[], at: Date) {
+      const offers: ArticleOffer[] = [];
+      // 版が並べた順のまま返す。見本と D1 で並びが変わると、
+      // 見本で確かめた並びが本番で再現しない。
+      for (const id of affiliateLinkIds) {
+        const link = LINKS.find((l) => l.workspaceId === workspaceId && String(l.id) === id);
+        const display = OFFER_DISPLAY[id];
+        if (link === undefined || display === undefined) continue;
+        offers.push(toArticleOffer(link, display, at));
+      }
+      return ok(offers as readonly ArticleOffer[]);
+    },
   });
 }
 

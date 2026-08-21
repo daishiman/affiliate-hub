@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { readerActor, siteSampleNotice, siteUseCases } from "@/presentation/composition";
 import { siteBasePath } from "@/presentation/site/view-model";
-import { Callout, EmptyView, ErrorView, PublicShell, SitePage } from "@/presentation/ui";
+import { Callout, EmptyView, ErrorView, PublicShell, SeeAlso, SitePage } from "@/presentation/ui";
 
 export const dynamic = "force-dynamic";
 
@@ -45,9 +45,17 @@ export default async function Home() {
           </ul>
         )}
 
-        <p>
+        {/*
+          **ここだけは見た目が変わった。**元は `className` の無い裸の `<p>` で、
+          本文と同じ大きさ・同じ色で出ていた。`SeeAlso` にしたことで、
+          管理画面側の 5 箇所と同じ「小さい灰色」になる。
+          **他の 5 箇所は現状を写しただけだが、これは変更である。**
+          読者向けの入口に運営者向けの行き先が本文と同じ強さで並んでいるほうが
+          おかしい、という判断で揃えた（残課題 152）。
+        */}
+        <SeeAlso>
           <Link href="/admin">運営する人はこちら（管理画面）</Link>
-        </p>
+        </SeeAlso>
       </SitePage>
     </PublicShell>
   );

@@ -29,6 +29,18 @@ export { TextArea, type TextAreaProps } from "./primitives/textarea";
 export { ToolForm } from "./primitives/tool-form";
 export { Callout, type CalloutTone } from "./primitives/callout";
 export { LoadingView, EmptyView, ErrorView } from "./primitives/state-view";
+/* 節の見出し。`level` は必須で、文書階層 2〜4 をそのまま渡す。 */
+export { SectionHeading, type SectionHeadingLevel } from "./primitives/heading";
+/* 注記の段落。余白も `className` も持たない。寄せてはいけないものは `note.tsx` の doc。 */
+export { Note } from "./patterns/note";
+/* 「続きはあちら」の行き先 1 本。`Note` と見た目は同じで役が違う（`see-also.tsx` の doc）。 */
+export { SeeAlso } from "./patterns/see-also";
+/*
+ * 縦に積む一覧。**`.linkList` を上げたものだが `LinkList` と名乗らせていない**
+ * ——61 行のうち 38 行がリンクを持たないため（残課題 156）。`stacked-list.tsx` の doc。
+ */
+export { StackedList, StackedRow } from "./patterns/stacked-list";
+export { InlineNav, type InlineNavItem } from "./patterns/inline-nav";
 
 /* --- patterns（仕様固有。画面ごとに書き起こさない） --------------------- */
 export {
@@ -54,6 +66,18 @@ export {
   type ComparisonRow,
   type ComparisonCell,
 } from "./patterns/comparison-table";
+export {
+  DataTable,
+  type DataTableAlign,
+  type DataTableColumn,
+} from "./patterns/data-table";
+/* 表ではない「項目と値の対」。どちらを使うかの分かれ目は
+   `definition-list.tsx` の doc にある（列に名前が付くかどうか）。 */
+export {
+  DefinitionList,
+  type DefinitionItem,
+  type DefinitionListProps,
+} from "./patterns/definition-list";
 export {
   ApprovalFlow,
   ApprovalBlockedNotice,
@@ -139,6 +163,7 @@ export {
   SiteShell,
   SitePage,
   PublicShell,
+  FocusedTask,
   type SiteChrome,
   type SiteNavItem,
 } from "./templates/site-shell";

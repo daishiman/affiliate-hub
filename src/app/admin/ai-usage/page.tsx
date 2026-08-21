@@ -2,9 +2,19 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 import { AdminShell } from "@/presentation/admin/admin-shell";
 import { currentActor, telemetryNotice, telemetryUseCases } from "@/presentation/composition";
-import { Callout, Card, EmptyView, ErrorView, Page, StorageNotice } from "@/presentation/ui";
-import styles from "../admin.module.css";
-
+import {
+  Callout,
+  Card,
+  DataTable,
+  EmptyView,
+  ErrorView,
+  Note,
+  Page,
+  SectionHeading,
+  StackedList,
+  StackedRow,
+  StorageNotice,
+} from "@/presentation/ui";
 export const dynamic = "force-dynamic";
 
 /**
@@ -52,24 +62,24 @@ export default async function AiUsagePage({
       <StorageNotice status={await telemetryNotice()} />
 
       <Card>
-        <h2 className={styles.sectionTitle}>直近 {days} 日の合計</h2>
-        <ul className={styles.linkList}>
-          <li>
+        <SectionHeading level={2}>直近 {days} 日の合計</SectionHeading>
+        <StackedList>
+          <StackedRow note={<>うち失敗 {v.totalFailures} 回</>}>
             呼び出し {v.totalCalls.toLocaleString("ja-JP")} 回
-            <span className={styles.linkNote}>うち失敗 {v.totalFailures} 回</span>
-          </li>
-          <li>
+            
+          </StackedRow>
+          <StackedRow note={<>請求額とは一致しません</>}>
             概算費用 {v.totalCostLabel}
-            <span className={styles.linkNote}>請求額とは一致しません</span>
-          </li>
-        </ul>
+            
+          </StackedRow>
+        </StackedList>
         {v.caveats.map((c) => (
           <Callout key={c} tone="info" title="この数字の読み方" reason={c} />
         ))}
       </Card>
 
       <Card>
-        <h2 className={styles.sectionTitle}>ブログ × モデル</h2>
+        <SectionHeading level={2}>ブログ × モデル</SectionHeading>
         {v.rows.length === 0 ? (
           <EmptyView
             title="この期間に AI の利用はありません"
@@ -77,57 +87,66 @@ export default async function AiUsagePage({
             action={<Link href="/admin/generation">生成の仕組みを見る</Link>}
           />
         ) : (
-          <table className={styles.rankTable}>
-            <caption>費用の多い順。同額のときはブログ名の順。</caption>
-            <thead>
-              <tr>
-                <th scope="col">ブログ</th>
-                <th scope="col">モデル</th>
-                <th scope="col">呼び出し</th>
-                <th scope="col">失敗</th>
-                <th scope="col">入力トークン</th>
-                <th scope="col">出力トークン</th>
-                <th scope="col">平均時間</th>
-                <th scope="col">概算費用</th>
-              </tr>
-            </thead>
-            <tbody>
-              {v.rows.map((r) => (
-                <tr key={`${r.siteSlug}-${r.modelId}`}>
-                  <th scope="row">{r.siteSlug}</th>
-                  <td>{r.modelLabel}</td>
-                  <td className={styles.numeric}>{r.calls.toLocaleString("ja-JP")}</td>
-                  <td className={styles.numeric}>{r.failures}</td>
-                  <td className={styles.numeric}>{r.inputTokens.toLocaleString("ja-JP")}</td>
-                  <td className={styles.numeric}>{r.outputTokens.toLocaleString("ja-JP")}</td>
-                  <td className={styles.numeric}>{(r.avgDurationMs / 1000).toFixed(1)} 秒</td>
-                  <td className={styles.numeric}>
-                    {r.priced ? r.costLabel : "価格未登録"}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          <DataTable
+            caption="費用の多い順。同額のときはブログ名の順。"
+            columns={[
+              { key: "site", header: "ブログ", rowHeader: true, cell: (r) => r.siteSlug },
+              { key: "model", header: "モデル", cell: (r) => r.modelLabel },
+              {
+                key: "calls",
+                header: "呼び出し",
+                align: "numeric",
+                cell: (r) => r.calls.toLocaleString("ja-JP"),
+              },
+              { key: "failures", header: "失敗", align: "numeric", cell: (r) => r.failures },
+              {
+                key: "inputTokens",
+                header: "入力トークン",
+                align: "numeric",
+                cell: (r) => r.inputTokens.toLocaleString("ja-JP"),
+              },
+              {
+                key: "outputTokens",
+                header: "出力トークン",
+                align: "numeric",
+                cell: (r) => r.outputTokens.toLocaleString("ja-JP"),
+              },
+              {
+                key: "duration",
+                header: "平均時間",
+                align: "numeric",
+                cell: (r) => `${(r.avgDurationMs / 1000).toFixed(1)} 秒`,
+              },
+              {
+                key: "cost",
+                header: "概算費用",
+                align: "numeric",
+                cell: (r) => (r.priced ? r.costLabel : "価格未登録"),
+              },
+            ]}
+            rows={v.rows}
+            rowKey={(r) => `${r.siteSlug}-${r.modelId}`}
+          />
         )}
-        <p className={styles.linkNote}>
+        <Note>
           プロンプトの本文と生成された文章は、この記録には含めていません。作られたものへの参照
           ID だけを持っています。
-        </p>
+        </Note>
       </Card>
 
       <Card>
-        <h2 className={styles.sectionTitle}>期間を変える</h2>
-        <ul className={styles.linkList}>
+        <SectionHeading level={2}>期間を変える</SectionHeading>
+        <StackedList>
           {[7, 30, 90].map((d) => (
-            <li key={d}>
+            <StackedRow key={d}>
               {d === days ? (
                 <span>直近 {d} 日（表示中）</span>
               ) : (
                 <Link href={`/admin/ai-usage?days=${d}`}>直近 {d} 日を見る</Link>
               )}
-            </li>
+            </StackedRow>
           ))}
-        </ul>
+        </StackedList>
       </Card>
     </Shell>
   );

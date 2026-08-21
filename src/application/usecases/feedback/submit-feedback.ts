@@ -134,8 +134,8 @@ export function createSubmitFeedbackUseCase(
         targetId: String(reportId),
         after: {
           kind: input.kind,
-          screenName: input.origin.screenName,
-          route: input.origin.route,
+          screenName: created.value.origin.screenName,
+          route: created.value.origin.route,
           captureStored: captureId !== null,
           // 画像を付けようとして落ちたことも残す。後から
           // 「画像が無い要望」を見たときに、付けなかったのか落ちたのかを分けられる。

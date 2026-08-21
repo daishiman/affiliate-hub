@@ -12,10 +12,15 @@ import {
   Callout,
   Card,
   ClaimStatement,
+  DataTable,
+  DefinitionList,
   EmptyView,
   ErrorView,
   EvidenceList,
   Page,
+  SectionHeading,
+  StackedList,
+  StackedRow,
   StubNotice,
   type EvidenceView,
 } from "@/presentation/ui";
@@ -84,7 +89,7 @@ export default async function ProductDetailPage({
       </StubNotice>
 
       <Card>
-        <h2 className={styles.sectionTitle}>仕様</h2>
+        <SectionHeading level={2}>仕様</SectionHeading>
         <p className={styles.sectionLead}>
           {product.description ?? "説明はまだ登録されていません。"}
           （{formatDate(retrievedAt)}時点の情報 / 有効期限: {formatDate(validUntil)}）
@@ -95,19 +100,14 @@ export default async function ProductDetailPage({
             body="仕様が無いと比較表の列を作れません。メーカー公式の値を登録してください。"
           />
         ) : (
-          <dl className={styles.criteria}>
-            {specifications.map((s) => (
-              <div key={s.key}>
-                <dt>{s.key}</dt>
-                <dd>{s.value}</dd>
-              </div>
-            ))}
-          </dl>
+          <DefinitionList
+            items={specifications.map((s) => ({ term: s.key, description: s.value }))}
+          />
         )}
       </Card>
 
       <Card>
-        <h2 className={styles.sectionTitle}>この商品について言えること</h2>
+        <SectionHeading level={2}>この商品について言えること</SectionHeading>
         <p className={styles.sectionLead}>
           測った内容と、そこから導いた判断を分けて出します。判断には必ず印が付きます。
         </p>
@@ -145,7 +145,7 @@ export default async function ProductDetailPage({
       </Card>
 
       <Card>
-        <h2 className={styles.sectionTitle}>編集部の検証記録</h2>
+        <SectionHeading level={2}>編集部の検証記録</SectionHeading>
         <p className={styles.sectionLead}>
           ここに記録がある項目だけ、記事で「実際に使ってみた」と書けます。
         </p>
@@ -161,23 +161,21 @@ export default async function ProductDetailPage({
             body={testRuns.value.emptyReason ?? "この商品はまだ編集部で実測していません。"}
           />
         ) : (
-          <ul className={styles.linkList}>
+          <StackedList>
             {testRuns.value.runs.map((run) => (
-              <li key={String(run.id)}>
-                測定方法 {run.methodVersion}（{formatDate(run.completedAt)}）
-                <span className={styles.linkNote}>
-                  {Object.entries(run.rawResults)
+              <StackedRow key={String(run.id)} note={<>{Object.entries(run.rawResults)
                     .map(([k, v]) => `${k}: ${String(v)}`)
-                    .join(" / ")}
-                </span>
-              </li>
+                    .join(" / ")}</>}>
+                測定方法 {run.methodVersion}（{formatDate(run.completedAt)}）
+                
+              </StackedRow>
             ))}
-          </ul>
+          </StackedList>
         )}
       </Card>
 
       <Card>
-        <h2 className={styles.sectionTitle}>この順位になった理由</h2>
+        <SectionHeading level={2}>この順位になった理由</SectionHeading>
         {!explained.ok ? (
           <ErrorView
             title="順位の理由を出せませんでした"
@@ -197,40 +195,39 @@ export default async function ProductDetailPage({
               評価方法 {explained.value.modelVersion} で {explained.value.rank}位（総合{" "}
               {explained.value.totalScore.toFixed(2)}）。内訳は次のとおりです。
             </p>
-            <table className={styles.rankTable}>
-              <thead>
-                <tr>
-                  <th scope="col">評価項目</th>
-                  <th scope="col">どう測ったか</th>
-                  <th scope="col" className={styles.numeric}>
-                    重み
-                  </th>
-                  <th scope="col" className={styles.numeric}>
-                    点数
-                  </th>
-                  <th scope="col" className={styles.numeric}>
-                    総合への寄与
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {explained.value.contributions.map((c) => (
-                  <tr key={c.key}>
-                    <td>{c.key}</td>
-                    <td>{c.measurement}</td>
-                    <td className={styles.numeric}>{Math.round(c.weight * 100)}%</td>
-                    <td className={styles.numeric}>{c.score.toFixed(2)}</td>
-                    <td className={styles.numeric}>{c.contribution.toFixed(2)}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+            <DataTable
+              caption="総合点は、評価項目ごとの点数に重みを掛けて足したものです。寄与の合計が総合点になります。"
+              columns={[
+                { key: "key", header: "評価項目", cell: (c) => c.key },
+                { key: "measurement", header: "どう測ったか", cell: (c) => c.measurement },
+                {
+                  key: "weight",
+                  header: "重み",
+                  align: "numeric",
+                  cell: (c) => `${Math.round(c.weight * 100)}%`,
+                },
+                {
+                  key: "score",
+                  header: "点数",
+                  align: "numeric",
+                  cell: (c) => c.score.toFixed(2),
+                },
+                {
+                  key: "contribution",
+                  header: "総合への寄与",
+                  align: "numeric",
+                  cell: (c) => c.contribution.toFixed(2),
+                },
+              ]}
+              rows={explained.value.contributions}
+              rowKey={(c) => c.key}
+            />
           </>
         )}
       </Card>
 
       <Card>
-        <h2 className={styles.sectionTitle}>この商品の提携リンク</h2>
+        <SectionHeading level={2}>この商品の提携リンク</SectionHeading>
         <p className={styles.sectionLead}>
           リンクは発行されたままの形で使います。
           計測用の印を足すと多くの提携先で規約違反になり、成果が付かなくなるためです。
@@ -250,22 +247,20 @@ export default async function ProductDetailPage({
             action={<Link href="/admin/affiliate">提携と成果を見る</Link>}
           />
         ) : (
-          <ul className={styles.linkList}>
+          <StackedList>
             {links.value.items.map((l) => (
-              <li key={l.linkId}>
+              <StackedRow key={l.linkId} note={<>{l.usable ? "使えます" : (l.blockedReason ?? "使えません")}
+                  {l.alterationProhibited ? " / 改変禁止" : ""}</>}>
                 {l.url}
-                <span className={styles.linkNote}>
-                  {l.usable ? "使えます" : (l.blockedReason ?? "使えません")}
-                  {l.alterationProhibited ? " / 改変禁止" : ""}
-                </span>
-              </li>
+                
+              </StackedRow>
             ))}
-          </ul>
+          </StackedList>
         )}
       </Card>
 
       <Card>
-        <h2 className={styles.sectionTitle}>ほかの候補</h2>
+        <SectionHeading level={2}>ほかの候補</SectionHeading>
         {!alternatives.ok ? (
           <ErrorView
             title="ほかの候補を出せませんでした"
@@ -279,16 +274,16 @@ export default async function ProductDetailPage({
             action={<Link href="/admin/products">商品の一覧を見る</Link>}
           />
         ) : (
-          <ul className={styles.linkList}>
+          <StackedList>
             {alternatives.value.alternatives.map((a) => (
-              <li key={a.productId}>
+              <StackedRow key={a.productId} note={a.oneLine}>
                 <Link href={`/admin/products/${encodeURIComponent(a.productId)}`}>
                   {a.brand} {a.name}
                 </Link>
-                <span className={styles.linkNote}>{a.oneLine}</span>
-              </li>
+                
+              </StackedRow>
             ))}
-          </ul>
+          </StackedList>
         )}
       </Card>
     </Shell>

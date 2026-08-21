@@ -1,12 +1,12 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
-import { AdminShell } from "@/presentation/admin/admin-shell";
 import {
   IssueIntegrationAccessForm,
   RevokeIntegrationAccessForm,
 } from "@/presentation/admin/integration-access-form";
+import { AdminShell } from "@/presentation/admin/admin-shell";
 import { currentActor, feedbackUseCases } from "@/presentation/composition";
-import { Callout, Card, EmptyView, ErrorView, Page } from "@/presentation/ui";
+import { Callout, Card, DataTable, EmptyView, ErrorView, Note, Page, SectionHeading } from "@/presentation/ui";
 import styles from "../../admin.module.css";
 
 export const dynamic = "force-dynamic";
@@ -54,7 +54,7 @@ export default async function IntegrationAccessPage() {
       <Callout tone="warn" title="鍵の扱い" reason={handlingText} />
 
       <Card>
-        <h2 className={styles.sectionTitle}>新しい鍵を発行する</h2>
+        <SectionHeading level={2}>新しい鍵を発行する</SectionHeading>
         <p className={styles.sectionLead}>
           Claude Code に未対応の要望を取りに来てもらう場合だけ発行してください。
           人がコピーして渡すだけなら、鍵は要りません。
@@ -63,7 +63,7 @@ export default async function IntegrationAccessPage() {
       </Card>
 
       <Card>
-        <h2 className={styles.sectionTitle}>いまある鍵</h2>
+        <SectionHeading level={2}>いまある鍵</SectionHeading>
         {rows.length === 0 ? (
           <EmptyView
             title="まだ鍵はありません"
@@ -72,37 +72,37 @@ export default async function IntegrationAccessPage() {
           />
         ) : (
           <>
-            <table className={styles.rankTable}>
-              <caption>
-                鍵の値そのものは、発行したときの 1 回しか出ません。ここには残っていません。
-              </caption>
-              <thead>
-                <tr>
-                  <th scope="col">名前</th>
-                  <th scope="col">できること</th>
-                  <th scope="col">発行した日</th>
-                  <th scope="col">最後に使った日</th>
-                  <th scope="col">1 分あたりの上限</th>
-                  <th scope="col">状態</th>
-                </tr>
-              </thead>
-              <tbody>
-                {rows.map((k) => (
-                  <tr key={k.id}>
-                    <th scope="row">{k.label}</th>
-                    <td>{k.scopeLabels.join("・")}</td>
-                    <td>{k.createdAt.toLocaleDateString("ja-JP")}</td>
-                    <td>
-                      {k.lastUsedAt === null
-                        ? k.lastUsedText
-                        : k.lastUsedAt.toLocaleString("ja-JP")}
-                    </td>
-                    <td className={styles.numeric}>{k.rateLimitPerMinute}回</td>
-                    <td>{k.revoked ? "失効済み" : "使えます"}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+            <DataTable
+              caption="鍵の値そのものは、発行したときの 1 回しか出ません。ここには残っていません。"
+              columns={[
+                { key: "label", header: "名前", rowHeader: true, cell: (k) => k.label },
+                {
+                  key: "scopes",
+                  header: "できること",
+                  cell: (k) => k.scopeLabels.join("・"),
+                },
+                {
+                  key: "createdAt",
+                  header: "発行した日",
+                  cell: (k) => k.createdAt.toLocaleDateString("ja-JP"),
+                },
+                {
+                  key: "lastUsedAt",
+                  header: "最後に使った日",
+                  cell: (k) =>
+                    k.lastUsedAt === null ? k.lastUsedText : k.lastUsedAt.toLocaleString("ja-JP"),
+                },
+                {
+                  key: "rateLimit",
+                  header: "1 分あたりの上限",
+                  align: "numeric",
+                  cell: (k) => `${k.rateLimitPerMinute}回`,
+                },
+                { key: "state", header: "状態", cell: (k) => (k.revoked ? "失効済み" : "使えます") },
+              ]}
+              rows={rows}
+              rowKey={(k) => k.id}
+            />
 
             {rows
               .filter((k) => !k.revoked)
@@ -111,10 +111,10 @@ export default async function IntegrationAccessPage() {
                   <RevokeIntegrationAccessForm id={k.id} label={k.label} />
                 </div>
               ))}
-            <p className={styles.linkNote}>
+            <Note>
               失効させても一覧からは消えません。消すと、渡した記録の「どの鍵で」が
               名前の無い番号だけになり、後からたどれなくなるためです。
-            </p>
+            </Note>
           </>
         )}
       </Card>

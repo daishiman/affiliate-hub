@@ -1,18 +1,24 @@
-import { AdminShell } from "@/presentation/admin/admin-shell";
-import Link from "next/link";
-import type { ReactNode } from "react";
 import {
   affiliatePeriods,
   affiliateStorageNotice,
   affiliateUseCases,
   currentActor,
 } from "@/presentation/composition";
+import { AdminShell } from "@/presentation/admin/admin-shell";
+import Link from "next/link";
+import type { ReactNode } from "react";
 import {
   Callout,
   Card,
+  DataTable,
+  DefinitionList,
   EmptyView,
   ErrorView,
+  Note,
   Page,
+  SectionHeading,
+  StackedList,
+  StackedRow,
   StorageNotice,
 } from "@/presentation/ui";
 import styles from "../admin.module.css";
@@ -71,7 +77,7 @@ export default async function AffiliatePage({
       />
 
       <Card>
-        <h2 className={styles.sectionTitle}>提携先</h2>
+        <SectionHeading level={2}>提携先</SectionHeading>
         {accounts.value.total === 0 ? (
           <EmptyView
             title="提携先がありません"
@@ -83,26 +89,25 @@ export default async function AffiliatePage({
               各サービスのパスワードや鍵はここに控えていません。
               登録は、ご自身のブラウザで各サービスの画面から行ってください。
             </p>
-            <table className={styles.rankTable}>
-              <thead>
-                <tr>
-                  <th scope="col">提携先</th>
-                  <th scope="col">名前</th>
-                  <th scope="col">公開されるID</th>
-                  <th scope="col">接続情報</th>
-                </tr>
-              </thead>
-              <tbody>
-                {accounts.value.items.map((a) => (
-                  <tr key={a.accountId}>
-                    <th scope="row">{a.aspLabel}</th>
-                    <td>{a.label}</td>
-                    <td>{a.publicTrackingId ?? "—"}</td>
-                    <td>{a.credentialRegistered ? "登録済み" : "未登録"}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+            <DataTable
+              caption="登録してある提携先の口座と、接続情報が入っているかどうか。"
+              columns={[
+                { key: "asp", header: "提携先", rowHeader: true, cell: (a) => a.aspLabel },
+                { key: "label", header: "名前", cell: (a) => a.label },
+                {
+                  key: "trackingId",
+                  header: "公開されるID",
+                  cell: (a) => a.publicTrackingId ?? "—",
+                },
+                {
+                  key: "credential",
+                  header: "接続情報",
+                  cell: (a) => (a.credentialRegistered ? "登録済み" : "未登録"),
+                },
+              ]}
+              rows={accounts.value.items}
+              rowKey={(a) => a.accountId}
+            />
             {accounts.value.items
               .filter((a) => a.blockedReason !== null)
               .map((a) => (
@@ -118,7 +123,7 @@ export default async function AffiliatePage({
       </Card>
 
       <Card>
-        <h2 className={styles.sectionTitle}>提携の条件</h2>
+        <SectionHeading level={2}>提携の条件</SectionHeading>
         {!programs.ok ? (
           <ErrorView
             title="提携の条件を出せませんでした"
@@ -138,39 +143,34 @@ export default async function AffiliatePage({
             </p>
             {programs.value.items.map((p) => (
               <div key={p.programId}>
-                <h3 className={styles.sectionTitle}>
+                <SectionHeading level={3}>
                   {p.advertiserName}（{p.aspLabel}）
-                </h3>
-                <dl className={styles.criteria}>
-                  <div>
-                    <dt>報酬</dt>
-                    <dd>{p.rewardLabel}</dd>
-                  </div>
-                  <div>
-                    <dt>承認率</dt>
-                    <dd className={styles.numeric}>{p.approvalRateLabel}</dd>
-                  </div>
-                  <div>
-                    <dt>確定までの日数</dt>
-                    <dd className={styles.numeric}>{p.confirmationDaysLabel}</dd>
-                  </div>
-                  <div>
-                    <dt>成果が残る期間</dt>
-                    <dd className={styles.numeric}>{p.cookieDurationLabel}</dd>
-                  </div>
-                  <div>
-                    <dt>いまの状態</dt>
-                    <dd>{p.active ? "提携中" : "終了しています"}</dd>
-                  </div>
-                </dl>
+                </SectionHeading>
+                <DefinitionList
+                  items={[
+                    { term: "報酬", description: p.rewardLabel },
+                    { term: "承認率", description: p.approvalRateLabel, align: "numeric" },
+                    {
+                      term: "確定までの日数",
+                      description: p.confirmationDaysLabel,
+                      align: "numeric",
+                    },
+                    {
+                      term: "成果が残る期間",
+                      description: p.cookieDurationLabel,
+                      align: "numeric",
+                    },
+                    { term: "いまの状態", description: p.active ? "提携中" : "終了しています" },
+                  ]}
+                />
                 {p.restrictions.length === 0 ? (
-                  <p className={styles.linkNote}>確認が要る条件は登録されていません。</p>
+                  <Note>確認が要る条件は登録されていません。</Note>
                 ) : (
-                  <ul className={styles.linkList}>
+                  <StackedList>
                     {p.restrictions.map((r) => (
-                      <li key={r}>{r}</li>
+                      <StackedRow key={r}>{r}</StackedRow>
                     ))}
-                  </ul>
+                  </StackedList>
                 )}
               </div>
             ))}
@@ -179,18 +179,18 @@ export default async function AffiliatePage({
       </Card>
 
       <Card>
-        <h2 className={styles.sectionTitle}>成果（{period}）</h2>
-        <ul className={styles.linkList}>
+        <SectionHeading level={2}>成果（{period}）</SectionHeading>
+        <StackedList>
           {periods.map((p) => (
-            <li key={p}>
+            <StackedRow key={p}>
               {p === period ? (
                 <span>{p}（表示中）</span>
               ) : (
                 <Link href={`/admin/affiliate?period=${encodeURIComponent(p)}`}>{p}を見る</Link>
               )}
-            </li>
+            </StackedRow>
           ))}
-        </ul>
+        </StackedList>
         {!conversions.ok ? (
           <ErrorView
             title="成果を出せませんでした"
@@ -204,55 +204,72 @@ export default async function AffiliatePage({
           />
         ) : (
           <>
-            <dl className={styles.criteria}>
-              <div>
-                <dt>確定した合計</dt>
-                <dd className={styles.numeric}>{conversions.value.approvedTotalLabel}</dd>
-              </div>
-              <div>
-                <dt>未確定の件数</dt>
-                <dd className={styles.numeric}>{conversions.value.pendingCount}件</dd>
-              </div>
-              <div>
-                <dt>この期間</dt>
-                <dd>{conversions.value.closed ? "締め済み（直せません）" : "受付中"}</dd>
-              </div>
-            </dl>
+            <DefinitionList
+              items={[
+                {
+                  term: "確定した合計",
+                  description: conversions.value.approvedTotalLabel,
+                  align: "numeric",
+                },
+                {
+                  term: "未確定の件数",
+                  description: `${conversions.value.pendingCount}件`,
+                  align: "numeric",
+                },
+                {
+                  term: "この期間",
+                  description: conversions.value.closed ? "締め済み（直せません）" : "受付中",
+                },
+              ]}
+            />
             <p className={styles.sectionLead}>
               合計には確定した成果だけを入れています。
               未確定を足すと、入ってこない金額を見込みにしてしまうためです。
             </p>
-            <table className={styles.rankTable}>
-              <thead>
-                <tr>
-                  <th scope="col">提携先</th>
-                  <th scope="col">状態</th>
-                  <th scope="col">発生日</th>
-                  <th scope="col">取り込んだ額</th>
-                  <th scope="col">直した額</th>
-                  <th scope="col">実際に使う額</th>
-                </tr>
-              </thead>
-              <tbody>
-                {conversions.value.items.map((c) => (
-                  <tr key={c.conversionId}>
-                    <th scope="row">
-                      <Link href={`/admin/affiliate/${encodeURIComponent(c.conversionId)}`}>
-                        {c.aspLabel}
-                      </Link>
-                    </th>
-                    <td>{c.statusLabel}</td>
-                    <td>{c.occurredAt.toLocaleDateString("ja-JP")}</td>
-                    <td className={styles.numeric}>{c.ingestedLabel}</td>
-                    <td className={styles.numeric}>{c.adjustedLabel ?? "—"}</td>
-                    <td className={styles.numeric}>{c.effectiveLabel}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-            <p className={styles.linkNote}>
+            <DataTable
+              caption="成果の記録。取り込んだ額と、直したあとに実際に使う額を並べて出す。"
+              columns={[
+                {
+                  key: "asp",
+                  header: "提携先",
+                  rowHeader: true,
+                  cell: (c) => (
+                    <Link href={`/admin/affiliate/${encodeURIComponent(c.conversionId)}`}>
+                      {c.aspLabel}
+                    </Link>
+                  ),
+                },
+                { key: "status", header: "状態", cell: (c) => c.statusLabel },
+                {
+                  key: "occurredAt",
+                  header: "発生日",
+                  cell: (c) => c.occurredAt.toLocaleDateString("ja-JP"),
+                },
+                {
+                  key: "ingested",
+                  header: "取り込んだ額",
+                  align: "numeric",
+                  cell: (c) => c.ingestedLabel,
+                },
+                {
+                  key: "adjusted",
+                  header: "直した額",
+                  align: "numeric",
+                  cell: (c) => c.adjustedLabel ?? "—",
+                },
+                {
+                  key: "effective",
+                  header: "実際に使う額",
+                  align: "numeric",
+                  cell: (c) => c.effectiveLabel,
+                },
+              ]}
+              rows={conversions.value.items}
+              rowKey={(c) => c.conversionId}
+            />
+            <Note>
               「未取得」は、まだ金額が取れていないという意味です。0円ではありません。
-            </p>
+            </Note>
           </>
         )}
       </Card>

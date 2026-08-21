@@ -63,11 +63,49 @@ const { PAGE_TOOLS } = await import("@/presentation/tools/webmcp-policy");
 
 const ORIGIN = "https://hub.test";
 
+/** 試験用の連携の鍵（平文）。門の合言葉とは別のもの。 */
+const INTEGRATION_KEY = "dummy-integration-value-for-tests-0123456789";
+
+const { issueIntegrationKey } = await import("@/domain/feedback");
+const { asIntegrationKeyId, asWorkspaceId } = await import("@/domain/shared");
+const { hashSecret } = await import("@/infrastructure/platform/secret-minter");
+const { seedIntegrationKey } = await import(
+  "@/infrastructure/persistence/sample/feedback-sample-repository"
+);
+
+/** 見本の作業場所に、読み取りの鍵を 1 本置く。 */
+async function seedReadKey(): Promise<void> {
+  const built = issueIntegrationKey({
+    id: asIntegrationKeyId("key_api_routes_test"),
+    workspaceId: asWorkspaceId("ws_sample"),
+    label: "試験用の鍵",
+    hashedValue: await hashSecret(INTEGRATION_KEY),
+    scopes: ["read"],
+    createdBy: "tester",
+    at: new Date("2026-08-01T00:00:00Z"),
+  });
+  if (!built.ok) throw new Error(built.error.message);
+  seedIntegrationKey(built.value);
+}
+
 type Headerish = Record<string, string>;
 
-/** 合言葉つき（読み書きできる）。 */
+/**
+ * 合言葉つき（入口を通れる）＋連携の鍵つき（どの作業場所の誰かが決まる）。
+ *
+ * **合言葉だけでは身元が決まらない**（`ah-p9e`）。`MCP_TOKEN` は製品に 1 つしかなく、
+ * 作業場所にも人にも結びついていないので、それを身元の根拠にすると
+ * 「誰が呼んでいるか分からないまま管理用のデータを出す」ことになる。
+ * 身元は連携の鍵から決まるので、取りに来る側は鍵も名乗る。
+ * 合言葉だけのときに読者の範囲へ落ちることは
+ * `tests/presentation/api-scope-actor.test.ts` が見ている。
+ */
 function withToken(extra: Headerish = {}): Headerish {
-  return { authorization: `Bearer ${TOKEN}`, ...extra };
+  return {
+    authorization: `Bearer ${TOKEN}`,
+    "x-integration-key": INTEGRATION_KEY,
+    ...extra,
+  };
 }
 
 /** 自サイトの画面から（読み取りだけ）。 */
@@ -139,10 +177,11 @@ const ADMIN_READ_TOOL = pick(
   "読者には見せていない読み取り専用で、通る入力を組み立てられるもの",
 );
 
-beforeEach(() => {
+beforeEach(async () => {
   installedToken = TOKEN;
   delete process.env.ALLOWED_ORIGINS;
   clearTelemetryBuffer();
+  await seedReadKey();
 });
 
 afterEach(() => {

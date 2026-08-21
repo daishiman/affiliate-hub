@@ -11,9 +11,14 @@ import { invokeTool } from "@/presentation/tools/tool-definition";
 import {
   Callout,
   Card,
+  DataTable,
+  DefinitionList,
   EmptyView,
   ErrorView,
   Page,
+  SectionHeading,
+  StackedList,
+  StackedRow,
 } from "@/presentation/ui";
 import styles from "../admin.module.css";
 
@@ -56,7 +61,7 @@ export default async function RankingsPage() {
       />
 
       <Card>
-        <h2 className={styles.sectionTitle}>順位</h2>
+        <SectionHeading level={2}>順位</SectionHeading>
         <p className={styles.sectionLead}>
           {ranking.audience}向け・評価方法 {ranking.modelVersion}
         </p>
@@ -67,24 +72,20 @@ export default async function RankingsPage() {
             body="すべての商品が合格ラインを下回りました。評価の記録か合格ラインを見直してください。"
           />
         ) : (
-          <table className={styles.rankTable}>
-            <thead>
-              <tr>
-                <th scope="col">順位</th>
-                <th scope="col">商品</th>
-                <th scope="col" className={styles.numeric}>
-                  総合点
-                </th>
-                <th scope="col">最後に検証した日</th>
-              </tr>
-            </thead>
-            <tbody>
-              {ranking.ranked.map((row) => (
-                <tr key={row.productId}>
-                  <td>
-                    <span className={styles.rankBadge}>{row.rank}</span>
-                  </td>
-                  <td>
+          <DataTable
+            caption={`${ranking.audience}向けの順位。総合点の高い順で、点の内訳もそのまま出す。`}
+            columns={[
+              {
+                key: "rank",
+                header: "順位",
+                cell: (row) => <span className={styles.rankBadge}>{row.rank}</span>,
+              },
+              {
+                key: "product",
+                header: "商品",
+                rowHeader: true,
+                cell: (row) => (
+                  <>
                     {productDisplayName(row.productId)}
                     <ul className={styles.breakdown}>
                       {row.breakdown.map((b) => (
@@ -94,49 +95,56 @@ export default async function RankingsPage() {
                         </li>
                       ))}
                     </ul>
-                  </td>
-                  <td className={styles.numeric}>{formatScore(row.totalScore)}</td>
-                  <td>{formatDate(row.testedAt)}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+                  </>
+                ),
+              },
+              {
+                key: "total",
+                header: "総合点",
+                align: "numeric",
+                cell: (row) => formatScore(row.totalScore),
+              },
+              {
+                key: "testedAt",
+                header: "最後に検証した日",
+                cell: (row) => formatDate(row.testedAt),
+              },
+            ]}
+            rows={ranking.ranked}
+            rowKey={(row) => row.productId}
+          />
         )}
       </Card>
 
       <Card>
-        <h2 className={styles.sectionTitle}>選外になった商品</h2>
+        <SectionHeading level={2}>選外になった商品</SectionHeading>
         {ranking.excluded.length === 0 ? (
           <EmptyView title="選外はありません" body="すべての商品が合格ラインを満たしています。" />
         ) : (
-          <ul className={styles.linkList}>
+          <StackedList>
             {ranking.excluded.map((row) => (
-              <li key={row.productId}>
+              <StackedRow key={row.productId} note={row.reason}>
                 {productDisplayName(row.productId)}
-                <span className={styles.linkNote}>{row.reason}</span>
-              </li>
+                
+              </StackedRow>
             ))}
-          </ul>
+          </StackedList>
         )}
       </Card>
 
       <Card>
-        <h2 className={styles.sectionTitle} id="criteria">
+        <SectionHeading level={2} id="criteria">
           評価基準
-        </h2>
+        </SectionHeading>
         <p className={styles.sectionLead}>
           読者に見せるものと同じ内容です。どう測ったかを隠しません。
         </p>
-        <dl className={styles.criteria}>
-          {ranking.criteriaDisclosure.map((c) => (
-            <div key={c.key}>
-              <dt>
-                {criterionLabel(c.key)}（重み {formatPercent(c.weight)}）
-              </dt>
-              <dd>{c.measurement}</dd>
-            </div>
-          ))}
-        </dl>
+        <DefinitionList
+          items={ranking.criteriaDisclosure.map((c) => ({
+            term: `${criterionLabel(c.key)}（重み ${formatPercent(c.weight)}）`,
+            description: c.measurement,
+          }))}
+        />
       </Card>
     </Shell>
   );
