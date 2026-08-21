@@ -201,6 +201,23 @@ describe("公開したあとの動作確認（REQ-CI06）", () => {
     expect(branch.split("\nfi")[0]).toContain("exit 1");
   });
 
+  it("管理画面は、通すことではなく /signin へ送ることを確かめる", () => {
+    const body = smoke();
+    /**
+     * ここを 200 期待に戻すと、**門が外れて誰でも入れる状態が緑になる**。
+     * 2026-08-21 の公開で実際に 307 が出て「壊れた」と読み違えた。
+     * 307 は middleware（src/middleware.ts）が効いている証拠の方である。
+     */
+    expect(body).toContain('"/admin|307|/signin|');
+
+    /**
+     * 状態だけを見ると、送り先が外部のアドレスに差し替わっても 307 のまま緑になる。
+     * 末尾一致（`*${expected_location}`）でも同じ穴が残るので、
+     * **自分の入口を付けた形と丸ごと**比べていることを見る。
+     */
+    expect(body).toContain('"${ORIGIN}${expected_location}"');
+  });
+
   it("deploy.yml が、公開のあとにこれを呼ぶ", () => {
     const body = workflow("deploy.yml");
     expect(body).toContain("bash .github/scripts/smoke.sh");
