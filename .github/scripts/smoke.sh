@@ -28,10 +28,18 @@ SECOND_WAIT="${SMOKE_SECOND_WAIT:-90}"
 # ここが **503** で落ちたときは、壊れたのではなく `MCP_TOKEN` が本番に未登録である
 # （api-token.ts は未登録のとき開けっ放しにせず閉じる）。
 # 登録手順は docs/product/ci-cd-guide.md ⑧。
+#
+# `/admin` が 307 なのは壊れているからではない。src/middleware.ts が
+# 「ログインしていない人を /signin へ送る」と決めており、**それが通っている証拠**である。
+# ここを 200 にすると、門が外れて誰でも入れる状態が緑になってしまう。
+#
+# 4 つ目の欄は「どこへ送られるべきか」。空なら飛び先を見ない。
+# 状態だけを見ると、飛び先が外部のアドレスに差し替わっても 307 のまま緑になる。
+# middleware は戻り先を付けない作りなので、飛び先は /signin ちょうどに定まる。
 CASES=(
-  "/|200|入口"
-  "/admin|200|管理の入口"
-  "/api/tools|401|道具の一覧（合言葉なしでは断る）"
+  "/|200||入口"
+  "/admin|307|/signin|管理の入口（ログインしていなければサインインへ送る）"
+  "/api/tools|401||道具の一覧（合言葉なしでは断る）"
 )
 
 check_once() {
@@ -40,13 +48,31 @@ check_once() {
 
   echo "--- ${label}"
   for c in "${CASES[@]}"; do
-    IFS='|' read -r path expected name <<<"$c"
+    IFS='|' read -r path expected expected_location name <<<"$c"
     # 本文は取り出さない。応答の中身を持ち出すと、実行ログに情報が残る。
-    actual="$(curl -s -o /dev/null -w '%{http_code}' --max-time 20 "${ORIGIN}${path}" || echo "000")"
-    if [ "$actual" = "$expected" ]; then
-      echo "  OK   ${name} (${path}) → ${actual}"
-    else
+    # 飛び先だけは取る（`%{redirect_url}` は 3xx でないとき空になる）。
+    response="$(curl -s -o /dev/null -w '%{http_code} %{redirect_url}' --max-time 20 "${ORIGIN}${path}" || echo "000 ")"
+    actual="${response%% *}"
+    location="${response#* }"
+
+    if [ "$actual" != "$expected" ]; then
       echo "  NG   ${name} (${path}) → ${actual}（期待: ${expected}）"
+      failed=1
+      continue
+    fi
+
+    # 飛び先を見ないケースはここで終わり。空同士の比較で偶然通す形にはしない。
+    if [ -z "$expected_location" ]; then
+      echo "  OK   ${name} (${path}) → ${actual}"
+      continue
+    fi
+
+    # **末尾一致では見ない。** それだと https://悪意のある宛先/signin も通ってしまう。
+    # 自分の入口に付けた形と丸ごと比べる。
+    if [ "$location" = "${ORIGIN}${expected_location}" ]; then
+      echo "  OK   ${name} (${path}) → ${actual}（${expected_location} へ送っています）"
+    else
+      echo "  NG   ${name} (${path}) → ${actual}（送り先が違います。期待: ${ORIGIN}${expected_location} / 実際: ${location:-なし}）"
       failed=1
     fi
   done

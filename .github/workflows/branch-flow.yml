@@ -1,0 +1,75 @@
+# 枝の順番を守らせる。
+#
+# 決めてある流れ:
+#   作業ブランチ ──PR──▶ dev ──PR──▶ main
+#
+# **README の図（「環境とデプロイフロー」）は最初からこの形だった。**
+# それでも 2026-08-21 の時点で dev は main から 451 コミット遅れていた。
+# #12〜#18 が作業ブランチから main へ直接入り、dev を素通りしたためである。
+# 結果、開発環境（affiliate-hub-dev）では `/admin` も `/s` も 404 のままで、
+# 「本番で動いているものを開発で先に確かめる」という場所そのものが無くなっていた。
+#
+# 口約束は守られなかったので、ここで機械に見させる。
+# 落とすのは**マージの前**である。入ってから気づいても、dev は既に置き去りになっている。
+#
+# 緊急時の逃げ道を `hotfix/*` として開けてある。本番だけが壊れていて
+# dev を通す余裕が無い場面は実在する（前回のマイグレーション当て忘れがそれだった）。
+# 逃げ道を塞ぐと、急いでいる人はこのワークフロー自体を消す方へ回る。
+# ただし **hotfix を出したら、その後 main を dev へ戻すこと**。
+# 戻し忘れると、今回と同じ「dev だけが古い」状態がまた始まる。
+#
+# 規範: docs/spec/11-CI-CD・品質ゲート仕様.md
+name: 枝の順番
+
+on:
+  pull_request:
+    # main への PR だけを見る。dev へは、どの作業ブランチからでも出してよい。
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  order:
+    name: main へ出せる枝か
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: 比較元の枝を見る
+        env:
+          # **`${{ }}` を run の中へ直接書かない。** 枝の名前は PR を出す人が
+          # 決める文字列で、`$(...)` を含んだ名前を付けられる。式展開はシェルが
+          # 読む前に起きるので、そのまま埋めると任意のコマンドが走る。
+          # 環境変数として渡せば、シェルは中身をただの文字列として扱う。
+          HEAD_REF: ${{ github.head_ref }}
+        run: |
+          set -euo pipefail
+
+          case "$HEAD_REF" in
+            dev)
+              echo "✅ dev からの PR です。"
+              exit 0
+              ;;
+            hotfix/*)
+              echo "⚠️ 緊急の直し（$HEAD_REF）として通します。"
+              echo "   **マージしたら main を dev へ戻してください。**"
+              echo "     git push origin origin/main:dev"
+              echo "   戻さないと dev だけが古いまま取り残されます。"
+              exit 0
+              ;;
+          esac
+
+          echo "❌ main へ出せるのは dev か hotfix/* だけです（今回は: $HEAD_REF）。"
+          echo
+          echo "この枝は dev を素通りしています。dev は開発環境"
+          echo "（https://affiliate-hub-dev.daishimanju.workers.dev）へ自動で出る枝で、"
+          echo "本番の前に人が触って確かめる場所です。素通りすると、"
+          echo "確かめる場所が本番だけになります。"
+          echo
+          echo "やり直し方:"
+          echo "  1. この PR の宛先を dev に変える（GitHub の画面で base を変更）"
+          echo "  2. dev へマージし、開発環境で確かめる"
+          echo "  3. dev から main への PR を出す"
+          echo
+          echo "本番だけが壊れていて急ぐ場合は、枝の名前を hotfix/... にしてください。"
+          exit 1

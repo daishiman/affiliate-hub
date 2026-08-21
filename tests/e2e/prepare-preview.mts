@@ -1,11 +1,11 @@
 import { createHash } from "node:crypto";
 import { execFileSync } from "node:child_process";
-import { E2E_SESSION_TOKEN } from "./auth-fixture";
+import { E2E_LOCAL_SESSION } from "./auth-fixture";
 import { readSampleWorkspaceId } from "./source-registries";
 
 const pnpm = process.platform === "win32" ? "pnpm.cmd" : "pnpm";
 const now = Math.floor(Date.now() / 1_000);
-const tokenHash = createHash("sha256").update(E2E_SESSION_TOKEN).digest("hex");
+const tokenHash = createHash("sha256").update(E2E_LOCAL_SESSION).digest("hex");
 const workspaceId = readSampleWorkspaceId();
 const userId = "u_playwright_local";
 
