@@ -73,18 +73,33 @@ describe("誰に何を許すか", () => {
 });
 
 describe("AI へ公開する範囲（WebMCP）", () => {
-  it("読み取り専用だけ、6 件まで", () => {
+  /** 表に名前を書く、という掲載の根拠を、見本の道具で作る。 */
+  const listing = (...names: string[]) => ({ listed: (n: string) => names.includes(n) });
+
+  it("表に名前があるものだけ、6 件まで", () => {
     const catalog = [
       ...Array.from({ length: 10 }, (_, i) => fakeTool({ name: `r${i}`, readOnly: true })),
       fakeTool({ name: "w", readOnly: false }),
     ];
-    const descriptors = toWebMcpDescriptors(catalog);
+    const names = Array.from({ length: 10 }, (_, i) => `r${i}`);
+    const descriptors = toWebMcpDescriptors(catalog, listing(...names));
     expect(descriptors.length).toBeLessThanOrEqual(MAX_TOOLS_PER_PAGE);
     expect(descriptors.some((d) => d.name === "w")).toBe(false);
   });
 
+  /**
+   * **既定は「載せない」。**
+   *
+   * 以前は道具定義の `readOnly` が掲載を決めていたので、既定は「載せる」だった。
+   * 読み取りの道具を 1 つ足すたびに、ページ内の AI の手が届く範囲が黙って広がる。
+   * 表に書き忘れたときに載らないほうが、事故は軽い。
+   */
+  it("読み取り専用を名乗っていても、表に無ければ載らない", () => {
+    expect(toWebMcpDescriptors([fakeTool({ name: "r", readOnly: true })])).toEqual([]);
+  });
+
   it("実行の関数を混ぜない（ブラウザへ渡せる形だけにする）", () => {
-    const [first] = toWebMcpDescriptors([fakeTool({ name: "r", readOnly: true })]);
+    const [first] = toWebMcpDescriptors([fakeTool({ name: "r", readOnly: true })], listing("r"));
     expect(Object.keys(first)).toEqual(["name", "description", "inputSchema"]);
   });
 });

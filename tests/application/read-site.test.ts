@@ -1,4 +1,4 @@
-/** @tier 1 */
+/** @tier 1 @req REQ-B01, REQ-B02, REQ-B08, REQ-B10, REQ-B11, REQ-B16, REQ-B17 */
 import { describe, expect, it } from "vitest";
 import type {
   EditorialPublishedContentPort,

@@ -1,4 +1,4 @@
-/** @tier 1 */
+/** @tier 1 @req REQ-S10 */
 import { describe, expect, it } from "vitest";
 import {
   createD1SessionReader,
@@ -56,6 +56,7 @@ function membershipRepo(membership: Membership | null): MembershipRepositoryPort
   return {
     findById: async () => ok(null),
     findByUser: async () => ok(membership),
+    findByInvitedEmail: async () => ok(membership),
     list: async () => ok({ items: [], nextCursor: null }),
     save: async (m) => ok(m),
     findOwner: async () => ok(null),
@@ -67,6 +68,7 @@ function membership(over: Partial<Membership> = {}): Membership {
     id: asUserId("m_1") as unknown as Membership["id"],
     workspaceId: WS,
     userId: USER,
+    invitedEmail: "member@example.com",
     roles: ["writer"] as readonly Role[],
     scopedBrandIds: [],
     displayName: "見本 太郎",

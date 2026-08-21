@@ -33,9 +33,9 @@ import {
   domainError,
   err,
   formatMoney,
+  missingMark,
   money,
   ok,
-  readDataClass,
   taggedString,
 } from "@/domain/shared";
 import type { UseCase } from "../usecase";
@@ -60,9 +60,19 @@ export type ManageAffiliateDeps = {
   readonly now: () => Date;
 };
 
+/**
+ * 実行時に「商業の印」を求めるポート。
+ *
+ * `ids` や `now` のような、データを持たない依存は対象にしない。
+ * 順位づけ側（`rank-products.ts`）も同じ向き（印が無ければ落とす）で見ている。
+ */
+const AFFILIATE_DATA_PORTS = ["links", "conversions"] as const;
+
 function guardCommercial(deps: ManageAffiliateDeps): void {
-  const unmarked = (["links", "conversions"] as const).filter(
-    (key) => readDataClass(deps[key]) !== "commercial",
+  const unmarked = missingMark(
+    deps as unknown as Record<string, unknown>,
+    "commercial",
+    AFFILIATE_DATA_PORTS,
   );
   if (unmarked.length > 0) {
     throw new Error(
@@ -244,7 +254,10 @@ export type ListConversionsOutput = {
   readonly period: string;
   readonly items: readonly ConversionView[];
   readonly total: number;
-  /** 確定した成果の合計。未確定は足さない。 */
+  /**
+   * 確定した成果の合計。未確定は足さない。
+   * 通貨が混ざった期間は通貨ごとに分けて並べる（`¥12,000 / $34.00`）。
+   */
   readonly approvedTotalLabel: string;
   readonly pendingCount: number;
   readonly closed: boolean;
@@ -269,6 +282,41 @@ function toConversionView(c: Conversion): ConversionView {
   };
 }
 
+/**
+ * 確定した成果の合計を作る。
+ *
+ * **通貨ごとに分けて足す。**`amountMinor` の 1 は通貨ごとに意味が違い
+ * （JPY は 1 円、USD は 1 セント）、混ぜて足した数はどの通貨でも金額にならない。
+ * 混ざった期間は `¥12,000 / $34.00` のように並べて出す。
+ * 合計を出さずに文へ差し替える案も採れるが、**通貨が混ざるのは並べれば読める話**で、
+ * いままで数字が出ていた場所を文にすると、混ざっていない大多数の期間まで読みにくくなる。
+ *
+ * 並べる順は通貨コードの昇順に固定する。取り込みの順に任せると、
+ * 同じ期間の同じ成果が再取り込みのたびに違う並びで出る。
+ *
+ * 確定が 1 件も無い期間は `DEFAULT_REWARD_CURRENCY` の 0 を出す。
+ * これは `toConversionView` が通貨未確定の成果に使う既定と同じもので、
+ * 同じ画面の item と合計が別々の通貨を出すことは有り得ないので 1 つを共有する。
+ */
+function approvedTotal(raw: readonly Conversion[]): string {
+  const byCurrency = new Map<CurrencyCode, number>();
+  for (const c of raw) {
+    if (c.status !== "approved") continue;
+    const amount = effectiveReward(c);
+    if (amount === null) continue;
+    byCurrency.set(amount.currency, (byCurrency.get(amount.currency) ?? 0) + amount.amountMinor);
+  }
+  if (byCurrency.size === 0) byCurrency.set(DEFAULT_REWARD_CURRENCY, 0);
+
+  const labels: string[] = [];
+  for (const [currency, amountMinor] of [...byCurrency].sort(([a], [b]) => a.localeCompare(b))) {
+    const total = money(amountMinor, currency);
+    if (!total.ok) return "計算できません";
+    labels.push(formatMoney(total.value));
+  }
+  return labels.join(" / ");
+}
+
 export function createListConversionsUseCase(
   deps: ManageAffiliateDeps,
 ): UseCase<ListConversionsInput, ListConversionsOutput> {
@@ -291,26 +339,13 @@ export function createListConversionsUseCase(
       const items = raw.map(toConversionView);
 
       // 確定分だけを合計する。未確定を足すと、入ってこない金額を見込みにしてしまう。
-      let approvedMinor = 0;
-      // 確定した成果が 1 件も無いと、この初期値がそのまま合計の表示に出る。
-      // つまり「通貨が 1 件も決まっていないときに出る通貨」で、28 行上の
-      // `toConversionView` の既定と同じもの。同じ画面の item と合計が
-      // 別々の通貨を出すことは有り得ないので、1 つを共有する。
-      let currency: CurrencyCode = DEFAULT_REWARD_CURRENCY;
-      for (const c of raw) {
-        if (c.status !== "approved") continue;
-        const amount = effectiveReward(c);
-        if (amount === null) continue;
-        approvedMinor += amount.amountMinor;
-        currency = amount.currency;
-      }
-      const total = money(approvedMinor, currency);
+      const approvedTotalLabel = approvedTotal(raw);
 
       return ok({
         period: input.period,
         items,
         total: items.length,
-        approvedTotalLabel: total.ok ? formatMoney(total.value) : "計算できません",
+        approvedTotalLabel,
         pendingCount: raw.filter((c) => c.status === "pending").length,
         closed: raw.some((c) => c.periodClosed),
         emptyReason:

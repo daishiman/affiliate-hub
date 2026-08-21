@@ -99,7 +99,7 @@ export async function POST(request: Request) {
 
   // REST の入口（`/api/tools`）とまったく同じ決め方を使う。
   // 片方だけ見本の身元へ落ちる、という状態を作らない（`ah-2ro`）。
-  const actor = await actorForScope(auth.scope);
+  const actor = await actorForScope(auth.scope, request);
   const rpc: JsonRpcRequest = {
     jsonrpc: "2.0",
     id,

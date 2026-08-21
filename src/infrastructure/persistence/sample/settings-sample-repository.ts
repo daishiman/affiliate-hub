@@ -7,7 +7,13 @@ import type {
 import type { Disclosure } from "@/domain/compliance";
 import { buildVisibleMessage } from "@/domain/compliance";
 import type { Brand, Membership, Workspace } from "@/domain/identity";
-import { DEFAULT_BRAND_VOICE, DEFAULT_CTA, DEFAULT_LOCALE, DEFAULT_TIME_ZONE } from "@/domain/identity";
+import {
+  DEFAULT_BRAND_VOICE,
+  DEFAULT_CTA,
+  DEFAULT_LOCALE,
+  DEFAULT_TIME_ZONE,
+  normalizeInvitedEmail,
+} from "@/domain/identity";
 import { ok, taggedString } from "@/domain/shared";
 import { SAMPLE_WORKSPACE_ID } from "./ranking-sample-repository";
 import { registerStub, stubCall } from "../../stub-registry";
@@ -28,11 +34,27 @@ const stub = registerStub({
   // 操作の記録はここから外れた（`./audit-log-sample-repository.ts` の控えへ移った）。
   // 残したままにすると、控えで本当に書けているものを
   // 「保存先が無い」と数え続けることになる。
-  port: "作業場所・担当者・ブランド・広告表記の保存先",
+  port: "作業場所・ブランド・広告表記の保存先",
   label: "設定（見本データ）",
-  blockedBy:
-    "workspaces / memberships / brands / disclosures テーブルの追加と、" +
-    "Better Auth と Google ログインの設定",
+  blockedBy: "workspaces / brands / disclosures テーブルの追加",
+});
+
+/**
+ * 担当者だけは、ここから外れた（`../d1/membership-repository.ts` の控えへ移った）。
+ *
+ * 招待の追加・役割の変更・担当の取り消しは D1 に本物がある。
+ * まとめたままにすると、**本当に書けるものを「保存先が無い」と数え続ける**ことになり、
+ * 台帳の件数が実際より多く見える。
+ *
+ * それでも見本が残るのは、保存先が供給されない実行（`pnpm dev`・自動テスト）が
+ * あるためである。そこでは `save` が失敗を返す——**保存できないのに成功を装わない。**
+ */
+const membershipStub = registerStub({
+  id: "persistence:membership-sample",
+  port: "担当者の登録の保存先",
+  label: "担当者（見本データ。保存はできません）",
+  blockedBy: "済み（保存先は D1 の memberships）",
+  fallbackFor: "src/infrastructure/persistence/d1/membership-repository.ts",
 });
 
 export function sampleSettingsNotice(): string {
@@ -61,6 +83,7 @@ const WORKSPACE: Workspace = {
 const MEMBERSHIPS: readonly Membership[] = [
   {
     id: taggedString<"MembershipId">("m_owner"),
+    invitedEmail: "owner@example.com",
     workspaceId: SAMPLE_WORKSPACE_ID,
     userId: taggedString<"UserId">("u_owner"),
     roles: ["owner"],
@@ -72,6 +95,7 @@ const MEMBERSHIPS: readonly Membership[] = [
   },
   {
     id: taggedString<"MembershipId">("m_editor"),
+    invitedEmail: "editor@example.com",
     workspaceId: SAMPLE_WORKSPACE_ID,
     userId: taggedString<"UserId">("u_sample"),
     roles: ["researcher", "writer", "reviewer"],
@@ -83,6 +107,7 @@ const MEMBERSHIPS: readonly Membership[] = [
   },
   {
     id: taggedString<"MembershipId">("m_contributor"),
+    invitedEmail: "contributor@example.com",
     workspaceId: SAMPLE_WORKSPACE_ID,
     userId: taggedString<"UserId">("u_contrib"),
     roles: ["contributor"],
@@ -96,6 +121,7 @@ const MEMBERSHIPS: readonly Membership[] = [
   },
   {
     id: taggedString<"MembershipId">("m_ai"),
+    invitedEmail: "ai@example.com",
     workspaceId: SAMPLE_WORKSPACE_ID,
     userId: taggedString<"UserId">("u_ai"),
     roles: ["ai_service_account"],
@@ -107,6 +133,7 @@ const MEMBERSHIPS: readonly Membership[] = [
   },
   {
     id: taggedString<"MembershipId">("m_left"),
+    invitedEmail: "left@example.com",
     workspaceId: SAMPLE_WORKSPACE_ID,
     userId: taggedString<"UserId">("u_left"),
     roles: ["analyst"],
@@ -231,12 +258,20 @@ export function createSampleMembershipRepository(): MembershipRepositoryPort {
       return ok(MEMBERSHIPS.find((m) => String(m.id) === String(id)) ?? null);
     },
     async findByUser(_workspaceId, userId) {
-      return ok(MEMBERSHIPS.find((m) => String(m.userId) === String(userId)) ?? null);
+      return ok(
+        MEMBERSHIPS.find(
+          (m) => m.userId !== null && String(m.userId) === String(userId),
+        ) ?? null,
+      );
+    },
+    async findByInvitedEmail(_workspaceId, invitedEmail) {
+      const normalized = normalizeInvitedEmail(invitedEmail);
+      return ok(MEMBERSHIPS.find((m) => m.invitedEmail === normalized) ?? null);
     },
     async list(_workspaceId, page) {
       return ok({ items: MEMBERSHIPS.slice(0, page.limit), nextCursor: null });
     },
-    save: () => stubCall(stub, "担当者の保存"),
+    save: () => stubCall(membershipStub, "担当者の保存"),
     async findOwner() {
       return ok(MEMBERSHIPS.find((m) => m.roles.includes("owner")) ?? null);
     },

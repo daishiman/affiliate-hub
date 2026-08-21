@@ -1,6 +1,6 @@
 import { readerActor, siteUseCases } from "@/presentation/composition";
-import { ArticleList, PersonView, SitePage, UI_COPY } from "@/presentation/ui";
-import { ReadFailureBody, SiteFrame } from "./page-frame";
+import { ArticleList, PersonView, SectionHeading, SitePage, UI_COPY } from "@/presentation/ui";
+import { ReadFailureBody, SiteFrame, stopIfMissing } from "./page-frame";
 import { siteHref, toArticleCards } from "./view-model";
 
 /**
@@ -25,6 +25,9 @@ export async function PersonPage({
     slug,
   });
 
+  // 無い書き手・監修者は 404 として打ち切る。**JSX を組み立てる前に。**（項目 36）
+  if (!result.ok) stopIfMissing(result.error);
+
   const roleLabel = kind === "author" ? UI_COPY.article.author : UI_COPY.article.reviewedBy;
   const path = kind === "author" ? `/authors/${slug}` : `/experts/${slug}`;
 
@@ -43,7 +46,7 @@ export async function PersonPage({
               credentials={result.value.person.credentials}
             />
             <section>
-              <h2>この人が関わった記事</h2>
+              <SectionHeading level={2}>この人が関わった記事</SectionHeading>
               <ArticleList
                 articles={toArticleCards(siteSlug, result.value.articles)}
                 emptyTitle={UI_COPY.article.emptyListTitle}
@@ -52,7 +55,7 @@ export async function PersonPage({
             </section>
           </SitePage>
         ) : (
-          <ReadFailureBody error={result.error} what={roleLabel} siteSlug={siteSlug} />
+          <ReadFailureBody what={roleLabel} siteSlug={siteSlug} />
         )
       }
     </SiteFrame>

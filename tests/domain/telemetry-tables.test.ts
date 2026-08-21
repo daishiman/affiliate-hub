@@ -20,6 +20,7 @@ import { describe, expect, it } from "vitest";
 import {
   TELEMETRY_EVENT_KEYS,
   type TelemetryEventKey,
+  assertNoForbiddenField,
   buildTelemetryEvent,
   isRetentionExpired,
   readerKeyScope,
@@ -219,13 +220,20 @@ describe("記録してはいけない項目", () => {
     expect(new Set(FORBIDDEN).size).toBe(17);
   });
 
+  /*
+   * この 3 件は `buildTelemetryEvent` ごしに見ていたが、2026-08-21 に
+   * **禁止語の判定そのもの（`assertNoForbiddenField`）へ直に当てる形へ移した。**
+   *
+   * 同日、入口が「登録表に無い項目」も落とすようになった
+   * （`editorNote` のような名前で生成文を持ち込めた穴を塞いだ。
+   * `tests/domain/zz-probe-forbidden.test.ts`）。入口ごしのままだと、
+   * 禁止語はどれも**表に無い項目としても落ちる**ので、
+   * 上の 2 件は名前が何であれ赤にならず、**禁止の一覧が飾りになっても緑**になる。
+   * 3 件目に至っては、落ちる理由が変わったせいで赤くなっていた。
+   * 見たいのは入口の総合判定ではなく**禁止語の一覧の精度**なので、そこへ直に当てる。
+   */
   it.each(FORBIDDEN)("%s が混ざっていたら、イベントごと落ちる", (word) => {
-    const r = buildTelemetryEvent({
-      key: "page_view",
-      occurredAt: AT,
-      readerKey: null,
-      payload: { ...payloadFor("page_view"), [word]: "値" },
-    });
+    const r = assertNoForbiddenField({ ...payloadFor("page_view"), [word]: "値" });
     expect(r.ok, `${word} が通ってしまいました`).toBe(false);
     if (!r.ok) expect(r.error.message).toContain(word);
   });
@@ -233,12 +241,7 @@ describe("記録してはいけない項目", () => {
   it("大文字小文字を変えても抜けられない", () => {
     // `IP` や `Email` で通ると、禁止の一覧が飾りになる。
     for (const word of ["IP", "Email", "ApiKey", "PROMPT"]) {
-      const r = buildTelemetryEvent({
-        key: "page_view",
-        occurredAt: AT,
-        readerKey: null,
-        payload: { ...payloadFor("page_view"), [word]: "値" },
-      });
+      const r = assertNoForbiddenField({ ...payloadFor("page_view"), [word]: "値" });
       expect(r.ok, `${word} が通ってしまいました`).toBe(false);
     }
   });
@@ -246,11 +249,10 @@ describe("記録してはいけない項目", () => {
   it("似ているだけの欄は通る（何でも落とすのでは使えない）", () => {
     // `bodyText` を落とすと、記事の欄が 1 つも送れなくなる。
     // 完全一致でだけ落ちることを固定しておく。
-    const r = buildTelemetryEvent({
-      key: "page_view",
-      occurredAt: AT,
-      readerKey: null,
-      payload: { ...payloadFor("page_view"), bodyLength: 120, tokenCount: 3 },
+    const r = assertNoForbiddenField({
+      ...payloadFor("page_view"),
+      bodyLength: 120,
+      tokenCount: 3,
     });
     expect(r.ok, r.ok ? "" : r.error.message).toBe(true);
   });

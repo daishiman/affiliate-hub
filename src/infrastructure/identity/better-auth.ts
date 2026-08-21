@@ -323,8 +323,41 @@ export function createAuth(db: DrizzleD1, config: AuthConfig) {
         await applyAppSession({ db, issuer, cookieAttributes: passAttributes }, ctx);
       }),
     },
-    /** ログインに失敗したら、この画面へ戻す。理由は画面側が言葉にする。 */
-    onAPIError: { errorURL: "/signin" },
+    /**
+     * ログインに失敗したら、この画面へ戻す。理由は画面側が言葉にする。
+     *
+     * **失敗の中身はサーバーの記録にだけ残す。** 画面へ出さないのは
+     * 「どの設定が抜けているか」を入ろうとした人に教えないためだが、
+     * どこにも出さないと、運用する人まで原因を見られなくなる。
+     * 実際、Google との往復が黙って `/signin` へ戻る状態を追ったとき、
+     * 記録が 1 行も無いせいで、断ったのか壊れたのかが分からなかった。
+     */
+    onAPIError: {
+      errorURL: "/signin",
+      onError: (error) => {
+        console.error("[auth] ログインの往復が失敗しました:", error);
+      },
+    },
+    /**
+     * Better Auth 自身の記録をどこへ流すか。
+     *
+     * 既定では `console` へ直接書かれるが、`account.issuer` 列が無くて
+     * ログインが壊れていた間、その記録は 1 行も出てこなかった。
+     * 出るはずのものが出ない状態のまま運用すると、次に壊れたときも
+     * 「黙って /signin へ戻る」だけになる。
+     *
+     * **`args` まで出す。** ここに入るのは例外そのもので、
+     * 今回原因を指していたのも `args` の側だった（`message` は
+     * 「データベースに問い合わせられませんでした」までしか言わない）。
+     * 出力先は Cloudflare の記録で、運用する人しか見ない。
+     * 画面へ返す言葉とは別物なので、入ろうとした人には何も伝わらない。
+     */
+    logger: {
+      level: "error",
+      log: (level, message, ...args) => {
+        console.error(`[better-auth:${level}]`, message, ...args);
+      },
+    },
     rateLimit: {
       enabled: true,
       storage: "database",

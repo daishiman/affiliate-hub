@@ -1,4 +1,4 @@
-/** @tier 1 */
+/** @tier 1 @req REQ-S09 */
 import { describe, expect, it } from "vitest";
 import { capabilitiesOf } from "@/domain/identity";
 import {

@@ -1,4 +1,4 @@
-/** @tier 1 */
+/** @tier 1 @req REQ-P01, REQ-E03, REQ-R10 */
 import { describe, expect, it } from "vitest";
 import {
   AUDIT_ACTION_LABEL,

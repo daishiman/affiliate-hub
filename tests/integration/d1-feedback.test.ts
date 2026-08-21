@@ -1,4 +1,4 @@
-/** @tier 2 */
+/** @tier 2 @req REQ-FB07, REQ-FB09, REQ-FB12, REQ-TS07 */
 import { readFileSync, readdirSync } from "node:fs";
 import path from "node:path";
 import { drizzle } from "drizzle-orm/d1";

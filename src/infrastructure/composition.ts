@@ -86,13 +86,16 @@ import {
   createD1TelemetrySink,
 } from "./persistence/d1/telemetry-repository";
 import { createD1AuditLog } from "./persistence/d1/audit-log-repository";
+import { createD1MembershipRepository } from "./persistence/d1/membership-repository";
 import { createSampleImprovementRepository } from "./persistence/sample/improvement-sample-repository";
 import {
   createSampleAffiliateAccountRepository,
   createSampleAffiliateLinkRepository,
   createSampleAffiliateProgramRepository,
+  createSampleArticleOfferReader,
   createSampleConversionRepository,
 } from "./persistence/sample/affiliate-sample-repository";
+import { createD1ArticleOfferReader } from "./persistence/d1/affiliate-link-repository";
 import {
   createSampleAuditLog,
   createSampleBrandRepository,
@@ -199,6 +202,12 @@ export function createDeps(
     // 包んでおけば発行が漏れない。写しに書く作業場所は `save` の引数
     // （＝そのブログを持っている側）をそのまま使うので、読者の身元が
     // 写しへ入る経路が型の上で存在しない（残課題 25 / 56 の再発を構造で止める）。
+    // 記事に載せる成果リンクは、保存先が用意できていれば本物（D1）。
+    // **この 1 行が無いと、版の `affiliateLinkIds` は読者へ 1 件も届かない。**
+    // 版は ID の列しか持たないので、引き当てる先が無ければ記事に出しようがない。
+    // 返す形に報酬の欄が無いので、記事の組み立てへ渡せる（Editorial の印）。
+    articleOffers:
+      db === null ? createSampleArticleOfferReader() : createD1ArticleOfferReader(db),
     publishedArticles: withTrackingLinkIssuance(
       db === null ? createSamplePublishedArticleWriter() : createD1PublishedArticleWriter(db),
       db === null ? createSampleTrackingLinkIssuer() : createD1TrackingLinkIssuer(db),
@@ -273,10 +282,17 @@ export function createDeps(
         ? createSampleIntegrationKeyStore({ hash: hashSecret })
         : createD1IntegrationKeyStore({ db, hash: hashSecret, newId: () => idGenerator.newId() }),
     mintSecret,
-    // ★ 見本データ（スタブ）。作業場所・担当者・ブランド・広告表記・操作の記録。
+    // ★ 見本データ（スタブ）。作業場所・ブランド・広告表記。
     //   本物にするには認証（Better Auth + Google）と各テーブルが要る。
     workspaces: createSampleWorkspaceRepository(),
-    memberships: createSampleMembershipRepository(),
+    // 担当者の登録は、保存先が用意できていれば**本物**（D1 の memberships）。
+    //
+    // **見本と混ぜない。** ほかの保存先は見本を重ねているが、ここは権限そのものである。
+    // 見本の担当者が本物の一覧に並ぶと、実在しない人に役が付いて見え、
+    // 「この作業場所には誰が入れるのか」を画面から確かめられなくなる。
+    // 接続の無い実行では見本のまま（保存は失敗を返す。招待できたふりをしない）。
+    memberships:
+      db === null ? createSampleMembershipRepository() : createD1MembershipRepository(db),
     brands: createSampleBrandRepository(),
     disclosures: createSampleDisclosureRepository(),
     // ★ 見本データ（スタブ）。中身は初期ルールそのもので、読み取りは本物と同じ結果を返す。

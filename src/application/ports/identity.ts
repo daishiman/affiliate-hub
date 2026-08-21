@@ -22,6 +22,14 @@ export type BrandRepositoryPort = {
 export type MembershipRepositoryPort = {
   findById(workspaceId: WorkspaceId, id: MembershipId): PortResult<Membership | null>;
   findByUser(workspaceId: WorkspaceId, userId: UserId): PortResult<Membership | null>;
+  /**
+   * 招待したアドレスで引く。**招待を出す前に必ず通す。**
+   *
+   * 同じアドレスの行は 1 つしか作れない（保存先の一意制約）。先に引かずに
+   * 保存すると、二重の招待は「保存先が落ちました」という無関係な断りで返り、
+   * 押した人には**何を直せばよいか**が分からない。
+   */
+  findByInvitedEmail(workspaceId: WorkspaceId, invitedEmail: string): PortResult<Membership | null>;
   list(workspaceId: WorkspaceId, page: PageRequest): PortResult<Paged<Membership>>;
   save(membership: Membership): PortResult<Membership>;
   /** owner が既にいるか。owner は 1 ワークスペースに 1 人。 */

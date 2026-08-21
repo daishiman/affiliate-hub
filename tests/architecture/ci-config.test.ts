@@ -9,7 +9,8 @@
 import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
-import { AI_EVAL_BUDGET, CHECKS, TIERS } from "../../quality-gates.config.mjs";
+import { EVAL_CASES } from "../../evals/generation/cases";
+import { AI_EVAL_BUDGET, CHECKS, LAYER_COVERAGE, TIERS } from "../../quality-gates.config.mjs";
 
 /**
  * 自動化の設定そのものを見る。**コードを 1 行も変えずに壊れる場所**である。
@@ -55,6 +56,74 @@ const mentions = (text: string, id: string) =>
 
 /** 置いてあるべきワークフロー。**実装から読まず、ここに書き写して固定する。** */
 const EXPECTED_WORKFLOWS = ["ai-eval.yml", "ci.yml", "deploy.yml", "migrate.yml", "nightly.yml"];
+
+// --- 走査を「ディレクトリを受け取る関数」に割る ------------------------------
+/**
+ * **`.github/workflows/` を書き換えずに、走査の効きを測るための割り方。**
+ *
+ * CI の設定変更は利用者の判断なので、本物のワークフローは壊せない。
+ * だが**測れないのは、走査先が実ファイルの場所に焼き付いているから**であって、
+ * 決まりのせいだけではない。判定をディレクトリ引数で受ける形にすれば、
+ * 本番は `.github/workflows/` を、対照は `tests/fixtures/workflow-scan/` を渡せる。
+ * 本物に指 1 本触れずに「赤と緑が値で分かれる」ところまで測れる。
+ *
+ * **引数で受ける形の危うさ**も同時に見張る。後の誰かが本番側の引数を
+ * 空ディレクトリへ差し替えれば、走査は常に緑になる。だから本番の検査は
+ * ①読んだファイルの一覧が `EXPECTED_WORKFLOWS` と一致すること
+ * ②`run:` を 15 行以上読めたこと、を同居させる。
+ */
+const WORKFLOW_DIR = join(ROOT, ".github/workflows");
+const FIXTURE_DIR = join(ROOT, "tests/fixtures/workflow-scan");
+
+/** ディレクトリの中の `*.yml` を、コメント行を落として読む。 */
+function ymlsIn(dir: string): { name: string; code: string }[] {
+  return readdirSync(dir)
+    .filter((n) => n.endsWith(".yml"))
+    .sort()
+    .map((name) => ({
+      name,
+      code: readFileSync(join(dir, name), "utf8")
+        .split("\n")
+        .filter((line) => !/^\s*#/.test(line))
+        .join("\n"),
+    }));
+}
+
+/** `run:` の行だけを、どのファイルの行かと一緒に返す。 */
+function runLinesIn(dir: string): { name: string; line: string }[] {
+  return ymlsIn(dir).flatMap(({ name, code }) =>
+    [...code.matchAll(/^\s*(?:- )?run: (.+)$/gm)].map((m) => ({ name, line: m[1].trim() })),
+  );
+}
+
+/** 検査の道具を `pnpm exec` / `npx` / `yarn dlx` で直に叩く書き方。 */
+const DIRECT_TOOL =
+  /(?:pnpm exec|npx|yarn dlx)\s+(?:vitest|tsc|eslint|biome|stryker|playwright|jest)\b/;
+
+/** 直叩きの行を返す。**判定はここ 1 箇所。**本番も対照も同じ関数を通る。 */
+function scanDirectRuns(dir: string): string[] {
+  return runLinesIn(dir)
+    .filter((h) => DIRECT_TOOL.test(h.line))
+    .map((h) => `${h.name}: ${h.line}`);
+}
+
+/** 正本 `LAYER_COVERAGE` が持つ閾値を、`coverage` の行から探す形にしたもの。 */
+function thresholdPattern(): RegExp {
+  const numbers = [
+    ...new Set(LAYER_COVERAGE.flatMap((l) => [l.target, ...Object.values(l.floors)])),
+  ].sort((a, b) => a - b);
+  // **母集団の床**。正本を読めていなければ、探す数字が 0 個でも全部緑になる。
+  expect(numbers.length, "正本から閾値を読めていません").toBeGreaterThanOrEqual(8);
+  return new RegExp(`coverage[^\\n]*\\b(${numbers.join("|")})\\b`, "i");
+}
+
+/** 閾値を書き写しているファイルを返す。**判定はここ 1 箇所。** */
+function scanWrittenThresholds(dir: string): string[] {
+  const written = thresholdPattern();
+  return ymlsIn(dir)
+    .filter(({ code }) => written.test(code))
+    .map(({ name }) => name);
+}
 
 describe("ワークフローの一覧（REQ-CI04）", () => {
   it("5 本ちょうどで、名前も固定されている", () => {
@@ -111,6 +180,49 @@ describe("手元と機械で同じ検査が走る（REQ-CI01 / REQ-CI03）", () 
     expect(codeOf("deploy.yml")).toContain("pnpm run verify");
   });
 
+  /**
+   * **ここも走査の根が、要件の言葉より狭かった（2026-08-21）。**
+   *
+   * 要件は「`pnpm verify` が **CI と**まったく同じ検査を再現する」。
+   * ところが上の検査が読んでいるのは **`ci.yml` 1 本だけ**である。
+   * `deploy.yml` も `push`（main / dev）で動き、`pnpm run verify` を呼んでいる。
+   * そこへ `pnpm exec vitest run` や `pnpm exec tsc --noEmit` を 1 行足せば、
+   * それは**機械の上でしか走らない検査**になる——REQ-CI01 が禁じている形そのものだが、
+   * `ci.yml` しか見ていない検査には届かない。
+   *
+   * そこで根を 5 本すべてへ広げ、**検査の道具を直に叩く書き方**を禁じる。
+   * 検査は `pnpm run verify` か、正本に載っている `scripts/*.mjs` を通す。
+   * `nightly.yml` の `node scripts/{tier-audit,run-tests,verify}.mjs` は
+   * 手元でも同じものが走るので通る。`wrangler` は検査の道具ではないので通る。
+   *
+   * **測り方**: 本物のワークフローは壊さない。走査をディレクトリ引数で受ける形に割り、
+   * `tests/fixtures/workflow-scan/` の偽物 2 本（違反する版・違反しない版）へ
+   * **同じ関数**を向けて、赤と緑が値で分かれることを実測する（下の対照）。
+   */
+  it("走査が本当に効いている（仮の置き場で、赤と緑が分かれる）", () => {
+    // 違反する偽物 → 1 件見つかる。「探せていないから 0 件」ではないことの証明。
+    expect(scanDirectRuns(join(FIXTURE_DIR, "violating"))).toEqual([
+      "sneaky.yml: pnpm exec vitest run tests/",
+    ]);
+    // 禁じていない書き方だけの偽物 → 0 件。**赤が出る理由が「狙ったもの」だと確定する。**
+    // 2 本の差は `pnpm exec vitest` と `pnpm exec wrangler` の 1 点だけにしてある。
+    expect(scanDirectRuns(join(FIXTURE_DIR, "clean"))).toEqual([]);
+  });
+
+  it("どのワークフローも、検査の道具を直に叩かない（手元で再現できない検査を作らない）", () => {
+    // **本番の呼び出しが、仮の置き場や空ディレクトリを向いていないこと。**
+    // 引数で受ける形にした以上、向き先の差し替えが新しい死角になる。
+    expect(ymlsIn(WORKFLOW_DIR).map((y) => y.name)).toEqual(EXPECTED_WORKFLOWS);
+
+    // **母集団の床。**`run:` を 1 行も拾えていなければ「無い」は自明に成り立つ。
+    expect(runLinesIn(WORKFLOW_DIR).length, "ワークフローの run: を読めていません").toBeGreaterThanOrEqual(15);
+
+    expect(
+      scanDirectRuns(WORKFLOW_DIR),
+      "検査の道具を直に叩いています。verify か scripts/*.mjs を通してください",
+    ).toEqual([]);
+  });
+
   it("マイグレーションの作り忘れの検査が、手元でも走る検査の一覧に入っている", () => {
     const ids = CHECKS.map((c) => c.id);
     expect(ids).toContain("migration-generated");
@@ -120,16 +232,75 @@ describe("手元と機械で同じ検査が走る（REQ-CI01 / REQ-CI03）", () 
 });
 
 describe("閾値も検査名も書き写さない（REQ-CI02）", () => {
-  it("5 本すべてに、閾値の数字が直接書かれていない", () => {
-    let seen = 0;
-    for (const name of EXPECTED_WORKFLOWS) {
-      expect(workflow(name), `${name} にカバレッジの閾値が直接書かれています`).not.toMatch(
-        /coverage[^\n]*\b(80|85|90)\b/i,
-      );
-      seen += 1;
-    }
-    // 一覧が空でも緑になるのを防ぐ。5 本を数えたことをここで固定する。
-    expect(seen).toBe(5);
+  /**
+   * **2026-08-21 訂正。数字を書き写していたのは、この検査の側だった。**
+   *
+   * 元は `\b(80|85|90)\b` という**リテラル 3 つ**を探していた。
+   * 正本 `LAYER_COVERAGE` が実際に持つ数字は 11 種類
+   * （75 / 80 / 85 / 87 / 89 / 90 / 91 / 93 / 94 / 95 / 98）あり、
+   * **8 種類は 1 度も探されていなかった**。
+   * つまり「閾値を書き写していない」と名乗りながら、
+   * `coverage 75` と書けば素通りする形だった。
+   * 正本の閾値を書き写すな、と言う検査が、正本の閾値を書き写していた。
+   *
+   * **測り方**: 本物のワークフローは壊さない。走査をディレクトリ引数で受ける形に割り、
+   * 仮の置き場の偽物 2 本へ同じ関数を向けて、赤と緑が値で分かれることを実測する。
+   */
+  it("走査が本当に効いている（仮の置き場で、赤と緑が分かれる）", () => {
+    // 違反する偽物（`--coverage-threshold 75`）→ 1 件。
+    // **もし正本から 75 が消えたら、ここが赤くなって「対照が古い」と知らせる。**
+    // 対照が黙って効かなくなるより、赤で気づけるほうがよい。
+    expect(scanWrittenThresholds(join(FIXTURE_DIR, "violating"))).toEqual(["sneaky.yml"]);
+    // 閾値でない数字（`--retries 3`）だけの偽物 → 0 件。
+    expect(scanWrittenThresholds(join(FIXTURE_DIR, "clean"))).toEqual([]);
+  });
+
+  it("5 本すべてに、閾値の数字が直接書かれていない（数字は正本から取る）", () => {
+    // **本番の呼び出しが、仮の置き場や空ディレクトリを向いていないこと。**
+    expect(ymlsIn(WORKFLOW_DIR).map((y) => y.name)).toEqual(EXPECTED_WORKFLOWS);
+
+    expect(
+      scanWrittenThresholds(WORKFLOW_DIR),
+      "カバレッジの閾値が直接書かれています。数字は quality-gates.config.mjs から取ること",
+    ).toEqual([]);
+  });
+
+  /**
+   * **走査の根が、主張された範囲の端まで届いていなかった。**
+   *
+   * 要件の言葉は「CI 設定**と手元の設定**が別々に育たないようにする」。
+   * ところが閾値を探していたのは `.github/workflows/` の 5 本と
+   * `vitest.config.mts` だけで、**`package.json` は 1 度も読まれていなかった**。
+   *
+   * 実測（2026-08-21）: `package.json` の `test` を
+   * `vitest run --coverage.thresholds.lines=75` に書き換えて全検査を流したところ、
+   * `ci-config.test.ts` も `quality-gates.test.ts` も**緑のまま**通った
+   * （落ちたのは無関係の既知の 1 件だけ）。
+   * 手元のコマンドが正本と別の閾値で走り始めても、誰も知らせない形だった。
+   *
+   * **ここで見ていないもの（先に書く）**: 探すのは「`coverage` を含む行に
+   * 正本の数字がある」形だけで、`75` を変数に入れてから渡す書き方は追えない。
+   * 見ているのは「素の字で書き写す」経路である。
+   */
+  it("手元の設定（package.json）にも、閾値の数字が直接書かれていない", () => {
+    const numbers = [
+      ...new Set(LAYER_COVERAGE.flatMap((l) => [l.target, ...Object.values(l.floors)])),
+    ];
+    expect(numbers.length, "正本から閾値を読めていません").toBeGreaterThanOrEqual(8);
+    const written = new RegExp(`coverage[^\\n]*\\b(${numbers.join("|")})\\b`, "i");
+
+    // 探す側が動いていることを、同じ検査の中で示す。
+    expect(written.test(`"test": "vitest run --coverage.thresholds.lines=${numbers[0]}"`)).toBe(
+      true,
+    );
+    expect(written.test('"test": "vitest run"')).toBe(false);
+
+    // **母集団の床**。読めていなければ「書かれていない」も自明に成り立つ。
+    const scripts = read("package.json");
+    expect(scripts.length, "package.json を読めていません").toBeGreaterThan(500);
+    expect(scripts, "package.json の中身が想定と違います").toContain('"verify"');
+
+    expect(scripts, "package.json にカバレッジの閾値が直接書かれています").not.toMatch(written);
   });
 
   /**
@@ -278,10 +449,20 @@ describe("費用の出る検査（REQ-CI13）", () => {
     expect(body).toContain("inputs.confirm != 'RUN'");
   });
 
-  it("上限は 0 より大きく、評価セットの実件数（51）を超えない", () => {
+  /**
+   * **2026-08-21 訂正: 「実件数」と名乗って、実件数の写しを見ていた。**
+   * 元は `toBeLessThanOrEqual(51)` で、`51` は評価セットの件数**を書き写した数**だった。
+   * 評価ケースを 1 件消して測ると、この検査は**緑のまま**通り、
+   * 上限 51 は 1 度も効かない飾りになる（実測 2026-08-21）。
+   * いまは `EVAL_CASES.length` と突き合わせる。同じ形が
+   * `tests/architecture/quality-gates.test.ts` にも残っている（残課題へ）。
+   */
+  it("上限は 0 より大きく、評価セットの実件数を超えない", () => {
+    // **母集団の床**。評価セットが空なら「上限 ≦ 件数」は破れないので、先に実物を見る。
+    expect(EVAL_CASES.length, "評価セットを読めていません").toBeGreaterThanOrEqual(50);
     // 上限が実件数より大きいと、上限は 1 度も効かない飾りになる。
     expect(AI_EVAL_BUDGET.maxCases).toBeGreaterThan(0);
-    expect(AI_EVAL_BUDGET.maxCases).toBeLessThanOrEqual(51);
+    expect(AI_EVAL_BUDGET.maxCases).toBeLessThanOrEqual(EVAL_CASES.length);
     expect(AI_EVAL_BUDGET.maxTokens).toBeGreaterThan(0);
   });
 });
