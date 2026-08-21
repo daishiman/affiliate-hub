@@ -13,9 +13,11 @@ import {
   Card,
   ClaimStatement,
   ComparisonTable,
+  DataTable,
   ConsentBanner,
   Conversation,
   CriteriaDisclosure,
+  DefinitionList,
   DisclosureNotice,
   EmptyView,
   ErrorView,
@@ -27,11 +29,16 @@ import {
   LoadingView,
   MaterialReview,
   ModelPicker,
+  Note,
   Page,
   ProductCard,
   ProvenanceNote,
   RankingTable,
   ScheduleCalendar,
+  SectionHeading,
+  SeeAlso,
+  StackedList,
+  StackedRow,
   StubLabel,
   StorageNotice,
   StubNotice,
@@ -199,7 +206,7 @@ export default function UiCatalogPage() {
         />
 
         <Card>
-          <h2 className={styles.sectionTitle}>1. ボタン</h2>
+          <SectionHeading level={2}>1. ボタン</SectionHeading>
           <p className={styles.sectionLead}>
             主操作は 1 画面に 1 つだけ。並べる順は「主 → 副 → 取り消し」で固定します。
           </p>
@@ -218,7 +225,7 @@ export default function UiCatalogPage() {
         </Card>
 
         <Card>
-          <h2 className={styles.sectionTitle}>2. 4 つの状態</h2>
+          <SectionHeading level={2}>2. 4 つの状態</SectionHeading>
           <p className={styles.sectionLead}>
             一覧・詳細・検索結果は必ずこの 4 つを持ちます。どの状態にも文言が要ります。
           </p>
@@ -244,7 +251,155 @@ export default function UiCatalogPage() {
         </Card>
 
         <Card>
-          <h2 className={styles.sectionTitle}>3. 事実と推測の区別</h2>
+          <SectionHeading level={2}>2-b. 節の見出し</SectionHeading>
+          <p className={styles.sectionLead}>
+            段（level）は必ず指定します。見た目で選ばず、文書としての段で選びます。
+            クラスを当てない見出し要素は大きさも太さも失い、段落と見分けが付きません（残課題 145）。
+          </p>
+          {/*
+            **段が飛ばないように並べてある。**この Card の見出しが h2 なので、
+            見本は h2 → h3 → h4 → h5 → h6 の順で下りるだけにしてある。
+            段を飛ばすと axe の `heading-order` が赤になる（見本帳も走査対象）。
+          */}
+          <div className={styles.catalogStack}>
+            <SectionHeading level={2}>2 段目の見出し</SectionHeading>
+            <SectionHeading level={3}>3 段目の見出し</SectionHeading>
+            <p className={styles.sectionLead}>
+              段が変われば大きさも変わります。値は新しく作っておらず、
+              公開側で既に使っている 2 つをそのまま持っています。
+            </p>
+          </div>
+
+          {/*
+            **対比。**管理画面はいま `.sectionTitle` を h2 / h3 / h4 の 3 段すべてに
+            当てている（`admin/personas` は 3 段入れ子で、全部同じ大きさで出る）。
+            **文書の構造は 3 段あるのに、目に見えるのは 1 段しかない。**
+            これを言葉で書くと読み飛ばされるので、隣に並べて見えるようにしてある。
+            ここを消すなら、代わりに何で見せるかを決めてから消すこと。
+            **なぜ h4 から始まるのか。**値を 4 段目に選んだのではなく、上の見本が
+            h2 → h3 で終わっているので、その続きから下ろしているだけである。
+            段は連続していればよく、どの段から始めるかに意味は無い。
+            上の見本を増減させたら、ここの開始段もそれに合わせて動かすこと。
+          */}
+          <div className={styles.catalogStack}>
+            <h4 className={styles.sectionTitle}>.sectionTitle を 4 段目に当てた場合</h4>
+            <h5 className={styles.sectionTitle}>.sectionTitle を 5 段目に当てた場合</h5>
+            <h6 className={styles.sectionTitle}>.sectionTitle を 6 段目に当てた場合</h6>
+            <p className={styles.sectionLead}>
+              3 つとも同じ大きさで出ます。管理画面の節見出しはまだこの形で、
+              SectionHeading には通していません。通すには 4 段目の見た目を
+              決める必要があり、それは UX-17 に残しています。
+            </p>
+          </div>
+        </Card>
+
+        <Card>
+          <SectionHeading level={2}>2-c. 注記</SectionHeading>
+          <p className={styles.sectionLead}>
+            本文より一段弱く出す、独立した段落です。余白も className も受け取りません。
+          </p>
+          <div className={styles.catalogStack}>
+            <Note>数字は直近 30 日ぶんです。集計は毎日 3 時に走ります。</Note>
+            <Note>まだ 1 件も届いていないため、この欄は空のままです。</Note>
+          </div>
+          {/*
+            **見た目が同じでも、通してはいけないものが 2 種類ある。**
+            一覧の行の説明（`<li>` の中の 36 箇所）は `.linkList` と対で使われており、
+            片割れだけ部品にすると 1 行が継ぎ目で割れる。行内の小書き（5 箇所）には
+            チェックボックスのラベル文が混じっていて、通すと**表示は合ったまま
+            意味が嘘になる**（残課題 148）。理由は `note.tsx` の doc、見張りは
+            `tests/ui/note-role.test.ts`。**揃っていないのは、揃え忘れではない。**
+          */}
+          <p className={styles.sectionLead}>
+            同じ見た目の小さい灰色の文字が管理画面に他にもありますが、役が違うので
+            ここへは通していません。理由は note.tsx の説明にあります。
+          </p>
+        </Card>
+
+        <Card>
+          <SectionHeading level={2}>2-d. 行き先の案内</SectionHeading>
+          <p className={styles.sectionLead}>
+            節の末尾に置く、行き先 1 本だけの段落です。上の注記と同じ見た目ですが、役が違います。
+          </p>
+          <div className={styles.catalogStack}>
+            <SeeAlso>
+              <Link href="/admin/personas">書き手と読者像を見る</Link>
+            </SeeAlso>
+            <SeeAlso>
+              <Link href="/admin/settings/llm">API キーの登録と状態を見る</Link>
+            </SeeAlso>
+          </div>
+          {/*
+            **見本帳で並べて見えるのは「同じ見た目」だけで、分けた理由は見えない。**
+            分けた理由は押しどころの下限にある——`.seeAlso > a` に 44px を当てるのは
+            正しいが、同じ規則を `.note > a` に当てると、文の中に埋まったリンク 2 本で
+            行の高さが崩れる。**1 本の規則が片方には正しく片方には誤りになる**ことが、
+            2 つが別の役である証拠だった。**見た目で分けたのではない。**
+
+            この 6 箇所は、もともと `<Note>` として書かれていた（残課題 152）。
+            `note.tsx` の doc が「見た目が同じでも役が違うので通さないこと」と
+            書いている、まさにその形を部品自身が破っていた。
+            **部品化は役を正さない**——名前が付くと「`Note` を使っている＝注記だ」と
+            読めるので、生クラスだった頃より疑われにくくなる。
+            見張りは `tests/ui/note-role.test.ts`。
+          */}
+          <p className={styles.sectionLead}>
+            見た目を揃えるためにここへ通さないでください。前後に連れの文があるものは、
+            「〜を見る」と書いてあっても行き先ではなく文です。
+          </p>
+        </Card>
+
+        <Card>
+          <SectionHeading level={2}>2-e. 縦に積む一覧</SectionHeading>
+          <p className={styles.sectionLead}>
+            管理画面のあちこちにある「行き先や語を縦に並べて、それぞれに一行の説明を付ける」
+            一覧です。26 の画面で 53 回使われていた書き方を、そのままここへ上げています。
+          </p>
+          <div className={styles.catalogStack}>
+            <StackedList>
+              <StackedRow note="どの読者に向けて書くかを決める画面です。">
+                <Link href="/admin/personas">読者像を見る</Link>
+              </StackedRow>
+              <StackedRow>
+                <Link href="/admin/evidence">根拠を見る</Link>
+              </StackedRow>
+              <StackedRow note="説明を持たない行のほうが多数派です（61 行のうち 38 行）。">
+                <span>リンクではない行も、同じ一覧に混ざります</span>
+              </StackedRow>
+            </StackedList>
+
+            <SectionHeading level={3}>順序に意味があるとき</SectionHeading>
+            <StackedList ordered>
+              <StackedRow note="番号は画面側で書きます。見た目は上の一覧と変わりません。">
+                <span>1. 下書きを作る</span>
+              </StackedRow>
+              <StackedRow>
+                <span>2. 根拠を結び付ける</span>
+              </StackedRow>
+            </StackedList>
+          </div>
+          {/*
+            **`LinkList` という名前にしなかった。**61 行のうちリンクを含むのは 23 行だけで、
+            残り 38 行は素の文章である。名前を引き継ぐと、`note.tsx` の警告——
+            「部品の名前が役を主張するので、生クラスだった頃より疑われにくくなる」——を
+            もう一度やることになる。**見た目は 1px も変わらないまま、嘘だけが強くなる。**
+
+            **リンクの行と文章の行に、役を分けてはいない。**残課題 156 の基準
+            （「役の分割は、二つの役に別の扱いが要るときに初めて元が取れる」）を
+            満たさないため。`ordered` だけは分けた——読み上げが `<ol>` と `<ul>` を
+            区別して伝えるので、揃えると意味のほうが消える。**同じ日に、同じ人が、
+            片方は分けて片方は分けなかった。基準が在るとはそういうことである。**
+
+            理由は `stacked-list.tsx` の doc、見張りは `tests/ui/stacked-list-role.test.ts`。
+          */}
+          <p className={styles.sectionLead}>
+            管理画面には、まだこの部品へ通していない縦積みが 2 箇所あります。どちらも
+            移し忘れではなく役が違うためで、理由は stacked-list.tsx の説明にあります。
+          </p>
+        </Card>
+
+        <Card>
+          <SectionHeading level={2}>3. 事実と推測の区別</SectionHeading>
           <p className={styles.sectionLead}>
             色だけで区別しません。記号と文字を必ず添えます。
           </p>
@@ -283,7 +438,7 @@ export default function UiCatalogPage() {
         </Card>
 
         <Card>
-          <h2 className={styles.sectionTitle}>4. 根拠が無いとき</h2>
+          <SectionHeading level={2}>4. 根拠が無いとき</SectionHeading>
           <p className={styles.sectionLead}>0 件のときに黙りません。必ず理由と導線を出します。</p>
           <EvidenceList
             items={[]}
@@ -292,7 +447,7 @@ export default function UiCatalogPage() {
         </Card>
 
         <Card>
-          <h2 className={styles.sectionTitle}>5. 広告表示</h2>
+          <SectionHeading level={2}>5. 広告表示</SectionHeading>
           <p className={styles.sectionLead}>
             法令に関わる表示です。画面ごとに書かず、必ずこの部品を使います。
           </p>
@@ -316,7 +471,7 @@ export default function UiCatalogPage() {
         </Card>
 
         <Card>
-          <h2 className={styles.sectionTitle}>6. 順位</h2>
+          <SectionHeading level={2}>6. 順位</SectionHeading>
           <p className={styles.sectionLead}>
             順位は採点表から機械的に決まります。この部品に並べ替えの機能はありません。
           </p>
@@ -337,7 +492,7 @@ export default function UiCatalogPage() {
         </Card>
 
         <Card>
-          <h2 className={styles.sectionTitle}>7. 比較</h2>
+          <SectionHeading level={2}>7. 比較</SectionHeading>
           <p className={styles.sectionLead}>
             列は配列で受け取ります。列を足すときにセルの記述を書き足す必要はありません。
           </p>
@@ -373,12 +528,56 @@ export default function UiCatalogPage() {
         </Card>
 
         <Card>
-          <h2 className={styles.sectionTitle}>8. 評価基準の開示</h2>
+          <SectionHeading level={2}>7-b. 名前の付いた列を並べるだけの表</SectionHeading>
+          <p className={styles.sectionLead}>
+            順位でも比較でもない、ただの一覧のための器です。寄せは列にしか書けません——
+            見出しと値の両方へ同じ値から当たるので、「値は右寄せなのに見出しだけ左寄せ」が
+            起きません。表題も省略できません。0 件の見せ方と行の中の操作は持たないので、
+            どちらも呼び出し側が書きます。
+          </p>
+          <DataTable
+            caption="面ごとの道具の数（見本の値です）"
+            columns={[
+              { key: "surface", header: "面", rowHeader: true, cell: (r) => r.surface },
+              { key: "done", header: "動くもの", align: "numeric", cell: (r) => r.done },
+              { key: "total", header: "仕様の数", align: "numeric", cell: (r) => r.total },
+              { key: "note", header: "備考", cell: (r) => r.note },
+            ]}
+            rows={[
+              { surface: "画面", done: 12, total: 12, note: "すべて動きます" },
+              { surface: "ページ内AI", done: 7, total: 9, note: "2 つは見本です" },
+              { surface: "外部AI", done: 3, total: 9, note: "6 つは見本です" },
+            ]}
+            rowKey={(r) => r.surface}
+          />
+        </Card>
+
+        <Card>
+          <SectionHeading level={2}>7-c. 項目と値の対（表ではないもの）</SectionHeading>
+          <p className={styles.sectionLead}>
+            すぐ上の表と並べて置いてあります。どちらを使うかは、列に名前が付くかどうかで
+            決まります。7-b は「面」「動くもの」という列の名前が全部の行に共通ですが、
+            こちらは 1 行ごとに項目が違うので、共通の列名が存在しません。
+            そこへ表を当てると「項目 / 値」という中身の無い見出しを発明することになり、
+            読み上げたときに「項目、担当者、値、xxx」と出ます。
+            寄せは `dd` にだけ当たります——`dt` は項目の名前であって、数字ではないからです。
+          </p>
+          <DefinitionList
+            items={[
+              { term: "担当者", description: "見本 太郎" },
+              { term: "役割", description: "編集・公開" },
+              { term: "受け持っている記事", description: "12本", align: "numeric" },
+            ]}
+          />
+        </Card>
+
+        <Card>
+          <SectionHeading level={2}>8. 評価基準の開示</SectionHeading>
           <CriteriaDisclosure criteria={criteria} />
         </Card>
 
         <Card>
-          <h2 className={styles.sectionTitle}>9. 承認の流れ</h2>
+          <SectionHeading level={2}>9. 承認の流れ</SectionHeading>
           <div className={styles.catalogStack}>
             <ApprovalFlow current="draft" />
             <ApprovalFlow current="review" />
@@ -393,7 +592,7 @@ export default function UiCatalogPage() {
         </Card>
 
         <Card>
-          <h2 className={styles.sectionTitle}>10. 見本（まだ中身が無いもの）</h2>
+          <SectionHeading level={2}>10. 見本（まだ中身が無いもの）</SectionHeading>
           <p className={styles.sectionLead}>
             中身の無い画面を、動いているように見せません。使えるようになる条件を必ず添えます。
           </p>
@@ -432,7 +631,7 @@ export default function UiCatalogPage() {
         </Card>
 
         <Card>
-          <h2 className={styles.sectionTitle}>11. 入力欄</h2>
+          <SectionHeading level={2}>11. 入力欄</SectionHeading>
           <p className={styles.sectionLead}>
             入力の作法は全画面で 1 組だけです。単位は欄の中に置き、自動で入った値には由来を添え、
             手で直したらそれが分かる印と「自動に戻す」を出します。タブや手順ごとに作法を変えません。
@@ -441,7 +640,7 @@ export default function UiCatalogPage() {
         </Card>
 
         <Card>
-          <h2 className={styles.sectionTitle}>12. 絞り込み</h2>
+          <SectionHeading level={2}>12. 絞り込み</SectionHeading>
           <p className={styles.sectionLead}>
             軸ごとに「その軸で何が分かるか」を添えます。報酬の出どころに近い軸には印が付きます。
             選べない軸は、欄を消さずに理由を出します。
@@ -487,7 +686,7 @@ export default function UiCatalogPage() {
         </Card>
 
         <Card>
-          <h2 className={styles.sectionTitle}>13. 手当てが要ることの一覧</h2>
+          <SectionHeading level={2}>13. 手当てが要ることの一覧</SectionHeading>
           <p className={styles.sectionLead}>
             数字だけを並べません。「なぜ手当てが要るか」と「どこへ行けばよいか」を必ず添えます。
             値が出せないときは、空欄ではなく理由を出します。
@@ -531,7 +730,7 @@ export default function UiCatalogPage() {
         </Card>
 
         <Card>
-          <h2 className={styles.sectionTitle}>14. 取り込んだ文章の確認</h2>
+          <SectionHeading level={2}>14. 取り込んだ文章の確認</SectionHeading>
           <p className={styles.sectionLead}>
             外から取り込んだ文章に、AI への指示が混ざっていないかを確かめます。
             見つけた箇所は伏せずに出し、**指示としては実行しません**。
@@ -559,7 +758,7 @@ export default function UiCatalogPage() {
         </Card>
 
         <Card>
-          <h2 className={styles.sectionTitle}>15. 配信の予定表</h2>
+          <SectionHeading level={2}>15. 配信の予定表</SectionHeading>
           <p className={styles.sectionLead}>
             手当てが要る予定は、色だけでなく言葉で示します。空の日も日付だけは残します。
           </p>
@@ -571,7 +770,7 @@ export default function UiCatalogPage() {
         </Card>
 
         <Card>
-          <h2 className={styles.sectionTitle}>16. 会話ブロック</h2>
+          <SectionHeading level={2}>16. 会話ブロック</SectionHeading>
           <p className={styles.sectionLead}>
             話し手は 4 種類に固定してあります。案内役に実体験を語らせないためです。
           </p>
@@ -586,7 +785,7 @@ export default function UiCatalogPage() {
         </Card>
 
         <Card>
-          <h2 className={styles.sectionTitle}>17. 商品カード</h2>
+          <SectionHeading level={2}>17. 商品カード</SectionHeading>
           <p className={styles.sectionLead}>
             項目の並びは呼び出し側から変えられません。商品ごとに項目が違うと読者が比べられないためです。
             測っていない欄は空白にせず「未計測」と書きます。
@@ -622,7 +821,7 @@ export default function UiCatalogPage() {
         </Card>
 
         <Card>
-          <h2 className={styles.sectionTitle}>18. 見た目の切り替え</h2>
+          <SectionHeading level={2}>18. 見た目の切り替え</SectionHeading>
           <p className={styles.sectionLead}>
             管理画面と読者向けブログで同じ部品を使います。違いは「配色を選べるかどうか」だけです。
             読者には明るさだけを開けています。配色はブログのブランドで、読者が変えるものではないためです。
@@ -645,7 +844,7 @@ export default function UiCatalogPage() {
         </Card>
 
         <Card>
-          <h2 className={styles.sectionTitle}>19. 計測についてのお願い</h2>
+          <SectionHeading level={2}>19. 計測についてのお願い</SectionHeading>
           <p className={styles.sectionLead}>
             読者向けブログの足元に 1 箇所だけ出します。2 つのボタンの目立ち方はわざと揃えています。
             片方だけ目立たせて断りにくくするのは、読者をだます作りだからです。
@@ -660,7 +859,7 @@ export default function UiCatalogPage() {
         </Card>
 
         <Card>
-          <h2 className={styles.sectionTitle}>20. 改善したいことを送る</h2>
+          <SectionHeading level={2}>20. 改善したいことを送る</SectionHeading>
           <p className={styles.sectionLead}>
             右下のボタンは、管理画面の骨格から 1 回だけ出しています。画面ごとに置くと、
             置き忘れた画面の不満だけがどこにも届きません。画面の写しは付けても付けなくても送れます。
@@ -671,7 +870,7 @@ export default function UiCatalogPage() {
         </Card>
 
         <Card>
-          <h2 className={styles.sectionTitle}>21. どのモデルで書くか選ぶ</h2>
+          <SectionHeading level={2}>21. どのモデルで書くか選ぶ</SectionHeading>
           <p className={styles.sectionLead}>
             既定のモデルは置きません。置くと、選んだ覚えのないモデルで書かれた記事が、
             選んで書いたものと同じ形で残ります。使えない提供元も隠さず、
@@ -690,7 +889,7 @@ export default function UiCatalogPage() {
         </Card>
 
         <Card>
-          <h2 className={styles.sectionTitle}>22. 詰まり具合の見比べ</h2>
+          <SectionHeading level={2}>22. 詰まり具合の見比べ</SectionHeading>
           <DensitySamples />
         </Card>
       </Page>

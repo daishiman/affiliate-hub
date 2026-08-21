@@ -1,4 +1,4 @@
-/** @tier 2 */
+/** @tier 2 @req REQ-S09, REQ-SEC08 */
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 import { ADMIN_NAV_GROUPS } from "@/presentation/ui";

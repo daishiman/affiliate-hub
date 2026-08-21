@@ -10,6 +10,7 @@ import {
   ErrorView,
   EvidenceList,
   Page,
+  SectionHeading,
   StubNotice,
   type EvidenceView,
 } from "@/presentation/ui";
@@ -92,11 +93,11 @@ export default async function EvidencePage() {
 
       {perProduct.map(({ product, result }) => (
         <Card key={product.productId}>
-          <h2 className={styles.sectionTitle}>
+          <SectionHeading level={2}>
             <Link href={`/admin/products/${encodeURIComponent(product.productId)}`}>
               {product.brand} {product.name}
             </Link>
-          </h2>
+          </SectionHeading>
 
           {!result.ok ? (
             <ErrorView

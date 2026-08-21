@@ -79,6 +79,35 @@
   padding: var(--space-6) var(--space-5);
   display: grid;
   gap: var(--space-6);
+  /*
+   * **`flex: 1` と `display: grid` を同じ箱に置いたら、これが要る。**
+   *
+   * 枠は `min-height: 100vh` なので、中身が短い画面ではこの箱が画面の高さまで
+   * 引き伸ばされる。grid の `align-content` の初期値は `stretch` で、行がすべて
+   * `auto` のときは**余った高さを全部の行へ均等に配ぶんする**。結果、塊と塊の間が
+   * どこも同じだけ間延びし、`gap` に書いた値が意味を持たなくなる。
+   * 中身の少ない画面（ログイン・0 件の一覧・エラー）ほどひどく崩れる。
+   */
+  align-content: start;
+}
+
+/*
+ * 1 つの作業だけの画面の箱（UX-06）。`FocusedTask` が使う。
+ *
+ * 枠・背景・角・影は共通部品の `.card` から来る。ここでは**重ねて書かない**
+ * （同じ箱が 2 通りの定義を持つと、片方だけ直る日が来る）。
+ * ここが決めるのは、置き方（横中央）と幅の上限と、中の間隔だけ。
+ *
+ * 幅は `--readable-max-width`。本文幅（`--prose-max-width`）より狭いのは、
+ * ここに入るのが読み物ではなく**短い説明と操作**だからで、
+ * 行が長いと「読む画面」に見えてしまう。
+ */
+.focusedTask {
+  width: 100%;
+  max-width: var(--readable-max-width);
+  margin-inline: auto;
+  display: grid;
+  gap: var(--space-5);
 }
 
 .siteFooter {
@@ -118,6 +147,15 @@
 .breadcrumb {
   font-size: var(--text-sm);
   color: var(--color-text-muted);
+}
+
+/* 読者側の案内リンク（パンくずと目次）。**文の中のリンクではなく、
+   1 行が丸ごと 1 つの行き先**なので、押しどころの下限を持たせる。 */
+.breadcrumb a,
+nav.section a {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--tap-target-min);
 }
 
 .breadcrumb a {

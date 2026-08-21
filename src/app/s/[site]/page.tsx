@@ -2,7 +2,7 @@ import Link from "next/link";
 import { readerActor, siteUseCases } from "@/presentation/composition";
 import { SiteFrame } from "@/presentation/site/page-frame";
 import { siteHref, toArticleCards } from "@/presentation/site/view-model";
-import { ArticleList, ErrorView, SitePage, UI_COPY } from "@/presentation/ui";
+import { ArticleList, ErrorView, SectionHeading, SitePage, UI_COPY } from "@/presentation/ui";
 
 export const dynamic = "force-dynamic";
 
@@ -21,7 +21,7 @@ export default async function SiteHome({ params }: { params: Promise<{ site: str
       {({ blueprint }) => (
         <SitePage title={blueprint.name} lead={blueprint.purpose} wide>
           <section>
-            <h2>カテゴリー</h2>
+            <SectionHeading level={2}>カテゴリー</SectionHeading>
             <ul>
               {blueprint.categories.map((c) => (
                 <li key={c.slug}>
@@ -32,7 +32,7 @@ export default async function SiteHome({ params }: { params: Promise<{ site: str
           </section>
 
           <section>
-            <h2>新着</h2>
+            <SectionHeading level={2}>新着</SectionHeading>
             {recent.ok ? (
               <ArticleList
                 articles={toArticleCards(site, recent.value)}

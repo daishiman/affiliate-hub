@@ -1,8 +1,8 @@
 import { readerActor, readerUseCases } from "@/presentation/composition";
-import { ReadFailureBody, SiteFrame } from "@/presentation/site/page-frame";
+import { ReadFailureBody, SiteFrame, stopIfMissing } from "@/presentation/site/page-frame";
 import { ReaderToolForm } from "@/presentation/site/reader-tool-form";
 import { siteHref } from "@/presentation/site/view-model";
-import { ErrorView, SitePage, StubNotice } from "@/presentation/ui";
+import { ErrorView, SectionHeading, SitePage, StubNotice } from "@/presentation/ui";
 
 export const dynamic = "force-dynamic";
 
@@ -29,9 +29,11 @@ export default async function ReaderToolPage({
   });
 
   if (!definition.ok) {
+    // 無い道具は 404 として打ち切る。**JSX を組み立てる前に。**（項目 36）
+    stopIfMissing(definition.error);
     return (
       <SiteFrame siteSlug={site} currentPath={siteHref(site, `/tools/${tool}`)}>
-        {() => <ReadFailureBody error={definition.error} what="この道具" siteSlug={site} />}
+        {() => <ReadFailureBody what="この道具" siteSlug={site} />}
       </SiteFrame>
     );
   }
@@ -75,13 +77,13 @@ export default async function ReaderToolPage({
           />
 
           <section>
-            <h2>結果の読み方</h2>
+            <SectionHeading level={2}>結果の読み方</SectionHeading>
             <p>{definition.value.howToRead}</p>
           </section>
 
           {run === null ? null : run.ok ? (
             <section>
-              <h2>結果</h2>
+              <SectionHeading level={2}>結果</SectionHeading>
               <p>{run.value.summary}</p>
               <dl>
                 {run.value.rows.map((row) => (

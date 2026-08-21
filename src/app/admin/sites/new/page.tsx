@@ -17,6 +17,9 @@ import {
   EmptyView,
   ErrorView,
   Page,
+  SectionHeading,
+  StackedList,
+  StackedRow,
   StorageNotice,
 } from "@/presentation/ui";
 import styles from "../../admin.module.css";
@@ -74,29 +77,29 @@ export default async function NewSitePage({
         <p className={styles.sectionLead}>
           {current?.position ?? 1} / {draft.totalSteps} 段階目（{draft.doneCount} 段階まで入力済み）
         </p>
-        <h2 className={styles.sectionTitle}>{current?.label ?? "作る"}</h2>
+        <SectionHeading level={2}>{current?.label ?? "作る"}</SectionHeading>
         <p className={styles.sectionLead}>{current?.question ?? ""}</p>
 
         <SiteWizardStepForm draft={draft} />
       </Card>
 
       <Card>
-        <h2 className={styles.sectionTitle}>13 段階の進み具合</h2>
+        <SectionHeading level={2}>13 段階の進み具合</SectionHeading>
         <p className={styles.sectionLead}>
           好きな段階へ戻れます。順番どおりに答えなくても構いません。
         </p>
-        <ol className={styles.linkList}>
+        <StackedList ordered>
           {draft.steps.map((s) => (
-            <li key={s.step}>
+            <StackedRow key={s.step}>
               <Link href={`/admin/sites/new?draftId=${draft.draftId}&step=${s.step}`}>
                 {s.position}. {s.label}
               </Link>
               {" — "}
               {s.done ? "入力済み" : "まだ入力していません"}
               {s.step === draft.currentStep ? "（いま開いています）" : ""}
-            </li>
+            </StackedRow>
           ))}
-        </ol>
+        </StackedList>
       </Card>
     </Shell>
   );
@@ -119,7 +122,7 @@ async function DraftListView({ error }: { readonly error?: string }) {
       {error === undefined ? null : <Callout tone="warn" reason={error} />}
 
       <Card>
-        <h2 className={styles.sectionTitle}>新しいブログを始める</h2>
+        <SectionHeading level={2}>新しいブログを始める</SectionHeading>
         <p className={styles.sectionLead}>
           13 の質問に答えると、ブログが 1 本できます。答えた内容は設計図として保存され、
           読者に見える画面は既にあるものがそのまま使われます。作るまで公開されません。
@@ -132,7 +135,7 @@ async function DraftListView({ error }: { readonly error?: string }) {
       </Card>
 
       <Card>
-        <h2 className={styles.sectionTitle}>作りかけのブログ</h2>
+        <SectionHeading level={2}>作りかけのブログ</SectionHeading>
         {!listed.ok ? (
           <ErrorView
             title="作りかけの一覧を出せませんでした"
@@ -146,18 +149,18 @@ async function DraftListView({ error }: { readonly error?: string }) {
             body={listed.value.emptyReason ?? "作りかけのブログはありません。"}
           />
         ) : (
-          <ul className={styles.linkList}>
+          <StackedList>
             {listed.value.items.map((d) => (
-              <li key={d.draftId}>
+              <StackedRow key={d.draftId}>
                 <Link href={`/admin/sites/new?draftId=${d.draftId}`}>
                   {d.name === "" ? "名前がまだ決まっていない下書き" : d.name}
                 </Link>
                 {" — "}
                 {d.doneCount} / {d.totalSteps} 段階まで入力済み
                 {d.createdSiteSlug === null ? "（まだ公開されていません）" : "（作成済み）"}
-              </li>
+              </StackedRow>
             ))}
-          </ul>
+          </StackedList>
         )}
       </Card>
     </Shell>

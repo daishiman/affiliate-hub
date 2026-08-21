@@ -1,19 +1,23 @@
-import { AdminShell } from "@/presentation/admin/admin-shell";
-import Link from "next/link";
-import type { ReactNode } from "react";
-import { RescheduleForm } from "@/presentation/admin/reschedule-form";
 import {
   currentActor,
   distributionNotice,
   publicationCalendarUseCases,
 } from "@/presentation/composition";
+import { AdminShell } from "@/presentation/admin/admin-shell";
+import Link from "next/link";
+import type { ReactNode } from "react";
+import { RescheduleForm } from "@/presentation/admin/reschedule-form";
 import {
   Callout,
   Card,
   EmptyView,
   ErrorView,
+  Note,
   Page,
   ScheduleCalendar,
+  SectionHeading,
+  StackedList,
+  StackedRow,
   StorageNotice,
 } from "@/presentation/ui";
 import styles from "../../admin.module.css";
@@ -59,7 +63,7 @@ export default async function PublicationCalendarPage({
       <StorageNotice status={await distributionNotice()} />
 
       <Card>
-        <h2 className={styles.sectionTitle}>{view.monthLabel}の投稿予定</h2>
+        <SectionHeading level={2}>{view.monthLabel}の投稿予定</SectionHeading>
         <p className={styles.sectionLead}>
           日付ごとに並べています。同じ日に同じ先へ寄っているもの、承認前のまま予約されているもの、
           失敗したまま止まっているものは、その日の枠に理由を出します。
@@ -122,28 +126,26 @@ export default async function PublicationCalendarPage({
 
       {view.undated.length === 0 ? null : (
         <Card>
-          <h2 className={styles.sectionTitle}>日時の決まっていない配信（{view.undated.length}件）</h2>
+          <SectionHeading level={2}>日時の決まっていない配信（{view.undated.length}件）</SectionHeading>
           <p className={styles.sectionLead}>
             カレンダーに置く日付がないため、ここにまとめています。
             承認され次第すぐに出るので、出す日を決めたい場合は予定日を入れてください。
           </p>
-          <ul className={styles.linkList}>
+          <StackedList>
             {view.undated.map((e) => (
-              <li key={e.publicationId}>
+              <StackedRow key={e.publicationId} note={<>{e.accountLabel} / {e.approvalLabel} / {e.stateLabel}</>}>
                 <Link href={e.href}>
                   {e.channelLabel}：{e.title}
                 </Link>
-                <span className={styles.linkNote}>
-                  {e.accountLabel} / {e.approvalLabel} / {e.stateLabel}
-                </span>
-              </li>
+                
+              </StackedRow>
             ))}
-          </ul>
+          </StackedList>
         </Card>
       )}
 
       <Card>
-        <h2 className={styles.sectionTitle}>予定日を変える</h2>
+        <SectionHeading level={2}>予定日を変える</SectionHeading>
         <p className={styles.sectionLead}>
           日時を選んで変えます。掴んで動かす操作にしていないのは、
           キーボードだけを使う方が予定を動かせなくなるためです。
@@ -163,12 +165,12 @@ export default async function PublicationCalendarPage({
         ) : (
           [...view.days.flatMap((d) => d.entries), ...view.undated].map((e) => (
             <div key={e.publicationId}>
-              <h3 className={styles.sectionTitle}>
+              <SectionHeading level={3}>
                 {e.channelLabel}：{e.title}
-              </h3>
-              <p className={styles.linkNote}>
+              </SectionHeading>
+              <Note>
                 いまの予定：{e.scheduledLabel} ／ 状態：{e.stateLabel}
-              </p>
+              </Note>
               <RescheduleForm
                 publicationId={e.publicationId}
                 currentValue={toInputValue(e.scheduledAt)}

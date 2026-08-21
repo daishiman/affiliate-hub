@@ -2,15 +2,20 @@ import { AdminShell } from "@/presentation/admin/admin-shell";
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { FEEDBACK_TARGET_LABEL } from "@/application/usecases/analytics/read-metrics";
-import { ANALYTICS_AXIS_KEYS, type AnalyticsAxisKey } from "@/domain/analytics";
 import { analyticsNotice, analyticsUseCases, currentActor } from "@/presentation/composition";
+import { ANALYTICS_AXIS_KEYS, type AnalyticsAxisKey } from "@/domain/analytics";
 import {
   Callout,
   Card,
+  DataTable,
   EmptyView,
   ErrorView,
   FilterBar,
+  Note,
   Page,
+  SectionHeading,
+  StackedList,
+  StackedRow,
   StorageNotice,
 } from "@/presentation/ui";
 import styles from "../admin.module.css";
@@ -121,31 +126,34 @@ export default async function AnalyticsPage({
           if (rows.length === 0) return null;
           return (
             <Card key={group}>
-              <h2 className={styles.sectionTitle}>{rows[0]?.categoryLabel ?? group}</h2>
-              <table className={styles.rankTable}>
-                <thead>
-                  <tr>
-                    <th scope="col">数字</th>
-                    <th scope="col">直近30日</th>
-                    <th scope="col">母数</th>
-                    <th scope="col">どう数えたか</th>
-                    <th scope="col">編集判断への利用</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {rows.map((r) => (
-                    <tr key={r.key}>
-                      <th scope="row">{r.label}</th>
-                      <td className={styles.numeric}>{r.valueLabel}</td>
-                      <td className={styles.numeric}>
-                        {r.denominator === null ? "—" : r.denominator.toLocaleString("ja-JP")}
-                      </td>
-                      <td>{r.howCounted}</td>
-                      <td>{r.usableForEditorialJudgement ? "使えます" : "使えません"}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+              <SectionHeading level={2}>{rows[0]?.categoryLabel ?? group}</SectionHeading>
+              <DataTable
+                caption={`${rows[0]?.categoryLabel ?? group}の数字。直近30日の値と、その母数・数え方・編集判断に使ってよいか。`}
+                columns={[
+                  { key: "label", header: "数字", rowHeader: true, cell: (r) => r.label },
+                  {
+                    key: "value",
+                    header: "直近30日",
+                    align: "numeric",
+                    cell: (r) => r.valueLabel,
+                  },
+                  {
+                    key: "denominator",
+                    header: "母数",
+                    align: "numeric",
+                    cell: (r) =>
+                      r.denominator === null ? "—" : r.denominator.toLocaleString("ja-JP"),
+                  },
+                  { key: "howCounted", header: "どう数えたか", cell: (r) => r.howCounted },
+                  {
+                    key: "usable",
+                    header: "編集判断への利用",
+                    cell: (r) => (r.usableForEditorialJudgement ? "使えます" : "使えません"),
+                  },
+                ]}
+                rows={rows}
+                rowKey={(r) => r.key}
+              />
               {rows
                 .filter((r) => r.notUsableReason !== null)
                 .slice(0, 1)
@@ -157,16 +165,16 @@ export default async function AnalyticsPage({
                     reason={r.notUsableReason ?? ""}
                   />
                 ))}
-              <p className={styles.linkNote}>
+              <Note>
                 「未計測」は、まだ数えられていないという意味です。0 ではありません。
-              </p>
+              </Note>
             </Card>
           );
         })
       )}
 
       <Card>
-        <h2 className={styles.sectionTitle}>切り口で絞って見る</h2>
+        <SectionHeading level={2}>切り口で絞って見る</SectionHeading>
         {!filtered.ok ? (
           <ErrorView
             title="絞り込みができませんでした"
@@ -203,54 +211,50 @@ export default async function AnalyticsPage({
             {filtered.value.emptyReason !== null ? (
               <EmptyView title="この条件では数字が出ませんでした" body={filtered.value.emptyReason} />
             ) : (
-              <table className={styles.rankTable}>
-                <caption>
-                  {filtered.value.filterSummary ?? "絞り込みなし（全体の数字）"}
-                </caption>
-                <thead>
-                  <tr>
-                    <th scope="col">数字</th>
-                    <th scope="col">値</th>
-                    <th scope="col">出せない理由</th>
-                    <th scope="col">編集判断への利用</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filtered.value.rows.map((r) => (
-                    <tr key={r.key}>
-                      <th scope="row">{r.label}</th>
-                      <td className={styles.numeric}>{r.valueLabel}</td>
-                      <td>{r.unavailableReason ?? "—"}</td>
-                      <td>{r.usableForEditorialJudgement ? "使えます" : "使えません"}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+              <DataTable
+                caption={filtered.value.filterSummary ?? "絞り込みなし（全体の数字）"}
+                columns={[
+                  { key: "label", header: "数字", rowHeader: true, cell: (r) => r.label },
+                  { key: "value", header: "値", align: "numeric", cell: (r) => r.valueLabel },
+                  {
+                    key: "unavailable",
+                    header: "出せない理由",
+                    cell: (r) => r.unavailableReason ?? "—",
+                  },
+                  {
+                    key: "usable",
+                    header: "編集判断への利用",
+                    cell: (r) => (r.usableForEditorialJudgement ? "使えます" : "使えません"),
+                  },
+                ]}
+                rows={filtered.value.rows}
+                rowKey={(r) => r.key}
+              />
             )}
 
             {filtered.value.unsplittableCount === 0 ? null : (
-              <p className={styles.linkNote}>
+              <Note>
                 {filtered.value.unsplittableCount}
                 件の数字は、この切り口では分けて数えていません。0 件という意味ではありません。
-              </p>
+              </Note>
             )}
           </>
         )}
       </Card>
 
       <Card>
-        <h2 className={styles.sectionTitle}>用途ごとに使ってよい数字</h2>
-        <ul className={styles.linkList}>
+        <SectionHeading level={2}>用途ごとに使ってよい数字</SectionHeading>
+        <StackedList>
           {TARGETS.map((t) => (
-            <li key={t}>
+            <StackedRow key={t}>
               {t === target ? (
                 <span>{FEEDBACK_TARGET_LABEL[t]}（表示中）</span>
               ) : (
                 <Link href={`/admin/analytics?target=${t}`}>{FEEDBACK_TARGET_LABEL[t]}を見る</Link>
               )}
-            </li>
+            </StackedRow>
           ))}
-        </ul>
+        </StackedList>
         {!usable.ok ? (
           <ErrorView
             title="使ってよい数字を出せませんでした"
@@ -259,39 +263,39 @@ export default async function AnalyticsPage({
           />
         ) : (
           <>
-            <h3 className={styles.sectionTitle}>
+            <SectionHeading level={3}>
               {usable.value.targetLabel}に使える数字（{usable.value.usable.length}件）
-            </h3>
+            </SectionHeading>
             {usable.value.usable.length === 0 ? (
               <EmptyView
                 title="使える数字がありません"
                 body="この用途に使える数字がまだ定義されていません。"
               />
             ) : (
-              <ul className={styles.linkList}>
+              <StackedList>
                 {usable.value.usable.map((m) => (
-                  <li key={m.key}>
+                  <StackedRow key={m.key} note={m.howCounted}>
                     {m.label}
-                    <span className={styles.linkNote}>{m.howCounted}</span>
-                  </li>
+                    
+                  </StackedRow>
                 ))}
-              </ul>
+              </StackedList>
             )}
             {usable.value.rejected.length === 0 ? (
-              <p className={styles.linkNote}>この用途で使えない数字はありません。</p>
+              <Note>この用途で使えない数字はありません。</Note>
             ) : (
               <>
-                <h3 className={styles.sectionTitle}>
+                <SectionHeading level={3}>
                   使えない数字（{usable.value.rejected.length}件）
-                </h3>
-                <ul className={styles.linkList}>
+                </SectionHeading>
+                <StackedList>
                   {usable.value.rejected.map((r) => (
-                    <li key={r.label}>
+                    <StackedRow key={r.label} note={r.reason}>
                       {r.label}
-                      <span className={styles.linkNote}>{r.reason}</span>
-                    </li>
+                      
+                    </StackedRow>
                   ))}
-                </ul>
+                </StackedList>
               </>
             )}
           </>

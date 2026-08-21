@@ -220,3 +220,58 @@
   outline-offset: var(--focus-ring-offset);
   border-radius: var(--radius-sm);
 }
+
+/*
+ * 文の中のリンクの見た目。
+ *
+ * --- なぜここに要るのか（docs/product/ui-ux-tasks.md UX-02） ---
+ * 2026-08-21 に `/signin` の実画面で確認: 「管理画面へ戻る」が地の文と
+ * 見分けられなかった。素の `a` の見た目を決めている規則が**どこにも無い**ため。
+ * `globals.css` は body の色と書体しか決めず、Tailwind の preflight が
+ * `a { color: inherit; text-decoration: inherit }` を敷いて素の下線を消す。
+ * さらにこの `a` は `.linkNote`（--color-text-muted）の中なので、
+ * 地の文より薄い色になっていた。
+ *
+ * --- なぜ `:where()` なのか ---
+ * `:where()` は詳細度 0。`site.module.css` の `.siteNav a` や `.cardTitle a` は
+ * **意図して**下線を外している（案内やカード見出しは行が丸ごと 1 つの行き先なので、
+ * 下線を引くと逆に読みにくい）。詳細度 0 にしておけば、そちらの意図が勝ったまま、
+ * どの規則にも当たらない素のリンクだけをここが拾う。
+ *
+ * `[href]` を付けているのは、行き先を持たない `<a>`（名前だけのアンカー）を
+ * 押せるものに見せないため。
+ */
+:where(a[href]) {
+  /*
+   * **下線を常に出す。**`:hover` のときだけ出す形は採らない。
+   * hover は「ポインタで触れる人」にしか届かない。キーボードだけの人、
+   * 画面を拡大している人、タッチの人には、押せる所が最後まで分からないままになる。
+   * 本文が多少賑やかになる代わりを払っても、こちらを取る。
+   */
+  color: var(--color-action-default);
+  text-decoration-line: underline;
+
+  /*
+   * 線の太さを固定する。既定は書体まかせで、小さい文字だと消えかける。
+   * `--border-width-default` はハイコントラスト時に `--width-thin` へ
+   * 太くなる（`semantic.css:186` の @media）ので、下線もそこで一緒に太くなる。
+   */
+  text-decoration-thickness: var(--border-width-default);
+
+  /*
+   * **日本語のための 1 行。** 平仮名・漢字は字面が下いっぱいまで詰まっているので、
+   * 既定の位置だと下線が「う」「え」「氵」の足に食い込んで字が潰れる。
+   * 1 段ぶん下げて、線と字を切り離す。
+   */
+  text-underline-offset: var(--space-1);
+}
+
+/*
+ * 色だけを変える。下線は素の状態から出ているので、ここで足すものは無い。
+ * **`:hover` を「押せると分かる唯一の手掛かり」にしない**という上の判断の裏返しで、
+ * ここは「いま指している所」を伝えるだけの役に徹する。
+ */
+:where(a[href]):hover {
+  color: var(--color-action-hover);
+  text-decoration-thickness: var(--border-width-emphasis);
+}

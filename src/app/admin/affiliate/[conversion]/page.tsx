@@ -1,13 +1,22 @@
-import { AdminShell } from "@/presentation/admin/admin-shell";
-import Link from "next/link";
-import type { ReactNode } from "react";
 import {
   affiliateStorageNotice,
   affiliateUseCases,
   currentActor,
 } from "@/presentation/composition";
 import { AdjustConversionForm } from "@/presentation/admin/adjust-conversion-form";
-import { Callout, Card, ErrorView, Page, StorageNotice } from "@/presentation/ui";
+import { AdminShell } from "@/presentation/admin/admin-shell";
+import Link from "next/link";
+import type { ReactNode } from "react";
+import {
+  Callout,
+  Card,
+  DefinitionList,
+  ErrorView,
+  Note,
+  Page,
+  SectionHeading,
+  StorageNotice,
+} from "@/presentation/ui";
 import styles from "../../admin.module.css";
 
 export const dynamic = "force-dynamic";
@@ -51,39 +60,24 @@ export default async function ConversionPage({
       <StorageNotice status={await affiliateStorageNotice()} />
 
       <Card>
-        <h2 className={styles.sectionTitle}>内訳</h2>
-        <dl className={styles.criteria}>
-          <div>
-            <dt>提携先</dt>
-            <dd>{view.aspLabel}</dd>
-          </div>
-          <div>
-            <dt>広告主</dt>
-            <dd>{advertiserName}</dd>
-          </div>
-          <div>
-            <dt>状態</dt>
-            <dd>{view.statusLabel}</dd>
-          </div>
-          <div>
-            <dt>発生日</dt>
-            <dd>{view.occurredAt.toLocaleString("ja-JP")}</dd>
-          </div>
-          <div>
-            <dt>取り込んだ額</dt>
-            <dd className={styles.numeric}>{view.ingestedLabel}</dd>
-          </div>
-          <div>
-            <dt>手で直した額</dt>
-            <dd className={styles.numeric}>{view.adjustedLabel ?? "直していません"}</dd>
-          </div>
-          <div>
-            <dt>実際に使う額</dt>
-            <dd className={styles.numeric}>{view.effectiveLabel}</dd>
-          </div>
-        </dl>
+        <SectionHeading level={2}>内訳</SectionHeading>
+        <DefinitionList
+          items={[
+            { term: "提携先", description: view.aspLabel },
+            { term: "広告主", description: advertiserName },
+            { term: "状態", description: view.statusLabel },
+            { term: "発生日", description: view.occurredAt.toLocaleString("ja-JP") },
+            { term: "取り込んだ額", description: view.ingestedLabel, align: "numeric" },
+            {
+              term: "手で直した額",
+              description: view.adjustedLabel ?? "直していません",
+              align: "numeric",
+            },
+            { term: "実際に使う額", description: view.effectiveLabel, align: "numeric" },
+          ]}
+        />
         {view.adjustmentReason === null ? null : (
-          <p className={styles.linkNote}>直した理由: {view.adjustmentReason}</p>
+          <Note>直した理由: {view.adjustmentReason}</Note>
         )}
         <p className={styles.sectionLead}>
           手で直しても、取り込んだ額はそのまま残します。
@@ -92,7 +86,7 @@ export default async function ConversionPage({
       </Card>
 
       <Card>
-        <h2 className={styles.sectionTitle}>金額を直す</h2>
+        <SectionHeading level={2}>金額を直す</SectionHeading>
         {adjustable ? (
           <>
             <p className={styles.sectionLead}>

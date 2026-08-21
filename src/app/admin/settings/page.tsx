@@ -1,21 +1,33 @@
-import { AdminShell } from "@/presentation/admin/admin-shell";
+import {
+  ChangeMemberRolesForm,
+  InviteMemberForm,
+  RevokeMemberForm,
+} from "@/presentation/admin/member-forms";
 import Link from "next/link";
 import type { ReactNode } from "react";
-import { appearanceOptions, readAppearance } from "@/presentation/appearance";
 import {
   auditLogNotice,
   currentActor,
   settingsNotice,
   settingsUseCases,
 } from "@/presentation/composition";
+import { AdminShell } from "@/presentation/admin/admin-shell";
+import { appearanceOptions, readAppearance } from "@/presentation/appearance";
 import {
   AppearancePicker,
   Callout,
   Card,
+  DataTable,
+  DefinitionList,
   DisclosureNotice,
   EmptyView,
   ErrorView,
+  Note,
   Page,
+  SectionHeading,
+  SeeAlso,
+  StackedList,
+  StackedRow,
   StorageNotice,
   StubNotice,
 } from "@/presentation/ui";
@@ -47,6 +59,19 @@ export default async function SettingsPage() {
     uc.listAuditLog.execute(actor, { limit: 20 }),
   ]);
 
+  /*
+   * 招待と役割の変更で選べる役割。**機械の役割（AI）はここに出さない。**
+   * 機械にはログインするアドレスが無いので、招待の形では作れない。
+   * 出すと「招待したのに永久に参加が成立しない行」を作れてしまう。
+   * 役割の一覧を出せなかったときは空になり、下の操作欄そのものが出ない
+   * （選べる役割が分からないまま権限を配らせない）。
+   */
+  const roleOptions = roles.ok
+    ? roles.value.rows
+        .filter((r) => !r.isMachine)
+        .map((r) => ({ value: r.role as string, label: r.label }))
+    : [];
+
   if (!overview.ok) {
     return (
       <Shell>
@@ -63,37 +88,37 @@ export default async function SettingsPage() {
   return (
     <Shell>
       <StubNotice
-        what="作業場所・担当者・ブランド・広告表記の保存先"
-        blockedBy="ログインの仕組み（Better Auth と Google ログイン）と、各テーブルの追加"
+        what="作業場所・ブランド・広告表記の保存先"
+        blockedBy="workspaces / brands / disclosures テーブルの追加"
         stubId="persistence:settings-sample"
       >
         <span>{settingsNotice()}</span>
       </StubNotice>
 
       <Card>
-        <h2 className={styles.sectionTitle}>ログイン</h2>
+        <SectionHeading level={2}>ログイン</SectionHeading>
         <p className={styles.sectionLead}>
           いまは見本の担当者として動いています。Google でのログインをつなぐと、
           許可した人だけが入れる状態になります。
         </p>
-        <p className={styles.linkNote}>
+        <SeeAlso>
           <Link href="/signin">いま誰として動いているかを見る</Link>
-        </p>
+        </SeeAlso>
       </Card>
 
       <Card>
-        <h2 className={styles.sectionTitle}>生成 AI の API キー</h2>
+        <SectionHeading level={2}>生成 AI の API キー</SectionHeading>
         <p className={styles.sectionLead}>
           記事を書かせるために使う鍵を登録します。鍵が 1 つも入っていないあいだは、下書きの生成が
           呼び出しの手前で止まります。
         </p>
-        <p className={styles.linkNote}>
+        <SeeAlso>
           <Link href="/admin/settings/llm">API キーの登録と状態を見る</Link>
-        </p>
+        </SeeAlso>
       </Card>
 
       <Card>
-        <h2 className={styles.sectionTitle}>画面の見た目</h2>
+        <SectionHeading level={2}>画面の見た目</SectionHeading>
         <p className={styles.sectionLead}>
           ここでの選択はあなたの手元だけに効きます。ブログの見た目（読者に見える色）は、
           各ブログの設定で決まります。
@@ -119,53 +144,56 @@ export default async function SettingsPage() {
       )}
 
       <Card>
-        <h2 className={styles.sectionTitle}>この作業場所</h2>
-        <table className={styles.rankTable}>
-          <tbody>
-            <tr>
-              <th scope="row">名前</th>
-              <td>{overview.value.workspaceName}</td>
-            </tr>
-            <tr>
-              <th scope="row">契約の区分</th>
-              <td>{overview.value.planLabel}</td>
-            </tr>
-            <tr>
-              <th scope="row">時間帯</th>
-              <td>{overview.value.timezone}（公開予約と締めの基準）</td>
-            </tr>
-            <tr>
-              <th scope="row">通貨</th>
-              <td>{overview.value.currency}</td>
-            </tr>
-          </tbody>
-        </table>
+        <SectionHeading level={2}>この作業場所</SectionHeading>
+        {/*
+          **これは表ではなかった。**`<thead>` を持たない「項目と値の対」なので
+          `<dl>` へ寄せた。管理画面の 22 箇所で既に同じ中身が `<dl>` で
+          書かれていて、そちらが多数派である（残課題 142）。
+        */}
+        <DefinitionList
+          items={[
+            { term: "名前", description: overview.value.workspaceName },
+            { term: "契約の区分", description: overview.value.planLabel },
+            {
+              term: "時間帯",
+              description: `${overview.value.timezone}（公開予約と締めの基準）`,
+            },
+            { term: "通貨", description: overview.value.currency },
+          ]}
+        />
 
-        <h3 className={styles.sectionTitle}>使用数と上限</h3>
-        <table className={styles.rankTable}>
-          <thead>
-            <tr>
-              <th scope="col">種類</th>
-              <th scope="col">いま</th>
-              <th scope="col">上限</th>
-              <th scope="col">状態</th>
-            </tr>
-          </thead>
-          <tbody>
-            {overview.value.capacities.map((c) => (
-              <tr key={c.label}>
-                <th scope="row">{c.label}</th>
-                <td className={styles.numeric}>{c.used}</td>
-                <td className={styles.numeric}>{c.max}</td>
-                <td>{c.full ? "上限に達しています（これ以上増やせません）" : "追加できます"}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        <SectionHeading level={3}>使用数と上限</SectionHeading>
+        <DataTable
+          caption="契約の区分ごとに決まっている上限と、いまの使用数です。上限に達すると新しく作れません。"
+          columns={[
+            { key: "label", header: "種類", rowHeader: true, cell: (c) => c.label },
+            { key: "used", header: "いま", align: "numeric", cell: (c) => c.used },
+            { key: "max", header: "上限", align: "numeric", cell: (c) => c.max },
+            {
+              key: "state",
+              header: "状態",
+              cell: (c) =>
+                c.full ? "上限に達しています（これ以上増やせません）" : "追加できます",
+            },
+          ]}
+          rows={overview.value.capacities}
+          rowKey={(c) => c.label}
+        />
       </Card>
 
       <Card>
-        <h2 className={styles.sectionTitle}>担当者</h2>
+        <SectionHeading level={2}>担当者</SectionHeading>
+        {/*
+         * 招待は**入口の許可とは別**である。ここで足すのは「この作業場所の担当者だ」
+         * という 1 行で、ログインできる人の名簿（`AUTH_ALLOWED_EMAILS`）ではない。
+         * 2 つを 1 つにまとめない。まとめると、画面から書ける表が入口の許可そのものになり、
+         * 担当者を管理できる人が誰でも自分でログインできる人を増やせる。
+         */}
+        <Callout
+          tone="info"
+          title="招待しただけでは、まだ入れません"
+          reason="入口は 2 段になっています。ここでの招待に加えて、ログインを許可する名簿にもそのアドレスが必要です。名簿は運用側で設定します。"
+        />
         {!members.ok ? (
           <ErrorView
             title="担当者を出せませんでした"
@@ -186,35 +214,61 @@ export default async function SettingsPage() {
                 reason="運営者がいないと、契約と支払いに関する操作を誰も行えません。"
               />
             )}
-            <table className={styles.rankTable}>
-              <thead>
-                <tr>
-                  <th scope="col">名前</th>
-                  <th scope="col">役割</th>
-                  <th scope="col">状態</th>
-                  <th scope="col">担当の範囲</th>
-                </tr>
-              </thead>
-              <tbody>
-                {members.value.rows.map((m) => (
-                  <tr key={m.membershipId}>
-                    <th scope="row">{m.displayName}</th>
-                    <td>{m.roleLabels.join("・")}</td>
-                    <td>{m.stateLabel}</td>
-                    <td>{m.scopeLabel}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-            <p className={styles.linkNote}>
-              担当者を招く・役割を変える操作は、この画面からはまだ行えません。ログインの仕組みが入ってからになります。
-            </p>
+            {/* 「変える」列は `DataTable` の行内操作の仕組みではなく、ただの列。
+                部品側に操作用の口を作らなかったので、操作を出すかどうかの判断
+                （役割の選択肢が無いなら列ごと出さない）がこの画面に残る。
+                部品に持たせると、この判断が別の画面からも見えない場所へ移る。 */}
+            <DataTable
+              caption="この作業場に招いた担当者と、それぞれの役割"
+              columns={[
+                { key: "name", header: "名前", rowHeader: true, cell: (m) => m.displayName },
+                { key: "email", header: "招待したアドレス", cell: (m) => m.invitedEmail },
+                { key: "roles", header: "役割", cell: (m) => m.roleLabels.join("・") },
+                { key: "state", header: "状態", cell: (m) => m.stateLabel },
+                { key: "scope", header: "担当の範囲", cell: (m) => m.scopeLabel },
+                ...(roleOptions.length > 0
+                  ? [
+                      {
+                        key: "change",
+                        header: "変える",
+                        cell: (m: (typeof members.value.rows)[number]) => (
+                          <>
+                            <ChangeMemberRolesForm
+                              membershipId={m.membershipId}
+                              displayName={m.displayName}
+                              currentRoles={[...m.roles]}
+                              roleOptions={roleOptions}
+                            />
+                            {/* 外した人には出さない。押せる形で残すと「もう一度外す」操作が
+                                記録にだけ増える。 */}
+                            {m.active && (
+                              <RevokeMemberForm
+                                membershipId={m.membershipId}
+                                displayName={m.displayName}
+                              />
+                            )}
+                          </>
+                        ),
+                      },
+                    ]
+                  : []),
+              ]}
+              rows={members.value.rows}
+              rowKey={(m) => m.membershipId}
+            />
+          </>
+        )}
+
+        {members.ok && roleOptions.length > 0 && (
+          <>
+            <SectionHeading level={3}>担当者を招く</SectionHeading>
+            <InviteMemberForm roleOptions={roleOptions} />
           </>
         )}
       </Card>
 
       <Card>
-        <h2 className={styles.sectionTitle}>役割ごとにできること</h2>
+        <SectionHeading level={2}>役割ごとにできること</SectionHeading>
         {!roles.ok ? (
           <ErrorView
             title="役割を出せませんでした"
@@ -231,17 +285,17 @@ export default async function SettingsPage() {
             <div className={styles.catalogStack}>
               {roles.value.rows.map((r) => (
                 <div key={r.role} className={styles.catalogRow}>
-                  <h3 className={styles.sectionTitle}>{r.label}</h3>
-                  <ul className={styles.linkList}>
+                  <SectionHeading level={3}>{r.label}</SectionHeading>
+                  <StackedList>
                     {r.capabilities.map((c) => (
-                      <li key={c.key}>{c.label}</li>
+                      <StackedRow key={c.key}>{c.label}</StackedRow>
                     ))}
-                  </ul>
+                  </StackedList>
                   {r.humanOnlyBlocked.length > 0 && (
-                    <p className={styles.linkNote}>
+                    <Note>
                       役割の表には入っていますが、機械には渡していません:{" "}
                       {r.humanOnlyBlocked.join("・")}
-                    </p>
+                    </Note>
                   )}
                 </div>
               ))}
@@ -251,7 +305,7 @@ export default async function SettingsPage() {
       </Card>
 
       <Card>
-        <h2 className={styles.sectionTitle}>ブランド</h2>
+        <SectionHeading level={2}>ブランド</SectionHeading>
         {!brands.ok ? (
           <ErrorView
             title="ブランドを出せませんでした"
@@ -275,50 +329,31 @@ export default async function SettingsPage() {
             <div className={styles.catalogStack}>
               {brands.value.rows.map((b) => (
                 <div key={b.brandId} className={styles.catalogRow}>
-                  <h3 className={styles.sectionTitle}>{b.displayName}</h3>
+                  <SectionHeading level={3}>{b.displayName}</SectionHeading>
                   <p className={styles.sectionLead}>{b.positioning}</p>
-                  <table className={styles.rankTable}>
-                    <tbody>
-                      <tr>
-                        <th scope="row">運営者の表示名</th>
-                        <td>{b.legalName ?? "未設定"}</td>
-                      </tr>
-                      <tr>
-                        <th scope="row">問い合わせ先</th>
-                        <td>{b.contactEmail ?? "未設定"}</td>
-                      </tr>
-                      <tr>
-                        <th scope="row">文体</th>
-                        <td>{b.voiceLabel}</td>
-                      </tr>
-                      <tr>
-                        <th scope="row">使わない言い回し</th>
-                        <td>
-                          {b.avoidPhrases.length === 0 ? "指定なし" : b.avoidPhrases.join("・")}
-                        </td>
-                      </tr>
-                      <tr>
-                        <th scope="row">記事末尾の断り書き</th>
-                        <td>{b.disclaimer ?? "未設定"}</td>
-                      </tr>
-                      <tr>
-                        <th scope="row">言語</th>
-                        <td>{b.locale}</td>
-                      </tr>
-                      <tr>
-                        <th scope="row">時間帯</th>
-                        <td>{b.timeZone}（投稿の予定日時はこの時間帯で読み書きします）</td>
-                      </tr>
-                      <tr>
-                        <th scope="row">標準の行動文言</th>
-                        <td>{b.defaultCta}</td>
-                      </tr>
-                    </tbody>
-                  </table>
+                  <DefinitionList
+                    items={[
+                      { term: "運営者の表示名", description: b.legalName ?? "未設定" },
+                      { term: "問い合わせ先", description: b.contactEmail ?? "未設定" },
+                      { term: "文体", description: b.voiceLabel },
+                      {
+                        term: "使わない言い回し",
+                        description:
+                          b.avoidPhrases.length === 0 ? "指定なし" : b.avoidPhrases.join("・"),
+                      },
+                      { term: "記事末尾の断り書き", description: b.disclaimer ?? "未設定" },
+                      { term: "言語", description: b.locale },
+                      {
+                        term: "時間帯",
+                        description: `${b.timeZone}（投稿の予定日時はこの時間帯で読み書きします）`,
+                      },
+                      { term: "標準の行動文言", description: b.defaultCta },
+                    ]}
+                  />
                   {b.missing.length > 0 && (
-                    <p className={styles.linkNote}>
+                    <Note>
                       公開の前に必要: {b.missing.join("・")}
-                    </p>
+                    </Note>
                   )}
                 </div>
               ))}
@@ -328,7 +363,7 @@ export default async function SettingsPage() {
       </Card>
 
       <Card>
-        <h2 className={styles.sectionTitle}>広告であることの表示</h2>
+        <SectionHeading level={2}>広告であることの表示</SectionHeading>
         {!disclosures.ok ? (
           <ErrorView
             title="広告表記を出せませんでした"
@@ -345,37 +380,33 @@ export default async function SettingsPage() {
             <p className={styles.sectionLead}>
               下の文言は、記事・SNS・AI の回答など次の場所すべてに同じものが出ます。画面ごとに書き換えることはできません。
             </p>
-            <ul className={styles.linkList}>
+            <StackedList>
               {disclosures.value.surfaces.map((s) => (
-                <li key={s.key}>{s.label}</li>
+                <StackedRow key={s.key}>{s.label}</StackedRow>
               ))}
-            </ul>
+            </StackedList>
             <div className={styles.catalogStack}>
               {disclosures.value.rows.map((d) => (
                 <div key={d.disclosureId} className={styles.catalogRow}>
-                  <h3 className={styles.sectionTitle}>
+                  <SectionHeading level={3}>
                     {d.relationshipLabel}
                     {d.required ? "（表示が必要）" : "（表示は不要）"}
-                  </h3>
+                  </SectionHeading>
                   {/* 読者に出るものと同じ見た目で確かめる。別の書き方を画面用に作らない。
                       一覧なので目印にはしない（同じ名前の目印が行の数だけ並ぶため）。 */}
                   <DisclosureNotice asLandmark={false} message={d.visibleMessage} />
-                  <table className={styles.rankTable}>
-                    <tbody>
-                      <tr>
-                        <th scope="row">提供元</th>
-                        <td>{d.advertiserOrSupplier ?? "なし"}</td>
-                      </tr>
-                      <tr>
-                        <th scope="row">リンクに付ける印</th>
-                        <td>{d.relAttribute}</td>
-                      </tr>
-                      <tr>
-                        <th scope="row">AI を使ったか</th>
-                        <td>{d.aiAssisted ? "使った（本文に明記されます）" : "使っていない"}</td>
-                      </tr>
-                    </tbody>
-                  </table>
+                  <DefinitionList
+                    items={[
+                      { term: "提供元", description: d.advertiserOrSupplier ?? "なし" },
+                      { term: "リンクに付ける印", description: d.relAttribute },
+                      {
+                        term: "AI を使ったか",
+                        description: d.aiAssisted
+                          ? "使った（本文に明記されます）"
+                          : "使っていない",
+                      },
+                    ]}
+                  />
                 </div>
               ))}
             </div>
@@ -384,7 +415,7 @@ export default async function SettingsPage() {
       </Card>
 
       <Card>
-        <h2 className={styles.sectionTitle}>操作の記録</h2>
+        <SectionHeading level={2}>操作の記録</SectionHeading>
         {/*
          * **ここを消さない。** 記録は「残った」と言えること自体が意味を持つ
          * 唯一の種類なので、控え（この実行中だけ覚える置き場）で動いている
@@ -408,31 +439,31 @@ export default async function SettingsPage() {
           />
         ) : (
           <>
-            <table className={styles.rankTable}>
-              <thead>
-                <tr>
-                  <th scope="col">いつ</th>
-                  <th scope="col">誰が</th>
-                  <th scope="col">何を</th>
-                  <th scope="col">対象</th>
-                  <th scope="col">理由</th>
-                </tr>
-              </thead>
-              <tbody>
-                {audit.value.rows.map((r) => (
-                  <tr key={`${r.occurredAt.toISOString()}-${r.targetLabel}-${r.action}`}>
-                    <td>{r.occurredAt.toLocaleString("ja-JP")}</td>
-                    <td>{r.byHuman ? r.actorLabel : `${r.actorLabel}・人ではありません`}</td>
-                    <th scope="row">{r.action}</th>
-                    <td>{r.targetLabel}</td>
-                    <td>{r.reason ?? "—"}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-            <p className={styles.linkNote}>
+            {/* 行の見出しは 3 列目（何をしたか）。この表で行を名指すのは日時でも
+                人でもなく操作なので、`rowHeader` を 1 列目に寄せない。 */}
+            <DataTable
+              caption="この作業場で行われた操作の記録"
+              columns={[
+                {
+                  key: "occurredAt",
+                  header: "いつ",
+                  cell: (r) => r.occurredAt.toLocaleString("ja-JP"),
+                },
+                {
+                  key: "actor",
+                  header: "誰が",
+                  cell: (r) => (r.byHuman ? r.actorLabel : `${r.actorLabel}・人ではありません`),
+                },
+                { key: "action", header: "何を", rowHeader: true, cell: (r) => r.action },
+                { key: "target", header: "対象", cell: (r) => r.targetLabel },
+                { key: "reason", header: "理由", cell: (r) => r.reason ?? "—" },
+              ]}
+              rows={audit.value.rows}
+              rowKey={(r) => `${r.occurredAt.toISOString()}-${r.targetLabel}-${r.action}`}
+            />
+            <Note>
               この記録は後から書き換えられません。承認が人によるものであることを、あとから確かめるために残しています。
-            </p>
+            </Note>
           </>
         )}
       </Card>
