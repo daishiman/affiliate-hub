@@ -573,6 +573,230 @@ def reanchor_split_scope_notes(state: dict, qa_id: str) -> None:
     notes["reanchored_on"] = datetime.date.today().isoformat()
 
 
+REQUOTE_WRITER = "requote-written-source"
+
+_TABLE_ROW_RE = re.compile(r"^\|\s*([^|]+?)\s*\|")
+_BULLET_ID_RE = re.compile(r"^([-*]\s+\*\*[^*]+\*\*\s*[:：])")
+
+
+def logical_document_lines(document: str) -> "list[str]":
+    """文書を「論理行」へ畳む。**折り返しの続き行を、前の行へ繋ぎ直す。**
+
+    markdown の箇条は 1 つの項目が複数の物理行へ折り返して書かれる:
+
+        - **FB-AC-09**: 画面の写しが**完全でないことがある**ため、
+          「この画面には…」を常に表示し、
+          プレビューを見てから送る。完全性を保証しない。
+
+    引用する側は 1 行に繋いで持つので、物理行のまま突き合わせると
+    **項目の 1 行目しか一致せず、残りを落とした引用が「文書どおり」に見える。**
+    実際に 2026-08-21 の試走でここを踏み、FB-AC-09 と FB-AC-10 が途中で切れた形へ
+    置き換わりかけた。**要件の文を静かに削る事故**なので、畳んでから突き合わせる。
+
+    続き行の判定は字下げで行う (先頭が空白で始まり、中身が空でない行)。日本語には
+    語間の空白が無いので、繋ぐときに区切りを入れない。
+    """
+    logical: list[str] = []
+    for raw in document.split("\n"):
+        stripped = raw.strip()
+        if not stripped:
+            continue
+        if logical and raw[:1].isspace():
+            logical[-1] += stripped
+            continue
+        logical.append(stripped)
+    return logical
+
+
+def quotation_anchor(line: str) -> "str | None":
+    """引用行を文書の中で一意に指すための「頭」を、行の形から決める。
+
+    **引数で錨を受け取らない**ので、呼ぶ側が「どの文書行を引いたことにするか」を
+    選べない。形は 2 つだけ認める:
+
+    - 表の行 `| 先頭セル | …` → `| 先頭セル |` まで
+    - 番号付きの箇条 `- **FB-AC-07**: …` → `- **FB-AC-07**:` まで
+
+    どちらでもない行は `None` を返し、直す側は止まる。**自由文を「だいたい似ている
+    行」へ寄せると、引用のふりをした書き換えになる。**似ている度合いで選ばない理由が
+    これで、閾値を持たないのは仕様である。
+    """
+    table = _TABLE_ROW_RE.match(line)
+    if table:
+        return f"| {table.group(1)} |"
+    bullet = _BULLET_ID_RE.match(line)
+    if bullet:
+        return bullet.group(1)
+    return None
+
+
+def requote_written_source(state: dict, qa_id: str) -> "list[str]":
+    """文書と食い違った引用行を、**文書の側の行で置き換える。**
+
+    `reseal_written_source` が止めた 3 entry を実際に調べたところ、食い違いは
+    2 方向あった (2026-08-21 実測):
+
+    - 表の列が落ちていた (`**手動のみ**（定例なし。打つ場面は下）` → `**手動のみ**`、
+      末尾 1 列まるごと消失)
+    - 文書に無い 1 文が足されていた (`…確認できる。` → `…確認できる。隠さない。`)
+
+    **どちらへ直すかは決まっている。**この entry は `kind=written-requirements`、
+    つまり「文書にこう書いてある」という主張である。食い違ったとき正しいのは文書で、
+    state は引用に過ぎない。だから state を文書へ合わせる。逆向き (文書を state へ
+    合わせる) は、引用を根拠にして要件そのものを書き換えることになる。
+
+    錨は `quotation_anchor` が行の形から決め、その錨で始まる文書行が**ちょうど 1 行**の
+    ときだけ置き換える。0 行なら引用元を失っている、2 行以上ならどれか選べない——
+    どちらも書かずに止める。
+
+    塞げていないところ: 錨が一致していても、**その行が回答の主旨と同じことを言って
+    いるか**は確かめられない。文書側が意味ごと書き換わった場合、この writer は
+    黙って新しい文へ差し替える。差分は commit に残るので、読む側が見る前提である。
+    """
+    if not isinstance(qa_id, str) or not qa_id.strip():
+        raise TransitionError(f"{REQUOTE_WRITER}: qa_id は非空文字列必須")
+    qa_id = qa_id.strip()
+    entry = next(
+        (candidate for candidate in state.get("qa_log", []) if candidate.get("id") == qa_id),
+        None,
+    )
+    if entry is None:
+        raise TransitionError(f"{REQUOTE_WRITER}: qa_log に存在しない qa_id: {qa_id}")
+    source = entry.get("source")
+    if not isinstance(source, dict) or source.get("kind") != "written-requirements":
+        raise TransitionError(f"{REQUOTE_WRITER}: {qa_id} は source.kind=written-requirements でない")
+    path = source.get("path")
+    if not isinstance(path, str) or not path.strip():
+        raise TransitionError(f"{REQUOTE_WRITER}: {qa_id} の source.path が非空文字列でない")
+    target = Path(path.strip())
+    if not target.is_file():
+        raise TransitionError(f"{REQUOTE_WRITER}: {qa_id} の source.path が実在しない: {path}")
+
+    document = target.read_text(encoding="utf-8")
+    doc_lines = logical_document_lines(document)
+    quoted = set(doc_lines)
+    repaired: list[str] = []
+    out: list[str] = []
+    # **引用する側も同じ関数で畳んでから見る。**折り返しの位置が違うだけの行を
+    # 「文書に無い」と読むと、直す必要の無いものを書き換えてしまう。
+    for stripped in logical_document_lines(entry.get("answer") or ""):
+        if stripped in quoted:
+            out.append(stripped)
+            continue
+        anchor = quotation_anchor(stripped)
+        if anchor is None:
+            raise TransitionError(
+                f"{REQUOTE_WRITER}: {qa_id} の次の行は表の行でも番号付き箇条でもなく、"
+                f"文書の何処を引いたのか決められない: {stripped[:80]!r}"
+            )
+        candidates = [candidate for candidate in doc_lines if candidate.startswith(anchor)]
+        if len(candidates) != 1:
+            raise TransitionError(
+                f"{REQUOTE_WRITER}: {qa_id} の錨 {anchor!r} で始まる行が {path} に "
+                f"{len(candidates)} 行ある (1 行でなければ、どれを引いたか決められない)"
+            )
+        out.append(candidates[0])
+        repaired.append(anchor)
+
+    if not repaired:
+        return []
+    entry["answer"] = "\n".join(out)
+    source["requoted_with"] = REQUOTE_WRITER
+    source["requoted_on"] = datetime.date.today().isoformat()
+    return repaired
+
+
+RESEAL_WRITER = "reseal-written-source"
+
+
+def unquoted_answer_lines(answer: str, document: str) -> "list[str]":
+    """`answer` の非空行のうち、`document` に逐語で無い行を返す。
+
+    **行単位で見る理由**: `written-requirements` の回答は、文書の表から必要な行だけを
+    抜き出した「抜粋」であることが多く、続きの本文とは連続していない。回答全体を
+    文書へ逐語照合すると、正しい抜粋まで落ちる (2026-08-21 実測: 7 entry すべてで
+    回答全体は 0 箇所)。行単位なら、抜き出しは通り、**書き換えは通らない。**
+
+    **「文書の何処かに含まれていれば良い」では足りない。**表の行は列を末尾から削っても
+    元の行の**前方一致部分**なので、`line in document` は真のまま通る。実際 2026-08-21 に
+    この緩い形で `| 1 速い門 | push / PR | 5 分 | **止める** |` が通り、文書側に在る
+    末尾 1 列 (`型検査 / 書き方 / …`) を落とした引用が「文書どおり」として封をされた。
+    だから**畳んだ論理行との完全一致**だけを認める。部分一致は引用ではない。
+
+    **畳むのは文書側だけでは足りない。**引用する側も、文書と同じ折り返しのまま
+    持っていることがある (2026-08-21: `qa-security-web-spec-intake` がそうだった)。
+    片側だけ畳むと、**中身は完全に同じなのに一致しない**。両側を同じ関数で畳む。
+    """
+    quoted = set(logical_document_lines(document))
+    return [line for line in logical_document_lines(answer) if line not in quoted]
+
+
+def reseal_written_source(state: dict, qa_id: str) -> None:
+    """`written-requirements` entry の `source.sha256` を、**本文を確かめてから**取り直す。
+
+    2026-08-21 の回帰: `split-qa-bundle` が answer を縮めたのに digest を取り直さず、
+    確定 8 セル中 6 セルの一次根拠で `source.sha256 != sha256(answer)` になった。
+
+    **ただし取り直すだけでは直したことにならない。**この欄の digest は
+    `sha256(answer)`、つまり **answer 自身の指紋**である。answer から作る値なので、
+    answer を何に書き換えても取り直せば一致する。**「文書にそう書いてある」ことを
+    1 mm も示していない。**実測でも、束ね解除の前から回答は文書に逐語で在らず
+    (7/7 entry で 0 箇所)、それでも digest は全件一致していた。
+
+    そこでこの writer は、取り直す前に **answer の非空行が 1 行残らず `source.path` の
+    文書に逐語で在ること**を確かめる。1 行でも無ければ書かずに止める。これで
+    「文書に無い文を requirements として封をする」道が閉じる。実際、この検査を入れた
+    時点で 3 entry が止まった (削られた表の列、足された 1 文)。**止まったことが、
+    この検査が飾りでない証拠である。**
+
+    `source.path` は引数で受け取らない。digest も受け取らない。どちらも受け取れると、
+    呼ぶ側が「どの文書を根拠と名乗るか」「どんな指紋を名乗るか」を選べてしまう。
+
+    塞げていないところ: 逐語で在ることは示せても、**その行が回答の主旨を支えているか**は
+    機械層で確かめられない。文書中の無関係な行を並べても通る。
+    """
+    if not isinstance(qa_id, str) or not qa_id.strip():
+        raise TransitionError(f"{RESEAL_WRITER}: qa_id は非空文字列必須")
+    qa_id = qa_id.strip()
+    entry = next(
+        (candidate for candidate in state.get("qa_log", []) if candidate.get("id") == qa_id),
+        None,
+    )
+    if entry is None:
+        raise TransitionError(f"{RESEAL_WRITER}: qa_log に存在しない qa_id: {qa_id}")
+    source = entry.get("source")
+    if not isinstance(source, dict) or source.get("kind") != "written-requirements":
+        raise TransitionError(
+            f"{RESEAL_WRITER}: {qa_id} は source.kind=written-requirements でない "
+            "(対話で聞いた entry に文書の封をしない)"
+        )
+    path = source.get("path")
+    if not isinstance(path, str) or not path.strip():
+        raise TransitionError(f"{RESEAL_WRITER}: {qa_id} の source.path が非空文字列でない")
+    target = Path(path.strip())
+    if not target.is_file():
+        raise TransitionError(f"{RESEAL_WRITER}: {qa_id} の source.path が実在しない: {path}")
+
+    answer = entry.get("answer") or ""
+    if not answer.strip():
+        raise TransitionError(f"{RESEAL_WRITER}: {qa_id} の answer が空で、封をする中身が無い")
+    document = target.read_text(encoding="utf-8")
+    missing = unquoted_answer_lines(answer, document)
+    if missing:
+        raise TransitionError(
+            f"{RESEAL_WRITER}: {qa_id} の回答に、{path} へ逐語で無い行が {len(missing)} 行ある。"
+            "指紋を取り直す前に、回答を文書どおりへ戻すこと: "
+            + " / ".join(line[:60] for line in missing[:3])
+        )
+
+    digest = hashlib.sha256(answer.encode("utf-8")).hexdigest()
+    if source.get("sha256") == digest:
+        return  # すでに合っている。触らない (2 度目の実行は何も変えない)。
+    source["sha256"] = digest
+    source["resealed_with"] = RESEAL_WRITER
+    source["resealed_on"] = datetime.date.today().isoformat()
+
+
 WRITTEN_UP_WRITER = "set-qa-written-up"
 
 

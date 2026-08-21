@@ -5,9 +5,9 @@
 要件 → テストの向きは `docs/product/traceability.md` が正本で、ここはその裏返しに
 テスト側の `@req` 印を重ねたもの。
 
-- 最終更新: 2026-08-20
-- テストファイル: 207 件
-- 由来の要件が分かる: 179 件
+- 最終更新: 2026-08-21
+- テストファイル: 208 件
+- 由来の要件が分かる: 180 件
 - **由来不明: 28 件**（上限 28 件）
 
 由来不明とは「どの要件のために書いたのか、機械から辿れない」という意味で、
@@ -104,6 +104,7 @@
 | `tests/architecture/webmcp-reachability.test.ts` | REQ-FD04 | 印と表 |
 | `tests/architecture/worker-env-wiring.test.ts` | REQ-SEC01 | 印 |
 | `tests/architecture/writer-absence.test.ts` | REQ-TS16 | 印と表 |
+| `tests/architecture/written-source-quotation.test.ts` | REQ-TS18 | 印 |
 | `tests/domain/article-type-sections.test.ts` | REQ-W02, REQ-W03, REQ-W04, REQ-W05 | 印と表 |
 | `tests/domain/authored-sections.test.ts` | REQ-P08 | 表 |
 | `tests/domain/boundaries-platform.test.ts` | REQ-P04, REQ-P08, REQ-SEC03, REQ-TS01, REQ-TS08 | 印と表 |
@@ -227,4 +228,4 @@
 | `tests/ui/tool-form.test.tsx` | REQ-WC05 | 印と表 |
 | `tests/ui/ui-layers.test.ts` | REQ-S09, REQ-TM05 | 表 |
 | `tests/visual/visual-regression.test.ts` | REQ-TS12 | 印 |
-<!-- 生成物の指紋 sha256:9ea65fe5c0b433104463a280723b5933f3c29769e58caacf0d083345672ffbf0 -->
+<!-- 生成物の指紋 sha256:f35e682facece5adbd681bd2cab82e152526de7644a5fec3bf6cffdfae9cf440 -->

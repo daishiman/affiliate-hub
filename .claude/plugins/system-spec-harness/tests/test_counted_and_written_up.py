@@ -445,7 +445,10 @@ def _declared_names() -> set[str]:
 UNDECLARED_FIELD_MAX = 9
 # 上限だけでは抜けられる — 数えている対象 (writer が書く欄) を消せば上限は満たせる。
 # 逆向きの下限を対で置く。以後この下限は**上げる方向にしか動かさない**。
-WRITER_FIELD_MIN = 37
+# 2026-08-21 実測 **54**（`python3` / 単位は欄名 / 対象は writer が literal で書く欄名 /
+# 分母は AST 走査が見つけた全欄名 / 基点は 2026-08-20 の 37）。37 のままだと 17 欄を
+# 消しても床に当たらず、上限 9 を「数える対象を消して」満たす道が開いたままになる。
+WRITER_FIELD_MIN = 54
 
 
 def test_new_writer_fields_go_through_the_schema_by_name() -> None:

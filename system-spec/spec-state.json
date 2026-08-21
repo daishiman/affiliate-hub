@@ -1633,12 +1633,16 @@
     {
       "id": "qa-backend-web-spec-intake",
       "question": "backend×web: 二層構造での WebMCP 契約・禁止依存・生成基盤の設計制約は何か (書面入力 docs/spec/04 §3 §4 / 05 / 07 §0)",
-      "answer": "| 登録先 | **`document.modelContext`**。`navigator.modelContext` は Chrome 150 で非推奨のため legacy fallback 専用（CHG-001） |\n| ツール数 | 1ページあたり原則6個以下 |\n| FD-1 | ランキング式を UI 層・WebMCP 層へ重複実装する |\n| FD-2 | 報酬データを推薦スコアの入力にする |\n| FD-4 | WebMCP でしか到達できない機能を作る |",
+      "answer": "| 登録先 | **`document.modelContext`**。`navigator.modelContext` は Chrome 150 で非推奨のため legacy fallback 専用（CHG-001） |\n| ツール数 | 1ページあたり原則6個以下 |\n| FD-1 | ランキング式を UI 層・WebMCP 層へ重複実装する | `src/lib/domain/ranking.ts` 以外に重み計算が現れないことを grep テストで固定 |\n| FD-2 | 報酬データを推薦スコアの入力にする | Ranking Service の入力型に Commercial DB 由来の型が含まれないことを型で担保 |\n| FD-4 | WebMCP でしか到達できない機能を作る | 全 WebMCP ツールに対応する通常 UI 経路が存在することをトレーサビリティ表で確認 |",
       "source": {
         "kind": "written-requirements",
         "path": "docs/spec/04-二層構造統合仕様.md",
         "section": "§3 WebMCP の確定契約 / §4 禁止依存",
-        "sha256": "101ad27f5bf796c7180815bd2d1e582f9378b645c5aea9e9f1d65330af27b6ef"
+        "sha256": "c5f132db9951de6c162d345b794efcfcd072d626938e0143d58abe9dfc4e20e0",
+        "resealed_with": "reseal-written-source",
+        "resealed_on": "2026-08-21",
+        "requoted_with": "requote-written-source",
+        "requoted_on": "2026-08-21"
       },
       "design_applications": [
         {
@@ -1738,7 +1742,9 @@
         "kind": "written-requirements",
         "path": "docs/spec/06-サイトブループリント-記事構成テンプレート.md",
         "section": "§2 SiteBlueprint のパラメータ定義",
-        "sha256": "d53fe38abd234fffa7905c74000b7198c025e5c84cbb019b88fa30245c99e18b"
+        "sha256": "affcf046f43d0f2a71ca7ee485b2108ac7e49c4a1645bb3dd3984c7a36b0e01b",
+        "resealed_with": "reseal-written-source",
+        "resealed_on": "2026-08-21"
       },
       "design_applications": [
         {
@@ -1864,12 +1870,16 @@
     {
       "id": "qa-infra-web-spec-intake",
       "question": "infrastructure×web: 検査をどの段で走らせ、どこでマージを止めるか (書面入力 docs/spec/11 §8)",
-      "answer": "| 1 速い門 | push / PR | 5 分 | **止める** |\n| 2 広い門 | PR | 15 分 | **止める** |\n| 3 深い門 | **手動のみ** | 40 分（実測 27 分） | 止めない |\n**実行時間は費用の要因ではない。** したがって「時間を減らすために CI からテストを外す」判断はしない。",
+      "answer": "| 1 速い門 | push / PR | 5 分 | **止める** | 型検査 / 書き方 / 段の指定漏れ / 単体・契約検査 |\n| 2 広い門 | PR | 15 分 | **止める** | 結合 / API 契約 / 画面 / 読み上げ / 境界値 / カバレッジ閾値 / 変更範囲だけのミューテーション |\n| 3 深い門 | **手動のみ**（定例なし。打つ場面は下） | 40 分（実測 27 分） | 止めない | 全体ミューテーション / 負荷 / 見た目の回帰 / 脆弱性の深掘り |\n**実行時間は費用の要因ではない。** したがって「時間を減らすために CI からテストを外す」判断はしない。",
       "source": {
         "kind": "written-requirements",
         "path": "docs/spec/11-CI-CD・品質ゲート仕様.md",
         "section": "§8 検査の段",
-        "sha256": "2168cedf14afef2f3aee7b7863fade240ab3710fd26f2051a6198db46034ff77"
+        "sha256": "abdaa6e4e816234535c273e11af870f337d0839bf123bedc5672d889ac1e990a",
+        "requoted_with": "requote-written-source",
+        "requoted_on": "2026-08-21",
+        "resealed_with": "reseal-written-source",
+        "resealed_on": "2026-08-21"
       },
       "design_applications": [
         {
@@ -1951,7 +1961,9 @@
         "kind": "written-requirements",
         "path": "docs/spec/11-CI-CD・品質ゲート仕様.md",
         "section": "§5 秘密情報",
-        "sha256": "738f03377e2a57aad0e73121b50214ee0ac049f5fabfcca4a156fef1e54213d0"
+        "sha256": "ce690b428667e8c2a2aca891acc9bf3725852f7d9edfdd5a812365a06d4aaadf",
+        "resealed_with": "reseal-written-source",
+        "resealed_on": "2026-08-21"
       },
       "design_applications": [
         {
@@ -2010,12 +2022,16 @@
     {
       "id": "qa-frontend-web-spec-intake",
       "question": "frontend×web: 改善要望の送信モーダルは何を見せ、何を強制しないか (書面入力 docs/spec/12 §5)",
-      "answer": "- **FB-AC-07**: 「この画面から一緒に送られるもの」を展開でき、自動収集される項目を送信前に確認できる。隠さない。\n- **FB-AC-09**: 画面の写しが**完全でないことがある**ため、注意文を常に表示し、プレビューを見てから送る。完全性を保証しない。\n- **FB-AC-10**: 「撮り直す」「**画像を外す（文章だけで送る）**」を常に選べる。**画像なしでも送信は成立する。**",
+      "answer": "- **FB-AC-07**: 「この画面から一緒に送られるもの」を展開でき、自動収集される項目を送信前に確認できる。隠さない。\n- **FB-AC-09**: 画面の写しが**完全でないことがある**ため、「この画面には、絵として写しにくい部品があります。撮れた画像を確かめてください。」を常に表示し、プレビューを見てから送る。完全性を保証しない。\n- **FB-AC-10**: 「撮り直す」「**画像を外す（文章だけで送る）**」を常に選べる。貼り付け（Ctrl+V）とファイル選択も受け付ける。**画像なしでも送信は成立する。**",
       "source": {
         "kind": "written-requirements",
         "path": "docs/spec/12-改善要望フィードバック仕様.md",
         "section": "§5 送信モーダル（FB-AC-04〜10）",
-        "sha256": "ccd052dfcbf69cbd8a0b5b4d16f2912267dd15afef81fb3dd23717ba50a36c39"
+        "sha256": "958df5bb7d4efb7c55ce3bcbe26dfe490012ae4ff409696f558f3418b38f6684",
+        "requoted_with": "requote-written-source",
+        "requoted_on": "2026-08-21",
+        "resealed_with": "reseal-written-source",
+        "resealed_on": "2026-08-21"
       },
       "design_applications": [
         {
@@ -2083,12 +2099,16 @@
     {
       "id": "qa-ops-web-spec-intake",
       "question": "maintenance-ops×web: カバレッジの数字を偽らないための規律は何か (書面入力 docs/spec/10 §2、08 ⑤)",
-      "answer": "| アサーションの無いテスト | 実行するだけで「通った」ことになる。壊れても赤くならない |\n| スタブを厚くテストして全体を押し上げる | **最も壊れると痛い場所は覆われないまま数字だけ上がる** |\n| 閾値を下げて緑にする | 下げた記録が残らなければ、次の人は「元から 60% だった」と思う |\n| 到達しにくい分岐を消して分母を減らす | 異常系を削るのは、異常系を守らないという意思決定である |",
+      "answer": "| アサーションの無いテスト | 実行するだけで「通った」ことになる。壊れても赤くならない |\n| スタブを厚くテストして全体を押し上げる | 中身が仮の場所は行数が少なく通しやすい。**最も壊れると痛い場所は覆われないまま数字だけ上がる** |\n| 閾値を下げて緑にする | 下げた記録が残らなければ、次の人は「元から 60% だった」と思う |\n| 到達しにくい分岐を消して分母を減らす | 異常系を削るのは、異常系を守らないという意思決定である |",
       "source": {
         "kind": "written-requirements",
         "path": "docs/spec/10-テスト戦略仕様.md",
         "section": "§2 数字を偽らないための規律",
-        "sha256": "2c6b9edb34293ed9481df28c12f8b8343a21d99ab275d2c6e6984293d1b82430"
+        "sha256": "8d0fe2568fa76d4c42aa31c22ab3dd936b1db9956c6f00be5e91c5534e290505",
+        "requoted_with": "requote-written-source",
+        "requoted_on": "2026-08-21",
+        "resealed_with": "reseal-written-source",
+        "resealed_on": "2026-08-21"
       },
       "design_applications": [
         {

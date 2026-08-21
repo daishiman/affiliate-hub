@@ -40,7 +40,24 @@
     "approval_log": {"type": "array"},
     "reopen_log": {"type": "array"},
     "targets": {"type": "array"},
-    "decisions": {"type": "array"},
+    "decisions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "recorded_with": {
+            "type": "string",
+            "description": "この record を書いた writer 名。**writer が打刻する欄で、呼び出し側からは渡せない** (set-decision は渡されたら拒否する)。set-qa-written-up と同じく const \"set-decision\" で縛りたいところだが、打刻を導入する前に書かれた record が正本に残っているため、ここでは型のみを宣言する。打刻前の値は writer が prior_unverified_provenance へ退避する",
+            "minLength": 1
+          },
+          "prior_unverified_provenance": {
+            "type": "string",
+            "description": "打刻導入前に recorded_with へ書かれていた自己申告文の退避先。writer が検めた出所ではない。丸めて消さずに残すのは、hearing_progress.limit_overrun と同じ理由で『門を通らずに書かれた』痕跡だからである",
+            "minLength": 1
+          }
+        }
+      }
+    },
     "knowledge_candidates": {"type": "array"},
     "hearing_progress": {"type": "object"},
     "asks_for_contract": {
@@ -94,7 +111,20 @@
         "id": {"type": "string", "minLength": 1},
         "question": {"type": "string", "minLength": 1},
         "answer": {"type": "string"},
-        "source": {"type": ["object", "string"]},
+        "source": {
+          "type": ["object", "string"],
+          "description": "この回答の出所。object の場合、kind=written-requirements なら path/section/sha256 を持つ。sha256 は writer が answer から計算し、呼び出し側からは受け取らない。**この digest は answer 自身の指紋なので、文書にそう書いてあることは示さない** — 逐語かどうかは reseal-written-source writer が書く時点で source.path を読んで確かめる",
+          "properties": {
+            "kind": {"type": "string", "minLength": 1},
+            "path": {"type": "string", "minLength": 1},
+            "section": {"type": "string", "minLength": 1},
+            "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+            "requoted_with": {"const": "requote-written-source", "description": "文書と食い違った引用行を文書の側の行で置き換えた記録。直す向きは state → 文書 の一方向"},
+            "requoted_on": {"type": "string", "minLength": 1},
+            "resealed_with": {"const": "reseal-written-source", "description": "本文を source.path へ逐語照合してから sha256 を取り直した記録"},
+            "resealed_on": {"type": "string", "minLength": 1}
+          }
+        },
         "approval_id": {"type": "string", "minLength": 1},
         "legacy_exempt": {"type": "boolean"},
         "legacy_exempt_reason": {"type": "string", "minLength": 1},

@@ -53,6 +53,7 @@ requirements_foundation の U1-U5 非空・各『確定』セルの serves_goals
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import re
 import sys
@@ -176,6 +177,36 @@ def _validate_design_application_provenance(entry: dict) -> list[str]:
         f"qa_log[{qa_id}].design_application_provenance: "
         "legacy_backfill/set-qa-design-applications の完全一致が必須"
     ]
+
+
+def _validate_written_source_digest(entry: dict) -> list[str]:
+    """`written-requirements` entry の封 (`source.sha256`) が本文と合っているか。
+
+    2026-08-21 の回帰: `split-qa-bundle` が answer を縮めたのに digest を取り直さず、
+    確定 8 セル中 6 セルで `source.sha256 != sha256(answer)` のまま **exit0 で通った。**
+    本文を書き換える writer が増えるたびに同じ穴が開くので、**書く側ではなく
+    読む側**に置く。ここを通る限り、どの writer が本文を触っても取りこぼせない。
+
+    塞げていないところ: この digest は `sha256(answer)`、つまり answer 自身の指紋で、
+    **文書にそう書いてあることは示さない。**逐語かどうかは `reseal-written-source`
+    writer が書く時点で見ている。読む側でも見るには、確定セルが引く entry 全件が
+    逐語である必要があり、2026-08-21 時点では満たしていない (分析系 entry が
+    引用でなく要約で書かれている)。その上限は tests/architecture 側で張ってある。
+    """
+    source = entry.get("source")
+    if not isinstance(source, dict) or source.get("kind") != "written-requirements":
+        return []
+    digest = source.get("sha256")
+    if not isinstance(digest, str) or not digest:
+        return []
+    actual = hashlib.sha256((entry.get("answer") or "").encode("utf-8")).hexdigest()
+    if actual != digest:
+        return [
+            f"qa_log[{entry.get('id')!r}]: source.sha256 が answer と不一致 "
+            f"(封={digest[:12]}… 実体={actual[:12]}…)。"
+            "本文を変えた writer が封を取り直していない"
+        ]
+    return []
 
 
 def _validate_design_applications(entry: dict) -> list[str]:
@@ -586,6 +617,12 @@ def validate(
                 )
             for qa_ref in sorted(confirmed_qa_refs):
                 findings.extend(_validate_design_applications(qa_entries[qa_ref]))
+
+    # 封の照合は**確定セルが引く entry だけに絞らない。**絞ると、確定から外れた
+    # entry の本文を書き換えて封を放置でき、後でその entry を引き直した瞬間に
+    # 壊れた封が確定側へ入る。qa_log 全件を見る。
+    for entry in sorted(qa_entries.values(), key=lambda item: item.get("id") or ""):
+        findings.extend(_validate_written_source_digest(entry))
 
     return findings
 
