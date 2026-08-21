@@ -1,5 +1,5 @@
 import { relations, sql } from "drizzle-orm";
-import { sqliteTable, text, integer, index } from "drizzle-orm/sqlite-core";
+import { sqliteTable, text, integer, index, uniqueIndex } from "drizzle-orm/sqlite-core";
 
 export const user = sqliteTable("user", {
   id: text("id").primaryKey(),
@@ -43,6 +43,19 @@ export const account = sqliteTable(
   "account",
   {
     id: text("id").primaryKey(),
+    /**
+     * その account を発行した相手を表す名札（Google なら `local:oauth:google`）。
+     *
+     * **`provider_id` があるのに、なぜもう 1 本必要なのか。**
+     * `provider_id` は「この設定でどう呼んでいるか」であって、付け替えられる。
+     * 一方 `issuer` は「誰が発行したか」で、これと `account_id` の組が
+     * 人を一意に指す。Better Auth は毎回この 2 本で持ち主を引く。
+     *
+     * この列が無いと、照合の SQL が `no such column` で落ちる。
+     * そして落ちた先は握り潰され、画面には `internal_server_error` としか出ない。
+     * 「設定が違う」ではなく「壊れている」と見えるので、原因に辿り着けなくなる。
+     */
+    issuer: text("issuer").notNull(),
     accountId: text("account_id").notNull(),
     providerId: text("provider_id").notNull(),
     userId: text("user_id")
@@ -66,7 +79,12 @@ export const account = sqliteTable(
       .$onUpdate(() => /* @__PURE__ */ new Date())
       .notNull(),
   },
-  (table) => [index("account_userId_idx").on(table.userId)],
+  (table) => [
+    index("account_userId_idx").on(table.userId),
+    // 同じ発行元・同じ相手の行が二重にできないようにする。
+    // 二重になると「持ち主を引く」問い合わせがどちらを返すか決まらなくなる。
+    uniqueIndex("account_issuer_accountId_idx").on(table.issuer, table.accountId),
+  ],
 );
 
 export const verification = sqliteTable(
