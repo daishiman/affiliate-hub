@@ -47,6 +47,12 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          # `pnpm run verify` の 2 段に変更範囲のミューテーションが入っている。
+          # 既定の浅い取得では比較元のコミットが手元に無く、検査が走らないまま
+          # 落ちる（2026-08-21 に main への push で実際に落ちた）。
+          # `ci.yml` と同じく履歴ごと取る。
+          fetch-depth: 0
 
       - uses: pnpm/action-setup@v4
 
@@ -59,7 +65,17 @@ jobs:
 
       # PR で通っていても、ここでもう一度走らせる。
       # 枝へ直接 push された変更は PR の検査を通っていない。
+      #
+      # **比較元を渡さないと、既定の `origin/dev` が使われる。**
+      # main の公開でそれを使うと「main にあって dev に無いもの全部」が対象になり、
+      # 上限 25 件を超えて `mutation.mjs` が見送りに落ちる。落ちた先は exit 0 なので、
+      # **測っていないのに緑**になる。ここは `fetch-depth` と対で効く。
       - name: 検査一式
+        env:
+          # push なら直前の枝の先端（この公開が持ち込んだ分だけを測る）。
+          # 手動実行には `before` が無いので `HEAD^` へ落とす。**黙って測らない道は作らない**——
+          # どちらも解決できなければ `mutation.mjs` が exit 1 で落ち、人の目に入る。
+          MUTATION_BASE: ${{ github.event.before || 'HEAD^' }}
         run: pnpm run verify
 
       - name: 公開
