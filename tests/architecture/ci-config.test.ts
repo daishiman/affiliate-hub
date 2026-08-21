@@ -54,10 +54,17 @@ const mentions = (text: string, id: string) =>
   new RegExp(`(?<![\\w-])${id.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}(?![\\w-])`).test(text);
 
 /** 置いてあるべきワークフロー。**実装から読まず、ここに書き写して固定する。** */
-const EXPECTED_WORKFLOWS = ["ai-eval.yml", "ci.yml", "deploy.yml", "migrate.yml", "nightly.yml"];
+const EXPECTED_WORKFLOWS = [
+  "ai-eval.yml",
+  "branch-flow.yml",
+  "ci.yml",
+  "deploy.yml",
+  "migrate.yml",
+  "nightly.yml",
+];
 
 describe("ワークフローの一覧（REQ-CI04）", () => {
-  it("5 本ちょうどで、名前も固定されている", () => {
+  it("6 本ちょうどで、名前も固定されている", () => {
     const dir = join(ROOT, ".github/workflows");
     // 一覧が空でも緑になるのを防ぐ。ディレクトリごと消えたら、ここで落ちる。
     expect(existsSync(dir), ".github/workflows がありません").toBe(true);
@@ -71,6 +78,33 @@ describe("ワークフローの一覧（REQ-CI04）", () => {
     expect(pushTriggered).toEqual(["ci.yml", "deploy.yml"]);
     // 出し先は枝で決まる。ワークフローを増やして分けない。
     expect(workflow("deploy.yml")).toMatch(/branches:\s*\[main, dev\]/);
+  });
+});
+
+describe("枝の順番（REQ-CI04）", () => {
+  /**
+   * 一覧に名前が載っているだけでは足りない。冒頭の実測表のとおり、
+   * **中身を丸ごと入れ替えても緑だった**という前科がここにはある。
+   * `branch-flow.yml` は「落とすこと」が仕事なので、
+   * `exit 1` を消されたら存在ごと無意味になる。要点を書き写して固定する。
+   */
+  it("main への PR だけを見て、dev と hotfix/* 以外は落とす", () => {
+    const code = codeOf("branch-flow.yml");
+    // dev への PR まで見ると、作業ブランチからの通常の PR が全部落ちる。
+    expect(code).toMatch(/pull_request:\s*\n\s*branches:\s*\[main\]/);
+    expect(code).toMatch(/\bdev\)/);
+    expect(code).toMatch(/\bhotfix\/\*\)/);
+    // 逃がすだけで落とさないなら、置いていないのと同じ。
+    expect(code).toMatch(/exit 1/);
+  });
+
+  it("枝の名前を run へ直接埋め込まない（任意コマンドが走る）", () => {
+    // 枝の名前は PR を出す人が決める文字列。`${{ }}` はシェルより先に
+    // 展開されるので、`$(...)` を含んだ名前を付けられると実行される。
+    const code = codeOf("branch-flow.yml");
+    const runBlock = code.slice(code.indexOf("run: |"));
+    expect(runBlock).not.toMatch(/\$\{\{/);
+    expect(code).toMatch(/HEAD_REF:\s*\$\{\{\s*github\.head_ref\s*\}\}/);
   });
 });
 
@@ -120,7 +154,7 @@ describe("手元と機械で同じ検査が走る（REQ-CI01 / REQ-CI03）", () 
 });
 
 describe("閾値も検査名も書き写さない（REQ-CI02）", () => {
-  it("5 本すべてに、閾値の数字が直接書かれていない", () => {
+  it("6 本すべてに、閾値の数字が直接書かれていない", () => {
     let seen = 0;
     for (const name of EXPECTED_WORKFLOWS) {
       expect(workflow(name), `${name} にカバレッジの閾値が直接書かれています`).not.toMatch(
@@ -128,8 +162,9 @@ describe("閾値も検査名も書き写さない（REQ-CI02）", () => {
       );
       seen += 1;
     }
-    // 一覧が空でも緑になるのを防ぐ。5 本を数えたことをここで固定する。
-    expect(seen).toBe(5);
+    // 一覧が空でも緑になるのを防ぐ。6 本を数えたことをここで固定する。
+    expect(seen).toBe(EXPECTED_WORKFLOWS.length);
+    expect(seen).toBe(6);
   });
 
   /**
