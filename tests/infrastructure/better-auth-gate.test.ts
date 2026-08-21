@@ -16,6 +16,8 @@ import {
   isAllowedEmail,
   parseAllowedEmails,
   readAuthConfig,
+  reportAuthApiError,
+  reportBetterAuthLog,
   type AfterAuthContext,
   type PassCookieAttributes,
 } from "@/infrastructure/identity/better-auth";
@@ -300,5 +302,51 @@ describe("往復のあとに通行証を出す", () => {
       ...COOKIE_ATTRS,
       maxAge: 0,
     });
+  });
+});
+
+/**
+ * 壊れたことが記録に残るか。
+ *
+ * ここが黙ると、次に壊れたときも「黙って /signin へ戻る」だけになる。
+ * 実際 `account.issuer` 列が無かった間、記録は 1 行も出ず、
+ * 断ったのか壊れたのかを画面からも記録からも区別できなかった。
+ * **出ないことが症状を隠す**ので、出ること自体を固定する。
+ */
+describe("失敗を記録に残す", () => {
+  it("往復の失敗は、例外の中身ごと記録に出す", () => {
+    const spy = vi.spyOn(console, "error").mockImplementation(() => {});
+    const cause = new Error("no such column: issuer");
+
+    reportAuthApiError(cause);
+
+    // 例外そのものを渡す。要約に畳むと、今回の原因だった列名が消える。
+    expect(spy).toHaveBeenCalledWith("[auth] ログインの往復が失敗しました:", cause);
+    spy.mockRestore();
+  });
+
+  it("Better Auth 側の記録は、message の後ろの args まで落とさない", () => {
+    const spy = vi.spyOn(console, "error").mockImplementation(() => {});
+    const cause = new Error("no such column: issuer");
+
+    reportBetterAuthLog("error", "Better auth was unable to query your database.", cause);
+
+    // `message` は「問い合わせられませんでした」までしか言わない。
+    // 原因を指しているのは常に args の側なので、ここを捨てない。
+    expect(spy).toHaveBeenCalledWith(
+      "[better-auth:error]",
+      "Better auth was unable to query your database.",
+      cause,
+    );
+    spy.mockRestore();
+  });
+
+  it("args が無い記録も、そのまま通す", () => {
+    const spy = vi.spyOn(console, "error").mockImplementation(() => {});
+
+    reportBetterAuthLog("warn", "設定が足りません");
+
+    expect(spy).toHaveBeenCalledWith("[better-auth:warn]", "設定が足りません");
+    spy.mockRestore();
   });
 });

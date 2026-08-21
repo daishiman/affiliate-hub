@@ -17,6 +17,18 @@ import { drizzleAdapter } from "better-auth/adapters/drizzle";
  * pnpm drizzle-kit generate
  * ```
  *
+ * **ただし、いまこの手順を走らせてはいけない。**
+ * `@better-auth/cli` は 1.4 系（最新 1.4.21）で止まっており、
+ * 本体の 1.7.x に追いついていない。走らせると 1.4 の形が出るので、
+ * 1.7 で必須になった `account.issuer` が**黙って消える**。
+ * 実際それで消し、Google ログインが `internal_server_error` になった。
+ * 症状は「壊れている」としか見えず、原因の列名はどこにも出ない。
+ *
+ * CLI が 1.7 に追いつくまでは、要る形の出どころは
+ * `node_modules/@better-auth/core/dist/db/get-tables.mjs` である。
+ * ここの `buildAuthTables` が唯一の正解で、`src/db/auth-schema.ts` は
+ * それに手で合わせてある。版を上げたら、まずこのファイルを読み比べる。
+ *
  * ここに置いてある値は**すべて偽物**である。CLI は形しか見ないので、
  * 本物の鍵を置く理由が無い。本物は実行時に
  * `src/infrastructure/identity/better-auth.ts` が環境から取る。
