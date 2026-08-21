@@ -27,8 +27,17 @@ yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 
+# データの形を変える前に取る控え。中身は本番データそのものなので置いていかない。
+.backup/
+
 # テスト・キャッシュ
 coverage/
+# ミューテーションの作業場と出力。
+# 作業場はソースの写しで 27MB あり、実行が中断すると残り続ける。
+# 報告書は毎回数MBの生成物なので、正本は docs/product/mutation.md の実測表と
+# 夜間ワークフローの成果物（30日保存）に置き、リポジトリには入れない。
+.stryker-tmp/
+reports/
 .cache/
 .turbo/
 *.tsbuildinfo
@@ -40,9 +49,21 @@ __pycache__/
 .dev-graph/cache/
 .dev-graph/locks/
 .dev-graph/tmp/
+# node 登録の入力置き場。登録が済めば正本は state/graph.json と tasks/*.md の側にある
+.dev-graph/staging/
 .dev-graph/state/*.lock
 eval-log/
 .codex/
+
+# ログイン不要の「静止した写し」。`pnpm run preview:static` が焼く 1 枚で、
+# 中身は CSS を丸ごと埋めた 90KB 超の生成物。実物が変われば焼き直すもので、
+# 入れておくと差分が毎回まるごと入れ替わり、しかも古い写しが正本の顔で残る。
+docs/product/preview/
+
+# 見た目の回帰で赤が出たときに書き出す「いまの絵」と「違った場所」。
+# 見て直すためだけのもので、正本は tests/visual/baseline/ の見本の側にある。
+# 入れておくと、赤が出るたびに数MBの絵が履歴へ積み上がる。
+tests/visual/__diff__/
 
 # エディタ・OS
 .DS_Store

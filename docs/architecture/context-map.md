@@ -4,7 +4,7 @@
 コンテキストをまたぐ連絡は**ドメインイベント**か**公開インターフェース（ポート）**だけとし、
 別コンテキストのリポジトリを直接呼ばない。
 
-## 9 つのコンテキスト
+## 10 のコンテキスト
 
 | コンテキスト | 置き場所 | 責務 | 中心となる集約 |
 | --- | --- | --- | --- |
@@ -17,6 +17,7 @@
 | Affiliate & Monetization | `src/domain/monetization/` | 報酬・リンク・成果 | AffiliateProgram / AffiliateLink / Conversion |
 | Compliance | `src/domain/compliance/` | 広告表示・表現規制・監査 | Disclosure / PolicyRule / AuditLog |
 | Analytics | `src/domain/analytics/` | 指標・計測・同意と、その戻し方の規則 | MetricDefinition / TelemetryEvent / ConsentDecision |
+| Product Feedback | `src/domain/feedback/` | 管理者から届いた改善要望と、作業する側への払い出し | FeedbackReport / Handoff / IntegrationKey |
 
 計測（何を測るか・同意・保存期間・AI の利用と費用）は **Analytics の中に置く**。
 別コンテキストに切ると「指標」と「計測」で同じ数字を二重に定義することになり、
@@ -44,6 +45,13 @@
 これは `optimization.ts` の `assertRegistrable` が、既にある
 `analytics/feedback-policy.ts` の判定へそのまま突き当てることで守る
 （同じ決まりを 2 か所に書かない）。
+
+改善要望（プロダクト自体を良くする側）は **Analytics の中に置かない**。
+Analytics の「軸」は数字の切り口、改善要望の「種類」は要望の分類で、
+並べると必ず取り違える。また要望は 1 件で 1 件であり標本ではないため、
+必要件数の判定に乗せると「1 人しか困っていないから直さない」になる。
+共有するのは `analytics/loop-kinds.ts` の**種類の登録表と自動で付く歯止めだけ**で、
+参照は `feedback → analytics/loop-kinds` の一方向とする。詳細は `feedback-loop.md`。
 
 ## 共有カーネル（最小限）
 
@@ -108,7 +116,42 @@
 | 共通UI → 通信 | 部品が送信を持つと、部品ごとに測り方が分かれる | `tests/ui/ui-layers.test.ts`（UI に `fetch(` を書けない） |
 | 改善ループ → Ranking / 推奨 / 合格ライン | 数字を理由に順位を動かす抜け道になる | `optimization.ts` `assertRegistrable` → `feedback-policy.ts`。`tests/domain/improvement.test.ts` |
 | 改善ループ → 根拠 / 広告表示 / アクセシビリティ / 同意の見せ方 | 減らすほど数字が良くなるので、対象にすると必ず削られる | `NON_OPTIMIZABLE` 6 件。同上 |
+| Analytics → Product Feedback | 指標の集計に人の声が混ざり、数字の意味が変わる | `tests/architecture/dependency-direction.test.ts` |
+| 改善要望の本文 → AI への命令 | 本文は利用者入力。区切りの外へ出ると、書いた内容がそのまま指示になる | `tests/domain/handoff-prompt.test.ts` |
+| 読者面 → 発信者向けユースケース | 編集中の状態と報酬が読者側の経路に入る | `tests/architecture/dependency-direction.test.ts`（下の「接続境界」） |
 | domain → 外側の層 | 層の意味が消える | lint + テスト |
+
+## 読者面と発信者面の接続境界（決定）
+
+`docs/spec/02` §9 項5 の保留事項。**同一 Workspace の中で、読者向け比較メディアと
+発信者向けコンテンツOS をどこで接続するか**を、以下に確定する。
+
+**接続点は 3 つだけ。それ以外では接続しない。**
+
+| 接続点 | 何が渡るか | なぜここか |
+| --- | --- | --- |
+| `application/read-models/published-article.ts` | 公開済みの記事（節・主張・根拠・順位・会話ブロック） | 書き込み側の集約（`ContentPackage`）とは別の形にしてある。**報酬に関わる欄が型として存在しない**ため、読者向けの経路に金額が現れようがない |
+| `usecases/site/read-site` | どのブログか（設計図・テーマ・信頼ページの有無） | ブログの設定は読者にも見える情報であり、隠す理由が無い |
+| `usecases/analytics/explain-telemetry` | 何を測っているかの説明 | 読者への開示そのもの。測る側の実装は渡さない |
+
+読者由来の記録（気になる商品・問い合わせ・読まれ方）は**発信者面へ直接戻さない**。
+Analytics の集計を通してのみ戻る。個人が特定できる形で編集側へ渡らない。
+
+### なぜドメインを混ぜないのか
+
+同じ「記事」でも、発信者面では**編集中の状態と承認の履歴を持つもの**、
+読者面では**確定した読み物**である。1 つの型にまとめると、
+読者向け API に編集中の内容が漏れる事故が構造的に起こり得る。
+型を分けておけば、漏らすには型を書き換えるしかなく、それは差分に必ず現れる。
+
+### 機械検査
+
+`tests/architecture/dependency-direction.test.ts` の「読者面と発信者面の接続境界」が
+毎回確かめる（**わざと壊して落ちることを確認済み**）:
+
+- 読者の画面から、許した 2 つ以外のユースケースを呼んでいないか
+- 読者の画面が `domain/monetization` を読んでいないか
+- 発信者の画面が読者向けの見せ方を組み立て直していないか（逆向きも塞ぐ）
 
 ## コンテキスト間の言葉のずれ
 

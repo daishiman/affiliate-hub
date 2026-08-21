@@ -70,7 +70,7 @@ export default async function ProductDetailPage({
     uc.findAlternatives.execute(actor, { productId }),
     uc.explainRanking.execute(actor, { ...target, productId }),
     // 提携リンクは商業の区分。上の順位の計算とは別のつなぎ目から取る。
-    affiliateUseCases().listProductLinks.execute(actor, { productId }),
+    (await affiliateUseCases()).listProductLinks.execute(actor, { productId }),
   ]);
 
   return (

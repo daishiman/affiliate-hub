@@ -2,7 +2,12 @@ import { AdminShell } from "@/presentation/admin/admin-shell";
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { appearanceOptions, readAppearance } from "@/presentation/appearance";
-import { currentActor, settingsNotice, settingsUseCases } from "@/presentation/composition";
+import {
+  auditLogNotice,
+  currentActor,
+  settingsNotice,
+  settingsUseCases,
+} from "@/presentation/composition";
 import {
   AppearancePicker,
   Callout,
@@ -11,6 +16,7 @@ import {
   EmptyView,
   ErrorView,
   Page,
+  StorageNotice,
   StubNotice,
 } from "@/presentation/ui";
 import styles from "../admin.module.css";
@@ -27,7 +33,7 @@ export const dynamic = "force-dynamic";
  */
 export default async function SettingsPage() {
   const actor = await currentActor();
-  const uc = settingsUseCases();
+  const uc = await settingsUseCases();
 
   const appearance = await readAppearance();
   const options = appearanceOptions();
@@ -57,7 +63,7 @@ export default async function SettingsPage() {
   return (
     <Shell>
       <StubNotice
-        what="作業場所・担当者・ブランド・広告表記・操作の記録の保存先"
+        what="作業場所・担当者・ブランド・広告表記の保存先"
         blockedBy="ログインの仕組み（Better Auth と Google ログイン）と、各テーブルの追加"
         stubId="persistence:settings-sample"
       >
@@ -72,6 +78,17 @@ export default async function SettingsPage() {
         </p>
         <p className={styles.linkNote}>
           <Link href="/signin">いま誰として動いているかを見る</Link>
+        </p>
+      </Card>
+
+      <Card>
+        <h2 className={styles.sectionTitle}>生成 AI の API キー</h2>
+        <p className={styles.sectionLead}>
+          記事を書かせるために使う鍵を登録します。鍵が 1 つも入っていないあいだは、下書きの生成が
+          呼び出しの手前で止まります。
+        </p>
+        <p className={styles.linkNote}>
+          <Link href="/admin/settings/llm">API キーの登録と状態を見る</Link>
         </p>
       </Card>
 
@@ -340,8 +357,9 @@ export default async function SettingsPage() {
                     {d.relationshipLabel}
                     {d.required ? "（表示が必要）" : "（表示は不要）"}
                   </h3>
-                  {/* 読者に出るものと同じ見た目で確かめる。別の書き方を画面用に作らない。 */}
-                  <DisclosureNotice message={d.visibleMessage} />
+                  {/* 読者に出るものと同じ見た目で確かめる。別の書き方を画面用に作らない。
+                      一覧なので目印にはしない（同じ名前の目印が行の数だけ並ぶため）。 */}
+                  <DisclosureNotice asLandmark={false} message={d.visibleMessage} />
                   <table className={styles.rankTable}>
                     <tbody>
                       <tr>
@@ -367,6 +385,13 @@ export default async function SettingsPage() {
 
       <Card>
         <h2 className={styles.sectionTitle}>操作の記録</h2>
+        {/*
+         * **ここを消さない。** 記録は「残った」と言えること自体が意味を持つ
+         * 唯一の種類なので、控え（この実行中だけ覚える置き場）で動いている
+         * あいだは必ず文字で出す。黙って控えへ落ちる記録は、
+         * 残っていると思われて残っていないぶん、無いより悪い。
+         */}
+        <StorageNotice status={await auditLogNotice()} />
         {!audit.ok ? (
           // 権限が無い場合はここに入る。「空」ではなく「見られない理由」を出す。
           <Callout

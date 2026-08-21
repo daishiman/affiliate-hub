@@ -1,6 +1,7 @@
 "use server";
 
 import { readerActor, readerUseCases } from "@/presentation/composition";
+import { refusalText } from "@/presentation/refusal-text";
 
 /**
  * 問い合わせの送信。
@@ -36,7 +37,7 @@ export async function submitContactAction(
   if (!result.ok) {
     return {
       status: "failed",
-      message: result.error.suggestedAction ?? result.error.message,
+      message: refusalText(result.error),
       field: result.error.field,
     };
   }

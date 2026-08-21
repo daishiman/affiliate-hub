@@ -59,12 +59,50 @@ serves_goals: [G1]
 
 | プラットフォーム | 状態 | 根拠 |
 |---|---|---|
-| Web (web) | 確定 | 確定質疑: qa-auth-web |
+| Web (web) | 確定 | 確定質疑: `qa-auth-web` (正本 `spec-state.json` の `qa_ref` と一致。8 カテゴリ中これだけが一致していた) |
 | モバイル (mobile) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |
 | タブレット (tablet) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |
 | デスクトップ (Windows) (desktop-windows) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |
 | デスクトップ (Linux) (desktop-linux) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |
 | デスクトップ (macOS) (desktop-macos) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |
+
+## 確定セルの記録 (正本 spec-state.json)
+
+> 本節は正本 `system-spec/spec-state.json` の `coverage_matrix.auth.web` が保持している確定内容の**転記**である。規範ではない。値が食い違ったら正本を正とする。
+
+| 項目 | 値 |
+|---|---|
+| セル | auth × web |
+| 状態 | 確定 |
+| 確定質疑 (qa_ref) | `qa-auth-web` |
+| 資するゴール (serves_goals) | G1 |
+| required-info | `auth-model` — missing_effect: block / 接地: 済 (`qa-auth-web`) |
+| 出典 kind | user-dialogue |
+| 出典 path | — (対話に基づくため path/節/sha256 を持たない) |
+| 出典 節 | — |
+| 出典 sha256 | — |
+| 適用された設計知識 (design_applications) | 2 件 — 本章 `## 適用された設計知識` を参照 |
+
+- **出典が `user-dialogue` なのは本章だけ**である (分母 = `coverage_matrix` の web セル 8 件。残り 7 件は `written-requirements`)。したがって本章の確定は `docs/spec/*.md` の sha256 に束縛されておらず、**元文書が書き換わっても検知できない**。これは穴だが、対話由来の確定に後から path を与えると出典を偽ることになるため塞がない。塞がる条件は、この確定内容が `docs/spec` のいずれかの節として書き起こされたとき。
+
+### 本節を「転記」に留めた理由
+
+C05 gaps[0] の「再生成して本文へ載せる」を採らず、本節は正本からの**転記**に留めてある。根拠となる 3 つの実測 (再生成で消える 374 行 / 正本の回答が章より古いことを示す 9 トークンの突き合わせ表 / 章と正本の `qa_ref` が 8 件中 7 件で不一致) は `system-spec/database.md` の同名節に 1 か所だけ書いてある。**本文を正本から複製すると退行する**ので、そちらを読まずに「正本に合わせる」修正をしないこと。
+
+## 意思決定 (decisions)
+
+> 正本 `decisions[]` の全 6 件。**6 件とも `status: confirmed`** で、いずれも利用者本人の `user_decision` を伴う。本章を主担当とする論点を太字で示す。
+
+| ID | 論点 | 採用した選択肢 | 状態 | 資するゴール | 主担当章 |
+|---|---|---|---|---|---|
+| **`decision-auth-method`** | マルチテナントSaaSの利用者認証 (auth) をどの方式で実装するか | `opt-better-auth` | confirmed | G1 | **auth** |
+| `decision-editorial-commercial-split` | Editorial（編集評価）と Commercial（報酬・成果）のデータを、D1 でどう分けるか | `opt-two-databases` | confirmed | G1, G2 | database |
+| `decision-redirect-measurement-async` | リダイレクトの計測（ClickEvent の記録）を、転送を止めずにどう書くか | `opt-waituntil-fallback-cron` | confirmed | G2, G1 | infrastructure |
+| `decision-llm-provider` | 記事生成に使う LLM プロバイダを 1 社に固定するか、複数を持つか | `opt-catalog-multi` | confirmed | G1 | backend |
+| `decision-ui-theme-implementation` | 配色と明暗の 2 軸を、どの技術で実装するか | `opt-css-light-dark` | confirmed | G1 | frontend |
+| `decision-test-ci-tooling` | テストと CI の道具立てを、いまの構成のまま進めるか変えるか | `opt-keep-current` | confirmed | G1, G2 | maintenance-ops |
+
+- **`decision-auth-method` の caveat**: ライブラリ更新の追従を maintenance-ops に組み込むこと。採用は「費用ゼロ・ロックインなし」で得たので、追従を止めた時点でその前提が消える。
 
 ## 確定内容 (質疑録)
 
@@ -82,6 +120,16 @@ serves_goals: [G1]
 | security | OWASP ASVS + Secrets Management Cheat Sheet | 脅威モデル・入力検証・暗号化・監査ログの上流指針 | https://owasp.org/www-project-application-security-verification-standard/ |
 
 - 本章の確定内容 (質疑録) は上記 authority を上流指針として適用する。具体技術の選定はこの指針に従属し、指針との乖離は再オープン (R4-reopen) の根拠になる。
+
+### 条項引用の可否 (clause citation)
+
+| concern | 可否 | 引ける条項 / 引けない理由 |
+|---|---|---|
+| authentication | **条項引用不可** — 取得したが本文が無い (取得経路を変えれば可になる) | owasp-asvs は取得済み (retrieval-evidence/owasp-asvs.json, 67761 B) だが、取得したのは project landing page であって ASVS 本体ではない。ASVS の章番号・要件番号は本体側にあり landing page には無いため、引くべき条項が取得物に存在しない。 |
+| security | **条項引用不可** — 取得したが本文が無い (取得経路を変えれば可になる) | authentication と同一 authority・同一取得物 (landing page)。条項が取得物に無い点も同じ。 |
+
+- **authentication が引用可になる条件**: 章番号・要件番号を持つ ASVS 本体 (公式配布の要件文書) を targets[] に足して取得できた日に state を available へ変え、cited_clauses を埋め、検査を『この章は条項を引いていること』側へ反転させる。取得すれば塞がる穴であって、塞げない穴ではない。
+- **security が引用可になる条件**: authentication の reversal と同じ。ASVS 本体を取得できた日に両 concern を同時に available へ変える。
 
 ## 適用された設計知識
 

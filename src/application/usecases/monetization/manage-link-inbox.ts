@@ -1,4 +1,6 @@
+import { auditWriteFailure, buildAuditEntry } from "@/application/audit";
 import type { EventPublisherPort, IdGeneratorPort } from "@/application/ports/common";
+import type { AuditLogPort } from "@/application/ports/compliance";
 import type {
   AffiliateProgramRepositoryPort,
   CommercialLinkIngestionRepositoryPort,
@@ -49,6 +51,15 @@ export type ManageLinkInboxDeps = {
   readonly programs: AffiliateProgramRepositoryPort;
   readonly ids: IdGeneratorPort;
   readonly events: EventPublisherPort;
+  /**
+   * 誰がこのリンクを進めたかの記録。
+   *
+   * 出来事 (`events`) とは役割が違う。出来事は**受け手に知らせるため**で、
+   * 受け手がいなければ流れなくてよい。記録は**後から人が読むため**で、
+   * 残せなかったら操作を成功として返さない。
+   */
+  readonly auditLog: AuditLogPort;
+  readonly now: () => Date;
 };
 
 function guardCommercial(deps: ManageLinkInboxDeps): void {
@@ -235,6 +246,40 @@ export function createSubmitAffiliateUrlUseCase(
         url: saved.value.submittedUrl,
       });
 
+      /*
+       * 誰がこのリンクを持ち込んだかを残す。**記録は保存の後**に書く。
+       *
+       * ここが記録の起点になる。後の「広告主を決めた」「商品に結びつけた」は
+       * 同じ `targetId` で辿れるので、リンク 1 本の来歴が
+       * 受け取りから最後まで 1 本につながる。
+       *
+       * `duplicateOf` を入れるのは、同じ URL が 2 回持ち込まれたときに
+       * 「消していない」判断の跡を残すため。後から二重計上を疑われたときに、
+       * どちらを本体として扱ったかがここでしか分からない。
+       */
+      const entry = buildAuditEntry({ ids: deps.ids, now: deps.now }, actor, {
+        action: "affiliate_link.created",
+        targetType: "link_ingestion",
+        targetId: String(saved.value.id),
+        after: {
+          /*
+           * URL 全体ではなく**行き先のホスト名だけ**を残す。
+           * 成果リンクの URL には成果の割り当て先を示す文字列が入っており、
+           * 記録として広く読まれる場所へ置くものではない。
+           * 「どこ宛てのリンクを受け取ったか」はホスト名で足りる。
+           */
+          host: hostOf(saved.value.submittedUrl),
+          source: saved.value.source,
+          state: saved.value.state,
+          duplicateOf: saved.value.duplicateOf === null ? null : String(saved.value.duplicateOf),
+        },
+      });
+      if (!entry.ok) return entry;
+      const appended = await deps.auditLog.append(entry.value);
+      if (!appended.ok) {
+        return err(auditWriteFailure("リンクは受信箱に入っています", appended.error.details));
+      }
+
       const duplicate = saved.value.duplicateOf !== null;
       return ok({
         item: toView(saved.value, null),
@@ -286,6 +331,32 @@ export function createResolveLinkIngestionUseCase(
         programId: String(programId),
       });
 
+      /*
+       * どの広告主のリンクだと決めたのは誰か。**記録は保存の後**に書く。
+       *
+       * ここで決めた広告主が、後の報酬の宛先になる。取り違えたときに
+       * 「誰がいつそう決めたか」が言えないと、直す相手が分からない。
+       */
+      const entry = buildAuditEntry({ ids: deps.ids, now: deps.now }, actor, {
+        action: "affiliate_link.changed",
+        targetType: "link_ingestion",
+        targetId: String(saved.value.id),
+        /*
+         * 前の広告主を `null` と決め打たない。決め直しのときに
+         * 「どこから変えたか」が消え、取り違えの追跡ができなくなる。
+         */
+        before: {
+          state: found.value.state,
+          programId: found.value.programId === null ? null : String(found.value.programId),
+        },
+        after: { state: saved.value.state, programId: String(programId) },
+      });
+      if (!entry.ok) return entry;
+      const appended = await deps.auditLog.append(entry.value);
+      if (!appended.ok) {
+        return err(auditWriteFailure("広告主は決まっています", appended.error.details));
+      }
+
       return ok(
         toView(saved.value, `${program.value.advertiserName}（${ASP_LABEL[program.value.asp]}）`),
       );
@@ -330,6 +401,29 @@ export function createMatchLinkIngestionUseCase(
         productId: input.productId,
       });
 
+      /*
+       * どの商品に結びつけたのは誰か。**記録は保存の後**に書く。
+       *
+       * この結びつけが、記事に出るリンクの行き先を決める。
+       * 別の商品のリンクが貼られていたと分かったとき、直す前に
+       * 「いつからそうなっていたか」を知る必要がある。
+       */
+      const entry = buildAuditEntry({ ids: deps.ids, now: deps.now }, actor, {
+        action: "affiliate_link.changed",
+        targetType: "link_ingestion",
+        targetId: String(saved.value.id),
+        before: {
+          state: found.value.state,
+          productId: found.value.productId === null ? null : String(found.value.productId),
+        },
+        after: { state: saved.value.state, productId: input.productId },
+      });
+      if (!entry.ok) return entry;
+      const appended = await deps.auditLog.append(entry.value);
+      if (!appended.ok) {
+        return err(auditWriteFailure("商品との結びつけは済んでいます", appended.error.details));
+      }
+
       return ok(toView(saved.value, null));
     },
   };
@@ -366,6 +460,29 @@ export function createRejectLinkIngestionUseCase(
 
       // 対象外にしたことは出来事として流さない。
       // 受け手（商品・記事）が反応する必要がなく、流すと意味の無い連絡が増える。
+
+      /*
+       * 一方で、記録は**流さないからこそ必要**になる。
+       * 出来事を流さない操作は、この記録が消えると跡が 1 つも残らない。
+       *
+       * 理由は `affiliate_link.rejected` の必須項目にしてある。
+       * 「なぜ捨てたか」は `before` と `after` の差からは読めないので、
+       * 理由の欄が空のまま通ると、後から捨てた判断を説明できなくなる。
+       */
+      const entry = buildAuditEntry({ ids: deps.ids, now: deps.now }, actor, {
+        action: "affiliate_link.rejected",
+        targetType: "link_ingestion",
+        targetId: String(saved.value.id),
+        before: { state: found.value.state },
+        after: { state: saved.value.state },
+        reason: input.reason,
+      });
+      if (!entry.ok) return entry;
+      const appended = await deps.auditLog.append(entry.value);
+      if (!appended.ok) {
+        return err(auditWriteFailure("このリンクは対象外になっています", appended.error.details));
+      }
+
       return ok(toView(saved.value, null));
     },
   };

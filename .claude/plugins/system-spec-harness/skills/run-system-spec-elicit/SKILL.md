@@ -82,7 +82,7 @@ feedback_contract:
   criteria:
     - id: IN1
       loop_scope: inner
-      text: validate-coverage-matrix.py が spec-state.json に対し 6 canonical platform 全存在・各セルが未収集/対象外/確定の3値・対象外に理由(または approval_ref)・確定に qa_ref・カテゴリ集約が真理値表一致・不正値0件を機械検証して exit0 になる。schema 1.1 の確定 qa は design_applications に knowledge_ref/principle/applicability/rationale/非空tradeoffs を必須とし、marker 無し exact schema 1.0 は read-only、明示 init だけが migration 可能、schema/marker 欠落・不一致の修復は拒否する。R0-foundation 完了後は --require-foundation も付け、requirements_foundation の U1-U9(値ありまたは明示 N/A・U1/U2/U3 は値必須)・decisions 契約・各確定セルの serves_goals トレースも exit0 で検証する(R0 完了前の foundation 未確定段階では --require-foundation を課さない段階条件)。
+      text: validate-coverage-matrix.py が spec-state.json に対し 6 canonical platform 全存在・各セルが未収集/対象外/確定の3値・対象外に理由(または approval_ref)・確定に qa_ref・カテゴリ集約が真理値表一致・不正値0件を機械検証して exit0 になる。schema 1.2 の確定 qa は design_applications に knowledge_ref/principle/applicability/rationale/非空tradeoffs を必須とし、marker 無し exact schema 1.0 は read-only、明示 init だけが migration 可能、schema/marker 欠落・不一致の修復は拒否する。R0-foundation 完了後は --require-foundation も付け、requirements_foundation の U1-U9(値ありまたは明示 N/A・U1/U2/U3 は値必須)・decisions 契約・各確定セルの serves_goals トレースも exit0 で検証する(R0 完了前の foundation 未確定段階では --require-foundation を課さない段階条件)。
       verify_by: script
     - id: OUT1
       loop_scope: outer
@@ -112,7 +112,7 @@ feedback_contract:
 ## Purpose & Output Contract
 
 **入力**: ヒアリング応答 (対話) / 既存 `spec-state.json` (resume 時) / C04 taxonomy。
-**出力**: `spec-state.json` (`references/spec-state-contract.md` の形状。現行 schema 1.1 の plugin 共有データ契約。上位概念 `requirements_foundation` を含む)。
+**出力**: `spec-state.json` (`references/spec-state-contract.md` の形状。現行 schema 1.2 の plugin 共有データ契約。上位概念 `requirements_foundation` を含む)。
 **完了条件**: `requirements_foundation` が確定 (U1-U9 が値または明示 N/A+理由・ただし U1/U2/U3 は値必須で N/A 不可・U1-U9 要約のユーザー承認 `approval_ref` 付き・`confirmed: true`) し、各 U が 1論点の `qa_log` entry へ遡及できる。対話 entry は `source.kind=user-dialogue`、書面要件 entry は質問の入力 path/section、指定 section 内に実在する逐語 `answer`、その UTF-8 bytes の `source.sha256` を持つ。AI 生成文の digest は利用者一次根拠に代用できず、新しい利用者入力が無い場合に新規 approval を作らない。全セルが `確定`(qa_ref 付き) か `対象外`(reason か approval_ref 付き) で、未収集0。確定 qa は回答原文と分離した `design_applications[]` に C04 deep card / doctrine anchor の具体原則、`applied|not_applicable`、章固有の理由、trade-off を持つ。人向け UI がある場合は `screen-information-priority` の9項目が確定し、ない場合は理由付き N/A が確定してから `frontend-arch` を確定する。`validate-coverage-matrix.py --require-complete --require-foundation` が exit0。加えて `../../scripts/validate-knowledge-graph.py --profile required-info --input references/required-info-catalog.json` が exit0 で、`coverage_certificate.blocking_items` (空であるべき未解決一覧ではなく、`missing_effect=block` の収集必須 item ID 一覧) の各 item が確定 foundation/matrix/decision の根拠へ接地していることを completeness evaluator の意味層で確認する。
 
 - **platforms (6)**: `web` / `mobile` / `tablet` / `desktop-windows` / `desktop-linux` / `desktop-macos`。
@@ -127,8 +127,9 @@ feedback_contract:
 1. **確定巻き戻しの拒否**: `確定` セルを `confirm` / `exclude` で直接変更しようとすると `TransitionError` で拒否する。Bash や別 script から CLI を叩いても同じく拒否される (single-writer 防御)。
 2. **R4-reopen 経由のみ確定変更**: `確定` セルの状態を動かせるのは `action=reopen` (要 reason) だけ。reopen は当該セルを `未収集` へ戻し `reopen_log` に根拠を残す。その後 `confirm` / `exclude` で再遷移できる。
 3. **確定/対象外の付帯必須**: `confirm` は `qa_ref` (qa_log entry 参照) 必須、`exclude` は `reason` か `approval_ref` (approval_log 参照) 必須。
-4. **設計解釈の必須性と形状検証**: 新規 state は `schema_version: "1.1"` と `design_application_contract_version: "1.0"` を持つ。writer は turn の `design_applications` の具体原則・採否・章固有理由・非空 trade-off を検証して回答原文とは別 field に保存し、`validate-coverage-matrix.py --require-complete` は確定セルが参照する全 qa entry で解釈と provenance の存在・形状を再検査する。marker の無い旧 schema 1.0 state は読み取り専用で、更新時は R1 `init --state` により matrix を未収集へ再初期化して 1.1 へ移行する。1.1 へ移行済みで `legacy_exempt: true` と非空理由が残る既存 qa に限り、`set-qa-design-applications` が質問・回答を改変せず設計解釈だけを追記し、`design_application_provenance.mode=legacy_backfill` を残す。provenance の無い既存解釈は対話経路として保護し、既存の異なる解釈や provenance の上書きも拒否する。C03 は `unrecorded|dialogue|legacy_backfill` を章へ描画し、C05 は `unrecorded` を未記録 finding とし、backfill の回答適合を再照合する。1.1 以降は marker 欠落を fail-closed に拒否する。
+4. **設計解釈の必須性と形状検証**: 新規 state は `schema_version: "1.2"` と `design_application_contract_version: "1.0"` を持つ。writer は turn の `design_applications` の具体原則・採否・章固有理由・非空 trade-off を検証して回答原文とは別 field に保存し、`validate-coverage-matrix.py --require-complete` は確定セルが参照する全 qa entry で解釈と provenance の存在・形状を再検査する。marker の無い旧 schema 1.0 state は読み取り専用で、更新時は R1 `init --state` により matrix を未収集へ再初期化して 1.2 へ移行する。1.2 へ移行済みで `legacy_exempt: true` と非空理由が残る既存 qa に限り、`set-qa-design-applications` が質問・回答を改変せず設計解釈だけを追記し、`design_application_provenance.mode=legacy_backfill` を残す。provenance の無い既存解釈は対話経路として保護し、既存の異なる解釈や provenance の上書きも拒否する。C03 は `unrecorded|dialogue|legacy_backfill` を章へ描画し、C05 は `unrecorded` を未記録 finding とし、backfill の回答適合を再照合する。1.2 以降は marker 欠落を fail-closed に拒否する。
 5. **集約は導出のみ**: `category_aggregate` は真理値表から再計算する。手書き代入を認めない。
+6. **C16 block ゲート (確定の瞬間に止める)**: `confirm` は、当該 category に掛かる `missing_effect=block` item (C14 の coverage certificate から取る。writer 側で再導出しない) の充足状態を `required_info[]` で全件要求する。`grounded` は `qa_log` に実在する `grounded_by`、`not_applicable` は非空 reason かつ `required_when=always` の item では不可、`ungrounded` は確定不可。`missing_effect` はカタログの値を写すので、呼び出し側が `warn` と名乗ってゲートを外すことはできない。ゲート導入前に確定したセルへは `set-required-info` (確定セル限定の後付け annotation) で充足状態を物質化でき、`ungrounded` を負債として記録できる。**既存記録の上書きは拒否する** — 許すと、ゲートを通した記録を後から `ungrounded` へ書き換える経路になる。`reopen` は `required_info` も `reopen_log.discarded` へ退避する。
 
 > 本文・prompt・CLI いずれの経路でも、マトリクスの状態遷移は上記 writer を経由すること。直接 JSON 編集で `確定`→`未収集` を書くのは契約違反。
 
@@ -155,7 +156,7 @@ feedback_contract:
 
 - **IN1 (inner / script)**: `python3 ../../scripts/validate-coverage-matrix.py --matrix spec-state.json` が exit0 (loop 中の網羅性)。R0-foundation 完了後は `--require-foundation` を付けて `python3 ../../scripts/validate-coverage-matrix.py --matrix spec-state.json --require-foundation` も exit0 とし、上位概念 U1-U9・decisions 契約・serves_goals トレースを段階的に課す (foundation 未確定の R0 完了前には課さない)。
 - **OUT1 (outer / test)**: 最終 `spec-state.json` を `--require-complete` が exit0 で受理し、受入テスト (`tests/`) が resume 保存を含めて再現する。
-- **収集ゲート (C16 / IN1 補完)**: `../../scripts/validate-knowledge-graph.py --profile required-info --input references/required-info-catalog.json` が exit0 で、`coverage_certificate.blocking_items` に列挙された収集必須 item (product-goal / target-platforms / screen-information-priority / domain-model / auth-model / security-posture) が確定 foundation/matrix/decision の根拠へ接地していることを意味層で確認する。`screen-information-priority` は、人向け UI があれば question bank の9項目、なければ理由付き N/A を根拠とする。UI ありで未接地なら UI-UX と `frontend-arch` の `confirmed` を許さず、UI なしの理由付き N/A は後続を block しない。`frontend-arch depends_on screen-information-priority` は validator の `collection_order` で前後関係を決定論的に固定する (R5 が回答接地の prose ゲートを施行し、決定論 writer=apply-spec-transition への接地検査組込は follow-up)。
+- **収集ゲート (C16 / IN1 補完)**: `../../scripts/validate-knowledge-graph.py --profile required-info --input references/required-info-catalog.json` が exit0 で、`coverage_certificate.blocking_items` に列挙された収集必須 item (product-goal / target-platforms / screen-information-priority / domain-model / auth-model / security-posture) が確定 foundation/matrix/decision の根拠へ接地していることを意味層で確認する。`screen-information-priority` は、人向け UI があれば question bank の9項目、なければ理由付き N/A を根拠とする。UI ありで未接地なら UI-UX と `frontend-arch` の `confirmed` を許さず、UI なしの理由付き N/A は後続を block しない。`frontend-arch depends_on screen-information-priority` は validator の `collection_order` で前後関係を決定論的に固定する。施行は 3 層 (R5 の意味層 prose ゲート / C05 事後監査 / 決定論 writer)。writer 施行は `apply-spec-transition` の `confirm` op に組込済みで、当該 category に掛かる block item の充足状態を `required_info[]` として全件要求し、未接地 (`status=ungrounded`) では確定させない。`missing_effect` はカタログから写すので呼び出し側が名乗り替えて外すことはできない。ゲート導入前に確定したセルへは `set-required-info` (確定セル限定の後付け annotation。既存記録の上書きは拒否) で充足状態を物質化する。
 
 ## 使い方 (ゴールへ向けた反復)
 
@@ -166,7 +167,7 @@ feedback_contract:
 3. **R1-init**: taxonomy を Readしてmatrixをpopulateする。既存foundation/decisionsを保持する。
 4. **R2/R3/R5**: required-info の `collection_order` で未収集セルをヒアリングする。人向け UI があれば `screen-information-priority` の9項目を、なければ理由付き N/A を `frontend-arch` より先に確定する。不明・未決定ならR5で根拠付き候補と推奨を提示する。確定セル/decisionはgoalへトレースし、5 loop超でresume保存。
 5. **R4-reopen**: 確定セルの見直しが要るときのみ reopen。
-6. **検証**: 各周回でvalidator、最終で`--require-complete --require-foundation`。schema 1.1 移行後に `legacy_exempt: true` と理由が残る旧 qa に設計解釈だけが欠ける場合は `set-qa-design-applications --qa-id <id> --applications <json-or-file>` を使い、質問・回答を維持したまま補完する。
+6. **検証**: 各周回でvalidator、最終で`--require-complete --require-foundation`。schema 1.2 移行後に `legacy_exempt: true` と理由が残る旧 qa に設計解釈だけが欠ける場合は `set-qa-design-applications --qa-id <id> --applications <json-or-file>` を使い、質問・回答を維持したまま補完する。
 
 ## Gotchas
 

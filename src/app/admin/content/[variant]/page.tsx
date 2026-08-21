@@ -1,6 +1,11 @@
 import { AdminShell } from "@/presentation/admin/admin-shell";
 import Link from "next/link";
 import type { ReactNode } from "react";
+import {
+  AdvanceContentStateForm,
+  ApproveContentForm,
+} from "@/presentation/admin/content-progress-form";
+import { SchedulePublicationForm } from "@/presentation/admin/schedule-publication-form";
 import { contentUseCases, currentActor, editorialContentNotice } from "@/presentation/composition";
 import {
   AiCannotApproveNotice,
@@ -11,7 +16,7 @@ import {
   EmptyView,
   ErrorView,
   Page,
-  StubNotice,
+  StorageNotice,
   type ApprovalState,
 } from "@/presentation/ui";
 import styles from "../../admin.module.css";
@@ -33,7 +38,7 @@ export default async function ContentDetailPage({
 }) {
   const { variant: variantId } = await params;
   const actor = await currentActor();
-  const result = await contentUseCases().getContent.execute(actor, { variantId });
+  const result = await (await contentUseCases()).getContent.execute(actor, { variantId });
 
   if (!result.ok) {
     return (
@@ -48,20 +53,25 @@ export default async function ContentDetailPage({
     );
   }
 
-  const { variant, quality, authorName, approvalBlockedReason } = result.value;
+  const {
+    variant,
+    quality,
+    policy,
+    policyUncheckedReason,
+    authorName,
+    state,
+    stateLabel,
+    nextStates,
+    approvalBlockedReason,
+    publishBlockedReason,
+  } = result.value;
   const title = variant.title ?? "（見出し未設定）";
   const errors = quality.issues.filter((i) => i.severity === "error");
   const warnings = quality.issues.filter((i) => i.severity !== "error");
 
   return (
     <Shell title={title}>
-      <StubNotice
-        what="記事の保存先"
-        blockedBy="content_packages / content_variants / personas テーブルの追加とマイグレーション"
-        stubId="persistence:content-editorial-sample"
-      >
-        <span>{editorialContentNotice()}</span>
-      </StubNotice>
+      <StorageNotice status={await editorialContentNotice()} />
 
       <Card>
         <h2 className={styles.sectionTitle}>いまの段階</h2>
@@ -78,6 +88,30 @@ export default async function ContentDetailPage({
           書き手: {authorName ?? "未設定"} / 媒体: {variant.channel} / 作成に使った指示:{" "}
           {variant.generationPromptVersion}（{variant.modelId}）
         </p>
+      </Card>
+
+      <Card>
+        <h2 className={styles.sectionTitle}>次に進める</h2>
+        {state === null ? (
+          // 分からないものを最初の段階として出さない。出すと、押しても通らない。
+          <EmptyView
+            title="進行の記録がありません"
+            body="この記事がかんばんのどの列にいるかが記録されていません。記事の一覧から開き直してください。"
+          />
+        ) : (
+          <>
+            <p className={styles.sectionLead}>
+              いまは「{stateLabel}」です。進めた段階は保存され、記事の一覧にも反映されます。
+            </p>
+            {actor.isAiServiceAccount ? null : (
+              <AdvanceContentStateForm variantId={variantId} from={state} nextStates={nextStates} />
+            )}
+            {/* 承認は人にしかできない。AI の代行では、押せる欄そのものを出さない。 */}
+            {actor.isAiServiceAccount || approvalBlockedReason !== null ? null : (
+              <ApproveContentForm variantId={variantId} />
+            )}
+          </>
+        )}
       </Card>
 
       <Card>
@@ -118,6 +152,64 @@ export default async function ContentDetailPage({
               </div>
             ))}
           </dl>
+        )}
+      </Card>
+
+      <Card>
+        <h2 className={styles.sectionTitle}>表現のきまり</h2>
+        {policy === null ? (
+          // 確認できなかったことを「指摘なし」と並べて出さない。
+          // 同じ見た目にすると、見ていない記事が見た記事と区別できなくなる。
+          <Callout
+            tone="warn"
+            title="確認できていません"
+            reason={policyUncheckedReason ?? "理由が分かりません。"}
+            action={<Link href="/admin/content">記事の一覧へ戻る</Link>}
+          />
+        ) : policy.violations.length === 0 ? (
+          <EmptyView
+            title="当たった項目はありません"
+            body="この記事の分野で登録されているきまりには当たりませんでした。登録されていない法令は確認していません。"
+          />
+        ) : (
+          <ul className={styles.linkList}>
+            {policy.violations.map((v, i) => (
+              <li key={`${String(v.ruleId)}-${i}`}>
+                <Callout
+                  tone={v.severity === "block" ? "danger" : v.severity === "warn" ? "warn" : "info"}
+                  title={v.ruleName}
+                  // 禁止だけ示すと執筆が止まる。根拠と言い換えを必ず添える。
+                  reason={`「${v.excerpt}」— ${v.basis}。${v.suggestion}`}
+                />
+              </li>
+            ))}
+          </ul>
+        )}
+        {policy !== null && policy.unevaluatedRuleIds.length > 0 && (
+          // 実行できなかったルールを黙って飛ばさない。
+          <Callout
+            tone="warn"
+            title="確認できなかったきまりがあります"
+            reason={`${policy.unevaluatedRuleIds.length}件のきまりが実行できませんでした。設定した検出条件を見直してください。`}
+          />
+        )}
+      </Card>
+
+      <Card>
+        <h2 className={styles.sectionTitle}>この記事を出す</h2>
+        {publishBlockedReason === null ? (
+          <>
+            <p className={styles.sectionLead}>
+              出し先と日時を決めると、配信が 1 件登録されます。ここで投稿はされません。
+              同じ記事・同じ先・同じ日時をもう一度登録しても、配信は増えません。
+            </p>
+            <SchedulePublicationForm variantId={variantId} />
+          </>
+        ) : (
+          // 欄を消して黙らない。なぜ出せないのか、次に何をすれば出せるのかを書く。
+          // 理由の文はユースケースが返す。画面でもう一度判定すると、
+          // 画面と AI で違う理由が出る（そして片方だけ古くなる）。
+          <EmptyView title="まだ配信できません" body={publishBlockedReason} />
         )}
       </Card>
 

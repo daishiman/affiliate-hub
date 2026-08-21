@@ -11,9 +11,32 @@ from spec_docset_catalog import (
     _ref_version,
     _row,
 )
+from spec_docset_citation import render_clause_citation
 
 # レンダリング (章 / index) — 純関数                                            #
 # --------------------------------------------------------------------------- #
+_FENCE_RE = re.compile(r"^```", re.M)
+
+
+def seal_code_fences(text: str) -> tuple[str, bool]:
+    """本文中のコードフェンスが閉じていなければ閉じる (章の構造を守る)。
+
+    なぜ要るか: qa_log の answer は正本からそのまま章へ実体描画される。
+    answer の中でコードフェンスが閉じていないと、**開いたフェンスが章の残り
+    全部を飲み込む**。実測 (2026-08-19): backend 章で見出し 28 個・192 行が
+    1 つのコード塊に飲まれた。フェンスの本数が偶数かどうかでは判定できない
+    (行き場の無い閉じフェンス 2 本が互いに対になり得る) ため、
+    **開いたまま終わっているかどうか**で判定する。
+
+    捏造はしない: 内容は変えず、末尾に閉じフェンスを足すだけで、
+    足したことは呼び出し側が注記として可視化する (fail-visible)。
+    正本 (qa_log[].answer) 側の修正が本筋であり、これはその修正までの防波堤である。
+    """
+    if len(_FENCE_RE.findall(text)) % 2 == 0:
+        return text, False
+    return text + "\n```", True
+
+
 def render_frontmatter(spec: dict, cat_id: str) -> str:
     """章 frontmatter (確定マーカー) を組み立てる (C11 hook 判定ソース)。"""
     agg = category_aggregate(spec, cat_id)
@@ -115,8 +138,16 @@ def render_confirmed_qa(spec: dict, cat_id: str) -> str:
             continue
         lines.append(f"**質問**: {qa.get('question', '(未記入)')}")
         lines.append("")
-        lines.append(f"**回答**: {qa.get('answer', '(未記入)')}")
+        answer, sealed = seal_code_fences(str(qa.get("answer", "(未記入)")))
+        lines.append(f"**回答**: {answer}")
         lines.append("")
+        if sealed:
+            # 足したことを隠さない。正本を直すまでの防波堤であることを章に残す。
+            lines.append(
+                f"- (注記: 正本 qa_log[{ref}].answer のコードフェンスが閉じていないため、"
+                "章の構造を守るためコンパイラが閉じた。正本側の修正が要る)"
+            )
+            lines.append("")
     return "\n".join(lines).rstrip()
 
 
@@ -174,6 +205,7 @@ def render_doctrine_anchor(cat_id: str) -> str:
         "- 本章の確定内容 (質疑録) は上記 authority を上流指針として適用する。"
         "具体技術の選定はこの指針に従属し、指針との乖離は再オープン (R4-reopen) の根拠になる。",
     ]
+    lines += render_clause_citation(concern_ids, concerns)
     return "\n".join(lines)
 
 
@@ -272,13 +304,21 @@ def _render_chapter_application(spec: dict, cat_id: str) -> list[str]:
         return lines
     for ref, cells in confirmed:
         qa = qa_map.get(ref) or {}
+        # ここも answer を実体描画する 2 つ目の経路である。
+        # 片方だけ塞ぐと、同じ壊れがこちらから章へ漏れる。
+        answer, sealed = seal_code_fences(str(qa.get("answer", "(qa_log 本文欠落)")))
         lines.extend(
             [
                 f"##### 確定内容 {ref} (対応セル: {', '.join(cells)})",
                 "",
-                f"- 確定要件: {qa.get('answer', '(qa_log 本文欠落)')}",
+                f"- 確定要件: {answer}",
             ]
         )
+        if sealed:
+            lines.append(
+                f"- (注記: 正本 qa_log[{ref}].answer のコードフェンスが閉じていないため、"
+                "章の構造を守るためコンパイラが閉じた。正本側の修正が要る)"
+            )
         applications = qa.get("design_applications")
         if not isinstance(applications, list) or not applications:
             lines.append("- 設計解釈の記録経路: `unrecorded`")

@@ -1,5 +1,5 @@
 import { readerActor, readerUseCases } from "@/presentation/composition";
-import { NotFoundBody, SiteFrame } from "@/presentation/site/page-frame";
+import { ReadFailureBody, SiteFrame } from "@/presentation/site/page-frame";
 import { ReaderToolForm } from "@/presentation/site/reader-tool-form";
 import { siteHref } from "@/presentation/site/view-model";
 import { ErrorView, SitePage, StubNotice } from "@/presentation/ui";
@@ -31,7 +31,7 @@ export default async function ReaderToolPage({
   if (!definition.ok) {
     return (
       <SiteFrame siteSlug={site} currentPath={siteHref(site, `/tools/${tool}`)}>
-        {() => <NotFoundBody what="この道具" siteSlug={site} />}
+        {() => <ReadFailureBody error={definition.error} what="この道具" siteSlug={site} />}
       </SiteFrame>
     );
   }

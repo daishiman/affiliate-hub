@@ -1,3 +1,25 @@
+/**
+ * @tier 1
+ * @req REQ-A01, REQ-P02
+ * @types equivalence, boundary, state-transition, ssrf
+ *
+ * 受け入れ条件 §30.1（URL 登録）の中身は、ここで確かめている。
+ *
+ * `tests/acceptance/acceptance-criteria.test.ts` §30.1 は、同じことを
+ * **入口（ツールカタログ）から 1 本通す**ための検査で、
+ * 入力の分かれ目を網羅する場所ではない。あちらは 5 個の悪い URL を通すだけで、
+ * 172.16.0.1 と 172.31.255.255 のような**端**は見ていない。
+ * 受け入れ条件が本当に守られているかは、入口の 1 本ではなく
+ * この分かれ目の一覧で決まる。
+ *
+ * `ssrf` の印を付けたのは「内部ネットワーク宛は受け取らない」の節があるため。
+ * 2026-08-18 に性質 `has-user-supplied-url` を語彙へ足したので、この印は
+ * REQ-A01 と REQ-P02 の両方から**要求されるようになった**（外すと落ちる）。
+ *
+ * REQ-P02（URL 受信箱）をここへ足したのは、受信箱の実装がこのファイルが
+ * 見ている `link-ingestion.ts` そのもので、内部宛先の拒否・正規化・重複検出・
+ * 4 状態の遷移がすべてここにあるためである。印だけが欠けていた。
+ */
 import { describe, expect, it } from "vitest";
 import {
   type LinkIngestion,
@@ -82,6 +104,22 @@ describe("受け取ってよい URL かの判定", () => {
     const b = normalizeAffiliateUrl("https://example.invalid/p?a=1&b=2&gclid=y");
     expect(a.ok && b.ok).toBe(true);
     if (a.ok && b.ok) expect(a.value).toBe(b.value);
+  });
+
+  it("値の中の & は区切りに化けない（別のリンクを重複にしない）", () => {
+    /*
+      性質テスト（tests/property/normalization.property.test.ts）が見つけた反例を、
+      最小の形で例として固定したもの。
+
+      `?x=b%26y=z` は「x という 1 つの値が b&y=z」で、
+      `?x=b&y=z`   は「x=b と y=z の 2 つ」。**別の URL である。**
+      組み立て直すときに符号化していなかったため、両方が同じ形になり、
+      片方が他方の重複として印を付けられていた。
+    */
+    const single = normalizeAffiliateUrl("https://example.invalid/p?x=b%26y%3Dz");
+    const pair = normalizeAffiliateUrl("https://example.invalid/p?x=b&y=z");
+    expect(single.ok && pair.ok).toBe(true);
+    if (single.ok && pair.ok) expect(single.value).not.toBe(pair.value);
   });
 
   it("受け取った URL は改変せずそのまま持つ", () => {

@@ -1,9 +1,19 @@
 {
  "target_id": "cloudflare-workers",
  "source_url": "https://developers.cloudflare.com/workers/",
- "retrieved_at": "2026-08-16T09:01:51Z",
+ "retrieved_at": "2026-08-19T15:30:39Z",
  "http_status": 200,
  "content_bytes": 208057,
- "content_sha256": "8488dbbf0ca249d36f2ec345a35fb2c0007d628d8f03caea1f5ce126d1166693",
- "page_title": "Overview · Cloudflare Workers docs"
+ "content_sha256": "8a3dfba53ab848a8cba16b1a05c9ab0a30a03431e0f3f60852c2606faf3105fc",
+ "page_title": "Overview · Cloudflare Workers docs",
+ "freshness_extraction": {
+  "freshness_source": "page-declared",
+  "value": "2026-04-23",
+  "found_in": [
+   "JSON-LD \"dateModified\":\"2026-04-23\"",
+   "<time datetime=\"2026-04-23T17:53:52.000Z\">Apr 23, 2026</time>"
+  ],
+  "http_last_modified": null,
+  "note": "値の由来は freshness_source と対応する。取得日を last_updated へ代入しない (C13 validate-source-citation.py の取得日代入検査が拒否する)。"
+ }
 }

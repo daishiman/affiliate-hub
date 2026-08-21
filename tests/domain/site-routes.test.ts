@@ -1,3 +1,4 @@
+/** @tier 1 */
 import { existsSync, readdirSync, statSync } from "node:fs";
 import { join, relative } from "node:path";
 import { describe, expect, it } from "vitest";
@@ -45,6 +46,8 @@ function actualRoutePaths(): string[] {
 
 describe("ブログのルート表", () => {
   it("表にあるルートには、必ず画面のファイルがある", () => {
+    // **母集団の床**（残課題 78 ㉗）。ルート表が空でも同じ 0 件が出る。
+    expect(SITE_ROUTES.length, "ルート表が空です").toBeGreaterThan(5);
     const missing = SITE_ROUTES.filter(
       (route) => !existsSync(join(APP_SITE_DIR, toSegments(route.path), "page.tsx")),
     ).map((r) => r.path);
@@ -53,6 +56,8 @@ describe("ブログのルート表", () => {
   });
 
   it("画面のファイルには、必ず表の行がある（孤立した画面を作らない）", () => {
+    // **母集団の床**（残課題 78 ㉗）。画面を 1 つも歩けていなくても同じ 0 件が出る。
+    expect(actualRoutePaths().length, "画面のファイルを歩けていません").toBeGreaterThan(5);
     const declared = new Set(SITE_ROUTES.map((r) => toSegments(r.path)));
     const orphans = actualRoutePaths().filter((p) => !declared.has(p));
 
@@ -120,6 +125,11 @@ describe("ブログを増やしても画面は増えない", () => {
 
   it("2 本目のブログ専用の画面ファイルは 1 つも無い", () => {
     const paths = actualRoutePaths();
+    // **母集団の床。**画面を歩けていないと `perBlog` は空になり、
+    // 「専用ファイルが 1 つも無い」は**何も見ていないときにも成立する。**
+    // 60 行目の同じ床に揃えてある。下げない。
+    expect(paths.length, "画面のファイルを歩けていません").toBeGreaterThan(5);
+
     const perBlog = paths.filter(
       (p) => p.includes(SAMPLE_SITE_SLUG) || p.includes(SECOND_SITE_SLUG),
     );

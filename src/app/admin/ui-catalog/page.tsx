@@ -26,18 +26,23 @@ import {
   FilterBar,
   LoadingView,
   MaterialReview,
+  ModelPicker,
   Page,
   ProductCard,
   ProvenanceNote,
   RankingTable,
   ScheduleCalendar,
   StubLabel,
+  StorageNotice,
   StubNotice,
   UI_COPY,
   WorkBoard,
   type CriterionView,
+  type ModelPickerGroup,
   type ScheduleCalendarDay,
 } from "@/presentation/ui";
+import { DensitySamples } from "./density-samples";
+import { FeedbackSamples } from "./feedback-samples";
 import { InputSamples } from "./input-samples";
 import styles from "../admin.module.css";
 
@@ -70,6 +75,66 @@ const criteria: readonly CriterionView[] = [
   { key: "quiet", label: "静音性", weight: 0.3, measurement: "1m 地点の騒音値（dB）" },
   { key: "speed", label: "書き出し速度", weight: 0.4, measurement: "同一素材の書き出し時間（秒）" },
   { key: "value", label: "価格性能比", weight: 0.3, measurement: "総合点 ÷ 実売価格" },
+];
+
+/**
+ * モデル選びの見本。
+ *
+ * 「選べる」だけでなく、**選べない 3 通り**を並べてある。
+ * 鍵がまだ／設定がまだ／そもそも枠だけ、は画面では全部同じ空白に見えるが、
+ * 利用者がやることは全部違う。ここで並べておかないと、
+ * 実装で 1 つの「使えません」に潰されたことに気づけない。
+ */
+const sampleModelGroups: readonly ModelPickerGroup[] = [
+  {
+    providerId: "anthropic",
+    label: "Anthropic",
+    unavailableReason: null,
+    models: [
+      {
+        modelId: "sample-fast",
+        label: "速いほう",
+        inputPricePerMillionMinor: 450,
+        outputPricePerMillionMinor: 2250,
+        currency: "JPY",
+      },
+      {
+        modelId: "sample-careful",
+        label: "丁寧なほう",
+        inputPricePerMillionMinor: 2250,
+        outputPricePerMillionMinor: 11250,
+        currency: "JPY",
+      },
+    ],
+  },
+  {
+    providerId: "google",
+    label: "Google",
+    unavailableReason:
+      "この提供元の API キーがまだ登録されていません（失効させた場合も同じ表示になります）。",
+    models: [
+      {
+        modelId: "sample-google",
+        label: "標準",
+        inputPricePerMillionMinor: 300,
+        outputPricePerMillionMinor: 1200,
+        currency: "JPY",
+      },
+    ],
+  },
+  {
+    providerId: "openai",
+    label: "OpenAI",
+    unavailableReason:
+      "選べるモデルが設定されていません。管理者が目録（LLM_PROVIDER_CATALOG）へ単価つきで登録するまで使えません。",
+    models: [],
+  },
+  {
+    providerId: "workers_ai",
+    label: "Workers AI",
+    unavailableReason: "この提供元は枠として残してあるだけで、いまは使えません。",
+    models: [],
+  },
 ];
 
 /**
@@ -232,8 +297,15 @@ export default function UiCatalogPage() {
             法令に関わる表示です。画面ごとに書かず、必ずこの部品を使います。
           </p>
           <div className={styles.catalogStack}>
-            <DisclosureNotice />
-            <DisclosureNotice showRankingNote methodologyHref="/methodology" policyHref="/policy" />
+            {/* 見本帳では同じ部品を並べて見比べる。目印にすると同じ名前が並び、
+                読み上げの目印の一覧で見分けが付かなくなる（`landmark-unique`）。 */}
+            <DisclosureNotice asLandmark={false} />
+            <DisclosureNotice
+              asLandmark={false}
+              showRankingNote
+              methodologyHref="/methodology"
+              policyHref="/policy"
+            />
             <p>
               成果リンクの例:{" "}
               <AffiliateLink href="https://example.com/click?aid=123&pid=456">
@@ -252,8 +324,11 @@ export default function UiCatalogPage() {
             caption="動画編集向けノートパソコンの順位"
             criteria={criteria}
             rows={[
-              { productId: "p1", rank: 1, productName: "機種A", totalScore: 84, criterionScores: [80, 88, 83] },
-              { productId: "p2", rank: 2, productName: "機種B", totalScore: 79, criterionScores: [72, 85, 79] },
+              // 1 行目: 転送の入口を通る（サーバーが数える）
+              { productId: "p1", rank: 1, productName: "機種A", totalScore: 84, criterionScores: [80, 88, 83], affiliateHref: "/go/samplea01" },
+              // 2 行目: ASP の URL を直に出す（画面が数える）
+              { productId: "p2", rank: 2, productName: "機種B", totalScore: 79, criterionScores: [72, 85, 79], affiliateHref: "https://example.com/click?aid=123&pid=456" },
+              // 3 行目: 提携が無い。空欄にせず理由を出す
               { productId: "p3", rank: 3, productName: "機種C", totalScore: 71, criterionScores: [90, 60, 66] },
             ]}
             excluded={[{ productId: "p9", productName: "機種Z", reason: "販売終了のため" }]}
@@ -331,6 +406,28 @@ export default function UiCatalogPage() {
             <p>
               一覧の行に付ける小さな印: 機種D <StubLabel stubId="product-import" />
             </p>
+            <p className={styles.sectionLead}>
+              保存先の状態は画面に書かず、決めている側から受け取って出します。
+              つないだあとも「まだつながっていません」と出続ける事故を防ぐためです。
+            </p>
+            <StorageNotice
+              status={{
+                persisted: false,
+                what: "改善要望の記録先",
+                blockedBy: "feedback_reports テーブルの追加と D1 への接続",
+                stubId: "persistence:feedback-memory",
+                message: "いまはこの場限りで、しばらくすると消えます。",
+              }}
+            />
+            <StorageNotice
+              status={{
+                persisted: true,
+                what: "改善要望の記録先",
+                blockedBy: "",
+                stubId: "persistence:feedback-memory",
+                message: "届いた要望は保存されます（保存先: D1 の feedback_reports）。",
+              }}
+            />
           </div>
         </Card>
 
@@ -560,6 +657,41 @@ export default function UiCatalogPage() {
             <ConsentBanner current="granted" detailHref="/admin/ui-catalog" />
             <ConsentBanner current="denied" detailHref="/admin/ui-catalog" />
           </div>
+        </Card>
+
+        <Card>
+          <h2 className={styles.sectionTitle}>20. 改善したいことを送る</h2>
+          <p className={styles.sectionLead}>
+            右下のボタンは、管理画面の骨格から 1 回だけ出しています。画面ごとに置くと、
+            置き忘れた画面の不満だけがどこにも届きません。画面の写しは付けても付けなくても送れます。
+            黒塗りは画像そのものに焼き込むので、あとから元の画像を取り出すことはできません。
+            この見本では、送っても記録はされません。
+          </p>
+          <FeedbackSamples />
+        </Card>
+
+        <Card>
+          <h2 className={styles.sectionTitle}>21. どのモデルで書くか選ぶ</h2>
+          <p className={styles.sectionLead}>
+            既定のモデルは置きません。置くと、選んだ覚えのないモデルで書かれた記事が、
+            選んで書いたものと同じ形で残ります。使えない提供元も隠さず、
+            「鍵がまだ」「設定がまだ」「そもそも枠だけ」を別々の言葉で出します。
+            単価は選ぶ時点で見せます（押したあとでは、高いほうを選んだことに気づくのが請求のときになります）。
+          </p>
+          <ModelPicker
+            action="/admin/ui-catalog"
+            fieldName="model"
+            separator="::"
+            selected=""
+            emptyReason={null}
+            submitLabel="このモデルで下書きを作る"
+            groups={sampleModelGroups}
+          />
+        </Card>
+
+        <Card>
+          <h2 className={styles.sectionTitle}>22. 詰まり具合の見比べ</h2>
+          <DensitySamples />
         </Card>
       </Page>
     </AdminShell>

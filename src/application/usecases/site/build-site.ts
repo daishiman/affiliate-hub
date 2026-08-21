@@ -1,10 +1,15 @@
 import type { EditorialSiteDraftRepositoryPort } from "@/application/ports/authoring";
 import type { IdGeneratorPort } from "@/application/ports/common";
+import type { AuditLogPort } from "@/application/ports/compliance";
+import { auditWriteFailure, buildAuditEntry } from "@/application/audit";
 import {
+  ARTICLE_TYPE_LABEL,
   ARTICLE_TYPES,
   BRAND_THEMES,
   type BrandTheme,
+  REVENUE_MODEL_LABEL,
   REVENUE_MODELS,
+  SITE_PATTERN_LABEL,
   SITE_PATTERNS,
   SITE_WIZARD_STEPS,
   SITE_WIZARD_STEP_LABEL,
@@ -46,6 +51,8 @@ import type { UseCase } from "../usecase";
 export type BuildSiteDeps = {
   readonly drafts: EditorialSiteDraftRepositoryPort;
   readonly ids: IdGeneratorPort;
+  readonly auditLog: AuditLogPort;
+  readonly now: () => Date;
   readonly affiliateLinks?: never;
 };
 
@@ -268,34 +275,9 @@ export const WIZARD_CHOICES = {
   articleType: ARTICLE_TYPES,
 } as const;
 
-export const REVENUE_MODEL_LABEL: Readonly<Record<(typeof REVENUE_MODELS)[number], string>> = {
-  affiliate: "成果報酬の紹介",
-  ad: "広告の掲載",
-  lead: "問い合わせの送客",
-  own_product: "自社の商品",
-  mixed: "組み合わせ",
-};
-
-export const SITE_PATTERN_LABEL: Readonly<Record<(typeof SITE_PATTERNS)[number], string>> = {
-  specialist_review: "専門レビュー型",
-  comparison_lab: "比較研究所型",
-  beginner_guide: "初心者案内型",
-  personal_brand: "個人ブランド型",
-  product_discovery: "商品発見型",
-  service_signup: "サービス申込み型",
-  tool: "ツール型",
-  editorial_media: "メディア編集部型",
-  story: "ストーリー型",
-  database: "データベース型",
-};
-
-export const ARTICLE_TYPE_LABEL: Readonly<Record<(typeof ARTICLE_TYPES)[number], string>> = {
-  ranking: "順位づけ",
-  review: "単体のレビュー",
-  comparison: "比べる記事",
-  guide: "選び方の案内",
-  tool: "診断・計算",
-};
+// 選択肢の表示名はここで作らない。正本は domain 側（`@/domain/authoring`）にある。
+// 以前はここと一覧画面で別々に持っていて、同じ収益モデルが
+// 「成果報酬の紹介」と「提携販売」の 2 通りに見えていた。
 
 function toView(draft: SiteDraft, requested?: SiteWizardStep): SiteDraftView {
   const steps: WizardStepView[] = SITE_WIZARD_STEPS.map((step, i) => ({
@@ -416,6 +398,24 @@ export function createStartSiteDraftUseCase(
       });
       const saved = await deps.drafts.save(draft);
       if (!saved.ok) return saved;
+
+      /*
+       * 誰が作り始めたかを残す。**記録は保存の後**に書く。
+       * 先に書くと、存在しない下書きの記録だけが残る。
+       *
+       * 下書きはまだ読む人に見えないが、ここで決めた設定は
+       * 作った後のブログ全体に効く。**始まりの 1 行が無いと、
+       * 後から続く「段階を保存した」が誰の作業なのか辿れない。**
+       */
+      const entry = buildAuditEntry({ ids: deps.ids, now: deps.now }, actor, {
+        action: "site_draft.started",
+        targetType: "site_draft",
+        targetId: String(saved.value.id),
+      });
+      if (!entry.ok) return entry;
+      // 記録できなくても止めない。理由は下の `createSaveSiteDraftStepUseCase` に書いた。
+      await deps.auditLog.append(entry.value);
+
       return ok(toView(saved.value));
     },
   };
@@ -469,6 +469,44 @@ export function createSaveSiteDraftStepUseCase(
 
       const saved = await deps.drafts.save(applied.value);
       if (!saved.ok) return saved;
+
+      /*
+       * どの段階を保存したかを残す。**答えの中身は入れない。**
+       * 下書きに書かれるのはブログの狙いや説明文で、後から画面で読めば済む。
+       * 記録へ写しても増える情報が無く、段階を進めるたびに
+       * 同じ文章が記録側へ積み上がるだけになる。
+       *
+       * 代わりに「どこまで埋まったか」を残す。作成の途中で止まった下書きを
+       * 後から見たとき、どの段階で止まったかが記録の側だけで分かる。
+       */
+      const entry = buildAuditEntry({ ids: deps.ids, now: deps.now }, actor, {
+        action: "site_draft.step_saved",
+        targetType: "site_draft",
+        targetId: input.draftId,
+        after: {
+          step: input.step,
+          doneCount: SITE_WIZARD_STEPS.filter((s) => isStepComplete(saved.value, s)).length,
+          totalSteps: SITE_WIZARD_STEPS.length,
+        },
+      });
+      if (!entry.ok) return entry;
+      /*
+       * **記録が残せなくても、下書きの操作は止めない。**
+       *
+       * 他の書き込み（公開・配信・鍵・ブログを作る・成果の手直し）は、
+       * 記録が残せないとき成功として返さない。取り消せないか、外から見えるためである。
+       * 下書きはどちらでもない——読者からは見えず、何度でも上書きでき、
+       * 捨ててもよい。ここで止めると、**直せる範囲の作業まで止まる**。
+       *
+       * 実際にそうなった。下書きを止めた版では、記録の置き場が無い段
+       * （`pnpm dev` の見本）でブログ作成ウィザードが 1 段目から進まなくなった。
+       * 取り返しがつかない側を守るための決まりが、取り返しのつく側の
+       * 入口を塞いでいた。
+       *
+       * 記録の欠けが実害になるのは**作った瞬間**からで、そこは
+       * `createCreateSiteFromDraftUseCase` が記録できないときに断って押さえている。
+       */
+      await deps.auditLog.append(entry.value);
 
       // 保存できたら次の段階を開く。押したあと同じ画面に留まらせない。
       const i = SITE_WIZARD_STEPS.indexOf(input.step);
@@ -716,6 +754,41 @@ export function createCreateSiteFromDraftUseCase(
 
       const saved = await deps.drafts.save({ ...draft, createdSiteSlug: draft.slug });
       if (!saved.ok) return saved;
+
+      /*
+       * 誰がこのブログを作ったかを残す。**記録は保存の後**に書く。
+       * 先に書くと、作れていないブログの記録だけが残る。
+       *
+       * ブログを消す口はまだ無い。つまりこれは**取り消せない操作**で、
+       * 「誰が・いつ・どんな設計で作ったか」はここでしか残せない。
+       *
+       * `recreated` を入れてあるのは、同じ下書きから 2 度目を通したときに
+       * 設計図が上書きされるため。「作った」が 2 行並んだとき、
+       * どちらが最初かを後から読めるようにしておく。
+       */
+      const entry = buildAuditEntry({ ids: deps.ids, now: deps.now }, actor, {
+        action: "site.created",
+        targetType: "site",
+        targetId: draft.slug,
+        after: {
+          name: draft.name,
+          pattern: draft.pattern,
+          revenueModel: draft.revenueModel,
+          pageCount: blueprint.value.pages.length,
+          categoryCount: blueprint.value.categories.length,
+          recreated: draft.createdSiteSlug !== null,
+        },
+      });
+      if (!entry.ok) return entry;
+      const appended = await deps.auditLog.append(entry.value);
+      if (!appended.ok) {
+        return err(
+          auditWriteFailure(
+            `「${draft.name}」は作られていて、読む人からも見えます`,
+            appended.error.details,
+          ),
+        );
+      }
 
       const trustGaps = missingTrustPages(blueprint.value);
       return ok({

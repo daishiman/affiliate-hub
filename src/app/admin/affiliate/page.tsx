@@ -2,8 +2,8 @@ import { AdminShell } from "@/presentation/admin/admin-shell";
 import Link from "next/link";
 import type { ReactNode } from "react";
 import {
-  affiliateNotice,
   affiliatePeriods,
+  affiliateStorageNotice,
   affiliateUseCases,
   currentActor,
 } from "@/presentation/composition";
@@ -13,7 +13,7 @@ import {
   EmptyView,
   ErrorView,
   Page,
-  StubNotice,
+  StorageNotice,
 } from "@/presentation/ui";
 import styles from "../admin.module.css";
 
@@ -39,7 +39,7 @@ export default async function AffiliatePage({
   const period = requested && periods.includes(requested) ? requested : (periods[0] ?? "2026-08");
 
   const actor = await currentActor();
-  const uc = affiliateUseCases();
+  const uc = await affiliateUseCases();
 
   const [accounts, programs, conversions] = await Promise.all([
     uc.listAccounts.execute(actor, {}),
@@ -62,13 +62,7 @@ export default async function AffiliatePage({
 
   return (
     <Shell>
-      <StubNotice
-        what="提携先・提携条件・成果の保存先"
-        blockedBy="各 ASP の利用申請と、ご自身による接続情報の登録"
-        stubId="persistence:affiliate-sample"
-      >
-        <span>{affiliateNotice()}</span>
-      </StubNotice>
+      <StorageNotice status={await affiliateStorageNotice()} />
 
       <Callout
         tone="info"

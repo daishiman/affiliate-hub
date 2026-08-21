@@ -1,6 +1,7 @@
 import { UI_COPY, fill } from "../copy";
 import { EmptyView } from "../primitives/state-view";
 import { telemetryAttrs } from "../telemetry-attrs";
+import { AffiliateLink } from "./disclosure";
 import styles from "./patterns.module.css";
 
 /**
@@ -29,6 +30,13 @@ export type RankingRow = {
    * 成果リンクではない。成果リンクは `AffiliateLink` を通す。
    */
   readonly href?: string;
+  /**
+   * 買う導線。転送の入口（`/go/<合言葉>`）か、ASP が発行した URL。
+   * **どちらが来ても、ここでは加工しない。** 出し分けは view-model が済ませている。
+   */
+  readonly affiliateHref?: string;
+  /** 買う導線を出せない理由。黙って空欄にしない。 */
+  readonly affiliateBlockedReason?: string;
   /** 一言。数字だけでは何が違うか読者に伝わらない。 */
   readonly note?: string;
 };
@@ -75,6 +83,10 @@ export function RankingTable({
     );
   }
 
+  // 買う導線の列は、1 件でも提携がある表にだけ出す。
+  // 提携が 1 つも無い記事に空の列を足しても、読者には何も伝わらない。
+  const showCta = rows.some((r) => r.affiliateHref !== undefined);
+
   return (
     <div>
       <div className={styles.tableWrap}>
@@ -92,6 +104,7 @@ export function RankingTable({
                   {c.label}
                 </th>
               ))}
+              {showCta && <th scope="col">{UI_COPY.ranking.ctaColumn}</th>}
             </tr>
           </thead>
           <tbody>
@@ -123,6 +136,25 @@ export function RankingTable({
                     {row.criterionScores[i] ?? "—"}
                   </td>
                 ))}
+                {showCta && (
+                  <td>
+                    {row.affiliateHref !== undefined ? (
+                      // `AffiliateLink` を通す。ここで `<a>` を直に書くと
+                      // `rel="sponsored"` と計測の印の両方を付け忘れられる。
+                      <AffiliateLink
+                        href={row.affiliateHref}
+                        productId={row.productId}
+                        placement="順位表"
+                      >
+                        {UI_COPY.ranking.ctaLabel}
+                      </AffiliateLink>
+                    ) : (
+                      <span className={styles.productCardBlocked}>
+                        {row.affiliateBlockedReason ?? UI_COPY.ranking.ctaBlocked}
+                      </span>
+                    )}
+                  </td>
+                )}
               </tr>
             ))}
           </tbody>

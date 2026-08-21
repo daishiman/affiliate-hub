@@ -6,11 +6,19 @@ import {
   createGetPublicationUseCase,
   createListChannelsUseCase,
   createListPublicationsUseCase,
+  createSchedulePublicationUseCase,
 } from "@/application/usecases/distribution/manage-distribution";
 import {
   createGetPublicationCalendarUseCase,
   createReschedulePublicationUseCase,
 } from "@/application/usecases/distribution/publication-calendar";
+import {
+  createPreparePublishArticleUseCase,
+  createPublishArticleUseCase,
+} from "@/application/usecases/site/publish-article";
+import { ARTICLE_TYPES, type ArticleType } from "@/domain/authoring";
+import { RELATIONSHIP_LABEL, type RelationshipType } from "@/domain/compliance";
+import { CHANNEL_CAPABILITIES, type ChannelKind } from "@/domain/distribution";
 import { defineTool } from "./define-tool";
 import type { AnyToolDefinition } from "./tool-definition";
 
@@ -27,6 +35,9 @@ export function distributionTools(deps: AppDeps): readonly AnyToolDefinition[] {
     connections: deps.channelConnections,
     publications: deps.publications,
     manualExport: deps.manualExport,
+    variants: deps.contentVariants,
+    ids: deps.ids,
+    auditLog: deps.auditLog,
   };
   const calendar = {
     publications: deps.publications,
@@ -34,6 +45,21 @@ export function distributionTools(deps: AppDeps): readonly AnyToolDefinition[] {
     contentVariants: deps.contentVariants,
     contentPackages: deps.contentPackages,
     events: deps.events,
+    auditLog: deps.auditLog,
+    ids: deps.ids,
+  };
+  // 自分のブログへ出す口。画面（配信の詳細）と同じユースケースをここへも載せる。
+  // 載せないと「画面からは出せるが AI からは出せない」が生まれ、
+  // どちらが正しい手順なのかが説明できなくなる。
+  const ownSite = {
+    sites: deps.sites,
+    variants: deps.contentVariants,
+    publications: deps.publications,
+    articles: deps.publishedArticles,
+    // 記録は画面と道具の両方に配る。片方だけにすると
+    // 「AI から出したときだけ誰がやったか残らない」が生まれる。
+    auditLog: deps.auditLog,
+    ids: deps.ids,
   };
   const publicationId = z.string().min(1);
 
@@ -63,10 +89,39 @@ export function distributionTools(deps: AppDeps): readonly AnyToolDefinition[] {
     defineTool({
       name: "export_manual_draft",
       description:
-        "公式の投稿の仕組みが無い先（note）向けに、貼り付け用の下書きを書き出します。投稿は行いません。",
+        "公式の投稿の仕組みが無い先（note）向けに、貼り付け用の下書きを書き出します。投稿は行いません。誰がいつ書き出したかを記録に残します。",
       schema: z.object({ publicationId }),
-      readOnly: true,
+      /*
+       * **読み取り専用ではない。** 投稿はしないが、
+       * 「誰が本文を持ち出したか」を記録に残す（仕様書 §7 の必須記録対象）。
+       * 記録は状態の変更なので、`readOnly: true` は事実と違う。
+       *
+       * ここが `true` だったあいだ、この道具は WebMCP に載っていた。
+       * つまり**ページ内の AI が記事の本文を丸ごと取り出せて、
+       * その痕跡がどこにも残らなかった**。false にすると WebMCP から外れる。
+       * 人が画面と REST から使う道は変わらない。
+       */
+      readOnly: false,
       useCase: createExportManualDraftUseCase(distribution),
+    }),
+    defineTool({
+      name: "schedule_publication",
+      description:
+        "承認済みの記事を、指定した先へ出す配信を作ります。承認前の記事は断ります。同じ記事・同じ先・同じ時刻の要求は 1 件にまとめます。実際の投稿は配信の進行で行われます。",
+      schema: z.object({
+        variantId: z.string().min(1),
+        // 出し先は登録表から列挙する。手で並べると、チャネルを 1 つ足した日に
+        // 道具だけが古くなり、「その先は選べません」と断る理由が説明できなくなる。
+        channelKind: z.enum(
+          Object.keys(CHANNEL_CAPABILITIES) as [ChannelKind, ...ChannelKind[]],
+        ),
+        connectionId: z.string().min(1).optional(),
+        // 日時は文字列で受ける。Date は JSON Schema に写せず、道具一覧が作れなくなる。
+        scheduledAt: z.string().optional(),
+      }),
+      readOnly: false,
+      requiresHumanApproval: true,
+      useCase: createSchedulePublicationUseCase(distribution),
     }),
     defineTool({
       name: "cancel_publication",
@@ -92,6 +147,57 @@ export function distributionTools(deps: AppDeps): readonly AnyToolDefinition[] {
       readOnly: false,
       requiresHumanApproval: true,
       useCase: createReschedulePublicationUseCase(calendar),
+    }),
+    defineTool({
+      name: "prepare_publish_article",
+      description:
+        "自分のブログへ出す前に必要な選択肢（記事の種類ごとの原稿の欄・出し先のブログとカテゴリー・広告表記の文）と、もとの記事から写した初期値を返します。何も出しません。",
+      schema: z.object({ publicationId }),
+      readOnly: true,
+      useCase: createPreparePublishArticleUseCase(ownSite),
+    }),
+    defineTool({
+      name: "publish_article_to_own_site",
+      description:
+        "承認済みの記事を、自分のブログの読者ページへ出します。書き手・広告表記・次に見直す日・根拠がそろっていないものは断ります。自社サイト向けの配信でだけ使えます。人の操作でのみ実行できます。",
+      schema: z.object({
+        publicationId,
+        siteSlug: z.string().min(1),
+        categorySlug: z.string().min(1),
+        // 種類は構成表から列挙する。手で並べると、種類を 1 つ足した日に
+        // 道具だけが古くなり、画面と選べるものが食い違う。
+        articleType: z.enum(ARTICLE_TYPES as unknown as [ArticleType, ...ArticleType[]]),
+        slug: z.string().min(1),
+        title: z.string().min(1),
+        conclusion: z.string().min(1),
+        authorName: z.string().min(1),
+        authorBio: z.string(),
+        authorCredentials: z.array(z.string()).default([]),
+        // 広告との関係は、表示文の正本の鍵から列挙する。
+        relationshipType: z
+          .enum(
+            Object.keys(RELATIONSHIP_LABEL) as [RelationshipType, ...RelationshipType[]],
+          )
+          .nullable()
+          .default(null),
+        disclosureMessage: z.string(),
+        // 日付は文字列で受ける。Date は JSON Schema に写せず、道具一覧が作れなくなる。
+        nextReviewOn: z.string().nullable().default(null),
+        claims: z
+          .array(
+            z.object({
+              statement: z.string().min(1),
+              sourceLabel: z.string(),
+              sourceUrl: z.string().nullable().default(null),
+              checkedOn: z.string(),
+            }),
+          )
+          .default([]),
+        sectionBodies: z.record(z.string(), z.string()).default({}),
+      }),
+      readOnly: false,
+      requiresHumanApproval: true,
+      useCase: createPublishArticleUseCase(ownSite),
     }),
   ];
 }

@@ -1,7 +1,7 @@
 import type { EditorialSiteRepositoryPort } from "@/application/ports/site";
 import { type SiteBlueprint, createSiteBlueprint } from "@/domain/authoring";
 import { type WorkspaceId, markEditorial, ok, taggedString } from "@/domain/shared";
-import { registerStub } from "../../stub-registry";
+import { registerStub, stubReason } from "../../stub-registry";
 import { SAMPLE_WORKSPACE_ID } from "./ranking-sample-repository";
 import { createdSites } from "./site-draft-sample-repository";
 
@@ -23,7 +23,8 @@ const stub = registerStub({
   id: "persistence:site-sample",
   port: "SiteRepositoryPort",
   label: "ブログの設計図（見本データ）",
-  blockedBy: "site_blueprints テーブルの追加とマイグレーション",
+  blockedBy: "済み。見本の 3 本は保存先がつながったあとも残す（空の画面を作らないため）",
+  fallbackFor: "src/infrastructure/persistence/d1/site-repository.ts",
 });
 
 export const SAMPLE_SITE_SLUG = "video-editing-gear";
@@ -181,7 +182,7 @@ const SITES: readonly { readonly slug: string; readonly blueprint: SiteBlueprint
 ];
 
 export function sampleSiteNotice(): string {
-  return `${stub.label}で表示しています（${stub.blockedBy}が済むまでの仮です）。`;
+  return `${stub.label}で表示しています（${stubReason(stub)}）。`;
 }
 
 /**
@@ -192,6 +193,20 @@ export function sampleSiteNotice(): string {
  */
 function allSites(): readonly { readonly slug: string; readonly blueprint: SiteBlueprint }[] {
   return [...SITES, ...createdSites()];
+}
+
+/**
+ * 見本のブログ 3 本だけ。
+ *
+ * 保存先を D1 にしたときも、この 3 本は消さずに残す。
+ * 消すと、まだ 1 本も作っていない状態で読者側の画面が全部空になり、
+ * 「作っていない」のか「壊れている」のかを見分けられなくなる。
+ */
+export function sampleSites(): readonly {
+  readonly slug: string;
+  readonly blueprint: SiteBlueprint;
+}[] {
+  return SITES;
 }
 
 export function createSampleSiteRepository(): EditorialSiteRepositoryPort {

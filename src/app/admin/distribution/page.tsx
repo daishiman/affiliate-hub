@@ -8,7 +8,7 @@ import {
   EmptyView,
   ErrorView,
   Page,
-  StubNotice,
+  StorageNotice,
 } from "@/presentation/ui";
 import styles from "../admin.module.css";
 
@@ -23,7 +23,7 @@ export const dynamic = "force-dynamic";
  */
 export default async function DistributionPage() {
   const actor = await currentActor();
-  const uc = distributionUseCases();
+  const uc = await distributionUseCases();
 
   const [channels, publications] = await Promise.all([
     uc.listChannels.execute(actor, {}),
@@ -45,13 +45,7 @@ export default async function DistributionPage() {
 
   return (
     <Shell>
-      <StubNotice
-        what="配信先の接続と配信の記録の保存先"
-        blockedBy="channel_connections / publications テーブルの追加と、各サービスの接続設定"
-        stubId="persistence:distribution-sample"
-      >
-        <span>{distributionNotice()}</span>
-      </StubNotice>
+      <StorageNotice status={await distributionNotice()} />
 
       <Callout
         tone="info"

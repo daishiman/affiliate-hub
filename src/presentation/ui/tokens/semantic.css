@@ -25,6 +25,12 @@
   --color-surface-raised: light-dark(var(--neutral-25), var(--neutral-900));
   --color-surface-sunken: light-dark(var(--neutral-50), var(--neutral-975));
   --color-surface-overlay: light-dark(var(--neutral-0), var(--neutral-875));
+  /*
+   * modal の背後を沈める覆い。明るいときの方が強く沈める。
+   * 暗い画面で同じ濃さにすると、背後との境目が消えて
+   * 「どこまでが操作できる範囲か」が分からなくなる。
+   */
+  --color-scrim: light-dark(var(--veil-strong), var(--veil-soft));
 
   /* === 文字 ============================================================= */
   /* 併記したコントラスト比は surface-default に対する値 (WCAG 2.2 AA)。 */

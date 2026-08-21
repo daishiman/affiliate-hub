@@ -111,6 +111,49 @@ VERDICT_STATE_ABSENT = "absent"  # 応答本文はあるが正規 marker 候補�
 VERDICT_STATE_PENDING = "pending"  # Agent が未完了、または応答本文がまだ無い
 VERDICT_STATE_AMBIGUOUS = "ambiguous"  # 正規 marker 候補が複数あり 1 verdict に決められない
 
+# --------------------------------------------------------------------------- #
+# 非同期完了の解決 (schema 1.3 / 2026-08-20)                                     #
+# --------------------------------------------------------------------------- #
+# ## 来歴: なぜ tool_use_id でなく agent_id で束ねるのか
+#
+# 元の設計は「1 message = 1 foreground fork で直列実行し、PostToolUse が最終応答を
+# 受け取る」ことを前提にしていた。現行の実行環境では監査 Agent が非同期起動になり、
+# PostToolUse が受け取る tool_response は `status=async_launched` の**起動受理**で、
+# 最終応答ではない。よって PostToolUse だけでは verdict_state が pending から動かない。
+#
+# 完了側のイベントは SubagentStop だが、**SubagentStop payload は起点の tool_use_id を
+# 運んでいない。**実行中バイナリ (2.1.237) の payload 構築は
+#   {hook_event_name:"SubagentStop", agent_id, agent_type, agent_transcript_path,
+#    last_assistant_message, ...}
+# で、hook 起動時の toolUseID は randomUUID() である。TaskCompleted は teammate/team
+# 系の別イベントであり subagent 完了ではない。
+#
+# したがって束ねる鍵は agent_id しかない。**門の目的は「実際の判定が、その fork に
+# 束縛されている場合にだけ resolved にする」ことであって、束縛に使う識別子が何かは
+# 目的ではない。**手段だけを替え、目的は降ろさない。
+#
+# ## 失われる保証 (必ず読むこと)
+#
+# 直列実行が保証していたのは「時間順で台帳行と fork の対応が一意に決まる」ことである。
+# 非同期化でこの**順序の保証が失われる。**起動順と完了順は一致せず、複数の監査が同時に
+# 走る。結果として **agent_id の照合だけが唯一の帰属根拠**になる。
+# ID が欠落・重複・不一致のとき、以前は時間順という第二の手がかりがあったが、いまは無い。
+# だから ID が一意に引き当てられないときは resolved にしない規律が、前より重い。
+#
+# ## 遡及しない
+#
+# 台帳を書けるのは hook だけで、R2 は補正してはならない。よって**配線を直しても過去の
+# pending 行は遡って resolved にならない。**新しいセッションで監査を回し直したときに
+# 初めて resolution 行が生まれる。2026-08-20 時点の 7 件の pending はそのまま残る。
+RESOLUTION_SCHEMA_VERSION = "1.3"
+RECORD_KIND_LAUNCH = "launch"
+RECORD_KIND_RESOLUTION = "resolution"
+SUBAGENT_STOP_EVENT = "SubagentStop"
+# 応答本文に埋め込まれる agent 識別子。非同期起動の tool_response は
+# `agentId: <id>` を含む (2026-08-20 実測)。dict key が直接ある場合はそちらを優先する。
+AGENT_ID_KEYS = ("agentId", "agent_id")
+AGENT_ID_TEXT_RE = re.compile(r"\bagent[_ ]?[Ii]d\s*[:=]\s*([0-9A-Za-z][0-9A-Za-z_-]{5,})")
+
 
 def plugin_root() -> Path:
     """hooks/record-audit-fork.py -> plugin root (parents[1])。env 指定があれば優先。"""
@@ -221,6 +264,141 @@ def audited_response_metadata(tool_response: object) -> tuple[str, str | None, s
     return digest, None, VERDICT_STATE_ABSENT if saw_nonempty_text else VERDICT_STATE_PENDING
 
 
+def extract_agent_id(tool_response: object) -> str | None:
+    """起動 response から subagent の agent_id を取り出す。
+
+    dict key (``agentId`` / ``agent_id``) を最優先で探す。key で見つからない場合だけ、
+    **応答本文 text block に限って** 正規表現へ落とす。prompt は本文ではないので走査
+    対象に入れない (`_response_text_blocks` が本文 key しか降りない)。prompt 内の
+    説明文から ID を拾うと、起動していない fork へ帰属させられてしまう。
+    """
+    stack = [tool_response]
+    while stack:
+        value = stack.pop()
+        if isinstance(value, dict):
+            for key in AGENT_ID_KEYS:
+                candidate = value.get(key)
+                if isinstance(candidate, str) and candidate.strip():
+                    return candidate.strip()
+            stack.extend(value.values())
+        elif isinstance(value, list):
+            stack.extend(value)
+    for text in _response_text_blocks(tool_response):
+        match = AGENT_ID_TEXT_RE.search(text)
+        if match:
+            return match.group(1)
+    return None
+
+
+def verdict_from_final_line(text: object) -> str | None:
+    """最終非空行が正規 marker のときだけ verdict を返す。
+
+    **本文中に marker があっても最終行でなければ採らない。**ここを緩めると、監査以外の
+    応答 (marker を引用しただけの説明文など) が verdict として拾われる。
+    """
+    if not isinstance(text, str):
+        return None
+    final_line = None
+    for line in text.splitlines():
+        if line.strip():
+            final_line = line.strip()
+    match = AUDIT_VERDICT_LINE_RE.fullmatch(final_line or "")
+    if match and match.group(1) in AUDIT_VERDICTS:
+        return match.group(1)
+    return None
+
+
+def read_ledger_rows(path: Path) -> list[dict]:
+    """台帳の健全な行だけを読む。壊れた行は黙って飛ばす (観測専用)。"""
+    try:
+        lines = path.read_text(encoding="utf-8").splitlines()
+    except (OSError, UnicodeDecodeError):
+        return []
+    rows = []
+    for line in lines:
+        if not line.strip():
+            continue
+        try:
+            row = json.loads(line)
+        except json.JSONDecodeError:
+            continue
+        if isinstance(row, dict):
+            rows.append(row)
+    return rows
+
+
+def resolvable_launch(rows: list[dict], agent_id: str) -> dict | None:
+    """agent_id から解決対象の起動行をちょうど 1 件引き当てる。
+
+    **0 件・2 件以上のときは None を返す (resolved にしない)。**
+    agent_id の照合が唯一の帰属根拠になった以上、一意でない照合は帰属ではない。
+    既に resolution 行がある agent_id も対象外にする (二重解決を作らない)。
+    """
+    if not isinstance(agent_id, str) or not agent_id.strip():
+        return None
+    agent_id = agent_id.strip()
+    if any(
+        row.get("record_kind") == RECORD_KIND_RESOLUTION and row.get("agent_id") == agent_id
+        for row in rows
+    ):
+        return None
+    launches = [
+        row
+        for row in rows
+        if row.get("record_kind", RECORD_KIND_LAUNCH) == RECORD_KIND_LAUNCH
+        and row.get("agent_id") == agent_id
+        and row.get("verdict_state") == VERDICT_STATE_PENDING
+        and isinstance(row.get("tool_use_id"), str)
+        and row.get("tool_use_id")
+    ]
+    return launches[0] if len(launches) == 1 else None
+
+
+def build_resolution(payload: dict, known_agents: set[str], rows: list[dict]) -> dict | None:
+    """SubagentStop payload から解決行 (schema 1.3) を組み立てる。対象外なら None。
+
+    5 条件 (2026-08-20 の合意) をすべて満たしたときだけ行を作る:
+      1. 起動行に agent_id が記録されている (無い起動行は後から resolved にできない)
+      2. agent_id から引き当てた pending 行がちょうど 1 件
+      3. last_assistant_message の**最終行**が正規 marker
+      4. append-only (解決も追記。既存行を書き換えない)
+      5. 失われる保証 = 順序の保証。上の来歴コメントに記載
+    """
+    if payload.get("hook_event_name") != SUBAGENT_STOP_EVENT:
+        return None
+    agent_id = payload.get("agent_id")
+    if not isinstance(agent_id, str) or not agent_id.strip():
+        return None
+    agent_id = agent_id.strip()
+    verdict = verdict_from_final_line(payload.get("last_assistant_message"))
+    if verdict is None:
+        return None
+    launch = resolvable_launch(rows, agent_id)
+    if launch is None:
+        return None
+    if normalize_subagent_type(launch.get("subagent_type"), known_agents) is None:
+        return None
+    message = payload.get("last_assistant_message")
+    return {
+        "schema_version": RESOLUTION_SCHEMA_VERSION,
+        "record_kind": RECORD_KIND_RESOLUTION,
+        "ts": dt.datetime.now(dt.timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z"),
+        # session_id / tool_use_id / subagent_type は **起動行から採る**。
+        # SubagentStop payload 側の値ではない。帰属先は起動した fork であって、
+        # 停止イベントを受け取った文脈ではない。
+        "session_id": launch.get("session_id"),
+        "tool_use_id": launch.get("tool_use_id"),
+        "subagent_type": launch.get("subagent_type"),
+        "tool_name": launch.get("tool_name"),
+        "agent_id": agent_id,
+        "prompt_sha256": launch.get("prompt_sha256"),
+        "response_sha256": hashlib.sha256(message.encode("utf-8")).hexdigest(),
+        "audit_verdict": verdict,
+        "verdict_state": VERDICT_STATE_RESOLVED,
+        "cwd": payload.get("cwd") or launch.get("cwd") or str(Path.cwd()),
+    }
+
+
 def response_is_complete(tool_name: str, tool_response: object) -> bool:
     """completion receipt を作れる response かを tool 世代別に判定する。
 
@@ -287,6 +465,10 @@ def build_record(payload: dict, known_agents: set[str]) -> dict | None:
         # 1.2 は公式 PostToolUse payload の top-level call identity を必須フィールドとして保持する。
         record["tool_use_id"] = tool_use_id
         record["verdict_state"] = verdict_state
+        record["record_kind"] = RECORD_KIND_LAUNCH
+        # 非同期完了を後から束ねるための鍵。**記録が無い起動行は後から resolved にできない。**
+        # None のまま残すのは正しい (「取れなかった」を「取れた」に見せない)。
+        record["agent_id"] = extract_agent_id(tool_response)
     return record
 
 
@@ -307,9 +489,25 @@ def append_record(record: dict, path: Path) -> None:
 def main(argv: list | None = None) -> int:
     payload = read_payload()
     try:
-        record = build_record(payload, audit_agents())
+        path = ledger_path()
+        known = audit_agents()
+        if payload.get("hook_event_name") == SUBAGENT_STOP_EVENT:
+            record = build_resolution(payload, known, read_ledger_rows(path))
+            if record is None:
+                # 引き当てられなかった起動行は pending のまま残る。**それでよい。**
+                # 下流 (aggregate-completeness.py) は pending を receipt に使えないので
+                # 既定が安全側であり、ここで無理に行を作ると帰属の根拠が消える。
+                print(
+                    f"WARN {HOOK_NAME}: SubagentStop を起動行へ一意に帰属できませんでした "
+                    f"(agent_id={payload.get('agent_id')!r})",
+                    file=sys.stderr,
+                )
+                return 0
+            append_record(record, path)
+            return 0
+        record = build_record(payload, known)
         if record is not None:
-            append_record(record, ledger_path())
+            append_record(record, path)
     except OSError as exc:  # 台帳が書けなくても session は止めない (証跡欠落は下流が fail-closed で拾う)
         print(f"WARN {HOOK_NAME}: {exc}", file=sys.stderr)
     return 0

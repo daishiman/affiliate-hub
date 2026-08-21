@@ -1,5 +1,5 @@
 import { readerActor, siteUseCases } from "@/presentation/composition";
-import { NotFoundBody, SiteFrame } from "@/presentation/site/page-frame";
+import { ReadFailureBody, SiteFrame } from "@/presentation/site/page-frame";
 import { siteHref, toArticleCards } from "@/presentation/site/view-model";
 import { ArticleList, SitePage, UI_COPY } from "@/presentation/ui";
 
@@ -12,7 +12,7 @@ export default async function CategoryPage({
   params: Promise<{ site: string; category: string }>;
 }) {
   const { site, category } = await params;
-  const result = await siteUseCases().listByCategory.execute(readerActor(), {
+  const result = await (await siteUseCases()).listByCategory.execute(readerActor(), {
     siteSlug: site,
     categorySlug: category,
   });
@@ -36,7 +36,7 @@ export default async function CategoryPage({
             />
           </SitePage>
         ) : (
-          <NotFoundBody what="カテゴリー" siteSlug={site} />
+          <ReadFailureBody error={result.error} what="カテゴリー" siteSlug={site} />
         )
       }
     </SiteFrame>

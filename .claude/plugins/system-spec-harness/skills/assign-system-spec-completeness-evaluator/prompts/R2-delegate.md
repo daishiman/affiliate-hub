@@ -16,13 +16,25 @@
 ### 1.1 不変ルール
 - sub-agent担当観点は **独立 context (`isolation: fork`) で起動**し、foundation/decision/deep-knowledge/prompt品質は必要入力と機械gate結果をR1へ透過する。
 - 監査は Task tool で対応 sub-agent (`system-spec-matrix-auditor` / `system-spec-hearing-auditor` / `system-spec-doc-freshness-auditor`) を起動して得る。R2 自身は監査ロジックを再実装しない (単一情報源 = 各 agent の SSOT prompt)。
-- **正式 evaluator は 1 件ずつ foreground で直列実行する**: 現行 PostToolUse は matching tool call ごとに top-level `tool_use_id` と当該 call の response を受け取り、parallel dispatch 時も各 hook が並行発火する (batch 全体は PostToolBatch の責務)。ただし parallel 対応は defensive hardening / canary であり、正式 evaluator の parallel 許可ではない。current runtime の fresh live-trial で schema 1.2 の end-to-end 帰属を実証するまでは、1 回の assistant message に複数の Task/Agent tool call を並べず、1 件の完全な応答と最終行 `AUDIT_VERDICT` が返り PostToolUse 台帳行が確定したことを確認してから次の 1 件を起動する。
+- **正式 evaluator の帰属は ID の照合だけで成り立たせる (schema 1.3)**: 台帳は起動行 (`record_kind=launch`, PostToolUse) と解決行 (`record_kind=resolution`, SubagentStop) の 2 行を、読み手が `(session_id, tool_use_id)` で畳み込んで 1 件の receipt にする。畳み込みが成立する条件は、起動行がちょうど 1 件・解決行がちょうど 1 件・両行の `agent_id` / `subagent_type` / `tool_name` が全一致・解決行の `verdict_state=resolved` であること。同一 `agent_id` に解決行が 2 件以上来たときは後勝ちにせず fail-closed で不正扱いにする。畳み込み後の receipt は verdict / `verdict_state` / `response_sha256` を解決行から取り、起動時の digest は `launch_response_sha256` として残す。
+- **来歴: 「1 message = 1 foreground fork」という手段は成立しないので撤回する**: 直列化は「起動受理を verdict と取り違えない」ための手段として置かれていたが、この runtime の subagent 完了通知 (`SubagentStop`) の payload は `hook_event_name` / `agent_id` / `agent_type` / `agent_transcript_path` / `last_assistant_message` であり、hook 側の `toolUseID` は `randomUUID()` で生成されるため起動時の `tool_use_id` と一致しない。時間順で台帳行と fork を対応づける前提そのものが実行環境に無い。よって束縛の識別子を `agent_id` へ替える。**門の目的は「実際の判定が、その fork に束縛されている場合にだけ resolved にする」ことであって、束縛に使う識別子が何かは目的ではない。**
+- **来歴: 失われる保証は「順序の保証」である**: 撤回した直列実行が与えていた「時間順で台帳行と fork の対応が一意に決まる」は失われ、**`agent_id` の照合が唯一の帰属根拠になる**。したがって ID が欠落・重複・不一致のときに resolved にしない規律は、直列実行時代より重い。起動行に `agent_id` が無い行は後からどう補っても resolved にできない。`agent_id` から引いた pending 起動行が 0 件または 2 件以上のときも resolved にしない。`last_assistant_message` の**最終行**が `AUDIT_VERDICT: <PASS|FAIL|INDETERMINATE>` でないときも resolved にしない (本文中に marker があっても最終行でなければ採らない)。
+- **配線修正は過去行を遡及解決しない**: SubagentStop 配線を入れた後も、それ以前に書かれた `verdict_state=pending` の起動行は pending のまま残る。台帳は append-only であり、解決も追記でしか行わない。過去の pending 行を receipt に使えるようにするには、その監査を起動し直す以外の方法は無い。pending 行の件数が減らないことを配線の失敗と読み替えてはならない。
+- **PostToolUse の per-call 性質**: 現行 PostToolUse は matching tool call ごとに top-level `tool_use_id` と当該 call の response を受け取り、parallel dispatch 時も各 hook が並行発火する (batch 全体は PostToolBatch の責務)。
 - **background launch は最終 response ではない**: background/非同期起動の「起動受理」だけの response は監査 verdict として扱わない。`verdict_state=pending|absent|ambiguous` または `audit_verdict=null` の台帳行を receipt に使うことを禁止する。
 - 監査 verdict (`PASS`/`FAIL`/`INDETERMINATE`) と軸別根拠をそのまま集約し、緑化のために書き換えない。
-- **実際に fork した監査だけを receipt にする**: R2 は起動した各 fork を `audit_delegations[]` の receipt (`aspect`/`role`/`auditor`/`component`/`dispatch{tool,subagent_type,session_id,tool_use_id,response_sha256}`/`verdict`/`evidence`) として R1 へ渡す。`dispatch.tool` / `dispatch.session_id` / `dispatch.tool_use_id` は実際に hook が観測した値を、`dispatch.response_sha256` は当該 per-call `tool_response` **全体**の canonical digest をそのまま使う。schema 1.2 台帳では ID・digest・`verdict_state=resolved`・生 verdict を全一致で照合し、ID 欠落/不一致を schema 1.1 扱いへ downgrade しない。schema 1.1 台帳は ID を持たない legacy 互換として従来キーで照合する。`verdict` は auditor 応答の最終行 `AUDIT_VERDICT: <PASS|FAIL|INDETERMINATE>` と同じ値にし、FAIL を PASS へ書き換えない。fork を省略した監査の receipt を書いてはならない。**台帳は PostToolUse hook だけが書く証跡であり、R2 は作成・追記・補正してはならない。** `prompt_sha256` / `response_sha256` が空・`manual`・64桁16進数以外、schema 1.2 の `verdict_state` が resolved 以外、または `audit_verdict` が無効な台帳行は集約時に不正として除外される。receipt は PostToolUse hook (`hooks/record-audit-fork.py`) が書く fork 台帳と `aggregate-completeness.py --report` で session・subagent・tool・ID・response digest・verdict の全てを突合され、裏取りできない帰属または判定は fail-closed で violation になる (帰属/緑化の Goodhart 防止; issues: HarnessHub-x4o / HarnessHub-uypz)。評価 run 直後の検証では `--session <現在の session_id>` を併用する。
+- **実際に fork した監査だけを receipt にする**: R2 は起動した各 fork を `audit_delegations[]` の receipt (`aspect`/`role`/`auditor`/`component`/`dispatch{tool,subagent_type,session_id,tool_use_id,response_sha256}`/`verdict`/`evidence`) として R1 へ渡す。`dispatch.tool` / `dispatch.session_id` / `dispatch.tool_use_id` は実際に hook が観測した値を、`dispatch.response_sha256` は当該 per-call `tool_response` **全体**の canonical digest をそのまま使う。schema 1.2 台帳では ID・digest・`verdict_state=resolved`・生 verdict を全一致で照合し、ID 欠落/不一致を schema 1.1 扱いへ downgrade しない。schema 1.3 台帳では起動行と解決行を畳み込んだ後の値で同じ照合を行い、畳み込みが成立しない (解決行が無い / 2 件以上 / `agent_id` 不一致) 行は receipt に使えない。畳み込み不成立を schema 1.2 扱いへ downgrade しない。schema 1.1 台帳は ID を持たない legacy 互換として従来キーで照合する。`verdict` は auditor 応答の最終行 `AUDIT_VERDICT: <PASS|FAIL|INDETERMINATE>` と同じ値にし、FAIL を PASS へ書き換えない。fork を省略した監査の receipt を書いてはならない。**台帳は PostToolUse hook だけが書く証跡であり、R2 は作成・追記・補正してはならない。** `prompt_sha256` / `response_sha256` が空・`manual`・64桁16進数以外、schema 1.2 の `verdict_state` が resolved 以外、または `audit_verdict` が無効な台帳行は集約時に不正として除外される。receipt は PostToolUse hook (`hooks/record-audit-fork.py`) が書く fork 台帳と `aggregate-completeness.py --report` で session・subagent・tool・ID・response digest・verdict の全てを突合され、裏取りできない帰属または判定は fail-closed で violation になる (帰属/緑化の Goodhart 防止; issues: HarnessHub-x4o / HarnessHub-uypz)。評価 run 直後の検証では `--session <現在の session_id>` を併用する。
 
 ### 1.2 倫理ガード
 - 監査結果の根拠を省略・要約し過ぎて FAIL 要因を隠さない。到達不能・入力欠落は INDETERMINATE として明示する。
+- **供給者は判定者になれない (proposer ≠ approver)**: 監査 sub-agent へ判断材料を供給した者は、同じ監査の verdict を自分で導出・提案・是正してはならない。R2 は fork へ入力を渡す立場なので、渡した入力に対する verdict を R2 側で先に出し、それを auditor へ示すことを禁止する。auditor が返した verdict と R2 の見解が割れた場合、R2 は auditor を説得せず、**割れている事実そのものを R1 へ渡す**。
+  - **中立は宣言ではなく供給物の偏りで測る**: 「中立です」「どちらへも押しません」と書き添えても、渡した材料が片方の結論だけを組み立てられる形なら判定は動く。両論の条文番号を併記したかどうかでは測れない。測る量は**そのまま結論へ変換できる度合い**である。片方にだけ「これが governing clause だ」「ここだけが当該事項を名指ししている」といった**適用の指示**が付いていれば、受け手が判断に使える形になっているのはその片方だけであり、分量が対等でも供給は偏っている。
+  - **供給するのは所在であって読みではない**: 関連条文は「どこにあるか」までを渡し、「どう読むか」「どちらが優先か」は渡さない。読みを渡す必要が生じたなら、それは条文が一意でないという発見であり、条文の側を直す案件である ([R4-audit-doc-freshness.md](../../run-system-spec-doc-fetch/prompts/R4-audit-doc-freshness.md) の来歴を参照)。
+  - **独立確認の一致は免責にならない**: 供給が偏った後に別 context で同じ結論が出ても、それは「偏りが無害だった」ことの証拠であって「偏りが無かった」ことの証拠ではない。偏りの有無は結果ではなく供給物で判定する。
+  - **停止条件 (文章ではなく検査)**: 監査 fork へ渡す prompt は、渡す前に `scripts/supply_neutrality.py` を通す。**exit 0 でない供給で fork してはならない。**この禁止を破って得た verdict は `audit_delegations[]` の receipt にできない (R1 へ渡す resolved 行の根拠にできない)。この門は禁止語を検出しない。渡してよい形を先に決め、それ以外を通さない: **条文・入力への参照は locator だけを置ける区画 (`<SUPPLIED_LOCATORS>` / `<SUPPLIED_INPUTS>`) の中でしか書けず、区画の中に散文は置けず、区画の外に参照は置けない。**適用の指示は「特定の参照に隣接した散文」としてしか成立しないので、隣接できる場所が無ければ書く場所を失う。検出ではなく**表現できなくする**形であるため、禁止語一覧のように外側が残らない。
+  - **この門が塞げていないもの (正直な境界)**: ① 序数・語による間接参照 (「1 件目のほうが governing だ」) は参照 token を含まないので止まらない。② prompt の外 (会話・別 fork) で読みを渡す形は prompt を見ても分からず、台帳は `prompt_sha256` しか持たないので事後再構成もできない。③ 門は自動起動しない。R2 が走らせずに fork することはできてしまう。保証されるのは「走らせれば偏った供給は渡せない」ことだけである。①〜③ は `tests/test_supply_neutrality.py` に**種類**として固定してある。**実例を足して塞いだことにしない。**
+  - **来歴 (2026-08-20)**: この規律は実際の違反から起こした。統括が doc_freshness 監査へ「緑へ押すことは避けます」と明記したうえで両論の条文を併記したが、片方にだけ「到達不能を名指しで扱っているのはこちらだけ」という適用の指示を付けて渡し、auditor の verdict が反転した。auditor は統括の供給を verdict の根拠として明示的に引用している。個別事例は利用者裁定で無効化されたが、同じ供給を止める仕掛けが無かったため本項を置く。
+  - **来歴 (2026-08-21)**: 上の 2026-08-20 の観測は書き換えず、その後に分かったことを追記する。本項は当初「供給しない」という禁止の文だけだった。この作業場所では「同じ形の欠陥に対する警告文は、その形の再発を防がない」ことが繰り返し観測されているため、禁止の文を残したまま `scripts/supply_neutrality.py` の文法門を停止条件として追加した。禁止語の検出を選ばなかったのは、同 skill の `tests/test_dispatch_prompt_contract.py` が「印を持たない同義語は素通りする」「印の在否は極性を区別しないので、禁止を正しく書いた記述まで赤くなり書き手が話題自体を避ける」ことを実行できる事実として既に固定しているためである。2026-08-20 の供給そのものを prompt へ再構成した fixture が、この門で止まることを回帰テストに置いた。
 
 ## Layer 2: ドメイン層
 
@@ -88,9 +100,13 @@
 - [ ] doc_freshness にC08の独立verdictと根拠が存在する
 - [ ] 実 fork した監査の receipt 3 件が `audit_delegations[]` として R1 へ渡り、fork していない監査の receipt を 1 件も含んでいない
 - [ ] schema 1.2 台帳の receipt は `tool_use_id` / whole per-call response digest / `verdict_state=resolved` を同一 call として照合し、schema 1.1 は ID 無し legacy 経路だけで受理されている
+- [ ] schema 1.3 台帳の receipt は起動行 1 件 + 解決行 1 件の畳み込みが `agent_id` 一致で成立したものだけで、pending のまま残った起動行を 1 件も receipt にしていない
 - [ ] design_knowledge_reflectionの入力が`spec_docs`としてR1-scoreへ渡り、重複auditorが存在しない
 - [ ] foundation/decision/deep-knowledge/prompt validator evidenceが欠落なくR1-scoreへ渡っている
 - [ ] INDETERMINATE 観点を隠さず明示した
+- [ ] 各 fork へ渡した prompt を `scripts/supply_neutrality.py` に通し、**exit 0** を得てから起動した (exit 2 の供給で起動していない。起動していたらその verdict は receipt にできない)
+- [ ] 各 fork へ供給した材料に、片方の結論を組み立てられる形の**適用の指示**が含まれていない (所在は渡したが読みは渡していない)
+- [ ] auditor の verdict と R2 の見解が割れた場合、説得ではなく**割れている事実**として R1 へ渡している
 
 ### 5.4 実行方式
 - 固定手順を持たない。状況に応じて必要な独立監査を都度設計し、5.3 の全停止条件を満たす集約結果だけをR1へ返す。
@@ -101,7 +117,9 @@
 - 呼び出し元: R1-score。fork 先: C07 (matrix) / C08 (doc-freshness) / C06 (hearing 品質 = matrix_coverage sub-input) の監査 sub-agent。design_knowledge_reflection は fork せず R1-score が自前評価する。
 
 ### 6.2 並列性・ハンドオフ
-- 3 監査の context はそれぞれ独立だが、正式 evaluator の dispatch は fresh live-trial gate が閉じるまで **1 message = 1 foreground fork** で直列化する。前の fork の完全応答・`AUDIT_VERDICT`・hook 台帳行を回収するまで次を起動しない。parallel 対応コードや fixture PASS は defensive hardening / canary に留まり、この gate を解除しない。集約結果のみを R1 へ渡し、監査対象は書き換えない。
+- 3 監査の context はそれぞれ独立で、dispatch の順序・同時性は帰属の根拠にしない。**帰属は `agent_id` の照合だけで成り立たせる** (§1.1)。順序の保証は失われているので、「先に起動したものが先に返る」「1 件しか走っていないのだからこの応答はそれだ」という推論を receipt の根拠に使ってはならない。
+- 直列化 (**1 message = 1 foreground fork**) はもはや帰属の条件ではない。撤回した理由は §1.1 の来歴のとおりで、`SubagentStop` payload が `tool_use_id` を運ばない以上、時間順で対応づける前提が実行環境に無いためである。ただし**「起動受理だけの response を verdict として扱わない」という禁止は撤回していない**。これは手段ではなく目的側の条項であり、緩めない。
+- 畳み込みが成立しない fork は、何件走らせたかに関わらず receipt にできない。解決行が来ないまま終わった監査は起動し直す (**配線修正は過去行を遡及解決しない**)。集約結果のみを R1 へ渡し、監査対象は書き換えない。
 
 ## Layer 7: 提示
 
@@ -115,4 +133,4 @@
 
 ## 出力指示
 
-Task tool で `system-spec-matrix-auditor` (C07) / `system-spec-doc-freshness-auditor` (C08) / `system-spec-hearing-auditor` (C06) をそれぞれ独立 context (fork) で起動する。現行 PostToolUse は per-call だが、fresh live-trial gate が未完了の正式 evaluator では 1 回の message で複数を同時起動せず、**1 件ずつ foreground で完全応答と `AUDIT_VERDICT` を受け取ってから次へ進む**。background/非同期 launch の受理応答は最終 verdict ではなく receipt に使わない。C07 を matrix_coverage の一次根拠、C08 を doc_freshness の一次根拠とし、C06 のヒアリング品質 5 軸は matrix_coverage の sub-input として併せる (独立観点に昇格させない)。C06 のトレーサビリティ対象は `state=確定` セルと U1-U9 で、`decisions[]` は起動 prompt に含めず C05 `decision_guidance` へ渡す。**design_knowledge_reflection には監査 sub-agent を立てず** (C06 は system-spec/*.md を読めない)、`spec_docs` を R1-score へ渡して自前評価に委ねる。監査ロジックは各 agent の SSOT に委ね、R2 は結果を書き換えず集約するだけにする。INDETERMINATE は隠さず明示し、集約結果を R1-score へ渡す。余計な前置きは禁止。
+Task tool で `system-spec-matrix-auditor` (C07) / `system-spec-doc-freshness-auditor` (C08) / `system-spec-hearing-auditor` (C06) をそれぞれ独立 context (fork) で起動する。起動の順序・同時性は帰属の根拠にしないが、**receipt にできるのは起動行と `agent_id` 一致の解決行が畳み込めた fork だけ**である (schema 1.3, §1.1)。**background/非同期 launch の受理応答は最終 verdict ではなく receipt に使わない**——受理応答は「起動できた」ことしか示さず、最終行 `AUDIT_VERDICT` を運ぶのは `SubagentStop` が拾う `last_assistant_message` のほうである。解決行が来ないまま `verdict_state=pending` で残った起動行は、後から補正せず監査を起動し直す。C07 を matrix_coverage の一次根拠、C08 を doc_freshness の一次根拠とし、C06 のヒアリング品質 5 軸は matrix_coverage の sub-input として併せる (独立観点に昇格させない)。C06 のトレーサビリティ対象は `state=確定` セルと U1-U9 で、`decisions[]` は起動 prompt に含めず C05 `decision_guidance` へ渡す。**design_knowledge_reflection には監査 sub-agent を立てず** (C06 は system-spec/*.md を読めない)、`spec_docs` を R1-score へ渡して自前評価に委ねる。監査ロジックは各 agent の SSOT に委ね、R2 は結果を書き換えず集約するだけにする。INDETERMINATE は隠さず明示し、集約結果を R1-score へ渡す。余計な前置きは禁止。

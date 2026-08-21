@@ -1,3 +1,4 @@
+/** @tier 2 */
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 import { AffiliateLink, DisclosureNotice } from "@/presentation/ui/patterns/disclosure";
@@ -87,6 +88,77 @@ describe("順位表", () => {
       <RankingTable caption="順位" criteria={criteria} rows={[]} updatedAt="2026-03-01" />,
     );
     expect(html).toContain("まだ何もありません");
+  });
+
+  /**
+   * 順位表の買う導線。
+   *
+   * ここが無いあいだ、**順位記事のクリックは 1 件も数えられていなかった**。
+   * 型の上では `affiliateHref` を渡せても、表が読まなければ画面には出ない。
+   * 出力そのものを見ないと、この壊れ方は見つからない。
+   */
+  it("転送の入口を通す成果リンクを、順位の行から出す", () => {
+    const html = renderToStaticMarkup(
+      <RankingTable
+        caption="順位"
+        criteria={criteria}
+        rows={[
+          {
+            productId: "p1",
+            rank: 1,
+            productName: "機種A",
+            totalScore: 82,
+            criterionScores: [80, 84],
+            affiliateHref: "/go/abc123",
+          },
+        ]}
+        updatedAt="2026-03-01"
+      />,
+    );
+    expect(html).toContain('href="/go/abc123"');
+    // 部品を通しているので、申告と計測の印が付いてくる。
+    expect(html).toContain('rel="sponsored nofollow noopener"');
+    expect(html).toContain('data-tel-kind="affiliate_link"');
+    expect(html).toContain('data-tel-placement="順位表"');
+  });
+
+  it("提携が無い行は空欄にせず、理由を出す", () => {
+    const html = renderToStaticMarkup(
+      <RankingTable
+        caption="順位"
+        criteria={criteria}
+        rows={[
+          {
+            productId: "p1",
+            rank: 1,
+            productName: "機種A",
+            totalScore: 82,
+            criterionScores: [80, 84],
+            affiliateHref: "/go/abc123",
+          },
+          { productId: "p2", rank: 2, productName: "機種B", totalScore: 70, criterionScores: [70, 70] },
+        ]}
+        updatedAt="2026-03-01"
+      />,
+    );
+    // 空欄だと「1 行だけ貼り忘れた」と読まれる。
+    expect(html).toContain("案内できる販売先がありません");
+  });
+
+  it("提携が 1 つも無い表には、買う導線の列を足さない", () => {
+    const html = renderToStaticMarkup(
+      <RankingTable
+        caption="順位"
+        criteria={criteria}
+        rows={[
+          { productId: "p1", rank: 1, productName: "機種A", totalScore: 82, criterionScores: [80, 84] },
+        ]}
+        updatedAt="2026-03-01"
+      />,
+    );
+    // 全部が「販売先がありません」で埋まる列は、読者に何も伝えない。
+    expect(html).not.toContain("販売ページ");
+    expect(html).not.toContain("案内できる販売先がありません");
   });
 });
 

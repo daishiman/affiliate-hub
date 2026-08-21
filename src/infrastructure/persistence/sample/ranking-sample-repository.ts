@@ -2,7 +2,7 @@ import type {
   EditorialRankingModelRepositoryPort,
   EditorialScoreCardRepositoryPort,
 } from "@/application/ports";
-import type { Page, Paged } from "@/application/ports/common";
+import type { PageRequest, Paged } from "@/application/ports/common";
 import { type EditorialScoreCard, type RankingModel, createRankingModel } from "@/domain/ranking";
 import {
   type CategoryId,
@@ -33,7 +33,10 @@ const stub = registerStub({
   id: "persistence:ranking-sample",
   port: "EditorialRankingModelRepositoryPort / EditorialScoreCardRepositoryPort",
   label: "ランキングの保存先（見本データ）",
-  blockedBy: "ranking_models / score_cards テーブルの追加とマイグレーション",
+  // 表よりも先に入口が要る。順位づけの基準や採点表を作る操作がまだ無く、
+  // どのユースケースからも `save` が呼ばれていない（保存先だけ本物にしても空のまま）。
+  blockedBy:
+    "順位づけの基準と採点表を作る入口（画面と操作）の追加。そのうえで ranking_models / score_cards テーブルの追加とマイグレーション",
 });
 
 export const SAMPLE_WORKSPACE_ID = taggedString<"WorkspaceId">("ws_sample");
@@ -188,7 +191,7 @@ export function createSampleRankingModelRepository(): EditorialRankingModelRepos
       if (workspaceId !== SAMPLE_MODEL.workspaceId) return ok(null);
       return ok(id === SAMPLE_MODEL.id ? SAMPLE_MODEL : null);
     },
-    async list(workspaceId: WorkspaceId, page: Page): Promise<Result<Paged<RankingModel>, DomainError>> {
+    async list(workspaceId: WorkspaceId, page: PageRequest): Promise<Result<Paged<RankingModel>, DomainError>> {
       const items = workspaceId === SAMPLE_MODEL.workspaceId ? [SAMPLE_MODEL] : [];
       return ok({ items: items.slice(0, page.limit), nextCursor: null });
     },

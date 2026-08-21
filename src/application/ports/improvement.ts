@@ -15,7 +15,17 @@ export type ImprovementRepositoryPort = {
     input?: { readonly siteSlug?: string },
   ): PortResult<readonly VariantSpec[]>;
 
-  saveVariantSpec(workspaceId: WorkspaceId, spec: VariantSpec): PortResult<true>;
+  /**
+   * 見せ方の設定を残す。
+   *
+   * **どのブログの設定かを一緒に受け取る。** `VariantSpec` は軸と値だけを持ち、
+   * どこへ効かせるかを知らない（知らせると、設定の形がブログの数だけ増える）。
+   * 保存先は絞り込みのためにそれを必要とするので、ここで受け取る。
+   */
+  saveVariantSpec(
+    workspaceId: WorkspaceId,
+    input: { readonly spec: VariantSpec; readonly siteSlug: string },
+  ): PortResult<true>;
 
   listRuns(
     workspaceId: WorkspaceId,
@@ -34,6 +44,17 @@ export type ImprovementRepositoryPort = {
     workspaceId: WorkspaceId,
     runId: string,
   ): PortResult<LoopObservation | null>;
+
+  /**
+   * 1 周ぶんの観測値を残す。
+   *
+   * 読む口だけがあって書く口が無いと、**表は用意したのに一生埋まらない**。
+   * 1 周につき 1 行で、観測し直したら上書きする。
+   */
+  saveObservation(
+    workspaceId: WorkspaceId,
+    input: LoopObservation & { readonly observedAt: Date },
+  ): PortResult<true>;
 };
 
 export type LoopObservation = {

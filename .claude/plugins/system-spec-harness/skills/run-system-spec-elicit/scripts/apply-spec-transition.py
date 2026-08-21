@@ -3,7 +3,7 @@
 # name: apply-spec-transition
 # version: 0.2.0
 # purpose: spec-state の単一 writer CLI。各責務は state_transition_{matrix,foundation,knowledge}.py へ分離する。
-# inputs: [bootstrap|init|add-category|apply|chunk|aggregate|set-targets|set-foundation|set-decision|set-knowledge-candidate|set-qa-design-applications]
+# inputs: [bootstrap|init|add-category|apply|chunk|aggregate|set-targets|set-foundation|seal-foundation-sources|set-decision|set-knowledge-candidate|set-qa-design-applications|set-qa-scope-notes|split-qa-bundle|reanchor-split-scope-notes|requote-written-source|reseal-written-source|set-qa-written-up|set-hearing-policy|enable-asks-for]
 # outputs: [spec-state.json or stdout]
 # network: false
 # write-scope: spec-state.json
@@ -41,12 +41,20 @@ from state_transition_common import (
     is_explicit_na as _is_explicit_na,
     normalize_serves as _normalize_serves,
 )
-from state_transition_foundation import set_decision, set_foundation
+from state_transition_foundation import (
+    seal_foundation_sources,
+    set_decision,
+    set_foundation,
+)
 from state_transition_knowledge import set_knowledge_candidate
 from state_transition_matrix import (
     CURRENT_STATE_SCHEMA_VERSION,
     DESIGN_APPLICATION_CONTRACT_VERSION,
+    LOOP_LIMIT_POLICIES,
+    SCHEMA_1_2_SECTIONS,
     add_category,
+    loop_limit_is_violated,
+    set_hearing_limit_policy,
     apply_cell_op,
     apply_turn,
     bootstrap_state,
@@ -54,11 +62,18 @@ from state_transition_matrix import (
     derive_aggregate,
     init_state,
     next_unresolved_question,
+    reanchor_split_scope_notes,
+    requote_written_source,
+    reseal_written_source,
     recompute_aggregates,
     run_chunk,
     set_qa_design_applications,
+    set_qa_scope_notes,
+    set_qa_written_up,
     set_targets,
+    split_qa_bundle,
 )
+from state_transition_matrix import enable_asks_for_contract
 
 
 def _require_writable_state(state: dict) -> None:
@@ -69,8 +84,76 @@ def _require_writable_state(state: dict) -> None:
         != DESIGN_APPLICATION_CONTRACT_VERSION
     ):
         raise TransitionError(
-            "legacy spec-state は読み取り専用。init --state で schema 1.1 / "
-            "design_application_contract_version 1.0 へ移行してから更新すること"
+            f"legacy spec-state は読み取り専用。init --state で schema "
+            f"{CURRENT_STATE_SCHEMA_VERSION} / design_application_contract_version "
+            f"{DESIGN_APPLICATION_CONTRACT_VERSION} へ移行してから更新すること"
+        )
+
+
+def _require_documented_loop_overrun(state: dict, cmd: str) -> None:
+    """上限超えを抱えた state を、由来を書かないまま更に書き進めさせない。
+
+    schema_version の門 (上) は「版が古い state を読み取り専用にする」だけで、
+    版が合っている state の中身が writer の外から書かれていても素通りする。
+    run_chunk は上限超えを**生み出せない** (state_transition_matrix の
+    LOOP_LIMIT_POLICY_STRICT の注記を参照) ので、loop_count > max_loops は
+    「この writer を通らずに書かれた」痕跡である。その痕跡が未記名のまま
+    次の transition に乗ると、以後の書き込みが正規経路の産物に見えてしまう。
+
+    上限そのものは動かさない。超過値も丸めない。要求するのは由来の記載だけである。
+    set-hearing-policy は由来を書くための op なので、ここでは通す
+    (通さないと、由来を書く唯一の経路が由来が無いことを理由に塞がる)。
+
+    塞げていないところ: 由来の**中身**は読んでいない。非空文字列なら何でも通る。
+    また、この門は writer を通る書込にしか掛からない — writer を通らない経路
+    (キャッシュ側 install の同名 writer を含む) は、そもそもここへ来ない。
+
+    **反転先**: 正本 state の書込経路が writer 1 つに限られることを機械で示せる日
+    (例: state に writer だけが持つ鍵で署名し、署名の無い版を読まない)。
+    そのとき loop_count > max_loops は起こり得なくなるので、この門は不要になる。
+    """
+    if cmd == "set-hearing-policy":
+        return
+    progress = state.get("hearing_progress")
+    if not isinstance(progress, dict) or not loop_limit_is_violated(progress):
+        return
+    overrun = progress.get("limit_overrun")
+    reason = overrun.get("reason") if isinstance(overrun, dict) else None
+    if not isinstance(reason, str) or not reason.strip():
+        raise TransitionError(
+            f"hearing_progress: loop_count={progress.get('loop_count')} が "
+            f"max_loops={progress.get('max_loops')} を超えているのに limit_overrun.reason が無い。"
+            "この writer は上限超えを生み出せないため、これは writer の外から書かれた痕跡である。"
+            "set-hearing-policy --overrun で由来を記録してから他の transition を行うこと"
+        )
+
+
+def _snapshot_versioned_sections(state: dict) -> dict:
+    """1.2 固有 4 節の『読んだときの姿』を控える。"""
+    return {name: state[name] for name in SCHEMA_1_2_SECTIONS if name in state}
+
+
+def _require_sections_preserved(before: dict, state: dict) -> None:
+    """読んだときに在った 1.2 固有 4 節が、書き戻しで落ちていないことを確かめる。
+
+    版の門を 1.2 へ上げただけだと、**通るようになったぶん黙って壊れる**余地が生まれる。
+    拒否されていたあいだは気づけたが、通る writer が 4 節を落とすと誰も気づかない。
+    そこで「読めた節は書き戻しでも在る」ことを、transition のたびに機械で押さえる。
+    """
+    lost = sorted(name for name in before if name not in state)
+    if lost:
+        raise TransitionError(
+            "1.2 固有節が transition で失われた: " + ", ".join(lost) +
+            "。器に合わせて中身を削らないこと"
+        )
+    changed = sorted(
+        name
+        for name, value in before.items()
+        if type(state.get(name)) is not type(value)
+    )
+    if changed:
+        raise TransitionError(
+            "1.2 固有節の型が transition で変わった: " + ", ".join(changed)
         )
 
 
@@ -130,6 +213,13 @@ def main(argv: list[str]) -> int:
     foundation.add_argument("--state", required=True)
     foundation.add_argument("--foundation", required=True, help="foundation JSON文字列またはファイル")
     foundation.add_argument("--out")
+    seal = sub.add_parser(
+        "seal-foundation-sources",
+        help="requirements_foundation の書面根拠を実ファイルへ照合してから封をする",
+    )
+    seal.add_argument("--state", required=True)
+    seal.add_argument("--out")
+    # sha256 は引数で受け取らない。writer が path のファイルを読んで計算する。
     decision = sub.add_parser("set-decision", help="意思決定支援 record を upsert")
     decision.add_argument("--state", required=True)
     decision.add_argument("--decision", required=True, help="decision JSON文字列またはファイル")
@@ -150,6 +240,104 @@ def main(argv: list[str]) -> int:
         help="design_applications JSON配列または JSON ファイル",
     )
     qa_design.add_argument("--out")
+    scope_notes = sub.add_parser(
+        "set-qa-scope-notes",
+        help="束ねた qa の論点範囲を、質問・回答を保ったまま注記として追記",
+    )
+    scope_notes.add_argument("--state", required=True)
+    scope_notes.add_argument("--qa-id", required=True)
+    scope_notes.add_argument(
+        "--scope-notes",
+        required=True,
+        help="scope_notes JSON object またはそれを収めた JSON ファイル",
+    )
+    scope_notes.add_argument("--out")
+    split_bundle = sub.add_parser(
+        "split-qa-bundle",
+        help="束ねた qa entry を論点ごとに解き、裏付けの範囲をセルの qa_refs[] へ移す",
+        description=(
+            "**何を削るかは引数で受け取らない。**scope_notes.topics と取り込み元 entry を "
+            "writer が自分で引き、取り込まれた節が取り込み元の回答と byte 単位で一致する"
+            "ときだけ外す。渡せると、渡す側がどの節を『取り込みだった』と名乗るか選べ、"
+            "自分の本文を他所のせいにして消せる。"
+        ),
+    )
+    split_bundle.add_argument("--state", required=True)
+    split_bundle.add_argument("--qa-id", required=True)
+    split_bundle.add_argument("--out")
+    reanchor = sub.add_parser(
+        "reanchor-split-scope-notes",
+        help="束ね解除で指し先を失った answer_span を、origin entry の本文へ張り直す",
+        description=(
+            "**錨は引数で受け取らない。**origin entry の本文から writer が切り出し、"
+            "逐語で 1 箇所であることを確かめてから書く。すでに解決している span には"
+            "触らないので、2 度目の実行は何も変えない。"
+        ),
+    )
+    reanchor.add_argument("--state", required=True)
+    reanchor.add_argument("--qa-id", required=True)
+    reanchor.add_argument("--out")
+    requote = sub.add_parser(
+        "requote-written-source",
+        help="文書と食い違った引用行を、文書の側の行で置き換える",
+        description=(
+            "**錨も置き換え先も引数で受け取らない。**行の形 (表の行 / 番号付き箇条) から "
+            "writer が錨を決め、その錨で始まる文書行がちょうど 1 行のときだけ置き換える。"
+            "0 行または 2 行以上なら書かずに止まる。"
+        ),
+    )
+    requote.add_argument("--state", required=True)
+    requote.add_argument("--qa-id", required=True)
+    requote.add_argument("--out")
+    reseal = sub.add_parser(
+        "reseal-written-source",
+        help="written-requirements entry の source.sha256 を、本文を文書へ照合してから取り直す",
+        description=(
+            "**指紋も文書の path も引数で受け取らない。**writer が source.path を読み、"
+            "answer の非空行が 1 行残らず文書に逐語で在ることを確かめてから取り直す。"
+            "1 行でも無ければ書かずに止まる。渡せると、文書に無い文を "
+            "requirements として封をできる。"
+        ),
+    )
+    reseal.add_argument("--state", required=True)
+    reseal.add_argument("--qa-id", required=True)
+    reseal.add_argument("--out")
+    limit = sub.add_parser(
+        "set-hearing-policy",
+        help="hearing_progress の上限 (max_loops) が厳格かソフトかを明示する",
+    )
+    limit.add_argument("--state", required=True)
+    limit.add_argument("--policy", required=True, choices=list(LOOP_LIMIT_POLICIES))
+    limit.add_argument(
+        "--overrun",
+        help="loop_count が max_loops を超えている場合の由来 JSON (reason 必須)",
+    )
+    limit.add_argument("--out")
+    asks_for = sub.add_parser(
+        "enable-asks-for",
+        help="asks_for 契約を有効化する (以後の新規 qa entry に asks_for を必須にする)",
+        description=(
+            "legacy 除外の id は**引数で受け取らない**。有効化した時点の qa_log の id を"
+            "そのまま凍結する。名簿を外から渡せると、渡す側が誰を除外するか選べてしまい、"
+            "『有効化時点で実在した entry だけ』という時点の縛りが名乗りに変わる。"
+        ),
+    )
+    asks_for.add_argument("--state", required=True)
+    asks_for.add_argument("--out")
+    written_up = sub.add_parser(
+        "set-qa-written-up",
+        help="対話で聞いた問答を文書へ書き起こした事実を追記する",
+        description=(
+            "sha256 と日付は**引数で受け取らない**。writer が実ファイルを読んで計算する。"
+            "受け取ると、書き起こしていない内容の指紋を名乗れる。"
+            "元の source は書き換えない — 対話で聞いた事実と、それを書き起こした事実は別の 2 件である。"
+        ),
+    )
+    written_up.add_argument("--state", required=True)
+    written_up.add_argument("--qa-id", required=True)
+    written_up.add_argument("--path", required=True, help="書き起こし先ファイル (実在必須)")
+    written_up.add_argument("--section", help="節の見出しやアンカー (任意)")
+    written_up.add_argument("--out")
     args = parser.parse_args(argv)
     try:
         if args.cmd == "bootstrap":
@@ -159,6 +347,8 @@ def main(argv: list[str]) -> int:
         else:
             state = load_json(args.state)
             _require_writable_state(state)
+            _require_documented_loop_overrun(state, args.cmd)
+            sections_before = _snapshot_versioned_sections(state)
             if args.cmd == "add-category":
                 add_category(state, load_json_arg(args.category))
             elif args.cmd == "apply":
@@ -172,6 +362,12 @@ def main(argv: list[str]) -> int:
                 set_targets(state, value["targets"] if isinstance(value, dict) and "targets" in value else value)
             elif args.cmd == "set-foundation":
                 set_foundation(state, load_json_arg(args.foundation))
+            elif args.cmd == "seal-foundation-sources":
+                summary = seal_foundation_sources(state)
+                print(
+                    f"封: 書面 {summary['sealed']} 件 / 対話 {summary['dialogue']} 件 "
+                    f"/ 全 {summary['total']} 件",
+                )
             elif args.cmd == "set-decision":
                 set_decision(state, load_json_arg(args.decision))
             elif args.cmd == "set-knowledge-candidate":
@@ -185,6 +381,37 @@ def main(argv: list[str]) -> int:
                     if isinstance(value, dict) and "design_applications" in value
                     else value,
                 )
+            elif args.cmd == "set-qa-scope-notes":
+                value = load_json_arg(args.scope_notes)
+                set_qa_scope_notes(
+                    state,
+                    args.qa_id,
+                    value["scope_notes"]
+                    if isinstance(value, dict) and "scope_notes" in value
+                    else value,
+                )
+            elif args.cmd == "enable-asks-for":
+                enable_asks_for_contract(
+                    state,
+                    [entry["id"] for entry in state.get("qa_log", []) if isinstance(entry, dict)],
+                )
+            elif args.cmd == "split-qa-bundle":
+                split_qa_bundle(state, args.qa_id)
+            elif args.cmd == "reanchor-split-scope-notes":
+                reanchor_split_scope_notes(state, args.qa_id)
+            elif args.cmd == "requote-written-source":
+                requote_written_source(state, args.qa_id)
+            elif args.cmd == "reseal-written-source":
+                reseal_written_source(state, args.qa_id)
+            elif args.cmd == "set-qa-written-up":
+                set_qa_written_up(state, args.qa_id, args.path, args.section)
+            elif args.cmd == "set-hearing-policy":
+                set_hearing_limit_policy(
+                    state,
+                    args.policy,
+                    load_json_arg(args.overrun) if args.overrun else None,
+                )
+            _require_sections_preserved(sections_before, state)
             _emit(state, args.out or args.state)
     except TransitionError as exc:
         print(f"TransitionError: {exc}", file=sys.stderr)

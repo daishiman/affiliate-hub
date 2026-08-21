@@ -79,7 +79,7 @@ type EventSpec = {
 /**
  * 計測できることの全一覧。
  *
- * ここに無いイベントは送れない（`buildEvent` が弾く）。
+ * ここに無いイベントは送れない（`buildTelemetryEvent` が弾く）。
  * 「とりあえず全部送っておく」を防ぐため、`why` を必須にしている。
  */
 export const TELEMETRY_EVENTS = {
@@ -161,6 +161,15 @@ export const TELEMETRY_EVENTS = {
       productId: "string?",
       /** 記事のどこに置いたリンクか（本文中 / 比較表 / 記事末尾）。 */
       placement: "string",
+      /**
+       * どちらの経路で数えたか。`redirect` は転送の入口（`/go/`）で
+       * サーバが数えたもの、`browser` は画面が送ったもの。
+       *
+       * **同じクリックを 2 度数えないための印であり、欠測の量を測る材料でもある。**
+       * 転送の入口を通るリンクは画面側で数えない決まりだが、決まりだけでは
+       * いつか破れる。どちらで数えたかを残しておけば、破れたことが数字に出る。
+       */
+      recordedVia: "string",
     },
   },
 
@@ -329,7 +338,7 @@ export function assertNoForbiddenField(
  *   2. 必須の項目が揃っているか（後から「その欄は空でした」を防ぐ）
  *   3. 記録してはいけない項目が混ざっていないか
  */
-export function buildEvent<K extends TelemetryEventKey>(input: {
+export function buildTelemetryEvent<K extends TelemetryEventKey>(input: {
   readonly key: K;
   readonly occurredAt: Date;
   readonly readerKey: string | null;

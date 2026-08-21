@@ -75,6 +75,14 @@ export type AuditLogId = Tagged<string, "AuditLogId">;
 export type MetricId = Tagged<string, "MetricId">;
 export type ExperimentId = Tagged<string, "ExperimentId">;
 
+// Product Feedback (使い勝手を直すループ)
+/** 管理者が送った改善要望 1 件。 */
+export type FeedbackReportId = Tagged<string, "FeedbackReportId">;
+/** そのときの画面（注釈と黒塗りを焼き込んだ 1 枚）。 */
+export type FeedbackCaptureId = Tagged<string, "FeedbackCaptureId">;
+/** Claude Code が取りに来るときの鍵。値そのものは持たない。 */
+export type IntegrationKeyId = Tagged<string, "IntegrationKeyId">;
+
 /**
  * 文字列から ID を作る。
  *
@@ -111,3 +119,7 @@ export const asAssetId = (v: string) => taggedString<"AssetId">(v);
 export const asExperimentId = (v: string) => taggedString<"ExperimentId">(v);
 export const asTrackingLinkId = (v: string) => taggedString<"TrackingLinkId">(v);
 export const asLinkIngestionId = (v: string) => taggedString<"LinkIngestionId">(v);
+export const asFeedbackReportId = (v: string) => taggedString<"FeedbackReportId">(v);
+export const asFeedbackCaptureId = (v: string) => taggedString<"FeedbackCaptureId">(v);
+export const asIntegrationKeyId = (v: string) => taggedString<"IntegrationKeyId">(v);
+export const asPolicyRuleId = (v: string) => taggedString<"PolicyRuleId">(v);

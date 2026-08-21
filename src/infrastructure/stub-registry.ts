@@ -23,6 +23,18 @@ export type StubEntry = {
   readonly label: string;
   /** なぜまだ実装していないか。「時間がなかった」ではなく、前提条件を書く。 */
   readonly blockedBy: string;
+  /**
+   * **本物ができたあとの控え**であることを示す。値は本物の置き場所。
+   *
+   * 保存先を D1 につないだあとも、見本の実装は消せない。
+   * Workers の外（`pnpm dev` や自動テスト）では接続が供給されないので、
+   * そこで落ちる代わりに控えへ回る（`composition.ts` の `db === null`）。
+   *
+   * ここを空のままにすると、台帳の件数が**実際より多く**見える。
+   * 「まだ作っていないもの」と「作ったが控えも残してあるもの」は別のことで、
+   * 混ぜて数えると、進んだのに数字が減らないという読み方になる。
+   */
+  readonly fallbackFor?: string;
 };
 
 const entries = new Map<string, StubEntry>();
@@ -50,6 +62,32 @@ export function listStubs(): readonly StubEntry[] {
 
 export function stubCount(): number {
   return entries.size;
+}
+
+/** まだ中身が無いもの。**控えは含まない。** 進み具合を表すのはこちら。 */
+export function listUnbuiltStubs(): readonly StubEntry[] {
+  return listStubs().filter((e) => e.fallbackFor === undefined);
+}
+
+/** 本物ができたあとの控え。件数が減らないのが正しい（消す予定が無い）。 */
+export function listFallbacks(): readonly StubEntry[] {
+  return listStubs().filter((e) => e.fallbackFor !== undefined);
+}
+
+/**
+ * 「なぜいま見本で動いているか」の一文。
+ *
+ * **控えと未実装で言うことが違う。** 控え（`fallbackFor` あり）は
+ * もう本物があり、保存先が供給されない場所でだけ回ってくる。
+ * それを `${blockedBy}が済むまでの仮です` の型に当てると
+ * 「済み。…が済むまでの仮です」という、意味の取れない文になる
+ * （2026-08-17、保存先をつないだ 4 件で実際にそうなった）。
+ * 文の作り方を 1 か所に集めて、台帳の書き換えだけで文が正しくなるようにする。
+ */
+export function stubReason(entry: StubEntry): string {
+  return entry.fallbackFor === undefined
+    ? `${entry.blockedBy}が済むまでの仮です`
+    : "保存先がつながっていないため、この場限りの見本で動いています";
 }
 
 /**

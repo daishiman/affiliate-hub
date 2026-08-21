@@ -1,4 +1,5 @@
 import {
+  ARTICLE_TYPE_LABEL,
   ARTICLE_TYPES,
   type ArticleType,
   CONVERSATION_BASE_PATTERN,
@@ -27,13 +28,9 @@ import type { UseCase } from "../usecase";
  * 外部に問い合わせない。決めごとそのものを返す。
  */
 
-export const ARTICLE_TYPE_LABEL: Readonly<Record<ArticleType, string>> = {
-  ranking: "順位をつける記事",
-  review: "1 つを詳しく見る記事",
-  comparison: "2 つ以上を比べる記事",
-  guide: "やり方を説明する記事",
-  tool: "計算・判定の道具のページ",
-};
+// 記事タイプの表示名は domain（`@/domain/authoring`）が持つ。
+// ここと作成ウィザードで別々に持っていたため、
+// 同じ記事タイプが「順位をつける記事」と「順位づけ」の 2 通りに見えていた。
 
 export const KNOWLEDGE_LEVEL_LABEL: Readonly<Record<string, string>> = {
   beginner: "はじめての人",

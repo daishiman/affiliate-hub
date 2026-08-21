@@ -28,9 +28,18 @@ export type ActorResolution =
   /** 確認そのものができなかった（保存先が落ちている等）。ログイン扱いにしない。 */
   | { readonly kind: "unavailable"; readonly reason: string };
 
+/**
+ * ここが要るのは `findByUser` だけ。
+ *
+ * 担当者の登録の**全体**を受け取らないのは、書き込みの口（`save`）まで
+ * 渡すと、ログインの判定から担当者の登録を書き換えられる状態になるため。
+ * 受け取る口を狭くしておくと、何ができないかが型で分かる。
+ */
+export type MembershipReaderPort = Pick<MembershipRepositoryPort, "findByUser">;
+
 export function createSessionActorResolver(deps: {
   readonly sessions: SessionReaderPort;
-  readonly memberships: MembershipRepositoryPort;
+  readonly memberships: MembershipReaderPort;
   readonly now?: () => Date;
 }) {
   const now = deps.now ?? (() => new Date());
@@ -59,6 +68,9 @@ export function createSessionActorResolver(deps: {
         // 人が使っている経路なので、AI サービスアカウントではない。
         // AI の入口は別に身元確認を持つ（`api-token`）。
         isAiServiceAccount: false,
+        // ここへ来るのは、合言葉を保存先で照合し、担当者の登録も引けた場合だけ。
+        // 上の分岐がすべて `anonymous` / `not_member` / `unavailable` を返し切っている。
+        identified: true,
       },
     };
   };

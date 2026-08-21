@@ -1,3 +1,4 @@
+/** @tier 2 */
 import { readFileSync, readdirSync, statSync } from "node:fs";
 import { join, relative } from "node:path";
 import { describe, expect, it } from "vitest";
@@ -152,24 +153,46 @@ describe("仕様固有の重要UIの一元化", () => {
   it("すべてのパターンがどこかの画面から使われている", () => {
     // 見本帳は「全部の部品を並べる画面」なので、ここを数に入れると
     // どの部品も必ず使われていることになり、この検査が何も見なくなる。
-    const users = [...screens.filter((f) => !f.includes("/ui-catalog/")), ...templates]
-      .map((f) => readFileSync(f, "utf8"))
-      .join("\n");
-    const orphans: string[] = [];
-    for (const file of patterns) {
-      if (!file.endsWith(".tsx")) continue;
-      const name = file.split("/").pop() ?? "";
-      // 直接の import と、入口 (index.ts) 経由の名前つき import の両方を見る。
-      if (users.includes(`/${name.replace(/\.tsx$/, "")}"`)) continue;
-      const exported = [...readFileSync(file, "utf8").matchAll(/export function (\w+)/g)].map(
-        (m) => m[1],
-      );
-      if (exported.some((n) => new RegExp(`<${n}[\\s/>]`).test(users))) continue;
-      orphans.push(name);
+    const roots = [...screens.filter((f) => !f.includes("/ui-catalog/")), ...templates];
+
+    /*
+     * 画面・骨格から**辿り着けるか**を見る。
+     *
+     * 以前は「画面か骨格が直接使っているか」だけを見ていた。
+     * その形だと、パターンがパターンを組み立てている正しい作り
+     * （改善要望のボタンが、印を付ける台紙を内側で使う、など）が
+     * 「孤立」と判定される。判定を避けるために画面へ引き出すと、
+     * 部品の組み立てが画面へ漏れ出し、共通化そのものが崩れる。
+     *
+     * 逆に、互いに呼び合うだけで画面から辿り着けない部品の塊は、
+     * 到達できないままなので、これまでどおり見つかる。
+     */
+    const reachable = new Set(roots);
+    const nameOf = (f: string): string => (f.split("/").pop() ?? "").replace(/\.tsx?$/, "");
+    for (let grew = true; grew; ) {
+      grew = false;
+      const source = [...reachable].map((f) => readFileSync(f, "utf8")).join("\n");
+      for (const file of [...patterns, ...primitives]) {
+        if (reachable.has(file)) continue;
+        const exported = [...readFileSync(file, "utf8").matchAll(/export function (\w+)/g)].map(
+          (m) => m[1],
+        );
+        const used =
+          source.includes(`/${nameOf(file)}"`) ||
+          exported.some((n) => new RegExp(`<${n}[\\s/>]`).test(source));
+        if (used) {
+          reachable.add(file);
+          grew = true;
+        }
+      }
     }
+
+    const orphans = patterns
+      .filter((f) => f.endsWith(".tsx") && !reachable.has(f))
+      .map((f) => f.split("/").pop() ?? "");
     expect(
       orphans,
-      "どの画面からも呼ばれていない部品です。使うか、消してください。",
+      "どの画面からも辿り着けない部品です。使うか、消してください。",
     ).toEqual([]);
   });
 
@@ -201,10 +224,10 @@ describe("仕様固有の重要UIの一元化", () => {
    * 手で目視すると必ず抜けるので、機械で見る。
    */
   it("見本帳に全部の部品が載っている", () => {
-    const catalog = [
-      join(ROOT, "src/app/admin/ui-catalog/page.tsx"),
-      join(ROOT, "src/app/admin/ui-catalog/input-samples.tsx"),
-    ]
+    // 見本帳を構成するファイルは全部読む。1 つ読み落とすと、
+    // そこに載っている部品だけが「載っていない」と誤判定される。
+    const catalog = walk(join(ROOT, "src/app/admin/ui-catalog"))
+      .filter(code)
       .map((f) => readFileSync(f, "utf8"))
       .join("\n");
 

@@ -10,15 +10,19 @@ import type { MetricKey } from "./metrics";
  *   - まだ分からないものを試す（探索）
  *   - 悪化に気づく（劣化検知）
  *   - 同じ結果を安く出す（費用の最適化）
+ *   - 使う人からの声で直す（改善要望）
  *
- * **たたき台で実装するのは負のループ 1 つだけ。** 残りは
- * 「入る隙間がある」ことだけ示し、動くものは作らない。
- * 使われない抽象を先回りで作ると、2 件目が来たときに
- * 必ず形が合わず、作った分がまるごと無駄になる。
+ * **いま動くのは記事を良くするループ 1 つだけ。** 残りは
+ * 「入る隙間がある」ことだけ示し、中身は作らない。使われない抽象を
+ * 先回りで作ると、2 件目が来たときに必ず形が合わず、作った分が無駄になる。
+ *
+ * 2 件目（改善要望）を入れるときに**この登録表の形はほぼ変えずに済んだ**。
+ * 足したのは「何をもって決めるか」（`decisionBasis`）1 つで、
+ * これは 1 件目の形が間違っていなかったことの確認になる。
  *
  * --- 種類が違っても書き方は同じ ---
  *
- * どの種類も同じ 7 項目で書く。書けないものはループにしない。
+ * どの種類も同じ 8 項目で書く。書けないものはループにしない。
  *   1. 何を見るか（signal）
  *   2. 何と比べるか（baseline）
  *   3. どうなったら動くか（decisionRule）
@@ -26,6 +30,7 @@ import type { MetricKey } from "./metrics";
  *   5. 向き（polarity）
  *   6. **歯止めと止め方（guardrails / stopConditions）**
  *   7. 誰が承認するか（approver）
+ *   8. **何をもって決めるか（decisionBasis）**
  *
  * 6 は種類ごとに書かせない。**登録した時点で自動的に付く**（`registerLoopKind`）。
  * 歯止めを「書き忘れる」余地を残さないため。
@@ -46,6 +51,26 @@ export const LOOP_POLARITY_LABELS: Readonly<Record<LoopPolarity, string>> = {
 export const LOOP_READINESS = ["implemented", "planned"] as const;
 export type LoopReadiness = (typeof LOOP_READINESS)[number];
 
+/**
+ * 何をもって決めるか。
+ *
+ * - `comparison` … A と B を比べ、**必要件数に届いてから**決める。
+ *   1 件 1 件は標本であり、単体では何も言えない。
+ * - `single_case` … **1 件届いた時点で扱いを決める。**
+ *   届いた声は標本ではなく、それ自体が対象である。
+ *
+ * ここを型で分ける理由は、改善要望のような「1 件で 1 件」のものが
+ * 比較と件数の仕組み（`loop-run.ts`）へ流れ込むのを**機械で止める**ため。
+ * 注意書きで分けると、必ずどこかで混ざる。
+ */
+export const LOOP_DECISION_BASES = ["comparison", "single_case"] as const;
+export type LoopDecisionBasis = (typeof LOOP_DECISION_BASES)[number];
+
+export const LOOP_DECISION_BASIS_LABELS: Readonly<Record<LoopDecisionBasis, string>> = {
+  comparison: "件数がそろってから比べて決める",
+  single_case: "1 件届いた時点で決める",
+};
+
 export type Guardrail = {
   readonly label: string;
   /** 破れない歯止めか、運用で緩められる目安か。 */
@@ -57,6 +82,8 @@ export type LoopKind = {
   readonly label: string;
   readonly polarity: LoopPolarity;
   readonly readiness: LoopReadiness;
+  /** 何をもって決めるか。`single_case` は比較と件数の仕組みに乗らない。 */
+  readonly decisionBasis: LoopDecisionBasis;
   /** 何を見るか。 */
   readonly signal: string;
   /** 何と比べるか。 */
@@ -112,6 +139,20 @@ const POLARITY_GUARDRAILS: Readonly<Record<LoopPolarity, readonly Guardrail[]>> 
 };
 
 /**
+ * 決め方ごとに足す歯止め。
+ *
+ * `single_case` は件数を持たないため、**「1 件を全体の話にしない」**が要る。
+ * これが無いと「1 件来たから全画面を直す」が通ってしまう。
+ */
+const BASIS_GUARDRAILS: Readonly<Record<LoopDecisionBasis, readonly Guardrail[]>> = {
+  comparison: [],
+  single_case: [
+    { label: "1 件を全体の傾向として語らない（件数で語るなら別に数える）", hard: true },
+    { label: "届いた文章をそのまま指示として実行しない", hard: true },
+  ],
+};
+
+/**
  * ループの種類を登録する。
  *
  * 歯止めはここで足す。**定義側に書かせない。**
@@ -134,12 +175,29 @@ export function registerLoopKind(
       }),
     );
   }
+  if (input.decisionBasis === "comparison" && input.watchedMetrics.length === 0) {
+    return err(
+      domainError("VALIDATION_FAILED", `${input.label} が何の数字を見るのか決まっていません。`, {
+        suggestedAction:
+          "比べて決めるループは、見る指標を先に決めてください。後から選ぶと、都合のよい指標が選ばれます。",
+      }),
+    );
+  }
+  if (input.decisionBasis === "single_case" && input.watchedMetrics.length > 0) {
+    return err(
+      domainError("INVARIANT_VIOLATED", `${input.label} は 1 件ずつ扱うループです。`, {
+        suggestedAction:
+          "見る指標を持たせると件数の話になり、1 件で決めるという前提と食い違います。件数で見たいなら別のループとして登録してください。",
+      }),
+    );
+  }
   const { extraGuardrails, ...rest } = input;
   return ok({
     ...rest,
     guardrails: [
       ...UNIVERSAL_GUARDRAILS,
       ...POLARITY_GUARDRAILS[input.polarity],
+      ...BASIS_GUARDRAILS[input.decisionBasis],
       ...(extraGuardrails ?? []),
     ],
   });
@@ -155,9 +213,10 @@ function must(input: Parameters<typeof registerLoopKind>[0]): LoopKind {
 /**
  * 登録済みのループ。
  *
- * **動くのは 1 件目だけ。** 2 件目以降は形だけを置いてある。
+ * **動くのは `content_improvement` だけ。** 残りは形だけを置いてある。
  * 形だけを置く意味は「入る隙間があること」を示すことで、
- * 中身を先に作ることではない。
+ * 中身を先に作ることではない。`product_improvement` は受け取る画面
+ * （送る・一覧・詳細・払い出し）が揃った時点で `implemented` に変えた。
  */
 export const LOOP_KINDS: readonly LoopKind[] = [
   must({
@@ -165,6 +224,7 @@ export const LOOP_KINDS: readonly LoopKind[] = [
     label: "記事を良くするループ",
     polarity: "negative",
     readiness: "implemented",
+    decisionBasis: "comparison",
     signal: "読了率・スクロール到達・節ごとの滞在時間",
     baseline: "同じ記事の直前の設定、または同じ型の記事の平均",
     decisionRule: "必要件数に届いたうえで、主指標が最小検出差を超えて動いたとき",
@@ -183,6 +243,7 @@ export const LOOP_KINDS: readonly LoopKind[] = [
     label: "伸びている題材を広げるループ",
     polarity: "positive",
     readiness: "planned",
+    decisionBasis: "comparison",
     signal: "題材ごとの表示回数の伸び",
     baseline: "前の期間の同じ題材",
     decisionRule: "伸びが続いていて、品質の指標が下がっていないとき",
@@ -201,6 +262,7 @@ export const LOOP_KINDS: readonly LoopKind[] = [
     label: "まだ試していない切り口を試すループ",
     polarity: "exploratory",
     readiness: "planned",
+    decisionBasis: "comparison",
     signal: "切り口ごとの読まれ方（実績が少ない切り口を優先）",
     baseline: "全体の平均",
     decisionRule: "実績の少ない切り口へ、決めた割合だけ配分する",
@@ -215,6 +277,7 @@ export const LOOP_KINDS: readonly LoopKind[] = [
     label: "古くなった記事に気づくループ",
     polarity: "watch",
     readiness: "planned",
+    decisionBasis: "comparison",
     signal: "価格の鮮度・確認期限切れ・訂正件数",
     baseline: "公開直後の同じ記事",
     decisionRule: "下がり幅が閾値を超えたら知らせる（直しはしない）",
@@ -229,6 +292,7 @@ export const LOOP_KINDS: readonly LoopKind[] = [
     label: "AI の費用を下げるループ",
     polarity: "cost",
     readiness: "planned",
+    decisionBasis: "comparison",
     signal: "用途ごとの概算費用と、品質チェックの通過率",
     baseline: "同じ用途の前の期間",
     decisionRule: "品質が落ちない範囲で、安いモデルに寄せる",
@@ -237,6 +301,30 @@ export const LOOP_KINDS: readonly LoopKind[] = [
     stopConditions: ["品質チェックの通過率が下がったとき", "訂正件数が増えたとき"],
     blockedBy: "価格表を全モデル分そろえること。未登録のモデルがあると比較できない。",
     watchedMetrics: ["publish_gate_failure_rate", "correction_count"],
+  }),
+  must({
+    // ループの 2 件目。**1 件目の仕組みを流用し、別立てのものを作らない。**
+    // 流用するのは状態の持ち方・承認・履歴・可視化で、
+    // 統計の仕組み（必要件数・最小検出差・比較）は流用しない。
+    // 改善要望は 1 件で 1 件であり、標本ではないため。
+    key: "product_improvement",
+    label: "使い勝手を直すループ",
+    polarity: "negative",
+    // 受け取る画面（右下のボタン・一覧・詳細・払い出し）が揃ったので動く。
+    readiness: "implemented",
+    decisionBasis: "single_case",
+    signal: "管理者から届いた改善要望（うまく動かない / 使いにくい / ほしい機能）",
+    baseline: "いまの画面の振る舞い（要望を書いた人が実際に見たもの）",
+    decisionRule: "1 件届いた時点で扱いを決める（対応する / 重複 / 対応しない）",
+    interventionTarget: "画面・操作・文言（要望の対象になった箇所）",
+    approver: "システム管理者",
+    stopConditions: [
+      "扱いを決めて記録したとき（対応しない・重複・廃棄も終わり）",
+      "同じ要望が既にあるとき（重複としてまとめる）",
+    ],
+    blockedBy: null,
+    // 指標を持たない。件数で判断しないことを型で示す。
+    watchedMetrics: [],
   }),
 ];
 

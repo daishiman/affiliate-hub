@@ -41,13 +41,17 @@ import { SAMPLE_WORKSPACE_ID } from "./ranking-sample-repository";
  * **見本にも秘密の値は一切置かない。** 置いてあるのは保管先の名前だけ。
  * また、報酬額をここから順位づけへ渡せないことは、
  * このファイルが返すポートに商業の印を付けることで型として止めている。
+ *
+ * **成果の保存先はもうここではない。** 金額を手で直す入口が画面にできたので、
+ * `src/infrastructure/persistence/d1/conversion-repository.ts` が実際に保存する。
+ * ここの `sampleConversions()` はその重ね先（見本を消さないため）として残している。
  */
 const stub = registerStub({
   id: "persistence:affiliate-sample",
-  port: "提携先・提携条件・成果の保存先",
+  port: "提携先・提携条件・提携リンクの保存先",
   label: "提携と成果（見本データ）",
   blockedBy:
-    "affiliate_accounts / affiliate_programs / affiliate_links / conversions テーブルの追加と、各 ASP の API 利用申請および接続情報の登録（利用者本人による）",
+    "affiliate_accounts / affiliate_programs / affiliate_links テーブルの追加と、各 ASP の API 利用申請および接続情報の登録（利用者本人による）。成果そのものの保存先は解除済み（affiliate_conversions）",
 });
 
 export function sampleAffiliateNotice(): string {
@@ -344,6 +348,17 @@ export function createSampleAffiliateLinkRepository(): CommercialAffiliateLinkRe
     },
     save: () => stubCall(stub, "提携リンクの保存"),
   });
+}
+
+/**
+ * 見本の成果。**保存先（D1）版もこれを重ねて返す。**
+ *
+ * 消すと、ASP との接続が済むまで成果が 1 件も無い画面になり、
+ * 金額を直す操作も締めの扱いも、誰も確かめられなくなる。
+ * 見本であることは画面に出している。
+ */
+export function sampleConversions(): readonly Conversion[] {
+  return CONVERSIONS;
 }
 
 export function createSampleConversionRepository(): CommercialConversionRepositoryPort {

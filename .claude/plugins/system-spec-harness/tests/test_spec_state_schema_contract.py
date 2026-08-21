@@ -8,9 +8,13 @@ from pathlib import Path
 import jsonschema
 
 
-ROOT = Path(__file__).resolve().parents[3]
-SCHEMA = ROOT / "plugins" / "system-spec-harness" / "schemas" / "spec-state.schema.json"
-LIVE_STATE = ROOT / "system-spec" / "spec-state.json"
+# 基点は 2 つある。schema は plugin の中、正本 state はリポジトリ側にあり、
+# 同じ ROOT から両方を組み立てると片方が必ず外れる (以前は state 側が
+# .claude/system-spec/... を指し、存在しないファイルで 3 件が常時赤だった)。
+PLUGIN_ROOT = Path(__file__).resolve().parents[1]
+REPO_ROOT = Path(__file__).resolve().parents[4]
+SCHEMA = PLUGIN_ROOT / "schemas" / "spec-state.schema.json"
+LIVE_STATE = REPO_ROOT / "system-spec" / "spec-state.json"
 
 
 def validator() -> jsonschema.Draft202012Validator:

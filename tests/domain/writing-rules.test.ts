@@ -1,3 +1,8 @@
+/**
+ * @tier 1
+ * @req REQ-QC01, REQ-QC08, REQ-QC10, REQ-W01, REQ-W09, REQ-W10
+ * @types equivalence, boundary, decision-table
+ */
 import { describe, expect, it } from "vitest";
 import {
   ARTICLE_TYPES,
@@ -104,6 +109,48 @@ describe("吹き出し", () => {
     expect(r.ok).toBe(false);
   });
 
+  it("40 文字ちょうど・120 文字ちょうどは作れて、その 1 つ外は作れない", () => {
+    /*
+     * 上の 2 件は端を固定していない。
+     * 「短すぎる発言」は 7 文字で試しており、下限が 8 でも 39 でも同じ結果になる。
+     * 「長すぎる発言」は `CONVERSATION_MAX_LENGTH + 1` 文字で作っているので、
+     * **上限をいくつに変えても必ず 1 文字超える**。定数が 120 から 1200 になっても
+     * このテストは緑のままで、赤くならないのに名前だけが「長すぎる」と主張する。
+     *
+     * ここは定数を輸入せず、実数で書く。値を変えるときは 2 か所直させる。
+     */
+    const make = (length: number) =>
+      createConversationBlock({
+        id: taggedString<"ConversationBlockId">(`cb_len_${length}`),
+        workspaceId: ws,
+        role: "guide_answer",
+        speakerName: "案内役",
+        text: "あ".repeat(length),
+        factAlsoInBody: true,
+      });
+
+    expect(make(39).ok).toBe(false);
+    expect(make(40).ok).toBe(true);
+    expect(make(120).ok).toBe(true);
+    expect(make(121).ok).toBe(false);
+  });
+
+  it("吹き出しは 2 個続けても通り、3 個で止まる", () => {
+    // 上の「本文を挟まずに続けると止まる」は 3 個で試している。
+    // 上限が 2 でも 1 でも同じ結果になるので、通る側の端をここで固定する。
+    expect(
+      validateConversationFlow([block("reader_question"), block("guide_answer")], {
+        hasVerifiedExpert: true,
+      }),
+    ).toEqual([]);
+
+    const three = validateConversationFlow(
+      [block("reader_question"), block("guide_answer"), block("reader_question")],
+      { hasVerifiedExpert: true },
+    );
+    expect(three.length).toBeGreaterThan(0);
+  });
+
   it("話者名が空だと作れない（色だけで役割を分けさせない）", () => {
     const r = createConversationBlock({
       id: taggedString<"ConversationBlockId">("cb_3"),
@@ -175,7 +222,22 @@ describe("似たブログを増やさない", () => {
 
   it("言い換えただけのブログは足せない", () => {
     const gap = differentiationGap(base, { ...base, articlePurpose: "候補を 3 つにしぼる" });
-    expect(gap.differentAxes).toEqual(["articlePurpose"]);
+    /*
+     * **この行は 2026-08-19 に `["articlePurpose"]` から書き換えた。**
+     *
+     * 名前（「足せない」）を担っているのは下の `sufficient: false` のほうで、
+     * 名前はそれだけで満たされる。この行が固定していたのは
+     * **名前が何も言っていない側** ——「言い換えを違う軸として数えるかどうか」—— で、
+     * その固定は仕様と逆を向いていた。
+     * 要求仕様 §16.6（`docs/spec/01-要求仕様書-v1.0.md:1367`）は
+     * 「単なる言い換え記事を量産しない」と書いており、
+     * 送り仮名だけを変えたものは違う軸ではない。
+     *
+     * 結論（足せない）だけが偶然合っていたので、緑のまま気づかれなかった。
+     * **名前と断言が逆だったのではない。名前が触れていない側に断言が置かれていた。**
+     * 名前を何度読んでも気づけない形である。
+     */
+    expect(gap.differentAxes).toEqual([]);
     expect(gap.sufficient).toBe(false);
   });
 
@@ -194,5 +256,27 @@ describe("似たブログを増やさない", () => {
   it("前後の空白だけの違いは、違いとして数えない", () => {
     const gap = differentiationGap(base, { ...base, targetReader: "  動画編集をこれから始める人 " });
     expect(gap.differentAxes).toEqual([]);
+  });
+
+  it("違う軸が 2 つでは足せず、3 つで足せる", () => {
+    // 上の 2 件は 1 軸（足せない）と 3 軸（足せる）で、**間を見ていない**。
+    // しかも合格側は `MIN_DIFFERENT_AXES` と比べているので、
+    // 必要な軸数が 3 から 2 へ下がっても緑のままになる。ここは実数で書く。
+    const two = differentiationGap(base, {
+      ...base,
+      targetReader: "仕事で毎日書き出す人",
+      evaluationAxis: "静音性",
+    });
+    expect(two.differentAxes).toHaveLength(2);
+    expect(two.sufficient).toBe(false);
+
+    const three = differentiationGap(base, {
+      ...base,
+      targetReader: "仕事で毎日書き出す人",
+      evaluationAxis: "静音性",
+      usageScene: "共有オフィス",
+    });
+    expect(three.differentAxes).toHaveLength(3);
+    expect(three.sufficient).toBe(true);
   });
 });

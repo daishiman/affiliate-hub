@@ -1,9 +1,10 @@
 import Link from "next/link";
 import { ROLE_LABEL } from "@/application/usecases/identity/manage-workspace";
-import { capabilitiesOf } from "@/domain/identity";
+import { authAvailability } from "@/infrastructure/identity/better-auth";
 import type { Role } from "@/domain/shared";
-import { actorNotice, currentActor } from "@/presentation/composition";
-import { Callout, PublicShell, SitePage, StubNotice } from "@/presentation/ui";
+import { actorNotice, signedInActor } from "@/presentation/composition";
+import { Callout, PublicShell, SitePage } from "@/presentation/ui";
+import { GoogleSignInButton } from "./google-signin-button";
 import styles from "../admin/admin.module.css";
 
 export const dynamic = "force-dynamic";
@@ -11,97 +12,100 @@ export const dynamic = "force-dynamic";
 /**
  * ログイン。
  *
- * **この画面はまだ本物ではない（スタブ）。**
- * Google でログインするには、Google 側で発行する識別子と秘密の値が要る。
- * それは利用者本人がブラウザで登録するものなので、
- * ここで代わりに用意することはできない。
+ * 画面が持つ状態は 3 つで、**どれなのかを必ず言葉にする**。
  *
- * 何もない白紙にせず、いま誰として動いているのか・
- * その人に何ができないのかを出しておく。
- * 「ログイン画面が無い」のと「まだつないでいない」は別のことなので、
- * 後者であることが分かる状態にする。
+ *   1. まだ設定が済んでいない … 何を登録すればよいかを名前で出す
+ *   2. 設定は済んでいて、ログインしていない … ログインの操作を出す
+ *   3. ログインしている … 誰として入っているかと、出る操作を出す
+ *
+ * 1 と 2 を混ぜて「ログインできません」だけにすると、
+ * 設定漏れなのか断られたのかが分からず、次の行動が決まらない。
+ *
+ * 断られた理由（名簿に無い・担当者の登録が無い）は**この画面に出さない**。
+ * 出すと、どのアドレスが登録済みかを外から確かめられてしまう。
  */
-export default async function SignInPage() {
-  const actor = await currentActor();
-  const capabilities = [...capabilitiesOf(actor.roles)].map(String);
-  const canPublish = capabilities.includes("content.publish");
-  const canManageMembers = capabilities.includes("member.manage");
+export default async function SignInPage({
+  searchParams,
+}: {
+  readonly searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
+  const [availability, actor, notice, params] = await Promise.all([
+    authAvailability(),
+    signedInActor(),
+    actorNotice(),
+    searchParams,
+  ]);
+  const failed = params.error !== undefined;
 
   return (
     <PublicShell title="affiliate-hub">
       <SitePage
         title="ログイン"
-        lead="いまは、あらかじめ決めた見本の担当者として画面が動いています。Google でのログインはまだつないでいません。"
+        lead={
+          actor !== null
+            ? "ログインしています。"
+            : "この画面から Google でログインします。合言葉や秘密の値をこの画面に入力する場面はありません。"
+        }
       >
-        <StubNotice
-          what="Google でのログイン・ログアウト・招待の受け取り"
-          blockedBy="Google 側でこのアプリを登録し、発行された識別子と秘密の値を利用者本人がブラウザから登録すること"
-          stubId="identity:sample-actor"
-        >
-          <span>{await actorNotice()}</span>
-        </StubNotice>
+        {failed && actor === null && (
+          <Callout
+            tone="warn"
+            title="ログインできませんでした"
+            reason={
+              "このアプリを使える人として登録されていないか、担当者の登録がまだありません。" +
+              "心当たりがある場合は、管理している方にアドレスの登録を依頼してください。"
+            }
+          />
+        )}
 
-        <Callout
-          tone="info"
-          title="秘密の値をこの画面から預からない理由"
-          reason="ログインの秘密の値は、ファイルやコマンドの履歴に残ると、後から誰でも読めてしまいます。登録は Cloudflare の管理画面か、お手元の別のターミナルから行ってください。この画面では受け取りません。"
-        />
+        {!availability.ready && (
+          <Callout
+            tone="warn"
+            title="ログインの設定がまだ済んでいません"
+            reason={
+              "次の設定が登録されるまで、Google でのログインは動きません: " +
+              availability.missing.join(" / ") +
+              "。値そのものはこの画面から預かりません（履歴に残ると後から誰でも読めるため）。" +
+              "お手元のターミナルで `node .better-auth-google/setup-secrets.mjs` を実行して登録してください。"
+            }
+          />
+        )}
 
-        <h2 className={styles.sectionTitle}>いま誰として動いているか</h2>
-        <table className={styles.rankTable}>
-          <tbody>
-            <tr>
-              <th scope="row">担当者</th>
-              <td>見本の担当者（{String(actor.userId)}）</td>
-            </tr>
-            <tr>
-              <th scope="row">役割</th>
-              <td>{actor.roles.map((r) => ROLE_LABEL[r as Role]).join("・")}</td>
-            </tr>
-            <tr>
-              <th scope="row">記事を公開できるか</th>
-              <td>
-                {canPublish
-                  ? "できます"
-                  : "できません。ログインが入るまで、公開の権限は誰にも渡していません。"}
-              </td>
-            </tr>
-            <tr>
-              <th scope="row">人を招待できるか</th>
-              <td>
-                {canManageMembers
-                  ? "できます"
-                  : "できません。招待の受け取りはログインの仕組みと一体のため、同時に使えるようになります。"}
-              </td>
-            </tr>
-          </tbody>
-        </table>
+        {availability.ready && actor === null && (
+          <>
+            <GoogleSignInButton callbackUrl="/admin" />
+            <p className={styles.linkNote}>
+              入れるのは、あらかじめ登録されたアドレスの人だけです。
+              登録が無いアドレスでは、Google の確認が通っても中には入れません。
+            </p>
+          </>
+        )}
 
-        <h2 className={styles.sectionTitle}>つながると何ができるようになるか</h2>
-        <ul className={styles.linkList}>
-          <li>
-            Google のアカウントでログインする
-            <span className={styles.linkNote}>
-              許可した宛先の人だけが管理画面に入れる状態になります。
-            </span>
-          </li>
-          <li>
-            ログアウトする
-            <span className={styles.linkNote}>共有の端末でも、作業の後を残さずに離れられます。</span>
-          </li>
-          <li>
-            招待を受け取る
-            <span className={styles.linkNote}>
-              招待された人が自分でログインし、渡された役割で入れるようになります。
-            </span>
-          </li>
-          <li>
-            公開の権限を人に渡す
-            <span className={styles.linkNote}>
-              いまは誰も公開できません。ログインが入って初めて「この人は公開してよい」が決まります。
-            </span>
-          </li>
-        </ul>
+        {actor !== null && (
+          <>
+            <h2 className={styles.sectionTitle}>いま誰として動いているか</h2>
+            <table className={styles.rankTable}>
+              <tbody>
+                <tr>
+                  <th scope="row">担当者</th>
+                  <td>{String(actor.userId)}</td>
+                </tr>
+                <tr>
+                  <th scope="row">役割</th>
+                  <td>{actor.roles.map((r) => ROLE_LABEL[r as Role]).join("・")}</td>
+                </tr>
+              </tbody>
+            </table>
+
+            <form method="post" action="/api/auth/sign-out">
+              <button type="submit" className={styles.linkNote}>
+                ログアウトする
+              </button>
+            </form>
+          </>
+        )}
+
+        <p className={styles.linkNote}>{notice}</p>
 
         <p className={styles.linkNote}>
           <Link href="/admin">管理画面へ戻る</Link>

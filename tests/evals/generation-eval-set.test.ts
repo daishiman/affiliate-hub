@@ -1,4 +1,16 @@
-import { readFileSync, writeFileSync } from "node:fs";
+/**
+ * @tier 2
+ * @req REQ-G09, REQ-G10
+ * @types equivalence, boundary, state-transition
+ *
+ * G09 評価セット   「評価セットの構成」と「網羅に穴が無いこと」
+ *                   （記事タイプ・切り口・出し先・知識量を全部使っているか＝
+ *                    同値分割の網羅そのもの。件数は下限 50 と 9=3×3 の境界）
+ * G10 ローンチ基準 「ローンチ基準」（未実行なら本番へ上げられない／全部そろえば
+ *                    上げられる／止める基準が 1 つ欠けても上げられない）。
+ *                    片方向だけだと、常に false を返す関数でも通ってしまう。
+ */
+import { readFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { describe, expect, it } from "vitest";
 import { ARTICLE_TYPE_SECTIONS } from "@/domain/authoring/article-structure";
@@ -7,6 +19,7 @@ import { CHANNEL_CAPABILITIES } from "@/domain/distribution/channel";
 import { EVAL_CASES, casesByAxis, casesByCategory } from "../../evals/generation/cases";
 import { LAUNCH_BARS, canActivatePromptVersion } from "../../evals/generation/launch-bars";
 import { SPEC_QUALITY_CHECKS, SPEC_QUALITY_CHECK_IDS } from "../../evals/generation/quality-gates";
+import { expectLedgerFile } from "../support/ledger-file";
 
 /**
  * 評価セットの検査。
@@ -31,6 +44,7 @@ function renderLedger(): string {
     "",
     "このファイルは `tests/evals/generation-eval-set.test.ts` が作る。手で書き換えない。",
     "更新は `UPDATE_EVAL_LEDGER=1 pnpm test` を実行して、出た差分をそのまま保存する。",
+    "末尾の指紋がその見張りで、手で 1 文字でも書くと、内容が合っていてもテストが赤くなる。",
     "",
     "生成を直したときに「前より良くなった」と言うための物差し。",
     "**まだ生成の提供元をつないでいないため、合否は 1 件も出ていない。**",
@@ -217,6 +231,32 @@ describe("ローンチ基準", () => {
     expect(canActivatePromptVersion()).toBe(false);
   });
 
+  it("全部そろえば上げられる（止まりっぱなしではない）", () => {
+    // 上の検査は「いまは上げられない」しか言っていない。
+    // それだけだと `false` を返すだけの関数でも通ってしまい、
+    // **基準を満たしたときに開く**ことは誰も確かめていないことになる。
+    const allPass = LAUNCH_BARS.map((b) => ({ ...b, status: "PASS" as const }));
+    expect(canActivatePromptVersion(allPass)).toBe(true);
+  });
+
+  it("止めるべき基準が 1 つでも未実行なら上げられない", () => {
+    for (const bar of LAUNCH_BARS.filter((b) => b.blocksActivation)) {
+      const oneLeft = LAUNCH_BARS.map((b) => ({
+        ...b,
+        status: b.id === bar.id ? ("NOT RUN" as const) : ("PASS" as const),
+      }));
+      expect(canActivatePromptVersion(oneLeft), `${bar.id} が未実行でも上げられます`).toBe(false);
+    }
+  });
+
+  it("LB-8 だけは未実行でも上げられる（暫定運用の 1 つ）", () => {
+    const exceptLb8 = LAUNCH_BARS.map((b) => ({
+      ...b,
+      status: b.id === "LB-8" ? ("NOT RUN" as const) : ("PASS" as const),
+    }));
+    expect(canActivatePromptVersion(exceptLb8)).toBe(true);
+  });
+
   it("LB-3 の閾値が実際の件数と一致している", () => {
     const lb3 = LAUNCH_BARS.find((b) => b.id === "LB-3");
     expect(lb3?.threshold).toBe(`${EVAL_CASES.length}/${EVAL_CASES.length}`);
@@ -229,19 +269,12 @@ describe("ローンチ基準", () => {
 });
 
 describe("台帳", () => {
-  it("台帳ファイルが実際の状態と一致している", () => {
-    const expected = renderLedger();
-    if (process.env.UPDATE_EVAL_LEDGER === "1") writeFileSync(LEDGER_PATH, expected, "utf8");
-
-    let actual = "";
-    try {
-      actual = readFileSync(LEDGER_PATH, "utf8");
-    } catch {
-      actual = "";
-    }
-    expect(
-      actual,
+  it("台帳ファイルが実際の状態と一致していて、手で書かれていない", () => {
+    expectLedgerFile(
+      LEDGER_PATH,
+      renderLedger(),
+      process.env.UPDATE_EVAL_LEDGER === "1",
       "評価セットの台帳が古くなっています。`UPDATE_EVAL_LEDGER=1 pnpm test` で作り直してください。",
-    ).toBe(expected);
+    );
   });
 });

@@ -1,7 +1,7 @@
 import { and, desc, eq, lt } from "drizzle-orm";
 import type { drizzle } from "drizzle-orm/d1";
 import type { LinkIngestionRepositoryPort } from "@/application/ports/monetization";
-import type { Page, Paged, PortResult } from "@/application/ports/common";
+import type { PageRequest, Paged, PortResult } from "@/application/ports/common";
 import type { LinkIngestion, LinkIngestionState } from "@/domain/monetization";
 import {
   type AffiliateProgramId,
@@ -12,12 +12,11 @@ import {
   asLinkIngestionId,
   asProductId,
   asWorkspaceId,
-  err,
   markCommercial,
   ok,
-  domainError,
 } from "@/domain/shared";
 import { linkIngestions, type LinkIngestionRow } from "@/db/schema";
+import { storageFailure } from "./storage-failure";
 
 /**
  * 成果リンク受信箱の保存先（D1）。
@@ -36,8 +35,13 @@ import { linkIngestions, type LinkIngestionRow } from "@/db/schema";
  *      同じ型を使い回すと、列を 1 つ足すたびにドメインが動く。
  *   2. **`submittedUrl` は触らない。** 正規化した形は別列に持つ。
  *      保存の都合で URL を書き換えると、ASP の規約違反になりうる。
- *   3. **重複は保存先の一意制約でも止める。** アプリ側の確認だけだと、
- *      2 人が同時に入れたときにすり抜ける。
+ *   3. **重複を保存先で弾かない。** 受信箱の決めごとは「重複していても
+ *      受け取り、相手を指して知らせる」（`duplicateOf`）なので、
+ *      保存先が一意制約で弾くと 2 回目の貼り付けが
+ *      **やり直しても永久に通らない失敗**になる。実際の D1 で通した
+ *      ときにその形で出た（`tests/integration/d1-link-inbox.test.ts`）。
+ *      2 人が同時に入れたときに印が付かない取りこぼしは残るが、
+ *      それは表示上の問題であってデータの破損ではない。
  */
 
 /**
@@ -84,18 +88,6 @@ function toRow(item: LinkIngestion): LinkIngestionRow {
   };
 }
 
-/** 保存先が落ちたときの返し方。**握りつぶさない。** */
-function storageFailure(what: string, cause: unknown) {
-  return err(
-    domainError("UPSTREAM_UNAVAILABLE", `${what}に失敗しました。時間をおいてもう一度お試しください。`, {
-      retryable: true,
-      suggestedAction: "何度も続く場合は、保存先の状態を確認してください。",
-      // 例外の中身はそのまま出さない。接続文字列が混じることがある（§26.3）。
-      details: { reason: cause instanceof Error ? cause.name : "unknown" },
-    }),
-  );
-}
-
 export function createD1LinkInboxRepository(db: DrizzleD1): LinkIngestionRepositoryPort {
   return {
     async findById(workspaceId: WorkspaceId, id: LinkIngestionId): PortResult<LinkIngestion | null> {
@@ -116,7 +108,7 @@ export function createD1LinkInboxRepository(db: DrizzleD1): LinkIngestionReposit
     async list(
       workspaceId: WorkspaceId,
       filter: { state: LinkIngestionState | null },
-      page: Page,
+      page: PageRequest,
     ): PortResult<Paged<LinkIngestion>> {
       try {
         // カーソルは「その時刻より前」。件数ではなく時刻で切るので、

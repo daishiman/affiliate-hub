@@ -12,7 +12,12 @@ import {
 } from "@/domain/generation";
 import { requireCapability } from "@/domain/identity";
 import { domainError, err, ok } from "@/domain/shared";
-import type { LlmCostEstimatorPort, LlmPort, LlmRequest } from "@/application/ports";
+import type {
+  LlmCostEstimatorPort,
+  LlmModelSelection,
+  LlmPort,
+  LlmRequest,
+} from "@/application/ports";
 import type { UseCase } from "../usecase";
 
 /**
@@ -42,6 +47,15 @@ export type DraftMaterial = {
 };
 
 export type DraftContentVariantInput = {
+  /**
+   * どのモデルで書くか。**選ばれていなければ生成しない。**
+   *
+   * `null` を受け取れる形にしてあるのは、画面から「まだ選んでいない」が
+   * そのまま届くようにするためである。ここで既定を埋めると、
+   * 利用者が選んだつもりのないモデルで記事が書かれ、しかも
+   * **記録にはそのモデル名が残る**ので、後から「選んでいない」と分からなくなる。
+   */
+  readonly model?: LlmModelSelection | null;
   readonly provided: Partial<GenerationInput>;
   readonly materials?: readonly DraftMaterial[];
   readonly promptVersion?: string;
@@ -51,7 +65,17 @@ export type DraftContentVariantInput = {
 
 export type DraftContentVariantResult = {
   readonly promptVersion: string;
+  /** どの提供元で書いたか。選んだ値をそのまま返す。 */
+  readonly providerId: string;
+  /**
+   * **実際に使われた**モデル。選んだ値ではなく、提供元が答えた値である。
+   *
+   * 提供元は別名（`-latest` など）で受けて実体で答えることがあり、
+   * 選んだ値だけを残すと、同じ名前で中身の違う記事が並ぶ。
+   */
   readonly modelId: string;
+  /** 選んだモデル。上と食い違ったときに気づけるように、両方を残す。 */
+  readonly requestedModelId: string;
   readonly output: Readonly<Record<string, unknown>>;
   readonly estimatedCostMinor: number;
   readonly currency: string;
@@ -89,6 +113,20 @@ export function createDraftContentVariantUseCase(
         return err(
           domainError("VALIDATION_FAILED", `指示文の版「${version}」は形が違います。`, {
             suggestedAction: "v1・v2 のように、v と数字で指定してください。",
+          }),
+        );
+      }
+
+      // ⓪ どのモデルで書くかが決まっていなければ、ここで止まる。
+      //    **代わりに何かを選ばない。** 既定を置くと、選んだ覚えのないモデルで
+      //    記事ができ、記録にはそのモデル名だけが残る。
+      //    あとから見た人には「利用者が選んだ」ようにしか見えない。
+      const model = input.model ?? null;
+      if (model === null || model.providerId === "" || model.modelId === "") {
+        return err(
+          domainError("VALIDATION_FAILED", "どのモデルで書くかが選ばれていません。", {
+            suggestedAction:
+              "生成の画面で提供元とモデルを選んでください。選べるものが無い場合は、設定画面で API キーが登録済みかを確認してください。",
           }),
         );
       }
@@ -133,6 +171,13 @@ export function createDraftContentVariantUseCase(
       }
 
       const request: LlmRequest = {
+        /**
+         * 鍵を引く先は**依頼した本人の作業場所**である。
+         * 入力から受け取らないのは、他人の作業場所を指す依頼を
+         * 書き方として作れないようにするため。
+         */
+        workspaceId: actor.workspaceId,
+        model,
         instructions: renderInstructions(generationInput),
         untrustedContext: materials.map((m) => ({
           label: m.label,
@@ -184,7 +229,9 @@ export function createDraftContentVariantUseCase(
 
       return ok({
         promptVersion: version,
+        providerId: model.providerId,
         modelId: generated.value.modelId,
+        requestedModelId: model.modelId,
         output: shaped.value,
         estimatedCostMinor: estimate.value.estimatedCostMinor,
         currency: estimate.value.currency,

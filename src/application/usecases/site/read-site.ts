@@ -61,9 +61,27 @@ function notFound(what: string): DomainError {
 // サイトそのもの
 // ---------------------------------------------------------------------------
 
+/**
+ * 読者に見せる設計図。
+ *
+ * **運営側の識別子 (`workspaceId`) を落とす。** ブログ本体は誰でも読めるのが正しいが、
+ * 「どの会社が運営しているか」を表す内部の識別子まで公開する理由は無い。
+ * 読者向けの応答にこれが混ざっていると、公開ページを 1 枚見るだけで
+ * 運営者の内部識別子が分かり、他の入口を試す手がかりになる。
+ *
+ * 落とす場所をここ 1 箇所にするのは、画面・REST・WebMCP・MCP の
+ * どの経路から読んでも同じものが出るようにするため。
+ */
+export type PublicSiteBlueprint = Omit<SiteBlueprint, "workspaceId">;
+
+function toPublicBlueprint(blueprint: SiteBlueprint): PublicSiteBlueprint {
+  const { workspaceId: _workspaceId, ...rest } = blueprint;
+  return rest;
+}
+
 export type GetSiteInput = { readonly siteSlug: string };
 export type GetSiteOutput = {
-  readonly blueprint: SiteBlueprint;
+  readonly blueprint: PublicSiteBlueprint;
   /** このブログで出す画面の一覧。ヘッダー・フッターの導線はここから作る。 */
   readonly routes: ReturnType<typeof routesFor>;
 };
@@ -84,14 +102,14 @@ export function createGetSiteUseCase(deps: ReadSiteDeps): UseCase<GetSiteInput, 
       const found = await deps.sites.findBySlug(input.siteSlug);
       if (!found.ok) return found;
       if (found.value === null) return err(notFound("ブログ"));
-      return ok({ blueprint: found.value, routes: routesFor(found.value) });
+      return ok({ blueprint: toPublicBlueprint(found.value), routes: routesFor(found.value) });
     },
   };
 }
 
 export type ListSitesOutput = readonly {
   readonly slug: string;
-  readonly blueprint: SiteBlueprint;
+  readonly blueprint: PublicSiteBlueprint;
 }[];
 
 /**
@@ -107,7 +125,9 @@ export function createListSitesUseCase(deps: ReadSiteDeps): UseCase<NoInput, Lis
   guardEditorial(deps);
   return {
     async execute(): Promise<Result<ListSitesOutput, DomainError>> {
-      return deps.sites.list();
+      const listed = await deps.sites.list();
+      if (!listed.ok) return listed;
+      return ok(listed.value.map((s) => ({ slug: s.slug, blueprint: toPublicBlueprint(s.blueprint) })));
     },
   };
 }

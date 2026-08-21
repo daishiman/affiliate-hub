@@ -1,19 +1,56 @@
-name: CI
+# 検査だけを行う。壊すものは何も無い。
+#
+# 中身を**ここに書かない**。走らせる検査と順番は `quality-gates.config.mjs` が
+# 唯一の正本で、このファイルは `pnpm run verify` を呼ぶだけにしてある。
+# ここに項目を書き足した瞬間、手元と機械で別々の基準が育ち、
+# 「手元では通るのに機械で落ちる」が始まる。
+#
+# 規範: docs/spec/11-CI-CD・品質ゲート仕様.md / docs/product/ci-cd-guide.md
+name: 検査
 
 on:
+  # push は 1 段（速い門）だけ。書いている最中に返ってくる速さを守る。
+  push:
+    branches-ignore: [main]
+  # PR は 1 段 + 2 段。カバレッジ閾値と層別の記録はここで判定する。
   pull_request:
     branches: [dev, main]
   workflow_dispatch:
 
 concurrency:
+  # 続けて push したとき、古い実行を打ち切る。
   group: ci-${{ github.ref }}
   cancel-in-progress: true
 
+permissions:
+  contents: read
+
 jobs:
   verify:
+    # 段の中身をここに書かない。`--tier` を渡すだけで、
+    # 何が属するかは quality-gates.config.mjs が決める。
+    #
+    # **`name:` を足さないこと。**GitHub が保護設定へ報告する検査の名前は、
+    # `name:` があればその値、無ければ job の id (`verify`) になる。
+    # main の必須チェックは `verify` を待っているので、ここに表示名を足すと
+    # 必須チェックが永久に報告されず、**CI が全部緑でも PR が BLOCKED のまま**
+    # になる。しかも PR の一覧には緑のチェックが並ぶので、
+    # 「緑なのにマージできない」という、原因の見えない形で止まる。
+    # 2026-08-21 に実際にこれで止まった (表示名 `検査` が上書きしていた)。
+    # 表示名を日本語にしたいときは、先に保護設定の必須チェック名を変えること。
     runs-on: ubuntu-latest
+    # 暴走したジョブは既定で 6 時間走り続ける。これは節約ではなく安全弁。
+    # 2 段の目標は 15 分。目標を割るのは警告どまりなので、
+    # ここはその倍の位置に置いて、止めるのは本当に暴走したときだけにする。
+    timeout-minutes: 30
+
     steps:
       - uses: actions/checkout@v4
+        with:
+          # 変更範囲のミューテーションが `git diff <比較元>...HEAD` を使う。
+          # 既定の浅い clone では比較元が取れず、検査が黙って見送られる。
+          # 「走らなかった」が緑に見えるのが最も危ないので、履歴ごと取る。
+          fetch-depth: 0
 
       - uses: pnpm/action-setup@v4
 
@@ -24,23 +61,25 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
 
-      - name: Lint
-        run: pnpm lint
+      # push のときは 1 段だけ。順番も中身も quality-gates.config.mjs にある。
+      #
+      # 本番ビルド (`pnpm build`) はここでは行わない。
+      # 型に必要なのは `next typegen` までで、ビルドは公開側で 1 回やれば足りる。
+      - name: 検査（速い門）
+        if: github.event_name == 'push'
+        run: pnpm run verify --tier 1
 
-      # LayoutProps などの型は next build が .next/types に生成するため、
-      # typecheck は build のあとに走らせる必要がある
-      - name: Build
-        run: pnpm build
+      # PR のときは機械の上で走る段をまとめて。
+      # カバレッジ閾値は「走らせた集合」に対してしか測れないので、
+      # 段を分けたまま判定せず、マージを止めるこの 1 回でまとめて判定する。
+      - name: 検査（速い門 + 広い門）
+        if: github.event_name != 'push'
+        env:
+          # 変更範囲のミューテーションが「どこからの差分か」を知るための比較元。
+          # PR の向き先をそのまま使う（dev への PR なら origin/dev）。
+          MUTATION_BASE: origin/${{ github.base_ref }}
+        run: pnpm run verify
 
-      - name: Typecheck
-        run: pnpm typecheck
-
-      # スキーマを変更したのに db:generate を忘れていないか検出する
-      - name: マイグレーション未生成の検出
-        run: |
-          pnpm db:generate
-          if [ -n "$(git status --porcelain drizzle)" ]; then
-            echo "::error::スキーマ変更に対するマイグレーションが未生成です。'pnpm db:generate' を実行してコミットしてください。"
-            git status --porcelain drizzle
-            exit 1
-          fi
+      # マイグレーションの作り忘れの検出は、ここではなく `pnpm run verify` の中にある
+      # （`scripts/migration-generated.mjs`）。ここに置くと機械の上でしか走らず、
+      # 手元で緑を見た人が push して初めて落ちる。REQ-CI01 が禁じているのはこの形である。

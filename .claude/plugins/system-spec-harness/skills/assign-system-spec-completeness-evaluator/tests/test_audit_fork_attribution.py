@@ -98,7 +98,209 @@ def test_false_independence_unknown_agent_duplicate_and_verdict_mismatch_are_rej
     assert any("重複" in item for item in MOD.validate_attribution(golden_report(delegations=delegations + [delegations[0]]), golden_ledger()))
     report = golden_report()
     report["audit_delegations"][0]["verdict"] = "FAIL"
-    assert any("忠実に転記" in item for item in MOD.validate_attribution(report, golden_ledger()))
+    # receipt が FAIL で観点が PASS = **緩める向き**。ここは完全一致を撤回した後も塞がっている。
+    assert any("緩い" in item for item in MOD.validate_attribution(report, golden_ledger()))
+
+
+SUB_INPUT_AUDITOR = "system-spec-hearing-auditor"
+
+# **下限。**語彙 (MOD.DOWNGRADE_REASONS) のうち「根拠があれば受理され、根拠が無ければ
+# 弾かれる」ことを実際に走らせて確かめられたコードの数の床。
+# 上限 MOD.MAX_DOWNGRADE_REASONS と噛み合っており、**上限を満たすために語彙を消すと
+# ここが割れる。**片方だけを都合で動かせないようにするための対である。
+MIN_GROUNDED_DOWNGRADE_REASONS = 2
+
+
+def _downgraded(aspect="matrix_coverage", verdict="FAIL", **downgrade):
+    """primary receipt は PASS のまま、観点だけを厳しくした report を作る。"""
+    report = golden_report()
+    report["aspects"][aspect]["verdict"] = verdict
+    if downgrade:
+        report["aspects"][aspect]["verdict_downgrade"] = downgrade
+    return report
+
+
+def _with_failing_sub_input(report):
+    """matrix_coverage の sub_input receipt だけを FAIL にし、台帳もそこへ合わせる。
+
+    `sub_input_fail` の根拠は**実在する sub_input receipt の verdict** なので、
+    宣言だけでなく台帳側も FAIL でなければ receipt 照合で落ちる。
+    """
+    for delegation in report["audit_delegations"]:
+        if delegation["role"] == "sub_input":
+            delegation["verdict"] = "FAIL"
+            delegation["dispatch"]["response_sha256"] = response_digest(SUB_INPUT_AUDITOR, "FAIL")
+    ledger = golden_ledger()
+    ledger["receipts"][SUB_INPUT_AUDITOR]["sess-1"] = {
+        response_digest(SUB_INPUT_AUDITOR, "FAIL"): {"tool_name": "Task", "verdict": "FAIL"},
+    }
+    return report, ledger
+
+
+def _grounded_case(reason):
+    """`reason` の根拠が**実在する** (report, ledger) を返す。"""
+    declaration = {"from": "PASS", "reason": reason, "detail": f"{reason} の実況"}
+    if reason == "sub_input_fail":
+        return _with_failing_sub_input(_downgraded(**declaration))
+    if reason == "provenance_contamination":
+        ledger = golden_ledger()
+        ledger["malformed"] = 3
+        return _downgraded(**declaration), ledger
+    raise AssertionError(f"語彙 {reason!r} に根拠ありの事例が用意されていない")
+
+
+def _ungrounded_case(reason):
+    """`reason` の根拠が**存在しない** (report, ledger) を返す。
+
+    golden は sub_input=PASS / 台帳の破損行 0 なので、どちらのコードも裏が取れない。
+    """
+    declaration = {"from": "PASS", "reason": reason, "detail": f"{reason} と名乗るだけ"}
+    return _downgraded(**declaration), golden_ledger()
+
+
+def test_aspect_may_be_stricter_than_its_primary_receipt_when_declared():
+    """**完全一致の撤回で開いた向き。**sub_input FAIL を根拠に、観点だけを厳しく
+    見たことを機械層が表現できる。以前はこれが表現できず、C05 は緩い側へ寄せるか
+    receipt を書き換える (緑化と同じ操作) しかなかった。"""
+    report, ledger = _grounded_case("sub_input_fail")
+    assert MOD.validate_attribution(report, ledger) == []
+
+
+def test_aspect_stricter_without_a_declaration_is_rejected():
+    """厳しくする向きも**無条件では通さない**。理由が残らないと、後から
+    「なぜ FAIL なのか」が名乗りの外に出ない。"""
+    violations = MOD.validate_attribution(_downgraded(), golden_ledger())
+    assert any("verdict_downgrade の宣言が無い" in item for item in violations)
+
+
+def test_downgrade_declaration_must_name_the_receipt_it_came_from():
+    """`from` を要るのは取り違え防止。別のずれ向けの宣言を流用させない。"""
+    report, ledger = _grounded_case("sub_input_fail")
+    report["aspects"]["matrix_coverage"]["verdict_downgrade"]["from"] = "INDETERMINATE"
+    assert any("一致しない" in item for item in MOD.validate_attribution(report, ledger))
+
+
+def test_free_text_reason_can_no_longer_buy_a_downgrade():
+    """**自由文の理由は受けない。**「理由さえ書けば通る」形だと、この門は消えたのと
+    同じになる。語彙の外の文字列はコードとして解釈されず弾かれる。"""
+    report = _downgraded(**{"from": "PASS", "reason": "今日は雨だから", "detail": "本文はある"})
+    violations = MOD.validate_attribution(report, golden_ledger())
+    assert any("降格事由は列挙された語彙のみ" in item for item in violations)
+
+
+def test_downgrade_needs_a_detail_body_alongside_the_code():
+    """コードだけでは、その観点で何が起きたかが後から読めない。"""
+    report, ledger = _grounded_case("sub_input_fail")
+    report["aspects"]["matrix_coverage"]["verdict_downgrade"]["detail"] = "   "
+    assert any("detail が非空文字列でない" in item for item in MOD.validate_attribution(report, ledger))
+
+
+def test_every_downgrade_reason_must_be_grounded_in_an_observable_fact():
+    """**語彙コードを名乗るだけでは通らない。**各コードには機械で引ける裏が要る。
+
+    `sub_input_fail` は当該観点の sub_input receipt が PASS でないこと、
+    `provenance_contamination` は台帳に破損行があること。裏が無いまま名乗った場合、
+    どちらも fail-closed で弾かれる。
+    """
+    for reason in sorted(MOD.DOWNGRADE_REASONS):
+        report, ledger = _ungrounded_case(reason)
+        violations = MOD.validate_attribution(report, ledger)
+        assert any(reason in item for item in violations), reason
+
+
+def test_downgrade_vocabulary_is_pinned_between_a_cap_and_a_floor():
+    """**逆向きの対。**上限だけ置くと、数えている対象を消して満たせてしまう。
+
+    - **上限** `MOD.MAX_DOWNGRADE_REASONS`: 語彙の件数。事由を足して「何でも通る」
+      形へ戻す道を塞ぐ。
+    - **下限** `MIN_GROUNDED_DOWNGRADE_REASONS`: 語彙のうち、根拠ありで受理され・
+      根拠なしで弾かれることを**実際に走らせて**確かめられた件数。語彙を消して
+      上限を満たす道を塞ぐ。
+
+    語彙を足すと上限が割れ、語彙を消すと下限が割れる。上下が噛み合っているので、
+    語彙を動かすときは両方を同時に、意図をもって動かすしかない。
+    """
+    assert len(MOD.DOWNGRADE_REASONS) <= MOD.MAX_DOWNGRADE_REASONS
+
+    grounded = set()
+    for reason in MOD.DOWNGRADE_REASONS:
+        accept_report, accept_ledger = _grounded_case(reason)
+        reject_report, reject_ledger = _ungrounded_case(reason)
+        accepted = MOD.validate_attribution(accept_report, accept_ledger) == []
+        rejected = any(
+            reason in item for item in MOD.validate_attribution(reject_report, reject_ledger)
+        )
+        if accepted and rejected:
+            grounded.add(reason)
+
+    assert len(grounded) >= MIN_GROUNDED_DOWNGRADE_REASONS
+    # 語彙に「根拠の引き方はあるが実際には効いていない」コードを残させない。
+    assert grounded == set(MOD.DOWNGRADE_REASONS)
+
+
+def test_the_vocabulary_is_exactly_the_grounding_table():
+    """**根拠の引き方を持たないコードは存在できない。**語彙は対応表の鍵そのもの。
+    ここが割れると、コードを足すだけで素通りする欄が作れる。"""
+    assert MOD.DOWNGRADE_REASONS == frozenset(MOD.DOWNGRADE_REASON_GROUNDS)
+
+
+def test_promotion_is_never_allowed_even_with_a_declaration():
+    """**昇格方向は理由があっても通さない。**理由つきで緩める道を開くと、
+    理由欄そのものが緑化の通り道になる。receipt=FAIL / 観点=PASS で確かめる。"""
+    report = golden_report()
+    report["audit_delegations"][0]["verdict"] = "FAIL"
+    report["aspects"]["matrix_coverage"]["verdict_downgrade"] = {
+        "from": "FAIL", "reason": "sub_input_fail", "detail": "統括の判断で問題なしとした",
+    }
+    violations = MOD.validate_attribution(report, golden_ledger())
+    assert any("緩い" in item for item in violations)
+    assert not any("verdict_downgrade の宣言が無い" in item for item in violations)
+
+
+def test_promotion_stays_blocked_even_when_the_reason_is_fully_grounded():
+    """**根拠を本物にしても昇格は開かない。**語彙化で「根拠さえ揃えば通る」形に
+    なっていないことを確かめる。sub_input を実際に FAIL にし、台帳も破損行つきにして、
+    それでも receipt=FAIL / 観点=PASS が弾かれ続けることを固定する。
+
+    向きの判定は宣言を読む**前**に返しているので、根拠の充実は昇格側へ効かない。
+    """
+    report, ledger = _with_failing_sub_input(golden_report())
+    ledger["malformed"] = 5
+    report["audit_delegations"][0]["verdict"] = "FAIL"
+    report["audit_delegations"][0]["dispatch"]["response_sha256"] = response_digest(
+        "system-spec-matrix-auditor", "FAIL"
+    )
+    ledger["receipts"]["system-spec-matrix-auditor"]["sess-1"] = {
+        response_digest("system-spec-matrix-auditor", "FAIL"): {"tool_name": "Task", "verdict": "FAIL"},
+    }
+    report["aspects"]["matrix_coverage"]["verdict"] = "PASS"
+    report["aspects"]["matrix_coverage"]["verdict_downgrade"] = {
+        "from": "FAIL", "reason": "sub_input_fail", "detail": "根拠は本物だが向きが逆",
+    }
+    violations = MOD.validate_attribution(report, ledger)
+    assert any("緩い" in item for item in violations)
+
+
+def test_known_hole_the_downgrade_detail_body_is_not_verifiable():
+    """**塞げていない穴を種類として書く。**
+
+    種類:「宣言の `detail` **本文**が本当かどうかは機械層で判定できない」。下では
+    根拠 (sub_input=FAIL) は本物だが、本文は事実と無関係でも通る。
+
+    **以前との違い**: 穴は `reason` から `detail` へ縮んだ。受理を決める 3 つ
+    (向き・`from`・語彙コードに対応する根拠) はいずれも機械で引ける。本文は
+    受理の条件ではなく、人が後から読むための記録である。
+
+    **塞がない理由**: 本文と根拠の対応を機械で確かめるには自然文の含意判定が要る。
+    **受け止めているもの**: 本文が嘘でも、向きが縛ってあるので作れるのは自分の観点を
+    より厳しくすることだけで、緑化には使えない。
+
+    反転先: `detail` から sub_input receipt や台帳の破損行へ**構造化された参照**
+    (行 id 等) を要求できるようになった日。本文の自然文検査では反転させない。
+    """
+    report, ledger = _grounded_case("sub_input_fail")
+    report["aspects"]["matrix_coverage"]["verdict_downgrade"]["detail"] = "今日は雨だから"
+    assert MOD.validate_attribution(report, ledger) == []
 
 
 def test_agent_tool_rows_and_reforks_are_accepted():
@@ -261,6 +463,101 @@ def test_unknown_or_missing_ledger_schema_is_malformed(tmp_path):
         json.dumps(base), json.dumps({**base, "schema_version": "9.9"}),
     ])
     assert MOD.load_fork_ledger(path)["malformed"] == 2
+
+
+# --------------------------------------------------------------------------- #
+# schema 1.3: 非同期完了の畳み込み                                                #
+# --------------------------------------------------------------------------- #
+def _async_pair(index: int = 0):
+    """pending の起動行と、それに対応する解決行を返す。"""
+    report, records = _schema12_fixture()
+    launch = records[index]
+    final_digest = launch["response_sha256"]
+    launch = {
+        **launch,
+        "record_kind": "launch",
+        "agent_id": "agent-abc123",
+        "response_sha256": "a" * 64,  # 起動受理の digest (最終応答ではない)
+        "audit_verdict": None,
+        "verdict_state": "pending",
+    }
+    resolution = {
+        "schema_version": "1.3",
+        "record_kind": "resolution",
+        "ts": "2026-08-20T00:00:00Z",
+        "session_id": launch["session_id"],
+        "tool_use_id": launch["tool_use_id"],
+        "subagent_type": launch["subagent_type"],
+        "tool_name": launch["tool_name"],
+        "agent_id": launch["agent_id"],
+        "prompt_sha256": launch["prompt_sha256"],
+        "response_sha256": final_digest,
+        "audit_verdict": records[index]["audit_verdict"],
+        "verdict_state": "resolved",
+        "cwd": "/tmp/project",
+    }
+    return report, records, launch, resolution
+
+
+def test_launch_and_resolution_rows_fold_into_one_receipt(tmp_path):
+    """起動行 (pending) + 解決行 = 1 件の resolved receipt。**上書きではなく畳み込み。**"""
+    path = tmp_path / "audit-fork-ledger.jsonl"
+    report, records, launch, resolution = _async_pair()
+    rows = [launch] + records[1:] + [resolution]
+    ledger = _load_schema12_ledger(path, rows)
+    folded = ledger["receipts_v12"]["sess-1"][launch["tool_use_id"]]
+    assert len(folded) == 1
+    assert folded[0]["verdict_state"] == "resolved"
+    assert folded[0]["verdict"] == resolution["audit_verdict"]
+    # verdict を載せているのは最終応答のほう。起動時の digest は捨てずに残す。
+    assert folded[0]["response_sha256"] == resolution["response_sha256"]
+    assert folded[0]["launch_response_sha256"] == "a" * 64
+    # 畳み込めた pending 行に付けた malformed は取り消す (本物の破損と混ぜない)。
+    assert ledger["malformed"] == 0
+    assert MOD.validate_attribution(report, ledger) == []
+
+
+def test_pending_launch_without_resolution_stays_unusable(tmp_path):
+    """対になる赤。解決行が来なければ receipt には使えない。"""
+    path = tmp_path / "audit-fork-ledger.jsonl"
+    report, records, launch, _ = _async_pair()
+    ledger = _load_schema12_ledger(path, [launch] + records[1:])
+    assert ledger["malformed"] == 1
+    assert MOD.validate_attribution(report, ledger)
+
+
+def test_two_resolutions_for_one_launch_are_refused(tmp_path):
+    """**先に書かれた解決行を後から来た行で上書きしない。**
+
+    上書きを許すと、後から任意の verdict を差し込める。決められないものは使わない。
+    """
+    path = tmp_path / "audit-fork-ledger.jsonl"
+    report, records, launch, resolution = _async_pair()
+    second = {**resolution, "audit_verdict": "FAIL", "ts": "2026-08-20T01:00:00Z"}
+    ledger = _load_schema12_ledger(path, [launch] + records[1:] + [resolution, second])
+    folded = ledger["receipts_v12"]["sess-1"][launch["tool_use_id"]]
+    assert folded[0]["verdict_state"] == "pending", "2 通目が来たのに畳み込んだ"
+    assert MOD.validate_attribution(report, ledger)
+
+
+def test_resolution_with_mismatched_agent_id_is_refused(tmp_path):
+    """ID の一致だけが唯一の帰属根拠。順序という第二の手がかりは非同期化で失われた。"""
+    path = tmp_path / "audit-fork-ledger.jsonl"
+    report, records, launch, resolution = _async_pair()
+    for broken in ({**resolution, "agent_id": "別のID"}, {**resolution, "agent_id": None}):
+        ledger = _load_schema12_ledger(path, [launch] + records[1:] + [broken])
+        folded = ledger["receipts_v12"]["sess-1"][launch["tool_use_id"]]
+        assert folded[0]["verdict_state"] == "pending"
+        assert MOD.validate_attribution(report, ledger)
+
+
+def test_resolution_without_a_launch_row_promotes_nothing(tmp_path):
+    """解決行だけが台帳にあっても、起動していない fork へ帰属させない。"""
+    path = tmp_path / "audit-fork-ledger.jsonl"
+    report, records, _, resolution = _async_pair()
+    ledger = _load_schema12_ledger(path, records[1:] + [resolution])
+    assert resolution["tool_use_id"] not in ledger["receipts_v12"].get("sess-1", {})
+    assert MOD.validate_attribution(report, ledger)
 
 
 def _load_hook():

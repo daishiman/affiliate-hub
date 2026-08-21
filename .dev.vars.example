@@ -5,4 +5,6 @@
 #
 # トークン生成例:
 #   openssl rand -hex 32
-MCP_TOKEN="local-development-token"
+# 値はここに書かず、コピーした .dev.vars 側にだけ入れる。
+# 見本に値を書くと、その値のまま使われる（検査: tests/architecture/test-honesty.test.ts）。
+MCP_TOKEN=""

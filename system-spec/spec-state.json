@@ -759,10 +759,22 @@
     "database": {
       "web": {
         "state": "確定",
-        "qa_ref": "qa-database-web-analytics",
+        "qa_ref": "qa-database-web-spec-intake",
         "serves_goals": [
           "G1",
           "G2"
+        ],
+        "required_info_checks": [
+          {
+            "checked_on": "2026-08-21",
+            "checked_with": "record-required-info-check",
+            "blocking_item_count": 0
+          }
+        ],
+        "qa_refs": [
+          "qa-database-web-spec-intake",
+          "qa-database-web",
+          "qa-database-web-analytics"
         ]
       },
       "mobile": {
@@ -790,8 +802,23 @@
       "web": {
         "state": "確定",
         "qa_ref": "qa-auth-web",
+        "required_info": [
+          {
+            "item_id": "auth-model",
+            "missing_effect": "block",
+            "status": "grounded",
+            "grounded_by": "qa-auth-web"
+          }
+        ],
         "serves_goals": [
           "G1"
+        ],
+        "required_info_checks": [
+          {
+            "checked_on": "2026-08-21",
+            "checked_with": "record-required-info-check",
+            "blocking_item_count": 1
+          }
         ]
       },
       "mobile": {
@@ -818,9 +845,36 @@
     "ui-ux": {
       "web": {
         "state": "確定",
-        "qa_ref": "qa-uiux-web",
+        "qa_ref": "qa-uiux-web-screen-priority",
+        "required_info": [
+          {
+            "item_id": "product-goal",
+            "missing_effect": "block",
+            "status": "grounded",
+            "grounded_by": "qa-foundation-u1"
+          },
+          {
+            "item_id": "screen-information-priority",
+            "missing_effect": "block",
+            "status": "grounded",
+            "grounded_by": "qa-uiux-web-screen-priority"
+          },
+          {
+            "item_id": "target-platforms",
+            "missing_effect": "block",
+            "status": "grounded",
+            "grounded_by": "qa-platform-scope"
+          }
+        ],
         "serves_goals": [
           "G1"
+        ],
+        "required_info_checks": [
+          {
+            "checked_on": "2026-08-21",
+            "checked_with": "record-required-info-check",
+            "blocking_item_count": 3
+          }
         ]
       },
       "mobile": {
@@ -847,9 +901,28 @@
     "security": {
       "web": {
         "state": "確定",
-        "qa_ref": "qa-security-web",
+        "qa_ref": "qa-security-web-spec-intake",
+        "required_info": [
+          {
+            "item_id": "security-posture",
+            "missing_effect": "block",
+            "status": "grounded",
+            "grounded_by": "qa-security-web-spec-intake"
+          }
+        ],
         "serves_goals": [
           "G1"
+        ],
+        "required_info_checks": [
+          {
+            "checked_on": "2026-08-21",
+            "checked_with": "record-required-info-check",
+            "blocking_item_count": 1
+          }
+        ],
+        "qa_refs": [
+          "qa-security-web-spec-intake",
+          "qa-security-web"
         ]
       },
       "mobile": {
@@ -876,10 +949,22 @@
     "infrastructure": {
       "web": {
         "state": "確定",
-        "qa_ref": "qa-infra-web-redirect",
+        "qa_ref": "qa-infra-web-spec-intake",
         "serves_goals": [
           "G2",
           "G1"
+        ],
+        "required_info_checks": [
+          {
+            "checked_on": "2026-08-21",
+            "checked_with": "record-required-info-check",
+            "blocking_item_count": 0
+          }
+        ],
+        "qa_refs": [
+          "qa-infra-web-spec-intake",
+          "qa-infra-web",
+          "qa-infra-web-redirect"
         ]
       },
       "mobile": {
@@ -906,10 +991,30 @@
     "backend": {
       "web": {
         "state": "確定",
-        "qa_ref": "qa-backend-web-analytics",
+        "qa_ref": "qa-backend-web-spec-intake",
+        "required_info": [
+          {
+            "item_id": "domain-model",
+            "missing_effect": "block",
+            "status": "grounded",
+            "grounded_by": "qa-backend-web-spec-intake"
+          }
+        ],
         "serves_goals": [
           "G2",
           "G1"
+        ],
+        "required_info_checks": [
+          {
+            "checked_on": "2026-08-21",
+            "checked_with": "record-required-info-check",
+            "blocking_item_count": 1
+          }
+        ],
+        "qa_refs": [
+          "qa-backend-web-spec-intake",
+          "qa-backend-web",
+          "qa-backend-web-analytics"
         ]
       },
       "mobile": {
@@ -936,10 +1041,22 @@
     "frontend": {
       "web": {
         "state": "確定",
-        "qa_ref": "qa-frontend-web-analytics",
+        "qa_ref": "qa-frontend-web-spec-intake",
         "serves_goals": [
           "G1",
           "G2"
+        ],
+        "required_info_checks": [
+          {
+            "checked_on": "2026-08-21",
+            "checked_with": "record-required-info-check",
+            "blocking_item_count": 0
+          }
+        ],
+        "qa_refs": [
+          "qa-frontend-web-spec-intake",
+          "qa-frontend-web",
+          "qa-frontend-web-analytics"
         ]
       },
       "mobile": {
@@ -966,10 +1083,21 @@
     "maintenance-ops": {
       "web": {
         "state": "確定",
-        "qa_ref": "qa-ops-web",
+        "qa_ref": "qa-ops-web-spec-intake",
         "serves_goals": [
           "G1",
           "G2"
+        ],
+        "required_info_checks": [
+          {
+            "checked_on": "2026-08-21",
+            "checked_with": "record-required-info-check",
+            "blocking_item_count": 0
+          }
+        ],
+        "qa_refs": [
+          "qa-ops-web-spec-intake",
+          "qa-ops-web"
         ]
       },
       "mobile": {
@@ -1297,12 +1425,16 @@
     {
       "id": "qa-ops-web",
       "question": "書面入力 docs/spec/02-補充仕様-ギャップと追加要件.md §7 の保守運用 (maintenance-ops) × web 要件は何か",
-      "answer": "| 通知 | 投稿失敗・リンク切れ・プログラム終了・成果確定をメール/Slack/アプリ内で通知。通知チャネルはWorkspace設定 |\n| レート制限 | 各Connectorにレートリミッタとコスト上限(特にX API従量課金)。上限接近で警告、超過で自動停止 |\n| バックアップ | Workspace単位のエクスポート(記事・商品・リンク・成果CSV)。退会時データポータビリティ |\n| 監査 | AuditLog の必須記録対象を列挙:公開/削除/リンク差し替え/権限変更/成果データ修正/エクスポート |\n| 障害時 | リダイレクトサービスは計測DB障害時でも転送を止めない(計測はベストエフォート、転送は必達) |\n| 検索 | 記事・商品・リンクの横断全文検索。テナント別インデックス(26.4章と整合) |",
+      "answer": "| 通知 | 投稿失敗・リンク切れ・プログラム終了・成果確定をメール/Slack/アプリ内で通知。通知チャネルはWorkspace設定 |\n| レート制限 | 各Connectorにレートリミッタとコスト上限(特にX API従量課金)。上限接近で警告、超過で自動停止 |\n| バックアップ | Workspace単位のエクスポート(記事・商品・リンク・成果CSV)。退会時データポータビリティ |\n| 監査 | AuditLog の必須記録対象を列挙:公開/削除/リンク差し替え/権限変更/成果データ修正/エクスポート |\n| 障害時 | リダイレクトはresolver storeで転送先を解決し、計測eventをQueueへ非同期配送する。SLOと劣化モードは`03` §1を正とする |\n| 検索 | 記事・商品・リンクの横断全文検索。テナント別インデックス(26.4章と整合) |",
       "source": {
         "kind": "written-requirements",
         "path": "docs/spec/02-補充仕様-ギャップと追加要件.md",
         "section": "§7",
-        "sha256": "842757f299c015bfc425d953e06e8f28521a21191c3ba932d40f5889d0b33ffc"
+        "sha256": "1e6a2838d374427a26d0cd7e4628164170ed67d92eb19bff2b989741907e39ea",
+        "requoted_with": "requote-written-source",
+        "requoted_on": "2026-08-21",
+        "resealed_with": "reseal-written-source",
+        "resealed_on": "2026-08-21"
       },
       "design_applications": [
         {
@@ -1350,6 +1482,31 @@
           "tradeoffs": [
             "シークレットローテーション手順を保守運用に追加する必要がある"
           ]
+        }
+      ],
+      "scope_notes": {
+        "bundled": false,
+        "topics": [
+          {
+            "topic_id": "qa-auth-web",
+            "covers_cell": {
+              "category": "auth",
+              "platform": "web"
+            },
+            "answer_span": "A. Better Auth (Better Auth + Google OAuth) を選択。",
+            "note": "1 回の対話ヒアリングの回答であり、他の質疑を統合していない。この 1 論点がそのまま auth×web の確定の裏付けである。bundled=false は writer が「論点 1 件かつこの entry を引く確定セル 1 件」を検証して通した結果であり、手で名乗ったものではない。",
+            "origin_qa_id": "qa-auth-web"
+          }
+        ],
+        "recorded_with": "set-qa-scope-notes"
+      },
+      "written_up": [
+        {
+          "path": "docs/spec/dialogue-confirmations.md",
+          "sha256": "1312a2372403173dc8b57112ae0178d713c93a05471124e201e084bf0da8daa1",
+          "recorded_on": "2026-08-20",
+          "recorded_with": "set-qa-written-up",
+          "section": "## 1. 認証方式（auth × web）"
         }
       ]
     },
@@ -1418,12 +1575,16 @@
     {
       "id": "qa-frontend-web-analytics",
       "question": "frontend×web: Analytics 拡張の画面ビュー要件は何か (書面入力 docs/spec/03 §8)",
-      "answer": "v1.0 22.8章のフィルタに加えて、次のビューを定義する。\n\n| ビュー | 内容 |\n| --- | --- |\n| パフォーマンス概要 | 期間比較付きの主要KPI(PV/クリック/CTR/CVR/EPC/確定報酬)。速報と確定を区別 |\n| ファネル | 表示→閲覧→リンク表示→クリック→成果発生→承認 の残存率。ディメンションで分解 |\n| 切り口分析 | angle × 媒体 のヒートマップ(CTR/EPC切替)。セルにnを常時表示 |\n| 配置分析 | 記事テンプレート上に placement 別CTRをオーバーレイ表示 |\n| リンク台帳 | TrackingLink 単位の一覧。CTR・EPC・状態・掲載先。並べ替え・CSV出力 |\n| インサイト受信箱 | InsightReport の一覧。確認→適用(Brief作成へ遷移)→却下 |\n| 実験 | Experiment の進捗・有意差・guardrail |\n| ASP突合状況 | プログラム別の成果件数・承認率・突合率・取り込みエラー |",
+      "answer": "v1.0 22.8章のフィルタに加えて、次のビューを定義する。\n| ビュー | 内容 |\n| --- | --- |\n| パフォーマンス概要 | 期間比較付きの主要KPI(PV/クリック/CTR/発生・承認CVR/承認・支払EPC/承認・支払報酬)。watermarkによる速報・確定・遅延を区別 |\n| ファネル | 表示→閲覧→リンク表示→クリック→成果発生→承認→支払 の残存率。consent区分と対象ディメンションを表示 |\n| 切り口分析 | angle × 媒体 のヒートマップ(CTR/EPC切替)。セルにnを常時表示 |\n| 配置分析 | 記事テンプレート上に placement 別CTRをオーバーレイ表示 |\n| リンク台帳 | TrackingLink 単位の一覧。CTR・EPC・状態・掲載先。並べ替え・CSV出力 |\n| インサイト受信箱 | InsightReport の一覧。確認→適用(Brief作成へ遷移)→却下 |\n| 実験 | Experiment の事前登録値、探索率、holdout、進捗、信頼区間、guardrail |\n| ASP突合状況 | プログラム別の成果件数・承認率・突合率・取り込みエラー |",
       "source": {
         "kind": "written-requirements",
         "path": "docs/spec/03-分析・解析基盤仕様.md",
         "section": "§8 画面仕様(Analytics 拡張)",
-        "sha256": "e055d16d4b4cdec15de67578ea6955ab50cf87666d6abc154410b5cdc4f29229"
+        "sha256": "8c2f8f1c28a097dae0020bce61c19ea83882a0572938457b5470ab4a889fff81",
+        "requoted_with": "requote-written-source",
+        "requoted_on": "2026-08-21",
+        "resealed_with": "reseal-written-source",
+        "resealed_on": "2026-08-21"
       },
       "design_applications": [
         {
@@ -1449,12 +1610,16 @@
     {
       "id": "qa-infra-web-redirect",
       "question": "infrastructure×web: リダイレクトサービスの可用性要件は何か (書面入力 docs/spec/02 §7)",
-      "answer": "| 障害時 | リダイレクトサービスは計測DB障害時でも転送を止めない(計測はベストエフォート、転送は必達) |",
+      "answer": "| 障害時 | リダイレクトはresolver storeで転送先を解決し、計測eventをQueueへ非同期配送する。SLOと劣化モードは`03` §1を正とする |",
       "source": {
         "kind": "written-requirements",
         "path": "docs/spec/02-補充仕様-ギャップと追加要件.md",
         "section": "§7 運用系の補充",
-        "sha256": "1846072dcf669a0d2a8503e47bcb405cdbfc1eb47ae85efed5022b849babe3b6"
+        "sha256": "c01a06e1f5221c8e30ffe2cf40e4a8e60c4261e41ea6cf598b77c7dae6caaf2e",
+        "requoted_with": "requote-written-source",
+        "requoted_on": "2026-08-21",
+        "resealed_with": "reseal-written-source",
+        "resealed_on": "2026-08-21"
       },
       "design_applications": [
         {
@@ -1474,6 +1639,621 @@
           "tradeoffs": [
             "経路情報の付加余地は減るが、ASP 規約違反リスクを排除できる"
           ]
+        }
+      ]
+    },
+    {
+      "id": "qa-backend-web-spec-intake",
+      "question": "backend×web: 二層構造での WebMCP 契約・禁止依存・生成基盤の設計制約は何か (書面入力 docs/spec/04 §3 §4 / 05 / 07 §0)",
+      "answer": "| 登録先 | **`document.modelContext`**。`navigator.modelContext` は Chrome 150 で非推奨のため legacy fallback 専用（CHG-001） |\n| ツール数 | 1ページあたり原則6個以下 |\n| FD-1 | ランキング式を UI 層・WebMCP 層へ重複実装する | `src/lib/domain/ranking.ts` 以外に重み計算が現れないことを grep テストで固定 |\n| FD-2 | 報酬データを推薦スコアの入力にする | Ranking Service の入力型に Commercial DB 由来の型が含まれないことを型で担保 |\n| FD-4 | WebMCP でしか到達できない機能を作る | 全 WebMCP ツールに対応する通常 UI 経路が存在することをトレーサビリティ表で確認 |",
+      "source": {
+        "kind": "written-requirements",
+        "path": "docs/spec/04-二層構造統合仕様.md",
+        "section": "§3 WebMCP の確定契約 / §4 禁止依存",
+        "sha256": "c5f132db9951de6c162d345b794efcfcd072d626938e0143d58abe9dfc4e20e0",
+        "resealed_with": "reseal-written-source",
+        "resealed_on": "2026-08-21",
+        "requoted_with": "requote-written-source",
+        "requoted_on": "2026-08-21"
+      },
+      "design_applications": [
+        {
+          "knowledge_ref": "docs/spec/04-二層構造統合仕様.md#§2-3",
+          "principle": "ランキング計算・比較候補の分類・公開ゲート判定・広告表記の要否判定は src/lib/domain/ の純関数 1 箇所に置き、管理画面・公開ブログ・WebMCP・MCP のすべてがそこを呼ぶ",
+          "applicability": "applied",
+          "rationale": "計算の正本を 1 箇所に固定し、呼び出し側 (画面 / WebMCP / MCP) は結果を描画するだけにする。重複実装は FD-1 として grep テストで落とす",
+          "tradeoffs": [
+            "経路ごとの最適化余地は減るが、経路によって順位が食い違う事態を構造的に排除できる"
+          ]
+        },
+        {
+          "knowledge_ref": "docs/spec/04-二層構造統合仕様.md#§3",
+          "principle": "WebMCP の登録先は document.modelContext。navigator.modelContext は legacy fallback 専用で、1 ページあたりのツールは原則 6 個以下",
+          "applicability": "applied",
+          "rationale": "能力検出を先に行い、非対応環境は通常 UI へ落とす。ページ種別ごとに登録するツールを 6 個以下に選択する",
+          "tradeoffs": [
+            "ページごとに公開ツールを選ぶ手間が増えるが、モデル側の選択誤りを減らせる"
+          ]
+        },
+        {
+          "knowledge_ref": "docs/spec/04-二層構造統合仕様.md#§4",
+          "principle": "禁止依存 FD-1〜FD-5。特に FD-4「WebMCP でしか到達できない機能を作る」は、全 WebMCP ツールに対応する通常 UI 経路が存在することをトレーサビリティ表で確認する",
+          "applicability": "applied",
+          "rationale": "WebMCP は追加の入口であって唯一の入口ではない。docs/product/traceability.md の導線列で対応 UI を必須にする",
+          "tradeoffs": [
+            "UI 側の実装が常に先行するため WebMCP の追加が遅くなるが、機能フラグを落としたときに使えなくなる機能が生じない"
+          ]
+        },
+        {
+          "knowledge_ref": "docs/spec/07-生成基盤設計.md#§0",
+          "principle": "生成基盤の設計制約 GC-1〜GC-6。AI に自由に書かせず、承認済みの事実・根拠・ペルソナ・媒体ルールを入力として与えて生成させる (GC-1)。レビュー系は執筆系と分離し自作自演の検証にしない (GC-5)",
+          "applicability": "applied",
+          "rationale": "プロンプト入力変数を必須項目に固定し、欠落があれば生成を実行しない。Writer と Fact-checker / Compliance-reviewer を別サブエージェント・別コンテキストに置く",
+          "tradeoffs": [
+            "入力を揃えるまで生成できず着手が遅れるが、根拠のない文章が生成物として残らない"
+          ]
+        },
+        {
+          "knowledge_ref": "docs/spec/05-文章作成メソッド仕様.md#§1",
+          "principle": "執筆順序（結論→理由→根拠→具体例→例外→読者にとっての意味→次の行動）を節単位で必ず 1 周させる。根拠の段は省略不可",
+          "applicability": "applied",
+          "rationale": "生成の出力契約をこの 7 段の構造体にし、根拠の段が空のまま公開ゲートを通らないようにする",
+          "tradeoffs": [
+            "文章の自由度は下がるが、根拠のない主張が節の単位で検出できる"
+          ]
+        }
+      ],
+      "scope_notes": {
+        "bundled": false,
+        "topics": [
+          {
+            "topic_id": "qa-backend-web",
+            "covers_cell": null,
+            "answer_span": "* 同一投稿の重複実行を防ぐ",
+            "note": "統合前の質疑由来の節。確定セルの裏付けではないが、統合時に範囲を保つため本文へ残してある。裏付けでないものを裏付けと名乗らせないため covers_cell は null にしてある。",
+            "origin_qa_id": "qa-backend-web",
+            "released_section_heading": "### qa-backend-web（docs/spec/01-要求仕様書-v1.0.md §18.3）"
+          },
+          {
+            "topic_id": "qa-backend-web-analytics",
+            "covers_cell": null,
+            "answer_span": "ClickEvent(リダイレクトサービス)",
+            "note": "統合前の質疑由来の節。確定セルの裏付けではないが、統合時に範囲を保つため本文へ残してある。裏付けでないものを裏付けと名乗らせないため covers_cell は null にしてある。",
+            "origin_qa_id": "qa-backend-web-analytics",
+            "released_section_heading": "### qa-backend-web-analytics（docs/spec/03-分析・解析基盤仕様.md §1 全体アーキテクチャ）"
+          },
+          {
+            "topic_id": "qa-backend-web-spec-intake",
+            "covers_cell": {
+              "category": "backend",
+              "platform": "web"
+            },
+            "answer_span": "| 登録先 | **`document.modelContext`**。`navigator.modelContext` は Chrome 150 で非推奨のため legacy fallback 専用（CHG-001） |",
+            "note": "この節が確定セルの直接の裏付けである。R4-reopen の理由に「書面入力 qa で再確定する」とあり、再確定を出したのはこの書面入力の節である。",
+            "origin_qa_id": "qa-backend-web-spec-intake",
+            "released_section_heading": "### qa-backend-web-spec-intake（docs/spec/04-二層構造統合仕様.md §3 WebMCP の確定契約 / §4 禁止依存）"
+          }
+        ],
+        "recorded_with": "set-qa-scope-notes",
+        "bundling_reason": "**この束ねは解消済みである。**束ねの理由は「qa_ref が 1 件しか持てない」ことだった。セルが qa_refs[] で複数の裏付けを引けるようになったので、本文を 1 件へ寄せる必要が無くなり、取り込んでいた節を外した。外した節は取り込み元 entry (qa-backend-web, qa-backend-web-analytics) に byte 単位で同一のまま在り、writer が一致を確かめてから外している。下の topics は、どの節がどの entry へ戻ったかの対応として残してある。",
+        "split_with": "split-qa-bundle",
+        "split_on": "2026-08-21",
+        "absorbed_origins_released": [
+          "qa-backend-web",
+          "qa-backend-web-analytics"
+        ],
+        "reanchored_with": "reanchor-split-scope-notes",
+        "reanchored_on": "2026-08-21"
+      }
+    },
+    {
+      "id": "qa-database-web-spec-intake",
+      "question": "database×web: SiteBlueprint はどのパラメータを持ち、どの検証で BLOCK するか (書面入力 docs/spec/06 §2)",
+      "answer": "| BP-01 | `ranking_model_id` が他サイトの Blueprint と重複しない | BLOCK（§16.6 言い換え記事の防止） |\n| BP-02 | `ranking_inputs_prohibited` に報酬関連フィールドが全件含まれる | BLOCK（§19.4） |\n| BP-03 | `audience_persona_ids` が1件以上 | BLOCK |\n| BP-04 | `disclosure_policy_id` が実在する Disclosure を指す | BLOCK |",
+      "source": {
+        "kind": "written-requirements",
+        "path": "docs/spec/06-サイトブループリント-記事構成テンプレート.md",
+        "section": "§2 SiteBlueprint のパラメータ定義",
+        "sha256": "affcf046f43d0f2a71ca7ee485b2108ac7e49c4a1645bb3dd3984c7a36b0e01b",
+        "resealed_with": "reseal-written-source",
+        "resealed_on": "2026-08-21"
+      },
+      "design_applications": [
+        {
+          "knowledge_ref": "docs/spec/06-サイトブループリント-記事構成テンプレート.md#§2",
+          "principle": "SiteBlueprint はウィザード 13 ステップと 1 対 1 で対応するパラメータ集合であり、blueprint_id と version を持ち変更時にインクリメントする",
+          "applicability": "applied",
+          "rationale": "Blueprint を 1 テーブルの版付きレコードとして持ち、Site から version 付きで参照する。ステップの追加はパラメータの追加として表現し、別テーブルを増やさない",
+          "tradeoffs": [
+            "1 レコードが大きくなるが、ウィザードの並びと保存形が一致し対応の追跡が容易になる"
+          ]
+        },
+        {
+          "knowledge_ref": "docs/spec/06-サイトブループリント-記事構成テンプレート.md#§2-1",
+          "principle": "BP-01〜BP-06 の検証規則。BP-01（ranking_model_id のサイト間重複）と BP-02（報酬関連フィールドが ranking_inputs_prohibited に全件含まれる）は BLOCK",
+          "applicability": "applied",
+          "rationale": "検証をアプリ層だけに置かず、ranking_model_id には一意制約を張る。BP-02 は報酬関連フィールドの一覧を 1 箇所に持ち、差集合が空でなければ保存を拒否する",
+          "tradeoffs": [
+            "Blueprint の保存が失敗しやすくなるが、言い換え記事と報酬由来の順位づけを保存の時点で止められる"
+          ]
+        }
+      ],
+      "scope_notes": {
+        "bundled": false,
+        "topics": [
+          {
+            "topic_id": "qa-database-web",
+            "covers_cell": null,
+            "answer_span": "現行構成で確定。技術基盤は現行リポジトリの構成(Next.js + Cloudflare Workers/OpenNext + D1 + Drizzle ORM)を正として仕様に確定する。",
+            "note": "統合前の質疑由来の節。確定セルの裏付けではないが、統合時に範囲を保つため本文へ残してある。裏付けでないものを裏付けと名乗らせないため covers_cell は null にしてある。",
+            "origin_qa_id": "qa-database-web",
+            "released_section_heading": "### qa-database-web（出典未記載）"
+          },
+          {
+            "topic_id": "qa-database-web-analytics",
+            "covers_cell": null,
+            "answer_span": "## 5. 集計層(MetricRollup)",
+            "note": "統合前の質疑由来の節。確定セルの裏付けではないが、統合時に範囲を保つため本文へ残してある。裏付けでないものを裏付けと名乗らせないため covers_cell は null にしてある。",
+            "origin_qa_id": "qa-database-web-analytics",
+            "released_section_heading": "### qa-database-web-analytics（docs/spec/03-分析・解析基盤仕様.md §5 集計層(MetricRollup)）"
+          },
+          {
+            "topic_id": "qa-database-web-spec-intake",
+            "covers_cell": {
+              "category": "database",
+              "platform": "web"
+            },
+            "answer_span": "| BP-01 | `ranking_model_id` が他サイトの Blueprint と重複しない | BLOCK（§16.6 言い換え記事の防止） |",
+            "note": "この節が確定セルの直接の裏付けである。R4-reopen の理由に「書面入力 qa で再確定する」とあり、再確定を出したのはこの書面入力の節である。",
+            "origin_qa_id": "qa-database-web-spec-intake",
+            "released_section_heading": "### qa-database-web-spec-intake（docs/spec/06-サイトブループリント-記事構成テンプレート.md §2 SiteBlueprint のパラメータ定義）"
+          }
+        ],
+        "recorded_with": "set-qa-scope-notes",
+        "bundling_reason": "**この束ねは解消済みである。**束ねの理由は「qa_ref が 1 件しか持てない」ことだった。セルが qa_refs[] で複数の裏付けを引けるようになったので、本文を 1 件へ寄せる必要が無くなり、取り込んでいた節を外した。外した節は取り込み元 entry (qa-database-web, qa-database-web-analytics) に byte 単位で同一のまま在り、writer が一致を確かめてから外している。下の topics は、どの節がどの entry へ戻ったかの対応として残してある。",
+        "split_with": "split-qa-bundle",
+        "split_on": "2026-08-21",
+        "absorbed_origins_released": [
+          "qa-database-web",
+          "qa-database-web-analytics"
+        ],
+        "reanchored_with": "reanchor-split-scope-notes",
+        "reanchored_on": "2026-08-21"
+      }
+    },
+    {
+      "id": "qa-uiux-web-spec-intake",
+      "question": "ui-ux×web: 配色と明暗をどのモデルで持つか (書面入力 docs/spec/09 §2)",
+      "answer": "この確定を支える回答は 2 件ある。qa_ref は 1 件しか持てない（決定論ゲートが文字列で照合する）ため、本文を統合して裏付けの範囲を保つ。出典は節ごとに記す。\n\n### qa-uiux-web（docs/spec/01-要求仕様書-v1.0.md §22.1）\n\n* 未処理URL\n* 確認待ち商品\n* 生成待ち\n* 承認待ち\n* 本日の投稿\n* 投稿失敗\n* リンク切れ\n* 更新期限\n* 成果\n* 収益\n* 媒体接続状態\n\n### qa-uiux-web-spec-intake（docs/spec/09-UIテーマ仕様.md §2 2 軸モデル（掛け合わせを設定として持たない））\n\n見た目は **2 つの独立した軸**で決まる。\n| 配色 | `BrandTheme` | 青系 / ピンク系 / ホワイト系 / グレー系 / グリーン系 … |\n| 明暗 | `ColorMode` | 端末に合わせる / 明るい / 暗い |\n**「青系のダークモード」という 1 つの名前を作らない。**",
+      "source": {
+        "kind": "written-requirements",
+        "path": "docs/spec/09-UIテーマ仕様.md",
+        "section": "§2 2 軸モデル（掛け合わせを設定として持たない）",
+        "sha256": "e8344643a2409570e52ac27fc5a64718d51beab44fbd4b52a229cf139e035373"
+      },
+      "design_applications": [
+        {
+          "knowledge_ref": "elicit-question-bank:screen-information-priority",
+          "principle": "画面情報設計9項目の確定",
+          "applicability": "applied",
+          "rationale": "利用者ロール=発信者と小規模チーム(Owner〜Analyst §25)、主タスク=URL登録→商品確認→生成→承認→公開→分析、熟練度=初中級中心、端末=PC主体+モバイル併用(レスポンシブ)、利用頻度=毎日、データ量=記事・リンク・商品が数百〜数千件、比較/一括操作=承認キュー・一括URL登録・Content Matrix で必須、誤操作コスト=外部公開を伴うため高(承認フロー・投稿前プレビュー・確認画面で防御)、visual device方針=状態は色だけに依存せずラベル・アイコンを併用",
+          "tradeoffs": [
+            "承認ステップの多層化は安全性を高めるが操作数が増えるため、ダッシュボードの承認待ちキューで導線を短縮する"
+          ]
+        },
+        {
+          "knowledge_ref": "docs/spec/01-要求仕様書-v1.0.md §17.4",
+          "principle": "投稿前プレビューの媒体別再現",
+          "applicability": "applied",
+          "rationale": "改行・画像順・広告表示・文字数など投稿後の見え方に近いプレビューを承認前に必ず提示する",
+          "tradeoffs": [
+            "媒体仕様変更でプレビューが実際とずれるリスクがあり、Capability Registry のバージョンと連動させる"
+          ]
+        },
+        {
+          "knowledge_ref": "docs/spec/09-UIテーマ仕様.md#§2",
+          "principle": "配色 (BrandTheme) と明暗 (ColorMode) を独立した 2 軸のまま持ち、掛け合わせを 1 つの名前にしない。実際の色は light-dark() が解く",
+          "applicability": "applied",
+          "rationale": "設定値を 2 つの列として保存し、CSS 側は light-dark() で 1 定義にする。配色を 1 つ増やしても設定値は 1 つしか増えない",
+          "tradeoffs": [
+            "色の指定が CSS の関数任せになり個別の微調整はしにくいが、テーマ数 × モード数の組み合わせ爆発が設定に出てこない"
+          ]
+        },
+        {
+          "knowledge_ref": "docs/spec/09-UIテーマ仕様.md#§2-2",
+          "principle": "配色名・明暗名は cookie と URL から来る利用者が書き換えられる値であり、知らない名前は必ず既定へ落とす (parseBrandTheme / parseColorMode)",
+          "applicability": "applied",
+          "rationale": "外から来た文字列は必ず解析関数を通してから属性へ入れる。素通しにすると「色が半分だけ既定」の壊れて見えない画面になる",
+          "tradeoffs": [
+            "未知のテーマ名を後から足す際に解析関数の更新漏れが起きうるが、その場合も既定色で読める画面になる"
+          ]
+        },
+        {
+          "knowledge_ref": "docs/spec/09-UIテーマ仕様.md#§4",
+          "principle": "コントラストの下限は動かさない",
+          "applicability": "applied",
+          "rationale": "下限をテーマ追加時の検査として置き、配色を増やすたびに全組み合わせで測る。読めない配色は追加しない",
+          "tradeoffs": [
+            "採用できる配色が狭まるが、下限を都度ゆるめる判断が発生しない"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "qa-infra-web-spec-intake",
+      "question": "infrastructure×web: 検査をどの段で走らせ、どこでマージを止めるか (書面入力 docs/spec/11 §8)",
+      "answer": "| 1 速い門 | push / PR | 5 分 | **止める** | 型検査 / 書き方 / 段の指定漏れ / 単体・契約検査 |\n| 2 広い門 | PR | 15 分 | **止める** | 結合 / API 契約 / 画面 / 読み上げ / 境界値 / カバレッジ閾値 / 変更範囲だけのミューテーション |\n| 3 深い門 | **手動のみ**（定例なし。打つ場面は下） | 40 分（実測 27 分） | 止めない | 全体ミューテーション / 負荷 / 見た目の回帰 / 脆弱性の深掘り |\n**実行時間は費用の要因ではない。** したがって「時間を減らすために CI からテストを外す」判断はしない。",
+      "source": {
+        "kind": "written-requirements",
+        "path": "docs/spec/11-CI-CD・品質ゲート仕様.md",
+        "section": "§8 検査の段",
+        "sha256": "abdaa6e4e816234535c273e11af870f337d0839bf123bedc5672d889ac1e990a",
+        "requoted_with": "requote-written-source",
+        "requoted_on": "2026-08-21",
+        "resealed_with": "reseal-written-source",
+        "resealed_on": "2026-08-21"
+      },
+      "design_applications": [
+        {
+          "knowledge_ref": "docs/spec/11-CI-CD・品質ゲート仕様.md#§8-2",
+          "principle": "検査を 3 段に分け、1 段と 2 段はマージを止め、3 段は手動のみで止めない。重いテストを足す前に置き場所を先に作る",
+          "applicability": "applied",
+          "rationale": "段の定義を quality-gates.config.mjs の TIERS 1 箇所に置き、手元 (pnpm run verify) と CI が同じ表を読む。段を増やす前に走らせる場所を決める",
+          "tradeoffs": [
+            "3 段は誰かが打たなければ走らないため、打つ場面を文書に書かないと存在しない検査になる"
+          ]
+        },
+        {
+          "knowledge_ref": "docs/spec/11-CI-CD・品質ゲート仕様.md#§8-1",
+          "principle": "実行時間は費用の要因ではない (公開リポジトリの標準ランナーは無料)。時間を理由に CI からテストを外さない",
+          "applicability": "applied",
+          "rationale": "時間の超過は警告として表示するだけで、終了コードに混ぜない。落とす理由は検査の失敗だけに限る",
+          "tradeoffs": [
+            "遅い検査が放置されうるが、時間を守るためにテストを削る力が働かない"
+          ]
+        },
+        {
+          "knowledge_ref": "docs/spec/11-CI-CD・品質ゲート仕様.md#§2",
+          "principle": "手元と CI を同じにする。CI がやることを別の場所に書き写さない",
+          "applicability": "applied",
+          "rationale": "CI のワークフローは pnpm run verify を呼ぶだけにし、走らせるものと順番は設定 1 箇所が決める",
+          "tradeoffs": [
+            "CI 固有の細かな制御はしにくいが、「手元では通るのに機械で落ちる」が構造的に起きない"
+          ]
+        }
+      ],
+      "scope_notes": {
+        "bundled": false,
+        "topics": [
+          {
+            "topic_id": "qa-infra-web",
+            "covers_cell": null,
+            "answer_span": "現行構成で確定。技術基盤は現行リポジトリの構成(Next.js + Cloudflare Workers/OpenNext + D1 + Drizzle ORM)を正として仕様に確定する。",
+            "note": "統合前の質疑由来の節。確定セルの裏付けではないが、統合時に範囲を保つため本文へ残してある。裏付けでないものを裏付けと名乗らせないため covers_cell は null にしてある。",
+            "origin_qa_id": "qa-infra-web",
+            "released_section_heading": "### qa-infra-web（出典未記載）"
+          },
+          {
+            "topic_id": "qa-infra-web-redirect",
+            "covers_cell": null,
+            "answer_span": "| 障害時 | リダイレクトはresolver storeで転送先を解決し、計測eventをQueueへ非同期配送する。SLOと劣化モードは`03` §1を正とする |",
+            "note": "統合前の質疑由来の節。確定セルの裏付けではないが、統合時に範囲を保つため本文へ残してある。裏付けでないものを裏付けと名乗らせないため covers_cell は null にしてある。",
+            "origin_qa_id": "qa-infra-web-redirect",
+            "released_section_heading": "### qa-infra-web-redirect（docs/spec/02-補充仕様-ギャップと追加要件.md §7 運用系の補充）"
+          },
+          {
+            "topic_id": "qa-infra-web-spec-intake",
+            "covers_cell": {
+              "category": "infrastructure",
+              "platform": "web"
+            },
+            "answer_span": "| 1 速い門 | push / PR | 5 分 | **止める** |",
+            "note": "この節が確定セルの直接の裏付けである。R4-reopen の理由に「書面入力 qa で再確定する」とあり、再確定を出したのはこの書面入力の節である。",
+            "origin_qa_id": "qa-infra-web-spec-intake",
+            "released_section_heading": "### qa-infra-web-spec-intake（docs/spec/11-CI-CD・品質ゲート仕様.md §8 検査の段）"
+          }
+        ],
+        "recorded_with": "set-qa-scope-notes",
+        "bundling_reason": "**この束ねは解消済みである。**束ねの理由は「qa_ref が 1 件しか持てない」ことだった。セルが qa_refs[] で複数の裏付けを引けるようになったので、本文を 1 件へ寄せる必要が無くなり、取り込んでいた節を外した。外した節は取り込み元 entry (qa-infra-web, qa-infra-web-redirect) に byte 単位で同一のまま在り、writer が一致を確かめてから外している。下の topics は、どの節がどの entry へ戻ったかの対応として残してある。",
+        "split_with": "split-qa-bundle",
+        "split_on": "2026-08-21",
+        "absorbed_origins_released": [
+          "qa-infra-web",
+          "qa-infra-web-redirect"
+        ],
+        "reanchored_with": "reanchor-split-scope-notes",
+        "reanchored_on": "2026-08-21"
+      }
+    },
+    {
+      "id": "qa-security-web-spec-intake",
+      "question": "security×web: 秘密情報をどこに置き、誰が登録するか (書面入力 docs/spec/11 §5)",
+      "answer": "- API キー・トークンは **GitHub Secrets と Cloudflare の環境変数**で管理する。\n- **リポジトリのファイル、コマンドライン、AI が読める場所に置かない。**\n  登録は利用者本人が、ブラウザまたは本人のターミナルで行う。代行しない。\n- ログに秘密情報を出さない（`echo ${{ secrets.X }}` を書かない）。",
+      "source": {
+        "kind": "written-requirements",
+        "path": "docs/spec/11-CI-CD・品質ゲート仕様.md",
+        "section": "§5 秘密情報",
+        "sha256": "ce690b428667e8c2a2aca891acc9bf3725852f7d9edfdd5a812365a06d4aaadf",
+        "resealed_with": "reseal-written-source",
+        "resealed_on": "2026-08-21"
+      },
+      "design_applications": [
+        {
+          "knowledge_ref": "docs/spec/11-CI-CD・品質ゲート仕様.md#§5",
+          "principle": "秘密情報はリポジトリのファイル・コマンドライン・AI が読める場所に置かない。登録は利用者本人がブラウザまたは本人のターミナルで行い、代行しない",
+          "applicability": "applied",
+          "rationale": ".dev.vars.example は値を含まない見本のまま維持し、実値は GitHub Secrets と Cloudflare の環境変数にだけ置く。手順書には値を書かせる形のコマンド例を載せない",
+          "tradeoffs": [
+            "登録の代行ができないため利用者の手数が増えるが、鍵の値がコマンド履歴やコンテキストへ残らない"
+          ]
+        },
+        {
+          "knowledge_ref": "docs/spec/11-CI-CD・品質ゲート仕様.md#§5",
+          "principle": "API トークンの権限は最小にする (Workers Scripts 編集 / D1 編集 / R2 編集のうち必要なものだけ、対象アカウントは 1 つに限定)",
+          "applicability": "applied",
+          "rationale": "用途ごとにトークンを分け、発行時に対象アカウントを 1 つへ絞る。1 本の万能トークンを使い回さない",
+          "tradeoffs": [
+            "トークンの本数が増えて管理対象が増えるが、漏れたときの影響範囲がその用途に閉じる"
+          ]
+        }
+      ],
+      "scope_notes": {
+        "bundled": false,
+        "topics": [
+          {
+            "topic_id": "qa-security-web",
+            "covers_cell": null,
+            "answer_span": "* SSRF対策",
+            "note": "統合前の質疑由来の節。確定セルの裏付けではないが、統合時に範囲を保つため本文へ残してある。裏付けでないものを裏付けと名乗らせないため covers_cell は null にしてある。",
+            "origin_qa_id": "qa-security-web",
+            "released_section_heading": "### qa-security-web（docs/spec/01-要求仕様書-v1.0.md §26.1）"
+          },
+          {
+            "topic_id": "qa-security-web-spec-intake",
+            "covers_cell": {
+              "category": "security",
+              "platform": "web"
+            },
+            "answer_span": "- API キー・トークンは **GitHub Secrets と Cloudflare の環境変数**で管理する。",
+            "note": "この節が確定セルの直接の裏付けである。R4-reopen の理由に「書面入力 qa で再確定する」とあり、再確定を出したのはこの書面入力の節である。",
+            "origin_qa_id": "qa-security-web-spec-intake",
+            "released_section_heading": "### qa-security-web-spec-intake（docs/spec/11-CI-CD・品質ゲート仕様.md §5 秘密情報）"
+          }
+        ],
+        "recorded_with": "set-qa-scope-notes",
+        "bundling_reason": "**この束ねは解消済みである。**束ねの理由は「qa_ref が 1 件しか持てない」ことだった。セルが qa_refs[] で複数の裏付けを引けるようになったので、本文を 1 件へ寄せる必要が無くなり、取り込んでいた節を外した。外した節は取り込み元 entry (qa-security-web) に byte 単位で同一のまま在り、writer が一致を確かめてから外している。下の topics は、どの節がどの entry へ戻ったかの対応として残してある。",
+        "split_with": "split-qa-bundle",
+        "split_on": "2026-08-21",
+        "absorbed_origins_released": [
+          "qa-security-web"
+        ],
+        "reanchored_with": "reanchor-split-scope-notes",
+        "reanchored_on": "2026-08-21"
+      }
+    },
+    {
+      "id": "qa-frontend-web-spec-intake",
+      "question": "frontend×web: 改善要望の送信モーダルは何を見せ、何を強制しないか (書面入力 docs/spec/12 §5)",
+      "answer": "- **FB-AC-07**: 「この画面から一緒に送られるもの」を展開でき、自動収集される項目を送信前に確認できる。隠さない。\n- **FB-AC-09**: 画面の写しが**完全でないことがある**ため、「この画面には、絵として写しにくい部品があります。撮れた画像を確かめてください。」を常に表示し、プレビューを見てから送る。完全性を保証しない。\n- **FB-AC-10**: 「撮り直す」「**画像を外す（文章だけで送る）**」を常に選べる。貼り付け（Ctrl+V）とファイル選択も受け付ける。**画像なしでも送信は成立する。**",
+      "source": {
+        "kind": "written-requirements",
+        "path": "docs/spec/12-改善要望フィードバック仕様.md",
+        "section": "§5 送信モーダル（FB-AC-04〜10）",
+        "sha256": "958df5bb7d4efb7c55ce3bcbe26dfe490012ae4ff409696f558f3418b38f6684",
+        "requoted_with": "requote-written-source",
+        "requoted_on": "2026-08-21",
+        "resealed_with": "reseal-written-source",
+        "resealed_on": "2026-08-21"
+      },
+      "design_applications": [
+        {
+          "knowledge_ref": "docs/spec/12-改善要望フィードバック仕様.md#§5",
+          "principle": "自動収集される項目は送信前に展開して確認できる (FB-AC-07)。画面の写しの不完全さを常に表示し、完全性を保証しない (FB-AC-09)",
+          "applicability": "applied",
+          "rationale": "収集項目の一覧は送信処理と同じ 1 つの定義から描く。表示用に別の一覧を持つと、収集を増やしたときに表示だけ古くなる",
+          "tradeoffs": [
+            "モーダルの情報量が増えるが、送信者が何を送るのかを知らないまま送る状態が無くなる"
+          ]
+        },
+        {
+          "knowledge_ref": "docs/spec/12-改善要望フィードバック仕様.md#§5",
+          "principle": "画像なしでも送信は成立する (FB-AC-10)。任意欄が空のとき、詳細画面では「本人からの記入はありません」と明示する (FB-AC-06)",
+          "applicability": "applied",
+          "rationale": "画像取得の失敗を送信の失敗にしない。空欄は欄ごと消さず、記入が無かったことを文で出す。この文言が出ることをテストで固定する",
+          "tradeoffs": [
+            "空欄でも要素が残るため画面はやや長くなるが、「書かれなかった」と「表示していない」を読み分けられる"
+          ]
+        }
+      ],
+      "scope_notes": {
+        "bundled": false,
+        "topics": [
+          {
+            "topic_id": "qa-frontend-web",
+            "covers_cell": null,
+            "answer_span": "現行構成で確定。技術基盤は現行リポジトリの構成(Next.js + Cloudflare Workers/OpenNext + D1 + Drizzle ORM)を正として仕様に確定する。",
+            "note": "統合前の質疑由来の節。確定セルの裏付けではないが、統合時に範囲を保つため本文へ残してある。裏付けでないものを裏付けと名乗らせないため covers_cell は null にしてある。",
+            "origin_qa_id": "qa-frontend-web",
+            "released_section_heading": "### qa-frontend-web（出典未記載）"
+          },
+          {
+            "topic_id": "qa-frontend-web-analytics",
+            "covers_cell": null,
+            "answer_span": "v1.0 22.8章のフィルタに加えて、次のビューを定義する。",
+            "note": "統合前の質疑由来の節。確定セルの裏付けではないが、統合時に範囲を保つため本文へ残してある。裏付けでないものを裏付けと名乗らせないため covers_cell は null にしてある。",
+            "origin_qa_id": "qa-frontend-web-analytics",
+            "released_section_heading": "### qa-frontend-web-analytics（docs/spec/03-分析・解析基盤仕様.md §8 画面仕様(Analytics 拡張)）"
+          },
+          {
+            "topic_id": "qa-frontend-web-spec-intake",
+            "covers_cell": {
+              "category": "frontend",
+              "platform": "web"
+            },
+            "answer_span": "- **FB-AC-07**: 「この画面から一緒に送られるもの」を展開でき、自動収集される項目を送信前に確認できる。隠さない。",
+            "note": "この節が確定セルの直接の裏付けである。R4-reopen の理由に「書面入力 qa で再確定する」とあり、再確定を出したのはこの書面入力の節である。",
+            "origin_qa_id": "qa-frontend-web-spec-intake",
+            "released_section_heading": "### qa-frontend-web-spec-intake（docs/spec/12-改善要望フィードバック仕様.md §5 送信モーダル（FB-AC-04〜10））"
+          }
+        ],
+        "recorded_with": "set-qa-scope-notes",
+        "bundling_reason": "**この束ねは解消済みである。**束ねの理由は「qa_ref が 1 件しか持てない」ことだった。セルが qa_refs[] で複数の裏付けを引けるようになったので、本文を 1 件へ寄せる必要が無くなり、取り込んでいた節を外した。外した節は取り込み元 entry (qa-frontend-web, qa-frontend-web-analytics) に byte 単位で同一のまま在り、writer が一致を確かめてから外している。下の topics は、どの節がどの entry へ戻ったかの対応として残してある。",
+        "split_with": "split-qa-bundle",
+        "split_on": "2026-08-21",
+        "absorbed_origins_released": [
+          "qa-frontend-web",
+          "qa-frontend-web-analytics"
+        ],
+        "reanchored_with": "reanchor-split-scope-notes",
+        "reanchored_on": "2026-08-21"
+      }
+    },
+    {
+      "id": "qa-ops-web-spec-intake",
+      "question": "maintenance-ops×web: カバレッジの数字を偽らないための規律は何か (書面入力 docs/spec/10 §2、08 ⑤)",
+      "answer": "| アサーションの無いテスト | 実行するだけで「通った」ことになる。壊れても赤くならない |\n| スタブを厚くテストして全体を押し上げる | 中身が仮の場所は行数が少なく通しやすい。**最も壊れると痛い場所は覆われないまま数字だけ上がる** |\n| 閾値を下げて緑にする | 下げた記録が残らなければ、次の人は「元から 60% だった」と思う |\n| 到達しにくい分岐を消して分母を減らす | 異常系を削るのは、異常系を守らないという意思決定である |",
+      "source": {
+        "kind": "written-requirements",
+        "path": "docs/spec/10-テスト戦略仕様.md",
+        "section": "§2 数字を偽らないための規律",
+        "sha256": "8d0fe2568fa76d4c42aa31c22ab3dd936b1db9956c6f00be5e91c5534e290505",
+        "requoted_with": "requote-written-source",
+        "requoted_on": "2026-08-21",
+        "resealed_with": "reseal-written-source",
+        "resealed_on": "2026-08-21"
+      },
+      "design_applications": [
+        {
+          "knowledge_ref": "docs/spec/10-テスト戦略仕様.md#§2-1",
+          "principle": "スタブをカバレッジ計算から除外しない。加えて「スタブを除いた実質カバレッジ」を併記し、差が開いたら手抜きの合図とする",
+          "applicability": "applied",
+          "rationale": "docs/product/coverage.md に全体と実質の 2 段を必ず並べる。1 つの数字にまとめない",
+          "tradeoffs": [
+            "数字が 2 つになり読むのに手間がかかるが、スタブを厚く覆って全体を押し上げる手が効かなくなる"
+          ]
+        },
+        {
+          "knowledge_ref": "docs/spec/10-テスト戦略仕様.md#§2-2",
+          "principle": "層別に測る。domain と application が最も壊れると痛い層なので、ここに高い水準を要求する",
+          "applicability": "applied",
+          "rationale": "閾値は層ごとに quality-gates.config.mjs へ置き、上限・下限は下げる方向にしか動かさない",
+          "tradeoffs": [
+            "層の切り方を変えると閾値の比較ができなくなるため、層の定義自体を動かしにくくなる"
+          ]
+        },
+        {
+          "knowledge_ref": "docs/spec/08-仕様の未修正点.md#⑤",
+          "principle": "古い判定は古く見えない。完全性評価が現在の仕様書の一部しか見ていない状態を、見張り (pnpm run verify の「仕様レポートの鮮度」) が落ちる側で表す",
+          "applicability": "applied",
+          "rationale": "指紋の焼き付け (scripts/spec-freshness.mjs --write) は再評価が PASS した後にだけ行う。先に焼くと「いまの仕様書に対する PASS」という嘘が 1 コマンドで作れる",
+          "tradeoffs": [
+            "再評価が済むまで門が赤のままになるが、赤であること自体が未解消の告知になる"
+          ]
+        }
+      ],
+      "scope_notes": {
+        "bundled": false,
+        "topics": [
+          {
+            "topic_id": "qa-ops-web",
+            "covers_cell": null,
+            "answer_span": "| 通知 | 投稿失敗・リンク切れ・プログラム終了・成果確定をメール/Slack/アプリ内で通知。通知チャネルはWorkspace設定 |",
+            "note": "統合前の質疑由来の節。確定セルの裏付けではないが、統合時に範囲を保つため本文へ残してある。裏付けでないものを裏付けと名乗らせないため covers_cell は null にしてある。",
+            "origin_qa_id": "qa-ops-web",
+            "released_section_heading": "### qa-ops-web（docs/spec/02-補充仕様-ギャップと追加要件.md §7）"
+          },
+          {
+            "topic_id": "qa-ops-web-spec-intake",
+            "covers_cell": {
+              "category": "maintenance-ops",
+              "platform": "web"
+            },
+            "answer_span": "| アサーションの無いテスト | 実行するだけで「通った」ことになる。壊れても赤くならない |",
+            "note": "この節が確定セルの直接の裏付けである。R4-reopen の理由に「書面入力 qa で再確定する」とあり、再確定を出したのはこの書面入力の節である。",
+            "origin_qa_id": "qa-ops-web-spec-intake",
+            "released_section_heading": "### qa-ops-web-spec-intake（docs/spec/10-テスト戦略仕様.md §2 数字を偽らないための規律）"
+          }
+        ],
+        "recorded_with": "set-qa-scope-notes",
+        "bundling_reason": "**この束ねは解消済みである。**束ねの理由は「qa_ref が 1 件しか持てない」ことだった。セルが qa_refs[] で複数の裏付けを引けるようになったので、本文を 1 件へ寄せる必要が無くなり、取り込んでいた節を外した。外した節は取り込み元 entry (qa-ops-web) に byte 単位で同一のまま在り、writer が一致を確かめてから外している。下の topics は、どの節がどの entry へ戻ったかの対応として残してある。",
+        "split_with": "split-qa-bundle",
+        "split_on": "2026-08-21",
+        "absorbed_origins_released": [
+          "qa-ops-web"
+        ],
+        "reanchored_with": "reanchor-split-scope-notes",
+        "reanchored_on": "2026-08-21"
+      }
+    },
+    {
+      "id": "qa-uiux-web-screen-priority",
+      "question": "ui-ux×web: 人が読む・判断する・操作する UI について、主要画面ごとの利用者ロール・主タスク・熟練度・端末・利用頻度・データ量・比較/一括操作の要否・誤操作コスト・情報の優先/補助/省略と密度をどうするか (2026-08-20 対話ヒアリング)",
+      "answer": "利用者本人の回答を逐語で記録する。以下 9 項目は代理推定ではなく本人回答である。\n\n| 項目 | 利用者の回答 |\n|---|---|\n| 利用者ロール | 運営者本人 |\n| 利用頻度 | 週 1 回程度 |\n| 熟練度 | 反復利用する本人（初回向けの説明より、前回からの変化が分かることを優先） |\n| 主タスク（優先順） | 利用者は「3,1,2の優先度」と回答。提示した選択肢は 1=手を入れるべきもの（未処理 URL・承認待ち・投稿失敗・リンク切れ・更新期限切れ）／2=成果と収益の数字（発生見込・承認・支払）／3=記事ごとの成績比較。したがって ①記事ごとの成績比較 ②手を入れるべきもの ③成果と収益の数字 |\n| 端末 | PC 中心（キーボードとマウス） |\n| データ量 | 数百件規模まで増える |\n| 比較・一括操作 | あり。並べて比べる／絞り込む／複数選んでまとめて処理する／書き出す |\n| 誤操作コスト | 公開・削除・リンク差し替えは確認必須（プレビューと明示承認を経由）。それ以外は取り消せる |\n| visual device 方針 | 情報量優先。一画面に多くを出し、ラベルと区切りで見分ける。色だけに意味を持たせない |\n\n## 既存記録との食い違い（均さずに両方残す）\n\n**この節は利用者の回答ではない。**上の表と混ぜて読まないために区切ってある。食い違いを消して片方だけを残すと、どちらが一次根拠だったかが後から引けなくなる。\n\n### (1) 主タスクの優先順 ↔ UIUX-REQ-001\n\n`system-spec/ui-ux.md` の `UIUX-REQ-001` は「一覧ではなく『今、利用者が判断・回復すべき業務状態』を優先順位にし」と書いている。利用者は**記事ごとの成績比較を第 1 位**に置き、業務状態の回復を第 2 位に置いた。**順位が入れ替わっている。**\n\n一次根拠は利用者回答である。`UIUX-REQ-001` は書面 (`docs/spec/01` §17.4/§22、`docs/spec/03` §7〜§8) から後に導かれた設計判断であり、本人に確認したものではない。ただし `UIUX-REQ-001` を本記録で無効化はしない——両者は「先頭に何を置くか」で争っているだけで、「業務状態を出すこと」自体は利用者も第 2 位として要求している。**解消は設計側の判断であって、収集の記録が勝手に決めることではない。**\n\n### (2) 利用頻度 ↔ 既存 design_applications の代理推定\n\n`qa-uiux-web-spec-intake` の `design_applications[0]` (`elicit-question-bank:screen-information-priority`) は、同じ 9 項目を**書面からの代理推定**で既に埋めている。本人回答と照合すると 9 軸中 3 軸が食い違う（分母 = カタログ completion_rule の 9 軸）:\n\n| 軸 | 代理推定 (既存) | 本人回答 (今回) |\n|---|---|---|\n| 利用頻度 | 毎日 | 週 1 回程度 |\n| 端末 | PC主体+モバイル併用(レスポンシブ) | PC 中心（キーボードとマウス） |\n| 熟練度 | 初中級中心 | 反復利用する本人 |\n\n残る 6 軸（ロール／主タスクの構成要素／データ量／比較・一括操作／誤操作コスト／visual device 方針）は方向が一致する。**既存の代理推定を消さない。**消すと「この章は一度、聞かずに埋められた」という事実が引けなくなる。C16 の block ゲートが求めているのは利用者根拠への接地であって、過去の推定の抹消ではない。\n\n### (3) 週 1 回であることの帰結（設計側への申し送り。ここでは確定しない）\n\n毎日開く前提の「同じ手順を速く回す」最適化より、**「前回以降に何が変わったか」**が効く。既存章はこの想定を持っていない。設計判断は ui-ux 章側で行う。",
+      "source": {
+        "kind": "user-dialogue"
+      },
+      "design_applications": [
+        {
+          "knowledge_ref": "elicit-question-bank:screen-information-priority",
+          "principle": "画面情報設計 9 項目を、代理推定ではなく利用者本人の回答で確定する",
+          "applicability": "applied",
+          "rationale": "9 軸すべてに本人回答がある。ロール=運営者本人、主タスク優先順=①成績比較 ②回復すべき業務状態 ③成果・収益、熟練度=反復利用する本人、端末=PC 中心、利用頻度=週 1 回、データ量=数百件、比較/一括操作=あり(並べる・絞る・まとめて処理・書き出す)、誤操作コスト=公開/削除/リンク差し替えのみ確認必須で他は取り消し可、visual device=情報量優先・ラベルと区切りで見分ける・色だけに意味を持たせない",
+          "tradeoffs": [
+            "本人回答の主タスク優先順は既存 UIUX-REQ-001 と先頭が入れ替わる。均さず両方を記録し、解消は設計側の判断に残す",
+            "同じ 9 軸を書面から埋めた既存の代理推定が qa-uiux-web-spec-intake に残る。消さないので、読む側は 2 つの記録を見ることになる。どちらが一次根拠かは各記録の source が示す"
+          ]
+        },
+        {
+          "knowledge_ref": "user-dialogue:2026-08-20#利用頻度",
+          "principle": "週 1 回の利用では、速さより「前回以降の変化」が効く",
+          "applicability": "applied",
+          "rationale": "毎日開く前提だと最適化の対象は手順の反復速度になるが、週 1 回だと前回の記憶が消えているため、まず差分を提示しないと利用者は自分の作業位置を復元できない",
+          "tradeoffs": [
+            "差分の基準時刻をどこに置くか(前回ログイン/前回操作/固定期間)を決める必要があり、既存章はこの想定を持っていない"
+          ]
+        },
+        {
+          "knowledge_ref": "user-dialogue:2026-08-20#誤操作コスト",
+          "principle": "確認を要求する操作を、外部へ出る 3 種(公開・削除・リンク差し替え)に限定する",
+          "applicability": "applied",
+          "rationale": "利用者は「それ以外は取り消せる」と回答した。全操作へ確認を掛けると週 1 回のまとめ処理で手数が増え、確認そのものが読み飛ばされる。確認の価値は掛ける範囲を絞ることで保たれる",
+          "tradeoffs": [
+            "取り消し可能であることを実装が保証しなければならない。確認を外した操作に取り消し経路が無いと、この判断は安全側の根拠を失う"
+          ]
+        },
+        {
+          "knowledge_ref": "user-dialogue:2026-08-20#visual-device",
+          "principle": "情報量優先。密度はラベルと区切りで支え、色に意味を担わせない",
+          "applicability": "applied",
+          "rationale": "数百件を並べて比べる用途では余白優先の設計だと一度に見える件数が足りない。色だけに意味を持たせない点は既存 UIUX-REQ-003 (速報/確定・n不足) と同方向で、こちらは食い違わない",
+          "tradeoffs": [
+            "密度を上げると走査しづらくなるため、区切りとラベルの設計が失敗すると情報量優先がそのまま可読性の低下になる"
+          ]
+        }
+      ],
+      "scope_notes": {
+        "bundled": false,
+        "topics": [
+          {
+            "topic_id": "qa-uiux-web-screen-priority",
+            "covers_cell": {
+              "category": "ui-ux",
+              "platform": "web"
+            },
+            "answer_span": "利用者本人の回答を逐語で記録する。以下 9 項目は代理推定ではなく本人回答である。",
+            "note": "1 回の聞き取りの回答であり、他の質疑を統合していない。以降の「既存記録との食い違い」節は本人回答ではなく突き合わせの記録で、本文中にその旨が明示されているため別論点として数えない。なお ui-ux×web は 2026-08-20 の R4-reopen で qa_ref が qa-uiux-web-spec-intake からこの entry へ移っている。移る前の qa-uiux-web-spec-intake は束ねられたまま、どの確定セルからも指されていない状態で残る。",
+            "origin_qa_id": "qa-uiux-web-screen-priority"
+          }
+        ],
+        "recorded_with": "set-qa-scope-notes"
+      },
+      "written_up": [
+        {
+          "path": "docs/spec/dialogue-confirmations.md",
+          "sha256": "1312a2372403173dc8b57112ae0178d713c93a05471124e201e084bf0da8daa1",
+          "recorded_on": "2026-08-20",
+          "recorded_with": "set-qa-written-up",
+          "section": "## 2. 主要画面の情報優先度（ui-ux × web）"
         }
       ]
     }
@@ -1538,6 +2318,698 @@
         "serves_goals": [
           "G1",
           "G2"
+        ]
+      }
+    },
+    {
+      "category": "backend",
+      "platform": "web",
+      "reason": "C01 差し戻し: docs/spec/04〜12 の 9 枚 (2,705 行) が書面入力 target に取り込まれておらず、この確定はその 9 枚を見ずに出されている。R4-reopen で取り込み後に再確定する。",
+      "from": "確定"
+    },
+    {
+      "category": "database",
+      "platform": "web",
+      "reason": "C01 差し戻し: docs/spec/04〜12 の 9 枚 (2,705 行) が書面入力 target に取り込まれておらず、この確定はその 9 枚を見ずに出されている。R4-reopen で取り込み後に再確定する。",
+      "from": "確定"
+    },
+    {
+      "category": "ui-ux",
+      "platform": "web",
+      "reason": "C01 差し戻し: docs/spec/04〜12 の 9 枚 (2,705 行) が書面入力 target に取り込まれておらず、この確定はその 9 枚を見ずに出されている。R4-reopen で取り込み後に再確定する。",
+      "from": "確定"
+    },
+    {
+      "category": "infrastructure",
+      "platform": "web",
+      "reason": "C01 差し戻し: docs/spec/04〜12 の 9 枚 (2,705 行) が書面入力 target に取り込まれておらず、この確定はその 9 枚を見ずに出されている。R4-reopen で取り込み後に再確定する。",
+      "from": "確定"
+    },
+    {
+      "category": "security",
+      "platform": "web",
+      "reason": "C01 差し戻し: docs/spec/04〜12 の 9 枚 (2,705 行) が書面入力 target に取り込まれておらず、この確定はその 9 枚を見ずに出されている。R4-reopen で取り込み後に再確定する。",
+      "from": "確定"
+    },
+    {
+      "category": "frontend",
+      "platform": "web",
+      "reason": "C01 差し戻し: docs/spec/04〜12 の 9 枚 (2,705 行) が書面入力 target に取り込まれておらず、この確定はその 9 枚を見ずに出されている。R4-reopen で取り込み後に再確定する。",
+      "from": "確定"
+    },
+    {
+      "category": "maintenance-ops",
+      "platform": "web",
+      "reason": "C01 差し戻し: docs/spec/04〜12 の 9 枚 (2,705 行) が書面入力 target に取り込まれておらず、この確定はその 9 枚を見ずに出されている。R4-reopen で取り込み後に再確定する。",
+      "from": "確定"
+    },
+    {
+      "category": "backend",
+      "platform": "web",
+      "reason": "backend.md の 2 点を直すため。(1) 非規範注記 (本章内の ref-system-design-knowledge 参照は非規範・取得証跡なし・実装根拠に使用不可) が 5 章にあって本章に無い (C05 gap 6)。(2) コードフェンス対の破損 (90 行目・259 行目)。qa_log の回答本文が閉じフェンスだけを持ち開きフェンスを持たないため、章に 2 度出力された結果、開いたままの塊が 169 行を飲み込んでいる (C05 gap 4)。要件文の内容は変えない。表示の壊れと注記の欠落だけを直す。compile は走らせない (確定章 8 枚の全書き直しになるため)。",
+      "from": "確定"
+    },
+    {
+      "category": "database",
+      "platform": "web",
+      "reason": "database.md に非規範注記 (本章内の ref-system-design-knowledge 参照は非規範・取得証跡なし・実装根拠に使用不可) が無い (C05 gap 6)。5 章にあって 3 章に無い状態を一律にする。要件文の内容は変えない。compile は走らせない。",
+      "from": "確定"
+    },
+    {
+      "category": "infrastructure",
+      "platform": "web",
+      "reason": "infrastructure.md に非規範注記 (本章内の ref-system-design-knowledge 参照は非規範・取得証跡なし・実装根拠に使用不可) が無い (C05 gap 6)。5 章にあって 3 章に無い状態を一律にする。要件文の内容は変えない。compile は走らせない。",
+      "from": "確定"
+    },
+    {
+      "category": "database",
+      "platform": "web",
+      "reason": "gap 3 の「条項引用の可否」節を章本文へ明示するため、正規経路で章保護を解除する。あわせて記録: 2026-08-20 に compile 出力(scratchpad)と本番章を突き合わせた結果、章の規範本文 366 行(To-Be 契約表 DB-*/BE-*/INF-*/*-REQ-*/*-ACC-*、故障モード、初期 SLO、Acceptance evidence、index の状態軸)が正本にも生成器にも存在せず、compile は仕様書を消すことが判明した。したがって章の更新は compile ではなく手編集で行う。次に reopen する人はこの測定をやり直さなくてよい。再確定は reopen_log[].discarded と同じ qa_ref / serves_goals / required_info で行う。",
+      "from": "確定",
+      "discarded": {
+        "qa_ref": "qa-database-web-spec-intake",
+        "serves_goals": [
+          "G1",
+          "G2"
+        ]
+      }
+    },
+    {
+      "category": "auth",
+      "platform": "web",
+      "reason": "gap 3 の「条項引用の可否」節を章本文へ明示するため、正規経路で章保護を解除する。あわせて記録: 2026-08-20 に compile 出力(scratchpad)と本番章を突き合わせた結果、章の規範本文 366 行(To-Be 契約表 DB-*/BE-*/INF-*/*-REQ-*/*-ACC-*、故障モード、初期 SLO、Acceptance evidence、index の状態軸)が正本にも生成器にも存在せず、compile は仕様書を消すことが判明した。したがって章の更新は compile ではなく手編集で行う。次に reopen する人はこの測定をやり直さなくてよい。再確定は reopen_log[].discarded と同じ qa_ref / serves_goals / required_info で行う。",
+      "from": "確定",
+      "discarded": {
+        "qa_ref": "qa-auth-web",
+        "serves_goals": [
+          "G1"
+        ],
+        "required_info": [
+          {
+            "item_id": "auth-model",
+            "missing_effect": "block",
+            "status": "grounded",
+            "grounded_by": "qa-auth-web"
+          }
+        ]
+      }
+    },
+    {
+      "category": "security",
+      "platform": "web",
+      "reason": "gap 3 の「条項引用の可否」節を章本文へ明示するため、正規経路で章保護を解除する。あわせて記録: 2026-08-20 に compile 出力(scratchpad)と本番章を突き合わせた結果、章の規範本文 366 行(To-Be 契約表 DB-*/BE-*/INF-*/*-REQ-*/*-ACC-*、故障モード、初期 SLO、Acceptance evidence、index の状態軸)が正本にも生成器にも存在せず、compile は仕様書を消すことが判明した。したがって章の更新は compile ではなく手編集で行う。次に reopen する人はこの測定をやり直さなくてよい。再確定は reopen_log[].discarded と同じ qa_ref / serves_goals / required_info で行う。",
+      "from": "確定",
+      "discarded": {
+        "qa_ref": "qa-security-web-spec-intake",
+        "serves_goals": [
+          "G1"
+        ],
+        "required_info": [
+          {
+            "item_id": "security-posture",
+            "missing_effect": "block",
+            "status": "grounded",
+            "grounded_by": "qa-security-web-spec-intake"
+          }
+        ]
+      }
+    },
+    {
+      "category": "infrastructure",
+      "platform": "web",
+      "reason": "gap 3 の「条項引用の可否」節を章本文へ明示するため、正規経路で章保護を解除する。あわせて記録: 2026-08-20 に compile 出力(scratchpad)と本番章を突き合わせた結果、章の規範本文 366 行(To-Be 契約表 DB-*/BE-*/INF-*/*-REQ-*/*-ACC-*、故障モード、初期 SLO、Acceptance evidence、index の状態軸)が正本にも生成器にも存在せず、compile は仕様書を消すことが判明した。したがって章の更新は compile ではなく手編集で行う。次に reopen する人はこの測定をやり直さなくてよい。再確定は reopen_log[].discarded と同じ qa_ref / serves_goals / required_info で行う。",
+      "from": "確定",
+      "discarded": {
+        "qa_ref": "qa-infra-web-spec-intake",
+        "serves_goals": [
+          "G2",
+          "G1"
+        ]
+      }
+    },
+    {
+      "category": "backend",
+      "platform": "web",
+      "reason": "gap 3 の「条項引用の可否」節を章本文へ明示するため、正規経路で章保護を解除する。あわせて記録: 2026-08-20 に compile 出力(scratchpad)と本番章を突き合わせた結果、章の規範本文 366 行(To-Be 契約表 DB-*/BE-*/INF-*/*-REQ-*/*-ACC-*、故障モード、初期 SLO、Acceptance evidence、index の状態軸)が正本にも生成器にも存在せず、compile は仕様書を消すことが判明した。したがって章の更新は compile ではなく手編集で行う。次に reopen する人はこの測定をやり直さなくてよい。再確定は reopen_log[].discarded と同じ qa_ref / serves_goals / required_info で行う。",
+      "from": "確定",
+      "discarded": {
+        "qa_ref": "qa-backend-web-spec-intake",
+        "serves_goals": [
+          "G2",
+          "G1"
+        ],
+        "required_info": [
+          {
+            "item_id": "domain-model",
+            "missing_effect": "block",
+            "status": "grounded",
+            "grounded_by": "qa-backend-web-spec-intake"
+          }
+        ]
+      }
+    },
+    {
+      "category": "frontend",
+      "platform": "web",
+      "reason": "gap 3 の「条項引用の可否」節を章本文へ明示するため、正規経路で章保護を解除する。あわせて記録: 2026-08-20 に compile 出力(scratchpad)と本番章を突き合わせた結果、章の規範本文 366 行(To-Be 契約表 DB-*/BE-*/INF-*/*-REQ-*/*-ACC-*、故障モード、初期 SLO、Acceptance evidence、index の状態軸)が正本にも生成器にも存在せず、compile は仕様書を消すことが判明した。したがって章の更新は compile ではなく手編集で行う。次に reopen する人はこの測定をやり直さなくてよい。再確定は reopen_log[].discarded と同じ qa_ref / serves_goals / required_info で行う。",
+      "from": "確定",
+      "discarded": {
+        "qa_ref": "qa-frontend-web-spec-intake",
+        "serves_goals": [
+          "G1",
+          "G2"
+        ]
+      }
+    },
+    {
+      "category": "maintenance-ops",
+      "platform": "web",
+      "reason": "gap 3 の「条項引用の可否」節を章本文へ明示するため、正規経路で章保護を解除する。あわせて記録: 2026-08-20 に compile 出力(scratchpad)と本番章を突き合わせた結果、章の規範本文 366 行(To-Be 契約表 DB-*/BE-*/INF-*/*-REQ-*/*-ACC-*、故障モード、初期 SLO、Acceptance evidence、index の状態軸)が正本にも生成器にも存在せず、compile は仕様書を消すことが判明した。したがって章の更新は compile ではなく手編集で行う。次に reopen する人はこの測定をやり直さなくてよい。再確定は reopen_log[].discarded と同じ qa_ref / serves_goals / required_info で行う。",
+      "from": "確定",
+      "discarded": {
+        "qa_ref": "qa-ops-web-spec-intake",
+        "serves_goals": [
+          "G1",
+          "G2"
+        ]
+      }
+    },
+    {
+      "category": "database",
+      "platform": "web",
+      "reason": "gap 1 (C05 gaps[0]) の「確定セル内容と decisions[] 6 件を本文へ載せる」を章へ手編集で反映するため、正規経路で章保護を解除する。あわせて記録: 2026-08-20 の実測で、章の「カテゴリ別収集状態」が根拠として名指しする qa は 8 カテゴリ中 7 件が正本の qa_ref と食い違っていた (章は qa-*-analytics / qa-*-web など intake 前の質疑を指し、正本は qa-*-spec-intake を指す。一致は auth のみ)。また decisions 6 件は 00 章に 1 件 (decision-auth-method) しか載っておらず、技術 8 章には 0 件だった。反映は compile では行えない。compile は章の規範本文 366 行 (ファイル内 distinct 合計。出現回数では 374、10 枚横断 distinct では 316) を消すことが 2026-08-20 に測定済みである。再確定は reopen_log[].discarded と同じ qa_ref / serves_goals / required_info で行う。",
+      "from": "確定",
+      "discarded": {
+        "qa_ref": "qa-database-web-spec-intake",
+        "serves_goals": [
+          "G1",
+          "G2"
+        ]
+      }
+    },
+    {
+      "category": "auth",
+      "platform": "web",
+      "reason": "gap 1 (C05 gaps[0]) の「確定セル内容と decisions[] 6 件を本文へ載せる」を章へ手編集で反映するため、正規経路で章保護を解除する。あわせて記録: 2026-08-20 の実測で、章の「カテゴリ別収集状態」が根拠として名指しする qa は 8 カテゴリ中 7 件が正本の qa_ref と食い違っていた (章は qa-*-analytics / qa-*-web など intake 前の質疑を指し、正本は qa-*-spec-intake を指す。一致は auth のみ)。また decisions 6 件は 00 章に 1 件 (decision-auth-method) しか載っておらず、技術 8 章には 0 件だった。反映は compile では行えない。compile は章の規範本文 366 行 (ファイル内 distinct 合計。出現回数では 374、10 枚横断 distinct では 316) を消すことが 2026-08-20 に測定済みである。再確定は reopen_log[].discarded と同じ qa_ref / serves_goals / required_info で行う。",
+      "from": "確定",
+      "discarded": {
+        "qa_ref": "qa-auth-web",
+        "serves_goals": [
+          "G1"
+        ],
+        "required_info": [
+          {
+            "item_id": "auth-model",
+            "missing_effect": "block",
+            "status": "grounded",
+            "grounded_by": "qa-auth-web"
+          }
+        ]
+      }
+    },
+    {
+      "category": "backend",
+      "platform": "web",
+      "reason": "gap 1 (C05 gaps[0]) の「確定セル内容と decisions[] 6 件を本文へ載せる」を章へ手編集で反映するため、正規経路で章保護を解除する。あわせて記録: 2026-08-20 の実測で、章の「カテゴリ別収集状態」が根拠として名指しする qa は 8 カテゴリ中 7 件が正本の qa_ref と食い違っていた (章は qa-*-analytics / qa-*-web など intake 前の質疑を指し、正本は qa-*-spec-intake を指す。一致は auth のみ)。また decisions 6 件は 00 章に 1 件 (decision-auth-method) しか載っておらず、技術 8 章には 0 件だった。反映は compile では行えない。compile は章の規範本文 366 行 (ファイル内 distinct 合計。出現回数では 374、10 枚横断 distinct では 316) を消すことが 2026-08-20 に測定済みである。再確定は reopen_log[].discarded と同じ qa_ref / serves_goals / required_info で行う。",
+      "from": "確定",
+      "discarded": {
+        "qa_ref": "qa-backend-web-spec-intake",
+        "serves_goals": [
+          "G2",
+          "G1"
+        ],
+        "required_info": [
+          {
+            "item_id": "domain-model",
+            "missing_effect": "block",
+            "status": "grounded",
+            "grounded_by": "qa-backend-web-spec-intake"
+          }
+        ]
+      }
+    },
+    {
+      "category": "frontend",
+      "platform": "web",
+      "reason": "gap 1 (C05 gaps[0]) の「確定セル内容と decisions[] 6 件を本文へ載せる」を章へ手編集で反映するため、正規経路で章保護を解除する。あわせて記録: 2026-08-20 の実測で、章の「カテゴリ別収集状態」が根拠として名指しする qa は 8 カテゴリ中 7 件が正本の qa_ref と食い違っていた (章は qa-*-analytics / qa-*-web など intake 前の質疑を指し、正本は qa-*-spec-intake を指す。一致は auth のみ)。また decisions 6 件は 00 章に 1 件 (decision-auth-method) しか載っておらず、技術 8 章には 0 件だった。反映は compile では行えない。compile は章の規範本文 366 行 (ファイル内 distinct 合計。出現回数では 374、10 枚横断 distinct では 316) を消すことが 2026-08-20 に測定済みである。再確定は reopen_log[].discarded と同じ qa_ref / serves_goals / required_info で行う。",
+      "from": "確定",
+      "discarded": {
+        "qa_ref": "qa-frontend-web-spec-intake",
+        "serves_goals": [
+          "G1",
+          "G2"
+        ]
+      }
+    },
+    {
+      "category": "infrastructure",
+      "platform": "web",
+      "reason": "gap 1 (C05 gaps[0]) の「確定セル内容と decisions[] 6 件を本文へ載せる」を章へ手編集で反映するため、正規経路で章保護を解除する。あわせて記録: 2026-08-20 の実測で、章の「カテゴリ別収集状態」が根拠として名指しする qa は 8 カテゴリ中 7 件が正本の qa_ref と食い違っていた (章は qa-*-analytics / qa-*-web など intake 前の質疑を指し、正本は qa-*-spec-intake を指す。一致は auth のみ)。また decisions 6 件は 00 章に 1 件 (decision-auth-method) しか載っておらず、技術 8 章には 0 件だった。反映は compile では行えない。compile は章の規範本文 366 行 (ファイル内 distinct 合計。出現回数では 374、10 枚横断 distinct では 316) を消すことが 2026-08-20 に測定済みである。再確定は reopen_log[].discarded と同じ qa_ref / serves_goals / required_info で行う。",
+      "from": "確定",
+      "discarded": {
+        "qa_ref": "qa-infra-web-spec-intake",
+        "serves_goals": [
+          "G2",
+          "G1"
+        ]
+      }
+    },
+    {
+      "category": "maintenance-ops",
+      "platform": "web",
+      "reason": "gap 1 (C05 gaps[0]) の「確定セル内容と decisions[] 6 件を本文へ載せる」を章へ手編集で反映するため、正規経路で章保護を解除する。あわせて記録: 2026-08-20 の実測で、章の「カテゴリ別収集状態」が根拠として名指しする qa は 8 カテゴリ中 7 件が正本の qa_ref と食い違っていた (章は qa-*-analytics / qa-*-web など intake 前の質疑を指し、正本は qa-*-spec-intake を指す。一致は auth のみ)。また decisions 6 件は 00 章に 1 件 (decision-auth-method) しか載っておらず、技術 8 章には 0 件だった。反映は compile では行えない。compile は章の規範本文 366 行 (ファイル内 distinct 合計。出現回数では 374、10 枚横断 distinct では 316) を消すことが 2026-08-20 に測定済みである。再確定は reopen_log[].discarded と同じ qa_ref / serves_goals / required_info で行う。",
+      "from": "確定",
+      "discarded": {
+        "qa_ref": "qa-ops-web-spec-intake",
+        "serves_goals": [
+          "G1",
+          "G2"
+        ]
+      }
+    },
+    {
+      "category": "security",
+      "platform": "web",
+      "reason": "gap 1 (C05 gaps[0]) の「確定セル内容と decisions[] 6 件を本文へ載せる」を章へ手編集で反映するため、正規経路で章保護を解除する。あわせて記録: 2026-08-20 の実測で、章の「カテゴリ別収集状態」が根拠として名指しする qa は 8 カテゴリ中 7 件が正本の qa_ref と食い違っていた (章は qa-*-analytics / qa-*-web など intake 前の質疑を指し、正本は qa-*-spec-intake を指す。一致は auth のみ)。また decisions 6 件は 00 章に 1 件 (decision-auth-method) しか載っておらず、技術 8 章には 0 件だった。反映は compile では行えない。compile は章の規範本文 366 行 (ファイル内 distinct 合計。出現回数では 374、10 枚横断 distinct では 316) を消すことが 2026-08-20 に測定済みである。再確定は reopen_log[].discarded と同じ qa_ref / serves_goals / required_info で行う。",
+      "from": "確定",
+      "discarded": {
+        "qa_ref": "qa-security-web-spec-intake",
+        "serves_goals": [
+          "G1"
+        ],
+        "required_info": [
+          {
+            "item_id": "security-posture",
+            "missing_effect": "block",
+            "status": "grounded",
+            "grounded_by": "qa-security-web-spec-intake"
+          }
+        ]
+      }
+    },
+    {
+      "category": "database",
+      "platform": "web",
+      "reason": "gap 1 (C05 gaps[0]) の確定セル記録と decisions[] 6 件を章へ手編集で載せるため、正規経路で章保護を解除する。あわせて記録: 2026-08-20 の実測で (1) 章の「カテゴリ別収集状態」が名指しする根拠 qa は 8 カテゴリ中 7 件が正本 qa_ref と不一致 (一致は auth のみ)、(2) 正本 qa-database-web-spec-intake の回答に埋まった MetricRollup 定義は章より古く、正本の本文を章へ複製すると章が退行する。よって gaps[0] は本文複製ではなく確定セル記録 (qa_ref / serves_goals / required-info / 出典 path・節・sha256) の掲載で実行する。再確定は reopen_log[].discarded と同じ値で行う。",
+      "from": "確定",
+      "discarded": {
+        "qa_ref": "qa-database-web-spec-intake",
+        "serves_goals": [
+          "G1",
+          "G2"
+        ]
+      }
+    },
+    {
+      "category": "auth",
+      "platform": "web",
+      "reason": "gap 1 (C05 gaps[0]) の確定セル記録と decisions[] 6 件を章へ手編集で載せるため、正規経路で章保護を解除する。あわせて記録: 2026-08-20 の実測で (1) 章の「カテゴリ別収集状態」が名指しする根拠 qa は 8 カテゴリ中 7 件が正本 qa_ref と不一致 (一致は auth のみ)、(2) 正本 qa-database-web-spec-intake の回答に埋まった MetricRollup 定義は章より古く、正本の本文を章へ複製すると章が退行する。よって gaps[0] は本文複製ではなく確定セル記録 (qa_ref / serves_goals / required-info / 出典 path・節・sha256) の掲載で実行する。再確定は reopen_log[].discarded と同じ値で行う。",
+      "from": "確定",
+      "discarded": {
+        "qa_ref": "qa-auth-web",
+        "serves_goals": [
+          "G1"
+        ],
+        "required_info": [
+          {
+            "item_id": "auth-model",
+            "missing_effect": "block",
+            "status": "grounded",
+            "grounded_by": "qa-auth-web"
+          }
+        ]
+      }
+    },
+    {
+      "category": "backend",
+      "platform": "web",
+      "reason": "gap 1 (C05 gaps[0]) の確定セル記録と decisions[] 6 件を章へ手編集で載せるため、正規経路で章保護を解除する。あわせて記録: 2026-08-20 の実測で (1) 章の「カテゴリ別収集状態」が名指しする根拠 qa は 8 カテゴリ中 7 件が正本 qa_ref と不一致 (一致は auth のみ)、(2) 正本 qa-database-web-spec-intake の回答に埋まった MetricRollup 定義は章より古く、正本の本文を章へ複製すると章が退行する。よって gaps[0] は本文複製ではなく確定セル記録 (qa_ref / serves_goals / required-info / 出典 path・節・sha256) の掲載で実行する。再確定は reopen_log[].discarded と同じ値で行う。",
+      "from": "確定",
+      "discarded": {
+        "qa_ref": "qa-backend-web-spec-intake",
+        "serves_goals": [
+          "G2",
+          "G1"
+        ],
+        "required_info": [
+          {
+            "item_id": "domain-model",
+            "missing_effect": "block",
+            "status": "grounded",
+            "grounded_by": "qa-backend-web-spec-intake"
+          }
+        ]
+      }
+    },
+    {
+      "category": "frontend",
+      "platform": "web",
+      "reason": "gap 1 (C05 gaps[0]) の確定セル記録と decisions[] 6 件を章へ手編集で載せるため、正規経路で章保護を解除する。あわせて記録: 2026-08-20 の実測で (1) 章の「カテゴリ別収集状態」が名指しする根拠 qa は 8 カテゴリ中 7 件が正本 qa_ref と不一致 (一致は auth のみ)、(2) 正本 qa-database-web-spec-intake の回答に埋まった MetricRollup 定義は章より古く、正本の本文を章へ複製すると章が退行する。よって gaps[0] は本文複製ではなく確定セル記録 (qa_ref / serves_goals / required-info / 出典 path・節・sha256) の掲載で実行する。再確定は reopen_log[].discarded と同じ値で行う。",
+      "from": "確定",
+      "discarded": {
+        "qa_ref": "qa-frontend-web-spec-intake",
+        "serves_goals": [
+          "G1",
+          "G2"
+        ]
+      }
+    },
+    {
+      "category": "infrastructure",
+      "platform": "web",
+      "reason": "gap 1 (C05 gaps[0]) の確定セル記録と decisions[] 6 件を章へ手編集で載せるため、正規経路で章保護を解除する。あわせて記録: 2026-08-20 の実測で (1) 章の「カテゴリ別収集状態」が名指しする根拠 qa は 8 カテゴリ中 7 件が正本 qa_ref と不一致 (一致は auth のみ)、(2) 正本 qa-database-web-spec-intake の回答に埋まった MetricRollup 定義は章より古く、正本の本文を章へ複製すると章が退行する。よって gaps[0] は本文複製ではなく確定セル記録 (qa_ref / serves_goals / required-info / 出典 path・節・sha256) の掲載で実行する。再確定は reopen_log[].discarded と同じ値で行う。",
+      "from": "確定",
+      "discarded": {
+        "qa_ref": "qa-infra-web-spec-intake",
+        "serves_goals": [
+          "G2",
+          "G1"
+        ]
+      }
+    },
+    {
+      "category": "maintenance-ops",
+      "platform": "web",
+      "reason": "gap 1 (C05 gaps[0]) の確定セル記録と decisions[] 6 件を章へ手編集で載せるため、正規経路で章保護を解除する。あわせて記録: 2026-08-20 の実測で (1) 章の「カテゴリ別収集状態」が名指しする根拠 qa は 8 カテゴリ中 7 件が正本 qa_ref と不一致 (一致は auth のみ)、(2) 正本 qa-database-web-spec-intake の回答に埋まった MetricRollup 定義は章より古く、正本の本文を章へ複製すると章が退行する。よって gaps[0] は本文複製ではなく確定セル記録 (qa_ref / serves_goals / required-info / 出典 path・節・sha256) の掲載で実行する。再確定は reopen_log[].discarded と同じ値で行う。",
+      "from": "確定",
+      "discarded": {
+        "qa_ref": "qa-ops-web-spec-intake",
+        "serves_goals": [
+          "G1",
+          "G2"
+        ]
+      }
+    },
+    {
+      "category": "security",
+      "platform": "web",
+      "reason": "gap 1 (C05 gaps[0]) の確定セル記録と decisions[] 6 件を章へ手編集で載せるため、正規経路で章保護を解除する。あわせて記録: 2026-08-20 の実測で (1) 章の「カテゴリ別収集状態」が名指しする根拠 qa は 8 カテゴリ中 7 件が正本 qa_ref と不一致 (一致は auth のみ)、(2) 正本 qa-database-web-spec-intake の回答に埋まった MetricRollup 定義は章より古く、正本の本文を章へ複製すると章が退行する。よって gaps[0] は本文複製ではなく確定セル記録 (qa_ref / serves_goals / required-info / 出典 path・節・sha256) の掲載で実行する。再確定は reopen_log[].discarded と同じ値で行う。",
+      "from": "確定",
+      "discarded": {
+        "qa_ref": "qa-security-web-spec-intake",
+        "serves_goals": [
+          "G1"
+        ],
+        "required_info": [
+          {
+            "item_id": "security-posture",
+            "missing_effect": "block",
+            "status": "grounded",
+            "grounded_by": "qa-security-web-spec-intake"
+          }
+        ]
+      }
+    },
+    {
+      "category": "ui-ux",
+      "platform": "web",
+      "reason": "screen-information-priority が status=ungrounded の負債として確定していた (C16 block ゲート導入前の確定)。2026-08-20 に利用者本人からカタログ completion_rule の 9 項目すべての回答を得たため、正規 R4-reopen を経て利用者根拠へ接地させた上で再確定する",
+      "from": "確定",
+      "discarded": {
+        "qa_ref": "qa-uiux-web-spec-intake",
+        "serves_goals": [
+          "G1"
+        ],
+        "required_info": [
+          {
+            "item_id": "product-goal",
+            "missing_effect": "block",
+            "status": "grounded",
+            "grounded_by": "qa-foundation-u1"
+          },
+          {
+            "item_id": "screen-information-priority",
+            "missing_effect": "block",
+            "status": "ungrounded",
+            "reason": "UI は存在するが、確定を支える qa-uiux-web-spec-intake はダッシュボード指標一覧 (docs/spec/01 §22.1) と配色・明暗の2軸モデル (docs/spec/09 §2) の 2 件で、completion_rule が要求する 9 項目 (利用者ロール・主タスク・熟練度・端末・利用頻度・データ量・比較/一括操作・誤操作コスト・情報優先度/省略/密度) をいずれも含まない。ゲート導入前に確定したセルの負債として記録する"
+          },
+          {
+            "item_id": "target-platforms",
+            "missing_effect": "block",
+            "status": "grounded",
+            "grounded_by": "qa-platform-scope"
+          }
+        ]
+      }
+    },
+    {
+      "category": "ui-ux",
+      "platform": "web",
+      "reason": "gap 1 (確定セルの記録・意思決定) と gap 3 (条項引用の可否) の 2 節を ui-ux.md へ載せるための解錠。内容の変更ではなく、正本が既に持っている確定内容を章へ転記する作業である。転記後に同じ qa_ref (qa-uiux-web-screen-priority) と同じ required_info で再確定する",
+      "from": "確定",
+      "discarded": {
+        "qa_ref": "qa-uiux-web-screen-priority",
+        "serves_goals": [
+          "G1"
+        ],
+        "required_info": [
+          {
+            "item_id": "product-goal",
+            "missing_effect": "block",
+            "status": "grounded",
+            "grounded_by": "qa-foundation-u1"
+          },
+          {
+            "item_id": "screen-information-priority",
+            "missing_effect": "block",
+            "status": "grounded",
+            "grounded_by": "qa-uiux-web-screen-priority"
+          },
+          {
+            "item_id": "target-platforms",
+            "missing_effect": "block",
+            "status": "grounded",
+            "grounded_by": "qa-platform-scope"
+          }
+        ]
+      }
+    },
+    {
+      "category": "auth",
+      "platform": "web",
+      "reason": "loop_count を writer 生成値へ戻すためヒアリングを通し直す (2026-08-21)",
+      "from": "確定",
+      "discarded": {
+        "qa_ref": "qa-auth-web",
+        "serves_goals": [
+          "G1"
+        ],
+        "required_info": [
+          {
+            "item_id": "auth-model",
+            "missing_effect": "block",
+            "status": "grounded",
+            "grounded_by": "qa-auth-web"
+          }
+        ],
+        "required_info_checks": [
+          {
+            "checked_on": "2026-08-20",
+            "checked_with": "record-required-info-check",
+            "blocking_item_count": 1
+          }
+        ]
+      }
+    },
+    {
+      "category": "backend",
+      "platform": "web",
+      "reason": "loop_count を writer 生成値へ戻すためヒアリングを通し直す (2026-08-21)",
+      "from": "確定",
+      "discarded": {
+        "qa_ref": "qa-backend-web-spec-intake",
+        "qa_refs": [
+          "qa-backend-web-spec-intake",
+          "qa-backend-web",
+          "qa-backend-web-analytics"
+        ],
+        "serves_goals": [
+          "G2",
+          "G1"
+        ],
+        "required_info": [
+          {
+            "item_id": "domain-model",
+            "missing_effect": "block",
+            "status": "grounded",
+            "grounded_by": "qa-backend-web-spec-intake"
+          }
+        ],
+        "required_info_checks": [
+          {
+            "checked_on": "2026-08-20",
+            "checked_with": "record-required-info-check",
+            "blocking_item_count": 1
+          }
+        ]
+      }
+    },
+    {
+      "category": "database",
+      "platform": "web",
+      "reason": "loop_count を writer 生成値へ戻すためヒアリングを通し直す (2026-08-21)",
+      "from": "確定",
+      "discarded": {
+        "qa_ref": "qa-database-web-spec-intake",
+        "qa_refs": [
+          "qa-database-web-spec-intake",
+          "qa-database-web",
+          "qa-database-web-analytics"
+        ],
+        "serves_goals": [
+          "G1",
+          "G2"
+        ],
+        "required_info_checks": [
+          {
+            "checked_on": "2026-08-20",
+            "checked_with": "record-required-info-check",
+            "blocking_item_count": 0
+          }
+        ]
+      }
+    },
+    {
+      "category": "frontend",
+      "platform": "web",
+      "reason": "loop_count を writer 生成値へ戻すためヒアリングを通し直す (2026-08-21)",
+      "from": "確定",
+      "discarded": {
+        "qa_ref": "qa-frontend-web-spec-intake",
+        "qa_refs": [
+          "qa-frontend-web-spec-intake",
+          "qa-frontend-web",
+          "qa-frontend-web-analytics"
+        ],
+        "serves_goals": [
+          "G1",
+          "G2"
+        ],
+        "required_info_checks": [
+          {
+            "checked_on": "2026-08-20",
+            "checked_with": "record-required-info-check",
+            "blocking_item_count": 0
+          }
+        ]
+      }
+    },
+    {
+      "category": "infrastructure",
+      "platform": "web",
+      "reason": "loop_count を writer 生成値へ戻すためヒアリングを通し直す (2026-08-21)",
+      "from": "確定",
+      "discarded": {
+        "qa_ref": "qa-infra-web-spec-intake",
+        "qa_refs": [
+          "qa-infra-web-spec-intake",
+          "qa-infra-web",
+          "qa-infra-web-redirect"
+        ],
+        "serves_goals": [
+          "G2",
+          "G1"
+        ],
+        "required_info_checks": [
+          {
+            "checked_on": "2026-08-20",
+            "checked_with": "record-required-info-check",
+            "blocking_item_count": 0
+          }
+        ]
+      }
+    },
+    {
+      "category": "maintenance-ops",
+      "platform": "web",
+      "reason": "loop_count を writer 生成値へ戻すためヒアリングを通し直す (2026-08-21)",
+      "from": "確定",
+      "discarded": {
+        "qa_ref": "qa-ops-web-spec-intake",
+        "qa_refs": [
+          "qa-ops-web-spec-intake",
+          "qa-ops-web"
+        ],
+        "serves_goals": [
+          "G1",
+          "G2"
+        ],
+        "required_info_checks": [
+          {
+            "checked_on": "2026-08-20",
+            "checked_with": "record-required-info-check",
+            "blocking_item_count": 0
+          }
+        ]
+      }
+    },
+    {
+      "category": "security",
+      "platform": "web",
+      "reason": "loop_count を writer 生成値へ戻すためヒアリングを通し直す (2026-08-21)",
+      "from": "確定",
+      "discarded": {
+        "qa_ref": "qa-security-web-spec-intake",
+        "qa_refs": [
+          "qa-security-web-spec-intake",
+          "qa-security-web"
+        ],
+        "serves_goals": [
+          "G1"
+        ],
+        "required_info": [
+          {
+            "item_id": "security-posture",
+            "missing_effect": "block",
+            "status": "grounded",
+            "grounded_by": "qa-security-web-spec-intake"
+          }
+        ],
+        "required_info_checks": [
+          {
+            "checked_on": "2026-08-20",
+            "checked_with": "record-required-info-check",
+            "blocking_item_count": 1
+          }
+        ]
+      }
+    },
+    {
+      "category": "ui-ux",
+      "platform": "web",
+      "reason": "loop_count を writer 生成値へ戻すためヒアリングを通し直す (2026-08-21)",
+      "from": "確定",
+      "discarded": {
+        "qa_ref": "qa-uiux-web-screen-priority",
+        "serves_goals": [
+          "G1"
+        ],
+        "required_info": [
+          {
+            "item_id": "product-goal",
+            "missing_effect": "block",
+            "status": "grounded",
+            "grounded_by": "qa-foundation-u1"
+          },
+          {
+            "item_id": "screen-information-priority",
+            "missing_effect": "block",
+            "status": "grounded",
+            "grounded_by": "qa-uiux-web-screen-priority"
+          },
+          {
+            "item_id": "target-platforms",
+            "missing_effect": "block",
+            "status": "grounded",
+            "grounded_by": "qa-platform-scope"
+          }
+        ],
+        "required_info_checks": [
+          {
+            "checked_on": "2026-08-20",
+            "checked_with": "record-required-info-check",
+            "blocking_item_count": 3
+          }
         ]
       }
     }
@@ -1625,10 +3097,12 @@
       "in": [
         "マルチテナント",
         "複数ブランド・複数ブログ構築",
+        "ブログ記事作成",
         "アフィリエイトURL登録・商品情報抽出・商品データベース",
         "比較候補抽出",
         "書き手・読者ペルソナ",
         "AI文章生成・投稿パターン生成",
+        "画像・動画台本管理",
         "SNS連携・投稿カレンダー",
         "アフィリエイトリンク管理",
         "クリック・成果分析",
@@ -1638,9 +3112,11 @@
       ],
       "out": [
         "他サイトの無断複製・規約違反スクレイピング",
-        "CAPTCHA等の回避",
+        "非公開情報の取得",
+        "CAPTCHAやアクセス制御の回避",
         "架空の体験・資格",
         "無確認の大量自動投稿・スパム",
+        "自動購入",
         "報酬額基準のランキング",
         "アフィリエイトリンクの無断改変",
         "非公式note APIへの依存",
@@ -1686,7 +3162,414 @@
       }
     ],
     "confirmed": true,
-    "approval_ref": "approval-foundation-1"
+    "approval_ref": "approval-foundation-1",
+    "provenance": {
+      "scope": {
+        "source_qa_id": "qa-foundation-u7",
+        "sections": {
+          "in": {
+            "heading": "## 6.1 含むもの",
+            "items": [
+              {
+                "item": "マルチテナント",
+                "covers": [
+                  1
+                ]
+              },
+              {
+                "item": "複数ブランド・複数ブログ構築",
+                "covers": [
+                  2,
+                  3
+                ]
+              },
+              {
+                "item": "ブログ記事作成",
+                "covers": [
+                  4
+                ]
+              },
+              {
+                "item": "アフィリエイトURL登録・商品情報抽出・商品データベース",
+                "covers": [
+                  5,
+                  6,
+                  7
+                ]
+              },
+              {
+                "item": "比較候補抽出",
+                "covers": [
+                  8
+                ]
+              },
+              {
+                "item": "書き手・読者ペルソナ",
+                "covers": [
+                  9,
+                  10
+                ]
+              },
+              {
+                "item": "AI文章生成・投稿パターン生成",
+                "covers": [
+                  11,
+                  12
+                ]
+              },
+              {
+                "item": "画像・動画台本管理",
+                "covers": [
+                  13
+                ]
+              },
+              {
+                "item": "SNS連携・投稿カレンダー",
+                "covers": [
+                  14,
+                  15
+                ]
+              },
+              {
+                "item": "アフィリエイトリンク管理",
+                "covers": [
+                  16
+                ]
+              },
+              {
+                "item": "クリック・成果分析",
+                "covers": [
+                  17
+                ]
+              },
+              {
+                "item": "更新管理・広告法令確認",
+                "covers": [
+                  18,
+                  19
+                ]
+              },
+              {
+                "item": "WebMCP・バックエンドMCP・API",
+                "covers": [
+                  20,
+                  21,
+                  22
+                ]
+              },
+              {
+                "item": "チーム権限・承認フロー",
+                "covers": [
+                  23,
+                  24
+                ]
+              }
+            ]
+          },
+          "out": {
+            "heading": "## 6.2 含まないもの",
+            "items": [
+              {
+                "item": "他サイトの無断複製・規約違反スクレイピング",
+                "covers": [
+                  1,
+                  2
+                ]
+              },
+              {
+                "item": "非公開情報の取得",
+                "covers": [
+                  3
+                ]
+              },
+              {
+                "item": "CAPTCHAやアクセス制御の回避",
+                "covers": [
+                  4
+                ]
+              },
+              {
+                "item": "架空の体験・資格",
+                "covers": [
+                  5,
+                  6
+                ]
+              },
+              {
+                "item": "無確認の大量自動投稿・スパム",
+                "covers": [
+                  7,
+                  8
+                ]
+              },
+              {
+                "item": "自動購入",
+                "covers": [
+                  9
+                ]
+              },
+              {
+                "item": "報酬額基準のランキング",
+                "covers": [
+                  10
+                ]
+              },
+              {
+                "item": "アフィリエイトリンクの無断改変",
+                "covers": [
+                  11
+                ]
+              },
+              {
+                "item": "非公式note APIへの依存",
+                "covers": [
+                  12
+                ]
+              },
+              {
+                "item": "投稿先ポリシーを無視した自動化",
+                "covers": [
+                  13
+                ]
+              }
+            ]
+          }
+        }
+      },
+      "field_sources": [
+        {
+          "field": "goals[0]",
+          "kind": "written-requirements",
+          "path": "docs/spec/01-要求仕様書-v1.0.md",
+          "section": "§32 (L2441)",
+          "quote": "一つのアフィリエイトURLを起点に、正しい商品情報、比較候補、根拠、書き手、読者、媒体、広告表示を統合し、目的の異なる高品質コンテンツを安全に作成・公開・改善できること。",
+          "sha256": "b5fc60987cb79c08c30db4cd94b075a0bf89cd7acba7c8d1ffc8558af6439385",
+          "sealed_on": "2026-08-21",
+          "sealed_with": "seal-foundation-sources"
+        },
+        {
+          "field": "goals[1]",
+          "kind": "written-requirements",
+          "path": "docs/spec/01-要求仕様書-v1.0.md",
+          "section": "§2.3 (L112)",
+          "quote": "* どの商品、媒体、文章パターンが成果につながったか確認できる",
+          "note": "G2 は §32 (U3 の sha256 束縛済み原文) に対応記述が無い。§2.3 の 2 行へ分かれて在る。L110 の「* アフィリエイトリンクを一元管理できる」が「一元管理」側の対応。",
+          "sha256": "b5fc60987cb79c08c30db4cd94b075a0bf89cd7acba7c8d1ffc8558af6439385",
+          "sealed_on": "2026-08-21",
+          "sealed_with": "seal-foundation-sources"
+        },
+        {
+          "field": "objectives[0]",
+          "kind": "written-requirements",
+          "path": "docs/spec/01-要求仕様書-v1.0.md",
+          "section": "§27.1",
+          "quote": "根拠確認と人間承認を完了し、複数媒体へ展開されたコンテンツパッケージ数",
+          "sha256": "b5fc60987cb79c08c30db4cd94b075a0bf89cd7acba7c8d1ffc8558af6439385",
+          "sealed_on": "2026-08-21",
+          "sealed_with": "seal-foundation-sources"
+        },
+        {
+          "field": "objectives[0].measure",
+          "kind": "written-requirements",
+          "path": "docs/spec/01-要求仕様書-v1.0.md",
+          "section": "§27.1",
+          "quote": "単なる生成数や投稿数を中心指標にしない。",
+          "sha256": "b5fc60987cb79c08c30db4cd94b075a0bf89cd7acba7c8d1ffc8558af6439385",
+          "sealed_on": "2026-08-21",
+          "sealed_with": "seal-foundation-sources"
+        },
+        {
+          "field": "objectives[1]",
+          "kind": "written-requirements",
+          "path": "docs/spec/03-分析・解析基盤仕様.md",
+          "section": "§7.1 (L489)",
+          "quote": "蓄積されたロールアップから「クリック率・成果に効いている要因」を定期的に抽出し",
+          "sha256": "5d84913a2422b9e697422b0656f90cf90633b0bd75adcebe0c6696e01fc9e45f",
+          "sealed_on": "2026-08-21",
+          "sealed_with": "seal-foundation-sources"
+        },
+        {
+          "field": "objectives[1].measure",
+          "kind": "written-requirements",
+          "path": "docs/spec/03-分析・解析基盤仕様.md",
+          "section": "L475",
+          "quote": "突合率(sub_id一致の割合)自体を運用KPIとし、sub_id非対応プログラムには「詳細分析不可」バッジを付ける",
+          "sha256": "5d84913a2422b9e697422b0656f90cf90633b0bd75adcebe0c6696e01fc9e45f",
+          "sealed_on": "2026-08-21",
+          "sealed_with": "seal-foundation-sources"
+        },
+        {
+          "field": "success_criteria[0]",
+          "kind": "written-requirements",
+          "path": "docs/spec/01-要求仕様書-v1.0.md",
+          "section": "§30.8",
+          "quote": "## 30.8 追跡可能性",
+          "sha256": "b5fc60987cb79c08c30db4cd94b075a0bf89cd7acba7c8d1ffc8558af6439385",
+          "sealed_on": "2026-08-21",
+          "sealed_with": "seal-foundation-sources"
+        },
+        {
+          "field": "success_criteria[1]",
+          "kind": "written-requirements",
+          "path": "docs/spec/01-要求仕様書-v1.0.md",
+          "section": "§30 (L2278)",
+          "quote": "# 30. 受け入れ条件",
+          "sha256": "b5fc60987cb79c08c30db4cd94b075a0bf89cd7acba7c8d1ffc8558af6439385",
+          "sealed_on": "2026-08-21",
+          "sealed_with": "seal-foundation-sources"
+        },
+        {
+          "field": "success_criteria[2]",
+          "kind": "written-requirements",
+          "path": "docs/spec/03-分析・解析基盤仕様.md",
+          "section": "L683",
+          "quote": "| パフォーマンス概要 | 期間比較付きの主要KPI(PV/クリック/CTR/発生・承認CVR/承認・支払EPC/承認・支払報酬)。watermarkによる速報・確定・遅延を区別 |",
+          "sha256": "5d84913a2422b9e697422b0656f90cf90633b0bd75adcebe0c6696e01fc9e45f",
+          "sealed_on": "2026-08-21",
+          "sealed_with": "seal-foundation-sources"
+        },
+        {
+          "field": "stakeholders[0]",
+          "kind": "written-requirements",
+          "path": "docs/spec/01-要求仕様書-v1.0.md",
+          "section": "§2.2",
+          "quote": "## 2.2 読者に対する価値",
+          "sha256": "b5fc60987cb79c08c30db4cd94b075a0bf89cd7acba7c8d1ffc8558af6439385",
+          "sealed_on": "2026-08-21",
+          "sealed_with": "seal-foundation-sources"
+        },
+        {
+          "field": "stakeholders[1]",
+          "kind": "written-requirements",
+          "path": "docs/spec/01-要求仕様書-v1.0.md",
+          "section": "§2.3",
+          "quote": "## 2.3 発信者に対する価値",
+          "sha256": "b5fc60987cb79c08c30db4cd94b075a0bf89cd7acba7c8d1ffc8558af6439385",
+          "sealed_on": "2026-08-21",
+          "sealed_with": "seal-foundation-sources"
+        },
+        {
+          "field": "stakeholders[2]",
+          "kind": "written-requirements",
+          "path": "docs/spec/01-要求仕様書-v1.0.md",
+          "section": "§25 (L2006-2019)",
+          "quote": "# 25. 権限",
+          "sha256": "b5fc60987cb79c08c30db4cd94b075a0bf89cd7acba7c8d1ffc8558af6439385",
+          "sealed_on": "2026-08-21",
+          "sealed_with": "seal-foundation-sources"
+        },
+        {
+          "field": "essential_purpose",
+          "kind": "written-requirements",
+          "path": "docs/spec/01-要求仕様書-v1.0.md",
+          "section": "§2.1 (L85)",
+          "quote": "> 発信者が、一つの信頼できる商品・サービス情報を起点に、複数のブログやSNSへ、「誰が・誰に・何を・なぜ伝えるか」が一貫した高品質コンテンツを効率的に生成・公開・改善できる状態をつくり、読者の意思決定品質と発信者の継続的な収益性を同時に高める。",
+          "sha256": "b5fc60987cb79c08c30db4cd94b075a0bf89cd7acba7c8d1ffc8558af6439385",
+          "sealed_on": "2026-08-21",
+          "sealed_with": "seal-foundation-sources"
+        },
+        {
+          "field": "background",
+          "kind": "written-requirements",
+          "path": "docs/spec/01-要求仕様書-v1.0.md",
+          "section": "§3.1 (L121)",
+          "quote": "現在のコンテンツ運営では、次の情報が別々の場所で管理されやすい。",
+          "sha256": "b5fc60987cb79c08c30db4cd94b075a0bf89cd7acba7c8d1ffc8558af6439385",
+          "sealed_on": "2026-08-21",
+          "sealed_with": "seal-foundation-sources"
+        },
+        {
+          "field": "constraints[0]",
+          "kind": "written-requirements",
+          "path": "docs/spec/01-要求仕様書-v1.0.md",
+          "section": "§3.4 (L184)",
+          "quote": "WordPress、X、Instagram、Threadsなどは公式APIによる投稿連携が可能だが、認証、権限、投稿形式、利用料金、審査条件が異なる。",
+          "sha256": "b5fc60987cb79c08c30db4cd94b075a0bf89cd7acba7c8d1ffc8558af6439385",
+          "sealed_on": "2026-08-21",
+          "sealed_with": "seal-foundation-sources"
+        },
+        {
+          "field": "constraints[1]",
+          "kind": "written-requirements",
+          "path": "docs/spec/01-要求仕様書-v1.0.md",
+          "section": "§3.4 (L186)",
+          "quote": "一方、noteは2026年8月16日時点で一般公開の公式投稿APIを提供していない。そのため、noteについては非公式APIやログイン自動操作を前提にせず、コピー用原稿、ファイル出力、WXR／MT形式のインポート支援として設計する。noteは公式にWXRまたはMT形式のインポートを案内している。",
+          "sha256": "b5fc60987cb79c08c30db4cd94b075a0bf89cd7acba7c8d1ffc8558af6439385",
+          "sealed_on": "2026-08-21",
+          "sealed_with": "seal-foundation-sources"
+        },
+        {
+          "field": "constraints[2]",
+          "kind": "written-requirements",
+          "path": "docs/spec/01-要求仕様書-v1.0.md",
+          "section": "§10.1 (L767)",
+          "quote": "`original_url` は、成果計測に必要な情報を保持するため変更しない。",
+          "sha256": "b5fc60987cb79c08c30db4cd94b075a0bf89cd7acba7c8d1ffc8558af6439385",
+          "sealed_on": "2026-08-21",
+          "sealed_with": "seal-foundation-sources"
+        },
+        {
+          "field": "constraints[3]",
+          "kind": "written-requirements",
+          "path": "docs/spec/01-要求仕様書-v1.0.md",
+          "section": "§20 (L1614)",
+          "quote": "日本では、広告であるにもかかわらず広告であることを判別しにくい表示が、景品表示法上のステルスマーケティング規制の対象となる。",
+          "sha256": "b5fc60987cb79c08c30db4cd94b075a0bf89cd7acba7c8d1ffc8558af6439385",
+          "sealed_on": "2026-08-21",
+          "sealed_with": "seal-foundation-sources"
+        },
+        {
+          "field": "constraints[4]",
+          "kind": "written-requirements",
+          "path": "docs/spec/01-要求仕様書-v1.0.md",
+          "section": "§5.5 (L326)",
+          "quote": "外部公開、予約投稿、個人情報送信、アフィリエイトリンク挿入などの重要操作は、原則として人間の確認を経る。",
+          "sha256": "b5fc60987cb79c08c30db4cd94b075a0bf89cd7acba7c8d1ffc8558af6439385",
+          "sealed_on": "2026-08-21",
+          "sealed_with": "seal-foundation-sources"
+        },
+        {
+          "field": "concrete_intents[0]",
+          "kind": "written-requirements",
+          "path": "docs/spec/01-要求仕様書-v1.0.md",
+          "section": "§1 (L38)",
+          "quote": "同一商品・類似商品・比較候補を抽出",
+          "sha256": "b5fc60987cb79c08c30db4cd94b075a0bf89cd7acba7c8d1ffc8558af6439385",
+          "sealed_on": "2026-08-21",
+          "sealed_with": "seal-foundation-sources"
+        },
+        {
+          "field": "concrete_intents[1]",
+          "kind": "written-requirements",
+          "path": "docs/spec/01-要求仕様書-v1.0.md",
+          "section": "§1 (L44)",
+          "quote": "ブログ・X・Instagram・Threads・note等の媒体別に文章を生成",
+          "sha256": "b5fc60987cb79c08c30db4cd94b075a0bf89cd7acba7c8d1ffc8558af6439385",
+          "sealed_on": "2026-08-21",
+          "sealed_with": "seal-foundation-sources"
+        },
+        {
+          "field": "concrete_intents[2]",
+          "kind": "written-requirements",
+          "path": "docs/spec/01-要求仕様書-v1.0.md",
+          "section": "§1 (L50)",
+          "quote": "クリック・成果・反応を収集",
+          "sha256": "b5fc60987cb79c08c30db4cd94b075a0bf89cd7acba7c8d1ffc8558af6439385",
+          "sealed_on": "2026-08-21",
+          "sealed_with": "seal-foundation-sources"
+        },
+        {
+          "field": "concrete_intents[3]",
+          "kind": "written-requirements",
+          "path": "docs/spec/01-要求仕様書-v1.0.md",
+          "section": "§27.5 (L2174)",
+          "quote": "商品の編集評価には自動反映しない。",
+          "sha256": "b5fc60987cb79c08c30db4cd94b075a0bf89cd7acba7c8d1ffc8558af6439385",
+          "sealed_on": "2026-08-21",
+          "sealed_with": "seal-foundation-sources"
+        }
+      ]
+    }
   },
   "decisions": [
     {
@@ -1812,13 +3695,611 @@
         "confirmed_at": "2026-08-16T00:00:00Z",
         "note": "2026-08-16 AskUserQuestion で利用者が A. Better Auth を選択"
       }
+    },
+    {
+      "id": "decision-editorial-commercial-split",
+      "question": "Editorial（編集評価）と Commercial（報酬・成果）のデータを、D1 でどう分けるか",
+      "status": "confirmed",
+      "serves_goals": [
+        "G1",
+        "G2"
+      ],
+      "options": [
+        {
+          "id": "opt-single-db-schema-split",
+          "label": "D1 は 1 本のまま、テーブル名前空間と型で分ける",
+          "cost_model": {
+            "category": "free",
+            "amount": 0,
+            "currency": "JPY",
+            "billing_period": "monthly",
+            "tco": "追加費用なし。いまの構成（DB バインディング 1 本）のまま"
+          },
+          "free_tier_limits": "D1 無料枠の範囲内（現行と同じ 1 データベース）",
+          "goal_fit": "G2（成果の一元管理）には都合がよい。同じ DB なので集計を SQL の JOIN で書ける",
+          "security_fit": "境界はコードの中だけにある。SQL を 1 行書けば報酬額をランキングの入力に混ぜられる",
+          "pros": [
+            "いまの構成から何も変えない",
+            "集計クエリが 1 本で書ける",
+            "マイグレーションの管理先が 1 つ"
+          ],
+          "cons": [
+            "§19.4 の禁止（報酬を推薦スコアの入力にしない）を、コードの外から確かめられない",
+            "禁止依存 FD-2 の担保が型だけになり、型を外せば通る"
+          ],
+          "risks": [
+            "境界を越える SQL が 1 本混ざっても、画面からは何も変わって見えない（残課題 51 と同じ形）"
+          ],
+          "lock_in": "なし",
+          "ops_burden": "低（現行のまま）",
+          "evidence_refs": [
+            "https://developers.cloudflare.com/d1/",
+            "https://orm.drizzle.team/docs/overview"
+          ]
+        },
+        {
+          "id": "opt-two-databases",
+          "label": "D1 を 2 本に分け、バインディングを分ける（DB_EDITORIAL / DB_COMMERCIAL）",
+          "cost_model": {
+            "category": "free",
+            "amount": 0,
+            "currency": "JPY",
+            "billing_period": "monthly",
+            "tco": "D1 は無料枠内で複数データベースを持てるため追加費用なし。作業費は移行の 1 回ぶん"
+          },
+          "free_tier_limits": "D1 無料枠の範囲内（データベース数の上限は無料枠でも 1 本ではない）",
+          "goal_fit": "G1（安全な作成・公開）に直結。ランキング計算の関数へ Commercial のバインディングを渡さなければ、混ぜようがない",
+          "security_fit": "境界が**バインディングの有無**になる。混ぜるには設定ファイルを書き換える必要があり、差分に必ず現れる",
+          "pros": [
+            "§19.4 と FD-2 を、コードではなく構成で担保できる",
+            "越境が git の差分に出る（wrangler.jsonc の変更として見える）",
+            "Commercial 側だけを別の保管期間・別の権限で扱える"
+          ],
+          "cons": [
+            "DB をまたぐ JOIN が書けない。突合はアプリ側で ID を突き合わせる",
+            "マイグレーションが 2 系統になる",
+            "既存テーブルの引っ越しが 1 回必要"
+          ],
+          "risks": [
+            "アプリ側の突合を書き間違えると、集計がずれる（SQL の JOIN より落ちにくいので気づきにくい）",
+            "2 本の間で整合が必要な操作は、トランザクションで守れない"
+          ],
+          "lock_in": "なし（どちらも D1）",
+          "ops_burden": "中（マイグレーション 2 系統・バックアップ 2 本）",
+          "evidence_refs": [
+            "https://developers.cloudflare.com/d1/",
+            "https://orm.drizzle.team/docs/overview"
+          ]
+        }
+      ],
+      "recommendation": {
+        "option_id": "opt-two-databases",
+        "rationale": "禁止（報酬額をランキングの入力にしない）は仕様の中でいちばん強い制約で、二層のどの経路からも迂回できない位置で担保すると 04 §2-4 が書いている。1 本のままだと、その位置がコードの中にしかない。2 本にすると、越えるには設定を書き換えるしかなくなり、越えたことが差分に残る。残課題 51 で実際に踏んだ「宣言だけが守っていて、画面からは何も変わって見えない」形を、ここでは最初から避けられる。",
+        "caveats": [
+          "既存テーブルの引っ越しが 1 回必要で、その回だけは本番データを触る",
+          "DB をまたぐ集計はアプリ側の突合になるため、突合のテストを先に書く",
+          "分けたあとも、Commercial の値を関数の引数として渡せば混ざる。バインディングの分離は「うっかり」を防ぐが「意図」は防がない"
+        ],
+        "confidence": "high",
+        "latest_checked_at": "2026-08-19T00:00:00Z",
+        "comparison_basis": {
+          "goal_fit": "G1 の安全性を構成で担保できる 2 本案が優位。G2 の集計しやすさだけは 1 本案が優位",
+          "tco": "どちらも無料枠内。差は移行の作業費 1 回ぶんだけ",
+          "security": "2 本案が明確に優位。境界がコードの外（バインディング）に出る",
+          "operations": "1 本案が優位。2 本案はマイグレーションとバックアップが 2 系統になる",
+          "lock_in": "差なし。どちらも D1 で、相互に移れる"
+        }
+      },
+      "user_decision": {
+        "option_id": "opt-two-databases",
+        "confirmed_at": "2026-08-19T00:00:00Z",
+        "decided_by": "利用者本人",
+        "confirmation_mode": "推奨への一任 (候補の比較根拠を示したうえでの委任)",
+        "note": "利用者本人が「お任せ、ベストプラクティスで選定」と回答。推奨どおり採用。本番データがまだ無い (ah-08q 未着手) ため、いま分けるのが最も安く、本番データに触る境界にも当たらない。運用開始後に分けると移送が要る。",
+        "recorded_with": "キャッシュ側 install (system-spec-harness 0.1.2) の apply-spec-transition.py で書いた。この writer は state の schema_version を検査しない（門が無い）。プロジェクト側の writer は 1.1 との exact 一致を要求するため、1.2 のこの正本には届かない。門を通したのではなく、門が無い writer で書いた。"
+      }
+    },
+    {
+      "id": "decision-redirect-measurement-async",
+      "question": "リダイレクトの計測（ClickEvent の記録）を、転送を止めずにどう書くか",
+      "status": "confirmed",
+      "serves_goals": [
+        "G2",
+        "G1"
+      ],
+      "options": [
+        {
+          "id": "opt-waituntil-direct",
+          "label": "ctx.waitUntil で D1 へ直接書く",
+          "cost_model": {
+            "category": "free",
+            "amount": 0,
+            "currency": "JPY",
+            "billing_period": "monthly",
+            "tco": "追加費用なし。いまの構成のまま"
+          },
+          "free_tier_limits": "D1 の書き込み無料枠の範囲内",
+          "goal_fit": "G2（計測）を最短で満たす。転送は先に返すので読者を待たせない",
+          "security_fit": "外部サービスを増やさないぶん、秘密情報の置き場も増えない",
+          "pros": [
+            "部品が増えない",
+            "書いた瞬間に集計へ反映される",
+            "実装がいちばん短い"
+          ],
+          "cons": [
+            "D1 が落ちている間のクリックは、記録が消える（退避先が無い）"
+          ],
+          "risks": [
+            "障害の時間帯だけ成果が欠測し、あとから埋められない"
+          ],
+          "lock_in": "なし",
+          "ops_burden": "低",
+          "evidence_refs": [
+            "https://developers.cloudflare.com/workers/"
+          ]
+        },
+        {
+          "id": "opt-queues",
+          "label": "Cloudflare Queues へ積み、consumer が D1 へ書く",
+          "cost_model": {
+            "category": "low-cost",
+            "amount": 750,
+            "currency": "JPY",
+            "billing_period": "monthly",
+            "tco": "Queues は Workers 有料プラン（$5/月、約 750 円）が前提。現在この契約が有効かは未確認で、本人確認が要る"
+          },
+          "free_tier_limits": "無料プランでは使えない（有料プランの中に含まれる）",
+          "goal_fit": "G2 の欠測をいちばん減らす。再試行と順序が仕組みとして付く",
+          "security_fit": "秘密情報は増えない（バインディング経由）",
+          "pros": [
+            "再試行が仕組みとして付く",
+            "D1 の一時的な障害を吸収できる",
+            "書き込みをまとめられる"
+          ],
+          "cons": [
+            "有料プランが前提",
+            "部品が 1 つ増え、詰まったときの見張りが要る"
+          ],
+          "risks": [
+            "契約が無料プランのままだと、そもそも動かない（実装してから気づくと痛い）"
+          ],
+          "lock_in": "中（Cloudflare 固有。他所へ移すと書き直し）",
+          "ops_burden": "中（キューの滞留を見る必要がある）",
+          "evidence_refs": [
+            "https://developers.cloudflare.com/queues/"
+          ]
+        },
+        {
+          "id": "opt-waituntil-fallback-cron",
+          "label": "ctx.waitUntil で D1 へ書き、失敗ぶんだけ R2 へ退避して Cron で回収する",
+          "cost_model": {
+            "category": "free",
+            "amount": 0,
+            "currency": "JPY",
+            "billing_period": "monthly",
+            "tco": "追加費用なし。Cron Triggers は無料枠にあり、退避は R2 の既存バケットを使う"
+          },
+          "free_tier_limits": "Cron Triggers・R2 とも既存の無料枠の範囲内",
+          "goal_fit": "G2 の欠測を、有料プランを増やさずに減らせる。G1 の「転送は必達」も保てる",
+          "security_fit": "外部サービスを増やさない。退避先は既存の R2 で、公開しない",
+          "pros": [
+            "無料枠のまま欠測を減らせる",
+            "既に Cron Triggers を使っている（画面の写しの掃除、日本時間 2:00）ので、置き場が既にある",
+            "契約状態に依存しない"
+          ],
+          "cons": [
+            "回収までに時差がある（最大 1 日）",
+            "退避と回収のコードを自分で持つ"
+          ],
+          "risks": [
+            "回収の失敗が静かに起きうる。回収の結果を記録し、溜まったら気づける形にしないと、退避先が墓場になる"
+          ],
+          "lock_in": "低（Cron と R2 は置き換えやすい）",
+          "ops_burden": "中（回収の見張りが要る）",
+          "evidence_refs": [
+            "https://developers.cloudflare.com/workers/configuration/cron-triggers/",
+            "https://developers.cloudflare.com/r2/"
+          ]
+        }
+      ],
+      "recommendation": {
+        "option_id": "opt-waituntil-fallback-cron",
+        "rationale": "02 §7 と既存の qa は「転送は必達、計測はベストエフォート」と書いている。3 案とも転送は止めないので、差は欠測をどこまで減らすかと、その値段である。Queues がいちばん堅いが有料プランが前提で、いまその契約が有効かを私は確かめられない。退避＋Cron は無料枠のままで欠測をほぼ同じだけ減らせ、Cron の置き場は既にある。契約が確かめられたあとで Queues へ移ることもできる（退避のコードは捨てられる）。",
+        "caveats": [
+          "回収が静かに失敗すると退避先が墓場になる。回収した件数と残件数を記録し、残件が増え続けたら赤くする",
+          "有料プランが既に有効なら Queues のほうが素直。契約状態は本人しか確かめられない",
+          "最大 1 日の時差があるため、当日の速報値は「まだ確定していない」と画面に出す（03 §8 の速報と確定の区別）"
+        ],
+        "confidence": "medium",
+        "latest_checked_at": "2026-08-19T00:00:00Z",
+        "comparison_basis": {
+          "goal_fit": "欠測の少なさは Queues > 退避+Cron > 直書き。転送の必達は 3 案とも同じ",
+          "tco": "直書きと退避+Cron は 0 円。Queues は有料プラン 750 円/月が前提",
+          "security": "3 案とも秘密情報を増やさない。差は無い",
+          "operations": "直書きがいちばん軽い。Queues は滞留、退避+Cron は回収を見る必要がある",
+          "lock_in": "Queues が最も強い（Cloudflare 固有）。他 2 案は移しやすい"
+        }
+      },
+      "user_decision": {
+        "option_id": "opt-waituntil-fallback-cron",
+        "confirmed_at": "2026-08-19T00:00:00Z",
+        "decided_by": "利用者本人",
+        "confirmation_mode": "推奨への一任 (候補の比較根拠を示したうえでの委任)",
+        "note": "利用者本人が「お任せ、ベストプラクティスで選定」と回答。推奨どおり採用。有料プランの契約状態はこちらから確かめられないが、この推奨はその事実に依存しない(無料の範囲で成立する)。Queues は費用のかかる上げ方なので caveats に置き、必要になった時点で別途判断する。",
+        "recorded_with": "キャッシュ側 install (system-spec-harness 0.1.2) の apply-spec-transition.py で書いた。この writer は state の schema_version を検査しない（門が無い）。プロジェクト側の writer は 1.1 との exact 一致を要求するため、1.2 のこの正本には届かない。門を通したのではなく、門が無い writer で書いた。"
+      }
+    },
+    {
+      "id": "decision-llm-provider",
+      "question": "記事生成に使う LLM プロバイダを 1 社に固定するか、複数を持つか",
+      "status": "confirmed",
+      "serves_goals": [
+        "G1"
+      ],
+      "options": [
+        {
+          "id": "opt-single-anthropic",
+          "label": "Anthropic 1 社に固定する",
+          "cost_model": {
+            "category": "paid",
+            "amount": 1,
+            "currency": "USD",
+            "billing_period": "monthly",
+            "tco": "従量課金。金額は生成量に比例し、下限は無い（1 は「0 ではない」ことを表す最小値）"
+          },
+          "free_tier_limits": "無料枠なし（従量課金のみ）",
+          "goal_fit": "G1 の品質は満たしやすいが、値上げ・提供停止のときに逃げ場が無い",
+          "security_fit": "鍵が 1 本で済む。置き場も 1 つ",
+          "pros": [
+            "実装が最も短い",
+            "プロンプトを 1 社の癖に合わせて詰められる",
+            "鍵の管理先が 1 つ"
+          ],
+          "cons": [
+            "値上げ・提供停止・品質変化のときに逃げ場が無い",
+            "用途ごとに安いモデルを選べない"
+          ],
+          "risks": [
+            "1 社の障害が、生成機能そのものの停止になる"
+          ],
+          "lock_in": "高（プロンプトが 1 社の形に寄る）",
+          "ops_burden": "低",
+          "evidence_refs": [
+            "https://docs.claude.com/"
+          ]
+        },
+        {
+          "id": "opt-catalog-multi",
+          "label": "単価表（config/llm-provider-catalog.json）を正本に、複数社を差し替え可能にする（現行）",
+          "cost_model": {
+            "category": "paid",
+            "amount": 1,
+            "currency": "USD",
+            "billing_period": "monthly",
+            "tco": "従量課金。用途ごとに安いモデルを選べるぶん、1 社固定より下がる方向に動く"
+          },
+          "free_tier_limits": "無料枠なし（従量課金のみ）",
+          "goal_fit": "G1 に適合。長い記事は高いモデル、判定は安いモデル、と用途で分けられる",
+          "security_fit": "鍵が社数ぶん増える。増えたぶんだけ置き場と権限の管理が要る",
+          "pros": [
+            "既に実装されている（wrangler の LLM_PROVIDER_CATALOG と同期の検査つき）",
+            "単価が vars にあるので、値上げに気づける（secret にすると読めなくなる）",
+            "1 社が落ちても他社へ回せる"
+          ],
+          "cons": [
+            "鍵が増える",
+            "プロバイダごとの出力差を吸収する層が要る"
+          ],
+          "risks": [
+            "どの社をどの用途に当てるかが決まっていないと、いちばん高い社が既定になりがち"
+          ],
+          "lock_in": "低",
+          "ops_burden": "中（単価表の更新が要る。更新は catalog:sync がある）",
+          "evidence_refs": [
+            "https://docs.claude.com/",
+            "https://ai.google.dev/gemini-api/docs",
+            "https://platform.openai.com/docs"
+          ]
+        },
+        {
+          "id": "opt-workers-ai",
+          "label": "Workers AI（Cloudflare のモデル）を主にする",
+          "cost_model": {
+            "category": "low-cost",
+            "amount": 750,
+            "currency": "JPY",
+            "billing_period": "monthly",
+            "tco": "Workers 有料プランの中に無料枠があり、超過分が従量。現在の契約状態は未確認"
+          },
+          "free_tier_limits": "有料プランに日次の無料枠がある（無料プランでは使えない）",
+          "goal_fit": "G1 の品質要求（根拠つきの長文）に対しては、モデルの選択肢が狭い",
+          "security_fit": "鍵が不要（バインディング経由）。秘密情報が 1 つ減るのは大きい",
+          "pros": [
+            "鍵を持たなくてよい",
+            "同じプラットフォーム内で完結し、遅延が小さい",
+            "無料枠がある"
+          ],
+          "cons": [
+            "長文・根拠つきの生成では選べるモデルが限られる",
+            "有料プランが前提"
+          ],
+          "risks": [
+            "品質が足りずに結局よそへ出すことになり、両方の実装を抱える"
+          ],
+          "lock_in": "高（Cloudflare 固有）",
+          "ops_burden": "低",
+          "evidence_refs": [
+            "https://developers.cloudflare.com/workers-ai/",
+            "https://developers.cloudflare.com/ai-gateway/"
+          ]
+        }
+      ],
+      "recommendation": {
+        "option_id": "opt-catalog-multi",
+        "rationale": "既に実装があり、単価表を vars に置いて値上げに気づけるようにしてある。07 §0 の GC-5（レビュー系は執筆系と分離し、自作自演の検証にしない）は、書き手と検査役に別のモデルを当てられるほうが素直に満たせる。1 社固定はいまより短くなるが、既にある仕組みを捨てることになる。",
+        "caveats": [
+          "鍵が社数ぶん増える。登録は本人がブラウザで行い、こちらでは受け取らない（11 §5）",
+          "どの用途にどの社を当てるかが未定のままだと、いちばん高い社が既定になる。用途ごとの既定を決める必要がある",
+          "単価表の pricedOn は 2026-08-18 のまま。実費の見積りは llm-cost-simulator で別途取る"
+        ],
+        "confidence": "medium",
+        "latest_checked_at": "2026-08-19T00:00:00Z",
+        "comparison_basis": {
+          "goal_fit": "長文＋根拠の品質は 1 社固定と複数社が同等。Workers AI は選択肢が狭い",
+          "tco": "複数社が最も下がる方向（用途ごとに安いモデルを選べる）。Workers AI は無料枠があるが有料プラン前提",
+          "security": "Workers AI が優位（鍵が要らない）。複数社は鍵が最も増える",
+          "operations": "1 社固定と Workers AI が軽い。複数社は単価表の更新が要る",
+          "lock_in": "複数社が最も低い。1 社固定と Workers AI は高い"
+        }
+      },
+      "user_decision": {
+        "option_id": "opt-catalog-multi",
+        "confirmed_at": "2026-08-19T00:00:00Z",
+        "decided_by": "利用者本人",
+        "confirmation_mode": "推奨への一任 (候補の比較根拠を示したうえでの委任)",
+        "note": "利用者本人が「お任せ、ベストプラクティスで選定」と回答。推奨どおり採用。鍵は利用者本人がブラウザまたは別の端末で登録する。鍵の値をこちらで受け取らないし、要求もしない。",
+        "recorded_with": "キャッシュ側 install (system-spec-harness 0.1.2) の apply-spec-transition.py で書いた。この writer は state の schema_version を検査しない（門が無い）。プロジェクト側の writer は 1.1 との exact 一致を要求するため、1.2 のこの正本には届かない。門を通したのではなく、門が無い writer で書いた。"
+      }
+    },
+    {
+      "id": "decision-ui-theme-implementation",
+      "question": "配色と明暗の 2 軸を、どの技術で実装するか",
+      "status": "confirmed",
+      "serves_goals": [
+        "G1"
+      ],
+      "options": [
+        {
+          "id": "opt-css-light-dark",
+          "label": "CSS の light-dark() と data 属性（配色は属性、明暗は color-scheme）",
+          "cost_model": {
+            "category": "free",
+            "amount": 0,
+            "currency": "JPY",
+            "billing_period": "monthly",
+            "tco": "追加費用なし。ブラウザの標準機能"
+          },
+          "free_tier_limits": "制限なし",
+          "goal_fit": "09 §2 の 2 軸モデルをそのまま表現できる。掛け合わせを設定値にしない",
+          "security_fit": "外から来る値（cookie / URL）は解析関数を通して既定へ落とす形が書きやすい",
+          "pros": [
+            "配色を 1 つ増やしても設定値は 1 つしか増えない",
+            "部品ごとに明暗の分岐を書かなくてよい（09 §5）",
+            "依存を増やさない"
+          ],
+          "cons": [
+            "light-dark() を解さない古いブラウザでは既定色になる"
+          ],
+          "risks": [
+            "色の定義が CSS に散ると、コントラストの下限を測る場所が分かりにくくなる"
+          ],
+          "lock_in": "なし（標準）",
+          "ops_burden": "低",
+          "evidence_refs": [
+            "https://developer.mozilla.org/en-US/docs/Web/CSS/color_value/light-dark"
+          ]
+        },
+        {
+          "id": "opt-tailwind-dark-class",
+          "label": "Tailwind の dark: クラスと、配色ごとのクラス群",
+          "cost_model": {
+            "category": "free",
+            "amount": 0,
+            "currency": "JPY",
+            "billing_period": "monthly",
+            "tco": "追加費用なし。Tailwind は既に入っている"
+          },
+          "free_tier_limits": "制限なし",
+          "goal_fit": "掛け合わせがクラス名に出る。配色 × 明暗の数だけクラスが増え、09 §2 が禁じた形に近づく",
+          "security_fit": "差は無い",
+          "pros": [
+            "既に Tailwind を使っている",
+            "書いた場所で色が読める"
+          ],
+          "cons": [
+            "配色を 1 つ増やすたびに、全部品のクラスが増える",
+            "部品の中に明暗の分岐が書かれる（09 §5 が禁じている）"
+          ],
+          "risks": [
+            "増やすのが面倒になり、配色を増やさない方向へ運用が寄る"
+          ],
+          "lock_in": "中（Tailwind の書き方に寄る）",
+          "ops_burden": "中",
+          "evidence_refs": [
+            "https://tailwindcss.com/docs/dark-mode"
+          ]
+        }
+      ],
+      "recommendation": {
+        "option_id": "opt-css-light-dark",
+        "rationale": "09 §2 は「掛け合わせを設定として持たない」と書いており、light-dark() は掛け合わせを CSS 側で解く仕組みそのものである。Tailwind のクラス方式は、禁じられている掛け合わせがクラス名として現れる。Tailwind は配置と余白に使い、色だけこの方式にすれば両方使える。",
+        "caveats": [
+          "色の定義を 1 か所へ集めないと、コントラストの下限（09 §4）を測る対象が散る",
+          "cookie と URL から来る名前は必ず解析関数を通す（09 §2-2）。素通しにすると壊れて見えない画面になる",
+          "light-dark() を解さない環境では既定色になる。それが読める色であることを確かめる"
+        ],
+        "confidence": "high",
+        "latest_checked_at": "2026-08-19T00:00:00Z",
+        "comparison_basis": {
+          "goal_fit": "light-dark() が明確に優位。09 §2 の 2 軸をそのまま表現できる",
+          "tco": "どちらも 0 円",
+          "security": "差なし",
+          "operations": "light-dark() が優位。配色を増やしたときの作業量が一定",
+          "lock_in": "light-dark() は標準で、乗り換え先が要らない"
+        }
+      },
+      "user_decision": {
+        "option_id": "opt-css-light-dark",
+        "confirmed_at": "2026-08-19T00:00:00Z",
+        "decided_by": "利用者本人",
+        "confirmation_mode": "推奨への一任 (候補の比較根拠を示したうえでの委任)",
+        "note": "利用者本人が「お任せ、ベストプラクティスで選定」と回答。推奨どおり採用。",
+        "recorded_with": "キャッシュ側 install (system-spec-harness 0.1.2) の apply-spec-transition.py で書いた。この writer は state の schema_version を検査しない（門が無い）。プロジェクト側の writer は 1.1 との exact 一致を要求するため、1.2 のこの正本には届かない。門を通したのではなく、門が無い writer で書いた。"
+      }
+    },
+    {
+      "id": "decision-test-ci-tooling",
+      "question": "テストと CI の道具立てを、いまの構成のまま進めるか変えるか",
+      "status": "confirmed",
+      "serves_goals": [
+        "G1",
+        "G2"
+      ],
+      "options": [
+        {
+          "id": "opt-keep-current",
+          "label": "現行のまま（Vitest / Stryker / fast-check / axe-core / GitHub Actions）",
+          "cost_model": {
+            "category": "free",
+            "amount": 0,
+            "currency": "JPY",
+            "billing_period": "monthly",
+            "tco": "追加費用なし。公開リポジトリの標準ランナーは無料・無制限（11 §8-1 の実測）"
+          },
+          "free_tier_limits": "公開リポジトリでは実行時間の制限なし",
+          "goal_fit": "10 の 7 種のうち、単体・契約・境界値・ミューテーション・性質・読み上げを既に覆っている",
+          "security_fit": "秘密情報を増やさない。CI から外部サービスを呼ばない",
+          "pros": [
+            "既に 181 のテストファイルが動いている",
+            "3 段の置き場が既にあり、重いものを移せる（11 §8-2）",
+            "道具を増やさないぶん、守るものが増えない"
+          ],
+          "cons": [
+            "見た目の回帰（ビジュアルリグレッション）を測る道具が無い"
+          ],
+          "risks": [
+            "見た目の崩れは、画面のテストでは捕まらないまま残る"
+          ],
+          "lock_in": "低",
+          "ops_burden": "低（現行のまま）",
+          "evidence_refs": [
+            "https://vitest.dev/",
+            "https://stryker-mutator.io/docs/",
+            "https://docs.github.com/en/actions"
+          ]
+        },
+        {
+          "id": "opt-add-playwright",
+          "label": "Playwright を足し、3 段で見た目の回帰と実ブラウザの通しを測る",
+          "cost_model": {
+            "category": "free",
+            "amount": 0,
+            "currency": "JPY",
+            "billing_period": "monthly",
+            "tco": "公開リポジトリの標準ランナーは無料。実行時間が伸びるが 11 §8-1 のとおり費用ではない"
+          },
+          "free_tier_limits": "公開リポジトリでは実行時間の制限なし",
+          "goal_fit": "10 §7 の見た目の回帰を初めて測れる。9 の配色 × 明暗の組み合わせを実際に描いて確かめられる",
+          "security_fit": "差は無い",
+          "pros": [
+            "配色を増やしたときに、全組み合わせのコントラストを実描画で測れる",
+            "3 段（手動・止めない）に置けるので、速い門は重くならない"
+          ],
+          "cons": [
+            "画像の基準を持つことになり、基準の更新が新しい仕事として増える",
+            "3 段は誰かが打たないと走らない（11 §8-2）。打つ場面を書かないと存在しない検査になる"
+          ],
+          "risks": [
+            "基準画像の更新が面倒になり、落ちたら基準を上書きする運用に流れる（それは閾値を下げるのと同じ）"
+          ],
+          "lock_in": "低",
+          "ops_burden": "中（基準画像の管理）",
+          "evidence_refs": [
+            "https://playwright.dev/",
+            "https://vitest.dev/"
+          ]
+        }
+      ],
+      "recommendation": {
+        "option_id": "opt-keep-current",
+        "rationale": "結論は現行のままだが、これは「Playwright は不要」という判断ではない。10 の 7 種のうち見た目の回帰だけは現行で測れておらず、その穴は実在する。足さない理由は必要性ではなく走らせ方にある。11 §8-2 の 3 段 (手動・止めない) は 2026-08-18 に定例をやめており、いま基準画像を持つ検査を足すと、誰も打たない検査が 1 つ増えるだけになる。基準画像は、打たれないあいだ古くなり続け、次に打った人が「全部落ちるので基準を上書きする」に流れる。それは閾値を下げるのと同じである。したがって、走る段が決まるまで保留する。保留のあいだ穴は開いたままなので、穴そのもの(見た目の崩れを自動で見つける手段が無いこと) を本文ではなく検査として固定し、画像比較の仕組みが足された日に赤くなる形にしておく (ah-h57)。",
+        "caveats": [
+          "これは「不要と判断した」ではなく「走る段が決まるまで保留した」である。次に読む人が前者と読み違えないよう、この一文を消さない —— 【2026-08-20 追記。上の一文は原文のまま残してある】2026-08-20、利用者本人が opt-keep-current を直接選び、状態は保留から確定へ変わった。したがって現在の事実は「現行の 7 種で足りていると確定した」である。上の一文は保留を確定と読み違えさせないために置かれた。いまは逆向き (確定を保留と読み違える) を防ぐ必要が生じたので、同じ目的のために追記した。消去ではなく更新である。",
+          "保留のあいだ、見た目の回帰は測れない。穴は ah-h57 の検査として固定してあり、本文ではなく検査が現状を知らせる",
+          "見直しの引き金は 2 つ: 3 段を打つ場面が決まったとき / 配色を 1 つ増やす作業が決まったとき。どちらか先に来たほうで再評価する。確定は「もう二度と見直さない」という意味ではない",
+          "足すと決めたときは、同じ回に「いつ打つか」を文書へ書く。場面を書かずに足すと、名前だけの検査になる"
+        ],
+        "confidence": "medium",
+        "latest_checked_at": "2026-08-19T00:00:00Z",
+        "comparison_basis": {
+          "goal_fit": "見た目の回帰だけは Playwright が優位。それ以外の 6 種は現行で足りている",
+          "tco": "どちらも 0 円。公開リポジトリの標準ランナーは無料",
+          "security": "差なし",
+          "operations": "現行が優位。Playwright は基準画像の管理が増えるうえ、その基準を打つ場面がいま決まっていない (3 段の定例を 2026-08-18 にやめている)",
+          "lock_in": "差なし。どちらも移しやすい"
+        }
+      },
+      "user_decision": {
+        "option_id": "opt-keep-current",
+        "confirmed_at": "2026-08-20T00:00:00Z",
+        "verbatim": "現行のままで確定",
+        "provenance": "利用者本人が 2 つの選択肢 (「現行のままで確定」/「まだ保留のまま」) から直接選んだ結果である。AI の推奨をそのまま確定へ昇格させたものではなく、オーケストレーターが代理で決めたものでもない。選択肢の提示と回答の受け取りはオーケストレーターが行い、上記 verbatim は利用者の回答原文である。",
+        "why_this_distinction_is_recorded": "この記録を書いた実装担当は、当初『オーケストレーターからの伝聞だけでは status を confirmed にできない』として作業を止めた。gap 4 が求めているのは『利用者本人の確定』であり、伝聞を確定として書けば、この gap が存在する理由そのもの (本人しか決められないことを本人に確かめる) を空洞化させるためである。とくにこの決定は、recommendation の caveats が『不要と判断した』と『走る段が決まるまで保留した』を明確に区別しており、確定 (opt-keep-current) と保留はそもそも別の状態である。どちらを意味していたかは本人にしか決められない。次にこの記録を更新する人も、同じ区別を保つこと: 推奨・伝聞・代理判断のいずれも user_decision には入れない。"
+      },
+      "recorded_with": "プロジェクト側 install (.claude/plugins/system-spec-harness) の apply-spec-transition.py set-decision で書いた。この writer は schema_version の門を持ち、正本の 1.2 を受理する。以前この record を書いた際は『門が無い writer で書いた』状態だった (gap 5) が、schema・writer・網羅性検証を 1.2 まで通した (5534f4c) ため、今回は門を通って書かれている。"
     }
   ],
   "knowledge_candidates": [],
   "hearing_progress": {
-    "loop_count": 4,
+    "loop_count": 3,
     "next_question": null,
     "complete": true,
-    "max_loops": 5
+    "max_loops": 5,
+    "max_loops_policy": "strict"
+  },
+  "asks_for_contract": {
+    "version": "1.0",
+    "legacy_ids": [
+      "qa-auth-web",
+      "qa-backend-web",
+      "qa-backend-web-analytics",
+      "qa-backend-web-spec-intake",
+      "qa-database-web",
+      "qa-database-web-analytics",
+      "qa-database-web-spec-intake",
+      "qa-foundation-u1",
+      "qa-foundation-u2",
+      "qa-foundation-u3",
+      "qa-foundation-u4",
+      "qa-foundation-u5",
+      "qa-foundation-u6",
+      "qa-foundation-u7",
+      "qa-foundation-u8",
+      "qa-foundation-u9",
+      "qa-frontend-web",
+      "qa-frontend-web-analytics",
+      "qa-frontend-web-spec-intake",
+      "qa-infra-web",
+      "qa-infra-web-redirect",
+      "qa-infra-web-spec-intake",
+      "qa-ops-web",
+      "qa-ops-web-spec-intake",
+      "qa-platform-scope",
+      "qa-security-web",
+      "qa-security-web-spec-intake",
+      "qa-uiux-web",
+      "qa-uiux-web-screen-priority",
+      "qa-uiux-web-spec-intake"
+    ]
   }
 }

@@ -5,7 +5,7 @@ import {
   type TelemetryEvent,
   type TelemetryEventKey,
   DEFAULT_CONSENT_SIGNALS,
-  buildEvent,
+  buildTelemetryEvent,
   decideConsent,
   mayRecord,
 } from "@/domain/analytics";
@@ -67,7 +67,7 @@ export function createRecordTelemetryUseCase(
 
       for (const raw of input.events) {
         const key = raw.key as TelemetryEventKey;
-        const built = buildEvent({
+        const built = buildTelemetryEvent({
           key,
           occurredAt: raw.occurredAt ? new Date(raw.occurredAt) : new Date(),
           readerKey: decision.allowReaderKey ? (input.readerKey ?? null) : null,

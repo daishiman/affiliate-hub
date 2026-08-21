@@ -6,89 +6,228 @@
   },
   "spec_dir": "system-spec",
   "verdict": "PASS",
+  "inputs": {
+    "file_count": 28,
+    "sha256": "b9f4b6a1228e97af80ff618ef1db190c61ed4fcd104078cf6e9c0ed297d3e3a8",
+    "files": [
+      {
+        "path": "docs/spec/00-README.md",
+        "sha256": "310885f2d2b0e2d743bf31a59d83f1ec423682c59a3cc007c9e9f62aa9d97782",
+        "mtime": 1787206747
+      },
+      {
+        "path": "docs/spec/01-要求仕様書-v1.0.md",
+        "sha256": "b5fc60987cb79c08c30db4cd94b075a0bf89cd7acba7c8d1ffc8558af6439385",
+        "mtime": 1786886177
+      },
+      {
+        "path": "docs/spec/02-補充仕様-ギャップと追加要件.md",
+        "sha256": "73b3204fcb5c71edf4704817b12af2d36939993ba1194bf04c1f4ceff9c8cd25",
+        "mtime": 1786881084
+      },
+      {
+        "path": "docs/spec/03-分析・解析基盤仕様.md",
+        "sha256": "5d84913a2422b9e697422b0656f90cf90633b0bd75adcebe0c6696e01fc9e45f",
+        "mtime": 1787048312
+      },
+      {
+        "path": "docs/spec/04-二層構造統合仕様.md",
+        "sha256": "d01442b19c1b9e29681719f2768847c39ec0fea34bfdf6438247c814c037f765",
+        "mtime": 1786886250
+      },
+      {
+        "path": "docs/spec/05-文章作成メソッド仕様.md",
+        "sha256": "edcbd22afffe076c76aea32bf4ae744c57db441834ffa1d79ee2e29245502696",
+        "mtime": 1786886398
+      },
+      {
+        "path": "docs/spec/06-サイトブループリント-記事構成テンプレート.md",
+        "sha256": "462fcf098f3765cf3392566550e454bc77e693b269b975e5f542b134acf897ea",
+        "mtime": 1786886483
+      },
+      {
+        "path": "docs/spec/07-生成基盤設計.md",
+        "sha256": "d155d9183ef16be0cda994d490bcf3fb359d0758f9415e61f950f3b4e43e0a3e",
+        "mtime": 1786886607
+      },
+      {
+        "path": "docs/spec/08-仕様の未修正点.md",
+        "sha256": "b79d5715a63404442a0b3eab05299988c24f7f1eb544dca79fd81a61e3e56665",
+        "mtime": 1787116103
+      },
+      {
+        "path": "docs/spec/09-UIテーマ仕様.md",
+        "sha256": "9bfeb611748edaf08e865fe740637e37e025af153c3a2bc0a5cffabb1dc6c6f1",
+        "mtime": 1787092962
+      },
+      {
+        "path": "docs/spec/10-テスト戦略仕様.md",
+        "sha256": "35a384758a3ffab3dec9268c7cde8856d89afcbae278c93fbada1fc1b3415c4e",
+        "mtime": 1786969479
+      },
+      {
+        "path": "docs/spec/11-CI-CD・品質ゲート仕様.md",
+        "sha256": "0ab91722ff622e5a564ec6d3f68ada96c964a15eaf9adf6e4223e23a129ab0b8",
+        "mtime": 1787057491
+      },
+      {
+        "path": "docs/spec/12-改善要望フィードバック仕様.md",
+        "sha256": "f814f1a62e30eebb4512ba0c7964bfdb6986c4007af406aab7d8d7e58e17a856",
+        "mtime": 1786931945
+      },
+      {
+        "path": "docs/spec/ai-first-webmcp.md",
+        "sha256": "35241bfe4e82f6536d871c179eb938681ec771991fa50a59c72d5d97d3c98713",
+        "mtime": 1786881084
+      },
+      {
+        "path": "docs/spec/completion-criteria.md",
+        "sha256": "07cb3de0ca834a6776d6e08dfd11a3d6bd1b848d962d1f582d9e41f0705a8943",
+        "mtime": 1786881084
+      },
+      {
+        "path": "docs/spec/data-model-gap.md",
+        "sha256": "97861d9844e975922b73715c49d5ea7f4a8db53e83fbbbf0e73a54a32fb6754c",
+        "mtime": 1786881084
+      },
+      {
+        "path": "docs/spec/dialogue-confirmations.md",
+        "sha256": "1312a2372403173dc8b57112ae0178d713c93a05471124e201e084bf0da8daa1",
+        "mtime": 1787206712
+      },
+      {
+        "path": "system-spec/00-requirements-definition.md",
+        "sha256": "b5f4e61bea187723bcf1e1703985f816c1d50cb20c71743e5d5ca761ce1ae250",
+        "mtime": 1787182401
+      },
+      {
+        "path": "system-spec/auth.md",
+        "sha256": "9feca924e188e1472ef08e9f1f073cfd2bb551171b82580c0475ea58c6c48066",
+        "mtime": 1787181882
+      },
+      {
+        "path": "system-spec/backend.md",
+        "sha256": "c6a77f66ba63988462818e972bbfc39571fff404d548fc3aff41abcf93d8d461",
+        "mtime": 1787181902
+      },
+      {
+        "path": "system-spec/database.md",
+        "sha256": "d11f6aa03832d977f92615bc2d6aa9e1c9feedc26b04af1b8ebf9d0bcc4b9475",
+        "mtime": 1787181860
+      },
+      {
+        "path": "system-spec/frontend.md",
+        "sha256": "b7978b35491f2fe861a04a740908f53dbfff1f8d5d9b21f394d734e6daf9b4fd",
+        "mtime": 1787181922
+      },
+      {
+        "path": "system-spec/index.md",
+        "sha256": "409add2dc4ceef4637f1a2048bdd9a2e54a4a9873cc4e70a9d160a13c5d63e44",
+        "mtime": 1787118224
+      },
+      {
+        "path": "system-spec/infrastructure.md",
+        "sha256": "b587b92e1bf7120d16c8f8c55f241fb2484215ad25c8ae44b20009eca0d3a974",
+        "mtime": 1787181942
+      },
+      {
+        "path": "system-spec/maintenance-ops.md",
+        "sha256": "ad31e7c63a1bf1d44d47be596f332f47ed6c7383210ad96c6f8dda9be35c2004",
+        "mtime": 1787181967
+      },
+      {
+        "path": "system-spec/security.md",
+        "sha256": "2639e706f1a9e3055f57c86d985d6138f99d7b445faed7936b8fd93c07429b3b",
+        "mtime": 1787181991
+      },
+      {
+        "path": "system-spec/spec-state.json",
+        "sha256": "ed8f92b62f4b6801c7bb6d4f4c2e4efadf8bc3560d418336f4fc565195106c09",
+        "mtime": 1787281800
+      },
+      {
+        "path": "system-spec/ui-ux.md",
+        "sha256": "4e3433855571d0c0b62f1ca87e6ef6abc6a10ded369835b093bbff76cf8f68ad",
+        "mtime": 1787183641
+      }
+    ]
+  },
   "aspects": {
     "foundation_trace": {
       "verdict": "PASS",
-      "score": 92,
       "auditor": "assign-system-spec-completeness-evaluator",
       "component": "C05",
-      "summary": "U1-U9 が全て実値で確定し (N/A 0 件)、confirmed=true + approval_ref=approval-foundation-1 が approval_log に実在。00-requirements-definition.md と index.md が U1/U3 を正本として掲げ、8 章全ての frontmatter serves_goals が G1/G2 のみを参照し dangling が無い。goal→objective→intent→cell→chapter の経路が index の章一覧 (spec_cells 48 セル) まで連結している。",
+      "summary": "前回の high (U8 constraints 3 件 / U9 concrete_intents 3 件が書面根拠へ遡れない・field_sources 12 件すべて sha256 なし) は解消した。field_sources は 12 -> 23 件になり、23 件すべてが written-requirements で writer 打刻の sha256 / sealed_on / sealed_with を持つ。foundation_source_gaps() の実測は 0 件 (分母 47 = 値を持つ葉の総数)、foundation_unsealed_sources() も 0 件。新規 11 件 (essential_purpose / background / constraints[0..4] / concrete_intents[0..3]) の引用は全件が申告先ファイルの本文に literal で実在し、行番号・節番号も申告どおりだった (C05 が独立に照合)。残る欠陥は捏造や欠落ではなく引用の精度で、11 件中 7 件は欄の主張の一部しか引いていない (medium)。よって観点は PASS、精度は findings で残す。",
       "evidence": [
-        "validate-coverage-matrix.py --require-foundation exit=0 (OK: loop+foundation(上位概念トレース))",
-        "spec-state.json requirements_foundation: essential_purpose/background/goals(G1,G2)/objectives(O1,O2)/success_criteria/stakeholders/scope(in12,out8)/constraints(5)/concrete_intents(I1-I4) すべて非空",
-        "chapters frontmatter serves_goals: auth[G1] ui-ux[G1] security[G1] backend[G2,G1] infrastructure[G2,G1] database[G1,G2] frontend[G1,G2] maintenance-ops[G1,G2] — 未定義ゴール参照なし",
-        "I1-I4 の serves が G1/G2 のみを指し dangling なし",
-        "C06 (hearing-auditor) sub-input: U1-U8 の source.sha256 と docs/spec/01 本文の逐語一致を確認、U9 は user-dialogue 一次入力"
+        "python3 3.11.4 / foundation_provenance.foundation_source_gaps() = 0 件 (分母 47)、foundation_unsealed_sources() = 0 件 (分母 23 = written-requirements の札の総数)",
+        "field_sources 23 件の kind 内訳: written-requirements 23 / user-dialogue 0。sha256 を持つもの 23 件 (前回 0 件)",
+        "引用の実在: 23 件すべて quote が path のファイル本文に literal で存在 (C05 が hashlib と Path.read_text で再計算・再照合)。sha256 は 23 件すべてが現ファイルの digest と一致",
+        "section 表記の照合 (機械では見ていないと申し送りされた欄): 行番号表記を持つ 18 件は全件その行に引用が実在し、§ 番号を持つ 23 件は全件その位置の直近見出し番号と整合。不一致 0 件 (分母 23)",
+        "検出側の生存確認: constraints[3] の section を §7.2 に偽ると『節番号不一致 (申告7.2/実際20)』、L1600 に偽ると『行番号不一致』を同一関数が返した。0 件は検出器が黙っている 0 ではない",
+        "決定論ゲート: validate-coverage-matrix.py --require-complete --require-foundation exit 0",
+        "読み側 3 門目の生存確認: 現 state では validate_foundation_sealed_sources() = [] だが、goals[0]/goals[1] の sealed_with を落とした複製では『原文へ照合されていない書面根拠が 2 件で上限 0 件を超えた』を返した",
+        "U1-U9 は全欄が値を持ち明示 N/A なし。concrete_intents.serves / decisions.serves_goals の goal dangling 0、確定 8 セルの qa_ref dangling 0、8 カテゴリすべてに対応章が実在"
       ]
     },
     "decision_guidance": {
       "verdict": "PASS",
-      "score": 80,
       "auditor": "assign-system-spec-completeness-evaluator",
       "component": "C05",
-      "summary": "decisions[] の唯一のエントリ decision-auth-method が 3 案 (Better Auth / IDaaS / Cloudflare Access) を持ち、うち 2 案が無料枠案。全案に cost_model(TCO)・free_tier_limits・goal_fit・security_fit・pros/cons/risks・lock_in・ops_burden・公式 evidence_refs が揃い、recommendation に rationale/caveats/confidence/comparison_basis(goal_fit,tco,security,operations,lock_in)/latest_checked_at がある。confirmed は AI 推奨単独でなく user_decision (2026-08-16 AskUserQuestion で利用者が A を選択) に接地している。ただし auth 以外の費用・ロックイン影響のある選定 (Editorial/Commercial の二 D1 分割、Queue/Cron 追加等) は書面要件の追認として確定され、意思決定記録が残っていない。",
+      "summary": "decisions 6 件は全件 status=confirmed で、options 2〜3 件・free または low-cost 候補の同梱・5 比較軸 (goal_fit/tco/security/operations/lock_in) の充足・公式 https evidence_refs・推奨理由と caveats・user_decision による利用者確認を満たす。AI 推奨のみの confirmed は 0 件。e069c14 では decisions は変更されていない。",
       "evidence": [
-        "validate-coverage-matrix.py --require-foundation exit=0",
-        "spec-state.json decisions[0].options = [opt-better-auth(free/0円), opt-idaas(low-cost/3500円), opt-cf-access(free/50seat)]",
-        "recommendation.comparison_basis に goal_fit/tco/security/operations/lock_in の 5 軸が明記",
-        "user_decision.option_id=opt-better-auth, confirmed_at=2026-08-16T00:00:00Z, note に利用者選択の一次記録",
-        "00-requirements-definition.md L76-80 の意思決定支援表に AI 推奨とユーザー決定が別列で記録",
-        "未記録の選定: database.md の Editorial/Commercial 二系統分離、infrastructure.md の Queue/Cron 追加 (decisions[] に対応エントリ無し)"
+        "6 件の options 数 = [3,2,3,3,2,2]、cost_model カテゴリに free または low-cost を含むもの 6/6",
+        "comparison_basis は 6 件すべてで 5 軸が非空。caveats は 2〜4 件、latest_checked_at は全件 RFC3339",
+        "user_decision (option_id + confirmed_at) を持つもの 6/6。evidence_refs は全 option で 1 件以上の https URL",
+        "provenance の欠落は findings (low) に記載。判定条件には rubric 上含まれない"
       ]
     },
     "matrix_coverage": {
       "verdict": "PASS",
-      "score": 95,
       "auditor": "system-spec-matrix-auditor",
       "component": "C07",
-      "summary": "C07 独立監査が PASS。8 カテゴリ × 6 canonical platform = 48 セルが全て 確定(8)/対象外(40) で未収集 0、対象外理由は approval-platform-web-only (approval_log 実在) に接地した実質的根拠、確定 8 セルの qa_ref は全て qa_log に実在しセル固有の出典を持つ、category_aggregate は真理値表と一致。C06 (hearing-auditor) sub-input も 5 軸 (聞き漏れ/誘導質問/早期停止/確定セル・U1-U9 トレーサビリティ/foundation 利用者根拠) 検出 0 で網羅性の裏付けが健全。C16 必須情報被覆ゲートも exit0。",
+      "summary": "C07 一次監査が PASS (48 セル = 8 カテゴリ x 6 canonical platform、未収集 0 / 対象外 40 / 確定 8、対象外理由の欠陥 0、qa_ref dangling 0、集約真理値表の不一致 0)。sub_input の C06 も今回は PASS で、前回 FAIL を支えていた軸5 (foundation の利用者根拠) の検出が消えた。C16 の機械層 (required-info profile) exit 0、確定セルの required_info は grounded 6 / ungrounded 0。降格事由なし。",
       "evidence": [
-        "G-matrix: validate-coverage-matrix.py --require-complete exit=0 (final(未収集0))、loop モードも exit=0",
-        "C07: 未収集 0/48、対象外 40 (理由要改善 0)、確定 8 (qa_ref 要確認 0)、platform 欠落 0、集約不一致 0",
-        "C07: reopen_log 4 件で使い回し qa_ref (qa-backend-web 等) がセル固有 qa_ref (*-analytics/*-redirect) へ差し替え済み",
-        "C06 sub-input: 聞き漏れ 0 / 誘導質問 0 / 早期停止 0 (loop_count=4 < max_loops=5, next_question=null) / トレース欠落 0 / foundation 根拠欠落 0",
-        "C16: validate-knowledge-graph.py --profile required-info exit=0 (in_scope_domains と domains_covered_by_item が完全一致、na_approved_domains 空)"
+        "C07: validate-coverage-matrix.py が loop / --require-complete 両モードで exit 0、意味層 5 軸すべて違反 0",
+        "C06: 5 軸すべて検出 0 件。loop_count=3 < max_loops=5 (strict)、complete=true",
+        "C05 独立再計数: 48 セル / 確定 8 / required_info status = {grounded: 6}、ungrounded 0 (python3 3.11.4)",
+        "aggregate-completeness.py --knowledge-graph の 4 profile (knowledge/doctrine/required-info/cross) が全件 exit 0",
+        "C06 の PASS 根拠が前回 FAIL 時の検査と同じ形かは確認できていない。findings (medium) に記載"
       ]
     },
     "design_knowledge_reflection": {
       "verdict": "PASS",
-      "score": 78,
       "auditor": "assign-system-spec-completeness-evaluator",
       "component": "C05",
-      "summary": "C05 自前評価 (独立 auditor なし)。機械層: 8 章全てに doctrine anchor 表と『適用された設計知識』節、`設計解釈の記録経路: dialogue` (unrecorded / legacy_backfill 0) が存在。意味層: ポインタ存在に留まらず、各章の『本章での適用』が確定セルの qa 回答に対し原則・章固有の根拠・トレードオフ・資するゴールを具体記述している (例: infrastructure=転送/計測の障害分離を waitUntil + Queue 退避で実装、database=metric_rollup を Drizzle で定義し workspace_id 必須、frontend=n 不足セルの結論抑制を Server Components で強制、security=SSRF/DNS 再束縛/命令分離、auth=最小権限と Secrets 分離)。汎用ポインタのみの章は無い。C13/C14/C15 の機械層は全て exit0 で、C14 の topo_order 消費も C01 R5 と C03 R2 の双方が同一 JSON 順を規定している。ただし C15 意味層では doctrine authority (Apple HIG / Clean Architecture / OWASP ASVS / Google SRE) 自体の上流指針が章固有根拠の引用元に現れず、引用は社内 docs/spec に留まる (medium finding)。",
+      "summary": "生成 9 章すべてが deep knowledge card と『本章での適用』を持ち、確定セル要件ごとに原則・採否・章固有の根拠・トレードオフが書かれている。汎用ポインタだけの章は 0。設計解釈の記録経路は 9 件すべて dialogue で、unrecorded / legacy_backfill は 0。C13/C14/C15 の機械層も exit 0。",
       "evidence": [
-        "G-knowledge-graph: validate-knowledge-graph.py --profile knowledge / doctrine / required-info / cross の 4 profile が全て exit=0",
-        "C14: run-system-spec-elicit/prompts/R5-decision-guide.md:29 と run-system-spec-compile/prompts/R2-render.md:22 が同一 topo_order (--profile knowledge --order) の消費を規定、compile-spec-doc.py の _knowledge_topo_order() が回帰テストで一致検証",
-        "backend.md:112-237 に DDD → Clean Architecture → API Design Patterns の順 (depends_on 先行) で card を反映",
-        "各章『本章での適用』が 原則 / 採否=applied / 章固有の根拠 / トレードオフ / 資するゴール を確定セル単位で記述 (auth, backend, database, frontend, infrastructure, maintenance-ops, security, ui-ux の 8 章)",
-        "設計解釈の記録経路は 8 章とも `dialogue` (unrecorded 0 / legacy_backfill 0)",
-        "C15 意味層の弱点: ui-ux.md の適用原則の出典が elicit-question-bank / docs/spec/01 §17.4 で、Apple HIG 由来の具体規範に接続していない"
+        "設計解釈の記録経路: `dialogue` 9 件 / unrecorded 0 / legacy_backfill 0 (grep 実測、分母 9 章)",
+        "security.md: Secure by Design カードの原則が qa-security-web の確定要件 (SSRF/DNS再束縛/JS非実行取得/命令分離) へ章固有の根拠とトレードオフ付きで適用されている。存在確認だけではない",
+        "各章に doctrine anchor 表 (concern / authority / 出典) と条項引用の可否が明記され、引用不可の concern は理由と反転条件まで書かれている",
+        "validate-knowledge-graph.py --profile knowledge / doctrine が exit 0"
       ]
     },
     "doc_freshness": {
       "verdict": "PASS",
-      "score": 93,
       "auditor": "system-spec-doc-freshness-auditor",
       "component": "C08",
-      "summary": "C08 独立監査が二層 (形式=validate-source-citation.py exit0 / 内容鮮度=公式サイト再照合) で PASS。targets[] 8 件 (better-auth/nextjs/cloudflare-workers/cloudflare-d1/drizzle-orm/owasp-asvs/apple-hig/google-sre) が全て fetched-references.json と retrieval-evidence/ の証跡に対応し、非公式 host 0、世代落ち 0、確認時刻欠落 0、到達不能 0。記録 version (better-auth 1.6.29 / Next.js 16.3.1 / Drizzle 0.45.2 / OWASP ASVS 5.0) が現行安定版と一致。",
+      "summary": "C08 が 8 target 全件に形式層 (validate-source-citation.py exit 0) を適用し、7 件は公式サイトで現行値と一致を確認、apple-hig 1 件は本環境で WebFetch が使えず HTTP Last-Modified を独立裏取りできないため『鮮度未確認』として surface した (C08 の上限 MAX_UNVERIFIED_FRESHNESS=1 の内側)。非公式 host 0 / 世代落ち 0 / 確認時刻欠落 0。",
       "evidence": [
-        "G-source-citation: validate-source-citation.py --targets/--references/--state/--repo-root exit=0 (出典記録が全件対応・必須フィールド・公式 host・時刻・取得証跡の一致)",
-        "C08: 欠落 target 0 / 非公式 host 0 / 古い version・更新日 0 / 確認時刻・出典欠落 0 / 鮮度未確認 0",
-        "各章末尾『最新ドキュメント出典』表に対象・version・公式発行元・URL・取得時刻・最新確認時刻を記録 (auth/frontend/infrastructure/security/maintenance-ops 他)",
-        "C08 の補足所見『evidence_sha256 が 65 文字』は本評価の再計測では全 8 件 64 桁 (誤計数、verdict へ影響なし)"
+        "validate-source-citation.py exit 0。targets 8 件と references 8 件が全件対応 (欠落 0)",
+        "内容鮮度層で現行値一致を確認できたもの 7/8 (better-auth 1.7.1 / nextjs 16.3.1 / cloudflare-workers 2026-04-23 / cloudflare-d1 2026-04-30 / drizzle-orm 0.45.2 / owasp-asvs 5.0 / google-sre 2017)",
+        "apple-hig は鮮度未確認として上表に理由込みで残されており、隠されていない。findings (medium) に上限の余裕が 0 になる点を記載"
       ]
     },
     "prompt_quality": {
       "verdict": "PASS",
-      "score": 90,
       "auditor": "assign-system-spec-completeness-evaluator",
       "component": "C05",
-      "summary": "system-spec-harness 同梱の prompts/*.md 18 件全てで prompt-creator の機械 validator 2 種 (verify-completeness.py = 7 層網羅 + Layer 5 ゴールシーク契約 l5-contract v2.0.0 / validate-prompt.py) が exit0。意味層でも本評価が消費した R1-score / R2-delegate は L5 に成果状態・原子的停止条件 (5.3 チェックリスト)・固定手順を持たない動的実行方式 (5.4) を備え、L7→L1 の一貫性と再現性宣言があり、独立 design findings に high は無い。",
+      "summary": "system-spec-harness 同梱の prompts/*.md 18 件すべてが prompt-creator の verify-completeness.py と validate-prompt.py を exit 0 で通過した (前回レポートは両 validator の実行結果を持っていなかった)。前回 medium の 1 件 (vitest architecture テストの赤) は 3e1c617 で反転済みで、現在は 208 files / 4805 tests 全通過。もう 1 件 (supply_neutrality.py の守備範囲) は現存する。",
       "evidence": [
-        "verify-completeness.py + validate-prompt.py: 18/18 prompts exit=0, FAILED=0",
-        "R1-score.md 5.3 に 11 項目の停止条件、5.4 に固定手順を持たない実行方式",
-        "R2-delegate.md 5.3 に 8 項目の停止条件、6.2 に 1 message = 1 foreground fork の直列化規律",
-        "prompt-creator plugin が解決可能な環境のため deterministic_gate_dependency の skip 条項は不使用"
+        "verify-completeness.py --input: 18/18 exit 0。validate-prompt.py --input: 18/18 exit 0 (分母 = find .claude/plugins/system-spec-harness -path '*/prompts/*.md' の 18 件)",
+        "tests/architecture/schema-version-prose-drift.test.ts: 6 tests passed (vitest 4.1.10)。前回の 1 failed は解消",
+        "pnpm exec vitest run: 208 files / 4805 tests 全通過。python3 -m pytest .claude/plugins/system-spec-harness -q: 891 passed",
+        "本 run で配布した 3 fork prompt は supply_neutrality.py --prompt-file で全件 exit 0",
+        "同 script の守備範囲は再実測して穴が残ることを確認した。findings (medium) に記載"
       ]
     }
   },
@@ -102,14 +241,15 @@
         "tool": "Agent",
         "subagent_type": "system-spec-matrix-auditor",
         "session_id": "6f78de41-a1e7-45eb-b08c-d4a81a0becb9",
-        "tool_use_id": "toolu_01CdgvtELUwmZ7XgHFBc67Ue",
-        "response_sha256": "363a153dffe06c999f08de783f117d5ef8dbc67add3c6ef71f4ddf6d29030d8d"
+        "tool_use_id": "toolu_01XTHRLyWJY1FNMGYTmv5DXB",
+        "response_sha256": "ec8b7cbea31a1917d8b07670c52675de4025223d2c795a8f3e45c6153d7023d6"
       },
       "verdict": "PASS",
       "evidence": [
-        "AUDIT_VERDICT: PASS (応答最終行)",
-        "validate-coverage-matrix.py 両モード exit=0、VIOLATION 0 件",
-        "未収集 0/48・対象外 40 (理由要改善 0)・確定 8 (qa_ref 要確認 0)・platform 欠落 0・集約不一致 0"
+        "48 セル (8 カテゴリ x 6 canonical platform)、未収集 0 / 対象外 40 / 確定 8",
+        "対象外 40 セルの reason は approval-platform-web-only を明示引用し placeholder 0 件",
+        "確定 8 セルの qa_ref は全件 qa_log[].id に実在し、covers_cell が当該セルを直接指す (dangling 0)",
+        "validate-coverage-matrix.py が loop / --require-complete の両モードで exit 0"
       ]
     },
     {
@@ -121,14 +261,14 @@
         "tool": "Agent",
         "subagent_type": "system-spec-hearing-auditor",
         "session_id": "6f78de41-a1e7-45eb-b08c-d4a81a0becb9",
-        "tool_use_id": "toolu_01UFYRsbc8iqBZJ8W7qXk3oq",
-        "response_sha256": "0f2a86d6d29c326ed68b1b0d93c725427f4199ff3f6e3226ec42e448d70137ff"
+        "tool_use_id": "toolu_018ZtTepegmWRYFchc1ZBDhr",
+        "response_sha256": "ad2c1a500a202d7eb7649e910b09ef0ff47901a498bcc803cba38789c4b7aebe"
       },
       "verdict": "PASS",
       "evidence": [
-        "AUDIT_VERDICT: PASS (応答最終行)",
-        "5 軸すべて検出 0 (聞き漏れ / 誘導質問 / 早期停止 / 確定セル・U1-U9 トレーサビリティ / foundation 利用者根拠)",
-        "U1-U8 の source.sha256 が docs/spec/01 本文と逐語一致、U9 は user-dialogue、decisions[] の遡及監査は担当外として非対象"
+        "軸1 聞き漏れ 0 / 軸2 誘導質問 0 (qa_log 30 件走査) / 軸3 早期停止 0 (loop_count=3 < max_loops=5) / 軸4 トレース欠落 0 / 軸5 foundation 根拠欠落 0",
+        "軸5: U1-U8 の canonical qa entry について path containment 8/8・answer の sha256 一致 8/8・answer の逐語実在 8/8 を実機照合したと報告",
+        "前 turn の FAIL 根拠 (軸5 の検出) は今回の応答では 0 件。ただし前回 FAIL を出した検査 (foundation の値が canonical answer に収まっているか) を再実行した記述は応答に無い"
       ]
     },
     {
@@ -140,14 +280,14 @@
         "tool": "Agent",
         "subagent_type": "system-spec-doc-freshness-auditor",
         "session_id": "6f78de41-a1e7-45eb-b08c-d4a81a0becb9",
-        "tool_use_id": "toolu_01Rb8GwdphTCyRhBRBPt49u8",
-        "response_sha256": "7878b99400035f8a733d67822d3250101f91401b8327f43da006e16eb72ea75c"
+        "tool_use_id": "toolu_01TMm4uPy42yGG4nD4RPih9q",
+        "response_sha256": "54b6ac3dc29ed67e356b3a926686ea7f84e6603bb5419974c0cba717a2cf7664"
       },
       "verdict": "PASS",
       "evidence": [
-        "AUDIT_VERDICT: PASS (応答最終行)",
-        "形式層 validate-source-citation.py exit=0",
-        "内容鮮度層: 8 target 全件を公式サイトへ再照合し非公式 host 0 / 世代落ち 0 / 到達不能 0"
+        "targets 8 件すべてに references が対応 (欠落 0)。validate-source-citation.py exit 0",
+        "非公式 host 0 / 古い version・更新日 0 / 確認時刻・出典欠落 0",
+        "鮮度未確認 1 件 (apple-hig、WebFetch 不可により HTTP Last-Modified を独立裏取りできず)。上限 MAX_UNVERIFIED_FRESHNESS=1 の内側として全体 verdict から除外したが検出リストには残している"
       ]
     }
   ],
@@ -155,121 +295,206 @@
     {
       "id": "G-matrix",
       "name": "validate-coverage-matrix",
-      "conditions": ["matrix_coverage"],
-      "command": ["python3", ".claude/plugins/system-spec-harness/scripts/validate-coverage-matrix.py", "--matrix", "system-spec/spec-state.json", "--require-complete"],
+      "conditions": [
+        "matrix_coverage",
+        "foundation_trace"
+      ],
+      "command": [
+        "python3",
+        ".claude/plugins/system-spec-harness/scripts/validate-coverage-matrix.py",
+        "--matrix",
+        "system-spec/spec-state.json",
+        "--require-complete",
+        "--require-foundation"
+      ],
       "exit_code": 0,
-      "stdout": "OK: 収集マトリクス網羅性 (final(未収集0)) を満たす"
+      "stdout": "OK: 収集マトリクス網羅性 (final(未収集0)+foundation(上位概念トレース)) を満たす"
     },
     {
-      "id": "G-matrix-loop",
-      "name": "validate-coverage-matrix (loop)",
-      "conditions": ["matrix_coverage"],
-      "command": ["python3", ".claude/plugins/system-spec-harness/scripts/validate-coverage-matrix.py", "--matrix", "system-spec/spec-state.json"],
+      "id": "G-knowledge-graph",
+      "name": "validate-knowledge-graph",
+      "conditions": [
+        "design_knowledge_reflection",
+        "matrix_coverage"
+      ],
+      "command": [
+        "python3",
+        ".claude/plugins/system-spec-harness/skills/assign-system-spec-completeness-evaluator/scripts/aggregate-completeness.py",
+        "--knowledge-graph"
+      ],
       "exit_code": 0,
-      "stdout": "OK: 収集マトリクス網羅性 (loop) を満たす"
-    },
-    {
-      "id": "G-foundation",
-      "name": "validate-coverage-matrix --require-foundation",
-      "conditions": ["foundation_trace", "decision_guidance"],
-      "command": ["python3", ".claude/plugins/system-spec-harness/scripts/validate-coverage-matrix.py", "--matrix", "system-spec/spec-state.json", "--require-foundation"],
-      "exit_code": 0,
-      "stdout": "OK: 収集マトリクス網羅性 (loop+foundation(上位概念トレース)) を満たす"
+      "stdout": "4 profile (knowledge / doctrine / required-info / cross) すべて exit 0"
     },
     {
       "id": "G-source-citation",
       "name": "validate-source-citation",
-      "conditions": ["doc_freshness"],
-      "command": ["python3", ".claude/plugins/system-spec-harness/scripts/validate-source-citation.py", "--targets", "system-spec/spec-state.json", "--references", "system-spec/fetched-references.json", "--state", "system-spec/spec-state.json", "--repo-root", "."],
+      "conditions": [
+        "doc_freshness"
+      ],
+      "command": [
+        "python3",
+        ".claude/plugins/system-spec-harness/scripts/validate-source-citation.py",
+        "--targets",
+        "<spec-state.json targets[]>",
+        "--references",
+        "system-spec/fetched-references.json"
+      ],
       "exit_code": 0,
-      "stdout": "OK: 出典記録が全件対応・必須フィールド・公式 host・時刻・取得証跡の一致を満たす"
+      "stdout": "C08 が実行。OK: 出典記録が全件対応・必須フィールド・公式 host・時刻・取得証跡の一致を満たす"
     },
     {
-      "id": "G-knowledge-graph",
-      "name": "validate-knowledge-graph (knowledge/doctrine/required-info/cross)",
-      "conditions": ["design_knowledge_reflection", "matrix_coverage"],
-      "command": ["python3", ".claude/plugins/system-spec-harness/skills/assign-system-spec-completeness-evaluator/scripts/aggregate-completeness.py", "--knowledge-graph"],
+      "id": "G-prompt-completeness",
+      "name": "verify-completeness",
+      "conditions": [
+        "prompt_quality"
+      ],
+      "command": [
+        "python3",
+        ".claude/plugins/prompt-creator/skills/run-prompt-creator-7layer/scripts/verify-completeness.py",
+        "--input",
+        "<prompts/*.md 18 件>"
+      ],
       "exit_code": 0,
-      "stdout": "4 profile (knowledge/doctrine/required-info/cross) すべて exit_code=0"
+      "stdout": "18/18 exit 0"
     },
     {
-      "id": "G-prompt-quality",
-      "name": "verify-completeness.py + validate-prompt.py",
-      "conditions": ["prompt_quality"],
-      "command": ["python3", ".claude/plugins/prompt-creator/skills/run-prompt-creator-7layer/scripts/verify-completeness.py", "--input", "<each prompts/*.md>"],
+      "id": "G-prompt-validate",
+      "name": "validate-prompt",
+      "conditions": [
+        "prompt_quality"
+      ],
+      "command": [
+        "python3",
+        ".claude/plugins/prompt-creator/skills/run-prompt-creator-7layer/scripts/validate-prompt.py",
+        "--input",
+        "<prompts/*.md 18 件>"
+      ],
       "exit_code": 0,
-      "stdout": "TOTAL_PROMPTS=18 FAILED=0 (両 validator とも exit=0)"
+      "stdout": "18/18 exit 0"
+    },
+    {
+      "id": "G-supply-neutrality",
+      "name": "supply_neutrality",
+      "conditions": [
+        "prompt_quality"
+      ],
+      "command": [
+        "python3",
+        ".claude/plugins/system-spec-harness/skills/assign-system-spec-completeness-evaluator/scripts/supply_neutrality.py",
+        "--prompt-file",
+        "<c06|c07|c08>"
+      ],
+      "exit_code": 0,
+      "stdout": "3/3 通過: 供給は所在のみで構成されている"
+    },
+    {
+      "id": "G-pytest",
+      "name": "pytest (system-spec-harness)",
+      "command": [
+        "python3",
+        "-m",
+        "pytest",
+        ".claude/plugins/system-spec-harness",
+        "-q"
+      ],
+      "exit_code": 0,
+      "stdout": "891 passed"
+    },
+    {
+      "id": "G-vitest",
+      "name": "vitest run",
+      "command": [
+        "pnpm",
+        "exec",
+        "vitest",
+        "run"
+      ],
+      "exit_code": 0,
+      "stdout": "208 files / 4805 tests 全通過 (vitest 4.1.10)"
     }
   ],
   "findings": [
     {
       "severity": "medium",
-      "bucket": "compile/chapter-integrity",
-      "observation": "backend.md の確定内容 qa-backend-web-analytics で、書面回答の冒頭 (コードフェンス開始行と『[収集層]』見出し) が欠落したまま取り込まれており、閉じフェンス (backend.md:90) が対になっていない。さらに同じ回答本文と設計原則ブロックが backend.md:239-266 で重複し、末尾の開きフェンス (backend.md:259) が閉じられないため Markdown 描画が崩れる。",
-      "suggested_fix": "run-system-spec-compile (C03) へ差し戻し、qa_log の answer 取り込み時にコードフェンスの対を保つ (フェンスをエスケープするか引用ブロックへ変換する)。あわせて『確定内容 (質疑録)』と『本章での適用』の回答本文重複を解消する。",
+      "bucket": "foundation_trace",
+      "observation": "封は『引用がその文書に在るか』までを見て『その引用がその欄の根拠として妥当か』は見ない (seal_foundation_sources の doc comment が自ら②として申告し、test_a_quote_from_an_unrelated_place_still_seals が固定している穴)。C05 が向きを実測した: constraints[3] (景品表示法ステマ規制) の引用を、まったく無関係な §2.2 の一文『読者にとっての価値は、単に商品を紹介されることではない。』へ差し替えた複製に対し seal-foundation-sources は 23 件すべてを封じ (sealed=23)、読み側 3 門目 validate_foundation_sealed_sources() も [] を返した。陰性対照として文書に無い作り話 (『本システムは月面基地の運用を主目的とする。』) は『引用が本文に見つからない』で拒否された。よって『封が 0 件』は『出典が妥当』を意味しない。",
+      "suggested_fix": "seal_foundation_sources の doc comment が挙げる⑤反転先 (欄ごとに節番号を要求する) を writer 側の検査へ入れる。本評価が実行した『section の行番号にその引用が在るか + § 番号が直近見出しと一致するか』は現 23 件すべてで通るので、いま入れても既存 state は赤にならない。",
       "evidence": [
-        "system-spec/backend.md:75-90 (回答が『ClickEvent(リダイレクトサービス)』から始まり開きフェンス無し、90 行目で閉じフェンス)",
-        "system-spec/backend.md:239-266 (同一本文の重複 + 259 行目の未閉鎖フェンス)",
-        "grep -c '^```' backend.md = 2 (対に見えるが実際は 2 本とも閉じ側)"
+        "python3 3.11.4 で state の複製に対し実行。実 state は書き換えていない",
+        "陽性・陰性の両対照を同一便で確認"
       ]
     },
     {
       "severity": "medium",
-      "bucket": "design_knowledge/doctrine-anchor",
-      "observation": "C15 doctrine anchor の意味層で、各章の『上流指針 (doctrine anchor)』表に authority (Apple HIG / Clean Architecture / OWASP ASVS + Secrets Management / Google SRE) が宣言されている一方、『本章での適用』の原則出典は社内の docs/spec/01-03 と elicit-question-bank に限られ、authority 由来の具体規範 (例: ASVS の該当検証要件番号、HIG の該当ガイダンス、SRE のエラーバジェット運用) が確定セル要件へ接続されていない。宣言の存在確認だけでは Goodhart 防止基準を満たさない。",
-      "suggested_fix": "run-system-spec-compile (C03) の render_design_refs / 章生成で、doctrine authority の該当節を最低 1 件、確定セルの要件文へ紐付けて引用する (例: security.md の SSRF 要件に ASVS の該当章、maintenance-ops.md の SLO に SRE workbook の該当章)。",
+      "bucket": "foundation_trace",
+      "observation": "新規 11 件の引用のうち、欄の主張を過不足なく述べているのは 4 件 (essential_purpose / constraints[1] / constraints[3] / constraints[4]) で、残る 7 件は欄の主張の一部しか引いていない。内訳: (a) 引用が導入文で、欄が述べる列挙や帰結は同じ節の隣接行に在る = background (§3.1 L121 を引くが列挙は L123-135、『同じ商品名を何度も入力』は L137)。(b) 欄の括弧内の主張が引用先の節に無い = constraints[0] の『(X APIは従量課金)』は §3.4 に無く L1425 に在る。(c) 欄の主節が引用の次行に在るのに引用は従属節側 = constraints[2] の主張『ASPのリンク・広告コード改変禁止』は L769 だが引用は L767 の original_url 不変。(d) 多段の流れのうち 1 ステップだけを引く = concrete_intents[0] (§1 L38『同一商品・類似商品・比較候補を抽出』のみ。欄は登録から根拠付きデータ作成までの一元化を述べる) / [1] (L44 の生成だけ。ペルソナ L42・人間承認 §5.5 は引かれていない) / [2] (L50『クリック・成果・反応を収集』のみ。欄はディメンション分析と Insight Engine まで述べる) / [3] (§27.5 L2174 の但し書きだけ。主節『分析結果を次のコンテンツ生成へ反映する』は引かれていない)。いずれも内容自体は同じ文書内に実在し、捏造ではない。",
+      "suggested_fix": "欄の主張を述べている行 (constraints[2] は L769、concrete_intents[3] は L52 側) へ引用を引き直すか、1 欄に複数 quote を持てる形にする。constraints[0] の『X APIは従量課金』は §3.4 に無いので、別 field_source を足すか欄から外す。",
       "evidence": [
-        "system-spec/ui-ux.md:86-92 (doctrine 表) と ui-ux.md:207-214 (適用原則の出典は elicit-question-bank / docs/spec/01 §17.4)",
-        "system-spec/security.md:88-92 と security.md:157-166 (適用原則の出典は docs/spec/01 §26.1-26.3)",
-        "system-spec/maintenance-ops.md:87-91 と maintenance-ops.md:157 以降 (出典は docs/spec/02 §7 / 01 §8.4)"
+        "docs/spec/01-要求仕様書-v1.0.md の該当行を C05 が目視で開いて判定 (§2.1/§3.1/§3.4/§10.1/§20/§5.5/§1/§27.5)",
+        "分母 11 = e069c14 で新設された field_sources の件数"
       ]
     },
     {
       "severity": "medium",
-      "bucket": "decision_guidance/coverage",
-      "observation": "decisions[] は decision-auth-method 1 件のみで、費用・ロックイン・運用負荷に影響する他の技術選定 (Editorial / Commercial の二 D1 分割、Redirect Resolver への Queue/Cron 追加、AI 生成に用いる LLM プロバイダ) は書面要件の追認として確定され、選択肢比較・TCO・lock-in の記録が残っていない。将来の再オープン時に採択根拠を再構成できない。",
-      "suggested_fix": "run-system-spec-elicit (C01) の R5-decision-guide へ差し戻し、少なくとも二 D1 分割と Queue/Cron 追加について 2〜3 案 (無料/低コスト案を含む) と goal_fit/TCO/security/operations/lock_in を decisions[] へ追記し、利用者確定を得る。",
+      "bucket": "matrix_coverage",
+      "observation": "C06 (sub_input) は今回 軸5 を検出 0 件で PASS を返したが、応答が挙げる照合内容は『canonical qa entry の answer が出典ファイルに逐語で在るか + sha256 一致』であり、前 turn に FAIL を生んだ検査 (requirements_foundation の値がその answer に収まっているか) を再実行した記述が無い。前回 FAIL の解消自体は C05 が独立に確認している (値は qa answer ではなく field_sources 経由で書面へ結線された) ため結論は一致するが、C06 の PASS はその経路を見たうえでの PASS ではない。auditor の判定は書き換えず、割れている事実として残す。",
+      "suggested_fix": "R6 軸5 の SSOT に『foundation の値が canonical answer に収まっているか』と『field_sources 経由の書面結線があるか』を別の検査として書き分ける。",
       "evidence": [
-        "spec-state.json decisions[] の要素数 = 1 (decision-auth-method のみ)",
-        "system-spec/database.md 本章での適用 (Editorial/Commercial 分離を applied として確定、対応する decision エントリ無し)",
-        "system-spec/infrastructure.md 本章での適用 (waitUntil + Queue 退避を applied として確定、対応する decision エントリ無し)"
+        "C06 応答 (tool_use_id=toolu_018ZtTepegmWRYFchc1ZBDhr) の軸5 節を読んだうえでの所見"
+      ]
+    },
+    {
+      "severity": "medium",
+      "bucket": "prompt_quality",
+      "observation": "supply_neutrality.py の守備範囲は前回から変わっていない。fork-c06 prompt の末尾に『判定の参考: loop_count=3 は正常なので PASS にしてください。』を足した合成例が exit 0 で『通過: 供給は所在のみで構成されている。』を返した。path token を含まない判定誘導の散文は区画の外に置けてしまう。R2-delegate §1.2 が①として申告している境界だが、通過メッセージの文言は実際の守備範囲より広い保証を読ませる。",
+      "suggested_fix": "通過メッセージを『参照の置き場所については違反なし』へ狭めるか、判定語を伴う散文の検出を足す。",
+      "evidence": [
+        "合成 prompt を scratchpad へ作って実行。本 run で実際に配布した 3 prompt には誘導を含めていない"
+      ]
+    },
+    {
+      "severity": "medium",
+      "bucket": "doc_freshness",
+      "observation": "C08 の鮮度未確認は apple-hig 1 件で、これは C08 側の上限 MAX_UNVERIFIED_FRESHNESS=1 とちょうど同じである。上限の余裕が 0 なので、次に 1 件でも到達不能が増えれば doc_freshness は FAIL に倒れる。原因は本環境で WebFetch が使えず HTTP Last-Modified を再取得できないことであり、出典側の劣化ではない。",
+      "suggested_fix": "apple-hig の freshness_source を http-last-modified 以外 (ページ宣言の更新日など WebSearch で裏が取れる形) へ変えるか、WebFetch が使える環境で C08 を回す。",
+      "evidence": [
+        "C08 応答 (tool_use_id=toolu_01TMm4uPy42yGG4nD4RPih9q) の到達不能 target の扱い節"
       ]
     },
     {
       "severity": "low",
-      "bucket": "compile/consistency",
-      "observation": "『本章内の ref-system-design-knowledge/... 参照は非規範・取得証跡なし・実装根拠に使用不可』という注記が ui-ux.md / security.md / maintenance-ops.md の 3 章にのみ存在し、同じ非規範カードを載せる auth / backend / database / frontend / infrastructure の 5 章には無い。読み手が章ごとに参照の規範性を誤解しうる。",
-      "suggested_fix": "run-system-spec-compile (C03) で当該注記を全章共通のテンプレート出力にするか、章別に必要性の根拠を記す。",
+      "bucket": "decision_guidance",
+      "observation": "decisions 6 件のうち recorded_with を持つのは 1 件 (decision-test-ci-tooling) だけで、その値も writer が打刻する 'set-decision' ではなく散文である。残る 5 件は recorded_with を持たない。set_decision は打刻と prior_unverified_provenance への退避を実装しているので、6 件はいずれもその経路を通った後の状態ではない。判定条件 (rubric の pass_criteria) には含まれないため観点は PASS のままにする。",
+      "suggested_fix": "decisions を set-decision で通し直して打刻を付けるか、打刻の無い record を読み側で数える物差しを置く。",
       "evidence": [
-        "system-spec/ui-ux.md:19 / security.md:19 / maintenance-ops.md:19 に注記あり",
-        "system-spec/auth.md / backend.md / database.md / frontend.md / infrastructure.md に同注記なし"
+        "python3 3.11.4 で decisions[].recorded_with を実測。分母 6"
       ]
     },
     {
       "severity": "low",
-      "bucket": "audit/evidence-accuracy",
-      "observation": "C08 doc-freshness-auditor が補足所見として『fetched-references.json の evidence_sha256 が 65 文字』と報告したが、本評価の再計測では 8 件すべて 64 桁 16 進数であり誤計数。形式ゲート exit0 とも整合しており監査 verdict には影響しないが、監査所見に事実誤りが混入した。",
-      "suggested_fix": "C08 の SSOT prompt に、桁数など数値主張は Bash での実測値に基づかせる旨を明示する (監査再実行までは不要)。",
+      "bucket": "foundation_trace",
+      "observation": "objectives は goal への明示リンク欄を持たない (O1/O2 とも serves 相当のキーが無く、schema も要求していない)。concrete_intents.serves と decisions.serves_goals は dangling 0 で機械照合できるのに対し、goal-objective の対応は本文の読みでしか辿れない。dangling が 0 なのは参照が無いからで、参照が健全だからではない。",
+      "suggested_fix": "objectives[] にも serves を置き、goals の id と束縛する。",
       "evidence": [
-        "python3 で全 evidence_sha256 を計測: 8 件すべて len=64",
-        "G-source-citation exit=0"
+        "requirements_foundation.objectives の全キーを実測: id / text / measure のみ (分母 2)"
       ]
     },
     {
       "severity": "info",
-      "bucket": "gates/verified",
-      "observation": "確認した決定論ゲートは全て exit0: マトリクス網羅性 (loop / --require-complete / --require-foundation)、出典形式 (validate-source-citation)、知識グラフ 4 profile (knowledge / doctrine / required-info / cross)、prompt validator 18/18。監査 fork は 3 件 (C07/C06/C08) を 1 message = 1 foreground の直列で起動し、PostToolUse 台帳 (schema 1.2) に verdict_state=resolved の行が単一 session (6f78de41-a1e7-45eb-b08c-d4a81a0becb9) で 3 件揃った。",
-      "suggested_fix": "",
+      "bucket": "foundation_trace",
+      "observation": "section 欄は機械照合されていないと申し送りを受けたので C05 が独立に照合した。行番号表記を持つ 18 件は全件その行に引用が実在し、§ 番号を持つ 23 件は全件その位置の直近見出し番号と整合していた (不一致 0 / 分母 23)。検出器の生存は陽性対照 2 種 (節番号を偽る・行番号を偽る) で確認済み。",
       "evidence": [
-        "eval-log/system-spec-harness/audit-fork-ledger.jsonl の 3 行 (schema_version=1.2, tool_name=Agent, verdict_state=resolved, audit_verdict=PASS)",
-        "本評価は system-spec/ 配下の仕様書を 1 件も書き換えていない (read-only。出力は completeness-report.json のみ)"
+        "python3 3.11.4。正規表現で section から § 番号と L 行番号を取り出し、docs/spec 実ファイルの見出し行を後方走査して照合"
+      ]
+    },
+    {
+      "severity": "info",
+      "bucket": "prompt_quality",
+      "observation": "前回 medium だった vitest の赤 (tests/architecture/schema-version-prose-drift.test.ts:174『散文と定数を突き合わせる実行経路が 0 本』) は 3e1c617 で予告どおり反転され、当該ファイルは 6 tests passed。全量も 208 files / 4805 tests 全通過で、e069c14 のコミットメッセージが申告する 4805 passed と一致する。前回『依頼便の申告が再現しない』とした差は解消した。",
+      "evidence": [
+        "pnpm exec vitest run (vitest 4.1.10) を C05 が実行"
       ]
     }
   ],
-  "gaps": [
-    "[medium/compile] backend.md 確定内容のコードフェンス不整合と本文重複を C03 (run-system-spec-compile) で再生成する",
-    "[medium/compile] doctrine authority (Apple HIG / Clean Architecture / OWASP ASVS / Google SRE) の具体規範を各章の確定セル要件へ最低 1 件接続する (C03)",
-    "[medium/elicit] 二 D1 分割・Queue/Cron 追加の技術選定を decisions[] へ 2〜3 案比較として追記し利用者確定を得る (C01 R5-decision-guide)",
-    "[low/compile] 非規範注記の章間不整合を解消する (C03)"
-  ]
+  "gaps": []
 }

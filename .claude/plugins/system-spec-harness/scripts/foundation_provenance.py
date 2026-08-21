@@ -24,6 +24,10 @@ FOUNDATION_SOURCE_INDEXES = (
 SOURCE_KINDS = {"user-dialogue", "written-requirements"}
 U_MARKER_RE = re.compile(r"(?<![A-Za-z0-9])U([1-9])(?![A-Za-z0-9])")
 SHA256_RE = re.compile(r"^[0-9a-f]{64}$")
+SCOPE_SOURCE_QA_ID = "qa-foundation-u7"
+SCOPE_SIDES = ("in", "out")
+BULLET_RE = re.compile(r"^\s*(?:[*+-]|\d+[.)])\s+(\S.*?)\s*$")
+HEADING_RE = re.compile(r"^\s*#{1,6}\s+\S")
 
 
 def _entry_by_id(qa_log) -> dict[str, dict]:
@@ -90,3 +94,363 @@ def validate_foundation_source_indexes(data: dict) -> list[str]:
         ):
             findings.append(f"{prefix} の question に written source.path と section が必要")
     return findings
+
+
+# --------------------------------------------------------------------------- #
+# scope 被覆検査 (U7)                                                           #
+# --------------------------------------------------------------------------- #
+# なぜ逐語一致ではなく被覆なのか。
+#
+# 2026-08-20 実測: 書面 docs/spec/01-要求仕様書-v1.0.md §6 の箇条書き 37 件と
+# state の scope 20 件を前方一致 10 文字で機械的に突き合わせると「不一致 14 件」と
+# 出たが、目視で確かめた本物の消失は 4 件だった (誤検出率 71%)。逆に件数一致を
+# 要求すると、24 件を 12 件へまとめる正当な圧縮が全部違反になる。
+#
+# 被覆で見ると、まとめは許され、消失だけが残る。理由は非対称性にある——
+# **消えた項目は、消えているがゆえに自分から名乗り出ない。**申告制の門は
+# 名乗り出たものしか見ないので、消失は永久に捕まらない (08-16 / 08-18 / 08-19 の
+# ヒアリング監査が 3 回とも通した)。被覆では名乗るのは「残った側」なので、
+# 消えた側は名乗らなくても差集合として現れる。
+#
+# 分母の出どころ: 書面ではなく qa-foundation-u7.answer を数える。この answer は
+# source.sha256 で内容に束縛されているので、分母を小さくして被覆を満たす細工は
+# ハッシュ不一致として既存の検査に当たる。ファイルを読まないので
+# validate_foundation_source_indexes の "state stays portable" も守られる。
+def _split_sections(answer: str) -> list[tuple[str, list[str]]]:
+    """見出し行で区切り、(見出し行, その区間の箇条書き本文) を順に返す。"""
+    sections: list[tuple[str, list[str]]] = []
+    current: str | None = None
+    items: list[str] = []
+    for line in answer.splitlines():
+        if HEADING_RE.match(line):
+            if current is not None:
+                sections.append((current.strip(), items))
+            current, items = line, []
+            continue
+        matched = BULLET_RE.match(line)
+        if matched and current is not None:
+            items.append(matched.group(1))
+    if current is not None:
+        sections.append((current.strip(), items))
+    return sections
+
+
+def scope_source_items(data: dict) -> dict[str, list[str]] | None:
+    """U7 の原文から列挙可能な項目を取り出す。列挙が無ければ None。
+
+    None は「被覆すべき対象が無い」であって「被覆できている」ではない。
+    呼び出し側はこの 2 つを混ぜてはならない。
+    """
+    entry = _entry_by_id(data.get("qa_log")).get(SCOPE_SOURCE_QA_ID)
+    if not isinstance(entry, dict):
+        return None
+    answer = entry.get("answer")
+    if not isinstance(answer, str) or not answer.strip():
+        return None
+    sections = _split_sections(answer)
+    enumerated = {heading: items for heading, items in sections if items}
+    return enumerated or None
+
+
+def validate_foundation_scope_coverage(data: dict, foundation: dict) -> list[str]:
+    """U7 原文の全項目が scope から被覆されているかを返す。
+
+    まとめ (24 項目 -> 12 項目) は合法のまま、消失だけが差集合として出る。
+    """
+    enumerated = scope_source_items(data)
+    if enumerated is None:
+        # 原文に列挙が無い。被覆すべき対象が無いので検査は空振りする。
+        return []
+    scope = foundation.get("scope")
+    if not isinstance(scope, dict) or scope.get("status") == "not_applicable":
+        return []
+    findings: list[str] = []
+    provenance = foundation.get("provenance")
+    if not isinstance(provenance, dict):
+        return [
+            "requirements_foundation: scope の出典 (qa-foundation-u7) は "
+            f"{sum(len(v) for v in enumerated.values())} 項目を列挙しているが "
+            "provenance が無い。被覆申告なしに書面由来の scope を確定できない"
+        ]
+    declared_scope = provenance.get("scope")
+    if not isinstance(declared_scope, dict):
+        return ["requirements_foundation: provenance.scope は object 必須"]
+    if declared_scope.get("source_qa_id") != SCOPE_SOURCE_QA_ID:
+        findings.append(
+            f"requirements_foundation: provenance.scope.source_qa_id は {SCOPE_SOURCE_QA_ID!r} 必須 "
+            f"(申告={declared_scope.get('source_qa_id')!r})"
+        )
+    sections = declared_scope.get("sections")
+    if not isinstance(sections, dict):
+        return findings + ["requirements_foundation: provenance.scope.sections は object 必須"]
+    seen_headings: list[str] = []
+    for side in SCOPE_SIDES:
+        prefix = f"requirements_foundation: scope.{side}"
+        declared = sections.get(side)
+        if not isinstance(declared, dict):
+            findings.append(f"{prefix} の被覆申告 (provenance.scope.sections.{side}) が無い")
+            continue
+        heading = declared.get("heading")
+        if not isinstance(heading, str) or not heading.strip():
+            findings.append(f"{prefix} の heading が空")
+            continue
+        if heading in seen_headings:
+            findings.append(f"{prefix} の heading={heading!r} が in/out で重複。同じ区間を二重に被覆できない")
+            continue
+        seen_headings.append(heading)
+        doc_items = enumerated.get(heading)
+        if doc_items is None:
+            findings.append(
+                f"{prefix} の heading={heading!r} が U7 原文の見出しに一致しない "
+                f"(原文の見出し: {sorted(enumerated)})"
+            )
+            continue
+        # 分母の床。ここが 0 だと被覆は自動的に成立し、検査は緑のまま何も見ない。
+        if not doc_items:
+            findings.append(f"{prefix} の heading={heading!r} 区間に箇条書きが 0 件")
+            continue
+        total = len(doc_items)
+        entries = declared.get("items")
+        if not isinstance(entries, list) or not entries:
+            findings.append(f"{prefix} の items が空 (原文 {total} 項目に対し被覆申告 0 件)")
+            continue
+        claimed: dict[int, str] = {}
+        declared_texts: list[str] = []
+        for record in entries:
+            if not isinstance(record, dict):
+                findings.append(f"{prefix}: 被覆申告の要素が object でない: {record!r}")
+                continue
+            item = record.get("item")
+            if not isinstance(item, str) or not item.strip():
+                findings.append(f"{prefix}: 被覆申告の item が空")
+                continue
+            declared_texts.append(item)
+            covers = record.get("covers")
+            if not isinstance(covers, list) or not covers:
+                findings.append(f"{prefix}: {item!r} の covers が空。何も束ねていない項目は scope に置けない")
+                continue
+            for number in covers:
+                if isinstance(number, bool) or not isinstance(number, int) or not 1 <= number <= total:
+                    findings.append(f"{prefix}: {item!r} の covers={number!r} が 1..{total} の範囲外")
+                    continue
+                if number in claimed:
+                    findings.append(
+                        f"{prefix}: 原文 {number} 番 ({doc_items[number - 1]!r}) を "
+                        f"{claimed[number]!r} と {item!r} が二重に申告している"
+                    )
+                    continue
+                claimed[number] = item
+        # 申告と実物の突き合わせ。片方向だけだと、申告を消して実物も消せば通る。
+        missing_in_scope = [text for text in declared_texts if text not in (scope.get(side) or [])]
+        undeclared = [text for text in (scope.get(side) or []) if text not in declared_texts]
+        if missing_in_scope:
+            findings.append(f"{prefix}: 被覆申告にあるが scope.{side} に無い項目: {missing_in_scope}")
+        if undeclared:
+            findings.append(f"{prefix}: scope.{side} にあるが被覆申告が無い項目: {undeclared}")
+        uncovered = [n for n in range(1, total + 1) if n not in claimed]
+        if uncovered:
+            findings.append(
+                f"{prefix}: U7 原文 {total} 項目のうち "
+                + ", ".join(f"{n} 番 ({doc_items[n - 1]!r})" for n in uncovered)
+                + " が scope から被覆されていない"
+            )
+    return findings
+
+
+# --------------------------------------------------------------------------- #
+# 出典が付いていない欄の計数 (門ではなく物差し)                                  #
+# --------------------------------------------------------------------------- #
+# 数える単位: foundation の「値を持つ葉」1 件を 1 欄とする。内訳は
+#   essential_purpose / background = 各 1 欄
+#   goals[i].text / objectives[i].text / objectives[i].measure /
+#   success_criteria[i] / stakeholders[i] / constraints[i] /
+#   concrete_intents[i].text = 各要素 1 欄
+#   scope.in[i] / scope.out[i] = 各要素 1 欄 (被覆申告があれば出典ありと数える)
+# 明示 N/A の欄は数えない (値が無いので出典の付けようがない)。
+#
+# 上限。2026-08-20 実測: 分母 47 (値を持つ葉の総数。scope 以外 23 + scope 24)、
+# 出典なし 11。基点は system-spec/spec-state.json。
+# 推移: 43 (門を置く前) -> 14 -> 13 (objectives[1]) -> 11 (goals[0] / goals[1])。
+#
+# この 11 は「出典が無い」ではなく「実物を引いて確かめられていない」件数である。
+# 2 つは違う。ただしそれは上限を置かない理由にならない。**上限は「これ以上悪く
+# しない」ための道具であって「ここまでで良い」という目標ではない。**調べれば付く
+# ものが後で付けば件数は下がり、下がった値が新しい天井になる。
+#
+# 以後この値は下げる方向にしか動かさない (11 -> 10 は可、11 -> 12 は不可)。
+#
+# 2026-08-21 実測: 出典なし **0 件** (分母は上と同じ 47)。11 件の内訳は
+# essential_purpose / background / constraints[0..4] / concrete_intents[0..3] で、
+# すべて docs/spec/01-要求仕様書-v1.0.md の実在行 (§2.1 L85 / §3.1 L121 /
+# §3.4 L184,L186 / §10.1 L767 / §20 L1614 / §5.5 L326 / §1 L38,L44,L50 /
+# §27.5 L2174) へ結線し、`seal-foundation-sources` で原文照合と sha256 打刻を
+# 済ませた。推移: 43 -> 14 -> 13 -> 11 -> 0。
+#
+# **0 は「もう調べなくてよい」ではない。**欄が増えれば分母が増え、出典を付けずに
+# 増やした日にここが赤くなる。それがこの 0 の役目である。
+FOUNDATION_MAX_UNSOURCED = 0
+SOURCE_GAP_SCALARS = ("essential_purpose", "background")
+SOURCE_GAP_LISTS = (
+    ("goals", "text"), ("objectives", "text"), ("objectives", "measure"),
+    ("success_criteria", None), ("stakeholders", None), ("constraints", None),
+    ("concrete_intents", "text"),
+)
+
+
+SOURCE_RECORD_REQUIRED = {
+    "written-requirements": ("path", "quote"),
+    "user-dialogue": ("qa_id",),
+}
+
+
+def source_record_defects(record) -> list[str]:
+    """field_sources の 1 件が出典として成立しているか。成立していない理由を返す。
+
+    **欄名を書くだけで出典ありに数えられる門は、門ではない。**
+    上限 (FOUNDATION_MAX_UNSOURCED) は「出典の無い欄の数」を縛るので、
+    `{"field": "constraints[0]"}` だけの空札が出典として通ると、上限は
+    札を並べるだけで満たせてしまう。数えるのは札ではなく、実物を指している札。
+    """
+    if not isinstance(record, dict):
+        return [f"field_sources の要素が object でない: {record!r}"]
+    field = record.get("field")
+    if not isinstance(field, str) or not field.strip():
+        return [f"field_sources: field が空 ({record!r})"]
+    kind = record.get("kind")
+    if kind not in SOURCE_RECORD_REQUIRED:
+        return [f"field_sources[{field}]: kind={kind!r} が許容値外"]
+    defects = []
+    for key in SOURCE_RECORD_REQUIRED[kind]:
+        value = record.get(key)
+        if not isinstance(value, str) or not value.strip():
+            defects.append(f"field_sources[{field}]: kind={kind} には {key} が必須")
+    return defects
+
+
+def validate_foundation_source_records(foundation: dict) -> list[str]:
+    """成立していない出典札を名前つきで返す。黙って無視しない。"""
+    provenance = foundation.get("provenance") if isinstance(foundation, dict) else None
+    provenance = provenance if isinstance(provenance, dict) else {}
+    findings: list[str] = []
+    for record in (provenance.get("field_sources") or []):
+        findings.extend(
+            f"requirements_foundation: {d}" for d in source_record_defects(record)
+        )
+    return findings
+
+
+def foundation_source_gaps(foundation: dict) -> list[str]:
+    """出典 (provenance.field_sources または scope 被覆申告) の無い欄のパス一覧。
+
+    成立していない札 (`source_record_defects` が理由を返す札) は数えない。
+    数えると、空札を並べるだけで上限を満たせる。
+    """
+    provenance = foundation.get("provenance") if isinstance(foundation, dict) else None
+    provenance = provenance if isinstance(provenance, dict) else {}
+    attributed = {
+        record.get("field")
+        for record in (provenance.get("field_sources") or [])
+        if not source_record_defects(record)
+    }
+    gaps: list[str] = []
+
+    def check(path: str) -> None:
+        if path not in attributed:
+            gaps.append(path)
+
+    for key in SOURCE_GAP_SCALARS:
+        value = foundation.get(key)
+        if isinstance(value, str) and value.strip():
+            check(key)
+    for key, child in SOURCE_GAP_LISTS:
+        value = foundation.get(key)
+        if not isinstance(value, list):
+            continue
+        for index, element in enumerate(value):
+            if child is None:
+                if isinstance(element, str) and element.strip():
+                    check(f"{key}[{index}]")
+                continue
+            if not isinstance(element, dict):
+                continue
+            leaf = element.get(child)
+            if isinstance(leaf, str) and leaf.strip():
+                check(f"{key}[{index}].{child}" if child != "text" else f"{key}[{index}]")
+    scope = foundation.get("scope")
+    if isinstance(scope, dict) and scope.get("status") != "not_applicable":
+        sections = ((provenance.get("scope") or {}).get("sections") or {})
+        for side in SCOPE_SIDES:
+            covered = {
+                record.get("item")
+                for record in ((sections.get(side) or {}).get("items") or [])
+                if isinstance(record, dict)
+            }
+            for index, item in enumerate(scope.get(side) or []):
+                if isinstance(item, str) and item.strip() and item not in covered:
+                    gaps.append(f"scope.{side}[{index}]")
+    return gaps
+
+
+def validate_foundation_unsourced_cap(foundation: dict) -> list[str]:
+    """出典の無い欄が上限を超えていないか。超えた分は名前を添えて返す。
+
+    **除外は消去ではない。**上限内に収まっている場合も、収まっている件数と
+    その一覧は呼び出し側から `foundation_source_gaps` で取れる形に残してある。
+    """
+    gaps = foundation_source_gaps(foundation)
+    if len(gaps) <= FOUNDATION_MAX_UNSOURCED:
+        return []
+    return [
+        f"requirements_foundation: 出典の無い欄が {len(gaps)} 件で上限 "
+        f"{FOUNDATION_MAX_UNSOURCED} 件を超えた: {gaps}"
+    ]
+
+
+# 封のない書面根拠の上限。2026-08-21 実測 0 件 (書面 23 件すべてに
+# `seal-foundation-sources` が原文照合と sha256 打刻を済ませてある)。
+# 下げる方向にしか動かさない。
+#
+# **なぜ set_foundation の確定条件にしないか。**封は `path` のファイルを読んで
+# 打つので、封を打つには先に foundation が state に無ければならない。確定条件に
+# すると「封が無いから確定できない・確定できないから封が打てない」で永久に
+# 進まなくなる。だから書き込み時ではなく**読み取り側の門**で見る。
+# C05 が 2026-08-21 に「決定論ゲートは本欠陥を検出せず exit 0」と報告したのが、
+# ちょうどこの門である。
+FOUNDATION_MAX_UNSEALED = 0
+
+
+def foundation_unsealed_sources(foundation: dict) -> list[str]:
+    """書面根拠のうち、実ファイルへ照合されていない (封の無い) 欄の一覧。
+
+    `kind == "user-dialogue"` は照合先が qa_log の中なので封の対象外
+    (`validate_foundation_source_indexes` が別に見ている)。
+    """
+    provenance = foundation.get("provenance") if isinstance(foundation, dict) else None
+    provenance = provenance if isinstance(provenance, dict) else {}
+    unsealed = []
+    for record in provenance.get("field_sources") or []:
+        if not isinstance(record, dict) or record.get("kind") != "written-requirements":
+            continue
+        if source_record_defects(record):
+            continue  # 成立していない札は上の上限が別に落とす。二重に数えない。
+        if not record.get("sha256") or record.get("sealed_with") != "seal-foundation-sources":
+            unsealed.append(str(record.get("field")))
+    return unsealed
+
+
+def validate_foundation_sealed_sources(foundation: dict) -> list[str]:
+    """封の無い書面根拠が上限を超えていないか。
+
+    **sha256 が在るだけでは足りない。**指紋は「文書が動いていないこと」しか
+    示さないので、`sealed_with` で「writer が実ファイルを読んで打った」ことまで
+    見る。呼び出し側から sha256 を渡す道は `set_foundation` が塞いである
+    (`_reject_sealed_claims`)。
+    """
+    unsealed = foundation_unsealed_sources(foundation)
+    if len(unsealed) <= FOUNDATION_MAX_UNSEALED:
+        return []
+    return [
+        f"requirements_foundation: 原文へ照合されていない書面根拠が {len(unsealed)} 件で"
+        f"上限 {FOUNDATION_MAX_UNSEALED} 件を超えた: {unsealed}"
+        " (apply-spec-transition.py seal-foundation-sources を通してください)"
+    ]

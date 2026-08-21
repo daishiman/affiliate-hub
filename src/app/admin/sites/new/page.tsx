@@ -8,7 +8,7 @@ import { SiteWizardStepForm } from "@/presentation/admin/site-wizard-form";
 import {
   currentActor,
   siteBuilderUseCases,
-  siteDraftSampleNotice,
+  siteDraftNotice,
 } from "@/presentation/composition";
 import {
   Button,
@@ -17,7 +17,7 @@ import {
   EmptyView,
   ErrorView,
   Page,
-  StubNotice,
+  StorageNotice,
 } from "@/presentation/ui";
 import styles from "../../admin.module.css";
 
@@ -40,7 +40,7 @@ export default async function NewSitePage({
 }) {
   const params = await searchParams;
   const actor = await currentActor();
-  const uc = siteBuilderUseCases();
+  const uc = (await siteBuilderUseCases());
 
   if (params.draftId === undefined) {
     return <DraftListView error={params.error} />;
@@ -67,13 +67,7 @@ export default async function NewSitePage({
 
   return (
     <Shell>
-      <StubNotice
-        what="ブログ作成の下書きの保存先"
-        blockedBy="site_drafts / site_blueprints テーブルの追加と D1 への接続"
-        stubId="persistence:site-draft-memory"
-      >
-        <span>{siteDraftSampleNotice()}</span>
-      </StubNotice>
+      <StorageNotice status={await siteDraftNotice()} />
 
       <Card>
         {/* 現在地は常に出す。13 段階のどこにいるか分からない状態を作らない。 */}
@@ -116,17 +110,11 @@ export default async function NewSitePage({
  */
 async function DraftListView({ error }: { readonly error?: string }) {
   const actor = await currentActor();
-  const listed = await siteBuilderUseCases().listDrafts.execute(actor, {});
+  const listed = await (await siteBuilderUseCases()).listDrafts.execute(actor, {});
 
   return (
     <Shell>
-      <StubNotice
-        what="ブログ作成の下書きの保存先"
-        blockedBy="site_drafts / site_blueprints テーブルの追加と D1 への接続"
-        stubId="persistence:site-draft-memory"
-      >
-        <span>{siteDraftSampleNotice()}</span>
-      </StubNotice>
+      <StorageNotice status={await siteDraftNotice()} />
 
       {error === undefined ? null : <Callout tone="warn" reason={error} />}
 

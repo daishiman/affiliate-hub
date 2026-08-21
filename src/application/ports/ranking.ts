@@ -1,6 +1,6 @@
 import type { EditorialScoreCard, RankingModel } from "@/domain/ranking";
 import type { Editorial, ProductId, RankingModelId, WorkspaceId } from "@/domain/shared";
-import type { Page, Paged, PortResult } from "./common";
+import type { PageRequest, Paged, PortResult } from "./common";
 
 /**
  * Ranking のポート。
@@ -11,7 +11,7 @@ import type { Page, Paged, PortResult } from "./common";
  */
 export type RankingModelRepositoryPort = {
   findById(workspaceId: WorkspaceId, id: RankingModelId): PortResult<RankingModel | null>;
-  list(workspaceId: WorkspaceId, page: Page): PortResult<Paged<RankingModel>>;
+  list(workspaceId: WorkspaceId, page: PageRequest): PortResult<Paged<RankingModel>>;
   save(model: RankingModel): PortResult<RankingModel>;
 };
 
@@ -21,7 +21,12 @@ export type ScoreCardRepositoryPort = {
     modelId: RankingModelId,
     productIds: readonly ProductId[],
   ): PortResult<readonly EditorialScoreCard[]>;
-  save(card: EditorialScoreCard): PortResult<EditorialScoreCard>;
+  /**
+   * 点数表には作業場所の欄が無い（商品と点数だけを持つ）。
+   * だから保存のときに作業場所を引数で渡す。渡さないと、
+   * **保存した時点でこの点数が誰のものか分からなくなる**。
+   */
+  save(workspaceId: WorkspaceId, card: EditorialScoreCard): PortResult<EditorialScoreCard>;
 };
 
 export type EditorialRankingModelRepositoryPort = Editorial<RankingModelRepositoryPort>;

@@ -69,7 +69,8 @@ export {
   type Speaker,
 } from "./patterns/conversation";
 export { ProductCard, type ProductCardSpec } from "./patterns/product-card";
-export { StubNotice, StubLabel } from "./patterns/stub-notice";
+export { StubNotice, StubLabel, StorageNotice } from "./patterns/stub-notice";
+export type { StorageStatus } from "./patterns/stub-notice";
 export { AppearancePicker } from "./patterns/appearance-picker";
 export {
   APPEARANCE_ATTR,
@@ -81,11 +82,25 @@ export { WorkBoard, type WorkBoardItem } from "./patterns/work-board";
 export { FilterBar, type FilterAxis } from "./patterns/filter-bar";
 export { MaterialReview, type MaterialFinding } from "./patterns/material-review";
 export {
+  ModelPicker,
+  type ModelPickerGroup,
+  type ModelPickerModel,
+} from "./patterns/model-picker";
+export {
   ScheduleCalendar,
   type ScheduleCalendarDay,
   type ScheduleCalendarEntry,
 } from "./patterns/schedule-calendar";
 export { ConsentBanner } from "./patterns/consent-banner";
+export { FeedbackButton, type FeedbackSubmission } from "./patterns/feedback-button";
+export {
+  CaptureCanvas,
+  CANVAS_TOOLS,
+  CANVAS_COLORS,
+  type BurnedCapture,
+  type CanvasTool,
+  type CanvasColor,
+} from "./patterns/capture-canvas";
 export {
   CONSENT_COOKIE,
   CONSENT_COOKIE_MAX_AGE,
@@ -111,8 +126,13 @@ export {
   Page,
   Card,
   ADMIN_NAV,
+  ADMIN_NAV_GROUPS,
+  UNGROUPED_NAV_HREFS,
   visibleNav,
+  groupedNav,
   type NavItem,
+  type NavGroup,
+  type GroupedNav,
   type Breadcrumb,
 } from "./templates/app-shell";
 export {

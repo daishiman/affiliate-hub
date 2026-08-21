@@ -1,9 +1,19 @@
 {
  "target_id": "cloudflare-d1",
  "source_url": "https://developers.cloudflare.com/d1/",
- "retrieved_at": "2026-08-16T09:01:52Z",
+ "retrieved_at": "2026-08-19T15:30:39Z",
  "http_status": 200,
  "content_bytes": 128841,
- "content_sha256": "6fdf24117280165643da65922bb36e1b67bd7a31d352f6c10a5c1c156c4f9cfe",
- "page_title": "Overview · Cloudflare D1 docs"
+ "content_sha256": "e2be3ba692471f635b47922f726c67a234ba98ecee137d20fc8ec6c51af8da6e",
+ "page_title": "Overview · Cloudflare D1 docs",
+ "freshness_extraction": {
+  "freshness_source": "page-declared",
+  "value": "2026-04-30",
+  "found_in": [
+   "JSON-LD \"dateModified\":\"2026-04-30\"",
+   "<time datetime=\"2026-04-30T16:12:27.000Z\">Apr 30, 2026</time>"
+  ],
+  "http_last_modified": null,
+  "note": "値の由来は freshness_source と対応する。取得日を last_updated へ代入しない (C13 validate-source-citation.py の取得日代入検査が拒否する)。"
+ }
 }

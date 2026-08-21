@@ -77,6 +77,16 @@ export function createLoopRun(input: {
       }),
     );
   }
+  if (kind.decisionBasis !== "comparison") {
+    // 1 件ずつ扱うループ（改善要望など）を A/B と件数の仕組みへ入れない。
+    // 入れられると「要望 3 件では足りない」のような、成り立たない判断が生まれる。
+    return err(
+      domainError("INVARIANT_VIOLATED", `${kind.label} は比べて決めるループではありません。`, {
+        suggestedAction:
+          "このループは 1 件ずつ扱います。件数がそろうのを待つ仕組みには乗せられません。",
+      }),
+    );
+  }
   if (kind.readiness !== "implemented") {
     return err(
       domainError("NOT_IMPLEMENTED", `${kind.label} はまだ動かせません。`, {

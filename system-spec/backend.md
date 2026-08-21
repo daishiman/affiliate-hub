@@ -15,6 +15,8 @@ serves_goals: [G2, G1]
 
 `confirmed` は要求判断と採用方針が確定していることを表す。**実装済み・デプロイ済み・検証済みを表さない**。実装状態は、以下の As-Is / Delta と Acceptance evidence で別に判定する。
 
+- 本章内の `ref-system-design-knowledge/...` 参照は**非規範・取得証跡なし・実装根拠に使用不可**。規範根拠は `docs/spec/03` §1、`00-requirements-definition.md`、および本章の「最新ドキュメント出典」に記録した公式出典とする。
+
 ### As-Is（2026-08-16 のリポジトリ実体）
 
 - Next.js / OpenNext の単一アプリ内に、D1 を直接読む stateless MCP PoC がある。
@@ -58,12 +60,49 @@ serves_goals: [G2, G1]
 
 | プラットフォーム | 状態 | 根拠 |
 |---|---|---|
-| Web (web) | 確定 | 確定質疑: qa-backend-web-analytics |
+| Web (web) | 確定 | 確定質疑: `qa-backend-web-spec-intake` (正本 `spec-state.json` の `qa_ref`。旧記載 `qa-backend-web-analytics` との不一致は `## 確定セルの記録` を参照) |
 | モバイル (mobile) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |
 | タブレット (tablet) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |
 | デスクトップ (Windows) (desktop-windows) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |
 | デスクトップ (Linux) (desktop-linux) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |
 | デスクトップ (macOS) (desktop-macos) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |
+
+## 確定セルの記録 (正本 spec-state.json)
+
+> 本節は正本 `system-spec/spec-state.json` の `coverage_matrix.backend.web` が保持している確定内容の**転記**である。規範ではない。値が食い違ったら正本を正とする。
+
+| 項目 | 値 |
+|---|---|
+| セル | backend × web |
+| 状態 | 確定 |
+| 確定質疑 (qa_ref) | `qa-backend-web-spec-intake` |
+| 資するゴール (serves_goals) | G2, G1 |
+| required-info | `domain-model` — missing_effect: block / 接地: 済 (`qa-backend-web-spec-intake`) |
+| 出典 kind | written-requirements |
+| 出典 path | `docs/spec/04-二層構造統合仕様.md` |
+| 出典 節 | §3 WebMCP の確定契約 / §4 禁止依存 |
+| 出典 sha256 | `101ad27f5bf796c7180815bd2d1e582f9378b645c5aea9e9f1d65330af27b6ef` |
+| 適用された設計知識 (design_applications) | 10 件 — 本章 `## 適用された設計知識` を参照 |
+
+### 本節を「転記」に留めた理由
+
+C05 gaps[0] の「再生成して本文へ載せる」を採らず、本節は正本からの**転記**に留めてある。根拠となる 3 つの実測 (再生成で消える 374 行 / 正本の回答が章より古いことを示す 9 トークンの突き合わせ表 / 章と正本の `qa_ref` が 8 件中 7 件で不一致) は `system-spec/database.md` の同名節に 1 か所だけ書いてある。**本文を正本から複製すると退行する**ので、そちらを読まずに「正本に合わせる」修正をしないこと。
+
+## 意思決定 (decisions)
+
+> 正本 `decisions[]` の全 6 件。**6 件とも `status: confirmed`** で、いずれも利用者本人の `user_decision` を伴う。本章を主担当とする論点を太字で示す。
+
+| ID | 論点 | 採用した選択肢 | 状態 | 資するゴール | 主担当章 |
+|---|---|---|---|---|---|
+| `decision-auth-method` | マルチテナントSaaSの利用者認証 (auth) をどの方式で実装するか | `opt-better-auth` | confirmed | G1 | auth |
+| `decision-editorial-commercial-split` | Editorial（編集評価）と Commercial（報酬・成果）のデータを、D1 でどう分けるか | `opt-two-databases` | confirmed | G1, G2 | database |
+| `decision-redirect-measurement-async` | リダイレクトの計測（ClickEvent の記録）を、転送を止めずにどう書くか | `opt-waituntil-fallback-cron` | confirmed | G2, G1 | infrastructure |
+| **`decision-llm-provider`** | 記事生成に使う LLM プロバイダを 1 社に固定するか、複数を持つか | `opt-catalog-multi` | confirmed | G1 | **backend** |
+| `decision-ui-theme-implementation` | 配色と明暗の 2 軸を、どの技術で実装するか | `opt-css-light-dark` | confirmed | G1 | frontend |
+| `decision-test-ci-tooling` | テストと CI の道具立てを、いまの構成のまま進めるか変えるか | `opt-keep-current` | confirmed | G1, G2 | maintenance-ops |
+
+- **`decision-llm-provider` が本章に効く形**: 複数プロバイダを保つのは選択肢を増やすためではなく、07 §0 GC-5 (レビュー系を執筆系から分離し、自作自演の検証にしない) を**書き手と検査役に別モデルを当てる**ことで満たすためである。1 社固定にするとこの分離が構成では表せなくなる。単価は `vars` に置き、値上げに気づける状態を保つ。
+- **鍵の扱い**: API 鍵は利用者本人がブラウザまたは別端末で登録する。値も断片もこの作業場所には置かない。
 
 ## 確定内容 (質疑録)
 
@@ -71,7 +110,10 @@ serves_goals: [G2, G1]
 
 **質問**: backend×web: 分析・解析パイプライン (収集→正規化→集計→分析→活用) の要件は何か (書面入力 docs/spec/03 §1)
 
-**回答**: ClickEvent(リダイレクトサービス)
+**回答**:
+
+```
+ClickEvent(リダイレクトサービス)
   BehaviorEvent(ブログ計測タグ)
   Channel Insights(SNS API)
   Conversion(ASP API / CSV)
@@ -104,6 +146,16 @@ serves_goals: [G2, G1]
 | data-access | Robert C. Martin — Clean Architecture | 永続化を境界の外側へ追い出し interface adapter で隔離する | Clean Architecture — gateways/repositories boundary |
 
 - 本章の確定内容 (質疑録) は上記 authority を上流指針として適用する。具体技術の選定はこの指針に従属し、指針との乖離は再オープン (R4-reopen) の根拠になる。
+
+### 条項引用の可否 (clause citation)
+
+| concern | 可否 | 引ける条項 / 引けない理由 |
+|---|---|---|
+| application-architecture | **条項引用不可** — 取得経路が原理的に無い (この作業場所では永久に不可) | authority が書籍 (Clean Architecture, 2017) で、source_ref も URL ではなく書名と規則名の記述。fetched-references.json の取得対象 8 件のいずれでもなく、retrieval-evidence にも record が存在しない。この作業場所には書籍本文を取得する経路が無い。 |
+| data-access | **条項引用不可** — 取得経路が原理的に無い (この作業場所では永久に不可) | application-architecture と同一 authority (書籍)。取得経路が無い点も同じ。 |
+
+- **application-architecture の反転先**: 反転先は無い。理由は難しさではなく、この作業場所が書籍本文を取得できないこと。fetched-but-no-body と not-in-fetch-targets は取得すれば塞がるが、これは塞がらない。3 種を『条項引用不可』の一語に潰すと、次に読む人が書籍を取りにいくか、取れるものを諦めるかのどちらかを必ず間違える。reason_class を消さないこと。
+- **data-access の反転先**: 反転先は無い。application-architecture の reversal_note と同じ理由。
 
 ## 適用された設計知識
 
@@ -240,7 +292,10 @@ consumerとproviderの独立変更を支える安定した契約を作り、再�
 
 ##### 確定内容 qa-backend-web-analytics (対応セル: web)
 
-- 確定要件: ClickEvent(リダイレクトサービス)
+- 確定要件:
+
+```
+ClickEvent(リダイレクトサービス)
   BehaviorEvent(ブログ計測タグ)
   Channel Insights(SNS API)
   Conversion(ASP API / CSV)

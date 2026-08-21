@@ -40,6 +40,7 @@ import {
   createGetPublicationUseCase,
   createListChannelsUseCase,
   createListPublicationsUseCase,
+  createSchedulePublicationUseCase,
 } from "@/application/usecases/distribution/manage-distribution";
 import {
   createGetPublicationCalendarUseCase,
@@ -51,9 +52,24 @@ import {
   createListUsableMetricsUseCase,
 } from "@/application/usecases/analytics/read-metrics";
 import { createFilterMetricsUseCase } from "@/application/usecases/analytics/filter-metrics";
+import { createReadTrackingCoverageUseCase } from "@/application/usecases/analytics/read-tracking-coverage";
 import { createAiUsageReportUseCase } from "@/application/usecases/analytics/ai-usage-report";
 import { createExplainTelemetryUseCase } from "@/application/usecases/analytics/explain-telemetry";
+import { createHandOffFeedbackUseCase } from "@/application/usecases/feedback/hand-off-feedback";
+import { createListFeedbackUseCase } from "@/application/usecases/feedback/list-feedback";
+import { createManageIntegrationKeysUseCase } from "@/application/usecases/feedback/manage-integration-keys";
+import { createReadFeedbackUseCase } from "@/application/usecases/feedback/read-feedback";
+import { createSubmitFeedbackUseCase } from "@/application/usecases/feedback/submit-feedback";
+import { createUpdateFeedbackStatusUseCase } from "@/application/usecases/feedback/update-feedback-status";
 import { createReviewLoopRunsUseCase } from "@/application/usecases/improvement/review-loop-runs";
+import {
+  createApproveVariantSpecUseCase,
+  createConcludeLoopRunUseCase,
+  createDraftVariantSpecUseCase,
+  createRecordLoopObservationUseCase,
+  createStartLoopRunUseCase,
+  createStopLoopRunUseCase,
+} from "@/application/usecases/improvement/run-improvement-loop";
 import { createListImprovementDimensionsUseCase } from "@/application/usecases/improvement/list-improvement-dimensions";
 import {
   createCheckGenerationInputUseCase,
@@ -61,6 +77,7 @@ import {
   createReviewMaterialUseCase,
 } from "@/application/usecases/generation/read-generation-plan";
 import { createDraftContentVariantUseCase } from "@/application/usecases/generation/draft-content-variant";
+import { createListSelectableModelsUseCase } from "@/application/usecases/generation/list-selectable-models";
 import type { GenerationInput } from "@/domain/generation";
 import { sampleGenerationInput } from "@/infrastructure/persistence/sample/generation-sample-input";
 import {
@@ -99,6 +116,10 @@ import {
   createListManagedSitesUseCase,
 } from "@/application/usecases/site/manage-sites";
 import {
+  createPreparePublishArticleUseCase,
+  createPublishArticleUseCase,
+} from "@/application/usecases/site/publish-article";
+import {
   createCompareProductsUseCase,
   createExplainRankingUseCase,
   createFilterProductsUseCase,
@@ -110,9 +131,24 @@ import {
 import { createGetDashboardUseCase } from "@/application/usecases/dashboard/read-dashboard";
 import type { ActorContext } from "@/domain/shared";
 import { taggedString } from "@/domain/shared";
-import { createDeps } from "@/infrastructure/composition";
+import { type KeyScope, authorize } from "@/domain/feedback";
+import type { StorageStatus } from "@/presentation/ui/patterns/stub-notice";
+import { createDeps, createLlmCredentialManagement } from "@/infrastructure/composition";
+import { appContext } from "@/infrastructure/app-context";
+import {
+  createManageLlmCredentialsUseCase,
+  type ManageLlmCredentialsInput,
+  type ManageLlmCredentialsOutput,
+} from "@/application/usecases/generation/manage-llm-credentials";
+import type { LlmProviderDescriptor } from "@/application/ports/llm-credential";
+import type { UseCase } from "@/application/usecases/usecase";
+import { auditLogStubNotice } from "@/infrastructure/persistence/sample/audit-log-sample-repository";
 import { telemetryStubNotice } from "@/infrastructure/persistence/sample/telemetry-sample-sink";
-import { improvementStubNotice } from "@/infrastructure/persistence/sample/improvement-sample-repository";
+import {
+  improvementStubBlockedBy,
+  improvementStubNotice,
+} from "@/infrastructure/persistence/sample/improvement-sample-repository";
+import { feedbackStubNotice } from "@/infrastructure/persistence/sample/feedback-sample-repository";
 import { sampleContentNotice } from "@/infrastructure/persistence/sample/content-sample-repository";
 import { sampleSiteDraftNotice } from "@/infrastructure/persistence/sample/site-draft-sample-repository";
 import { getCurrentActor, sampleActorNotice } from "@/infrastructure/identity/sample-actor";
@@ -129,6 +165,8 @@ import {
 import { sampleAnalyticsNotice } from "@/infrastructure/persistence/sample/analytics-sample-repository";
 import { sampleLinkInboxNotice } from "@/infrastructure/persistence/sample/link-inbox-sample-repository";
 import { tryGetDb } from "@/infrastructure/persistence/d1/connection";
+import { tryGetBucket } from "@/infrastructure/platform/bucket-connection";
+import { CAPTURE_RETENTION_DAYS } from "@/domain/feedback";
 import { sampleProductNotice } from "@/infrastructure/persistence/sample/product-sample-repository";
 import { sampleSettingsNotice } from "@/infrastructure/persistence/sample/settings-sample-repository";
 import {
@@ -154,8 +192,14 @@ import type { RankingResult } from "@/domain/ranking";
  * 画面・REST・MCP・WebMCP はすべてこの 1 つのツール一覧を見る。
  * 入口ごとに作り直すと、片方にだけ古い定義が残る。
  */
-export function createToolCatalog(): readonly AnyToolDefinition[] {
-  return buildToolCatalog(createDeps());
+export async function createToolCatalog(): Promise<readonly AnyToolDefinition[]> {
+  // **接続を渡す。** 道具は画面と同じ処理を呼ぶのが前提なので、
+  // ここで渡し忘れると「画面には保存されているのに AI からは見えない」
+  // という、入口ごとに答えが違う状態になる。
+  // 渡すものを名前で書く。`createDeps(context)` と書くと、
+  // 何を渡したかが呼び出し側から読めなくなり、検査も人も追えない。
+  const context = await appContext();
+  return buildToolCatalog(createDeps({ db: context.db, env: context.env }));
 }
 
 /**
@@ -171,6 +215,94 @@ export async function authenticateRequest(
 > {
   const { authenticateApiRequest } = await import("@/infrastructure/platform/api-token");
   return authenticateApiRequest(request);
+}
+
+/**
+ * 取りに来た相手（Claude Code）の身元確認。
+ *
+ * `authenticateRequest` と分けてある理由は、確かめている相手が違うから。
+ * あちらは「この製品の入口を叩いてよい呼び出しか」、こちらは
+ * **「どの作業場所の、何ができる鍵か」** を決める。混ぜると、
+ * 全体の合言葉さえ知っていれば他人の要望が読めることになる。
+ *
+ * 作った身元は必ず `ai_service_account` にする。人しか押せない操作
+ * （扱いを決める・鍵を管理する）は、この身元では構造上できない。
+ */
+export type IntegrationAccessResolution =
+  | {
+      ok: true;
+      actor: ActorContext;
+      keyId: string;
+      keyLabel: string;
+      recordUsage: (fetchedCount: number) => Promise<void>;
+    }
+  | { ok: false; status: number; message: string };
+
+export async function resolveIntegrationAccess(
+  request: Request,
+  scope: KeyScope,
+): Promise<IntegrationAccessResolution> {
+  const header = request.headers.get("authorization") ?? "";
+  const value = header.startsWith("Bearer ") ? header.slice("Bearer ".length).trim() : "";
+  if (value === "") {
+    return {
+      ok: false,
+      status: 401,
+      message: "鍵がありません。Authorization ヘッダーに Bearer で付けてください。",
+    };
+  }
+
+  const keys = createDeps({ db: await tryGetDb() }).integrationKeys;
+  const found = await keys.authenticate(value);
+  // 「無い鍵」と「潰れた保存先」を同じ文言で返す。どちらかを言い分けると、
+  // 存在する鍵を総当たりで探し当てる手がかりになる。
+  if (!found.ok || found.value === null) {
+    return { ok: false, status: 401, message: "この鍵では取得できません。" };
+  }
+  const key = found.value;
+
+  const now = new Date();
+  const allowed = authorize(key, scope, now);
+  if (!allowed.ok) {
+    return {
+      ok: false,
+      status: allowed.error.code === "FORBIDDEN" ? 403 : 401,
+      message: allowed.error.message,
+    };
+  }
+
+  const within = await keys.withinRateLimit(key.id, now);
+  if (!within.ok || !within.value) {
+    return {
+      ok: false,
+      status: 429,
+      message: `1 分あたり ${key.rateLimitPerMinute} 回までです。少し待ってからもう一度取りに来てください。`,
+    };
+  }
+
+  return {
+    ok: true,
+    keyId: String(key.id),
+    keyLabel: key.label,
+    actor: {
+      workspaceId: key.workspaceId,
+      userId: `鍵: ${key.label}`,
+      roles: ["ai_service_account"],
+      isAiServiceAccount: true,
+      // 誰もログインしていないが、**どの鍵か**は照合してある。
+      // だから記録に「鍵: ○○」と残してよい。人ではないことは
+      // `isAiServiceAccount` の側が持っている。
+      identified: true,
+    },
+    recordUsage: async (fetchedCount: number) => {
+      await keys.recordUsage(key.workspaceId, {
+        keyId: key.id,
+        keyLabel: key.label,
+        at: now,
+        fetchedCount,
+      });
+    },
+  };
 }
 
 /**
@@ -199,9 +331,14 @@ async function resolveActor(): Promise<ActorResolution> {
     const { createSessionActorResolver } = await import(
       "@/infrastructure/identity/session-actor"
     );
+    const { createD1MembershipReader } = await import(
+      "@/infrastructure/identity/membership-reader"
+    );
     return await createSessionActorResolver({
       sessions: createD1SessionReader(db),
-      memberships: createDeps({ db }).memberships,
+      // 権限は**本物の登録**から引く。ここを見本のままにすると、
+      // ログインが成立しても全員が見本の役割で動く。
+      memberships: createD1MembershipReader(db),
     })(token);
   } catch {
     // 画面の外（テストや組み立て時）では合言葉を取り出せない。
@@ -219,6 +356,50 @@ async function resolveActor(): Promise<ActorResolution> {
 export async function currentActor(): Promise<ActorContext> {
   const resolved = await resolveActor();
   return resolved.kind === "actor" ? resolved.actor : getCurrentActor();
+}
+
+/**
+ * **ログインできている人だけ**を返す。できていなければ `null`。
+ *
+ * `currentActor()` との違いは、**戻り先が無いこと**である。
+ * あちらは画面を動かし続けるために見本の身元へ落ちるが、その落とし方は
+ * 「画面を組み立てる」ためのもので、**中身を外へ渡す口に使ってはいけない**。
+ * 使うと、ログインしていない人が見本の権限のまま他人の画面の写しを開ける
+ * （実際にそうなっていた。残課題 28 / `ah-3n1`）。
+ *
+ * 判断の分かれ目はこうである。
+ *   - 画面を**組み立てる**    → `currentActor()`（見本で動かして、断りを画面に出す）
+ *   - 保存された中身を**渡す** → `signedInActor()`（ログインしていなければ渡さない）
+ *
+ * `unavailable`（保存先に届かない）も `null` にする。**確かめられないときは渡さない。**
+ * ここで「たぶん本人だろう」と通すと、保存先を落とせば認証を外せることになる。
+ */
+export async function signedInActor(): Promise<ActorContext | null> {
+  const resolved = await resolveActor();
+  return resolved.kind === "actor" ? resolved.actor : null;
+}
+
+/**
+ * API の入口（`/api/tools` と `/api/mcp`）が使う身元を、**呼び出し元の種類から決める**。
+ *
+ * `api-token.ts` には、同一サイトからの呼び出しは
+ * 「公開ページと同じ読み取り範囲を許すだけのもの」と書いてある。
+ * ところが入口は `currentActor()` を呼んでいたため、ログインしていない人が
+ * **見本の身元**（researcher / writer / reviewer / analyst / feedback_admin）で
+ * 管理用の読み取りを通せていた。書いてある意図と、効いていた範囲がずれていた
+ * （残課題 28 の 2 件目 / `ah-2ro`。原因は `ah-3n1` と同じ）。
+ *
+ * 決め方はこうである。
+ *   - `bearer`      → `currentActor()`。鍵で入口を通った呼び出しで、従来どおり
+ *   - `same-origin` → ログインできていればその人、できていなければ**読者**
+ *
+ * 同一サイトを丸ごと断らないのは、読者ページの AI 向けの入口（WebMCP）が
+ * この経路を使っているため。断ると、読者ページの案内が**黙って**動かなくなる。
+ * 読者へ落とすぶんには、読者ページの画面がもともと通している範囲と同じになる。
+ */
+export async function actorForScope(scope: "bearer" | "same-origin"): Promise<ActorContext> {
+  if (scope === "bearer") return currentActor();
+  return (await signedInActor()) ?? readerActor();
 }
 
 /** いまどの身元で動いているかを画面に出すための一文。 */
@@ -268,7 +449,9 @@ function descriptorsForPage(kind: PageKind): readonly WebMcpDescriptor[] {
   if (wanted.length === 0) return [];
   // 並び順は表の順に揃える。カタログの並びに任せると、
   // 同じページでも登録順が変わって挙動の説明が付かなくなる。
-  const catalog = createToolCatalog();
+  // ここで要るのは名前と入力の形だけで、中身は一度も動かさない。
+  // 保存先を待つ必要がないので接続を取りに行かない（画面の描画を遅らせない）。
+  const catalog = buildToolCatalog(createDeps());
   const picked = wanted
     .map((name) => catalog.find((t) => t.name === name))
     .filter((t): t is NonNullable<typeof t> => t !== undefined);
@@ -298,8 +481,8 @@ export function rankingScreenTarget(): { modelId: string; productIds: readonly s
  * ブログ画面はこの 6 つしか呼ばない。保存先が見本から D1 に変わっても、
  * 画面のコードは 1 行も変わらない。
  */
-export function siteUseCases() {
-  const deps = createDeps();
+export async function siteUseCases() {
+  const deps = createDeps({ db: await tryGetDb() });
   const site = { sites: deps.sites, content: deps.publishedContent };
   return {
     getSite: createGetSiteUseCase(site),
@@ -371,12 +554,17 @@ export function productUseCases() {
  * 画面・REST・WebMCP・MCP が同じ 5 つを呼ぶ。
  * 承認と状態変更は AI から呼べない（`requiresHumanApproval`）。
  */
-export function contentUseCases() {
-  const deps = createDeps();
+export async function contentUseCases() {
+  // 保存先の接続をここで取る。取らないと、段階を進める操作が
+  // 見本の上で成功したように見えて、次に開いたときには消えている。
+  const deps = createDeps({ db: await tryGetDb() });
   const content = {
     packages: deps.contentPackages,
     variants: deps.contentVariants,
     personas: deps.personas,
+    policyRules: deps.policyRules,
+    auditLog: deps.auditLog,
+    ids: deps.ids,
     events: deps.events,
   };
   return {
@@ -421,8 +609,8 @@ export function writingMethodUseCases() {
  * **どの組み合わせを作るかを決める表。** 報酬のつなぎ目は渡さない。
  * 報酬額でセルを選ぶと、記事の並びが広告の並びになる。
  */
-export function generationMatrixUseCases() {
-  const deps = createDeps();
+export async function generationMatrixUseCases() {
+  const deps = createDeps({ db: await tryGetDb() });
   const matrix = {
     packages: deps.contentPackages,
     variants: deps.contentVariants,
@@ -444,8 +632,8 @@ export function sampleContentPackageId(): string {
  * ブログを 1 本増やしても、ここも画面も変わらない。
  * 変わるのは保存されている設計図の設定値だけ。
  */
-export function platformUseCases() {
-  const sites = { sites: createDeps().sites };
+export async function platformUseCases() {
+  const sites = { sites: createDeps({ db: await tryGetDb() }).sites };
   return {
     listSites: createListManagedSitesUseCase(sites),
     getSite: createGetManagedSiteUseCase(sites),
@@ -459,12 +647,28 @@ export function platformUseCases() {
  * 出し先を 1 つ増やすときに触るのは、domain のチャネル能力表と
  * つなぎ役の実装だけ。ここも画面も変わらない。
  */
-export function distributionUseCases() {
-  const deps = createDeps();
+export async function distributionUseCases() {
+  // 保存先の接続をここで取る。**画面ごとに取らない。**
+  // 取り方が画面ごとに分かれると、片方だけ見本のまま残る。
+  const deps = createDeps({ db: await tryGetDb() });
   const distribution = {
     connections: deps.channelConnections,
     publications: deps.publications,
     manualExport: deps.manualExport,
+    variants: deps.contentVariants,
+    ids: deps.ids,
+    auditLog: deps.auditLog,
+  };
+  // 自分のブログへ出す口。**配信の画面に置く**。
+  // 記事の一覧側へ置かないのは、出し先（どのブログ・どのカテゴリー）を
+  // 決めるのが配信の仕事だから。両方に置くと、同じ記事が 2 度出る。
+  const ownSite = {
+    sites: deps.sites,
+    variants: deps.contentVariants,
+    publications: deps.publications,
+    articles: deps.publishedArticles,
+    auditLog: deps.auditLog,
+    ids: deps.ids,
   };
   return {
     listChannels: createListChannelsUseCase(distribution),
@@ -472,6 +676,9 @@ export function distributionUseCases() {
     getPublication: createGetPublicationUseCase(distribution),
     exportManualDraft: createExportManualDraftUseCase(distribution),
     cancel: createCancelPublicationUseCase(distribution),
+    schedule: createSchedulePublicationUseCase(distribution),
+    preparePublishArticle: createPreparePublishArticleUseCase(ownSite),
+    publishArticle: createPublishArticleUseCase(ownSite),
   };
 }
 
@@ -481,14 +688,16 @@ export function distributionUseCases() {
  * 配信の一覧と同じ元データを、日付で並べ直して見せるもの。
  * 数え直しや別の保存先を作らないので、一覧とカレンダーで件数がずれない。
  */
-export function publicationCalendarUseCases() {
-  const deps = createDeps();
+export async function publicationCalendarUseCases() {
+  const deps = createDeps({ db: await tryGetDb() });
   const calendar = {
     publications: deps.publications,
     connections: deps.channelConnections,
     contentVariants: deps.contentVariants,
     contentPackages: deps.contentPackages,
     events: deps.events,
+    auditLog: deps.auditLog,
+    ids: deps.ids,
   };
   return {
     getCalendar: createGetPublicationCalendarUseCase(calendar),
@@ -502,13 +711,19 @@ export function publicationCalendarUseCases() {
  * ASP を 1 つ増やすときに触るのは、つなぎ役の実装だけ。
  * ここも画面も、順位づけのコードも変わらない。
  */
-export function affiliateUseCases() {
-  const deps = createDeps();
+export async function affiliateUseCases() {
+  // 保存先の接続をここで取る。取らないと、金額を直す操作が見本の上で
+  // 成功したように見えて、次に開くと元の額へ戻っている。
+  // 文章と違い、数字は見ただけでは戻りに気づけない。
+  const deps = createDeps({ db: await tryGetDb() });
   const affiliate = {
     accounts: deps.affiliateAccounts,
     programs: deps.affiliatePrograms,
     links: deps.affiliateLinks,
     conversions: deps.conversions,
+    ids: deps.ids,
+    auditLog: deps.auditLog,
+    now: () => new Date(),
   };
   return {
     listAccounts: createListAffiliateAccountsUseCase(affiliate),
@@ -534,6 +749,8 @@ export async function linkInboxUseCases() {
     programs: deps.affiliatePrograms,
     ids: deps.ids,
     events: deps.events,
+    auditLog: deps.auditLog,
+    now: () => new Date(),
   };
   return {
     list: createListLinkInboxUseCase(inbox),
@@ -550,11 +767,18 @@ export async function linkInboxUseCases() {
  * 保存されるのか、この場限りで消えるのかは、
  * 利用者にとって「使えるかどうか」が変わる違いなので、必ず出す。
  */
-export async function linkInboxNotice(): Promise<string> {
+export async function linkInboxNotice(): Promise<StorageStatus> {
   const db = await tryGetDb();
-  return db === null
-    ? sampleLinkInboxNotice()
-    : "入れたリンクは保存されます（保存先: D1 の link_ingestions）。";
+  return {
+    persisted: db !== null,
+    what: "成果リンク受信箱の保存先",
+    blockedBy: "link_ingestions テーブルの追加と D1 への接続",
+    stubId: "persistence:link-inbox-sample",
+    message:
+      db === null
+        ? sampleLinkInboxNotice()
+        : "入れたリンクは保存されます（保存先: D1 の link_ingestions）。",
+  };
 }
 
 /**
@@ -563,13 +787,22 @@ export async function linkInboxNotice(): Promise<string> {
  * 指標を 1 つ増やすときに触るのは domain の定義表だけ。
  * ここも画面も変わらず、数え方と「使ってよい用途」が同時に付いてくる。
  */
-export function analyticsUseCases() {
-  const analytics = { metrics: createDeps().metrics };
+export async function analyticsUseCases() {
+  // **接続を渡す。** 渡さないと、計測が D1 に貯まっていても
+  // 画面には見本の数字が出続ける（受信箱・改善要望で実際に起きた形）。
+  const deps = createDeps({ db: await tryGetDb() });
+  const analytics = { metrics: deps.metrics };
   return {
     listMetrics: createListMetricsUseCase(analytics),
     listUsableMetrics: createListUsableMetricsUseCase(analytics),
     checkFeedback: createCheckFeedbackUseCase(analytics),
     filterMetrics: createFilterMetricsUseCase(analytics),
+    // 数字の画面に「まだ突合できないリンクが何件あるか」を一緒に出す。
+    // クリック数だけを出すと、出ている数字が全体の一部でしかないことに
+    // 誰も気づけない（画面には何の異常も出ない）。
+    trackingCoverage: createReadTrackingCoverageUseCase({
+      trackingCoverage: deps.trackingCoverage,
+    }),
   };
 }
 
@@ -579,17 +812,55 @@ export function analyticsUseCases() {
  * 記録の受け口 (`/api/telemetry`) と AI 利用の画面が同じものを使う。
  * 記録先を差し替えるときに触るのは infrastructure の 1 行だけ。
  */
-export function telemetryUseCases() {
-  const deps = { sink: createDeps().telemetry };
+export async function telemetryUseCases() {
+  const deps = { sink: createDeps({ db: await tryGetDb() }).telemetry };
   return {
     aiUsage: createAiUsageReportUseCase(deps),
     explain: createExplainTelemetryUseCase(),
   };
 }
 
-/** 計測の記録先が仮置きであることを画面に出すための一文。 */
-export function telemetryNotice(): string {
-  return telemetryStubNotice();
+/**
+ * 計測がいま何で動いているかを画面に出すための一文。
+ *
+ * 受信箱・改善要望と同じ形（`StorageStatus`）。**画面に条件を書かせない。**
+ * ここを画面側の固定文にしていたため、保存先をつないだあとも
+ * 「この実行中だけ覚えます」と出続ける事故が起きた（2026-08-17）。
+ */
+export async function telemetryNotice(): Promise<StorageStatus> {
+  const db = await tryGetDb();
+  return {
+    persisted: db !== null,
+    what: "計測の記録先",
+    blockedBy: "telemetry_events テーブルの追加と D1 への接続",
+    stubId: "persistence:telemetry-memory",
+    message:
+      db === null
+        ? telemetryStubNotice()
+        : "読まれた記録は保存されます（保存先: D1 の telemetry_events）。同意が要る記録は 90 日、回数だけの記録は 400 日で消えます。",
+  };
+}
+
+/**
+ * 操作の記録がいま何で動いているかを画面に出すための一文。
+ *
+ * **この画面に出すことが、控えを許した条件そのものである。**
+ * 記録は「残った」と言えること自体が意味を持つ唯一の種類なので、
+ * 黙って控えへ落ちると「残っていると思われて、残っていない」になる。
+ * それは記録が無い状態より悪い。
+ */
+export async function auditLogNotice(): Promise<StorageStatus> {
+  const db = await tryGetDb();
+  return {
+    persisted: db !== null,
+    what: "操作の記録先",
+    blockedBy: "audit_logs テーブルの追加と D1 への接続",
+    stubId: "persistence:audit-log-memory",
+    message:
+      db === null
+        ? auditLogStubNotice()
+        : "誰がいつ何をしたかは保存されます（保存先: D1 の audit_logs）。後から書き換えることはできません。",
+  };
 }
 
 /**
@@ -598,11 +869,25 @@ export function telemetryNotice(): string {
  * 2 つとも**軸の中身を知らない**。色の実験も構成の実験も同じ道を通る。
  * 軸を 1 つ足したときにここが変わるなら、汎用のループになっていない。
  */
-export function improvementUseCases() {
-  const deps = { repository: createDeps().improvement };
+export async function improvementUseCases() {
+  // **接続を渡す。** 渡さないと、記録先の表を作っても画面には見本が出続ける。
+  // 表を足した回にここを直し忘れ、`composition-wiring` の検査に捕まった。
+  const app = createDeps({ db: await tryGetDb() });
+  const deps = { repository: app.improvement };
+  // 回す側は id と時刻が要る。読む側と同じ保存先を使う
+  // （画面用にもう 1 つ保存の道を作らない）。
+  // 回す側は id と時刻、それに**操作の記録先**が要る。読む側と同じ保存先を使う
+  // （画面用にもう 1 つ保存の道を作らない）。
+  const run = { ...deps, auditLog: app.auditLog, ids: app.ids, now: () => new Date() };
   return {
     review: createReviewLoopRunsUseCase(deps),
     dimensions: createListImprovementDimensionsUseCase(deps),
+    draftSpec: createDraftVariantSpecUseCase(run),
+    approveSpec: createApproveVariantSpecUseCase(run),
+    start: createStartLoopRunUseCase(run),
+    observe: createRecordLoopObservationUseCase(run),
+    conclude: createConcludeLoopRunUseCase(run),
+    stop: createStopLoopRunUseCase(run),
   };
 }
 
@@ -611,21 +896,180 @@ export function improvementNotice(): string {
   return improvementStubNotice();
 }
 
+/** 同じ画面の「何が済めば外れるか」。台帳の値をそのまま渡す。 */
+export function improvementBlockedBy(): string {
+  return improvementStubBlockedBy();
+}
+
+/**
+ * 改善要望の入口（2 件目のループ）。
+ *
+ * 送る・一覧・詳細・状況変更・払い出し・鍵の管理の 6 つ。
+ * 画面も REST も バックエンド MCP も、ここと同じユースケースを呼ぶ
+ * （道具の一覧は `tools/feedback-tools.ts`）。**入口ごとに組み立て直さない。**
+ */
+export async function feedbackUseCases() {
+  // **接続を渡す。** ここを `createDeps()` のままにすると、組み立て側で
+  // D1 を選べるようにしても画面には一生届かず、つないだつもりで
+  // 見本データが出続ける。実際にそうなっていた（preview で判明）。
+  // 記録先（D1）と写しの置き場（R2）は別の接続。片方だけある環境が実在するので、
+  // 両方を渡して、無い側だけが仮置きに落ちるようにする。
+  const deps = createDeps({ db: await tryGetDb(), bucket: await tryGetBucket() });
+  const feedback = {
+    repository: deps.feedback,
+    captures: deps.feedbackCaptures,
+    ids: deps.ids,
+    auditLog: deps.auditLog,
+    now: () => new Date(),
+  };
+  return {
+    submit: createSubmitFeedbackUseCase(feedback),
+    list: createListFeedbackUseCase({ repository: deps.feedback }),
+    read: createReadFeedbackUseCase({
+      repository: deps.feedback,
+      captures: deps.feedbackCaptures,
+    }),
+    updateStatus: createUpdateFeedbackStatusUseCase({
+      repository: deps.feedback,
+      ids: deps.ids,
+      auditLog: deps.auditLog,
+      now: feedback.now,
+    }),
+    handOff: createHandOffFeedbackUseCase({
+      repository: deps.feedback,
+      templates: deps.handoffTemplates,
+      ids: deps.ids,
+      auditLog: deps.auditLog,
+      now: feedback.now,
+    }),
+    keys: createManageIntegrationKeysUseCase({
+      keys: deps.integrationKeys,
+      ids: deps.ids,
+      mintSecret: deps.mintSecret,
+      now: feedback.now,
+      auditLog: deps.auditLog,
+    }),
+  };
+}
+
+/**
+ * 改善要望がいま何で動いているかを画面に出すための一文。
+ *
+ * 受信箱（`linkInboxNotice`）と同じ形にしてある。保存されるのか、
+ * この場限りで消えるのかは、利用者にとって「使えるかどうか」が変わる違いなので、
+ * **どちらであっても黙らない**。
+ */
+export async function feedbackNotice(): Promise<StorageStatus> {
+  const db = await tryGetDb();
+  return {
+    persisted: db !== null,
+    what: "改善要望の記録先",
+    blockedBy: "feedback_reports / integration_keys テーブルの追加と D1 への接続",
+    stubId: "persistence:feedback-memory",
+    message:
+      db === null
+        ? feedbackStubNotice()
+        : "届いた要望は保存されます（保存先: D1 の feedback_reports）。",
+  };
+}
+
+/**
+ * 画面の写しがいま何で動いているかを画面に出すための一文。
+ *
+ * 要望の文章（D1）とは**置き場が違う**ので、お知らせも分けてある。
+ * 1 つにまとめると、文章は保存されているのに写しだけ消える環境で、
+ * どちらの話をしているのか分からない一文になる。
+ */
+export async function feedbackCaptureNotice(): Promise<StorageStatus> {
+  const bucket = await tryGetBucket();
+  return {
+    persisted: bucket !== null,
+    what: "画面の写しの置き場",
+    blockedBy: "R2 バケットへの接続",
+    stubId: "storage:feedback-capture-memory",
+    message:
+      bucket === null
+        ? "画面の写しは、この実行中だけ覚える仮置きです。置き場につながっていないため、開くことはできません。"
+        : `画面の写しは保存されます（保存先: R2）。${CAPTURE_RETENTION_DAYS} 日を過ぎたものは表示しません。`,
+  };
+}
+
 /**
  * 生成の仕組みの入口。
  *
  * 3 つは外部に何も問い合わせない（決めごとそのものを読むだけ）。
- * 4 つめの `draft` だけが生成 AI を実際に呼ぶ。
+ * `draft` だけが生成 AI を実際に呼ぶ。
  * どこの提供元を呼ぶかは `src/infrastructure/llm/llm-setup.ts` の 1 行が決めており、
  * ここも画面も、提供元の名前を知らない。
+ *
+ * `listModels` は選ぶ欄のための読み取りである。鍵の管理（`llmCredentialEntry`）とは
+ * 別に組み立てている。あちらは `integration_key.manage` が要り、
+ * 書く人に管理権限を配らないとモデルが選べない形にしたくないため。
  */
-export function generationUseCases() {
-  const deps = createDeps();
+export async function generationUseCases() {
+  // **環境も渡す。** 鍵は環境から取る。ここを `createDeps()` のままにすると、
+  // 利用者が画面から鍵を登録しても、生成の呼び出しからは 1 件も見えない。
+  const context = await appContext();
+  const deps = createDeps({ db: context.db, env: context.env });
+  const management = createLlmCredentialManagement(context);
   return {
     readPlan: createReadGenerationPlanUseCase(),
     checkInput: createCheckGenerationInputUseCase(),
     reviewMaterial: createReviewMaterialUseCase(),
+    listModels: createListSelectableModelsUseCase({
+      catalog: management.catalog,
+      credentials: management.ready
+        ? { available: true, vault: management.vault }
+        : { available: false, reason: management.reason },
+    }),
     draft: createDraftContentVariantUseCase({ llm: deps.llm, costs: deps.llmCosts }),
+  };
+}
+
+/**
+ * 生成 AI の鍵を登録する画面の入口。
+ *
+ * **使える状態と使えない状態を、同じ型で返さない。**
+ * 使えないときに空の一覧を返すと、画面は「まだ登録していない」と読む。
+ * 実際には元締めの鍵が無い・保存先が無いのどちらかで、
+ * 利用者がやることは登録ではなく設定である。
+ *
+ * 使えないときも提供元の一覧だけは返す。
+ * 鍵をどこで発行するかの案内は、むしろ使えないときに要る。
+ */
+export type LlmCredentialEntry =
+  | {
+      readonly ready: true;
+      readonly manage: UseCase<ManageLlmCredentialsInput, ManageLlmCredentialsOutput>;
+    }
+  | {
+      readonly ready: false;
+      readonly reason: string;
+      readonly providers: readonly LlmProviderDescriptor[];
+    };
+
+export async function llmCredentialEntry(): Promise<LlmCredentialEntry> {
+  const context = await appContext();
+  const built = createLlmCredentialManagement(context);
+  if (!built.ready) {
+    const providers = await built.catalog.listProviders();
+    return {
+      ready: false,
+      reason: built.reason,
+      providers: providers.ok ? providers.value : [],
+    };
+  }
+  const deps = createDeps({ db: context.db, env: context.env });
+  return {
+    ready: true,
+    manage: createManageLlmCredentialsUseCase({
+      vault: built.vault,
+      catalog: built.catalog,
+      connectivity: built.connectivity,
+      auditLog: deps.auditLog,
+      ids: deps.ids,
+      now: () => new Date(),
+    }),
   };
 }
 
@@ -645,8 +1089,11 @@ export function sampleGenerationInputForTrial(): GenerationInput {
  * 役割を 1 つ増やすときに触るのは domain の権限表だけ。
  * ここも画面も変わらず、新しい役割が一覧に現れる。
  */
-export function settingsUseCases() {
-  const deps = createDeps();
+export async function settingsUseCases() {
+  // 操作の記録は保存先（D1）に本物がある。接続を取らずに組み立てると、
+  // 設定画面の「操作の記録」だけが見本データを読み続け、
+  // **実際に承認した記録が 1 件も出てこない**。
+  const deps = createDeps({ db: await tryGetDb() });
   const settings = {
     workspaces: deps.workspaces,
     memberships: deps.memberships,
@@ -671,8 +1118,8 @@ export function settingsUseCases() {
  * 読み取り専用であり、このまとまりは順位づけへは渡らない
  * （順位づけ側が商業のポートを受け取らない型になっている）。
  */
-export function dashboardUseCases() {
-  const deps = createDeps();
+export async function dashboardUseCases() {
+  const deps = createDeps({ db: await tryGetDb() });
   return {
     getDashboard: createGetDashboardUseCase({
       contentVariants: deps.contentVariants,
@@ -691,9 +1138,26 @@ export function settingsNotice(): string {
   return sampleSettingsNotice();
 }
 
-/** 数字が見本データであることを画面に出すための一文。 */
-export function analyticsNotice(): string {
-  return sampleAnalyticsNotice();
+/**
+ * 数字がいま何から出ているかを画面に出すための一文。
+ *
+ * 見本データなのか、実際の計測から導いた数字なのかは、
+ * **その数字を信じてよいかが変わる違い**なので必ず出す。
+ * 導ける指標が限られていることも、ここで一緒に伝える
+ * （画面には「未計測」とだけ出るので、理由がどこにも無いと不具合に見える）。
+ */
+export async function analyticsNotice(): Promise<StorageStatus> {
+  const db = await tryGetDb();
+  return {
+    persisted: db !== null,
+    what: "数字の出どころ",
+    blockedBy: "telemetry_events テーブルの追加と D1 への接続",
+    stubId: "persistence:analytics-sample",
+    message:
+      db === null
+        ? sampleAnalyticsNotice()
+        : "計測の記録は保存されます。数字はその記録から毎回数え直しています（数字自体は貯めません）。いま数えられるのは表示回数・リンククリック数・スクロール到達・滞在時間で、それ以外は「未計測」と出ます。",
+  };
 }
 
 /** 提携と成果が見本データであることを画面に出すための一文。 */
@@ -701,19 +1165,80 @@ export function affiliateNotice(): string {
   return sampleAffiliateNotice();
 }
 
+/**
+ * 提携と成果の画面に出す、いま何で動いているかの説明。
+ *
+ * **2 つのことを分けて書く。**
+ *   1. 手で直した金額が保存されるか（保存先があれば保存される）
+ *   2. 成果そのものがまだ見本であること（ASP の申請と接続の登録が要る）
+ * 1 が済んだからといって 2 も済んだように読める文にすると、
+ * 「本物の売上が出てこない」を故障と誤解させる。
+ */
+export async function affiliateStorageNotice(): Promise<StorageStatus> {
+  const db = await tryGetDb();
+  return {
+    persisted: db !== null,
+    what: "成果の金額の手修正の保存先",
+    blockedBy: "各 ASP の利用申請と、ご自身による接続情報の登録",
+    stubId: "persistence:affiliate-sample",
+    message:
+      db === null
+        ? sampleAffiliateNotice()
+        : "手で直した金額は保存されます（保存先: D1 の affiliate_conversions）。取り込んだ額はそのまま残します。ただし成果そのものはまだ見本で、本物の数字には各 ASP の申請と接続情報の登録が要ります。",
+  };
+}
+
 /** 見本にある会計期間。画面の期間切り替えに使う。 */
 export function affiliatePeriods(): readonly string[] {
   return SAMPLE_PERIODS;
 }
 
-/** 配信が見本データであることを画面に出すための一文。 */
-export function distributionNotice(): string {
-  return sampleDistributionNotice();
+/**
+ * 配信がいま何で動いているかを画面に出すための一文。
+ *
+ * ここには**2 つの別の話**が混ざるので、混ぜたまま書かない。
+ *   1. 予約したことが保存されるか（保存先の有無。D1 があれば済む）
+ *   2. 実際に各サービスへ投稿できるか（利用者ご自身の認証が要る。まだ）
+ * 1 が済んだからといって 2 も済んだように読める文にすると、
+ * 「予約したのに投稿されない」を故障と誤解させる。両方を必ず書く。
+ */
+export async function distributionNotice(): Promise<StorageStatus> {
+  const db = await tryGetDb();
+  return {
+    persisted: db !== null,
+    what: "配信の予約と出し先の記録の保存先",
+    blockedBy: "各サービスの接続設定（利用者ご自身による認証）",
+    stubId: "persistence:distribution-sample",
+    message:
+      db === null
+        ? sampleDistributionNotice()
+        : // 自分のブログだけは**本当に出せる**ようになったので、そこを一緒くたにしない。
+          // 「まだ投稿しません」とだけ書くと、出せるものを出せないと思わせる。
+          "予約・取りやめは保存されます（保存先: D1 の publications）。自分のブログへは、この画面の「いまサイトに出す」から実際に公開できます。X や Instagram など外部サービスへの投稿はまだ行いません（接続の認証が未登録のため）。出し先の一覧に並んでいるのは見本です。",
+  };
 }
 
-/** 記事が見本データであることを画面に出すための一文。 */
-export function editorialContentNotice(): string {
-  return sampleEditorialContentNotice();
+/**
+ * 記事の画面に出す、いま何で動いているかの説明。
+ *
+ * **2 つのことを分けて書く。**
+ *   1. 記事の本文と進行の現在地が保存されるか（保存先があれば保存される）
+ *   2. 企画と書き手が見本のままであること（作る入口がまだ無い）
+ * 1 が済んだからといって 2 も済んだように読める文にすると、
+ * 「書き手を増やせない」を故障と誤解させる。
+ */
+export async function editorialContentNotice(): Promise<StorageStatus> {
+  const db = await tryGetDb();
+  return {
+    persisted: db !== null,
+    what: "記事の本文と進行の現在地の保存先",
+    blockedBy: "企画・書き手を作る入口（content_packages / personas）",
+    stubId: "persistence:content-editorial-sample",
+    message:
+      db === null
+        ? sampleEditorialContentNotice()
+        : "進めた段階と承認は保存されます（保存先: D1 の content_variants）。はじめから並んでいる記事は見本で、消さずに残してあります。企画と書き手はまだ見本です（作る入口がないため）。",
+  };
 }
 
 /** 商品・根拠が見本データであることを画面に出すための一文。 */
@@ -733,7 +1258,37 @@ export function readerActor(): ActorContext {
     userId: taggedString<"UserId">("anonymous"),
     roles: [],
     isAiServiceAccount: false,
+    /**
+     * **確かめていない。** `anonymous` は誰でもある。
+     *
+     * この身元でも操作の記録は残る（残さないと「誰も押していない」と
+     * 「押したが記録を断った」が区別できない）。残る記録には
+     * 確かめていない印が付き、`wasApprovedByHuman()` は人の承認として数えない。
+     */
+    identified: false,
   };
+}
+
+/**
+ * 読者の記録を、**どの作業場所のものとして残すか**を決める。
+ *
+ * 読者自身はどこにも所属していないが、記録は
+ * 「そのブログを運営している人」の数字として読まれる必要がある。
+ * ここを `readerActor()`（所属なし）のままにすると、
+ * 計測は貯まるのに管理画面には一生出てこない。
+ * **貯まっているのに 0 と出る**のは、いちばん切り分けにくい壊れ方になる。
+ *
+ * URL 名から引けなかったときは所属なしのまま記録する（捨てない）。
+ * 捨てると、ブログの設定を直している最中の記録だけが消える。
+ */
+export async function readerActorForSite(siteSlug: string | null): Promise<ActorContext> {
+  const base = readerActor();
+  if (siteSlug === null || siteSlug === "") return base;
+  // 読者向けのユースケース（`getSite`）は、外へ出せる項目だけを返すので
+  // 作業場所を持っていない。ここは組み立ての層なので、保存先を直接引く。
+  const found = await createDeps({ db: await tryGetDb() }).sites.findBySlug(siteSlug);
+  if (!found.ok || found.value === null) return base;
+  return { ...base, workspaceId: found.value.workspaceId };
 }
 
 /** 見本データで表示していることを読者向け画面に出すための一文。 */
@@ -744,6 +1299,47 @@ export function siteSampleNotice(): string {
 /** ブログ作成の下書きが仮置きの保存先であることを画面に出すための一文。 */
 export function siteDraftSampleNotice(): string {
   return sampleSiteDraftNotice();
+}
+
+/**
+ * ブログ作成の下書きがいま何で動いているかを画面に出すための一文。
+ *
+ * **画面に条件を書かせない。** 受信箱・改善要望と同じ形にしてある。
+ * ここを画面側の固定文にしていたため、保存先をつないだあとも
+ * 「しばらくすると消えます」と出続ける事故が起きた（2026-08-17）。
+ */
+export async function siteDraftNotice(): Promise<StorageStatus> {
+  const db = await tryGetDb();
+  return {
+    persisted: db !== null,
+    what: "ブログ作成の下書きの保存先",
+    blockedBy: "site_drafts / site_blueprints テーブルの追加と D1 への接続",
+    stubId: "persistence:site-draft-memory",
+    message:
+      db === null
+        ? sampleSiteDraftNotice()
+        : "作りかけの下書きも、作ったブログも保存されます（保存先: D1 の site_drafts / site_blueprints）。",
+  };
+}
+
+/**
+ * ブログの一覧がいま何で動いているかを画面に出すための一文。
+ *
+ * 保存先がつながっていても**見本の 3 本は残す**ので、
+ * 「並んでいるものの一部は見本」であることは、つながったあとも黙らない。
+ */
+export async function siteStorageNotice(): Promise<StorageStatus> {
+  const db = await tryGetDb();
+  return {
+    persisted: db !== null,
+    what: "ブログの設計図の保存先",
+    blockedBy: "site_blueprints テーブルの追加とマイグレーション",
+    stubId: "persistence:site-sample",
+    message:
+      db === null
+        ? siteSampleNotice()
+        : "作ったブログは保存されます（保存先: D1 の site_blueprints）。はじめから並んでいる 3 本は見本で、消さずに残してあります。",
+  };
 }
 
 /** 商品の表示名。ID をそのまま画面に出さないための対応表。 */
@@ -758,9 +1354,14 @@ export function productDisplayName(productId: string): string {
  * ここで作られるのは設計図のデータだけで、
  * 読者向けの画面 (`/s/<URL名>`) は既存のものをそのまま使う。
  */
-export function siteBuilderUseCases() {
-  const deps = createDeps();
-  const builder = { drafts: deps.siteDrafts, ids: deps.ids };
+export async function siteBuilderUseCases() {
+  const deps = createDeps({ db: await tryGetDb() });
+  const builder = {
+    drafts: deps.siteDrafts,
+    ids: deps.ids,
+    auditLog: deps.auditLog,
+    now: () => new Date(),
+  };
   return {
     listDrafts: createListSiteDraftsUseCase(builder),
     getDraft: createGetSiteDraftUseCase(builder),

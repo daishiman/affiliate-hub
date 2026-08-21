@@ -1,6 +1,7 @@
 import { createDeps } from "@/infrastructure/composition";
+import { tryGetDb } from "@/infrastructure/persistence/d1/connection";
 import { createRecordTelemetryUseCase } from "@/application/usecases/analytics/record-telemetry";
-import { readerActor } from "@/presentation/composition";
+import { readerActorForSite } from "@/presentation/composition";
 import { readConsentSignals } from "@/presentation/telemetry/consent-server";
 
 export const dynamic = "force-dynamic";
@@ -32,8 +33,16 @@ export async function POST(request: Request) {
     if (events.length === 0) return new Response(null, { status: 204 });
 
     const signals = await readConsentSignals();
-    const useCase = createRecordTelemetryUseCase({ sink: createDeps().telemetry });
-    await useCase.execute(readerActor(), {
+    // **接続を渡す。** ここを `createDeps()` のままにすると、保存先をつないでも
+    // この口だけが仮置きへ書き続け、画面には何も出てこない。
+    const useCase = createRecordTelemetryUseCase({
+      sink: createDeps({ db: await tryGetDb() }).telemetry,
+    });
+    // どのブログでの出来事かは、まとめて送られた最初の 1 件から決める。
+    // 1 回の送信は 1 ページぶんなので、途中で別のブログに変わることはない。
+    const first = events[0] as { payload?: { siteSlug?: unknown } } | undefined;
+    const siteSlug = typeof first?.payload?.siteSlug === "string" ? first.payload.siteSlug : null;
+    await useCase.execute(await readerActorForSite(siteSlug), {
       events: events as never,
       signals,
       readerKey: typeof parsed.readerKey === "string" ? parsed.readerKey : null,

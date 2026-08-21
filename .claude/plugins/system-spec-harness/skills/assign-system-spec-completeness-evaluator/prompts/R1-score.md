@@ -47,7 +47,8 @@
 
 ### 2.4 出力契約
 - schema: `schemas/completeness-findings.schema.json`
-- 必須: evaluator, verdict(PASS/FAIL), aspects(rubric全観点), audit_delegations[], findings[], gaps[]
+- 必須: evaluator, verdict(PASS/FAIL), aspects(rubric全観点), audit_delegations[], findings[], gaps[], **inputs**
+- **inputs (入力インベントリ)**: 評価が実際に読んだ入力の `file_count` / `sha256` / `files[]{path,sha256,mtime}`。`scripts/spec_input_inventory.py` の `build_inventory()` で求める (手で書かない)。指紋は path と各ファイルの sha256 だけから作り、**mtime は材料に入れない** — mtime は中身が変わらなくても clone や checkout で動くため、混ぜると誰も書き換えていないのに毎回 STALE になり、赤が読まれなくなる。この欄が無いあいだ、レポートは「どの版の仕様書に対する判定か」を自分で名乗れず、**評価後に仕様書を書き換えても PASS はそのまま残る (古い PASS は古く見えない)**。
 - **帰属と判定の接地**: `aspects[].auditor` は自己申告の文字列にすぎないため、独立 auditor を名乗る観点は R2 が実 fork した receipt を `audit_delegations[]` に持つ (`matrix_coverage/primary`=C07 / `matrix_coverage/sub_input`=C06 / `doc_freshness/primary`=C08)。`role=primary` の receipt `verdict` は `aspects[aspect].verdict` と一致させ、`dispatch{session_id,tool,subagent_type,response_sha256}` と receipt `verdict` は PostToolUse hook が観測した同一 response の値と完全一致させる (監査判定の忠実転記)。C05 自前評価の 4 観点に `primary` receipt を付けない。必須 receipt の session は単一 run へ収束させる (issue: HarnessHub-x4o)。
 
 ## Layer 3: インフラ層
@@ -97,6 +98,9 @@
 - [ ] レポート verdict が `aggregate-completeness.aggregate_verdict` の再導出値と一致する
 - [ ] `audit_delegations[]` に実 fork した監査 3 件の receipt が揃い、`aggregate-completeness.py --report` の帰属検査 (fork 台帳との突合) を通る
 - [ ] 総合 FAIL のとき gaps (不足事項一覧) を非空にし差し戻し先を記した
+- [ ] `inputs` に入力インベントリ (件数・sha256・per-file の path/sha256/mtime) を `build_inventory()` の実測で記録した
+- [ ] `aggregate-completeness.py --report <report> --spec-root <repo>` が通る (レポートが名乗る指紋と、いま在る入力が一致する)
+- [ ] 前回 receipt (`system-spec/resume-receipt.json`) が在る場合、その `inputs.sha256` と今回の指紋を比較した。**異なるなら前回の PASS は再利用せず、再評価する**
 - [ ] 仕様書への書込件数が0件である
 
 ### 5.4 実行方式
@@ -108,7 +112,7 @@
 - 呼び出し元: system-spec-harness の完成度ゲート (compile 後)。後続: FAIL は elicit/doc-fetch/compile へ差し戻し。
 
 ### 6.2 並列性
-- 単発 (1 spec-set = 1評価)。sub-agent 担当監査の context は独立だが、R2-delegate は PostToolUse 台帳に完全 response を束縛するため **1 message = 1 foreground fork** で直列 dispatch する。
+- 単発 (1 spec-set = 1評価)。sub-agent 担当監査の context は独立で、dispatch の順序・同時性は帰属の根拠にしない。R2-delegate は PostToolUse の起動行と SubagentStop の解決行を `agent_id` で畳み込んで完全 response を束縛する (schema 1.3)。**「1 message = 1 foreground fork」の直列 dispatch は手段として撤回した** (`SubagentStop` payload が起動時の `tool_use_id` を運ばないため。失われるのは順序の保証で、以後 `agent_id` の照合が唯一の帰属根拠になる)。**background/非同期 launch の受理応答を verdict として扱わない禁止は撤回していない。**配線修正は過去行を遡及解決しないので、pending のまま残った起動行は receipt に使えない。条文は R2-delegate §1.1。
 
 ## Layer 7: 提示
 

@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import { capabilitiesOf } from "@/domain/identity";
 import { currentActor } from "@/presentation/composition";
 import { AppShell, type Breadcrumb } from "@/presentation/ui";
+import { submitFeedbackAction } from "./feedback-action";
 
 /**
  * 管理画面の骨格。
@@ -16,6 +17,10 @@ import { AppShell, type Breadcrumb } from "@/presentation/ui";
  *
  * 判定そのものは domain の権限表 (`capabilitiesOf`) が持つ。
  * ここは受け渡しだけを行う。
+ *
+ * 「改善したいことを送る」ボタンもここから 1 回だけ渡す。
+ * 画面ごとに置くと、置き忘れた画面の不満だけがどこにも届かない。
+ * 画面の名前はパンくずの末尾をそのまま使う（人に書かせない）。
  */
 export async function AdminShell({
   currentPath,
@@ -37,6 +42,11 @@ export async function AdminShell({
       breadcrumbs={breadcrumbs}
       actions={actions}
       capabilities={capabilities}
+      feedback={{
+        screenName: breadcrumbs[breadcrumbs.length - 1]?.label ?? currentPath,
+        canSubmit: capabilities.includes("feedback.submit"),
+        onSubmit: submitFeedbackAction,
+      }}
     >
       {children}
     </AppShell>

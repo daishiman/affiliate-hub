@@ -106,6 +106,30 @@ def test_five_loop_resume_persists_state():
     assert state == json.loads(GOLDEN_RESUME.read_text(encoding="utf-8"))
 
 
+# ── 2026-08-20: GOLDEN_FINAL の loop_count は 4 のままである ────────────
+#
+# 経緯を残す。**一度 5 へ書き換えて、戻した。**
+#
+# run_chunk が loop_count を無条件に 0 へ落とすため、上限超過の記録
+# (limit_overrun) を持つ state に 1 件通すだけでその値が消えていた。
+# set_hearing_limit_policy が「丸めると迂回の唯一の痕跡が消える」と書いて
+# 禁じている操作を、writer 自身が実行していた——これは直す必要があった。
+#
+# 最初の直しは `max(既存, 処理済み件数)` で、超過は守れたが**通常時の意味まで
+# 変えた**。1 回目 5・2 回目 4 を処理するこの golden は、以前の 4（直近 1
+# invocation の件数）から 5（これまでの最大値）へ動いた。契約は
+# 「直近 1 invocation の turn 数。累計ではない」と定めているので、これは
+# 契約を黙って書き換える形だった。**記録を守るための修正が、別の記録を
+# 書き換えていた。**
+#
+# いまの writer は床を `既存 if 既存 > 上限 else 0` に絞ってあり、**超過があるとき
+# だけ**既存値を守る。通常時の意味は元のままなので、この値は 4 に戻っている。
+# 見分けは `test_run_chunk_does_not_carry_over_a_normal_prior_count`（既存 4・
+# 2 ターン → 2）と `test_run_chunk_does_not_erase_an_existing_overrun`（既存 7 →
+# 7）の対で固定してある。
+#
+# なお 4 も 5 も**通算値ではない**（5 の次に 4 を処理しても 9 にはならない）。
+# この欄から総ターン数は読めない。それは前からそうである。
 def test_resume_then_finish_reaches_complete():
     turns = _turns()
     state = mod.init_state(_taxonomy())
@@ -428,7 +452,9 @@ def test_cli_legacy_state_is_read_only_until_explicit_init_migration(tmp_path):
         str(migrated_path),
     ]) == 0
     migrated = json.loads(migrated_path.read_text(encoding="utf-8"))
-    assert migrated["schema_version"] == "1.1"
+    # 移行先は現行版 (1.2)。同じ test の TransitionError 文面も
+    # 「init --state で schema 1.2 へ移行してから更新すること」と言っている。
+    assert migrated["schema_version"] == mod.CURRENT_STATE_SCHEMA_VERSION == "1.2"
     assert migrated["design_application_contract_version"] == "1.0"
     assert all(
         cell == {"state": "未収集"}
@@ -444,6 +470,10 @@ def test_cli_legacy_state_is_read_only_until_explicit_init_migration(tmp_path):
         {},
         {"schema_version": "1.1"},
         {"schema_version": "1.1", "design_application_contract_version": "2.0"},
+        # 1.1 + 1.0 は 2026-08-19 まで「現行」だった形。版が上がった以上、
+        # これも現行ではない。**版だけ上げて中身の無い state を通さない**のと
+        # 同じ理由で、古い版を黙って受け入れる口も残さない。
+        {"schema_version": "1.1", "design_application_contract_version": "1.0"},
         {"schema_version": "1.0", "design_application_contract_version": "1.0"},
         {"schema_version": "2.0"},
     ],
@@ -455,4 +485,4 @@ def test_init_rejects_noncanonical_existing_state_instead_of_repairing(broken):
 
 def test_cli_stdout_emit(capsys):
     assert mod.main(["init", "--taxonomy", str(TAXONOMY)]) == 0
-    assert json.loads(capsys.readouterr().out)["schema_version"] == "1.1"
+    assert json.loads(capsys.readouterr().out)["schema_version"] == mod.CURRENT_STATE_SCHEMA_VERSION == "1.2"

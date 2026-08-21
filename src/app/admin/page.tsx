@@ -26,8 +26,8 @@ export const dynamic = "force-dynamic";
  */
 export default async function AdminHome() {
   const actor = await currentActor();
-  const tools = createToolCatalog();
-  const board = await dashboardUseCases().getDashboard.execute(actor, {});
+  const tools = (await createToolCatalog());
+  const board = await (await dashboardUseCases()).getDashboard.execute(actor, {});
 
   return (
     <AdminShell currentPath="/admin" breadcrumbs={[{ label: "ホーム" }]}>

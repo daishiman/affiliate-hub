@@ -1,11 +1,47 @@
 import type { AppDeps } from "@/application/deps";
+import type {
+  LlmConnectivityPort,
+  LlmCredentialVaultPort,
+  LlmProviderCatalogPort,
+} from "@/application/ports/llm-credential";
 import {
   createCommercialD1LinkInboxRepository,
   type DrizzleD1,
 } from "./persistence/d1/link-inbox-repository";
+import { createD1SiteDraftRepository } from "./persistence/d1/site-draft-repository";
+import {
+  createD1ChannelConnectionRepository,
+  createD1PublicationRepository,
+} from "./persistence/d1/distribution-repository";
+import { createD1ContentVariantRepository } from "./persistence/d1/content-repository";
+import { createD1ConversionRepository } from "./persistence/d1/conversion-repository";
+import { createD1SiteRepository } from "./persistence/d1/site-repository";
+import {
+  createD1ContentRepository,
+  createD1PublishedArticleWriter,
+} from "./persistence/d1/published-article-repository";
+import {
+  createD1FeedbackRepository,
+  createD1IntegrationKeyStore,
+} from "./persistence/d1/feedback-repository";
+import { createD1ImprovementRepository } from "./persistence/d1/improvement-repository";
 import { createEventPublisher } from "./platform/queue";
+import {
+  createR2FeedbackCaptureStore,
+  type CaptureBucket,
+} from "./platform/feedback-capture-r2";
 import { createLlmPorts } from "./llm/llm-setup";
-import { createSampleContentRepository } from "./persistence/sample/content-sample-repository";
+import type { LlmKeyAccess, LlmUsageRecorder } from "./llm/key-access";
+import { createLlmProviderCatalog } from "./llm/llm-provider-catalog";
+import { createLlmConnectivity } from "./llm/llm-connectivity";
+import { createD1LlmCredentialVault } from "./persistence/d1/llm-credential-repository";
+import { createD1LlmUsage } from "./persistence/d1/llm-usage-repository";
+import { MIN_MASTER_SECRET_LENGTH } from "./platform/secret-box";
+import {
+  createSampleContentRepository,
+  createSamplePublishedArticleWriter,
+  createSampleTrackingCoverage,
+} from "./persistence/sample/content-sample-repository";
 import {
   createSampleRankingModelRepository,
   createSampleScoreCardRepository,
@@ -34,8 +70,22 @@ import {
 import {
   createSampleClickTracking,
   createSampleMetricsRepository,
+  createSampleRedirectResolver,
+  createSampleTrackingLinkIssuer,
 } from "./persistence/sample/analytics-sample-repository";
+import {
+  createD1RedirectResolver,
+  createD1TrackingCoverage,
+  createD1TrackingLinkIssuer,
+  createRedirectClickTracking,
+} from "./persistence/d1/redirect-repository";
+import { withTrackingLinkIssuance } from "./persistence/tracking-issuing-writer";
 import { createSampleTelemetrySink } from "./persistence/sample/telemetry-sample-sink";
+import {
+  createD1TelemetryMetricsRepository,
+  createD1TelemetrySink,
+} from "./persistence/d1/telemetry-repository";
+import { createD1AuditLog } from "./persistence/d1/audit-log-repository";
 import { createSampleImprovementRepository } from "./persistence/sample/improvement-sample-repository";
 import {
   createSampleAffiliateAccountRepository,
@@ -50,6 +100,14 @@ import {
   createSampleMembershipRepository,
   createSampleWorkspaceRepository,
 } from "./persistence/sample/settings-sample-repository";
+import { createSamplePolicyRuleRepository } from "./persistence/sample/policy-rule-sample-repository";
+import {
+  createSampleFeedbackCaptureStore,
+  createSampleFeedbackRepository,
+  createSampleIntegrationKeyStore,
+} from "./persistence/sample/feedback-sample-repository";
+import { createHandoffTemplates } from "./generation/handoff-templates";
+import { hashSecret, mintSecret } from "./platform/secret-minter";
 import { createSampleLinkIngestionRepository } from "./persistence/sample/link-inbox-sample-repository";
 import { createSampleSiteDraftRepository } from "./persistence/sample/site-draft-sample-repository";
 import { createSampleSiteRepository } from "./persistence/sample/site-sample-repository";
@@ -68,9 +126,53 @@ import { idGenerator } from "./platform/id-generator";
  *
  * 入口ごとの組み立て（ツール一覧）は `src/presentation/composition.ts`。
  */
-export function createDeps(options: { readonly db?: DrizzleD1 | null } = {}): AppDeps {
+export function createDeps(
+  options: {
+    readonly db?: DrizzleD1 | null;
+    readonly bucket?: CaptureBucket | null;
+    /**
+     * Worker の環境（設定値と秘密情報）。
+     *
+     * **渡さないと、鍵を登録しても提供元アダプタからは 1 件も見えない。**
+     * 既定を `{}` にしてあるのは、Workers の外（`pnpm dev`・自動テスト）でも
+     * 組み立てが動くようにするためで、本番で省いてよいという意味ではない。
+     * 入口が渡し忘れていないことは検査で固定してある
+     * （tests/architecture/worker-env-wiring.test.ts）。
+     */
+    readonly env?: Readonly<Record<string, unknown>>;
+  } = {},
+): AppDeps {
   const db = options.db ?? null;
-  const llmPorts = createLlmPorts();
+  const bucket = options.bucket ?? null;
+  /**
+   * 生成 AI。**鍵の預かり所と同じ組み立てを使う。**
+   *
+   * 別々に組み立てていたころは、鍵を登録できる状態かどうかの判定が
+   * 2 か所にあった。判定が分かれると「登録画面では登録できるのに、
+   * 生成だけが黙って失敗する」状態が作れてしまう。
+   */
+  const management = createLlmCredentialManagement({ db, env: options.env ?? {} });
+  const llmPorts = createLlmPorts(
+    management.ready
+      ? {
+          ready: true,
+          vault: management.vault,
+          usage: management.usage,
+          catalog: management.catalog,
+        }
+      : { ready: false, reason: management.reason },
+  );
+  // 計測の記録先は、保存先が用意できていれば本物（D1）。
+  // 入れる口（/api/telemetry と画面の収集係）と読む口（/admin/analytics）が
+  // 両方そろったのでつないだ。片方しか無い状態でつなぐと、
+  // 貯まるだけで誰も見ない記録か、中身の無い画面のどちらかになる。
+  //
+  // **ここで先に作っているのは、転送の入口（/go/）も同じ記録先を使うから。**
+  // 2 つ作ると、同じクリックが 2 つの経路で別々に貯まる余地ができる。
+  const telemetry =
+    db === null
+      ? createSampleTelemetrySink()
+      : createD1TelemetrySink({ db, newId: () => idGenerator.newId() });
   return {
     // ★ 見本データ（スタブ）。ranking_models / score_cards テーブルができたら差し替える。
     rankingModels: createSampleRankingModelRepository(),
@@ -81,42 +183,105 @@ export function createDeps(options: { readonly db?: DrizzleD1 | null } = {}): Ap
     claims: createSampleClaimRepository(),
     evidence: createSampleEvidenceRepository(),
     testRuns: createSampleTestRunRepository(),
-    // ★ 見本データ（スタブ）。ブログ 2 本ぶんの設計図と記事。
-    //   site_blueprints / published_articles テーブルができたら差し替える。
-    sites: createSampleSiteRepository(),
-    siteDrafts: createSampleSiteDraftRepository(),
-    publishedContent: createSampleContentRepository(),
+    // ブログの下書きと、作られたブログは、保存先が用意できていれば本物（D1）。
+    // ここを先に本物にしたのは、**入れる口（作成ウィザード）が既にあるから**。
+    // 入れる口が無いものを本物にすると、一生埋まらない空の画面ができる。
+    //
+    // 記事の本文（published_articles）も本物にした。**出す口（配信の画面の
+    // 「いまサイトに出す」）を先に作ってからつないでいる**。読む口だけを
+    // 本物にすると、書き込む操作が無いので一覧が永久に空のままになる。
+    // 保存先が無い環境では、出す操作は**失敗を返す**（保存できたことにしない）。
+    sites: db === null ? createSampleSiteRepository() : createD1SiteRepository(db),
+    siteDrafts: db === null ? createSampleSiteDraftRepository() : createD1SiteDraftRepository(db),
+    publishedContent: db === null ? createSampleContentRepository() : createD1ContentRepository(db),
+    //
+    // **出す口を合言葉の発行で包んでいる。** 記事を出す経路はここ 1 つなので、
+    // 包んでおけば発行が漏れない。写しに書く作業場所は `save` の引数
+    // （＝そのブログを持っている側）をそのまま使うので、読者の身元が
+    // 写しへ入る経路が型の上で存在しない（残課題 25 / 56 の再発を構造で止める）。
+    publishedArticles: withTrackingLinkIssuance(
+      db === null ? createSamplePublishedArticleWriter() : createD1PublishedArticleWriter(db),
+      db === null ? createSampleTrackingLinkIssuer() : createD1TrackingLinkIssuer(db),
+    ),
     // ★ 見本（スタブ）。読者が自分で操作するもの。
     //   保存先 (KV)・計算式・問い合わせの送信先が用意できたら差し替える。
     shortlist: createSampleShortlistRepository(),
     readerTools: createSampleReaderToolRepository(),
     contact: createSampleContactSink(),
-    // ★ 見本データ（スタブ）。記事の進行と書き手の設定。
-    //   content_packages / content_variants / personas テーブルができたら差し替える。
+    // 記事（本文と進行の現在地）は、保存先が用意できていれば本物（D1）。
+    // 入れる口（段階を進める・承認する）が先にあるので本物にした。
+    // **見本は消さずに重ねる**（`d1/content-repository.ts` に理由）。
+    //
+    // ★ 企画と書き手はまだ見本データ（スタブ）。
+    //   表を作っていないのではなく、**作る入口がどこにも無い**ため。
+    //   入口の無い表を先に用意すると、一生埋まらない空の一覧が画面に増える。
     contentPackages: createSampleContentPackageRepository(),
-    contentVariants: createSampleContentVariantRepository(),
+    contentVariants:
+      db === null ? createSampleContentVariantRepository() : createD1ContentVariantRepository(db),
     personas: createSamplePersonaRepository(),
-    // ★ 見本データ（スタブ）。配信先の接続と配信の記録。
-    //   実際の投稿には各サービスの認証が要り、それは利用者ご自身が登録する。
-    channelConnections: createSampleChannelConnectionRepository(),
-    publications: createSamplePublicationRepository(),
+    // 配信の記録は、保存先が用意できていれば本物（D1）。
+    // 入れる口（記事の画面の「この記事を出す」）が先にあるので本物にした。
+    // **見本は消さずに重ねる**（`d1/distribution-repository.ts` に理由）。
+    //
+    // 実際の投稿そのものは行わない。各サービスの認証が要り、
+    // それは利用者ご自身がブラウザで登録するものだから。
+    // 出し先の接続も、行を作る入口が付くまでは見本が並ぶ。
+    channelConnections:
+      db === null
+        ? createSampleChannelConnectionRepository()
+        : createD1ChannelConnectionRepository(db),
+    publications: db === null ? createSamplePublicationRepository() : createD1PublicationRepository(db),
     manualExport: createSampleManualExport(),
-    // ★ 見本データ（スタブ）。数字。本物は公開して読まれ始めてから入る。
-    metrics: createSampleMetricsRepository(),
-    clickTracking: createSampleClickTracking(),
-    // ★ 仮置き（スタブ）。この実行中だけ覚える。telemetry_events テーブルが
-    //   できたらこの 1 行を差し替える。画面もイベントの形も変わらない。
-    telemetry: createSampleTelemetrySink(),
-    // ★ 見本データ（スタブ）。改善ループの記録と見せ方の設定。
-    //   読み出しは見本を返し、保存は失敗を返す（保存できたことにしない）。
-    improvement: createSampleImprovementRepository(),
+    // 数字は、保存先が用意できていれば**計測の記録から導く**（D1）。
+    // 指標を別の表に貯めないので、ここで渡すのは同じ接続 1 つだけ。
+    // 接続が無い環境では見本データに落ちる（何で動いているかは画面に出す）。
+    metrics:
+      db === null ? createSampleMetricsRepository() : createD1TelemetryMetricsRepository(db),
+    // 転送の入口（/go/<合言葉>）で押されたことの記録と、転送先の読み取り。
+    //
+    // **クリックを専用の表に貯めない。** 記録先は計測と同じ `telemetry_events` で、
+    // 画面から送るクリックと同じ形（`affiliate_click`）になる。別の表にすると
+    // 同じ「クリック数」が 2 つでき、食い違ったときにどちらが正しいか決められない。
+    // 二重に数えないための印は `recordedVia`（redirect / browser）。
+    clickTracking:
+      db === null ? createSampleClickTracking() : createRedirectClickTracking({ telemetry }),
+    redirectResolver: db === null ? createSampleRedirectResolver() : createD1RedirectResolver(db),
+    // 順位表に出ている成果リンクのうち、まだ合言葉が発行されていない件数。
+    // **実際に読者へ出している記事から数える**（発行の記録の側から数えない。
+    // 写しがあっても記事に合言葉が入っていなければ読者は ASP の URL を踏む）。
+    trackingCoverage:
+      db === null ? createSampleTrackingCoverage() : createD1TrackingCoverage(db),
+    telemetry,
+    // 改善ループの記録と見せ方の設定は、保存先が用意できていれば本物（D1）。
+    //
+    // **見本と混ぜない。** ほかの保存先は見本を重ねているが、ここは数字を伴う。
+    // 見本の「良くなった」と実測が同じ一覧に並ぶと、どちらを見て判断したのかが
+    // 後から区別できなくなる。保存先が無い環境では見本のまま（保存は失敗を返す）。
+    improvement:
+      db === null ? createSampleImprovementRepository() : createD1ImprovementRepository(db),
+    // 改善要望と鍵は、保存先が用意できていれば本物（D1）を使う。
+    // 画面の写しは置き場が別（R2）なので、判定も別にする。D1 があっても
+    // R2 が無い環境はあり得るし、その逆もある。片方の有無でもう片方を
+    // 「つながっているつもり」にしない。
+    // 指示文のひな型は本物（版番号つきでコードと一緒に管理する）。
+    feedback: db === null ? createSampleFeedbackRepository() : createD1FeedbackRepository(db),
+    feedbackCaptures:
+      bucket === null ? createSampleFeedbackCaptureStore() : createR2FeedbackCaptureStore(bucket),
+    handoffTemplates: createHandoffTemplates(),
+    integrationKeys:
+      db === null
+        ? createSampleIntegrationKeyStore({ hash: hashSecret })
+        : createD1IntegrationKeyStore({ db, hash: hashSecret, newId: () => idGenerator.newId() }),
+    mintSecret,
     // ★ 見本データ（スタブ）。作業場所・担当者・ブランド・広告表記・操作の記録。
     //   本物にするには認証（Better Auth + Google）と各テーブルが要る。
     workspaces: createSampleWorkspaceRepository(),
     memberships: createSampleMembershipRepository(),
     brands: createSampleBrandRepository(),
     disclosures: createSampleDisclosureRepository(),
-    auditLog: createSampleAuditLog(),
+    // ★ 見本データ（スタブ）。中身は初期ルールそのもので、読み取りは本物と同じ結果を返す。
+    policyRules: createSamplePolicyRuleRepository(),
+    auditLog: db === null ? createSampleAuditLog() : createD1AuditLog(db),
     // 起きたことの発行。購読側（通知・再生成・リンク切れ検出）はまだ無いので
     // 記録だけする。購読を足すときに変えるのはこの 1 行だけ。
     events: createEventPublisher(null),
@@ -126,13 +291,18 @@ export function createDeps(options: { readonly db?: DrizzleD1 | null } = {}): Ap
     // 鍵が未登録のあいだはスタブが失敗を返す。空の記事を作らない。
     llm: llmPorts.llm,
     llmCosts: llmPorts.costs,
-    // ★ 見本データ（スタブ）。提携先・提携条件・成果。
+    // ★ 見本データ（スタブ）。提携先・提携条件・提携リンク。
     //   本物の数字には各 ASP の API 申請と、利用者ご自身による接続情報の登録が要る。
     //   ここで作るものには商業の印が付いており、順位づけへは型として渡せない。
     affiliateAccounts: createSampleAffiliateAccountRepository(),
     affiliatePrograms: createSampleAffiliateProgramRepository(),
     affiliateLinks: createSampleAffiliateLinkRepository(),
-    conversions: createSampleConversionRepository(),
+    // 成果は、保存先が用意できていれば本物（D1）。取り込みはまだ ASP の
+    // 接続待ちだが、**金額を手で直す入口が画面にある**ので保存先を先に本物にした。
+    // 入口があるのに保存できないと、直した額が次に開くと元へ戻る。
+    // 数字は見ただけでは戻りに気づけず、そのまま締めの報告に使われる。
+    conversions:
+      db === null ? createSampleConversionRepository() : createD1ConversionRepository(db),
     // 受信箱だけは、保存先が用意できていれば本物（D1）を使う。
     // **この 1 行が、変更容易性シナリオ ⑥ の実体。**
     // 上の呼び出し側（ユースケース・画面・ツール）は 1 行も変わらない。
@@ -140,5 +310,99 @@ export function createDeps(options: { readonly db?: DrizzleD1 | null } = {}): Ap
       db === null
         ? createSampleLinkIngestionRepository()
         : createCommercialD1LinkInboxRepository(db),
+  };
+}
+
+/**
+ * 生成 AI の鍵を預かる仕組みの組み立て。
+ *
+ * --- なぜ `createDeps` に入れないか ---
+ * **預かり所は「作らない」という状態を持つ。**
+ * 元締めの鍵（`LLM_KEY_ENCRYPTION_SECRET`）が無い環境で預かり所を作ると、
+ * 包めない値を保存先へ入れる道ができる。入った時点で、平文か
+ * 開けられない塊のどちらかが残り、どちらも後から直せない。
+ *
+ * `AppDeps` の欄は全部そろっている前提で書かれているので、
+ * そこへ「無いことがある口」を混ぜると、他の 40 個の口まで
+ * 「無いかもしれない」と読む必要が出る。分けて置く。
+ *
+ * --- 使えない理由を捨てない ---
+ * 作れなかったときに `null` だけ返すと、画面は
+ * 「鍵が無い」「保存先が無い」「元締めの鍵が短い」を同じ空白として出す。
+ * 利用者のやることは 3 つとも違う。理由を持って返す。
+ */
+export type LlmCredentialManagement =
+  | {
+      readonly ready: true;
+      /**
+       * 預かり所。**2 つの面を持つ 1 つの物**である。
+       * 応用層へ渡すのは `LlmCredentialVaultPort` の面だけ（値を返す口が無い）。
+       * `LlmKeyAccess` の面は提供元アダプタにだけ渡す。
+       */
+      readonly vault: LlmCredentialVaultPort & LlmKeyAccess;
+      /** 使った量の記録先。呼び出しを組み立てるのに要る（省略できない）。 */
+      readonly usage: LlmUsageRecorder;
+      readonly catalog: LlmProviderCatalogPort;
+      readonly connectivity: LlmConnectivityPort;
+    }
+  | {
+      readonly ready: false;
+      /** なぜ登録できないか。画面にそのまま出す 1 行。 */
+      readonly reason: string;
+      /**
+       * 使えないときでも目録は返す。
+       * **鍵をどこで発行するかの案内は、登録できない状態でこそ要る。**
+       */
+      readonly catalog: LlmProviderCatalogPort;
+    };
+
+export function createLlmCredentialManagement(options: {
+  readonly db?: DrizzleD1 | null;
+  readonly env?: Readonly<Record<string, unknown>>;
+  readonly now?: () => Date;
+}): LlmCredentialManagement {
+  const db = options.db ?? null;
+  const env = options.env ?? {};
+  const now = options.now ?? (() => new Date());
+
+  const rawCatalog = typeof env.LLM_PROVIDER_CATALOG === "string" ? env.LLM_PROVIDER_CATALOG : "";
+  const catalog = createLlmProviderCatalog(rawCatalog);
+
+  if (db === null) {
+    return {
+      ready: false,
+      catalog,
+      reason:
+        "保存先（D1）につながっていないため、鍵を預かれません。公開した環境（pnpm run preview か本番）で開いてください。",
+    };
+  }
+
+  const master = typeof env.LLM_KEY_ENCRYPTION_SECRET === "string" ? env.LLM_KEY_ENCRYPTION_SECRET : "";
+  if (master === "") {
+    return {
+      ready: false,
+      catalog,
+      reason:
+        "元締めの鍵（LLM_KEY_ENCRYPTION_SECRET）が未登録のため、API キーを包めません。ご自身のターミナルで `wrangler secret put LLM_KEY_ENCRYPTION_SECRET` を実行してください（値をこの画面やチャットに貼らないでください）。",
+    };
+  }
+  if (master.length < MIN_MASTER_SECRET_LENGTH) {
+    return {
+      ready: false,
+      catalog,
+      reason: `元締めの鍵（LLM_KEY_ENCRYPTION_SECRET）が短すぎます（${MIN_MASTER_SECRET_LENGTH} 文字以上）。長いものへ入れ直してください。`,
+    };
+  }
+
+  const vault = createD1LlmCredentialVault({ db, masterSecret: master, now });
+  const usage = createD1LlmUsage({ db, ids: idGenerator, now });
+  return {
+    ready: true,
+    vault,
+    usage,
+    catalog,
+    // 疎通確認は鍵の値を使う。だから**預かり所そのもの**を渡す
+    // （`LlmKeyAccess` の面。応用層には型として届かない）。
+    connectivity: createLlmConnectivity({ vault, catalog, usage }),
   };
 }

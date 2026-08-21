@@ -55,12 +55,48 @@ export const generationInputSchema = z.object({
 });
 
 export const draftContentVariantSchema = z.object({
+  /**
+   * どのモデルで書くか。**入口では既定を入れない。**
+   *
+   * `optional()` にしてあるのは、選ばれていないことをユースケースまで
+   * そのまま届けるためである。ここで「とりあえず先頭のモデル」を入れると、
+   * 呼び出し側は選んだつもりが無いのに、記録にはモデル名が残る。
+   * 欠けている理由を返すのはユースケースの仕事。
+   */
+  model: z
+    .object({
+      providerId: z.string().min(1),
+      modelId: z.string().min(1),
+    })
+    .optional(),
   // 「部分的に渡す」を受け付ける。欠けていることを検出して理由を返すのは
   // ユースケース側の仕事で、入口で弾くと「何が足りないか」を返せなくなる。
   provided: generationInputSchema.partial(),
   materials: z.array(material).max(20).optional(),
   promptVersion: z.string().regex(/^v[1-9][0-9]*$/).optional(),
   budgetMinor: z.number().int().min(0).nullable().optional(),
+});
+
+/**
+ * **宣言する形**（配る JSON Schema の元）。受け付ける形より狭い。
+ *
+ * 上の `draftContentVariantSchema` は、`model` が無くても・`provided` が欠けていても
+ * 受け取る。そうしてあるのは、欠けているものを数えて「何を先に決めればよいか」を
+ * 返すためで、画面の「まだそろっていない」の試しはこの道を通っている
+ * （`src/app/admin/generation/page.tsx` が `provided: {}` を渡す）。
+ *
+ * だが**受け取ることと、作れることは違う**。`model` が無ければ必ず断られ、
+ * 18 項目のどれかが欠けても必ず断られる。それを `optional` のまま宣言すると、
+ * AI から見て「無くても呼べる」と読める。説明文には書いてあるが、
+ * **説明文は形ではない**——AI は入力を `required` から組み立てる。
+ *
+ * ここで狭めているのは 2 つだけ:
+ *   - `model` を必須にする（既定は入れない。入れないまま「要る」と言う）
+ *   - `provided` を部分ではなく 18 項目そろった形にする
+ */
+export const draftContentVariantDeclaredSchema = draftContentVariantSchema.extend({
+  model: z.object({ providerId: z.string().min(1), modelId: z.string().min(1) }),
+  provided: generationInputSchema,
 });
 
 /**

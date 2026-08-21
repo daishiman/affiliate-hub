@@ -3,7 +3,12 @@ from __future__ import annotations
 
 import re
 
-from state_transition_common import TransitionError, foundation_goal_ids, normalize_serves
+from state_transition_common import (
+    TransitionError,
+    foundation_goal_ids,
+    normalize_serves,
+    reject_self_declared_provenance,
+)
 
 KNOWLEDGE_CANDIDATE_STATUSES = ("discovered", "qualified", "deepened", "promoted")
 KNOWLEDGE_CARD_REQUIRED_FIELDS = (
@@ -55,6 +60,9 @@ def _validate_deep_knowledge_card(card: object) -> None:
 def set_knowledge_candidate(state: dict, candidate: dict) -> None:
     if not isinstance(candidate, dict):
         raise TransitionError("knowledge candidate は object 必須")
+    # set_decision と同じ理由。ここは打刻までは行わない (この節に出所欄の
+    # 先例がなく、無い欄を writer 側から増やすと契約が先に動く)。名乗れる道だけ閉じる。
+    reject_self_declared_provenance(candidate, "knowledge candidate")
     candidate_id = candidate.get("id")
     if not isinstance(candidate_id, str) or not KNOWLEDGE_ID_RE.fullmatch(candidate_id):
         raise TransitionError("knowledge candidate: id は kebab-case の stable id 必須")

@@ -1,8 +1,8 @@
 import { allowedOriginsFrom, checkOrigin, originRejection } from "@/presentation/http/origin-guard";
 import {
+  actorForScope,
   authenticateRequest,
   createToolCatalog,
-  currentActor,
 } from "@/presentation/composition";
 import { handleJsonRpc, type JsonRpcRequest } from "@/presentation/tools/mcp-adapter";
 import { refusalReason, visibleTools } from "@/presentation/http/tool-scope";
@@ -79,13 +79,13 @@ export async function POST(request: Request) {
   if (method === "notifications/initialized") return new Response(null, { status: 202 });
   if (method === "ping") return Response.json({ jsonrpc: "2.0", id, result: {} });
 
-  const catalog = visibleTools(createToolCatalog(), auth.scope);
+  const catalog = visibleTools((await createToolCatalog()), auth.scope);
 
   // 見せていないツールを名指しで呼ばれたら、黙って落とさず理由を返す。
   if (method === "tools/call") {
     const params = (message.params ?? {}) as Record<string, unknown>;
     const name = typeof params.name === "string" ? params.name : "";
-    const hidden = findTool(createToolCatalog(), name);
+    const hidden = findTool((await createToolCatalog()), name);
     if (hidden !== null && findTool(catalog, name) === null) {
       return rpcError(id, -32600, refusalReason(hidden));
     }
@@ -97,7 +97,9 @@ export async function POST(request: Request) {
     return rpcError(id, -32601, `対応していないメソッドです: ${method}`);
   }
 
-  const actor = await currentActor();
+  // REST の入口（`/api/tools`）とまったく同じ決め方を使う。
+  // 片方だけ見本の身元へ落ちる、という状態を作らない（`ah-2ro`）。
+  const actor = await actorForScope(auth.scope);
   const rpc: JsonRpcRequest = {
     jsonrpc: "2.0",
     id,
@@ -118,6 +120,6 @@ export async function GET(request: Request) {
     protocolVersion: PROTOCOL_VERSION,
     transport: "streamable-http (stateless)",
     scope: auth.scope,
-    tools: visibleTools(createToolCatalog(), auth.scope).map((t) => t.name),
+    tools: visibleTools((await createToolCatalog()), auth.scope).map((t) => t.name),
   });
 }

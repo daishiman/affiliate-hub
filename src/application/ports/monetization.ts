@@ -17,7 +17,7 @@ import type {
   ProductId,
   WorkspaceId,
 } from "@/domain/shared";
-import type { Page, Paged, PortResult } from "./common";
+import type { PageRequest, Paged, PortResult } from "./common";
 
 /**
  * Affiliate & Monetization のポート。すべて Commercial 区分。
@@ -27,13 +27,13 @@ import type { Page, Paged, PortResult } from "./common";
  */
 export type AffiliateAccountRepositoryPort = {
   findById(workspaceId: WorkspaceId, id: AffiliateAccountId): PortResult<AffiliateAccount | null>;
-  list(workspaceId: WorkspaceId, page: Page): PortResult<Paged<AffiliateAccount>>;
+  list(workspaceId: WorkspaceId, page: PageRequest): PortResult<Paged<AffiliateAccount>>;
   save(account: AffiliateAccount): PortResult<AffiliateAccount>;
 };
 
 export type AffiliateProgramRepositoryPort = {
   findById(workspaceId: WorkspaceId, id: AffiliateProgramId): PortResult<AffiliateProgram | null>;
-  list(workspaceId: WorkspaceId, page: Page): PortResult<Paged<AffiliateProgram>>;
+  list(workspaceId: WorkspaceId, page: PageRequest): PortResult<Paged<AffiliateProgram>>;
   save(program: AffiliateProgram): PortResult<AffiliateProgram>;
 };
 
@@ -61,7 +61,7 @@ export type ConversionRepositoryPort = {
     asp: AspKind,
     normalizedExternalId: string,
   ): PortResult<Conversion | null>;
-  listByPeriod(workspaceId: WorkspaceId, period: string, page: Page): PortResult<Paged<Conversion>>;
+  listByPeriod(workspaceId: WorkspaceId, period: string, page: PageRequest): PortResult<Paged<Conversion>>;
   save(conversion: Conversion): PortResult<Conversion>;
 };
 
@@ -76,7 +76,7 @@ export type LinkIngestionRepositoryPort = {
   list(
     workspaceId: WorkspaceId,
     filter: { state: LinkIngestionState | null },
-    page: Page,
+    page: PageRequest,
   ): PortResult<Paged<LinkIngestion>>;
   findByNormalizedUrl(
     workspaceId: WorkspaceId,

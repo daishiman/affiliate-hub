@@ -8,7 +8,7 @@
 # contexts: [E]
 # network: false
 # write-scope: caller-repo/system-spec/resume-receipt.json
-# dependencies: [aggregate-completeness.py]
+# dependencies: [aggregate-completeness.py, spec_input_inventory.py]
 # requires-python = ">=3.11"
 # ///
 """Materialize the production resume receipt owned by the completeness evaluator."""
@@ -28,6 +28,11 @@ from typing import Any
 
 
 SCRIPT_DIR = Path(__file__).resolve().parent
+if str(SCRIPT_DIR) not in sys.path:
+    sys.path.insert(0, str(SCRIPT_DIR))
+
+from spec_input_inventory import build_inventory  # noqa: E402
+
 PLUGIN_ROOT = SCRIPT_DIR.parents[2]
 MANIFEST = PLUGIN_ROOT / ".claude-plugin" / "plugin.json"
 AGGREGATE = SCRIPT_DIR / "aggregate-completeness.py"
@@ -94,6 +99,19 @@ def receipt_contract() -> tuple[set[str], Path, Path, Path]:
         return set(required), Path(report_value), by_name["spec-state.json"], by_name["fetched-references.json"]
     except KeyError as exc:
         raise ValueError(f"resume receipt schema lacks gate artifact: {exc}") from exc
+
+
+def receipt_schema_version() -> str:
+    """受領書の版を schema の const から読む (写さない)。"""
+    schema = load_json(RECEIPT_SCHEMA)
+    properties = schema.get("properties")
+    const = (
+        properties.get("schema_version", {}).get("const")
+        if isinstance(properties, dict) else None
+    )
+    if not isinstance(const, str) or not const:
+        raise ValueError("resume receipt schema lacks a schema_version const")
+    return const
 
 
 def atomic_json(path: Path, value: dict[str, Any]) -> None:
@@ -207,11 +225,29 @@ def main(argv: list[str] | None = None) -> int:
             if not isinstance(by_id.get(gate_id), dict) or by_id[gate_id].get("exit_code") != 0:
                 raise ValueError(f"canonical evaluator report lacks passing gate: {gate_id}")
 
+        # 受領書を入力インベントリへ束縛する (gap 6)。
+        #
+        # レポートが名乗る指紋を、ここで**数え直して**突き合わせる。転記するだけだと、
+        # レポート側の自己申告をそのまま受領書へ写すことになり、束縛が 1 段増えたように
+        # 見えて実際には何も確かめていない。
+        inventory = build_inventory(root)
+        declared_inputs = report.get("inputs")
+        if not isinstance(declared_inputs, dict) or "sha256" not in declared_inputs:
+            raise ValueError("evaluator report lacks an input inventory (inputs.sha256)")
+        if declared_inputs["sha256"] != inventory["sha256"]:
+            raise ValueError(
+                "evaluator report input digest does not match the current tree: "
+                f"report={declared_inputs['sha256'][:16]}… tree={inventory['sha256'][:16]}… "
+                "(the PASS says nothing about the inputs that are here now)"
+            )
+
         artifacts = {}
         for relative in sorted(artifacts_required):
             artifacts[relative] = digest(contained(root, Path(relative), must_exist=True))
         receipt = {
-            "schema_version": "1.1",
+            # 版は schema の const を**読む**。写すと、schema を上げたのに受領書が
+            # 古い版を名乗り続ける形でずれ、しかも誰も気づかない。
+            "schema_version": receipt_schema_version(),
             "producer": {
                 "plugin": "system-spec-harness",
                 "version": version,
@@ -220,6 +256,7 @@ def main(argv: list[str] | None = None) -> int:
             "verdict": "PASS",
             "gates": {"coverage": "PASS", "source_citation": "PASS", "evaluator": "PASS"},
             "artifacts": artifacts,
+            "inputs": {"file_count": inventory["file_count"], "sha256": inventory["sha256"]},
             "evaluator": {
                 "report_path": report_path.relative_to(root).as_posix(),
                 "report_sha256": digest(report_path),

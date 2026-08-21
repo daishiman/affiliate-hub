@@ -60,12 +60,49 @@ serves_goals: [G1]
 
 | プラットフォーム | 状態 | 根拠 |
 |---|---|---|
-| Web (web) | 確定 | 確定質疑: qa-security-web |
+| Web (web) | 確定 | 確定質疑: `qa-security-web-spec-intake` (正本 `spec-state.json` の `qa_ref`。旧記載 `qa-security-web` との不一致は `## 確定セルの記録` を参照) |
 | モバイル (mobile) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |
 | タブレット (tablet) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |
 | デスクトップ (Windows) (desktop-windows) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |
 | デスクトップ (Linux) (desktop-linux) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |
 | デスクトップ (macOS) (desktop-macos) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |
+
+## 確定セルの記録 (正本 spec-state.json)
+
+> 本節は正本 `system-spec/spec-state.json` の `coverage_matrix.security.web` が保持している確定内容の**転記**である。規範ではない。値が食い違ったら正本を正とする。
+
+| 項目 | 値 |
+|---|---|
+| セル | security × web |
+| 状態 | 確定 |
+| 確定質疑 (qa_ref) | `qa-security-web-spec-intake` |
+| 資するゴール (serves_goals) | G1 |
+| required-info | `security-posture` — missing_effect: block / 接地: 済 (`qa-security-web-spec-intake`) |
+| 出典 kind | written-requirements |
+| 出典 path | `docs/spec/11-CI-CD・品質ゲート仕様.md` |
+| 出典 節 | §5 秘密情報 |
+| 出典 sha256 | `738f03377e2a57aad0e73121b50214ee0ac049f5fabfcca4a156fef1e54213d0` |
+| 適用された設計知識 (design_applications) | 4 件 — 本章 `## 適用された設計知識` を参照 |
+
+### 本節を「転記」に留めた理由
+
+C05 gaps[0] の「再生成して本文へ載せる」を採らず、本節は正本からの**転記**に留めてある。根拠となる 3 つの実測 (再生成で消える 374 行 / 正本の回答が章より古いことを示す 9 トークンの突き合わせ表 / 章と正本の `qa_ref` が 8 件中 7 件で不一致) は `system-spec/database.md` の同名節に 1 か所だけ書いてある。**本文を正本から複製すると退行する**ので、そちらを読まずに「正本に合わせる」修正をしないこと。
+
+## 意思決定 (decisions)
+
+> 正本 `decisions[]` の全 6 件。**6 件とも `status: confirmed`** で、いずれも利用者本人の `user_decision` を伴う。本章を主担当とする論点を太字で示す。
+
+| ID | 論点 | 採用した選択肢 | 状態 | 資するゴール | 主担当章 |
+|---|---|---|---|---|---|
+| `decision-auth-method` | マルチテナントSaaSの利用者認証 (auth) をどの方式で実装するか | `opt-better-auth` | confirmed | G1 | auth |
+| `decision-editorial-commercial-split` | Editorial（編集評価）と Commercial（報酬・成果）のデータを、D1 でどう分けるか | `opt-two-databases` | confirmed | G1, G2 | database |
+| `decision-redirect-measurement-async` | リダイレクトの計測（ClickEvent の記録）を、転送を止めずにどう書くか | `opt-waituntil-fallback-cron` | confirmed | G2, G1 | infrastructure |
+| `decision-llm-provider` | 記事生成に使う LLM プロバイダを 1 社に固定するか、複数を持つか | `opt-catalog-multi` | confirmed | G1 | backend |
+| `decision-ui-theme-implementation` | 配色と明暗の 2 軸を、どの技術で実装するか | `opt-css-light-dark` | confirmed | G1 | frontend |
+| `decision-test-ci-tooling` | テストと CI の道具立てを、いまの構成のまま進めるか変えるか | `opt-keep-current` | confirmed | G1, G2 | maintenance-ops |
+
+- **本章を主担当とする decision は 0 件**である (分母 = 上表 6 行)。これは security の論点が漏れているという意味ではなく、6 件のいずれも第一の適用先を security としないという意味である。security へ波及する条件を持つのは 2 件 — `decision-auth-method` (認証方式そのもの) と `decision-llm-provider` (API 鍵の預け先) で、どちらも主担当章側で確定済み。
+- **`decision-llm-provider` の security 面の含意**: API 鍵は利用者本人がブラウザまたは別端末で登録する。**鍵の値も、その断片 (先頭数文字を含む) も、この作業場所に置かない・受け取らない・要求しない。**これは §5 秘密情報の運用そのものである。
 
 ## 確定内容 (質疑録)
 
@@ -92,6 +129,14 @@ serves_goals: [G1]
 | security | OWASP ASVS + Secrets Management Cheat Sheet | 脅威モデル・入力検証・暗号化・監査ログの上流指針 | https://owasp.org/www-project-application-security-verification-standard/ |
 
 - 本章の確定内容 (質疑録) は上記 authority を上流指針として適用する。具体技術の選定はこの指針に従属し、指針との乖離は再オープン (R4-reopen) の根拠になる。
+
+### 条項引用の可否 (clause citation)
+
+| concern | 可否 | 引ける条項 / 引けない理由 |
+|---|---|---|
+| security | **条項引用不可** — 取得したが本文が無い (取得経路を変えれば可になる) | authentication と同一 authority・同一取得物 (landing page)。条項が取得物に無い点も同じ。 |
+
+- **security が引用可になる条件**: authentication の reversal と同じ。ASVS 本体を取得できた日に両 concern を同時に available へ変える。
 
 ## 適用された設計知識
 

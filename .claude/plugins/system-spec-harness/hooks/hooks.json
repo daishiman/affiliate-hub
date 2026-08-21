@@ -24,6 +24,17 @@
           }
         ]
       }
+    ],
+    "SubagentStop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/record-audit-fork.py\"",
+            "timeout": 10
+          }
+        ]
+      }
     ]
   }
 }

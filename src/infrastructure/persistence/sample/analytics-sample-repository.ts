@@ -2,10 +2,12 @@ import type {
   ClickTrackingPort,
   MetricDimensions,
   MetricsRepositoryPort,
+  RedirectResolverPort,
+  TrackingLinkIssuerPort,
 } from "@/application/ports/analytics";
 import type { MetricKey, MetricSample } from "@/domain/analytics";
 import { ok } from "@/domain/shared";
-import { registerStub, stubCall } from "../../stub-registry";
+import { registerStub, stubCall, stubReason } from "../../stub-registry";
 
 /**
  * ★ これは仮置きの見本データです（スタブ）。★
@@ -17,16 +19,46 @@ import { registerStub, stubCall } from "../../stub-registry";
  * **わざと一部の指標を空にしている。** すべて埋まった状態だけを置くと、
  * 「まだ計測できていません」がどう出るかを誰も確かめないまま公開してしまう。
  */
+/**
+ * 台帳の登録を 2 つに分けている。
+ *
+ * 数字の読み口は本物ができた（計測から導く）が、クリックの記録はまだ無い。
+ * 1 件にまとめたままだと、控えに変えれば「クリックも済んだ」ことになり、
+ * 未実装のままに変えれば「数字も未実装」になる。
+ * **どちらに寄せても台帳が嘘になる**ので、分けて数える。
+ */
 const stub = registerStub({
   id: "persistence:analytics-sample",
-  port: "指標の保存先とクリック計測",
+  port: "指標の読み口",
   label: "数字（見本データ）",
+  blockedBy: "済み（計測の記録から導く。d1/telemetry-repository.ts）",
+  fallbackFor: "src/infrastructure/persistence/d1/telemetry-repository.ts",
+});
+
+/**
+ * --- `click_events` という表は作らないことにした（記録を消さずに残す） ---
+ *
+ * この口の解除条件には、もともと「`click_events` テーブルと、リンクの計測
+ * 識別子を発行する仕組み」と書いてあった。**その表は作らない。**
+ * 画面から送るクリックはすでに `telemetry_events` の `affiliate_click` として
+ * 入っており、専用の表を足すと**同じ「クリック数」が 2 つできる**。
+ * 食い違ったときにどちらが正しいかを決める方法が無く、片方が正しいと
+ * 決められない数字は、最終的に両方が信用されなくなる。
+ *
+ * 消さずに書いてあるのは、次に読んだ人が仕様（03 §1.2）から読み直して
+ * 同じ表をもう一度作るのを防ぐためである。
+ */
+const clickStub = registerStub({
+  id: "persistence:click-tracking-sample",
+  port: "クリック計測",
+  label: "クリックの記録（この実行では保存先が無い）",
   blockedBy:
-    "metric_samples / click_events テーブルの追加と、公開後の実際の計測（Cloudflare Analytics の接続）",
+    "済み（click_events 表はやめ、転送の入口 /go/ で押されたことを計測の記録へ入れる。d1/redirect-repository.ts）",
+  fallbackFor: "src/infrastructure/persistence/d1/redirect-repository.ts",
 });
 
 export function sampleAnalyticsNotice(): string {
-  return `${stub.label}で表示しています（${stub.blockedBy}が済むまでの仮です）。`;
+  return `${stub.label}で表示しています（${stubReason(stub)}）。`;
 }
 
 /** 見本の実測値。ここに無い指標は「未計測」として画面に出る。 */
@@ -34,7 +66,9 @@ const SAMPLE_VALUES: ReadonlyArray<readonly [MetricKey, number, number | null]> 
   ["page_views", 12480, null],
   ["unique_readers", 8210, null],
   ["read_completion_rate", 0.42, 12480],
-  ["scroll_depth_p50", 0.68, 12480],
+  // 0〜100 の % で持つ（計測が送ってくる形と揃える）。0.68 にすると
+  // 本物につないだ瞬間に桁が変わり、見比べた人が壊れたと判断する。
+  ["scroll_depth_p50", 68, 12480],
   ["time_on_page_seconds", 186, null],
   ["ai_answer_count", 340, null],
   ["ai_tool_success_rate", 0.91, 340],
@@ -290,13 +324,43 @@ export function createSampleMetricsRepository(): MetricsRepositoryPort {
 }
 
 /**
- * クリックの記録。
+ * クリックの記録（保存先が無い実行での控え）。
  *
- * URL を書き換えずに測るため、計測識別子とクリックを別に記録する仕組み。
- * 保存先が無いので、いまは記録できない。
+ * 本物は `d1/redirect-repository.ts` にある。保存先が結び付いていない実行
+ * （`pnpm dev`・自動テスト）ではここへ回る。
+ *
+ * **成功したふりをしない。** 記録できたことにすると、
+ * 「転送はできているのにクリック数が増えない」の原因が追えなくなる。
  */
 export function createSampleClickTracking(): ClickTrackingPort {
   return {
-    recordClick: () => stubCall(stub, "クリックの記録"),
+    recordClick: () => stubCall(clickStub, "クリックの記録"),
+  };
+}
+
+/**
+ * 転送先の読み取り（保存先が無い実行での控え）。
+ *
+ * **`null`（＝知らない合言葉）を返さない。** 返すと、保存先が無いだけなのに
+ * 「そんなリンクは無い」と読者に伝わり、リンクを消したのだと受け取られる。
+ * 失敗として返し、入口の側で「いまは確認できない」と出し分ける。
+ */
+/**
+ * 転送の写しの発行（保存先が無い実行での控え）。
+ *
+ * **成功を返さない。** 空の表を返して「発行できた」ことにすると、記事には
+ * 合言葉が入らないのに公開だけ通り、順位表は ASP の URL を出し続ける。
+ * 公開そのものは止めない（呼び出し側が失敗を飲み込む）が、
+ * 何が起きたかはここで嘘をつかない。
+ */
+export function createSampleTrackingLinkIssuer(): TrackingLinkIssuerPort {
+  return {
+    issue: () => stubCall(clickStub, "転送の写しの発行"),
+  };
+}
+
+export function createSampleRedirectResolver(): RedirectResolverPort {
+  return {
+    resolve: () => stubCall(clickStub, "転送先の読み取り"),
   };
 }

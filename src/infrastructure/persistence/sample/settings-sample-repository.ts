@@ -1,10 +1,10 @@
-import type { AuditLogPort, DisclosureRepositoryPort } from "@/application/ports/compliance";
+import type { DisclosureRepositoryPort } from "@/application/ports/compliance";
 import type {
   BrandRepositoryPort,
   MembershipRepositoryPort,
   WorkspaceRepositoryPort,
 } from "@/application/ports/identity";
-import type { AuditLogEntry, Disclosure } from "@/domain/compliance";
+import type { Disclosure } from "@/domain/compliance";
 import { buildVisibleMessage } from "@/domain/compliance";
 import type { Brand, Membership, Workspace } from "@/domain/identity";
 import { DEFAULT_BRAND_VOICE, DEFAULT_CTA, DEFAULT_LOCALE, DEFAULT_TIME_ZONE } from "@/domain/identity";
@@ -25,10 +25,13 @@ import { registerStub, stubCall } from "../../stub-registry";
  */
 const stub = registerStub({
   id: "persistence:settings-sample",
-  port: "作業場所・担当者・ブランド・広告表記・操作の記録の保存先",
+  // 操作の記録はここから外れた（`./audit-log-sample-repository.ts` の控えへ移った）。
+  // 残したままにすると、控えで本当に書けているものを
+  // 「保存先が無い」と数え続けることになる。
+  port: "作業場所・担当者・ブランド・広告表記の保存先",
   label: "設定（見本データ）",
   blockedBy:
-    "workspaces / memberships / brands / disclosures / audit_logs テーブルの追加と、" +
+    "workspaces / memberships / brands / disclosures テーブルの追加と、" +
     "Better Auth と Google ログインの設定",
 });
 
@@ -197,49 +200,6 @@ const DISCLOSURES: readonly Disclosure[] = [
   }),
 ];
 
-const AUDIT_ENTRIES: readonly AuditLogEntry[] = [
-  {
-    id: taggedString<"AuditLogId">("al_3"),
-    workspaceId: SAMPLE_WORKSPACE_ID,
-    action: "content.approved",
-    actor: { userId: taggedString<"UserId">("u_owner"), isAiServiceAccount: false, modelId: null },
-    targetType: "content_package",
-    targetId: "cp_alpha_01",
-    before: null,
-    after: null,
-    reason: "根拠と価格の確認が取れたため。",
-    occurredAt: new Date("2026-08-14T02:00:00Z"),
-  },
-  {
-    id: taggedString<"AuditLogId">("al_2"),
-    workspaceId: SAMPLE_WORKSPACE_ID,
-    action: "content.created",
-    actor: {
-      userId: taggedString<"UserId">("u_ai"),
-      isAiServiceAccount: true,
-      modelId: "見本モデル",
-    },
-    targetType: "content_package",
-    targetId: "cp_alpha_01",
-    before: null,
-    after: null,
-    reason: null,
-    occurredAt: new Date("2026-08-12T09:00:00Z"),
-  },
-  {
-    id: taggedString<"AuditLogId">("al_1"),
-    workspaceId: SAMPLE_WORKSPACE_ID,
-    action: "ranking_model.changed",
-    actor: { userId: taggedString<"UserId">("u_owner"), isAiServiceAccount: false, modelId: null },
-    targetType: "ranking_model",
-    targetId: "rm_sample_v1",
-    before: null,
-    after: null,
-    reason: "実測の重みを上げ、価格の重みを下げたため。",
-    occurredAt: new Date("2026-08-01T00:00:00Z"),
-  },
-];
-
 export function createSampleWorkspaceRepository(): WorkspaceRepositoryPort {
   return {
     async findById(id) {
@@ -307,28 +267,16 @@ export function createSampleDisclosureRepository(): DisclosureRepositoryPort {
   };
 }
 
-/**
- * 操作の記録。
+/*
+ * 操作の記録は `./audit-log-sample-repository.ts` へ移した。
  *
- * 書き足しはできない（保存先が無い）。できたふりをすると、
- * 「人が承認した」を後から確かめられない記録が残る。
+ * ここから読み直せるようにしてあるのは、**取り込み経路を変えないため**。
+ * `composition.ts` と試験の差し替えはこのファイルを指しており、
+ * 経路を動かすと、控えの実装を入れた回に「差し替えが効かなくなった」という
+ * 別の壊れ方が混ざる。中身の移動と経路の移動は同じ回にやらない。
  */
-export function createSampleAuditLog(): AuditLogPort {
-  return {
-    append: () => stubCall(stub, "操作の記録の追記"),
-    async listByTarget(_workspaceId, targetType, targetId) {
-      return ok(
-        AUDIT_ENTRIES.filter((e) => e.targetType === targetType && e.targetId === targetId),
-      );
-    },
-    async search(_workspaceId, query, page) {
-      const filtered = AUDIT_ENTRIES.filter((e) => {
-        if (query.action !== undefined && e.action !== query.action) return false;
-        if (query.from !== undefined && e.occurredAt < query.from) return false;
-        if (query.to !== undefined && e.occurredAt > query.to) return false;
-        return true;
-      });
-      return ok({ items: filtered.slice(0, page.limit), nextCursor: null });
-    },
-  };
-}
+export {
+  createSampleAuditLog,
+  createUnavailableAuditLog,
+  resetSampleAuditLog,
+} from "./audit-log-sample-repository";

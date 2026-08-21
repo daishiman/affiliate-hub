@@ -1,3 +1,4 @@
+/** @tier 2 */
 import { readdirSync } from "node:fs";
 import { resolve } from "node:path";
 import { describe, expect, it } from "vitest";
@@ -6,6 +7,10 @@ import { invokeTool } from "@/presentation/tools/tool-definition";
 import { createDeps } from "@/infrastructure/composition";
 import { SAMPLE_ACTOR } from "@/infrastructure/identity/sample-actor";
 import type { ActorContext } from "@/domain/shared";
+import { UI_COPY } from "@/presentation/ui/copy";
+import { readerActor } from "@/presentation/composition";
+import { SAMPLE_SITE_SLUG } from "@/infrastructure/persistence/sample/site-sample-repository";
+import { recordingAuditLog } from "../support/doubles";
 
 /**
  * 受け入れ条件（要求仕様 §30.1〜§30.8）。
@@ -20,14 +25,46 @@ import type { ActorContext } from "@/domain/shared";
  * 保存先を D1 に差し替えても、このテストは 1 行も変えずに通る。
  */
 
-const catalog = buildToolCatalog(createDeps());
+/*
+ * 記録の置き場だけは差し替える。
+ *
+ * 見本の保存先（`pnpm dev` のときに使う組み合わせ）には操作の記録を置く場所が無く、
+ * 書き足しを断る。断られると、記録を伴う書き込み（URL の受け取りなど）は
+ * **受け入れ条件の中身に入る前に止まる**。
+ *
+ * ここで見たいのは §30.1〜§30.8 の受け入れ条件であって、
+ * 「記録の置き場が無いときにどう断るか」ではない。後者は
+ * `tests/presentation/feedback-actions.test.ts` などが別に見ている。
+ *
+ * **差し替えても本番から遠ざからない。** 本番（D1）の記録は書ける側で、
+ * 断る側は `pnpm dev` のときにしか出てこない。
+ * 同じやり方を `tests/presentation/feedback-tools.test.ts` も採っている。
+ */
+const catalog = buildToolCatalog({ ...createDeps(), auditLog: recordingAuditLog().port });
 
-/** 報酬まわりの操作ができる担当者。見本の担当者には権限が無い。 */
+/** 報酬まわりの操作ができる担当者。編集部の担当者には権限が無い。 */
 const MANAGER: ActorContext = { ...SAMPLE_ACTOR, roles: ["owner"] };
+
+/**
+ * 編集部の担当者（この検査の既定の身元）。
+ *
+ * 2026-08-18 まではここで見本の身元（`SAMPLE_ACTOR`）をそのまま使っていた。
+ * 見本から書き込みの役を外した（`sample-actor.ts`）ので、
+ * **要る役を検査の側で名乗る**形に変えた。
+ * 見本へ役を戻して緑にしない。認証が入るまで、見本の役は
+ * 「アドレスを知っている人全員が持つ役」と同じものである。
+ */
+const STAFF: ActorContext = {
+  ...SAMPLE_ACTOR,
+  roles: ["researcher", "writer", "reviewer", "analyst"],
+};
+
+/** ログインしていない読者。読者ページの道具はこの身元で動かねばならない。 */
+const READER: ActorContext = readerActor();
 
 type Json = Record<string, unknown>;
 
-async function call(name: string, args: Json, actor: ActorContext = SAMPLE_ACTOR) {
+async function call(name: string, args: Json, actor: ActorContext = STAFF) {
   const tool = findTool(catalog, name);
   expect(tool, `ツールがありません: ${name}`).not.toBeNull();
   if (tool === null) throw new Error(name);
@@ -35,7 +72,7 @@ async function call(name: string, args: Json, actor: ActorContext = SAMPLE_ACTOR
 }
 
 /** 成功を前提に中身を取り出す。失敗していたら理由つきで落とす。 */
-async function value(name: string, args: Json, actor: ActorContext = SAMPLE_ACTOR): Promise<Json> {
+async function value(name: string, args: Json, actor: ActorContext = STAFF): Promise<Json> {
   const r = await call(name, args, actor);
   if (!r.ok) throw new Error(`${name} が失敗しました: ${r.error.message}`);
   return r.value as Json;
@@ -239,7 +276,13 @@ describe("§30.4 AI生成", () => {
 
   it("根拠のない主張は公開不可になる", async () => {
     // 見本の下書きは、数値に根拠が無く「最強」と書いてある。
-    const r = await call("approve_content", { variantId: "cv_alpha_draft" }, MANAGER);
+    // 理由は書いてある。それでも根拠が無ければ通らない、を見たいので、
+    // 理由の書き忘れで断られたのと区別できるようにしておく。
+    const r = await call(
+      "approve_content",
+      { variantId: "cv_alpha_draft", reason: "内容を確認したため。" },
+      MANAGER,
+    );
     expect(r.ok).toBe(false);
     if (!r.ok) {
       // 断るだけでなく、何をすれば通るのかを返す。
@@ -401,14 +444,27 @@ describe("§30.7 アフィリエイト", () => {
   });
 
   it("広告表示が記事・SNS・AI回答で一貫する（文言の出どころが1つ）", async () => {
-    const list = await value("list_disclosures", {});
+    const list = await value("list_disclosures", {}, MANAGER);
     expect(rows(list.rows).length).toBeGreaterThan(0);
-    // 仕様書の名前で呼んでも、同じ文言が返る。別の言い回しを持たない。
-    const viaSpecName = await value("get_disclosure", {});
-    expect(JSON.stringify(viaSpecName)).toBe(JSON.stringify(list));
     // 提携がある関係には rel="sponsored" が付く。
     const affiliate = rows(list.rows).find((r) => String(r.disclosureId) === "dc_affiliate");
     expect(String(affiliate?.relAttribute)).toContain("sponsored");
+
+    // 読者ページの AI が返す断りは、記事の画面に出ている文と 1 文字も違わない。
+    //
+    // 以前ここは「仕様名 get_disclosure が list_disclosures と同じ JSON を返す」
+    // を見ていた。**その別名は読者の権限では 1 度も動かなかった**ので（ah-83f）、
+    // 実際には「AI 回答での一貫性」を一度も確かめていない検査だった。
+    // AI に真偽値だけ渡すと、断りを自分の言葉で言い直す。言い直された文は
+    // こちらが法令に照らして決めた文ではない。だから文そのものを突き合わせる。
+    const forReader = await value(
+      "reader_get_disclosure",
+      { siteSlug: SAMPLE_SITE_SLUG, slug: "laptops-for-video-editing" },
+      READER,
+    );
+    expect(forReader.disclosureRequired).toBe(true);
+    expect(forReader.visibleMessage).toBe(UI_COPY.disclosure.bannerBody);
+    expect(forReader.rankingNote).toBe(UI_COPY.disclosure.rankingNote);
   });
 });
 

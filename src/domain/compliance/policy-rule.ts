@@ -20,27 +20,56 @@ import {
  * 実際のルール内容 (薬機法の表現一覧など) はワークスペースのデータとして登録する。
  */
 
-/** ルールが効く分野。記事のカテゴリーに対応する。 */
-export type PolicyDomainScope =
-  | "general"
-  | "health_food" // 健康食品 (薬機法)
-  | "cosmetics" // 化粧品 (薬機法)
-  | "medical" // 医療・医薬品
-  | "finance" // 金融商品取引法・貸金業法
-  | "gambling"
-  | "alcohol"
-  | "children"; // 子ども向け
+/**
+ * ルールが効く分野。記事のカテゴリーに対応する。
+ *
+ * 実行時の配列を正本にして型を導く。型だけで持つと、
+ * 「登録されようとしている分野が語彙に有るか」を実行時に確かめられず、
+ * 綴りの違う分野が黙って general 扱いになる。
+ */
+export const POLICY_DOMAIN_SCOPES = [
+  "general",
+  "health_food", // 健康食品 (薬機法)
+  "cosmetics", // 化粧品 (薬機法)
+  "medical", // 医療・医薬品
+  "finance", // 金融商品取引法・貸金業法
+  "gambling",
+  "alcohol",
+  "children", // 子ども向け
+] as const;
+export type PolicyDomainScope = (typeof POLICY_DOMAIN_SCOPES)[number];
 
-/** ルールが効く出力先。SNS は各社の規約が違う。 */
-export type PolicyChannelScope =
-  | "any"
-  | "own_site"
-  | "x"
-  | "instagram"
-  | "youtube"
-  | "tiktok"
-  | "note"
-  | "newsletter";
+export function isPolicyDomainScope(value: unknown): value is PolicyDomainScope {
+  return typeof value === "string" && (POLICY_DOMAIN_SCOPES as readonly string[]).includes(value);
+}
+
+/**
+ * ルールが効く出力先。SNS は各社の規約が違う。
+ *
+ * **配信できる出力先（`ChannelKind`）を 1 つ残らず含める。**
+ * 含めそこねた出力先の記事は、`any` のルールだけが当たり、
+ * その媒体固有の規約は 1 件も当たらないまま「違反 0 件」で通る。
+ * 欠けを人の目で見つけるのは無理なので、
+ * `tests/domain/policy-channel-scope.test.ts` が両方の語彙を突き合わせている。
+ */
+export const POLICY_CHANNEL_SCOPES = [
+  "any",
+  "own_site",
+  "x",
+  "instagram",
+  "youtube",
+  "tiktok",
+  "threads",
+  "note",
+  "newsletter",
+  "wordpress",
+  "bluesky",
+] as const;
+export type PolicyChannelScope = (typeof POLICY_CHANNEL_SCOPES)[number];
+
+export function isPolicyChannelScope(value: unknown): value is PolicyChannelScope {
+  return typeof value === "string" && (POLICY_CHANNEL_SCOPES as readonly string[]).includes(value);
+}
 
 export type PolicySeverity =
   | "block" // 公開させない
@@ -116,6 +145,22 @@ export function createPolicyRule(input: {
       validationError(
         "代わりの書き方が必要です。禁止だけ示すと執筆が止まります。",
         "suggestion",
+      ),
+    );
+  }
+  if (!isPolicyDomainScope(input.domainScope)) {
+    return err(
+      validationError(
+        "分野が語彙にありません。知らない分野を通すと、そのルールはどの記事にも当たりません。",
+        "domainScope",
+      ),
+    );
+  }
+  if (!isPolicyChannelScope(input.channelScope)) {
+    return err(
+      validationError(
+        "出力先が語彙にありません。知らない出力先を通すと、そのルールはどの記事にも当たりません。",
+        "channelScope",
       ),
     );
   }

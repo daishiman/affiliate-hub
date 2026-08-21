@@ -93,9 +93,25 @@ def golden_ledger(auditors=None, session_id="sess-1", verdicts=None):
     }
 
 
-def golden_report(verdict="PASS", verdicts=None, findings=None, gaps=None, delegations=None):
+def golden_inputs(file_count=2):
+    """入力インベントリの雛形。
+
+    `inputs` は 2026-08-20 に必須へ変わった (gap 6)。それまでレポートは
+    「どの版の仕様書に対する判定か」を名乗れず、評価後に仕様書を書き換えても
+    PASS がそのまま残っていた。雛形にも入れないと、契約を満たさない形が
+    テストの中だけで生き延びる。
+    """
+    files = [
+        {"path": f"system-spec/{index}.md", "sha256": f"{index}" * 64, "mtime": 1787000000 + index}
+        for index in range(file_count)
+    ]
+    return {"file_count": len(files), "sha256": "a" * 64, "files": files}
+
+
+def golden_report(verdict="PASS", verdicts=None, findings=None, gaps=None, delegations=None, inputs=None):
     return {
         "evaluator": {"name": AGGREGATE.EVALUATOR_NAME, "version": "0.1.0", "context": "fork"},
+        "inputs": golden_inputs() if inputs is None else inputs,
         "verdict": verdict,
         "aspects": golden_aspects(verdicts),
         "audit_delegations": golden_delegations(verdicts) if delegations is None else delegations,

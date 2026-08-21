@@ -4,6 +4,7 @@ import {
   type MetricCategory,
   type MetricKey,
   type MetricSample,
+  DEFAULT_METRICS_WINDOW_DAYS,
   METRIC_DEFINITIONS,
   allowedMetricsFor,
   assertFeedbackAllowed,
@@ -75,8 +76,18 @@ export type ListMetricsOutput = {
   readonly emptyReason: string | null;
 };
 
+/**
+ * 値が 0〜100 の割合で入っている指標。
+ *
+ * `_rate` / `_ratio` は 0〜1 で持っているので 100 倍するが、
+ * スクロール到達は計測がそのまま % で送ってくる（`scroll_depth.percent`）。
+ * ここを一緒くたにすると 68% が 6800% になる。
+ */
+const PERCENT_POINT_KEYS: ReadonlySet<MetricKey> = new Set<MetricKey>(["scroll_depth_p50"]);
+
 function formatValue(key: MetricKey, value: number | null): string {
   if (value === null) return "未計測";
+  if (PERCENT_POINT_KEYS.has(key)) return `${Math.round(value)}%`;
   if (key.endsWith("_rate") || key.endsWith("_ratio")) {
     return `${Math.round(value * 100)}%`;
   }
@@ -92,7 +103,7 @@ export function createListMetricsUseCase(deps: ReadMetricsDeps): UseCase<ListMet
       const allowed = requireCapability(actor, "analytics.read", "数字の参照");
       if (!allowed.ok) return allowed;
 
-      const days = input.days ?? 30;
+      const days = input.days ?? DEFAULT_METRICS_WINDOW_DAYS;
       const to = new Date();
       const from = new Date(to.getTime() - days * 24 * 60 * 60 * 1000);
 

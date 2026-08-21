@@ -34,8 +34,11 @@ const stub = registerStub({
   id: "persistence:distribution-sample",
   port: "配信先の接続と配信記録の保存先",
   label: "配信（見本データ）",
-  blockedBy:
-    "channel_connections / publications テーブルの追加と、各サービスの接続設定（利用者本人による認証）",
+  // テーブル（channel_connections / publications）は追加済み。
+  // 保存先がある環境では D1 が使われ、ここは見本の重ね置きだけになる。
+  // 残っている条件は**認証だけ**なので、済んだものを条件に残さない。
+  // 残すと、いつまでも解除できないスタブに見えて解除条件が読まれなくなる。
+  blockedBy: "各サービスの接続設定（利用者本人による認証）",
 });
 
 export function sampleDistributionNotice(): string {
@@ -89,7 +92,14 @@ const CONNECTIONS: readonly ChannelConnection[] = [
   }),
 ];
 
-const VARIANT_ID = taggedString<"ContentVariantId">("cv_sample_long") as ContentVariantId;
+/**
+ * 見本の配信がもとにしている記事。
+ *
+ * **記事の見本に実在する ID を指す。** 見本どうしで食い違っていると、
+ * 書き出し（note へ出す唯一の道）が「記事が見つかりません」で止まり、
+ * 実装の不具合と見分けがつかなくなる。
+ */
+const VARIANT_ID = taggedString<"ContentVariantId">("cv_alpha_review") as ContentVariantId;
 
 function publication(input: {
   id: string;
@@ -147,6 +157,21 @@ let PUBLICATIONS: readonly Publication[] = [
     scheduledAt: null,
     externalUrl: "https://example.invalid/sample-article",
   }),
+  /*
+   * まだ出していない自分のブログ宛て。
+   *
+   * これが無いと、見本データだけで動かしたときに
+   * 「いまサイトに出す」の入口へ**一度もたどり着けない**。
+   * 出し終わった `pub_own_site` は行き止まり（公開済み）で、
+   * 入口の条件（自分のブログ宛て かつ 未公開）を満たさないため。
+   */
+  publication({
+    id: "pub_own_site_ready",
+    kind: "own_site",
+    connectionId: "conn_own_site",
+    state: "QUEUED",
+    scheduledAt: null,
+  }),
   publication({
     id: "pub_x_failed",
     kind: "x",
@@ -191,6 +216,26 @@ let PUBLICATIONS: readonly Publication[] = [
     scheduledAt: new Date("2026-08-20T18:00:00Z"),
   }),
 ];
+
+/**
+ * 見本の出し先。**保存先（D1）版もこれを重ねて返す。**
+ *
+ * 各サービスへの接続は利用者ご自身の認証が要るため、ここを消すと
+ * 認証が入る日まで配信を 1 件も作れず、作った先の画面を誰も確かめられない。
+ */
+export function sampleChannelConnections(): readonly ChannelConnection[] {
+  return CONNECTIONS;
+}
+
+/**
+ * 見本の配信。**保存先（D1）版もこれを重ねて返す。**
+ *
+ * 消すと、まだ 1 件も出していない状態で一覧もカレンダーも空になり、
+ * 「まだ出していない」のか「壊れている」のかを見分けられなくなる。
+ */
+export function samplePublications(): readonly Publication[] {
+  return PUBLICATIONS;
+}
 
 export function createSampleChannelConnectionRepository(): ChannelConnectionRepositoryPort {
   return {

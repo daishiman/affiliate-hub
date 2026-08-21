@@ -2,6 +2,7 @@ import type { MetricsRepositoryPort } from "@/application/ports/analytics";
 import {
   ANALYTICS_AXES,
   type AnalyticsAxisKey,
+  DEFAULT_METRICS_WINDOW_DAYS,
   METRIC_DEFINITIONS,
   type MetricKey,
   type MetricSample,
@@ -140,7 +141,7 @@ export function createFilterMetricsUseCase(
         }
       }
 
-      const days = input.days ?? 30;
+      const days = input.days ?? DEFAULT_METRICS_WINDOW_DAYS;
       const to = new Date();
       const from = new Date(to.getTime() - days * 24 * 60 * 60 * 1000);
 

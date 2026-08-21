@@ -1,0 +1,93 @@
+# 公開する。壊せるのは**アプリ**（データではない）。
+#
+# 出す先は枝で決まる:
+#   dev  へ push  → 試し場（preview 環境）。ここで人が触って確かめる
+#   main へ push  → 本番。承認を経てから出る
+#
+# ここで**データの形は変えない**。マイグレーションは `migrate.yml` の手動実行で、
+# 公開より先に済ませる。順番は常に「データの形の変更 → 公開」。
+# 逆にすると、新しいコードが存在しない列を読んで本番が全面エラーになる。
+#
+# 手元から `wrangler deploy` を打たない理由:
+# wrangler は git のコミットではなく**その場の作業ツリー**をビルドする。
+# 未コミットの実験コードが本番へ混ざり得る。CI は毎回まっさらな取得なので、
+# この事故が構造的に起きない。これが自動化する最大の理由で、時短ではない。
+#
+# 規範: docs/spec/11-CI-CD・品質ゲート仕様.md / docs/product/ci-cd-guide.md
+name: 公開
+
+on:
+  push:
+    branches: [main, dev]
+  workflow_dispatch:
+
+concurrency:
+  # 公開は打ち切らない。途中で止めると、どの版が出ているか分からなくなる。
+  group: deploy-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: write # 本番へ公開できた版にタグを打つため
+
+jobs:
+  deploy:
+    name: 公開
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    # main のときだけ production。Environment に承認者を登録すると、
+    # **マージしても人が承認するまで本番へ出ない**（このリポジトリは公開設定のため使える）。
+    # 登録手順は docs/product/ci-cd-guide.md ⑤。
+    environment:
+      name: ${{ github.ref == 'refs/heads/main' && 'production' || 'dev' }}
+      url: ${{ github.ref == 'refs/heads/main' && vars.APP_URL || vars.PREVIEW_URL }}
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      IS_PRODUCTION: ${{ github.ref == 'refs/heads/main' }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      # PR で通っていても、ここでもう一度走らせる。
+      # 枝へ直接 push された変更は PR の検査を通っていない。
+      - name: 検査一式
+        run: pnpm run verify
+
+      - name: 公開
+        run: |
+          if [ "$IS_PRODUCTION" = "true" ]; then
+            pnpm deploy:prod
+          else
+            pnpm deploy:dev
+          fi
+
+      # 「公開できた」はファイルが届いたことしか意味しない。実際に動いているかは別。
+      # Cloudflare Workers は古い実行環境を数十秒〜1〜2 分残すため、
+      # 1 回だけの確認では「直っているのに直っていない」「壊れているのに大丈夫」の
+      # どちらにも誤判定する。間隔を空けて 2 回見る。
+      - name: 動作確認（間隔を空けて 2 回）
+        env:
+          APP_URL: ${{ github.ref == 'refs/heads/main' && vars.APP_URL || vars.PREVIEW_URL }}
+        run: bash .github/scripts/smoke.sh
+
+      # 戻す先の目印。「1 つ前に戻す」はここを指して行う。
+      - name: 公開できた版に印を付ける
+        if: env.IS_PRODUCTION == 'true'
+        run: |
+          TAG="v${{ github.run_number }}"
+          git tag "$TAG"
+          git push origin "$TAG"
+          {
+            echo "### 本番へ公開しました: \`$TAG\`"
+            echo ""
+            echo "戻すときは \`wrangler rollback\`、または 1 つ前のタグから公開し直します。"
+          } >> "$GITHUB_STEP_SUMMARY"

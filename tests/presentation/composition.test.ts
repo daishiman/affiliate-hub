@@ -1,8 +1,11 @@
+/** @tier 1 */
 import { describe, expect, it } from "vitest";
 import { listStubs } from "@/infrastructure/stub-registry";
 import {
+  contentUseCases,
   createToolCatalog,
   currentActor,
+  distributionUseCases,
   productDisplayName,
   rankingScreenTarget,
   rankingTool,
@@ -24,7 +27,7 @@ describe("組み立て", () => {
     const fromScreen = await invokeTool(rankingTool(), actor, target);
 
     // AI が使うカタログ経由の入口
-    const tool = createToolCatalog().find((t) => t.name === "rank_products");
+    const tool = (await createToolCatalog()).find((t) => t.name === "rank_products");
     expect(tool).toBeDefined();
     const fromAi = await invokeTool(tool!, actor, target);
 
@@ -32,6 +35,33 @@ describe("組み立て", () => {
     expect(fromAi.ok).toBe(true);
     if (!fromScreen.ok || !fromAi.ok) return;
     expect(fromScreen.value).toEqual(fromAi.value);
+  });
+
+  it("いまの見本のログインでは配信を作れず、その理由が記事の画面に先に出る", async () => {
+    const actor = await currentActor();
+
+    // ここは差し替えの無い**本番の組み立て**を通す。
+    // 差し替えたテストだけで済ませると、画面の押しボタンが
+    // 権限や保存先の都合で必ず断られる状態に気づけない（実際そうなっていた）。
+    //
+    // 見本のログインに公開の権限を足して緑にするのは**やらない**。
+    // 足すと、認証が入っていない状態のまま公開まで通ってしまう
+    // （`src/infrastructure/identity/sample-actor.ts` に理由が書いてある）。
+    const got = await (await distributionUseCases()).schedule.execute(actor, {
+      variantId: "cv_alpha_approved",
+      channelKind: "own_site",
+    });
+    expect(got.ok).toBe(false);
+    if (got.ok) return;
+    expect(got.error.code).toBe("FORBIDDEN");
+
+    // 押してから断るのではなく、開いた時点で理由が出ていること。
+    const detail = await (await contentUseCases()).getContent.execute(actor, {
+      variantId: "cv_alpha_approved",
+    });
+    expect(detail.ok).toBe(true);
+    if (!detail.ok) return;
+    expect(detail.value.publishBlockedReason).toContain("権限");
   });
 
   it("順位には理由が付き、選外にも理由が付く", async () => {

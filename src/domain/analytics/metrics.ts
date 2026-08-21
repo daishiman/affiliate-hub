@@ -72,12 +72,33 @@ const M = (
   usableForEditorialJudgement: category !== "commercial",
 });
 
+/**
+ * 期間の指定が無いときに何日ぶんを見るか。
+ *
+ * 数字の一覧・絞り込み・AI の利用状況の 3 箇所が素の字で `30` と書いていた。
+ * 3 つとも「既定で見る日数」という同じ意味なので 1 つの名前にまとめる。
+ */
+export const DEFAULT_METRICS_WINDOW_DAYS = 30;
+
 export const METRIC_DEFINITIONS: readonly MetricDefinition[] = [
-  M("page_views", "表示回数", "reader", "記事ページの表示を 1 件として数える"),
+  // howCounted は「集計がいま実際にしていること」を書く。
+  // 計測から導く指標 (metrics-from-telemetry.ts) は、畳み方まで含めて書く。
+  // 導き方を変えたらここも直す。ここだけ古いと、数字の読み方を誤る。
+  M("page_views", "表示回数", "reader", "公開ページの表示を 1 件として数える"),
   M("unique_readers", "読者数", "reader", "同一端末の 24 時間以内の再訪を 1 と数える"),
   M("read_completion_rate", "読了率", "reader", "最終見出しまで到達した表示の割合"),
-  M("scroll_depth_p50", "スクロール到達 (中央値)", "reader", "全表示のスクロール到達率の中央値"),
-  M("time_on_page_seconds", "滞在時間", "reader", "表示から離脱までの秒数。非アクティブは除外"),
+  M(
+    "scroll_depth_p50",
+    "スクロール到達 (中央値)",
+    "reader",
+    "1 回の表示で最も深くまで進んだ割合 (%) を集め、その中央値を出す。記録に同意した表示だけが母数",
+  ),
+  M(
+    "time_on_page_seconds",
+    "滞在時間",
+    "reader",
+    "ページを開いてから離れるまでの秒数を集め、その中央値を出す。開いたまま放置された時間も含む",
+  ),
   M("return_rate", "再訪率", "reader", "30 日以内に再度訪れた読者の割合"),
   M("ai_answer_count", "AI回答数", "ai", "サイト内 AI が回答を返した回数"),
   M("ai_tool_success_rate", "ツール成功率", "ai", "WebMCP ツール呼び出しのうち成功した割合"),

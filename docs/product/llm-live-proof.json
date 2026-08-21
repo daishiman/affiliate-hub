@@ -1,0 +1,7 @@
+{
+  "生成のしかた": "scripts/llm-live-proof.mjs が本物の D1 から作る。手で書かない。",
+  "数え方": "llm_usages に purpose='draft' かつ succeeded=1 の行がある提供元だけを数える",
+  "確認した段": "未確認",
+  "確認日": "未確認",
+  "証拠": {}
+}

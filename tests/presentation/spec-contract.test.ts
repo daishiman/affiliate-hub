@@ -1,3 +1,20 @@
+/**
+ * @tier 1
+ * @req REQ-M01, REQ-M02, REQ-WA01, REQ-WA02
+ * @types equivalence, boundary
+ *
+ * 仕様に並ぶ道具の数（管理側 読み取り 10 種 = REQ-WA01 / 状態変更 8 種 = REQ-WA02 /
+ * バックエンド MCP の Tools 8 種 = REQ-M02 / Resources 8 種 = REQ-M01）が
+ * 実装とどう対応するかを、ここ 1 か所で持つ。
+ *
+ * 分かれ目は「対応が付いている / スタブ / 載せない」の 3 つ（同値）と、
+ * **面ごとの個数がぴったり合うこと・集合の外を尋ねられたとき**（境界）である。
+ * 個数を見ないと、1 種こっそり落としても気づけない。
+ *
+ * 認可の側（誰が呼べるか・確認が要る道具を AI に触らせないか）はここには無い。
+ * REQ-WA02 と REQ-M03 の権限は `api-routes.test.ts`、
+ * 読者の身元から見た拒否は `reader-tools.test.ts` が持つ。
+ */
 import { describe, expect, it } from "vitest";
 import { createToolCatalog, currentActor } from "@/presentation/composition";
 import { findTool } from "@/presentation/tools/catalog";
@@ -11,6 +28,7 @@ import {
   parseResourceUri,
   schemeOf,
 } from "@/presentation/tools/spec-contract";
+import { PAGE_TOOLS } from "@/presentation/tools/webmcp-policy";
 
 /**
  * 仕様の道具名と、実際に動くツールの対応。
@@ -21,7 +39,7 @@ import {
  * どちらかを緩めると「仕様の 36 個ぜんぶ実装済み」と言えてしまう。
  */
 
-const catalog = createToolCatalog();
+const catalog = (await createToolCatalog());
 
 describe("対応表そのもの", () => {
   it("仕様書に書かれた面ごとの個数と合っている", () => {
@@ -74,6 +92,40 @@ describe("仕様の名前で呼べること", () => {
       (e) => e.implementedBy !== null && findTool(catalog, e.implementedBy) === null,
     ).map((e) => `${e.specName} -> ${e.implementedBy}`);
     expect(broken).toEqual([]);
+  });
+
+  /**
+   * 「実装はあるが、この面からは届かない」を、理由だけ書いて放置させない。
+   *
+   * `ah-83f` の前は、読者ページに載っている 9 件が全部この状態だった。
+   * 目録には在り、動きもするが、読者の身元では 1 件も通らない。
+   * **画面上は道具が並んで見えるので、使っても気づけない。**
+   * だから理由を書いたものは、載せる一覧から降りていることをここで固定する。
+   */
+  it("届かないと書いたものは、読者ページに載せていない", () => {
+    const readerPageTools = new Set(
+      Object.entries(PAGE_TOOLS)
+        .filter(([kind]) => kind !== "admin")
+        .flatMap(([, names]) => names),
+    );
+    const stillListed = TOOL_CONTRACT.filter(
+      (e) =>
+        e.unreachableReason !== undefined &&
+        e.surface.startsWith("webmcp_reader") &&
+        (readerPageTools.has(e.specName) || readerPageTools.has(e.implementedBy ?? "")),
+    ).map((e) => e.specName);
+    expect(
+      stillListed,
+      "届かない道具が読者ページに載ったままです。降ろすか、届く実装へ向け直してください。",
+    ).toEqual([]);
+  });
+
+  it("届かない理由は、実装があるものにだけ書く（無いものは stubReason）", () => {
+    for (const entry of TOOL_CONTRACT) {
+      if (entry.unreachableReason === undefined) continue;
+      expect(entry.implementedBy, entry.specName).not.toBeNull();
+      expect(entry.unreachableReason.length, entry.specName).toBeGreaterThan(15);
+    }
   });
 
   it("未実装のものはカタログに載せない（呼べば必ず失敗するものを載せない）", () => {

@@ -128,6 +128,28 @@ presentation    軸の一覧・判定の見せ方                    app/admin/i
 配色の実験も見出し順の実験も同じ 1 本の道を通る。
 実測は `changeability-scenarios.md` ⑭（軸を 1 つ足して 1 ファイル）。
 
+## テストをどこに書くか
+
+テストも層の外にあるものではない。`tests/` の下は **`src/` の層と同じ名前**にする。
+
+```
+tests/support/        テストの土台（ファクトリ・テストダブル・担当者・時刻固定・描画補助）
+tests/domain/         業務の決まりごと
+tests/application/    手順（ポートはテストダブルに差し替える）
+tests/infrastructure/ 道具
+tests/presentation/   入口（REST / WebMCP / MCP / 画面の配線）
+tests/ui/             画面と部品（描画・操作・読み上げ・色）
+tests/integration/    層をまたぐ 1 周
+tests/architecture/   設計の約束（依存方向・商業データ遮断・1 概念 1 定義）
+```
+
+**組み立ては `tests/support/` に集める。** 各テストが自前でエンティティやモックを
+組み立てると、型に項目を 1 つ足したときに全テストを書き換えることになる。
+これはテストが変更容易性を殺す最も多い原因である。
+
+置き場所と部品の詳細は `testing-architecture.md`、
+何をテストしなければならないかは `docs/spec/10-テスト戦略仕様.md`。
+
 ## Editorial と Commercial
 
 ランキングに報酬を入れないことは、規約ではなく**型**で守る。

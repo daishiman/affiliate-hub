@@ -4,9 +4,19 @@
   "title": "digest-bound system-spec resume receipt",
   "type": "object",
   "additionalProperties": false,
-  "required": ["schema_version", "producer", "verdict", "gates", "artifacts", "evaluator", "created_at"],
+  "required": ["schema_version", "producer", "verdict", "gates", "artifacts", "evaluator", "created_at", "inputs"],
   "properties": {
-    "schema_version": {"const": "1.1"},
+    "schema_version": {"const": "1.2", "description": "1.2 = 入力インベントリ (inputs) へ束縛された版。1.1 の receipt は inputs を持たないため、この const で明示的に落ちる。**黙って古い契約のまま通さない**"},
+    "inputs": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["file_count", "sha256"],
+      "description": "この receipt が再利用してよいと言っている入力の指紋。**受領書を入力へ束縛する**ための欄 (gap 6)。これが無いと、receipt は『どの版の仕様書に対する PASS か』を名乗れないまま再利用され、入力が変わったあとの PASS が古いまま有効に見え続ける。sha256 は scripts/spec_input_inventory.py の定義で求め、mtime は材料に入れない。再開時はこの値と現状の指紋を突き合わせ、異なるなら再利用せず再評価する。",
+      "properties": {
+        "file_count": {"type": "integer", "minimum": 1},
+        "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+      }
+    },
     "producer": {
       "type": "object",
       "additionalProperties": false,

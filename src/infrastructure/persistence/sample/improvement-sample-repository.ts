@@ -2,17 +2,34 @@ import type {
   ImprovementRepositoryPort,
   LoopObservation,
 } from "@/application/ports/improvement";
-import type { LoopRun, VariantSpec } from "@/domain/analytics";
-import { asExperimentId, asWorkspaceId, ok } from "@/domain/shared";
-import { registerStub, stubCall } from "../../stub-registry";
+import {
+  type LoopRun,
+  type VariantSpec,
+  assertRecordableLoopRun,
+  assertRecordableObservation,
+  assertRecordableVariantSpec,
+} from "@/domain/analytics";
+import { asExperimentId, asWorkspaceId, err, ok } from "@/domain/shared";
+import { registerStub } from "../../stub-registry";
 
 /**
  * ★ これは見本データです（スタブ）。★
  *
  * 改善ループの「1 周した記録」と「見せ方の設定」。
- * 読み出しは見本を返すが、**保存は本当に失敗を返す**。
- * 保存できたことにすると、承認した設定が消えていることに
- * 誰も気づかないまま画面だけ動いてしまう。
+ *
+ * **保存は受け付けるが、この処理が生きているあいだしか残らない。**
+ * 2026-08-19 まではここが本当に失敗を返しており、そのぶん
+ * 「承認した設定が消えたことに気づけない」形にはなっていなかった。
+ * だが入口（画面から 1 周まわす操作）を作ると、保存が必ず失敗する環境では
+ * **1 周が最初の一歩で止まる**。試せない入口は、無い入口と同じである。
+ *
+ * 覚えたふりはしない代わりに、保存先が無いことは
+ * 画面の但し書き（`improvementStubNotice`）で出し続ける。
+ * D1 がつながっている環境（`pnpm run preview` と本番）ではこちらは使われない。
+ *
+ * 保存の可否は `domain/analytics/loop-record.ts` で突き当てる。
+ * **D1 側と同じ 1 ファイルを通す。** ここだけ素通りにすると、
+ * 「保存先が無い環境でだけ、置いてはいけない記録が置ける」抜け道になる。
  *
  * 見本には**わざと 3 通り**入れてある。
  *   1. 判定まで済んだもの（良くなった）
@@ -24,11 +41,49 @@ const stub = registerStub({
   id: "persistence:improvement-sample",
   port: "改善ループの記録先",
   label: "改善ループの記録（見本データ。保存はできません）",
-  blockedBy: "variant_specs / loop_runs / loop_observations テーブルの追加",
+  // 表と入口は追加済み（`d1/improvement-repository.ts` と
+  // `application/usecases/improvement/run-improvement-loop.ts`）。
+  // 残っているのは**この環境に D1 がつながっていないこと**だけで、
+  // つながればこのファイルは使われない。
+  blockedBy: "D1 への接続（表も、画面から回す操作も追加済み）",
+  fallbackFor: "src/infrastructure/persistence/d1/improvement-repository.ts",
 });
 
 export function improvementStubNotice(): string {
   return `${stub.label}。${stub.blockedBy}が済むまでの仮です。`;
+}
+
+/**
+ * 保存した分の置き場。**種（`SAMPLE_〜`）は書き換えない。**
+ *
+ * 上書きは追加側だけで解決する（`link-inbox-sample-repository.ts` と同じ形）。
+ * 種を書き換えると、見本の 3 通り（判定済み・件数不足・効果不明）が
+ * 1 度触っただけで崩れ、「良い結果だけが並ぶ画面」に戻ってしまう。
+ */
+const addedSpecs: VariantSpec[] = [];
+const addedRuns: LoopRun[] = [];
+const addedObservations: Record<string, LoopObservation> = {};
+
+function allSpecs(): readonly VariantSpec[] {
+  const merged = new Map(SAMPLE_SPECS.map((s) => [s.id, s]));
+  for (const s of addedSpecs) merged.set(s.id, s);
+  return [...merged.values()];
+}
+
+function allRuns(): readonly LoopRun[] {
+  const merged = new Map<string, LoopRun>(SAMPLE_RUNS.map((r) => [r.id, r]));
+  for (const r of addedRuns) merged.set(r.id, r);
+  return [...merged.values()];
+}
+
+/**
+ * 画面に出す「何が済めば外れるか」。**台帳と同じ値を返す。**
+ *
+ * 画面側に同じ文を書き写すと、台帳を直した日に画面だけ古い理由を出し続ける
+ * （現に「テーブルの追加」と書いたまま、表を追加した日に古くなった）。
+ */
+export function improvementStubBlockedBy(): string {
+  return stub.blockedBy;
 }
 
 const WS = asWorkspaceId("ws_sample");
@@ -170,24 +225,53 @@ const SAMPLE_OBSERVATIONS: Readonly<Record<string, LoopObservation>> = {
 export function createSampleImprovementRepository(): ImprovementRepositoryPort {
   return {
     async listVariantSpecs(_workspaceId, _input) {
-      return ok(SAMPLE_SPECS);
+      // 設定はどのブログのものかを持たない（持たせると設定の形がブログの数だけ増える）。
+      // 見本では絞り込みをしない。絞り込みは保存先の側の仕事である。
+      return ok(allSpecs());
     },
-    async saveVariantSpec(_workspaceId, _spec) {
-      // 保存できたことにしない。承認した設定が消えるのが最も分かりにくい壊れ方。
-      return stubCall(stub, "見せ方の設定の保存");
+    async saveVariantSpec(_workspaceId, input) {
+      const recordable = assertRecordableVariantSpec(input.spec);
+      if (!recordable.ok) return err(recordable.error);
+      const at = addedSpecs.findIndex((s) => s.id === input.spec.id);
+      if (at >= 0) addedSpecs[at] = input.spec;
+      else addedSpecs.push(input.spec);
+      return ok(true as const);
     },
     async listRuns(_workspaceId, input) {
-      const rows =
-        input?.siteSlug === undefined
-          ? SAMPLE_RUNS
-          : SAMPLE_RUNS.filter((r) => r.siteSlug === input.siteSlug);
-      return ok(rows);
+      const rows = allRuns();
+      return ok(
+        input?.siteSlug === undefined ? rows : rows.filter((r) => r.siteSlug === input.siteSlug),
+      );
     },
-    async saveRun(_workspaceId, _run) {
-      return stubCall(stub, "改善ループの記録の保存");
+    async saveRun(_workspaceId, run) {
+      const specs = allSpecs();
+      const recordable = assertRecordableLoopRun(run, {
+        baseline: specs.find((s) => s.id === run.baselineSpecId) ?? null,
+        candidate: specs.find((s) => s.id === run.candidateSpecId) ?? null,
+      });
+      if (!recordable.ok) return err(recordable.error);
+      const at = addedRuns.findIndex((r) => r.id === run.id);
+      if (at >= 0) addedRuns[at] = run;
+      else addedRuns.push(run);
+      return ok(true as const);
     },
     async observationsOf(_workspaceId, runId) {
-      return ok(SAMPLE_OBSERVATIONS[runId] ?? null);
+      return ok(addedObservations[runId] ?? SAMPLE_OBSERVATIONS[runId] ?? null);
+    },
+    async saveObservation(_workspaceId, input) {
+      const recordable = assertRecordableObservation({
+        ...input,
+        run: allRuns().find((r) => r.id === input.runId) ?? null,
+      });
+      if (!recordable.ok) return err(recordable.error);
+      addedObservations[input.runId] = {
+        runId: input.runId,
+        baselineValue: input.baselineValue,
+        baselineSamples: input.baselineSamples,
+        candidateValue: input.candidateValue,
+        candidateSamples: input.candidateSamples,
+      };
+      return ok(true as const);
     },
   };
 }

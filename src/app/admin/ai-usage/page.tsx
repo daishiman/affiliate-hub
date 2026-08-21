@@ -2,7 +2,7 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 import { AdminShell } from "@/presentation/admin/admin-shell";
 import { currentActor, telemetryNotice, telemetryUseCases } from "@/presentation/composition";
-import { Callout, Card, EmptyView, ErrorView, Page, StubNotice } from "@/presentation/ui";
+import { Callout, Card, EmptyView, ErrorView, Page, StorageNotice } from "@/presentation/ui";
 import styles from "../admin.module.css";
 
 export const dynamic = "force-dynamic";
@@ -29,7 +29,8 @@ export default async function AiUsagePage({
   const siteSlug = params.site !== undefined && params.site !== "" ? params.site : undefined;
 
   const actor = await currentActor();
-  const report = await telemetryUseCases().aiUsage.execute(actor, { days, siteSlug });
+  const uc = await telemetryUseCases();
+  const report = await uc.aiUsage.execute(actor, { days, siteSlug });
 
   if (!report.ok) {
     return (
@@ -48,13 +49,7 @@ export default async function AiUsagePage({
 
   return (
     <Shell>
-      <StubNotice
-        what="計測の記録先"
-        blockedBy="telemetry_events / ai_model_usage テーブルの追加"
-        stubId="persistence:telemetry-memory"
-      >
-        <span>{telemetryNotice()}</span>
-      </StubNotice>
+      <StorageNotice status={await telemetryNotice()} />
 
       <Card>
         <h2 className={styles.sectionTitle}>直近 {days} 日の合計</h2>

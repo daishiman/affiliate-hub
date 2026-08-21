@@ -26,7 +26,7 @@ export default async function SearchPage({
   const raw = (await searchParams).q;
   const query = (Array.isArray(raw) ? raw[0] : raw)?.trim() ?? "";
 
-  const result = query === "" ? null : await siteUseCases().search.execute(readerActor(), {
+  const result = query === "" ? null : await (await siteUseCases()).search.execute(readerActor(), {
     siteSlug: site,
     query,
   });

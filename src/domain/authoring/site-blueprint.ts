@@ -8,6 +8,7 @@ import {
   validationError,
 } from "../shared";
 import type { ArticleType } from "./article-structure";
+import { similarity } from "./quality-check";
 
 /**
  * Site Blueprint = ブログの設計図。
@@ -39,9 +40,44 @@ export const SITE_PATTERNS = [
 ] as const;
 export type SitePattern = (typeof SITE_PATTERNS)[number];
 
+/**
+ * ブログパターンの表示名。**ここが唯一の正本**。
+ *
+ * 以前は作成ウィザードと一覧画面がそれぞれ別に持っていた。
+ * 同じ値に別の呼び名が付くと、利用者は「作るときの言葉」と「見るときの言葉」を
+ * 頭の中で対応づけることになる。対応づけを利用者にさせない。
+ * 検査: tests/architecture/single-definition.test.ts
+ */
+export const SITE_PATTERN_LABEL: Readonly<Record<SitePattern, string>> = {
+  specialist_review: "専門レビュー型",
+  comparison_lab: "比較研究所型",
+  beginner_guide: "初心者案内型",
+  personal_brand: "個人ブランド型",
+  product_discovery: "商品発見型",
+  service_signup: "サービス申込み型",
+  tool: "ツール型",
+  editorial_media: "メディア編集部型",
+  story: "ストーリー型",
+  database: "データベース型",
+};
+
 /** 収益モデル。ブログの構成と CTA の既定値を決める。 */
 export const REVENUE_MODELS = ["affiliate", "ad", "lead", "own_product", "mixed"] as const;
 export type RevenueModel = (typeof REVENUE_MODELS)[number];
+
+/**
+ * 収益モデルの表示名。**ここが唯一の正本**。
+ *
+ * 「提携販売」より「成果報酬の紹介」を採る。
+ * 何が起きたらお金になるのかが言葉に入っている方を選ぶ。
+ */
+export const REVENUE_MODEL_LABEL: Readonly<Record<RevenueModel, string>> = {
+  affiliate: "成果報酬の紹介",
+  ad: "広告の掲載",
+  lead: "問い合わせの送客",
+  own_product: "自社の商品",
+  mixed: "組み合わせ",
+};
 
 /** 固定ページ (プラットフォーム層 §16.3 / ブログ層 §7)。 */
 export const STANDARD_PAGES = [
@@ -314,7 +350,7 @@ export function createSiteBlueprint(input: {
 }
 
 /** 信頼ページが揃っているか。サイト公開の前提条件。 */
-export function missingTrustPages(blueprint: SiteBlueprint): readonly StandardPage[] {
+export function missingTrustPages(blueprint: Pick<SiteBlueprint, "pages">): readonly StandardPage[] {
   return TRUST_REQUIRED_PAGES.filter((p) => !blueprint.pages.includes(p));
 }
 
@@ -327,11 +363,64 @@ export function missingTrustPages(blueprint: SiteBlueprint): readonly StandardPa
  */
 export const MIN_DIFFERENT_AXES = 3;
 
+/**
+ * 2 つの軸を「同じ」と数える近さ。**この値以上なら同じ軸とする。**
+ *
+ * 仕様 §16.6 を文章まで落とした `docs/spec/05-文章作成メソッド仕様.md` §6-1 の
+ * 対象読者の行が「リード文の類似度 < 0.5」を差別化の条件にしている。
+ * 軸そのものの近さにも同じ物差しを使う（軸ごとに別の数字を置かない）。
+ *
+ * **物差しは `similarity()` を借りる。** 新しい近さの測り方を作らない。
+ * 2 つあると、片方だけ緩めて通す道ができる。
+ */
+export const SAME_AXIS_SIMILARITY = 0.5;
+
+/**
+ * 軸の文字列を、**表記のゆれを落とした形**にする。
+ *
+ * `trim()` では両端しか落ちない。全角と半角、間に入れた空白は残る。
+ * 「10 万円台のノート 5 機種」と「10万円台のノート5機種」が
+ * 別の軸として数えられると、空白を消すだけで差別化したことになる。
+ */
+function normalizeAxis(value: string): string {
+  return value.normalize("NFKC").replace(/\s+/gu, "");
+}
+
+/**
+ * 2 つの軸が、**読んで得られるものとして違うか**。
+ *
+ * 文字列の一致では見ない。§16.6 が禁じているのは「単なる言い換え」なので、
+ * 語尾・送り仮名・同義語だけを変えたものは同じ軸として数える。
+ *
+ * **短い軸（正規化して 3 文字未満）では近さが測れない。** `similarity()` は
+ * 3-gram の重なりなので、3 文字に満たない文字列からは gram が 1 つも作れず、
+ * 必ず 0（＝違う）になる。その場合は正規化した文字列の一致だけで見る。
+ * 短い軸（「速さ」「安さ」など）は言い換えの余地も小さいので実害は小さいが、
+ * **測れていないことは知っておくこと**（0 は「違う」の意味ではなく「測れない」である）。
+ */
+function axisDiffers(left: string, right: string): boolean {
+  const a = normalizeAxis(left);
+  const b = normalizeAxis(right);
+  if (a === b) return false;
+  return similarity(a, b) < SAME_AXIS_SIMILARITY;
+}
+
+/**
+ * --- 文字列の一致で数えていた頃のこと（2026-08-19 に直した） ---
+ * ここは `a[k].trim() !== b[k].trim()` だった。文字列としては違うので、
+ * **軸を 3 つ言い換えるだけで `sufficient: true` になった**。
+ * §16.6 の本文 1 行目が「単なる言い換え記事を量産しない」なので、
+ * 要件が名指しで禁じているものが、要件を満たす手順になっていた。
+ *
+ * `docs/product/traceability.md` の REQ-W10 は「言い換え本文は
+ * `similarity()` ≥0.85 で停止」と書いているが、それは記事本文の話で、
+ * 軸の側には物差しが無かった。**同じ要件の中で、片側にだけ道具があった。**
+ */
 export function differentiationGap(
   a: DifferentiationAxes,
   b: DifferentiationAxes,
 ): { differentAxes: readonly string[]; sufficient: boolean } {
   const keys = Object.keys(a) as (keyof DifferentiationAxes)[];
-  const different = keys.filter((k) => a[k].trim() !== b[k].trim());
+  const different = keys.filter((k) => axisDiffers(a[k], b[k]));
   return { differentAxes: different, sufficient: different.length >= MIN_DIFFERENT_AXES };
 }

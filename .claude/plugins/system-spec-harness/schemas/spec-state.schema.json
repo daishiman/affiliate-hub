@@ -20,13 +20,32 @@
     "hearing_progress"
   ],
   "properties": {
-    "schema_version": {"enum": ["1.0", "1.1"]},
+    "schema_version": {"enum": ["1.0", "1.1", "1.2"]},
     "design_application_contract_version": {"const": "1.0"},
     "categories": {"type": "array", "minItems": 1},
     "platforms": {"type": "array", "minItems": 1},
-    "matrix": {"type": "object"},
+    "matrix": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": {"$ref": "#/$defs/matrixCell"}
+      }
+    },
     "category_aggregate": {"type": "object"},
-    "requirements_foundation": {"type": "object"},
+    "requirements_foundation": {
+      "type": "object",
+      "properties": {
+        "provenance": {
+          "type": "object",
+          "properties": {
+            "field_sources": {
+              "type": "array",
+              "items": {"$ref": "#/$defs/foundationFieldSource"}
+            }
+          }
+        }
+      }
+    },
     "qa_log": {
       "type": "array",
       "items": {"$ref": "#/$defs/qaEntry"}
@@ -34,10 +53,41 @@
     "approval_log": {"type": "array"},
     "reopen_log": {"type": "array"},
     "targets": {"type": "array"},
-    "decisions": {"type": "array"},
+    "decisions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "recorded_with": {
+            "type": "string",
+            "description": "この record を書いた writer 名。**writer が打刻する欄で、呼び出し側からは渡せない** (set-decision は渡されたら拒否する)。set-qa-written-up と同じく const \"set-decision\" で縛りたいところだが、打刻を導入する前に書かれた record が正本に残っているため、ここでは型のみを宣言する。打刻前の値は writer が prior_unverified_provenance へ退避する",
+            "minLength": 1
+          },
+          "prior_unverified_provenance": {
+            "type": "string",
+            "description": "打刻導入前に recorded_with へ書かれていた自己申告文の退避先。writer が検めた出所ではない。丸めて消さずに残すのは、hearing_progress.limit_overrun と同じ理由で『門を通らずに書かれた』痕跡だからである",
+            "minLength": 1
+          }
+        }
+      }
+    },
     "knowledge_candidates": {"type": "array"},
     "hearing_progress": {"type": "object"},
-    "excluded_categories": {"type": "object"}
+    "asks_for_contract": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["version", "legacy_ids"],
+      "description": "asks_for (質問が狙った対象) の必須化契約。有効化した state では、以後に追記される qa_log entry は asks_for を持たなければならない (持たない新規 entry は legacy ではなく違反)。legacy_ids は有効化した時点で qa_log に実在した id の集合で、件数ではなく id で凍結する — 件数だけだと入れ替えが通る。この欄が無い state は従来どおり asks_for 無しで書ける (段階的採用)。塞げていない穴: この JSON からこの欄を消せば再有効化が通る。塞ぐには state の完全性を守る鍵が別に要る",
+      "properties": {
+        "version": {"const": "1.0"},
+        "legacy_ids": {"type": "array", "items": {"type": "string", "minLength": 1}, "maxItems": 30}
+      }
+    },
+    "excluded_categories": {"type": "object"},
+    "lifecycle": {"type": "object"},
+    "implementation_snapshot": {"type": "object"},
+    "delivery_dependencies": {"type": "array"},
+    "review_runs": {"type": "array"}
   },
   "oneOf": [
     {
@@ -50,9 +100,50 @@
         "schema_version": {"const": "1.1"},
         "design_application_contract_version": {"const": "1.0"}
       }
+    },
+    {
+      "comment": "1.2 は 1.1 に 4 節を足した版。版だけ上げて中身の無い state を通さないため、4 節を required にする。版の門を外すだけの変更は、この required で落ちる。",
+      "required": [
+        "design_application_contract_version",
+        "lifecycle",
+        "implementation_snapshot",
+        "delivery_dependencies",
+        "review_runs"
+      ],
+      "properties": {
+        "schema_version": {"const": "1.2"},
+        "design_application_contract_version": {"const": "1.0"}
+      }
     }
   ],
   "$defs": {
+    "foundationFieldSource": {
+      "type": "object",
+      "required": ["field", "kind"],
+      "properties": {
+        "field": {"type": "string", "minLength": 1},
+        "kind": {"enum": ["written-requirements", "user-dialogue"]},
+        "path": {"type": "string", "minLength": 1},
+        "section": {"type": "string"},
+        "quote": {"type": "string", "minLength": 1},
+        "qa_id": {"type": "string", "minLength": 1},
+        "note": {"type": "string"},
+        "sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$",
+          "description": "path のファイル全体の指紋。**seal-foundation-sources が実ファイルを読んで打刻する欄で、呼び出し側からは渡せない** (set-foundation は渡されたら拒否する)。指紋だけでは中身を見ていないので、封は quote が原文に literal で在ることも併せて確かめる"
+        },
+        "sealed_on": {
+          "type": "string",
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+          "description": "封を打った日 (UTC)。writer が打刻する欄"
+        },
+        "sealed_with": {
+          "const": "seal-foundation-sources",
+          "description": "封を打った writer 名。自己申告させないため const で縛る"
+        }
+      }
+    },
     "qaEntry": {
       "type": "object",
       "required": ["id", "question", "answer"],
@@ -60,7 +151,20 @@
         "id": {"type": "string", "minLength": 1},
         "question": {"type": "string", "minLength": 1},
         "answer": {"type": "string"},
-        "source": {"type": ["object", "string"]},
+        "source": {
+          "type": ["object", "string"],
+          "description": "この回答の出所。object の場合、kind=written-requirements なら path/section/sha256 を持つ。sha256 は writer が answer から計算し、呼び出し側からは受け取らない。**この digest は answer 自身の指紋なので、文書にそう書いてあることは示さない** — 逐語かどうかは reseal-written-source writer が書く時点で source.path を読んで確かめる",
+          "properties": {
+            "kind": {"type": "string", "minLength": 1},
+            "path": {"type": "string", "minLength": 1},
+            "section": {"type": "string", "minLength": 1},
+            "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+            "requoted_with": {"const": "requote-written-source", "description": "文書と食い違った引用行を文書の側の行で置き換えた記録。直す向きは state → 文書 の一方向"},
+            "requoted_on": {"type": "string", "minLength": 1},
+            "resealed_with": {"const": "reseal-written-source", "description": "本文を source.path へ逐語照合してから sha256 を取り直した記録"},
+            "resealed_on": {"type": "string", "minLength": 1}
+          }
+        },
         "approval_id": {"type": "string", "minLength": 1},
         "legacy_exempt": {"type": "boolean"},
         "legacy_exempt_reason": {"type": "string", "minLength": 1},
@@ -77,9 +181,170 @@
           "type": "array",
           "minItems": 1,
           "items": {"$ref": "#/$defs/designApplication"}
+        },
+        "asks_for": {
+          "type": "array",
+          "minItems": 1,
+          "description": "この質問が狙った対象 (セル または U 欄)。asks_for_contract が有効な state では新規 entry に必須。空配列を許さないのは、『狙いが無い』と『狙いを書いていない』を同じ姿にしないため",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "oneOf": [
+              {"required": ["category", "platform"]},
+              {"required": ["u"]}
+            ],
+            "properties": {
+              "category": {"type": "string", "minLength": 1},
+              "platform": {"type": "string", "minLength": 1},
+              "u": {"type": "string", "pattern": "^U[1-9]$"}
+            }
+          }
+        },
+        "scope_notes": {
+          "type": "object",
+          "description": "set-qa-scope-notes が追記する論点範囲の注記。question / answer は書き換えない。split-qa-bundle は例外的に answer を『自分の節だけ』へ縮めるが、削る節が origin entry の answer と byte 一致することを確かめてからでないと縮めない (一致しなければ拒否する) ので、内容は失われない",
+          "properties": {
+            "bundled": {
+              "type": "boolean",
+              "description": "この entry が複数論点の答えを 1 本文へ寄せた状態か。**true から false へ落とせるのは split-qa-bundle だけ**で、そのとき answer から他論点の節が実際に取り除かれる。手で false にすると『束ねていない』と名乗るだけの束ね entry が作れる"
+            },
+            "bundling_reason": {
+              "type": "string",
+              "minLength": 1,
+              "description": "束ねた理由を逐語で残す欄。束ねが解けた後も消さずに書き換える — なぜ束ねが起きたか (セルが qa を 1 件しか引けなかった) が消えると、同じ迂回がまた起きる"
+            },
+            "topics": {
+              "type": "array",
+              "description": "この本文が覆う論点と、その節がどの entry 由来か (origin_qa_id)。split-qa-bundle はこれを頼りに節を origin へ返す。**answer_span は origin_qa_id の entry の本文に逐語で 1 箇所在る** — 束ねを解くと束ね本文の見出し行は消えるので、指し先は origin 側で決まる。外した見出しは出典 (docs/spec/… §N) を持っていたので released_section_heading に残す",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "topic_id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "この論点の名前。entry 内で一意"
+                  },
+                  "covers_cell": {
+                    "description": "この論点が裏付けている確定セル。裏付けでなければ null",
+                    "type": ["object", "null"]
+                  },
+                  "answer_span": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "origin_qa_id の entry の本文に逐語で 1 箇所在る文字列。writer が本文から切り出す (呼び出し側から受け取らない — 受け取れると本文に無い文字列を裏付けと名乗れる)"
+                  },
+                  "note": {
+                    "type": "string",
+                    "description": "この論点が何を覆っているかの説明"
+                  },
+                  "origin_qa_id": {
+                    "type": ["string", "null"],
+                    "description": "この節がどの entry 由来か。束ね解除で節を返す先であり、answer_span の指し先を決める entry でもある"
+                  },
+                  "released_section_heading": {
+                    "type": "string",
+                    "description": "束ね解除で消えた `### 見出し` 行。出典 (docs/spec/… §N) を持っていたので、指し先を張り直した後も捨てずに残す"
+                  }
+                }
+              }
+            },
+            "split_with": {
+              "type": "string",
+              "description": "束ねを解いた writer 名。呼び出し側から受け取らず writer が書く"
+            },
+            "split_on": {
+              "type": "string",
+              "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+              "description": "束ねを解いた日"
+            },
+            "reanchored_with": {
+              "type": "string",
+              "description": "指し先を張り直した writer 名 (reanchor-split-scope-notes)。呼び出し側から受け取らず writer が書く"
+            },
+            "reanchored_on": {
+              "type": "string",
+              "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+              "description": "指し先を張り直した日。何も壊れていなければ書かれない — 書かれていること自体が、指し先が壊れていた記録である"
+            },
+            "absorbed_origins_released": {
+              "type": "array",
+              "uniqueItems": true,
+              "items": {"type": "string", "minLength": 1},
+              "description": "この entry へ寄せられていて、束ね解除で自分の entry へ戻された論点の origin id。**追記の記録であって参照ではない** — セルがどの entry を引くかは matrix cell 側の qa_refs が持つ"
+            }
+          }
+        },
+        "written_up": {
+          "type": "array",
+          "minItems": 1,
+          "description": "この問答の内容を文書へ書き起こした記録 (set-qa-written-up)。**追記専用で、既存要素は書き換えない。**元の source は永久に書き換えない — 対話で聞いた事実を後から『文書に書いてあった』ことにするのは偽造であり、書き起こしたという別の事実として足す。sha256 は writer が実ファイルを読んで計算し、呼び出し側からは受け取らない。空配列を許さないのは、『一度も書き起こしていない』(欄が無い) と『書き起こしを 0 件と記録した』を同じ姿にしないため",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["path", "sha256", "recorded_on", "recorded_with"],
+            "properties": {
+              "path": {"type": "string", "minLength": 1},
+              "section": {"type": "string", "minLength": 1},
+              "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+              "recorded_on": {"type": "string", "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"},
+              "recorded_with": {"const": "set-qa-written-up"}
+            }
+          }
         }
       },
       "additionalProperties": true
+    },
+    "matrixCell": {
+      "type": "object",
+      "description": "マトリクスの 1 セル。writer が書く欄をここで名前として宣言する。additionalProperties は開けたままにしてある — 閉じると、既存 state に在って未把握の欄が黙って落ちるのではなく弾かれる形になり、閉じる前に全欄の棚卸しが要る。開いている以上『schema を通した』は名前の宣言までであり、姿の検査ではない",
+      "properties": {
+        "state": {"enum": ["未収集", "確定", "対象外"]},
+        "qa_ref": {"type": "string", "minLength": 1},
+        "qa_refs": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {"type": "string", "minLength": 1},
+          "description": "このセルの確定を支える qa_log entry の**全件**。**`qa_ref` を置き換えない。**`qa_ref` は決定論ゲートが文字列で照合する主参照として残り、この欄はそこへ収まりきらない裏付けを足す (先頭要素は `qa_ref` と一致する)。この欄が無かったあいだ、セルは 1 件しか引けなかったため、複数の質疑を 1 entry へ本文ごと寄せる『束ね』が起きていた (qa_log[].scope_notes.bundling_reason に逐語で残っている)。単数欄を消さないのは、`qa_ref` を読む側が harness の内外に多数在り、消せばそれらが黙って壊れるからである"
+        },
+        "serves_goals": {"type": "array"},
+        "serves_intents": {"type": "array"},
+        "reason": {"type": "string", "minLength": 1},
+        "approval_ref": {"type": "string", "minLength": 1},
+        "reopened_from": {"type": "string", "minLength": 1},
+        "reopen_reason": {"type": "string", "minLength": 1},
+        "required_info": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["item_id", "missing_effect", "status"],
+            "properties": {
+              "item_id": {"type": "string", "minLength": 1},
+              "missing_effect": {"type": "string", "minLength": 1},
+              "status": {"enum": ["grounded", "not_applicable", "ungrounded"]},
+              "grounded_by": {"type": "string", "minLength": 1},
+              "reason": {"type": "string", "minLength": 1}
+            }
+          }
+        },
+        "required_info_checks": {
+          "type": "array",
+          "minItems": 1,
+          "description": "block item を**数えた事実**の記録 (record-required-info-check)。`required_info` が無いことには 2 通りの由来がある — 数えたら 0 件だった / 一度も数えていない。writer は block item が 0 件のセルへ required_info を書かない (書けば『0 件なのに記録が在る』が作れてしまう) ので、数えた事実は別の欄で持つ。**この欄が無い = 一度も数えていない。欄が在って blocking_item_count=0 = 数えて 0 件だった。**空配列を許さないのは、その区別をまた 1 つの姿へ潰さないため。追記専用。塞げていないところ: 記録された件数が、そのとき本当に数えた結果かは機械層で確かめられない。確かめているのは記録が在ることだけである",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["checked_on", "checked_with", "blocking_item_count"],
+            "properties": {
+              "checked_on": {"type": "string", "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"},
+              "checked_with": {"const": "record-required-info-check"},
+              "blocking_item_count": {"type": "integer", "minimum": 0}
+            }
+          }
+        }
+      }
     },
     "designApplication": {
       "type": "object",

@@ -13,7 +13,7 @@ export const dynamic = "force-dynamic";
  * 保存先が見本から D1 に変わっても、このファイルは 1 行も変わらない。
  */
 export default async function Home() {
-  const result = await siteUseCases().listSites.execute(readerActor(), {});
+  const result = await (await siteUseCases()).listSites.execute(readerActor(), {});
 
   return (
     <PublicShell title="affiliate-hub">

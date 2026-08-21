@@ -4,7 +4,7 @@ import type {
   EditorialProductRepositoryPort,
   EditorialTestRunRepositoryPort,
 } from "@/application/ports";
-import type { Page } from "@/application/ports/common";
+import type { PageRequest } from "@/application/ports/common";
 import { type Claim, type Evidence, type TestRun, createClaim, createEvidence } from "@/domain/evidence";
 import { type Product, createProduct } from "@/domain/product";
 import {
@@ -35,7 +35,11 @@ const stub = registerStub({
   id: "persistence:product-sample",
   port: "商品・主張・根拠・検証記録の保存先",
   label: "商品と根拠（見本データ）",
-  blockedBy: "products / claims / evidence / test_runs テーブルの追加とマイグレーション",
+  // 先に来るのは表ではなく入口。商品・主張・根拠を登録する画面と操作がまだ無く、
+  // どのユースケースからも `save` が呼ばれていない。ここで保存先だけ本物にしても、
+  // 中身を作る手段が無いので、開いた人には常に空の一覧が出るだけになる。
+  blockedBy:
+    "商品・主張・根拠を登録する入口（画面と操作）の追加。そのうえで products / claims / evidence / test_runs テーブルの追加とマイグレーション",
 });
 
 export function sampleProductNotice(): string {
@@ -221,7 +225,7 @@ export function createSampleProductRepository(): EditorialProductRepositoryPort 
     async search(
       _ws: WorkspaceId,
       query: { text?: string; categoryId?: string },
-      page: Page,
+      page: PageRequest,
     ) {
       const text = query.text?.trim().toLowerCase() ?? "";
       const items = PRODUCTS.filter((p) => {
@@ -267,7 +271,7 @@ export function createSampleEvidenceRepository(): EditorialEvidenceRepositoryPor
       const wanted = new Set(ids.map(String));
       return ok(EVIDENCE.filter((e) => wanted.has(String(e.id))));
     },
-    async search(_ws: WorkspaceId, query: { text?: string }, page: Page) {
+    async search(_ws: WorkspaceId, query: { text?: string }, page: PageRequest) {
       const text = query.text?.trim().toLowerCase() ?? "";
       const items = EVIDENCE.filter(
         (e) => text === "" || `${e.title} ${e.excerptOrSummary}`.toLowerCase().includes(text),

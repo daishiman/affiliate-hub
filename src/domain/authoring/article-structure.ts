@@ -13,6 +13,22 @@
 export const ARTICLE_TYPES = ["ranking", "review", "comparison", "guide", "tool"] as const;
 export type ArticleType = (typeof ARTICLE_TYPES)[number];
 
+/**
+ * 記事タイプの表示名。**ここが唯一の正本**。
+ *
+ * 全部を「〜記事」で揃えてある。作成ウィザードでは「順位づけ」、
+ * 書き方の案内では「順位をつける記事」と出ていた時期があり、
+ * 同じものを指しているのかどうかが画面をまたぐと分からなかった。
+ * 検査: tests/architecture/single-definition.test.ts
+ */
+export const ARTICLE_TYPE_LABEL: Readonly<Record<ArticleType, string>> = {
+  ranking: "順位をつける記事",
+  review: "1 つを詳しく見る記事",
+  comparison: "2 つ以上を比べる記事",
+  guide: "やり方を説明する記事",
+  tool: "計算・判定の道具のページ",
+};
+
 /** セクションの識別子。文言ではなく役割で持つ (サイトごとに見出し文言を変えるため)。 */
 export type SectionId =
   | "breadcrumb"
@@ -159,6 +175,63 @@ export function requiredSectionsFor(type: ArticleType): readonly SectionId[] {
   return sectionsFor(type)
     .filter((s) => s.required)
     .map((s) => s.id);
+}
+
+/**
+ * 読者ページの器が必ず出す節。**原稿に書かせない。**
+ *
+ * ここに入れてよいのは「実際に読者の画面へ出ているもの」だけ。
+ * 出ていないものを入れると、出していない項目を出したことにして
+ * 公開ゲートを通せてしまう（ゲートが飾りになる）。
+ *
+ * 対応する表示箇所:
+ *   breadcrumb → `presentation/site/page-frame.tsx`
+ *   disclosure / dates / byline / toc / sources / update_log
+ *     → `presentation/ui/templates/article-view.tsx`
+ *   correction_report → `presentation/ui/templates/site-shell.tsx` の足元
+ *   author_profile → 書き手のページ（byline から行ける）
+ */
+export const TEMPLATE_PROVIDED_SECTIONS: readonly SectionId[] = [
+  "breadcrumb",
+  "disclosure",
+  "dates",
+  "byline",
+  "toc",
+  "sources",
+  "update_log",
+  "correction_report",
+  "author_profile",
+];
+
+/**
+ * 節ではなく、専用の欄で受け取るもの。
+ *
+ * タイトルと一文の結論は、本文の節として書かせると
+ * 一覧・検索・SNS へ出すときに取り出せない。1 つの欄で受け取る。
+ */
+export const HEADER_FIELD_SECTIONS: readonly SectionId[] = ["h1", "one_sentence_conclusion"];
+
+/** 原稿に書いてもらう必須の節。入力欄はこの一覧から作る。 */
+export function authoredSectionsFor(type: ArticleType): readonly SectionSpec[] {
+  const provided = new Set<SectionId>([...TEMPLATE_PROVIDED_SECTIONS, ...HEADER_FIELD_SECTIONS]);
+  return sectionsFor(type).filter((s) => s.required && !provided.has(s.id));
+}
+
+/**
+ * 公開ゲートへ渡す「揃っている節」。
+ *
+ * 器が出す節と欄で受け取る節は最初から数に入れ、
+ * 原稿の節は**中身が空でないものだけ**数える。
+ * 空欄を数えると、見出しだけの記事が公開できてしまう。
+ */
+export function filledSectionIds(
+  type: ArticleType,
+  bodies: Readonly<Record<string, string | undefined>>,
+): readonly SectionId[] {
+  const authored = authoredSectionsFor(type)
+    .filter((s) => (bodies[s.id] ?? "").trim() !== "")
+    .map((s) => s.id);
+  return [...TEMPLATE_PROVIDED_SECTIONS, ...HEADER_FIELD_SECTIONS, ...authored];
 }
 
 /** 記事に必須セクションが揃っているか。公開ゲートから呼ぶ。 */

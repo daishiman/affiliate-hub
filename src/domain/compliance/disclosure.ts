@@ -41,6 +41,29 @@ export type Disclosure = {
   readonly aiAssisted: boolean;
 };
 
+/**
+ * 読者に向けて出す広告表示の文。**記事の画面と AI 向けの道具が、これ 1 つを読む。**
+ *
+ * `buildVisibleMessage()`（関係の種類から組み立てる文）とは役割が違う。
+ * あちらは「この記事はどういう関係の広告か」を 1 件ごとに述べるもので、
+ * こちらは記事の冒頭に常に出す一般的な断りである。両方要る。
+ *
+ * ここへ置いた理由は 1 つで、**出す先が 2 つ以上あるから**。
+ * 記事の画面（`UI_COPY.disclosure`）と、読者ページの AI 向けの道具
+ * （`reader_get_disclosure`）が同じ文を出す必要がある（§20.2 の
+ * `article_top` と `webmcp_response` / `ai_answer`）。
+ * 画面の文言表に置いたままにすると、application からは読めないので
+ * 道具の側にもう 1 本文字列が書かれ、**片方だけ直したときに気づけない**。
+ * 「順位に報酬を使っていない」は法令の話ではなく、この仕組みの不変条件の
+ * 宣言なので、なおさら 2 通りの言い方があってはならない。
+ */
+export const READER_DISCLOSURE_TEXT = {
+  title: "広告を含みます",
+  body: "この記事には広告（アフィリエイトリンク）が含まれます。リンクを経由して購入された場合、運営者に報酬が支払われることがあります。順位や評価には影響しません。",
+  /** 順位のある記事にだけ添える。 */
+  rankingNote: "順位づけに報酬額は使用していません。評価基準は公開しています。",
+} as const;
+
 /** 自費購入以外は必ず表示が要る。 */
 const DISCLOSURE_REQUIRED: ReadonlySet<RelationshipType> = new Set<RelationshipType>([
   "affiliate",
@@ -50,7 +73,14 @@ const DISCLOSURE_REQUIRED: ReadonlySet<RelationshipType> = new Set<RelationshipT
   "paid_partnership",
 ]);
 
-const RELATIONSHIP_LABEL: Record<RelationshipType, string> = {
+/**
+ * 広告との関係の表示文。**ここが唯一の正本**。
+ *
+ * 読者へ出す文そのものなので、選ばせる画面もこの文言を使う。
+ * 画面側で「アフィリエイト」と短く書き直すと、選んだ言葉と
+ * 記事に出る言葉が違ってしまい、何を選んだのかが確かめられなくなる。
+ */
+export const RELATIONSHIP_LABEL: Record<RelationshipType, string> = {
   affiliate: "アフィリエイト広告を利用しています",
   sponsored: "スポンサー提供の記事です",
   supplied: "商品の提供を受けています",

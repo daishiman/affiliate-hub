@@ -17,11 +17,26 @@ import type {
   ManualExportPort,
   PublicationRepositoryPort,
 } from "./ports/distribution";
-import type { ClickTrackingPort, MetricsRepositoryPort } from "./ports/analytics";
+import type {
+  ClickTrackingPort,
+  MetricsRepositoryPort,
+  RedirectResolverPort,
+  TrackingCoveragePort,
+} from "./ports/analytics";
 import type { TelemetrySinkPort } from "./ports/telemetry";
 import type { ImprovementRepositoryPort } from "./ports/improvement";
+import type {
+  FeedbackCaptureStoragePort,
+  FeedbackRepositoryPort,
+  HandoffTemplatePort,
+  IntegrationKeyPort,
+} from "./ports/feedback";
 import type { EventPublisherPort, IdGeneratorPort } from "./ports/common";
-import type { AuditLogPort, DisclosureRepositoryPort } from "./ports/compliance";
+import type {
+  AuditLogPort,
+  DisclosureRepositoryPort,
+  PolicyRuleRepositoryPort,
+} from "./ports/compliance";
 import type { LlmCostEstimatorPort, LlmPort } from "./ports/llm";
 import type {
   BrandRepositoryPort,
@@ -41,6 +56,7 @@ import type {
   EditorialShortlistPort,
 } from "./ports/reader-interaction";
 import type {
+  EditorialPublishedArticleWriterPort,
   EditorialPublishedContentPort,
   EditorialSiteRepositoryPort,
 } from "./ports/site";
@@ -63,6 +79,8 @@ export type AppDeps = {
   readonly testRuns: EditorialTestRunRepositoryPort;
   readonly sites: EditorialSiteRepositoryPort;
   readonly publishedContent: EditorialPublishedContentPort;
+  /** 記事を読者ページへ出す口。読み口と分けている理由は ports/site.ts に書いた。 */
+  readonly publishedArticles: EditorialPublishedArticleWriterPort;
   readonly shortlist: EditorialShortlistPort;
   readonly readerTools: EditorialReaderToolPort;
   readonly contact: EditorialContactPort;
@@ -76,6 +94,15 @@ export type AppDeps = {
   readonly manualExport: ManualExportPort;
   readonly metrics: MetricsRepositoryPort;
   readonly clickTracking: ClickTrackingPort;
+  /** 転送の入口（`/go/<合言葉>`）が読む写し。読むだけで、ここからは書けない。 */
+  readonly redirectResolver: RedirectResolverPort;
+  /**
+   * 順位表の成果リンクのうち、まだ合言葉が発行されていない件数。
+   *
+   * 0 件になるまで、突合できるクリック計測は完成していない。
+   * 出しておかないと、ASP の URL が黙って出るだけで気づけない。
+   */
+  readonly trackingCoverage: TrackingCoveragePort;
   /**
    * 計測の記録先。
    *
@@ -90,10 +117,35 @@ export type AppDeps = {
    * 軸が増えてもこの口は増えない（設定は `軸 → 値` の集まりとして 1 つの形で入る）。
    */
   readonly improvement: ImprovementRepositoryPort;
+  /**
+   * 改善要望（使い勝手を直すループ）。運用のデータであり、
+   * 記事の順位づけにも売上にも入らない。`guardEditorial` の対象外だが、
+   * Editorial / Commercial のどちらでもないことが分かるようにここへまとめて置く。
+   */
+  readonly feedback: FeedbackRepositoryPort;
+  readonly feedbackCaptures: FeedbackCaptureStoragePort;
+  readonly handoffTemplates: HandoffTemplatePort;
+  readonly integrationKeys: IntegrationKeyPort;
+  /**
+   * 連携の鍵の平文を作る。
+   *
+   * 作り方（乱数の取り方・長さ・ハッシュの掛け方）は infrastructure が持つ。
+   * ここを型だけにしておくのは、鍵の作り方を差し替えたときに
+   * 呼ぶ側（入口・画面）を 1 つも直さずに済ませるため。
+   */
+  readonly mintSecret: () => Promise<{ readonly plainValue: string; readonly hashedValue: string }>;
   readonly workspaces: WorkspaceRepositoryPort;
   readonly memberships: MembershipRepositoryPort;
   readonly brands: BrandRepositoryPort;
   readonly disclosures: DisclosureRepositoryPort;
+  /**
+   * 表現ポリシー（言ってはいけない書き方の一覧）。
+   *
+   * 記事の確認がここを読む。**読まない実装に差し替えると違反は 0 件になる**ので、
+   * 「登録されているか」ではなく「呼ばれているか」を検査で固定してある
+   * （tests/application/manage-content.test.ts）。
+   */
+  readonly policyRules: PolicyRuleRepositoryPort;
   readonly auditLog: AuditLogPort;
   /** 文脈をまたぐ連絡。別の文脈のリポジトリを直接呼ばないための唯一の経路。 */
   readonly events: EventPublisherPort;

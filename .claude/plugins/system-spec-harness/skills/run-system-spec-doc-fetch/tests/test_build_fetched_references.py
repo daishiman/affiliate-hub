@@ -292,3 +292,51 @@ def test_c02_contract_owns_seed_outside_candidate_qualification():
     assert "official_or_primary:true" in fetch
     assert "set-knowledge-candidate" in record
     assert "二次ブログだけではqualifiedにしない" in fetch
+
+
+# --------------------------------------------------------------------------- #
+# freshness_source の通過と取得日代入の拒否                                     #
+# --------------------------------------------------------------------------- #
+def test_freshness_source_survives_the_output_allowlist():
+    """OUTPUT_FIELD_ORDER は allowlist なので、載せ忘れた欄は黙って落ちる。
+
+    落ちると出典自身の表明 (page-declared) が消え、C13 の取得日代入検査で
+    正当な当日更新まで違反になる。
+    """
+    rec = _postgres_rec()
+    rec["freshness_source"] = "page-declared"
+    out = bfr.build_record(rec)
+    assert out["freshness_source"] == "page-declared"
+
+
+def test_builder_refuses_the_fetch_day_substituted_into_last_updated():
+    rec = _postgres_rec()
+    rec["last_updated"] = "2026-07-11"  # retrieved_at と同日
+    with pytest.raises(bfr.RecordError, match="取得日の代入の疑い"):
+        bfr.build_record(rec)
+
+
+def test_builder_lets_a_page_declared_same_day_update_through():
+    rec = _postgres_rec()
+    rec["last_updated"] = "2026-07-11"
+    rec["freshness_source"] = "page-declared"
+    assert bfr.build_record(rec)["last_updated"] == "2026-07-11"
+
+
+def test_builder_refuses_an_unknown_freshness_source():
+    rec = _postgres_rec()
+    rec["freshness_source"] = "trust-me"
+    with pytest.raises(bfr.RecordError, match="freshness_source"):
+        bfr.build_record(rec)
+
+
+def test_the_builder_and_c13_share_one_definition():
+    """判定を 2 箇所に書くと片方だけ直された日に writer が黙って緩む。"""
+    assert bfr._c13().freshness_findings.__module__ == "_c13_for_builder"
+    assert bfr._c13().FRESHNESS_SOURCES == {
+        "page-declared",
+        "http-last-modified",
+        "publisher-registry",
+        "content-copyright",
+        "undeclared",
+    }

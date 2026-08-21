@@ -28,7 +28,7 @@ export default async function SiteDetailPage({
 }) {
   const { site: siteSlug } = await params;
   const actor = await currentActor();
-  const result = await platformUseCases().getSite.execute(actor, { siteSlug });
+  const result = await (await platformUseCases()).getSite.execute(actor, { siteSlug });
 
   if (!result.ok) {
     return (

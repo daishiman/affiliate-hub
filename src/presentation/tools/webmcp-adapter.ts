@@ -113,6 +113,32 @@ export function toWebMcpTools(
 }
 
 /**
+ * 登録先を選ぶ。
+ *
+ * 正規の経路は `document.modelContext`（ブログ層 §14.1・CHG-001）。
+ * `navigator.modelContext` は Chrome 150 で非推奨になった旧経路で、
+ * **両方あるときは必ず新しい方を使う**。逆にすると、新しいブラウザでも
+ * 古い経路に載り続け、非推奨が外れた日に黙って止まる。
+ *
+ * どちらも無ければ `undefined` を返す。ここで例外を投げないことが、
+ * 「対応していないブラウザでは通常の画面操作がそのまま使える」の実体である。
+ *
+ * React の部品ではなくここに置いてあるのは、画面を描かずに確かめられるようにするため。
+ */
+export function resolveModelContext(
+  doc: { modelContext?: ModelContextLike } | undefined = typeof document !== "undefined"
+    ? document
+    : undefined,
+  nav: { modelContext?: ModelContextLike } | undefined = typeof navigator !== "undefined"
+    ? navigator
+    : undefined,
+): ModelContextLike | undefined {
+  if (doc?.modelContext) return doc.modelContext;
+  if (nav?.modelContext) return nav.modelContext;
+  return undefined;
+}
+
+/**
  * ブラウザへ登録する。
  *
  * 実装差があるため `registerTool` と `provideContext` の両方に備える。

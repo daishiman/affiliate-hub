@@ -40,17 +40,50 @@ export const PAGE_KIND_LABELS: Readonly<Record<PageKind, string>> = {
  * また、ここに載せてよいのは「同じことが通常の画面操作でもできる」ものだけ。
  * AI からしかできない機能を作らないため。
  *
- * 名前は仕様書 §24 の名前で書く（別名は `spec-contract.ts` が繋いでいる）。
+ * 読者ページに載せる道具は `reader_` で始まる（`reader-tools.ts`）。
+ * これは呼びやすさのための愛称ではなく、**向き先が違う**ことの印である。
+ * `reader_` の付かない `get_product` などは `read-product.ts`（運営側・`product.read` が要る）
+ * を呼ぶもので、読者の身元では断られる。読者ページの画面は権限の要らない
+ * 公開の道を通っているので、道具も同じ道へ揃えた（ah-83f）。
+ * 揃える前は、読者ページに載っている道具が読者の権限では 1 つも動かなかった。
+ *
+ * 管理画面の道具は仕様書 §24 の名前のまま（別名は `spec-contract.ts` が繋いでいる）。
  */
 export const PAGE_TOOLS: Readonly<Record<PageKind, readonly string[]>> = {
   // 記事ページ: 読んでいる順位と、その理由・根拠・広告表記
-  article: ["list_ranking", "get_product", "compare_products", "get_evidence", "explain_ranking", "get_disclosure"],
+  article: [
+    "reader_list_ranking",
+    "reader_get_product",
+    "reader_compare_products",
+    "reader_get_evidence",
+    "reader_explain_ranking",
+    "reader_get_disclosure",
+  ],
   // 比較ページ: 並べる・絞る・根拠・代替。順位の説明はここでは出さない
-  comparison: ["compare_products", "get_evidence", "filter_products", "find_alternatives", "get_product"],
-  ranking: ["list_ranking", "explain_ranking", "get_product", "get_evidence", "find_alternatives"],
-  product: ["get_product", "get_evidence", "list_test_runs", "find_alternatives", "get_disclosure"],
-  category: ["filter_products", "list_ranking", "get_product"],
-  site_home: ["list_ranking", "filter_products"],
+  comparison: [
+    "reader_compare_products",
+    "reader_get_evidence",
+    "reader_filter_products",
+    "reader_find_alternatives",
+    "reader_get_product",
+  ],
+  ranking: [
+    "reader_list_ranking",
+    "reader_explain_ranking",
+    "reader_get_product",
+    "reader_get_evidence",
+    "reader_find_alternatives",
+  ],
+  // 商品（個別レビュー）ページ。`list_test_runs` は載せない —
+  // 検証の記録は画面に出ていないので、道具からだけ出すと画面より広い出口になる。
+  product: [
+    "reader_get_product",
+    "reader_get_evidence",
+    "reader_find_alternatives",
+    "reader_get_disclosure",
+  ],
+  category: ["reader_filter_products", "reader_list_ranking", "reader_get_product"],
+  site_home: ["reader_list_ranking", "reader_filter_products"],
   // 管理画面: 状況の把握だけ。承認と公開は人が画面で行う
   admin: [
     "list_content_board",
@@ -71,7 +104,15 @@ export const PAGE_TOOLS: Readonly<Record<PageKind, readonly string[]>> = {
  */
 export const WEBMCP_FLAG = "WEBMCP_ENABLED";
 
-const OFF_VALUES = new Set(["off", "false", "0", "no", "disabled"]);
+/**
+ * 「止める」と読む値の一覧。**外へ出しているのは、検査が全通りを回れるようにするため。**
+ *
+ * ここを閉じたままにすると、検査の側で同じ一覧を書き写すことになる。
+ * 書き写した一覧は増えたときに追随しないので、値を 1 つ足しても誰も落ちない。
+ */
+export const WEBMCP_OFF_VALUES: readonly string[] = ["off", "false", "0", "no", "disabled"];
+
+const OFF_VALUES = new Set(WEBMCP_OFF_VALUES);
 
 export function isWebMcpEnabled(env: Readonly<Record<string, string | undefined>> = {}): boolean {
   const raw = env[WEBMCP_FLAG];

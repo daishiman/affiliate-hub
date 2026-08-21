@@ -10,12 +10,26 @@ export type R2Like = {
   delete(key: string): Promise<void>;
 };
 
+/**
+ * --- 配り方はもう決まっている（2026-08-17） ---
+ *
+ * 署名付き URL は使わない。理由は 2 つで、
+ *   1. R2 のバインディングからは作れず、アクセスキーの発行（外部資格）が要る
+ *   2. 署名付き URL は**知っている人なら誰でも開ける鍵**で、配った後に閉じられない
+ * 代わりに、画面の写しと同じく**取り出す口をこちら側に 1 本置く**形にする
+ * （先例: `src/infrastructure/platform/feedback-capture-r2.ts` と
+ *   `src/app/api/feedback-captures/[capture]/route.ts`）。
+ *
+ * それでもここが仮のままなのは、**この置き場をまだ誰も使っていない**ため。
+ * `createR2Storage` の呼び出しは 0 件で、画像も書き出しファイルも見本のままなので、
+ * 取り出す口だけ先に作っても、そこから出てくるものが無い。
+ */
 const signedUrlStub = registerStub({
   id: "storage:signed-url",
   port: "StoragePort.getSignedUrl",
   label: "ファイルの一時公開URL発行",
   blockedBy:
-    "R2 の署名付きURLは公開バケットまたは Worker 経由の配信方針を決めてから実装する。現状は公開バケットの固定URLで代替できる",
+    "画像・書き出しファイルの保存が本物になること（この置き場は現在どこからも使われていない）。配り方は写しと同じ Worker 経由に決定済み",
 });
 
 export function createR2Storage(bucket: R2Like, publicBaseUrl: string | null): StoragePort {

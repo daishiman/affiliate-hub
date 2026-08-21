@@ -4,6 +4,9 @@ import type {
   CommercialAffiliateLinkRepositoryPort,
   CommercialConversionRepositoryPort,
 } from "@/application/ports/monetization";
+import type { IdGeneratorPort } from "@/application/ports/common";
+import type { AuditLogPort } from "@/application/ports/compliance";
+import { auditWriteFailure, buildAuditEntry } from "@/application/audit";
 import {
   ASP_LABEL,
   type AffiliateProgram,
@@ -11,6 +14,7 @@ import {
   type Conversion,
   type ConversionStatus,
   type RewardModel,
+  DEFAULT_REWARD_CURRENCY,
   adjustReward,
   effectiveReward,
   isProgramActive,
@@ -51,6 +55,9 @@ export type ManageAffiliateDeps = {
   readonly programs: AffiliateProgramRepositoryPort;
   readonly links: CommercialAffiliateLinkRepositoryPort;
   readonly conversions: CommercialConversionRepositoryPort;
+  readonly ids: IdGeneratorPort;
+  readonly auditLog: AuditLogPort;
+  readonly now: () => Date;
 };
 
 function guardCommercial(deps: ManageAffiliateDeps): void {
@@ -220,6 +227,15 @@ export type ConversionView = {
   readonly adjustedLabel: string | null;
   readonly adjustmentReason: string | null;
   readonly effectiveLabel: string;
+  /**
+   * この成果の通貨。
+   *
+   * 表示だけなら `effectiveLabel` で足りるが、**金額を直す欄は
+   * 入力された数がどの通貨かを知らないと保存できない**。
+   * 画面側で「たぶん円」と決め打つと、ドル建ての成果に 1500 と入れた人の
+   * 意図が黙って 1500 円になり、直したことに誰も気づけない。
+   */
+  readonly currency: CurrencyCode;
   readonly periodClosed: boolean;
 };
 
@@ -246,6 +262,9 @@ function toConversionView(c: Conversion): ConversionView {
     adjustedLabel: c.adjustedReward === null ? null : formatMoney(c.adjustedReward),
     adjustmentReason: c.adjustmentReason,
     effectiveLabel: effective === null ? "未取得" : formatMoney(effective),
+    // まだ 1 円も取り込めていない成果は通貨も決まっていない。
+    // 直す欄を出さないわけにはいかないので、既定を円とし、画面に単位を出す。
+    currency: effective?.currency ?? c.ingestedReward?.currency ?? DEFAULT_REWARD_CURRENCY,
     periodClosed: c.periodClosed,
   };
 }
@@ -273,7 +292,11 @@ export function createListConversionsUseCase(
 
       // 確定分だけを合計する。未確定を足すと、入ってこない金額を見込みにしてしまう。
       let approvedMinor = 0;
-      let currency: CurrencyCode = "JPY";
+      // 確定した成果が 1 件も無いと、この初期値がそのまま合計の表示に出る。
+      // つまり「通貨が 1 件も決まっていないときに出る通貨」で、28 行上の
+      // `toConversionView` の既定と同じもの。同じ画面の item と合計が
+      // 別々の通貨を出すことは有り得ないので、1 つを共有する。
+      let currency: CurrencyCode = DEFAULT_REWARD_CURRENCY;
       for (const c of raw) {
         if (c.status !== "approved") continue;
         const amount = effectiveReward(c);
@@ -416,8 +439,44 @@ export function createAdjustConversionUseCase(
       const adjusted = adjustReward(loaded.value, amount.value, input.reason);
       if (!adjusted.ok) return adjusted;
 
+      const before = effectiveReward(loaded.value);
+
       const saved = await deps.conversions.save(adjusted.value);
       if (!saved.ok) return saved;
+
+      /*
+       * 手で直したことを記録に残す。**記録は保存の後**に書く。
+       *
+       * 金額をここに書くのは、後から「取り込んだ値といくら違うか」を
+       * 数えられるようにするためである。**この記録が順位づけへ流れることはない。**
+       * 順位づけ側は Editorial 印のポートしか受け取れず、
+       * `AuditLogPort` はその型に当てはまらないので、経路が型として存在しない。
+       *
+       * 理由は `createAuditLogEntry` 側で必須になっている（`REASON_REQUIRED`）。
+       * 理由の無い金額の修正は、後から見て正当だったか判断できない。
+       */
+      const entry = buildAuditEntry({ ids: deps.ids, now: deps.now }, actor, {
+        action: "conversion.adjusted",
+        targetType: "conversion",
+        targetId: String(loaded.value.id),
+        before:
+          before === null
+            ? null
+            : { amountMinor: before.amountMinor, currency: before.currency },
+        after: { amountMinor: amount.value.amountMinor, currency: amount.value.currency },
+        reason: input.reason,
+      });
+      if (!entry.ok) return entry;
+      const appended = await deps.auditLog.append(entry.value);
+      if (!appended.ok) {
+        return err(
+          auditWriteFailure(
+            `金額は ${formatMoney(amount.value)} に直っています`,
+            appended.error.details,
+          ),
+        );
+      }
+
       return ok({ view: toConversionView(saved.value) });
     },
   };

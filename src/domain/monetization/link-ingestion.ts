@@ -118,7 +118,18 @@ export function normalizeAffiliateUrl(raw: string): Result<string, DomainError> 
   const params = [...url.searchParams.entries()]
     .filter(([key]) => !TRACKING_PARAMS.has(key.toLowerCase()))
     .sort(([a], [b]) => a.localeCompare(b));
-  const query = params.map(([k, v]) => `${k}=${v}`).join("&");
+  /*
+    組み立て直すときに必ず符号化する。
+
+    `searchParams` は値を復号して返すので、そのまま `k=v` で繋ぐと
+    値の中の `&` や `=` が**区切り記号として復活する**。
+    その結果 `?x=b%26y=z`（x という 1 つの値）と `?x=b&y=z`（x と y の 2 つ）が
+    同じ形になり、**別のリンクが重複と判定される**。
+    性質テスト（tests/property/normalization.property.test.ts）で見つけた。
+  */
+  const query = params
+    .map(([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(v)}`)
+    .join("&");
   const path = url.pathname.replace(/\/+$/, "");
 
   return ok(`${url.protocol}//${url.hostname.toLowerCase()}${path}${query ? `?${query}` : ""}`);

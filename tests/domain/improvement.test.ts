@@ -1,3 +1,11 @@
+/**
+ * @tier 1
+ * @req REQ-IM01, REQ-IM02, REQ-IM03, REQ-IM04, REQ-IM07, REQ-IM08, REQ-IM09, REQ-IM10, REQ-IM11, REQ-IM12
+ * @types equivalence, boundary, decision-table, state-transition
+ *
+ * 印を 1 行に収めてあるのは、`scripts/required-test-types.mjs` の `@req` の
+ * 読み取りが `*` で止まるためで、折り返すと 2 行目の要件が黙って落ちる。
+ */
 import { describe, expect, it } from "vitest";
 import {
   DEFAULT_MINIMUM_SAMPLES,
@@ -394,12 +402,143 @@ describe("ループの 1 周", () => {
     expect(stopped.ok).toBe(true);
     if (stopped.ok) expect(stopped.value.stoppedReason).not.toBe("");
   });
+
+  it("登録されていないループの名前では作れない", () => {
+    const r = createLoopRun({
+      id: asExperimentId("run_unknown"),
+      workspaceId: WS,
+      loopKindKey: "no_such_loop",
+      siteSlug: "sample",
+      baselineSpecId: base.id,
+      candidateSpecId: cand.id,
+      diffs: diffVariantSpecs(base, cand),
+      primaryMetric: "read_completion_rate",
+      minimumSamples: DEFAULT_MINIMUM_SAMPLES,
+    });
+    expect(r.ok).toBe(false);
+    if (!r.ok) {
+      expect(r.error.code).toBe("VALIDATION_FAILED");
+      // どこを見れば正しい名前が分かるかを言う。
+      expect(r.error.suggestedAction).toContain("loop-kinds");
+    }
+  });
+
+  /** 作れないことだけを見たいときの、最小の呼び出し。 */
+  function draftWith(over: Partial<Parameters<typeof createLoopRun>[0]>) {
+    return createLoopRun({
+      id: asExperimentId("run_x"),
+      workspaceId: WS,
+      loopKindKey: "content_improvement",
+      siteSlug: "sample",
+      baselineSpecId: base.id,
+      candidateSpecId: cand.id,
+      diffs: diffVariantSpecs(base, cand),
+      primaryMetric: "read_completion_rate",
+      minimumSamples: DEFAULT_MINIMUM_SAMPLES,
+      ...over,
+    });
+  }
+
+  it("同じ設定どうしは比べられない", () => {
+    const r = draftWith({ candidateSpecId: base.id });
+    expect(r.ok).toBe(false);
+    if (!r.ok) expect(r.error.field).toBe("candidateSpecId");
+  });
+
+  it("違いが 1 つも無いものは比べられない", () => {
+    const r = draftWith({ diffs: [] });
+    expect(r.ok).toBe(false);
+    if (!r.ok) expect(r.error.field).toBe("diffs");
+  });
+
+  it("一度に変える軸は上限までなら通り、1 つ超えると断る", () => {
+    // 上限を超えると、差が出ても**どの変更のせいか**が分からなくなる。
+    const one = {
+      dimensionKey: "section_order",
+      label: "節の並び",
+      baseline: "結論が先",
+      candidate: "比較が先",
+    };
+    const atLimit = Array.from({ length: MAX_SIMULTANEOUS_DIMENSIONS }, (_, i) => ({
+      ...one,
+      dimensionKey: `dim_${i}`,
+    }));
+    expect(draftWith({ diffs: atLimit }).ok).toBe(true);
+
+    const overLimit = [...atLimit, { ...one, dimensionKey: "dim_over" }];
+    const r = draftWith({ diffs: overLimit });
+    expect(r.ok).toBe(false);
+    if (!r.ok) expect(r.error.code).toBe("INVARIANT_VIOLATED");
+  });
+
+  it("定義されていない指標では判定の土俵に上げられない", () => {
+    const r = draftWith({ primaryMetric: "no_such_metric" as never });
+    expect(r.ok).toBe(false);
+    if (!r.ok) expect(r.error.field).toBe("primaryMetric");
+  });
+
+  it("必要件数は 1 以上の整数だけ受け付ける", () => {
+    expect(draftWith({ minimumSamples: 1 }).ok).toBe(true);
+    expect(draftWith({ minimumSamples: 0 }).ok).toBe(false);
+    expect(draftWith({ minimumSamples: -1 }).ok).toBe(false);
+    // 小数は「100.5 件集まったら判定」という言えない状態を作る。
+    expect(draftWith({ minimumSamples: 100.5 }).ok).toBe(false);
+  });
+
+  it("準備中 → 実施中 → 判定済み の順にしか進めない", () => {
+    const made = draft();
+    if (!made.ok) throw new Error(made.error.message);
+
+    const started = startLoopRun(made.value, new Date("2026-01-01T00:00:00Z"));
+    if (!started.ok) throw new Error(started.error.message);
+    expect(started.value.status).toBe("running");
+    expect(started.value.startedAt).toEqual(new Date("2026-01-01T00:00:00Z"));
+
+    // 実施中のものをもう一度始められない。
+    expect(startLoopRun(started.value, new Date()).ok).toBe(false);
+    // 準備中のものをいきなり判定できない。
+    const judged = judgeComparison({
+      metric: "read_completion_rate",
+      baselineValue: 0.4,
+      baselineSamples: 900,
+      candidateValue: 0.62,
+      candidateSamples: 900,
+      minimumSamples: DEFAULT_MINIMUM_SAMPLES,
+      comparisonCount: 1,
+    });
+    if (!judged.ok) throw new Error(judged.error.message);
+    expect(concludeLoopRun(made.value, { result: judged.value, at: new Date() }).ok).toBe(false);
+
+    const concluded = concludeLoopRun(started.value, {
+      result: judged.value,
+      at: new Date("2026-02-01T00:00:00Z"),
+    });
+    expect(concluded.ok).toBe(true);
+    if (!concluded.ok) return;
+    expect(concluded.value.status).toBe("concluded");
+    expect(concluded.value.verdict).toBe(judged.value.verdict);
+    expect(concluded.value.concludedAt).toEqual(new Date("2026-02-01T00:00:00Z"));
+
+    // 終わったものは、判定し直しも打ち切りもできない。
+    expect(concludeLoopRun(concluded.value, { result: judged.value, at: new Date() }).ok).toBe(false);
+    expect(stopLoopRun(concluded.value, { reason: "やっぱりやめる", at: new Date() }).ok).toBe(false);
+  });
+
+  it("打ち切ったものは、もう一度打ち切れない", () => {
+    const made = draft();
+    if (!made.ok) throw new Error(made.error.message);
+    const stopped = stopLoopRun(made.value, { reason: "元の記事を作り直した", at: new Date() });
+    if (!stopped.ok) throw new Error(stopped.error.message);
+    expect(stopLoopRun(stopped.value, { reason: "念のため", at: new Date() }).ok).toBe(false);
+  });
 });
 
 describe("ループの種類", () => {
-  it("いま動くのは 1 種類だけ（使われない仕組みを先回りで作らない）", () => {
-    expect(implementedLoopKinds()).toHaveLength(1);
-    expect(implementedLoopKinds()[0]?.key).toBe("content_improvement");
+  it("いま動くのは 2 種類だけ（使われない仕組みを先回りで作らない）", () => {
+    expect(implementedLoopKinds().map((l) => l.key)).toEqual([
+      "content_improvement",
+      "product_improvement",
+    ]);
   });
 
   it("まだ動かないループには、動かすのに何が要るかが必ず書いてある", () => {
@@ -436,6 +575,7 @@ describe("ループの種類", () => {
       label: "止まらないループ",
       polarity: "positive",
       readiness: "planned",
+      decisionBasis: "comparison",
       signal: "反応が良い題材",
       baseline: "先月",
       decisionRule: "反応が良ければ増やす",
@@ -454,6 +594,7 @@ describe("ループの種類", () => {
       label: "予定だけのループ",
       polarity: "watch",
       readiness: "planned",
+      decisionBasis: "comparison",
       signal: "落ちてきた記事",
       baseline: "3 か月前",
       decisionRule: "落ちたら見直す",
@@ -496,5 +637,150 @@ describe("軸を 1 つ増やしたときの影響（変更容易性シナリオ 
       expect(findOptimizationDimension(d.key)?.label).toBe(d.label);
     }
     expect(findOptimizationDimension("brand_new_axis")).toBeNull();
+  });
+});
+
+/**
+ * 一覧そのものを、テストの側から固定する。
+ *
+ * **この節を書くまで、上の試験は一覧を回すことしかしていなかった。**
+ * 回すだけの試験は、期待値を実装から作っている。だから一覧から 1 件消えると、
+ * 残った件数を回して残った件数ぶん確かめ、**緑のまま通る**。
+ *
+ * 実測（2026-08-19、37 通りの書き換えを 1 件ずつ試した）:
+ *   - 調整してはいけないもの 6 件 → **6 件とも緑**
+ *   - 改善の軸 20 件 → 17 件が緑（赤は `section_order` / `lead_length` / `brand_theme` の 3 件だけ）
+ *   - 外せない約束 5 件 → **5 件とも緑**
+ *   - ループの種類 6 件 → 動いている 2 件だけ赤、残り 4 件は緑
+ *
+ * 中でも重いのは調整禁止の 6 件である。禁止の判定 `NON_OPTIMIZABLE_KEYS` は
+ * その一覧から作られるので、一覧から「広告であることの表示」を外すと
+ * **それを A/B 試験の軸にできるようになる**。景品表示法に関わる決まりが
+ * 消えるのに、試験は 5 件を回して 5 件とも禁止を確かめ、緑を返していた。
+ *
+ * 消えたことは緑として現れる。だから下の一覧は**実装から作らず、ここに書く**。
+ * 実装を変えたい人は、この一覧も一緒に変えることになる。それが目的である。
+ */
+describe("一覧の中身そのもの（実装から期待値を作らない）", () => {
+  const EXPECTED_NON_OPTIMIZABLE = [
+    "evidence_requirement",
+    "disclosure_presence",
+    "accessibility_level",
+    "ranking_inputs",
+    "consent_prominence",
+    "factuality_labeling",
+  ] as const;
+
+  const EXPECTED_DIMENSIONS: Readonly<Record<string, readonly string[]>> = {
+    // 要件 REQ-IM02（文章・内容の 10 軸）
+    text: [
+      "section_order",
+      "lead_length",
+      "heading_wording",
+      "sentence_length",
+      "content_angle",
+      "comparison_columns",
+      "claim_placement",
+      "cta_wording",
+      "article_length",
+      "image_placement",
+    ],
+    // 要件 REQ-IM03（見た目の 6 軸）
+    visual: [
+      "brand_theme",
+      "typography_scale",
+      "content_density",
+      "body_max_width",
+      "ranking_card_form",
+      "first_view_composition",
+    ],
+    // 要件 REQ-IM04（たどり方の 4 軸）
+    navigation: [
+      "internal_link_placement",
+      "related_articles_form",
+      "toc_form",
+      "template_by_article_type",
+    ],
+  };
+
+  const EXPECTED_GUARDRAILS = [
+    "適用は人の承認を通す（見た目だけの変更も含む）",
+    "根拠・広告表示・アクセシビリティは調整対象にしない",
+    "順位づけの入力に成果や報酬を入れない",
+    "必要件数に届くまで差があると言わない",
+    "元の設定へいつでも戻せる状態を保つ",
+  ] as const;
+
+  const EXPECTED_LOOP_KINDS = [
+    ["content_improvement", "implemented"],
+    ["topic_expansion", "planned"],
+    ["angle_exploration", "planned"],
+    ["decay_watch", "planned"],
+    ["generation_cost", "planned"],
+    ["product_improvement", "implemented"],
+  ] as const;
+
+  it("調整してはいけないものの一覧が、1 件も欠けていない", () => {
+    expect(NON_OPTIMIZABLE.map((n) => n.key)).toEqual([...EXPECTED_NON_OPTIMIZABLE]);
+  });
+
+  it("調整してはいけない 6 件は、名前を直接あてても軸にできない", () => {
+    // 上の「調整してはいけないものは、どれも軸にできない」との違いは、
+    // 回す先が実装の一覧ではなく**この 6 個の文字列**であること。
+    // 実装から 1 件消えると、この試験だけが赤くなる。
+    for (const key of EXPECTED_NON_OPTIMIZABLE) {
+      const attempt: OptimizationDimension = {
+        key,
+        label: key,
+        group: "text",
+        why: "数字が良くなるから",
+        candidateSource: "preset",
+        appliedAt: "prompt",
+        evaluatedBy: ["read_completion_rate"],
+        feedbackTarget: "article_revision",
+        reversible: true,
+      };
+      const r = assertRegistrable(attempt);
+      expect(r.ok, `${key} が軸として通ってしまった`).toBe(false);
+      if (!r.ok) expect(r.error.code).toBe("INVARIANT_VIOLATED");
+    }
+  });
+
+  it("改善の軸が、まとまりごとに 1 件も欠けていない", () => {
+    for (const [group, keys] of Object.entries(EXPECTED_DIMENSIONS)) {
+      expect(
+        OPTIMIZATION_DIMENSIONS.filter((d) => d.group === group).map((d) => d.key),
+        `${group} の軸が変わっている`,
+      ).toEqual([...keys]);
+    }
+    // まとまりを足したときにも気づけるよう、総数も突き当てる。
+    const total = Object.values(EXPECTED_DIMENSIONS).reduce((n, k) => n + k.length, 0);
+    expect(OPTIMIZATION_DIMENSIONS.length).toBe(total);
+  });
+
+  it("外せない約束が、1 件も欠けていない", () => {
+    expect(UNIVERSAL_GUARDRAILS.map((g) => g.label)).toEqual([...EXPECTED_GUARDRAILS]);
+    // 「自動で付く」ことは上の試験が見ているが、そこも一覧を回している。
+    // ここでは**この 5 個の文字列**が全ループに付いていることを見る。
+    for (const kind of LOOP_KINDS) {
+      for (const label of EXPECTED_GUARDRAILS) {
+        expect(
+          kind.guardrails.some((g) => g.label === label && g.hard),
+          `${kind.key} に「${label}」が付いていない`,
+        ).toBe(true);
+      }
+    }
+  });
+
+  it("ループの種類と、動いているかどうかが変わっていない", () => {
+    expect(LOOP_KINDS.map((k) => [k.key, k.readiness])).toEqual(
+      EXPECTED_LOOP_KINDS.map((e) => [...e]),
+    );
+    // 動いている数は要件表（REQ-IM10）の文言と直結する。
+    // ここが動いたら、表の側も直さなければならない。
+    expect(implementedLoopKinds().map((k) => k.key)).toEqual([
+      "content_improvement",
+      "product_improvement",
+    ]);
   });
 });

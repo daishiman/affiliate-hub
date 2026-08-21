@@ -28,6 +28,22 @@ violation とする (捏造の疑い)。また全 record の retrieved_at が完
 `evidence_sha256` を持つ。references が非空なら `--repo-root` を必須とし、repo 内の証跡ファイルの
 実在と SHA-256 を突合する。
 
+`version` / `last_updated` の意味 (この 2 欄は出典側の属性である):
+    `version` は **その出典が説明している対象の版** であり、この repo が依存している版ではない。
+    根拠は 3 つある。(1) C08 の鮮度軸は記録値を「公式サイトの現行版」と突合する
+    (agents/system-spec-doc-freshness-auditor.md)。repo の依存版を書く欄なら、依存を意図的に
+    固定した瞬間に永久 FAIL になり、監査が「上げろ」以外を言えなくなる。(2) record 内の他の全欄
+    (source_url / official_publisher / official_host / evidence_ref / summary) が出典側の属性で
+    あり、`version` は明らかに出典側の日付である `last_updated` と択一 (anyOf) 関係にある。
+    択一できるものは同じ側の属性でなければならない。(3) 本 script は package.json も lockfile も
+    読まない。repo 依存版を意味するなら、その値の正しさを検証する経路がどこにも無い。
+
+取得日代入検査 (freshness substitution): `version`/`last_updated` に **取得日そのもの** を
+    代入する誤りを決定論で拒否する。これは C08 (LLM 監査) が 2 度検出しながら 2 度とも残った
+    欠陥であり、record 内 2 欄の突合だけで判定できる = 形式層の担当である。逃げ口は
+    `freshness_source` の申告 1 つだけにしてある (下記)。日付らしき値は `version` 側に置いても
+    同じ検査に掛かる。片方だけを見ると、値を隣の欄へ移すだけで抜けられるためである。
+
 targets ファイルの期待形状:
 {"targets": [{"target_id": "react", ...}, {"target_id": "postgres", ...}]}
   または {"targets": ["react", "postgres"]}   # 文字列 id の配列でも可
@@ -69,6 +85,27 @@ REQUIRED_FIELDS = (
     "evidence_sha256",
 )
 SHA256_HEX = re.compile(r"^[0-9a-f]{64}$")
+DATE_LIKE = re.compile(r"^(\d{4}-\d{2}-\d{2})")
+
+# `freshness_source` = version/last_updated の値が **どこから来たか** の申告。
+# 値そのものだけを見ると「2026-04-23」と「1.7.1」と「取得日」が同じ強さの主張に見える。
+# 由来を分けて初めて、取得日代入 (出典が何も言っていないのに日付が入っている状態) を
+# 機械判定できる。取得日代入から抜けられるのは page-declared の申告 1 つだけである。
+FRESHNESS_SOURCES = {
+    # 出典ページ本文または構造化データ (JSON-LD dateModified / <time> 等) が自ら表明した値。
+    # 出典自身の表明なので、取得日とたまたま同日でも正当でありうる (当日更新)。
+    "page-declared",
+    # HTTP `Last-Modified` ヘッダだけが持つ。本文には表明が無い。配信側の都合で動くため
+    # 内容の更新日とは限らない。
+    "http-last-modified",
+    # publisher の配布 registry (npm 等) の発行記録。ドキュメントページが版を持たない
+    # rolling doc のとき、説明対象の版はここにしか無い。
+    "publisher-registry",
+    # 本文の copyright 年のみ。更新日ではないことを明示するための区分。
+    "content-copyright",
+    # 出典のどこにも表明が無い。この申告のとき version/last_updated は空でなければならない。
+    "undeclared",
+}
 
 
 def _target_ids(data: dict) -> list[str]:
@@ -110,6 +147,56 @@ def _resolve_evidence_path(repo_root: Path, evidence_ref: object) -> Path | None
     except ValueError:
         return None
     return candidate
+
+
+def freshness_findings(tid: str, ref: dict) -> list[str]:
+    """version/last_updated の由来申告と取得日代入を検査する。
+
+    `freshness_source` は任意欄だが、**無い方が厳しい** 側に倒してある。欄が無ければ
+    取得日代入の逃げ口も無いので、申告を省略して緩めることはできない。任意にしたのは
+    既存 record を一括で違反にしないためであって、緩めるためではない。
+    """
+    findings: list[str] = []
+
+    declared = ref.get("freshness_source")
+    if declared is not None and declared not in FRESHNESS_SOURCES:
+        findings.append(
+            f"references[{tid}]: freshness_source={declared!r} は "
+            f"{sorted(FRESHNESS_SOURCES)} のいずれかでなければならない"
+        )
+
+    version = ref.get("version")
+    last_updated = ref.get("last_updated")
+
+    if declared == "undeclared" and (version or last_updated):
+        findings.append(
+            f"references[{tid}]: freshness_source='undeclared' なのに "
+            f"version/last_updated に値がある (出典が表明していない値の記入)"
+        )
+
+    # 取得日代入。version 側に日付を置いても同じ検査に掛ける。片方だけを見ると
+    # 値を隣の欄へ移すだけで抜けられる。
+    fetch_days = {
+        str(ref.get(field, ""))[:10]
+        for field in ("retrieved_at", "latest_checked_at")
+        if ref.get(field)
+    }
+    for field, value in (("last_updated", last_updated), ("version", version)):
+        if not isinstance(value, str):
+            continue
+        matched = DATE_LIKE.match(value)
+        if not matched or matched.group(1) not in fetch_days:
+            continue
+        if declared == "page-declared":
+            # 出典自身が当日更新を表明している場合。証跡ファイルで裏を取れる。
+            continue
+        findings.append(
+            f"references[{tid}]: {field}={value!r} が取得日と同日で、"
+            f"freshness_source={declared!r} は出典自身の表明ではない "
+            "(取得日の代入の疑い。出典が当日更新を表明しているなら "
+            "freshness_source='page-declared' を申告すること)"
+        )
+    return findings
 
 
 def _norm_host(host: str) -> str:
@@ -204,6 +291,7 @@ def validate(
             findings.append(
                 f"references[{tid}]: version と last_updated の両方が空 (いずれか必須)"
             )
+        findings.extend(freshness_findings(tid, ref))
         # source_url host が official_host と一致
         src = ref.get("source_url")
         host = ref.get("official_host")

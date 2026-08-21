@@ -67,7 +67,12 @@ export function platformTools(deps: AppDeps): readonly AnyToolDefinition[] {
  * 名前も URL も後から気軽には変えられないため。
  */
 function siteBuilderTools(deps: AppDeps): readonly AnyToolDefinition[] {
-  const builder = { drafts: deps.siteDrafts, ids: deps.ids };
+  const builder = {
+    drafts: deps.siteDrafts,
+    ids: deps.ids,
+    auditLog: deps.auditLog,
+    now: () => new Date(),
+  };
 
   return [
     defineTool({

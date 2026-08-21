@@ -57,6 +57,18 @@ function referrerKind(): string {
   }
 }
 
+/**
+ * その行き先が、こちらの転送の入口（`/go/<合言葉>`）を通るか。
+ *
+ * 通るならサーバーが数えるので、画面側は数えない。
+ * `getAttribute` で見るのは、`href` プロパティが絶対 URL に直されてしまい、
+ * 同じサイト内かどうかの判定が要らぬ枝分かれを生むため。
+ */
+function goesThroughRedirect(element: Element): boolean {
+  const href = element.getAttribute("href");
+  return href !== null && href.startsWith("/go/");
+}
+
 function readerKey(allow: boolean): string | null {
   if (!allow) return null;
   try {
@@ -134,7 +146,12 @@ export function TelemetryCollector({
 
       // 成果リンクは同意が無くても回数だけ数える（誰のものかは持たない）。
       if (kind === "affiliate_link") {
-        push("affiliate_click", { ...base, linkId: id, placement });
+        // **転送の入口（/go/）を通るものはここで数えない。**
+        // サーバーが数えるので、両方で数えるとクリック数が 2 倍になる。
+        // 判定を「部品が印を付けたか」ではなく**行き先そのもの**で行うのは、
+        // 印は付け忘れられるが、行き先は実際にサーバーを通るかどうかそのものだから。
+        if (goesThroughRedirect(marked)) return;
+        push("affiliate_click", { ...base, linkId: id, placement, recordedVia: "browser" });
         flush(true);
         return;
       }

@@ -3,6 +3,7 @@ import {
   type AffiliateLinkId,
   type AffiliateProgramId,
   type ConversionId,
+  type CurrencyCode,
   type DomainError,
   type Money,
   type Result,
@@ -23,11 +24,21 @@ import type { AspKind } from "./affiliate-program";
  *   2. 確定済みの月は、後から取込値が変わっても据え置き、差分を通知する
  *   3. 突合は正規化キーで行う
  */
-export type ConversionStatus =
-  | "pending" // 発生。未確定
-  | "approved" // 確定
-  | "rejected" // 却下
-  | "cancelled"; // 取消
+/**
+ * 成果の状態。
+ *
+ * 型ではなく**並び**で持つのは、保存先の列に「入れてよい値」として
+ * そのまま渡すため。手で書き写すと、状態を 1 つ増やしたときに
+ * 業務側だけが増えて保存先が古いまま、という食い違いが起きる。
+ */
+export const CONVERSION_STATUSES = [
+  "pending", // 発生。未確定
+  "approved", // 確定
+  "rejected", // 却下
+  "cancelled", // 取消
+] as const;
+
+export type ConversionStatus = (typeof CONVERSION_STATUSES)[number];
 
 export type Conversion = {
   readonly id: ConversionId;
@@ -95,6 +106,20 @@ export function createConversion(input: {
     periodClosed: false,
   });
 }
+
+/**
+ * まだ 1 円も取り込めていない成果を手で直すときの、欄に出す通貨。
+ *
+ * **ワークスペースの既定通貨 (`DEFAULT_WORKSPACE_CURRENCY`) とは別物である。**
+ * あちらは「編集部の価格表示の基準」で業務上の既定、こちらは「通貨が決まっていない成果に
+ * 直す欄を出さないわけにはいかない」ための当座の置きで、実体が違う。値がたまたま同じなので
+ * 片方にまとめたくなるが、まとめると**間違った出典が付く**（値は合うので誰も疑わない）。
+ *
+ * ここに 1 つだけ置く理由は逆に明確で、成果の一覧が出す通貨 (`toConversionView`) と
+ * 手直しの受け取り (`adjustConversionAction`) は**同じ欄の往復**であり、
+ * 食い違うと直した金額の通貨が変わってしまうため、同じ 1 つでなければならない。
+ */
+export const DEFAULT_REWARD_CURRENCY: CurrencyCode = "JPY";
 
 /** 実際に使う金額。手修正があればそちらを優先する。 */
 export function effectiveReward(c: Conversion): Money | null {

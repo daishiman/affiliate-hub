@@ -1,3 +1,12 @@
+/**
+ * @tier 1
+ * @req REQ-P06, REQ-A04
+ * @types equivalence, boundary
+ *
+ * 受け入れ条件 §30.4（AI 生成）のうち、媒体の並びに関わる分は、ここで確かめている。
+ * 4 媒体が列にあること、note を「直接公開」と書かないこと、
+ * 今回作る本数の上限が 0 以下なら直せる言葉で断ること。
+ */
 import { describe, expect, it } from "vitest";
 import {
   MATRIX_CHANNELS,
@@ -16,7 +25,7 @@ import {
  * 作っていないのか作れないのかが区別できないと、利用者は待ち続ける。
  */
 async function matrix(axis?: (typeof MATRIX_ROW_AXES)[number], limit?: number) {
-  const result = await generationMatrixUseCases().getMatrix.execute(await currentActor(), {
+  const result = await (await generationMatrixUseCases()).getMatrix.execute(await currentActor(), {
     packageId: sampleContentPackageId(),
     rowAxis: axis,
     limit,
@@ -77,7 +86,7 @@ describe("生成マトリクス", () => {
   });
 
   it("上限が 0 以下なら、直せる言葉で断る", async () => {
-    const result = await generationMatrixUseCases().getMatrix.execute(await currentActor(), {
+    const result = await (await generationMatrixUseCases()).getMatrix.execute(await currentActor(), {
       packageId: sampleContentPackageId(),
       limit: 0,
     });
@@ -87,7 +96,7 @@ describe("生成マトリクス", () => {
   });
 
   it("無い企画を指すと、見つからないと分かる誤りが返る", async () => {
-    const result = await generationMatrixUseCases().getMatrix.execute(await currentActor(), {
+    const result = await (await generationMatrixUseCases()).getMatrix.execute(await currentActor(), {
       packageId: "cp_does_not_exist",
     });
     expect(result.ok).toBe(false);

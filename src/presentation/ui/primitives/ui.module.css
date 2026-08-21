@@ -267,7 +267,21 @@
   background: var(--color-surface-sunken);
 }
 
+/*
+ * 左の案内。
+ *
+ * **画面に貼り付けて、はみ出したぶんはこの中だけで送る。**
+ * これが無いと、案内の高さがそのままページの高さになり、本文を下へ送ったときに
+ * 案内も一緒に上へ抜けていく。骨格の約束（現在地と退避先は常に見える）が破れる。
+ * 19 項目 + 6 分類は 1 画面に収まらないので、収める方向ではなく
+ * 「はみ出しても消えない」方向で解く。
+ */
 .sidebar {
+  position: sticky;
+  top: 0;
+  align-self: start;
+  max-height: 100dvh;
+  overflow-y: auto;
   display: flex;
   flex-direction: column;
   gap: var(--space-2);
@@ -283,14 +297,108 @@
   color: var(--color-text-strong);
 }
 
+.navGroup {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+/*
+ * 分類の境目。**線と余白の 2 つで作る。**
+ *
+ * 線だけを引いて余白を変えないと、線は「飾り」に見えてまとまりとして読まれない。
+ * 近接の原理は距離のほうが強いので、**先に比を決めてから値を入れた**:
+ *
+ *   決めた目標 … 群間 ÷ 群内 >= 4
+ *   入れた値   … 群内 4px（`.navGroup` の gap）／
+ *                **境目のために足した余白 16px**（margin-top 4 + padding-top 8 +
+ *                見出しの padding-top 4）→ **比 4.0**
+ *
+ * **2026-08-19 に 24px（比 6.0）から 16px（比 4.0）へ詰めた。**「一覧が間延びして
+ * 見える」という依頼による。**床は 4 のまま動かしていない。**詰めた結果が
+ * ちょうど床の上に乗っているので、**ここからさらに詰めるには先に比のほうを
+ * 決め直す必要がある**（値だけ動かすと `tests/ui/layout-density.test.ts` が赤くなる。
+ * それが正しい振る舞いで、床を下げて通すのは禁止）。
+ * 内訳の動き: margin-top 8 → 4、padding-top 12 → 8。見出しの padding-top 4 は
+ * 動かしていない（見出しそのものは削らない対象）。
+ *
+ * **数えるのは「この境目のために足した分」だけ。**`.sidebar` の gap（8px）は
+ * サイドバーの子すべての間に入るもので、分類を全部消しても残るので数えない。
+ * 線の太さ（1px）も「線」であって「余白」ではないので数えない。
+ * 合計で数えていた頃は 33px / 比 8.25 だったが、**境目のために何も足さなくても
+ * 親の余白のぶんで比が出てしまい、測りたいものと単位が食い違っていた。**
+ * （詰めたあとの合計は 25px。比で言えば 6.25 で、やはり床には当たらない）
+ *
+ * 線の上下も揃えてある（上 12px / 下 12px。詰める前は 16px / 16px）。
+ * **こちらは見え方の話なので、親の gap を含んだ実際の余白で測る**
+ * （上 = sidebar の gap 8 + margin-top 4）。
+ * ずれていると、線がどちらの群のものか分からなくなる。
+ *
+ * **線は飾りなので支援技術には渡さない。** 要素を足さず罫線で描いているので、
+ * 読み上げには何も増えない。まとまりの伝達は `role="group"` と見出しが持つ。
+ *
+ * `+` を使うので、**6 分類なら線は 5 本**になる（先頭には付かない）。
+ * 分類の外の「ホーム」との間にも線は入らない。
+ *
+ * ---
+ * **次にここを触る人へ。** 比 4.0 は床 4 にちょうど接している。余裕はゼロで、
+ * 1px でも詰めれば `tests/ui/layout-density.test.ts` が赤くなる。
+ * **これは壊れたのではなく、床が効く位置に来たということである。**
+ * そのとき **「余裕が無いから床を下げる」は、いちばんやってはいけない直し方**である。
+ * 床は、詰めすぎを止めるために置いてある。止められた瞬間に下げるなら、
+ * 最初から無いのと同じで、しかも「見張っているつもり」だけが残る。
+ * 詰めたいなら、先に**比のほう（何を群間と数え、何を数えないか）を決め直し**、
+ * 決め直した理由を `docs/product/design-decisions.md` §1 に残すこと。
+ */
+.navGroup + .navGroup {
+  margin-top: var(--space-1);
+  padding-top: var(--space-2);
+  border-top: var(--border-width-default) solid var(--color-border-subtle);
+}
+
+/* 分類の見出し。項目より小さく弱く出す。
+   見出しが項目より目立つと、行き先ではなく分類名を押そうとしてしまう。
+
+   **上の余白はここではなく `.navGroup + .navGroup` が持つ。**
+   両方に置くと、境目の広さが 2 箇所に散って、比を決められなくなる。
+
+   一覧は 1 画面に収まらない（`tests/ui/layout-density.test.ts` が
+   トークンの値から高さを出して確かめている）ので、**見出しを追従させる。**
+   畳まないのは、移動のための面を畳むと「いつも同じ場所にある」が壊れるため
+   （理由は docs/product/design-decisions.md）。 */
+.navGroupLabel {
+  position: sticky;
+  top: 0;
+  z-index: var(--z-raised);
+  margin: 0 0 var(--space-1);
+  padding: var(--space-1) var(--space-3);
+  /* 追従した見出しの下を項目が素通りしていくので、背景を敷いて重なりを断つ。 */
+  background: var(--color-surface-default);
+  font-size: var(--text-xs);
+  font-weight: var(--weight-bold);
+  line-height: var(--leading-body);
+  letter-spacing: var(--tracking-wide);
+  color: var(--color-text-muted);
+}
+
 .navLink {
-  display: block;
+  /* 行送りで中央に寄せていたのをやめたので、寄せ方はここで持つ。
+     block のままだと、下限の高さだけ確保された箱の上端に文字が張り付く。 */
+  display: flex;
+  align-items: center;
   min-height: var(--tap-target-min);
   padding: var(--space-2) var(--space-3);
   border-radius: var(--radius-md);
   color: var(--color-text-default);
   font-size: var(--text-sm);
-  line-height: var(--tap-target-min);
+  /*
+   * **行送りに指の当たり判定の値を使わない。**
+   * ここは以前 44px（押せる大きさの下限）を行送りにしていた。
+   * 高さの下限は上の min-height が既に保証しているので、行送りにも同じ値を置くと
+   * 1 行 44px + 上下の余白 16px = 60px になり、44px でよいところが 16px 高くなる。
+   * 19 項目で 304px。指の当たり判定は min-height が持つので、ここは文の行送りに戻す。
+   */
+  line-height: var(--leading-body);
   text-decoration: none;
 }
 
@@ -348,21 +456,43 @@
   padding: var(--space-5);
 }
 
+/*
+ * 画面 1 枚ぶんの器。
+ *
+ * **縦の間隔をここ 1 箇所で持つ。** 以前は `.card` にも `.stub` にも外余白が無く、
+ * 中身を 2 つ以上置いた画面ではカードどうしが線で接し、1 枚の大きな灰色の板に見えていた。
+ * 置く側（各画面）に余白を書かせると、書き忘れた画面だけが接する。
+ *
+ * 幅の上限は「一覧・表」の 72rem。以前は「本文カラム」の 64rem を中身の種類に関係なく
+ * 当てていたが、管理画面の中身はほとんどが一覧・表・入力欄で、本文ではない。
+ * 読ませる文の行の長さは `.pageLead` と `.sectionLead` が別に絞る。
+ */
 .page {
-  max-width: var(--column-max-width);
+  display: grid;
+  gap: var(--space-4);
+  align-content: start;
+  max-width: var(--content-max-width);
   margin: 0 auto;
 }
 
+/* 見出しと説明文は 1 組。間隔だけ上の gap より詰めて、続きものだと分かるようにする。 */
+.pageHead {
+  display: grid;
+  gap: var(--space-2);
+}
+
 .pageTitle {
-  margin: 0 0 var(--space-2);
+  margin: 0;
   font-size: var(--text-2xl);
   font-weight: var(--weight-bold);
   line-height: var(--leading-heading);
   color: var(--color-text-strong);
 }
 
+/* この画面で何ができるかの 1 文。読ませる文なので行の長さを絞る（`.sectionLead` と同じ理由）。 */
 .pageLead {
-  margin: 0 0 var(--space-5);
+  max-width: var(--readable-max-width);
+  margin: 0;
   font-size: var(--text-base);
   line-height: var(--leading-body);
   color: var(--color-text-muted);
@@ -383,6 +513,11 @@
   }
 
   .sidebar {
+    /* 横一列に戻すので、縦に送る仕掛けと高さの上限は外す。
+       残すと、上に貼り付いた帯の中で縦スクロールが起きる。 */
+    position: static;
+    max-height: none;
+    overflow-y: visible;
     flex-direction: row;
     overflow-x: auto;
     border-right: none;
@@ -391,6 +526,33 @@
 
   .brandName {
     display: none;
+  }
+
+  /* 横に流れる並びでも分類は残す。消すと、狭い画面だけ 19 項目の横並びに戻る。 */
+  .navGroup {
+    flex-direction: row;
+    align-items: center;
+    gap: var(--space-2);
+  }
+
+  /* 横に並ぶので、境目の線も横に倒す。**本数は 5 本のまま。**
+     上の罫線を残すと、横並びの帯の上にもう 1 本線が乗って帯が二重に見える。 */
+  .navGroup + .navGroup {
+    margin-top: 0;
+    padding-top: 0;
+    margin-left: var(--space-2);
+    padding-left: var(--space-3);
+    border-top: none;
+    border-left: var(--border-width-default) solid var(--color-border-subtle);
+  }
+
+  .navGroupLabel {
+    /* 横一列では縦に送らないので、追従させる相手がいない。 */
+    position: static;
+    margin: 0;
+    padding: 0;
+    background: none;
+    white-space: nowrap;
   }
 
   .content {

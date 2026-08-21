@@ -1,3 +1,16 @@
+/**
+ * @tier 1
+ * @req REQ-G11
+ * @types equivalence, boundary, fault-injection, idempotency, prompt-injection
+ *
+ * 生成の実行（REQ-G11）の分かれ目は、ここと
+ * `tests/infrastructure/llm-providers.test.ts` の 2 つに分かれている。
+ *
+ *   ここ            呼ぶ前に止まる条件（そろっていない・保留の資料・上限超え・
+ *                   モデル未選択）と、受け取らない返答（打ち切り・形違い）、
+ *                   および**同じ入力からは同じ依頼が出て行く**こと
+ *   llm-providers   提供元 4 社の側（鍵の扱い・指示と資料の分離・偽の応答）
+ */
 import { describe, expect, it } from "vitest";
 import {
   type DraftContentVariantInput,
@@ -9,6 +22,7 @@ import { createLlmPorts } from "@/infrastructure/llm/llm-setup";
 import type { ActorContext } from "@/domain/shared";
 import { ok, taggedString } from "@/domain/shared";
 import { OUTPUT_REQUIRED_FIELDS } from "@/domain/generation";
+import { anLlmRequest } from "../support/doubles";
 
 /**
  * 下書き生成の決まりを機械で固定する。
@@ -23,6 +37,8 @@ const actor: ActorContext = {
   workspaceId: taggedString("ws_test"),
   roles: ["writer"],
   isAiServiceAccount: false,
+  // 身元を確かめてある人。ここは権限の検査で、ログインの有無は見ていない。
+  identified: true,
 };
 
 /** 呼ばれたかどうかと、何を渡されたかを記録する差し替え。 */
@@ -68,8 +84,21 @@ function validOutput(): Record<string, unknown> {
   return value;
 }
 
+/**
+ * どのモデルで書くかは依頼ごとに選ぶ。既定は**置かない**ので、
+ * ここで検査用の選択を補う。
+ *
+ * 補うのはこの補助関数の中だけで、実装の側には
+ * 「選ばれていなければこれ」に当たる分岐が 1 つも無い。
+ * その状態を見る検査は下の「モデルが選ばれていないとき」に置く。
+ */
+const MODEL = { providerId: "anthropic", modelId: "test-model" };
+
 function run(input: DraftContentVariantInput, llm: LlmPort) {
-  return createDraftContentVariantUseCase({ llm, costs }).execute(actor, input);
+  return createDraftContentVariantUseCase({ llm, costs }).execute(actor, {
+    model: MODEL,
+    ...input,
+  });
 }
 
 describe("そろっていなければ生成 AI を呼ばない", () => {
@@ -164,6 +193,51 @@ describe("受け取り方", () => {
   });
 });
 
+describe("もう一度渡しても、外へ出て行くものは同じ", () => {
+  const material = {
+    label: "取り込んだページ",
+    sourceUrl: "https://example.com/a",
+    text: "この機種は軽い。",
+  };
+
+  it("同じ入力からは、字面まで同じ依頼が組み上がる", async () => {
+    // ここが揺れると、同じ素材から違う記事が出る。しかも**違いの理由が残らない**。
+    // 呼ぶたびに時刻や並び順が混ざる書き方（Date.now・Map の走査順・乱数）を
+    // 指示文へ入れた瞬間に、この検査が落ちる。
+    const input = { provided: sampleGenerationInput(), materials: [material] };
+    const first = spyLlm(validOutput());
+    const second = spyLlm(validOutput());
+
+    await run(input, first.llm);
+    await run(input, second.llm);
+
+    expect(first.calls).toHaveLength(1);
+    expect(second.calls).toEqual(first.calls);
+  });
+
+  it("見積りに渡した依頼と、実際に送った依頼が同じ", async () => {
+    // 別物なら、見積りは**送っていない依頼の値段**になる。
+    // 上限との比較も、記録に残る金額も、そこで意味を失う。
+    const estimated: LlmRequest[] = [];
+    const spyCosts: LlmCostEstimatorPort = {
+      async estimate(request) {
+        estimated.push(request);
+        return ok({ estimatedCostMinor: 30, currency: "JPY" });
+      },
+    };
+    const { llm, calls } = spyLlm(validOutput());
+    const result = await createDraftContentVariantUseCase({ llm, costs: spyCosts }).execute(actor, {
+      model: MODEL,
+      provided: sampleGenerationInput(),
+      materials: [material],
+    });
+
+    expect(result.ok).toBe(true);
+    expect(estimated).toHaveLength(1);
+    expect(estimated[0]).toEqual(calls[0]);
+  });
+});
+
 describe("費用", () => {
   it("上限を超える見積りなら呼ばない", async () => {
     const { llm, calls } = spyLlm(validOutput());
@@ -176,18 +250,76 @@ describe("費用", () => {
   });
 });
 
+describe("モデルが選ばれていないとき", () => {
+  /**
+   * **既定のモデルを置かない**という決めごとを、機械で固定する。
+   *
+   * ここに「選ばれていなければ目録の先頭」を入れると、
+   * 高いモデルが黙って選ばれても誰も気づかない状態に戻る。
+   * だからこの検査は「止まること」ではなく
+   * **「止まり、かつ何も選ばれていないこと」**の 2 つを見る。
+   */
+  it("選ばずに頼むと、呼ばずに止まる", async () => {
+    const { llm, calls } = spyLlm(validOutput());
+    const result = await createDraftContentVariantUseCase({ llm, costs }).execute(actor, {
+      provided: sampleGenerationInput(),
+    });
+
+    expect(result.ok).toBe(false);
+    if (result.ok) return;
+    expect(result.error.code).toBe("VALIDATION_FAILED");
+    expect(result.error.message).toContain("選ばれていません");
+    // 何かが選ばれて呼ばれていないこと。1 件でも呼ばれていたら既定が復活している。
+    expect(calls).toHaveLength(0);
+  });
+
+  it("空文字を渡しても、選ばれたことにならない", async () => {
+    const { llm, calls } = spyLlm(validOutput());
+    const result = await createDraftContentVariantUseCase({ llm, costs }).execute(actor, {
+      provided: sampleGenerationInput(),
+      model: { providerId: "", modelId: "" },
+    });
+
+    expect(result.ok).toBe(false);
+    expect(calls).toHaveLength(0);
+  });
+
+  it("選んだモデルが、そのまま依頼と結果の両方に残る", async () => {
+    const { llm, calls } = spyLlm(validOutput());
+    const result = await run({ provided: sampleGenerationInput() }, llm);
+
+    expect(calls[0]?.model).toEqual(MODEL);
+    // どの作業場所からの依頼かも、依頼が運ぶ（呼ぶ側が付け替えられない）。
+    expect(calls[0]?.workspaceId).toBe(actor.workspaceId);
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    // **あとから足せない情報**なので、版に残す。
+    expect(result.value.providerId).toBe(MODEL.providerId);
+    expect(result.value.requestedModelId).toBe(MODEL.modelId);
+  });
+});
+
 describe("提供元が未設定のあいだの振る舞い", () => {
   it("組み立てたままの生成 AI は成功を返さない", async () => {
-    const ports = createLlmPorts();
+    const ports = createLlmPorts({ ready: false, reason: "検査では鍵の預かり所を組み立てない" });
     const result = await createDraftContentVariantUseCase({
       llm: ports.llm,
       costs: ports.costs,
-    }).execute(actor, { provided: sampleGenerationInput() });
+    }).execute(actor, { provided: sampleGenerationInput(), model: MODEL });
 
     expect(result.ok).toBe(false);
     if (result.ok) return;
     // 空文字や固定文を返すと、生成していない記事が生成済みとして残る。
     expect(result.error.code).toBe("NOT_IMPLEMENTED");
+  });
+
+  it("呼べない状態の費用見積りは、0 円と答えない", async () => {
+    // 0 円を返すと上限の判定を必ず通過し、
+    // 「見積りは通ったのに生成は失敗する」という分かりにくい順番になる。
+    const ports = createLlmPorts({ ready: false, reason: "鍵の預かり所がありません" });
+    const estimated = await ports.costs.estimate(anLlmRequest());
+    expect(estimated.ok).toBe(false);
   });
 });
 

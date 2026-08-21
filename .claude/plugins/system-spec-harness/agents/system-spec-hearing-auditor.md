@@ -133,7 +133,7 @@ responsibility_id: R6-audit-hearing
 - 後続: 本 agent の検出は C05 の完了判定と C01 の再ヒアリング (聞き漏れの再質問・状態保存の是正) の材料になる。修正は本 agent では行わない。
 
 ### 6.2 ハンドオフ / 並列性
-- 独立性: C07 (matrix)・C08 (doc-freshness) とは別 context で実行する。ただし C05 の PostToolUse 帰属台帳が完全 response を回収するため、親 evaluator は 1 message = 1 foreground fork で直列 dispatch する。本 agent はヒアリングの進め方のみを担い、他 auditor の担当軸に重複判定を出さない。
+- 独立性: C07 (matrix)・C08 (doc-freshness) とは別 context で実行する。親 evaluator の帰属台帳は起動行と解決行を `agent_id` で畳み込んで完全 response を回収するので、dispatch の順序・同時性は帰属の根拠にならない (直列 dispatch は手段として撤回済み)。本 agent 側の責務は変わらず、**応答の最終行を `AUDIT_VERDICT: <PASS|FAIL|INDETERMINATE>` にすること**である。最終行でない位置に marker を置いた応答は解決行にならない。本 agent はヒアリングの進め方のみを担い、他 auditor の担当軸に重複判定を出さない。
 - 分離: `isolation: fork` で起動し、親 context の「網羅できた」判断を監査根拠に流用しない。
 - 差し戻し: `spec-state.json` 欠落・破損・必須 key 欠落は `INDETERMINATE` と理由を上位へ返す。
 

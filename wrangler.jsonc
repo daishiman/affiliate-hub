@@ -1,7 +1,10 @@
 {
   "$schema": "./node_modules/wrangler/config-schema.json",
   "name": "affiliate-hub",
-  "main": ".open-next/worker.js",
+  // OpenNext の生成物 (.open-next/worker.js) を直接指さず、それを包む入口を指す。
+  // 生成物は画面と API (fetch) しか持たず、定期実行 (scheduled) の受け口が無いため。
+  // 生成物の作り直しでこの指定が消えることはない (ビルドは既存の設定を上書きしない)。
+  "main": "worker-entry.js",
   "compatibility_date": "2026-08-16",
   "compatibility_flags": ["nodejs_compat"],
   "assets": {
@@ -10,6 +13,18 @@
   },
   "observability": {
     "enabled": true
+  },
+
+  // --- 定期実行について -----------------------------------------------------
+  // 期限 (180 日) を過ぎた画面の写しを消す。時刻は UTC 指定なので、
+  // "0 17 * * *" は日本時間の毎日 2:00。利用の少ない時間帯に寄せている。
+  //
+  // 消し忘れても画面には出ない (読み出し側が期限を見て渡さない) が、
+  // それだけだと「180 日で消えます」という説明が置き場の実態と合わなくなる。
+  //
+  // 手元で試すときは preview 中に /cdn-cgi/handler/scheduled を開く。
+  "triggers": {
+    "crons": ["0 17 * * *"]
   },
 
   // --- 環境について ---------------------------------------------------------
@@ -23,6 +38,22 @@
   //
   // トップレベルは「ローカル開発用」として dev リソースを指す。
   // 事故ったときに壊れるのが dev 側になるようにするため。
+
+  // --- モデルの目録について -------------------------------------------------
+  // `LLM_PROVIDER_CATALOG` は**単価表であって秘密ではない**ので、secret ではなく
+  // vars に置く（secret にすると中身が読めず、値上げに気づく手がかりが消える）。
+  //
+  // **手で書かない。** 正本は config/llm-provider-catalog.json で、ここにあるのは
+  // それを 1 行の文字列にした写しである。3 か所（手元・dev・本番）に同じものを
+  // 置いているのは、Wrangler v4 がトップレベルの vars を env へ継承しないため。
+  // 写し 3 つが正本と食い違っていないことは
+  // tests/infrastructure/llm-provider-catalog-config.test.ts が見る。
+  //
+  // 更新の仕方: 正本を直して `pnpm run catalog:sync` を走らせる。
+  "vars": {
+    "LLM_PROVIDER_CATALOG": "{\"anthropic\":[{\"modelId\":\"claude-opus-5\",\"label\":\"Claude Opus 5\",\"inputPricePerMillionMinor\":500,\"outputPricePerMillionMinor\":2500,\"currency\":\"USD\",\"sourceUrl\":\"https://platform.claude.com/docs/en/about-claude/pricing\",\"pricedOn\":\"2026-08-18\"},{\"modelId\":\"claude-sonnet-5\",\"label\":\"Claude Sonnet 5\",\"inputPricePerMillionMinor\":200,\"outputPricePerMillionMinor\":1000,\"currency\":\"USD\",\"sourceUrl\":\"https://platform.claude.com/docs/en/about-claude/pricing\",\"pricedOn\":\"2026-08-18\"}],\"google\":[{\"modelId\":\"gemini-3.5-flash\",\"label\":\"Gemini 3.5 Flash\",\"inputPricePerMillionMinor\":150,\"outputPricePerMillionMinor\":900,\"currency\":\"USD\",\"sourceUrl\":\"https://ai.google.dev/gemini-api/docs/pricing\",\"pricedOn\":\"2026-08-18\"}],\"openai\":[{\"modelId\":\"gpt-5.6-sol\",\"label\":\"GPT-5.6 Sol\",\"inputPricePerMillionMinor\":500,\"outputPricePerMillionMinor\":3000,\"currency\":\"USD\",\"sourceUrl\":\"https://developers.openai.com/api/docs/pricing\",\"pricedOn\":\"2026-08-18\"},{\"modelId\":\"gpt-5.6-luna\",\"label\":\"GPT-5.6 Luna（安い代わりに短め向き）\",\"inputPricePerMillionMinor\":20,\"outputPricePerMillionMinor\":120,\"currency\":\"USD\",\"sourceUrl\":\"https://developers.openai.com/api/docs/pricing\",\"pricedOn\":\"2026-08-18\"}],\"xai\":[{\"modelId\":\"grok-4.6\",\"label\":\"Grok 4.6（長い依頼の単価で見積ります）\",\"inputPricePerMillionMinor\":400,\"outputPricePerMillionMinor\":1200,\"currency\":\"USD\",\"sourceUrl\":\"https://docs.x.ai/developers/pricing\",\"pricedOn\":\"2026-08-18\"}],\"workers_ai\":[]}"
+  },
+
   "d1_databases": [
     {
       "binding": "DB",
@@ -44,12 +75,18 @@
       "name": "affiliate-hub-dev",
       "compatibility_date": "2026-08-16",
       "compatibility_flags": ["nodejs_compat"],
+      "triggers": {
+        "crons": ["0 17 * * *"]
+      },
       "assets": {
         "directory": ".open-next/assets",
         "binding": "ASSETS"
       },
       "observability": {
         "enabled": true
+      },
+      "vars": {
+        "LLM_PROVIDER_CATALOG": "{\"anthropic\":[{\"modelId\":\"claude-opus-5\",\"label\":\"Claude Opus 5\",\"inputPricePerMillionMinor\":500,\"outputPricePerMillionMinor\":2500,\"currency\":\"USD\",\"sourceUrl\":\"https://platform.claude.com/docs/en/about-claude/pricing\",\"pricedOn\":\"2026-08-18\"},{\"modelId\":\"claude-sonnet-5\",\"label\":\"Claude Sonnet 5\",\"inputPricePerMillionMinor\":200,\"outputPricePerMillionMinor\":1000,\"currency\":\"USD\",\"sourceUrl\":\"https://platform.claude.com/docs/en/about-claude/pricing\",\"pricedOn\":\"2026-08-18\"}],\"google\":[{\"modelId\":\"gemini-3.5-flash\",\"label\":\"Gemini 3.5 Flash\",\"inputPricePerMillionMinor\":150,\"outputPricePerMillionMinor\":900,\"currency\":\"USD\",\"sourceUrl\":\"https://ai.google.dev/gemini-api/docs/pricing\",\"pricedOn\":\"2026-08-18\"}],\"openai\":[{\"modelId\":\"gpt-5.6-sol\",\"label\":\"GPT-5.6 Sol\",\"inputPricePerMillionMinor\":500,\"outputPricePerMillionMinor\":3000,\"currency\":\"USD\",\"sourceUrl\":\"https://developers.openai.com/api/docs/pricing\",\"pricedOn\":\"2026-08-18\"},{\"modelId\":\"gpt-5.6-luna\",\"label\":\"GPT-5.6 Luna（安い代わりに短め向き）\",\"inputPricePerMillionMinor\":20,\"outputPricePerMillionMinor\":120,\"currency\":\"USD\",\"sourceUrl\":\"https://developers.openai.com/api/docs/pricing\",\"pricedOn\":\"2026-08-18\"}],\"xai\":[{\"modelId\":\"grok-4.6\",\"label\":\"Grok 4.6（長い依頼の単価で見積ります）\",\"inputPricePerMillionMinor\":400,\"outputPricePerMillionMinor\":1200,\"currency\":\"USD\",\"sourceUrl\":\"https://docs.x.ai/developers/pricing\",\"pricedOn\":\"2026-08-18\"}],\"workers_ai\":[]}"
       },
       "d1_databases": [
         {
@@ -72,12 +109,18 @@
       "name": "affiliate-hub",
       "compatibility_date": "2026-08-16",
       "compatibility_flags": ["nodejs_compat"],
+      "triggers": {
+        "crons": ["0 17 * * *"]
+      },
       "assets": {
         "directory": ".open-next/assets",
         "binding": "ASSETS"
       },
       "observability": {
         "enabled": true
+      },
+      "vars": {
+        "LLM_PROVIDER_CATALOG": "{\"anthropic\":[{\"modelId\":\"claude-opus-5\",\"label\":\"Claude Opus 5\",\"inputPricePerMillionMinor\":500,\"outputPricePerMillionMinor\":2500,\"currency\":\"USD\",\"sourceUrl\":\"https://platform.claude.com/docs/en/about-claude/pricing\",\"pricedOn\":\"2026-08-18\"},{\"modelId\":\"claude-sonnet-5\",\"label\":\"Claude Sonnet 5\",\"inputPricePerMillionMinor\":200,\"outputPricePerMillionMinor\":1000,\"currency\":\"USD\",\"sourceUrl\":\"https://platform.claude.com/docs/en/about-claude/pricing\",\"pricedOn\":\"2026-08-18\"}],\"google\":[{\"modelId\":\"gemini-3.5-flash\",\"label\":\"Gemini 3.5 Flash\",\"inputPricePerMillionMinor\":150,\"outputPricePerMillionMinor\":900,\"currency\":\"USD\",\"sourceUrl\":\"https://ai.google.dev/gemini-api/docs/pricing\",\"pricedOn\":\"2026-08-18\"}],\"openai\":[{\"modelId\":\"gpt-5.6-sol\",\"label\":\"GPT-5.6 Sol\",\"inputPricePerMillionMinor\":500,\"outputPricePerMillionMinor\":3000,\"currency\":\"USD\",\"sourceUrl\":\"https://developers.openai.com/api/docs/pricing\",\"pricedOn\":\"2026-08-18\"},{\"modelId\":\"gpt-5.6-luna\",\"label\":\"GPT-5.6 Luna（安い代わりに短め向き）\",\"inputPricePerMillionMinor\":20,\"outputPricePerMillionMinor\":120,\"currency\":\"USD\",\"sourceUrl\":\"https://developers.openai.com/api/docs/pricing\",\"pricedOn\":\"2026-08-18\"}],\"xai\":[{\"modelId\":\"grok-4.6\",\"label\":\"Grok 4.6（長い依頼の単価で見積ります）\",\"inputPricePerMillionMinor\":400,\"outputPricePerMillionMinor\":1200,\"currency\":\"USD\",\"sourceUrl\":\"https://docs.x.ai/developers/pricing\",\"pricedOn\":\"2026-08-18\"}],\"workers_ai\":[]}"
       },
       "d1_databases": [
         {

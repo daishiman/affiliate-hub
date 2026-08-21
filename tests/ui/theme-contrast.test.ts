@@ -1,3 +1,11 @@
+/**
+ * @tier 2
+ * @req REQ-TS06, REQ-TH01, REQ-TH02
+ * @types a11y
+ *
+ * 印を 1 行に収めてあるのは、`scripts/required-test-types.mjs` の `@req` が
+ * 1 行しか読まないため（折り返すと 2 行目が黙って落ちる）。
+ */
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
@@ -150,29 +158,100 @@ function pairsFromComponentCss(): readonly Pair[] {
 }
 
 /**
- * 部品の CSS からは拾えない組み合わせ。
+ * 部品の CSS から自動では拾えない組み合わせ。
  *
- * 本文の色と背景は個々の部品ではなく大枠で決まるため、規則の中に並んでいない。
+ * 自動で拾えるのは「同じ規則の中で文字色と背景色の両方を書いている」形だけで、
+ * 実際の画面には**受け継ぎで重なる**組み合わせがある（沈めた面の上に、
+ * `body` から受け継いだ本文の色が乗る、など）。それをここに書く。
+ *
+ * --- なぜ「指し先」を持たせるか ---
+ *
+ * この 7 組は、以前は色の名前だけが並んでいた。**名前だけの組は、
+ * その組が画面のどこにも無くなっても緑のまま残る。**
+ * このファイルは同じ失敗を一度している（手で書いた 9 組のうち 2 組が
+ * 実際には一度も組み合わさらない色だった、と上に書いてある）。
+ * 拾い方を自動にしたときに、こちらの 7 組は手書きのまま取り残された。
+ *
+ * そこで各組に**実物の規則**を持たせ、下の「指し先が実在する」で毎回確かめる。
+ * 規則名が変わった日・受け継ぎが受け継ぎでなくなった日に赤くなる。
+ *
  * 枠線は文字ではないので下限は 3:1（WCAG 2.2 SC 1.4.11）。
  * **飾りの区切り線（border-subtle / border-default）は対象にしない。**
  * 操作の輪郭を示す線ではないため、同 SC の対象外。
  * ここを 3:1 で縛ると、区切り線を濃くする方向にしか直せなくなる。
  */
-const GLOBAL_PAIRS: readonly Pair[] = [
-  { what: "本文と背景", fg: "--color-text-default", bg: "--color-surface-default", min: 4.5 },
-  { what: "補足の文字と背景", fg: "--color-text-muted", bg: "--color-surface-default", min: 4.5 },
+const UI_CSS = "src/presentation/ui/primitives/ui.module.css";
+const PATTERNS_CSS = "src/presentation/ui/patterns/patterns.module.css";
+const GLOBALS_CSS = "src/app/globals.css";
+
+/**
+ * 組が実際に起きている場所。
+ *
+ * - `同じ規則`: 1 つの規則が文字（か線）と背景の両方を書いている
+ * - `受け継ぐ`: 文字の側は自分で背景を持たず、別の規則が敷いた面の上に乗る
+ */
+type Anchor =
+  | { readonly kind: "同じ規則"; readonly file: string; readonly selector: string }
+  | {
+      readonly kind: "受け継ぐ";
+      readonly fgFile: string;
+      readonly fgSelector: string;
+      readonly bgFile: string;
+      readonly bgSelector: string;
+    };
+
+type AnchoredPair = Pair & { readonly at: Anchor };
+
+const GLOBAL_PAIRS: readonly AnchoredPair[] = [
+  {
+    what: "本文と背景",
+    fg: "--color-text-default",
+    bg: "--color-surface-default",
+    min: 4.5,
+    at: { kind: "同じ規則", file: GLOBALS_CSS, selector: "body" },
+  },
+  {
+    what: "補足の文字と背景",
+    fg: "--color-text-muted",
+    bg: "--color-surface-default",
+    min: 4.5,
+    // 追従する分類の見出し。背景を自分で敷いている（下を項目が通るため）。
+    at: { kind: "同じ規則", file: UI_CSS, selector: ".navGroupLabel" },
+  },
   {
     what: "見出しと一段上げた面",
     fg: "--color-text-strong",
     bg: "--color-surface-raised",
     min: 4.5,
+    at: { kind: "同じ規則", file: PATTERNS_CSS, selector: ".table thead th" },
   },
-  { what: "本文と沈めた面", fg: "--color-text-default", bg: "--color-surface-sunken", min: 4.5 },
+  {
+    what: "本文と沈めた面",
+    fg: "--color-text-default",
+    bg: "--color-surface-sunken",
+    min: 4.5,
+    // 沈めた面は自分で文字色を持たない。`body` の本文色がそのまま乗る。
+    at: {
+      kind: "受け継ぐ",
+      fgFile: GLOBALS_CSS,
+      fgSelector: "body",
+      bgFile: PATTERNS_CSS,
+      bgSelector: ".criteria",
+    },
+  },
   {
     what: "操作の色と背景（リンクの文字として出る）",
     fg: "--color-action-default",
     bg: "--color-surface-default",
     min: 4.5,
+    // リンクは自分で背景を敷かない。`body` の地色の上に文字だけが乗る。
+    at: {
+      kind: "受け継ぐ",
+      fgFile: PATTERNS_CSS,
+      fgSelector: ".boardLink",
+      bgFile: GLOBALS_CSS,
+      bgSelector: "body",
+    },
   },
   // 操作の輪郭を示す線。ここは 1.4.11 の対象。
   {
@@ -180,26 +259,122 @@ const GLOBAL_PAIRS: readonly Pair[] = [
     fg: "--color-border-strong",
     bg: "--color-surface-default",
     min: 3,
+    at: { kind: "同じ規則", file: PATTERNS_CSS, selector: ".findingItem" },
   },
   {
     what: "焦点の輪と背景（キーボード操作の現在地）",
     fg: "--color-focus-ring",
     bg: "--color-surface-default",
     min: 3,
+    // 輪は部品の**外側**に描かれるので、乗る面は部品の背景ではなく画面の地色。
+    at: {
+      kind: "受け継ぐ",
+      fgFile: PATTERNS_CSS,
+      fgSelector: ".filterSelect:focus-visible",
+      bgFile: GLOBALS_CSS,
+      bgSelector: "body",
+    },
   },
 ];
+
+/** 名前で規則の中身を引く。無ければ null（呼ぶ側で赤にする）。 */
+function ruleBodyOf(file: string, selector: string): string | null {
+  const css = readFileSync(join(process.cwd(), file), "utf8");
+  for (const rule of css.matchAll(/([^{}]+)\{([^{}]*)\}/g)) {
+    if ((rule[1].trim().split("\n").pop()?.trim() ?? "") === selector) return rule[2];
+  }
+  return null;
+}
+
+const declaresBackground = (body: string): boolean =>
+  /(?:^|\s)background(?:-color)?\s*:/.test(body);
 
 const PAIRS: readonly Pair[] = [...GLOBAL_PAIRS, ...pairsFromComponentCss()];
 
 const MODES: readonly Mode[] = ["light", "dark"];
 
 describe("配色 × 明暗のコントラスト（WCAG 2.2 AA）", () => {
+  it.each(GLOBAL_PAIRS.map((p) => [p.what, p] as const))(
+    "手で書いた組の指し先が、実物の規則を指している: %s",
+    (_what, pair) => {
+      // **色の名前だけの組は、画面のどこにも無くなっても緑のまま残る。**
+      // 「合っている」と「もう起きていない」が同じ緑で出るのを止めるため、
+      // 組ごとに実物の規則を名指しし、そこに本当に書いてあるかを毎回見る。
+      if (pair.at.kind === "同じ規則") {
+        const body = ruleBodyOf(pair.at.file, pair.at.selector);
+        expect(body, `${pair.at.file} に ${pair.at.selector} がありません`).not.toBeNull();
+        expect(body, `${pair.at.selector} が ${pair.fg} を使っていません`).toContain(
+          `var(${pair.fg})`,
+        );
+        expect(body, `${pair.at.selector} が ${pair.bg} を敷いていません`).toContain(
+          `var(${pair.bg})`,
+        );
+        return;
+      }
+
+      const fgBody = ruleBodyOf(pair.at.fgFile, pair.at.fgSelector);
+      const bgBody = ruleBodyOf(pair.at.bgFile, pair.at.bgSelector);
+      expect(fgBody, `${pair.at.fgFile} に ${pair.at.fgSelector} がありません`).not.toBeNull();
+      expect(bgBody, `${pair.at.bgFile} に ${pair.at.bgSelector} がありません`).not.toBeNull();
+      expect(fgBody, `${pair.at.fgSelector} が ${pair.fg} を使っていません`).toContain(
+        `var(${pair.fg})`,
+      );
+      expect(bgBody, `${pair.at.bgSelector} が ${pair.bg} を敷いていません`).toContain(
+        `var(${pair.bg})`,
+      );
+
+      // **受け継ぎであることそのものを見る。**
+      // 文字の側が自分で背景を敷き始めたら、この組はもう起きていない
+      // （そのときは自動で拾われる側に移るので、ここから外すのが正しい）。
+      if (pair.at.fgSelector !== "body") {
+        expect(
+          declaresBackground(fgBody ?? ""),
+          `${pair.at.fgSelector} が自分で背景を敷き始めました。この組はもう受け継ぎではありません`,
+        ).toBe(false);
+      } else {
+        // `body` を文字側に置いた組は、面の側が文字色を持たないことで受け継ぎになる。
+        expect(
+          /(?:^|\s)color\s*:/.test(bgBody ?? ""),
+          `${pair.at.bgSelector} が自分で文字色を持ち始めました。この組はもう受け継ぎではありません`,
+        ).toBe(false);
+      }
+    },
+  );
+
   it("検査対象を実際に読めている", () => {
     // 対象が 0 件だと下のテストは全部「合格」になる。
     expect(BRAND_THEMES.length).toBeGreaterThanOrEqual(9);
     expect(PAIRS.length).toBeGreaterThan(0);
     expect(primitives.size).toBeGreaterThan(20);
     expect(semanticDefaults.size).toBeGreaterThan(20);
+  });
+
+  /*
+   * 2026-08-19 に足した。**穴を塞いだのではなく、この 1 ファイルを自足させた。**
+   *
+   * 配色を 1 つ足して themes.css に何も書かずにこのファイルだけを走らせると、
+   * テストは 23 件から 25 件に増えたうえで**全部緑**になった。増えた 2 件は
+   * `themeBlock()` が空の Map を返し、色が既定値（`semantic.css` の `:root`）に
+   * 落ちるので AA を満たしてしまう。総当たりの件数が自動で増えることと、
+   * 増えたぶんが**実際に見られていること**は別である。
+   *
+   * ただし**全部走らせれば `tests/ui/blueprint-theme.test.ts` が 2 件落ちる**
+   * （「Blueprint が選べるテーマは、すべて themes.css に実体がある」ほか）。
+   * つまり製品としての穴は空いていなかった。空いていたのは
+   * **1 ファイルだけを対象に測ったときの見え方**である。
+   * 測る範囲を狭めると、無い穴が見える（残課題 78 の族）。
+   *
+   * それでもここに置くのは、次にこのファイルだけを壊して測る人が
+   * 同じ勘違いをするのを防ぐため。下の「5 系統」の検査は同じ形だが、
+   * **利用者が名指しした 5 つだけ**が対象なので、それ以外の配色では空振りする。
+   */
+  it("登録されている配色すべてが themes.css に自分の色を持っている", () => {
+    const empty = BRAND_THEMES.filter((theme) => themeBlock(theme).size === 0);
+    expect(
+      empty,
+      "themes.css に [data-brand-theme=\"…\"] のブロックがありません。" +
+        "名札だけ足すと、その配色は既定色で検査され、**中身が空のまま合格します**",
+    ).toEqual([]);
   });
 
   it("利用者が指定した 5 系統がそろっている", () => {

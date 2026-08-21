@@ -3,6 +3,7 @@ import {
   type LoopKind,
   type OptimizationDimension,
   type OptimizationGroup,
+  LOOP_DECISION_BASIS_LABELS,
   LOOP_KINDS,
   LOOP_POLARITY_LABELS,
   MAX_SIMULTANEOUS_DIMENSIONS,
@@ -51,6 +52,8 @@ export type LoopKindRow = {
   readonly key: string;
   readonly label: string;
   readonly polarityLabel: string;
+  /** 何をもって決めるか。件数で決めるのか 1 件で決めるのかを画面に出す。 */
+  readonly decisionBasisLabel: string;
   readonly readinessLabel: string;
   readonly implemented: boolean;
   readonly signal: string;
@@ -93,6 +96,7 @@ function toLoopRow(kind: LoopKind): LoopKindRow {
     key: kind.key,
     label: kind.label,
     polarityLabel: LOOP_POLARITY_LABELS[kind.polarity],
+    decisionBasisLabel: LOOP_DECISION_BASIS_LABELS[kind.decisionBasis],
     readinessLabel: kind.readiness === "implemented" ? "動いています" : "まだ動きません",
     implemented: kind.readiness === "implemented",
     signal: kind.signal,

@@ -1,3 +1,25 @@
+/**
+ * @tier 1
+ * @req REQ-WC03, REQ-WC04
+ * @types equivalence, boundary, decision-table
+ *
+ * 1 ページ 6 ツール以下・読み取り専用から導入（REQ-WC04）の分かれ目は
+ * 「ページ種別ごとに中身が違う」（同値）と「どのページも 6 個以下」（境界）である。
+ * ページ種別は 7 つあり、全部に当てている。
+ *
+ * 機能フラグ（REQ-WC03）も 2026-08-18 に宣言した。
+ * 性質は `has-enumerated-input`（入力の軸がすべて列挙で、大小の端が無い）で、
+ * 必須は等価分割と判定表。`has-input` を名乗って `boundary` を除外する形に
+ * しなかったのは、列挙で本当に困るのが端ではなく**数え落とし**だからである。
+ * 実際 REQ-WC03 は、止める値の一覧を検査側に書き写していたせいで
+ * `disabled` が試されていなかった。
+ *
+ * 宣言型フォーム（REQ-WC05）の節がこのファイルにもあるが、**印は付けていない**。
+ * 付けると、このファイルの `decision-table`（中身は REQ-WC03 のもの）が
+ * REQ-WC05 の充足として数えられ、描画側の判定表を丸ごと消しても緑になる。
+ * REQ-WC05 の印は、判定表が実際にある `tests/ui/tool-form.test.tsx` だけに付けた。
+ * WC06 の権限は `api-routes.test.ts` の側で見ている。
+ */
 import { readFileSync, readdirSync, statSync } from "node:fs";
 import { join, relative, resolve } from "node:path";
 import { describe, expect, it } from "vitest";
@@ -8,6 +30,7 @@ import {
   PAGE_KIND_LABELS,
   PAGE_TOOLS,
   WEBMCP_FLAG,
+  WEBMCP_OFF_VALUES,
   isWebMcpEnabled,
   toolNamesForPage,
   type PageKind,
@@ -22,7 +45,7 @@ import { allowedOriginsFrom, checkOrigin } from "@/presentation/http/origin-guar
  * ページを開いた AI がそのまま公開できてしまう。
  */
 
-const catalog = createToolCatalog();
+const catalog = (await createToolCatalog());
 const kinds = Object.keys(PAGE_TOOLS) as PageKind[];
 
 describe("ページ種別ごとの道具", () => {
@@ -79,19 +102,31 @@ describe("ページ種別ごとの道具", () => {
 });
 
 describe("機能フラグ", () => {
-  it("既定では有効", () => {
-    expect(isWebMcpEnabled({})).toBe(true);
-  });
+  /*
+    入力は「値を置かない / 止める値 / それ以外」の 3 区分しかなく、
+    大小の端が無い。境界値の代わりに**止める値を 1 つも落とさない**ことを見る。
 
-  it("止めたいときは止まる", () => {
-    for (const value of ["off", "OFF", "false", "0", " no "]) {
+    止める値は実装から取る（`WEBMCP_OFF_VALUES`）。ここで一覧を書き写すと、
+    実装に値が 1 つ増えたときに検査は 4 つのまま緑になる。
+    実際、書き写していた間 `disabled` が抜けていた。
+  */
+  it("止める値が 1 つも落ちていない（実装の一覧をそのまま回す）", () => {
+    expect(WEBMCP_OFF_VALUES.length).toBeGreaterThan(0);
+    for (const value of WEBMCP_OFF_VALUES) {
       expect(isWebMcpEnabled({ [WEBMCP_FLAG]: value }), value).toBe(false);
+      // 大文字・前後の空白は運用でよく混ざる。同じ値として扱う。
+      expect(isWebMcpEnabled({ [WEBMCP_FLAG]: ` ${value.toUpperCase()} ` }), value).toBe(false);
     }
   });
 
-  it("止めると、渡す道具が空になる", () => {
-    expect(toolNamesForPage("article", { [WEBMCP_FLAG]: "off" })).toEqual([]);
-    expect(toolNamesForPage("article", {}).length).toBeGreaterThan(0);
+  it.each([
+    ["値を置かない", undefined, true, "既定は有効"],
+    ["止める値", "off", false, "まとめて止めるつまみ"],
+    ["それ以外", "on", true, "知らない値で黙って止まらない"],
+  ] as const)("%s → %s（%s）", (_区分, value, enabled, _なぜ) => {
+    const env = value === undefined ? {} : { [WEBMCP_FLAG]: value };
+    expect(isWebMcpEnabled(env)).toBe(enabled);
+    expect(toolNamesForPage("article", env).length > 0).toBe(enabled);
   });
 });
 

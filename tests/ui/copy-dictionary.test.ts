@@ -1,3 +1,4 @@
+/** @tier 2 */
 import { readFileSync, readdirSync, statSync } from "node:fs";
 import { join, relative } from "node:path";
 import { describe, expect, it } from "vitest";
@@ -124,6 +125,16 @@ describe("画面の言葉", () => {
   it("使ってはいけない言い換えが画面のコードに混ざっていない", () => {
     const banned = readBannedWords();
     const allowed = readAllowedCompounds();
+    // **床は歩く側と探す側の両方に置く**（残課題 78 ㉗）。下の `offenders` の 0 件は
+    // 「違反が無い」でも「画面のファイルを 1 つも歩けていない」でも
+    // 「禁止語を 1 つも読めていない」でも出る。
+    //
+    // ここに `allowed`（例外の辞書）の床だけがあった間、`form2-population-floor` は
+    // この検査を「床あり」と数えていた。**数えられていたのは床の有無であって、
+    // それが母集団に掛かっているかではない。**当たっていたのは「床が要る」のほうで、
+    // 「もう在る」は当たっていなかった。
+    expect(screenFiles.length, "画面のファイルを歩けていません").toBeGreaterThan(10);
+    expect(banned.length, "使ってはいけない言い換えを読めていません").toBeGreaterThan(5);
     expect(allowed.length, "辞書の例外行が読めていません").toBeGreaterThan(0);
     const offenders: string[] = [];
 
@@ -168,9 +179,17 @@ describe("画面の言葉", () => {
 
   it("広告表示の文言が 1 箇所にまとまっている", () => {
     // 法令に関わる文言を画面ごとに書くと、変更時に必ず抜けが出る。
+    //
+    // 業務側の正本（`domain/compliance/disclosure.ts` の `READER_DISCLOSURE_TEXT`）
+    // だけは対象外にする。同じ文を読者ページの AI 向けの道具も返す必要があり、
+    // 部品は業務層を読めない決まり（`ui-layers.test.ts`）のため、
+    // 画面側と業務側の 2 か所に置くほかない。
+    // **書き写しは自由にならない** — 2 つが 1 文字でも違えば
+    // `tests/ui/disclosure-text.test.ts` が落ちる。`factSource` と同じ扱い。
+    const canonical = join(ROOT, "src/domain/compliance/disclosure.ts");
     const offenders: string[] = [];
     for (const file of screenFiles) {
-      if (file.endsWith("copy.ts")) continue;
+      if (file.endsWith("copy.ts") || file === canonical) continue;
       const text = readFileSync(file, "utf8");
       if (/アフィリエイトリンクが含まれ|広告を含みます/.test(text)) {
         offenders.push(relative(ROOT, file));
@@ -180,6 +199,49 @@ describe("画面の言葉", () => {
       offenders,
       "広告表示の文言は UI_COPY.disclosure だけに置きます。" +
         "画面ごとに書くと、法令要件が変わったときの直し漏れが必ず出ます。",
+    ).toEqual([]);
+  });
+
+  it("できない理由の差し替え文が、画面につながっていない", () => {
+    /*
+     * **呼び出しが無いことを、書き忘れではなく決定として固定する。**
+     *
+     * できない理由は `requireCapability()` が作り、画面は `Callout` の
+     * `reason`（省略できない型）へ渡す。ここに一般の差し替え文をつなぐと、
+     * 理由が作られなかったときに**それらしい文が代わりに出る**。
+     * そのとき、読み手の側にだけある文が 1 文以上あることを見ている検査
+     * （`page-render-restricted`。文言に依存しない形）は**緑になる**。
+     * 黙って消えるのではなく、**埋まって見える**という壊れ方をする。
+     *
+     * つまり、つなぐと「理由が無いこと」を隠す道具になる。
+     * 決定を文章だけで残すと、次に見た人には「つなぎ忘れ」に見えて、
+     * 親切心でつながれる。だから検査にする。
+     */
+    const users = screenFiles
+      .filter((f) => !f.endsWith(join("presentation", "ui", "copy.ts")))
+      .filter((f) => {
+        const code = readFileSync(f, "utf8")
+          .split("\n")
+          .filter((l) => {
+            const t = l.trim();
+            return !t.startsWith("//") && !t.startsWith("*") && !t.startsWith("/*");
+          })
+          .join("\n");
+        return /forbiddenTitle|forbiddenBodyFallback/.test(code);
+      })
+      .map((f) => relative(ROOT, f));
+
+    expect(
+      users,
+      [
+        "UI_COPY.state.forbidden* を画面から参照しています:",
+        ...users.map((f) => `  ${f}`),
+        "",
+        "これは「つなぎ忘れ」ではなく、つながないという決定です（理由は copy.ts に書いてあります）。",
+        "つなぐ必要が出たなら、先に page-render-restricted の検査を",
+        "「特定の理由が出ていること」を見る形へ作り直してください。",
+        "順番を逆にすると、理由が無い画面が緑のまま埋まって見えます。",
+      ].join("\n"),
     ).toEqual([]);
   });
 

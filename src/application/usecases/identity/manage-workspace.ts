@@ -58,6 +58,7 @@ export const ROLE_LABEL: Readonly<Record<Role, string>> = {
   publisher: "公開担当",
   analyst: "数字の担当",
   contributor: "外部の書き手",
+  feedback_admin: "使い勝手の担当",
   ai_service_account: "AI（機械）",
 };
 
@@ -81,7 +82,14 @@ export const CAPABILITY_LABEL: Readonly<Record<Capability, string>> = {
   "affiliate.manage": "提携を管理する",
   "affiliate.read_revenue": "成果の金額を見る",
   "analytics.read": "数字を見る",
+  "improvement.run": "改善ループを回す",
+  "improvement.approve": "試作を承認する",
   "audit.read": "操作の記録を見る",
+  "feedback.submit": "改善要望を送る",
+  "feedback.read": "改善要望を見る",
+  "feedback.status_update": "改善要望の対応状況を変える",
+  "feedback.manage": "改善要望の扱いを決める",
+  "integration_key.manage": "取得用の鍵を管理する",
   "export.perform": "データを書き出す",
 };
 
@@ -95,6 +103,7 @@ const ALL_ROLES: readonly Role[] = [
   "publisher",
   "analyst",
   "contributor",
+  "feedback_admin",
   "ai_service_account",
 ];
 
@@ -221,8 +230,10 @@ export function createListRolesUseCase(
             // 機械には、人が行うと決めた操作を出さない。
             .filter((c) => !(isMachine && HUMAN_ONLY_CAPABILITIES.has(c)))
             .map((key) => ({ key, label: CAPABILITY_LABEL[key] })),
+          // 役割の表から引くと、機械の役割にはもともと入っていないため常に空になり、
+          // 「AI には何ができないのか」が画面から消える。人が行うと決めた一覧を直接出す。
           humanOnlyBlocked: isMachine
-            ? caps.filter((c) => HUMAN_ONLY_CAPABILITIES.has(c)).map((c) => CAPABILITY_LABEL[c])
+            ? [...HUMAN_ONLY_CAPABILITIES].map((c) => CAPABILITY_LABEL[c])
             : [],
         };
       });
@@ -456,12 +467,35 @@ export const AUDIT_ACTION_LABEL: Readonly<Record<AuditAction, string>> = {
   "ranking_model.changed": "評価基準を変えた",
   "disclosure.changed": "広告表記を変えた",
   "policy_rule.changed": "表記のきまりを変えた",
-  "affiliate_link.created": "提携リンクを作った",
-  "affiliate_link.changed": "提携リンクを変えた",
+  // 受信箱の 3 語。読む人が「受け取り → 宛先決め → 対象外」の順で追えるようにする。
+  "affiliate_link.created": "成果リンクを受け取った",
+  "affiliate_link.changed": "成果リンクの宛先を決めた",
+  "affiliate_link.rejected": "成果リンクを対象外にした",
   "connector.connected": "外部サービスにつないだ",
   "connector.disconnected": "外部サービスとの接続を切った",
   "member.role_changed": "担当者の役割を変えた",
   "export.performed": "データを書き出した",
+  "llm_credential.registered": "生成 AI の API キーを登録した",
+  "llm_credential.revoked": "生成 AI の API キーを失効させた",
+  "publication.schedule_changed": "配信の予定を変えた",
+  "integration_key.issued": "取得用の鍵を発行した",
+  "integration_key.revoked": "取得用の鍵を止めた",
+  "site.created": "サイトを作った",
+  // 作る前の下書き。「始めた → 段階を埋めた」で、作るまでの道のりが追える。
+  "site_draft.started": "ブログを作り始めた",
+  "site_draft.step_saved": "ブログ作成の入力を保存した",
+  "conversion.adjusted": "成果の数字を手で直した",
+  // 改善要望の 3 語。「届いた → 扱いを決めた → 外へ出した」の順で追える。
+  "feedback.submitted": "改善要望が届いた",
+  "feedback.status_changed": "改善要望の扱いを変えた",
+  "feedback.handed_off": "改善要望を指示文として払い出した",
+  // 改善ループの 6 語。「試作を作る → 承認する」と「始める → 測る → 決める／やめる」。
+  "variant_spec.drafted": "見せ方の試作を登録した",
+  "variant_spec.approved": "見せ方の試作を承認した",
+  "loop_run.started": "見せ方の比較を始めた",
+  "loop_run.observed": "比較の観測値を記録した",
+  "loop_run.concluded": "比較を判定した",
+  "loop_run.stopped": "比較を打ち切った",
 };
 
 export type ListAuditLogInput = { readonly limit?: number };

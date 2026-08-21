@@ -129,7 +129,7 @@ export function retentionDeadline(key: TelemetryEventKey, occurredAt: Date): Dat
   return new Date(occurredAt.getTime() + days * 24 * 60 * 60 * 1000);
 }
 
-export function isExpired(key: TelemetryEventKey, occurredAt: Date, now: Date): boolean {
+export function isRetentionExpired(key: TelemetryEventKey, occurredAt: Date, now: Date): boolean {
   return retentionDeadline(key, occurredAt).getTime() <= now.getTime();
 }
 

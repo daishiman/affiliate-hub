@@ -1,10 +1,10 @@
 import type { AuditLogEntry, Disclosure, PolicyRule } from "@/domain/compliance";
 import type { AuditLogId, DisclosureId, PolicyRuleId, WorkspaceId } from "@/domain/shared";
-import type { Page, Paged, PortResult } from "./common";
+import type { PageRequest, Paged, PortResult } from "./common";
 
 export type DisclosureRepositoryPort = {
   findById(workspaceId: WorkspaceId, id: DisclosureId): PortResult<Disclosure | null>;
-  list(workspaceId: WorkspaceId, page: Page): PortResult<Paged<Disclosure>>;
+  list(workspaceId: WorkspaceId, page: PageRequest): PortResult<Paged<Disclosure>>;
   save(disclosure: Disclosure): PortResult<Disclosure>;
 };
 
@@ -30,6 +30,6 @@ export type AuditLogPort = {
   search(
     workspaceId: WorkspaceId,
     query: { from?: Date; to?: Date; action?: string },
-    page: Page,
+    page: PageRequest,
   ): PortResult<Paged<AuditLogEntry>>;
 };

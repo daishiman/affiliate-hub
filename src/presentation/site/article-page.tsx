@@ -1,7 +1,7 @@
 import { readerActor, siteUseCases } from "@/presentation/composition";
 import type { PageKind } from "@/presentation/tools/webmcp-policy";
 import { ArticleView } from "@/presentation/ui";
-import { NotFoundBody, SiteFrame } from "./page-frame";
+import { ReadFailureBody, SiteFrame } from "./page-frame";
 import { siteHref, toArticleView } from "./view-model";
 
 /**
@@ -39,7 +39,7 @@ export async function ArticlePage({
   readonly pathPrefix: string;
   readonly routeLabel: string;
 }) {
-  const result = await siteUseCases().getArticle.execute(readerActor(), { siteSlug, slug });
+  const result = await (await siteUseCases()).getArticle.execute(readerActor(), { siteSlug, slug });
   const path = `${pathPrefix}/${slug}`;
 
   return (
@@ -53,7 +53,7 @@ export async function ArticlePage({
         result.ok ? (
           <ArticleView article={toArticleView(siteSlug, result.value)} />
         ) : (
-          <NotFoundBody what="記事" siteSlug={siteSlug} />
+          <ReadFailureBody error={result.error} what="記事" siteSlug={siteSlug} />
         )
       }
     </SiteFrame>

@@ -1,3 +1,4 @@
+/** @tier 1 @req REQ-P10 @types equivalence */
 import { describe, expect, it } from "vitest";
 import type { AnalyticsAxisKey } from "@/domain/analytics";
 import { ANALYTICS_AXES } from "@/domain/analytics";
@@ -15,7 +16,7 @@ import { analyticsUseCases, createToolCatalog, currentActor } from "@/presentati
 
 async function filter(axes: Partial<Record<AnalyticsAxisKey, string>> = {}) {
   const actor = await currentActor();
-  const result = await analyticsUseCases().filterMetrics.execute(actor, { axes });
+  const result = await (await analyticsUseCases()).filterMetrics.execute(actor, { axes });
   expect(result.ok, result.ok ? "" : result.error.message).toBe(true);
   if (!result.ok) throw new Error(result.error.message);
   return result.value;
@@ -137,7 +138,7 @@ describe("いま何で絞っているかを言葉で出す", () => {
 
   it("知らない軸の指定は黙って捨てる（絞ったことにしない）", async () => {
     const actor = await currentActor();
-    const result = await analyticsUseCases().filterMetrics.execute(actor, {
+    const result = await (await analyticsUseCases()).filterMetrics.execute(actor, {
       axes: { not_an_axis: "x" } as unknown as Partial<Record<AnalyticsAxisKey, string>>,
     });
     expect(result.ok).toBe(true);
@@ -169,14 +170,14 @@ describe("お金に近い切り口の注意", () => {
 
 describe("道具としても同じことができる", () => {
   it("filter_metrics が道具の一覧に登録されている", async () => {
-    const catalog = createToolCatalog();
+    const catalog = (await createToolCatalog());
     const tool = catalog.find((t) => t.name === "filter_metrics");
     expect(tool, "filter_metrics が登録されていません").toBeDefined();
     expect(tool?.readOnly).toBe(true);
   });
 
   it("道具の説明に、分けられない指標の扱いが書いてある", async () => {
-    const catalog = createToolCatalog();
+    const catalog = (await createToolCatalog());
     const tool = catalog.find((t) => t.name === "filter_metrics");
     expect(tool?.description).toContain("分けられません");
   });

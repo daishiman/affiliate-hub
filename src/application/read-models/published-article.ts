@@ -1,4 +1,5 @@
 import type { ArticleType } from "@/domain/authoring";
+import { trackingPathForCode } from "@/domain/monetization";
 
 /**
  * 読者に見せる記事の形（読み取り専用）。
@@ -57,6 +58,14 @@ export type PublishedRankingEntry = {
   /** 成果リンク。無い商品もある（提携していない場合）。 */
   readonly affiliateUrl?: string;
   /**
+   * 転送の入口の合言葉。あるときは読者を `/go/<合言葉>` へ送り、
+   * サーバー側でクリックを数える（画面の JavaScript が動かなくても数えられる）。
+   *
+   * **無いときは `affiliateUrl` をそのまま出す。** 出さない選択にすると、
+   * 計測の準備ができていないだけで読者の買う導線が消える。
+   */
+  readonly trackingCode?: string;
+  /**
    * 個別レビュー記事の名前。まだレビューを書いていない商品もあるので任意。
    * 無いときは商品名をリンクにしない（存在しないページへ送らない）。
    */
@@ -109,6 +118,8 @@ export type PublishedProductCard = {
   readonly priceNote?: string;
   /** ASP が発行した URL。加工せずそのまま渡す。 */
   readonly affiliateUrl?: string;
+  /** 転送の入口の合言葉。詳しくは [[PublishedRankingEntry]] の同名の欄。 */
+  readonly trackingCode?: string;
   /** 買う導線を出せない理由。黙って消さない。 */
   readonly blockedReason?: string;
   readonly reviewSlug?: string;
@@ -194,6 +205,27 @@ const PATH_PREFIX: Readonly<Record<ArticleType, string>> = {
 
 export function articleHref(article: Pick<ArticleSummary, "type" | "slug">): string {
   return `${PATH_PREFIX[article.type]}/${article.slug}`;
+}
+
+/**
+ * 読者を送り出す先を決める。
+ *
+ * 合言葉があるときは転送の入口（`/go/<合言葉>`）へ、無いときは ASP の URL へ。
+ * **どちらの場合も URL を組み立て直さない。** ASP の URL に何かを足すと
+ * 多くの ASP で規約違反になり、成果そのものが計上されなくなる。
+ *
+ * --- なぜ読者の画面側に置かないのか ---
+ * 読者の画面は提携・報酬のドメインを読まない決まりになっている
+ * （tests/architecture/dependency-direction.test.ts）。入口の道の形は
+ * domain（`trackingPathForCode`）が持つので、読み替えはこの境界の型を
+ * 預かっているここで済ませ、画面には出来上がった道だけを渡す。
+ */
+export function outboundHref(
+  trackingCode: string | undefined,
+  affiliateUrl: string | undefined,
+): string | undefined {
+  if (trackingCode !== undefined) return trackingPathForCode(trackingCode);
+  return affiliateUrl;
 }
 
 export function toSummary(article: PublishedArticle): ArticleSummary {

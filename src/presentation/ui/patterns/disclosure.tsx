@@ -26,15 +26,34 @@ export function DisclosureNotice({
   message,
   methodologyHref,
   policyHref,
+  /**
+   * 読み上げの**目印**（landmark）として出すか。既定は出す。
+   *
+   * 読者の記事では 1 画面に 1 つなので目印が役に立つ。
+   * **見本帳や一覧の中で同じものを何度も出す画面では `false` にする。**
+   * 同じ名前の目印が 1 画面に 2 つ以上あると、
+   * 読み上げの「目印の一覧」で**どれがどれか見分けが付かなくなる**
+   * （axe の `landmark-unique`。2026-08-19 に `/admin/settings` と
+   * `/admin/ui-catalog` で実際に出た。詳細は backlog 84）。
+   *
+   * `false` でも**文言は 1 字も減らさない。**見出しの一言も残す。
+   * 減るのは「目印として飛べる」ことだけである。
+   */
+  asLandmark = true,
 }: {
   readonly showRankingNote?: boolean;
   readonly message?: string;
   readonly methodologyHref?: string;
   readonly policyHref?: string;
+  readonly asLandmark?: boolean;
 }) {
+  // role="note" ではなく region + 見出しにして、読み上げでも飛ばせるようにする。
+  const Tag = asLandmark ? "aside" : "div";
   return (
-    // role="note" ではなく region + 見出しにして、読み上げでも飛ばせるようにする。
-    <aside className={styles.disclosure} aria-label={UI_COPY.disclosure.bannerTitle}>
+    <Tag
+      className={styles.disclosure}
+      aria-label={asLandmark ? UI_COPY.disclosure.bannerTitle : undefined}
+    >
       <span className={styles.disclosureTitle}>{UI_COPY.disclosure.bannerTitle}</span>
       <span>{message ?? UI_COPY.disclosure.bannerBody}</span>
       {showRankingNote && <span>{UI_COPY.disclosure.rankingNote}</span>}
@@ -46,7 +65,7 @@ export function DisclosureNotice({
           {policyHref !== undefined && <a href={policyHref}>{UI_COPY.disclosure.policyLink}</a>}
         </span>
       )}
-    </aside>
+    </Tag>
   );
 }
 
@@ -55,10 +74,17 @@ export function DisclosureNotice({
  *
  * 2 つの決まりを部品側で強制する。
  *   1. `rel` に sponsored を必ず含める（検索エンジンへの申告）
- *   2. ASP が発行した URL を**改変しない**（パラメータの付け足しをしない）
+ *   2. 渡された URL を**改変しない**（パラメータの付け足しをしない）
  *
  * href をそのまま渡すだけの薄い部品に見えるが、
  * `rel` の指定を呼び出し側に任せた時点で付け忘れが起きる。
+ *
+ * --- 数え方が 2 通りあること ---
+ * `href` には 2 種類が来る。
+ *   - 転送の入口（`/go/<合言葉>`）… サーバーが数える。画面は数えない
+ *   - ASP が発行した URL … 画面（`presentation/telemetry/collector.tsx`）が数える
+ * 見分けは**この部品ではなく行き先そのもの**で行う。ここで印を付けて渡すと、
+ * 印の付け忘れがそのまま二重計上になる。
  */
 export function AffiliateLink({
   href,
@@ -68,7 +94,10 @@ export function AffiliateLink({
   productId,
   placement = "本文",
 }: {
-  /** ASP が発行した URL。**ここで加工しない。** */
+  /**
+   * 転送の入口（`/go/<合言葉>`）か、ASP が発行した URL。
+   * どちらが来ても**ここで加工しない。**
+   */
   readonly href: string;
   readonly children: React.ReactNode;
   /** 計測用。リンク先は変えない。 */

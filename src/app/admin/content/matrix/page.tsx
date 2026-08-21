@@ -2,6 +2,8 @@ import { AdminShell } from "@/presentation/admin/admin-shell";
 import Link from "next/link";
 import type { ReactNode } from "react";
 import {
+  DEFAULT_MATRIX_LIMIT,
+  DEFAULT_MATRIX_ROW_AXIS,
   MATRIX_ROW_AXES,
   MATRIX_ROW_AXIS_LABEL,
   type MatrixRowAxis,
@@ -41,10 +43,10 @@ export default async function ContentMatrixPage({
 }) {
   const { axis: requestedAxis, limit: requestedLimit } = await searchParams;
   const axis: MatrixRowAxis =
-    MATRIX_ROW_AXES.find((a) => a === requestedAxis) ?? "audience";
-  const limit = LIMIT_CHOICES.find((l) => String(l) === requestedLimit) ?? 12;
+    MATRIX_ROW_AXES.find((a) => a === requestedAxis) ?? DEFAULT_MATRIX_ROW_AXIS;
+  const limit = LIMIT_CHOICES.find((l) => String(l) === requestedLimit) ?? DEFAULT_MATRIX_LIMIT;
 
-  const result = await generationMatrixUseCases().getMatrix.execute(await currentActor(), {
+  const result = await (await generationMatrixUseCases()).getMatrix.execute(await currentActor(), {
     packageId: sampleContentPackageId(),
     rowAxis: axis,
     limit,
@@ -68,11 +70,11 @@ export default async function ContentMatrixPage({
   return (
     <Shell>
       <StubNotice
-        what="企画と記事の保存先"
-        blockedBy="content_packages / content_variants テーブルの追加と D1 への接続"
+        what="企画（どの組み合わせを作るかの元）の保存先"
+        blockedBy="content_packages テーブルの追加と、企画を作る入口"
         stubId="persistence:content-editorial-sample"
       >
-        <span>見本の企画 1 件を読んでいます。この画面から生成を実行することはまだできません。</span>
+        <span>見本の企画 1 件を読んでいます。表に並ぶ記事の有無は保存先を見ています。この画面から生成を実行することはまだできません。</span>
       </StubNotice>
 
       <Callout

@@ -2,14 +2,16 @@ import {
   type ArticleSummary,
   type PublishedArticle,
   articleHref,
+  outboundHref,
 } from "@/application/read-models/published-article";
+import type { PublicSiteBlueprint } from "@/application/usecases/site/read-site";
 import {
   type ArticleType,
-  type SiteBlueprint,
   type SiteRoute,
   buildPath,
   footerRoutes,
   routesFor,
+  siteBasePathBySlug,
 } from "@/domain/authoring";
 import type {
   ArticleCardView,
@@ -31,28 +33,29 @@ import type {
 /**
  * ブログの入口パス。
  *
- * 本番では 1 ブログ = 1 ドメインなので、この接頭辞は空になる。
- * たたき台では 1 つの Worker に複数ブログを載せるため、
- * `/s/{ブログ名}` を前に付ける。**接頭辞の付け方はここだけで決める。**
+ * 接頭辞そのものは domain（`siteBasePathBySlug`）が持つ。
+ * ここで `"/s"` を書き直すと、独自ドメインの判断を持っている domain 側と割れる。
  */
-export const SITE_BASE = "/s";
+export { siteBasePathBySlug as siteBasePath } from "@/domain/authoring";
 
-export function siteBasePath(siteSlug: string): string {
-  return `${SITE_BASE}/${siteSlug}`;
+export function siteHref(siteSlug: string, path: string): string {
+  return path === "/"
+    ? siteBasePathBySlug(siteSlug)
+    : `${siteBasePathBySlug(siteSlug)}${path}`;
 }
 
-/** ルート表の 1 行から実際の URL を作る。 */
+/**
+ * ルート表の 1 行から実際の URL を作る。
+ *
+ * 中身は `siteHref` と同じにする。以前は同じ式を 2 回書いていて、
+ * 片方だけ直すと一覧の URL と記事内リンクが食い違う状態だった。
+ */
 export function siteRouteHref(
   siteSlug: string,
   route: SiteRoute,
   params: Readonly<Record<string, string>> = {},
 ): string {
-  const path = buildPath(route, params);
-  return path === "/" ? siteBasePath(siteSlug) : `${siteBasePath(siteSlug)}${path}`;
-}
-
-export function siteHref(siteSlug: string, path: string): string {
-  return path === "/" ? siteBasePath(siteSlug) : `${siteBasePath(siteSlug)}${path}`;
+  return siteHref(siteSlug, buildPath(route, params));
 }
 
 /**
@@ -61,7 +64,7 @@ export function siteHref(siteSlug: string, path: string): string {
  * 中身はすべて設計図とルート表から作る。ブログごとに書き並べない。
  * 書き並べると、ブログを 1 本増やすたびに案内を作り直すことになる。
  */
-export function toChrome(siteSlug: string, blueprint: SiteBlueprint): SiteChrome {
+export function toChrome(siteSlug: string, blueprint: PublicSiteBlueprint): SiteChrome {
   const routes = routesFor(blueprint);
   const home = routes.find((r) => r.key === "home");
   const search = routes.find((r) => r.key === "search");
@@ -150,11 +153,11 @@ export function toArticleView(siteSlug: string, article: PublishedArticle): Arti
         basis: spec.kind,
       })),
       priceNote: card.priceNote,
-      affiliateHref: card.affiliateUrl,
+      affiliateHref: outboundHref(card.trackingCode, card.affiliateUrl),
       // 買う導線が無いときは、理由を必ず添える。
       // 理由が無いと、読者には「リンクの貼り忘れ」と区別が付かない。
       blockedReason:
-        card.affiliateUrl === undefined
+        card.affiliateUrl === undefined && card.trackingCode === undefined
           ? (card.blockedReason ?? "この商品は、いま提携している販売先がありません。")
           : undefined,
       detailHref:
@@ -177,6 +180,7 @@ export function toArticleView(siteSlug: string, article: PublishedArticle): Arti
                 e.reviewSlug === undefined
                   ? undefined
                   : siteHref(siteSlug, `/reviews/${e.reviewSlug}`),
+              affiliateHref: outboundHref(e.trackingCode, e.affiliateUrl),
               note: e.oneLine,
             })),
             excluded: article.ranking.excluded,
@@ -231,11 +235,11 @@ export function toCorrectionViews(
 /** 現在地に対応するパンくず。ルート表から作るので画面ごとに書かない。 */
 export function breadcrumbsFor(
   siteSlug: string,
-  blueprint: SiteBlueprint,
+  blueprint: PublicSiteBlueprint,
   trail: readonly { readonly label: string; readonly path?: string }[],
 ): readonly { readonly label: string; readonly href?: string }[] {
   return [
-    { label: blueprint.name, href: siteBasePath(siteSlug) },
+    { label: blueprint.name, href: siteBasePathBySlug(siteSlug) },
     ...trail.map((t) => ({
       label: t.label,
       href: t.path === undefined ? undefined : siteHref(siteSlug, t.path),

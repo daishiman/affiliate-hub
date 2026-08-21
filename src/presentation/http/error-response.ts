@@ -8,7 +8,14 @@ import type { DomainError, DomainErrorCode } from "@/domain/shared";
  *
  * ドメイン側は HTTP のことを知らない。だから対応表はこちらに置く。
  */
-const STATUS: Readonly<Record<DomainErrorCode, number>> = {
+/**
+ * エラーの種類 → HTTP の番号。**この表そのものが §16.4 の列挙**である。
+ *
+ * 外へ出しているのは、検査が全種類を回れるようにするため。
+ * 検査の側で同じ一覧を書き写すと、種類が 1 つ増えたときに追随せず、
+ * 新しい種類だけが誰にも試されないまま通る。
+ */
+export const ERROR_STATUS: Readonly<Record<DomainErrorCode, number>> = {
   VALIDATION_FAILED: 400,
   NOT_FOUND: 404,
   CONFLICT: 409,
@@ -29,7 +36,7 @@ const STATUS: Readonly<Record<DomainErrorCode, number>> = {
 };
 
 export function statusOf(error: DomainError): number {
-  return STATUS[error.code] ?? 500;
+  return ERROR_STATUS[error.code] ?? 500;
 }
 
 /** API の失敗レスポンス。形は 1 種類だけにする。 */

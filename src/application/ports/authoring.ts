@@ -11,19 +11,17 @@ import type { Editorial } from "@/domain/shared";
 import type {
   AudiencePersonaId,
   AuthorPersonaId,
-  BrandId,
   ContentPackageId,
   ContentVariantId,
   SiteBlueprintId,
   SiteDraftId,
-  SiteId,
   WorkspaceId,
 } from "@/domain/shared";
-import type { Page, Paged, PortResult } from "./common";
+import type { PageRequest, Paged, PortResult } from "./common";
 
 export type ContentPackageRepositoryPort = {
   findById(workspaceId: WorkspaceId, id: ContentPackageId): PortResult<ContentPackage | null>;
-  list(workspaceId: WorkspaceId, page: Page): PortResult<Paged<ContentPackage>>;
+  list(workspaceId: WorkspaceId, page: PageRequest): PortResult<Paged<ContentPackage>>;
   save(pkg: ContentPackage): PortResult<ContentPackage>;
 };
 
@@ -33,44 +31,47 @@ export type ContentVariantRepositoryPort = {
     workspaceId: WorkspaceId,
     packageId: ContentPackageId,
   ): PortResult<readonly ContentVariant[]>;
-  listByState(workspaceId: WorkspaceId, state: ContentState, page: Page): PortResult<Paged<ContentVariant>>;
+  listByState(workspaceId: WorkspaceId, state: ContentState, page: PageRequest): PortResult<Paged<ContentVariant>>;
   /** 次回確認日を過ぎた公開済み記事。運用の起点になる。 */
   listReviewOverdue(workspaceId: WorkspaceId, at: Date, limit: number): PortResult<readonly ContentVariant[]>;
   save(variant: ContentVariant): PortResult<ContentVariant>;
+  /**
+   * 進行の現在地（§18.1 の 12 段階）を読む。まだ記録が無ければ `null`。
+   *
+   * **本文（`ContentVariant`）とは別に持つ。** 本文は AI の出力契約（§15.5）で、
+   * 現在地は人の運用の位置。同じ型に混ぜると、AI が出力を返しただけで
+   * 段階が進んだことになりかねない。
+   */
+  findState(workspaceId: WorkspaceId, id: ContentVariantId): PortResult<ContentState | null>;
+  /**
+   * 進行の現在地を保存する。
+   *
+   * これが無かったあいだ、段階を進める操作は**何も保存せずに成功を返して**いた。
+   * 画面からは「操作が効いていない」のか「保存が壊れている」のかを区別できない。
+   */
+  saveState(
+    workspaceId: WorkspaceId,
+    id: ContentVariantId,
+    state: ContentState,
+  ): PortResult<ContentState>;
 };
 
 export type PersonaRepositoryPort = {
   findAuthor(workspaceId: WorkspaceId, id: AuthorPersonaId): PortResult<AuthorPersona | null>;
   findAudience(workspaceId: WorkspaceId, id: AudiencePersonaId): PortResult<AudiencePersona | null>;
-  listAuthors(workspaceId: WorkspaceId, page: Page): PortResult<Paged<AuthorPersona>>;
-  listAudiences(workspaceId: WorkspaceId, page: Page): PortResult<Paged<AudiencePersona>>;
+  listAuthors(workspaceId: WorkspaceId, page: PageRequest): PortResult<Paged<AuthorPersona>>;
+  listAudiences(workspaceId: WorkspaceId, page: PageRequest): PortResult<Paged<AudiencePersona>>;
   saveAuthor(persona: AuthorPersona): PortResult<AuthorPersona>;
   saveAudience(persona: AudiencePersona): PortResult<AudiencePersona>;
 };
 
-/**
- * サイト。
- *
- * 「複数ブログに対応する」= 設計図 (SiteBlueprint) + 設定値 で表す。
- * ブログごとにコードを分けないため、サイトの違いはすべてこのデータに入る。
- */
-export type Site = {
-  readonly id: SiteId;
-  readonly workspaceId: WorkspaceId;
-  readonly brandId: BrandId;
-  readonly blueprintId: SiteBlueprintId;
-  readonly name: string;
-  readonly domain: string;
-  readonly locale: string;
-  readonly launchedAt: Date | null;
-};
-
-export type SiteRepositoryPort = {
-  findById(workspaceId: WorkspaceId, id: SiteId): PortResult<Site | null>;
-  findByDomain(domain: string): PortResult<Site | null>;
-  list(workspaceId: WorkspaceId, page: Page): PortResult<Paged<Site>>;
-  save(site: Site): PortResult<Site>;
-};
+// ブログ（Site）の型と出し入れの窓口は、ここには置かない。
+// 正本は domain/authoring/site.ts の `Site` と、
+// application/ports/site.ts の `SiteRepositoryPort` の 2 つだけ。
+// 以前はここにも別形の `Site` があり、`slug` を持つ側と `domain` を持つ側が
+// 並んで育っていた。同じ「ブログ」を指す型が 2 つあると、
+// どちらに合わせて書けばよいか読む側が決められなくなる。
+// 検査: tests/architecture/single-definition.test.ts
 
 /**
  * ブログ作成ウィザードの下書き。
@@ -92,7 +93,7 @@ export type SiteDraftRepositoryPort = {
 
 export type SiteBlueprintRepositoryPort = {
   findById(workspaceId: WorkspaceId, id: SiteBlueprintId): PortResult<SiteBlueprint | null>;
-  list(workspaceId: WorkspaceId, page: Page): PortResult<Paged<SiteBlueprint>>;
+  list(workspaceId: WorkspaceId, page: PageRequest): PortResult<Paged<SiteBlueprint>>;
   save(blueprint: SiteBlueprint): PortResult<SiteBlueprint>;
 };
 
@@ -107,4 +108,3 @@ export type EditorialContentVariantRepositoryPort = Editorial<ContentVariantRepo
 export type EditorialPersonaRepositoryPort = Editorial<PersonaRepositoryPort>;
 export type EditorialSiteBlueprintRepositoryPort = Editorial<SiteBlueprintRepositoryPort>;
 export type EditorialSiteDraftRepositoryPort = Editorial<SiteDraftRepositoryPort>;
-export type EditorialPlatformSiteRepositoryPort = Editorial<SiteRepositoryPort>;

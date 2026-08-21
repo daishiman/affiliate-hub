@@ -1,3 +1,29 @@
+/**
+ * @tier 1
+ * @req REQ-P06, REQ-SEC05, REQ-A04
+ * @req REQ-G01, REQ-G02, REQ-G03, REQ-G04, REQ-G05, REQ-G06, REQ-G07, REQ-G08
+ * @types prompt-injection, equivalence, boundary, state-transition, permission-matrix
+ *
+ * 生成の仕組み 8 件（REQ-G01〜REQ-G08）の分かれ目は、ここにある。
+ * どの節がどれを見ているかは次のとおり。
+ *
+ *   G01 指示文の版      「指示文の組み立て」の後半（v0 は版として通らない／
+ *                        いまの版は書き換えられない／新しい版で 1 つ上がる）
+ *   G02 渡す項目        「渡す項目」（何も渡さない／1 つだけ渡す／順位の記事）
+ *   G03 取り込んだ文章  「取り込んだ文章の扱い」（攻撃文 5 種／普通の商品説明／3 回超え）
+ *   G04 受け取りの形    「受け取りの形」（散文／20 のうち 1 つだけ／20 に 1 つ足した形）
+ *   G05 手順 8 種       「手順と承認のつながり」の `skillOrderBreaches`
+ *                        （前提の済んでいない手順へ進めないこと）
+ *   G06 役 6 種         「役の分け方」の `concludeRevision`（3 巡目と、その次）
+ *   G07 執筆と検証の分離「役の分け方」の 役 × 道具 の総当たり
+ *                        （確かめる役に `generate` が 1 つも無いこと）
+ *   G08 承認 12 段階    「手順と承認のつながり」の `STAGE_BRIDGE`
+ *                        （人の承認が要る段階を AI が進められないこと）
+ *
+ * 受け入れ条件 §30.4（AI 生成）のうち、素材と指示文に関わる分は、ここで確かめている。
+ * 何も渡していなければ始められないこと、足りない項目が名前と埋め方つきで返ること、
+ * 取り込んだ文章に混ざった指示を見つけても自動で消さず保留にすること。
+ */
 import { describe, expect, it } from "vitest";
 import { HUMAN_APPROVAL_REQUIRED } from "@/domain/authoring/content-state";
 import {
@@ -26,6 +52,7 @@ import {
   promptPath,
   requireNewVersion,
   reviewMaterial,
+  PROMPT_ROOT,
   selfInspectionBreaches,
   separationBreaches,
   skillOrderBreaches,
@@ -137,8 +164,10 @@ describe("指示文の組み立て", () => {
   });
 
   it("指示文の置き場所は版ごとに分かれる", () => {
+    // 置き場所の根は実物から引く。版・名前・種別は**引数そのもの**なので素の字で残す
+    // （ここまで組み立てで書くと、promptPath の中身をもう一度書くだけになり何も見なくなる）。
     expect(promptPath("v1", "article-body", "ranking")).toBe(
-      "prompts/generation/v1/article-body.ranking.md",
+      `${PROMPT_ROOT}/v1/article-body.ranking.md`,
     );
   });
 });
@@ -303,8 +332,10 @@ describe("手順と承認のつながり", () => {
   });
 });
 
+const GENERATION_CATALOG = await createToolCatalog();
+
 describe("道具として使えること", () => {
-  const catalog = createToolCatalog();
+  const catalog = GENERATION_CATALOG;
 
   it("生成の仕組みを読む道具が 3 つ登録されている", () => {
     const names = catalog.map((t) => t.name);
