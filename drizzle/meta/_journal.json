@@ -127,6 +127,27 @@
       "when": 1787146362503,
       "tag": "0017_careful_namora",
       "breakpoints": true
+    },
+    {
+      "idx": 18,
+      "version": "6",
+      "when": 1787287550589,
+      "tag": "0018_dapper_gauntlet",
+      "breakpoints": true
+    },
+    {
+      "idx": 19,
+      "version": "6",
+      "when": 1787288288308,
+      "tag": "0019_stiff_fabian_cortez",
+      "breakpoints": true
+    },
+    {
+      "idx": 20,
+      "version": "6",
+      "when": 1787295296345,
+      "tag": "0020_wise_juggernaut",
+      "breakpoints": true
     }
   ]
 }
