@@ -210,6 +210,63 @@ describe("公開したあとの動作確認（REQ-CI06）", () => {
   });
 });
 
+/**
+ * Worker には **3 MiB（gzip 後）** という上限がある。2026-08-21 に 3431 KiB で
+ * 当たり、公開が止まった。原因は Turbopack が同じかたまりを重ねて吐くことで、
+ * `scripts/dedupe-server-chunks.mjs` がそれを 1 つに寄せている（3431 → 2196 KiB）。
+ *
+ * ここで見るのは**呼ぶ順番**である。順番が狂うと削減が黙って消える:
+ *
+ * - 寄せる前に `opennextjs-cloudflare build` を挟むと、そちらが `next build` を
+ *   走らせ直し、**寄せた結果が上書きされる**。だから `--skipNextBuild` が要る。
+ * - `deploy:*` が `build:worker` を通らなくなれば、寄せる処理ごと消える。
+ *
+ * どちらも**その場では何も起きない**。太った Worker が上限に当たるまで気づけず、
+ * 当たったときに出るのは「サイズ超過」であって「寄せ忘れ」ではない。
+ */
+describe("公開する版のかたまりを寄せる順番", () => {
+  const scripts = (): Record<string, string> =>
+    JSON.parse(read("package.json")).scripts as Record<string, string>;
+
+  const DEDUPE = "scripts/dedupe-server-chunks.mjs";
+
+  it("build:worker が、作る → 寄せる → 束ね直す の順に並んでいる", () => {
+    const chain = scripts()["build:worker"] ?? "";
+    const [before, after] = chain.split(DEDUPE);
+
+    expect(after, `${DEDUPE} を呼んでいません`).toBeDefined();
+    // 寄せる前に 1 回作る。ここで `.next/standalone/` ができる。
+    expect(before, "寄せる前にビルドがありません").toContain("opennextjs-cloudflare build");
+    // 寄せた後にもう 1 回束ねる。ここで寄せた結果が Worker に入る。
+    expect(after, "寄せた後に束ね直していません").toContain("opennextjs-cloudflare build");
+  });
+
+  it("2 回目が最初からやり直さない（やり直すと寄せた結果が上書きされる）", () => {
+    const after = (scripts()["build:worker"] ?? "").split(DEDUPE)[1] ?? "";
+    /**
+     * `--skipNextBuild` を落としても**何も起きない**。ビルドは通り、公開も走り、
+     * ただ Worker が寄せる前の大きさに戻るだけ。気づくのは上限に当たったときで、
+     * そのとき出るのは「サイズ超過」であって「寄せ忘れ」ではない。
+     */
+    expect(after, "--skipNextBuild が無いと、寄せた結果が上書きされます").toContain(
+      "opennextjs-cloudflare build --skipNextBuild",
+    );
+  });
+
+  it("dev も本番も、公開の前に必ずここを通る", () => {
+    for (const name of ["deploy:dev", "deploy:prod", "preview"]) {
+      const body = scripts()[name] ?? "";
+      expect(body, `${name} が build:worker を通っていません`).toContain("build:worker");
+      /*
+        手元の確認（preview）も同じ道を通す。ここだけ別の作り方にすると、
+        **手元では出ない不具合が本番にだけ出る**経路ができる。
+      */
+      if (name === "preview") continue;
+      expect(body.indexOf("build:worker")).toBeLessThan(body.indexOf("deploy"));
+    }
+  });
+});
+
 describe("秘密情報の置き場所（REQ-CI07）", () => {
   it("見本のファイルに値が入っていない", () => {
     const body = read(".dev.vars.example");
