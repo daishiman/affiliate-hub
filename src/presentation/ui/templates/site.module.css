@@ -33,6 +33,9 @@
 }
 
 .siteName {
+  display: inline-flex;
+  align-items: center;
+  min-block-size: var(--tap-target-min);
   font-size: var(--text-lg);
   font-weight: var(--weight-bold);
   color: var(--color-text-strong);
@@ -89,6 +92,11 @@
    * 中身の少ない画面（ログイン・0 件の一覧・エラー）ほどひどく崩れる。
    */
   align-content: start;
+}
+
+/* 読者画面でも、grid子の内容幅は本文全体ではなく各scroll包みが受け持つ。 */
+.siteMain > * {
+  min-width: 0;
 }
 
 /*
@@ -168,6 +176,10 @@ nav.section a {
   max-width: var(--prose-max-width);
   display: grid;
   gap: var(--space-5);
+}
+
+.article > * {
+  min-width: 0;
 }
 
 .articleTitle {
@@ -264,6 +276,9 @@ nav.section a {
 }
 
 .cardTitle a {
+  display: inline-flex;
+  align-items: center;
+  min-block-size: var(--tap-target-min);
   color: var(--color-text-strong);
   text-decoration: none;
 }

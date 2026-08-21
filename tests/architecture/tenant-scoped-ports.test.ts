@@ -65,7 +65,6 @@ const EXEMPT: Readonly<Record<string, string>> = {
   "WorkspaceRepositoryPort.save": "作業場所そのものを保存する",
   "WorkspaceRepositoryPort.countBrands": "引数の id が作業場所そのもの",
   "WorkspaceRepositoryPort.countSites": "引数の id が作業場所そのもの",
-  "WorkspaceRepositoryPort.countMembers": "引数の id が作業場所そのもの",
   "WorkspaceRepositoryPort.countGenerationsThisMonth": "引数の id が作業場所そのもの",
 
   // 読者に見せる公開サイト。ログインの無い読み取りで、URL の名前だけが手がかり。

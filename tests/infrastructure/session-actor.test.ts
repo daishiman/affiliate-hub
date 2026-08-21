@@ -58,6 +58,7 @@ function membershipRepo(membership: Membership | null): MembershipRepositoryPort
     findByUser: async () => ok(membership),
     findByInvitedEmail: async () => ok(membership),
     list: async () => ok({ items: [], nextCursor: null }),
+    countCurrent: async () => ok(membership === null || membership.revokedAt !== null ? 0 : 1),
     save: async (m) => ok(m),
     findOwner: async () => ok(null),
   };

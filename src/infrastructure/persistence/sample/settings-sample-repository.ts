@@ -243,9 +243,6 @@ export function createSampleWorkspaceRepository(): WorkspaceRepositoryPort {
       // 見本のブログは 2 本。site 側の見本と数を合わせてある。
       return ok(2);
     },
-    async countMembers() {
-      return ok(MEMBERSHIPS.length);
-    },
     async countGenerationsThisMonth() {
       return ok(37);
     },
@@ -270,6 +267,9 @@ export function createSampleMembershipRepository(): MembershipRepositoryPort {
     },
     async list(_workspaceId, page) {
       return ok({ items: MEMBERSHIPS.slice(0, page.limit), nextCursor: null });
+    },
+    async countCurrent() {
+      return ok(MEMBERSHIPS.filter((membership) => membership.revokedAt === null).length);
     },
     save: () => stubCall(membershipStub, "担当者の保存"),
     async findOwner() {

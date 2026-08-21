@@ -12,7 +12,12 @@ import { existsSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { describe, expect, it } from "vitest";
 import { createToolCatalog } from "@/presentation/composition";
-import { isToolAllowedForScope, refusalReason, visibleTools } from "@/presentation/http/tool-scope";
+import {
+  isToolAllowedForScope,
+  loadScopedCatalog,
+  refusalReason,
+  visibleTools,
+} from "@/presentation/http/tool-scope";
 import { findTool } from "@/presentation/tools/catalog";
 import { MAX_TOOLS_PER_PAGE, toWebMcpDescriptors } from "@/presentation/tools/webmcp-adapter";
 import type { AnyToolDefinition } from "@/presentation/tools/tool-definition";
@@ -69,6 +74,18 @@ describe("誰に何を許すか", () => {
         expect(isToolAllowedForScope(tool, scope), `${tool.name} が一覧にだけ出ています`).toBe(true);
       }
     }
+  });
+
+  it("1 回の要求では、全体と公開範囲を同じカタログ生成結果から作る", async () => {
+    let loads = 0;
+    const loaded = await loadScopedCatalog(async () => {
+      loads += 1;
+      return [readOnly, write, humanOnly];
+    }, "bearer");
+
+    expect(loads).toBe(1);
+    expect(loaded.all).toEqual([readOnly, write, humanOnly]);
+    expect(loaded.visible).toEqual([readOnly, write]);
   });
 });
 

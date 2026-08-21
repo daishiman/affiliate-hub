@@ -15,8 +15,6 @@ import {
   StackedRow,
   StorageNotice,
 } from "@/presentation/ui";
-import styles from "../admin.module.css";
-
 export const dynamic = "force-dynamic";
 
 /**

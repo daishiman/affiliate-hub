@@ -12,7 +12,7 @@ iteration: null
 title: "改善要望フィードバック（受け取り → 一覧 → 払い出し）"
 owners: ["daishiman"]
 created_at: "2026-08-17T00:00:00Z"
-updated_at: "2026-08-17T02:22:22.471785Z"
+updated_at: "2026-08-22T00:00:00Z"
 status: "draft"
 depends_on: []
 related_nodes: ["task-telemetry-to-metrics"]
@@ -108,6 +108,12 @@ implementation_readiness: {"checked_at":null,"missing_sections":[],"status":"inc
 - ループの種類の登録表（`analytics/loop-kinds.ts`）— 参照は一方向のみ
 - 経路の表と道具の一覧の総当たり検査 — **新しい検査の枠を作らない**
 - 指示文の版管理（生成基盤の既存の仕組み）
+
+## 実装の現在地（2026-08-22 / ah-8h2）
+
+- 技術診断は `domain/feedback/diagnostics.ts` が保存前に固定語彙へ縮約する。生の例外文・操作ラベル・User-Agent・クエリは残さない
+- 画像の黒塗り数と診断の伏せ数は別の意味。混ぜると「隠したつもり」の件数が嘘になる
+- 要望・鍵の表は D1。画面の写しの置き場（R2）と、診断の保持期限・削除ジョブ（`ah-lqu`）は残課題
 
 ## Handoff
 

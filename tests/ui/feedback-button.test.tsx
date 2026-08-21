@@ -68,6 +68,23 @@ function openDialog(): void {
   fireEvent.click(screen.getByRole("button", { name: UI_COPY.feedback.openButton }));
 }
 
+it("見本帳では固定ボタンと重ならない inline 配置を選べる", () => {
+  const { onSubmit } = submissions();
+  render(
+    <FeedbackButton
+      screenName="部品の見本帳"
+      route="/admin/ui-catalog"
+      canSubmit
+      placement="inline"
+      onSubmit={onSubmit}
+    />,
+  );
+
+  expect(screen.getByRole("button", { name: UI_COPY.feedback.openButton }).className).toContain(
+    "feedbackLauncherInline",
+  );
+});
+
 /**
  * 押した瞬間に撮る経路と、画面で起きたことの控え。
  *
@@ -167,8 +184,9 @@ describe("画面で起きたことが、実際に送られる", () => {
     const actions = calls[0]?.technical.recentActions ?? [];
     expect(actions[0]).toBe("順位表 を開いた");
     expect(actions.join("\n"), "押したものが 1 件も控えられていません").toContain(
-      UI_COPY.feedback.openButton,
+      "ボタンを操作した",
     );
+    expect(actions.join("\n")).not.toContain(UI_COPY.feedback.openButton);
   });
 
   /*
@@ -202,6 +220,33 @@ describe("画面で起きたことが、実際に送られる", () => {
     mount();
     openDialog();
     expect(screen.getByText(new RegExp(UI_COPY.feedback.disclosureCounts))).not.toBeNull();
+  });
+
+  it("開いた後に増えた診断件数も、送信前表示へすぐ反映する", async () => {
+    mount();
+    openDialog();
+    expect(screen.getByText(/エラー 0 件/)).not.toBeNull();
+
+    window.dispatchEvent(
+      new ErrorEvent("error", { message: "token=abc123", error: new TypeError("token=abc123") }),
+    );
+
+    await waitFor(() => expect(screen.getByText(/エラー 1 件/)).not.toBeNull());
+  });
+
+  it("画面 URL のクエリと断片は送らない", async () => {
+    window.history.pushState({}, "", "/admin/rankings?token=abc123#private");
+    const calls = mount();
+    openDialog();
+    fireEvent.change(screen.getByLabelText(UI_COPY.feedback.bodyLabel), {
+      target: { value: "URL に秘密が混ざっています。" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: UI_COPY.feedback.submit }));
+    await waitFor(() => expect(calls).toHaveLength(1));
+
+    expect(calls[0]?.origin.url).toBe(`${window.location.origin}/admin/rankings`);
+    expect(calls[0]?.technical.redactedCount).toBeGreaterThan(0);
+    window.history.pushState({}, "", "/");
   });
 });
 

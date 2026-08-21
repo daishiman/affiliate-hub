@@ -29,7 +29,7 @@ export { TextArea, type TextAreaProps } from "./primitives/textarea";
 export { ToolForm } from "./primitives/tool-form";
 export { Callout, type CalloutTone } from "./primitives/callout";
 export { LoadingView, EmptyView, ErrorView } from "./primitives/state-view";
-/* 節の見出し。`level` は必須で、いまは 2 と 3 だけ。理由は `heading.tsx` の doc。 */
+/* 節の見出し。`level` は必須で、文書階層 2〜4 をそのまま渡す。 */
 export { SectionHeading, type SectionHeadingLevel } from "./primitives/heading";
 /* 注記の段落。余白も `className` も持たない。寄せてはいけないものは `note.tsx` の doc。 */
 export { Note } from "./patterns/note";
@@ -40,6 +40,7 @@ export { SeeAlso } from "./patterns/see-also";
  * ——61 行のうち 38 行がリンクを持たないため（残課題 156）。`stacked-list.tsx` の doc。
  */
 export { StackedList, StackedRow } from "./patterns/stacked-list";
+export { InlineNav, type InlineNavItem } from "./patterns/inline-nav";
 
 /* --- patterns（仕様固有。画面ごとに書き起こさない） --------------------- */
 export {

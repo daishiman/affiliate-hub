@@ -1,4 +1,4 @@
-import { and, asc, eq, isNull } from "drizzle-orm";
+import { and, asc, count, eq, isNull } from "drizzle-orm";
 import type { PageRequest, Paged, PortResult } from "@/application/ports/common";
 import type { MembershipRepositoryPort } from "@/application/ports/identity";
 import { type MembershipRow, memberships } from "@/db/schema";
@@ -140,6 +140,23 @@ export function createD1MembershipRepository(db: DrizzleD1): MembershipRepositor
         return ok({ items: rows.map(toDomain), nextCursor: null });
       } catch (cause) {
         return storageFailure("担当者の一覧取得", cause);
+      }
+    },
+
+    async countCurrent(workspaceId: WorkspaceId): PortResult<number> {
+      try {
+        const rows = await db
+          .select({ value: count() })
+          .from(memberships)
+          .where(
+            and(
+              eq(memberships.workspaceId, String(workspaceId)),
+              isNull(memberships.revokedAt),
+            ),
+          );
+        return ok(rows[0]?.value ?? 0);
+      } catch (cause) {
+        return storageFailure("現在の担当者数の取得", cause);
       }
     },
 

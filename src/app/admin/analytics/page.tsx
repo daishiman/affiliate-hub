@@ -18,8 +18,6 @@ import {
   StackedRow,
   StorageNotice,
 } from "@/presentation/ui";
-import styles from "../admin.module.css";
-
 export const dynamic = "force-dynamic";
 
 /** 画面で選べる用途。順位とおすすめは、収益の数字を受け付けない側。 */

@@ -28,7 +28,7 @@
 import { MUTATION_SCORE } from "./quality-gates.config.mjs";
 
 /** @type {import('@stryker-mutator/api/core').PartialStrykerOptions} */
-export default {
+const strykerConfig = {
   packageManager: "pnpm",
   testRunner: "vitest",
   vitest: {
@@ -104,3 +104,5 @@ export default {
   tempDirName: ".stryker-tmp",
   cleanTempDir: true,
 };
+
+export default strykerConfig;

@@ -7,18 +7,18 @@ import { CSS_ROOT, type Rule, cssFilesUnder, declarationOf, keyOf, rulesOf } fro
  * 管理画面の上端の帯が、狭い画面で逃げ道を持っていることを**規則の形として**固定する。
  *
  * ==========================================================================
- * **この検査は溢れを測っていない。測れない。**
+ * **この検査自身は溢れを測らない。**
  * ==========================================================================
  *
- * `playwright` も `puppeteer` も入っておらず、jsdom は**組版を一切しない**
- * （幅も高さも常に 0。残課題 143）。だからここが見ているのは
- * **CSS に何と書いてあるか**だけであって、**画面で何が起きるか**ではない。
+ * jsdom は**組版を一切しない**（幅も高さも常に 0）。だからここが見ているのは
+ * **CSS に何と書いてあるか**だけである。画面の結果は Playwright の
+ * `tests/e2e/route-audit.spec.ts` が desktop / mobile の実DOMで別に測る。
  *
  *   - 言えること: 「`.header` に `flex-wrap: wrap` が書いてある」
  *   - 言えないこと: 「`.header` は溢れない」
  *
- * **この 2 つを報告で混ぜないこと。**緑は「予防が消えていない」であって
- * 「狭い画面で読める」ではない。
+ * **この 2 つを報告で混ぜないこと。**この検査の緑は「予防が消えていない」、
+ * E2E の緑は「現在の登録済み画面で横溢れが観測されない」を意味する。
  *
  * --- なぜ「予防」なのか（UX-07、2026-08-21）---
  *
@@ -49,9 +49,9 @@ import { CSS_ROOT, type Rule, cssFilesUnder, declarationOf, keyOf, rulesOf } fro
  * （残課題 141 と同じ穴が client 側にも開いている）。CSS の文面は読めるので
  * 「横並びの器」としては数に入るが、**描かれた実物と突き合わせた結果は無い。**
  *
- * **④ 幅の指定そのもの。**`min-width` / `width` の実寸は `src` の CSS 全体で
- * 0 件（`min-width: 0` の 2 件だけ。これは溢れを**防ぐ側**）。実寸が入った日に
- * 溢れる可能性は上がるが、ここは実寸を禁じていない。
+ * **④ 幅の指定そのもの。**この検査は `min-width: 0` の全体件数を正本にしない。
+ * 実ブラウザで見つかった溢れを止める宣言は `flex-row-shape.test.ts` の理由台帳が
+ * 網羅し、この検査は上端の帯に関係する宣言だけを守る。
  *
  * 規範: docs/product/ui-ux-tasks.md UX-07
  */
@@ -206,24 +206,20 @@ describe("上端の帯は、狭い画面での逃げ道を規則として持っ�
     ).toStrictEqual([]);
   });
 
-  it("**doc と実装が食い違っている 1 点を、実装の側で固定する**", () => {
+  it("上端の帯で縮める役は、親ではなく子と外側の柱が持つ", () => {
     // ==================================================================
-    // doc（UX-07）は「`.header` / `.breadcrumb` / `.headerActions` の
-    // `flex-wrap: wrap` + `min-width: 0`」と書いている。**実装は違う。**
-    // `min-width: 0` は `.breadcrumb` と `.main` の 2 件だけで、
-    // `.header` と `.headerActions` は持っていない。
-    //
-    // **どちらが正しいかを、この検査は決めない。**決められるのは
-    // 「いまどうなっているか」だけである。ここを赤にして通せなくすることで、
-    // **直すときに doc も一緒に直る**ようにしてある。
-    //
-    // 足すのが正しいと判断したなら、この検査と UX-07 の記述を同時に直すこと。
-    // **片方だけ直すと、次に読む人がまた 2 つの版を見比べることになる。**
+    // 全CSSの件数はここで写さない。実ブラウザで必要になった別画面の宣言まで
+    // ヘッダーの契約へ混ぜると、二つの正本が生まれる。GUARDED が対象にする
+    // 上端の帯だけを切り出し、親（header/headerActions）ではなく
+    // 子（breadcrumb）と外側の柱（main）が縮む、という非対称を固定する。
     // ==================================================================
-    const withMinWidthZero = ALL.filter((r) => declarationOf(r.body, "min-width") === "0").map(keyOf);
+    const guardedKeys = new Set(Object.keys(GUARDED));
+    const withMinWidthZero = ALL.filter(
+      (rule) => guardedKeys.has(keyOf(rule)) && declarationOf(rule.body, "min-width") === "0",
+    ).map(keyOf);
     expect(
       withMinWidthZero.sort(),
-      "`min-width: 0` の分布が変わりました。doc の UX-07 も一緒に直すこと",
+      "上端の帯で `min-width: 0` を持つ役が変わりました。UX-07 も一緒に直すこと",
     ).toStrictEqual([
       "src/presentation/ui/primitives/ui.module.css :: .breadcrumb",
       "src/presentation/ui/primitives/ui.module.css :: .main",

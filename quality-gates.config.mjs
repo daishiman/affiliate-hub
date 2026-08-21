@@ -1,13 +1,16 @@
 /**
  * 品質ゲートの唯一の正本。
  *
- * 閾値と検査項目をここ 1 箇所に集める。読み手は 6 つだけ:
+ * 閾値と検査項目をここ 1 箇所に集める。主な読み手:
  *   - `vitest.config.mts`              カバレッジ閾値と、段で絞った対象をそのまま渡す
  *   - `scripts/verify.mjs`             検査の並びと順番をそのまま実行する
  *   - `scripts/run-tests.mjs`          段で絞ってテストを走らせる
  *   - `scripts/tier-audit.mjs`         段の印が無いテストを見つける
  *   - `scripts/coverage-report.mjs`    層別の判定と記録の生成に使う
  *   - `tests/architecture/quality-gates.test.ts`  ここと CI が食い違っていないか見る
+ *
+ * このほか、各閾値を執行する専用 script/test と `stryker.config.mjs` が必要な値だけを読む。
+ * 読み手の個数は増減するため正本化せず、依存の実数は import 走査で確認する。
  *
  * **`.github/workflows/` に閾値や検査名を書かない。** 書いた瞬間に、
  * 手元と機械で別々の基準が育ち、「機械の上でだけ落ちる」状態が生まれる。

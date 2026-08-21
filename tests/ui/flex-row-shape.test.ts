@@ -93,16 +93,29 @@ const EXEMPT: Record<string, Exemption> = {
   // （`.breadcrumb a` が `ui.module.css` と `site.module.css` の両方に在る）。
   // 描いた DOM にはファイルの出どころが残らないので、**両方の行に同じ数が立つ。**
   // ==========================================================================
-  "src/app/admin/admin.module.css :: .linkList a": {
-    measured: "60 回 / 子 0 のみ（18:20。選択子を `nav.linkList a` から広げた後）",
-    reason: "中身が文字だけで、横に並べる相手がいない（44px の的を作るための inline-flex）",
-  },
-  // `.linkList a` を部品へ上げたもの（残課題 156、`stacked-list.tsx`）。**値も選択子の形も
-  // 1 つも変えずに写している。**上の行がまだ残っているのは、`.linkList` 自体が
-  // `<nav>` 1 箇所と `<p>` 1 箇所でまだ使われているためで、移し忘れではない。
   "src/presentation/ui/patterns/patterns.module.css :: .stackedList a": {
     measured: "上の `.linkList a` の 60 回 / 子 0 のみ を引き継いだ（部品化後に描き直しての再実測はしていない）",
     reason: "中身が文字だけで、横に並べる相手がいない（44px の的を作るための inline-flex）",
+  },
+  "src/presentation/ui/patterns/patterns.module.css :: .inlineNav a": {
+    measured: "2画面・5本。直の子は文字だけ（2026-08-21）",
+    reason: "同格リンクの横並びは親ulが折り返し、各aは44pxの的を作るためだけのinline-flex",
+  },
+  "src/presentation/ui/patterns/patterns.module.css :: .productCardName > a": {
+    measured: "Chromium実DOMで修正前の高さ23px（2026-08-21）",
+    reason: "商品名の文字1つを包むリンクで、44pxの的を作るためだけのinline-flex",
+  },
+  "src/presentation/ui/primitives/ui.module.css :: .headingLevel2 > a": {
+    measured: "Chromium実DOMで修正前の高さ28px（2026-08-21）",
+    reason: "見出し文字1つを包むリンクで、44pxの的を作るためだけのinline-flex",
+  },
+  "src/presentation/ui/templates/site.module.css :: .cardTitle a": {
+    measured: "Chromium実DOMで修正前の高さ23px（2026-08-21）",
+    reason: "記事題の文字1つを包むリンクで、44pxの的を作るためだけのinline-flex",
+  },
+  "src/presentation/ui/templates/site.module.css :: .siteName": {
+    measured: "Chromium実DOMで修正前の高さ32.39px（2026-08-21）",
+    reason: "ブログ名の文字1つを包むリンクで、44pxの的を作るためだけのinline-flex",
   },
   "src/app/admin/admin.module.css :: .rankTable td > a": {
     measured: "11 回 / 子 0 のみ（18:20）",
@@ -429,6 +442,39 @@ const SHRINKABLE: Record<string, Exemption> = {
       "画面名をそのまま並べるので、深い画面では帯ごと横へ溢れる。" +
       "**縮められるようにしたうえで、切り落とさずに折り返す**" +
       "（`flex-wrap: wrap` と対で効く。パンくずは末尾だけ残すと意味が消えるため）",
+  },
+  "src/presentation/ui/primitives/ui.module.css :: .page > *": {
+    measured: "Chromium mobileで管理画面11枚が375pxを377〜775pxへ押し広げた（2026-08-21）",
+    reason:
+      "grid子のautomatic min-sizeを0へ下げ、表や長い値の横scrollを各包みへ閉じ込める。" +
+      "親page全体を広げると案内や操作まで画面外へ出るため",
+  },
+  "src/presentation/ui/templates/site.module.css :: .siteMain > *": {
+    measured: "Chromium mobileで読者画面1枚が375pxを422pxへ押し広げた（2026-08-21）",
+    reason:
+      "読者側grid子のautomatic min-sizeを0へ下げ、長い本文要素の幅をmain全体へ伝播させないため",
+  },
+  "src/presentation/ui/patterns/patterns.module.css :: .tableWrap": {
+    measured: "Chromium mobileでDataTable/RankingTableを持つ3画面が393〜526pxへ広がった（2026-08-21）",
+    reason:
+      "表の最小内容幅を画面全体へ伝えず、tableWrap自身の横scrollへ閉じ込めるため。" +
+      "tabIndexを持つこの包みがキーボード操作も受け持つ",
+  },
+  "src/presentation/ui/patterns/patterns.module.css :: .materialForm": {
+    measured: "Chromium mobileでモデル選択を持つ2画面が526〜705pxへ広がった（2026-08-21）",
+    reason: "selectの選択肢が持つintrinsic幅をform全体へ伝播させず、利用可能幅まで縮めるため",
+  },
+  "src/presentation/ui/patterns/patterns.module.css :: .materialForm > *": {
+    measured: "同じ2画面でmaterialForm直下のformがintrinsic幅を保持していた（2026-08-21）",
+    reason: "grid子であるformのautomatic min-sizeを0へ下げ、内側selectのwidth:100%を効かせるため",
+  },
+  "src/presentation/ui/patterns/patterns.module.css :: .stackedRow": {
+    measured: "Chromium mobileの商品詳細で生URLが301pxの行を356pxへ広げた（2026-08-21）",
+    reason: "リンクと素文の両方を持てる行なので、長いURL/識別子を行内で折り返し、一覧全体を押し広げないため",
+  },
+  "src/presentation/ui/templates/site.module.css :: .article > *": {
+    measured: "Chromium mobileの順位記事で327pxの記事を398pxへ広げた（2026-08-21）",
+    reason: "記事grid直下のRankingTable外箱を縮め、表の横幅は内側tableWrapのscrollへ閉じ込めるため",
   },
 };
 

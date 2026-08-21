@@ -3,26 +3,34 @@ from __future__ import annotations
 
 import hashlib
 import json
-import sys
 from pathlib import Path
 
 from .base_shape import FIXED_TS
 
-# 入力インベントリの数え方と受領書の版は評価器 (C05) が持つ。fixture が写すと、
-# 写した規則で数えた指紋と写した版を自分で名乗ることになり、
-# **本体が規則を変えても fixture だけ緑のまま**になる。
 _EVALUATOR = (
     Path(__file__).resolve().parents[4]
     / "system-spec-harness"
     / "skills"
     / "assign-system-spec-completeness-evaluator"
 )
-if str(_EVALUATOR / "scripts") not in sys.path:
-    sys.path.insert(0, str(_EVALUATOR / "scripts"))
-
-from spec_input_inventory import fold, is_input  # noqa: E402
 
 RECEIPT_SCHEMA = _EVALUATOR / "schemas" / "resume-receipt.schema.json"
+
+
+def _fixture_is_input(relative: str) -> bool:
+    """Independent acceptance vector for the three input shapes in this fixture."""
+    path = Path(relative).as_posix()
+    return path == "system-spec/spec-state.json" or (
+        path.endswith(".md")
+        and (path.startswith("docs/spec/") or path.startswith("system-spec/"))
+    )
+
+
+def _fixture_fold(entries: list[dict]) -> str:
+    ordered = sorted(entries, key=lambda entry: entry["path"])
+    return hashlib.sha256(
+        "\n".join(f"{entry['path']}:{entry['sha256']}" for entry in ordered).encode("utf-8")
+    ).hexdigest()
 
 
 REQUIREMENTS = """---
@@ -127,9 +135,9 @@ def _inputs(files: dict[str, str]) -> dict:
             "mtime": 0,
         }
         for path, body in sorted(files.items())
-        if is_input(path)
+        if _fixture_is_input(path)
     ]
-    return {"file_count": len(entries), "sha256": fold(entries), "files": entries}
+    return {"file_count": len(entries), "sha256": _fixture_fold(entries), "files": entries}
 
 
 def _receipt_schema_version() -> str:

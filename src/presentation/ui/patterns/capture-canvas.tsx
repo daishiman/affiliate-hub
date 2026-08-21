@@ -122,6 +122,7 @@ type Point = { readonly x: number; readonly y: number };
 export type BurnedCapture = {
   readonly blob: Blob;
   readonly redactionCount: number;
+  readonly maskedElementCount: number;
 };
 
 export function CaptureCanvas({
@@ -339,7 +340,7 @@ export function CaptureCanvas({
     const redactionCount = shapes.filter((s) => s.tool === "redact").length;
     canvas.toBlob((blob) => {
       // ここで出るのは印を焼き込んだあとの 1 枚だけ。元画像は渡さない。
-      if (blob) onExport({ blob, redactionCount });
+      if (blob) onExport({ blob, redactionCount, maskedElementCount });
     }, "image/png");
     // 画面のほうは目印を戻す。消えると、次にどこから広げるのか分からなくなる。
     redraw();

@@ -103,22 +103,11 @@ describe("縦に積む一覧の部品が、役の違うものを飲み込んで�
   });
 
   /*
-    **残った `.linkList` は、`<ul>`/`<ol>` ではない 2 箇所だけである。**
-
-    移し忘れではない。`stacked-list.tsx` の doc にある通り、役が違う——
-      - `distribution/calendar` の `<nav>` は **`<li>` を 1 つも持たない**（縦積みの器として
-        クラスだけ借りていた）
-      - `admin/generation` の `<p>` は リンク 3 本を `／` で**横に**並べる意図なのに
-        `.linkList` は縦並び。**クラスと意図がもともと食い違っている**（別の残課題）
-
-    ここが見るのは「0 件になったか」ではなく「**在るとすれば一覧要素ではない**」で
-    ある。0 件を要求すると、上の 2 箇所を役を確かめずに部品へ通す圧力になる——
-    それは見た目を揃えるかわりに、食い違いを部品の名前で固定する。
+    役の違った2箇所は `InlineNav` へ移した。旧クラスが再び現れると、縦一覧と横ナビの
+    所有境界がまた曖昧になるため、参照0を現在の契約として固定する。
   */
-  it("残った `.linkList` が、`<ul>`/`<ol>` に付いていない", () => {
-    expect(linkListSites.length, "`.linkList` を数えられていません").toBeGreaterThan(0);
-    const onListElements = sitesOf(/<(?:ul|ol)[^>]*className=\{styles\.linkList\}/g).map((s) => s.where);
-    expect(onListElements).toEqual([]);
+  it("旧 `.linkList` が再び使われていない", () => {
+    expect(linkListSites).toEqual([]);
   });
 
   /*
@@ -171,5 +160,9 @@ describe("縦に積む一覧の部品が、呼び出し側に見た目を渡し�
     const rule = css.match(/(?:^|\n)\.stackedList a\s*\{([^}]*)\}/);
     expect(rule, "`.stackedList a` の規則がありません").not.toBeNull();
     expect(rule?.[1] ?? "").toMatch(/min-height:\s*var\(--tap-target-min\)/);
+    expect(
+      rule?.[1] ?? "",
+      "column flex の stretch で透明な押しどころが行幅いっぱいへ広がっています",
+    ).toMatch(/align-self:\s*flex-start/);
   });
 });

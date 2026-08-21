@@ -12,6 +12,7 @@ import {
   Card,
   EmptyView,
   ErrorView,
+  InlineNav,
   Note,
   Page,
   ScheduleCalendar,
@@ -69,14 +70,20 @@ export default async function PublicationCalendarPage({
           失敗したまま止まっているものは、その日の枠に理由を出します。
         </p>
 
-        <nav aria-label="月の切り替え" className={styles.linkList}>
-          <Link href={`/admin/distribution/calendar?month=${view.previousMonth}`}>
-            前の月（{view.previousMonth}）
-          </Link>
-          <Link href={`/admin/distribution/calendar?month=${view.nextMonth}`}>
-            次の月（{view.nextMonth}）
-          </Link>
-        </nav>
+        <InlineNav
+          label="月の切り替え"
+          items={[
+            {
+              href: `/admin/distribution/calendar?month=${view.previousMonth}`,
+              label: `前の月（${view.previousMonth}）`,
+            },
+            {
+              href: `/admin/distribution/calendar?month=${view.nextMonth}`,
+              label: `次の月（${view.nextMonth}）`,
+            },
+          ]}
+          renderLink={(href, label) => <Link href={href}>{label}</Link>}
+        />
 
         {view.awaitingApprovalCount === 0 ? null : (
           <Callout

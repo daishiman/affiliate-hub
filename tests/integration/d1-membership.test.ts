@@ -127,6 +127,8 @@ describe("招待から参加まで", () => {
     if (!found.ok || found.value === null) throw new Error("行が残っていません");
     expect(found.value.displayName).toBe("みわ");
     expect(found.value.userId).toBeNull();
+    const current = await repository.countCurrent(WORKSPACE);
+    expect(current.ok && current.value).toBe(1);
   });
 
   it("初めてログインした人の user_id が埋まり、役割が効く", async () => {
@@ -196,7 +198,7 @@ describe("参加したあとに変える", () => {
   });
 
   it("担当を外した人は、次のログインで入れない", async () => {
-    const { membershipId, uc } = await joined();
+    const { membershipId, uc, repository } = await joined();
     const revoked = await uc.execute(owner, {
       action: "revoke",
       membershipId,
@@ -207,6 +209,8 @@ describe("参加したあとに変える", () => {
     // 行は残っている（過去の記録を辿れる）。
     const rows = await createD1MembershipRepository(db).list(WORKSPACE, { limit: 10, cursor: null });
     expect(rows.ok && rows.value.items).toHaveLength(1);
+    const current = await repository.countCurrent(WORKSPACE);
+    expect(current.ok && current.value).toBe(0);
 
     // それでも、次のログインでは通らない。
     const again = await createD1SessionIssuer(db).issue(

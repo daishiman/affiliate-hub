@@ -34,13 +34,9 @@ import styles from "./patterns.module.css";
  * どちらも番号を自分で書いている（`{s.position}.` / `{p.step}`）ので**見た目は変わらない**が、
  * 見た目が同じであることは同じ役である証拠ではない（`.note` / `.seeAlso` と同じ言い方）。
  *
- * **残る 2 箇所はここへ移していない。**移せなかったのではなく、役が違う。
- *
- *   - `distribution/calendar` の `<nav aria-label="月の切り替え">` — **`<li>` が 1 つも無く**、
- *     `<Link>` を直に 2 本置いている。縦積みの器としてクラスだけ借りていた
- *   - `admin/generation` の `<p>` — リンク 3 本を `／` で**横に並べる**書き方なのに、
- *     `.linkList` は縦並び（`flex-direction: column`）である。**クラスと意図が食い違っている。**
- *     残課題として起こした。ここへ通すと、食い違いが部品の名前で固定される
+ * **役の違った 2 箇所は `InlineNav` へ分けた。**`distribution/calendar` と
+ * `admin/generation` は縦の一覧ではなく同格リンクの横並びだったため、旧 `.linkList` を
+ * 借りるのをやめた。これで生クラスは参照 0 件になり、旧規則も削除済みである。
  *
  * 見張りは `tests/ui/stacked-list-role.test.ts`。
  */

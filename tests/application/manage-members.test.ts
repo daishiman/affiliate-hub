@@ -45,6 +45,7 @@ function memoryMemberships(seed: readonly Membership[] = []): {
       findByInvitedEmail: async (ws, email) =>
         ok(inWs(ws).find((m) => m.invitedEmail === normalizeInvitedEmail(email)) ?? null),
       list: async (ws, page) => ok({ items: inWs(ws).slice(0, page.limit), nextCursor: null }),
+      countCurrent: async (ws) => ok(inWs(ws).filter((membership) => membership.revokedAt === null).length),
       save: async (m) => {
         const at = rows.findIndex((r) => String(r.id) === String(m.id));
         if (at === -1) rows.push(m);

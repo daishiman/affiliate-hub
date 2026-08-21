@@ -32,6 +32,7 @@
 | S-01 | Cloudflare へターミナルからログインする                 | 2 分  | 前提     | ☐   |
 | S-02 | Google で OAuth クライアントを作り、戻り先を 4 つ貼る       | 10 分 | ah-361 | ☐   |
 | S-03 | `setup-secrets.mjs` で Google の値を登録する（dev） | 3 分  | ah-361 | ☐   |
+| S-03A | 最初の owner 行を D1 に登録する                     | 5 分  | ah-361 | ☐   |
 | S-04 | 管理画面が閉じたことを目で見る                           | 5 分  | ah-361 | ☐   |
 | S-05 | 金庫の合言葉 `LLM_KEY_ENCRYPTION_SECRET` を登録する  | 5 分  | ah-ag8 | ☐   |
 | S-06 | Cloudflare の API トークンを発行する                | 5 分  | ah-08q | ☐   |
@@ -158,9 +159,21 @@ pnpm exec wrangler secret list --env dev
 
 ---
 
+## S-03A. 最初の owner 行を D1 に登録する 〔bd: ah-361〕
+
+**目的**: `AUTH_ALLOWED_EMAILS` の名簿と、担当者の owner 行をそろえて初回ログインを成立させる。
+
+S-03 の「許可するアドレス」が `AUTH_ALLOWED_EMAILS` です。これだけでは権限は発行されません。
+続けて [運営者の最初の 1 行を入れる](./first-owner-row.md) を上から実行し、
+同じアドレスの owner 行を dev の D1 に登録してください。**S-04 より先に必ず行います。**
+
+---
+
 ## S-04. 管理画面が閉じたことを目で見る 〔bd: ah-361〕
 
 **目的**: ログインが実際に掛かったことを、テストではなく**画面で**確かめる。
+
+**前提**: S-03 の `AUTH_ALLOWED_EMAILS` と S-03A の owner 行が、同じアドレスで登録済み。
 
 **手順**
 
@@ -622,5 +635,4 @@ pnpm exec wrangler secret list --env production
 | S-16             | ah-1j5 | `tasks/task-model-catalog-screen-check.md`      |
 | S-18             | ah-xp8 | `tasks/task-actions-usage-monitor.md`           |
 | S-19             | ah-dtq | `tasks/task-integration-key-action-gate.md`     |
-
 

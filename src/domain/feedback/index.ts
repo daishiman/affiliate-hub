@@ -9,6 +9,7 @@
  */
 export * from "./capture-policy";
 export * from "./disposition";
+export * from "./diagnostics";
 export * from "./handoff";
 export * from "./handoff-prompt";
 export * from "./integration-access";

@@ -613,6 +613,11 @@
   margin: 0 auto;
 }
 
+/* grid子の既定min-width:autoで、内側の表や長い語が画面全体を押し広げないようにする。 */
+.page > * {
+  min-width: 0;
+}
+
 /* 見出しと説明文は 1 組。間隔だけ上の gap より詰めて、続きものだと分かるようにする。 */
 .pageHead {
   display: grid;
@@ -779,6 +784,13 @@
   font-weight: var(--weight-semibold);
   line-height: var(--leading-heading);
   color: var(--color-text-strong);
+}
+
+/* 実ブラウザで 28px と実測した、見出し全体が行き先になる場合だけ44pxへ広げる。 */
+.headingLevel2 > a {
+  display: inline-flex;
+  align-items: center;
+  min-block-size: var(--tap-target-min);
 }
 
 .headingLevel3 {

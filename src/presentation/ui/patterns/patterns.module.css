@@ -101,6 +101,9 @@
 /* === 表（順位・比較の共通土台） ========================================= */
 
 .tableWrap {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
   overflow-x: auto;
   border: var(--border-width-default) solid var(--color-border-subtle);
   border-radius: var(--radius-md);
@@ -663,11 +666,16 @@
 
 .materialForm {
   display: grid;
+  min-width: 0;
   gap: var(--space-3);
   padding: var(--space-4);
   border: var(--border-width-default) solid var(--color-border-subtle);
   border-radius: var(--radius-md);
   background: var(--color-surface-sunken);
+}
+
+.materialForm > * {
+  min-width: 0;
 }
 
 .materialLabel {
@@ -677,6 +685,8 @@
 }
 
 .materialInput {
+  width: 100%;
+  max-width: 100%;
   min-height: var(--tap-target-min);
   padding: var(--space-2);
   border: var(--border-width-emphasis) solid var(--color-border-default);
@@ -787,21 +797,18 @@
   letter-spacing: var(--tracking-wide);
 }
 
-/*
- * **押しどころの下限をここへ書いていないのは、書き忘れではない。**
- * `product-card.tsx` は `detailHref` が在るとき、この見出しの中をリンクにする。
- * 2026-08-21 の走査でそれが 2 本「下限の宣言が無い」として出たが、
- * `--text-lg` の見出しなので**足す前から足りていた見込みが高く、確かめられない。**
- * `admin.module.css` の `.sectionTitle`、`site.module.css` の `.cardTitle` /
- * `.siteName` と同じ扱い（**名指しの保留**。理由は `.sectionTitle` の注記が本文）。
- * 保留の一覧は `tests/ui/screen-hit-and-current.test.tsx` の `PENDING`。
- * ここに下限を足したら、あちらからも外すこと（残っていると赤になる）。
- */
 .productCardName {
   margin: 0;
   color: var(--color-text-strong);
   font-size: var(--text-lg);
   font-weight: var(--weight-semibold);
+}
+
+/* 実ブラウザで 23px と実測した、商品名が詳細リンクになる場合だけ44pxへ広げる。 */
+.productCardName > a {
+  display: inline-flex;
+  align-items: center;
+  min-block-size: var(--tap-target-min);
 }
 
 .productCardLead {
@@ -1010,6 +1017,12 @@
 
 .feedbackLauncher:hover {
   background: var(--color-action-subtle);
+}
+
+/* 見本帳はAppShellの固定ボタンも描くため、2個目の実物だけ本文の流れへ戻す。 */
+.feedbackLauncherInline {
+  position: static;
+  box-shadow: none;
 }
 
 .feedbackLauncher:focus-visible {
@@ -1279,6 +1292,8 @@
 .stackedRow {
   display: flex;
   flex-direction: column;
+  min-width: 0;
+  overflow-wrap: anywhere;
   gap: var(--space-1);
 }
 
@@ -1297,6 +1312,31 @@
   中身がリンクでない行は `a` を持たないので当たらない。
 */
 .stackedList a {
+  display: inline-flex;
+  align-items: center;
+  /* 親がcolumn flexなので既定のstretchだと透明な押しどころが行幅いっぱいへ広がり、
+     右下の固定feedback launcher等と、文字が離れていてもクリック領域だけ重なる。 */
+  align-self: flex-start;
+  min-height: var(--tap-target-min);
+}
+
+/* 同格の行き先。区切りは文字にせず、見た目だけの境界として描く。 */
+.inlineNav > ul {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.inlineNav li + li {
+  padding-inline-start: var(--space-2);
+  border-inline-start: var(--border-width-default) solid var(--color-border-default);
+}
+
+.inlineNav a {
   display: inline-flex;
   align-items: center;
   min-height: var(--tap-target-min);

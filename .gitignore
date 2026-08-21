@@ -65,6 +65,9 @@ docs/product/preview/
 # 入れておくと、赤が出るたびに数MBの絵が履歴へ積み上がる。
 tests/visual/__diff__/
 
+# Playwright の失敗時スクリーンショット・trace。再現証拠はローカルで読む生成物。
+/test-results/
+
 # エディタ・OS
 .DS_Store
 .idea/

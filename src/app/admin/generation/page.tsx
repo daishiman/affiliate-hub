@@ -15,6 +15,7 @@ import {
   MaterialReview,
   ModelPicker,
   Note,
+  InlineNav,
   Page,
   SectionHeading,
   SeeAlso,
@@ -290,17 +291,18 @@ export default async function GenerationPage({
           />
         )}
 
-        <p className={styles.linkList}>
-          <Link href={trialHref("empty", modelChoice)}>そろっていない状態で試す</Link>
-          {" ／ "}
-          <Link href={trialHref("ready", modelChoice)}>そろった状態（見本の素材）で試す</Link>
-          {trial !== null && (
-            <>
-              {" ／ "}
-              <Link href="/admin/generation">結果を消す</Link>
-            </>
-          )}
-        </p>
+        <InlineNav
+          label="生成の試し方"
+          items={[
+            { href: trialHref("empty", modelChoice), label: "そろっていない状態で試す" },
+            {
+              href: trialHref("ready", modelChoice),
+              label: "そろった状態（見本の素材）で試す",
+            },
+            ...(trial === null ? [] : [{ href: "/admin/generation", label: "結果を消す" }]),
+          ]}
+          renderLink={(href, label) => <Link href={href}>{label}</Link>}
+        />
 
         {trial === "ready" && (
           <StubNotice

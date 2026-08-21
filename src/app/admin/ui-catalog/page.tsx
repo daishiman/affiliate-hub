@@ -26,6 +26,7 @@ import {
   FactSourceBadge,
   FactualityBadge,
   FilterBar,
+  InlineNav,
   LoadingView,
   MaterialReview,
   ModelPicker,
@@ -304,11 +305,10 @@ export default function UiCatalogPage() {
           </div>
           {/*
             **見た目が同じでも、通してはいけないものが 2 種類ある。**
-            一覧の行の説明（`<li>` の中の 36 箇所）は `.linkList` と対で使われており、
-            片割れだけ部品にすると 1 行が継ぎ目で割れる。行内の小書き（5 箇所）には
+            一覧の行の説明は `StackedList` / `StackedRow` が行ごと持つ。行内の小書きには
             チェックボックスのラベル文が混じっていて、通すと**表示は合ったまま
             意味が嘘になる**（残課題 148）。理由は `note.tsx` の doc、見張りは
-            `tests/ui/note-role.test.ts`。**揃っていないのは、揃え忘れではない。**
+            `tests/ui/note-role.test.ts`。**役を分けているのは、揃え忘れではない。**
           */}
           <p className={styles.sectionLead}>
             同じ見た目の小さい灰色の文字が管理画面に他にもありますが、役が違うので
@@ -393,9 +393,24 @@ export default function UiCatalogPage() {
             理由は `stacked-list.tsx` の doc、見張りは `tests/ui/stacked-list-role.test.ts`。
           */}
           <p className={styles.sectionLead}>
-            管理画面には、まだこの部品へ通していない縦積みが 2 箇所あります。どちらも
-            移し忘れではなく役が違うためで、理由は stacked-list.tsx の説明にあります。
+            役の違った横並び2箇所は、下の `InlineNav` へ分けています。
           </p>
+        </Card>
+
+        <Card>
+          <SectionHeading level={2}>2-f. 同格の行き先</SectionHeading>
+          <p className={styles.sectionLead}>
+            前後関係のない行き先を横に並べます。区切りは読み上げる文字ではなく境界線です。
+          </p>
+          <InlineNav
+            label="同格の行き先の見本"
+            items={[
+              { href: "/admin/generation", label: "下書きを作る" },
+              { href: "/admin/content", label: "記事を確認する" },
+              { href: "/admin/distribution", label: "配信を確認する" },
+            ]}
+            renderLink={(href, label) => <Link href={href}>{label}</Link>}
+          />
         </Card>
 
         <Card>
@@ -861,8 +876,9 @@ export default function UiCatalogPage() {
         <Card>
           <SectionHeading level={2}>20. 改善したいことを送る</SectionHeading>
           <p className={styles.sectionLead}>
-            右下のボタンは、管理画面の骨格から 1 回だけ出しています。画面ごとに置くと、
-            置き忘れた画面の不満だけがどこにも届きません。画面の写しは付けても付けなくても送れます。
+            右下の本物は、管理画面の骨格から 1 回だけ出しています。画面ごとに置くと、
+            置き忘れた画面の不満だけがどこにも届きません。この欄の2個目は同じ部品を本文内で試す見本です。
+            画面の写しは付けても付けなくても送れます。
             黒塗りは画像そのものに焼き込むので、あとから元の画像を取り出すことはできません。
             この見本では、送っても記録はされません。
           </p>

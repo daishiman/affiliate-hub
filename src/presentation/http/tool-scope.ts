@@ -26,6 +26,18 @@ export function visibleTools(
   return catalog.filter((tool) => isToolAllowedForScope(tool, scope));
 }
 
+/** 1 要求の全体一覧と公開一覧を、同じ 1 回の生成結果から作る。 */
+export async function loadScopedCatalog(
+  load: () => Promise<readonly AnyToolDefinition[]>,
+  scope: CallerScope,
+): Promise<{
+  readonly all: readonly AnyToolDefinition[];
+  readonly visible: readonly AnyToolDefinition[];
+}> {
+  const all = await load();
+  return { all, visible: visibleTools(all, scope) };
+}
+
 /** 断るときの理由。無言で 403 を返さない。 */
 export function refusalReason(tool: AnyToolDefinition): string {
   return tool.requiresHumanApproval

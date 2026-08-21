@@ -165,7 +165,7 @@ export function createGetSettingsOverviewUseCase(
       const [brands, sites, members] = await Promise.all([
         deps.workspaces.countBrands(workspace.id),
         deps.workspaces.countSites(workspace.id),
-        deps.workspaces.countMembers(workspace.id),
+        deps.memberships.countCurrent(workspace.id),
       ]);
       if (!brands.ok) return brands;
       if (!sites.ok) return sites;

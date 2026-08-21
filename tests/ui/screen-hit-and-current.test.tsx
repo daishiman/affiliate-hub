@@ -338,47 +338,13 @@ function underSizedControls(document: Document, sized: Set<Element>): readonly s
 const SELECTORS = sizedSelectors();
 
 /**
- * **実物を見るまで判定を保留するもの。**
- *
- * ここに挙がっているのは全部「見出しが丸ごと 1 つの行き先」の形である
- * （`<h2 class="…"><Link>…</Link></h2>`）。下限を書けば緑になるが、
- * **その緑は「小さかったものが大きくなった」を意味しない。**どれも
- * `--text-lg` 以上の見出しで、行の高さはすでに下限を超えている見込みが高い。
- * jsdom は組版をしないので、**足す前が足りていたのかを確かめられない**（残課題 143）。
- * **測れない変更を入れて緑にするより、保留のほうがまし。**
- *
- * --- なぜ「赤のまま」から「名指しの保留」へ変えたか ---
- *
- * 赤のまま置くと、CI がこの 15 件で毎回止まる。**毎回同じ場所で止まる門は、
- * やがて誰も最後まで走らせない。**そして 16 件目が混ざっても見分けが付かない
- * ——「15 件赤」としか読めないので、新しい違反が保留の陰に隠れる。
- *
- * だから**保留を名指しにして、それ以外は赤にする**。判定を甘くしたのではなく、
- * 保留の範囲を機械が知っている形にした。直したら一覧から外す（外し忘れも下で赤になる）。
- *
- * 決着は実物を見てから（残課題 155 / `docs/product/ui-ux-tasks.md` の「実物で見る項目」）。
+ * 実ブラウザ未計測の名指し保留。2026-08-21 に4種すべてを desktop/mobile の実DOMで測り、
+ * 28px / 23px / 23px / 32.39px と44px未満だったため対象リンクを修正し、保留は0件になった。
  */
-const PENDING: Readonly<Record<string, { readonly measured: string; readonly reason: string }>> = {
-  "h2.headingLevel2": {
-    measured: "2026-08-21 の走査で 5 画面・計 11 本",
-    reason: "見出しが丸ごと 1 つの行き先。`--text-xl` なので行の高さが下限を超えている見込み",
-  },
-  "h2.cardTitle": {
-    measured: "2026-08-21 の走査で 5 画面・計 11 本",
-    reason: "同上（`--text-lg`）。読み物の一覧で、題そのものがリンクになっている",
-  },
-  "h3.productCardName": {
-    measured: "2026-08-21 の走査で 1 画面・1 本",
-    reason: "同上（`--text-lg`）。商品札の名前がそのまま行き先",
-  },
-  "div.siteHeaderInner": {
-    measured: "2026-08-21 の走査で 1 画面・1 本（`a.siteName`）",
-    reason: "見出しではないが同じ形——ブログ名そのものが玄関への行き先で、`--text-lg`",
-  },
-};
+const PENDING: Readonly<Record<string, { readonly measured: string; readonly reason: string }>> = {};
 
 /** 保留の上限。**増やして通さないこと。**増えたなら、増えた分は新しい違反である。 */
-const PENDING_MAX = 4;
+const PENDING_MAX = 0;
 
 /** 保留の理由に混ぜてはいけない言い分。**「直っていない」は理由ではない。** */
 const FORBIDDEN_REASONS = ["赤だから", "面倒", "あとで", "直っていない", "落ちるから"];
@@ -611,4 +577,3 @@ describe("現在地", () => {
     },
   );
 });
-

@@ -74,13 +74,35 @@ describe("宛先から、渡してよいところだけを取り出す", () => {
     // 素直に繋ぐと `nullalert(1)` という意味のない行が控えに並ぶ。
     expect(result).toBe("（読めない宛先）");
   });
+
+  it("サーバー描画中はブラウザの場所を推測せず、空の控えとして安全に止められる", () => {
+    vi.stubGlobal("window", undefined);
+    vi.stubGlobal("location", undefined);
+
+    expect(safeUrl("/relative-only")).toBe("（読めない宛先）");
+    const collector = startPageDiagnostics();
+    expect(collector.read()).toEqual({
+      jsErrors: [],
+      failedRequests: [],
+      recentActions: [],
+      redactedCount: 0,
+    });
+    expect(() => collector.stop()).not.toThrow();
+  });
 });
 
 describe("画面で起きたことを控える", () => {
   it("投げられた例外を控える", () => {
     const collector = start();
-    window.dispatchEvent(new ErrorEvent("error", { message: "壊れました" }));
-    expect(collector.read().jsErrors).toContain("壊れました");
+    window.dispatchEvent(
+      new ErrorEvent("error", {
+        message: "token=abc123 user@example.test",
+        error: new TypeError("token=abc123 user@example.test"),
+      }),
+    );
+    expect(collector.read().jsErrors).toEqual(["TypeError"]);
+    expect(JSON.stringify(collector.read())).not.toContain("abc123");
+    expect(collector.read().redactedCount).toBe(1);
   });
 
   /*
@@ -116,11 +138,71 @@ describe("画面で起きたことを控える", () => {
   it("押したものの呼び名を控える", () => {
     const collector = start();
     const button = document.createElement("button");
-    button.textContent = "保存する";
+    button.textContent = "顧客 user@example.test の secret-token を保存する";
     document.body.appendChild(button);
     button.click();
-    expect(collector.read().recentActions).toContain("「保存する」を押した");
+    expect(collector.read().recentActions).toContain("ボタンを操作した");
+    expect(JSON.stringify(collector.read())).not.toContain("user@example.test");
     button.remove();
+  });
+
+  it("リンク・詳細・ボタンを固定語彙で区別し、変化の通知をその都度出す", () => {
+    const onChange = vi.fn();
+    const collector = startPageDiagnostics({ onChange });
+    running = collector;
+
+    const link = document.createElement("a");
+    link.href = "/admin/sites";
+    link.addEventListener("click", (event) => event.preventDefault());
+    const linkChild = document.createElement("span");
+    link.appendChild(linkChild);
+    const details = document.createElement("details");
+    const summary = document.createElement("summary");
+    details.appendChild(summary);
+    const roleButton = document.createElement("span");
+    roleButton.setAttribute("role", "button");
+    const plain = document.createElement("span");
+    document.body.appendChild(link);
+    document.body.appendChild(details);
+    document.body.appendChild(roleButton);
+    document.body.appendChild(plain);
+
+    linkChild.click();
+    summary.click();
+    roleButton.click();
+    plain.click();
+    document.dispatchEvent(new Event("click", { bubbles: true }));
+
+    expect(collector.read().recentActions).toEqual([
+      "リンクを操作した",
+      "詳細を操作した",
+      "ボタンを操作した",
+    ]);
+    expect(onChange).toHaveBeenCalledTimes(3);
+    link.remove();
+    details.remove();
+    roleButton.remove();
+    plain.remove();
+  });
+
+  it("未処理の拒否は生の理由を残さず、固定語彙だけを控える", () => {
+    const collector = start();
+    window.dispatchEvent(new Event("unhandledrejection"));
+    expect(collector.read().jsErrors).toEqual(["未処理の失敗"]);
+    expect(collector.read().redactedCount).toBe(1);
+  });
+
+  it("URL と Request の通信も扱い、成功は失敗一覧に加えない", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => new Response("", { status: 200 })),
+    );
+    const collector = start();
+
+    await window.fetch(new URL("https://example.test/api/url?token=hidden"));
+    await window.fetch(new Request("https://example.test/api/request?email=hidden"));
+
+    expect(collector.read().failedRequests).toEqual([]);
   });
 
   /*
@@ -154,8 +236,8 @@ describe("画面で起きたことを控える", () => {
     }
     const errors = collector.read().jsErrors;
     expect(errors).toHaveLength(DIAGNOSTICS_LIMIT);
-    expect(errors[errors.length - 1]).toBe(`壊れました${DIAGNOSTICS_LIMIT + 2}`);
-    expect(errors[0]).not.toBe("壊れました0");
+    expect(errors[errors.length - 1]).toBe("Error");
+    expect(errors).toHaveLength(DIAGNOSTICS_LIMIT);
   });
 
   /*
@@ -166,7 +248,7 @@ describe("画面で起きたことを控える", () => {
     const collector = start();
     expect(collector.read().jsErrors).toHaveLength(0);
     window.dispatchEvent(new ErrorEvent("error", { message: "あとから" }));
-    expect(collector.read().jsErrors).toEqual(["あとから"]);
+    expect(collector.read().jsErrors).toEqual(["Error"]);
   });
 });
 

@@ -15,6 +15,7 @@ from __future__ import annotations
 
 import argparse
 import hashlib
+import importlib.util
 import json
 import re
 import subprocess
@@ -58,12 +59,40 @@ AGGREGATE = (
 COVERAGE = HARNESS_ROOT / "scripts" / "validate-coverage-matrix.py"
 SOURCE_CITATION = HARNESS_ROOT / "scripts" / "validate-source-citation.py"
 
-# 入力インベントリの定義は評価器 (C05) が持つ。ここで写すと、写しが古びたときに
-# 「中身は同じなのに再利用できない」または「入力が変わったのに再利用できる」の
-# どちらかが黙って起きる。import して同じ関数に数えさせる。
-if str(AGGREGATE.parent) not in sys.path:
-    sys.path.insert(0, str(AGGREGATE.parent))
-from spec_input_inventory import build_inventory  # noqa: E402
+def load_inventory_api():
+    """Load the provider-owned API declared by the sibling import contract."""
+    contract = json.loads(IMPORT_CONTRACT_PATH.read_text(encoding="utf-8"))
+    api = contract.get("provider_api")
+    if not isinstance(api, dict):
+        raise RuntimeError("system-spec import contract lacks provider_api")
+    relative = api.get("path")
+    version = api.get("version")
+    symbols = api.get("symbols")
+    if (
+        not isinstance(relative, str)
+        or not isinstance(version, str)
+        or symbols != ["build_inventory"]
+    ):
+        raise RuntimeError("system-spec provider_api contract is invalid")
+    module_path = (HARNESS_ROOT / relative).resolve()
+    try:
+        module_path.relative_to(HARNESS_ROOT.resolve())
+    except ValueError as exc:
+        raise RuntimeError("system-spec provider API escapes plugin root") from exc
+    spec = importlib.util.spec_from_file_location("system_spec_inventory_api", module_path)
+    if spec is None or spec.loader is None:
+        raise RuntimeError(f"cannot load system-spec provider API: {module_path}")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    if getattr(module, "API_VERSION", None) != version:
+        raise RuntimeError("system-spec provider API version mismatch")
+    build = getattr(module, "build_inventory", None)
+    if not callable(build):
+        raise RuntimeError("system-spec provider API lacks build_inventory")
+    return build
+
+
+build_inventory = load_inventory_api()
 
 
 def load_json(path: Path) -> dict[str, Any]:

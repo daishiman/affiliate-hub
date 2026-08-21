@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import type { FeedbackSubmission } from "@/presentation/feedback-contract";
 import { Button } from "../primitives/button";
 import { Callout } from "../primitives/callout";
 import { Field } from "../primitives/field";
@@ -9,7 +10,7 @@ import { Select } from "../primitives/select";
 import { TextArea } from "../primitives/textarea";
 import { UI_COPY } from "../copy";
 import { CaptureCanvas, type BurnedCapture } from "./capture-canvas";
-import { startPageDiagnostics, type PageDiagnostics } from "./page-diagnostics";
+import { safeUrl, startPageDiagnostics, type PageDiagnostics } from "./page-diagnostics";
 import styles from "./patterns.module.css";
 
 /**
@@ -33,34 +34,7 @@ import styles from "./patterns.module.css";
  * 「送れません」にすると、そこで諦められる。**文章だけで必ず送れる。**
  */
 
-/** サーバーへ渡す形。サーバー側の処理へそのまま渡せるよう、素の値だけで組む。 */
-export type FeedbackSubmission = {
-  readonly kind: "not_working" | "hard_to_use" | "want_feature";
-  readonly body: string;
-  readonly wish: string;
-  readonly origin: {
-    readonly screenName: string;
-    readonly url: string;
-    readonly route: string;
-    readonly viewportWidth: number;
-    readonly viewportHeight: number;
-  };
-  readonly technical: {
-    readonly jsErrors: readonly string[];
-    readonly failedRequests: readonly string[];
-    readonly userAgent: string;
-    readonly recentActions: readonly string[];
-    readonly redactedCount: number;
-  };
-  readonly capture: {
-    readonly imageBase64: string;
-    readonly redactionsBurnedIn: boolean;
-    readonly retainsOriginal: boolean;
-    readonly redactionCount: number;
-    readonly maskedElementCount: number;
-    readonly mimeType: string;
-  } | null;
-};
+export type { FeedbackSubmission } from "@/presentation/feedback-contract";
 
 /**
  * 画面の写しを 1 枚撮る。撮れなければ `null`（**失敗ではない**）。
@@ -112,6 +86,7 @@ export function FeedbackButton({
   screenName,
   route,
   canSubmit,
+  placement = "fixed",
   onSubmit,
 }: {
   /** いま開いている画面の名前。送る人に書かせない（書かせると表記がばらつく）。 */
@@ -119,10 +94,13 @@ export function FeedbackButton({
   readonly route: string;
   /** 権限を持つ人にだけ出す。持たない人には何も描かない。 */
   readonly canSubmit: boolean;
+  /** 通常は右下固定。見本帳で実物を重ねず見せるときだけ本文内へ置く。 */
+  readonly placement?: "fixed" | "inline";
   readonly onSubmit: (submission: FeedbackSubmission) => Promise<{ readonly message: string }>;
 }) {
   const [open, setOpen] = useState(false);
   const diagnosticsRef = useRef<(() => PageDiagnostics) | null>(null);
+  const [, setDiagnosticsVersion] = useState(0);
   /*
    * 押した瞬間に始めた撮影。中身が届くのは開いた後になる。
    *
@@ -146,7 +124,9 @@ export function FeedbackButton({
    */
   useEffect(() => {
     if (!canSubmit) return;
-    const collector = startPageDiagnostics();
+    const collector = startPageDiagnostics({
+      onChange: () => setDiagnosticsVersion((version) => version + 1),
+    });
     diagnosticsRef.current = collector.read;
     return () => {
       diagnosticsRef.current = null;
@@ -160,7 +140,7 @@ export function FeedbackButton({
     <>
       <button
         type="button"
-        className={styles.feedbackLauncher}
+        className={`${styles.feedbackLauncher} ${placement === "inline" ? styles.feedbackLauncherInline : ""}`.trim()}
         onClick={() => {
           // **撮影を先に始める。**`setOpen` を待つと押した勢いが切れ、
           // 許可の窓が出ないまま「撮れませんでした」になる。
@@ -177,7 +157,12 @@ export function FeedbackButton({
           screenName={screenName}
           route={route}
           readDiagnostics={() =>
-            diagnosticsRef.current?.() ?? { jsErrors: [], failedRequests: [], recentActions: [] }
+            diagnosticsRef.current?.() ?? {
+              jsErrors: [],
+              failedRequests: [],
+              recentActions: [],
+              redactedCount: 0,
+            }
           }
           pendingShot={pendingShot}
           onClose={() => {
@@ -246,7 +231,11 @@ function FeedbackDialog({
   const [body, setBody] = useState("");
   const [wish, setWish] = useState("");
   const [source, setSource] = useState<string | null>(null);
-  const [burned, setBurned] = useState<{ base64: string; redactionCount: number } | null>(null);
+  const [burned, setBurned] = useState<{
+    base64: string;
+    redactionCount: number;
+    maskedElementCount: number;
+  } | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
   const [sending, setSending] = useState(false);
   const [done, setDone] = useState<string | null>(null);
@@ -360,7 +349,7 @@ function FeedbackDialog({
       wish,
       origin: {
         screenName,
-        url: typeof window === "undefined" ? route : window.location.href,
+        url: typeof window === "undefined" ? route : safeUrl(window.location.href),
         route,
         viewportWidth: typeof window === "undefined" ? 0 : window.innerWidth,
         viewportHeight: typeof window === "undefined" ? 0 : window.innerHeight,
@@ -372,7 +361,7 @@ function FeedbackDialog({
         // **画面を開いたことは、控えの先頭に置く。**押した操作だけだと、
         // 「どこで」が本文頼みになる。控えが空でも 1 行は残る。
         recentActions: [`${screenName} を開いた`, ...seen.recentActions],
-        redactedCount: burned?.redactionCount ?? 0,
+        redactedCount: seen.redactedCount,
       },
       capture: burned
         ? {
@@ -381,7 +370,7 @@ function FeedbackDialog({
             redactionsBurnedIn: true,
             retainsOriginal: false,
             redactionCount: burned.redactionCount,
-            maskedElementCount: 0,
+            maskedElementCount: burned.maskedElementCount,
             mimeType: "image/png",
           }
         : null,
@@ -394,7 +383,11 @@ function FeedbackDialog({
     const reader = new FileReader();
     reader.onload = () => {
       const url = String(reader.result);
-      setBurned({ base64: url.slice(url.indexOf(",") + 1), redactionCount: capture.redactionCount });
+      setBurned({
+        base64: url.slice(url.indexOf(",") + 1),
+        redactionCount: capture.redactionCount,
+        maskedElementCount: capture.maskedElementCount,
+      });
       // 焼き込み後は元の画像を手元から捨てる。残すと「隠したはず」が残る。
       setSource(null);
     };

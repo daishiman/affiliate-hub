@@ -31,13 +31,12 @@
 /** 控えておく上限。古いほうから捨てる。多いほど指示文が長くなり、読まれなくなる。 */
 export const DIAGNOSTICS_LIMIT = 8;
 
-/** 操作の説明に使う文字数の上限。長い見出しをそのまま入れると 1 件で埋まる。 */
-const LABEL_MAX = 60;
-
 export type PageDiagnostics = {
   readonly jsErrors: readonly string[];
   readonly failedRequests: readonly string[];
   readonly recentActions: readonly string[];
+  /** 生の値を固定語彙へ縮約した件数。画像の黒塗り数とは別の意味を持つ。 */
+  readonly redactedCount: number;
 };
 
 /**
@@ -63,14 +62,20 @@ export function safeUrl(raw: string, base?: string): string {
   }
 }
 
-/** 押されたものの呼び名。**値は取らない**（入力欄の中身を控えないため）。 */
-function labelOf(element: Element): string | null {
+/** 押されたものの種類。動的な表示名は、入力値と同じく収集しない。 */
+function actionOf(element: Element): string | null {
   const actionable = element.closest("button, a[href], [role='button'], summary");
   if (!actionable) return null;
-  const aria = actionable.getAttribute("aria-label");
-  const text = (aria ?? actionable.textContent ?? "").replace(/\s+/g, " ").trim();
-  if (text === "") return null;
-  return text.length > LABEL_MAX ? `${text.slice(0, LABEL_MAX)}…` : text;
+  if (actionable.matches("a[href]")) return "リンクを操作した";
+  if (actionable.matches("summary")) return "詳細を操作した";
+  return "ボタンを操作した";
+}
+
+function errorCategory(event: ErrorEvent): string {
+  const name = event.error instanceof Error ? event.error.name : "";
+  return ["TypeError", "ReferenceError", "SyntaxError", "RangeError", "SecurityError", "NetworkError", "AbortError"].includes(name)
+    ? name
+    : "Error";
 }
 
 type Ring = { readonly push: (line: string) => void; readonly read: () => readonly string[] };
@@ -91,7 +96,7 @@ function ring(): Ring {
  * `read` は**呼んだ瞬間**の控えを返す。開いた時点の写しを渡すと、
  * 開いてから送るまでに起きたことが落ちる（そこが一番効く場面である）。
  */
-export function startPageDiagnostics(): {
+export function startPageDiagnostics(options?: { readonly onChange?: () => void }): {
   readonly read: () => PageDiagnostics;
   readonly stop: () => void;
 } {
@@ -100,18 +105,28 @@ export function startPageDiagnostics(): {
   const actions = ring();
 
   if (typeof window === "undefined") {
-    return { read: () => ({ jsErrors: [], failedRequests: [], recentActions: [] }), stop: () => {} };
+    return {
+      read: () => ({ jsErrors: [], failedRequests: [], recentActions: [], redactedCount: 0 }),
+      stop: () => {},
+    };
   }
 
-  const onError = (event: ErrorEvent): void => errors.push(event.message);
+  let redactedCount = 0;
+  const changed = (): void => options?.onChange?.();
+  const pushRedacted = (target: Ring, value: string): void => {
+    target.push(value);
+    redactedCount += 1;
+    changed();
+  };
+  const onError = (event: ErrorEvent): void => pushRedacted(errors, errorCategory(event));
   /** 約束が捨てられた側。`await` を書き忘れた失敗はこちらにしか来ない。 */
-  const onRejection = (event: PromiseRejectionEvent): void =>
-    errors.push(`未処理の失敗: ${String(event.reason)}`);
+  const onRejection = (_event: PromiseRejectionEvent): void =>
+    pushRedacted(errors, "未処理の失敗");
   const onClick = (event: Event): void => {
     const target = event.target;
     if (!(target instanceof Element)) return;
-    const label = labelOf(target);
-    if (label !== null) actions.push(`「${label}」を押した`);
+    const action = actionOf(target);
+    if (action !== null) pushRedacted(actions, action);
   };
 
   window.addEventListener("error", onError);
@@ -127,11 +142,15 @@ export function startPageDiagnostics(): {
     try {
       const response = await original(input, init);
       // 4xx / 5xx は `fetch` にとって成功なので、ここで見なければ誰も見ない。
-      if (!response.ok) requests.push(`${response.status} ${target}`);
+      if (!response.ok) {
+        requests.push(`${response.status} ${target}`);
+        changed();
+      }
       return response;
     } catch (cause) {
       // 届かなかった側（切断・CORS・中断）。状態番号が無いので、そう書く。
       requests.push(`届きませんでした ${target}`);
+      changed();
       throw cause;
     }
   };
@@ -142,6 +161,7 @@ export function startPageDiagnostics(): {
       jsErrors: errors.read(),
       failedRequests: requests.read(),
       recentActions: actions.read(),
+      redactedCount,
     }),
     stop: () => {
       window.removeEventListener("error", onError);
