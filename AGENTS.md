@@ -8,6 +8,29 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 <!-- END:nextjs-agent-rules -->
 
+## 枝の順番
+
+```
+作業ブランチ ──PR──▶ dev ──PR──▶ main
+                      │            │
+                   開発環境       本番
+```
+
+**PR の宛先は既定で `dev` です。`main` へ直接出さないでください。**
+`main` への PR は比較元が `dev` か `hotfix/*` でないと `branch-flow.yml` が落とします。
+
+- 作業を始めるとき: `dev` から枝を切る
+- 出すとき: `gh pr create --base dev`（宛先を省くと既定ブランチ＝`dev` になります）
+- 本番へ出すとき: `dev` から `main` への PR を出す
+- 本番だけが壊れていて急ぐとき: 枝を `hotfix/...` と名付けて `main` へ。
+  **マージしたら `git push origin origin/main:dev` で `dev` へ戻すこと。**
+
+戻し忘れると `dev` だけが古いまま取り残されます。2026-08-21 に実際そうなり、
+`dev` が `main` から 451 コミット遅れて、開発環境では `/admin` も `/s` も 404 でした。
+確かめる場所が本番しか無い状態になります。
+
+詳しくは [README の「環境とデプロイフロー」](./README.md#環境とデプロイフロー)。
+
 <!-- BEGIN BEADS INTEGRATION v:1 profile:minimal hash:970c3bf2 -->
 ## Beads Issue Tracker
 

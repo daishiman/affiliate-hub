@@ -7,150 +7,151 @@
   "spec_dir": "system-spec",
   "verdict": "PASS",
   "inputs": {
+    "sha256": "73f13ea939f74bcf22a2d74fbd16b959addd88036dd28e5e25ca2e011ef26e86",
     "file_count": 28,
-    "sha256": "b9f4b6a1228e97af80ff618ef1db190c61ed4fcd104078cf6e9c0ed297d3e3a8",
     "files": [
       {
         "path": "docs/spec/00-README.md",
         "sha256": "310885f2d2b0e2d743bf31a59d83f1ec423682c59a3cc007c9e9f62aa9d97782",
-        "mtime": 1787206747
+        "mtime": 1787285459
       },
       {
         "path": "docs/spec/01-要求仕様書-v1.0.md",
         "sha256": "b5fc60987cb79c08c30db4cd94b075a0bf89cd7acba7c8d1ffc8558af6439385",
-        "mtime": 1786886177
+        "mtime": 1787285459
       },
       {
         "path": "docs/spec/02-補充仕様-ギャップと追加要件.md",
         "sha256": "73b3204fcb5c71edf4704817b12af2d36939993ba1194bf04c1f4ceff9c8cd25",
-        "mtime": 1786881084
+        "mtime": 1787285459
       },
       {
         "path": "docs/spec/03-分析・解析基盤仕様.md",
         "sha256": "5d84913a2422b9e697422b0656f90cf90633b0bd75adcebe0c6696e01fc9e45f",
-        "mtime": 1787048312
+        "mtime": 1787285459
       },
       {
         "path": "docs/spec/04-二層構造統合仕様.md",
         "sha256": "d01442b19c1b9e29681719f2768847c39ec0fea34bfdf6438247c814c037f765",
-        "mtime": 1786886250
+        "mtime": 1787285459
       },
       {
         "path": "docs/spec/05-文章作成メソッド仕様.md",
         "sha256": "edcbd22afffe076c76aea32bf4ae744c57db441834ffa1d79ee2e29245502696",
-        "mtime": 1786886398
+        "mtime": 1787285459
       },
       {
         "path": "docs/spec/06-サイトブループリント-記事構成テンプレート.md",
         "sha256": "462fcf098f3765cf3392566550e454bc77e693b269b975e5f542b134acf897ea",
-        "mtime": 1786886483
+        "mtime": 1787285459
       },
       {
         "path": "docs/spec/07-生成基盤設計.md",
         "sha256": "d155d9183ef16be0cda994d490bcf3fb359d0758f9415e61f950f3b4e43e0a3e",
-        "mtime": 1786886607
+        "mtime": 1787285459
       },
       {
         "path": "docs/spec/08-仕様の未修正点.md",
         "sha256": "b79d5715a63404442a0b3eab05299988c24f7f1eb544dca79fd81a61e3e56665",
-        "mtime": 1787116103
+        "mtime": 1787285459
       },
       {
         "path": "docs/spec/09-UIテーマ仕様.md",
         "sha256": "9bfeb611748edaf08e865fe740637e37e025af153c3a2bc0a5cffabb1dc6c6f1",
-        "mtime": 1787092962
+        "mtime": 1787285459
       },
       {
         "path": "docs/spec/10-テスト戦略仕様.md",
         "sha256": "35a384758a3ffab3dec9268c7cde8856d89afcbae278c93fbada1fc1b3415c4e",
-        "mtime": 1786969479
+        "mtime": 1787285459
       },
       {
         "path": "docs/spec/11-CI-CD・品質ゲート仕様.md",
-        "sha256": "0ab91722ff622e5a564ec6d3f68ada96c964a15eaf9adf6e4223e23a129ab0b8",
-        "mtime": 1787057491
+        "sha256": "b5466eba44f88039622cc6228d40fa54173fcaccdea15e75a2c37997234d7583",
+        "mtime": 1787305843
       },
       {
         "path": "docs/spec/12-改善要望フィードバック仕様.md",
         "sha256": "f814f1a62e30eebb4512ba0c7964bfdb6986c4007af406aab7d8d7e58e17a856",
-        "mtime": 1786931945
+        "mtime": 1787285459
       },
       {
         "path": "docs/spec/ai-first-webmcp.md",
         "sha256": "35241bfe4e82f6536d871c179eb938681ec771991fa50a59c72d5d97d3c98713",
-        "mtime": 1786881084
+        "mtime": 1787285459
       },
       {
         "path": "docs/spec/completion-criteria.md",
         "sha256": "07cb3de0ca834a6776d6e08dfd11a3d6bd1b848d962d1f582d9e41f0705a8943",
-        "mtime": 1786881084
+        "mtime": 1787285459
       },
       {
         "path": "docs/spec/data-model-gap.md",
         "sha256": "97861d9844e975922b73715c49d5ea7f4a8db53e83fbbbf0e73a54a32fb6754c",
-        "mtime": 1786881084
+        "mtime": 1787285459
       },
       {
         "path": "docs/spec/dialogue-confirmations.md",
         "sha256": "1312a2372403173dc8b57112ae0178d713c93a05471124e201e084bf0da8daa1",
-        "mtime": 1787206712
+        "mtime": 1787285459
       },
       {
         "path": "system-spec/00-requirements-definition.md",
         "sha256": "b5f4e61bea187723bcf1e1703985f816c1d50cb20c71743e5d5ca761ce1ae250",
-        "mtime": 1787182401
+        "mtime": 1787285459
       },
       {
         "path": "system-spec/auth.md",
         "sha256": "9feca924e188e1472ef08e9f1f073cfd2bb551171b82580c0475ea58c6c48066",
-        "mtime": 1787181882
+        "mtime": 1787285459
       },
       {
         "path": "system-spec/backend.md",
         "sha256": "c6a77f66ba63988462818e972bbfc39571fff404d548fc3aff41abcf93d8d461",
-        "mtime": 1787181902
+        "mtime": 1787285459
       },
       {
         "path": "system-spec/database.md",
         "sha256": "d11f6aa03832d977f92615bc2d6aa9e1c9feedc26b04af1b8ebf9d0bcc4b9475",
-        "mtime": 1787181860
+        "mtime": 1787285459
       },
       {
         "path": "system-spec/frontend.md",
         "sha256": "b7978b35491f2fe861a04a740908f53dbfff1f8d5d9b21f394d734e6daf9b4fd",
-        "mtime": 1787181922
+        "mtime": 1787285459
       },
       {
         "path": "system-spec/index.md",
         "sha256": "409add2dc4ceef4637f1a2048bdd9a2e54a4a9873cc4e70a9d160a13c5d63e44",
-        "mtime": 1787118224
+        "mtime": 1787285459
       },
       {
         "path": "system-spec/infrastructure.md",
         "sha256": "b587b92e1bf7120d16c8f8c55f241fb2484215ad25c8ae44b20009eca0d3a974",
-        "mtime": 1787181942
+        "mtime": 1787285459
       },
       {
         "path": "system-spec/maintenance-ops.md",
         "sha256": "ad31e7c63a1bf1d44d47be596f332f47ed6c7383210ad96c6f8dda9be35c2004",
-        "mtime": 1787181967
+        "mtime": 1787285459
       },
       {
         "path": "system-spec/security.md",
         "sha256": "2639e706f1a9e3055f57c86d985d6138f99d7b445faed7936b8fd93c07429b3b",
-        "mtime": 1787181991
+        "mtime": 1787285459
       },
       {
         "path": "system-spec/spec-state.json",
         "sha256": "ed8f92b62f4b6801c7bb6d4f4c2e4efadf8bc3560d418336f4fc565195106c09",
-        "mtime": 1787281800
+        "mtime": 1787285459
       },
       {
         "path": "system-spec/ui-ux.md",
         "sha256": "4e3433855571d0c0b62f1ca87e6ef6abc6a10ded369835b093bbff76cf8f68ad",
-        "mtime": 1787183641
+        "mtime": 1787285459
       }
-    ]
+    ],
+    "pinned_at": "2026-08-21T09:57:41.371Z"
   },
   "aspects": {
     "foundation_trace": {
