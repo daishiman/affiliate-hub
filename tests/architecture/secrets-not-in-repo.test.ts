@@ -295,9 +295,17 @@ describe("秘密の値がリポジトリに載っていない", () => {
   it("要件 6: 手で書いた記録に、値の断片が貼られていない", () => {
     const acc: HandWrittenScan = { hits: [], excluded: 0, undetermined: 0 };
     const hits = acc.hits;
-    let scanned = 0;
+    /*
+     * **数える先を 2 つに分けてある。**課題の欄と枝のコミットは、母集団としての
+     * 性質が違う。前者は常に数百件あるのが正常で、0 に近づいたら走査が壊れている。
+     * 後者は**枝を切った直後なら 0 件が正しい答え**である。
+     * 足して 1 つの床に当てると、この 2 つを区別できなくなる（2026-08-21 に実際に
+     * そうなった。欄は 311→315 と増えていたのに、コミットが 0 になった分だけで
+     * 合計が床を割り、走査が壊れたかのように赤くなった）。
+     */
+    let scannedFields = 0;
+    let scannedCommits = 0;
     const scan = (where: string, text: string) => {
-      scanned += 1;
       scanHandWritten(where, text, acc);
     };
 
@@ -308,7 +316,10 @@ describe("秘密の値がリポジトリに載っていない", () => {
       const issue = JSON.parse(line) as Record<string, unknown>;
       for (const field of HAND_WRITTEN) {
         const value = issue[field];
-        if (typeof value === "string") scan(`${String(issue.id)} の ${field}`, value);
+        if (typeof value === "string") {
+          scannedFields += 1;
+          scan(`${String(issue.id)} の ${field}`, value);
+        }
       }
     }
 
@@ -360,20 +371,50 @@ describe("秘密の値がリポジトリに載っていない", () => {
     for (const entry of log.split("\x02")) {
       const [hash, body] = entry.split("\x01");
       if (body === undefined) continue;
+      scannedCommits += 1;
       scan(`コミット ${hash.trim()} の本文`, body);
     }
 
     /*
-     * **母集団の床。**0 件は、読む記録が 1 つも無くても同じ 0 になる。
-     * 2026-08-19 の実測は 563 件（課題の手書きの欄 311 + この枝のコミット 252）。
-     * 400 にしてあるのは、課題が片付いて欄が減ることは普通に起きるが、
-     * 4 割も減るなら「片付いた」より「読む先が変わった」を先に疑うべきだからである。
+     * **コミットの側は床を持てない。**枝を切った直後は 0 件が正しい答えで、
+     * 「読めなかった」と形の上で見分けがつかない。床の代わりに**対照**を置く:
+     * git が数える件数と、こちらが読んだ件数を突き合わせる。
+     * これなら 0 件を正しく通しつつ、「475 件あるのに 5 件しか読めていない」
+     * （出力が途中で切れた形）を捕まえられる。2026-08-21 に `HEAD~10..HEAD` で実測:
+     * 正常時 475 = 475 で一致し、出力を 5000 文字に切り詰めると 5 対 475 で赤になった。
+     *
+     * **捕まえないものを書いて残す。**件数しか見ていないので、件数が合ったまま
+     * 中身の取り方だけ壊れる形は素通りする。同じ実測で、区切りを `\x02` から改行へ
+     * 取り違えた版は 475 のまま一致してしまった（この履歴の本文が 1 行のものばかりで、
+     * 行で切っても件数が変わらなかったため）。中身まで見るには別の検査が要る。
+     */
+    const expectedCommits = Number(
+      execFileSync("git", ["rev-list", "--count", `${base}..HEAD`], {
+        cwd: process.cwd(),
+        encoding: "utf8",
+      }).trim(),
+    );
+    expect(
+      scannedCommits,
+      `git は ${base}..HEAD を ${expectedCommits} 件と数えていますが、読めたのは ${scannedCommits} 件です。` +
+        `本文の区切り方が壊れていないか見てください`,
+    ).toBe(expectedCommits);
+
+    /*
+     * **母集団の床は、課題の欄の側にだけ張る。**0 件は、読む記録が 1 つも無くても同じ 0 になる。
+     * 実測: 2026-08-19 に 311 件、2026-08-21 に 315 件。
+     * 200 にしてあるのは、課題が片付いて欄が減ることは普通に起きるが、
+     * 4 割近く減るなら「片付いた」より「読む先が変わった」を先に疑うべきだからである。
      * 実測ちょうどに張ると、課題を 1 件閉じるだけで赤くなり、床が狼少年になる。
+     *
+     * **以前はここにコミットの件数も足していた。**2026-08-21 に、枝を切った直後で
+     * コミットが 0 件だったために合計が床を割り、走査は壊れていないのに赤くなった。
+     * 混ぜた床は、そのとき何が起きたのかを言えない。
      */
     expect(
-      scanned,
-      `読んだ記録が ${scanned} 件しかありません（床 400 件）。読む先が変わっていないか先に見てください`,
-    ).toBeGreaterThanOrEqual(400);
+      scannedFields,
+      `読んだ課題の欄が ${scannedFields} 件しかありません（床 200 件）。読む先（.beads/issues.jsonl）が変わっていないか先に見てください`,
+    ).toBeGreaterThanOrEqual(200);
 
     /*
      * **除外した数を必ず出す。**除外は検査を弱める形なので、黙って効かせない。
@@ -383,6 +424,7 @@ describe("秘密の値がリポジトリに載っていない", () => {
      * （混ぜると、除外が壊れたことが除外の成功に見える）。
      */
     const tally =
+      `読んだ記録: 課題の欄 ${scannedFields} 件 + この枝のコミット ${scannedCommits} 件 / ` +
       `git オブジェクトとして解決したので除外: ${acc.excluded} 件 / ` +
       `判定できなかったので残した: ${acc.undetermined} 件（浅いクローン: ${SHALLOW ? "はい" : "いいえ"}）`;
 
