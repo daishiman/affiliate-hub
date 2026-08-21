@@ -27,10 +27,17 @@ import { describeViolations, findA11yViolations } from "../support/a11y";
  * 1. **権限を持たない人には何も出ない。** 出しておいて押したら断る、にしない。
  * 2. **文章だけで必ず送れる。** 画面の写しを撮れない環境は普通にある。
  *    撮れないことを理由に送れなくすると、そこで諦められる。
- * 3. **何が一緒に送られるかを、送る前に見せている。**
+ * 3. **何が一緒に送られるかを、送る前に見せている。**——文だけでなく、
+ *    いま何件控えているかの数まで出す。0 件のときと 12 件のときが同じ文だと、
+ *    控えが働いているかどうかが本人に分からない。
  * 4. 送ったあとに、送れたことが分かる。
+ * 5. **控えると言ったものが、実際に送られている。**添える形が在ることと、
+ *    添える中身が在ることは別で、**型が見るのは前者だけである**
+ *    （現に `failedRequests: []` が直書きのまま型も検査も通っていた）。
+ * 6. **入力欄に打った文字は、控えのどこにも入らない。**控えは指示文へ添えられ、
+ *    そのまま作業する側へ渡る。ここが漏れると、要望を送るほど秘密が出ていく。
  *
- * 3 と 4 は文言が消えても型は通る。だから出力を見る。
+ * 3〜6 は文言や中身が消えても型は通る。だから出力を見る。
  */
 
 afterEach(cleanup);
@@ -60,6 +67,143 @@ function mount(canSubmit = true) {
 function openDialog(): void {
   fireEvent.click(screen.getByRole("button", { name: UI_COPY.feedback.openButton }));
 }
+
+/**
+ * 押した瞬間に撮る経路と、画面で起きたことの控え。
+ *
+ * --- ここで固定したいこと ---
+ *
+ * **撮影を始めるのは launcher の `onClick` である。**ブラウザは画面の共有を
+ * 「押した勢いが残っているあいだ」しか許さない（transient activation）。
+ * 開いてから `useEffect` で呼ぶ形へ書き換えると、**型も検査も通ったまま、
+ * 実機でだけ許可の窓が出なくなる。** jsdom には勢いの概念が無いので、
+ * ここで見られるのは「押した時点で呼ばれていること」までである。
+ * それを見ておくと、書き換えたときに少なくとも呼び出し位置の移動には当たる。
+ */
+describe("押した瞬間に、画面の写しを撮りにいく", () => {
+  function stubDisplayMedia(): { readonly calls: number[] } {
+    const calls: number[] = [];
+    vi.stubGlobal("navigator", {
+      ...window.navigator,
+      mediaDevices: {
+        getDisplayMedia: async () => {
+          calls.push(1);
+          // 実際の映像は作れない。呼ばれたことだけを見て、あとは撮れなかった扱いにする。
+          throw new Error("この環境では映像を作れません");
+        },
+      },
+    });
+    return { calls };
+  }
+
+  it("ボタンを押すと、撮影を始める（開いてから待たない）", () => {
+    const { calls } = stubDisplayMedia();
+    mount();
+    openDialog();
+    expect(calls.length, "開いた時点で撮影が始まっていません").toBe(1);
+    vi.unstubAllGlobals();
+  });
+
+  /*
+    **押しただけで断りの文を出さない。**写しを付けるつもりの無い人にまで
+    「失敗した」と読める。撮り直しのボタンから撮ったときは出す（下の別の it）。
+  */
+  it("撮れなくても、断りの文は出さない", async () => {
+    stubDisplayMedia();
+    mount();
+    openDialog();
+    await waitFor(() =>
+      expect(screen.getByRole("button", { name: UI_COPY.feedback.submit })).not.toBeNull(),
+    );
+    expect(screen.queryByText(UI_COPY.feedback.captureUnavailable)).toBeNull();
+    vi.unstubAllGlobals();
+  });
+});
+
+describe("画面で起きたことが、実際に送られる", () => {
+  /*
+    **ここが空のままだった。**`failedRequests: []` が直書きされていて、
+    型も検査も通っていた。**「渡す形が在ること」と「渡す中身が在ること」は別で、
+    型が見るのは前者だけである。**だから中身を見る。
+
+    送信画面の文（`disclosureBody`）は前から「エラーの記録・直前の操作を
+    一緒に送ります」と言っていた。**言っていたほうが正しく、実物が空だった。**
+  */
+  it("失敗した通信が、送る中身に入っている", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => new Response("", { status: 500 })),
+    );
+    const calls = mount();
+    // ボタンが出た時点から控えている。**開く前に起きたことこそ渡したい。**
+    await window.fetch("https://example.test/api/save?token=abc123");
+    openDialog();
+    fireEvent.change(screen.getByLabelText(UI_COPY.feedback.bodyLabel), {
+      target: { value: "保存できません。" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: UI_COPY.feedback.submit }));
+    await waitFor(() => expect(calls).toHaveLength(1));
+
+    const sent = calls[0]?.technical.failedRequests ?? [];
+    expect(sent.join("\n"), "失敗した通信が 1 件も入っていません").toContain("500");
+    // **クエリは落ちている。**指示文はそのまま作業する側へ渡る。
+    expect(sent.join("\n")).not.toContain("abc123");
+    vi.unstubAllGlobals();
+  });
+
+  /*
+    **押したものは、画面を開いたことの後ろに並ぶ。**押した操作だけだと
+    「どこで」が本文頼みになるので、開いた 1 行を必ず先頭に置いている。
+  */
+  it("直前に押したものが、画面の名前の後ろに並ぶ", async () => {
+    const calls = mount();
+    openDialog();
+    fireEvent.change(screen.getByLabelText(UI_COPY.feedback.bodyLabel), {
+      target: { value: "押しても何も起きません。" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: UI_COPY.feedback.submit }));
+    await waitFor(() => expect(calls).toHaveLength(1));
+
+    const actions = calls[0]?.technical.recentActions ?? [];
+    expect(actions[0]).toBe("順位表 を開いた");
+    expect(actions.join("\n"), "押したものが 1 件も控えられていません").toContain(
+      UI_COPY.feedback.openButton,
+    );
+  });
+
+  /*
+    **入力欄に打った文字は送らない。**控えは指示文へ添えられ、そのまま作業する
+    側へ渡る。ここが漏れると、要望を送るほど秘密が出ていく仕組みになる。
+  */
+  it("入力欄に打った文字は、送る中身のどこにも入らない", async () => {
+    const calls = mount();
+    openDialog();
+    const secret = "ひみつの合言葉";
+    // 呼び名に手引きの一文が続くので、頭で当てる（丸ごと一致では見つからない）。
+    fireEvent.change(screen.getByLabelText(new RegExp(UI_COPY.feedback.wishLabel)), {
+      target: { value: secret },
+    });
+    fireEvent.change(screen.getByLabelText(UI_COPY.feedback.bodyLabel), {
+      target: { value: "使いにくいです。" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: UI_COPY.feedback.submit }));
+    await waitFor(() => expect(calls).toHaveLength(1));
+
+    // **`wish` には入る**（本人が書いて送っているもの）。控えのほうに入らない。
+    expect(calls[0]?.wish).toBe(secret);
+    expect(JSON.stringify(calls[0]?.technical)).not.toContain(secret);
+  });
+
+  /*
+    **数を出す。**「送ります」とだけ書いてあると、0 件のときも 12 件のときも
+    同じ文になり、控えが働いているかどうかが本人に分からない。
+  */
+  it("いま何件控えているかを、送る前に見せている", () => {
+    mount();
+    openDialog();
+    expect(screen.getByText(new RegExp(UI_COPY.feedback.disclosureCounts))).not.toBeNull();
+  });
+});
 
 describe("出す・出さない", () => {
   it("権限が無い人には、ボタンごと出ない", () => {
@@ -182,13 +326,24 @@ describe("送る", () => {
     expect(screen.getByText(/「改善したいこと」を書いてください。/)).not.toBeNull();
   });
 
-  it("写しを撮れない環境では、断ったうえで文章の道を残す", () => {
+  /*
+    **押した瞬間に撮る側では、この案内を出さない。**押しただけで断りの文が出ると、
+    写しを付けるつもりの無い人にまで「失敗した」と読める。ここが見ているのは
+    **本人が「撮り直す」を押した**場合で、そのときは黙って何も起きないほうが困る。
+
+    `await` が要るのは、撮影が `captureScreen` の中で 1 拍おいて返るようになった
+    ため（押した勢いを保つために、撮影を launcher の `onClick` へ出した副作用）。
+    **出ないことと、まだ出ていないことは違う。**待たずに見ると前者に化ける。
+  */
+  it("写しを撮れない環境では、断ったうえで文章の道を残す", async () => {
     // `getDisplayMedia` を持たない環境（古い端末・許可されていない場面）を作る。
     vi.stubGlobal("navigator", { ...window.navigator, mediaDevices: {} });
     mount();
     openDialog();
     fireEvent.click(screen.getByRole("button", { name: UI_COPY.feedback.captureTake }));
-    expect(screen.getByText(UI_COPY.feedback.captureUnavailable)).not.toBeNull();
+    await waitFor(() =>
+      expect(screen.getByText(UI_COPY.feedback.captureUnavailable)).not.toBeNull(),
+    );
     // 送るボタンは生きたまま。撮れないことは送れないことではない。
     expect(screen.getByRole("button", { name: UI_COPY.feedback.submit }).hasAttribute("disabled")).toBe(
       false,
