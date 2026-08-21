@@ -47,6 +47,12 @@ __pycache__/
 
 # dev-graph の一時領域（正本は config.json と state/graph.json）
 .dev-graph/cache/
+
+# 外部変更ガードの受領書置き場。道具（skill-governance-adapters）が作る。
+# **`.guard-key` という 32 バイトの秘密が入る。**追跡されると要件 1 の対象になり、
+# 何より「漏れを止める仕掛け」の鍵が repo に載る。中身は 15 分で失効する作業状態で、
+# 残す価値も無い。
+.artifact-delivery/
 .dev-graph/locks/
 .dev-graph/tmp/
 # node 登録の入力置き場。登録が済めば正本は state/graph.json と tasks/*.md の側にある
