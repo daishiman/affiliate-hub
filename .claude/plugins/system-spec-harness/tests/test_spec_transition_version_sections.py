@@ -303,3 +303,83 @@ def test_a_state_naming_an_older_version_stays_read_only(tmp_path: Path) -> None
     result = _run(["aggregate", "--state", str(source), "--out", str(tmp_path / "o.json")])
     assert result.returncode == 1
     assert "読み取り専用" in result.stderr
+
+
+CONTRACT = (
+    PLUGIN_ROOT
+    / "skills"
+    / "run-system-spec-elicit"
+    / "references"
+    / "spec-state-contract.md"
+)
+
+
+def test_the_contract_documents_the_overrun_floor() -> None:
+    """**契約書と実装を結ぶ線。**片方が動いた日に赤くなる。
+
+    2026-08-21 に実測した食い違い: 契約書 §hearing_progress は「`run_chunk` は
+    ループ開始前に `loop_count = 0` を明示代入する」とだけ書いていたが、実装は
+    `floor = prior if prior > max_loops else 0` を挟んでいた。
+
+    **契約書が間違っていたのではなく、足りなかった。**床が立つのは既存値が
+    上限を超えているときだけで、`run_chunk` は上限を超える値を書かないので、
+    **writer が作った state では床は永久に 0** である。つまり契約書の一文は
+    「writer が作りうる全ての state について真」で、writer 非経由の state に
+    対する防御条項だけが書かれていなかった。
+
+    なぜ黙って抜けられたか: この契約書を**機械で読んでいる検査が 1 つも無かった**。
+    3 箇所から参照されていたが、全て doc comment の中の文字列で、契約書を開いて
+    いなかった。振る舞いのほうは
+    `test_run_chunk_does_not_carry_over_a_normal_prior_count` と
+    `test_run_chunk_does_not_erase_an_existing_overrun` の対で固定済みだったので、
+    **食い違ったのは文書と実装の間だけ**だった。この検査がその隙間を埋める。
+
+    向きは②寄りだが対象が対である: 契約書から条項が消えても、実装から床が
+    消えても、両者の振る舞いがずれても赤くなる。
+
+    **⑤ 反転先**: 将来 writer 非経由の state を受け付けない設計へ移り、床その
+    ものが不要になった日、この検査は消さず「`run_chunk` は既存値を一切見ない
+    (`floor` に相当する分岐が無い)」へ反転させる。床が要らなくなった設計へ、
+    床が黙って戻ってくる日に赤くするため。
+    """
+    contract = CONTRACT.read_text(encoding="utf-8")
+    source = (SCRIPTS_DIR / "state_transition_matrix.py").read_text(encoding="utf-8")
+
+    # 餌: 読む側が動いていること。実在する見出しは見つかり、無い文は見つからない。
+    # これが無いと、下の 3 つは綴りを間違えていても同じ緑を出す。
+    assert "## hearing_progress の意味論 (SSOT)" in contract
+    assert "loop_count は月齢で決まる" not in contract
+
+    # 1. 契約書に例外条項が在る。消した日に赤くなる。
+    assert "唯一の例外は「超過値を消さない床」" in contract, (
+        "契約書から床の条項が消えました。実装 (state_transition_matrix.py の "
+        "`floor = prior if prior > max_loops else 0`) が書かれないまま残ります"
+    )
+    assert "writer が作った state では発火しない" in contract
+
+    # 2. 実装に床が在る。消した日に赤くなる (契約書だけが古く残らないように)。
+    assert "floor = prior if prior > max_loops else 0" in source, (
+        "実装から床が消えました。契約書の例外条項も一緒に外してください"
+    )
+
+    # 3. 条項が書いている通りに動く。文言とコードが揃っていても、振る舞いが
+    #    第三の道へ逸れていないこと。
+    module = _matrix_module()
+
+    over = _current_state()
+    over["categories"] = []
+    over["matrix"] = {}
+    over["hearing_progress"] = {"loop_count": 7, "max_loops": 5}
+    module.run_chunk(over, [{"ops": []} for _ in range(2)], max_loops=5)
+    assert over["hearing_progress"]["loop_count"] == 7, "超過値が丸められました"
+
+    normal = _current_state()
+    normal["categories"] = []
+    normal["matrix"] = {}
+    normal["hearing_progress"] = {"loop_count": 5, "max_loops": 5}
+    module.run_chunk(normal, [{"ops": []} for _ in range(2)], max_loops=5)
+    # 上限ちょうどは「超過」ではない。境界で床が立つと、契約書の一文が
+    # writer 由来の state について偽になる。
+    assert normal["hearing_progress"]["loop_count"] == 2, (
+        "上限ちょうどの既存値で床が立ちました。`>` が `>=` へ緩んでいます"
+    )

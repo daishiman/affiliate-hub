@@ -8,7 +8,8 @@
  * 判定式が何にも当たらない日にも同じ「食い違い 0 件」が出る。JSON 側が定数と
  * 一致していることを同じ検査に置いて、比べる側が動いていることを示す。
  * `boundary` の根拠: 版の境目（`1.1` と `1.2`）そのものと、
- * 散文と定数を突き合わせる経路が **ちょうど 0 本**という境目を見ていること。
+ * 散文と定数を突き合わせる経路が **在るか無いか**という境目を見ていること
+ * （2026-08-20 は 0 本、2026-08-21 に 2 本へ。下の反転記録を参照）。
  *
  * ── 何を固定するか（形 ②: 塞げていないことを検査にする）──────────────
  *
@@ -50,24 +51,45 @@
  * 散文は**別枠で上限を張って**見る（下の (2)）。直し方は「文言を変えて逃げる」ではない。
  * 文言を変えて緑にすると、次に書いた誰かの説明でまた赤くなり、そのたびに説明が削られる。
  *
- * ── 反転先（塞がった日にすること。両方を 1 箇所に書く）────────────────
+ * ── 2026-08-21: 反転を実行した（書き手ができた）────────────────────
  *
- * **散文が定数へ追随するようになった日に、この検査は赤くなる。そのとき削除せず反転させる。**
- * 反転は 2 本あり、**片方だけ書き換えると、もう片方が古い前提のまま門として残る。**
+ * 上に書いてあった反転 (1)(2) を実行した。**引き金は散文が追随したことではなく、
+ * 書き手が作られたこと**である。`.claude/plugins/system-spec-harness/tests/
+ * test_contract_prose_version_drift.py` が契約 md を開き、定数と機械で突き合わせる。
+ * 散文は直していない（上の「なぜ散文を直して済ませないか」は今も有効）。
+ * 直したのは **見張る側が居なかったこと** のほうである。
  *
- *   (1) 「散文と定数を突き合わせる**実行経路**が 0 本」→「**1 本以上**」へ。
- *       あわせて `expect(prose).not.toContain(constant)` を `toContain` へ。
- *   (2) 「言及だけのファイルは上限 1」は、そのとき**役目が変わる**。
- *       真の書き手ができれば、その周りの説明文（設計メモ・テストの docstring）は
- *       自然に増える。**言及数を抑える意味が消えるので、上限は捨てる。**
- *       代わりに残すのは対で張ってある側——「契約 md を開いているのは
- *       (1) が数える経路だけであること」。上限を惰性で残すと、
- *       **書き手を説明する文章が上限に当たって、書いた人が説明を削る**という、
- *       いま起きたのと同じ壊れ方が向きを変えて戻ってくる。
+ *   (1) 済: 「実行経路が 0 本」→「`WRITER_FLOOR` 本以上」へ。
+ *       **ただし `expect(prose).not.toContain(constant)` は反転していない。**
+ *       散文は今も `1.0` / `1.1` で、定数 `1.2` は入っていない。**部分反転である。**
+ *       残り半分の反転先は下の⑤に書く。
+ *   (2) 済: `MENTION_ONLY_CAP` を捨て、「契約 md をコードで開いているのは
+ *       (1) が数える経路だけ」へ置き換えた。
  *
- * 2026-08-20 実測（分母は各 it() 内に併記）: 定数 `1.2` / 正本 `1.2` / 散文 `1.1`、
- * harness 配下の `.py` は **59 本**。素のテキストで両語を含む **1 本**、
- * **コードで両語を含む 0 本**、コードで定数名を含む 6 本、コードで契約 md 名を含む 0 本。
+ * この日、`both` が 2 本になって赤くなったのは**代役の指標が壊れた 4 例目**だが、
+ * 前 3 例と性質が違う。前 3 例（`withoutComments`／hook の inline-python 判定／
+ * docstring が経路と数えられた件）は**誤検出**だった。今回は**主張のほうが偽になった**
+ * ——本物の読み手ができたので、0 本という記述が事実でなくなった。
+ * **代役が壊れたときと、主張が真でなくなったときを見分ける。**前者は数え方を直し、
+ * 後者は反転させる。見分けを間違えて数え方を直すと、書き手が居るのに
+ * 「居ない」と言い続ける門が残る。
+ *
+ * ── ⑤ 反転先（この先、塞がった日にすること）──────────────────────
+ *
+ * **散文が定数へ追随した日**、`expect(prose).not.toContain(constant)` を
+ * `toContain` へ反転させる。あわせて `test_contract_prose_version_drift.py` の
+ * `_PINNED_PROSE` 対比も「散文は定数と一致する」へ反転させる。
+ * **片方だけ反転させると、もう片方が古い前提の門として残る。**
+ *
+ * 2026-08-21 実測（分母は各 it() 内に併記。node v22.21.1 / vitest 4.1.10）:
+ * 定数 `1.2`（正本 2 箇所とも）/ 状態 JSON `1.2` / 散文 `{1.0, 1.1}`。
+ * 分母＝harness 配下の `.py` **72 本**（2026-08-20 時点は 59 本。比較の基点はその日の記録）。
+ * そのうち **コードで両語を含む 2 本**（`test_contract_prose_version_drift.py` と
+ * `test_spec_transition_version_sections.py`）、**コードで契約 md 名を含む 2 本**（同じ 2 本）。
+ * 2026-08-20 時点はどちらも 0 本だった。
+ *
+ * 判定式が効いていることは合成例 4 軸で確認済み（崩す前=緑／書き手を落とす=赤／
+ * 定数名をコメントへ逃がした読み手を足す=赤／無関係なファイルを足す=緑のまま）。
  */
 import { readFileSync, readdirSync, statSync } from "node:fs";
 import { join } from "node:path";
@@ -112,16 +134,22 @@ const CONSTANT_NAME = "CURRENT_STATE_SCHEMA_VERSION";
 const CONTRACT_TOKEN = "spec-state-contract";
 
 /**
- * 契約 md を**開いている**形。パスを名指ししてファイルを読む書き方を見る。
- *
- * 語の共起ではなく「実際に開いているか」を見るのは、上限 1 と対にするためである。
- * 上限だけだと、真の突き合わせ経路を書いた人が定数名をコメントへ逃がせば
- * 「言及 1 件」の枠に収まって通る。
+ * 突き合わせ経路の床。2026-08-21 実測 2 本、遊び 1。**下げない**（下限は上げる方向にしか
+ * 動かさない）。1 に置いているのは、2 本のうち
+ * `test_spec_transition_version_sections.py` が**版ではなく loop_count の床**を
+ * 突き合わせているからで、版そのものを見ているのは
+ * `test_contract_prose_version_drift.py` の 1 本だけである。
+ * 版の書き手が消された日に赤くなる位置に置く。
  */
-const CONTRACT_OPEN = /(?:open|read_text|read_bytes|Path)\s*\([^)\n]*contract[^)\n]*/;
+const WRITER_FLOOR = 1;
 
-/** 言及だけのファイルの上限。2026-08-20 実測 1、遊び 0。上げない。 */
-const MENTION_ONLY_CAP = 1;
+/** 契約 md と定数を**コードで**同時に見ているファイル（＝突き合わせ経路）。 */
+function codePaths(sources: { path: string; code: string }[]): string[] {
+  return sources
+    .filter((f) => f.code.includes(CONTRACT_TOKEN) && f.code.includes(CONSTANT_NAME))
+    .map((f) => f.path)
+    .sort();
+}
 
 /** harness 配下の .py を「素のテキスト」と「コメント・docstring を落としたコード」で持つ。 */
 function harnessSources(): { path: string; text: string; code: string }[] {
@@ -131,7 +159,7 @@ function harnessSources(): { path: string; text: string; code: string }[] {
   });
 }
 
-describe("schema 版の散文ずれ (REQ-TS16 / 書き手が居ない側の固定)", () => {
+describe("schema 版の散文ずれ (REQ-TS16 / 見張る側を作ったあとの固定)", () => {
   it("母集団: 契約の散文は版を 1 件以上宣言している", () => {
     // 0 件なら以下の「食い違っている」は、宣言が無いだけで同じ見え方になる。
     expect(proseVersions().length).toBeGreaterThanOrEqual(1);
@@ -151,7 +179,7 @@ describe("schema 版の散文ずれ (REQ-TS16 / 書き手が居ない側の固�
     // 反転先: 上の 1 行を expect(prose).toContain(constant) へ書き換える。
   });
 
-  it("穴の理由: 散文と定数を突き合わせる**実行経路**が 0 本（器はあるが渡す側が居ない）", () => {
+  it("散文と定数を突き合わせる**実行経路**が 1 本以上ある（2026-08-21 反転 (1)）", () => {
     const sources = harnessSources();
     expect(sources.length).toBeGreaterThanOrEqual(50); // 母集団の床
 
@@ -160,41 +188,36 @@ describe("schema 版の散文ずれ (REQ-TS16 / 書き手が居ない側の固�
       sources.filter((f) => f.code.includes(CONSTANT_NAME)).length,
     ).toBeGreaterThanOrEqual(1);
 
-    // 陽性対照 2: 契約 md を名指しするファイルは在る（**素のテキストでは** 4 本）。
-    // ここだけコードではなく素のテキストで見ている。コードでの言及は 0 本であり、
-    // それこそがこの検査の主張なので、対照に使うと自分の結論を対照にすることになる。
-    expect(
-      sources.filter((f) => f.text.includes(CONTRACT_TOKEN)).length,
-    ).toBeGreaterThanOrEqual(1);
-
-    // 穴: 両方を**コードで**同時に見ているファイルは無い。
-    const both = sources
-      .filter((f) => f.code.includes(CONTRACT_TOKEN) && f.code.includes(CONSTANT_NAME))
-      .map((f) => f.path);
-    expect(both).toEqual([]);
+    // 反転後の本体: 両方を**コードで**同時に見ているファイルが在る。
+    // 0 本へ戻った日＝書き手が消された日に赤くなる。
+    expect(codePaths(sources).length).toBeGreaterThanOrEqual(WRITER_FLOOR);
   });
 
-  it("言及だけのファイルは 1 本以下で、どれも契約 md を開いていない", () => {
+  /**
+   * 反転 (2)。上限 `MENTION_ONLY_CAP` は**捨てた**。
+   *
+   * 真の書き手ができた以上、その周りの説明文（設計メモ・docstring）は自然に増える。
+   * 上限を惰性で残すと **書き手を説明する文章が上限に当たって、書いた人が説明を削る**
+   * ——2026-08-20 に起きたのと同じ壊れ方が、向きを変えて戻ってくる。
+   *
+   * 代わりに残すのは対で張ってあった側:
+   * **契約 md をコードで名指ししているのは、上が数える経路だけであること。**
+   * これが無いと、定数名をコメントへ逃がした「契約を読むだけのファイル」が
+   * 門の外に生まれ、上の床は別のファイルで満たされてしまう。
+   */
+  it("契約 md をコードで開いているのは、突き合わせ経路だけ（2026-08-21 反転 (2)）", () => {
     const sources = harnessSources();
     expect(sources.length).toBeGreaterThanOrEqual(50); // 母集団の床
 
-    // 素のテキストでは両方を持つが、コードでは持たない = **説明文で触れているだけ**。
-    const mentionOnly = sources.filter(
-      (f) =>
-        f.text.includes(CONTRACT_TOKEN) &&
-        f.text.includes(CONSTANT_NAME) &&
-        !(f.code.includes(CONTRACT_TOKEN) && f.code.includes(CONSTANT_NAME)),
-    );
+    const readers = sources
+      .filter((f) => f.code.includes(CONTRACT_TOKEN))
+      .map((f) => f.path)
+      .sort();
 
-    // 上限。2026-08-20 実測 1、遊び 0。
-    expect(mentionOnly.map((f) => f.path).sort().length).toBeLessThanOrEqual(MENTION_ONLY_CAP);
-
-    // 上限と対。上限だけだと、真の突き合わせを書いた人が定数名をコメントへ逃がせば
-    // 「言及 1 件」の枠で通ってしまう。**開いていないこと**を併せて見る。
-    const opensContract = mentionOnly
-      .filter((f) => CONTRACT_OPEN.test(f.code))
-      .map((f) => f.path);
-    expect(opensContract).toEqual([]);
+    // 陽性対照: 読み手を数える側が動いていること。0 なら下の一致は
+    // 「両方とも空」で成立してしまう。
+    expect(readers.length).toBeGreaterThanOrEqual(WRITER_FLOOR);
+    expect(readers).toEqual(codePaths(sources));
   });
 
   /**
