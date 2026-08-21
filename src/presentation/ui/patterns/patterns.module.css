@@ -793,7 +793,9 @@
  * 2026-08-21 の走査でそれが 2 本「下限の宣言が無い」として出たが、
  * `--text-lg` の見出しなので**足す前から足りていた見込みが高く、確かめられない。**
  * `admin.module.css` の `.sectionTitle`、`site.module.css` の `.cardTitle` /
- * `.siteName` と同じ扱い（赤のまま。理由は `.sectionTitle` の注記が本文）。
+ * `.siteName` と同じ扱い（**名指しの保留**。理由は `.sectionTitle` の注記が本文）。
+ * 保留の一覧は `tests/ui/screen-hit-and-current.test.tsx` の `PENDING`。
+ * ここに下限を足したら、あちらからも外すこと（残っていると赤になる）。
  */
 .productCardName {
   margin: 0;
