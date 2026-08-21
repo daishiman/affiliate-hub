@@ -11,7 +11,7 @@
 
 適用範囲: `/admin` 以下（読者のページとログインの往復は通す）
 
-開いている扉: **0 件** / 全 84 件
+開いている扉: **0 件** / 全 85 件
 
 「誰でも」と宣言してある行: **26 件**
 （宣言すればその扉は差の数から消える。だから宣言の件数そのものにも上限がある）
@@ -190,6 +190,7 @@
 | `createSiteFromDraftAction()` | 下書きからサイトを作る（消す口が無い）（src/presentation/admin/site-wizard-action.ts） | ログイン | ログイン | — | **つかない** |
 | `manageIntegrationAccessAction()` | 外部連携の鍵を作る・失効させる（src/presentation/admin/feedback-action.ts） | ログイン | ログイン | — | **つかない** |
 | `manageLlmCredentialAction()` | 生成 AI の API キーを預ける・消す（預けた鍵で課金が発生する）（src/presentation/admin/llm-credential-action.ts） | ログイン | ログイン | — | **つかない** |
+| `manageMemberAction()` | 担当者を招く・役割を変える・担当から外す（入ってよい人の一覧が変わる）（src/presentation/admin/member-action.ts） | ログイン | ログイン | — | **つかない** |
 | `publishArticleAction()` | 記事を公開する（src/presentation/admin/publish-article-action.ts） | ログイン | ログイン | — | **つかない** |
 | `reschedulePublicationAction()` | 投稿予定日を変える（前倒しにすれば今日出せる）（src/presentation/admin/reschedule-action.ts） | ログイン | ログイン | — | **つかない** |
 | `schedulePublicationAction()` | 投稿を予定に入れる（時刻が来たら外へ出る）（src/presentation/admin/schedule-publication-action.ts） | ログイン | ログイン | — | **つかない** |
@@ -208,4 +209,4 @@
 | `submitAffiliateUrlAction()` | 成果リンクを登録する（src/presentation/admin/inbox-action.ts） | ログイン | ログイン | — | つく |
 | `submitContactAction()` | 読者からの問い合わせ（公開フォーム）（src/presentation/site/contact-action.ts） | 誰でも | 誰でも | — | つく |
 | `submitFeedbackAction()` | 指摘を登録する（src/presentation/admin/feedback-action.ts） | ログイン | ログイン | — | つく |
-<!-- 生成物の指紋 sha256:85c4d65f53bff41faae3471ac6ddcb36c79fa4fd59576a180a077867a2e49d0a -->
+<!-- 生成物の指紋 sha256:845feccf850f4be5b4c1386814d3967d5a493782ccbb0b69633ae5d4b2b60d83 -->
