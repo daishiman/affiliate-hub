@@ -21,9 +21,13 @@ from state_transition_common import (
     is_https_url,
     is_rfc3339,
     normalize_serves,
+    reject_self_declared_provenance,
     require_nonempty,
     require_nonempty_string_list,
 )
+
+# set-qa-scope-notes / set-qa-written-up と同じ流儀。writer が自分の名前を打刻する。
+DECISION_WRITER = "set-decision"
 
 
 def set_foundation(state: dict, foundation: dict) -> None:
@@ -123,6 +127,10 @@ def _validate_cost_model(value, label: str) -> str:
 def set_decision(state: dict, decision: dict) -> None:
     if not isinstance(decision, dict):
         raise TransitionError("decision は object 必須")
+    # 出所は writer が打刻する。呼び出し側が recorded_with を渡せると、
+    # 「門のある writer を通した」と record 自身に書けてしまい、
+    # 出所の欄が検査でなく自己申告になる。
+    reject_self_declared_provenance(decision, "decision")
     decision_id = decision.get("id")
     require_nonempty(decision_id, "id")
     require_nonempty(decision.get("question"), "question")
@@ -188,8 +196,16 @@ def set_decision(state: dict, decision: dict) -> None:
         raise TransitionError("decision: AI推奨だけで confirmed にせずユーザー確認を待つこと")
     normalized, records = dict(decision), list(state.get("decisions") or [])
     normalized["serves_goals"] = serves
+    normalized["recorded_with"] = DECISION_WRITER
     for index, current in enumerate(records):
         if isinstance(current, dict) and current.get("id") == decision_id:
+            # 打刻を導入する前に書かれた出所は、上書きせず別欄へ退避する。
+            # loop_count の超過値と同じ扱い: 数 (この場合は文言) を揃えると
+            # 「門の無い経路で書かれた」痕跡そのものが消えるため、値は残して
+            # 「writer が検めたものではない」という意味のほうを欄名で示す。
+            prior = current.get("recorded_with")
+            if isinstance(prior, str) and prior.strip() and prior != DECISION_WRITER:
+                normalized["prior_unverified_provenance"] = prior
             records[index] = normalized
             break
     else:

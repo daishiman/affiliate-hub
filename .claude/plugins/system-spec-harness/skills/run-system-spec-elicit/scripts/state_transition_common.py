@@ -30,9 +30,41 @@ DECISION_OPTION_FIELDS = (
 )
 RFC3339_RE = re.compile(r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2})$")
 
+# 「どの writer が書いたか」を名乗る欄。**呼び出し側からは渡せない。**
+# set-qa-scope-notes と set-qa-written-up は既にこの流儀で、writer が定数を
+# 自分で打刻している (SCOPE_NOTE_WRITER / WRITTEN_UP_WRITER)。一方 set-decision と
+# set-knowledge-candidate は受け取った dict をそのまま state へ写していたため、
+# 呼び出し側が「正規の writer を通った」と自分で書ける状態だった。
+# 打刻を writer 側へ寄せるだけでは足りない: 渡された値を黙って捨てると、
+# 名乗ろうとした事実まで消える。**渡されたら拒否する** (痕跡は state ではなく
+# エラーとして呼び出し側へ返す)。
+SELF_DECLARED_PROVENANCE_FIELDS = (
+    "recorded_with", "recorded_by", "written_with", "writer", "prior_unverified_provenance",
+)
+
 
 class TransitionError(Exception):
     """A state transition violates the single-writer contract."""
+
+
+def reject_self_declared_provenance(payload: dict, label: str) -> None:
+    """呼び出し側が writer 名を名乗る欄を持ち込んでいないか検査する。
+
+    塞げていないところ: 欄名が違えば素通りする。ここで押さえるのは
+    「state の中で出所として読まれる欄」だけであり、答え本文に
+    「正規の writer で書いた」と書くことは止められない。
+
+    **反転先**: state の書込に writer しか持たない鍵 (署名) を要求できるようになった日。
+    そのとき出所は名乗りではなく署名の検証で決まるので、この欄名の照合は不要になり、
+    `SELF_DECLARED_PROVENANCE_FIELDS` ごと畳める。それまでは、名乗れる欄を
+    **増やさない**ことだけがこちらの持ち札である。
+    """
+    declared = [field for field in SELF_DECLARED_PROVENANCE_FIELDS if field in payload]
+    if declared:
+        raise TransitionError(
+            f"{label}: {declared} は writer が打刻する欄で、呼び出し側からは渡せない "
+            "(出所を自己申告させない)"
+        )
 
 
 def empty_foundation() -> dict:

@@ -99,6 +99,14 @@ def _require_documented_loop_overrun(state: dict, cmd: str) -> None:
     上限そのものは動かさない。超過値も丸めない。要求するのは由来の記載だけである。
     set-hearing-policy は由来を書くための op なので、ここでは通す
     (通さないと、由来を書く唯一の経路が由来が無いことを理由に塞がる)。
+
+    塞げていないところ: 由来の**中身**は読んでいない。非空文字列なら何でも通る。
+    また、この門は writer を通る書込にしか掛からない — writer を通らない経路
+    (キャッシュ側 install の同名 writer を含む) は、そもそもここへ来ない。
+
+    **反転先**: 正本 state の書込経路が writer 1 つに限られることを機械で示せる日
+    (例: state に writer だけが持つ鍵で署名し、署名の無い版を読まない)。
+    そのとき loop_count > max_loops は起こり得なくなるので、この門は不要になる。
     """
     if cmd == "set-hearing-policy":
         return
