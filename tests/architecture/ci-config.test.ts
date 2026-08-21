@@ -285,3 +285,113 @@ describe("費用の出る検査（REQ-CI13）", () => {
     expect(AI_EVAL_BUDGET.maxTokens).toBeGreaterThan(0);
   });
 });
+
+/**
+ * **緑なのにマージできない、という止まり方を二度させない（REQ-CI01）。**
+ *
+ * GitHub が保護設定へ報告する検査の名前は、job に `name:` があればその値、
+ * 無ければ job の id になる。`main` の必須チェックはこの名前で待っているので、
+ * 表示名を足すと必須チェックが永久に報告されず PR が BLOCKED のまま残る。
+ * このとき PR の一覧には**緑のチェックが並ぶ**ので、原因が設定側だと分からない。
+ *
+ * 2026-08-21 に実際に起きた。`ci.yml` の job id は `verify` のままだったが
+ * `name: 検査` が表示名を上書きしていて、必須チェック `verify` が 1 度も
+ * 報告されなかった。検査は 12 門すべて緑だった。
+ *
+ * **保護設定はこのリポジトリの中に無い。**GitHub 側の設定なのでテストから
+ * 読めない。読めない相手と突き合わせる以上、期待値をこちら側に書き写して
+ * 固定するしかない。書き写した値が実物とずれたら、この検査は「守っている」と
+ * 言いながら何も守らなくなる。**だから何をどう固定するかが、この検査の設計の
+ * 中心になる。**
+ */
+/**
+ * `main` の保護設定が必須にしている検査の名前。**GitHub 側の設定の写しである。**
+ *
+ * 実物はこれで引ける (2026-08-21 に引いて `['verify']` を確認):
+ *   gh api repos/daishiman/affiliate-hub/branches/main/protection \
+ *     --jq '.required_status_checks.contexts'
+ *
+ * **変えるときは両方変えること。**ここだけ変えても保護設定は変わらないし、
+ * 保護設定だけ変えるとここがずれる。ずれても検査は緑のままなので、
+ * 気づく手段は無い。その穴は下の「写しはずれうる」で固定してある。
+ */
+const REQUIRED_CHECK_CONTEXT = "verify";
+
+describe("必須チェックの名前が保護設定と噛み合う（REQ-CI01）", () => {
+  /**
+   * job が GitHub へ報告する検査の名前を取り出す。
+   * `name:` があればその値、無ければ job の id。GitHub の規則をそのまま写す。
+   */
+  const reportedCheckName = (yml: string, jobId: string): string => {
+    const body = yml.split(/^jobs:\s*$/m)[1] ?? "";
+    const block = body.split(new RegExp(`^  ${jobId}:\\s*$`, "m"))[1] ?? "";
+    // 次の job が始まるまでを、この job の範囲とする。
+    const own = block.split(/^  [\w-]+:\s*$/m)[0] ?? "";
+    const named = own
+      .split("\n")
+      .filter((line) => !/^\s*#/.test(line))
+      .find((line) => /^ {4}name:\s*\S/.test(line));
+    return named
+      ? named
+          .replace(/^\s*name:\s*/, "")
+          .trim()
+          .replace(/^["']|["']$/g, "")
+      : jobId;
+  };
+
+  it("取り出し方そのものが動いている（0 件は探す側が壊れていても出る）", () => {
+    // 陽性: 表示名を足した合成例では、その値が返る。
+    const withName = "jobs:\n  verify:\n    name: 検査\n    runs-on: x\n";
+    expect(reportedCheckName(withName, "verify")).toBe("検査");
+    // 陰性: 足していなければ job の id が返る。
+    const without = "jobs:\n  verify:\n    runs-on: x\n";
+    expect(reportedCheckName(without, "verify")).toBe("verify");
+    // コメントの中の `name:` は表示名ではない。**理由を書くと赤くなる形にしない。**
+    const commented = "jobs:\n  verify:\n    # name: 検査\n    runs-on: x\n";
+    expect(reportedCheckName(commented, "verify")).toBe("verify");
+  });
+
+  it("ci.yml が報告する名前は、保護設定が待っている名前と一致する", () => {
+    expect(reportedCheckName(workflow("ci.yml"), "verify")).toBe(REQUIRED_CHECK_CONTEXT);
+  });
+
+  /**
+   * **塞げない穴を、消さずに検査として残す。**
+   *
+   * 上の検査が突き合わせているのは GitHub の保護設定ではなく、その**写し**
+   * (`REQUIRED_CHECK_CONTEXT`) である。保護設定を `verify` 以外へ変えても、
+   * 写しを一緒に書き換えれば上の検査は緑のまま通る。つまり上の検査は
+   * 「実物と噛み合っていること」ではなく「写しと噛み合っていること」しか
+   * 言っていない。
+   *
+   * 塞げない理由は難しさではなく、**保護設定がこの作業場所の外に在る**ため。
+   * 読むには GitHub への認証つきアクセスが要り、それを検査の中に置くことは
+   * この作業場所の約束と両立しない。次に読む人が無駄に挑まないよう書いておく。
+   *
+   * **⑤ 反転先**: CI から保護設定を読む道 (`gh api` の結果を成果物として
+   * 渡す等) が用意された日、この検査は赤くなる。そのとき消さず、
+   * 「写しと実物が一致していること」へ反転させる。写しを消してはいけない。
+   * 消すと、実物が変わったときに気づく手段が両方とも無くなる。
+   */
+  it("**写しはずれうる。**両方を書き換えれば上の検査は素通りする", () => {
+    // 合成例: 保護設定も ci.yml も別名へ揃えた世界。上の検査は通ってしまう。
+    const renamed = "jobs:\n  deploy-gate:\n    runs-on: x\n";
+    const copiedContext = "deploy-gate";
+    expect(reportedCheckName(renamed, "deploy-gate")).toBe(copiedContext);
+
+    // 実物 (GitHub の保護設定) を読んでいないことを、ここで明示的に固定する。
+    // 読む道ができた日にこの検査が赤くなり、⑤の反転を促す。
+    //
+    // **コメントを外してから探す。**引き方をコメントに書き残してあるので、
+    // 本文ごと探すと「説明を書いたから赤くなる」になる。冒頭の `codeOf` が
+    // ワークフローに対して同じ手当てをしているのと同じ理由。
+    const code = read("tests/architecture/ci-config.test.ts")
+      .split("\n")
+      .filter((line) => !/^\s*(\*|\/\/|\/\*)/.test(line))
+      .join("\n");
+    expect(
+      /execFileSync\(\s*["']gh["']|fetch\(.*api\.github\.com/.test(code),
+      "保護設定を実際に読む道ができたようです。⑤に従って反転させてください",
+    ).toBe(false);
+  });
+});
