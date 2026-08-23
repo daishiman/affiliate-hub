@@ -61,7 +61,7 @@
       "verdict": "PASS",
       "auditor": "system-spec-doc-freshness-auditor",
       "component": "C08",
-      "summary": "形式層は 15 targets / 15 references で exit 0、内容鮮度層も C08 の独立再照合で PASS。前回 FAIL の 3 因はすべて解消した: (1) Next.js の 16.3.1 は registry 現行 16.3.2 へ更新済みで C08 の独立 npm 照会と一致、(2) Apple HIG は 08-16/08-19/08-22 の 3 回の再取得で content_sha256 と Last-Modified が一致し続けることを証跡の reverification 欄で辿れる、(3) target inventory 欠落 7 件は全件登録済み。取得日を version/last_updated へ代入した record は 0 件、非公式 host 0 件、evidence_sha256 は 15 件全件が実ファイルと一致した。C08 が medium として残した owasp-asvs の出所欠落は、C08 の run 後に C05 が本文を再取得して解消した (下記 evidence の最終行)。delegation 側の evidence は C08 が監査した時点の観測をそのまま残してあり、後から書き換えていない。",
+      "summary": "形式層は 15 targets / 15 references で exit 0、内容鮮度層も C08 の独立再照合で PASS。前回 FAIL の 3 因はすべて解消した: (1) Next.js の 16.3.1 は registry 現行 16.3.2 へ更新済みで C08 の独立 npm 照会と一致、(2) Apple HIG は 08-16/08-19/08-22 の 3 回の再取得で content_sha256 と Last-Modified が一致し続けることを証跡の reverification 欄で辿れる、(3) target inventory 欠落 7 件は全件登録済み。取得日を version/last_updated へ代入した record は 0 件、非公式 host 0 件、evidence_sha256 は 15 件全件が実ファイルと一致した。C08 が medium として残した owasp-asvs の出所欠落は、C08 の run 後に C05 が本文を再取得して解消した (下記 evidence の最終行)。delegation 側の evidence は C08 が監査した時点の観測をそのまま残してあり、後から書き換えていない。**ただしこの判定の対象は fetched-references.json であって章 md の出典表ではない。**章側は 3 件が参照側に追随しておらず、medium finding (bucket=doc_freshness, 章 md 追随) として別に立てた。",
       "evidence": [
         "C13 validate-source-citation.py exit 0、登録 15 targets の reference 欠落 0、非公式 host 0",
         "C08 独立 npm 照会: next=16.3.2 / drizzle-orm=0.45.2 / @stryker-mutator/core=10.0.0 / better-auth=1.7.1 いずれも記録値と一致",
@@ -318,6 +318,18 @@
       ]
     },
     {
+      "severity": "medium",
+      "bucket": "doc_freshness",
+      "observation": "同じ事実が fetched-references.json と章 md の「最新ドキュメント出典」表の 2 箇所にあり、参照側だけが更新されて章側が追随していない。better-auth は章 1.6.29 / 参照 1.7.1、owasp-asvs は章 5.0 / 参照 5.0.0、apple-hig は章が取得日 2026-08-16 のままで参照は http-last-modified 由来の 2026-08-06。章 md は読み手が最初に見る面なので、参照側が正しくても読み手には古い値が見える。なお 4 件 (cloudflare-d1 / cloudflare-workers / google-sre / nextjs) は章側も追随済みで、版の欄が取得日のままなのは apple-hig 1 件に減っている。6 観点の判定を落とさないのは、正本である fetched-references の値が正しく、章側の乖離が写しの遅れであって出所の欠落ではないためである。",
+      "suggested_fix": "C01/C03 の単一 writer 経由で 3 章の出典表を参照側の値へ揃える。根本には、章 md が fetched-references から生成されず手で写されている二重管理がある。compile が出典表を参照側から生成するようにすれば乖離は構造的に起こらなくなる。",
+      "evidence": [
+        "tests/architecture/doc-source-version-gap.test.ts 『章 md と fetched-references の食い違いは既知の 3 件だけ』が 3 件を固定 (2026-08-23 に検査の向きを反転させた)",
+        "章側が追随済み: cloudflare-d1=2026-04-30 / cloudflare-workers=2026-04-23 / google-sre=2017 / nextjs=16.3.2",
+        "版の欄が取得日そのものの章は apple-hig=2026-08-16 の 1 件のみ (旧状態は 4 件)",
+        "8 章のうち『最新確認』が取得と独立しているのは nextjs の 1 章だけで、残る 7 章は今も取得と同一時刻"
+      ]
+    },
+    {
       "severity": "low",
       "bucket": "doc_freshness",
       "observation": "owasp-asvs を 2026-08-23T00:32Z に再取得したところ、content_bytes は記録値と同一 (67761) でありながら content_sha256 が異なった (ef0a7a17… に対し記録は a70024b3…)。同じ長さで中身だけが変わる要素 (埋め込みトークン等) がページにある可能性があるが、2026-08-16 の本文を保存していないため何が変わったかは今から確かめられない。版の表明 5.0.0 は再取得本文で直接確認できており、鮮度判定には影響しない。content_sha256 は 2026-08-16 の取得証跡なので書き換えていない。",
@@ -371,12 +383,13 @@
     }
   ],
   "gaps": [
-    "compile が As-Is / To-Be / Delta と ## 履歴 を再生成できるようにするか、手書き節の上書きを拒否する fail-closed を入れる。それまで compile-spec-doc.py compile を走らせない"
+    "compile が As-Is / To-Be / Delta と ## 履歴 を再生成できるようにするか、手書き節の上書きを拒否する fail-closed を入れる。それまで compile-spec-doc.py compile を走らせない",
+    "章 md の出典表 3 件 (better-auth / owasp-asvs / apple-hig) を fetched-references の値へ揃える。恒久策は出典表を参照側から生成し、手で写す二重管理をやめること"
   ],
   "inputs": {
     "file_count": 28,
     "sha256": "8361108142ac76e73b0bbabb70112bf803024d323312262a79e87858e4aa9cd9",
-    "pinned_at": "2026-08-23T00:45:00Z",
+    "pinned_at": "2026-08-23T17:25:00Z",
     "files": [
       {
         "path": "docs/spec/00-README.md",
