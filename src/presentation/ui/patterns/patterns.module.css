@@ -1274,72 +1274,165 @@
   値は `admin.module.css` の `.linkList` からそのまま写した。**1 つも変えていない。**
   実物を描いて見る手立てが無いので、変えれば推測になる（`note.tsx` と同じ判断）。
 */
-.stackedList {
+.channelList {
   display: flex;
   flex-direction: column;
-  gap: var(--space-3);
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-/*
-  1 行。**縦並びなのは、行が 2 段になりうるため**——主となるもの（リンクや語）の
-  下に説明が付く形が 36 箇所ある。`row` にすると説明が横へ回り、
-  下の `.stackedList a` の下限の根拠（「リンクの後ろに続く文字は必ず別の行になる」）も
-  同時に崩れる。**`flex-direction` を変えるなら、下の規則も一緒に読み直すこと。**
-*/
-.stackedRow {
-  display: flex;
-  flex-direction: column;
-  min-width: 0;
-  overflow-wrap: anywhere;
-  gap: var(--space-1);
-}
-
-/*
-  この一覧の中の行き先に、押しどころの下限を当てる。
-
-  2026-08-21 まで `admin.module.css` の選択子は `nav.linkList a` で、
-  **`nav` として書かれた 1 箇所にしか当たっていなかった。**`ul` で書かれた
-  25 ファイルは同じ形なのに下限を持っていなかった。**`nav` かどうかは
-  要素の選び方の話で、押しどころの大きさとは関係が無い。**
-
-  当てられる根拠は上の縦並びで、`<li>` の中でリンクの後ろに文字が続く 7 件は
-  **7 件とも別の行になる**（実測。`.stackedNote` か素の文字で、素の文字も
-  column flex の中では自分の行を作る）。だから行の高さを押し広げない。
-
-  中身がリンクでない行は `a` を持たないので当たらない。
-*/
-.stackedList a {
-  display: inline-flex;
-  align-items: center;
-  /* 親がcolumn flexなので既定のstretchだと透明な押しどころが行幅いっぱいへ広がり、
-     右下の固定feedback launcher等と、文字が離れていてもクリック領域だけ重なる。 */
-  align-self: flex-start;
-  min-height: var(--tap-target-min);
-}
-
-/* 同格の行き先。区切りは文字にせず、見た目だけの境界として描く。 */
-.inlineNav > ul {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
   gap: var(--space-2);
   margin: 0;
   padding: 0;
   list-style: none;
 }
 
-.inlineNav li + li {
-  padding-inline-start: var(--space-2);
-  border-inline-start: var(--border-width-default) solid var(--color-border-default);
+.channelRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  align-items: baseline;
 }
 
-.inlineNav a {
+.channelBadge {
+  --channel-accent: var(--color-border-default);
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  align-items: baseline;
+  padding: var(--space-1) var(--space-2);
+  border: var(--border-width-default) solid var(--channel-accent, var(--color-border-default));
+  border-radius: var(--radius-sm);
+  color: var(--color-text-default);
+  font-size: var(--text-sm);
+}
+
+.channelGlyph {
+  color: var(--channel-accent, var(--color-text-muted));
+}
+
+.channelName {
+  color: var(--color-text-strong);
+  font-weight: var(--weight-medium);
+}
+
+.channelState {
+  color: var(--color-text-muted);
+}
+
+.channelLink {
   display: inline-flex;
   align-items: center;
   min-height: var(--tap-target-min);
+  color: inherit;
+  text-decoration: none;
+}
+
+.channelLink:focus-visible {
+  outline: var(--focus-ring-width) solid var(--color-focus-ring);
+  outline-offset: var(--focus-ring-offset);
+}
+
+.channelReason {
+  color: var(--color-intent-danger);
+  font-size: var(--text-sm);
+  line-height: var(--leading-body);
+}
+
+.channelEmpty {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+}
+
+/* 畳んでもこのボタンだけは残る。戻す口が消えると、開き直せなくなる。 */
+.navCollapseToggle {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: var(--tap-target-min);
+  min-height: var(--tap-target-min);
+  padding: var(--space-1);
+  border: var(--border-width-default) solid var(--color-border-default);
+  border-radius: var(--radius-md);
+  background: var(--color-surface-default);
+  color: var(--color-text-muted);
+  cursor: pointer;
+}
+
+.navCollapseToggle:hover {
+  background: var(--color-surface-raised);
+  color: var(--color-text-strong);
+}
+
+.navCollapseToggle:focus-visible {
+  outline: var(--focus-ring-width) solid var(--color-focus-ring);
+  outline-offset: var(--focus-ring-offset);
+}
+
+/* 選んだブログを縦に並べ、ブログごとの切り口を読み比べる。 */
+.conceptMatrix {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.conceptTitle {
+  margin: 0;
+  font-size: var(--text-lg);
+  font-weight: var(--weight-bold);
+}
+
+.conceptEmpty {
+  margin: 0;
+  color: var(--color-text-muted);
+}
+
+.conceptList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.conceptItem {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-5);
+  border: var(--border-width-default) solid var(--color-border-default);
+  border-radius: var(--radius-md);
+}
+
+.conceptSiteName {
+  margin: 0;
+  font-size: var(--text-base);
+  font-weight: var(--weight-bold);
+}
+
+.conceptAxes {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin: 0;
+}
+
+.conceptAxis {
+  display: grid;
+  grid-template-columns: minmax(0, max-content) minmax(0, 1fr);
+  gap: var(--space-3);
+}
+
+.conceptAxisLabel {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+}
+
+.conceptAxisValue {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin: 0;
 }
 
 /*
@@ -1351,7 +1444,3 @@
   部品と生クラスの継ぎ目で割らないこと」と書いており、行の一部を別部品にすると
   その継ぎ目が部品どうしの間へ移るだけである。行は 1 つの部品が丸ごと持つ。
 */
-.stackedNote {
-  font-size: var(--text-sm);
-  color: var(--color-text-muted);
-}

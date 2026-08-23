@@ -1,7 +1,15 @@
 "use client";
 
 import { useActionState, useState } from "react";
-import { Button, Callout, CheckboxGroup, Field, TextArea } from "@/presentation/ui";
+import {
+  Button,
+  Callout,
+  CheckboxGroup,
+  Field,
+  FormValue,
+  HumanOnlyForm,
+  TextArea,
+} from "@/presentation/ui";
 import { manageMemberAction } from "./member-action";
 import { INITIAL_MEMBER_STATE } from "./member-state";
 
@@ -26,15 +34,16 @@ export function InviteMemberForm({ roleOptions }: { readonly roleOptions: readon
   const [roles, setRoles] = useState<readonly string[]>([]);
 
   return (
-    <form
+    <HumanOnlyForm
       action={(formData: FormData) => {
         action(formData);
         setInvitedEmail("");
         setDisplayName("");
         setRoles([]);
       }}
+      reason="担当者の招待は作業場所へのアクセスを増やす権限操作であり、AIが代理実行してはいけない。"
     >
-      <input type="hidden" name="intent" value="invite" />
+      <FormValue name="intent" value="invite" />
 
       <Field
         name="invitedEmail"
@@ -74,7 +83,7 @@ export function InviteMemberForm({ roleOptions }: { readonly roleOptions: readon
       {state.status === "failed" && state.field === undefined ? (
         <Callout tone="warn" reason={state.message} />
       ) : null}
-    </form>
+    </HumanOnlyForm>
   );
 }
 
@@ -100,9 +109,12 @@ export function ChangeMemberRolesForm({
   const [reason, setReason] = useState("");
 
   return (
-    <form action={action}>
-      <input type="hidden" name="intent" value="change_roles" />
-      <input type="hidden" name="membershipId" value={membershipId} />
+    <HumanOnlyForm
+      action={action}
+      reason="担当者の権限変更は操作中の本人を含むアクセス制御を変えるため、AIが代理実行してはいけない。"
+    >
+      <FormValue name="intent" value="change_roles" />
+      <FormValue name="membershipId" value={membershipId} />
 
       <CheckboxGroup
         name="roles"
@@ -131,7 +143,7 @@ export function ChangeMemberRolesForm({
       {state.status === "failed" && state.field === undefined ? (
         <Callout tone="warn" reason={state.message} />
       ) : null}
-    </form>
+    </HumanOnlyForm>
   );
 }
 
@@ -152,9 +164,12 @@ export function RevokeMemberForm({
   const [reason, setReason] = useState("");
 
   return (
-    <form action={action}>
-      <input type="hidden" name="intent" value="revoke" />
-      <input type="hidden" name="membershipId" value={membershipId} />
+    <HumanOnlyForm
+      action={action}
+      reason="担当解除は元に戻せないアクセス遮断であり、AIが担当者を締め出せないよう人だけに限定する。"
+    >
+      <FormValue name="intent" value="revoke" />
+      <FormValue name="membershipId" value={membershipId} />
 
       <TextArea
         name="reason"
@@ -172,6 +187,6 @@ export function RevokeMemberForm({
 
       {state.status === "done" ? <Callout tone="success" reason={state.message} /> : null}
       {state.status === "failed" ? <Callout tone="warn" reason={state.message} /> : null}
-    </form>
+    </HumanOnlyForm>
   );
 }

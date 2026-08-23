@@ -1,20 +1,18 @@
-import Link from "next/link";
-import type { ReactNode } from "react";
 import { AdminShell } from "@/presentation/admin/admin-shell";
 import { currentActor, telemetryNotice, telemetryUseCases } from "@/presentation/composition";
 import {
-  Callout,
-  Card,
+  ActionNote,
   DataTable,
   EmptyView,
   ErrorView,
+  FactList,
+  ListView,
   Note,
-  Page,
-  SectionHeading,
-  StackedList,
-  StackedRow,
+  Section,
   StorageNotice,
+  TextLink,
 } from "@/presentation/ui";
+
 export const dynamic = "force-dynamic";
 
 /**
@@ -28,6 +26,9 @@ export const dynamic = "force-dynamic";
  * 数字と一緒に**その数字の限界**も出す。概算であること、
  * 価格未登録のモデルがあると少なく見えること。
  * 限界を書かない金額は、そのまま予算の根拠にされてしまう。
+ *
+ * 読み方の但し書きは `ActionNote` で出す。`Callout` にしないのは、
+ * 但し書きの件数が増えた日に、画面が注意書きだらけになるため。
  */
 export default async function AiUsagePage({
   searchParams,
@@ -42,129 +43,105 @@ export default async function AiUsagePage({
   const uc = await telemetryUseCases();
   const report = await uc.aiUsage.execute(actor, { days, siteSlug });
 
-  if (!report.ok) {
-    return (
-      <Shell>
+  return (
+    <AdminShell
+      routeId="ai-usage"
+      title="AI の利用と費用"
+      lead="どのモデルをどれだけ使ったかを見ます。"
+      actions={<TextLink href="/admin/analytics">数字を見る</TextLink>}
+    >
+      {!report.ok ? (
         <ErrorView
           title="AI の利用状況を出せませんでした"
           body={report.error.message}
           suggestedAction={report.error.suggestedAction ?? null}
-          action={<Link href="/admin">ホームへ戻る</Link>}
+          action={<TextLink href="/admin">ホームへ戻る</TextLink>}
         />
-      </Shell>
-    );
-  }
+      ) : (
+        <>
+          <StorageNotice status={await telemetryNotice()} />
 
-  const v = report.value;
+          <Section title={`直近 ${days} 日の合計`}>
+            <FactList
+              rows={[
+                {
+                  key: "calls",
+                  label: "呼び出し",
+                  value: `${report.value.totalCalls.toLocaleString("ja-JP")}回（うち失敗 ${
+                    report.value.totalFailures
+                  }回）`,
+                },
+                {
+                  key: "cost",
+                  label: "概算費用",
+                  value: `${report.value.totalCostLabel}（請求額とは一致しません）`,
+                },
+              ]}
+            />
+            {report.value.caveats.map((c) => (
+              <ActionNote key={c}>この数字の読み方: {c}</ActionNote>
+            ))}
+          </Section>
 
-  return (
-    <Shell>
-      <StorageNotice status={await telemetryNotice()} />
+          <Section title="ブログ × モデル">
+            {report.value.rows.length === 0 ? (
+              <EmptyView
+                title="この期間に AI の利用はありません"
+                body={
+                  report.value.emptyReason ??
+                  "記事を生成すると、ここに使ったモデルと費用が並びます。"
+                }
+                action={<TextLink href="/admin/generation">生成の仕組みを見る</TextLink>}
+              />
+            ) : (
+              <DataTable
+                caption="費用の多い順。同額のときはブログ名の順。"
+                columns={[
+                  { key: "site", label: "ブログ" },
+                  { key: "model", label: "モデル" },
+                  { key: "calls", label: "呼び出し", numeric: true },
+                  { key: "failures", label: "失敗", numeric: true },
+                  { key: "input", label: "入力トークン", numeric: true },
+                  { key: "output", label: "出力トークン", numeric: true },
+                  { key: "duration", label: "平均時間", numeric: true },
+                  { key: "cost", label: "概算費用", numeric: true },
+                ]}
+                rows={report.value.rows.map((r) => ({
+                  key: `${r.siteSlug}-${r.modelId}`,
+                  cells: [
+                    r.siteSlug,
+                    r.modelLabel,
+                    r.calls.toLocaleString("ja-JP"),
+                    String(r.failures),
+                    r.inputTokens.toLocaleString("ja-JP"),
+                    r.outputTokens.toLocaleString("ja-JP"),
+                    `${(r.avgDurationMs / 1000).toFixed(1)} 秒`,
+                    r.priced ? r.costLabel : "価格未登録",
+                  ],
+                }))}
+              />
+            )}
+            <Note>
+              プロンプトの本文と生成された文章は、この記録には含めていません。作られたものへの参照
+              ID だけを持っています。
+            </Note>
+          </Section>
 
-      <Card>
-        <SectionHeading level={2}>直近 {days} 日の合計</SectionHeading>
-        <StackedList>
-          <StackedRow note={<>うち失敗 {v.totalFailures} 回</>}>
-            呼び出し {v.totalCalls.toLocaleString("ja-JP")} 回
-            
-          </StackedRow>
-          <StackedRow note={<>請求額とは一致しません</>}>
-            概算費用 {v.totalCostLabel}
-            
-          </StackedRow>
-        </StackedList>
-        {v.caveats.map((c) => (
-          <Callout key={c} tone="info" title="この数字の読み方" reason={c} />
-        ))}
-      </Card>
-
-      <Card>
-        <SectionHeading level={2}>ブログ × モデル</SectionHeading>
-        {v.rows.length === 0 ? (
-          <EmptyView
-            title="この期間に AI の利用はありません"
-            body={v.emptyReason ?? "記事を生成すると、ここに使ったモデルと費用が並びます。"}
-            action={<Link href="/admin/generation">生成の仕組みを見る</Link>}
-          />
-        ) : (
-          <DataTable
-            caption="費用の多い順。同額のときはブログ名の順。"
-            columns={[
-              { key: "site", header: "ブログ", rowHeader: true, cell: (r) => r.siteSlug },
-              { key: "model", header: "モデル", cell: (r) => r.modelLabel },
-              {
-                key: "calls",
-                header: "呼び出し",
-                align: "numeric",
-                cell: (r) => r.calls.toLocaleString("ja-JP"),
-              },
-              { key: "failures", header: "失敗", align: "numeric", cell: (r) => r.failures },
-              {
-                key: "inputTokens",
-                header: "入力トークン",
-                align: "numeric",
-                cell: (r) => r.inputTokens.toLocaleString("ja-JP"),
-              },
-              {
-                key: "outputTokens",
-                header: "出力トークン",
-                align: "numeric",
-                cell: (r) => r.outputTokens.toLocaleString("ja-JP"),
-              },
-              {
-                key: "duration",
-                header: "平均時間",
-                align: "numeric",
-                cell: (r) => `${(r.avgDurationMs / 1000).toFixed(1)} 秒`,
-              },
-              {
-                key: "cost",
-                header: "概算費用",
-                align: "numeric",
-                cell: (r) => (r.priced ? r.costLabel : "価格未登録"),
-              },
-            ]}
-            rows={v.rows}
-            rowKey={(r) => `${r.siteSlug}-${r.modelId}`}
-          />
-        )}
-        <Note>
-          プロンプトの本文と生成された文章は、この記録には含めていません。作られたものへの参照
-          ID だけを持っています。
-        </Note>
-      </Card>
-
-      <Card>
-        <SectionHeading level={2}>期間を変える</SectionHeading>
-        <StackedList>
-          {[7, 30, 90].map((d) => (
-            <StackedRow key={d}>
-              {d === days ? (
-                <span>直近 {d} 日（表示中）</span>
-              ) : (
-                <Link href={`/admin/ai-usage?days=${d}`}>直近 {d} 日を見る</Link>
+          <Section title="期間を変える">
+            <ListView
+              rows={[7, 30, 90].map((d) =>
+                d === days
+                  ? { key: String(d), label: `直近 ${d} 日（表示中）` }
+                  : {
+                      key: String(d),
+                      label: `直近 ${d} 日を見る`,
+                      href: `/admin/ai-usage?days=${d}`,
+                    },
               )}
-            </StackedRow>
-          ))}
-        </StackedList>
-      </Card>
-    </Shell>
-  );
-}
-
-function Shell({ children }: { readonly children: ReactNode }) {
-  return (
-    <AdminShell
-      currentPath="/admin/ai-usage"
-      breadcrumbs={[{ label: "ホーム", href: "/admin" }, { label: "AI の利用と費用" }]}
-      actions={<Link href="/admin/analytics">数字を見る</Link>}
-    >
-      <Page
-        title="AI の利用と費用"
-        lead="どのブログで、誰が、どのモデルをどれだけ使ったかを見る画面です。費用は概算で、請求額とは一致しません。"
-      >
-        {children}
-      </Page>
+            />
+          </Section>
+        </>
+      )}
     </AdminShell>
   );
 }

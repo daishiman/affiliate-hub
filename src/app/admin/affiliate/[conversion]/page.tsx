@@ -1,23 +1,20 @@
+import { AdjustConversionForm } from "@/presentation/admin/adjust-conversion-form";
+import { AdminShell } from "@/presentation/admin/admin-shell";
 import {
   affiliateStorageNotice,
   affiliateUseCases,
   currentActor,
 } from "@/presentation/composition";
-import { AdjustConversionForm } from "@/presentation/admin/adjust-conversion-form";
-import { AdminShell } from "@/presentation/admin/admin-shell";
-import Link from "next/link";
-import type { ReactNode } from "react";
 import {
   Callout,
-  Card,
-  DefinitionList,
   ErrorView,
+  FactList,
   Note,
-  Page,
-  SectionHeading,
+  Prose,
+  Section,
   StorageNotice,
+  TextLink,
 } from "@/presentation/ui";
-import styles from "../../admin.module.css";
 
 export const dynamic = "force-dynamic";
 
@@ -40,83 +37,86 @@ export default async function ConversionPage({
   const uc = await affiliateUseCases();
   const result = await uc.getConversion.execute(actor, { conversionId });
 
-  if (!result.ok) {
-    return (
-      <Shell title="成果">
+  const title = result.ok ? `${result.value.advertiserName}の成果` : "成果";
+
+  return (
+    <AdminShell
+      routeId="affiliate/[conversion]"
+      routeParams={{ conversion: conversionId }}
+      title={title}
+      lead="内訳と、金額を直せるかどうかを見ます。"
+      actions={<TextLink href="/admin/affiliate">提携と成果へ戻る</TextLink>}
+    >
+      {!result.ok ? (
         <ErrorView
           title="この成果を表示できませんでした"
           body={result.error.message}
           suggestedAction={result.error.suggestedAction ?? null}
-          action={<Link href="/admin/affiliate">提携と成果へ戻る</Link>}
+          action={<TextLink href="/admin/affiliate">提携と成果へ戻る</TextLink>}
         />
-      </Shell>
-    );
-  }
+      ) : (
+        <>
+          <StorageNotice status={await affiliateStorageNotice()} />
 
-  const { view, advertiserName, adjustable, notAdjustableReason } = result.value;
+          <Section title="内訳">
+            <FactList
+              rows={[
+                { key: "asp", label: "提携先", value: result.value.view.aspLabel },
+                { key: "advertiser", label: "広告主", value: result.value.advertiserName },
+                { key: "status", label: "状態", value: result.value.view.statusLabel },
+                {
+                  key: "occurred",
+                  label: "発生日",
+                  value: result.value.view.occurredAt.toLocaleString("ja-JP"),
+                },
+                {
+                  key: "ingested",
+                  label: "取り込んだ額",
+                  value: result.value.view.ingestedLabel,
+                },
+                {
+                  key: "adjusted",
+                  label: "手で直した額",
+                  value: result.value.view.adjustedLabel ?? "直していません",
+                },
+                {
+                  key: "effective",
+                  label: "実際に使う額",
+                  value: result.value.view.effectiveLabel,
+                },
+              ]}
+            />
+            {result.value.view.adjustmentReason === null ? null : (
+              <Note>直した理由: {result.value.view.adjustmentReason}</Note>
+            )}
+            <Prose>
+              手で直しても、取り込んだ額はそのまま残します。
+              残しておかないと、次の取り込みとの差が出せず、どちらが正しいか分からなくなるためです。
+            </Prose>
+          </Section>
 
-  return (
-    <Shell title={`${advertiserName}の成果`}>
-      <StorageNotice status={await affiliateStorageNotice()} />
-
-      <Card>
-        <SectionHeading level={2}>内訳</SectionHeading>
-        <DefinitionList
-          items={[
-            { term: "提携先", description: view.aspLabel },
-            { term: "広告主", description: advertiserName },
-            { term: "状態", description: view.statusLabel },
-            { term: "発生日", description: view.occurredAt.toLocaleString("ja-JP") },
-            { term: "取り込んだ額", description: view.ingestedLabel, align: "numeric" },
-            {
-              term: "手で直した額",
-              description: view.adjustedLabel ?? "直していません",
-              align: "numeric",
-            },
-            { term: "実際に使う額", description: view.effectiveLabel, align: "numeric" },
-          ]}
-        />
-        {view.adjustmentReason === null ? null : (
-          <Note>直した理由: {view.adjustmentReason}</Note>
-        )}
-        <p className={styles.sectionLead}>
-          手で直しても、取り込んだ額はそのまま残します。
-          残しておかないと、次の取り込みとの差が出せず、どちらが正しいか分からなくなるためです。
-        </p>
-      </Card>
-
-      <Card>
-        <SectionHeading level={2}>金額を直す</SectionHeading>
-        {adjustable ? (
-          <>
-            <p className={styles.sectionLead}>
-              この成果の金額は直せます。直すときは理由も一緒に残してください。
-              直す操作は担当者ご本人が行います。AI からは実行できません。
-            </p>
-            <AdjustConversionForm conversionId={view.conversionId} currency={view.currency} />
-          </>
-        ) : (
-          <Callout tone="info" title="いまは直せません" reason={notAdjustableReason ?? ""} />
-        )}
-      </Card>
-    </Shell>
-  );
-}
-
-function Shell({ title, children }: { readonly title: string; readonly children: ReactNode }) {
-  return (
-    <AdminShell
-      currentPath="/admin/affiliate"
-      breadcrumbs={[
-        { label: "ホーム", href: "/admin" },
-        { label: "提携と成果", href: "/admin/affiliate" },
-        { label: title },
-      ]}
-      actions={<Link href="/admin/affiliate">提携と成果へ戻る</Link>}
-    >
-      <Page title={title} lead="この成果の内訳と、金額を直せるかどうかを見ます。">
-        {children}
-      </Page>
+          <Section title="金額を直す">
+            {result.value.adjustable ? (
+              <>
+                <Prose>
+                  この成果の金額は直せます。直すときは理由も一緒に残してください。
+                  直す操作は担当者ご本人が行います。AI からは実行できません。
+                </Prose>
+                <AdjustConversionForm
+                  conversionId={result.value.view.conversionId}
+                  currency={result.value.view.currency}
+                />
+              </>
+            ) : (
+              <Callout
+                tone="info"
+                title="いまは直せません"
+                reason={result.value.notAdjustableReason ?? ""}
+              />
+            )}
+          </Section>
+        </>
+      )}
     </AdminShell>
   );
 }

@@ -231,8 +231,11 @@ describe("className を持たない見出し要素が無い", () => {
         // `className` を持たない開始タグだけを違反とする。
         if (!/className/.test(m[1])) offenders.push(`${relative(SRC, file)}: ${m[0].trim()}`);
       }
-      // **部品を通った見出しも、見出しである。**下の床の註を読むこと。
-      viaComponent += [...source.matchAll(/<SectionHeading\s/g)].length;
+      // **見出しを内包する部品も、見出しである。**画面の h1、節の h2、
+      // 節内の h3、段を明示する汎用見出しをすべて数える。
+      viaComponent += [
+        ...source.matchAll(/<(?:AdminShell|Page|Section|SubSection|SectionHeading)\b/g),
+      ].length;
     }
     /*
      * 「全部が `SectionHeading` へ移ると、この検査は**見るものが無いので緑**になる」
@@ -276,14 +279,16 @@ describe("className を持たない見出し要素が無い", () => {
     for (const file of walk(SRC, ".tsx")) {
       const source = stripComments(readFileSync(file, "utf8"));
       raw += [...source.matchAll(/<h[1-6](\s*\/?>|\s+[^>]*>)/g)].length;
-      viaComponent += [...source.matchAll(/<SectionHeading\s/g)].length;
+      viaComponent += [
+        ...source.matchAll(/<(?:AdminShell|Page|Section|SubSection|SectionHeading)\b/g),
+      ].length;
     }
     // 生の見出しは、部品の中（`heading.tsx`）と、部品を通せない場所に残る。
     // 例: `ui-catalog` の h4/h5/h6 は「3 つとも同じ大きさで出る」を見せる見本。
     expect(raw, "生の見出しが 1 つも見つかりません。走査の正規表現を疑うこと").toBeGreaterThan(5);
     expect(
       viaComponent,
-      "SectionHeading を通った見出しが 1 つも見つかりません",
+      "見出し部品を通った見出しが 1 つも見つかりません",
     ).toBeGreaterThan(100);
   });
 });

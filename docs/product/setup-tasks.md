@@ -90,14 +90,14 @@ pnpm exec wrangler whoami
 1. 上の URL を開く。初回はプロジェクトの作成を求められるので、
  プロジェクト名に `affiliate-hub` と入れて `**作成**` を押す。
 2. 「Google 認証プラットフォーム」の設定を求められたら、次を入れる。
-  
+
   | 項目           | 入れる値                                    |
   | ------------ | --------------------------------------- |
   | アプリ名         | `Affiliate Hub`                         |
   | ユーザーサポートメール  | ご自身のアドレス（`manju.manju.03.28@gmail.com`） |
   | 対象ユーザー       | **外部**（個人の Gmail で使うため）                 |
   | デベロッパーの連絡先情報 | ご自身のアドレス                                |
-  
+
 3. `**クライアントを作成**`（または `+ クライアントを作成`）を押す。
 4. **アプリケーションの種類** で `**ウェブ アプリケーション**` を選ぶ。
 5. 名前は `Affiliate Hub Web` など任意。
@@ -132,13 +132,13 @@ pnpm exec wrangler whoami
    node .better-auth-google/setup-secrets.mjs
   ```
 2. 3 つ聞かれるので、聞かれてから貼り付ける。
-  
+
   | 聞かれるもの        | 入れる値                                           | 画面への表示 |
   | ------------- | ---------------------------------------------- | ------ |
   | Client ID     | S-02 の画面の値（`.apps.googleusercontent.com` で終わる） | 出ません   |
   | Client Secret | S-02 の画面の値                                     | 出ません   |
   | 許可するアドレス      | `manju.manju.03.28@gmail.com`（複数ならカンマ区切り）      | 出ます    |
-  
+
 
    上 2 つは**打っても画面に文字が出ません**。入っていないように見えますが入っています。
    貼り付けたら Enter。やめたいときは Ctrl+C。
@@ -240,12 +240,12 @@ pnpm exec wrangler secret list --env production
   > `**Global API Key` は絶対に使わないでください。** あれは口座の全権を持つ鍵で、
   > 用途を絞れません。漏れたら口座ごと作り直しになります。
 4. 権限欄が既定で入ります。次の 2 つがあることを確認する（足りなければ追加）。
-  
+
   | 種別      | 対象              | 権限       |
   | ------- | --------------- | -------- |
   | Account | Workers Scripts | **Edit** |
   | Account | D1              | **Edit** |
-  
+
 5. **Account Resources** は **ご自身のアカウント 1 つ**に絞る（`All accounts` にしない）。
 6. `**Continue to summary**` → `**Create Token**` を押す。
 7. **表示された鍵をコピーする。この画面を閉じると二度と表示されません。**
@@ -276,12 +276,12 @@ pnpm exec wrangler secret list --env production
 
 1. 上の URL を開く（`Settings` → `Secrets and variables` → `Actions` でも同じ）。
 2. `**New repository secret**` を押し、次を登録する。名前は**1 文字も変えずに**。
-  
+
   | Name                    | Secret（値）      |
   | ----------------------- | -------------- |
   | `CLOUDFLARE_API_TOKEN`  | S-06 でコピーした鍵   |
   | `CLOUDFLARE_ACCOUNT_ID` | S-07 でコピーした ID |
-  
+
 3. それぞれ `**Add secret**` を押す。
 
 **確かめ方**: `Repository secrets` の一覧に上の 2 つが並ぶこと
@@ -304,23 +304,23 @@ pnpm exec wrangler secret list --env production
 2. `**Required reviewers**` にチェックを入れ、**ご自身（daishiman）を選ぶ**。
 3. `**Save protection rules**` を押す。
 4. 同じ画面を下へスクロールし、`**Environment variables**` の `**Add variable**` を押して次を登録。
-  
+
   | Name      | Value                                           |
   | --------- | ----------------------------------------------- |
   | `APP_URL` | `https://affiliate-hub.daishimanju.workers.dev` |
   |           |                                                 |
-  
+
 
 **手順（dev）**
 
 5. 一覧へ戻り、もう一度 `**New environment**` → 名前に `**dev**` → `**Configure environment**`。
 6. **承認者は付けません**（試し場は気軽に出せる場所にしておくため）。
 7. `**Environment variables**` → `**Add variable**` で次を登録。
-  
+
   | Name          | Value                                               |
   | ------------- | --------------------------------------------------- |
   | `PREVIEW_URL` | `https://affiliate-hub-dev.daishimanju.workers.dev` |
-  
+
 
 **確かめ方**: 環境一覧に `production`（`1 protection rule`）と `dev` の 2 つが並ぶこと。
 
@@ -340,12 +340,12 @@ pnpm exec wrangler secret list --env production
 1. 上の URL を開く。
 2. 右上の `**Run workflow**` を押す。
 3. 入力欄が 2 つ出るので、次のとおり入れる。
-  
+
   | 欄                      | 入れる値                                 |
   | ---------------------- | ------------------------------------ |
   | どの環境に適用しますか            | `**dev**`（まず dev。production はまだ選ばない） |
   | 実行するには APPLY と入力してください | `**APPLY**`（大文字 4 文字）                |
-  
+
 4. 緑の `**Run workflow**` を押す。
 
 **確かめ方**
@@ -503,13 +503,13 @@ pnpm exec wrangler secret put MCP_TOKEN --env dev
 2. サインインする（**ログインを迂回しないでください**。迂回した経路で見えたことは、
  利用者が通る経路で見えることの証拠になりません）。
 3. [http://localhost:8787/admin/generation](http://localhost:8787/admin/generation) を開き、次の 3 点を見る。
-  
+
   | #   | 見るもの                     | 期待                          |
   | --- | ------------------------ | --------------------------- |
   | 1   | 鍵を登録した提供元のモデル            | 並ぶこと（「選べるモデルがありません」にならない）   |
   | 2   | 単価の通貨                    | **USD のまま**出ていること（円に化けていない） |
   | 3   | `workers_ai`（Workers AI） | **理由つきで**選べないと言うこと          |
-  
+
 
    参考（`config/llm-provider-catalog.json` の現在の中身・全 6 モデル）:
    `claude-opus-5` / `claude-sonnet-5` / `gemini-3.5-flash` /
@@ -567,21 +567,21 @@ pnpm exec wrangler secret list --env production
 4. [https://github.com/settings/tokens](https://github.com/settings/tokens) を開く。
 5. `**Generate new token**` → `**Generate new token (classic)**` を選ぶ。
 6. 次のとおり設定する。
-  
+
   | 項目            | 値                             |
   | ------------- | ----------------------------- |
   | Note          | `affiliate-hub actions usage` |
   | Expiration    | 90 日（期限なしにしない）                |
   | Select scopes | `**read:user**` のみ            |
-  
+
 7. `**Generate token**` を押し、表示された値をコピーする（**再表示されません**）。
 8. [https://github.com/daishiman/affiliate-hub/settings/secrets/actions](https://github.com/daishiman/affiliate-hub/settings/secrets/actions) で
  `**New repository secret**` を押し、次を登録する。
-  
+
   | Name                  | Secret    |
   | --------------------- | --------- |
   | `ACTIONS_USAGE_TOKEN` | 7 でコピーした値 |
-  
+
 9. 登録が済んだら連絡してください。**使用量を見るワークフローはこちらで作ります**
  （月 2,000 分の 70% で警告、90% で失敗。しきい値は `quality-gates.config.mjs` に 1 箇所だけ置きます）。
 
@@ -635,4 +635,3 @@ pnpm exec wrangler secret list --env production
 | S-16             | ah-1j5 | `tasks/task-model-catalog-screen-check.md`      |
 | S-18             | ah-xp8 | `tasks/task-actions-usage-monitor.md`           |
 | S-19             | ah-dtq | `tasks/task-integration-key-action-gate.md`     |
-

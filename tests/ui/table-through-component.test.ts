@@ -4,7 +4,7 @@ import { join, relative } from "node:path";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
-import { DataTable } from "@/presentation/ui/patterns/data-table";
+import { DataTable } from "@/presentation/ui/templates/screen-parts";
 
 /**
  * 表が 1 つの体系を通っていること。
@@ -50,7 +50,6 @@ const PATTERNS_DIR = join(ROOT, "src/presentation/ui/patterns");
 /** 表を組み立ててよい器。**画面ではない。** */
 const TABLE_COMPONENTS: readonly string[] = [
   "comparison-table.tsx",
-  "data-table.tsx",
   "ranking-table.tsx",
   // 暦は行が日付・列が曜日の表で、`DataTable` の「列の配列」に載らない。
   "schedule-calendar.tsx",
@@ -63,12 +62,7 @@ const TABLE_COMPONENTS: readonly string[] = [
  * `src/presentation/ui/patterns/data-table.tsx` の doc コメントにある。
  * ここへ 3 つ目を足したくなったら、まず向こうを読むこと。
  */
-const ALLOWED_RAW_TABLES: readonly string[] = [
-  // 列が実行時に決まる交差表（出し先の媒体の数だけ列が増える）。
-  "admin/content/matrix/page.tsx",
-  // 表そのものが `<form>` の一部で、選択列が送信の入力になっている。
-  "admin/feedback/page.tsx",
-];
+const ALLOWED_RAW_TABLES: readonly string[] = [];
 
 function walk(dir: string, out: string[] = []): string[] {
   for (const name of readdirSync(dir)) {
@@ -85,7 +79,7 @@ function stripComments(source: string): string {
 }
 
 describe("表は 1 つの体系を通る", () => {
-  it("生の <table> は、外す判断をした 2 箇所にしかない", () => {
+  it("画面に生の <table> が残っていない", () => {
     const found = walk(APP_DIR)
       .filter((file) => stripComments(readFileSync(file, "utf8")).includes("<table"))
       .map((file) => relative(APP_DIR, file));
@@ -93,19 +87,11 @@ describe("表は 1 つの体系を通る", () => {
     expect([...found].sort()).toEqual([...ALLOWED_RAW_TABLES].sort());
   });
 
-  it("許した 2 件も、横へ流す器で包まれている", () => {
-    // 積む規則（`thead { display: none }`）を消したので、器が無いと
-    // 狭い画面で表が画面幅を突き破る。`.rankTable` に `display: block` を
-    // 当てて逃げると、支援技術から行列の関係が失われる——
-    // **積むのをやめた理由（名前を失わせない）と同じ害になる。**
-    for (const rel of ALLOWED_RAW_TABLES) {
-      const source = readFileSync(join(APP_DIR, rel), "utf8");
-      expect(source, `${rel} の表が器で包まれていない`).toContain("rankTableWrap");
-      expect(source, `${rel} の器がキーボードで届かない`).toMatch(/tabIndex=\{0\}/);
-    }
+  it("生の表の例外一覧も空である", () => {
+    expect(ALLOWED_RAW_TABLES).toEqual([]);
   });
 
-  it("表を組み立てる器は 4 つで、増えても減っても気づく", () => {
+  it("patterns 内の特殊な表は3つで、共通表は screen-parts に1つだけある", () => {
     // 画面の側だけを数えていると、器が 5 つ目に増えたことに永久に気づけない。
     // 「範囲の外は 0 件」と「範囲の外を見ていない」は、数の上では同じに見える。
     const found = walk(PATTERNS_DIR)
@@ -113,6 +99,11 @@ describe("表は 1 つの体系を通る", () => {
       .map((file) => relative(PATTERNS_DIR, file));
 
     expect([...found].sort()).toEqual([...TABLE_COMPONENTS].sort());
+    const common = readFileSync(
+      join(ROOT, "src/presentation/ui/templates/screen-parts.tsx"),
+      "utf8",
+    );
+    expect((stripComments(common).match(/<table/g) ?? []).length).toBe(1);
   });
 
   /**
@@ -178,16 +169,6 @@ describe("表は 1 つの体系を通る", () => {
     expect(outside.length, "admin/ の外の画面が走査から落ちています").toBeGreaterThanOrEqual(20);
   });
 
-  it("外した理由は、部品の側に書いてある", () => {
-    const doc = readFileSync(
-      join(ROOT, "src/presentation/ui/patterns/data-table.tsx"),
-      "utf8",
-    );
-    // 理由が消えると、この一覧は「まだ手が回っていない 2 件」に見えてしまう。
-    expect(doc).toContain("外す判断をした");
-    expect(doc).toContain("content/matrix");
-    expect(doc).toContain("feedback");
-  });
 });
 
 describe("caption は、何の表かを言う", () => {
@@ -231,15 +212,14 @@ describe("caption は、何の表かを言う", () => {
 
 describe("寄せは列の性質である", () => {
   const markup = renderToStaticMarkup(
-    createElement(DataTable<{ readonly name: string; readonly count: number }>, {
+    createElement(DataTable, {
       caption: "検査のための表",
       columns: [
-        { key: "name", header: "名前", rowHeader: true, cell: (r) => r.name },
-        { key: "count", header: "件数", align: "numeric", cell: (r) => String(r.count) },
-        { key: "note", header: "備考", cell: () => "—" },
+        { key: "name", label: "名前" },
+        { key: "count", label: "件数", numeric: true },
+        { key: "note", label: "備考" },
       ],
-      rows: [{ name: "あ", count: 1 }],
-      rowKey: (r) => r.name,
+      rows: [{ key: "a", cells: ["あ", "1", "—"] }],
     }),
   );
 
@@ -273,7 +253,7 @@ describe("寄せは列の性質である", () => {
 
   it("呼び出し側から寄せのクラスを触る道が開いていない", () => {
     const source = readFileSync(
-      join(ROOT, "src/presentation/ui/patterns/data-table.tsx"),
+      join(ROOT, "src/presentation/ui/templates/screen-parts.tsx"),
       "utf8",
     );
     // `className` を受け取る口が開くと、`align` を列の属性にした意味が消える。
@@ -284,11 +264,10 @@ describe("寄せは列の性質である", () => {
 
 describe("横へ流す器に、キーボードで届く", () => {
   const markup = renderToStaticMarkup(
-    createElement(DataTable<{ readonly a: string }>, {
+    createElement(DataTable, {
       caption: "何の表かを言う 1 文",
-      columns: [{ key: "a", header: "列", cell: (r) => r.a }],
-      rows: [{ a: "値" }],
-      rowKey: (r) => r.a,
+      columns: [{ key: "a", label: "列" }],
+      rows: [{ key: "a", cells: ["値"] }],
     }),
   );
 
@@ -308,6 +287,6 @@ describe("横へ流す器に、キーボードで届く", () => {
 
   it("器の名前は caption と同じものである", () => {
     // 別々に書ける形にすると、片方だけ直されて食い違う。
-    expect(markup).toContain("<caption>何の表かを言う 1 文</caption>");
+    expect(markup).toMatch(/<caption[^>]*>何の表かを言う 1 文<\/caption>/);
   });
 });

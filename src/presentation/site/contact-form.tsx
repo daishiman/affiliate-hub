@@ -1,7 +1,7 @@
 "use client";
 
 import { useActionState, useState } from "react";
-import { Button, Callout, Field, ToolForm, UI_COPY } from "@/presentation/ui";
+import { Button, Field, FormResult, FormValue, ToolForm, UI_COPY } from "@/presentation/ui";
 import { type ContactFormState, submitContactAction } from "./contact-action";
 
 const INITIAL: ContactFormState = { status: "idle", message: "" };
@@ -18,12 +18,8 @@ export function ContactForm({ siteSlug }: { readonly siteSlug: string }) {
   const [replyTo, setReplyTo] = useState("");
 
   return (
-    <ToolForm
-      action={action}
-      toolName="submitContact"
-      toolDescription="このブログの運営者へ問い合わせを送る"
-    >
-      <input type="hidden" name="siteSlug" value={siteSlug} />
+    <ToolForm action={action} toolName="submitContact" toolDescription="このブログの運営者へ問い合わせを送る">
+      <FormValue name="siteSlug" value={siteSlug} />
 
       <Field
         name="body"
@@ -48,10 +44,7 @@ export function ContactForm({ siteSlug }: { readonly siteSlug: string }) {
         {pending ? UI_COPY.reader.contactSending : UI_COPY.reader.contactSubmit}
       </Button>
 
-      {state.status === "sent" ? <Callout tone="success" reason={state.message} /> : null}
-      {state.status === "failed" && state.field === undefined ? (
-        <Callout tone="warn" reason={state.message} />
-      ) : null}
+      <FormResult state={state} />
     </ToolForm>
   );
 }

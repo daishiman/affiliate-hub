@@ -1,27 +1,25 @@
+import { AdminShell } from "@/presentation/admin/admin-shell";
+import { RescheduleForm } from "@/presentation/admin/reschedule-form";
 import {
   currentActor,
   distributionNotice,
   publicationCalendarUseCases,
 } from "@/presentation/composition";
-import { AdminShell } from "@/presentation/admin/admin-shell";
-import Link from "next/link";
-import type { ReactNode } from "react";
-import { RescheduleForm } from "@/presentation/admin/reschedule-form";
 import {
+  ActionNote,
   Callout,
-  Card,
   EmptyView,
   ErrorView,
-  InlineNav,
+  ListView,
   Note,
-  Page,
+  Prose,
+  Row,
   ScheduleCalendar,
-  SectionHeading,
-  StackedList,
-  StackedRow,
+  Section,
   StorageNotice,
+  SubSection,
+  TextLink,
 } from "@/presentation/ui";
-import styles from "../../admin.module.css";
 
 export const dynamic = "force-dynamic";
 
@@ -44,53 +42,70 @@ export default async function PublicationCalendarPage({
   const actor = await currentActor();
   const result = await (await publicationCalendarUseCases()).getCalendar.execute(actor, { month });
 
-  if (!result.ok) {
-    return (
-      <Shell>
+  return (
+    <AdminShell
+      routeId="distribution/calendar"
+      title="投稿カレンダー"
+      lead="いつ・どこへ出す予定かを日付で並べます。"
+      actions={<TextLink href="/admin/distribution">配信の一覧へ戻る</TextLink>}
+    >
+      {!result.ok ? (
         <ErrorView
           title="投稿カレンダーを出せませんでした"
           body={result.error.message}
           suggestedAction={result.error.suggestedAction ?? "配信の一覧からもう一度お試しください。"}
-          action={<Link href="/admin/distribution">配信の一覧へ戻る</Link>}
+          action={<TextLink href="/admin/distribution">配信の一覧へ戻る</TextLink>}
         />
-      </Shell>
-    );
-  }
+      ) : (
+        <CalendarBody view={result.value} notice={await distributionNotice()} />
+      )}
+    </AdminShell>
+  );
+}
 
-  const view = result.value;
+type CalendarView = Extract<
+  Awaited<ReturnType<Awaited<ReturnType<typeof publicationCalendarUseCases>>["getCalendar"]["execute"]>>,
+  { readonly ok: true }
+>["value"];
+
+/**
+ * カレンダー本体。
+ *
+ * 骨格から切り出しているのは、読み出しに失敗しても
+ * パンくずと「配信の一覧へ戻る」は残したいから。
+ */
+function CalendarBody({
+  view,
+  notice,
+}: {
+  readonly view: CalendarView;
+  readonly notice: Awaited<ReturnType<typeof distributionNotice>>;
+}) {
+  const reschedulable = [...view.days.flatMap((d) => d.entries), ...view.undated];
 
   return (
-    <Shell>
-      <StorageNotice status={await distributionNotice()} />
+    <>
+      <StorageNotice status={notice} />
 
-      <Card>
-        <SectionHeading level={2}>{view.monthLabel}の投稿予定</SectionHeading>
-        <p className={styles.sectionLead}>
-          日付ごとに並べています。同じ日に同じ先へ寄っているもの、承認前のまま予約されているもの、
-          失敗したまま止まっているものは、その日の枠に理由を出します。
-        </p>
-
-        <InlineNav
-          label="月の切り替え"
-          items={[
-            {
-              href: `/admin/distribution/calendar?month=${view.previousMonth}`,
-              label: `前の月（${view.previousMonth}）`,
-            },
-            {
-              href: `/admin/distribution/calendar?month=${view.nextMonth}`,
-              label: `次の月（${view.nextMonth}）`,
-            },
-          ]}
-          renderLink={(href, label) => <Link href={href}>{label}</Link>}
-        />
+      <Section
+        title={`${view.monthLabel}の投稿予定`}
+        lead="同じ日に寄っているもの、承認前のもの、失敗したまま止まっているものは、その日の枠に理由を出します。"
+      >
+        <Row>
+          <TextLink href={`/admin/distribution/calendar?month=${view.previousMonth}`}>
+            前の月（{view.previousMonth}）
+          </TextLink>
+          <TextLink href={`/admin/distribution/calendar?month=${view.nextMonth}`}>
+            次の月（{view.nextMonth}）
+          </TextLink>
+        </Row>
 
         {view.awaitingApprovalCount === 0 ? null : (
           <Callout
             tone="warn"
             title={`${view.awaitingApprovalCount}件が、承認されないまま予約されています`}
             reason="このまま予定日を迎えても出ません。記事の進行から承認してください。"
-            action={<Link href="/admin/content">記事の進行を見る</Link>}
+            action={<TextLink href="/admin/content">記事の進行を見る</TextLink>}
           />
         )}
 
@@ -99,7 +114,7 @@ export default async function PublicationCalendarPage({
             tone="warn"
             title={`${view.errorCount}件が失敗したまま止まっています`}
             reason="送信に失敗した配信は、そのままでは再送されません。1 件ずつ原因を確認してください。"
-            action={<Link href="/admin/distribution">配信の一覧を見る</Link>}
+            action={<TextLink href="/admin/distribution">配信の一覧を見る</TextLink>}
           />
         )}
 
@@ -107,7 +122,7 @@ export default async function PublicationCalendarPage({
           <EmptyView
             title="この月に予定されている投稿はありません"
             body={view.emptyReason}
-            action={<Link href="/admin/content">記事の進行を見る</Link>}
+            action={<TextLink href="/admin/content">記事の進行を見る</TextLink>}
           />
         ) : (
           <ScheduleCalendar
@@ -126,55 +141,47 @@ export default async function PublicationCalendarPage({
                 href: e.href,
               })),
             }))}
-            renderLink={(href, label) => <Link href={href}>{label}</Link>}
+            renderLink={(href, label) => <TextLink href={href}>{label}</TextLink>}
           />
         )}
-      </Card>
+      </Section>
 
       {view.undated.length === 0 ? null : (
-        <Card>
-          <SectionHeading level={2}>日時の決まっていない配信（{view.undated.length}件）</SectionHeading>
-          <p className={styles.sectionLead}>
-            カレンダーに置く日付がないため、ここにまとめています。
+        <Section
+          title={`日時の決まっていない配信（${view.undated.length}件）`}
+          lead="カレンダーに置く日付がないため、ここにまとめています。"
+        >
+          <Prose>
             承認され次第すぐに出るので、出す日を決めたい場合は予定日を入れてください。
-          </p>
-          <StackedList>
-            {view.undated.map((e) => (
-              <StackedRow key={e.publicationId} note={<>{e.accountLabel} / {e.approvalLabel} / {e.stateLabel}</>}>
-                <Link href={e.href}>
-                  {e.channelLabel}：{e.title}
-                </Link>
-                
-              </StackedRow>
-            ))}
-          </StackedList>
-        </Card>
+          </Prose>
+          <ListView
+            rows={view.undated.map((e) => ({
+              key: e.publicationId,
+              label: `${e.channelLabel}：${e.title}`,
+              href: e.href,
+              note: `${e.accountLabel} / ${e.approvalLabel} / ${e.stateLabel}`,
+            }))}
+          />
+        </Section>
       )}
 
-      <Card>
-        <SectionHeading level={2}>予定日を変える</SectionHeading>
-        <p className={styles.sectionLead}>
-          日時を選んで変えます。掴んで動かす操作にしていないのは、
-          キーボードだけを使う方が予定を動かせなくなるためです。
-        </p>
+      <Section title="予定日を変える" lead="日時を選んで変えます。">
+        <Prose>
+          掴んで動かす操作にしていないのは、キーボードだけを使う方が予定を動かせなくなるためです。
+        </Prose>
         {!view.canReschedule ? (
-          <Callout
-            tone="info"
-            title="いまの権限では予定日を変えられません"
-            reason={view.cannotRescheduleReason ?? ""}
-            action={<Link href="/admin/settings">担当者の権限を見る</Link>}
-          />
-        ) : view.days.flatMap((d) => d.entries).length === 0 && view.undated.length === 0 ? (
+          <ActionNote>
+            いまの権限では予定日を変えられません。{view.cannotRescheduleReason ?? ""}{" "}
+            <TextLink href="/admin/settings">担当者の権限を見る</TextLink>
+          </ActionNote>
+        ) : reschedulable.length === 0 ? (
           <EmptyView
             title="変えられる配信がありません"
             body="この月に予定されている配信がないためです。"
           />
         ) : (
-          [...view.days.flatMap((d) => d.entries), ...view.undated].map((e) => (
-            <div key={e.publicationId}>
-              <SectionHeading level={3}>
-                {e.channelLabel}：{e.title}
-              </SectionHeading>
+          reschedulable.map((e) => (
+            <SubSection key={e.publicationId} title={`${e.channelLabel}：${e.title}`}>
               <Note>
                 いまの予定：{e.scheduledLabel} ／ 状態：{e.stateLabel}
               </Note>
@@ -184,11 +191,11 @@ export default async function PublicationCalendarPage({
                 disabledReason={e.notReschedulableReason}
                 label={`${e.channelLabel}の${e.title}`}
               />
-            </div>
+            </SubSection>
           ))
         )}
-      </Card>
-    </Shell>
+      </Section>
+    </>
   );
 }
 
@@ -199,25 +206,4 @@ function toInputValue(at: Date | null): string {
   return `${at.getFullYear()}-${pad(at.getMonth() + 1)}-${pad(at.getDate())}T${pad(
     at.getHours(),
   )}:${pad(at.getMinutes())}`;
-}
-
-function Shell({ children }: { readonly children: ReactNode }) {
-  return (
-    <AdminShell
-      currentPath="/admin/distribution"
-      breadcrumbs={[
-        { label: "ホーム", href: "/admin" },
-        { label: "配信", href: "/admin/distribution" },
-        { label: "投稿カレンダー" },
-      ]}
-      actions={<Link href="/admin/distribution">配信の一覧へ戻る</Link>}
-    >
-      <Page
-        title="投稿カレンダー"
-        lead="いつ・どこへ出す予定かを日付で並べます。同じ日に寄っていないか、承認が済んでいるかを出す前に確かめられます。"
-      >
-        {children}
-      </Page>
-    </AdminShell>
-  );
 }

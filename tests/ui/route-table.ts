@@ -1,10 +1,9 @@
 /**
  * 画面の一覧と、開くのに必要な値。
  *
- * これは「テストの入力」であると同時に、**画面が何本あるかの正本**でもある。
- * ファイルの実在と突き合わせる検査（page-render.test.tsx §1）を必ず一緒に置くこと。
- * 突き合わせが無いと、この表は「書いた人が知っている画面の一覧」に劣化し、
- * **後から足した画面だけが検査されないまま残る**。抜けるのはいつも新しい画面である。
+ * 管理画面は production の `ADMIN_ROUTE_METADATA` から射影する。
+ * 読者画面はこのファイルがテスト入力を持つ。ファイルの実在との突き合わせは
+ * `page-render.test.tsx` が担い、追加画面だけ検査から漏れる状態を止める。
  *
  * 値の出どころは見本の保存先（src/infrastructure/persistence/sample/）。
  * ここに文字列を手で作らないのは、見本データ側の識別子が変わったときに
@@ -12,6 +11,7 @@
  */
 
 import { SAMPLE_SITE_SLUG } from "@/infrastructure/persistence/sample/site-sample-repository";
+import { ADMIN_ROUTE_METADATA } from "@/presentation/ui/admin-route-metadata";
 import { type RouteWorld, renderRoute, renderRouteIn } from "../support/render";
 
 /** 開ける画面 1 枚分。`file` は `src/app` からの相対パス。 */
@@ -26,43 +26,25 @@ export type RouteCase = {
 
 const SITE = SAMPLE_SITE_SLUG;
 
-/** 運営側の画面。 */
-const ADMIN: readonly RouteCase[] = [
-  { file: "admin/page.tsx" },
-  { file: "admin/affiliate/page.tsx" },
-  { file: "admin/affiliate/[conversion]/page.tsx", params: { conversion: "cv_2026_08_a" } },
-  { file: "admin/ai-usage/page.tsx" },
-  { file: "admin/analytics/page.tsx" },
-  { file: "admin/content/page.tsx" },
-  { file: "admin/content/[variant]/page.tsx", params: { variant: "cv_alpha_review" } },
-  { file: "admin/content/matrix/page.tsx" },
-  { file: "admin/distribution/page.tsx" },
-  { file: "admin/distribution/[publication]/page.tsx", params: { publication: "pub_own_site" } },
-  { file: "admin/distribution/calendar/page.tsx" },
-  { file: "admin/evidence/page.tsx" },
-  { file: "admin/feedback/page.tsx" },
-  { file: "admin/feedback/[report]/page.tsx", params: { report: "fb_sample_sort" } },
-  { file: "admin/generation/page.tsx" },
-  { file: "admin/improvement/page.tsx" },
-  { file: "admin/improvement/dimensions/page.tsx" },
-  { file: "admin/inbox/page.tsx" },
-  { file: "admin/personas/page.tsx" },
-  { file: "admin/products/page.tsx" },
-  { file: "admin/products/[product]/page.tsx", params: { product: "p_alpha_15" } },
-  { file: "admin/products/compare/page.tsx" },
-  { file: "admin/rankings/page.tsx" },
-  { file: "admin/settings/page.tsx" },
-  { file: "admin/settings/integration-access/page.tsx" },
-  // 検査は実行環境の外で走るので、必ず「預かれない」側が描かれる。
-  // それでよい。利用者が最初に見るのはこの状態で、ここで理由が出ないと詰む。
-  { file: "admin/settings/llm/page.tsx" },
-  { file: "admin/sites/page.tsx" },
-  { file: "admin/sites/[site]/page.tsx", params: { site: SITE } },
-  { file: "admin/sites/new/page.tsx" },
-  { file: "admin/tools/page.tsx" },
-  { file: "admin/ui-catalog/page.tsx" },
-  { file: "admin/writing/page.tsx" },
-];
+/** productionの正本から射影した運営側の画面。 */
+const ADMIN_PARAM_EXAMPLES: Readonly<Record<string, string>> = {
+  conversion: "cv_2026_08_a",
+  product: "p_alpha_15",
+  publication: "pub_own_site",
+  report: "fb_sample_sort",
+  site: SITE,
+  variant: "cv_alpha_review",
+};
+
+const ADMIN: readonly RouteCase[] = ADMIN_ROUTE_METADATA.map((route) => {
+  const names = [...route.pattern.matchAll(/\[([^\]]+)\]/g)].map((match) => match[1]);
+  return {
+    file: route.file,
+    ...(names.length === 0
+      ? {}
+      : { params: Object.fromEntries(names.map((name) => [name, ADMIN_PARAM_EXAMPLES[name]])) }),
+  };
+});
 
 /** 読者側の画面。すべて見本のブログ 1 つで開く。 */
 const READER: readonly RouteCase[] = [

@@ -77,7 +77,7 @@
 | REQ-S06 | has-screen | — |
 | REQ-S07 | has-screen | — |
 | REQ-S08 | has-screen | — |
-| REQ-S09 | has-screen, has-permission | — |
+| REQ-S09 | has-screen, has-permission, has-shared-visual-form | — |
 | REQ-S10 | has-screen, has-permission | — |
 | REQ-API02 | has-permission, has-tenant | — |
 | REQ-R01 | has-permission | — |
@@ -243,7 +243,7 @@
 | REQ-TS08 | has-input | — |
 | REQ-TS09 | has-code-placement-rule | — |
 | REQ-TS11 | has-known-breakage | — |
-| REQ-TS12 | has-input | — |
+| REQ-TS12 | has-input, has-shared-visual-form | — |
 | REQ-TS13 | has-input | — |
 | REQ-TS14 | has-input | — |
 | REQ-TS15 | has-input | — |
@@ -284,6 +284,43 @@
 | REQ-FB07 | has-screen | — |
 | REQ-FB10 | has-enumerated-input, has-secret | — |
 | REQ-FB11 | has-ai-text | — |
+| REQ-UX01 | has-code-placement-rule | — |
+| REQ-UX02 | has-enumerated-input | — |
+| REQ-UX03 | has-enumerated-input | — |
+| REQ-UX04 | has-code-placement-rule | — |
+| REQ-UX05 | has-input | — |
+| REQ-UX06 | has-code-placement-rule | — |
+| REQ-UX07 | has-code-placement-rule | — |
+| REQ-UX08 | has-code-placement-rule, has-input, has-shared-visual-form | — |
+| REQ-UX09 | has-screen | — |
+| REQ-UX10 | has-input | — |
+
+### REQ-UX01〜UX10 に `has-code-placement-rule` が 4 件あるのはなぜか
+
+UI/UX の要件なので `has-screen` を並べたくなるが、当てたのは 4 件が
+`has-code-placement-rule`、2 件が `has-enumerated-input`、3 件が `has-input`、
+`has-screen` は 1 件だけである。分けたのは §5 の線引き——
+**その要件を破る差分が、値を 1 つも変えずに書けるか**——にそのまま従った結果である。
+
+| REQ | 破り方 | 値が動くか |
+| --- | --- | --- |
+| UX01 単一用途画面 | 1 枚の画面にフォームをもう 1 つ書く | 動かない |
+| UX04 SNS の拡張 | 画面の側に配信先ごとの分岐を書く | 動かない |
+| UX06 重複実装の解消 | 同じ並びを別の画面にもう 1 度書く | 動かない |
+| UX07 ブログ別部品 | 共通部品に slug の分岐を 1 本足す | 動かない |
+| UX08 余白 | `padding: 24px` と生値で書く | **動く** |
+| UX05 コンセプト選択 | 0 本のまま生成を始めさせる | **動く** |
+
+UX08 だけが両方を持つ。余白の**置き場所**（トークンを通さず生値を書く）は
+値が動かない破り方で、文章量の**上限**（40 字・2 個）は値が動く破り方である。
+1 つの要件に 2 つの壊れ方があるとき、片方だけを宣言すると
+**宣言しなかった側は検査があっても数えられない**ので、両方を書く。
+
+`has-screen` を UX09 だけにしたのは、UX09 だけが
+`screen-states`・`a11y`・`keyboard` の 3 つを実際に見ているためである。
+ほかの 9 件も画面に触れてはいるが、`keyboard` の検査が無い。
+§5 が禁じている「軽い性質へ逃げる」の逆——**重い性質を名乗って中身を欠く**——
+を避けるため、見ていないものには名前を付けていない。
 
 ## 4. 未宣言の要件について（正直に書く）
 

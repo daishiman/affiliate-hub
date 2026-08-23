@@ -310,19 +310,19 @@
     {
       "severity": "medium",
       "bucket": "regeneration",
-      "observation": "system-spec/*.md の手書き節は C03 compile の生成物ではなく、compile を走らせれば静かに消えていた。**被害範囲は当初の記述より広かった。**本物の章の複製で実測したところ、失われるのは 5 章ではなく 9 ファイル (確定 8 章すべて + index.md) で、節も As-Is / To-Be / Delta だけでなく ## 確定セルの記録 (正本 spec-state.json) / ## 意思決定 (decisions) / ## Dependencies / ## Acceptance evidence / ## 状態の意味 / ## 履歴、index.md では ## 仕様統制と状態軸 / ## 実装依存順 を含む。2026-08-23 に write_docset へ fail-closed と引き継ぎを入れて解消した。既定 (refuse) は生成物に無い節を見つけると 1 ファイルも書かずに中止し、--on-handwritten preserve は手書き節を既存の並び順で引き継ぐ。**ただし preserve でも足りない。**本物の章の複製で測ると、節の引き継ぎ後もなお 351 行が移動ではなく消える。中身は先行質疑 (qa-security-web / qa-ops-web / qa-infra-web-redirect / qa-*-analytics) と、ui-ux の『既存記録との食い違い (均さずに両方残す)』記録である。compile は current qa_ref しか描画せず qa_refs の履歴を落とし、節単位の引き継ぎは生成節の中に人が書き足した小節を守れない。medium のままなのはこのため。黙って通らないよう、preserve でも消える行を数えて stderr へ出すようにした。",
+      "observation": "system-spec/*.md の手書き節は C03 compile の生成物ではなく、compile を走らせれば静かに消えていた。**被害範囲は当初の記述より広かった。**本物の章の複製で実測したところ、失われるのは 10 ファイル (00-requirements-definition.md + 確定 8 章すべて + index.md) で、節も As-Is / To-Be / Delta だけでなく ## 確定セルの記録 (正本 spec-state.json) / ## 意思決定 (decisions) / ## Dependencies / ## Acceptance evidence / ## 状態の意味 / ## 履歴、index.md では ## 仕様統制と状態軸 / ## 実装依存順 を含む。2026-08-23 に write_docset へ fail-closed と引き継ぎを入れて解消した。既定 (refuse) は生成物に無い節を見つけると 1 ファイルも書かずに中止し、--on-handwritten preserve は手書き節を既存の並び順で引き継ぐ。**ただし preserve でも足りない。**本物の章の複製で現行再測定すると、節の引き継ぎ後もなお 424 行が移動ではなく消える。内訳は 00-requirements-definition=15 / auth=2 / backend=88 / database=71 / frontend=74 / index=13 / infrastructure=19 / maintenance-ops=28 / security=39 / ui-ux=75 行である。compile は current qa_ref しか描画せず qa_refs の履歴を落とし、節単位の引き継ぎは生成節の中に人が書き足した小節を守れない。medium のままなのはこのため。黙って通らないよう、preserve でも消える行を数えて stderr へ出すようにした。",
       "suggested_fix": "compile が qa_refs の先行質疑も描画するようにし、生成節の中の手書き小節も引き継げるようにする。それまで正本へ compile を適用しない。preserve は節を守るだけで安全という意味ではない。",
       "evidence": [
         "本物の章を複製した上での実測: 既定で exit 1、複製 10 件が 1 文字も変化しないことを before/after 比較で確認",
-        "--on-handwritten preserve で exit 0、8 章すべてで As-Is / To-Be / Delta が残り、ui-ux は ## 履歴 も残った",
+        "--on-handwritten preserve で exit 0、10 ファイルで計 424 行の消失を再測定 (00=15 / auth=2 / backend=88 / database=71 / frontend=74 / index=13 / infrastructure=19 / maintenance-ops=28 / security=39 / ui-ux=75)",
         "test_compile_spec_doc_cli.py に 5 件追加 (検出の両方向・部分適用しないこと・二度走らせても増殖しないこと・未知モードの拒否)"
       ]
     },
     {
-      "severity": "medium",
+      "severity": "info",
       "bucket": "doc_freshness",
       "observation": "同じ事実が fetched-references.json と章 md の「最新ドキュメント出典」表の 2 箇所にあり、参照側だけが更新されて章側が追随していない。better-auth は章 1.6.29 / 参照 1.7.1、owasp-asvs は章 5.0 / 参照 5.0.0、apple-hig は章が取得日 2026-08-16 のままで参照は http-last-modified 由来の 2026-08-06。章 md は読み手が最初に見る面なので、参照側が正しくても読み手には古い値が見える。なお 4 件 (cloudflare-d1 / cloudflare-workers / google-sre / nextjs) は章側も追随済みで、版の欄が取得日のままなのは apple-hig 1 件に減っている。6 観点の判定を落とさないのは、正本である fetched-references の値が正しく、章側の乖離が写しの遅れであって出所の欠落ではないためである。",
-      "suggested_fix": "compile は既に出典表を fetched-references から生成する。走らせられなかったのは手書き節が消えるためで、その fail-closed と引き継ぎが 2026-08-23 に入った。複製上で compile --on-handwritten preserve を走らせると 3 件とも参照側の値になり食い違いは 0 になる (auth 1.6.29→1.7.1 / security 5.0→5.0.0 / ui-ux 2026-08-16→2026-08-06)。つまりこの乖離の原因は二重管理そのものではなく生成器を止めていたこと。**ただし今 compile を走らせると先行質疑と食い違い記録の計 351 行が失われる**ので、regeneration finding の 2 点 (qa_refs の描画・小節の引き継ぎ) を先に直す。3 件だけを手で直す道もあるが、それは二重管理を続ける選択になる。適用は C01/C03 の単一 writer 経由。",
+      "suggested_fix": "compile は既に出典表を fetched-references から生成する。走らせられなかったのは手書き節が消えるためで、その fail-closed と引き継ぎが 2026-08-23 に入った。複製上で compile --on-handwritten preserve を走らせると 3 件とも参照側の値になり食い違いは 0 になる (auth 1.6.29→1.7.1 / security 5.0→5.0.0 / ui-ux 2026-08-16→2026-08-06)。つまりこの乖離の原因は二重管理そのものではなく生成器を止めていたこと。**ただし今 compile を走らせると 10 ファイル・計 424 行が失われる**ので、regeneration finding の 2 点 (qa_refs の描画・小節の引き継ぎ) を先に直す。3 件だけを手で直す道もあるが、それは二重管理を続ける選択になる。適用は C01/C03 の単一 writer 経由。",
       "evidence": [
         "tests/architecture/doc-source-version-gap.test.ts 『章 md と fetched-references の食い違いは既知の 3 件だけ』が 3 件を固定 (2026-08-23 に検査の向きを反転させた)",
         "章側が追随済み: cloudflare-d1=2026-04-30 / cloudflare-workers=2026-04-23 / google-sre=2017 / nextjs=16.3.2",
@@ -384,154 +384,249 @@
     }
   ],
   "gaps": [
-    "compile が qa_refs の先行質疑を描画せず、生成節の中の手書き小節も引き継げない。正本へ適用すると 351 行 (先行質疑 4 件と ui-ux の食い違い記録) が消える。それまで compile を正本へ適用しない",
+    "compile が qa_refs の先行質疑を描画せず、生成節の中の手書き小節も引き継げない。複製上の現行再測定では preserve 後も 10 ファイル・424 行が消える。それまで compile を正本へ適用しない",
     "章 md の出典表 3 件 (better-auth 1.6.29→1.7.1 / owasp-asvs 5.0→5.0.0 / apple-hig 2026-08-16→2026-08-06) がfetched-references と食い違う。compile を安全に走らせられるようになれば同時に解消することを複製上で実測済み"
   ],
   "inputs": {
-    "file_count": 28,
-    "sha256": "8361108142ac76e73b0bbabb70112bf803024d323312262a79e87858e4aa9cd9",
-    "pinned_at": "2026-08-23T18:05:00Z",
+    "sha256": "2f2f204e00199e2320893b054c1ae09ac9434528683fba791fab33d815367016",
+    "file_count": 47,
     "files": [
       {
         "path": "docs/spec/00-README.md",
         "sha256": "310885f2d2b0e2d743bf31a59d83f1ec423682c59a3cc007c9e9f62aa9d97782",
-        "mtime": 1787290780
+        "mtime": 1787485728
       },
       {
         "path": "docs/spec/01-要求仕様書-v1.0.md",
         "sha256": "b5fc60987cb79c08c30db4cd94b075a0bf89cd7acba7c8d1ffc8558af6439385",
-        "mtime": 1787287028
+        "mtime": 1787485728
       },
       {
         "path": "docs/spec/02-補充仕様-ギャップと追加要件.md",
         "sha256": "73b3204fcb5c71edf4704817b12af2d36939993ba1194bf04c1f4ceff9c8cd25",
-        "mtime": 1787287028
+        "mtime": 1787485728
       },
       {
         "path": "docs/spec/03-分析・解析基盤仕様.md",
         "sha256": "5d84913a2422b9e697422b0656f90cf90633b0bd75adcebe0c6696e01fc9e45f",
-        "mtime": 1787287028
+        "mtime": 1787485728
       },
       {
         "path": "docs/spec/04-二層構造統合仕様.md",
         "sha256": "d01442b19c1b9e29681719f2768847c39ec0fea34bfdf6438247c814c037f765",
-        "mtime": 1787287028
+        "mtime": 1787485728
       },
       {
         "path": "docs/spec/05-文章作成メソッド仕様.md",
         "sha256": "edcbd22afffe076c76aea32bf4ae744c57db441834ffa1d79ee2e29245502696",
-        "mtime": 1787287028
+        "mtime": 1787485728
       },
       {
         "path": "docs/spec/06-サイトブループリント-記事構成テンプレート.md",
         "sha256": "462fcf098f3765cf3392566550e454bc77e693b269b975e5f542b134acf897ea",
-        "mtime": 1787287028
+        "mtime": 1787485728
       },
       {
         "path": "docs/spec/07-生成基盤設計.md",
         "sha256": "d155d9183ef16be0cda994d490bcf3fb359d0758f9415e61f950f3b4e43e0a3e",
-        "mtime": 1787287028
+        "mtime": 1787485728
       },
       {
         "path": "docs/spec/08-仕様の未修正点.md",
         "sha256": "b79d5715a63404442a0b3eab05299988c24f7f1eb544dca79fd81a61e3e56665",
-        "mtime": 1787287028
+        "mtime": 1787485728
       },
       {
         "path": "docs/spec/09-UIテーマ仕様.md",
         "sha256": "9bfeb611748edaf08e865fe740637e37e025af153c3a2bc0a5cffabb1dc6c6f1",
-        "mtime": 1787287028
+        "mtime": 1787485728
       },
       {
         "path": "docs/spec/10-テスト戦略仕様.md",
         "sha256": "c1ca47a0525aea84ef244d2e8b265e353c4df55288c0f27c2bb75a9e492ff3d5",
-        "mtime": 1787321073
+        "mtime": 1787491522
       },
       {
         "path": "docs/spec/11-CI-CD・品質ゲート仕様.md",
         "sha256": "b5466eba44f88039622cc6228d40fa54173fcaccdea15e75a2c37997234d7583",
-        "mtime": 1787345501
+        "mtime": 1787485728
       },
       {
         "path": "docs/spec/12-改善要望フィードバック仕様.md",
         "sha256": "f814f1a62e30eebb4512ba0c7964bfdb6986c4007af406aab7d8d7e58e17a856",
-        "mtime": 1787287028
+        "mtime": 1787485728
       },
       {
         "path": "docs/spec/ai-first-webmcp.md",
         "sha256": "35241bfe4e82f6536d871c179eb938681ec771991fa50a59c72d5d97d3c98713",
-        "mtime": 1787287028
+        "mtime": 1787485728
       },
       {
         "path": "docs/spec/completion-criteria.md",
         "sha256": "07cb3de0ca834a6776d6e08dfd11a3d6bd1b848d962d1f582d9e41f0705a8943",
-        "mtime": 1787287028
+        "mtime": 1787485728
       },
       {
         "path": "docs/spec/data-model-gap.md",
         "sha256": "97861d9844e975922b73715c49d5ea7f4a8db53e83fbbbf0e73a54a32fb6754c",
-        "mtime": 1787287028
+        "mtime": 1787485728
       },
       {
         "path": "docs/spec/dialogue-confirmations.md",
         "sha256": "1312a2372403173dc8b57112ae0178d713c93a05471124e201e084bf0da8daa1",
-        "mtime": 1787287028
+        "mtime": 1787485728
+      },
+      {
+        "path": "docs/spec/feat-uiux-overhaul/acceptance-report.md",
+        "sha256": "2b95ece26f7529852914df90154b849155e9efe91891e94f10483fa6f6250d46",
+        "mtime": 1787494170
+      },
+      {
+        "path": "docs/spec/feat-uiux-overhaul/admin-api-contract.md",
+        "sha256": "335d57d9a267c6d80f8ca6000e0f3513cfabe9364e72a222f35671e1490d5d11",
+        "mtime": 1787485728
+      },
+      {
+        "path": "docs/spec/feat-uiux-overhaul/blog-scaffold-contract.md",
+        "sha256": "b1ebe26d43cbcefeb152ade3cf9c31781cab832a6aaff24b87971c97483d38da",
+        "mtime": 1787485728
+      },
+      {
+        "path": "docs/spec/feat-uiux-overhaul/component-contract.md",
+        "sha256": "151448c4f0ec8c0f310af107c8b6d712574994d505f8ea4fd8f4235904f4805a",
+        "mtime": 1787485728
+      },
+      {
+        "path": "docs/spec/feat-uiux-overhaul/design-review.md",
+        "sha256": "e073aedc4734bfb763d429c4c116b0a6f1222ee3381ca9c20546a06b40d74bf6",
+        "mtime": 1787485728
+      },
+      {
+        "path": "docs/spec/feat-uiux-overhaul/evidence/README.md",
+        "sha256": "14a86e2d542cf7f00d944f2f562924c4f15999a89c306b0a7293b85ede70364f",
+        "mtime": 1787485728
+      },
+      {
+        "path": "docs/spec/feat-uiux-overhaul/final-review.md",
+        "sha256": "bdeacd9b886145d29bb58b4af66922c19767507f0ab1eaa6cca5fb3f0873146b",
+        "mtime": 1787494170
+      },
+      {
+        "path": "docs/spec/feat-uiux-overhaul/migration-report.md",
+        "sha256": "3f3a69d30391831bdc11b70ee5fd0944952c32633b1c091a4a4f83f0372d7599",
+        "mtime": 1787485728
+      },
+      {
+        "path": "docs/spec/feat-uiux-overhaul/operations.md",
+        "sha256": "a26d05b65d58040ff18bc515231d74671f4e99f654f6891b06deaf27bc0d4126",
+        "mtime": 1787485728
+      },
+      {
+        "path": "docs/spec/feat-uiux-overhaul/quality-report.md",
+        "sha256": "4845a67556097d01c6ddd5184ec653a36eefef8e91c82cda19a8d2736236c1b6",
+        "mtime": 1787485728
+      },
+      {
+        "path": "docs/spec/feat-uiux-overhaul/release-report.md",
+        "sha256": "df2476849a039d9c10217bbf565e68fc074699a5486445b59716eeaf6f889cd7",
+        "mtime": 1787494170
+      },
+      {
+        "path": "docs/spec/feat-uiux-overhaul/requirements-baseline.md",
+        "sha256": "e06d162c96e99970bf82a5c7530fa36515d1ceb2264b7005aad8e7169c48d895",
+        "mtime": 1787485728
+      },
+      {
+        "path": "docs/spec/feat-uiux-overhaul/screen-architecture.md",
+        "sha256": "52edfd845500fdd6ceb0414e572caeb29f9fd259dcf229e465b1f575cf4bf635",
+        "mtime": 1787485728
+      },
+      {
+        "path": "docs/spec/feat-uiux-overhaul/screen-inventory.md",
+        "sha256": "9adb840149a760eda0915cc537e219b2e8768f6963d349ac198fb0b7ab77d50e",
+        "mtime": 1787485728
+      },
+      {
+        "path": "docs/spec/feat-uiux-overhaul/sns-provider-contract.md",
+        "sha256": "38bafcc8fb04b7fcdbabf15d22a8be550905d4c53c7a408cf7c9f377874ed5de",
+        "mtime": 1787485728
+      },
+      {
+        "path": "docs/spec/feat-uiux-overhaul/spec-writeback-receipt.md",
+        "sha256": "82ac6891e55704f1b78a87dc3a1f31da12a888233141088bc3cd5d09bd0e2c6f",
+        "mtime": 1787485728
+      },
+      {
+        "path": "docs/spec/feat-uiux-overhaul/test-design.md",
+        "sha256": "0218f0e65a9cf2efde9fb29821131a74dd80b4a1d5537766e7c6fc9399920abb",
+        "mtime": 1787485728
+      },
+      {
+        "path": "docs/spec/feat-uiux-overhaul/test-run-report.md",
+        "sha256": "7c807e720628a7afef2204e97a039122bda8fa70eb74a1e4bb6a569d2289ae91",
+        "mtime": 1787485728
+      },
+      {
+        "path": "docs/spec/feat-uiux-overhaul/ui-rules.md",
+        "sha256": "1d51e33ff48f57b95fb39ab10d828fab24e819e971a4ae8ee37fbd716f49db3a",
+        "mtime": 1787485728
       },
       {
         "path": "system-spec/00-requirements-definition.md",
-        "sha256": "b5f4e61bea187723bcf1e1703985f816c1d50cb20c71743e5d5ca761ce1ae250",
-        "mtime": 1787287029
+        "sha256": "f0fe318e7e0f8c139174c5a16896947e40867e9ac4d77e1aff4a36eb3e7a05be",
+        "mtime": 1787494052
       },
       {
         "path": "system-spec/auth.md",
-        "sha256": "9feca924e188e1472ef08e9f1f073cfd2bb551171b82580c0475ea58c6c48066",
-        "mtime": 1787287029
+        "sha256": "32ef83f223231a4d7e29db9b710cedd68ffca217d9cfb631dca6fbedb0b63086",
+        "mtime": 1787494052
       },
       {
         "path": "system-spec/backend.md",
-        "sha256": "06d88d7a30df02799ba8c5cc1602a70d3bb8599de7f5eb2ad8b8adafce4b02ef",
-        "mtime": 1787387320
+        "sha256": "4b61c1533ad14b6aabf443271b7fc83d51e12bddd0065e4839020fb3a68b5814",
+        "mtime": 1787494052
       },
       {
         "path": "system-spec/database.md",
-        "sha256": "5a6facd0955b73b15257284dac677de5abb22ba31d01d91f1fef9e1243672824",
-        "mtime": 1787387239
+        "sha256": "cdbd82a9e9e10a49ef9ecd649eeda30001e4f47e6a94b78176890e3ed5e4126f",
+        "mtime": 1787494052
       },
       {
         "path": "system-spec/frontend.md",
-        "sha256": "3ad4c7468d674bc11842818edb2cb3493ca26d9614087fdb519d0f0e0633ec47",
-        "mtime": 1787387391
+        "sha256": "737845a6173b0419c03d97c19598aeba9d721428279d9ff3e532d694cb731431",
+        "mtime": 1787494052
       },
       {
         "path": "system-spec/index.md",
         "sha256": "409add2dc4ceef4637f1a2048bdd9a2e54a4a9873cc4e70a9d160a13c5d63e44",
-        "mtime": 1787287029
+        "mtime": 1787485728
       },
       {
         "path": "system-spec/infrastructure.md",
-        "sha256": "8aa040572d0a4ccad52c6da730c828d937d3afb2c5798b9dff2e9a82e37e9a24",
-        "mtime": 1787387457
+        "sha256": "0f9f1facc6abe502ce57756fd252fe850f366ea9e9360998a088ae3f35383e85",
+        "mtime": 1787494052
       },
       {
         "path": "system-spec/maintenance-ops.md",
-        "sha256": "b65f07fdefc2bb2676895c6fea0ff769375472caec2faa77172903835ef2871f",
-        "mtime": 1787387519
+        "sha256": "7690370ef0cdfa3a921e4090563bf8b68ee402823ca2fbdda00b5f14c72f251a",
+        "mtime": 1787494052
       },
       {
         "path": "system-spec/security.md",
-        "sha256": "d55bce0dc702d0a4982828a45198426d39a3f9fc13419a5cc68949c4b660995e",
-        "mtime": 1787387569
+        "sha256": "0c81642304f650fea1f63780dd8c96cdea18a117f6cd7783f850845d860e0cb7",
+        "mtime": 1787494052
       },
       {
         "path": "system-spec/spec-state.json",
         "sha256": "b6dda29558fb7d336d0cdb3f0ea8e4884d7e0b07c7f3a5e160b82028f188e02c",
-        "mtime": 1787437211
+        "mtime": 1787491522
       },
       {
         "path": "system-spec/ui-ux.md",
-        "sha256": "fcf510fbc2c0702ecc131fc5a5bdedc22c5f1fd666b583c003add7241f43278e",
-        "mtime": 1787437198
+        "sha256": "8bdb5a18064413ad48be8a7104a163b7f0ac2ee96a8997224a4944cd377db1bb",
+        "mtime": 1787494052
       }
-    ]
+    ],
+    "pinned_at": "2026-08-23T14:14:04.851Z"
   }
 }

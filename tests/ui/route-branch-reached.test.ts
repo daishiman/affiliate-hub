@@ -104,7 +104,7 @@ function shapeOf(html: string): { headings: number; links: number; denied: boole
  * ことがあるので、理由を書いて残す。ここに載っていない画面で断りが出たら赤。
  */
 const PARTIAL: Record<string, string> = {
-  "admin/settings/page.tsx":
+  "admin/settings/audit/page.tsx":
     "「操作の記録」の 1 節だけが断られている（`audit.read`）。**この能力を持つ役は " +
     "`owner` と `workspace_admin` の 2 つしかなく、どちらも書き込みを全部持つ。**" +
     "渡すと権限で表示が変わる部分が全部見えてしまい、REQ-S09 の「権限による表示制御」を" +

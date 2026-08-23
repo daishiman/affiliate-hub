@@ -106,8 +106,8 @@ function dropExpressions(source: string): string {
  * リンクの外に画面へ出る文字が 1 つでも残れば、それは行き先ではなく文である。
  */
 function isLinkOnly(inner: string): boolean {
-  if (!/<(?:Link|a)\b/.test(inner)) return false;
-  const withoutLinks = inner.replace(/<(Link|a)\b[\s\S]*?<\/\1>/g, "");
+  if (!/<(?:TextLink|Link|a)\b/.test(inner)) return false;
+  const withoutLinks = inner.replace(/<(TextLink|Link|a)\b[\s\S]*?<\/\1>/g, "");
   const text = dropExpressions(withoutLinks).replace(/<[^>]*>/g, "").trim();
   return text === "";
 }
@@ -151,7 +151,7 @@ describe("注記の部品が、役の違うものを飲み込んでいない", (
   */
   it("残った `<p>` の linkNote は signin だけにある", () => {
     const paragraphs = sitesOf(/<p[^>]*>/g);
-    expect(paragraphs.length, "`<p>` を 1 つも集められていません").toBeGreaterThanOrEqual(120);
+    expect(paragraphs.length, "`<p>` を 1 つも集められていません").toBeGreaterThanOrEqual(70);
     const elsewhere = linkNoteParagraphs
       .map((s) => s.where)
       .filter((where) => !where.startsWith("app/signin/"));

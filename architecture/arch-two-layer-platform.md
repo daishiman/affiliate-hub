@@ -12,11 +12,11 @@ iteration: null
 title: "二層構造プラットフォームのアーキテクチャ"
 owners: ["app-orchestrator"]
 created_at: "2026-08-16T13:00:00Z"
-updated_at: "2026-08-16T13:00:00Z"
+updated_at: "2026-08-23T12:00:00Z"
 status: "active"
 depends_on: []
-related_nodes: ["arch-system-spec-overview"]
-resource_scope: ["src/domain/","src/db/schema.ts","src/lib/webmcp/","src/lib/mcp/","docs/spec/04-二層構造統合仕様.md"]
+related_nodes: ["arch-system-spec-overview", "feat-uiux-overhaul"]
+resource_scope: ["src/domain/","src/db/schema.ts","src/lib/webmcp/","src/lib/mcp/","docs/spec/04-二層構造統合仕様.md","docs/spec/feat-uiux-overhaul/ui-rules.md"]
 purpose: "プラットフォーム層とブログ層の責務境界、共有ドメインサービス層、禁止依存を実装可能な形で固定する。"
 goal: "管理画面・公開ブログ・WebMCP・バックエンドMCPが同一のドメインサービス層を呼び、ランキング式と品質検査の重複実装が0件である状態。"
 scope_in: ["レイヤー境界","32エンティティの正規定義の所在","Editorial/Commercial分離","テナント分離","WebMCP/MCPの二層","生成パイプライン"]
@@ -145,6 +145,8 @@ Route Handler がリクエストを受け、認可判定 → テナント束縛 
 ### Frontend
 
 管理面と読者面をルートグループで分ける。共通レイアウト部品1箇所で現在地（ステップ・タブ）と退避先（保存・戻る・次へ）を固定表示する。入力作法（空欄の意味、自動計算値の初期表示と自動／手入力の区別、Enter の挙動）は全画面で1組に統一する。読者面はブログ層 §20 の WCAG 2.2 AA を満たす。
+
+運営者面の画面単位・間隔・文章量・サイドバー・CRUD 導線は `feat-uiux-overhaul` が所有する。規則の正本は `docs/spec/feat-uiux-overhaul/ui-rules.md`、収集セルへの投影は `system-spec/ui-ux.md` と `system-spec/frontend.md`。本書は二層の責務境界だけを固定し、画面規則を複製しない。
 
 ### Data
 

@@ -8,12 +8,14 @@ import {
   Callout,
   CheckboxGroup,
   Field,
+  FormValue,
   Select,
   TextArea,
   ToolForm,
 } from "@/presentation/ui";
 import { createSiteFromDraftAction, saveSiteDraftStepAction } from "./site-wizard-action";
 import { INITIAL_SITE_WIZARD_STATE } from "./site-wizard-state";
+import { adminOperation } from "./admin-operation-manifest";
 
 /**
  * ブログ作成ウィザードの 1 段階。
@@ -32,19 +34,12 @@ export function SiteWizardStepForm({ draft }: { readonly draft: SiteDraftView })
 }
 
 function StepFieldsForm({ draft }: { readonly draft: SiteDraftView }) {
-  const [state, action, pending] = useActionState(
-    saveSiteDraftStepAction,
-    INITIAL_SITE_WIZARD_STATE,
-  );
+  const [state, action, pending] = useActionState(saveSiteDraftStepAction, INITIAL_SITE_WIZARD_STATE);
 
   return (
-    <ToolForm
-      action={action}
-      toolName="save_site_draft_step"
-      toolDescription="ブログ作成の 1 段階を保存する"
-    >
-      <input type="hidden" name="draftId" value={draft.draftId} />
-      <input type="hidden" name="step" value={draft.currentStep} />
+    <ToolForm action={action} toolName="save_site_draft_step" toolDescription="ブログ作成の 1 段階を保存する">
+      <FormValue name="draftId" value={draft.draftId} />
+      <FormValue name="step" value={draft.currentStep} />
 
       {draft.fields.map((field) => (
         <WizardField
@@ -70,13 +65,7 @@ function StepFieldsForm({ draft }: { readonly draft: SiteDraftView }) {
  * 欄 1 つ。**種類ごとの出し分けはここ 1 箇所だけ。**
  * 段階が増えても、この関数は変わらない。
  */
-function WizardField({
-  field,
-  error,
-}: {
-  readonly field: WizardFieldSpec;
-  readonly error: string | null;
-}) {
+function WizardField({ field, error }: { readonly field: WizardFieldSpec; readonly error: string | null }) {
   const [value, setValue] = useState(field.value);
   const [selected, setSelected] = useState<readonly string[]>(field.selected);
 
@@ -147,10 +136,8 @@ function WizardField({
  * 押せない理由が分からないボタンは、故障と区別がつかない。
  */
 function CreateSiteForm({ draft }: { readonly draft: SiteDraftView }) {
-  const [state, action, pending] = useActionState(
-    createSiteFromDraftAction,
-    INITIAL_SITE_WIZARD_STATE,
-  );
+  const operation = adminOperation("site.create");
+  const [state, action, pending] = useActionState(createSiteFromDraftAction, INITIAL_SITE_WIZARD_STATE);
 
   const ready = draft.incomplete.length === 0;
 
@@ -165,12 +152,8 @@ function CreateSiteForm({ draft }: { readonly draft: SiteDraftView }) {
   }
 
   return (
-    <ToolForm
-      action={action}
-      toolName="create_site_from_draft"
-      toolDescription="下書きからブログを作る"
-    >
-      <input type="hidden" name="draftId" value={draft.draftId} />
+    <ToolForm action={action} toolName={operation.tool} toolDescription="下書きからブログを作る">
+      <FormValue name="draftId" value={draft.draftId} />
 
       {ready ? null : (
         <Callout

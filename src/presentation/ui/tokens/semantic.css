@@ -85,6 +85,34 @@
   --color-intent-warning: var(--color-accent-default);
   --color-intent-warning-subtle: var(--color-accent-subtle);
 
+  /* === 配信先の見分け ==================================================== */
+  /*
+   * 配信先ごとの色。`CHANNEL_CAPABILITIES` の `accentToken` が指す先。
+   *
+   * **色は見分けの主役ではない。** 主役は名前 (`label`) と絵柄で、
+   * 色はそれを補う。色だけで配信先を区別させると、色の見え方が違う人には
+   * 何も伝わらない画面になる。
+   *
+   * 既定では**投稿方式ごとの 3 色**を指す。配信先ごとに 10 色を作らないのは、
+   * 5 色を超えた時点で人が色と対象を対応付けられなくなるため。
+   * 別名を配信先ごとに用意してあるのは、どうしても 1 つだけ色を変えたい場面で
+   * ここ 1 行を差し替えれば済むようにするため（部品側は触らない）。
+   */
+  --channel-mode-api-publish: var(--color-intent-info);
+  --channel-mode-api-schedule: var(--color-accent-default);
+  --channel-mode-manual-export: var(--color-text-muted);
+
+  --channel-own-site: var(--channel-mode-api-schedule);
+  --channel-x: var(--channel-mode-api-publish);
+  --channel-instagram: var(--channel-mode-api-publish);
+  --channel-youtube: var(--channel-mode-api-publish);
+  --channel-tiktok: var(--channel-mode-api-publish);
+  --channel-threads: var(--channel-mode-api-publish);
+  --channel-note: var(--channel-mode-manual-export);
+  --channel-newsletter: var(--channel-mode-api-schedule);
+  --channel-wordpress: var(--channel-mode-api-schedule);
+  --channel-bluesky: var(--channel-mode-api-publish);
+
   /* === 焦点 ============================================================= */
   /* キーボード操作の現在地。太さと色は全画面で同じ。個別に上書きしない。 */
   --color-focus-ring: light-dark(var(--blue-700), var(--blue-300));
@@ -141,6 +169,14 @@
 
   --tracking-normal: var(--letter-spacing-normal);
   --tracking-wide: var(--letter-spacing-wide);
+
+  /*
+    そのまま打ち込む文字列（操作の名前、写し取ってもらう塊）に使う書体。
+    等幅にするのは見た目の好みではなく、`l` と `1`、`O` と `0` を
+    見分けられるようにするため。読み違えたまま打ち込まれると、
+    間違いは打った側の手元ではなく、こちらの受け口で初めて出る。
+  */
+  --font-code: var(--font-family-mono);
 
   /* === 寸法 ============================================================= */
   --tap-target-min: var(--hit-min);

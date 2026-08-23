@@ -3,7 +3,7 @@ status: confirmed
 category: backend
 aggregate: 確定
 spec_cells: [backend.web, backend.mobile, backend.tablet, backend.desktop-windows, backend.desktop-linux, backend.desktop-macos]
-serves_goals: [G2, G1]
+serves_goals: [G1, G2]
 ---
 
 # バックエンド (backend)
@@ -90,7 +90,7 @@ C05 gaps[0] の「再生成して本文へ載せる」を採らず、本節は�
 
 ## 意思決定 (decisions)
 
-> 正本 `decisions[]` の全 6 件。**6 件とも `status: confirmed`** で、いずれも利用者本人の `user_decision` を伴う。本章を主担当とする論点を太字で示す。
+> 正本 `decisions[]` の全 7 件。**7 件とも `status: confirmed`** で、いずれも利用者本人の `user_decision` を伴う。本章を主担当とする論点を太字で示す。
 
 | ID | 論点 | 採用した選択肢 | 状態 | 資するゴール | 主担当章 |
 |---|---|---|---|---|---|
@@ -100,20 +100,39 @@ C05 gaps[0] の「再生成して本文へ載せる」を採らず、本節は�
 | **`decision-llm-provider`** | 記事生成に使う LLM プロバイダを 1 社に固定するか、複数を持つか | `opt-catalog-multi` | confirmed | G1 | **backend** |
 | `decision-ui-theme-implementation` | 配色と明暗の 2 軸を、どの技術で実装するか | `opt-css-light-dark` | confirmed | G1 | frontend |
 | `decision-test-ci-tooling` | テストと CI の道具立てを、いまの構成のまま進めるか変えるか | `opt-keep-current` | confirmed | G1, G2 | maintenance-ops |
+| `decision-screen-priority` | ui-ux×web の画面で、記事の成績比較と回復すべき業務状態のどちらを先頭に置くか | `opt-performance-first` | confirmed | G1, G2 | ui-ux |
 
 - **`decision-llm-provider` が本章に効く形**: 複数プロバイダを保つのは選択肢を増やすためではなく、07 §0 GC-5 (レビュー系を執筆系から分離し、自作自演の検証にしない) を**書き手と検査役に別モデルを当てる**ことで満たすためである。1 社固定にするとこの分離が構成では表せなくなる。単価は `vars` に置き、値上げに気づける状態を保つ。
 - **鍵の扱い**: API 鍵は利用者本人がブラウザまたは別端末で登録する。値も断片もこの作業場所には置かない。
 
 ## 確定内容 (質疑録)
 
-### qa-backend-web-analytics (対応セル: web)
+### qa-backend-web-overhaul-v2 (対応セル: web)
+
+**質問**: backend×web: UI/UX 改善で必要になる API は何か (2026-08-21 利用者ヒアリング逐語)
+
+**回答**: 利用者本人の回答を逐語主旨で記録する。「この UI、UX を整える際に必要な API があれば、それも併せて実行するような流れにしておいてください」。具体的には (1) 各管理対象 (商品・ブログ・SNS チャネル・記事等) の新規作成・削除を含む CRUD API。(2) 商品×ブログの多対多対応付けと、ブログごとのコンセプト管理 API。(3) コンセプトごとの文章生成・保存 API。(4) X・Facebook 等を抽象化した SNS チャネル登録・投稿状態参照 API (プロバイダ追加可能な構成)。(5) ブログごとの構成 (セクション並び・テンプレート・コンポーネントセット) を保存・取得する構成管理 API。ドメインモデルは既確定の qa-backend-web-spec-intake を基礎とし、ブログ構成とチャネルの 2 概念を拡張する。既存のバックエンドスタック (Cloudflare Workers/D1) を継続使用する。
+
+### qa-backend-web (対応セル: web) — 接地根拠 (required_info/qa_refs が名指す裏付け)
+
+**質問**: 書面入力 docs/spec/01-要求仕様書-v1.0.md §18.3 のバックエンド (backend) × web 要件は何か
+
+**回答**: * 同一投稿の重複実行を防ぐ
+* Idempotency Keyを使用
+* 投稿前にアカウントを再確認
+* トークン期限を確認
+* API制限を確認
+* 公開操作を監査ログに残す
+* 予約直前の編集を検知する
+* 投稿失敗時に自動で無限再試行しない
+* 削除・更新は別承認を要求できる
+* 外部投稿のURLを保存する
+
+### qa-backend-web-analytics (対応セル: web) — 接地根拠 (required_info/qa_refs が名指す裏付け)
 
 **質問**: backend×web: 分析・解析パイプライン (収集→正規化→集計→分析→活用) の要件は何か (書面入力 docs/spec/03 §1)
 
-**回答**:
-
-```
-ClickEvent(リダイレクトサービス)
+**回答**: ClickEvent(リダイレクトサービス)
   BehaviorEvent(ブログ計測タグ)
   Channel Insights(SNS API)
   Conversion(ASP API / CSV)
@@ -135,10 +154,13 @@ ClickEvent(リダイレクトサービス)
 
 * **イベントは不変(append-only)**。修正は打ち消しイベントで行う
 * **集計は再計算可能**。生イベントから任意時点のロールアップを再構築できる
-* **転送と計測を障害分離**する。計測系障害単独を理由に、既知の有効なresolver entryの転送を止めない。SLOと劣化条件はINF-REDIRECT-01を正とする
+* **転送は必達、計測はベストエフォート**。リダイレクトはDB障害時も止めない
 * **Editorial / Commercial 分離**(v1.0 19.4章)。Insight Engine は配信戦略・表現の学習にのみ収益データを使い、商品評価・ランキングへは出力しない
+```
 
-### qa-backend-web-spec-intake (対応セル: web)
+- (注記: 正本 qa_log[qa-backend-web-analytics].answer のコードフェンスが閉じていないため、章の構造を守るためコンパイラが閉じた。正本側の修正が要る)
+
+### qa-backend-web-spec-intake (対応セル: web) — 接地根拠 (required_info/qa_refs が名指す裏付け)
 
 **質問**: backend×web: 二層構造での WebMCP 契約・禁止依存・生成基盤の設計制約は何か (書面入力 docs/spec/04 §3 §4 / 05 / 07 §0)
 
@@ -168,8 +190,6 @@ ClickEvent(リダイレクトサービス)
 - **data-access の反転先**: 反転先は無い。application-architecture の reversal_note と同じ理由。
 
 ## 適用された設計知識
-
-> 以下の deep knowledge card は設計判断を支援する**非規範の参考資料**であり、実装済み・検証済みの証拠ではない。カード内の `採否: applied` は設計採用を意味し、実装状態は意味しない。規範となる差分は BE-ANA-01〜BE-MCP-01 と参照先仕様で管理する。
 
 ### Domain-Driven Design — deep knowledge card
 
@@ -300,35 +320,38 @@ consumerとproviderの独立変更を支える安定した契約を作り、再�
 
 #### 本章での適用
 
-##### 確定内容 qa-backend-web-analytics (対応セル: web)
+##### 確定内容 qa-backend-web-overhaul-v2 (対応セル: web)
 
-- 確定要件:
+- 確定要件: 利用者本人の回答を逐語主旨で記録する。「この UI、UX を整える際に必要な API があれば、それも併せて実行するような流れにしておいてください」。具体的には (1) 各管理対象 (商品・ブログ・SNS チャネル・記事等) の新規作成・削除を含む CRUD API。(2) 商品×ブログの多対多対応付けと、ブログごとのコンセプト管理 API。(3) コンセプトごとの文章生成・保存 API。(4) X・Facebook 等を抽象化した SNS チャネル登録・投稿状態参照 API (プロバイダ追加可能な構成)。(5) ブログごとの構成 (セクション並び・テンプレート・コンポーネントセット) を保存・取得する構成管理 API。ドメインモデルは既確定の qa-backend-web-spec-intake を基礎とし、ブログ構成とチャネルの 2 概念を拡張する。既存のバックエンドスタック (Cloudflare Workers/D1) を継続使用する。
+- 設計解釈の記録経路: `dialogue`
+- 原則: UI の各操作は対応する API 契約と対で定義し、画面だけが先行して API 不在で死んでいる状態を作らない (`user-dialogue:2026-08-21#必要API併走`)
+  - 採否: `applied`
+  - 章固有の根拠: 利用者が「UI/UX を整える際に必要な API があれば併せて実行する」と明言した。各サイト・各 SNS への投稿部分が画面に反映されていない現状は、表示に必要な API/データ供給の欠落が一因であり、画面と API を同一タスク境界で対にする
+  - トレードオフ:
+    - API を同時に整備するぶん 1 機能あたりの実装範囲は広がる。画面ごとに必要最小の API から段階導入し、プロバイダ別 SNS 連携の実配信は契約定義と投稿状態参照を先行させる
+##### 接地根拠 qa-backend-web (対応セル: web)
 
-```
-ClickEvent(リダイレクトサービス)
-  BehaviorEvent(ブログ計測タグ)
-  Channel Insights(SNS API)
-  Conversion(ASP API / CSV)
-      ↓
-[正規化層]
-  bot除外・重複排除・セッション化・ディメンション付与
-      ↓
-[集計層]
-  MetricRollup(日次 × ディメンション組み合わせ)
-      ↓
-[分析層]
-  KPIディクショナリ / Attribution / Experiment / Insight Engine
-      ↓
-[活用層]
-  Analyticsダッシュボード / InsightReport / 生成時の推奨(Brief への提案)
-```
+- 本文: 「確定内容 (質疑録)」の `qa-backend-web` を参照
+- 設計解釈の記録経路: `dialogue`
+- 原則: Idempotency Key による重複投稿防止と監査ログ (`docs/spec/01-要求仕様書-v1.0.md §18.3`)
+  - 採否: `applied`
+  - 章固有の根拠: 外部公開操作は冪等キー・トークン期限確認・監査ログ記録を必須とし、失敗時の無限再試行を禁止する
+  - トレードオフ:
+    - 冪等キー管理のため投稿キューに状態テーブルが必要となり実装が増えるが、重複公開事故を構造的に防げる
+- 原則: Connector 契約と Capability Registry (`docs/spec/01-要求仕様書-v1.0.md §17.1`)
+  - 採否: `applied`
+  - 章固有の根拠: 媒体別の文字数・形式制約をコードへ直書きせず、バージョン管理された Capability Registry で管理する
+  - トレードオフ:
+    - レジストリの更新運用が必要になるが、媒体仕様変更時にコード改修なしで追従できる
+- 原則: イベント駆動 (publication.published 等) の非同期処理 (`docs/spec/01-要求仕様書-v1.0.md §23.2`)
+  - 採否: `applied`
+  - 章固有の根拠: 投稿・成果・リンク切れをイベントとして発行し、通知・集計・再生成を疎結合にする
+  - トレードオフ:
+    - 結果整合となるためダッシュボードは速報値と確定値を区別表示する必要がある
+##### 接地根拠 qa-backend-web-analytics (対応セル: web)
 
-設計原則:
-
-* **イベントは不変(append-only)**。修正は打ち消しイベントで行う
-* **集計は再計算可能**。生イベントから任意時点のロールアップを再構築できる
-* **転送と計測を障害分離**する。計測系障害単独を理由に、既知の有効なresolver entryの転送を止めない。SLOと劣化条件はINF-REDIRECT-01を正とする
-* **Editorial / Commercial 分離**(v1.0 19.4章)。Insight Engine は配信戦略・表現の学習にのみ収益データを使い、商品評価・ランキングへは出力しない
+- 本文: 「確定内容 (質疑録)」の `qa-backend-web-analytics` を参照
+- (注記: 正本 qa_log[qa-backend-web-analytics].answer のコードフェンスが閉じていないため、章の構造を守るためコンパイラが閉じた。正本側の修正が要る)
 - 設計解釈の記録経路: `dialogue`
 - 原則: イベントは不変 (append-only) とし、集計は生イベントから再計算可能にする (`docs/spec/03-分析・解析基盤仕様.md#§1`)
   - 採否: `applied`
@@ -340,15 +363,9 @@ ClickEvent(リダイレクトサービス)
   - 章固有の根拠: Insight Engine の入出力境界をコードレベルで分離し、Commercial DB への参照を Editorial 系モジュールから物理的に遮断する (v1.0 §19.4)
   - トレードオフ:
     - データ結合の自由度は下がるが、報酬額バイアスの混入を構造的に防止できる
-- 資するゴール: G2, G1
+##### 接地根拠 qa-backend-web-spec-intake (対応セル: web)
 
-##### 確定内容 qa-backend-web-spec-intake (対応セル: web)
-
-- 確定要件: | 登録先 | **`document.modelContext`**。`navigator.modelContext` は Chrome 150 で非推奨のため legacy fallback 専用（CHG-001） |
-| ツール数 | 1ページあたり原則6個以下 |
-| FD-1 | ランキング式を UI 層・WebMCP 層へ重複実装する | `src/lib/domain/ranking.ts` 以外に重み計算が現れないことを grep テストで固定 |
-| FD-2 | 報酬データを推薦スコアの入力にする | Ranking Service の入力型に Commercial DB 由来の型が含まれないことを型で担保 |
-| FD-4 | WebMCP でしか到達できない機能を作る | 全 WebMCP ツールに対応する通常 UI 経路が存在することをトレーサビリティ表で確認 |
+- 本文: 「確定内容 (質疑録)」の `qa-backend-web-spec-intake` を参照
 - 設計解釈の記録経路: `dialogue`
 - 原則: ランキング計算・比較候補の分類・公開ゲート判定・広告表記の要否判定は src/lib/domain/ の純関数 1 箇所に置き、管理画面・公開ブログ・WebMCP・MCP のすべてがそこを呼ぶ (`docs/spec/04-二層構造統合仕様.md#§2-3`)
   - 採否: `applied`
@@ -375,7 +392,7 @@ ClickEvent(リダイレクトサービス)
   - 章固有の根拠: 生成の出力契約をこの 7 段の構造体にし、根拠の段が空のまま公開ゲートを通らないようにする
   - トレードオフ:
     - 文章の自由度は下がるが、根拠のない主張が節の単位で検出できる
-- 資するゴール: G2, G1
+- 資するゴール: G1, G2
 
 ## 最新ドキュメント出典
 

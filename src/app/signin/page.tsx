@@ -1,21 +1,19 @@
-import Link from "next/link";
 import { ROLE_LABEL } from "@/application/usecases/identity/manage-workspace";
 import { authAvailability } from "@/infrastructure/identity/better-auth";
 import type { Role } from "@/domain/shared";
 import { actorNotice, signedInActor } from "@/presentation/composition";
 import {
-  Button,
+  ActionButton,
   Callout,
-  DefinitionList,
-  FocusedTask,
+  FactList,
   Note,
-  PublicShell,
-  SectionHeading,
   SeeAlso,
+  PublicShell,
+  Section,
   SitePage,
+  TextLink,
 } from "@/presentation/ui";
 import { GoogleSignInButton } from "./google-signin-button";
-/* 見た目は共通 UI が所有する。ログイン画面専用 CSS は参照が無くなったため削除済み。 */
 
 export const dynamic = "force-dynamic";
 
@@ -49,83 +47,80 @@ export default async function SignInPage({
 
   return (
     <PublicShell title="affiliate-hub">
-      {/* ここですることは 1 つ（入る・出る）なので、幅いっぱいに広げず箱に収める。
-          箱の型は `templates/site-shell.tsx` にある。この画面では作らない。 */}
-      <FocusedTask>
-        <SitePage
-          title="ログイン"
-          lead={
-            actor !== null
-              ? "ログインしています。"
-              : "この画面から Google でログインします。合言葉や秘密の値をこの画面に入力する場面はありません。"
-          }
-        >
-          {failed && actor === null && (
-            <Callout
-              tone="warn"
-              title="ログインできませんでした"
+      <SitePage
+        title="ログイン"
+        lead={
+          actor !== null
+            ? "ログインしています。"
+            : "この画面から Google でログインします。合言葉や秘密の値をこの画面に入力する場面はありません。"
+        }
+      >
+        {failed && actor === null && (
+          <Callout
+            tone="warn"
+            title="ログインできませんでした"
+            reason={
+              "このアプリを使える人として登録されていないか、担当者の登録がまだありません。" +
+              "心当たりがある場合は、管理している方にアドレスの登録を依頼してください。"
+            }
+          />
+        )}
+
+        {!availability.ready && (
+          <Callout
+            tone="warn"
+            title="ログインの設定がまだ済んでいません"
+            reason={
+              "次の設定が登録されるまで、Google でのログインは動きません: " +
+              availability.missing.join(" / ") +
+              "。値そのものはこの画面から預かりません（履歴に残ると後から誰でも読めるため）。" +
+              "お手元のターミナルで `node .better-auth-google/setup-secrets.mjs` を実行して登録してください。"
+            }
+          />
+        )}
+
+        {availability.ready && actor === null && (
+          <>
+            <GoogleSignInButton callbackUrl="/admin" />
+            <Note>
+              入れるのは、あらかじめ登録されたアドレスの人だけです。
+              登録が無いアドレスでは、Google の確認が通っても中には入れません。
+            </Note>
+          </>
+        )}
+
+        {actor !== null && (
+          <Section title="いま誰として動いているか">
+            <FactList
+              rows={[
+                { key: "user", label: "担当者", value: String(actor.userId) },
+                {
+                  key: "roles",
+                  label: "役割",
+                  value: actor.roles.map((r) => ROLE_LABEL[r as Role]).join("・"),
+                },
+              ]}
+            />
+            {/* 出る操作は身元の隣に置く。設定の奥に隠すと、別人のまま操作が続く。 */}
+            <ActionButton
+              action="/api/auth/sign-out"
+              label="ログアウトする"
+              tone="quiet"
               reason={
-                "このアプリを使える人として登録されていないか、担当者の登録がまだありません。" +
-                "心当たりがある場合は、管理している方にアドレスの登録を依頼してください。"
+                "ログアウトは、いま画面を見ている人の在席そのものを終わらせる操作である。" +
+                "AI から呼べると、AI が人を締め出せる。締め出された側には" +
+                "「押していないのにログイン画面へ戻された」としか見えず、原因を確かめる手段が無い。"
               }
             />
-          )}
+          </Section>
+        )}
 
-          {!availability.ready && (
-            <Callout
-              tone="warn"
-              title="ログインの設定がまだ済んでいません"
-              reason={
-                "次の設定が登録されるまで、Google でのログインは動きません: " +
-                availability.missing.join(" / ") +
-                "。値そのものはこの画面から預かりません（履歴に残ると後から誰でも読めるため）。" +
-                "お手元のターミナルで `node .better-auth-google/setup-secrets.mjs` を実行して登録してください。"
-              }
-            />
-          )}
+        <Note>{notice}</Note>
 
-          {availability.ready && actor === null && (
-            <>
-              <GoogleSignInButton callbackUrl="/admin" />
-              <Note>
-                入れるのは、あらかじめ登録されたアドレスの人だけです。
-                登録が無いアドレスでは、Google の確認が通っても中には入れません。
-              </Note>
-            </>
-          )}
-
-          {actor !== null && (
-            <>
-              {/* 見出し階層と見た目は共通部品を正本にする。 */}
-              <SectionHeading level={2}>いま誰として動いているか</SectionHeading>
-              {/* 列を持つ表ではなく、項目と値の対なので DefinitionList を使う。 */}
-              <DefinitionList
-                items={[
-                  { term: "担当者", description: String(actor.userId) },
-                  {
-                    term: "役割",
-                    description: actor.roles.map((r) => ROLE_LABEL[r as Role]).join("・"),
-                  },
-                ]}
-              />
-
-              {/* 単独の副操作なので、静止時にも押せると分かる枠つきの secondary を使う。 */}
-              <form method="post" action="/api/auth/sign-out">
-                <Button type="submit" tone="secondary">
-                  ログアウトする
-                </Button>
-              </form>
-            </>
-          )}
-
-          <Note>{notice}</Note>
-
-          {/* 注記ではなく、別画面への行き先 1 本なので SeeAlso を使う。 */}
-          <SeeAlso>
-            <Link href="/admin">管理画面へ戻る</Link>
-          </SeeAlso>
-        </SitePage>
-      </FocusedTask>
+        <SeeAlso>
+          <TextLink href="/admin">管理画面へ戻る</TextLink>
+        </SeeAlso>
+      </SitePage>
     </PublicShell>
   );
 }

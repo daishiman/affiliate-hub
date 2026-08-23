@@ -1,21 +1,23 @@
 import { AdminShell } from "@/presentation/admin/admin-shell";
-import Link from "next/link";
-import type { ReactNode } from "react";
+import { adminOperation } from "@/presentation/admin/admin-operation-manifest";
+import { DeleteConfirm } from "@/presentation/admin/delete-confirm";
+import { deleteManagedSiteAction } from "@/presentation/admin/delete-form-action";
+import type { SuccessOf } from "@/presentation/admin/use-case-result";
 import { currentActor, platformUseCases, siteSampleNotice } from "@/presentation/composition";
+import { hasSiteOverrides, siteOverrideReason } from "@/presentation/sites";
 import {
+  ActionNote,
   Callout,
-  Card,
   DataTable,
-  DefinitionList,
   EmptyView,
   ErrorView,
-  Page,
-  SectionHeading,
-  StackedList,
-  StackedRow,
+  FactList,
+  ListView,
+  Prose,
+  Section,
   StubNotice,
+  TextLink,
 } from "@/presentation/ui";
-import styles from "../../admin.module.css";
 
 export const dynamic = "force-dynamic";
 
@@ -35,71 +37,92 @@ export default async function SiteDetailPage({
   const actor = await currentActor();
   const result = await (await platformUseCases()).getSite.execute(actor, { siteSlug });
 
-  if (!result.ok) {
-    return (
-      <Shell title="ブログ">
+  /*
+    骨格を 2 回書かない。失敗しても出す骨格は同じで、変わるのは題と中身だけ。
+    早期 return で骨格ごと分けると、パンくずや戻り先を片方だけ直した状態が作れる。
+  */
+  const title = result.ok ? result.value.summary.name : "ブログ";
+
+  return (
+    <AdminShell
+      routeId="sites/[site]"
+      routeParams={{ site: siteSlug }}
+      title={title}
+      lead="このブログの設計図です。違いはここがすべて。"
+      actions={
+        <>
+          <TextLink href={`/admin/sites/${encodeURIComponent(siteSlug)}/edit`}>
+            このブログを直す
+          </TextLink>
+          <TextLink href="/admin/sites">ブログの一覧へ戻る</TextLink>
+        </>
+      }
+    >
+      {result.ok ? (
+        <SiteBody siteSlug={siteSlug} value={result.value} />
+      ) : (
         <ErrorView
           title="このブログを表示できませんでした"
           body={result.error.message}
           suggestedAction={result.error.suggestedAction ?? null}
-          action={<Link href="/admin/sites">ブログの一覧へ戻る</Link>}
+          action={<TextLink href="/admin/sites">ブログの一覧へ戻る</TextLink>}
         />
-      </Shell>
-    );
-  }
+      )}
+    </AdminShell>
+  );
+}
 
-  const { summary, blueprint, routes, axes } = result.value;
+type SiteView = SuccessOf<
+  ReturnType<Awaited<ReturnType<typeof platformUseCases>>["getSite"]["execute"]>
+>;
+
+function SiteBody({ siteSlug, value }: { readonly siteSlug: string; readonly value: SiteView }) {
+  const operation = adminOperation("site.delete");
+  const { summary, blueprint, routes, axes } = value;
   const emptyAxes = axes.filter((a) => a.value.trim() === "");
 
   return (
-    <Shell title={summary.name}>
+    <>
       <StubNotice
         what="ブログの設計図の保存先"
         blockedBy="site_blueprints テーブルの追加とマイグレーション"
         stubId="persistence:site-sample"
       >
-        <span>{siteSampleNotice()}</span>
+        {siteSampleNotice()}
       </StubNotice>
 
-      <Card>
-        <SectionHeading level={2}>このブログの位置づけ</SectionHeading>
-        <p className={styles.sectionLead}>{blueprint.purpose}</p>
-        <DefinitionList
-          items={[
-            { term: "型", description: summary.patternLabel },
-            { term: "扱う分野", description: blueprint.genre },
-            { term: "収益の形", description: summary.revenueModelLabel },
-            { term: "色の組み合わせ", description: blueprint.theme.brandTheme },
+      <Section title="このブログの位置づけ" lead={blueprint.purpose}>
+        <FactList
+          rows={[
+            { key: "pattern", label: "型", value: summary.patternLabel },
+            { key: "genre", label: "扱う分野", value: blueprint.genre },
+            { key: "revenue", label: "収益の形", value: summary.revenueModelLabel },
+            { key: "theme", label: "色の組み合わせ", value: blueprint.theme.brandTheme },
             {
-              term: "余白の詰め方",
-              description: blueprint.theme.density === "compact" ? "詰める" : "ゆったり",
+              key: "density",
+              label: "余白の詰め方",
+              value: blueprint.theme.density === "compact" ? "詰める" : "ゆったり",
             },
-            { term: "角の丸み", description: blueprint.theme.radius },
-            { term: "明暗の切り替え", description: blueprint.theme.colorScheme },
+            { key: "radius", label: "角の丸み", value: blueprint.theme.radius },
+            { key: "scheme", label: "明暗の切り替え", value: blueprint.theme.colorScheme },
             {
-              term: "AI 向けの案内ファイル",
-              description: blueprint.emitLlmsTxt ? "出す" : "出さない",
+              key: "llms",
+              label: "AI 向けの案内ファイル",
+              value: blueprint.emitLlmsTxt ? "出す" : "出さない",
             },
           ]}
         />
-      </Card>
+      </Section>
 
       {summary.launchBlockedReason === null ? (
-        <Callout
-          tone="info"
-          title="公開に必要な固定ページは揃っています"
-          reason="広告の扱い・訂正の履歴・問い合わせ先など、読者が確かめる先がすべてあります。"
-        />
+        <ActionNote>
+          公開に必要な固定ページは揃っています。広告の扱い・訂正の履歴・問い合わせ先など、読者が確かめる先がすべてあります。
+        </ActionNote>
       ) : (
-        <Callout
-          tone="warn"
-          title="いまは公開できません"
-          reason={summary.launchBlockedReason}
-        />
+        <Callout tone="warn" title="いまは公開できません" reason={summary.launchBlockedReason} />
       )}
 
-      <Card>
-        <SectionHeading level={2}>ほかのブログとの違い（10 個の観点）</SectionHeading>
+      <Section title="ほかのブログとの違い（10 個の観点）">
         {emptyAxes.length > 0 ? (
           <Callout
             tone="warn"
@@ -109,74 +132,81 @@ export default async function SiteDetailPage({
               .join(" / ")}）。`}
           />
         ) : null}
-        <DefinitionList
-          items={axes.map((axis) => ({
-            term: axis.label,
-            description: axis.value.trim() === "" ? "未記入" : axis.value,
+        <FactList
+          rows={axes.map((axis) => ({
+            key: axis.key,
+            label: axis.label,
+            value: axis.value.trim() === "" ? "未記入" : axis.value,
           }))}
         />
-      </Card>
+      </Section>
 
-      <Card>
-        <SectionHeading level={2}>カテゴリー（{blueprint.categories.length}件）</SectionHeading>
+      {/*
+        例外が積み上がっていることに、コードを読む人以外も気付ける場所。
+        README はリポジトリを開く人しか見ない。運用する人の側にも同じ数字を出す。
+      */}
+      <Section title="このブログ専用の部品">
+        <Prose>
+          {hasSiteOverrides(blueprint.id)
+            ? (siteOverrideReason(blueprint.id) ?? "理由が記録されていません。")
+            : "ありません。共通の部品と設計図の項目だけで作られています。"}
+        </Prose>
+      </Section>
+
+      <Section title={`カテゴリー（${blueprint.categories.length}件）`}>
         {blueprint.categories.length === 0 ? (
           <EmptyView
             title="カテゴリーがありません"
             body="読者の入口が無い状態です。少なくとも 1 件は必要です。"
           />
         ) : (
-          <StackedList>
-            {blueprint.categories.map((c) => (
-              <StackedRow key={c.slug} note={<>{c.oneLine} / 最初に作る記事: {c.initialArticleTypes.join("・")}</>}>
-                <Link href={`/s/${encodeURIComponent(summary.slug)}/categories/${c.slug}`}>
-                  {c.name}
-                </Link>
-                
-              </StackedRow>
-            ))}
-          </StackedList>
+          <ListView
+            rows={blueprint.categories.map((c) => ({
+              key: c.slug,
+              label: c.name,
+              href: `/s/${encodeURIComponent(summary.slug)}/categories/${c.slug}`,
+              note: `${c.oneLine} / 最初に作る記事: ${c.initialArticleTypes.join("・")}`,
+            }))}
+          />
         )}
-      </Card>
+      </Section>
 
-      <Card>
-        <SectionHeading level={2}>出す画面（{routes.length}種類）</SectionHeading>
-        <p className={styles.sectionLead}>
-          どこから来るかを必ず書いています。どこからも辿り着けない画面を作らないためです。
-        </p>
+      <Section
+        title={`出す画面（${routes.length}種類）`}
+        lead="どこから来るかを必ず書いています。どこからも辿り着けない画面を作らないためです。"
+      >
         <DataTable
-          caption="このブログが持つ画面と、その住所・たどり着き方・広告表示の要否。"
+          caption="このブログが出す画面と、その入口"
           columns={[
-            { key: "label", header: "画面", rowHeader: true, cell: (route) => route.label },
-            { key: "path", header: "住所", cell: (route) => route.path },
-            { key: "from", header: "どこから来るか", cell: (route) => route.reachedFrom },
-            {
-              key: "disclosure",
-              header: "広告表示",
-              cell: (route) => (route.requiresDisclosure ? "必要" : "不要"),
-            },
+            { key: "label", label: "画面" },
+            { key: "path", label: "住所" },
+            { key: "from", label: "どこから来るか" },
+            { key: "disclosure", label: "広告表示" },
           ]}
-          rows={routes}
-          rowKey={(route) => route.key}
+          rows={routes.map((route) => ({
+            key: route.key,
+            cells: [
+              route.label,
+              route.path,
+              route.reachedFrom,
+              route.requiresDisclosure ? "必要" : "不要",
+            ],
+          }))}
         />
-      </Card>
-    </Shell>
-  );
-}
+      </Section>
 
-function Shell({ title, children }: { readonly title: string; readonly children: ReactNode }) {
-  return (
-    <AdminShell
-      currentPath="/admin/sites"
-      breadcrumbs={[
-        { label: "ホーム", href: "/admin" },
-        { label: "サイト", href: "/admin/sites" },
-        { label: title },
-      ]}
-      actions={<Link href="/admin/sites">ブログの一覧へ戻る</Link>}
-    >
-      <Page title={title} lead="このブログの設計図です。ほかのブログとの違いはここに書いてある内容がすべてです。">
-        {children}
-      </Page>
-    </AdminShell>
+      <Section title="このブログを取り下げる">
+        <DeleteConfirm
+          action={deleteManagedSiteAction}
+          toolName={operation.tool}
+          toolDescription="ブログを取り下げる（読者に出ている記事が残っていれば断られる）"
+          idName="siteSlug"
+          idValue={siteSlug}
+          label={summary.name}
+          verb="取り下げる"
+          consequence="読者に出ている記事が残っていれば、本数を返して断られます。先にブログを消すと、記事の側から自分がどこに載っていたか辿れなくなり、訂正も取り下げもできなくなります。"
+        />
+      </Section>
+    </>
   );
 }

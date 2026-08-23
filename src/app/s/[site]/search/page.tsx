@@ -6,7 +6,7 @@ import {
   ArticleList,
   EmptyView,
   ErrorView,
-  SectionHeading,
+  Section,
   SitePage,
   UI_COPY,
   fill,
@@ -54,19 +54,18 @@ export default async function SearchPage({
           {result === null ? (
             <EmptyView title={UI_COPY.reader.searchSubmit} body={UI_COPY.reader.searchPrompt} />
           ) : result.ok ? (
-            <section>
-              <SectionHeading level={2}>
-                {fill(UI_COPY.reader.searchResultFormat, {
-                  query: result.value.query,
-                  count: result.value.hits.length,
-                })}
-              </SectionHeading>
+            <Section
+              title={fill(UI_COPY.reader.searchResultFormat, {
+                query: result.value.query,
+                count: result.value.hits.length,
+              })}
+            >
               <ArticleList
                 articles={toArticleCards(site, result.value.hits)}
                 emptyTitle={UI_COPY.article.searchEmptyTitle}
                 emptyBody={UI_COPY.article.searchEmptyBody}
               />
-            </section>
+            </Section>
           ) : (
             <ErrorView
               title="探せませんでした"

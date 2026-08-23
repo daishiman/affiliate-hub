@@ -1,4 +1,4 @@
-/** @tier 3 @req REQ-TS12 @types visual */
+/** @tier 3 @req REQ-TS12, REQ-S09, REQ-UX08 @types visual */
 
 /**
  * 見た目の回帰の仕掛けそのものを見る。
@@ -265,5 +265,70 @@ describe("門そのものが動いていること（合成した違反を通す�
         writeFileSync(join(root, UPDATES_LEDGER), "");
       }),
     ).toThrow(/読めません/);
+  });
+});
+
+/**
+ * **どの要件のために撮っているのかを、要件の側から引けるようにする**（2026-08-22 / `ah-h57`）。
+ *
+ * --- なぜ要るか ---
+ * `visual` という種別は `TEST_TYPES` に最初から載っていながら、
+ * `REQUIRED_TEST_TYPES` の**どの性質からも指されていなかった**。
+ * 仕掛けが在ることと、要件が要求していることは別である。
+ * 指し手が無い間は、**絵を撮るのをやめても宣言表の側は 1 件も赤くならない**。
+ * 2026-08-22 に `has-shared-visual-form` を足して 3 件から指した。
+ *
+ * --- なぜ `@req` を足すだけで済ませないか ---
+ * ヘッダに要件 id を書けば宣言表は緑になる。**それは印だけである。**
+ * このファイルが見ているのは比べる仕掛けであって、
+ * REQ-S09 / REQ-UX08 の見た目そのものではない。
+ * 印だけを足すと、**仕掛けの検査がその要件の見た目を見たと名乗る**ことになる。
+ *
+ * そこで名乗る根拠のほうを置く——**その要件の実体にあたる場面が、
+ * 見本として実在すること**を見る。場面を 1 つ落とせばここが赤くなるので、
+ * 「要件のために撮っている」が絵の側で裏付けられる。
+ *
+ * --- 見ていないこと ---
+ * 見本の**中身**が正しいこと。撮り直しの門は上の `describe` が見ており、
+ * 実際の見比べは `pnpm run visual` が Chrome で行う。
+ * ここが見るのは**対応が切れていないこと**だけである。
+ */
+describe("要件と場面の対応が切れていない", () => {
+  /**
+   * 要件 → その要件の実体にあたる場面。
+   * `quality-gates.config.mjs` の `has-shared-visual-form` の欄と同じ対応で、
+   * **片方だけを書き換えると、この検査か宣言表のどちらかが赤くなる。**
+   */
+  const SCENES_BY_REQ: readonly { readonly req: string; readonly scenes: readonly string[] }[] = [
+    // 共通レイアウト。4 状態の部品と入力欄の作法。
+    { req: "REQ-S09", scenes: ["feedback-samples", "input-samples"] },
+    // カード間隔・文章量・サイドバー構成。明・暗・狭の 3 枚がこの要件の実体そのもの。
+    {
+      req: "REQ-UX08",
+      scenes: ["nav-and-density", "nav-and-density-dark", "nav-and-density-narrow"],
+    },
+  ];
+
+  const names = new Set(listBaselines(ROOT).map((b) => b.name));
+
+  it.each(SCENES_BY_REQ.map((e) => [e.req, e] as const))(
+    "%s の実体にあたる場面の見本が実在する",
+    (req, e) => {
+      const missing = e.scenes.filter((s) => !names.has(s));
+      expect(
+        missing,
+        `${req} が名乗る場面の見本が無い。場面を落としたなら、宣言表の性質も同じコミットで外すこと`,
+      ).toStrictEqual([]);
+    },
+  );
+
+  /**
+   * **床**: 上の検査は見本の一覧を引くので、**見本が 1 枚も無ければ全部赤くなる**——
+   * ではなく、`SCENES_BY_REQ` を空にすれば全部緑になる。母集団の下限を同居させる。
+   * 5 は 2026-08-22 の実測（撮っている場面の全数）。**下げる方向にしか動かさない。**
+   */
+  it("対応表と見本が痩せていない", () => {
+    expect(SCENES_BY_REQ.flatMap((e) => e.scenes).length).toBeGreaterThanOrEqual(5);
+    expect(names.size, "見本が減っている").toBeGreaterThanOrEqual(5);
   });
 });

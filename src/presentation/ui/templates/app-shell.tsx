@@ -1,6 +1,12 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
+import {
+  ADMIN_NAV_GROUP_LABELS,
+  ADMIN_ROUTE_METADATA,
+  type AdminNavGroupId,
+} from "../admin-route-metadata";
 import { FeedbackButton, type FeedbackSubmission } from "../patterns/feedback-button";
+import { NavCollapseToggle } from "../patterns/nav-collapse-toggle";
 import styles from "../primitives/ui.module.css";
 
 /**
@@ -29,35 +35,35 @@ export type NavItem = {
    * 押しても必ず断られるリンクが残る。
    */
   readonly requires: string | null;
+  /**
+   * 目印の絵。畳んだときに残るのはこれだけになる。
+   *
+   * **項目ごとに違う絵にする。** 重なった 2 項目は、畳んだ時点で見分けが付かない。
+   * 型を必須にしてあるので、項目を足して絵を忘れると型検査で止まる。
+   *
+   * 絵は意味を持たない。意味は `label` が持ち、絵は読み上げから隠す。
+   * 絵に意味を持たせると、その絵を知らない人に何も伝わらない画面になる。
+   */
+  readonly icon: string;
 };
 
 /**
  * 案内の一覧。
  *
- * ここに載っていない画面は、どこからも辿り着けない孤立ページになる。
- * 画面を足したらこの表にも足す。
+ * route metadataで `nav` を持つ画面だけを、業務順のまま射影する。
  */
-export const ADMIN_NAV: readonly NavItem[] = [
-  { href: "/admin", label: "ホーム", requires: null },
-  { href: "/admin/products", label: "商品", requires: "product.read" },
-  { href: "/admin/evidence", label: "根拠", requires: "content.read" },
-  { href: "/admin/rankings", label: "評価基準と順位", requires: "content.read" },
-  { href: "/admin/content", label: "記事", requires: "content.read" },
-  { href: "/admin/personas", label: "書き手と読者像", requires: "content.read" },
-  { href: "/admin/writing", label: "書き方の決めごと", requires: "content.read" },
-  { href: "/admin/generation", label: "生成の仕組み", requires: "content.read" },
-  { href: "/admin/sites", label: "サイト", requires: "content.read" },
-  { href: "/admin/distribution", label: "配信", requires: "content.read" },
-  { href: "/admin/affiliate", label: "提携と成果", requires: "affiliate.read_revenue" },
-  { href: "/admin/inbox", label: "成果リンクの受信箱", requires: "affiliate.read_revenue" },
-  { href: "/admin/analytics", label: "数字", requires: "analytics.read" },
-  { href: "/admin/ai-usage", label: "AI の利用と費用", requires: "analytics.read" },
-  { href: "/admin/improvement", label: "改善の状況", requires: "analytics.read" },
-  { href: "/admin/feedback", label: "使い勝手を直す", requires: "feedback.read" },
-  { href: "/admin/tools", label: "AI から使える道具", requires: "content.read" },
-  { href: "/admin/ui-catalog", label: "画面部品の見本", requires: "content.read" },
-  { href: "/admin/settings", label: "設定", requires: "content.read" },
-];
+export const ADMIN_NAV: readonly NavItem[] = ADMIN_ROUTE_METADATA.flatMap((route) =>
+  route.nav === null || route.label === null
+    ? []
+    : [
+        {
+          href: route.pattern,
+          label: route.label,
+          requires: route.nav.requires,
+          icon: route.nav.icon,
+        },
+      ],
+);
 
 /**
  * その人に見せる案内だけを残す。
@@ -77,7 +83,7 @@ export function visibleNav(
 export type NavGroup = {
   readonly id: string;
   readonly label: string;
-  /** この分類に入る項目の行き先。`ADMIN_NAV` から作らず、ここに書き出す。 */
+  /** route metadataで同じ分類IDを持つ項目の行き先。 */
   readonly hrefs: readonly string[];
 };
 
@@ -87,17 +93,15 @@ export type NavGroup = {
  * ホームは「どこかの仕事」ではなく全部の入口なので、分類に入れると
  * どの分類に入れても嘘になる。例外は 1 つだけにして、ここに書き出す。
  */
-export const UNGROUPED_NAV_HREFS: readonly string[] = ["/admin"];
-
-/** 運営画面の根。現在地を決めるときに、前置きの側へ数えない唯一の項目。 */
-export const ADMIN_ROOT = "/admin";
+export const UNGROUPED_NAV_HREFS: readonly string[] = ADMIN_ROUTE_METADATA.filter(
+  (route) => route.nav !== null && route.nav.group === null,
+).map((route) => route.pattern);
 
 /**
  * 案内の分類。
  *
- * **この表は `ADMIN_NAV` から作らない。** 作ると、`ADMIN_NAV` から項目が
- * 1 つ消えたときに分類表も一緒に消えてしまい、「消えたこと」を誰も言えなくなる。
- * 別々に書いて突き合わせるから、片方だけが変わったときに検査が赤くなる。
+ * `ADMIN_NAV` と別書きにせず、同じroute metadataの `nav.group` から作る。
+ * 項目を足す場所が1箇所なので、ナビだけ増えて分類だけ古い状態を作れない。
  *
  * 分類は、機能名からではなく「誰がどの場面で開くか」から導いている。
  * 各画面の `lead`（この画面で何ができるかの 1 文）が根拠。
@@ -109,30 +113,15 @@ export const ADMIN_ROOT = "/admin";
  *   見る … 出したあとに何が起きたか
  *   整える … 作業場所そのものの手入れ
  */
-export const ADMIN_NAV_GROUPS: readonly NavGroup[] = [
-  {
-    id: "material",
-    label: "素材",
-    hrefs: ["/admin/products", "/admin/evidence", "/admin/rankings"],
-  },
-  {
-    id: "write",
-    label: "書く",
-    hrefs: ["/admin/content", "/admin/personas", "/admin/writing", "/admin/generation"],
-  },
-  { id: "publish", label: "出す", hrefs: ["/admin/sites", "/admin/distribution"] },
-  { id: "earn", label: "稼ぐ", hrefs: ["/admin/affiliate", "/admin/inbox"] },
-  {
-    id: "observe",
-    label: "見る",
-    hrefs: ["/admin/analytics", "/admin/ai-usage", "/admin/improvement"],
-  },
-  {
-    id: "maintain",
-    label: "整える",
-    hrefs: ["/admin/feedback", "/admin/tools", "/admin/ui-catalog", "/admin/settings"],
-  },
-];
+export const ADMIN_NAV_GROUPS: readonly NavGroup[] = (
+  Object.entries(ADMIN_NAV_GROUP_LABELS) as readonly [AdminNavGroupId, string][]
+).map(([id, label]) => ({
+  id,
+  label,
+  hrefs: ADMIN_ROUTE_METADATA.filter((route) => route.nav?.group === id).map(
+    (route) => route.pattern,
+  ),
+}));
 
 export type GroupedNav = {
   /** 分類の外の項目。先頭に単独で置く。 */
@@ -175,29 +164,26 @@ export function groupedNav(
 }
 
 /**
- * いま開いている経路が、案内のどの項目に属するかを返す。
+ * いま案内のどの項目の中にいるか。
  *
- * **一致ではなく、いちばん長い前置きで決める。**
- * 一致で決めていたときは、`/admin/settings/llm` や
- * `/admin/improvement/dimensions` のような下の階層の画面で
- * **現在地の印がどこにも付かなかった**（2026-08-21 に実測）。
- * 目で見る人には太字が消えるだけだが、読み上げでは現在地そのものが消える。
+ * 完全一致だけで判定すると、`/admin/settings/appearance` のような
+ * 案内に載せていない子画面で現在地が消える。**現在地が消えると、
+ * 自分がどの分類の中にいるか分からなくなる。** 画面を単一用途へ割ったことで
+ * 子画面は増える一方なので、親が代わりに現在地を示す。
  *
- * `/admin`（ホーム）はすべての経路の前置きになるので、
- * いちばん長いものだけを採らないと全画面でホームが現在地になる。
- * 見せていない項目（権限で消えたもの）は候補にしない——
- * 出ていないものに印は付けられない。
+ * 最も長く一致した 1 つだけを選ぶ。前方一致した全部を現在地にすると、
+ * `/admin`（ホーム）が常に現在地になり、どの項目も等しく光ってしまう。
+ *
+ * 一致が無いときは null。無理にどこかを現在地にしない。
  */
-export function navHrefFor(currentPath: string, nav: GroupedNav): string | null {
-  const visible = [...nav.ungrouped, ...nav.groups.flatMap((g) => g.items)];
+export function currentNavHref(
+  items: readonly NavItem[],
+  navContextPath: string,
+): string | null {
   let best: string | null = null;
-  for (const item of visible) {
-    // ホーム（`/admin`）はすべての経路の前置きになるので、前置きの側に数えない。
-    // 数えると、どの画面を開いてもホームが現在地になる。
-    const matches =
-      currentPath === item.href ||
-      (item.href !== ADMIN_ROOT && currentPath.startsWith(`${item.href}/`));
-    if (!matches) continue;
+  for (const item of items) {
+    const hit = navContextPath === item.href || navContextPath.startsWith(`${item.href}/`);
+    if (!hit) continue;
     if (best === null || item.href.length > best.length) best = item.href;
   }
   return best;
@@ -222,14 +208,19 @@ export type ShellFeedback = {
 };
 
 export function AppShell({
-  currentPath,
+  actualRoutePath,
+  navContextPath,
   breadcrumbs,
   actions,
   capabilities,
   feedback,
+  navCollapsed = false,
   children,
 }: {
-  readonly currentPath: string;
+  /** いま実際に開いているURL。計測・改善要望の出所へ使う。 */
+  readonly actualRoutePath: string;
+  /** サイドバーで現在地として示す親route。実URLとは混用しない。 */
+  readonly navContextPath: string;
   readonly breadcrumbs: readonly Breadcrumb[];
   /** 退避先。保存・戻る・次へ。無い画面でも「一覧へ戻る」は置く。 */
   readonly actions?: ReactNode;
@@ -237,10 +228,17 @@ export function AppShell({
   readonly capabilities?: readonly string[];
   /** 渡さない場面（権限の概念が無い画面）では、ボタンを出さない。 */
   readonly feedback?: ShellFeedback;
+  /**
+   * 案内を最初から畳んでおくか。前回の選択を復元するときに渡す。
+   *
+   * 畳んでも項目は HTML から消えない。消えるのは見た目だけで、
+   * 名前も行き先も残る（潰すのは CSS の仕事）。
+   */
+  readonly navCollapsed?: boolean;
   readonly children: ReactNode;
 }) {
   const nav = groupedNav(ADMIN_NAV, ADMIN_NAV_GROUPS, capabilities);
-  const currentHref = navHrefFor(currentPath, nav);
+  const currentHref = currentNavHref(ADMIN_NAV, navContextPath);
   const navLink = (item: NavItem) => {
     const current = currentHref === item.href;
     return (
@@ -253,15 +251,29 @@ export function AppShell({
         // 色と太さだけでなく、読み上げにも現在地を伝える
         aria-current={current ? "page" : undefined}
       >
-        {item.label}
+        {/* 目印は意味を持たない。意味は次の文字が持つので、読み上げからは隠す。 */}
+        <span className={styles.navIcon} aria-hidden="true">
+          {item.icon}
+        </span>
+        {/* 畳んだときに潰れるのはこの文字だけ。読み上げには残る。 */}
+        <span className={styles.navLabel}>{item.label}</span>
       </Link>
     );
   };
 
   return (
-    <div className={styles.shell}>
+    <div className={styles.shell} data-nav-collapsed={navCollapsed}>
       <nav className={styles.sidebar} aria-label="主な案内">
-        <span className={styles.brandName}>affiliate-hub</span>
+        <div className={styles.sidebarHead}>
+          <span className={styles.brandName}>affiliate-hub</span>
+          <NavCollapseToggle defaultCollapsed={navCollapsed} />
+        </div>
+        {/*
+          項目は案内の直下に置く。**間の隙間は `.sidebar` の gap が持つ。**
+          まとめ役の要素を 1 枚挟むと、隙間を持つ要素が入れ替わり、
+          分類の境目の比を測っている検査 (tests/ui/layout-density.test.ts) が
+          読む値と、実際に効く値が食い違う。
+        */}
         {nav.ungrouped.map(navLink)}
         {nav.groups.map(({ group, items }) => (
           // 分類の境目を、見た目の隙間だけでなく読み上げにも伝える。
@@ -291,9 +303,6 @@ export function AppShell({
                   {crumb.href !== undefined && !last ? (
                     <Link href={crumb.href}>{crumb.label}</Link>
                   ) : (
-                    // 末尾はこの画面そのもの。**太字だけでは読み上げに現在地が出ない。**
-                    // 案内の側の印は権限で項目が消えると一緒に消えるが、
-                    // パンくずはどの画面にも必ず出るので、ここが現在地の最後の砦になる。
                     <span
                       className={last ? styles.breadcrumbCurrent : undefined}
                       aria-current={last ? "page" : undefined}
@@ -314,7 +323,7 @@ export function AppShell({
       {feedback !== undefined && (
         <FeedbackButton
           screenName={feedback.screenName}
-          route={currentPath}
+          route={actualRoutePath}
           canSubmit={feedback.canSubmit}
           onSubmit={feedback.onSubmit}
         />

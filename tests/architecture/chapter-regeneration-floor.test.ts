@@ -67,7 +67,7 @@ import { describe, expect, it } from "vitest";
  *
  * ── 分かったこと: gaps[0] も名指しを外している ────────────────────
  *
- * gaps[0] は「decisions[] 6 件を本文へ載せる」と言う。
+ * 当時の gaps[0] は「decisions[] 6 件を本文へ載せる」と言っていた。
  *
  * **【2026-08-20 訂正】ここには以前「00 には 6 件とも既に載っている（L80 の表）」と
  * 書いてあった。これは誤りである。**実測すると `00-requirements-definition.md` の
@@ -83,8 +83,8 @@ import { describe, expect, it } from "vitest";
  * 誤っていても赤くならずに残り続けた（**説明文には門が無い**）。
  *
  * **【2026-08-20 追記・同じ日のうちに】上の段落は過去形へ直してある。**
- * gap 1 の着地で残り 5 件を 00 章へ手で書き足し、いまは **6/6 が載っている**
- * （`grep -o 'decision-[a-z-]*' system-spec/00-requirements-definition.md | sort -u` で 6 種）。
+ * gap 1 の着地で残り 5 件を 00 章へ手で書き足し、当時の **6/6 が載った**。
+ * 2026-08-23 に 7 件目が増えたため、現在値は下の検査で正本から動的に照合する。
  * **直した当人がこの説明文を古いまま残せば、上でわざわざ書いた誤りを自分で繰り返すことになる。**
  * 門が無い文は、直した人が同じ便で直すしかない。
  *
@@ -144,7 +144,7 @@ function measure(text: string) {
  *
  * `## 確定セルの記録 (正本 spec-state.json)` と `## 意思決定 (decisions)` を
  * `カテゴリ別収集状態` の直後へ入れた。gaps[0] が求めていた
- * 「確定セル内容と decisions[] 6 件を本文へ載せる」を、**再生成ではなく手編集**で
+ * 当時の「確定セル内容と decisions[] 6 件を本文へ載せる」を、**再生成ではなく手編集**で
  * 実行した結果である（理由は `system-spec/database.md` の
  * `### 本節を「転記」に留めた理由` に 1 か所だけ書いてある）。
  *
@@ -429,6 +429,17 @@ function read(name: string): string {
   return readFileSync(join(SPEC_DIR, `${name}.md`), "utf8");
 }
 
+function decisionIdsInSection(text: string, heading: string): string[] {
+  const lines = text.split("\n");
+  const start = lines.findIndex((line) => line === heading);
+  if (start < 0) return [];
+
+  return lines
+    .slice(start + 1, lines.findIndex((line, index) => index > start && /^## /.test(line)))
+    .map((line) => line.match(/^\|\s*\*{0,2}`?(decision-[a-z0-9-]+)`?\*{0,2}\s*\|/)?.[1])
+    .filter((id): id is string => id !== undefined);
+}
+
 describe("8 章を再生成しても痩せないこと (C03 の事前の床)", () => {
   it("測定用の口が開いていない（通常の実行では確定章そのものを見ている）", () => {
     // 口が開いたままだと、床は「どこかの太ったフォルダ」を見て緑になる。
@@ -450,6 +461,21 @@ describe("8 章を再生成しても痩せないこと (C03 の事前の床)", (
       "security",
       "ui-ux",
     ]);
+  });
+
+  it("00章と確定8章の意思決定表が正本 decisions[] と一致する", () => {
+    const state = JSON.parse(readFileSync(join(ROOT, "system-spec/spec-state.json"), "utf8")) as {
+      decisions: Array<{ id: string }>;
+    };
+    const expected = state.decisions.map(({ id }) => id);
+    const documents = [
+      ["00-requirements-definition", "## 意思決定支援 (decisions)"],
+      ...CHAPTERS.map(({ name }) => [name, "## 意思決定 (decisions)"]),
+    ] as const;
+
+    for (const [name, heading] of documents) {
+      expect(decisionIdsInSection(read(name), heading), `${name}.md`).toEqual(expected);
+    }
   });
 
   it("gap 1 の 2 節は 8 章すべてに載っている（旧 11 節の形を指す章は 0 件）", () => {

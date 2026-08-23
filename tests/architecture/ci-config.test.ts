@@ -11,6 +11,7 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { EVAL_CASES } from "../../evals/generation/cases";
 import { AI_EVAL_BUDGET, CHECKS, LAYER_COVERAGE, TIERS } from "../../quality-gates.config.mjs";
+import strykerConfig from "../../stryker.config.mjs";
 
 /**
  * 自動化の設定そのものを見る。**コードを 1 行も変えずに壊れる場所**である。
@@ -178,6 +179,11 @@ describe("枝の順番（REQ-CI04）", () => {
 });
 
 describe("手元と機械で同じ検査が走る（REQ-CI01 / REQ-CI03）", () => {
+  it("ミューテーションのVitest runnerを暗黙探索に依存せず読み込む", () => {
+    const plugins = (strykerConfig as { plugins?: readonly string[] }).plugins ?? [];
+    expect(plugins).toContain("@stryker-mutator/vitest-runner");
+  });
+
   /**
    * ここが今回いちばん重い。判定欄には
    * 「`ci.yml` の検査ステップは `pnpm run verify` の 1 行のみ」と書いてあったが、

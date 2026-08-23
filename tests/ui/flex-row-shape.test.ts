@@ -93,13 +93,13 @@ const EXEMPT: Record<string, Exemption> = {
   // （`.breadcrumb a` が `ui.module.css` と `site.module.css` の両方に在る）。
   // 描いた DOM にはファイルの出どころが残らないので、**両方の行に同じ数が立つ。**
   // ==========================================================================
-  "src/presentation/ui/patterns/patterns.module.css :: .stackedList a": {
-    measured: "上の `.linkList a` の 60 回 / 子 0 のみ を引き継いだ（部品化後に描き直しての再実測はしていない）",
-    reason: "中身が文字だけで、横に並べる相手がいない（44px の的を作るための inline-flex）",
+  "src/presentation/ui/patterns/patterns.module.css :: .channelLink": {
+    measured: "配信先状態の行き先。中身は配信先名の文字だけ（2026-08-23）",
+    reason: "44px の押しどころを作るための inline-flex で、横に並べる直の子を持たない",
   },
-  "src/presentation/ui/patterns/patterns.module.css :: .inlineNav a": {
-    measured: "2画面・5本。直の子は文字だけ（2026-08-21）",
-    reason: "同格リンクの横並びは親ulが折り返し、各aは44pxの的を作るためだけのinline-flex",
+  "src/presentation/ui/patterns/patterns.module.css :: .navCollapseToggle": {
+    measured: "管理画面の案内を畳む操作 1 個（2026-08-23）",
+    reason: "印と読み上げ用の名前を一つの操作として保ち、ボタンの途中では折り返さない",
   },
   "src/presentation/ui/patterns/patterns.module.css :: .productCardName > a": {
     measured: "Chromium実DOMで修正前の高さ23px（2026-08-21）",
@@ -116,6 +116,22 @@ const EXEMPT: Record<string, Exemption> = {
   "src/presentation/ui/templates/site.module.css :: .siteName": {
     measured: "Chromium実DOMで修正前の高さ32.39px（2026-08-21）",
     reason: "ブログ名の文字1つを包むリンクで、44pxの的を作るためだけのinline-flex",
+  },
+  "src/presentation/ui/templates/screen-parts.module.css :: .factRow dd > a": {
+    measured: "項目と値の一覧で値として置かれる行き先（2026-08-23）",
+    reason: "中身は文字だけで、44px の押しどころを作るための inline-flex",
+  },
+  "src/presentation/ui/templates/screen-parts.module.css :: .list > li > a": {
+    measured: "共通一覧の主項目として置かれる行き先（2026-08-23）",
+    reason: "中身は文字だけで、44px の押しどころを作るための inline-flex",
+  },
+  "src/presentation/ui/templates/screen-parts.module.css :: .table td > a,\n.table th > a": {
+    measured: "共通表の升目に単独で置かれる行き先（2026-08-23）",
+    reason: "表の升目は flex の器ではないため、44px の下限を効かせる inline-flex が要る",
+  },
+  "src/presentation/ui/templates/screen-parts.module.css :: .rowSelector": {
+    measured: "表の行を選ぶチェック箱と説明の対（2026-08-23）",
+    reason: "チェック箱と説明が別の行に分かれると対応が読めないため、一つの選択肢として保つ",
   },
   "src/app/admin/admin.module.css :: .rankTable td > a": {
     measured: "11 回 / 子 0 のみ（18:20）",
@@ -468,9 +484,13 @@ const SHRINKABLE: Record<string, Exemption> = {
     measured: "同じ2画面でmaterialForm直下のformがintrinsic幅を保持していた（2026-08-21）",
     reason: "grid子であるformのautomatic min-sizeを0へ下げ、内側selectのwidth:100%を効かせるため",
   },
-  "src/presentation/ui/patterns/patterns.module.css :: .stackedRow": {
-    measured: "Chromium mobileの商品詳細で生URLが301pxの行を356pxへ広げた（2026-08-21）",
-    reason: "リンクと素文の両方を持てる行なので、長いURL/識別子を行内で折り返し、一覧全体を押し広げないため",
+  "src/presentation/ui/primitives/ui.module.css :: .navLabel": {
+    measured: "管理画面の案内名。畳む操作と同じ横並びの中に置かれる（2026-08-23）",
+    reason: "長い案内名がボタンを押し出さないよう、利用可能幅まで縮んで文字を折り返すため",
+  },
+  "src/presentation/ui/templates/screen-parts.module.css :: .tableWrap": {
+    measured: "共通 DataTable の横スクロールを受け持つ器（2026-08-23）",
+    reason: "表の最小内容幅を画面全体へ伝えず、この器の横スクロールへ閉じ込めるため",
   },
   "src/presentation/ui/templates/site.module.css :: .article > *": {
     measured: "Chromium mobileの順位記事で327pxの記事を398pxへ広げた（2026-08-21）",

@@ -1,7 +1,7 @@
 "use client";
 
 import { useActionState, useState } from "react";
-import { Button, Callout, Field, ToolForm } from "@/presentation/ui";
+import { Button, Callout, Field, FormValue, ToolForm } from "@/presentation/ui";
 import { reschedulePublicationAction } from "./reschedule-action";
 import { INITIAL_RESCHEDULE_STATE } from "./reschedule-state";
 
@@ -29,10 +29,7 @@ export function RescheduleForm({
   /** 何の配信の予定かが分かる言葉。読み上げのために欄ごとに変える。 */
   readonly label: string;
 }) {
-  const [state, action, pending] = useActionState(
-    reschedulePublicationAction,
-    INITIAL_RESCHEDULE_STATE,
-  );
+  const [state, action, pending] = useActionState(reschedulePublicationAction, INITIAL_RESCHEDULE_STATE);
   const [value, setValue] = useState(currentValue);
 
   if (disabledReason !== null) {
@@ -40,12 +37,8 @@ export function RescheduleForm({
   }
 
   return (
-    <ToolForm
-      action={action}
-      toolName="reschedule_publication"
-      toolDescription="配信の予定日時を変える"
-    >
-      <input type="hidden" name="publicationId" value={publicationId} />
+    <ToolForm action={action} toolName="reschedule_publication" toolDescription="配信の予定日時を変える">
+      <FormValue name="publicationId" value={publicationId} />
       <Field
         name="scheduledAt"
         type="datetime-local"

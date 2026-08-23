@@ -1,13 +1,20 @@
-import Link from "next/link";
-import type { ReactNode } from "react";
+import { AdminShell } from "@/presentation/admin/admin-shell";
 import {
   IssueIntegrationAccessForm,
   RevokeIntegrationAccessForm,
 } from "@/presentation/admin/integration-access-form";
-import { AdminShell } from "@/presentation/admin/admin-shell";
 import { currentActor, feedbackUseCases } from "@/presentation/composition";
-import { Callout, Card, DataTable, EmptyView, ErrorView, Note, Page, SectionHeading } from "@/presentation/ui";
-import styles from "../../admin.module.css";
+import {
+  Callout,
+  DataTable,
+  EmptyView,
+  ErrorView,
+  Note,
+  Prose,
+  Section,
+  Stack,
+  TextLink,
+} from "@/presentation/ui";
 
 export const dynamic = "force-dynamic";
 
@@ -34,111 +41,82 @@ export default async function IntegrationAccessPage() {
   const actor = await currentActor();
   const listed = await (await feedbackUseCases()).keys.execute(actor, { action: "list" });
 
-  if (!listed.ok) {
-    return (
-      <Shell>
+  return (
+    <AdminShell
+      routeId="settings/integration-access"
+      title="取得用の鍵"
+      lead="取りに来てもらう鍵を管理します。"
+      actions={<TextLink href="/admin/feedback">改善要望の一覧へ</TextLink>}
+    >
+      {!listed.ok ? (
         <ErrorView
           title="取得用の鍵を出せませんでした"
           body={listed.error.message}
           suggestedAction={listed.error.suggestedAction ?? null}
-          action={<Link href="/admin/settings">設定へ戻る</Link>}
+          action={<TextLink href="/admin/settings">設定へ戻る</TextLink>}
         />
-      </Shell>
-    );
-  }
+      ) : (
+        <>
+          <Callout tone="warn" title="鍵の扱い" reason={listed.value.handlingText} />
 
-  const { rows, handlingText, emptyReason } = listed.value;
+          <Section title="新しい鍵を発行する">
+            <Prose>
+              Claude Code に未対応の要望を取りに来てもらう場合だけ発行してください。
+              人がコピーして渡すだけなら、鍵は要りません。
+            </Prose>
+            <IssueIntegrationAccessForm />
+          </Section>
 
-  return (
-    <Shell>
-      <Callout tone="warn" title="鍵の扱い" reason={handlingText} />
+          <Section title="いまある鍵">
+            {listed.value.rows.length === 0 ? (
+              <EmptyView
+                title="まだ鍵はありません"
+                body={listed.value.emptyReason ?? "取りに来てもらう場合だけ発行してください。"}
+                action={<TextLink href="/admin/feedback">改善要望の一覧へ</TextLink>}
+              />
+            ) : (
+              <>
+                <DataTable
+                  caption="鍵の値そのものは、発行したときの 1 回しか出ません。ここには残っていません。"
+                  columns={[
+                    { key: "label", label: "名前" },
+                    { key: "scope", label: "できること" },
+                    { key: "created", label: "発行した日" },
+                    { key: "used", label: "最後に使った日" },
+                    { key: "rate", label: "1 分あたりの上限", numeric: true },
+                    { key: "state", label: "状態" },
+                  ]}
+                  rows={listed.value.rows.map((k) => ({
+                    key: k.id,
+                    cells: [
+                      k.label,
+                      k.scopeLabels.join("・"),
+                      k.createdAt.toLocaleDateString("ja-JP"),
+                      k.lastUsedAt === null
+                        ? k.lastUsedText
+                        : k.lastUsedAt.toLocaleString("ja-JP"),
+                      `${k.rateLimitPerMinute}回`,
+                      k.revoked ? "失効済み" : "使えます",
+                    ],
+                  }))}
+                />
 
-      <Card>
-        <SectionHeading level={2}>新しい鍵を発行する</SectionHeading>
-        <p className={styles.sectionLead}>
-          Claude Code に未対応の要望を取りに来てもらう場合だけ発行してください。
-          人がコピーして渡すだけなら、鍵は要りません。
-        </p>
-        <IssueIntegrationAccessForm />
-      </Card>
-
-      <Card>
-        <SectionHeading level={2}>いまある鍵</SectionHeading>
-        {rows.length === 0 ? (
-          <EmptyView
-            title="まだ鍵はありません"
-            body={emptyReason ?? "取りに来てもらう場合だけ発行してください。"}
-            action={<Link href="/admin/feedback">改善要望の一覧へ</Link>}
-          />
-        ) : (
-          <>
-            <DataTable
-              caption="鍵の値そのものは、発行したときの 1 回しか出ません。ここには残っていません。"
-              columns={[
-                { key: "label", header: "名前", rowHeader: true, cell: (k) => k.label },
-                {
-                  key: "scopes",
-                  header: "できること",
-                  cell: (k) => k.scopeLabels.join("・"),
-                },
-                {
-                  key: "createdAt",
-                  header: "発行した日",
-                  cell: (k) => k.createdAt.toLocaleDateString("ja-JP"),
-                },
-                {
-                  key: "lastUsedAt",
-                  header: "最後に使った日",
-                  cell: (k) =>
-                    k.lastUsedAt === null ? k.lastUsedText : k.lastUsedAt.toLocaleString("ja-JP"),
-                },
-                {
-                  key: "rateLimit",
-                  header: "1 分あたりの上限",
-                  align: "numeric",
-                  cell: (k) => `${k.rateLimitPerMinute}回`,
-                },
-                { key: "state", header: "状態", cell: (k) => (k.revoked ? "失効済み" : "使えます") },
-              ]}
-              rows={rows}
-              rowKey={(k) => k.id}
-            />
-
-            {rows
-              .filter((k) => !k.revoked)
-              .map((k) => (
-                <div key={`revoke-${k.id}`}>
-                  <RevokeIntegrationAccessForm id={k.id} label={k.label} />
-                </div>
-              ))}
-            <Note>
-              失効させても一覧からは消えません。消すと、渡した記録の「どの鍵で」が
-              名前の無い番号だけになり、後からたどれなくなるためです。
-            </Note>
-          </>
-        )}
-      </Card>
-    </Shell>
-  );
-}
-
-function Shell({ children }: { readonly children: ReactNode }) {
-  return (
-    <AdminShell
-      currentPath="/admin/settings"
-      breadcrumbs={[
-        { label: "ホーム", href: "/admin" },
-        { label: "設定", href: "/admin/settings" },
-        { label: "取得用の鍵" },
-      ]}
-      actions={<Link href="/admin/feedback">改善要望の一覧へ</Link>}
-    >
-      <Page
-        title="取得用の鍵"
-        lead="Claude Code に、未対応の改善要望を取りに来てもらうための鍵を管理する画面です。値が表示されるのは発行したときの 1 回だけです。"
-      >
-        {children}
-      </Page>
+                <Stack>
+                  {listed.value.rows
+                    .filter((k) => !k.revoked)
+                    .map((k) => (
+                      <RevokeIntegrationAccessForm key={`revoke-${k.id}`} id={k.id} label={k.label} />
+                    ))}
+                </Stack>
+                <Note>
+                  失効させても一覧からは消えません。消すと、渡した記録の「どの鍵で」が
+                  名前の無い番号だけになり、後からたどれなくなるためです。
+                </Note>
+              </>
+            )}
+          </Section>
+        </>
+      )}
     </AdminShell>
   );
 }

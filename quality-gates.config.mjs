@@ -688,6 +688,49 @@ export const REQUIRED_TEST_TYPES = {
    */
   "has-color-scheme-variants": ["a11y"],
   /*
+   * **見た目の決めごとが、1 画面ではなく全画面へ波及する側にある。**
+   *
+   * 足した理由。`visual`（見た目の回帰）は一覧に最初からあるのに、
+   * **どの性質からも指されていなかった**（2026-08-19 の数え直しで 15 種のうちの 1 つ）。
+   * `ah-h57` が撮る仕掛けそのものを入れた後も、指し手が無いままだった。
+   * **仕掛けが在ることと、要件が要求していることは別である。**
+   * 指されない種別は一度も要求されないので、絵を撮るのをやめても
+   * 宣言表の側は 1 件も赤くならない。
+   *
+   * 線の引き方。「見た目がある要件」ではない——それでは `has-screen` と同じになり、
+   * 画面 67 枚ぶんの除外理由が並ぶだけになる（絵は 5 枚しか撮っていない）。
+   * 当てるのは次の 2 つが**両方**そろっているものだけにした。
+   *   1. **決めごとの側にある**。個別画面ではなく、共通部品・共通トークン・
+   *      共通の骨格が持ち主である
+   *   2. **崩れが 1 画面に留まらない**。そこが動くと、それを使っている全画面に出る
+   * 2 が効く。1 画面だけの崩れは、その画面の検査で捕まえるほうが早い。
+   * ここで要求しているのは**波及する側の 1 枚を焼いて比べておくこと**である。
+   *
+   * ## 足す前に数えた（2026-08-22、`docs/product/traceability.md` 全 242 件）
+   *
+   * 当たるのは 3 件。**3 件とも、撮っている 5 場面のどれが実体かを対応づけてから宣言した。**
+   *   REQ-S09  共通レイアウト（サイドナビ・4 状態の部品・入力欄の作法）
+   *            … `feedback-samples`（読み込み・空・失敗）と `input-samples`（欄の高さ）
+   *   REQ-UX08 カード間隔・文章量・サイドバー構成が全画面へ適用されている
+   *            … `nav-and-density` 3 枚（明・暗・狭）。この要件の実体そのもの
+   *   REQ-TS12 ログイン不要の静止した写し
+   *            … 焼く仕掛けの側。ずれた見た目のほうで判断が決まる形を止める要件で、
+   *              絵で比べること自体が要件の中身である
+   *
+   * 当てなかったものと理由:
+   *   REQ-TH01 / REQ-TH02  明暗と配色
+   *            … `nav-and-density-dark` は確かにこの 2 件に触れるが、
+   *              ここが要求しているのは**色の値**であって崩れではない。
+   *              値は `tests/ui/theme-contrast.test.ts` が配色 10 種 × 明暗 2 種の
+   *              20 通りを数字で総当たりしており、絵より細かい。
+   *              `visual` を名乗ると、**絵 1 枚が 20 通りの証拠に化ける**
+   *   REQ-B01..B12 ほか個別画面
+   *            … 2 を満たさない。崩れてもその画面に留まる
+   *   REQ-IM03 見た目の軸（改善案の分類）
+   *            … 見た目**について書ける項目**の一覧であって、見た目そのものを持たない
+   */
+  "has-shared-visual-form": ["visual"],
+  /*
    * **一度実際に壊れていて、生成をやり直すと同じ形で戻ってくる。**
    *
    * 足した理由。`regression`（回帰・再現テスト）は一覧に最初からあるのに、
@@ -1131,7 +1174,14 @@ export const TEST_TYPES_MAX_EXCLUSIONS = 7;
  * 下げてよいのは、その語を**実際に指したとき**だけである。
  * 一覧から消して下げるのは、次の `TEST_TYPES_MIN_VOCABULARY` が止める。
  */
-export const TEST_TYPES_MAX_UNPOINTED = 15;
+/*
+ * 2026-08-22: 15 → 14。`visual` を `has-shared-visual-form` から**実際に指した**。
+ * 一覧から消して下げたのではない（`TEST_TYPES_MIN_VOCABULARY` は 35 のまま）。
+ * 残る 14: `pairwise` `scenario` `property` `contract` `db-constraint`
+ * `db-concurrency` `e2e` `perf` `load` `injection` `redaction` `dep-audit`
+ * `csrf` `rate-limit`。
+ */
+export const TEST_TYPES_MAX_UNPOINTED = 14;
 
 /**
  * 種別の語彙の数（下限）。**上げる方向にしか動かさない。**
@@ -1454,7 +1504,7 @@ export const TIER_IDS = TIERS.map((t) => t.id);
 export const AI_EVAL_BUDGET = {
   maxCases: 51,
   maxTokens: 400_000,
-  why: "評価セットは 51 件。1 件あたり入出力で 8,000 トークンを上限の目安とした",
+  why: "評価セットは 52 件。1 件あたり入出力で 8,000 トークンを上限の目安とした",
 };
 
 /**
@@ -1513,6 +1563,14 @@ export const CHECKS = [
     blocking: true,
     tier: 1,
     why: "スキーマだけ変えて公開すると、存在しない列を読んで本番が落ちる。1 秒で終わるので手元でも走らせる",
+  },
+  {
+    id: "acceptance-reconciliation",
+    label: "受入IDの証跡突合",
+    command: ["pnpm", "run", "acceptance:reconcile"],
+    blocking: true,
+    tier: 1,
+    why: "A1〜A10の仕様・実装・検査・報告・trackingを共通IDとdigestで結び、古いPASSや公開状態の相反をテスト前に止める",
   },
   {
     id: "test",

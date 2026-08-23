@@ -54,6 +54,11 @@ export const REACHABLE_SCREENS: Readonly<Record<string, ReachEntry>> = {
   start_site_draft: { screen: "admin/sites/new/page.tsx" },
   save_site_draft_step: { screen: "admin/sites/new/page.tsx" },
   create_site_from_draft: { screen: "admin/sites/new/page.tsx" },
+  update_managed_site: { screen: "admin/sites/[site]/edit/page.tsx" },
+  delete_managed_site: {
+    screen: "admin/sites/[site]/page.tsx",
+    note: "画面の末尾に確認欄（理由が要る）",
+  },
 
   // ── ブログの中身（読者側の画面がそのまま到達先）────────
   get_site: { screen: "s/[site]/page.tsx" },
@@ -82,6 +87,14 @@ export const REACHABLE_SCREENS: Readonly<Record<string, ReachEntry>> = {
   list_test_runs: { screen: "admin/evidence/page.tsx" },
   list_ranking: { screen: "admin/rankings/page.tsx" },
   explain_ranking: { screen: "admin/rankings/page.tsx" },
+  create_product: { screen: "admin/products/new/page.tsx" },
+  update_product: { screen: "admin/products/[product]/edit/page.tsx" },
+  // 消す欄は詳細画面の中に置く。別画面にすると、目の前の物と消す物が
+  // 同じかを確かめられないまま押すことになる。
+  delete_product: {
+    screen: "admin/products/[product]/page.tsx",
+    note: "画面の末尾に確認欄（理由が要る）",
+  },
 
   // ── 商品（読者側）──────────────────────────────────────
   reader_list_ranking: { screen: "s/[site]/best/[topic]/page.tsx" },
@@ -106,11 +119,21 @@ export const REACHABLE_SCREENS: Readonly<Record<string, ReachEntry>> = {
   get_audience_persona: { screen: "admin/personas/page.tsx" },
   check_fact_boundary: { screen: "admin/evidence/page.tsx" },
   read_writing_method: { screen: "admin/writing/page.tsx" },
+  create_content_variant: { screen: "admin/content/new/page.tsx" },
+  update_content_variant: { screen: "admin/content/[variant]/edit/page.tsx" },
+  delete_content_variant: {
+    screen: "admin/content/[variant]/page.tsx",
+    note: "画面の末尾に確認欄（理由が要る）",
+  },
 
   // ── 配信 ────────────────────────────────────────────────
   list_channels: { screen: "admin/distribution/page.tsx" },
   list_publications: { screen: "admin/distribution/page.tsx" },
   get_publication: { screen: "admin/distribution/[publication]/page.tsx" },
+  update_publication: { screen: "admin/distribution/[publication]/edit/page.tsx" },
+  // 記事 1 本が「いまどこへ出ているか」を並べる場所。出していない先も
+  // 未着手として並ぶので、次にどこへ出すかを決める材料になる。
+  get_content_channel_status: { screen: "admin/content/[variant]/progress/page.tsx" },
   export_manual_draft: { screen: "admin/distribution/[publication]/page.tsx" },
   schedule_publication: { screen: "admin/distribution/calendar/page.tsx" },
   cancel_publication: { screen: "admin/distribution/[publication]/page.tsx" },

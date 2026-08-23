@@ -94,7 +94,7 @@ C05 gaps[0] の「再生成して本文へ載せる」を採らず、本節は�
 
 ## 意思決定 (decisions)
 
-> 正本 `decisions[]` の全 6 件。**6 件とも `status: confirmed`** で、いずれも利用者本人の `user_decision` を伴う。本章を主担当とする論点を太字で示す。
+> 正本 `decisions[]` の全 7 件。**7 件とも `status: confirmed`** で、いずれも利用者本人の `user_decision` を伴う。本章を主担当とする論点を太字で示す。
 
 | ID | 論点 | 採用した選択肢 | 状態 | 資するゴール | 主担当章 |
 |---|---|---|---|---|---|
@@ -104,6 +104,7 @@ C05 gaps[0] の「再生成して本文へ載せる」を採らず、本節は�
 | `decision-llm-provider` | 記事生成に使う LLM プロバイダを 1 社に固定するか、複数を持つか | `opt-catalog-multi` | confirmed | G1 | backend |
 | `decision-ui-theme-implementation` | 配色と明暗の 2 軸を、どの技術で実装するか | `opt-css-light-dark` | confirmed | G1 | frontend |
 | **`decision-test-ci-tooling`** | テストと CI の道具立てを、いまの構成のまま進めるか変えるか | `opt-keep-current` | confirmed | G1, G2 | **maintenance-ops** |
+| `decision-screen-priority` | ui-ux×web の画面で、記事の成績比較と回復すべき業務状態のどちらを先頭に置くか | `opt-performance-first` | confirmed | G1, G2 | ui-ux |
 
 - **`decision-test-ci-tooling` の結論は「現行のまま」だが、「Playwright は不要」という判断ではない。** 10 の 7 種のうち**見た目の回帰だけは現行で測れておらず、その穴は実在する**。足さない理由は必要性ではなく走らせ方にある。11 §8-2 の 3 段 (手動・止めない) は 2026-08-18 に定例をやめており、いま基準を足しても回す場所が無い。穴があることを消さずに残すのが本項の要点である。
 - **確定の出どころ**: 利用者本人が 2 つの選択肢から直接選び、回答原文は「現行のままで確定」(`user_decision.verbatim`、2026-08-20)。AI の推奨を昇格させたものでも、オーケストレーターが代理で決めたものでもない。

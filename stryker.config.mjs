@@ -30,6 +30,7 @@ import { MUTATION_SCORE } from "./quality-gates.config.mjs";
 /** @type {import('@stryker-mutator/api/core').PartialStrykerOptions} */
 const strykerConfig = {
   packageManager: "pnpm",
+  plugins: ["@stryker-mutator/vitest-runner"],
   testRunner: "vitest",
 
   /*

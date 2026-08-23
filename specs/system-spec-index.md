@@ -12,11 +12,11 @@ iteration: null
 title: "system-spec compiled specification"
 owners: ["system-spec-harness"]
 created_at: "2026-08-16T12:08:04Z"
-updated_at: "2026-08-16T12:08:04Z"
+updated_at: "2026-08-23T12:00:00Z"
 status: "active"
 depends_on: []
-related_nodes: []
-resource_scope: ["system-spec/index.md","system-spec/completeness-report.json"]
+related_nodes: ["feat-uiux-overhaul"]
+resource_scope: ["system-spec/index.md","system-spec/completeness-report.json","docs/spec/feat-uiux-overhaul/spec-writeback-receipt.md"]
 purpose: "確定済み system-spec の index を参照可能にする。"
 goal: "仕様と architecture context を source lineage 付きで結ぶ。"
 scope_in: ["confirmed system-spec index artifact"]
@@ -79,11 +79,11 @@ implementation_readiness: {"checked_at":"2026-08-16T12:08:04Z","missing_sections
 |---|---|---|---|---|---|---|
 | データベース (database) | [database.md](./database.md) | 確定 | `partial` (単一D1・運営者3テーブル + Phase 1 読者ドメイン) | `unverified` | G1 G2 | database.web database.mobile database.tablet database.desktop-windows database.desktop-linux database.desktop-macos |
 | 認証(ログイン) (auth) | [auth.md](./auth.md) | 確定 | `not_started` (現行はMCP_TOKEN) | `unverified` | G1 | auth.web auth.mobile auth.tablet auth.desktop-windows auth.desktop-linux auth.desktop-macos |
-| UI-UX (ui-ux) | [ui-ux.md](./ui-ux.md) | 確定 | `partial` (案件一覧のみ) | `unverified` | G1 | ui-ux.web ui-ux.mobile ui-ux.tablet ui-ux.desktop-windows ui-ux.desktop-linux ui-ux.desktop-macos |
+| UI-UX (ui-ux) | [ui-ux.md](./ui-ux.md) | 確定 | `partial` (管理画面 49 を単一用途へ分割。規則は feat-uiux-overhaul。読者面は対象外) | `unverified` | G1 | ui-ux.web ui-ux.mobile ui-ux.tablet ui-ux.desktop-windows ui-ux.desktop-linux ui-ux.desktop-macos |
 | セキュリティ (security) | [security.md](./security.md) | 確定 | `partial` (PoC認証・環境分離のみ) | `unverified` | G1 | security.web security.mobile security.tablet security.desktop-windows security.desktop-linux security.desktop-macos |
 | インフラ (infrastructure) | [infrastructure.md](./infrastructure.md) | 確定 | `partial` (Workers・単一D1・R2) | `unverified` | G2 G1 | infrastructure.web infrastructure.mobile infrastructure.tablet infrastructure.desktop-windows infrastructure.desktop-linux infrastructure.desktop-macos |
 | バックエンド (backend) | [backend.md](./backend.md) | 確定 | `partial` (3 MCPツールのPoC) | `unverified` | G2 G1 | backend.web backend.mobile backend.tablet backend.desktop-windows backend.desktop-linux backend.desktop-macos |
-| フロントエンド (frontend) | [frontend.md](./frontend.md) | 確定 | `partial` (案件一覧・WebMCP PoC) | `unverified` | G1 G2 | frontend.web frontend.mobile frontend.tablet frontend.desktop-windows frontend.desktop-linux frontend.desktop-macos |
+| フロントエンド (frontend) | [frontend.md](./frontend.md) | 確定 | `partial` (管理画面の共通部品 3 段と CRUD。公開面は feat-uiux-overhaul の対象外) | `unverified` | G1 G2 | frontend.web frontend.mobile frontend.tablet frontend.desktop-windows frontend.desktop-linux frontend.desktop-macos |
 | 保守運用管理 (maintenance-ops) | [maintenance-ops.md](./maintenance-ops.md) | 確定 | `not_started` (Analytics運用) | `unverified` | G1 G2 | maintenance-ops.web maintenance-ops.mobile maintenance-ops.tablet maintenance-ops.desktop-windows maintenance-ops.desktop-linux maintenance-ops.desktop-macos |
 
 ## 集約状態サマリ
@@ -108,6 +108,10 @@ implementation_readiness: {"checked_at":"2026-08-16T12:08:04Z","missing_sections
 ```
 
 この順序を飛ばして後続を実装した場合、`implementation_status` は上げない。各章の Acceptance evidence が揃ったときだけ `verification_status=pass` とする。
+
+## 実装からの書き戻し（feat-uiux-overhaul）
+
+2026-08-23 時点で、運営者面の UI/UX 全面改善は実装受入に合格し、未公開である。章の質疑録への投影（`qa-uiux-web-overhaul-v2` ほか）と、画面規則の正本（`docs/spec/feat-uiux-overhaul/`）の所在は [`docs/spec/feat-uiux-overhaul/spec-writeback-receipt.md`](../docs/spec/feat-uiux-overhaul/spec-writeback-receipt.md) に受領した。`system-spec/*.md` を手で太らせて completeness を緑にはしていない。
 
 ## 全体ドキュメント出典 (未割当参照)
 

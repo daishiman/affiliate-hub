@@ -25,7 +25,8 @@
 
 ### a11y 欄の凡例（2026-08-19 に書き、2026-08-21 に書き方を決め直した）
 
-**「対応」を「機械が全部見た」と読まないこと。** 実測（axe-core 4.13.0、画面 67 枚）:
+**「対応」の根拠を「axe を回している」に置かないこと。**
+回っていることと、破ったときに赤くなることは別である。
 
 <!-- a11y-legend:counts — この 5 つの数はテスト側が正本。
      `tests/ui/axe-rule-coverage.test.ts` と `tests/ui/axe-blind-spots.test.ts` が
@@ -790,6 +791,32 @@ REQ-CI01 / REQ-CI02 はこの形で 2026-08-21 に実測した。
 
 **Beads との二重管理をしない。** 届いた声はこの機能の保存先が持ち、作業単位は Beads が持つ。
 1 件の要望が持つ Beads の課題番号は最大 1 つで、**着手・完了の状態は Beads を正とし、要望側へ写さない**（仕様 §12）。
+
+---
+
+## V. 管理画面の UI/UX 全面改善（`feat-uiux-overhaul`）
+
+受入条件 A1〜A10 の正本は `docs/spec/feat-uiux-overhaul/requirements-baseline.md`。
+そこでは 10 件それぞれを**観測可能な述語**へ書き下してある。ここはその裏返しで、
+述語を確かめているテストを要件番号から引けるようにしたものである。
+
+**A4 だけ test 列の形が違う。** 「新しい配信先の追加が記述の追加だけで済む」は、
+できあがったコードを見ても分からない。分かるのは**追加したときの差分**なので、
+判定は git の差分のパス集合で行う（`src/app/**` と `src/presentation/ui/**` が 0 行）。
+2026-08-22 に Facebook を 1 件足して実際に通してある。
+
+| REQ | 要件 | 実装 | test | 結果 |
+| --- | --- | --- | --- | --- |
+| REQ-UX01 | A1 各管理画面が単一用途で、1 画面に複数の主要タスクが混在しない | `src/app/admin/**` を用途ごとに分割。業務の状態を変えるフォームは 1 画面 1 つ | PASS（`tests/ui/uiux-screen-single-purpose.test.ts`） | 実装済 |
+| REQ-UX02 | A2 管理対象 4 種すべてに一覧・新規作成・編集・削除の操作と対応 API がある | 道具を `src/presentation/tools/catalog.ts` へ足すと REST・WebMCP・MCP の 3 入口へ同時に出る。管理画面用の REST route は書かない（`docs/spec/feat-uiux-overhaul/admin-api-contract.md`） | PASS（`tests/ui/uiux-admin-api-contract.test.ts`） | 実装済 |
+| REQ-UX03 | A3 各サイト・SNS への投稿状態が管理画面の一覧・詳細に反映される | `get_content_channel_status` を一覧と詳細の両方が使う | PASS（`tests/ui/uiux-channel-status.test.tsx`） | 実装済 |
+| REQ-UX04 | A4 新しい SNS の追加が記述の追加だけで完了し、既存画面の改修を要しない | `src/domain/distribution/channel.ts` の能力表に 1 エントリ、`src/infrastructure/channels/channel-registry.ts` に 1 行 | PASS（`tests/ui/uiux-channel-status.test.tsx` + 実際の追加差分。Facebook で実証） | 実装済 |
+| REQ-UX05 | A5 1 商品から複数ブログへコンセプト別の文章を作成する導線が動作する | 切り口はブログの設計図が持つ 10 軸から引く。人が毎回入力しない | PASS（`tests/ui/uiux-concept-matrix.test.tsx`） | 実装済 |
+| REQ-UX06 | A6 同等 UI の重複実装が 0 件で、共通部品は共有コンポーネント経由で使われる | `src/presentation/ui/{primitives,patterns,templates}`。同じ役割の要素が 3 つ以上同じ並びで 2 か所に出たら重複と数える | PASS（`tests/ui/uiux-duplicate-implementation.test.ts`） | 実装済 |
+| REQ-UX07 | A7 新規ブログ構築時のブログ別コンポーネント作成仕様が文書化され、実際に scaffold できる | 既定では固有ファイルを作らない（データで表現する）。例外の 2 条件を満たすときだけ `pnpm run scaffold:blog`（`scripts/scaffold-blog-components.ts`） | PASS（`tests/ui/uiux-blog-scaffold.test.ts`） | 実装済 |
+| REQ-UX08 | A8 カード間隔・文章量・サイドバー構成が規則として文書化され、全画面へ適用されている | 余白は意味の段（`src/presentation/ui/tokens/semantic.css`）だけを読む。導入文 40 字・`Callout` 2 個の上限 | PASS（`tests/ui/uiux-spacing-and-copy.test.ts` / `tests/ui/design-tokens.test.ts`） | 実装済 |
+| REQ-UX09 | A9 サイドバーの全項目にアイコンが付き、アイコンで折りたたみ／展開が切り替わり、折りたたみ時もアイコンで項目を識別できる | `ADMIN_NAV` の型が `icon` を必須にする。畳んでも読み上げの名前は消さない | PASS（`tests/ui/uiux-sidebar-icons.test.tsx`） | 実装済 |
+| REQ-UX10 | A10 各画面の表示情報がタスク遂行に必要な項目だけに絞られ、不要な文章・説明が非表示になっている | 残す・落とす・畳むの判断は `docs/spec/feat-uiux-overhaul/information-priority-map.json` | PASS（`tests/ui/uiux-spacing-and-copy.test.ts`） | 実装済 |
 
 ---
 

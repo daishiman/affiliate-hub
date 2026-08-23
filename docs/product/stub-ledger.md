@@ -12,7 +12,7 @@
 
 ## まだ中身が無いもの
 
-件数: 32
+件数: 33
 
 | 識別子 | 何のスタブか | つなぎ目 | 何が済めば実装できるか |
 |---|---|---|---|
@@ -26,6 +26,7 @@
 | `asp:value_commerce` | バリューコマース との連携 | AspAdapterPort | バリューコマースのAPI利用申請と提携承認が必要 |
 | `asp:yahoo_shopping` | Yahoo!ショッピング との連携 | AspAdapterPort | Yahoo!デベロッパーネットワークのアプリケーションID発行が必要 |
 | `channel:bluesky` | Bluesky への配信 | ChannelConnectorPort | Bluesky (AT Protocol) のアプリパスワード発行が必要 |
+| `channel:facebook` | Facebook への配信 | ChannelConnectorPort | Facebook ページの連携と Graph API のアプリ審査が必要 |
 | `channel:instagram` | Instagram への配信 | ChannelConnectorPort | Instagram Graph API はプロアカウントと Facebook ページ連携が必要 |
 | `channel:newsletter` | メール配信 への配信 | ChannelConnectorPort | 配信基盤 (メール送信) の選定が必要 |
 | `channel:own_site` | 自社サイト への配信 | ChannelConnectorPort | 予約投稿と取り下げ（公開済みの記事を読者ページから外す道）の実装が必要。出すだけなら配信の画面から今できる |
@@ -112,4 +113,4 @@
 **Google Gemini の注意**: `responseSchema` は JSON Schema の一部しか解釈しない。
 受け付けられない形は 400 で返る（黙って自由文には落とさない）。
 実際の鍵で呼ぶとき、最初に踏むのはたいていここである。
-<!-- 生成物の指紋 sha256:8b748a582be1ef1af42944ec6edd0a5479d78d028ac87a8cb20ed148e7264852 -->
+<!-- 生成物の指紋 sha256:f0049a01c0d1d225d140fffa56d88b32cd868f415afad9ac3afb44972c77d477 -->

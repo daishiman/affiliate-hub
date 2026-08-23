@@ -148,6 +148,13 @@
       "when": 1787295296345,
       "tag": "0020_wise_juggernaut",
       "breakpoints": true
+    },
+    {
+      "idx": 21,
+      "version": "6",
+      "when": 1787493550382,
+      "tag": "0021_secret_vin_gonzales",
+      "breakpoints": true
     }
   ]
 }

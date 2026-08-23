@@ -37,10 +37,12 @@ import { createReadWritingMethodUseCase } from "@/application/usecases/authoring
 import {
   createCancelPublicationUseCase,
   createExportManualDraftUseCase,
+  createGetContentChannelStatusUseCase,
   createGetPublicationUseCase,
   createListChannelsUseCase,
   createListPublicationsUseCase,
   createSchedulePublicationUseCase,
+  createUpdatePublicationUseCase,
 } from "@/application/usecases/distribution/manage-distribution";
 import {
   createGetPublicationCalendarUseCase,
@@ -116,6 +118,21 @@ import {
   createGetManagedSiteUseCase,
   createListManagedSitesUseCase,
 } from "@/application/usecases/site/manage-sites";
+import {
+  createDeleteManagedSiteUseCase,
+  createUpdateManagedSiteUseCase,
+} from "@/application/usecases/site/edit-sites";
+import {
+  createCreateProductUseCase,
+  createDeleteProductUseCase,
+  createUpdateProductUseCase,
+} from "@/application/usecases/product/edit-product";
+import {
+  createCreateContentVariantUseCase,
+  createDeleteContentVariantUseCase,
+  createUpdateContentVariantUseCase,
+} from "@/application/usecases/content/edit-content";
+import { createCreateConceptDraftsUseCase } from "@/application/usecases/content/concept-drafts";
 import {
   createPreparePublishArticleUseCase,
   createPublishArticleUseCase,
@@ -572,8 +589,13 @@ export function readerUseCases() {
  * `src/presentation/tools/product-tools.ts` も同じユースケースを載せているので、
  * 画面に出る内容と AI が返す内容がずれない。
  */
-export function productUseCases() {
-  const deps = createDeps();
+export async function productUseCases() {
+  /*
+    接続を渡す。渡さないと、`productEditingUseCases()` で登録した商品が
+    読む側には見えない。**書けるのに読めない**という、一番気づきにくい壊れ方をする。
+    登録した本人は登録できたと思い、一覧を開いて「消えた」と受け取る。
+  */
+  const deps = createDeps({ db: await tryGetDb() });
   const product = {
     products: deps.products,
     claims: deps.claims,
@@ -687,6 +709,77 @@ export async function platformUseCases() {
 }
 
 /**
+ * 商品を人の手で登録する・直す・消す入口。
+ *
+ * 読む側の `productUseCases()` と分けているのは `product-tools.ts` と同じ理由で、
+ * **参照の数え方が違う**ため。読むほうは根拠と順位が要り、書くほうが要るのは
+ * 「この商品を使っている記事が何本あるか」だけである。
+ *
+ * こちらだけ `tryGetDb()` を通しているのは、登録した商品が
+ * 次に開いたときに消えていては登録した意味が無いため。
+ */
+export async function productEditingUseCases() {
+  const deps = createDeps({ db: await tryGetDb() });
+  const editing = {
+    products: deps.products,
+    packages: deps.contentPackages,
+    auditLog: deps.auditLog,
+    ids: deps.ids,
+  };
+  return {
+    create: createCreateProductUseCase(editing),
+    update: createUpdateProductUseCase(editing),
+    remove: createDeleteProductUseCase(editing),
+  };
+}
+
+/**
+ * 記事の枠を作る・直す・消す入口。
+ *
+ * 盤面を読む `contentUseCases()` とは別に置く。あちらは段階を進める操作で、
+ * こちらは中身を書き換える操作である。**承認が外れるのはこちらだけ**で、
+ * 同じ入口にすると「進めたつもりが承認を外していた」が起きる。
+ */
+export async function contentEditingUseCases() {
+  const deps = createDeps({ db: await tryGetDb() });
+  const editing = {
+    variants: deps.contentVariants,
+    packages: deps.contentPackages,
+    auditLog: deps.auditLog,
+    ids: deps.ids,
+  };
+  return {
+    create: createCreateContentVariantUseCase(editing),
+    update: createUpdateContentVariantUseCase(editing),
+    remove: createDeleteContentVariantUseCase(editing),
+    // ブログ別の書き分けは、1 本ずつ作る操作の上に載っている。
+    // 同じつなぎ目から取るのは、片方だけ別の保存先を向くのを防ぐため。
+    createConceptDrafts: createCreateConceptDraftsUseCase(editing),
+  };
+}
+
+/**
+ * ブログの設計図を直す・取り下げる入口。
+ *
+ * 読む `platformUseCases()` より依存が多い。書くのは登録の窓口 (`drafts`) で、
+ * 取り下げの前に `publishedContent` で残っている記事を数えるため。
+ */
+export async function siteEditingUseCases() {
+  const deps = createDeps({ db: await tryGetDb() });
+  const siteEditing = {
+    sites: deps.sites,
+    drafts: deps.siteDrafts,
+    publishedContent: deps.publishedContent,
+    auditLog: deps.auditLog,
+    ids: deps.ids,
+  };
+  return {
+    update: createUpdateManagedSiteUseCase(siteEditing),
+    remove: createDeleteManagedSiteUseCase(siteEditing),
+  };
+}
+
+/**
  * 配信の入口。
  *
  * 出し先を 1 つ増やすときに触るのは、domain のチャネル能力表と
@@ -723,6 +816,8 @@ export async function distributionUseCases() {
     exportManualDraft: createExportManualDraftUseCase(distribution),
     cancel: createCancelPublicationUseCase(distribution),
     schedule: createSchedulePublicationUseCase(distribution),
+    update: createUpdatePublicationUseCase(distribution),
+    channelStatus: createGetContentChannelStatusUseCase(distribution),
     preparePublishArticle: createPreparePublishArticleUseCase(ownSite),
     publishArticle: createPublishArticleUseCase(ownSite),
   };

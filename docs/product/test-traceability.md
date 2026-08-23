@@ -6,8 +6,8 @@
 テスト側の `@req` 印を重ねたもの。
 
 - 最終更新: 2026-08-23
-- テストファイル: 241 件
-- 由来の要件が分かる: 239 件
+- テストファイル: 260 件
+- 由来の要件が分かる: 258 件
 - **由来不明: 2 件**（上限 2 件）
 
 由来不明とは「どの要件のために書いたのか、機械から辿れない」という意味で、
@@ -28,8 +28,12 @@
 | `tests/application/article-tracking.test.ts` | REQ-E13, REQ-P09 | 印 |
 | `tests/application/audit-actor-identity.test.ts` | REQ-SEC09 | 印 |
 | `tests/application/build-site.test.ts` | REQ-A05, REQ-P07, REQ-S06 | 印と表 |
+| `tests/application/concept-drafts.test.ts` | REQ-UX02 | 印 |
 | `tests/application/dashboard.test.ts` | REQ-S01 | 表 |
 | `tests/application/draft-content-variant.test.ts` | REQ-G11 | 印と表 |
+| `tests/application/edit-content.test.ts` | REQ-UX02 | 印 |
+| `tests/application/edit-product.test.ts` | REQ-UX02 | 印 |
+| `tests/application/edit-sites.test.ts` | REQ-UX03 | 印 |
 | `tests/application/explain-telemetry.test.ts` | REQ-TM10 | 印と表 |
 | `tests/application/feedback.test.ts` | REQ-FB07, REQ-FB08, REQ-FB09, REQ-FB12 | 印と表 |
 | `tests/application/filter-metrics.test.ts` | REQ-P10, REQ-S08 | 印と表 |
@@ -52,6 +56,7 @@
 | `tests/application/review-loop-runs.test.ts` | REQ-IM01, REQ-IM08, REQ-IM09 | 印 |
 | `tests/application/schedule-publication.test.ts` | REQ-P08 | 印と表 |
 | `tests/application/writing-method.test.ts` | REQ-W01, REQ-W02, REQ-W05, REQ-W06, REQ-W07, REQ-W08, REQ-W09 | 印と表 |
+| `tests/architecture/acceptance-reconciliation.test.ts` | REQ-UX01, REQ-UX02, REQ-UX03, REQ-UX04, REQ-UX05, REQ-UX06, REQ-UX07, REQ-UX08, REQ-UX09, REQ-UX10 | 印 |
 | `tests/architecture/ai-eval-budget.test.ts` | REQ-CI13 | 表 |
 | `tests/architecture/appearance-single-source.test.ts` | REQ-TH03, REQ-TH04 | 印と表 |
 | `tests/architecture/audit-action-emitters.test.ts` | REQ-SEC09 | 印 |
@@ -135,6 +140,7 @@
 | `tests/infrastructure/d1-affiliate-link-offers.test.ts` | REQ-E12, REQ-E13 | 印 |
 | `tests/infrastructure/d1-conversion-repository.test.ts` | REQ-P09 | 表 |
 | `tests/infrastructure/d1-link-inbox.test.ts` | REQ-P02, REQ-S02 | 印 |
+| `tests/infrastructure/d1-product-repository.test.ts` | REQ-B01 | 印 |
 | `tests/infrastructure/d1-site-repository.test.ts` | REQ-B01 | 印 |
 | `tests/infrastructure/db-binding.test.ts` | REQ-TS09 | 印 |
 | `tests/infrastructure/entry-gate.test.ts` | REQ-S10 | 印 |
@@ -146,6 +152,7 @@
 | `tests/infrastructure/llm-providers.test.ts` | REQ-G11, REQ-SEC01, REQ-SEC05 | 印と表 |
 | `tests/infrastructure/llm-usage-repository.test.ts` | REQ-SEC01 | 印 |
 | `tests/infrastructure/membership-reader.test.ts` | REQ-S10 | 印 |
+| `tests/infrastructure/product-sample-repository.test.ts` | REQ-B01 | 印 |
 | `tests/infrastructure/prompt-assembly.test.ts` | REQ-P06 | 表 |
 | `tests/infrastructure/session-actor.test.ts` | REQ-S10 | 印 |
 | `tests/infrastructure/session-issuer.test.ts` | REQ-S10 | 印 |
@@ -166,7 +173,10 @@
 | `tests/integration/d1-tracking-issuance.test.ts` | REQ-E13, REQ-P09 | 印と表 |
 | `tests/integration/full-loop.test.ts` | REQ-TS07 | 表 |
 | `tests/integration/r2-feedback-capture.test.ts` | REQ-FB04, REQ-FB06, REQ-TS07 | 印 |
+| `tests/presentation/admin-action-result.test.ts` | REQ-UX02 | 印 |
 | `tests/presentation/admin-actions.test.ts` | REQ-P08 | 表 |
+| `tests/presentation/admin-crud-actions.test.ts` | REQ-UX02 | 印 |
+| `tests/presentation/admin-edit-actions.test.ts` | REQ-UX02 | 印 |
 | `tests/presentation/admin-routes.test.ts` | REQ-FB07, REQ-P09, REQ-S02, REQ-S03, REQ-S10, REQ-TS05 | 表 |
 | `tests/presentation/api-routes.test.ts` | REQ-M03, REQ-TM11, REQ-WA02, REQ-WC06 | 印と表 |
 | `tests/presentation/api-scope-actor.test.ts` | REQ-API02, REQ-FB13 | 印 |
@@ -204,6 +214,7 @@
 | `tests/property/variant-spec.property.test.ts` | REQ-E14, REQ-IM05, REQ-IM06 | 印と表 |
 | `tests/support/support.test.ts` | REQ-TS01 | 印 |
 | `tests/ui/adjust-conversion-form.test.tsx` | REQ-P09 | 表 |
+| `tests/ui/admin-edit-forms.test.tsx` | REQ-UX02 | 印 |
 | `tests/ui/ai-usage-page.test.tsx` | REQ-TM02, REQ-TM03 | 印と表 |
 | `tests/ui/app-shell-nav.test.tsx` | REQ-S09, REQ-SEC08 | 印 |
 | `tests/ui/article-frame.test.tsx` | REQ-TM06 | 印と表 |
@@ -212,10 +223,11 @@
 | `tests/ui/axe-rule-coverage.test.ts` | REQ-SEC08, REQ-TS06 | 印と表 |
 | `tests/ui/blueprint-theme.test.ts` | REQ-P07, REQ-TH02, REQ-TS06 | 表 |
 | `tests/ui/capture-canvas.test.tsx` | REQ-FB04, REQ-FB05 | 印と表 |
+| `tests/ui/catalog-and-signin-clients.test.tsx` | REQ-UX01 | 印 |
 | `tests/ui/consent-banner.test.tsx` | REQ-TM07 | 印と表 |
 | `tests/ui/content-progress-form.test.tsx` | REQ-R11 | 印 |
 | `tests/ui/copy-dictionary.test.ts` | REQ-QC09, REQ-TS09 | 印 |
-| `tests/ui/design-tokens.test.ts` | REQ-S09, REQ-SEC08, REQ-TS09 | 表 |
+| `tests/ui/design-tokens.test.ts` | REQ-S09, REQ-SEC08, REQ-TS09, REQ-UX08 | 表 |
 | `tests/ui/disclosure-text.test.ts` | REQ-QC09, REQ-SEC07 | 印 |
 | `tests/ui/fact-source.test.ts` | REQ-QC04, REQ-W07 | 印と表 |
 | `tests/ui/feedback-admin-forms.test.tsx` | REQ-FB08, REQ-FB12 | 表 |
@@ -225,7 +237,6 @@
 | `tests/ui/header-wrap-shape.test.ts` | REQ-S09 | 印 |
 | `tests/ui/heading-is-visible.test.ts` | REQ-S09, REQ-TS06 | 印 |
 | `tests/ui/improvement-forms.test.tsx` | REQ-IM09 | 印と表 |
-| `tests/ui/inline-nav.test.tsx` | REQ-S09 | 印 |
 | `tests/ui/keyboard-operation.test.tsx` | REQ-B01, REQ-B02, REQ-B03, REQ-B04, REQ-B05, REQ-B06, REQ-B07, REQ-B08, REQ-B09, REQ-B10, REQ-B11, REQ-B12, REQ-B13, REQ-B14, REQ-B15, REQ-B16, REQ-B17, REQ-B18, REQ-FB07, REQ-IM09, REQ-P01, REQ-P02, REQ-P03, REQ-P04, REQ-P05, REQ-P06, REQ-P07, REQ-P08, REQ-P09, REQ-P10, REQ-S01, REQ-S02, REQ-S03, REQ-S04, REQ-S05, REQ-S06, REQ-S07, REQ-S08, REQ-S09, REQ-S10, REQ-SEC08, REQ-TH01, REQ-TM02, REQ-TM03, REQ-TM05, REQ-TM06, REQ-TM10, REQ-TS05 | 印と表 |
 | `tests/ui/layout-density.test.ts` | REQ-S09, REQ-SEC08 | 印と表 |
 | `tests/ui/llm-credential-forms.test.tsx` | REQ-SEC01 | 印 |
@@ -250,7 +261,6 @@
 | `tests/ui/screen-hit-and-current.test.tsx` | REQ-P02, REQ-S01, REQ-S08, REQ-S09, REQ-S10 | 印と表 |
 | `tests/ui/site-not-found.test.tsx` | REQ-B01 | 表 |
 | `tests/ui/site-wizard-form.test.tsx` | REQ-P07, REQ-S06 | 印 |
-| `tests/ui/stacked-list-role.test.ts` | REQ-S09, REQ-TS06 | 印 |
 | `tests/ui/surface-outline-count.test.ts` | REQ-S09 | 印 |
 | `tests/ui/table-through-component.test.ts` | REQ-S09, REQ-TS06 | 印 |
 | `tests/ui/tap-target-floor.test.ts` | REQ-P01 | 印 |
@@ -259,6 +269,15 @@
 | `tests/ui/theme-contrast.test.ts` | REQ-S08, REQ-TH01, REQ-TH02, REQ-TS06 | 印と表 |
 | `tests/ui/tool-form.test.tsx` | REQ-WC05 | 印と表 |
 | `tests/ui/ui-layers.test.ts` | REQ-S09, REQ-TM05 | 表 |
+| `tests/ui/uiux-admin-api-contract.test.ts` | REQ-UX02 | 印と表 |
+| `tests/ui/uiux-blog-scaffold.test.ts` | REQ-UX07 | 印と表 |
+| `tests/ui/uiux-channel-status.test.tsx` | REQ-UX03, REQ-UX04 | 印と表 |
+| `tests/ui/uiux-concept-matrix.test.tsx` | REQ-UX05 | 印と表 |
+| `tests/ui/uiux-duplicate-implementation.test.ts` | REQ-UX06 | 印と表 |
+| `tests/ui/uiux-form-declaration.test.ts` | REQ-UX06 | 印 |
+| `tests/ui/uiux-screen-single-purpose.test.ts` | REQ-UX01 | 印と表 |
+| `tests/ui/uiux-sidebar-icons.test.tsx` | REQ-UX09 | 印と表 |
+| `tests/ui/uiux-spacing-and-copy.test.ts` | REQ-UX08, REQ-UX10 | 印と表 |
 | `tests/ui/zz-probe-tone.test.tsx` | REQ-TM07 | 表 |
-| `tests/visual/visual-regression.test.ts` | REQ-TS12 | 印 |
-<!-- 生成物の指紋 sha256:49140090b75f5d373e51bcfe6bda9806ae48d7fc5f7dddbb18463e3b51f4775a -->
+| `tests/visual/visual-regression.test.ts` | REQ-S09, REQ-TS12, REQ-UX08 | 印 |
+<!-- 生成物の指紋 sha256:4fce91f7059ba21dce12b45362fbb25dbedf4a633bfb29c0642df2d3713e9d84 -->
