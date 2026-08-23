@@ -31,6 +31,22 @@ import { MUTATION_SCORE } from "./quality-gates.config.mjs";
 const strykerConfig = {
   packageManager: "pnpm",
   testRunner: "vitest",
+
+  /*
+    プラグインを**名前で指定する**。既定は `["@stryker-mutator/*"]` という
+    node_modules のディレクトリ形へのグロブだが、pnpm は依存を `.pnpm/` へ隔離して
+    symlink を張るので、この glob が何を拾えるかは環境で変わる。
+
+    2026-08-23 に実際に割れた。**手元 (macOS) では拾えて CI (Linux) では拾えず**、
+    `Cannot find TestRunner plugin "vitest". In fact, no TestRunner plugins were
+    loaded` で 4.3 秒で落ちた。パッケージは 865 件とも入っており、
+    足りなかったのは見つけ方のほうである。
+
+    名前で書けば通常の解決になり、環境差が消える。**「手元では通るのに機械で
+    落ちる」は CI がいちばん壊れて見える形なので、glob に戻さないこと。**
+  */
+  plugins: ["@stryker-mutator/vitest-runner"],
+
   vitest: {
     configFile: "vitest.mutation.config.mts",
   },
