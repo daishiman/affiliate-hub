@@ -10,6 +10,7 @@ import {
   FactList,
   ListView,
   Note,
+  SeeAlso,
   Section,
   StepList,
   TextLink,
@@ -84,7 +85,7 @@ function WritingMethod({ method: m }: { readonly method: Method }) {
         title={`${m.articleTypeLabel}の節（${m.sections.length}件・うち欠かせないもの ${m.requiredCount}件）`}
       >
         <DataTable
-          caption="上から順に並べます。順番を入れ替えないでください。"
+          caption="記事の型ごとの節と順序"
           columns={[
             { key: "label", label: "節" },
             { key: "order", label: "順", numeric: true },
@@ -160,9 +161,9 @@ function WritingMethod({ method: m }: { readonly method: Method }) {
             cells: [g.levelLabel, g.jargon, g.numbers, g.structure],
           }))}
         />
-        <Note>
+        <SeeAlso>
           <TextLink href="/admin/personas">書き手と読者像を見る</TextLink>
-        </Note>
+        </SeeAlso>
       </Section>
 
       <Section title="会話の決まり">
@@ -186,9 +187,9 @@ function WritingMethod({ method: m }: { readonly method: Method }) {
           ]}
         />
         <Callout tone="warn" title="会話だけに根拠を置きません" reason={m.conversation.rule} />
-        <Note>
+        <SeeAlso>
           <TextLink href="/admin/generation">生成の仕組みを見る</TextLink>
-        </Note>
+        </SeeAlso>
       </Section>
     </>
   );

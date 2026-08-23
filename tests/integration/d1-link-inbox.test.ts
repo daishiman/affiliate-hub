@@ -51,6 +51,29 @@ import { anOwner, anOutsider } from "../support/actors";
  * ここが落ちる。**使うものだけを書く。**
  */
 type TestEnv = { readonly DB: D1Database };
+
+/**
+ * `pragma index_list` / `pragma index_info` が返す行。
+ *
+ * **読む欄だけを書かない。** SQLite が返す欄をそのまま書き写す。
+ * 使う欄だけを型に書くと、後から別の欄を読んだときに
+ * 「返っているのに読めない」という、事実と食い違う赤が出る。
+ * 出どころは SQLite の PRAGMA（`index_list` / `index_info`）で、
+ * これらは生成された型を持たないため、ここが返りの形の宣言になる。
+ */
+type IndexListRow = {
+  readonly seq: number;
+  readonly name: string;
+  readonly unique: number;
+  readonly origin: string;
+  readonly partial: number;
+};
+
+type IndexInfoRow = {
+  readonly seqno: number;
+  readonly cid: number;
+  readonly name: string;
+};
 type Proxy = Awaited<ReturnType<typeof getPlatformProxy<TestEnv>>>;
 
 let proxy: Proxy;
@@ -106,6 +129,7 @@ afterAll(async () => {
 
 beforeEach(async () => {
   await proxy.env.DB.prepare("DELETE FROM link_ingestions").run();
+  await proxy.env.DB.prepare("DELETE FROM link_ingestion_url_claims").run();
 });
 
 const submit = () => createSubmitAffiliateUrlUseCase(deps);
@@ -123,7 +147,7 @@ describe("マイグレーションそのもの", () => {
 
     const indexes = await proxy.env.DB.prepare(
       "pragma index_list(link_ingestions)",
-    ).all<{ name: string; unique: number }>();
+    ).all<IndexListRow>();
     const byUrl = indexes.results.find(
       (r) => r.name === "link_ingestions_workspace_normalized_url_idx",
     );
@@ -131,6 +155,35 @@ describe("マイグレーションそのもの", () => {
     // **一意にしないこと。** 一意だと、2 回目の貼り付けが
     // 「やり直しても永久に通らない失敗」になる（下の「重複」の項がその実測）。
     expect(byUrl?.unique).toBe(0);
+  });
+
+  it("最初の 1 本の取り合いに使う表を作り、同じ URL を 2 行持てないようにする", async () => {
+    const tables = await proxy.env.DB.prepare(
+      "select name from sqlite_master where type = 'table'",
+    ).all<{ name: string }>();
+    expect(tables.results.map((r) => r.name)).toContain("link_ingestion_url_claims");
+
+    // 受信箱の側ではなく**こちらが一意**であること。
+    // ここが一意でないと、同時に貼ったときに勝ちが 2 本になり、
+    // どちらにも重複の印が付かない状態に戻る。
+    const indexes = await proxy.env.DB.prepare(
+      "pragma index_list(link_ingestion_url_claims)",
+    ).all<IndexListRow>();
+    const pk = indexes.results.find((r) => r.origin === "pk");
+    expect(pk?.unique).toBe(1);
+    // 名前を引く前に、無い場合をここで落とす。空の名前で問い合わせると、
+    // 索引が 1 つも無いのに「列がそろっていない」という別の顔で落ちる。
+    if (pk === undefined) throw new Error("主キーの索引がありません");
+
+    // 一意が効く単位は「作業場所 + 正規化 URL」。作業場所が抜けると、
+    // 先に貼った他社のせいで自分が最初になれなくなる。
+    const columns = await proxy.env.DB.prepare(
+      `pragma index_info(${JSON.stringify(pk.name)})`,
+    ).all<IndexInfoRow>();
+    expect(columns.results.map((c) => c.name).sort()).toEqual([
+      "normalized_url",
+      "workspace_id",
+    ]);
   });
 
   it("認証まわりの表もそろっている（ログインを入れる前提が崩れていない）", async () => {
@@ -245,6 +298,82 @@ describe("重複", () => {
     if (!listed.ok) return;
     expect(listed.value.total).toBe(2);
     expect(listed.value.duplicateCount).toBe(1);
+  });
+
+  it("2 人が同時に同じリンクを貼っても、片方に必ず重複の印が付く", async () => {
+    /*
+     * **順番に貼るのではなく、待たずに 2 本走らせる。**
+     *
+     * 順番に貼ると、2 本目が始まる頃には 1 本目が保存し終わっているので、
+     * 「先に読んでから入れる」書き方でも印が付いてしまい、
+     * この取りこぼしは再現しない。ここでは 1 本目が保存する前に
+     * 2 本目が重複の判定に入る形（受け取りの途中で入れ替わる形）を作る。
+     */
+    const url = "https://af.example.com/click?race=1";
+    const [first, second] = await Promise.all([
+      submit().execute(owner, { url, source: "paste" }),
+      submit().execute(owner, { url, source: "webmcp" }),
+    ]);
+
+    expect(first.ok).toBe(true);
+    expect(second.ok).toBe(true);
+    if (!first.ok || !second.ok) return;
+
+    // どちらが先に着くかは決められない。決めたいのは
+    // 「**ちょうど片方**が重複になる」ことだけ。
+    const duplicates = [first.value, second.value].filter((r) => r.duplicate);
+    expect(duplicates).toHaveLength(1);
+    expect(duplicates[0]?.message).toContain("消していません");
+
+    // 印は返り値ではなく**保存先を読み直して**確かめる。
+    const listed = await list().execute(owner, {});
+    expect(listed.ok).toBe(true);
+    if (!listed.ok) return;
+    // 2 件とも残っている（重複を理由に捨てない）。
+    expect(listed.value.total).toBe(2);
+    expect(listed.value.duplicateCount).toBe(1);
+
+    // 印は「もう 1 本」を指している。自分自身や、居ない相手を指さない。
+    const marked = listed.value.items.find((i) => i.duplicateOf !== null);
+    const other = listed.value.items.find((i) => i.duplicateOf === null);
+    expect(marked?.duplicateOf).toBe(other?.id);
+
+    /*
+     * 取り合いに勝ったのが**本当に 1 本だけ**であること。
+     *
+     * 上の印だけを見ていると、勝ちが 2 本になっていても
+     * 「たまたま先に入った行が読み出しの先頭に来た」せいで印が付き、
+     * 緑のまま通ってしまう。取り合いの表を直接数えて、そこを塞ぐ。
+     */
+    // この試験で貼ったのは同じ URL の 2 本だけ（表は毎回空から始める）。
+    const held = await proxy.env.DB.prepare(
+      "select count(*) as n from link_ingestion_url_claims",
+    ).all<{ n: number }>();
+    expect(held.results[0]?.n).toBe(1);
+  });
+
+  it("対象外にしたリンクは、次に同じ URL を貼っても重複相手にならない", async () => {
+    const url = "https://af.example.com/click?expired=1";
+    const first = await submit().execute(owner, { url, source: "paste" });
+    expect(first.ok).toBe(true);
+    if (!first.ok) return;
+
+    const rejected = await reject().execute(owner, {
+      linkIngestionId: first.value.item.id,
+      reason: "提携が終了した広告主のため",
+    });
+    expect(rejected.ok).toBe(true);
+
+    /*
+     * 捨てたものを相手に指した「重複」を出さない。
+     * 出すと、貼り直した人は「既にある」と言われた先が対象外のリンクで、
+     * どうすれば通るのか分からなくなる。
+     */
+    const again = await submit().execute(owner, { url, source: "paste" });
+    expect(again.ok).toBe(true);
+    if (!again.ok) return;
+    expect(again.value.duplicate).toBe(false);
+    expect(again.value.item.duplicateOf).toBeNull();
   });
 });
 

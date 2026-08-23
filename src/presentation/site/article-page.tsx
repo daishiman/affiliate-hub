@@ -1,7 +1,7 @@
 import { readerActor, siteUseCases } from "@/presentation/composition";
 import type { PageKind } from "@/presentation/tools/webmcp-policy";
 import { ArticleView } from "@/presentation/ui";
-import { ReadFailureBody, SiteFrame } from "./page-frame";
+import { ReadFailureBody, SiteFrame, stopIfMissing } from "./page-frame";
 import { siteHref, toArticleView } from "./view-model";
 
 /**
@@ -40,6 +40,15 @@ export async function ArticlePage({
   readonly routeLabel: string;
 }) {
   const result = await (await siteUseCases()).getArticle.execute(readerActor(), { siteSlug, slug });
+
+  /*
+    無い記事なら、ここで 404 として打ち切る。**JSX を組み立てる前に呼ぶ。**
+    以前はこの下の `ReadFailureBody` が「記事が見つかりませんでした」と描いていたが、
+    通信の答えは 200 のままだった。読者の目には同じでも、空の記事が検索結果に載り、
+    公開後の見張りからも壊れと区別が付かない（残課題リスト 項目 36）。
+  */
+  if (!result.ok) stopIfMissing(result.error);
+
   const path = `${pathPrefix}/${slug}`;
 
   return (
@@ -53,7 +62,7 @@ export async function ArticlePage({
         result.ok ? (
           <ArticleView article={toArticleView(siteSlug, result.value)} />
         ) : (
-          <ReadFailureBody error={result.error} what="記事" siteSlug={siteSlug} />
+          <ReadFailureBody what="記事" siteSlug={siteSlug} />
         )
       }
     </SiteFrame>

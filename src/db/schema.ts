@@ -438,9 +438,8 @@ export const updateLogs = sqliteTable(
  * （`tests/integration/d1-link-inbox.test.ts`）。
  * 索引は重複相手を引くために残す。一意にはしない。
  *
- * 同時に 2 人が同じ URL を入れたときは、どちらも重複の印が付かないまま
- * 2 行入る。受信箱は重複を持てる作りなので、これは表示上の取りこぼしであって
- * データの破損ではない。残課題として記録してある。
+ * 同時に 2 人が同じ URL を入れたときにどちらへ印を付けるかは、
+ * この表ではなく次の `link_ingestion_url_claims` が決める。
  */
 export const linkIngestions = sqliteTable(
   "link_ingestions",
@@ -468,6 +467,39 @@ export const linkIngestions = sqliteTable(
     index("link_ingestions_workspace_state_idx").on(t.workspaceId, t.state),
     index("link_ingestions_workspace_normalized_url_idx").on(t.workspaceId, t.normalizedUrl),
   ],
+);
+
+/**
+ * 「その URL を最初に受け取ったのは誰か」の取り合い（§9.2 の重複判定）。
+ *
+ * **なぜ受信箱の外に置くのか。**
+ * 重複の印を付けるには「自分より先に同じ URL があったか」を知る必要があるが、
+ * 先に読んでから書く形（SELECT してから INSERT）では、2 人が同時に貼ったときに
+ * 両方が「無い」を見て、どちらにも印が付かないまま 2 行入る。
+ * かといって `link_ingestions.normalized_url` を一意にすると、
+ * 2 回目の貼り付けが**やり直しても永久に通らない失敗**に戻ってしまう
+ * （それを避けるために一意制約を落とした経緯が上のコメント）。
+ *
+ * そこで、**受け取りは今までどおり全部通したまま**、
+ * 「最初の 1 本」だけをこの表の主キー（作業場所 + 正規化 URL）で取り合わせる。
+ * 取れなければ相手の `link_ingestion_id` が返り、それが `duplicate_of` になる。
+ * 主キーは 1 行しか許さないので、同時に来ても勝つのは必ず 1 本だけになる。
+ *
+ * 対象外にした（`rejected`）ときは、この行を消して取り合いから降りる。
+ * 降ろさないと、捨てたリンクを相手に指した「重複」が延々と出続ける。
+ */
+export const linkIngestionUrlClaims = sqliteTable(
+  "link_ingestion_url_claims",
+  {
+    workspaceId: text("workspace_id").notNull(),
+    normalizedUrl: text("normalized_url").notNull(),
+    /** 取り合いに勝った受信リンク。重複の印はここを指す。 */
+    linkIngestionId: text("link_ingestion_id").notNull(),
+    claimedAt: integer("claimed_at", { mode: "timestamp" })
+      .notNull()
+      .default(sql`(unixepoch())`),
+  },
+  (t) => [primaryKey({ columns: [t.workspaceId, t.normalizedUrl] })],
 );
 
 /**
@@ -1157,6 +1189,64 @@ export const llmUsages = sqliteTable(
 );
 
 /**
+ * 成果リンク（ASP が発行した URL）の保存先。
+ *
+ * **記事の版（`content_variants.affiliate_link_ids`）が指している先がここ。**
+ * 版は ID の列しか持たないので、この表が無いと、公開のときに
+ * 「どの商品の、どこへ行く、何という名前のリンクか」が 1 つも分からない。
+ * その状態では記事に成果リンクを 1 件も載せられない（残課題 58）。
+ *
+ * **`original_url` は ASP が発行した URL そのもの。** 加工して保存する列は置かない。
+ * 印を足した URL は多くの ASP で規約違反になり、成果そのものが計上されなくなる。
+ * 入れる前に https であることを確かめる（`createAffiliateLink`）。
+ * 差し替えるときは上書きせず新しい行を作る（`disabled_at` を入れて止める）。
+ *
+ * --- なぜ商品名をここに持つのか ---
+ * 商品の表（`products`）は、**作る入口がまだ無いので空**である。そこを引くと、
+ * 実運用では名前が引けず、リンクだけのカードになる。ASP でリンクを発行した
+ * 時点では商品名が分かっているので、**そのときの名前をここへ写す**。
+ * 写しなので古くなりうる。古くなったら行を作り直す（URL と同じ扱い）。
+ *
+ * **報酬額はここに置かない。** 記事の組み立てはこの表を読むので、
+ * 置いた時点で「よく売れる商品を上に出す」実装が書ける形になる
+ * （Editorial / Commercial の遮断。`tests/architecture/commercial-isolation.test.ts`）。
+ *
+ * 規範: docs/spec/01-要求仕様書-v1.0.md §19.2 / REQ-E13、tasks/task-publish-article-affiliate-links.md
+ */
+export const affiliateLinks = sqliteTable(
+  "affiliate_links",
+  {
+    id: text("id").primaryKey(),
+    workspaceId: text("workspace_id").notNull(),
+    programId: text("program_id").notNull(),
+    /** どの商品のリンクか。商品に結びついていないリンクもある。 */
+    productId: text("product_id"),
+    /** 発行したときの商品名。読者のカードにそのまま出る。 */
+    productName: text("product_name").notNull(),
+    /** 作り手・ブランド。分からないときは空にせず未設定（null）にする。 */
+    brand: text("brand"),
+    /** 1 文の説明。カードの見出しの下に出る。 */
+    oneLine: text("one_line"),
+    /** ASP が発行した URL。**1 文字も変えずに入れ、1 文字も変えずに出す。** */
+    originalUrl: text("original_url").notNull(),
+    alterationProhibited: integer("alteration_prohibited", { mode: "boolean" })
+      .notNull()
+      .default(true),
+    /** 内部の計測用識別子。URL には足さない。 */
+    trackingRef: text("tracking_ref").notNull(),
+    createdAt: integer("created_at", { mode: "timestamp" })
+      .notNull()
+      .default(sql`(unixepoch())`),
+    expiresAt: integer("expires_at", { mode: "timestamp" }),
+    disabledAt: integer("disabled_at", { mode: "timestamp" }),
+  },
+  (t) => [
+    index("affiliate_links_workspace_idx").on(t.workspaceId),
+    index("affiliate_links_workspace_product_idx").on(t.workspaceId, t.productId),
+  ],
+);
+
+/**
  * 転送の写し（仕様 03 §1.2 の resolver store）。
  *
  * `/go/<合言葉>` を開いたときに読むのはこの表だけである。
@@ -1418,6 +1508,7 @@ export type WorkspaceRow = typeof workspaces.$inferSelect;
 export type MembershipRow = typeof memberships.$inferSelect;
 export type SigninDenialRow = typeof signinDenials.$inferSelect;
 export type Asp = typeof asps.$inferSelect;
+export type AffiliateLinkRow = typeof affiliateLinks.$inferSelect;
 export type RedirectResolutionRow = typeof redirectResolutions.$inferSelect;
 export type ContentVariantRow = typeof contentVariants.$inferSelect;
 export type CatalogProductRow = typeof catalogProducts.$inferSelect;
@@ -1428,6 +1519,7 @@ export type Program = typeof programs.$inferSelect;
 export type Conversion = typeof conversions.$inferSelect;
 export type AffiliateConversionRow = typeof affiliateConversions.$inferSelect;
 export type LinkIngestionRow = typeof linkIngestions.$inferSelect;
+export type LinkIngestionUrlClaimRow = typeof linkIngestionUrlClaims.$inferSelect;
 export type FeedbackReportRow = typeof feedbackReports.$inferSelect;
 export type IntegrationKeyRow = typeof integrationKeys.$inferSelect;
 export type IntegrationKeyUsageRow = typeof integrationKeyUsages.$inferSelect;

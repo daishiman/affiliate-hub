@@ -58,7 +58,7 @@ serves_goals: [G1, G2]
 
 | プラットフォーム | 状態 | 根拠 |
 |---|---|---|
-| Web (web) | 確定 | 確定質疑: qa-frontend-web-overhaul-v2 |
+| Web (web) | 確定 | 確定質疑: `qa-frontend-web-spec-intake` (正本 `spec-state.json` の `qa_ref`)。先行質疑 `qa-frontend-web-analytics` は `qa_refs` に残り、本章にも併記する |
 | モバイル (mobile) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |
 | タブレット (tablet) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |
 | デスクトップ (Windows) (desktop-windows) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |
@@ -88,7 +88,7 @@ C05 gaps[0] の「再生成して本文へ載せる」を採らず、本節は�
 
 ## 意思決定 (decisions)
 
-> 正本 `decisions[]` の全 6 件。**6 件とも `status: confirmed`** で、いずれも利用者本人の `user_decision` を伴う。本章を主担当とする論点を太字で示す。
+> 正本 `decisions[]` の全 7 件。**7 件とも `status: confirmed`** で、いずれも利用者本人の `user_decision` を伴う。本章を主担当とする論点を太字で示す。
 
 | ID | 論点 | 採用した選択肢 | 状態 | 資するゴール | 主担当章 |
 |---|---|---|---|---|---|
@@ -98,6 +98,7 @@ C05 gaps[0] の「再生成して本文へ載せる」を採らず、本節は�
 | `decision-llm-provider` | 記事生成に使う LLM プロバイダを 1 社に固定するか、複数を持つか | `opt-catalog-multi` | confirmed | G1 | backend |
 | **`decision-ui-theme-implementation`** | 配色と明暗の 2 軸を、どの技術で実装するか | `opt-css-light-dark` | confirmed | G1 | **frontend** |
 | `decision-test-ci-tooling` | テストと CI の道具立てを、いまの構成のまま進めるか変えるか | `opt-keep-current` | confirmed | G1, G2 | maintenance-ops |
+| `decision-screen-priority` | ui-ux×web の画面で、記事の成績比較と回復すべき業務状態のどちらを先頭に置くか | `opt-performance-first` | confirmed | G1, G2 | ui-ux |
 
 - **`decision-ui-theme-implementation` が本章に効く形**: 09 §2 は「配色 × 明暗の掛け合わせを設定として持たない」と書いている。`light-dark()` は掛け合わせを CSS 側で解く仕組みそのものなので、この禁止が実装の形で担保される。Tailwind の `dark:` クラス方式だと、禁じられている掛け合わせがクラス名として現れてしまう。Tailwind は配置と余白に使い、**色だけ `light-dark()`** にする。
 
@@ -131,7 +132,7 @@ C05 gaps[0] の「再生成して本文へ載せる」を採らず、本節は�
 | 実験 | Experiment の事前登録値、探索率、holdout、進捗、信頼区間、guardrail |
 | ASP突合状況 | プログラム別の成果件数・承認率・突合率・取り込みエラー |
 
-### qa-frontend-web-spec-intake (対応セル: web) — 接地根拠 (required_info/qa_refs が名指す裏付け)
+### qa-frontend-web-spec-intake (対応セル: web)
 
 **質問**: frontend×web: 改善要望の送信モーダルは何を見せ、何を強制しないか (書面入力 docs/spec/12 §5)
 
@@ -261,8 +262,26 @@ C05 gaps[0] の「再生成して本文へ載せる」を採らず、本節は�
     - 空欄でも要素が残るため画面はやや長くなるが、「書かれなかった」と「表示していない」を読み分けられる
 - 資するゴール: G1, G2
 
+##### 確定内容 qa-frontend-web-spec-intake (対応セル: web)
+
+- 確定要件: - **FB-AC-07**: 「この画面から一緒に送られるもの」を展開でき、自動収集される項目を送信前に確認できる。隠さない。
+- **FB-AC-09**: 画面の写しが**完全でないことがある**ため、「この画面には、絵として写しにくい部品があります。撮れた画像を確かめてください。」を常に表示し、プレビューを見てから送る。完全性を保証しない。
+- **FB-AC-10**: 「撮り直す」「**画像を外す（文章だけで送る）**」を常に選べる。貼り付け（Ctrl+V）とファイル選択も受け付ける。**画像なしでも送信は成立する。**
+- 設計解釈の記録経路: `dialogue`
+- 原則: 自動収集される項目は送信前に展開して確認できる (FB-AC-07)。画面の写しの不完全さを常に表示し、完全性を保証しない (FB-AC-09) (`docs/spec/12-改善要望フィードバック仕様.md#§5`)
+  - 採否: `applied`
+  - 章固有の根拠: 収集項目の一覧は送信処理と同じ 1 つの定義から描く。表示用に別の一覧を持つと、収集を増やしたときに表示だけ古くなる
+  - トレードオフ:
+    - モーダルの情報量が増えるが、送信者が何を送るのかを知らないまま送る状態が無くなる
+- 原則: 画像なしでも送信は成立する (FB-AC-10)。任意欄が空のとき、詳細画面では「本人からの記入はありません」と明示する (FB-AC-06) (`docs/spec/12-改善要望フィードバック仕様.md#§5`)
+  - 採否: `applied`
+  - 章固有の根拠: 画像取得の失敗を送信の失敗にしない。空欄は欄ごと消さず、記入が無かったことを文で出す。この文言が出ることをテストで固定する
+  - トレードオフ:
+    - 空欄でも要素が残るため画面はやや長くなるが、「書かれなかった」と「表示していない」を読み分けられる
+- 資するゴール: G1, G2
+
 ## 最新ドキュメント出典
 
 | 対象 | バージョン | 公式発行元 | 出典URL | 取得 | 最新確認 |
 |---|---|---|---|---|---|
-| nextjs | 16.3.2 | Vercel (nextjs.org) | https://nextjs.org/docs | 2026-08-23T13:12:16Z | 2026-08-23T13:12:16Z |
+| nextjs | 16.3.2 | Vercel (nextjs.org) | https://nextjs.org/docs | 2026-08-16T09:01:51Z | 2026-08-22T08:13:50Z |

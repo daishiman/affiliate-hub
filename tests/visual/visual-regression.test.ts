@@ -46,6 +46,7 @@ import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { comparePng, decodePng, encodePng, CHANNEL_TOLERANCE } from "../../scripts/lib/png.mjs";
+import { baselineArchitecture } from "../../scripts/lib/chrome-shot.mjs";
 import {
   BASELINE_DIR,
   LIMIT_HISTORY,
@@ -59,6 +60,14 @@ import {
 import { VISUAL_BASELINE_ACCEPT_MAX } from "../../quality-gates.config.mjs";
 
 const ROOT = process.cwd();
+
+describe("見本の環境名は描画する端末に合わせる", () => {
+  it("Apple Silicon上のx64 Nodeでも、見本を別環境へ分裂させない", () => {
+    expect(baselineArchitecture("darwin", "x64", true)).toBe("arm64");
+    expect(baselineArchitecture("darwin", "x64", false)).toBe("x64");
+    expect(baselineArchitecture("linux", "x64", true)).toBe("x64");
+  });
+});
 
 /** 縞模様の絵を作る。1px ずらすと必ず色が変わるので、ずれが隠れない。 */
 function stripes(width: number, height: number, offset = 0) {

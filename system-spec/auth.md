@@ -91,7 +91,7 @@ C05 gaps[0] の「再生成して本文へ載せる」を採らず、本節は�
 
 ## 意思決定 (decisions)
 
-> 正本 `decisions[]` の全 6 件。**6 件とも `status: confirmed`** で、いずれも利用者本人の `user_decision` を伴う。本章を主担当とする論点を太字で示す。
+> 正本 `decisions[]` の全 7 件。**7 件とも `status: confirmed`** で、いずれも利用者本人の `user_decision` を伴う。本章を主担当とする論点を太字で示す。
 
 | ID | 論点 | 採用した選択肢 | 状態 | 資するゴール | 主担当章 |
 |---|---|---|---|---|---|
@@ -101,6 +101,7 @@ C05 gaps[0] の「再生成して本文へ載せる」を採らず、本節は�
 | `decision-llm-provider` | 記事生成に使う LLM プロバイダを 1 社に固定するか、複数を持つか | `opt-catalog-multi` | confirmed | G1 | backend |
 | `decision-ui-theme-implementation` | 配色と明暗の 2 軸を、どの技術で実装するか | `opt-css-light-dark` | confirmed | G1 | frontend |
 | `decision-test-ci-tooling` | テストと CI の道具立てを、いまの構成のまま進めるか変えるか | `opt-keep-current` | confirmed | G1, G2 | maintenance-ops |
+| `decision-screen-priority` | ui-ux×web の画面で、記事の成績比較と回復すべき業務状態のどちらを先頭に置くか | `opt-performance-first` | confirmed | G1, G2 | ui-ux |
 
 - **`decision-auth-method` の caveat**: ライブラリ更新の追従を maintenance-ops に組み込むこと。採用は「費用ゼロ・ロックインなし」で得たので、追従を止めた時点でその前提が消える。
 

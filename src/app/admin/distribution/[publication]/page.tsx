@@ -142,7 +142,7 @@ async function PublicationBody({
           <Note>
             公開先: <ExternalLink href={card.externalUrl}>
               <Code>{card.externalUrl}</Code>
-            </ExternalLink>
+            </ExternalLink> です。
           </Note>
         )}
       </Section>

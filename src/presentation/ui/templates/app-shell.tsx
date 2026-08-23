@@ -303,7 +303,12 @@ export function AppShell({
                   {crumb.href !== undefined && !last ? (
                     <Link href={crumb.href}>{crumb.label}</Link>
                   ) : (
-                    <span className={last ? styles.breadcrumbCurrent : undefined}>{crumb.label}</span>
+                    <span
+                      className={last ? styles.breadcrumbCurrent : undefined}
+                      aria-current={last ? "page" : undefined}
+                    >
+                      {crumb.label}
+                    </span>
                   )}
                 </span>
               );

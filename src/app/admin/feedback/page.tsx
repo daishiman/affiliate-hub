@@ -15,6 +15,7 @@ import {
   FactList,
   FilterBar,
   Note,
+  SeeAlso,
   RowSelector,
   Section,
   StorageNotice,
@@ -143,7 +144,7 @@ export default async function FeedbackListPage({
               summary={active.length === 0 ? null : `いま ${active.join("・")} で絞っています。`}
               clearHref="/admin/feedback"
             />
-            <Note>
+            <SeeAlso>
               {includeDiscarded ? (
                 <TextLink href="/admin/feedback">廃棄したものを隠す</TextLink>
               ) : (
@@ -151,7 +152,7 @@ export default async function FeedbackListPage({
                   廃棄したものも見る（消していません）
                 </TextLink>
               )}
-            </Note>
+            </SeeAlso>
           </Section>
 
           <Section title="届いている要望">
@@ -164,7 +165,7 @@ export default async function FeedbackListPage({
             ) : (
               <FeedbackHandoffForm>
                 <DataTable
-                  caption="新しい順に並べています。渡したいものにチェックを付けて、下のボタンを押してください。"
+                  caption="改善要望の一覧（新しい順）"
                   columns={[
                     { key: "date", label: "届いた日" },
                     { key: "pick", label: "選ぶ" },

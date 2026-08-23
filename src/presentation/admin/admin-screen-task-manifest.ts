@@ -173,6 +173,10 @@ const manageLlmCredentialAction = edge(
   "src/presentation/admin/llm-credential-action.ts",
   "manageLlmCredentialAction",
 );
+const manageMemberAction = edge(
+  "src/presentation/admin/member-action.ts",
+  "manageMemberAction",
+);
 
 export const ADMIN_SCREEN_RUNTIME_ENTRIES: readonly AdminScreenRuntimeEntry[] = [
   screenMutation(
@@ -342,6 +346,24 @@ export const ADMIN_SCREEN_RUNTIME_ENTRIES: readonly AdminScreenRuntimeEntry[] = 
     "settings/llm",
     edge("src/presentation/admin/llm-credential-form.tsx", "RevokeLlmKeyForm"),
     manageLlmCredentialAction,
+  ),
+  screenMutation(
+    "member.invite",
+    "settings/members",
+    edge("src/presentation/admin/member-forms.tsx", "InviteMemberForm"),
+    manageMemberAction,
+  ),
+  screenMutation(
+    "member.change-roles",
+    "settings/members",
+    edge("src/presentation/admin/member-forms.tsx", "ChangeMemberRolesForm"),
+    manageMemberAction,
+  ),
+  screenMutation(
+    "member.revoke",
+    "settings/members",
+    edge("src/presentation/admin/member-forms.tsx", "RevokeMemberForm"),
+    manageMemberAction,
   ),
   screenMutation(
     "product.create",

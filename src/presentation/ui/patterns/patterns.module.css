@@ -101,6 +101,9 @@
 /* === 表（順位・比較の共通土台） ========================================= */
 
 .tableWrap {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
   overflow-x: auto;
   border: var(--border-width-default) solid var(--color-border-subtle);
   border-radius: var(--radius-md);
@@ -135,6 +138,28 @@
   background: var(--color-surface-raised);
   color: var(--color-text-strong);
   font-weight: var(--weight-semibold);
+}
+
+/*
+ * 升目に単独で置かれた行き先。
+ *
+ * `DataTable` は `col.align === "numeric"` のときだけ升目にクラスを付け、
+ * それ以外は `undefined` を渡す（`data-table.tsx`）。**そのため赤の報告では
+ * 「親がクラス無し」に見えるが、CSS からは `.table td` / `.table th` で届く。**
+ * **報告に出る名前と、CSS が届く先は別のものである。**
+ *
+ * 1 本の規則で足りる理由（2026-08-21 に `src/app` の `cell:` を全部読んで確かめた）:
+ * 升目にリンクを描いている定義は 3 つで、**どれも升目の中身がリンク 1 本だけ**である
+ * （`admin/distribution/page.tsx` の 2 つ、`admin/affiliate/page.tsx` の 1 つ）。
+ * 文の中にリンクが埋まっている升目は 1 つも無い。
+ * **升目に文を書き、その中にリンクを置いた日に、この規則は誤りになる。**
+ * その日は規則を消すのではなく、`SeeAlso` と同じで**役を分ける**ほうが正しい。
+ */
+.table td > a,
+.table th > a {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--tap-target-min);
 }
 
 /* 行の見出し（商品名・順位）は横スクロールしても残す。 */
@@ -261,6 +286,13 @@
   gap: var(--space-1);
   padding: var(--space-1) var(--space-2);
   border-radius: var(--radius-sm);
+  /*
+   * 兄弟の `.factBadgeFact` / `.factBadgeInference` / `.factBadgeOpinion` は 3 つとも
+   * border を持つのに、**ここだけ持っていなかった**（2026-08-21 実測、UX-08）。
+   * 強制配色（Windows のハイコントラスト）では背景が Canvas に均され、
+   * 背景だけで作った札は地の面と見分けが付かなくなる。輪郭を持たせて揃える。
+   */
+  border: var(--border-width-default) solid var(--color-border-default);
   background: var(--color-badge-surface);
   color: var(--color-text-on-badge);
   font-size: var(--text-xs);
@@ -358,12 +390,39 @@
   line-height: var(--leading-body);
 }
 
+/*
+ * 行き先の入れ物。**押しどころの下限はここではなく、中の `a` に在る**（次の規則）。
+ *
+ * 2026-08-21 まで、下限はこの `span` に書いてあった。だが押しどころは
+ * `WorkBoard` が `renderLink` で差し込む `a` のほうで、しかもここの
+ * `align-items: center` は中の `a` を**中身の高さのまま中央へ置く**。
+ * 器は下限のぶんの高さを持っているのに、**押せる範囲はそれより小さい**という形になる。
+ *
+ * **「宣言が無い」ではなく「宣言が当たる先が違う」誤りである。**
+ * 走査は「下限を持つ規則に当たっている要素」を見るので、器に書いた下限は
+ * 中の `a` を助けない——**見た目が正しいことは、押しどころが正しいことを示さない。**
+ */
 .boardLink {
   justify-self: start;
-  min-height: var(--tap-target-min);
   display: inline-flex;
   align-items: center;
   color: var(--color-action-default);
+}
+
+/*
+ * `display` を書くのは、下限だけだと `a` の中の文字が上端へ寄るため。
+ * **下限を当てるためではない**（`a` は上の flex の子なので block 化されていて、
+ * 下限は `display` 無しでも効く）。`.breadcrumb a` の形を写したのではなく、
+ * 文字の位置を動かさないために要る 2 行である。
+ *
+ * **この直しで行の高さは変わらない。**器はもともと下限のぶんの高さを持っていて、
+ * 中の `a` がそれを埋めるようになるだけである。**見た目の変わらない直し**なので、
+ * 次に読む人が「ここを直したから行が伸びた」と読まないこと。
+ */
+.boardLink > a {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--tap-target-min);
 }
 
 /* 目には見えないが読み上げには届く文言。色だけで意味を表さないために使う。 */
@@ -607,11 +666,16 @@
 
 .materialForm {
   display: grid;
+  min-width: 0;
   gap: var(--space-3);
   padding: var(--space-4);
   border: var(--border-width-default) solid var(--color-border-subtle);
   border-radius: var(--radius-md);
   background: var(--color-surface-sunken);
+}
+
+.materialForm > * {
+  min-width: 0;
 }
 
 .materialLabel {
@@ -621,6 +685,9 @@
 }
 
 .materialInput {
+  width: 100%;
+  max-width: 100%;
+  min-height: var(--tap-target-min);
   padding: var(--space-2);
   border: var(--border-width-emphasis) solid var(--color-border-default);
   border-radius: var(--radius-sm);
@@ -737,6 +804,13 @@
   font-weight: var(--weight-semibold);
 }
 
+/* 実ブラウザで 23px と実測した、商品名が詳細リンクになる場合だけ44pxへ広げる。 */
+.productCardName > a {
+  display: inline-flex;
+  align-items: center;
+  min-block-size: var(--tap-target-min);
+}
+
 .productCardLead {
   margin: 0;
   color: var(--color-text-default);
@@ -789,6 +863,26 @@
   flex-wrap: wrap;
   gap: var(--space-2);
   align-items: center;
+}
+
+/*
+ * 販売ページへの行き先（`AffiliateLink`）。
+ *
+ * **`.boardLink` とは違い、ここは行の高さが実際に伸びる。**あちらは器が
+ * もともと下限のぶんの高さを持っていたが、こちらは持っていなかった。
+ * **見た目が変わる直しである**——`docs/product/ui-ux-tasks.md` の「実物で見る項目」に
+ * 入れてある。**妥当な理由と、実物で見て良いかは別。**
+ *
+ * 1 本の規則で足りる理由: `footer` の中身は**行き先 1 本か、`.productCardBlocked` の
+ * 断り文（リンク無し）のどちらか**で、文の中にリンクが入る形が無い。
+ * 2026-08-21 に `product-card.tsx` を読んで確かめた。
+ * **文の中にリンクを置く形を足した日に、この規則は誤りになる。**
+ * `AffiliateLink` 自体は記事の本文でも使うが、そちらはこの入れ物の外なので巻き込まない。
+ */
+.productCardFooter > a {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--tap-target-min);
 }
 
 .productCardBlocked {
@@ -885,7 +979,12 @@
   line-height: var(--leading-body);
 }
 
+/* 見た目は文中のリンクだが、実体はボタン（同意を取り消す）。
+   見た目に引きずられて的まで文字の高さにすると、押し損なう。 */
 .consentUndo {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--tap-target-min);
   padding: 0;
   border: 0;
   background: none;
@@ -904,6 +1003,7 @@
   right: var(--space-4);
   bottom: var(--space-4);
   z-index: var(--z-sticky);
+  min-height: var(--tap-target-min);
   padding: var(--space-2) var(--space-4);
   border: var(--border-width-emphasis) solid var(--color-border-strong);
   border-radius: var(--radius-pill);
@@ -917,6 +1017,12 @@
 
 .feedbackLauncher:hover {
   background: var(--color-action-subtle);
+}
+
+/* 見本帳はAppShellの固定ボタンも描くため、2個目の実物だけ本文の流れへ戻す。 */
+.feedbackLauncherInline {
+  position: static;
+  box-shadow: none;
 }
 
 .feedbackLauncher:focus-visible {
@@ -1020,13 +1126,154 @@
   line-height: var(--leading-body);
 }
 
-/* === 配信先の状態 ======================================================= */
+/* === 項目と値の対（DefinitionList） ===================================== */
 /*
- * 配信先ごとの見た目の違いは、CSS 側に配信先名を書かずに済ませる。
- * `--channel-accent` を部品が差し込み、ここは受け取るだけにする。
- * ここに `.channelX` のような組を作ると、SNS を足すたびに CSS も直すことになる。
+ * **上の `.criteria` とは別物である。**あちらは枠と背景を持つ
+ * 「評価基準の箱」で、こちらは地の面に並ぶ項目と値の対。
+ * 名前が似ているのは歴史の事故で、意味は重ならない。
+ * 混ぜないため、こちらは `def` で始める名前にしてある。
  */
+.defList {
+  display: grid;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+}
 
+/*
+ * `dt` と `dd` を 1 対ずつ包む。包まないと `display: grid` の直接の子が
+ * `dt`/`dd` の交互になり、どの値がどの項目のものかが並びから読めなくなる。
+ */
+.defRow {
+  display: grid;
+  gap: var(--space-1);
+}
+
+.defTerm {
+  color: var(--color-text-strong);
+  font-weight: var(--weight-semibold);
+}
+
+.defValue {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+}
+
+/*
+ * 値そのものが行き先になっている `dd`。
+ *
+ * 1 本の規則で足りる理由（2026-08-21 に `DefinitionList` の呼び出しを全部読んだ）:
+ * `description` にリンクを渡している箇所は **1 つだけ**で、そこは
+ * 「記事を見る」というリンク 1 本である（`admin/distribution/[publication]/page.tsx`）。
+ * 同じ画面の少し下に**文の中のリンク**（`<Note>公開先: <a>…</a></Note>`）が在るが、
+ * あれは `.note` の側で、ここには入らない。**同じ画面に両方在るので、
+ * 入れ物を分けていなければ 1 本の規則でどちらも巻き込んでいた。**
+ *
+ * `dd` に説明文を書き、その中にリンクを置いた日に、この規則は誤りになる。
+ */
+.defValue > a {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--tap-target-min);
+}
+
+/*
+ * 数字の値。**`dd` にだけ当たる**（`dt` は項目の名前で、数字ではない）。
+ * `DataTable` が見出しと値の両方へ寄せを当てるのと非対称だが、意図したもの。
+ *
+ * **右寄せにしない。**`admin.module.css` の `.numeric` は右寄せで、狭い画面
+ * （`@media`）だけ左へ戻していた。だが `.defRow` は画面幅に関係なく積む形で、
+ * `dd` は常に器の幅いっぱいを占める。右寄せにすると**幅に関係なく数字が
+ * ラベルから離れて浮く**——「狭いときだけ問題」ではなかった。
+ * 向こうが `@media` の中でこれを直していたのは、表と `<dl>` が同じクラスを
+ * 共有していたためで、分けた今はもう要らない。
+ *
+ * 桁を揃える値打ちは `tabular-nums` だけで足りる。縦に並んだ `dd` は
+ * 同じ左端から始まるので、字幅さえ揃えば桁も揃う。
+ */
+.defNumeric {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+  font-variant-numeric: tabular-nums;
+}
+
+/*
+  注記（`Note`）。値は `admin.module.css` の `.linkNote` と同じで、新しい値は無い。
+
+  **余白を書いていないのは決めた結果である。**いまの 43 箇所は余白ゼロで出ており、
+  実物を描いて確かめる手立てが無い以上、現状を写すのが唯一の実測に基づく選択で、
+  足すのは推測になる。間隔は親側の `gap` が持っている。理由は `note.tsx` の doc。
+  **ここに `margin` を足すときは、43 箇所すべての見え方が変わる。**
+
+  **`ui.module.css` ではなくここに在るのは分担の都合である**（同じ日に向こうを
+  別の担当が持っていた）。役の重さで説明し直さないこと。
+*/
+.note {
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
+
+/*
+  行き先の案内（`SeeAlso`）。**`.note` と同じ 2 宣言だが、写しであって共有ではない。**
+
+  まとめたくなるが、まとめてはいけない。この 2 つは**別々に動かせることが要件**である。
+  押しどころの下限（`min-height` を張る規則）は、行き先 1 本だけのこちらには当てられるが、
+  文の中に埋まったリンクを含む `.note` には当てられない（行の高さが崩れる）。
+  ※ ここに実際の寸法を書かないこと。`design-tokens.test.ts` はコメントも走査するので、
+     **説明のために書いた値が、生の px を書いた実物として数えられる。**
+  **1 本の規則が片方には正しく片方には誤りになる**——それがこの 2 つを分けた理由そのもので、
+  まとめた瞬間にその理由が失われる。値がいま同じであることは、同じ役である証拠ではない。
+
+  下限をここに足すのは押しどころを測っている担当の仕事で、値をこちらで発明しないこと。
+  経緯は `see-also.tsx` の doc と残課題 152。
+*/
+.seeAlso {
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
+
+/**
+ * 行き先そのものに押しどころの下限を当てる。
+ *
+ * **`.note > a` にはこれを当てられない。**あちらは文で、うち 2 箇所は文の中に
+ * リンクが入っている。1 本の規則が片方には正しく片方には誤りになるので、
+ * 役を分けた（`.note` と `.seeAlso` をまとめないこと。まとめた瞬間に
+ * 「巻き込まれない」が失われる。`tests/ui/note-role.test.ts` が見ている）。
+ *
+ * `display` を書くのは、中の `a` が素の inline のままだと下限が当たらないため。
+ * 折り返しは器の側が持つので、ここは行を作らない。
+ *
+ * **元から下限を超えていた可能性は確かめていない。**2026-08-21 の走査で
+ * 9 本が「宣言が無い」として出たので宣言を足した。jsdom は組版をしないので、
+ * **足す前に小さかったのかどうかはこのリポジトリでは測れない**（残課題 143）。
+ * 次に読む人が「直したから届くようになった」と読まないこと。
+ */
+.seeAlso > a {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--tap-target-min);
+}
+
+/*
+  縦に積む一覧（`StackedList`）。**`.linkList` を写したもので、名前だけ変えてある。**
+
+  名前を変えた理由は残課題 156 に実測がある——`.linkList` を使う 26 ファイル・
+  `<li>` 61 件のうち、**リンクを含むのは 23 件だけ**で、残り 38 件は素の文章
+  （書き手の資格、読者像の判断軸・困りごと、権限の一覧など）。
+  **名前が中身を偽っていた。**部品へ上げるときに `LinkList` と名乗らせると、
+  嘘が部品の名前として固定される（`note.tsx` の「部品化は役を正さない」）。
+
+  **役を 2 つに分けなかったのは、別々の扱いが要らないからである。**156 の①が
+  立てた基準——「役の分割は、二つの役に別の扱いが要るときに初めて元が取れる」。
+  リンクの行と文章の行で、余白も並べ方も 1 つも違わない。分けるのは早い。
+  **`.note` と `.seeAlso` を分けたときは基準を満たしていた**（押しどころの下限が
+  片方には当てられ片方には当てられない）。こちらは満たしていない。
+
+  値は `admin.module.css` の `.linkList` からそのまま写した。**1 つも変えていない。**
+  実物を描いて見る手立てが無いので、変えれば推測になる（`note.tsx` と同じ判断）。
+*/
 .channelList {
   display: flex;
   flex-direction: column;
@@ -1044,10 +1291,9 @@
 }
 
 .channelBadge {
-  /* 差し込みが無いときの既定をここで宣言する。
-     宣言が無いと、綴りを間違えた差し込みが無言で効かなくなる。 */
   --channel-accent: var(--color-border-default);
   display: inline-flex;
+  flex-wrap: wrap;
   gap: var(--space-2);
   align-items: baseline;
   padding: var(--space-1) var(--space-2);
@@ -1071,6 +1317,9 @@
 }
 
 .channelLink {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--tap-target-min);
   color: inherit;
   text-decoration: none;
 }
@@ -1080,7 +1329,6 @@
   outline-offset: var(--focus-ring-offset);
 }
 
-/* 失敗の理由。色だけでなく文字で出す（色が読めなくても理由は読める）。 */
 .channelReason {
   color: var(--color-intent-danger);
   font-size: var(--text-sm);
@@ -1093,7 +1341,6 @@
   font-size: var(--text-sm);
 }
 
-/* === 案内の折りたたみ ================================================== */
 /* 畳んでもこのボタンだけは残る。戻す口が消えると、開き直せなくなる。 */
 .navCollapseToggle {
   flex: none;
@@ -1120,9 +1367,7 @@
   outline-offset: var(--focus-ring-offset);
 }
 
-/* === 切り口の書き分け (A5) ===
-   選んだブログが縦に並ぶ。横に並べると、ブログが 4 本を超えた時点で
-   1 本あたりの幅が切り口の文より狭くなり、どれも読めなくなる。 */
+/* 選んだブログを縦に並べ、ブログごとの切り口を読み比べる。 */
 .conceptMatrix {
   display: flex;
   flex-direction: column;
@@ -1130,38 +1375,38 @@
 }
 
 .conceptTitle {
+  margin: 0;
   font-size: var(--text-lg);
   font-weight: var(--weight-bold);
-  margin: 0;
 }
 
 .conceptEmpty {
-  color: var(--color-text-muted);
   margin: 0;
+  color: var(--color-text-muted);
 }
 
 .conceptList {
   display: flex;
   flex-direction: column;
   gap: var(--space-4);
-  list-style: none;
   margin: 0;
   padding: 0;
+  list-style: none;
 }
 
 .conceptItem {
-  border: var(--border-width-default) solid var(--color-border-default);
-  border-radius: var(--radius-md);
   display: flex;
   flex-direction: column;
   gap: var(--space-3);
   padding: var(--space-5);
+  border: var(--border-width-default) solid var(--color-border-default);
+  border-radius: var(--radius-md);
 }
 
 .conceptSiteName {
+  margin: 0;
   font-size: var(--text-base);
   font-weight: var(--weight-bold);
-  margin: 0;
 }
 
 .conceptAxes {
@@ -1171,18 +1416,16 @@
   margin: 0;
 }
 
-/* 見出しと値を横に置く。上下に積むと 3 軸で 6 行になり、
-   ブログ 2 本で 12 行。目が行き来する距離が判断より長くなる。 */
 .conceptAxis {
   display: grid;
-  gap: var(--space-3);
   grid-template-columns: minmax(0, max-content) minmax(0, 1fr);
+  gap: var(--space-3);
 }
 
 .conceptAxisLabel {
+  margin: 0;
   color: var(--color-text-muted);
   font-size: var(--text-sm);
-  margin: 0;
 }
 
 .conceptAxisValue {
@@ -1192,10 +1435,12 @@
   margin: 0;
 }
 
-.conceptChanged {
-  background: var(--color-surface-raised);
-  border-radius: var(--radius-sm);
-  color: var(--color-text-muted);
-  font-size: var(--text-sm);
-  padding: 0 var(--space-2);
-}
+/*
+  行の説明（`.linkNote` の役A、36 箇所）。**`.note` と同じ 2 宣言だが、
+  写しであって共有ではない**——`.note` / `.seeAlso` を分けたのと同じ理由で、
+  こちらは**行の中に居る**ので、行の外の注記とは別々に動かせる必要がある。
+
+  **`Note` を中へ入れる形にしなかった。**`note.tsx` が「一覧の 1 行を
+  部品と生クラスの継ぎ目で割らないこと」と書いており、行の一部を別部品にすると
+  その継ぎ目が部品どうしの間へ移るだけである。行は 1 つの部品が丸ごと持つ。
+*/

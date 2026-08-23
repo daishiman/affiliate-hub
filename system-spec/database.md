@@ -67,7 +67,7 @@ serves_goals: [G1, G2]
 
 | プラットフォーム | 状態 | 根拠 |
 |---|---|---|
-| Web (web) | 確定 | 確定質疑: `qa-database-web-spec-intake` (正本 `spec-state.json` の `qa_ref`。旧記載 `qa-database-web-analytics` との不一致は `## 確定セルの記録` を参照) |
+| Web (web) | 確定 | 確定質疑: `qa-database-web-spec-intake` (正本 `spec-state.json` の `qa_ref`)。先行質疑 `qa-database-web-analytics` は `qa_refs` に残り、本章にも併記する |
 | モバイル (mobile) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |
 | タブレット (tablet) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |
 | デスクトップ (Windows) (desktop-windows) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |
@@ -119,7 +119,7 @@ C05 gaps[0] は「8 章 + 00 を再生成して確定セル内容と decisions[]
 
 ## 意思決定 (decisions)
 
-> 正本 `decisions[]` の全 6 件。**6 件とも `status: confirmed`** で、いずれも利用者本人の `user_decision` を伴う。本章を主担当とする論点を太字で示す。
+> 正本 `decisions[]` の全 7 件。**7 件とも `status: confirmed`** で、いずれも利用者本人の `user_decision` を伴う。本章を主担当とする論点を太字で示す。
 
 | ID | 論点 | 採用した選択肢 | 状態 | 資するゴール | 主担当章 |
 |---|---|---|---|---|---|
@@ -129,6 +129,7 @@ C05 gaps[0] は「8 章 + 00 を再生成して確定セル内容と decisions[]
 | `decision-llm-provider` | 記事生成に使う LLM プロバイダを 1 社に固定するか、複数を持つか | `opt-catalog-multi` | confirmed | G1 | backend |
 | `decision-ui-theme-implementation` | 配色と明暗の 2 軸を、どの技術で実装するか | `opt-css-light-dark` | confirmed | G1 | frontend |
 | `decision-test-ci-tooling` | テストと CI の道具立てを、いまの構成のまま進めるか変えるか | `opt-keep-current` | confirmed | G1, G2 | maintenance-ops |
+| `decision-screen-priority` | ui-ux×web の画面で、記事の成績比較と回復すべき業務状態のどちらを先頭に置くか | `opt-performance-first` | confirmed | G1, G2 | ui-ux |
 
 - **`decision-editorial-commercial-split` が本章に効く形**: 「報酬額をランキングの入力にしない」という禁止を、コードの中ではなく **D1 を 2 本に分ける**位置で担保する。越えるには設定を書き換えるしかなくなり、越えた事実が差分に残る。
 
@@ -167,6 +168,15 @@ metric_rollup:
 * 日次バッチ + 直近分の準リアルタイム加算(ダッシュボードは「本日分は速報」表示)
 * 承認状態(`approval_status`: pending→approved等)または支払状態(`payment_status`: not_eligible→unpaid→paid等)の変化は対象日のロールアップを遡って再計算
 * 高カーディナリティ組み合わせは事前集計せず、生イベントへのアドホック集計で対応(集計セット定義はバージョン管理)
+
+### qa-database-web-spec-intake (対応セル: web)
+
+**質問**: database×web: SiteBlueprint はどのパラメータを持ち、どの検証で BLOCK するか (書面入力 docs/spec/06 §2)
+
+**回答**: | BP-01 | `ranking_model_id` が他サイトの Blueprint と重複しない | BLOCK（§16.6 言い換え記事の防止） |
+| BP-02 | `ranking_inputs_prohibited` に報酬関連フィールドが全件含まれる | BLOCK（§19.4） |
+| BP-03 | `audience_persona_ids` が1件以上 | BLOCK |
+| BP-04 | `disclosure_policy_id` が実在する Disclosure を指す | BLOCK |
 
 ## 上流指針 (doctrine anchor)
 
@@ -281,8 +291,27 @@ metric_rollup:
     - スキーマが二系統になり管理コストが増えるが、法令・信頼性要件を構造で担保できる
 - 資するゴール: G1, G2
 
+##### 確定内容 qa-database-web-spec-intake (対応セル: web)
+
+- 確定要件: | BP-01 | `ranking_model_id` が他サイトの Blueprint と重複しない | BLOCK（§16.6 言い換え記事の防止） |
+| BP-02 | `ranking_inputs_prohibited` に報酬関連フィールドが全件含まれる | BLOCK（§19.4） |
+| BP-03 | `audience_persona_ids` が1件以上 | BLOCK |
+| BP-04 | `disclosure_policy_id` が実在する Disclosure を指す | BLOCK |
+- 設計解釈の記録経路: `dialogue`
+- 原則: SiteBlueprint はウィザード 13 ステップと 1 対 1 で対応するパラメータ集合であり、blueprint_id と version を持ち変更時にインクリメントする (`docs/spec/06-サイトブループリント-記事構成テンプレート.md#§2`)
+  - 採否: `applied`
+  - 章固有の根拠: Blueprint を 1 テーブルの版付きレコードとして持ち、Site から version 付きで参照する。ステップの追加はパラメータの追加として表現し、別テーブルを増やさない
+  - トレードオフ:
+    - 1 レコードが大きくなるが、ウィザードの並びと保存形が一致し対応の追跡が容易になる
+- 原則: BP-01〜BP-06 の検証規則。BP-01（ranking_model_id のサイト間重複）と BP-02（報酬関連フィールドが ranking_inputs_prohibited に全件含まれる）は BLOCK (`docs/spec/06-サイトブループリント-記事構成テンプレート.md#§2-1`)
+  - 採否: `applied`
+  - 章固有の根拠: 検証をアプリ層だけに置かず、ranking_model_id には一意制約を張る。BP-02 は報酬関連フィールドの一覧を 1 箇所に持ち、差集合が空でなければ保存を拒否する
+  - トレードオフ:
+    - Blueprint の保存が失敗しやすくなるが、言い換え記事と報酬由来の順位づけを保存の時点で止められる
+- 資するゴール: G1, G2
+
 ## 最新ドキュメント出典
 
 | 対象 | バージョン | 公式発行元 | 出典URL | 取得 | 最新確認 |
 |---|---|---|---|---|---|
-| cloudflare-d1 | 2026-08-16 | Cloudflare (developers.cloudflare.com) | https://developers.cloudflare.com/d1/ | 2026-08-16T09:01:52Z | 2026-08-16T09:02:16Z |
+| cloudflare-d1 | 2026-04-30 | Cloudflare (developers.cloudflare.com) | https://developers.cloudflare.com/d1/ | 2026-08-19T15:30:39Z | 2026-08-19T15:30:39Z |

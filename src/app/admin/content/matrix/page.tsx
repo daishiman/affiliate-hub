@@ -20,6 +20,7 @@ import {
   Callout,
   ConceptMatrixLauncher,
   DataTable,
+  EmptyView,
   ErrorView,
   FactList,
   ListView,
@@ -258,34 +259,42 @@ function MatrixBody({
       </Section>
 
       <Section title={`${matrix.rowAxisLabel} × 媒体`}>
-        <DataTable
-          caption="セルには「作成済み / 今回作る / 今回は作らない / この媒体では作れません」のいずれかが入ります。"
-          columns={[
-            { key: "row", label: matrix.rowAxisLabel },
-            ...matrix.channels.map((channel) => ({
-              key: channel.channel,
-              label: channel.label,
-            })),
-          ]}
-          rows={matrix.rows.map((row) => ({
-            key: row.rowId,
-            cells: [
-              row.label,
-              ...row.cells.map((cell) =>
-                cell.variantId === null ? (
-                  cell.stateLabel
-                ) : (
-                  <TextLink
-                    key={cell.channel}
-                    href={`/admin/content/${encodeURIComponent(cell.variantId)}`}
-                  >
-                    {cell.variantStatusLabel}
-                  </TextLink>
+        {matrix.rows.length === 0 ? (
+          <EmptyView
+            title={`${matrix.rowAxisLabel}が 1 つも登録されていません`}
+            body="この企画には読者像が結び付いていないため、行になるものがありません。読者像を登録するか、別の軸に切り替えてください。"
+            action={<TextLink href="/admin/personas">読者像を見る</TextLink>}
+          />
+        ) : (
+          <DataTable
+            caption="企画と媒体の組み合わせごとの、記事の作り分け"
+            columns={[
+              { key: "row", label: matrix.rowAxisLabel },
+              ...matrix.channels.map((channel) => ({
+                key: channel.channel,
+                label: channel.label,
+              })),
+            ]}
+            rows={matrix.rows.map((row) => ({
+              key: row.rowId,
+              cells: [
+                row.label,
+                ...row.cells.map((cell) =>
+                  cell.variantId === null ? (
+                    cell.stateLabel
+                  ) : (
+                    <TextLink
+                      key={cell.channel}
+                      href={`/admin/content/${encodeURIComponent(cell.variantId)}`}
+                    >
+                      {cell.variantStatusLabel}
+                    </TextLink>
+                  ),
                 ),
-              ),
-            ],
-          }))}
-        />
+              ],
+            }))}
+          />
+        )}
       </Section>
 
       <Section title="行ごとの意味">

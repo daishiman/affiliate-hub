@@ -60,7 +60,7 @@ serves_goals: [G1]
 
 | プラットフォーム | 状態 | 根拠 |
 |---|---|---|
-| Web (web) | 確定 | 確定質疑: `qa-security-web-spec-intake` (正本 `spec-state.json` の `qa_ref`。旧記載 `qa-security-web` との不一致は `## 確定セルの記録` を参照) |
+| Web (web) | 確定 | 確定質疑: `qa-security-web-spec-intake` (正本 `spec-state.json` の `qa_ref`)。先行質疑 `qa-security-web` は `qa_refs` に残り、本章にも併記する |
 | モバイル (mobile) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |
 | タブレット (tablet) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |
 | デスクトップ (Windows) (desktop-windows) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |
@@ -90,7 +90,7 @@ C05 gaps[0] の「再生成して本文へ載せる」を採らず、本節は�
 
 ## 意思決定 (decisions)
 
-> 正本 `decisions[]` の全 6 件。**6 件とも `status: confirmed`** で、いずれも利用者本人の `user_decision` を伴う。本章を主担当とする論点を太字で示す。
+> 正本 `decisions[]` の全 7 件。**7 件とも `status: confirmed`** で、いずれも利用者本人の `user_decision` を伴う。本章を主担当とする論点を太字で示す。
 
 | ID | 論点 | 採用した選択肢 | 状態 | 資するゴール | 主担当章 |
 |---|---|---|---|---|---|
@@ -100,8 +100,9 @@ C05 gaps[0] の「再生成して本文へ載せる」を採らず、本節は�
 | `decision-llm-provider` | 記事生成に使う LLM プロバイダを 1 社に固定するか、複数を持つか | `opt-catalog-multi` | confirmed | G1 | backend |
 | `decision-ui-theme-implementation` | 配色と明暗の 2 軸を、どの技術で実装するか | `opt-css-light-dark` | confirmed | G1 | frontend |
 | `decision-test-ci-tooling` | テストと CI の道具立てを、いまの構成のまま進めるか変えるか | `opt-keep-current` | confirmed | G1, G2 | maintenance-ops |
+| `decision-screen-priority` | ui-ux×web の画面で、記事の成績比較と回復すべき業務状態のどちらを先頭に置くか | `opt-performance-first` | confirmed | G1, G2 | ui-ux |
 
-- **本章を主担当とする decision は 0 件**である (分母 = 上表 6 行)。これは security の論点が漏れているという意味ではなく、6 件のいずれも第一の適用先を security としないという意味である。security へ波及する条件を持つのは 2 件 — `decision-auth-method` (認証方式そのもの) と `decision-llm-provider` (API 鍵の預け先) で、どちらも主担当章側で確定済み。
+- **本章を主担当とする decision は 0 件**である (分母 = 上表 7 行)。これは security の論点が漏れているという意味ではなく、7 件のいずれも第一の適用先を security としないという意味である。security へ波及する条件を持つのは 2 件 — `decision-auth-method` (認証方式そのもの) と `decision-llm-provider` (API 鍵の預け先) で、どちらも主担当章側で確定済み。
 - **`decision-llm-provider` の security 面の含意**: API 鍵は利用者本人がブラウザまたは別端末で登録する。**鍵の値も、その断片 (先頭数文字を含む) も、この作業場所に置かない・受け取らない・要求しない。**これは §5 秘密情報の運用そのものである。
 
 ## 確定内容 (質疑録)
@@ -121,6 +122,15 @@ C05 gaps[0] の「再生成して本文へ載せる」を採らず、本節は�
 * HTMLサニタイズ
 * JavaScriptを実行しない安全取得
 * ページ本文をAI命令として扱わない
+
+### qa-security-web-spec-intake (対応セル: web)
+
+**質問**: security×web: 秘密情報をどこに置き、誰が登録するか (書面入力 docs/spec/11 §5)
+
+**回答**: - API キー・トークンは **GitHub Secrets と Cloudflare の環境変数**で管理する。
+- **リポジトリのファイル、コマンドライン、AI が読める場所に置かない。**
+  登録は利用者本人が、ブラウザまたは本人のターミナルで行う。代行しない。
+- ログに秘密情報を出さない（`echo ${{ secrets.X }}` を書かない）。
 
 ## 上流指針 (doctrine anchor)
 
@@ -209,6 +219,25 @@ C05 gaps[0] の「再生成して本文へ載せる」を採らず、本節は�
   - 章固有の根拠: 外部アカウント秘密はテナント別に暗号化分離し、取得ページ本文をAI命令として実行しない(情報源と命令の分離)
   - トレードオフ:
     - 命令分離により柔軟な自動抽出は制限されるが、乗っ取り型攻撃を構造的に遮断できる
+- 資するゴール: G1
+
+##### 確定内容 qa-security-web-spec-intake (対応セル: web)
+
+- 確定要件: - API キー・トークンは **GitHub Secrets と Cloudflare の環境変数**で管理する。
+- **リポジトリのファイル、コマンドライン、AI が読める場所に置かない。**
+  登録は利用者本人が、ブラウザまたは本人のターミナルで行う。代行しない。
+- ログに秘密情報を出さない（`echo ${{ secrets.X }}` を書かない）。
+- 設計解釈の記録経路: `dialogue`
+- 原則: 秘密情報はリポジトリのファイル・コマンドライン・AI が読める場所に置かない。登録は利用者本人がブラウザまたは本人のターミナルで行い、代行しない (`docs/spec/11-CI-CD・品質ゲート仕様.md#§5`)
+  - 採否: `applied`
+  - 章固有の根拠: .dev.vars.example は値を含まない見本のまま維持し、実値は GitHub Secrets と Cloudflare の環境変数にだけ置く。手順書には値を書かせる形のコマンド例を載せない
+  - トレードオフ:
+    - 登録の代行ができないため利用者の手数が増えるが、鍵の値がコマンド履歴やコンテキストへ残らない
+- 原則: API トークンの権限は最小にする (Workers Scripts 編集 / D1 編集 / R2 編集のうち必要なものだけ、対象アカウントは 1 つに限定) (`docs/spec/11-CI-CD・品質ゲート仕様.md#§5`)
+  - 採否: `applied`
+  - 章固有の根拠: 用途ごとにトークンを分け、発行時に対象アカウントを 1 つへ絞る。1 本の万能トークンを使い回さない
+  - トレードオフ:
+    - トークンの本数が増えて管理対象が増えるが、漏れたときの影響範囲がその用途に閉じる
 - 資するゴール: G1
 
 ## 最新ドキュメント出典

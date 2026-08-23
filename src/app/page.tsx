@@ -5,8 +5,8 @@ import {
   EmptyView,
   ErrorView,
   ListView,
-  Note,
   PublicShell,
+  SeeAlso,
   SitePage,
   TextLink,
 } from "@/presentation/ui";
@@ -53,9 +53,9 @@ export default async function Home() {
           />
         )}
 
-        <Note>
+        <SeeAlso>
           <TextLink href="/admin">運営する人はこちら（管理画面）</TextLink>
-        </Note>
+        </SeeAlso>
       </SitePage>
     </PublicShell>
   );

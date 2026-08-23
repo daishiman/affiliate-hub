@@ -58,6 +58,10 @@ export function distributionTools(deps: AppDeps): readonly AnyToolDefinition[] {
     variants: deps.contentVariants,
     publications: deps.publications,
     articles: deps.publishedArticles,
+    // 成果リンクの引き当ても両方に配る。片方だけにすると
+    // 「AI から出した記事にだけ成果リンクが 1 件も出ない」が生まれ、
+    // 記事としては成立して見えるので画面からは気づけない。
+    offers: deps.articleOffers,
     // 記録は画面と道具の両方に配る。片方だけにすると
     // 「AI から出したときだけ誰がやったか残らない」が生まれる。
     auditLog: deps.auditLog,
@@ -100,8 +104,13 @@ export function distributionTools(deps: AppDeps): readonly AnyToolDefinition[] {
        *
        * ここが `true` だったあいだ、この道具は WebMCP に載っていた。
        * つまり**ページ内の AI が記事の本文を丸ごと取り出せて、
-       * その痕跡がどこにも残らなかった**。false にすると WebMCP から外れる。
-       * 人が画面と REST から使う道は変わらない。
+       * その痕跡がどこにも残らなかった**。
+       *
+       * なお 2026-08-21 以降、**この旗は掲載を決めていない**。
+       * 載る／載らないは `webmcp-policy.ts` の `PAGE_TOOLS` に名前があるかだけで決まる
+       * （`WEBMCP_LISTED_TOOLS`）。ここを `false` にしておくのは、
+       * MCP の `readOnlyHint` を事実に合わせるためと、
+       * `isToolAllowedForScope()` が同一オリジンの呼び出しへ書き込みを許さないためである。
        */
       readOnly: false,
       useCase: createExportManualDraftUseCase(distribution),

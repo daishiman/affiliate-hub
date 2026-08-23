@@ -6,8 +6,8 @@
 **製品コード（`src/application` `src/presentation` `src/app`）から**
 呼ばれていないポートの手続きの一覧。テストからの呼び出しは数えない。
 
-- ポート 63 件 / 手続き 188 件
-- 呼ばれていない 79 件（上限 79）
+- ポート 64 件 / 手続き 191 件
+- 呼ばれていない 77 件（上限 79）
 - 理由つきの除外 0 件（上限 0）
 
 | ポート | 手続き | 宣言 |
@@ -53,9 +53,7 @@
 | `LlmPort` | `embed` | `src/application/ports/llm.ts` |
 | `LoggerPort` | `info` | `src/application/ports/common.ts` |
 | `LoggerPort` | `error` | `src/application/ports/common.ts` |
-| `MembershipRepositoryPort` | `findById` | `src/application/ports/identity.ts` |
 | `MembershipRepositoryPort` | `findByUser` | `src/application/ports/identity.ts` |
-| `MembershipRepositoryPort` | `save` | `src/application/ports/identity.ts` |
 | `MerchantOfferRepositoryPort` | `findById` | `src/application/ports/product.ts` |
 | `MerchantOfferRepositoryPort` | `listByProduct` | `src/application/ports/product.ts` |
 | `MerchantOfferRepositoryPort` | `listByMerchant` | `src/application/ports/product.ts` |
@@ -123,4 +121,4 @@
 | --- | --- |
 | `createStartSiteDraftUseCase` | `src/application/usecases/site/build-site.ts:417` |
 | `createSaveSiteDraftStepUseCase` | `src/application/usecases/site/build-site.ts:509` |
-<!-- 生成物の指紋 sha256:63c29bf03cdd1659bd3d60a4d876620abd6fba137047d971a58a77e44055fb1e -->
+<!-- 生成物の指紋 sha256:0fcfd3d9fcd5e94a9b5820420fe056a5666bc1a3167a7949641925bf53218723 -->

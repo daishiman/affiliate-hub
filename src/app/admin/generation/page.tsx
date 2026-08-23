@@ -18,6 +18,7 @@ import {
   ListView,
   ModelPicker,
   Note,
+  SeeAlso,
   Prose,
   Row,
   Section,
@@ -307,9 +308,9 @@ function GenerationPlan({ plan: p }: { readonly plan: Plan }) {
             ],
           }))}
         />
-        <Note>
+        <SeeAlso>
           <TextLink href="/admin/content">記事の進行を見る</TextLink>
-        </Note>
+        </SeeAlso>
       </Section>
     </>
   );

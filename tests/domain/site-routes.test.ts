@@ -4,9 +4,8 @@ import { join, relative } from "node:path";
 import { describe, expect, it } from "vitest";
 import { SITE_ROUTES, buildPath, footerRoutes, routesFor } from "@/domain/authoring";
 import {
-  SAMPLE_SITE_SLUG,
-  SECOND_SITE_SLUG,
   createSampleSiteRepository,
+  sampleSites,
 } from "@/infrastructure/persistence/sample/site-sample-repository";
 
 /**
@@ -20,7 +19,8 @@ import {
  * 「2 本目のために作られたファイルが 1 つも無い」という形で機械的に見る。
  */
 
-const APP_SITE_DIR = join(process.cwd(), "src/app/s/[site]");
+const APP_S_DIR = join(process.cwd(), "src/app/s");
+const APP_SITE_DIR = join(APP_S_DIR, "[site]");
 
 /** ルート表のパスを Next.js のフォルダ名へ写す。`/best/{topic}` → `best/[topic]` */
 function toSegments(path: string): string {
@@ -87,21 +87,37 @@ describe("ブログのルート表", () => {
 });
 
 describe("ブログを増やしても画面は増えない", () => {
-  it("見本のブログ 2 本は、同じルート表から画面を組み立てる", async () => {
+  it("見本のブログすべてが、同じルート表から画面を組み立てる", async () => {
     const repo = createSampleSiteRepository();
-    const first = await repo.findBySlug(SAMPLE_SITE_SLUG);
-    const second = await repo.findBySlug(SECOND_SITE_SLUG);
+    // **母集団の床。**見本を 1 本も引けていなくても、下のループは 0 周で緑になる。
+    const slugs = sampleSites().map((s) => s.slug);
+    expect(slugs.length, "見本のブログを引けていません").toBeGreaterThanOrEqual(3);
 
-    expect(first.ok && first.value !== null).toBe(true);
-    expect(second.ok && second.value !== null).toBe(true);
-    if (!first.ok || first.value === null || !second.ok || second.value === null) return;
+    const blueprints = [];
+    for (const slug of slugs) {
+      const found = await repo.findBySlug(slug);
+      expect(found.ok && found.value !== null, `${slug} の設計図が引けません`).toBe(true);
+      if (!found.ok || found.value === null) return;
+      blueprints.push(found.value);
+    }
 
-    // 設計図の中身は違う（本当に別のブログである）。
-    expect(second.value.pattern).not.toBe(first.value.pattern);
-    expect(second.value.theme.brandTheme).not.toBe(first.value.theme.brandTheme);
+    // 設計図の中身は互いに違う（本当に別のブログである）。**総当たりの対で見る。**
+    // 2 本だけを比べると、3 本目が 1 本目の丸写しでも気づけない。
+    for (let i = 0; i < blueprints.length; i += 1) {
+      for (let j = i + 1; j < blueprints.length; j += 1) {
+        expect(
+          blueprints[j].pattern,
+          `${slugs[i]} と ${slugs[j]} が同じ型です`,
+        ).not.toBe(blueprints[i].pattern);
+        expect(
+          blueprints[j].theme.brandTheme,
+          `${slugs[i]} と ${slugs[j]} が同じ配色です`,
+        ).not.toBe(blueprints[i].theme.brandTheme);
+      }
+    }
 
-    // それでも、出るルートはどちらも同じ表の部分集合。
-    for (const blueprint of [first.value, second.value]) {
+    // それでも、出るルートはどれも同じ表の部分集合。
+    for (const blueprint of blueprints) {
       for (const route of routesFor(blueprint)) {
         expect(SITE_ROUTES).toContain(route);
       }
@@ -123,19 +139,41 @@ describe("ブログを増やしても画面は増えない", () => {
     }
   });
 
-  it("2 本目のブログ専用の画面ファイルは 1 つも無い", () => {
+  it("どのブログ専用の画面ファイルも 1 つも無い", () => {
     const paths = actualRoutePaths();
     // **母集団の床。**画面を歩けていないと `perBlog` は空になり、
     // 「専用ファイルが 1 つも無い」は**何も見ていないときにも成立する。**
-    // 60 行目の同じ床に揃えてある。下げない。
+    // 上の同じ床に揃えてある。下げない。
     expect(paths.length, "画面のファイルを歩けていません").toBeGreaterThan(5);
 
-    const perBlog = paths.filter(
-      (p) => p.includes(SAMPLE_SITE_SLUG) || p.includes(SECOND_SITE_SLUG),
-    );
+    // **ブログ名は見本の一覧から取る。**2 本ぶんを名指しで書いていた頃は、
+    // 3 本目（`first-home-appliances`）の名前でフォルダを作っても緑だった。
+    // 一覧から取れば、ブログを増やした日に見る対象も増える。
+    const slugs = sampleSites().map((s) => s.slug);
+    expect(slugs.length, "見本のブログを引けていません").toBeGreaterThanOrEqual(3);
+
+    const perBlog = paths.filter((p) => slugs.some((slug) => p.includes(slug)));
     expect(
       perBlog,
       `ブログ名がファイル構成に混ざっています。分岐したコードの兆候です: ${perBlog.join(", ")}`,
+    ).toEqual([]);
+  });
+
+  it("`src/app/s/` の直下は `[site]` だけで、ブログ名のフォルダが無い", () => {
+    // 上の検査は `src/app/s/[site]` の**下**しか歩かない。
+    // **`src/app/s/video-editing-gear/` は兄弟なので、そこからは見えない。**
+    // 2026-08-21 に実測: そのフォルダを実際に作っても、このファイルは 7 件とも緑だった。
+    // 「作った瞬間に落ちる」と書いてあったのに落ちなかったので、ここで見る。
+    const entries = readdirSync(APP_S_DIR).filter((name) =>
+      statSync(join(APP_S_DIR, name)).isDirectory(),
+    );
+    // **母集団の床。**歩き先を間違えると 0 件になり、何も見ずに緑になる。
+    expect(entries.length, "src/app/s を歩けていません").toBeGreaterThan(0);
+
+    const perBlog = entries.filter((name) => name !== "[site]");
+    expect(
+      perBlog,
+      `ブログ 1 本のためのフォルダが src/app/s/ に在ります: ${perBlog.join(", ")}`,
     ).toEqual([]);
   });
 });

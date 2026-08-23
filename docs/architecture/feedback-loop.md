@@ -41,6 +41,7 @@ domain/feedback/                 ← 要望そのもの（Analytics は中身を
 | `domain/feedback/handoff.ts` | 払い出しの状態・回数・履歴。**同じ要望から同じ指示文が出ることの保証** | 文面の組み立て |
 | `domain/feedback/handoff-prompt.ts` | 指示文の**組み立て規則**（何を入れ、何を入れないか、区切りの作り方） | ひな型の文字列そのもの |
 | `domain/feedback/capture-policy.ts` | 画像の扱いの決まり（焼き込み必須・保存期間・伏せる要素の宣言名） | 描画処理 |
+| `domain/feedback/diagnostics.ts` | 技術診断を保存できる固定語彙へ縮約する。生の例外文・操作ラベル・User-Agent・クエリは持たない | 収集そのもの（収集は presentation） |
 | `domain/feedback/integration-access.ts` | 鍵の権限範囲・失効・**潰した値しか持たない**こと | ハッシュの実装 |
 
 `handoff-prompt.ts` が持つのは「利用者由来の文字列は 1 つの区切りブロックに閉じる」という**規則**で、
@@ -67,22 +68,23 @@ domain/feedback/                 ← 要望そのもの（Analytics は中身を
 
 | ファイル | 中身 | いまの状態 |
 | --- | --- | --- |
-| `infrastructure/persistence/sample/feedback-sample-repository.ts` | 要望・鍵の置き場。`workspace_id` で必ず絞る | 仮置き（`persistence:feedback-memory`） |
-| 同上（`createSampleFeedbackCaptureStore`） | 画面の写し。**焼き込み済みの 1 枚だけを置く**（元画像を置かない） | 仮置き（`storage:feedback-capture-memory`） |
+| `infrastructure/persistence/d1/feedback-repository.ts` | 要望・鍵。`workspace_id` で必ず絞る。一覧の列は状態・種類・画面・払い出し・廃棄だけ | 実装済み |
+| `infrastructure/persistence/sample/feedback-sample-repository.ts` | 同上の見本。単体テストの土台 | 見本（画面の既定経路ではない） |
+| 同上（`createSampleFeedbackCaptureStore`） | 画面の写し。**焼き込み済みの 1 枚だけを置く**（元画像を置かない） | 仮置き。R2 と期限つき URL は残課題 |
 | `infrastructure/platform/secret-minter.ts` | 平文の生成と潰し方（鍵はここでしか作らない） | 実装済み |
 | `infrastructure/generation/handoff-templates.ts` | 指示文のひな型と版番号（`generation_prompt_version` と同じ仕組み） | 実装済み |
 
-D1（`feedback_reports` / `integration_keys`）と R2 への差し替えは残課題。
-**差し替えるのはこの表の行だけ**で、ユースケースから上は変わらない
-（仮置きであることは `StubNotice` が画面に出す）。鍵の置き場を別ファイルに分けなかったのは、
-要望と鍵が同じ移行（D1 へ移す 1 回）で一緒に動くため。分けると片方だけ移した状態が作れる。
+要望と鍵の表は D1 へ移した。画面の写しだけが仮置きのままである。
+**差し替えるのはこの表の行だけ**で、ユースケースから上は変わらない。
 
 ### presentation
 
 | ファイル | 中身 |
 | --- | --- |
-| `presentation/ui/patterns/feedback-button.tsx` | 右下の固定ボタンと送信モーダル。**共有 UI の patterns に置く**（画面ごとに書かない） |
-| `presentation/ui/patterns/capture-canvas.tsx` | 注釈と黒塗りの描画面 |
+| `presentation/ui/patterns/feedback-button.tsx` | 右下の固定ボタンと送信モーダル。**共有 UI の patterns に置く**（画面ごとに書かない）。見本帳だけ `placement="inline"` |
+| `presentation/ui/patterns/page-diagnostics.ts` | 送信前の技術診断の収集。保存前に domain がもう一度縮約する |
+| `presentation/ui/patterns/capture-canvas.tsx` | 注釈と黒塗りの描画面。画像の黒塗り数と自動マスク数は診断の伏せ数と混ぜない |
+| `presentation/feedback-contract.ts` | ブラウザから server action へ渡す素の値。domain が信用しない |
 | `presentation/tools/feedback-tools.ts` | 道具の定義。REST / MCP / WebMCP の 3 つの入口へ同じ 1 つのユースケースから写す |
 | `presentation/admin/feedback-action.ts` | 送信・状況変更・払い出し・鍵の管理の Server Action |
 | `presentation/admin/feedback-state.ts` | 上の 4 つが返す状態の型と初期値 |
@@ -105,6 +107,22 @@ D1（`feedback_reports` / `integration_keys`）と R2 への差し替えは残�
 鍵のファイル名は設計時の `integration-key.ts` ではなく `integration-access.ts` とした。
 この作業環境が鍵らしき名前のファイルへの書き込みを止めるため（見張りは迂回しない）。
 フォーム側の `integration-access-form.tsx` も同じ理由。
+
+## 2-1. 技術診断の縮約（FB-AC-12 / FB-AC-13 の実装契約）
+
+規範は `docs/spec/12` の「技術情報を集める」「秘密を集めない」である。
+ここに書くのは **どう縮約して保存するか**だけである。
+
+- 収集は presentation、保存できる形への縮約は domain。クライアントを信用しない
+- 例外は型名（`TypeError` 等）だけ残す。本文・未処理失敗の理由は残さない
+- 失敗した通信は状態番号と経路だけ。クエリと断片は落とす
+- 直前の操作は「ボタンを操作した」等の種類だけ。表示名も入力値も取らない
+- User-Agent はブラウザの種類（Chrome / Firefox / Safari / Edge）だけ。OS 文字列は残さない
+- URL は origin + 経路。`token` / `key` / `secret` がクエリに居ても残らない
+- `technical.redactedCount` は **診断を縮約した件数**。画像の黒塗り数（`redactionCount`）とは別
+- 保持期限と削除ジョブは `ah-lqu`。本実装は保存時の語彙だけを固定する
+
+見張りは `tests/domain/feedback.test.ts` と `tests/ui/page-diagnostics.test.ts`。
 
 ## 3. 画面の写しをどう作るか（実装上の注意）
 

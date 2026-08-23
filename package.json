@@ -9,6 +9,8 @@
     "lint": "eslint",
     "typecheck": "next typegen && tsc --noEmit --incremental false",
     "test": "vitest run",
+    "test:e2e": "playwright test",
+    "test:e2e:prepare": "tsx tests/e2e/prepare-preview.mts",
     "test:coverage": "vitest run --coverage",
     "test:watch": "vitest",
     "build:worker": "opennextjs-cloudflare build && node scripts/dedupe-server-chunks.mjs && opennextjs-cloudflare build --skipNextBuild",
@@ -41,6 +43,7 @@
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^5.20260816.1",
+    "@playwright/test": "^1.62.1",
     "@stryker-mutator/core": "^10.0.0",
     "@stryker-mutator/vitest-runner": "^10.0.0",
     "@tailwindcss/postcss": "^4",
@@ -67,7 +70,8 @@
   },
   "pnpm": {
     "overrides": {
-      "@esbuild-kit/core-utils>esbuild": "^0.25.0"
+      "@esbuild-kit/core-utils>esbuild": "^0.25.0",
+      "qs": "6.15.3"
     }
   },
   "packageManager": "pnpm@10.19.0"

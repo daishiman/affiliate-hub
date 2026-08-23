@@ -90,16 +90,6 @@ export function Prose({ children }: { readonly children: ReactNode }) {
   return <p className={styles.lead}>{children}</p>;
 }
 
-/**
- * 補足。本文より小さく、薄い。
- *
- * **断りや警告をここに書かない。** 薄い字で書かれた断りは読まれない。
- * 読ませたいものは `Callout` へ置く。
- */
-export function Note({ children }: { readonly children: ReactNode }) {
-  return <p className={styles.note}>{children}</p>;
-}
-
 /** 箇条書き 1 行分。行き先があるなら `href` を持つ。 */
 export type ListRow = {
   readonly key: string;
@@ -182,37 +172,39 @@ export function DataTable({
   readonly rows: readonly TableRow[];
 }) {
   return (
-    <table className={styles.table}>
-      <caption className={styles.caption}>{caption}</caption>
-      <thead>
-        <tr>
-          {columns.map((column) => (
-            <th key={column.key} scope="col" className={column.numeric ? styles.numeric : undefined}>
-              {column.label}
-            </th>
-          ))}
-        </tr>
-      </thead>
-      <tbody>
-        {rows.map((row) => (
-          <tr key={row.key}>
-            {row.cells.map((cell, i) => {
-              const column = columns[i];
-              const key = column?.key ?? String(i);
-              return i === 0 ? (
-                <th key={key} scope="row">
-                  {cell}
-                </th>
-              ) : (
-                <td key={key} className={column?.numeric ? styles.numeric : undefined}>
-                  {cell}
-                </td>
-              );
-            })}
+    <div className={styles.tableWrap} role="group" aria-label={caption} tabIndex={0}>
+      <table className={styles.table}>
+        <caption className={styles.caption}>{caption}</caption>
+        <thead>
+          <tr>
+            {columns.map((column) => (
+              <th key={column.key} scope="col" className={column.numeric ? styles.numeric : undefined}>
+                {column.label}
+              </th>
+            ))}
           </tr>
-        ))}
-      </tbody>
-    </table>
+        </thead>
+        <tbody>
+          {rows.map((row) => (
+            <tr key={row.key}>
+              {row.cells.map((cell, i) => {
+                const column = columns[i];
+                const key = column?.key ?? String(i);
+                return i === 0 ? (
+                  <th key={key} scope="row">
+                    {cell}
+                  </th>
+                ) : (
+                  <td key={key} className={column?.numeric ? styles.numeric : undefined}>
+                    {cell}
+                  </td>
+                );
+              })}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
   );
 }
 

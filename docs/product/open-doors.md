@@ -11,7 +11,7 @@
 
 適用範囲: `/admin` 以下（読者のページとログインの往復は通す）
 
-開いている扉: **0 件** / 全 113 件
+開いている扉: **0 件** / 全 114 件
 
 「誰でも」と宣言してある行: **26 件**
 （宣言すればその扉は差の数から消える。だから宣言の件数そのものにも上限がある）
@@ -211,6 +211,7 @@
 | `deleteProductAction()` | 商品を消す（順位表と比較表の入力が消える）（src/presentation/admin/delete-form-action.ts） | ログイン | ログイン | — | **つかない** |
 | `manageIntegrationAccessAction()` | 外部連携の鍵を作る・失効させる（src/presentation/admin/feedback-action.ts） | ログイン | ログイン | — | **つかない** |
 | `manageLlmCredentialAction()` | 生成 AI の API キーを預ける・消す（預けた鍵で課金が発生する）（src/presentation/admin/llm-credential-action.ts） | ログイン | ログイン | — | **つかない** |
+| `manageMemberAction()` | 担当者を招く・役割を変える・担当から外す（入ってよい人の一覧が変わる）（src/presentation/admin/member-action.ts） | ログイン | ログイン | — | **つかない** |
 | `publishArticleAction()` | 記事を公開する（src/presentation/admin/publish-article-action.ts） | ログイン | ログイン | — | **つかない** |
 | `reschedulePublicationAction()` | 投稿予定日を変える（前倒しにすれば今日出せる）（src/presentation/admin/reschedule-action.ts） | ログイン | ログイン | — | **つかない** |
 | `schedulePublicationAction()` | 投稿を予定に入れる（時刻が来たら外へ出る）（src/presentation/admin/schedule-publication-action.ts） | ログイン | ログイン | — | **つかない** |
@@ -237,4 +238,4 @@
 | `updateContentVariantAction()` | 記事の題名・本文・要約を直す（src/presentation/admin/content-form-action.ts） | ログイン | ログイン | — | つく |
 | `updateManagedSiteAction()` | ブログの設定を直す（src/presentation/admin/site-form-action.ts） | ログイン | ログイン | — | つく |
 | `updateProductAction()` | 商品の内容を直す（src/presentation/admin/product-form-action.ts） | ログイン | ログイン | — | つく |
-<!-- 生成物の指紋 sha256:bc6c1a0b8d331e0f49509e61e6b1143a39073103b09d0027ce497b9e21e710f8 -->
+<!-- 生成物の指紋 sha256:ae6f43b531d52dd1f2e6cc038353571d50fa5fb0fbe1e64c4ac7a1f31b710c6f -->

@@ -1,4 +1,9 @@
 import { AdminShell } from "@/presentation/admin/admin-shell";
+import {
+  ChangeMemberRolesForm,
+  InviteMemberForm,
+  RevokeMemberForm,
+} from "@/presentation/admin/member-forms";
 import { currentActor, settingsUseCases } from "@/presentation/composition";
 import {
   Callout,
@@ -22,7 +27,16 @@ export const dynamic = "force-dynamic";
  */
 export default async function MemberSettingsPage() {
   const actor = await currentActor();
-  const members = await (await settingsUseCases()).listMembers.execute(actor, {});
+  const uc = await settingsUseCases();
+  const [members, roles] = await Promise.all([
+    uc.listMembers.execute(actor, {}),
+    uc.listRoles.execute(actor, {}),
+  ]);
+  const roleOptions = roles.ok
+    ? roles.value.rows
+        .filter((role) => !role.isMachine)
+        .map((role) => ({ value: role.role as string, label: role.label }))
+    : [];
 
   return (
     <AdminShell
@@ -40,6 +54,11 @@ export default async function MemberSettingsPage() {
         />
       ) : (
         <>
+          <Callout
+            tone="info"
+            title="招待とログイン許可は別です"
+            reason="ここで担当者へ招待したあと、運用側のログイン許可名簿にも同じアドレスを登録する必要があります。"
+          />
           {members.value.ownerMissing && (
             <Callout
               tone="warn"
@@ -59,26 +78,51 @@ export default async function MemberSettingsPage() {
                 caption="この作業場所の担当者"
                 columns={[
                   { key: "name", label: "名前" },
+                  { key: "email", label: "招待したアドレス" },
                   { key: "role", label: "役割" },
                   { key: "state", label: "状態" },
                   { key: "scope", label: "担当の範囲" },
+                  ...(roleOptions.length === 0 ? [] : [{ key: "change", label: "変える" }]),
                 ]}
                 rows={members.value.rows.map((m) => ({
                   key: m.membershipId,
                   cells: [
                     m.displayName,
+                    m.invitedEmail,
                     m.roleLabels.join("・"),
                     m.stateLabel,
                     m.scopeLabel,
+                    ...(roleOptions.length === 0
+                      ? []
+                      : [
+                          <div key="member-actions">
+                            <ChangeMemberRolesForm
+                              membershipId={m.membershipId}
+                              displayName={m.displayName}
+                              currentRoles={[...m.roles]}
+                              roleOptions={roleOptions}
+                            />
+                            {m.active ? (
+                              <RevokeMemberForm
+                                membershipId={m.membershipId}
+                                displayName={m.displayName}
+                              />
+                            ) : null}
+                          </div>,
+                        ]),
                   ],
                 }))}
               />
             )}
-            <Note>
-              招く・役割を変える操作は、ログインの仕組みが入ってから使えるようになります。
-              役割ごとにできることは{" "}
-              <TextLink href="/admin/settings/roles">役割の画面</TextLink> で見られます。
-            </Note>
+            {roleOptions.length === 0 ? null : (
+              <>
+                <InviteMemberForm roleOptions={roleOptions} />
+                <Note>
+                  役割ごとにできることは{" "}
+                  <TextLink href="/admin/settings/roles">役割の画面</TextLink> で見られます。
+                </Note>
+              </>
+            )}
           </Section>
         </>
       )}

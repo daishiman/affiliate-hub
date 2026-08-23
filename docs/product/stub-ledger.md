@@ -44,7 +44,7 @@
 | `persistence:policy-rule-sample` | 表現ポリシー（初期ルールのまま） | 表現ポリシーの保存先 | policy_rules テーブルの追加と、作業場所を作ったときに初期ルールを配る処理 |
 | `persistence:product-sample` | 商品と根拠（見本データ） | 商品・主張・根拠・検証記録の保存先 | 商品・主張・根拠を登録する入口（画面と操作）の追加。そのうえで products / claims / evidence / test_runs テーブルの追加とマイグレーション |
 | `persistence:ranking-sample` | ランキングの保存先（見本データ） | EditorialRankingModelRepositoryPort / EditorialScoreCardRepositoryPort | 順位づけの基準と採点表を作る入口（画面と操作）の追加。そのうえで ranking_models / score_cards テーブルの追加とマイグレーション |
-| `persistence:settings-sample` | 設定（見本データ） | 作業場所・担当者・ブランド・広告表記の保存先 | workspaces / memberships / brands / disclosures テーブルの追加と、Better Auth と Google ログインの設定 |
+| `persistence:settings-sample` | 設定（見本データ） | 作業場所・ブランド・広告表記の保存先 | workspaces / brands / disclosures テーブルの追加 |
 | `reader:contact-sink` | 問い合わせの受け取り（送信せず記録のみ） | ContactPort | Turnstile の鍵と送信元メールアドレスの登録（利用者本人が登録する） |
 | `reader:shortlist-memory` | 気になる商品の保存（処理中のメモリ） | ShortlistPort | 読者ごとの保存先 (KV 名前空間) の作成 |
 | `reader:tools-sample` | 診断・計算の道具（見本の定義のみ） | ReaderToolPort | 商品データの取込と、道具ごとの計算式の登録 |
@@ -56,7 +56,7 @@
 こちらへ回る。**消す予定は無いので、この件数は減らない。**
 何で動いているかは、必ず画面に文字で出す（黙って控えへ落ちない）。
 
-件数: 12
+件数: 13
 
 | 識別子 | 何の控えか | つなぎ目 | 本物の置き場所 |
 |---|---|---|---|
@@ -68,6 +68,7 @@
 | `persistence:feedback-memory` | 改善要望の記録（この実行中だけ覚える仮置き） | 改善要望の記録先 | `src/infrastructure/persistence/d1/feedback-repository.ts` |
 | `persistence:improvement-sample` | 改善ループの記録（見本データ。保存はできません） | 改善ループの記録先 | `src/infrastructure/persistence/d1/improvement-repository.ts` |
 | `persistence:link-inbox-sample` | 受信箱（見本データ・この場限り） | 成果リンク受信箱の保存先 | `src/infrastructure/persistence/d1/link-inbox-repository.ts` |
+| `persistence:membership-sample` | 担当者（見本データ。保存はできません） | 担当者の登録の保存先 | `src/infrastructure/persistence/d1/membership-repository.ts` |
 | `persistence:site-draft-memory` | ブログ作成の下書き（プロセス内のみ） | SiteDraftRepositoryPort | `src/infrastructure/persistence/d1/site-draft-repository.ts` |
 | `persistence:site-sample` | ブログの設計図（見本データ） | SiteRepositoryPort | `src/infrastructure/persistence/d1/site-repository.ts` |
 | `persistence:telemetry-memory` | 計測の記録（この実行中だけ覚える仮置き） | 計測の記録先 | `src/infrastructure/persistence/d1/telemetry-repository.ts` |
@@ -112,4 +113,4 @@
 **Google Gemini の注意**: `responseSchema` は JSON Schema の一部しか解釈しない。
 受け付けられない形は 400 で返る（黙って自由文には落とさない）。
 実際の鍵で呼ぶとき、最初に踏むのはたいていここである。
-<!-- 生成物の指紋 sha256:7f001d34e4b34fa2a95765026b8ace7751234bf190ab3c64680b790bc1dc068d -->
+<!-- 生成物の指紋 sha256:f0049a01c0d1d225d140fffa56d88b32cd868f415afad9ac3afb44972c77d477 -->

@@ -204,3 +204,11 @@ Cloudflare Workers へ OpenNext 経由でデプロイする。マイグレーシ
 | 根拠のない主張の公開 | Claim に Evidence が紐づかない記事が公開される | 公開ゲートで BLOCK 判定し、テストで固定 |
 
 現時点の検証状態は未実行である。受け入れ条件はプラットフォーム層 §30.1 から §30.8 をそのまま採用し、結果は `docs/product/traceability.md` の各行へ記録する。
+
+## 実装の現在地（非規範・2026-08-22）
+
+本章の To-Be と ADR は変えていない。画面の部品と改善要望の診断は、二層の計算層ではなく presentation / feedback コンテキストの実装契約である。
+
+- 共通 UI の並べ方: `docs/architecture/ui-system.md`（`InlineNav` / `StackedList`）
+- 改善要望の技術診断: `docs/architecture/feedback-loop.md` §2-1
+- 作業単位: Beads `ah-8h2` / graph node `task-worktree-dedup`

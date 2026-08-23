@@ -21,10 +21,10 @@
       "official_host": "nextjs.org",
       "version": "16.3.2",
       "freshness_source": "publisher-registry",
-      "latest_checked_at": "2026-08-23T13:12:16Z",
+      "latest_checked_at": "2026-08-22T22:20:35Z",
       "evidence_ref": "system-spec/retrieval-evidence/nextjs.json",
-      "evidence_sha256": "81ebcbf7942b747830951aed1b6297362d5188e7af188fb675ec18edc0504005",
-      "summary": "Next.js 公式ドキュメント。App Router・Server Components・ルーティング/データ取得の現行仕様。公式リポジトリで 2026-08-21 公開の v16.3.2 が安定版であることを再確認。frontend カテゴリの正本参照。"
+      "evidence_sha256": "ba58126ef21261e83348b9587888055e9af68ac736b266a211e039d4cdc930d6",
+      "summary": "Next.js 公式ドキュメント。App Router・Server Components・ルーティング/データ取得の現行仕様。frontend カテゴリの正本参照。docs は rolling で版を表明しないため、version は publisher の配布 registry (npm) が示す現行版を採る。2026-08-22T08:13:50Z に `npm view next version` / `npm view next dist-tags.latest` で照会し、いずれも 16.3.2 を返した (それまで記録していた 16.3.1 は、2026-08-16 時点の WebSearch 由来で registry の実状態より遅れていた)。evidence_ref は 2026-08-16 の docs ページ取得証跡であり、registry 照会の証跡ではない。この環境からは HTTP 取得ができないため docs ページの再取得は行っていない。2026-08-22T22:20:35Z に同じ照会を繰り返し、version / dist-tags.latest とも 16.3.2 (registry の最終更新 2026-08-21T23:53:41.293Z) で記録値と一致することを再確認し、その照会結果を evidence_ref の freshness_extraction へ書き足した。"
     },
     {
       "target_id": "cloudflare-workers",
@@ -59,10 +59,11 @@
       "official_publisher": "Drizzle Team",
       "official_host": "orm.drizzle.team",
       "version": "0.45.2",
-      "latest_checked_at": "2026-08-16T09:02:16Z",
+      "freshness_source": "publisher-registry",
+      "latest_checked_at": "2026-08-22T22:20:35Z",
       "evidence_ref": "system-spec/retrieval-evidence/drizzle-orm.json",
-      "evidence_sha256": "cd074133e59cdfed55b181039ac716df8afd29f05b2261f27341c035f12557e4",
-      "summary": "Drizzle ORM 公式ドキュメント概要。TypeScript ORM・スキーマ定義・マイグレーション。D1 ドライバ対応。backend カテゴリのデータアクセス正本参照。"
+      "evidence_sha256": "3057a970e5f4af552c4b5396446d598b9fd78a66150f196e18561ca295dc1086",
+      "summary": "Drizzle ORM 公式ドキュメント概要。TypeScript ORM・スキーマ定義・マイグレーション。D1 ドライバ対応。backend カテゴリのデータアクセス正本参照。docs は rolling で版を表明しないため、version は publisher の配布 registry が示す現行版を採る。2026-08-22T22:20:35Z に `npm view drizzle-orm version dist-tags.latest time.modified` で再照会し、version / dist-tags.latest とも 0.45.2 (registry の最終更新 2026-08-12T14:59:59.314Z) で記録値と一致した。evidence_ref は 2026-08-16 の docs ページ取得証跡であり、registry 照会の証跡ではない。"
     },
     {
       "target_id": "owasp-asvs",
@@ -70,11 +71,12 @@
       "source_url": "https://owasp.org/www-project-application-security-verification-standard/",
       "official_publisher": "OWASP Foundation",
       "official_host": "owasp.org",
-      "version": "5.0",
-      "latest_checked_at": "2026-08-16T09:11:39Z",
+      "version": "5.0.0",
+      "freshness_source": "page-declared",
+      "latest_checked_at": "2026-08-23T00:32:00Z",
       "evidence_ref": "system-spec/retrieval-evidence/owasp-asvs.json",
-      "evidence_sha256": "f389ec6f1d561eb5c9bb38d66506d0668ddf62f85dc01bfec06393093d2571a7",
-      "summary": "OWASP Application Security Verification Standard 公式ページ。認証・セッション・入力検証・暗号化・監査ログの検証要件。security/auth 章の doctrine authority。"
+      "evidence_sha256": "d5a780989b0fa5ce477bd4558bb94b68abc60e8fa676ae30129df9ff472911c9",
+      "summary": "OWASP Application Security Verification Standard 公式ページ。認証・セッション・入力検証・暗号化・監査ログの検証要件。security/auth 章の doctrine authority。版 5.0.0 は本文の「Get the latest stable version of the ASVS (5.0.0)」という表明そのものから取った (2026-08-23 に再取得して確認)。本文は日付を表明しないため freshness_source は page-declared。"
     },
     {
       "target_id": "apple-hig",
@@ -84,10 +86,10 @@
       "official_host": "developer.apple.com",
       "last_updated": "2026-08-06",
       "freshness_source": "http-last-modified",
-      "latest_checked_at": "2026-08-19T15:30:40Z",
+      "latest_checked_at": "2026-08-22T15:05:18Z",
       "evidence_ref": "system-spec/retrieval-evidence/apple-hig.json",
-      "evidence_sha256": "6d2ff53c5d32a4336e463e6f00926e34520e96c1929fb6bb82f494802eceab3c",
-      "summary": "Apple Human Interface Guidelines 公式ページ。presentation concern の doctrine authority。レスポンシブ Web UI の階層・フィードバック・アクセシビリティの上流指針。本文に日付・版の表明は無く、HTTP Last-Modified のみが 2026-08-06 を示す。2026-08-16 取得分と content_sha256 が一致し内容は不変。"
+      "evidence_sha256": "4f9fc6cea7002bdae82b8194a5e223bec72ad76c9241391eead6c31c833a47d0",
+      "summary": "Apple Human Interface Guidelines 公式ページ。presentation concern の doctrine authority。レスポンシブ Web UI の階層・フィードバック・アクセシビリティの上流指針。本文に日付・版の表明は無く、HTTP Last-Modified のみが 2026-08-06 を示す。2026-08-22T15:05:18Z に上流へ独立に取り直し、content_sha256 と Last-Modified がいずれも一致した (08-16 / 08-19 / 08-22 の 3 回で内容不変)。この record が古い取得の使い回しでないことは証跡の reverification 欄で辿れる。"
     },
     {
       "target_id": "google-sre",
@@ -101,6 +103,97 @@
       "evidence_ref": "system-spec/retrieval-evidence/google-sre.json",
       "evidence_sha256": "ddb488d397c1d7c77ff792f4464d98e08124fa8677fdd88ec6daa782d69add5b",
       "summary": "Google SRE Book 公式目次。SLO・エラーバジェット・モニタリング・ポストモーテムの上流指針。maintenance-ops/infrastructure 章の doctrine authority。更新日の表明は無く、本文が言う最新の年は Copyright 2017 のみ (HTTP last-modified 2025-02-03 はファイルの更新であって内容の更新ではないため採らない)。"
+    },
+    {
+      "target_id": "anthropic-claude",
+      "retrieved_at": "2026-08-22T15:04:45Z",
+      "source_url": "https://platform.claude.com/docs/en/about-claude/models/overview",
+      "official_publisher": "Anthropic",
+      "official_host": "platform.claude.com",
+      "version": "Claude 5 世代 (claude-opus-5 / claude-sonnet-5 / claude-fable-5 / claude-mythos-5)",
+      "freshness_source": "page-declared",
+      "latest_checked_at": "2026-08-22T15:04:45Z",
+      "evidence_ref": "system-spec/retrieval-evidence/anthropic-claude.json",
+      "evidence_sha256": "112bd2f0a3f17eafce490bc9935b48fdaf5ef672f0c37dede95cf06de6deb956",
+      "summary": "Anthropic Claude 公式モデル一覧。決定 decision-llm-provider (どの LLM 提供者を採るか) の候補側 authority。モデル ID・世代・非推奨化・版間移行の現行仕様を示す。要求した docs.claude.com は platform.claude.com へ恒久移送されたため、source_url と official_host は最終 URL を採る。ページは更新日を表明しないので、鮮度は説明対象の版 (本文が自ら列挙する現行モデル ID) で表す。取得日を last_updated へ代入していない。"
+    },
+    {
+      "target_id": "openai-platform",
+      "retrieved_at": "2026-08-22T15:05:04Z",
+      "source_url": "https://developers.openai.com/api/docs/models",
+      "official_publisher": "OpenAI",
+      "official_host": "developers.openai.com",
+      "version": "gpt-5.6",
+      "freshness_source": "page-declared",
+      "latest_checked_at": "2026-08-22T15:05:04Z",
+      "evidence_ref": "system-spec/retrieval-evidence/openai-platform.json",
+      "evidence_sha256": "7c25b37bf000f16da095044fe18ea9f3ec2cd0f74fed1a05241f51770a97b427",
+      "summary": "OpenAI API 公式モデル一覧。決定 decision-llm-provider の対抗候補 authority。現行世代 GPT-5.6 系 (Cyber / Luna / Sol / Terra) と Responses API・会話状態の仕様を示す。要求した platform.openai.com は developers.openai.com へ移送されたため最終 URL を採る。ページは更新日を表明しないので、鮮度は説明対象の版で表す。"
+    },
+    {
+      "target_id": "mdn-light-dark",
+      "retrieved_at": "2026-08-22T15:05:07Z",
+      "source_url": "https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Values/color_value/light-dark",
+      "official_publisher": "Mozilla",
+      "official_host": "developer.mozilla.org",
+      "last_updated": "2026-04-18",
+      "freshness_source": "page-declared",
+      "latest_checked_at": "2026-08-22T15:05:07Z",
+      "evidence_ref": "system-spec/retrieval-evidence/mdn-light-dark.json",
+      "evidence_sha256": "bd46e2bf5172445fda02d0d095194f440a6866caf0957092fa30f0ec2be4a53a",
+      "summary": "MDN の light-dark() CSS 関数リファレンス。決定 decision-ui-theme-implementation (明暗テーマをどう実装するか) の authority。prefers-color-scheme メディア特性を使わずに配色を切り替える構文と、Baseline 2024 Newly available (2024-05 以降の主要ブラウザで利用可) の対応状況を出典自身が申告している。HTTP Last-Modified は日次再生成の配信時刻なので採らず、本文の <time> が示す 2026-04-18 を採る。"
+    },
+    {
+      "target_id": "vitest",
+      "retrieved_at": "2026-08-22T15:05:10Z",
+      "source_url": "https://vitest.dev/guide/",
+      "official_publisher": "Vitest",
+      "official_host": "vitest.dev",
+      "last_updated": "2026-04-08",
+      "freshness_source": "page-declared",
+      "latest_checked_at": "2026-08-22T15:05:10Z",
+      "evidence_ref": "system-spec/retrieval-evidence/vitest.json",
+      "evidence_sha256": "18889a1465e1bffaf40c4a7d9966d971324b3db3b9503a66f32aa11873e3f1a2",
+      "summary": "Vitest 公式ガイド Getting Started。決定 decision-test-ci-tooling (試験と CI に何を使うか) の authority。Vite を土台にした試験フレームワークで、前提として Vite >= v6.0.0 と Node >= v20.0.0 を出典自身が要求している。本文の Last updated (<time> 2026-04-08) を鮮度に採る。"
+    },
+    {
+      "target_id": "github-actions",
+      "retrieved_at": "2026-08-22T15:05:16Z",
+      "source_url": "https://docs.github.com/en/actions",
+      "official_publisher": "GitHub",
+      "official_host": "docs.github.com",
+      "version": "free-pro-team@latest",
+      "freshness_source": "page-declared",
+      "latest_checked_at": "2026-08-22T15:05:16Z",
+      "evidence_ref": "system-spec/retrieval-evidence/github-actions.json",
+      "evidence_sha256": "0d40ebeaa8f9952188c0e42f7d5203ae6f13265285d6fdcf45f0d44b3f919ec1",
+      "summary": "GitHub Actions 公式ドキュメント入口。決定 decision-test-ci-tooling の CI 実行基盤側 authority。ワークフロー・ランナー・シークレット・OIDC・成果物の証明の現行仕様を示す。GitHub Docs は日付ではなく版セレクタで鮮度を表す設計で、取得した既定版は free-pro-team@latest (他に enterprise-cloud@latest と enterprise-server@3.17〜3.22 を提供)。"
+    },
+    {
+      "target_id": "google-gemini",
+      "retrieved_at": "2026-08-22T21:18:36Z",
+      "source_url": "https://ai.google.dev/gemini-api/docs/models",
+      "official_publisher": "Google",
+      "official_host": "ai.google.dev",
+      "version": "Gemini 3 系 (gemini-3.7-flash / gemini-3.6-flash / gemini-3.5-flash / gemini-3.1-pro)",
+      "freshness_source": "page-declared",
+      "latest_checked_at": "2026-08-22T21:18:36Z",
+      "evidence_ref": "system-spec/retrieval-evidence/google-gemini.json",
+      "evidence_sha256": "badeb4117c34ee846e0adc899def05786fe235e90a0bfd10bf2ce417c51078d2",
+      "summary": "Google Gemini API 公式モデル一覧。決定 decision-llm-provider の第三候補 authority。Gemini 3 系 (3.7/3.6/3.5 Flash・3.1 Pro) と旧 2.5/2.0 系の併載、各モデルの入出力様式と用途を示す。ページは更新日を表明しないので鮮度は説明対象の版で表す (HTTP Last-Modified 2026-08-14 は配信物の更新時刻であり本文の表明ではないため採らない)。初回取得は Chrome の UA を騙ったために Google OAuth へのリダイレクト循環に落ちており、UA を偽らない再取得で 200 を得た経緯を証跡に残してある。"
+    },
+    {
+      "target_id": "stryker-mutator",
+      "retrieved_at": "2026-08-22T21:18:38Z",
+      "source_url": "https://stryker-mutator.io/docs/stryker-js/introduction/",
+      "official_publisher": "Stryker Mutator",
+      "official_host": "stryker-mutator.io",
+      "version": "10.0.0",
+      "freshness_source": "publisher-registry",
+      "latest_checked_at": "2026-08-22T21:19:48Z",
+      "evidence_ref": "system-spec/retrieval-evidence/stryker-mutator.json",
+      "evidence_sha256": "3ae09df999fec24351fd7e38a441c870a26de4699644970612168e52b3ced2a9",
+      "summary": "StrykerJS 公式ドキュメント導入章。決定 decision-test-ci-tooling のミューテーション試験側 authority。TypeScript/React/Angular/Vue/Svelte/Node を対象に、試験そのものの有効性を変異で測る枠組み。docs は rolling で版も日付も表明しないため version は配布 registry の現行版 10.0.0 (`npm view @stryker-mutator/core` を 2026-08-22T21:19:48Z に照会)。HTTP Last-Modified は取得日と同日で Docusaurus のデプロイ時刻でしかないため採らず、退けた理由を証跡の rejected_candidate に残してある。"
     }
   ]
 }

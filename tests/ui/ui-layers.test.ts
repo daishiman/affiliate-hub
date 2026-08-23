@@ -33,8 +33,20 @@ const primitives = uiFiles.filter((f) => f.includes("/primitives/"));
 const patterns = uiFiles.filter((f) => f.includes("/patterns/"));
 const templates = uiFiles.filter((f) => f.includes("/templates/"));
 
-/** 画面側（app 配下）のコード。 */
-const screens = walk(join(ROOT, "src/app")).filter(code);
+/**
+ * 画面側のコード。
+ *
+ * **`src/app` だけでは足りない。** 2026-08-21 に実測: 読者向けの記事を実際に描いている
+ * `src/presentation/site/article-page.tsx` へ `rel="sponsored"` と「広告を含みます」を
+ * 手で書き込んでも、下の「自前で書いていない」は**緑のまま**だった。
+ * `src/app` 側は薄い入口で、法令に関わる表示が実際に並ぶのは `presentation/site` と
+ * `presentation/admin` のほうである。走査がそこへ届いていなかった。
+ */
+const screens = [
+  ...walk(join(ROOT, "src/app")).filter(code),
+  ...walk(join(ROOT, "src/presentation/site")).filter(code),
+  ...walk(join(ROOT, "src/presentation/admin")).filter(code),
+];
 
 /**
  * 画面と共通部品の**あいだ**の層。欄・結果表示など、画面が組み立てて使うもの。
@@ -129,6 +141,8 @@ describe("仕様固有の重要UIの一元化", () => {
 
   it("画面が広告表示・順位・事実区分を自前で書いていない", () => {
     const offenders: string[] = [];
+    // 母集団の床。画面が 1 枚も見えていなければ「違反 0 件」は常に成り立つ。
+    expect(screens.length, "画面が見えていません").toBeGreaterThan(100);
     for (const file of screens) {
       const source = readFileSync(file, "utf8");
       for (const rule of CENTRALIZED) {
@@ -140,6 +154,34 @@ describe("仕様固有の重要UIの一元化", () => {
     expect(
       offenders,
       "法令に関わる表示を画面ごとに書くと、要件が変わったときの直し漏れが必ず出ます。",
+    ).toEqual([]);
+  });
+
+  /**
+   * 計測の印 (`data-tel-*`) を手で書かせない。
+   *
+   * 印を画面に直接書くと、種類の一覧 (`TELEMETRY_ELEMENT_KINDS` /
+   * `TELEMETRY_SECTION_KINDS`) を通らないので、綴りの誤りも
+   * 一覧に無い種類も誰にも止められない。**必ず部品が名乗る。**
+   *
+   * 2026-08-21 に測ったところ、`src/app` の画面へ
+   * `data-tel-kind="cta_button"` を手で書いても全部緑だった。
+   * 追跡表の前書き 2 が指す検査が実際には無かったので、ここに足した。
+   */
+  it("計測の印を画面や部品が手で書いていない", () => {
+    // 印の名前そのものを決めている場所だけが、文字列で書いてよい。
+    const DEFINITION = "src/presentation/ui/telemetry-attrs.ts";
+    const offenders: string[] = [];
+    for (const file of [...screens, ...uiFiles]) {
+      const rel = relative(ROOT, file);
+      if (rel === DEFINITION) continue;
+      if (/["'\s]data-tel-/.test(readFileSync(file, "utf8"))) {
+        offenders.push(`${rel} が計測の印を手で書いています`);
+      }
+    }
+    expect(
+      offenders,
+      "計測の印は telemetryAttrs / telemetrySectionAttrs から出します。手で書くと、種類の一覧を通らずに綴りの誤りが素通りします。",
     ).toEqual([]);
   });
 

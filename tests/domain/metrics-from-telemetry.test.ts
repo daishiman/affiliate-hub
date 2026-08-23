@@ -1,4 +1,4 @@
-/** @tier 1 */
+/** @tier 1 @req REQ-TM01, REQ-TM04, REQ-P10 */
 import { describe, expect, it } from "vitest";
 import {
   METRIC_DEFINITIONS,

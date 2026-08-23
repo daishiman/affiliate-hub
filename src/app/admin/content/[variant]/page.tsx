@@ -10,7 +10,7 @@ import {
   EmptyView,
   ErrorView,
   FactList,
-  Note,
+  SeeAlso,
   Prose,
   Section,
   Stack,
@@ -80,11 +80,11 @@ export default async function ContentDetailPage({
               作成に使った指示: {result.value.variant.generationPromptVersion}（
               {result.value.variant.modelId}）
             </Prose>
-            <Note>
+            <SeeAlso>
               <TextLink href={`/admin/content/${encodeURIComponent(variantId)}/progress`}>
                 進行と配信の操作へ
               </TextLink>
-            </Note>
+            </SeeAlso>
           </Section>
 
           <QualitySection quality={result.value.quality} />

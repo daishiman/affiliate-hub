@@ -1,19 +1,12 @@
 /**
  * 端末に入っている Chrome を headless で動かし、1 枚の HTML を絵に撮る。
  *
- * ## なぜ Playwright を入れないか
+ * ## なぜ Playwright E2Eと別に残すか
  *
- * 2026-08-19 に実測した。この作業場所には `ms-playwright` のブラウザ実体が
- * 1 つも入っていない（`~/Library/Caches/ms-playwright` が存在しない）。
- * 入れるには数百 MB を落とす必要があり、**落とせない機械では
- * 「入っているのに動かない」状態**になる。動かないものを入れて、
- * 動かないことが緑として現れるのがいちばん困る。
- *
- * 一方 Chrome 本体は入っている（実測 151.0.7922.169）。DevTools Protocol は
- * Chrome が自分で持っている口なので、**依存を 1 つも増やさずに**同じことができる。
- * WebSocket は Node 22 の組み込みを使う（`package.json` の `packageManager` と
- * `@types/node` から Node 20 系も想定されるが、`globalThis.WebSocket` が無い
- * 版では下で明示的に投げる。黙って撮らずに終わる道を作らない）。
+ * Playwright は実routeの到達・組版・操作を監査する。こちらは既存UIカタログ5場面の
+ * 小さな画像baselineを、端末のChromeと確定済みの比較/承認台帳で守る。
+ * 同じ画像をPlaywright側へ複製すると見本が二つになるため統合しない。
+ * DevTools Protocol と Node 22 の組み込みWebSocketを使い、既存baselineとの互換を保つ。
  *
  * ## `--screenshot` を使わない理由（実測）
  *
@@ -24,7 +17,7 @@
  * CDP なら撮り終わりが応答として返るので、待つ理由が無くなる。
  */
 
-import { spawn } from "node:child_process";
+import { execFileSync, spawn } from "node:child_process";
 import { existsSync, mkdtempSync, readFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -74,12 +67,44 @@ export function findChrome() {
  * **中身が同じでもほぼ全画素が違う**。分けずに 1 組だけ置くと、
  * 機械が変わった日に全部赤くなり、赤の意味が失われる。
  *
+ * NodeだけがRosetta上のx64でも、Chrome・書体・画面はApple Silicon端末のものなので、
+ * `process.arch`をそのまま使うと同じ端末の見本がx64/arm64へ分裂する。
+ * macOSだけはhostのarm64対応を見て名札を決め、他OSはprocess architectureを使う。
+ *
+ * @param {NodeJS.Platform} platform
+ * @param {string} processArchitecture
+ * @param {boolean} hostSupportsArm64
+ * @returns {string}
+ */
+export function baselineArchitecture(platform, processArchitecture, hostSupportsArm64) {
+  return platform === "darwin" && hostSupportsArm64 ? "arm64" : processArchitecture;
+}
+
+/** @returns {boolean} */
+function darwinHostSupportsArm64() {
+  if (process.platform !== "darwin") return false;
+  try {
+    return execFileSync("/usr/sbin/sysctl", ["-n", "hw.optional.arm64"], {
+      encoding: "utf8",
+      stdio: ["ignore", "pipe", "ignore"],
+    }).trim() === "1";
+  } catch {
+    return process.arch === "arm64";
+  }
+}
+
+/**
  * @param {string} chromeVersion `Browser.getVersion` の `product`
  * @returns {string}
  */
 export function environmentTag(chromeVersion) {
   const major = /\/(\d+)\./.exec(chromeVersion)?.[1] ?? "unknown";
-  return `${process.platform}-${process.arch}-chrome${major}`;
+  const architecture = baselineArchitecture(
+    process.platform,
+    process.arch,
+    darwinHostSupportsArm64(),
+  );
+  return `${process.platform}-${architecture}-chrome${major}`;
 }
 
 /**

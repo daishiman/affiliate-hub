@@ -35,6 +35,12 @@ export { ActionButton } from "./primitives/action-button";
 export { Callout, type CalloutTone } from "./primitives/callout";
 export { ActionNote } from "./primitives/action-note";
 export { LoadingView, EmptyView, ErrorView } from "./primitives/state-view";
+/* 節の見出し。`level` は必須で、文書階層 2〜4 をそのまま渡す。 */
+export { SectionHeading, type SectionHeadingLevel } from "./primitives/heading";
+/* 注記の段落。余白も `className` も持たない。寄せてはいけないものは `note.tsx` の doc。 */
+export { Note } from "./patterns/note";
+/* 「続きはあちら」の行き先 1 本。`Note` と見た目は同じで役が違う（`see-also.tsx` の doc）。 */
+export { SeeAlso } from "./patterns/see-also";
 
 /* --- patterns（仕様固有。画面ごとに書き起こさない） --------------------- */
 export {
@@ -172,7 +178,6 @@ export {
   Section,
   SubSection,
   Prose,
-  Note,
   ListView,
   StepList,
   DataTable,
@@ -195,6 +200,7 @@ export {
   SiteShell,
   SitePage,
   PublicShell,
+  FocusedTask,
   type SiteChrome,
   type SiteNavItem,
 } from "./templates/site-shell";

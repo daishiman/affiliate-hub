@@ -43,12 +43,15 @@ import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { describe, expect, it } from "vitest";
 import {
+  allRuleIds,
   DISABLED_RULES,
   disabledRulesWithoutReason,
   enabledRuleIds,
   findA11yViolations,
   runA11y,
 } from "../support/a11y";
+
+const ROOT = resolve(import.meta.dirname, "../..");
 
 /** 要件の文がそのまま禁じている姿を渡すと、違反として返る規則。 */
 const REACHABLE: readonly { readonly id: string; readonly broken: string }[] = [
@@ -419,71 +422,78 @@ describe("一覧そのものが痩せていないか", () => {
 });
 
 /**
- * **要件表の凡例に写した数が、ここの実測とずれていないか**（2026-08-22 / `ah-9pk`）。
+ * **要件追跡表の a11y 欄の凡例が、実測とずれたら赤くする。**
  *
- * --- なぜ要るか ---
- * `docs/product/traceability.md` の a11y 欄の凡例は、この 3 つの数を根拠に
- * 「対応と書けるのは 33 件ぶんだけ」と言っている。**写しである。**
- * 写しは、正本が動いた日にも古く見えない。実際 2026-08-22 まで凡例は
- * 「現行の設定 = 当たり 28 件」のまま止まっていた——`best-practice` を
- * `A11Y_TAGS` へ入れて 45 件になった後も、である。
- * 採用前の対比表が、採用後の現況を名乗る形で 3 日ぶん残っていた。
+ * --- なぜ要るか（実際に起きたこと） ---
+ * 凡例は 2026-08-19 に実測を書いて置かれたが、**同じ日のうちに古くなった。**
+ * `best-practice` を足して当たりが 28 → 45 件・赤にできるのが 18 → 33 件へ動いたのに、
+ * 凡例は 28 のまま残っていた。**文章で書いた実測は、測り直した日にも古く見えない。**
+ * これは残課題 78 の①（何かが緑に見える形）そのもので、
+ * 直し方は「今度こそ気をつける」ではなく**測り方の側**である。
  *
- * **数がずれていても誰も気づかないのは、その数を読んでいるコードが 1 行も無いからである。**
- * ここが読む。読んだ以上、ずれれば赤くなる。
+ * --- 何を見ていないか ---
+ * 数が合っていることだけを見る。**凡例の文が正しいかは見ていない。**
+ * 「33 件ぶんだけ」という言い切りが妥当かは人が読む側の話である。
  *
- * --- 何を根拠にするかを固定している ---
- * 凡例が「当たった 45 件」を根拠に書かれていたら、それは 12 件ぶんの水増しである
- * （破っても判定不能か素通りで、緑と見分けが付かない分）。
- * だから **33 の行に「破ると実際に赤くなる」と書かれていること**まで見る。
- * 数だけ合っていて根拠の言い方が戻る形を、数の一致では捕まえられない。
+ * --- 壊して測った（2026-08-21。どれも赤は 1 本ずつ） ---
+ * 凡例の 33 を 28（古い数）へ戻す → 「赤にできる規則の一致」だけが赤。
+ * 凡例から「axe を回している」を根拠にしない、の一文を消す → その 1 本だけが赤。
+ * 凡例の届かない領域を 7 → 6 にする → `tests/ui/axe-blind-spots.test.ts` の 1 本だけが赤。
  */
-describe("要件表の凡例が、実測とずれていない", () => {
-  const LEGEND = resolve(import.meta.dirname, "../../docs/product/traceability.md");
+describe("要件追跡表の a11y 欄の凡例", () => {
+  /** 凡例の数の表だけを切り出す。文書の他の場所にある数字を拾わないため。 */
+  const legendBlock = (): string => {
+    const doc = readFileSync(resolve(ROOT, "docs/product/traceability.md"), "utf8");
+    const from = doc.indexOf("<!-- a11y-legend:counts");
+    const to = doc.indexOf("#### a11y 欄の書き方", from);
+    if (from < 0 || to < 0) {
+      throw new Error("凡例の数の表が見つからない（a11y-legend:counts の目印ごと消えている）");
+    }
+    return doc.slice(from, to);
+  };
 
-  /** 凡例表の `| ラベル | 数 |` から数を取る。無ければ null（＝行ごと消えた）。 */
-  function legendCount(label: string): number | null {
-    const doc = readFileSync(LEGEND, "utf8");
-    const row = new RegExp(`^\\|[^|\\n]*${label}[^|\\n]*\\|\\s*\\*{0,2}(\\d+)\\*{0,2}\\s*\\|`, "m");
-    const m = doc.match(row);
-    return m ? Number(m[1]) : null;
-  }
+  /** 表の 1 行から件数を取る。**見つからなければ throw する**（黙って 0 を返さない）。 */
+  const legendCount = (label: string): number => {
+    const row = legendBlock()
+      .split("\n")
+      .find((l) => l.includes(label) && /\|\s*\d+\s*\|/.test(l));
+    if (row === undefined) throw new Error(`凡例に「${label}」の行が無い`);
+    return Number(/\|\s*(\d+)\s*\|/.exec(row)![1]);
+  };
 
-  it("有効な規則の数が凡例と一致する", async () => {
-    expect(legendCount("現行の基準で有効"), "凡例の行が見つからない（消したか、書き方を変えた）").toBe(
-      (await enabledRuleIds()).length,
-    );
+  /**
+   * **0 の作り方を 2 通り持つ**（⑳）。
+   * 下の一致は、`legendCount` が何も見ずに正しい数を返していても通る。
+   * 先に、無い行を渡したら見つからないことを示す。
+   */
+  it("先に、凡例を読む側が動いていることを示す（陽性対照）", () => {
+    expect(() => legendCount("そんな行は凡例に無い")).toThrow();
   });
 
-  it("当たった規則の数が凡例と一致する", () => {
-    expect(legendCount("当たった")).toBe(APPLIED_2026_08_19.length);
+  it("「axe-core が持つ規則」の数が実測と合っている", async () => {
+    expect(legendCount("axe-core 4.13.0 が持つ規則")).toBe((await allRuleIds()).length);
   });
 
-  it("赤くできる規則の数が凡例と一致する", () => {
-    expect(legendCount("赤くなる")).toBe(REACHABLE.length);
+  it("「止めていない有効な規則」の数が実測と合っている", async () => {
+    expect(legendCount("うち止めていない有効な規則")).toBe((await enabledRuleIds()).length);
+  });
+
+  it("「実際に当たった規則」の数が、この表の 45 件と合っている", () => {
+    expect(legendCount("うち画面 67 枚に実際に当たった規則")).toBe(APPLIED_2026_08_19.length);
+  });
+
+  /** **凡例がいちばん言いたい数。**「対応」の裏が取れている範囲そのもの。 */
+  it("「破ったときに赤にできる規則」の数が、陽性対照の件数と合っている", () => {
+    expect(legendCount("うち破ったときに赤にできる規則")).toBe(REACHABLE.length);
   });
 
   /**
-   * **数が合っていることは、正しい数を根拠にしていることを意味しない。**
-   * 45 を「対応の根拠」と書き直しても上の 3 本は全部緑のままである。
-   * 根拠の側の文言をここで押さえる。
+   * **「axe を回している」を根拠にしない**と決めた以上、
+   * 凡例にその決めごとが書かれていること自体を見張る。
+   * 決めごとが消えれば、次の書き手は前の書き方へ戻る。
    */
-  it("『対応』の根拠に置いているのが、当たった数ではなく赤くできる数である", () => {
-    const doc = readFileSync(LEGEND, "utf8");
-    const row = doc.match(/^\|[^|\n]*赤くなる[^|\n]*\|[^|\n]*\|([^|\n]*)\|/m)?.[1] ?? "";
-    expect(row, "赤くできる数の行が「対応の根拠」と名乗っていない").toContain("対応");
-  });
-
-  /**
-   * **床**: 上の 4 本は正規表現で行を探すので、**凡例表ごと消せば全部緑になる**
-   * （`legendCount` が null を返すのは 1 本目だけで、残りは `toBe(null)` が
-   * 期待値側とも噛み合わない——いや、噛み合わないから赤くなる。だが
-   * 「表を残したまま a11y の話でなくする」書き換えは捕まらない）。
-   * 凡例が a11y の話であり続けることを見る。
-   */
-  it("凡例そのものが痩せていない", () => {
-    const doc = readFileSync(LEGEND, "utf8");
-    expect(doc, "a11y 欄の凡例の見出しが消えた").toMatch(/### a11y 欄の凡例/);
-    expect(doc, "凡例が正本を指していない").toContain("tests/ui/axe-rule-coverage.test.ts");
+  it("「axe を回している」を根拠にしない、が凡例に書かれている", () => {
+    const doc = readFileSync(resolve(ROOT, "docs/product/traceability.md"), "utf8");
+    expect(doc).toContain("**「axe を回している」を根拠にしない。**");
   });
 });

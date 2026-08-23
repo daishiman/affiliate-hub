@@ -227,6 +227,25 @@ describe("送る", () => {
     }
   });
 
+  it("画面にブランドとサイトの文脈があるときは、要望にも両方を結び付ける", async () => {
+    const result = await submitUseCase().execute(anOwner(), {
+      kind: "hard_to_use",
+      body: "この記事だけ、商品リンクの位置が分かりにくいです。",
+      origin: origin("/admin/content/article-1", "記事の編集"),
+      technical: technical(),
+      brandId: "br_context",
+      siteId: "st_context",
+    });
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    const read = await readUseCase().execute(anOwner(), { id: result.value.reportId });
+    expect(read.ok).toBe(true);
+    if (!read.ok) return;
+    expect(read.value.brandId).toBe("br_context");
+    expect(read.value.siteId).toBe("st_context");
+  });
+
   it("焼き込んでいない画像は保存しないが、要望そのものは残る", async () => {
     const result = await submitUseCase().execute(anOwner(), {
       kind: "not_working",

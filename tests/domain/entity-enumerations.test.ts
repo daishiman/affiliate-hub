@@ -198,7 +198,6 @@ describe("PolicyRule（E31）: 語彙にある値だけを受け取る", () => {
 // ── E32: 操作 × 理由の要否 ─────────────────────────────
 /** 監査ログに残す操作の全一覧。**実装から読まず、ここに書き写して固定する。** */
 const EXPECTED_ACTIONS: readonly AuditAction[] = [
-  "content.created",
   "content.state_changed",
   "content.approved",
   "content.published",
@@ -247,7 +246,7 @@ const EXPECTED_REASON_REQUIRED: readonly AuditAction[] = [
   "loop_run.stopped",
 ];
 
-describe("AuditLog（E32）: 操作 34 種 × 理由の要否", () => {
+describe("AuditLog（E32）: 操作 33 種 × 理由の要否", () => {
   const human = {
     userId: asUserId("u-1"),
     isAiServiceAccount: false,
@@ -266,13 +265,13 @@ describe("AuditLog（E32）: 操作 34 種 × 理由の要否", () => {
       occurredAt: NOW,
     });
 
-  it("34 種すべてについて、理由が要る 9 種だけが理由なしで断られる", () => {
+  it("33 種すべてについて、理由が要る 9 種だけが理由なしで断られる", () => {
     for (const action of EXPECTED_ACTIONS) {
       const required = EXPECTED_REASON_REQUIRED.includes(action);
       expect(entry(action).ok, `${action} 理由なし`).toBe(!required);
       expect(entry(action, "編集長の判断").ok, `${action} 理由あり`).toBe(true);
     }
-    expect(EXPECTED_ACTIONS).toHaveLength(34);
+    expect(EXPECTED_ACTIONS).toHaveLength(33);
     expect(EXPECTED_REASON_REQUIRED).toHaveLength(9);
   });
 
@@ -280,7 +279,7 @@ describe("AuditLog（E32）: 操作 34 種 × 理由の要否", () => {
     for (const blank of ["", " ", "　"]) {
       expect(entry("content.approved", blank).ok).toBe(false);
       // 理由の要らない操作では、空白でも通る（欄が空のまま残る）。
-      expect(entry("content.created", blank).ok).toBe(true);
+      expect(entry("content.state_changed", blank).ok).toBe(true);
     }
   });
 });

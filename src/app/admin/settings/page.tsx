@@ -3,7 +3,7 @@ import { auditLogNotice, currentActor, settingsUseCases } from "@/presentation/c
 import {
   Callout,
   ListView,
-  Note,
+  SeeAlso,
   Prose,
   Section,
   StorageNotice,
@@ -114,9 +114,9 @@ export default async function SettingsPage() {
           いまは見本の担当者として動いています。Google でのログインをつなぐと、
           許可した人だけが入れる状態になります。
         </Prose>
-        <Note>
+        <SeeAlso>
           <TextLink href="/signin">いま誰として動いているかを見る</TextLink>
-        </Note>
+        </SeeAlso>
       </Section>
     </AdminShell>
   );

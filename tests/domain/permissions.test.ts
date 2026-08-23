@@ -173,12 +173,80 @@ describe("役割ごとに、持たないと決めたものを持っていない�
     });
   }
 
+  it("REQ-R02 作業場所の管理担当は、持ち主から `workspace.manage` だけを引いたもの", () => {
+    /*
+      要件の文は「owner から `workspace.manage` を除く」である。
+      これまで当たっていたのは「`workspace.manage` を持たない」側だけで、
+      **引きすぎ**は誰も見ていなかった。2026-08-21 の測定で
+      `workspace_admin` から `audit.read` を落としたところ、
+      domain / application / property / presentation / ui のどれも落ちなかった。
+      監査ログを読めない管理担当が、要件どおりと読める状態のまま残る。
+    */
+    const expected = new Set([...caps("owner")].filter((c) => c !== "workspace.manage"));
+    expect([...caps("workspace_admin")].sort()).toEqual([...expected].sort());
+  });
+
   it("REQ-R01 作業場所そのものを管理できるのは持ち主だけ", () => {
     // ここが崩れると、招待した相手に作業場所ごと渡してしまう。
     const holders = [...HUMAN_ROLES, "ai_service_account" as Role].filter((r) =>
       caps(r).has("workspace.manage"),
     );
     expect(holders).toEqual(["owner"]);
+  });
+});
+
+/**
+ * REQ-R10「人の承認が要る操作は、AI には必ず拒否する」。
+ *
+ * ここを実装の `HUMAN_ONLY_CAPABILITIES` から回すと**何も守らない。**
+ * 一覧を回す検査は、一覧が縮むと検査も一緒に縮むためである
+ * （唯一の広い検査だった `tests/property/tenancy.property.test.ts` の
+ * `fc.constantFrom(...HUMAN_ONLY_CAPABILITIES)` がその形だった）。
+ *
+ * 2026-08-21 に 10 件を 1 つずつ抜いて測った結果:
+ *   赤になった  … content.approve / content.publish / member.manage /
+ *                 improvement.approve / improvement.run
+ *   緑のままだった… workspace.manage / affiliate.manage / export.perform /
+ *                 feedback.manage / integration_key.manage
+ * つまり REQ-R10 が名指ししている「報酬管理」「書き出し」は、
+ * 黙って外しても誰も気づかない状態だった。
+ *
+ * だから一覧は**要件の文の側**に置く。実装の一覧を直しても、こちらは追随しない。
+ */
+const HUMAN_ONLY_BY_REQUIREMENT: readonly (readonly [Capability, string])[] = [
+  ["content.approve", "REQ-R10「承認」"],
+  ["content.publish", "REQ-R10「公開」"],
+  ["member.manage", "REQ-R10「会員管理」"],
+  ["affiliate.manage", "REQ-R10「報酬管理」"],
+  ["export.perform", "REQ-R10「書き出し」"],
+  ["workspace.manage", "REQ-R01 作業場所そのものの管理"],
+  ["feedback.manage", "REQ-FB05 要望の扱いを決める・取り消す"],
+  ["integration_key.manage", "REQ-FB06 鍵の発行・失効"],
+  ["improvement.approve", "§14.5 試作の承認"],
+  ["improvement.run", "§14.5 比較を始める"],
+];
+
+describe("AI に必ず断るもの（REQ-R10）", () => {
+  /*
+    役で配っていないから届かない、では守れていない。**配り方**が変わった日に崩れる。
+    そこで「役はすべて持っている AI」で当てる。役の側で通っている状態にして、
+    上書きの側だけが断っていることを見る。
+  */
+  const omnipotentAi = anAiAccount({
+    roles: [...HUMAN_ROLES, "ai_service_account" as Role],
+  });
+
+  it.each(HUMAN_ONLY_BY_REQUIREMENT)("%s は AI では通らない（%s）", (capability, _なぜ) => {
+    // 人が同じ役を持っていれば通ることを先に見る。
+    // これが false だと「役が無いから断られた」を「人限定だから断られた」と読み違える。
+    expect(can(anOwner({ roles: [...HUMAN_ROLES] }), capability), `${capability} は人でも通らない`).toBe(true);
+
+    expect(can(omnipotentAi, capability)).toBe(false);
+    const refused = requireCapability(omnipotentAi, capability, "この操作");
+    expect(refused.ok).toBe(false);
+    if (refused.ok) return;
+    // 断り文が「権限がありません」だと、鍵を配り直せば通ると読める。
+    expect(refused.error.message).toContain("人が行う必要があります");
   });
 });
 

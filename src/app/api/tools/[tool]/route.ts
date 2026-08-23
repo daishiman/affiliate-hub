@@ -52,8 +52,9 @@ export async function POST(request: Request, ctx: { params: Promise<{ tool: stri
     );
   }
 
-  // 身元は「入口をどう通ったか」から決める。ここで `currentActor()` を呼ぶと、
-  // ログインしていない人が見本の権限で管理用の読み取りを通せる（`ah-2ro`）。
-  const actor = await actorForScope(auth.scope);
+  // 身元は「入口をどう通ったか」と「連携の鍵を載せてきたか」から決める。
+  // ここで `currentActor()` を呼ぶと、ログインしていない人が見本の権限で
+  // 管理用の読み取りを通せる（`ah-2ro` / `ah-p9e`）。
+  const actor = await actorForScope(auth.scope, request);
   return handleToolRequest(catalog, actor, toolName, body);
 }

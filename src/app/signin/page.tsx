@@ -7,6 +7,7 @@ import {
   Callout,
   FactList,
   Note,
+  SeeAlso,
   PublicShell,
   Section,
   SitePage,
@@ -116,9 +117,9 @@ export default async function SignInPage({
 
         <Note>{notice}</Note>
 
-        <Note>
+        <SeeAlso>
           <TextLink href="/admin">管理画面へ戻る</TextLink>
-        </Note>
+        </SeeAlso>
       </SitePage>
     </PublicShell>
   );

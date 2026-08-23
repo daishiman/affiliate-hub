@@ -26,6 +26,7 @@ import {
   LoadingView,
   MaterialReview,
   ModelPicker,
+  Note,
   Prose,
   Row,
   Section,
@@ -35,6 +36,8 @@ import {
   ProvenanceNote,
   RankingTable,
   ScheduleCalendar,
+  SectionHeading,
+  SeeAlso,
   StubLabel,
   StorageNotice,
   StubNotice,
@@ -740,6 +743,16 @@ export default function UiCatalogPage() {
         </>}
       >
         <FormResultSamples />
+      </Section>
+
+      <Section title="27. 見出し・注記・次の行き先">
+        <Stack>
+          <SectionHeading level={3}>小見出しの見本</SectionHeading>
+          <Note>操作の判断に必要な補足を、本文とは別の役として示します。</Note>
+          <SeeAlso>
+            <TextLink href="/admin">管理ホームを見る</TextLink>
+          </SeeAlso>
+        </Stack>
       </Section>
     </AdminShell>
   );
