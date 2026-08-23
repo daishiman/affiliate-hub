@@ -78,13 +78,22 @@ def main(argv: list[str]) -> int:
     p_compile.add_argument("--spec", required=True, help="spec-state.json のパス")
     p_compile.add_argument("--references", required=True, help="fetched-references.json のパス")
     p_compile.add_argument("--out-dir", default="system-spec", help="出力ディレクトリ (既定 system-spec)")
+    p_compile.add_argument(
+        "--on-handwritten",
+        choices=("refuse", "preserve"),
+        default="refuse",
+        help=(
+            "既存章が生成物に無い節 (人が後から書いた節) を持つときの扱い。"
+            "refuse=何も書かずに中止 (既定) / preserve=生成本文の末尾へ引き継ぐ"
+        ),
+    )
     args = ap.parse_args(argv)
 
     try:
         spec = load_json(args.spec)
         refs_data = load_json(args.references)
         docset = compile_docset(spec, refs_data)
-        written = write_docset(docset, Path(args.out_dir))
+        written = write_docset(docset, Path(args.out_dir), on_handwritten=args.on_handwritten)
     except (OSError, json.JSONDecodeError) as exc:
         print(f"IO/JSON error: {exc}", file=sys.stderr)
         return 1

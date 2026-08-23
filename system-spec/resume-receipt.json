@@ -13,7 +13,7 @@
   },
   "artifacts": {
     "system-spec/00-requirements-definition.md": "b5f4e61bea187723bcf1e1703985f816c1d50cb20c71743e5d5ca761ce1ae250",
-    "system-spec/completeness-report.json": "b120e5e9f6324e1eb9882d1f89c28b1077af86586187d297a9a457fc4ee19e45",
+    "system-spec/completeness-report.json": "c997e570b223230c778371dcc29552d90849b0c8bd16558d6f2be8347088896d",
     "system-spec/fetched-references.json": "37e273ff81303559de07aced7427fbd44fe55790783250a84a9494a15d9b07e5",
     "system-spec/index.md": "409add2dc4ceef4637f1a2048bdd9a2e54a4a9873cc4e70a9d160a13c5d63e44",
     "system-spec/spec-state.json": "b6dda29558fb7d336d0cdb3f0ea8e4884d7e0b07c7f3a5e160b82028f188e02c"
@@ -24,9 +24,9 @@
   },
   "evaluator": {
     "report_path": "system-spec/completeness-report.json",
-    "report_sha256": "b120e5e9f6324e1eb9882d1f89c28b1077af86586187d297a9a457fc4ee19e45",
+    "report_sha256": "c997e570b223230c778371dcc29552d90849b0c8bd16558d6f2be8347088896d",
     "fork_ledger_path": "eval-log/system-spec-harness/audit-fork-ledger.jsonl",
     "session_id": "64a084b5-9449-4f10-9879-60a8373d3ffa"
   },
-  "created_at": "2026-08-23T08:22:42Z"
+  "created_at": "2026-08-23T09:13:37Z"
 }

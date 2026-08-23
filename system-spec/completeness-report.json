@@ -308,20 +308,21 @@
   ],
   "findings": [
     {
-      "severity": "medium",
+      "severity": "low",
       "bucket": "regeneration",
-      "observation": "system-spec/*.md の ## As-Is / ## To-Be / ## Delta 節は C03 compile の生成物ではない。次に compile-spec-doc.py compile を走らせると frontend / auth / security / maintenance-ops / ui-ux の 5 章分が静かに消える。2026-08-23 に書いた UIUX-REQ-001 の更新と ui-ux.md の ## 履歴 節も同じ対象で、compile が『再生成できないものを持つ章』を検知しないため、消えたことは差分を見るまで分からない。6 観点の判定を落とさないのは、現在の章の内容自体は正しく、これが再生成時にのみ現れる耐久性の欠陥だからである。",
-      "suggested_fix": "compile の render 対象へ As-Is / To-Be / Delta と ## 履歴 を含めるか、compile が手書き節を検出して上書きを拒否する fail-closed を入れる。どちらも入る前に compile を走らせない。",
+      "observation": "system-spec/*.md の手書き節は C03 compile の生成物ではなく、compile を走らせれば静かに消えていた。**被害範囲は当初の記述より広かった。**本物の章の複製で実測したところ、失われるのは 5 章ではなく 9 ファイル (確定 8 章すべて + index.md) で、節も As-Is / To-Be / Delta だけでなく ## 確定セルの記録 (正本 spec-state.json) / ## 意思決定 (decisions) / ## Dependencies / ## Acceptance evidence / ## 状態の意味 / ## 履歴、index.md では ## 仕様統制と状態軸 / ## 実装依存順 を含む。2026-08-23 に write_docset へ fail-closed と引き継ぎを入れて解消した。既定 (refuse) は生成物に無い節を見つけると 1 ファイルも書かずに中止し、--on-handwritten preserve は手書き節を既存の並び順で引き継ぐ。low として残すのは、compile が出典表を fetched-references から生成する一方で手書き節を本文末尾へ寄せるため、再生成後の節順が現行と変わる点が未確認だからである。",
+      "suggested_fix": "残りは節順の確認のみ。compile --on-handwritten preserve の出力を差分で読み、章の読み順が壊れていないことを確かめてから正本へ適用する。",
       "evidence": [
-        "compile の生成対象節に As-Is / To-Be / Delta が無い",
-        "手書き節を持つ章: frontend / auth / security / maintenance-ops / ui-ux の 5 章"
+        "本物の章を複製した上での実測: 既定で exit 1、複製 10 件が 1 文字も変化しないことを before/after 比較で確認",
+        "--on-handwritten preserve で exit 0、8 章すべてで As-Is / To-Be / Delta が残り、ui-ux は ## 履歴 も残った",
+        "test_compile_spec_doc_cli.py に 5 件追加 (検出の両方向・部分適用しないこと・二度走らせても増殖しないこと・未知モードの拒否)"
       ]
     },
     {
       "severity": "medium",
       "bucket": "doc_freshness",
       "observation": "同じ事実が fetched-references.json と章 md の「最新ドキュメント出典」表の 2 箇所にあり、参照側だけが更新されて章側が追随していない。better-auth は章 1.6.29 / 参照 1.7.1、owasp-asvs は章 5.0 / 参照 5.0.0、apple-hig は章が取得日 2026-08-16 のままで参照は http-last-modified 由来の 2026-08-06。章 md は読み手が最初に見る面なので、参照側が正しくても読み手には古い値が見える。なお 4 件 (cloudflare-d1 / cloudflare-workers / google-sre / nextjs) は章側も追随済みで、版の欄が取得日のままなのは apple-hig 1 件に減っている。6 観点の判定を落とさないのは、正本である fetched-references の値が正しく、章側の乖離が写しの遅れであって出所の欠落ではないためである。",
-      "suggested_fix": "C01/C03 の単一 writer 経由で 3 章の出典表を参照側の値へ揃える。根本には、章 md が fetched-references から生成されず手で写されている二重管理がある。compile が出典表を参照側から生成するようにすれば乖離は構造的に起こらなくなる。",
+      "suggested_fix": "compile は既に出典表を fetched-references から生成する。走らせられなかったのは手書き節が消えるためで、その fail-closed と引き継ぎが 2026-08-23 に入った。複製上で compile --on-handwritten preserve を走らせると 3 件とも参照側の値になり食い違いは 0 になる (auth 1.6.29→1.7.1 / security 5.0→5.0.0 / ui-ux 2026-08-16→2026-08-06)。つまりこの乖離の原因は二重管理そのものではなく、生成器を止めていたことだった。適用は C01/C03 の単一 writer 経由で行う。",
       "evidence": [
         "tests/architecture/doc-source-version-gap.test.ts 『章 md と fetched-references の食い違いは既知の 3 件だけ』が 3 件を固定 (2026-08-23 に検査の向きを反転させた)",
         "章側が追随済み: cloudflare-d1=2026-04-30 / cloudflare-workers=2026-04-23 / google-sre=2017 / nextjs=16.3.2",
@@ -383,13 +384,12 @@
     }
   ],
   "gaps": [
-    "compile が As-Is / To-Be / Delta と ## 履歴 を再生成できるようにするか、手書き節の上書きを拒否する fail-closed を入れる。それまで compile-spec-doc.py compile を走らせない",
-    "章 md の出典表 3 件 (better-auth / owasp-asvs / apple-hig) を fetched-references の値へ揃える。恒久策は出典表を参照側から生成し、手で写す二重管理をやめること"
+    "章 md の出典表 3 件 (better-auth 1.6.29→1.7.1 / owasp-asvs 5.0→5.0.0 / apple-hig 2026-08-16→2026-08-06) をfetched-references の値へ揃える。compile --on-handwritten preserve を正本へ適用すれば食い違いは 0 になることを複製上で実測済みで、残る判断は再生成後の節順を差分で確かめることだけ。適用は C01/C03 の単一 writer 経由で行う"
   ],
   "inputs": {
     "file_count": 28,
     "sha256": "8361108142ac76e73b0bbabb70112bf803024d323312262a79e87858e4aa9cd9",
-    "pinned_at": "2026-08-23T17:25:00Z",
+    "pinned_at": "2026-08-23T17:40:00Z",
     "files": [
       {
         "path": "docs/spec/00-README.md",

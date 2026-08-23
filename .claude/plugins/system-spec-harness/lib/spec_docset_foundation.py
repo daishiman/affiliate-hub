@@ -232,13 +232,84 @@ def compile_docset(spec: dict, refs_data: dict) -> dict[str, str]:
     return docset
 
 
-def write_docset(docset: dict[str, str], out_dir: Path) -> list[Path]:
-    """組み立てた docset を out_dir へ書き出す。書き出したパス一覧を返す。"""
+def _section_map(text: str) -> "dict[str, str]":
+    """Markdown 本文を `## 見出し` 単位へ割る。{見出し行: 節本文 (見出し含む)}。
+
+    frontmatter と最初の `## ` より前の導入部は節に属さないので含めない。
+    見出しが重複する場合は最後の 1 つを採る (同名節を 2 つ持つ章は無い前提)。
+    """
+    sections: dict[str, str] = {}
+    current: str | None = None
+    buf: list[str] = []
+    for line in text.splitlines():
+        if line.startswith("## "):
+            if current is not None:
+                sections[current] = "\n".join(buf).rstrip() + "\n"
+            current = line.strip()
+            buf = [line]
+        elif current is not None:
+            buf.append(line)
+    if current is not None:
+        sections[current] = "\n".join(buf).rstrip() + "\n"
+    return sections
+
+
+def handwritten_sections(existing: str, generated: str) -> "list[str]":
+    """既存ファイルにあって生成物に無い `## 節` の見出しを、既存の並び順で返す。
+
+    compile は正本 (spec-state / registry / C04 card) からの純関数導出しか書かない。
+    よって**生成物に無い節は、人が後から書いた節**である。上書きすれば黙って消える。
+    """
+    gen = _section_map(generated)
+    return [h for h in _section_map(existing) if h not in gen]
+
+
+def write_docset(
+    docset: dict[str, str],
+    out_dir: Path,
+    *,
+    on_handwritten: str = "refuse",
+) -> list[Path]:
+    """組み立てた docset を out_dir へ書き出す。書き出したパス一覧を返す。
+
+    既存ファイルが**生成物に無い節**を持つとき、既定では書かずに CompileError を上げる
+    (fail-closed)。compile は正本からの導出しか生成しないので、そういう節は人が書いた
+    ものであり、黙って消すと差分を見るまで誰も気づかない。
+
+    on_handwritten:
+      - "refuse"   : 手書き節を見つけたら 1 文字も書かずに中止する (既定)
+      - "preserve" : 生成本文の末尾へ手書き節を既存の並び順で引き継いでから書く
+    """
+    if on_handwritten not in ("refuse", "preserve"):
+        raise CompileError(f"on_handwritten は refuse|preserve のいずれか (受領: {on_handwritten!r})")
+
+    # 1 ファイルでも危ないものがあれば 1 文字も書かない。部分適用は差分を読みにくくする。
+    carried: dict[str, list[str]] = {}
+    for name, content in docset.items():
+        p = out_dir / name
+        if not p.is_file():
+            continue
+        lost = handwritten_sections(p.read_text(encoding="utf-8"), content)
+        if lost:
+            carried[name] = lost
+
+    if carried and on_handwritten == "refuse":
+        detail = "; ".join(f"{name}: {' / '.join(heads)}" for name, heads in sorted(carried.items()))
+        raise CompileError(
+            "生成物に無い節を持つ既存章があるため中止した (何も書いていない)。"
+            f"消えるはずだった節: {detail}。"
+            "引き継ぐなら --on-handwritten preserve、"
+            "消してよいと確かめたなら該当節を先に削ってから compile すること。"
+        )
+
     out_dir.mkdir(parents=True, exist_ok=True)
     written: list[Path] = []
     for name, content in docset.items():
-        p = out_dir / name
         text = content if content.endswith("\n") else content + "\n"
+        if name in carried:
+            existing = _section_map((out_dir / name).read_text(encoding="utf-8"))
+            text = text.rstrip("\n") + "\n\n" + "\n".join(existing[h] for h in carried[name])
+        p = out_dir / name
         p.write_text(text, encoding="utf-8")
         written.append(p)
     return written
