@@ -23,18 +23,36 @@
 | a11y | キーボード操作・フォーカス・ラベル・コントラスト。**「対応」は「axe が緑」ではない**（下の凡例） |
 | 結果 | 実装済 / スタブ / 未着手 |
 
-### a11y 欄の凡例（2026-08-19 の実測で書き足した）
+### a11y 欄の凡例（2026-08-19 に書き足し、2026-08-22 に根拠の取り方を直した）
 
-**「対応」を「機械が全部見た」と読まないこと。** 実測（axe-core 4.13.0、画面 67 枚）:
+**「対応」の根拠を「axe を回している」に置かないこと。**
+回っていることと、破ったときに赤くなることは別である。
 
-| | 現行の設定 | `best-practice` も入れた場合 |
-| --- | ---: | ---: |
-| 有効になっている規則（件） | 70 | 100 |
-| 実際に当たった規則（件） | 28 | 45 |
-| 出た違反（件） | 0 | 2（`landmark-unique`） |
+実測（axe-core 4.13.0、画面 67 枚、`best-practice` を含む現行の `A11Y_TAGS`）:
 
-axe-core 4.13.0 の全規則は **105 件**。うち画面に当たったのは **28 件**である。
-つまり a11y 欄の「対応」が機械で裏を取れている範囲は、**この 28 件ぶんだけ**。
+| | 件数 | 意味 |
+| --- | ---: | --- |
+| axe-core の全規則 | 105 | 道具が持っている全部 |
+| 現行の基準で有効 | 99 | `color-contrast` の 1 件だけ止めている |
+| 画面 67 枚に当たった | 45 | 当たっただけ。赤くなるとは言っていない |
+| **破ると実際に赤くなる** | **33** | **a11y 欄の「対応」が機械で裏を取れている範囲** |
+
+**根拠にできるのは 33 件のほうである。** 当たった 45 件のうち残り 12 件は、
+破っても判定不能どまり（8 件）か、緑で素通り（1 件・`target-size`）か、
+判定対象が入れ物側にあって渡す側から壊しようがない（4 件・`document-title` など）。
+しかも `findA11yViolations` は `incomplete` を捨てるので、
+**判定不能はこの作業場所では緑と見分けが付かない。**
+「45 件に当たっている」を根拠に書くと、その 12 件ぶんだけ見張りを水増しすることになる。
+
+**2026-08-19 の対比を残す**（数え方を変えた回は新旧の両方を残す）:
+`best-practice` を足す前は 有効 70・当たり 28・赤くできる 18 だった。
+足した理由は件数ではなく、`landmark-unique` の**本物の違反 2 件**
+（`/admin/settings` と `/admin/ui-catalog` が同じ名前の目印を 1 画面に 2 つ出していた）が
+それまで 1 度も赤くならなかったことにある。
+
+**この 3 つの数（99 / 45 / 33）の正本は `tests/ui/axe-rule-coverage.test.ts` である。**
+上の表は写しなので、ずれた日に `tests/architecture/generated-doc-freshness.test.ts` ではなく
+同ファイルの検査が赤くなる（写しと正本の一致をそこで見ている）。
 
 **軸**: axe が見ているのは「書かれているものが妥当か」であって、
 **「書かれるべきものが書かれているか」ではない。**
@@ -559,6 +577,32 @@ D1 への差し替えは、この列だけを別の実装に取り替えれば�
 
 **Beads との二重管理をしない。** 届いた声はこの機能の保存先が持ち、作業単位は Beads が持つ。
 1 件の要望が持つ Beads の課題番号は最大 1 つで、**着手・完了の状態は Beads を正とし、要望側へ写さない**（仕様 §12）。
+
+---
+
+## V. 管理画面の UI/UX 全面改善（`feat-uiux-overhaul`）
+
+受入条件 A1〜A10 の正本は `docs/spec/feat-uiux-overhaul/requirements-baseline.md`。
+そこでは 10 件それぞれを**観測可能な述語**へ書き下してある。ここはその裏返しで、
+述語を確かめているテストを要件番号から引けるようにしたものである。
+
+**A4 だけ test 列の形が違う。** 「新しい配信先の追加が記述の追加だけで済む」は、
+できあがったコードを見ても分からない。分かるのは**追加したときの差分**なので、
+判定は git の差分のパス集合で行う（`src/app/**` と `src/presentation/ui/**` が 0 行）。
+2026-08-22 に Facebook を 1 件足して実際に通してある。
+
+| REQ | 要件 | 実装 | test | 結果 |
+| --- | --- | --- | --- | --- |
+| REQ-UX01 | A1 各管理画面が単一用途で、1 画面に複数の主要タスクが混在しない | `src/app/admin/**` を用途ごとに分割。業務の状態を変えるフォームは 1 画面 1 つ | PASS（`tests/ui/uiux-screen-single-purpose.test.ts`） | 実装済 |
+| REQ-UX02 | A2 管理対象 4 種すべてに一覧・新規作成・編集・削除の操作と対応 API がある | 道具を `src/presentation/tools/catalog.ts` へ足すと REST・WebMCP・MCP の 3 入口へ同時に出る。管理画面用の REST route は書かない（`docs/spec/feat-uiux-overhaul/admin-api-contract.md`） | PASS（`tests/ui/uiux-admin-api-contract.test.ts`） | 実装済 |
+| REQ-UX03 | A3 各サイト・SNS への投稿状態が管理画面の一覧・詳細に反映される | `get_content_channel_status` を一覧と詳細の両方が使う | PASS（`tests/ui/uiux-channel-status.test.tsx`） | 実装済 |
+| REQ-UX04 | A4 新しい SNS の追加が記述の追加だけで完了し、既存画面の改修を要しない | `src/domain/distribution/channel.ts` の能力表に 1 エントリ、`src/infrastructure/channels/channel-registry.ts` に 1 行 | PASS（`tests/ui/uiux-channel-status.test.tsx` + 実際の追加差分。Facebook で実証） | 実装済 |
+| REQ-UX05 | A5 1 商品から複数ブログへコンセプト別の文章を作成する導線が動作する | 切り口はブログの設計図が持つ 10 軸から引く。人が毎回入力しない | PASS（`tests/ui/uiux-concept-matrix.test.tsx`） | 実装済 |
+| REQ-UX06 | A6 同等 UI の重複実装が 0 件で、共通部品は共有コンポーネント経由で使われる | `src/presentation/ui/{primitives,patterns,templates}`。同じ役割の要素が 3 つ以上同じ並びで 2 か所に出たら重複と数える | PASS（`tests/ui/uiux-duplicate-implementation.test.ts`） | 実装済 |
+| REQ-UX07 | A7 新規ブログ構築時のブログ別コンポーネント作成仕様が文書化され、実際に scaffold できる | 既定では固有ファイルを作らない（データで表現する）。例外の 2 条件を満たすときだけ `pnpm run scaffold:blog`（`scripts/scaffold-blog-components.ts`） | PASS（`tests/ui/uiux-blog-scaffold.test.ts`） | 実装済 |
+| REQ-UX08 | A8 カード間隔・文章量・サイドバー構成が規則として文書化され、全画面へ適用されている | 余白は意味の段（`src/presentation/ui/tokens/semantic.css`）だけを読む。導入文 40 字・`Callout` 2 個の上限 | PASS（`tests/ui/uiux-spacing-and-copy.test.ts` / `tests/ui/design-tokens.test.ts`） | 実装済 |
+| REQ-UX09 | A9 サイドバーの全項目にアイコンが付き、アイコンで折りたたみ／展開が切り替わり、折りたたみ時もアイコンで項目を識別できる | `ADMIN_NAV` の型が `icon` を必須にする。畳んでも読み上げの名前は消さない | PASS（`tests/ui/uiux-sidebar-icons.test.tsx`） | 実装済 |
+| REQ-UX10 | A10 各画面の表示情報がタスク遂行に必要な項目だけに絞られ、不要な文章・説明が非表示になっている | 残す・落とす・畳むの判断は `docs/spec/feat-uiux-overhaul/information-priority-map.json` | PASS（`tests/ui/uiux-spacing-and-copy.test.ts`） | 実装済 |
 
 ---
 

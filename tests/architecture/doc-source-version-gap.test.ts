@@ -42,10 +42,10 @@ import { describe, expect, it } from "vitest";
  *
  * いま何が起きているか (2026-08-19 実測):
  *
- *   1. **バージョン欄が取得日で埋まっている章が 4 つある。**
- *      `cloudflare-d1` / `cloudflare-workers` / `google-sre` / `apple-hig` は
- *      版番号を公表していないため、生成側が**取得日 `2026-08-16` を版として書いた**。
- *      日付は版ではない。欄は埋まっているが、埋めている値が意味しているものが違う。
+ *   1. **バージョン欄が日付形式で埋まっている章が 4 つある。**
+ *      `cloudflare-d1` / `cloudflare-workers` / `google-sre` は取得日 `2026-08-16`、
+ *      `apple-hig` は公式の更新日 `2026-08-06` が版の欄に入っている。
+ *      日付は版番号ではない。欄は埋まっているが、値の意味は対象ごとに異なる。
  *      （`qa_log` の `source.sha256` が `answer` の指紋だった件と同じ族。`ah-84i`）
  *
  *   2. **「最新確認」が独立した再確認になっていない。**
@@ -129,13 +129,13 @@ describe("最新ドキュメント出典の欄が欄名どおりの値を持っ�
     );
   });
 
-  it("版が取得日で埋まっている章は 4 つ——本物の版が入った日にこの検査が赤くなる", () => {
+  it("版が日付形式の章は 4 つ——本物の版番号が入った日にこの検査が赤くなる", () => {
     const dated = rows.filter((r) => looksLikeDate(r.version));
     expect(dated.map((r) => `${r.target}=${r.version}`)).toEqual([
       "cloudflare-d1=2026-08-16",
       "cloudflare-workers=2026-08-16",
       "google-sre=2026-08-16",
-      "apple-hig=2026-08-16",
+      "apple-hig=2026-08-06",
     ]);
   });
 
