@@ -144,7 +144,7 @@ describe("最新ドキュメント出典の欄が欄名どおりの値を持っ�
     expect(versioned.map((r) => `${r.target}=${r.version}`)).toEqual([
       "better-auth=1.6.29",
       "drizzle-orm=0.45.2",
-      "nextjs=16.3.1",
+      "nextjs=16.3.2",
       "owasp-asvs=5.0",
     ]);
   });

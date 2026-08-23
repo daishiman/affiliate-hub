@@ -1,9 +1,20 @@
 {
  "target_id": "nextjs",
  "source_url": "https://nextjs.org/docs",
- "retrieved_at": "2026-08-16T09:01:51Z",
+ "retrieved_at": "2026-08-23T13:12:16Z",
  "http_status": 200,
- "content_bytes": 419100,
- "content_sha256": "40e69b97c8d2186e17b5b7c0c1b9d6782332875f2e19c21ba6bc5ba2b5cb4cdd",
- "page_title": "Next.js Docs | Next.js"
+ "content_bytes": 429981,
+ "content_sha256": "72c87bba3f12146b3079aa031cbe0489c08cc6122692dc6237716da2b6e72d4b",
+ "page_title": "Next.js Docs | Next.js",
+ "freshness_extraction": {
+  "freshness_source": "publisher-registry",
+  "value": "16.3.2",
+  "found_in": [
+   "Next.js 公式 docs の Latest Version: 16.3.2",
+   "Vercel 公式 next.js repository の v16.3.2 release (published_at: 2026-08-21T09:36:39Z, prerelease: false, draft: false)"
+  ],
+  "doc_page_declares_version": true,
+  "body_search_method": "取得した Next.js docs 429981 bytes 全体から 16.3.2 を抽出し、Vercel 公式 repository の release tag と照合した。",
+  "note": "version はこの repo の固定依存版ではなく、公式ドキュメントが説明する現行安定版を記録する。"
+ }
 }

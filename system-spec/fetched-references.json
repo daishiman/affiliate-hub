@@ -15,15 +15,16 @@
     },
     {
       "target_id": "nextjs",
-      "retrieved_at": "2026-08-16T09:01:51Z",
+      "retrieved_at": "2026-08-23T13:12:16Z",
       "source_url": "https://nextjs.org/docs",
       "official_publisher": "Vercel",
       "official_host": "nextjs.org",
-      "version": "16.3.1",
-      "latest_checked_at": "2026-08-16T09:02:16Z",
+      "version": "16.3.2",
+      "freshness_source": "publisher-registry",
+      "latest_checked_at": "2026-08-23T13:12:16Z",
       "evidence_ref": "system-spec/retrieval-evidence/nextjs.json",
-      "evidence_sha256": "47a4780cf2efb4f19bc8c5fd6ddb0af10595315e4a6deafd1a653c7d8a7e4a03",
-      "summary": "Next.js 公式ドキュメント。App Router・Server Components・ルーティング/データ取得の現行仕様。frontend カテゴリの正本参照。"
+      "evidence_sha256": "81ebcbf7942b747830951aed1b6297362d5188e7af188fb675ec18edc0504005",
+      "summary": "Next.js 公式ドキュメント。App Router・Server Components・ルーティング/データ取得の現行仕様。公式リポジトリで 2026-08-21 公開の v16.3.2 が安定版であることを再確認。frontend カテゴリの正本参照。"
     },
     {
       "target_id": "cloudflare-workers",

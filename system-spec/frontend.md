@@ -265,4 +265,4 @@ C05 gaps[0] の「再生成して本文へ載せる」を採らず、本節は�
 
 | 対象 | バージョン | 公式発行元 | 出典URL | 取得 | 最新確認 |
 |---|---|---|---|---|---|
-| nextjs | 16.3.1 | Vercel (nextjs.org) | https://nextjs.org/docs | 2026-08-16T09:01:51Z | 2026-08-16T09:02:16Z |
+| nextjs | 16.3.2 | Vercel (nextjs.org) | https://nextjs.org/docs | 2026-08-23T13:12:16Z | 2026-08-23T13:12:16Z |
