@@ -1,7 +1,12 @@
 /** @tier 2 */
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
-import { ADMIN_NAV_GROUPS } from "@/presentation/ui";
+import {
+  ADMIN_NAV,
+  ADMIN_NAV_GROUPS,
+  ADMIN_ROUTE_METADATA,
+  resolveAdminRoute,
+} from "@/presentation/ui";
 import { AppShell } from "@/presentation/ui/templates/app-shell";
 
 /**
@@ -14,7 +19,12 @@ import { AppShell } from "@/presentation/ui/templates/app-shell";
 
 function markup(capabilities?: readonly string[]): string {
   return renderToStaticMarkup(
-    <AppShell currentPath="/admin" breadcrumbs={[{ label: "ホーム" }]} capabilities={capabilities}>
+    <AppShell
+      actualRoutePath="/admin"
+      navContextPath="/admin"
+      breadcrumbs={[{ label: "ホーム" }]}
+      capabilities={capabilities}
+    >
       <p>本文</p>
     </AppShell>,
   );
@@ -49,6 +59,40 @@ describe("案内の分類の読み上げ", () => {
   });
 });
 
+describe("管理画面route metadataの正本", () => {
+  it("49画面・ナビ・分類は同じmetadataから派生する", () => {
+    expect(ADMIN_ROUTE_METADATA).toHaveLength(49);
+
+    const navRoutes = ADMIN_ROUTE_METADATA.filter((route) => route.nav !== null);
+    expect(ADMIN_NAV.map((item) => item.href)).toEqual(navRoutes.map((route) => route.pattern));
+
+    const groupedHrefs = ADMIN_NAV_GROUPS.flatMap((group) => group.hrefs);
+    expect(groupedHrefs).toEqual(
+      navRoutes.filter((route) => route.nav?.group !== null).map((route) => route.pattern),
+    );
+    expect(new Set(groupedHrefs).size).toBe(groupedHrefs.length);
+  });
+
+  it("動的routeの実URL、選択中ナビ、パンくずを別々に解決する", () => {
+    const resolved = resolveAdminRoute("products/[product]/edit", {
+      product: "p_alpha_15",
+    });
+
+    expect(resolved.actualRoutePath).toBe("/admin/products/p_alpha_15/edit");
+    expect(resolved.navContextPath).toBe("/admin/products");
+    expect(
+      resolved.breadcrumbs("商品を編集", {
+        "products/[product]": "Alpha Studio 15",
+      }),
+    ).toEqual([
+      { label: "ホーム", href: "/admin" },
+      { label: "商品", href: "/admin/products" },
+      { label: "Alpha Studio 15", href: "/admin/products/p_alpha_15" },
+      { label: "編集" },
+    ]);
+  });
+});
+
 /**
  * 分類の境目（2026-08-19、利用者の「各分類ごとに横線を引いて区切りが分かるように」）。
  *
@@ -76,8 +120,21 @@ describe("分類の境目", () => {
     const sidebar = html.slice(html.indexOf("<nav"), html.indexOf("</nav>"));
     expect(sidebar).not.toContain("<hr");
     expect(sidebar).not.toContain('role="separator"');
-    // 飾りを `aria-hidden` で隠すのは、そもそも飾りの要素を足したときの後始末である。
-    // 罫線で描いていれば足す必要が無い。
-    expect(sidebar).not.toContain("aria-hidden");
+    // **`aria-hidden` そのものは禁じない。**
+    //
+    // 以前はここで `aria-hidden` を 1 つも許さなかった。境目を罫線で描いていれば
+    // 飾りの要素を足す必要が無く、足していないなら隠す必要も無いからである。
+    // その後 A9 で項目に目印の絵が付き、絵は意味を持たない（意味は隣の文字が持つ）
+    // ので `aria-hidden` で隠すのが正しくなった。**禁じたままだと、正しい書き方が
+    // 赤くなる。**
+    //
+    // 見たいのは「境目のために要素を足していないか」なので、数えるのは
+    // **中身が空の隠し要素**だけにする。罫線の代わりに置いた飾りは中身が空になり、
+    // 絵や文字を持つ隠し要素は空にならない。
+    const emptyDecoration = sidebar.match(/<[a-z]+ [^>]*aria-hidden="true"[^>]*>\s*<\//g) ?? [];
+    expect(
+      emptyDecoration,
+      `境目のための飾りが足されています: ${emptyDecoration.join(", ")}`,
+    ).toEqual([]);
   });
 });

@@ -60,6 +60,7 @@ export const POLICY_CHANNEL_SCOPES = [
   "youtube",
   "tiktok",
   "threads",
+  "facebook",
   "note",
   "newsletter",
   "wordpress",

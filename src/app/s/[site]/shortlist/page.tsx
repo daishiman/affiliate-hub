@@ -1,8 +1,7 @@
-import Link from "next/link";
 import { readerActor, readerUseCases } from "@/presentation/composition";
 import { SiteFrame } from "@/presentation/site/page-frame";
 import { siteHref } from "@/presentation/site/view-model";
-import { EmptyView, ErrorView, SitePage, StubNotice, UI_COPY } from "@/presentation/ui";
+import { EmptyView, ErrorView, ListView, SitePage, StubNotice, UI_COPY } from "@/presentation/ui";
 
 export const dynamic = "force-dynamic";
 
@@ -44,18 +43,14 @@ export default async function ShortlistPage({
                 body={UI_COPY.reader.shortlistEmpty}
               />
             ) : (
-              <ul>
-                {result.value.map((item) => (
-                  <li key={item.productId}>
-                    {item.fromArticleHref === undefined ? (
-                      item.productName
-                    ) : (
-                      <Link href={item.fromArticleHref}>{item.productName}</Link>
-                    )}
-                    {item.oneLine === undefined ? null : ` — ${item.oneLine}`}
-                  </li>
-                ))}
-              </ul>
+              <ListView
+                rows={result.value.map((item) => ({
+                  key: item.productId,
+                  label: item.productName,
+                  href: item.fromArticleHref,
+                  note: item.oneLine,
+                }))}
+              />
             )
           ) : (
             <ErrorView

@@ -36,6 +36,23 @@ const templates = uiFiles.filter((f) => f.includes("/templates/"));
 /** 画面側（app 配下）のコード。 */
 const screens = walk(join(ROOT, "src/app")).filter(code);
 
+/**
+ * 画面と共通部品の**あいだ**の層。欄・結果表示など、画面が組み立てて使うもの。
+ *
+ * 到達の起点（`roots`）には入れない。ここ自身も「画面から使われているか」を
+ * 問われる側だからで、起点に入れると自分で自分を正当化できてしまう。
+ * 入れるのは**伝播の候補**——画面 → この層 → 共通部品と辿れるようにするため。
+ *
+ * これを足す前は `src/app` から直接呼ばれる部品しか辿れず、この層を経由する
+ * 共通部品（`FormResult`）が「どこからも使われていない」と誤判定された
+ * （2026-08-22）。`ah-brd` で重複検査に見つかったのと同じ、走査が `src/app`
+ * で止まっている穴である。
+ */
+const middle = [
+  ...walk(join(ROOT, "src/presentation/admin")),
+  ...walk(join(ROOT, "src/presentation/site")),
+].filter(code);
+
 function importsOf(source: string): string[] {
   return [...source.matchAll(/from\s+"([^"]+)"/g)].map((m) => m[1]);
 }
@@ -172,7 +189,7 @@ describe("仕様固有の重要UIの一元化", () => {
     for (let grew = true; grew; ) {
       grew = false;
       const source = [...reachable].map((f) => readFileSync(f, "utf8")).join("\n");
-      for (const file of [...patterns, ...primitives]) {
+      for (const file of [...middle, ...patterns, ...primitives]) {
         if (reachable.has(file)) continue;
         const exported = [...readFileSync(file, "utf8").matchAll(/export function (\w+)/g)].map(
           (m) => m[1],
@@ -186,6 +203,27 @@ describe("仕様固有の重要UIの一元化", () => {
         }
       }
     }
+
+    /*
+     * **`middle` を足したぶんの床**（2026-08-22）。
+     *
+     * 伝播の候補を広げるのは「到達できる」を増やす向きなので、広げすぎれば
+     * 最後は全部が到達済みになり、この検査は何も見つけないまま緑になる。
+     *
+     * 中間層は画面から辿り着けなければ、それ自体が使われていない部品である。
+     * 到達した中間層が十分にあること＝画面がこの層を本当に使っていること。
+     *
+     * **実測 61 で、これは中間層の全件**。いま孤立した中間層は 1 つも無い。
+     * つまりこの床が測れるのは「`middle` を集められていて、伝播が届いている」
+     * ことまでで、中間層の孤立そのものは別に測る必要がある（下の `orphans`
+     * は `patterns` しか見ていない）。床を 30 に置いてあるので、`walk` の
+     * 対象がずれる・伝播が止まるといった壊れ方はここで赤くなる。
+     */
+    const reachedMiddle = middle.filter((f) => reachable.has(f)).length;
+    expect(
+      reachedMiddle,
+      "中間層に 1 つも辿り着けていません。middle の集め方か伝播が壊れています",
+    ).toBeGreaterThan(30);
 
     const orphans = patterns
       .filter((f) => f.endsWith(".tsx") && !reachable.has(f))

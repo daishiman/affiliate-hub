@@ -15,6 +15,7 @@ import {
 } from "./persistence/d1/distribution-repository";
 import { createD1ContentVariantRepository } from "./persistence/d1/content-repository";
 import { createD1ConversionRepository } from "./persistence/d1/conversion-repository";
+import { createD1ProductRepository } from "./persistence/d1/product-repository";
 import { createD1SiteRepository } from "./persistence/d1/site-repository";
 import {
   createD1ContentRepository,
@@ -177,9 +178,13 @@ export function createDeps(
     // ★ 見本データ（スタブ）。ranking_models / score_cards テーブルができたら差し替える。
     rankingModels: createSampleRankingModelRepository(),
     scoreCards: createSampleScoreCardRepository(),
-    // ★ 見本データ（スタブ）。順位表と同じ 4 商品。products / claims /
-    //   evidence / test_runs テーブルができたら差し替える。
-    products: createSampleProductRepository(),
+    // 商品は、保存先が用意できていれば本物（D1）。
+    // 入れる口（商品の登録・修正・削除）が先にできたので本物にした。
+    // **見本の 4 商品は消さずに重ねる**（`d1/product-repository.ts` に理由）。
+    //
+    // ★ 主張・根拠・検証記録はまだ見本データ（スタブ）。
+    //   表を作っていないのではなく、**登録する入口がどこにも無い**ため。
+    products: db === null ? createSampleProductRepository() : createD1ProductRepository(db),
     claims: createSampleClaimRepository(),
     evidence: createSampleEvidenceRepository(),
     testRuns: createSampleTestRunRepository(),

@@ -290,11 +290,94 @@
   border-right: var(--border-width-default) solid var(--color-border-subtle);
 }
 
-.brandName {
+/* 名前と畳むボタンの行。畳んでもボタンだけは残る（戻す口が消えると詰む）。 */
+.sidebarHead {
+  display: flex;
+  gap: var(--space-2);
+  align-items: center;
+  justify-content: space-between;
   margin-bottom: var(--space-4);
+}
+
+.brandName {
   font-size: var(--text-lg);
   font-weight: var(--weight-bold);
   color: var(--color-text-strong);
+}
+
+/*
+ * 畳んだ状態。
+ *
+ * **潰すのは見た目だけ。** 項目の名前も行き先も HTML には残っているので、
+ * 読み上げでは畳む前と何も変わらない。見えるものを減らすために、
+ * 聞こえるものまで減らさない。
+ *
+ * 判定を 2 か所に書いてあるのは、最初の描画（サーバー側）が骨格の属性を、
+ * 押したあと（ブラウザ側）が html の属性を立てるため。
+ * html 側を後に書いて、押した結果が最初の描画より強くなるようにしている。
+ */
+.shell[data-nav-collapsed="true"] {
+  grid-template-columns: auto 1fr;
+}
+
+.shell[data-nav-collapsed="true"] .navLabel,
+.shell[data-nav-collapsed="true"] .navGroupLabel,
+.shell[data-nav-collapsed="true"] .brandName {
+  /* 読み上げからは消さない。消すと、押せる何かが 19 個並ぶだけの画面になる。 */
+  position: absolute;
+  width: var(--sr-only-size);
+  height: var(--sr-only-size);
+  padding: 0;
+  margin: calc(-1 * var(--sr-only-size));
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+:global(:root[data-nav-collapsed="false"]) .shell {
+  grid-template-columns: var(--layout-sidebar-width) 1fr;
+}
+
+:global(:root[data-nav-collapsed="false"]) .navLabel,
+:global(:root[data-nav-collapsed="false"]) .navGroupLabel,
+:global(:root[data-nav-collapsed="false"]) .brandName {
+  position: static;
+  width: auto;
+  height: auto;
+  margin: 0;
+  overflow: visible;
+  clip-path: none;
+  white-space: normal;
+}
+
+:global(:root[data-nav-collapsed="true"]) .shell {
+  grid-template-columns: auto 1fr;
+}
+
+:global(:root[data-nav-collapsed="true"]) .navLabel,
+:global(:root[data-nav-collapsed="true"]) .navGroupLabel,
+:global(:root[data-nav-collapsed="true"]) .brandName {
+  position: absolute;
+  width: var(--sr-only-size);
+  height: var(--sr-only-size);
+  padding: 0;
+  margin: calc(-1 * var(--sr-only-size));
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* 目印の絵。畳んだときに残るのはこれだけなので、幅を固定して縦に揃える。 */
+.navIcon {
+  flex: none;
+  width: var(--icon-md);
+  text-align: center;
+  font-size: var(--text-base);
+  line-height: 1;
+}
+
+.navLabel {
+  min-width: 0;
 }
 
 .navGroup {
@@ -465,7 +548,7 @@
  *
  * 幅の上限は「一覧・表」の 72rem。以前は「本文カラム」の 64rem を中身の種類に関係なく
  * 当てていたが、管理画面の中身はほとんどが一覧・表・入力欄で、本文ではない。
- * 読ませる文の行の長さは `.pageLead` と `.sectionLead` が別に絞る。
+ * 読ませる文の行の長さは `.pageLead` と `screen-parts.module.css` の `.lead` が別に絞る。
  */
 .page {
   display: grid;
@@ -489,7 +572,7 @@
   color: var(--color-text-strong);
 }
 
-/* この画面で何ができるかの 1 文。読ませる文なので行の長さを絞る（`.sectionLead` と同じ理由）。 */
+/* この画面で何ができるかの 1 文。読ませる文なので行の長さを絞る（`screen-parts.module.css` の `.lead` と同じ理由）。 */
 .pageLead {
   max-width: var(--readable-max-width);
   margin: 0;
@@ -606,4 +689,19 @@
 .choiceItem:focus-within {
   outline: var(--focus-ring-width) solid var(--color-focus-ring);
   outline-offset: var(--focus-ring-offset);
+}
+
+/* 押す物に添う 1 文 (A8)。
+   告知の枠を持たせない。枠を付けると視覚の重みが Callout と並び、
+   「押す物の一部」ではなく「独立した告知」に見える。 */
+.actionNote {
+  margin: 0;
+  max-width: var(--readable-max-width);
+  font-size: var(--text-sm);
+  line-height: var(--leading-body);
+  color: var(--color-text-muted);
+}
+
+.actionNote[data-tone="danger"] {
+  color: var(--color-intent-danger);
 }

@@ -1,16 +1,24 @@
 import { AdminShell } from "@/presentation/admin/admin-shell";
+import { adminOperation } from "@/presentation/admin/admin-operation-manifest";
+import { cancelPublicationAction } from "@/presentation/admin/delete-form-action";
+import { DeleteConfirm } from "@/presentation/admin/delete-confirm";
 import { PublishArticleForm } from "@/presentation/admin/publish-article-form";
-import Link from "next/link";
-import type { ReactNode } from "react";
+import type { SuccessOf } from "@/presentation/admin/use-case-result";
 import { currentActor, distributionNotice, distributionUseCases } from "@/presentation/composition";
 import {
   Callout,
-  Card,
+  Code,
+  CodeBlock,
   ErrorView,
-  Page,
+  ExternalLink,
+  FactList,
+  ListView,
+  Note,
+  Prose,
+  Section,
   StorageNotice,
+  TextLink,
 } from "@/presentation/ui";
-import styles from "../../admin.module.css";
 
 export const dynamic = "force-dynamic";
 
@@ -31,66 +39,98 @@ export default async function PublicationPage({
   const uc = await distributionUseCases();
   const result = await uc.getPublication.execute(actor, { publicationId });
 
-  if (!result.ok) {
-    return (
-      <Shell title="配信">
+  const title = result.ok ? `${result.value.card.channelLabel}への配信` : "配信";
+
+  return (
+    <AdminShell
+      routeId="distribution/[publication]"
+      routeParams={{ publication: publicationId }}
+      title={title}
+      lead="いまどこまで進んでいるかを見ます。"
+      actions={
+        <>
+          <TextLink href={`/admin/distribution/${encodeURIComponent(publicationId)}/edit`}>
+            この配信を直す
+          </TextLink>
+          <TextLink href="/admin/distribution">配信の一覧へ戻る</TextLink>
+        </>
+      }
+    >
+      {!result.ok ? (
         <ErrorView
           title="この配信を表示できませんでした"
           body={result.error.message}
           suggestedAction={result.error.suggestedAction ?? null}
-          action={<Link href="/admin/distribution">配信の一覧へ戻る</Link>}
+          action={<TextLink href="/admin/distribution">配信の一覧へ戻る</TextLink>}
         />
-      </Shell>
-    );
-  }
+      ) : (
+        <PublicationBody publicationId={publicationId} value={result.value} />
+      )}
+    </AdminShell>
+  );
+}
 
-  const { card, canDirectPublish, publishModeLabel, nextStates, blockedReason } = result.value;
+type Publication = SuccessOf<
+  ReturnType<Awaited<ReturnType<typeof distributionUseCases>>["getPublication"]["execute"]>
+>;
+
+async function PublicationBody({
+  publicationId,
+  value,
+}: {
+  readonly publicationId: string;
+  readonly value: Publication;
+}) {
+  const operation = adminOperation("publication.delete");
+  const actor = await currentActor();
+  const uc = await distributionUseCases();
+  const { card, canDirectPublish, publishModeLabel, nextStates, blockedReason, canPublishFromScreen } =
+    value;
+
   // 自動で投稿できない先だけ、下書きを出す。
   const draft = canDirectPublish
     ? null
     : await uc.exportManualDraft.execute(actor, { publicationId });
 
-  // 自分のブログ宛てで、まだ出していないときだけ「いまサイトに出す」を用意する。
-  // **出し終わった配信にも出すと、同じ記事が 2 度出る。**
-  // 選択肢の中身（種類ごとの欄・出し先・広告表記の文）は画面では組み立てず、
+  // この画面で体裁を整えて出せるときだけ「いまサイトに出す」を用意する。
+  // **配信先の名前で分岐しない。** 名前で分けると、同じ性質の配信先を足すたびに
+  // この行を探して直すことになり、「表に 1 エントリ足すだけ」が崩れる。
+  // 出し終わったかどうかの判断も含めて、ユースケースが 1 つの真偽で返す。
+  // 選択肢の中身（種類ごとの欄・出し先・広告表記の文）も画面では組み立てず、
   // ユースケースから受け取る。組み立てを画面へ写すと、AI 経路と食い違う。
-  const publishOptions =
-    card.channelKind === "own_site" && card.externalUrl === null
-      ? await uc.preparePublishArticle.execute(actor, { publicationId })
-      : null;
+  const publishOptions = canPublishFromScreen
+    ? await uc.preparePublishArticle.execute(actor, { publicationId })
+    : null;
 
   return (
-    <Shell title={`${card.channelLabel}への配信`}>
+    <>
       <StorageNotice status={await distributionNotice()} />
 
-      <Card>
-        <h2 className={styles.sectionTitle}>いまの状態</h2>
-        <dl className={styles.criteria}>
-          <div>
-            <dt>状態</dt>
-            <dd>{card.stateLabel}</dd>
-          </div>
-          <div>
-            <dt>出し方</dt>
-            <dd>{publishModeLabel}</dd>
-          </div>
-          <div>
-            <dt>予定</dt>
-            <dd>{card.scheduledAt === null ? "すぐに出す" : card.scheduledAt.toLocaleString("ja-JP")}</dd>
-          </div>
-          <div>
-            <dt>送信を試した回数</dt>
-            <dd className={styles.numeric}>{card.attempts}回</dd>
-          </div>
-          <div>
-            <dt>もとの記事</dt>
-            <dd>
-              <Link href={`/admin/content/${encodeURIComponent(card.variantId)}`}>
-                記事を見る
-              </Link>
-            </dd>
-          </div>
-        </dl>
+      <Section title="いまの状態">
+        <FactList
+          rows={[
+            { key: "state", label: "状態", value: card.stateLabel },
+            { key: "mode", label: "出し方", value: publishModeLabel },
+            {
+              key: "scheduled",
+              label: "予定",
+              value:
+                card.scheduledAt === null
+                  ? "すぐに出す"
+                  : card.scheduledAt.toLocaleString("ja-JP"),
+            },
+            { key: "attempts", label: "送信を試した回数", value: `${card.attempts}回` },
+            {
+              key: "variant",
+              label: "もとの記事",
+              value: (
+                <TextLink href={`/admin/content/${encodeURIComponent(card.variantId)}`}>
+                  記事を見る
+                </TextLink>
+              ),
+            },
+          ]}
+        />
 
         {card.lastError === null ? null : (
           <Callout tone="danger" title="送信できませんでした" reason={card.lastError} />
@@ -99,36 +139,49 @@ export default async function PublicationPage({
           <Callout tone="info" title="自動では投稿できません" reason={blockedReason} />
         )}
         {card.externalUrl === null ? null : (
-          <p className={styles.linkNote}>
-            公開先:{" "}
-            <a href={card.externalUrl} rel="noreferrer noopener" target="_blank">
-              {card.externalUrl}
-            </a>
-          </p>
+          <Note>
+            公開先: <ExternalLink href={card.externalUrl}>
+              <Code>{card.externalUrl}</Code>
+            </ExternalLink>
+          </Note>
         )}
-      </Card>
+      </Section>
 
-      <Card>
-        <h2 className={styles.sectionTitle}>ここから進める先</h2>
+      <Section title="ここから進める先">
         {nextStates.length === 0 ? (
-          <p className={styles.sectionLead}>
-            この配信はここで終わりです。進める先はありません。
-          </p>
+          <Prose>この配信はここで終わりです。進める先はありません。</Prose>
         ) : (
-          <ul className={styles.linkList}>
-            {nextStates.map((s) => (
-              <li key={s.state}>{s.label}</li>
-            ))}
-          </ul>
+          <ListView rows={nextStates.map((s) => ({ key: s.state, label: s.label }))} />
         )}
-        <p className={styles.sectionLead}>
-          取りやめ・再送は担当者の操作で行います。AI からは実行できません。
-        </p>
-      </Card>
+        <Note>取りやめ・再送は担当者の操作で行います。AI からは実行できません。</Note>
+      </Section>
+
+      {/*
+       * 取りやめは、**遷移表が許すときだけ**出す。`nextStates` は domain が
+       * 返したもので、画面はそこに `CANCELLED` が並んでいるかを見るだけ。
+       * ここで状態名を並べて条件を書くと、遷移表が 1 行変わった日に
+       * 画面だけが古いまま「取りやめられます」と言う。
+       */}
+      {nextStates.some((s) => s.state === "CANCELLED") ? (
+        <Section title="配信を取りやめる">
+          <DeleteConfirm
+            action={cancelPublicationAction}
+            toolName={operation.tool}
+            toolDescription="予定していた配信を取りやめる（すでに出たものには使えない）"
+            idName="publicationId"
+            idValue={publicationId}
+            label={`${card.channelLabel}への配信`}
+            verb="取りやめる"
+            consequence="この予定は実行されなくなります。記録は残るので、出さなかったことは後から辿れます。もう一度出したいときは、予約を作り直してください。"
+            // 取りやめの口は識別子しか受け取らない。理由を書かせても届かない。
+            requiresReason={false}
+            acknowledgement="この予定が実行されなくなることを確かめました"
+          />
+        </Section>
+      ) : null}
 
       {publishOptions === null ? null : (
-        <Card>
-          <h2 className={styles.sectionTitle}>いまサイトに出す</h2>
+        <Section title="いまサイトに出す">
           {!publishOptions.ok ? (
             <ErrorView
               title="出す画面を用意できませんでした"
@@ -137,19 +190,18 @@ export default async function PublicationPage({
             />
           ) : (
             <>
-              <p className={styles.sectionLead}>
+              <Prose>
                 読者に見える形に整えてから出します。書き手・広告表記・次に見直す日が
                 そろっていないものは出せません。
-              </p>
+              </Prose>
               <PublishArticleForm publicationId={publicationId} options={publishOptions.value} />
             </>
           )}
-        </Card>
+        </Section>
       )}
 
       {draft === null ? null : (
-        <Card>
-          <h2 className={styles.sectionTitle}>貼り付け用の下書き</h2>
+        <Section title="貼り付け用の下書き">
           {!draft.ok ? (
             <ErrorView
               title="下書きを書き出せませんでした"
@@ -158,30 +210,12 @@ export default async function PublicationPage({
             />
           ) : (
             <>
-              <p className={styles.sectionLead}>{draft.value.instructions}</p>
-              <pre>{draft.value.markdown}</pre>
+              <Prose>{draft.value.instructions}</Prose>
+              <CodeBlock>{draft.value.markdown}</CodeBlock>
             </>
           )}
-        </Card>
+        </Section>
       )}
-    </Shell>
-  );
-}
-
-function Shell({ title, children }: { readonly title: string; readonly children: ReactNode }) {
-  return (
-    <AdminShell
-      currentPath="/admin/distribution"
-      breadcrumbs={[
-        { label: "ホーム", href: "/admin" },
-        { label: "配信", href: "/admin/distribution" },
-        { label: title },
-      ]}
-      actions={<Link href="/admin/distribution">配信の一覧へ戻る</Link>}
-    >
-      <Page title={title} lead="この配信がいまどこまで進んでいるかと、次にできることを見ます。">
-        {children}
-      </Page>
-    </AdminShell>
+    </>
   );
 }

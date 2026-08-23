@@ -459,6 +459,8 @@ export type AuditRow = {
 
 export const AUDIT_ACTION_LABEL: Readonly<Record<AuditAction, string>> = {
   "content.created": "記事を作った",
+  "content.changed": "記事の中身を直した",
+  "content.deleted": "記事を消した",
   "content.state_changed": "記事の状態を進めた",
   "content.approved": "記事を承認した",
   "content.published": "記事を公開した",
@@ -478,9 +480,16 @@ export const AUDIT_ACTION_LABEL: Readonly<Record<AuditAction, string>> = {
   "llm_credential.registered": "生成 AI の API キーを登録した",
   "llm_credential.revoked": "生成 AI の API キーを失効させた",
   "publication.schedule_changed": "配信の予定を変えた",
+  "publication.changed": "配信の中身（文面・送り先）を直した",
   "integration_key.issued": "取得用の鍵を発行した",
   "integration_key.revoked": "取得用の鍵を止めた",
   "site.created": "サイトを作った",
+  "site.changed": "サイトの設定を変えた",
+  "site.deleted": "サイトを取り下げた",
+  // 商品の 3 語。順位表と比較表の入力なので、変えた時点が言えることが要る。
+  "product.created": "商品を登録した",
+  "product.changed": "商品の内容を直した",
+  "product.deleted": "商品を消した",
   // 作る前の下書き。「始めた → 段階を埋めた」で、作るまでの道のりが追える。
   "site_draft.started": "ブログを作り始めた",
   "site_draft.step_saved": "ブログ作成の入力を保存した",

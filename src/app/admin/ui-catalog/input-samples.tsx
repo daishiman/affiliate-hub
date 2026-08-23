@@ -5,6 +5,7 @@ import {
   Button,
   CheckboxGroup,
   Field,
+  HumanOnlyForm,
   Select,
   TextArea,
   ToolForm,
@@ -106,5 +107,41 @@ export function InputSamples() {
         {UI_COPY.action.save}
       </Button>
     </ToolForm>
+  );
+}
+
+/**
+ * `ToolForm` の対になる見本。
+ *
+ * 2 つを並べて置くのには理由がある。**素の `<form>` を書かない**と決めた以上、
+ * 操作を作る人は必ずこの 2 つのどちらかを選ぶ。選択肢が 1 つしか載っていないと、
+ * 「載っていないほう」を素の `<form>` で書くことになる。
+ *
+ * `reason` は飾りではない。書けないなら、その操作は `ToolForm` で名乗るべきものである。
+ * ボタン 1 つだけの操作は `ActionButton` を使う（中身はこれと同じ）。
+ */
+export function HumanOnlyFormSample() {
+  const [passphrase, setPassphrase] = useState("");
+
+  return (
+    <HumanOnlyForm
+      reason={
+        "見本帳の例。実際の場面では、鍵の発行のように" +
+        "「AI から呼べると AI が自分の権限を作れてしまう」操作がここに来る。"
+      }
+      onSubmit={(e) => e.preventDefault()}
+    >
+      <Field
+        label="合言葉"
+        type="password"
+        value={passphrase}
+        onValueChange={setPassphrase}
+        autoComplete="off"
+        hint="人がその場で打ち込む値です。AI からは呼べません。"
+      />
+      <Button tone="secondary" type="submit">
+        この合言葉で確かめる
+      </Button>
+    </HumanOnlyForm>
   );
 }

@@ -35,7 +35,6 @@ import {
   type ContentVariantId,
   type DomainError,
   type Result,
-  type UserId,
   assertSameTenant,
   buildEvent,
   containsCommercial,

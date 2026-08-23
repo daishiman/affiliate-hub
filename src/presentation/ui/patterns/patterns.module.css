@@ -1019,3 +1019,183 @@
   font-size: var(--text-sm);
   line-height: var(--leading-body);
 }
+
+/* === 配信先の状態 ======================================================= */
+/*
+ * 配信先ごとの見た目の違いは、CSS 側に配信先名を書かずに済ませる。
+ * `--channel-accent` を部品が差し込み、ここは受け取るだけにする。
+ * ここに `.channelX` のような組を作ると、SNS を足すたびに CSS も直すことになる。
+ */
+
+.channelList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.channelRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  align-items: baseline;
+}
+
+.channelBadge {
+  /* 差し込みが無いときの既定をここで宣言する。
+     宣言が無いと、綴りを間違えた差し込みが無言で効かなくなる。 */
+  --channel-accent: var(--color-border-default);
+  display: inline-flex;
+  gap: var(--space-2);
+  align-items: baseline;
+  padding: var(--space-1) var(--space-2);
+  border: var(--border-width-default) solid var(--channel-accent, var(--color-border-default));
+  border-radius: var(--radius-sm);
+  color: var(--color-text-default);
+  font-size: var(--text-sm);
+}
+
+.channelGlyph {
+  color: var(--channel-accent, var(--color-text-muted));
+}
+
+.channelName {
+  color: var(--color-text-strong);
+  font-weight: var(--weight-medium);
+}
+
+.channelState {
+  color: var(--color-text-muted);
+}
+
+.channelLink {
+  color: inherit;
+  text-decoration: none;
+}
+
+.channelLink:focus-visible {
+  outline: var(--focus-ring-width) solid var(--color-focus-ring);
+  outline-offset: var(--focus-ring-offset);
+}
+
+/* 失敗の理由。色だけでなく文字で出す（色が読めなくても理由は読める）。 */
+.channelReason {
+  color: var(--color-intent-danger);
+  font-size: var(--text-sm);
+  line-height: var(--leading-body);
+}
+
+.channelEmpty {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+}
+
+/* === 案内の折りたたみ ================================================== */
+/* 畳んでもこのボタンだけは残る。戻す口が消えると、開き直せなくなる。 */
+.navCollapseToggle {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: var(--tap-target-min);
+  min-height: var(--tap-target-min);
+  padding: var(--space-1);
+  border: var(--border-width-default) solid var(--color-border-default);
+  border-radius: var(--radius-md);
+  background: var(--color-surface-default);
+  color: var(--color-text-muted);
+  cursor: pointer;
+}
+
+.navCollapseToggle:hover {
+  background: var(--color-surface-raised);
+  color: var(--color-text-strong);
+}
+
+.navCollapseToggle:focus-visible {
+  outline: var(--focus-ring-width) solid var(--color-focus-ring);
+  outline-offset: var(--focus-ring-offset);
+}
+
+/* === 切り口の書き分け (A5) ===
+   選んだブログが縦に並ぶ。横に並べると、ブログが 4 本を超えた時点で
+   1 本あたりの幅が切り口の文より狭くなり、どれも読めなくなる。 */
+.conceptMatrix {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.conceptTitle {
+  font-size: var(--text-lg);
+  font-weight: var(--weight-bold);
+  margin: 0;
+}
+
+.conceptEmpty {
+  color: var(--color-text-muted);
+  margin: 0;
+}
+
+.conceptList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.conceptItem {
+  border: var(--border-width-default) solid var(--color-border-default);
+  border-radius: var(--radius-md);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-5);
+}
+
+.conceptSiteName {
+  font-size: var(--text-base);
+  font-weight: var(--weight-bold);
+  margin: 0;
+}
+
+.conceptAxes {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin: 0;
+}
+
+/* 見出しと値を横に置く。上下に積むと 3 軸で 6 行になり、
+   ブログ 2 本で 12 行。目が行き来する距離が判断より長くなる。 */
+.conceptAxis {
+  display: grid;
+  gap: var(--space-3);
+  grid-template-columns: minmax(0, max-content) minmax(0, 1fr);
+}
+
+.conceptAxisLabel {
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+  margin: 0;
+}
+
+.conceptAxisValue {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin: 0;
+}
+
+.conceptChanged {
+  background: var(--color-surface-raised);
+  border-radius: var(--radius-sm);
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+  padding: 0 var(--space-2);
+}

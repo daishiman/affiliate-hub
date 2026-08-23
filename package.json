@@ -15,6 +15,7 @@
     "preview": "pnpm run build:worker && opennextjs-cloudflare preview",
     "preview:static": "tsx --require ./scripts/lib/css-module-hook.cjs scripts/write-static-preview.tsx",
     "visual": "tsx --require ./scripts/lib/css-module-hook.cjs scripts/visual-regression.tsx",
+    "scaffold:blog": "tsx scripts/scaffold-blog-components.ts",
     "deploy:dev": "pnpm run build:worker && opennextjs-cloudflare deploy -- --env dev",
     "deploy:prod": "pnpm run build:worker && opennextjs-cloudflare deploy -- --env production",
     "cf-typegen": "wrangler types --env-interface CloudflareEnv cloudflare-env.d.ts",
@@ -23,6 +24,7 @@
     "db:migrate:dev": "wrangler d1 migrations apply DB --env dev --remote",
     "db:migrate:prod": "wrangler d1 migrations apply DB --env production --remote",
     "catalog:sync": "node scripts/catalog-sync.mjs",
+    "acceptance:reconcile": "node scripts/acceptance-reconciliation.mjs",
     "verify": "node scripts/verify.mjs",
     "mutation": "stryker run",
     "mutation:changed": "stryker run --since=origin/dev"

@@ -39,6 +39,8 @@
  * **壊したつもりで壊す対象を作れていなかった**。`role="banner"` を明示したら赤くなった。
  * **「素通り」と書く前に、自分の合成が悪いだけでないかを疑うこと。**
  */
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
 import { describe, expect, it } from "vitest";
 import {
   DISABLED_RULES,
@@ -413,5 +415,75 @@ describe("一覧そのものが痩せていないか", () => {
       await enabledRuleIds(),
       "有効な規則の数が変わった。docs/product/backlog.md の 84 と同じやり方で 67 枚へ当て直し、REACHABLE / OUT_OF_REACH / APPLIED を取り直すこと",
     ).toHaveLength(99);
+  });
+});
+
+/**
+ * **要件表の凡例に写した数が、ここの実測とずれていないか**（2026-08-22 / `ah-9pk`）。
+ *
+ * --- なぜ要るか ---
+ * `docs/product/traceability.md` の a11y 欄の凡例は、この 3 つの数を根拠に
+ * 「対応と書けるのは 33 件ぶんだけ」と言っている。**写しである。**
+ * 写しは、正本が動いた日にも古く見えない。実際 2026-08-22 まで凡例は
+ * 「現行の設定 = 当たり 28 件」のまま止まっていた——`best-practice` を
+ * `A11Y_TAGS` へ入れて 45 件になった後も、である。
+ * 採用前の対比表が、採用後の現況を名乗る形で 3 日ぶん残っていた。
+ *
+ * **数がずれていても誰も気づかないのは、その数を読んでいるコードが 1 行も無いからである。**
+ * ここが読む。読んだ以上、ずれれば赤くなる。
+ *
+ * --- 何を根拠にするかを固定している ---
+ * 凡例が「当たった 45 件」を根拠に書かれていたら、それは 12 件ぶんの水増しである
+ * （破っても判定不能か素通りで、緑と見分けが付かない分）。
+ * だから **33 の行に「破ると実際に赤くなる」と書かれていること**まで見る。
+ * 数だけ合っていて根拠の言い方が戻る形を、数の一致では捕まえられない。
+ */
+describe("要件表の凡例が、実測とずれていない", () => {
+  const LEGEND = resolve(import.meta.dirname, "../../docs/product/traceability.md");
+
+  /** 凡例表の `| ラベル | 数 |` から数を取る。無ければ null（＝行ごと消えた）。 */
+  function legendCount(label: string): number | null {
+    const doc = readFileSync(LEGEND, "utf8");
+    const row = new RegExp(`^\\|[^|\\n]*${label}[^|\\n]*\\|\\s*\\*{0,2}(\\d+)\\*{0,2}\\s*\\|`, "m");
+    const m = doc.match(row);
+    return m ? Number(m[1]) : null;
+  }
+
+  it("有効な規則の数が凡例と一致する", async () => {
+    expect(legendCount("現行の基準で有効"), "凡例の行が見つからない（消したか、書き方を変えた）").toBe(
+      (await enabledRuleIds()).length,
+    );
+  });
+
+  it("当たった規則の数が凡例と一致する", () => {
+    expect(legendCount("当たった")).toBe(APPLIED_2026_08_19.length);
+  });
+
+  it("赤くできる規則の数が凡例と一致する", () => {
+    expect(legendCount("赤くなる")).toBe(REACHABLE.length);
+  });
+
+  /**
+   * **数が合っていることは、正しい数を根拠にしていることを意味しない。**
+   * 45 を「対応の根拠」と書き直しても上の 3 本は全部緑のままである。
+   * 根拠の側の文言をここで押さえる。
+   */
+  it("『対応』の根拠に置いているのが、当たった数ではなく赤くできる数である", () => {
+    const doc = readFileSync(LEGEND, "utf8");
+    const row = doc.match(/^\|[^|\n]*赤くなる[^|\n]*\|[^|\n]*\|([^|\n]*)\|/m)?.[1] ?? "";
+    expect(row, "赤くできる数の行が「対応の根拠」と名乗っていない").toContain("対応");
+  });
+
+  /**
+   * **床**: 上の 4 本は正規表現で行を探すので、**凡例表ごと消せば全部緑になる**
+   * （`legendCount` が null を返すのは 1 本目だけで、残りは `toBe(null)` が
+   * 期待値側とも噛み合わない——いや、噛み合わないから赤くなる。だが
+   * 「表を残したまま a11y の話でなくする」書き換えは捕まらない）。
+   * 凡例が a11y の話であり続けることを見る。
+   */
+  it("凡例そのものが痩せていない", () => {
+    const doc = readFileSync(LEGEND, "utf8");
+    expect(doc, "a11y 欄の凡例の見出しが消えた").toMatch(/### a11y 欄の凡例/);
+    expect(doc, "凡例が正本を指していない").toContain("tests/ui/axe-rule-coverage.test.ts");
   });
 });

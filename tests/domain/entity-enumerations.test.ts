@@ -97,6 +97,7 @@ const EXPECTED_CHANNEL_SCOPES: readonly PolicyChannelScope[] = [
   "youtube",
   "tiktok",
   "threads",
+  "facebook",
   "note",
   "newsletter",
   "wordpress",
@@ -129,12 +130,12 @@ describe("PolicyRule（E31）: 語彙にある値だけを受け取る", () => {
     }
   });
 
-  it("出力先の語彙 11 件はすべて通り、語彙の外は断る", () => {
+  it("出力先の語彙 12 件はすべて通り、語彙の外は断る", () => {
     for (const channelScope of EXPECTED_CHANNEL_SCOPES) {
       expect(createPolicyRule({ ...base, channelScope }).ok, channelScope).toBe(true);
     }
-    expect(EXPECTED_CHANNEL_SCOPES).toHaveLength(11);
-    for (const bad of ["twitter", "X", "facebook", ""]) {
+    expect(EXPECTED_CHANNEL_SCOPES).toHaveLength(12);
+    for (const bad of ["twitter", "X", "Facebook", ""]) {
       const r = createPolicyRule({ ...base, channelScope: bad as PolicyChannelScope });
       expect(r.ok, bad).toBe(false);
       if (!r.ok) expect(r.error.field).toBe("channelScope");

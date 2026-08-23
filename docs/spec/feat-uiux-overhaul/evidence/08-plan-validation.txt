@@ -1,0 +1,113 @@
+# 計画の決定論検証（実行できなかった）
+
+実施日: 2026-08-22
+
+## 実行したコマンド
+
+    python3 .claude/plugins/system-dev-planner/scripts/validate-system-plan.py \
+      --repo-root . --feature-package feature-package/feat-uiux-overhaul
+
+## 出力
+
+    [validate fail-closed] current pointer が無い:
+      .dev-graph/state/current/feature-package-feat-uiux-overhaul.json
+    exit=2
+
+## 何が起きているか
+
+各 phase 仕様書の Verification 節は、この検証コマンドを
+「本 package の C12 決定論検証を世代非依存に再実行する」ものとして要求している。
+だがこの feature ではコマンドが**入口で止まる**。検証が落ちたのではなく、
+検証の対象を指すポインタが無いので検証が始まらない。
+
+構造を比べると理由が分かる。
+
+| feature | published の置かれ方 | current ポインタ |
+|---|---|---|
+| `feat-auth-workspace` | `published/generations/<digest>/…` （世代つき） | 有り |
+| `feat-uiux-overhaul` | `published/feature-package-feat-uiux-overhaul/…` （世代なし） | **無し** |
+
+`feat-uiux-overhaul` の package は、世代ディレクトリを作って
+current ポインタを差し替える promotion の手続きを通っていない。
+`atomic-promotion-receipt.json` は package の中に在るが、
+`state/current/` 側の対応する行が生成されていない。
+
+## 手で書かなかった理由
+
+`state/current/feature-package-feat-uiux-overhaul.json` を手で作れば、
+このコマンドは通るようになる。**やっていない。**
+
+このポインタは「どの世代が正本か」を promotion 手続きが確定した結果であり、
+検証はその確定を前提に digest を突き合わせる。手で書いた行を検証させると、
+検証しているのは自分が今書いた値になる。それは検証ではない。
+
+`ah-tod`（resume-receipt が無効な PASS に束縛されたまま残っている）と同じ形の問題であり、
+促成の PASS を作ることが、この検査が防ごうとしているものそのものである。
+
+## 追試（2026-08-22）— 真因は「通っていない」ではなく「旧い手続きで通った」
+
+上の「promotion の手続きを通っていない」は、半分しか当たっていなかった。
+実際には通っている。**通した手続きの版が違う。**
+
+current ポインタは 2 系統ある。
+
+| 版 | 書き先 | 置き場 |
+|---|---|---|
+| 旧 | `state/current.json`（最後に昇格した 1 件だけを指す） | `published/<slug>/` |
+| 新 | `state/current/<slug>.json`（feature 別） | `published/generations/<slug>/<generation_id>/` |
+
+`state/current.json` を開くと、中身は `feature-package/feat-uiux-overhaul` を指していた。
+promotion 自体は 2026-08-21 12:39 に完了し、`state/promotion-intents/` にも
+`status: completed` の受領が残っている。**ただし旧版で通したので feature 別の行が無い。**
+`validate-system-plan.py`（新版）は feature 別のほうだけを見るので、入口で止まる。
+
+つまりこれは「昇格されていない package」ではなく、
+**「昇格の記録の書き方が、後から変わった package」**である。
+
+### 再 promotion を試した結果 — readiness gate で止まった
+
+手でポインタを書かず、新版 `promote-system-plan.py` を通す道を取った。
+`os.replace(staging, destination)` が唯一の commit point なので staging が要る。
+staging は消えていたが、published のバイト列がそのまま同じもので、
+`staging-manifest.json` の canonical digest `sha256:3c9e34…` が
+promotion intent の digest と一致する。これを復元して流した。
+
+    [promote fail-closed] readiness source_pin does not match the required producer contract
+
+キャッシュの readiness が旧 producer 版（0.1.11）を指していたので、
+`check-implementation-readiness.py` で取り直した。すると版は合ったが、別の所で止まった。
+
+    "completeness_evaluation": { "verified": false,
+      "detail": "VIOLATION: audit_delegations[matrix_coverage/primary]:
+                 fork 台帳が存在しない … 独立監査の帰属を裏取りできない
+                 FAIL: 3 件のレポート整合違反（裏取り fork 0 件）" }
+
+`eval-log/system-spec-harness/audit-fork-ledger.jsonl` が無い。
+この台帳は PostToolUse hook `record-audit-fork.py` が、
+**監査を実際に fork した瞬間に**書くものである。
+
+### ここも手で書かなかった
+
+台帳の行を手で足せば readiness は complete になり、promotion は通り、
+ポインタが生まれ、検証コマンドが動く。**やっていない。**
+
+台帳が言っているのは「独立した監査が実際に走った」であって、
+行の存在ではない。行を手で書くと、
+**監査が走ったという主張だけを、監査を走らせずに作る**ことになる。
+これは上の「手で書かなかった理由」と同じ形で、しかも一段悪い
+（ポインタの偽造は世代を偽るだけだが、台帳の偽造は監査そのものを偽る）。
+
+## 残課題
+
+follow-up として `ah-k9b` を起票した。**残っているのは 1 手だけである。**
+`matrix_coverage` と `doc_freshness` の監査を実際に fork する
+（`system-spec-matrix-auditor` / `system-spec-doc-freshness-auditor`）。
+台帳が埋まれば readiness が complete になり、復元済みの staging から
+promotion がそのまま流れ、feature 別ポインタが生成され、この検証が動く。
+
+staging は `.dev-graph/staging/feature-package-feat-uiux-overhaul` に復元済みで、
+digest は intent と一致している。fork の許可だけが要る。
+
+なお、この検証が確かめるのは **計画パッケージの構造**（P01..P13 が過不足なく 13 件あるか、
+親 feature が揃っているか、digest が一致するか）であって、
+実装の正しさではない。実装側の検証は `01`〜`07` の証跡が担っている。

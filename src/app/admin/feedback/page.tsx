@@ -1,26 +1,27 @@
-import Link from "next/link";
-import type { ReactNode } from "react";
 import {
   FEEDBACK_KINDS,
   FEEDBACK_KIND_LABELS,
   FEEDBACK_STATUSES,
   FEEDBACK_STATUS_LABELS,
 } from "@/domain/feedback";
-import { FeedbackHandoffForm } from "@/presentation/admin/feedback-forms";
 import { AdminShell } from "@/presentation/admin/admin-shell";
+import { FeedbackHandoffForm } from "@/presentation/admin/feedback-forms";
 import { currentActor, feedbackNotice, feedbackUseCases } from "@/presentation/composition";
 import {
   Callout,
-  Card,
+  DataTable,
   EmptyView,
   ErrorView,
+  FactList,
   FilterBar,
-  Page,
+  Note,
+  RowSelector,
+  Section,
   StorageNotice,
+  TextLink,
   UI_COPY,
   type FilterAxis,
 } from "@/presentation/ui";
-import styles from "../admin.module.css";
 
 export const dynamic = "force-dynamic";
 
@@ -63,21 +64,6 @@ export default async function FeedbackListPage({
     includeDiscarded,
   });
 
-  if (!listed.ok) {
-    return (
-      <Shell>
-        <ErrorView
-          title="改善要望の一覧を出せませんでした"
-          body={listed.error.message}
-          suggestedAction={listed.error.suggestedAction ?? null}
-          action={<Link href="/admin">ホームへ戻る</Link>}
-        />
-      </Shell>
-    );
-  }
-
-  const { rows, counts, emptyReason } = listed.value;
-
   const axes: readonly FilterAxis[] = [
     {
       key: "status",
@@ -118,129 +104,114 @@ export default async function FeedbackListPage({
   ].filter((v): v is string => v !== null);
 
   return (
-    <Shell>
-      <StorageNotice status={await feedbackNotice()} />
-
-      <Card>
-        <h2 className={styles.sectionTitle}>いまの状況</h2>
-        <dl className={styles.criteria}>
-          {FEEDBACK_STATUSES.map((s) => (
-            <div key={s}>
-              <dt>{FEEDBACK_STATUS_LABELS[s]}</dt>
-              <dd className={styles.numeric}>{counts[s]}件</dd>
-            </div>
-          ))}
-        </dl>
-        <p className={styles.linkNote}>
-          この件数は、いま絞り込んで見えている分の数です。絞り込みを外した全体の数ではありません。
-        </p>
-      </Card>
-
-      <Card>
-        <h2 className={styles.sectionTitle}>絞り込む</h2>
-        <FilterBar
-          axes={axes}
-          action="/admin/feedback"
-          legend="改善要望の絞り込み"
-          keep={includeDiscarded ? { discarded: "yes" } : undefined}
-          summary={active.length === 0 ? null : `いま ${active.join("・")} で絞っています。`}
-          clearHref="/admin/feedback"
-        />
-        <p className={styles.linkNote}>
-          {includeDiscarded ? (
-            <Link href="/admin/feedback">廃棄したものを隠す</Link>
-          ) : (
-            <Link href="/admin/feedback?discarded=yes">廃棄したものも見る（消していません）</Link>
-          )}
-        </p>
-      </Card>
-
-      <Card>
-        <h2 className={styles.sectionTitle}>届いている要望</h2>
-        {rows.length === 0 ? (
-          <EmptyView
-            title={UI_COPY.feedback.emptyTitle}
-            body={emptyReason ?? UI_COPY.feedback.emptyBody}
-            action={<Link href="/admin/feedback">絞り込みを外す</Link>}
-          />
-        ) : (
-          <FeedbackHandoffForm>
-            <table className={styles.rankTable}>
-              <caption>
-                新しい順に並べています。渡したいものにチェックを付けて、下のボタンを押してください。
-              </caption>
-              <thead>
-                <tr>
-                  <th scope="col">選ぶ</th>
-                  <th scope="col">届いた日</th>
-                  <th scope="col">種類</th>
-                  <th scope="col">内容</th>
-                  <th scope="col">画面</th>
-                  <th scope="col">対応状況</th>
-                  <th scope="col">扱い</th>
-                  <th scope="col">払い出し</th>
-                  <th scope="col">渡した回数</th>
-                  <th scope="col">最後に渡した日</th>
-                </tr>
-              </thead>
-              <tbody>
-                {rows.map((r) => (
-                  <tr key={r.id}>
-                    <td>
-                      <label>
-                        <input type="checkbox" name="ids" value={r.id} />
-                        <span className={styles.linkNote}>{r.id} を渡す</span>
-                      </label>
-                    </td>
-                    <th scope="row">{r.submittedAt.toLocaleDateString("ja-JP")}</th>
-                    <td>{r.kindLabel}</td>
-                    <td>
-                      <Link href={`/admin/feedback/${encodeURIComponent(r.id)}`}>{r.summary}</Link>
-                    </td>
-                    <td>{r.screenName}</td>
-                    <td>{r.statusLabel}</td>
-                    <td>{r.dispositionLabel ?? "—"}</td>
-                    <td>{r.handedOff ? "渡した" : "まだ"}</td>
-                    <td className={styles.numeric}>{r.handoffCount}回</td>
-                    <td>
-                      {r.lastHandoffAt === null
-                        ? "—"
-                        : r.lastHandoffAt.toLocaleDateString("ja-JP")}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-            <p className={styles.linkNote}>
-              「—」は、まだ決まっていない・まだ起きていないという意味です。該当なしではありません。
-            </p>
-          </FeedbackHandoffForm>
-        )}
-      </Card>
-
-      <Callout
-        tone="info"
-        title="ここに並ぶものと、Beads に並ぶもの"
-        reason="ここにあるのは「利用者が困っていること」です。実装が進んだかどうかは Beads が正本で、こちらへは写しません。両方に書くと、必ずどちらかが古くなります。"
-        action={<Link href="/admin/settings/integration-access">取得用の鍵を管理する</Link>}
-      />
-    </Shell>
-  );
-}
-
-function Shell({ children }: { readonly children: ReactNode }) {
-  return (
     <AdminShell
-      currentPath="/admin/feedback"
-      breadcrumbs={[{ label: "ホーム", href: "/admin" }, { label: UI_COPY.feedback.listTitle }]}
-      actions={<Link href="/admin/settings/integration-access">取得用の鍵</Link>}
+      routeId="feedback"
+      title={UI_COPY.feedback.listTitle}
+      lead="画面の右下から届いた「困っていること」を扱います。"
+      actions={<TextLink href="/admin/settings/integration-access">取得用の鍵</TextLink>}
     >
-      <Page
-        title={UI_COPY.feedback.listTitle}
-        lead="画面の右下から届いた「困っていること」を扱う場所です。渡した記録が残るので、同じ要望を二重に着手することがありません。"
-      >
-        {children}
-      </Page>
+      {!listed.ok ? (
+        <ErrorView
+          title="改善要望の一覧を出せませんでした"
+          body={listed.error.message}
+          suggestedAction={listed.error.suggestedAction ?? null}
+          action={<TextLink href="/admin">ホームへ戻る</TextLink>}
+        />
+      ) : (
+        <>
+          <StorageNotice status={await feedbackNotice()} />
+
+          <Section title="いまの状況">
+            <FactList
+              rows={FEEDBACK_STATUSES.map((s) => ({
+                key: s,
+                label: FEEDBACK_STATUS_LABELS[s],
+                value: `${listed.value.counts[s]}件`,
+              }))}
+            />
+            <Note>
+              この件数は、いま絞り込んで見えている分の数です。絞り込みを外した全体の数ではありません。
+            </Note>
+          </Section>
+
+          <Section title="絞り込む">
+            <FilterBar
+              axes={axes}
+              action="/admin/feedback"
+              legend="改善要望の絞り込み"
+              keep={includeDiscarded ? { discarded: "yes" } : undefined}
+              summary={active.length === 0 ? null : `いま ${active.join("・")} で絞っています。`}
+              clearHref="/admin/feedback"
+            />
+            <Note>
+              {includeDiscarded ? (
+                <TextLink href="/admin/feedback">廃棄したものを隠す</TextLink>
+              ) : (
+                <TextLink href="/admin/feedback?discarded=yes">
+                  廃棄したものも見る（消していません）
+                </TextLink>
+              )}
+            </Note>
+          </Section>
+
+          <Section title="届いている要望">
+            {listed.value.rows.length === 0 ? (
+              <EmptyView
+                title={UI_COPY.feedback.emptyTitle}
+                body={listed.value.emptyReason ?? UI_COPY.feedback.emptyBody}
+                action={<TextLink href="/admin/feedback">絞り込みを外す</TextLink>}
+              />
+            ) : (
+              <FeedbackHandoffForm>
+                <DataTable
+                  caption="新しい順に並べています。渡したいものにチェックを付けて、下のボタンを押してください。"
+                  columns={[
+                    { key: "date", label: "届いた日" },
+                    { key: "pick", label: "選ぶ" },
+                    { key: "kind", label: "種類" },
+                    { key: "summary", label: "内容" },
+                    { key: "screen", label: "画面" },
+                    { key: "status", label: "対応状況" },
+                    { key: "disposition", label: "扱い" },
+                    { key: "handedOff", label: "払い出し" },
+                    { key: "count", label: "渡した回数", numeric: true },
+                    { key: "last", label: "最後に渡した日" },
+                  ]}
+                  rows={listed.value.rows.map((r) => ({
+                    key: r.id,
+                    cells: [
+                      r.submittedAt.toLocaleDateString("ja-JP"),
+                      <RowSelector key="pick" name="ids" value={r.id} label={`${r.id} を渡す`} />,
+                      r.kindLabel,
+                      <TextLink key="link" href={`/admin/feedback/${encodeURIComponent(r.id)}`}>
+                        {r.summary}
+                      </TextLink>,
+                      r.screenName,
+                      r.statusLabel,
+                      r.dispositionLabel ?? "—",
+                      r.handedOff ? "渡した" : "まだ",
+                      `${r.handoffCount}回`,
+                      r.lastHandoffAt === null ? "—" : r.lastHandoffAt.toLocaleDateString("ja-JP"),
+                    ],
+                  }))}
+                />
+                <Note>
+                  「—」は、まだ決まっていない・まだ起きていないという意味です。該当なしではありません。
+                </Note>
+              </FeedbackHandoffForm>
+            )}
+          </Section>
+
+          <Callout
+            tone="info"
+            title="ここに並ぶものと、Beads に並ぶもの"
+            reason="ここにあるのは「利用者が困っていること」です。実装が進んだかどうかは Beads が正本で、こちらへは写しません。両方に書くと、必ずどちらかが古くなります。"
+            action={
+              <TextLink href="/admin/settings/integration-access">取得用の鍵を管理する</TextLink>
+            }
+          />
+        </>
+      )}
     </AdminShell>
   );
 }

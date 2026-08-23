@@ -1025,6 +1025,72 @@ export const contentVariants = sqliteTable(
 );
 
 /**
+ * 運営者が管理する商品（比較表と順位表の入力）。
+ *
+ * **読者ドメインの `products` とは別の表である。** 名前が似ているのは
+ * 同じものを指しているからではない。あちらは読者ページに出す商品の見出し
+ * （slug・カテゴリー・型番）で、カテゴリーへの外部キーを必須にしている。
+ * こちらは編集側の入力で、比較表の列になる仕様と、その出どころ
+ * （どこに書いてあった値か・いつ確かめたか・どこまで信じてよいか）を持つ。
+ *
+ * 1 つの表にまとめると、読者ページに出す前の商品を登録できなくなるか、
+ * カテゴリーの無い行を読者ページが拾ってしまうかのどちらかになる。
+ *
+ * `specifications` と `identity_keys` を JSON にしているのは、
+ * **列が分野ごとに違うため。** ノートパソコンの「重さ」と洗剤の「容量」を
+ * 同じ列に並べる方法は無く、分野ごとに表を足すと分野を 1 つ増やすたびに
+ * マイグレーションが要る。揃っているかどうかは比較のときに見る
+ * （`compare_products` が「全商品で値が揃っている項目だけを列にする」）。
+ */
+export const catalogProducts = sqliteTable(
+  "catalog_products",
+  {
+    id: text("id").primaryKey(),
+    workspaceId: text("workspace_id").notNull(),
+    brand: text("brand").notNull(),
+    name: text("name").notNull(),
+    manufacturer: text("manufacturer"),
+    /**
+     * 分野。読者ドメインの `categories` へは**つながない。**
+     * 読者ページに出していない分野の商品も登録できる必要があるため。
+     */
+    categoryId: text("category_id"),
+    /** 同一性の鍵。正本は domain/product/product-identity.ts の `IDENTITY_KEY_PRIORITY`。 */
+    identityKeys: text("identity_keys", { mode: "json" })
+      .$type<{ kind: string; value: string }[]>()
+      .notNull(),
+    description: text("description"),
+    specifications: text("specifications", { mode: "json" })
+      .$type<Record<string, string | number>>()
+      .notNull(),
+    imageAssetIds: text("image_asset_ids", { mode: "json" }).$type<string[]>().notNull(),
+    releaseDate: integer("release_date", { mode: "timestamp" }),
+    discontinuedAt: integer("discontinued_at", { mode: "timestamp" }),
+    officialUrl: text("official_url"),
+    officialSourceIds: text("official_source_ids", { mode: "json" }).$type<string[]>().notNull(),
+    /**
+     * 出どころ。**列に開いて持つ。**
+     *
+     * JSON 1 本にまとめると「取得日時が古い商品」を問い合わせで拾えない。
+     * 仕様の値が古くなっているかどうかは運用の中心の問いなので、
+     * ここだけは分野に依らず形が決まっている。
+     */
+    provenanceSourceType: text("provenance_source_type").notNull(),
+    provenanceSourceName: text("provenance_source_name").notNull(),
+    provenanceSourceUrl: text("provenance_source_url"),
+    provenanceRetrievedAt: integer("provenance_retrieved_at", { mode: "timestamp" }).notNull(),
+    provenanceValidUntil: integer("provenance_valid_until", { mode: "timestamp" }),
+    provenanceConfidence: real("provenance_confidence").notNull(),
+    provenancePermittedUsage: text("provenance_permitted_usage").notNull(),
+  },
+  (t) => [
+    index("catalog_products_workspace_idx").on(t.workspaceId, t.name),
+    index("catalog_products_workspace_category_idx").on(t.workspaceId, t.categoryId),
+    index("catalog_products_stale_idx").on(t.workspaceId, t.provenanceRetrievedAt),
+  ],
+);
+
+/**
  * 生成 AI の鍵。**列に平文は入らない。**
  *
  * 値は `sealed_key`（AES-GCM で包んだ 1 本の文字列）だけが持ち、
@@ -1354,6 +1420,7 @@ export type SigninDenialRow = typeof signinDenials.$inferSelect;
 export type Asp = typeof asps.$inferSelect;
 export type RedirectResolutionRow = typeof redirectResolutions.$inferSelect;
 export type ContentVariantRow = typeof contentVariants.$inferSelect;
+export type CatalogProductRow = typeof catalogProducts.$inferSelect;
 export type ChannelConnectionRow = typeof channelConnections.$inferSelect;
 export type PublicationRow = typeof publications.$inferSelect;
 export type SessionRow = typeof sessions.$inferSelect;

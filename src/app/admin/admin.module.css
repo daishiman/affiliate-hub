@@ -11,19 +11,17 @@
 }
 
 /*
- * 節の説明文。
+ * 節の説明文の書式は、ここには無い。
  *
- * **行の長さに上限を置く。** 置かないと、画面を広げたぶんだけ 1 行が伸びる。
- * 幅 1024px・16px の文字で 1 行 64 字になり、行を追うときに戻り先を見失う。
- * 上限は 34rem（全角で約 34 字）。表やカードは広く使ってよいが、
- * 読ませる文だけは別に絞る。
+ * `screen-parts.module.css` の `.lead` が持っており、画面からは `Prose`
+ * （見出しを伴わない前書き・後書き）か `Section` / `SubSection` の `lead`
+ * （見出しに続く 1 文）を通して使う。
+ *
+ * 元はここに `.sectionLead` があり、`.lead` と 1 行も違わない同じ宣言だった
+ * （2026-08-22 / ah-jbj）。**役割が同じものが 2 つの css に分かれていると、
+ * 行の長さを直したときに片方だけが直る。** 写しが生まれた理由は、当時
+ * 見出しを伴わない文を置く口が無かったこと。`Prose` がその口である。
  */
-.sectionLead {
-  max-width: var(--readable-max-width);
-  margin: 0 0 var(--space-4);
-  font-size: var(--text-sm);
-  color: var(--color-text-muted);
-}
 
 .linkList {
   display: flex;
@@ -236,15 +234,14 @@
   font-size: var(--text-sm);
 }
 
-/* 読ませる文の行の長さ。左は器の幅いっぱいまで伸びる。 */
+/*
+ * 読ませる文の行の長さ、直す前。器の幅いっぱいまで伸びる。
+ *
+ * 「直したあと」の側はここに無い。**見本は実物でなければならない**ので、
+ * `Prose` をそのまま置く（2026-08-22 / ah-jbj）。写しを置くと、`Prose` を
+ * 直した日に見本だけが古くなり、見比べる画面が嘘をつく。
+ */
 .densityProse {
-  font-size: var(--text-sm);
-  line-height: var(--leading-body);
-  color: var(--color-text-muted);
-}
-
-.densityProseFixed {
-  max-width: var(--readable-max-width);
   font-size: var(--text-sm);
   line-height: var(--leading-body);
   color: var(--color-text-muted);

@@ -122,6 +122,17 @@ function build(id: ProductId, name: string): Product {
 
 const PRODUCTS: readonly Product[] = SAMPLE_PRODUCTS.map((p) => build(p.id, p.name));
 
+/**
+ * 見本の 4 商品。**保存先が本物（D1）のときも、これを重ねて返す。**
+ *
+ * 順位表と比較表の見本が同じ 4 商品を指しているため、ここだけ消すと
+ * 「順位表には出るのに商品ページが無い」というちぐはぐが起きる。
+ * 重ね方は `d1/storage-failure.ts` の `mergeWithSamples`（保存分が勝つ）。
+ */
+export function sampleProducts(): readonly Product[] {
+  return PRODUCTS;
+}
+
 // --- 根拠と主張 ------------------------------------------------------------
 
 function evidenceOf(id: string, title: string, owner: string, summary: string): Evidence {
@@ -238,6 +249,15 @@ export function createSampleProductRepository(): EditorialProductRepositoryPort 
       return ok({ items, nextCursor: null });
     },
     async save() {
+      return saveRejected("商品");
+    },
+    /**
+     * 削除も同じ理由で断る。
+     *
+     * **成功したふりをしない。** 見本はコードの中にあるので、消えたと返しても
+     * 次に開けばまた居る。保存できない保管庫は消すこともできない、が正しい。
+     */
+    async remove() {
       return saveRejected("商品");
     },
   });

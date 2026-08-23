@@ -3,10 +3,12 @@ import type { AppDeps } from "@/application/deps";
 import {
   createCancelPublicationUseCase,
   createExportManualDraftUseCase,
+  createGetContentChannelStatusUseCase,
   createGetPublicationUseCase,
   createListChannelsUseCase,
   createListPublicationsUseCase,
   createSchedulePublicationUseCase,
+  createUpdatePublicationUseCase,
 } from "@/application/usecases/distribution/manage-distribution";
 import {
   createGetPublicationCalendarUseCase,
@@ -122,6 +124,37 @@ export function distributionTools(deps: AppDeps): readonly AnyToolDefinition[] {
       readOnly: false,
       requiresHumanApproval: true,
       useCase: createSchedulePublicationUseCase(distribution),
+    }),
+    defineTool({
+      name: "update_publication",
+      description:
+        "まだ送っていない配信の送り先と時刻を直します。文面はここでは直せません（記事の側を直すと反映されます）。送信中・送信済みの配信は直せません。",
+      schema: z.object({
+        publicationId,
+        channelKind: z
+          .enum(Object.keys(CHANNEL_CAPABILITIES) as [ChannelKind, ...ChannelKind[]])
+          .optional(),
+        // 空文字は「予約を外して即時にする」。日時は文字列で受ける
+        // （Date は JSON Schema に写せず、道具一覧が作れなくなる）。
+        scheduledAt: z.string().optional(),
+      }),
+      /*
+       * **承認を課さない。** 隣の `schedule_publication` とは可逆性が違う。
+       * あちらは「外へ出る予定を新しく作る」操作で、作られた時点から
+       * 進行が始まる。こちらはすでに在る予定の宛先と時刻を直すだけで、
+       * 送信前のものにしか届かない（`ALREADY_LEFT` で断る）。
+       * 直し間違えても、もう一度直せるか取りやめられる。
+       */
+      readOnly: false,
+      useCase: createUpdatePublicationUseCase(distribution),
+    }),
+    defineTool({
+      name: "get_content_channel_status",
+      description:
+        "記事 1 本について、全ての配信先の状態を返します。まだ出していない先も「未着手」として必ず 1 行返します。失敗している先には理由が付きます。",
+      schema: z.object({ variantId: z.string().min(1) }),
+      readOnly: true,
+      useCase: createGetContentChannelStatusUseCase(distribution),
     }),
     defineTool({
       name: "cancel_publication",

@@ -166,6 +166,14 @@ export type GetGenerationMatrixInput = {
 
 export type GetGenerationMatrixOutput = {
   readonly packageId: string;
+  /**
+   * この企画が主題にしている商品。
+   *
+   * 画面が「1 商品を複数ブログ向けに書き分ける」導線 (A5) を出すのに要る。
+   * 画面側で企画をもう一度引かせない——引かせると、企画を引く条件が
+   * 2 か所に分かれ、片方だけが会社の絞り込みを忘れられる。
+   */
+  readonly primarySubjectId: string;
   readonly objective: string;
   readonly rowAxis: MatrixRowAxis;
   readonly rowAxisLabel: string;
@@ -307,6 +315,7 @@ export function createGetGenerationMatrixUseCase(
       const flat = rows.flatMap((r) => r.cells);
       return ok({
         packageId: String(pkg.id),
+        primarySubjectId: String(pkg.primarySubjectId),
         objective: pkg.objective,
         rowAxis: axis,
         rowAxisLabel: MATRIX_ROW_AXIS_LABEL[axis],

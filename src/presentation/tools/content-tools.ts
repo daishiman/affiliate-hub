@@ -1,6 +1,11 @@
 import { z } from "zod";
 import type { AppDeps } from "@/application/deps";
 import {
+  createCreateContentVariantUseCase,
+  createDeleteContentVariantUseCase,
+  createUpdateContentVariantUseCase,
+} from "@/application/usecases/content/edit-content";
+import {
   createAdvanceContentStateUseCase,
   createApproveContentUseCase,
   createGetContentUseCase,
@@ -19,7 +24,7 @@ import {
   createGetGenerationMatrixUseCase,
 } from "@/application/usecases/authoring/plan-generation-matrix";
 import { createReadWritingMethodUseCase } from "@/application/usecases/authoring/read-writing-method";
-import { ARTICLE_TYPES } from "@/domain/authoring";
+import { ARTICLE_TYPES, CONTENT_ANGLES, CTA_TYPES } from "@/domain/authoring";
 import { CONTENT_STATES } from "@/domain/authoring";
 import { defineTool } from "./define-tool";
 import type { AnyToolDefinition } from "./tool-definition";
@@ -97,8 +102,77 @@ export function contentTools(deps: AppDeps): readonly AnyToolDefinition[] {
       requiresHumanApproval: true,
       useCase: createApproveContentUseCase(content),
     }),
+    ...contentEditingTools(deps),
     ...personaTools(deps),
     ...generationMatrixTools(deps),
+  ];
+}
+
+/**
+ * 記事の枠を、人の手で作る・直す・消す道具。
+ *
+ * **AI に書かせる `draft_content_variant` とは別に置く。**
+ * 理由は `edit-content.ts` の冒頭に書いてある。
+ *
+ * 作る・直すは `requiresHumanApproval: false`。**やり直せるため。**
+ * 間違えて作った枠は消せるし、直した本文は直し戻せる。
+ * 承認済みを直した場合は承認が自動で外れるので、
+ * 「誰も読んでいない文章が承認済みのまま進む」ことは起きない。
+ */
+function contentEditingTools(deps: AppDeps): readonly AnyToolDefinition[] {
+  const editing = {
+    variants: deps.contentVariants,
+    packages: deps.contentPackages,
+    auditLog: deps.auditLog,
+    ids: deps.ids,
+  };
+  const variantId = z.string().min(1);
+
+  return [
+    defineTool({
+      name: "create_content_variant",
+      description:
+        "記事 1 本の枠を作ります。本文の自動生成は行いません（それは draft_content_variant です）。作った直後は自動確認を通していない扱いになります。",
+      schema: z.object({
+        contentPackageId: z.string().min(1),
+        channel: z.string().min(1),
+        format: z.string().min(1),
+        authorPersonaId: z.string().min(1),
+        audiencePersonaId: z.string().min(1),
+        angle: z.enum(CONTENT_ANGLES),
+        cta: z.enum(CTA_TYPES),
+        disclosure: z.string().min(1),
+        title: z.string().optional(),
+        // 本文は空にできない。空の記事を作れると、業務側の決まりを迂回できる。
+        body: z.string().min(1),
+        summary: z.string().min(1),
+      }),
+      readOnly: false,
+      useCase: createCreateContentVariantUseCase(editing),
+    }),
+    defineTool({
+      name: "update_content_variant",
+      description:
+        "記事の題名・本文・要約を直します。承認済みの記事を直すと承認は外れます。公開中の記事は直せません（先に取り下げてください）。",
+      schema: z.object({
+        variantId,
+        title: z.string().optional(),
+        body: z.string().min(1).optional(),
+        summary: z.string().min(1).optional(),
+      }),
+      readOnly: false,
+      useCase: createUpdateContentVariantUseCase(editing),
+    }),
+    defineTool({
+      name: "delete_content_variant",
+      description:
+        "記事を消します。公開中の記事は消せません（先に取り下げてください）。人の操作でのみ実行できます。",
+      schema: z.object({ variantId, reason: z.string().min(1) }),
+      readOnly: false,
+      // 本文ごと無くなる。後から中身を確かめる手段が残らない。
+      requiresHumanApproval: true,
+      useCase: createDeleteContentVariantUseCase(editing),
+    }),
   ];
 }
 

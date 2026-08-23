@@ -1,7 +1,15 @@
-import Link from "next/link";
 import { readerActor, siteSampleNotice, siteUseCases } from "@/presentation/composition";
 import { siteBasePath } from "@/presentation/site/view-model";
-import { Callout, EmptyView, ErrorView, PublicShell, SitePage } from "@/presentation/ui";
+import {
+  Callout,
+  EmptyView,
+  ErrorView,
+  ListView,
+  Note,
+  PublicShell,
+  SitePage,
+  TextLink,
+} from "@/presentation/ui";
 
 export const dynamic = "force-dynamic";
 
@@ -32,22 +40,22 @@ export default async function Home() {
           <EmptyView
             title="まだブログがありません"
             body="管理画面のサイトから設計図を登録すると、ここに並びます。"
-            action={<Link href="/admin/sites">サイトを見る</Link>}
+            action={<TextLink href="/admin/sites">サイトを見る</TextLink>}
           />
         ) : (
-          <ul>
-            {result.value.map((site) => (
-              <li key={site.slug}>
-                <Link href={siteBasePath(site.slug)}>{site.blueprint.name}</Link>
-                <p>{site.blueprint.purpose}</p>
-              </li>
-            ))}
-          </ul>
+          <ListView
+            rows={result.value.map((site) => ({
+              key: site.slug,
+              label: site.blueprint.name,
+              href: siteBasePath(site.slug),
+              note: site.blueprint.purpose,
+            }))}
+          />
         )}
 
-        <p>
-          <Link href="/admin">運営する人はこちら（管理画面）</Link>
-        </p>
+        <Note>
+          <TextLink href="/admin">運営する人はこちら（管理画面）</TextLink>
+        </Note>
       </SitePage>
     </PublicShell>
   );
