@@ -1,0 +1,23 @@
+{
+ "target_id": "anthropic-claude",
+ "source_url": "https://platform.claude.com/docs/en/about-claude/models/overview",
+ "requested_url": "https://docs.claude.com/en/docs/about-claude/models/overview",
+ "retrieved_at": "2026-08-22T15:04:45Z",
+ "http_status": 200,
+ "content_bytes": 948145,
+ "content_sha256": "73621c60394eb3d898bba3f23d52f127bb1733f5523057ee402d5771499aed7c",
+ "page_title": "Models overview - Claude Platform Docs",
+ "redirect_note": "要求した docs.claude.com は platform.claude.com へ恒久移送された。official_host は最終 URL の host である platform.claude.com を採る (C13 は source_url の host と official_host の一致を見るため、途中の host を書くと検査が落ちる)。",
+ "freshness_extraction": {
+  "freshness_source": "page-declared",
+  "value": "Claude 5 世代 (claude-opus-5 / claude-sonnet-5 / claude-fable-5 / claude-mythos-5)",
+  "found_in": [
+   "本文のモデル ID 逐語: claude-opus-5, claude-sonnet-5, claude-fable-5, claude-mythos-5, claude-haiku-4-5-20251001",
+   "目次見出し逐語: \"Introducing Claude Fable 5 and Claude Mythos 5\" / \"What's new in Claude Sonnet 5\" / \"What's new in Claude Opus 5\""
+  ],
+  "http_last_modified": null,
+  "body_declares_date": false,
+  "body_search_method": "本文 948145 bytes に対し 3 通りで更新日を探した: (1) JSON-LD \"dateModified\"/\"datePublished\" → 0 件。(2) <time datetime=...> → 0 件。(3) \"Last updated\" 語彙 → 3 件検出したが、いずれも Console の UI 文字列 (\"Last updated {when}\" / \"Last updated {time}\" と、その周辺が i18n の key-value 列である) であってこのページ自身の更新日ではない。プレースホルダ {when} {time} が未展開であることがそれを示す。© 2026 は copyright 年であり更新日ではない。",
+  "note": "更新日の表明が無いため、鮮度は日付ではなく **出典が説明している対象の版** で表す (R3: version はその出典が説明している対象の版であり、この repo が依存している版ではない)。ページ本文が現行モデル ID を自ら列挙しているので page-declared。取得日 2026-08-22 を last_updated へ代入していない。"
+ }
+}
