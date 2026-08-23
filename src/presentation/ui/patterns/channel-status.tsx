@@ -1,3 +1,4 @@
+import { Icon, type IconName } from "../primitives/icon";
 import styles from "./patterns.module.css";
 
 /**
@@ -13,7 +14,7 @@ import styles from "./patterns.module.css";
  *   何と呼ぶか   … `label`
  *   状態の言い方 … `statusLabels[state]`（方式ごとに違う）
  *   見分けの色   … `accentToken`（生の色値でなくトークン名）
- *   絵柄         … `iconName`（投稿方式ごとの 3 種）
+ *   アイコン     … `iconName`（投稿方式ごとの 3 種）
  *
  * 状態の言い方を配信先が持つ理由が最も重い。公式 API の無い配信先に
  * 「送信中」と出すと嘘になる。人が貼り付けるまで、こちらは何もしていない。
@@ -59,12 +60,12 @@ export type ChannelStatusEntry = {
   readonly href?: string;
 };
 
-/** 絵柄の見た目。**投稿方式ごとの 3 種だけ**で、配信先ごとに増やさない。 */
-const MODE_GLYPH = {
-  api_publish: "▲",
-  api_schedule: "◷",
-  manual_export: "▤",
-} as const;
+/** アイコンの見た目。**投稿方式ごとの 3 種だけ**で、配信先ごとに増やさない。 */
+const MODE_ICON: Readonly<Record<ChannelPublishMode, IconName>> = {
+  api_publish: "publish",
+  api_schedule: "schedule",
+  manual_export: "export",
+};
 
 /** 読み上げ向けの方式名。絵柄だけでは何も伝わらない人がいる。 */
 const MODE_NAME = {
@@ -91,12 +92,12 @@ export function ChannelBadge({
       data-channel={capability.kind}
       data-state={state}
     >
-      <span className={styles.channelGlyph} aria-hidden="true">
-        {MODE_GLYPH[capability.iconName]}
+      <span className={styles.channelGlyph}>
+        <Icon name={MODE_ICON[capability.iconName]} />
       </span>
       <span className={styles.channelName}>{capability.label}</span>
       <span className={styles.channelState}>{capability.statusLabels[state]}</span>
-      {/* 絵柄の意味を読み上げにも残す。見た目だけの情報にしない。 */}
+      {/* アイコンの意味を読み上げにも残す。見た目だけの情報にしない。 */}
       <span className={styles.srOnly}>（{MODE_NAME[capability.iconName]}）</span>
     </span>
   );

@@ -442,13 +442,13 @@
   white-space: nowrap;
 }
 
-/* 目印の絵。畳んだときに残るのはこれだけなので、幅を固定して縦に揃える。 */
+/* 目印のアイコン。畳んだときに残るのはこれだけなので、幅を固定して縦に揃える。 */
 .navIcon {
   flex: none;
   width: var(--icon-md);
-  text-align: center;
-  font-size: var(--text-base);
-  line-height: 1;
+  display: inline-grid;
+  place-items: center;
+  color: currentColor;
 }
 
 .navLabel {

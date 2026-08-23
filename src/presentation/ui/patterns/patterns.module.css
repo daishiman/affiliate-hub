@@ -19,7 +19,7 @@
   white-space: nowrap;
 }
 
-/* 色だけで区別しない。記号と文字を必ず添える（色覚と白黒印刷への対応）。 */
+/* 色だけで区別しない。アイコンと文字を必ず添える（色覚と白黒印刷への対応）。 */
 .factBadgeFact {
   background: var(--color-intent-success-subtle);
   color: var(--color-intent-success);
@@ -1304,6 +1304,9 @@
 }
 
 .channelGlyph {
+  display: inline-grid;
+  place-items: center;
+  align-self: center;
   color: var(--channel-accent, var(--color-text-muted));
 }
 

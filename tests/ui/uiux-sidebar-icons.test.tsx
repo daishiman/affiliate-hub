@@ -22,6 +22,9 @@
  *       docs/spec/feat-uiux-overhaul/screen-architecture.md
  */
 import { renderToStaticMarkup } from "react-dom/server";
+import { readFileSync, readdirSync } from "node:fs";
+import { join } from "node:path";
+import ts from "typescript";
 import { describe, expect, it } from "vitest";
 import { ADMIN_NAV } from "@/presentation/ui";
 import { AppShell } from "@/presentation/ui/templates/app-shell";
@@ -33,6 +36,47 @@ import { focusableOrder, intoDom } from "../support/render";
  */
 function iconOf(item: (typeof ADMIN_NAV)[number]): string {
   return item.icon;
+}
+
+/**
+ * Unicode の絵文字を UI に直接置くと、OS ごとに色・線幅・大きさが変わる。
+ * 単色ストロークアイコンへ統一したあとに戻らないよう、画面を作る正本を走査する。
+ */
+const UNICODE_ICON = /[\p{Emoji_Presentation}\p{Extended_Pictographic}\u25a0-\u25ff\u2600-\u27bf]/u;
+
+function typescriptSources(directory: string): readonly string[] {
+  return readdirSync(directory, { withFileTypes: true }).flatMap((entry) => {
+    const path = join(directory, entry.name);
+    if (entry.isDirectory()) return typescriptSources(path);
+    return /\.tsx?$/.test(entry.name) ? [path] : [];
+  });
+}
+
+function uiSources(): readonly string[] {
+  return ["src/app", "src/presentation"].flatMap((directory) =>
+    typescriptSources(join(process.cwd(), directory)),
+  );
+}
+
+/** コメント中の例示は除き、実際に画面へ出せる文字列と JSX だけを検査する。 */
+function unicodeIconsIn(path: string): readonly string[] {
+  const source = readFileSync(path, "utf8");
+  const file = ts.createSourceFile(
+    path,
+    source,
+    ts.ScriptTarget.Latest,
+    true,
+    path.endsWith(".tsx") ? ts.ScriptKind.TSX : ts.ScriptKind.TS,
+  );
+  const offenders: string[] = [];
+  const visit = (node: ts.Node) => {
+    if ((ts.isStringLiteralLike(node) || ts.isJsxText(node)) && UNICODE_ICON.test(node.text)) {
+      offenders.push(node.text);
+    }
+    ts.forEachChild(node, visit);
+  };
+  visit(file);
+  return offenders;
 }
 
 /** 折りたたみを含む props。実装で `AppShell` の props に加わる。 */
@@ -59,6 +103,38 @@ describe("A9 §1 全項目にアイコンがある", () => {
     for (const i of icons) seen.set(i, (seen.get(i) ?? 0) + 1);
     const dup = [...seen.entries()].filter(([, n]) => n > 1).map(([i]) => i);
     expect(dup, `重なっているアイコン: ${dup.join(", ")}`).toEqual([]);
+  });
+
+  it("文字の絵文字ではなく、単色の SVG アイコンを描画する", () => {
+    const { document, cleanup } = intoDom(shell());
+    try {
+      const nav = document.querySelector('nav[aria-label="主な案内"]');
+      expect(nav, "主な案内がありません").not.toBeNull();
+      expect(nav?.textContent ?? "", "案内に文字の絵文字が残っています").not.toMatch(UNICODE_ICON);
+      expect(nav?.querySelectorAll("a svg").length, "全項目が同じアイコン体系を使っていません").toBe(
+        ADMIN_NAV.length,
+      );
+      expect(
+        [...(nav?.querySelectorAll("a svg") ?? [])].every(
+          (icon) => icon.getAttribute("aria-hidden") === "true",
+        ),
+        "隣の項目名と二重に読み上げられるアイコンがあります",
+      ).toBe(true);
+    } finally {
+      cleanup();
+    }
+  });
+
+  it("今後追加する UI に Unicode の絵文字や手製の絵柄を直接書けない", () => {
+    const sources = uiSources();
+    expect(sources.length, "UI の走査対象が失われています").toBeGreaterThan(100);
+    const offenders = sources.flatMap((path) => {
+      const found = unicodeIconsIn(path);
+      return found.length > 0
+        ? found.map((icon) => `${path.replace(`${process.cwd()}/`, "")}: ${icon}`)
+        : [];
+    });
+    expect(offenders, `Unicode の絵柄が残る UI: ${offenders.join(", ")}`).toEqual([]);
   });
 });
 
