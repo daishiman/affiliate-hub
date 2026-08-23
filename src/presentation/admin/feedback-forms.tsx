@@ -7,7 +7,15 @@ import {
   FEEDBACK_STATUSES,
   FEEDBACK_STATUS_LABELS,
 } from "@/domain/feedback";
-import { Button, Callout, Field, Select, TextArea, UI_COPY } from "@/presentation/ui";
+import {
+  Button,
+  Callout,
+  Field,
+  SectionHeading,
+  Select,
+  TextArea,
+  UI_COPY,
+} from "@/presentation/ui";
 import {
   changeFeedbackStatusAction,
   handOffFeedbackAction,
@@ -107,7 +115,7 @@ export function FeedbackHandoffForm({ children }: { readonly children: ReactNode
           ))}
           {state.prompts.map((p) => (
             <div key={p.reportId}>
-              <h3>{p.reportId}</h3>
+              <SectionHeading level={3}>{p.reportId}</SectionHeading>
               <p>ひな型の版: {p.templateVersion}</p>
               <CopyButton label={UI_COPY.feedback.handoffCopyPrompt} text={p.text} />
               <textarea readOnly value={p.text} rows={12} aria-label={`${p.reportId} の指示文`} />

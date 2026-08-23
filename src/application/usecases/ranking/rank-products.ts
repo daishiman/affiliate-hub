@@ -14,6 +14,7 @@ import {
   containsCommercial,
   domainError,
   err,
+  missingMark,
 } from "@/domain/shared";
 import type { UseCase } from "../usecase";
 
@@ -47,6 +48,15 @@ export type RankProductsDeps = {
   readonly affiliateAccounts?: never;
 };
 
+/**
+ * 実行時に「編集の印」を求めるポート。
+ *
+ * `RankProductsDeps` のうち**データを持つもの**だけを挙げる。
+ * データではない依存（`ids` や `now` のようなもの）はここに入れない。
+ * 依存を足したときは、この一覧にも足す（足し忘れは下の決定表で赤くなる）。
+ */
+const RANKING_DATA_PORTS = ["rankingModels", "scoreCards"] as const;
+
 export type RankProductsInput = {
   readonly modelId: RankingModelId;
   readonly productIds: readonly ProductId[];
@@ -56,12 +66,30 @@ export function createRankProductsUseCase(
   deps: RankProductsDeps,
 ): UseCase<RankProductsInput, RankingResult> {
   // 型を外して渡された場合に備え、実行時の印も確認する。
-  const commercial = containsCommercial(deps as unknown as Record<string, unknown>);
+  const runtimeDeps = deps as unknown as Record<string, unknown>;
+
+  const commercial = containsCommercial(runtimeDeps);
   if (commercial.length > 0) {
     // ここは起動時に落とす。誤った並び順を読者へ出すより、動かない方がよい。
     throw new Error(
       `ランキングに商業データのポートが渡されています: ${commercial.join(", ")}。` +
         "報酬・広告主予算・販売実績を評価の入力にすることはできません。",
+    );
+  }
+
+  /*
+   * 印が無いものも落とす（fail-closed）。
+   *
+   * 「商業と名乗っているものだけ」を落とす形にしていたころは、印を付け忘れたポートが
+   * 素通りしていた。実行時の印は `as any` 相当で型を外した回を捕まえるために置いたもので、
+   * その回はたいてい印も付いていない。いちばん効いてほしい場面で効かない形だった。
+   * 提携側（`manage-affiliate.ts`）と同じ向きに揃えている。
+   */
+  const unmarked = missingMark(runtimeDeps, "editorial", RANKING_DATA_PORTS);
+  if (unmarked.length > 0) {
+    throw new Error(
+      `ランキングに編集データの印が付いていないポートが渡されています: ${unmarked.join(", ")}。` +
+        "印が無いポートは、商業データが混ざっていないことを確かめられません。",
     );
   }
 

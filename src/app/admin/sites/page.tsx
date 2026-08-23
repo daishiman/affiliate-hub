@@ -5,9 +5,14 @@ import { currentActor, platformUseCases, siteStorageNotice } from "@/presentatio
 import {
   Callout,
   Card,
+  DefinitionList,
   EmptyView,
   ErrorView,
+  Note,
   Page,
+  SectionHeading,
+  StackedList,
+  StackedRow,
   StorageNotice,
 } from "@/presentation/ui";
 import styles from "../admin.module.css";
@@ -81,26 +86,22 @@ export default async function SitesPage() {
 
           {list.value.items.map((site) => (
             <Card key={site.slug}>
-              <h2 className={styles.sectionTitle}>
+              <SectionHeading level={2}>
                 <Link href={`/admin/sites/${encodeURIComponent(site.slug)}`}>{site.name}</Link>
-              </h2>
+              </SectionHeading>
               <p className={styles.sectionLead}>
                 {site.patternLabel} / {site.genre} / 収益の形: {site.revenueModelLabel}
               </p>
-              <dl className={styles.criteria}>
-                <div>
-                  <dt>色の組み合わせ</dt>
-                  <dd>{site.brandTheme}</dd>
-                </div>
-                <div>
-                  <dt>カテゴリー</dt>
-                  <dd>{site.categoryCount}件</dd>
-                </div>
-                <div>
-                  <dt>出す画面</dt>
-                  <dd>{site.routeCount}種類</dd>
-                </div>
-              </dl>
+              <DefinitionList
+                items={[
+                  { term: "色の組み合わせ", description: site.brandTheme },
+                  // 元から寄せの指定が無い。器を替えるついでに付け足さないこと
+                  // ——見た目の判断は器の付け替えとは別の話で、混ぜると
+                  // 「いつ誰が決めたのか」が差分から読めなくなる。
+                  { term: "カテゴリー", description: `${site.categoryCount}件` },
+                  { term: "出す画面", description: `${site.routeCount}種類` },
+                ]}
+              />
               {site.launchBlockedReason === null ? null : (
                 <Callout
                   tone="warn"
@@ -113,16 +114,16 @@ export default async function SitesPage() {
                   }
                 />
               )}
-              <p className={styles.linkNote}>
+              <Note>
                 読者が見る画面: <Link href={`/s/${encodeURIComponent(site.slug)}`}>/s/{site.slug}</Link>
-              </p>
+              </Note>
             </Card>
           ))}
         </>
       )}
 
       <Card>
-        <h2 className={styles.sectionTitle}>ブログどうしの違い</h2>
+        <SectionHeading level={2}>ブログどうしの違い</SectionHeading>
         <p className={styles.sectionLead}>
           扱う商品が近いブログが増えると、言い換えただけの記事になります。10
           個の観点のうち 3 個以上が違えば、別のブログとして成立していると見なします。
@@ -139,9 +140,9 @@ export default async function SitesPage() {
             body={diff.value.emptyReason ?? "ブログが 1 本しかありません。"}
           />
         ) : (
-          <ul className={styles.linkList}>
+          <StackedList>
             {diff.value.pairs.map((pair) => (
-              <li key={`${pair.a}-${pair.b}`}>
+              <StackedRow key={`${pair.a}-${pair.b}`}>
                 <Callout
                   tone={pair.sufficient ? "info" : "warn"}
                   title={`${pair.aName} と ${pair.bName}：違う観点 ${pair.differentAxisLabels.length}個`}
@@ -151,9 +152,9 @@ export default async function SitesPage() {
                       : `違うのは ${pair.differentAxisLabels.join(" / ") || "どの観点でもありません"} だけです。このままだと似た記事が並びます。`
                   }
                 />
-              </li>
+              </StackedRow>
             ))}
-          </ul>
+          </StackedList>
         )}
       </Card>
     </Shell>

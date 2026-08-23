@@ -132,6 +132,7 @@ describe("Membership（E03）: 役割の数の端", () => {
     id: taggedString<"MembershipId">("mb-1"),
     workspaceId: WS,
     userId: asUserId("u-1"),
+    invitedEmail: "editor@example.com",
     displayName: "編集担当",
     invitedAt: NOW,
   };

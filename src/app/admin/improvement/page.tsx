@@ -1,7 +1,5 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
-import { DEFAULT_MINIMUM_SAMPLES, METRIC_DEFINITIONS } from "@/domain/analytics";
-import { AdminShell } from "@/presentation/admin/admin-shell";
 import {
   AdvanceLoopRunForm,
   ApproveVariantSpecForm,
@@ -15,7 +13,21 @@ import {
   improvementUseCases,
   platformUseCases,
 } from "@/presentation/composition";
-import { Callout, Card, EmptyView, ErrorView, Page, StubNotice } from "@/presentation/ui";
+import { DEFAULT_MINIMUM_SAMPLES, METRIC_DEFINITIONS } from "@/domain/analytics";
+import { AdminShell } from "@/presentation/admin/admin-shell";
+import {
+  Callout,
+  Card,
+  DataTable,
+  EmptyView,
+  ErrorView,
+  Note,
+  Page,
+  SectionHeading,
+  StackedList,
+  StackedRow,
+  StubNotice,
+} from "@/presentation/ui";
 import styles from "../admin.module.css";
 
 export const dynamic = "force-dynamic";
@@ -89,24 +101,24 @@ export default async function ImprovementPage({
       </StubNotice>
 
       <Card>
-        <h2 className={styles.sectionTitle}>いまの状況</h2>
-        <ul className={styles.linkList}>
-          <li>
+        <SectionHeading level={2}>いまの状況</SectionHeading>
+        <StackedList>
+          <StackedRow note={<>結果が出るまで待ちます</>}>
             実施中 {v.runningCount} 件
-            <span className={styles.linkNote}>結果が出るまで待ちます</span>
-          </li>
-          <li>
+            
+          </StackedRow>
+          <StackedRow note={<>件数が足りていません</>}>
             まだ判定できないもの {v.pendingCount} 件
-            <span className={styles.linkNote}>件数が足りていません</span>
-          </li>
-        </ul>
+            
+          </StackedRow>
+        </StackedList>
         {v.caveats.map((c) => (
           <Callout key={c} tone="info" title="この数字の読み方" reason={c} />
         ))}
       </Card>
 
       <Card>
-        <h2 className={styles.sectionTitle}>試す（1 周まわす）</h2>
+        <SectionHeading level={2}>試す（1 周まわす）</SectionHeading>
         <p className={styles.sectionLead}>
           試作を登録する → 承認する → 比較を始める → 観測値を書く → 判定する。
           この順番は飛ばせません。承認を挟むのは、見た目だけの変更でも人が決めるためです。
@@ -122,20 +134,20 @@ export default async function ImprovementPage({
           <>
             <p>どのブログで試すかを先に決めてください。</p>
             {siteOptions.length === 0 ? (
-              <p className={styles.linkNote}>
+              <Note>
                 {sites.ok
                   ? "まだブログがありません。先にブログを 1 つ作ってください。"
                   : `ブログの一覧をまだ読み出せません（${sites.error.message}）。`}
-              </p>
+              </Note>
             ) : (
-              <ul className={styles.linkList}>
+              <StackedList>
                 {siteOptions.map((s) => (
-                  <li key={s.slug}>
+                  <StackedRow key={s.slug} note={<>このブログで試す</>}>
                     <Link href={`/admin/improvement?site=${s.slug}`}>{s.name}</Link>
-                    <span className={styles.linkNote}>このブログで試す</span>
-                  </li>
+                    
+                  </StackedRow>
                 ))}
-              </ul>
+              </StackedList>
             )}
           </>
         ) : (
@@ -157,7 +169,7 @@ export default async function ImprovementPage({
       </Card>
 
       <Card>
-        <h2 className={styles.sectionTitle}>試している比較</h2>
+        <SectionHeading level={2}>試している比較</SectionHeading>
         {v.rows.length === 0 ? (
           <EmptyView
             title="まだ試している比較がありません"
@@ -165,37 +177,30 @@ export default async function ImprovementPage({
             action={<Link href="/admin/improvement/dimensions">変えられるものを見る</Link>}
           />
         ) : (
-          <table className={styles.rankTable}>
-            <caption>実施中のものを先に並べています。判定できないものも隠さず出します。</caption>
-            <thead>
-              <tr>
-                <th scope="col">ブログ</th>
-                <th scope="col">変えたところ</th>
-                <th scope="col">見ている指標</th>
-                <th scope="col">状態</th>
-                <th scope="col">いまの判定</th>
-              </tr>
-            </thead>
-            <tbody>
-              {v.rows.map((r) => (
-                <tr key={r.id}>
-                  <th scope="row">{r.siteSlug}</th>
-                  <td>{r.changedLabels.join("・")}</td>
-                  <td>{r.primaryMetricLabel}</td>
-                  <td>{r.statusLabel}</td>
-                  <td>{r.verdictLabel}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          <DataTable
+            caption="実施中のものを先に並べています。判定できないものも隠さず出します。"
+            columns={[
+              { key: "site", header: "ブログ", rowHeader: true, cell: (r) => r.siteSlug },
+              {
+                key: "changed",
+                header: "変えたところ",
+                cell: (r) => r.changedLabels.join("・"),
+              },
+              { key: "metric", header: "見ている指標", cell: (r) => r.primaryMetricLabel },
+              { key: "status", header: "状態", cell: (r) => r.statusLabel },
+              { key: "verdict", header: "いまの判定", cell: (r) => r.verdictLabel },
+            ]}
+            rows={v.rows}
+            rowKey={(r) => r.id}
+          />
         )}
       </Card>
 
       {v.rows.map((r) => (
         <Card key={`detail-${r.id}`}>
-          <h2 className={styles.sectionTitle}>
+          <SectionHeading level={2}>
             {r.siteSlug}／{r.changedLabels.join("・")}
-          </h2>
+          </SectionHeading>
           <p className={styles.sectionLead}>
             {r.loopKindLabel}・{r.statusLabel}
           </p>
@@ -209,21 +214,28 @@ export default async function ImprovementPage({
             />
           )}
           {r.suggestions.length === 0 ? (
-            <p className={styles.linkNote}>
+            <Note>
               判定が出ていないため、次の一手はまだ出せません。件数が足りるまで待ちます。
-            </p>
+            </Note>
           ) : (
-            <ul className={styles.linkList}>
-              {r.suggestions.map((s) => (
-                <li key={`${r.id}-${s.dimensionKey}`}>
-                  {s.dimensionLabel}: {s.from} → {s.to}
-                  <span className={styles.linkNote}>{s.rationale}</span>
-                  <span className={styles.linkNote}>
-                    適用には承認が要ります（見た目だけの変更でも同じです）。
-                  </span>
-                </li>
-              ))}
-            </ul>
+            <>
+              <StackedList>
+                {r.suggestions.map((s) => (
+                  <StackedRow key={`${r.id}-${s.dimensionKey}`} note={s.rationale}>
+                    {s.dimensionLabel}: {s.from} → {s.to}
+                  </StackedRow>
+                ))}
+              </StackedList>
+              {/*
+                承認が要ることは一覧に 1 回だけ言う。
+                **各行に同じ文を繰り返していた**（`StackedRow` へ移したときの
+                置換跡で、行の注記は `note` の `s.rationale` が持っているのに、
+                中身の側に固定文の `<span>` が残っていた）。
+                **同じ文が n 回並ぶと、読む人は文ではなく模様として飛ばす**
+                ——n 回言うほど伝わらなくなる種類の文である。
+              */}
+              <Note>適用には承認が要ります（見た目だけの変更でも同じです）。</Note>
+            </>
           )}
 
           <AdvanceLoopRunForm

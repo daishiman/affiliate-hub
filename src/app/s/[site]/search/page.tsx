@@ -2,7 +2,15 @@ import { readerActor, siteUseCases } from "@/presentation/composition";
 import { SiteFrame } from "@/presentation/site/page-frame";
 import { SearchBox } from "@/presentation/site/search-box";
 import { siteHref, toArticleCards } from "@/presentation/site/view-model";
-import { ArticleList, EmptyView, ErrorView, SitePage, UI_COPY, fill } from "@/presentation/ui";
+import {
+  ArticleList,
+  EmptyView,
+  ErrorView,
+  SectionHeading,
+  SitePage,
+  UI_COPY,
+  fill,
+} from "@/presentation/ui";
 
 export const dynamic = "force-dynamic";
 
@@ -47,12 +55,12 @@ export default async function SearchPage({
             <EmptyView title={UI_COPY.reader.searchSubmit} body={UI_COPY.reader.searchPrompt} />
           ) : result.ok ? (
             <section>
-              <h2>
+              <SectionHeading level={2}>
                 {fill(UI_COPY.reader.searchResultFormat, {
                   query: result.value.query,
                   count: result.value.hits.length,
                 })}
-              </h2>
+              </SectionHeading>
               <ArticleList
                 articles={toArticleCards(site, result.value.hits)}
                 emptyTitle={UI_COPY.article.searchEmptyTitle}

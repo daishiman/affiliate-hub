@@ -1,7 +1,3 @@
-import { AdminShell } from "@/presentation/admin/admin-shell";
-import Link from "next/link";
-import type { ReactNode } from "react";
-import { LINK_INBOX_FILTERS, filterLabel } from "@/application/usecases/monetization/manage-link-inbox";
 import {
   AdvanceIngestionForm,
   type ProgramOption,
@@ -13,12 +9,25 @@ import {
   linkInboxNotice,
   linkInboxUseCases,
 } from "@/presentation/composition";
+import { AdminShell } from "@/presentation/admin/admin-shell";
+import Link from "next/link";
+import type { ReactNode } from "react";
+import {
+  filterLabel,
+  LINK_INBOX_FILTERS,
+} from "@/application/usecases/monetization/manage-link-inbox";
 import {
   Callout,
   Card,
+  DataTable,
+  DefinitionList,
   EmptyView,
   ErrorView,
+  Note,
   Page,
+  SectionHeading,
+  StackedList,
+  StackedRow,
   StorageNotice,
 } from "@/presentation/ui";
 import styles from "../admin.module.css";
@@ -82,7 +91,7 @@ export default async function InboxPage({
       />
 
       <Card>
-        <h2 className={styles.sectionTitle}>成果リンクを受け取る</h2>
+        <SectionHeading level={2}>成果リンクを受け取る</SectionHeading>
         <p className={styles.sectionLead}>
           ASP で発行された URL をそのまま貼り付けてください。
           同じリンクが既にあるときも、消さずに受け取ったうえでお知らせします。
@@ -91,32 +100,23 @@ export default async function InboxPage({
       </Card>
 
       <Card>
-        <h2 className={styles.sectionTitle}>受信箱のようす</h2>
-        <dl className={styles.criteria}>
-          <div>
-            <dt>未調査</dt>
-            <dd className={styles.numeric}>{counts.received}件</dd>
-          </div>
-          <div>
-            <dt>広告主が判明</dt>
-            <dd className={styles.numeric}>{counts.resolved}件</dd>
-          </div>
-          <div>
-            <dt>結びつけ済み</dt>
-            <dd className={styles.numeric}>{counts.matched}件</dd>
-          </div>
-          <div>
-            <dt>対象外</dt>
-            <dd className={styles.numeric}>{counts.rejected}件</dd>
-          </div>
-          <div>
-            <dt>重複しているもの</dt>
-            <dd className={styles.numeric}>{inbox.value.duplicateCount}件</dd>
-          </div>
-        </dl>
-        <ul className={styles.linkList}>
+        <SectionHeading level={2}>受信箱のようす</SectionHeading>
+        <DefinitionList
+          items={[
+            { term: "未調査", description: `${counts.received}件`, align: "numeric" },
+            { term: "広告主が判明", description: `${counts.resolved}件`, align: "numeric" },
+            { term: "結びつけ済み", description: `${counts.matched}件`, align: "numeric" },
+            { term: "対象外", description: `${counts.rejected}件`, align: "numeric" },
+            {
+              term: "重複しているもの",
+              description: `${inbox.value.duplicateCount}件`,
+              align: "numeric",
+            },
+          ]}
+        />
+        <StackedList>
           {LINK_INBOX_FILTERS.map((f) => (
-            <li key={f}>
+            <StackedRow key={f}>
               {f === filter ? (
                 <span>{filterLabel(f)}（表示中）</span>
               ) : (
@@ -124,9 +124,9 @@ export default async function InboxPage({
                   {filterLabel(f)}を見る
                 </Link>
               )}
-            </li>
+            </StackedRow>
           ))}
-        </ul>
+        </StackedList>
       </Card>
 
       {programs.ok && programOptions.length === 0 ? (
@@ -147,7 +147,7 @@ export default async function InboxPage({
       ) : null}
 
       <Card>
-        <h2 className={styles.sectionTitle}>受け取ったリンク（{filterLabel(filter)}）</h2>
+        <SectionHeading level={2}>受け取ったリンク（{filterLabel(filter)}）</SectionHeading>
         {inbox.value.total === 0 ? (
           <EmptyView
             title="表示するリンクがありません"
@@ -156,38 +156,32 @@ export default async function InboxPage({
           />
         ) : (
           <>
-            <table className={styles.rankTable}>
-              <thead>
-                <tr>
-                  <th scope="col">受け取り</th>
-                  <th scope="col">リンク先</th>
-                  <th scope="col">経路</th>
-                  <th scope="col">状態</th>
-                  <th scope="col">広告主</th>
-                  <th scope="col">商品</th>
-                </tr>
-              </thead>
-              <tbody>
-                {inbox.value.items.map((item) => (
-                  <tr key={item.id}>
-                    <th scope="row">{item.submittedAt.toLocaleDateString("ja-JP")}</th>
-                    <td>{item.host}</td>
-                    <td>{item.sourceLabel}</td>
-                    <td>{item.stateLabel}</td>
-                    <td>{item.programLabel ?? "—"}</td>
-                    <td>{item.productId ?? "—"}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-            <p className={styles.linkNote}>
+            <DataTable
+              caption="受け取ったリンクの一覧。受け取った日の順に並べる。"
+              columns={[
+                {
+                  key: "submittedAt",
+                  header: "受け取り",
+                  rowHeader: true,
+                  cell: (item) => item.submittedAt.toLocaleDateString("ja-JP"),
+                },
+                { key: "host", header: "リンク先", cell: (item) => item.host },
+                { key: "source", header: "経路", cell: (item) => item.sourceLabel },
+                { key: "state", header: "状態", cell: (item) => item.stateLabel },
+                { key: "program", header: "広告主", cell: (item) => item.programLabel ?? "—" },
+                { key: "product", header: "商品", cell: (item) => item.productId ?? "—" },
+              ]}
+              rows={inbox.value.items}
+              rowKey={(item) => item.id}
+            />
+            <Note>
               「—」は、まだ決まっていないという意味です。該当なしではありません。
-            </p>
+            </Note>
 
             {inbox.value.items.map((item) => (
               <div key={item.id} className={styles.catalogStack}>
-                <h3 className={styles.sectionTitle}>{item.host}</h3>
-                <p className={styles.linkNote}>{item.submittedUrl}</p>
+                <SectionHeading level={3}>{item.host}</SectionHeading>
+                <Note>{item.submittedUrl}</Note>
                 {item.duplicateOf === null ? null : (
                   <Callout
                     tone="warn"

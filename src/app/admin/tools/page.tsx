@@ -9,7 +9,7 @@ import {
   type ContractSurface,
   contractCoverage,
 } from "@/presentation/tools/spec-contract";
-import { Callout, Card, Page, StubLabel } from "@/presentation/ui";
+import { Callout, Card, DataTable, Page, SectionHeading, StubLabel } from "@/presentation/ui";
 import styles from "../admin.module.css";
 
 export const dynamic = "force-dynamic";
@@ -45,127 +45,123 @@ export default async function ToolsPage() {
         />
 
         <Card>
-          <h2 className={styles.sectionTitle}>面ごとの内訳</h2>
-          <table className={styles.rankTable}>
-            <caption>仕様書 §24.1（ページ内AI）・§24.3（外部AI）で決めた道具の数</caption>
-            <thead>
-              <tr>
-                <th scope="col">面</th>
-                <th scope="col">動くもの</th>
-                <th scope="col">仕様の数</th>
-              </tr>
-            </thead>
-            <tbody>
-              {coverage.bySurface.map((s) => (
-                <tr key={s.surface}>
-                  <th scope="row">{s.label}</th>
-                  <td className={styles.numeric}>{s.implemented}</td>
-                  <td className={styles.numeric}>{s.total}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          <SectionHeading level={2}>面ごとの内訳</SectionHeading>
+          <DataTable
+            caption="仕様書 §24.1（ページ内AI）・§24.3（外部AI）で決めた道具の数"
+            columns={[
+              { key: "surface", header: "面", rowHeader: true, cell: (s) => s.label },
+              {
+                key: "implemented",
+                header: "動くもの",
+                align: "numeric",
+                cell: (s) => s.implemented,
+              },
+              { key: "total", header: "仕様の数", align: "numeric", cell: (s) => s.total },
+            ]}
+            rows={coverage.bySurface}
+            rowKey={(s) => s.surface}
+          />
         </Card>
 
         {surfaces.map((surface) => (
           <Card key={surface}>
-            <h2 className={styles.sectionTitle}>{SURFACE_LABELS[surface]}</h2>
-            <table className={styles.rankTable}>
-              <thead>
-                <tr>
-                  <th scope="col">仕様書の名前</th>
-                  <th scope="col">何をするか</th>
-                  <th scope="col">状態</th>
-                </tr>
-              </thead>
-              <tbody>
-                {TOOL_CONTRACT.filter((e) => e.surface === surface).map((e) => (
-                  <tr key={`${surface}:${e.specName}`}>
-                    <th scope="row">
-                      <code>{e.specName}</code>
-                    </th>
-                    <td>{e.purpose}</td>
-                    <td>
-                      {e.implementedBy === null ? (
-                        <>
-                          <StubLabel stubId={`tool:${e.specName}`} />
-                          <span className={styles.linkNote}>{e.stubReason}</span>
-                        </>
-                      ) : e.implementedBy === e.specName ? (
-                        "動きます"
-                      ) : (
-                        <>
-                          動きます
-                          <span className={styles.linkNote}>
-                            中身は <code>{e.implementedBy}</code> と同じものです
-                          </span>
-                        </>
-                      )}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+            <SectionHeading level={2}>{SURFACE_LABELS[surface]}</SectionHeading>
+            <DataTable
+              caption={`${SURFACE_LABELS[surface]}から呼べる道具`}
+              columns={[
+                {
+                  key: "specName",
+                  header: "仕様書の名前",
+                  rowHeader: true,
+                  cell: (e) => <code>{e.specName}</code>,
+                },
+                { key: "purpose", header: "何をするか", cell: (e) => e.purpose },
+                {
+                  key: "state",
+                  header: "状態",
+                  cell: (e) =>
+                    e.implementedBy === null ? (
+                      <>
+                        <StubLabel stubId={`tool:${e.specName}`} />
+                        <span className={styles.linkNote}>{e.stubReason}</span>
+                      </>
+                    ) : e.implementedBy === e.specName ? (
+                      "動きます"
+                    ) : (
+                      <>
+                        動きます
+                        <span className={styles.linkNote}>
+                          中身は <code>{e.implementedBy}</code> と同じものです
+                        </span>
+                      </>
+                    ),
+                },
+              ]}
+              rows={TOOL_CONTRACT.filter((e) => e.surface === surface)}
+              rowKey={(e) => `${surface}:${e.specName}`}
+            />
           </Card>
         ))}
 
         <Card>
-          <h2 className={styles.sectionTitle}>外部AI が読める場所（{MCP_RESOURCES.length}件）</h2>
+          <SectionHeading level={2}>外部AI が読める場所（{MCP_RESOURCES.length}件）</SectionHeading>
           <p className={styles.sectionLead}>
             読める場所は新しい処理ではありません。中身は必ず下の道具から取ります。別に読み出しを書くと、道具経由と場所経由で違う内容が返る余地ができます。
           </p>
-          <table className={styles.rankTable}>
-            <thead>
-              <tr>
-                <th scope="col">場所</th>
-                <th scope="col">中身</th>
-                <th scope="col">取ってくる道具</th>
-              </tr>
-            </thead>
-            <tbody>
-              {MCP_RESOURCES.map((r) => (
-                <tr key={r.uriTemplate}>
-                  <th scope="row">
-                    <code>{r.uriTemplate}</code>
-                  </th>
-                  <td>{r.description}</td>
-                  <td>
+          <DataTable
+            caption="外部AI が読める場所と、その中身を取ってくる道具の対応"
+            columns={[
+              {
+                key: "uriTemplate",
+                header: "場所",
+                rowHeader: true,
+                cell: (r) => <code>{r.uriTemplate}</code>,
+              },
+              { key: "description", header: "中身", cell: (r) => r.description },
+              {
+                key: "backedBy",
+                header: "取ってくる道具",
+                cell: (r) => (
+                  <>
                     <code>{r.backedBy}</code>
                     {findTool(catalog, r.backedBy) === null ? <StubLabel /> : null}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+                  </>
+                ),
+              },
+            ]}
+            rows={MCP_RESOURCES}
+            rowKey={(r) => r.uriTemplate}
+          />
         </Card>
 
         <Card>
-          <h2 className={styles.sectionTitle}>いま登録されている道具（{catalog.length}件）</h2>
+          <SectionHeading level={2}>いま登録されている道具（{catalog.length}件）</SectionHeading>
           <p className={styles.sectionLead}>
             このうち読み取り専用のものだけが、ページを開いている AI へ渡ります。状態を変えるものは渡しません。
           </p>
-          <table className={styles.rankTable}>
-            <thead>
-              <tr>
-                <th scope="col">名前</th>
-                <th scope="col">読み取り専用か</th>
-                <th scope="col">人の操作が要るか</th>
-              </tr>
-            </thead>
-            <tbody>
-              {[...catalog]
-                .sort((a, b) => a.name.localeCompare(b.name))
-                .map((t) => (
-                  <tr key={t.name}>
-                    <th scope="row">
-                      <code>{t.name}</code>
-                    </th>
-                    <td>{t.readOnly ? "読み取りだけ" : "状態を変えます"}</td>
-                    <td>{t.requiresHumanApproval ? "人が行います" : "AI からも実行できます"}</td>
-                  </tr>
-                ))}
-            </tbody>
-          </table>
+          <DataTable
+            caption="いま登録されている道具と、その扱い方"
+            columns={[
+              {
+                key: "name",
+                header: "名前",
+                rowHeader: true,
+                cell: (t) => <code>{t.name}</code>,
+              },
+              {
+                key: "readOnly",
+                header: "読み取り専用か",
+                cell: (t) => (t.readOnly ? "読み取りだけ" : "状態を変えます"),
+              },
+              {
+                key: "approval",
+                header: "人の操作が要るか",
+                cell: (t) => (t.requiresHumanApproval ? "人が行います" : "AI からも実行できます"),
+              },
+            ]}
+            rows={[...catalog].sort((a, b) => a.name.localeCompare(b.name))}
+            rowKey={(t) => t.name}
+          />
         </Card>
       </Page>
     </AdminShell>

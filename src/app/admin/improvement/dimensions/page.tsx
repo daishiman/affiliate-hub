@@ -2,7 +2,17 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 import { AdminShell } from "@/presentation/admin/admin-shell";
 import { currentActor, improvementUseCases } from "@/presentation/composition";
-import { Callout, Card, EmptyView, ErrorView, Page } from "@/presentation/ui";
+import {
+  Callout,
+  Card,
+  DataTable,
+  EmptyView,
+  ErrorView,
+  Page,
+  SectionHeading,
+  StackedList,
+  StackedRow,
+} from "@/presentation/ui";
 import styles from "../../admin.module.css";
 
 export const dynamic = "force-dynamic";
@@ -53,98 +63,96 @@ export default async function ImprovementDimensionsPage({
 
       {v.groups.map((g) => (
         <Card key={g.group}>
-          <h2 className={styles.sectionTitle}>{g.label}</h2>
-          <table className={styles.rankTable}>
-            <caption>
-              まだ一度も試していないものは「未実施」と出します。試した数を実績として持ちます。
-            </caption>
-            <thead>
-              <tr>
-                <th scope="col">変えられるもの</th>
-                <th scope="col">なぜ変える価値があるか</th>
-                <th scope="col">案の作り方</th>
-                <th scope="col">効果を見る指標</th>
-                <th scope="col">実施中</th>
-                <th scope="col">判定済み</th>
-              </tr>
-            </thead>
-            <tbody>
-              {g.dimensions.map((d) => (
-                <tr key={d.key}>
-                  <th scope="row">{d.label}</th>
-                  <td>{d.why}</td>
-                  <td>{d.candidateSourceLabel}</td>
-                  <td>{d.metricLabels.join("・")}</td>
-                  <td className={styles.numeric}>{d.runningCount}</td>
-                  <td className={styles.numeric}>
-                    {d.neverTried ? "未実施" : d.concludedCount}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          <SectionHeading level={2}>{g.label}</SectionHeading>
+          <DataTable
+            caption={`${g.label}で変えられるもの。まだ一度も試していないものは「未実施」と出します。`}
+            columns={[
+              { key: "label", header: "変えられるもの", rowHeader: true, cell: (d) => d.label },
+              { key: "why", header: "なぜ変える価値があるか", cell: (d) => d.why },
+              { key: "source", header: "案の作り方", cell: (d) => d.candidateSourceLabel },
+              {
+                key: "metrics",
+                header: "効果を見る指標",
+                cell: (d) => d.metricLabels.join("・"),
+              },
+              {
+                key: "running",
+                header: "実施中",
+                align: "numeric",
+                cell: (d) => d.runningCount,
+              },
+              {
+                key: "concluded",
+                header: "判定済み",
+                align: "numeric",
+                cell: (d) => (d.neverTried ? "未実施" : d.concludedCount),
+              },
+            ]}
+            rows={g.dimensions}
+            rowKey={(d) => d.key}
+          />
         </Card>
       ))}
 
       <Card>
-        <h2 className={styles.sectionTitle}>調整してはいけないもの</h2>
+        <SectionHeading level={2}>調整してはいけないもの</SectionHeading>
         <p className={styles.sectionLead}>
           ここに並ぶものは、数字が良くなるとしても変えません。軸として登録しようとすると、
           仕組みの側で受け付けません（人の心がけではなく、コードで止めています）。
         </p>
-        <ul className={styles.linkList}>
+        <StackedList>
           {v.nonOptimizable.map((n) => (
-            <li key={n.label}>
+            <StackedRow key={n.label} note={n.reason}>
               {n.label}
-              <span className={styles.linkNote}>{n.reason}</span>
-            </li>
+              
+            </StackedRow>
           ))}
-        </ul>
+        </StackedList>
       </Card>
 
       <Card>
-        <h2 className={styles.sectionTitle}>ループの種類</h2>
+        <SectionHeading level={2}>ループの種類</SectionHeading>
         <p className={styles.sectionLead}>
           いまは「記事を良くするループ」だけが動きます。ほかは形だけ決めてあり、
           動かすのに何が要るかを書いてあります。
         </p>
         {v.loops.map((l) => (
           <div key={l.key}>
-            <h3 className={styles.sectionTitle}>
+            <SectionHeading level={3}>
               {l.label}（{l.polarityLabel}・{l.readinessLabel}）
-            </h3>
-            <ul className={styles.linkList}>
-              <li>
+            </SectionHeading>
+            <StackedList>
+              <StackedRow note={l.signal}>
                 見るもの
-                <span className={styles.linkNote}>{l.signal}</span>
-              </li>
-              <li>
+                
+              </StackedRow>
+              <StackedRow note={l.decisionRule}>
                 決め方
-                <span className={styles.linkNote}>{l.decisionRule}</span>
-              </li>
-              <li>
+                
+              </StackedRow>
+              <StackedRow note={l.decisionBasisLabel}>
                 何をもって決めるか
-                <span className={styles.linkNote}>{l.decisionBasisLabel}</span>
-              </li>
-              <li>
+                
+              </StackedRow>
+              <StackedRow note={l.approver}>
                 承認する人
-                <span className={styles.linkNote}>{l.approver}</span>
-              </li>
-              <li>
+                
+              </StackedRow>
+              <StackedRow note={l.stopConditions.join(" / ")}>
                 止める条件
-                <span className={styles.linkNote}>{l.stopConditions.join(" / ")}</span>
-              </li>
-              <li>
+                
+              </StackedRow>
+              <StackedRow note={l.hardGuardrails.join(" / ")}>
                 外せない約束
-                <span className={styles.linkNote}>{l.hardGuardrails.join(" / ")}</span>
-              </li>
+                
+              </StackedRow>
               {l.softGuardrails.length > 0 ? (
-                <li>
+                <StackedRow note={l.softGuardrails.join(" / ")}>
                   目安の約束
-                  <span className={styles.linkNote}>{l.softGuardrails.join(" / ")}</span>
-                </li>
+                  
+                </StackedRow>
               ) : null}
-            </ul>
+            </StackedList>
             {l.implemented ? null : (
               <Callout
                 tone="info"
@@ -157,7 +165,7 @@ export default async function ImprovementDimensionsPage({
       </Card>
 
       <Card>
-        <h2 className={styles.sectionTitle}>いまの見せ方の設定</h2>
+        <SectionHeading level={2}>いまの見せ方の設定</SectionHeading>
         <p className={styles.sectionLead}>
           「この記事がなぜこの形なのか」をたどるための記録です。
           色の設定も見出しの順番も、同じ 1 つの形で持ちます。
@@ -169,15 +177,15 @@ export default async function ImprovementDimensionsPage({
             action={<Link href="/admin/improvement">改善の状況を見る</Link>}
           />
         ) : (
-          <ul className={styles.linkList}>
+          <StackedList>
             {v.specs.map((s) => (
-              <li key={s.id}>
+              <StackedRow key={s.id} note={s.explanation}>
                 {s.label}
                 {s.approved ? "" : "（未承認）"}
-                <span className={styles.linkNote}>{s.explanation}</span>
-              </li>
+                
+              </StackedRow>
             ))}
-          </ul>
+          </StackedList>
         )}
       </Card>
     </Shell>

@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { SectionHeading } from "@/presentation/ui";
 import styles from "../admin.module.css";
 
 /**
@@ -87,7 +88,7 @@ function DensityPair({
 }) {
   return (
     <div>
-      <h3 className={styles.sectionTitle}>{title}</h3>
+      <SectionHeading level={3}>{title}</SectionHeading>
       <p className={styles.sectionLead}>{note}</p>
       <div className={styles.densityPair}>
         <div className={styles.densitySide}>

@@ -60,7 +60,7 @@ serves_goals: [G2, G1]
 
 | プラットフォーム | 状態 | 根拠 |
 |---|---|---|
-| Web (web) | 確定 | 確定質疑: `qa-backend-web-spec-intake` (正本 `spec-state.json` の `qa_ref`。旧記載 `qa-backend-web-analytics` との不一致は `## 確定セルの記録` を参照) |
+| Web (web) | 確定 | 確定質疑: `qa-backend-web-spec-intake` (正本 `spec-state.json` の `qa_ref`)。先行質疑 `qa-backend-web-analytics` は `qa_refs` に残り、本章にも併記する |
 | モバイル (mobile) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |
 | タブレット (tablet) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |
 | デスクトップ (Windows) (desktop-windows) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |
@@ -137,6 +137,16 @@ ClickEvent(リダイレクトサービス)
 * **集計は再計算可能**。生イベントから任意時点のロールアップを再構築できる
 * **転送と計測を障害分離**する。計測系障害単独を理由に、既知の有効なresolver entryの転送を止めない。SLOと劣化条件はINF-REDIRECT-01を正とする
 * **Editorial / Commercial 分離**(v1.0 19.4章)。Insight Engine は配信戦略・表現の学習にのみ収益データを使い、商品評価・ランキングへは出力しない
+
+### qa-backend-web-spec-intake (対応セル: web)
+
+**質問**: backend×web: 二層構造での WebMCP 契約・禁止依存・生成基盤の設計制約は何か (書面入力 docs/spec/04 §3 §4 / 05 / 07 §0)
+
+**回答**: | 登録先 | **`document.modelContext`**。`navigator.modelContext` は Chrome 150 で非推奨のため legacy fallback 専用（CHG-001） |
+| ツール数 | 1ページあたり原則6個以下 |
+| FD-1 | ランキング式を UI 層・WebMCP 層へ重複実装する | `src/lib/domain/ranking.ts` 以外に重み計算が現れないことを grep テストで固定 |
+| FD-2 | 報酬データを推薦スコアの入力にする | Ranking Service の入力型に Commercial DB 由来の型が含まれないことを型で担保 |
+| FD-4 | WebMCP でしか到達できない機能を作る | 全 WebMCP ツールに対応する通常 UI 経路が存在することをトレーサビリティ表で確認 |
 
 ## 上流指針 (doctrine anchor)
 
@@ -330,6 +340,41 @@ ClickEvent(リダイレクトサービス)
   - 章固有の根拠: Insight Engine の入出力境界をコードレベルで分離し、Commercial DB への参照を Editorial 系モジュールから物理的に遮断する (v1.0 §19.4)
   - トレードオフ:
     - データ結合の自由度は下がるが、報酬額バイアスの混入を構造的に防止できる
+- 資するゴール: G2, G1
+
+##### 確定内容 qa-backend-web-spec-intake (対応セル: web)
+
+- 確定要件: | 登録先 | **`document.modelContext`**。`navigator.modelContext` は Chrome 150 で非推奨のため legacy fallback 専用（CHG-001） |
+| ツール数 | 1ページあたり原則6個以下 |
+| FD-1 | ランキング式を UI 層・WebMCP 層へ重複実装する | `src/lib/domain/ranking.ts` 以外に重み計算が現れないことを grep テストで固定 |
+| FD-2 | 報酬データを推薦スコアの入力にする | Ranking Service の入力型に Commercial DB 由来の型が含まれないことを型で担保 |
+| FD-4 | WebMCP でしか到達できない機能を作る | 全 WebMCP ツールに対応する通常 UI 経路が存在することをトレーサビリティ表で確認 |
+- 設計解釈の記録経路: `dialogue`
+- 原則: ランキング計算・比較候補の分類・公開ゲート判定・広告表記の要否判定は src/lib/domain/ の純関数 1 箇所に置き、管理画面・公開ブログ・WebMCP・MCP のすべてがそこを呼ぶ (`docs/spec/04-二層構造統合仕様.md#§2-3`)
+  - 採否: `applied`
+  - 章固有の根拠: 計算の正本を 1 箇所に固定し、呼び出し側 (画面 / WebMCP / MCP) は結果を描画するだけにする。重複実装は FD-1 として grep テストで落とす
+  - トレードオフ:
+    - 経路ごとの最適化余地は減るが、経路によって順位が食い違う事態を構造的に排除できる
+- 原則: WebMCP の登録先は document.modelContext。navigator.modelContext は legacy fallback 専用で、1 ページあたりのツールは原則 6 個以下 (`docs/spec/04-二層構造統合仕様.md#§3`)
+  - 採否: `applied`
+  - 章固有の根拠: 能力検出を先に行い、非対応環境は通常 UI へ落とす。ページ種別ごとに登録するツールを 6 個以下に選択する
+  - トレードオフ:
+    - ページごとに公開ツールを選ぶ手間が増えるが、モデル側の選択誤りを減らせる
+- 原則: 禁止依存 FD-1〜FD-5。特に FD-4「WebMCP でしか到達できない機能を作る」は、全 WebMCP ツールに対応する通常 UI 経路が存在することをトレーサビリティ表で確認する (`docs/spec/04-二層構造統合仕様.md#§4`)
+  - 採否: `applied`
+  - 章固有の根拠: WebMCP は追加の入口であって唯一の入口ではない。docs/product/traceability.md の導線列で対応 UI を必須にする
+  - トレードオフ:
+    - UI 側の実装が常に先行するため WebMCP の追加が遅くなるが、機能フラグを落としたときに使えなくなる機能が生じない
+- 原則: 生成基盤の設計制約 GC-1〜GC-6。AI に自由に書かせず、承認済みの事実・根拠・ペルソナ・媒体ルールを入力として与えて生成させる (GC-1)。レビュー系は執筆系と分離し自作自演の検証にしない (GC-5) (`docs/spec/07-生成基盤設計.md#§0`)
+  - 採否: `applied`
+  - 章固有の根拠: プロンプト入力変数を必須項目に固定し、欠落があれば生成を実行しない。Writer と Fact-checker / Compliance-reviewer を別サブエージェント・別コンテキストに置く
+  - トレードオフ:
+    - 入力を揃えるまで生成できず着手が遅れるが、根拠のない文章が生成物として残らない
+- 原則: 執筆順序（結論→理由→根拠→具体例→例外→読者にとっての意味→次の行動）を節単位で必ず 1 周させる。根拠の段は省略不可 (`docs/spec/05-文章作成メソッド仕様.md#§1`)
+  - 採否: `applied`
+  - 章固有の根拠: 生成の出力契約をこの 7 段の構造体にし、根拠の段が空のまま公開ゲートを通らないようにする
+  - トレードオフ:
+    - 文章の自由度は下がるが、根拠のない主張が節の単位で検出できる
 - 資するゴール: G2, G1
 
 ## 最新ドキュメント出典

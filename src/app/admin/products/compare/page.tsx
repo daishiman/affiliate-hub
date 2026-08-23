@@ -9,6 +9,9 @@ import {
   EmptyView,
   ErrorView,
   Page,
+  SectionHeading,
+  StackedList,
+  StackedRow,
   StubNotice,
   type ComparisonCell,
   type ComparisonColumn,
@@ -92,7 +95,7 @@ export default async function CompareProductsPage({
       </StubNotice>
 
       <Card>
-        <h2 className={styles.sectionTitle}>比較表</h2>
+        <SectionHeading level={2}>比較表</SectionHeading>
         <p className={styles.sectionLead}>
           {products.length}件を比べています。列にできたのは、全商品で値がそろっている
           {columns.length}項目です。
@@ -107,7 +110,7 @@ export default async function CompareProductsPage({
 
       {missingColumns.length > 0 ? (
         <Card>
-          <h2 className={styles.sectionTitle}>比べられない項目</h2>
+          <SectionHeading level={2}>比べられない項目</SectionHeading>
           <Callout
             tone="warn"
             title="一部の商品にしか値がありません"
@@ -118,17 +121,17 @@ export default async function CompareProductsPage({
       ) : null}
 
       <Card>
-        <h2 className={styles.sectionTitle}>比べている商品</h2>
-        <ul className={styles.linkList}>
+        <SectionHeading level={2}>比べている商品</SectionHeading>
+        <StackedList>
           {products.map((p) => (
-            <li key={p.productId}>
+            <StackedRow key={p.productId} note={p.oneLine}>
               <Link href={`/admin/products/${encodeURIComponent(p.productId)}`}>
                 {p.brand} {p.name}
               </Link>
-              <span className={styles.linkNote}>{p.oneLine}</span>
-            </li>
+              
+            </StackedRow>
           ))}
-        </ul>
+        </StackedList>
       </Card>
     </Shell>
   );

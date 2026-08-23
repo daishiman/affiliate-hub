@@ -1,14 +1,27 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
-import { AdminShell } from "@/presentation/admin/admin-shell";
 import {
   FeedbackDispositionForm,
   FeedbackHandoffForm,
   FeedbackPullCommand,
   FeedbackStatusForm,
 } from "@/presentation/admin/feedback-forms";
+import { AdminShell } from "@/presentation/admin/admin-shell";
 import { currentActor, feedbackCaptureNotice, feedbackUseCases } from "@/presentation/composition";
-import { Callout, Card, ErrorView, Page, StorageNotice, UI_COPY } from "@/presentation/ui";
+import {
+  Callout,
+  Card,
+  DataTable,
+  DefinitionList,
+  ErrorView,
+  Note,
+  Page,
+  SectionHeading,
+  StackedList,
+  StackedRow,
+  StorageNotice,
+  UI_COPY,
+} from "@/presentation/ui";
 import styles from "../../admin.module.css";
 
 export const dynamic = "force-dynamic";
@@ -61,7 +74,7 @@ export default async function FeedbackDetailPage({
     <Shell id={id}>
       {/* ① 送られたこと */}
       <Card>
-        <h2 className={styles.sectionTitle}>届いた内容</h2>
+        <SectionHeading level={2}>届いた内容</SectionHeading>
         <p className={styles.sectionLead}>
           {v.kindLabel}・{v.submittedAt.toLocaleString("ja-JP")}
         </p>
@@ -70,51 +83,37 @@ export default async function FeedbackDetailPage({
 
       {/* ② どうなってほしいか */}
       <Card>
-        <h2 className={styles.sectionTitle}>{UI_COPY.feedback.wishLabel}</h2>
+        <SectionHeading level={2}>{UI_COPY.feedback.wishLabel}</SectionHeading>
         {v.wishProvided ? <p>{v.wishText}</p> : <Callout tone="info" reason={v.wishText} />}
       </Card>
 
       {/* ③ どの画面から */}
       <Card>
-        <h2 className={styles.sectionTitle}>どの画面から届いたか</h2>
-        <dl className={styles.criteria}>
-          <div>
-            <dt>画面</dt>
-            <dd>{v.screenName}</dd>
-          </div>
-          <div>
-            <dt>道すじ</dt>
-            <dd>{v.route}</dd>
-          </div>
-          <div>
-            <dt>アドレス</dt>
-            <dd>{v.url}</dd>
-          </div>
-        </dl>
+        <SectionHeading level={2}>どの画面から届いたか</SectionHeading>
+        <DefinitionList
+          items={[
+            { term: "画面", description: v.screenName },
+            { term: "道すじ", description: v.route },
+            { term: "アドレス", description: v.url },
+          ]}
+        />
       </Card>
 
       {/* ④ どの作業場所のものか */}
       <Card>
-        <h2 className={styles.sectionTitle}>どこのものか</h2>
-        <dl className={styles.criteria}>
-          <div>
-            <dt>作業場所</dt>
-            <dd>{v.workspaceId}</dd>
-          </div>
-          <div>
-            <dt>ブランド</dt>
-            <dd>{v.brandId ?? "指定なし"}</dd>
-          </div>
-          <div>
-            <dt>サイト</dt>
-            <dd>{v.siteId ?? "指定なし"}</dd>
-          </div>
-        </dl>
+        <SectionHeading level={2}>どこのものか</SectionHeading>
+        <DefinitionList
+          items={[
+            { term: "作業場所", description: v.workspaceId },
+            { term: "ブランド", description: v.brandId ?? "指定なし" },
+            { term: "サイト", description: v.siteId ?? "指定なし" },
+          ]}
+        />
       </Card>
 
       {/* ⑤ 画面の写し */}
       <Card>
-        <h2 className={styles.sectionTitle}>そのときの画面</h2>
+        <SectionHeading level={2}>そのときの画面</SectionHeading>
         {/* 何で動いているかは入口が決める。ここに条件を書くと、
             置き場をつないだ日に画面だけが古いことを言い続ける。 */}
         <StorageNotice status={await feedbackCaptureNotice()} />
@@ -131,58 +130,58 @@ export default async function FeedbackDetailPage({
                 取り出す口（/api/feedback-captures）を必ず毎回通す。 */}
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={v.captureUrl} alt={`${v.screenName} の画面（黒塗り済み）`} />
-            <p className={styles.linkNote}>
+            <Note>
               黒塗りは画像そのものに焼き込まれています。元の画像は保存していません。
-            </p>
+            </Note>
           </>
         )}
       </Card>
 
       {/* ⑥ 技術情報（件数は畳んだまま見せる） */}
       <Card>
-        <h2 className={styles.sectionTitle}>そのとき記録されたこと</h2>
+        <SectionHeading level={2}>そのとき記録されたこと</SectionHeading>
         <p className={styles.sectionLead}>
           エラー {v.jsErrorCount} 件・通信の失敗 {v.failedRequestCount} 件・黒塗り {v.redactedCount}{" "}
           箇所
         </p>
         <details>
           <summary>中身を見る（開発者向けの記録です）</summary>
-          <dl className={styles.criteria}>
-            <div>
-              <dt>エラー</dt>
-              <dd>
-                {v.technical.jsErrors.length === 0
-                  ? "記録されていません。"
-                  : v.technical.jsErrors.join(" / ")}
-              </dd>
-            </div>
-            <div>
-              <dt>通信の失敗</dt>
-              <dd>
-                {v.technical.failedRequests.length === 0
-                  ? "記録されていません。"
-                  : v.technical.failedRequests.join(" / ")}
-              </dd>
-            </div>
-            <div>
-              <dt>直前の操作</dt>
-              <dd>
-                {v.technical.recentActions.length === 0
-                  ? "記録されていません。"
-                  : v.technical.recentActions.join(" → ")}
-              </dd>
-            </div>
-            <div>
-              <dt>使っていた環境</dt>
-              <dd>{v.technical.userAgent === "" ? "記録されていません。" : v.technical.userAgent}</dd>
-            </div>
-          </dl>
+          <DefinitionList
+            items={[
+              {
+                term: "エラー",
+                description:
+                  v.technical.jsErrors.length === 0
+                    ? "記録されていません。"
+                    : v.technical.jsErrors.join(" / "),
+              },
+              {
+                term: "通信の失敗",
+                description:
+                  v.technical.failedRequests.length === 0
+                    ? "記録されていません。"
+                    : v.technical.failedRequests.join(" / "),
+              },
+              {
+                term: "直前の操作",
+                description:
+                  v.technical.recentActions.length === 0
+                    ? "記録されていません。"
+                    : v.technical.recentActions.join(" → "),
+              },
+              {
+                term: "使っていた環境",
+                description:
+                  v.technical.userAgent === "" ? "記録されていません。" : v.technical.userAgent,
+              },
+            ]}
+          />
         </details>
       </Card>
 
       {/* ⑦ 作業する側へ渡す */}
       <Card>
-        <h2 className={styles.sectionTitle}>{UI_COPY.feedback.handoffTitle}</h2>
+        <SectionHeading level={2}>{UI_COPY.feedback.handoffTitle}</SectionHeading>
         <Callout tone="info" title="渡した回数" reason={UI_COPY.feedback.handoffIdempotent} />
         <p className={styles.sectionLead}>これまでに {v.handoffCount} 回渡しています。</p>
 
@@ -190,73 +189,68 @@ export default async function FeedbackDetailPage({
           <input type="hidden" name="ids" value={v.id} />
         </FeedbackHandoffForm>
 
-        <h3 className={styles.sectionTitle}>取りに来てもらう</h3>
+        <SectionHeading level={3}>取りに来てもらう</SectionHeading>
         <FeedbackPullCommand />
 
-        <h3 className={styles.sectionTitle}>渡した記録</h3>
+        <SectionHeading level={3}>渡した記録</SectionHeading>
         {v.handoffHistory.length === 0 ? (
-          <p className={styles.linkNote}>{v.handoffHistoryEmptyText}</p>
+          <Note>{v.handoffHistoryEmptyText}</Note>
         ) : (
-          <table className={styles.rankTable}>
-            <caption>誰が・どの鍵で持って行ったかが残ります。鍵の値そのものは出ません。</caption>
-            <thead>
-              <tr>
-                <th scope="col">日時</th>
-                <th scope="col">経路</th>
-                <th scope="col">誰が</th>
-                <th scope="col">どの鍵で</th>
-              </tr>
-            </thead>
-            <tbody>
-              {v.handoffHistory.map((h) => (
-                <tr key={`${h.at.toISOString()}-${h.actor}`}>
-                  <th scope="row">{h.at.toLocaleString("ja-JP")}</th>
-                  <td>{h.routeLabel}</td>
-                  <td>{h.actor}</td>
-                  <td>{h.keyId ?? "—（人がコピーしました）"}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          <DataTable
+            caption="誰が・どの鍵で持って行ったかが残ります。鍵の値そのものは出ません。"
+            columns={[
+              {
+                key: "at",
+                header: "日時",
+                rowHeader: true,
+                cell: (h) => h.at.toLocaleString("ja-JP"),
+              },
+              { key: "route", header: "経路", cell: (h) => h.routeLabel },
+              { key: "actor", header: "誰が", cell: (h) => h.actor },
+              { key: "key", header: "どの鍵で", cell: (h) => h.keyId ?? "—（人がコピーしました）" },
+            ]}
+            rows={v.handoffHistory}
+            rowKey={(h) => `${h.at.toISOString()}-${h.actor}`}
+          />
         )}
       </Card>
 
       {/* ⑧ 対応状況 */}
       <Card>
-        <h2 className={styles.sectionTitle}>対応状況を変える</h2>
+        <SectionHeading level={2}>対応状況を変える</SectionHeading>
         <FeedbackStatusForm id={v.id} currentStatus={v.statusLabel} />
       </Card>
 
       {/* ⑨ 扱いの決定と取り消し */}
       <Card>
-        <h2 className={styles.sectionTitle}>この要望の扱い</h2>
+        <SectionHeading level={2}>この要望の扱い</SectionHeading>
         {v.dispositionReason === null ? null : (
-          <p className={styles.linkNote}>いまの理由: {v.dispositionReason}</p>
+          <Note>いまの理由: {v.dispositionReason}</Note>
         )}
         <FeedbackDispositionForm id={v.id} dispositionLabel={v.dispositionLabel} />
       </Card>
 
       {/* ⑩ 操作の履歴（積むだけ。消さない） */}
       <Card>
-        <h2 className={styles.sectionTitle}>これまでの操作</h2>
+        <SectionHeading level={2}>これまでの操作</SectionHeading>
         {v.history.length === 0 ? (
-          <p className={styles.linkNote}>まだ何も操作されていません。</p>
+          <Note>まだ何も操作されていません。</Note>
         ) : (
-          <ul className={styles.linkList}>
+          <StackedList>
             {v.history.map((h) => (
-              <li key={`${h.at.toISOString()}-${h.summary}`}>
+              <StackedRow key={`${h.at.toISOString()}-${h.summary}`} note={h.summary}>
                 {h.at.toLocaleString("ja-JP")}／{h.by}
-                <span className={styles.linkNote}>{h.summary}</span>
-              </li>
+                
+              </StackedRow>
             ))}
-          </ul>
+          </StackedList>
         )}
-        <p className={styles.linkNote}>
+        <Note>
           履歴は積むだけで、消したり書き換えたりできません。
           {v.beadsIssueId === null
             ? "実装の進み具合は Beads 側が正本です。"
             : `実装の進み具合は Beads の ${v.beadsIssueId} が正本です。`}
-        </p>
+        </Note>
       </Card>
     </Shell>
   );

@@ -8,6 +8,9 @@ import {
   EmptyView,
   ErrorView,
   Page,
+  SectionHeading,
+  StackedList,
+  StackedRow,
   StorageNotice,
 } from "@/presentation/ui";
 import styles from "../admin.module.css";
@@ -75,9 +78,9 @@ export default async function ContentPage() {
       ) : (
         used.map((column) => (
           <Card key={column.state}>
-            <h2 className={styles.sectionTitle}>
+            <SectionHeading level={2}>
               {column.label}（{column.items.length}本）
-            </h2>
+            </SectionHeading>
             <p className={styles.sectionLead}>
               {column.nextStates.length === 0
                 ? "ここから進める先はありません。"
@@ -86,24 +89,22 @@ export default async function ContentPage() {
                 ? "（このうち承認・予約・公開は人の操作が必要です）"
                 : ""}
             </p>
-            <ul className={styles.linkList}>
+            <StackedList>
               {column.items.map((item) => (
-                <li key={item.variantId}>
+                <StackedRow key={item.variantId} note={<>{item.channel} / {item.summary}</>}>
                   <Link href={`/admin/content/${encodeURIComponent(item.variantId)}`}>
                     {item.title}
                   </Link>
-                  <span className={styles.linkNote}>
-                    {item.channel} / {item.summary}
-                  </span>
-                </li>
+                  
+                </StackedRow>
               ))}
-            </ul>
+            </StackedList>
           </Card>
         ))
       )}
 
       <Card>
-        <h2 className={styles.sectionTitle}>見直しの時期が来た記事</h2>
+        <SectionHeading level={2}>見直しの時期が来た記事</SectionHeading>
         {!overdue.ok ? (
           <ErrorView
             title="見直し対象を出せませんでした"
@@ -116,16 +117,16 @@ export default async function ContentPage() {
             body={overdue.value.emptyReason ?? "期日を過ぎた記事はありません。"}
           />
         ) : (
-          <ul className={styles.linkList}>
+          <StackedList>
             {overdue.value.items.map((item) => (
-              <li key={item.variantId}>
+              <StackedRow key={item.variantId} note={item.summary}>
                 <Link href={`/admin/content/${encodeURIComponent(item.variantId)}`}>
                   {item.title}
                 </Link>
-                <span className={styles.linkNote}>{item.summary}</span>
-              </li>
+                
+              </StackedRow>
             ))}
-          </ul>
+          </StackedList>
         )}
       </Card>
     </Shell>

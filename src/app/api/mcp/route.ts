@@ -5,7 +5,7 @@ import {
   createToolCatalog,
 } from "@/presentation/composition";
 import { handleJsonRpc, type JsonRpcRequest } from "@/presentation/tools/mcp-adapter";
-import { refusalReason, visibleTools } from "@/presentation/http/tool-scope";
+import { loadScopedCatalog, refusalReason, visibleTools } from "@/presentation/http/tool-scope";
 import { findTool } from "@/presentation/tools/catalog";
 
 export const dynamic = "force-dynamic";
@@ -79,13 +79,14 @@ export async function POST(request: Request) {
   if (method === "notifications/initialized") return new Response(null, { status: 202 });
   if (method === "ping") return Response.json({ jsonrpc: "2.0", id, result: {} });
 
-  const catalog = visibleTools((await createToolCatalog()), auth.scope);
+  const scopedCatalog = await loadScopedCatalog(createToolCatalog, auth.scope);
+  const catalog = scopedCatalog.visible;
 
   // 見せていないツールを名指しで呼ばれたら、黙って落とさず理由を返す。
   if (method === "tools/call") {
     const params = (message.params ?? {}) as Record<string, unknown>;
     const name = typeof params.name === "string" ? params.name : "";
-    const hidden = findTool((await createToolCatalog()), name);
+    const hidden = findTool(scopedCatalog.all, name);
     if (hidden !== null && findTool(catalog, name) === null) {
       return rpcError(id, -32600, refusalReason(hidden));
     }
@@ -99,7 +100,7 @@ export async function POST(request: Request) {
 
   // REST の入口（`/api/tools`）とまったく同じ決め方を使う。
   // 片方だけ見本の身元へ落ちる、という状態を作らない（`ah-2ro`）。
-  const actor = await actorForScope(auth.scope);
+  const actor = await actorForScope(auth.scope, request);
   const rpc: JsonRpcRequest = {
     jsonrpc: "2.0",
     id,

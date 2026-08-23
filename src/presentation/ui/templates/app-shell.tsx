@@ -89,6 +89,9 @@ export type NavGroup = {
  */
 export const UNGROUPED_NAV_HREFS: readonly string[] = ["/admin"];
 
+/** 運営画面の根。現在地を決めるときに、前置きの側へ数えない唯一の項目。 */
+export const ADMIN_ROOT = "/admin";
+
 /**
  * 案内の分類。
  *
@@ -171,6 +174,35 @@ export function groupedNav(
   };
 }
 
+/**
+ * いま開いている経路が、案内のどの項目に属するかを返す。
+ *
+ * **一致ではなく、いちばん長い前置きで決める。**
+ * 一致で決めていたときは、`/admin/settings/llm` や
+ * `/admin/improvement/dimensions` のような下の階層の画面で
+ * **現在地の印がどこにも付かなかった**（2026-08-21 に実測）。
+ * 目で見る人には太字が消えるだけだが、読み上げでは現在地そのものが消える。
+ *
+ * `/admin`（ホーム）はすべての経路の前置きになるので、
+ * いちばん長いものだけを採らないと全画面でホームが現在地になる。
+ * 見せていない項目（権限で消えたもの）は候補にしない——
+ * 出ていないものに印は付けられない。
+ */
+export function navHrefFor(currentPath: string, nav: GroupedNav): string | null {
+  const visible = [...nav.ungrouped, ...nav.groups.flatMap((g) => g.items)];
+  let best: string | null = null;
+  for (const item of visible) {
+    // ホーム（`/admin`）はすべての経路の前置きになるので、前置きの側に数えない。
+    // 数えると、どの画面を開いてもホームが現在地になる。
+    const matches =
+      currentPath === item.href ||
+      (item.href !== ADMIN_ROOT && currentPath.startsWith(`${item.href}/`));
+    if (!matches) continue;
+    if (best === null || item.href.length > best.length) best = item.href;
+  }
+  return best;
+}
+
 export type Breadcrumb = {
   readonly label: string;
   readonly href?: string;
@@ -208,8 +240,9 @@ export function AppShell({
   readonly children: ReactNode;
 }) {
   const nav = groupedNav(ADMIN_NAV, ADMIN_NAV_GROUPS, capabilities);
+  const currentHref = navHrefFor(currentPath, nav);
   const navLink = (item: NavItem) => {
-    const current = currentPath === item.href;
+    const current = currentHref === item.href;
     return (
       <Link
         key={item.href}
@@ -258,7 +291,15 @@ export function AppShell({
                   {crumb.href !== undefined && !last ? (
                     <Link href={crumb.href}>{crumb.label}</Link>
                   ) : (
-                    <span className={last ? styles.breadcrumbCurrent : undefined}>{crumb.label}</span>
+                    // 末尾はこの画面そのもの。**太字だけでは読み上げに現在地が出ない。**
+                    // 案内の側の印は権限で項目が消えると一緒に消えるが、
+                    // パンくずはどの画面にも必ず出るので、ここが現在地の最後の砦になる。
+                    <span
+                      className={last ? styles.breadcrumbCurrent : undefined}
+                      aria-current={last ? "page" : undefined}
+                    >
+                      {crumb.label}
+                    </span>
                   )}
                 </span>
               );

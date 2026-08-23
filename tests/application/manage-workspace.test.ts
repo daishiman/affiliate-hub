@@ -1,4 +1,4 @@
-/** @tier 1 */
+/** @tier 1 @req REQ-P01, REQ-E03, REQ-R10 */
 import { describe, expect, it } from "vitest";
 import {
   AUDIT_ACTION_LABEL,
@@ -74,7 +74,9 @@ describe("設定の概要", () => {
         findById: async () => ok(workspace),
         countBrands: async () => ok(counts.brands ?? 1),
         countSites: async () => ok(counts.sites ?? 1),
-        countMembers: async () => ok(counts.members ?? 1),
+      }),
+      memberships: portOf("memberships", {
+        countCurrent: async () => ok(counts.members ?? 1),
       }),
     };
   }
@@ -103,6 +105,16 @@ describe("設定の概要", () => {
     expect(got.value.capacities.map((c) => c.used)).toEqual([2, 4, 3]);
     expect(got.value.capacities.every((c) => !c.full)).toBe(true);
     expect(got.value.blockedReason).toBeNull();
+  });
+
+  it("担当者の容量は、見本の固定件数でなく同じ membership 保存先から数える", async () => {
+    const got = await overview({
+      ...withWorkspace(aWorkspace({ plan: "team" }), { brands: 2, sites: 4, members: 99 }),
+      memberships: portOf("memberships", { countCurrent: async () => ok(2) }),
+    });
+    if (!got.ok) throw got.error;
+
+    expect(got.value.capacities.find((capacity) => capacity.label === "担当者")?.used).toBe(2);
   });
 
   it("上限ちょうどで「いっぱい」と判定する（1 つ超えてから気づかせない）", async () => {
@@ -157,7 +169,6 @@ describe("設定の概要", () => {
         findById: async () => ok(aWorkspace()),
         countBrands: async () => ok(1),
         countSites: async () => failing("ブログの数が読めません。"),
-        countMembers: async () => ok(1),
       }),
     });
 

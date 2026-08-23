@@ -7,6 +7,9 @@ import {
   EmptyView,
   ErrorView,
   Page,
+  SectionHeading,
+  StackedList,
+  StackedRow,
   WorkBoard,
 } from "@/presentation/ui";
 import styles from "./admin.module.css";
@@ -43,7 +46,7 @@ export default async function AdminHome() {
         />
 
         <Card>
-          <h2 className={styles.sectionTitle}>いま手当てが要ること</h2>
+          <SectionHeading level={2}>いま手当てが要ること</SectionHeading>
           {!board.ok ? (
             <ErrorView
               title="いまの状況を出せませんでした"
@@ -94,43 +97,37 @@ export default async function AdminHome() {
         </Card>
 
         <Card>
-          <h2 className={styles.sectionTitle}>いま試せること</h2>
-          <ul className={styles.linkList}>
-            <li>
+          <SectionHeading level={2}>いま試せること</SectionHeading>
+          <StackedList>
+            <StackedRow note={<>13 の質問に答えると、コードを書かずにブログが 1 本増えます。</>}>
               <Link href="/admin/sites/new">新しいブログを作る</Link>
-              <span className={styles.linkNote}>
-                13 の質問に答えると、コードを書かずにブログが 1 本増えます。
-              </span>
-            </li>
-            <li>
+              
+            </StackedRow>
+            <StackedRow note={<>同じ結果が、画面からも AI からも返ることを確かめられます。</>}>
               <Link href="/admin/rankings">評価基準で商品を並べる</Link>
-              <span className={styles.linkNote}>
-                同じ結果が、画面からも AI からも返ることを確かめられます。
-              </span>
-            </li>
-            <li>
+              
+            </StackedRow>
+            <StackedRow note={<>すべての画面で使う部品と、その状態の見え方をまとめてあります。</>}>
               <Link href="/admin/ui-catalog">部品の見本帳を見る</Link>
-              <span className={styles.linkNote}>
-                すべての画面で使う部品と、その状態の見え方をまとめてあります。
-              </span>
-            </li>
-          </ul>
+              
+            </StackedRow>
+          </StackedList>
         </Card>
 
         <Card>
-          <h2 className={styles.sectionTitle}>AI から使える操作</h2>
+          <SectionHeading level={2}>AI から使える操作</SectionHeading>
           <p className={styles.sectionLead}>
             下の操作は、この画面と同じ計算をそのまま使っています。
             画面と AI で違う答えが返ることはありません。
           </p>
-          <ul className={styles.linkList}>
+          <StackedList>
             {tools.map((tool) => (
-              <li key={tool.name}>
+              <StackedRow key={tool.name} note={tool.description}>
                 <code>{tool.name}</code>
-                <span className={styles.linkNote}>{tool.description}</span>
-              </li>
+                
+              </StackedRow>
             ))}
-          </ul>
+          </StackedList>
         </Card>
       </Page>
     </AdminShell>

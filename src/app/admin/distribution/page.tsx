@@ -5,9 +5,14 @@ import { currentActor, distributionNotice, distributionUseCases } from "@/presen
 import {
   Callout,
   Card,
+  DataTable,
+  DefinitionList,
   EmptyView,
   ErrorView,
   Page,
+  SectionHeading,
+  StackedList,
+  StackedRow,
   StorageNotice,
 } from "@/presentation/ui";
 import styles from "../admin.module.css";
@@ -54,19 +59,17 @@ export default async function DistributionPage() {
       />
 
       <Card>
-        <h2 className={styles.sectionTitle}>いつ出すかを見る</h2>
-        <ul className={styles.linkList}>
-          <li>
+        <SectionHeading level={2}>いつ出すかを見る</SectionHeading>
+        <StackedList>
+          <StackedRow note={<>日付ごとに並べ替えて、同じ日に同じ先へ寄っていないか、承認が済んでいるかを確かめられます。</>}>
             <Link href="/admin/distribution/calendar">投稿カレンダーを開く</Link>
-            <span className={styles.linkNote}>
-              日付ごとに並べ替えて、同じ日に同じ先へ寄っていないか、承認が済んでいるかを確かめられます。
-            </span>
-          </li>
-        </ul>
+            
+          </StackedRow>
+        </StackedList>
       </Card>
 
       <Card>
-        <h2 className={styles.sectionTitle}>手当てが要る配信</h2>
+        <SectionHeading level={2}>手当てが要る配信</SectionHeading>
         {!publications.ok ? (
           <ErrorView
             title="配信の記録を出せませんでした"
@@ -85,103 +88,95 @@ export default async function DistributionPage() {
             body={`${publications.value.total}件の配信はすべて進んでいます。`}
           />
         ) : (
-          <ul className={styles.linkList}>
+          <StackedList>
             {publications.value.needsAttention.map((p) => (
-              <li key={p.publicationId}>
+              <StackedRow key={p.publicationId} note={<>{p.lastError ?? "貼り付け待ちです。"}
+                  {p.attempts > 0 ? `（送信を試した回数: ${p.attempts}回）` : ""}</>}>
                 <Link href={`/admin/distribution/${encodeURIComponent(p.publicationId)}`}>
                   {p.channelLabel}：{p.stateLabel}
                 </Link>
-                <span className={styles.linkNote}>
-                  {p.lastError ?? "貼り付け待ちです。"}
-                  {p.attempts > 0 ? `（送信を試した回数: ${p.attempts}回）` : ""}
-                </span>
-              </li>
+                
+              </StackedRow>
             ))}
-          </ul>
+          </StackedList>
         )}
       </Card>
 
       {publications.ok && publications.value.total > 0 ? (
         <Card>
-          <h2 className={styles.sectionTitle}>直近の配信（{publications.value.total}件）</h2>
-          <table className={styles.rankTable}>
-            <thead>
-              <tr>
-                <th scope="col">出し先</th>
-                <th scope="col">状態</th>
-                <th scope="col">予定</th>
-                <th scope="col">公開先</th>
-              </tr>
-            </thead>
-            <tbody>
-              {publications.value.items.map((p) => (
-                <tr key={p.publicationId}>
-                  <th scope="row">
-                    <Link href={`/admin/distribution/${encodeURIComponent(p.publicationId)}`}>
-                      {p.channelLabel}
-                    </Link>
-                  </th>
-                  <td>{p.stateLabel}</td>
-                  <td>{p.scheduledAt === null ? "すぐに出す" : p.scheduledAt.toLocaleString("ja-JP")}</td>
-                  <td>
-                    {p.externalUrl === null ? (
-                      "—"
-                    ) : (
-                      <a href={p.externalUrl} rel="noreferrer noopener" target="_blank">
-                        開く
-                      </a>
-                    )}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          <SectionHeading level={2}>直近の配信（{publications.value.total}件）</SectionHeading>
+          <DataTable
+            caption="出し先ごとの、いまの状態と公開の予定。"
+            columns={[
+              {
+                key: "channel",
+                header: "出し先",
+                rowHeader: true,
+                cell: (p) => (
+                  <Link href={`/admin/distribution/${encodeURIComponent(p.publicationId)}`}>
+                    {p.channelLabel}
+                  </Link>
+                ),
+              },
+              { key: "state", header: "状態", cell: (p) => p.stateLabel },
+              {
+                key: "scheduled",
+                header: "予定",
+                cell: (p) =>
+                  p.scheduledAt === null ? "すぐに出す" : p.scheduledAt.toLocaleString("ja-JP"),
+              },
+              {
+                key: "external",
+                header: "公開先",
+                cell: (p) =>
+                  p.externalUrl === null ? (
+                    "—"
+                  ) : (
+                    <a href={p.externalUrl} rel="noreferrer noopener" target="_blank">
+                      開く
+                    </a>
+                  ),
+              },
+            ]}
+            rows={publications.value.items}
+            rowKey={(p) => p.publicationId}
+          />
         </Card>
       ) : null}
 
       <Card>
-        <h2 className={styles.sectionTitle}>出し先ごとのきまり</h2>
+        <SectionHeading level={2}>出し先ごとのきまり</SectionHeading>
         <p className={styles.sectionLead}>
           文字数の上限や広告表記の置き場所は、各サービスのきまりに合わせています。
           自動で投稿できない先は、その理由をそのまま出します。
         </p>
         {channels.value.channels.map((c) => (
           <div key={c.kind}>
-            <h3 className={styles.sectionTitle}>{c.label}</h3>
-            <dl className={styles.criteria}>
-              <div>
-                <dt>出し方</dt>
-                <dd>{c.publishModeLabel}</dd>
-              </div>
-              <div>
-                <dt>接続</dt>
-                <dd>
-                  {c.connectedAccounts.length === 0
-                    ? "未接続"
-                    : c.connectedAccounts.join(" / ")}
-                </dd>
-              </div>
-              <div>
-                <dt>本文の上限</dt>
-                <dd>{c.maxBodyLength === null ? "上限なし" : `${c.maxBodyLength}文字`}</dd>
-              </div>
-              <div>
-                <dt>本文中のリンク</dt>
-                <dd>{c.allowsBodyLinks ? "置ける" : "置けない（別の導線が要る）"}</dd>
-              </div>
-              <div>
-                <dt>提携リンク</dt>
-                <dd>{c.allowsAffiliateLinks ? "掲載できる" : "掲載できない"}</dd>
-              </div>
-              <div>
-                <dt>広告表記の場所</dt>
-                <dd>{c.disclosurePlacementLabel}</dd>
-              </div>
-              <div>
-                <dt>きまりの出どころ</dt>
-                <dd>{c.basisNote}</dd>
-              </div>
-            </dl>
+            <SectionHeading level={3}>{c.label}</SectionHeading>
+            <DefinitionList
+              items={[
+                { term: "出し方", description: c.publishModeLabel },
+                {
+                  term: "接続",
+                  description:
+                    c.connectedAccounts.length === 0 ? "未接続" : c.connectedAccounts.join(" / "),
+                },
+                {
+                  term: "本文の上限",
+                  description: c.maxBodyLength === null ? "上限なし" : `${c.maxBodyLength}文字`,
+                },
+                {
+                  term: "本文中のリンク",
+                  description: c.allowsBodyLinks ? "置ける" : "置けない（別の導線が要る）",
+                },
+                {
+                  term: "提携リンク",
+                  description: c.allowsAffiliateLinks ? "掲載できる" : "掲載できない",
+                },
+                { term: "広告表記の場所", description: c.disclosurePlacementLabel },
+                { term: "きまりの出どころ", description: c.basisNote },
+              ]}
+            />
             {c.unusableReasons.map((reason) => (
               <Callout key={reason} tone="warn" title="接続を確認してください" reason={reason} />
             ))}

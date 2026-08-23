@@ -23,11 +23,12 @@ import {
   createListProductLinksUseCase,
   rewardModelLabel,
 } from "@/application/usecases/monetization/manage-affiliate";
-import { DEFAULT_REWARD_CURRENCY } from "@/domain/monetization";
+import { type Conversion, DEFAULT_REWARD_CURRENCY } from "@/domain/monetization";
 import { formatMoney, markCommercial } from "@/domain/shared";
 import type { WorkspaceId } from "@/domain/shared";
 import { SAMPLE_WORKSPACE_ID } from "@/infrastructure/persistence/sample/ranking-sample-repository";
 import { aNobody, anAnalyst, anOwner } from "../support/actors";
+import { aConversion } from "../support/factories";
 import { failing, recordingAuditLog, testDeps } from "../support/doubles";
 
 /**
@@ -267,6 +268,82 @@ describe("成果の一覧", () => {
     expect(
       (await createListConversionsUseCase(broken).execute(owner, { period: "2026-08" })).ok,
     ).toBe(false);
+  });
+});
+
+/**
+ * 確定分の合計と通貨。
+ *
+ * `amountMinor` の 1 が何を指すかは通貨ごとに違う（JPY は 1 円、USD は 1 セント）。
+ * 通貨をまたいで足した数は、どの通貨で読んでも金額にならない。しかもエラーにならず、
+ * 金額の顔をした数字が画面に出る。**足さないこと**と、**並び順に依存しないこと**を
+ * ここで固定する。
+ */
+describe("確定分の合計と通貨", () => {
+  /** 期間の成果をそのまま返す。商業の印は付け直す（外れると組み立てが落ちる）。 */
+  function conversionsReturning(items: readonly Conversion[]): ManageAffiliateDeps["conversions"] {
+    return markCommercial({
+      ...testDeps().conversions,
+      listByPeriod: async () => ({ ok: true as const, value: { items, nextCursor: null } }),
+    }) as ManageAffiliateDeps["conversions"];
+  }
+
+  async function totalOf(items: readonly Conversion[]): Promise<string> {
+    const listed = await createListConversionsUseCase(
+      deps({ conversions: conversionsReturning(items) }),
+    ).execute(owner, { period: "2026-08" });
+    if (!listed.ok) throw new Error(listed.error.message);
+    return listed.value.approvedTotalLabel;
+  }
+
+  const jpy12000 = aConversion({
+    status: "approved",
+    ingestedReward: { amountMinor: 12_000, currency: "JPY" },
+  });
+  const usd3400 = aConversion({
+    status: "approved",
+    ingestedReward: { amountMinor: 3_400, currency: "USD" },
+  });
+
+  it("通貨が 1 種類だけの期間は、これまでどおり 1 つの金額で出す（陽性対照）", async () => {
+    const total = await totalOf([
+      jpy12000,
+      aConversion({ status: "approved", ingestedReward: { amountMinor: 8_000, currency: "JPY" } }),
+      // 未確定は足さない。足すと、入ってこない金額を見込みにしてしまう。
+      aConversion({ status: "pending", ingestedReward: { amountMinor: 5_000, currency: "JPY" } }),
+    ]);
+
+    expect(total).toBe(formatMoney({ amountMinor: 20_000, currency: "JPY" }));
+  });
+
+  it("通貨が混ざった期間は、通貨ごとに分けて出す（最小単位をまたいで足さない）", async () => {
+    const total = await totalOf([jpy12000, usd3400]);
+
+    expect(total).toBe(
+      `${formatMoney({ amountMinor: 12_000, currency: "JPY" })} / ${formatMoney({
+        amountMinor: 3_400,
+        currency: "USD",
+      })}`,
+    );
+    // 12,000 と 3,400 を足した 15,400 は、円でもドルでもない数。出てはいけない。
+    expect(total).not.toContain("15,400");
+  });
+
+  it("並び順が変わっても、同じ期間なら同じ表示になる", async () => {
+    // 並び順は取り込みの順に依存する。再取り込みで表示が変われば、
+    // 数字が動いたのか順番が動いたのか、見た人には区別できない。
+    expect(await totalOf([usd3400, jpy12000])).toBe(await totalOf([jpy12000, usd3400]));
+  });
+
+  it("確定が 0 件の期間は、成果の行と同じ通貨で 0 を出す", async () => {
+    const total = await totalOf([
+      aConversion({ status: "pending", ingestedReward: { amountMinor: 5_000, currency: "USD" } }),
+      // 金額が取れていない成果は 0 円として混ぜない。
+      aConversion({ status: "approved", ingestedReward: null }),
+    ]);
+
+    // **"¥0" と書き写してはいけない。** 既定が動いた日に、ここが古い値を守ってしまう。
+    expect(total).toBe(formatMoney({ amountMinor: 0, currency: DEFAULT_REWARD_CURRENCY }));
   });
 });
 

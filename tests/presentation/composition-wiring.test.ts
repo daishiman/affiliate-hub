@@ -1,4 +1,4 @@
-/** @tier 1 */
+/** @tier 1 @req REQ-API01, REQ-TS09 */
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";

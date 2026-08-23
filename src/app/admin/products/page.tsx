@@ -7,6 +7,9 @@ import {
   EmptyView,
   ErrorView,
   Page,
+  SectionHeading,
+  StackedList,
+  StackedRow,
   StubNotice,
 } from "@/presentation/ui";
 import styles from "../admin.module.css";
@@ -62,7 +65,7 @@ export default async function ProductsPage({
       </StubNotice>
 
       <Card>
-        <h2 className={styles.sectionTitle}>商品</h2>
+        <SectionHeading level={2}>商品</SectionHeading>
         <p className={styles.sectionLead}>
           {items.length === 0
             ? "条件に合う商品がありません。"
@@ -76,22 +79,22 @@ export default async function ProductsPage({
             action={<Link href="/admin/products">絞り込みを解除する</Link>}
           />
         ) : (
-          <ul className={styles.linkList}>
+          <StackedList>
             {items.map((item) => (
-              <li key={item.productId}>
+              <StackedRow key={item.productId} note={item.oneLine}>
                 <Link href={`/admin/products/${encodeURIComponent(item.productId)}`}>
                   {item.brand} {item.name}
                 </Link>
-                <span className={styles.linkNote}>{item.oneLine}</span>
-              </li>
+                
+              </StackedRow>
             ))}
-          </ul>
+          </StackedList>
         )}
       </Card>
 
       {items.length >= 2 ? (
         <Card>
-          <h2 className={styles.sectionTitle}>並べて比べる</h2>
+          <SectionHeading level={2}>並べて比べる</SectionHeading>
           <p className={styles.sectionLead}>
             すべての商品で値がそろっている項目だけを列にします。そろっていない項目は「比べられない項目」として別に出します。
           </p>
