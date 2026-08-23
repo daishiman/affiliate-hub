@@ -1,7 +1,7 @@
 /**
  * @tier 1
  * @req REQ-UX02
- * @types equivalence, structural
+ * @types equivalence, code-boundary
  *
  * 管理画面の作成・編集・削除 action に共通する入口と失敗の形。
  * FormData の読み方、成功文言、再検証先、業務分岐は対象ごとに違うため、ここへ寄せない。
