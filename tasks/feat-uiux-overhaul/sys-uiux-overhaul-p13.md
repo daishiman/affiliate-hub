@@ -26,7 +26,7 @@ parent_feature: "feat-uiux-overhaul"
 phase_ref: "P13"
 priority: null
 project_id: "feature-package-feat-uiux-overhaul"
-pull_request_linkages: []
+pull_request_linkages: [{"number":23,"url":"https://github.com/daishiman/affiliate-hub/pull/23","base":"dev","head":"devgraph/feat-uiux-overhaul","draft":true}]
 related_nodes: []
 resource_scope: ["docs/spec/feat-uiux-overhaul/release-report.md","system-spec/ui-ux.md","system-spec/frontend.md"]
 source_lineage: {"imported_at":"2026-08-21T12:39:22Z","origin_kind":"system-dev-planner","source_digest":"3c9e340b6675b9d0b51c5a8b14331885611cb6e7f9129f16eb853231a3a7fbf0","source_path":".dev-graph/published/feature-package-feat-uiux-overhaul/task-specs/phase-13-release-deploy.md","source_plugin":"system-dev-planner","source_version":"0.1.0"}
