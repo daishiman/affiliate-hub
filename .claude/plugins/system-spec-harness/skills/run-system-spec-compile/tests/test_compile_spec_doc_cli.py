@@ -131,6 +131,34 @@ def test_write_docset_preserve_carries_handwritten_sections_over(tmp_path):
     assert (out / "a.md").read_text(encoding="utf-8").count("手で書いた履歴") == 1
 
 
+def test_vanishing_lines_ignores_moved_sections_and_finds_real_loss():
+    # 節が末尾へ移っただけの行は消えたと数えない (行の多重集合で引くため)
+    moved = "## B\n\nに\n\n## A\n\nあ\n"
+    original = "## A\n\nあ\n\n## B\n\nに\n"
+    assert mod.vanishing_lines(original, moved) == []
+    # 生成節の中で書き換えられた行はどこにも無くなるので拾う
+    assert mod.vanishing_lines("## A\n\n版 1.6.29\n", "## A\n\n版 1.7.1\n") == ["版 1.6.29"]
+
+
+def test_write_docset_reports_lines_lost_inside_generated_sections(tmp_path):
+    """節を引き継いでも守れない損失が、黙って通らないこと。
+
+    2026-08-23 に本物の章で実測したとき、preserve でも 351 行が消えた。
+    先行質疑 (qa-security-web など) と ui-ux の食い違い記録がそこに含まれていた。
+    節単位の検出だけを信じると、この層の損失は見えないまま通る。
+    """
+    out = tmp_path / "out"
+    out.mkdir()
+    # 生成側と同名の節の中に、人が書き足した小節がある
+    (out / "a.md").write_text("## 収集状態\n\nあ\n\n### 先行質疑\n\n消えては困る記録\n", encoding="utf-8")
+    losses: list = []
+    mod.write_docset({"a.md": "## 収集状態\n\nあ\n"}, out, on_handwritten="preserve", loss_report=losses)
+    assert losses, "生成節の中の手書き行が消えたのに報告されなかった"
+    name, lines = losses[0]
+    assert name == "a.md"
+    assert "消えては困る記録" in lines
+
+
 def test_write_docset_rejects_unknown_mode(tmp_path):
     try:
         mod.write_docset({"a.md": GENERATED}, tmp_path / "out", on_handwritten="overwrite")

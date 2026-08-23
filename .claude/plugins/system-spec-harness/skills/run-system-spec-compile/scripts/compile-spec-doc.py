@@ -89,11 +89,14 @@ def main(argv: list[str]) -> int:
     )
     args = ap.parse_args(argv)
 
+    losses: list[tuple[str, list[str]]] = []
     try:
         spec = load_json(args.spec)
         refs_data = load_json(args.references)
         docset = compile_docset(spec, refs_data)
-        written = write_docset(docset, Path(args.out_dir), on_handwritten=args.on_handwritten)
+        written = write_docset(
+            docset, Path(args.out_dir), on_handwritten=args.on_handwritten, loss_report=losses
+        )
     except (OSError, json.JSONDecodeError) as exc:
         print(f"IO/JSON error: {exc}", file=sys.stderr)
         return 1
@@ -101,6 +104,22 @@ def main(argv: list[str]) -> int:
         print(f"CompileError: {exc}", file=sys.stderr)
         return 1
     print(f"OK: {len(written)} ファイルを {args.out_dir}/ へ生成 " f"({', '.join(p.name for p in written)})")
+
+    # 節を引き継いでも、生成節の中の手書き行までは守れない。黙って消さず必ず出す。
+    if losses:
+        total = sum(len(lines) for _, lines in losses)
+        print(
+            f"\n注意: 節の引き継ぎでは守れず消えた行が {total} 本ある "
+            f"({len(losses)} ファイル)。版の更新のように正しく消える行も含むので、"
+            "差分を読んでから正本へ適用すること。",
+            file=sys.stderr,
+        )
+        for name, lines in losses:
+            print(f"  {name}: {len(lines)} 本", file=sys.stderr)
+            for line in lines[:3]:
+                print(f"    - {line if len(line) <= 100 else line[:97] + '...'}", file=sys.stderr)
+            if len(lines) > 3:
+                print(f"    ... 他 {len(lines) - 3} 本", file=sys.stderr)
     return 0
 
 

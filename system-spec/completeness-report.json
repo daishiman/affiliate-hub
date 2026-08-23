@@ -308,10 +308,10 @@
   ],
   "findings": [
     {
-      "severity": "low",
+      "severity": "medium",
       "bucket": "regeneration",
-      "observation": "system-spec/*.md の手書き節は C03 compile の生成物ではなく、compile を走らせれば静かに消えていた。**被害範囲は当初の記述より広かった。**本物の章の複製で実測したところ、失われるのは 5 章ではなく 9 ファイル (確定 8 章すべて + index.md) で、節も As-Is / To-Be / Delta だけでなく ## 確定セルの記録 (正本 spec-state.json) / ## 意思決定 (decisions) / ## Dependencies / ## Acceptance evidence / ## 状態の意味 / ## 履歴、index.md では ## 仕様統制と状態軸 / ## 実装依存順 を含む。2026-08-23 に write_docset へ fail-closed と引き継ぎを入れて解消した。既定 (refuse) は生成物に無い節を見つけると 1 ファイルも書かずに中止し、--on-handwritten preserve は手書き節を既存の並び順で引き継ぐ。low として残すのは、compile が出典表を fetched-references から生成する一方で手書き節を本文末尾へ寄せるため、再生成後の節順が現行と変わる点が未確認だからである。",
-      "suggested_fix": "残りは節順の確認のみ。compile --on-handwritten preserve の出力を差分で読み、章の読み順が壊れていないことを確かめてから正本へ適用する。",
+      "observation": "system-spec/*.md の手書き節は C03 compile の生成物ではなく、compile を走らせれば静かに消えていた。**被害範囲は当初の記述より広かった。**本物の章の複製で実測したところ、失われるのは 5 章ではなく 9 ファイル (確定 8 章すべて + index.md) で、節も As-Is / To-Be / Delta だけでなく ## 確定セルの記録 (正本 spec-state.json) / ## 意思決定 (decisions) / ## Dependencies / ## Acceptance evidence / ## 状態の意味 / ## 履歴、index.md では ## 仕様統制と状態軸 / ## 実装依存順 を含む。2026-08-23 に write_docset へ fail-closed と引き継ぎを入れて解消した。既定 (refuse) は生成物に無い節を見つけると 1 ファイルも書かずに中止し、--on-handwritten preserve は手書き節を既存の並び順で引き継ぐ。**ただし preserve でも足りない。**本物の章の複製で測ると、節の引き継ぎ後もなお 351 行が移動ではなく消える。中身は先行質疑 (qa-security-web / qa-ops-web / qa-infra-web-redirect / qa-*-analytics) と、ui-ux の『既存記録との食い違い (均さずに両方残す)』記録である。compile は current qa_ref しか描画せず qa_refs の履歴を落とし、節単位の引き継ぎは生成節の中に人が書き足した小節を守れない。medium のままなのはこのため。黙って通らないよう、preserve でも消える行を数えて stderr へ出すようにした。",
+      "suggested_fix": "compile が qa_refs の先行質疑も描画するようにし、生成節の中の手書き小節も引き継げるようにする。それまで正本へ compile を適用しない。preserve は節を守るだけで安全という意味ではない。",
       "evidence": [
         "本物の章を複製した上での実測: 既定で exit 1、複製 10 件が 1 文字も変化しないことを before/after 比較で確認",
         "--on-handwritten preserve で exit 0、8 章すべてで As-Is / To-Be / Delta が残り、ui-ux は ## 履歴 も残った",
@@ -322,7 +322,7 @@
       "severity": "medium",
       "bucket": "doc_freshness",
       "observation": "同じ事実が fetched-references.json と章 md の「最新ドキュメント出典」表の 2 箇所にあり、参照側だけが更新されて章側が追随していない。better-auth は章 1.6.29 / 参照 1.7.1、owasp-asvs は章 5.0 / 参照 5.0.0、apple-hig は章が取得日 2026-08-16 のままで参照は http-last-modified 由来の 2026-08-06。章 md は読み手が最初に見る面なので、参照側が正しくても読み手には古い値が見える。なお 4 件 (cloudflare-d1 / cloudflare-workers / google-sre / nextjs) は章側も追随済みで、版の欄が取得日のままなのは apple-hig 1 件に減っている。6 観点の判定を落とさないのは、正本である fetched-references の値が正しく、章側の乖離が写しの遅れであって出所の欠落ではないためである。",
-      "suggested_fix": "compile は既に出典表を fetched-references から生成する。走らせられなかったのは手書き節が消えるためで、その fail-closed と引き継ぎが 2026-08-23 に入った。複製上で compile --on-handwritten preserve を走らせると 3 件とも参照側の値になり食い違いは 0 になる (auth 1.6.29→1.7.1 / security 5.0→5.0.0 / ui-ux 2026-08-16→2026-08-06)。つまりこの乖離の原因は二重管理そのものではなく、生成器を止めていたことだった。適用は C01/C03 の単一 writer 経由で行う。",
+      "suggested_fix": "compile は既に出典表を fetched-references から生成する。走らせられなかったのは手書き節が消えるためで、その fail-closed と引き継ぎが 2026-08-23 に入った。複製上で compile --on-handwritten preserve を走らせると 3 件とも参照側の値になり食い違いは 0 になる (auth 1.6.29→1.7.1 / security 5.0→5.0.0 / ui-ux 2026-08-16→2026-08-06)。つまりこの乖離の原因は二重管理そのものではなく生成器を止めていたこと。**ただし今 compile を走らせると先行質疑と食い違い記録の計 351 行が失われる**ので、regeneration finding の 2 点 (qa_refs の描画・小節の引き継ぎ) を先に直す。3 件だけを手で直す道もあるが、それは二重管理を続ける選択になる。適用は C01/C03 の単一 writer 経由。",
       "evidence": [
         "tests/architecture/doc-source-version-gap.test.ts 『章 md と fetched-references の食い違いは既知の 3 件だけ』が 3 件を固定 (2026-08-23 に検査の向きを反転させた)",
         "章側が追随済み: cloudflare-d1=2026-04-30 / cloudflare-workers=2026-04-23 / google-sre=2017 / nextjs=16.3.2",
@@ -384,12 +384,13 @@
     }
   ],
   "gaps": [
-    "章 md の出典表 3 件 (better-auth 1.6.29→1.7.1 / owasp-asvs 5.0→5.0.0 / apple-hig 2026-08-16→2026-08-06) をfetched-references の値へ揃える。compile --on-handwritten preserve を正本へ適用すれば食い違いは 0 になることを複製上で実測済みで、残る判断は再生成後の節順を差分で確かめることだけ。適用は C01/C03 の単一 writer 経由で行う"
+    "compile が qa_refs の先行質疑を描画せず、生成節の中の手書き小節も引き継げない。正本へ適用すると 351 行 (先行質疑 4 件と ui-ux の食い違い記録) が消える。それまで compile を正本へ適用しない",
+    "章 md の出典表 3 件 (better-auth 1.6.29→1.7.1 / owasp-asvs 5.0→5.0.0 / apple-hig 2026-08-16→2026-08-06) がfetched-references と食い違う。compile を安全に走らせられるようになれば同時に解消することを複製上で実測済み"
   ],
   "inputs": {
     "file_count": 28,
     "sha256": "8361108142ac76e73b0bbabb70112bf803024d323312262a79e87858e4aa9cd9",
-    "pinned_at": "2026-08-23T17:40:00Z",
+    "pinned_at": "2026-08-23T18:05:00Z",
     "files": [
       {
         "path": "docs/spec/00-README.md",

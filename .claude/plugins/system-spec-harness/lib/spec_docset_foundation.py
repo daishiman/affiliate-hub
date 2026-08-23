@@ -264,11 +264,27 @@ def handwritten_sections(existing: str, generated: str) -> "list[str]":
     return [h for h in _section_map(existing) if h not in gen]
 
 
+def vanishing_lines(existing: str, final: str) -> "list[str]":
+    """既存本文にあって最終本文のどこにも無くなる非空行を、多重度込みで返す。
+
+    節ごと消えたのか末尾へ移っただけなのかは、行の多重集合で引けば区別できる。
+    版の更新のように**正しく消える行**もあるので、これは拒否の根拠ではなく報告の材料である。
+    `## 節` 単位の検出では、生成節の中に人が書き足した `###` 小節や表の 1 行が拾えない。
+    """
+    import collections
+
+    old = collections.Counter(l.rstrip() for l in existing.splitlines() if l.strip())
+    new = collections.Counter(l.rstrip() for l in final.splitlines() if l.strip())
+    lost = old - new
+    return [line for line, count in lost.items() for _ in range(count)]
+
+
 def write_docset(
     docset: dict[str, str],
     out_dir: Path,
     *,
     on_handwritten: str = "refuse",
+    loss_report: "list[tuple[str, list[str]]] | None" = None,
 ) -> list[Path]:
     """組み立てた docset を out_dir へ書き出す。書き出したパス一覧を返す。
 
@@ -279,6 +295,10 @@ def write_docset(
     on_handwritten:
       - "refuse"   : 手書き節を見つけたら 1 文字も書かずに中止する (既定)
       - "preserve" : 生成本文の末尾へ手書き節を既存の並び順で引き継いでから書く
+
+    loss_report を渡すと、preserve でもなお消える行を [(ファイル名, [行, ...])] で受け取れる。
+    節を引き継いでも、生成節の中に人が書き足した小節や表の行までは守れない。
+    **preserve は安全という意味ではない。**呼び手はこの報告を読んでから正本へ適用すること。
     """
     if on_handwritten not in ("refuse", "preserve"):
         raise CompileError(f"on_handwritten は refuse|preserve のいずれか (受領: {on_handwritten!r})")
@@ -305,11 +325,16 @@ def write_docset(
     out_dir.mkdir(parents=True, exist_ok=True)
     written: list[Path] = []
     for name, content in docset.items():
+        p = out_dir / name
+        before = p.read_text(encoding="utf-8") if p.is_file() else None
         text = content if content.endswith("\n") else content + "\n"
         if name in carried:
-            existing = _section_map((out_dir / name).read_text(encoding="utf-8"))
+            existing = _section_map(before or "")
             text = text.rstrip("\n") + "\n\n" + "\n".join(existing[h] for h in carried[name])
-        p = out_dir / name
+        if loss_report is not None and before is not None:
+            lost = vanishing_lines(before, text)
+            if lost:
+                loss_report.append((name, lost))
         p.write_text(text, encoding="utf-8")
         written.append(p)
     return written
