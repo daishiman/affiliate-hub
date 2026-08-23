@@ -269,6 +269,49 @@ describe("手元と機械で同じ検査が走る（REQ-CI01 / REQ-CI03）", () 
     // 速い門に置く。遅い段に置くと、push しただけの人には届かない。
     expect(CHECKS.find((c) => c.id === "migration-generated")?.tier).toBe(1);
   });
+
+  it("適用済みマイグレーションの名前を変えず、新しいものは末尾へ足す", () => {
+    /**
+     * D1 はファイル名を適用簿へ保存する。2026-08-24、適用済みの
+     * `0018_lean_valkyrie` を `0020_wise_juggernaut` へ改名したため、同じSQLが
+     * 未適用と判定され、dev公開が止まった。履歴は整形対象ではなく外部DBとの契約である。
+     * 新しいmigrationを作ったときだけ、この配列の末尾へ追記する。
+     */
+    const appliedHistory = [
+      "0000_dry_ken_ellis",
+      "0001_chemical_the_stranger",
+      "0002_oval_rumiko_fujikawa",
+      "0003_organic_blacklash",
+      "0004_numerous_wiccan",
+      "0005_smiling_silver_centurion",
+      "0006_exotic_warstar",
+      "0007_shallow_molten_man",
+      "0008_damp_xorn",
+      "0009_stiff_captain_stacy",
+      "0010_tired_adam_warlock",
+      "0011_fair_talkback",
+      "0012_heavy_magma",
+      "0013_loose_mentor",
+      "0014_dazzling_viper",
+      "0015_ambitious_starhawk",
+      "0016_kind_stick",
+      "0017_careful_namora",
+      "0018_lean_valkyrie",
+      "0019_dapper_gauntlet",
+      "0020_stiff_fabian_cortez",
+      "0021_secret_vin_gonzales",
+    ];
+    const journal = JSON.parse(read("drizzle/meta/_journal.json")) as {
+      entries: Array<{ tag: string }>;
+    };
+    const sqlFiles = readdirSync(join(ROOT, "drizzle"))
+      .filter((name) => name.endsWith(".sql"))
+      .map((name) => name.slice(0, -4))
+      .sort();
+
+    expect(journal.entries.map(({ tag }) => tag)).toEqual(appliedHistory);
+    expect(sqlFiles).toEqual(appliedHistory);
+  });
 });
 
 describe("閾値も検査名も書き写さない（REQ-CI02）", () => {
