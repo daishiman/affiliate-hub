@@ -416,6 +416,9 @@ describe("データの形の変更は、人が起動したときだけ（REQ-CI0
   it("適用の前に控えを取り、期限付きで残す", () => {
     const code = codeOf("migrate.yml");
     expect(code).toContain("wrangler d1 export");
+    expect(code).toContain('test -s "$backup_path"');
+    expect(code).toMatch(/path:\s*backup\//);
+    expect(code).toMatch(/if-no-files-found:\s*error/);
     expect(code).toMatch(/retention-days:\s*30/);
     // 控えを取るステップが、適用のステップより前にあること。
     // 適用は `pnpm db:migrate:*`（wrangler の呼び出しは package.json 側）。
