@@ -7,6 +7,7 @@ import {
 } from "../admin-route-metadata";
 import { FeedbackButton, type FeedbackSubmission } from "../patterns/feedback-button";
 import { NavCollapseToggle } from "../patterns/nav-collapse-toggle";
+import { Icon, type IconName } from "../primitives/icon";
 import styles from "../primitives/ui.module.css";
 
 /**
@@ -36,15 +37,15 @@ export type NavItem = {
    */
   readonly requires: string | null;
   /**
-   * 目印の絵。畳んだときに残るのはこれだけになる。
+   * 目印のアイコン。畳んだときに残るのはこれだけになる。
    *
    * **項目ごとに違う絵にする。** 重なった 2 項目は、畳んだ時点で見分けが付かない。
    * 型を必須にしてあるので、項目を足して絵を忘れると型検査で止まる。
    *
-   * 絵は意味を持たない。意味は `label` が持ち、絵は読み上げから隠す。
-   * 絵に意味を持たせると、その絵を知らない人に何も伝わらない画面になる。
+   * アイコンは意味を持たない。意味は `label` が持ち、読み上げから隠す。
+   * アイコンに意味を持たせると、絵柄を知らない人に何も伝わらない画面になる。
    */
-  readonly icon: string;
+  readonly icon: IconName;
 };
 
 /**
@@ -251,9 +252,9 @@ export function AppShell({
         // 色と太さだけでなく、読み上げにも現在地を伝える
         aria-current={current ? "page" : undefined}
       >
-        {/* 目印は意味を持たない。意味は次の文字が持つので、読み上げからは隠す。 */}
-        <span className={styles.navIcon} aria-hidden="true">
-          {item.icon}
+        {/* 目印は意味を持たない。意味は次の文字が持ち、Icon 自身が読み上げから隠れる。 */}
+        <span className={styles.navIcon}>
+          <Icon name={item.icon} size="md" />
         </span>
         {/* 畳んだときに潰れるのはこの文字だけ。読み上げには残る。 */}
         <span className={styles.navLabel}>{item.label}</span>

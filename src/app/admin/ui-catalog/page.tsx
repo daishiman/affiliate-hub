@@ -23,6 +23,7 @@ import {
   FactSourceBadge,
   FactualityBadge,
   FilterBar,
+  Icon,
   LoadingView,
   MaterialReview,
   ModelPicker,
@@ -270,16 +271,21 @@ export default function UiCatalogPage() {
       </Section>
 
       <Section title="3. 事実と推測の区別" lead={<>
-          色だけで区別しません。記号と文字を必ず添えます。
+          色だけで区別しません。アイコンと文字を必ず添えます。
         </>}
       >
+        <Row>
+          <span><Icon name="home" /> ホーム</span>
+          <span><Icon name="article" /> 記事</span>
+          <span><Icon name="analytics" /> 数字</span>
+        </Row>
         <Row>
           <FactualityBadge kind="fact" />
           <FactualityBadge kind="inference" />
           <FactualityBadge kind="opinion" />
         </Row>
         <Prose>
-          事実であっても、どこから来た値かで確からしさが違います。出どころも記号と文字で示します。
+          事実であっても、どこから来た値かで確からしさが違います。出どころもアイコンと文字で示します。
         </Prose>
         <Row>
           {FACT_SOURCES.map((source) => (

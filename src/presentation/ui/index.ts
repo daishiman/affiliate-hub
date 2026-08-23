@@ -35,6 +35,7 @@ export { ActionButton } from "./primitives/action-button";
 export { Callout, type CalloutTone } from "./primitives/callout";
 export { ActionNote } from "./primitives/action-note";
 export { LoadingView, EmptyView, ErrorView } from "./primitives/state-view";
+export { Icon, type IconName, type IconSize } from "./primitives/icon";
 /* 節の見出し。`level` は必須で、文書階層 2〜4 をそのまま渡す。 */
 export { SectionHeading, type SectionHeadingLevel } from "./primitives/heading";
 /* 注記の段落。余白も `className` も持たない。寄せてはいけないものは `note.tsx` の doc。 */
