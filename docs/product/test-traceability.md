@@ -6,8 +6,8 @@
 テスト側の `@req` 印を重ねたもの。
 
 - 最終更新: 2026-08-24
-- テストファイル: 270 件
-- 由来の要件が分かる: 268 件
+- テストファイル: 273 件
+- 由来の要件が分かる: 271 件
 - **由来不明: 2 件**（上限 2 件）
 
 由来不明とは「どの要件のために書いたのか、機械から辿れない」という意味で、
@@ -146,6 +146,7 @@
 | `tests/infrastructure/channel-connector.test.ts` | REQ-P08 | 表 |
 | `tests/infrastructure/d1-affiliate-link-offers.test.ts` | REQ-E12, REQ-E13 | 印 |
 | `tests/infrastructure/d1-conversion-repository.test.ts` | REQ-P09 | 表 |
+| `tests/infrastructure/d1-guideline-reference-repository.test.ts` | REQ-SEO05 | 印 |
 | `tests/infrastructure/d1-link-inbox.test.ts` | REQ-P02, REQ-S02 | 印 |
 | `tests/infrastructure/d1-product-repository.test.ts` | REQ-B01 | 印 |
 | `tests/infrastructure/d1-site-repository.test.ts` | REQ-B01 | 印 |
@@ -198,6 +199,7 @@
 | `tests/presentation/feedback-tools.test.ts` | REQ-WB02 | 印 |
 | `tests/presentation/flag-decisions-separated.test.ts` | REQ-M03, REQ-WB02, REQ-WC04 | 印と表 |
 | `tests/presentation/go-route.test.ts` | REQ-E13 | 印 |
+| `tests/presentation/guideline-reference-actions.test.ts` | REQ-SEO05 | 印 |
 | `tests/presentation/improvement-actions.test.ts` | REQ-IM06, REQ-IM09 | 印と表 |
 | `tests/presentation/llm-credential-actions.test.ts` | REQ-SEC01 | 印 |
 | `tests/presentation/llm-credential-entry.test.ts` | REQ-SEC01 | 印 |
@@ -244,6 +246,7 @@
 | `tests/ui/feedback-button.test.tsx` | REQ-FB02, REQ-FB03, REQ-FB04 | 印と表 |
 | `tests/ui/flex-row-shape.test.ts` | REQ-S09 | 印 |
 | `tests/ui/grid-stretch-align.test.ts` | REQ-S09 | 印 |
+| `tests/ui/guideline-reference-page.test.tsx` | REQ-SEO05 | 印 |
 | `tests/ui/header-wrap-shape.test.ts` | REQ-S09 | 印 |
 | `tests/ui/heading-is-visible.test.ts` | REQ-S09, REQ-TS06 | 印 |
 | `tests/ui/improvement-forms.test.tsx` | REQ-IM09 | 印と表 |
@@ -290,4 +293,4 @@
 | `tests/ui/uiux-spacing-and-copy.test.ts` | REQ-UX08, REQ-UX10 | 印と表 |
 | `tests/ui/zz-probe-tone.test.tsx` | REQ-TM07 | 表 |
 | `tests/visual/visual-regression.test.ts` | REQ-S09, REQ-TS12, REQ-UX08 | 印 |
-<!-- 生成物の指紋 sha256:4ba4ce5ada19e2ddd2c317e998a8a38fdc40cde60f1316e913c8d8cf73d5a841 -->
+<!-- 生成物の指紋 sha256:6982cf44915fc66d820789f99c5fc143edc853d2e35a0e92cddb3cc2726c95cf -->

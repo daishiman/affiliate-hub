@@ -785,6 +785,8 @@ export const AUDIT_ACTION_LABEL: Readonly<Record<AuditAction, string>> = {
   "ranking_model.changed": "評価基準を変えた",
   "disclosure.changed": "広告表記を変えた",
   "policy_rule.changed": "表記のきまりを変えた",
+  "guideline_reference.registered": "SEO/AI 指針の出典を登録した",
+  "guideline_reference.rechecked": "SEO/AI 指針の出典を再確認した",
   // 受信箱の 3 語。読む人が「受け取り → 宛先決め → 対象外」の順で追えるようにする。
   "affiliate_link.created": "成果リンクを受け取った",
   "affiliate_link.changed": "成果リンクの宛先を決めた",

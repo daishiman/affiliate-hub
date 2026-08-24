@@ -1248,6 +1248,7 @@ export async function guidelineReferenceEntry(): Promise<GuidelineReferenceEntry
     ready: true,
     manage: createManageGuidelineReferencesUseCase({
       references: createD1GuidelineReferenceRepository({ db, now: () => new Date() }),
+      auditLog: deps.auditLog,
       ids: deps.ids,
       now: () => new Date(),
     }),

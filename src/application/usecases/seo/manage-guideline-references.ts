@@ -1,4 +1,5 @@
-import type { IdGeneratorPort } from "@/application/ports/common";
+import { type AuditClock, auditWriteFailure, buildAuditEntry } from "@/application/audit";
+import type { AuditLogPort } from "@/application/ports/compliance";
 import type { GuidelineReferencePort } from "@/application/ports/guideline-reference";
 import { requireCapability } from "@/domain/identity";
 import {
@@ -33,11 +34,18 @@ import type { UseCase } from "../usecase";
  * --- 権限 ---
  * 一覧は `content.read`（記事を書く人が根拠の鮮度を読むため）。
  * 登録と再確認は `site.manage`（サイトの運用方針を決める人の操作）。
+ *
+ * --- 記録を残す（`deps.auditLog.append` をこのファイルに置く理由） ---
+ * 出典は「何を根拠に広告表記や AI 向けの作りを決めたか」の証跡である。
+ * 規制対応で問われるのはきまりの中身だけでなく、**誰がいつ何を見て
+ * そう決めたか**なので、登録と再確認は操作の記録に残す。
+ * 呼び出しを共通の補助関数へ引き上げないのは `src/application/audit.ts`
+ * に書いたとおり（同じファイルの中でしか辿られない）。
  */
-export type ManageGuidelineReferencesDeps = {
+/** `AuditClock` が `ids` と `now` を持つ（記録の採番と日時に同じものを使う）。 */
+export type ManageGuidelineReferencesDeps = AuditClock & {
   readonly references: GuidelineReferencePort;
-  readonly ids: IdGeneratorPort;
-  readonly now: () => Date;
+  readonly auditLog: AuditLogPort;
 };
 
 export type ManageGuidelineReferencesInput =
@@ -125,11 +133,31 @@ export function createManageGuidelineReferencesUseCase(
       if (input.action === "add") {
         const checked = checkAddInput(input);
         if (!checked.ok) return checked;
+        const id = `gr_${deps.ids.newId()}`;
         const added = await deps.references.add({
           workspaceId: actor.workspaceId,
-          reference: { id: `gr_${deps.ids.newId()}`, ...checked.value },
+          reference: { id, ...checked.value },
         });
         if (!added.ok) return added;
+
+        const entry = buildAuditEntry(deps, actor, {
+          action: "guideline_reference.registered",
+          targetType: "guideline_reference",
+          targetId: id,
+          before: null,
+          after: {
+            title: checked.value.title,
+            url: checked.value.url,
+            publisher: checked.value.publisher,
+            region: checked.value.region,
+            checkedAt: checked.value.checkedAt,
+          },
+        });
+        if (!entry.ok) return entry;
+        const appended = await deps.auditLog.append(entry.value);
+        if (!appended.ok) {
+          return err(auditWriteFailure(`${checked.value.title} は登録されています`, { id }));
+        }
       }
 
       if (input.action === "recheck") {
@@ -145,6 +173,24 @@ export function createManageGuidelineReferencesUseCase(
           checkedAt: input.checkedAt,
         });
         if (!updated.ok) return updated;
+
+        const entry = buildAuditEntry(deps, actor, {
+          action: "guideline_reference.rechecked",
+          targetType: "guideline_reference",
+          targetId: input.id,
+          before: null,
+          after: { checkedAt: input.checkedAt },
+        });
+        if (!entry.ok) return entry;
+        const appended = await deps.auditLog.append(entry.value);
+        if (!appended.ok) {
+          return err(
+            auditWriteFailure("確認日は更新されています", {
+              id: input.id,
+              checkedAt: input.checkedAt,
+            }),
+          );
+        }
       }
 
       const stored = await deps.references.list(actor.workspaceId);

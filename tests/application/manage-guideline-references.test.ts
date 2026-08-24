@@ -1,20 +1,29 @@
 /** @tier 1 */
 import { describe, expect, it } from "vitest";
+import type { AuditLogPort } from "@/application/ports/compliance";
 import type { GuidelineReferencePort } from "@/application/ports/guideline-reference";
 import { createManageGuidelineReferencesUseCase } from "@/application/usecases/seo/manage-guideline-references";
 import {
   INITIAL_GUIDELINE_REFERENCES,
   type GuidelineReference,
 } from "@/domain/seo/guideline-reference";
-import { asWorkspaceId, domainError, err, ok } from "@/domain/shared";
-import type { ActorContext, WorkspaceId } from "@/domain/shared";
+import type { AuditLogEntry } from "@/domain/compliance";
+import { asWorkspaceId, domainError, err, ok, taggedString } from "@/domain/shared";
+import type { ActorContext, AuditLogId, WorkspaceId } from "@/domain/shared";
 
 /**
  * SEO/AI 指針の出典レジストリ (feat-blog-ui-builder 受入条件 5)。
  *
- * 見ているのは 4 つ。
+ * 見ているのは 5 つ。
  * ①権限の無い人が登録できない ②90 日ちょうどは fresh、超えたら再確認
- * ③初期候補は一覧に出るが、開いただけでは保存されない ④入力の検査が欄名まで返す。
+ * ③初期候補は一覧に出るが、開いただけでは保存されない ④入力の検査が欄名まで返す
+ * ⑤登録と再確認が操作の記録に残る。
+ *
+ * ⑤を足した理由（2026-08-24）: 出典は「何を根拠にきまりを決めたか」の証跡で、
+ * 誰がいつ見たかが残らないと、後から確認作業が行われたことを示せない。
+ * `scripts/port-wiring.mjs` は「書き込みなのに記録へ届いていない入口」として
+ * ここを数え上げた。数の見張りだけでは記録の**中身**が正しいかまでは見えないので、
+ * 語・対象・`after` の中身をこちらで押さえる。
  *
  * @req REQ-SEC01
  * @types permission-matrix, boundary
@@ -28,6 +37,9 @@ const actor = (role: string): ActorContext =>
     userId: "u_1",
     roles: [role],
     isAiServiceAccount: false,
+    // 記録は身元の確かめられていない操作を受け付けない。ここを落とすと
+    // 登録そのものではなく記録の組み立てで断られ、原因が見えなくなる。
+    identified: true,
   }) as unknown as ActorContext;
 
 function ref(over: Partial<GuidelineReference> = {}): GuidelineReference {
@@ -83,18 +95,48 @@ function fakePort(stored: readonly GuidelineReference[] = [], failing?: PortFail
   return { port, calls, seen };
 }
 
+/**
+ * 操作の記録の偽ポート。`append` に渡された記録そのものを残す。
+ *
+ * 件数だけ数えると、`add` の記録が 2 回書かれても、再確認の語が
+ * 登録の語のまま出ていても緑になる。語と対象を後から読めるようにしておく。
+ */
+function fakeAuditLog(failing = false) {
+  const entries: AuditLogEntry[] = [];
+  const port: AuditLogPort = {
+    async append(entry) {
+      if (failing) return err(domainError("UPSTREAM_UNAVAILABLE", "記録を書けません。"));
+      entries.push(entry);
+      return ok(taggedString<"AuditLogId">("al_1") as AuditLogId);
+    },
+    async listByTarget() {
+      return ok([]);
+    },
+    async search() {
+      return ok({ items: [], nextCursor: null });
+    },
+  };
+  return { port, entries };
+}
+
 function usecase(
   stored: readonly GuidelineReference[] = [],
   today = "2026-08-24",
-  options: { readonly failing?: PortFailure; readonly newId?: string } = {},
+  options: {
+    readonly failing?: PortFailure;
+    readonly newId?: string;
+    readonly auditFailing?: boolean;
+  } = {},
 ) {
   const { port, calls, seen } = fakePort(stored, options.failing);
+  const audit = fakeAuditLog(options.auditFailing ?? false);
   const manage = createManageGuidelineReferencesUseCase({
     references: port,
+    auditLog: audit.port,
     ids: { newId: () => options.newId ?? "id_1" },
     now: () => new Date(`${today}T00:00:00Z`),
   });
-  return { manage, calls, seen };
+  return { manage, calls, seen, audit: audit.entries };
 }
 
 /** 正しい `add` の入力。1 欄だけ壊して断りを見るための土台。 */
@@ -376,6 +418,7 @@ describe("一覧の並びと判定の基準日", () => {
     const { port } = fakePort(stored);
     const manage = createManageGuidelineReferencesUseCase({
       references: port,
+      auditLog: fakeAuditLog().port,
       ids: { newId: () => "id_1" },
       now: () => new Date("2026-08-24T23:59:59Z"),
     });
@@ -411,5 +454,84 @@ describe("権限の分かれ目", () => {
     if (!updated.ok) expect(updated.error.code).toBe("FORBIDDEN");
     expect(calls.updateCheckedAt).toBe(0);
     expect(calls.list).toBe(0);
+  });
+});
+
+describe("操作の記録", () => {
+  it("登録すると、採番した id を対象にした登録の記録が 1 件だけ残る", async () => {
+    const { manage, audit, seen } = usecase([], "2026-08-24", { newId: "n1" });
+    const added = await manage.execute(actor("owner"), addInput());
+    expect(added.ok).toBe(true);
+    expect(audit).toHaveLength(1);
+    expect(audit[0].action).toBe("guideline_reference.registered");
+    expect(audit[0].targetType).toBe("guideline_reference");
+    // 保存した行と同じ id を指す。別の id を書くと履歴からその出典へ辿れない。
+    expect(audit[0].targetId).toBe(seen.added?.id);
+    expect(audit[0].targetId).toBe("gr_n1");
+    expect(audit[0].after).toMatchObject({
+      title: "総務省のガイドライン",
+      url: "https://www.soumu.go.jp/example",
+      publisher: "総務省",
+      region: "jp",
+      checkedAt: "2026-08-24",
+    });
+  });
+
+  it("再確認は登録とは別の語で、動いた確認日だけを残す", async () => {
+    const { manage, audit } = usecase([ref({ id: "gr_x" })]);
+    const done = await manage.execute(actor("owner"), {
+      action: "recheck",
+      id: "gr_x",
+      checkedAt: "2026-08-24",
+    });
+    expect(done.ok).toBe(true);
+    expect(audit).toHaveLength(1);
+    expect(audit[0].action).toBe("guideline_reference.rechecked");
+    expect(audit[0].targetId).toBe("gr_x");
+    expect(audit[0].after).toEqual({ checkedAt: "2026-08-24" });
+  });
+
+  it("一覧を開いただけでは記録を書かない（読んだことは操作ではない）", async () => {
+    const { manage, audit } = usecase([ref()]);
+    const listed = await manage.execute(actor("owner"), { action: "list" });
+    expect(listed.ok).toBe(true);
+    expect(audit).toHaveLength(0);
+  });
+
+  it("入力が断られたときは記録を書かない（起きなかった操作を残さない）", async () => {
+    const { manage, audit } = usecase();
+    const refused = await manage.execute(actor("owner"), addInput({ url: "http://example.com" }));
+    expect(refused.ok).toBe(false);
+    expect(audit).toHaveLength(0);
+  });
+
+  it("保存が落ちたときは記録を書かない（保存されていない出典が履歴に残らない）", async () => {
+    const { manage, audit } = usecase([], "2026-08-24", { failing: "add" });
+    const failed = await manage.execute(actor("owner"), addInput());
+    expect(failed.ok).toBe(false);
+    expect(audit).toHaveLength(0);
+  });
+
+  it("記録だけ書けなかったときは、保存は済んでいることまで断り文に書く", async () => {
+    const { manage, calls } = usecase([], "2026-08-24", { auditFailing: true });
+    const failed = await manage.execute(actor("owner"), addInput());
+    expect(failed.ok).toBe(false);
+    if (failed.ok) return;
+    expect(failed.error.code).toBe("UPSTREAM_UNAVAILABLE");
+    // 押した人が「もう一度押してよいか」を判断できる必要がある。
+    expect(failed.error.message).toContain("登録されています");
+    expect(calls.add).toBe(1);
+  });
+
+  it("再確認で記録だけ書けなかったときも、確認日は動いていることを書く", async () => {
+    const { manage, seen } = usecase([ref({ id: "gr_x" })], "2026-08-24", { auditFailing: true });
+    const failed = await manage.execute(actor("owner"), {
+      action: "recheck",
+      id: "gr_x",
+      checkedAt: "2026-08-24",
+    });
+    expect(failed.ok).toBe(false);
+    if (!failed.ok) expect(failed.error.message).toContain("確認日は更新されています");
+    expect(seen.checked).toEqual({ id: "gr_x", checkedAt: "2026-08-24" });
   });
 });
