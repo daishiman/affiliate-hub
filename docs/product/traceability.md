@@ -1176,6 +1176,39 @@ R 節・S 節の 15 件（テストと自動チェック）も、同じやり方
 最小の反例は `tests/domain/link-ingestion.test.ts` に例として写してある
 （性質テストは毎回違う入力を試すので、同じ壊れ方の再現を保証しない）。
 
+### SEO / AI 検索 (feat-blog-ui-builder・2026-08-24 追加)
+
+利用者要望「SEO と、AI 検索（AI Overviews / 生成 AI の引用）にも評価される仕組み」への行。
+出典 4 件（Google AI 最適化ガイド / AI features / llms.txt 提案 / IndexNow）は WebSearch で
+存在・発行元・要旨を確認したのみで**本文全文は未取得**。その但し書きは実装側
+（`src/domain/seo/guideline-reference.ts` の note）にも残している。llms.txt は提案段階の標準で
+Google は不使用を明言、IndexNow は Bing/Yandex 系のみで Google 非対応——効果の限定は要件の一部である。
+
+| REQ | 要件 | 実装 | 画面 | 導線 | 状態 | RWD | a11y | test | 結果 |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| REQ-SEO01 | 画面と機械向け出力を同じ読み取りモデルから出す。構造化データ（BlogPosting / FAQPage / BreadcrumbList）は公開記事の読み取りモデルから pure 関数で生成し、本文と食い違わない | `src/application/seo/structured-data.ts` | — | — | — | — | — | `tests/application/seo/structured-data.test.ts` | 実装済（2026-08-24。テスト緑。壊して測る実測は未収載） |
+| REQ-SEO02 | robots.txt / sitemap.xml / RSS / llms.txt を同じ読み取りモデルから配信する。AI クローラ（GPTBot / ClaudeBot / PerplexityBot / Google-Extended）は既定許可、遮断は設計図側の明示設定のみ | `src/application/seo/feeds.ts` | — | — | — | — | — | `tests/application/seo/feeds.test.ts` | 実装済（同上） |
+| REQ-SEO03 | AI 検索適合の自動監査。結論・要点・FAQ・出典・鮮度の各ブロックの有無を機械判定し、公開前に不足を利用者へ示す（推定効果値を受入条件に置かない） | `src/application/seo/ai-search-audit.ts` | — | — | — | — | — | `tests/application/seo/ai-search-audit.test.ts` | 実装済（同上） |
+| REQ-SEO04 | 公開時の IndexNow 通知。鍵はサーバー環境変数 `INDEXNOW_KEY` からのみ読み、リポジトリ・管理画面・DB に保存せずログにも出さない。鍵ファイルのホスト配信は所有権証明そのもの。鍵が無ければ送信をスキップし、スキップしたことを結果として返す | `src/domain/seo/indexnow.ts`、`src/app/indexnow.txt/route.ts`、`src/presentation/composition.ts` の `notifyIndexNowOfPublish` | — | — | — | — | — | `tests/domain/seo/indexnow.test.ts` | 実装済（同上） |
+| REQ-SEO05 | SEO / AI 指針の参照レジストリ。各指針は確認日（checkedAt）を必ず持ち、90 日を超えたら review_due として見直しを促す。読めない日付は fresh 扱いにしない | `src/domain/seo/guideline-reference.ts` | — | — | — | — | — | `tests/domain/seo/guideline-reference.test.ts` | 実装済（同上） |
+
+### ブログの型と配色 (feat-blog-ui-builder・2026-08-24 追加)
+
+テンプレート（記事の並び方）と配色の 2 層は、**差し替えても既存の記事が壊れない**
+ことを前提に置いている。テンプレートは並び方だけを決め、記事のブロックを
+落とさない・消さない。配色はブログ既定とページ単位の上書きの 2 層で、
+上書きを外せば既定へ戻る。
+
+**2026-08-24 にこの 2 行を足した理由。** 実装 (`src/domain/authoring/blog-template.ts`) は
+先に入っていたが、この表にも性質の宣言表にも行が無く、テストも 1 本も無かった。
+変更範囲のミューテーション実測で **165 変異すべてが未検査 (スコア 0.00%)** として出た
+——「テンプレートを差し替えても壊れない」を、機械は 1 つも確かめていなかった。
+
+| REQ | 要件 | 実装 | 画面 | 導線 | 状態 | RWD | a11y | test | 結果 |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| REQ-BLOG01 | ブログの型（テンプレート）は記事の並び方だけを決める。差し替えても記事のブロックは 1 つも落ちない（並びに無い種類は末尾へ元の順で残す）。スロットの差し替え先が無いときは黙って空にせず fallback を出す | `src/domain/authoring/blog-template.ts`（`BLOG_TEMPLATES` 6 種・`orderBlocksForTemplate`・`fillSlots`・`findBlogTemplate`） | 未接続（ah-6lf.4） | — | 知らない型 ID は `null`（既定へ落とす判断は呼び出し側） | — | — | `tests/domain/authoring/blog-template.test.ts` | 実装済（2026-08-24 にテストを追加。画面への接続は ah-6lf.4） |
+| REQ-BLOG02 | 配色は 2 層（ブログ既定 `blog_theme` とページ単位の上書き `page_theme_override`）。上書きを外す（`null`）とブログ既定へ戻る。片方の欄だけの上書きは、その欄だけが効く | `src/domain/authoring/blog-template.ts`（`resolvePageTheme`・`BlogTheme`・`PageThemeOverride`）。値は `tokens.css` の `light-dark()` を選ぶ属性名であって色そのものではない | 未接続（ah-6lf.4） | — | 上書きなし（`null`）/ 一部上書き / 全部上書き | — | — | `tests/domain/authoring/blog-template.test.ts` | 実装済（同上） |
+
 ### この表と `docs/product/test-traceability.md` の関係
 
 この表は**要件 → テスト**の向きしか持っていない。逆向き（テスト → 要件）は

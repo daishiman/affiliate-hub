@@ -38,6 +38,26 @@ export function PublishArticleResult({ state }: { state: PublishArticleFormState
             .join(" / ")}`}
         />
       ) : null}
+      {/*
+        AI 検索への備えの点検。出した直後だけが「もう一歩直す」気になる瞬間
+        なので、成功の知らせと同じ画面に出す。全て揃っていれば一言で済ませ、
+        足りない項目は**何をすればよいか**（hint）まで出す。項目名だけ出すと
+        直し方を人に調べさせることになる。
+      */}
+      {state.status === "done" && state.aiSearch !== undefined ? (
+        <Callout
+          tone={state.aiSearch.every((c) => c.ok) ? "success" : "warn"}
+          title={`AI 検索への備え: ${state.aiSearch.filter((c) => c.ok).length}/${state.aiSearch.length}`}
+          reason={
+            state.aiSearch.every((c) => c.ok)
+              ? "結論・更新日・著者・出典・説明文の構造が揃っています。"
+              : state.aiSearch
+                  .filter((c) => !c.ok)
+                  .map((c) => `${c.check} → ${c.hint}`)
+                  .join(" ")
+          }
+        />
+      ) : null}
     </FormResult>
   );
 }

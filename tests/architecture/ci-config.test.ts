@@ -300,6 +300,7 @@ describe("手元と機械で同じ検査が走る（REQ-CI01 / REQ-CI03）", () 
       "0019_dapper_gauntlet",
       "0020_stiff_fabian_cortez",
       "0021_secret_vin_gonzales",
+      "0022_neat_virginia_dare",
     ];
     const journal = JSON.parse(read("drizzle/meta/_journal.json")) as {
       entries: Array<{ tag: string }>;

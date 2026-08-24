@@ -1,6 +1,10 @@
 import { ArticlePage } from "@/presentation/site/article-page";
+import { createArticlePageMetadata } from "@/presentation/site/site-metadata";
 
 export const dynamic = "force-dynamic";
+
+/** 検索結果・SNS・AI 検索へ渡す題名と要約。画面と同じ読み取りモデルから作る。 */
+export const generateMetadata = createArticlePageMetadata("product");
 
 /**
  * 個別レビューの記事。
