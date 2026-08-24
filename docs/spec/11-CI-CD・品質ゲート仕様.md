@@ -74,7 +74,7 @@ CI はこの 1 コマンドを呼ぶ。**CI 側にだけ追加の検査を書か
 | --- | --- | --- |
 | `ci.yml` | push / PR | **なし**（検査だけ） |
 | `branch-flow.yml` | main への PR | **なし**（比較元の枝を見るだけ） |
-| `deploy.yml` | main への push | 本番アプリ |
+| `deploy.yml` | `dev` / `main` への push | 本番アプリ（`dev` では**開発環境のデータの形**も） |
 | `migrate.yml` | 手動起動 + `APPLY` | **本番データ** |
 | `nightly.yml` | **手動のみ**（定例なし・§8-2） | なし（マージも止めない） |
 | `ai-eval.yml` | 手動起動 + `RUN` | **お金**（唯一の従量課金） |
