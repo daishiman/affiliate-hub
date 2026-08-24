@@ -12,7 +12,7 @@ iteration: null
 title: "system-spec compiled specification"
 owners: ["system-spec-harness"]
 created_at: "2026-08-16T12:08:04Z"
-updated_at: "2026-08-23T12:00:00Z"
+updated_at: "2026-08-24T13:30:00Z"
 status: "active"
 depends_on: []
 related_nodes: ["feat-uiux-overhaul"]
@@ -78,9 +78,9 @@ implementation_readiness: {"checked_at":"2026-08-16T12:08:04Z","missing_sections
 | カテゴリ | 章 | 収集状態 | 実装状態 | 検証状態 | 資するゴール | 対応セル |
 |---|---|---|---|---|---|---|
 | データベース (database) | [database.md](./database.md) | 確定 | `partial` (単一D1・運営者3テーブル + Phase 1 読者ドメイン) | `unverified` | G1 G2 | database.web database.mobile database.tablet database.desktop-windows database.desktop-linux database.desktop-macos |
-| 認証(ログイン) (auth) | [auth.md](./auth.md) | 確定 | `not_started` (現行はMCP_TOKEN) | `unverified` | G1 | auth.web auth.mobile auth.tablet auth.desktop-windows auth.desktop-linux auth.desktop-macos |
+| 認証(ログイン) (auth) | [auth.md](./auth.md) | 確定 | `partial` (Better Auth / Workspace / tenant / capability はローカル実装。Google 実往復と remote D1 は未検証) | `pass` (ローカル受入) / `unverified` (Workers・本番) | G1 | auth.web auth.mobile auth.tablet auth.desktop-windows auth.desktop-linux auth.desktop-macos |
 | UI-UX (ui-ux) | [ui-ux.md](./ui-ux.md) | 確定 | `partial` (管理画面 49 を単一用途へ分割。規則は feat-uiux-overhaul。読者面は対象外) | `unverified` | G1 | ui-ux.web ui-ux.mobile ui-ux.tablet ui-ux.desktop-windows ui-ux.desktop-linux ui-ux.desktop-macos |
-| セキュリティ (security) | [security.md](./security.md) | 確定 | `partial` (PoC認証・環境分離のみ) | `unverified` | G1 | security.web security.mobile security.tablet security.desktop-windows security.desktop-linux security.desktop-macos |
+| セキュリティ (security) | [security.md](./security.md) | 確定 | `partial` (tenant 分離と capability 認可はローカル実装。同意ゲートは未実装) | `unverified` | G1 | security.web security.mobile security.tablet security.desktop-windows security.desktop-linux security.desktop-macos |
 | インフラ (infrastructure) | [infrastructure.md](./infrastructure.md) | 確定 | `partial` (Workers・単一D1・R2) | `unverified` | G2 G1 | infrastructure.web infrastructure.mobile infrastructure.tablet infrastructure.desktop-windows infrastructure.desktop-linux infrastructure.desktop-macos |
 | バックエンド (backend) | [backend.md](./backend.md) | 確定 | `partial` (3 MCPツールのPoC) | `unverified` | G2 G1 | backend.web backend.mobile backend.tablet backend.desktop-windows backend.desktop-linux backend.desktop-macos |
 | フロントエンド (frontend) | [frontend.md](./frontend.md) | 確定 | `partial` (管理画面の共通部品 3 段と CRUD。公開面は feat-uiux-overhaul の対象外) | `unverified` | G1 G2 | frontend.web frontend.mobile frontend.tablet frontend.desktop-windows frontend.desktop-linux frontend.desktop-macos |
@@ -112,6 +112,10 @@ implementation_readiness: {"checked_at":"2026-08-16T12:08:04Z","missing_sections
 ## 実装からの書き戻し（feat-uiux-overhaul）
 
 2026-08-23 時点で、運営者面の UI/UX 全面改善は実装受入に合格し、未公開である。章の質疑録への投影（`qa-uiux-web-overhaul-v2` ほか）と、画面規則の正本（`docs/spec/feat-uiux-overhaul/`）の所在は [`docs/spec/feat-uiux-overhaul/spec-writeback-receipt.md`](../docs/spec/feat-uiux-overhaul/spec-writeback-receipt.md) に受領した。`system-spec/*.md` を手で太らせて completeness を緑にはしていない。
+
+## 実装からの書き戻し（feat-auth-workspace / 2026-08-24）
+
+認証章 `system-spec/auth.md` は R4 reopen で実装投影だけを更新済み。本ファイルは completeness 指紋の外にある投影であり、上表の auth / security 実装状態を 2026-08-24 の実測へ揃えた。`system-spec/index.md` は C03 compile 出力のため、再 compile が手書き節を落とす既知リスク（`ah-a0o`）がある間は触らない。受領は [`docs/spec-writeback-receipt.md`](../docs/spec-writeback-receipt.md)。
 
 ## 全体ドキュメント出典 (未割当参照)
 

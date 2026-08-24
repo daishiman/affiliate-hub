@@ -12,7 +12,7 @@ iteration: null
 title: "広告表示・コンプライアンス"
 owners: ["daishiman"]
 created_at: "2026-08-16T12:20:00Z"
-updated_at: "2026-08-16T14:35:00Z"
+updated_at: "2026-08-24T13:30:00Z"
 status: "active"
 depends_on: ["feat-affiliate-hub","feat-data-model"]
 related_nodes: ["spec-system-spec-index"]
@@ -43,7 +43,7 @@ github_publication: {"labels":[],"milestone":null,"mode":"local_only","project_a
 github_project_linkages: []
 pull_request_linkages: []
 execution_contexts: []
-completion_evidence: {"completed_at":null,"evidence_refs":[],"policy":"manual","reconciled_at":null,"source":null,"status":"in_progress"}
+completion_evidence: {"completed_at":null,"evidence_refs":["src/app/admin/settings/compliance/page.tsx","src/application/usecases/compliance/manage-compliance.ts","drizzle/0022_orange_mystique.sql","beads:ah-099"],"policy":"manual","reconciled_at":"2026-08-24T13:30:00Z","source":"manual","status":"in_progress"}
 implementation_readiness: {"checked_at":"2026-08-16T13:30:00Z","missing_sections":[],"status":"complete"}
 ---
 
@@ -91,3 +91,7 @@ Disclosure を単一の正本から取得し、必須表示・表示場所・比
 - 生成物: P01..P13 exact 13 executable task specs + 13-node intra-feature DAG
 - 登録先: 全 task を同一 `parent_feature`/`feature_package_id` で C02 経由 atomic 登録する (expected/applied=13)
 - 完了rollup: exact 13 が全 done かつ P07/P10/P11 の evidence が本 feature の受入を満たすときだけ done とする
+
+## 2026-08-24 実装投影
+
+管理画面から広告表記と policy rule を編集し、D1 へ保存する縦切りを追加した（Beads `ah-099`）。記事・AI 回答・WebMCP の 3 経路で同一 Disclosure を返す受入は未達。migration `0022` の remote D1 適用は `ah-6lf.7`。

@@ -12,7 +12,7 @@ iteration: null
 title: "改善要望フィードバック（受け取り → 一覧 → 払い出し）"
 owners: ["daishiman"]
 created_at: "2026-08-17T00:00:00Z"
-updated_at: "2026-08-22T00:00:00Z"
+updated_at: "2026-08-24T13:30:00Z"
 status: "draft"
 depends_on: []
 related_nodes: ["task-telemetry-to-metrics"]
@@ -113,7 +113,8 @@ implementation_readiness: {"checked_at":null,"missing_sections":[],"status":"inc
 
 - 技術診断は `domain/feedback/diagnostics.ts` が保存前に固定語彙へ縮約する。生の例外文・操作ラベル・User-Agent・クエリは残さない
 - 画像の黒塗り数と診断の伏せ数は別の意味。混ぜると「隠したつもり」の件数が嘘になる
-- 要望・鍵の表は D1。画面の写しの置き場（R2）と、診断の保持期限・削除ジョブ（`ah-lqu`）は残課題
+- 要望・鍵の表は D1。画面の写しの置き場（R2）は残課題
+- 技術診断の保持期限と削除ジョブは 2026-08-24 に追加した（Beads `ah-lqu`、`docs/architecture/feedback-loop.md` §2-2）
 
 ## Handoff
 

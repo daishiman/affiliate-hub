@@ -32,6 +32,7 @@
 - 複数 ASP にまたがる案件情報と成果データを 1 か所に集約する
 - 収益の推移を確認できるダッシュボードを提供する
 - 同じデータを **MCP 経由で AI エージェントからも操作できる**
+- 管理画面はログインしていないと開けない。データは作業場所（Workspace）ごとに分かれる（Google ログインの本番実往復は未検証）
 
 ## 技術スタック
 
@@ -42,6 +43,7 @@
 | データベース | Cloudflare D1 + Drizzle ORM |
 | オブジェクトストレージ | Cloudflare R2 |
 | AI 連携 | Remote MCP (`/api/mcp`) + WebMCP (`navigator.modelContext`) |
+| 認証 | Better Auth + Google OAuth（本番実往復は未検証） |
 
 ## セットアップ
 

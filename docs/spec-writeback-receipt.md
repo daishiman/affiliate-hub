@@ -1,6 +1,48 @@
 # 仕様反映 受領書
 
 ```yaml
+receipt_id: spec-writeback-2026-08-24-feat-auth-workspace-final-review-2
+recorded_at: 2026-08-24T13:30:00Z
+beads_ids: [ah-361, ah-361.1, ah-361.2, ah-361.3, ah-361.4, ah-361.5, ah-361.6, ah-361.7, ah-361.8, ah-361.9, ah-361.10, ah-361.11, ah-361.12, ah-361.13, ah-099, ah-lqu, ah-au4, ah-xp8, ah-6hc.5]
+dev_graph_node_id: feat-auth-workspace
+base_branch: dev
+head_branch: devgraph/feat-auth-workspace
+draft_pr: https://github.com/daishiman/affiliate-hub/pull/29
+verdict: accepted-with-release-follow-up
+```
+
+## 2026-08-24 最終レビュー（2回目）の判定
+
+本変更は**確定済みの製品要求を増減しない。** 前回受領（同日 11:45）で `auth.web` の実装投影は正規 R4 済み。今回は実行完了の投影漏れを直した。
+
+| 層 | 今回の反映 |
+|---|---|
+| `docs/` | 実装要件の受入チェック、README、doc-spec-index、setup-tasks、本受領書 |
+| `features/` | `feat-auth-workspace` に draft PR #29 を紐付け。compliance / affiliate / feedback は部分実装の投影のみ（feature 全体は done にしない） |
+| `specs/` | `system-spec-index.md` の auth / security 実装状態を 2026-08-24 実測へ同期 |
+| `system-spec/` | **追加の章本文変更なし。** `index.md` は C03 compile 出力で、再 compile は手書き節欠落リスク（`ah-a0o`）があり、指紋対象のため触らない |
+| `architecture/` | 二層アーキテクチャのテナント検証の現在地を更新 |
+| `tasks/` | P01〜P13 の `completion_evidence` を done にし、実行記録を追記 |
+| Beads | closed 課題へ最終レビューと PR を追記。新規課題は作らない |
+
+### 要求変更が無い判断理由
+
+- Better Auth、Workspace、tenant 分離、広告表記、成果リンク、診断保持は既存 To-Be に含まれる。
+- 今回直したのは完了証跡と投影の遅れであり、新しい画面契約や新しい要求 ID は無い。
+- `system-spec/security.md` の As-Is が「tenant 未実装」のままなのは確定章の直接編集禁止と compile リスクのため。To-Be は変えていない。追随は writer/compile 改善（`ah-u5l` / `ah-a0o`）の後。
+
+### 品質ゲート（本レビュー）
+
+- `validate-system-plan.py --feature-package feature-package/feat-auth-workspace`: PASS、digest `35483f66bb1988fc2b3ede65937a16e41d29637c455a092e3fa463c0c90fbb0c`、13 phase、violations 0
+- 対象試験: `tests/acceptance/feat-auth-workspace` + artifact/tenant/reconciliation 8 files / 67 tests PASS
+- `origin/dev` は本ブランチへ取り込み済み（Already up to date）
+- completeness 指紋対象（`docs/spec/**` / `system-spec/**`）は触っていない
+
+---
+
+## 以前の受領書（2026-08-24 11:45）
+
+```yaml
 receipt_id: spec-writeback-2026-08-24-feat-auth-workspace-final-review
 recorded_at: 2026-08-24T11:45:00Z
 beads_ids: [ah-361, ah-361.1, ah-361.2, ah-361.3, ah-361.4, ah-361.5, ah-361.6, ah-361.7, ah-361.8, ah-361.9, ah-361.10, ah-361.11, ah-361.12, ah-361.13, ah-099, ah-lqu, ah-au4, ah-xp8, ah-6hc.5]

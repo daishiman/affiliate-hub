@@ -15,7 +15,7 @@ created_at: "2026-08-16T13:00:00Z"
 updated_at: "2026-08-23T12:00:00Z"
 status: "active"
 depends_on: []
-related_nodes: ["arch-system-spec-overview", "feat-uiux-overhaul"]
+related_nodes: ["arch-system-spec-overview", "feat-uiux-overhaul", "feat-auth-workspace"]
 resource_scope: ["src/domain/","src/db/schema.ts","src/lib/webmcp/","src/lib/mcp/","docs/spec/04-二層構造統合仕様.md","docs/spec/feat-uiux-overhaul/ui-rules.md"]
 purpose: "プラットフォーム層とブログ層の責務境界、共有ドメインサービス層、禁止依存を実装可能な形で固定する。"
 goal: "管理画面・公開ブログ・WebMCP・バックエンドMCPが同一のドメインサービス層を呼び、ランキング式と品質検査の重複実装が0件である状態。"
@@ -203,12 +203,13 @@ Cloudflare Workers へ OpenNext 経由でデプロイする。マイグレーシ
 | WebMCP 非対応環境での破綻 | ページが動作しない | 能力検出を先に行い、非対応時は通常 UI へフォールバックすることをテストで固定 |
 | 根拠のない主張の公開 | Claim に Evidence が紐づかない記事が公開される | 公開ゲートで BLOCK 判定し、テストで固定 |
 
-現時点の検証状態は未実行である。受け入れ条件はプラットフォーム層 §30.1 から §30.8 をそのまま採用し、結果は `docs/product/traceability.md` の各行へ記録する。
+テナント越境と capability 拒否は、2026-08-24 時点でローカル受入試験が PASS している。受け入れ条件はプラットフォーム層 §30.1 から §30.8 をそのまま採用し、結果は `docs/product/traceability.md` の各行へ記録する。Google OAuth の本番実往復と remote D1 適用は未検証である。
 
-## 実装の現在地（非規範・2026-08-22）
+## 実装の現在地（非規範・2026-08-24）
 
-本章の To-Be と ADR は変えていない。画面の部品と改善要望の診断は、二層の計算層ではなく presentation / feedback コンテキストの実装契約である。
+本章の To-Be と ADR は変えていない。認証 / Workspace 境界、画面の部品、改善要望の診断は、二層の計算層ではなく identity / presentation / feedback コンテキストの実装契約である。
 
+- 入口の門・capability・tenant・拒否監査: `architecture/system-spec-overview.md` の feat-auth-workspace 節、`system-spec/auth.md`
 - 共通 UI の並べ方: `docs/architecture/ui-system.md`（`InlineNav` / `StackedList`）
-- 改善要望の技術診断: `docs/architecture/feedback-loop.md` §2-1
-- 作業単位: Beads `ah-8h2` / graph node `task-worktree-dedup`
+- 改善要望の技術診断と保持期限: `docs/architecture/feedback-loop.md` §2-1 / §2-2
+- 作業単位: Beads `ah-361` / graph node `feat-auth-workspace`。派生は `ah-8h2` / `task-worktree-dedup`
