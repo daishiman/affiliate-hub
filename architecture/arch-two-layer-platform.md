@@ -12,11 +12,11 @@ iteration: null
 title: "二層構造プラットフォームのアーキテクチャ"
 owners: ["app-orchestrator"]
 created_at: "2026-08-16T13:00:00Z"
-updated_at: "2026-08-23T12:00:00Z"
+updated_at: "2026-08-24T12:00:00Z"
 status: "active"
 depends_on: []
-related_nodes: ["arch-system-spec-overview", "feat-uiux-overhaul"]
-resource_scope: ["src/domain/","src/db/schema.ts","src/lib/webmcp/","src/lib/mcp/","docs/spec/04-二層構造統合仕様.md","docs/spec/feat-uiux-overhaul/ui-rules.md"]
+related_nodes: ["arch-system-spec-overview", "feat-uiux-overhaul", "feat-blog-ui-builder"]
+resource_scope: ["src/domain/","src/db/schema.ts","src/lib/webmcp/","src/lib/mcp/","docs/spec/04-二層構造統合仕様.md","docs/spec/feat-uiux-overhaul/ui-rules.md","docs/spec/feat-blog-ui-builder/spec-writeback-receipt.md"]
 purpose: "プラットフォーム層とブログ層の責務境界、共有ドメインサービス層、禁止依存を実装可能な形で固定する。"
 goal: "管理画面・公開ブログ・WebMCP・バックエンドMCPが同一のドメインサービス層を呼び、ランキング式と品質検査の重複実装が0件である状態。"
 scope_in: ["レイヤー境界","32エンティティの正規定義の所在","Editorial/Commercial分離","テナント分離","WebMCP/MCPの二層","生成パイプライン"]
@@ -86,6 +86,10 @@ src/domain/（両層が共通で呼ぶ唯一の計算層）
 達成目標は、管理画面・公開ブログ・WebMCP・バックエンド MCP の4つの入口がすべて同一のドメインサービス層を経由し、ランキング式と品質検査の重複実装が0件である状態である。
 
 対象外は、個別画面のビジュアル詳細（`docs/spec/06` が担う）、文章作成メソッドの本文（`docs/spec/05` が担う）、プロンプト本文とスキル定義（`docs/spec/07` が担う）である。本書はそれらの配置先と依存の向きだけを固定する。
+
+## 実装からの書き戻し（feat-blog-ui-builder / 2026-08-24）
+
+公開ブログの画面描画と機械向け出力（JSON-LD / sitemap / RSS / robots / llms.txt）は、同じ読み取りモデル（`PublishedArticle` / `PublicSiteBlueprint`）から派生させる。報酬・運営情報は読者向け読み取りポートを通さない。詳細と受領は [`docs/spec/feat-blog-ui-builder/spec-writeback-receipt.md`](../docs/spec/feat-blog-ui-builder/spec-writeback-receipt.md)。
 
 ## System context and boundaries
 

@@ -1,9 +1,21 @@
+import type { Metadata } from "next";
 import { readerActor, siteUseCases } from "@/presentation/composition";
+import { siteHomeMetadata } from "@/presentation/site/site-metadata";
 import { SiteFrame } from "@/presentation/site/page-frame";
 import { siteHref, toArticleCards } from "@/presentation/site/view-model";
 import { ArticleList, ErrorView, ListView, Section, SitePage, UI_COPY } from "@/presentation/ui";
 
 export const dynamic = "force-dynamic";
+
+/** ブログ名と目的を検索結果・SNS・AI 検索へ渡す。設計図が正本。 */
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ site: string }>;
+}): Promise<Metadata> {
+  const { site } = await params;
+  return siteHomeMetadata(site);
+}
 
 /**
  * ブログのトップ。

@@ -12,10 +12,10 @@ iteration: null
 title: "system-spec architecture overview"
 owners: ["system-spec-harness"]
 created_at: "2026-08-16T12:08:04Z"
-updated_at: "2026-08-16T12:08:04Z"
+updated_at: "2026-08-24T12:00:00Z"
 status: "active"
 depends_on: []
-related_nodes: []
+related_nodes: ["feat-blog-ui-builder"]
 resource_scope: ["system-spec/00-requirements-definition.md","system-spec/completeness-report.json"]
 purpose: "確定済み system-spec の architecture context を参照可能にする。"
 goal: "仕様由来の architecture context を feature から参照できる状態。"

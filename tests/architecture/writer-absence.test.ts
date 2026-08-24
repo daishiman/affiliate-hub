@@ -292,8 +292,8 @@ describe("B. 採否の欄に書き手が居ない (塞げていないことの�
    * この検査の主張は「`not_applicable` が 1 件も無い」であって、52 は**その 0 件を
    * 出した母数**である。緩める形は逆——`not_applicable` を許す側へ動かすこと。
    */
-  it("`applicability` は 52 件すべて `applied`——不採用が一度も無い", () => {
-    expect(counts).toEqual({ applied: 52 });
+  it("`applicability` は 60 件すべて `applied`——不採用が一度も無い", () => {
+    expect(counts).toEqual({ applied: 60 });
   });
 
   /**
@@ -332,7 +332,7 @@ describe("B. 採否の欄に書き手が居ない (塞げていないことの�
 
   /**
    * 数える側が効いていることを示す。`not_applicable` を書く側が現れた日に、
-   * 上の `{ applied: 52 }` が赤くなる——**そのとき ⑪ が塞がっている。**
+   * 上の `{ applied: 60 }` が赤くなる——**そのとき ⑪ が塞がっている。**
    * 塞がった日に、この describe を「不採用が 1 件以上ある」へ反転させて残すこと。
    */
   it("不採用を 1 件混ぜると数えられる（見つける側が動いている）", () => {
@@ -341,7 +341,7 @@ describe("B. 採否の欄に書き手が居ない (塞げていないことの�
       { design_applications: [{ applicability: "not_applicable" }] },
     ];
     expect(countApplicability(withRejection)).toEqual({
-      applied: 52,
+      applied: 60,
       not_applicable: 1,
     });
   });

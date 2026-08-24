@@ -5,9 +5,9 @@
 要件 → テストの向きは `docs/product/traceability.md` が正本で、ここはその裏返しに
 テスト側の `@req` 印を重ねたもの。
 
-- 最終更新: 2026-08-23
-- テストファイル: 260 件
-- 由来の要件が分かる: 258 件
+- 最終更新: 2026-08-24
+- テストファイル: 269 件
+- 由来の要件が分かる: 267 件
 - **由来不明: 2 件**（上限 2 件）
 
 由来不明とは「どの要件のために書いたのか、機械から辿れない」という意味で、
@@ -42,6 +42,7 @@
 | `tests/application/list-selectable-models.test.ts` | REQ-G11 | 印 |
 | `tests/application/manage-content.test.ts` | REQ-QC11, REQ-R11, REQ-SEC07, REQ-SEC09 | 印と表 |
 | `tests/application/manage-distribution.test.ts` | REQ-A06 | 印と表 |
+| `tests/application/manage-guideline-references.test.ts` | REQ-SEC01 | 印 |
 | `tests/application/manage-llm-credentials.test.ts` | REQ-SEC01, REQ-SEC05 | 印 |
 | `tests/application/manage-members.test.ts` | REQ-P01 | 印 |
 | `tests/application/manage-personas.test.ts` | REQ-A03, REQ-P05, REQ-S04, REQ-W12 | 印と表 |
@@ -55,6 +56,9 @@
 | `tests/application/reader-interaction.test.ts` | REQ-TS01 | 表 |
 | `tests/application/review-loop-runs.test.ts` | REQ-IM01, REQ-IM08, REQ-IM09 | 印 |
 | `tests/application/schedule-publication.test.ts` | REQ-P08 | 印と表 |
+| `tests/application/seo/ai-search-audit.test.ts` | REQ-SEO03 | 印と表 |
+| `tests/application/seo/feeds.test.ts` | REQ-SEO02 | 印と表 |
+| `tests/application/seo/structured-data.test.ts` | REQ-SEO01 | 印と表 |
 | `tests/application/writing-method.test.ts` | REQ-W01, REQ-W02, REQ-W05, REQ-W06, REQ-W07, REQ-W08, REQ-W09 | 印と表 |
 | `tests/architecture/acceptance-reconciliation.test.ts` | REQ-UX01, REQ-UX02, REQ-UX03, REQ-UX04, REQ-UX05, REQ-UX06, REQ-UX07, REQ-UX08, REQ-UX09, REQ-UX10 | 印 |
 | `tests/architecture/ai-eval-budget.test.ts` | REQ-CI13 | 表 |
@@ -127,6 +131,8 @@
 | `tests/domain/quality-check-tables.test.ts` | REQ-QC02, REQ-QC03, REQ-QC06, REQ-QC07, REQ-W12 | 印 |
 | `tests/domain/records-and-metrics.test.ts` | REQ-E32, REQ-SEC09 | 印 |
 | `tests/domain/redirect-resolution.test.ts` | REQ-E13 | 印 |
+| `tests/domain/seo/guideline-reference.test.ts` | REQ-SEO05 | 印と表 |
+| `tests/domain/seo/indexnow.test.ts` | REQ-SEO04 | 印と表 |
 | `tests/domain/site-routes.test.ts` | REQ-B01, REQ-B02, REQ-B03, REQ-B04, REQ-B05, REQ-B06, REQ-B07, REQ-B08, REQ-B09, REQ-B10, REQ-B11, REQ-B13, REQ-B14, REQ-B15, REQ-B16, REQ-B17, REQ-B18, REQ-FB07, REQ-TM10 | 表 |
 | `tests/domain/telemetry-tables.test.ts` | REQ-TM01, REQ-TM04, REQ-TM07, REQ-TM09 | 印と表 |
 | `tests/domain/telemetry.test.ts` | REQ-TM02, REQ-TM03, REQ-TM07, REQ-TM08 | 印と表 |
@@ -197,9 +203,12 @@
 | `tests/presentation/nav-grouping.test.ts` | REQ-S09 | 印 |
 | `tests/presentation/nav-permissions.test.ts` | REQ-FB02, REQ-FB07 | 表 |
 | `tests/presentation/one-usecase-three-adapters.test.ts` | REQ-API01, REQ-API02 | 印と表 |
+| `tests/presentation/publish-article-indexnow.test.ts` | REQ-SEO04 | 印 |
 | `tests/presentation/quality-check-labels.test.ts` | REQ-P06 | 印 |
 | `tests/presentation/reader-tools.test.ts` | REQ-WB01 | 印 |
 | `tests/presentation/readonly-honesty.test.ts` | REQ-WC04 | 印 |
+| `tests/presentation/seo-route-handlers.test.ts` | REQ-SEO02 | 印 |
+| `tests/presentation/site-metadata.test.ts` | REQ-SEO01 | 印 |
 | `tests/presentation/spec-contract.test.ts` | REQ-M01, REQ-M02, REQ-WA01, REQ-WA02 | 印と表 |
 | `tests/presentation/storage-notice.test.ts` | REQ-TS09 | 印 |
 | `tests/presentation/tool-catalog-adapters.test.ts` | REQ-M03, REQ-TS04 | 印と表 |
@@ -280,4 +289,4 @@
 | `tests/ui/uiux-spacing-and-copy.test.ts` | REQ-UX08, REQ-UX10 | 印と表 |
 | `tests/ui/zz-probe-tone.test.tsx` | REQ-TM07 | 表 |
 | `tests/visual/visual-regression.test.ts` | REQ-S09, REQ-TS12, REQ-UX08 | 印 |
-<!-- 生成物の指紋 sha256:4fce91f7059ba21dce12b45362fbb25dbedf4a633bfb29c0642df2d3713e9d84 -->
+<!-- 生成物の指紋 sha256:d6115d2dfbcca3c6ce7b499423b7967c74a2dda292d277e7611da6190ee6e0b9 -->

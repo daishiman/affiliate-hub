@@ -251,6 +251,11 @@
 | REQ-TS17 | has-input | — |
 | REQ-TS18 | has-known-breakage, has-input | — |
 | REQ-TS19 | has-input | — |
+| REQ-SEO01 | has-input | — |
+| REQ-SEO02 | has-input | — |
+| REQ-SEO03 | has-input | — |
+| REQ-SEO04 | has-input | — |
+| REQ-SEO05 | has-input | — |
 | REQ-WA01 | has-input | — |
 | REQ-WA02 | has-input, has-permission | — |
 | REQ-WB01 | has-input, has-permission | — |
@@ -324,7 +329,7 @@ UX08 だけが両方を持つ。余白の**置き場所**（トークンを通�
 
 ## 4. 未宣言の要件について（正直に書く）
 
-要件表には **241 件**の要件 ID がある。上の宣言表はそのうち **234 件**である
+要件表には **265 件**の要件 ID がある。上の宣言表はそのうち **258 件**である
 （`node scripts/required-test-types.mjs` の出力から書き写す。手で数えない。
 ここは長らく 83 と書いたまま古くなっていたことがある。
 **手で書いた数字は、古くなっても古く見えない**）。
@@ -2877,3 +2882,22 @@ FD 群のためだけの名前になっていないことの確認として、�
 
 「重要度が低い」「時間が無い」は理由にしない。
 それはこの表が防ごうとしている「書きやすいところから書く」そのものである。
+
+### 2026-08-24 に足した 5 件: SEO / AI 検索（REQ-SEO01〜05）
+
+feat-blog-ui-builder の SEO / AI 検索対応で要件表に足した 5 件に、
+同じ日のうちに性質を宣言した（未宣言の山へ積まない。**新しく足す要件は宣言しなければ CI が落ちる**の実践）。
+
+5 件とも `has-input`（→ `equivalence` + `boundary`）。印を付けた先と、そこにある分かれ目:
+
+| REQ | 印を付けた先 | そこにある分かれ目 |
+| --- | --- | --- |
+| REQ-SEO01 | `tests/application/seo/structured-data.test.ts` | FAQ 0 件で null / 値中の `<` の逃がし |
+| REQ-SEO02 | `tests/application/seo/feeds.test.ts` | llms.txt を出す・出さないの分岐 / XML の `&` `<` の逃がし |
+| REQ-SEO03 | `tests/application/seo/ai-search-audit.test.ts` | summary 50 字・160 字の境界そのもの / 節 0 件 |
+| REQ-SEO04 | `tests/domain/seo/indexnow.test.ts` | URL 0 件で null / 壊れた origin で null / ポート付き origin |
+| REQ-SEO05 | `tests/domain/seo/guideline-reference.test.ts` | 89・90・91 日の境界 / 読めない日付は review_due に倒す |
+
+`mutation` は宣言に含めない（性質 `has-calculation` を当てていない）。
+実装は `src/domain` / `src/application` にあるため実測で mutation が付くが、
+それは §冒頭の注記どおり自己申告ではなく `docs/product/mutation.md` の実測から来る。

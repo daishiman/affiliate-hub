@@ -96,6 +96,7 @@ const ADMIN_ROUTE_DEFINITIONS = {
   "settings/llm": child("settings", "AI 接続"),
   "settings/members": child("settings", "メンバー"),
   "settings/roles": child("settings", "役割"),
+  "settings/seo": child("settings", "SEO/AI 検索の指針"),
   "settings/workspaces": child("settings", "作業場所"),
 } as const satisfies Record<string, RouteDefinition>;
 
