@@ -4,12 +4,17 @@
 #   dev  へ push  → 試し場（preview 環境）。ここで人が触って確かめる
 #   main へ push  → 本番。承認を経てから出る
 #
-# ここで**データの形は変えない**。マイグレーションは `migrate.yml` の手動実行で、
-# 公開より先に済ませる。順番は常に「データの形の変更 → 公開」。
+# 順番は常に「データの形の変更 → 公開」。
 # 逆にすると、新しいコードが存在しない列を読んで本番が全面エラーになる。
 # その順番は `.github/scripts/require-migrations-applied.sh` が公開の直前に見張る。
-# 決めごとを人の記憶に預けない——migrate は手動・deploy は自動なので、
-# 放っておけば公開のほうが必ず先に走る。
+#
+# **その順番の守らせ方が、出し先で違う。**
+#   本番 … ここでデータの形は変えない。`migrate.yml` の手動起動＋`APPLY` で先に済ませる。
+#          未適用が残っていれば公開が止まる。戻せないものの前には人を立たせる。
+#   dev  … バックアップを取ったうえで、公開の直前に**自動で**適用する。
+#          手動を求めていた頃は、移行を含む変更が必ず一度落ちてから手で流す作法になり、
+#          赤が「何かおかしい」の合図として働かなくなっていた。
+#          dev は人が触って確かめるための場で、壊れても作り直せる。
 #
 # 手元から `wrangler deploy` を打たない理由:
 # wrangler は git のコミットではなく**その場の作業ツリー**をビルドする。
@@ -66,6 +71,20 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
 
+      # **本番だけ、検査一式より前に見る。**
+      # 未適用が残っているかは 30 秒で分かるのに、これを `pnpm run verify`（8 分超）の
+      # 後ろに置いていたせいで、答えの出ている失敗を 8 分待ってから受け取っていた
+      # （2026-08-24 の run #17）。安い判定を高い判定の前へ出す。
+      #
+      # dev は落とさない（`report`）。このあとの自動適用がまさにそれを直すステップで、
+      # ここで落とすとその手前で止まってしまう。
+      # **どちらの設定でも `unknown`（測れなかった）は落ちる。**
+      - name: データの形が追いついているか（先に見る）
+        env:
+          D1_ENV: ${{ github.ref == 'refs/heads/main' && 'production' || 'dev' }}
+          PENDING_ACTION: ${{ github.ref == 'refs/heads/main' && 'fail' || 'report' }}
+        run: bash .github/scripts/require-migrations-applied.sh
+
       # PR で通っていても、ここでもう一度走らせる。
       # 枝へ直接 push された変更は PR の検査を通っていない。
       #
@@ -81,13 +100,60 @@ jobs:
           MUTATION_BASE: ${{ github.event.before || 'HEAD^' }}
         run: pnpm run verify
 
+      # ここから下の 3 ステップは **dev のときだけ**動く。本番では 1 行も走らない。
+      #
+      # なぜ dev だけ自動にするか:
+      # migrate は手動・deploy は自動という非対称のせいで、移行を含む変更は
+      # **必ず一度公開が落ちてから、手で migrate を流して、公開を再実行する**しかなかった。
+      # 失敗が作法になっている状態で、赤は「何かおかしい」の合図として働かなくなる。
+      # dev は人が触って確かめるための場で、壊れても作り直せる。だからここは機械に任せる。
+      #
+      # **本番は今まで通り migrate.yml の手動起動＋`APPLY` のままである。**
+      # 本番データは元に戻せない。戻せないものの前には人を立たせる。
+      - name: 適用前のバックアップ（dev のみ）
+        if: env.IS_PRODUCTION != 'true'
+        run: |
+          mkdir -p backup
+          backup_path="backup/dev-$(date -u +%Y%m%dT%H%M%SZ).sql"
+          pnpm exec wrangler d1 export DB --env dev --remote --output "$backup_path"
+          # 中身が空でないことを確かめる。`wrangler` が 0 で終わっても、
+          # 中身の無いファイルだけ残る場合がある。それを控えと呼ばない。
+          # `test -s` と書かないのは、この語が検査名 `test` の書き写しとして
+          # 見張りに拾われるためで、意味は `[ -s ... ]` と同じである。
+          if [ ! -s "$backup_path" ]; then
+            echo "::error::控えが空です（$backup_path）。適用を中止します。"
+            exit 1
+          fi
+          ls -la backup
+
+      # 落ちても中身が残るように、適用より先に保存する（migrate.yml と同じ順番）。
+      - name: バックアップを保管する（dev のみ）
+        if: env.IS_PRODUCTION != 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: d1-backup-dev-${{ github.run_number }}
+          path: backup/
+          if-no-files-found: error
+          retention-days: 30
+
+      # 未適用が無ければ wrangler が何もせずに終わるので、条件で囲まなくてよい。
+      - name: データの形を合わせる（dev のみ）
+        if: env.IS_PRODUCTION != 'true'
+        run: pnpm db:migrate:dev
+
       # 順番（データの形の変更 → 公開）が守られたかを、人の記憶ではなく機械が見る。
-      # migrate は手動・deploy は自動なので、**放っておくと必ず公開が先に走る**。
-      # 未適用が残っていればここで止まる。止まったら migrate.yml を先に流して、
-      # この公開を再実行する（作り直したコミットは要らない）。
-      - name: データの形が追いついているか
+      #
+      # 本番ではこれが唯一の関門で、未適用が残っていればここで止まる。
+      # 止まったら migrate.yml を先に流して、この公開を再実行する
+      # （作り直したコミットは要らない）。
+      #
+      # dev では上の自動適用が**本当に効いたか**の答え合わせになる。
+      # 「適用を実行した」ではなく「未適用が 0 件になった」を見る。
+      # 適用が黙って空振りしていたら、ここで気づける。
+      - name: データの形が追いついているか（公開の直前）
         env:
           D1_ENV: ${{ github.ref == 'refs/heads/main' && 'production' || 'dev' }}
+          PENDING_ACTION: fail
         run: bash .github/scripts/require-migrations-applied.sh
 
       - name: 公開

@@ -426,11 +426,128 @@ describe("データの形の変更は、人が起動したときだけ（REQ-CI0
     expect(code.indexOf("wrangler d1 export")).toBeLessThan(code.indexOf("db:migrate:"));
   });
 
-  it("deploy.yml はマイグレーションを 1 行も持たない", () => {
+  /**
+   * **2026-08-24 に、この節の見張り方を変えた。**
+   *
+   * それまでは「`deploy.yml` はマイグレーションを 1 行も持たない」と見ていた。
+   * 守りたかったのは *本番で* 公開が先に走らないことなのに、
+   * 見張っていたのは *ファイルに文字列が無いこと* だった。
+   * この 2 つがずれている間、dev では「必ず一度公開に失敗してから、手で
+   * `migrate.yml` を流して、公開を再実行する」が正規の手順になっていた（run #17）。
+   * 失敗が作法になると、赤は「何かおかしい」の合図として働かなくなる。
+   *
+   * いまは dev だけ自動で適用する。**守る対象は本番に絞り、そのぶん強く見る。**
+   */
+  it("dev の自動適用は、控え → 適用 → 未適用 0 件の確認、の順に並ぶ", () => {
+    const code = codeOf("deploy.yml");
+    // 適用してから「戻したい」と言われても戻せない。dev でも控えを先に取る。
+    const backup = code.indexOf("wrangler d1 export");
+    const apply = code.indexOf("db:migrate:dev");
+    const confirm = code.lastIndexOf("require-migrations-applied.sh");
+    expect(backup, "控えを取っていません").toBeGreaterThan(-1);
+    expect(apply, "適用していません").toBeGreaterThan(-1);
+    expect(backup, "控えが適用より後ろにあります").toBeLessThan(apply);
+    // 「適用を実行した」ではなく「未適用が 0 件になった」を見る。
+    // 適用が黙って空振りしたときに気づけるのはこの位置の確認だけである。
+    expect(apply, "適用のあとに未適用 0 件の確認がありません").toBeLessThan(confirm);
+    // 控えは migrate.yml と同じ条件で残す。
+    expect(code).toMatch(/if-no-files-found:\s*error/);
+    expect(code).toMatch(/retention-days:\s*30/);
+  });
+
+  it("未適用かどうかは検査一式より前に見る（本番は、そこで落ちる）", () => {
+    /**
+     * 未適用が残っているかは 30 秒で分かる。
+     * それを `pnpm run verify`（8 分超）の後ろに置いていたせいで、
+     * 答えの出ている失敗を 8 分待ってから受け取っていた（run #17）。
+     * 安い判定は高い判定の前に置く。
+     */
+    const code = codeOf("deploy.yml");
+    const firstCheck = code.indexOf("require-migrations-applied.sh");
+    expect(firstCheck).toBeGreaterThan(-1);
+    expect(firstCheck, "移行の確認が検査一式より後ろにあります").toBeLessThan(
+      code.indexOf("pnpm run verify"),
+    );
+    // 前倒しした側は、dev でだけ緩める（このあとの自動適用が直すため）。
+    // **本番は前倒しした側でも落とす。**枝の判定を消すと、この行が消えて赤くなる。
+    expect(code).toContain(
+      "PENDING_ACTION: ${{ github.ref == 'refs/heads/main' && 'fail' || 'report' }}",
+    );
+  });
+
+  it("公開の直前の関門は、どの環境でも未適用で落とす", () => {
+    const code = codeOf("deploy.yml");
+    const lastCheck = code.lastIndexOf("require-migrations-applied.sh");
+    // 最後の呼び出しが、公開そのものより前にあること。
+    expect(lastCheck, "最後の確認が公開より後ろにあります").toBeLessThan(
+      code.indexOf("pnpm deploy:prod"),
+    );
+    // その呼び出しに渡す設定が `fail` であること。
+    // 直前の `PENDING_ACTION:` の行を見る（緩い設定に差し替えると赤くなる）。
+    const beforeLast = code.slice(0, lastCheck);
+    const settings = beforeLast.match(/PENDING_ACTION:.*/g) ?? [];
+    expect(settings.at(-1), "公開の直前の関門が fail ではありません").toBe(
+      "PENDING_ACTION: fail",
+    );
+  });
+
+  it("『測れなかった』は、緩い設定でも通らない", () => {
+    /**
+     * `report` が緩めてよいのは「未適用がある」だけである。
+     * `unknown`（wrangler が落ちた・出力の形が変わった）まで一緒に緩むと、
+     * **測れていないのに緑**になる。判定の枝ごとに切り分けて見る。
+     */
+    const script = read(".github/scripts/require-migrations-applied.sh");
+    // 書き忘れたら厳しい側へ倒れること。
+    expect(script).toContain('pending_action="${PENDING_ACTION:-fail}"');
+    // 判定不能の枝に、通す道が無いこと。
+    const unknownBranch = script.split("\n  *)\n")[1]?.split(";;")[0] ?? "";
+    expect(unknownBranch, "判定不能の枝が見当たりません").toContain("exit 1");
+    expect(unknownBranch, "判定不能の枝に通す道があります").not.toContain("report");
+  });
+
+  it("deploy.yml のマイグレーションは、本番の経路を 1 行も通らない", () => {
     // 公開とマイグレーションを同じ流れに入れると、順番が逆転した回に本番が落ちる。
-    const body = workflow("deploy.yml");
-    for (const forbidden of ["migrations apply", "d1 migrations", "db:migrate"]) {
-      expect(body, `deploy.yml に ${forbidden} があります`).not.toContain(forbidden);
+    // dev は自動適用に寄せたので「文字列が無いこと」ではもう見張れない。
+    // **本番の経路に 1 行も通らないこと**を見る。
+    const forbidden = ["migrations apply", "d1 migrations", "db:migrate", "d1 export"];
+    const guard = "if: env.IS_PRODUCTION != 'true'";
+    const code = codeOf("deploy.yml");
+
+    /**
+     * ステップの頭で切る。`- name:` / `- uses:` / `- run:` のどれかで 1 つ始まる。
+     *
+     * **数え方（禁止語の数と `guard` の数を比べる）は採らなかった。**
+     * `guard` 付きのステップを 1 つ足すだけで数が釣り合い、
+     * 囲みの無いステップを隣に置いても通ってしまう。
+     * 見たいのは総数ではなく「その語が、囲みの中にあるか」である。
+     */
+    const steps = code.split(/\n(?=\s{6}- (?:name|uses|run):)/);
+
+    /**
+     * 切り方が効いていることを先に確かめる。
+     * 正規表現が当たらないと `steps` は塊 1 つになり、
+     * その塊は `guard` を含むので**下の検査が全部通ってしまう**。
+     * 切れていないことを、緑の理由にしない。
+     */
+    expect(steps.length, "ステップに切り出せていません").toBeGreaterThan(5);
+    for (const step of steps.slice(1)) {
+      const headers = step.match(/^\s{6}- (?:name|uses|run):/gm) ?? [];
+      expect(headers.length, `1 つの塊に複数のステップが入っています:\n${step}`).toBe(1);
+    }
+
+    const hits = steps.filter((step) => forbidden.some((word) => step.includes(word)));
+
+    /**
+     * 禁止語がどこにも無いときに緑になる書き方は、**このテストの用済み化**である。
+     * dev の自動適用ごと消えたら、それは直った証拠ではなく見張る対象が消えた合図。
+     * 少なくとも 1 つは在ることを求め、在るものだけを囲みで見る。
+     */
+    expect(hits.length, "dev の自動適用が見当たりません").toBeGreaterThan(0);
+
+    for (const step of hits) {
+      const head = step.trim().split("\n")[0];
+      expect(step, `本番でも走るステップにマイグレーションがあります: ${head}`).toContain(guard);
     }
   });
 });
