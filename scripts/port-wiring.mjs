@@ -487,6 +487,17 @@ const WRITE_VERBS = [
   // 鍵を預ける。`save` と同じ側だが、預かり所の語彙としては `store` が自然なので
   // 名前を曲げずに語彙のほうを足す。
   "store",
+  // 取り合いの一手（`claimNormalizedUrl` / `releaseNormalizedUrl`）。
+  //
+  // **`claim` は「聞く」ではなく「書く」。**この 2 つは、読んでから書く 2 手に
+  // 分けると同時に呼ばれたとき両方が「無い」を見て両方入ってしまうので、
+  // **一手で決着させる**ことを口の側で要求している（`monetization.ts` の doc）。
+  // 返り値が ID なので読み取りに見えるが、**返る前に必ず書いている。**
+  // `release` は取り分を消す側で、こちらは字面どおり書き込み。
+  //
+  // **返り値の形で読み書きを決めないこと**が、この 2 件の教訓である。
+  "claim",
+  "release",
 ];
 const startsWithVerb = (name, verbs) => verbs.some((v) => name.startsWith(v));
 /** 書き込み / 書き込みでない / 判定できない のどれかを返す。 */

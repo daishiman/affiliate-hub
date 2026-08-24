@@ -32,8 +32,15 @@
     ├── integration/           層をまたぐ 1 周
     ├── architecture/          設計の約束（依存方向・商業データ遮断ほか）
     ├── acceptance/            要求仕様 §30 の受け入れ条件
-    └── evals/                 生成物の評価セット
+    ├── evals/                 生成物の評価セット
+    └── e2e/                   実ブラウザ（Playwright）。signin を除く登録画面の到達と組版
 ```
+
+実ブラウザの入口は `pnpm test:e2e`。本番相当の preview を専用ポートで起動する。
+既定の `pnpm verify`（1 段 + 2 段）には入れない。preview の組み立てが重く、
+速い門から外すと「遅さのために削る」圧力が先に来るためである。
+見た目 5 場面の画像比較は従来どおり `pnpm run visual`（Chrome/CDP）で、
+Playwright 側へ見本を複製しない。
 
 `tests/` の下は **`src/` の層と同じ名前**にする。
 「この関数のテストはどこか」を考えなくてよくするため。

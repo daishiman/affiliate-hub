@@ -6,8 +6,8 @@
 **製品コード（`src/application` `src/presentation` `src/app`）から**
 呼ばれていないポートの手続きの一覧。テストからの呼び出しは数えない。
 
-- ポート 63 件 / 手続き 188 件
-- 呼ばれていない 79 件（上限 79）
+- ポート 64 件 / 手続き 194 件
+- 呼ばれていない 74 件（上限 79）
 - 理由つきの除外 0 件（上限 0）
 
 | ポート | 手続き | 宣言 |
@@ -41,7 +41,6 @@
 | `ComparisonSetRepositoryPort` | `save` | `src/application/ports/product.ts` |
 | `ConsentStorePort` | `read` | `src/application/ports/telemetry.ts` |
 | `ConsentStorePort` | `write` | `src/application/ports/telemetry.ts` |
-| `ContentPackageRepositoryPort` | `list` | `src/application/ports/authoring.ts` |
 | `ContentPackageRepositoryPort` | `save` | `src/application/ports/authoring.ts` |
 | `ConversionRepositoryPort` | `findByExternalId` | `src/application/ports/monetization.ts` |
 | `DisclosureRepositoryPort` | `findById` | `src/application/ports/compliance.ts` |
@@ -53,9 +52,7 @@
 | `LlmPort` | `embed` | `src/application/ports/llm.ts` |
 | `LoggerPort` | `info` | `src/application/ports/common.ts` |
 | `LoggerPort` | `error` | `src/application/ports/common.ts` |
-| `MembershipRepositoryPort` | `findById` | `src/application/ports/identity.ts` |
 | `MembershipRepositoryPort` | `findByUser` | `src/application/ports/identity.ts` |
-| `MembershipRepositoryPort` | `save` | `src/application/ports/identity.ts` |
 | `MerchantOfferRepositoryPort` | `findById` | `src/application/ports/product.ts` |
 | `MerchantOfferRepositoryPort` | `listByProduct` | `src/application/ports/product.ts` |
 | `MerchantOfferRepositoryPort` | `listByMerchant` | `src/application/ports/product.ts` |
@@ -67,8 +64,6 @@
 | `PolicyRuleRepositoryPort` | `findById` | `src/application/ports/compliance.ts` |
 | `PolicyRuleRepositoryPort` | `save` | `src/application/ports/compliance.ts` |
 | `ProductRepositoryPort` | `findByIdentityKey` | `src/application/ports/product.ts` |
-| `ProductRepositoryPort` | `save` | `src/application/ports/product.ts` |
-| `PublicationRepositoryPort` | `listByVariant` | `src/application/ports/distribution.ts` |
 | `PublicationRepositoryPort` | `listDue` | `src/application/ports/distribution.ts` |
 | `RankingModelRepositoryPort` | `list` | `src/application/ports/ranking.ts` |
 | `RankingModelRepositoryPort` | `save` | `src/application/ports/ranking.ts` |
@@ -123,4 +118,4 @@
 | --- | --- |
 | `createStartSiteDraftUseCase` | `src/application/usecases/site/build-site.ts:417` |
 | `createSaveSiteDraftStepUseCase` | `src/application/usecases/site/build-site.ts:509` |
-<!-- 生成物の指紋 sha256:63c29bf03cdd1659bd3d60a4d876620abd6fba137047d971a58a77e44055fb1e -->
+<!-- 生成物の指紋 sha256:33ebebb7a6966bc9ca4fefa4e1e942dd122080d1d7e04355dc0d3502b2558c46 -->

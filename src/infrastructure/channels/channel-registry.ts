@@ -97,6 +97,8 @@ const FACTORIES: Readonly<Record<ChannelKind, ConnectorFactory>> = {
   youtube: (ctx) => createStubConnector("youtube", "YouTube Data API のクォータ申請が必要", ctx),
   tiktok: (ctx) => createStubConnector("tiktok", "TikTok Content Posting API の審査が必要", ctx),
   threads: (ctx) => createStubConnector("threads", "Threads API のアプリ登録が必要", ctx),
+  facebook: (ctx) =>
+    createStubConnector("facebook", "Facebook ページの連携と Graph API のアプリ審査が必要", ctx),
   note: (ctx) => createStubConnector("note", "note に公開された投稿用 API は存在しない。書き出しのみを提供する", ctx),
   newsletter: (ctx) => createStubConnector("newsletter", "配信基盤 (メール送信) の選定が必要", ctx),
   wordpress: (ctx) => createStubConnector("wordpress", "接続先サイトの REST API とアプリケーションパスワードが必要", ctx),

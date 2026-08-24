@@ -1,0 +1,7 @@
+
+/Users/dm/orca/workspaces/affiliate-hub/ui-ux調整/stryker.config.mjs
+  31:1  warning  Assign object to a variable before exporting as module default  import/no-anonymous-default-export
+
+✖ 1 problem (0 errors, 1 warning)
+
+exit=0

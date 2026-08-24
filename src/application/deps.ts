@@ -56,6 +56,7 @@ import type {
   EditorialShortlistPort,
 } from "./ports/reader-interaction";
 import type {
+  EditorialArticleOfferPort,
   EditorialPublishedArticleWriterPort,
   EditorialPublishedContentPort,
   EditorialSiteRepositoryPort,
@@ -81,6 +82,13 @@ export type AppDeps = {
   readonly publishedContent: EditorialPublishedContentPort;
   /** 記事を読者ページへ出す口。読み口と分けている理由は ports/site.ts に書いた。 */
   readonly publishedArticles: EditorialPublishedArticleWriterPort;
+  /**
+   * 記事の版が指している成果リンクを、読者に見せる写しへ引き当てる口。
+   *
+   * **報酬を持たない形しか返さない。** 返す形に報酬の欄が無いので、
+   * 記事の組み立てが「報酬の高い順に並べる」を書けない。
+   */
+  readonly articleOffers: EditorialArticleOfferPort;
   readonly shortlist: EditorialShortlistPort;
   readonly readerTools: EditorialReaderToolPort;
   readonly contact: EditorialContactPort;

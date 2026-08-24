@@ -18,6 +18,7 @@ import {
   createGetPublicationUseCase,
   createListChannelsUseCase,
   createListPublicationsUseCase,
+  createUpdatePublicationUseCase,
 } from "@/application/usecases/distribution/manage-distribution";
 import { CHANNEL_CAPABILITIES, type Publication } from "@/domain/distribution";
 import { ok } from "@/domain/shared";
@@ -602,6 +603,25 @@ describe("手作業での書き出し", () => {
     if (got.ok) return;
     expect(got.error.code).toBe("FORBIDDEN");
   });
+});
+
+describe("配信の修正", () => {
+  it.each(["SENDING", "PUBLISHED", "MANUAL_EXPORT_READY", "CANCELLED"] as const)(
+    "%s の配信は直せない",
+    async (state) => {
+      const publication = aPublication({ state });
+      const got = await createUpdatePublicationUseCase(
+        deps(withPublication(publication)),
+      ).execute(owner, {
+        publicationId: String(publication.id),
+      });
+
+      expect(got.ok).toBe(false);
+      if (got.ok) return;
+      expect(got.error).toMatchObject({ code: "CONFLICT", details: { state } });
+      expect(got.error.message).toContain(PUBLICATION_STATE_LABEL[state]);
+    },
+  );
 });
 
 describe("見本データの整合", () => {

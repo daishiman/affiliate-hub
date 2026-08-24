@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Callout } from "@/presentation/ui";
+import { Callout, FormResult } from "@/presentation/ui";
 import type { PublishArticleFormState } from "./publish-article-state";
 
 /**
@@ -21,13 +21,15 @@ import type { PublishArticleFormState } from "./publish-article-state";
 export function PublishArticleResult({ state }: { state: PublishArticleFormState }) {
   const skipped = state.skipped ?? [];
   return (
-    <>
-      {state.status === "failed" && state.field === undefined ? (
-        <Callout tone="warn" reason={state.message} />
-      ) : null}
-
-      {state.status === "done" ? <Callout tone="success" reason={state.message} /> : null}
-
+    <FormResult
+      state={state}
+      doneAction={
+        state.url === undefined ? null : (
+          <Link href={state.url}>公開した記事を読者の画面で見る</Link>
+        )
+      }
+    >
+      {/* 決まり 2。成功の枠に混ぜず、別の枠で残す。 */}
       {state.status === "done" && skipped.length > 0 ? (
         <Callout
           tone="warn"
@@ -36,12 +38,6 @@ export function PublishArticleResult({ state }: { state: PublishArticleFormState
             .join(" / ")}`}
         />
       ) : null}
-
-      {state.status === "done" && state.url !== undefined ? (
-        <p>
-          <Link href={state.url}>公開した記事を読者の画面で見る</Link>
-        </p>
-      ) : null}
-    </>
+    </FormResult>
   );
 }

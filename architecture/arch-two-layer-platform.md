@@ -12,11 +12,11 @@ iteration: null
 title: "二層構造プラットフォームのアーキテクチャ"
 owners: ["app-orchestrator"]
 created_at: "2026-08-16T13:00:00Z"
-updated_at: "2026-08-16T13:00:00Z"
+updated_at: "2026-08-23T12:00:00Z"
 status: "active"
 depends_on: []
-related_nodes: ["arch-system-spec-overview"]
-resource_scope: ["src/domain/","src/db/schema.ts","src/lib/webmcp/","src/lib/mcp/","docs/spec/04-二層構造統合仕様.md"]
+related_nodes: ["arch-system-spec-overview", "feat-uiux-overhaul"]
+resource_scope: ["src/domain/","src/db/schema.ts","src/lib/webmcp/","src/lib/mcp/","docs/spec/04-二層構造統合仕様.md","docs/spec/feat-uiux-overhaul/ui-rules.md"]
 purpose: "プラットフォーム層とブログ層の責務境界、共有ドメインサービス層、禁止依存を実装可能な形で固定する。"
 goal: "管理画面・公開ブログ・WebMCP・バックエンドMCPが同一のドメインサービス層を呼び、ランキング式と品質検査の重複実装が0件である状態。"
 scope_in: ["レイヤー境界","32エンティティの正規定義の所在","Editorial/Commercial分離","テナント分離","WebMCP/MCPの二層","生成パイプライン"]
@@ -146,6 +146,8 @@ Route Handler がリクエストを受け、認可判定 → テナント束縛 
 
 管理面と読者面をルートグループで分ける。共通レイアウト部品1箇所で現在地（ステップ・タブ）と退避先（保存・戻る・次へ）を固定表示する。入力作法（空欄の意味、自動計算値の初期表示と自動／手入力の区別、Enter の挙動）は全画面で1組に統一する。読者面はブログ層 §20 の WCAG 2.2 AA を満たす。
 
+運営者面の画面単位・間隔・文章量・サイドバー・CRUD 導線は `feat-uiux-overhaul` が所有する。規則の正本は `docs/spec/feat-uiux-overhaul/ui-rules.md`、収集セルへの投影は `system-spec/ui-ux.md` と `system-spec/frontend.md`。本書は二層の責務境界だけを固定し、画面規則を複製しない。
+
 ### Data
 
 `src/db/schema.ts` を唯一のスキーマ定義とする。ブログ層 §12 の8エンティティはプラットフォーム層 §21 の同名エンティティと同一テーブルを指し、別定義を作らない。スキーマ変更は新規マイグレーションファイルで行い、適用前に `wrangler d1 export` でバックアップを取る。
@@ -202,3 +204,11 @@ Cloudflare Workers へ OpenNext 経由でデプロイする。マイグレーシ
 | 根拠のない主張の公開 | Claim に Evidence が紐づかない記事が公開される | 公開ゲートで BLOCK 判定し、テストで固定 |
 
 現時点の検証状態は未実行である。受け入れ条件はプラットフォーム層 §30.1 から §30.8 をそのまま採用し、結果は `docs/product/traceability.md` の各行へ記録する。
+
+## 実装の現在地（非規範・2026-08-22）
+
+本章の To-Be と ADR は変えていない。画面の部品と改善要望の診断は、二層の計算層ではなく presentation / feedback コンテキストの実装契約である。
+
+- 共通 UI の並べ方: `docs/architecture/ui-system.md`（`InlineNav` / `StackedList`）
+- 改善要望の技術診断: `docs/architecture/feedback-loop.md` §2-1
+- 作業単位: Beads `ah-8h2` / graph node `task-worktree-dedup`

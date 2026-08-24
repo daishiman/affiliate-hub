@@ -54,7 +54,8 @@ async function tailwindCss(): Promise<string> {
 function body(): string {
   return renderToStaticMarkup(
     <AppShell
-      currentPath="/admin/ui-catalog"
+      actualRoutePath="/admin/ui-catalog"
+      navContextPath="/admin/ui-catalog"
       breadcrumbs={[{ label: "ホーム", href: "/admin" }, { label: "画面部品の見本" }]}
     >
       <Page

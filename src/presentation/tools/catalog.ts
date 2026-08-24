@@ -116,7 +116,14 @@ export function findTool(
   return catalog.find((t) => t.name === name) ?? null;
 }
 
-/** WebMCP に載せてよいもの。状態を変えるツールはページ内の AI へ渡さない。 */
+/**
+ * 読み取り専用を**名乗っている**もの。
+ *
+ * **WebMCP に載せてよいものの一覧ではない。**載せる先は
+ * `webmcp-policy.ts` の `PAGE_TOOLS` が名前で決める（`isListedOnWebMcp`）。
+ * ここを載せる根拠に使うと、読み取りの道具を足しただけで
+ * ページ内の AI の手が届く範囲が広がる。
+ */
 export function readOnlyTools(catalog: readonly AnyToolDefinition[]): readonly AnyToolDefinition[] {
   return catalog.filter((t) => t.readOnly);
 }

@@ -4,9 +4,9 @@
 末尾の指紋がその見張りで、手で 1 文字でも書くと次の実行が**上書きせずに止まる**（書いた行は残る）。
 宣言は `docs/product/required-test-types.md`、語彙と上限は `quality-gates.config.mjs` が正本。
 
-- 最終更新: 2026-08-21
-- 要件表の要件: 250 件
-- 性質を宣言済: 243 件
+- 最終更新: 2026-08-23
+- 要件表の要件: 260 件
+- 性質を宣言済: 253 件
 - **未宣言: 7 件**（上限 7 件）
 - 理由つきの除外: 7 件（上限 7 件）
 
@@ -53,7 +53,7 @@
 | REQ-S06 | has-screen | `a11y` `keyboard` `screen-states` | `a11y` `keyboard` `screen-states` | — | 
 | REQ-S07 | has-screen | `a11y` `keyboard` `screen-states` | `a11y` `keyboard` `screen-states` | — | 
 | REQ-S08 | has-screen | `a11y` `keyboard` `screen-states` | `a11y` `keyboard` `screen-states` | — | 
-| REQ-S09 | has-screen, has-permission | `a11y` `keyboard` `permission-matrix` `screen-states` | `a11y` `keyboard` `permission-matrix` `screen-states` | — | 
+| REQ-S09 | has-screen, has-permission, has-shared-visual-form | `a11y` `keyboard` `permission-matrix` `screen-states` `visual` | `a11y` `keyboard` `permission-matrix` `screen-states` `visual` | — | 
 | REQ-S10 | has-screen, has-permission | `a11y` `keyboard` `permission-matrix` `screen-states` | `a11y` `keyboard` `permission-matrix` `screen-states` | — | 
 | REQ-API02 | has-permission, has-tenant | `permission-matrix` `tenant-isolation` | `permission-matrix` `tenant-isolation` | — | 
 | REQ-R01 | has-permission | `permission-matrix` | `permission-matrix` | — | 
@@ -219,7 +219,7 @@
 | REQ-TS08 | has-input | `boundary` `equivalence` | `boundary` `equivalence` | — | 
 | REQ-TS09 | has-code-placement-rule | `code-boundary` | `code-boundary` | — | 
 | REQ-TS11 | has-known-breakage | `regression` | `regression` | — | 
-| REQ-TS12 | has-input | `boundary` `equivalence` | `boundary` `equivalence` | — | 
+| REQ-TS12 | has-input, has-shared-visual-form | `boundary` `equivalence` `visual` | `boundary` `equivalence` `visual` | — | 
 | REQ-TS13 | has-input | `boundary` `equivalence` | `boundary` `equivalence` | — | 
 | REQ-TS14 | has-input | `boundary` `equivalence` | `boundary` `equivalence` | — | 
 | REQ-TS15 | has-input | `boundary` `equivalence` | `boundary` `equivalence` | — | 
@@ -260,6 +260,16 @@
 | REQ-FB07 | has-screen | `a11y` `keyboard` `screen-states` | `a11y` `keyboard` `screen-states` | — | 
 | REQ-FB10 | has-enumerated-input, has-secret | `decision-table` `equivalence` `secrets` | `decision-table` `equivalence` `secrets` | — | 
 | REQ-FB11 | has-ai-text | `prompt-injection` | `prompt-injection` | — | 
+| REQ-UX01 | has-code-placement-rule | `code-boundary` | `code-boundary` | — | 
+| REQ-UX02 | has-enumerated-input | `decision-table` `equivalence` | `decision-table` `equivalence` | — | 
+| REQ-UX03 | has-enumerated-input | `decision-table` `equivalence` | `decision-table` `equivalence` | — | 
+| REQ-UX04 | has-code-placement-rule | `code-boundary` | `code-boundary` | — | 
+| REQ-UX05 | has-input | `boundary` `equivalence` | `boundary` `equivalence` | — | 
+| REQ-UX06 | has-code-placement-rule | `code-boundary` | `code-boundary` | — | 
+| REQ-UX07 | has-code-placement-rule | `code-boundary` | `code-boundary` | — | 
+| REQ-UX08 | has-code-placement-rule, has-input, has-shared-visual-form | `boundary` `code-boundary` `equivalence` `visual` | `boundary` `code-boundary` `equivalence` `visual` | — | 
+| REQ-UX09 | has-screen | `a11y` `keyboard` `screen-states` | `a11y` `keyboard` `screen-states` | — | 
+| REQ-UX10 | has-input | `boundary` `equivalence` | `boundary` `equivalence` | — | 
 
 ## 理由つき除外の中身
 
@@ -274,11 +284,11 @@
 - **REQ-P09**
   - `fault-injection`: ASP への実接続がスタブで、落とす外部接続が実在しない
 - **REQ-QC12**
-  - `boundary`: 公開ゲートの 13 項目は真偽の組合せで、大小の端が無い。組合せ側は性質テストが生成して当てている
+  - `boundary`: 公開ゲートの 13 項目は真偽の組合せで、大小の端が無い。組合せ側は `tests/property/publish-gate.property.test.ts` の手書きの決定表（13 項目 × 単独違反 18 行）が当てている（2026-08-21 に理由を差し替え。§4 参照）
 - **REQ-SEC09**
   - `boundary`: 監査記録の入力は操作内容と差分で、大小の端が無い。見ているのは消す / 消さないの分かれ目だけ
 
 ## 未宣言の要件
 
 `REQ-CI08` `REQ-FD04` `REQ-TH04` `REQ-TH05` `REQ-TS02` `REQ-TS03` `REQ-TS10`
-<!-- 生成物の指紋 sha256:c3694695e8037865f41f83303ed83dfefffbd7ab260fc01082945153ea59aa95 -->
+<!-- 生成物の指紋 sha256:809f2bfd4ab866aa655e0423bad5e57a5e41b8572726c3730a12c3259009de5c -->

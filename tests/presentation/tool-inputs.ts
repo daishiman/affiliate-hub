@@ -38,6 +38,21 @@ export const FIELD_VALUES: Readonly<Record<string, unknown>> = {
   productIds: ["p_alpha_15", "p_beta_14"],
   modelId: "rm_video_editing_laptop",
 
+  // --- 商品を登録する（create_product）---
+  // 見本に**無い**商品にする。既にある商品と同じブランド + 名前を渡すと、
+  // 同一性の判定（`IDENTITY_KEY_PRIORITY` の `brand_and_name`）で
+  // 「もうあります」と断られる。断られたところで検査は緑になるので、
+  // 登録の道が一度も動いていないことに気づけない。
+  brand: "Delta",
+  // `name` は用途の付いていない名前なので、他の道具が使い始めたら必ずぶつかる。
+  // そのときは辞書を書き換えず、ぶつかった道具側を TOOL_OVERRIDES で上書きする。
+  name: "Delta Studio 13",
+  officialUrl: "https://example.com/products/delta-studio-13",
+  // 比較表の列になる。空だと「仕様と出どころが両方そろっていない」で断られる。
+  specifications: { weightKg: 1.2, os: "Windows / macOS" },
+  // 鍵の種類は `IDENTITY_KEY_PRIORITY` から取る。一番強い鍵を 1 本だけ置く。
+  identityKeys: [{ kind: "gtin", value: "4901234567894" }],
+
   // --- 記事案と人物像 ---
   variantId: "cv_alpha_review",
   personaId: "ap_editor",
@@ -50,6 +65,22 @@ export const FIELD_VALUES: Readonly<Record<string, unknown>> = {
   body: "この製品の重さは 1.5kg です。",
   text: "この文章には指示が含まれていません。",
   provided: {},
+
+  // --- 記事 1 本の枠を作る（create_content_variant）---
+  // 枠の 4 点（企画・媒体・体裁・書き手／読者）は、どれが欠けても
+  // 「誰に向けた何なのか分からない記事」が出来てしまうので、全部そろえる。
+  contentPackageId: "cp_laptop_2026",
+  channel: "own_site",
+  format: "article",
+  authorPersonaId: "ap_editor",
+  // 読者像は執筆者とは別の一覧にある（`get_audience_persona` の上書きと同じ id）。
+  audiencePersonaId: "dp_video_beginner",
+  // 切り口と CTA は `CONTENT_ANGLES` / `CTA_TYPES` の値。それらしい文字列を入れると
+  // 入力の検査で断られ、断られたところは検査が緑になる。
+  angle: "conclusion_first",
+  cta: "read_detail",
+  disclosure: "アフィリエイト広告を利用しています。",
+  summary: "書き出しの速さで選ぶと、動画編集向けのノートパソコンは絞り込める。",
 
   // --- 配信 ---
   // まだ出していない配信を指す。公開済みの `pub_own_site` を指すと、

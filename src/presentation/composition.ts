@@ -37,10 +37,12 @@ import { createReadWritingMethodUseCase } from "@/application/usecases/authoring
 import {
   createCancelPublicationUseCase,
   createExportManualDraftUseCase,
+  createGetContentChannelStatusUseCase,
   createGetPublicationUseCase,
   createListChannelsUseCase,
   createListPublicationsUseCase,
   createSchedulePublicationUseCase,
+  createUpdatePublicationUseCase,
 } from "@/application/usecases/distribution/manage-distribution";
 import {
   createGetPublicationCalendarUseCase,
@@ -102,6 +104,7 @@ import {
   createListDisclosuresUseCase,
   createListMembersUseCase,
   createListRolesUseCase,
+  createManageMembersUseCase,
 } from "@/application/usecases/identity/manage-workspace";
 import {
   createCreateSiteFromDraftUseCase,
@@ -115,6 +118,21 @@ import {
   createGetManagedSiteUseCase,
   createListManagedSitesUseCase,
 } from "@/application/usecases/site/manage-sites";
+import {
+  createDeleteManagedSiteUseCase,
+  createUpdateManagedSiteUseCase,
+} from "@/application/usecases/site/edit-sites";
+import {
+  createCreateProductUseCase,
+  createDeleteProductUseCase,
+  createUpdateProductUseCase,
+} from "@/application/usecases/product/edit-product";
+import {
+  createCreateContentVariantUseCase,
+  createDeleteContentVariantUseCase,
+  createUpdateContentVariantUseCase,
+} from "@/application/usecases/content/edit-content";
+import { createCreateConceptDraftsUseCase } from "@/application/usecases/content/concept-drafts";
 import {
   createPreparePublishArticleUseCase,
   createPublishArticleUseCase,
@@ -238,12 +256,34 @@ export type IntegrationAccessResolution =
     }
   | { ok: false; status: number; message: string };
 
+/**
+ * 連携の鍵を載せる見出し。
+ *
+ * `Authorization` と分けてあるのは、**1 つの呼び出しが 2 つの別のことを
+ * 名乗る必要がある**ため。`Authorization: Bearer <MCP_TOKEN>` は
+ * 「この入口を叩いてよい相手か」（門）、`X-Integration-Key` は
+ * 「どの作業場所の誰か」（身元）である。見出しが 1 つしかないと、
+ * MCP の入口では門しか名乗れず、身元が決まらないまま管理用のデータが出る
+ * ことになる（それが `ah-p9e` の穴だった）。
+ *
+ * 鍵だけで来る既存の入口（`/api/feedback/pending`）のために、
+ * `Authorization: Bearer <鍵>` も引き続き受ける。
+ */
+export const INTEGRATION_KEY_HEADER = "x-integration-key";
+
+/** 呼び出しに載っている連携の鍵の平文。無ければ空文字。 */
+function integrationKeyValue(request: Request): string {
+  const dedicated = request.headers.get(INTEGRATION_KEY_HEADER)?.trim() ?? "";
+  if (dedicated !== "") return dedicated;
+  const header = request.headers.get("authorization") ?? "";
+  return header.startsWith("Bearer ") ? header.slice("Bearer ".length).trim() : "";
+}
+
 export async function resolveIntegrationAccess(
   request: Request,
   scope: KeyScope,
 ): Promise<IntegrationAccessResolution> {
-  const header = request.headers.get("authorization") ?? "";
-  const value = header.startsWith("Bearer ") ? header.slice("Bearer ".length).trim() : "";
+  const value = integrationKeyValue(request);
   if (value === "") {
     return {
       ok: false,
@@ -390,15 +430,36 @@ export async function signedInActor(): Promise<ActorContext | null> {
  * （残課題 28 の 2 件目 / `ah-2ro`。原因は `ah-3n1` と同じ）。
  *
  * 決め方はこうである。
- *   - `bearer`      → `currentActor()`。鍵で入口を通った呼び出しで、従来どおり
+ *   - `bearer`      → 連携の鍵（`X-Integration-Key`）から**作業場所つきの身元**を組み立てる。
+ *                     鍵が無い・通らないときは**読者**へ落とす
  *   - `same-origin` → ログインできていればその人、できていなければ**読者**
+ *
+ * `bearer` を `currentActor()` にしていたのが `ah-p9e` である。
+ * `MCP_TOKEN` は「呼んでよい相手か」しか決めない。**どの作業場所の誰か**を
+ * 決めないので `currentActor()` は見本へ落ち、身元の分からない呼び出しが
+ * 見本の権限で管理用のデータを読めていた。門（`MCP_TOKEN`）と
+ * 身元（連携の鍵）は別のものなので、名乗る見出しも分けてある。
+ *
+ * 鍵が通らないときに**断らずに読者へ落とす**のは、`actorForScope` が
+ * 身元を返す関数で、断りを返せないため。管理用の読み取りは読者の身元では
+ * 通らない（`FORBIDDEN` になる）ので、結果は「断られる」と同じである。
+ * ここで見本へ落とすことだけはしない。それが 3 件の課題の共通の原因だった。
  *
  * 同一サイトを丸ごと断らないのは、読者ページの AI 向けの入口（WebMCP）が
  * この経路を使っているため。断ると、読者ページの案内が**黙って**動かなくなる。
  * 読者へ落とすぶんには、読者ページの画面がもともと通している範囲と同じになる。
  */
-export async function actorForScope(scope: "bearer" | "same-origin"): Promise<ActorContext> {
-  if (scope === "bearer") return currentActor();
+export async function actorForScope(
+  scope: "bearer" | "same-origin",
+  request: Request,
+): Promise<ActorContext> {
+  if (scope === "bearer") {
+    // 門を通ったこと（`MCP_TOKEN`）は、身元の根拠にならない。
+    // 鍵が載っていなければ、鍵の照合そのものを試みない。
+    if ((request.headers.get(INTEGRATION_KEY_HEADER)?.trim() ?? "") === "") return readerActor();
+    const access = await resolveIntegrationAccess(request, "read");
+    return access.ok ? access.actor : readerActor();
+  }
   return (await signedInActor()) ?? readerActor();
 }
 
@@ -421,7 +482,8 @@ export async function actorNotice(): Promise<string> {
  * 読者のページに載せる、AI 向けの操作宣言（WebMCP）。
  *
  * 4 つの決まりをここで守る。守る場所を 1 箇所にしないと、ページごとにずれる。
- *   1. 読み取り専用だけ（`toWebMcpDescriptors` が絞る）
+ *   1. 表に名前があるものだけ（`PAGE_TOOLS`。`toWebMcpDescriptors` が絞る）。
+ *      道具定義の `readOnly` は根拠にしない。旗を根拠にすると既定が「載る」になる
  *   2. 1 ページ 6 件まで（`MAX_TOOLS_PER_PAGE`）
  *   3. ページ種別ごとに選ぶ（`PAGE_TOOLS`。記事と比較で要る道具は違う）
  *   4. すべて通常の画面操作でも同じことができる
@@ -527,8 +589,13 @@ export function readerUseCases() {
  * `src/presentation/tools/product-tools.ts` も同じユースケースを載せているので、
  * 画面に出る内容と AI が返す内容がずれない。
  */
-export function productUseCases() {
-  const deps = createDeps();
+export async function productUseCases() {
+  /*
+    接続を渡す。渡さないと、`productEditingUseCases()` で登録した商品が
+    読む側には見えない。**書けるのに読めない**という、一番気づきにくい壊れ方をする。
+    登録した本人は登録できたと思い、一覧を開いて「消えた」と受け取る。
+  */
+  const deps = createDeps({ db: await tryGetDb() });
   const product = {
     products: deps.products,
     claims: deps.claims,
@@ -642,6 +709,77 @@ export async function platformUseCases() {
 }
 
 /**
+ * 商品を人の手で登録する・直す・消す入口。
+ *
+ * 読む側の `productUseCases()` と分けているのは `product-tools.ts` と同じ理由で、
+ * **参照の数え方が違う**ため。読むほうは根拠と順位が要り、書くほうが要るのは
+ * 「この商品を使っている記事が何本あるか」だけである。
+ *
+ * こちらだけ `tryGetDb()` を通しているのは、登録した商品が
+ * 次に開いたときに消えていては登録した意味が無いため。
+ */
+export async function productEditingUseCases() {
+  const deps = createDeps({ db: await tryGetDb() });
+  const editing = {
+    products: deps.products,
+    packages: deps.contentPackages,
+    auditLog: deps.auditLog,
+    ids: deps.ids,
+  };
+  return {
+    create: createCreateProductUseCase(editing),
+    update: createUpdateProductUseCase(editing),
+    remove: createDeleteProductUseCase(editing),
+  };
+}
+
+/**
+ * 記事の枠を作る・直す・消す入口。
+ *
+ * 盤面を読む `contentUseCases()` とは別に置く。あちらは段階を進める操作で、
+ * こちらは中身を書き換える操作である。**承認が外れるのはこちらだけ**で、
+ * 同じ入口にすると「進めたつもりが承認を外していた」が起きる。
+ */
+export async function contentEditingUseCases() {
+  const deps = createDeps({ db: await tryGetDb() });
+  const editing = {
+    variants: deps.contentVariants,
+    packages: deps.contentPackages,
+    auditLog: deps.auditLog,
+    ids: deps.ids,
+  };
+  return {
+    create: createCreateContentVariantUseCase(editing),
+    update: createUpdateContentVariantUseCase(editing),
+    remove: createDeleteContentVariantUseCase(editing),
+    // ブログ別の書き分けは、1 本ずつ作る操作の上に載っている。
+    // 同じつなぎ目から取るのは、片方だけ別の保存先を向くのを防ぐため。
+    createConceptDrafts: createCreateConceptDraftsUseCase(editing),
+  };
+}
+
+/**
+ * ブログの設計図を直す・取り下げる入口。
+ *
+ * 読む `platformUseCases()` より依存が多い。書くのは登録の窓口 (`drafts`) で、
+ * 取り下げの前に `publishedContent` で残っている記事を数えるため。
+ */
+export async function siteEditingUseCases() {
+  const deps = createDeps({ db: await tryGetDb() });
+  const siteEditing = {
+    sites: deps.sites,
+    drafts: deps.siteDrafts,
+    publishedContent: deps.publishedContent,
+    auditLog: deps.auditLog,
+    ids: deps.ids,
+  };
+  return {
+    update: createUpdateManagedSiteUseCase(siteEditing),
+    remove: createDeleteManagedSiteUseCase(siteEditing),
+  };
+}
+
+/**
  * 配信の入口。
  *
  * 出し先を 1 つ増やすときに触るのは、domain のチャネル能力表と
@@ -667,6 +805,7 @@ export async function distributionUseCases() {
     variants: deps.contentVariants,
     publications: deps.publications,
     articles: deps.publishedArticles,
+    offers: deps.articleOffers,
     auditLog: deps.auditLog,
     ids: deps.ids,
   };
@@ -677,6 +816,8 @@ export async function distributionUseCases() {
     exportManualDraft: createExportManualDraftUseCase(distribution),
     cancel: createCancelPublicationUseCase(distribution),
     schedule: createSchedulePublicationUseCase(distribution),
+    update: createUpdatePublicationUseCase(distribution),
+    channelStatus: createGetContentChannelStatusUseCase(distribution),
     preparePublishArticle: createPreparePublishArticleUseCase(ownSite),
     publishArticle: createPublishArticleUseCase(ownSite),
   };
@@ -1105,6 +1246,18 @@ export async function settingsUseCases() {
     getOverview: createGetSettingsOverviewUseCase(settings),
     listRoles: createListRolesUseCase(settings),
     listMembers: createListMembersUseCase(settings),
+    /**
+     * 担当者を書く口（招待・役割の変更・取り消し）。
+     *
+     * 読む口と同じ `settings` を渡す。保存先が用意できていれば本物（D1）で、
+     * 無い実行では見本のまま保存が失敗を返す。**どちらで動いているかは
+     * 画面に文字で出す**（`settingsNotice()`）。黙って見本へ落ちない。
+     */
+    manageMembers: createManageMembersUseCase({
+      ...settings,
+      ids: deps.ids,
+      now: () => new Date(),
+    }),
     listBrands: createListBrandsUseCase(settings),
     listDisclosures: createListDisclosuresUseCase(settings),
     listAuditLog: createListAuditLogUseCase(settings),

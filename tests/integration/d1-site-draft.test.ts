@@ -1,4 +1,4 @@
-/** @tier 2 */
+/** @tier 2 @req REQ-P07, REQ-S06, REQ-W10, REQ-TS07 */
 import { readFileSync, readdirSync } from "node:fs";
 import path from "node:path";
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";

@@ -241,6 +241,16 @@ const ACTION_INTENT: Readonly<
     what: "生成 AI の API キーを預ける・消す（預けた鍵で課金が発生する）",
     reversible: "つかない",
   },
+  /**
+   * 「つく」に見えて**つかない**。行は消えないが、外した人を画面から戻す道が無い
+   * （外した行は役割を変えられず、同じアドレスへ招き直すと既にある行と当たる）。
+   * 役割を変える操作も、変えた相手が持っていた承認の権限をその場で失わせる。
+   */
+  manageMemberAction: {
+    intent: "ログイン",
+    what: "担当者を招く・役割を変える・担当から外す（入ってよい人の一覧が変わる）",
+    reversible: "つかない",
+  },
   createSiteFromDraftAction: {
     intent: "ログイン",
     what: "下書きからサイトを作る（消す口が無い）",
@@ -257,7 +267,74 @@ const ACTION_INTENT: Readonly<
     reversible: "つかない",
   },
 
+  /*
+    削除は 3 つとも取り返しがつかない。**記録の側も残らない**からである。
+    段階を戻す・下書きへ落とすといった操作は、後から中身を見て直せるが、
+    削除は「何が書いてあったか」を確かめる手段ごと消える。
+    道具の側でも `requiresHumanApproval: true` にしてあり、
+    鍵を持った外部の AI からは実行できない（画面で人が押すことでしか起きない）。
+  */
+  deleteManagedSiteAction: {
+    intent: "ログイン",
+    what: "ブログを消す（記事ごと消える）",
+    reversible: "つかない",
+  },
+  deleteContentVariantAction: {
+    intent: "ログイン",
+    what: "記事を消す（本文を後から確かめる手段が残らない）",
+    reversible: "つかない",
+  },
+  deleteProductAction: {
+    intent: "ログイン",
+    what: "商品を消す（順位表と比較表の入力が消える）",
+    reversible: "つかない",
+  },
+  /*
+    取りやめは削除と違い、記録そのものは残る。それでも「つかない」に入れてある。
+    `src/domain/distribution/publication.ts` の遷移表で `CANCELLED: []` — **戻る先が無い**。
+    予定へ戻すことも、そこから出すこともできない。もう一度出すには作り直すしかない。
+    「消えない」と「戻せる」は別のことである。
+  */
+  cancelPublicationAction: {
+    intent: "ログイン",
+    what: "予定していた配信を取りやめる（取りやめた先は終点で、予定へは戻せない）",
+    reversible: "つかない",
+  },
+
   // --- 取り返しがつく（記録が残り、後から直せる） ---
+  /*
+    作成と更新は「つく」。作ったものは消せるし、直した内容は上書きで戻せる。
+    ただし `updatePublicationAction` だけは別で、予定日を前倒しにすると
+    今日外へ出るので、`reschedulePublicationAction` と同じ扱いにしてある。
+  */
+  updateManagedSiteAction: { intent: "ログイン", what: "ブログの設定を直す", reversible: "つく" },
+  createContentVariantAction: { intent: "ログイン", what: "記事の枠を作る", reversible: "つく" },
+  updateContentVariantAction: {
+    intent: "ログイン",
+    what: "記事の題名・本文・要約を直す",
+    reversible: "つく",
+  },
+  createProductAction: { intent: "ログイン", what: "商品を登録する", reversible: "つく" },
+  updateProductAction: { intent: "ログイン", what: "商品の内容を直す", reversible: "つく" },
+  updatePublicationAction: {
+    intent: "ログイン",
+    what: "配信の予定を直す（前倒しにすれば今日出せる）",
+    reversible: "つかない",
+  },
+  createConceptDraftsAction: {
+    intent: "ログイン",
+    what: "1 つの商品から、ブログごとの切り口で下書きをまとめて作る",
+    reversible: "つく",
+  },
+  /*
+    見本帳のボタンにつなぐ、何もしない操作。
+
+    何もしないのに門を通しているのは、**操作は画面と別に叩ける**からである。
+    見本帳の画面自体はログインしないと開けないが、この操作の URL は
+    画面を開かなくても呼べる。「中身が空だから素通しでよい」を一度認めると、
+    次に中身が入ったときも素通しのまま残る。
+  */
+  sampleAction: { intent: "ログイン", what: "見本帳のボタンの見本（何もしない）", reversible: "つく" },
   adjustConversionAction: { intent: "ログイン", what: "成果の実績を手で直す", reversible: "つく" },
   advanceContentStateAction: {
     intent: "ログイン",

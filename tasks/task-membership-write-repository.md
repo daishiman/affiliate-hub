@@ -12,7 +12,7 @@ iteration: null
 title: "担当者の登録を書く側が見本のままで、招待を画面から出せない"
 owners: ["daishiman"]
 created_at: "2026-08-18T05:30:00Z"
-updated_at: "2026-08-18T05:30:00Z"
+updated_at: "2026-08-22T00:00:00Z"
 status: "draft"
 depends_on: []
 related_nodes: []
@@ -44,7 +44,7 @@ github_publication: {"labels":[],"milestone":null,"mode":"local_only","project_a
 github_project_linkages: []
 pull_request_linkages: []
 execution_contexts: []
-completion_evidence: {"completed_at":null,"evidence_refs":[],"policy":"manual","reconciled_at":null,"source":"manual","status":"in_progress"}
+completion_evidence: {"completed_at":"2026-08-22T00:00:00Z","evidence_refs":["src/infrastructure/persistence/d1/membership-repository.ts","docs/product/setup-tasks.md","docs/product/first-owner-row.md"],"policy":"manual","reconciled_at":"2026-08-22T00:00:00Z","source":"manual","status":"done"}
 implementation_readiness: {"checked_at":null,"missing_sections":[],"status":"incomplete"}
 ---
 
@@ -60,7 +60,8 @@ implementation_readiness: {"checked_at":null,"missing_sections":[],"status":"inc
 | 向き | いまの状態 | 実装 |
 | --- | --- | --- |
 | 権限を**引く**（ログインした人の役割） | **本物**（D1） | `src/infrastructure/identity/membership-reader.ts` |
-| 担当者を**書く**（招待・役割の変更・取り消し） | **見本** | `src/infrastructure/persistence/sample/` の担当者の登録 |
+| 担当者を**書く**（招待・役割の変更・取り消し） | **本物**（D1、2026-08-21） | `src/infrastructure/persistence/d1/membership-repository.ts` |
+| いまの担当者数（容量） | **本物**（D1、2026-08-22） | `MembershipRepositoryPort.countCurrent`。解除済みは数えない |
 
 読み取りを先にしたのは、**そこが見本のままだとログインが成立しても全員が見本の役割で動く**ためである。
 順番はこれで正しい。ただし、書く側が見本のままなので次の状態になっている。

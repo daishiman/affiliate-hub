@@ -5,9 +5,11 @@
  */
 import { beforeEach, describe, expect, it } from "vitest";
 import type {
+  EditorialArticleOfferPort,
   EditorialPublishedArticleWriterPort,
   EditorialSiteRepositoryPort,
 } from "@/application/ports/site";
+import type { ArticleOffer } from "@/application/read-models/article-offer";
 import type { PublicationRepositoryPort } from "@/application/ports/distribution";
 import type { EditorialContentVariantRepositoryPort } from "@/application/ports/authoring";
 import type { PublishedArticle } from "@/application/read-models/published-article";
@@ -15,6 +17,7 @@ import {
   type PreparePublishArticleInput,
   type PublishArticleFormOptions,
   type PublishArticleInput,
+  type PublishArticleOutput,
   createPreparePublishArticleUseCase,
   createPublishArticleUseCase,
 } from "@/application/usecases/site/publish-article";
@@ -150,7 +153,9 @@ type Harness = {
   readonly run: (
     input?: Partial<PublishArticleInput>,
     actor?: ReturnType<typeof anOwner>,
-  ) => Promise<Result<{ readonly url: string; readonly skipped: readonly { readonly label: string }[] }, ReturnType<typeof domainError>>>;
+    // 出力の形は本物の型をそのまま使う。ここで書き写すと、
+    // 「返しているのに読めない」欄が生まれ、検査がすり抜ける。
+  ) => Promise<Result<PublishArticleOutput, ReturnType<typeof domainError>>>;
   readonly prepare: (
     input?: Partial<PreparePublishArticleInput>,
     actor?: ReturnType<typeof anOwner>,
@@ -163,6 +168,10 @@ function harness(options: {
   readonly writerFails?: boolean;
   /** 記録だけが落ちる状況。記事は出ているのに記録が無い、を作って確かめる。 */
   readonly auditFails?: boolean;
+  /** 成果リンクの引き当てが返すもの。ID → 写し。 */
+  readonly offers?: Readonly<Record<string, ArticleOffer>>;
+  /** 成果リンクの保存先が落ちている状況。 */
+  readonly offersFail?: boolean;
 } = {}): Harness {
   const saved: PublishedArticle[] = [];
   const publications: Publication[] = [];
@@ -218,6 +227,21 @@ function harness(options: {
     },
   } as unknown as EditorialPublishedArticleWriterPort;
 
+  const offers = {
+    async listByIds(_workspaceId: WorkspaceId, ids: readonly string[]) {
+      if (options.offersFail) {
+        return err(
+          domainError("UPSTREAM_UNAVAILABLE", "成果リンクの保存先につながりませんでした。", {
+            suggestedAction: "少し時間をおいて、もう一度お試しください。",
+          }),
+        );
+      }
+      const table = options.offers ?? {};
+      // 見つからない ID は返さない（本物の実装と同じ約束）。
+      return ok(ids.map((id) => table[id]).filter((o): o is ArticleOffer => o !== undefined));
+    },
+  } as unknown as EditorialArticleOfferPort;
+
   const auditLog = recordingAuditLog();
   const base = testDeps();
   const uc = createPublishArticleUseCase({
@@ -225,6 +249,7 @@ function harness(options: {
     variants,
     publications: pubs,
     articles,
+    offers,
     ids: base.ids,
     auditLog: options.auditFails
       ? { ...auditLog.port, append: async () => failing("記録の保存先に繋がりません。") }
@@ -589,5 +614,116 @@ describe("出す前の画面に出すもの", () => {
     if (result.ok) return;
     expect(result.error.message).not.toMatch(/^[A-Z_]+$/);
     expect(result.error.suggestedAction ?? "").not.toBe("");
+  });
+});
+
+/*
+ * 版が持つ成果リンクが、読者の見る記事まで届いているか。
+ *
+ * ここが 0 件だと、計測の下流（合言葉の発行・`/go/` の転送・突合）が
+ * すべて 0 のままになる。**記事としては成立して見える**ので、
+ * 画面を見て気づくことはできない（残課題 58）。
+ */
+describe("版の成果リンクが読者の記事に出る", () => {
+  const LINK_ID = "lnk_amazon_pc";
+
+  function anOffer(over: Partial<ArticleOffer> = {}): ArticleOffer {
+    return {
+      affiliateLinkId: LINK_ID,
+      productId: "p_alpha_15",
+      productName: "Alpha Studio 15",
+      brand: "Alpha",
+      oneLine: "書き出しが速い。",
+      destinationUrl: "https://example.invalid/asp/amazon/p_alpha_15",
+      ...over,
+    };
+  }
+
+  function withLinks(
+    ids: readonly string[],
+    table: Readonly<Record<string, ArticleOffer>>,
+    extra: Parameters<typeof harness>[0] = {},
+  ): Harness {
+    return harness({ variant: aVariant({ affiliateLinkIds: ids as never }), offers: table, ...extra });
+  }
+
+  it("成果リンクを持つ版から、商品カードができる", async () => {
+    const h2 = withLinks([LINK_ID], { [LINK_ID]: anOffer() });
+    const result = await h2.run();
+    expect(result.ok).toBe(true);
+
+    const cards = h2.saved[0].productCards ?? [];
+    expect(cards).toHaveLength(1);
+    expect(cards[0].name).toBe("Alpha Studio 15");
+    expect(cards[0].productId).toBe("p_alpha_15");
+  });
+
+  it("ASP が発行した URL を 1 文字も変えずに載せる", async () => {
+    // 印を足すと多くの ASP で規約違反になり、成果そのものが計上されない。
+    const url = "https://example.invalid/asp/amazon/p_alpha_15?x=1";
+    const h2 = withLinks([LINK_ID], { [LINK_ID]: anOffer({ destinationUrl: url }) });
+    await h2.run();
+    expect(h2.saved[0].productCards?.[0].affiliateUrl).toBe(url);
+  });
+
+  it("版が並べた順のまま出す", async () => {
+    const second = anOffer({
+      affiliateLinkId: "lnk_direct_soft",
+      productId: "p_delta_13",
+      productName: "Delta Light 13",
+    });
+    const h2 = withLinks([LINK_ID, "lnk_direct_soft"], {
+      [LINK_ID]: anOffer(),
+      lnk_direct_soft: second,
+    });
+    await h2.run();
+    expect(h2.saved[0].productCards?.map((c) => c.productId)).toEqual(["p_alpha_15", "p_delta_13"]);
+  });
+
+  it("出せないリンクは URL を載せず、理由を載せる", async () => {
+    // 黙って消すと、読者には「貼り忘れ」と区別が付かない。
+    const blocked = anOffer({ destinationUrl: undefined, blockedReason: "提携が終了しています。" });
+    const h2 = withLinks([LINK_ID], { [LINK_ID]: blocked });
+    await h2.run();
+    const card = h2.saved[0].productCards?.[0];
+    expect(card?.affiliateUrl).toBeUndefined();
+    expect(card?.blockedReason).toBe("提携が終了しています。");
+  });
+
+  it("成果リンクを持たない版では、商品カードの欄そのものを出さない", async () => {
+    // 空配列を入れると、画面側は「カードがある」と判断して空の見出しを出す。
+    const result = await h.run();
+    expect(result.ok).toBe(true);
+    expect(h.saved[0].productCards).toBeUndefined();
+  });
+
+  it("引き当てられなかった成果リンクは、記事に出さず公開した人へ返す", async () => {
+    const h2 = withLinks([LINK_ID, "lnk_missing"], { [LINK_ID]: anOffer() });
+    const result = await h2.run();
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+
+    expect(h2.saved[0].productCards).toHaveLength(1);
+    const reported = result.value.skipped.map((s) => s.reason).join("\n");
+    expect(reported).toContain("lnk_missing");
+  });
+
+  it("成果リンクを読めないときは、記事を出さない", async () => {
+    // 広告表記だけ付いて買う導線が 1 件も無い記事を読者に出さない。
+    // まだ何も保存していないので、保存先が戻れば同じ URL で出し直せる。
+    const h2 = withLinks([LINK_ID], { [LINK_ID]: anOffer() }, { offersFail: true });
+    const result = await h2.run();
+
+    expect(result.ok).toBe(false);
+    expect(h2.saved).toHaveLength(0);
+    expect(h2.audit()).toHaveLength(0);
+  });
+
+  it("順位表は作らない（点数を持たないものから順位を作らない）", async () => {
+    // 成果リンクからは総合点も評価軸の点も分からない。
+    // 作るには捏造するしかなく、報酬側のデータから順位を作ることになる。
+    const h2 = withLinks([LINK_ID], { [LINK_ID]: anOffer() }, {});
+    await h2.run({ articleType: "guide" });
+    expect(h2.saved[0].ranking).toBeUndefined();
   });
 });
