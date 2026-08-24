@@ -1644,6 +1644,137 @@ export type ConversationBlock = typeof conversationBlocks.$inferSelect;
 export type Faq = typeof faqs.$inferSelect;
 export type UpdateLog = typeof updateLogs.$inferSelect;
 
+
+// ---------------------------------------------------------------------------
+// ブログ UI ビルダー (feat-blog-ui-builder)
+// ---------------------------------------------------------------------------
+
+/**
+ * ブログごとのテンプレート選択。
+ *
+ * テンプレートは**並び方だけ**を決める（`src/domain/authoring/blog-template.ts`）。
+ * 記事の中身はテンプレートを知らないので、この行を書き換えても記事は壊れない。
+ */
+export const blogTemplateSelections = sqliteTable(
+  "blog_template",
+  {
+    id: text("id").primaryKey(),
+    workspaceId: text("workspace_id").notNull(),
+    siteSlug: text("site_slug").notNull(),
+    templateId: text("template_id").notNull(),
+    updatedAt: integer("updated_at", { mode: "timestamp" })
+      .notNull()
+      .default(sql`(unixepoch())`),
+  },
+  (t) => [uniqueIndex("blog_template_site_idx").on(t.siteSlug)],
+);
+
+/**
+ * ブログ既定の配色。値は `tokens.css` の `light-dark()` を選ぶ data 属性の
+ * 名前であって、色そのものではない（decision-ui-theme-implementation）。
+ */
+export const blogThemes = sqliteTable(
+  "blog_theme",
+  {
+    id: text("id").primaryKey(),
+    siteSlug: text("site_slug").notNull(),
+    brandTheme: text("brand_theme").notNull(),
+    colorMode: text("color_mode", { enum: ["auto", "light", "dark"] })
+      .notNull()
+      .default("auto"),
+  },
+  (t) => [uniqueIndex("blog_theme_site_idx").on(t.siteSlug)],
+);
+
+/**
+ * ページ単位の配色上書き。行を消すとブログ既定へ戻る（受入条件 2）。
+ * 「上書きが無い」状態を NULL 値でなく行の不在で表す。
+ */
+export const pageThemeOverrides = sqliteTable(
+  "page_theme_override",
+  {
+    id: text("id").primaryKey(),
+    siteSlug: text("site_slug").notNull(),
+    pagePath: text("page_path").notNull(),
+    brandTheme: text("brand_theme"),
+    colorMode: text("color_mode", { enum: ["auto", "light", "dark"] }),
+  },
+  (t) => [uniqueIndex("page_theme_override_site_page_idx").on(t.siteSlug, t.pagePath)],
+);
+
+/**
+ * 法定ページ 6 種（運営者情報・全カテゴリー・サイトポリシー・
+ * プライバシーポリシー・特商法表記・お問い合わせ）。
+ * 1 ブログにつき各 1 枚。無いことは「未整備」であって既定文を出さない。
+ */
+export const legalPages = sqliteTable(
+  "legal_page",
+  {
+    id: text("id").primaryKey(),
+    siteSlug: text("site_slug").notNull(),
+    kind: text("kind", {
+      enum: ["operator", "all_categories", "site_policy", "privacy_policy", "tokushoho", "contact"],
+    }).notNull(),
+    title: text("title").notNull(),
+    body: text("body").notNull(),
+    updatedAt: integer("updated_at", { mode: "timestamp" })
+      .notNull()
+      .default(sql`(unixepoch())`),
+  },
+  (t) => [uniqueIndex("legal_page_site_kind_idx").on(t.siteSlug, t.kind)],
+);
+
+/**
+ * ブログ×アフィリエイトの配置管理（どの記事のどの位置に成果リンクが在るか）。
+ * 読者向け読み取り経路はこの表を読まない（報酬情報を読者経路に混ぜない）。
+ */
+export const blogAffiliatePlacements = sqliteTable(
+  "blog_affiliate_placement",
+  {
+    id: text("id").primaryKey(),
+    workspaceId: text("workspace_id").notNull(),
+    siteSlug: text("site_slug").notNull(),
+    articleSlug: text("article_slug").notNull(),
+    placement: text("placement").notNull(),
+    trackingCode: text("tracking_code"),
+    position: integer("position").notNull().default(0),
+  },
+  (t) => [index("blog_affiliate_placement_site_article_idx").on(t.siteSlug, t.articleSlug)],
+);
+
+/**
+ * SEO/AI 検索ガイドラインの参照レジストリ。
+ *
+ * 海外・日本の出典 URL・発行元・確認日を登録し、確認日から 90 日超は
+ * 再確認対象として表示する（`src/domain/seo/guideline-reference.ts`）。
+ * 出典そのものの本文は保存しない（古くなった写しを正本に見せない）。
+ */
+export const guidelineReferences = sqliteTable(
+  "guideline_references",
+  {
+    id: text("id").primaryKey(),
+    workspaceId: text("workspace_id").notNull(),
+    title: text("title").notNull(),
+    url: text("url").notNull(),
+    publisher: text("publisher").notNull(),
+    region: text("region", { enum: ["global", "jp"] }).notNull(),
+    /** YYYY-MM-DD。90 日判定はドメイン関数が行う。 */
+    checkedAt: text("checked_at").notNull(),
+    note: text("note"),
+    createdAt: integer("created_at", { mode: "timestamp" })
+      .notNull()
+      .default(sql`(unixepoch())`),
+  },
+  (t) => [index("guideline_references_workspace_idx").on(t.workspaceId)],
+);
+
+export type BlogTemplateSelectionRow = typeof blogTemplateSelections.$inferSelect;
+export type BlogThemeRow = typeof blogThemes.$inferSelect;
+export type PageThemeOverrideRow = typeof pageThemeOverrides.$inferSelect;
+export type LegalPageRow = typeof legalPages.$inferSelect;
+export type BlogAffiliatePlacementRow = typeof blogAffiliatePlacements.$inferSelect;
+export type GuidelineReferenceRow = typeof guidelineReferences.$inferSelect;
+
 /**
  * 認証基盤（Better Auth）が使うテーブル。
  *

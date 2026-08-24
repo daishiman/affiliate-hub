@@ -43,7 +43,7 @@ github_publication: {"labels":[],"milestone":null,"mode":"local_only","project_a
 github_project_linkages: []
 pull_request_linkages: [{"number":29,"url":"https://github.com/daishiman/affiliate-hub/pull/29","base":"dev","head":"devgraph/feat-auth-workspace","draft":true}]
 execution_contexts: []
-completion_evidence: {"completed_at":"2026-08-24T12:00:00Z","evidence_refs":["docs/spec/feat-auth-workspace/migration-decision.md","drizzle/0022_orange_mystique.sql","drizzle/0023_aromatic_flatman.sql","beads:ah-361.8"],"policy":"manual","reconciled_at":"2026-08-24T13:30:00Z","source":"manual","status":"done"}
+completion_evidence: {"completed_at":"2026-08-24T12:00:00Z","evidence_refs":["docs/spec/feat-auth-workspace/migration-decision.md","drizzle/0023_orange_mystique.sql","drizzle/0024_aromatic_flatman.sql","beads:ah-361.8"],"policy":"manual","reconciled_at":"2026-08-24T13:30:00Z","source":"manual","status":"done"}
 implementation_readiness: {"checked_at":"2026-08-16T21:00:00Z","missing_sections":[],"status":"complete"}
 ---
 
@@ -177,4 +177,4 @@ system-spec/database.md がテナント分離 (§26.4) の技術投影を確定�
 - Beads `ah-361.8` は closed。ローカル MVP の受入は完了。
 - 本番 Google OAuth / remote D1 は未検証（`docs/spec/feat-auth-workspace/release-notes.md` §7）。
 - draft PR: https://github.com/daishiman/affiliate-hub/pull/29
-- 証跡: `docs/spec/feat-auth-workspace/migration-decision.md`, `drizzle/0022_orange_mystique.sql`, `drizzle/0023_aromatic_flatman.sql`, `beads:ah-361.8`
+- 証跡: `docs/spec/feat-auth-workspace/migration-decision.md`, `drizzle/0023_orange_mystique.sql`, `drizzle/0024_aromatic_flatman.sql`, `beads:ah-361.8`

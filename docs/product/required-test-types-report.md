@@ -5,8 +5,8 @@
 宣言は `docs/product/required-test-types.md`、語彙と上限は `quality-gates.config.mjs` が正本。
 
 - 最終更新: 2026-08-24
-- 要件表の要件: 261 件
-- 性質を宣言済: 256 件
+- 要件表の要件: 268 件
+- 性質を宣言済: 263 件
 - **未宣言: 5 件**（上限 5 件）
 - 理由つきの除外: 6 件（上限 7 件）
 
@@ -228,6 +228,13 @@
 | REQ-TS17 | has-input | `boundary` `equivalence` | `boundary` `equivalence` | — |
 | REQ-TS18 | has-known-breakage, has-input | `boundary` `equivalence` `regression` | `boundary` `equivalence` `regression` | — |
 | REQ-TS19 | has-input | `boundary` `equivalence` | `boundary` `equivalence` | — |
+| REQ-SEO01 | has-input | `boundary` `equivalence` | `boundary` `equivalence` | — |
+| REQ-SEO02 | has-input | `boundary` `equivalence` | `boundary` `equivalence` | — |
+| REQ-SEO03 | has-input | `boundary` `equivalence` | `boundary` `equivalence` | — |
+| REQ-SEO04 | has-input | `boundary` `equivalence` | `boundary` `equivalence` | — |
+| REQ-SEO05 | has-input | `boundary` `equivalence` | `boundary` `equivalence` | — |
+| REQ-BLOG01 | has-input | `boundary` `equivalence` | `boundary` `equivalence` | — |
+| REQ-BLOG02 | has-input | `boundary` `equivalence` | `boundary` `equivalence` | — |
 | REQ-WA01 | has-input | `boundary` `equivalence` | `boundary` `equivalence` | — |
 | REQ-WA02 | has-input, has-permission | `boundary` `equivalence` `permission-matrix` | `boundary` `equivalence` `permission-matrix` | — |
 | REQ-WB01 | has-input, has-permission | `boundary` `equivalence` `permission-matrix` | `boundary` `equivalence` `permission-matrix` | — |
@@ -292,4 +299,4 @@
 ## 未宣言の要件
 
 `REQ-TH04` `REQ-TH05` `REQ-TS02` `REQ-TS03` `REQ-TS10`
-<!-- 生成物の指紋 sha256:846d6ab68f2a25e3b7d00e5029d99da61d3e93b0f06f116deb51bba5e4846bc8 -->
+<!-- 生成物の指紋 sha256:fd8699bd80dc337fc55d367822ef0515a821b14ac74d29ee4786e337aa789d89 -->

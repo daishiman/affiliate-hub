@@ -12,10 +12,10 @@ iteration: null
 title: "system-spec architecture overview"
 owners: ["system-spec-harness"]
 created_at: "2026-08-16T12:08:04Z"
-updated_at: "2026-08-16T12:08:04Z"
+updated_at: "2026-08-24T12:00:00Z"
 status: "active"
 depends_on: []
-related_nodes: []
+related_nodes: ["feat-blog-ui-builder"]
 resource_scope: ["system-spec/00-requirements-definition.md","system-spec/completeness-report.json"]
 purpose: "確定済み system-spec の architecture context を参照可能にする。"
 goal: "仕様由来の architecture context を feature から参照できる状態。"
@@ -156,7 +156,7 @@ implementation_readiness: {"checked_at":"2026-08-16T12:08:04Z","missing_sections
 | 入口の門・ロール権限表・テナント照合 | **骨格あり** | `entry-gate.ts` / `permissions.ts` / `tenancy.ts` いずれも lines 100% |
 | 入口の門の**配線** (`src/middleware.ts`) | **動くことを確かめた** | 2026-08-24 まで 3611 件のテストで 1 行も実行されていなかった (lines 0%)。`admin-entry-middleware.test.ts` が `middleware()` の実応答を見る |
 | ブランド既定値 → 生成入力の配線 | **本 feature で追加** | 道具経路のみ届き画面経路へ届いていなかった (P10 FR-01)。組み立て側と、ブランドが 1 つだけのときの補いを追加 |
-| 断りの監査記録 | **本 feature で追加** | `audit_logs.request_id` (`drizzle/0023_aromatic_flatman.sql`)。断りの語は `requestId` 無しでは記録を作れない |
+| 断りの監査記録 | **本 feature で追加** | `audit_logs.request_id` (`drizzle/0024_aromatic_flatman.sql`)。断りの語は `requestId` 無しでは記録を作れない |
 | `brands` 表の永続化 | **無い** | 見本の保存先が供給している。追加要否とテナント backfill は P08 が所有する |
 | 本番 Workers での実通し | **未検証** | MVP のため実デプロイを行っていない。`release-notes.md` §7 |
 

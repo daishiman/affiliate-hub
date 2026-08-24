@@ -12,7 +12,7 @@ task spec の Workstream applicability が Infrastructure を `N/A` と宣言し
 出していないので、以下は**すべて未検証**である。書いていないのではなく、確かめていない。
 
 - 本番 Workers 上での Google ログインの実通し
-- 本番 D1 に対する `drizzle/0023_aromatic_flatman.sql` の適用
+- 本番 D1 に対する `drizzle/0024_aromatic_flatman.sql` の適用
 - 本番の `wrangler secret` に `BETTER_AUTH_*` / `GOOGLE_*` が入っているか
 
 ### ただし、手元の Workers ランタイムでは起動まで確かめた
@@ -63,7 +63,7 @@ task spec の Workstream applicability が Infrastructure を `N/A` と宣言し
 |---|---|
 | `src/domain/compliance/audit-log.ts` | 記録に `requestId` を持たせ、**断りの語では `requestId` 無しの記録を作れなくした** |
 | `src/application/access-denial.ts` | 断りをユースケースの外側で拾って記録へ落とす |
-| `src/db/schema.ts` / `drizzle/0023_aromatic_flatman.sql` | `audit_logs.request_id` 列と `(workspace_id, request_id)` の索引 |
+| `src/db/schema.ts` / `drizzle/0024_aromatic_flatman.sql` | `audit_logs.request_id` 列と `(workspace_id, request_id)` の索引 |
 
 「入れ忘れたら空欄で通る」ではなく「入れ忘れたら記録を作れない」にしてある。
 
@@ -85,8 +85,8 @@ task spec の Workstream applicability が Infrastructure を `N/A` と宣言し
 
 | 移行 | 内容 | 後方互換 |
 |---|---|---|
-| `drizzle/0022_orange_mystique.sql` | `policy_rules`、`disclosures.workspace_id` / `ai_assisted` / `updated_at` と索引 | **条件付き**。旧 `disclosures` が 0 行の環境だけ適用可。1 行以上なら guard が停止する |
-| `drizzle/0023_aromatic_flatman.sql` | `audit_logs.request_id`（`text`, NULL 可）追加 + 索引 | **あり**。既存行は `NULL` のまま読める |
+| `drizzle/0023_orange_mystique.sql` | `policy_rules`、`disclosures.workspace_id` / `ai_assisted` / `updated_at` と索引 | **条件付き**。旧 `disclosures` が 0 行の環境だけ適用可。1 行以上なら guard が停止する |
+| `drizzle/0024_aromatic_flatman.sql` | `audit_logs.request_id`（`text`, NULL 可）追加 + 索引 | **あり**。既存行は `NULL` のまま読める |
 
 NULL 可にしてあるので、**移行を先に当てても古いコードは動く**。
 逆順（コードを先に出して移行が後）は、断りの記録で `no such column: request_id` になる。

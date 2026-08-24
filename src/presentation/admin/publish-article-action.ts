@@ -1,9 +1,17 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { headers } from "next/headers";
 import type { ArticleType } from "@/domain/authoring";
 import type { RelationshipType } from "@/domain/compliance";
-import { distributionUseCases, signedInActor } from "@/presentation/composition";
+import { auditArticleForAiSearch } from "@/application/seo/ai-search-audit";
+import {
+  distributionUseCases,
+  notifyIndexNowOfPublish,
+  readerActor,
+  signedInActor,
+  siteUseCases,
+} from "@/presentation/composition";
 import type { PublishArticleFormState } from "./publish-article-state";
 import { failureFromDomainError, notSignedInFailure } from "./use-case-result";
 
@@ -84,13 +92,15 @@ export async function publishArticleAction(
   const publicationId = String(formData.get("publicationId") ?? "");
   const relationship = String(formData.get("relationshipType") ?? "");
   const nextReviewOn = String(formData.get("nextReviewOn") ?? "").trim();
+  const siteSlug = String(formData.get("siteSlug") ?? "");
+  const slug = String(formData.get("slug") ?? "").trim();
 
   const result = await (await distributionUseCases()).publishArticle.execute(actor, {
     publicationId,
-    siteSlug: String(formData.get("siteSlug") ?? ""),
+    siteSlug,
     categorySlug: String(formData.get("categorySlug") ?? ""),
     articleType: String(formData.get("articleType") ?? "guide") as ArticleType,
-    slug: String(formData.get("slug") ?? "").trim(),
+    slug,
     title: String(formData.get("title") ?? "").trim(),
     conclusion: String(formData.get("conclusion") ?? "").trim(),
     authorName: String(formData.get("authorName") ?? "").trim(),
@@ -120,10 +130,37 @@ export async function publishArticleAction(
   revalidatePath("/admin/distribution");
   revalidatePath(result.value.url);
 
+  // 公開できた記事を IndexNow で検索エンジンへ知らせる（feat-blog-ui-builder §SEO/AI 検索）。
+  // 通知は公開の条件ではない。skipped/failed でも公開の結果は変えず、記録だけ残す。
+  // origin は届いたリクエストから作る（環境変数に持つと環境ごとの値がずれたまま気づけない）。
+  const requestHeaders = await headers();
+  const host = requestHeaders.get("host");
+  if (host !== null) {
+    const proto = requestHeaders.get("x-forwarded-proto") ?? "https";
+    const origin = `${proto}://${host}`;
+    const notice = await notifyIndexNowOfPublish(origin, [`${origin}${result.value.url}`]);
+    // 鍵はこの経路に現れない（submitToIndexNow の契約）。状態だけを記録する。
+    console.info(JSON.stringify({ event: "indexnow_publish", ...notice }));
+  }
+
+  // 公開した記事を**読者と同じ読み取り口**から読み直し、AI 検索への備え
+  // （結論が先か・更新日・著者・出典・説明文の長さ）を点検する。
+  // 点検は公開の条件ではない。読み直せなかったときは点検ごと出さない
+  // （送った値から推測で点検すると、保存で変わった形とずれた診断を出す）。
+  let aiSearch: PublishArticleFormState["aiSearch"];
+  if (siteSlug !== "" && slug !== "") {
+    const published = await (await siteUseCases()).getArticle.execute(readerActor(), {
+      siteSlug,
+      slug,
+    });
+    if (published.ok) aiSearch = auditArticleForAiSearch(published.value);
+  }
+
   return {
     status: "done",
     message: "記事を公開しました。下のリンクから、読者に見える形を確かめられます。",
     url: result.value.url,
     skipped: result.value.skipped,
+    aiSearch,
   };
 }

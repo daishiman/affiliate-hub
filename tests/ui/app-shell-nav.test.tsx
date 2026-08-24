@@ -60,11 +60,17 @@ describe("案内の分類の読み上げ", () => {
 });
 
 describe("管理画面route metadataの正本", () => {
-  it("50画面・ナビ・分類は同じmetadataから派生する", () => {
-    // 画面を足したら人が必ずここで気づくための数え上げ。品質の閾値ではない。
-    // 2026-08-24: settings/compliance を足して 49 → 50。
-    // 実物と一致していることは `find src/app/admin -name page.tsx | wc -l` で確かめた。
-    expect(ADMIN_ROUTE_METADATA).toHaveLength(50);
+  it("51画面・ナビ・分類は同じmetadataから派生する", () => {
+    /*
+      画面を足したら人が必ずここで気づくための数え上げ。品質の閾値ではない。
+
+      2026-08-24: 49 → 51。**両側が 1 枚ずつ足していた。**
+      こちらが settings/compliance を、dev が別の 1 枚を足しており、
+      どちらの枝も単独では「50」と書いていた。合流させた実物は 51 枚である。
+      **片方の 50 をそのまま採ると、数え上げが実物とずれたまま緑になる。**
+      `find src/app/admin -name page.tsx | wc -l` = 51 で確かめた。
+    */
+    expect(ADMIN_ROUTE_METADATA).toHaveLength(51);
 
     const navRoutes = ADMIN_ROUTE_METADATA.filter((route) => route.nav !== null);
     expect(ADMIN_NAV.map((item) => item.href)).toEqual(navRoutes.map((route) => route.pattern));

@@ -52,6 +52,11 @@ const ENTRIES: readonly Entry[] = [
   },
   { href: "/admin/settings/llm", label: "生成 AI の API キー", summary: "記事を書かせるための鍵。" },
   {
+    href: "/admin/settings/seo",
+    label: "SEO/AI 検索の指針",
+    summary: "出典と確認日。90 日超は再確認と表示。",
+  },
+  {
     href: "/admin/settings/integration-access",
     label: "取得用の鍵",
     summary: "外から読むための鍵の発行と失効。",

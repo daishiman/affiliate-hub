@@ -202,6 +202,29 @@ const ROUTE_INTENT: Readonly<Record<string, { readonly intent: Gate; readonly wh
     intent: "誰でも",
     what: "成果リンクの転送（読者がクリックする先）",
   },
+  // --- 機械向け配信（feat-blog-ui-builder §SEO/AI 検索）---
+  // 検索エンジン・AI クローラーが読む配信ファイル。門を置くと
+  // クローラーが読めず、置かないことが意図そのもの。
+  "src/app/s/[site]/sitemap.xml/route.ts": {
+    intent: "誰でも",
+    what: "サイトマップ（公開記事の一覧を検索エンジン・AI へ配る）",
+  },
+  "src/app/s/[site]/robots.txt/route.ts": {
+    intent: "誰でも",
+    what: "クローラー方針（AI クローラーを明示許可し sitemap の場所を知らせる）",
+  },
+  "src/app/s/[site]/feed.xml/route.ts": {
+    intent: "誰でも",
+    what: "RSS（新着記事の配信）",
+  },
+  "src/app/s/[site]/llms.txt/route.ts": {
+    intent: "誰でも",
+    what: "llms.txt（AI 向けサイト要約。設計図の任意項目で出し分け）",
+  },
+  "src/app/indexnow.txt/route.ts": {
+    intent: "誰でも",
+    what: "IndexNow 鍵ファイル（公開配信が所有権証明の仕組みそのもの。鍵未設定なら 404）",
+  },
 };
 
 /**
@@ -392,6 +415,11 @@ const ACTION_INTENT: Readonly<
   submitContactAction: {
     intent: "誰でも",
     what: "読者からの問い合わせ（公開フォーム）",
+    reversible: "つく",
+  },
+  manageGuidelineReferenceAction: {
+    intent: "ログイン",
+    what: "SEO/AI 指針の出典を登録する・確認日を更新する（一覧に残り、後から直せる）",
     reversible: "つく",
   },
 };

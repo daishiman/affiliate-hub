@@ -15,8 +15,8 @@ created_at: "2026-08-16T12:08:04Z"
 updated_at: "2026-08-24T13:30:00Z"
 status: "active"
 depends_on: []
-related_nodes: ["feat-uiux-overhaul"]
-resource_scope: ["system-spec/index.md","system-spec/completeness-report.json","docs/spec/feat-uiux-overhaul/spec-writeback-receipt.md"]
+related_nodes: ["feat-uiux-overhaul", "feat-blog-ui-builder"]
+resource_scope: ["system-spec/index.md","system-spec/completeness-report.json","docs/spec/feat-uiux-overhaul/spec-writeback-receipt.md","docs/spec/feat-blog-ui-builder/spec-writeback-receipt.md"]
 purpose: "確定済み system-spec の index を参照可能にする。"
 goal: "仕様と architecture context を source lineage 付きで結ぶ。"
 scope_in: ["confirmed system-spec index artifact"]
@@ -77,13 +77,13 @@ implementation_readiness: {"checked_at":"2026-08-16T12:08:04Z","missing_sections
 
 | カテゴリ | 章 | 収集状態 | 実装状態 | 検証状態 | 資するゴール | 対応セル |
 |---|---|---|---|---|---|---|
-| データベース (database) | [database.md](./database.md) | 確定 | `partial` (単一D1・運営者3テーブル + Phase 1 読者ドメイン) | `unverified` | G1 G2 | database.web database.mobile database.tablet database.desktop-windows database.desktop-linux database.desktop-macos |
+| データベース (database) | [database.md](./database.md) | 確定 | `partial` (単一D1・運営者3テーブル + Phase 1 読者ドメイン + ブログ UI 6 テーブルはスキーマのみ) | `unverified` | G1 G2 | database.web database.mobile database.tablet database.desktop-windows database.desktop-linux database.desktop-macos |
 | 認証(ログイン) (auth) | [auth.md](./auth.md) | 確定 | `partial` (Better Auth / Workspace / tenant / capability はローカル実装。Google 実往復と remote D1 は未検証) | `pass` (ローカル受入) / `unverified` (Workers・本番) | G1 | auth.web auth.mobile auth.tablet auth.desktop-windows auth.desktop-linux auth.desktop-macos |
-| UI-UX (ui-ux) | [ui-ux.md](./ui-ux.md) | 確定 | `partial` (管理画面 49 を単一用途へ分割。規則は feat-uiux-overhaul。読者面は対象外) | `unverified` | G1 | ui-ux.web ui-ux.mobile ui-ux.tablet ui-ux.desktop-windows ui-ux.desktop-linux ui-ux.desktop-macos |
+| UI-UX (ui-ux) | [ui-ux.md](./ui-ux.md) | 確定 | `partial` (管理画面 51 を単一用途へ分割。規則は feat-uiux-overhaul。読者面の SEO/AI 指針画面は feat-blog-ui-builder MVP) | `unverified` | G1 | ui-ux.web ui-ux.mobile ui-ux.tablet ui-ux.desktop-windows ui-ux.desktop-linux ui-ux.desktop-macos |
 | セキュリティ (security) | [security.md](./security.md) | 確定 | `partial` (tenant 分離と capability 認可はローカル実装。同意ゲートは未実装) | `unverified` | G1 | security.web security.mobile security.tablet security.desktop-windows security.desktop-linux security.desktop-macos |
 | インフラ (infrastructure) | [infrastructure.md](./infrastructure.md) | 確定 | `partial` (Workers・単一D1・R2) | `unverified` | G2 G1 | infrastructure.web infrastructure.mobile infrastructure.tablet infrastructure.desktop-windows infrastructure.desktop-linux infrastructure.desktop-macos |
 | バックエンド (backend) | [backend.md](./backend.md) | 確定 | `partial` (3 MCPツールのPoC) | `unverified` | G2 G1 | backend.web backend.mobile backend.tablet backend.desktop-windows backend.desktop-linux backend.desktop-macos |
-| フロントエンド (frontend) | [frontend.md](./frontend.md) | 確定 | `partial` (管理画面の共通部品 3 段と CRUD。公開面は feat-uiux-overhaul の対象外) | `unverified` | G1 G2 | frontend.web frontend.mobile frontend.tablet frontend.desktop-windows frontend.desktop-linux frontend.desktop-macos |
+| フロントエンド (frontend) | [frontend.md](./frontend.md) | 確定 | `partial` (管理画面の共通部品 3 段と CRUD。公開面の sitemap/robots/RSS/llms.txt/JSON-LD/IndexNow は feat-blog-ui-builder MVP) | `unverified` | G1 G2 | frontend.web frontend.mobile frontend.tablet frontend.desktop-windows frontend.desktop-linux frontend.desktop-macos |
 | 保守運用管理 (maintenance-ops) | [maintenance-ops.md](./maintenance-ops.md) | 確定 | `not_started` (Analytics運用) | `unverified` | G1 G2 | maintenance-ops.web maintenance-ops.mobile maintenance-ops.tablet maintenance-ops.desktop-windows maintenance-ops.desktop-linux maintenance-ops.desktop-macos |
 
 ## 集約状態サマリ
@@ -116,6 +116,10 @@ implementation_readiness: {"checked_at":"2026-08-16T12:08:04Z","missing_sections
 ## 実装からの書き戻し（feat-auth-workspace / 2026-08-24）
 
 認証章 `system-spec/auth.md` は R4 reopen で実装投影だけを更新済み。本ファイルは completeness 指紋の外にある投影であり、上表の auth / security 実装状態を 2026-08-24 の実測へ揃えた。`system-spec/index.md` は C03 compile 出力のため、再 compile が手書き節を落とす既知リスク（`ah-a0o`）がある間は触らない。受領は [`docs/spec-writeback-receipt.md`](../docs/spec-writeback-receipt.md)。
+
+## 実装からの書き戻し（feat-blog-ui-builder）
+
+2026-08-24 時点で、ブログ UI ビルダーの **SEO / AI 検索 MVP** を実装した。テンプレート差し替え・配色 2 層・sticky 常時表示・固定ページ 6 種・アフィリエイト配置 UI は未接続（`ah-6lf.4`）。機械可読の質疑は `system-spec/spec-state.json` の qa_log にあり、章 Markdown への compile 投影は行っていない（compile が規範本文を消す測定済み。`ah-6lf.3`）。受領は [`docs/spec/feat-blog-ui-builder/spec-writeback-receipt.md`](../docs/spec/feat-blog-ui-builder/spec-writeback-receipt.md)。
 
 ## 全体ドキュメント出典 (未割当参照)
 

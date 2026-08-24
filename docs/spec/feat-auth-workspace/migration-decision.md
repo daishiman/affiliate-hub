@@ -9,7 +9,7 @@
 
 ## 現在の訂正（worktree 再検証）
 
-P08 初回判定後、このworktreeには `drizzle/0022_orange_mystique.sql` が追加され、
+P08 初回判定後、このworktreeには `drizzle/0023_orange_mystique.sql` が追加され、
 実際に使う `disclosures` 表へ `workspace_id` を追加する変更が入った。
 したがって、下の「migration追加0」「使用中の表はすべて既にworkspace_idを持つ」は
 **現在値ではなく、P08初回判定時点の履歴**である。

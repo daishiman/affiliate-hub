@@ -1591,6 +1591,28 @@
       }
     },
     {
+      "route": "/admin/settings/seo",
+      "primary_task": "SEO/AI 指針の出典を登録し、90 日超を再確認する",
+      "task_frequency": "low",
+      "failure_cost": "medium",
+      "keep": [
+        {
+          "item": "出典一覧と 90 日超の「再確認」表示",
+          "why": "確認日の鮮度を見に来る画面で、これが目的そのもの"
+        }
+      ],
+      "drop": [],
+      "transform": [],
+      "baseline": {
+        "source": "src/app/admin/settings/seo/page.tsx",
+        "lines": 187,
+        "lead_chars": 16,
+        "always_visible_callouts": 0,
+        "cards": 0,
+        "forms": 2
+      }
+    },
+    {
       "route": "/admin/settings/workspaces",
       "primary_task": "この作業場所の契約と表示を確かめる",
       "task_frequency": "low",

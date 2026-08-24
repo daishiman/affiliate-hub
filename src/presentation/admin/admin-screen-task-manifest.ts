@@ -87,6 +87,7 @@ const PRIMARY_TASK_BY_ROUTE_ID = {
   "settings/llm": "生成 AI の API キーを登録・確認・失効する",
   "settings/members": "誰が何を担当しているかを見る",
   "settings/roles": "役割で許される操作を確かめる",
+  "settings/seo": "SEO/AI 指針の出典を登録し、90 日超を再確認する",
   "settings/workspaces": "この作業場所の契約と表示を確かめる",
   sites: "運用中のブログを選ぶ / 新しく作る",
   "sites/[site]": "1 ブログの設計図を確かめ、運用を続けるか判断する",
@@ -177,6 +178,10 @@ const manageLlmCredentialAction = edge(
 const manageMemberAction = edge(
   "src/presentation/admin/member-action.ts",
   "manageMemberAction",
+);
+const manageGuidelineReferenceAction = edge(
+  "src/presentation/admin/guideline-reference-action.ts",
+  "manageGuidelineReferenceAction",
 );
 
 const editPolicyRuleAction = edge(
@@ -370,6 +375,18 @@ export const ADMIN_SCREEN_RUNTIME_ENTRIES: readonly AdminScreenRuntimeEntry[] = 
     "settings/llm",
     edge("src/presentation/admin/llm-credential-form.tsx", "RevokeLlmKeyForm"),
     manageLlmCredentialAction,
+  ),
+  screenMutation(
+    "guideline.register",
+    "settings/seo",
+    edge("src/presentation/admin/guideline-reference-form.tsx", "RegisterGuidelineReferenceForm"),
+    manageGuidelineReferenceAction,
+  ),
+  screenMutation(
+    "guideline.recheck",
+    "settings/seo",
+    edge("src/presentation/admin/guideline-reference-form.tsx", "RecheckGuidelineReferenceForm"),
+    manageGuidelineReferenceAction,
   ),
   screenMutation(
     "member.invite",

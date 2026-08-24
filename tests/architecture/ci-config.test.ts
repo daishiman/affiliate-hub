@@ -301,9 +301,15 @@ describe("手元と機械で同じ検査が走る（REQ-CI01 / REQ-CI03）", () 
       "0019_dapper_gauntlet",
       "0020_stiff_fabian_cortez",
       "0021_secret_vin_gonzales",
-      "0022_orange_mystique",
-      // 断りの記録に糸（request ID）を持たせるための列と索引。
-      "0023_aromatic_flatman",
+      "0022_neat_virginia_dare",
+      /*
+        dev 側の 0022 と番号が衝突したので 0022 → 0023 へずらしたもの。
+        中身（disclosures の workspace 化と policy_rules）は変えていない。
+        dev が先に着地しているので、こちらが後ろへ寄る。
+      */
+      "0023_orange_mystique",
+      // 断りの記録に糸（request ID）を持たせるための列と索引。旧 0023。
+      "0024_aromatic_flatman",
     ];
     const journal = JSON.parse(read("drizzle/meta/_journal.json")) as {
       entries: Array<{ tag: string }>;

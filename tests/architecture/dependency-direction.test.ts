@@ -48,9 +48,10 @@ const RAW_FETCH =
 /**
  * guarded-fetch を通さなくてよいもの。**理由を 1 件ずつ書く。**
  *
- * ここに載るのは「ブラウザから自分のサイトの相対パスを叩く」ものだけで、
+ * ここに載るのは「行き先を人が決められない」ものだけで、
  * SSRF が問題にしている「サーバーが外から渡された URL を取りに行く」形ではない。
- * 相対パスは転送先を人が決められないので、再検査する相手がそもそも居ない。
+ * 形は 2 通り: ブラウザから自分のサイトの相対パスを叩くものと、
+ * コードに固定した相手へ**送る**もの。どちらも転送先を再検査する相手が居ない。
  */
 const FETCH_EXEMPT: readonly { readonly file: string; readonly why: string }[] = [
   {
@@ -64,6 +65,10 @@ const FETCH_EXEMPT: readonly { readonly file: string; readonly why: string }[] =
   {
     file: "presentation/tools/webmcp-adapter.ts",
     why: "ブラウザのページ内 AI が自分のサイトの道具の入口を叩く。行き先は同一オリジンの相対パス",
+  },
+  {
+    file: "infrastructure/indexnow/indexnow-client.ts",
+    why: "IndexNow への通知。行き先はコードに固定した https://api.indexnow.org だけで、外から渡された URL ではない。guardedFetch は取得（GET）専用なので、この送信（POST）は運べない",
   },
 ];
 

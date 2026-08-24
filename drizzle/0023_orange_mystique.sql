@@ -2,14 +2,14 @@
 -- 空文字や先頭の workspace を推測で付けると、別 tenant の表記として読まれる。
 -- 旧行がある環境では何も書き換える前に止め、所有者 mapping を人が決めてから
 -- forward migration を作る。新規/空テーブル環境だけがこの migration を通る。
-CREATE TABLE `_migration_0022_disclosure_guard` (
+CREATE TABLE `_migration_0023_disclosure_guard` (
 	`legacy_count` integer NOT NULL CHECK (`legacy_count` = 0)
 );
 --> statement-breakpoint
-INSERT INTO `_migration_0022_disclosure_guard` (`legacy_count`)
+INSERT INTO `_migration_0023_disclosure_guard` (`legacy_count`)
 SELECT count(*) FROM `disclosures`;
 --> statement-breakpoint
-DROP TABLE `_migration_0022_disclosure_guard`;
+DROP TABLE `_migration_0023_disclosure_guard`;
 --> statement-breakpoint
 CREATE TABLE `policy_rules` (
 	`id` text PRIMARY KEY NOT NULL,

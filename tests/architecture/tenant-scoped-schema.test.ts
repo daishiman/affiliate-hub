@@ -47,9 +47,27 @@ const SCHEMA_FILES = ["src/db/schema.ts", "src/db/auth-schema.ts"];
  *   - `legacy_unused`: 昔の設計の名残。**どこからも使われていない**ことを 2 で機械が確かめる。
  *     使い始めた瞬間に赤くなる。そうしないと「使われていないから安全」が黙って崩れる。
  *   - `not_tenant_data`: そもそも作業場所より外側にあるもの（作業場所そのもの・身元）。
+ *   - `unwired`: **これから使う**が、まだ表しか無いもの。`legacy_unused` と機械の扱いは同じで
+ *     （2 が import を見張る）、人に対する意味だけが逆である。片付ける先が過去ではなく未来にある。
+ *     `legacy_unused` に混ぜると「もう使わない」と読めてしまい、**配線する人が免除に気づかない**。
+ *
+ * `UNWIRED` はその名前の一覧で、**索引側の免除（`INDEX_EXEMPT`）とも共有する**。
+ * 未配線を根拠にした免除は、列が無い側と索引が無い側の両方に出る。
+ * 根拠が 1 つなら置き場所も 1 つにしないと、片側だけ剥がれて穴が残る。
  */
+const UNWIRED: ReadonlySet<string> = new Set([
+  "blog_theme",
+  "page_theme_override",
+  "legal_page",
+  "blog_template",
+  "blog_affiliate_placement",
+]);
+
 const TABLE_EXEMPT: Readonly<
-  Record<string, { readonly kind: "legacy_unused" | "not_tenant_data"; readonly why: string }>
+  Record<
+    string,
+    { readonly kind: "legacy_unused" | "not_tenant_data" | "unwired"; readonly why: string }
+  >
 > = {
   // --- 昔の設計の名残（2026-08-24 実測: src/ のどこからも import されていない） ---
   asps: { kind: "legacy_unused", why: "旧・運営者ドメイン。読み書きする口が 1 つも無い" },
@@ -88,6 +106,22 @@ const TABLE_EXEMPT: Readonly<
   account: { kind: "not_tenant_data", why: "Better Auth の内部表（外部提供元との紐付け）" },
   verification: { kind: "not_tenant_data", why: "Better Auth の内部表" },
   rate_limit: { kind: "not_tenant_data", why: "Better Auth の内部表" },
+
+  /*
+   * --- まだ配線していない（2026-08-24 実測: src/ のどこからも import されていない） ---
+   *
+   * dev が足したブログ用の表。作業場所ではなく `site_slug` を鍵にしている。
+   * `site_blueprints_slug_idx` は slug 単独の一意索引なので、slug は**全作業場所を通して一意**であり、
+   * いまのところ slug が分かれば作業場所も一意に決まる。**だから安全なのではない。**
+   * その一意性は `site_blueprints` の索引 1 本が支えているだけで、
+   * 作業場所ごとに slug を再利用したくなった日（`sites` を作業場所つきにした日）に黙って崩れる。
+   *
+   * それでも今ここで `workspace_id` を足す移行を書かないのは、**読み書きする口がまだ 1 つも無い**からで、
+   * 列の形は最初の口を書く人が決めたほうが正しい。前提は 2 が見張る。
+   */
+  blog_theme: { kind: "unwired", why: "site_slug 鍵。読み書きする口がまだ無い" },
+  page_theme_override: { kind: "unwired", why: "site_slug 鍵。読み書きする口がまだ無い" },
+  legal_page: { kind: "unwired", why: "site_slug 鍵。読み書きする口がまだ無い" },
 };
 
 /**
@@ -101,6 +135,14 @@ const INDEX_EXEMPT: Readonly<Record<string, string>> = {
   sessions: "主キーが合言葉の潰した値。作業場所は結果として読む列で、絞る列ではない",
   integration_key_usages:
     "鍵 id で数える。鍵そのものが 1 つの作業場所に属するので、鍵 id が既に作業場所を含んでいる",
+
+  /*
+   * この 2 本は `workspace_id` **列は持っている**が、索引が `site_slug` で始まる。
+   * 上の 3 本と根拠は同じ（未配線）なので `UNWIRED` に載っていることを機械が確かめる。
+   * 最初の口を書く人が、索引を作業場所始まりに直す。
+   */
+  blog_template: "未配線。site_slug 始まりの索引しか無い。最初の口を書くときに直す",
+  blog_affiliate_placement: "未配線。site_slug 始まりの索引しか無い。最初の口を書くときに直す",
 };
 
 /**
@@ -432,24 +474,67 @@ describe("保存先の表は、作業場所で切れている", () => {
  * 誰かが `articles` を使い始めた日に、その 1 本は作業場所をまたいで読める。
  * **画面からは何も変わって見えない。**
  */
-describe("作業場所を持たない古い表は、どこからも触られていない", () => {
+describe("使われていないことを根拠にした免除は、使われていない", () => {
   it("使い始めたものが 1 つも無い", () => {
-    const legacy = Object.entries(TABLE_EXEMPT)
-      .filter(([, v]) => v.kind === "legacy_unused")
-      .map(([name]) => name);
+    /*
+     * `legacy_unused`（過去）と `UNWIRED`（未来）は、人にとっては逆向きだが
+     * **機械にとっては同じ 1 つの主張**である——「この表を読み書きする口は無い」。
+     * 主張が同じなら見張りも 1 つにする。片方だけ見張ると、
+     * 見張られていない側から同じ穴が開く。
+     */
+    const unused = [
+      ...Object.entries(TABLE_EXEMPT)
+        .filter(([, v]) => v.kind === "legacy_unused" || v.kind === "unwired")
+        .map(([name]) => name),
+      ...UNWIRED,
+    ];
     // 床は同じ `it` の中に置く。import を 1 つも読めていなければ、
     // 「誰も使っていない」も「誰も読めていない」も同じ空の一覧で出る。
-    expect(legacy.length).toBeGreaterThan(5);
+    expect(unused.length).toBeGreaterThan(5);
     expect(IMPORTED.size).toBeGreaterThan(10);
 
     const symbolOf = new Map(TABLES.map((t) => [t.name, t.symbol]));
-    const used = legacy.filter((name) => {
+    const used = unused.filter((name) => {
       const symbol = symbolOf.get(name);
       return symbol !== undefined && IMPORTED.has(symbol);
     });
     expect(
       used,
-      "作業場所を持たない古い表を使い始めています。使うなら先に workspace_id を足してください。",
+      "使われていないことを根拠に免除した表を、使い始めています。使うなら先に workspace_id と作業場所始まりの索引を足してください。",
+    ).toEqual([]);
+  });
+
+  it("未配線の一覧は、実在する表だけを指している", () => {
+    // 表を消した／名前を変えたのに一覧が残ると、次に同じ名前の表を足した日に黙って免除される。
+    expect(UNWIRED.size).toBeGreaterThan(3);
+    expect(TABLES.length).toBeGreaterThan(35);
+    const known = new Set(TABLES.map((t) => t.name));
+    expect([...UNWIRED].filter((name) => !known.has(name))).toEqual([]);
+  });
+
+  it("未配線を根拠にした免除は、両方の免除表で同じ一覧を指している", () => {
+    /*
+     * 根拠が 1 つで置き場所が 2 つある以上、ずれうる。
+     * `INDEX_EXEMPT` にだけ足して `UNWIRED` に足し忘れると、
+     * その表は**見張りの外**で免除され続ける。
+     */
+    expect(UNWIRED.size).toBeGreaterThan(3);
+    const claimed = [
+      ...Object.entries(TABLE_EXEMPT)
+        .filter(([, v]) => v.kind === "unwired")
+        .map(([name]) => name),
+      ...Object.entries(INDEX_EXEMPT)
+        .filter(([, why]) => why.startsWith("未配線"))
+        .map(([name]) => name),
+    ];
+    expect(claimed.length).toBeGreaterThan(3);
+    expect(
+      claimed.filter((name) => !UNWIRED.has(name)),
+      "未配線を理由に免除した表が UNWIRED に載っていません。載せないと、使い始めても赤くなりません。",
+    ).toEqual([]);
+    expect(
+      [...UNWIRED].filter((name) => !claimed.includes(name)),
+      "UNWIRED に載っているのに、どちらの免除表からも理由が消えています。",
     ).toEqual([]);
   });
 });
@@ -530,7 +615,7 @@ describe("表への問い合わせは、作業場所で絞っている", () => {
 });
 
 describe("広告表記を tenant 化する migration は、所有者を推測しない", () => {
-  const migration = readFileSync(join(ROOT, "drizzle/0022_orange_mystique.sql"), "utf8");
+  const migration = readFileSync(join(ROOT, "drizzle/0023_orange_mystique.sql"), "utf8");
   const schema = readFileSync(join(ROOT, "src/db/schema.ts"), "utf8");
   const disclosureSchema = schema.slice(
     schema.indexOf("export const disclosures"),
@@ -538,7 +623,7 @@ describe("広告表記を tenant 化する migration は、所有者を推測し
   );
 
   it("旧行があるときは、空の workspace_id を付けて続行せず先に停止する", () => {
-    const guard = migration.indexOf("_migration_0022_disclosure_guard");
+    const guard = migration.indexOf("_migration_0023_disclosure_guard");
     const tenantColumn = migration.indexOf("ALTER TABLE `disclosures` ADD `workspace_id`");
     expect(guard).toBeGreaterThanOrEqual(0);
     expect(tenantColumn).toBeGreaterThan(guard);

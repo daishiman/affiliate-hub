@@ -1,10 +1,35 @@
+import type { Metadata } from "next";
 import { readerActor, readerUseCases } from "@/presentation/composition";
 import { ReadFailureBody, SiteFrame, stopIfMissing } from "@/presentation/site/page-frame";
 import { ReaderToolForm } from "@/presentation/site/reader-tool-form";
+import { siteMetadataUrl } from "@/presentation/site/site-metadata";
 import { siteHref } from "@/presentation/site/view-model";
 import { ErrorView, SectionHeading, SitePage, StubNotice } from "@/presentation/ui";
 
 export const dynamic = "force-dynamic";
+
+/**
+ * 道具ページの題名と要約。これは記事ではないので、記事の読み取りモデルを
+ * 通さず道具の定義（名前・目的）から作る。読めなければ空（嘘の canonical を配らない）。
+ */
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ site: string; tool: string }>;
+}): Promise<Metadata> {
+  const { site, tool } = await params;
+  const definition = await readerUseCases().getReaderTool.execute(readerActor(), {
+    siteSlug: site,
+    slug: tool,
+  });
+  if (!definition.ok) return {};
+  const canonical = await siteMetadataUrl(site, `/tools/${tool}`);
+  return {
+    title: definition.value.name,
+    description: definition.value.purpose,
+    ...(canonical === null ? {} : { alternates: { canonical } }),
+  };
+}
 
 /**
  * 診断・計算の道具。
