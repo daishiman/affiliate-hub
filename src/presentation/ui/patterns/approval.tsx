@@ -1,5 +1,6 @@
 import { UI_COPY } from "../copy";
 import { Callout } from "../primitives/callout";
+import { Icon } from "../primitives/icon";
 import styles from "./patterns.module.css";
 
 /**
@@ -60,7 +61,7 @@ export function ApprovalFlow({ current }: { readonly current: ApprovalState }) {
               .join(" ")}
             aria-current={isCurrent ? "step" : undefined}
           >
-            {done && <span aria-hidden="true">✓</span>}
+            {done && <Icon name="complete" />}
             {LABEL[step]}
           </li>
         );

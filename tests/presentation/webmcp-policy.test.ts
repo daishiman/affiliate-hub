@@ -183,9 +183,11 @@ describe("宣言型フォーム", () => {
     // 使うと、AI が確認画面を飛ばして送信できてしまう。
     // 仕様（統合仕様 §3）で明確に禁じているので、書けないようにしておく。
     const root = resolve(import.meta.dirname, "../../src");
+    // 除外は置かない。以前は `webmcp-policy.ts` を除いていたが、
+    // いまその中に語は 1 つも無く、除外だけが残っていた。
+    // 「ここに書けば見逃される 1 ファイル」を残す意味は無い。
     const offenders = sourceFiles(root)
       .filter((f) => /toolautosubmit|toolAutoSubmit/i.test(readFileSync(f, "utf8")))
-      .filter((f) => !f.endsWith("webmcp-policy.ts"))
       .map((f) => relative(root, f));
     expect(offenders, "状態変更に toolautosubmit は使えません").toEqual([]);
   });

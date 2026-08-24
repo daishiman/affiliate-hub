@@ -14,8 +14,8 @@
  * @types keyboard
  */
 import { describe, expect, it } from "vitest";
-import { ROUTE_CASES, ROUTE_STATE_CASES, importPathOf, propsOf } from "./route-table";
-import { focusableOrder, intoDom, renderRoute } from "../support/render";
+import { ROUTE_CASES, ROUTE_STATE_CASES, renderCase } from "./route-table";
+import { focusableOrder, intoDom } from "../support/render";
 
 /**
  * キーボードだけで画面を操作できるか。
@@ -61,7 +61,7 @@ const ALL_ROUTES = [
 ];
 
 async function domOf(route: (typeof ALL_ROUTES)[number]) {
-  const html = await renderRoute(importPathOf(route.file), propsOf(route));
+  const html = await renderCase(route);
   return intoDom(html);
 }
 

@@ -77,7 +77,7 @@
 | REQ-S06 | has-screen | — |
 | REQ-S07 | has-screen | — |
 | REQ-S08 | has-screen | — |
-| REQ-S09 | has-screen, has-permission | — |
+| REQ-S09 | has-screen, has-permission, has-shared-visual-form | — |
 | REQ-S10 | has-screen, has-permission | — |
 | REQ-API02 | has-permission, has-tenant | — |
 | REQ-R01 | has-permission | — |
@@ -103,7 +103,7 @@
 | REQ-QC09 | has-enumerated-input | — |
 | REQ-QC10 | has-input | — |
 | REQ-QC11 | has-enumerated-input | — |
-| REQ-QC12 | has-calculation | boundary: 公開ゲートの 13 項目は真偽の組合せで、大小の端が無い。組合せ側は性質テストが生成して当てている |
+| REQ-QC12 | has-calculation | boundary: 公開ゲートの 13 項目は真偽の組合せで、大小の端が無い。組合せ側は `tests/property/publish-gate.property.test.ts` の手書きの決定表（13 項目 × 単独違反 18 行）が当てている（2026-08-21 に理由を差し替え。§4 参照） |
 | REQ-W01 | has-enumerated-input | — |
 | REQ-W02 | has-enumerated-input | — |
 | REQ-W03 | has-enumerated-input | — |
@@ -243,7 +243,7 @@
 | REQ-TS08 | has-input | — |
 | REQ-TS09 | has-code-placement-rule | — |
 | REQ-TS11 | has-known-breakage | — |
-| REQ-TS12 | has-input | — |
+| REQ-TS12 | has-input, has-shared-visual-form | — |
 | REQ-TS13 | has-input | — |
 | REQ-TS14 | has-input | — |
 | REQ-TS15 | has-input | — |
@@ -284,6 +284,43 @@
 | REQ-FB07 | has-screen | — |
 | REQ-FB10 | has-enumerated-input, has-secret | — |
 | REQ-FB11 | has-ai-text | — |
+| REQ-UX01 | has-code-placement-rule | — |
+| REQ-UX02 | has-enumerated-input | — |
+| REQ-UX03 | has-enumerated-input | — |
+| REQ-UX04 | has-code-placement-rule | — |
+| REQ-UX05 | has-input | — |
+| REQ-UX06 | has-code-placement-rule | — |
+| REQ-UX07 | has-code-placement-rule | — |
+| REQ-UX08 | has-code-placement-rule, has-input, has-shared-visual-form | — |
+| REQ-UX09 | has-screen | — |
+| REQ-UX10 | has-input | — |
+
+### REQ-UX01〜UX10 に `has-code-placement-rule` が 4 件あるのはなぜか
+
+UI/UX の要件なので `has-screen` を並べたくなるが、当てたのは 4 件が
+`has-code-placement-rule`、2 件が `has-enumerated-input`、3 件が `has-input`、
+`has-screen` は 1 件だけである。分けたのは §5 の線引き——
+**その要件を破る差分が、値を 1 つも変えずに書けるか**——にそのまま従った結果である。
+
+| REQ | 破り方 | 値が動くか |
+| --- | --- | --- |
+| UX01 単一用途画面 | 1 枚の画面にフォームをもう 1 つ書く | 動かない |
+| UX04 SNS の拡張 | 画面の側に配信先ごとの分岐を書く | 動かない |
+| UX06 重複実装の解消 | 同じ並びを別の画面にもう 1 度書く | 動かない |
+| UX07 ブログ別部品 | 共通部品に slug の分岐を 1 本足す | 動かない |
+| UX08 余白 | `padding: 24px` と生値で書く | **動く** |
+| UX05 コンセプト選択 | 0 本のまま生成を始めさせる | **動く** |
+
+UX08 だけが両方を持つ。余白の**置き場所**（トークンを通さず生値を書く）は
+値が動かない破り方で、文章量の**上限**（40 字・2 個）は値が動く破り方である。
+1 つの要件に 2 つの壊れ方があるとき、片方だけを宣言すると
+**宣言しなかった側は検査があっても数えられない**ので、両方を書く。
+
+`has-screen` を UX09 だけにしたのは、UX09 だけが
+`screen-states`・`a11y`・`keyboard` の 3 つを実際に見ているためである。
+ほかの 9 件も画面に触れてはいるが、`keyboard` の検査が無い。
+§5 が禁じている「軽い性質へ逃げる」の逆——**重い性質を名乗って中身を欠く**——
+を避けるため、見ていないものには名前を付けていない。
 
 ## 4. 未宣言の要件について（正直に書く）
 
@@ -424,23 +461,16 @@ Google OAuth / GitHub / AWS / Slack / 秘密鍵）と、名前つきの実値代
 
 そこで印は、**その分かれ目を実際に持っている単体側の検査**へ付けた。
 
-下の表は 1 列目を要件 ID にしていない。**宣言表の読み取りが、この文書の
-どこにあっても「先頭セルが要件 ID の行」を宣言として拾うため**である
-（`scripts/required-test-types.mjs` の `readRegistry`）。
-ここで `| REQ-A01 |` と書き出すと、解説の表が 2 つ目の宣言として数えられ、
-「除外に知らない種別 `tests/domain/...`」という意味の通らない誤りが出る。
-正本は §3 の表 1 つだけ、という形を崩さないための書き方である。
-
-| 受け入れ条件 | REQ | 性質 | 印を付けた先 | そこにある分かれ目 |
+| REQ | 受け入れ条件 | 性質 | 印を付けた先 | そこにある分かれ目 |
 | --- | --- | --- | --- | --- |
-| §30.1 URL登録 | REQ-A01 | has-input, has-state | `tests/domain/link-ingestion.test.ts` | 受け取る / 受け取らない URL、内部ネットワークの端、受信箱の 4 状態 |
-| §30.2 比較 | REQ-A02 | has-input | `tests/application/read-product.test.ts` | 1 つでは比較にならない、1 つでも引けなければ途中まで出さない、件数の上限 |
-| §30.3 ペルソナ | REQ-A03 | has-input | `tests/application/manage-personas.test.ts` | 試した記録が無い書き手の一人称は止まる / 公式情報に基づく書き方は通る |
-| §30.4 AI生成 | REQ-A04 | has-input, has-ai-text | `generation-matrix.test.ts` / `generation-plan.test.ts` | 上限 0 以下は断る、指示として読ませる書き方の検出、3 回を超えたら成功にしない |
-| §30.5 ブログ | REQ-A05 | has-state | `tests/application/build-site.test.ts` | 13 段階のどこが埋まっていないか、保存すると次が開く |
-| §30.6 配信 | REQ-A06 | has-state, has-tenant | `tests/application/manage-distribution.test.ts` | 公開済みからはどこへも進めない、他の作業場所の配信は見せない |
-| §30.7 アフィリエイト | REQ-A07 | has-permission | `tests/application/affiliate.test.ts` | 売上を見る権限が無ければ一覧そのものを返さない |
-| §30.8 追跡可能性 | REQ-A08 | has-input | `tests/application/read-product.test.ts` | 事実と推測を読者へ出す言葉で区別する、実測の主張には資料が付く |
+| REQ-A01 | §30.1 URL登録 | has-input, has-state | `tests/domain/link-ingestion.test.ts` | 受け取る / 受け取らない URL、内部ネットワークの端、受信箱の 4 状態 |
+| REQ-A02 | §30.2 比較 | has-input | `tests/application/read-product.test.ts` | 1 つでは比較にならない、1 つでも引けなければ途中まで出さない、件数の上限 |
+| REQ-A03 | §30.3 ペルソナ | has-input | `tests/application/manage-personas.test.ts` | 試した記録が無い書き手の一人称は止まる / 公式情報に基づく書き方は通る |
+| REQ-A04 | §30.4 AI生成 | has-input, has-ai-text | `generation-matrix.test.ts` / `generation-plan.test.ts` | 上限 0 以下は断る、指示として読ませる書き方の検出、3 回を超えたら成功にしない |
+| REQ-A05 | §30.5 ブログ | has-state | `tests/application/build-site.test.ts` | 13 段階のどこが埋まっていないか、保存すると次が開く |
+| REQ-A06 | §30.6 配信 | has-state, has-tenant | `tests/application/manage-distribution.test.ts` | 公開済みからはどこへも進めない、他の作業場所の配信は見せない |
+| REQ-A07 | §30.7 アフィリエイト | has-permission | `tests/application/affiliate.test.ts` | 売上を見る権限が無ければ一覧そのものを返さない |
+| REQ-A08 | §30.8 追跡可能性 | has-input | `tests/application/read-product.test.ts` | 事実と推測を読者へ出す言葉で区別する、実測の主張には資料が付く |
 
 **受け入れ用の検査そのものには印を付けていない。**
 付けても構わないが、付けると「入口を通したこと」が種別の充足として数えられ、
@@ -486,7 +516,7 @@ Google OAuth / GitHub / AWS / Slack / 秘密鍵）と、名前つきの実値代
 16 件のイベントは必須項目を 1 つずつ落とし、門は止める基準を 1 つずつ未実行に戻し、
 生成の依頼は 2 回組み立てて字面ごと比べる。
 
-性質の当て方は次のとおり。1 列目を要件 ID にしていない理由は 1 つ上の節と同じ。
+性質の当て方は次のとおり。
 
 | 要件 | 性質 | 印を付けた先 | そこにある分かれ目 |
 | --- | --- | --- | --- |
@@ -888,6 +918,16 @@ D1 版は成功する。同じ言明を両方に通す検査を書けば、こ�
 **赤の実測**: この修正を入れる前は 95 / 149、入れたあとは 88 / 153。
 経緯表は今もこの文書にあるので、区切りを外せばまた 95 に戻る。
 
+**2026-08-21 追記（`ah-c7h`）**: ここまでは実装だけで、**それを見張るテストが無かった**。
+`tests/architecture/required-test-types-registry-scope.test.ts` を足し、
+§4 へ `| REQ-A01 | … |` という**いちばん危ない形の解説表**を足しても
+宣言の件数が 1 件も動かないことを固定した。
+区切りを外して実測すると 243 → 245（作った文書では 268 → 270）で赤になる。
+
+あわせて「§4 の表は 1 列目を要件 ID にしない」という**書き方の作法**をやめ、
+受け入れ側の表を要件 ID 始まりに戻した。作法は次に書く人へ伝わらない。
+戻したあとも宣言済み 243 / 未宣言 7 のままである。
+
 ### 2026-08-18: 読まれない場所に印があった（`ah-wes` の途中で見つけた）
 
 `audit-log` を数えているときに、`@types audit-log` と書いてあるのに
@@ -1100,6 +1140,19 @@ D1 版は成功する。同じ言明を両方に通す検査を書けば、こ�
 **語だけがあって出す場所が無いのは、`export.performed` と同じ形**である。
 今回はそこから 1 件、実際の穴（本文を人へ渡すのに記録が無い）が出た。
 残る 9 語（2 段目 + 3 段目）は残課題 74 に置き、1 語ずつ実装と突き合わせる。
+
+> **2026-08-21 に決着した（残課題 74）。**上の表はこの日の測り直しで
+> **実処理 27 / 見本のみ 0 / 出す場所なし 6**（union は 33 語）になった。
+> `content.created` は**語を消した**（仕様 §7 の必須記録 6 つにも
+> `audit-log.ts` の必須 3 つにも作成が無く、作る操作自体も存在しない）。
+> `ranking_model.changed` は要件が求めている記録なので語を残し、
+> **見本の行のほうを落とした**——見本は「実際に起きうる操作」の見本でなければ、
+> 画面を見た人を欺く。残る 6 語は 1 語ずつの理由を
+> `quality-gates.config.mjs` の `AUDIT_ACTIONS_WITHOUT_EMITTER_REASONS` に置き、
+> 検査が**両方向**で突き合わせる（理由の無い穴を作れない／出す場所が付いた語の
+> 理由が残っていると赤）。数の上限だけでは**語が入れ替わっても緑**だった。
+> 実際 `member.role_changed` は出す場所が付いたのに、説明は残課題 62 待ちのまま
+> 数が 6 で動かず、古くなったのは説明だけだった。
 
 #### 赤の実測
 
@@ -1330,16 +1383,22 @@ REQ-WC04 の必須種別（`equivalence` / `boundary`）は `webmcp-policy.test.
 
 **残り 8 語は実装ではなく数の固定にした。**機能そのものが無いので、
 記録だけ先に足しても出す機会が来ない。
+（2026-08-21 に 8 語のうち 2 語が片付いた。`member.role_changed` は機能が入って
+出す場所を持ち、`content.created` は要件が求めていないので語ごと消した。）
 `tests/architecture/audit-action-emitters.test.ts` が `AuditAction` を型定義から読み、
 `src/` を歩いて 3 分類する。
 
-| 分類 | 数 | 上限 |
+| 分類 | 数 | 水準 |
 |---|---|---|
-| 実処理から出している | 20 | 下限 20（下回ったら赤） |
-| 見本データの中だけ | 2 | `AUDIT_ACTIONS_MAX_SAMPLE_ONLY = 2` |
-| どこにも出す場所が無い | 6 | `AUDIT_ACTIONS_MAX_WITHOUT_EMITTER = 6` |
+| 実処理から出している | 27 | 下限 `AUDIT_ACTIONS_MIN_EMITTED = 27` |
+| 見本データの中だけ | 0 | `AUDIT_ACTIONS_MAX_SAMPLE_ONLY = 0` |
+| どこにも出す場所が無い | 6 | `AUDIT_ACTIONS_MAX_WITHOUT_EMITTER = 6` + 1 語ずつの理由 |
 
-**日本語ラベルの表は数えない。**`manage-workspace.ts` に 28 語すべての訳が並んでおり、
+（2026-08-21 に測り直した数。20 / 2 / 6 だった日から、担当者の役割変更・
+配信予定・サイト作成・改善ループの入口が記録へつながっている。
+床を 20 に置いたままにすると、**7 語ぶんの記録が黙って消えても緑**になる。）
+
+**日本語ラベルの表は数えない。**`manage-workspace.ts` に全語の訳が並んでおり、
 最初に数えたときはここを拾って**全語が出している**という答えになった。
 `"語": "日本語"` の形の行だけを外している。
 
@@ -1354,8 +1413,11 @@ REQ-WC04 の必須種別（`equivalence` / `boundary`）は `webmcp-policy.test.
 
 | 測ったこと | 結果 |
 |---|---|
-| いまの内訳 | 実処理 20 / 見本のみ 2（`content.created` `ranking_model.changed`）/ なし 6 |
-| 語を足すと落ちるか | union に 1 語足すと `7 to be less than or equal to 6` で赤。名指しで語名も出る |
+| いまの内訳（2026-08-21） | 実処理 27 / 見本のみ 0 / なし 6（union 33 語） |
+| 語だけ戻すと落ちるか | `content.created` を union へ戻すと 3 件が赤（上限・理由の欠落・説明の無い語） |
+| 見本にだけ語を置くと落ちるか | 見本の行を `ranking_model.changed` に戻すと 2 件が赤（見本のみ 0 / 理由の表が古い） |
+| 理由を 1 行消すと落ちるか | `connector.connected` の理由を消すと 2 件が赤。語名が出る |
+| 出す場所が付いた語の理由を残すと落ちるか | `member.role_changed` を理由の表へ戻すと 1 件が赤 |
 
 **`@types` は付けていない。**`@req REQ-SEC09` だけである。
 REQ-SEC09 の必須種別（`audit-log` / `boundary` / `db-migration` / `equivalence` / `secrets`）は
@@ -1532,8 +1594,6 @@ QC-01〜QC-17 の品質検査である。除外は **1 件も増やしていな�
 **緩めたのではなく、`equivalence` `boundary` `decision-table` の 3 つとも必須になる、
 より強い側へ倒した**。「両方を名乗る要件は無い」と書いていたのは、
 1 つの入力軸について両方を名乗るなという意味で、束ねられた要件の話ではない。
-
-1 列目を要件 ID にしていないのは上の節と同じ理由である。
 
 | 要件 | 内容 | 性質 | 印を付けた先 | そこにある分かれ目 |
 | --- | --- | --- | --- | --- |
@@ -2605,6 +2665,17 @@ FD 群のためだけの名前になっていないことの確認として、�
 （測るには `src` の下に置き場を作る必要があり、この作業場所では後始末に消す操作を使わない決まりのため）。
 残課題へ起票した。
 
+**2026-08-21 に塞いだ（`ah-tih`）。**向きを 1 本足した:
+`judgeLayerInventory()`（`quality-gates.config.mjs`）が `src` 直下の実ディレクトリ側から
+`LAYER_COVERAGE` を突き合わせ、床を持たない置き場を数える。除く条件は名前の一覧ではなく
+規則で書いてある（`LAYER_EXEMPTION_RULES`: 測られる中身を持たない／二重下線で囲まれた形）。
+**このときは壊して測った**: `src/zz_probe_layer/probe.ts` を 1 枚置くと
+「床を持たない置き場: src/db, src/zz_probe_layer（上限 1）」で赤くなり、
+同じ置き場を `probe.d.ts` へ替えると規則で除かれて緑に戻った。
+置き場は作業場所の外へ退けた（**消す操作は使っていない**）。
+`src/db` は床を持たないまま 1 件残っている（`MAX_UNFLOORED_LAYERS = 1`）。
+下限の数字を決めるのはこの課題の外なので、**数で縛って**新しく増えた分だけを赤にしてある。
+
 ### 2026-08-19 に減らしたぶん（10 → 9）: `REQ-IM13` は「作った」ぶんで減った
 
 前の回に「表がまだ無い」と書いて残した 1 件である。**印が抜けていたのではなく、
@@ -2756,6 +2827,37 @@ FD 群のためだけの名前になっていないことの確認として、�
 古い理由は、古いまま読むと納得できてしまうところが厄介である。
 「検査が無い」と書いてあれば、次に読む人は検査を書く仕事だと思って素通りする。
 実際に足りないのは語彙のほうだった。
+
+### 2026-08-21: REQ-QC12 の除外理由が、存在しない当て先を指していた
+
+除外の**結論**（`boundary` は要らない）は変わっていない。変えたのは**理由**である。
+
+古い理由はこう書いてあった——「組合せ側は性質テストが生成して当てている」。
+この文が指していた先は `tests/property/publish-gate.property.test.ts` だが、
+**そこは組合せを当てていなかった。**
+
+前提が崩れたのはこの日の点検（traceability の U 節）で、次の計測による。
+`publish-gate.ts` の更新責任者の判定を `if (false && !c.updateOwnerId)` にして
+**要件の文がそのまま禁じている行為**（責任者のいない記事を公開する）を通したところ、
+`publish-gate.property.test.ts` は **8 件が 8 件とも緑のまま**だった。
+落ちたのは `tests/domain/invariants.test.ts` だけである。
+あの性質テストが揺らしていたのは開示のまわりだけで、13 項目のうち残りは
+一度も単独では試されていなかった。つまり「生成が当てている」は、
+書かれた時点はともかく、**読んだ時点では偽**になっていた。
+
+いま実際に当てているのは、同じファイルへ足した**手書きの決定表**である。
+13 項目それぞれについて「その 1 つだけを違反させた候補」を 18 行ならべ、
+`failures` がその 1 件だけを名指し、かつ `skipped` に入らないことを見る。
+上の壊しは、この表の 1 行だけを赤にした。
+
+**理由の文を放っておくと、次の除外がこの文を根拠に生える。**
+「性質テストが生成して当てている」は再利用しやすい言い回しで、
+実際に当てているかを確かめずに書き写せてしまう。だから消すのではなく、
+いつ・何の計測で前提が崩れたかをここに残す。同じ文を書きに戻る人が、
+まずこの節に当たるようにするためである。
+
+除外の**数は動かしていない**（`boundary` 1 件のまま）。
+上限（`TEST_TYPES_MAX_EXCLUSIONS`）も動かしていない。
 
 ## 5. 除外という逃げ道について
 

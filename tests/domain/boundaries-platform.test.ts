@@ -157,6 +157,7 @@ describe("メンバーの役割と担当範囲", () => {
     id,
     workspaceId: WS,
     userId: asUserId("u_1"),
+    invitedEmail: "miwa@example.com",
     displayName: "三輪",
     invitedAt: NOW,
   };

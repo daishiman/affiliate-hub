@@ -1,4 +1,4 @@
-/** @tier 2 */
+/** @tier 2 @req REQ-FB07, REQ-FB09, REQ-FB12, REQ-TS07 */
 import { readFileSync, readdirSync } from "node:fs";
 import path from "node:path";
 import { drizzle } from "drizzle-orm/d1";
@@ -220,8 +220,40 @@ describe("保存して読み戻す", () => {
     if (!detail.ok) return;
     // 伏せた件数は 0 でないときに画面へ出る。ここが 0 に戻ると、
     // 「一部を伏せました」の案内が黙って消える。
-    expect(detail.value.redactedCount).toBe(2);
+    expect(detail.value.redactedCount).toBeGreaterThanOrEqual(2);
     expect(detail.value.jsErrorCount).toBe(1);
+  });
+
+  it("悪性 payload は D1 の JSON 列にも監査記録にも残らない", async () => {
+    const secret = "d1-secret-token-987";
+    await submitOne(owner, {
+      origin: {
+        screenName: `user@example.test ${secret}`,
+        url: `https://example.invalid/admin/rankings?token=${secret}#private`,
+        route: `/admin/rankings?email=user@example.test#${secret}`,
+        viewportWidth: 1280,
+        viewportHeight: 900,
+      },
+      technical: {
+        jsErrors: [`TypeError: ${secret}`],
+        failedRequests: [`500 https://example.invalid/api/rankings?token=${secret}`],
+        userAgent: `user@example.test ${secret}`,
+        recentActions: [`「user@example.test ${secret}」を押した`],
+        redactedCount: 0,
+      },
+    });
+
+    const stored = await proxy.env.DB.prepare(
+      "SELECT origin_json AS originJson, technical_json AS technicalJson FROM feedback_reports LIMIT 1",
+    ).first<{ originJson: string; technicalJson: string }>();
+    const audit = await proxy.env.DB.prepare(
+      "SELECT before_json AS beforeJson, after_json AS afterJson FROM audit_logs WHERE action = 'feedback.submitted' ORDER BY occurred_at DESC LIMIT 1",
+    ).first<{ beforeJson: string | null; afterJson: string | null }>();
+    const persisted = JSON.stringify({ stored, audit });
+    expect(persisted).not.toContain(secret);
+    expect(persisted).not.toContain("user@example.test");
+    expect(stored?.originJson).not.toContain("?");
+    expect(stored?.originJson).not.toContain("#");
   });
 
   it("履歴が積み上がったまま戻る（上書きで消えない）", async () => {

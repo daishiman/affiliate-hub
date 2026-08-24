@@ -764,17 +764,17 @@
           "G1",
           "G2"
         ],
-        "required_info_checks": [
-          {
-            "checked_on": "2026-08-21",
-            "checked_with": "record-required-info-check",
-            "blocking_item_count": 0
-          }
-        ],
         "qa_refs": [
           "qa-database-web-spec-intake",
           "qa-database-web",
           "qa-database-web-analytics"
+        ],
+        "required_info_checks": [
+          {
+            "checked_on": "2026-08-22",
+            "checked_with": "record-required-info-check",
+            "blocking_item_count": 0
+          }
         ]
       },
       "mobile": {
@@ -871,7 +871,7 @@
         ],
         "required_info_checks": [
           {
-            "checked_on": "2026-08-21",
+            "checked_on": "2026-08-23",
             "checked_with": "record-required-info-check",
             "blocking_item_count": 3
           }
@@ -913,16 +913,16 @@
         "serves_goals": [
           "G1"
         ],
-        "required_info_checks": [
-          {
-            "checked_on": "2026-08-21",
-            "checked_with": "record-required-info-check",
-            "blocking_item_count": 1
-          }
-        ],
         "qa_refs": [
           "qa-security-web-spec-intake",
           "qa-security-web"
+        ],
+        "required_info_checks": [
+          {
+            "checked_on": "2026-08-22",
+            "checked_with": "record-required-info-check",
+            "blocking_item_count": 1
+          }
         ]
       },
       "mobile": {
@@ -954,17 +954,17 @@
           "G2",
           "G1"
         ],
-        "required_info_checks": [
-          {
-            "checked_on": "2026-08-21",
-            "checked_with": "record-required-info-check",
-            "blocking_item_count": 0
-          }
-        ],
         "qa_refs": [
           "qa-infra-web-spec-intake",
           "qa-infra-web",
           "qa-infra-web-redirect"
+        ],
+        "required_info_checks": [
+          {
+            "checked_on": "2026-08-22",
+            "checked_with": "record-required-info-check",
+            "blocking_item_count": 0
+          }
         ]
       },
       "mobile": {
@@ -1004,17 +1004,17 @@
           "G2",
           "G1"
         ],
-        "required_info_checks": [
-          {
-            "checked_on": "2026-08-21",
-            "checked_with": "record-required-info-check",
-            "blocking_item_count": 1
-          }
-        ],
         "qa_refs": [
           "qa-backend-web-spec-intake",
           "qa-backend-web",
           "qa-backend-web-analytics"
+        ],
+        "required_info_checks": [
+          {
+            "checked_on": "2026-08-22",
+            "checked_with": "record-required-info-check",
+            "blocking_item_count": 1
+          }
         ]
       },
       "mobile": {
@@ -1046,17 +1046,17 @@
           "G1",
           "G2"
         ],
-        "required_info_checks": [
-          {
-            "checked_on": "2026-08-21",
-            "checked_with": "record-required-info-check",
-            "blocking_item_count": 0
-          }
-        ],
         "qa_refs": [
           "qa-frontend-web-spec-intake",
           "qa-frontend-web",
           "qa-frontend-web-analytics"
+        ],
+        "required_info_checks": [
+          {
+            "checked_on": "2026-08-22",
+            "checked_with": "record-required-info-check",
+            "blocking_item_count": 0
+          }
         ]
       },
       "mobile": {
@@ -1088,16 +1088,16 @@
           "G1",
           "G2"
         ],
-        "required_info_checks": [
-          {
-            "checked_on": "2026-08-21",
-            "checked_with": "record-required-info-check",
-            "blocking_item_count": 0
-          }
-        ],
         "qa_refs": [
           "qa-ops-web-spec-intake",
           "qa-ops-web"
+        ],
+        "required_info_checks": [
+          {
+            "checked_on": "2026-08-22",
+            "checked_with": "record-required-info-check",
+            "blocking_item_count": 0
+          }
         ]
       },
       "mobile": {
@@ -3012,6 +3012,247 @@
           }
         ]
       }
+    },
+    {
+      "category": "database",
+      "platform": "web",
+      "reason": "確定 qa_ref の design_applications が章の「本章での適用」節へ投影されておらず、節と質疑録節が旧 entry を挙げたままである。収集内容は変更せず、章本文を現行 qa_ref へ揃えるための R4-reopen (2026-08-22)。 旧: qa-database-web-analytics / 現: qa-database-web-spec-intake",
+      "from": "確定",
+      "discarded": {
+        "qa_ref": "qa-database-web-spec-intake",
+        "qa_refs": [
+          "qa-database-web-spec-intake",
+          "qa-database-web",
+          "qa-database-web-analytics"
+        ],
+        "serves_goals": [
+          "G1",
+          "G2"
+        ],
+        "required_info_checks": [
+          {
+            "checked_on": "2026-08-21",
+            "checked_with": "record-required-info-check",
+            "blocking_item_count": 0
+          }
+        ]
+      }
+    },
+    {
+      "category": "backend",
+      "platform": "web",
+      "reason": "確定 qa_ref の design_applications が章の「本章での適用」節へ投影されておらず、節と質疑録節が旧 entry を挙げたままである。収集内容は変更せず、章本文を現行 qa_ref へ揃えるための R4-reopen (2026-08-22)。 旧: qa-backend-web-analytics / 現: qa-backend-web-spec-intake",
+      "from": "確定",
+      "discarded": {
+        "qa_ref": "qa-backend-web-spec-intake",
+        "qa_refs": [
+          "qa-backend-web-spec-intake",
+          "qa-backend-web",
+          "qa-backend-web-analytics"
+        ],
+        "serves_goals": [
+          "G2",
+          "G1"
+        ],
+        "required_info": [
+          {
+            "item_id": "domain-model",
+            "missing_effect": "block",
+            "status": "grounded",
+            "grounded_by": "qa-backend-web-spec-intake"
+          }
+        ],
+        "required_info_checks": [
+          {
+            "checked_on": "2026-08-21",
+            "checked_with": "record-required-info-check",
+            "blocking_item_count": 1
+          }
+        ]
+      }
+    },
+    {
+      "category": "frontend",
+      "platform": "web",
+      "reason": "確定 qa_ref の design_applications が章の「本章での適用」節へ投影されておらず、節と質疑録節が旧 entry を挙げたままである。収集内容は変更せず、章本文を現行 qa_ref へ揃えるための R4-reopen (2026-08-22)。 旧: qa-frontend-web-analytics / 現: qa-frontend-web-spec-intake",
+      "from": "確定",
+      "discarded": {
+        "qa_ref": "qa-frontend-web-spec-intake",
+        "qa_refs": [
+          "qa-frontend-web-spec-intake",
+          "qa-frontend-web",
+          "qa-frontend-web-analytics"
+        ],
+        "serves_goals": [
+          "G1",
+          "G2"
+        ],
+        "required_info_checks": [
+          {
+            "checked_on": "2026-08-21",
+            "checked_with": "record-required-info-check",
+            "blocking_item_count": 0
+          }
+        ]
+      }
+    },
+    {
+      "category": "infrastructure",
+      "platform": "web",
+      "reason": "確定 qa_ref の design_applications が章の「本章での適用」節へ投影されておらず、節と質疑録節が旧 entry を挙げたままである。収集内容は変更せず、章本文を現行 qa_ref へ揃えるための R4-reopen (2026-08-22)。 旧: qa-infra-web-redirect / 現: qa-infra-web-spec-intake",
+      "from": "確定",
+      "discarded": {
+        "qa_ref": "qa-infra-web-spec-intake",
+        "qa_refs": [
+          "qa-infra-web-spec-intake",
+          "qa-infra-web",
+          "qa-infra-web-redirect"
+        ],
+        "serves_goals": [
+          "G2",
+          "G1"
+        ],
+        "required_info_checks": [
+          {
+            "checked_on": "2026-08-21",
+            "checked_with": "record-required-info-check",
+            "blocking_item_count": 0
+          }
+        ]
+      }
+    },
+    {
+      "category": "maintenance-ops",
+      "platform": "web",
+      "reason": "確定 qa_ref の design_applications が章の「本章での適用」節へ投影されておらず、節と質疑録節が旧 entry を挙げたままである。収集内容は変更せず、章本文を現行 qa_ref へ揃えるための R4-reopen (2026-08-22)。 旧: qa-ops-web / 現: qa-ops-web-spec-intake",
+      "from": "確定",
+      "discarded": {
+        "qa_ref": "qa-ops-web-spec-intake",
+        "qa_refs": [
+          "qa-ops-web-spec-intake",
+          "qa-ops-web"
+        ],
+        "serves_goals": [
+          "G1",
+          "G2"
+        ],
+        "required_info_checks": [
+          {
+            "checked_on": "2026-08-21",
+            "checked_with": "record-required-info-check",
+            "blocking_item_count": 0
+          }
+        ]
+      }
+    },
+    {
+      "category": "security",
+      "platform": "web",
+      "reason": "確定 qa_ref の design_applications が章の「本章での適用」節へ投影されておらず、節と質疑録節が旧 entry を挙げたままである。収集内容は変更せず、章本文を現行 qa_ref へ揃えるための R4-reopen (2026-08-22)。 旧: qa-security-web / 現: qa-security-web-spec-intake",
+      "from": "確定",
+      "discarded": {
+        "qa_ref": "qa-security-web-spec-intake",
+        "qa_refs": [
+          "qa-security-web-spec-intake",
+          "qa-security-web"
+        ],
+        "serves_goals": [
+          "G1"
+        ],
+        "required_info": [
+          {
+            "item_id": "security-posture",
+            "missing_effect": "block",
+            "status": "grounded",
+            "grounded_by": "qa-security-web-spec-intake"
+          }
+        ],
+        "required_info_checks": [
+          {
+            "checked_on": "2026-08-21",
+            "checked_with": "record-required-info-check",
+            "blocking_item_count": 1
+          }
+        ]
+      }
+    },
+    {
+      "category": "ui-ux",
+      "platform": "web",
+      "reason": "2026-08-23 に利用者本人が主タスクの優先順位を決定した (記事ごとの成績比較が第1位、判断・回復すべき業務状態が第2位)。既存 UIUX-REQ-001 は書面 (docs/spec/01 §17.4/§22、docs/spec/03 §7-§8) から後に導かれた設計判断で本人未確認であり、先頭が入れ替わる。章 To-Be の本文を本人決定へ合わせるため確定を巻き戻す (completeness-report gaps 5)。",
+      "from": "確定",
+      "discarded": {
+        "qa_ref": "qa-uiux-web-screen-priority",
+        "serves_goals": [
+          "G1"
+        ],
+        "required_info": [
+          {
+            "item_id": "product-goal",
+            "missing_effect": "block",
+            "status": "grounded",
+            "grounded_by": "qa-foundation-u1"
+          },
+          {
+            "item_id": "screen-information-priority",
+            "missing_effect": "block",
+            "status": "grounded",
+            "grounded_by": "qa-uiux-web-screen-priority"
+          },
+          {
+            "item_id": "target-platforms",
+            "missing_effect": "block",
+            "status": "grounded",
+            "grounded_by": "qa-platform-scope"
+          }
+        ],
+        "required_info_checks": [
+          {
+            "checked_on": "2026-08-21",
+            "checked_with": "record-required-info-check",
+            "blocking_item_count": 3
+          }
+        ]
+      }
+    },
+    {
+      "category": "ui-ux",
+      "platform": "web",
+      "reason": "日付の訂正。直前の reopen (この log の 1 つ前の ui-ux/web entry) は決定日を 2026-08-23 と書いたが、正本 decisions[].decision-screen-priority.user_decision.confirmed_at は 2026-08-22T00:00:00Z である。2026-08-23 は章へ書き戻した日であって決定日ではない。C06 ヒアリング品質監査が MEDIUM finding として検出した。reopen_log は append-only で前の entry の reason を訂正できないため、章の ## 履歴 に決定日と書き戻し日を書き分け、この食い違いが log に残っている事実も明記する。",
+      "from": "確定",
+      "discarded": {
+        "qa_ref": "qa-uiux-web-screen-priority",
+        "serves_goals": [
+          "G1"
+        ],
+        "required_info": [
+          {
+            "item_id": "product-goal",
+            "missing_effect": "block",
+            "status": "grounded",
+            "grounded_by": "qa-foundation-u1"
+          },
+          {
+            "item_id": "screen-information-priority",
+            "missing_effect": "block",
+            "status": "grounded",
+            "grounded_by": "qa-uiux-web-screen-priority"
+          },
+          {
+            "item_id": "target-platforms",
+            "missing_effect": "block",
+            "status": "grounded",
+            "grounded_by": "qa-platform-scope"
+          }
+        ],
+        "required_info_checks": [
+          {
+            "checked_on": "2026-08-23",
+            "checked_with": "record-required-info-check",
+            "blocking_item_count": 3
+          }
+        ]
+      }
     }
   ],
   "category_aggregate": {
@@ -3055,6 +3296,34 @@
     },
     {
       "target_id": "google-sre",
+      "category": "maintenance-ops"
+    },
+    {
+      "target_id": "anthropic-claude",
+      "category": "backend"
+    },
+    {
+      "target_id": "google-gemini",
+      "category": "backend"
+    },
+    {
+      "target_id": "openai-platform",
+      "category": "backend"
+    },
+    {
+      "target_id": "mdn-light-dark",
+      "category": "frontend"
+    },
+    {
+      "target_id": "vitest",
+      "category": "maintenance-ops"
+    },
+    {
+      "target_id": "stryker-mutator",
+      "category": "maintenance-ops"
+    },
+    {
+      "target_id": "github-actions",
       "category": "maintenance-ops"
     }
   ],
@@ -4257,6 +4526,104 @@
         "why_this_distinction_is_recorded": "この記録を書いた実装担当は、当初『オーケストレーターからの伝聞だけでは status を confirmed にできない』として作業を止めた。gap 4 が求めているのは『利用者本人の確定』であり、伝聞を確定として書けば、この gap が存在する理由そのもの (本人しか決められないことを本人に確かめる) を空洞化させるためである。とくにこの決定は、recommendation の caveats が『不要と判断した』と『走る段が決まるまで保留した』を明確に区別しており、確定 (opt-keep-current) と保留はそもそも別の状態である。どちらを意味していたかは本人にしか決められない。次にこの記録を更新する人も、同じ区別を保つこと: 推奨・伝聞・代理判断のいずれも user_decision には入れない。"
       },
       "recorded_with": "プロジェクト側 install (.claude/plugins/system-spec-harness) の apply-spec-transition.py set-decision で書いた。この writer は schema_version の門を持ち、正本の 1.2 を受理する。以前この record を書いた際は『門が無い writer で書いた』状態だった (gap 5) が、schema・writer・網羅性検証を 1.2 まで通した (5534f4c) ため、今回は門を通って書かれている。"
+    },
+    {
+      "id": "decision-screen-priority",
+      "question": "ui-ux×web の画面で、先頭に何を置くか。UIUX-REQ-001 は「今、利用者が判断・回復すべき業務状態」を先頭に置くと書いており、qa-uiux-web-screen-priority の本人回答は「記事の成績比較」を先頭に置くと言っている。両者は先頭の 1 つを争っている",
+      "status": "confirmed",
+      "serves_goals": [
+        "G1",
+        "G2"
+      ],
+      "options": [
+        {
+          "id": "opt-performance-first",
+          "label": "記事の成績比較を先頭に置き、回復すべき業務状態はその下に常設の帯として置く",
+          "cost_model": {
+            "category": "free",
+            "amount": 0,
+            "currency": "JPY",
+            "billing_period": "monthly",
+            "tco": "画面の並び順の決定であり、追加費用は生じない"
+          },
+          "free_tier_limits": "制限なし",
+          "goal_fit": "G2「どういう情報・切り口・媒体・配置がクリック率とアフィリエイト成果に有効かを計測・分析し、一元管理できる」に直結する。成績比較は毎日見る対象で、開いた理由そのものである",
+          "security_fit": "成績値は自分のサイトの実績であり、先頭に出しても第三者の情報を露出しない",
+          "pros": [
+            "利用者本人が「これが先頭」と逐語で答えている（qa-uiux-web-screen-priority）",
+            "毎回開く理由と先頭が一致するので、目的の情報まで到達する操作が 0 回になる",
+            "回復すべき状態は件数が 0 の日が多く、0 件の枠が先頭を占め続ける形を避けられる"
+          ],
+          "cons": [
+            "回復作業が必要な日に、それが 2 番目になる",
+            "UIUX-REQ-001 の本文と先頭が食い違うため、要件 ID 側の更新が別途要る"
+          ],
+          "risks": [
+            "回復すべき状態の帯が視覚的に弱いと、要対応が放置される。帯には未対応時のみ色と件数を出す必要がある"
+          ],
+          "lock_in": "なし（並び順の変更はいつでもできる）",
+          "ops_burden": "低",
+          "evidence_refs": [
+            "https://developer.apple.com/design/human-interface-guidelines/layout"
+          ]
+        },
+        {
+          "id": "opt-recovery-first",
+          "label": "回復すべき業務状態を先頭に置き、記事の成績比較はその下に置く（UIUX-REQ-001 の現行本文どおり）",
+          "cost_model": {
+            "category": "free",
+            "amount": 0,
+            "currency": "JPY",
+            "billing_period": "monthly",
+            "tco": "画面の並び順の決定であり、追加費用は生じない"
+          },
+          "free_tier_limits": "制限なし",
+          "goal_fit": "G1 の「安全に作成・公開・改善できる」に寄る。壊れている状態を先に見せることで、気づかないまま公開が続く事態を防ぐ",
+          "security_fit": "同上。差は無い",
+          "pros": [
+            "要対応が確実に目に入る",
+            "UIUX-REQ-001 の本文をそのまま実装でき、要件 ID の更新が要らない"
+          ],
+          "cons": [
+            "要対応が 0 件の日は、空の枠が先頭を占める",
+            "利用者本人の回答と食い違う"
+          ],
+          "risks": [
+            "0 件の枠を毎日見ることで、先頭の領域そのものが読み飛ばされるようになる。そうなると要対応が出た日にも気づかれない"
+          ],
+          "lock_in": "なし",
+          "ops_burden": "低",
+          "evidence_refs": [
+            "https://sre.google/sre-book/monitoring-distributed-systems/"
+          ]
+        }
+      ],
+      "recommendation": {
+        "option_id": "opt-performance-first",
+        "rationale": "先頭を争う 2 つのうち、片方は「毎日ある」もの、もう片方は「たまにある」ものである。たまにあるものを常に先頭へ置くと、無い日の空枠が先頭を占め、その領域自体が読み飛ばされる。SRE book が alerting について述べている「対応不要な通知は、対応が要る通知の信頼を削る」と同じ構造が、画面の先頭でも起きる。成績比較を先頭に置き、回復すべき状態は「未対応があるときだけ色と件数が出る帯」として先頭のすぐ下に常設するのが、両方を満たす形である。",
+        "caveats": [
+          "UIUX-REQ-001 の本文は、この決定を根拠に設計側で別途更新すること。収集の記録が要件 ID の本文を書き換えると、いつ誰が変えたかが消える（system-spec/ui-ux.md L140）",
+          "回復すべき状態の帯は、未対応 0 件のとき表示そのものを消すのではなく、高さを保ったまま無彩色にする。消すと下の内容が毎日ずれる",
+          "「成績比較」が何と何の比較かは、この決定では確定していない。比較軸の設計は別の課題として残る"
+        ],
+        "confidence": "high",
+        "latest_checked_at": "2026-08-22T00:00:00Z",
+        "comparison_basis": {
+          "goal_fit": "opt-performance-first が優位。G2 は計測・分析を明示しており、成績比較はその入口そのものである",
+          "tco": "どちらも 0 円。差なし",
+          "security": "差なし。どちらも自分のサイトの情報しか出さない",
+          "operations": "opt-performance-first が優位。0 件の枠が先頭を占め続ける形を避けられる",
+          "lock_in": "差なし。どちらも並び順の変更でいつでも戻せる"
+        }
+      },
+      "user_decision": {
+        "option_id": "opt-performance-first",
+        "confirmed_at": "2026-08-22T00:00:00Z",
+        "decided_by": "利用者本人",
+        "confirmation_mode": "本人回答の優先 (qa-uiux-web-screen-priority の逐語回答を、既存の要件 ID 本文より優先すると本人が判断)",
+        "note": "利用者本人が「本人回答（成績比較が先頭）」を選択。qa-uiux-web-screen-priority に記録された逐語回答と一致する。UIUX-REQ-001 の本文更新は設計側の作業として残す。"
+      },
+      "recorded_with": "set-decision"
     }
   ],
   "knowledge_candidates": [],

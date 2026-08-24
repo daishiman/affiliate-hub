@@ -1,4 +1,4 @@
-/** @tier 2 */
+/** @tier 2 @req REQ-S09, REQ-SEC08 */
 import { readFileSync, readdirSync, statSync } from "node:fs";
 import { join, relative } from "node:path";
 import { describe, expect, it } from "vitest";
@@ -32,6 +32,7 @@ const ROOT = process.cwd();
 const UI_DIR = join(ROOT, "src/presentation/ui");
 const SHELL_CSS = join(UI_DIR, "primitives/ui.module.css");
 const ADMIN_CSS = join(ROOT, "src/app/admin/admin.module.css");
+const PARTS_CSS = join(UI_DIR, "templates/screen-parts.module.css");
 
 function walk(dir: string, out: string[] = []): string[] {
   for (const name of readdirSync(dir)) {
@@ -161,6 +162,27 @@ describe("詰まり具合", () => {
     expect(offenders, offenders.join("\n")).toStrictEqual([]);
   });
 
+  /**
+   * **押せる大きさの下限が、実際に押せる大きさであること (REQ-SEC08 / WCAG 2.2 の 2.5.8)。**
+   *
+   * 2026-08-21 に実測: `--hit-min` を 44px から 8px へ落としても、
+   * 追跡表 REQ-SEC08 が判定の根拠に挙げていた `design-tokens.test.ts` /
+   * `patterns-render.test.tsx` と axe の 2 ファイルは**全部緑**（152 件）だった。
+   * この検査の中でも `resolve("--tap-target-min")` が `px` の形をしているかしか
+   * 見ておらず、**値がいくつかは誰も見ていなかった**。
+   * axe 側でも測れない（jsdom は全要素を 0×0 で返すため。
+   * `tests/ui/axe-rule-coverage.test.ts` の `target-size` の理由欄に書いてある）。
+   *
+   * 落ちたのは「画面の高さが 760px を超える」という**別の検査**だったので、
+   * 「壊したら赤くなった＝守られている」と読める形になっていた。
+   */
+  it("押せるものの下限が、指で押せる大きさになっている", () => {
+    const px = pxOfToken(tokenValue(), "--tap-target-min");
+    // WCAG 2.2 の 2.5.8 (AA) は 24px。この作業場所は 44px を名乗っている
+    // （`src/presentation/ui/README.md`）ので、名乗っているほうを下限にする。
+    expect(px, `--tap-target-min = ${px}px`).toBeGreaterThanOrEqual(44);
+  });
+
   it("案内の 1 行は、詰めたあとも押せる大きさの下限を持っている", () => {
     // 行送りを詰めるときに、高さの下限まで一緒に消すと、
     // 見た目は詰まるが指では押せなくなる。詰める側の直しが越えてはいけない線。
@@ -178,10 +200,39 @@ describe("詰まり具合", () => {
   it("読ませる文に、行の長さの上限がある", () => {
     // 上限が無いと、画面を広げたぶんだけ 1 行が伸びて戻り先を見失う。
     // 表やカードは広く使ってよいので、器ではなく文の側に置く。
-    const shell = readFileSync(SHELL_CSS, "utf8");
+    expect(ruleBody(readFileSync(SHELL_CSS, "utf8"), ".pageLead")).toContain(
+      "max-width: var(--readable-max-width)",
+    );
+    expect(ruleBody(readFileSync(PARTS_CSS, "utf8"), ".lead")).toContain(
+      "max-width: var(--readable-max-width)",
+    );
+  });
+
+  it("読ませる文の書式は、画面側の css に無い", () => {
+    /*
+     * **役割が同じものを 2 つの css に分けない**（2026-08-22 / ah-jbj）。
+     *
+     * 元は `.sectionLead`（`admin.module.css`）と `.lead`
+     * （`screen-parts.module.css`）が 1 行も違わない同じ宣言だった。
+     * 分かれていると、行の長さを直したときに片方だけが直る。
+     *
+     * ここで測るのは**在り処**ではなく**書ける場所**。画面側の css に
+     * `--readable-max-width` が現れたら、そこにまた同じ書式が生えている。
+     * 読ませる文の口は `Prose` / `Section` の `lead` / `SubSection` の
+     * `lead` の 3 つで、どれも共通部品側の css を使う。
+     *
+     * 検査が効いていることは、上の `it` が `.lead` の実物を読めていることで
+     * 担保される。両方が同時に緑になるのは、書式が 1 か所にある場合だけ。
+     */
     const admin = readFileSync(ADMIN_CSS, "utf8");
-    expect(ruleBody(shell, ".pageLead")).toContain("max-width: var(--readable-max-width)");
-    expect(ruleBody(admin, ".sectionLead")).toContain("max-width: var(--readable-max-width)");
+    const offenders = [...admin.matchAll(/^\.([A-Za-z][\w-]*)\s*\{[^}]*--readable-max-width[^}]*\}/gm)].map(
+      (m) => m[1],
+    );
+    expect(
+      offenders,
+      `admin.module.css が読ませる文の書式を持っています: ${offenders.join(", ")}。` +
+        "共通部品（Prose / Section の lead / SubSection の lead）へ寄せてください",
+    ).toStrictEqual([]);
   });
 
   it("分類の境目は、線と余白の両方で作る（近接の比を下回らない）", () => {
