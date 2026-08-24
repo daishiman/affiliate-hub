@@ -1,7 +1,7 @@
 /**
  * @tier 1
  * @req REQ-SEO02
- * @types integration, boundary
+ * @types scenario, boundary
  */
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { ArticleSummary } from "@/application/read-models/published-article";

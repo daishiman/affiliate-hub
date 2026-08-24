@@ -256,6 +256,8 @@
 | REQ-SEO03 | has-input | — |
 | REQ-SEO04 | has-input | — |
 | REQ-SEO05 | has-input | — |
+| REQ-BLOG01 | has-input | — |
+| REQ-BLOG02 | has-input | — |
 | REQ-WA01 | has-input | — |
 | REQ-WA02 | has-input, has-permission | — |
 | REQ-WB01 | has-input, has-permission | — |

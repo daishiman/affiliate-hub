@@ -1,7 +1,7 @@
 /**
  * @tier 1
  * @req REQ-SEO04
- * @types integration, regression
+ * @types scenario, regression
  */
 import { beforeEach, describe, expect, it, vi } from "vitest";
 

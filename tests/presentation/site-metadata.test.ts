@@ -1,7 +1,7 @@
 /**
  * @tier 1
  * @req REQ-SEO01
- * @types equivalence, integration
+ * @types equivalence, scenario
  */
 import { describe, expect, it, vi } from "vitest";
 
