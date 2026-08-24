@@ -40,6 +40,25 @@ export type AuditAction =
   | "ranking_model.changed"
   | "disclosure.changed"
   | "policy_rule.changed"
+  /**
+   * SEO/AI 指針の**出典**を登録した／確認日を更新した。
+   *
+   * `policy_rule.changed`（表記のきまりを変えた）とは別の語にしている。
+   * あちらは「何を書いてよいか」の決まりそのものが動いたこと。
+   * こちらは**決まりの根拠として何を見たか**が動いたことで、
+   * 決まりは 1 文字も変わっていない。1 語にまとめると、
+   * 「きまりが変わった」の一覧に出典の確認作業が混ざり、
+   * 規制対応で提出を求められたときにきまりの変更履歴が読めなくなる。
+   *
+   * **確認日の更新を別の語にしている**のは、`registered` と
+   * 意味が違うからではなく、`after` の差から読めないからである。
+   * 再確認は中身が 1 つも変わらない（確認日だけが動く）ので、
+   * 語を 1 つにすると「登録したのか、見に行っただけなのか」を
+   * 履歴から区別できない。90 日ごとの確認が実際に行われたかは
+   * この語の並びでしか言えない。
+   */
+  | "guideline_reference.registered"
+  | "guideline_reference.rechecked"
   | "affiliate_link.created"
   | "affiliate_link.changed"
   /**

@@ -1,3 +1,12 @@
+import { headers } from "next/headers";
+import { articleHref } from "@/application/read-models/published-article";
+import {
+  buildBlogPosting,
+  buildBreadcrumbList,
+  buildItemList,
+  serializeJsonLd,
+} from "@/application/seo/structured-data";
+import { siteBasePathBySlug } from "@/domain/authoring/site";
 import { readerActor, siteUseCases } from "@/presentation/composition";
 import type { PageKind } from "@/presentation/tools/webmcp-policy";
 import { ArticleView } from "@/presentation/ui";
@@ -51,6 +60,17 @@ export async function ArticlePage({
 
   const path = `${pathPrefix}/${slug}`;
 
+  /*
+    JSON-LD に入れる絶対 URL の origin。届いたリクエストの Host から作る。
+    環境変数に固定すると、開発と本番で構造化データの URL がずれたまま配られる。
+    Host が読めない事故のときは origin 無しの相対 URL で出す（嘘の絶対 URL を出さない）。
+  */
+  const requestHeaders = await headers();
+  const host = requestHeaders.get("x-forwarded-host") ?? requestHeaders.get("host");
+  const proto = requestHeaders.get("x-forwarded-proto") ?? "https";
+  const origin = host === null ? "" : `${proto}://${host}`;
+  const basePath = siteBasePathBySlug(siteSlug);
+
   return (
     <SiteFrame
       siteSlug={siteSlug}
@@ -58,9 +78,61 @@ export async function ArticlePage({
       trail={[{ label: routeLabel }, { label: result.ok ? result.value.title : "記事" }]}
       pageKind={PAGE_KIND_BY_PREFIX[pathPrefix] ?? "article"}
     >
-      {() =>
+      {({ blueprint }) =>
         result.ok ? (
-          <ArticleView article={toArticleView(siteSlug, result.value)} />
+          <>
+            {/*
+              構造化データ。本文と同じ読み取りモデル（result.value）から
+              純関数で作る。値は serializeJsonLd が < を逃がしてから埋める。
+            */}
+            <script
+              type="application/ld+json"
+              // biome-ignore lint/security/noDangerouslySetInnerHtml: serializeJsonLd が < を \u003c に逃がした JSON のみを埋める
+              dangerouslySetInnerHTML={{
+                __html: serializeJsonLd(
+                  buildBlogPosting(result.value, {
+                    siteName: blueprint.name,
+                    origin,
+                    basePath,
+                  }),
+                ),
+              }}
+            />
+            <script
+              type="application/ld+json"
+              // biome-ignore lint/security/noDangerouslySetInnerHtml: serializeJsonLd が < を \u003c に逃がした JSON のみを埋める
+              dangerouslySetInnerHTML={{
+                __html: serializeJsonLd(
+                  buildBreadcrumbList([
+                    { name: blueprint.name, url: `${origin}${basePath}` },
+                    {
+                      name: result.value.title,
+                      url: `${origin}${basePath}${articleHref(result.value)}`,
+                    },
+                  ]),
+                ),
+              }}
+            />
+            {/*
+              順位記事だけ ItemList を追加で出す。buildItemList は順位が無い記事で
+              null を返し、null は「出さない」に写す（嘘の順位表を出さない）。
+            */}
+            {(() => {
+              const itemList = buildItemList(result.value, {
+                siteName: blueprint.name,
+                origin,
+                basePath,
+              });
+              return itemList === null ? null : (
+                <script
+                  type="application/ld+json"
+                  // biome-ignore lint/security/noDangerouslySetInnerHtml: serializeJsonLd が < を \u003c に逃がした JSON のみを埋める
+                  dangerouslySetInnerHTML={{ __html: serializeJsonLd(itemList) }}
+                />
+              );
+            })()}
+            <ArticleView article={toArticleView(siteSlug, result.value)} />
+          </>
         ) : (
           <ReadFailureBody what="記事" siteSlug={siteSlug} />
         )

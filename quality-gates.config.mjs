@@ -2258,4 +2258,7 @@ export const OPEN_DOORS_MIN_IRREVERSIBLE_MARKED = 8;
  * **足した行が読者の道であることを確かめてから**この数字を上げる。
  * 「増えたから上げる」で通すと、この検査は何も止めなくなる。
  */
-export const OPEN_DOORS_MAX_PUBLIC_BY_DECLARATION = 26;
+// 2026-08-24: feat-blog-ui-builder で機械向け配信 5 本
+// (sitemap.xml / robots.txt / feed.xml / llms.txt / indexnow.txt) を
+// 読者・クローラーの道として追加した。いずれも読み取り専用で、変更操作は無い。
+export const OPEN_DOORS_MAX_PUBLIC_BY_DECLARATION = 31;

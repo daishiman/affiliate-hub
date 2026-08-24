@@ -182,8 +182,15 @@ import {
 } from "@/infrastructure/persistence/sample/affiliate-sample-repository";
 import { sampleAnalyticsNotice } from "@/infrastructure/persistence/sample/analytics-sample-repository";
 import { sampleLinkInboxNotice } from "@/infrastructure/persistence/sample/link-inbox-sample-repository";
+import {
+  type ManageGuidelineReferencesInput,
+  type ManageGuidelineReferencesOutput,
+  createManageGuidelineReferencesUseCase,
+} from "@/application/usecases/seo/manage-guideline-references";
+import { createD1GuidelineReferenceRepository } from "@/infrastructure/persistence/d1/guideline-reference-repository";
 import { tryGetDb } from "@/infrastructure/persistence/d1/connection";
 import { tryGetBucket } from "@/infrastructure/platform/bucket-connection";
+import { submitToIndexNow } from "@/infrastructure/indexnow/indexnow-client";
 import { CAPTURE_RETENTION_DAYS } from "@/domain/feedback";
 import { sampleProductNotice } from "@/infrastructure/persistence/sample/product-sample-repository";
 import { sampleSettingsNotice } from "@/infrastructure/persistence/sample/settings-sample-repository";
@@ -1215,6 +1222,40 @@ export async function llmCredentialEntry(): Promise<LlmCredentialEntry> {
 }
 
 /**
+ * SEO/AI 検索の指針の出典レジストリの入口。
+ *
+ * 保存先 (D1) が無い実行では `ready: false` と理由だけを返す。
+ * 見本の保存先へ黙って落とすと、登録したつもりの出典が次の実行で消える。
+ */
+export type GuidelineReferenceEntry =
+  | {
+      readonly ready: true;
+      readonly manage: UseCase<ManageGuidelineReferencesInput, ManageGuidelineReferencesOutput>;
+    }
+  | { readonly ready: false; readonly reason: string };
+
+export async function guidelineReferenceEntry(): Promise<GuidelineReferenceEntry> {
+  const db = await tryGetDb();
+  if (db === null) {
+    return {
+      ready: false,
+      reason:
+        "保存先 (D1) が用意されていません。出典の登録と確認日の更新は、保存先がある実行でだけ使えます。",
+    };
+  }
+  const deps = createDeps({ db });
+  return {
+    ready: true,
+    manage: createManageGuidelineReferencesUseCase({
+      references: createD1GuidelineReferenceRepository({ db, now: () => new Date() }),
+      auditLog: deps.auditLog,
+      ids: deps.ids,
+      now: () => new Date(),
+    }),
+  };
+}
+
+/**
  * 18 項目がそろった状態の見本。
  *
  * **見本データ（スタブ）である。** 画面で「そろった状態」を実際に押して
@@ -1522,4 +1563,27 @@ export async function siteBuilderUseCases() {
     saveStep: createSaveSiteDraftStepUseCase(builder),
     createSite: createCreateSiteFromDraftUseCase(builder),
   };
+}
+
+/**
+ * 公開した記事を IndexNow で検索エンジンへ知らせる差し込み口。
+ *
+ * 送信の実体（鍵の取得・fetch）はインフラ層にあり、画面側はこの口だけを見る。
+ * **失敗しても throw しない**（`submitToIndexNow` の契約）。通知は公開の条件では
+ * ないので、通知先の障害が記事の公開を道連れにしない。鍵は戻り値にもログにも
+ * 現れない。skipped/failed の別は呼び出し元が記録する。
+ */
+export async function notifyIndexNowOfPublish(
+  origin: string,
+  urls: readonly string[],
+): Promise<{ readonly status: "skipped" | "sent" | "failed"; readonly detail: string }> {
+  const result = await submitToIndexNow(origin, urls);
+  switch (result.status) {
+    case "sent":
+      return { status: "sent", detail: `${result.count} 件を通知しました。` };
+    case "skipped":
+      return { status: "skipped", detail: result.reason };
+    case "failed":
+      return { status: "failed", detail: result.error };
+  }
 }

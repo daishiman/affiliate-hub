@@ -3,7 +3,7 @@
  * @req REQ-UX01
  * @types code-boundary
  *
- * A1: 49 管理画面の primary task と、画面から実行できる全 Server Action を
+ * A1: 50 管理画面の primary task と、画面から実行できる全 Server Action を
  * production manifest で結ぶ。component の数や配置を task の数として扱わない。
  */
 import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
@@ -270,7 +270,7 @@ function discoveredScreenExecutionSites(): readonly ScreenExecutionSite[] {
 const DISCOVERED_SCREEN_EXECUTION_SITES = discoveredScreenExecutionSites();
 
 describe("A1 §1 全管理画面は primary task をちょうど 1 つ持つ", () => {
-  it("実在route・route metadata・task manifest・priority mapが49件で1対1になる", () => {
+  it("実在route・route metadata・task manifest・priority mapが50件で1対1になる", () => {
     const priority = JSON.parse(readFileSync(PRIORITY_MAP, "utf8")) as {
       readonly screens: readonly { readonly route: string; readonly primary_task: string }[];
     };
@@ -279,12 +279,12 @@ describe("A1 §1 全管理画面は primary task をちょうど 1 つ持つ", (
     const tasks = ADMIN_SCREEN_TASK_MANIFEST.map((screen) => screen.route).sort();
     const documented = priority.screens.map((screen) => screen.route).sort();
 
-    expect(actual).toHaveLength(49);
+    expect(actual).toHaveLength(50);
     expect(metadata).toEqual(actual);
     expect(tasks).toEqual(actual);
     expect(documented).toEqual(actual);
-    expect(new Set(ADMIN_SCREEN_TASK_MANIFEST.map((screen) => screen.routeId)).size).toBe(49);
-    expect(new Set(priority.screens.map((screen) => screen.route)).size).toBe(49);
+    expect(new Set(ADMIN_SCREEN_TASK_MANIFEST.map((screen) => screen.routeId)).size).toBe(50);
+    expect(new Set(priority.screens.map((screen) => screen.route)).size).toBe(50);
     expect(ADMIN_SCREEN_TASK_MANIFEST.map((screen) => [screen.route, screen.primaryTask]).sort()).toEqual(
       priority.screens.map((screen) => [screen.route, screen.primary_task]).sort(),
     );
@@ -301,16 +301,16 @@ describe("A1 §2 全business mutationを単一のprimary taskへ所属させる"
       })).values(),
     ].sort((a, b) => siteKey(a).localeCompare(siteKey(b)));
 
-    expect(discovered).toHaveLength(34);
+    expect(discovered).toHaveLength(35);
     expect(declared, "未申告または実在しないexecution siteがあります").toEqual(discovered);
     expect(new Set(
       ADMIN_SCREEN_RUNTIME_ENTRIES
         .filter((entry) => entry.classification === "business-mutation")
         .map((entry) => edgeKey(entry.action)),
-    ).size).toBe(32);
+    ).size).toBe(33);
   });
 
-  it("同じactionの複数route・複数form用途を畳まず、意味entry 42件を床固定する", () => {
+  it("同じactionの複数route・複数form用途を畳まず、意味entry 44件を床固定する", () => {
     const discovered = DISCOVERED_SCREEN_EXECUTION_SITES;
     const declared = ADMIN_SCREEN_RUNTIME_ENTRIES
       .filter((entry) => entry.scope === "screen")
@@ -323,9 +323,9 @@ describe("A1 §2 全business mutationを単一のprimary taskへ所属させる"
       .sort((a, b) => screenSiteKey(a).localeCompare(screenSiteKey(b)));
 
     expect(declared, "route/form単位の意味entryに欠落または余剰があります").toEqual(discovered);
-    expect(discovered).toHaveLength(41);
-    expect(ADMIN_SCREEN_RUNTIME_ENTRIES).toHaveLength(42);
-    expect(new Set(ADMIN_SCREEN_RUNTIME_ENTRIES.map((entry) => entry.id)).size).toBe(42);
+    expect(discovered).toHaveLength(43);
+    expect(ADMIN_SCREEN_RUNTIME_ENTRIES).toHaveLength(44);
+    expect(new Set(ADMIN_SCREEN_RUNTIME_ENTRIES.map((entry) => entry.id)).size).toBe(44);
   });
 
   it("screen意味entryはどの1件を削ってもdiscoveryとの差分になる", () => {
@@ -340,7 +340,7 @@ describe("A1 §2 全business mutationを単一のprimary taskへ所属させる"
       }))
       .sort();
 
-    expect(new Set(declared).size).toBe(41);
+    expect(new Set(declared).size).toBe(43);
     for (let index = 0; index < declared.length; index += 1) {
       expect(declared.filter((_, candidate) => candidate !== index)).not.toEqual(discovered);
     }
