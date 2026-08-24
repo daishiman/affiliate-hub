@@ -169,4 +169,4 @@ AGENTS.mdの枝の順番規約により、作業ブランチはdevブランチ�
 
 ## 2026-08-24 リリース記録
 
-draft PR は `devgraph/feat-blog-ui-builder` → `dev`。書き戻し受領は [`docs/spec/feat-blog-ui-builder/spec-writeback-receipt.md`](../../docs/spec/feat-blog-ui-builder/spec-writeback-receipt.md)。`deploy:dev` は本レビューでは実行しない。A1–A9 未充足のため本 task は in_progress のまま。
+draft PR は https://github.com/daishiman/affiliate-hub/pull/28 （`devgraph/feat-blog-ui-builder` → `dev`）。書き戻し受領は [`docs/spec/feat-blog-ui-builder/spec-writeback-receipt.md`](../../docs/spec/feat-blog-ui-builder/spec-writeback-receipt.md)。`deploy:dev` は本レビューでは実行しない。A1–A9 未充足のため本 task は in_progress のまま。

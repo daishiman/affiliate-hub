@@ -4,6 +4,7 @@
 graph_node_id: `feat-blog-ui-builder`
 宛先ブランチ: `dev`
 作業ブランチ: `devgraph/feat-blog-ui-builder`
+draft PR: https://github.com/daishiman/affiliate-hub/pull/28
 
 ## 目的
 

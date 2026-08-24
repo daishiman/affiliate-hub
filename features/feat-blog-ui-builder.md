@@ -41,7 +41,7 @@ tracker_binding: "beads"
 beads_linkage: {"bd_issue_id":"ah-6lf","github_mirror":null,"linked_at":"2026-08-24T12:00:00Z","sync_state":"linked"}
 github_publication: {"labels":[],"milestone":null,"mode":"local_only","project_aliases":[]}
 github_project_linkages: []
-pull_request_linkages: []
+pull_request_linkages: [{"number":28,"url":"https://github.com/daishiman/affiliate-hub/pull/28","base":"dev","draft":true}]
 execution_contexts: []
 completion_evidence: {"completed_at":null,"evidence_refs":["docs/spec/feat-blog-ui-builder/final-review.md","docs/spec/feat-blog-ui-builder/spec-writeback-receipt.md"],"policy":"manual","reconciled_at":null,"source":null,"status":"in_progress"}
 implementation_readiness: {"checked_at":"2026-08-24T02:20:00Z","missing_sections":[],"status":"complete"}
