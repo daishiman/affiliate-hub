@@ -815,7 +815,7 @@
         ],
         "required_info_checks": [
           {
-            "checked_on": "2026-08-21",
+            "checked_on": "2026-08-24",
             "checked_with": "record-required-info-check",
             "blocking_item_count": 1
           }
@@ -3250,6 +3250,33 @@
             "checked_on": "2026-08-23",
             "checked_with": "record-required-info-check",
             "blocking_item_count": 3
+          }
+        ]
+      }
+    },
+    {
+      "category": "auth",
+      "platform": "web",
+      "reason": "2026-08-24 final review: feat-auth-workspace の実装・検証結果に対し auth.md の implementation_status=not_started / verification_status=unverified が古いため、要求判断 qa-auth-web は変更せず実装投影だけを正規書き戻しする",
+      "from": "確定",
+      "discarded": {
+        "qa_ref": "qa-auth-web",
+        "serves_goals": [
+          "G1"
+        ],
+        "required_info": [
+          {
+            "item_id": "auth-model",
+            "missing_effect": "block",
+            "status": "grounded",
+            "grounded_by": "qa-auth-web"
+          }
+        ],
+        "required_info_checks": [
+          {
+            "checked_on": "2026-08-21",
+            "checked_with": "record-required-info-check",
+            "blocking_item_count": 1
           }
         ]
       }

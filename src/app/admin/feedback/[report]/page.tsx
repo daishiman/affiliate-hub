@@ -150,44 +150,69 @@ function FeedbackReport({
       {/* ⑥ 技術情報（件数は畳んだまま見せる） */}
       <Section
         title="そのとき記録されたこと"
-        lead={`エラー ${v.jsErrorCount} 件・通信の失敗 ${v.failedRequestCount} 件・黒塗り ${v.redactedCount} 箇所`}
+        lead={
+          /* 消したあとに件数を出すと「0 件だった」と読める。**別の文にする。**
+             黒塗りの箇所数だけは消したあとも残る（何件伏せたかは記録として要る）。 */
+          v.diagnosticsPurged
+            ? `${v.diagnosticsPurgedText}（黒塗り ${v.redactedCount} 箇所）`
+            : `エラー ${v.jsErrorCount} 件・通信の失敗 ${v.failedRequestCount} 件・黒塗り ${v.redactedCount} 箇所`
+        }
       >
-        <Foldable summary="中身を見る（開発者向けの記録です）">
-          <FactList
-            rows={[
-              {
-                key: "js",
-                label: "エラー",
-                value:
-                  v.technical.jsErrors.length === 0
-                    ? "記録されていません。"
-                    : v.technical.jsErrors.join(" / "),
-              },
-              {
-                key: "net",
-                label: "通信の失敗",
-                value:
-                  v.technical.failedRequests.length === 0
-                    ? "記録されていません。"
-                    : v.technical.failedRequests.join(" / "),
-              },
-              {
-                key: "actions",
-                label: "直前の操作",
-                value:
-                  v.technical.recentActions.length === 0
-                    ? "記録されていません。"
-                    : v.technical.recentActions.join(" → "),
-              },
-              {
-                key: "ua",
-                label: "使っていた環境",
-                value:
-                  v.technical.userAgent === "" ? "記録されていません。" : v.technical.userAgent,
-              },
-            ]}
-          />
-        </Foldable>
+        {/* いつまで残るのかを、開かなくても読める位置に置く（REQ-FB08）。
+            日数を画面に書かない。書くと、期限を変えた日に画面だけが古くなる。 */}
+        <Callout
+          tone="info"
+          title="この記録が残る期間"
+          reason={v.diagnosticsRetentionNotice}
+        />
+        {v.diagnosticsPurged ? (
+          <ActionNote>
+            {v.diagnosticsPurgedText}
+            {v.diagnosticsPurgedAt === null
+              ? ""
+              : `（消した日時：${v.diagnosticsPurgedAt.toLocaleString("ja-JP")}）`}
+          </ActionNote>
+        ) : (
+          <>
+            <Note>{`このまま置くと ${v.diagnosticsExpiresAt.toLocaleString("ja-JP")} に消えます。`}</Note>
+            <Foldable summary="中身を見る（開発者向けの記録です）">
+              <FactList
+                rows={[
+                  {
+                    key: "js",
+                    label: "エラー",
+                    value:
+                      v.technical.jsErrors.length === 0
+                        ? "記録されていません。"
+                        : v.technical.jsErrors.join(" / "),
+                  },
+                  {
+                    key: "net",
+                    label: "通信の失敗",
+                    value:
+                      v.technical.failedRequests.length === 0
+                        ? "記録されていません。"
+                        : v.technical.failedRequests.join(" / "),
+                  },
+                  {
+                    key: "actions",
+                    label: "直前の操作",
+                    value:
+                      v.technical.recentActions.length === 0
+                        ? "記録されていません。"
+                        : v.technical.recentActions.join(" → "),
+                  },
+                  {
+                    key: "ua",
+                    label: "使っていた環境",
+                    value:
+                      v.technical.userAgent === "" ? "記録されていません。" : v.technical.userAgent,
+                  },
+                ]}
+              />
+            </Foldable>
+          </>
+        )}
       </Section>
 
       {/* ⑦ 作業する側へ渡す */}

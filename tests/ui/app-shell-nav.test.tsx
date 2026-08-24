@@ -60,8 +60,11 @@ describe("案内の分類の読み上げ", () => {
 });
 
 describe("管理画面route metadataの正本", () => {
-  it("49画面・ナビ・分類は同じmetadataから派生する", () => {
-    expect(ADMIN_ROUTE_METADATA).toHaveLength(49);
+  it("50画面・ナビ・分類は同じmetadataから派生する", () => {
+    // 画面を足したら人が必ずここで気づくための数え上げ。品質の閾値ではない。
+    // 2026-08-24: settings/compliance を足して 49 → 50。
+    // 実物と一致していることは `find src/app/admin -name page.tsx | wc -l` で確かめた。
+    expect(ADMIN_ROUTE_METADATA).toHaveLength(50);
 
     const navRoutes = ADMIN_ROUTE_METADATA.filter((route) => route.nav !== null);
     expect(ADMIN_NAV.map((item) => item.href)).toEqual(navRoutes.map((route) => route.pattern));

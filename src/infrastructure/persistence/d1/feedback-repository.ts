@@ -1,20 +1,23 @@
-import { and, desc, eq, gt, inArray } from "drizzle-orm";
+import { and, asc, desc, eq, gt, inArray, lte, sql } from "drizzle-orm";
 import type {
   FeedbackFilter,
   FeedbackRepositoryPort,
   IntegrationKeyPort,
 } from "@/application/ports/feedback";
 import type { PortResult } from "@/application/ports/common";
-import type {
-  DispositionRecord,
-  FeedbackHistoryEntry,
-  FeedbackOrigin,
-  FeedbackReport,
-  HandoffState,
-  IntegrationKey,
-  KeyScope,
-  KeyUsageRecord,
-  TechnicalContext,
+import {
+  type DispositionRecord,
+  type FeedbackHistoryEntry,
+  type FeedbackOrigin,
+  type FeedbackReport,
+  type HandoffState,
+  type IntegrationKey,
+  type KeyScope,
+  type KeyUsageRecord,
+  type TechnicalContext,
+  diagnosticsPurgeCutoff,
+  isDiagnosticsPurged,
+  purgeDiagnostics,
 } from "@/domain/feedback";
 import {
   type IntegrationKeyId,
@@ -69,6 +72,16 @@ import { storageFailure } from "./storage-failure";
  */
 
 /**
+ * 1 回の削除で見る件数の上限。
+ *
+ * 定期実行には実行時間の上限がある。途中で終わっても消し残るだけで、
+ * 消しすぎることはない（次の回が古い側から続きを拾う）。
+ * 画像の掃除（`SWEEP_LIMIT`）より小さいのは、こちらが 1 件ごとに
+ * 書き込みを伴うためである。
+ */
+const DIAGNOSTICS_PURGE_LIMIT = 500;
+
+/**
  * 日付を含む JSON の読み戻し。
  *
  * `JSON.stringify` は `Date` を文字列にするので、読むときに戻す必要がある。
@@ -92,7 +105,9 @@ function toDomain(row: FeedbackReportRow): FeedbackReport {
     body: row.body,
     wish: row.wish,
     origin: JSON.parse(row.originJson) as FeedbackOrigin,
-    technical: JSON.parse(row.technicalJson) as TechnicalContext,
+    // 消した時刻も日付である。戻し忘れると、消してあるかどうかの判定は
+    // 動く（null かどうかしか見ない）のに、いつ消えたかだけが文字列に化ける。
+    technical: reviveDates<TechnicalContext>(row.technicalJson, ["purgedAt"]),
     captureId: row.captureId === null ? null : asFeedbackCaptureId(row.captureId),
     submittedBy: asUserId(row.submittedBy),
     submittedAt: row.submittedAt,
@@ -134,7 +149,28 @@ function toRow(item: FeedbackReport): FeedbackReportRow {
   };
 }
 
-export function createD1FeedbackRepository(db: DrizzleD1): FeedbackRepositoryPort {
+/**
+ * 改善要望を 1 件でも持っている作業場所の一覧。
+ *
+ * **定期実行のためだけにある。** 呼び出し元に身元が無いので、
+ * 「誰の分を消すか」をこちらで数え上げるしかない。ポート
+ * （`FeedbackRepositoryPort`）に載せていないのは、載せると画面や道具の側から
+ * 全作業場所を舐める入口ができるためである。使う場所は
+ * `platform/feedback-diagnostics-purge.ts` 1 か所に限る。
+ */
+export async function listFeedbackWorkspaceIds(db: DrizzleD1): Promise<readonly string[]> {
+  const rows = await db
+    .selectDistinct({ workspaceId: feedbackReports.workspaceId })
+    .from(feedbackReports);
+  return rows.map((r) => r.workspaceId);
+}
+
+export function createD1FeedbackRepository(
+  db: DrizzleD1,
+  options: { readonly diagnosticsPurgeLimit?: number } = {},
+): FeedbackRepositoryPort {
+  const diagnosticsPurgeLimit =
+    options.diagnosticsPurgeLimit ?? DIAGNOSTICS_PURGE_LIMIT;
   return {
     async save(workspaceId: WorkspaceId, report: FeedbackReport): PortResult<true> {
       if (report.workspaceId !== workspaceId) {
@@ -222,6 +258,60 @@ export function createD1FeedbackRepository(db: DrizzleD1): FeedbackRepositoryPor
         return ok(kept.map(toDomain));
       } catch (cause) {
         return storageFailure("改善要望の一覧取得", cause);
+      }
+    },
+
+    async purgeExpiredDiagnostics(workspaceId: WorkspaceId, now: Date) {
+      try {
+        const cutoff = diagnosticsPurgeCutoff(now);
+        /*
+         * 候補は JSON の構造を読んで「まだ消していない行」だけにする。
+         * 文字列の並びや空白に依存する LIKE は使わない。すでに消した行を
+         * 毎回先頭から拾うと、上限を超えたときに残りへ永久に進めないためである。
+         * 最終判定は domain の `isDiagnosticsPurged` にも通し、保存先の抽出と
+         * 業務ルールの二重防御にする。古い行に項目が無い場合も SQL の NULL と
+         * なり、未削除として一度だけ安全に処理される。
+         *
+         * 期限の判定だけは SQL で絞る。ここを絞らないと、
+         * 期限内の要望まで毎晩読み出すことになる。
+         */
+        const rows = await db
+          .select()
+          .from(feedbackReports)
+          .where(
+            and(
+              eq(feedbackReports.workspaceId, String(workspaceId)),
+              lte(feedbackReports.submittedAt, cutoff),
+              sql`json_extract(${feedbackReports.technicalJson}, '$.purgedAt') IS NULL`,
+            ),
+          )
+          // 同じ時刻は id で決める。上限の境界を実行ごとに揺らさない。
+          .orderBy(asc(feedbackReports.submittedAt), asc(feedbackReports.id))
+          .limit(diagnosticsPurgeLimit + 1);
+
+        const finished = rows.length <= diagnosticsPurgeLimit;
+        const batch = finished ? rows : rows.slice(0, diagnosticsPurgeLimit);
+        let purged = 0;
+        for (const row of batch) {
+          const technical = reviveDates<TechnicalContext>(row.technicalJson, ["purgedAt"]);
+          if (isDiagnosticsPurged(technical)) continue;
+          const emptied = purgeDiagnostics(technical, now);
+          await db
+            .update(feedbackReports)
+            .set({ technicalJson: JSON.stringify(emptied) })
+            .where(
+              and(
+                // 作業場所は更新のときも必ず置く。id だけで更新すると、
+                // 読み出しの絞りを外した日にそのまま他社の行を書き換える。
+                eq(feedbackReports.workspaceId, String(workspaceId)),
+                eq(feedbackReports.id, row.id),
+              ),
+            );
+          purged += 1;
+        }
+        return ok({ purged, finished });
+      } catch (cause) {
+        return storageFailure("技術情報の削除", cause);
       }
     },
   };

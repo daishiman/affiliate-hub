@@ -1,7 +1,7 @@
 /** @tier 1 */
 /**
  * @req REQ-FD04
- * @types equivalence
+ * @types equivalence, code-boundary
  *
  * **WebMCP でしか到達できない機能を作らない。**
  *

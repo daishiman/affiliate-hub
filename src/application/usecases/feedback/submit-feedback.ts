@@ -6,7 +6,7 @@ import {
   type CaptureSubmission,
   type FeedbackKind,
   type FeedbackOrigin,
-  type TechnicalContext,
+  type TechnicalContextInput,
   assertCaptureIsStorable,
   createFeedbackReport,
 } from "@/domain/feedback";
@@ -51,7 +51,7 @@ export type SubmitFeedbackInput = {
   readonly body: string;
   readonly wish?: string | null;
   readonly origin: FeedbackOrigin;
-  readonly technical: TechnicalContext;
+  readonly technical: TechnicalContextInput;
   readonly brandId?: string | null;
   readonly siteId?: string | null;
   /** 画像。付けないことを常に選べる。 */

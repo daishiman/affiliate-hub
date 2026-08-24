@@ -15,14 +15,16 @@ serves_goals: [G1]
 
 - `confirmed` / 「確定」は、認証方式の**要求判断を収集済み**であることを表す。実装済み・統合済み・受入試験合格を表さない。
 - 後段の `採否: applied` も「設計判断に採用」の意味であり、コードへの適用済みを意味しない。
-- 本章の実装状態は `not_started`、検証状態は `unverified`。後述の Better Auth / Workspace / ロールは目標仕様であり、現行機能ではない。
+- 本章の実装状態は `partial`。ローカルの受入・結合試験は `pass` だが、Google OAuth の実往復、Workers 上の実 HTTP、dev / production D1 migration は `unverified`。要求判断の確定とリリース検証を混同しない。
 - 本章内の `ref-system-design-knowledge/...` 参照は**非規範・取得証跡なし・実装根拠に使用不可**とする。規範根拠は `docs/spec/01` §25〜§26、`00-requirements-definition.md` の U8、本章の「最新ドキュメント出典」に記録した公式出典とする。
 
 ## As-Is
 
-- `src/lib/mcp/auth.ts` の `MCP_TOKEN` 一致による Bearer 認証と、`Sec-Fetch-Site: same-origin` を読み取り範囲に限定する WebMCP PoC のみ。
-- `same-origin` は利用者の身元を証明しない。現行の保護範囲は「公開ページと同じ読み取り」であり、ログインまたは Workspace 認可の代替にならない。
-- Better Auth、Google OAuth、D1 セッション、Workspace 所属、Owner〜Analyst のロール認可は未実装。
+- Better Auth + Google OAuth の adapter、D1 の認証・セッション表、許可メールと membership の二段ゲートが実装されている。`/admin` の入口は `src/middleware.ts`、操作権限は application 層の `requireCapability` が担う。
+- Workspace / membership / role、tenant-scoped port、他 Workspace の存在を隠す応答、request ID 付きの拒否監査が実装され、ローカルの受入・D1 結合試験で検証されている。
+- ブランドの標準 CTA・標準免責は、Workspace にブランドが 1 件だけなら管理画面と MCP の生成経路へ既定値として届く。複数ブランド時の選択 UI と `brands` の本番永続化は未完了。
+- `src/lib/mcp/auth.ts` の `MCP_TOKEN` と `same-origin` 読み取り WebMCP は PoC 経路として残る。`same-origin` は利用者の身元を証明せず、Workspace 認可の代替ではない。
+- Google OAuth の実往復、本番 Secrets、本番 D1 への migration 適用は未検証である。コードとローカル試験があることを、本番利用可能の証拠にはしない。
 
 ## To-Be
 
@@ -35,9 +37,22 @@ serves_goals: [G1]
 
 ## Delta
 
-1. Better Auth テーブルと Google OAuth 統合を追加する。
-2. Workspace / membership / role を認証情報と分離して追加し、共通の認可ゲートを経由させる。
-3. MCP トークンと Web 利用者セッションの責務を混ぜず、既存 PoC は機械間経路として局所化する。
+1. dev 環境で Google OAuth の実往復を行い、認証 callback、cookie 属性、D1 セッション作成、ログアウト後の無効化を実測する。
+2. `brands` の永続化と複数ブランド時の明示選択を実装し、誤った CTA・免責を自動選択しない状態を保つ。
+3. PoC の `MCP_TOKEN` を Workspace と最小権限に結びつく service identity へ置き換え、`same-origin` は公開読み取りだけに限定し続ける。
+4. migration `0022` / `0023` を dev D1 へ適用する前に既存 `disclosures` 行数を確認し、適用後に tenant 分離と request ID 索引を実測する。
+
+### Implementation evidence (2026-08-24 final review)
+
+| 観点 | 状態 | 証跡 |
+|---|---|---|
+| 未認証の `/admin` 遮断 | ローカル受入 PASS | `tests/acceptance/feat-auth-workspace/admin-entry-middleware.test.ts` |
+| tenant / capability 境界 | ローカル受入 PASS | `tests/acceptance/feat-auth-workspace/access-boundary.test.ts`、`tests/architecture/tenant-scoped-schema.test.ts` |
+| 拒否の request ID 付き監査 | ローカル受入 PASS | `tests/acceptance/feat-auth-workspace/denial-audit.test.ts`、`drizzle/0023_aromatic_flatman.sql` |
+| ブランド既定値の配線 | ローカル受入 PASS | `tests/acceptance/feat-auth-workspace/brand-defaults-wiring.test.ts` |
+| Google OAuth / Workers / dev・production D1 | 未検証 | `docs/spec/feat-auth-workspace/release-notes.md` §7 |
+
+書き戻しは `system-spec/spec-state.json` の `auth.web` を R4 `reopen` し、要求判断 `qa-auth-web` を変えずに本文を更新して再確定した。受領記録は `docs/spec-writeback-receipt.md` にある。正本 state の `implementation_snapshot` は現行 writer に更新 action が無いため古いままであり、writer 拡張は Beads `ah-u5l` で追跡する。
 
 ## Dependencies
 

@@ -51,6 +51,12 @@ const ACTION_FILES = [
   "delete-form-action.ts",
 ] as const;
 
+const EXTENDED_STATE_ACTION_FILES = [
+  ["compliance-action.ts", 2, 2, 2],
+  ["inbox-action.ts", 2, 2, 5],
+  ["publish-article-action.ts", 1, 1, 1],
+] as const;
+
 const STATE_FILES = [
   "content-form-state.ts",
   "product-form-state.ts",
@@ -75,5 +81,36 @@ describe("管理画面 action の共通失敗を個別に書き直さない", ()
     expect(source).toContain("failureFromDomainError(");
     expect(source).not.toContain("signedInActorForAction(");
     expect(source).not.toMatch(/refusalText\(result\.error\)/);
+  });
+
+  it.each(EXTENDED_STATE_ACTION_FILES)(
+    "%s は認証境界を残し、失敗 state だけを共通 helper へ寄せる",
+    (file, actorChecks, notSignedFailures, domainFailures) => {
+      const source = readFileSync(join(process.cwd(), "src/presentation/admin", file), "utf8");
+      expect(source.match(/await signedInActor\(\)/g)).toHaveLength(actorChecks);
+      expect(source.match(/notSignedInFailure\(/g)).toHaveLength(notSignedFailures);
+      expect(source.match(/failureFromDomainError\(result\.error\)/g)).toHaveLength(
+        domainFailures,
+      );
+      expect(source).not.toContain("signedInActorForAction(");
+      expect(source).not.toMatch(/notSignedInText\(/);
+      expect(source).not.toMatch(/refusalText\(result\.error\)/);
+    },
+  );
+
+  it("site-wizard-action.ts は state 失敗だけを寄せ、redirect の組み立てを隠さない", () => {
+    const source = readFileSync(
+      join(process.cwd(), "src/presentation/admin/site-wizard-action.ts"),
+      "utf8",
+    );
+    expect(source.match(/await signedInActor\(\)/g)).toHaveLength(3);
+    expect(source).toContain('return notSignedInFailure("下書きの保存")');
+    expect(source).toContain('return notSignedInFailure("ブログの作成")');
+    expect(source.match(/return failureFromDomainError\(result\.error\)/g)).toHaveLength(2);
+    expect(source).not.toContain("signedInActorForAction(");
+
+    // startSiteDraftAction は状態を返さず redirect を投げるため、この変換の対象外。
+    expect(source).toContain('notSignedInText("下書きの作成")');
+    expect(source).toContain("refusalText(result.error)");
   });
 });

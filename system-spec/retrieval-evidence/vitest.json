@@ -1,19 +1,43 @@
 {
  "target_id": "vitest",
  "source_url": "https://vitest.dev/guide/",
- "retrieved_at": "2026-08-22T15:05:10Z",
+ "retrieved_at": "2026-08-24T11:38:56Z",
  "http_status": 200,
  "content_bytes": 92586,
  "content_sha256": "51e046ff2928040a98afe696c3f8a1e81d7bf1d7c8cd8d8ea8e96e1384184475",
  "page_title": "Getting Started | Guide | Vitest",
  "freshness_extraction": {
-  "freshness_source": "page-declared",
-  "value": "2026-04-08",
+  "freshness_source": "publisher-registry",
+  "value": "4.1.11",
   "found_in": [
    "\"Last updated: \" に続く <time datetime=\"2026-04-08T16:24:18.000Z\" data-v-d7655276></time>"
   ],
   "http_last_modified": null,
-  "note": "VitePress の lastUpdated 機能が git の最終コミット時刻を埋める。出典本文が自ら表明している値なので page-declared。"
+  "publisher_registry": {
+   "checked_at": "2026-08-24T11:38:55Z",
+   "command": "npm view vitest version dist-tags.latest time.modified --json",
+   "version": "4.1.11",
+   "dist_tags_latest": "4.1.11",
+   "time_modified": "2026-08-18T14:27:07.596Z"
+  },
+  "official_repository_history": {
+   "checked_at": "2026-08-24T11:38:55Z",
+   "source_url": "https://api.github.com/repos/vitest-dev/vitest/commits?path=docs/guide/index.md&per_page=3",
+   "latest_commit": "4cbf6b4a09268c30354f647acb0552de8b8a775a",
+   "latest_commit_at": "2026-06-18T12:04:27Z",
+   "message": "docs: add Deno to install instructions (#10614)"
+  },
+  "note": "配信中の VitePress HTML は 2026-04-08 と表示したままだが、公式 repository の同ファイル履歴は 2026-06-18 まで進んでいるため last_updated の根拠には採らない。現行版は publisher registry の dist-tags.latest=4.1.11 を採る。"
  },
- "requirement_note": "本文逐語: \"Vitest requires Vite >=v6.0.0 and Node >=v20.0.0\" — 前提環境を出典自身が申告している。"
+ "requirement_note": "本文逐語: \"Vitest requires Vite >=v6.0.0 and Node >=v20.0.0\" — 前提環境を出典自身が申告している。",
+ "reverification": [
+  {
+   "checked_at": "2026-08-24T11:38:56Z",
+   "http_status": 200,
+   "content_bytes": 92586,
+   "content_sha256": "51e046ff2928040a98afe696c3f8a1e81d7bf1d7c8cd8d8ea8e96e1384184475",
+   "verdict": "本文一致・鮮度根拠を registry へ変更",
+   "note": "08-22 の本文と byte 数・sha256 は一致。公式 repository 履歴が本文表示より新しいため、page-declared date ではなく publisher registry の現行版 4.1.11 を鮮度根拠にした。"
+  }
+ ]
 }

@@ -87,6 +87,8 @@ import {
   createD1TelemetrySink,
 } from "./persistence/d1/telemetry-repository";
 import { createD1AuditLog } from "./persistence/d1/audit-log-repository";
+import { createD1DisclosureRepository } from "./persistence/d1/disclosure-repository";
+import { createD1PolicyRuleRepository } from "./persistence/d1/policy-rule-repository";
 import { createD1MembershipRepository } from "./persistence/d1/membership-repository";
 import { createSampleImprovementRepository } from "./persistence/sample/improvement-sample-repository";
 import {
@@ -97,6 +99,7 @@ import {
   createSampleConversionRepository,
 } from "./persistence/sample/affiliate-sample-repository";
 import { createD1ArticleOfferReader } from "./persistence/d1/affiliate-link-repository";
+import { createD1AffiliateLinkRepository } from "./persistence/d1/commercial-affiliate-link-repository";
 import {
   createSampleAuditLog,
   createSampleBrandRepository,
@@ -299,9 +302,21 @@ export function createDeps(
     memberships:
       db === null ? createSampleMembershipRepository() : createD1MembershipRepository(db),
     brands: createSampleBrandRepository(),
-    disclosures: createSampleDisclosureRepository(),
-    // ★ 見本データ（スタブ）。中身は初期ルールそのもので、読み取りは本物と同じ結果を返す。
-    policyRules: createSamplePolicyRuleRepository(),
+    // 広告表記は、保存先が用意できていれば**本物**（D1 の disclosures）。
+    //
+    // **見本と混ぜない。** これは読者へ実際に出る断り文である。見本の
+    // 「見本メーカー株式会社」が本物の一覧に並ぶと、存在しない提供元の表記を
+    // 記事へ出せてしまう。接続の無い実行では見本のまま（保存は失敗を返す）。
+    disclosures:
+      db === null ? createSampleDisclosureRepository() : createD1DisclosureRepository(db),
+    // 表記のきまりも、保存先が用意できていれば**本物**（D1 の policy_rules）。
+    //
+    // **表が空でも「きまり 0 件」にはならない。** D1 版が返すのは
+    // 「初期ルール ＋ この作業場所の変更（無効化・上書き・追加）」で、
+    // 触っていないきまりは `buildSeedPolicyRules()` 側が正本のまま返る。
+    // 接続の無い実行では見本のまま（読み取りは初期ルール、保存は失敗を返す）。
+    policyRules:
+      db === null ? createSamplePolicyRuleRepository() : createD1PolicyRuleRepository(db),
     auditLog: db === null ? createSampleAuditLog() : createD1AuditLog(db),
     // 起きたことの発行。購読側（通知・再生成・リンク切れ検出）はまだ無いので
     // 記録だけする。購読を足すときに変えるのはこの 1 行だけ。
@@ -317,7 +332,13 @@ export function createDeps(
     //   ここで作るものには商業の印が付いており、順位づけへは型として渡せない。
     affiliateAccounts: createSampleAffiliateAccountRepository(),
     affiliatePrograms: createSampleAffiliateProgramRepository(),
-    affiliateLinks: createSampleAffiliateLinkRepository(),
+    // 成果リンクだけは、保存先が用意できていれば本物（D1）。
+    // **入れる口（受信箱の「成果リンクとして登録する」）を先に作ってからつないでいる。**
+    // 読む口だけを本物にしても、書く口が無ければ表は永久に空で、
+    // 公開した記事に成果リンクが 1 件も出ない（残課題 58 / REQ-E13）。
+    // 見本は消さずに重ねる（`d1/commercial-affiliate-link-repository.ts` に理由）。
+    affiliateLinks:
+      db === null ? createSampleAffiliateLinkRepository() : createD1AffiliateLinkRepository(db),
     // 成果は、保存先が用意できていれば本物（D1）。取り込みはまだ ASP の
     // 接続待ちだが、**金額を手で直す入口が画面にある**ので保存先を先に本物にした。
     // 入口があるのに保存できないと、直した額が次に開くと元へ戻る。

@@ -25,6 +25,15 @@
    "http_last_modified": "Thu, 06 Aug 2026 02:58:13 GMT",
    "verdict": "一致",
    "note": "上流へ独立に取り直した結果。content_sha256 が 08-16 / 08-19 / 08-22 の 3 回で同一、Last-Modified も 2026-08-06 のまま。freshness_source='http-last-modified' の値 2026-08-06 は上流で裏が取れており、この record が古い取得の使い回しでないことが示せた。本文側の日付表明は今回も 0 件で、http-last-modified を採る判断は変わらない。"
+  },
+  {
+   "checked_at": "2026-08-24T11:38:58Z",
+   "http_status": 200,
+   "content_bytes": 17681,
+   "content_sha256": "7367359951847c16af1772013a4aee1f7ab4b4ca59f1f6b7902e875a65de53c0",
+   "http_last_modified": "Thu, 06 Aug 2026 02:58:13 GMT",
+   "verdict": "一致",
+   "note": "公式 Apple host へ GET/HEAD 相当で再取得し、08-16 / 08-19 / 08-22 と同じ本文 sha256 および Last-Modified を確認した。本文自身に版・更新日の表明が無い制約は残るが、記録した HTTP header 値は現行レスポンスで再確認済み。"
   }
  ]
 }

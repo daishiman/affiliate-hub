@@ -90,6 +90,7 @@ import {
   createListConversionsUseCase,
   createListProductLinksUseCase,
 } from "@/application/usecases/monetization/manage-affiliate";
+import { createRegisterAffiliateLinkUseCase } from "@/application/usecases/monetization/register-affiliate-link";
 import {
   createListLinkInboxUseCase,
   createMatchLinkIngestionUseCase,
@@ -97,6 +98,11 @@ import {
   createResolveLinkIngestionUseCase,
   createSubmitAffiliateUrlUseCase,
 } from "@/application/usecases/monetization/manage-link-inbox";
+import {
+  createEditDisclosureUseCase,
+  createEditPolicyRuleUseCase,
+  createListPolicyRulesUseCase,
+} from "@/application/usecases/compliance/manage-compliance";
 import {
   createGetSettingsOverviewUseCase,
   createListAuditLogUseCase,
@@ -152,6 +158,8 @@ import { taggedString } from "@/domain/shared";
 import { type KeyScope, authorize } from "@/domain/feedback";
 import type { StorageStatus } from "@/presentation/ui/patterns/stub-notice";
 import { createDeps, createLlmCredentialManagement } from "@/infrastructure/composition";
+import { auditDenials } from "@/application/access-denial";
+import { requestIdOf, withRequestId } from "@/presentation/http/request-id";
 import { appContext } from "@/infrastructure/app-context";
 import {
   createManageLlmCredentialsUseCase,
@@ -395,7 +403,24 @@ async function resolveActor(): Promise<ActorResolution> {
  */
 export async function currentActor(): Promise<ActorContext> {
   const resolved = await resolveActor();
-  return resolved.kind === "actor" ? resolved.actor : getCurrentActor();
+  const actor = resolved.kind === "actor" ? resolved.actor : await getCurrentActor();
+  return withRequestId(actor, await currentRequestId());
+}
+
+/**
+ * いま処理している要求を指す名前を、見出しから取り出す。
+ *
+ * 画面の側（Server Action・サーバーで組み立てる画面）には `Request` が
+ * 渡ってこないので、`next/headers` から取る。取れない場所（テスト・組み立て時）は
+ * `null` になる。**そこで作らない**理由は `request-id.ts` に書いてある。
+ */
+async function currentRequestId(): Promise<string | null> {
+  try {
+    const { headers } = await import("next/headers");
+    return requestIdOf(await headers());
+  } catch {
+    return null;
+  }
 }
 
 /**
@@ -416,7 +441,8 @@ export async function currentActor(): Promise<ActorContext> {
  */
 export async function signedInActor(): Promise<ActorContext | null> {
   const resolved = await resolveActor();
-  return resolved.kind === "actor" ? resolved.actor : null;
+  if (resolved.kind !== "actor") return null;
+  return withRequestId(resolved.actor, await currentRequestId());
 }
 
 /**
@@ -453,14 +479,17 @@ export async function actorForScope(
   scope: "bearer" | "same-origin",
   request: Request,
 ): Promise<ActorContext> {
+  // 糸は**要求そのもの**から取る。API の入口にはここで `Request` が届いている。
+  const requestId = requestIdOf(request.headers);
   if (scope === "bearer") {
     // 門を通ったこと（`MCP_TOKEN`）は、身元の根拠にならない。
     // 鍵が載っていなければ、鍵の照合そのものを試みない。
-    if ((request.headers.get(INTEGRATION_KEY_HEADER)?.trim() ?? "") === "") return readerActor();
+    if ((request.headers.get(INTEGRATION_KEY_HEADER)?.trim() ?? "") === "")
+      return withRequestId(readerActor(), requestId);
     const access = await resolveIntegrationAccess(request, "read");
-    return access.ok ? access.actor : readerActor();
+    return withRequestId(access.ok ? access.actor : readerActor(), requestId);
   }
-  return (await signedInActor()) ?? readerActor();
+  return withRequestId((await signedInActor()) ?? readerActor(), requestId);
 }
 
 /** いまどの身元で動いているかを画面に出すための一文。 */
@@ -546,7 +575,7 @@ export function rankingScreenTarget(): { modelId: string; productIds: readonly s
 export async function siteUseCases() {
   const deps = createDeps({ db: await tryGetDb() });
   const site = { sites: deps.sites, content: deps.publishedContent };
-  return {
+  return auditDenials(deps, {
     getSite: createGetSiteUseCase(site),
     listSites: createListSitesUseCase(site),
     listRecent: createListRecentArticlesUseCase(site),
@@ -556,7 +585,7 @@ export async function siteUseCases() {
     getPerson: createGetPersonUseCase(site),
     listCorrections: createListCorrectionsUseCase(site),
     getPolicy: createGetPolicyDocumentUseCase(site),
-  };
+  });
 }
 
 /**
@@ -571,7 +600,7 @@ export function readerUseCases() {
     readerTools: deps.readerTools,
     contact: deps.contact,
   };
-  return {
+  return auditDenials(deps, {
     listShortlist: createListShortlistUseCase(reader),
     saveToShortlist: createSaveToShortlistUseCase(reader),
     removeFromShortlist: createRemoveFromShortlistUseCase(reader),
@@ -579,7 +608,7 @@ export function readerUseCases() {
     listReaderTools: createListReaderToolsUseCase(reader),
     runReaderTool: createRunReaderToolUseCase(reader),
     submitContact: createSubmitContactUseCase(reader),
-  };
+  });
 }
 
 /**
@@ -604,7 +633,7 @@ export async function productUseCases() {
     rankingModels: deps.rankingModels,
     scoreCards: deps.scoreCards,
   };
-  return {
+  return auditDenials(deps, {
     getProduct: createGetProductUseCase(product),
     filterProducts: createFilterProductsUseCase(product),
     compareProducts: createCompareProductsUseCase(product),
@@ -612,7 +641,7 @@ export async function productUseCases() {
     getEvidence: createGetEvidenceUseCase(product),
     listTestRuns: createListTestRunsUseCase(product),
     explainRanking: createExplainRankingUseCase(product),
-  };
+  });
 }
 
 /**
@@ -634,13 +663,13 @@ export async function contentUseCases() {
     ids: deps.ids,
     events: deps.events,
   };
-  return {
+  return auditDenials(deps, {
     listBoard: createListContentBoardUseCase(content),
     getContent: createGetContentUseCase(content),
     listReviewOverdue: createListReviewOverdueUseCase(content),
     advanceState: createAdvanceContentStateUseCase(content),
     approve: createApproveContentUseCase(content),
-  };
+  });
 }
 
 /**
@@ -650,14 +679,15 @@ export async function contentUseCases() {
  * 比較の観点も、使ってよい言い回しも決まらない。
  */
 export function personaUseCases() {
-  const personas = { personas: createDeps().personas };
-  return {
+  const app = createDeps();
+  const personas = { personas: app.personas };
+  return auditDenials(app, {
     listAuthors: createListAuthorPersonasUseCase(personas),
     getAuthor: createGetAuthorPersonaUseCase(personas),
     listAudiences: createListAudiencePersonasUseCase(personas),
     getAudience: createGetAudiencePersonaUseCase(personas),
     checkFactBoundary: createCheckFactBoundaryUseCase(personas),
-  };
+  });
 }
 
 /**
@@ -667,7 +697,10 @@ export function personaUseCases() {
  * 画面・AI 向けの道具・生成の指示文が同じ定義を見る。
  */
 export function writingMethodUseCases() {
-  return { readMethod: createReadWritingMethodUseCase() };
+  const app = createDeps();
+  return auditDenials(app, {
+    readMethod: createReadWritingMethodUseCase(),
+  });
 }
 
 /**
@@ -683,9 +716,9 @@ export async function generationMatrixUseCases() {
     variants: deps.contentVariants,
     personas: deps.personas,
   };
-  return {
+  return auditDenials(deps, {
     getMatrix: createGetGenerationMatrixUseCase(matrix),
-  };
+  });
 }
 
 /** 見本データで開く企画。マトリクス画面の初期表示に使う。 */
@@ -700,12 +733,13 @@ export function sampleContentPackageId(): string {
  * 変わるのは保存されている設計図の設定値だけ。
  */
 export async function platformUseCases() {
-  const sites = { sites: createDeps({ db: await tryGetDb() }).sites };
-  return {
+  const app = createDeps({ db: await tryGetDb() });
+  const sites = { sites: app.sites };
+  return auditDenials(app, {
     listSites: createListManagedSitesUseCase(sites),
     getSite: createGetManagedSiteUseCase(sites),
     checkDifferentiation: createCheckSiteDifferentiationUseCase(sites),
-  };
+  });
 }
 
 /**
@@ -726,11 +760,11 @@ export async function productEditingUseCases() {
     auditLog: deps.auditLog,
     ids: deps.ids,
   };
-  return {
+  return auditDenials(deps, {
     create: createCreateProductUseCase(editing),
     update: createUpdateProductUseCase(editing),
     remove: createDeleteProductUseCase(editing),
-  };
+  });
 }
 
 /**
@@ -748,14 +782,14 @@ export async function contentEditingUseCases() {
     auditLog: deps.auditLog,
     ids: deps.ids,
   };
-  return {
+  return auditDenials(deps, {
     create: createCreateContentVariantUseCase(editing),
     update: createUpdateContentVariantUseCase(editing),
     remove: createDeleteContentVariantUseCase(editing),
     // ブログ別の書き分けは、1 本ずつ作る操作の上に載っている。
     // 同じつなぎ目から取るのは、片方だけ別の保存先を向くのを防ぐため。
     createConceptDrafts: createCreateConceptDraftsUseCase(editing),
-  };
+  });
 }
 
 /**
@@ -773,10 +807,10 @@ export async function siteEditingUseCases() {
     auditLog: deps.auditLog,
     ids: deps.ids,
   };
-  return {
+  return auditDenials(deps, {
     update: createUpdateManagedSiteUseCase(siteEditing),
     remove: createDeleteManagedSiteUseCase(siteEditing),
-  };
+  });
 }
 
 /**
@@ -809,7 +843,7 @@ export async function distributionUseCases() {
     auditLog: deps.auditLog,
     ids: deps.ids,
   };
-  return {
+  return auditDenials(deps, {
     listChannels: createListChannelsUseCase(distribution),
     listPublications: createListPublicationsUseCase(distribution),
     getPublication: createGetPublicationUseCase(distribution),
@@ -820,7 +854,7 @@ export async function distributionUseCases() {
     channelStatus: createGetContentChannelStatusUseCase(distribution),
     preparePublishArticle: createPreparePublishArticleUseCase(ownSite),
     publishArticle: createPublishArticleUseCase(ownSite),
-  };
+  });
 }
 
 /**
@@ -840,10 +874,10 @@ export async function publicationCalendarUseCases() {
     auditLog: deps.auditLog,
     ids: deps.ids,
   };
-  return {
+  return auditDenials(deps, {
     getCalendar: createGetPublicationCalendarUseCase(calendar),
     reschedule: createReschedulePublicationUseCase(calendar),
-  };
+  });
 }
 
 /**
@@ -866,14 +900,14 @@ export async function affiliateUseCases() {
     auditLog: deps.auditLog,
     now: () => new Date(),
   };
-  return {
+  return auditDenials(deps, {
     listAccounts: createListAffiliateAccountsUseCase(affiliate),
     listPrograms: createListAffiliateProgramsUseCase(affiliate),
     listConversions: createListConversionsUseCase(affiliate),
     getConversion: createGetConversionUseCase(affiliate),
     listProductLinks: createListProductLinksUseCase(affiliate),
     adjustConversion: createAdjustConversionUseCase(affiliate),
-  };
+  });
 }
 
 /**
@@ -893,13 +927,25 @@ export async function linkInboxUseCases() {
     auditLog: deps.auditLog,
     now: () => new Date(),
   };
-  return {
+  return auditDenials(deps, {
     list: createListLinkInboxUseCase(inbox),
     submit: createSubmitAffiliateUrlUseCase(inbox),
     resolve: createResolveLinkIngestionUseCase(inbox),
     match: createMatchLinkIngestionUseCase(inbox),
     reject: createRejectLinkIngestionUseCase(inbox),
-  };
+    /*
+     * 受信箱の最後の一歩。**ここまで来て初めて、記事に出せるリンクになる。**
+     * 商品まで決めた 1 件を `affiliate_links` へ登録する口で、
+     * これが無いと表は空のままで、公開した記事に成果リンクが 1 件も出ない。
+     */
+    register: createRegisterAffiliateLinkUseCase({
+      inbox: deps.linkInbox,
+      links: deps.affiliateLinks,
+      ids: deps.ids,
+      auditLog: deps.auditLog,
+      now: () => new Date(),
+    }),
+  });
 }
 
 /**
@@ -933,7 +979,7 @@ export async function analyticsUseCases() {
   // 画面には見本の数字が出続ける（受信箱・改善要望で実際に起きた形）。
   const deps = createDeps({ db: await tryGetDb() });
   const analytics = { metrics: deps.metrics };
-  return {
+  return auditDenials(deps, {
     listMetrics: createListMetricsUseCase(analytics),
     listUsableMetrics: createListUsableMetricsUseCase(analytics),
     checkFeedback: createCheckFeedbackUseCase(analytics),
@@ -944,7 +990,7 @@ export async function analyticsUseCases() {
     trackingCoverage: createReadTrackingCoverageUseCase({
       trackingCoverage: deps.trackingCoverage,
     }),
-  };
+  });
 }
 
 /**
@@ -954,11 +1000,12 @@ export async function analyticsUseCases() {
  * 記録先を差し替えるときに触るのは infrastructure の 1 行だけ。
  */
 export async function telemetryUseCases() {
-  const deps = { sink: createDeps({ db: await tryGetDb() }).telemetry };
-  return {
+  const app = createDeps({ db: await tryGetDb() });
+  const deps = { sink: app.telemetry };
+  return auditDenials(app, {
     aiUsage: createAiUsageReportUseCase(deps),
     explain: createExplainTelemetryUseCase(),
-  };
+  });
 }
 
 /**
@@ -1020,7 +1067,7 @@ export async function improvementUseCases() {
   // 回す側は id と時刻、それに**操作の記録先**が要る。読む側と同じ保存先を使う
   // （画面用にもう 1 つ保存の道を作らない）。
   const run = { ...deps, auditLog: app.auditLog, ids: app.ids, now: () => new Date() };
-  return {
+  return auditDenials(app, {
     review: createReviewLoopRunsUseCase(deps),
     dimensions: createListImprovementDimensionsUseCase(deps),
     draftSpec: createDraftVariantSpecUseCase(run),
@@ -1029,7 +1076,7 @@ export async function improvementUseCases() {
     observe: createRecordLoopObservationUseCase(run),
     conclude: createConcludeLoopRunUseCase(run),
     stop: createStopLoopRunUseCase(run),
-  };
+  });
 }
 
 /** 改善ループの記録先が見本であることを画面に出すための一文。 */
@@ -1063,7 +1110,7 @@ export async function feedbackUseCases() {
     auditLog: deps.auditLog,
     now: () => new Date(),
   };
-  return {
+  return auditDenials(deps, {
     submit: createSubmitFeedbackUseCase(feedback),
     list: createListFeedbackUseCase({ repository: deps.feedback }),
     read: createReadFeedbackUseCase({
@@ -1090,7 +1137,7 @@ export async function feedbackUseCases() {
       now: feedback.now,
       auditLog: deps.auditLog,
     }),
-  };
+  });
 }
 
 /**
@@ -1153,7 +1200,7 @@ export async function generationUseCases() {
   const context = await appContext();
   const deps = createDeps({ db: context.db, env: context.env });
   const management = createLlmCredentialManagement(context);
-  return {
+  return auditDenials(deps, {
     readPlan: createReadGenerationPlanUseCase(),
     checkInput: createCheckGenerationInputUseCase(),
     reviewMaterial: createReviewMaterialUseCase(),
@@ -1163,8 +1210,16 @@ export async function generationUseCases() {
         ? { available: true, vault: management.vault }
         : { available: false, reason: management.reason },
     }),
-    draft: createDraftContentVariantUseCase({ llm: deps.llm, costs: deps.llmCosts }),
-  };
+    // brands を渡すのは、AWS-ACC-03（ブランドの標準 CTA・標準免責が既定値として入る）が
+    // 経路を限定していないため。ここを省くと、道具経路（/api/tools）では届くのに
+    // 画面経路（/admin/generation）では届かない、という利用者から見て説明不能な差になる。
+    // P10 の FR-01 が実測したのがまさにこの欠落である。
+    draft: createDraftContentVariantUseCase({
+      llm: deps.llm,
+      costs: deps.llmCosts,
+      brands: deps.brands,
+    }),
+  });
 }
 
 /**
@@ -1242,7 +1297,14 @@ export async function settingsUseCases() {
     disclosures: deps.disclosures,
     auditLog: deps.auditLog,
   };
-  return {
+  const compliance = {
+    disclosures: deps.disclosures,
+    policyRules: deps.policyRules,
+    auditLog: deps.auditLog,
+    ids: deps.ids,
+    now: () => new Date(),
+  };
+  return auditDenials(deps, {
     getOverview: createGetSettingsOverviewUseCase(settings),
     listRoles: createListRolesUseCase(settings),
     listMembers: createListMembersUseCase(settings),
@@ -1261,7 +1323,18 @@ export async function settingsUseCases() {
     listBrands: createListBrandsUseCase(settings),
     listDisclosures: createListDisclosuresUseCase(settings),
     listAuditLog: createListAuditLogUseCase(settings),
-  };
+    /**
+     * 表記のきまりの一覧と、広告表記・きまりを**変える**口。
+     *
+     * §26 が必ず記録すると定めている 3 つのうち 1 つが
+     * 「広告表記・ランキング基準の変更」で、ここがその変更の入口である。
+     * 読む口と同じ保存先を渡す。用意できていれば本物（D1）で、
+     * 無い実行では見本のまま保存が失敗を返す（`settingsNotice()` が画面に書く）。
+     */
+    listPolicyRules: createListPolicyRulesUseCase({ policyRules: deps.policyRules }),
+    editDisclosure: createEditDisclosureUseCase(compliance),
+    editPolicyRule: createEditPolicyRuleUseCase(compliance),
+  });
 }
 
 /**
@@ -1273,7 +1346,7 @@ export async function settingsUseCases() {
  */
 export async function dashboardUseCases() {
   const deps = createDeps({ db: await tryGetDb() });
-  return {
+  return auditDenials(deps, {
     getDashboard: createGetDashboardUseCase({
       contentVariants: deps.contentVariants,
       products: deps.products,
@@ -1283,7 +1356,7 @@ export async function dashboardUseCases() {
       affiliateLinks: deps.affiliateLinks,
       conversions: deps.conversions,
     }),
-  };
+  });
 }
 
 /** 設定が見本データであることを画面に出すための一文。 */
@@ -1515,11 +1588,11 @@ export async function siteBuilderUseCases() {
     auditLog: deps.auditLog,
     now: () => new Date(),
   };
-  return {
+  return auditDenials(deps, {
     listDrafts: createListSiteDraftsUseCase(builder),
     getDraft: createGetSiteDraftUseCase(builder),
     startDraft: createStartSiteDraftUseCase(builder),
     saveStep: createSaveSiteDraftStepUseCase(builder),
     createSite: createCreateSiteFromDraftUseCase(builder),
-  };
+  });
 }

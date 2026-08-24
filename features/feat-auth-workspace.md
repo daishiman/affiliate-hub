@@ -12,8 +12,8 @@ iteration: null
 title: "認証とWorkspace/Brand基盤"
 owners: ["daishiman"]
 created_at: "2026-08-16T12:20:00Z"
-updated_at: "2026-08-16T14:35:00Z"
-status: "active"
+updated_at: "2026-08-24T12:00:00Z"
+status: "done"
 depends_on: []
 related_nodes: ["spec-system-spec-index"]
 resource_scope: ["src","drizzle","docs/spec","system-spec"]
@@ -43,7 +43,7 @@ github_publication: {"labels":[],"milestone":null,"mode":"local_only","project_a
 github_project_linkages: []
 pull_request_linkages: []
 execution_contexts: []
-completion_evidence: {"completed_at":null,"evidence_refs":[],"policy":"manual","reconciled_at":null,"source":null,"status":"in_progress"}
+completion_evidence: {"completed_at":"2026-08-24T12:00:00Z","evidence_refs":["beads:ah-361","docs/spec/feat-auth-workspace/final-review-log.md","docs/spec/feat-auth-workspace/release-notes.md","docs/spec-writeback-receipt.md","evidence/P06/coverage/coverage-summary.json"],"policy":"manual","reconciled_at":"2026-08-24T12:00:00Z","source":"manual","status":"done"}
 implementation_readiness: {"checked_at":"2026-08-16T21:00:00Z","missing_sections":[],"status":"complete"}
 ---
 
@@ -71,10 +71,12 @@ Google ログインでサインインし、Workspace と Brand を作成でき�
 
 ## 受入
 
-- [ ] 未ログインで管理画面を開くとログイン画面へ遷移する
-- [ ] 別 Workspace のデータが一覧・詳細・API のいずれからも取得できない
-- [ ] ブランド設定の標準CTAと標準免責が記事生成の既定値として渡る
-- [ ] 権限のないロールが公開操作を実行すると 403 になる
+- [x] 未ログインで管理画面を開くとログイン画面へ遷移する（ローカル受入。Workers 実 HTTP は未検証）
+- [x] 別 Workspace のデータが一覧・詳細・API のいずれからも取得できない
+- [x] ブランド設定の標準CTAと標準免責が記事生成の既定値として渡る（ブランド 1 件時）
+- [x] 権限のないロールが公開操作を実行すると 403 になる
+
+MVP の実装受入は完了。Google OAuth の実往復、本番 Secrets、dev / production D1 migration はリリース検証であり、本 feature のローカル完了証跡とは分けて `docs/spec/feat-auth-workspace/release-notes.md` §7 に残す。
 
 ## アーキテクチャ参照
 

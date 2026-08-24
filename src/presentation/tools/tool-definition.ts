@@ -63,6 +63,9 @@ export type ToolDefinition<Input, Output> = {
  *
  * 権限の最終判定はユースケース側で行う。ここでは
  * 「AI に人の承認が要る操作をさせない」という入口の門だけを見る。
+ * この入口拒否はユースケースを実行していないため、use case 拒否の監査へは記録しない。
+ * scope / 承認ゲートの監査が必要なら入口側で別の出来事として扱い、
+ * `withAccessDenialAudit` と同じ行へ二重計上しない。
  */
 export async function invokeTool<I, O>(
   tool: ToolDefinition<I, O>,

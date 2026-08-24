@@ -174,6 +174,18 @@ export type AuditAction =
    */
   | "feedback.handed_off"
   /**
+   * 改善要望の技術診断を、保持期限の満了で消した。
+   *
+   * **人が押した操作ではない。** 定期実行（cron）が消す。それでも記録するのは、
+   * 「なぜ 90 日前の要望に診断が付いていないのか」を後から説明できる場所が
+   * ここしか無いためである。行が無ければ、**消したのか、最初から付いていな
+   * かったのか、消し損ねたのか**が区別できない。
+   *
+   * 残すのは作業場所ごとの件数と期限の日数までにする。どの要望のどの診断を
+   * 消したかを写すと、消したはずの中身が記録の側へ残る。
+   */
+  | "feedback.diagnostics_purged"
+  /**
    * 見せ方の試作を登録した／承認した。
    *
    * **2 語に分ける。** 承認は仕様 §14.5 が人にだけ許している操作で、
@@ -200,7 +212,46 @@ export type AuditAction =
   | "loop_run.started"
   | "loop_run.observed"
   | "loop_run.concluded"
-  | "loop_run.stopped";
+  | "loop_run.stopped"
+  /**
+   * 権限が足りずに断った。
+   *
+   * **語が無かったこと自体が穴だった。** 断りは「何も起きなかった」ように見えるが、
+   * 実際には誰かが取り返しのつかない操作（公開・削除）を叩いている。
+   * 行が無いと、**試されていないこと**と**試されて止めたこと**が区別できない。
+   * 後者は次に起こることが違う（役の付け間違いか、あるいは侵入の途中である）。
+   *
+   * `access.cross_workspace_blocked` と分けてあるのは、後から問われることが違うため。
+   * こちらは「誰に何の権限を渡すべきだったか」で、あちらは「越境を試した者がいたか」である。
+   * 1 語にまとめると、日常の付け忘れと侵入の兆候が同じ一覧に溶ける。
+   *
+   * 規範: 確定済み auth 章 AWS-ACC-04（actor / workspace / action / result を残す）
+   */
+  | "access.denied"
+  /**
+   * 別の作業場所のものへ触ろうとして断った。
+   *
+   * **外へ返す本文は「対象が見つかりません。」に潰す**（`maskExistence`）。
+   * 潰した詳細——どの作業場所の何を指したのか——が残る場所はここしか無い。
+   * 潰しっぱなしにすると、攻撃側だけが自分の試行を知っていて、
+   * 守る側は 1 件も知らない状態になる。
+   *
+   * 規範: 確定済み auth 章 AWS-ACC-02（拒否は request ID 付きで監査に残る）
+   */
+  | "access.cross_workspace_blocked";
+
+/**
+ * 断りを表す語。
+ *
+ * **この集合に入る語は、`requestId` 無しでは記録できない**（下の `createAuditLogEntry`）。
+ * 拒否は 1 件ずつでは意味を持たない。「同じ要求の中で何度断られたか」「同じ相手が
+ * どの入口を順に叩いたか」を並べて初めて、付け忘れと総当たりが見分けられる。
+ * 並べるための糸が request ID で、糸の無い行は後から結び直せない。
+ */
+export const DENIAL_ACTIONS: ReadonlySet<AuditAction> = new Set<AuditAction>([
+  "access.denied",
+  "access.cross_workspace_blocked",
+]);
 
 /** 操作した主体。AI かどうかを型で残す。後から「人が承認した」を検証するため。 */
 export type AuditActor = {
@@ -239,6 +290,17 @@ export type AuditLogEntry = {
   readonly after: Readonly<Record<string, unknown>> | null;
   /** なぜその操作をしたか。承認・取り下げ・訂正では必須。 */
   readonly reason: string | null;
+  /**
+   * この操作が入ってきた**一回の要求**を指す名前。
+   *
+   * **省略できる項目にしなかった。** 省略できる形にすると、埋める場所を
+   * 足し忘れても型検査が黙る。断りの記録は糸が無いと役に立たないので、
+   * 「入れない」を選ぶときも `null` と書いて選ばせる。
+   *
+   * 値が `null` になるのは、要求の外で起きた操作（定期実行など）だけである。
+   * 断りの語（`DENIAL_ACTIONS`）では `null` を許さない。
+   */
+  readonly requestId: string | null;
   readonly occurredAt: Date;
 };
 
@@ -289,6 +351,7 @@ export function createAuditLogEntry(input: {
   before?: Readonly<Record<string, unknown>> | null;
   after?: Readonly<Record<string, unknown>> | null;
   reason?: string | null;
+  requestId?: string | null;
   occurredAt: Date;
 }): Result<AuditLogEntry, DomainError> {
   if (input.targetType.trim() === "" || input.targetId.trim() === "") {
@@ -311,6 +374,19 @@ export function createAuditLogEntry(input: {
    * よって記録は残し、確かめていないことは `actor.identified` に残す。
    * 「人が承認した」を数えるのは `wasApprovedByHuman()` で、そちらが印を見る。
    */
+  const requestId = input.requestId?.trim() ?? "";
+  if (DENIAL_ACTIONS.has(input.action) && requestId === "") {
+    /*
+     * 断りだけは request ID を必須にする。
+     *
+     * 通した操作は、対象そのもの（記事・商品）を糸にして後から辿れる。
+     * 断った操作には対象が無い回がある（そもそも取れなかった、権限が無かった）。
+     * 糸を要求しないと、**辿れない行だけが積み上がる**。
+     */
+    return err(
+      validationError(`${input.action} の記録には request ID が必要です。`, "requestId"),
+    );
+  }
   const reason = input.reason?.trim() ?? "";
   if (REASON_REQUIRED.has(input.action) && reason === "") {
     return err(
@@ -327,6 +403,7 @@ export function createAuditLogEntry(input: {
     before: redactSensitive(input.before ?? null),
     after: redactSensitive(input.after ?? null),
     reason: reason === "" ? null : reason,
+    requestId: requestId === "" ? null : requestId,
     occurredAt: input.occurredAt,
   });
 }

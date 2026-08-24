@@ -86,10 +86,10 @@
       "official_host": "developer.apple.com",
       "last_updated": "2026-08-06",
       "freshness_source": "http-last-modified",
-      "latest_checked_at": "2026-08-22T15:05:18Z",
+      "latest_checked_at": "2026-08-24T11:38:58Z",
       "evidence_ref": "system-spec/retrieval-evidence/apple-hig.json",
-      "evidence_sha256": "4f9fc6cea7002bdae82b8194a5e223bec72ad76c9241391eead6c31c833a47d0",
-      "summary": "Apple Human Interface Guidelines 公式ページ。presentation concern の doctrine authority。レスポンシブ Web UI の階層・フィードバック・アクセシビリティの上流指針。本文に日付・版の表明は無く、HTTP Last-Modified のみが 2026-08-06 を示す。2026-08-22T15:05:18Z に上流へ独立に取り直し、content_sha256 と Last-Modified がいずれも一致した (08-16 / 08-19 / 08-22 の 3 回で内容不変)。この record が古い取得の使い回しでないことは証跡の reverification 欄で辿れる。"
+      "evidence_sha256": "068666c1e0a6d3bb6becfe7223995b69843b86d5fb04e2bebd76d574a54262f7",
+      "summary": "Apple Human Interface Guidelines 公式ページ。presentation concern の doctrine authority。レスポンシブ Web UI の階層・フィードバック・アクセシビリティの上流指針。本文に日付・版の表明は無く、HTTP Last-Modified のみが 2026-08-06 を示す。2026-08-24T11:38:58Z に公式 host へ再取得し、content_sha256 と Last-Modified が過去3回と一致した。本文表明ではない制約を明記した上で、現行レスポンス由来の値として記録する。"
     },
     {
       "target_id": "google-sre",
@@ -145,16 +145,16 @@
     },
     {
       "target_id": "vitest",
-      "retrieved_at": "2026-08-22T15:05:10Z",
+      "retrieved_at": "2026-08-24T11:38:56Z",
       "source_url": "https://vitest.dev/guide/",
       "official_publisher": "Vitest",
       "official_host": "vitest.dev",
-      "last_updated": "2026-04-08",
-      "freshness_source": "page-declared",
-      "latest_checked_at": "2026-08-22T15:05:10Z",
+      "freshness_source": "publisher-registry",
+      "latest_checked_at": "2026-08-24T11:38:55Z",
       "evidence_ref": "system-spec/retrieval-evidence/vitest.json",
-      "evidence_sha256": "18889a1465e1bffaf40c4a7d9966d971324b3db3b9503a66f32aa11873e3f1a2",
-      "summary": "Vitest 公式ガイド Getting Started。決定 decision-test-ci-tooling (試験と CI に何を使うか) の authority。Vite を土台にした試験フレームワークで、前提として Vite >= v6.0.0 と Node >= v20.0.0 を出典自身が要求している。本文の Last updated (<time> 2026-04-08) を鮮度に採る。"
+      "evidence_sha256": "59cd11c79f1052aeb64e0d74e420cebd15afaa61f96257b676aab0b83a4d9d97",
+      "summary": "Vitest 公式ガイド Getting Started。決定 decision-test-ci-tooling (試験と CI に何を使うか) の authority。配信中 HTML は Last updated 2026-04-08 のままだが、公式 repository の同ファイル履歴は 2026-06-18 まで進んでいるため、その日付は鮮度根拠に採らない。2026-08-24T11:38:55Z に publisher registry を照合し、version / dist-tags.latest とも現行版 4.1.11 であることを確認した。",
+      "version": "4.1.11"
     },
     {
       "target_id": "github-actions",

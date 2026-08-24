@@ -153,6 +153,7 @@ export const REACHABLE_SCREENS: Readonly<Record<string, ReachEntry>> = {
   submit_affiliate_url: { screen: "admin/inbox/page.tsx" },
   resolve_link_ingestion: { screen: "admin/inbox/page.tsx" },
   match_link_ingestion_product: { screen: "admin/inbox/page.tsx" },
+  register_affiliate_link: { screen: "admin/inbox/page.tsx" },
   reject_link_ingestion: { screen: "admin/inbox/page.tsx" },
 
   // ── 数字 ────────────────────────────────────────────────

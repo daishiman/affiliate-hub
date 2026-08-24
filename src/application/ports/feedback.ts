@@ -28,6 +28,27 @@ export type FeedbackRepositoryPort = {
     workspaceId: WorkspaceId,
     filter?: FeedbackFilter,
   ): PortResult<readonly FeedbackReport[]>;
+
+  /**
+   * 保持期限（`DIAGNOSTICS_RETENTION_DAYS`）を過ぎた技術診断を空にする。
+   *
+   * **要望そのものは消さない。** 消えるのは `technical_json` の中身だけで、
+   * 本文・履歴・操作の記録・どの画面から届いたかは残る。
+   *
+   * 作業場所を引数に取るのは、他の口と同じ理由（絞り忘れた 1 か所が
+   * 他社のデータを触ることになる）。**定期実行から全社ぶんを一括で消す口は
+   * ここに置かない。** 置くと、画面や道具の側から「他所の分まで消す」入口が
+   * できてしまう。作業場所を横断して回すのは infrastructure の
+   * `purgeExpiredFeedbackDiagnostics` の仕事である。
+   *
+   * **何度呼んでも同じ結果になる。** すでに消してある行は数に入らない
+   * （`purged` が 0 で返る）。`finished` が false のときは
+   * 1 回の上限に達しただけで、続きは次の回が拾う。
+   */
+  purgeExpiredDiagnostics(
+    workspaceId: WorkspaceId,
+    now: Date,
+  ): PortResult<{ readonly purged: number; readonly finished: boolean }>;
 };
 
 export type FeedbackFilter = {

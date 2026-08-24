@@ -4,7 +4,7 @@
 入力: [`requirements-baseline.md`](./requirements-baseline.md)（A1〜A10 の述語）、
 [`test-run-report.md`](./test-run-report.md)（P06 の実行結果）
 
-<!-- acceptance-reconciliation {"implementation_status":"pass","release_status":"unpublished","tracking_status":"active","evaluated_digest":"sha256:f1a13085baa0ee95216f29ff22a17288ca7b71a0698014a94bc034e1e9668c95","acceptance_ids":["A1","A2","A3","A4","A5","A6","A7","A8","A9","A10"]} -->
+<!-- acceptance-reconciliation {"implementation_status":"pass","release_status":"unpublished","tracking_status":"active","evaluated_digest":"sha256:c5851c8bb1a31c32423f52cea4b0a78bcbd1f0615ba62e042898edcba24a2a3b","acceptance_ids":["A1","A2","A3","A4","A5","A6","A7","A8","A9","A10"]} -->
 
 > 現在の状態軸: **実装受入は合格 / 未公開 / tracking は active**。
 > 以下の件数と実行記録は 2026-08-22 の P07 判定時点の履歴であり、現在値ではない。

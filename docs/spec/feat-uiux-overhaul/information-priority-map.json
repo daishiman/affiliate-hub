@@ -1429,6 +1429,54 @@
       }
     },
     {
+      "route": "/admin/settings/compliance",
+      "primary_task": "広告であることの表示と、表現を止めるきまりを直す",
+      "task_frequency": "low",
+      "failure_cost": "high",
+      "keep": [
+        {
+          "item": "読者に出る広告表記の文",
+          "why": "変える対象そのもの。出る文を見ずに選ぶと、短い断りに倒れる"
+        },
+        {
+          "item": "いま効いているきまりの一覧",
+          "why": "止まっているものを混ぜると、どれが記事に当たるのか読めなくなる"
+        },
+        {
+          "item": "きまりの根拠",
+          "why": "根拠の無いきまりは、後から誰も直せない"
+        }
+      ],
+      "drop": [
+        {
+          "item": "契約・上限・ブランド",
+          "why": "隣の「この作業場所」が持つ",
+          "method": "remove"
+        },
+        {
+          "item": "止めたきまりの一覧",
+          "why": "効いているものと混ざると、当たるきまりが読めない。戻すのは操作の記録から辿る",
+          "method": "remove"
+        }
+      ],
+      "transform": [
+        {
+          "item": "広告表記",
+          "from": "読むだけの一覧（この作業場所）",
+          "to": "変える口つきの節",
+          "why": "変えたことが操作の記録に残る画面が無く、仕様 §26 が必須とする記録が 1 行も出ていなかった"
+        }
+      ],
+      "baseline": {
+        "source": "src/app/admin/settings/compliance/page.tsx",
+        "lines": 169,
+        "lead_chars": 30,
+        "always_visible_callouts": 0,
+        "cards": 0,
+        "forms": 3
+      }
+    },
+    {
       "route": "/admin/settings/integration-access",
       "primary_task": "取得用の鍵を発行・失効する",
       "task_frequency": "low",

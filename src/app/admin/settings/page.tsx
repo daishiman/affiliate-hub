@@ -57,6 +57,11 @@ const ENTRIES: readonly Entry[] = [
     summary: "外から読むための鍵の発行と失効。",
   },
   { href: "/admin/settings/audit", label: "操作の記録", summary: "誰がいつ何をしたかの記録。" },
+  {
+    href: "/admin/settings/compliance",
+    label: "広告表記ときまり",
+    summary: "読者に出す広告の断りと、表現を止めるきまり。",
+  },
 ];
 
 export default async function SettingsPage() {

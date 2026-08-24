@@ -20,6 +20,19 @@
  */
 
 /**
+ * 非公開リポジトリで使う GitHub Actions の月間枠と通知境界。
+ *
+ * workflow や取得 script に数字を写さない。課金プランを変えるときは、
+ * この値と GitHub 側のプランを同じ変更として見直す。
+ */
+export const ACTIONS_USAGE = Object.freeze({
+  /** GitHub Free の標準 runner 無料枠（分 / 月）。 */
+  includedMinutes: 2000,
+  warnPercent: 70,
+  failPercent: 90,
+});
+
+/**
  * 全体の下限。要件は 80%。
  *
  * **下げて緑にすることを禁じる。** どうしても下げる場合は、
@@ -1109,8 +1122,25 @@ export const REQUIRED_TEST_TYPES = {
  * （時間を exit code に混ぜる／超過を blocking にする／渡したことを黙る／境目を 1 秒ずらす）。
  * 4 通りとも赤。実物でも `VERIFY_ELAPSED_SECONDS=99999 pnpm run verify --tier 1` を走らせ、
  * 警告が出たうえで exit 0 になることを確かめてある。
+ *
+ * 2026-08-24: 7 → 5。`REQ-CI08` と `REQ-FD04` を宣言した（`ah-wt6` / `ah-rwn`）。
+ * **新しい検査は書いていないし、語彙も足していない。**減ったのは、
+ * どちらも**できない理由のほうが古くなっていた**からである。
+ * `REQ-CI08` は 2026-08-21 に検査（`tests/architecture/spec-doc-links.test.ts`）が
+ * 書かれた日に理由が偽になっていた。`REQ-FD04` は検査が満たす種別の数え落としで、
+ * 「満たすのは `equivalence` 1 つだけ」と書いてあったが `code-boundary` も満たしていた。
+ * どちらも `code-boundary` の 2 つの要求（禁止側を書くと赤 / 対象の集合が空でも赤）を
+ * 実測してから宣言した（3 通り + 4 通り、いずれも全部赤。判定式は触っていない）。
+ * 経緯と見ていないものは `docs/product/required-test-types.md` §4。
+ *
+ * 残る 5 件は `REQ-TH04` `REQ-TH05` `REQ-TS02` `REQ-TS03` `REQ-TS10`。
+ * `REQ-TS10` には候補（`has-code-placement-rule`）が 1 つ見つかっているが、
+ * 禁止側を書くには `src` の下に置き場を作る必要があり、
+ * `docs/` と `tests/` しか触らないこの課題では測れなかった。**測らずには名乗らない。**
+ *
+ * **上げて緑にすることを禁じる。**
  */
-export const TEST_TYPES_MAX_UNDECLARED = 7;
+export const TEST_TYPES_MAX_UNDECLARED = 5;
 
 /**
  * 理由つき除外を許す上限（件数）。
@@ -1918,14 +1948,14 @@ export const PORT_WIRING_MAX_AUDIT_BEST_EFFORT = 2;
  * 手で数えた表を置かないのは、**手で書いた数字は古くなっても古く見えない**ため。
  *
  * --- 0 にしない理由 ---
- * 6 語は**機能そのものがまだ無い**。1 語ずつの理由は下の
+ * 4 語は**機能そのものがまだ無い**。1 語ずつの理由は下の
  * `AUDIT_ACTIONS_WITHOUT_EMITTER_REASONS` に書く。
  * 出す場所を先に作っても、呼ばれないコードが増えるだけである。
  *
  * **上げて緑にすることは禁止。下げる方向にしか動かさない。**
  * 語を消して下げるのも正しい（要件がその記録を求めていないなら、語を残さない）。
  */
-export const AUDIT_ACTIONS_MAX_WITHOUT_EMITTER = 6;
+export const AUDIT_ACTIONS_MAX_WITHOUT_EMITTER = 4;
 
 /**
  * 出す場所を持たない語の、**1 語ずつの理由**。
@@ -1957,13 +1987,6 @@ export const AUDIT_ACTIONS_WITHOUT_EMITTER_REASONS = Object.freeze({
     "評価基準を変える操作が無い。`RankingModelRepositoryPort.save` を呼ぶ入口は 0 か所で、" +
     "基準は見本データに固定されている。要件（仕様 §26 の必須記録 3 つ目）は" +
     "この記録を求めているので、語は消さずに待つ。",
-  "disclosure.changed":
-    "広告表記の設定を変える操作が無い。`createListDisclosuresUseCase` は読むだけで、" +
-    "`DisclosureRepositoryPort.save` を呼ぶ入口が 0 か所。" +
-    "ここも要件（同 3 つ目）が求めている記録なので語は残す。",
-  "policy_rule.changed":
-    "表記のきまりを変える操作が無い。`PolicyRuleRepositoryPort.save` を呼ぶ入口が 0 か所で、" +
-    "きまりは `policy-rule-seed.ts` の固定値。編集の口が入った時点で出す。",
   "connector.connected": "ASP・配信先への接続がスタブで、つなぐ操作そのものが無い。",
   "connector.disconnected": "同上（接続が無いので、切る操作も無い）。",
 });
@@ -2008,8 +2031,26 @@ export const AUDIT_ACTIONS_MAX_SAMPLE_ONLY = 0;
  * 2026-08-21 に 20 → 27 へ上げた。20 を置いた日から、担当者の役割変更・配信予定・
  * サイト作成・改善ループなどの入口が記録へつながり、実測が 27 になっている。
  * 床を 20 に置いたままにすると、**7 語ぶんの記録が黙って消えても緑**になる。
+ *
+ * 2026-08-24 に 27 → 29 へ上げた。広告表記（`disclosure.changed`）と
+ * 表記のきまり（`policy_rule.changed`）を変える口ができ、この 2 語が
+ * 出す場所なしから実処理へ移った。**実測はこの日 39 だが、床は 29 に置く。**
+ * 差の 10 語は別の作業で入口が付いた分で、まだその作業の側が床を上げていない。
+ * ここで 39 まで引くと、**他人の作業が巻き戻っただけでこの検査が赤になり、
+ * 赤の理由が「記録が消えた」ではなく「床が他人を含んでいる」になる。**
+ * 床は自分が足したぶんだけ上げる。
+ *
+ * 2026-08-24 に 29 → 30 へ上げた。改善要望の技術情報を保存期間で消す定期実行
+ * （`feedback.diagnostics_purged`）が 1 語ぶん増えた。**この語は人が押して出る
+ * ものではない**ので、画面を触っても減ったことに気づけない。床で押さえる。
+ *
+ * 2026-08-24 に 30 → 32 へ上げた。断りの 2 語（`access.denied` /
+ * `access.cross_workspace_blocked`）が増えた。**この 2 語は画面に何も出ない。**
+ * 出す場所（`src/application/access-denial.ts` の包み）が外れても、
+ * 断りは今までどおり返るので、画面からも既存のどの検査からも気づけない。
+ * 床で押さえるほかに気づく手立てが無い語である。
  */
-export const AUDIT_ACTIONS_MIN_EMITTED = 27;
+export const AUDIT_ACTIONS_MIN_EMITTED = 32;
 
 /**
  * テナント分離の検査で、**他社の身元で呼んで `ok` まで到達した道具の下限**。

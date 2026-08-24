@@ -1,4 +1,4 @@
-import type { FeedbackKind, FeedbackOrigin, TechnicalContext } from "@/domain/feedback";
+import type { FeedbackKind, FeedbackOrigin, TechnicalContextInput } from "@/domain/feedback";
 
 /** ブラウザからserver actionへ渡す、presentation境界の素の値。 */
 export type FeedbackSubmission = {
@@ -6,7 +6,7 @@ export type FeedbackSubmission = {
   readonly body: string;
   readonly wish: string;
   readonly origin: FeedbackOrigin;
-  readonly technical: TechnicalContext;
+  readonly technical: TechnicalContextInput;
   readonly capture: {
     readonly imageBase64: string;
     readonly redactionsBurnedIn: boolean;
