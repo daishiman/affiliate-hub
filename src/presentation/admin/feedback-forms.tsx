@@ -7,15 +7,21 @@ import {
   FEEDBACK_STATUSES,
   FEEDBACK_STATUS_LABELS,
 } from "@/domain/feedback";
-import { Button, Callout, Field, Select, TextArea, UI_COPY } from "@/presentation/ui";
 import {
-  changeFeedbackStatusAction,
-  handOffFeedbackAction,
-} from "./feedback-action";
-import {
-  INITIAL_FEEDBACK_HANDOFF_STATE,
-  INITIAL_FEEDBACK_STATUS_STATE,
-} from "./feedback-state";
+  Button,
+  Callout,
+  Field,
+  FormResult,
+  FormValue,
+  HumanOnlyForm,
+  Select,
+  SubSection,
+  TextArea,
+  ToolForm,
+  UI_COPY,
+} from "@/presentation/ui";
+import { changeFeedbackStatusAction, handOffFeedbackAction } from "./feedback-action";
+import { INITIAL_FEEDBACK_HANDOFF_STATE, INITIAL_FEEDBACK_STATUS_STATE } from "./feedback-state";
 
 /**
  * 改善要望を扱うための操作一式。
@@ -68,15 +74,34 @@ function CopyButton({ label, text }: { readonly label: string; readonly text: st
  * 選ぶための行そのものは画面側（サーバー側）が描く。ここは囲いと結果だけを持つ。
  * 表を丸ごとこちらへ持ってくると、一覧の描画が全部ブラウザ側の仕事になり、
  * 件数が増えたときに最初の 1 画面が出るまでの時間が伸びる。
+ *
+ * 1 件だけを渡す画面（詳細）は `ids` を渡す。画面側が隠し欄を書くと、
+ * 送る欄の名前 (`ids`) を画面の数だけ書き写すことになり、
+ * 名前を変えた日に片方だけが黙って送られなくなる。
  */
-export function FeedbackHandoffForm({ children }: { readonly children: ReactNode }) {
-  const [state, action, pending] = useActionState(
-    handOffFeedbackAction,
-    INITIAL_FEEDBACK_HANDOFF_STATE,
-  );
+export function FeedbackHandoffForm({
+  ids,
+  children,
+}: {
+  /** 選ばせずに決め打ちで渡す相手。詳細画面から 1 件だけ渡すときに使う。 */
+  readonly ids?: readonly string[];
+  readonly children?: ReactNode;
+}) {
+  const [state, action, pending] = useActionState(handOffFeedbackAction, INITIAL_FEEDBACK_HANDOFF_STATE);
 
   return (
-    <form action={action}>
+    <HumanOnlyForm
+      action={action}
+      reason={
+        "下読み（preview）と払い出し（handoff）が 1 つの選択を共有していて、intent で分かれる。" +
+        "`ToolForm` は道具を 1 つしか名乗れないので、片方を名乗ると、名乗らなかった側が" +
+        "「AI からは見えないのに同じ欄から押せる」形で残る。渡す側の道具は目録の " +
+        "hand_off_feedback が REST / MCP から担っており、画面が二重に名乗る必要はない。"
+      }
+    >
+      {ids?.map((id) => (
+        <FormValue key={id} name="ids" value={id} />
+      ))}
       {children}
 
       <div>
@@ -106,16 +131,20 @@ export function FeedbackHandoffForm({ children }: { readonly children: ReactNode
             />
           ))}
           {state.prompts.map((p) => (
-            <div key={p.reportId}>
-              <h3>{p.reportId}</h3>
-              <p>ひな型の版: {p.templateVersion}</p>
+            // 見出し＋添え書きは `SubSection` が持つ。素の h3 を書くと、
+            // 見出しの段（h2 の 1 つ下）を画面ごとに選び直せてしまう。
+            <SubSection
+              key={p.reportId}
+              title={p.reportId}
+              lead={`ひな型の版: ${p.templateVersion}`}
+            >
               <CopyButton label={UI_COPY.feedback.handoffCopyPrompt} text={p.text} />
               <textarea readOnly value={p.text} rows={12} aria-label={`${p.reportId} の指示文`} />
-            </div>
+            </SubSection>
           ))}
         </>
       ) : null}
-    </form>
+    </HumanOnlyForm>
   );
 }
 
@@ -127,17 +156,18 @@ export function FeedbackStatusForm({
   readonly id: string;
   readonly currentStatus: string;
 }) {
-  const [state, action, pending] = useActionState(
-    changeFeedbackStatusAction,
-    INITIAL_FEEDBACK_STATUS_STATE,
-  );
+  const [state, action, pending] = useActionState(changeFeedbackStatusAction, INITIAL_FEEDBACK_STATUS_STATE);
   const [status, setStatus] = useState("");
   const [note, setNote] = useState("");
 
   return (
-    <form action={action}>
-      <input type="hidden" name="id" value={id} />
-      <input type="hidden" name="intent" value="status" />
+    <ToolForm
+      action={action}
+      toolName="update_feedback_status"
+      toolDescription="改善要望 1 件の対応状況を変える"
+    >
+      <FormValue name="id" value={id} />
+      <FormValue name="intent" value="status" />
       <p>いまは「{currentStatus}」です。</p>
 
       <Select
@@ -166,11 +196,8 @@ export function FeedbackStatusForm({
         この状態にする
       </Button>
 
-      {state.status === "done" ? <Callout tone="success" reason={state.message} /> : null}
-      {state.status === "failed" && state.field === undefined ? (
-        <Callout tone="warn" reason={state.message} />
-      ) : null}
-    </form>
+      <FormResult state={state} />
+    </ToolForm>
   );
 }
 
@@ -187,36 +214,41 @@ export function FeedbackDispositionForm({
   readonly id: string;
   readonly dispositionLabel: string | null;
 }) {
-  const [state, action, pending] = useActionState(
-    changeFeedbackStatusAction,
-    INITIAL_FEEDBACK_STATUS_STATE,
-  );
+  const [state, action, pending] = useActionState(changeFeedbackStatusAction, INITIAL_FEEDBACK_STATUS_STATE);
   const [kind, setKind] = useState("");
   const [reason, setReason] = useState("");
   const [duplicateOf, setDuplicateOf] = useState("");
 
   if (dispositionLabel !== null) {
     return (
-      <form action={action}>
-        <input type="hidden" name="id" value={id} />
-        <input type="hidden" name="intent" value="undo" />
+      <ToolForm
+        action={action}
+        toolName="update_feedback_status"
+        toolDescription="改善要望に決めた扱いを取り消して、決める前の状態に戻す"
+      >
+        <FormValue name="id" value={id} />
+        <FormValue name="intent" value="undo" />
         <p>
-          いまの扱いは「{dispositionLabel}」です。取り消すと、扱いを決める前の状態に戻ります。
-          決めた記録は履歴に残ります。
+          いまの扱いは「{dispositionLabel}
+          」です。取り消すと、扱いを決める前の状態に戻ります。 決めた記録は履歴に残ります。
         </p>
         <Button type="submit" tone="secondary" busy={pending} busyLabel="戻しています">
           扱いを取り消して元に戻す
         </Button>
         {state.status === "done" ? <Callout tone="success" reason={state.message} /> : null}
         {state.status === "failed" ? <Callout tone="warn" reason={state.message} /> : null}
-      </form>
+      </ToolForm>
     );
   }
 
   return (
-    <form action={action}>
-      <input type="hidden" name="id" value={id} />
-      <input type="hidden" name="intent" value="dispose" />
+    <ToolForm
+      action={action}
+      toolName="update_feedback_status"
+      toolDescription="改善要望の扱い（採用・見送り・重複など）を理由付きで決める"
+    >
+      <FormValue name="id" value={id} />
+      <FormValue name="intent" value="dispose" />
 
       <Select
         name="disposition"
@@ -254,11 +286,8 @@ export function FeedbackDispositionForm({
         この扱いにする
       </Button>
 
-      {state.status === "done" ? <Callout tone="success" reason={state.message} /> : null}
-      {state.status === "failed" && state.field === undefined ? (
-        <Callout tone="warn" reason={state.message} />
-      ) : null}
-    </form>
+      <FormResult state={state} />
+    </ToolForm>
   );
 }
 

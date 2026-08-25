@@ -8,6 +8,7 @@ import type { AuditAction } from "@/domain/compliance";
 import {
   DISCLOSURE_SURFACES,
   type DisclosureSurface,
+  type EditorialInfluence,
   type RelationshipType,
   relAttributeFor,
   requiresDisclosure,
@@ -16,20 +17,29 @@ import {
   HUMAN_ONLY_CAPABILITIES,
   type Capability,
   capabilitiesOf,
+  changeMembershipRoles,
+  createMembership,
   isActiveMembership,
   limitsOf,
   missingPublishReadiness,
+  normalizeInvitedEmail,
   requireCapability,
+  revokeMembership,
 } from "@/domain/identity";
 import {
   type ActorContext,
+  type BrandId,
   type DomainError,
+  type MembershipId,
   type Result,
   type Role,
+  asBrandId,
   domainError,
   err,
   ok,
+  taggedString,
 } from "@/domain/shared";
+import { type AuditClock, auditWriteFailure, buildAuditEntry } from "@/application/audit";
 import type { UseCase } from "../usecase";
 
 /**
@@ -156,7 +166,7 @@ export function createGetSettingsOverviewUseCase(
       const [brands, sites, members] = await Promise.all([
         deps.workspaces.countBrands(workspace.id),
         deps.workspaces.countSites(workspace.id),
-        deps.workspaces.countMembers(workspace.id),
+        deps.memberships.countCurrent(workspace.id),
       ]);
       if (!brands.ok) return brands;
       if (!sites.ok) return sites;
@@ -253,6 +263,15 @@ export function createListRolesUseCase(
 export type MemberRow = {
   readonly membershipId: string;
   readonly displayName: string;
+  /**
+   * 招待したアドレス。**画面に出す。**
+   *
+   * 表示名は招待した人が付けた呼び名なので、同じ名前を 2 人に付けられる。
+   * どの行がどのアドレス宛かが見えないと、外す相手を取り違える。
+   */
+  readonly invitedEmail: string;
+  /** そのままの役割。役割を変える画面が、いまの状態を選択済みにするために要る。 */
+  readonly roles: readonly Role[];
   readonly roleLabels: readonly string[];
   readonly active: boolean;
   readonly stateLabel: string;
@@ -285,6 +304,8 @@ export function createListMembersUseCase(
         return {
           membershipId: String(m.id),
           displayName: m.displayName,
+          invitedEmail: m.invitedEmail,
+          roles: m.roles,
           roleLabels: m.roles.map((r) => ROLE_LABEL[r]),
           active,
           stateLabel:
@@ -305,6 +326,302 @@ export function createListMembersUseCase(
         total: rows.length,
         ownerMissing: owner.value === null,
         emptyReason: rows.length === 0 ? "担当者がまだ登録されていません。" : null,
+      });
+    },
+  };
+}
+
+// --- 担当者を書く（招待・役割の変更・取り消し） -------------------------------
+
+/**
+ * 書く側の依存。読む側（`ManageWorkspaceDeps`）に、ID と時計を足しただけ。
+ *
+ * 時計を引数で受けるのは、**招待した日と外した日が記録に残る**ため。
+ * `new Date()` を中で呼ぶと、その 2 つを検査で固定できない。
+ */
+export type ManageMembersDeps = ManageWorkspaceDeps & AuditClock;
+
+export type ManageMembersInput =
+  /** 招待を出す。まだ `user_id` は決まらない（初回ログインで埋まる）。 */
+  | {
+      readonly action: "invite";
+      readonly invitedEmail: string;
+      readonly displayName: string;
+      readonly roles: readonly Role[];
+      readonly scopedBrandIds?: readonly string[];
+    }
+  /** 役割を変える。参加済みかどうかに関わらず変えられる。 */
+  | {
+      readonly action: "change_roles";
+      readonly membershipId: string;
+      readonly roles: readonly Role[];
+      readonly reason?: string;
+    }
+  /** 担当から外す。行は消さず、外した日が入る。 */
+  | {
+      readonly action: "revoke";
+      readonly membershipId: string;
+      readonly reason?: string;
+    };
+
+export type ManageMembersOutput = {
+  readonly membershipId: string;
+  /** 画面に出す一文。何が起き、次に何が起きるかを書く。 */
+  readonly message: string;
+};
+
+/** 記録に理由が要る操作なので、書かれていなければこちらで埋める。空では記録できない。 */
+const DEFAULT_REASON: Readonly<Record<ManageMembersInput["action"], string>> = {
+  invite: "担当者を招待した",
+  change_roles: "担当者の役割を変えた",
+  revoke: "担当から外した",
+};
+
+/**
+ * 空白だけの理由は「書かれていない」と同じに扱う。
+ *
+ * 画面の入力欄は未入力でも空文字を送ってくるので、`?? 既定値` では拾えない。
+ * 空のまま記録へ渡すと `member.role_changed` は理由が要る操作なので断られ、
+ * **保存は済んでいるのに操作全体が失敗したように見える。**
+ */
+function reasonOr(given: string | undefined, fallback: string): string {
+  const trimmed = (given ?? "").trim();
+  return trimmed === "" ? fallback : trimmed;
+}
+
+/**
+ * 担当者の登録を書く。招待の追加・役割の変更・担当の取り消し。
+ *
+ * --- 3 つを 1 つの口にしている理由 ---
+ * どれも「入ってよい人の一覧」を変える操作で、必要な権限（`member.manage`）も、
+ * 残す記録（`member.role_changed`）も同じである。画面側だけ 3 つに割ると、
+ * 権限の確認と記録の書き出しが 3 か所に散り、どれか 1 つが緩いまま残る。
+ *
+ * --- ここに「最初に入った人を管理者にする」処理を足さない ---
+ * 画面から書けなかった頃の名残で、そういう特例を置きたくなる場面がある。
+ * 置くと、**誰でも最初の 1 人になれる口が、認証が入ったあとも残る**。
+ * 運営者の最初の 1 行は手で入れる（`docs/product/first-owner-row.md`）。
+ *
+ * --- 作業場所の上限をここで見ていない ---
+ * 担当者の数の上限（プランごと）は `getOverview` が出しているが、招待の側では
+ * 見ていない。作業場所そのものの保存先がまだ見本で、実在する作業場所を引くと
+ * 「見つかりません」で落ちるためである。**本物の招待を、見本の有無に
+ * 依存させない。** 上限の確認は作業場所を本物にするときに足す（残作業）。
+ */
+export function createManageMembersUseCase(
+  deps: ManageMembersDeps,
+): UseCase<ManageMembersInput, ManageMembersOutput> {
+  return {
+    async execute(
+      actor: ActorContext,
+      input: ManageMembersInput,
+    ): Promise<Result<ManageMembersOutput, DomainError>> {
+      // 人だけが行える操作（`HUMAN_ONLY_CAPABILITIES`）。AI からは通らない。
+      const allowed = requireCapability(actor, "member.manage", "担当者の管理");
+      if (!allowed.ok) return allowed;
+
+      const now = deps.now();
+
+      if (input.action === "invite") {
+        const invitedEmail = normalizeInvitedEmail(input.invitedEmail);
+        // 先に引く。引かずに保存すると、二重の招待が保存先の一意制約で落ち、
+        // 「保存できませんでした」という**直しようのない断り**になる。
+        const existing = await deps.memberships.findByInvitedEmail(
+          actor.workspaceId,
+          invitedEmail,
+        );
+        if (!existing.ok) return existing;
+        if (existing.value !== null) {
+          return err(
+            domainError("CONFLICT", `${invitedEmail} には、すでに行があります。`, {
+              field: "invitedEmail",
+              suggestedAction:
+                "一覧のその行から役割を変えてください。外した人を戻す場合も同じ行を使います。",
+            }),
+          );
+        }
+
+        if (input.roles.includes("owner")) {
+          // 運営者は 1 作業場所に 1 人。domain は他の行を知らないので、ここで見る。
+          const owner = await deps.memberships.findOwner(actor.workspaceId);
+          if (!owner.ok) return owner;
+          if (owner.value !== null) {
+            return err(
+              domainError("CONFLICT", "運営者はすでにいます。", {
+                field: "roles",
+                suggestedAction:
+                  "運営者を引き継ぐときは、先にいまの運営者の役割を変えてください。",
+              }),
+            );
+          }
+        }
+
+        const built = createMembership({
+          id: taggedString<"MembershipId">(`mb_${deps.ids.newId()}`) as MembershipId,
+          workspaceId: actor.workspaceId,
+          invitedEmail,
+          roles: input.roles,
+          scopedBrandIds: (input.scopedBrandIds ?? []).map(
+            (id) => asBrandId(id) as BrandId,
+          ),
+          displayName: input.displayName,
+          invitedAt: now,
+        });
+        if (!built.ok) return built;
+
+        const saved = await deps.memberships.save(built.value);
+        if (!saved.ok) return saved;
+
+        const entry = buildAuditEntry(deps, actor, {
+          action: "member.role_changed",
+          targetType: "membership",
+          targetId: String(built.value.id),
+          before: null,
+          after: { invitedEmail, roles: [...input.roles], state: "invited" },
+          reason: DEFAULT_REASON.invite,
+        });
+        if (!entry.ok) return entry;
+        const appended = await deps.auditLog.append(entry.value);
+        if (!appended.ok) {
+          return err(
+            auditWriteFailure(`${invitedEmail} への招待は保存されています`, {
+              membershipId: String(built.value.id),
+            }),
+          );
+        }
+
+        return ok({
+          membershipId: String(built.value.id),
+          message:
+            `${invitedEmail} を招待しました。` +
+            "この人が Google で初めてログインしたときに参加が成立します（名簿にも載っている必要があります）。",
+        });
+      }
+
+      // --- ここから先は、既にある行を変える ---------------------------------
+      const found = await deps.memberships.findById(
+        actor.workspaceId,
+        taggedString<"MembershipId">(input.membershipId) as MembershipId,
+      );
+      if (!found.ok) return found;
+      if (found.value === null) {
+        return err(
+          domainError("NOT_FOUND", "その担当者の行が見つかりません。", {
+            suggestedAction: "画面を開き直してください。すでに変更されている可能性があります。",
+          }),
+        );
+      }
+      const target = found.value;
+      const before = { roles: [...target.roles], revoked: target.revokedAt !== null };
+
+      if (input.action === "change_roles") {
+        // **最後の運営者から運営者を外させない。** 外せると、契約と支払いに関する
+        // 操作を誰も行えない作業場所ができる。しかもそれを直す操作自体が
+        // 運営者の権限を要るので、画面からは戻せなくなる。
+        if (target.roles.includes("owner") && !input.roles.includes("owner")) {
+          return err(
+            domainError("INVARIANT_VIOLATED", "いまの運営者から運営者の役割を外せません。", {
+              field: "roles",
+              suggestedAction:
+                "先に別の人を運営者として招待し、引き継いでから外してください。",
+            }),
+          );
+        }
+        if (input.roles.includes("owner") && !target.roles.includes("owner")) {
+          const owner = await deps.memberships.findOwner(actor.workspaceId);
+          if (!owner.ok) return owner;
+          if (owner.value !== null && String(owner.value.id) !== String(target.id)) {
+            return err(
+              domainError("CONFLICT", "運営者はすでにいます。", {
+                field: "roles",
+                suggestedAction: "運営者は 1 人だけです。先にいまの運営者の役割を変えてください。",
+              }),
+            );
+          }
+        }
+
+        const changed = changeMembershipRoles(target, input.roles);
+        if (!changed.ok) return changed;
+        const saved = await deps.memberships.save(changed.value);
+        if (!saved.ok) return saved;
+
+        const entry = buildAuditEntry(deps, actor, {
+          action: "member.role_changed",
+          targetType: "membership",
+          targetId: String(target.id),
+          before,
+          after: { roles: [...input.roles], revoked: false },
+          reason: reasonOr(input.reason, DEFAULT_REASON.change_roles),
+        });
+        if (!entry.ok) return entry;
+        const appended = await deps.auditLog.append(entry.value);
+        if (!appended.ok) {
+          return err(
+            auditWriteFailure(`${target.displayName} の役割は変わっています`, {
+              membershipId: String(target.id),
+            }),
+          );
+        }
+
+        return ok({
+          membershipId: String(target.id),
+          message: `${target.displayName} の役割を ${input.roles
+            .map((r) => ROLE_LABEL[r])
+            .join("・")} にしました。次に画面を開いたときから効きます。`,
+        });
+      }
+
+      // --- 取り消し ---------------------------------------------------------
+      if (target.revokedAt !== null) {
+        return ok({
+          membershipId: String(target.id),
+          message: `${target.displayName} はすでに担当から外れています。`,
+        });
+      }
+      if (target.roles.includes("owner")) {
+        return err(
+          domainError("INVARIANT_VIOLATED", "運営者は担当から外せません。", {
+            suggestedAction:
+              "先に別の人を運営者にしてから、この人の役割を変えて外してください。",
+          }),
+        );
+      }
+      // 自分の行を自分で外させない。外した瞬間に、戻すための権限も無くなる。
+      if (target.userId !== null && String(target.userId) === actor.userId) {
+        return err(
+          domainError("INVARIANT_VIOLATED", "自分を担当から外すことはできません。", {
+            suggestedAction: "別の管理担当に外してもらってください。",
+          }),
+        );
+      }
+
+      const revoked = revokeMembership(target, now);
+      const saved = await deps.memberships.save(revoked);
+      if (!saved.ok) return saved;
+
+      const entry = buildAuditEntry(deps, actor, {
+        action: "member.role_changed",
+        targetType: "membership",
+        targetId: String(target.id),
+        before,
+        after: { roles: [...target.roles], revoked: true },
+        reason: reasonOr(input.reason, DEFAULT_REASON.revoke),
+      });
+      if (!entry.ok) return entry;
+      const appended = await deps.auditLog.append(entry.value);
+      if (!appended.ok) {
+        return err(
+          auditWriteFailure(`${target.displayName} は担当から外れています`, {
+            membershipId: String(target.id),
+          }),
+        );
+      }
+
+      return ok({
+        membershipId: String(target.id),
+        message:
+          `${target.displayName} を担当から外しました。` +
+          "次のログインから入れなくなります（いま開いている画面は、通行証の期限までは動きます）。",
       });
     },
   };
@@ -383,6 +700,14 @@ export const RELATIONSHIP_SHORT_LABEL: Readonly<Record<RelationshipType, string>
 
 export type DisclosureRow = {
   readonly disclosureId: string;
+  /**
+   * 保存されている値そのもの。名札（`relationshipLabel`）とは別に返す。
+   *
+   * 直す画面が選択欄の初期値に使う。名札から逆に引かせると、
+   * **名札の文を 1 文字直しただけで初期値が外れ、選び直しになる。**
+   */
+  readonly relationshipType: RelationshipType;
+  readonly editorialInfluence: EditorialInfluence;
   readonly relationshipLabel: string;
   readonly required: boolean;
   readonly visibleMessage: string;
@@ -428,6 +753,8 @@ export function createListDisclosuresUseCase(
 
       const rows = listed.value.items.map((d): DisclosureRow => ({
         disclosureId: String(d.id),
+        relationshipType: d.relationshipType,
+        editorialInfluence: d.editorialInfluence,
         relationshipLabel: RELATIONSHIP_SHORT_LABEL[d.relationshipType],
         required: requiresDisclosure(d.relationshipType),
         visibleMessage: d.visibleMessage,
@@ -458,15 +785,23 @@ export type AuditRow = {
 };
 
 export const AUDIT_ACTION_LABEL: Readonly<Record<AuditAction, string>> = {
+  // 断り。**日本語も「断った」と書く。** 「できなかった」と書くと、
+  // 保存先の不調と見分けが付かず、一覧を読む人が原因を取り違える。
+  "access.denied": "権限が足りず断った",
+  "access.cross_workspace_blocked": "別の作業場所のものへの操作を断った",
   "content.created": "記事を作った",
+  "content.changed": "記事の内容を直した",
   "content.state_changed": "記事の状態を進めた",
   "content.approved": "記事を承認した",
   "content.published": "記事を公開した",
   "content.unpublished": "記事を取り下げた",
   "content.corrected": "記事を訂正した",
+  "content.deleted": "記事を消した",
   "ranking_model.changed": "評価基準を変えた",
   "disclosure.changed": "広告表記を変えた",
   "policy_rule.changed": "表記のきまりを変えた",
+  "guideline_reference.registered": "SEO/AI 指針の出典を登録した",
+  "guideline_reference.rechecked": "SEO/AI 指針の出典を再確認した",
   // 受信箱の 3 語。読む人が「受け取り → 宛先決め → 対象外」の順で追えるようにする。
   "affiliate_link.created": "成果リンクを受け取った",
   "affiliate_link.changed": "成果リンクの宛先を決めた",
@@ -478,17 +813,26 @@ export const AUDIT_ACTION_LABEL: Readonly<Record<AuditAction, string>> = {
   "llm_credential.registered": "生成 AI の API キーを登録した",
   "llm_credential.revoked": "生成 AI の API キーを失効させた",
   "publication.schedule_changed": "配信の予定を変えた",
+  "publication.changed": "配信の中身（文面・送り先）を直した",
   "integration_key.issued": "取得用の鍵を発行した",
   "integration_key.revoked": "取得用の鍵を止めた",
   "site.created": "サイトを作った",
+  "site.changed": "サイトの設定を変えた",
+  "site.deleted": "サイトを取り下げた",
+  // 商品の 3 語。順位表と比較表の入力なので、変えた時点が言えることが要る。
+  "product.created": "商品を登録した",
+  "product.changed": "商品の内容を直した",
+  "product.deleted": "商品を消した",
   // 作る前の下書き。「始めた → 段階を埋めた」で、作るまでの道のりが追える。
   "site_draft.started": "ブログを作り始めた",
   "site_draft.step_saved": "ブログ作成の入力を保存した",
   "conversion.adjusted": "成果の数字を手で直した",
-  // 改善要望の 3 語。「届いた → 扱いを決めた → 外へ出した」の順で追える。
+  // 改善要望の 4 語。「届いた → 扱いを決めた → 外へ出した」に、
+  // 人ではなく時計が動かす「保存期間が来たので診断を消した」を加える。
   "feedback.submitted": "改善要望が届いた",
   "feedback.status_changed": "改善要望の扱いを変えた",
   "feedback.handed_off": "改善要望を指示文として払い出した",
+  "feedback.diagnostics_purged": "改善要望の技術情報を保存期間の満了で消した",
   // 改善ループの 6 語。「試作を作る → 承認する」と「始める → 測る → 決める／やめる」。
   "variant_spec.drafted": "見せ方の試作を登録した",
   "variant_spec.approved": "見せ方の試作を承認した",

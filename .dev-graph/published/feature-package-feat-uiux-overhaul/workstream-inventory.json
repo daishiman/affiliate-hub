@@ -1,0 +1,1128 @@
+{
+  "schema_version": "1.0.0",
+  "feature_package_id": "feature-package/feat-uiux-overhaul",
+  "parent_feature": "feat-uiux-overhaul",
+  "repo_context": {
+    "config_path": ".dev-graph/config.json",
+    "repo_identity": "github:daishiman/affiliate-hub",
+    "root_resolution_source": "explicit-cli"
+  },
+  "source_lineage": {
+    "source_plugin": "system-spec-harness",
+    "source_version": "0.1.0",
+    "compile_entrypoint": "run-system-spec-compile",
+    "completeness_entrypoint": "assign-system-spec-completeness-evaluator",
+    "source_paths": [
+      "system-spec/index.md",
+      "system-spec/00-requirements-definition.md",
+      "system-spec/ui-ux.md",
+      "system-spec/frontend.md",
+      "system-spec/backend.md",
+      "architecture/system-spec-overview.md",
+      "architecture/arch-two-layer-platform.md",
+      "docs/spec/09-UIテーマ仕様.md",
+      "docs/spec/13-システム仕様-章別規範契約.md"
+    ],
+    "confirmed": true
+  },
+  "tasks": [
+    {
+      "id": "SYS-UIUX-OVERHAUL-P01",
+      "feature_package_id": "feature-package/feat-uiux-overhaul",
+      "parent_feature": "feat-uiux-overhaul",
+      "title": "管理画面 UI/UX 全面改善の要求ベースライン確定",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p01",
+        "feat-uiux-overhaul"
+      ],
+      "related_nodes": [],
+      "workstream_kind": "documentation",
+      "secondary_workstreams": [
+        "quality",
+        "frontend"
+      ],
+      "build_target_kind": "application-code",
+      "phase_ref": "P01",
+      "depends_on": [],
+      "write_scope": [
+        "docs/spec/feat-uiux-overhaul/requirements-baseline.md",
+        "docs/spec/feat-uiux-overhaul/screen-inventory.md",
+        "docs/spec/feat-uiux-overhaul/information-priority-map.json"
+      ],
+      "deploy_unit": "cloudflare-workers-opennext-app (Next.js 16 + OpenNext, Workers/D1/R2)",
+      "source_lineage": [
+        "system-spec/index.md",
+        "system-spec/00-requirements-definition.md",
+        "system-spec/ui-ux.md",
+        "system-spec/frontend.md",
+        "system-spec/backend.md",
+        "architecture/system-spec-overview.md",
+        "architecture/arch-two-layer-platform.md",
+        "docs/spec/09-UIテーマ仕様.md",
+        "docs/spec/13-システム仕様-章別規範契約.md"
+      ],
+      "classification": {
+        "confidence": 1.0,
+        "reason": "feat-uiux-overhaul の P01 lifecycle 責務への確定写像",
+        "candidates": [
+          {
+            "artifact_kind": "task",
+            "confidence": 1.0,
+            "candidate_path": "tasks/feat-uiux-overhaul/sys-uiux-overhaul-p01.md"
+          }
+        ]
+      },
+      "tracker_binding_intent": "beads",
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "pr_completion_policy": "linked_pr_merged_all",
+      "branch_policy": {
+        "strategy": "one-task-one-branch",
+        "worktree_lease_required": true,
+        "completion_projection": "default-branch-reconciliation",
+        "assignment_owner": "dev-graph-scheduler"
+      },
+      "acceptance": [
+        "P01: feat-uiux-overhaul の10件の受け入れ条件を、実装着手前に一意で検証可能な要求ベースラインとして確定し、既存管理画面の単一用途分割単位と画面別情報優先度が機械可読に固定された状態を成立させる。"
+      ],
+      "verification": [
+        "P01 の Verification and evidence section に記載する自動コマンドと証跡パスで検証する"
+      ],
+      "rollback": "P01 の write_scope に含まれる変更を revert し、直前の promoted generation へ差し戻す",
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-08-21T12:40:00Z"
+      },
+      "graph_node_registration": {
+        "graph_node_id": "SYS-UIUX-OVERHAUL-P01",
+        "file_path": "tasks/feat-uiux-overhaul/sys-uiux-overhaul-p01.md",
+        "parent_feature": "feat-uiux-overhaul",
+        "feature_package_id": "feature-package/feat-uiux-overhaul",
+        "phase_ref": "P01"
+      }
+    },
+    {
+      "id": "SYS-UIUX-OVERHAUL-P02",
+      "feature_package_id": "feature-package/feat-uiux-overhaul",
+      "parent_feature": "feat-uiux-overhaul",
+      "title": "単一用途画面・共通コンポーネント・マルチSNS抽象の設計",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p02",
+        "feat-uiux-overhaul"
+      ],
+      "related_nodes": [],
+      "workstream_kind": "documentation",
+      "secondary_workstreams": [
+        "frontend",
+        "backend"
+      ],
+      "build_target_kind": "application-code",
+      "phase_ref": "P02",
+      "depends_on": [
+        "SYS-UIUX-OVERHAUL-P01"
+      ],
+      "write_scope": [
+        "docs/spec/feat-uiux-overhaul/screen-architecture.md",
+        "docs/spec/feat-uiux-overhaul/component-contract.md",
+        "docs/spec/feat-uiux-overhaul/sns-provider-contract.md",
+        "docs/spec/feat-uiux-overhaul/blog-scaffold-contract.md",
+        "docs/spec/feat-uiux-overhaul/admin-api-contract.md"
+      ],
+      "deploy_unit": "cloudflare-workers-opennext-app (Next.js 16 + OpenNext, Workers/D1/R2)",
+      "source_lineage": [
+        "system-spec/index.md",
+        "system-spec/00-requirements-definition.md",
+        "system-spec/ui-ux.md",
+        "system-spec/frontend.md",
+        "system-spec/backend.md",
+        "architecture/system-spec-overview.md",
+        "architecture/arch-two-layer-platform.md",
+        "docs/spec/09-UIテーマ仕様.md",
+        "docs/spec/13-システム仕様-章別規範契約.md"
+      ],
+      "classification": {
+        "confidence": 1.0,
+        "reason": "feat-uiux-overhaul の P02 lifecycle 責務への確定写像",
+        "candidates": [
+          {
+            "artifact_kind": "task",
+            "confidence": 1.0,
+            "candidate_path": "tasks/feat-uiux-overhaul/sys-uiux-overhaul-p02.md"
+          }
+        ]
+      },
+      "tracker_binding_intent": "beads",
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "pr_completion_policy": "linked_pr_merged_all",
+      "branch_policy": {
+        "strategy": "one-task-one-branch",
+        "worktree_lease_required": true,
+        "completion_projection": "default-branch-reconciliation",
+        "assignment_owner": "dev-graph-scheduler"
+      },
+      "acceptance": [
+        "P02: 単一用途画面の分割と遷移、共通コンポーネント階層と重複禁止規約、アイコン付き開閉サイドバー構造、SNSプロバイダ抽象、ブログ別コンポーネント scaffold 契約、管理API契約が設計文書として確定した状態を成立させる。"
+      ],
+      "verification": [
+        "P02 の Verification and evidence section に記載する自動コマンドと証跡パスで検証する"
+      ],
+      "rollback": "P02 の write_scope に含まれる変更を revert し、直前の promoted generation へ差し戻す",
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-08-21T12:40:00Z"
+      },
+      "graph_node_registration": {
+        "graph_node_id": "SYS-UIUX-OVERHAUL-P02",
+        "file_path": "tasks/feat-uiux-overhaul/sys-uiux-overhaul-p02.md",
+        "parent_feature": "feat-uiux-overhaul",
+        "feature_package_id": "feature-package/feat-uiux-overhaul",
+        "phase_ref": "P02"
+      }
+    },
+    {
+      "id": "SYS-UIUX-OVERHAUL-P03",
+      "feature_package_id": "feature-package/feat-uiux-overhaul",
+      "parent_feature": "feat-uiux-overhaul",
+      "title": "設計レビューと認知負荷・重複排除の独立検証",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p03",
+        "feat-uiux-overhaul"
+      ],
+      "related_nodes": [],
+      "workstream_kind": "quality",
+      "secondary_workstreams": [
+        "frontend",
+        "documentation"
+      ],
+      "build_target_kind": "application-code",
+      "phase_ref": "P03",
+      "depends_on": [
+        "SYS-UIUX-OVERHAUL-P02"
+      ],
+      "write_scope": [
+        "docs/spec/feat-uiux-overhaul/design-review.md"
+      ],
+      "deploy_unit": "cloudflare-workers-opennext-app (Next.js 16 + OpenNext, Workers/D1/R2)",
+      "source_lineage": [
+        "system-spec/index.md",
+        "system-spec/00-requirements-definition.md",
+        "system-spec/ui-ux.md",
+        "system-spec/frontend.md",
+        "system-spec/backend.md",
+        "architecture/system-spec-overview.md",
+        "architecture/arch-two-layer-platform.md",
+        "docs/spec/09-UIテーマ仕様.md",
+        "docs/spec/13-システム仕様-章別規範契約.md"
+      ],
+      "classification": {
+        "confidence": 1.0,
+        "reason": "feat-uiux-overhaul の P03 lifecycle 責務への確定写像",
+        "candidates": [
+          {
+            "artifact_kind": "task",
+            "confidence": 1.0,
+            "candidate_path": "tasks/feat-uiux-overhaul/sys-uiux-overhaul-p03.md"
+          }
+        ]
+      },
+      "tracker_binding_intent": "beads",
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "pr_completion_policy": "linked_pr_merged_all",
+      "branch_policy": {
+        "strategy": "one-task-one-branch",
+        "worktree_lease_required": true,
+        "completion_projection": "default-branch-reconciliation",
+        "assignment_owner": "dev-graph-scheduler"
+      },
+      "acceptance": [
+        "P03: P02 の設計に対する独立レビューが完了し、認知負荷低減・共通化境界・SNS拡張性・API網羅性の各観点の指摘が設計へ反映されるか残課題として明示された状態を成立させる。"
+      ],
+      "verification": [
+        "P03 の Verification and evidence section に記載する自動コマンドと証跡パスで検証する"
+      ],
+      "rollback": "P03 の write_scope に含まれる変更を revert し、直前の promoted generation へ差し戻す",
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-08-21T12:40:00Z"
+      },
+      "graph_node_registration": {
+        "graph_node_id": "SYS-UIUX-OVERHAUL-P03",
+        "file_path": "tasks/feat-uiux-overhaul/sys-uiux-overhaul-p03.md",
+        "parent_feature": "feat-uiux-overhaul",
+        "feature_package_id": "feature-package/feat-uiux-overhaul",
+        "phase_ref": "P03"
+      }
+    },
+    {
+      "id": "SYS-UIUX-OVERHAUL-P04",
+      "feature_package_id": "feature-package/feat-uiux-overhaul",
+      "parent_feature": "feat-uiux-overhaul",
+      "title": "受入10件に対応するテスト設計",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p04",
+        "feat-uiux-overhaul"
+      ],
+      "related_nodes": [],
+      "workstream_kind": "quality",
+      "secondary_workstreams": [
+        "frontend",
+        "backend"
+      ],
+      "build_target_kind": "application-code",
+      "phase_ref": "P04",
+      "depends_on": [
+        "SYS-UIUX-OVERHAUL-P03"
+      ],
+      "write_scope": [
+        "docs/spec/feat-uiux-overhaul/test-design.md",
+        "src/presentation/ui/__tests__/",
+        "src/app/api/admin/__tests__/"
+      ],
+      "deploy_unit": "cloudflare-workers-opennext-app (Next.js 16 + OpenNext, Workers/D1/R2)",
+      "source_lineage": [
+        "system-spec/index.md",
+        "system-spec/00-requirements-definition.md",
+        "system-spec/ui-ux.md",
+        "system-spec/frontend.md",
+        "system-spec/backend.md",
+        "architecture/system-spec-overview.md",
+        "architecture/arch-two-layer-platform.md",
+        "docs/spec/09-UIテーマ仕様.md",
+        "docs/spec/13-システム仕様-章別規範契約.md"
+      ],
+      "classification": {
+        "confidence": 1.0,
+        "reason": "feat-uiux-overhaul の P04 lifecycle 責務への確定写像",
+        "candidates": [
+          {
+            "artifact_kind": "task",
+            "confidence": 1.0,
+            "candidate_path": "tasks/feat-uiux-overhaul/sys-uiux-overhaul-p04.md"
+          }
+        ]
+      },
+      "tracker_binding_intent": "beads",
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "pr_completion_policy": "linked_pr_merged_all",
+      "branch_policy": {
+        "strategy": "one-task-one-branch",
+        "worktree_lease_required": true,
+        "completion_projection": "default-branch-reconciliation",
+        "assignment_owner": "dev-graph-scheduler"
+      },
+      "acceptance": [
+        "P04: 受入10件それぞれに対応するテストが振る舞いベースで設計され、実装前に失敗する状態で配置された状態を成立させる。"
+      ],
+      "verification": [
+        "P04 の Verification and evidence section に記載する自動コマンドと証跡パスで検証する"
+      ],
+      "rollback": "P04 の write_scope に含まれる変更を revert し、直前の promoted generation へ差し戻す",
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-08-21T12:40:00Z"
+      },
+      "graph_node_registration": {
+        "graph_node_id": "SYS-UIUX-OVERHAUL-P04",
+        "file_path": "tasks/feat-uiux-overhaul/sys-uiux-overhaul-p04.md",
+        "parent_feature": "feat-uiux-overhaul",
+        "feature_package_id": "feature-package/feat-uiux-overhaul",
+        "phase_ref": "P04"
+      }
+    },
+    {
+      "id": "SYS-UIUX-OVERHAUL-P05",
+      "feature_package_id": "feature-package/feat-uiux-overhaul",
+      "parent_feature": "feat-uiux-overhaul",
+      "title": "単一用途画面・共通コンポーネント・管理API・マルチSNSの実装",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p05",
+        "feat-uiux-overhaul"
+      ],
+      "related_nodes": [],
+      "workstream_kind": "frontend",
+      "secondary_workstreams": [
+        "backend",
+        "api",
+        "data",
+        "quality"
+      ],
+      "build_target_kind": "application-code",
+      "phase_ref": "P05",
+      "depends_on": [
+        "SYS-UIUX-OVERHAUL-P04"
+      ],
+      "write_scope": [
+        "src/presentation/ui/",
+        "src/app/admin/",
+        "src/app/api/admin/",
+        "src/application/",
+        "src/infrastructure/sns/",
+        "scripts/scaffold-blog-components.ts"
+      ],
+      "deploy_unit": "cloudflare-workers-opennext-app (Next.js 16 + OpenNext, Workers/D1/R2)",
+      "source_lineage": [
+        "system-spec/index.md",
+        "system-spec/00-requirements-definition.md",
+        "system-spec/ui-ux.md",
+        "system-spec/frontend.md",
+        "system-spec/backend.md",
+        "architecture/system-spec-overview.md",
+        "architecture/arch-two-layer-platform.md",
+        "docs/spec/09-UIテーマ仕様.md",
+        "docs/spec/13-システム仕様-章別規範契約.md"
+      ],
+      "classification": {
+        "confidence": 1.0,
+        "reason": "feat-uiux-overhaul の P05 lifecycle 責務への確定写像",
+        "candidates": [
+          {
+            "artifact_kind": "task",
+            "confidence": 1.0,
+            "candidate_path": "tasks/feat-uiux-overhaul/sys-uiux-overhaul-p05.md"
+          }
+        ]
+      },
+      "tracker_binding_intent": "beads",
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "pr_completion_policy": "linked_pr_merged_all",
+      "branch_policy": {
+        "strategy": "one-task-one-branch",
+        "worktree_lease_required": true,
+        "completion_projection": "default-branch-reconciliation",
+        "assignment_owner": "dev-graph-scheduler"
+      },
+      "acceptance": [
+        "P05: 受入10件に対応する実装 (アイコン付き開閉サイドバー・単一用途画面・管理API・共通コンポーネント集約・SNSプロバイダ抽象・ブログ別 scaffold・複数ブログのコンセプト別文章作成導線) が完了し、P04 のテストが緑化した状態を成立させる。"
+      ],
+      "verification": [
+        "P05 の Verification and evidence section に記載する自動コマンドと証跡パスで検証する"
+      ],
+      "rollback": "P05 の write_scope に含まれる変更を revert し、直前の promoted generation へ差し戻す",
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-08-21T12:40:00Z"
+      },
+      "graph_node_registration": {
+        "graph_node_id": "SYS-UIUX-OVERHAUL-P05",
+        "file_path": "tasks/feat-uiux-overhaul/sys-uiux-overhaul-p05.md",
+        "parent_feature": "feat-uiux-overhaul",
+        "feature_package_id": "feature-package/feat-uiux-overhaul",
+        "phase_ref": "P05"
+      }
+    },
+    {
+      "id": "SYS-UIUX-OVERHAUL-P06",
+      "feature_package_id": "feature-package/feat-uiux-overhaul",
+      "parent_feature": "feat-uiux-overhaul",
+      "title": "テスト実行と回帰0件の確認",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p06",
+        "feat-uiux-overhaul"
+      ],
+      "related_nodes": [],
+      "workstream_kind": "quality",
+      "secondary_workstreams": [
+        "frontend",
+        "backend"
+      ],
+      "build_target_kind": "application-code",
+      "phase_ref": "P06",
+      "depends_on": [
+        "SYS-UIUX-OVERHAUL-P05"
+      ],
+      "write_scope": [
+        "docs/spec/feat-uiux-overhaul/test-run-report.md"
+      ],
+      "deploy_unit": "cloudflare-workers-opennext-app (Next.js 16 + OpenNext, Workers/D1/R2)",
+      "source_lineage": [
+        "system-spec/index.md",
+        "system-spec/00-requirements-definition.md",
+        "system-spec/ui-ux.md",
+        "system-spec/frontend.md",
+        "system-spec/backend.md",
+        "architecture/system-spec-overview.md",
+        "architecture/arch-two-layer-platform.md",
+        "docs/spec/09-UIテーマ仕様.md",
+        "docs/spec/13-システム仕様-章別規範契約.md"
+      ],
+      "classification": {
+        "confidence": 1.0,
+        "reason": "feat-uiux-overhaul の P06 lifecycle 責務への確定写像",
+        "candidates": [
+          {
+            "artifact_kind": "task",
+            "confidence": 1.0,
+            "candidate_path": "tasks/feat-uiux-overhaul/sys-uiux-overhaul-p06.md"
+          }
+        ]
+      },
+      "tracker_binding_intent": "beads",
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "pr_completion_policy": "linked_pr_merged_all",
+      "branch_policy": {
+        "strategy": "one-task-one-branch",
+        "worktree_lease_required": true,
+        "completion_projection": "default-branch-reconciliation",
+        "assignment_owner": "dev-graph-scheduler"
+      },
+      "acceptance": [
+        "P06: 全テストの全量実行が完了し、失敗0件・既存テストの回帰0件・カバレッジ目標達成が証跡として記録された状態を成立させる。"
+      ],
+      "verification": [
+        "P06 の Verification and evidence section に記載する自動コマンドと証跡パスで検証する"
+      ],
+      "rollback": "P06 の write_scope に含まれる変更を revert し、直前の promoted generation へ差し戻す",
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-08-21T12:40:00Z"
+      },
+      "graph_node_registration": {
+        "graph_node_id": "SYS-UIUX-OVERHAUL-P06",
+        "file_path": "tasks/feat-uiux-overhaul/sys-uiux-overhaul-p06.md",
+        "parent_feature": "feat-uiux-overhaul",
+        "feature_package_id": "feature-package/feat-uiux-overhaul",
+        "phase_ref": "P06"
+      }
+    },
+    {
+      "id": "SYS-UIUX-OVERHAUL-P07",
+      "feature_package_id": "feature-package/feat-uiux-overhaul",
+      "parent_feature": "feat-uiux-overhaul",
+      "title": "受入10件の受け入れ判定",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p07",
+        "feat-uiux-overhaul"
+      ],
+      "related_nodes": [],
+      "workstream_kind": "quality",
+      "secondary_workstreams": [
+        "frontend",
+        "documentation"
+      ],
+      "build_target_kind": "application-code",
+      "phase_ref": "P07",
+      "depends_on": [
+        "SYS-UIUX-OVERHAUL-P06"
+      ],
+      "write_scope": [
+        "docs/spec/feat-uiux-overhaul/acceptance-report.md"
+      ],
+      "deploy_unit": "cloudflare-workers-opennext-app (Next.js 16 + OpenNext, Workers/D1/R2)",
+      "source_lineage": [
+        "system-spec/index.md",
+        "system-spec/00-requirements-definition.md",
+        "system-spec/ui-ux.md",
+        "system-spec/frontend.md",
+        "system-spec/backend.md",
+        "architecture/system-spec-overview.md",
+        "architecture/arch-two-layer-platform.md",
+        "docs/spec/09-UIテーマ仕様.md",
+        "docs/spec/13-システム仕様-章別規範契約.md"
+      ],
+      "classification": {
+        "confidence": 1.0,
+        "reason": "feat-uiux-overhaul の P07 lifecycle 責務への確定写像",
+        "candidates": [
+          {
+            "artifact_kind": "task",
+            "confidence": 1.0,
+            "candidate_path": "tasks/feat-uiux-overhaul/sys-uiux-overhaul-p07.md"
+          }
+        ]
+      },
+      "tracker_binding_intent": "beads",
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "pr_completion_policy": "linked_pr_merged_all",
+      "branch_policy": {
+        "strategy": "one-task-one-branch",
+        "worktree_lease_required": true,
+        "completion_projection": "default-branch-reconciliation",
+        "assignment_owner": "dev-graph-scheduler"
+      },
+      "acceptance": [
+        "P07: 受入10件すべてについて実物での判定が完了し、判定結果と根拠が記録された状態を成立させる。"
+      ],
+      "verification": [
+        "P07 の Verification and evidence section に記載する自動コマンドと証跡パスで検証する"
+      ],
+      "rollback": "P07 の write_scope に含まれる変更を revert し、直前の promoted generation へ差し戻す",
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-08-21T12:40:00Z"
+      },
+      "graph_node_registration": {
+        "graph_node_id": "SYS-UIUX-OVERHAUL-P07",
+        "file_path": "tasks/feat-uiux-overhaul/sys-uiux-overhaul-p07.md",
+        "parent_feature": "feat-uiux-overhaul",
+        "feature_package_id": "feature-package/feat-uiux-overhaul",
+        "phase_ref": "P07"
+      }
+    },
+    {
+      "id": "SYS-UIUX-OVERHAUL-P08",
+      "feature_package_id": "feature-package/feat-uiux-overhaul",
+      "parent_feature": "feat-uiux-overhaul",
+      "title": "既存画面の共通部品への移行と重複実装の解消",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p08",
+        "feat-uiux-overhaul"
+      ],
+      "related_nodes": [],
+      "workstream_kind": "frontend",
+      "secondary_workstreams": [
+        "backend",
+        "api",
+        "quality"
+      ],
+      "build_target_kind": "application-code",
+      "phase_ref": "P08",
+      "depends_on": [
+        "SYS-UIUX-OVERHAUL-P05"
+      ],
+      "write_scope": [
+        "src/app/admin/",
+        "src/presentation/ui/",
+        "docs/spec/feat-uiux-overhaul/migration-report.md"
+      ],
+      "deploy_unit": "cloudflare-workers-opennext-app (Next.js 16 + OpenNext, Workers/D1/R2)",
+      "source_lineage": [
+        "system-spec/index.md",
+        "system-spec/00-requirements-definition.md",
+        "system-spec/ui-ux.md",
+        "system-spec/frontend.md",
+        "system-spec/backend.md",
+        "architecture/system-spec-overview.md",
+        "architecture/arch-two-layer-platform.md",
+        "docs/spec/09-UIテーマ仕様.md",
+        "docs/spec/13-システム仕様-章別規範契約.md"
+      ],
+      "classification": {
+        "confidence": 1.0,
+        "reason": "feat-uiux-overhaul の P08 lifecycle 責務への確定写像",
+        "candidates": [
+          {
+            "artifact_kind": "task",
+            "confidence": 1.0,
+            "candidate_path": "tasks/feat-uiux-overhaul/sys-uiux-overhaul-p08.md"
+          }
+        ]
+      },
+      "tracker_binding_intent": "beads",
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "pr_completion_policy": "linked_pr_merged_all",
+      "branch_policy": {
+        "strategy": "one-task-one-branch",
+        "worktree_lease_required": true,
+        "completion_projection": "default-branch-reconciliation",
+        "assignment_owner": "dev-graph-scheduler"
+      },
+      "acceptance": [
+        "P08: 既存管理画面が共通部品へ移行され、同等UIの重複実装が0件であることが機械検査で確認された状態を成立させる。"
+      ],
+      "verification": [
+        "P08 の Verification and evidence section に記載する自動コマンドと証跡パスで検証する"
+      ],
+      "rollback": "P08 の write_scope に含まれる変更を revert し、直前の promoted generation へ差し戻す",
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-08-21T12:40:00Z"
+      },
+      "graph_node_registration": {
+        "graph_node_id": "SYS-UIUX-OVERHAUL-P08",
+        "file_path": "tasks/feat-uiux-overhaul/sys-uiux-overhaul-p08.md",
+        "parent_feature": "feat-uiux-overhaul",
+        "feature_package_id": "feature-package/feat-uiux-overhaul",
+        "phase_ref": "P08"
+      }
+    },
+    {
+      "id": "SYS-UIUX-OVERHAUL-P09",
+      "feature_package_id": "feature-package/feat-uiux-overhaul",
+      "parent_feature": "feat-uiux-overhaul",
+      "title": "品質保証と非機能検査",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p09",
+        "feat-uiux-overhaul"
+      ],
+      "related_nodes": [],
+      "workstream_kind": "quality",
+      "secondary_workstreams": [
+        "frontend",
+        "security"
+      ],
+      "build_target_kind": "application-code",
+      "phase_ref": "P09",
+      "depends_on": [
+        "SYS-UIUX-OVERHAUL-P08"
+      ],
+      "write_scope": [
+        "docs/spec/feat-uiux-overhaul/quality-report.md"
+      ],
+      "deploy_unit": "cloudflare-workers-opennext-app (Next.js 16 + OpenNext, Workers/D1/R2)",
+      "source_lineage": [
+        "system-spec/index.md",
+        "system-spec/00-requirements-definition.md",
+        "system-spec/ui-ux.md",
+        "system-spec/frontend.md",
+        "system-spec/backend.md",
+        "architecture/system-spec-overview.md",
+        "architecture/arch-two-layer-platform.md",
+        "docs/spec/09-UIテーマ仕様.md",
+        "docs/spec/13-システム仕様-章別規範契約.md"
+      ],
+      "classification": {
+        "confidence": 1.0,
+        "reason": "feat-uiux-overhaul の P09 lifecycle 責務への確定写像",
+        "candidates": [
+          {
+            "artifact_kind": "task",
+            "confidence": 1.0,
+            "candidate_path": "tasks/feat-uiux-overhaul/sys-uiux-overhaul-p09.md"
+          }
+        ]
+      },
+      "tracker_binding_intent": "beads",
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "pr_completion_policy": "linked_pr_merged_all",
+      "branch_policy": {
+        "strategy": "one-task-one-branch",
+        "worktree_lease_required": true,
+        "completion_projection": "default-branch-reconciliation",
+        "assignment_owner": "dev-graph-scheduler"
+      },
+      "acceptance": [
+        "P09: 型検査・静的解析・アクセシビリティ・表示崩れ・応答性能の各検査が基準を満たし、結果が記録された状態を成立させる。"
+      ],
+      "verification": [
+        "P09 の Verification and evidence section に記載する自動コマンドと証跡パスで検証する"
+      ],
+      "rollback": "P09 の write_scope に含まれる変更を revert し、直前の promoted generation へ差し戻す",
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-08-21T12:40:00Z"
+      },
+      "graph_node_registration": {
+        "graph_node_id": "SYS-UIUX-OVERHAUL-P09",
+        "file_path": "tasks/feat-uiux-overhaul/sys-uiux-overhaul-p09.md",
+        "parent_feature": "feat-uiux-overhaul",
+        "feature_package_id": "feature-package/feat-uiux-overhaul",
+        "phase_ref": "P09"
+      }
+    },
+    {
+      "id": "SYS-UIUX-OVERHAUL-P10",
+      "feature_package_id": "feature-package/feat-uiux-overhaul",
+      "parent_feature": "feat-uiux-overhaul",
+      "title": "最終レビューと残課題の確定",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p10",
+        "feat-uiux-overhaul"
+      ],
+      "related_nodes": [],
+      "workstream_kind": "quality",
+      "secondary_workstreams": [
+        "documentation",
+        "frontend"
+      ],
+      "build_target_kind": "application-code",
+      "phase_ref": "P10",
+      "depends_on": [
+        "SYS-UIUX-OVERHAUL-P09"
+      ],
+      "write_scope": [
+        "docs/spec/feat-uiux-overhaul/final-review.md"
+      ],
+      "deploy_unit": "cloudflare-workers-opennext-app (Next.js 16 + OpenNext, Workers/D1/R2)",
+      "source_lineage": [
+        "system-spec/index.md",
+        "system-spec/00-requirements-definition.md",
+        "system-spec/ui-ux.md",
+        "system-spec/frontend.md",
+        "system-spec/backend.md",
+        "architecture/system-spec-overview.md",
+        "architecture/arch-two-layer-platform.md",
+        "docs/spec/09-UIテーマ仕様.md",
+        "docs/spec/13-システム仕様-章別規範契約.md"
+      ],
+      "classification": {
+        "confidence": 1.0,
+        "reason": "feat-uiux-overhaul の P10 lifecycle 責務への確定写像",
+        "candidates": [
+          {
+            "artifact_kind": "task",
+            "confidence": 1.0,
+            "candidate_path": "tasks/feat-uiux-overhaul/sys-uiux-overhaul-p10.md"
+          }
+        ]
+      },
+      "tracker_binding_intent": "beads",
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "pr_completion_policy": "linked_pr_merged_all",
+      "branch_policy": {
+        "strategy": "one-task-one-branch",
+        "worktree_lease_required": true,
+        "completion_projection": "default-branch-reconciliation",
+        "assignment_owner": "dev-graph-scheduler"
+      },
+      "acceptance": [
+        "P10: P01 から P09 の成果を通しでレビューし、受入10件の充足判定と残課題が確定した状態を成立させる。"
+      ],
+      "verification": [
+        "P10 の Verification and evidence section に記載する自動コマンドと証跡パスで検証する"
+      ],
+      "rollback": "P10 の write_scope に含まれる変更を revert し、直前の promoted generation へ差し戻す",
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-08-21T12:40:00Z"
+      },
+      "graph_node_registration": {
+        "graph_node_id": "SYS-UIUX-OVERHAUL-P10",
+        "file_path": "tasks/feat-uiux-overhaul/sys-uiux-overhaul-p10.md",
+        "parent_feature": "feat-uiux-overhaul",
+        "feature_package_id": "feature-package/feat-uiux-overhaul",
+        "phase_ref": "P10"
+      }
+    },
+    {
+      "id": "SYS-UIUX-OVERHAUL-P11",
+      "feature_package_id": "feature-package/feat-uiux-overhaul",
+      "parent_feature": "feat-uiux-overhaul",
+      "title": "証跡の集約と検証可能性の確保",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p11",
+        "feat-uiux-overhaul"
+      ],
+      "related_nodes": [],
+      "workstream_kind": "documentation",
+      "secondary_workstreams": [
+        "quality"
+      ],
+      "build_target_kind": "application-code",
+      "phase_ref": "P11",
+      "depends_on": [
+        "SYS-UIUX-OVERHAUL-P07",
+        "SYS-UIUX-OVERHAUL-P09"
+      ],
+      "write_scope": [
+        "docs/spec/feat-uiux-overhaul/evidence/"
+      ],
+      "deploy_unit": "cloudflare-workers-opennext-app (Next.js 16 + OpenNext, Workers/D1/R2)",
+      "source_lineage": [
+        "system-spec/index.md",
+        "system-spec/00-requirements-definition.md",
+        "system-spec/ui-ux.md",
+        "system-spec/frontend.md",
+        "system-spec/backend.md",
+        "architecture/system-spec-overview.md",
+        "architecture/arch-two-layer-platform.md",
+        "docs/spec/09-UIテーマ仕様.md",
+        "docs/spec/13-システム仕様-章別規範契約.md"
+      ],
+      "classification": {
+        "confidence": 1.0,
+        "reason": "feat-uiux-overhaul の P11 lifecycle 責務への確定写像",
+        "candidates": [
+          {
+            "artifact_kind": "task",
+            "confidence": 1.0,
+            "candidate_path": "tasks/feat-uiux-overhaul/sys-uiux-overhaul-p11.md"
+          }
+        ]
+      },
+      "tracker_binding_intent": "beads",
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "pr_completion_policy": "linked_pr_merged_all",
+      "branch_policy": {
+        "strategy": "one-task-one-branch",
+        "worktree_lease_required": true,
+        "completion_projection": "default-branch-reconciliation",
+        "assignment_owner": "dev-graph-scheduler"
+      },
+      "acceptance": [
+        "P11: 受入判定と品質検査の証跡が一箇所へ集約され、第三者が同じ手順で再現・検証できる状態を成立させる。"
+      ],
+      "verification": [
+        "P11 の Verification and evidence section に記載する自動コマンドと証跡パスで検証する"
+      ],
+      "rollback": "P11 の write_scope に含まれる変更を revert し、直前の promoted generation へ差し戻す",
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-08-21T12:40:00Z"
+      },
+      "graph_node_registration": {
+        "graph_node_id": "SYS-UIUX-OVERHAUL-P11",
+        "file_path": "tasks/feat-uiux-overhaul/sys-uiux-overhaul-p11.md",
+        "parent_feature": "feat-uiux-overhaul",
+        "feature_package_id": "feature-package/feat-uiux-overhaul",
+        "phase_ref": "P11"
+      }
+    },
+    {
+      "id": "SYS-UIUX-OVERHAUL-P12",
+      "feature_package_id": "feature-package/feat-uiux-overhaul",
+      "parent_feature": "feat-uiux-overhaul",
+      "title": "規則の文書化と運用手順の整備",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p12",
+        "feat-uiux-overhaul"
+      ],
+      "related_nodes": [],
+      "workstream_kind": "documentation",
+      "secondary_workstreams": [
+        "operations"
+      ],
+      "build_target_kind": "application-code",
+      "phase_ref": "P12",
+      "depends_on": [
+        "SYS-UIUX-OVERHAUL-P10",
+        "SYS-UIUX-OVERHAUL-P11"
+      ],
+      "write_scope": [
+        "docs/spec/feat-uiux-overhaul/ui-rules.md",
+        "docs/spec/feat-uiux-overhaul/operations.md"
+      ],
+      "deploy_unit": "cloudflare-workers-opennext-app (Next.js 16 + OpenNext, Workers/D1/R2)",
+      "source_lineage": [
+        "system-spec/index.md",
+        "system-spec/00-requirements-definition.md",
+        "system-spec/ui-ux.md",
+        "system-spec/frontend.md",
+        "system-spec/backend.md",
+        "architecture/system-spec-overview.md",
+        "architecture/arch-two-layer-platform.md",
+        "docs/spec/09-UIテーマ仕様.md",
+        "docs/spec/13-システム仕様-章別規範契約.md"
+      ],
+      "classification": {
+        "confidence": 1.0,
+        "reason": "feat-uiux-overhaul の P12 lifecycle 責務への確定写像",
+        "candidates": [
+          {
+            "artifact_kind": "task",
+            "confidence": 1.0,
+            "candidate_path": "tasks/feat-uiux-overhaul/sys-uiux-overhaul-p12.md"
+          }
+        ]
+      },
+      "tracker_binding_intent": "beads",
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "pr_completion_policy": "linked_pr_merged_all",
+      "branch_policy": {
+        "strategy": "one-task-one-branch",
+        "worktree_lease_required": true,
+        "completion_projection": "default-branch-reconciliation",
+        "assignment_owner": "dev-graph-scheduler"
+      },
+      "acceptance": [
+        "P12: カード間隔・文章量・サイドバー構成の規則と、新規ブログ追加・新規SNS追加の運用手順が文書化された状態を成立させる。"
+      ],
+      "verification": [
+        "P12 の Verification and evidence section に記載する自動コマンドと証跡パスで検証する"
+      ],
+      "rollback": "P12 の write_scope に含まれる変更を revert し、直前の promoted generation へ差し戻す",
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-08-21T12:40:00Z"
+      },
+      "graph_node_registration": {
+        "graph_node_id": "SYS-UIUX-OVERHAUL-P12",
+        "file_path": "tasks/feat-uiux-overhaul/sys-uiux-overhaul-p12.md",
+        "parent_feature": "feat-uiux-overhaul",
+        "feature_package_id": "feature-package/feat-uiux-overhaul",
+        "phase_ref": "P12"
+      }
+    },
+    {
+      "id": "SYS-UIUX-OVERHAUL-P13",
+      "feature_package_id": "feature-package/feat-uiux-overhaul",
+      "parent_feature": "feat-uiux-overhaul",
+      "title": "リリースと仕様への書き戻し",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p13",
+        "feat-uiux-overhaul"
+      ],
+      "related_nodes": [],
+      "workstream_kind": "operations",
+      "secondary_workstreams": [
+        "documentation",
+        "quality"
+      ],
+      "build_target_kind": "application-code",
+      "phase_ref": "P13",
+      "depends_on": [
+        "SYS-UIUX-OVERHAUL-P12"
+      ],
+      "write_scope": [
+        "docs/spec/feat-uiux-overhaul/release-report.md",
+        "system-spec/ui-ux.md",
+        "system-spec/frontend.md"
+      ],
+      "deploy_unit": "cloudflare-workers-opennext-app (Next.js 16 + OpenNext, Workers/D1/R2)",
+      "source_lineage": [
+        "system-spec/index.md",
+        "system-spec/00-requirements-definition.md",
+        "system-spec/ui-ux.md",
+        "system-spec/frontend.md",
+        "system-spec/backend.md",
+        "architecture/system-spec-overview.md",
+        "architecture/arch-two-layer-platform.md",
+        "docs/spec/09-UIテーマ仕様.md",
+        "docs/spec/13-システム仕様-章別規範契約.md"
+      ],
+      "classification": {
+        "confidence": 1.0,
+        "reason": "feat-uiux-overhaul の P13 lifecycle 責務への確定写像",
+        "candidates": [
+          {
+            "artifact_kind": "task",
+            "confidence": 1.0,
+            "candidate_path": "tasks/feat-uiux-overhaul/sys-uiux-overhaul-p13.md"
+          }
+        ]
+      },
+      "tracker_binding_intent": "beads",
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "pr_completion_policy": "linked_pr_merged_all",
+      "branch_policy": {
+        "strategy": "one-task-one-branch",
+        "worktree_lease_required": true,
+        "completion_projection": "default-branch-reconciliation",
+        "assignment_owner": "dev-graph-scheduler"
+      },
+      "acceptance": [
+        "P13: 本 feature の成果が開発環境へ反映され、実装で確定した UI 規則とコンポーネント契約が system-spec へ書き戻された状態を成立させる。"
+      ],
+      "verification": [
+        "P13 の Verification and evidence section に記載する自動コマンドと証跡パスで検証する"
+      ],
+      "rollback": "P13 の write_scope に含まれる変更を revert し、直前の promoted generation へ差し戻す",
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-08-21T12:40:00Z"
+      },
+      "graph_node_registration": {
+        "graph_node_id": "SYS-UIUX-OVERHAUL-P13",
+        "file_path": "tasks/feat-uiux-overhaul/sys-uiux-overhaul-p13.md",
+        "parent_feature": "feat-uiux-overhaul",
+        "feature_package_id": "feature-package/feat-uiux-overhaul",
+        "phase_ref": "P13"
+      }
+    }
+  ]
+}

@@ -1,10 +1,35 @@
+import type { Metadata } from "next";
 import { readerActor, readerUseCases } from "@/presentation/composition";
-import { ReadFailureBody, SiteFrame } from "@/presentation/site/page-frame";
+import { ReadFailureBody, SiteFrame, stopIfMissing } from "@/presentation/site/page-frame";
 import { ReaderToolForm } from "@/presentation/site/reader-tool-form";
+import { siteMetadataUrl } from "@/presentation/site/site-metadata";
 import { siteHref } from "@/presentation/site/view-model";
-import { ErrorView, SitePage, StubNotice } from "@/presentation/ui";
+import { ErrorView, SectionHeading, SitePage, StubNotice } from "@/presentation/ui";
 
 export const dynamic = "force-dynamic";
+
+/**
+ * 道具ページの題名と要約。これは記事ではないので、記事の読み取りモデルを
+ * 通さず道具の定義（名前・目的）から作る。読めなければ空（嘘の canonical を配らない）。
+ */
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ site: string; tool: string }>;
+}): Promise<Metadata> {
+  const { site, tool } = await params;
+  const definition = await readerUseCases().getReaderTool.execute(readerActor(), {
+    siteSlug: site,
+    slug: tool,
+  });
+  if (!definition.ok) return {};
+  const canonical = await siteMetadataUrl(site, `/tools/${tool}`);
+  return {
+    title: definition.value.name,
+    description: definition.value.purpose,
+    ...(canonical === null ? {} : { alternates: { canonical } }),
+  };
+}
 
 /**
  * 診断・計算の道具。
@@ -29,9 +54,11 @@ export default async function ReaderToolPage({
   });
 
   if (!definition.ok) {
+    // 無い道具は 404 として打ち切る。**JSX を組み立てる前に。**（項目 36）
+    stopIfMissing(definition.error);
     return (
       <SiteFrame siteSlug={site} currentPath={siteHref(site, `/tools/${tool}`)}>
-        {() => <ReadFailureBody error={definition.error} what="この道具" siteSlug={site} />}
+        {() => <ReadFailureBody what="この道具" siteSlug={site} />}
       </SiteFrame>
     );
   }
@@ -75,13 +102,13 @@ export default async function ReaderToolPage({
           />
 
           <section>
-            <h2>結果の読み方</h2>
+            <SectionHeading level={2}>結果の読み方</SectionHeading>
             <p>{definition.value.howToRead}</p>
           </section>
 
           {run === null ? null : run.ok ? (
             <section>
-              <h2>結果</h2>
+              <SectionHeading level={2}>結果</SectionHeading>
               <p>{run.value.summary}</p>
               <dl>
                 {run.value.rows.map((row) => (

@@ -1,9 +1,22 @@
 "use client";
 
 import { useActionState, useState } from "react";
-import { Button, Callout, Field, Select } from "@/presentation/ui";
+import { Button, Callout, Field, FormResult, FormValue, HumanOnlyForm, Select } from "@/presentation/ui";
 import { manageLlmCredentialAction } from "./llm-credential-action";
 import { INITIAL_LLM_CREDENTIAL_STATE } from "./llm-credential-state";
+
+/**
+ * 鍵の登録・確認・失効を AI から呼べなくしている理由。`HumanOnlyForm` が要求する。
+ *
+ * 登録を AI から呼べるようにするには、鍵の値を AI が持てる場所へ置く必要がある。
+ * 置いた時点で、鍵は「人が貼った 1 回きり」ではなくなる。
+ * 確認と失効を分けて許すこともしない。**同じ 1 本の鍵に対する 3 つの操作**で、
+ * 失効だけ AI に許せば、AI は人の鍵を止められる。
+ */
+const HUMAN_ONLY_REASON =
+  "API キーは人がその場で貼る 1 回きりの値で、AI から呼べる形にするには" +
+  "AI が読める場所へ鍵を置く必要がある。置いた時点で 1 回きりではなくなる。" +
+  "確認と失効も同じ 1 本に対する操作なので、片方だけ許すと AI が人の鍵を止められる。";
 
 /**
  * API キーを登録する。
@@ -27,21 +40,19 @@ export function RegisterLlmKeyForm({
   readonly label: string;
   readonly keyIssueUrl: string;
 }) {
-  const [state, action, pending] = useActionState(
-    manageLlmCredentialAction,
-    INITIAL_LLM_CREDENTIAL_STATE,
-  );
+  const [state, action, pending] = useActionState(manageLlmCredentialAction, INITIAL_LLM_CREDENTIAL_STATE);
   const [apiKey, setApiKey] = useState("");
 
   return (
-    <form
+    <HumanOnlyForm
+      reason={HUMAN_ONLY_REASON}
       action={(formData: FormData) => {
         action(formData);
         setApiKey("");
       }}
     >
-      <input type="hidden" name="intent" value="register" />
-      <input type="hidden" name="providerId" value={providerId} />
+      <FormValue name="intent" value="register" />
+      <FormValue name="providerId" value={providerId} />
 
       <Field
         name="apiKey"
@@ -71,11 +82,8 @@ export function RegisterLlmKeyForm({
         この鍵を登録する
       </Button>
 
-      {state.status === "done" ? <Callout tone="success" reason={state.message} /> : null}
-      {state.status === "failed" && state.field === undefined ? (
-        <Callout tone="warn" reason={state.message} />
-      ) : null}
-    </form>
+      <FormResult state={state} />
+    </HumanOnlyForm>
   );
 }
 
@@ -92,18 +100,18 @@ export function VerifyLlmKeyForm({
 }: {
   readonly providerId: string;
   readonly label: string;
-  readonly models: readonly { readonly modelId: string; readonly label: string }[];
+  readonly models: readonly {
+    readonly modelId: string;
+    readonly label: string;
+  }[];
 }) {
-  const [state, action, pending] = useActionState(
-    manageLlmCredentialAction,
-    INITIAL_LLM_CREDENTIAL_STATE,
-  );
+  const [state, action, pending] = useActionState(manageLlmCredentialAction, INITIAL_LLM_CREDENTIAL_STATE);
   const [modelId, setModelId] = useState(models[0]?.modelId ?? "");
 
   return (
-    <form action={action}>
-      <input type="hidden" name="intent" value="verify" />
-      <input type="hidden" name="providerId" value={providerId} />
+    <HumanOnlyForm action={action} reason={HUMAN_ONLY_REASON}>
+      <FormValue name="intent" value="verify" />
+      <FormValue name="providerId" value={providerId} />
 
       <Select
         name="modelId"
@@ -119,7 +127,7 @@ export function VerifyLlmKeyForm({
 
       {state.status === "done" ? <Callout tone="success" reason={state.message} /> : null}
       {state.status === "failed" ? <Callout tone="warn" reason={state.message} /> : null}
-    </form>
+    </HumanOnlyForm>
   );
 }
 
@@ -131,20 +139,17 @@ export function RevokeLlmKeyForm({
   readonly providerId: string;
   readonly label: string;
 }) {
-  const [state, action, pending] = useActionState(
-    manageLlmCredentialAction,
-    INITIAL_LLM_CREDENTIAL_STATE,
-  );
+  const [state, action, pending] = useActionState(manageLlmCredentialAction, INITIAL_LLM_CREDENTIAL_STATE);
 
   return (
-    <form action={action}>
-      <input type="hidden" name="intent" value="revoke" />
-      <input type="hidden" name="providerId" value={providerId} />
+    <HumanOnlyForm action={action} reason={HUMAN_ONLY_REASON}>
+      <FormValue name="intent" value="revoke" />
+      <FormValue name="providerId" value={providerId} />
       <Button type="submit" tone="secondary" busy={pending} busyLabel="失効させています">
         「{label}」の鍵を失効させる
       </Button>
       {state.status === "done" ? <Callout tone="success" reason={state.message} /> : null}
       {state.status === "failed" ? <Callout tone="warn" reason={state.message} /> : null}
-    </form>
+    </HumanOnlyForm>
   );
 }

@@ -50,20 +50,20 @@ responsibility_id: R6-audit-hearing
 
 ### 2.2 ドメインルール (検出条件)
 - **聞き漏れ (missed collection)**: `matrix.<cat>.<pf>.state` が未収集 (=`確定` でも正当な `対象外` でもない) のセルが残存するのに、`hearing_progress.next_question` が `null` かつ `complete` が未達成のまま停止しているケースを検出する。未収集セルが 1 つでも残るのに次の質問が立っていなければ聞き漏れ候補。
-- **誘導質問 (leading question)**: `qa_log[].question` が (a) 回答を特定の選択肢へ誘導する断定・前提の埋め込み (「〜ですよね」「当然〜でしょう」等)、(b) Yes/No で望ましい答えを暗示する片側質問、(c) 複数論点を 1 問に束ね中立な回答を妨げる、のいずれかに該当しないか中立性を評価する。該当質問の `id` を検出する。
+- **誘導質問 (leading question)**: 評価母集団は、現在の `state=確定` セルが `qa_refs[]` (無ければ `qa_ref`) で参照する質疑と canonical foundation 質疑から成る**現行の確定根拠**とする。`reopen_log` だけが参照する旧質疑など現行根拠でない履歴は参考情報として分離し、現行 verdict の検出数へ混ぜない。各質問について (a) 回答を特定の選択肢へ誘導する断定・前提の埋め込み (「〜ですよね」「当然〜でしょう」等)、(b) Yes/No で望ましい答えを暗示する片側質問、(c) 独立に選べる複数論点を 1 問に束ね、1 つの回答を強いて中立な回答を妨げる、のいずれかを評価する。**質問文に複数の名詞・確認項目があることだけでは誘導と判定しない**。`asks_for` は質問が外部的に狙うセル、`scope_notes.bundled` は writer が保存した論点分割の判定として併読するが、どちらも質問文の中立性を無条件に上書きする免罪符にはしない。`bundled=true` や複数の `asks_for` は重点確認し、`bundled=false` かつ単一 `asks_for` は 1 つの機能・判断を成立させる確認項目かを確かめる。検出時は「項目が複数」ではなく、回答のどの独立性が失われるかという**中立回答を妨げる具体的な機序**を `id` ごとに示す。
 - **早期停止 (premature stop)**: (a) 未収集セルが残るのに `hearing_progress.complete=true`、(b) `loop_count` が `max_loops` の実値に達したのに未完了状態・`next_question` が保存されず resume 不能、を検出する。writer は全 matrix 更新後に進捗を再同期するため、旧来の `reopened_from` / `category_aggregate=未着手` 除外は適用しない。(a) は writer 非経由の直接編集または state 破損として扱う。
-- **トレーサビリティ (qa_ref)**: `state=確定` の各セルが `qa_ref` を持ち、その値が `qa_log[].id` に存在し当該 Q&A に遡れることを確認する。`qa_ref` 欠落・`qa_log` に無い dangling 参照は「証跡なき確定」として検出する。
+- **トレーサビリティ (qa_refs)**: **セルの裏付けの全体は `qa_refs[]` である。`qa_ref` (単数) はその先頭の別名でしかない** — 決定論ゲート `validate-coverage-matrix.py` が `qa_refs[0] == qa_ref` を強制するので、単数は複数の一部を必ず指す。したがって「このセルがどの質疑を引いているか」を問うときは、`qa_refs[]` が在ればそれを全体として読み、無い場合にだけ `qa_ref` 単数を全体とみなす。**単数だけを走査して「引かれていない」と結論しないこと。**実測 2026-08-25: 単数だけを見たために `ui-ux.web` / `backend.web` / `frontend.web` が `*-overhaul-v2` を引いていないと報告されたが、3 セルとも `qa_refs[]` に保持していた (偽陰性)。**正本に在るものを「無い」と報せる監査は、見落としより高くつく。**是正の宛先が仕様書へ向いてしまい、直すところが無いまま赤が残る。各 id が `qa_log[].id` に存在し当該 Q&A へ遡れることを確認し、欠落・dangling を「証跡なき確定」として検出する。
 - **foundation の利用者根拠**: `requirements_foundation.confirmed=true` なら、U1-U9 を canonical `qa-foundation-u1`〜`qa-foundation-u9` の 1 論点 source-index へ遡及する。対話は `source.kind=user-dialogue`、書面は path/section・原文・`source.kind=written-requirements`・原文 SHA-256 を必須とする。書面 entry は `spec-state.json` から安全に解決した `source.path` の指定 `source.section` を実際に Read し、`answer` が section 内に逐語で実在することと `source.sha256 == sha256(answer UTF-8 bytes)` を照合する。AI 要約や AI 生成 entry 自身の digest は利用者一次根拠ではない。`approval_ref` の `approval_log[].id` 実在性と U1/U2/U3 の値必須 (N/A 禁止) も照合する。利用者一次入力へ遡れない U 項目、AI 要約だけの根拠、dangling approval を検出する。
 - **対象範囲外の非干渉**: マトリクスの対象外理由の妥当性 (C07)、ドキュメント鮮度 (C08)、最終完了ゲート (C05) には踏み込まない。境界に触れる場合は検出でなく「他 auditor の担当」として明示する。
 
 ### 2.3 入力契約
 | field | type | required | 説明 |
 |---|---|---|---|
-| spec_state | path | yes | C01 が出力した `spec-state.json`。`categories` / `platforms` / `matrix.<cat>.<pf>.{state,qa_ref}` / `qa_log[].{id,question,answer,source?}` / `approval_log` / `requirements_foundation.{U1-U9,approval_ref,confirmed}` / `category_aggregate` / `targets` / `hearing_progress.{loop_count,next_question,complete,max_loops?}` を含む |
+| spec_state | path | yes | C01 が出力した `spec-state.json`。`categories` / `platforms` / `matrix.<cat>.<pf>.{state,qa_ref,qa_refs?}` (裏付けの全体は `qa_refs[]`、`qa_ref` はその先頭の別名) / `qa_log[].{id,question,answer,source?}` / `approval_log` / `requirements_foundation.{U1-U9,approval_ref,confirmed}` / `category_aggregate` / `targets` / `hearing_progress.{loop_count,next_question,complete,max_loops?}` を含む |
 | ssot_prompt | path | yes | 監査責務の正本 (`../skills/run-system-spec-elicit/prompts/R6-audit-hearing.md`) |
 
 ### 2.4 出力契約
-- 成果: 監査 verdict (`PASS`=5 軸すべて問題なし / `FAIL`=1 軸以上に検出あり)、および軸別の検出根拠 — 聞き漏れセル (`<cat>×<pf>` の list)、誘導質問 (`qa_log[].id` の list と理由)、早期停止 (種別 a/b と該当箇所)、トレース欠落セル (`<cat>×<pf>` と欠落種別: qa_ref なし / dangling)、foundation 根拠欠落 (`U1`〜`U9` または `approval_ref` と欠落種別)。
+- 成果: 監査 verdict (`PASS`=5 軸すべて問題なし / `FAIL`=1 軸以上に検出あり)、および軸別の検出根拠 — 聞き漏れセル (`<cat>×<pf>` の list)、誘導質問 (`qa_log[].id` の list と理由)、早期停止 (種別 a/b と該当箇所)、トレース欠落セル (`<cat>×<pf>` と欠落種別: 裏付けなし / dangling)、foundation 根拠欠落 (`U1`〜`U9` または `approval_ref` と欠落種別)。
 - 各検出は行/セル/qa-id 単位で根拠を追えるようにし、修正指示 (再質問の再開・状態保存) は出さない (C01 の責務として指針のみ添える)。
 - ラベル・状態値・key は `spec-state.json` の原文 (`確定`/`complete`/`next_question` 等) を逐語引用し、別表記を作らない。
 
@@ -108,9 +108,9 @@ responsibility_id: R6-audit-hearing
 - [ ] 監査 SSOT を読み、入力・検出条件・禁止事項が本ファイルと矛盾しないことを確認した
 - [ ] `matrix` 全セルを走査し、未収集セル (`確定`/正当な `対象外` 以外) を列挙した
 - [ ] 未収集セルが残るのに `next_question=null` かつ未完了で停止している聞き漏れを検出した
-- [ ] `qa_log[].question` を中立性 (断定誘導/片側 Yes-No/多論点束ね) で評価し誘導質問を検出した
+- [ ] 現行の確定根拠となる `qa_log[].question` を中立性 (断定誘導/片側 Yes-No/独立回答を妨げる多論点束ね) で評価し、`asks_for` / `scope_notes.bundled` / `reopen_log` を併読して誘導質問を検出した
 - [ ] 未収集セルがあるのに `complete=true`、または `max_loops` 実値到達で状態未保存・resume 不能の早期停止を検出した
-- [ ] `state=確定` セルの `qa_ref` が `qa_log[].id` に実在し当該 Q&A へ遡れることを確認し、欠落/dangling を検出した
+- [ ] `state=確定` セルの裏付けを `qa_refs[]` (無ければ `qa_ref` 単数) の**全件**で読み、各 id が `qa_log[].id` に実在し当該 Q&A へ遡れることを確認し、欠落/dangling を検出した (単数だけの走査は偽陰性を生む)
 - [ ] foundation が確定なら U1-U9 を canonical source-index へ 1 論点単位で遡及し、`approval_ref` 実在性と U1/U2/U3 の値必須を確認した
 - [ ] C07 (マトリクス妥当性) / C08 (ドキュメント鮮度) / C05 (完了ゲート) の領域へ踏み込んでいない
 - [ ] 書込・再質問発火・状態更新を一切行わず read-only に徹した

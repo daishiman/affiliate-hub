@@ -104,16 +104,26 @@ EXEMPT_NAMES = frozenset(
 )
 
 # system-spec/ を参照する書込で in-place 変更を行うツール群 (対象ファイルを引数で受ける)。
+#
+# `\b` だけでは**オプション文字列の中身**に当たる。実測 2026-08-25: 読み取り専用の
+# `find ... | xargs grep -ln 'retrieval-evidence'` が `-ln` の `ln` を `\bln\b` に食われて
+# mutation 判定になり、保護領域を参照していたため find/xargs 経路で遮断された。証跡ファイルを
+# 一覧するだけの監査が通らず、doc_freshness の裏取りが構造的に不可能になっていた。
+# **読むだけの操作が書込と誤認される穴は、塞ぐ側ではなく調べる側を黙らせる。**
+#
+# ツール名は「コマンド語の位置」に現れる。直前が `-` (オプション) や語構成文字なら別物である。
+# `/usr/bin/rm` のようなパス前置は残す必要があるので `/` は除外しない。
+_CMD_POS = r"(?<![-\w])"
 _MUTATION_TOOLS = (
-    (re.compile(r"\bsed\s+(?:-[a-zA-Z]*i|--in-place)\b"), "sed -i"),
-    (re.compile(r"\btee\b"), "tee"),
-    (re.compile(r"\bcp\b"), "cp"),
-    (re.compile(r"\bmv\b"), "mv"),
-    (re.compile(r"\brm\b"), "rm"),
-    (re.compile(r"\bdd\b"), "dd"),
-    (re.compile(r"\btruncate\b"), "truncate"),
-    (re.compile(r"\binstall\b"), "install"),
-    (re.compile(r"\bln\b"), "ln"),
+    (re.compile(_CMD_POS + r"sed\s+(?:-[a-zA-Z]*i|--in-place)\b"), "sed -i"),
+    (re.compile(_CMD_POS + r"tee\b"), "tee"),
+    (re.compile(_CMD_POS + r"cp\b"), "cp"),
+    (re.compile(_CMD_POS + r"mv\b"), "mv"),
+    (re.compile(_CMD_POS + r"rm\b"), "rm"),
+    (re.compile(_CMD_POS + r"dd\b"), "dd"),
+    (re.compile(_CMD_POS + r"truncate\b"), "truncate"),
+    (re.compile(_CMD_POS + r"install\b"), "install"),
+    (re.compile(_CMD_POS + r"ln\b"), "ln"),
 )
 # python ワンライナ等での書込操作。
 _PY_WRITE = re.compile(

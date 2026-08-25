@@ -12,8 +12,8 @@ iteration: null
 title: "Better Auth・Workspace・RBAC 実装"
 owners: ["daishiman"]
 created_at: "2026-08-16T12:39:37Z"
-updated_at: "2026-08-16T13:01:28.069852Z"
-status: "active"
+updated_at: "2026-08-24T13:30:00Z"
+status: "done"
 depends_on: ["SYS-AUTH-WORKSPACE-P04"]
 related_nodes: []
 resource_scope: ["src/lib/auth/","src/middleware.ts","src/lib/workspace/","src/lib/brand/","src/lib/rbac/","drizzle/schema/","src/app/api/"]
@@ -41,9 +41,9 @@ tracker_binding: "beads"
 beads_linkage: {"bd_issue_id":"ah-361.5","github_mirror":null,"linked_at":"2026-08-16T13:00:16Z","sync_state":"linked"}
 github_publication: {"labels":[],"milestone":null,"mode":"local_only","project_aliases":[]}
 github_project_linkages: []
-pull_request_linkages: []
+pull_request_linkages: [{"number":29,"url":"https://github.com/daishiman/affiliate-hub/pull/29","base":"dev","head":"devgraph/feat-auth-workspace","draft":true}]
 execution_contexts: []
-completion_evidence: {"completed_at":null,"evidence_refs":[],"policy":"manual","reconciled_at":null,"source":null,"status":"in_progress"}
+completion_evidence: {"completed_at":"2026-08-24T12:00:00Z","evidence_refs":["src/middleware.ts","src/application/access-denial.ts","src/domain/identity/brand.ts","beads:ah-361.5"],"policy":"manual","reconciled_at":"2026-08-24T13:30:00Z","source":"manual","status":"done"}
 implementation_readiness: {"checked_at":"2026-08-16T21:00:00Z","missing_sections":[],"status":"complete"}
 ---
 
@@ -171,3 +171,10 @@ system-spec/auth.md の Better Auth/Google OAuth 契約、system-spec/database.m
 - source spec: 昇格済み generation の task spec 本文 (byte-for-byte 不変)
 - verification: published task spec の Automated commands
 - rerun: published task spec 内の `validate-system-plan.py --repo-root . --staging .` は repository root から解決できない。再検証は世代非依存の `python3 plugins/system-dev-planner/scripts/validate-system-plan.py --repo-root . --feature-package feature-package/feat-auth-workspace` を使い、current pointer から現行世代を再解決する。
+
+## 実行記録 (2026-08-24 最終レビュー)
+
+- Beads `ah-361.5` は closed。ローカル MVP の受入は完了。
+- 本番 Google OAuth / remote D1 は未検証（`docs/spec/feat-auth-workspace/release-notes.md` §7）。
+- draft PR: https://github.com/daishiman/affiliate-hub/pull/29
+- 証跡: `src/middleware.ts`, `src/application/access-denial.ts`, `src/domain/identity/brand.ts`, `beads:ah-361.5`

@@ -223,6 +223,9 @@ export function aMembership(over: Partial<Membership> = {}): Membership {
     id: nextId("mem") as MembershipId,
     workspaceId: WORKSPACE as WorkspaceId,
     userId: nextId("user") as UserId,
+    // 招待したアドレス。既定は**参加済み**（`userId` が入っている）状態なので、
+    // ここも埋まっている。招待だけの行を作るテストは `userId: null` と一緒に上書きする。
+    invitedEmail: `member${seq}@example.com`,
     roles: ["writer"],
     scopedBrandIds: [],
     displayName: `担当者 ${seq}`,

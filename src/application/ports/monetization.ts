@@ -6,6 +6,7 @@ import type {
   Conversion,
   LinkIngestion,
   LinkIngestionState,
+  ProductSnapshot,
 } from "@/domain/monetization";
 import type {
   AffiliateAccountId,
@@ -39,6 +40,23 @@ export type AffiliateProgramRepositoryPort = {
 
 export type AffiliateLinkRepositoryPort = {
   findById(workspaceId: WorkspaceId, id: AffiliateLinkId): PortResult<AffiliateLink | null>;
+  /**
+   * 同じ URL の、いま使えるリンクを探す。**登録の前に必ず通す。**
+   *
+   * 受信箱の重複判定（`claimNormalizedUrl`）は「受け取った URL」の取り合いで、
+   * こちらは「登録済みの成果リンク」を見る。別物なので両方要る。
+   * 同じ URL が 2 本登録されると、記事に同じ商品が 2 枚並び、
+   * クリックが 2 つの合言葉へ割れて、どちらの数字も本当の数にならない。
+   *
+   * 止まっているもの（停止・期限切れ）は返さない。差し替えは
+   * 「旧を止めてから登録し直す」道なので、止まったものを重複扱いにすると
+   * 差し替えができなくなる。
+   */
+  findUsableByOriginalUrl(
+    workspaceId: WorkspaceId,
+    originalUrl: string,
+    at: Date,
+  ): PortResult<AffiliateLink | null>;
   listByProduct(workspaceId: WorkspaceId, productId: ProductId): PortResult<readonly AffiliateLink[]>;
   /**
    * 手当てが要るリンク（期限切れ・停止済み）。
@@ -51,7 +69,18 @@ export type AffiliateLinkRepositoryPort = {
     at: Date,
     limit: number,
   ): PortResult<readonly AffiliateLink[]>;
-  save(link: AffiliateLink): PortResult<AffiliateLink>;
+  /**
+   * 成果リンクを保存する。**商品の写しを一緒に渡さないと保存できない。**
+   *
+   * `AffiliateLink` は ASP が発行した URL とその素性しか持たず、
+   * 読者のカードに出る商品名を持たない。ところが保存先の行は商品名を必須にする。
+   * 引数を 1 つにすると、保存する実装が名前を**どこかから作る**しかなくなり、
+   * 商品の表（まだ空）を引いて「—」で埋めるような創作がここで起きる。
+   *
+   * 2 つ目の引数にしてあるのは、**呼ぶ側が正本を言い切るまでコンパイルが通らない**
+   * ようにするため。写しの正本は登録の操作をした人であり、保存先ではない。
+   */
+  save(link: AffiliateLink, snapshot: ProductSnapshot): PortResult<AffiliateLink>;
 };
 
 export type ConversionRepositoryPort = {
@@ -68,8 +97,10 @@ export type ConversionRepositoryPort = {
 /**
  * 成果リンクの受信箱。
  *
- * 重複判定のために「同じ形の URL が既にあるか」を保存先へ聞く。
- * 一覧を全部持ってきてユースケース側で探すと、件数が増えた時点で破綻する。
+ * 重複判定を「同じ形の URL が既にあるか」を**聞いてから入れる**形にしない。
+ * 聞くのと入れるのが 2 手に分かれていると、2 人が同時に貼ったときに
+ * 両方が「無い」を聞いて、どちらにも重複の印が付かないまま 2 行入る。
+ * そのため、判定は下の `claimNormalizedUrl` に一手でやらせる。
  */
 export type LinkIngestionRepositoryPort = {
   findById(workspaceId: WorkspaceId, id: LinkIngestionId): PortResult<LinkIngestion | null>;
@@ -78,10 +109,33 @@ export type LinkIngestionRepositoryPort = {
     filter: { state: LinkIngestionState | null },
     page: PageRequest,
   ): PortResult<Paged<LinkIngestion>>;
-  findByNormalizedUrl(
+  /**
+   * その正規化 URL の「最初の 1 本」を取りに行く。
+   *
+   * 返るのは**いま最初の 1 本として扱われている受信リンクの ID**。
+   * `candidateId` がそのまま返れば自分が最初で、違う ID が返れば
+   * その相手が先にいた（＝こちらが重複）ということ。
+   *
+   * 実装は、読んでから書くのではなく**一手で決着させる**こと。
+   * 同時に呼ばれても、勝つのは必ず 1 本だけでなければならない。
+   * 受け取り自体は弾かない（重複でも行は入る）。
+   */
+  claimNormalizedUrl(
     workspaceId: WorkspaceId,
     normalizedUrl: string,
-  ): PortResult<LinkIngestion | null>;
+    candidateId: LinkIngestionId,
+  ): PortResult<LinkIngestionId>;
+  /**
+   * 取り合いから降りる。対象外にしたときに使う。
+   *
+   * 降ろさないと、捨てたリンクを相手に指した「重複」が延々と出続ける。
+   * 自分が最初の 1 本でなければ何もしない（他人の取り分を消さない）。
+   */
+  releaseNormalizedUrl(
+    workspaceId: WorkspaceId,
+    normalizedUrl: string,
+    id: LinkIngestionId,
+  ): PortResult<void>;
   save(item: LinkIngestion): PortResult<LinkIngestion>;
 };
 

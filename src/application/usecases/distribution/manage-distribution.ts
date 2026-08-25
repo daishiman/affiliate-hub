@@ -13,11 +13,14 @@ import {
   type ChannelKind,
   type Publication,
   type PublicationState,
+  type PublishMode,
+  type PublishState,
   PUBLICATION_STATE_LABEL,
   advance,
   buildIdempotencyKey,
   createPublication,
   isConnectionUsable,
+  rendersOwnArticle,
   supportsDirectPublish,
 } from "@/domain/distribution";
 import { requireCapability } from "@/domain/identity";
@@ -347,6 +350,15 @@ export type GetPublicationOutput = {
   readonly nextStates: readonly { readonly state: PublicationState; readonly label: string }[];
   /** 進められない理由。null なら進められる。 */
   readonly blockedReason: string | null;
+  /**
+   * この画面の中で体裁を整えてそのまま出せるか。
+   *
+   * 画面に「自社サイトなら」という条件を書かせないために、判断はここで済ませる。
+   * 画面が配信先の種別で分岐すると、配信先を足すたびに画面を探して直すことになる。
+   *
+   * 出し終わった配信で false にするのが要点。true のままだと同じ記事が 2 度出る。
+   */
+  readonly canPublishFromScreen: boolean;
 };
 
 /**
@@ -405,6 +417,8 @@ export function createGetPublicationUseCase(
         blockedReason: supportsDirectPublish(publication.channelKind)
           ? null
           : `${capability.label} には公開された投稿の仕組みがありません。下書きを書き出して、ご自身で投稿してください。`,
+        canPublishFromScreen:
+          rendersOwnArticle(publication.channelKind) && publication.externalUrl === null,
       });
     },
   };
@@ -778,4 +792,327 @@ async function resolveConnection(
     );
   }
   return ok(usable[0]!.id);
+}
+
+// --- 配信の中身を直す -------------------------------------------------------
+
+/**
+ * 直せる項目。
+ *
+ * **本文は入っていない。** 配信は記事を指しているだけで、文章そのものは
+ * 持っていない（`Publication` に本文の欄が無い）。文章を直したいときは
+ * 記事の側（`update_content_variant`）を直せば、まだ出ていない配信には
+ * そのまま反映される。ここで本文を持たせると、記事と配信で違う文章が
+ * 保存できてしまい、「読者が読んだのはどちらか」が言えなくなる。
+ */
+export type UpdatePublicationInput = {
+  readonly publicationId: string;
+  /** 送り先の媒体。変えると接続先も選び直しになる。 */
+  readonly channelKind?: ChannelKind;
+  /** 出す時刻。空文字は「予約を外して即時にする」の意味。 */
+  readonly scheduledAt?: string;
+};
+
+export type UpdatePublicationOutput = {
+  readonly card: PublicationCard;
+  readonly manualExportNotice: string | null;
+};
+
+/** 外へ出始めたか、終端へ着いた配信。ここから先は直せない。 */
+const NON_EDITABLE_PUBLICATION_STATES: ReadonlySet<PublicationState> = new Set([
+  "SENDING",
+  "PUBLISHED",
+  "MANUAL_EXPORT_READY",
+  "CANCELLED",
+]);
+
+/**
+ * 送信前の配信を直す。
+ *
+ * **送信済みを直せないのは、直しても届かないから。** 外へ出た投稿は
+ * 相手側にあり、こちらの記録を書き換えても投稿は変わらない。
+ * 書き換えられるようにすると、記録と実物が食い違ったまま気づけなくなる。
+ * 出した後にできるのは、外部サービス側での取り下げだけである。
+ */
+export function createUpdatePublicationUseCase(
+  deps: ManageDistributionDeps,
+): UseCase<UpdatePublicationInput, UpdatePublicationOutput> {
+  return {
+    async execute(
+      actor: ActorContext,
+      input: UpdatePublicationInput,
+    ): Promise<Result<UpdatePublicationOutput, DomainError>> {
+      const allowed = requireCapability(actor, "content.publish", "配信の修正");
+      if (!allowed.ok) return allowed;
+
+      const found = await deps.publications.findById(
+        actor.workspaceId,
+        taggedString<"PublicationId">(input.publicationId) as PublicationId,
+      );
+      if (!found.ok) return found;
+      if (found.value === null) return err(notFound());
+
+      const same = assertSameTenant(actor, found.value, "この配信");
+      if (!same.ok) return same;
+
+      const before = found.value;
+      if (NON_EDITABLE_PUBLICATION_STATES.has(before.state)) {
+        return err(
+          domainError(
+            "CONFLICT",
+            `この配信は「${PUBLICATION_STATE_LABEL[before.state]}」なので、もう直せません。`,
+            {
+              suggestedAction:
+                "外へ出たものはこちらからは変えられません。取り下げが要る場合は、配信先のサービスで操作してください。",
+              details: { state: before.state },
+            },
+          ),
+        );
+      }
+
+      /*
+       * 予約時刻の読み取り。`schedule` の判断とわざと同じにしてある。
+       *
+       * 読み取れない文字列を「指定なし」に倒すと即時投稿になる、
+       * 過ぎた時刻を黙って即時に倒すと打ち間違いがそのまま出る——
+       * どちらも直す口から入っても同じように起きる。
+       */
+      let scheduledAt: Date | null = before.scheduledAt;
+      if (input.scheduledAt !== undefined) {
+        const raw = input.scheduledAt.trim();
+        if (raw === "") {
+          scheduledAt = null;
+        } else {
+          const parsed = new Date(raw);
+          if (Number.isNaN(parsed.getTime())) {
+            return err(
+              validationError(
+                "日時の形が読み取れませんでした。日付と時刻を選び直してください。",
+                "scheduledAt",
+              ),
+            );
+          }
+          if (parsed.getTime() < Date.now()) {
+            return err(
+              validationError(
+                "過ぎた時刻は予約できません。いま出すなら予約時刻を空にしてください。",
+                "scheduledAt",
+              ),
+            );
+          }
+          scheduledAt = parsed;
+        }
+      }
+
+      const channelKind = input.channelKind ?? before.channelKind;
+      /*
+       * 媒体を変えたら、接続先も選び直す。
+       *
+       * 前の媒体の接続 ID を残したまま送ると、X の鍵で Instagram へ出そうとする
+       * ような組み合わせが作れる。失敗するだけならよいが、
+       * どちらのアカウントの話なのかが記録からも読めなくなる。
+       */
+      let connectionId = before.connectionId;
+      if (channelKind !== before.channelKind) {
+        const resolved = await resolveConnection(deps, actor, {
+          variantId: String(before.variantId),
+          channelKind,
+        });
+        if (!resolved.ok) return resolved;
+        connectionId = resolved.value;
+      }
+
+      const saved = await deps.publications.save({
+        ...before,
+        channelKind,
+        connectionId,
+        scheduledAt,
+      });
+      if (!saved.ok) return saved;
+
+      const entry = buildAuditEntry({ ids: deps.ids, now: () => new Date() }, actor, {
+        action: "publication.changed",
+        targetType: "publication",
+        targetId: input.publicationId,
+        before: {
+          channelKind: before.channelKind,
+          scheduledAt: before.scheduledAt?.toISOString() ?? null,
+        },
+        after: {
+          channelKind: saved.value.channelKind,
+          scheduledAt: saved.value.scheduledAt?.toISOString() ?? null,
+        },
+      });
+      if (!entry.ok) return entry;
+      const appended = await deps.auditLog.append(entry.value);
+      if (!appended.ok) {
+        return err(auditWriteFailure("配信の設定は保存しました", appended.error.details));
+      }
+
+      return ok({
+        card: toCard(saved.value),
+        manualExportNotice: manualNoticeFor(channelKind),
+      });
+    },
+  };
+}
+
+// --- 記事 1 本の、配信先ごとの状態 ------------------------------------------
+
+/**
+ * 画面の部品（`ChannelStatusList`）が受け取る形。
+ *
+ * **ここで部品の形に合わせておく。** 合わせないと、画面側が
+ * 配信の状態 10 種を 5 種へ畳む対応表を持つことになり、
+ * 一覧の画面と詳細の画面で別々の畳み方が育つ。
+ */
+/**
+ * 画面へ渡す配信先の見え方。
+ *
+ * `iconName` と `statusLabels` の型を能力表と同じまで狭めてある。
+ * `string` のままにすると、画面側の部品（`ChannelStatusList`）が求める
+ * 3 種の方式・5 つの状態に当てはまらず、**画面の側で型を widen する細工**が要る。
+ * 細工を入れると、方式を 1 つ足した日に画面だけが古いまま通ってしまう。
+ */
+export type ChannelStatusView = {
+  readonly kind: ChannelKind;
+  readonly label: string;
+  readonly accentToken: string;
+  readonly iconName: PublishMode;
+  readonly statusLabels: Readonly<Record<PublishState, string>>;
+};
+
+export type ChannelStatusItem = {
+  readonly capability: ChannelStatusView;
+  readonly state: "not_started" | "scheduled" | "sending" | "done" | "failed";
+  readonly failureReason?: string;
+  readonly publicationId: string | null;
+};
+
+export type GetContentChannelStatusInput = { readonly variantId: string };
+export type GetContentChannelStatusOutput = {
+  readonly variantId: string;
+  readonly entries: readonly ChannelStatusItem[];
+  /** 手当てが要る配信先の数。見出しの脇に出す。 */
+  readonly needsAttentionCount: number;
+};
+
+/**
+ * 配信の 10 状態を、画面の 5 状態へ畳む。
+ *
+ * **畳む先を 5 つに保つのは、人が一目で読める区切りがそこまでだから。**
+ * 「順番待ち」と「本文を組み立て中」の違いは、押せる操作が同じなので
+ * 画面では区別しない。区別が要るのは、待てばよいのか（sending）、
+ * 手を打つのか（failed）、もう済んだのか（done）である。
+ */
+function foldState(state: PublicationState): ChannelStatusItem["state"] {
+  switch (state) {
+    case "PUBLISHED":
+      return "done";
+    case "FAILED_VALIDATION":
+    case "FAILED_SEND":
+      return "failed";
+    case "SENDING":
+    case "RENDERING":
+    case "VALIDATING":
+    case "RETRY_SCHEDULED":
+      return "sending";
+    case "MANUAL_EXPORT_READY":
+    case "QUEUED":
+      return "scheduled";
+    // 取りやめは「出していない」と同じ扱いにする。もう一度予約できる。
+    case "CANCELLED":
+      return "not_started";
+  }
+}
+
+/**
+ * 記事 1 本について、全ての配信先の状態を返す。
+ *
+ * **配信の記録が無い配信先も、必ず 1 行返す。** 返さないと、画面には
+ * 「出した先」だけが並び、出していない先は存在しないように見える。
+ * 出し忘れは、並んでいないものからは気づけない。
+ */
+export function createGetContentChannelStatusUseCase(
+  deps: ManageDistributionDeps,
+): UseCase<GetContentChannelStatusInput, GetContentChannelStatusOutput> {
+  return {
+    async execute(
+      actor: ActorContext,
+      input: GetContentChannelStatusInput,
+    ): Promise<Result<GetContentChannelStatusOutput, DomainError>> {
+      const allowed = requireCapability(actor, "content.read", "配信状況の参照");
+      if (!allowed.ok) return allowed;
+
+      const variantId = taggedString<"ContentVariantId">(input.variantId) as ContentVariantId;
+      const listed = await deps.publications.listByVariant(actor.workspaceId, variantId);
+      if (!listed.ok) return listed;
+
+      /*
+       * 同じ配信先へ何度も出していれば、**新しいほうを採る**。
+       * 古い失敗が最後まで赤いままだと、直して出し直したことが画面に出ない。
+       */
+      const latest = new Map<ChannelKind, Publication>();
+      for (const p of listed.value) {
+        const prev = latest.get(p.channelKind);
+        if (prev === undefined || rankOf(p) >= rankOf(prev)) latest.set(p.channelKind, p);
+      }
+
+      const entries: ChannelStatusItem[] = (
+        Object.keys(CHANNEL_CAPABILITIES) as ChannelKind[]
+      ).map((kind) => {
+        const capability = CHANNEL_CAPABILITIES[kind];
+        const view: ChannelStatusView = {
+          kind,
+          label: capability.label,
+          accentToken: capability.accentToken,
+          iconName: capability.publishMode,
+          statusLabels: capability.statusLabels,
+        };
+        const publication = latest.get(kind);
+        if (publication === undefined) {
+          return { capability: view, state: "not_started", publicationId: null };
+        }
+        const state = foldState(publication.state);
+        return {
+          capability: view,
+          state,
+          // 失敗の行に理由を必ず添える。理由の無い赤は、見た人に何もできることを与えない。
+          failureReason:
+            state === "failed"
+              ? (publication.lastError ?? "理由が記録されていません。もう一度お試しください。")
+              : undefined,
+          publicationId: String(publication.id),
+        };
+      });
+
+      return ok({
+        variantId: input.variantId,
+        entries,
+        needsAttentionCount: entries.filter((e) => e.state === "failed").length,
+      });
+    },
+  };
+}
+
+/**
+ * 同じ配信先の記録どうしを比べる順番。
+ *
+ * 予約時刻ではなく**状態の進み具合**で比べる。予約時刻は取りやめた古い記録の
+ * ほうが後ろにあることがあり、時刻で比べると取りやめが最新として残る。
+ */
+function rankOf(p: Publication): number {
+  const order: Readonly<Record<PublicationState, number>> = {
+    CANCELLED: 0,
+    QUEUED: 1,
+    RENDERING: 2,
+    VALIDATING: 3,
+    RETRY_SCHEDULED: 4,
+    FAILED_VALIDATION: 5,
+    FAILED_SEND: 5,
+    SENDING: 6,
+    MANUAL_EXPORT_READY: 7,
+    PUBLISHED: 8,
+  };
+  return order[p.state];
 }

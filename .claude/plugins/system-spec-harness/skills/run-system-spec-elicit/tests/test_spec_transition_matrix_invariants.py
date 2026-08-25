@@ -57,6 +57,7 @@ def _complete_state() -> dict:
                     state,
                     {
                         "qa_id": "qa-001",
+                        "source": {"kind": "user-dialogue"},
                         "question": "保存方式を確認します。",
                         "answer": "SQLite を使います。",
                         "design_applications": [

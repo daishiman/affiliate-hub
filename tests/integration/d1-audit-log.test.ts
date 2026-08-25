@@ -168,7 +168,7 @@ describe("操作の記録（D1）", () => {
       anEntry({ id: "al_a", action: "content.state_changed", occurredAt: T("2026-08-10T00:00:00Z") }),
     );
     await repo.append(
-      anEntry({ id: "al_b", action: "content.created", occurredAt: T("2026-08-17T00:00:00Z") }),
+      anEntry({ id: "al_b", action: "content.published", occurredAt: T("2026-08-17T00:00:00Z") }),
     );
     await repo.append(
       anEntry({ id: "al_c", action: "content.state_changed", occurredAt: T("2026-08-18T00:00:00Z") }),

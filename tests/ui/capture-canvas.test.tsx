@@ -42,14 +42,24 @@ afterEach(cleanup);
 
 type Mounted = {
   /** `onExport` に渡ってきたもの。付けなかった場合は空のまま。 */
-  readonly exported: { count: number; redactionCount: number | null; type: string | null };
+  readonly exported: {
+    count: number;
+    redactionCount: number | null;
+    maskedElementCount: number | null;
+    type: string | null;
+  };
   readonly retake: { count: number };
   readonly drop: { count: number };
   readonly container: HTMLElement;
 };
 
 function mount(): Mounted {
-  const exported = { count: 0, redactionCount: null as number | null, type: null as string | null };
+  const exported = {
+    count: 0,
+    redactionCount: null as number | null,
+    maskedElementCount: null as number | null,
+    type: null as string | null,
+  };
   const retake = { count: 0 };
   const drop = { count: 0 };
   const { container } = render(
@@ -59,6 +69,7 @@ function mount(): Mounted {
       onExport={(capture) => {
         exported.count += 1;
         exported.redactionCount = capture.redactionCount;
+        exported.maskedElementCount = capture.maskedElementCount;
         exported.type = capture.blob.type;
       }}
       onRetake={() => {
@@ -450,6 +461,8 @@ describe("描画面がある環境", () => {
     expect(exported.count).toBe(1);
     // 手書きは黒塗りではない。数を多く申告すると domain 側の検査と食い違う。
     expect(exported.redactionCount).toBe(2);
+    // DOM の自動マスク数は、技術診断の伏せ数へ足さず画像の申告として運ぶ。
+    expect(exported.maskedElementCount).toBe(2);
     // 画面が書き出す形式は、domain 側が受け取ると決めた形式そのものでなければならない。
     // ここに "image/png" と書き写すと、受け取り側だけが変わったときに気づけない。
     expect(exported.type).toBe(ALLOWED_CAPTURE_MIME);

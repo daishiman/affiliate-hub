@@ -2,7 +2,7 @@
 
 import { useActionState, useState } from "react";
 import type { PublishArticleFormOptions } from "@/application/usecases/site/publish-article";
-import { Button, Field, Select, TextArea, ToolForm } from "@/presentation/ui";
+import { Button, Field, FormValue, Select, TextArea, ToolForm } from "@/presentation/ui";
 import { publishArticleAction } from "./publish-article-action";
 import { PublishArticleResult } from "./publish-article-result";
 import { INITIAL_PUBLISH_ARTICLE_STATE } from "./publish-article-state";
@@ -40,17 +40,12 @@ export function PublishArticleForm({
   readonly publicationId: string;
   readonly options: PublishArticleFormOptions;
 }) {
-  const [state, action, pending] = useActionState(
-    publishArticleAction,
-    INITIAL_PUBLISH_ARTICLE_STATE,
-  );
+  const [state, action, pending] = useActionState(publishArticleAction, INITIAL_PUBLISH_ARTICLE_STATE);
 
   const firstType = options.articleTypes[0];
   const [articleType, setArticleType] = useState<string>(firstType?.value ?? "");
   const [siteSlug, setSiteSlug] = useState(options.siteOptions[0]?.slug ?? "");
-  const [categorySlug, setCategorySlug] = useState(
-    options.siteOptions[0]?.categories[0]?.slug ?? "",
-  );
+  const [categorySlug, setCategorySlug] = useState(options.siteOptions[0]?.categories[0]?.slug ?? "");
   const [slug, setSlug] = useState("");
   const [title, setTitle] = useState(options.prefill.title);
   const [conclusion, setConclusion] = useState(options.prefill.conclusion);
@@ -87,14 +82,17 @@ export function PublishArticleForm({
       toolName="publish_article_to_own_site"
       toolDescription="承認済みの記事を、自分のブログの読者ページへ出す"
     >
-      <input type="hidden" name="publicationId" value={publicationId} />
+      <FormValue name="publicationId" value={publicationId} />
 
       <Select
         name="articleType"
         label="記事の種類"
         value={articleType}
         onValueChange={setArticleType}
-        options={options.articleTypes.map((t) => ({ value: t.value, label: t.label }))}
+        options={options.articleTypes.map((t) => ({
+          value: t.value,
+          label: t.label,
+        }))}
         hint="選んだ種類に合わせて、下の原稿の欄が入れ替わります。書いた内容は消えません。"
         error={errorFor("articleType")}
         toolParamDescription="記事の種類（ranking / review / comparison / guide / tool）"
@@ -105,7 +103,10 @@ export function PublishArticleForm({
         label="出し先のブログ"
         value={siteSlug}
         onValueChange={chooseSite}
-        options={options.siteOptions.map((s) => ({ value: s.slug, label: s.name }))}
+        options={options.siteOptions.map((s) => ({
+          value: s.slug,
+          label: s.name,
+        }))}
         error={errorFor("siteSlug")}
         toolParamDescription="出し先のブログの識別子"
       />
@@ -115,7 +116,10 @@ export function PublishArticleForm({
         label="カテゴリー"
         value={categorySlug}
         onValueChange={setCategorySlug}
-        options={(selectedSite?.categories ?? []).map((c) => ({ value: c.slug, label: c.name }))}
+        options={(selectedSite?.categories ?? []).map((c) => ({
+          value: c.slug,
+          label: c.name,
+        }))}
         error={errorFor("categorySlug")}
         toolParamDescription="出し先のカテゴリーの識別子"
       />
@@ -223,9 +227,7 @@ export function PublishArticleForm({
           name={`section:${section.id}`}
           label={section.label}
           value={sectionBodies[section.id] ?? ""}
-          onValueChange={(next) =>
-            setSectionBodies((prev) => ({ ...prev, [section.id]: next }))
-          }
+          onValueChange={(next) => setSectionBodies((prev) => ({ ...prev, [section.id]: next }))}
           optional
           rows={6}
           hint={section.purpose}
@@ -276,11 +278,7 @@ export function PublishArticleForm({
         </div>
       ))}
 
-      <Button
-        type="button"
-        tone="quiet"
-        onClick={() => setClaims((prev) => [...prev, EMPTY_CLAIM])}
-      >
+      <Button type="button" tone="quiet" onClick={() => setClaims((prev) => [...prev, EMPTY_CLAIM])}>
         根拠の欄を増やす
       </Button>
 

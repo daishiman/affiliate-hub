@@ -1,0 +1,26 @@
+{
+  "target_id": "anthropic-claude",
+  "source_url": "https://platform.claude.com/docs/en/models/overview",
+  "requested_url": "https://platform.claude.com/docs/en/about-claude/models/overview",
+  "retrieved_at": "2026-08-25T12:13:56Z",
+  "http_status": 200,
+  "content_bytes": 902926,
+  "content_sha256": "007393f8700d0900b85db8cf0df2d9358fd9ce04fafa13da4a6952363574bfb2",
+  "page_title": "Models overview - Claude Platform Docs",
+  "redirect_note": "旧 overview path は同じ公式 host の /docs/en/models/overview へ 307 移送されたため、source_url は最終 URL を採る。",
+  "freshness_extraction": {
+    "freshness_source": "page-declared",
+    "value": "現行 active モデル (claude-fable-5 / claude-opus-5 / claude-sonnet-5 / claude-haiku-4-5-20251001)",
+    "found_in": [
+      "現行モデル比較表の model ID: claude-fable-5",
+      "現行モデル比較表の model ID: claude-opus-5",
+      "現行モデル比較表の model ID: claude-sonnet-5",
+      "現行モデル比較表の model ID: claude-haiku-4-5-20251001",
+      "埋め込みモデルデータで各 entry の lifecycle が active と表明されている"
+    ],
+    "http_last_modified": null,
+    "body_declares_date": true,
+    "body_search_method": "現行モデル比較表と埋め込みモデルデータを照合し、model ID・generation・lifecycle=active を確認した。claude-mythos-5 は What's new/移行案内の表題には残るが、現行 active モデル表の model ID ではないため版の値から除外した。",
+    "note": "ページ自身が現行 active モデル ID を列挙するため page-declared とする。取得日を version へ代入していない。"
+  }
+}

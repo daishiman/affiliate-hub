@@ -131,60 +131,56 @@ export async function SiteFrame({
 export const UNAVAILABLE_NOTICE = "いま表示できません";
 
 /**
- * 読めなかったときの表示。**「無い」と「取れなかった」を分ける。**
+ * 「無い」と分かった時点で 404 にする。**画面を描き始める前に呼ぶ。**
  *
- * 分けないと、保存先が落ちているだけの状態で読者に
- * 「その記事は存在しません」と言うことになる。読者は探すのをやめ、
- * 運営は気づけない。**どちらも画面上はきれいに見える**ので、
- * 目で見て気づくことはできない。
+ * 呼ぶ場所が結果を変える。Next.js の `notFound()` は投げた時点で応答が
+ * まだ流れ出していなければ 404 を返すが、流し込みが始まったあとに投げると
+ * 状態コードは 200 のまま `noindex` だけが付く（`notFound` の公式ドキュメント
+ * "Calling `notFound()` after streaming has started"）。
+ * つまり **JSX を返したあとに気づいても遅い**。だから各画面は、ユースケースを
+ * `await` した直後・`<SiteFrame>` を組み立てる前にこれを呼ぶ。
  *
- * 分かれ目は `NOT_FOUND` かどうかの 1 点だけ。
- * それ以外（保存先に繋がらない・上流が落ちている・まだ実装が無い）は
- * すべて「いま表示できません」に寄せる。読者にとって差が無いからである。
+ * 「無い」と「取れなかった」を分けるのはここ 1 箇所。分けないと、保存先が
+ * 落ちているだけの状態で読者に「その記事は存在しません」と言い、さらに
+ * 404 を返して検索結果から実在する記事を消してしまう。
+ * 分かれ目は `NOT_FOUND` かどうかの 1 点だけで、それ以外（保存先に繋がらない・
+ * 上流が落ちている・まだ実装が無い）はすべて「いま表示できません」に寄せる。
+ *
+ * 規範: 残課題リスト 項目 36 / docs/product/traceability.md REQ-B01
+ */
+export function stopIfMissing(error: { readonly code: string } | undefined): void {
+  if (error?.code === "NOT_FOUND") notFound();
+}
+
+/**
+ * 読めなかったときの表示。**ここに来るのは「取れなかった」だけ。**
+ *
+ * 「無い」は呼び出し側の `stopIfMissing` が先に 404 として打ち切る。
+ * ここでも保険として `notFound()` を投げたくなるが、**投げない。**
+ * 投げると、呼び出し側が呼び忘れても画面上は正しく 404 になり、
+ * 「JSX を返す前に打ち切る」という肝心の設計が守られているかを
+ * 検査から見分けられなくなる（実装を壊しても緑のままになる）。
+ * 呼び忘れはこの関数が「いま表示できません」を描くことで表に出て、
+ * `tests/ui/resource-not-found.test.tsx` が 200 として赤くする。
+ *
+ * 失敗の中身（`DomainError`）を受け取らないのはそのため。受け取ると
+ * 「ここでも `NOT_FOUND` を見よう」に必ず戻り、上の理由が崩れる。
+ * 読者に見せる文言も、保存先が落ちた理由で変えるべきものではない。
  */
 export function ReadFailureBody({
-  error,
   what,
   siteSlug,
 }: {
-  readonly error: { readonly code: string };
   /** 「記事」「カテゴリー」など、読もうとしたもの。 */
   readonly what: string;
   readonly siteSlug: string;
 }) {
-  if (error.code === "NOT_FOUND") return <NotFoundBody what={what} siteSlug={siteSlug} />;
-
   const title = `${what}を${UNAVAILABLE_NOTICE}`;
   return (
     <SitePage title={title}>
       <ErrorView
         title={title}
         body="こちらの都合で読み込めませんでした。しばらくしてから、もう一度お試しください。"
-        action={<Link href={siteBasePath(siteSlug)}>トップへ戻る</Link>}
-      />
-    </SitePage>
-  );
-}
-
-/** 記事や人が見つからないときの表示。ここも 1 箇所にまとめる。 */
-export function NotFoundBody({
-  what,
-  siteSlug,
-}: {
-  readonly what: string;
-  readonly siteSlug: string;
-}) {
-  /*
-    `SitePage` で包むのは飾りではない。h1 が無い画面は、
-    読み上げで開いたときに「どこに着いたのか」が一言も告げられない。
-    見えている人には「見つかりませんでした」の文字が目に入るので、
-    **この抜けは目視では発見できない。**
-  */
-  return (
-    <SitePage title={`${what}が見つかりませんでした`}>
-      <ErrorView
-        title={`${what}が見つかりませんでした`}
-        body="URL が変わったか、公開が取り下げられた可能性があります。"
         action={<Link href={siteBasePath(siteSlug)}>トップへ戻る</Link>}
       />
     </SitePage>

@@ -1,7 +1,7 @@
 /**
  * 品質ゲートの唯一の正本。
  *
- * 閾値と検査項目をここ 1 箇所に集める。読み手は 6 つだけ:
+ * 閾値と検査項目をここ 1 箇所に集める。主な読み手:
  *   - `vitest.config.mts`              カバレッジ閾値と、段で絞った対象をそのまま渡す
  *   - `scripts/verify.mjs`             検査の並びと順番をそのまま実行する
  *   - `scripts/run-tests.mjs`          段で絞ってテストを走らせる
@@ -9,12 +9,28 @@
  *   - `scripts/coverage-report.mjs`    層別の判定と記録の生成に使う
  *   - `tests/architecture/quality-gates.test.ts`  ここと CI が食い違っていないか見る
  *
+ * このほか、各閾値を執行する専用 script/test と `stryker.config.mjs` が必要な値だけを読む。
+ * 読み手の個数は増減するため正本化せず、依存の実数は import 走査で確認する。
+ *
  * **`.github/workflows/` に閾値や検査名を書かない。** 書いた瞬間に、
  * 手元と機械で別々の基準が育ち、「機械の上でだけ落ちる」状態が生まれる。
  *
  * 規範: docs/spec/11-CI-CD・品質ゲート仕様.md
  * 実測: docs/product/coverage.md
  */
+
+/**
+ * 非公開リポジトリで使う GitHub Actions の月間枠と通知境界。
+ *
+ * workflow や取得 script に数字を写さない。課金プランを変えるときは、
+ * この値と GitHub 側のプランを同じ変更として見直す。
+ */
+export const ACTIONS_USAGE = Object.freeze({
+  /** GitHub Free の標準 runner 無料枠（分 / 月）。 */
+  includedMinutes: 2000,
+  warnPercent: 70,
+  failPercent: 90,
+});
 
 /**
  * 全体の下限。要件は 80%。
@@ -111,6 +127,92 @@ export const LAYER_COVERAGE = [
 export const COVERAGE_AXES = ["lines", "branches", "functions", "statements"];
 
 /**
+ * カバレッジが実際に測るファイルかどうか。
+ *
+ * 正本は `vitest.config.mts` の `coverage.include` / `coverage.exclude` である。
+ * ここに同じ規則を置いているのは、下の「層でないもの」の判定が
+ * **「測られる中身を持たない置き場か」**を問うためで、
+ * 食い違うと `src/types` のような型宣言だけの置き場が層に数えられる。
+ * 食い違いは `tests/architecture/quality-gates.test.ts` が本文照合で受け止める。
+ *
+ * @param {string} path ファイル名（層の下からの相対でよい）
+ */
+export function isMeasuredSource(path) {
+  return /\.tsx?$/.test(path) && !/\.d\.ts$/.test(path);
+}
+
+/**
+ * **層でないもの**を、名前の一覧ではなく規則で除く。
+ *
+ * 一覧にすると、`src` の下に置き場が増えた日に**そこへ名前を足すだけで緑にできる**。
+ * それは「測られていない層が無い」ことを守る仕組みではなく、
+ * 守っている形だけを残す手続きになる。だから条件は必ず**性質**で書く。
+ *
+ * @type {{id: string, why: string, matches: (entry: {name: string, files: string[]}) => boolean}[]}
+ */
+export const LAYER_EXEMPTION_RULES = [
+  {
+    id: "測られる中身を持たない",
+    why: "型宣言（`.d.ts`）だけの置き場は v8 の計測から外れる。床を置いても常に 0/0 になり、達成にも不足にもならない",
+    // **空の置き場は除かない。**`files.length > 0` を落とすと、
+    // 空のディレクトリを作った日に「中身が無いから層でない」で通ってしまい、
+    // 後からそこへコードを足しても誰も気づかない。
+    matches: (entry) => entry.files.length > 0 && !entry.files.some(isMeasuredSource),
+  },
+  {
+    id: "二重下線で囲まれた道具の置き場",
+    why: "`__tests__` `__mocks__` のような形は出荷される道ではない。名前を数えず、囲みの形だけを見る",
+    matches: (entry) => /^__.+__$/.test(entry.name),
+  },
+];
+
+/**
+ * 床を持たないまま残っている置き場の上限。**下げる方向にしか動かさない。**
+ *
+ * 2026-08-21 時点の中身は `src/db` 1 つ（drizzle のテーブル定義と D1/R2 の取り出し）。
+ * ここに床を置くには実測が要るが、**下限そのものを決めるのはこの課題の外**である
+ * （`tasks/task-layer-coverage-one-way.md` の「やらないこと」）。
+ * そこで**数で縛る**: 新しい置き場が増えれば 2 になり、この上限を超えて赤くなる。
+ *
+ * 上限を上げて緑にするのは、床を持たない場所を増やす行為である。
+ * `src/db` に床を置いたら 0 へ下げること。
+ */
+export const MAX_UNFLOORED_LAYERS = 1;
+
+/**
+ * `src` の側から `LAYER_COVERAGE` を突き合わせる。**向きを逆に一本足す。**
+ *
+ * これまでの検査は `LAYER_COVERAGE` を回って `dir` の存在だけを見ていた。
+ * 向きが片方しかないので、`src` の下に層が増えても検査は緑を返し、
+ * その層は**カバレッジの下限を持たないまま**育つ。
+ *
+ * 判定式をテストの中に書かないのは `judgeLayerCoverage` と同じ理由である。
+ * 外から合成例（実在しない層を混ぜた一覧）を通せる形にしておかないと、
+ * 「不足 0 件」が健全さの証拠なのか判定側の故障なのか読み分けられない。
+ *
+ * @param {{name: string, files: string[]}[]} entries `src` 直下のディレクトリ（`files` は配下の全ファイル）
+ * @param {{dir: string}[]} [layers] 突き合わせ先。既定は `LAYER_COVERAGE`
+ * @returns {{exempt: {layer: string, rule: string}[], unfloored: string[], missing: string[]}}
+ */
+export function judgeLayerInventory(entries, layers = LAYER_COVERAGE) {
+  const nameOf = (dir) => dir.replace(/^src\//, "");
+  const seen = new Set(entries.map((e) => e.name));
+  const floored = new Set(layers.map((l) => nameOf(l.dir)));
+
+  const exempt = [];
+  const unfloored = [];
+  for (const entry of entries) {
+    if (floored.has(entry.name)) continue;
+    const rule = LAYER_EXEMPTION_RULES.find((r) => r.matches(entry));
+    if (rule) exempt.push({ layer: entry.name, rule: rule.id });
+    else unfloored.push(entry.name);
+  }
+  // 逆向きも同じ関数で返す。層を改名したとき、床だけが宙に浮いた状態を拾う。
+  const missing = [...floored].filter((name) => !seen.has(name));
+  return { exempt, unfloored, missing };
+}
+
+/**
  * 層 1 つの判定。**判定式をスクリプトの中に埋めない。**
  * 埋めると外から試せず、「4 列表示して 1 列しか見ていない」形が起きても
  * 誰も合成例を通せない。実際、2026-08-21 まで起きていたのがそれである。
@@ -205,8 +307,27 @@ export const MUTATION_MAX_CHANGED_FILES = 25;
  * この 1 件は「印を付けるための印」ではない — 受信箱の 4 状態の遷移と、
  * その遷移が誰の手で起きたかの記録を、ファイルの中で実際に見ていることを
  * 読んで確かめたうえで書いた。
+ *
+ * → **2**（2026-08-21、`ah-8jh`）。残っていた 28 件を 1 件ずつ**中身を読んで**
+ * 由来を確かめ、26 件へ `@req` を書いた（1 ファイルあたり `describe` / `it` を全部読み、
+ * 何を確かめているかを 1 文にしてから要件表と突き合わせている。表の側に既に
+ * 名前が載っていたもの（`acceptance-criteria` / `session-actor` / `worker-entry`）は
+ * その記述を根拠にした）。**残す 2 件と、その理由**:
+ *
+ *   - `tests/architecture/guard-inline-python-hole.test.ts` — 確定章の見張りが
+ *     「書込の形」しか見ず「書き手」を見ないことの監視。**当たる要件行が無い。**
+ *     `REQ-TS17` は「② 形の検査に母集団の床が同居していること」を求める要件で、
+ *     この検査を**族の一員として名指してはいる**が、この検査が在る理由ではない。
+ *     そこへ結ぶと「印を付けるための印」になるので結ばない。要件側の欠落。
+ *   - `tests/architecture/spec-freshness.test.ts` — 仕様の完全性レポートが
+ *     「いつの仕様書に対する PASS か」を言えることの固定。同上で、当たる要件行が無い
+ *     （`REQ-TS14` の「古くなっても古く見えない」と壊れ方は同じだが、`REQ-TS14` は
+ *     確定 8 章の出典表の欄についての要件で、レポートの鮮度は含まない）。
+ *
+ * どちらも**要件表側に行を足すのが正しい直し方**で、テスト側に印を書く話ではない。
+ * 2 件のままここを 2 に置くのは、**印が 1 つ外れた日に赤くする**ため。
  */
-export const TRACEABILITY_MAX_UNLINKED = 28;
+export const TRACEABILITY_MAX_UNLINKED = 2;
 
 /**
  * テストの種別（語彙の正本）。
@@ -579,6 +700,49 @@ export const REQUIRED_TEST_TYPES = {
    *               コントラストを見ていることが自動追随の証拠に化ける。未宣言のまま残す
    */
   "has-color-scheme-variants": ["a11y"],
+  /*
+   * **見た目の決めごとが、1 画面ではなく全画面へ波及する側にある。**
+   *
+   * 足した理由。`visual`（見た目の回帰）は一覧に最初からあるのに、
+   * **どの性質からも指されていなかった**（2026-08-19 の数え直しで 15 種のうちの 1 つ）。
+   * `ah-h57` が撮る仕掛けそのものを入れた後も、指し手が無いままだった。
+   * **仕掛けが在ることと、要件が要求していることは別である。**
+   * 指されない種別は一度も要求されないので、絵を撮るのをやめても
+   * 宣言表の側は 1 件も赤くならない。
+   *
+   * 線の引き方。「見た目がある要件」ではない——それでは `has-screen` と同じになり、
+   * 画面 67 枚ぶんの除外理由が並ぶだけになる（絵は 5 枚しか撮っていない）。
+   * 当てるのは次の 2 つが**両方**そろっているものだけにした。
+   *   1. **決めごとの側にある**。個別画面ではなく、共通部品・共通トークン・
+   *      共通の骨格が持ち主である
+   *   2. **崩れが 1 画面に留まらない**。そこが動くと、それを使っている全画面に出る
+   * 2 が効く。1 画面だけの崩れは、その画面の検査で捕まえるほうが早い。
+   * ここで要求しているのは**波及する側の 1 枚を焼いて比べておくこと**である。
+   *
+   * ## 足す前に数えた（2026-08-22、`docs/product/traceability.md` 全 242 件）
+   *
+   * 当たるのは 3 件。**3 件とも、撮っている 5 場面のどれが実体かを対応づけてから宣言した。**
+   *   REQ-S09  共通レイアウト（サイドナビ・4 状態の部品・入力欄の作法）
+   *            … `feedback-samples`（読み込み・空・失敗）と `input-samples`（欄の高さ）
+   *   REQ-UX08 カード間隔・文章量・サイドバー構成が全画面へ適用されている
+   *            … `nav-and-density` 3 枚（明・暗・狭）。この要件の実体そのもの
+   *   REQ-TS12 ログイン不要の静止した写し
+   *            … 焼く仕掛けの側。ずれた見た目のほうで判断が決まる形を止める要件で、
+   *              絵で比べること自体が要件の中身である
+   *
+   * 当てなかったものと理由:
+   *   REQ-TH01 / REQ-TH02  明暗と配色
+   *            … `nav-and-density-dark` は確かにこの 2 件に触れるが、
+   *              ここが要求しているのは**色の値**であって崩れではない。
+   *              値は `tests/ui/theme-contrast.test.ts` が配色 10 種 × 明暗 2 種の
+   *              20 通りを数字で総当たりしており、絵より細かい。
+   *              `visual` を名乗ると、**絵 1 枚が 20 通りの証拠に化ける**
+   *   REQ-B01..B12 ほか個別画面
+   *            … 2 を満たさない。崩れてもその画面に留まる
+   *   REQ-IM03 見た目の軸（改善案の分類）
+   *            … 見た目**について書ける項目**の一覧であって、見た目そのものを持たない
+   */
+  "has-shared-visual-form": ["visual"],
   /*
    * **一度実際に壊れていて、生成をやり直すと同じ形で戻ってくる。**
    *
@@ -958,8 +1122,25 @@ export const REQUIRED_TEST_TYPES = {
  * （時間を exit code に混ぜる／超過を blocking にする／渡したことを黙る／境目を 1 秒ずらす）。
  * 4 通りとも赤。実物でも `VERIFY_ELAPSED_SECONDS=99999 pnpm run verify --tier 1` を走らせ、
  * 警告が出たうえで exit 0 になることを確かめてある。
+ *
+ * 2026-08-24: 7 → 5。`REQ-CI08` と `REQ-FD04` を宣言した（`ah-wt6` / `ah-rwn`）。
+ * **新しい検査は書いていないし、語彙も足していない。**減ったのは、
+ * どちらも**できない理由のほうが古くなっていた**からである。
+ * `REQ-CI08` は 2026-08-21 に検査（`tests/architecture/spec-doc-links.test.ts`）が
+ * 書かれた日に理由が偽になっていた。`REQ-FD04` は検査が満たす種別の数え落としで、
+ * 「満たすのは `equivalence` 1 つだけ」と書いてあったが `code-boundary` も満たしていた。
+ * どちらも `code-boundary` の 2 つの要求（禁止側を書くと赤 / 対象の集合が空でも赤）を
+ * 実測してから宣言した（3 通り + 4 通り、いずれも全部赤。判定式は触っていない）。
+ * 経緯と見ていないものは `docs/product/required-test-types.md` §4。
+ *
+ * 残る 5 件は `REQ-TH04` `REQ-TH05` `REQ-TS02` `REQ-TS03` `REQ-TS10`。
+ * `REQ-TS10` には候補（`has-code-placement-rule`）が 1 つ見つかっているが、
+ * 禁止側を書くには `src` の下に置き場を作る必要があり、
+ * `docs/` と `tests/` しか触らないこの課題では測れなかった。**測らずには名乗らない。**
+ *
+ * **上げて緑にすることを禁じる。**
  */
-export const TEST_TYPES_MAX_UNDECLARED = 7;
+export const TEST_TYPES_MAX_UNDECLARED = 5;
 
 /**
  * 理由つき除外を許す上限（件数）。
@@ -1023,7 +1204,14 @@ export const TEST_TYPES_MAX_EXCLUSIONS = 7;
  * 下げてよいのは、その語を**実際に指したとき**だけである。
  * 一覧から消して下げるのは、次の `TEST_TYPES_MIN_VOCABULARY` が止める。
  */
-export const TEST_TYPES_MAX_UNPOINTED = 15;
+/*
+ * 2026-08-22: 15 → 14。`visual` を `has-shared-visual-form` から**実際に指した**。
+ * 一覧から消して下げたのではない（`TEST_TYPES_MIN_VOCABULARY` は 35 のまま）。
+ * 残る 14: `pairwise` `scenario` `property` `contract` `db-constraint`
+ * `db-concurrency` `e2e` `perf` `load` `injection` `redaction` `dep-audit`
+ * `csrf` `rate-limit`。
+ */
+export const TEST_TYPES_MAX_UNPOINTED = 14;
 
 /**
  * 種別の語彙の数（下限）。**上げる方向にしか動かさない。**
@@ -1190,8 +1378,25 @@ export const FORM2_MAX_WITHOUT_FLOOR = 24;
  *
  * 0 を主張する検査を消すと上限は下がるので、消す道をここで塞ぐ。
  * **穴を見張っている検査を減らして数字を良くする道**が、いちばん通りやすい抜け方である。
+ *
+ * --- 2026-08-21: 47 → 73 へ引き締めた ---
+ *
+ * UI/UX の作業で ② 形の検査が大きく増えたため、実測して床を追いつかせた。
+ * **47 のままだと、今日足した 26 件をまるごと消しても緑のまま通る。**
+ * 床は「いま何件あるか」ではなく「**ここから減ったら気づく**」ための線なので、
+ * 実測から離れているぶんだけ、そのまま見張っていない件数になる。
+ *
+ * **上げる向きなので約束には違反しない。**ただし上げる向きだけの取り決めは
+ * 「実測に追いつかせ続ける」ことを**強制しない**——放っておくと今日のように
+ * 26 件ぶん緩む。`FORM2_MAX_WITHOUT_FLOOR` の側（下げる向きだけ）は
+ * 床を足さないかぎり動かせないので自動的に締まるが、**こちらは手で締めるしかない。**
+ * **逆向きの対にしたことの代償が、ここに出ている。**
+ *
+ * 同じ日の実測で `FORM2_MAX_WITHOUT_FLOOR` は **24 件ちょうど**（上限と同数）。
+ * **一杯なので、次に床の無い ② 形を 1 つ足した時点で赤になる。**下げるには
+ * 既存の 24 件のどれかに実際に床を足すしかない。
  */
-export const FORM2_MIN_FAMILY = 47;
+export const FORM2_MIN_FAMILY = 73;
 
 /**
  * スタブと見なす場所。
@@ -1329,7 +1534,7 @@ export const TIER_IDS = TIERS.map((t) => t.id);
 export const AI_EVAL_BUDGET = {
   maxCases: 51,
   maxTokens: 400_000,
-  why: "評価セットは 51 件。1 件あたり入出力で 8,000 トークンを上限の目安とした",
+  why: "評価セットは 52 件。1 件あたり入出力で 8,000 トークンを上限の目安とした",
 };
 
 /**
@@ -1390,6 +1595,14 @@ export const CHECKS = [
     why: "スキーマだけ変えて公開すると、存在しない列を読んで本番が落ちる。1 秒で終わるので手元でも走らせる",
   },
   {
+    id: "acceptance-reconciliation",
+    label: "受入IDの証跡突合",
+    command: ["pnpm", "run", "acceptance:reconcile"],
+    blocking: true,
+    tier: 1,
+    why: "A1〜A10の仕様・実装・検査・報告・trackingを共通IDとdigestで結び、古いPASSや公開状態の相反をテスト前に止める",
+  },
+  {
     id: "test",
     label: "テストとカバレッジ",
     command: ["node", "scripts/run-tests.mjs", "--coverage"],
@@ -1444,6 +1657,19 @@ export const CHECKS = [
     blocking: true,
     tier: 2,
     why: "評価後に仕様書を書き換えると、古い PASS が古く見えないまま残る。指紋で気づける形にする。2026-08-19 まで警告どまりで、しかも判定の答えを捨てて必ず 0 を返していたため、指紋が無いまま緑を出し続けていた（この作業でいちばん大きい主張『仕様を全て満たした』の根拠がそれである）",
+  },
+  {
+    id: "spec-evidence-transcription",
+    label: "取得記録と証跡の逐語一致",
+    command: [
+      "python3",
+      ".claude/plugins/system-spec-harness/scripts/validate-evidence-transcription.py",
+      "--references",
+      "system-spec/fetched-references.json",
+    ],
+    blocking: true,
+    tier: 2,
+    why: "**「合っていない」には三種類ある** — 記録が証跡と違う / 証跡が古い / 上流が変わった。前二つは手元で決着でき、外部取得が要るのは三つ目だけである。これを 1 つの FAIL に潰していたせいで、是正の宛先が仕様書へ向き、しかし仕様書は正しく（実測 15/15 逐語一致）、**直すところの無い赤**が居座っていた。この検査は決着できる二つだけを見て、三つ目は判定していないと毎回名乗る。2026-08-25 の初回実行で、どの証跡も支えない取得日（nextjs が再取得なしに 2026-08-23 の取得を名乗っていた）を検出した。`evidence_sha256` は writer 側で書式（SHA256_HEX）しか見ておらず、**書式だけ正しい嘘は書式検査を通る**",
   },
   {
     id: "audit",
@@ -1514,6 +1740,9 @@ export const RELEASE_GATES = [
 const qualityGates = {
   GLOBAL_COVERAGE,
   LAYER_COVERAGE,
+  LAYER_EXEMPTION_RULES,
+  MAX_UNFLOORED_LAYERS,
+  judgeLayerInventory,
   MUTATION_SCORE,
   MUTATION_MAX_CHANGED_FILES,
   TRACEABILITY_MAX_UNLINKED,
@@ -1713,7 +1942,8 @@ export const PORT_WIRING_MAX_AUDIT_BEST_EFFORT = 2;
 /**
  * **出す場所を持たない記録の語**の上限。
  *
- * `AuditAction` には 28 語ある。上の 3 つはどれも「入口から記録へ届いているか」を
+ * `AuditAction` の語（2026-08-21 時点で 33 語。数は型定義から読む）について、
+ * 上の 3 つはどれも「入口から記録へ届いているか」を
  * 見ており、**語の側から見ていない。**だから、語が union にあるだけで
  * どこからも出されていない状態は、3 つとも緑のまま通る。
  *
@@ -1731,15 +1961,48 @@ export const PORT_WIRING_MAX_AUDIT_BEST_EFFORT = 2;
  * 手で数えた表を置かないのは、**手で書いた数字は古くなっても古く見えない**ため。
  *
  * --- 0 にしない理由 ---
- * 6 語は**機能そのものがまだ無い**（`member.role_changed` は残課題 62、
- * `connector.*` は ASP 接続がスタブ、`disclosure.changed` / `policy_rule.changed` /
- * `content.corrected` は操作の口が無い）。
+ * 4 語は**機能そのものがまだ無い**。1 語ずつの理由は下の
+ * `AUDIT_ACTIONS_WITHOUT_EMITTER_REASONS` に書く。
  * 出す場所を先に作っても、呼ばれないコードが増えるだけである。
  *
  * **上げて緑にすることは禁止。下げる方向にしか動かさない。**
  * 語を消して下げるのも正しい（要件がその記録を求めていないなら、語を残さない）。
  */
-export const AUDIT_ACTIONS_MAX_WITHOUT_EMITTER = 6;
+export const AUDIT_ACTIONS_MAX_WITHOUT_EMITTER = 4;
+
+/**
+ * 出す場所を持たない語の、**1 語ずつの理由**。
+ *
+ * --- なぜ数の上限だけでは足りなかったか（2026-08-21） ---
+ *
+ * 上限は「6 以下」しか見ていない。だから**語が入れ替わっても数は動かない**。
+ * 実際に起きた: `member.role_changed` に出す場所が付いた一方で、
+ * 上の docstring は「`member.role_changed` は残課題 62」と書いたまま残った。
+ * 数は 6 のままなので検査は緑、説明だけが古くなった。
+ * **手で書いた理由は、古くなっても古く見えない。**
+ *
+ * そこで語を鍵にして、検査が両方向で突き合わせる:
+ *   - 出す場所の無い語で、ここに理由が無いものがあれば赤（説明の無い穴を作れない）
+ *   - ここに載っているのに出す場所が付いた語があれば赤（古い理由が残らない）
+ *
+ * 2 つ目が効くと、出す場所を作った人は**この表から 1 行消すまで緑にならない**。
+ * これが仕様の受入条件「全語について、出す場所があるか無い理由が書かれているか」
+ * を、散文ではなく検査で保つ形である。
+ *
+ * 理由は「どの機能が無いか」まで書く。「未実装」だけでは、
+ * 次に読む人が何を待てばよいのか分からない。
+ */
+export const AUDIT_ACTIONS_WITHOUT_EMITTER_REASONS = Object.freeze({
+  "content.corrected":
+    "公開後の記事を訂正する操作が無い。記事を直す道は下書き（variants）だけで、" +
+    "読者へ出したものを直す口が存在しない。訂正の機能が入った時点で出す。",
+  "ranking_model.changed":
+    "評価基準を変える操作が無い。`RankingModelRepositoryPort.save` を呼ぶ入口は 0 か所で、" +
+    "基準は見本データに固定されている。要件（仕様 §26 の必須記録 3 つ目）は" +
+    "この記録を求めているので、語は消さずに待つ。",
+  "connector.connected": "ASP・配信先への接続がスタブで、つなぐ操作そのものが無い。",
+  "connector.disconnected": "同上（接続が無いので、切る操作も無い）。",
+});
 
 /**
  * **見本データの中にしか無い記録の語**の上限。
@@ -1748,14 +2011,24 @@ export const AUDIT_ACTIONS_MAX_WITHOUT_EMITTER = 6;
  * その行を作った操作が存在しない。**見た目は動いているように見える。
  * 見本を消した時点で 0 件になり、そこで初めて機能が無いと分かる。
  *
- * いまの 2 語は `content.created`（記事を作る）と
+ * ここは以前 2 語あった。`content.created`（記事を作る）と
  * `ranking_model.changed`（評価基準を変える）で、どちらも
  * **書き込みのポートはあるが、それを呼ぶ操作がどこにも無い**
  * （`variants.save` は承認の 1 か所だけ、`rankingModels.save` は 0 か所）。
  *
- * **上げて緑にすることは禁止。下げる方向にしか動かさない。**
+ * 2026-08-21 に 0 にした。直し方は語ごとに変えている:
+ *   - `content.created`: **語を消した。** 要件（仕様 §7 の必須記録 6 つ、
+ *     および `audit-log.ts` の必須 3 つ）が記事の作成を求めていない。
+ *   - `ranking_model.changed`: **語は残し、見本の行を落とした。** こちらは
+ *     要件が求めている記録なので消せない。出す場所が付くまでは
+ *     `AUDIT_ACTIONS_WITHOUT_EMITTER_REASONS` の側で理由つきで持つ。
+ *
+ * 見本の行は、**実処理から出す場所を持つ語だけ**で組み直した。
+ * 見本は「実際に起きうる操作」の見本でなければ、画面を見た人を欺く。
+ *
+ * **上げて緑にすることは禁止。0 から動かさない。**
  */
-export const AUDIT_ACTIONS_MAX_SAMPLE_ONLY = 2;
+export const AUDIT_ACTIONS_MAX_SAMPLE_ONLY = 0;
 
 /**
  * **実処理から出している記録の語**の下限。
@@ -1767,8 +2040,30 @@ export const AUDIT_ACTIONS_MAX_SAMPLE_ONLY = 2;
  *
  * ここは上限ではなく**下限**である。**下げて緑にすることは禁止。
  * 上げる方向にしか動かさない。**残る 6 語に機能が付いたら、そのぶん上げる。
+ *
+ * 2026-08-21 に 20 → 27 へ上げた。20 を置いた日から、担当者の役割変更・配信予定・
+ * サイト作成・改善ループなどの入口が記録へつながり、実測が 27 になっている。
+ * 床を 20 に置いたままにすると、**7 語ぶんの記録が黙って消えても緑**になる。
+ *
+ * 2026-08-24 に 27 → 29 へ上げた。広告表記（`disclosure.changed`）と
+ * 表記のきまり（`policy_rule.changed`）を変える口ができ、この 2 語が
+ * 出す場所なしから実処理へ移った。**実測はこの日 39 だが、床は 29 に置く。**
+ * 差の 10 語は別の作業で入口が付いた分で、まだその作業の側が床を上げていない。
+ * ここで 39 まで引くと、**他人の作業が巻き戻っただけでこの検査が赤になり、
+ * 赤の理由が「記録が消えた」ではなく「床が他人を含んでいる」になる。**
+ * 床は自分が足したぶんだけ上げる。
+ *
+ * 2026-08-24 に 29 → 30 へ上げた。改善要望の技術情報を保存期間で消す定期実行
+ * （`feedback.diagnostics_purged`）が 1 語ぶん増えた。**この語は人が押して出る
+ * ものではない**ので、画面を触っても減ったことに気づけない。床で押さえる。
+ *
+ * 2026-08-24 に 30 → 32 へ上げた。断りの 2 語（`access.denied` /
+ * `access.cross_workspace_blocked`）が増えた。**この 2 語は画面に何も出ない。**
+ * 出す場所（`src/application/access-denial.ts` の包み）が外れても、
+ * 断りは今までどおり返るので、画面からも既存のどの検査からも気づけない。
+ * 床で押さえるほかに気づく手立てが無い語である。
  */
-export const AUDIT_ACTIONS_MIN_EMITTED = 20;
+export const AUDIT_ACTIONS_MIN_EMITTED = 32;
 
 /**
  * テナント分離の検査で、**他社の身元で呼んで `ok` まで到達した道具の下限**。
@@ -1850,6 +2145,22 @@ export const TENANT_ISOLATION_MIN_REACHED = 69;
  * **下げて緑にすることは禁止。上げる方向にしか動かさない。**
  */
 export const TENANT_ISOLATION_MIN_SEPARATION_PROVEN = 28;
+
+/**
+ * テナント分離の検査に入っている**状態を変える道具**の下限。
+ *
+ * 上の 2 つは件数を数えるが、**どちらも「読み取りばかり 111 件」でも同じ数になる。**
+ * 対象の選び方が `readOnly` へ戻ったことは、その 2 つでは検出できない。
+ *
+ * 2026-08-18 に対象を `readOnly` で絞るのをやめた。ここはそれが**戻っていないこと**を、
+ * 数の形で見張る。戻すと 28 → 0 になるので、この 1 行だけが落ちる。
+ * 他社のデータを読めるより**書き換えられるほうが重い。**
+ *
+ * 2026-08-21 の実測: 対象 111 件のうち `readOnly: false` は 28 件。
+ *
+ * **下げて緑にすることは禁止。上げる方向にしか動かさない。**
+ */
+export const TENANT_ISOLATION_MIN_WRITE_TOOLS = 28;
 
 /**
  * **意図より広く開いている入口**の上限（`docs/product/open-doors.md`）。
@@ -2001,4 +2312,7 @@ export const OPEN_DOORS_MIN_IRREVERSIBLE_MARKED = 8;
  * **足した行が読者の道であることを確かめてから**この数字を上げる。
  * 「増えたから上げる」で通すと、この検査は何も止めなくなる。
  */
-export const OPEN_DOORS_MAX_PUBLIC_BY_DECLARATION = 26;
+// 2026-08-24: feat-blog-ui-builder で機械向け配信 5 本
+// (sitemap.xml / robots.txt / feed.xml / llms.txt / indexnow.txt) を
+// 読者・クローラーの道として追加した。いずれも読み取り専用で、変更操作は無い。
+export const OPEN_DOORS_MAX_PUBLIC_BY_DECLARATION = 31;

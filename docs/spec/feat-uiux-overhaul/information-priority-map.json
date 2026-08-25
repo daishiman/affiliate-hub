@@ -1,0 +1,1890 @@
+{
+  "schema": "information-priority-map/v1",
+  "feature_id": "feat-uiux-overhaul",
+  "graph_node_id": "SYS-UIUX-OVERHAUL-P01",
+  "generated_at": "2026-08-21T13:10:00Z",
+  "generator": "keep/drop/transform と P01 baseline の設計判断が正本。primary_task は src/presentation/admin/admin-screen-task-manifest.ts の production 正本を検査する仕様投影",
+  "rules": {
+    "lead_max_chars": 40,
+    "always_visible_callout_max": 2,
+    "drop_methods": {
+      "remove": "画面から消す (別画面が持つ、または不要)",
+      "collapse": "折りたたみの中へ入れ、初期表示に出さない",
+      "on-demand": "利用者が操作したときだけ出す"
+    },
+    "never_drop": "金銭・秘密・公開に関する誤解が損害につながる注意は keep 固定とする",
+    "measurement": "初期表示に出ているかどうかで判定する。DOM から消えているかは問わない"
+  },
+  "baseline_totals": {
+    "screens": 32,
+    "always_visible_callouts": 79,
+    "forms": 1,
+    "screens_over_callout_limit": 14,
+    "screens_over_lead_limit": 21,
+    "keep_items": 61,
+    "drop_items": 37,
+    "transform_items": 16,
+    "measured_at": "P01 (2026-08-21) / src/app/admin 32 画面",
+    "note": "この表は動かさない。P01 からどれだけ変わったかを測るための固定点なので、今日の値へ書き換えるとその瞬間に測れなくなる。今の値は current_measurement が指す検査が毎回測る。"
+  },
+  "screens": [
+    {
+      "route": "/admin",
+      "primary_task": "次に手を付ける仕事へ移動する",
+      "task_frequency": "high",
+      "failure_cost": "low",
+      "keep": [
+        {
+          "item": "いまの状況の要約",
+          "why": "ここから行き先を選ぶ判断材料そのもの"
+        }
+      ],
+      "drop": [
+        {
+          "item": "「たたき台です」の告知",
+          "why": "運用開始後は毎回読む必要がない",
+          "method": "remove"
+        },
+        {
+          "item": "全体の流れの説明文",
+          "why": "初回以外は不要",
+          "method": "collapse"
+        }
+      ],
+      "transform": [
+        {
+          "item": "画面説明文 (40 字)",
+          "to": "「次にやることを選ぶ」まで短縮",
+          "why": "入口の説明は行き先の一覧そのもので足りる"
+        }
+      ],
+      "baseline": {
+        "source": "src/app/admin/page.tsx",
+        "lines": 139,
+        "lead_chars": 40,
+        "always_visible_callouts": 3,
+        "cards": 3,
+        "forms": 0
+      }
+    },
+    {
+      "route": "/admin/affiliate",
+      "primary_task": "提携先ごとの成果金額を見る",
+      "task_frequency": "medium",
+      "failure_cost": "high",
+      "keep": [
+        {
+          "item": "「この金額は記事の順位に入りません」",
+          "why": "safety-critical: 誤解が金銭・秘密・公開の取り返しのつかない結果につながる (収益で順位を動かすと広告表記の前提が崩れる)"
+        },
+        {
+          "item": "提携先と金額",
+          "why": "画面の全て"
+        }
+      ],
+      "drop": [
+        {
+          "item": "使えない ASP の個別説明",
+          "why": "一覧では状態表示で足りる",
+          "method": "transform"
+        }
+      ],
+      "transform": [],
+      "baseline": {
+        "source": "src/app/admin/affiliate/page.tsx",
+        "lines": 279,
+        "lead_chars": 46,
+        "always_visible_callouts": 2,
+        "cards": 3,
+        "forms": 0
+      }
+    },
+    {
+      "route": "/admin/affiliate/[conversion]",
+      "primary_task": "1 成果の内訳を確かめ、必要なら金額を直す",
+      "task_frequency": "low",
+      "failure_cost": "medium",
+      "keep": [
+        {
+          "item": "内訳",
+          "why": "画面の全て"
+        },
+        {
+          "item": "「いまは直せません」の理由",
+          "why": "操作できない理由を伏せない"
+        }
+      ],
+      "drop": [],
+      "transform": [],
+      "baseline": {
+        "source": "src/app/admin/affiliate/[conversion]/page.tsx",
+        "lines": 129,
+        "lead_chars": 24,
+        "always_visible_callouts": 1,
+        "cards": 2,
+        "forms": 0
+      }
+    },
+    {
+      "route": "/admin/ai-usage",
+      "primary_task": "AI の利用量と費用を確かめる",
+      "task_frequency": "low",
+      "failure_cost": "medium",
+      "keep": [
+        {
+          "item": "ブログ別・モデル別の利用量",
+          "why": "画面の目的"
+        },
+        {
+          "item": "「費用は概算で請求額と一致しません」",
+          "why": "safety-critical: 誤解が金銭・秘密・公開の取り返しのつかない結果につながる (請求額と誤認すると支払い判断を誤る)"
+        }
+      ],
+      "drop": [],
+      "transform": [],
+      "baseline": {
+        "source": "src/app/admin/ai-usage/page.tsx",
+        "lines": 152,
+        "lead_chars": 51,
+        "always_visible_callouts": 1,
+        "cards": 3,
+        "forms": 0
+      }
+    },
+    {
+      "route": "/admin/analytics",
+      "primary_task": "どこに手を入れるべきかを決める",
+      "task_frequency": "medium",
+      "failure_cost": "high",
+      "keep": [
+        {
+          "item": "「収益の数字は順位に戻せません」",
+          "why": "safety-critical: 誤解が金銭・秘密・公開の取り返しのつかない結果につながる"
+        },
+        {
+          "item": "主要な数字",
+          "why": "画面の目的"
+        }
+      ],
+      "drop": [
+        {
+          "item": "数字ごとの「何に使ってよいか」の全文",
+          "why": "常時 5 個は読み切れない",
+          "method": "collapse"
+        },
+        {
+          "item": "突合できるリンクの件数の内訳",
+          "why": "調べるときだけ",
+          "method": "collapse"
+        }
+      ],
+      "transform": [
+        {
+          "item": "各数字の使用可否",
+          "to": "数字の横のしるし + 押すと理由",
+          "why": "文章 5 本をしるしに置き換える"
+        }
+      ],
+      "baseline": {
+        "source": "src/app/admin/analytics/page.tsx",
+        "lines": 320,
+        "lead_chars": 53,
+        "always_visible_callouts": 5,
+        "cards": 4,
+        "forms": 0
+      }
+    },
+    {
+      "route": "/admin/content",
+      "primary_task": "次に手を付ける記事を決める",
+      "task_frequency": "high",
+      "failure_cost": "low",
+      "keep": [
+        {
+          "item": "段階別の本数",
+          "why": "どこが詰まっているかの判断材料"
+        },
+        {
+          "item": "記事名と段階",
+          "why": "選ぶための最小情報"
+        }
+      ],
+      "drop": [
+        {
+          "item": "「承認と公開は人の操作が必要です」",
+          "why": "各記事の詳細で操作するときに出れば足りる",
+          "method": "on-demand"
+        },
+        {
+          "item": "「どの組み合わせを作るか決める」の誘導文",
+          "why": "リンクそのもので足りる",
+          "method": "remove"
+        }
+      ],
+      "transform": [],
+      "add": [
+        {
+          "item": "新規作成の入口",
+          "why": "A2"
+        },
+        {
+          "item": "配信先ごとの状態列",
+          "why": "A3: 投稿状態を一覧に反映"
+        }
+      ],
+      "baseline": {
+        "source": "src/app/admin/content/page.tsx",
+        "lines": 151,
+        "lead_chars": 32,
+        "always_visible_callouts": 2,
+        "cards": 3,
+        "forms": 0
+      }
+    },
+    {
+      "route": "/admin/content/[variant]",
+      "primary_task": "本文を読み、残すか次へ進めるか判断する",
+      "task_frequency": "high",
+      "failure_cost": "high",
+      "keep": [
+        {
+          "item": "本文",
+          "why": "判断の対象"
+        },
+        {
+          "item": "自動確認の結果",
+          "why": "判断の根拠"
+        },
+        {
+          "item": "いまの段階と次に進める操作",
+          "why": "主要タスク"
+        }
+      ],
+      "drop": [
+        {
+          "item": "表現のきまり",
+          "why": "書くときに要る情報。読んで判断する場面では不要",
+          "method": "collapse"
+        },
+        {
+          "item": "進行の記録",
+          "why": "遡って調べるときだけ",
+          "method": "collapse"
+        }
+      ],
+      "transform": [
+        {
+          "item": "「この記事を出す」節",
+          "to": "進行の操作へ統合",
+          "why": "承認と公開が別々の節に散っている"
+        }
+      ],
+      "add": [
+        {
+          "item": "編集・削除",
+          "why": "A2"
+        },
+        {
+          "item": "配信先ごとの状態と失敗理由",
+          "why": "A3"
+        }
+      ],
+      "split_into": [
+        "本文の確認",
+        "進行の操作 (承認・公開)"
+      ],
+      "baseline": {
+        "source": "src/app/admin/content/[variant]/page.tsx",
+        "lines": 295,
+        "lead_chars": 32,
+        "always_visible_callouts": 4,
+        "cards": 7,
+        "forms": 0
+      }
+    },
+    {
+      "route": "/admin/content/[variant]/edit",
+      "primary_task": "記事の文章を直す",
+      "task_frequency": "high",
+      "failure_cost": "low",
+      "keep": [
+        {
+          "item": "題・要約・本文の入力欄",
+          "why": "直す対象そのもの"
+        }
+      ],
+      "drop": [
+        {
+          "item": "配信状態",
+          "why": "進行画面が持つ",
+          "method": "remove"
+        },
+        {
+          "item": "点数と適合の判定",
+          "why": "直した後に付け直される。直しながら見ても古い",
+          "method": "remove"
+        }
+      ],
+      "transform": [],
+      "baseline": {
+        "source": "src/app/admin/content/[variant]/edit/page.tsx",
+        "lines": 64,
+        "lead_chars": 15,
+        "always_visible_callouts": 0,
+        "cards": 0,
+        "forms": 0
+      }
+    },
+    {
+      "route": "/admin/content/[variant]/progress",
+      "primary_task": "この記事を公開へ向けて次の段階へ進める",
+      "task_frequency": "high",
+      "failure_cost": "medium",
+      "keep": [
+        {
+          "item": "いまの段階",
+          "why": "次に押せる物を決める前提"
+        },
+        {
+          "item": "配信先ごとの状態と失敗理由",
+          "why": "止まっている先を見つける唯一の場所"
+        }
+      ],
+      "drop": [
+        {
+          "item": "本文",
+          "why": "直す画面が持つ",
+          "method": "remove"
+        }
+      ],
+      "transform": [
+        {
+          "item": "進められない理由",
+          "to": "押せない操作の隣へ",
+          "why": "理由を別の場所に置くと、押せない事実と理由が結びつかない"
+        }
+      ],
+      "baseline": {
+        "source": "src/app/admin/content/[variant]/progress/page.tsx",
+        "lines": 181,
+        "lead_chars": 15,
+        "always_visible_callouts": 0,
+        "cards": 0,
+        "forms": 0
+      }
+    },
+    {
+      "route": "/admin/content/matrix",
+      "primary_task": "誰に・どの切り口で・どの媒体へ出すかを決め、記事案を作る",
+      "task_frequency": "medium",
+      "failure_cost": "medium",
+      "keep": [
+        {
+          "item": "マトリクス本体",
+          "why": "画面の全て"
+        },
+        {
+          "item": "作る本数の上限",
+          "why": "超えると生成が止まる。事前に見えないと失敗する"
+        },
+        {
+          "item": "媒体ごとの制約",
+          "why": "選べない組み合わせを選ぶ事故を防ぐ"
+        }
+      ],
+      "drop": [
+        {
+          "item": "「この表の読み方」",
+          "why": "初回のみ必要",
+          "method": "collapse"
+        },
+        {
+          "item": "行ごとの意味の説明",
+          "why": "同上",
+          "method": "collapse"
+        }
+      ],
+      "transform": [
+        {
+          "item": "各セルの理由",
+          "to": "セルを選んだときだけ出す",
+          "why": "全セル分を常時出すと表が読めない"
+        }
+      ],
+      "add": [
+        {
+          "item": "商品からの起動導線",
+          "why": "A5: 1 商品 → 複数ブログのコンセプト別作成の主導線"
+        }
+      ],
+      "baseline": {
+        "source": "src/app/admin/content/matrix/page.tsx",
+        "lines": 279,
+        "lead_chars": 54,
+        "always_visible_callouts": 2,
+        "cards": 6,
+        "forms": 0
+      }
+    },
+    {
+      "route": "/admin/content/new",
+      "primary_task": "記事を 1 本作る",
+      "task_frequency": "high",
+      "failure_cost": "low",
+      "keep": [
+        {
+          "item": "出し先と切り口の選択",
+          "why": "作る本体"
+        }
+      ],
+      "drop": [
+        {
+          "item": "既存記事の一覧",
+          "why": "作成中に見る必要がない",
+          "method": "remove"
+        },
+        {
+          "item": "進行状況",
+          "why": "作ってから見る物",
+          "method": "remove"
+        }
+      ],
+      "transform": [],
+      "baseline": {
+        "source": "src/app/admin/content/new/page.tsx",
+        "lines": 69,
+        "lead_chars": 20,
+        "always_visible_callouts": 0,
+        "cards": 0,
+        "forms": 0
+      }
+    },
+    {
+      "route": "/admin/distribution",
+      "primary_task": "止まっている配信を見つけて対処する",
+      "task_frequency": "high",
+      "failure_cost": "high",
+      "keep": [
+        {
+          "item": "止まっているものと理由",
+          "why": "この画面を開く理由"
+        },
+        {
+          "item": "自動投稿できない先とその理由",
+          "why": "手で出す必要があることを知らせる"
+        }
+      ],
+      "drop": [
+        {
+          "item": "「接続の登録はこの画面では行いません」",
+          "why": "登録の入口へのリンクで足りる",
+          "method": "transform"
+        },
+        {
+          "item": "配信の全記録",
+          "why": "止まっているものが主。全件は絞り込みの結果",
+          "method": "on-demand"
+        }
+      ],
+      "transform": [
+        {
+          "item": "配信先の表現",
+          "to": "SNS プロバイダのメタデータから生成",
+          "why": "A4: 新 SNS 追加で画面を触らないため"
+        }
+      ],
+      "add": [
+        {
+          "item": "新規作成・編集・削除",
+          "why": "A2: SNS 投稿の管理操作"
+        }
+      ],
+      "baseline": {
+        "source": "src/app/admin/distribution/page.tsx",
+        "lines": 214,
+        "lead_chars": 49,
+        "always_visible_callouts": 3,
+        "cards": 4,
+        "forms": 0
+      }
+    },
+    {
+      "route": "/admin/distribution/[publication]",
+      "primary_task": "1 配信の進行を確かめ、次の操作をする",
+      "task_frequency": "medium",
+      "failure_cost": "high",
+      "keep": [
+        {
+          "item": "いまどこまで進んでいるか",
+          "why": "画面の目的"
+        },
+        {
+          "item": "送信できなかった理由",
+          "why": "safety-critical: 誤解が金銭・秘密・公開の取り返しのつかない結果につながる"
+        }
+      ],
+      "drop": [],
+      "transform": [],
+      "add": [
+        {
+          "item": "編集・削除 (取り下げ)",
+          "why": "A2"
+        }
+      ],
+      "baseline": {
+        "source": "src/app/admin/distribution/[publication]/page.tsx",
+        "lines": 188,
+        "lead_chars": 31,
+        "always_visible_callouts": 2,
+        "cards": 4,
+        "forms": 0
+      }
+    },
+    {
+      "route": "/admin/distribution/[publication]/edit",
+      "primary_task": "予定した配信の出し先と日時を直す",
+      "task_frequency": "medium",
+      "failure_cost": "high",
+      "keep": [
+        {
+          "item": "いまの出し先と日時",
+          "why": "直す前と後を見比べる対象"
+        }
+      ],
+      "drop": [
+        {
+          "item": "貼り付け用の下書き",
+          "why": "詳細画面が持つ",
+          "method": "remove"
+        },
+        {
+          "item": "取りやめる操作",
+          "why": "直しに来て取りやめると、直す気で消したことになる",
+          "method": "remove"
+        }
+      ],
+      "transform": [],
+      "baseline": {
+        "source": "src/app/admin/distribution/[publication]/edit/page.tsx",
+        "lines": 77,
+        "lead_chars": 14,
+        "always_visible_callouts": 0,
+        "cards": 0,
+        "forms": 0
+      }
+    },
+    {
+      "route": "/admin/distribution/calendar",
+      "primary_task": "予定の偏りと承認漏れを確かめ、必要なら日時を直す",
+      "task_frequency": "medium",
+      "failure_cost": "high",
+      "keep": [
+        {
+          "item": "承認されないまま予約されている件数",
+          "why": "safety-critical: 誤解が金銭・秘密・公開の取り返しのつかない結果につながる"
+        },
+        {
+          "item": "失敗したまま止まっている件数",
+          "why": "safety-critical: 誤解が金銭・秘密・公開の取り返しのつかない結果につながる"
+        },
+        {
+          "item": "日付ごとの予定",
+          "why": "画面の全て"
+        }
+      ],
+      "drop": [],
+      "transform": [],
+      "baseline": {
+        "source": "src/app/admin/distribution/calendar/page.tsx",
+        "lines": 215,
+        "lead_chars": 54,
+        "always_visible_callouts": 3,
+        "cards": 3,
+        "forms": 0
+      }
+    },
+    {
+      "route": "/admin/distribution/new",
+      "primary_task": "承認済みの記事を出し先へ登録する",
+      "task_frequency": "medium",
+      "failure_cost": "high",
+      "keep": [
+        {
+          "item": "記事と出し先の選択",
+          "why": "登録の本体"
+        },
+        {
+          "item": "出す日時",
+          "why": "外へ出る時刻。間違えると取り返しに手間がかかる"
+        }
+      ],
+      "drop": [
+        {
+          "item": "配信の一覧",
+          "why": "登録中に見る必要がない",
+          "method": "remove"
+        }
+      ],
+      "transform": [],
+      "baseline": {
+        "source": "src/app/admin/distribution/new/page.tsx",
+        "lines": 66,
+        "lead_chars": 19,
+        "always_visible_callouts": 0,
+        "cards": 0,
+        "forms": 0
+      }
+    },
+    {
+      "route": "/admin/evidence",
+      "primary_task": "出所のない内容を見つける",
+      "task_frequency": "medium",
+      "failure_cost": "high",
+      "keep": [
+        {
+          "item": "出所のない内容の件数と一覧",
+          "why": "この画面を開く理由そのもの"
+        }
+      ],
+      "drop": [
+        {
+          "item": "根拠の一覧の全件表示",
+          "why": "問題のあるものを見る画面。全件は絞り込みの結果として出す",
+          "method": "on-demand"
+        }
+      ],
+      "transform": [
+        {
+          "item": "画面説明文 (43 字)",
+          "to": "「出所のない内容を見つける」",
+          "why": "40 字上限"
+        }
+      ],
+      "baseline": {
+        "source": "src/app/admin/evidence/page.tsx",
+        "lines": 176,
+        "lead_chars": 43,
+        "always_visible_callouts": 2,
+        "cards": 1,
+        "forms": 0
+      }
+    },
+    {
+      "route": "/admin/feedback",
+      "primary_task": "届いた改善要望から次に扱うものを選び、実装へ渡す",
+      "task_frequency": "medium",
+      "failure_cost": "low",
+      "keep": [
+        {
+          "item": "未対応の要望一覧",
+          "why": "画面の目的"
+        }
+      ],
+      "drop": [
+        {
+          "item": "「ここに並ぶものと、Beads に並ぶもの」の説明",
+          "why": "初回のみ",
+          "method": "collapse"
+        }
+      ],
+      "transform": [
+        {
+          "item": "画面説明文 (59 字)",
+          "to": "40 字以下",
+          "why": "A10 の上限"
+        }
+      ],
+      "baseline": {
+        "source": "src/app/admin/feedback/page.tsx",
+        "lines": 247,
+        "lead_chars": 59,
+        "always_visible_callouts": 1,
+        "cards": 3,
+        "forms": 0
+      }
+    },
+    {
+      "route": "/admin/feedback/[report]",
+      "primary_task": "1 件の要望を扱うか決め、必要なら実装へ渡す",
+      "task_frequency": "medium",
+      "failure_cost": "low",
+      "keep": [
+        {
+          "item": "届いた内容",
+          "why": "判断の対象"
+        },
+        {
+          "item": "どの画面から届いたか",
+          "why": "再現の起点"
+        }
+      ],
+      "drop": [
+        {
+          "item": "そのときの画面",
+          "why": "調査時のみ",
+          "method": "collapse"
+        },
+        {
+          "item": "そのとき記録されたこと",
+          "why": "同上",
+          "method": "collapse"
+        },
+        {
+          "item": "渡した回数の説明",
+          "why": "回数の数字だけで足りる",
+          "method": "transform"
+        }
+      ],
+      "transform": [
+        {
+          "item": "10 枚のカード",
+          "to": "3 枚 + 折りたたみ",
+          "why": "全画面でカード最多"
+        },
+        {
+          "item": "画面説明文 (57 字)",
+          "to": "40 字以下",
+          "why": "A10 の上限"
+        }
+      ],
+      "baseline": {
+        "source": "src/app/admin/feedback/[report]/page.tsx",
+        "lines": 285,
+        "lead_chars": 57,
+        "always_visible_callouts": 3,
+        "cards": 10,
+        "forms": 0
+      }
+    },
+    {
+      "route": "/admin/generation",
+      "primary_task": "AI に何を渡し、どこから人が決めるかを調べる (参照専用)",
+      "task_frequency": "low",
+      "failure_cost": "medium",
+      "keep": [
+        {
+          "item": "どこから先が人の判断か",
+          "why": "運用上の境界。誤解すると人の確認を飛ばす"
+        },
+        {
+          "item": "決まりが崩れている旨の警告",
+          "why": "崩れたまま生成すると不正な記事が出る"
+        }
+      ],
+      "drop": [
+        {
+          "item": "指示文の組み立ての全塊",
+          "why": "調べるとき以外は不要",
+          "method": "collapse"
+        },
+        {
+          "item": "手順・役の分け方・受け取りの形",
+          "why": "同上",
+          "method": "collapse"
+        },
+        {
+          "item": "「AI に自由に書かせません」の方針文",
+          "why": "方針は仕様書が持つ。画面では 1 行に圧縮",
+          "method": "collapse"
+        }
+      ],
+      "transform": [
+        {
+          "item": "常時表示 6 個の Callout",
+          "to": "警告 (崩れ・生成不可) の 2 個のみ常時、残りは折りたたみ",
+          "why": "全画面で最多。A10 の上限 2 個へ収束させる基準例"
+        }
+      ],
+      "split_into": [
+        "渡す項目",
+        "指示文の組み立て",
+        "人の判断境界"
+      ],
+      "baseline": {
+        "source": "src/app/admin/generation/page.tsx",
+        "lines": 418,
+        "lead_chars": 37,
+        "always_visible_callouts": 6,
+        "cards": 8,
+        "forms": 0
+      }
+    },
+    {
+      "route": "/admin/generation/inputs",
+      "primary_task": "AI に渡す素材の過不足を見る",
+      "task_frequency": "low",
+      "failure_cost": "medium",
+      "keep": [
+        {
+          "item": "渡す項目と、いま入っているか",
+          "why": "過不足そのもの"
+        },
+        {
+          "item": "足りないときの影響",
+          "why": "埋める優先順位を決める材料"
+        }
+      ],
+      "drop": [
+        {
+          "item": "指示文の組み立て",
+          "why": "隣の画面が持つ",
+          "method": "remove"
+        }
+      ],
+      "transform": [],
+      "baseline": {
+        "source": "src/app/admin/generation/inputs/page.tsx",
+        "lines": 132,
+        "lead_chars": 16,
+        "always_visible_callouts": 1,
+        "cards": 0,
+        "forms": 0
+      }
+    },
+    {
+      "route": "/admin/generation/prompt",
+      "primary_task": "指示文の組み立て方を読む",
+      "task_frequency": "low",
+      "failure_cost": "medium",
+      "keep": [
+        {
+          "item": "塊の順番と受け取る形",
+          "why": "組み立ての本体"
+        }
+      ],
+      "drop": [
+        {
+          "item": "渡す素材の一覧",
+          "why": "隣の画面が持つ",
+          "method": "remove"
+        }
+      ],
+      "transform": [],
+      "baseline": {
+        "source": "src/app/admin/generation/prompt/page.tsx",
+        "lines": 105,
+        "lead_chars": 12,
+        "always_visible_callouts": 1,
+        "cards": 0,
+        "forms": 0
+      }
+    },
+    {
+      "route": "/admin/improvement",
+      "primary_task": "試している比較の結果を見て、次の試作を決める",
+      "task_frequency": "low",
+      "failure_cost": "medium",
+      "keep": [
+        {
+          "item": "「数字を良く見せるために判定を緩めません」",
+          "why": "safety-critical: 誤解が金銭・秘密・公開の取り返しのつかない結果につながる (判定基準の恣意的変更を防ぐ)"
+        },
+        {
+          "item": "件数不足で「まだ分からない」の表示",
+          "why": "足りないデータで断定する事故を防ぐ"
+        }
+      ],
+      "drop": [
+        {
+          "item": "この数字の読み方の全文",
+          "why": "常時 4 個",
+          "method": "collapse"
+        }
+      ],
+      "transform": [],
+      "baseline": {
+        "source": "src/app/admin/improvement/page.tsx",
+        "lines": 256,
+        "lead_chars": 70,
+        "always_visible_callouts": 4,
+        "cards": 4,
+        "forms": 0
+      }
+    },
+    {
+      "route": "/admin/improvement/dimensions",
+      "primary_task": "試してよいもの / 変えないものを調べる (参照専用)",
+      "task_frequency": "low",
+      "failure_cost": "medium",
+      "keep": [
+        {
+          "item": "変えないものの一覧",
+          "why": "越えてはいけない境界"
+        },
+        {
+          "item": "「一度に変えてよいのは最大 2 か所」",
+          "why": "守らないと比較結果の意味が消える"
+        }
+      ],
+      "drop": [],
+      "transform": [
+        {
+          "item": "画面説明文 (62 字)",
+          "to": "40 字以下へ短縮",
+          "why": "A10 の上限"
+        }
+      ],
+      "baseline": {
+        "source": "src/app/admin/improvement/dimensions/page.tsx",
+        "lines": 207,
+        "lead_chars": 62,
+        "always_visible_callouts": 2,
+        "cards": 4,
+        "forms": 0
+      }
+    },
+    {
+      "route": "/admin/inbox",
+      "primary_task": "成果リンクを受け取り、広告主と商品を決める",
+      "task_frequency": "high",
+      "failure_cost": "high",
+      "keep": [
+        {
+          "item": "未処理のリンク",
+          "why": "画面の目的"
+        },
+        {
+          "item": "「ここを通るまで記事には出しません」",
+          "why": "safety-critical: 誤解が金銭・秘密・公開の取り返しのつかない結果につながる (未確認リンクの公開防止)"
+        }
+      ],
+      "drop": [
+        {
+          "item": "「受信箱の役目」の説明",
+          "why": "毎回読む必要がない",
+          "method": "collapse"
+        },
+        {
+          "item": "提携プログラムの一覧",
+          "why": "決めるときに選択肢として出れば足りる",
+          "method": "on-demand"
+        }
+      ],
+      "transform": [],
+      "baseline": {
+        "source": "src/app/admin/inbox/page.tsx",
+        "lines": 223,
+        "lead_chars": 59,
+        "always_visible_callouts": 4,
+        "cards": 3,
+        "forms": 0
+      }
+    },
+    {
+      "route": "/admin/personas",
+      "primary_task": "書き手と読者像を決める",
+      "task_frequency": "low",
+      "failure_cost": "medium",
+      "keep": [
+        {
+          "item": "書き手の一覧",
+          "why": "選ぶ対象"
+        },
+        {
+          "item": "書ける事実の範囲",
+          "why": "越えると記事が破綻する境界"
+        }
+      ],
+      "drop": [
+        {
+          "item": "「書き手と読者像の関係」の説明",
+          "why": "画面の構造で伝わる",
+          "method": "collapse"
+        }
+      ],
+      "transform": [],
+      "add": [
+        {
+          "item": "一覧・新規作成・編集・削除",
+          "why": "設定対象なのに管理操作が無い"
+        }
+      ],
+      "split_into": [
+        "書き手",
+        "読者像"
+      ],
+      "baseline": {
+        "source": "src/app/admin/personas/page.tsx",
+        "lines": 326,
+        "lead_chars": 48,
+        "always_visible_callouts": 4,
+        "cards": 3,
+        "forms": 0
+      }
+    },
+    {
+      "route": "/admin/personas/audiences",
+      "primary_task": "誰に向けて書くかを決める",
+      "task_frequency": "low",
+      "failure_cost": "low",
+      "keep": [
+        {
+          "item": "読者像の一覧と特徴",
+          "why": "選ぶ対象"
+        }
+      ],
+      "drop": [
+        {
+          "item": "書き手の人物像",
+          "why": "親画面が持つ。混ぜると「誰の話か」が分からなくなる",
+          "method": "remove"
+        }
+      ],
+      "transform": [],
+      "baseline": {
+        "source": "src/app/admin/personas/audiences/page.tsx",
+        "lines": 126,
+        "lead_chars": 14,
+        "always_visible_callouts": 0,
+        "cards": 0,
+        "forms": 0
+      }
+    },
+    {
+      "route": "/admin/products",
+      "primary_task": "商品をさがして詳細へ進む",
+      "task_frequency": "high",
+      "failure_cost": "low",
+      "keep": [
+        {
+          "item": "検索・絞り込み",
+          "why": "主要タスクの手段"
+        },
+        {
+          "item": "商品名・ブランド・状態",
+          "why": "選ぶための最小の識別情報"
+        }
+      ],
+      "drop": [
+        {
+          "item": "仕様の詳細値",
+          "why": "一覧では比較しない。詳細で見る",
+          "method": "remove"
+        }
+      ],
+      "transform": [
+        {
+          "item": "画面説明文 (29 字)",
+          "to": "維持",
+          "why": "既に 40 字以下"
+        }
+      ],
+      "add": [
+        {
+          "item": "新規作成の入口",
+          "why": "A2: 商品の新規作成が存在しない"
+        }
+      ],
+      "baseline": {
+        "source": "src/app/admin/products/page.tsx",
+        "lines": 124,
+        "lead_chars": 29,
+        "always_visible_callouts": 0,
+        "cards": 3,
+        "forms": 0
+      }
+    },
+    {
+      "route": "/admin/products/[product]",
+      "primary_task": "1 商品の内容を確かめ、素材として残すか判断する",
+      "task_frequency": "high",
+      "failure_cost": "medium",
+      "keep": [
+        {
+          "item": "仕様",
+          "why": "素材として使えるかの中心"
+        },
+        {
+          "item": "この商品について言えること (根拠)",
+          "why": "書ける範囲の境界"
+        },
+        {
+          "item": "編集部の検証記録",
+          "why": "一次情報の有無"
+        }
+      ],
+      "drop": [
+        {
+          "item": "この順位になった理由",
+          "why": "評価基準の文脈。分割先へ移す",
+          "method": "remove"
+        },
+        {
+          "item": "この商品の提携リンク",
+          "why": "稼ぐ文脈。/admin/affiliate から参照",
+          "method": "remove"
+        },
+        {
+          "item": "ほかの候補",
+          "why": "比較は /admin/products/compare の用途",
+          "method": "collapse"
+        }
+      ],
+      "transform": [],
+      "add": [
+        {
+          "item": "編集・削除",
+          "why": "A2: 商品の編集・削除が存在しない"
+        }
+      ],
+      "split_into": [
+        "/admin/products/[product] (仕様・根拠・検証)",
+        "順位の理由 (rankings 側へ)"
+      ],
+      "baseline": {
+        "source": "src/app/admin/products/[product]/page.tsx",
+        "lines": 331,
+        "lead_chars": 27,
+        "always_visible_callouts": 1,
+        "cards": 6,
+        "forms": 0
+      }
+    },
+    {
+      "route": "/admin/products/[product]/edit",
+      "primary_task": "登録済みの商品の値を直す",
+      "task_frequency": "medium",
+      "failure_cost": "low",
+      "keep": [
+        {
+          "item": "いま入っている値",
+          "why": "直す前と後を見比べる対象そのもの"
+        }
+      ],
+      "drop": [
+        {
+          "item": "根拠の一覧",
+          "why": "詳細画面が持つ。直す作業には要らない",
+          "method": "remove"
+        },
+        {
+          "item": "代わりになる商品",
+          "why": "直す判断に関わらない",
+          "method": "remove"
+        },
+        {
+          "item": "消す操作",
+          "why": "直しに来て消えると取り返しがつかない",
+          "method": "remove"
+        }
+      ],
+      "transform": [],
+      "baseline": {
+        "source": "src/app/admin/products/[product]/edit/page.tsx",
+        "lines": 74,
+        "lead_chars": 16,
+        "always_visible_callouts": 0,
+        "cards": 0,
+        "forms": 0
+      }
+    },
+    {
+      "route": "/admin/products/compare",
+      "primary_task": "複数商品を同じ項目で比べる",
+      "task_frequency": "medium",
+      "failure_cost": "low",
+      "keep": [
+        {
+          "item": "比較表",
+          "why": "画面の全て"
+        },
+        {
+          "item": "値がそろっていない旨の注意",
+          "why": "そろっていない列で判断すると誤る"
+        }
+      ],
+      "drop": [],
+      "transform": [],
+      "baseline": {
+        "source": "src/app/admin/products/compare/page.tsx",
+        "lines": 157,
+        "lead_chars": 35,
+        "always_visible_callouts": 1,
+        "cards": 3,
+        "forms": 0
+      }
+    },
+    {
+      "route": "/admin/products/new",
+      "primary_task": "商品を 1 つ登録する",
+      "task_frequency": "medium",
+      "failure_cost": "low",
+      "keep": [
+        {
+          "item": "仕様の入力欄",
+          "why": "登録の本体"
+        },
+        {
+          "item": "出どころの URL",
+          "why": "後から確かめる先が無いと、値の正しさを誰も言えない"
+        }
+      ],
+      "drop": [
+        {
+          "item": "既存商品の一覧",
+          "why": "登録中に他の商品を見る必要がない",
+          "method": "remove"
+        },
+        {
+          "item": "順位表・比較表",
+          "why": "登録し終えてから見る物",
+          "method": "remove"
+        }
+      ],
+      "transform": [
+        {
+          "item": "登録の手順説明",
+          "to": "欄ごとの hint へ分散",
+          "why": "読んでから書くより、書く場所で読むほうが 短い"
+        }
+      ],
+      "baseline": {
+        "source": "src/app/admin/products/new/page.tsx",
+        "lines": 38,
+        "lead_chars": 16,
+        "always_visible_callouts": 0,
+        "cards": 0,
+        "forms": 0
+      }
+    },
+    {
+      "route": "/admin/rankings",
+      "primary_task": "決めた基準での順位と、その理由を確かめる",
+      "task_frequency": "medium",
+      "failure_cost": "medium",
+      "keep": [
+        {
+          "item": "順位と各商品の理由",
+          "why": "画面の目的"
+        },
+        {
+          "item": "選外の件数",
+          "why": "落ちたものの存在を伏せない"
+        }
+      ],
+      "drop": [
+        {
+          "item": "順位の決め方の説明",
+          "why": "基準の編集画面が持つべき情報",
+          "method": "collapse"
+        }
+      ],
+      "transform": [],
+      "split_into": [
+        "/admin/rankings (結果)",
+        "評価基準の編集 (新設)"
+      ],
+      "baseline": {
+        "source": "src/app/admin/rankings/page.tsx",
+        "lines": 188,
+        "lead_chars": 31,
+        "always_visible_callouts": 1,
+        "cards": 3,
+        "forms": 0
+      }
+    },
+    {
+      "route": "/admin/rankings/criteria",
+      "primary_task": "何をどう測って並べているかを読む",
+      "task_frequency": "low",
+      "failure_cost": "low",
+      "keep": [
+        {
+          "item": "評価軸と重み",
+          "why": "順位の理由そのもの"
+        }
+      ],
+      "drop": [
+        {
+          "item": "順位表の中身",
+          "why": "親画面が持つ",
+          "method": "remove"
+        }
+      ],
+      "transform": [
+        {
+          "item": "算出方法の長い説明",
+          "to": "軸ごとの 1 行",
+          "why": "軸の隣で読めれば通しの文章は要らない"
+        }
+      ],
+      "baseline": {
+        "source": "src/app/admin/rankings/criteria/page.tsx",
+        "lines": 71,
+        "lead_chars": 14,
+        "always_visible_callouts": 0,
+        "cards": 0,
+        "forms": 0
+      }
+    },
+    {
+      "route": "/admin/settings",
+      "primary_task": "設定したい対象へ移動する (索引)",
+      "task_frequency": "low",
+      "failure_cost": "low",
+      "keep": [
+        {
+          "item": "設定対象の一覧",
+          "why": "索引としての全て"
+        }
+      ],
+      "drop": [
+        {
+          "item": "ログイン・見た目・作業場所・担当者・役割の本文",
+          "why": "それぞれ別の管理対象。分割先へ移す",
+          "method": "remove"
+        },
+        {
+          "item": "これまでの操作の記録",
+          "why": "調べるときだけ。別画面へ",
+          "method": "remove"
+        }
+      ],
+      "transform": [
+        {
+          "item": "459 行 / 9 カードの単一画面",
+          "to": "索引 + 5 つの子画面",
+          "why": "全画面で最長。/settings/llm と /settings/integration-access が既に分離済みで前例がある"
+        }
+      ],
+      "split_into": [
+        "/admin/settings (索引)",
+        "見た目",
+        "作業場所",
+        "担当者",
+        "役割ごとにできること",
+        "操作の記録"
+      ],
+      "baseline": {
+        "source": "src/app/admin/settings/page.tsx",
+        "lines": 459,
+        "lead_chars": 43,
+        "always_visible_callouts": 5,
+        "cards": 9,
+        "forms": 0
+      }
+    },
+    {
+      "route": "/admin/settings/appearance",
+      "primary_task": "この端末での見た目を選ぶ",
+      "task_frequency": "low",
+      "failure_cost": "low",
+      "keep": [
+        {
+          "item": "選べる見た目",
+          "why": "選ぶ対象"
+        },
+        {
+          "item": "この端末だけに効くという断り",
+          "why": "他の人にも及ぶと誤解すると、共有設定を探しに行く"
+        }
+      ],
+      "drop": [
+        {
+          "item": "作業場所の設定",
+          "why": "効く範囲が違う。同じ画面に置くと区別が消える",
+          "method": "remove"
+        }
+      ],
+      "transform": [],
+      "baseline": {
+        "source": "src/app/admin/settings/appearance/page.tsx",
+        "lines": 48,
+        "lead_chars": 12,
+        "always_visible_callouts": 0,
+        "cards": 0,
+        "forms": 0
+      }
+    },
+    {
+      "route": "/admin/settings/audit",
+      "primary_task": "誰がいつ何をしたかを辿る",
+      "task_frequency": "low",
+      "failure_cost": "high",
+      "keep": [
+        {
+          "item": "操作の記録",
+          "why": "辿る対象そのもの"
+        },
+        {
+          "item": "記録が欠けている区間の断り",
+          "why": "欠けたまま「無かった」と読まれると、調べが途中で終わる"
+        }
+      ],
+      "drop": [
+        {
+          "item": "作業場所の設定",
+          "why": "隣の画面が持つ",
+          "method": "remove"
+        }
+      ],
+      "transform": [],
+      "baseline": {
+        "source": "src/app/admin/settings/audit/page.tsx",
+        "lines": 84,
+        "lead_chars": 13,
+        "always_visible_callouts": 0,
+        "cards": 0,
+        "forms": 0
+      }
+    },
+    {
+      "route": "/admin/settings/compliance",
+      "primary_task": "広告であることの表示と、表現を止めるきまりを直す",
+      "task_frequency": "low",
+      "failure_cost": "high",
+      "keep": [
+        {
+          "item": "読者に出る広告表記の文",
+          "why": "変える対象そのもの。出る文を見ずに選ぶと、短い断りに倒れる"
+        },
+        {
+          "item": "いま効いているきまりの一覧",
+          "why": "止まっているものを混ぜると、どれが記事に当たるのか読めなくなる"
+        },
+        {
+          "item": "きまりの根拠",
+          "why": "根拠の無いきまりは、後から誰も直せない"
+        }
+      ],
+      "drop": [
+        {
+          "item": "契約・上限・ブランド",
+          "why": "隣の「この作業場所」が持つ",
+          "method": "remove"
+        },
+        {
+          "item": "止めたきまりの一覧",
+          "why": "効いているものと混ざると、当たるきまりが読めない。戻すのは操作の記録から辿る",
+          "method": "remove"
+        }
+      ],
+      "transform": [
+        {
+          "item": "広告表記",
+          "from": "読むだけの一覧（この作業場所）",
+          "to": "変える口つきの節",
+          "why": "変えたことが操作の記録に残る画面が無く、仕様 §26 が必須とする記録が 1 行も出ていなかった"
+        }
+      ],
+      "baseline": {
+        "source": "src/app/admin/settings/compliance/page.tsx",
+        "lines": 169,
+        "lead_chars": 30,
+        "always_visible_callouts": 0,
+        "cards": 0,
+        "forms": 3
+      }
+    },
+    {
+      "route": "/admin/settings/integration-access",
+      "primary_task": "取得用の鍵を発行・失効する",
+      "task_frequency": "low",
+      "failure_cost": "high",
+      "keep": [
+        {
+          "item": "「値が表示されるのは発行したときの 1 回だけ」",
+          "why": "safety-critical: 誤解が金銭・秘密・公開の取り返しのつかない結果につながる"
+        },
+        {
+          "item": "鍵の扱いの注意",
+          "why": "safety-critical: 誤解が金銭・秘密・公開の取り返しのつかない結果につながる"
+        }
+      ],
+      "drop": [],
+      "transform": [
+        {
+          "item": "画面説明文 (70 字)",
+          "to": "40 字以下へ短縮",
+          "why": "A10 の上限。全画面で最長タイ"
+        }
+      ],
+      "baseline": {
+        "source": "src/app/admin/settings/integration-access/page.tsx",
+        "lines": 145,
+        "lead_chars": 70,
+        "always_visible_callouts": 1,
+        "cards": 2,
+        "forms": 0
+      }
+    },
+    {
+      "route": "/admin/settings/llm",
+      "primary_task": "生成 AI の API キーを登録・確認・失効する",
+      "task_frequency": "low",
+      "failure_cost": "high",
+      "keep": [
+        {
+          "item": "「登録した値はこの先どこにも表示しません」",
+          "why": "safety-critical: 誤解が金銭・秘密・公開の取り返しのつかない結果につながる (再確認できない前提で控えを取らせる)"
+        },
+        {
+          "item": "登録フォーム",
+          "why": "画面の全て"
+        }
+      ],
+      "drop": [],
+      "transform": [],
+      "baseline": {
+        "source": "src/app/admin/settings/llm/page.tsx",
+        "lines": 202,
+        "lead_chars": 56,
+        "always_visible_callouts": 3,
+        "cards": 3,
+        "forms": 0
+      }
+    },
+    {
+      "route": "/admin/settings/members",
+      "primary_task": "誰が何を担当しているかを見る",
+      "task_frequency": "low",
+      "failure_cost": "medium",
+      "keep": [
+        {
+          "item": "担当者と役割",
+          "why": "見る対象そのもの"
+        }
+      ],
+      "drop": [
+        {
+          "item": "役割ごとにできることの表",
+          "why": "隣の画面が持つ",
+          "method": "remove"
+        }
+      ],
+      "transform": [],
+      "baseline": {
+        "source": "src/app/admin/settings/members/page.tsx",
+        "lines": 92,
+        "lead_chars": 12,
+        "always_visible_callouts": 1,
+        "cards": 0,
+        "forms": 0
+      }
+    },
+    {
+      "route": "/admin/settings/roles",
+      "primary_task": "役割で許される操作を確かめる",
+      "task_frequency": "low",
+      "failure_cost": "medium",
+      "keep": [
+        {
+          "item": "役割と操作の対応",
+          "why": "確かめる対象そのもの"
+        }
+      ],
+      "drop": [
+        {
+          "item": "担当者の一覧",
+          "why": "隣の画面が持つ",
+          "method": "remove"
+        }
+      ],
+      "transform": [],
+      "baseline": {
+        "source": "src/app/admin/settings/roles/page.tsx",
+        "lines": 68,
+        "lead_chars": 13,
+        "always_visible_callouts": 0,
+        "cards": 0,
+        "forms": 0
+      }
+    },
+    {
+      "route": "/admin/settings/seo",
+      "primary_task": "SEO/AI 指針の出典を登録し、90 日超を再確認する",
+      "task_frequency": "low",
+      "failure_cost": "medium",
+      "keep": [
+        {
+          "item": "出典一覧と 90 日超の「再確認」表示",
+          "why": "確認日の鮮度を見に来る画面で、これが目的そのもの"
+        }
+      ],
+      "drop": [],
+      "transform": [],
+      "baseline": {
+        "source": "src/app/admin/settings/seo/page.tsx",
+        "lines": 187,
+        "lead_chars": 16,
+        "always_visible_callouts": 0,
+        "cards": 0,
+        "forms": 2
+      }
+    },
+    {
+      "route": "/admin/settings/workspaces",
+      "primary_task": "この作業場所の契約と表示を確かめる",
+      "task_frequency": "low",
+      "failure_cost": "medium",
+      "keep": [
+        {
+          "item": "契約と上限",
+          "why": "止まったときに最初に見る場所"
+        },
+        {
+          "item": "広告表記の文",
+          "why": "公開面に出る文。誤りは外に出る"
+        }
+      ],
+      "drop": [
+        {
+          "item": "担当者の一覧",
+          "why": "隣の画面が持つ",
+          "method": "remove"
+        },
+        {
+          "item": "役割ごとの権限表",
+          "why": "隣の画面が持つ",
+          "method": "remove"
+        }
+      ],
+      "transform": [],
+      "baseline": {
+        "source": "src/app/admin/settings/workspaces/page.tsx",
+        "lines": 221,
+        "lead_chars": 16,
+        "always_visible_callouts": 1,
+        "cards": 0,
+        "forms": 0
+      }
+    },
+    {
+      "route": "/admin/sites",
+      "primary_task": "運用中のブログを選ぶ / 新しく作る",
+      "task_frequency": "medium",
+      "failure_cost": "low",
+      "keep": [
+        {
+          "item": "ブログの一覧と状態",
+          "why": "選ぶための情報"
+        },
+        {
+          "item": "新規作成の入口",
+          "why": "主要タスクの片方"
+        }
+      ],
+      "drop": [
+        {
+          "item": "「増やすときに書き足すのは設定値だけ」の説明",
+          "why": "作る画面で言えば足りる",
+          "method": "remove"
+        },
+        {
+          "item": "構成方針の Callout 3 件",
+          "why": "運用者は毎回読まない",
+          "method": "collapse"
+        }
+      ],
+      "transform": [],
+      "baseline": {
+        "source": "src/app/admin/sites/page.tsx",
+        "lines": 179,
+        "lead_chars": 51,
+        "always_visible_callouts": 4,
+        "cards": 3,
+        "forms": 0
+      }
+    },
+    {
+      "route": "/admin/sites/[site]",
+      "primary_task": "1 ブログの設計図を確かめ、運用を続けるか判断する",
+      "task_frequency": "medium",
+      "failure_cost": "medium",
+      "keep": [
+        {
+          "item": "このブログの位置づけ",
+          "why": "他ブログとの違いの中心"
+        },
+        {
+          "item": "10 個の観点の違い",
+          "why": "コンセプト別文章作成 (A5) の判断材料"
+        }
+      ],
+      "drop": [
+        {
+          "item": "出す画面の一覧",
+          "why": "確認頻度が低い",
+          "method": "collapse"
+        }
+      ],
+      "transform": [],
+      "add": [
+        {
+          "item": "編集・削除",
+          "why": "A2: ブログの編集・削除が存在しない"
+        }
+      ],
+      "baseline": {
+        "source": "src/app/admin/sites/[site]/page.tsx",
+        "lines": 203,
+        "lead_chars": 40,
+        "always_visible_callouts": 3,
+        "cards": 4,
+        "forms": 0
+      }
+    },
+    {
+      "route": "/admin/sites/[site]/edit",
+      "primary_task": "ブログの設計図を直す",
+      "task_frequency": "low",
+      "failure_cost": "medium",
+      "keep": [
+        {
+          "item": "他のブログと違う点",
+          "why": "設計図が持つのはここだけ。共通部分は直す対象ではない"
+        }
+      ],
+      "drop": [
+        {
+          "item": "記事の一覧",
+          "why": "詳細画面が持つ",
+          "method": "remove"
+        },
+        {
+          "item": "取り下げる操作",
+          "why": "直しに来て消えると取り返しがつかない",
+          "method": "remove"
+        }
+      ],
+      "transform": [],
+      "baseline": {
+        "source": "src/app/admin/sites/[site]/edit/page.tsx",
+        "lines": 66,
+        "lead_chars": 17,
+        "always_visible_callouts": 0,
+        "cards": 0,
+        "forms": 0
+      }
+    },
+    {
+      "route": "/admin/sites/new",
+      "primary_task": "ブログを 1 本作る",
+      "task_frequency": "low",
+      "failure_cost": "medium",
+      "keep": [
+        {
+          "item": "13 の質問",
+          "why": "画面の全て"
+        },
+        {
+          "item": "作られるものの説明",
+          "why": "作る前に結果を知る必要がある"
+        }
+      ],
+      "drop": [],
+      "transform": [],
+      "note": "33 画面で唯一のフォーム。A7 の scaffold の起点であり、他の作成画面の形の手本になる",
+      "baseline": {
+        "source": "src/app/admin/sites/new/page.tsx",
+        "lines": 187,
+        "lead_chars": 58,
+        "always_visible_callouts": 1,
+        "cards": 4,
+        "forms": 1
+      }
+    },
+    {
+      "route": "/admin/tools",
+      "primary_task": "AI から使える道具を調べる (参照専用)",
+      "task_frequency": "low",
+      "failure_cost": "low",
+      "keep": [
+        {
+          "item": "道具の一覧",
+          "why": "画面の全て"
+        }
+      ],
+      "drop": [
+        {
+          "item": "4 つの入口が同じ処理を呼ぶ旨の説明",
+          "why": "設計方針。仕様書が持つ",
+          "method": "collapse"
+        }
+      ],
+      "transform": [
+        {
+          "item": "画面説明文 (64 字)",
+          "to": "40 字以下",
+          "why": "A10 の上限"
+        }
+      ],
+      "baseline": {
+        "source": "src/app/admin/tools/page.tsx",
+        "lines": 174,
+        "lead_chars": 64,
+        "always_visible_callouts": 1,
+        "cards": 4,
+        "forms": 0
+      }
+    },
+    {
+      "route": "/admin/ui-catalog",
+      "primary_task": "使える部品を探す (参照専用・見本帳)",
+      "task_frequency": "low",
+      "failure_cost": "low",
+      "keep": [
+        {
+          "item": "全部品の見本",
+          "why": "見本帳という用途上、全件が同時に見えることに意味がある"
+        }
+      ],
+      "drop": [],
+      "transform": [],
+      "exempt_from": [
+        "callout_max",
+        "card_max",
+        "line_max"
+      ],
+      "note": "700 行・22 カードで全画面最大だが、用途が「一覧できること」自体。A8/A10 の数値目標から除外する",
+      "baseline": {
+        "source": "src/app/admin/ui-catalog/page.tsx",
+        "lines": 700,
+        "lead_chars": 48,
+        "always_visible_callouts": 2,
+        "cards": 22,
+        "forms": 0
+      }
+    },
+    {
+      "route": "/admin/writing",
+      "primary_task": "書き方の決めごとを調べる (参照専用)",
+      "task_frequency": "low",
+      "failure_cost": "low",
+      "keep": [
+        {
+          "item": "記事の型ごとの節の並び",
+          "why": "最も参照される項目"
+        }
+      ],
+      "drop": [
+        {
+          "item": "文体の決まり・事実の書き分け・説明の深さの本文",
+          "why": "調べに来た 1 項目だけ開けば足りる",
+          "method": "collapse"
+        }
+      ],
+      "transform": [
+        {
+          "item": "7 節の並び",
+          "to": "見出しの一覧 + 展開",
+          "why": "全 7 節を開いた状態で置くと 237 行を上から読むことになる"
+        }
+      ],
+      "baseline": {
+        "source": "src/app/admin/writing/page.tsx",
+        "lines": 237,
+        "lead_chars": 45,
+        "always_visible_callouts": 2,
+        "cards": 7,
+        "forms": 0
+      }
+    }
+  ],
+  "current_measurement": {
+    "where": "tests/ui/uiux-spacing-and-copy.test.ts",
+    "how": "画面を毎回走査して lead の字数と常時表示 Callout の個数を数え、上限超過を 0 件として突き合わせる",
+    "why_no_numbers": "ここに『今の値』を手で書かない。2026-08-22 に current_totals があり、screens_over_lead_limit: 21 / screens_over_callout_limit: 14 と書いてあったが、これは baseline (P01 / 32 画面) の写しで、実測は 0 件だった。手で書いた集計値は、検査が測り直す値と必ずずれる。ずれても誰も気づかないのは、その値がどこからも読まれていないから (ah-1kz)。",
+    "if_you_need_a_number": "検査を走らせてその出力を引く。文書へ書き写すときは測った日と実行したコマンドを併記する。"
+  }
+}

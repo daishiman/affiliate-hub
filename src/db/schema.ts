@@ -15,6 +15,11 @@ import {
   type PublicationState,
 } from "@/domain/distribution";
 import {
+  POLICY_CHANNEL_SCOPES,
+  POLICY_DOMAIN_SCOPES,
+  POLICY_SEVERITIES,
+} from "@/domain/compliance";
+import {
   COMPLIANCE_STATUSES,
   CONTENT_ANGLES,
   CONTENT_STATES,
@@ -212,23 +217,98 @@ export const people = sqliteTable("people", {
  * 記事・AI 回答・WebMCP の 3 経路が同じ 1 行を参照する。
  * 経路ごとに文言を書くと §28 の「広告関係が 3 経路で一貫する」が破れる。
  */
-export const disclosures = sqliteTable("disclosures", {
-  id: text("id").primaryKey(),
-  relationshipType: text("relationship_type", {
-    enum: ["affiliate", "sponsored", "supplied", "loaned", "purchased"],
-  }).notNull(),
-  advertiserOrSupplier: text("advertiser_or_supplier"),
-  editorialInfluence: text("editorial_influence", {
-    enum: ["none", "limited", "declared"],
-  })
-    .notNull()
-    .default("none"),
-  // 読者に実際に表示する文言。§17.1 が要求する「判別できる表現」。
-  visibleMessage: text("visible_message").notNull(),
-  createdAt: integer("created_at", { mode: "timestamp" })
-    .notNull()
-    .default(sql`(unixepoch())`),
-});
+export const disclosures = sqliteTable(
+  "disclosures",
+  {
+    id: text("id").primaryKey(),
+    /**
+     * どの作業場所の表記か。**列として持つ。**
+     *
+     * 足す前は列が無く、行は作業場所をまたいで 1 つの海に浮かんでいた。
+     * 表記は法令の要る表示なので、**別の作業場所の表記が自分の記事に出る**のは
+     * 「表示が無い」のと同じくらい悪い（出典の違う断りが読者に出る）。
+     * 読み口（`DisclosureRepositoryPort.list`）は作業場所を必ず受け取るので、
+     * 列が無いままでは絞りようがなかった。
+     */
+    workspaceId: text("workspace_id").notNull(),
+    relationshipType: text("relationship_type", {
+      // `paid_partnership` は domain の `RelationshipType` にあって表に無かった。
+      // 語彙が片側だけ広いと、選べるのに保存できない関係が生まれる。
+      enum: ["affiliate", "sponsored", "supplied", "loaned", "purchased", "paid_partnership"],
+    }).notNull(),
+    advertiserOrSupplier: text("advertiser_or_supplier"),
+    editorialInfluence: text("editorial_influence", {
+      enum: ["none", "limited", "declared"],
+    })
+      .notNull()
+      .default("none"),
+    /**
+     * 本文の作成に AI を使ったか（§20.1）。**列として持つ。**
+     * 表示文（`visible_message`）から読み取らない。文は言い回しが変わりうるので、
+     * 文字列を検索して判定する形にすると、言い回しを直した日に印が消える。
+     */
+    aiAssisted: integer("ai_assisted", { mode: "boolean" }).notNull().default(false),
+    // 読者に実際に表示する文言。§17.1 が要求する「判別できる表現」。
+    visibleMessage: text("visible_message").notNull(),
+    createdAt: integer("created_at", { mode: "timestamp" })
+      .notNull()
+      .default(sql`(unixepoch())`),
+    /**
+     * 最後に変えた時刻。**表記の変更は監査の対象**（§26 の必須記録 3 つ目）なので、
+     * 「いつからその表記だったか」が行の側からも言えるようにしておく。
+     * 誰が変えたかは `audit_logs` にある（ここへ写すと正本が 2 つになる）。
+     */
+    updatedAt: integer("updated_at", { mode: "timestamp" }).notNull(),
+  },
+  (t) => [index("disclosures_workspace_idx").on(t.workspaceId)],
+);
+
+/**
+ * 表現ポリシー（§20 / §26）。
+ *
+ * --- なぜ表が要るか ---
+ * きまりは `policy-rule-seed.ts` の初期 13 件が正本だったが、**読むだけだった**。
+ * 法令も規約も改定されるうえ、扱う分野は作業場所ごとに違う。
+ * 追加も無効化もできない状態は、「効いていないきまりを外せない」ことと
+ * 「新しい規制に追いつけない」ことを同時に意味する。
+ *
+ * --- 初期ルールをこの表へ流し込まない ---
+ * 作業場所を作った時点で 13 行を書き込む形にはしていない。そうすると、
+ * 初期ルールを直したときに**既に作られた作業場所だけが古いまま**残り、
+ * どの作業場所がどの版のきまりで確認されたのかが誰にも言えなくなる。
+ * この表が持つのは**初期ルールからの差分**（無効化と、上書きと、足したもの）で、
+ * 触っていないきまりは `buildSeedPolicyRules()` 側が正本のまま返る。
+ * 詳しくは `src/infrastructure/persistence/d1/policy-rule-repository.ts`。
+ *
+ * 規範: docs/product/traceability.md REQ-SEC07 / REQ-QC11
+ */
+export const policyRules = sqliteTable(
+  "policy_rules",
+  {
+    id: text("id").primaryKey(),
+    workspaceId: text("workspace_id").notNull(),
+    name: text("name").notNull(),
+    // 語彙は domain の配列がそのまま正本。ここで並べ直さない。
+    domainScope: text("domain_scope", { enum: POLICY_DOMAIN_SCOPES }).notNull(),
+    channelScope: text("channel_scope", { enum: POLICY_CHANNEL_SCOPES }).notNull(),
+    severity: text("severity", { enum: POLICY_SEVERITIES }).notNull(),
+    /** 検出する表現。正規表現の文字列。壊れた式は登録の時点で断る（domain 側）。 */
+    pattern: text("pattern").notNull(),
+    ignoreCase: integer("ignore_case", { mode: "boolean" }).notNull().default(true),
+    /** 根拠。**空では保存できない**（domain 側が断る）。理由の書けないきまりは運用されない。 */
+    basis: text("basis").notNull(),
+    /** 代わりの書き方。禁止だけ示すと執筆が止まる。 */
+    suggestion: text("suggestion").notNull(),
+    enabled: integer("enabled", { mode: "boolean" }).notNull().default(true),
+    updatedAt: integer("updated_at", { mode: "timestamp" })
+      .notNull()
+      .default(sql`(unixepoch())`),
+  },
+  (t) => [
+    // 記事を 1 本確認するたびに引く索引。無いと全件走査になる。
+    index("policy_rules_workspace_enabled_idx").on(t.workspaceId, t.enabled),
+  ],
+);
 
 /**
  * 商品。Phase 1 では最小限に留める。
@@ -438,9 +518,8 @@ export const updateLogs = sqliteTable(
  * （`tests/integration/d1-link-inbox.test.ts`）。
  * 索引は重複相手を引くために残す。一意にはしない。
  *
- * 同時に 2 人が同じ URL を入れたときは、どちらも重複の印が付かないまま
- * 2 行入る。受信箱は重複を持てる作りなので、これは表示上の取りこぼしであって
- * データの破損ではない。残課題として記録してある。
+ * 同時に 2 人が同じ URL を入れたときにどちらへ印を付けるかは、
+ * この表ではなく次の `link_ingestion_url_claims` が決める。
  */
 export const linkIngestions = sqliteTable(
   "link_ingestions",
@@ -468,6 +547,39 @@ export const linkIngestions = sqliteTable(
     index("link_ingestions_workspace_state_idx").on(t.workspaceId, t.state),
     index("link_ingestions_workspace_normalized_url_idx").on(t.workspaceId, t.normalizedUrl),
   ],
+);
+
+/**
+ * 「その URL を最初に受け取ったのは誰か」の取り合い（§9.2 の重複判定）。
+ *
+ * **なぜ受信箱の外に置くのか。**
+ * 重複の印を付けるには「自分より先に同じ URL があったか」を知る必要があるが、
+ * 先に読んでから書く形（SELECT してから INSERT）では、2 人が同時に貼ったときに
+ * 両方が「無い」を見て、どちらにも印が付かないまま 2 行入る。
+ * かといって `link_ingestions.normalized_url` を一意にすると、
+ * 2 回目の貼り付けが**やり直しても永久に通らない失敗**に戻ってしまう
+ * （それを避けるために一意制約を落とした経緯が上のコメント）。
+ *
+ * そこで、**受け取りは今までどおり全部通したまま**、
+ * 「最初の 1 本」だけをこの表の主キー（作業場所 + 正規化 URL）で取り合わせる。
+ * 取れなければ相手の `link_ingestion_id` が返り、それが `duplicate_of` になる。
+ * 主キーは 1 行しか許さないので、同時に来ても勝つのは必ず 1 本だけになる。
+ *
+ * 対象外にした（`rejected`）ときは、この行を消して取り合いから降りる。
+ * 降ろさないと、捨てたリンクを相手に指した「重複」が延々と出続ける。
+ */
+export const linkIngestionUrlClaims = sqliteTable(
+  "link_ingestion_url_claims",
+  {
+    workspaceId: text("workspace_id").notNull(),
+    normalizedUrl: text("normalized_url").notNull(),
+    /** 取り合いに勝った受信リンク。重複の印はここを指す。 */
+    linkIngestionId: text("link_ingestion_id").notNull(),
+    claimedAt: integer("claimed_at", { mode: "timestamp" })
+      .notNull()
+      .default(sql`(unixepoch())`),
+  },
+  (t) => [primaryKey({ columns: [t.workspaceId, t.normalizedUrl] })],
 );
 
 /**
@@ -799,11 +911,28 @@ export const auditLogs = sqliteTable(
     afterJson: text("after_json"),
     /** なぜその操作をしたか。承認・取り下げ・訂正では必須（domain 側で断る）。 */
     reason: text("reason"),
+    /**
+     * その操作が入ってきた**一回の要求**を指す名前。
+     *
+     * **断りの記録（`access.*`）では必ず入る**（domain 側が空を断る）。
+     * 通した操作では入らない回がある（定期実行など、要求の外で起きたもの）。
+     *
+     * 既存の行は `null` になる。この列を足す前に書かれた行は、
+     * 断りを 1 行も持っていない（語そのものが無かった）ので、
+     * 「断りなのに糸が無い行」は生まれない。
+     */
+    requestId: text("request_id"),
     occurredAt: integer("occurred_at", { mode: "timestamp" }).notNull(),
   },
   (t) => [
     // 「この記事に何が起きたか」を引く索引。無いと全件走査になる。
     index("audit_logs_workspace_target_idx").on(t.workspaceId, t.targetType, t.targetId),
+    /*
+     * 「同じ一回の要求で、ほかに何が断られたか」を引く索引。
+     * 断りは 1 件では読めない。総当たりは 1 回の要求の中で何十件も断られ、
+     * 役の付け忘れは 1 件で終わる。糸で引けないと、この差が一覧から読めない。
+     */
+    index("audit_logs_workspace_request_idx").on(t.workspaceId, t.requestId),
     index("audit_logs_workspace_occurred_idx").on(t.workspaceId, t.occurredAt),
     index("audit_logs_workspace_action_occurred_idx").on(t.workspaceId, t.action, t.occurredAt),
   ],
@@ -1025,6 +1154,72 @@ export const contentVariants = sqliteTable(
 );
 
 /**
+ * 運営者が管理する商品（比較表と順位表の入力）。
+ *
+ * **読者ドメインの `products` とは別の表である。** 名前が似ているのは
+ * 同じものを指しているからではない。あちらは読者ページに出す商品の見出し
+ * （slug・カテゴリー・型番）で、カテゴリーへの外部キーを必須にしている。
+ * こちらは編集側の入力で、比較表の列になる仕様と、その出どころ
+ * （どこに書いてあった値か・いつ確かめたか・どこまで信じてよいか）を持つ。
+ *
+ * 1 つの表にまとめると、読者ページに出す前の商品を登録できなくなるか、
+ * カテゴリーの無い行を読者ページが拾ってしまうかのどちらかになる。
+ *
+ * `specifications` と `identity_keys` を JSON にしているのは、
+ * **列が分野ごとに違うため。** ノートパソコンの「重さ」と洗剤の「容量」を
+ * 同じ列に並べる方法は無く、分野ごとに表を足すと分野を 1 つ増やすたびに
+ * マイグレーションが要る。揃っているかどうかは比較のときに見る
+ * （`compare_products` が「全商品で値が揃っている項目だけを列にする」）。
+ */
+export const catalogProducts = sqliteTable(
+  "catalog_products",
+  {
+    id: text("id").primaryKey(),
+    workspaceId: text("workspace_id").notNull(),
+    brand: text("brand").notNull(),
+    name: text("name").notNull(),
+    manufacturer: text("manufacturer"),
+    /**
+     * 分野。読者ドメインの `categories` へは**つながない。**
+     * 読者ページに出していない分野の商品も登録できる必要があるため。
+     */
+    categoryId: text("category_id"),
+    /** 同一性の鍵。正本は domain/product/product-identity.ts の `IDENTITY_KEY_PRIORITY`。 */
+    identityKeys: text("identity_keys", { mode: "json" })
+      .$type<{ kind: string; value: string }[]>()
+      .notNull(),
+    description: text("description"),
+    specifications: text("specifications", { mode: "json" })
+      .$type<Record<string, string | number>>()
+      .notNull(),
+    imageAssetIds: text("image_asset_ids", { mode: "json" }).$type<string[]>().notNull(),
+    releaseDate: integer("release_date", { mode: "timestamp" }),
+    discontinuedAt: integer("discontinued_at", { mode: "timestamp" }),
+    officialUrl: text("official_url"),
+    officialSourceIds: text("official_source_ids", { mode: "json" }).$type<string[]>().notNull(),
+    /**
+     * 出どころ。**列に開いて持つ。**
+     *
+     * JSON 1 本にまとめると「取得日時が古い商品」を問い合わせで拾えない。
+     * 仕様の値が古くなっているかどうかは運用の中心の問いなので、
+     * ここだけは分野に依らず形が決まっている。
+     */
+    provenanceSourceType: text("provenance_source_type").notNull(),
+    provenanceSourceName: text("provenance_source_name").notNull(),
+    provenanceSourceUrl: text("provenance_source_url"),
+    provenanceRetrievedAt: integer("provenance_retrieved_at", { mode: "timestamp" }).notNull(),
+    provenanceValidUntil: integer("provenance_valid_until", { mode: "timestamp" }),
+    provenanceConfidence: real("provenance_confidence").notNull(),
+    provenancePermittedUsage: text("provenance_permitted_usage").notNull(),
+  },
+  (t) => [
+    index("catalog_products_workspace_idx").on(t.workspaceId, t.name),
+    index("catalog_products_workspace_category_idx").on(t.workspaceId, t.categoryId),
+    index("catalog_products_stale_idx").on(t.workspaceId, t.provenanceRetrievedAt),
+  ],
+);
+
+/**
  * 生成 AI の鍵。**列に平文は入らない。**
  *
  * 値は `sealed_key`（AES-GCM で包んだ 1 本の文字列）だけが持ち、
@@ -1087,6 +1282,64 @@ export const llmUsages = sqliteTable(
   (t) => [
     index("llm_usages_workspace_occurred_idx").on(t.workspaceId, t.occurredAt),
     index("llm_usages_workspace_provider_idx").on(t.workspaceId, t.providerId, t.occurredAt),
+  ],
+);
+
+/**
+ * 成果リンク（ASP が発行した URL）の保存先。
+ *
+ * **記事の版（`content_variants.affiliate_link_ids`）が指している先がここ。**
+ * 版は ID の列しか持たないので、この表が無いと、公開のときに
+ * 「どの商品の、どこへ行く、何という名前のリンクか」が 1 つも分からない。
+ * その状態では記事に成果リンクを 1 件も載せられない（残課題 58）。
+ *
+ * **`original_url` は ASP が発行した URL そのもの。** 加工して保存する列は置かない。
+ * 印を足した URL は多くの ASP で規約違反になり、成果そのものが計上されなくなる。
+ * 入れる前に https であることを確かめる（`createAffiliateLink`）。
+ * 差し替えるときは上書きせず新しい行を作る（`disabled_at` を入れて止める）。
+ *
+ * --- なぜ商品名をここに持つのか ---
+ * 商品の表（`products`）は、**作る入口がまだ無いので空**である。そこを引くと、
+ * 実運用では名前が引けず、リンクだけのカードになる。ASP でリンクを発行した
+ * 時点では商品名が分かっているので、**そのときの名前をここへ写す**。
+ * 写しなので古くなりうる。古くなったら行を作り直す（URL と同じ扱い）。
+ *
+ * **報酬額はここに置かない。** 記事の組み立てはこの表を読むので、
+ * 置いた時点で「よく売れる商品を上に出す」実装が書ける形になる
+ * （Editorial / Commercial の遮断。`tests/architecture/commercial-isolation.test.ts`）。
+ *
+ * 規範: docs/spec/01-要求仕様書-v1.0.md §19.2 / REQ-E13、tasks/task-publish-article-affiliate-links.md
+ */
+export const affiliateLinks = sqliteTable(
+  "affiliate_links",
+  {
+    id: text("id").primaryKey(),
+    workspaceId: text("workspace_id").notNull(),
+    programId: text("program_id").notNull(),
+    /** どの商品のリンクか。商品に結びついていないリンクもある。 */
+    productId: text("product_id"),
+    /** 発行したときの商品名。読者のカードにそのまま出る。 */
+    productName: text("product_name").notNull(),
+    /** 作り手・ブランド。分からないときは空にせず未設定（null）にする。 */
+    brand: text("brand"),
+    /** 1 文の説明。カードの見出しの下に出る。 */
+    oneLine: text("one_line"),
+    /** ASP が発行した URL。**1 文字も変えずに入れ、1 文字も変えずに出す。** */
+    originalUrl: text("original_url").notNull(),
+    alterationProhibited: integer("alteration_prohibited", { mode: "boolean" })
+      .notNull()
+      .default(true),
+    /** 内部の計測用識別子。URL には足さない。 */
+    trackingRef: text("tracking_ref").notNull(),
+    createdAt: integer("created_at", { mode: "timestamp" })
+      .notNull()
+      .default(sql`(unixepoch())`),
+    expiresAt: integer("expires_at", { mode: "timestamp" }),
+    disabledAt: integer("disabled_at", { mode: "timestamp" }),
+  },
+  (t) => [
+    index("affiliate_links_workspace_idx").on(t.workspaceId),
+    index("affiliate_links_workspace_product_idx").on(t.workspaceId, t.productId),
   ],
 );
 
@@ -1352,8 +1605,10 @@ export type WorkspaceRow = typeof workspaces.$inferSelect;
 export type MembershipRow = typeof memberships.$inferSelect;
 export type SigninDenialRow = typeof signinDenials.$inferSelect;
 export type Asp = typeof asps.$inferSelect;
+export type AffiliateLinkRow = typeof affiliateLinks.$inferSelect;
 export type RedirectResolutionRow = typeof redirectResolutions.$inferSelect;
 export type ContentVariantRow = typeof contentVariants.$inferSelect;
+export type CatalogProductRow = typeof catalogProducts.$inferSelect;
 export type ChannelConnectionRow = typeof channelConnections.$inferSelect;
 export type PublicationRow = typeof publications.$inferSelect;
 export type SessionRow = typeof sessions.$inferSelect;
@@ -1361,6 +1616,7 @@ export type Program = typeof programs.$inferSelect;
 export type Conversion = typeof conversions.$inferSelect;
 export type AffiliateConversionRow = typeof affiliateConversions.$inferSelect;
 export type LinkIngestionRow = typeof linkIngestions.$inferSelect;
+export type LinkIngestionUrlClaimRow = typeof linkIngestionUrlClaims.$inferSelect;
 export type FeedbackReportRow = typeof feedbackReports.$inferSelect;
 export type IntegrationKeyRow = typeof integrationKeys.$inferSelect;
 export type IntegrationKeyUsageRow = typeof integrationKeyUsages.$inferSelect;
@@ -1369,6 +1625,8 @@ export type SiteBlueprintRow = typeof siteBlueprints.$inferSelect;
 export type PublishedArticleRow = typeof publishedArticles.$inferSelect;
 export type TelemetryEventRow = typeof telemetryEvents.$inferSelect;
 export type AuditLogRow = typeof auditLogs.$inferSelect;
+export type PolicyRuleRow = typeof policyRules.$inferSelect;
+export type DisclosureRow = typeof disclosures.$inferSelect;
 export type LlmCredentialRow = typeof llmCredentials.$inferSelect;
 export type LlmUsageRow = typeof llmUsages.$inferSelect;
 export type VariantSpecRow = typeof variantSpecs.$inferSelect;
@@ -1378,7 +1636,6 @@ export type LoopObservationRow = typeof loopObservations.$inferSelect;
 // 読者ドメイン
 export type Category = typeof categories.$inferSelect;
 export type Person = typeof people.$inferSelect;
-export type Disclosure = typeof disclosures.$inferSelect;
 export type Product = typeof products.$inferSelect;
 export type Article = typeof articles.$inferSelect;
 export type ArticlePerson = typeof articlePeople.$inferSelect;
@@ -1386,6 +1643,137 @@ export type ArticleProduct = typeof articleProducts.$inferSelect;
 export type ConversationBlock = typeof conversationBlocks.$inferSelect;
 export type Faq = typeof faqs.$inferSelect;
 export type UpdateLog = typeof updateLogs.$inferSelect;
+
+
+// ---------------------------------------------------------------------------
+// ブログ UI ビルダー (feat-blog-ui-builder)
+// ---------------------------------------------------------------------------
+
+/**
+ * ブログごとのテンプレート選択。
+ *
+ * テンプレートは**並び方だけ**を決める（`src/domain/authoring/blog-template.ts`）。
+ * 記事の中身はテンプレートを知らないので、この行を書き換えても記事は壊れない。
+ */
+export const blogTemplateSelections = sqliteTable(
+  "blog_template",
+  {
+    id: text("id").primaryKey(),
+    workspaceId: text("workspace_id").notNull(),
+    siteSlug: text("site_slug").notNull(),
+    templateId: text("template_id").notNull(),
+    updatedAt: integer("updated_at", { mode: "timestamp" })
+      .notNull()
+      .default(sql`(unixepoch())`),
+  },
+  (t) => [uniqueIndex("blog_template_site_idx").on(t.siteSlug)],
+);
+
+/**
+ * ブログ既定の配色。値は `tokens.css` の `light-dark()` を選ぶ data 属性の
+ * 名前であって、色そのものではない（decision-ui-theme-implementation）。
+ */
+export const blogThemes = sqliteTable(
+  "blog_theme",
+  {
+    id: text("id").primaryKey(),
+    siteSlug: text("site_slug").notNull(),
+    brandTheme: text("brand_theme").notNull(),
+    colorMode: text("color_mode", { enum: ["auto", "light", "dark"] })
+      .notNull()
+      .default("auto"),
+  },
+  (t) => [uniqueIndex("blog_theme_site_idx").on(t.siteSlug)],
+);
+
+/**
+ * ページ単位の配色上書き。行を消すとブログ既定へ戻る（受入条件 2）。
+ * 「上書きが無い」状態を NULL 値でなく行の不在で表す。
+ */
+export const pageThemeOverrides = sqliteTable(
+  "page_theme_override",
+  {
+    id: text("id").primaryKey(),
+    siteSlug: text("site_slug").notNull(),
+    pagePath: text("page_path").notNull(),
+    brandTheme: text("brand_theme"),
+    colorMode: text("color_mode", { enum: ["auto", "light", "dark"] }),
+  },
+  (t) => [uniqueIndex("page_theme_override_site_page_idx").on(t.siteSlug, t.pagePath)],
+);
+
+/**
+ * 法定ページ 6 種（運営者情報・全カテゴリー・サイトポリシー・
+ * プライバシーポリシー・特商法表記・お問い合わせ）。
+ * 1 ブログにつき各 1 枚。無いことは「未整備」であって既定文を出さない。
+ */
+export const legalPages = sqliteTable(
+  "legal_page",
+  {
+    id: text("id").primaryKey(),
+    siteSlug: text("site_slug").notNull(),
+    kind: text("kind", {
+      enum: ["operator", "all_categories", "site_policy", "privacy_policy", "tokushoho", "contact"],
+    }).notNull(),
+    title: text("title").notNull(),
+    body: text("body").notNull(),
+    updatedAt: integer("updated_at", { mode: "timestamp" })
+      .notNull()
+      .default(sql`(unixepoch())`),
+  },
+  (t) => [uniqueIndex("legal_page_site_kind_idx").on(t.siteSlug, t.kind)],
+);
+
+/**
+ * ブログ×アフィリエイトの配置管理（どの記事のどの位置に成果リンクが在るか）。
+ * 読者向け読み取り経路はこの表を読まない（報酬情報を読者経路に混ぜない）。
+ */
+export const blogAffiliatePlacements = sqliteTable(
+  "blog_affiliate_placement",
+  {
+    id: text("id").primaryKey(),
+    workspaceId: text("workspace_id").notNull(),
+    siteSlug: text("site_slug").notNull(),
+    articleSlug: text("article_slug").notNull(),
+    placement: text("placement").notNull(),
+    trackingCode: text("tracking_code"),
+    position: integer("position").notNull().default(0),
+  },
+  (t) => [index("blog_affiliate_placement_site_article_idx").on(t.siteSlug, t.articleSlug)],
+);
+
+/**
+ * SEO/AI 検索ガイドラインの参照レジストリ。
+ *
+ * 海外・日本の出典 URL・発行元・確認日を登録し、確認日から 90 日超は
+ * 再確認対象として表示する（`src/domain/seo/guideline-reference.ts`）。
+ * 出典そのものの本文は保存しない（古くなった写しを正本に見せない）。
+ */
+export const guidelineReferences = sqliteTable(
+  "guideline_references",
+  {
+    id: text("id").primaryKey(),
+    workspaceId: text("workspace_id").notNull(),
+    title: text("title").notNull(),
+    url: text("url").notNull(),
+    publisher: text("publisher").notNull(),
+    region: text("region", { enum: ["global", "jp"] }).notNull(),
+    /** YYYY-MM-DD。90 日判定はドメイン関数が行う。 */
+    checkedAt: text("checked_at").notNull(),
+    note: text("note"),
+    createdAt: integer("created_at", { mode: "timestamp" })
+      .notNull()
+      .default(sql`(unixepoch())`),
+  },
+  (t) => [index("guideline_references_workspace_idx").on(t.workspaceId)],
+);
+
+export type BlogTemplateSelectionRow = typeof blogTemplateSelections.$inferSelect;
+export type BlogThemeRow = typeof blogThemes.$inferSelect;
+export type PageThemeOverrideRow = typeof pageThemeOverrides.$inferSelect;
+export type LegalPageRow = typeof legalPages.$inferSelect;
+export type BlogAffiliatePlacementRow = typeof blogAffiliatePlacements.$inferSelect;
+export type GuidelineReferenceRow = typeof guidelineReferences.$inferSelect;
 
 /**
  * 認証基盤（Better Auth）が使うテーブル。
