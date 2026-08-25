@@ -472,7 +472,7 @@ serves_goals: [G1, G2]
 
 | 対象 | バージョン | 公式発行元 | 出典URL | 取得 | 最新確認 |
 |---|---|---|---|---|---|
-| apple-hig | 2026-08-06 | Apple (developer.apple.com) | https://developer.apple.com/design/human-interface-guidelines | 2026-08-19T15:30:40Z | 2026-08-24T11:38:58Z |
+| apple-hig | 2026-08-24 | Apple (developer.apple.com) | https://developer.apple.com/design/human-interface-guidelines | 2026-08-25T12:13:56Z | 2026-08-25T12:13:56Z |
 
 ## 状態の意味 (State semantics)
 

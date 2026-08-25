@@ -12,6 +12,7 @@ import { describe, expect, it } from "vitest";
 import { EVAL_CASES } from "../../evals/generation/cases";
 import { AI_EVAL_BUDGET, CHECKS, LAYER_COVERAGE, TIERS } from "../../quality-gates.config.mjs";
 import strykerConfig from "../../stryker.config.mjs";
+import { createTestProjects } from "../../vitest.projects.mjs";
 
 /**
  * 自動化の設定そのものを見る。**コードを 1 行も変えずに壊れる場所**である。
@@ -651,6 +652,74 @@ describe("秘密情報の置き場所（REQ-CI07）", () => {
 });
 
 describe("重い検査の置き場所（REQ-CI09 / REQ-CI10 / REQ-CI11）", () => {
+  it("axe と workerd の検査は、通常テストのあとに 1 ファイルずつ走る", () => {
+    type Project = {
+      readonly test?: {
+        readonly name?: string | { readonly label?: string };
+        readonly include?: readonly string[];
+        readonly exclude?: readonly string[];
+        readonly fileParallelism?: boolean;
+        readonly sequence?: { readonly groupOrder?: number };
+      };
+    };
+    const projects = createTestProjects(6) as readonly Project[];
+    const nameOf = (project: Project) =>
+      typeof project.test?.name === "string" ? project.test.name : project.test?.name?.label;
+    const normal = projects.find((project) => nameOf(project) === "normal");
+    const a11y = projects.find((project) => nameOf(project) === "a11y");
+    const workerRuntime = projects.find((project) => nameOf(project) === "worker-runtime");
+
+    expect(normal, "通常テスト用 project がありません").toBeDefined();
+    expect(a11y, "axe テスト用 project がありません").toBeDefined();
+    expect(workerRuntime, "workerd 結合テスト用 project がありません").toBeDefined();
+    // 親にも include があると `extends: true` が配列を結合し、両 project で全件が走る。
+    const configSource = read("vitest.config.mts");
+    expect(configSource).toContain("projects: createTestProjects(NORMAL_MAX_WORKERS)");
+    expect(configSource).not.toMatch(/^ {4}include:/m);
+    expect(normal?.test?.include).toEqual(["tests/**/*.test.ts", "tests/**/*.test.tsx"]);
+    expect(workerRuntime?.test?.include).toEqual([
+      "tests/integration/d1-*.test.ts",
+      "tests/integration/r2-feedback-capture.test.ts",
+    ]);
+    expect(normal?.test?.exclude).toEqual(
+      expect.arrayContaining([
+        ...(a11y?.test?.include ?? []),
+        ...(workerRuntime?.test?.include ?? []),
+      ]),
+    );
+    expect(normal?.test?.sequence?.groupOrder).toBeLessThan(
+      a11y?.test?.sequence?.groupOrder ?? 0,
+    );
+    expect(a11y?.test?.sequence?.groupOrder).toBeLessThan(
+      workerRuntime?.test?.sequence?.groupOrder ?? 0,
+    );
+    expect(a11y?.test?.fileParallelism).toBe(false);
+    expect(workerRuntime?.test?.fileParallelism).toBe(false);
+
+    const a11yUsers = readdirSync(join(ROOT, "tests/ui"))
+      .filter((name) => name.endsWith(".test.ts") || name.endsWith(".test.tsx"))
+      .filter((name) =>
+        readFileSync(join(ROOT, "tests/ui", name), "utf8").includes('from "../support/a11y"'),
+      )
+      .map((name) => `tests/ui/${name}`)
+      .sort();
+    expect(a11yUsers.length, "axe の利用箇所を読めていません").toBeGreaterThan(0);
+    expect([...(a11y?.test?.include ?? [])].sort()).toEqual(a11yUsers);
+
+    // 新しい getPlatformProxy テストが通常側へ紛れたら、workerd の同時起動が再発する。
+    const integrationDir = join(ROOT, "tests/integration");
+    const proxyUsers = readdirSync(integrationDir)
+      .filter((name) => name.endsWith(".test.ts"))
+      .filter((name) => readFileSync(join(integrationDir, name), "utf8").includes("getPlatformProxy"));
+    expect(proxyUsers.length, "getPlatformProxy の利用箇所を読めていません").toBeGreaterThan(0);
+    expect(
+      proxyUsers.filter(
+        (name) => !/^d1-.+\.test\.ts$/.test(name) && name !== "r2-feedback-capture.test.ts",
+      ),
+      "直列 project の glob に入らない getPlatformProxy テストがあります",
+    ).toEqual([]);
+  });
+
   it("深い門は自動で走らない（定例を廃止した 2026-08-18 の決定）", () => {
     // 定例で走らせると、赤を消すために夜間の検査そのものが外される。
     for (const name of ["nightly.yml", "ai-eval.yml"]) {
