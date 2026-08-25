@@ -177,17 +177,35 @@ describe("確定セルの裏付け範囲は機械が読める", () => {
     expect(cells.length).toBeGreaterThanOrEqual(CONFIRMED_CELL_COUNT);
     expect(cells.length).toBe(CONFIRMED_CELL_COUNT);
 
+    // **【2026-08-25 追記】裏付けを `qa_ref` 1 件に閉じて見ていた。**
+    //
+    // 2026-08-21 に `qa_refs[]` が入り、セルの裏付けは**複数 entry に跨る**ようになった。
+    // ところがここは筆頭の `qa_ref` だけを見ていたので、新しい質疑（`*-blog-builder` /
+    // `*-seo-ai-search-v2`）が筆頭に立った 3 セルが「被覆漏れ」として赤くなった。
+    // **実際には裏付けは 1 つも失われていない**——論点注記は `qa_refs[]` に残っている
+    // `*-spec-intake` 側に在り、新しい entry は節を持たない単一論点（`### ` 0 件）で、
+    // そもそも「どの節がどのセルか」を書き分ける必要が無い。
+    //
+    // **質疑を足すと赤くなる検査は、質疑を足さない圧力になる。**
+    // 見る先を、セルが実際に指している範囲（`qaRefs`）へ合わせる。
     const byId = new Map(qa_log.map((entry) => [entry.id, entry]));
-    const uncovered = cells.filter((cell) => {
-      const entry = byId.get(cell.qaRef);
-      const topics = entry?.scope_notes?.topics ?? [];
-      return !topics.some(
-        (topic) =>
-          topic.covers_cell?.category === cell.category &&
-          topic.covers_cell?.platform === cell.platform,
-      );
-    });
+    const uncovered = cells.filter(
+      (cell) =>
+        !cell.qaRefs.some((ref) =>
+          (byId.get(ref)?.scope_notes?.topics ?? []).some(
+            (topic) =>
+              topic.covers_cell?.category === cell.category &&
+              topic.covers_cell?.platform === cell.platform,
+          ),
+        ),
+    );
     expect(uncovered).toStrictEqual([]);
+
+    // 見る先を広げた分、**空振りで緑になる余地**も広がる。指し先が実在することを別に見る。
+    const danglingRefs = cells.flatMap((cell) =>
+      cell.qaRefs.filter((ref) => !byId.has(ref)).map((ref) => `${cell.category}/${cell.platform} → ${ref}`),
+    );
+    expect(danglingRefs).toStrictEqual([]);
   });
 
   it("注記は正規 writer を通っており、逐語 span が origin の本文に 1 箇所だけある", () => {
@@ -292,7 +310,11 @@ describe("確定セルの裏付け範囲は機械が読める", () => {
       .map((entry) => entry.id);
     expect(multiSection.length).toBeLessThanOrEqual(MULTI_SECTION_CAP);
 
-    const referenced = new Set(cells.map((cell) => cell.qaRef));
+    // 2026-08-25: ここも筆頭の `qa_ref` だけを見ていた。R4-reopen で筆頭が新しい
+    // 質疑へ移ると、**まだ `qa_refs[]` から引けている entry まで「指されていない」に
+    // 数えられる**（実測 2 件、いずれも ui-ux×web の `qa_refs[]` に在る）。
+    // 見張りたいのは「どのセルからも引けなくなること」なので、範囲は `qaRefs` である。
+    const referenced = new Set(cells.flatMap((cell) => cell.qaRefs));
     const unreferenced = multiSection.filter((id) => !referenced.has(id));
     expect(unreferenced.length).toBeLessThanOrEqual(UNREFERENCED_BUNDLED_CAP);
   });

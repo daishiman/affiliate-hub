@@ -1,3 +1,4 @@
+import { availableParallelism } from "node:os";
 import { fileURLToPath } from "node:url";
 import { defineConfig } from "vitest/config";
 import { GLOBAL_COVERAGE } from "./quality-gates.config.mjs";
@@ -25,6 +26,22 @@ export default defineConfig({
       赤そのものが無視されるようになり、検査が飾りになるため。
     */
     testTimeout: 30_000,
+    /*
+      **走らせる並列度に上限を置く。判定は 1 つも動かしていない。**
+
+      2026-08-25 実測（10 コア、`npx vitest run` 全 296 ファイル / 7036 件）:
+        既定の並列度: 6 件が 30 秒超で赤 → 再実行すると**別の 1 件**が赤
+        `--maxWorkers=6`: **7036 件すべて緑**、しかも 293 秒 → 226 秒と**速い**
+
+      赤くなった中身はいずれも画面を描いて読み上げを自動検査するもので、
+      単独で走らせると 143 件 19 秒で通る。つまり遅いのは検査ではなく、
+      **コアの数より多くの worker が同時に取り合っていたこと**だった。
+      待ち時間をもう一段広げても、取り合いは減らないので同じ日がまた来る。
+
+      毎回違う 1 件が赤くなる検査は、**赤を「またあれか」と読ませる。**
+      上の testTimeout の但し書きと同じ理由で、ここを直しておく。
+    */
+    maxWorkers: Math.max(2, Math.ceil(availableParallelism() * 0.6)),
     coverage: {
       provider: "v8",
       /*

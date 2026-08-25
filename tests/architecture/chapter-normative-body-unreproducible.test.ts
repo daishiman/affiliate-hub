@@ -106,7 +106,7 @@
  * 少なく出る向きの誤りは、多く出る向きより危険である（正しく見えるため）。
  * ここでは行集合の包含で測っている。
  */
-import { existsSync, mkdtempSync, readFileSync, readdirSync } from "node:fs";
+import { existsSync, mkdtempSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
 import { spawnSync } from "node:child_process";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -175,6 +175,20 @@ type Occurrence = { file: string; line: number; ids: string[]; namesChapter: boo
  * 名指しは記録の単位で 1 回あればよく、段落ごとに繰り返すものではない。
  */
 function bareIdOccurrences(dir: string): Occurrence[] {
+  // **【2026-08-25 追記】名指しを「その文字列が在るか」で見ていた。**
+  //
+  // 2026-08-25 に生成器が `## 章の注記 (chapter_notes)` を描くようになり、
+  // `## 確定内容 (質疑録)` の中で `system-spec/ui-ux.md` を名指ししていた同じ
+  // 食い違い記録が、名指しの無い節へもう 1 部現れた。`## 適用された設計知識` の
+  // トレードオフ本文も `UIUX-REQ-001` に触れる。どちらも **ui-ux.md の中の
+  // ui-ux の ID** で、出所は 1 つも曖昧になっていない。
+  //
+  // 名指しが要るのは「**どの章の ID か読み手に分からない**」場合である。
+  // 自分の章の ID が自分の章のファイルに出るとき、名指しは同語反復になる。
+  // 逆に**他章の ID** が名指し無しで出るのは、いまも違反のまま——むしろ
+  // 定義の所在で判定するぶん、文字列検索より狭くなる（`system-spec/….md`
+  // という綴りをどこかへ書けば通っていた穴が閉じる）。
+  const owner = new Map([...definitionsInChapters()].map(([id, d]) => [id, d.file]));
   const out: Occurrence[] = [];
   for (const name of markdownIn(dir)) {
     const lines = readFileSync(join(dir, name), "utf8").split("\n");
@@ -184,11 +198,15 @@ function bareIdOccurrences(dir: string): Occurrence[] {
       if (!ids) return;
       const start = heads.filter((h) => h <= i).pop() ?? 0;
       const end = heads.find((h) => h > i) ?? lines.length;
+      const section = lines.slice(start, end).join("\n");
+      // 定義の所在が分からない ID は「自分の章」と名乗れない（未定義の ID を
+      // 撒くと素通りする、という抜け道を残さない）。
+      const ownHome = ids.every((id) => owner.get(id) === name);
       out.push({
         file: name,
         line: i + 1,
         ids,
-        namesChapter: /`?system-spec\/[a-z-]+\.md`?/.test(lines.slice(start, end).join("\n")),
+        namesChapter: ownHome || /`?system-spec\/[a-z-]+\.md`?/.test(section),
       });
     });
   }
@@ -314,6 +332,18 @@ describe("章の規範本文は生成器で再現できない (REQ-TS15 / 塞げ
       .filter((o) => !o.namesChapter)
       .map((o) => `${o.file}:${o.line} ${o.ids.join(",")}`);
     expect(unnamed).toEqual([]);
+
+    // 対照: **他章の ID を名指し無しで書いたら赤くなる**こと。0 件は、良くなった
+    // ときと、判定を緩めすぎたときの両方で出る（2026-08-25 に「自分の章なら
+    // 名指し不要」を足したので、なおさら要る）。
+    const probe = mkdtempSync(join(tmpdir(), "bare-id-probe-"));
+    const foreign = [...definitionsInChapters()].find(([, d]) => d.file !== "ui-ux.md")![0];
+    writeFileSync(join(probe, "ui-ux.md"), `## 節\n\n${foreign} に従う。\n`, "utf8");
+    expect(bareIdOccurrences(probe).filter((o) => !o.namesChapter)).toHaveLength(1);
+    // 同じ形でも、自分の章の ID なら通る。
+    const own = [...definitionsInChapters()].find(([, d]) => d.file === "ui-ux.md")![0];
+    writeFileSync(join(probe, "ui-ux.md"), `## 節\n\n${own} に従う。\n`, "utf8");
+    expect(bareIdOccurrences(probe).filter((o) => !o.namesChapter)).toHaveLength(0);
   });
 
   it("生成器は章の枚数ぶんを出す（出力が痩せて 0 件になっていない）", () => {
