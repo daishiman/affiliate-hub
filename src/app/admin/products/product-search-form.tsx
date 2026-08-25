@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { Button, Field } from "@/presentation/ui";
+import { Button, Field, ToolForm } from "@/presentation/ui";
 
 /**
  * 商品の絞り込み欄。
@@ -12,13 +12,25 @@ import { Button, Field } from "@/presentation/ui";
  *
  * 絞り込みの結果は URL に残す（`?q=…`）。
  * 画面内の状態だけに持たせると、共有も再読み込みもできない。
+ *
+ * --- 素の `<form>` から `ToolForm` へ変えた（2026-08-22）---
+ *
+ * 中の `Field` には `toolParamDescription`（AI へ何の値かを説明する宣言）が
+ * 最初から書いてあった。だが包む側が素の `<form>` で、道具として名乗っていない。
+ * **説明はどこにも届いていなかった。**
+ *
+ * 送信先が Server Action ではなく `router.push` なのは変えていない。絞り込みは
+ * 状態を変えないので、結果は URL に載るだけでよい。名乗る名前は目録の
+ * `filter_products` と同じにする。別名を作ると、同じ操作が 2 つあるように見える。
  */
 export function ProductSearchForm({ initialText }: { readonly initialText: string }) {
   const router = useRouter();
   const [text, setText] = useState(initialText);
 
   return (
-    <form
+    <ToolForm
+      toolName="filter_products"
+      toolDescription="登録済みの商品を言葉で絞り込む"
       onSubmit={(e) => {
         e.preventDefault();
         const query = text.trim();
@@ -36,6 +48,6 @@ export function ProductSearchForm({ initialText }: { readonly initialText: strin
       <Button type="submit" tone="primary">
         さがす
       </Button>
-    </form>
+    </ToolForm>
   );
 }

@@ -1,0 +1,19 @@
+{
+ "target_id": "vitest",
+ "source_url": "https://vitest.dev/guide/",
+ "retrieved_at": "2026-08-22T15:05:10Z",
+ "http_status": 200,
+ "content_bytes": 92586,
+ "content_sha256": "51e046ff2928040a98afe696c3f8a1e81d7bf1d7c8cd8d8ea8e96e1384184475",
+ "page_title": "Getting Started | Guide | Vitest",
+ "freshness_extraction": {
+  "freshness_source": "page-declared",
+  "value": "2026-04-08",
+  "found_in": [
+   "\"Last updated: \" に続く <time datetime=\"2026-04-08T16:24:18.000Z\" data-v-d7655276></time>"
+  ],
+  "http_last_modified": null,
+  "note": "VitePress の lastUpdated 機能が git の最終コミット時刻を埋める。出典本文が自ら表明している値なので page-declared。"
+ },
+ "requirement_note": "本文逐語: \"Vitest requires Vite >=v6.0.0 and Node >=v20.0.0\" — 前提環境を出典自身が申告している。"
+}

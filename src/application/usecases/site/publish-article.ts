@@ -4,9 +4,11 @@ import type { IdGeneratorPort } from "@/application/ports/common";
 import type { AuditLogPort } from "@/application/ports/compliance";
 import type { PublicationRepositoryPort } from "@/application/ports/distribution";
 import type {
+  EditorialArticleOfferPort,
   EditorialPublishedArticleWriterPort,
   EditorialSiteRepositoryPort,
 } from "@/application/ports/site";
+import { type ArticleOffer, toProductCards } from "@/application/read-models/article-offer";
 import type {
   PublishedArticle,
   PublishedClaim,
@@ -68,6 +70,15 @@ export type PublishArticleDeps = {
   readonly variants: EditorialContentVariantRepositoryPort;
   readonly publications: PublicationRepositoryPort;
   readonly articles: EditorialPublishedArticleWriterPort;
+  /**
+   * 版が持つ成果リンクの ID を、読者に見せる写しへ引き当てる口。
+   *
+   * **これが無いと、版の `affiliateLinkIds` は公開された記事へ 1 件も渡らない。**
+   * 判定（表現のきまり）は ID の件数だけを見るので、画面上は「広告あり」の
+   * 記事として成立して見える。読者に成果リンクが 1 件も出ていないことは、
+   * `/admin/analytics` の未突合の件数からしか分からない（残課題 58）。
+   */
+  readonly offers: EditorialArticleOfferPort;
   readonly auditLog: AuditLogPort;
   readonly ids: IdGeneratorPort;
 };
@@ -230,7 +241,34 @@ export function createPublishArticleUseCase(
       }
 
       const now = new Date();
-      const article = buildArticle(input, variant, now);
+
+      /*
+       * 版が指している成果リンクを引き当てる。**記事を保存する前に引く。**
+       *
+       * ここで失敗したら公開しない。合言葉の発行（`tracking-issuing-writer.ts`）は
+       * 失敗しても公開を止めないが、あれは「後から足せる計測」で、こちらは
+       * 記事の中身そのものである。読み取れないまま出すと、広告表記だけが付いて
+       * 買う導線が 1 件も無い記事が読者に出る。まだ何も保存していないので、
+       * 保存先が戻ってから出し直せば同じ URL で出せる。
+       */
+      const offersResult = await deps.offers.listByIds(
+        actor.workspaceId,
+        variant.affiliateLinkIds.map(String),
+        now,
+      );
+      if (!offersResult.ok) return offersResult;
+      const offers = offersResult.value;
+
+      /*
+       * 引き当てられなかった ID。**記事には出さず、公開した人へ返す。**
+       * 名前も URL も分からないものを空のカードで出すと、読者には
+       * 「用意し忘れ」と見分けが付かない。落としたことは黙って消さない。
+       */
+      const missing = variant.affiliateLinkIds
+        .map(String)
+        .filter((id) => !offers.some((o) => o.affiliateLinkId === id));
+
+      const article = buildArticle(input, variant, now, offers);
 
       // 出してよいかの判定。ここで条件式を組み立てず、判定は Compliance に任せる。
       const gate = evaluatePublishGate({
@@ -284,10 +322,16 @@ export function createPublishArticleUseCase(
 
       return ok({
         url,
-        skipped: gate.skipped.map((s) => ({
-          label: GATE_REQUIREMENT_LABEL[s.requirement],
-          reason: s.reason,
-        })),
+        skipped: [
+          ...gate.skipped.map((s) => ({
+            label: GATE_REQUIREMENT_LABEL[s.requirement],
+            reason: s.reason,
+          })),
+          ...missing.map((id) => ({
+            label: "成果リンク",
+            reason: `${id} の登録が見つからないため、記事に出していません。`,
+          })),
+        ],
       });
     },
   };
@@ -343,7 +387,7 @@ export type PreparePublishArticleInput = {
  * 片方だけ古くなる。
  */
 export function createPreparePublishArticleUseCase(
-  deps: Omit<PublishArticleDeps, "articles">,
+  deps: Omit<PublishArticleDeps, "articles" | "offers">,
 ): UseCase<PreparePublishArticleInput, PublishArticleFormOptions> {
   return {
     async execute(
@@ -454,11 +498,24 @@ function toParagraphs(body: string): readonly string[] {
  * 保存するのはこの写しであり、書き込み側の集約ではない。
  * 書き込み側の型をそのまま保存すると、編集中の状態や採点が
  * 読者向けの読み取り経路に現れる。
+ *
+ * --- 成果リンクは商品カードとして出す ---
+ * 版が持つ成果リンク（`offers`）は `productCards` になる。カードは
+ * 順位・レビュー・比較のどの型の記事でも使える形で、これを出せば
+ * 画面側は既にある道筋（`view-model.ts` → `ProductCard` → `AffiliateLink`）で
+ * `/go/<合言葉>` まで通る。
+ *
+ * **順位表（`ranking`）はここで作らない。** 順位表の行は総合点と評価軸ごとの
+ * 点数を持つ。成果リンクからは分からない値なので、作るには点を捏造するしかない。
+ * 順位は Ranking の仕事であり、報酬側のデータからは決して作らない
+ * （Editorial / Commercial の遮断そのもの）。順位記事の順位表は、
+ * 採点の保存先（`score_cards`）が本物になったときにそちらから渡す。
  */
 export function buildArticle(
   input: PublishArticleInput,
   variant: ContentVariant,
   at: Date,
+  offers: readonly ArticleOffer[],
 ): PublishedArticle {
   const labels = new Map(sectionsFor(input.articleType).map((s) => [s.id, s.label]));
   const claims: readonly PublishedClaim[] = input.claims.map((c, i) => ({
@@ -489,6 +546,8 @@ export function buildArticle(
     ...(s.id === claimHost && claims.length > 0 ? { claims } : {}),
   }));
 
+  const productCards = toProductCards(offers);
+
   return {
     slug: input.slug,
     siteSlug: input.siteSlug,
@@ -506,5 +565,8 @@ export function buildArticle(
     },
     disclosureRequired: input.relationshipType !== null,
     sections,
+    // 1 件も無いときは欄ごと出さない。空配列を入れると、画面側の
+    // 「商品カードがあるか」の判定が真になり、見出しだけの空欄が読者に出る。
+    ...(productCards.length === 0 ? {} : { productCards }),
   };
 }

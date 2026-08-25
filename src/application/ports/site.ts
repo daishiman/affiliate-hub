@@ -1,3 +1,4 @@
+import type { ArticleOffer } from "@/application/read-models/article-offer";
 import type {
   ArticleSummary,
   PublishedArticle,
@@ -79,6 +80,30 @@ export type PublishedArticleWriterPort = {
   save(workspaceId: WorkspaceId, article: PublishedArticle): PortResult<true>;
 };
 
+/**
+ * 成果リンクの ID から、読者に見せる写しを引く口。
+ *
+ * 記事の版（`ContentVariant`）が持っているのは成果リンクの ID の列だけで、
+ * URL も商品名も無い。公開の手続きはこの口を通して ID を引き当て、
+ * 読者に出す商品カードを組み立てる。
+ *
+ * **報酬に関わる欄は写し（[[ArticleOffer]]）に無い。** 有ると、公開の手続きが
+ * 「報酬の高い順に並べる」を書ける形になる（Editorial / Commercial の遮断）。
+ * この口が Editorial 印なのは、そのための宣言である。
+ *
+ * 見つからなかった ID は**返さない**。空の写しを返すと、名前の無いカードが
+ * 読者に出る。呼び出し側（公開の手続き）は、返ってこなかったぶんを
+ * 「出せなかったもの」として公開の結果に出す。
+ */
+export type ArticleOfferPort = {
+  listByIds(
+    workspaceId: WorkspaceId,
+    affiliateLinkIds: readonly string[],
+    at: Date,
+  ): PortResult<readonly ArticleOffer[]>;
+};
+
 export type EditorialSiteRepositoryPort = Editorial<SiteRepositoryPort>;
+export type EditorialArticleOfferPort = Editorial<ArticleOfferPort>;
 export type EditorialPublishedArticleWriterPort = Editorial<PublishedArticleWriterPort>;
 export type EditorialPublishedContentPort = Editorial<PublishedContentPort>;

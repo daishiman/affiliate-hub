@@ -56,6 +56,29 @@ describe("対応表そのもの", () => {
     expect(c.implemented + c.stub).toBe(c.total);
   });
 
+  it("面ごとの「呼べる数」が、対応表の判定欄に書いた数と合っている", () => {
+    /*
+      `docs/product/traceability.md` の REQ-WA01「10 種中 9 種」・REQ-WA02「8 種中 4 種」・
+      REQ-M02「8 種中 6 種」は、**総数のほうしか検査が無かった。**
+      総数は仕様が決めた固定値なので動かない。動くのは実装した数のほうで、
+      1 つ実装しても 1 つ取り下げても、対応表の数字だけが黙って古くなる。
+
+      ここに数を置くのは、**書き換えたときに対応表を直させるため**である。
+      実装が進んだらこの検査は赤くなる。そのときは数を上げて、
+      同じ差分で traceability.md の判定欄も直すこと（緑にするだけの更新をしない）。
+    */
+    const implemented = Object.fromEntries(
+      contractCoverage().bySurface.map((s) => [s.surface, s.implemented]),
+    );
+    expect(implemented).toEqual({
+      webmcp_admin_read: 9, // `inspect_affiliate_url` だけ未実装
+      webmcp_admin_write: 4,
+      webmcp_reader_read: 9, // `list_test_runs` は実装済みだが読者ページには載せない
+      webmcp_reader_write: 1,
+      mcp_tool: 6, // 方針の保存と媒体の接続情報が未登録
+    });
+  });
+
   it("同じ面の中に同じ名前を二度書かない", () => {
     for (const surface of new Set(TOOL_CONTRACT.map((e) => e.surface))) {
       const names = TOOL_CONTRACT.filter((e) => e.surface === surface).map((e) => e.specName);

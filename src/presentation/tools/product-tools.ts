@@ -10,6 +10,12 @@ import {
   createListRankingUseCase,
   createListTestRunsUseCase,
 } from "@/application/usecases/product/read-product";
+import {
+  createCreateProductUseCase,
+  createDeleteProductUseCase,
+  createUpdateProductUseCase,
+} from "@/application/usecases/product/edit-product";
+import { IDENTITY_KEY_PRIORITY, type IdentityKeyKind } from "@/domain/product";
 import { defineTool } from "./define-tool";
 import type { AnyToolDefinition } from "./tool-definition";
 
@@ -103,6 +109,91 @@ export function productTools(deps: AppDeps): readonly AnyToolDefinition[] {
       }),
       readOnly: true,
       useCase: createExplainRankingUseCase(product),
+    }),
+    ...productEditingTools(deps),
+  ];
+}
+
+/**
+ * 商品を人の手で登録する・直す・消す道具。
+ *
+ * 読み取りの `product` deps と分けているのは、**参照の数え方が違うから**。
+ * 読むほうは根拠と順位が要るので `claims/evidence/testRuns/rankingModels` を
+ * 持つが、書くほうが要るのは「この商品を使っている記事が何本あるか」だけで、
+ * それは記事のまとまり（`contentPackages`）にしか無い。
+ */
+function productEditingTools(deps: AppDeps): readonly AnyToolDefinition[] {
+  const editing = {
+    products: deps.products,
+    packages: deps.contentPackages,
+    auditLog: deps.auditLog,
+    ids: deps.ids,
+  };
+  const productId = z.string().min(1);
+  /**
+   * 仕様の値。**数値も文字列も受ける。**
+   *
+   * 「重さ 1.2」と「対応 OS: Windows / macOS」を同じ表に並べるので、
+   * どちらかへ寄せると片方が入らなくなる。比較表の列を作るときは
+   * 値の型ではなく、キーが揃っているかだけを見る。
+   */
+  const specifications = z.record(z.string(), z.union([z.string(), z.number()]));
+  const identityKeys = z
+    .array(
+      z.object({
+        // 同一性の鍵は正本の優先順位表から列挙する。手で並べると、
+        // 鍵を 1 つ足した日に道具だけが古くなる。
+        kind: z.enum(IDENTITY_KEY_PRIORITY as [IdentityKeyKind, ...IdentityKeyKind[]]),
+        value: z.string().min(1),
+      }),
+    )
+    .default([]);
+
+  return [
+    defineTool({
+      name: "create_product",
+      description:
+        "商品を登録します。比較表の列になる仕様と、その出どころ（公式ページ）が両方そろっていないと登録できません。",
+      schema: z.object({
+        brand: z.string().min(1),
+        name: z.string().min(1),
+        manufacturer: z.string().min(1).optional(),
+        categoryId: z.string().min(1).optional(),
+        identityKeys,
+        description: z.string().optional(),
+        specifications,
+        officialUrl: z.string().min(1),
+      }),
+      readOnly: false,
+      useCase: createCreateProductUseCase(editing),
+    }),
+    defineTool({
+      name: "update_product",
+      description:
+        "商品の内容を直します。値を直すのは自由ですが、仕様や出どころを空にする変更は、その商品を使っている記事が残っていれば本数を添えて断ります。",
+      schema: z.object({
+        productId,
+        brand: z.string().min(1).optional(),
+        name: z.string().min(1).optional(),
+        // null は「消す」。undefined（省略）は「触らない」。
+        // 両方を 1 つの型で表せるので、空文字を消去の合図にしない。
+        manufacturer: z.string().nullable().optional(),
+        description: z.string().nullable().optional(),
+        specifications: specifications.optional(),
+        officialUrl: z.string().nullable().optional(),
+      }),
+      readOnly: false,
+      useCase: createUpdateProductUseCase(editing),
+    }),
+    defineTool({
+      name: "delete_product",
+      description:
+        "商品を消します。その商品を使っている記事が残っていれば、本数を返して断ります。人の操作でのみ実行できます。",
+      schema: z.object({ productId, reason: z.string().min(1) }),
+      readOnly: false,
+      // 順位表と比較表の入力が消える。AI 単独では実行させない。
+      requiresHumanApproval: true,
+      useCase: createDeleteProductUseCase(editing),
     }),
   ];
 }

@@ -1,3 +1,4 @@
+import { FormValue } from "../primitives/form-value";
 import styles from "./patterns.module.css";
 
 /**
@@ -24,7 +25,10 @@ export type FilterAxis = {
   readonly label: string;
   /** その軸で何が分かるか。欄の下に出す。 */
   readonly whatItTells: string;
-  readonly options: readonly { readonly value: string; readonly label: string }[];
+  readonly options: readonly {
+    readonly value: string;
+    readonly label: string;
+  }[];
   readonly selected: string | null;
   /** 選べない理由。null 以外なら欄を出さずこれを出す。 */
   readonly unavailableReason: string | null;
@@ -63,7 +67,7 @@ export function FilterBar({
   return (
     <form method="get" action={action} className={styles.filterBar}>
       {Object.entries(keep ?? {}).map(([name, value]) => (
-        <input key={name} type="hidden" name={name} value={value} />
+        <FormValue key={name} name={name} value={value} />
       ))}
       <fieldset className={styles.filterFields}>
         <legend className={styles.filterLegend}>{legend}</legend>
@@ -78,11 +82,7 @@ export function FilterBar({
                   <span className={styles.filterCommercial}>（報酬に直結する切り口）</span>
                 ) : null}
               </span>
-              <select
-                name={axis.key}
-                defaultValue={axis.selected ?? ""}
-                className={styles.filterSelect}
-              >
+              <select name={axis.key} defaultValue={axis.selected ?? ""} className={styles.filterSelect}>
                 {/* 空欄は「絞らない」。「該当なし」ではない。 */}
                 <option value="">すべて</option>
                 {axis.options.map((o) => (

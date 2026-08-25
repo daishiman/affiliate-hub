@@ -22,6 +22,16 @@ import {
  */
 export type AuditAction =
   | "content.created"
+  /**
+   * 記事の中身（題名・本文・要約）を直した。
+   *
+   * **`content.state_changed` とは別。** あちらは進行の位置が動いたことで、
+   * 本文は変わっていない。こちらは本文が変わったことで、位置は動いていない
+   * （承認済みを直したときだけ、承認が外れて位置も戻る）。
+   * 1 語にまとめると、「承認された文章」と「今ある文章」が
+   * 同じものかどうかを履歴から判定できなくなる。
+   */
+  | "content.changed"
   | "content.state_changed"
   | "content.approved"
   | "content.published"
@@ -30,6 +40,25 @@ export type AuditAction =
   | "ranking_model.changed"
   | "disclosure.changed"
   | "policy_rule.changed"
+  /**
+   * SEO/AI 指針の**出典**を登録した／確認日を更新した。
+   *
+   * `policy_rule.changed`（表記のきまりを変えた）とは別の語にしている。
+   * あちらは「何を書いてよいか」の決まりそのものが動いたこと。
+   * こちらは**決まりの根拠として何を見たか**が動いたことで、
+   * 決まりは 1 文字も変わっていない。1 語にまとめると、
+   * 「きまりが変わった」の一覧に出典の確認作業が混ざり、
+   * 規制対応で提出を求められたときにきまりの変更履歴が読めなくなる。
+   *
+   * **確認日の更新を別の語にしている**のは、`registered` と
+   * 意味が違うからではなく、`after` の差から読めないからである。
+   * 再確認は中身が 1 つも変わらない（確認日だけが動く）ので、
+   * 語を 1 つにすると「登録したのか、見に行っただけなのか」を
+   * 履歴から区別できない。90 日ごとの確認が実際に行われたかは
+   * この語の並びでしか言えない。
+   */
+  | "guideline_reference.registered"
+  | "guideline_reference.rechecked"
   | "affiliate_link.created"
   | "affiliate_link.changed"
   /**
@@ -57,6 +86,14 @@ export type AuditAction =
    */
   | "publication.schedule_changed"
   /**
+   * 配信予定の**中身**が変わった（送る文面・送り先の媒体）。
+   *
+   * 上の 1 語（いつ外へ出るか）とは問いが違う。こちらは
+   * 「外へ出たものは、どの媒体へ向けた、どの文面だったか」を問われる。
+   * 送信済みのものは直せないので、この語が残るのは送信前だけである。
+   */
+  | "publication.changed"
+  /**
    * 外部連携の鍵の発行・失効。
    *
    * こちらは 2 語に分ける。生成 AI の鍵（`llm_credential.*`）と同じ理由で、
@@ -65,8 +102,36 @@ export type AuditAction =
    */
   | "integration_key.issued"
   | "integration_key.revoked"
-  /** ブログを作った。消す口が無いので、作られたことだけは必ず残す。 */
+  /** ブログを作った。 */
   | "site.created"
+  /**
+   * ブログの設計図を直した／ブログを取り下げた。
+   *
+   * **2 語に分ける。** 直しは「いつからその方針だったか」を問われ、
+   * 取り下げは「なぜ消したか」を問われる。後者は `before` と `after` の差からは
+   * 読めない（`after` が無い）ので、理由の欄にしか残らない。
+   * だから取り下げだけ理由を必須にしている（下の `REASON_REQUIRED`）。
+   */
+  | "site.changed"
+  | "site.deleted"
+  /**
+   * 商品を登録した／直した／消した。
+   *
+   * 記事（`content.*`）と揃えて 3 語にする。商品は順位表と比較表の入力なので、
+   * 「いつ仕様が変わったか」が言えないと、過去の順位が正しかったかを検証できない。
+   * 消したものだけ理由を必須にする理由はブログと同じ。
+   */
+  | "product.created"
+  | "product.changed"
+  | "product.deleted"
+  /**
+   * 記事を消した。
+   *
+   * 取り下げ（`content.unpublished`）とは別。取り下げは読者から見えなくすることで、
+   * 記事そのものは残る。こちらは本文ごと無くなるので、後から中身を確かめられない。
+   * 区別しないと、「消えている記事」がどちらの理由で消えたか判定できなくなる。
+   */
+  | "content.deleted"
   /**
    * ブログを作り始めた／作成の段階を 1 つ保存した。
    *
@@ -207,6 +272,10 @@ const REASON_REQUIRED: ReadonlySet<AuditAction> = new Set<AuditAction>([
   "conversion.adjusted",
   "affiliate_link.rejected",
   "loop_run.stopped",
+  // 消す操作。取り消せないうえ、`after` が無いので差分から動機が読めない。
+  "site.deleted",
+  "product.deleted",
+  "content.deleted",
 ]);
 
 /**

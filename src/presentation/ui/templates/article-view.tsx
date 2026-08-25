@@ -141,13 +141,14 @@ function UpdateHistory({
       <h2 className={styles.sectionHeading}>{UI_COPY.article.historyTitle}</h2>
       <ul>
         <li>
-          {publishedAt} {UI_COPY.article.historyPublished}
+          <time dateTime={publishedAt}>{publishedAt}</time> {UI_COPY.article.historyPublished}
         </li>
         {updatedAt === publishedAt ? (
           <li>{UI_COPY.article.historyNoUpdate}</li>
         ) : (
           <li>
-            {updatedAt} {UI_COPY.article.historyUpdated}
+            {/* dateModified の機械可読化。JSON-LD と同じ値を <time> でも示す。 */}
+            <time dateTime={updatedAt}>{updatedAt}</time> {UI_COPY.article.historyUpdated}
           </li>
         )}
       </ul>

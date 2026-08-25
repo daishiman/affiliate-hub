@@ -5,5 +5,15 @@
  "http_status": 200,
  "content_bytes": 419100,
  "content_sha256": "40e69b97c8d2186e17b5b7c0c1b9d6782332875f2e19c21ba6bc5ba2b5cb4cdd",
- "page_title": "Next.js Docs | Next.js"
+ "page_title": "Next.js Docs | Next.js",
+ "freshness_extraction": {
+  "freshness_source": "publisher-registry",
+  "value": "16.3.2",
+  "found_in": [
+   "2026-08-22T22:20:35Z に `npm view next version dist-tags.latest time.modified` で照会: version = '16.3.2' / dist-tags.latest = '16.3.2' / time.modified = '2026-08-21T23:53:41.293Z'"
+  ],
+  "body_declares_date": null,
+  "body_search_method": "この record は 2026-08-16 の取得時に freshness_extraction を持たずに作られた。本文は保存していないので、当時のページが版を表明していたかどうかを今から確かめる手段が無い。null は「未確認」であって「無い」ではない。",
+  "note": "C08 鮮度監査 (2026-08-22) が「レジストリ照会の証跡が evidence に無い」を medium finding として検出したため補った。この照会の値 16.3.2 は、2026-08-22T08:13:50Z の先行照会で fetched-references の記録値を 16.3.1 から 16.3.2 へ改めた後の再確認であり、記録値と一致している (16.3.1 は 2026-08-16 時点の WebSearch 由来で registry の実状態より遅れていた)。**証跡は実測をそのまま残すためのもので、記録値へ合わせて書き換えてはならない。**将来この 2 つが食い違ったときも、直すのは fetched-references 側であってこの欄ではない。"
+ }
 }

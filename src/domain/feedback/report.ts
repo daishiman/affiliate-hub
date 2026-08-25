@@ -15,6 +15,7 @@ import {
 import { type DispositionRecord } from "./disposition";
 import { type HandoffState, emptyHandoffState } from "./handoff";
 import { type FeedbackStatus } from "./status";
+import { sanitizeFeedbackContext } from "./diagnostics";
 
 /**
  * Product Feedback コンテキスト / 改善要望 1 件（仕様 §5〜§6）。
@@ -148,7 +149,7 @@ export function createFeedbackReport(input: {
       validationError(`どうなってほしいかは ${MAX_WISH_LENGTH} 文字までです。`, "wish"),
     );
   }
-  if (input.origin.route.trim() === "") {
+  if (typeof input.origin?.route !== "string" || input.origin.route.trim() === "") {
     return err(
       domainError("VALIDATION_FAILED", "どの画面から送られたのか分かりません。", {
         field: "route",
@@ -156,6 +157,7 @@ export function createFeedbackReport(input: {
       }),
     );
   }
+  const safeContext = sanitizeFeedbackContext(input.origin, input.technical);
   return ok({
     id: input.id,
     workspaceId: input.workspaceId,
@@ -164,8 +166,8 @@ export function createFeedbackReport(input: {
     kind: input.kind,
     body,
     wish,
-    origin: input.origin,
-    technical: input.technical,
+    origin: safeContext.origin,
+    technical: safeContext.technical,
     captureId: input.captureId ?? null,
     submittedBy: input.submittedBy,
     submittedAt: input.at,

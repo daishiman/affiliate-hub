@@ -417,6 +417,10 @@ export function createSampleContentVariantRepository(): EditorialContentVariantR
     async save() {
       return saveRejected("記事");
     },
+    /** 見本はコードの中にある。消したと返しても次に開けばまた居るので断る。 */
+    async remove() {
+      return saveRejected("記事");
+    },
   });
 }
 

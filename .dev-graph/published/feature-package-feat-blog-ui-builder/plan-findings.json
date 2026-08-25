@@ -1,0 +1,177 @@
+{
+  "schema_version": "1.0.0",
+  "plan_dir": ".dev-graph/staging/feature-package-feat-blog-ui-builder",
+  "evaluator": {
+    "name": "assign-system-dev-plan-evaluator",
+    "version": "0.1.0",
+    "context": "fork"
+  },
+  "evaluated_digest": "sha256:9a2832f2d6f8656f3495435827399bed84d70c893a027d828694b07b46506fe1",
+  "verdict": "PASS",
+  "conditions": {
+    "C1": {
+      "id": "C1",
+      "status": "PASS",
+      "summary": "feature-package.json/task-graph.json/workstream-inventory.json/system-build-handoff.json の全13 task entry で parent_feature=feat-blog-ui-builder, feature_package_id=feature-package/feat-blog-ui-builder, source_feature_digest=sha256:50ca9e4ec8030e85d53fa988ddfc0270f9a526a4fff2f11991e61d3ea51a58f4 が一致し矛盾なし。全13 task spec の「スコープ外」節は feat-blog-ui-builder の scope_out 5件 (記事本文AI生成本体/アフィリエイトURL登録・商品識別/クリック計測分析基盤/管理画面全体の単一用途画面再編(feat-uiux-overhaul)/独自ドメイン運用・テーマ外部販売) を同一文言の派生で列挙し、いずれの task もこれらへ踏み込んでいない。write_scope は feature の resource_scope (src/drizzle/docs/spec/system-spec) 内に収まり、P13のみ system-spec/ui-ux.md・frontend.md・database.md への書き戻しを行う点も feature の Handoff節 (完了rollupでのP07/P10/P11 evidence参照) と整合する。ただし P02/P05/P08 の write_scope が src/app/admin/sites/・src/app/api/admin/ を含み、feat-uiux-overhaul が所有する管理画面全体の単一用途画面再編と同一ディレクトリ(src/app/admin, src/app/api/admin)へ触れる境界がある点を medium finding として記録した。各 task spec 本文が『既存 feat-uiux-overhaul が所有する管理画面全体の単一用途画面再編』を明示的にスコープ外と書いており、対象がブログ固有エンティティ(テンプレート/配色/固定ページ/配置)のCRUD画面追加に限定されると解釈できるため、verdict を FAIL とするほどの明確な逸脱ではないと判断した。",
+      "evidence": [
+        "feature-package.json#parent_feature",
+        "feature-package.json#source_feature_digest",
+        "task-graph.json#nodes",
+        "task-specs/phase-01-requirements.md#スコープ外",
+        "task-specs/phase-02-architecture.md#スコープ外",
+        "task-specs/phase-05-implementation.md#成果物",
+        "task-specs/phase-08-refactoring-migration.md#スコープ外",
+        "task-specs/phase-13-release-deploy.md#成果物",
+        "gate:deterministic-validation"
+      ]
+    },
+    "C2": {
+      "id": "C2",
+      "status": "PASS",
+      "summary": "exact-13 (P01..P13)、13-entry workstream-inventory、13-node task-graph、必須 section (Machine-readable registration fields/目的/背景/前提条件/Workstream applicability/Architecture and deploy unit/成果物/Tracker publication and completion/Branch and worktree execution/スコープ外/テスト戦略/Verification and evidence/Inner goal-seek execution loop/Rollout and rollback/Handoff/参照情報) が P01..P13 の全13件に存在する。feature が宣言する上流 qa 要件 qa-uiux-web-blog-builder は system-spec/spec-state.json#qa_log[id=qa-uiux-web-blog-builder] に登録済みであり、かつ matrix.ui-ux.web.qa_ref がこの id を指し (system-spec/spec-state.json:843)、system-spec/ui-ux.md#確定内容(質疑録) にも同一質疑・回答が転記されている。回答(1)-(9)は goal-spec.json / feature-package.json の purpose・goal・scope_in・acceptance へ意味として反映されており (テンプレート6種→scope_in[1]、配色2層→scope_in[2]、sticky常時表示→scope_in[3]、固定ページ6種→scope_in[4]、表現ブロック→scope_in[5]、ブログ×アフィリエイト配置逆引き→scope_in[6]、makuring.jp参照のみ→scope_in[7])、さらに P01..P13 全件へ trace できる: テンプレート/固定ページ6種→P01(screen-inventory)→P02(data-model/component-contract)→P05(実装)→P07(A1/A4判定)、配色2層(sticky含む)→P01→P02(theme-contract/component-contract)→P05(実装)→P09(視覚回帰・axe-core)→P07(A2/A3/A9判定)、表現ブロック5種とスロット差替→P02(component-contract)→P05(実装)→P07(A5判定)、アフィリエイト配置管理・逆引き→P02(admin-api-contract)→P05(実装)→P07(A6/A7判定)、D1永続化→P02(data-model)→P05(src/db/schema.ts・drizzle)→P06/P07(A8判定)、既存 src/app/admin/sites の重複解消・保全→P08(refactoring-migration)→P09(quality-assurance)、makuring.jp丸パクリ禁止の一次根拠(利用者説明)→P01/P02/P05 の前提条件・成果物本文に明記。9件の回答見出しと受入A1-A9のいずれも exact-13 の実行内容・受け入れ条件へ意味として接地しており、qa-ref-unregistered/qa-semantic-coverage/qa-task-trace のいずれの欠落も確認されなかった。",
+      "evidence": [
+        "workstream-inventory.json#tasks",
+        "feature-package.json#task_spec_paths",
+        "task-specs/phase-01-requirements.md#成果物",
+        "task-specs/phase-02-architecture.md#成果物",
+        "task-specs/phase-05-implementation.md#成果物",
+        "task-specs/phase-07-acceptance.md#目的",
+        "task-specs/phase-08-refactoring-migration.md#成果物",
+        "task-specs/phase-09-quality-assurance.md#成果物",
+        "gate:deterministic-validation"
+      ]
+    },
+    "C3": {
+      "id": "C3",
+      "status": "PASS",
+      "summary": "全13 task の graph_node_registration.file_path は tasks/feat-blog-ui-builder/sys-blog-ui-builder-p01.md 〜 p13.md の tasks/<parent_feature>/<小文字 task id>.md 規約に一致 (機械検査済み)。全13 task spec の Verification and evidence の再実行コマンドは `python3 .claude/plugins/system-dev-planner/scripts/validate-system-plan.py --repo-root . --feature-package feature-package/feat-blog-ui-builder` の世代非依存形で統一され、--staging (staging ディレクトリ名依存) は使用していない。task-specs 全13件・feature-package.json・workstream-inventory.json・task-graph.json・system-build-handoff.json・goal-spec.json を走査したが TODO/TBD/角括弧 placeholder は0件 (write_scope/tags/related_nodes 等の実配列表記のみ、src/app/s/[site]/ は既存動的ルート表記であり placeholder ではない)。workstream-inventory.json#repo_context.repo_identity=github:daishiman/affiliate-hub は .dev-graph/config.json#repository_id と完全一致する。",
+      "evidence": [
+        "workstream-inventory.json#repo_context",
+        "workstream-inventory.json#tasks[].graph_node_registration.file_path",
+        "task-specs/phase-01-requirements.md#Verification and evidence",
+        "task-specs/phase-13-release-deploy.md#Verification and evidence",
+        "gate:deterministic-validation"
+      ]
+    },
+    "C4": {
+      "id": "C4",
+      "status": "PASS",
+      "summary": "task-graph.json の13 node を独立再計算した結果、全edgeが前方DAG (小さいphase_refから大きいphase_refへのみ) で循環・後方edge・feature外task参照 (SYS-BLOG-UI-BUILDER- 以外のprefix) は0件。実際の構造は P01→P02→P03→P04→P05→P06→P07 の直列に加え、P05→P08→P09→P10、P07とP09→P11、P10とP11→P12→P13 という分岐/合流であり、system-build-handoff.json#execution_tasks[].depends_on も task-graph.json#nodes[].depends_on と完全一致する。P01以外の12 nodeは全て1件以上のincoming edgeを持ち、orphanは0件。task-graph.json/system-build-handoff.json は今回の再生成 (marketplace 版 system-dev-planner 0.1.10 の schema 是正) でも内容・sha256とも不変であり、依存グラフ構造自体に変化はない。今回の再生成で workstream-inventory.json/system-build-handoff.json から p01_entry_gate 宣言が除去された (marketplace 版 schema がこのフィールドを禁止するため)。これは package 内の task 間依存 (C4 が検査する対象) ではなく、feature 側の外部依存 (feat-ui-foundation/feat-site-builder/feat-affiliate-hub) の実行開始タイミング条件を package 内に重複表現していたフィールドであり、除去後も task-graph.json の13 node間 依存関係の整合性には影響しない。",
+      "evidence": [
+        "task-graph.json#nodes",
+        "system-build-handoff.json#execution_tasks",
+        "gate:deterministic-validation"
+      ]
+    }
+  },
+  "gate_results": [
+    {
+      "id": "deterministic-validation",
+      "name": "validate-system-plan",
+      "command": [
+        "python3",
+        "/Users/dm/dev/dev/個人開発/harness/marketplaces/local/plugins/system-dev-planner/scripts/validate-system-plan.py",
+        "--repo-root",
+        ".",
+        "--staging",
+        ".dev-graph/staging/feature-package-feat-blog-ui-builder"
+      ],
+      "exit_code": 0,
+      "conditions": [
+        "C1",
+        "C2",
+        "C3",
+        "C4"
+      ],
+      "stdout": "{\n  \"schema_version\": \"1.0.0\",\n  \"status\": \"pass\",\n  \"validated_digest\": \"sha256:9a2832f2d6f8656f3495435827399bed84d70c893a027d828694b07b46506fe1\",\n  \"feature_package_id\": \"feature-package/feat-blog-ui-builder\",\n  \"parent_feature\": \"feat-blog-ui-builder\",\n  \"phase_refs\": [\n    \"P01\",\n    \"P02\",\n    \"P03\",\n    \"P04\",\n    \"P05\",\n    \"P06\",\n    \"P07\",\n    \"P08\",\n    \"P09\",\n    \"P10\",\n    \"P11\",\n    \"P12\",\n    \"P13\"\n  ],\n  \"violations\": []\n}",
+      "stderr": ""
+    }
+  ],
+  "evaluated_inputs": [
+    {
+      "path": "feature-package.json",
+      "sha256": "0f537cd7f8fd28c63eeb4ed6be64e1a7151eabc376c87e33b97089a3f7d82ed8"
+    },
+    {
+      "path": "system-build-handoff.json",
+      "sha256": "4bf453065bf3aab1febf5253609dd4b478800afc1df8cb618e7932c72d025e3f"
+    },
+    {
+      "path": "task-graph.json",
+      "sha256": "f014687d2810208a59662b5570df78dfa293206728c56d53bee957ef46b40ea6"
+    },
+    {
+      "path": "task-specs/phase-01-requirements.md",
+      "sha256": "6d5be1cfea28d0cde9ac271d8c2e292ca6e286d8ce6f04f46584ff89919741d6"
+    },
+    {
+      "path": "task-specs/phase-02-architecture.md",
+      "sha256": "315235f662531ac1229d1416aa0a0a4ebd55f03327295e9315b68e823997935f"
+    },
+    {
+      "path": "task-specs/phase-03-design-review.md",
+      "sha256": "8c2fae831acecb910a99d5ed0f748606fe3859935bde5bf094971cf9d02aa9a1"
+    },
+    {
+      "path": "task-specs/phase-04-test-design.md",
+      "sha256": "b5d16cbb5767dca1f30cdd6699751fcd3ab0d69df61256ffe9b26ca48c13a1f0"
+    },
+    {
+      "path": "task-specs/phase-05-implementation.md",
+      "sha256": "485d0a2373e02c89fd13ed8c218049650eeb1a7cc26df5ec6cb0a3cff5ee94f6"
+    },
+    {
+      "path": "task-specs/phase-06-test-run.md",
+      "sha256": "48a0410c9d6338a47e636d16508aa7fdc57a63ecea079c745457719f755b4f51"
+    },
+    {
+      "path": "task-specs/phase-07-acceptance.md",
+      "sha256": "2c350d2f70b415551cfc8da14bb97cf38529291420cc405890ab7218ef1b83b7"
+    },
+    {
+      "path": "task-specs/phase-08-refactoring-migration.md",
+      "sha256": "cc6f7ef8a1f4b8d1ace6de1d4a412cf5a813a8f8c8c1d66aa5554ed1fe1857d2"
+    },
+    {
+      "path": "task-specs/phase-09-quality-assurance.md",
+      "sha256": "93c765e0c7fc5949930297a3ab513870c2442725053081ed7508e7913fc2dba1"
+    },
+    {
+      "path": "task-specs/phase-10-final-review.md",
+      "sha256": "5684026c942c28ff32789c6bea86aee7652d52b4674b657a566d84b1265e909f"
+    },
+    {
+      "path": "task-specs/phase-11-evidence.md",
+      "sha256": "2ee2ad922483e2eba82547537ab227dd1c89e53495b43606a7308c94b40347a7"
+    },
+    {
+      "path": "task-specs/phase-12-documentation-operations.md",
+      "sha256": "e7280ce4b1c0855e20a06d7b64cd1ffa86f3f169821cb8f953fc2633a742b043"
+    },
+    {
+      "path": "task-specs/phase-13-release-deploy.md",
+      "sha256": "b482cb744fc96f85f2a38a0857f2a3412ebfae4364330c8ece4fa8b7dcccb545"
+    },
+    {
+      "path": "workstream-inventory.json",
+      "sha256": "e01d5a88f2f47e23127e187f3c9c4463cb04f916f26251771877422fdad1571d"
+    },
+    {
+      "path": "staging-manifest.json",
+      "sha256": "21f3a2f90db24a6cf352cfb652e4efec165943a98f31eda9053a9350cd23755c"
+    }
+  ],
+  "staleness_rule": "evaluated_digest は staging-manifest.json#canonical_digest (=sha256:9a2832f2d6f8656f3495435827399bed84d70c893a027d828694b07b46506fe1) に束縛される。staging 配下の17ファイル (feature-package.json/workstream-inventory.json/task-graph.json/system-build-handoff.json/task-specs 13件) のいずれか1件でも内容が変わり canonical_digest が再計算されて変化した場合、本 plan-findings.json は無効となり、新しい digest に対して評価をやり直す必要がある。source_feature_digest=sha256:50ca9e4ec8030e85d53fa988ddfc0270f9a526a4fff2f11991e61d3ea51a58f4 が変化した場合 (features/feat-blog-ui-builder.md の再確定) や system-spec/spec-state.json#qa_log[qa-uiux-web-blog-builder]/matrix.ui-ux.web.qa_ref が変化した場合も同様に無効化し、system-dev-plan-architect による再生成からやり直す。 2026-08-24 の再生成 (marketplace 版 system-dev-planner 0.1.10 の schema 是正: p01_entry_gate をworkstream-inventory.json/system-build-handoff.json から除去) により canonical_digest は sha256:1276ad7b40434614d6f548bc417da4326ed96f6146f9f10ad70ffd1093ae8f9d から sha256:9a2832f2d6f8656f3495435827399bed84d70c893a027d828694b07b46506fe1 へ変化した。旧 digest に対する本 plan-findings.json の判定は無効であり、本更新が新 digest に対する独立評価である。",
+  "findings": [
+    {
+      "severity": "medium",
+      "bucket": "C1-scope-boundary",
+      "observation": "P02/P05/P08 の write_scope が src/app/admin/sites/ と src/app/api/admin/ を含み、feat-uiux-overhaul の write_scope (src/app/admin, src/app/api/admin 全域) と同一ディレクトリに重なる。両 feature とも各 task spec 本文で相手の scope (管理画面全体の単一用途画面再編 vs ブログ固有エンティティのCRUD追加) を明示的にスコープ外としているため verdict を FAIL とするほどの逸脱ではないが、実装順序によっては同一ファイルへの同時変更・マージ競合が起きうる。P08 (refactoring-migration) の実行時に、feat-uiux-overhaul 側の画面分割が先行しているか後追いかを確認し、重複実装0件を検査することを推奨する。",
+      "evidence": [
+        "task-specs/phase-02-architecture.md#成果物",
+        "task-specs/phase-05-implementation.md#成果物",
+        "task-specs/phase-08-refactoring-migration.md#成果物"
+      ]
+    }
+  ]
+}

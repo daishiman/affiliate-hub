@@ -4,6 +4,8 @@ import type { SiteBlueprint, SiteDraft } from "@/domain/authoring";
 import {
   type SiteDraftId,
   type WorkspaceId,
+  domainError,
+  err,
   markEditorial,
   ok,
   taggedString,
@@ -143,6 +145,39 @@ export function createD1SiteDraftRepository(db: DrizzleD1): EditorialSiteDraftRe
         return ok(blueprint);
       } catch (cause) {
         return storageFailure("ブログの登録", cause);
+      }
+    },
+
+    /**
+     * 登録済みのブログを取り下げる。
+     *
+     * **会社の絞り込みを消す条件にも入れる。** URL 名だけで消すと、
+     * 同じ名前を別の会社が使っていたときに他社のブログが落ちる。
+     * 見本の 3 本は行として存在しないので、消そうとしても 0 件になる。
+     * 0 件を成功と返さないのは、次に開いたときにまだ居るからである。
+     */
+    async removeBlueprint(workspaceId: WorkspaceId, slug: string) {
+      try {
+        const deleted = await db
+          .delete(siteBlueprints)
+          .where(
+            and(
+              eq(siteBlueprints.workspaceId, String(workspaceId)),
+              eq(siteBlueprints.slug, slug),
+            ),
+          )
+          .returning({ slug: siteBlueprints.slug });
+        if (deleted.length === 0) {
+          return err(
+            domainError("NOT_FOUND", "このブログは取り下げられませんでした。", {
+              suggestedAction:
+                "見本として最初から入っているブログは消せません。自分で作ったブログを選び直してください。",
+            }),
+          );
+        }
+        return ok(true as const);
+      } catch (cause) {
+        return storageFailure("ブログの取り下げ", cause);
       }
     },
   });

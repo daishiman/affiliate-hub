@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Callout } from "@/presentation/ui";
+import { Callout, FormResult } from "@/presentation/ui";
 import type { PublishArticleFormState } from "./publish-article-state";
 
 /**
@@ -21,13 +21,15 @@ import type { PublishArticleFormState } from "./publish-article-state";
 export function PublishArticleResult({ state }: { state: PublishArticleFormState }) {
   const skipped = state.skipped ?? [];
   return (
-    <>
-      {state.status === "failed" && state.field === undefined ? (
-        <Callout tone="warn" reason={state.message} />
-      ) : null}
-
-      {state.status === "done" ? <Callout tone="success" reason={state.message} /> : null}
-
+    <FormResult
+      state={state}
+      doneAction={
+        state.url === undefined ? null : (
+          <Link href={state.url}>公開した記事を読者の画面で見る</Link>
+        )
+      }
+    >
+      {/* 決まり 2。成功の枠に混ぜず、別の枠で残す。 */}
       {state.status === "done" && skipped.length > 0 ? (
         <Callout
           tone="warn"
@@ -36,12 +38,26 @@ export function PublishArticleResult({ state }: { state: PublishArticleFormState
             .join(" / ")}`}
         />
       ) : null}
-
-      {state.status === "done" && state.url !== undefined ? (
-        <p>
-          <Link href={state.url}>公開した記事を読者の画面で見る</Link>
-        </p>
+      {/*
+        AI 検索への備えの点検。出した直後だけが「もう一歩直す」気になる瞬間
+        なので、成功の知らせと同じ画面に出す。全て揃っていれば一言で済ませ、
+        足りない項目は**何をすればよいか**（hint）まで出す。項目名だけ出すと
+        直し方を人に調べさせることになる。
+      */}
+      {state.status === "done" && state.aiSearch !== undefined ? (
+        <Callout
+          tone={state.aiSearch.every((c) => c.ok) ? "success" : "warn"}
+          title={`AI 検索への備え: ${state.aiSearch.filter((c) => c.ok).length}/${state.aiSearch.length}`}
+          reason={
+            state.aiSearch.every((c) => c.ok)
+              ? "結論・更新日・著者・出典・説明文の構造が揃っています。"
+              : state.aiSearch
+                  .filter((c) => !c.ok)
+                  .map((c) => `${c.check} → ${c.hint}`)
+                  .join(" ")
+          }
+        />
       ) : null}
-    </>
+    </FormResult>
   );
 }

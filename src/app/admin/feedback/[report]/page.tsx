@@ -1,5 +1,3 @@
-import Link from "next/link";
-import type { ReactNode } from "react";
 import { AdminShell } from "@/presentation/admin/admin-shell";
 import {
   FeedbackDispositionForm,
@@ -7,9 +5,25 @@ import {
   FeedbackPullCommand,
   FeedbackStatusForm,
 } from "@/presentation/admin/feedback-forms";
+import type { SuccessOf } from "@/presentation/admin/use-case-result";
 import { currentActor, feedbackCaptureNotice, feedbackUseCases } from "@/presentation/composition";
-import { Callout, Card, ErrorView, Page, StorageNotice, UI_COPY } from "@/presentation/ui";
-import styles from "../../admin.module.css";
+import {
+  ActionNote,
+  Callout,
+  DataTable,
+  Foldable,
+  ErrorView,
+  FactList,
+  Figure,
+  ListView,
+  Note,
+  Prose,
+  Section,
+  StorageNotice,
+  SubSection,
+  TextLink,
+  UI_COPY,
+} from "@/presentation/ui";
 
 export const dynamic = "force-dynamic";
 
@@ -41,244 +55,209 @@ export default async function FeedbackDetailPage({
   const { report: id } = await params;
   const actor = await currentActor();
   const read = await (await feedbackUseCases()).read.execute(actor, { id });
+  const captureNotice = await feedbackCaptureNotice();
 
-  if (!read.ok) {
-    return (
-      <Shell id={id}>
+  return (
+    <AdminShell
+      routeId="feedback/[report]"
+      routeParams={{ report: id }}
+      title="届いた改善要望"
+      lead="1 件分の中身と、誰が持って行ったかを見ます。"
+      actions={<TextLink href="/admin/feedback">一覧へ戻る</TextLink>}
+    >
+      {!read.ok ? (
         <ErrorView
           title="この改善要望を出せませんでした"
           body={read.error.message}
           suggestedAction={read.error.suggestedAction ?? null}
-          action={<Link href="/admin/feedback">一覧へ戻る</Link>}
+          action={<TextLink href="/admin/feedback">一覧へ戻る</TextLink>}
         />
-      </Shell>
-    );
-  }
+      ) : (
+        <FeedbackReport report={read.value} captureNotice={captureNotice} />
+      )}
+    </AdminShell>
+  );
+}
 
-  const v = read.value;
+type Report = SuccessOf<
+  ReturnType<Awaited<ReturnType<typeof feedbackUseCases>>["read"]["execute"]>
+>;
 
+function FeedbackReport({
+  report: v,
+  captureNotice,
+}: {
+  readonly report: Report;
+  readonly captureNotice: Awaited<ReturnType<typeof feedbackCaptureNotice>>;
+}) {
   return (
-    <Shell id={id}>
+    <>
       {/* ① 送られたこと */}
-      <Card>
-        <h2 className={styles.sectionTitle}>届いた内容</h2>
-        <p className={styles.sectionLead}>
-          {v.kindLabel}・{v.submittedAt.toLocaleString("ja-JP")}
-        </p>
-        <p>{v.body}</p>
-      </Card>
+      <Section
+        title="届いた内容"
+        lead={`${v.kindLabel}・${v.submittedAt.toLocaleString("ja-JP")}`}
+      >
+        <Prose>{v.body}</Prose>
+      </Section>
 
       {/* ② どうなってほしいか */}
-      <Card>
-        <h2 className={styles.sectionTitle}>{UI_COPY.feedback.wishLabel}</h2>
-        {v.wishProvided ? <p>{v.wishText}</p> : <Callout tone="info" reason={v.wishText} />}
-      </Card>
+      <Section title={UI_COPY.feedback.wishLabel}>
+        {v.wishProvided ? <Prose>{v.wishText}</Prose> : <ActionNote>{v.wishText}</ActionNote>}
+      </Section>
 
       {/* ③ どの画面から */}
-      <Card>
-        <h2 className={styles.sectionTitle}>どの画面から届いたか</h2>
-        <dl className={styles.criteria}>
-          <div>
-            <dt>画面</dt>
-            <dd>{v.screenName}</dd>
-          </div>
-          <div>
-            <dt>道すじ</dt>
-            <dd>{v.route}</dd>
-          </div>
-          <div>
-            <dt>アドレス</dt>
-            <dd>{v.url}</dd>
-          </div>
-        </dl>
-      </Card>
+      <Section title="どの画面から届いたか">
+        <FactList
+          rows={[
+            { key: "screen", label: "画面", value: v.screenName },
+            { key: "route", label: "道すじ", value: v.route },
+            { key: "url", label: "アドレス", value: v.url },
+          ]}
+        />
+      </Section>
 
       {/* ④ どの作業場所のものか */}
-      <Card>
-        <h2 className={styles.sectionTitle}>どこのものか</h2>
-        <dl className={styles.criteria}>
-          <div>
-            <dt>作業場所</dt>
-            <dd>{v.workspaceId}</dd>
-          </div>
-          <div>
-            <dt>ブランド</dt>
-            <dd>{v.brandId ?? "指定なし"}</dd>
-          </div>
-          <div>
-            <dt>サイト</dt>
-            <dd>{v.siteId ?? "指定なし"}</dd>
-          </div>
-        </dl>
-      </Card>
+      <Section title="どこのものか">
+        <FactList
+          rows={[
+            { key: "workspace", label: "作業場所", value: v.workspaceId },
+            { key: "brand", label: "ブランド", value: v.brandId ?? "指定なし" },
+            { key: "site", label: "サイト", value: v.siteId ?? "指定なし" },
+          ]}
+        />
+      </Section>
 
       {/* ⑤ 画面の写し */}
-      <Card>
-        <h2 className={styles.sectionTitle}>そのときの画面</h2>
+      <Section title="そのときの画面">
         {/* 何で動いているかは入口が決める。ここに条件を書くと、
             置き場をつないだ日に画面だけが古いことを言い続ける。 */}
-        <StorageNotice status={await feedbackCaptureNotice()} />
+        <StorageNotice status={captureNotice} />
         {v.captureUrl === null ? (
-          <Callout
-            tone="info"
-            reason={v.captureAbsentReason ?? "画像は付いていません（文章だけで送られました）。"}
-          />
+          <ActionNote>
+            {v.captureAbsentReason ?? "画像は付いていません（文章だけで送られました）。"}
+          </ActionNote>
         ) : (
-          <>
-            {/* 黒塗りは画素へ焼き込み済み。元の画像は保存していない。 */}
-            {/* next/image を使わない: 最適化は画像を別の場所へ複製する。
-                複製された先は保存期間の外なので、「180 日で消えます」が効かなくなる。
-                取り出す口（/api/feedback-captures）を必ず毎回通す。 */}
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={v.captureUrl} alt={`${v.screenName} の画面（黒塗り済み）`} />
-            <p className={styles.linkNote}>
-              黒塗りは画像そのものに焼き込まれています。元の画像は保存していません。
-            </p>
-          </>
+          /* 黒塗りは画素へ焼き込み済み。元の画像は保存していない。
+             取り出す口（/api/feedback-captures）を必ず毎回通す。 */
+          <Figure
+            src={v.captureUrl}
+            alt={`${v.screenName} の画面（黒塗り済み）`}
+            note="黒塗りは画像そのものに焼き込まれています。元の画像は保存していません。"
+          />
         )}
-      </Card>
+      </Section>
 
       {/* ⑥ 技術情報（件数は畳んだまま見せる） */}
-      <Card>
-        <h2 className={styles.sectionTitle}>そのとき記録されたこと</h2>
-        <p className={styles.sectionLead}>
-          エラー {v.jsErrorCount} 件・通信の失敗 {v.failedRequestCount} 件・黒塗り {v.redactedCount}{" "}
-          箇所
-        </p>
-        <details>
-          <summary>中身を見る（開発者向けの記録です）</summary>
-          <dl className={styles.criteria}>
-            <div>
-              <dt>エラー</dt>
-              <dd>
-                {v.technical.jsErrors.length === 0
-                  ? "記録されていません。"
-                  : v.technical.jsErrors.join(" / ")}
-              </dd>
-            </div>
-            <div>
-              <dt>通信の失敗</dt>
-              <dd>
-                {v.technical.failedRequests.length === 0
-                  ? "記録されていません。"
-                  : v.technical.failedRequests.join(" / ")}
-              </dd>
-            </div>
-            <div>
-              <dt>直前の操作</dt>
-              <dd>
-                {v.technical.recentActions.length === 0
-                  ? "記録されていません。"
-                  : v.technical.recentActions.join(" → ")}
-              </dd>
-            </div>
-            <div>
-              <dt>使っていた環境</dt>
-              <dd>{v.technical.userAgent === "" ? "記録されていません。" : v.technical.userAgent}</dd>
-            </div>
-          </dl>
-        </details>
-      </Card>
+      <Section
+        title="そのとき記録されたこと"
+        lead={`エラー ${v.jsErrorCount} 件・通信の失敗 ${v.failedRequestCount} 件・黒塗り ${v.redactedCount} 箇所`}
+      >
+        <Foldable summary="中身を見る（開発者向けの記録です）">
+          <FactList
+            rows={[
+              {
+                key: "js",
+                label: "エラー",
+                value:
+                  v.technical.jsErrors.length === 0
+                    ? "記録されていません。"
+                    : v.technical.jsErrors.join(" / "),
+              },
+              {
+                key: "net",
+                label: "通信の失敗",
+                value:
+                  v.technical.failedRequests.length === 0
+                    ? "記録されていません。"
+                    : v.technical.failedRequests.join(" / "),
+              },
+              {
+                key: "actions",
+                label: "直前の操作",
+                value:
+                  v.technical.recentActions.length === 0
+                    ? "記録されていません。"
+                    : v.technical.recentActions.join(" → "),
+              },
+              {
+                key: "ua",
+                label: "使っていた環境",
+                value:
+                  v.technical.userAgent === "" ? "記録されていません。" : v.technical.userAgent,
+              },
+            ]}
+          />
+        </Foldable>
+      </Section>
 
       {/* ⑦ 作業する側へ渡す */}
-      <Card>
-        <h2 className={styles.sectionTitle}>{UI_COPY.feedback.handoffTitle}</h2>
+      <Section title={UI_COPY.feedback.handoffTitle}>
         <Callout tone="info" title="渡した回数" reason={UI_COPY.feedback.handoffIdempotent} />
-        <p className={styles.sectionLead}>これまでに {v.handoffCount} 回渡しています。</p>
+        <Prose>これまでに {v.handoffCount} 回渡しています。</Prose>
 
-        <FeedbackHandoffForm>
-          <input type="hidden" name="ids" value={v.id} />
-        </FeedbackHandoffForm>
+        <FeedbackHandoffForm ids={[v.id]} />
 
-        <h3 className={styles.sectionTitle}>取りに来てもらう</h3>
-        <FeedbackPullCommand />
+        <SubSection title="取りに来てもらう">
+          <FeedbackPullCommand />
+        </SubSection>
 
-        <h3 className={styles.sectionTitle}>渡した記録</h3>
-        {v.handoffHistory.length === 0 ? (
-          <p className={styles.linkNote}>{v.handoffHistoryEmptyText}</p>
-        ) : (
-          <table className={styles.rankTable}>
-            <caption>誰が・どの鍵で持って行ったかが残ります。鍵の値そのものは出ません。</caption>
-            <thead>
-              <tr>
-                <th scope="col">日時</th>
-                <th scope="col">経路</th>
-                <th scope="col">誰が</th>
-                <th scope="col">どの鍵で</th>
-              </tr>
-            </thead>
-            <tbody>
-              {v.handoffHistory.map((h) => (
-                <tr key={`${h.at.toISOString()}-${h.actor}`}>
-                  <th scope="row">{h.at.toLocaleString("ja-JP")}</th>
-                  <td>{h.routeLabel}</td>
-                  <td>{h.actor}</td>
-                  <td>{h.keyId ?? "—（人がコピーしました）"}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
-      </Card>
+        <SubSection title="渡した記録">
+          {v.handoffHistory.length === 0 ? (
+            <Note>{v.handoffHistoryEmptyText}</Note>
+          ) : (
+            <DataTable
+              caption="誰が・どの鍵で持って行ったかが残ります。鍵の値そのものは出ません。"
+              columns={[
+                { key: "at", label: "日時" },
+                { key: "route", label: "経路" },
+                { key: "actor", label: "誰が" },
+                { key: "key", label: "どの鍵で" },
+              ]}
+              rows={v.handoffHistory.map((h) => ({
+                key: `${h.at.toISOString()}-${h.actor}`,
+                cells: [
+                  h.at.toLocaleString("ja-JP"),
+                  h.routeLabel,
+                  h.actor,
+                  h.keyId ?? "—（人がコピーしました）",
+                ],
+              }))}
+            />
+          )}
+        </SubSection>
+      </Section>
 
       {/* ⑧ 対応状況 */}
-      <Card>
-        <h2 className={styles.sectionTitle}>対応状況を変える</h2>
+      <Section title="対応状況を変える">
         <FeedbackStatusForm id={v.id} currentStatus={v.statusLabel} />
-      </Card>
+      </Section>
 
       {/* ⑨ 扱いの決定と取り消し */}
-      <Card>
-        <h2 className={styles.sectionTitle}>この要望の扱い</h2>
-        {v.dispositionReason === null ? null : (
-          <p className={styles.linkNote}>いまの理由: {v.dispositionReason}</p>
-        )}
+      <Section title="この要望の扱い">
+        {v.dispositionReason === null ? null : <Note>いまの理由: {v.dispositionReason}</Note>}
         <FeedbackDispositionForm id={v.id} dispositionLabel={v.dispositionLabel} />
-      </Card>
+      </Section>
 
       {/* ⑩ 操作の履歴（積むだけ。消さない） */}
-      <Card>
-        <h2 className={styles.sectionTitle}>これまでの操作</h2>
+      <Section title="これまでの操作">
         {v.history.length === 0 ? (
-          <p className={styles.linkNote}>まだ何も操作されていません。</p>
+          <Note>まだ何も操作されていません。</Note>
         ) : (
-          <ul className={styles.linkList}>
-            {v.history.map((h) => (
-              <li key={`${h.at.toISOString()}-${h.summary}`}>
-                {h.at.toLocaleString("ja-JP")}／{h.by}
-                <span className={styles.linkNote}>{h.summary}</span>
-              </li>
-            ))}
-          </ul>
+          <ListView
+            rows={v.history.map((h) => ({
+              key: `${h.at.toISOString()}-${h.summary}`,
+              label: `${h.at.toLocaleString("ja-JP")}／${h.by}`,
+              note: h.summary,
+            }))}
+          />
         )}
-        <p className={styles.linkNote}>
+        <Note>
           履歴は積むだけで、消したり書き換えたりできません。
           {v.beadsIssueId === null
             ? "実装の進み具合は Beads 側が正本です。"
             : `実装の進み具合は Beads の ${v.beadsIssueId} が正本です。`}
-        </p>
-      </Card>
-    </Shell>
-  );
-}
-
-function Shell({ id, children }: { readonly id: string; readonly children: ReactNode }) {
-  return (
-    <AdminShell
-      currentPath="/admin/feedback"
-      breadcrumbs={[
-        { label: "ホーム", href: "/admin" },
-        { label: UI_COPY.feedback.listTitle, href: "/admin/feedback" },
-        { label: id },
-      ]}
-      actions={<Link href="/admin/feedback">一覧へ戻る</Link>}
-    >
-      <Page
-        title="届いた改善要望"
-        lead="1 件分の中身と、これまでに誰が持って行ったかを見る画面です。書かれていないことは「書かれていません」と出します。"
-      >
-        {children}
-      </Page>
-    </AdminShell>
+        </Note>
+      </Section>
+    </>
   );
 }

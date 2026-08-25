@@ -112,6 +112,55 @@ def _confirmed_cells_by_qa_ref(spec: dict, cat_id: str) -> list[tuple[str, list[
     return [(ref, cells_by_ref[ref]) for ref in ordered_refs]
 
 
+def _grounding_cells_by_qa_ref(spec: dict, cat_id: str) -> list[tuple[str, list[str]]]:
+    """確定セルの `qa_refs` と `required_info[].grounded_by` のうち `qa_ref` 以外を返す。
+
+    **なぜ要るか (2026-08-25 実測)**: `qa_ref` は 1 件しか持てないので、確定セルの裏付けは
+    `qa_refs` へ範囲として積み上がる。ところが章を組む側は `qa_ref` しか見ていなかった。
+    結果、範囲に在る裏付けは章に出ず、**再コンパイルのたびに落ちる**。実測では 8 章を
+    組み直したところ質疑録の本文が 369 行消えた (backend 88 / ui-ux 75 / frontend 74 …)。
+
+    消えた節は人が手で足したもので、`--on-handwritten` は `## ` 単位でしか手書きを見て
+    いないため `### ` の質疑録節はすり抜けていた。**「refuse が守っている」と読める緑が、
+    行単位では大きな損失を隠していた。**
+
+    直し方は 2 通りあった——手書きの検出単位を `###` まで下げるか、章の側が `qa_refs` を
+    読むようにするか。**後者を本体にする。**前者だけだと、正本に在る裏付けが「人が書いた
+    もの」として末尾へ溜まり続け、章が正本の投影であるという性質がそのぶん失われる。
+
+    **`required_info` も接地元である**: 既存章の小見出しは 2026-08-25 の時点で自ら
+    「接地根拠 (required_info/qa_refs が名指す裏付け)」と名乗っていた。つまり章を書いた
+    人は最初から両方を接地元と見ていた。`qa_refs` だけを読むと `qa-foundation-u1` /
+    `qa-platform-scope` (ui-ux.web の `required_info[].grounded_by`) が落ちる。
+
+    塞げていないところ: 章には `qa_refs` にも `required_info` にも無い ref の節が在る
+    (`qa-backend-web-overhaul-v2` / `qa-frontend-web-overhaul-v2` /
+    `qa-uiux-web-overhaul-v2` / `qa-uiux-web` の 4 件。うち前 3 件は `qa_log` にすら
+    無く、**章にしか存在しない本文**である)。**それらは正本から導出できない。**
+    手書き検出の側 (`###` まで下げた分) が拾って保全する。
+    """
+    row = _row(spec, cat_id)
+    primary = {ref for ref, _ in _confirmed_cells_by_qa_ref(spec, cat_id)}
+    ordered_refs: list[str] = []
+    cells_by_ref: dict[str, list[str]] = {}
+    for pf in CANONICAL_PLATFORMS:
+        cell = row.get(pf)
+        if not isinstance(cell, dict) or cell.get("state") != "確定":
+            continue
+        refs = list(cell.get("qa_refs") or [])
+        for item in cell.get("required_info") or []:
+            if isinstance(item, dict) and item.get("grounded_by"):
+                refs.append(item["grounded_by"])
+        for ref in refs:
+            if not ref or ref in primary:
+                continue
+            if ref not in ordered_refs:
+                ordered_refs.append(ref)
+            if pf not in cells_by_ref.setdefault(ref, []):
+                cells_by_ref[ref].append(pf)
+    return [(ref, cells_by_ref[ref]) for ref in ordered_refs]
+
+
 def render_confirmed_qa(spec: dict, cat_id: str) -> str:
     """確定セルが参照する質疑 (qa_log) の本文を章へ実体描画する。
 
@@ -122,15 +171,29 @@ def render_confirmed_qa(spec: dict, cat_id: str) -> str:
     """
     qa_map = _qa_by_id(spec)
     confirmed = _confirmed_cells_by_qa_ref(spec, cat_id)
+    grounding = _grounding_cells_by_qa_ref(spec, cat_id)
     ordered_refs = [ref for ref, _ in confirmed]
     cells_by_ref = dict(confirmed)
+    # 裏付けの範囲 (`qa_refs`) は `qa_ref` の後ろへ続ける。**見出しで役割を分ける**——
+    # どれが今の確定を名乗る質疑で、どれがその範囲に在る裏付けかが章だけで読めるように。
+    grounding_refs = {ref for ref, _ in grounding}
+    ordered_refs += [ref for ref, _ in grounding]
+    cells_by_ref.update(dict(grounding))
     lines = ["## 確定内容 (質疑録)", ""]
     if not ordered_refs:
         lines.append("- (確定セルなし。本章は対象外または収集中)")
         return "\n".join(lines)
     for ref in ordered_refs:
         qa = qa_map.get(ref)
-        lines.append(f"### {ref} (対応セル: {', '.join(cells_by_ref[ref])})")
+        # 文言は既存章が既に名乗っていたものをそのまま使う。**書式を変えると、中身が
+        # 同じでも行差分としては消失に見える。**実測でも 12 件がこれだけで「落ちた」と
+        # 数えられていた。
+        suffix = (
+            " — 接地根拠 (required_info/qa_refs が名指す裏付け)"
+            if ref in grounding_refs
+            else ""
+        )
+        lines.append(f"### {ref} (対応セル: {', '.join(cells_by_ref[ref])}){suffix}")
         lines.append("")
         if not qa:
             lines.append(f"- (qa_log に {ref} の本文が見つからない — 正本の欠落を要確認)")
@@ -286,6 +349,48 @@ def _render_candidate_card(candidate: dict) -> list[str]:
     return lines
 
 
+def _render_design_applications(qa: dict) -> list[str]:
+    """1 つの qa entry の `design_applications` を描く。
+
+    **主と裏付けで共有する。**裏付け側だけ描き方を変えると、そちらの原則・根拠・
+    トレードオフが章から落ちる。実測では `qa-ops-web` などの設計適用がまさにそれで
+    消えていた (質疑録の側には問答しか出ないので、ここが唯一の出口である)。
+    """
+    applications = qa.get("design_applications")
+    if not isinstance(applications, list) or not applications:
+        return [
+            "- 設計解釈の記録経路: `unrecorded`",
+            "- 設計原則の採否根拠: (未記録 — qa_log[].design_applications を writer 経由で補完すること)",
+        ]
+    provenance = qa.get("design_application_provenance")
+    if isinstance(provenance, dict):
+        lines = [
+            "- 設計解釈の記録経路: "
+            f"`{provenance.get('mode', '-')}` "
+            f"(`{provenance.get('writer', '-')}`)"
+        ]
+    else:
+        lines = ["- 設計解釈の記録経路: `dialogue`"]
+    for application in applications:
+        if not isinstance(application, dict):
+            continue
+        lines.extend(
+            [
+                f"- 原則: {application.get('principle', '(未記入)')} "
+                f"(`{application.get('knowledge_ref', '-')}`)",
+                f"  - 採否: `{application.get('applicability', '-')}`",
+                f"  - 章固有の根拠: {application.get('rationale', '(未記入)')}",
+                "  - トレードオフ:",
+            ]
+        )
+        tradeoffs = application.get("tradeoffs")
+        if isinstance(tradeoffs, list) and tradeoffs:
+            lines.extend(f"    - {value}" for value in tradeoffs)
+        else:
+            lines.append("    - (未記入)")
+    return lines
+
+
 def _render_chapter_application(spec: dict, cat_id: str) -> list[str]:
     """caller が記録した章固有の原則採否を確定判断へ紐付けて描画する。
 
@@ -295,7 +400,12 @@ def _render_chapter_application(spec: dict, cat_id: str) -> list[str]:
     applied/not_applicable、理由、trade-off をそのまま描画する。欠落は定型文で緑化せず
     fail-visible にし、C05 意味層評価へ差し戻す。
     """
+    # 質疑録の側と**同じ範囲**を描く。`_confirmed_cells_by_qa_ref` の docstring が
+    # 「同一の確定セルグルーピングを共有する (SSOT)」と言っている通りで、片方だけ
+    # `qa_refs` を読むようにすると、同じ章の中で 2 つの節が別の範囲を名乗ることになる。
+    # 実測でも `qa-ops-web` / `qa-ops-web-spec-intake` の設計適用がここから消えていた。
     confirmed = _confirmed_cells_by_qa_ref(spec, cat_id)
+    grounding = _grounding_cells_by_qa_ref(spec, cat_id)
     goals = chapter_serves_goals(spec, cat_id)
     qa_map = _qa_by_id(spec)
     lines = ["#### 本章での適用", ""]
@@ -319,39 +429,20 @@ def _render_chapter_application(spec: dict, cat_id: str) -> list[str]:
                 f"- (注記: 正本 qa_log[{ref}].answer のコードフェンスが閉じていないため、"
                 "章の構造を守るためコンパイラが閉じた。正本側の修正が要る)"
             )
-        applications = qa.get("design_applications")
-        if not isinstance(applications, list) or not applications:
-            lines.append("- 設計解釈の記録経路: `unrecorded`")
-            lines.append(
-                "- 設計原則の採否根拠: (未記録 — qa_log[].design_applications を writer 経由で補完すること)"
-            )
-            continue
-        provenance = qa.get("design_application_provenance")
-        if isinstance(provenance, dict):
-            lines.append(
-                "- 設計解釈の記録経路: "
-                f"`{provenance.get('mode', '-')}` "
-                f"(`{provenance.get('writer', '-')}`)"
-            )
-        else:
-            lines.append("- 設計解釈の記録経路: `dialogue`")
-        for application in applications:
-            if not isinstance(application, dict):
-                continue
-            lines.extend(
-                [
-                    f"- 原則: {application.get('principle', '(未記入)')} "
-                    f"(`{application.get('knowledge_ref', '-')}`)",
-                    f"  - 採否: `{application.get('applicability', '-')}`",
-                    f"  - 章固有の根拠: {application.get('rationale', '(未記入)')}",
-                    "  - トレードオフ:",
-                ]
-            )
-            tradeoffs = application.get("tradeoffs")
-            if isinstance(tradeoffs, list) and tradeoffs:
-                lines.extend(f"    - {value}" for value in tradeoffs)
-            else:
-                lines.append("    - (未記入)")
+        lines.extend(_render_design_applications(qa))
+    # 裏付けの範囲は**本文をポインタ・設計適用を実体**で置く。既存章 (frontend.md) が
+    # 人の手で書いていた「本文は質疑録を参照」をそのまま使う。回答を丸ごと二重に描くと
+    # 同じ文が 1 章に 2 度現れ、片方だけ直された日にどちらが正かを章から判定できない。
+    # 一方で `design_applications` はここが**唯一の出口**なので、ポインタで済ませない。
+    for ref, cells in grounding:
+        lines.extend(
+            [
+                f"##### 接地根拠 {ref} (対応セル: {', '.join(cells)})",
+                "",
+                f"- 本文: 「確定内容 (質疑録)」の `{ref}` を参照",
+            ]
+        )
+        lines.extend(_render_design_applications(qa_map.get(ref) or {}))
     if goals:
         lines.append(f"- 資するゴール: {', '.join(goals)}")
     return lines

@@ -41,13 +41,19 @@ const serverActionFiles = walk(join(ROOT, "src")).filter((f) =>
 
 describe("サーバー側の操作ファイル", () => {
   it("検査対象を実際に読めている", () => {
+    // 2026-08-21 に実測: ここは `> 0` だけだったので、**13 件のうち 12 件が
+    // 走査から落ちても緑のまま**だった。追跡表 REQ-FD06 は「11 ファイル」と
+    // 書いていて、その数を見ているものは何も無かった（実数はすでに 13 になっていた）。
+    // 実数ではなく「明らかに下回ったら壊れている数」を床にする。
     expect(serverActionFiles.length, '"use server" のファイルが 1 つも見つかりません').toBeGreaterThan(
-      0,
+      9,
     );
   });
 
   it("非同期の関数以外を外へ出していない", () => {
     const offenders: string[] = [];
+    // 母集団の床。対象が空なら「違反 0 件」は常に成り立つ。
+    expect(serverActionFiles.length, "検査対象が消えています").toBeGreaterThan(9);
     for (const file of serverActionFiles) {
       const source = readFileSync(file, "utf8");
       // `export { X }` / `export { X } from "./y"` の形。
