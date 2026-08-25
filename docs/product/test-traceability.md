@@ -5,7 +5,7 @@
 要件 → テストの向きは `docs/product/traceability.md` が正本で、ここはその裏返しに
 テスト側の `@req` 印を重ねたもの。
 
-- 最終更新: 2026-08-24
+- 最終更新: 2026-08-25
 - テストファイル: 273 件
 - 由来の要件が分かる: 271 件
 - **由来不明: 2 件**（上限 2 件）
@@ -293,4 +293,4 @@
 | `tests/ui/uiux-spacing-and-copy.test.ts` | REQ-UX08, REQ-UX10 | 印と表 |
 | `tests/ui/zz-probe-tone.test.tsx` | REQ-TM07 | 表 |
 | `tests/visual/visual-regression.test.ts` | REQ-S09, REQ-TS12, REQ-UX08 | 印 |
-<!-- 生成物の指紋 sha256:6982cf44915fc66d820789f99c5fc143edc853d2e35a0e92cddb3cc2726c95cf -->
+<!-- 生成物の指紋 sha256:39d2de919e6f7ddd4dbcc5e7f65424840cb67a4cefafdff5ebbaead96ea52690 -->

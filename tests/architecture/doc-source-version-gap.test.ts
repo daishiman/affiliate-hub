@@ -17,36 +17,36 @@ import { describe, expect, it } from "vitest";
  * `fetched-references.json` の 15 件全てが `freshness_source` を持つに至って、
  * 3 件が赤になった。以下はその指示に従って反転させたものである。
  *
- * ── 反転して分かったこと: 直ったのは片側だけである ──────────
+ * ── 2026-08-25、解除条件どおりに 4 つとも赤くなった ──────────
  *
- * `fetched-references.json` は直った。**しかし章の md は追随していない。**
- * 同じ事実の写しが 2 箇所にあり、更新が片方で止まっている (2026-08-23 実測):
+ * 前版は「部分的に直った状態を、部分的に直ったまま固定する」ものだった。
+ * 書き残した解除条件が 4 つとも当たったので、指示どおり**消さず向きを反転**させる。
  *
- *   | 対象 | 章 md | fetched-references.json |
+ * 何が起きたか。`system-spec/` を直接書けないので生成器を止めていたのだが、
+ * C03 compile が既存の手書き行を消さずに済むようになり (接地根拠の描画・
+ * 生成節の中の小節の引き継ぎ・保てなかった行の章末報告)、正本から章を
+ * 導出し直せるようになった。**乖離の原因は二重管理そのものではなく、
+ * 写し側を生成器で更新できずにいたことだった。**
+ *
+ *   | 対象 | 旧 (章 md) | 新 (章 md = fetched-references) |
  *   | --- | --- | --- |
- *   | `better-auth` | `1.6.29` | `1.7.1` (publisher-registry) |
- *   | `owasp-asvs` | `5.0` | `5.0.0` (page-declared) |
- *   | `apple-hig` | `2026-08-16` ← **取得日のまま** | `2026-08-06` (http-last-modified) |
+ *   | `better-auth` | `1.6.29` | `1.7.1` |
+ *   | `owasp-asvs` | `5.0` | `5.0.0` |
+ *   | `apple-hig` | `2026-08-16` ← 取得日 | `2026-08-06` |
  *
- * 章側が正しくなった 4 件は `cloudflare-d1` `cloudflare-workers` `google-sre`
- * （取得日 → 公式表明の更新日）と `nextjs`（`16.3.1` → `16.3.2`）。
- * 版が取得日で埋まっている章は **4 つから 1 つ (`apple-hig`) へ減った**。
- * 全部直ったのではない。**部分的に直った状態を、部分的に直ったまま固定する。**
+ * ── 前提が 1 つ壊れた: 章は出典を 1 本ずつ持たない ────────────
  *
- * 「最新確認」も同様に片側だけ動いた。8 章のうち独立に確かめ直されたのは
- * `nextjs` の 1 章だけで、残る 7 章は今も取得と同じ瞬間である。
- *
- * ── なぜ章 md を直さないか ──────────────────────────────
- *
- * `system-spec/` 配下は C01/C03 の単一 writer（根拠付き R4-reopen）経由でのみ
- * 変更してよい保護領域で、確定章ガードが直接の書き換えを遮断する。
- * **迂回して書かない。**検査側から乖離を見張るのが、この層で取れる正しい手である。
+ * `maintenance-ops` の出典が 1 本から 4 本になった (google-sre / vitest /
+ * github-actions / stryker-mutator)。これは退行ではない。CI/CD 品質ゲートの
+ * 質疑を正本へ足したことで、章が引く出典が正しく増えた。
+ * **旧版が固定していたのは事実ではなく、当時の形だった。**
+ * 数える単位を「章」から「出典行」へ移す (8 章 = 11 行)。
  *
  * ── 解除条件（次に赤くなる日） ──────────────────────────
  *
- *   - 「版が取得日である章は `apple-hig` だけ」が赤 → apple-hig に本物の版か更新日が入った
- *   - 「独立に確かめ直された章は `nextjs` だけ」が赤 → 他章も再確認された
- *   - 「章 md と fetched-references が食い違う 3 件」が赤 → 二重管理が解消した（か、増えた）
+ *   - 「食い違いは 0 件」が赤 → 写しが再び開いた。compile を当て直す
+ *   - 「版が取得日である行は 0 件」が赤 → 確かめた値の無い出典が戻った
+ *   - 「8 章 = 11 行」が赤 → 出典が増減した。増ならこの数を上げて残す
  *
  * どの赤でも**消さず、また向きを反転させて残すこと。**
  * 穴を見張る検査は、穴が塞がった日に役目を終えるのではない。
@@ -55,16 +55,19 @@ import { describe, expect, it } from "vitest";
 
 const ROOT = process.cwd();
 
-/** 章 → その章が持つ唯一の出典対象。 */
+/**
+ * 章 → その章が引く出典対象。**1 本とは限らない。**
+ * `maintenance-ops` は CI/CD 品質ゲートの質疑を正本へ足したことで 4 本になった。
+ */
 const CHAPTER_TARGETS = {
-  auth: "better-auth",
-  backend: "drizzle-orm",
-  database: "cloudflare-d1",
-  frontend: "nextjs",
-  infrastructure: "cloudflare-workers",
-  "maintenance-ops": "google-sre",
-  security: "owasp-asvs",
-  "ui-ux": "apple-hig",
+  auth: ["better-auth"],
+  backend: ["drizzle-orm"],
+  database: ["cloudflare-d1"],
+  frontend: ["nextjs"],
+  infrastructure: ["cloudflare-workers"],
+  "maintenance-ops": ["google-sre", "vitest", "github-actions", "stryker-mutator"],
+  security: ["owasp-asvs"],
+  "ui-ux": ["apple-hig"],
 } as const;
 
 /** 版番号ではなく日付が書かれている、という判定。`1.6.29` を日付と読まないこと。 */
@@ -92,8 +95,8 @@ type Row = {
   confirmedAt: string;
 };
 
-/** 「最新ドキュメント出典」表の本文行を 1 本だけ取り出す。 */
-function sourceRow(chapter: string): Row {
+/** 「最新ドキュメント出典」表の本文行を全部取り出す。 */
+function sourceRows(chapter: string): Row[] {
   const text = readFileSync(join(ROOT, `system-spec/${chapter}.md`), "utf8");
   const section = text.split(/^## /m).find((s) => s.startsWith("最新ドキュメント出典"));
   if (section === undefined) throw new Error(`${chapter}.md に最新ドキュメント出典が無い`);
@@ -101,9 +104,14 @@ function sourceRow(chapter: string): Row {
     .split("\n")
     .filter((line) => line.startsWith("|") && !/^\|\s*-+/.test(line) && !/^\|\s*対象\s*\|/.test(line))
     .map((line) => line.split("|").slice(1, -1).map((cell) => cell.trim()));
-  if (rows.length !== 1) throw new Error(`${chapter}.md の出典行が ${rows.length} 本`);
-  const [target, version, , , retrievedAt, confirmedAt] = rows[0];
-  return { chapter, target, version, retrievedAt, confirmedAt };
+  if (rows.length === 0) throw new Error(`${chapter}.md の出典行が 0 本`);
+  return rows.map(([target, version, , , retrievedAt, confirmedAt]) => ({
+    chapter,
+    target,
+    version,
+    retrievedAt,
+    confirmedAt,
+  }));
 }
 
 /** `fetched-references.json` 側の同じ対象の記録。章 md と突き合わせる相手。 */
@@ -120,41 +128,56 @@ function references(): Map<string, Reference> {
   return new Map(parsed.references.map((r) => [r.target_id, r]));
 }
 
-describe("最新ドキュメント出典の欄が欄名どおりの値を持っているか (部分的に直った状態の固定)", () => {
-  const rows = Object.keys(CHAPTER_TARGETS).map(sourceRow);
+describe("最新ドキュメント出典の欄が欄名どおりの値を持っているか (塞がった状態の固定)", () => {
+  const rows = Object.keys(CHAPTER_TARGETS).flatMap(sourceRows);
   const refs = references();
 
-  it("確定 8 章がそれぞれ出典を 1 本ずつ持っている（数える対象が消えていない）", () => {
+  it("確定 8 章が引く出典は合わせて 11 本で、対象も並びも正本どおり", () => {
     expect(rows.map((r) => [r.chapter, r.target])).toEqual(
-      Object.entries(CHAPTER_TARGETS),
+      Object.entries(CHAPTER_TARGETS).flatMap(([chapter, targets]) =>
+        targets.map((t) => [chapter, t]),
+      ),
     );
   });
 
-  it("版の欄が取得日そのものになっている章は apple-hig だけ——3 件は直った。戻れば赤くなる", () => {
+  it("版の欄が取得日そのものになっている行は 1 本も無い——戻れば赤くなる", () => {
     const selfDated = rows.filter(isRetrievalDate);
-    expect(selfDated.map((r) => `${r.target}=${r.version}`)).toEqual([
-      "apple-hig=2026-08-16",
-    ]);
+    expect(selfDated.map((r) => `${r.chapter}/${r.target}=${r.version}`)).toEqual([]);
   });
 
-  it("残る 7 章は版か、取得日ではない公式表明の更新日を持っている", () => {
-    const sound = rows.filter((r) => !isRetrievalDate(r));
-    expect(sound.map((r) => `${r.target}=${r.version}`)).toEqual([
-      "better-auth=1.6.29",
+  it("11 本すべてが版か、取得日ではない公式表明の更新日を持っている", () => {
+    expect(rows.map((r) => `${r.target}=${r.version}`)).toEqual([
+      "better-auth=1.7.1",
       "drizzle-orm=0.45.2",
       "cloudflare-d1=2026-04-30",
       "nextjs=16.3.2",
       "cloudflare-workers=2026-04-23",
       "google-sre=2017",
-      "owasp-asvs=5.0",
+      "vitest=2026-04-08",
+      "github-actions=free-pro-team@latest",
+      "stryker-mutator=10.0.0",
+      "owasp-asvs=5.0.0",
+      "apple-hig=2026-08-06",
     ]);
   });
 
-  it("独立に確かめ直された章は nextjs だけ——他章も再確認された日に赤くなる", () => {
+  /**
+   * 「最新確認」が取得と別の瞬間である＝取得したきり放置せず確かめ直した、という意味。
+   * 2026-08-25 実測で 11 本中 4 本 (nextjs / stryker-mutator / owasp-asvs / apple-hig)。
+   * 旧版は「nextjs だけ」と**同一性**で固定していたが、その形はもう無い。
+   */
+  it("取得と別の瞬間に確かめ直された出典が、達成済みの本数を下回らない", () => {
     const independent = rows.filter(
       (r) => (Date.parse(r.confirmedAt) - Date.parse(r.retrievedAt)) / 1000 >= 60,
     );
-    expect(independent.map((r) => r.target)).toEqual(["nextjs"]);
+    // 下限で見張る。5 本目を確かめ直したという**良い変化で赤くしない**ため。
+    expect(independent.length).toBeGreaterThanOrEqual(4);
+    // ただし本数だけでは、確かめ直した出典が入れ替わっても気づけない。
+    // 達成済みの顔ぶれは包含で残す (増えるのは自由、抜けたら赤)。
+    const names = independent.map((r) => r.target);
+    for (const target of ["nextjs", "stryker-mutator", "owasp-asvs", "apple-hig"]) {
+      expect(names, `${target} の 最新確認 が取得と同じ瞬間へ戻っていないか`).toContain(target);
+    }
     for (const r of rows) {
       const delta = (Date.parse(r.confirmedAt) - Date.parse(r.retrievedAt)) / 1000;
       expect(delta, `${r.target} の 最新確認 − 取得 (秒)`).toBeGreaterThanOrEqual(0);
@@ -169,10 +192,10 @@ describe("最新ドキュメント出典の欄が欄名どおりの値を持っ�
 
   /**
    * 同じ事実が章 md と `fetched-references.json` の 2 箇所にある。
-   * 2026-08-23 時点で片方だけが更新され、3 件が食い違っている。
-   * **食い違いが減っても増えても赤くする**のがこの検査の役目である。
+   * 2026-08-23 は 3 件が食い違っていた。C03 compile を当てて 0 になった。
+   * 写しは黙って古くなる。**再び開いた日に赤くする**のがこの検査の役目である。
    */
-  it("章 md と fetched-references の食い違いは既知の 3 件だけ", () => {
+  it("章 md と fetched-references は 1 件も食い違わない", () => {
     const drifted: string[] = [];
     for (const row of rows) {
       const ref = refs.get(row.target);
@@ -184,11 +207,7 @@ describe("最新ドキュメント出典の欄が欄名どおりの値を持っ�
         drifted.push(`${row.target}: 章=${row.version} / 参照=${expected}`);
       }
     }
-    expect(drifted).toEqual([
-      "better-auth: 章=1.6.29 / 参照=1.7.1",
-      "owasp-asvs: 章=5.0 / 参照=5.0.0",
-      "apple-hig: 章=2026-08-16 / 参照=2026-08-06",
-    ]);
+    expect(drifted).toEqual([]);
   });
 
   /**

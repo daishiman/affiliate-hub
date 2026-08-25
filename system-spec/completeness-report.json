@@ -17,7 +17,8 @@
         "requirements_foundation.provenance.field_sources は 23 件で、全件 written-requirements・sha256・sealed_on・sealed_with を持つ",
         "validate-coverage-matrix.py --require-complete --require-foundation exit 0",
         "確定 8 セルの qa_ref dangling 0、required_info は grounded 6 / ungrounded 0",
-        "C06 独立再計算: U1-U8 の source.sha256 を hashlib.sha256(answer utf-8) で再計算し全 8 件一致、U9 は user-dialogue 由来、foundation 根拠欠落 0"
+        "独立再計算: field_sources 23 件の sha256 を writer (state_transition_foundation.py の seal-foundation-sources、path のファイル全体を read_bytes して打刻) と同じ方法で計算し 23/23 一致 (docs/spec/01-要求仕様書-v1.0.md=b5fc6098… / docs/spec/03-分析・解析基盤仕様.md=5d84913a…)。この指紋が守るのは「出典文書が動いていないこと」までで、quote が文書のその節から採られたかは指紋では確かめられない (foundation_provenance.py の answer 原文照合は field_sources に answer キーが無いため空振りしている。別 finding として起票済み)",
+        "foundation 根拠欠落 0、U9 は user-dialogue 由来"
       ]
     },
     "decision_guidance": {
@@ -43,7 +44,8 @@
         "C07: ui-ux/web の reopen_log 2 entry は discarded に qa_ref・required_info・required_info_checks を完全退避、1 件目 reason の誤日付は 2 件目 reason が明示訂正 (append-only のため 1 件目自体は不変)",
         "C06: 聞き漏れ 0 / 誘導質問 0 / 早期停止 0 / トレース欠落 0 / foundation 根拠欠落 0、AUDIT_VERDICT: PASS",
         "deterministic matrix gates と required-info profile は exit 0",
-        "audit-fork-ledger.jsonl に record_kind=resolution / verdict_state=resolved の 3 行 (matrix / hearing / doc-freshness) が生成され、audit_delegations の 3 receipt が ledger_corroborates を通過"
+        "audit-fork-ledger.jsonl に record_kind=resolution / verdict_state=resolved の 3 行 (matrix / hearing / doc-freshness) が生成され、audit_delegations の 3 receipt が ledger_corroborates を通過",
+        "**2026-08-25 時点でこの台帳は再確認できない。**eval-log/ は .gitignore 済みでコミットされず、eval-log/system-spec-harness/audit-fork-ledger.jsonl は現在存在しない (aggregate-completeness.py --report が exists=False で 3 件の VIOLATION を出す)。上の 3 行は当時の run で確かに書かれたが、揮発物なので後から裏取りできない。台帳を残す先を gitignore の外へ移すか、評価のたびに実 fork し直すかの判断が要る (gap として起票)"
       ]
     },
     "design_knowledge_reflection": {
@@ -52,8 +54,8 @@
       "component": "C05",
       "summary": "機械層の knowledge/doctrine グラフと全章の設計知識ポインタが成立し、意味層でも 8 カテゴリ全章が現在の確定 qa_ref に対する『本章での適用』を描画している。前回 FAIL の根拠だった 6 章 (backend / database / frontend / infrastructure / maintenance-ops / security) の mismatch は、各章が current qa_ref の節を持つことを章本文の走査で全件確認して解消した。旧 Q&A の適用節は履歴として併存しているが、current qa_ref の節が別に存在するため『現在の確定要件にどの原則が効くか』は章だけで追える。",
       "evidence": [
-        "8/8 章で current qa_ref の『確定内容 <qa_ref>』節が実在: database=qa-database-web-spec-intake / auth=qa-auth-web / ui-ux=qa-uiux-web-screen-priority / security=qa-security-web-spec-intake / infrastructure=qa-infra-web-spec-intake / backend=qa-backend-web-spec-intake / frontend=qa-frontend-web-spec-intake / maintenance-ops=qa-ops-web-spec-intake",
-        "6 章は旧 Q&A の節 (qa-*-web-analytics / qa-infra-web-redirect / qa-security-web / qa-ops-web) を履歴として併存させたうえで current 節を持つ",
+        "8/8 章で current qa_ref の『確定内容 <qa_ref>』節が実在: database=qa-database-web-spec-intake / auth=qa-auth-web / ui-ux=qa-uiux-web-screen-priority / security=qa-security-web-spec-intake / infrastructure=qa-infra-web-migration-guard / backend=qa-backend-web-spec-intake / frontend=qa-frontend-web-spec-intake / maintenance-ops=qa-ops-web-migration-guard",
+        "6 章は旧 Q&A の節 (qa-*-web-analytics / qa-infra-web-redirect / qa-infra-web-spec-intake / qa-security-web / qa-ops-web / qa-ops-web-spec-intake) を履歴として併存させたうえで current 節を持つ",
         "aggregate-completeness.py --knowledge-graph は knowledge/doctrine/required-info/cross の 4 profile すべて exit 0"
       ]
     },
@@ -61,7 +63,7 @@
       "verdict": "PASS",
       "auditor": "system-spec-doc-freshness-auditor",
       "component": "C08",
-      "summary": "形式層は 15 targets / 15 references で exit 0、内容鮮度層も C08 の独立再照合で PASS。前回 FAIL の 3 因はすべて解消した: (1) Next.js の 16.3.1 は registry 現行 16.3.2 へ更新済みで C08 の独立 npm 照会と一致、(2) Apple HIG は 08-16/08-19/08-22 の 3 回の再取得で content_sha256 と Last-Modified が一致し続けることを証跡の reverification 欄で辿れる、(3) target inventory 欠落 7 件は全件登録済み。取得日を version/last_updated へ代入した record は 0 件、非公式 host 0 件、evidence_sha256 は 15 件全件が実ファイルと一致した。C08 が medium として残した owasp-asvs の出所欠落は、C08 の run 後に C05 が本文を再取得して解消した (下記 evidence の最終行)。delegation 側の evidence は C08 が監査した時点の観測をそのまま残してあり、後から書き換えていない。**ただしこの判定の対象は fetched-references.json であって章 md の出典表ではない。**章側は 3 件が参照側に追随しておらず、medium finding (bucket=doc_freshness, 章 md 追随) として別に立てた。",
+      "summary": "形式層は 15 targets / 15 references で exit 0、内容鮮度層も C08 の独立再照合で PASS。前回 FAIL の 3 因はすべて解消した: (1) Next.js の 16.3.1 は registry 現行 16.3.2 へ更新済みで C08 の独立 npm 照会と一致、(2) Apple HIG は 08-16/08-19/08-22 の 3 回の再取得で content_sha256 と Last-Modified が一致し続けることを証跡の reverification 欄で辿れる、(3) target inventory 欠落 7 件は全件登録済み。取得日を version/last_updated へ代入した record は 0 件、非公式 host 0 件、evidence_sha256 は 15 件全件が実ファイルと一致した。C08 が medium として残した owasp-asvs の出所欠落は、C08 の run 後に C05 が本文を再取得して解消した (下記 evidence の最終行)。delegation 側の evidence は C08 が監査した時点の観測をそのまま残してあり、後から書き換えていない。**この判定の対象は fetched-references.json であって章 md の出典表ではない。**章側は 2026-08-23 時点で 3 件が追随していなかったが、2026-08-25 に C03 compile を auth / security / ui-ux へ当てて食い違い 0 件になった (info finding bucket=doc_freshness に実測を記録)。",
       "evidence": [
         "C13 validate-source-citation.py exit 0、登録 15 targets の reference 欠落 0、非公式 host 0",
         "C08 独立 npm 照会: next=16.3.2 / drizzle-orm=0.45.2 / @stryker-mutator/core=10.0.0 / better-auth=1.7.1 いずれも記録値と一致",
@@ -308,26 +310,27 @@
   ],
   "findings": [
     {
-      "severity": "medium",
+      "severity": "low",
       "bucket": "regeneration",
-      "observation": "system-spec/*.md の手書き節は C03 compile の生成物ではなく、compile を走らせれば静かに消えていた。**被害範囲は当初の記述より広かった。**本物の章の複製で実測したところ、失われるのは 10 ファイル (00-requirements-definition.md + 確定 8 章すべて + index.md) で、節も As-Is / To-Be / Delta だけでなく ## 確定セルの記録 (正本 spec-state.json) / ## 意思決定 (decisions) / ## Dependencies / ## Acceptance evidence / ## 状態の意味 / ## 履歴、index.md では ## 仕様統制と状態軸 / ## 実装依存順 を含む。2026-08-23 に write_docset へ fail-closed と引き継ぎを入れて解消した。既定 (refuse) は生成物に無い節を見つけると 1 ファイルも書かずに中止し、--on-handwritten preserve は手書き節を既存の並び順で引き継ぐ。**ただし preserve でも足りない。**本物の章の複製で現行再測定すると、節の引き継ぎ後もなお 424 行が移動ではなく消える。内訳は 00-requirements-definition=15 / auth=2 / backend=88 / database=71 / frontend=74 / index=13 / infrastructure=19 / maintenance-ops=28 / security=39 / ui-ux=75 行である。compile は current qa_ref しか描画せず qa_refs の履歴を落とし、節単位の引き継ぎは生成節の中に人が書き足した小節を守れない。medium のままなのはこのため。黙って通らないよう、preserve でも消える行を数えて stderr へ出すようにした。",
-      "suggested_fix": "compile が qa_refs の先行質疑も描画するようにし、生成節の中の手書き小節も引き継げるようにする。それまで正本へ compile を適用しない。preserve は節を守るだけで安全という意味ではない。",
+      "observation": "system-spec/*.md の手書き節は C03 compile の生成物ではなく、compile を走らせれば静かに消えていた。2026-08-23 に write_docset へ fail-closed (既定 refuse は生成物に無い節を見つけると 1 ファイルも書かずに中止) と節の引き継ぎ (--on-handwritten preserve) を入れ、それでも 424 行が消えていたのを 2026-08-24 に三段で閉じた。(1) qa_refs / required_info[].grounded_by が名指す先行質疑も『接地根拠』節として描画する、(2) 生成節の内側に人が書き足した**小節**も引き継ぐ、(3) 節にも小節にも属さない孤立行 (生成される表へ人が足した 1 行など) は本文へ戻す場所が無いので、章末の `## compile が保てなかった行 (要判断)` へ写して報告する。全 10 章を複製へ compile した現行再測定で、行として本当に消えるものは **0** である (報告節へ写された 61 / 見出しの役割変更 8 / ポインタ化 2 / 真の消失 0)。low で残すのは、報告節の 61 行が本文から報告へ**移った**状態であり、正本へ接続し直すか不要と確かめて消す作業が人に残っているためである。",
+      "suggested_fix": "報告節に挙がった 61 行を章ごとに読み、正本 (spec-state.json の qa_log / required_info) へ接続するか、不要と確かめて消す。報告節は compile のたびに作り直され、前回の写しは持ち越されるので、放置しても行は失われないが減りもしない。",
       "evidence": [
         "本物の章を複製した上での実測: 既定で exit 1、複製 10 件が 1 文字も変化しないことを before/after 比較で確認",
-        "--on-handwritten preserve で exit 0、10 ファイルで計 424 行の消失を再測定 (00=15 / auth=2 / backend=88 / database=71 / frontend=74 / index=13 / infrastructure=19 / maintenance-ops=28 / security=39 / ui-ux=75)",
-        "test_compile_spec_doc_cli.py に 5 件追加 (検出の両方向・部分適用しないこと・二度走らせても増殖しないこと・未知モードの拒否)"
+        "2026-08-24 の全 10 章 compile (--on-handwritten preserve) を複製で再測定: 新側に 1 度も現れない行 71 を分類し、報告節へ写された 61 / 役割変更 8 / ポインタ化 2 / 真の消失 0",
+        "正本への適用は --only で影響章に絞って実施 (infrastructure.md / maintenance-ops.md)。組み立ては常に全章を通すので index の相互参照は正本どおりに導出される",
+        "受入テスト: test_chapter_grounding_refs.py 21 件 + test_compile_only_scope.py 5 件を追加し、プラグイン全体 480 passed。突然変異 16 種 (接地描画 / 小節引き継ぎ / --only / 報告節) をすべて赤で実測"
       ]
     },
     {
       "severity": "info",
       "bucket": "doc_freshness",
-      "observation": "同じ事実が fetched-references.json と章 md の「最新ドキュメント出典」表の 2 箇所にあり、参照側だけが更新されて章側が追随していない。better-auth は章 1.6.29 / 参照 1.7.1、owasp-asvs は章 5.0 / 参照 5.0.0、apple-hig は章が取得日 2026-08-16 のままで参照は http-last-modified 由来の 2026-08-06。章 md は読み手が最初に見る面なので、参照側が正しくても読み手には古い値が見える。なお 4 件 (cloudflare-d1 / cloudflare-workers / google-sre / nextjs) は章側も追随済みで、版の欄が取得日のままなのは apple-hig 1 件に減っている。6 観点の判定を落とさないのは、正本である fetched-references の値が正しく、章側の乖離が写しの遅れであって出所の欠落ではないためである。",
-      "suggested_fix": "compile は既に出典表を fetched-references から生成する。走らせられなかったのは手書き節が消えるためで、その fail-closed と引き継ぎが 2026-08-23 に入った。複製上で compile --on-handwritten preserve を走らせると 3 件とも参照側の値になり食い違いは 0 になる (auth 1.6.29→1.7.1 / security 5.0→5.0.0 / ui-ux 2026-08-16→2026-08-06)。つまりこの乖離の原因は二重管理そのものではなく生成器を止めていたこと。**ただし今 compile を走らせると 10 ファイル・計 424 行が失われる**ので、regeneration finding の 2 点 (qa_refs の描画・小節の引き継ぎ) を先に直す。3 件だけを手で直す道もあるが、それは二重管理を続ける選択になる。適用は C01/C03 の単一 writer 経由。",
+      "observation": "同じ事実が fetched-references.json と章 md の「最新ドキュメント出典」表の 2 箇所にあり、2026-08-23 時点では参照側だけが更新されて章側が追随していなかった (better-auth 1.6.29 / owasp-asvs 5.0 / apple-hig は取得日 2026-08-16 のまま)。2026-08-25 に C03 compile を auth / security / ui-ux へ当てて 3 件とも解消し、食い違いは 0 件になった。**乖離の原因は二重管理そのものではなく、写し側を生成器で更新できずにいたことだった。**compile が手書き行を消さずに済むようになった (regeneration finding 参照) ことで、写しを正本から導出し直せるようになった。info で残すのは、写しが 2 箇所にある構造自体は変わっておらず、compile を当てない限り再び開くためである。",
+      "suggested_fix": "章 md の出典表は compile が fetched-references から導出する。参照側を更新したら compile を当てて写しを追随させる。手で直さない (それは二重管理を続ける選択になる)。適用は C01/C03 の単一 writer 経由。",
       "evidence": [
-        "tests/architecture/doc-source-version-gap.test.ts 『章 md と fetched-references の食い違いは既知の 3 件だけ』が 3 件を固定 (2026-08-23 に検査の向きを反転させた)",
-        "章側が追随済み: cloudflare-d1=2026-04-30 / cloudflare-workers=2026-04-23 / google-sre=2017 / nextjs=16.3.2",
-        "版の欄が取得日そのものの章は apple-hig=2026-08-16 の 1 件のみ (旧状態は 4 件)",
-        "8 章のうち『最新確認』が取得と独立しているのは nextjs の 1 章だけで、残る 7 章は今も取得と同一時刻"
+        "tests/architecture/doc-source-version-gap.test.ts を 2026-08-25 に再反転。『章 md と fetched-references は 1 件も食い違わない』『版の欄が取得日そのものになっている行は 1 本も無い』を同一性で固定し、再び開いた日に赤くなる",
+        "実測 (2026-08-25): 確定 8 章が引く出典は計 11 本、食い違い 0 件、版=取得日 0 件",
+        "maintenance-ops の出典が 1 本から 4 本へ増えた (google-sre / vitest / github-actions / stryker-mutator)。CI/CD 品質ゲートの質疑を正本へ足した結果を章が正しく反映したもので、退行ではない。旧テストが固定していたのは事実ではなく当時の形だったため、数える単位を章から出典行へ移した",
+        "『最新確認』が取得と別の瞬間である出典は 11 本中 4 本 (nextjs / stryker-mutator / owasp-asvs / apple-hig)。旧状態の 1 本から増えたので、達成済みの下限として見張る形へ変えた"
       ]
     },
     {
@@ -384,279 +387,281 @@
     }
   ],
   "gaps": [
-    "compile が qa_refs の先行質疑を描画せず、生成節の中の手書き小節も引き継げない。複製上の現行再測定では preserve 後も 10 ファイル・424 行が消える。それまで compile を正本へ適用しない",
-    "章 md の出典表 3 件 (better-auth 1.6.29→1.7.1 / owasp-asvs 5.0→5.0.0 / apple-hig 2026-08-16→2026-08-06) がfetched-references と食い違う。compile を安全に走らせられるようになれば同時に解消することを複製上で実測済み"
+    "compile の報告節 (`## compile が保てなかった行 (要判断)`) に挙がった行を正本へ接続し直す作業が人に残っている。適用済み 5 章に 55 行 (auth=2 / infrastructure=14 / maintenance-ops=17 / security=16 / ui-ux=6)、未適用 5 章を今 compile すると新たに 92 行 (00-requirements-definition=16 / database=39 / backend=8 / frontend=16 / index=13) が本文から報告へ移る。行は失われない (複製上の再測定で真の消失 0) が、報告節は毎回作り直して持ち越すため、放置しても減らない",
+    "正本 qa_log[qa-backend-web-analytics].answer のコードフェンスが閉じておらず、compile が章の構造を守るために閉じて注記を打っている。正本側 (spec-state.json) の修正が要る",
+    "監査 fork 台帳 (eval-log/system-spec-harness/audit-fork-ledger.jsonl) が .gitignore 配下の揮発物で、現在は存在しない。audit_delegations の 3 receipt を後から裏取りできず aggregate-completeness.py --report が 3 件の VIOLATION を出す。台帳の置き場を gitignore の外へ移すか、評価のたびに実 fork し直すかを決める必要がある",
+    "未適用 5 章 (00-requirements-definition / database / backend / frontend / index) は compile を当てていないため、正本から導出される層が古いままの可能性がある。database.md は章本文自身が『再生成すると規範本文が失われる』と測定つきで警告しており、規範本文の正本が章側にある。この章は compile 適用の前に正本と章の役割分担を決める必要がある"
   ],
   "inputs": {
-    "sha256": "a2494626b301112d8cd6baef0d6458b68b164bf0987bf62d6df44a1b7affb13f",
+    "sha256": "1e0e9068370cb14603a11961f42c8c046720378edbbc1ba53e4a283c5e1d9fbb",
     "file_count": 53,
     "files": [
       {
         "path": "docs/spec/00-README.md",
         "sha256": "310885f2d2b0e2d743bf31a59d83f1ec423682c59a3cc007c9e9f62aa9d97782",
-        "mtime": 1787533779
+        "mtime": 1787305982
       },
       {
         "path": "docs/spec/01-要求仕様書-v1.0.md",
         "sha256": "b5fc60987cb79c08c30db4cd94b075a0bf89cd7acba7c8d1ffc8558af6439385",
-        "mtime": 1787533779
+        "mtime": 1787305982
       },
       {
         "path": "docs/spec/02-補充仕様-ギャップと追加要件.md",
         "sha256": "73b3204fcb5c71edf4704817b12af2d36939993ba1194bf04c1f4ceff9c8cd25",
-        "mtime": 1787533779
+        "mtime": 1786881072
       },
       {
         "path": "docs/spec/03-分析・解析基盤仕様.md",
         "sha256": "5d84913a2422b9e697422b0656f90cf90633b0bd75adcebe0c6696e01fc9e45f",
-        "mtime": 1787533779
+        "mtime": 1787305982
       },
       {
         "path": "docs/spec/04-二層構造統合仕様.md",
         "sha256": "d01442b19c1b9e29681719f2768847c39ec0fea34bfdf6438247c814c037f765",
-        "mtime": 1787533779
+        "mtime": 1787305982
       },
       {
         "path": "docs/spec/05-文章作成メソッド仕様.md",
         "sha256": "edcbd22afffe076c76aea32bf4ae744c57db441834ffa1d79ee2e29245502696",
-        "mtime": 1787533779
+        "mtime": 1787305982
       },
       {
         "path": "docs/spec/06-サイトブループリント-記事構成テンプレート.md",
         "sha256": "462fcf098f3765cf3392566550e454bc77e693b269b975e5f542b134acf897ea",
-        "mtime": 1787533779
+        "mtime": 1787305982
       },
       {
         "path": "docs/spec/07-生成基盤設計.md",
         "sha256": "d155d9183ef16be0cda994d490bcf3fb359d0758f9415e61f950f3b4e43e0a3e",
-        "mtime": 1787533779
+        "mtime": 1787305982
       },
       {
         "path": "docs/spec/08-仕様の未修正点.md",
         "sha256": "b79d5715a63404442a0b3eab05299988c24f7f1eb544dca79fd81a61e3e56665",
-        "mtime": 1787533779
+        "mtime": 1787305982
       },
       {
         "path": "docs/spec/09-UIテーマ仕様.md",
         "sha256": "9bfeb611748edaf08e865fe740637e37e025af153c3a2bc0a5cffabb1dc6c6f1",
-        "mtime": 1787533779
+        "mtime": 1787305982
       },
       {
         "path": "docs/spec/10-テスト戦略仕様.md",
         "sha256": "c1ca47a0525aea84ef244d2e8b265e353c4df55288c0f27c2bb75a9e492ff3d5",
-        "mtime": 1787534060
+        "mtime": 1787534449
       },
       {
         "path": "docs/spec/11-CI-CD・品質ゲート仕様.md",
-        "sha256": "b5466eba44f88039622cc6228d40fa54173fcaccdea15e75a2c37997234d7583",
-        "mtime": 1787534060
+        "sha256": "12a79297845e8e801a6a1b27f5762d44cfac160f2d1a749e0768d268dbde2a1f",
+        "mtime": 1787606240
       },
       {
         "path": "docs/spec/12-改善要望フィードバック仕様.md",
         "sha256": "f814f1a62e30eebb4512ba0c7964bfdb6986c4007af406aab7d8d7e58e17a856",
-        "mtime": 1787533779
+        "mtime": 1787305982
       },
       {
         "path": "docs/spec/ai-first-webmcp.md",
         "sha256": "35241bfe4e82f6536d871c179eb938681ec771991fa50a59c72d5d97d3c98713",
-        "mtime": 1787533779
+        "mtime": 1786881072
       },
       {
         "path": "docs/spec/completion-criteria.md",
         "sha256": "07cb3de0ca834a6776d6e08dfd11a3d6bd1b848d962d1f582d9e41f0705a8943",
-        "mtime": 1787533779
+        "mtime": 1786881072
       },
       {
         "path": "docs/spec/data-model-gap.md",
         "sha256": "97861d9844e975922b73715c49d5ea7f4a8db53e83fbbbf0e73a54a32fb6754c",
-        "mtime": 1787533779
+        "mtime": 1786881072
       },
       {
         "path": "docs/spec/dialogue-confirmations.md",
         "sha256": "1312a2372403173dc8b57112ae0178d713c93a05471124e201e084bf0da8daa1",
-        "mtime": 1787533779
+        "mtime": 1787305982
       },
       {
         "path": "docs/spec/feat-blog-ui-builder/final-review.md",
         "sha256": "39c2b7139bf6db0090238ccd53085a716b2159e94c34be373c0ceadeef9422ee",
-        "mtime": 1787569451
+        "mtime": 1787604723
       },
       {
         "path": "docs/spec/feat-blog-ui-builder/operations.md",
         "sha256": "e2d13aa6e106d1fc722a69d5cba181a855ac6d468aa138c32c690c7c5c295974",
-        "mtime": 1787569451
+        "mtime": 1787604723
       },
       {
         "path": "docs/spec/feat-blog-ui-builder/release-report.md",
         "sha256": "fddacdf296ff6b3077c958a34563314a925de820fda17e488ba97edc1cfac3a9",
-        "mtime": 1787569773
+        "mtime": 1787604723
       },
       {
         "path": "docs/spec/feat-blog-ui-builder/seo-ai-search-implementation.md",
         "sha256": "50fe812c1602072e92f34d0135bc79a97af7cca6b4ea5817d3477d9a9e62fcb8",
-        "mtime": 1787569484
+        "mtime": 1787604723
       },
       {
         "path": "docs/spec/feat-blog-ui-builder/spec-writeback-receipt.md",
         "sha256": "0eeee78ec7a7cf517edcb66e5c6e71eea741c231c1007ff8a5833af10050ca7e",
-        "mtime": 1787569515
+        "mtime": 1787604723
       },
       {
         "path": "docs/spec/feat-blog-ui-builder/ui-rules.md",
         "sha256": "ef4190022c1545a6be64202dccc8537c2d56c3225c3f6a2c36fd6d1689f98cb5",
-        "mtime": 1787569451
+        "mtime": 1787604723
       },
       {
         "path": "docs/spec/feat-uiux-overhaul/acceptance-report.md",
         "sha256": "7bfaa8778e04c2210da2f58d9e8638cc62b528e93bd82f4dbd56e3ffd61c2257",
-        "mtime": 1787557898
+        "mtime": 1787604723
       },
       {
         "path": "docs/spec/feat-uiux-overhaul/admin-api-contract.md",
         "sha256": "335d57d9a267c6d80f8ca6000e0f3513cfabe9364e72a222f35671e1490d5d11",
-        "mtime": 1787534060
+        "mtime": 1787534449
       },
       {
         "path": "docs/spec/feat-uiux-overhaul/blog-scaffold-contract.md",
         "sha256": "b1ebe26d43cbcefeb152ade3cf9c31781cab832a6aaff24b87971c97483d38da",
-        "mtime": 1787534060
+        "mtime": 1787534449
       },
       {
         "path": "docs/spec/feat-uiux-overhaul/component-contract.md",
         "sha256": "2926e4a4db7f77c4a2b247a520b839dfc2011025a5376df9180efe07dc2b02cb",
-        "mtime": 1787534060
+        "mtime": 1787534449
       },
       {
         "path": "docs/spec/feat-uiux-overhaul/design-review.md",
         "sha256": "e073aedc4734bfb763d429c4c116b0a6f1222ee3381ca9c20546a06b40d74bf6",
-        "mtime": 1787534060
+        "mtime": 1787534449
       },
       {
         "path": "docs/spec/feat-uiux-overhaul/evidence/README.md",
         "sha256": "14a86e2d542cf7f00d944f2f562924c4f15999a89c306b0a7293b85ede70364f",
-        "mtime": 1787534060
+        "mtime": 1787534449
       },
       {
         "path": "docs/spec/feat-uiux-overhaul/final-review.md",
         "sha256": "1f024f5e5c6fd87a7e7665266c703b3f284122f06ba1f4de81fe6f46e8a88c61",
-        "mtime": 1787557898
+        "mtime": 1787604723
       },
       {
         "path": "docs/spec/feat-uiux-overhaul/migration-report.md",
         "sha256": "3f3a69d30391831bdc11b70ee5fd0944952c32633b1c091a4a4f83f0372d7599",
-        "mtime": 1787534060
+        "mtime": 1787534449
       },
       {
         "path": "docs/spec/feat-uiux-overhaul/operations.md",
         "sha256": "a26d05b65d58040ff18bc515231d74671f4e99f654f6891b06deaf27bc0d4126",
-        "mtime": 1787534060
+        "mtime": 1787534449
       },
       {
         "path": "docs/spec/feat-uiux-overhaul/quality-report.md",
         "sha256": "4845a67556097d01c6ddd5184ec653a36eefef8e91c82cda19a8d2736236c1b6",
-        "mtime": 1787534060
+        "mtime": 1787534449
       },
       {
         "path": "docs/spec/feat-uiux-overhaul/release-report.md",
         "sha256": "ca0d80c81cf5929d534bc106dd0b2205bf03299020b983288fb0a1236cf592ba",
-        "mtime": 1787557898
+        "mtime": 1787604723
       },
       {
         "path": "docs/spec/feat-uiux-overhaul/requirements-baseline.md",
         "sha256": "e06d162c96e99970bf82a5c7530fa36515d1ceb2264b7005aad8e7169c48d895",
-        "mtime": 1787534060
+        "mtime": 1787534449
       },
       {
         "path": "docs/spec/feat-uiux-overhaul/screen-architecture.md",
         "sha256": "52edfd845500fdd6ceb0414e572caeb29f9fd259dcf229e465b1f575cf4bf635",
-        "mtime": 1787534060
+        "mtime": 1787534449
       },
       {
         "path": "docs/spec/feat-uiux-overhaul/screen-inventory.md",
         "sha256": "9adb840149a760eda0915cc537e219b2e8768f6963d349ac198fb0b7ab77d50e",
-        "mtime": 1787534060
+        "mtime": 1787534449
       },
       {
         "path": "docs/spec/feat-uiux-overhaul/sns-provider-contract.md",
         "sha256": "38bafcc8fb04b7fcdbabf15d22a8be550905d4c53c7a408cf7c9f377874ed5de",
-        "mtime": 1787534060
+        "mtime": 1787534449
       },
       {
         "path": "docs/spec/feat-uiux-overhaul/spec-writeback-receipt.md",
         "sha256": "82ac6891e55704f1b78a87dc3a1f31da12a888233141088bc3cd5d09bd0e2c6f",
-        "mtime": 1787534060
+        "mtime": 1787534449
       },
       {
         "path": "docs/spec/feat-uiux-overhaul/test-design.md",
         "sha256": "0218f0e65a9cf2efde9fb29821131a74dd80b4a1d5537766e7c6fc9399920abb",
-        "mtime": 1787534060
+        "mtime": 1787534449
       },
       {
         "path": "docs/spec/feat-uiux-overhaul/test-run-report.md",
         "sha256": "7c807e720628a7afef2204e97a039122bda8fa70eb74a1e4bb6a569d2289ae91",
-        "mtime": 1787534060
+        "mtime": 1787534449
       },
       {
         "path": "docs/spec/feat-uiux-overhaul/ui-rules.md",
         "sha256": "66ea836c06f39c9d71cd7f4d30706ce9d1a16a1defa3edb291ab8e01f27ce746",
-        "mtime": 1787534060
+        "mtime": 1787534449
       },
       {
         "path": "system-spec/00-requirements-definition.md",
         "sha256": "f0fe318e7e0f8c139174c5a16896947e40867e9ac4d77e1aff4a36eb3e7a05be",
-        "mtime": 1787557730
+        "mtime": 1787610543
       },
       {
         "path": "system-spec/auth.md",
-        "sha256": "32ef83f223231a4d7e29db9b710cedd68ffca217d9cfb631dca6fbedb0b63086",
-        "mtime": 1787557730
+        "sha256": "5d23de0416ed317668be8d37344d8d34573aa90dc4c5f86d26c42511018e1a61",
+        "mtime": 1787614084
       },
       {
         "path": "system-spec/backend.md",
         "sha256": "4b61c1533ad14b6aabf443271b7fc83d51e12bddd0065e4839020fb3a68b5814",
-        "mtime": 1787557730
+        "mtime": 1787610543
       },
       {
         "path": "system-spec/database.md",
         "sha256": "cdbd82a9e9e10a49ef9ecd649eeda30001e4f47e6a94b78176890e3ed5e4126f",
-        "mtime": 1787557730
+        "mtime": 1787610543
       },
       {
         "path": "system-spec/frontend.md",
         "sha256": "737845a6173b0419c03d97c19598aeba9d721428279d9ff3e532d694cb731431",
-        "mtime": 1787557730
+        "mtime": 1787610543
       },
       {
         "path": "system-spec/index.md",
         "sha256": "409add2dc4ceef4637f1a2048bdd9a2e54a4a9873cc4e70a9d160a13c5d63e44",
-        "mtime": 1787557730
+        "mtime": 1787610543
       },
       {
         "path": "system-spec/infrastructure.md",
-        "sha256": "0f9f1facc6abe502ce57756fd252fe850f366ea9e9360998a088ae3f35383e85",
-        "mtime": 1787557730
+        "sha256": "2a728925aa7a69f6c9567348932668a3a9276a415ab3c044fb2644c05a672188",
+        "mtime": 1787613636
       },
       {
         "path": "system-spec/maintenance-ops.md",
-        "sha256": "7690370ef0cdfa3a921e4090563bf8b68ee402823ca2fbdda00b5f14c72f251a",
-        "mtime": 1787557730
+        "sha256": "88407c4511ffe740ca1aae8364ffcf5b585e36f16f5f51879265459fa6cd7785",
+        "mtime": 1787613636
       },
       {
         "path": "system-spec/security.md",
-        "sha256": "0c81642304f650fea1f63780dd8c96cdea18a117f6cd7783f850845d860e0cb7",
-        "mtime": 1787557730
+        "sha256": "3eb2e5c41df33aa5d80d623a66dbbaa810a015767e805b86e1923dd90bfec3e4",
+        "mtime": 1787614084
       },
       {
         "path": "system-spec/spec-state.json",
-        "sha256": "e2c9828bb3ce96685d0c94b601028290fdfd2085a144ee1178d90f00d0dd5d54",
-        "mtime": 1787557781
+        "sha256": "ff1a9c1e51f4d848a54fe68b415fc5fa5cee1267fb3ee0409197c208e4c6aca9",
+        "mtime": 1787609200
       },
       {
         "path": "system-spec/ui-ux.md",
-        "sha256": "8bdb5a18064413ad48be8a7104a163b7f0ac2ee96a8997224a4944cd377db1bb",
-        "mtime": 1787557730
+        "sha256": "2be5021b85c43065848044179a3021af9c1c05a2869583ece5a1457a7501d7c0",
+        "mtime": 1787614084
       }
     ],
-    "pinned_at": "2026-08-24T13:44:43.312Z"
+    "pinned_at": "2026-08-24T23:35:48.085Z"
   }
 }
