@@ -11,6 +11,168 @@ serves_goals: [G2, G1]
 - カテゴリ集約状態: **確定**
 - 章確定マーカー: `status: confirmed`
 
+## カテゴリ別収集状態
+
+| プラットフォーム | 状態 | 根拠 |
+|---|---|---|
+| Web (web) | 確定 | 確定質疑: qa-infra-web-spec-intake。裏付け質疑 (`qa_refs`): `qa-infra-web`, `qa-infra-web-redirect` — 本章の「確定内容 (質疑録)」へ接地根拠として併記 |
+| モバイル (mobile) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |
+| タブレット (tablet) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |
+| デスクトップ (Windows) (desktop-windows) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |
+| デスクトップ (Linux) (desktop-linux) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |
+| デスクトップ (macOS) (desktop-macos) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |
+
+## 確定内容 (質疑録)
+
+### qa-infra-web-spec-intake (対応セル: web)
+
+**質問**: infrastructure×web: 検査をどの段で走らせ、どこでマージを止めるか (書面入力 docs/spec/11 §8)
+
+**回答**: | 1 速い門 | push / PR | 5 分 | **止める** | 型検査 / 書き方 / 段の指定漏れ / 単体・契約検査 |
+| 2 広い門 | PR | 15 分 | **止める** | 結合 / API 契約 / 画面 / 読み上げ / 境界値 / カバレッジ閾値 / 変更範囲だけのミューテーション |
+| 3 深い門 | **手動のみ**（定例なし。打つ場面は下） | 40 分（実測 27 分） | 止めない | 全体ミューテーション / 負荷 / 見た目の回帰 / 脆弱性の深掘り |
+**実行時間は費用の要因ではない。** したがって「時間を減らすために CI からテストを外す」判断はしない。
+
+### qa-infra-web (対応セル: web) — 接地根拠 (required_info/qa_refs が名指す裏付け)
+
+**質問**: インフラ (infrastructure) × web の実行環境・デプロイは何か (2026-08-16 対話ヒアリング)
+
+**回答**: 現行構成で確定。技術基盤は現行リポジトリの構成(Next.js + Cloudflare Workers/OpenNext + D1 + Drizzle ORM)を正として仕様に確定する。
+
+### qa-infra-web-redirect (対応セル: web) — 接地根拠 (required_info/qa_refs が名指す裏付け)
+
+**質問**: infrastructure×web: リダイレクトサービスの可用性要件は何か (書面入力 docs/spec/02 §7)
+
+**回答**: | 障害時 | リダイレクトはresolver storeで転送先を解決し、計測eventをQueueへ非同期配送する。SLOと劣化モードは`03` §1を正とする |
+
+## 上流指針 (doctrine anchor)
+
+| concern | authority (正本) | 導く上流原則 | 出典 |
+|---|---|---|---|
+| reliability | Google SRE | SLO/エラーバジェット・冗長性・スケーリング・監視の上流指針 | https://sre.google/books/ |
+| operations | Google SRE | 運用手順・障害対応・トイル削減・ポストモーテムの上流指針 | https://sre.google/workbook/ |
+
+- 本章の確定内容 (質疑録) は上記 authority を上流指針として適用する。具体技術の選定はこの指針に従属し、指針との乖離は再オープン (R4-reopen) の根拠になる。
+
+### 条項引用の可否 (clause citation)
+
+| concern | 可否 | 引ける条項 / 引けない理由 |
+|---|---|---|
+| reliability | 引用可 | 第 4 章 Service Level Objectives (https://sre.google/sre-book/service-level-objectives/) / 第 6 章 Monitoring Distributed Systems (https://sre.google/sre-book/monitoring-distributed-systems/) / 第 24 章 Distributed Periodic Scheduling with Cron (https://sre.google/sre-book/distributed-periodic-scheduling/) / 第 26 章 Data Integrity: What You Read Is What You Wrote (https://sre.google/sre-book/data-integrity/) |
+| operations | **条項引用不可** — 取得対象に無い (取れば可になる) | この concern の source_ref は SRE Workbook (https://sre.google/workbook/) だが、fetched-references.json の取得対象 8 件に含まれていない。取得していないものの章番号は引けない。同じ Google SRE でも reliability が引く sre-book とは別の本であり、sre-book の目次で workbook を代用することはできない。 |
+
+- **reliability の引用範囲**: 取得済みなのは目次 (table of contents) のみ。引用根拠にできるのは『その章が存在すること・章番号・章題・正規 URL』まで。章本文は未取得のため、章の中の主張を要約して要件文の根拠にすることはできない。それをやると、取得していない内容を出典に帰属させることになる (C05 が実在しない日付 2026-07-03 を公式表明値として書いたのと同じ形)。
+
+- **operations が引用可になる条件**: targets[] に SRE Workbook を足して C02 で取得できた日に state を available へ変え、cited_clauses を埋め、検査を『この章は条項を引いていること』側へ反転させる。取得すれば塞がる穴であって、塞げない穴ではない。
+
+## 適用された設計知識
+
+> 以下の deep knowledge card は設計判断を支援する**非規範の参考資料**であり、実装済み・検証済みの証拠ではない。カード内の `採否: applied` は設計採用を意味し、実装状態は意味しない。規範となる差分は本章の To-Be / Delta 節と参照先仕様で管理する。
+
+### Site Reliability Engineering — deep knowledge card
+
+- 出典カード: `ref-system-design-knowledge/references/site-reliability-engineering.md`
+
+#### 目的
+
+実行基盤・環境・リソースの構成を、目標信頼性 (SLO) と運用負荷の観点から選び、稼働中の状態を観測して是正できる形にする。
+
+#### 解決する問題
+
+- 目標信頼性が未定義のまま冗長化・監視を積み、費用と運用負荷だけが増える。
+- 環境 (本番/検証/ローカル) の差分が人の記憶に残り、本番でのみ再現する障害が生まれる。
+- 稼働中の構成 (環境変数・binding・シークレット) を外から確認できず、障害時に仮説を検証できない。
+- 復旧手順が実行されたことのない文書として存在し、実際の障害時に機能しない。
+- 手作業の運用 (トイル) が担当者に固定化され、人の交代で運用品質が落ちる。
+
+#### 適用条件
+
+- 利用者に対する可用性・遅延の期待があり、逸脱を検知して是正する責任を負う。
+- 環境が複数あり (本番・検証・ローカル)、差分が事故要因になり得る。
+- 観測・デプロイ・復旧を自動化する余地があり、運用担当が継続的に関与する。
+
+#### 非適用条件
+
+- 利用者も稼働期間も限定された使い捨て環境に、SLO 運用とエラーバジェット会計を先行適用しない。
+- 実測データが無い段階で SLO を数値確定しない (暫定値であることを明示して観測から始める)。
+- マネージド基盤が既に保証している性質を、自前の冗長化で二重化しない (責任分界点を先に確認する)。
+
+#### トレードオフ・失敗モード
+
+- SLO を高く置きすぎ、変更速度と費用を不必要に犠牲にする。
+- 監視項目を増やすこと自体を目的化し、誰も見ないダッシュボードとアラート疲れを生む。
+- Infrastructure as Code を導入しても本番へ手作業変更を許し、宣言と実体が乖離する (drift)。
+- 復旧手順を一度も実行せず、実際の障害時に前提条件の欠落が判明する。
+- 稼働中ビルドの素性を確認する手段を用意せず、「コードは直っている」と「本番が直っている」を区別できなくなる。
+
+#### goalへの寄与
+
+- 基盤選定の判断を、製品名の比較ではなく目標指標への寄与として記述でき、後から根拠を検証できる。
+- エラーバジェットにより、機能追加と安定化の優先順位を都度の力関係でなく事前合意で決められる。
+- 稼働実体の観測手段を要件に含めることで、障害の切り分け時間を短縮し、原因究明のラウンド数を減らす。
+
+---
+
+#### 本章での適用
+
+##### 確定内容 qa-infra-web-spec-intake (対応セル: web)
+
+- 確定要件: | 1 速い門 | push / PR | 5 分 | **止める** | 型検査 / 書き方 / 段の指定漏れ / 単体・契約検査 |
+| 2 広い門 | PR | 15 分 | **止める** | 結合 / API 契約 / 画面 / 読み上げ / 境界値 / カバレッジ閾値 / 変更範囲だけのミューテーション |
+| 3 深い門 | **手動のみ**（定例なし。打つ場面は下） | 40 分（実測 27 分） | 止めない | 全体ミューテーション / 負荷 / 見た目の回帰 / 脆弱性の深掘り |
+**実行時間は費用の要因ではない。** したがって「時間を減らすために CI からテストを外す」判断はしない。
+- 設計解釈の記録経路: `dialogue`
+- 原則: 検査を 3 段に分け、1 段と 2 段はマージを止め、3 段は手動のみで止めない。重いテストを足す前に置き場所を先に作る (`docs/spec/11-CI-CD・品質ゲート仕様.md#§8-2`)
+  - 採否: `applied`
+  - 章固有の根拠: 段の定義を quality-gates.config.mjs の TIERS 1 箇所に置き、手元 (pnpm run verify) と CI が同じ表を読む。段を増やす前に走らせる場所を決める
+  - トレードオフ:
+    - 3 段は誰かが打たなければ走らないため、打つ場面を文書に書かないと存在しない検査になる
+- 原則: 実行時間は費用の要因ではない (公開リポジトリの標準ランナーは無料)。時間を理由に CI からテストを外さない (`docs/spec/11-CI-CD・品質ゲート仕様.md#§8-1`)
+  - 採否: `applied`
+  - 章固有の根拠: 時間の超過は警告として表示するだけで、終了コードに混ぜない。落とす理由は検査の失敗だけに限る
+  - トレードオフ:
+    - 遅い検査が放置されうるが、時間を守るためにテストを削る力が働かない
+- 原則: 手元と CI を同じにする。CI がやることを別の場所に書き写さない (`docs/spec/11-CI-CD・品質ゲート仕様.md#§2`)
+  - 採否: `applied`
+  - 章固有の根拠: CI のワークフローは pnpm run verify を呼ぶだけにし、走らせるものと順番は設定 1 箇所が決める
+  - トレードオフ:
+    - CI 固有の細かな制御はしにくいが、「手元では通るのに機械で落ちる」が構造的に起きない
+##### 接地根拠 qa-infra-web (対応セル: web)
+
+- 本文: 「確定内容 (質疑録)」の `qa-infra-web` を参照
+- 設計解釈の記録経路: `dialogue`
+- 原則: Cloudflare Workers + OpenNext での実行 (現行リポジトリ構成) (`cloudflare:workers-opennext`)
+  - 採否: `applied`
+  - 章固有の根拠: wrangler.jsonc・open-next.config.ts が実在する現行構成を正とし、エッジ実行でリダイレクトサービス(/go)の低遅延を確保する
+  - トレードオフ:
+    - Workers の CPU 時間・サブリクエスト制限内で Connector 処理を設計する必要があり、重い取り込みは Queues/cron へ逃がす
+- 原則: Connector 別レート予算とコスト上限 (RateBudget) (`docs/spec/02-補充仕様-ギャップと追加要件.md §7`)
+  - 採否: `applied`
+  - 章固有の根拠: X API 従量課金等の外部APIコストを Connector 単位で監視し、上限接近で警告・超過で自動停止する
+  - トレードオフ:
+    - 自動停止は投稿予定の未実行を生むため、通知と再開手順をセットで提供する
+##### 接地根拠 qa-infra-web-redirect (対応セル: web)
+
+- 本文: 「確定内容 (質疑録)」の `qa-infra-web-redirect` を参照
+- 設計解釈の記録経路: `dialogue`
+- 原則: 転送は必達、計測はベストエフォート: 計測 DB 障害時でもリダイレクトを止めない (`docs/spec/02-補充仕様-ギャップと追加要件.md#§7`)
+  - 採否: `applied`
+  - 章固有の根拠: Cloudflare Workers のエッジで original_url への 302 転送を先に確定し、ClickEvent の書き込みは waitUntil による非同期化 + 失敗時は Queue へ退避する。D1 障害が読者の遷移を阻害しない構成とする
+  - トレードオフ:
+    - 障害時のクリックは計測欠損になるが、読者体験と ASP 成果 (収益) を優先する
+- 原則: リダイレクト先は登録済み original_url そのままとし、パラメータを削除・追加しない (`docs/spec/02-補充仕様-ギャップと追加要件.md#§1`)
+  - 採否: `applied`
+  - 章固有の根拠: ASP のリンク改変禁止 (U8) をインフラ層で保証する。sub_id 付与は対応 ASP のリンク生成時のみに限定する
+  - トレードオフ:
+    - 経路情報の付加余地は減るが、ASP 規約違反リスクを排除できる
+- 資するゴール: G2, G1
+
+## 最新ドキュメント出典
+
+| 対象 | バージョン | 公式発行元 | 出典URL | 取得 | 最新確認 |
+|---|---|---|---|---|---|
+| cloudflare-workers | 2026-04-23 | Cloudflare (developers.cloudflare.com) | https://developers.cloudflare.com/workers/ | 2026-08-19T15:30:39Z | 2026-08-19T15:30:39Z |
+
 ## 状態の意味と実装差分
 
 `confirmed` は要求判断と採用方針が確定していることを表す。**binding 作成済み・本番反映済み・SLO 達成済みを表さない**。実装状態は、以下の As-Is / Delta と Acceptance evidence で別に判定する。
@@ -78,17 +240,6 @@ serves_goals: [G2, G1]
 - KV更新失敗時に既存LKGが維持され、`original_url` のbyte列を変更せず302 `Location` に返す contract test。
 - dashboard / alert 上で各 SLI の分子・分母、Queue lag、dead-letter 件数を再現できる観測記録。
 
-## カテゴリ別収集状態
-
-| プラットフォーム | 状態 | 根拠 |
-|---|---|---|
-| Web (web) | 確定 | 確定質疑: `qa-infra-web-spec-intake` (正本 `spec-state.json` の `qa_ref`)。先行質疑 `qa-infra-web-redirect` は `qa_refs` に残り、本章にも併記する |
-| モバイル (mobile) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |
-| タブレット (tablet) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |
-| デスクトップ (Windows) (desktop-windows) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |
-| デスクトップ (Linux) (desktop-linux) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |
-| デスクトップ (macOS) (desktop-macos) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |
-
 ## 確定セルの記録 (正本 spec-state.json)
 
 > 本節は正本 `system-spec/spec-state.json` の `coverage_matrix.infrastructure.web` が保持している確定内容の**転記**である。規範ではない。値が食い違ったら正本を正とする。
@@ -125,136 +276,3 @@ C05 gaps[0] の「再生成して本文へ載せる」を採らず、本節は�
 | `decision-screen-priority` | ui-ux×web の画面で、記事の成績比較と回復すべき業務状態のどちらを先頭に置くか | `opt-performance-first` | confirmed | G1, G2 | ui-ux |
 
 - **`decision-redirect-measurement-async` が本章に効く形**: 転送は必達、計測はベストエフォート (02 §7)。3 案とも転送は止めないので、差は**欠測をどこまで減らすかとその値段**だった。`waitUntil` + 退避 + Cron 補完は無料枠のまま成立する。Queues はいちばん堅いが有料プランが前提で、契約状態をこちらから確かめられないため caveat に置き、必要になった時点で別の判断とする。**採用理由が契約状態に依存していない**ことが、この選択の要点である。
-
-## 確定内容 (質疑録)
-
-### qa-infra-web-redirect (対応セル: web)
-
-**質問**: infrastructure×web: リダイレクトサービスの可用性要件は何か (書面入力 docs/spec/02 §7)
-
-**回答**: | 障害時 | 計測系障害単独を理由に、既知の有効なresolver entryの転送を止めない。未知・停止・破損entryは安全側で拒否し、SLOと劣化条件を測定する |
-
-### qa-infra-web-spec-intake (対応セル: web)
-
-**質問**: infrastructure×web: 検査をどの段で走らせ、どこでマージを止めるか (書面入力 docs/spec/11 §8)
-
-**回答**: | 1 速い門 | push / PR | 5 分 | **止める** | 型検査 / 書き方 / 段の指定漏れ / 単体・契約検査 |
-| 2 広い門 | PR | 15 分 | **止める** | 結合 / API 契約 / 画面 / 読み上げ / 境界値 / カバレッジ閾値 / 変更範囲だけのミューテーション |
-| 3 深い門 | **手動のみ**（定例なし。打つ場面は下） | 40 分（実測 27 分） | 止めない | 全体ミューテーション / 負荷 / 見た目の回帰 / 脆弱性の深掘り |
-**実行時間は費用の要因ではない。** したがって「時間を減らすために CI からテストを外す」判断はしない。
-
-## 上流指針 (doctrine anchor)
-
-| concern | authority (正本) | 導く上流原則 | 出典 |
-|---|---|---|---|
-| reliability | Google SRE | SLO/エラーバジェット・冗長性・スケーリング・監視の上流指針 | https://sre.google/books/ |
-| operations | Google SRE | 運用手順・障害対応・トイル削減・ポストモーテムの上流指針 | https://sre.google/workbook/ |
-
-- 本章の確定内容 (質疑録) は上記 authority を上流指針として適用する。具体技術の選定はこの指針に従属し、指針との乖離は再オープン (R4-reopen) の根拠になる。
-
-### 条項引用の可否 (clause citation)
-
-| concern | 可否 | 引ける条項 / 引けない理由 |
-|---|---|---|
-| reliability | 引用可 | 第 4 章 Service Level Objectives (https://sre.google/sre-book/service-level-objectives/) / 第 6 章 Monitoring Distributed Systems (https://sre.google/sre-book/monitoring-distributed-systems/) / 第 24 章 Distributed Periodic Scheduling with Cron (https://sre.google/sre-book/distributed-periodic-scheduling/) / 第 26 章 Data Integrity: What You Read Is What You Wrote (https://sre.google/sre-book/data-integrity/) |
-| operations | **条項引用不可** — 取得対象に無い (取れば可になる) | この concern の source_ref は SRE Workbook (https://sre.google/workbook/) だが、fetched-references.json の取得対象 8 件に含まれていない。取得していないものの章番号は引けない。同じ Google SRE でも reliability が引く sre-book とは別の本であり、sre-book の目次で workbook を代用することはできない。 |
-
-- **reliability の引用範囲**: 取得済みなのは目次 (table of contents) のみ。引用根拠にできるのは『その章が存在すること・章番号・章題・正規 URL』まで。章本文は未取得のため、章の中の主張を要約して要件文の根拠にすることはできない。それをやると、取得していない内容を出典に帰属させることになる (C05 が実在しない日付 2026-07-03 を公式表明値として書いたのと同じ形)。
-
-- **operations が引用可になる条件**: targets[] に SRE Workbook を足して C02 で取得できた日に state を available へ変え、cited_clauses を埋め、検査を『この章は条項を引いていること』側へ反転させる。取得すれば塞がる穴であって、塞げない穴ではない。
-
-## 適用された設計知識
-
-> 以下の deep knowledge card は設計判断を支援する**非規範の参考資料**であり、binding 作成済み・SLO 達成済みの証拠ではない。カード内の `採否: applied` は設計採用を意味し、実装状態は意味しない。規範となる差分は INF-DB-01〜INF-OBS-01 と参照先仕様で管理する。
-
-### Site Reliability Engineering — deep knowledge card
-
-- 出典カード: `ref-system-design-knowledge/references/site-reliability-engineering.md`
-
-#### 目的
-
-実行基盤・環境・リソースの構成を、目標信頼性 (SLO) と運用負荷の観点から選び、稼働中の状態を観測して是正できる形にする。
-
-#### 解決する問題
-
-- 目標信頼性が未定義のまま冗長化・監視を積み、費用と運用負荷だけが増える。
-- 環境 (本番/検証/ローカル) の差分が人の記憶に残り、本番でのみ再現する障害が生まれる。
-- 稼働中の構成 (環境変数・binding・シークレット) を外から確認できず、障害時に仮説を検証できない。
-- 復旧手順が実行されたことのない文書として存在し、実際の障害時に機能しない。
-- 手作業の運用 (トイル) が担当者に固定化され、人の交代で運用品質が落ちる。
-
-#### 適用条件
-
-- 利用者に対する可用性・遅延の期待があり、逸脱を検知して是正する責任を負う。
-- 環境が複数あり (本番・検証・ローカル)、差分が事故要因になり得る。
-- 観測・デプロイ・復旧を自動化する余地があり、運用担当が継続的に関与する。
-
-#### 非適用条件
-
-- 利用者も稼働期間も限定された使い捨て環境に、SLO 運用とエラーバジェット会計を先行適用しない。
-- 実測データが無い段階で SLO を数値確定しない (暫定値であることを明示して観測から始める)。
-- マネージド基盤が既に保証している性質を、自前の冗長化で二重化しない (責任分界点を先に確認する)。
-
-#### トレードオフ・失敗モード
-
-- SLO を高く置きすぎ、変更速度と費用を不必要に犠牲にする。
-- 監視項目を増やすこと自体を目的化し、誰も見ないダッシュボードとアラート疲れを生む。
-- Infrastructure as Code を導入しても本番へ手作業変更を許し、宣言と実体が乖離する (drift)。
-- 復旧手順を一度も実行せず、実際の障害時に前提条件の欠落が判明する。
-- 稼働中ビルドの素性を確認する手段を用意せず、「コードは直っている」と「本番が直っている」を区別できなくなる。
-
-#### goalへの寄与
-
-- 基盤選定の判断を、製品名の比較ではなく目標指標への寄与として記述でき、後から根拠を検証できる。
-- エラーバジェットにより、機能追加と安定化の優先順位を都度の力関係でなく事前合意で決められる。
-- 稼働実体の観測手段を要件に含めることで、障害の切り分け時間を短縮し、原因究明のラウンド数を減らす。
-
----
-
-#### 本章での適用
-
-##### 確定内容 qa-infra-web-redirect (対応セル: web)
-
-- 確定要件: | 障害時 | 計測系障害単独を理由に、既知の有効なresolver entryの転送を止めない。未知・停止・破損entryは安全側で拒否し、SLOと劣化条件を測定する |
-- 設計解釈の記録経路: `dialogue`
-- 原則: 転送と計測を障害分離し、計測系障害単独を理由に既知の有効なresolver entryの転送を止めない (`docs/spec/03-分析・解析基盤仕様.md#§1.2`)
-  - 採否: `applied`
-  - 章固有の根拠: Cloudflare Workers のエッジで original_url への 302 転送を先に確定し、ClickEvent の書き込みは waitUntil による非同期化 + 失敗時は Queue へ退避する。D1 障害が読者の遷移を阻害しない構成とする
-  - トレードオフ:
-    - 障害時のクリックは計測欠損になるが、読者体験と ASP 成果 (収益) を優先する
-- 原則: リダイレクト先は登録済み original_url そのままとし、パラメータを削除・追加しない (`docs/spec/02-補充仕様-ギャップと追加要件.md#§1`)
-  - 採否: `applied`
-  - 章固有の根拠: ASP のリンク改変禁止 (U8) をインフラ層で保証する。sub_id 付与は対応 ASP のリンク生成時のみに限定する
-  - トレードオフ:
-    - 経路情報の付加余地は減るが、ASP 規約違反リスクを排除できる
-- 資するゴール: G2, G1
-
-##### 確定内容 qa-infra-web-spec-intake (対応セル: web)
-
-- 確定要件: | 1 速い門 | push / PR | 5 分 | **止める** | 型検査 / 書き方 / 段の指定漏れ / 単体・契約検査 |
-| 2 広い門 | PR | 15 分 | **止める** | 結合 / API 契約 / 画面 / 読み上げ / 境界値 / カバレッジ閾値 / 変更範囲だけのミューテーション |
-| 3 深い門 | **手動のみ**（定例なし。打つ場面は下） | 40 分（実測 27 分） | 止めない | 全体ミューテーション / 負荷 / 見た目の回帰 / 脆弱性の深掘り |
-**実行時間は費用の要因ではない。** したがって「時間を減らすために CI からテストを外す」判断はしない。
-- 設計解釈の記録経路: `dialogue`
-- 原則: 検査を 3 段に分け、1 段と 2 段はマージを止め、3 段は手動のみで止めない。重いテストを足す前に置き場所を先に作る (`docs/spec/11-CI-CD・品質ゲート仕様.md#§8-2`)
-  - 採否: `applied`
-  - 章固有の根拠: 段の定義を quality-gates.config.mjs の TIERS 1 箇所に置き、手元 (pnpm run verify) と CI が同じ表を読む。段を増やす前に走らせる場所を決める
-  - トレードオフ:
-    - 3 段は誰かが打たなければ走らないため、打つ場面を文書に書かないと存在しない検査になる
-- 原則: 実行時間は費用の要因ではない (公開リポジトリの標準ランナーは無料)。時間を理由に CI からテストを外さない (`docs/spec/11-CI-CD・品質ゲート仕様.md#§8-1`)
-  - 採否: `applied`
-  - 章固有の根拠: 時間の超過は警告として表示するだけで、終了コードに混ぜない。落とす理由は検査の失敗だけに限る
-  - トレードオフ:
-    - 遅い検査が放置されうるが、時間を守るためにテストを削る力が働かない
-- 原則: 手元と CI を同じにする。CI がやることを別の場所に書き写さない (`docs/spec/11-CI-CD・品質ゲート仕様.md#§2`)
-  - 採否: `applied`
-  - 章固有の根拠: CI のワークフローは pnpm run verify を呼ぶだけにし、走らせるものと順番は設定 1 箇所が決める
-  - トレードオフ:
-    - CI 固有の細かな制御はしにくいが、「手元では通るのに機械で落ちる」が構造的に起きない
-- 資するゴール: G2, G1
-
-## 最新ドキュメント出典
-
-| 対象 | バージョン | 公式発行元 | 出典URL | 取得 | 最新確認 |
-|---|---|---|---|---|---|
-| cloudflare-workers | 2026-04-23 | Cloudflare (developers.cloudflare.com) | https://developers.cloudflare.com/workers/ | 2026-08-19T15:30:39Z | 2026-08-19T15:30:39Z |

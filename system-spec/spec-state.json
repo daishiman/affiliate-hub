@@ -759,21 +759,23 @@
     "database": {
       "web": {
         "state": "確定",
-        "qa_ref": "qa-database-web-spec-intake",
-        "serves_goals": [
-          "G1",
-          "G2"
-        ],
+        "qa_ref": "qa-database-web-blog-builder",
         "qa_refs": [
+          "qa-database-web-blog-builder",
           "qa-database-web-spec-intake",
           "qa-database-web",
           "qa-database-web-analytics"
         ],
+        "serves_goals": [
+          "G1",
+          "G2"
+        ],
         "required_info_checks": [
           {
-            "checked_on": "2026-08-22",
+            "checked_on": "2026-08-25",
             "checked_with": "record-required-info-check",
-            "blocking_item_count": 0
+            "blocking_item_count": 0,
+            "unmet_blocking_items": 0
           }
         ]
       },
@@ -818,6 +820,12 @@
             "checked_on": "2026-08-24",
             "checked_with": "record-required-info-check",
             "blocking_item_count": 1
+          },
+          {
+            "checked_on": "2026-08-25",
+            "checked_with": "record-required-info-check",
+            "blocking_item_count": 1,
+            "unmet_blocking_items": 0
           }
         ]
       },
@@ -845,7 +853,15 @@
     "ui-ux": {
       "web": {
         "state": "確定",
-        "qa_ref": "qa-uiux-web-screen-priority",
+        "qa_ref": "qa-uiux-web-seo-ai-search-v2",
+        "qa_refs": [
+          "qa-uiux-web-seo-ai-search-v2",
+          "qa-uiux-web-blog-builder",
+          "qa-uiux-web-screen-priority",
+          "qa-uiux-web-spec-intake",
+          "qa-uiux-web",
+          "qa-uiux-web-overhaul-v2"
+        ],
         "required_info": [
           {
             "item_id": "product-goal",
@@ -867,13 +883,15 @@
           }
         ],
         "serves_goals": [
-          "G1"
+          "G1",
+          "G2"
         ],
         "required_info_checks": [
           {
-            "checked_on": "2026-08-23",
+            "checked_on": "2026-08-25",
             "checked_with": "record-required-info-check",
-            "blocking_item_count": 3
+            "blocking_item_count": 3,
+            "unmet_blocking_items": 0
           }
         ]
       },
@@ -922,6 +940,12 @@
             "checked_on": "2026-08-22",
             "checked_with": "record-required-info-check",
             "blocking_item_count": 1
+          },
+          {
+            "checked_on": "2026-08-25",
+            "checked_with": "record-required-info-check",
+            "blocking_item_count": 1,
+            "unmet_blocking_items": 0
           }
         ]
       },
@@ -964,6 +988,12 @@
             "checked_on": "2026-08-22",
             "checked_with": "record-required-info-check",
             "blocking_item_count": 0
+          },
+          {
+            "checked_on": "2026-08-25",
+            "checked_with": "record-required-info-check",
+            "blocking_item_count": 0,
+            "unmet_blocking_items": 0
           }
         ]
       },
@@ -992,6 +1022,12 @@
       "web": {
         "state": "確定",
         "qa_ref": "qa-backend-web-spec-intake",
+        "qa_refs": [
+          "qa-backend-web-spec-intake",
+          "qa-backend-web",
+          "qa-backend-web-analytics",
+          "qa-backend-web-overhaul-v2"
+        ],
         "required_info": [
           {
             "item_id": "domain-model",
@@ -1004,16 +1040,12 @@
           "G2",
           "G1"
         ],
-        "qa_refs": [
-          "qa-backend-web-spec-intake",
-          "qa-backend-web",
-          "qa-backend-web-analytics"
-        ],
         "required_info_checks": [
           {
-            "checked_on": "2026-08-22",
+            "checked_on": "2026-08-25",
             "checked_with": "record-required-info-check",
-            "blocking_item_count": 1
+            "blocking_item_count": 1,
+            "unmet_blocking_items": 0
           }
         ]
       },
@@ -1041,21 +1073,25 @@
     "frontend": {
       "web": {
         "state": "確定",
-        "qa_ref": "qa-frontend-web-spec-intake",
+        "qa_ref": "qa-frontend-web-seo-ai-search-v2",
+        "qa_refs": [
+          "qa-frontend-web-seo-ai-search-v2",
+          "qa-frontend-web-blog-builder",
+          "qa-frontend-web-spec-intake",
+          "qa-frontend-web",
+          "qa-frontend-web-analytics",
+          "qa-frontend-web-overhaul-v2"
+        ],
         "serves_goals": [
           "G1",
           "G2"
         ],
-        "qa_refs": [
-          "qa-frontend-web-spec-intake",
-          "qa-frontend-web",
-          "qa-frontend-web-analytics"
-        ],
         "required_info_checks": [
           {
-            "checked_on": "2026-08-22",
+            "checked_on": "2026-08-25",
             "checked_with": "record-required-info-check",
-            "blocking_item_count": 0
+            "blocking_item_count": 0,
+            "unmet_blocking_items": 0
           }
         ]
       },
@@ -1097,6 +1133,12 @@
             "checked_on": "2026-08-22",
             "checked_with": "record-required-info-check",
             "blocking_item_count": 0
+          },
+          {
+            "checked_on": "2026-08-25",
+            "checked_with": "record-required-info-check",
+            "blocking_item_count": 0,
+            "unmet_blocking_items": 0
           }
         ]
       },
@@ -2347,12 +2389,18 @@
     {
       "id": "qa-uiux-web-seo-ai-search",
       "question": "ui-ux×web: SEO と AI 検索 (AI Overviews / AI Mode / ChatGPT search / Perplexity 等) からの評価・引用を高めるために、ブログ UI ビルダーの記事構造・固定ページ・管理画面をどう整えるか。また海外・日本の最新ガイドラインを取得して反映する運用をどう見せるか。2026-08-24 対話ヒアリング (利用者原文を逐語主旨で記録) + 同日ウェブ調査。",
-      "answer": "利用者本人の回答を逐語主旨で記録する。\n(1) 合わせて、SEO や AI による『その SEO に変わるやつ』(AI 検索・生成 AI 回答での引用) にも対応できるようにしておく。AI からの検索や評価が高くなるような仕組みにしておく。\n(2) 最新のこれらの情報 (SEO / AI 検索最適化のガイドライン) をウェブから、海外も日本の情報も含めて取得した上で、それを反映できるようなブログを構築できるようにしておく。\n## 調査結果 (2026-08-24、海外+日本。一次情報と業者推定を区別)\n- 一次情報: Google Search Central『AI 最適化ガイド』(2026-05-15 公開) は、AI Overviews / AI Mode が既存ランキング+RAG+query fan-out で動き、追加の技術要件は無く、index 可能かつ snippet 表示可能であることが唯一の条件、llms.txt や特別な schema は不要と明言する。Search Console に AI 機能由来の impressions を見る report がある。\n- 一次情報: llms.txt (Answer.AI) は root の /llms.txt に Markdown を置く規約で正式標準ではない。IndexNow (Bing/Yandex/Naver/Seznam) は URL 更新 push で Google 非対応。ChatGPT search の retrieval は Bing index 由来のため IndexNow が AI 検索への到達経路になる。\n- 海外/日本の業者知見 (推定値扱い): AI クローラ (GPTBot / ClaudeBot / PerplexityBot / Google-Extended) を遮断しない、各節冒頭に 2〜3 文の『答え』、統計・出典の明記、FAQPage/HowTo/Article/Person/Organization/BreadcrumbList の JSON-LD、最終更新日と『〜時点』の可視化、著者ページ (E-E-A-T)、AI 引用の定点観測。日本では FAQ 構造化データと結論ファーストを優先する論調が多く、アフィリエイト記事は一次体験・独自比較表・図解が有利。\n## ui-ux 章への反映方針\n- 記事テンプレートに『結論ブロック (冒頭 2〜3 文の答え)』『要点リスト』『比較表』『FAQ ブロック』『出典ブロック』『最終更新日 / 〜時点 表示』を標準ブロックとして追加し、AI が引用しやすい構造を編集 UI で促す (必須ではなく既定で配置)。\n- 固定ページ 6 種に『著者プロフィール』を加え、記事に著者・監修者・一次体験の明示欄を置く (E-E-A-T)。\n- 管理画面に『SEO / AI 検索 チェック』パネルを置く: index 可否 (noindex / robots)・構造化データの有無・最終更新からの経過日数 (90 日超で更新推奨)・AI 引用定点観測の記録欄 (手動)。数値目標は業者推定値なので受入条件に置かず、検証可能項目 (index 可能・JSON-LD 妥当・更新日表示) だけを受入条件にする。\n- 『最新ガイドライン反映』の運用 UI: 参照レジストリ (出典 URL・発行元・確認日・要約) を管理画面で一覧し、確認日から 90 日超を要再確認として表示する。ガイドライン変更時に仕様セルを R4-reopen する運用を README に明記する。"
+      "answer": "利用者本人の回答を逐語主旨で記録する。\n(1) 合わせて、SEO や AI による『その SEO に変わるやつ』(AI 検索・生成 AI 回答での引用) にも対応できるようにしておく。AI からの検索や評価が高くなるような仕組みにしておく。\n(2) 最新のこれらの情報 (SEO / AI 検索最適化のガイドライン) をウェブから、海外も日本の情報も含めて取得した上で、それを反映できるようなブログを構築できるようにしておく。\n## 調査結果 (2026-08-24、海外+日本。一次情報と業者推定を区別)\n- 一次情報: Google Search Central『AI 最適化ガイド』(2026-05-15 公開) は、AI Overviews / AI Mode が既存ランキング+RAG+query fan-out で動き、追加の技術要件は無く、index 可能かつ snippet 表示可能であることが唯一の条件、llms.txt や特別な schema は不要と明言する。Search Console に AI 機能由来の impressions を見る report がある。\n- 一次情報: llms.txt (Answer.AI) は root の /llms.txt に Markdown を置く規約で正式標準ではない。IndexNow (Bing/Yandex/Naver/Seznam) は URL 更新 push で Google 非対応。ChatGPT search の retrieval は Bing index 由来のため IndexNow が AI 検索への到達経路になる。\n- 海外/日本の業者知見 (推定値扱い): AI クローラ (GPTBot / ClaudeBot / PerplexityBot / Google-Extended) を遮断しない、各節冒頭に 2〜3 文の『答え』、統計・出典の明記、FAQPage/HowTo/Article/Person/Organization/BreadcrumbList の JSON-LD、最終更新日と『〜時点』の可視化、著者ページ (E-E-A-T)、AI 引用の定点観測。日本では FAQ 構造化データと結論ファーストを優先する論調が多く、アフィリエイト記事は一次体験・独自比較表・図解が有利。\n## ui-ux 章への反映方針\n- 記事テンプレートに『結論ブロック (冒頭 2〜3 文の答え)』『要点リスト』『比較表』『FAQ ブロック』『出典ブロック』『最終更新日 / 〜時点 表示』を標準ブロックとして追加し、AI が引用しやすい構造を編集 UI で促す (必須ではなく既定で配置)。\n- 固定ページ 6 種に『著者プロフィール』を加え、記事に著者・監修者・一次体験の明示欄を置く (E-E-A-T)。\n- 管理画面に『SEO / AI 検索 チェック』パネルを置く: index 可否 (noindex / robots)・構造化データの有無・最終更新からの経過日数 (90 日超で更新推奨)・AI 引用定点観測の記録欄 (手動)。数値目標は業者推定値なので受入条件に置かず、検証可能項目 (index 可能・JSON-LD 妥当・更新日表示) だけを受入条件にする。\n- 『最新ガイドライン反映』の運用 UI: 参照レジストリ (出典 URL・発行元・確認日・要約) を管理画面で一覧し、確認日から 90 日超を要再確認として表示する。ガイドライン変更時に仕様セルを R4-reopen する運用を README に明記する。",
+      "source": {
+        "kind": "user-dialogue"
+      }
     },
     {
       "id": "qa-frontend-web-seo-ai-search",
       "question": "frontend×web: SEO と AI 検索最適化 (SSR・構造化データ自動生成・robots/sitemap/RSS/llms.txt・IndexNow・鮮度表示) の実装契約と、最新ガイドライン出典の取り込み経路をどうするか。2026-08-24 対話ヒアリング (利用者原文を逐語主旨で記録) + 同日ウェブ調査。",
-      "answer": "利用者本人の回答を逐語主旨で記録する。\n(1) 合わせて、SEO や AI による『その SEO に変わるやつ』(AI 検索・生成 AI 回答での引用) にも対応できるようにしておく。AI からの検索や評価が高くなるような仕組みにしておく。\n(2) 最新のこれらの情報 (SEO / AI 検索最適化のガイドライン) をウェブから、海外も日本の情報も含めて取得した上で、それを反映できるようなブログを構築できるようにしておく。\n## 調査結果 (2026-08-24、海外+日本。一次情報と業者推定を区別)\n- 一次情報: Google Search Central『AI 最適化ガイド』(2026-05-15 公開) は、AI Overviews / AI Mode が既存ランキング+RAG+query fan-out で動き、追加の技術要件は無く、index 可能かつ snippet 表示可能であることが唯一の条件、llms.txt や特別な schema は不要と明言する。Search Console に AI 機能由来の impressions を見る report がある。\n- 一次情報: llms.txt (Answer.AI) は root の /llms.txt に Markdown を置く規約で正式標準ではない。IndexNow (Bing/Yandex/Naver/Seznam) は URL 更新 push で Google 非対応。ChatGPT search の retrieval は Bing index 由来のため IndexNow が AI 検索への到達経路になる。\n- 海外/日本の業者知見 (推定値扱い): AI クローラ (GPTBot / ClaudeBot / PerplexityBot / Google-Extended) を遮断しない、各節冒頭に 2〜3 文の『答え』、統計・出典の明記、FAQPage/HowTo/Article/Person/Organization/BreadcrumbList の JSON-LD、最終更新日と『〜時点』の可視化、著者ページ (E-E-A-T)、AI 引用の定点観測。日本では FAQ 構造化データと結論ファーストを優先する論調が多く、アフィリエイト記事は一次体験・独自比較表・図解が有利。\n## frontend 章への反映方針\n- 公開面は SSR/ISR で本文を HTML に含め、semantic HTML (article/section/h1〜h3/time) で出力する。robots.txt はテンプレート既定で AI クローラを許可し、ブログ単位で拒否リストを設定できる。\n- ブロック構造から JSON-LD を自動生成する: BlogPosting/Article・Person (著者)・Organization・BreadcrumbList・FAQPage (FAQ ブロック)・HowTo (手順ブロック)・Product/Review (比較表・レビュー)。schema.org の型・必須プロパティを検証する pure 関数を置き、テストで妥当性を確認する。\n- 配信: sitemap.xml・RSS/Atom・/llms.txt (低コスト・効果未確認と明記) を自動生成し、公開・更新時に IndexNow へ送信する (API key はブログ単位、秘密はサーバ側のみ)。\n- 鮮度: 各記事に dateModified を出し、公開面にも『最終更新日』『〜時点』を表示する。\n- 最新情報の取り込み: SEO / AI 検索ガイドラインの出典 (Google AI 最適化ガイド・AI 機能ページ・llms.txt・IndexNow) を仕様状態の targets / fetched-references に登録し、doc-fetch (C02) と鮮度監査 (C08) で再取得・再照合できるようにする。アプリ側は参照レジストリ (guideline_references) を DB に持ち、管理画面で確認日・要約を更新できる。"
+      "answer": "利用者本人の回答を逐語主旨で記録する。\n(1) 合わせて、SEO や AI による『その SEO に変わるやつ』(AI 検索・生成 AI 回答での引用) にも対応できるようにしておく。AI からの検索や評価が高くなるような仕組みにしておく。\n(2) 最新のこれらの情報 (SEO / AI 検索最適化のガイドライン) をウェブから、海外も日本の情報も含めて取得した上で、それを反映できるようなブログを構築できるようにしておく。\n## 調査結果 (2026-08-24、海外+日本。一次情報と業者推定を区別)\n- 一次情報: Google Search Central『AI 最適化ガイド』(2026-05-15 公開) は、AI Overviews / AI Mode が既存ランキング+RAG+query fan-out で動き、追加の技術要件は無く、index 可能かつ snippet 表示可能であることが唯一の条件、llms.txt や特別な schema は不要と明言する。Search Console に AI 機能由来の impressions を見る report がある。\n- 一次情報: llms.txt (Answer.AI) は root の /llms.txt に Markdown を置く規約で正式標準ではない。IndexNow (Bing/Yandex/Naver/Seznam) は URL 更新 push で Google 非対応。ChatGPT search の retrieval は Bing index 由来のため IndexNow が AI 検索への到達経路になる。\n- 海外/日本の業者知見 (推定値扱い): AI クローラ (GPTBot / ClaudeBot / PerplexityBot / Google-Extended) を遮断しない、各節冒頭に 2〜3 文の『答え』、統計・出典の明記、FAQPage/HowTo/Article/Person/Organization/BreadcrumbList の JSON-LD、最終更新日と『〜時点』の可視化、著者ページ (E-E-A-T)、AI 引用の定点観測。日本では FAQ 構造化データと結論ファーストを優先する論調が多く、アフィリエイト記事は一次体験・独自比較表・図解が有利。\n## frontend 章への反映方針\n- 公開面は SSR/ISR で本文を HTML に含め、semantic HTML (article/section/h1〜h3/time) で出力する。robots.txt はテンプレート既定で AI クローラを許可し、ブログ単位で拒否リストを設定できる。\n- ブロック構造から JSON-LD を自動生成する: BlogPosting/Article・Person (著者)・Organization・BreadcrumbList・FAQPage (FAQ ブロック)・HowTo (手順ブロック)・Product/Review (比較表・レビュー)。schema.org の型・必須プロパティを検証する pure 関数を置き、テストで妥当性を確認する。\n- 配信: sitemap.xml・RSS/Atom・/llms.txt (低コスト・効果未確認と明記) を自動生成し、公開・更新時に IndexNow へ送信する (API key はブログ単位、秘密はサーバ側のみ)。\n- 鮮度: 各記事に dateModified を出し、公開面にも『最終更新日』『〜時点』を表示する。\n- 最新情報の取り込み: SEO / AI 検索ガイドラインの出典 (Google AI 最適化ガイド・AI 機能ページ・llms.txt・IndexNow) を仕様状態の targets / fetched-references に登録し、doc-fetch (C02) と鮮度監査 (C08) で再取得・再照合できるようにする。アプリ側は参照レジストリ (guideline_references) を DB に持ち、管理画面で確認日・要約を更新できる。",
+      "source": {
+        "kind": "user-dialogue"
+      }
     },
     {
       "id": "qa-uiux-web-seo-ai-search-v2",
@@ -2424,6 +2472,99 @@
           ]
         }
       ]
+    },
+    {
+      "id": "qa-backend-web-overhaul-v2",
+      "question": "backend×web: UI/UX 改善で必要になる API は何か (2026-08-21 利用者ヒアリング逐語)",
+      "answer": "利用者本人の回答を逐語主旨で記録する。「この UI、UX を整える際に必要な API があれば、それも併せて実行するような流れにしておいてください」。具体的には (1) 各管理対象 (商品・ブログ・SNS チャネル・記事等) の新規作成・削除を含む CRUD API。(2) 商品×ブログの多対多対応付けと、ブログごとのコンセプト管理 API。(3) コンセプトごとの文章生成・保存 API。(4) X・Facebook 等を抽象化した SNS チャネル登録・投稿状態参照 API (プロバイダ追加可能な構成)。(5) ブログごとの構成 (セクション並び・テンプレート・コンポーネントセット) を保存・取得する構成管理 API。ドメインモデルは既確定の qa-backend-web-spec-intake を基礎とし、ブログ構成とチャネルの 2 概念を拡張する。既存のバックエンドスタック (Cloudflare Workers/D1) を継続使用する。",
+      "asks_for": [
+        {
+          "category": "backend",
+          "platform": "web"
+        }
+      ],
+      "design_applications": [
+        {
+          "knowledge_ref": "user-dialogue:2026-08-21#必要API併走",
+          "principle": "UI の各操作は対応する API 契約と対で定義し、画面だけが先行して API 不在で死んでいる状態を作らない",
+          "applicability": "applied",
+          "rationale": "利用者が「UI/UX を整える際に必要な API があれば併せて実行する」と明言した。各サイト・各 SNS への投稿部分が画面に反映されていない現状は、表示に必要な API/データ供給の欠落が一因であり、画面と API を同一タスク境界で対にする",
+          "tradeoffs": [
+            "API を同時に整備するぶん 1 機能あたりの実装範囲は広がる。画面ごとに必要最小の API から段階導入し、プロバイダ別 SNS 連携の実配信は契約定義と投稿状態参照を先行させる"
+          ]
+        }
+      ],
+      "source": {
+        "kind": "user-dialogue"
+      }
+    },
+    {
+      "id": "qa-frontend-web-overhaul-v2",
+      "question": "frontend×web: 単一用途画面分割・基本管理機能・再利用コンポーネント・マルチブログ/マルチ SNS 対応のフロントエンド要件は何か (2026-08-21 利用者ヒアリング逐語)",
+      "answer": "利用者本人の回答を逐語主旨で記録する。(1) 管理画面を単一用途ごとの画面に分割する (一覧・詳細・作成・編集の分離)。(2) 各管理対象に新規作成・削除を含む基本 CRUD 操作の UI を備える。(3) 1 つの商品に対して複数のブログを対応付けられる構成にする。各ブログにはそれぞれのコンセプトがあり、コンセプトごとに文章を作成できる UI にする。(4) SNS は X・Facebook など様々なものに対応できる拡張可能なチャネル構成とし、各 SNS への投稿状態が画面に反映されるようにする。(5) UI はコンポーネント化して再利用する。ハードコーディングの重複を書かず共通化する。(6) ブログごとにブログの構成を作成したい。新しくブログを構築する際には、そのブログごとにコンポーネントを作成できる仕様にする (ブログ単位の構成テンプレート/コンポーネントセットを定義・管理できる)。(7) 既存スタック (Next.js/React) を継続使用する。",
+      "asks_for": [
+        {
+          "category": "frontend",
+          "platform": "web"
+        }
+      ],
+      "design_applications": [
+        {
+          "knowledge_ref": "user-dialogue:2026-08-21#ブログ別構成コンポーネント",
+          "principle": "ブログ (配信先) ごとの構成をデータとして定義し、構成要素を再利用可能なコンポーネントとして組み立てる",
+          "applicability": "applied",
+          "rationale": "利用者が「ブログごとにブログの構成を作成したい」「新しくブログを構築する際には、そのブログごとにコンポーネントを作成するような仕様にしたい」と明言した。ブログ=チャネルの構成 (セクション並び・記事テンプレート) を宣言的データとして持ち、レンダリングは共通コンポーネント群が担う構成にする",
+          "tradeoffs": [
+            "構成の自由度を上げるほどスキーマとエディタ UI が複雑になる。初期はセクション型の固定カタログから選ぶ方式に絞り、任意レイアウトは後続にする"
+          ]
+        },
+        {
+          "knowledge_ref": "ref-system-design-knowledge:information-design",
+          "principle": "一覧・詳細・作成・編集を分離し、各画面の主要アクションを 1 つにする",
+          "applicability": "applied",
+          "rationale": "単一用途画面への分割要求 (qa-uiux-web-overhaul-v2) をフロントエンドのルーティング/画面構成として実装する。CRUD の各操作は専用画面または明示的なモーダルに分離し、破壊的操作 (削除・公開) のみ確認を挟む (本人回答の誤操作コスト境界に従う)",
+          "tradeoffs": [
+            "画面数が増えるため、共通レイアウト・ナビゲーション (整理後のサイドバー) の一貫性維持が前提になる"
+          ]
+        }
+      ],
+      "source": {
+        "kind": "user-dialogue"
+      }
+    },
+    {
+      "id": "qa-uiux-web-overhaul-v2",
+      "question": "ui-ux×web: 管理画面の UI/UX 全面改善で何をどう改善するか (2026-08-21 利用者ヒアリング逐語)",
+      "answer": "利用者本人の回答を逐語主旨で記録する。(1) 一つの画面に複数用途が混在しているため、各画面は単一用途に特化させる。(2) 新規作成・削除といった基本管理機能が不足しており追加する。(3) カード間隔が不適切で直感的な視認性が損なわれており、間隔を最適化する。文章量が多すぎる点も削減する。(4) サイドバーの各項目間が間延びして見づらいので詰める。サイドバーの情報量が増える可能性があるため最適な粒度で整理する。(5) 全画面を見直す。現在 UI/UX が整っておらず画面が全く活きていない。(6) 各サイト・各 SNS への投稿部分が画面に反映されていないので反映する。(7) 各 UI/UX はコンポーネント化して再利用できるようにする。何度も同じようにハードコーディングでコードを書くのではなく共通化する。既存仕様の画面別情報優先度 (qa-uiux-web-screen-priority) は維持し、その上に本改善を適用する。",
+      "asks_for": [
+        {
+          "category": "ui-ux",
+          "platform": "web"
+        }
+      ],
+      "design_applications": [
+        {
+          "knowledge_ref": "ref-system-design-knowledge:information-design",
+          "principle": "1 画面 1 主要タスクとし、情報の優先/補助/省略を task 頻度×失敗コストで決める",
+          "applicability": "applied",
+          "rationale": "利用者が「一つの画面に複数用途が混在している」「文章量が多すぎる」と明言しており、単一用途画面への分割とテキスト削減は情報優先度の原則の直接適用である。既確定の画面別情報優先度 (qa-uiux-web-screen-priority の 9 軸本人回答) を分割後の各画面へ継承する",
+          "tradeoffs": [
+            "画面分割により遷移回数は増えるが、週 1 回利用・PC 中心では 1 画面の判断負荷低減を優先する。文章量削減による初見時の説明不足を避けるため、補助情報は削除せず折りたたみ・ツールチップへ退避する"
+          ]
+        },
+        {
+          "knowledge_ref": "user-dialogue:2026-08-21#コンポーネント共通化",
+          "principle": "同一の視覚要素・操作パターンはコンポーネント化して再利用し、ハードコーディングの重複を排除する",
+          "applicability": "applied",
+          "rationale": "利用者が「何度も同じようにハードコーディングとかコードを書くのではなく、共通化するようにしておいてほしい」と明言した。カード・サイドバー項目・一覧・フォーム等の共通コンポーネントとデザイントークン (間隔・タイポグラフィ) を単一の正本にする",
+          "tradeoffs": [
+            "共通化は初期コストが掛かり、画面固有の微調整には variant/prop 設計が要る。過剰な抽象化を避け、3 回目の重複が出た時点で共通化する"
+          ]
+        }
+      ],
+      "source": {
+        "kind": "user-dialogue"
+      }
     }
   ],
   "approval_log": [
@@ -3575,6 +3716,204 @@
           "G2"
         ]
       }
+    },
+    {
+      "category": "ui-ux",
+      "platform": "web",
+      "reason": "2026-08-25 接地のやり直し。2026-08-24 のブログ構築 UI / SEO・AI 検索の R4-reopen は記録に残っているが、再確定が最後まで通っていなかった。原因は門ではなく道で、新しい qa_ref で再確定すると restore-qa-refs の『退避値の先頭が再確定後の qa_ref と同じ』条件が必ず外れ、裏付けの範囲を書ける writer が 1 つも無くなる。結果セルは退避スナップショットと同じ値のまま確定に見え、集めた質疑 7 件がどこからも参照されない孤立記録になった (C05 完全性評価 / C06 / C07 が独立検出)。confirm に qa_refs 接地口を足したうえで、収集済みの質疑を接地させ直す。",
+      "from": "確定",
+      "discarded": {
+        "qa_ref": "qa-uiux-web-screen-priority",
+        "serves_goals": [
+          "G1"
+        ],
+        "required_info": [
+          {
+            "item_id": "product-goal",
+            "missing_effect": "block",
+            "status": "grounded",
+            "grounded_by": "qa-foundation-u1"
+          },
+          {
+            "item_id": "screen-information-priority",
+            "missing_effect": "block",
+            "status": "grounded",
+            "grounded_by": "qa-uiux-web-screen-priority"
+          },
+          {
+            "item_id": "target-platforms",
+            "missing_effect": "block",
+            "status": "grounded",
+            "grounded_by": "qa-platform-scope"
+          }
+        ],
+        "required_info_checks": [
+          {
+            "checked_on": "2026-08-23",
+            "checked_with": "record-required-info-check",
+            "blocking_item_count": 3
+          }
+        ]
+      }
+    },
+    {
+      "category": "frontend",
+      "platform": "web",
+      "reason": "2026-08-25 接地のやり直し (ui-ux/web と同一原因)。2026-08-24 のブログテンプレート / SEO・AI 検索実装契約の R4-reopen が再確定まで届かず、qa-frontend-web-blog-builder / qa-frontend-web-seo-ai-search-v2 がどの確定セルからも引かれていなかった。",
+      "from": "確定",
+      "discarded": {
+        "qa_ref": "qa-frontend-web-spec-intake",
+        "qa_refs": [
+          "qa-frontend-web-spec-intake",
+          "qa-frontend-web",
+          "qa-frontend-web-analytics"
+        ],
+        "serves_goals": [
+          "G1",
+          "G2"
+        ],
+        "required_info_checks": [
+          {
+            "checked_on": "2026-08-22",
+            "checked_with": "record-required-info-check",
+            "blocking_item_count": 0
+          }
+        ]
+      }
+    },
+    {
+      "category": "database",
+      "platform": "web",
+      "reason": "2026-08-25 接地のやり直し (ui-ux/web と同一原因)。2026-08-24 のブログテンプレート / テーマ / 固定ページ / アフィリエイト反映の永続化に関する R4-reopen が再確定まで届かず、qa-database-web-blog-builder がどの確定セルからも引かれていなかった。",
+      "from": "確定",
+      "discarded": {
+        "qa_ref": "qa-database-web-spec-intake",
+        "qa_refs": [
+          "qa-database-web-spec-intake",
+          "qa-database-web",
+          "qa-database-web-analytics"
+        ],
+        "serves_goals": [
+          "G1",
+          "G2"
+        ],
+        "required_info_checks": [
+          {
+            "checked_on": "2026-08-22",
+            "checked_with": "record-required-info-check",
+            "blocking_item_count": 0
+          }
+        ]
+      }
+    },
+    {
+      "category": "backend",
+      "platform": "web",
+      "reason": "2026-08-25 章にしか無かった 2026-08-21 利用者ヒアリングを正本へ戻す。qa-backend-web-overhaul-v2 の質問・回答・設計適用は章本文にだけ在り、正本 qa_log に 1 件も無かった (実測: qa_log の id 集合に不在、`user-dialogue:2026-08-21#` の語も spec-state.json に 0 件)。章は正本の純関数なので、この状態で compile を回すと利用者の発言そのものが消える。**消えないように章を手で守るのではなく、消えようのない場所へ移す。**確定質疑 (qa_ref) は現行のまま変えず、本ヒアリングは裏付け (qa_refs) として接地させる。",
+      "from": "確定",
+      "discarded": {
+        "qa_ref": "qa-backend-web-spec-intake",
+        "qa_refs": [
+          "qa-backend-web-spec-intake",
+          "qa-backend-web",
+          "qa-backend-web-analytics"
+        ],
+        "serves_goals": [
+          "G2",
+          "G1"
+        ],
+        "required_info": [
+          {
+            "item_id": "domain-model",
+            "missing_effect": "block",
+            "status": "grounded",
+            "grounded_by": "qa-backend-web-spec-intake"
+          }
+        ],
+        "required_info_checks": [
+          {
+            "checked_on": "2026-08-22",
+            "checked_with": "record-required-info-check",
+            "blocking_item_count": 1
+          }
+        ]
+      }
+    },
+    {
+      "category": "frontend",
+      "platform": "web",
+      "reason": "2026-08-25 章にしか無かった 2026-08-21 利用者ヒアリングを正本へ戻す。qa-frontend-web-overhaul-v2 の質問・回答・設計適用は章本文にだけ在り、正本 qa_log に 1 件も無かった (実測: qa_log の id 集合に不在、`user-dialogue:2026-08-21#` の語も spec-state.json に 0 件)。章は正本の純関数なので、この状態で compile を回すと利用者の発言そのものが消える。**消えないように章を手で守るのではなく、消えようのない場所へ移す。**確定質疑 (qa_ref) は現行のまま変えず、本ヒアリングは裏付け (qa_refs) として接地させる。",
+      "from": "確定",
+      "discarded": {
+        "qa_ref": "qa-frontend-web-seo-ai-search-v2",
+        "qa_refs": [
+          "qa-frontend-web-seo-ai-search-v2",
+          "qa-frontend-web-blog-builder",
+          "qa-frontend-web-spec-intake",
+          "qa-frontend-web",
+          "qa-frontend-web-analytics"
+        ],
+        "serves_goals": [
+          "G1",
+          "G2"
+        ],
+        "required_info_checks": [
+          {
+            "checked_on": "2026-08-25",
+            "checked_with": "record-required-info-check",
+            "blocking_item_count": 0,
+            "unmet_blocking_items": 0
+          }
+        ]
+      }
+    },
+    {
+      "category": "ui-ux",
+      "platform": "web",
+      "reason": "2026-08-25 章にしか無かった 2026-08-21 利用者ヒアリングを正本へ戻す。qa-uiux-web-overhaul-v2 の質問・回答・設計適用は章本文にだけ在り、正本 qa_log に 1 件も無かった (実測: qa_log の id 集合に不在、`user-dialogue:2026-08-21#` の語も spec-state.json に 0 件)。章は正本の純関数なので、この状態で compile を回すと利用者の発言そのものが消える。**消えないように章を手で守るのではなく、消えようのない場所へ移す。**確定質疑 (qa_ref) は現行のまま変えず、本ヒアリングは裏付け (qa_refs) として接地させる。",
+      "from": "確定",
+      "discarded": {
+        "qa_ref": "qa-uiux-web-seo-ai-search-v2",
+        "qa_refs": [
+          "qa-uiux-web-seo-ai-search-v2",
+          "qa-uiux-web-blog-builder",
+          "qa-uiux-web-screen-priority",
+          "qa-uiux-web-spec-intake",
+          "qa-uiux-web"
+        ],
+        "serves_goals": [
+          "G1",
+          "G2"
+        ],
+        "required_info": [
+          {
+            "item_id": "product-goal",
+            "missing_effect": "block",
+            "status": "grounded",
+            "grounded_by": "qa-foundation-u1"
+          },
+          {
+            "item_id": "screen-information-priority",
+            "missing_effect": "block",
+            "status": "grounded",
+            "grounded_by": "qa-uiux-web-screen-priority"
+          },
+          {
+            "item_id": "target-platforms",
+            "missing_effect": "block",
+            "status": "grounded",
+            "grounded_by": "qa-platform-scope"
+          }
+        ],
+        "required_info_checks": [
+          {
+            "checked_on": "2026-08-25",
+            "checked_with": "record-required-info-check",
+            "blocking_item_count": 3,
+            "unmet_blocking_items": 0
+          }
+        ]
+      }
     }
   ],
   "category_aggregate": {
@@ -3935,7 +4274,7 @@
           "section": "§32 (L2441)",
           "quote": "一つのアフィリエイトURLを起点に、正しい商品情報、比較候補、根拠、書き手、読者、媒体、広告表示を統合し、目的の異なる高品質コンテンツを安全に作成・公開・改善できること。",
           "sha256": "b5fc60987cb79c08c30db4cd94b075a0bf89cd7acba7c8d1ffc8558af6439385",
-          "sealed_on": "2026-08-21",
+          "sealed_on": "2026-08-25",
           "sealed_with": "seal-foundation-sources"
         },
         {
@@ -3946,7 +4285,7 @@
           "quote": "* どの商品、媒体、文章パターンが成果につながったか確認できる",
           "note": "G2 は §32 (U3 の sha256 束縛済み原文) に対応記述が無い。§2.3 の 2 行へ分かれて在る。L110 の「* アフィリエイトリンクを一元管理できる」が「一元管理」側の対応。",
           "sha256": "b5fc60987cb79c08c30db4cd94b075a0bf89cd7acba7c8d1ffc8558af6439385",
-          "sealed_on": "2026-08-21",
+          "sealed_on": "2026-08-25",
           "sealed_with": "seal-foundation-sources"
         },
         {
@@ -3956,7 +4295,7 @@
           "section": "§27.1",
           "quote": "根拠確認と人間承認を完了し、複数媒体へ展開されたコンテンツパッケージ数",
           "sha256": "b5fc60987cb79c08c30db4cd94b075a0bf89cd7acba7c8d1ffc8558af6439385",
-          "sealed_on": "2026-08-21",
+          "sealed_on": "2026-08-25",
           "sealed_with": "seal-foundation-sources"
         },
         {
@@ -3966,7 +4305,7 @@
           "section": "§27.1",
           "quote": "単なる生成数や投稿数を中心指標にしない。",
           "sha256": "b5fc60987cb79c08c30db4cd94b075a0bf89cd7acba7c8d1ffc8558af6439385",
-          "sealed_on": "2026-08-21",
+          "sealed_on": "2026-08-25",
           "sealed_with": "seal-foundation-sources"
         },
         {
@@ -3976,7 +4315,7 @@
           "section": "§7.1 (L489)",
           "quote": "蓄積されたロールアップから「クリック率・成果に効いている要因」を定期的に抽出し",
           "sha256": "5d84913a2422b9e697422b0656f90cf90633b0bd75adcebe0c6696e01fc9e45f",
-          "sealed_on": "2026-08-21",
+          "sealed_on": "2026-08-25",
           "sealed_with": "seal-foundation-sources"
         },
         {
@@ -3986,7 +4325,7 @@
           "section": "L475",
           "quote": "突合率(sub_id一致の割合)自体を運用KPIとし、sub_id非対応プログラムには「詳細分析不可」バッジを付ける",
           "sha256": "5d84913a2422b9e697422b0656f90cf90633b0bd75adcebe0c6696e01fc9e45f",
-          "sealed_on": "2026-08-21",
+          "sealed_on": "2026-08-25",
           "sealed_with": "seal-foundation-sources"
         },
         {
@@ -3994,9 +4333,9 @@
           "kind": "written-requirements",
           "path": "docs/spec/01-要求仕様書-v1.0.md",
           "section": "§30.8",
-          "quote": "## 30.8 追跡可能性",
+          "quote": "次の経路を双方向に追跡できる。",
           "sha256": "b5fc60987cb79c08c30db4cd94b075a0bf89cd7acba7c8d1ffc8558af6439385",
-          "sealed_on": "2026-08-21",
+          "sealed_on": "2026-08-25",
           "sealed_with": "seal-foundation-sources"
         },
         {
@@ -4004,9 +4343,9 @@
           "kind": "written-requirements",
           "path": "docs/spec/01-要求仕様書-v1.0.md",
           "section": "§30 (L2278)",
-          "quote": "# 30. 受け入れ条件",
+          "quote": "## 30.1 URL登録\n\n* アフィリエイトURLを元の状態で保存できる\n* 商品を識別できる\n* 不確実な場合は確認待ちになる\n* 情報源を確認できる\n* 危険なURLを拒否できる",
           "sha256": "b5fc60987cb79c08c30db4cd94b075a0bf89cd7acba7c8d1ffc8558af6439385",
-          "sealed_on": "2026-08-21",
+          "sealed_on": "2026-08-25",
           "sealed_with": "seal-foundation-sources"
         },
         {
@@ -4016,7 +4355,7 @@
           "section": "L683",
           "quote": "| パフォーマンス概要 | 期間比較付きの主要KPI(PV/クリック/CTR/発生・承認CVR/承認・支払EPC/承認・支払報酬)。watermarkによる速報・確定・遅延を区別 |",
           "sha256": "5d84913a2422b9e697422b0656f90cf90633b0bd75adcebe0c6696e01fc9e45f",
-          "sealed_on": "2026-08-21",
+          "sealed_on": "2026-08-25",
           "sealed_with": "seal-foundation-sources"
         },
         {
@@ -4024,9 +4363,9 @@
           "kind": "written-requirements",
           "path": "docs/spec/01-要求仕様書-v1.0.md",
           "section": "§2.2",
-          "quote": "## 2.2 読者に対する価値",
+          "quote": "* 自分に合う商品か判断できる\n* 商品の長所だけでなく弱点も確認できる\n* 他の商品との違いが分かる\n* おすすめの根拠を確認できる\n* 広告・アフィリエイトであることを認識できる",
           "sha256": "b5fc60987cb79c08c30db4cd94b075a0bf89cd7acba7c8d1ffc8558af6439385",
-          "sealed_on": "2026-08-21",
+          "sealed_on": "2026-08-25",
           "sealed_with": "seal-foundation-sources"
         },
         {
@@ -4034,9 +4373,9 @@
           "kind": "written-requirements",
           "path": "docs/spec/01-要求仕様書-v1.0.md",
           "section": "§2.3",
-          "quote": "## 2.3 発信者に対する価値",
+          "quote": "* 商品調査を媒体ごとに繰り返さなくてよい\n* 一つの情報から複数媒体向けコンテンツを作れる\n* 自分らしい文章表現を維持できる\n* 読者層ごとに文章を変えられる\n* 複数ブログを一つの管理画面で運営できる\n* アフィリエイトリンクを一元管理できる\n* 公開済みコンテンツの古い情報を検出できる\n* どの商品、媒体、文章パターンが成果につながったか確認できる",
           "sha256": "b5fc60987cb79c08c30db4cd94b075a0bf89cd7acba7c8d1ffc8558af6439385",
-          "sealed_on": "2026-08-21",
+          "sealed_on": "2026-08-25",
           "sealed_with": "seal-foundation-sources"
         },
         {
@@ -4044,9 +4383,9 @@
           "kind": "written-requirements",
           "path": "docs/spec/01-要求仕様書-v1.0.md",
           "section": "§25 (L2006-2019)",
-          "quote": "# 25. 権限",
+          "quote": "| Researcher         | 商品、比較、根拠        |\n| Writer             | 原稿、生成、修正        |\n| Reviewer           | 事実、表現、広告確認      |\n| Publisher          | 予約、公開、更新        |\n| Analyst            | 分析、レポート         |",
           "sha256": "b5fc60987cb79c08c30db4cd94b075a0bf89cd7acba7c8d1ffc8558af6439385",
-          "sealed_on": "2026-08-21",
+          "sealed_on": "2026-08-25",
           "sealed_with": "seal-foundation-sources"
         },
         {
@@ -4056,7 +4395,7 @@
           "section": "§2.1 (L85)",
           "quote": "> 発信者が、一つの信頼できる商品・サービス情報を起点に、複数のブログやSNSへ、「誰が・誰に・何を・なぜ伝えるか」が一貫した高品質コンテンツを効率的に生成・公開・改善できる状態をつくり、読者の意思決定品質と発信者の継続的な収益性を同時に高める。",
           "sha256": "b5fc60987cb79c08c30db4cd94b075a0bf89cd7acba7c8d1ffc8558af6439385",
-          "sealed_on": "2026-08-21",
+          "sealed_on": "2026-08-25",
           "sealed_with": "seal-foundation-sources"
         },
         {
@@ -4066,7 +4405,7 @@
           "section": "§3.1 (L121)",
           "quote": "現在のコンテンツ運営では、次の情報が別々の場所で管理されやすい。",
           "sha256": "b5fc60987cb79c08c30db4cd94b075a0bf89cd7acba7c8d1ffc8558af6439385",
-          "sealed_on": "2026-08-21",
+          "sealed_on": "2026-08-25",
           "sealed_with": "seal-foundation-sources"
         },
         {
@@ -4076,7 +4415,7 @@
           "section": "§3.4 (L184)",
           "quote": "WordPress、X、Instagram、Threadsなどは公式APIによる投稿連携が可能だが、認証、権限、投稿形式、利用料金、審査条件が異なる。",
           "sha256": "b5fc60987cb79c08c30db4cd94b075a0bf89cd7acba7c8d1ffc8558af6439385",
-          "sealed_on": "2026-08-21",
+          "sealed_on": "2026-08-25",
           "sealed_with": "seal-foundation-sources"
         },
         {
@@ -4086,7 +4425,7 @@
           "section": "§3.4 (L186)",
           "quote": "一方、noteは2026年8月16日時点で一般公開の公式投稿APIを提供していない。そのため、noteについては非公式APIやログイン自動操作を前提にせず、コピー用原稿、ファイル出力、WXR／MT形式のインポート支援として設計する。noteは公式にWXRまたはMT形式のインポートを案内している。",
           "sha256": "b5fc60987cb79c08c30db4cd94b075a0bf89cd7acba7c8d1ffc8558af6439385",
-          "sealed_on": "2026-08-21",
+          "sealed_on": "2026-08-25",
           "sealed_with": "seal-foundation-sources"
         },
         {
@@ -4096,7 +4435,7 @@
           "section": "§10.1 (L767)",
           "quote": "`original_url` は、成果計測に必要な情報を保持するため変更しない。",
           "sha256": "b5fc60987cb79c08c30db4cd94b075a0bf89cd7acba7c8d1ffc8558af6439385",
-          "sealed_on": "2026-08-21",
+          "sealed_on": "2026-08-25",
           "sealed_with": "seal-foundation-sources"
         },
         {
@@ -4106,7 +4445,7 @@
           "section": "§20 (L1614)",
           "quote": "日本では、広告であるにもかかわらず広告であることを判別しにくい表示が、景品表示法上のステルスマーケティング規制の対象となる。",
           "sha256": "b5fc60987cb79c08c30db4cd94b075a0bf89cd7acba7c8d1ffc8558af6439385",
-          "sealed_on": "2026-08-21",
+          "sealed_on": "2026-08-25",
           "sealed_with": "seal-foundation-sources"
         },
         {
@@ -4116,7 +4455,7 @@
           "section": "§5.5 (L326)",
           "quote": "外部公開、予約投稿、個人情報送信、アフィリエイトリンク挿入などの重要操作は、原則として人間の確認を経る。",
           "sha256": "b5fc60987cb79c08c30db4cd94b075a0bf89cd7acba7c8d1ffc8558af6439385",
-          "sealed_on": "2026-08-21",
+          "sealed_on": "2026-08-25",
           "sealed_with": "seal-foundation-sources"
         },
         {
@@ -4126,7 +4465,7 @@
           "section": "§1 (L38)",
           "quote": "同一商品・類似商品・比較候補を抽出",
           "sha256": "b5fc60987cb79c08c30db4cd94b075a0bf89cd7acba7c8d1ffc8558af6439385",
-          "sealed_on": "2026-08-21",
+          "sealed_on": "2026-08-25",
           "sealed_with": "seal-foundation-sources"
         },
         {
@@ -4136,7 +4475,7 @@
           "section": "§1 (L44)",
           "quote": "ブログ・X・Instagram・Threads・note等の媒体別に文章を生成",
           "sha256": "b5fc60987cb79c08c30db4cd94b075a0bf89cd7acba7c8d1ffc8558af6439385",
-          "sealed_on": "2026-08-21",
+          "sealed_on": "2026-08-25",
           "sealed_with": "seal-foundation-sources"
         },
         {
@@ -4146,7 +4485,7 @@
           "section": "§1 (L50)",
           "quote": "クリック・成果・反応を収集",
           "sha256": "b5fc60987cb79c08c30db4cd94b075a0bf89cd7acba7c8d1ffc8558af6439385",
-          "sealed_on": "2026-08-21",
+          "sealed_on": "2026-08-25",
           "sealed_with": "seal-foundation-sources"
         },
         {
@@ -4156,11 +4495,13 @@
           "section": "§27.5 (L2174)",
           "quote": "商品の編集評価には自動反映しない。",
           "sha256": "b5fc60987cb79c08c30db4cd94b075a0bf89cd7acba7c8d1ffc8558af6439385",
-          "sealed_on": "2026-08-21",
+          "sealed_on": "2026-08-25",
           "sealed_with": "seal-foundation-sources"
         }
       ]
-    }
+    },
+    "objectives_note": "目標値は根拠のない数値を確定しない。各指標は `current / target / measurement_window / event_or_query / owner / decision_due` を一組で持ち、初回実装では `current=未計測` として基準値を取得する。基準値取得後に target を決定するまで、能力要件の充足と成果目標の達成を混同しない。",
+    "success_criteria_note": "成功基準の判定には、少なくとも tenant 越境拒否、未同意イベント、同一成果の再取込、成果状態更新、計測D1障害中の既知リンク転送、KPI定義一致、n不足時の結論抑制を含む受入証拠が必要である。"
   },
   "decisions": [
     {
@@ -4990,5 +5331,18 @@
       "qa-uiux-web-screen-priority",
       "qa-uiux-web-spec-intake"
     ]
+  },
+  "chapter_notes": {
+    "ui-ux": [
+      {
+        "heading": "既存記録との食い違い (均さずに両方残す)",
+        "body": "**以下は利用者の回答ではない。**上の表と混ぜて読まないために区切ってある。食い違いを消して片方だけを残すと、どちらが一次根拠だったかが後から引けなくなる。\n\n**(1) 主タスクの優先順 ↔ `UIUX-REQ-001`**\n\n**この食い違いは 2026-08-23 に解消した。**以下は解消前の記録で、消さずに残す。決着の内容と手続きは「## 履歴」を見ること。\n\n収集時点の `UIUX-REQ-001` は「一覧ではなく『今、利用者が判断・回復すべき業務状態』を優先順位にし」と書いていた。利用者は**記事ごとの成績比較を第 1 位**に置き、業務状態の回復を第 2 位に置いた。**先頭が入れ替わっていた。**\n\n- 一次根拠は利用者回答である。旧 `UIUX-REQ-001` は書面 (`docs/spec/01` §17.4 / §22、`docs/spec/03` §7〜§8) から後に導かれた設計判断で、本人に確認したものではない。\n- **収集の記録がその場で `UIUX-REQ-001` を書き換えることはしなかった。**両者が争っていたのは「先頭に何を置くか」だけで、「業務状態を出すこと」自体は利用者も第 2 位として要求している。要件 ID の本文を収集の記録が勝手に書き換えると、後から「いつ誰が変えたか」が消える。解消は設計側の判断として別に行い、その経路が「## 履歴」の R4-reopen である。\n- **この食い違いは、放置すると静かに消える種類のものだった。**画面を作る人は `UIUX-REQ-001` だけを読み、業務キューを先頭に置く。利用者は成績比較を探して見つけられない。**そのとき誰も規約違反をしていない。**だからここに書いてあり、だから解消も記録付きで行った。\n\n**(2) 利用頻度・端末・熟練度 ↔ 既存 `design_applications` の代理推定**\n\n`qa-uiux-web-spec-intake` の `design_applications[0]` (`elicit-question-bank:screen-information-priority`) は、同じ 9 項目を**書面からの代理推定**で既に埋めている。本人回答と照合すると 9 軸中 3 軸が食い違う (分母 = カタログ `completion_rule` の 9 軸):\n\n| 軸 | 代理推定 (既存) | 本人回答 (今回) |\n|---|---|---|\n| 利用頻度 | 毎日 | 週 1 回程度 |\n| 端末 | PC主体+モバイル併用(レスポンシブ) | PC 中心（キーボードとマウス） |\n| 熟練度 | 初中級中心 | 反復利用する本人 |\n\n残る 6 軸 (ロール／主タスクの構成要素／データ量／比較・一括操作／誤操作コスト／visual device 方針) は方向が一致する。\n\n- **既存の代理推定を消さない。**消すと「この章は一度、聞かずに埋められた」という事実が引けなくなる。C16 の block ゲートが求めているのは利用者根拠への接地であって、過去の推定の抹消ではない。\n- **3/9 が外れたことのほうが記録として重い。**代理推定は 6 軸当たっており、当たっている分だけ「聞かなくても書ける」ように見える。外れた 3 軸はいずれも画面の骨格を変える軸である (週 1 回なら差分提示が要る／PC 中心ならレスポンシブ前提の制約が外れる／反復利用者なら初回向け説明より変化の可視化)。**当たった 6 軸は、外れた 3 軸の危険を打ち消さない。**\n\n**(3) 週 1 回であることの帰結 (設計側への申し送り。ここでは確定しない)**\n\n毎日開く前提の「同じ手順を速く回す」最適化より、**「前回以降に何が変わったか」**が効く。本章 `## To-Be` の 4 要件はこの想定を持っていない。差分の基準時刻をどこに置くか (前回ログイン／前回操作／固定期間) は設計判断であり、収集の記録では決めない。",
+        "reason": "2026-08-25: この散文は章 ui-ux.md にしか無く、生成節 `## 確定内容 (質疑録)` の内側 (`####`) に書かれていたため compile のたび消失していた。節の引き継ぎは `##` 単位でしか効かず、生成節の内側は原理上守れない。利用者の逐語 (qa_log[].answer) へ足すと利用者が言っていないことが利用者の声で残るため、突き合わせの記録として別欄へ置く。",
+        "recorded_with": "set-chapter-note"
+      }
+    ]
+  },
+  "excluded_categories": {
+    "api": "API 契約は backend カテゴリの質疑で扱っており、独立したカテゴリ行を立てない。根拠: qa-backend-web-overhaul-v2 に利用者本人の逐語『この UI、UX を整える際に必要な API があれば、それも併せて実行するような流れにしておいてください』が記録され、各管理対象の CRUD API を backend 要件として収集済み。qa-backend-web-analytics でも外部 API 連携 (SNS API / ASP API) を扱う。API を作らないという意味ではない。"
   }
 }

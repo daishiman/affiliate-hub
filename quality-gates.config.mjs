@@ -1659,6 +1659,19 @@ export const CHECKS = [
     why: "評価後に仕様書を書き換えると、古い PASS が古く見えないまま残る。指紋で気づける形にする。2026-08-19 まで警告どまりで、しかも判定の答えを捨てて必ず 0 を返していたため、指紋が無いまま緑を出し続けていた（この作業でいちばん大きい主張『仕様を全て満たした』の根拠がそれである）",
   },
   {
+    id: "spec-evidence-transcription",
+    label: "取得記録と証跡の逐語一致",
+    command: [
+      "python3",
+      ".claude/plugins/system-spec-harness/scripts/validate-evidence-transcription.py",
+      "--references",
+      "system-spec/fetched-references.json",
+    ],
+    blocking: true,
+    tier: 2,
+    why: "**「合っていない」には三種類ある** — 記録が証跡と違う / 証跡が古い / 上流が変わった。前二つは手元で決着でき、外部取得が要るのは三つ目だけである。これを 1 つの FAIL に潰していたせいで、是正の宛先が仕様書へ向き、しかし仕様書は正しく（実測 15/15 逐語一致）、**直すところの無い赤**が居座っていた。この検査は決着できる二つだけを見て、三つ目は判定していないと毎回名乗る。2026-08-25 の初回実行で、どの証跡も支えない取得日（nextjs が再取得なしに 2026-08-23 の取得を名乗っていた）を検出した。`evidence_sha256` は writer 側で書式（SHA256_HEX）しか見ておらず、**書式だけ正しい嘘は書式検査を通る**",
+  },
+  {
     id: "audit",
     label: "依存の脆弱性",
     command: ["pnpm", "audit", "--audit-level", "high"],

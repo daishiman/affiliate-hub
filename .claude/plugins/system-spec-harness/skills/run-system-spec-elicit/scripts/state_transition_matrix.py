@@ -317,6 +317,91 @@ def set_qa_scope_notes(state: dict, qa_id: str, raw: object) -> None:
     entry["scope_notes"] = normalized
 
 
+SUPERSEDE_QA_WRITER = "supersede-qa"
+
+
+def _cells_referencing(state: dict, qa_id: str) -> list[tuple[str, str]]:
+    """qa_id を `qa_ref` または `qa_refs` のどちらかで引いているセルを列挙する。
+
+    `_confirmed_cells_citing` は確定質疑 (`qa_ref`) しか見ない。**引かれている
+    かどうか**を問うときに裏付け (`qa_refs`) を見落とすと、まだ生きている質疑を
+    「誰も引いていない」と判定してしまう。
+    """
+    found: list[tuple[str, str]] = []
+    for category, row in (state.get("matrix") or {}).items():
+        if not isinstance(row, dict):
+            continue
+        for platform, cell in row.items():
+            if not isinstance(cell, dict):
+                continue
+            refs = [cell.get("qa_ref")] + list(cell.get("qa_refs") or [])
+            if qa_id in refs:
+                found.append((category, platform))
+    return sorted(found)
+
+
+def qa_orphans(state: dict) -> list[str]:
+    """どのセルからも引かれておらず、後継の申告も無い質疑の id 一覧。
+
+    **孤立そのものは罪ではない。黙って孤立していることが罪である。**
+    質疑を作り直したとき (v1 → v2)、古い方は誰からも引かれなくなる。それは
+    正しい。ところが正本にはそれを言う欄が無かったので、機械には「置き換えた
+    のか、接地を忘れたのか」が区別できず、監査は毎回同じ 2 件を欠陥として
+    報告し続けた (実測 2026-08-25: `qa-uiux-web-seo-ai-search` /
+    `qa-frontend-web-seo-ai-search`)。**禁じるのではなく、名乗らせる。**
+    """
+    orphans: list[str] = []
+    for entry in state.get("qa_log") or []:
+        if not isinstance(entry, dict):
+            continue
+        qa_id = entry.get("id")
+        if not isinstance(qa_id, str) or not qa_id:
+            continue
+        if entry.get("superseded_by"):
+            continue
+        if not _cells_referencing(state, qa_id):
+            orphans.append(qa_id)
+    return orphans
+
+
+def supersede_qa(state: dict, qa_id: str, by: object) -> None:
+    """古い質疑に後継を申告させる。本文には触れない。
+
+    条件を 3 つ置く。どれも「申告を、事実を消す道具にしない」ためである。
+      - 後継が qa_log に実在すること (存在しない id への逃がしを許さない)
+      - 自分自身を後継にできないこと
+      - **まだセルから引かれている質疑は封じられないこと** — 引かれている
+        ものを superseded にすると、確定セルの根拠が黙って死ぬ
+    再適用は同じ後継なら通し、違う後継なら拒む (`set_qa_scope_notes` の流儀)。
+    """
+    if not isinstance(qa_id, str) or not qa_id.strip():
+        raise TransitionError(f"{SUPERSEDE_QA_WRITER}: qa_id は非空文字列必須")
+    if not isinstance(by, str) or not by.strip():
+        raise TransitionError(f"{SUPERSEDE_QA_WRITER}: --by は非空文字列必須")
+    qa_id, by = qa_id.strip(), by.strip()
+    if qa_id == by:
+        raise TransitionError(f"{SUPERSEDE_QA_WRITER}: 自分自身を後継にはできない: {qa_id}")
+    log = state.get("qa_log") or []
+    entry = next((c for c in log if isinstance(c, dict) and c.get("id") == qa_id), None)
+    if entry is None:
+        raise TransitionError(f"{SUPERSEDE_QA_WRITER}: qa_log に存在しない qa_id: {qa_id}")
+    if not any(isinstance(c, dict) and c.get("id") == by for c in log):
+        raise TransitionError(f"{SUPERSEDE_QA_WRITER}: 後継 {by} が qa_log に不在")
+    citing = _cells_referencing(state, qa_id)
+    if citing:
+        cells = ", ".join(f"{cat}/{pf}" for cat, pf in citing)
+        raise TransitionError(
+            f"{SUPERSEDE_QA_WRITER}: {qa_id} はまだセルから引かれている ({cells})。"
+            "先に正規 writer でセルの参照を後継へ移すこと"
+        )
+    existing = entry.get("superseded_by")
+    if existing is not None and existing != by:
+        raise TransitionError(
+            f"{SUPERSEDE_QA_WRITER}: 既存 superseded_by={existing!r} と異なる再適用は拒否: {qa_id}"
+        )
+    entry["superseded_by"] = by
+
+
 SPLIT_BUNDLE_WRITER = "split-qa-bundle"
 
 
@@ -1360,6 +1445,158 @@ def _cell(state: dict, category: str, platform: str) -> dict:
     return state["matrix"][category][platform]
 
 
+def _discarded_snapshots(state: dict, category: str, platform: str) -> list[dict]:
+    """そのセルが reopen のたびに手放してきた値を、古い順に返す。"""
+    out: list[dict] = []
+    for log_entry in state.get("reopen_log") or []:
+        if not isinstance(log_entry, dict):
+            continue
+        if log_entry.get("category") != category or log_entry.get("platform") != platform:
+            continue
+        discarded = log_entry.get("discarded")
+        if isinstance(discarded, dict):
+            out.append(discarded)
+    return out
+
+
+def _previous_backing(state: dict, category: str, platform: str) -> list[str]:
+    """直前に手放した裏付けの範囲。`qa_refs` が無い時代の退避は `qa_ref` 単数で代用する。"""
+    for discarded in reversed(_discarded_snapshots(state, category, platform)):
+        refs = discarded.get("qa_refs")
+        if isinstance(refs, list) and refs:
+            return [ref for ref in refs if isinstance(ref, str)]
+        single = discarded.get("qa_ref")
+        if isinstance(single, str) and single:
+            return [single]
+    return []
+
+
+def _confirm_qa_refs(state: dict, category: str, platform: str, op: dict) -> list[str] | None:
+    """再確定するセルの裏付けの範囲 (`qa_refs`) を決める。
+
+    **塞がっていた穴は「呼ぶ側が裏付けを名乗れない」ことではなく、足せないことだった。**
+
+    `confirm` は長らく `qa_ref` (単数) しか書かず、reopen が退避した `qa_refs` は
+    `restore-qa-refs` でしか戻せなかった。そちらは「退避値の先頭が再確定後の `qa_ref`
+    と同じ」ことを要求する。つまり **新しく集めた質疑で再確定すると先頭が変わるので、
+    書き戻す道が必ず塞がる。**新しい質疑を接地させたいときにだけ通れなくなる門だった。
+
+    2026-08-24 に 3 セル (ui-ux / frontend / database × web) が現にそうなった。
+    ブログ構築 UI と SEO/AI 検索の要望で reopen までは残っているのに、再確定が最後まで
+    通らず、セルは**退避スナップショットと同じ値のまま `確定` に見えていた**。
+    集めた質疑 7 件はどのセルからも参照されない孤立記録になった。
+
+    `qa_ref` は元から呼ぶ側が名乗る。単数で名乗れて複数で名乗れない理由は無い。
+    止めるべきは名乗ることではなく**付け替え** (別の主張へ裏付けを移すこと) だけである。
+    そこで門は 2 つだけにする:
+
+      - 先頭は `qa_ref` 自身 (`split-qa-bundle` / `restore-qa-refs` と同じ不変条件)
+      - **直前に手放した裏付けを 1 件も落とせない。**足すのは自由、減らすのは拒否。
+
+    **渡されなかったときに手放した値を引き継ぐ、はやらない。**それを既定にすると
+    「古い裏付けは新しい主張も裏付ける」を機械が勝手に決めることになり、
+    `restore-qa-refs` が付け替えとして止めている当のものを、こちらが黙って通す。
+    名乗らなければ書かない。書かれなかった事実は `restore-qa-refs` の拒否として現れる。
+
+    塞げていないところ: `reopen_log` を writer の外で書き換えれば「手放していない」
+    ことにできる。これは `discarded` 全体と同じ穴で、ここだけ閉じられるものではない。
+    """
+    qa_ref = op["qa_ref"]
+    raw = op.get("qa_refs")
+    if raw is None:
+        # **黙って引き継がない。**手放した裏付けが新しい主張も裏付けるかは、
+        # 機械には決められない。決められないことを既定値で決めると、
+        # `restore-qa-refs` が付け替えとして止めている当のものを、
+        # こちらが黙って通す道になる。名乗らなければ書かない。
+        return None
+    previous = _previous_backing(state, category, platform)
+    if not isinstance(raw, list) or not raw or not all(isinstance(ref, str) and ref for ref in raw):
+        raise TransitionError(f"confirm の qa_refs は非空の文字列配列でない: {category}/{platform}")
+    if len(set(raw)) != len(raw):
+        raise TransitionError(f"confirm の qa_refs に重複が在る: {category}/{platform}")
+    if raw[0] != qa_ref:
+        raise TransitionError(
+            f"confirm の qa_refs の先頭 {raw[0]!r} が qa_ref {qa_ref!r} と違う: "
+            f"{category}/{platform} (別の主張へ裏付けを付け替えることになるため拒否)"
+        )
+    known = {entry.get("id") for entry in state.get("qa_log") or [] if isinstance(entry, dict)}
+    missing = [ref for ref in raw if ref not in known]
+    if missing:
+        raise TransitionError(
+            f"confirm の qa_refs に qa_log へ存在しない id が在る: "
+            f"{category}/{platform} ({', '.join(missing)})"
+        )
+    # **落とすこと自体は禁止しない。落とすなら名指しさせる。**
+    #
+    # 落とすのが正しい場合が現に在る。`qa-uiux-web-seo-ai-search` と
+    # `qa-frontend-web-seo-ai-search` は `design_applications` が空だったため
+    # 「契約充足のため再確定」として手放され、v2 に差し替わった。schema 1.1 は
+    # 確定セルが引く entry へ非空の `design_applications` を要求するので、
+    # **この 2 件は引いてはいけない。**「1 件も落とせない」を貫くと、
+    # 契約が禁じている entry を引き続けろ、という要求になる。
+    #
+    # かといって黙って落とせると付け替えと区別が付かない。そこで `qa_refs` の側では
+    # なく `drops_backing` の側で名乗らせる。名指しした分だけ落ちる。**取り違えれば
+    # 落ちない**ので、名指しは意思表示として機能する。
+    declared_drops = op.get("drops_backing") or []
+    if not isinstance(declared_drops, list) or not all(
+        isinstance(ref, str) and ref for ref in declared_drops
+    ):
+        raise TransitionError(
+            f"confirm の drops_backing は文字列配列でない: {category}/{platform}"
+        )
+    still_backing = [ref for ref in declared_drops if ref in raw]
+    if still_backing:
+        raise TransitionError(
+            f"confirm の drops_backing が qa_refs にも載っている: "
+            f"{category}/{platform} ({', '.join(still_backing)})。"
+            "落とすと言いながら引いている"
+        )
+    not_preserved = [ref for ref in declared_drops if ref not in previous]
+    if not_preserved:
+        raise TransitionError(
+            f"confirm の drops_backing に、直前に手放していない id が在る: "
+            f"{category}/{platform} ({', '.join(not_preserved)})。"
+            "落とせるのは、直前に裏付けだったものだけである"
+        )
+    dropped = [ref for ref in previous if ref not in raw and ref not in declared_drops]
+    if dropped:
+        raise TransitionError(
+            f"confirm の qa_refs が、直前に手放した裏付けを黙って落としている: "
+            f"{category}/{platform} ({', '.join(dropped)})。"
+            "落とすなら drops_backing で名指しすること (黙った削除は付け替えと区別できない)"
+        )
+    return list(raw)
+
+
+def _reject_undeclared_revert(
+    state: dict, category: str, platform: str, op: dict, next_cell: dict
+) -> None:
+    """**手放した値へそのまま戻る再確定を、黙ってはさせない。**
+
+    2026-08-24 の 3 セルは「reopen したのに、確定値が退避スナップショットと完全一致」
+    という姿で残っていた。読む側にはそれが**新しく確定し直した結果**と見分けられない。
+    reopen の理由には新しい要望が書いてあるのに、値には何も入っていなかった。
+
+    禁止はしない。中身を変えない再確定には正当な用途が在る — 章本文だけを現行 `qa_ref`
+    へ揃えるための R4-reopen が現に `reopen_log` に何件も在り、そこでは収集内容が
+    変わらないのが正しい。**止めたいのは「変えないこと」ではなく「変えていないと
+    言わずに変えないこと」である。**そこで `reaffirm: true` を名乗らせる。
+    名乗れば通る。名乗らなければ止まる。差は監査で読める形に残る。
+    """
+    if op.get("reaffirm") is True:
+        return
+    subject = {key: next_cell[key] for key in ("qa_ref", "qa_refs", "serves_goals") if key in next_cell}
+    for discarded in _discarded_snapshots(state, category, platform):
+        same = {key: discarded[key] for key in ("qa_ref", "qa_refs", "serves_goals") if key in discarded}
+        if same == subject:
+            raise TransitionError(
+                f"確定値が、手放したスナップショットと完全一致する再確定: {category}/{platform}。"
+                "reopen の理由が新しい収集を主張しているのに値が動いていない。"
+                "意図して同じ値へ戻すなら op に reaffirm=true を付けて名乗ること"
+            )
+
+
 def apply_cell_op(state: dict, op: dict) -> None:
     action, category, platform = op.get("action"), op.get("category"), op.get("platform")
     cell = _cell(state, category, platform)
@@ -1474,11 +1711,42 @@ def apply_cell_op(state: dict, op: dict) -> None:
                 f"record-required-info-check 不可: {category}/{platform} は '{current}' "
                 "(確定セルのみ数えた事実を記録できる)"
             )
+        # **件数を 2 つに分ける。**
+        #
+        # `blocking_item_count` は「収集必須 item が何件あるか」であって
+        # 「何件が未充足か」ではない。上の docstring にも references の
+        # required-info カタログにもそう書いてあるが、**欄名がそう読めない。**
+        # 2026-08-24 の C07 マトリクス監査は現にこれを未充足件数と読み、
+        # 充足済みの 4 セル (auth / ui-ux / security / backend × web) を
+        # 「C16 block 未充足のまま確定」として差し戻し対象に挙げた。
+        # 監査人は撤回したが、**次の読み手も同じ読み方をする**。
+        #
+        # 欄名を変えると既存記録が読めなくなるので、
+        # 「数えたら 0 件だった」と「一度も数えていない」を分けたときと同じ手を採る
+        # — 消さずに、**分かれていることが見える欄を足す**。
+        # `unmet_blocking_items` が 0 なら、総数がいくつでも未充足は無い。
+        blocking = blocking_items_for_category(state, category)
+        recorded = {
+            entry.get("item_id"): entry.get("status")
+            for entry in (cell.get("required_info") or [])
+            if isinstance(entry, dict)
+        }
+        blocking_ids = [
+            item.get("item_id") if isinstance(item, dict) else item for item in blocking
+        ]
+        unmet = [
+            item_id
+            for item_id in blocking_ids
+            if recorded.get(item_id) not in ("grounded", "not_applicable")
+        ]
         record = {
             "checked_on": datetime.date.today().isoformat(),
             "checked_with": "record-required-info-check",
-            "blocking_item_count": len(blocking_items_for_category(state, category)),
+            "blocking_item_count": len(blocking),
+            "unmet_blocking_items": len(unmet),
         }
+        if unmet:
+            record["unmet_item_ids"] = unmet
         checks = cell.get("required_info_checks")
         if checks is None:
             # 追記専用。空配列で作らない — 空配列は「数えて 0 件」と読める姿になり、
@@ -1577,11 +1845,15 @@ def apply_cell_op(state: dict, op: dict) -> None:
             state, category, op.get("required_info"), allow_ungrounded=False
         )
         next_cell = {"state": "確定", "qa_ref": op["qa_ref"]}
+        qa_refs = _confirm_qa_refs(state, category, platform, op)
+        if qa_refs is not None:
+            next_cell["qa_refs"] = qa_refs
         if required_info:
             next_cell["required_info"] = required_info
         serves = normalize_serves(op.get("serves_goals"))
         if serves:
             next_cell["serves_goals"] = serves
+        _reject_undeclared_revert(state, category, platform, op, next_cell)
         state["matrix"][category][platform] = next_cell
     elif action == "exclude":
         if not (op.get("reason") or op.get("approval_ref")):
@@ -1619,6 +1891,95 @@ def set_targets(state: dict, targets: list) -> None:
     state["targets"] = normalized
 
 
+QA_SOURCE_KINDS = ("user-dialogue", "written-requirements")
+
+
+def _require_qa_source(qa_id: str, turn: dict) -> dict:
+    """質疑 entry に「どこから来たか」を必ず名乗らせる。
+
+    **黙って落とせる欄は、いつか落ちる。**この欄は長らく `if "source" in turn` で
+    任意だった。名乗らなくても writer は通り、通ったものは正本に残る。
+    実測 2026-08-25: `qa_log` 40 件のうち 5 件 (`qa-uiux-web-seo-ai-search` /
+    `qa-frontend-web-seo-ai-search` / `qa-backend-web-overhaul-v2` /
+    `qa-frontend-web-overhaul-v2` / `qa-uiux-web-overhaul-v2`) が `source` を
+    持たず、うち 3 件は確定セルが引いている**裏付けの由来が機械で辿れない確定**
+    だった。独立監査 C06 がこれをトレーサビリティ FAIL として検出し、
+    C05 の総合判定まで降格させた。
+
+    **禁じるのではなく、名乗らせる。**対話由来であること自体は何も悪くない
+    (12 件が正当にそう名乗っている)。悪いのは、対話由来なのか書面由来なのかを
+    **誰も宣言しないまま確定できてしまう**ことである。宣言があれば、書面なら
+    原文へ突き合わせられ、対話なら突き合わせ先が無いと分かる。宣言が無いと、
+    **どちらなのかを問うことすらできない。**
+
+    ここで見るのは `kind` だけである。書面の path/section/sha256 は
+    `set-qa-written-up` / `seal` 系が後から埋める欄なので、作成時点で要求すると
+    「まだ読んでいない原文の digest」を書かせることになる。
+    """
+    source = turn.get("source")
+    if source is None:
+        raise TransitionError(
+            f"qa_log entry {qa_id!r}: source が無い。質疑は由来を名乗らずに作れない "
+            f"(source.kind は {' | '.join(QA_SOURCE_KINDS)} のいずれか)。"
+            "対話由来なら {\"kind\": \"user-dialogue\"} と名乗ること — "
+            "名乗り自体は裏取りではないが、名乗りが無いと書面か対話かを問うことすらできない"
+        )
+    if not isinstance(source, dict):
+        raise TransitionError(f"qa_log entry {qa_id!r}: source がオブジェクトでない: {source!r}")
+    kind = source.get("kind")
+    if kind not in QA_SOURCE_KINDS:
+        raise TransitionError(
+            f"qa_log entry {qa_id!r}: source.kind が {QA_SOURCE_KINDS} のいずれでもない: {kind!r}"
+        )
+    return source
+
+
+QA_SOURCE_WRITER = "set-qa-source"
+
+
+def set_qa_source(state: dict, qa_id: str, reason: str) -> None:
+    """既に正本に居る質疑へ、**対話由来という名乗りだけ**を後から与える。
+
+    **なぜ対話由来しか受け付けないか。**書面由来の名乗りは
+    `set-qa-written-up` が担い、原文の path/section と digest まで要求する。
+    ここで書面を名乗れるようにすると、**原文を読まずに「書面に書いてある」と
+    言える口**ができる。名乗りだけで裏取りを飛び越えられる経路は作らない。
+
+    **なぜ後から名乗る writer が要るか。**`source` は長らく任意欄で、名乗らずに
+    質疑を作れた。作成側は `_require_qa_source` で塞いだが、**穴が開いていた
+    あいだに入った 5 件はそのままでは直せない** — 塞いだ writer は新規作成しか
+    見ないからである。塞ぐことと、塞ぐ前に入ったものを直すことは別の仕事である。
+
+    実測 2026-08-25: `qa-uiux-web-seo-ai-search` / `qa-frontend-web-seo-ai-search`
+    / `qa-backend-web-overhaul-v2` / `qa-frontend-web-overhaul-v2` /
+    `qa-uiux-web-overhaul-v2` の 5 件。うち 3 件は確定セルが引いており、
+    独立監査 C06 が「由来を機械で辿れない確定」として FAIL を出していた。
+
+    `{"kind": "user-dialogue"}` は裏取りではない。**裏取りが存在しないことの
+    宣言**である。宣言があれば「この値は原文へ突き合わせられない」と機械が
+    分かる。宣言が無いと、書面か対話かを問うことすらできない。
+    """
+    for name, value in (("qa_id", qa_id), ("reason", reason)):
+        if not isinstance(value, str) or not value.strip():
+            raise TransitionError(f"{QA_SOURCE_WRITER}: {name} は非空文字列必須")
+    entry = next(
+        (e for e in state.get("qa_log") or [] if isinstance(e, dict) and e.get("id") == qa_id),
+        None,
+    )
+    if entry is None:
+        raise TransitionError(f"{QA_SOURCE_WRITER}: qa_log に存在しない id: {qa_id}")
+    declared = {"kind": "user-dialogue"}
+    existing = entry.get("source")
+    if existing is not None:
+        if existing != declared:
+            raise TransitionError(
+                f"{QA_SOURCE_WRITER}: 既に別の由来を名乗っている entry は上書きしない: "
+                f"{qa_id} / {existing!r}"
+            )
+        return
+    entry["source"] = declared
+
+
 def apply_turn(state: dict, turn: dict) -> None:
     qa_id = turn.get("qa_id")
     ops = turn.get("ops", [])
@@ -1648,8 +2009,7 @@ def apply_turn(state: dict, turn: dict) -> None:
             normalize_design_applications(existing.get("design_applications"))
     if qa_id and not has_entry(state["qa_log"], qa_id):
         entry = {"id": qa_id, "question": turn.get("question", ""), "answer": turn.get("answer", "")}
-        if "source" in turn:
-            entry["source"] = turn["source"]
+        entry["source"] = _require_qa_source(qa_id, turn)
         resolved_asks_for = resolve_asks_for(state, qa_id, turn.get("asks_for"))
         if resolved_asks_for is not None:
             entry["asks_for"] = resolved_asks_for
@@ -1728,3 +2088,112 @@ def run_chunk(state: dict, turns: list[dict], max_loops: int = 5) -> int:
     # 在って policy が無い state は「5 は目安か絶対か」を読む側に推測させる。
     state["hearing_progress"]["max_loops_policy"] = LOOP_LIMIT_POLICY_STRICT
     return processed
+
+
+CHAPTER_NOTE_WRITER = "set-chapter-note"
+
+
+EXCLUDED_CATEGORY_WRITER = "declare-excluded-category"
+
+
+def declare_excluded_category(state: dict, category: str, reason: str) -> None:
+    """必須情報カタログの domain に、カテゴリ行を立てない理由を名乗らせる。
+
+    **検査は「宣言せよ」と言うのに、宣言する道具が無かった。**
+    `--require-catalog-domain-coverage` はカタログの `in_scope_domains` に対して
+    「それを数えるカテゴリ行」を要求し、無い場合の逃げ道として
+    `excluded_categories` を案内する。しかし正本を書ける writer は
+    `apply-spec-transition.py` だけで、そこにこの操作が無かった。
+    **塞ぐことと、塞がれた側に出口を与えることは別の仕事である**
+    (`set_qa_source` を足したときと同じ形の欠落)。
+
+    **「対象外」は「作らない」ではない。**ここで宣言するのは「このカテゴリ**行**を
+    立てない」であって、その領域を実装しないという意味ではない。実測 2026-08-25:
+    `api` は `in_scope_domains` に在るが matrix に行が無い。API を作らないからでは
+    なく、API 契約を backend カテゴリの質疑で扱っているからである。**誤読すると
+    「API 不要」と読めてしまう**ので、`reason` を必須にして、どこで数えているのかを
+    書かせる。理由の中身は harness が決められる事柄ではないため、内容の当否は問わない
+    — **書かせることだけを強制する。**
+
+    上書きは拒む。既に別の理由が立っているカテゴリを黙って書き換えると、
+    経緯が消えて「最初からそう宣言していた」ように見える。
+    """
+    for name, value in (("category", category), ("reason", reason)):
+        if not isinstance(value, str) or not value.strip():
+            raise TransitionError(f"{EXCLUDED_CATEGORY_WRITER}: {name} は非空文字列必須")
+
+    if any(
+        isinstance(entry, dict) and entry.get("id") == category
+        for entry in state.get("categories") or []
+    ):
+        raise TransitionError(
+            f"{EXCLUDED_CATEGORY_WRITER}: {category!r} は matrix にカテゴリ行が在る。"
+            "行が在るものを対象外と宣言すると、行と宣言のどちらが正かが決まらない"
+        )
+
+    excluded = state.get("excluded_categories")
+    if excluded is None:
+        excluded = {}
+        state["excluded_categories"] = excluded
+    if not isinstance(excluded, dict):
+        raise TransitionError(
+            f"{EXCLUDED_CATEGORY_WRITER}: excluded_categories が object でない: {excluded!r}"
+        )
+
+    existing = excluded.get(category)
+    if existing is not None:
+        if existing != reason:
+            raise TransitionError(
+                f"{EXCLUDED_CATEGORY_WRITER}: 既に別の理由が立っている宣言は上書きしない: "
+                f"{category} / {existing!r}"
+            )
+        return
+    excluded[category] = reason
+
+
+def set_chapter_note(state: dict, category: str, heading: str, body: str, reason: str) -> None:
+    """章にしか居場所の無かった散文へ、正本の居場所を与える。
+
+    **なぜ在るか。**章は正本の純関数なので、正本に無い散文は compile のたび消える。
+    消えないよう章を手で守る (`--on-handwritten preserve`) 手は `##` 単位でしか効かず、
+    生成節の内側 (`###` 以下) に書かれた散文は原理上どうやっても守れない。
+    実測 2026-08-25: `ui-ux.md` の `#### 既存記録との食い違い` は生成節
+    `## 確定内容 (質疑録)` の中に在り、compile を回すたび消失一覧に載っていた。
+
+    **なぜ `qa_log[].answer` に足さないか。**answer は利用者の発言の逐語記録である。
+    後から気づいた突き合わせを足すと、利用者が言っていないことが利用者の声の顔で残る。
+    突き合わせは突き合わせとして、別の欄に、記録者と理由を伴って置く。
+
+    `set_qa_scope_notes` の流儀に合わせ、同一内容の再適用は通し、異なる内容の
+    再適用は拒む。見出しが一致する注記は「同じ注記」とみなす。
+    """
+    for name, value in (("category", category), ("heading", heading), ("body", body), ("reason", reason)):
+        if not isinstance(value, str) or not value.strip():
+            raise TransitionError(f"{CHAPTER_NOTE_WRITER}: {name} は非空文字列必須")
+    category = category.strip()
+    if category not in {c.get("id") for c in (state.get("categories") or []) if isinstance(c, dict)}:
+        raise TransitionError(f"{CHAPTER_NOTE_WRITER}: categories に存在しない category: {category}")
+
+    notes = state.setdefault("chapter_notes", {})
+    if not isinstance(notes, dict):
+        raise TransitionError(f"{CHAPTER_NOTE_WRITER}: chapter_notes がオブジェクトでない")
+    bucket = notes.setdefault(category, [])
+    if not isinstance(bucket, list):
+        raise TransitionError(f"{CHAPTER_NOTE_WRITER}: chapter_notes.{category} が配列でない")
+
+    entry = {
+        "heading": heading.strip(),
+        "body": body.rstrip("\n"),
+        "reason": reason.strip(),
+        # 誰が書いたかは writer が打刻する。呼び出し側からは渡せない。
+        "recorded_with": CHAPTER_NOTE_WRITER,
+    }
+    for existing in bucket:
+        if isinstance(existing, dict) and existing.get("heading") == entry["heading"]:
+            if existing != entry:
+                raise TransitionError(
+                    f"{CHAPTER_NOTE_WRITER}: 既存の同名注記と異なる内容の再適用は拒否: "
+                    f"{category} / {entry['heading']}"
+                )
+            return
+    bucket.append(entry)

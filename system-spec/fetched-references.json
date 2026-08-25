@@ -15,7 +15,7 @@
     },
     {
       "target_id": "nextjs",
-      "retrieved_at": "2026-08-23T13:12:16Z",
+      "retrieved_at": "2026-08-16T09:01:51Z",
       "source_url": "https://nextjs.org/docs",
       "official_publisher": "Vercel",
       "official_host": "nextjs.org",
@@ -24,7 +24,7 @@
       "latest_checked_at": "2026-08-22T22:20:35Z",
       "evidence_ref": "system-spec/retrieval-evidence/nextjs.json",
       "evidence_sha256": "ba58126ef21261e83348b9587888055e9af68ac736b266a211e039d4cdc930d6",
-      "summary": "Next.js 公式ドキュメント。App Router・Server Components・ルーティング/データ取得の現行仕様。frontend カテゴリの正本参照。docs は rolling で版を表明しないため、version は publisher の配布 registry (npm) が示す現行版を採る。2026-08-22T08:13:50Z に `npm view next version` / `npm view next dist-tags.latest` で照会し、いずれも 16.3.2 を返した (それまで記録していた 16.3.1 は、2026-08-16 時点の WebSearch 由来で registry の実状態より遅れていた)。evidence_ref は 2026-08-16 の docs ページ取得証跡であり、registry 照会の証跡ではない。この環境からは HTTP 取得ができないため docs ページの再取得は行っていない。2026-08-22T22:20:35Z に同じ照会を繰り返し、version / dist-tags.latest とも 16.3.2 (registry の最終更新 2026-08-21T23:53:41.293Z) で記録値と一致することを再確認し、その照会結果を evidence_ref の freshness_extraction へ書き足した。"
+      "summary": "Next.js 公式ドキュメント。App Router・Server Components・ルーティング/データ取得の現行仕様。frontend カテゴリの正本参照。docs は rolling で版を表明しないため、version は publisher の配布 registry (npm) が示す現行版を採る。2026-08-22T08:13:50Z に `npm view next version` / `npm view next dist-tags.latest` で照会し、いずれも 16.3.2 を返した (それまで記録していた 16.3.1 は、2026-08-16 時点の WebSearch 由来で registry の実状態より遅れていた)。evidence_ref は 2026-08-16 の docs ページ取得証跡であり、registry 照会の証跡ではない。この環境からは HTTP 取得ができないため docs ページの再取得は行っていない。2026-08-22T22:20:35Z に同じ照会を繰り返し、version / dist-tags.latest とも 16.3.2 (registry の最終更新 2026-08-21T23:53:41.293Z) で記録値と一致することを再確認し、その照会結果を evidence_ref の freshness_extraction へ書き足した。 なお 2026-08-25 に retrieved_at を '2026-08-23T13:12:16Z' から証跡どおりの '2026-08-16T09:01:51Z' へ改めた。docs ページを再取得していないのに 2026-08-23 の取得を名乗っており、どの証跡もその日付を支えていなかった。実際より新しく見せる記録は、古いことより悪い (古さは再取得で直るが、支えの無い新しさは誰にも気付かれない)。registry 照会の時刻は latest_checked_at が持っており、取得時刻と混ぜない。"
     },
     {
       "target_id": "cloudflare-workers",
@@ -149,12 +149,12 @@
       "source_url": "https://vitest.dev/guide/",
       "official_publisher": "Vitest",
       "official_host": "vitest.dev",
+      "version": "4.1.11",
       "freshness_source": "publisher-registry",
       "latest_checked_at": "2026-08-24T11:38:55Z",
       "evidence_ref": "system-spec/retrieval-evidence/vitest.json",
       "evidence_sha256": "59cd11c79f1052aeb64e0d74e420cebd15afaa61f96257b676aab0b83a4d9d97",
-      "summary": "Vitest 公式ガイド Getting Started。決定 decision-test-ci-tooling (試験と CI に何を使うか) の authority。配信中 HTML は Last updated 2026-04-08 のままだが、公式 repository の同ファイル履歴は 2026-06-18 まで進んでいるため、その日付は鮮度根拠に採らない。2026-08-24T11:38:55Z に publisher registry を照合し、version / dist-tags.latest とも現行版 4.1.11 であることを確認した。",
-      "version": "4.1.11"
+      "summary": "Vitest 公式ガイド Getting Started。決定 decision-test-ci-tooling (試験と CI に何を使うか) の authority。配信中 HTML は Last updated 2026-04-08 のままだが、公式 repository の同ファイル履歴は 2026-06-18 まで進んでいるため、その日付は鮮度根拠に採らない。2026-08-24T11:38:55Z に publisher registry を照合し、version / dist-tags.latest とも現行版 4.1.11 であることを確認した。"
     },
     {
       "target_id": "github-actions",
