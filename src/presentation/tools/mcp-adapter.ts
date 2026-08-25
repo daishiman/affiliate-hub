@@ -3,7 +3,7 @@ import type { AnyToolDefinition } from "./tool-definition";
 import { invokeTool } from "./tool-definition";
 import { findTool } from "./catalog";
 import { MCP_RESOURCES, findResource, parseResourceUri, schemeOf } from "./spec-contract";
-import { statusOf } from "../http/error-response";
+import { maskExistence, statusOf } from "../http/error-response";
 
 /**
  * バックエンド MCP (JSON-RPC) の入口。
@@ -33,7 +33,9 @@ function textResult(text: string, isError = false): McpToolResult {
  * `suggestedAction` を必ず添えるのは、エージェントが次の一手を決められるようにするため。
  * 「失敗しました」だけでは同じ呼び出しを繰り返す。
  */
-export function errorToMcpResult(error: DomainError): McpToolResult {
+export function errorToMcpResult(input: DomainError): McpToolResult {
+  // 存在を隠す潰しは REST と同じものを使う。ここで別に書くと片方だけ漏れる。
+  const error = maskExistence(input);
   const lines = [error.message];
   if (error.suggestedAction) lines.push(`次にできること: ${error.suggestedAction}`);
   if (error.retryable) lines.push("しばらく待ってからもう一度試せます。");

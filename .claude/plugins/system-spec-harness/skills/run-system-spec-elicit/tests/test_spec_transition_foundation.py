@@ -56,7 +56,7 @@ def _confirmed_state():
     state = mod.init_state(_taxonomy())
     mod.apply_turn(
         state,
-        {"qa_id": "qa-001", "question": "q", "answer": "a",
+        {"qa_id": "qa-001", "question": "q", "answer": "a", "source": {"kind": "user-dialogue"},
          "design_applications": _design_applications(),
          "ops": [{"action": "confirm", "category": "database", "platform": "web"}]},
     )

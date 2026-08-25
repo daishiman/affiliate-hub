@@ -88,6 +88,7 @@
 | `/admin/settings/members` | 担当者を決める | **新設** (移出先) |
 | `/admin/settings/roles` | 役割ごとにできることを決める | **新設** (移出先) |
 | `/admin/settings/audit` | 操作の記録を調べる | **新設** (移出先) |
+| `/admin/settings/compliance` | 広告表記と表現のきまりを直す | **追加** (P01 後 / 2026-08-24。上の 49 route の数はこの日の計画の固定点なので動かさない) |
 | `/admin/settings/llm` | 生成 AI の鍵を登録する | 変更なし |
 | `/admin/settings/integration-access` | 取得用の鍵を発行・失効する | 説明文を 40 字以下へ |
 | `/admin/feedback`, `/admin/feedback/[report]` | 改善要望を扱う | 表示情報の整理のみ |

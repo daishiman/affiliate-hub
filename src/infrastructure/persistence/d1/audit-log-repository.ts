@@ -47,6 +47,7 @@ function toDomain(row: AuditLogRow): AuditLogEntry {
     before: parseJson(row.beforeJson),
     after: parseJson(row.afterJson),
     reason: row.reason,
+    requestId: row.requestId,
     occurredAt: row.occurredAt,
   };
 }
@@ -87,6 +88,7 @@ export function createD1AuditLog(db: DrizzleD1): AuditLogPort {
           beforeJson: entry.before === null ? null : JSON.stringify(entry.before),
           afterJson: entry.after === null ? null : JSON.stringify(entry.after),
           reason: entry.reason,
+          requestId: entry.requestId,
           occurredAt: entry.occurredAt,
         });
       } catch (cause) {

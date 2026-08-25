@@ -6,6 +6,7 @@ import type { SiteWizardStep } from "@/domain/authoring";
 import { siteBuilderUseCases, signedInActor } from "@/presentation/composition";
 import type { SiteWizardState } from "./site-wizard-state";
 import { notSignedInText, refusalText } from "@/presentation/refusal-text";
+import { failureFromDomainError, notSignedInFailure } from "./use-case-result";
 
 /**
  * ブログ作成ウィザードの操作。
@@ -38,7 +39,9 @@ export async function startSiteDraftAction(): Promise<void> {
   const result = await (await siteBuilderUseCases()).startDraft.execute(actor, {});
   if (!result.ok) {
     // 始められないのは権限か保存先の問題で、利用者の入力では直せない。
-    redirect(`${WIZARD_PATH}?error=${encodeURIComponent(result.error.message)}`);
+    // 文は `refusalText()` に作らせる。ここで `error.message` を直に渡していたので、
+    // 存在を隠す潰し（`maskExistence`）を通っていなかった。
+    redirect(`${WIZARD_PATH}?error=${encodeURIComponent(refusalText(result.error))}`);
   }
   revalidatePath(WIZARD_PATH);
   redirect(`${WIZARD_PATH}?draftId=${encodeURIComponent(result.value.draftId)}`);
@@ -63,7 +66,7 @@ export async function saveSiteDraftStepAction(
   if (actor === null) {
     // **`formData` を読む前に断る。** 読んでから断ると、断り文が
     // 「この欄を埋めてください」に化けて、押した人は欄を埋めて何度も試す。
-    return { status: "failed", message: notSignedInText("下書きの保存") };
+    return notSignedInFailure("下書きの保存");
   }
 
   const draftId = String(formData.get("draftId") ?? "");
@@ -85,11 +88,7 @@ export async function saveSiteDraftStepAction(
   });
 
   if (!result.ok) {
-    return {
-      status: "failed",
-      message: refusalText(result.error),
-      field: result.error.field,
-    };
+    return failureFromDomainError(result.error);
   }
 
   revalidatePath(WIZARD_PATH);
@@ -124,7 +123,7 @@ export async function createSiteFromDraftAction(
   if (actor === null) {
     // **`formData` を読む前に断る。** 読んでから断ると、断り文が
     // 「下書きが選ばれていません」に化けて、押した人は選び直して何度も試す。
-    return { status: "failed", message: notSignedInText("ブログの作成") };
+    return notSignedInFailure("ブログの作成");
   }
 
   const draftId = String(formData.get("draftId") ?? "");
@@ -132,11 +131,7 @@ export async function createSiteFromDraftAction(
   const result = await (await siteBuilderUseCases()).createSite.execute(actor, { draftId });
 
   if (!result.ok) {
-    return {
-      status: "failed",
-      message: refusalText(result.error),
-      field: result.error.field,
-    };
+    return failureFromDomainError(result.error);
   }
 
   revalidatePath(WIZARD_PATH);

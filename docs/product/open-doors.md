@@ -11,7 +11,7 @@
 
 適用範囲: `/admin` 以下（読者のページとログインの往復は通す）
 
-開いている扉: **0 件** / 全 121 件
+開いている扉: **0 件** / 全 124 件
 
 「誰でも」と宣言してある行: **31 件**
 （宣言すればその扉は差の数から消える。だから宣言の件数そのものにも上限がある）
@@ -141,6 +141,7 @@
 | `src/app/admin/rankings/page.tsx` | 管理画面 | ログイン | ログイン | — |
 | `src/app/admin/settings/appearance/page.tsx` | 管理画面 | ログイン | ログイン | — |
 | `src/app/admin/settings/audit/page.tsx` | 管理画面 | ログイン | ログイン | — |
+| `src/app/admin/settings/compliance/page.tsx` | 管理画面 | ログイン | ログイン | — |
 | `src/app/admin/settings/integration-access/page.tsx` | 管理画面 | ログイン | ログイン | — |
 | `src/app/admin/settings/llm/page.tsx` | 管理画面 | ログイン | ログイン | — |
 | `src/app/admin/settings/members/page.tsx` | 管理画面 | ログイン | ログイン | — |
@@ -239,6 +240,8 @@
 | `createContentVariantAction()` | 記事の枠を作る（src/presentation/admin/content-form-action.ts） | ログイン | ログイン | — | つく |
 | `createProductAction()` | 商品を登録する（src/presentation/admin/product-form-action.ts） | ログイン | ログイン | — | つく |
 | `draftVariantSpecAction()` | 見せ方の試作を登録する（src/presentation/admin/improvement-action.ts） | ログイン | ログイン | — | つく |
+| `editDisclosureAction()` | 広告であることの断り書きを登録・変更する（読者に出る文が変わる）（src/presentation/admin/compliance-action.ts） | ログイン | ログイン | — | つく |
+| `editPolicyRuleAction()` | 表記のきまりを足す・止める・効かせ直す（止めている間は記事の表現が確認されない）（src/presentation/admin/compliance-action.ts） | ログイン | ログイン | — | つく |
 | `handOffFeedbackAction()` | 指摘を引き継ぐ（src/presentation/admin/feedback-action.ts） | ログイン | ログイン | — | つく |
 | `manageGuidelineReferenceAction()` | SEO/AI 指針の出典を登録する・確認日を更新する（一覧に残り、後から直せる）（src/presentation/admin/guideline-reference-action.ts） | ログイン | ログイン | — | つく |
 | `sampleAction()` | 見本帳のボタンの見本（何もしない）（src/app/admin/ui-catalog/sample-action.ts） | ログイン | ログイン | — | つく |
@@ -250,4 +253,4 @@
 | `updateContentVariantAction()` | 記事の題名・本文・要約を直す（src/presentation/admin/content-form-action.ts） | ログイン | ログイン | — | つく |
 | `updateManagedSiteAction()` | ブログの設定を直す（src/presentation/admin/site-form-action.ts） | ログイン | ログイン | — | つく |
 | `updateProductAction()` | 商品の内容を直す（src/presentation/admin/product-form-action.ts） | ログイン | ログイン | — | つく |
-<!-- 生成物の指紋 sha256:311cd5e3848ef67e4d0e0a7cb40f56ede0d76698ed33886d13798b29ee11b5e4 -->
+<!-- 生成物の指紋 sha256:318a851cdb82e83987c7a5fc7b916c42d468c5affdd69af17d50254eb2d558cc -->

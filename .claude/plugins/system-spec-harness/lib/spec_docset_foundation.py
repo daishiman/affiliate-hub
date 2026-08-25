@@ -34,6 +34,104 @@ def _list_value(value) -> list:
     return value if isinstance(value, list) else []
 
 
+_COST_CATEGORY_JA = {"free": "無料", "low-cost": "低コスト", "paid": "有料"}
+_BILLING_PERIOD_JA = {"monthly": "月額", "yearly": "年額", "one-time": "一括"}
+
+
+def _foundation_note(rf: dict, key: str) -> list[str]:
+    """U4/U5 の読み方の規則を、正本 requirements_foundation から節の直後に置く。
+
+    値の表・箇条書きだけでは「その数値をどう立てるか」「何をもって満たしたと
+    するか」が分からない。分からないままにすると、章の側に人が書き足す。
+    """
+    note = str(rf.get(key) or "").strip()
+    return ["", note] if note else []
+
+
+def _confirmed_semantics_suffix(spec: dict) -> str:
+    r"""`status: confirmed` が何を意味しないのかを、正本 lifecycle から添える。
+
+    実測 (2026-08-25): 章には `- 確定マーカー: \`status: confirmed\` (要求判断の
+    収集済みを表す。実装完了・試験合格ではない)` と手で書かれていた。**括弧の中身は
+    正本 `lifecycle.confirmed_semantics` にほぼ同じ文で在る。**機械が黙っていたので
+    人が書き写していたのであり、写しである以上、正本が変わっても追随しない。
+    """
+    lifecycle = spec.get("lifecycle")
+    if not isinstance(lifecycle, dict):
+        return ""
+    semantics = str(lifecycle.get("confirmed_semantics") or "").strip()
+    return f" ({semantics})" if semantics else ""
+
+
+def render_implementation_snapshot(spec: dict) -> list[str]:
+    """正本 implementation_snapshot を章へ描く。
+
+    実測 (2026-08-25): 正本は `captured_at` / `basis` / `current` /
+    `planned_not_implemented` を持っているのに、compile はこれを 1 行も描かなかった。
+    そのため章には `- 実装の現在地: 単一D1、...は未実装` という**手で要約した 1 行**が
+    置かれていた。要約は正本が動いても動かない。**黙っている機械の隣には、必ず手写しが育つ。**
+
+    取得時刻を必ず添える。実装状態は古くなる種類の事実で、いつ数えたかが分からない
+    現在地は「いま」と読まれてしまう。
+    """
+    snapshot = spec.get("implementation_snapshot")
+    if not isinstance(snapshot, dict):
+        return []
+    captured = str(snapshot.get("captured_at") or "(取得時刻不明)")
+    current = [x for x in (snapshot.get("current") or []) if isinstance(x, str)]
+    planned = [x for x in (snapshot.get("planned_not_implemented") or []) if isinstance(x, str)]
+    basis = [x for x in (snapshot.get("basis") or []) if isinstance(x, str)]
+    lines = [
+        "",
+        "## 実装の現在地 (implementation_snapshot)",
+        "",
+        f"> 正本 `spec-state.json` の `implementation_snapshot` をそのまま描く。取得時点: **{captured}**。",
+        "> **収集状態 (`status: confirmed`) とは別の軸である。**確定は要求判断の収集済みを表し、"
+        "ここは実装の有無を表す。",
+        "",
+        f"### 実装済み ({len(current)} 件)",
+        "",
+    ]
+    lines += [f"- {item}" for item in current] or ["- (記録なし)"]
+    lines += ["", f"### 未実装 ({len(planned)} 件)", ""]
+    lines += [f"- {item}" for item in planned] or ["- (記録なし)"]
+    if basis:
+        lines += ["", "### 数えた基準ファイル", ""]
+        lines += [f"- `{item}`" for item in basis]
+    return lines
+
+
+def render_cost_model(cost) -> str:
+    """費用モデルを、仕様書に載せられる形へ整える。
+
+    なぜ要るか: `cost_model` は dict である。書式へそのまま差し込むと
+    `{'category': 'free', 'amount': 0, 'currency': 'JPY', ...}` という
+    **Python の repr** が意思決定表のセルに出る。
+
+    実測 (2026-08-25): 章の側に「**この 1 行だけ書式が違うのは生成器の出力
+    そのままだからで、真似すべき書式ではない。残り 6 行は手で書いた**」という
+    注記が書かれていた。人が生成器の後始末を手でしていたのである。
+    後始末が手である限り、再コンパイルのたびに消えて repr へ戻る。
+    直すべきは章ではなく、repr を出している側だった。
+
+    `tco` には既に人向けの説明が入っている。金額の要約に続けてそれを添える。
+    未知の category / billing_period は日本語へ潰さずそのまま出す
+    (知らない値を勝手に名付けない)。
+    """
+    if not isinstance(cost, dict):
+        return str(cost) if cost else "-"
+    category = cost.get("category")
+    head = _COST_CATEGORY_JA.get(category, category or "-")
+    amount = cost.get("amount")
+    if isinstance(amount, (int, float)) and amount:
+        period = cost.get("billing_period")
+        period_ja = _BILLING_PERIOD_JA.get(period, period or "")
+        currency = cost.get("currency") or ""
+        head = f"{head} {period_ja}{amount} {currency}".strip()
+    tco = cost.get("tco")
+    return f"{head} ({tco})" if tco else head
+
+
 def render_decisions(spec: dict) -> str:
     """AI推奨とユーザー確認を分離した意思決定支援表を描画する。"""
     decisions = spec.get("decisions")
@@ -53,7 +151,8 @@ def render_decisions(spec: dict) -> str:
                 "{id}:{label} / cost={cost} / free={free} / fit={fit} / pros={pros} / "
                 "cons={cons} / risks={risks} / lock-in={lock} / ops={ops} / evidence={evidence}".format(
                     id=option.get("id", "-"), label=option.get("label", "-"),
-                    cost=option.get("cost_model", "-"), free=option.get("free_tier_limits", "-"),
+                    cost=render_cost_model(option.get("cost_model")),
+                    free=option.get("free_tier_limits", "-"),
                     fit=option.get("goal_fit", "-"), pros=", ".join(option.get("pros") or []),
                     cons=", ".join(option.get("cons") or []), risks=", ".join(option.get("risks") or []),
                     lock=option.get("lock_in", "-"), ops=option.get("ops_burden", "-"), evidence=evidence,
@@ -77,7 +176,35 @@ def render_decisions(spec: dict) -> str:
             f"{decision.get('status', '-')} | {'<br>'.join(options)} | {rec_text} | {user_text} | "
             f"{', '.join(decision.get('serves_goals') or []) or '-'} |"
         )
+    lines += _decision_tally(decisions)
     return "\n".join(lines)
+
+
+def _decision_tally(decisions: list) -> list[str]:
+    """状態の内訳と確定日の幅を、表から数えて添える。
+
+    **表は 1 行ずつしか読ませない。**「全部確定しているのか」「いつ確定したのか」は
+    表を目で数えないと分からず、数えた結果が章に手で書き込まれていた
+    (実測 2026-08-25:「**7 件すべて `status: confirmed`**（分母 = ...全件）。
+    うち 6 件は ... 2026-08-19〜22 に確定した」)。数えるのは機械の仕事である。
+    手で数えた行は、8 件目が増えた日に黙って嘘になる。
+    """
+    total = len(decisions)
+    counts: dict[str, int] = {}
+    for decision in decisions:
+        counts[str(decision.get("status", "-"))] = counts.get(str(decision.get("status", "-")), 0) + 1
+    breakdown = ", ".join(f"`{k}` {v} 件" for k, v in sorted(counts.items()))
+    dates = sorted(
+        str((decision.get("user_decision") or {}).get("confirmed_at"))
+        for decision in decisions
+        if isinstance(decision.get("user_decision"), dict)
+        and (decision.get("user_decision") or {}).get("confirmed_at")
+    )
+    span = f"利用者確定日: {dates[0]} 〜 {dates[-1]}" if dates else "利用者確定日: (なし)"
+    return [
+        "",
+        f"- 内訳 (分母 = 正本 `spec-state.json` の `decisions[]` 全 {total} 件): {breakdown}。{span}。",
+    ]
 
 
 def render_requirements_definition(spec: dict) -> str:
@@ -100,7 +227,8 @@ def render_requirements_definition(spec: dict) -> str:
         "> 以降の各技術章は frontmatter の serves_goals でここ (ゴール) へトレース (anchor) する。",
         "> 上位概念がブレなければ、仕様が整った後もブレない。",
         "",
-        f"- 確定マーカー: `status: {status}`",
+        f"- 確定マーカー: `status: {status}`{_confirmed_semantics_suffix(spec)}",
+        "- 状態の正本: `spec-state.json` の `lifecycle` と `review_runs`",
         "",
         "## U1 本質的目的 (essential_purpose)",
         "",
@@ -128,8 +256,10 @@ def render_requirements_definition(spec: dict) -> str:
             parts.append(f"| {o.get('id', '-')} | {o.get('text', '')} | {o.get('measure') or '-'} |")
     else:
         parts.append("- (未記入)")
+    parts += _foundation_note(rf, "objectives_note")
     parts += ["", "## U5 成功基準 (success_criteria)", ""]
     parts += _bullet_list(rf.get("success_criteria"))
+    parts += _foundation_note(rf, "success_criteria_note")
     parts += ["", "## U6 ステークホルダー (stakeholders)", ""]
     parts += _bullet_list(rf.get("stakeholders"))
     scope = rf.get("scope") or {}
@@ -152,6 +282,7 @@ def render_requirements_definition(spec: dict) -> str:
             parts.append(f"| {it.get('id', '-')} | {it.get('text', '')} | {serves} |")
     else:
         parts.append("- (未記入)")
+    parts += render_implementation_snapshot(spec)
     parts += ["", render_decisions(spec), ""]
     return "\n".join(parts)
 
@@ -170,6 +301,20 @@ def render_index(spec: dict, refs_by_cat: dict[str, list[dict]], unassigned: lis
         "収集マトリクス (カテゴリ×プラットフォーム) の各章と集約状態の相互参照。",
         "集約状態は 未着手 / 収集中 / 確定 / 対象外 の 4 値 (真理値表導出)。",
         "",
+    ]
+    # **index はいちばん最初に読まれる。**`確定` の一語をここで取り違えると、
+    # 以降の章をすべてその誤解で読むことになる。正本 `lifecycle.confirmed_semantics`
+    # が意味を持っているのに index が黙っていたので、章に手書きの `> **重要:**` が
+    # 育っていた (実測 2026-08-25: index.md:10)。
+    semantics = _confirmed_semantics_suffix(spec).strip()
+    if semantics:
+        lines += [
+            "> **重要:** この index の `確定` / `confirmed` の意味は正本 "
+            f"`lifecycle.confirmed_semantics` が定める — {semantics[1:-1]}。"
+            "実装や検証の判断には、下記の状態軸と各章の As-Is / To-Be / Delta / Acceptance を使う。",
+            "",
+        ]
+    lines += [
         "## 要件定義書 (上位概念・憲法)",
         "",
         f"- [要件定義書](./{REQUIREMENTS_CHAPTER}) — 上位概念 U1-U9 の正本 "
@@ -379,18 +524,34 @@ def split_residue(text: str) -> "tuple[str, list[str]]":
 
 
 def vanishing_lines(existing: str, final: str) -> "list[str]":
-    """既存本文にあって最終本文のどこにも無くなる非空行を、多重度込みで返す。
+    """既存本文にあって最終本文の**どこにも**無くなる非空行を、既存の並び順で返す。
 
-    節ごと消えたのか末尾へ移っただけなのかは、行の多重集合で引けば区別できる。
+    節ごと消えたのか末尾へ移っただけなのかは、行の集合で引けば区別できる。
     版の更新のように**正しく消える行**もあるので、これは拒否の根拠ではなく報告の材料である。
     `## 節` 単位の検出では、生成節の中に人が書き足した `###` 小節や表の 1 行が拾えない。
-    """
-    import collections
 
-    old = collections.Counter(l.rstrip() for l in existing.splitlines() if l.strip())
-    new = collections.Counter(l.rstrip() for l in final.splitlines() if l.strip())
-    lost = old - new
-    return [line for line, count in lost.items() for _ in range(count)]
+    **数え方は多重集合ではなく集合である (2026-08-25 に直した)。**以前は
+    `Counter` の引き算で「2 回あった行が 1 回になった」も損失として数えていた。
+    docstring は当時から「どこにも無くなる行」と言っており、実装だけがずれていた。
+
+    実測でこれが効いた: 質疑の役割が主 (`qa_ref`) から裏付け (`qa_refs`) へ移ると、
+    その質疑の回答は「確定内容 (質疑録)」に 1 度だけ描かれ、「適用された設計知識」側は
+    参照ポインタになる。**本文は 1 行も失われていないのに、写しが 2 通から 1 通へ
+    減っただけで 7 行 × 2 章が「保てなかった行」として章末に並んだ。**
+
+    失われていないものを「痩せた」と報せる報告は、本当に痩せた日に信じてもらえない。
+    重複が減ったことを知りたいなら、それは損失報告とは別の軸で数えるべきである。
+    """
+    new_set = {l.rstrip() for l in final.splitlines() if l.strip()}
+    seen: set[str] = set()
+    lost: list[str] = []
+    for raw in existing.splitlines():
+        line = raw.rstrip()
+        if not line.strip() or line in new_set or line in seen:
+            continue
+        seen.add(line)
+        lost.append(line)
+    return lost
 
 
 def write_docset(

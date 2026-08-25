@@ -15,6 +15,7 @@ import {
   createResolveLinkIngestionUseCase,
   createSubmitAffiliateUrlUseCase,
 } from "@/application/usecases/monetization/manage-link-inbox";
+import { createRegisterAffiliateLinkUseCase } from "@/application/usecases/monetization/register-affiliate-link";
 import { defineTool } from "./define-tool";
 import type { AnyToolDefinition } from "./tool-definition";
 
@@ -169,6 +170,26 @@ function linkInboxTools(deps: AppDeps): readonly AnyToolDefinition[] {
       readOnly: false,
       requiresHumanApproval: true,
       useCase: createMatchLinkIngestionUseCase(inbox),
+    }),
+    defineTool({
+      name: "register_affiliate_link",
+      description:
+        "商品まで決まった受信箱のリンクを、記事に出せる成果リンクとして登録します。商品名は ASP の管理画面の表記をそのまま指定し、人が確認して実行します。",
+      schema: z.object({
+        linkIngestionId: z.string().min(1),
+        productName: z.string().min(1),
+        brand: z.string().optional(),
+        oneLine: z.string().optional(),
+      }),
+      readOnly: false,
+      requiresHumanApproval: true,
+      useCase: createRegisterAffiliateLinkUseCase({
+        inbox: deps.linkInbox,
+        links: deps.affiliateLinks,
+        ids: deps.ids,
+        auditLog: deps.auditLog,
+        now: () => new Date(),
+      }),
     }),
     defineTool({
       name: "reject_link_ingestion",

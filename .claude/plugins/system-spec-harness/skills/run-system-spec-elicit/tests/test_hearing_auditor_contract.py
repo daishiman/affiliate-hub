@@ -33,3 +33,16 @@ def test_adapter_allows_only_read_and_read_only_bash() -> None:
     assert "許可された read-only `Bash`" in text
     assert "書込・redirect・network" in text
     assert "Read 以外の操作" not in text
+
+
+def test_leading_question_requires_evidence_that_neutrality_is_impaired() -> None:
+    adapter = ADAPTER.read_text(encoding="utf-8")
+    ssot = SSOT.read_text(encoding="utf-8")
+
+    for text in (adapter, ssot):
+        assert "質問文に複数の名詞・確認項目があることだけでは誘導と判定しない" in text
+        assert "中立回答を妨げる具体的な機序" in text
+        assert "`asks_for`" in text
+        assert "`scope_notes.bundled`" in text
+        assert "現行の確定根拠" in text
+        assert "`reopen_log`" in text

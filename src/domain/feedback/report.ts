@@ -69,7 +69,26 @@ export type TechnicalContext = {
    * 0 でない場合は「一部を伏せました」と画面に出す。**黙って落とさない。**
    */
   readonly redactedCount: number;
+  /**
+   * 保持期限（`diagnostics-retention.ts`）が過ぎて中身を消した時刻。
+   * まだ消していなければ null。
+   *
+   * **省略できる形にしない。** 省略できると、消えているのに
+   * 「エラー 0 件」としか読めない行ができる。0 件だったのか消したのかは
+   * 画面でも監査でも意味が違うので、印の側を必ず立てさせる
+   * （`AuditActor.identified` と同じ理由）。
+   */
+  readonly purgedAt: Date | null;
 };
+
+/**
+ * 送られてくる側の技術情報。**消した印は入口では受け取らない。**
+ *
+ * 受け取れる形にすると、送信の入力に `purgedAt` を入れるだけで
+ * 「もう消してある」と名乗れてしまい、削除ジョブが素通りする。
+ * 印を立てるのはこちら側（`purgeDiagnostics`）だけにする。
+ */
+export type TechnicalContextInput = Omit<TechnicalContext, "purgedAt">;
 
 /** 履歴の 1 行。**消さずに積む**（仕様 §9 FB-AC-22）。 */
 export type FeedbackHistoryEntry = {
@@ -119,7 +138,7 @@ export function createFeedbackReport(input: {
   body: string;
   wish?: string | null;
   origin: FeedbackOrigin;
-  technical: TechnicalContext;
+  technical: TechnicalContextInput;
   captureId?: FeedbackCaptureId | null;
   submittedBy: UserId;
   at: Date;

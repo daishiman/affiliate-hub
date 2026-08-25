@@ -13,7 +13,7 @@ import {
   siteUseCases,
 } from "@/presentation/composition";
 import type { PublishArticleFormState } from "./publish-article-state";
-import { notSignedInText } from "@/presentation/refusal-text";
+import { failureFromDomainError, notSignedInFailure } from "./use-case-result";
 
 /** 1 行 1 件のものを配列にする。空行は落とす。 */
 function toLines(value: string): readonly string[] {
@@ -86,7 +86,7 @@ export async function publishArticleAction(
   if (actor === null) {
     // **`formData` を読む前に断る。** 読んでから断ると、断り文が
     // 「この欄が足りません」に化けて、押した人は欄を埋めて何度も試す。
-    return { status: "failed", message: notSignedInText("記事の公開") };
+    return notSignedInFailure("記事の公開");
   }
 
   const publicationId = String(formData.get("publicationId") ?? "");
@@ -114,18 +114,16 @@ export async function publishArticleAction(
   });
 
   if (!result.ok) {
-    return {
-      status: "failed",
-      // **理由と次にすることを両方出す。**
-      // 次にすることだけを出すと「上記を直してから」のように、
-      // 見えていない文を指す案内が画面に残る。
-      // 理由だけを出すと、直し方が分からないまま止まる。
-      message:
-        result.error.suggestedAction === undefined
-          ? result.error.message
-          : `${result.error.message} ${result.error.suggestedAction}`,
-      field: result.error.field,
-    };
+    /*
+     * **理由と次にすることを両方出す。**
+     * 次にすることだけを出すと「上記を直してから」のように、
+     * 見えていない文を指す案内が画面に残る。
+     * 理由だけを出すと、直し方が分からないまま止まる。
+     *
+     * 共通変換は `refusalText()` を通すので、存在を隠す潰し
+     * （`maskExistence`）も操作ごとに書き忘れない。
+     */
+    return failureFromDomainError(result.error);
   }
 
   revalidatePath(`/admin/distribution/${publicationId}`);

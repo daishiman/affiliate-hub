@@ -15,7 +15,7 @@
     },
     {
       "target_id": "nextjs",
-      "retrieved_at": "2026-08-23T13:12:16Z",
+      "retrieved_at": "2026-08-16T09:01:51Z",
       "source_url": "https://nextjs.org/docs",
       "official_publisher": "Vercel",
       "official_host": "nextjs.org",
@@ -24,7 +24,7 @@
       "latest_checked_at": "2026-08-22T22:20:35Z",
       "evidence_ref": "system-spec/retrieval-evidence/nextjs.json",
       "evidence_sha256": "ba58126ef21261e83348b9587888055e9af68ac736b266a211e039d4cdc930d6",
-      "summary": "Next.js 公式ドキュメント。App Router・Server Components・ルーティング/データ取得の現行仕様。frontend カテゴリの正本参照。docs は rolling で版を表明しないため、version は publisher の配布 registry (npm) が示す現行版を採る。2026-08-22T08:13:50Z に `npm view next version` / `npm view next dist-tags.latest` で照会し、いずれも 16.3.2 を返した (それまで記録していた 16.3.1 は、2026-08-16 時点の WebSearch 由来で registry の実状態より遅れていた)。evidence_ref は 2026-08-16 の docs ページ取得証跡であり、registry 照会の証跡ではない。この環境からは HTTP 取得ができないため docs ページの再取得は行っていない。2026-08-22T22:20:35Z に同じ照会を繰り返し、version / dist-tags.latest とも 16.3.2 (registry の最終更新 2026-08-21T23:53:41.293Z) で記録値と一致することを再確認し、その照会結果を evidence_ref の freshness_extraction へ書き足した。"
+      "summary": "Next.js 公式ドキュメント。App Router・Server Components・ルーティング/データ取得の現行仕様。frontend カテゴリの正本参照。docs は rolling で版を表明しないため、version は publisher の配布 registry (npm) が示す現行版を採る。2026-08-22T08:13:50Z に `npm view next version` / `npm view next dist-tags.latest` で照会し、いずれも 16.3.2 を返した (それまで記録していた 16.3.1 は、2026-08-16 時点の WebSearch 由来で registry の実状態より遅れていた)。evidence_ref は 2026-08-16 の docs ページ取得証跡であり、registry 照会の証跡ではない。この環境からは HTTP 取得ができないため docs ページの再取得は行っていない。2026-08-22T22:20:35Z に同じ照会を繰り返し、version / dist-tags.latest とも 16.3.2 (registry の最終更新 2026-08-21T23:53:41.293Z) で記録値と一致することを再確認し、その照会結果を evidence_ref の freshness_extraction へ書き足した。 なお 2026-08-25 に retrieved_at を '2026-08-23T13:12:16Z' から証跡どおりの '2026-08-16T09:01:51Z' へ改めた。docs ページを再取得していないのに 2026-08-23 の取得を名乗っており、どの証跡もその日付を支えていなかった。実際より新しく見せる記録は、古いことより悪い (古さは再取得で直るが、支えの無い新しさは誰にも気付かれない)。registry 照会の時刻は latest_checked_at が持っており、取得時刻と混ぜない。"
     },
     {
       "target_id": "cloudflare-workers",
@@ -80,16 +80,16 @@
     },
     {
       "target_id": "apple-hig",
-      "retrieved_at": "2026-08-19T15:30:40Z",
+      "retrieved_at": "2026-08-25T12:13:56Z",
       "source_url": "https://developer.apple.com/design/human-interface-guidelines",
       "official_publisher": "Apple",
       "official_host": "developer.apple.com",
-      "last_updated": "2026-08-06",
+      "last_updated": "2026-08-24",
       "freshness_source": "http-last-modified",
-      "latest_checked_at": "2026-08-22T15:05:18Z",
+      "latest_checked_at": "2026-08-25T12:13:56Z",
       "evidence_ref": "system-spec/retrieval-evidence/apple-hig.json",
-      "evidence_sha256": "4f9fc6cea7002bdae82b8194a5e223bec72ad76c9241391eead6c31c833a47d0",
-      "summary": "Apple Human Interface Guidelines 公式ページ。presentation concern の doctrine authority。レスポンシブ Web UI の階層・フィードバック・アクセシビリティの上流指針。本文に日付・版の表明は無く、HTTP Last-Modified のみが 2026-08-06 を示す。2026-08-22T15:05:18Z に上流へ独立に取り直し、content_sha256 と Last-Modified がいずれも一致した (08-16 / 08-19 / 08-22 の 3 回で内容不変)。この record が古い取得の使い回しでないことは証跡の reverification 欄で辿れる。"
+      "evidence_sha256": "da569a279c943d4879bd99fca46b9127d226c8da856e0712f1c3badb0bbde9de",
+      "summary": "Apple Human Interface Guidelines 公式ページ。presentation concern の doctrine authority。本文は版・更新日を表明しないため、2026-08-25 の公式レスポンスが返した Last-Modified 2026-08-24 を制約付きで採用した。前回から本文 sha256 とヘッダ値が変化したため再取得済み。"
     },
     {
       "target_id": "google-sre",
@@ -106,16 +106,16 @@
     },
     {
       "target_id": "anthropic-claude",
-      "retrieved_at": "2026-08-22T15:04:45Z",
-      "source_url": "https://platform.claude.com/docs/en/about-claude/models/overview",
+      "retrieved_at": "2026-08-25T12:13:56Z",
+      "source_url": "https://platform.claude.com/docs/en/models/overview",
       "official_publisher": "Anthropic",
       "official_host": "platform.claude.com",
-      "version": "Claude 5 世代 (claude-opus-5 / claude-sonnet-5 / claude-fable-5 / claude-mythos-5)",
+      "version": "現行 active モデル (claude-fable-5 / claude-opus-5 / claude-sonnet-5 / claude-haiku-4-5-20251001)",
       "freshness_source": "page-declared",
-      "latest_checked_at": "2026-08-22T15:04:45Z",
+      "latest_checked_at": "2026-08-25T12:13:56Z",
       "evidence_ref": "system-spec/retrieval-evidence/anthropic-claude.json",
-      "evidence_sha256": "112bd2f0a3f17eafce490bc9935b48fdaf5ef672f0c37dede95cf06de6deb956",
-      "summary": "Anthropic Claude 公式モデル一覧。決定 decision-llm-provider (どの LLM 提供者を採るか) の候補側 authority。モデル ID・世代・非推奨化・版間移行の現行仕様を示す。要求した docs.claude.com は platform.claude.com へ恒久移送されたため、source_url と official_host は最終 URL を採る。ページは更新日を表明しないので、鮮度は説明対象の版 (本文が自ら列挙する現行モデル ID) で表す。取得日を last_updated へ代入していない。"
+      "evidence_sha256": "55910c7fca572cdb1605973740fdbd85ec0f6fd9ba6b627b18f859c22f99249f",
+      "summary": "Anthropic Claude 公式モデル一覧。現行比較表と埋め込みデータが active と表明する model ID を記録した。旧記録の claude-mythos-5 は案内見出しには残るが active model ID ではないため除外し、恒久移送後の canonical URL へ更新した。"
     },
     {
       "target_id": "openai-platform",
@@ -145,16 +145,16 @@
     },
     {
       "target_id": "vitest",
-      "retrieved_at": "2026-08-22T15:05:10Z",
+      "retrieved_at": "2026-08-24T11:38:56Z",
       "source_url": "https://vitest.dev/guide/",
       "official_publisher": "Vitest",
       "official_host": "vitest.dev",
-      "last_updated": "2026-04-08",
-      "freshness_source": "page-declared",
-      "latest_checked_at": "2026-08-22T15:05:10Z",
+      "version": "4.1.11",
+      "freshness_source": "publisher-registry",
+      "latest_checked_at": "2026-08-24T11:38:55Z",
       "evidence_ref": "system-spec/retrieval-evidence/vitest.json",
-      "evidence_sha256": "18889a1465e1bffaf40c4a7d9966d971324b3db3b9503a66f32aa11873e3f1a2",
-      "summary": "Vitest 公式ガイド Getting Started。決定 decision-test-ci-tooling (試験と CI に何を使うか) の authority。Vite を土台にした試験フレームワークで、前提として Vite >= v6.0.0 と Node >= v20.0.0 を出典自身が要求している。本文の Last updated (<time> 2026-04-08) を鮮度に採る。"
+      "evidence_sha256": "59cd11c79f1052aeb64e0d74e420cebd15afaa61f96257b676aab0b83a4d9d97",
+      "summary": "Vitest 公式ガイド Getting Started。決定 decision-test-ci-tooling (試験と CI に何を使うか) の authority。配信中 HTML は Last updated 2026-04-08 のままだが、公式 repository の同ファイル履歴は 2026-06-18 まで進んでいるため、その日付は鮮度根拠に採らない。2026-08-24T11:38:55Z に publisher registry を照合し、version / dist-tags.latest とも現行版 4.1.11 であることを確認した。"
     },
     {
       "target_id": "github-actions",
@@ -171,16 +171,16 @@
     },
     {
       "target_id": "google-gemini",
-      "retrieved_at": "2026-08-22T21:18:36Z",
+      "retrieved_at": "2026-08-25T12:13:56Z",
       "source_url": "https://ai.google.dev/gemini-api/docs/models",
       "official_publisher": "Google",
       "official_host": "ai.google.dev",
-      "version": "Gemini 3 系 (gemini-3.7-flash / gemini-3.6-flash / gemini-3.5-flash / gemini-3.1-pro)",
+      "version": "Gemini 3 系 (gemini-3.7-flash / gemini-3.6-flash / gemini-3.5-flash / gemini-3.1-pro-preview)",
       "freshness_source": "page-declared",
-      "latest_checked_at": "2026-08-22T21:18:36Z",
+      "latest_checked_at": "2026-08-25T12:13:56Z",
       "evidence_ref": "system-spec/retrieval-evidence/google-gemini.json",
-      "evidence_sha256": "badeb4117c34ee846e0adc899def05786fe235e90a0bfd10bf2ce417c51078d2",
-      "summary": "Google Gemini API 公式モデル一覧。決定 decision-llm-provider の第三候補 authority。Gemini 3 系 (3.7/3.6/3.5 Flash・3.1 Pro) と旧 2.5/2.0 系の併載、各モデルの入出力様式と用途を示す。ページは更新日を表明しないので鮮度は説明対象の版で表す (HTTP Last-Modified 2026-08-14 は配信物の更新時刻であり本文の表明ではないため採らない)。初回取得は Chrome の UA を騙ったために Google OAuth へのリダイレクト循環に落ちており、UA を偽らない再取得で 200 を得た経緯を証跡に残してある。"
+      "evidence_sha256": "64f94de62b1fcb9da56a4339640dd69452aef36090d8510e9dd862b6c6037822",
+      "summary": "Google Gemini API 公式モデル一覧。表示名 Gemini 3.1 Pro の実 model ID はページのリンク先と code 要素が示す gemini-3.1-pro-preview であるため、preview なしだった旧記録を再取得結果に合わせた。"
     },
     {
       "target_id": "stryker-mutator",

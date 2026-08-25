@@ -15,6 +15,11 @@ import {
   type PublicationState,
 } from "@/domain/distribution";
 import {
+  POLICY_CHANNEL_SCOPES,
+  POLICY_DOMAIN_SCOPES,
+  POLICY_SEVERITIES,
+} from "@/domain/compliance";
+import {
   COMPLIANCE_STATUSES,
   CONTENT_ANGLES,
   CONTENT_STATES,
@@ -212,23 +217,98 @@ export const people = sqliteTable("people", {
  * 記事・AI 回答・WebMCP の 3 経路が同じ 1 行を参照する。
  * 経路ごとに文言を書くと §28 の「広告関係が 3 経路で一貫する」が破れる。
  */
-export const disclosures = sqliteTable("disclosures", {
-  id: text("id").primaryKey(),
-  relationshipType: text("relationship_type", {
-    enum: ["affiliate", "sponsored", "supplied", "loaned", "purchased"],
-  }).notNull(),
-  advertiserOrSupplier: text("advertiser_or_supplier"),
-  editorialInfluence: text("editorial_influence", {
-    enum: ["none", "limited", "declared"],
-  })
-    .notNull()
-    .default("none"),
-  // 読者に実際に表示する文言。§17.1 が要求する「判別できる表現」。
-  visibleMessage: text("visible_message").notNull(),
-  createdAt: integer("created_at", { mode: "timestamp" })
-    .notNull()
-    .default(sql`(unixepoch())`),
-});
+export const disclosures = sqliteTable(
+  "disclosures",
+  {
+    id: text("id").primaryKey(),
+    /**
+     * どの作業場所の表記か。**列として持つ。**
+     *
+     * 足す前は列が無く、行は作業場所をまたいで 1 つの海に浮かんでいた。
+     * 表記は法令の要る表示なので、**別の作業場所の表記が自分の記事に出る**のは
+     * 「表示が無い」のと同じくらい悪い（出典の違う断りが読者に出る）。
+     * 読み口（`DisclosureRepositoryPort.list`）は作業場所を必ず受け取るので、
+     * 列が無いままでは絞りようがなかった。
+     */
+    workspaceId: text("workspace_id").notNull(),
+    relationshipType: text("relationship_type", {
+      // `paid_partnership` は domain の `RelationshipType` にあって表に無かった。
+      // 語彙が片側だけ広いと、選べるのに保存できない関係が生まれる。
+      enum: ["affiliate", "sponsored", "supplied", "loaned", "purchased", "paid_partnership"],
+    }).notNull(),
+    advertiserOrSupplier: text("advertiser_or_supplier"),
+    editorialInfluence: text("editorial_influence", {
+      enum: ["none", "limited", "declared"],
+    })
+      .notNull()
+      .default("none"),
+    /**
+     * 本文の作成に AI を使ったか（§20.1）。**列として持つ。**
+     * 表示文（`visible_message`）から読み取らない。文は言い回しが変わりうるので、
+     * 文字列を検索して判定する形にすると、言い回しを直した日に印が消える。
+     */
+    aiAssisted: integer("ai_assisted", { mode: "boolean" }).notNull().default(false),
+    // 読者に実際に表示する文言。§17.1 が要求する「判別できる表現」。
+    visibleMessage: text("visible_message").notNull(),
+    createdAt: integer("created_at", { mode: "timestamp" })
+      .notNull()
+      .default(sql`(unixepoch())`),
+    /**
+     * 最後に変えた時刻。**表記の変更は監査の対象**（§26 の必須記録 3 つ目）なので、
+     * 「いつからその表記だったか」が行の側からも言えるようにしておく。
+     * 誰が変えたかは `audit_logs` にある（ここへ写すと正本が 2 つになる）。
+     */
+    updatedAt: integer("updated_at", { mode: "timestamp" }).notNull(),
+  },
+  (t) => [index("disclosures_workspace_idx").on(t.workspaceId)],
+);
+
+/**
+ * 表現ポリシー（§20 / §26）。
+ *
+ * --- なぜ表が要るか ---
+ * きまりは `policy-rule-seed.ts` の初期 13 件が正本だったが、**読むだけだった**。
+ * 法令も規約も改定されるうえ、扱う分野は作業場所ごとに違う。
+ * 追加も無効化もできない状態は、「効いていないきまりを外せない」ことと
+ * 「新しい規制に追いつけない」ことを同時に意味する。
+ *
+ * --- 初期ルールをこの表へ流し込まない ---
+ * 作業場所を作った時点で 13 行を書き込む形にはしていない。そうすると、
+ * 初期ルールを直したときに**既に作られた作業場所だけが古いまま**残り、
+ * どの作業場所がどの版のきまりで確認されたのかが誰にも言えなくなる。
+ * この表が持つのは**初期ルールからの差分**（無効化と、上書きと、足したもの）で、
+ * 触っていないきまりは `buildSeedPolicyRules()` 側が正本のまま返る。
+ * 詳しくは `src/infrastructure/persistence/d1/policy-rule-repository.ts`。
+ *
+ * 規範: docs/product/traceability.md REQ-SEC07 / REQ-QC11
+ */
+export const policyRules = sqliteTable(
+  "policy_rules",
+  {
+    id: text("id").primaryKey(),
+    workspaceId: text("workspace_id").notNull(),
+    name: text("name").notNull(),
+    // 語彙は domain の配列がそのまま正本。ここで並べ直さない。
+    domainScope: text("domain_scope", { enum: POLICY_DOMAIN_SCOPES }).notNull(),
+    channelScope: text("channel_scope", { enum: POLICY_CHANNEL_SCOPES }).notNull(),
+    severity: text("severity", { enum: POLICY_SEVERITIES }).notNull(),
+    /** 検出する表現。正規表現の文字列。壊れた式は登録の時点で断る（domain 側）。 */
+    pattern: text("pattern").notNull(),
+    ignoreCase: integer("ignore_case", { mode: "boolean" }).notNull().default(true),
+    /** 根拠。**空では保存できない**（domain 側が断る）。理由の書けないきまりは運用されない。 */
+    basis: text("basis").notNull(),
+    /** 代わりの書き方。禁止だけ示すと執筆が止まる。 */
+    suggestion: text("suggestion").notNull(),
+    enabled: integer("enabled", { mode: "boolean" }).notNull().default(true),
+    updatedAt: integer("updated_at", { mode: "timestamp" })
+      .notNull()
+      .default(sql`(unixepoch())`),
+  },
+  (t) => [
+    // 記事を 1 本確認するたびに引く索引。無いと全件走査になる。
+    index("policy_rules_workspace_enabled_idx").on(t.workspaceId, t.enabled),
+  ],
+);
 
 /**
  * 商品。Phase 1 では最小限に留める。
@@ -831,11 +911,28 @@ export const auditLogs = sqliteTable(
     afterJson: text("after_json"),
     /** なぜその操作をしたか。承認・取り下げ・訂正では必須（domain 側で断る）。 */
     reason: text("reason"),
+    /**
+     * その操作が入ってきた**一回の要求**を指す名前。
+     *
+     * **断りの記録（`access.*`）では必ず入る**（domain 側が空を断る）。
+     * 通した操作では入らない回がある（定期実行など、要求の外で起きたもの）。
+     *
+     * 既存の行は `null` になる。この列を足す前に書かれた行は、
+     * 断りを 1 行も持っていない（語そのものが無かった）ので、
+     * 「断りなのに糸が無い行」は生まれない。
+     */
+    requestId: text("request_id"),
     occurredAt: integer("occurred_at", { mode: "timestamp" }).notNull(),
   },
   (t) => [
     // 「この記事に何が起きたか」を引く索引。無いと全件走査になる。
     index("audit_logs_workspace_target_idx").on(t.workspaceId, t.targetType, t.targetId),
+    /*
+     * 「同じ一回の要求で、ほかに何が断られたか」を引く索引。
+     * 断りは 1 件では読めない。総当たりは 1 回の要求の中で何十件も断られ、
+     * 役の付け忘れは 1 件で終わる。糸で引けないと、この差が一覧から読めない。
+     */
+    index("audit_logs_workspace_request_idx").on(t.workspaceId, t.requestId),
     index("audit_logs_workspace_occurred_idx").on(t.workspaceId, t.occurredAt),
     index("audit_logs_workspace_action_occurred_idx").on(t.workspaceId, t.action, t.occurredAt),
   ],
@@ -1528,6 +1625,8 @@ export type SiteBlueprintRow = typeof siteBlueprints.$inferSelect;
 export type PublishedArticleRow = typeof publishedArticles.$inferSelect;
 export type TelemetryEventRow = typeof telemetryEvents.$inferSelect;
 export type AuditLogRow = typeof auditLogs.$inferSelect;
+export type PolicyRuleRow = typeof policyRules.$inferSelect;
+export type DisclosureRow = typeof disclosures.$inferSelect;
 export type LlmCredentialRow = typeof llmCredentials.$inferSelect;
 export type LlmUsageRow = typeof llmUsages.$inferSelect;
 export type VariantSpecRow = typeof variantSpecs.$inferSelect;
@@ -1537,7 +1636,6 @@ export type LoopObservationRow = typeof loopObservations.$inferSelect;
 // 読者ドメイン
 export type Category = typeof categories.$inferSelect;
 export type Person = typeof people.$inferSelect;
-export type Disclosure = typeof disclosures.$inferSelect;
 export type Product = typeof products.$inferSelect;
 export type Article = typeof articles.$inferSelect;
 export type ArticlePerson = typeof articlePeople.$inferSelect;

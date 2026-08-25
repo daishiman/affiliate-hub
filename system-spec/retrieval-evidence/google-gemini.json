@@ -1,23 +1,23 @@
 {
- "target_id": "google-gemini",
- "source_url": "https://ai.google.dev/gemini-api/docs/models",
- "retrieved_at": "2026-08-22T21:18:36Z",
- "http_status": 200,
- "content_bytes": 145145,
- "content_sha256": "5078711f5e442367fe3bd2e14343fb79b9a46fe5809024a86e22461d5e13088b",
- "page_title": "Models | Gemini API | Google AI for Developers",
- "retrieval_note": "同日 15:04 の 1 回目の取得は 302 で Google OAuth (accounts.google.com, prompt=none&auto_signin=True) へ送られ、リダイレクト上限 50 に達して本文を取得できなかった。原因は Chrome の User-Agent を騙ったこと。UA を偽らず素の curl として要求したところ 1 hop も挟まず 200 を返した。失敗した試行も記録に残す (取れなかった経路を消すと、取れた経路が唯一の経路に見える)。",
- "freshness_extraction": {
-  "freshness_source": "page-declared",
-  "value": "Gemini 3 系 (gemini-3.7-flash / gemini-3.6-flash / gemini-3.5-flash / gemini-3.1-pro)",
-  "found_in": [
-   "本文のモデル ID 逐語 (最新側): gemini-3.7-flash, gemini-3.6-flash, gemini-3.5-flash, gemini-3.5-flash-lite, gemini-3.1-pro, gemini-3.1-flash-lite",
-   "見出し逐語: \"Gemini 3 series\" / \"Gemini 3 models\" / \"Gemini 3.6 Flash\" / \"Gemini 3.5 Flash\"",
-   "併載されている旧世代: gemini-2.5-pro, gemini-2.5-flash, gemini-2.0-flash"
-  ],
-  "http_last_modified": "Fri, 14 Aug 2026 16:14:26 GMT",
-  "body_declares_date": false,
-  "body_search_method": "本文 145145 bytes に対し JSON-LD \"dateModified\"/\"datePublished\"、<time datetime=...>、\"Last updated\"/\"Updated on\" 語彙の 3 通りで探して全て 0 件。",
-  "note": "HTTP ヘッダの Last-Modified は 2026-08-14 を示すが、本文には日付の表明が無いので配信物の更新時刻でしかない。ページ自身が表明しているのはモデル ID (説明対象の版) の方なので、R3 の優先順に従い page-declared を採り、値は版とする。ヘッダ値は採らずここに併記して、判断の材料を落とさない。取得日 2026-08-22 を last_updated へ代入していない。"
- }
+  "target_id": "google-gemini",
+  "source_url": "https://ai.google.dev/gemini-api/docs/models",
+  "retrieved_at": "2026-08-25T12:13:56Z",
+  "http_status": 200,
+  "content_bytes": 145149,
+  "content_sha256": "609df23c5b8e23d263030f182ff5d5d3fe1935f4bd105841ec85f46a67df3775",
+  "page_title": "Models | Gemini API | Google AI for Developers",
+  "freshness_extraction": {
+    "freshness_source": "page-declared",
+    "value": "Gemini 3 系 (gemini-3.7-flash / gemini-3.6-flash / gemini-3.5-flash / gemini-3.1-pro-preview)",
+    "found_in": [
+      "本文の model ID: gemini-3.7-flash",
+      "本文の model ID: gemini-3.6-flash",
+      "本文の model ID: gemini-3.5-flash",
+      "Gemini 3.1 Pro の実 model ID: gemini-3.1-pro-preview"
+    ],
+    "http_last_modified": "Fri, 14 Aug 2026 16:14:26 GMT",
+    "body_declares_date": false,
+    "body_search_method": "現行モデル一覧のカード・表・code 要素を照合した。表示名 Gemini 3.1 Pro のリンク先と code 要素はいずれも gemini-3.1-pro-preview であり、preview なしの gemini-3.1-pro を実 model ID として扱わない。",
+    "note": "本文がモデル ID を直接表明するため page-declared を採る。HTTP Last-Modified は配信物の更新時刻として併記し、version の代用にはしない。取得日を version へ代入していない。"
+  }
 }

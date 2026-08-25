@@ -76,7 +76,7 @@ implementation_readiness: {"checked_at":"2026-08-22T00:00:00Z","missing_sections
 
 - depends_on: なし
 - ブロッカー: なし
-- 発見して分けた課題: `ah-au4`（成果リンク）、`ah-lqu`（診断の保持期限）、`ah-8h2.2`（完全性 PASS）
+- 発見して分けた課題: `ah-au4`（成果リンク、2026-08-24 closed）、`ah-lqu`（診断の保持期限、2026-08-24 closed）、`ah-8h2.2`（完全性 PASS、open）
 
 ## 実装対象
 
@@ -131,4 +131,4 @@ implementation_readiness: {"checked_at":"2026-08-22T00:00:00Z","missing_sections
 ## Handoff
 
 - 実装 route: agent
-- 次に利用するノード: `ah-8h2.2`（完全性 PASS）、`ah-lqu`（保持期限）、`ah-au4`（成果リンク）
+- 次に利用するノード: `ah-8h2.2`（完全性 PASS）。`ah-lqu` と `ah-au4` は feat-auth-workspace の最終レビューで closed

@@ -10,8 +10,11 @@ import {
   SELF_REPORTED_FIELDS,
   generatedVariantJsonSchema,
 } from "@/domain/generation";
-import { requireCapability } from "@/domain/identity";
+import { requireCapability, withBrandDefaults } from "@/domain/identity";
+import type { Brand } from "@/domain/identity";
 import { domainError, err, ok } from "@/domain/shared";
+import type { ActorContext, BrandId, DomainError, Result } from "@/domain/shared";
+import type { BrandRepositoryPort } from "@/application/ports";
 import type {
   LlmCostEstimatorPort,
   LlmModelSelection,
@@ -59,6 +62,14 @@ export type DraftContentVariantInput = {
   readonly provided: Partial<GenerationInput>;
   readonly materials?: readonly DraftMaterial[];
   readonly promptVersion?: string;
+  /**
+   * どのブランドで書くか。
+   *
+   * 渡すと、そのブランドの標準 CTA と標準免責が
+   * **明示しなかった欄だけ**に入る（明示した値が勝つ）。
+   * 渡さなければ何も補わず、足りない欄は下の ① で止まる。
+   */
+  readonly brandId?: BrandId;
   /** 1 本あたりの上限（最小単位。円なら円）。超える見積りは呼ばずに止める。 */
   readonly budgetMinor?: number | null;
 };
@@ -95,6 +106,14 @@ export type DraftContentVariantResult = {
 export type DraftContentVariantDeps = {
   readonly llm: LlmPort;
   readonly costs: LlmCostEstimatorPort;
+  /**
+   * ブランド設定の読み出し口。
+   *
+   * 省略できるようにしてあるのは、生成そのものはブランドを知らなくても
+   * 成り立つため（呼び出し側が 18 項目を全部渡せばよい）。
+   * 渡してあるときだけ、**呼びかけ文と広告表記の既定値**をここから補う。
+   */
+  readonly brands?: BrandRepositoryPort;
 };
 
 /** 生成の温度。低くしてあるのは、同じ素材から違う事実が出てくるのを避けるため。 */
@@ -131,9 +150,16 @@ export function createDraftContentVariantUseCase(
         );
       }
 
+      // ⓪-b ブランドの標準値で、明示しなかった欄だけを埋める。
+      //     **AI に補わせているのではない。** 人が設定画面で決めた値を
+      //     そのまま運んでいるだけで、決めていない欄（免責が未設定など）は
+      //     埋まらず、下の ① で止まる。
+      const provided = await applyBrandDefaults(deps.brands, actor, input.brandId, input.provided);
+      if (!provided.ok) return err(provided.error);
+
       // ① そろっていなければ始めない。
       //    足りない分を AI に補わせると、素材に無いことがどこから来たか追えなくなる。
-      const missing = missingInputFields(input.provided);
+      const missing = missingInputFields(provided.value);
       if (missing.length > 0) {
         return err(
           domainError(
@@ -146,7 +172,7 @@ export function createDraftContentVariantUseCase(
           ),
         );
       }
-      const generationInput = input.provided as GenerationInput;
+      const generationInput = provided.value as GenerationInput;
 
       // ② 取り込んだ文章に、指示として読ませようとする書き方が無いかを見る。
       //    見つけても自動で消さない。消すと「何が来ていたか」が残らない。
@@ -247,4 +273,57 @@ export function createDraftContentVariantUseCase(
       });
     },
   };
+}
+
+
+/**
+ * ブランドの標準値を、明示されなかった欄へ移す。
+ *
+ * ブランドが読めなかったときに**黙って既定値をでっち上げない**。
+ * 読めない理由をそのまま返し、呼び出し側に判断を戻す。
+ * ここで握り潰すと、「設定したはずの免責が入っていない記事」が
+ * 誰にも気づかれずに公開まで進む。
+ */
+async function applyBrandDefaults(
+  brands: BrandRepositoryPort | undefined,
+  actor: ActorContext,
+  brandId: BrandId | undefined,
+  provided: Partial<GenerationInput>,
+): Promise<Result<Partial<GenerationInput>, DomainError>> {
+  if (brands === undefined) return ok(provided);
+
+  if (brandId !== undefined) {
+    const found = await brands.findById(actor.workspaceId, brandId);
+    if (!found.ok) return err(found.error);
+    return ok(withBrandDefaults(found.value, provided));
+  }
+
+  const sole = await soleBrandOf(brands, actor);
+  if (!sole.ok) return err(sole.error);
+  return ok(withBrandDefaults(sole.value, provided));
+}
+
+/**
+ * ブランドが 1 つしか無い作業場所の、その 1 つを返す。0 個または 2 個以上なら `null`。
+ *
+ * **2 つ以上あるときに選ばない**のがここの肝である。
+ * AWS-ACC-03 は「呼び出し側が明示しなくても既定値が入る」ことを求めるが、
+ * 候補が複数あるときに勝手に 1 つ選ぶと、**別のブランドの免責が載った記事**が出る。
+ * 免責の取り違えは景表法・ステマ規制の側で効いてくるので、
+ * 「入らない」より「違うものが入る」ほうが害が大きい。だから曖昧なら入れない。
+ *
+ * 画面（`/admin/generation`）はブランドの保存先を知らない。
+ * 画面に選択欄を足すまでの間、1 つしか無い作業場所ではこの経路で既定値が届く。
+ * 複数ある作業場所では `brandId` を明示するまで届かない——これは仕様であり、
+ * 塞ぐなら画面へブランド選択欄を足すことになる。
+ */
+async function soleBrandOf(
+  brands: BrandRepositoryPort,
+  actor: ActorContext,
+): Promise<Result<Brand | null, DomainError>> {
+  // 2 件取れれば「2 つ以上ある」と判定できる。全件は要らない。
+  const listed = await brands.list(actor.workspaceId, { limit: 2, cursor: null });
+  if (!listed.ok) return err(listed.error);
+  const items = listed.value.items;
+  return ok(items.length === 1 ? items[0] : null);
 }

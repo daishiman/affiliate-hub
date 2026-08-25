@@ -3,6 +3,7 @@
 import { useState } from "react";
 import {
   Button,
+  Checkbox,
   CheckboxGroup,
   Field,
   HumanOnlyForm,
@@ -91,6 +92,18 @@ export function InputSamples() {
         onSelectedChange={setUses}
         hint="複数選べます。押した順ではなく、元の並び順のままになります。"
         toolParamDescription="想定用途（複数可）"
+      />
+
+      {/*
+        1 つだけ聞くときは `Checkbox`。上の `CheckboxGroup` と並べてあるのは、
+        **どちらを使うかを見比べて決められるようにする**ため。
+        1 つしかないのに `CheckboxGroup` を使うと、読み上げで
+        「見出し 1 つ・項目 1 つ」という空回りの入れ子が読まれる。
+      */}
+      <Checkbox
+        name="aiAssisted"
+        label="本文の作成に AI を使っている"
+        toolParamDescription="AI を使ったかどうか"
       />
 
       <TextArea

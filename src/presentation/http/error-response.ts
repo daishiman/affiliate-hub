@@ -39,8 +39,43 @@ export function statusOf(error: DomainError): number {
   return ERROR_STATUS[error.code] ?? 500;
 }
 
+/**
+ * 存在を隠す必要がある種類。
+ *
+ * **番号を揃えるだけでは足りない。** 攻撃側は ID を 1 つずつ試し、
+ * 返ってきた**本文の違い**だけを見る。番号がどちらも 404 でも、
+ * 片方に `(id: xxx)` が付いていたり `code` が違ったりすれば、
+ * 「こちらは他所に存在する」と読めてしまい、他所の Workspace の
+ * 中身が列挙できる。
+ *
+ * だから外へ出る手前で**1 種類の本文へ潰す**。潰す場所をここ 1 箇所に
+ * するのは、入口が 3 つ（REST / WebMCP / backend MCP）あるためで、
+ * 各入口で潰すと 1 つ足したときに漏れる。
+ *
+ * 規範: 確定済み auth 章 AUTH-ACC-002（未存在 ID と同一の 404 応答・本文）
+ */
+const EXISTENCE_HIDING_CODES: readonly DomainErrorCode[] = ["NOT_FOUND", "TENANT_MISMATCH"];
+
+/**
+ * 外向きの応答から、存在の手がかりを落とす。
+ *
+ * ID を落とすので、本人が自分のものを取り違えたときの説明は弱くなる。
+ * それでも落とすのは、**弱い説明は本人が一覧を見れば補えるが、
+ * 漏れた存在は取り消せない**ため。詳しい理由は記録側（監査ログ）に残す。
+ */
+export function maskExistence(error: DomainError): DomainError {
+  if (!EXISTENCE_HIDING_CODES.includes(error.code)) return error;
+  return {
+    code: "NOT_FOUND",
+    message: "対象が見つかりません。",
+    suggestedAction: "一覧から選び直すか、ID を確認してください。",
+    retryable: false,
+  };
+}
+
 /** API の失敗レスポンス。形は 1 種類だけにする。 */
-export function errorResponse(error: DomainError): Response {
+export function errorResponse(input: DomainError): Response {
+  const error = maskExistence(input);
   return Response.json(
     {
       error: {

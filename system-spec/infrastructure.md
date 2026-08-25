@@ -15,7 +15,7 @@ serves_goals: [G2, G1]
 
 | プラットフォーム | 状態 | 根拠 |
 |---|---|---|
-| Web (web) | 確定 | 確定質疑: qa-infra-web-migration-guard |
+| Web (web) | 確定 | 確定質疑: qa-infra-web-migration-guard。裏付け質疑 (`qa_refs`): `qa-infra-web-spec-intake`, `qa-infra-web`, `qa-infra-web-redirect` — 本章の「確定内容 (質疑録)」へ接地根拠として併記 |
 | モバイル (mobile) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |
 | タブレット (tablet) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |
 | デスクトップ (Windows) (desktop-windows) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |
@@ -72,6 +72,8 @@ serves_goals: [G2, G1]
 - **operations が引用可になる条件**: targets[] に SRE Workbook を足して C02 で取得できた日に state を available へ変え、cited_clauses を埋め、検査を『この章は条項を引いていること』側へ反転させる。取得すれば塞がる穴であって、塞げない穴ではない。
 
 ## 適用された設計知識
+
+> 以下の deep knowledge card は設計判断を支援する**非規範の参考資料**であり、実装済み・検証済みの証拠ではない。カード内の `採否: applied` は設計採用を意味し、実装状態は意味しない。規範となる差分は本章の To-Be / Delta 節と参照先仕様で管理する。
 
 ### Site Reliability Engineering — deep knowledge card
 
@@ -291,22 +293,3 @@ C05 gaps[0] の「再生成して本文へ載せる」を採らず、本節は�
 | `decision-screen-priority` | ui-ux×web の画面で、記事の成績比較と回復すべき業務状態のどちらを先頭に置くか | `opt-performance-first` | confirmed | G1, G2 | ui-ux |
 
 - **`decision-redirect-measurement-async` が本章に効く形**: 転送は必達、計測はベストエフォート (02 §7)。3 案とも転送は止めないので、差は**欠測をどこまで減らすかとその値段**だった。`waitUntil` + 退避 + Cron 補完は無料枠のまま成立する。Queues はいちばん堅いが有料プランが前提で、契約状態をこちらから確かめられないため caveat に置き、必要になった時点で別の判断とする。**採用理由が契約状態に依存していない**ことが、この選択の要点である。
-
-## compile が保てなかった行 (要判断)
-
-> 正本から導出できず、節・小節の引き継ぎでも守れなかった 14 行。版の更新のように**正しく消える行**も混ざる。正本へ接続するか、不要と確かめて消すこと。この節は compile のたびに作り直す。
-
-- `| Web (web) | 確定 | 確定質疑: `qa-infra-web-spec-intake` (正本 `spec-state.json` の `qa_ref`)。先行質疑 `qa-infra-web-redirect` は `qa_refs` に残り、本章にも併記する |`
-- `### qa-infra-web-redirect (対応セル: web)`
-- `**回答**: | 障害時 | 計測系障害単独を理由に、既知の有効なresolver entryの転送を止めない。未知・停止・破損entryは安全側で拒否し、SLOと劣化条件を測定する |`
-- `### qa-infra-web-spec-intake (対応セル: web)`
-- `| 2 広い門 | PR | 15 分 | **止める** | 結合 / API 契約 / 画面 / 読み上げ / 境界値 / カバレッジ閾値 / 変更範囲だけのミューテーション |`
-- `| 3 深い門 | **手動のみ**（定例なし。打つ場面は下） | 40 分（実測 27 分） | 止めない | 全体ミューテーション / 負荷 / 見た目の回帰 / 脆弱性の深掘り |`
-- `**実行時間は費用の要因ではない。** したがって「時間を減らすために CI からテストを外す」判断はしない。`
-- `> 以下の deep knowledge card は設計判断を支援する**非規範の参考資料**であり、binding 作成済み・SLO 達成済みの証拠ではない。カード内の `採否: applied` は設計採用を意味し、実装状態は意味しない。規範となる差分は INF-DB-01〜INF-OBS-01 と参照先仕様で管理する。`
-- `##### 確定内容 qa-infra-web-redirect (対応セル: web)`
-- `- 確定要件: | 障害時 | 計測系障害単独を理由に、既知の有効なresolver entryの転送を止めない。未知・停止・破損entryは安全側で拒否し、SLOと劣化条件を測定する |`
-- `- 原則: 転送と計測を障害分離し、計測系障害単独を理由に既知の有効なresolver entryの転送を止めない (`docs/spec/03-分析・解析基盤仕様.md#§1.2`)`
-- `- 資するゴール: G2, G1`
-- `##### 確定内容 qa-infra-web-spec-intake (対応セル: web)`
-- `- 確定要件: | 1 速い門 | push / PR | 5 分 | **止める** | 型検査 / 書き方 / 段の指定漏れ / 単体・契約検査 |`

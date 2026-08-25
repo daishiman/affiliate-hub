@@ -92,6 +92,7 @@ const ADMIN_ROUTE_DEFINITIONS = {
   settings: nav("設定", "maintain", "content.read", "settings"),
   "settings/appearance": child("settings", "見た目"),
   "settings/audit": child("settings", "操作の記録"),
+  "settings/compliance": child("settings", "広告表記ときまり"),
   "settings/integration-access": child("settings", "外部連携の権限"),
   "settings/llm": child("settings", "AI 接続"),
   "settings/members": child("settings", "メンバー"),

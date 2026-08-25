@@ -1,4 +1,4 @@
-import type { FeedbackOrigin, TechnicalContext } from "./report";
+import type { FeedbackOrigin, TechnicalContext, TechnicalContextInput } from "./report";
 
 /** ブラウザ診断は補助情報なので、本文を押しのけない件数に固定する。 */
 export const STORED_DIAGNOSTICS_LIMIT = 8;
@@ -111,10 +111,10 @@ function changedLines(before: readonly string[], after: readonly string[]): numb
  */
 export function sanitizeFeedbackContext(
   origin: FeedbackOrigin,
-  technical: TechnicalContext,
+  technical: TechnicalContextInput,
 ): { readonly origin: FeedbackOrigin; readonly technical: TechnicalContext } {
   const rawOrigin = (origin ?? {}) as Partial<FeedbackOrigin>;
-  const rawTechnical = (technical ?? {}) as Partial<TechnicalContext>;
+  const rawTechnical = (technical ?? {}) as Partial<TechnicalContextInput>;
   const screenName = stringValue(rawOrigin.screenName);
   const originUrl = stringValue(rawOrigin.url);
   const originRoute = stringValue(rawOrigin.route);
@@ -169,6 +169,8 @@ export function sanitizeFeedbackContext(
         MAX_REDACTED_COUNT,
         declaredRedactedCount + changed,
       ),
+      // 届いたばかりのものは、まだ消していない。**入口の申告は見ない。**
+      purgedAt: null,
     },
   };
 }

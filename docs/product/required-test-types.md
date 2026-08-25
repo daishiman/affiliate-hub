@@ -131,6 +131,7 @@
 | REQ-FD02 | has-enumerated-input, has-code-placement-rule | — |
 | REQ-FD03 | has-input | — |
 | REQ-FD01 | has-code-placement-rule | — |
+| REQ-FD04 | has-code-placement-rule | — |
 | REQ-FD05 | has-code-placement-rule | — |
 | REQ-FD06 | has-code-placement-rule | — |
 | REQ-TM12 | has-code-placement-rule | — |
@@ -194,7 +195,7 @@
 | REQ-SEC06 | has-enumerated-input | — |
 | REQ-SEC07 | has-enumerated-input | — |
 | REQ-SEC08 | has-screen | — |
-| REQ-SEC09 | has-input, has-secret, has-db-table, has-recorded-operation | boundary: 監査記録の入力は操作内容と差分で、大小の端が無い。見ているのは消す / 消さないの分かれ目だけ |
+| REQ-SEC09 | has-input, has-secret, has-db-table, has-recorded-operation | — |
 | REQ-SEC10 | has-secret, has-runtime-config | — |
 | REQ-A01 | has-input, has-state, has-user-supplied-url | — |
 | REQ-A02 | has-input | — |
@@ -277,11 +278,13 @@
 | REQ-CI05 | has-runtime-config | — |
 | REQ-CI06 | has-runtime-config | — |
 | REQ-CI07 | has-runtime-config, has-secret | — |
+| REQ-CI08 | has-code-placement-rule | — |
 | REQ-CI09 | has-runtime-config | — |
 | REQ-CI10 | has-runtime-config | — |
 | REQ-CI11 | has-runtime-config | — |
 | REQ-CI12 | has-input | — |
 | REQ-CI13 | has-runtime-config | — |
+| REQ-CI14 | has-runtime-config, has-input, has-secret | — |
 | REQ-FB01 | has-enumerated-input | — |
 | REQ-FB02 | has-screen, has-permission | — |
 | REQ-FB03 | has-input, has-screen | — |
@@ -2865,6 +2868,108 @@ FD 群のためだけの名前になっていないことの確認として、�
 
 除外の**数は動かしていない**（`boundary` 1 件のまま）。
 上限（`TEST_TYPES_MAX_EXCLUSIONS`）も動かしていない。
+
+### 2026-08-24 に減らしたぶん（7 → 5）: `REQ-CI08` と `REQ-FD04`
+
+`ah-wt6`（データモデル 32 件）と `ah-rwn`（禁止依存・テストの網羅・自動チェック 29 件）
+の 2 つを 1 周した。**着手した時点で 61 件のうち 56 件は既に宣言済**で、
+残っていたのは `REQ-CI08` `REQ-FD04` `REQ-TS02` `REQ-TS03` `REQ-TS10` の 5 件だった
+（データモデル 32 件は `REQ-E01`〜`REQ-E32` がすべて宣言済。この課題で足した行は無い）。
+
+**新しく書いた検査は無い。語彙も足していない。減ったのは、理由のほうが古くなっていた
+2 件を読み直したからである。**§4 の決まり（語彙を足した回・検査を書いた回は、
+未宣言の理由を全件読み直す）が、2026-08-21 に検査を 1 本書いた回で回っていなかった。
+
+#### `REQ-CI08`（非エンジニアが読める運用説明）— 検査が書かれた日に理由が古くなっていた
+
+残していた理由は「非エンジニア向けの説明文。**当てどころが実装に無い**」だった。
+この文は 2026-08-21 に偽になっている。同じ日に
+`tests/architecture/spec-doc-links.test.ts`（3 件）が書かれ、追跡表の判定欄も
+「塞いだ」に書き換わっていた。**書き換わらなかったのはこちらの理由の欄だけである。**
+
+当てた性質は `has-code-placement-rule`（→ `code-boundary`）。§5 の線引き
+——**その要件を破る差分が、値を 1 つも変えずに書けるか**——に当たる。
+運用説明を改名する / 入口の一覧から外す、はどちらも値を 1 つも動かさない。
+
+`code-boundary` が要求する 2 つを、この検査が満たしていることを実測した。
+
+| 壊し方（要件の文がそのまま禁じている行為） | 結果 |
+| --- | --- |
+| 入口の参照を別文書へ差し替える（＝運用説明を入口から外す） | **赤** 1/3「運用説明が仕様の入口から辿れなくなっています」 |
+| 入口が指す先を実在しない名前へ向ける | **赤** 2/3「入口が指している先に文書がありません」 |
+| 入口の表ごと落とす（＝**対象の集合が空**） | **赤** 2/3「入口から参照を拾えていません: expected 3 to be greater than or equal to 20」 |
+
+3 つ目が `code-boundary` の 2 つ目の要求（対象の集合が空でも赤になる）に当たる。
+判定式は 1 つも触っていない。戻すと 3/3 緑に戻る。
+
+**この検査が見ていないもの**（宣言したことで隠れないよう、ここにも書く）:
+運用説明の**中身が説明として役に立つか**は見ていない。節見出しの錨が実在するかも、
+入口への**挙げ漏れ**も見ていない。見ているのは「入口が指した先が空を指していない」
+ことと「運用説明が入口から名指しで辿れる」ことの 2 つだけである。
+
+#### `REQ-FD04`（WebMCP でしか到達できない機能を作らない）— 種別の数え落とし
+
+残していた理由は「検査は書いた。宣言できないのは、**この検査が満たすのは
+`equivalence` 1 つだけ**なのに、`equivalence` だけを求める性質が語彙に無いから」だった。
+`equivalence` 単独の性質が無いことは**いまも本当である**（`has-input` は `boundary` を、
+`has-enumerated-input` は `decision-table` を連れてくる）。古かったのは
+**「満たすのは equivalence 1 つだけ」**のほうで、`code-boundary` を数え落としていた。
+
+数え落とした経緯は追える。`has-code-placement-rule` を足した 2026-08-19 の時点で
+`REQ-FD04` を当てなかった理由は「**要件そのものを見ている検査がまだ無い**（残課題 88）」
+だった。その後 `tests/architecture/webmcp-reachability.test.ts`（9 件）が書かれて
+前提は消えたが、そのとき読み直されたのは `equivalence` の側の理由だけだった。
+**1 つの要件に 2 つの「できない理由」が並ぶと、新しいほうだけが読み直される。**
+
+`code-boundary` が要求する 2 つを実測した。壊し方はすべて実装（表）の側で、
+判定式は触っていない。
+
+| 壊し方 | 結果 |
+| --- | --- |
+| 対応表から 1 行落とす（`rank_products`） | **赤** 1/9「画面から到達できるかを誰も言っていない道具が 1 件あります」 |
+| 対応表を実装から作る（`import` を 1 行足す） | **赤** 1/9「対応表が何かを読み込んでいます」 |
+| 表の行をすべて同じ画面へ潰す | **赤** 2/9「実在しない画面を指しています」「expected 1 to be greater than 15」 |
+| 対応表を空にする（＝**対象の集合が空**） | **赤** 3/9「expected 0 to be greater than 50」ほか |
+
+4 通りとも赤。戻すと 9/9 緑。**空振り防止が集合ごとに置かれている**
+（道具の数 / 表の行数 / 画面の数 / 別々の画面の数の 4 つ）ことが、
+`code-boundary` の 2 つ目の要求に当たる。
+
+`@types` は `equivalence, code-boundary` の 2 つにした。`equivalence` を消していない
+のは、消すと**この検査が実際に見ているもの**が 1 つ減って見えるためである。
+
+#### 印を外して赤になることを実測した（この課題の受入条件）
+
+| 壊し方 | 結果 |
+| --- | --- |
+| `spec-doc-links.test.ts` から `@types code-boundary` を外す | **赤**「REQ-CI08: code-boundary」 |
+| `webmcp-reachability.test.ts` から `code-boundary` を落とす | **赤**「REQ-FD04: code-boundary」 |
+| どちらも戻す | 緑（未宣言 5 / 上限 5） |
+
+#### 残した 3 件（理由を読み直した結果。この課題の担当ぶん）
+
+`REQ-TH04` / `REQ-TH05` はほかの課題の担当なので触っていない（未宣言 5 件の残り 2 件）。
+
+| 要件 | 残す理由 | 確かめ方 |
+| --- | --- | --- |
+| `REQ-TS02` 業務の決まりごとの単体テスト | 変わらず。「その層にテストがあること」を言うメタ要件で、性質を持つのは個々の業務要件の側。**壊して赤にできる当てどころが要件の側に無い**（`tests/domain/` を空にすれば落ちるのは個々の業務要件のほうである） | 追跡表の判定欄も同じことを書いており、実測（31 ファイル / 998 件）以外の当てどころが増えていないことを見た |
+| `REQ-TS03` 手順の単体テスト | 変わらず。`TS02` と同じメタ要件。「外側をポートのテストダブルに差し替える」は**障害注入ではない**ので `has-external` も当たらない | 同上（26 ファイル / 797 件） |
+| `REQ-TS10` カバレッジを層別に測る | `has-calculation` の `mutation` は実装欄が `src/domain` / `src/application` を指す要件にしか当たらず、この要件の実装は `scripts/` と `vitest.config.mts` にある。ここは変わらない。**新しく見つけた候補が 1 つあるが、この課題では測れなかった**（下に書く） | `REQUIRED_TEST_TYPES` の 18 種を全部見た（前回 16 種のときの数え直し） |
+
+`REQ-TS10` の候補は `has-code-placement-rule` である。2026-08-21 に足された
+`judgeLayerInventory()` は「`src` 直下に置き場を作ったら床を持たせる」という
+**値を 1 つも動かさずに破れる決まり**を見ており、形は当たる。
+当てなかったのは、`code-boundary` が要求する「禁止側を実際に書くと赤になる」を
+**この課題の write scope（`docs/` と `tests/`）では測れない**ためである。
+測るには `src` の下に置き場を 1 つ作る必要がある。
+**測らずに名乗ると、`REQ-FD04` で 2026-08-19 に起きたことの逆——
+「見ていないもの」に名前が付く——をこちらでやることになる。**
+測れる人が測ってから宣言する。未宣言に残したのはそのためで、除外へは回していない。
+
+#### 除外は 1 件も増やしていない
+
+7 件のまま（上限 7）。この課題で足したのは宣言 2 行と `@types` 2 か所だけで、
+テストは 1 行も消していない。
 
 ## 5. 除外という逃げ道について
 

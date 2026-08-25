@@ -1,9 +1,8 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import type { DomainError } from "@/domain/shared";
 import { linkInboxUseCases, signedInActor } from "@/presentation/composition";
-import { notSignedInText, refusalText } from "@/presentation/refusal-text";
+import { failureFromDomainError, notSignedInFailure } from "./use-case-result";
 
 /**
  * 受信箱の操作。
@@ -41,7 +40,7 @@ export async function submitAffiliateUrlAction(
   if (actor === null) {
     // **`formData` を読む前に断る。** 読んでから断ると、断り文が
     // 「URL を入れてください」に化けて、押した人は URL を直して何度も試す。
-    return { status: "failed", message: notSignedInText("リンクの登録") };
+    return notSignedInFailure("リンクの登録");
   }
 
   const url = String(formData.get("url") ?? "");
@@ -56,11 +55,7 @@ export async function submitAffiliateUrlAction(
   });
 
   if (!result.ok) {
-    return {
-      status: "failed",
-      message: refusalText(result.error),
-      field: result.error.field,
-    };
+    return failureFromDomainError(result.error);
   }
 
   revalidatePath(INBOX_PATH);
@@ -90,7 +85,7 @@ export async function advanceLinkIngestionAction(
   if (actor === null) {
     // **`formData` を読む前に断る。** 読んでから断ると、断り文が
     // 「理由を書いてください」に化けて、押した人は理由を書いて何度も試す。
-    return { status: "failed", message: notSignedInText("受信箱の操作") };
+    return notSignedInFailure("受信箱の操作");
   }
 
   const linkIngestionId = String(formData.get("linkIngestionId") ?? "");
@@ -100,7 +95,7 @@ export async function advanceLinkIngestionAction(
   if (intent === "resolve") {
     const programId = String(formData.get("programId") ?? "");
     const result = await useCases.resolve.execute(actor, { linkIngestionId, programId });
-    if (!result.ok) return failed(result.error);
+    if (!result.ok) return failureFromDomainError(result.error);
     revalidatePath(INBOX_PATH);
     return { status: "done", message: `広告主を「${result.value.programLabel}」に決めました。` };
   }
@@ -108,29 +103,45 @@ export async function advanceLinkIngestionAction(
   if (intent === "match") {
     const productId = String(formData.get("productId") ?? "");
     const result = await useCases.match.execute(actor, { linkIngestionId, productId });
-    if (!result.ok) return failed(result.error);
+    if (!result.ok) return failureFromDomainError(result.error);
     revalidatePath(INBOX_PATH);
     return { status: "done", message: "商品に結びつけました。" };
+  }
+
+  /*
+   * 記事に出せる成果リンクとして登録する。**受信箱の最後の一歩。**
+   *
+   * 商品名を画面から受け取るのは、それが写しの正本だからである
+   * （`register-affiliate-link.ts` と `docs/product/design-decisions.md` §2）。
+   * 空欄のまま押されたときは、ここで埋めずにユースケースに断らせる。
+   * ここで「—」を入れて通すと、その文字列が読者のカードに商品名として出る。
+   */
+  if (intent === "register") {
+    const productName = String(formData.get("productName") ?? "");
+    const brand = String(formData.get("brand") ?? "");
+    const oneLine = String(formData.get("oneLine") ?? "");
+    const result = await useCases.register.execute(actor, {
+      linkIngestionId,
+      productName,
+      ...(brand === "" ? {} : { brand }),
+      ...(oneLine === "" ? {} : { oneLine }),
+    });
+    if (!result.ok) return failureFromDomainError(result.error);
+    revalidatePath(INBOX_PATH);
+    return { status: "done", message: result.value.message };
   }
 
   if (intent === "reject") {
     const reason = String(formData.get("reason") ?? "");
     const result = await useCases.reject.execute(actor, { linkIngestionId, reason });
-    if (!result.ok) return failed(result.error);
+    if (!result.ok) return failureFromDomainError(result.error);
     revalidatePath(INBOX_PATH);
     return { status: "done", message: "対象外にしました。理由も一緒に残しています。" };
   }
 
   return {
     status: "failed",
-    message: "できることは、広告主を決める・商品に結びつける・対象外にする、の 3 つです。",
-  };
-}
-
-function failed(error: DomainError): InboxFormState {
-  return {
-    status: "failed",
-    message: refusalText(error),
-    field: error.field,
+    message:
+      "できることは、広告主を決める・商品に結びつける・成果リンクとして登録する・対象外にする、の 4 つです。",
   };
 }

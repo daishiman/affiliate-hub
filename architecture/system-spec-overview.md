@@ -122,3 +122,53 @@ implementation_readiness: {"checked_at":"2026-08-16T12:08:04Z","missing_sections
 | ID | 論点 | 状態 | 選択肢 (費用・適合・注意点) | AI推奨 | ユーザー決定 | 資するゴール |
 |---|---|---|---|---|---|---|
 | decision-auth-method | マルチテナントSaaSの利用者認証 (auth) をどの方式で実装するか | confirmed | opt-better-auth:Better Auth + Google OAuth (自己ホスト) / cost={'category': 'free', 'amount': 0, 'currency': 'JPY', 'billing_period': 'monthly', 'tco': 'ライブラリ無料。運用コストは自前ホスティング (既存 Workers 内) のみで追加費用なし'} / free=OSS のため利用数制限なし / fit=マルチテナントSaaSの一般ユーザー認証に適合。Drizzle/D1 アダプタで現行スタックと同居し、§25 のロール権限と組み合わせやすい / pros=無料・OSS, D1/Drizzle アダプタで現行構成に統合, Google ログインに加えメール/パスワード・パスキーを後付け可能, ベンダーロックインなし / cons=認証基盤の運用 (アップデート・監視) が自前, 組織管理UIは自作が必要 / risks=OSS のメンテナンス状況に依存するためバージョン追従を保守運用に組み込む / lock-in=なし (自己ホスト・標準プロトコル) / ops=中 (ライブラリ更新とセッションストア運用) / evidence=https://www.better-auth.com/docs/introduction<br>opt-idaas:IDaaS (Clerk / Auth0) / cost={'category': 'low-cost', 'amount': 3500, 'currency': 'JPY', 'billing_period': 'monthly', 'tco': '無料枠超過後は月間アクティブユーザー数課金。ユーザー増で費用が逓増'} / free=Clerk: 10,000 MAU まで無料 (2026-08 時点) / fit=認証機能自体は充足するが、Workspace 単位のテナント分離は自前実装が残る / pros=運用負荷が最小, 組織管理・MFA が既製 / cons=ユーザー数課金, 外部サービス依存 / risks=ベンダーロックイン, 料金体系変更の影響を受ける / lock-in=高 (ユーザーデータ移行が必要) / ops=低 / evidence=https://clerk.com/pricing<br>opt-cf-access:Cloudflare Access (Zero Trust) / cost={'category': 'free', 'amount': 0, 'currency': 'JPY', 'billing_period': 'monthly', 'tco': '50ユーザーまで無料。超過はシート課金'} / free=50 ユーザーまで無料 / fit=社内ツールのアクセス制御向き。一般公開SaaSの会員登録・セルフサインアップには不適合 / pros=インフラと同一ベンダーで設定が容易 / cons=セルフサインアップに不向き, テナント概念がない / risks=利用者数拡大時にシート課金が急増する / lock-in=中 (Cloudflare 依存) / ops=低 / evidence=https://developers.cloudflare.com/cloudflare-one/policies/access/ | opt-better-auth — 費用ゼロ・ロックインなしで現行の D1/Drizzle/Workers 構成に統合でき、一般公開SaaSのセルフサインアップと §25 ロール権限の要件を満たす (注意: ライブラリ更新の追従を保守運用 (maintenance-ops) に組み込むこと, 組織 (Workspace) 管理UIは自作となる; confidence=high; checked=2026-08-16T00:00:00Z) | opt-better-auth @ 2026-08-16T00:00:00Z | G1 |
+
+---
+
+# feat-auth-workspace（認証 / Workspace 基盤）
+
+> 本節は `SYS-AUTH-WORKSPACE-P02` が追記した feature 単位の architecture context である。
+> 上の「要件定義書 (上位概念)」は import された確定内容であり、本節はそれを 1 feature へ写した派生である。
+> 詳細は `docs/spec/feat-auth-workspace/architecture-design.md` を正とし、ここには**他の feature が知る必要のあること**だけを置く。
+
+## 他の feature が守る境界
+
+| 境界 | 決めごと |
+|---|---|
+| 入口の門 | `/admin` 配下のログイン判定は `src/middleware.ts` 1 か所。画面側で二重に判定しない |
+| 役の判定 | ロールではなく capability で見る。`requireCapability(actor, cap, what)` を application 層のユースケース入口で呼ぶ。`if (role === "...")` を画面や API に書かない |
+| 権限の出どころ | `ActorContext.roles` は membership 表から都度引く。**セッショントークンへ埋めない**（剥奪が期限切れまで効かなくなる） |
+| テナント | リポジトリの引数に `workspaceId` を必須で置き、取り出した後に `assertSameTenant` でも照合する。片方だけにしない |
+| 断り方の使い分け | 他テナント＝「見つかりません」（存在を漏らさない）／自テナント内の権限不足＝`403`（隠すものが無い） |
+| ブランド既定値 | 標準 CTA・標準免責は `brandGenerationDefaults(brand)` から取る。生成側に直書きしない |
+
+## 実装状態（2026-08-24 実測 / P13 書き戻し）
+
+確定 auth 章 (`system-spec/auth.md`) の要求判断は変えていない。2026-08-24 の最終レビューで、
+古かった実装状態だけを R4 `reopen` → 本文反映 → 同じ `qa-auth-web` で再確定する正規フローに通した。
+経路と判断は [仕様反映受領書](../docs/spec-writeback-receipt.md) に記録した。
+
+なお `system-spec/spec-state.json` の top-level `implementation_snapshot` には現行 writer の更新 action がなく、
+2026-08-16 の値が残る。正本を直接編集せず、writer 拡張を Beads `ah-u5l` で追跡する。
+
+| 何 | 実測 | 根拠 |
+|---|---|---|
+| 入口の門・ロール権限表・テナント照合 | **骨格あり** | `entry-gate.ts` / `permissions.ts` / `tenancy.ts` いずれも lines 100% |
+| 入口の門の**配線** (`src/middleware.ts`) | **動くことを確かめた** | 2026-08-24 まで 3611 件のテストで 1 行も実行されていなかった (lines 0%)。`admin-entry-middleware.test.ts` が `middleware()` の実応答を見る |
+| ブランド既定値 → 生成入力の配線 | **本 feature で追加** | 道具経路のみ届き画面経路へ届いていなかった (P10 FR-01)。組み立て側と、ブランドが 1 つだけのときの補いを追加 |
+| 断りの監査記録 | **本 feature で追加** | `audit_logs.request_id` (`drizzle/0024_aromatic_flatman.sql`)。断りの語は `requestId` 無しでは記録を作れない |
+| `brands` 表の永続化 | **無い** | 見本の保存先が供給している。追加要否とテナント backfill は P08 が所有する |
+| 本番 Workers での実通し | **未検証** | MVP のため実デプロイを行っていない。`release-notes.md` §7 |
+
+## この feature で分かった、仕組みの側の改善点
+
+1. **部品の網羅率は、配線が動いている保証にならない。**
+   `entry-gate.ts` が 100% でも `middleware.ts` は 0% だった。層ごとの下限
+   (`LAYER_COVERAGE`) は `src/` 直下のファイルを掬わない。
+2. **口を用意しただけのテストは、渡し忘れを見つけられない。**
+   `brand-defaults.test.ts` はテスト自身が `brands:` を組み立てていたため、
+   製品の組み立て場所が渡していないことを原理的に見られなかった。
+   代わりに `brand-defaults-wiring.test.ts` が `src/` の**本文を読む**。
+3. **閾値で答える検査は、1 件の欠落を隠す。**
+   `scripts/port-wiring.mjs --check` は「呼ばれていない 69（上限 79）」という形で緑を返し、
+   FR-01 の欠落を素通りさせた。個数ではなく**名前**で見る検査が要る。
