@@ -261,5 +261,45 @@ export function createD1ContentVariantRepository(
         return storageFailure("記事の進行の保存", cause);
       }
     },
+
+    /**
+     * 記事を消す。
+     *
+     * **見本の記事は消せない。** 見本はコードの中にあるので行を消しても次の
+     * 読み出しでまた現れる。「消えた」と返して次に開いたら居る、が
+     * いちばん質の悪い壊れ方なので、ここで断る。
+     */
+    async remove(workspaceId, id: ContentVariantId): PortResult<true> {
+      try {
+        const current = (await all(workspaceId)).find((v) => v.variant.id === id);
+        if (current === undefined) {
+          return err(
+            domainError("NOT_FOUND", "その記事は見つかりませんでした。", {
+              suggestedAction: "記事の一覧から選び直してください。",
+            }),
+          );
+        }
+        const deleted = await db
+          .delete(contentVariants)
+          .where(
+            and(
+              eq(contentVariants.workspaceId, String(workspaceId)),
+              eq(contentVariants.id, String(id)),
+            ),
+          )
+          .returning({ id: contentVariants.id });
+        if (deleted.length === 0) {
+          return err(
+            domainError("CONFLICT", "この記事は見本のため消せません。", {
+              suggestedAction:
+                "見本はコードに含まれています。自分で作った記事を選び直してください。",
+            }),
+          );
+        }
+        return ok(true as const);
+      } catch (cause) {
+        return storageFailure("記事の削除", cause);
+      }
+    },
   });
 }

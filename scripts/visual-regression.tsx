@@ -168,7 +168,8 @@ function Catalog({
 }) {
   return (
     <AppShell
-      currentPath="/admin/ui-catalog"
+      actualRoutePath="/admin/ui-catalog"
+      navContextPath="/admin/ui-catalog"
       breadcrumbs={[{ label: "ホーム", href: "/admin" }, { label: title }]}
     >
       <Page title={title} lead="実物の部品を、実物の見た目のまま並べています。">

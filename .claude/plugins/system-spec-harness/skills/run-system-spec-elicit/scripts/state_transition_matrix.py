@@ -1566,6 +1566,97 @@ def apply_cell_op(state: dict, op: dict) -> None:
             return
         cell["qa_refs"] = preserved
         return
+    if action == "extend-qa-refs":
+        # **確定セルへ「新しい裏付けを足す」ための窓口。**
+        #
+        # なぜ要るか (2026-08-25 実測): 確定セルに後から根拠を足す道が 1 本も無かった。
+        #   - `set-qa-design-applications` は `legacy_exempt` の entry しか受けない
+        #   - `split-qa-bundle` は `bundled=true` を要求する (解除済み entry は拒否)
+        #   - reopen → 新しい qa_ref で再確定 → `restore-qa-refs` は
+        #     `preserved[0] != cell.qa_ref` で拒否する (付け替え防止として正しい)
+        # 結果、確定セルは**新しい問答で裏付けを広げられない**。実測では
+        # infrastructure/web を新 entry で再確定した時点で `qa-infra-web` と
+        # `qa-infra-web-redirect` が どのセルからも引かれない孤立 entry になった。
+        # これは門の緩みではなく writer の抜けで、`qa_refs` を退避一覧へ足した回
+        # (上の `restore-qa-refs`) と同じ種類の 4 件目である。
+        #
+        # `restore-qa-refs` との違いは **向き** だけである。あちらは「元の範囲へ戻す」
+        # (先頭が変わっていたら拒否)、こちらは「元の範囲の前へ新しい 1 件を足す」。
+        # 不変条件 (`qa_refs[0]` はそのセルが引いている entry 自身) は両方が守る。
+        #
+        # **引数で受け取らない。**出所は `reopen_log[].discarded.qa_refs` と
+        # `cell.qa_ref` の 2 つだけで、呼ぶ側は「どれに裏付けられているか」を選べない。
+        #
+        # 付け足せる entry を **`asks_for` がこのセルを名指ししているもの** に限る。
+        # ここが無いと、どの entry でも確定セルの裏付けに紛れ込ませられる——
+        # 「狙っていなかった論点を同じ問答で確定させた」を測るための `asks_for` が、
+        # そのまま「この問答はこのセルへ向けられていた」の門として使える。
+        #
+        # 塞げていないところ: `restore-qa-refs` と同じく、reopen_log を writer の外で
+        # 書き換えれば任意の refs を「退避されていた値」として置ける。
+        if current != "確定":
+            raise TransitionError(
+                f"extend-qa-refs 不可: {category}/{platform} は '{current}' "
+                "(再確定したセルにしか足せない)"
+            )
+        qa_ref = cell.get("qa_ref")
+        preserved = None
+        for log_entry in state.get("reopen_log") or []:
+            if not isinstance(log_entry, dict):
+                continue
+            if log_entry.get("category") != category or log_entry.get("platform") != platform:
+                continue
+            discarded = log_entry.get("discarded")
+            if isinstance(discarded, dict) and discarded.get("qa_refs"):
+                preserved = list(discarded["qa_refs"])
+        if preserved is None:
+            raise TransitionError(
+                f"extend-qa-refs: {category}/{platform} の reopen_log に退避された qa_refs が無い"
+                " (足せるのは退避された範囲の前だけで、無いものを作ることはしない)"
+            )
+        entries = {
+            entry.get("id"): entry
+            for entry in state.get("qa_log") or []
+            if isinstance(entry, dict)
+        }
+        missing = [ref for ref in preserved if ref not in entries]
+        if missing:
+            raise TransitionError(
+                f"extend-qa-refs: 退避された qa_refs に qa_log へ存在しない id が在る: "
+                f"{category}/{platform} ({', '.join(missing)})"
+            )
+        if qa_ref in preserved:
+            raise TransitionError(
+                f"extend-qa-refs: {qa_ref!r} は既に退避された範囲に在る: {category}/{platform} "
+                "(足すのではなく戻すなら restore-qa-refs を使うこと)"
+            )
+        entry = entries.get(qa_ref)
+        if entry is None:
+            raise TransitionError(
+                f"extend-qa-refs: セルが引いている qa_ref が qa_log に無い: "
+                f"{category}/{platform} ({qa_ref})"
+            )
+        aimed = [
+            (item.get("category"), item.get("platform"))
+            for item in entry.get("asks_for") or []
+            if isinstance(item, dict)
+        ]
+        if (category, platform) not in aimed:
+            raise TransitionError(
+                f"extend-qa-refs: {qa_ref!r} の asks_for が {category}/{platform} を名指ししていない"
+                " (そのセルへ向けられていない問答を裏付けに紛れ込ませない)"
+            )
+        extended = [qa_ref, *preserved]
+        existing = cell.get("qa_refs")
+        if existing is not None:
+            if existing != extended:
+                raise TransitionError(
+                    f"extend-qa-refs: 既存 qa_refs と異なる内容の追記は拒否: "
+                    f"{category}/{platform}"
+                )
+            return
+        cell["qa_refs"] = extended
+        return
     if current == "確定":
         raise TransitionError(f"確定セルの直接変更は拒否: {category}/{platform}。変更は R4-reopen を経由すること")
     if action == "confirm":

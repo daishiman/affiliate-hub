@@ -8,94 +8,83 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
 /**
- * ⚠ **12 件のうち、赤を見たのは 10 件・見ていないのが 2 件（2026-08-19 時点）。**
+ * 「最新ドキュメント出典」の欄が、欄の名前どおりの値を持っているか。
  *
- *   **赤を見た 10 件**:
- *     - 「見つける側が効いていること」8 件（`looksLikeDate` を両方向から）。
- *     - 実体を壊して 2 件。壊し方は**要件の文がそのまま禁じている行為**——
- *       *確かめずに版番号を書く*（`cloudflare-d1` の版を `2026-08-16` → `4.20`）。
- *       判定式を偽に変える壊し方は使っていない。
- *       **対の両側が同時に赤になった**（日付の章 4→3 で上、版を持つ章 4→5 で下）。
- *       これが対を張った目的で、片側だけでは「4 つ」が空振りでも通ってしまう。
- *       実体への Edit は確定章ガードが遮断したので、**迂回せず scratchpad の複製**で測った。
+ * **2026-08-23、この検査は自分の解除条件どおりに赤くなった。**
+ * 旧版は「塞げていないことの固定」で、解除条件をこう書いていた——
+ * 「版が日付である章は 4 つ」が赤 → 本物の版が入った / 消さずに向きを反転させて残せ。
+ * 外部取得が 8 件行われ（`system-spec/retrieval-evidence/`）、
+ * `fetched-references.json` の 15 件全てが `freshness_source` を持つに至って、
+ * 3 件が赤になった。以下はその指示に従って反転させたものである。
  *
- *   **赤を見ていない 2 件**——「確定 8 章がそれぞれ出典を 1 本ずつ持っている」と
- *     「『最新確認』は取得と同じ実行の中にある」。
- *     理由は**書けなかったから**である。確定章ガードは実体への Edit だけでなく、
- *     **書込先のパスが変数で `system-spec/` を含む書き換えコマンド全般**を
- *     安全側で遮断する。scratchpad の複製が相手でも止まる。
- *     破壊①（同じ複製へ `node` で書いた）は通り、②③（複製を作り直してから書く形）は
- *     止まった。**別の書き方で通すことはしていない。**
- *     この 2 件は「緑だが未検証」であり、**固定済みとして数えないこと。**
+ * ── 2026-08-25、解除条件どおりに 4 つとも赤くなった ──────────
  *
- *   **解けたら、この囲みごと消すこと。**残すと、赤を見た検査と見ていない検査が
- *     同じ顔で並ぶ。緑 12 件だけを見た人は「12 件とも固定済み」と読む。
+ * 前版は「部分的に直った状態を、部分的に直ったまま固定する」ものだった。
+ * 書き残した解除条件が 4 つとも当たったので、指示どおり**消さず向きを反転**させる。
  *
- * ── ここから下は測定済み ─────────────────────────────────
+ * 何が起きたか。`system-spec/` を直接書けないので生成器を止めていたのだが、
+ * C03 compile が既存の手書き行を消さずに済むようになり (接地根拠の描画・
+ * 生成節の中の小節の引き継ぎ・保てなかった行の章末報告)、正本から章を
+ * 導出し直せるようになった。**乖離の原因は二重管理そのものではなく、
+ * 写し側を生成器で更新できずにいたことだった。**
  *
- * 「最新ドキュメント出典」の欄が、欄の名前どおりの値を持っていない。
+ *   | 対象 | 旧 (章 md) | 新 (章 md = fetched-references) |
+ *   | --- | --- | --- |
+ *   | `better-auth` | `1.6.29` | `1.7.1` |
+ *   | `owasp-asvs` | `5.0` | `5.0.0` |
+ *   | `apple-hig` | `2026-08-16` ← 取得日 | `2026-08-06` |
  *
- * **これは塞ぐ課題ではなく、塞げていないことを検査として固定する課題である。**
- * `ah-a4c`（取得済みドキュメントの version と last_updated が公式表明値になっていない）
- * の当てどころ。`ah-ejn` と同じ壁——**外部取得を行わないと決めた**——で止まっており、
- * 取りに行けない以上、値を正しくできない。
+ * ── 前提が 1 つ壊れた: 章は出典を 1 本ずつ持たない ────────────
  *
- * いま何が起きているか (2026-08-19 実測):
+ * `maintenance-ops` の出典が 1 本から 4 本になった (google-sre / vitest /
+ * github-actions / stryker-mutator)。これは退行ではない。CI/CD 品質ゲートの
+ * 質疑を正本へ足したことで、章が引く出典が正しく増えた。
+ * **旧版が固定していたのは事実ではなく、当時の形だった。**
+ * 数える単位を「章」から「出典行」へ移す (8 章 = 11 行)。
  *
- *   1. **バージョン欄が取得日で埋まっている章が 4 つある。**
- *      `cloudflare-d1` / `cloudflare-workers` / `google-sre` / `apple-hig` は
- *      版番号を公表していないため、生成側が**取得日 `2026-08-16` を版として書いた**。
- *      日付は版ではない。欄は埋まっているが、埋めている値が意味しているものが違う。
- *      （`qa_log` の `source.sha256` が `answer` の指紋だった件と同じ族。`ah-84i`）
+ * ── 解除条件（次に赤くなる日） ──────────────────────────
  *
- *   2. **「最新確認」が独立した再確認になっていない。**
- *      8 件とも「取得」との差が 1 分未満（17〜25 秒）で、
- *      同じ 1 回の取得の中で書かれている。「最新確認」という欄名は
- *      「あとで確かめ直した日」を約束するが、実際には取得と同じ瞬間である。
- *      **古くなっても、この欄は古く見えない。**
+ *   - 「食い違いは 0 件」が赤 → 写しが再び開いた。compile を当て直す
+ *   - 「版が取得日である行は 0 件」が赤 → 確かめた値の無い出典が戻った
+ *   - 「8 章 = 11 行」が赤 → 出典が増減した。増ならこの数を上げて残す
  *
- * なぜ塞げないか: 公式の表明値（版・更新日）を得るには外部取得が要る。
- * 利用者が外部取得を行わないと決めたため、取りに行かない。
- * **私が打たないだけでなく、他のセッションに取ってもらう形も取らない**
- * （境目は道具ではなく目的。残課題 78 ⑲）。
- * 確かめずに版番号を書けばこの検査は緑になるが、それは
- * **いま在る誤りを、より見えにくい誤りに置き換えるだけ**である。
- *
- * ── 解除条件 ────────────────────────────────────────────
- *
- * 何が手に入れば直せるか: **各出典の公式表明値（版または最終更新日）を、
- * 取得証跡つきで持つこと。**
- *
- * **この検査が赤くなった日が、解除してよい日である。**赤くなる道は 2 つある。
- *
- *   - 「版が日付である章は 4 つ」が赤 → **本物の版が入った**
- *   - 「最新確認は取得と同じ実行」が赤 → **独立した再確認が行われた**
- *
- * どちらでも、この検査ごと向きを反転させて残すこと
- * （「日付である章が 4 つ」→「全 8 章が版を持つ」、
- *   「差が 1 分未満」→「差が取得日より後」）。
- * **消してはならない。**消すと、正しくなった値が後で取得日へ戻っても誰も気づかない。
+ * どの赤でも**消さず、また向きを反転させて残すこと。**
  * 穴を見張る検査は、穴が塞がった日に役目を終えるのではない。
  * 塞がったものが再び開く道は、塞がる前から在る。
  */
 
 const ROOT = process.cwd();
 
-/** 章 → その章が持つ唯一の出典対象。 */
+/**
+ * 章 → その章が引く出典対象。**1 本とは限らない。**
+ * `maintenance-ops` は CI/CD 品質ゲートの質疑を正本へ足したことで 4 本になった。
+ */
 const CHAPTER_TARGETS = {
-  auth: "better-auth",
-  backend: "drizzle-orm",
-  database: "cloudflare-d1",
-  frontend: "nextjs",
-  infrastructure: "cloudflare-workers",
-  "maintenance-ops": "google-sre",
-  security: "owasp-asvs",
-  "ui-ux": "apple-hig",
+  auth: ["better-auth"],
+  backend: ["drizzle-orm"],
+  database: ["cloudflare-d1"],
+  frontend: ["nextjs"],
+  infrastructure: ["cloudflare-workers"],
+  "maintenance-ops": ["google-sre", "vitest", "github-actions", "stryker-mutator"],
+  security: ["owasp-asvs"],
+  "ui-ux": ["apple-hig"],
 } as const;
 
 /** 版番号ではなく日付が書かれている、という判定。`1.6.29` を日付と読まないこと。 */
 function looksLikeDate(version: string): boolean {
   return /^\d{4}-\d{2}-\d{2}$/.test(version.trim());
+}
+
+/**
+ * 版の欄が**取得した日そのもの**になっている、という判定。
+ *
+ * 旧版は `looksLikeDate` だけで誤りを数えていたが、それはもう使えない。
+ * `cloudflare-d1=2026-04-30` のように、**版を公表しない対象が公式表明の更新日を
+ * 版の欄に持つのは正しい状態**であり、日付であること自体は誤りではなくなった。
+ * 誤りは「確かめた値が無いので取得日を書いた」ことだけである。
+ */
+function isRetrievalDate(row: Row): boolean {
+  return looksLikeDate(row.version) && row.version.trim() === row.retrievedAt.slice(0, 10);
 }
 
 type Row = {
@@ -106,8 +95,8 @@ type Row = {
   confirmedAt: string;
 };
 
-/** 「最新ドキュメント出典」表の本文行を 1 本だけ取り出す。 */
-function sourceRow(chapter: string): Row {
+/** 「最新ドキュメント出典」表の本文行を全部取り出す。 */
+function sourceRows(chapter: string): Row[] {
   const text = readFileSync(join(ROOT, `system-spec/${chapter}.md`), "utf8");
   const section = text.split(/^## /m).find((s) => s.startsWith("最新ドキュメント出典"));
   if (section === undefined) throw new Error(`${chapter}.md に最新ドキュメント出典が無い`);
@@ -115,53 +104,116 @@ function sourceRow(chapter: string): Row {
     .split("\n")
     .filter((line) => line.startsWith("|") && !/^\|\s*-+/.test(line) && !/^\|\s*対象\s*\|/.test(line))
     .map((line) => line.split("|").slice(1, -1).map((cell) => cell.trim()));
-  if (rows.length !== 1) throw new Error(`${chapter}.md の出典行が ${rows.length} 本`);
-  const [target, version, , , retrievedAt, confirmedAt] = rows[0];
-  return { chapter, target, version, retrievedAt, confirmedAt };
+  if (rows.length === 0) throw new Error(`${chapter}.md の出典行が 0 本`);
+  return rows.map(([target, version, , , retrievedAt, confirmedAt]) => ({
+    chapter,
+    target,
+    version,
+    retrievedAt,
+    confirmedAt,
+  }));
 }
 
-describe("最新ドキュメント出典の欄が欄名どおりの値を持っていない (塞げていないことの固定)", () => {
-  const rows = Object.keys(CHAPTER_TARGETS).map(sourceRow);
+/** `fetched-references.json` 側の同じ対象の記録。章 md と突き合わせる相手。 */
+type Reference = {
+  target_id: string;
+  version: string | null;
+  last_updated: string | null;
+  freshness_source: string | null;
+};
 
-  it("確定 8 章がそれぞれ出典を 1 本ずつ持っている（数える対象が消えていない）", () => {
+function references(): Map<string, Reference> {
+  const raw = readFileSync(join(ROOT, "system-spec/fetched-references.json"), "utf8");
+  const parsed = JSON.parse(raw) as { references: Reference[] };
+  return new Map(parsed.references.map((r) => [r.target_id, r]));
+}
+
+describe("最新ドキュメント出典の欄が欄名どおりの値を持っているか (塞がった状態の固定)", () => {
+  const rows = Object.keys(CHAPTER_TARGETS).flatMap(sourceRows);
+  const refs = references();
+
+  it("確定 8 章が引く出典は合わせて 11 本で、対象も並びも正本どおり", () => {
     expect(rows.map((r) => [r.chapter, r.target])).toEqual(
-      Object.entries(CHAPTER_TARGETS),
+      Object.entries(CHAPTER_TARGETS).flatMap(([chapter, targets]) =>
+        targets.map((t) => [chapter, t]),
+      ),
     );
   });
 
-  it("版が取得日で埋まっている章は 4 つ——本物の版が入った日にこの検査が赤くなる", () => {
-    const dated = rows.filter((r) => looksLikeDate(r.version));
-    expect(dated.map((r) => `${r.target}=${r.version}`)).toEqual([
-      "cloudflare-d1=2026-08-16",
-      "cloudflare-workers=2026-08-16",
-      "google-sre=2026-08-16",
-      "apple-hig=2026-08-16",
-    ]);
+  it("版の欄が取得日そのものになっている行は 1 本も無い——戻れば赤くなる", () => {
+    const selfDated = rows.filter(isRetrievalDate);
+    expect(selfDated.map((r) => `${r.chapter}/${r.target}=${r.version}`)).toEqual([]);
   });
 
-  it("残る 4 章は本物の版を持っている（欄が全部壊れているわけではない）", () => {
-    const versioned = rows.filter((r) => !looksLikeDate(r.version));
-    expect(versioned.map((r) => `${r.target}=${r.version}`)).toEqual([
-      "better-auth=1.6.29",
+  it("11 本すべてが版か、取得日ではない公式表明の更新日を持っている", () => {
+    expect(rows.map((r) => `${r.target}=${r.version}`)).toEqual([
+      "better-auth=1.7.1",
       "drizzle-orm=0.45.2",
-      "nextjs=16.3.1",
-      "owasp-asvs=5.0",
+      "cloudflare-d1=2026-04-30",
+      "nextjs=16.3.2",
+      "cloudflare-workers=2026-04-23",
+      "google-sre=2017",
+      "vitest=2026-04-08",
+      "github-actions=free-pro-team@latest",
+      "stryker-mutator=10.0.0",
+      "owasp-asvs=5.0.0",
+      "apple-hig=2026-08-06",
     ]);
   });
 
-  it("「最新確認」は取得と同じ実行の中にある（差が 1 分未満）——独立に確かめ直した日に赤くなる", () => {
-    for (const r of rows) {
-      const delta =
-        (Date.parse(r.confirmedAt) - Date.parse(r.retrievedAt)) / 1000;
-      expect(delta, `${r.target} の 最新確認 − 取得 (秒)`).toBeGreaterThanOrEqual(0);
-      expect(delta, `${r.target} の 最新確認 − 取得 (秒)`).toBeLessThan(60);
+  /**
+   * 「最新確認」が取得と別の瞬間である＝取得したきり放置せず確かめ直した、という意味。
+   * 2026-08-25 実測で 11 本中 4 本 (nextjs / stryker-mutator / owasp-asvs / apple-hig)。
+   * 旧版は「nextjs だけ」と**同一性**で固定していたが、その形はもう無い。
+   */
+  it("取得と別の瞬間に確かめ直された出典が、達成済みの本数を下回らない", () => {
+    const independent = rows.filter(
+      (r) => (Date.parse(r.confirmedAt) - Date.parse(r.retrievedAt)) / 1000 >= 60,
+    );
+    // 下限で見張る。5 本目を確かめ直したという**良い変化で赤くしない**ため。
+    expect(independent.length).toBeGreaterThanOrEqual(4);
+    // ただし本数だけでは、確かめ直した出典が入れ替わっても気づけない。
+    // 達成済みの顔ぶれは包含で残す (増えるのは自由、抜けたら赤)。
+    const names = independent.map((r) => r.target);
+    for (const target of ["nextjs", "stryker-mutator", "owasp-asvs", "apple-hig"]) {
+      expect(names, `${target} の 最新確認 が取得と同じ瞬間へ戻っていないか`).toContain(target);
     }
+    for (const r of rows) {
+      const delta = (Date.parse(r.confirmedAt) - Date.parse(r.retrievedAt)) / 1000;
+      expect(delta, `${r.target} の 最新確認 − 取得 (秒)`).toBeGreaterThanOrEqual(0);
+    }
+  });
+
+  it("全 15 出典が freshness_source を持つ（版・更新日の出所が空欄へ戻らない）", () => {
+    const missing = [...refs.values()].filter((r) => !r.freshness_source);
+    expect(missing.map((r) => r.target_id)).toEqual([]);
+    expect(refs.size).toBe(15);
+  });
+
+  /**
+   * 同じ事実が章 md と `fetched-references.json` の 2 箇所にある。
+   * 2026-08-23 は 3 件が食い違っていた。C03 compile を当てて 0 になった。
+   * 写しは黙って古くなる。**再び開いた日に赤くする**のがこの検査の役目である。
+   */
+  it("章 md と fetched-references は 1 件も食い違わない", () => {
+    const drifted: string[] = [];
+    for (const row of rows) {
+      const ref = refs.get(row.target);
+      if (ref === undefined) throw new Error(`${row.target} が fetched-references に無い`);
+      // 章のバージョン欄 1 つに対し、参照側は版と更新日の 2 欄を持つ。
+      // 版を公表する対象は版を、公表しない対象は公式表明の更新日を、章が写すべき値とみなす。
+      const expected = ref.version ?? ref.last_updated;
+      if (row.version !== expected) {
+        drifted.push(`${row.target}: 章=${row.version} / 参照=${expected}`);
+      }
+    }
+    expect(drifted).toEqual([]);
   });
 
   /**
    * 見つける側が効くことを、同じ検査の中で示す。
-   * これが無いと上の「4 つ」は、**日付だから 4 つなのか、
-   * 判定が何も当たらずたまたま 4 つなのか**が区別できない。
+   * これが無いと上の「apple-hig だけ」は、**取得日だから 1 つなのか、
+   * 判定が何も当たらずたまたま 1 つなのか**が区別できない。
    */
   describe("見つける側が効いていること", () => {
     it.each(["2026-08-16", "2020-01-01"])("%s は日付として数えられる", (v) => {
@@ -174,5 +226,33 @@ describe("最新ドキュメント出典の欄が欄名どおりの値を持っ�
         expect(looksLikeDate(v)).toBe(false);
       },
     );
+
+    /**
+     * `isRetrievalDate` は `looksLikeDate` より狭い。
+     * **日付であること**と**取得日と同じであること**を取り違えると、
+     * 版を公表しない対象の正しい更新日まで誤りとして数えてしまう。
+     * その境目——同じ日付が、取得日と一致するかしないかだけで判定が割れること——を示す。
+     */
+    const at = (version: string, retrievedAt: string): Row => ({
+      chapter: "x",
+      target: "x",
+      version,
+      retrievedAt,
+      confirmedAt: retrievedAt,
+    });
+
+    it("取得日と同じ日付は、取得日を版として書いたものとして数えられる", () => {
+      expect(isRetrievalDate(at("2026-08-16", "2026-08-16T09:11:20Z"))).toBe(true);
+    });
+
+    it("同じ日付でも、取得日と違えば数えられない（公表された更新日を誤検出しない）", () => {
+      expect(isRetrievalDate(at("2026-08-16", "2026-08-19T15:30:39Z"))).toBe(false);
+      expect(isRetrievalDate(at("2026-04-30", "2026-08-19T15:30:39Z"))).toBe(false);
+    });
+
+    it("版番号は取得日と同じ日に取っていても数えられない", () => {
+      expect(isRetrievalDate(at("5.0.0", "2026-08-16T09:11:19Z"))).toBe(false);
+      expect(isRetrievalDate(at("2017", "2026-08-19T15:30:40Z"))).toBe(false);
+    });
   });
 });

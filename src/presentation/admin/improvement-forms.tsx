@@ -1,7 +1,15 @@
 "use client";
 
 import { useActionState, useState } from "react";
-import { Button, Callout, Field, Select, type SelectOption } from "@/presentation/ui";
+import {
+  Button,
+  Field,
+  FormResult,
+  FormValue,
+  HumanOnlyForm,
+  Select,
+  type SelectOption,
+} from "@/presentation/ui";
 import {
   advanceLoopRunAction,
   approveVariantSpecAction,
@@ -27,6 +35,19 @@ import { INITIAL_IMPROVEMENT_STATE } from "./improvement-state";
  * 承認済みでない試作は比較の選択肢に出さない。
  */
 
+/**
+ * この 4 つを AI から呼べなくしている理由。`HumanOnlyForm` が要求する。
+ *
+ * 元はこのファイルの冒頭コメントにだけ書いてあった。**コメントは `<form>` の
+ * 行からは見えない。** 4 つの素の `<form>` を見た人には、決めた結果なのか
+ * `ToolForm` への移し忘れなのかが分からない。理由を引数として持たせると、
+ * 消せば型が通らなくなる。
+ */
+const HUMAN_ONLY_REASON =
+  "比較を始めることは読者に見えるものを変えることであり、承認は仕様 §14.5 で人に限られている。" +
+  "improvement.run / improvement.approve を AI サービスアカウントへ配っておらず、" +
+  "道具として名乗る名前も目録に無い。名乗ってから断ると、AI 側は「あるのに使えない道具」を見る。";
+
 /** 試作（見せ方の設定）を登録する。 */
 export function DraftVariantSpecForm({
   siteSlug,
@@ -37,10 +58,7 @@ export function DraftVariantSpecForm({
   readonly dimensions: readonly SelectOption[];
   readonly maxSimultaneous: number;
 }) {
-  const [state, action, pending] = useActionState(
-    draftVariantSpecAction,
-    INITIAL_IMPROVEMENT_STATE,
-  );
+  const [state, action, pending] = useActionState(draftVariantSpecAction, INITIAL_IMPROVEMENT_STATE);
   const [label, setLabel] = useState("");
   // 欄の数を上限に合わせる。上限より多く出しておいて後から断ると、
   // 書いてから「多すぎます」と言われることになる。
@@ -53,8 +71,8 @@ export function DraftVariantSpecForm({
   }
 
   return (
-    <form action={action}>
-      <input type="hidden" name="siteSlug" value={siteSlug} />
+    <HumanOnlyForm action={action} reason={HUMAN_ONLY_REASON}>
+      <FormValue name="siteSlug" value={siteSlug} />
       <Field
         name="label"
         label="この試作の呼び名"
@@ -96,11 +114,8 @@ export function DraftVariantSpecForm({
 
       <p>登録しただけでは比較に使えません。次に承認が要ります（見た目だけの変更でも同じです）。</p>
 
-      {state.status === "done" ? <Callout tone="success" reason={state.message} /> : null}
-      {state.status === "failed" && state.field === undefined ? (
-        <Callout tone="warn" reason={state.message} />
-      ) : null}
-    </form>
+      <FormResult state={state} />
+    </HumanOnlyForm>
   );
 }
 
@@ -112,10 +127,7 @@ export function ApproveVariantSpecForm({
   readonly siteSlug: string;
   readonly pendingSpecs: readonly SelectOption[];
 }) {
-  const [state, action, pending] = useActionState(
-    approveVariantSpecAction,
-    INITIAL_IMPROVEMENT_STATE,
-  );
+  const [state, action, pending] = useActionState(approveVariantSpecAction, INITIAL_IMPROVEMENT_STATE);
   const [specId, setSpecId] = useState("");
 
   if (pendingSpecs.length === 0) {
@@ -123,8 +135,8 @@ export function ApproveVariantSpecForm({
   }
 
   return (
-    <form action={action}>
-      <input type="hidden" name="siteSlug" value={siteSlug} />
+    <HumanOnlyForm action={action} reason={HUMAN_ONLY_REASON}>
+      <FormValue name="siteSlug" value={siteSlug} />
       <Select
         name="specId"
         label="承認する試作"
@@ -139,11 +151,8 @@ export function ApproveVariantSpecForm({
         承認する
       </Button>
 
-      {state.status === "done" ? <Callout tone="success" reason={state.message} /> : null}
-      {state.status === "failed" && state.field === undefined ? (
-        <Callout tone="warn" reason={state.message} />
-      ) : null}
-    </form>
+      <FormResult state={state} />
+    </HumanOnlyForm>
   );
 }
 
@@ -166,16 +175,12 @@ export function StartLoopRunForm({
   const [minimumSamples, setMinimum] = useState("");
 
   if (approvedSpecs.length < 2) {
-    return (
-      <p>
-        比べるには承認済みの試作が 2 つ要ります。いまは {approvedSpecs.length} つです。
-      </p>
-    );
+    return <p>比べるには承認済みの試作が 2 つ要ります。いまは {approvedSpecs.length} つです。</p>;
   }
 
   return (
-    <form action={action}>
-      <input type="hidden" name="siteSlug" value={siteSlug} />
+    <HumanOnlyForm action={action} reason={HUMAN_ONLY_REASON}>
+      <FormValue name="siteSlug" value={siteSlug} />
       <Select
         name="baselineSpecId"
         label="比べるもと"
@@ -224,11 +229,8 @@ export function StartLoopRunForm({
         この比較を始める
       </Button>
 
-      {state.status === "done" ? <Callout tone="success" reason={state.message} /> : null}
-      {state.status === "failed" && state.field === undefined ? (
-        <Callout tone="warn" reason={state.message} />
-      ) : null}
-    </form>
+      <FormResult state={state} />
+    </HumanOnlyForm>
   );
 }
 
@@ -259,8 +261,8 @@ export function AdvanceLoopRunForm({
   }
 
   return (
-    <form action={action}>
-      <input type="hidden" name="runId" value={runId} />
+    <HumanOnlyForm action={action} reason={HUMAN_ONLY_REASON}>
+      <FormValue name="runId" value={runId} />
 
       <Field
         name="baselineValue"
@@ -316,10 +318,7 @@ export function AdvanceLoopRunForm({
         この比較を打ち切る
       </Button>
 
-      {state.status === "done" ? <Callout tone="success" reason={state.message} /> : null}
-      {state.status === "failed" && state.field === undefined ? (
-        <Callout tone="warn" reason={state.message} />
-      ) : null}
-    </form>
+      <FormResult state={state} />
+    </HumanOnlyForm>
   );
 }

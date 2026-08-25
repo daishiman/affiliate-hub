@@ -13,6 +13,7 @@ import { describe, expect, it } from "vitest";
 import {
   TENANT_ISOLATION_MIN_REACHED,
   TENANT_ISOLATION_MIN_SEPARATION_PROVEN,
+  TENANT_ISOLATION_MIN_WRITE_TOOLS,
 } from "../../quality-gates.config.mjs";
 import type { ActorContext } from "@/domain/shared";
 import { createDeps } from "@/infrastructure/composition";
@@ -23,6 +24,7 @@ import { handleJsonRpc } from "@/presentation/tools/mcp-adapter";
 import { describeTools, handleToolRequest } from "@/presentation/tools/rest-adapter";
 import { invokeTool, type AnyToolDefinition } from "@/presentation/tools/tool-definition";
 import { MAX_TOOLS_PER_PAGE, toWebMcpDescriptors } from "@/presentation/tools/webmcp-adapter";
+import { isListedOnWebMcp } from "@/presentation/tools/webmcp-policy";
 import { NO_HAPPY_PATH, requiredFieldsOf, unknownFields, validInputFor } from "./tool-inputs";
 
 /**
@@ -56,6 +58,21 @@ const JAPANESE = /[ぁ-んァ-ヶー一-龥]/;
 
 const readOnlyTools = catalog.filter((t) => t.readOnly);
 const approvalTools = catalog.filter((t) => t.requiresHumanApproval);
+/**
+ * 正常系を回す対象。**ここだけは、まだ `readOnly` を根拠にしている。**
+ *
+ * 本来の条件は「入力の見本があるから回せる」であって、旗ではない。
+ * それでも書き込みの道具を入れられないのは、**この検査が繰り返し実行されるから**である。
+ * 状態を変える道具は 1 度目と 2 度目で結果が変わる（すでに「対応中」です、など）。
+ * 見本データはモジュールに 1 組しか無いので、回した順に結果が変わってしまう。
+ *
+ * つまりここは「読み取り専用だから」ではなく「**何度呼んでも同じ結果になるから**」で
+ * 選んでいる。旗はその近似として使っている。近似であることをここに書いておかないと、
+ * 「②は旗を根拠にしたままだ」と読めてしまう。
+ *
+ * **旗を根拠にして本当に困るのはテナント分離のほう**（他社のデータを読めるより
+ * 書き換えられるほうが重い）で、そちらは `tenantTools` が別の根拠を持っている。
+ */
 const happyPathTools = readOnlyTools.filter((t) => NO_HAPPY_PATH[t.name] === undefined);
 /**
  * 他社の身元で呼んでみる対象。**`readOnly` で絞らない。**
@@ -127,14 +144,15 @@ describe("3 つの入口が同じものを配る", () => {
     }
   });
 
-  it("WebMCP には読み取り専用だけを、上限の数まで載せる", () => {
-    // ページ内の AI に状態を変えさせない、という決まりを機械にする。
+  it("WebMCP には表に名前のあるものだけを、上限の数まで載せる", () => {
+    // 載せる根拠は道具定義の `readOnly` ではなく `PAGE_TOOLS` である。
     // 数を絞るのは、選択肢が多いほどエージェントが誤った道具を選ぶため。
     const descriptors = toWebMcpDescriptors(catalog);
     expect(descriptors.length).toBeLessThanOrEqual(MAX_TOOLS_PER_PAGE);
+    expect(descriptors.length, "1 件も載っていないと、下の for は何も見ていない").toBeGreaterThan(0);
     for (const d of descriptors) {
       const source = catalog.find((t) => t.name === d.name);
-      expect(source?.readOnly, `${d.name} は読み取り専用ではありません`).toBe(true);
+      expect(isListedOnWebMcp(d.name), `${d.name} は表にありません`).toBe(true);
       expect(source?.requiresHumanApproval, `${d.name} は承認が要る操作です`).toBe(false);
       expect(d.description).toBe(source?.description);
       expect(d.inputSchema).toEqual(source?.inputSchema);
@@ -223,6 +241,23 @@ describe("認証認可", () => {
 });
 
 describe("テナント分離", () => {
+  /**
+   * **対象の選び方が `readOnly` へ戻っていないことを、数で見張る。**
+   *
+   * 下の 2 つの件数（到達・証明）は、対象が読み取りばかりに戻っても同じ数を出せる。
+   * 対象を `readOnly` で絞り直すと、状態を変える道具が丸ごと外れるが、
+   * **外れたことは「緑」として現れる**（回す件数が減るだけで、赤にはならない）。
+   * ここだけが 28 → 0 になって落ちる。
+   */
+  it("対象に、状態を変える道具が入っている", () => {
+    const writers = tenantTools.filter((t) => !t.readOnly);
+    expect(
+      writers.length,
+      `テナント分離の対象に入っている「状態を変える道具」が ${writers.length} 件しかありません。` +
+        "対象の選び方が readOnly へ戻っていないか見てください（選び方は入力の見本の有無です）",
+    ).toBeGreaterThanOrEqual(TENANT_ISOLATION_MIN_WRITE_TOOLS);
+  });
+
   it.each(tenantTools.map(nameOf))("%s は、別の会社に見本データを渡さない", async (name) => {
     const tool = catalog.find((t) => t.name === name)!;
     const result = await invokeTool(tool, OTHER_TENANT, validInputFor(tool)!);

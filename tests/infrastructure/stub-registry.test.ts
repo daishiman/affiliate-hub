@@ -1,4 +1,4 @@
-/** @tier 1 */
+/** @tier 1 @req REQ-TS09 */
 import { describe, expect, it } from "vitest";
 import { ASP_LABEL } from "@/domain/monetization";
 import { createAspAdapter, supportedAsps } from "@/infrastructure/asp/asp-registry";

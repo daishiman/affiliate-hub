@@ -1,4 +1,4 @@
-/** @tier 1 */
+/** @tier 1 @req REQ-B18, REQ-API01 */
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { ContactMessage } from "@/application/ports/reader-interaction";
 import { domainError, err, ok } from "@/domain/shared";
@@ -56,7 +56,7 @@ beforeEach(() => {
 describe("送れたとき", () => {
   it("受付番号を添えて、受け付けたと返す", async () => {
     const state = await submitContactAction(IDLE, form({ siteSlug: "lens-start", body: "本文" }));
-    expect(state.status).toBe("sent");
+    expect(state.status).toBe("done");
     // 番号が出ないと、あとで問い合わせ直すときに指せるものが無い。
     expect(state.message).toContain("rc_0001");
   });
@@ -102,7 +102,7 @@ describe("書かれなかった欄", () => {
   it("欄そのものが送られてこなくても落ちない", async () => {
     // 画面の作りが変わって欄が消えても、例外ではなく通常の失敗として扱えること。
     const state = await submitContactAction(IDLE, new FormData());
-    expect(state.status).toBe("sent");
+    expect(state.status).toBe("done");
     expect(seen.input).toEqual({
       siteSlug: "",
       body: "",
