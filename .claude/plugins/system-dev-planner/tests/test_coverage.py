@@ -44,6 +44,11 @@ def readiness_files(root: Path, *, placeholder: bool = False) -> None:
     fx.dump(root / "system-spec/completeness-findings.json", {
         "evaluator": {"name": "assign-system-spec-completeness-evaluator", "version": "0.1.0", "context": "fork"},
         "verdict": "PASS",
+        "inputs": {
+            "file_count": 1,
+            "sha256": "0" * 64,
+            "files": [{"path": "system-spec/index.md", "sha256": "0" * 64, "mtime": 0}],
+        },
         "audit_delegations": fx.AUDIT_DELEGATIONS,
         "aspects": {key: {"verdict": "PASS", "auditor": owner, "component": component,
                            "summary": "independently verified"}
@@ -104,12 +109,72 @@ class ReadinessCoverageTests(unittest.TestCase):
             self.assertEqual(code, 1)
             self.assertIn("completeness_evaluation:file-missing", json.loads(stdout)["missing_sections"])
             readiness_files(root)
-            value = json.loads(report.read_text(encoding="utf-8")); value["verdict"] = "FAIL"
+            value = json.loads(report.read_text(encoding="utf-8"))
+            value["verdict"] = "FAIL"
+            value["aspects"]["foundation_trace"]["verdict"] = "FAIL"
+            value["findings"] = [{
+                "severity": "high",
+                "bucket": "foundation_trace",
+                "observation": "required trace is incomplete",
+            }]
+            value["gaps"] = ["foundation trace must be completed before implementation"]
             fx.dump(report, value)
             code, stdout, _ = invoke(C08, ["--repo-root", str(root)], env)
             self.assertEqual(code, 1)
+            result = json.loads(stdout)
             self.assertIn("completeness_evaluation:producer-verification-failed",
-                          json.loads(stdout)["missing_sections"])
+                          result["missing_sections"])
+            detail = result["probes"]["completeness_evaluation"]["detail"]
+            self.assertIn("OK:", detail)
+            self.assertIn("verdict=FAIL", detail)
+            self.assertIn("producer stop verdict is not PASS", detail)
+
+    def test_completeness_probe_requires_zero_gate_and_pass_stop_verdict(self):
+        """producerが形状整合なFAILをexit 0で返しても着手不可にする。"""
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td).resolve()
+            report = root / "system-spec/completeness-findings.json"
+            report.parent.mkdir(parents=True)
+            producer = root / "producer"
+            gate = (producer / "skills/assign-system-spec-completeness-evaluator/scripts"
+                    / "aggregate-completeness.py")
+            gate.parent.mkdir(parents=True)
+            gate.write_text("# producer fixture\n", encoding="utf-8")
+            completed = __import__("subprocess").CompletedProcess(
+                args=[], returncode=0, stdout="OK: report shape is valid", stderr=""
+            )
+
+            cases = (
+                ({"verdict": "PASS"}, 0, True),
+                ({
+                    "evaluator": {"name": "assign-system-spec-completeness-evaluator"},
+                    "verdict": "FAIL",
+                    "aspects": {"foundation_trace": {"verdict": "FAIL"}},
+                    "findings": [{"severity": "high", "observation": "blocked"}],
+                    "gaps": ["foundation trace is incomplete"],
+                }, 0, False),
+                ({}, 0, False),
+                ({"verdict": "UNKNOWN"}, 0, False),
+                ({"verdict": "PASS"}, 1, False),
+            )
+            for value, gate_code, expected in cases:
+                with self.subTest(value=value, gate_code=gate_code):
+                    fx.dump(report, value)
+                    completed.returncode = gate_code
+                    with mock.patch.object(C08.subprocess, "run", return_value=completed):
+                        probe = C08._probe_completeness(
+                            root, "system-spec/completeness-findings.json", producer
+                        )
+                    self.assertEqual(probe.verified, expected)
+
+            report.write_text("{", encoding="utf-8")
+            completed.returncode = 0
+            with mock.patch.object(C08.subprocess, "run", return_value=completed):
+                probe = C08._probe_completeness(
+                    root, "system-spec/completeness-findings.json", producer
+                )
+            self.assertFalse(probe.verified)
+            self.assertIn("JSON", probe.detail)
 
     def test_leaf_symlink_escape_and_architecture_fallback_are_rejected(self):
         with tempfile.TemporaryDirectory() as td, tempfile.TemporaryDirectory() as outside_td:
