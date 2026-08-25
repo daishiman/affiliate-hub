@@ -949,19 +949,20 @@
     "infrastructure": {
       "web": {
         "state": "確定",
-        "qa_ref": "qa-infra-web-spec-intake",
+        "qa_ref": "qa-infra-web-migration-guard",
         "serves_goals": [
           "G2",
           "G1"
         ],
         "qa_refs": [
+          "qa-infra-web-migration-guard",
           "qa-infra-web-spec-intake",
           "qa-infra-web",
           "qa-infra-web-redirect"
         ],
         "required_info_checks": [
           {
-            "checked_on": "2026-08-22",
+            "checked_on": "2026-08-25",
             "checked_with": "record-required-info-check",
             "blocking_item_count": 0
           }
@@ -1083,18 +1084,19 @@
     "maintenance-ops": {
       "web": {
         "state": "確定",
-        "qa_ref": "qa-ops-web-spec-intake",
+        "qa_ref": "qa-ops-web-migration-guard",
         "serves_goals": [
           "G1",
           "G2"
         ],
         "qa_refs": [
+          "qa-ops-web-migration-guard",
           "qa-ops-web-spec-intake",
           "qa-ops-web"
         ],
         "required_info_checks": [
           {
-            "checked_on": "2026-08-22",
+            "checked_on": "2026-08-25",
             "checked_with": "record-required-info-check",
             "blocking_item_count": 0
           }
@@ -2424,6 +2426,106 @@
           ]
         }
       ]
+    },
+    {
+      "id": "qa-infra-web-migration-guard",
+      "question": "infrastructure×web: 本番 D1 のスキーマ変更を、公開ワークフロー (deploy.yml) が自動で適用してよいか。よいなら、どんな条件が揃ったときに限るか",
+      "answer": "控えが取れたら本番も自動でよい。dev / 本番のどちらでも deploy.yml が『控えを取る → 中身が空でないことを確かめる → 適用する → 未適用 0 件を確かめる』の順で走る。控えが空なら、そこで止めて適用へ進まない。人が判断するのはこの並びの手前 (environment: production の承認) であり、控えを取ったかどうかではない。migrate.yml の手動起動＋APPLY は、公開と切り離して形だけ変えたいときのために残す",
+      "source": {
+        "kind": "user-dialogue"
+      },
+      "asks_for": [
+        {
+          "category": "infrastructure",
+          "platform": "web"
+        }
+      ],
+      "design_applications": [
+        {
+          "knowledge_ref": "docs/spec/11-CI-CD・品質ゲート仕様.md#§4-1",
+          "principle": "戻せない変更を機械にやらせる条件は、戻る先が在ることの 1 点に絞る",
+          "applicability": "applied",
+          "rationale": "deploy.yml は dev / 本番のどちらでも控え → 空でないことの確認 → 適用 → 未適用 0 件の確認の順で走り、控えが空なら exit 1 して適用へ進まない。承認は並びの手前 (environment: production) に置き、毎回同じ手順である控え取得を人の記憶に委ねない",
+          "tradeoffs": [
+            "本番のスキーマ変更が承認後は人の介在なく進むため、承認者の登録漏れがそのまま無人適用になる。environment 側の設定が単一障害点になる"
+          ]
+        },
+        {
+          "knowledge_ref": "docs/spec/11-CI-CD・品質ゲート仕様.md#§4-1-1",
+          "principle": "測れなかったことを、大丈夫と読み替える道を片方にも作らない",
+          "applicability": "applied",
+          "rationale": "require-migrations-applied.sh を検査一式の前 (PENDING_ACTION=report) と公開の直前 (fail) の 2 か所で呼ぶ。前倒し側が落とすのは unknown (資格情報切れ・D1 到達不可・出力形式の変更) だけで、pending は後続の自動適用が直す。既定値は fail で、書き忘れたら厳しい側へ倒れる",
+          "tradeoffs": [
+            "同じスクリプトを 2 回呼ぶぶん実行時間は増えるが、8 分待ってから 30 秒で分かる失敗を受け取るよりは短い"
+          ]
+        }
+      ],
+      "scope_notes": {
+        "bundled": false,
+        "topics": [
+          {
+            "topic_id": "infra-web-migration-guard",
+            "covers_cell": {
+              "category": "infrastructure",
+              "platform": "web"
+            },
+            "answer_span": "控えが空なら、そこで止めて適用へ進まない。",
+            "note": "本番 D1 のスキーマ変更を deploy.yml が自動適用してよい条件は、控えが取れていることの一点である。承認は並びの手前 (environment: production) に置く。",
+            "origin_qa_id": "qa-infra-web-migration-guard"
+          }
+        ],
+        "recorded_with": "set-qa-scope-notes"
+      }
+    },
+    {
+      "id": "qa-ops-web-migration-guard",
+      "question": "maintenance-ops×web: 自動適用の前に取る控えが空だったとき、どうふるまうべきか。控えは何日保管するか",
+      "answer": "空なら適用を中止する。wrangler が 0 で終わっても中身の無いファイルだけ残る場合があり、それを控えと呼ばない。控えは成果物として 30 日保管し (migrate.yml と同条件)、落ちても残るよう適用より先に保存する。保管に失敗したこと自体も落ちる扱いにする (if-no-files-found: error)",
+      "source": {
+        "kind": "user-dialogue"
+      },
+      "asks_for": [
+        {
+          "category": "maintenance-ops",
+          "platform": "web"
+        }
+      ],
+      "design_applications": [
+        {
+          "knowledge_ref": "docs/spec/11-CI-CD・品質ゲート仕様.md#§4-1",
+          "principle": "控えが在ることの判定を、終了コードではなく中身で行う",
+          "applicability": "applied",
+          "rationale": "wrangler d1 export が 0 で終わっても中身の無いファイルだけが残る場合がある。deploy.yml は `[ ! -s \"$backup_path\" ]` で中身を見て、空なら exit 1 して適用へ進まない。控えの保存 (upload-artifact) は適用より前に置き、適用が落ちても控えが残るようにする",
+          "tradeoffs": [
+            "空でないことしか見ておらず、中身が壊れた控えは通る。復元まで試すのが本筋だが、公開のたびに復元先を用意する費用に見合わないと判断した"
+          ]
+        },
+        {
+          "knowledge_ref": "docs/spec/11-CI-CD・品質ゲート仕様.md#§4-1",
+          "principle": "保管に失敗したことを、保管したことと区別する",
+          "applicability": "applied",
+          "rationale": "upload-artifact に if-no-files-found: error を付け、保管対象が無いまま緑になる道を塞ぐ。保管期間は 30 日で migrate.yml と揃え、公開経由か手動かで戻せる範囲が変わらないようにする",
+          "tradeoffs": [
+            "30 日を過ぎた公開へは戻れない。それ以上遡る必要が出たときは D1 側の時点復旧に頼ることになる"
+          ]
+        }
+      ],
+      "scope_notes": {
+        "bundled": false,
+        "topics": [
+          {
+            "topic_id": "ops-web-backup-retention",
+            "covers_cell": {
+              "category": "maintenance-ops",
+              "platform": "web"
+            },
+            "answer_span": "控えは成果物として 30 日保管し (migrate.yml と同条件)、落ちても残るよう適用より先に保存する。",
+            "note": "控えが空だったときは適用を中止する。保管は 30 日で migrate.yml と揃え、保管に失敗したこと自体も落ちる扱いにする。",
+            "origin_qa_id": "qa-ops-web-migration-guard"
+          }
+        ],
+        "recorded_with": "set-qa-scope-notes"
+      }
     }
   ],
   "approval_log": [
@@ -3546,6 +3648,55 @@
         "serves_goals": [
           "G1",
           "G2"
+        ]
+      }
+    },
+    {
+      "category": "infrastructure",
+      "platform": "web",
+      "reason": "本番 D1 スキーマ変更の自動適用可否を利用者へ往復ヒアリングし、根拠 (qa_log) をセルへ接続するため (C07 finding matrix-qa-evidence-gap-cicd-migration-guard の是正)",
+      "from": "確定",
+      "discarded": {
+        "qa_ref": "qa-infra-web-spec-intake",
+        "qa_refs": [
+          "qa-infra-web-spec-intake",
+          "qa-infra-web",
+          "qa-infra-web-redirect"
+        ],
+        "serves_goals": [
+          "G2",
+          "G1"
+        ],
+        "required_info_checks": [
+          {
+            "checked_on": "2026-08-22",
+            "checked_with": "record-required-info-check",
+            "blocking_item_count": 0
+          }
+        ]
+      }
+    },
+    {
+      "category": "maintenance-ops",
+      "platform": "web",
+      "reason": "自動適用の中止条件と控えの保管期間を利用者へ往復ヒアリングし、根拠 (qa_log) をセルへ接続するため (C07 finding matrix-qa-evidence-gap-cicd-migration-guard の是正)",
+      "from": "確定",
+      "discarded": {
+        "qa_ref": "qa-ops-web-spec-intake",
+        "qa_refs": [
+          "qa-ops-web-spec-intake",
+          "qa-ops-web"
+        ],
+        "serves_goals": [
+          "G1",
+          "G2"
+        ],
+        "required_info_checks": [
+          {
+            "checked_on": "2026-08-22",
+            "checked_with": "record-required-info-check",
+            "blocking_item_count": 0
+          }
         ]
       }
     }
@@ -4923,7 +5074,7 @@
   ],
   "knowledge_candidates": [],
   "hearing_progress": {
-    "loop_count": 3,
+    "loop_count": 2,
     "next_question": null,
     "complete": true,
     "max_loops": 5,

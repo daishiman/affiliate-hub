@@ -84,3 +84,8 @@ tests/visual/__diff__/
 # 認証情報を書いたファイルの取りこぼし防止。
 # この名前を使う手順はもう無いが、万一作られてもコミットされないよう残す。
 .cf-credentials
+
+# エージェントが作る git worktree。リポジトリ全体の写しが丸ごと置かれる。
+# 追跡すると同じファイルが 2 重に履歴へ入り、写しを直しても本体は直らない。
+# 検査から外す側は eslint.config.mjs の globalIgnores に書いてある。
+.claude/worktrees/
