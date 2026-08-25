@@ -209,12 +209,26 @@ describe("確定セルの裏付け範囲は機械が読める", () => {
   });
 
   it("注記は正規 writer を通っており、逐語 span が origin の本文に 1 箇所だけある", () => {
-    const { qa_log } = readState();
+    const { matrix, qa_log } = readState();
     expect(qa_log.length).toBeGreaterThanOrEqual(QA_LOG_MIN);
 
     const annotated = qa_log.filter((entry) => entry.scope_notes);
     // 床: 注記が 1 件も無ければ、下の検証はすべて空回りで緑になる。
-    expect(annotated.length).toBe(CONFIRMED_CELL_COUNT);
+    expect(annotated.length).toBeGreaterThanOrEqual(CONFIRMED_CELL_COUNT);
+
+    // ここは 2026-08-25 まで `toBe(CONFIRMED_CELL_COUNT)` だった。**等式は成り立たなく
+    // なった。**確定セルへ新しい問答で裏付けを足せるようになり（`extend-qa-refs`）、
+    // 1 セルが複数の注記付き entry を引くようになったためである。実測 8 → 10。
+    //
+    // **等式を外すのは緩めることなので、外した先を空にしない。**等式が塞いでいたのは
+    // 「どこからも引かれない注記が増えること」であって、件数そのものではない。
+    // そこで床（上の 1 行）と対にして、**孤立した注記を 0 に保つ**側へ向きを変える。
+    // 数が増える道は開くが、指す者の無い注記を書く道は閉じたままである。
+    const cited = new Set(
+      confirmedCells(matrix).flatMap((cell) => [cell.qaRef, ...(cell.qaRefs ?? [])]),
+    );
+    const orphans = annotated.map((entry) => entry.id).filter((id) => !cited.has(id));
+    expect(orphans).toStrictEqual([]);
 
     const byId = new Map(qa_log.map((entry) => [entry.id, entry]));
     const broken = collectBrokenSpans(annotated, byId);

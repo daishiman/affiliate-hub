@@ -51,6 +51,24 @@ const codeOf = (name: string) =>
     .filter((line) => !/^\s*#/.test(line))
     .join("\n");
 
+/**
+ * ワークフロー本体をステップ単位へ切る。`- name:` / `- uses:` / `- run:` で 1 つ始まる。
+ *
+ * **切れていないことを、緑の理由にしない。**
+ * 正規表現が当たらないと戻り値は塊 1 つになり、その塊はあらゆる語を含むので
+ * 「ステップの中にある／無い」を見る検査が軒並み素通りする。だから切った結果が
+ * 本当にステップ 1 つずつになっているかを、ここで先に落としておく。
+ */
+function splitSteps(code: string): string[] {
+  const steps = code.split(/\n(?=\s{6}- (?:name|uses|run):)/);
+  expect(steps.length, "ステップに切り出せていません").toBeGreaterThan(5);
+  for (const step of steps.slice(1)) {
+    const headers = step.match(/^\s{6}- (?:name|uses|run):/gm) ?? [];
+    expect(headers.length, `1 つの塊に複数のステップが入っています:\n${step}`).toBe(1);
+  }
+  return steps;
+}
+
 /** 検査名を「語として」探す。`ubuntu-latest` の中の `test` を拾わないため。 */
 const mentions = (text: string, id: string) =>
   new RegExp(`(?<![\\w-])${id.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}(?![\\w-])`).test(text);
@@ -415,7 +433,7 @@ describe("閾値も検査名も書き写さない（REQ-CI02）", () => {
   });
 });
 
-describe("データの形の変更は、人が起動したときだけ（REQ-CI05）", () => {
+describe("データの形の変更は、控えを取ってからだけ（REQ-CI05）", () => {
   it("migrate.yml は自動で走らず、確認文字列が合わないと最初のステップで落ちる", () => {
     const body = workflow("migrate.yml");
     expect(body).toMatch(/on:\s*\n\s*workflow_dispatch:/);
@@ -436,12 +454,145 @@ describe("データの形の変更は、人が起動したときだけ（REQ-CI0
     expect(code.indexOf("wrangler d1 export")).toBeLessThan(code.indexOf("db:migrate:"));
   });
 
-  it("deploy.yml はマイグレーションを 1 行も持たない", () => {
-    // 公開とマイグレーションを同じ流れに入れると、順番が逆転した回に本番が落ちる。
-    const body = workflow("deploy.yml");
-    for (const forbidden of ["migrations apply", "d1 migrations", "db:migrate"]) {
-      expect(body, `deploy.yml に ${forbidden} があります`).not.toContain(forbidden);
+  /**
+   * **2026-08-25 に、この節の見張り方を 2 度目に変えた。**
+   *
+   * 最初は「`deploy.yml` はマイグレーションを 1 行も持たない」と見ていた。
+   * 守りたかったのは公開が先に走らないことなのに、
+   * 見張っていたのは *ファイルに文字列が無いこと* だった。
+   * この 2 つがずれている間、dev では「必ず一度公開に失敗してから、手で
+   * `migrate.yml` を流して、公開を再実行する」が正規の手順になっていた（run #17）。
+   * 失敗が作法になると、赤は「何かおかしい」の合図として働かなくなる。
+   *
+   * 次に「本番の経路を 1 行も通らない」へ変えた。これも守る対象を取り違えていた。
+   * 本番で手で流すとき、控えを取るかどうかは**人の記憶に委ねられていた**。
+   * 控えを取ることが規範なら、それを守らせるのは記憶ではなく順番のほうがよい。
+   *
+   * いまは両方の環境で自動適用する。**守る対象は「控えの無い適用が起きないこと」。**
+   * 人が立つ場所は `environment: production` の承認へ移した。
+   */
+  it("自動適用は、控え → 適用 → 未適用 0 件の確認、の順に並ぶ", () => {
+    const code = codeOf("deploy.yml");
+    // 適用してから「戻したい」と言われても戻せない。控えを先に取る。
+    const backup = code.indexOf("wrangler d1 export");
+    const apply = code.indexOf("db:migrate:");
+    const confirm = code.lastIndexOf("require-migrations-applied.sh");
+    expect(backup, "控えを取っていません").toBeGreaterThan(-1);
+    expect(apply, "適用していません").toBeGreaterThan(-1);
+    expect(backup, "控えが適用より後ろにあります").toBeLessThan(apply);
+    // 「適用を実行した」ではなく「未適用が 0 件になった」を見る。
+    // 適用が黙って空振りしたときに気づけるのはこの位置の確認だけである。
+    expect(apply, "適用のあとに未適用 0 件の確認がありません").toBeLessThan(confirm);
+    // 控えは migrate.yml と同じ条件で残す。
+    expect(code).toMatch(/if-no-files-found:\s*error/);
+    expect(code).toMatch(/retention-days:\s*30/);
+  });
+
+  it("D1 へ届くかどうかは検査一式より前に見る", () => {
+    /**
+     * 資格情報が切れている・D1 に届かない・出力の形が変わった、は 30 秒で分かる。
+     * それを `pnpm run verify`（8 分超）の後ろに置いていたせいで、
+     * 答えの出ている失敗を 8 分待ってから受け取っていた（run #17）。
+     * 安い判定は高い判定の前に置く。
+     */
+    const code = codeOf("deploy.yml");
+    const firstCheck = code.indexOf("require-migrations-applied.sh");
+    expect(firstCheck).toBeGreaterThan(-1);
+    expect(firstCheck, "移行の確認が検査一式より後ろにあります").toBeLessThan(
+      code.indexOf("pnpm run verify"),
+    );
+    /**
+     * 前倒しした側は「未適用がある」では落とさない（このあとの自動適用が直すため）。
+     * ここを `fail` に書き換えると、自動適用の手前で必ず止まって用をなさなくなる。
+     * **落ちるのは `unknown`（測れなかった）だけ**で、その切り分けは下の検査が見る。
+     */
+    const beforeFirst = code.slice(0, firstCheck);
+    const settings = beforeFirst.match(/PENDING_ACTION:.*/g) ?? [];
+    expect(settings.at(-1), "前倒しした側の設定が report ではありません").toBe(
+      "PENDING_ACTION: report",
+    );
+  });
+
+  it("公開の直前の関門は、どの環境でも未適用で落とす", () => {
+    const code = codeOf("deploy.yml");
+    const lastCheck = code.lastIndexOf("require-migrations-applied.sh");
+    // 最後の呼び出しが、公開そのものより前にあること。
+    expect(lastCheck, "最後の確認が公開より後ろにあります").toBeLessThan(
+      code.indexOf("pnpm deploy:prod"),
+    );
+    // その呼び出しに渡す設定が `fail` であること。
+    // 直前の `PENDING_ACTION:` の行を見る（緩い設定に差し替えると赤くなる）。
+    const beforeLast = code.slice(0, lastCheck);
+    const settings = beforeLast.match(/PENDING_ACTION:.*/g) ?? [];
+    expect(settings.at(-1), "公開の直前の関門が fail ではありません").toBe(
+      "PENDING_ACTION: fail",
+    );
+  });
+
+  it("『測れなかった』は、緩い設定でも通らない", () => {
+    /**
+     * `report` が緩めてよいのは「未適用がある」だけである。
+     * `unknown`（wrangler が落ちた・出力の形が変わった）まで一緒に緩むと、
+     * **測れていないのに緑**になる。判定の枝ごとに切り分けて見る。
+     */
+    const script = read(".github/scripts/require-migrations-applied.sh");
+    // 書き忘れたら厳しい側へ倒れること。
+    expect(script).toContain('pending_action="${PENDING_ACTION:-fail}"');
+    // 判定不能の枝に、通す道が無いこと。
+    const unknownBranch = script.split("\n  *)\n")[1]?.split(";;")[0] ?? "";
+    expect(unknownBranch, "判定不能の枝が見当たりません").toContain("exit 1");
+    expect(unknownBranch, "判定不能の枝に通す道があります").not.toContain("report");
+  });
+
+  it("控えの取れない適用は起きない（空なら、そこで止まる）", () => {
+    /**
+     * **これが本番自動適用の支点である。**
+     *
+     * `wrangler d1 export` は中身の無いファイルだけ残して 0 で終わることがある。
+     * その状態で適用へ進むと「控えを取った」という記録だけが残り、
+     * 戻そうとした回に**控えが空だったことを、そのとき初めて知る**。
+     *
+     * 見るのは「控えを取る行があること」ではなく「空を落とす行があること」。
+     * 前者だけなら、export の行を残したまま判定を消せば緑のまま通る。
+     */
+    const code = codeOf("deploy.yml");
+    const steps = splitSteps(code);
+
+    const backupStep = steps.find((s) => s.includes("wrangler d1 export"));
+    expect(backupStep, "控えを取るステップがありません").toBeDefined();
+    // 空判定と、その枝で落とすこと。どちらか片方だけでは通さない。
+    expect(backupStep, "控えの中身を確かめていません").toContain('[ ! -s "$backup_path" ]');
+    expect(backupStep, "控えが空でも止まりません").toContain("exit 1");
+  });
+
+  it("マイグレーションのステップに、環境で抜ける道が無い", () => {
+    /**
+     * 本番だけ `if:` で外せるようにしておくと、**本番でだけ控えが取られない**
+     * 状態を 1 行で作れてしまう。控えを規範にした以上、抜け道のほうを塞ぐ。
+     *
+     * **数え方（禁止語の数と `if:` の数を比べる）は採らなかった。**
+     * ステップを 1 つ足すだけで数が釣り合い、隣に抜け道を置いても通ってしまう。
+     * 見たいのは総数ではなく「その語を含むステップが、条件を持たないこと」である。
+     */
+    const migrationWords = ["migrations apply", "d1 migrations", "db:migrate", "d1 export"];
+    const code = codeOf("deploy.yml");
+    const steps = splitSteps(code);
+
+    const hits = steps.filter((step) => migrationWords.some((word) => step.includes(word)));
+
+    /**
+     * 禁止語がどこにも無いときに緑になる書き方は、**このテストの用済み化**である。
+     * 自動適用ごと消えたら、それは直った証拠ではなく見張る対象が消えた合図。
+     */
+    expect(hits.length, "自動適用が見当たりません").toBeGreaterThan(0);
+
+    for (const step of hits) {
+      const head = step.trim().split("\n")[0];
+      expect(step, `環境で外せるマイグレーションがあります: ${head}`).not.toMatch(/^\s*if:/m);
     }
+
+    // 本番側の適用が実在すること。dev だけに戻ったら、ここで落ちる。
+    expect(code, "本番の適用がありません").toContain("db:migrate:prod");
   });
 });
 

@@ -638,10 +638,13 @@ describe("8 章を再生成しても痩せないこと (C03 の事前の床)", (
     describe.each(CHAPTERS)("$name.md", (ch) => {
       const full = read(ch.name);
 
-      it("節を 1 つ落とすと、必須の節の一致が崩れる", () => {
+      it("節を 1 つ落とすと、欠けたものとして名指しで出る", () => {
         const last = ch.sections[ch.sections.length - 1];
         const cut = full.replace(`## ${last}\n`, "");
-        expect(measure(cut).sections).not.toEqual([...ch.sections]);
+        // 包含へ反転した後も落とせば赤くなることを、**落とした当の節の名前まで**見る。
+        // 「何かが欠けた」だけだと、測る側が別の節を落としていても同じ緑を返す。
+        const missing = ch.sections.filter((s) => !measure(cut).sections.includes(s));
+        expect(missing).toEqual([last]);
       });
 
       it("非規範注記を消すと見つかる", () => {

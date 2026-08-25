@@ -87,6 +87,17 @@ def main(argv: list[str]) -> int:
             "refuse=何も書かずに中止 (既定) / preserve=生成本文の末尾へ引き継ぐ"
         ),
     )
+    p_compile.add_argument(
+        "--only",
+        action="append",
+        metavar="FILE",
+        help=(
+            "書き出す章を絞る (例 --only infrastructure.md --only maintenance-ops.md)。"
+            "**組み立ては常に全章を通す**ので index の相互参照は正本どおりに導出される。"
+            "絞るのは書き出しだけである。触っていないセルの章まで書き換えて、"
+            "生成節の中の手書き行を巻き込む事故を避けるために使う"
+        ),
+    )
     args = ap.parse_args(argv)
 
     losses: list[tuple[str, list[str]]] = []
@@ -94,6 +105,17 @@ def main(argv: list[str]) -> int:
         spec = load_json(args.spec)
         refs_data = load_json(args.references)
         docset = compile_docset(spec, refs_data)
+        if args.only:
+            unknown = [n for n in args.only if n not in docset]
+            if unknown:
+                # 綴り違いを「0 件書けた」で通すと、直したつもりの章が直っていない。
+                print(
+                    f"CompileError: --only に無い章がある: {', '.join(unknown)} "
+                    f"(選べるのは {', '.join(sorted(docset))})",
+                    file=sys.stderr,
+                )
+                return 1
+            docset = {n: docset[n] for n in docset if n in set(args.only)}
         written = write_docset(
             docset, Path(args.out_dir), on_handwritten=args.on_handwritten, loss_report=losses
         )

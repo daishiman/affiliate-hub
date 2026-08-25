@@ -61,16 +61,22 @@ import { describe, expect, it } from "vitest";
 const ROOT = process.cwd();
 const SPEC_DIR = "system" + "-spec";
 
-/** 章 → その章の主対象（章が最初に立てた出典）。章は主対象以外も持ってよい。 */
+/**
+ * 章 → その章が宣言する出典対象。**1 本とは限らない。**
+ *
+ * 旧版はここを 1 章 1 本と決め打ちしていた。`maintenance-ops` が 4 本になった日、
+ * 決め打ちのほうが折れた——**固定していたのは事実ではなく、当時の形だった。**
+ * 章は宣言した対象以外も持ってよい。**足りないことだけを赤にする。**
+ */
 const CHAPTER_TARGETS = {
-  auth: "better-auth",
-  backend: "drizzle-orm",
-  database: "cloudflare-d1",
-  frontend: "nextjs",
-  infrastructure: "cloudflare-workers",
-  "maintenance-ops": "google-sre",
-  security: "owasp-asvs",
-  "ui-ux": "apple-hig",
+  auth: ["better-auth"],
+  backend: ["drizzle-orm"],
+  database: ["cloudflare-d1"],
+  frontend: ["nextjs"],
+  infrastructure: ["cloudflare-workers"],
+  "maintenance-ops": ["google-sre", "vitest", "github-actions", "stryker-mutator"],
+  security: ["owasp-asvs"],
+  "ui-ux": ["apple-hig"],
 } as const;
 
 /**
@@ -157,14 +163,16 @@ describe("最新ドキュメント出典の欄が欄名どおりの値を持っ�
   const rows = CHAPTERS.flatMap((c) => rowsByChapter.get(c) ?? []);
   const refs = references();
 
-  it("確定 8 章がそれぞれ主対象の出典を持っている（数える対象が消えていない）", () => {
-    const primaries = CHAPTERS.map((c) => [
-      c,
-      (rowsByChapter.get(c) ?? []).map((r) => r.target).includes(
-        CHAPTER_TARGETS[c as keyof typeof CHAPTER_TARGETS],
-      ),
-    ]);
-    expect(primaries).toEqual(CHAPTERS.map((c) => [c, true]));
+  it("確定 8 章が宣言した出典を 1 本も落としていない（数える対象が消えていない）", () => {
+    // **欠けたものを名指しで出す。**真偽値の一覧だと、8 章が全部 false になった日に
+    // 「何が消えたのか」がこの試験からは読めない（2026-08-25 に実際そうなった）。
+    const missing = CHAPTERS.flatMap((c) => {
+      const present = new Set((rowsByChapter.get(c) ?? []).map((r) => r.target));
+      return CHAPTER_TARGETS[c as keyof typeof CHAPTER_TARGETS]
+        .filter((target) => !present.has(target))
+        .map((target) => `${c}: ${target}`);
+    });
+    expect(missing).toEqual([]);
   });
 
   it("章別の出典本数が実測どおり——増えても減っても赤くなる", () => {

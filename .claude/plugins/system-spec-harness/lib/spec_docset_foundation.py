@@ -1,6 +1,7 @@
 """Foundation, index, and document-set assembly for deterministic spec compilation."""
 from __future__ import annotations
 
+import re
 from pathlib import Path
 
 from spec_docset_catalog import *
@@ -409,19 +410,148 @@ def handwritten_sections(existing: str, generated: str) -> "list[str]":
     return [h for h in _section_map(existing) if h not in gen]
 
 
-def vanishing_lines(existing: str, final: str) -> "list[str]":
-    """既存本文にあって最終本文のどこにも無くなる非空行を、多重度込みで返す。
+_SUBSECTION = re.compile(r"^(#{3,6}) (.+)$")
+_CELL_BOUND = re.compile(r"^(?:確定内容|接地根拠) (\S+) \(対応セル|^(\S+) \(対応セル")
 
-    節ごと消えたのか末尾へ移っただけなのかは、行の多重集合で引けば区別できる。
+
+def _subsection_key(level: str, title: str) -> tuple:
+    """小節見出しの同一性キー。
+
+    `(対応セル: …)` を名乗る見出しは**階層と ref だけ**で照合する。同じ問答でも役割が
+    主から裏付けへ移ると見出しの文言は変わる (`### x` → `### x — 接地根拠 (…)`)。
+    文言で照合すると、役割が変わっただけの節を「消えた」と誤判定し、compile のたびに
+    同じ本文が末尾へ複製されて増え続ける。それ以外の見出しは文言そのもので照合する。
+    """
+    m = _CELL_BOUND.match(title)
+    if m:
+        return (level, m.group(1) or m.group(2))
+    return (level, title.strip())
+
+
+def handwritten_subsections(existing: str, generated: str) -> "list[tuple[str, str]]":
+    """既存章にあって生成物に無い**`###` 以下の小節**を (見出し, 本文) で並び順に返す。
+
+    **なぜ `##` 単位では足りないか (2026-08-25 実測)**: 質疑録は `## 確定内容 (質疑録)`
+    という**生成される**節の内側に `### <ref> (対応セル: …)` として並ぶ。節そのものは
+    生成物にも在るので `handwritten_sections` は何も検出せず、`preserve` は緑のまま
+    小節ごと本文を落とす。8 章で 369 行が消えたときの主因がこれである。
+
+    質疑録だけではない。`#### 既存記録との食い違い` のような**人が書いた考察**も、
+    `##### 確定内容 <ref>` の設計適用も、生成される `##` 節の内側に住んでいる。実測では
+    ui-ux 章の食い違い記録 (「この食い違いは 2026-08-23 に解消した」以下の全文) が
+    ここから消えていた。
+
+    **照合は `_subsection_key` に任せる。**`(対応セル)` を名乗る見出しは階層と ref だけで
+    突き合わせる。役割が主から裏付けへ移ると見出しの文言は変わるので、文言で照合すると
+    「消えた」と誤判定し、compile のたびに同じ本文が末尾へ増え続ける。
+
+    qa の回答本文そのものが見出しを含むことがある (ui-ux の
+    `qa-uiux-web-screen-priority` など)。それらは生成物にも同じ見出しで現れるので、
+    「生成物に無い」条件で自然に除かれる。
+
+    引き継ぐ先に残るのは**正本から導出できない小節**である。`qa-uiux-web-overhaul-v2`
+    などは `qa_log` にすら無く、章にしか本文が存在しない。**引き継がなければ、この世から
+    消える。**
+
+    切り出しの境界は「次の小節見出し」または「次の `## ` 見出し」とする。回答本文に
+    見出しが埋まっている ref では本文が途中で切れうるが、そのぶんは `vanishing_lines`
+    の報告に出る。**黙って消えるのではなく、報告に出る側へ倒している。**
+
+    **生成物に無い `## 節` の内側は見ない。**そこは `handwritten_sections` が節ごと
+    引き継ぐ。両方が拾うと、前回引き継いだ本文が compile のたびに 2 通の形で積まれ、
+    章が回を重ねるごとに太る。冪等でない引き継ぎは、引き継がないのと同じくらい悪い。
+    """
+    gen_keys = {
+        _subsection_key(m.group(1), m.group(2))
+        for l in generated.splitlines()
+        if (m := _SUBSECTION.match(l))
+    }
+    gen_sections = set(_section_map(generated))
+    lines = existing.splitlines()
+    out: list[tuple[str, str]] = []
+    section: str | None = None
+    for i, line in enumerate(lines):
+        if line.startswith("## "):
+            section = line.strip()  # `_section_map` の鍵は見出し行そのもの
+            continue
+        if section is not None and section not in gen_sections:
+            continue
+        m = _SUBSECTION.match(line)
+        if not m or _subsection_key(m.group(1), m.group(2)) in gen_keys:
+            continue
+        end = len(lines)
+        for j in range(i + 1, len(lines)):
+            if _SUBSECTION.match(lines[j]) or lines[j].startswith("## "):
+                end = j
+                break
+        out.append((line.strip(), "\n".join(lines[i:end]).rstrip() + "\n"))
+    return out
+
+
+CARRIED_HEADING = "## 章にしか無い記述 (正本へ未接続)"
+RESIDUE_HEADING = "## compile が保てなかった行 (要判断)"
+
+
+_RESIDUE_ITEM = re.compile(r"^- `(.*)`$")
+
+
+def split_residue(text: str) -> "tuple[str, list[str]]":
+    """前回の compile が置いた「保てなかった行」節を、本文と写しの行へ分ける。
+
+    節を本文に残したまま次回の既存本文として数えると、写し自身が「章に在って生成物に
+    無い行」に該当し、写しの写しが積まれる。1 回ごとに倍になるので数回で章が読めなくなる。
+    かといって**落とすだけでは、その行の唯一の残りが消える** — 元の行はもう本文にも
+    生成物にも無いから、写しがこの世で最後の一部なのである。
+
+    よって落としたうえで**今回の報告へ持ち越す**。節は毎回作り直され、中身は減らない。
+
+    `CARRIED_HEADING` のほうは触らない。あちらの中身は写しではなく本文であり、生成物に
+    無い `##` 節として `handwritten_sections` の引き継ぎ経路に乗る。
+    """
+    body: list[str] = []
+    carried: list[str] = []
+    skipping = False
+    for line in text.splitlines():
+        if line.startswith("## "):
+            skipping = line.strip() == RESIDUE_HEADING
+        if skipping:
+            m = _RESIDUE_ITEM.match(line)
+            if m:
+                carried.append(m.group(1))
+        else:
+            body.append(line)
+    return ("\n".join(body).rstrip("\n") + "\n" if body else "", carried)
+
+
+def vanishing_lines(existing: str, final: str) -> "list[str]":
+    """既存本文にあって最終本文の**どこにも**無くなる非空行を、既存の並び順で返す。
+
+    節ごと消えたのか末尾へ移っただけなのかは、行の集合で引けば区別できる。
     版の更新のように**正しく消える行**もあるので、これは拒否の根拠ではなく報告の材料である。
     `## 節` 単位の検出では、生成節の中に人が書き足した `###` 小節や表の 1 行が拾えない。
-    """
-    import collections
 
-    old = collections.Counter(l.rstrip() for l in existing.splitlines() if l.strip())
-    new = collections.Counter(l.rstrip() for l in final.splitlines() if l.strip())
-    lost = old - new
-    return [line for line, count in lost.items() for _ in range(count)]
+    **数え方は多重集合ではなく集合である (2026-08-25 に直した)。**以前は
+    `Counter` の引き算で「2 回あった行が 1 回になった」も損失として数えていた。
+    docstring は当時から「どこにも無くなる行」と言っており、実装だけがずれていた。
+
+    実測でこれが効いた: 質疑の役割が主 (`qa_ref`) から裏付け (`qa_refs`) へ移ると、
+    その質疑の回答は「確定内容 (質疑録)」に 1 度だけ描かれ、「適用された設計知識」側は
+    参照ポインタになる。**本文は 1 行も失われていないのに、写しが 2 通から 1 通へ
+    減っただけで 7 行 × 2 章が「保てなかった行」として章末に並んだ。**
+
+    失われていないものを「痩せた」と報せる報告は、本当に痩せた日に信じてもらえない。
+    重複が減ったことを知りたいなら、それは損失報告とは別の軸で数えるべきである。
+    """
+    new_set = {l.rstrip() for l in final.splitlines() if l.strip()}
+    seen: set[str] = set()
+    lost: list[str] = []
+    for raw in existing.splitlines():
+        line = raw.rstrip()
+        if not line.strip() or line in new_set or line in seen:
+            continue
+        seen.add(line)
+        lost.append(line)
+    return lost
 
 
 def write_docset(
@@ -441,25 +571,43 @@ def write_docset(
       - "refuse"   : 手書き節を見つけたら 1 文字も書かずに中止する (既定)
       - "preserve" : 生成本文の末尾へ手書き節を既存の並び順で引き継いでから書く
 
-    loss_report を渡すと、preserve でもなお消える行を [(ファイル名, [行, ...])] で受け取れる。
-    節を引き継いでも、生成節の中に人が書き足した小節や表の行までは守れない。
-    **preserve は安全という意味ではない。**呼び手はこの報告を読んでから正本へ適用すること。
+    loss_report を渡すと、節・小節を引き継いでもなお消える行を [(ファイル名, [行, ...])]
+    で受け取れる。preserve のときは同じ内容を章末の `RESIDUE_HEADING` 節へも写す。
+    **節でも小節でもない 1 行は、引き継ぐ場所が無い**からである — 表の行を表から切り離せば
+    意味が壊れ、生成節へ差し戻せば正本の投影と手書きの区別が消える。本文としてではなく
+    報告として残せば、消えはせず、表も壊れず、正本へ戻す動機が章の上に残る。
+    **preserve は「正本と一致した」という意味ではない。**呼び手はこの節を読んで、
+    正本へ接続するか不要と確かめて消すこと。
     """
     if on_handwritten not in ("refuse", "preserve"):
         raise CompileError(f"on_handwritten は refuse|preserve のいずれか (受領: {on_handwritten!r})")
 
     # 1 ファイルでも危ないものがあれば 1 文字も書かない。部分適用は差分を読みにくくする。
     carried: dict[str, list[str]] = {}
+    # 生成される `##` 節の内側に住む手書きの小節 (質疑録の `###`、人の考察の `####`、
+    # 設計適用の `#####`) は `##` 単位の検出をすり抜ける。**refuse も preserve も、
+    # ここを同じ根拠で扱う。**片方だけ見張ると「refuse なら安全」が嘘になる。
+    carried_sub: dict[str, list[tuple[str, str]]] = {}
     for name, content in docset.items():
         p = out_dir / name
         if not p.is_file():
             continue
-        lost = handwritten_sections(p.read_text(encoding="utf-8"), content)
+        existing_text, _ = split_residue(p.read_text(encoding="utf-8"))
+        lost = handwritten_sections(existing_text, content)
         if lost:
             carried[name] = lost
+        lost_sub = handwritten_subsections(existing_text, content)
+        if lost_sub:
+            carried_sub[name] = lost_sub
 
-    if carried and on_handwritten == "refuse":
+    if (carried or carried_sub) and on_handwritten == "refuse":
         detail = "; ".join(f"{name}: {' / '.join(heads)}" for name, heads in sorted(carried.items()))
+        if carried_sub:
+            sub_detail = "; ".join(
+                f"{name}: {' / '.join(head for head, _ in subs)}"
+                for name, subs in sorted(carried_sub.items())
+            )
+            detail = f"{detail} / 小節: {sub_detail}" if detail else f"小節: {sub_detail}"
         raise CompileError(
             "生成物に無い節を持つ既存章があるため中止した (何も書いていない)。"
             f"消えるはずだった節: {detail}。"
@@ -471,15 +619,50 @@ def write_docset(
     written: list[Path] = []
     for name, content in docset.items():
         p = out_dir / name
-        before = p.read_text(encoding="utf-8") if p.is_file() else None
+        # 前回の写しは既存本文として数えず、今回の報告へ持ち越す (`split_residue` 参照)。
+        before, prior_residue = (
+            split_residue(p.read_text(encoding="utf-8")) if p.is_file() else (None, [])
+        )
         text = content if content.endswith("\n") else content + "\n"
         if name in carried:
             existing = _section_map(before or "")
             text = text.rstrip("\n") + "\n\n" + "\n".join(existing[h] for h in carried[name])
-        if loss_report is not None and before is not None:
-            lost = vanishing_lines(before, text)
-            if lost:
-                loss_report.append((name, lost))
+        if name in carried_sub:
+            # 元の生成節の内側へ差し戻さない。**正本から導けない記述であることを、章の上で
+            # 読めるようにする。**生成節へ混ぜると、正本の投影と手書きの区別が消え、次に
+            # 誰かが正本を直す動機も消える。
+            heads = ", ".join(f"`{h}`" for h, _ in carried_sub[name])
+            text = (
+                text.rstrip("\n")
+                + f"\n\n{CARRIED_HEADING}\n\n"
+                + f"> 以下の {len(carried_sub[name])} 件は正本 `spec-state.json` の `qa_ref` /"
+                + " `qa_refs` / `required_info[].grounded_by` のいずれからも導けない"
+                + f" ({heads})。compile が消さずに引き継いでいるだけで、**章が正本の投影で"
+                + "ある性質はここだけ破れている**。正本へ接続するか、不要と確かめて消すこと。\n\n"
+                + "\n".join(body for _, body in carried_sub[name])
+            )
+        residue = vanishing_lines(before, text) if before is not None else []
+        # 持ち越し分を先に置く。順序を回ごとに入れ替えると、差分が中身の変化に見える。
+        residue = [l for l in prior_residue if l not in residue] + residue
+        if loss_report is not None and residue:
+            loss_report.append((name, residue))
+        if residue:
+            # refuse でも書く。行の消失は refuse の停止条件ではない (節が無事なら通る) が、
+            # **通す回に黙って消すのはこのモジュールが一貫して避けてきたこと**である。
+            # 止めた回は既にここへ来ていないので、部分適用にはならない。
+            # **節でも小節でもない 1 行は、引き継ぐ場所が無い。**表の行を表から切り離せば
+            # 意味が壊れ、生成節へ差し戻せば正本の投影と手書きの区別が消える。そこで
+            # 本文としてではなく**報告として**章の末尾へ写す。消えはせず、表も壊れず、
+            # 正本へ戻す動機が章の上に残る。写しなので次回は `strip_residue` が落とす。
+            text = (
+                text.rstrip("\n")
+                + f"\n\n{RESIDUE_HEADING}\n\n"
+                + f"> 正本から導出できず、節・小節の引き継ぎでも守れなかった {len(residue)} 行。"
+                + "版の更新のように**正しく消える行**も混ざる。正本へ接続するか、"
+                + "不要と確かめて消すこと。この節は compile のたびに作り直す。\n\n"
+                + "\n".join(f"- `{line}`" for line in residue)
+                + "\n"
+            )
         p.write_text(text, encoding="utf-8")
         written.append(p)
     return written
