@@ -75,6 +75,62 @@ def test_projection_does_not_mutate_sources(tmp_path):
     assert state_path.read_text(encoding="utf-8") == before_state
 
 
+def test_plan_projection_derives_dependencies_from_node_ssot(tmp_path):
+    """system-dev-plannerのforward edgeを検証後、node正本から投影する。"""
+    graph = {
+        "schema_version": "1.0",
+        "nodes": [
+            {"id": "T1", "title": "root", "phase_ref": "P01", "depends_on": []},
+            {"id": "T2", "title": "middle", "phase_ref": "P02", "depends_on": ["T1"]},
+            {"id": "T3", "title": "join", "phase_ref": "P03", "depends_on": ["T1", "T2"]},
+        ],
+        "edges": [
+            {"type": "depends_on", "from": "T1", "to": "T2"},
+            {"type": "depends_on", "from": "T1", "to": "T3"},
+            {"type": "depends_on", "from": "T2", "to": "T3"},
+        ],
+    }
+    graph_path = tmp_path / "task-graph.json"
+    graph_path.write_text(json.dumps(graph, ensure_ascii=False), encoding="utf-8")
+    before = graph_path.read_bytes()
+
+    assert pts.main(["--task-graph", str(graph_path)]) == 0
+
+    assert graph_path.read_bytes() == before
+    md = (tmp_path / "task-progress.md").read_text(encoding="utf-8")
+    html = (tmp_path / "task-execution-report.html").read_text(encoding="utf-8")
+    assert "全 3 タスク・3 依存エッジ" in md
+    assert "起点タスク (依存なしで最初に着手可能): `T1`" in md
+    assert "全 3 タスク・3 依存エッジ" in html
+
+
+def test_plan_projection_rejects_unknown_and_cyclic_node_dependencies(tmp_path, capsys):
+    invalid_graphs = [
+        {
+            "nodes": [
+                {"id": "T1", "title": "root", "depends_on": []},
+                {"id": "T2", "title": "bad", "depends_on": ["UNKNOWN"]},
+            ],
+            "edges": [],
+        },
+        {
+            "nodes": [
+                {"id": "T1", "title": "a", "depends_on": ["T2"]},
+                {"id": "T2", "title": "b", "depends_on": ["T1"]},
+            ],
+            "edges": [],
+        },
+    ]
+    for index, graph in enumerate(invalid_graphs):
+        case_dir = tmp_path / str(index)
+        case_dir.mkdir()
+        graph_path = case_dir / "task-graph.json"
+        graph_path.write_text(json.dumps(graph), encoding="utf-8")
+        assert pts.main(["--task-graph", str(graph_path)]) == 2
+        assert not (case_dir / "task-progress.md").exists()
+    assert "task dependency" in capsys.readouterr().err
+
+
 def test_progress_md_generated_with_icons(tmp_path):
     graph_path, state_path = _plan(tmp_path)
     pts.main(["--task-graph", str(graph_path), "--task-state", str(state_path)])
