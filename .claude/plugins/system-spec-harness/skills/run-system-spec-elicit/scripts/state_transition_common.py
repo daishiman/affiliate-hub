@@ -20,7 +20,19 @@ FOUNDATION_U_KEYS = (
     "stakeholders", "scope", "constraints", "concrete_intents",
 )
 FOUNDATION_NA_FORBIDDEN = ("essential_purpose", "background", "goals")
-FOUNDATION_KEYS = FOUNDATION_U_KEYS + ("confirmed", "approval_ref", "provenance")
+# U4/U5 の**読み方の規則**。値そのものではなく、値をどう立て・どう判定するかを言う。
+#
+# **なぜ U キーにしないか。**U キーは確定に必須で、かつ出典の欠けを数える対象
+# (`SOURCE_GAP_SCALARS`) と対になっている。この 2 欄は新しい要求を足すのではなく、
+# 既に出典の付いた objectives / success_criteria の使い方を縛るだけなので、
+# 別枠にして必須にも上限勘定にも入れない。
+#
+# **なぜ在るか。**実測 2026-08-25: この 2 文は章 `00-requirements-definition.md` の
+# U4/U5 節に手で書かれ、正本には 1 文字も無かった。章は正本の純関数なので、
+# compile を回すたび消える。消えないよう章を手で守るのではなく、消えようのない
+# 場所を正本に用意する。
+FOUNDATION_NOTE_KEYS = ("objectives_note", "success_criteria_note")
+FOUNDATION_KEYS = FOUNDATION_U_KEYS + FOUNDATION_NOTE_KEYS + ("confirmed", "approval_ref", "provenance")
 DECISION_STATUSES = {"needs_guidance", "recommended_pending_confirmation", "confirmed"}
 DECISION_COST_CATEGORIES = {"free", "low-cost", "paid", "unknown"}
 DECISION_COMPARISON_AXES = ("goal_fit", "tco", "security", "operations", "lock_in")

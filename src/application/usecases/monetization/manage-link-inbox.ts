@@ -223,23 +223,64 @@ export function createSubmitAffiliateUrlUseCase(
 
       const normalized = normalizeAffiliateUrl(input.url);
       if (!normalized.ok) return normalized;
+      const normalizedUrl = normalized.value;
 
-      const existing = await deps.inbox.findByNormalizedUrl(actor.workspaceId, normalized.value);
-      if (!existing.ok) return existing;
+      /*
+       * 重複の判定は「先に読む」ではなく「先に取りに行く」。
+       *
+       * 読んでから入れる形だと、2 人が同時に同じ URL を貼ったときに
+       * 両方が「無い」を読み、どちらにも印が付かないまま 2 行入る。
+       * 取り合い（`claimNormalizedUrl`）は同時に呼ばれても勝ちを 1 本に
+       * 決めるので、負けた側は必ず相手を指せる。
+       *
+       * ID を先に作るのはそのため。取り合いには「誰が取ったか」が要る。
+       */
+      const id = taggedString<"LinkIngestionId">(`li_${deps.ids.newId()}`) as LinkIngestionId;
+      const claimed = await deps.inbox.claimNormalizedUrl(
+        actor.workspaceId,
+        normalizedUrl,
+        id,
+      );
+      if (!claimed.ok) return claimed;
+      const ownsClaim = String(claimed.value) === String(id);
+      async function failAfterClaim<T>(failure: Result<T, DomainError>): Promise<Result<T, DomainError>> {
+        if (!ownsClaim || failure.ok) return failure;
+        const released = await deps.inbox.releaseNormalizedUrl(
+          actor.workspaceId,
+          normalizedUrl,
+          id,
+        );
+        // 解放できないほうが後続を恒久的に塞ぐため、こちらを優先して知らせる。
+        return released.ok ? failure : released;
+      }
+
+      /*
+       * 取れなかったときだけ、相手を読みに行く。
+       *
+       * 相手の中身を渡すのは、**重複かどうかを決めるのはドメインの側**だから。
+       * 「対象外にしたものは重複相手にしない」といった決めごとが
+       * `createLinkIngestion` にあり、ここに書き写すと二重管理になる。
+       */
+      let existing: readonly LinkIngestion[] = [];
+      if (String(claimed.value) !== String(id)) {
+        const holder = await deps.inbox.findById(actor.workspaceId, claimed.value);
+        if (!holder.ok) return holder;
+        if (holder.value !== null) existing = [holder.value];
+      }
 
       const created = createLinkIngestion({
-        id: taggedString<"LinkIngestionId">(`li_${deps.ids.newId()}`),
+        id,
         workspaceId: actor.workspaceId,
         submittedUrl: input.url,
         source: input.source,
         submittedAt: new Date(),
-        existing: existing.value === null ? [] : [existing.value],
+        existing,
         note: input.note ?? null,
       });
-      if (!created.ok) return created;
+      if (!created.ok) return failAfterClaim(created);
 
       const saved = await deps.inbox.save(created.value);
-      if (!saved.ok) return saved;
+      if (!saved.ok) return failAfterClaim(saved);
 
       await emit(deps, actor, "affiliate_url.submitted", {
         linkIngestionId: String(saved.value.id),
@@ -457,6 +498,20 @@ export function createRejectLinkIngestionUseCase(
 
       const saved = await deps.inbox.save(next.value);
       if (!saved.ok) return saved;
+
+      /*
+       * 対象外にしたら、その URL の取り合いから降りる。
+       *
+       * 降ろさないと、捨てたリンクを相手に指した「重複」が次から延々と出る。
+       * 「対象外のものは重複相手にしない」という決めごと（`findDuplicate`）と、
+       * 保存先が覚えている最初の 1 本が食い違ったままになるため。
+       */
+      const released = await deps.inbox.releaseNormalizedUrl(
+        actor.workspaceId,
+        saved.value.normalizedUrl,
+        saved.value.id,
+      );
+      if (!released.ok) return released;
 
       // 対象外にしたことは出来事として流さない。
       // 受け手（商品・記事）が反応する必要がなく、流すと意味の無い連絡が増える。

@@ -1,19 +1,20 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { headers } from "next/headers";
 import type { ArticleType } from "@/domain/authoring";
 import type { RelationshipType } from "@/domain/compliance";
-import { distributionUseCases, signedInActor } from "@/presentation/composition";
+import { auditArticleForAiSearch } from "@/application/seo/ai-search-audit";
+import {
+  distributionUseCases,
+  notifyIndexNowOfPublish,
+  readerActor,
+  signedInActor,
+  siteUseCases,
+} from "@/presentation/composition";
 import type { PublishArticleFormState } from "./publish-article-state";
-import { notSignedInText } from "@/presentation/refusal-text";
-
-/** 1 行 1 件のものを配列にする。空行は落とす。 */
-function toLines(value: string): readonly string[] {
-  return value
-    .split("\n")
-    .map((line) => line.trim())
-    .filter((line) => line !== "");
-}
+import { parseNonEmptyLines } from "./non-empty-lines";
+import { failureFromDomainError, notSignedInFailure } from "./use-case-result";
 
 /**
  * 記事に添える言い切りを組み立てる。
@@ -35,6 +36,19 @@ function readClaims(formData: FormData) {
       checkedOn: (checkedOn[i] ?? "").trim(),
     }))
     .filter((claim) => claim.statement !== "");
+}
+
+/**
+ * よくある質問を読む。
+ *
+ * 問いと答えが同じ名前で複数回送られてくる（言い切りと同じ形）。
+ * **片方だけの行は捨てる**判断はユースケース側（`buildArticle`）に置いてある。
+ * ここで捨てると、AI 経路から呼んだときだけ片側だけの質問が通る。
+ */
+function readFaq(formData: FormData) {
+  const questions = formData.getAll("faqQuestion").map(String);
+  const answers = formData.getAll("faqAnswer").map(String);
+  return questions.map((question, i) => ({ question, answer: answers[i] ?? "" }));
 }
 
 /**
@@ -78,54 +92,82 @@ export async function publishArticleAction(
   if (actor === null) {
     // **`formData` を読む前に断る。** 読んでから断ると、断り文が
     // 「この欄が足りません」に化けて、押した人は欄を埋めて何度も試す。
-    return { status: "failed", message: notSignedInText("記事の公開") };
+    return notSignedInFailure("記事の公開");
   }
 
   const publicationId = String(formData.get("publicationId") ?? "");
   const relationship = String(formData.get("relationshipType") ?? "");
   const nextReviewOn = String(formData.get("nextReviewOn") ?? "").trim();
+  const siteSlug = String(formData.get("siteSlug") ?? "");
+  const slug = String(formData.get("slug") ?? "").trim();
 
   const result = await (await distributionUseCases()).publishArticle.execute(actor, {
     publicationId,
-    siteSlug: String(formData.get("siteSlug") ?? ""),
+    siteSlug,
     categorySlug: String(formData.get("categorySlug") ?? ""),
     articleType: String(formData.get("articleType") ?? "guide") as ArticleType,
-    slug: String(formData.get("slug") ?? "").trim(),
+    slug,
     title: String(formData.get("title") ?? "").trim(),
     conclusion: String(formData.get("conclusion") ?? "").trim(),
     authorName: String(formData.get("authorName") ?? "").trim(),
     authorBio: String(formData.get("authorBio") ?? "").trim(),
-    authorCredentials: toLines(String(formData.get("authorCredentials") ?? "")),
+    authorCredentials: parseNonEmptyLines(String(formData.get("authorCredentials") ?? "")),
     relationshipType: relationship === "" ? null : (relationship as RelationshipType),
     disclosureMessage: String(formData.get("disclosureMessage") ?? "").trim(),
     nextReviewOn: nextReviewOn === "" ? null : nextReviewOn,
     claims: readClaims(formData),
+    faq: readFaq(formData),
     sectionBodies: readSectionBodies(formData),
   });
 
   if (!result.ok) {
-    return {
-      status: "failed",
-      // **理由と次にすることを両方出す。**
-      // 次にすることだけを出すと「上記を直してから」のように、
-      // 見えていない文を指す案内が画面に残る。
-      // 理由だけを出すと、直し方が分からないまま止まる。
-      message:
-        result.error.suggestedAction === undefined
-          ? result.error.message
-          : `${result.error.message} ${result.error.suggestedAction}`,
-      field: result.error.field,
-    };
+    /*
+     * **理由と次にすることを両方出す。**
+     * 次にすることだけを出すと「上記を直してから」のように、
+     * 見えていない文を指す案内が画面に残る。
+     * 理由だけを出すと、直し方が分からないまま止まる。
+     *
+     * 共通変換は `refusalText()` を通すので、存在を隠す潰し
+     * （`maskExistence`）も操作ごとに書き忘れない。
+     */
+    return failureFromDomainError(result.error);
   }
 
   revalidatePath(`/admin/distribution/${publicationId}`);
   revalidatePath("/admin/distribution");
   revalidatePath(result.value.url);
 
+  // 公開できた記事を IndexNow で検索エンジンへ知らせる（feat-blog-ui-builder §SEO/AI 検索）。
+  // 通知は公開の条件ではない。skipped/failed でも公開の結果は変えず、記録だけ残す。
+  // origin は届いたリクエストから作る（環境変数に持つと環境ごとの値がずれたまま気づけない）。
+  const requestHeaders = await headers();
+  const host = requestHeaders.get("host");
+  if (host !== null) {
+    const proto = requestHeaders.get("x-forwarded-proto") ?? "https";
+    const origin = `${proto}://${host}`;
+    const notice = await notifyIndexNowOfPublish(origin, [`${origin}${result.value.url}`]);
+    // 鍵はこの経路に現れない（submitToIndexNow の契約）。状態だけを記録する。
+    console.info(JSON.stringify({ event: "indexnow_publish", ...notice }));
+  }
+
+  // 公開した記事を**読者と同じ読み取り口**から読み直し、AI 検索への備え
+  // （結論が先か・更新日・著者・出典・説明文の長さ）を点検する。
+  // 点検は公開の条件ではない。読み直せなかったときは点検ごと出さない
+  // （送った値から推測で点検すると、保存で変わった形とずれた診断を出す）。
+  let aiSearch: PublishArticleFormState["aiSearch"];
+  if (siteSlug !== "" && slug !== "") {
+    const published = await (await siteUseCases()).getArticle.execute(readerActor(), {
+      siteSlug,
+      slug,
+    });
+    if (published.ok) aiSearch = auditArticleForAiSearch(published.value);
+  }
+
   return {
     status: "done",
     message: "記事を公開しました。下のリンクから、読者に見える形を確かめられます。",
     url: result.value.url,
     skipped: result.value.skipped,
+    aiSearch,
   };
 }

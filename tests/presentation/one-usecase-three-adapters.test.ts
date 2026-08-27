@@ -12,6 +12,7 @@ import { buildToolCatalog } from "@/presentation/tools/catalog";
 import { handleToolRequest, describeTools } from "@/presentation/tools/rest-adapter";
 import { handleJsonRpc } from "@/presentation/tools/mcp-adapter";
 import { toWebMcpTools } from "@/presentation/tools/webmcp-adapter";
+import { WEBMCP_LISTED_TOOLS, isListedOnWebMcp } from "@/presentation/tools/webmcp-policy";
 import type {
   EditorialRankingModelRepositoryPort,
   EditorialScoreCardRepositoryPort,
@@ -80,6 +81,7 @@ const actor: ActorContext = {
   workspaceId,
   userId: "u_1",
   roles: ["owner"],
+  scopedBrandIds: [],
   isAiServiceAccount: false,
   // 身元を確かめてある人。ここは権限の検査で、ログインの有無は見ていない。
   identified: true,
@@ -107,21 +109,34 @@ describe("1つのユースケース、3つの入口", () => {
     expect(parsed.ranked[0]?.productId).toBe("p_high");
   });
 
-  it("WebMCP には読み取り専用のツールだけが載る", () => {
+  /**
+   * **WebMCP に載るのは、表（`PAGE_TOOLS`）に名前があるものだけ。**
+   *
+   * ここは以前 `rank_products` が載ることを固定していた。あれが載っていたのは
+   * 表に書いたからではなく、**`readOnly: true` と書いてあったから**である。
+   * 旗を根拠にしていたので、読み取りの道具はどれも黙って候補に入っていた。
+   * `rank_products` はどのページにも置いていないので、いまは載らないのが正しい。
+   */
+  it("WebMCP には表に名前のあるツールだけが載る", () => {
     const tools = toWebMcpTools(catalog);
-    expect(tools.map((t) => t.name)).toContain("rank_products");
+    expect(tools.map((t) => t.name)).not.toContain("rank_products");
+    expect(tools.length).toBeGreaterThan(0);
     for (const t of tools) {
-      const inCatalog = catalog.find((c) => c.name === t.name);
-      expect(inCatalog?.readOnly).toBe(true);
+      expect(isListedOnWebMcp(t.name), `${t.name} は表にありません`).toBe(true);
     }
   });
 
   it("3つの入口が配る入力の形は同一", () => {
-    const rest = describeTools(catalog).find((t) => t.name === "rank_products");
-    const web = toWebMcpTools(catalog).find((t) => t.name === "rank_products");
-    const definition = catalog.find((t) => t.name === "rank_products");
-    expect(rest?.inputSchema).toEqual(definition?.inputSchema);
-    expect(web?.inputSchema).toEqual(definition?.inputSchema);
+    // WebMCP だけは表にある道具で見る（`rank_products` は載らない）。
+    const listed = [...WEBMCP_LISTED_TOOLS][0]!;
+    for (const name of ["rank_products", listed]) {
+      const definition = catalog.find((t) => t.name === name);
+      expect(describeTools(catalog).find((t) => t.name === name)?.inputSchema).toEqual(
+        definition?.inputSchema,
+      );
+    }
+    const web = toWebMcpTools(catalog).find((t) => t.name === listed);
+    expect(web?.inputSchema).toEqual(catalog.find((t) => t.name === listed)?.inputSchema);
   });
 
   it("入力の誤りは、直し方の分かる日本語で返る", async () => {
@@ -139,5 +154,31 @@ describe("1つのユースケース、3つの入口", () => {
     const otherActor: ActorContext = { ...actor, workspaceId: "ws_other" as WorkspaceId };
     const response = await handleToolRequest(catalog, otherActor, "rank_products", args);
     expect(response.status).toBe(404);
+  });
+
+  /*
+   * 上の 1 件は **REST の入口しか通っていない**。
+   * REQ-API02 が言っているのは「入口ごとにテナント判定がずれない」ことなので、
+   * 1 つの入口で断れることは、残りの入口で断れることを何も言っていない。
+   * `docs/product/traceability.md` U 節はこの要件を
+   * `tests/property/tenancy.property.test.ts` の担当としていたが、
+   * あの試験は `assertSameTenant` を直に呼ぶだけで、入口を 1 つも通らない
+   * （2026-08-21 に読んで確かめた ＝ `TM04` 型）。
+   */
+  it("バックエンド MCP の入口も、他の作業場所のデータを返さない", async () => {
+    const otherActor: ActorContext = { ...actor, workspaceId: "ws_other" as WorkspaceId };
+    const rpc = await handleJsonRpc(catalog, otherActor, {
+      jsonrpc: "2.0",
+      id: 1,
+      method: "tools/call",
+      params: { name: "rank_products", arguments: args },
+    });
+    const result = rpc.result as { isError?: boolean; content: { text: string }[] };
+    const text = result.content.map((c) => c.text).join("\n");
+    // 順位が返ってこないこと（他社の商品IDが混ざらない）。
+    expect(text).not.toContain("p_high");
+    expect(result.isError).toBe(true);
+    // REST と同じ扱い（404 = 見つからない）に揃っていること。権限の話に落とさない。
+    expect(text).toContain("status: 404");
   });
 });

@@ -207,7 +207,7 @@ describe("監査ログ", () => {
   });
 
   it("AI の操作は主体が特定できるので記録できる", () => {
-    const r = entry({ actor: ai, action: "content.created" });
+    const r = entry({ actor: ai, action: "content.state_changed" });
     expect(r.ok).toBe(true);
     if (r.ok) expect(r.value.actor.modelId).toBe("model-x");
   });

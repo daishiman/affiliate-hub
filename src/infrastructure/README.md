@@ -43,7 +43,7 @@ return { searchProducts: () => stubCall(entry, "searchProducts") };
 
 | フォルダ | 中身 | 状態 |
 | --- | --- | --- |
-| `platform/` | ID 生成・ログ・秘密の取り出し・KV・R2・Queue | 実装済み（署名付きURLのみスタブ） |
+| `platform/` | ID 生成・ログ・秘密の取り出し・KV・R2・Queue | 実装済み（署名付きURLは**使わないと決めた**ので仮のまま。`docs/product/design-decisions.md` §5） |
 | `asp/` | ASP アダプタと登録所 | 登録所は実装済み、各 ASP はスタブ |
 | `llm/` | 生成 AI アダプタとプロンプト組み立て | 組み立てと費用概算は実装済み、送信はスタブ |
 | `channels/` | 配信コネクタと書き出し | 書き出しは実装済み、送信はスタブ |

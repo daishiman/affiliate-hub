@@ -132,6 +132,7 @@ describe("Membership（E03）: 役割の数の端", () => {
     id: taggedString<"MembershipId">("mb-1"),
     workspaceId: WS,
     userId: asUserId("u-1"),
+    invitedEmail: "editor@example.com",
     displayName: "編集担当",
     invitedAt: NOW,
   };
@@ -693,6 +694,7 @@ describe("Publication（E27）: 再送回数の端", () => {
     id: asPublicationId("pb-1"),
     workspaceId: WS,
     variantId: asContentVariantId("cv-1"),
+    variantRevision: 1,
     channelKind: "x" as const,
     connectionId: asChannelConnectionId("ch-1"),
     idempotencyKey: "pb-1:key",

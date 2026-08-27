@@ -33,13 +33,12 @@ import { SAMPLE_PRODUCTS, SAMPLE_WORKSPACE_ID } from "./ranking-sample-repositor
  */
 const stub = registerStub({
   id: "persistence:product-sample",
-  port: "商品・主張・根拠・検証記録の保存先",
-  label: "商品と根拠（見本データ）",
-  // 先に来るのは表ではなく入口。商品・主張・根拠を登録する画面と操作がまだ無く、
-  // どのユースケースからも `save` が呼ばれていない。ここで保存先だけ本物にしても、
-  // 中身を作る手段が無いので、開いた人には常に空の一覧が出るだけになる。
-  blockedBy:
-    "商品・主張・根拠を登録する入口（画面と操作）の追加。そのうえで products / claims / evidence / test_runs テーブルの追加とマイグレーション",
+  port: "商品の保存先",
+  label: "商品（見本データ）",
+  // 主張・根拠・検証記録は 2026-08-26 に本物へ差し替えた（claims / evidence_records /
+  // test_runs と `/admin/evidence/**` の登録の口）。ここに残っているのは商品だけ。
+  // 先に来るのは表ではなく入口、という順は変えない。
+  blockedBy: "products テーブルの追加とマイグレーション",
 });
 
 export function sampleProductNotice(): string {
@@ -122,6 +121,17 @@ function build(id: ProductId, name: string): Product {
 
 const PRODUCTS: readonly Product[] = SAMPLE_PRODUCTS.map((p) => build(p.id, p.name));
 
+/**
+ * 見本の 4 商品。**保存先が本物（D1）のときも、これを重ねて返す。**
+ *
+ * 順位表と比較表の見本が同じ 4 商品を指しているため、ここだけ消すと
+ * 「順位表には出るのに商品ページが無い」というちぐはぐが起きる。
+ * 重ね方は `d1/storage-failure.ts` の `mergeWithSamples`（保存分が勝つ）。
+ */
+export function sampleProducts(): readonly Product[] {
+  return PRODUCTS;
+}
+
 // --- 根拠と主張 ------------------------------------------------------------
 
 function evidenceOf(id: string, title: string, owner: string, summary: string): Evidence {
@@ -141,7 +151,13 @@ function evidenceOf(id: string, title: string, owner: string, summary: string): 
   return built.value;
 }
 
-const EVIDENCE: readonly Evidence[] = [
+/**
+ * 見本の根拠。保存先（D1）が見本を消さずに重ねるために読む。
+ *
+ * 消さないのは、まだ 1 件も登録していない状態で一覧が空になると、
+ * 「まだ登録していない」のか「壊れている」のかを画面から見分けられないため。
+ */
+export const SAMPLE_EVIDENCE: readonly Evidence[] = [
   evidenceOf(
     "ev_export_time",
     "同一素材の書き出し時間（3回の中央値）",
@@ -184,7 +200,8 @@ function claimOf(
  * **事実（measured）と推測（inference）を必ず混ぜてある。**
  * 画面が両者を同じ見た目で出してしまう不具合を、見本の時点で見つけるため。
  */
-const CLAIMS_BY_PRODUCT: Readonly<Record<string, readonly Claim[]>> = {
+/** 同上。商品との紐付けは保存先の関心事なので、見本でも表の形で持つ。 */
+export const CLAIMS_BY_PRODUCT: Readonly<Record<string, readonly Claim[]>> = {
   p_alpha_15: [
     claimOf("cl_alpha_export", "4K10分の素材を6分12秒で書き出せます。", "measured", ["ev_export_time"], 0.9),
     claimOf("cl_alpha_fit", "1日中持ち歩く用途にも耐えると考えられます。", "inference", [], 0.6),
@@ -240,6 +257,15 @@ export function createSampleProductRepository(): EditorialProductRepositoryPort 
     async save() {
       return saveRejected("商品");
     },
+    /**
+     * 削除も同じ理由で断る。
+     *
+     * **成功したふりをしない。** 見本はコードの中にあるので、消えたと返しても
+     * 次に開けばまた居る。保存できない保管庫は消すこともできない、が正しい。
+     */
+    async remove() {
+      return saveRejected("商品");
+    },
   });
 }
 
@@ -259,21 +285,24 @@ export function createSampleClaimRepository(): EditorialClaimRepositoryPort {
     async save() {
       return saveRejected("主張");
     },
+    async saveForProduct() {
+      return saveRejected("主張");
+    },
   });
 }
 
 export function createSampleEvidenceRepository(): EditorialEvidenceRepositoryPort {
   return markEditorial({
     async findById(_ws: WorkspaceId, id: EvidenceId) {
-      return ok(EVIDENCE.find((e) => e.id === id) ?? null);
+      return ok(SAMPLE_EVIDENCE.find((e) => e.id === id) ?? null);
     },
     async listByIds(_ws: WorkspaceId, ids: readonly EvidenceId[]) {
       const wanted = new Set(ids.map(String));
-      return ok(EVIDENCE.filter((e) => wanted.has(String(e.id))));
+      return ok(SAMPLE_EVIDENCE.filter((e) => wanted.has(String(e.id))));
     },
     async search(_ws: WorkspaceId, query: { text?: string }, page: PageRequest) {
       const text = query.text?.trim().toLowerCase() ?? "";
-      const items = EVIDENCE.filter(
+      const items = SAMPLE_EVIDENCE.filter(
         (e) => text === "" || `${e.title} ${e.excerptOrSummary}`.toLowerCase().includes(text),
       ).slice(0, page.limit);
       return ok({ items, nextCursor: null });

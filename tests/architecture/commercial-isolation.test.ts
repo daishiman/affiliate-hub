@@ -50,6 +50,17 @@ describe("Editorial / Commercial の遮断", () => {
     expect(() => createRankProductsUseCase(deps)).toThrow(/商業データ/);
   });
 
+  it("順位づけは、編集の印が無いつなぎ目を受け取らない", () => {
+    // 型を外したうえで印を付け忘れた場合。実行時の印は、まさにこの回を
+    // 捕まえるために置いてある。印無しを通すと、二段目が無い状態になる。
+    const deps = {
+      rankingModels: { ...stubModels } as unknown as EditorialRankingModelRepositoryPort,
+      scoreCards: markEditorial({ ...stubCards }) as unknown as EditorialScoreCardRepositoryPort,
+    };
+    expect(() => createRankProductsUseCase(deps)).toThrow(/編集データの印/);
+    expect(() => createRankProductsUseCase(deps)).toThrow(/rankingModels/);
+  });
+
   it("つなぎ目一式をまるごと渡すことは、型として許されない", () => {
     // この 1 行が「型で止まっている」ことの機械的な証拠。
     // 守りが外れると @ts-expect-error が余分になり、型検査が失敗する。
@@ -79,23 +90,22 @@ describe("Editorial / Commercial の遮断", () => {
   /**
    * 印（editorial / commercial / 無し）× 渡し先（順位づけ / 提携）の**総当たり**。
    *
-   * 上の 4 件は 6 通りのうち 4 通りしか通っていない。空いていたのは
-   * 「印が無いものを順位づけへ渡す」と「editorial 印を提携へ渡す」で、
-   * どちらも**印の付け忘れがそのまま通る**側である。2026-08-19 に、提携側の
-   * 判定式 `readDataClass(deps[key]) !== "commercial"` を常に偽へ変えて測ったところ、
-   * この describe の 6 件すべてが緑だった（そのときの 4 件では届いていなかった）。
+   * 2026-08-19 に測ったとき、6 通りのうち「印無しを順位づけへ渡す」1 通りだけが
+   * 期待と食い違っていた。順位づけ側が `containsCommercial` だけを見ており、
+   * **商業と名乗っているものしか落とさなかった**ためである。
+   *
+   * 2026-08-21 に**両方の入口を同じ向き（印が無ければ落とす）へ揃えた**。
+   * 実行時の印は `as any` 相当で型を外した回を捕まえるために置いたもので、
+   * その回はたいてい印も付いていない。付いていないものを通す形だと、
+   * いちばん効いてほしい場面で二段目が無くなる。表はもう非対称ではない。
    *
    * 期待は**表として先に書く**。実装から作ると、印の意味が変わったとき期待も一緒に動く。
    */
   const 期待 = [
     { 印: "editorial", 渡し先: "順位づけ", 通る: true },
     { 印: "commercial", 渡し先: "順位づけ", 通る: false },
-    // ここだけ非対称である。提携側は「商業の印が無い」を落とすのに、
-    // 順位づけ側は「商業と名乗っているもの」しか落とさないので、**印無しは通る**。
-    // 型（`Editorial<T>`）が止めるので設計としては一貫しているが、
-    // `as any` で型を外したうえで印を付け忘れた場合は、二段目も素通りする。
-    // 実測でこの 1 通りだけが期待と食い違ったので、実態を表に書いた（残課題 87）。
-    { 印: "無し", 渡し先: "順位づけ", 通る: true },
+    // 印無しも落とす（fail-closed）。順位づけ側 `RANKING_DATA_PORTS` の判定。
+    { 印: "無し", 渡し先: "順位づけ", 通る: false },
     { 印: "editorial", 渡し先: "提携", 通る: false },
     { 印: "commercial", 渡し先: "提携", 通る: true },
     { 印: "無し", 渡し先: "提携", 通る: false },

@@ -47,7 +47,7 @@ export async function checkFactBoundaryAction(
     };
   }
 
-  const result = await personaUseCases().checkFactBoundary.execute(actor, {
+  const result = await (await personaUseCases()).checkFactBoundary.execute(actor, {
     personaId,
     body,
   });

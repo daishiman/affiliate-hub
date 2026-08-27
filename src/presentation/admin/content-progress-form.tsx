@@ -2,7 +2,7 @@
 
 import { useActionState, useState } from "react";
 import { type ContentState, isUnpublishing } from "@/domain/authoring";
-import { Button, Callout, Select, TextArea, ToolForm } from "@/presentation/ui";
+import { Button, Callout, FormValue, Select, TextArea, ToolForm } from "@/presentation/ui";
 import { advanceContentStateAction, approveContentAction } from "./content-progress-action";
 import { INITIAL_CONTENT_PROGRESS_STATE } from "./content-progress-state";
 
@@ -32,10 +32,7 @@ export function AdvanceContentStateForm({
   readonly from: string;
   readonly nextStates: readonly ContentNextState[];
 }) {
-  const [state, action, pending] = useActionState(
-    advanceContentStateAction,
-    INITIAL_CONTENT_PROGRESS_STATE,
-  );
+  const [state, action, pending] = useActionState(advanceContentStateAction, INITIAL_CONTENT_PROGRESS_STATE);
   const [to, setTo] = useState("");
   const [reason, setReason] = useState("");
 
@@ -52,13 +49,9 @@ export function AdvanceContentStateForm({
   const unpublishing = isUnpublishing(from as ContentState, to as ContentState);
 
   return (
-    <ToolForm
-      action={action}
-      toolName="advance_content_state"
-      toolDescription="記事の段階を次へ進める"
-    >
-      <input type="hidden" name="variantId" value={variantId} />
-      <input type="hidden" name="from" value={from} />
+    <ToolForm action={action} toolName="advance_content_state" toolDescription="記事の段階を次へ進める">
+      <FormValue name="variantId" value={variantId} />
+      <FormValue name="from" value={from} />
 
       {choices.length === 0 ? (
         // 空の選択肢を置かない。押せない理由が書いていないと、故障に見える。
@@ -117,10 +110,7 @@ export function AdvanceContentStateForm({
  * 段階の選び直しと同じ見た目にすると、選択肢の 1 つとして押される。
  */
 export function ApproveContentForm({ variantId }: { readonly variantId: string }) {
-  const [state, action, pending] = useActionState(
-    approveContentAction,
-    INITIAL_CONTENT_PROGRESS_STATE,
-  );
+  const [state, action, pending] = useActionState(approveContentAction, INITIAL_CONTENT_PROGRESS_STATE);
   const [reason, setReason] = useState("");
 
   return (
@@ -129,7 +119,7 @@ export function ApproveContentForm({ variantId }: { readonly variantId: string }
       toolName="approve_content"
       toolDescription="内容を確認した人が、この記事を承認する"
     >
-      <input type="hidden" name="variantId" value={variantId} />
+      <FormValue name="variantId" value={variantId} />
 
       {/*
         理由を必須にしているのは、承認の記録に残すため。

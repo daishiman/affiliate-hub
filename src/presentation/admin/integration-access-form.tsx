@@ -2,9 +2,21 @@
 
 import { useActionState, useState } from "react";
 import { KEY_SCOPES, KEY_SCOPE_LABELS } from "@/domain/feedback";
-import { Button, Callout, CheckboxGroup, Field } from "@/presentation/ui";
+import { Button, Callout, CheckboxGroup, Field, FormValue, HumanOnlyForm } from "@/presentation/ui";
 import { manageIntegrationAccessAction } from "./feedback-action";
 import { INITIAL_INTEGRATION_ACCESS_STATE } from "./feedback-state";
+
+/**
+ * 鍵の発行と失効を AI から呼べなくしている理由。`HumanOnlyForm` が要求する。
+ *
+ * ここを `ToolForm` にすると、**AI が自分の使う鍵を自分で発行できる**ことになる。
+ * 発行された値は 1 度だけ画面に返るので、AI が呼べば AI がその値を読む。
+ * 権限の範囲を自分で決められる主体は、権限の外へ出る手段を持つのと変わらない。
+ */
+const HUMAN_ONLY_REASON =
+  "鍵の発行は権限そのものを作る操作で、発行された値は 1 度だけ呼び出し元へ返る。" +
+  "AI から呼べると、AI が自分の権限を自分で発行し、その値を読めることになる。" +
+  "失効も同じ経路にあるため、片方だけを人に限っても意味を成さない。";
 
 /**
  * 取りに来るときの鍵を発行する・失効させる。
@@ -28,8 +40,8 @@ export function IssueIntegrationAccessForm() {
   const [scopes, setScopes] = useState<readonly string[]>(["read"]);
 
   return (
-    <form action={action}>
-      <input type="hidden" name="intent" value="issue" />
+    <HumanOnlyForm action={action} reason={HUMAN_ONLY_REASON}>
+      <FormValue name="intent" value="issue" />
 
       <Field
         name="label"
@@ -42,7 +54,10 @@ export function IssueIntegrationAccessForm() {
       <CheckboxGroup
         name="scopes"
         label="この鍵でできること"
-        options={KEY_SCOPES.map((s) => ({ value: s, label: KEY_SCOPE_LABELS[s] }))}
+        options={KEY_SCOPES.map((s) => ({
+          value: s,
+          label: KEY_SCOPE_LABELS[s],
+        }))}
         selected={scopes}
         onSelectedChange={setScopes}
         error={state.field === "scopes" ? state.message : null}
@@ -66,32 +81,26 @@ export function IssueIntegrationAccessForm() {
       {state.status === "failed" && state.field === undefined ? (
         <Callout tone="warn" reason={state.message} />
       ) : null}
-    </form>
+    </HumanOnlyForm>
   );
 }
 
 /** 1 本を失効させる。押した先で何が起きるかを、押す前に書いておく。 */
-export function RevokeIntegrationAccessForm({
-  id,
-  label,
-}: {
-  readonly id: string;
-  readonly label: string;
-}) {
+export function RevokeIntegrationAccessForm({ id, label }: { readonly id: string; readonly label: string }) {
   const [state, action, pending] = useActionState(
     manageIntegrationAccessAction,
     INITIAL_INTEGRATION_ACCESS_STATE,
   );
 
   return (
-    <form action={action}>
-      <input type="hidden" name="intent" value="revoke" />
-      <input type="hidden" name="id" value={id} />
+    <HumanOnlyForm action={action} reason={HUMAN_ONLY_REASON}>
+      <FormValue name="intent" value="revoke" />
+      <FormValue name="id" value={id} />
       <Button type="submit" tone="secondary" busy={pending} busyLabel="失効させています">
         「{label}」を失効させる
       </Button>
       {state.status === "done" ? <Callout tone="success" reason={state.message} /> : null}
       {state.status === "failed" ? <Callout tone="warn" reason={state.message} /> : null}
-    </form>
+    </HumanOnlyForm>
   );
 }

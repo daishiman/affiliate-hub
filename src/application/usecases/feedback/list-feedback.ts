@@ -12,6 +12,7 @@ import {
 import { requireCapability } from "@/domain/identity";
 import { type ActorContext, type DomainError, type Result, ok } from "@/domain/shared";
 import type { UseCase } from "../usecase";
+import { ensureFeedbackAccess } from "./feedback-access";
 
 /**
  * 改善要望の一覧。
@@ -94,7 +95,8 @@ export function createListFeedbackUseCase(
       const queried = await deps.repository.list(actor.workspaceId, input);
       if (!queried.ok) return queried;
 
-      const rows = [...queried.value]
+      const rows = queried.value
+        .filter((report) => ensureFeedbackAccess(actor, report).ok)
         .sort((a, b) => b.submittedAt.getTime() - a.submittedAt.getTime())
         .map(toRow);
 

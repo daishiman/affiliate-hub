@@ -1,10 +1,22 @@
-import Link from "next/link";
+import type { Metadata } from "next";
 import { readerActor, siteUseCases } from "@/presentation/composition";
+import { siteHomeMetadata } from "@/presentation/site/site-metadata";
 import { SiteFrame } from "@/presentation/site/page-frame";
+import { BlogTopBands } from "@/presentation/site/blog-top-bands";
 import { siteHref, toArticleCards } from "@/presentation/site/view-model";
-import { ArticleList, ErrorView, SitePage, UI_COPY } from "@/presentation/ui";
+import { ArticleList, ErrorView, ListView, Section, SitePage, UI_COPY } from "@/presentation/ui";
 
 export const dynamic = "force-dynamic";
+
+/** ブログ名と目的を検索結果・SNS・AI 検索へ渡す。設計図が正本。 */
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ site: string }>;
+}): Promise<Metadata> {
+  const { site } = await params;
+  return siteHomeMetadata(site);
+}
 
 /**
  * ブログのトップ。
@@ -17,22 +29,35 @@ export default async function SiteHome({ params }: { params: Promise<{ site: str
   const recent = await (await siteUseCases()).listRecent.execute(readerActor(), { siteSlug: site });
 
   return (
-    <SiteFrame siteSlug={site} currentPath={siteHref(site, "/")} pageKind="site_home">
-      {({ blueprint }) => (
+    <SiteFrame siteSlug={site} currentPath={siteHref(site, "/")} pageKind="site_home" sidebar>
+      {({ blueprint, projection }) => (
         <SitePage title={blueprint.name} lead={blueprint.purpose} wide>
-          <section>
-            <h2>カテゴリー</h2>
-            <ul>
-              {blueprint.categories.map((c) => (
-                <li key={c.slug}>
-                  <Link href={siteHref(site, `/categories/${c.slug}`)}>{c.name}</Link> — {c.oneLine}
-                </li>
-              ))}
-            </ul>
-          </section>
+          {/*
+            管理画面で並べた帯。保存された順番・見出し・件数のとおりに描く。
+            まだ 1 本も設定していないブログでは何も出ず、下の既定の並びだけになる。
+          */}
+          <BlogTopBands
+            siteSlug={site}
+            projection={projection}
+            categories={blueprint.categories.map((c) => ({
+              slug: c.slug,
+              name: c.name,
+              oneLine: c.oneLine,
+            }))}
+          />
 
-          <section>
-            <h2>新着</h2>
+          <Section title="カテゴリー">
+            <ListView
+              rows={blueprint.categories.map((c) => ({
+                key: c.slug,
+                label: c.name,
+                href: siteHref(site, `/categories/${c.slug}`),
+                note: c.oneLine,
+              }))}
+            />
+          </Section>
+
+          <Section title="新着">
             {recent.ok ? (
               <ArticleList
                 articles={toArticleCards(site, recent.value)}
@@ -45,7 +70,7 @@ export default async function SiteHome({ params }: { params: Promise<{ site: str
                 body={recent.error.suggestedAction ?? recent.error.message}
               />
             )}
-          </section>
+          </Section>
         </SitePage>
       )}
     </SiteFrame>

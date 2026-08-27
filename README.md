@@ -32,6 +32,7 @@
 - 複数 ASP にまたがる案件情報と成果データを 1 か所に集約する
 - 収益の推移を確認できるダッシュボードを提供する
 - 同じデータを **MCP 経由で AI エージェントからも操作できる**
+- 管理画面はログインしていないと開けない。データは作業場所（Workspace）ごとに分かれる（Google ログインの本番実往復は未検証）
 
 ## 技術スタック
 
@@ -42,6 +43,7 @@
 | データベース | Cloudflare D1 + Drizzle ORM |
 | オブジェクトストレージ | Cloudflare R2 |
 | AI 連携 | Remote MCP (`/api/mcp`) + WebMCP (`navigator.modelContext`) |
+| 認証 | Better Auth + Google OAuth（本番実往復は未検証） |
 
 ## セットアップ
 
@@ -68,6 +70,18 @@ feature/xxx ──PR──▶ dev ──自動デプロイ──▶ 開発環境
                      └──PR──▶ main ──自動デプロイ──▶ 本番
 ```
 
+**main への PR は `dev` からしか出せません**（`branch-flow.yml` が見ています）。
+作業ブランチから main へ直接出すと落ちます。本番だけが壊れていて急ぐときは、
+枝の名前を `hotfix/...` にすると通りますが、**マージしたら `main` を `dev` へ戻してください**。
+
+```
+git push origin origin/main:dev
+```
+
+戻し忘れると dev だけが古いまま取り残されます。実際 2026-08-21 に、
+#12〜#18 が dev を素通りした結果、dev が main から 451 コミット遅れ、
+開発環境では `/admin` も `/s` も 404 になっていました。
+
 インフラは環境ごとに完全に分離しています。
 
 | | 開発環境 | 本番 |
@@ -88,6 +102,34 @@ feature/xxx ──PR──▶ dev ──自動デプロイ──▶ 開発環境
 > （＝ dev のリソース）を見に行き、本番の DB 名を渡しても "Couldn't find a D1 DB" になります。
 > `db:migrate:*` はバインディング名 `DB` + `--env` で指定しています。
 
+### 問い合わせフォームの Turnstile 設定
+
+ローカルでは `.dev.vars.example` を `.dev.vars` へコピーし、次の 3 項目を設定します。
+dev・本番では Cloudflare Dashboard の対象 Worker → **Settings → Variables and Secrets** に
+同じ名前で登録します。`TURNSTILE_SECRET` は必ずSecretにします。公開値の残り2つはVariableでも
+動きますが、現在のdev・本番は3項目とも`secret_text`として登録済みです。
+
+| 名前 | 用途 | 値の形 |
+| --- | --- | --- |
+| `TURNSTILE_SITE_KEY` | ブラウザへ渡す公開 site key | Turnstile widget の site key（VariableまたはSecret） |
+| `TURNSTILE_SECRET` | Siteverify のサーバー検証 | Turnstile widget の secret key（Secret として登録） |
+| `TURNSTILE_HOSTNAMES` | Siteverify 応答で許可する host | カンマ区切り。VariableまたはSecret |
+
+widget の action は `turnstile-spin-v2`、応答 field は標準の
+`cf-turnstile-response` です。サーバーは Siteverify に `remoteip` を検証時だけ渡し、
+生の IP アドレスは保存しません。3 項目のいずれかが欠ける環境は安全側に送信を拒否します。
+
+`affiliate-hub-contact` widget は dev・本番・localhost を許可して作成済みで、dev・本番
+Worker の上記 3 項目も登録済みです。ローカルの dummy key による widget 契約と
+Siteverify 疎通は PASS です。2026-08-27 に dev D1 を migration 0039 まで適用して現コードを
+devへ公開し、公開HTMLのsitekey・`turnstile-spin-v2` action・公式scriptと、実secretによる
+不正tokenの拒否（`invalid-input-response`）まで確認しました。`contact_messages` 表もあり、
+送信前の行数は0件です。
+
+実widget token→Siteverify成功→D1保存は **NOT RUN** のままです。人の通常ブラウザでdevの
+問い合わせを1件送信し、action/hostnameとD1行を照合するまで本番確認済みとは扱いません。
+productionのmigration・deployはdevの成功確認と別承認の後に行います。
+
 ## スクリプト
 
 | コマンド | 用途 |
@@ -105,12 +147,30 @@ feature/xxx ──PR──▶ dev ──自動デプロイ──▶ 開発環境
 | ワークフロー | トリガー | 内容 |
 | --- | --- | --- |
 | `ci.yml` | `dev` / `main` への PR | lint → build → typecheck → マイグレーション未生成の検出 |
-| `deploy-dev.yml` | `dev` へ push | dev D1 にマイグレーション → dev へデプロイ |
-| `deploy-prod.yml` | `main` へ push | 本番 D1 にマイグレーション → 本番へデプロイ |
+| `branch-flow.yml` | `main` への PR | 比較元が `dev`（か `hotfix/*`）であることの確認 |
+| `deploy.yml` | `dev` / `main` へ push | 枝で出し先が決まる（`dev`→開発環境 / `main`→本番）。控えを取ってからデータの形も合わせる |
+| `migrate.yml` | 手動実行 | 指定した環境の D1 にマイグレーションを適用（公開と切り離して形だけ変えたいとき） |
 
 **マイグレーションは必ずデプロイの前**に走ります。逆順だと新しいコードが存在しないカラムを
 参照する瞬間が生まれるためです。つまり後方互換なマイグレーション（カラム追加は可、
 削除は 2 段階）が前提です。
+
+> **順番の守らせ方は、出し先で変わりません。**
+>
+> `deploy.yml` は dev / 本番のどちらでも同じ順番で走ります。
+> **控えを取る → 中身が空でないことを確かめる → 適用する → 未適用 0 件を確かめる。**
+> 控えが取れなければ、そこで止まって適用へ進みません。
+>
+> **本番で人が立つのは、この並びの手前です。** `environment: production` に承認者を
+> 登録してあるので、マージしても**人が承認するまで公開の job そのものが始まりません**。
+> 判断してほしいのは「出してよいか」であって、「控えを取ったか」ではありません。
+> 後者は毎回同じ手順なので、人の記憶より順番に守らせるほうが取り違えが起きません。
+>
+> `migrate.yml`（手動実行 + `APPLY`）は残っています。
+> 公開とは別に、先にデータの形だけ変えたいときに使います。
+>
+> 2026-08-21 に本番の入口が 500 になったのは、コードだけが進んでデータの形が古かったため
+> でした（`0004`〜`0017` が未適用のまま公開された）。順番を機械に守らせているのはこのためです。
 
 ### ブランチ保護
 

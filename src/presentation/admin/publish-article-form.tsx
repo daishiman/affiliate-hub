@@ -2,7 +2,7 @@
 
 import { useActionState, useState } from "react";
 import type { PublishArticleFormOptions } from "@/application/usecases/site/publish-article";
-import { Button, Field, Select, TextArea, ToolForm } from "@/presentation/ui";
+import { Button, Field, FormValue, Select, TextArea, ToolForm } from "@/presentation/ui";
 import { publishArticleAction } from "./publish-article-action";
 import { PublishArticleResult } from "./publish-article-result";
 import { INITIAL_PUBLISH_ARTICLE_STATE } from "./publish-article-state";
@@ -22,6 +22,11 @@ const EMPTY_CLAIM: ClaimDraft = {
   checkedOn: "",
 };
 
+/** よくある質問 1 件ぶんの入力。画面の中だけで使う形。 */
+type FaqDraft = { readonly question: string; readonly answer: string };
+
+const EMPTY_FAQ: FaqDraft = { question: "", answer: "" };
+
 /**
  * 「いまサイトに出す」欄。
  *
@@ -40,17 +45,12 @@ export function PublishArticleForm({
   readonly publicationId: string;
   readonly options: PublishArticleFormOptions;
 }) {
-  const [state, action, pending] = useActionState(
-    publishArticleAction,
-    INITIAL_PUBLISH_ARTICLE_STATE,
-  );
+  const [state, action, pending] = useActionState(publishArticleAction, INITIAL_PUBLISH_ARTICLE_STATE);
 
   const firstType = options.articleTypes[0];
   const [articleType, setArticleType] = useState<string>(firstType?.value ?? "");
   const [siteSlug, setSiteSlug] = useState(options.siteOptions[0]?.slug ?? "");
-  const [categorySlug, setCategorySlug] = useState(
-    options.siteOptions[0]?.categories[0]?.slug ?? "",
-  );
+  const [categorySlug, setCategorySlug] = useState(options.siteOptions[0]?.categories[0]?.slug ?? "");
   const [slug, setSlug] = useState("");
   const [title, setTitle] = useState(options.prefill.title);
   const [conclusion, setConclusion] = useState(options.prefill.conclusion);
@@ -62,6 +62,7 @@ export function PublishArticleForm({
   const [nextReviewOn, setNextReviewOn] = useState("");
   const [claims, setClaims] = useState<readonly ClaimDraft[]>([EMPTY_CLAIM]);
   const [sectionBodies, setSectionBodies] = useState<Readonly<Record<string, string>>>({});
+  const [faq, setFaq] = useState<readonly FaqDraft[]>([EMPTY_FAQ]);
 
   const selectedType = options.articleTypes.find((t) => t.value === articleType);
   const sections = selectedType?.sections ?? [];
@@ -79,6 +80,10 @@ export function PublishArticleForm({
     setClaims((prev) => prev.map((c, i) => (i === index ? { ...c, ...patch } : c)));
   }
 
+  function updateFaq(index: number, patch: Partial<FaqDraft>) {
+    setFaq((prev) => prev.map((f, i) => (i === index ? { ...f, ...patch } : f)));
+  }
+
   const errorFor = (field: string) => (state.field === field ? state.message : null);
 
   return (
@@ -87,14 +92,17 @@ export function PublishArticleForm({
       toolName="publish_article_to_own_site"
       toolDescription="承認済みの記事を、自分のブログの読者ページへ出す"
     >
-      <input type="hidden" name="publicationId" value={publicationId} />
+      <FormValue name="publicationId" value={publicationId} />
 
       <Select
         name="articleType"
         label="記事の種類"
         value={articleType}
         onValueChange={setArticleType}
-        options={options.articleTypes.map((t) => ({ value: t.value, label: t.label }))}
+        options={options.articleTypes.map((t) => ({
+          value: t.value,
+          label: t.label,
+        }))}
         hint="選んだ種類に合わせて、下の原稿の欄が入れ替わります。書いた内容は消えません。"
         error={errorFor("articleType")}
         toolParamDescription="記事の種類（ranking / review / comparison / guide / tool）"
@@ -105,7 +113,10 @@ export function PublishArticleForm({
         label="出し先のブログ"
         value={siteSlug}
         onValueChange={chooseSite}
-        options={options.siteOptions.map((s) => ({ value: s.slug, label: s.name }))}
+        options={options.siteOptions.map((s) => ({
+          value: s.slug,
+          label: s.name,
+        }))}
         error={errorFor("siteSlug")}
         toolParamDescription="出し先のブログの識別子"
       />
@@ -115,7 +126,10 @@ export function PublishArticleForm({
         label="カテゴリー"
         value={categorySlug}
         onValueChange={setCategorySlug}
-        options={(selectedSite?.categories ?? []).map((c) => ({ value: c.slug, label: c.name }))}
+        options={(selectedSite?.categories ?? []).map((c) => ({
+          value: c.slug,
+          label: c.name,
+        }))}
         error={errorFor("categorySlug")}
         toolParamDescription="出し先のカテゴリーの識別子"
       />
@@ -223,9 +237,7 @@ export function PublishArticleForm({
           name={`section:${section.id}`}
           label={section.label}
           value={sectionBodies[section.id] ?? ""}
-          onValueChange={(next) =>
-            setSectionBodies((prev) => ({ ...prev, [section.id]: next }))
-          }
+          onValueChange={(next) => setSectionBodies((prev) => ({ ...prev, [section.id]: next }))}
           optional
           rows={6}
           hint={section.purpose}
@@ -276,12 +288,43 @@ export function PublishArticleForm({
         </div>
       ))}
 
-      <Button
-        type="button"
-        tone="quiet"
-        onClick={() => setClaims((prev) => [...prev, EMPTY_CLAIM])}
-      >
+      <Button type="button" tone="quiet" onClick={() => setClaims((prev) => [...prev, EMPTY_CLAIM])}>
         根拠の欄を増やす
+      </Button>
+
+      {/* --- よくある質問 ---------------------------------------------
+       * 読者が記事を読み終えても残る問いを、記事の中で先に答えておく欄。
+       * AI 検索は問いの形をそのまま拾うので、ここが埋まっている記事は引用されやすい。
+       * 問いと答えの**両方**が埋まった行だけが記事に載る（片方だけの行は捨てる）。
+       */}
+      {faq.map((item, index) => (
+        // 並べ替えも削除もしないので、位置で数える（根拠の欄と同じ）。
+        // biome-ignore lint/suspicious/noArrayIndexKey: 行は末尾に足すだけで、並べ替えない
+        <div key={index}>
+          <Field
+            name="faqQuestion"
+            label={`よくある質問 ${index + 1}`}
+            value={item.question}
+            onValueChange={(next) => updateFaq(index, { question: next })}
+            optional
+            hint="読者がそのまま検索に打ち込む形で書きます（例: 静音モデルは本当に静かですか）。"
+            toolParamDescription="よくある質問の問い"
+          />
+          <TextArea
+            name="faqAnswer"
+            label="その答え"
+            value={item.answer}
+            onValueChange={(next) => updateFaq(index, { answer: next })}
+            optional
+            rows={3}
+            hint="1〜3 文で答えます。問いと答えのどちらかが空の行は、記事に載りません。"
+            toolParamDescription="よくある質問の答え"
+          />
+        </div>
+      ))}
+
+      <Button type="button" tone="quiet" onClick={() => setFaq((prev) => [...prev, EMPTY_FAQ])}>
+        よくある質問の欄を増やす
       </Button>
 
       <PublishArticleResult state={state} />

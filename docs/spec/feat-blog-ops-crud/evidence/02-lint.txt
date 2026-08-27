@@ -1,0 +1,3 @@
+$ npx biome check src/ tests/ scripts/
+(exit code: 0)
+(biome は指摘 0 件のとき何も出力しない。exit code 0 が「指摘なし」の証跡)

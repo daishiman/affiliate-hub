@@ -66,17 +66,20 @@ jobs:
       # 片方の環境でだけ「そんなデータベースは無い」で落ちる。
       - name: 適用前のバックアップ
         run: |
-          mkdir -p .backup
+          mkdir -p backup
+          backup_path="backup/${{ inputs.environment }}-$(date -u +%Y%m%dT%H%M%SZ).sql"
           pnpm exec wrangler d1 export DB --env "${{ inputs.environment }}" --remote \
-            --output ".backup/${{ inputs.environment }}-$(date -u +%Y%m%dT%H%M%SZ).sql"
-          ls -la .backup
+            --output "$backup_path"
+          test -s "$backup_path"
+          ls -la backup
 
       # 落ちても中身が残るように、適用より先に保存する。
       - name: バックアップを保管する
         uses: actions/upload-artifact@v4
         with:
           name: d1-backup-${{ inputs.environment }}-${{ github.run_number }}
-          path: .backup/
+          path: backup/
+          if-no-files-found: error
           retention-days: 30
 
       - name: 未適用の一覧（適用前）

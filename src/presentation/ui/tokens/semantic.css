@@ -85,6 +85,34 @@
   --color-intent-warning: var(--color-accent-default);
   --color-intent-warning-subtle: var(--color-accent-subtle);
 
+  /* === 配信先の見分け ==================================================== */
+  /*
+   * 配信先ごとの色。`CHANNEL_CAPABILITIES` の `accentToken` が指す先。
+   *
+   * **色は見分けの主役ではない。** 主役は名前 (`label`) と絵柄で、
+   * 色はそれを補う。色だけで配信先を区別させると、色の見え方が違う人には
+   * 何も伝わらない画面になる。
+   *
+   * 既定では**投稿方式ごとの 3 色**を指す。配信先ごとに 10 色を作らないのは、
+   * 5 色を超えた時点で人が色と対象を対応付けられなくなるため。
+   * 別名を配信先ごとに用意してあるのは、どうしても 1 つだけ色を変えたい場面で
+   * ここ 1 行を差し替えれば済むようにするため（部品側は触らない）。
+   */
+  --channel-mode-api-publish: var(--color-intent-info);
+  --channel-mode-api-schedule: var(--color-accent-default);
+  --channel-mode-manual-export: var(--color-text-muted);
+
+  --channel-own-site: var(--channel-mode-api-schedule);
+  --channel-x: var(--channel-mode-api-publish);
+  --channel-instagram: var(--channel-mode-api-publish);
+  --channel-youtube: var(--channel-mode-api-publish);
+  --channel-tiktok: var(--channel-mode-api-publish);
+  --channel-threads: var(--channel-mode-api-publish);
+  --channel-note: var(--channel-mode-manual-export);
+  --channel-newsletter: var(--channel-mode-api-schedule);
+  --channel-wordpress: var(--channel-mode-api-schedule);
+  --channel-bluesky: var(--channel-mode-api-publish);
+
   /* === 焦点 ============================================================= */
   /* キーボード操作の現在地。太さと色は全画面で同じ。個別に上書きしない。 */
   --color-focus-ring: light-dark(var(--blue-700), var(--blue-300));
@@ -141,6 +169,14 @@
 
   --tracking-normal: var(--letter-spacing-normal);
   --tracking-wide: var(--letter-spacing-wide);
+
+  /*
+    そのまま打ち込む文字列（操作の名前、写し取ってもらう塊）に使う書体。
+    等幅にするのは見た目の好みではなく、`l` と `1`、`O` と `0` を
+    見分けられるようにするため。読み違えたまま打ち込まれると、
+    間違いは打った側の手元ではなく、こちらの受け口で初めて出る。
+  */
+  --font-code: var(--font-family-mono);
 
   /* === 寸法 ============================================================= */
   --tap-target-min: var(--hit-min);
@@ -219,4 +255,59 @@
   outline: var(--focus-ring-width) solid var(--color-focus-ring);
   outline-offset: var(--focus-ring-offset);
   border-radius: var(--radius-sm);
+}
+
+/*
+ * 文の中のリンクの見た目。
+ *
+ * --- なぜここに要るのか（docs/product/ui-ux-tasks.md UX-02） ---
+ * 2026-08-21 に `/signin` の実画面で確認: 「管理画面へ戻る」が地の文と
+ * 見分けられなかった。素の `a` の見た目を決めている規則が**どこにも無い**ため。
+ * `globals.css` は body の色と書体しか決めず、Tailwind の preflight が
+ * `a { color: inherit; text-decoration: inherit }` を敷いて素の下線を消す。
+ * さらにこの `a` は `.linkNote`（--color-text-muted）の中なので、
+ * 地の文より薄い色になっていた。
+ *
+ * --- なぜ `:where()` なのか ---
+ * `:where()` は詳細度 0。`site.module.css` の `.siteNav a` や `.cardTitle a` は
+ * **意図して**下線を外している（案内やカード見出しは行が丸ごと 1 つの行き先なので、
+ * 下線を引くと逆に読みにくい）。詳細度 0 にしておけば、そちらの意図が勝ったまま、
+ * どの規則にも当たらない素のリンクだけをここが拾う。
+ *
+ * `[href]` を付けているのは、行き先を持たない `<a>`（名前だけのアンカー）を
+ * 押せるものに見せないため。
+ */
+:where(a[href]) {
+  /*
+   * **下線を常に出す。**`:hover` のときだけ出す形は採らない。
+   * hover は「ポインタで触れる人」にしか届かない。キーボードだけの人、
+   * 画面を拡大している人、タッチの人には、押せる所が最後まで分からないままになる。
+   * 本文が多少賑やかになる代わりを払っても、こちらを取る。
+   */
+  color: var(--color-action-default);
+  text-decoration-line: underline;
+
+  /*
+   * 線の太さを固定する。既定は書体まかせで、小さい文字だと消えかける。
+   * `--border-width-default` はハイコントラスト時に `--width-thin` へ
+   * 太くなる（`semantic.css:186` の @media）ので、下線もそこで一緒に太くなる。
+   */
+  text-decoration-thickness: var(--border-width-default);
+
+  /*
+   * **日本語のための 1 行。** 平仮名・漢字は字面が下いっぱいまで詰まっているので、
+   * 既定の位置だと下線が「う」「え」「氵」の足に食い込んで字が潰れる。
+   * 1 段ぶん下げて、線と字を切り離す。
+   */
+  text-underline-offset: var(--space-1);
+}
+
+/*
+ * 色だけを変える。下線は素の状態から出ているので、ここで足すものは無い。
+ * **`:hover` を「押せると分かる唯一の手掛かり」にしない**という上の判断の裏返しで、
+ * ここは「いま指している所」を伝えるだけの役に徹する。
+ */
+:where(a[href]):hover {
+  color: var(--color-action-hover);
+  text-decoration-thickness: var(--border-width-emphasis);
 }

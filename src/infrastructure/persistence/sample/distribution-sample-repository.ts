@@ -1,14 +1,15 @@
 import type {
   ChannelConnectionRepositoryPort,
-  ChannelPublishInput,
-  ManualExportPort,
   PublicationRepositoryPort,
 } from "@/application/ports/distribution";
+import type { BrandScopeFilter } from "@/application/ports/common";
 import {
   type ChannelConnection,
   type Publication,
   createChannelConnection,
   createPublication,
+  samePublicationVersion,
+  supportsExternalDirectPublish,
 } from "@/domain/distribution";
 import {
   type ChannelConnectionId,
@@ -18,6 +19,12 @@ import {
   taggedString,
 } from "@/domain/shared";
 import { registerStub, stubCall } from "../../stub-registry";
+import {
+  SAMPLE_CONTENT_PACKAGES,
+  SAMPLE_CONTENT_VARIANT_REVISION,
+  sampleContentVariantVersion,
+  sampleContentVariants,
+} from "./content-editorial-sample-repository";
 import { SAMPLE_WORKSPACE_ID } from "./ranking-sample-repository";
 
 /**
@@ -115,6 +122,7 @@ function publication(input: {
     id: taggedString<"PublicationId">(input.id),
     workspaceId: WS,
     variantId: VARIANT_ID,
+    variantRevision: SAMPLE_CONTENT_VARIANT_REVISION,
     channelKind: input.kind,
     connectionId:
       input.connectionId === null
@@ -237,18 +245,84 @@ export function samplePublications(): readonly Publication[] {
   return PUBLICATIONS;
 }
 
+/**
+ * 見本とD1を重ねる保存先でも、limit前brand絞り込みを同じ規則で行うための参照集合。
+ */
+export function samplePublicationScopeReferences(
+  workspaceId: WorkspaceId,
+  scope: BrandScopeFilter | undefined,
+): { readonly packageIds: readonly string[]; readonly variantIds: readonly string[] } {
+  if (scope === undefined) {
+    const packageIds = SAMPLE_CONTENT_PACKAGES.filter(
+      (pkg) => pkg.workspaceId === workspaceId,
+    ).map((pkg) => String(pkg.id));
+    return {
+      packageIds,
+      variantIds: sampleContentVariants()
+        .filter(
+          ({ variant }) =>
+            variant.workspaceId === workspaceId &&
+            packageIds.includes(String(variant.contentPackageId)),
+        )
+        .map(({ variant }) => String(variant.id)),
+    };
+  }
+
+  const allowedBrands = new Set(scope.brandIds.map(String));
+  const packageIds = SAMPLE_CONTENT_PACKAGES.filter(
+    (pkg) => pkg.workspaceId === workspaceId && allowedBrands.has(pkg.brandId),
+  ).map((pkg) => String(pkg.id));
+  return {
+    packageIds,
+    variantIds: sampleContentVariants()
+      .filter(
+        ({ variant }) =>
+          variant.workspaceId === workspaceId &&
+          packageIds.includes(String(variant.contentPackageId)),
+      )
+      .map(({ variant }) => String(variant.id)),
+  };
+}
+
+export function samplePublicationsForScope(
+  workspaceId: WorkspaceId,
+  scope: BrandScopeFilter | undefined,
+): readonly Publication[] {
+  const workspaceRows = PUBLICATIONS.filter((publication) => publication.workspaceId === workspaceId);
+  if (scope === undefined) return workspaceRows;
+  const allowedVariantIds = new Set(
+    samplePublicationScopeReferences(workspaceId, scope).variantIds,
+  );
+  return workspaceRows.filter((publication) => allowedVariantIds.has(String(publication.variantId)));
+}
+
 export function createSampleChannelConnectionRepository(): ChannelConnectionRepositoryPort {
   return {
     async findById(workspaceId, id) {
       const found = CONNECTIONS.find((c) => c.workspaceId === workspaceId && c.id === id);
       return ok(found ?? null);
     },
-    async listByWorkspace(workspaceId) {
+    async listByWorkspace(workspaceId, page) {
+      const afterCursor = CONNECTIONS.filter(
+        (connection) =>
+          connection.workspaceId === workspaceId &&
+          (page.cursor === null || String(connection.id) > page.cursor),
+      ).sort((a, b) => {
+        const left = String(a.id);
+        const right = String(b.id);
+        return left < right ? -1 : left > right ? 1 : 0;
+      });
+      const hasMore = afterCursor.length > page.limit;
+      const items = afterCursor.slice(0, page.limit);
       return ok({
-        items: CONNECTIONS.filter((c) => c.workspaceId === workspaceId),
-        nextCursor: null,
+        items,
+        nextCursor:
+          hasMore && items.length > 0 ? String(items[items.length - 1]?.id) : null,
       });
     },
+    createIfAbsent: () => stubCall(stub, "接続の登録"),
+    acquireProviderDeliveryLease: () => stubCall(stub, "provider送信leaseの確保"),
+    releaseProviderDeliveryLease: () => stubCall(stub, "provider送信leaseの解放"),
     save: () => stubCall(stub, "接続の保存"),
   };
 }
@@ -265,6 +339,16 @@ export function createSamplePublicationRepository(): PublicationRepositoryPort {
       );
       return ok(found ?? null);
     },
+    async createIfAbsent(publication) {
+      const canonical = PUBLICATIONS.find(
+        (candidate) =>
+          candidate.workspaceId === publication.workspaceId &&
+          candidate.idempotencyKey === publication.idempotencyKey,
+      );
+      if (canonical !== undefined) return ok({ publication: canonical, created: false });
+      PUBLICATIONS = [...PUBLICATIONS, publication];
+      return ok({ publication, created: true });
+    },
     async listByVariant(workspaceId, variantId) {
       return ok(
         PUBLICATIONS.filter((p) => p.workspaceId === workspaceId && p.variantId === variantId),
@@ -273,12 +357,50 @@ export function createSamplePublicationRepository(): PublicationRepositoryPort {
     async listDue(at, limit) {
       return ok(
         PUBLICATIONS.filter(
-          (p) => p.state === "QUEUED" && p.scheduledAt !== null && p.scheduledAt <= at,
+          (p) =>
+            supportsExternalDirectPublish(p.channelKind) &&
+            ((p.state === "QUEUED" && (p.scheduledAt === null || p.scheduledAt <= at)) ||
+              (p.state === "RETRY_SCHEDULED" && p.retryAt !== null && p.retryAt <= at) ||
+              (p.state === "SENDING" &&
+                p.deliveryLeaseUntil !== null &&
+                p.deliveryLeaseUntil <= at)),
         ).slice(0, limit),
       );
     },
-    async listRecent(workspaceId, limit) {
-      return ok(PUBLICATIONS.filter((p) => p.workspaceId === workspaceId).slice(0, limit));
+    async compareAndSwap(before, next) {
+      const index = PUBLICATIONS.findIndex((candidate) =>
+        samePublicationVersion(candidate, before),
+      );
+      if (index < 0) return ok(null);
+      PUBLICATIONS = PUBLICATIONS.map((candidate, current) =>
+        current === index ? next : candidate,
+      );
+      return ok(next);
+    },
+    async claimForDelivery(before, next) {
+      if (before.variantRevision === null) return ok(null);
+      const current = sampleContentVariantVersion(before.workspaceId, before.variantId);
+      if (current === null || current.revision !== before.variantRevision) return ok(null);
+      const index = PUBLICATIONS.findIndex((candidate) =>
+        samePublicationVersion(candidate, before),
+      );
+      if (index < 0) return ok(null);
+      PUBLICATIONS = PUBLICATIONS.map((candidate, currentIndex) =>
+        currentIndex === index ? next : candidate,
+      );
+      return ok(next);
+    },
+    async listRecent(workspaceId, limit, scope) {
+      return ok(samplePublicationsForScope(workspaceId, scope).slice(0, limit));
+    },
+    async listForCalendar(workspaceId, fromInclusive, toExclusive, scope) {
+      return ok(
+        samplePublicationsForScope(workspaceId, scope).filter(
+          (publication) =>
+            publication.scheduledAt === null ||
+            (publication.scheduledAt >= fromInclusive && publication.scheduledAt < toExclusive),
+        ),
+      );
     },
     /**
      * その場では保存する。**保つのはこの処理が動いているあいだだけ。**
@@ -303,27 +425,12 @@ export function createSamplePublicationRepository(): PublicationRepositoryPort {
   };
 }
 
-/**
- * 公式の投稿の仕組みが無い先（note）への書き出し。
+/*
+ * 書き出しの見本はここに置かない（2026-08-26 に消した）。
  *
- * ここは実際に動く。外部サービスへ接続しないため、
- * 認証情報が無くても書き出しまでは行えるのが本来の姿だから。
+ * 書き出しは外部サービスへも保存先へもつながらず、記事の中身と出し先の種類だけで
+ * 文面が決まる。つまり見本と本物を分ける理由が最初から無かった。
+ * それでも見本を置いていたので、組み立て役がそちらを掴み、
+ * どの出し先でも note 向けの手順書が出ていた。
+ * 本物は `src/infrastructure/channels/manual-export.ts` にある。
  */
-export function createSampleManualExport(): ManualExportPort {
-  return {
-    async buildDraft(input: ChannelPublishInput) {
-      const lines = [
-        input.title === null ? null : `# ${input.title}`,
-        input.disclosureText === "" ? null : input.disclosureText,
-        input.body,
-      ].filter((l): l is string => l !== null && l !== "");
-      return ok({
-        markdown: lines.join("\n\n"),
-        instructions:
-          "この下書きをコピーして、note の投稿画面に貼り付けてください。" +
-          "note には外部から投稿する公式の仕組みが無いため、最後の操作はご自身で行っていただきます。" +
-          "広告表記は本文の冒頭に置いたままにしてください。",
-      });
-    },
-  };
-}

@@ -3,7 +3,7 @@
  * @req REQ-TS13
  * @types equivalence, boundary
  */
-import { readFileSync } from "node:fs";
+import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
@@ -181,14 +181,25 @@ describe("上流指針の条項が要件文へ引かれていない (塞げて�
   });
 
   /**
-   * 塞げない理由 1 の当てどころ。証跡が節名を持ち始めたら赤くなる。
+   * 塞げない理由 1 の当てどころ。**証跡が節名を持ち始めたら赤くなる。**
    *
-   * `freshness_extraction` は 2026-08-20 に足した欄で、**節名ではない**。
-   * 「その record の更新日表明をどこからどう取ったか」だけを持ち、
-   * 章・節・見出しの類は一切入らない。よってこの検査の趣旨
-   * (証跡から条項は引けない = doctrine の引用根拠に使えない) は保たれている。
-   * 欄が増えたこと自体はここで固定し、増えた欄が節名を持ち込んだら
-   * 下の EVIDENCE_KEYS 検査が赤くなる。
+   * ── 2026-08-23: 代理指標をやめ、目的そのものへ当て直した ──────────────
+   *
+   * 前の版は `owasp-asvs` / `apple-hig` / `google-sre` の 3 件について
+   * 「基本の欄以外は、この一覧と**完全に一致**すること」を求めていた。
+   * これは「節名を持っていない」ことを**欄の名前の一覧で代理**したもので、
+   * 目的に対して両方向にずれていた。
+   *
+   * - **厳しすぎる**: 節名と無関係な欄が 1 つ増えるだけで赤くなる。実際 2 度起きた。
+   *   owasp-asvs に `freshness_extraction`（鮮度の由来）が載って 1 度、
+   *   apple-hig に `reverification`（上流へ取り直した記録）が載って 1 度。
+   *   どちらも証跡を**強くする**追記であり、止めるべきものではない。
+   * - **緩すぎる**: 15 件のうち 3 件しか見ていない。残る 12 件は節名を持ち込んでも黙る。
+   *
+   * いま測っているのは目的そのもの——**どの証跡のどの階層にも、章・節・条項・
+   * 見出しを指す名前の欄が無いこと**——を 15 件すべてに対して、である。
+   * これで証跡から条項は引けない（doctrine の引用根拠に使えない）が保たれる。
+   * 欄が増えることは通し、節名が入ることだけを止める。
    */
   const EVIDENCE_BASE_KEYS = [
     "content_bytes",
@@ -200,16 +211,41 @@ describe("上流指針の条項が要件文へ引かれていない (塞げて�
     "target_id",
   ];
 
-  it("取得証跡は節名を持っていない（hash と page_title と鮮度の由来だけ）", () => {
-    for (const id of ["owasp-asvs", "apple-hig", "google-sre"]) {
-      const evidence = JSON.parse(
-        readFileSync(join(ROOT, `system-spec/retrieval-evidence/${id}.json`), "utf8"),
-      ) as Record<string, unknown>;
-      const extra = Object.keys(evidence).filter((k) => !EVIDENCE_BASE_KEYS.includes(k));
-      expect(extra.sort(), `${id}.json の想定外の欄`).toEqual(
-        id === "owasp-asvs" ? [] : ["freshness_extraction"],
-      );
+  /** 章・節・条項・見出しを指す欄名。これが証跡に現れたら、証跡から条項が引ける。 */
+  const SECTION_KEY = /section|clause|heading|anchor|chapter|節|条項|見出し|章/i;
+
+  /** 入れ子のどこにある欄名も見る（浅い一致で逃げられないように）。 */
+  function allKeys(value: unknown, out: string[] = []): string[] {
+    if (Array.isArray(value)) for (const v of value) allKeys(v, out);
+    else if (value !== null && typeof value === "object") {
+      for (const [k, v] of Object.entries(value)) {
+        out.push(k);
+        allKeys(v, out);
+      }
     }
+    return out;
+  }
+
+  const EVIDENCE_IDS = readdirSync(join(ROOT, "system-spec/retrieval-evidence"))
+    .filter((f) => f.endsWith(".json"))
+    .map((f) => f.replace(/\.json$/, ""));
+
+  it("取得証跡は 15 件そろっている（母数が縮んで 0 件で緑になる形を止める）", () => {
+    expect(EVIDENCE_IDS.length).toBe(15);
+  });
+
+  it.each(EVIDENCE_IDS)("%s.json の証跡は節名を持っていない", (id) => {
+    const evidence = JSON.parse(
+      readFileSync(join(ROOT, `system-spec/retrieval-evidence/${id}.json`), "utf8"),
+    ) as Record<string, unknown>;
+    const keys = allKeys(evidence);
+    // 「節名の欄は 0 件」は、欄そのものが 0 件でも成り立ってしまう。母集団の床を同居させる。
+    expect(keys.length, `${id}.json の欄が少なすぎます（0 件で緑になっていないか）`).toBeGreaterThan(6);
+    // 基本の欄は 15 件とも欠かさず持っていること（欄が増えるのは通すが、減るのは通さない）。
+    expect(Object.keys(evidence), `${id}.json に欠けている基本の欄`).toEqual(
+      expect.arrayContaining(EVIDENCE_BASE_KEYS),
+    );
+    expect(keys.filter((k) => SECTION_KEY.test(k)), `${id}.json の節名を指す欄`).toEqual([]);
   });
 
   /**

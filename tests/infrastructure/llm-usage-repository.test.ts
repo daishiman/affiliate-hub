@@ -27,6 +27,7 @@ type Row = {
   outputTokens: number;
   estimatedCostMinor: number;
   currency: string;
+  capacityConsumed: boolean;
   occurredAt: Date;
 };
 
@@ -60,6 +61,7 @@ const ENTRY: LlmUsageEntry = {
   outputTokens: 400,
   estimatedCostMinor: 7,
   currency: "JPY",
+  capacityConsumed: true,
   succeeded: true,
 };
 
@@ -75,6 +77,7 @@ function row(over: Partial<Row> = {}): Row {
     outputTokens: 50,
     estimatedCostMinor: 3,
     currency: "JPY",
+    capacityConsumed: true,
     occurredAt: NOW,
     ...over,
   };
@@ -86,7 +89,16 @@ describe("生成 AI の利用量", () => {
     const result = await usageOf(db).record(ENTRY);
     expect(result.ok).toBe(true);
     expect(inserted[0]?.providerId).toBe("anthropic");
+    expect(inserted[0]?.capacityConsumed).toBe(true);
     expect(inserted[0]?.occurredAt).toEqual(NOW);
+  });
+
+  it("provider未開始の記録は容量未消費のまま残す", async () => {
+    const { db, inserted } = fakeDb([]);
+    const result = await usageOf(db).record({ ...ENTRY, capacityConsumed: false });
+
+    expect(result.ok).toBe(true);
+    expect(inserted[0]?.capacityConsumed).toBe(false);
   });
 
   it("保存先が落ちていたら、握りつぶさずに失敗を返す", async () => {

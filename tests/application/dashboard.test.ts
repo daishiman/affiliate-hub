@@ -7,7 +7,7 @@ import {
   type ReadDashboardDeps,
   createGetDashboardUseCase,
 } from "@/application/usecases/dashboard/read-dashboard";
-import { ok } from "@/domain/shared";
+import { ok, taggedString } from "@/domain/shared";
 import { ADMIN_NAV } from "@/presentation/ui";
 import { currentActor, dashboardUseCases } from "@/presentation/composition";
 import { aNobody, anAnalyst, anOwner, aWriter } from "../support/actors";
@@ -138,6 +138,16 @@ describe("並びと約束", () => {
     expect(got.ok).toBe(false);
     if (got.ok) return;
     expect(got.error.code).toBe("FORBIDDEN");
+  });
+
+  it("ブランド限定担当者には、ブランド対応のない全社集計を出さない", async () => {
+    const got = await createGetDashboardUseCase(deps()).execute(
+      anOwner({ scopedBrandIds: [taggedString<"BrandId">("brand-limited")] }),
+      { at: AT },
+    );
+
+    expect(got.ok).toBe(false);
+    if (!got.ok) expect(got.error.code).toBe("TENANT_MISMATCH");
   });
 });
 

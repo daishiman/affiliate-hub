@@ -22,6 +22,16 @@ import {
  */
 export type AuditAction =
   | "content.created"
+  /**
+   * 記事の中身（題名・本文・要約）を直した。
+   *
+   * **`content.state_changed` とは別。** あちらは進行の位置が動いたことで、
+   * 本文は変わっていない。こちらは本文が変わったことで、位置は動いていない
+   * （承認済みを直したときだけ、承認が外れて位置も戻る）。
+   * 1 語にまとめると、「承認された文章」と「今ある文章」が
+   * 同じものかどうかを履歴から判定できなくなる。
+   */
+  | "content.changed"
   | "content.state_changed"
   | "content.approved"
   | "content.published"
@@ -30,6 +40,25 @@ export type AuditAction =
   | "ranking_model.changed"
   | "disclosure.changed"
   | "policy_rule.changed"
+  /**
+   * SEO/AI 指針の**出典**を登録した／確認日を更新した。
+   *
+   * `policy_rule.changed`（表記のきまりを変えた）とは別の語にしている。
+   * あちらは「何を書いてよいか」の決まりそのものが動いたこと。
+   * こちらは**決まりの根拠として何を見たか**が動いたことで、
+   * 決まりは 1 文字も変わっていない。1 語にまとめると、
+   * 「きまりが変わった」の一覧に出典の確認作業が混ざり、
+   * 規制対応で提出を求められたときにきまりの変更履歴が読めなくなる。
+   *
+   * **確認日の更新を別の語にしている**のは、`registered` と
+   * 意味が違うからではなく、`after` の差から読めないからである。
+   * 再確認は中身が 1 つも変わらない（確認日だけが動く）ので、
+   * 語を 1 つにすると「登録したのか、見に行っただけなのか」を
+   * 履歴から区別できない。90 日ごとの確認が実際に行われたかは
+   * この語の並びでしか言えない。
+   */
+  | "guideline_reference.registered"
+  | "guideline_reference.rechecked"
   | "affiliate_link.created"
   | "affiliate_link.changed"
   /**
@@ -45,6 +74,27 @@ export type AuditAction =
   | "connector.connected"
   | "connector.disconnected"
   | "member.role_changed"
+  /**
+   * ブランドを作った／直した。
+   *
+   * **1 語にしている。** 差は `before` が `null` かどうかに出るので、
+   * 語を分けても読める情報が増えない（成果リンクの `created` / `changed` と同じ扱い）。
+   *
+   * 記録する理由は、ここが**公開を止める場所**だからである。
+   * 運営者の表示名か問い合わせ先が消えると、そのブランドの記事は
+   * 全部公開できなくなる（`missingPublishReadiness`）。
+   * 「昨日まで出せていたのに今日は出せない」の答えが、この行にしか無い。
+   */
+  | "brand.changed"
+  /**
+   * 作業場所の設定（名前・契約の区分・時間帯・通貨）を直した。
+   *
+   * 契約の区分はブランド数・ブログ数・生成回数の上限そのもので、
+   * 下げると**作れていたものが作れなくなる**。
+   * 時間帯を動かすと、予約済みの投稿が出る時刻がまとめてずれる。
+   * どちらも画面の見た目は変わらないので、行が無いと原因に辿り着けない。
+   */
+  | "workspace.changed"
   | "export.performed"
   /**
    * 配信予定が変わった（入れた・動かした・取り消した）。
@@ -57,6 +107,16 @@ export type AuditAction =
    */
   | "publication.schedule_changed"
   /**
+   * 配信予定の**中身**が変わった（送る文面・送り先の媒体）。
+   *
+   * 上の 1 語（いつ外へ出るか）とは問いが違う。こちらは
+   * 「外へ出たものは、どの媒体へ向けた、どの文面だったか」を問われる。
+   * 送信済みのものは直せないので、この語が残るのは送信前だけである。
+   */
+  | "publication.changed"
+  /** 予約workerが外部送信の成功・失敗・再試行状態を変えた。 */
+  | "publication.delivery_changed"
+  /**
    * 外部連携の鍵の発行・失効。
    *
    * こちらは 2 語に分ける。生成 AI の鍵（`llm_credential.*`）と同じ理由で、
@@ -65,8 +125,87 @@ export type AuditAction =
    */
   | "integration_key.issued"
   | "integration_key.revoked"
-  /** ブログを作った。消す口が無いので、作られたことだけは必ず残す。 */
+  /** ブログを作った。 */
   | "site.created"
+  /**
+   * ブログの設計図を直した／ブログを取り下げた。
+   *
+   * **2 語に分ける。** 直しは「いつからその方針だったか」を問われ、
+   * 取り下げは「なぜ消したか」を問われる。後者は `before` と `after` の差からは
+   * 読めない（`after` が無い）ので、理由の欄にしか残らない。
+   * だから取り下げだけ理由を必須にしている（下の `REASON_REQUIRED`）。
+   */
+  | "site.changed"
+  | "site.deleted"
+  /**
+   * 商品を登録した／直した／消した。
+   *
+   * 記事（`content.*`）と揃えて 3 語にする。商品は順位表と比較表の入力なので、
+   * 「いつ仕様が変わったか」が言えないと、過去の順位が正しかったかを検証できない。
+   * 消したものだけ理由を必須にする理由はブログと同じ。
+   */
+  | "product.created"
+  | "product.changed"
+  | "product.deleted"
+  /**
+   * 記事を消した。
+   *
+   * 取り下げ（`content.unpublished`）とは別。取り下げは読者から見えなくすることで、
+   * 記事そのものは残る。こちらは本文ごと無くなるので、後から中身を確かめられない。
+   * 区別しないと、「消えている記事」がどちらの理由で消えたか判定できなくなる。
+   */
+  | "content.deleted"
+  /**
+   * 根拠・言えること・検証記録を登録した。
+   *
+   * **3 つを別の語にしている。** 後から問われるときの問いが違うためである。
+   *   根拠   : その資料をいつ誰が取ってきたか（出典の鮮度）
+   *   言えること: その言い切りを誰が書いてよいと判断したか
+   *   検証記録 : その測定を誰が行ったか
+   * 1 語にまとめると、「言い切りを足した人」と「資料を入れただけの人」が
+   * 同じ行に並ぶ。景品表示の問い合わせで示す必要があるのは前者だけである。
+   *
+   * **直したときも同じ語を使う。** 差は `before` が `null` かどうかに出るので、
+   * 語を分けても読める情報が増えない（成果リンクの `created` / `changed` と同じ）。
+   */
+  | "evidence.registered"
+  | "claim.registered"
+  | "test_run.registered"
+  /**
+   * 商品 1 つの点を登録した。
+   *
+   * `ranking_model.changed`（評価基準そのものが動いた）とは別。
+   * あちらは全商品の順位が一斉に動く。こちらは 1 商品の位置だけが動く。
+   * 順位が変わった理由を尋ねられたとき、**どちらが動いたのか**を
+   * 先に切り分けられないと、基準の履歴を全部読む羽目になる。
+   */
+  | "score_card.changed"
+  /**
+   * 読み手像・書き手像を作った／直した。
+   *
+   * 記録する理由は、ここが**生成の入力**だからである。像を書き換えると、
+   * 以後に作られる記事の語り口がまとめて変わる。記事側の履歴には
+   * 「本文が変わった」しか残らないので、原因はこの行にしか無い。
+   */
+  | "persona.changed"
+  /**
+   * 記事のまとまり（同じ狙いの記事を束ねたもの）を作った／直した。
+   */
+  | "content_package.changed"
+  /**
+   * ブログの固定ページ（運営者情報・免責など）を作った／直した。
+   *
+   * 記事と別の語にしているのは、**公開の可否に直結する**ためである。
+   * 固定ページが欠けるとそのブログの記事は出せなくなる（`brand.changed` と同じ性質）。
+   */
+  | "site_document.changed"
+  /**
+   * 問い合わせに「対応済み」の印を付けた。
+   *
+   * 中身は 1 文字も変わらないので、`before` / `after` の差からは読めない。
+   * 「誰がいつ、これはもう見たと言ったか」はこの語の並びにしか残らない。
+   */
+  | "contact.handled"
   /**
    * ブログを作り始めた／作成の段階を 1 つ保存した。
    *
@@ -89,6 +228,29 @@ export type AuditAction =
    * 誤りの訂正なのか意図的な操作なのかを区別できない。
    */
   | "conversion.adjusted"
+  /**
+   * 提携先（ASP アカウント）を登録した／直した／止めた。
+   *
+   * **1 語にしている。** 差は `before` が `null` か、`after.disabled` かに出る。
+   *
+   * 記録する理由は、ここが**収益の出どころの名寄せ**だからである。
+   * 提携先を止めると、その下の提携条件を使うリンクが成果を計上しなくなる。
+   * 「先月まで入っていた成果が今月ゼロ」の答えが、この行にしか無い。
+   *
+   * **接続情報の値は入らない。** 差分に詰めるのは保管先の名前が
+   * 登録済みかどうか（真偽）までで、`credential` を含む鍵は
+   * `redactSensitive` が落とす前に、そもそも詰めない。
+   */
+  | "affiliate_account.changed"
+  /**
+   * 提携条件（広告主ごとのプログラム）を登録した／直した／終了にした。
+   *
+   * 掲載してよい書き方の条件（`restrictions`）がここに入る。文章なので
+   * 機械では判定できず、**守れているかを確かめられるのは人だけ**である。
+   * 条件が黙って書き換わると、規約違反の記事が出たときに
+   * 「いつからその条件だったか」を誰も言えなくなる。
+   */
+  | "affiliate_program.changed"
   /**
    * 生成 AI の鍵の登録・失効。
    *
@@ -128,6 +290,18 @@ export type AuditAction =
    */
   | "feedback.handed_off"
   /**
+   * 改善要望の技術診断を、保持期限の満了で消した。
+   *
+   * **人が押した操作ではない。** 定期実行（cron）が消す。それでも記録するのは、
+   * 「なぜ 90 日前の要望に診断が付いていないのか」を後から説明できる場所が
+   * ここしか無いためである。行が無ければ、**消したのか、最初から付いていな
+   * かったのか、消し損ねたのか**が区別できない。
+   *
+   * 残すのは作業場所ごとの件数と期限の日数までにする。どの要望のどの診断を
+   * 消したかを写すと、消したはずの中身が記録の側へ残る。
+   */
+  | "feedback.diagnostics_purged"
+  /**
    * 見せ方の試作を登録した／承認した。
    *
    * **2 語に分ける。** 承認は仕様 §14.5 が人にだけ許している操作で、
@@ -154,7 +328,118 @@ export type AuditAction =
   | "loop_run.started"
   | "loop_run.observed"
   | "loop_run.concluded"
-  | "loop_run.stopped";
+  | "loop_run.stopped"
+  /**
+   * サイト網の節点を足した／直した／外した。
+   *
+   * ブログそのもの（`site.*`）とは別の語にしている。あちらは
+   * 「そのブログの中身がどう変わったか」で、こちらは
+   * 「ブログどうしの上下関係がどう変わったか」である。1 語にまとめると、
+   * どの親子関係をいつ変えたかを履歴から追えない。
+   *
+   * 外したものだけ理由を必須にしている。有効な子がある親の削除は
+   * 全体を拒否し、子を孤立させた成功と監査記録は作らない。
+   */
+  | "site_network.created"
+  | "site_network.changed"
+  | "site_network.deleted"
+  | "site_network.restored"
+  /**
+   * ブログの見た目の枠・帯の設定が変わった。
+   *
+   * **1 語にまとめている。** ヘッダー・サイドバー・フッターの枠と
+   * トップの帯は、後から読むときの問いが同じ（「そのとき読者に何がどの順で見えていたか」）で、
+   * 差は `before` / `after` に出る。部位ごとに語を分けると、
+   * 一度の並べ替えが 4 行になり、履歴の行数と操作の回数が合わなくなる。
+   */
+  | "blog_layout.changed"
+  /**
+   * 配信部品（RSS・sitemap・機械可読の要約など）の入切が変わった。
+   *
+   * 見た目の枠（`blog_layout.changed`）と分けているのは、**外へ出るものだから**である。
+   * 枠は読者が来たときにだけ見えるが、こちらは検索や AI が取りに来る口で、
+   * 切った瞬間から外側の索引が古くなる。「いつ止めたか」は差分からは読めても、
+   * 枠の変更に埋もれると探せない。
+   */
+  | "blog_delivery.changed"
+  | "blog_delivery.checked"
+  /**
+   * ブログ記事を作った／直した／消した。
+   *
+   * 生成の流れに乗る記事（`content.*`）とは別の語にしている。あちらは
+   * 下書き→校正→承認→公開の位置を持ち、承認の履歴が問われる。
+   * こちらは読者に見える面の記事で、問われるのは版面（T1–T4）と
+   * 必要な部品が揃っていたかである。1 語にまとめると、
+   * 承認を通っていない記事が承認済みの一覧に混ざる。
+   */
+  | "blog_article.created"
+  | "blog_article.changed"
+  | "blog_article.deleted"
+  | "blog_article.restored"
+  /**
+   * 固定ページ（運営者情報・各種方針など 8 種）を保存／論理削除／復元した。
+   *
+   * 削除だけ理由を必須にする。行と本文は残り、`blog_page.restored` の
+   * 明示操作で元の ID・URL・内容へ戻す。通常保存で暗黙に復活させない。
+   */
+  | "blog_page.changed"
+  | "blog_page.deleted"
+  | "blog_page.restored"
+  /** ブランドタグを保存した／消した。 */
+  | "blog_tag.changed"
+  | "blog_tag.deleted"
+  /**
+   * 読者が付けた評価を伏せた／戻した。
+   *
+   * **消す語 (`*.deleted`) を作っていない。** 票は行として残し、印だけ付け替える。
+   * 消す形にすると「伏せた」と「最初から無かった」が同じ姿になり、
+   * 伏せた判断そのものを後から確かめられない。
+   *
+   * **伏せると戻すを 2 語に分ける。** どちらも `before`/`after` に印の差は出るが、
+   * 一覧を「伏せた操作だけ」で読みたい場面（読者の書き込みを見えなくした回数を
+   * 数える、まとめて見直す）が実際にあり、1 語だと差分を全部開くまで数えられない。
+   */
+  | "blog_rating.hidden"
+  | "blog_rating.shown"
+  /**
+   * 権限が足りずに断った。
+   *
+   * **語が無かったこと自体が穴だった。** 断りは「何も起きなかった」ように見えるが、
+   * 実際には誰かが取り返しのつかない操作（公開・削除）を叩いている。
+   * 行が無いと、**試されていないこと**と**試されて止めたこと**が区別できない。
+   * 後者は次に起こることが違う（役の付け間違いか、あるいは侵入の途中である）。
+   *
+   * `access.cross_workspace_blocked` と分けてあるのは、後から問われることが違うため。
+   * こちらは「誰に何の権限を渡すべきだったか」で、あちらは「越境を試した者がいたか」である。
+   * 1 語にまとめると、日常の付け忘れと侵入の兆候が同じ一覧に溶ける。
+   *
+   * 規範: 確定済み auth 章 AWS-ACC-04（actor / workspace / action / result を残す）
+   */
+  | "access.denied"
+  /**
+   * 別の作業場所のものへ触ろうとして断った。
+   *
+   * **外へ返す本文は「対象が見つかりません。」に潰す**（`maskExistence`）。
+   * 潰した詳細——どの作業場所の何を指したのか——が残る場所はここしか無い。
+   * 潰しっぱなしにすると、攻撃側だけが自分の試行を知っていて、
+   * 守る側は 1 件も知らない状態になる。
+   *
+   * 規範: 確定済み auth 章 AWS-ACC-02（拒否は request ID 付きで監査に残る）
+   */
+  | "access.cross_workspace_blocked";
+
+/**
+ * 断りを表す語。
+ *
+ * **この集合に入る語は、`requestId` 無しでは記録できない**（下の `createAuditLogEntry`）。
+ * 拒否は 1 件ずつでは意味を持たない。「同じ要求の中で何度断られたか」「同じ相手が
+ * どの入口を順に叩いたか」を並べて初めて、付け忘れと総当たりが見分けられる。
+ * 並べるための糸が request ID で、糸の無い行は後から結び直せない。
+ */
+export const DENIAL_ACTIONS: ReadonlySet<AuditAction> = new Set<AuditAction>([
+  "access.denied",
+  "access.cross_workspace_blocked",
+]);
 
 /** 操作した主体。AI かどうかを型で残す。後から「人が承認した」を検証するため。 */
 export type AuditActor = {
@@ -193,6 +478,17 @@ export type AuditLogEntry = {
   readonly after: Readonly<Record<string, unknown>> | null;
   /** なぜその操作をしたか。承認・取り下げ・訂正では必須。 */
   readonly reason: string | null;
+  /**
+   * この操作が入ってきた**一回の要求**を指す名前。
+   *
+   * **省略できる項目にしなかった。** 省略できる形にすると、埋める場所を
+   * 足し忘れても型検査が黙る。断りの記録は糸が無いと役に立たないので、
+   * 「入れない」を選ぶときも `null` と書いて選ばせる。
+   *
+   * 値が `null` になるのは、要求の外で起きた操作（定期実行など）だけである。
+   * 断りの語（`DENIAL_ACTIONS`）では `null` を許さない。
+   */
+  readonly requestId: string | null;
   readonly occurredAt: Date;
 };
 
@@ -207,6 +503,22 @@ const REASON_REQUIRED: ReadonlySet<AuditAction> = new Set<AuditAction>([
   "conversion.adjusted",
   "affiliate_link.rejected",
   "loop_run.stopped",
+  // 消す操作。復元可能な対象も通常表示・公開から外す動機は差分だけで読めない。
+  "site.deleted",
+  "product.deleted",
+  "content.deleted",
+  "site_network.deleted",
+  "blog_article.deleted",
+  "blog_page.deleted",
+  "blog_tag.deleted",
+  /*
+   * 読者が書いたものを見えなくする／戻す操作。行は消えないので `before`/`after` に
+   * 印の差は残るが、**なぜそう判断したかは差からは読めない。** 理由の欄にしか残らない。
+   * 戻す側も必須にしているのは、「伏せたのを誰がどんな理由で戻したか」が
+   * 言えないと、伏せた判断が黙って覆せることになるため。
+   */
+  "blog_rating.hidden",
+  "blog_rating.shown",
 ]);
 
 /**
@@ -239,6 +551,7 @@ export function createAuditLogEntry(input: {
   before?: Readonly<Record<string, unknown>> | null;
   after?: Readonly<Record<string, unknown>> | null;
   reason?: string | null;
+  requestId?: string | null;
   occurredAt: Date;
 }): Result<AuditLogEntry, DomainError> {
   if (input.targetType.trim() === "" || input.targetId.trim() === "") {
@@ -261,6 +574,19 @@ export function createAuditLogEntry(input: {
    * よって記録は残し、確かめていないことは `actor.identified` に残す。
    * 「人が承認した」を数えるのは `wasApprovedByHuman()` で、そちらが印を見る。
    */
+  const requestId = input.requestId?.trim() ?? "";
+  if (DENIAL_ACTIONS.has(input.action) && requestId === "") {
+    /*
+     * 断りだけは request ID を必須にする。
+     *
+     * 通した操作は、対象そのもの（記事・商品）を糸にして後から辿れる。
+     * 断った操作には対象が無い回がある（そもそも取れなかった、権限が無かった）。
+     * 糸を要求しないと、**辿れない行だけが積み上がる**。
+     */
+    return err(
+      validationError(`${input.action} の記録には request ID が必要です。`, "requestId"),
+    );
+  }
   const reason = input.reason?.trim() ?? "";
   if (REASON_REQUIRED.has(input.action) && reason === "") {
     return err(
@@ -277,6 +603,7 @@ export function createAuditLogEntry(input: {
     before: redactSensitive(input.before ?? null),
     after: redactSensitive(input.after ?? null),
     reason: reason === "" ? null : reason,
+    requestId: requestId === "" ? null : requestId,
     occurredAt: input.occurredAt,
   });
 }

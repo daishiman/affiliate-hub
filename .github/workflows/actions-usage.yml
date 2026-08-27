@@ -1,0 +1,74 @@
+# 口座全体の GitHub Actions 使用量を見張る。
+#
+# ## nightly.yml の「所要時間」との書き分け
+#
+# `nightly.yml` が出すのは**深い門 1 ジョブ分**の実測（1 回何分か）。
+# ここが見るのは**口座（利用者）全体の月間合計**（枠 2,000 分の何%か）。
+# 対象が違うので、片方を消してもう片方で代用することはできない。
+#
+# ## いまは「対象が無い」と言うだけである
+#
+# このリポジトリは**公開**で、標準ランナーは公開リポジトリでは無料・無制限。
+# 分母が無いので使用率という数が作れない。だからここは公開のあいだ
+# **0% を報告しない**——`::notice::` で「対象が無い」と言うだけにする。
+# 0% と書くと「余裕がある」と読まれるが、それは余裕ではなく測っていないという意味になる。
+#
+# **非公開へ切り替えた日から、この見張りが本番になる。**
+# そのときトークンが登録されていなければ `::warning::` が出る
+# （黙って緑にすると、見ていないまま「見ている」と思われる）。
+# 登録は利用者本人が行う。代行しない。手順は docs/product/ci-cd-guide.md §12。
+#
+# ## 落とさない
+#
+# 使用量の取得に失敗しても、この見張りではマージも公開も止めない。
+# 止めると、赤を消す最短の道が「この見張りを外す」になる。
+#
+# **しきい値（枠・70% ・90%）をここに書かない。** 正本は
+# `quality-gates.config.mjs` の `ACTIONS_USAGE` 1 箇所である。
+#
+# 規範: tasks/task-actions-usage-monitor.md / docs/product/ci-cd-guide.md §12
+name: 使用量の見張り
+
+on:
+  # 週 1 回。使用量は月単位で積み上がるので、日次で見ても分かることが増えない。
+  schedule:
+    - cron: "17 0 * * 1"
+  # しきい値を踏むかどうかを人が確かめるための口。
+  workflow_dispatch:
+    inputs:
+      minutes:
+        description: "使用量を分で与える（測定用。実際の口座の数字ではなくなる）"
+        required: false
+        default: ""
+
+concurrency:
+  group: actions-usage
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  usage:
+    name: 月間使用量（口座全体）
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      # 依存は入れない。判定は標準の fetch だけで足りる。
+      # ここで pnpm install を走らせると、見張りのほうが見張る対象より重くなる。
+      - name: 使用量の判定
+        env:
+          REPO_VISIBILITY: ${{ github.event.repository.visibility }}
+          GITHUB_REPOSITORY_OWNER: ${{ github.repository_owner }}
+          GITHUB_REPOSITORY_OWNER_TYPE: ${{ github.event.repository.owner.type }}
+          # 未登録なら空文字で届く。空のときは「武装していない」と警告が出る。
+          ACTIONS_USAGE_TOKEN: ${{ secrets.ACTIONS_USAGE_TOKEN }}
+          ACTIONS_USAGE_MINUTES: ${{ github.event.inputs.minutes }}
+        run: node scripts/actions-usage.mjs
