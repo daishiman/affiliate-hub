@@ -150,6 +150,14 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  /*
+    アイコンだけの操作は、字が無いぶん見た目の面積が中身の大きさで決まる。
+    下限を書かないと、印そのものの大きさが押しどころになる。
+    上げ下げ・削除・足すが隣り合って並ぶ場所なので、押し間違えると
+    直したい断片ではなく隣の断片が動く（2026-08-27 に赤で出た）。
+  */
+  min-height: var(--tap-target-min);
+  min-width: var(--tap-target-min);
   border: var(--border-width-default) solid transparent;
   border-radius: var(--radius-sm);
   padding: var(--space-1);
@@ -201,6 +209,11 @@
 .proseEditorQuote {
   width: 100%;
   min-width: 0;
+  /*
+    打ち込む欄も押しどころである。ここへ指を置けないと、
+    そもそも本文を書き始められない。
+  */
+  min-height: var(--tap-target-min);
   border: none;
   border-bottom: var(--border-width-default) solid transparent;
   background: transparent;

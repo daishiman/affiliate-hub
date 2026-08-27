@@ -2,7 +2,15 @@
 
 import { useActionState, useState } from "react";
 import { type DeliveryPart, DELIVERY_PART_LABEL } from "@/domain/blogops";
-import { Button, Field, FormResult, FormValue, TextArea, ToolForm } from "@/presentation/ui";
+import {
+  Button,
+  Checkbox,
+  Field,
+  FormResult,
+  FormValue,
+  TextArea,
+  ToolForm,
+} from "@/presentation/ui";
 import { manageBlogDeliveryAction } from "./blog-layout-action";
 import { INITIAL_BLOG_OPS_STATE } from "./blog-ops-state";
 
@@ -43,10 +51,12 @@ export function BlogDeliveryForm({
       <FormValue name="part" value={part} />
       <FormValue name="enabledPresent" value="1" />
 
-      <label>
-        <input type="checkbox" name="enabled" defaultChecked={enabled} />
-        この経路を出す
-      </label>
+      <Checkbox
+        name="enabled"
+        label="この経路を出す"
+        defaultChecked={enabled}
+        toolParamDescription="この配信経路を出すかどうか"
+      />
       <TextArea
         label="覚え書き"
         name="note"

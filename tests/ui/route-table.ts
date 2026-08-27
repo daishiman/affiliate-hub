@@ -8,6 +8,8 @@
  * ここは vitest 側の入口として、表をそのまま再輸出し、描く手順を足す。
  */
 
+import { readFileSync, readdirSync } from "node:fs";
+import { join, relative } from "node:path";
 import { type RouteWorld, renderRoute, renderRouteIn } from "../support/render";
 import { SITE } from "./route-cases";
 
@@ -155,7 +157,47 @@ export const ROUTE_STATE_CASES: readonly (RouteCase & {
 export function worldOf(
   route: RouteCase & { readonly world?: RouteWorld },
 ): RouteWorld | undefined {
-  return route.world ?? (route.file.startsWith("admin/") ? "authorized" : undefined);
+  if (route.world !== undefined) return route.world;
+  if (!route.file.startsWith("admin/")) return undefined;
+  return pagesNeedingBlogOps().has(route.file) ? "blog-ops-ready" : "authorized";
+}
+
+/**
+ * `blogOpsEntry()` を呼ぶ画面を**ソースから拾う。一覧を手で書かない。**
+ *
+ * --- なぜ拾うのか（2026-08-27）---
+ *
+ * この 12 枚は保存先が用意できていないと冒頭で `return` する。自動テストに
+ * D1 は無いので、**総当たりが描いていたのは 12 枚とも同じ「いまは編集できません」**
+ * だった。分岐の実測がそれを示している——`admin/blog/pages/page.tsx` は
+ * 29 本中 1 本。上の `authorized` を足したときと**同じ形が、新しい画面で再発した。**
+ *
+ * だから一覧を手で持たない。手で並べると、次にブログ運用の画面を 1 枚足した人が
+ * ここを知らず、**その 1 枚だけ**が断りの画面を描いたまま緑で通る。
+ * 抜けるのはいつも新しい画面である（`worldOf` の説明と同じ理由）。
+ *
+ * 拾い方は `page-render.test.tsx` の `pageFilesOnDisk()` と同じ走査。
+ * 走査は 1 回だけで、結果は使い回す。
+ */
+let blogOpsPages: ReadonlySet<string> | null = null;
+
+function pagesNeedingBlogOps(): ReadonlySet<string> {
+  if (blogOpsPages !== null) return blogOpsPages;
+  const root = join(process.cwd(), "src/app");
+  const found = new Set<string>();
+  const walk = (dir: string): void => {
+    for (const entry of readdirSync(dir, { withFileTypes: true })) {
+      const full = join(dir, entry.name);
+      if (entry.isDirectory()) {
+        walk(full);
+      } else if (entry.name === "page.tsx" && readFileSync(full, "utf8").includes("blogOpsEntry")) {
+        found.add(relative(root, full));
+      }
+    }
+  };
+  walk(root);
+  blogOpsPages = found;
+  return found;
 }
 
 /** 画面を読み込むときの指定。`renderRoute` に渡す。 */

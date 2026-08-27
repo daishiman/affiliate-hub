@@ -124,24 +124,38 @@ export function ProseEditor({
   const [menuAt, setMenuAt] = useState<number | null>(null);
   const [query, setQuery] = useState("");
 
+  /*
+    **画面に出ている並びが、編集の対象そのものである。**
+
+    本文が空のとき、書き始める場所が無いと欄は使えないので 1 つ空の段落を出す。
+    以前はこれを描画のためだけの派生値にしていたが、そうすると
+    **その段落へ打った文字が `nodes`（＝空）へ書き戻され、消える。**
+    新規記事で本文を打っても 1 段落目が保存されない、という形で表に出た
+    （2026-08-27・`tests/ui/prose-editor.test.tsx`）。
+
+    保存には乗らない（空の断片は `commit` が落とす）ので、
+    穴埋めの段落を並びに含めても、公開面へ空の箱は出ない。
+  */
+  const rows = nodes.length === 0 ? [emptyProseNode("paragraph")] : nodes;
+
   function commit(next: readonly ProseNode[]) {
     setNodes(next);
     onValueChange(serializeProse(next.filter((node) => !isEmptyProseNode(node))));
   }
 
   function replaceAt(index: number, node: ProseNode) {
-    commit(nodes.map((current, i) => (i === index ? node : current)));
+    commit(rows.map((current, i) => (i === index ? node : current)));
   }
 
   function removeAt(index: number) {
-    commit(nodes.filter((_, i) => i !== index));
+    commit(rows.filter((_, i) => i !== index));
     setMenuAt(null);
   }
 
   function moveAt(index: number, step: -1 | 1) {
     const to = index + step;
-    if (to < 0 || to >= nodes.length) return;
-    const next = [...nodes];
+    if (to < 0 || to >= rows.length) return;
+    const next = [...rows];
     const moved = next[index] as ProseNode;
     next[index] = next[to] as ProseNode;
     next[to] = moved;
@@ -149,7 +163,7 @@ export function ProseEditor({
   }
 
   function insertAfter(index: number, kind: ProseNodeKind) {
-    const next = [...nodes];
+    const next = [...rows];
     next.splice(index + 1, 0, emptyProseNode(kind));
     commit(next);
     setMenuAt(null);
@@ -162,8 +176,6 @@ export function ProseEditor({
     setMenuAt(null);
     setQuery("");
   }
-
-  const rows = nodes.length === 0 ? [emptyProseNode("paragraph")] : nodes;
 
   return (
     <div className={styles.field}>
@@ -261,7 +273,7 @@ export function ProseEditor({
           <IconButton
             icon="addItem"
             label="いちばん下に段落を足す"
-            onClick={() => commit([...nodes, emptyProseNode("paragraph")])}
+            onClick={() => commit([...rows, emptyProseNode("paragraph")])}
           />
           <span className={styles.hint}>
             空の段落で <code>/</code> と打つと、部品の一覧が出ます。

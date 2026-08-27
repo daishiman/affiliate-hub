@@ -51,7 +51,7 @@ export default async function DeletedSiteNetworkPage() {
               { key: "role", label: "役割" },
               { key: "parent", label: "元の親" },
               { key: "deleted", label: "削除日時" },
-              { key: "restore", label: "" },
+              { key: "restore", label: "操作" },
             ]}
             rows={list.value.rows.map((row) => ({
               key: row.nodeId,

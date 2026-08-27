@@ -52,7 +52,7 @@ export default async function DeletedBlogArticlesPage() {
               { key: "slug", label: "元の URL 名" },
               { key: "status", label: "削除前の状態" },
               { key: "deleted", label: "削除日時" },
-              { key: "restore", label: "" },
+              { key: "restore", label: "操作" },
             ]}
             rows={list.value.rows.map((row) => ({
               key: row.articleId,

@@ -38,6 +38,7 @@ import {
   RankingTable,
   ScheduleCalendar,
   SectionHeading,
+  ScopeSwitch,
   SeeAlso,
   StubLabel,
   StorageNotice,
@@ -774,6 +775,21 @@ export default function UiCatalogPage() {
             <TextLink href="/admin">管理ホームを見る</TextLink>
           </SeeAlso>
         </Stack>
+      </Section>
+
+      <Section title="29. 見ている対象の切り替え" lead={<>
+          いま何を見ているかと、他へ移る行き先を並べます。
+          見た目は注記に似ていますが**役は操作**で、押し間違えると
+          別の対象を直しはじめることになります。だから文の中のリンクと違い、
+          押しどころの下限を持ちます（`scope-switch.tsx` の doc に経緯）。
+          いま見ているものはリンクにせず、太字で置きます。
+        </>}
+      >
+        <ScopeSwitch label="ブログ:">
+          <strong>いま見ているブログ</strong>
+          <TextLink href="/admin">別のブログ</TextLink>
+          <TextLink href="/admin">さらに別のブログ</TextLink>
+        </ScopeSwitch>
       </Section>
     </AdminShell>
   );

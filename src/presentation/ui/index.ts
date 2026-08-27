@@ -49,6 +49,8 @@ export { proseParagraphs } from "./primitives/prose-paragraphs";
 export { Note } from "./patterns/note";
 /* 「続きはあちら」の行き先 1 本。`Note` と見た目は同じで役が違う（`see-also.tsx` の doc）。 */
 export { SeeAlso } from "./patterns/see-also";
+/* 見ている対象の切り替え。文ではなく操作なので押しどころの下限を持つ（`scope-switch.tsx` の doc）。 */
+export { ScopeSwitch } from "./patterns/scope-switch";
 
 /* --- patterns（仕様固有。画面ごとに書き起こさない） --------------------- */
 export {

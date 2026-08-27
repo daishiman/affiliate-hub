@@ -12,6 +12,7 @@ import {
 import {
   Button,
   Callout,
+  Checkbox,
   Field,
   FormResult,
   FormValue,
@@ -99,10 +100,12 @@ export function BlogLayoutSlotForm({
         hint="小さいほど上に出ます。"
         toolParamDescription="同じ置き場所の中での並び順"
       />
-      <label>
-        <input type="checkbox" name="enabled" defaultChecked={enabled} />
-        読者に見せる
-      </label>
+      <Checkbox
+        name="enabled"
+        label="読者に見せる"
+        defaultChecked={enabled}
+        toolParamDescription="この部品を読者の画面に出すかどうか"
+      />
 
       {state.field === "slotKey" ? (
         /*
@@ -187,10 +190,12 @@ export function BlogLayoutBandForm({
         onValueChange={setPositionValue}
         toolParamDescription="トップページでの帯の並び順"
       />
-      <label>
-        <input type="checkbox" name="enabled" defaultChecked={enabled} />
-        読者に見せる
-      </label>
+      <Checkbox
+        name="enabled"
+        label="読者に見せる"
+        defaultChecked={enabled}
+        toolParamDescription="この部品を読者の画面に出すかどうか"
+      />
 
       <Button type="submit" disabled={pending}>
         この帯を保存

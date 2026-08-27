@@ -226,6 +226,16 @@ const EXEMPT: Record<string, Exemption> = {
       "——親の p は塊だが中の a は素の inline のままで、inline のままだと min-height が当たらない。" +
       "行き先が 2 本以上並ぶ場合の折り返しは器の p 側が持つ",
   },
+  // **`.seeAlso > a` と同じ形だが、別の規則として数える。**
+  // あちらは節の末尾の行き先 1 本、こちらは並んだ選択肢で、
+  // 折り返しと項目間の間合いをこちらだけが要る（`scope-switch.tsx` の doc）。
+  "src/presentation/ui/patterns/patterns.module.css :: .scopeSwitch a": {
+    measured: "2026-08-27 新設。子 0 のみ（中身は行き先 1 つぶんの文字）",
+    reason:
+      "中身が文字だけ（切り替え先 1 つ）。**inline-flex は min-height を効かせるために要る**" +
+      "——親の p は塊だが中の a は素の inline のままで、inline のままだと min-height が当たらない。" +
+      "行き先が並ぶときの折り返しは器の .scopeSwitch 側が `flex-wrap: wrap` で持つ",
+  },
   "src/presentation/ui/templates/site.module.css :: .siteNav a": {
     measured: "105 回 / 子 0 のみ（18:20）",
     reason: "中身が文字だけ。折り返しは器の .siteNav 側が持っている",

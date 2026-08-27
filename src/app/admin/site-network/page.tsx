@@ -114,7 +114,7 @@ export default async function SiteNetworkPage({
                 { key: "status", label: "読者に見せる" },
                 { key: "orphan", label: "行き止まり" },
                 { key: "health", label: "運用健全性" },
-                { key: "edit", label: "" },
+                { key: "edit", label: "操作" },
               ]}
               rows={shownRows.map((row) => ({
                 key: row.nodeId,
