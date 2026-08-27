@@ -205,25 +205,12 @@ export function fillSlots(
   });
 }
 
-/** 固定ページ 6 種（legal_page）。 */
-export const LEGAL_PAGE_KINDS = [
-  "operator",
-  "all_categories",
-  "site_policy",
-  "privacy_policy",
-  "tokushoho",
-  "contact",
-] as const;
-export type LegalPageKind = (typeof LEGAL_PAGE_KINDS)[number];
-
-export const LEGAL_PAGE_LABEL: Readonly<Record<LegalPageKind, string>> = {
-  operator: "運営者情報",
-  all_categories: "全カテゴリー",
-  site_policy: "サイトポリシー",
-  privacy_policy: "プライバシーポリシー",
-  tokushoho: "特定商取引法に基づく表記",
-  contact: "お問い合わせ",
-};
+/** @deprecated 固定ページの正本は blogops/fixed-page。旧 import 名だけを保つ。 */
+export {
+  FIXED_PAGE_KINDS as LEGAL_PAGE_KINDS,
+  FIXED_PAGE_LABEL as LEGAL_PAGE_LABEL,
+  type FixedPageKind as LegalPageKind,
+} from "../blogops/fixed-page";
 
 /**
  * 配色の 2 層。ブログ既定（blog_theme）とページ単位の上書き（page_theme_override）。

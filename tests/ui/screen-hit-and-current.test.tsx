@@ -223,10 +223,16 @@ function cssFilesUnder(dir: string, out: string[] = []): string[] {
  */
 function sizedSelectors(): readonly string[] {
   const found: string[] = [];
-  for (const file of [
-    ...cssFilesUnder(join(ROOT, "src/presentation/ui")),
-    ...cssFilesUnder(join(ROOT, "src/app")),
-  ]) {
+  /*
+    **置き場所を書き写さない。** 2026-08-26 まで `src/presentation/ui` と
+    `src/app` だけを見ていた。`src/presentation/prose` に本文の CSS ができた日、
+    そこで下限を当てた部品は「当てていない」と読まれ、直す先を実装の側だと
+    読み違えることになる（`.button` の注釈で 1 度やっている）。
+
+    `src` 配下の `.css` を全部読む。読みすぎて困ることは無い —
+    下限を書いていない規則は、そもそもここに拾われない。
+  */
+  for (const file of cssFilesUnder(join(ROOT, "src"))) {
     // **注釈を先に落とす。** 落とさないと、規則の直前に注釈のある部品
     // （`.button` がそうだった）はセレクタが `/* … */ .button` になり、
     // jsdom が読めずに丸ごと数えられなくなる。**下限を持っているのに

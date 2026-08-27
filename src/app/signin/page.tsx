@@ -1,5 +1,6 @@
 import { ROLE_LABEL } from "@/application/usecases/identity/manage-workspace";
 import { authAvailability } from "@/infrastructure/identity/better-auth";
+import { devSignInDecision } from "@/infrastructure/identity/dev-signin";
 import type { Role } from "@/domain/shared";
 import { actorNotice, signedInActor } from "@/presentation/composition";
 import {
@@ -37,11 +38,12 @@ export default async function SignInPage({
 }: {
   readonly searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
-  const [availability, actor, notice, params] = await Promise.all([
+  const [availability, actor, notice, params, devSignIn] = await Promise.all([
     authAvailability(),
     signedInActor(),
     actorNotice(),
     searchParams,
+    devSignInDecision(),
   ]);
   const failed = params.error !== undefined;
 
@@ -87,6 +89,25 @@ export default async function SignInPage({
               登録が無いアドレスでは、Google の確認が通っても中には入れません。
             </Note>
           </>
+        )}
+
+        {devSignIn.kind === "open" && actor === null && (
+          <Section title="手元で確かめるための入口">
+            <Note>
+              この節は手元の設定（{"DEV_SIGNIN_ENABLED"}）が立っているときだけ出ます。
+              積んだ環境では旗が無く、押す口そのものが存在しません。
+              入るのは {devSignIn.email} の担当者としてで、担当者の登録が無ければここでも入れません。
+            </Note>
+            <ActionButton
+              action="/api/dev-signin"
+              label={`${devSignIn.email} として入る`}
+              tone="quiet"
+              reason={
+                "手元の画面を人が目で確かめるための口である。AI から呼べると、" +
+                "AI が自分で管理者の通行証を取れることになり、権限の判定を置いた意味が無くなる。"
+              }
+            />
+          </Section>
         )}
 
         {actor !== null && (

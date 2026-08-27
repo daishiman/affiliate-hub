@@ -10,6 +10,7 @@ import type { AnyToolDefinition, ToolDefinition } from "./tool-definition";
 import { parseWith, toJsonSchema } from "./define-tool";
 import { affiliateTools } from "./affiliate-tools";
 import { analyticsTools } from "./analytics-tools";
+import { blogOpsTools } from "./blog-ops-tools";
 import { contentTools } from "./content-tools";
 import { distributionTools } from "./distribution-tools";
 import { feedbackTools } from "./feedback-tools";
@@ -97,6 +98,7 @@ export function buildToolCatalog(deps: CatalogDeps): readonly AnyToolDefinition[
     ...readerTools(deps),
     ...productTools(deps),
     ...contentTools(deps),
+    ...blogOpsTools(deps),
     ...platformTools(deps),
     ...distributionTools(deps),
     ...affiliateTools(deps),

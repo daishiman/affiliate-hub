@@ -1447,3 +1447,40 @@
   部品と生クラスの継ぎ目で割らないこと」と書いており、行の一部を別部品にすると
   その継ぎ目が部品どうしの間へ移るだけである。行は 1 つの部品が丸ごと持つ。
 */
+
+/*
+  見ている対象の切り替え（`ScopeSwitch`）。
+
+  **`.seeAlso > a` と同じ宣言を持つが、写しであって共有ではない。**
+  あちらは節の末尾の行き先 1 本、こちらは並んだ選択肢で、
+  折り返しと項目間の間合いをこちらだけが要る。`.note` / `.seeAlso` を
+  分けたのと同じ基準（別々の扱いが要るか）で分けている。
+
+  区切り文字（" / "）を置かないのは、**間合いを文字で作ると
+  押しどころの隙間が字送りに縛られる**ため。gap で作れば、
+  隣を押し間違える幅を器の側で決められる。
+*/
+.scopeSwitch {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+}
+
+.scopeSwitchLabel {
+  color: var(--color-text-muted);
+}
+
+/*
+  行き先そのものに押しどころの下限を当てる。理由は `.seeAlso > a` と同じ
+  （素の inline のままだと高さが行送りぶんしか無く、下限が当たらない）。
+*/
+.scopeSwitch a {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--tap-target-min);
+  padding-inline: var(--space-2);
+}

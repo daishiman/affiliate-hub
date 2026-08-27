@@ -397,3 +397,61 @@ describe("まだ出来ていないものが、出来ているふりをしない�
     }
   });
 });
+
+describe("宣言が、ブラウザへ渡せる形であること", () => {
+  /*
+    **警告ではなく、渡せるかどうかを当てている。**
+
+    React は「サーバーからブラウザへ渡す値」に列挙できない自前の属性があると
+    plain object ではないと判断して落とす。関数は境界を越えられないからである。
+
+    `z.toJSONSchema()` の戻り値がまさにそれだった。zod は仕上げに
+    `Object.defineProperty(..., "~standard", { enumerable: false })` で
+    関数入りの隠し属性を貼る。見た目は JSON なので、目で見ても気づけない。
+
+    **警告文を当てにしない。**警告は開発時にしか出ず、文面も版で変わる。
+    ここで見るのは形そのもの——列挙できない属性が無いこと、
+    そして JSON へ写して戻しても中身が変わらないこと。
+  */
+
+  /** 隠し属性を持つ枝を、根から順に探す。**最初に見つけた場所を言う。** */
+  function hiddenPropertyPath(value: unknown, at = "$"): string | null {
+    if (value === null || typeof value !== "object") return null;
+    if (Array.isArray(value)) {
+      for (const [i, item] of value.entries()) {
+        const found = hiddenPropertyPath(item, `${at}[${i}]`);
+        if (found !== null) return found;
+      }
+      return null;
+    }
+    for (const key of Object.getOwnPropertyNames(value)) {
+      const desc = Object.getOwnPropertyDescriptor(value, key);
+      if (desc === undefined) continue;
+      if (!desc.enumerable) return `${at}.${key}`;
+      if (desc.get !== undefined) return `${at}.${key} (getter)`;
+      const found = hiddenPropertyPath(desc.value, `${at}.${key}`);
+      if (found !== null) return found;
+    }
+    return null;
+  }
+
+  it.each(catalog.map((t) => [t.name, t] as const))(
+    "%s の宣言に、列挙できない属性や getter が無い",
+    (_name, tool: AnyToolDefinition) => {
+      expect(hiddenPropertyPath(tool.inputSchema)).toBeNull();
+    },
+  );
+
+  it("ブラウザへ載せる宣言が、JSON へ写して戻しても変わらない", () => {
+    /*
+      ここだけは実際に渡る経路（`toWebMcpDescriptors`）を通す。
+      道具の一覧に無い形が混ざる余地を消すためである。
+    */
+    const descriptors = toWebMcpDescriptors(catalog);
+    expect(descriptors.length, "ブラウザへ載る道具が 1 つもありません").toBeGreaterThan(0);
+    for (const d of descriptors) {
+      expect(hiddenPropertyPath(d.inputSchema), d.name).toBeNull();
+      expect(JSON.parse(JSON.stringify(d.inputSchema)), d.name).toStrictEqual(d.inputSchema);
+    }
+  });
+});

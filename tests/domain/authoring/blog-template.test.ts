@@ -227,17 +227,19 @@ describe("表現ブロックと固定ページの名札", () => {
     });
   });
 
-  it("固定ページは 6 種で、名札がこの文言で入っている", () => {
+  it("固定ページは公開語彙 8 種と同じ正本を指す", () => {
     expect([...LEGAL_PAGE_KINDS]).toEqual([
-      "operator", "all_categories", "site_policy", "privacy_policy", "tokushoho", "contact",
+      "profile", "sitemap", "site_policy", "privacy_policy", "commercial_transaction", "contact", "review_guidelines", "company",
     ]);
     expect(LEGAL_PAGE_LABEL).toEqual({
-      operator: "運営者情報",
-      all_categories: "全カテゴリー",
+      profile: "運営者プロフィール",
+      sitemap: "サイトマップ",
       site_policy: "サイトポリシー",
       privacy_policy: "プライバシーポリシー",
-      tokushoho: "特定商取引法に基づく表記",
+      commercial_transaction: "特定商取引法に基づく表記",
       contact: "お問い合わせ",
+      review_guidelines: "レビュー方針",
+      company: "運営会社",
     });
   });
 });

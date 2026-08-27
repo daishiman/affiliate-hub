@@ -329,6 +329,26 @@ describe("手元と機械で同じ検査が走る（REQ-CI01 / REQ-CI03）", () 
       "0023_orange_mystique",
       // 断りの記録に糸（request ID）を持たせるための列と索引。旧 0023。
       "0024_aromatic_flatman",
+      // ブログ運用の 8 表（feat-blog-ops-crud）。dev の 0023/0024 と番号がぶつかったので
+      // 0023..0030 → 0025..0032 へずらした。中身は変えていない。
+      "0025_faithful_ultimatum",
+      // 読者の評価を「消さずに伏せる」ための印（blog_article_rating.hidden）。
+      "0026_black_vargas",
+      // タグの種類（blog_tag.kind）。既定は topic — 既存タグを勝手にブランド扱いしない。
+      "0027_careless_goliath",
+      // 配信物を点検した結果（blog_delivery_snapshot）。設定表とは別の表で、履歴として積む。
+      "0028_cuddly_nuke",
+      // サイト網・ブログ記事の論理削除日時。hidden / archived とは別のライフサイクル。
+      "0029_dashing_gamma_corps",
+      // 記事編集の正本を articles へ一本化し、旧 blog_article を移送後に廃止する。
+      "0030_unify_blog_article_ssot",
+      // 固定ページへ公開状態と論理削除日時を足し、公開投影の境界を保存する。
+      "0031_publish_fixed_pages",
+      // 記事・タグ結合の親 FK。保存検証後の競合削除も batch 全体で戻す。
+      "0032_square_wolfpack",
+      // ブログの子表（部品・タグ結合・評価）と固定ページへ作業場所の列と索引を足す。
+      // 親から辿れば分かる、では足りない——join を 1 度忘れた 1 本で他所の行に触れる。
+      "0033_tenant_scope_blog_children",
     ];
     const journal = JSON.parse(read("drizzle/meta/_journal.json")) as {
       entries: Array<{ tag: string }>;

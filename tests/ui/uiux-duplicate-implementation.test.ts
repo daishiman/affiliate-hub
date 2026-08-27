@@ -39,7 +39,14 @@ const ROOT = process.cwd();
  * 範囲の取りこぼしは §1 の床が検出する（範囲を手で書く以上、
  * **手で書いた範囲が実体と合っているか**を別に測らないと、また同じ穴が空く）。
  */
-const SCAN_DIRS = ["src/app", "src/presentation/admin", "src/presentation/site"] as const;
+const SCAN_DIRS = [
+  "src/app",
+  "src/presentation/admin",
+  "src/presentation/site",
+  // 本文の断片を描く層。`presentation/ui` と違って**定義ではなく組み立て**が入るので、
+  // 除外せず数える側に置く（描く側と書く側で同じ並びが写りうる場所である）。
+  "src/presentation/prose",
+] as const;
 
 /**
  * `.tsx` を持つが走査しない場所と、その理由。
@@ -167,11 +174,54 @@ function locallyDefinedComponents(source: string): Set<string> {
  */
 const NOT_A_TAG = new Set(["typeof", "keyof", "infer", "readonly", "new", "extends", "in"]);
 
-/** 出現順のタグ名。閉じタグと自己終端は数えない（同じ要素を 2 回数えるため）。 */
-function tagSequence(source: string): string[] {
-  return [...source.matchAll(/<([A-Za-z][A-Za-z0-9.]*)[\s/>]/g)]
-    .map((m) => m[1])
-    .filter((tag) => !NOT_A_TAG.has(tag));
+/**
+ * 役割を持たない包みタグ。**これだけは名前だけでは同じ形かどうか言えない。**
+ *
+ * `ul` や `table` や `input` はタグ自体が役割を持つので、名前が一致すれば
+ * 同じ役割である。`div` と `span` は違う。**どの画面にも出る**ので、
+ * 名前だけで数えると「3 つ続けて包んだ」というだけの並びが重複になる。
+ *
+ * 2026-08-26 に実際そうなった。`div>div>div` が
+ * `ui-catalog/density-samples.tsx`（余白の見本を 3 段に包む）と
+ * `prose/prose-editor.tsx`（断片の帯を 3 段に包む）で一致したが、
+ * この 2 つに共有できる構造は無い。**引き上げ先の無い赤**である。
+ *
+ * そこで包みタグに限り、当てている CSS クラス名を役割として足す。
+ * `div.proseEditorBar` と `div.densitySample` は別の形として数え、
+ * **同じクラスを 2 か所で組み立てていれば今までどおり赤くなる。**
+ */
+const WRAPPER_TAGS = new Set(["div", "span"]);
+
+/**
+ * 出現順のタグ名。閉じタグと自己終端は数えない（同じ要素を 2 回数えるため）。
+ *
+ * `case` の境目で並びを切る。**switch の別の枝は、同時には描かれない。**
+ * 枝をまたいだ窓は画面のどこにも存在しない形で、写しようがない。
+ * 2026-08-26 に `prose-body.tsx` の `SectionHeading>ul>li` がこれで出た —
+ * 見出しの枝と箇条書きの枝は排他で、並んで描かれることは無い。
+ */
+function tagSequence(source: string): readonly (readonly string[])[] {
+  return source.split(/\bcase\s/).map((branch) =>
+    /*
+      タグ名の後ろは `[\s/>]` で終端を確かめる。ここを緩めると
+      `Record<string, string>` の型引数がタグとして数えられる
+      （2026-08-26 に実際そうなった）。第 2 群は属性のかたまりで、
+      `{...}` の中に `<` が来ても外へはみ出さないようにしてある。
+    */
+    [...branch.matchAll(/<([A-Za-z][A-Za-z0-9.]*)([\s/>][^<>{}]*(?:\{[^{}]*\}[^<>{}]*)*)/g)]
+      .filter((m) => !NOT_A_TAG.has(m[1] as string))
+      .map((m) => {
+        const tag = m[1] as string;
+        if (!WRAPPER_TAGS.has(tag)) return tag;
+        const cls = /className=\{styles\.(\w+)\}/.exec(m[2] ?? "");
+        return cls === null ? tag : `${tag}.${cls[1]}`;
+      }),
+  );
+}
+
+/** 窓を数えるときのタグ名。役割つきの `div.foo` から `div` に戻す。 */
+function bareTag(token: string): string {
+  return token.split(".")[0] as string;
 }
 
 type Window = { readonly key: string; readonly tags: readonly string[]; readonly file: string };
@@ -190,7 +240,7 @@ for (const file of files) {
   const source = readFileSync(file, "utf8");
   // タグを数えるときだけコメント・文字列を落とす。import 文の取り出しには生の本文が要る
   // （from の後ろは文字列リテラルなので、落とすと入口が全部消える）。
-  const tags = tagSequence(stripNonCode(source));
+  const branches = tagSequence(stripNonCode(source));
   const shared = sharedNames(source);
   const rel = relative(ROOT, file);
 
@@ -198,11 +248,12 @@ for (const file of files) {
     localDefs.set(name, [...(localDefs.get(name) ?? []), rel]);
   }
 
+  for (const tags of branches) {
   for (let i = 0; i + WINDOW <= tags.length; i += 1) {
     const slice = tags.slice(i, i + WINDOW);
     // 共通部品だけの並びは、共通化が効いている証拠なので数えない。
-    if (slice.every((t) => shared.has(t))) continue;
-    const raw = slice.filter((t) => !shared.has(t) && /^[a-z]/.test(t)).length;
+    if (slice.every((t) => shared.has(bareTag(t)))) continue;
+    const raw = slice.filter((t) => !shared.has(bareTag(t)) && /^[a-z]/.test(t)).length;
     if (raw >= 1) windowsWithRawTag += 1;
     if (raw >= MIN_RAW_TAGS) windowsWithRawPair += 1;
     /*
@@ -222,6 +273,7 @@ for (const file of files) {
      */
     if (raw < MIN_RAW_TAGS) continue;
     windows.push({ key: slice.join(">"), tags: slice, file: rel });
+  }
   }
 }
 
@@ -339,7 +391,8 @@ describe("A6 §1 検査そのものが効いている", () => {
      */
     const withTagInComment = files.filter((f) => {
       const raw = readFileSync(f, "utf8");
-      return tagSequence(raw).length > tagSequence(stripNonCode(raw)).length;
+      // 並びは `case` ごとに分かれているので、数えるときは平らにする。
+      return tagSequence(raw).flat().length > tagSequence(stripNonCode(raw)).flat().length;
     });
     expect(
       withTagInComment.length,

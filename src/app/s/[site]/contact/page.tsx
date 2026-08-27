@@ -1,7 +1,8 @@
 import { SiteFrame } from "@/presentation/site/page-frame";
 import { ContactForm } from "@/presentation/site/contact-form";
+import { PublicFixedPageContent } from "@/presentation/site/public-fixed-page";
 import { siteHref } from "@/presentation/site/view-model";
-import { SitePage, StubNotice, UI_COPY } from "@/presentation/ui";
+import { StubNotice } from "@/presentation/ui";
 
 export const dynamic = "force-dynamic";
 
@@ -23,17 +24,22 @@ export default async function ContactPage({
       siteSlug={site}
       currentPath={siteHref(site, "/contact")}
       trail={[{ label: "問い合わせ" }]}
+      requiredFixedPageKind="contact"
     >
-      {() => (
-        <SitePage title="問い合わせ" lead={UI_COPY.reader.contactNote}>
+      {({ projection }) => {
+        const page = projection.fixedPages.find((candidate) => candidate.kind === "contact");
+        if (page === undefined) return null;
+        return (
+        <PublicFixedPageContent page={page}>
           <StubNotice
             what="問い合わせの送信"
             blockedBy="自動送信よけ (Turnstile) の鍵と、送信元メールアドレスの登録"
             stubId="reader:contact-sink"
           />
           <ContactForm siteSlug={site} />
-        </SitePage>
-      )}
+        </PublicFixedPageContent>
+        );
+      }}
     </SiteFrame>
   );
 }

@@ -154,7 +154,7 @@ type Exemption = {
  * 理由の側に書いてある——外すと次に数える人が同じ 3 件を数え直すため。
  */
 const EXEMPT: Record<string, Exemption> = {
-  // --- 数に出るが、別のセレクタが同じ要素に輪郭を与えている（3 件）-------
+  // --- 数に出るが、別のセレクタが同じ要素に輪郭を与えている（4 件）-------
   "src/presentation/ui/patterns/patterns.module.css :: .table thead th": {
     measured: "2026-08-21。同じファイルの `.table th, .table td` を読んで確認",
     reason:
@@ -165,6 +165,13 @@ const EXEMPT: Record<string, Exemption> = {
   "src/presentation/ui/patterns/patterns.module.css :: .table tbody th": {
     measured: "2026-08-21。同上",
     reason: "**壊れていない。**同じく `.table th, .table td` の border-bottom を受け取っている",
+  },
+  "src/presentation/prose/prose.module.css :: .proseTable th": {
+    measured: "2026-08-26。同じファイルの `.proseTable th, .proseTable td` を読んで確認",
+    reason:
+      "**壊れていない。**`.proseTable th, .proseTable td` が実線の border を四辺に持っており、" +
+      "この要素はそれを受け取っている。ここが足しているのは見出し行の地色と太字だけで、" +
+      "地色が均されても枠と太字が残る",
   },
   "src/presentation/ui/primitives/ui.module.css :: .inputAuto": {
     measured: "2026-08-21。`textarea.tsx` / `input.tsx` の className を読んで確認",

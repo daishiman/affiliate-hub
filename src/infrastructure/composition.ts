@@ -8,6 +8,7 @@ import {
   createCommercialD1LinkInboxRepository,
   type DrizzleD1,
 } from "./persistence/d1/link-inbox-repository";
+import { createD1BlogOpsRepository } from "./persistence/d1/blog-ops-repository";
 import { createD1SiteDraftRepository } from "./persistence/d1/site-draft-repository";
 import {
   createD1ChannelConnectionRepository,
@@ -116,6 +117,7 @@ import {
 import { createHandoffTemplates } from "./generation/handoff-templates";
 import { hashSecret, mintSecret } from "./platform/secret-minter";
 import { createSampleLinkIngestionRepository } from "./persistence/sample/link-inbox-sample-repository";
+import { createSampleBlogOpsRepository } from "./persistence/sample/blog-ops-sample-repository";
 import { createSampleSiteDraftRepository } from "./persistence/sample/site-draft-sample-repository";
 import { createSampleSiteRepository } from "./persistence/sample/site-sample-repository";
 import { idGenerator } from "./platform/id-generator";
@@ -204,6 +206,7 @@ export function createDeps(
     // 保存先が無い環境では、出す操作は**失敗を返す**（保存できたことにしない）。
     sites: db === null ? createSampleSiteRepository() : createD1SiteRepository(db),
     siteDrafts: db === null ? createSampleSiteDraftRepository() : createD1SiteDraftRepository(db),
+    blogOps: db === null ? createSampleBlogOpsRepository() : createD1BlogOpsRepository(db),
     publishedContent: db === null ? createSampleContentRepository() : createD1ContentRepository(db),
     //
     // **出す口を合言葉の発行で包んでいる。** 記事を出す経路はここ 1 つなので、

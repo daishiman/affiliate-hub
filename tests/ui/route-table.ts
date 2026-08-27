@@ -1,97 +1,20 @@
 /**
- * 画面の一覧と、開くのに必要な値。
+ * 表の 1 行を「描く」ところ。**表そのものは `route-cases.ts` にある。**
  *
- * 管理画面は production の `ADMIN_ROUTE_METADATA` から射影する。
- * 読者画面はこのファイルがテスト入力を持つ。ファイルの実在との突き合わせは
- * `page-render.test.tsx` が担い、追加画面だけ検査から漏れる状態を止める。
+ * 割った理由はそちらの冒頭に書いた。要点だけ言うと、Playwright は React を
+ * 持ち込めないのでこのファイルを import できず、以前は表を構文木から手読みしていた。
+ * 表を描く道具から独立させたことで、その手読みが不要になった。
  *
- * 値の出どころは見本の保存先（src/infrastructure/persistence/sample/）。
- * ここに文字列を手で作らないのは、見本データ側の識別子が変わったときに
- * 「404 を描いて 200 になっている」状態に静かに落ちるため。
+ * ここは vitest 側の入口として、表をそのまま再輸出し、描く手順を足す。
  */
 
-import { SAMPLE_SITE_SLUG } from "@/infrastructure/persistence/sample/site-sample-repository";
-import { ADMIN_ROUTE_METADATA } from "@/presentation/ui/admin-route-metadata";
+import { readFileSync, readdirSync } from "node:fs";
+import { join, relative } from "node:path";
 import { type RouteWorld, renderRoute, renderRouteIn } from "../support/render";
+import { SITE } from "./route-cases";
 
-/** 開ける画面 1 枚分。`file` は `src/app` からの相対パス。 */
-export type RouteCase = {
-  /** 例: `admin/products/[product]/page.tsx` */
-  readonly file: string;
-  /** 動的な部分（`[product]` など）に入れる値。 */
-  readonly params?: Readonly<Record<string, string>>;
-  /** `?` 以降。既定の表示を見たいときは省く。 */
-  readonly searchParams?: Readonly<Record<string, string | string[]>>;
-};
-
-const SITE = SAMPLE_SITE_SLUG;
-
-/** productionの正本から射影した運営側の画面。 */
-const ADMIN_PARAM_EXAMPLES: Readonly<Record<string, string>> = {
-  conversion: "cv_2026_08_a",
-  product: "p_alpha_15",
-  publication: "pub_own_site",
-  report: "fb_sample_sort",
-  site: SITE,
-  variant: "cv_alpha_review",
-};
-
-const ADMIN: readonly RouteCase[] = ADMIN_ROUTE_METADATA.map((route) => {
-  const names = [...route.pattern.matchAll(/\[([^\]]+)\]/g)].map((match) => match[1]);
-  return {
-    file: route.file,
-    ...(names.length === 0
-      ? {}
-      : { params: Object.fromEntries(names.map((name) => [name, ADMIN_PARAM_EXAMPLES[name]])) }),
-  };
-});
-
-/** 読者側の画面。すべて見本のブログ 1 つで開く。 */
-const READER: readonly RouteCase[] = [
-  { file: "s/[site]/page.tsx", params: { site: SITE } },
-  { file: "s/[site]/advertising-policy/page.tsx", params: { site: SITE } },
-  { file: "s/[site]/ai-policy/page.tsx", params: { site: SITE } },
-  { file: "s/[site]/authors/[author]/page.tsx", params: { site: SITE, author: "miwa" } },
-  { file: "s/[site]/best/[topic]/page.tsx", params: { site: SITE, topic: "laptops-for-video-editing" } },
-  { file: "s/[site]/categories/[category]/page.tsx", params: { site: SITE, category: "laptops" } },
-  { file: "s/[site]/compare/[comparison]/page.tsx", params: { site: SITE, comparison: "alpha-vs-beta" } },
-  { file: "s/[site]/contact/page.tsx", params: { site: SITE } },
-  { file: "s/[site]/corrections/page.tsx", params: { site: SITE } },
-  { file: "s/[site]/editorial-policy/page.tsx", params: { site: SITE } },
-  { file: "s/[site]/experts/[expert]/page.tsx", params: { site: SITE, expert: "arai" } },
-  { file: "s/[site]/guides/[topic]/page.tsx", params: { site: SITE, topic: "choosing-storage" } },
-  { file: "s/[site]/measurement/page.tsx", params: { site: SITE } },
-  { file: "s/[site]/methodology/page.tsx", params: { site: SITE } },
-  { file: "s/[site]/privacy/page.tsx", params: { site: SITE } },
-  { file: "s/[site]/reviews/[product]/page.tsx", params: { site: SITE, product: "alpha-studio-15" } },
-  { file: "s/[site]/search/page.tsx", params: { site: SITE }, searchParams: { q: "ノートパソコン" } },
-  { file: "s/[site]/shortlist/page.tsx", params: { site: SITE } },
-  { file: "s/[site]/terms/page.tsx", params: { site: SITE } },
-  { file: "s/[site]/tools/[tool]/page.tsx", params: { site: SITE, tool: "storage-estimator" } },
-];
-
-/** どこにも属さない入口。 */
-const ENTRY: readonly RouteCase[] = [{ file: "page.tsx" }, { file: "signin/page.tsx" }];
-
-export const ROUTE_CASES: readonly RouteCase[] = [...ENTRY, ...ADMIN, ...READER];
-
-/**
- * 運営側の画面だけ。**権限を持った身元で描き直す**検査が使う。
- *
- * 既定の描画は見本の身元（読むだけ）で走るので、権限のある人にだけ見える部分は
- * 描かれない。同じ表から回すことで、画面を足したときに両方へ自動的に入る。
- *
- * **↑ ここも 2026-08-21 まで実現していなかった。**「権限を持った身元で描き直す
- * 検査」は 1 つも存在せず、この表を使う 2 つの検査（現在地とパンくず）は
- * **どちらも見本の身元で描いていた。**下の 155 行目付近と同じ形である
- * ——**理由は正しく、実現していないだけ。**いまは `worldOf` が前提を足す。
- *
- * **同じ形が 96 行目と 155 行目付近の 2 箇所で見つかった。**1 箇所なら書き損じだが、
- * 2 箇所あると疑いになる——**この表の説明は、書いた時点の意図であって、実装の
- * 記述ではないかもしれない。**読むときは説明を信じる前に、その前提を足している
- * コードが実在するかを見ること。
- */
-export const ADMIN_ROUTE_CASES: readonly RouteCase[] = ADMIN;
+export { ADMIN_ROUTE_CASES, ROUTE_CASES, type RouteCase } from "./route-cases";
+import type { RouteCase } from "./route-cases";
 
 /**
  * 同じ画面を別の状態でもう一度開く場合。
@@ -234,7 +157,47 @@ export const ROUTE_STATE_CASES: readonly (RouteCase & {
 export function worldOf(
   route: RouteCase & { readonly world?: RouteWorld },
 ): RouteWorld | undefined {
-  return route.world ?? (route.file.startsWith("admin/") ? "authorized" : undefined);
+  if (route.world !== undefined) return route.world;
+  if (!route.file.startsWith("admin/")) return undefined;
+  return pagesNeedingBlogOps().has(route.file) ? "blog-ops-ready" : "authorized";
+}
+
+/**
+ * `blogOpsEntry()` を呼ぶ画面を**ソースから拾う。一覧を手で書かない。**
+ *
+ * --- なぜ拾うのか（2026-08-27）---
+ *
+ * この 12 枚は保存先が用意できていないと冒頭で `return` する。自動テストに
+ * D1 は無いので、**総当たりが描いていたのは 12 枚とも同じ「いまは編集できません」**
+ * だった。分岐の実測がそれを示している——`admin/blog/pages/page.tsx` は
+ * 29 本中 1 本。上の `authorized` を足したときと**同じ形が、新しい画面で再発した。**
+ *
+ * だから一覧を手で持たない。手で並べると、次にブログ運用の画面を 1 枚足した人が
+ * ここを知らず、**その 1 枚だけ**が断りの画面を描いたまま緑で通る。
+ * 抜けるのはいつも新しい画面である（`worldOf` の説明と同じ理由）。
+ *
+ * 拾い方は `page-render.test.tsx` の `pageFilesOnDisk()` と同じ走査。
+ * 走査は 1 回だけで、結果は使い回す。
+ */
+let blogOpsPages: ReadonlySet<string> | null = null;
+
+function pagesNeedingBlogOps(): ReadonlySet<string> {
+  if (blogOpsPages !== null) return blogOpsPages;
+  const root = join(process.cwd(), "src/app");
+  const found = new Set<string>();
+  const walk = (dir: string): void => {
+    for (const entry of readdirSync(dir, { withFileTypes: true })) {
+      const full = join(dir, entry.name);
+      if (entry.isDirectory()) {
+        walk(full);
+      } else if (entry.name === "page.tsx" && readFileSync(full, "utf8").includes("blogOpsEntry")) {
+        found.add(relative(root, full));
+      }
+    }
+  };
+  walk(root);
+  blogOpsPages = found;
+  return found;
 }
 
 /** 画面を読み込むときの指定。`renderRoute` に渡す。 */

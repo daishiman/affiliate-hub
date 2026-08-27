@@ -16,6 +16,7 @@
 import { describe, expect, it } from "vitest";
 import { ROUTE_CASES, ROUTE_STATE_CASES, renderCase } from "./route-table";
 import { intoDom } from "../support/render";
+import { SCREEN_RENDER_BUDGET_MS } from "../../quality-gates.config.mjs";
 
 /**
  * **走査が画面の中身に届いているか**を見る。押しどころは見ない。
@@ -139,7 +140,7 @@ describe("走査が、権限の断りではなく画面の中身に届いてい�
               "開けない理由を PARTIAL へ書くこと"),
       ).toBe(false);
     },
-    20_000,
+    SCREEN_RENDER_BUDGET_MS,
   );
 
   it("一部だけ断られている画面の一覧が、いまも当たっている", async () => {
@@ -151,5 +152,5 @@ describe("走査が、権限の断りではなく画面の中身に届いてい�
       expect(shape.denied, `${file} はもう断られていません。PARTIAL から外すこと`).toBe(true);
       expect(reason.length, `${file} の理由が空です`).toBeGreaterThan(20);
     }
-  }, 20_000);
+  }, SCREEN_RENDER_BUDGET_MS);
 });

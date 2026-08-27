@@ -9,6 +9,7 @@ export const A11Y_TEST_FILES = [
   "tests/ui/ai-usage-page.test.tsx",
   "tests/ui/axe-blind-spots.test.ts",
   "tests/ui/axe-rule-coverage.test.ts",
+  "tests/ui/blog-ops-a11y-floor.test.tsx",
   "tests/ui/capture-canvas.test.tsx",
   "tests/ui/feedback-admin-forms.test.tsx",
   "tests/ui/feedback-button.test.tsx",
@@ -16,6 +17,7 @@ export const A11Y_TEST_FILES = [
   "tests/ui/page-degraded.test.tsx",
   "tests/ui/page-empty.test.tsx",
   "tests/ui/page-render.test.tsx",
+  "tests/ui/prose-editor.test.tsx",
 ];
 
 /**

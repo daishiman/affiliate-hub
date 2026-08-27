@@ -37,6 +37,7 @@
 import { beforeAll, describe, expect, it, vi } from "vitest";
 import { ADMIN_ROUTE_CASES, importPathOf, propsOf } from "./route-table";
 import { renderRoute, textOf } from "../support/render";
+import { SCREEN_SWEEP_BUDGET_MS } from "../../quality-gates.config.mjs";
 
 /**
  * 身元の役を、検査の途中で差し替えられるようにする。
@@ -131,7 +132,7 @@ describe("できてはいけない側", () => {
       const reader = await renderAs(READER, route.file);
       seen.push({ file: route.file, owner, reader });
     }
-  }, 120_000);
+  }, SCREEN_SWEEP_BUDGET_MS);
 
   it("骨格の入口が、読み手の側で増えない", () => {
     for (const s of seen) {

@@ -46,6 +46,8 @@ export function SiteShell({
   appearance,
   consent,
   telemetry,
+  sidebar,
+  sidebarSticky,
   children,
 }: {
   readonly chrome: SiteChrome;
@@ -74,8 +76,45 @@ export function SiteShell({
   };
   /** 計測を拾う部品。画面ではなく骨格に置く（置き忘れを起こさないため）。 */
   readonly telemetry?: ReactNode;
+  /**
+   * 本文の脇に置く欄（§3.4 の通常枠）。
+   *
+   * **渡さなければ段組みそのものが出ない。**空の脇を作って本文を狭めない。
+   * 中身が何かをこの枠は知らない。知ると「このブログのときだけ」が
+   * ここに戻ってくる。
+   */
+  readonly sidebar?: ReactNode;
+  /**
+   * 脇の欄のうち、巻いても付いてくる分（§3.4 の追従枠）。
+   *
+   * `sidebar` と分けているのは、**追従は位置の話で、中身の話ではない**から。
+   * 同じ配列で渡して「後ろ 2 つは追従」と決めると、枠が 1 つ増えた日に
+   * 追従する枠が入れ替わる。
+   */
+  readonly sidebarSticky?: ReactNode;
   readonly children: ReactNode;
 }) {
+  const hasAside = sidebar !== undefined || sidebarSticky !== undefined;
+  const main = (
+    <main className={[styles.siteMain, hasAside ? styles.siteMainWithAside : ""].join(" ").trim()}>
+      {breadcrumbs !== undefined && breadcrumbs.length > 0 && (
+        <nav className={styles.breadcrumb} aria-label="現在の場所">
+          {breadcrumbs.map((crumb, i) => (
+            <span key={`${crumb.label}-${i}`}>
+              {i > 0 && <span aria-hidden="true"> / </span>}
+              {crumb.href !== undefined && i < breadcrumbs.length - 1 ? (
+                <Link href={crumb.href}>{crumb.label}</Link>
+              ) : (
+                <span>{crumb.label}</span>
+              )}
+            </span>
+          ))}
+        </nav>
+      )}
+      {children}
+    </main>
+  );
+
   return (
     <div className={styles.siteShell} {...{ [APPEARANCE_ATTR.scheme]: chrome.brandTheme }}>
       {telemetry}
@@ -99,23 +138,25 @@ export function SiteShell({
         </div>
       </header>
 
-      <main className={styles.siteMain}>
-        {breadcrumbs !== undefined && breadcrumbs.length > 0 && (
-          <nav className={styles.breadcrumb} aria-label="現在の場所">
-            {breadcrumbs.map((crumb, i) => (
-              <span key={`${crumb.label}-${i}`}>
-                {i > 0 && <span aria-hidden="true"> / </span>}
-                {crumb.href !== undefined && i < breadcrumbs.length - 1 ? (
-                  <Link href={crumb.href}>{crumb.label}</Link>
-                ) : (
-                  <span>{crumb.label}</span>
-                )}
-              </span>
-            ))}
-          </nav>
-        )}
-        {children}
-      </main>
+      {hasAside ? (
+        <div className={styles.siteBody}>
+          {main}
+          {/*
+            `<aside>` に名前を付ける。名前の無い `aside` は読み上げの
+            目印一覧に「補足」としか出ず、本文との行き来ができない。
+            **本文より後ろに置く。**読み上げと Tab の順は書いた順なので、
+            前に置くと記事へ着くまでに枠を全部通ることになる（見た目の左右は CSS の話）。
+          */}
+          <aside className={styles.siteAside} aria-label="この記事の周辺">
+            {sidebar}
+            {sidebarSticky !== undefined && (
+              <div className={styles.siteAsideSticky}>{sidebarSticky}</div>
+            )}
+          </aside>
+        </div>
+      ) : (
+        main
+      )}
 
       <footer className={styles.siteFooter}>
         <div className={styles.siteFooterInner}>

@@ -58,7 +58,6 @@ const SCHEMA_FILES = ["src/db/schema.ts", "src/db/auth-schema.ts"];
 const UNWIRED: ReadonlySet<string> = new Set([
   "blog_theme",
   "page_theme_override",
-  "legal_page",
   "blog_template",
   "blog_affiliate_placement",
 ]);
@@ -84,10 +83,6 @@ const TABLE_EXEMPT: Readonly<
   products: {
     kind: "legacy_unused",
     why: "旧・商品。いまの商品は catalog_products（作業場所つき）",
-  },
-  articles: {
-    kind: "legacy_unused",
-    why: "旧・記事。いまの記事は content_variants / published_articles",
   },
   article_people: { kind: "legacy_unused", why: "旧・記事の関連表" },
   article_products: { kind: "legacy_unused", why: "旧・記事の関連表" },
@@ -121,7 +116,6 @@ const TABLE_EXEMPT: Readonly<
    */
   blog_theme: { kind: "unwired", why: "site_slug 鍵。読み書きする口がまだ無い" },
   page_theme_override: { kind: "unwired", why: "site_slug 鍵。読み書きする口がまだ無い" },
-  legal_page: { kind: "unwired", why: "site_slug 鍵。読み書きする口がまだ無い" },
 };
 
 /**
@@ -207,6 +201,10 @@ const QUERY_EXEMPT: Readonly<Record<string, { readonly count: number; readonly w
   "infrastructure/persistence/d1/redirect-repository.ts::redirectResolutions::issue": {
     count: 1,
     why: "無効にする行は直前の findSlot(workspaceId, ...) で作業場所つきに絞って取った行。code は主キー",
+  },
+  "infrastructure/persistence/d1/blog-ops-repository.ts::blogArticleRatings::summarize": {
+    count: 1,
+    why: "読者向けの平均点。読者に作業場所は無く、手がかりは公開中の記事 id だけ",
   },
   "infrastructure/persistence/d1/site-draft-repository.ts::siteBlueprints::listPublishedBlueprints":
     { count: 1, why: "読者向けの公開ブログ一覧。読者に作業場所は無い" },

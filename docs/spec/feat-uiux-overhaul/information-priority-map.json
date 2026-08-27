@@ -1879,6 +1879,311 @@
         "cards": 7,
         "forms": 0
       }
+    },
+    {
+      "route": "/admin/site-network",
+      "primary_task": "ブログ同士のつながりを見て、行き止まりを見つける",
+      "task_frequency": "medium",
+      "failure_cost": "medium",
+      "keep": [
+        {
+          "item": "つながっていない枝の数",
+          "why": "そこだけが読者から辿り着けない場所になる"
+        }
+      ],
+      "drop": [],
+      "transform": [
+        {
+          "item": "画面説明文 (40 字)",
+          "to": "「行き止まりを見つける」まで短縮",
+          "why": "一覧の目的は行き止まりの発見に絞る"
+        }
+      ]
+    },
+    {
+      "route": "/admin/site-network/[node]",
+      "primary_task": "1 本のつながりを直す / 外す",
+      "task_frequency": "low",
+      "failure_cost": "high",
+      "keep": [
+        {
+          "item": "いま親にしているブログ",
+          "why": "付け替えると読者の道順が丸ごと変わる"
+        }
+      ],
+      "drop": [],
+      "transform": [
+        {
+          "item": "外すときの確認",
+          "to": "理由入力を必須にする",
+          "why": "戻せない操作は理由が残らないと追えない"
+        }
+      ]
+    },
+    {
+      "route": "/admin/site-network/new",
+      "primary_task": "つながりに 1 本足す",
+      "task_frequency": "low",
+      "failure_cost": "medium",
+      "keep": [
+        {
+          "item": "選べるブログの一覧",
+          "why": "無い相手を親にすると木が壊れる"
+        }
+      ],
+      "drop": [],
+      "transform": [
+        {
+          "item": "画面説明文 (40 字)",
+          "to": "「1 本足す」まで短縮",
+          "why": "作る画面の説明は入力欄そのもので足りる"
+        }
+      ]
+    },
+    {
+      "route": "/admin/site-network/deleted",
+      "primary_task": "削除済みのつながりを確かめ、必要なら戻す",
+      "task_frequency": "low",
+      "failure_cost": "high",
+      "keep": [
+        {
+          "item": "元の親・URL・削除日時",
+          "why": "復元時に親子関係と同じURLを再検証する判断材料になる"
+        }
+      ],
+      "drop": [],
+      "transform": [
+        {
+          "item": "復元操作",
+          "to": "削除済みの1行ごとに独立した復元フォームにする",
+          "why": "別のブログを誤って一緒に戻さない"
+        }
+      ]
+    },
+    {
+      "route": "/admin/blog",
+      "primary_task": "ブログの見た目と中身のどこを直すか決める (索引)",
+      "task_frequency": "high",
+      "failure_cost": "low",
+      "keep": [
+        {
+          "item": "6 つの入口の一覧",
+          "why": "ここから行き先を選ぶ判断材料そのもの"
+        }
+      ],
+      "drop": [],
+      "transform": [
+        {
+          "item": "画面説明文 (40 字)",
+          "to": "「行き先を選ぶ」まで短縮",
+          "why": "入口の説明は一覧そのもので足りる"
+        }
+      ]
+    },
+    {
+      "route": "/admin/blog/layout",
+      "primary_task": "ヘッダー・サイドバー・帯に何を出すか決める",
+      "task_frequency": "medium",
+      "failure_cost": "medium",
+      "keep": [
+        {
+          "item": "いま出している枠と帯",
+          "why": "出していない枠は読者に永久に見えない"
+        }
+      ],
+      "drop": [],
+      "transform": [
+        {
+          "item": "枠ごとの保存",
+          "to": "1 行 1 フォームにする",
+          "why": "1 か所の失敗で全部の入力が巻き戻らない"
+        }
+      ]
+    },
+    {
+      "route": "/admin/blog/delivery",
+      "primary_task": "読者へ届く経路 (feed・sitemap など) の出し入れを決める",
+      "task_frequency": "low",
+      "failure_cost": "high",
+      "keep": [
+        {
+          "item": "止まっている経路",
+          "why": "止めたままだと新しい記事が誰にも届かない"
+        }
+      ],
+      "drop": [],
+      "transform": [
+        {
+          "item": "経路ごとの保存",
+          "to": "1 行 1 フォームにする",
+          "why": "止める判断は経路ごとに分けて残す"
+        }
+      ]
+    },
+    {
+      "route": "/admin/blog/articles",
+      "primary_task": "次に手を入れる記事を決める",
+      "task_frequency": "high",
+      "failure_cost": "low",
+      "keep": [
+        {
+          "item": "記事の状態と足りない部品",
+          "why": "次に触る 1 本を選ぶ材料そのもの"
+        }
+      ],
+      "drop": [],
+      "transform": [
+        {
+          "item": "画面説明文 (40 字)",
+          "to": "「次に触る記事を選ぶ」まで短縮",
+          "why": "一覧の説明は列見出しで足りる"
+        }
+      ]
+    },
+    {
+      "route": "/admin/blog/articles/new",
+      "primary_task": "記事を 1 本作る",
+      "task_frequency": "medium",
+      "failure_cost": "low",
+      "keep": [
+        {
+          "item": "型ごとに要る部品の一覧",
+          "why": "足りないまま作ると後で公開できない"
+        }
+      ],
+      "drop": [],
+      "transform": [
+        {
+          "item": "画面説明文 (40 字)",
+          "to": "「1 本作る」まで短縮",
+          "why": "作る画面の説明は入力欄そのもので足りる"
+        }
+      ]
+    },
+    {
+      "route": "/admin/blog/articles/deleted",
+      "primary_task": "削除済みの記事を確かめ、必要なら戻す",
+      "task_frequency": "low",
+      "failure_cost": "high",
+      "keep": [
+        {
+          "item": "元のブログ・URL名・公開状態・削除日時",
+          "why": "復元時の所属とslug競合を判断するために必要"
+        }
+      ],
+      "drop": [],
+      "transform": [
+        {
+          "item": "復元操作",
+          "to": "削除済みの記事1本ごとに独立した復元フォームにする",
+          "why": "本文・タグ・評価を含む復元対象を取り違えない"
+        }
+      ]
+    },
+    {
+      "route": "/admin/blog/articles/[article]",
+      "primary_task": "記事の中身を直し、公開まで進める",
+      "task_frequency": "high",
+      "failure_cost": "high",
+      "keep": [
+        {
+          "item": "公開に足りない部品の名前",
+          "why": "足りないまま公開すると読者に不完全な記事が出る"
+        }
+      ],
+      "drop": [],
+      "transform": [
+        {
+          "item": "部品の並び",
+          "to": "連番の入力欄にする",
+          "why": "どの行が原因かを画面上で指させる"
+        }
+      ]
+    },
+    {
+      "route": "/admin/blog/pages",
+      "primary_task": "運営が示す固定ページの不足を埋める",
+      "task_frequency": "low",
+      "failure_cost": "high",
+      "keep": [
+        {
+          "item": "まだ無い固定ページ",
+          "why": "運営者の連絡先や方針が無いと読者が判断できない"
+        }
+      ],
+      "drop": [],
+      "transform": [
+        {
+          "item": "画面説明文 (40 字)",
+          "to": "「不足を埋める」まで短縮",
+          "why": "一覧の説明は不足表示そのもので足りる"
+        }
+      ]
+    },
+    {
+      "route": "/admin/blog/tags",
+      "primary_task": "記事をまとめるタグを整える",
+      "task_frequency": "medium",
+      "failure_cost": "low",
+      "keep": [
+        {
+          "item": "タグごとの記事本数",
+          "why": "0 本のタグは読者を空の一覧へ連れて行く"
+        }
+      ],
+      "drop": [],
+      "transform": [
+        {
+          "item": "画面説明文 (40 字)",
+          "to": "「タグを整える」まで短縮",
+          "why": "一覧の説明は本数の列で足りる"
+        }
+      ]
+    },
+    {
+      "route": "/admin/blog/evaluate",
+      "primary_task": "読者の評価から、手を入れる記事を選ぶ",
+      "task_frequency": "medium",
+      "failure_cost": "low",
+      "keep": [
+        {
+          "item": "手を入れる理由",
+          "why": "数字だけでは何をすべきか決まらない"
+        }
+      ],
+      "drop": [],
+      "transform": [
+        {
+          "item": "平均点の見せ方",
+          "to": "票が少ないときは点を出さない",
+          "why": "少ない票の平均は判断を誤らせる"
+        }
+      ]
+    },
+    {
+      "route": "/admin/blog/evaluate/[article]",
+      "primary_task": "この記事に付いた票を 1 件ずつ見て、伏せるかどうかを決める",
+      "task_frequency": "low",
+      "failure_cost": "medium",
+      "keep": [
+        {
+          "item": "票ごとの本文と、いまの状態 (見えている / 伏せてある)",
+          "why": "伏せる判断は本文を読まないと下せない。状態が無いと同じ票を二度触る"
+        }
+      ],
+      "drop": [
+        {
+          "item": "平均点",
+          "why": "1 件ずつ見ている最中に平均が横にあると、平均を上げるために伏せる判断を誘う"
+        }
+      ],
+      "transform": [
+        {
+          "item": "伏せた票の扱い",
+          "to": "消さずに残し、印だけを付け替える",
+          "why": "消すと「伏せた」と「最初から無かった」が同じ姿になり、判断を後から確かめられない"
+        }
+      ]
     }
   ],
   "current_measurement": {

@@ -109,6 +109,10 @@ const IN_SCOPE: Record<string, string> = {
     "`.siteShell` が `min-height: 100vh` / `flex-direction: column` で、その中の `flex: 1`。",
     "**UX-01 で実際に崩れたのがこの 1 件である**——型 (a) は、その 1 件を型にしたもの。",
   ].join(""),
+  "src/presentation/ui/templates/site.module.css :: .siteBody": [
+    "2026-08-26 追加。本文と脇の欄の 2 段組み（§3.4）。脇を渡した画面だけがこれを通る。",
+    "`.siteMain` の `flex: 1` がこちらへ移るので、**同じ間延びを同じ理由で起こす。**",
+  ].join(""),
 };
 
 describe("伸びる grid は、余った高さの行き先を書いている", () => {

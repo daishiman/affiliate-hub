@@ -4,7 +4,8 @@ import { ReadFailureBody, SiteFrame, stopIfMissing } from "@/presentation/site/p
 import { ReaderToolForm } from "@/presentation/site/reader-tool-form";
 import { siteMetadataUrl } from "@/presentation/site/site-metadata";
 import { siteHref } from "@/presentation/site/view-model";
-import { ErrorView, SectionHeading, SitePage, StubNotice } from "@/presentation/ui";
+import { ProseSection } from "@/presentation/prose";
+import { ErrorView, SitePage, StubNotice } from "@/presentation/ui";
 
 export const dynamic = "force-dynamic";
 
@@ -101,15 +102,10 @@ export default async function ReaderToolPage({
             initialValues={values}
           />
 
-          <section>
-            <SectionHeading level={2}>結果の読み方</SectionHeading>
-            <p>{definition.value.howToRead}</p>
-          </section>
+          <ProseSection title="結果の読み方" body={definition.value.howToRead} />
 
           {run === null ? null : run.ok ? (
-            <section>
-              <SectionHeading level={2}>結果</SectionHeading>
-              <p>{run.value.summary}</p>
+            <ProseSection title="結果" body={run.value.summary}>
               <dl>
                 {run.value.rows.map((row) => (
                   <div key={row.label}>
@@ -118,7 +114,7 @@ export default async function ReaderToolPage({
                   </div>
                 ))}
               </dl>
-            </section>
+            </ProseSection>
           ) : (
             <ErrorView
               title="まだ計算できません"

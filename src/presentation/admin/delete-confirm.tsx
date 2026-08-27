@@ -24,6 +24,7 @@ export function DeleteConfirm({
   toolDescription,
   idName,
   idValue,
+  hiddenValues = [],
   label,
   verb,
   consequence,
@@ -36,6 +37,8 @@ export function DeleteConfirm({
   /** 識別子を渡す欄の名前（`productId` など）。 */
   readonly idName: string;
   readonly idValue: string;
+  /** intent や siteSlug など、この削除の判定に必要な追加値。 */
+  readonly hiddenValues?: readonly { readonly name: string; readonly value: string }[];
   /** 消す物の名前。押す直前に、何が消えるかをもう一度出す。 */
   readonly label: string;
   /**
@@ -79,6 +82,9 @@ export function DeleteConfirm({
   return (
     <ToolForm action={formAction} toolName={toolName} toolDescription={toolDescription}>
       <FormValue name={idName} value={idValue} />
+      {hiddenValues.map((value) => (
+        <FormValue key={value.name} name={value.name} value={value.value} />
+      ))}
 
       <Callout tone="warn" title={`${label} を${verb}`} reason={consequence} />
 

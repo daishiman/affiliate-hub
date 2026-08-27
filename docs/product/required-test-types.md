@@ -259,6 +259,24 @@
 | REQ-SEO05 | has-input | — |
 | REQ-BLOG01 | has-input | — |
 | REQ-BLOG02 | has-input | — |
+| REQ-BLOG03 | has-input | — |
+| REQ-BLOG04 | has-state, has-permission, has-tenant, has-recorded-operation | — |
+| REQ-BLOG05 | has-input | — |
+| REQ-BLOG06 | has-permission | — |
+| REQ-BOPS01 | has-input, has-state, has-permission, has-tenant, has-screen, has-db-table, has-recorded-operation | — |
+| REQ-BOPS02 | has-input, has-state, has-tenant, has-screen, has-db-table | — |
+| REQ-BOPS03 | has-enumerated-input, has-state, has-tenant, has-screen, has-db-table | — |
+| REQ-BOPS04 | has-input, has-state, has-permission, has-tenant, has-screen, has-db-table, has-recorded-operation | — |
+| REQ-BOPS05 | has-state, has-permission, has-tenant, has-screen, has-db-table, has-recorded-operation, has-code-placement-rule | — |
+| REQ-BOPS06 | has-enumerated-input, has-state, has-tenant, has-screen, has-db-table | — |
+| REQ-BOPS07 | has-input, has-tenant, has-screen, has-db-table | — |
+| REQ-BOPS08 | has-enumerated-input, has-state, has-permission, has-tenant, has-screen, has-db-table, has-recorded-operation | — |
+| REQ-BOPS09 | has-input, has-state, has-permission, has-tenant, has-screen, has-db-table, has-recorded-operation | — |
+| REQ-BOPS10 | has-enumerated-input, has-screen | — |
+| REQ-BOPS11 | has-state, has-tenant, has-screen, has-db-table | — |
+| REQ-BOPS12 | has-enumerated-input, has-screen | — |
+| REQ-BOPS13 | has-code-placement-rule | — |
+| REQ-BOPS14 | has-tenant, has-screen, has-code-placement-rule | — |
 | REQ-WA01 | has-input | — |
 | REQ-WA02 | has-input, has-permission | — |
 | REQ-WB01 | has-input, has-permission | — |

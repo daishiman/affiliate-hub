@@ -38,6 +38,7 @@
 import { describe, expect, it } from "vitest";
 import { renderCase } from "./route-table";
 import { intoDom } from "../support/render";
+import { SCREEN_RENDER_BUDGET_MS } from "../../quality-gates.config.mjs";
 
 /** `EmptyView` の見出し。軸のラベルが差し込まれるので、軸ごとに変わる。 */
 const EMPTY_TITLE = "読者が 1 つも登録されていません";
@@ -66,7 +67,7 @@ describe("生成マトリクスの空の案内が、実際に描かれる", () =
       "空の案内が描かれていません。**分岐が在ることと、そこへ届くことは別です**" +
         "——`tests/support/render.tsx` の `no-audience` が効いているかを先に疑うこと",
     ).toContain(EMPTY_TITLE);
-  }, 20_000);
+  }, SCREEN_RENDER_BUDGET_MS);
 
   it("空の案内が、表の代わりに出ている（マトリクスの表が消えている）", async () => {
     const rows = matrixRowsIn(await renderCase({ ...AUDIENCE, world: "no-audience" }));
@@ -75,7 +76,7 @@ describe("生成マトリクスの空の案内が、実際に描かれる", () =
       `マトリクスの表に行が ${rows} 本あります。**見出し行だけの空表**は空の案内より悪い` +
         "——「まだ作っていない」のか「作れない」のかが区別できません",
     ).toBe(0);
-  }, 20_000);
+  }, SCREEN_RENDER_BUDGET_MS);
 
   it("既定の世界では、空の案内は出ず、表に行が立つ（陰性対照）", async () => {
     const html = await renderCase(AUDIENCE);
@@ -90,7 +91,7 @@ describe("生成マトリクスの空の案内が、実際に描かれる", () =
     expect(rows, "既定の見本データでも行が 0 本です。上の検査が意味を失っています").toBeGreaterThan(
       0,
     );
-  }, 20_000);
+  }, SCREEN_RENDER_BUDGET_MS);
 
   it("同じ世界でも、軸を切り替えれば行は立つ（世界が全部を空にしていない）", async () => {
     // **上の陰性対照より強い。**世界を外して比べるのではなく、**世界を着たまま**
@@ -110,5 +111,5 @@ describe("生成マトリクスの空の案内が、実際に描かれる", () =
       "読者像を空にした世界で、切り口の軸まで 0 行になっています。" +
         "**`render.tsx` の置き換えが 1 フィールドを越えて効いていないか**を疑うこと",
     ).toBeGreaterThan(0);
-  }, 20_000);
+  }, SCREEN_RENDER_BUDGET_MS);
 });

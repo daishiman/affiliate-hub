@@ -405,6 +405,9 @@ pnpm exec wrangler secret put MCP_TOKEN --env dev
 
 **確かめ方**: `pnpm exec wrangler secret list --env production` に `MCP_TOKEN` が並ぶこと。
 
+**この鍵を使って手元の AI に記事を書かせる手順**は `docs/product/local-ai-authoring.md` にあります。
+もう 1 つ「連携の鍵」（どの作業場所の誰か）が要ります — 管理画面の `/admin/settings/integration-access` で発行します。
+
 ---
 
 ## S-13. 生成 AI の API キーを発行し、支出上限を掛ける 〔bd: ah-ag8〕
