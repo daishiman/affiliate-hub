@@ -330,6 +330,12 @@ export const ADMIN_SCREEN_RUNTIME_ENTRIES: readonly AdminScreenRuntimeEntry[] = 
     edge("src/presentation/admin/publish-article-action.ts", "publishArticleAction"),
   ),
   screenMutation(
+    "distribution.register-connection",
+    "distribution",
+    edge("src/presentation/admin/bluesky-connection-form.tsx", "BlueskyConnectionForm"),
+    edge("src/presentation/admin/bluesky-connection-action.ts", "registerBlueskyConnectionAction"),
+  ),
+  screenMutation(
     "contact.mark-handled",
     "contact",
     edge("src/presentation/admin/contact-forms.tsx", "ContactHandledForm"),

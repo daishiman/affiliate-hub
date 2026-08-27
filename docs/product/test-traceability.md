@@ -6,8 +6,8 @@
 テスト側の `@req` 印を重ねたもの。
 
 - 最終更新: 2026-08-27
-- テストファイル: 336 件
-- 由来の要件が分かる: 334 件
+- テストファイル: 339 件
+- 由来の要件が分かる: 337 件
 - **由来不明: 2 件**（上限 2 件）
 
 由来不明とは「どの要件のために書いたのか、機械から辿れない」という意味で、
@@ -108,6 +108,7 @@
 | `tests/architecture/generated-docs.test.ts` | REQ-TS09 | 印 |
 | `tests/architecture/llm-credential-leak.test.ts` | REQ-SEC01, REQ-SEC05 | 印 |
 | `tests/architecture/mutation-config-alias.test.ts` | REQ-CI09, REQ-TS09 | 印 |
+| `tests/architecture/native-dependencies.test.ts` | REQ-CI01 | 印 |
 | `tests/architecture/open-doors.test.ts` | REQ-S10, REQ-TS12 | 印と表 |
 | `tests/architecture/qa-scope-notes-coverage.test.ts` | REQ-TS19 | 印と表 |
 | `tests/architecture/quality-gates.test.ts` | REQ-CI02, REQ-CI03, REQ-CI09, REQ-TS09, REQ-TS10 | 印 |
@@ -244,6 +245,7 @@
 | `tests/presentation/admin-routes.test.ts` | REQ-FB07, REQ-P09, REQ-S02, REQ-S03, REQ-S10, REQ-TS05 | 表 |
 | `tests/presentation/api-routes.test.ts` | REQ-M03, REQ-TM11, REQ-WA02, REQ-WC06 | 印と表 |
 | `tests/presentation/api-scope-actor.test.ts` | REQ-API02, REQ-FB13 | 印 |
+| `tests/presentation/bluesky-connection-action.test.ts` | REQ-P08 | 印 |
 | `tests/presentation/composition-wiring.test.ts` | REQ-API01, REQ-TS09 | 印 |
 | `tests/presentation/composition.test.ts` | REQ-S09 | 表 |
 | `tests/presentation/contact-action.test.ts` | REQ-API01, REQ-B18 | 印 |
@@ -294,6 +296,7 @@
 | `tests/ui/axe-blind-spots.test.ts` | REQ-TS06 | 印と表 |
 | `tests/ui/axe-rule-coverage.test.ts` | REQ-SEC08, REQ-TS06 | 印と表 |
 | `tests/ui/blueprint-theme.test.ts` | REQ-P07, REQ-TH02, REQ-TS06 | 表 |
+| `tests/ui/bluesky-connection-form.test.tsx` | REQ-P08 | 印 |
 | `tests/ui/capture-canvas.test.tsx` | REQ-FB04, REQ-FB05 | 印と表 |
 | `tests/ui/catalog-and-signin-clients.test.tsx` | REQ-UX01 | 印 |
 | `tests/ui/consent-banner.test.tsx` | REQ-TM07 | 印と表 |
@@ -356,4 +359,4 @@
 | `tests/ui/uiux-spacing-and-copy.test.ts` | REQ-UX08, REQ-UX10 | 印と表 |
 | `tests/ui/zz-probe-tone.test.tsx` | REQ-TM07 | 表 |
 | `tests/visual/visual-regression.test.ts` | REQ-S09, REQ-TS12, REQ-UX08 | 印 |
-<!-- 生成物の指紋 sha256:1fb4529e80a1637e2f70019bba258e9f5df4d5289f02e9c624d47254f6c2fb63 -->
+<!-- 生成物の指紋 sha256:a7dc5e052e488dba8c945946e1f09800e1d54251db39a70929afd63d3d511409 -->

@@ -3,7 +3,7 @@
 作成日: 2026-08-22
 対象: 枝 `daishiman/ui-ux調整`（HEAD = `43a12ce` からの未コミット差分 203 件）
 
-<!-- acceptance-reconciliation {"implementation_status":"pass","release_status":"unpublished","tracking_status":"active","evaluated_digest":"sha256:2daf3f0cd44f082fabd56b6575b7b6ad74983781355443a4d5ba80236060f7ad","acceptance_ids":["A1","A2","A3","A4","A5","A6","A7","A8","A9","A10"]} -->
+<!-- acceptance-reconciliation {"implementation_status":"pass","release_status":"unpublished","tracking_status":"active","evaluated_digest":"sha256:f8712dec89180a0ab23b080d5491a811f03ddabeb9d22fc9d5e3543a33b6de65","acceptance_ids":["A1","A2","A3","A4","A5","A6","A7","A8","A9","A10"]} -->
 
 > この文書名の「リリース報告」は P13 の履歴名であり、公開済みを意味しない。
 > 現在の状態は **実装受入は合格 / 未公開 / tracking は active**。

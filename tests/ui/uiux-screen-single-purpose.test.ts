@@ -343,16 +343,21 @@ describe("A1 §2 全business mutationを単一のprimary taskへ所属させる"
       })).values(),
     ].sort((a, b) => siteKey(a).localeCompare(siteKey(b)));
 
-    expect(discovered).toHaveLength(52);
+    /*
+      2026-08-27: 52 → 53。配信の画面に Bluesky の接続を登録する口を足した
+      （`bluesky-connection-form.tsx` → `registerBlueskyConnectionAction`）。
+      認証情報を保存する操作は業務状態の変更なので、申告しないまま動かさない。
+    */
+    expect(discovered).toHaveLength(53);
     expect(declared, "未申告または実在しないexecution siteがあります").toEqual(discovered);
     expect(new Set(
       ADMIN_SCREEN_RUNTIME_ENTRIES
         .filter((entry) => entry.classification === "business-mutation")
         .map((entry) => edgeKey(entry.action)),
-    ).size).toBe(50);
+    ).size).toBe(51);
   });
 
-  it("同じactionの複数route・複数form用途を畳まず、意味entry 63件を床固定する", () => {
+  it("同じactionの複数route・複数form用途を畳まず、意味entry 64件を床固定する", () => {
     const discovered = DISCOVERED_SCREEN_EXECUTION_SITES;
     const declared = ADMIN_SCREEN_RUNTIME_ENTRIES
       .filter((entry) => entry.scope === "screen")
@@ -365,9 +370,9 @@ describe("A1 §2 全business mutationを単一のprimary taskへ所属させる"
       .sort((a, b) => screenSiteKey(a).localeCompare(screenSiteKey(b)));
 
     expect(declared, "route/form単位の意味entryに欠落または余剰があります").toEqual(discovered);
-    expect(discovered).toHaveLength(62);
-    expect(ADMIN_SCREEN_RUNTIME_ENTRIES).toHaveLength(63);
-    expect(new Set(ADMIN_SCREEN_RUNTIME_ENTRIES.map((entry) => entry.id)).size).toBe(63);
+    expect(discovered).toHaveLength(63);
+    expect(ADMIN_SCREEN_RUNTIME_ENTRIES).toHaveLength(64);
+    expect(new Set(ADMIN_SCREEN_RUNTIME_ENTRIES.map((entry) => entry.id)).size).toBe(64);
   });
 
   it("screen意味entryはどの1件を削ってもdiscoveryとの差分になる", () => {
@@ -382,7 +387,7 @@ describe("A1 §2 全business mutationを単一のprimary taskへ所属させる"
       }))
       .sort();
 
-    expect(new Set(declared).size).toBe(62);
+    expect(new Set(declared).size).toBe(63);
     for (let index = 0; index < declared.length; index += 1) {
       expect(declared.filter((_, candidate) => candidate !== index)).not.toEqual(discovered);
     }

@@ -66,11 +66,18 @@ export default async function DistributionPage() {
           {can(actor, "channel_connection.manage") ? (
             <Section
               title="Blueskyを接続する"
-              lead="登録済みの認証情報でBlueskyへ接続し、実際のアカウントを確認します。"
+              lead="登録済みの認証情報でBlueskyへ接続し、接続先のアカウントを確認します。"
             >
               <BlueskyConnectionForm />
             </Section>
-          ) : null}
+          ) : (
+            // 権限が無いときに節ごと消すと、何ができないのかも消える。
+            // 代わりに、何が要るのかと誰に頼めばよいのかを置く。
+            <Section
+              title="Blueskyを接続する"
+              lead="出し先の接続を変えるには、出し先を扱える権限が要ります。ワークスペースの管理者に依頼してください。"
+            />
+          )}
 
           <Section title="いつ出すかを見る">
             <ListView
