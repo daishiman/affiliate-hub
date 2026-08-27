@@ -60,8 +60,8 @@ describe("案内の分類の読み上げ", () => {
 });
 
 describe("管理画面route metadataの正本", () => {
-  it("50画面・ナビ・分類は同じmetadataから派生する", () => {
-    expect(ADMIN_ROUTE_METADATA).toHaveLength(50);
+  it("65画面・ナビ・分類は同じmetadataから派生する", () => {
+    expect(ADMIN_ROUTE_METADATA).toHaveLength(65);
 
     const navRoutes = ADMIN_ROUTE_METADATA.filter((route) => route.nav !== null);
     expect(ADMIN_NAV.map((item) => item.href)).toEqual(navRoutes.map((route) => route.pattern));

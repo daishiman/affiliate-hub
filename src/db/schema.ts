@@ -15,6 +15,17 @@ import {
   type PublicationState,
 } from "@/domain/distribution";
 import {
+  ARTICLE_BLOCK_KINDS,
+  ARTICLE_TEMPLATES,
+  BLOG_TAG_KINDS,
+  DELIVERY_PARTS,
+  FIXED_PAGE_KINDS,
+  LAYOUT_REGIONS,
+  NETWORK_ROLES,
+  NETWORK_STATUSES,
+  TOP_BANDS,
+} from "@/domain/blogops";
+import {
   COMPLIANCE_STATUSES,
   CONTENT_ANGLES,
   CONTENT_STATES,
@@ -267,13 +278,19 @@ export const articles = sqliteTable(
   "articles",
   {
     id: text("id").primaryKey(),
-    slug: text("slug").notNull().unique(),
+    slug: text("slug").notNull(),
+    /** ブログCRUDでは公開URLの所属をこの組で決める。旧AI記事では null。 */
+    workspaceId: text("workspace_id"),
+    siteSlug: text("site_slug"),
+    /** T1〜T4。旧AI記事では null のままにし、推測値を保存しない。 */
+    template: text("article_template", { enum: ARTICLE_TEMPLATES }),
     type: text("type", {
       enum: ["ranking", "review", "comparison", "guide", "tool"],
     }).notNull(),
     title: text("title").notNull(),
     // 一文の結論 (§8)。要約ではなく結論を書く。
     summary: text("summary"),
+    lead: text("lead").notNull().default(""),
     status: text("status", { enum: ["draft", "review", "published", "archived"] })
       .notNull()
       .default("draft"),
@@ -286,7 +303,11 @@ export const articles = sqliteTable(
      * 仕様書 §12 には無いフィールドだが、完了条件側が要求している。
      */
     ownerId: text("owner_id").references(() => people.id, { onDelete: "restrict" }),
+    /** 表示名の写し。人物マスタを持たないブログCRUDでも署名を失わない。 */
+    authorName: text("author_name").notNull().default(""),
     publishedAt: integer("published_at", { mode: "timestamp" }),
+    /** null は通常、日時ありは削除済み。archived は公開状態なので代用しない。 */
+    deletedAt: integer("deleted_at", { mode: "timestamp" }),
     updatedAt: integer("updated_at", { mode: "timestamp" })
       .notNull()
       .default(sql`(unixepoch())`),
@@ -309,6 +330,10 @@ export const articles = sqliteTable(
     index("articles_status_idx").on(t.status),
     index("articles_category_id_idx").on(t.categoryId),
     index("articles_next_review_at_idx").on(t.nextReviewAt),
+    uniqueIndex("articles_site_slug_idx").on(t.workspaceId, t.siteSlug, t.slug),
+    uniqueIndex("articles_legacy_slug_idx")
+      .on(t.slug)
+      .where(sql`${t.workspaceId} is null and ${t.siteSlug} is null`),
   ],
 );
 
@@ -722,9 +747,8 @@ export const siteBlueprints = sqliteTable(
 /**
  * 読者ページへ出した記事（そのとき出した内容の**写し**）。
  *
- * すでにある `articles` 表とは別に置く。あちらは分類・人物・広告表記を
- * 別表への参照で持つ形で、参照先を作る入口がまだ無い（作れない行になっている）。
- * こちらは**出した瞬間の内容をそのまま**保存する。
+ * `articles` は編集の唯一の正本。こちらは別の編集正本ではなく、
+ * **出した瞬間の内容をそのまま**保存する公開 read projection である。
  *
  * 内容全体は `article_json` に入れ、**列に出すのは一覧と検索が実際に使う項目だけ**。
  * 節を 1 つ足すたびにマイグレーションが要る形にすると、記事の構成を直すのが
@@ -1605,20 +1629,21 @@ export const pageThemeOverrides = sqliteTable(
 );
 
 /**
- * 法定ページ 6 種（運営者情報・全カテゴリー・サイトポリシー・
- * プライバシーポリシー・特商法表記・お問い合わせ）。
- * 1 ブログにつき各 1 枚。無いことは「未整備」であって既定文を出さない。
+ * 固定ページ 8 種。語彙は domain/blogops/fixed-page が唯一の正本。
+ * 1 ブログにつき各 1 枚。draft と削除済みは公開経路から必ず除く。
  */
 export const legalPages = sqliteTable(
   "legal_page",
   {
     id: text("id").primaryKey(),
     siteSlug: text("site_slug").notNull(),
-    kind: text("kind", {
-      enum: ["operator", "all_categories", "site_policy", "privacy_policy", "tokushoho", "contact"],
-    }).notNull(),
+    kind: text("kind", { enum: FIXED_PAGE_KINDS }).notNull(),
     title: text("title").notNull(),
     body: text("body").notNull(),
+    status: text("status", { enum: ["draft", "published"] })
+      .notNull()
+      .default("draft"),
+    deletedAt: integer("deleted_at", { mode: "timestamp" }),
     updatedAt: integer("updated_at", { mode: "timestamp" })
       .notNull()
       .default(sql`(unixepoch())`),
@@ -1686,4 +1711,210 @@ export type GuidelineReferenceRow = typeof guidelineReferences.$inferSelect;
  * `src/db/schema.ts` だけを見ているためである。
  * 出し忘れると、テーブルが本番に作られないままログインだけが動く形になる。
  */
+
+/* ------------------------------------------------------------------ *
+ * ブログ運用 (feat-blog-ops-crud) — migration 0023
+ *
+ * 抽象ブループリント `review-media-classic` (docs/spec/13) の
+ * サイト網・レイアウト枠・記事・タグ・配信部品・閲覧者評価。
+ *
+ * 記事本体は既存 `articles` を編集正本とし、ブログ固有の所属・型・削除状態も
+ * そこに保存する。以下の表はサイト網・版面・記事子要素など、
+ * `articles` と意味の異なる集約だけを持つ。
+ * ------------------------------------------------------------------ */
+
+/** サイト網の節点 (ハブ / サブサイト / ミニサイト)。 */
+export const siteNetworkNodes = sqliteTable(
+  "site_network_node",
+  {
+    id: text("id").primaryKey(),
+    workspaceId: text("workspace_id").notNull(),
+    siteSlug: text("site_slug").notNull(),
+    role: text("role", { enum: NETWORK_ROLES }).notNull(),
+    /** 上位の URL 名。ハブは null。 */
+    parentSlug: text("parent_slug"),
+    name: text("name").notNull(),
+    oneLine: text("one_line").notNull().default(""),
+    position: integer("position").notNull().default(0),
+    status: text("status", { enum: NETWORK_STATUSES }).notNull().default("active"),
+    /** null は通常、日時ありは削除済み。hidden は公開可否なので代用しない。 */
+    deletedAt: integer("deleted_at", { mode: "timestamp" }),
+    createdAt: integer("created_at", { mode: "timestamp" })
+      .notNull()
+      .default(sql`(unixepoch())`),
+    updatedAt: integer("updated_at", { mode: "timestamp" })
+      .notNull()
+      .default(sql`(unixepoch())`),
+  },
+  (t) => [
+    uniqueIndex("site_network_node_ws_slug_idx").on(t.workspaceId, t.siteSlug),
+    index("site_network_node_parent_idx").on(t.workspaceId, t.parentSlug),
+  ],
+);
+
+/** ヘッダー・サイドバー・フッターの枠 (§3.1 / §3.4 / §3.5)。 */
+export const blogLayoutSlots = sqliteTable(
+  "blog_layout_slot",
+  {
+    id: text("id").primaryKey(),
+    workspaceId: text("workspace_id").notNull(),
+    siteSlug: text("site_slug").notNull(),
+    region: text("region", { enum: LAYOUT_REGIONS }).notNull(),
+    /** docs/spec/13 §3 の部品 id。 */
+    slotKey: text("slot_key").notNull(),
+    title: text("title").notNull().default(""),
+    body: text("body").notNull().default(""),
+    position: integer("position").notNull().default(0),
+    enabled: integer("enabled", { mode: "boolean" }).notNull().default(true),
+  },
+  (t) => [
+    uniqueIndex("blog_layout_slot_unique_idx").on(t.workspaceId, t.siteSlug, t.region, t.slotKey),
+  ],
+);
+
+/** ハブトップの 4 帯 (§3.2)。 */
+export const blogLayoutBands = sqliteTable(
+  "blog_layout_band",
+  {
+    id: text("id").primaryKey(),
+    workspaceId: text("workspace_id").notNull(),
+    siteSlug: text("site_slug").notNull(),
+    band: text("band", { enum: TOP_BANDS }).notNull(),
+    title: text("title").notNull().default(""),
+    enabled: integer("enabled", { mode: "boolean" }).notNull().default(true),
+    position: integer("position").notNull().default(0),
+    itemLimit: integer("item_limit").notNull().default(3),
+  },
+  (t) => [uniqueIndex("blog_layout_band_unique_idx").on(t.workspaceId, t.siteSlug, t.band)],
+);
+
+/** 記事本文の部品列 (§3.3)。 */
+export const blogArticleBlocks = sqliteTable(
+  "blog_article_block",
+  {
+    id: text("id").primaryKey(),
+    articleId: text("article_id").notNull(),
+    kind: text("kind", { enum: ARTICLE_BLOCK_KINDS }).notNull(),
+    heading: text("heading").notNull().default(""),
+    body: text("body").notNull().default(""),
+    position: integer("position").notNull().default(0),
+  },
+  (t) => [index("blog_article_block_article_idx").on(t.articleId, t.position)],
+);
+
+/** ブランドタグ (§3.4 の brand-tag-cloud)。 */
+export const blogTags = sqliteTable(
+  "blog_tag",
+  {
+    id: text("id").primaryKey(),
+    workspaceId: text("workspace_id").notNull(),
+    siteSlug: text("site_slug").notNull(),
+    slug: text("slug").notNull(),
+    name: text("name").notNull(),
+    description: text("description").notNull().default(""),
+    /**
+     * ブランドか、話題か。`brand-tag-cloud` に出るのは `brand` だけ。
+     *
+     * **既定は `topic`。**種類を足す前からあるタグはどちらとも分からないので、
+     * 枠が「これは作り手だ」と嘘を言わない側へ倒す (`domain/blogops/blog-tag.ts`)。
+     */
+    kind: text("kind", { enum: BLOG_TAG_KINDS }).notNull().default("topic"),
+  },
+  (t) => [uniqueIndex("blog_tag_site_slug_idx").on(t.workspaceId, t.siteSlug, t.slug)],
+);
+
+/** 記事とタグの結び付き。 */
+export const blogArticleTags = sqliteTable(
+  "blog_article_tag",
+  {
+    articleId: text("article_id")
+      .notNull()
+      .references(() => articles.id, { onDelete: "cascade" }),
+    tagId: text("tag_id")
+      .notNull()
+      .references(() => blogTags.id, { onDelete: "cascade" }),
+  },
+  (t) => [primaryKey({ columns: [t.articleId, t.tagId] })],
+);
+
+/** 配信部品 9 種 (§6)。 */
+export const blogDeliveryParts = sqliteTable(
+  "blog_delivery_part",
+  {
+    id: text("id").primaryKey(),
+    workspaceId: text("workspace_id").notNull(),
+    siteSlug: text("site_slug").notNull(),
+    part: text("part", { enum: DELIVERY_PARTS }).notNull(),
+    enabled: integer("enabled", { mode: "boolean" }).notNull().default(true),
+    note: text("note").notNull().default(""),
+    position: integer("position").notNull().default(0),
+  },
+  (t) => [uniqueIndex("blog_delivery_part_unique_idx").on(t.workspaceId, t.siteSlug, t.part)],
+);
+
+/**
+ * 配信物の点検記録 (受入 A9)。
+ *
+ * **設定 (`blog_delivery_part`) とは別の表にする。**設定は「出す / 切る」の意思、
+ * こちらは「生成してみたら出たか」の事実である。1 つの表に畳むと、
+ * 設定を直した拍子に事実が上書きされ、**いつの結果なのかが分からなくなる。**
+ *
+ * 行は積む (履歴)。同じ部品の最新だけを一覧が採る (`deliveryHealth`)。
+ * 上書きにすると「先週までは出ていた」が消え、いつ壊れたかを誰も言えなくなる。
+ */
+export const blogDeliverySnapshots = sqliteTable(
+  "blog_delivery_snapshot",
+  {
+    id: text("id").primaryKey(),
+    workspaceId: text("workspace_id").notNull(),
+    siteSlug: text("site_slug").notNull(),
+    part: text("part", { enum: DELIVERY_PARTS }).notNull(),
+    ok: integer("ok", { mode: "boolean" }).notNull(),
+    detail: text("detail").notNull().default(""),
+    checkedAt: integer("checked_at", { mode: "timestamp" })
+      .notNull()
+      .default(sql`(unixepoch())`),
+  },
+  (t) => [index("blog_delivery_snapshot_site_idx").on(t.workspaceId, t.siteSlug, t.part)],
+);
+
+/**
+ * 閲覧者の評価。
+ *
+ * workspace_id を持たない。読者に作業場所は無く、所属は article_id が決める。
+ * reader_key は cookie 由来の不透明な鍵で、個人を特定する値は入れない。
+ */
+export const blogArticleRatings = sqliteTable(
+  "blog_article_rating",
+  {
+    id: text("id").primaryKey(),
+    articleId: text("article_id").notNull(),
+    readerKey: text("reader_key").notNull(),
+    score: integer("score").notNull(),
+    comment: text("comment"),
+    /**
+     * 運営者が伏せた票。**消さずに伏せる。**
+     *
+     * 消すと「伏せた」と「最初から無かった」が同じ形になり、
+     * 伏せた判断そのものを後から確かめられなくなる。伏せた票は
+     * 平均にも件数にも入らないが、行としては残り、監査の記録から辿れる。
+     */
+    hidden: integer("hidden", { mode: "boolean" }).notNull().default(false),
+    createdAt: integer("created_at", { mode: "timestamp" })
+      .notNull()
+      .default(sql`(unixepoch())`),
+  },
+  (t) => [uniqueIndex("blog_article_rating_reader_idx").on(t.articleId, t.readerKey)],
+);
+
+export type SiteNetworkNodeRow = typeof siteNetworkNodes.$inferSelect;
+export type BlogLayoutSlotRow = typeof blogLayoutSlots.$inferSelect;
+export type BlogLayoutBandRow = typeof blogLayoutBands.$inferSelect;
+export type BlogArticleRow = typeof articles.$inferSelect;
+export type BlogArticleBlockRow = typeof blogArticleBlocks.$inferSelect;
+export type BlogTagRow = typeof blogTags.$inferSelect;
+export type BlogArticleTagRow = typeof blogArticleTags.$inferSelect;
+export type BlogDeliveryPartRow = typeof blogDeliveryParts.$inferSelect;
+export type BlogArticleRatingRow = typeof blogArticleRatings.$inferSelect;
+
 export * from "./auth-schema";

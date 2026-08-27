@@ -1,6 +1,7 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import * as ts from "typescript";
+import { ROUTE_CASES } from "../ui/route-cases";
 
 export type BrowserRoute = {
   readonly file: string;
@@ -15,11 +16,6 @@ interface SourceObject {
 type SourceValue = string | readonly SourceValue[] | SourceObject;
 
 const ROOT = process.cwd();
-const ROUTE_TABLE = join(ROOT, "tests/ui/route-table.ts");
-const SITE_REPOSITORY = join(
-  ROOT,
-  "src/infrastructure/persistence/sample/site-sample-repository.ts",
-);
 const RANKING_REPOSITORY = join(
   ROOT,
   "src/infrastructure/persistence/sample/ranking-sample-repository.ts",
@@ -99,16 +95,6 @@ function readValue(
   throw new Error(`読み取れない値です: ${expression.getText()}`);
 }
 
-function asRoute(value: SourceValue): BrowserRoute {
-  if (typeof value === "string" || Array.isArray(value)) {
-    throw new Error("route table の行がオブジェクトではありません。");
-  }
-  const object = value as SourceObject;
-  const file = object.file;
-  if (typeof file !== "string") throw new Error("route table の file が文字列ではありません。");
-  return object as BrowserRoute;
-}
-
 function readExportedString(path: string, name: string): string {
   const value = readValue(variableInitializer(sourceFile(path), name), {});
   if (typeof value !== "string") throw new Error(`${name} が文字列ではありません。`);
@@ -120,20 +106,19 @@ export function readSampleWorkspaceId(): string {
 }
 
 /**
- * URL の正本は tests/ui/route-table.ts。ここには経路を1本も書き写さない。
- * 動的部分に入れる見本値も、同表と site sample repository から読む。
+ * URL の正本は `tests/ui/route-cases.ts`。ここには経路を1本も書き写さない。
+ *
+ * **2026-08-26 まで、この関数は同じ表を TypeScript の構文木から手読みしていた。**
+ * 読み手が解せるのはリテラルだけで、表の `ADMIN` が
+ * `ADMIN_ROUTE_METADATA.map(...)` の射影になった日から、この関数は
+ * 「読み取れない値です」で投げるようになっていた。呼ぶのは spec ファイルの
+ * トップレベルなので、`app-routes.spec.ts` と `pending-hit-targets.spec.ts` は
+ * **収集の時点で落ち、1 件も走らないまま**だった。
+ *
+ * 表を描く道具から割った（`route-cases.ts`）ので、普通に import できる。
  */
 export function readBrowserRoutes(): readonly BrowserRoute[] {
-  const file = sourceFile(ROUTE_TABLE);
-  const site = readExportedString(SITE_REPOSITORY, "SAMPLE_SITE_SLUG");
-  const bindings = { SITE: site } as const;
-  const groups = ["ENTRY", "ADMIN", "READER"].map((name) =>
-    readValue(variableInitializer(file, name), bindings),
-  );
-  const routes = groups.flatMap((group) => {
-    if (!Array.isArray(group)) throw new Error("route table のグループが配列ではありません。");
-    return group.map(asRoute);
-  });
+  const routes: readonly BrowserRoute[] = ROUTE_CASES;
   const unique = new Set(routes.map((route) => route.file));
   if (unique.size !== routes.length) throw new Error("route table に同じ画面が重複しています。");
   return routes;

@@ -141,6 +141,21 @@ export function FeedbackButton({
       <button
         type="button"
         className={`${styles.feedbackLauncher} ${placement === "inline" ? styles.feedbackLauncherInline : ""}`.trim()}
+        /*
+         * **本文の上に浮いていることを、自分で名乗る。**
+         *
+         * 画面の配置を機械で見るとき（`tests/e2e/app-routes.spec.ts`）、
+         * 「操作どうしが重なっていないか」を測っている。右下固定のこのボタンは
+         * 意図して本文の上に出ているので、そのままでは 21 画面で「重なっている」と
+         * 報告される（2026-08-26 実測）。壊れているのではなく、そういう部品である。
+         *
+         * 見分ける手がかりを名前で持たせず属性で持たせるのは、CSS の class 名が
+         * 見た目の都合で変わるものだからである。名乗りは見た目と別に据える。
+         *
+         * ただし名乗れば無罪ではない。**本文の終わりから離れていること**（＝どの操作も
+         * 送れば下から逃がせること）を、同じ監査が別に測る。
+         */
+        data-floating-overlay={placement === "fixed" ? "true" : undefined}
         onClick={() => {
           // **撮影を先に始める。**`setOpen` を待つと押した勢いが切れ、
           // 許可の窓が出ないまま「撮れませんでした」になる。

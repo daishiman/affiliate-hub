@@ -319,6 +319,22 @@ describe("手元と機械で同じ検査が走る（REQ-CI01 / REQ-CI03）", () 
       "0020_stiff_fabian_cortez",
       "0021_secret_vin_gonzales",
       "0022_neat_virginia_dare",
+      // ブログ運用の 8 表（feat-blog-ops-crud）。
+      "0023_faithful_ultimatum",
+      // 読者の評価を「消さずに伏せる」ための印（blog_article_rating.hidden）。
+      "0024_black_vargas",
+      // タグの種類（blog_tag.kind）。既定は topic — 既存タグを勝手にブランド扱いしない。
+      "0025_careless_goliath",
+      // 配信物を点検した結果（blog_delivery_snapshot）。設定表とは別の表で、履歴として積む。
+      "0026_cuddly_nuke",
+      // サイト網・ブログ記事の論理削除日時。hidden / archived とは別のライフサイクル。
+      "0027_dashing_gamma_corps",
+      // 記事編集の正本を articles へ一本化し、旧 blog_article を移送後に廃止する。
+      "0028_unify_blog_article_ssot",
+      // 固定ページへ公開状態と論理削除日時を足し、公開投影の境界を保存する。
+      "0029_publish_fixed_pages",
+      // 記事・タグ結合の親 FK。保存検証後の競合削除も batch 全体で戻す。
+      "0030_square_wolfpack",
     ];
     const journal = JSON.parse(read("drizzle/meta/_journal.json")) as {
       entries: Array<{ tag: string }>;

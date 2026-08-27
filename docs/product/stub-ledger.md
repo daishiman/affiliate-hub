@@ -56,10 +56,13 @@
 こちらへ回る。**消す予定は無いので、この件数は減らない。**
 何で動いているかは、必ず画面に文字で出す（黙って控えへ落ちない）。
 
-件数: 13
+件数: 16
 
 | 識別子 | 何の控えか | つなぎ目 | 本物の置き場所 |
 |---|---|---|---|
+| `blog-ops:authoring-memory` | ブログ運用の編集（処理中のメモリ） | BlogOpsRepositoryPort | `src/infrastructure/persistence/d1/blog-ops-repository.ts` |
+| `blog-ops:public-sample` | 読者に見える記事（見本データ） | PublicBlogPort | `src/infrastructure/persistence/d1/blog-ops-repository.ts` |
+| `blog-ops:rating-memory` | 記事の評価（処理中のメモリ） | ArticleRatingPort | `src/infrastructure/persistence/d1/blog-ops-repository.ts` |
 | `llm:unavailable` | 生成 AI への接続 | LlmPort | `src/infrastructure/llm/llm-provider-registry.ts` |
 | `llm:unavailable-costs` | 生成 AI の費用見積り | LlmCostEstimatorPort | `src/infrastructure/llm/llm-provider-registry.ts` |
 | `persistence:analytics-sample` | 数字（見本データ） | 指標の読み口 | `src/infrastructure/persistence/d1/telemetry-repository.ts` |
@@ -113,4 +116,4 @@
 **Google Gemini の注意**: `responseSchema` は JSON Schema の一部しか解釈しない。
 受け付けられない形は 400 で返る（黙って自由文には落とさない）。
 実際の鍵で呼ぶとき、最初に踏むのはたいていここである。
-<!-- 生成物の指紋 sha256:f0049a01c0d1d225d140fffa56d88b32cd868f415afad9ac3afb44972c77d477 -->
+<!-- 生成物の指紋 sha256:182dc90e888c80f0ce13501852af7c0252f41d3ff3f16fa5e820f0bfdcffd639 -->

@@ -180,6 +180,10 @@ import {
   SAMPLE_PERIODS,
   sampleAffiliateNotice,
 } from "@/infrastructure/persistence/sample/affiliate-sample-repository";
+import {
+  createSampleArticleRatingPort,
+  createSamplePublicBlogPort,
+} from "@/infrastructure/persistence/sample/blog-ops-sample-repository";
 import { sampleAnalyticsNotice } from "@/infrastructure/persistence/sample/analytics-sample-repository";
 import { sampleLinkInboxNotice } from "@/infrastructure/persistence/sample/link-inbox-sample-repository";
 import {
@@ -189,9 +193,46 @@ import {
 } from "@/application/usecases/seo/manage-guideline-references";
 import { createD1GuidelineReferenceRepository } from "@/infrastructure/persistence/d1/guideline-reference-repository";
 import { tryGetDb } from "@/infrastructure/persistence/d1/connection";
+import {
+  createD1ArticleRatingPort,
+  createD1PublicBlogPort,
+} from "@/infrastructure/persistence/d1/blog-ops-repository";
+import {
+  createCreateBlogArticleUseCase,
+  createCreateSiteNetworkNodeUseCase,
+  createDeleteBlogArticleUseCase,
+  createDeleteBlogTagUseCase,
+  createDeleteFixedPageUseCase,
+  createDeleteSiteNetworkNodeUseCase,
+  createEvaluateBlogArticlesUseCase,
+  createGetBlogArticleUseCase,
+  createListBlogArticlesUseCase,
+  createListDeletedBlogArticlesUseCase,
+  createListBlogTagsUseCase,
+  createListFixedPagesUseCase,
+  createListDeletedFixedPagesUseCase,
+  createListSiteNetworkUseCase,
+  createListDeletedSiteNetworkUseCase,
+  createReadBlogLayoutUseCase,
+  createSaveBlogLayoutBandUseCase,
+  createSaveBlogLayoutSlotUseCase,
+  createSaveBlogTagUseCase,
+  createCheckBlogDeliveryUseCase,
+  createSaveDeliveryPartUseCase,
+  createSaveFixedPageUseCase,
+  createListArticleRatingsUseCase,
+  createSetArticleRatingHiddenUseCase,
+  createRestoreBlogArticleUseCase,
+  createRestoreFixedPageUseCase,
+  createRestoreSiteNetworkNodeUseCase,
+  createSubmitArticleRatingUseCase,
+  createUpdateBlogArticleUseCase,
+  createUpdateSiteNetworkNodeUseCase,
+} from "@/application/usecases/blog-ops";
 import { tryGetBucket } from "@/infrastructure/platform/bucket-connection";
 import { submitToIndexNow } from "@/infrastructure/indexnow/indexnow-client";
 import { CAPTURE_RETENTION_DAYS } from "@/domain/feedback";
+import type { ArticleRatingPort, PublicBlogPort } from "@/application/ports/blog-ops";
 import { sampleProductNotice } from "@/infrastructure/persistence/sample/product-sample-repository";
 import { sampleSettingsNotice } from "@/infrastructure/persistence/sample/settings-sample-repository";
 import {
@@ -1586,4 +1627,158 @@ export async function notifyIndexNowOfPublish(
     case "failed":
       return { status: "failed", detail: result.error };
   }
+}
+
+/* ------------------------------------------------------------------ *
+ * ブログ運用（サイト網・版面・記事・固定ページ・タグ・評価）
+ * ------------------------------------------------------------------ */
+
+/**
+ * 作成者向けの口。
+ *
+ * 出典の登録（`guidelineReferenceEntry`）と同じく、**保存先が無ければ
+ * `ready:false` を理由つきで返す**。ここで見本へ落とすと、書いた記事が
+ * 保存されていないのに保存されたように見える。
+ */
+export type BlogOpsEntry =
+  | {
+      readonly ready: true;
+      readonly listNetwork: ReturnType<typeof createListSiteNetworkUseCase>;
+      readonly listDeletedNetwork: ReturnType<typeof createListDeletedSiteNetworkUseCase>;
+      readonly createNetworkNode: ReturnType<typeof createCreateSiteNetworkNodeUseCase>;
+      readonly updateNetworkNode: ReturnType<typeof createUpdateSiteNetworkNodeUseCase>;
+      readonly deleteNetworkNode: ReturnType<typeof createDeleteSiteNetworkNodeUseCase>;
+      readonly restoreNetworkNode: ReturnType<typeof createRestoreSiteNetworkNodeUseCase>;
+      readonly readLayout: ReturnType<typeof createReadBlogLayoutUseCase>;
+      readonly saveLayoutSlot: ReturnType<typeof createSaveBlogLayoutSlotUseCase>;
+      readonly saveLayoutBand: ReturnType<typeof createSaveBlogLayoutBandUseCase>;
+      readonly saveDeliveryPart: ReturnType<typeof createSaveDeliveryPartUseCase>;
+      /** 配信物を実際に組み立ててみて、結果を履歴として積む (受入 A9)。 */
+      readonly checkDelivery: ReturnType<typeof createCheckBlogDeliveryUseCase>;
+      readonly listArticles: ReturnType<typeof createListBlogArticlesUseCase>;
+      readonly listDeletedArticles: ReturnType<typeof createListDeletedBlogArticlesUseCase>;
+      readonly getArticle: ReturnType<typeof createGetBlogArticleUseCase>;
+      readonly createArticle: ReturnType<typeof createCreateBlogArticleUseCase>;
+      readonly updateArticle: ReturnType<typeof createUpdateBlogArticleUseCase>;
+      readonly deleteArticle: ReturnType<typeof createDeleteBlogArticleUseCase>;
+      readonly restoreArticle: ReturnType<typeof createRestoreBlogArticleUseCase>;
+      readonly listFixedPages: ReturnType<typeof createListFixedPagesUseCase>;
+      readonly listDeletedFixedPages: ReturnType<typeof createListDeletedFixedPagesUseCase>;
+      readonly saveFixedPage: ReturnType<typeof createSaveFixedPageUseCase>;
+      readonly deleteFixedPage: ReturnType<typeof createDeleteFixedPageUseCase>;
+      readonly restoreFixedPage: ReturnType<typeof createRestoreFixedPageUseCase>;
+      readonly listTags: ReturnType<typeof createListBlogTagsUseCase>;
+      readonly saveTag: ReturnType<typeof createSaveBlogTagUseCase>;
+      readonly deleteTag: ReturnType<typeof createDeleteBlogTagUseCase>;
+      readonly evaluate: ReturnType<typeof createEvaluateBlogArticlesUseCase>;
+      /**
+       * 記事 1 本に付いた票を 1 件ずつ読む口。**伏せたものも返す。**
+       * 読者側の集計（`publicBlogEntry.summarizeRating`）とは別にしてある。
+       * あちらは「読者に見える数」なので伏せた票が消えるのが正しく、
+       * こちらは運営者が「何を伏せたか」を確かめる口なので、消えたら用を成さない。
+       */
+      readonly listRatings: ReturnType<typeof createListArticleRatingsUseCase>;
+      /** 票を伏せる／戻す。**行は消さない。** */
+      readonly setRatingHidden: ReturnType<typeof createSetArticleRatingHiddenUseCase>;
+    }
+  | { readonly ready: false; readonly reason: string };
+
+export async function blogOpsEntry(): Promise<BlogOpsEntry> {
+  const db = await tryGetDb();
+  if (db === null) {
+    return {
+      ready: false,
+      reason:
+        "保存先 (D1) が用意されていません。ブログの版面・記事・固定ページの編集は、保存先がある実行でだけ使えます。",
+    };
+  }
+  const deps = createDeps({ db });
+  /*
+    **保管庫は組み立て側 (`createDeps`) から受け取る。**
+    ここで `createD1BlogOpsRepository(db)` を自前で作っていたころは、
+    同じ保管庫の作り方が画面側と道具側の 2 か所にあった。
+    2 か所あると、片方だけ差し替えた日に「画面ではできるが AI からはできない」が生まれる。
+  */
+  const repository = deps.blogOps;
+  const now = () => new Date();
+  const base = { repository, ids: deps.ids, auditLog: deps.auditLog, now };
+  return {
+    ready: true,
+    listNetwork: createListSiteNetworkUseCase(base),
+    listDeletedNetwork: createListDeletedSiteNetworkUseCase(base),
+    createNetworkNode: createCreateSiteNetworkNodeUseCase(base),
+    updateNetworkNode: createUpdateSiteNetworkNodeUseCase(base),
+    deleteNetworkNode: createDeleteSiteNetworkNodeUseCase(base),
+    restoreNetworkNode: createRestoreSiteNetworkNodeUseCase(base),
+    readLayout: createReadBlogLayoutUseCase(base),
+    saveLayoutSlot: createSaveBlogLayoutSlotUseCase(base),
+    saveLayoutBand: createSaveBlogLayoutBandUseCase(base),
+    saveDeliveryPart: createSaveDeliveryPartUseCase(base),
+    checkDelivery: createCheckBlogDeliveryUseCase(base),
+    listArticles: createListBlogArticlesUseCase(base),
+    listDeletedArticles: createListDeletedBlogArticlesUseCase(base),
+    getArticle: createGetBlogArticleUseCase(base),
+    createArticle: createCreateBlogArticleUseCase(base),
+    updateArticle: createUpdateBlogArticleUseCase(base),
+    deleteArticle: createDeleteBlogArticleUseCase(base),
+    restoreArticle: createRestoreBlogArticleUseCase(base),
+    listFixedPages: createListFixedPagesUseCase(base),
+    listDeletedFixedPages: createListDeletedFixedPagesUseCase(base),
+    saveFixedPage: createSaveFixedPageUseCase(base),
+    deleteFixedPage: createDeleteFixedPageUseCase(base),
+    restoreFixedPage: createRestoreFixedPageUseCase(base),
+    listTags: createListBlogTagsUseCase(base),
+    saveTag: createSaveBlogTagUseCase(base),
+    deleteTag: createDeleteBlogTagUseCase(base),
+    evaluate: createEvaluateBlogArticlesUseCase({ repository, now }),
+    listRatings: createListArticleRatingsUseCase(base),
+    setRatingHidden: createSetArticleRatingHiddenUseCase(base),
+  };
+}
+
+/**
+ * 読者に見える面の入口。
+ *
+ * 作成者向けと**別の口**にしてある。同じ口を使い回すと、絞り忘れ 1 か所で
+ * 下書きが読者側に出る。ここは `PublicBlogPort`（公開済みしか返さない）
+ * だけを握る。
+ *
+ * **`ready: false` を持たない。** 保存先 (D1) が無いところでは見本へ落ちる。
+ * 「用意できていません」を返す形にしていた頃は、記事の画面が
+ * どんな住所でも 200 を返し、「無い記事は 404」という約束を
+ * 確かめられる場所が本番だけになっていた（他の入口も同じ理由で見本へ落ちる）。
+ */
+export type PublicBlogEntry = {
+  /** 見本を live と誤認させないための公開契約。 */
+  readonly source: "live" | "sample";
+  readonly port: PublicBlogPort;
+  readonly submitRating: ReturnType<typeof createSubmitArticleRatingUseCase>;
+  /**
+   * いまの件数と平均を読むだけの口。
+   *
+   * 管理側の `summarizeRatings`（会社ごとに絞る）とは別にしてある。
+   * 記事 1 本の所属は記事 id が決めるので、読者側に会社は要らない。
+   */
+  readonly summarizeRating: ArticleRatingPort["summarize"];
+};
+
+export async function publicBlogEntry(): Promise<PublicBlogEntry> {
+  const db = await tryGetDb();
+  const deps = createDeps({ db });
+  const publicBlog =
+    db === null
+      ? createSamplePublicBlogPort(deps.sites)
+      : createD1PublicBlogPort(db, deps.sites);
+  const ratings = db === null ? createSampleArticleRatingPort() : createD1ArticleRatingPort(db);
+  return {
+    source: db === null ? "sample" : "live",
+    port: publicBlog,
+    summarizeRating: ratings.summarize,
+    submitRating: createSubmitArticleRatingUseCase({
+      ratings,
+      publicBlog,
+      ids: deps.ids,
+      now: () => new Date(),
+    }),
+  };
 }

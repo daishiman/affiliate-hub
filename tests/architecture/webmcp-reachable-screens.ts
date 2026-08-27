@@ -126,6 +126,24 @@ export const REACHABLE_SCREENS: Readonly<Record<string, ReachEntry>> = {
     note: "画面の末尾に確認欄（理由が要る）",
   },
 
+  // ── ブログ運用（作成者向け）────────────────────────────
+  // **手元の CLI (Claude Code / Codex) から書ける道具である。**
+  // それでもここに画面を書くのは、AI からしか届かない機能を作らないため。
+  // 画面が消えた日にこの検査が落ちるので、片方だけ残ることがない。
+  list_blog_articles: { screen: "admin/blog/articles/page.tsx" },
+  get_blog_article: { screen: "admin/blog/articles/[article]/page.tsx" },
+  create_blog_article: { screen: "admin/blog/articles/new/page.tsx" },
+  update_blog_article: { screen: "admin/blog/articles/[article]/page.tsx" },
+  set_blog_article_status: {
+    screen: "admin/blog/articles/[article]/page.tsx",
+    note: "公開は人しか押せない（AI からは requiresHumanApproval で断られる）",
+  },
+  delete_blog_article: {
+    screen: "admin/blog/articles/[article]/page.tsx",
+    note: "画面の末尾に確認欄（理由が要る）。AI からは断られる",
+  },
+  list_blog_tags: { screen: "admin/blog/tags/page.tsx" },
+
   // ── 配信 ────────────────────────────────────────────────
   list_channels: { screen: "admin/distribution/page.tsx" },
   list_publications: { screen: "admin/distribution/page.tsx" },

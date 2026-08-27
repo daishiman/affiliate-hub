@@ -60,7 +60,7 @@ serves_goals: [G1, G2]
 
 | プラットフォーム | 状態 | 根拠 |
 |---|---|---|
-| Web (web) | 確定 | 確定質疑: `qa-backend-web-spec-intake` (正本 `spec-state.json` の `qa_ref`)。先行質疑 `qa-backend-web-analytics` は `qa_refs` に残り、本章にも併記する |
+| Web (web) | 確定 | 確定質疑: `qa-backend-web-site-blueprint` (2026-08-25 再々確定、正本 `spec-state.json` の `qa_ref`)。先行質疑 `qa-backend-web-blog-ops-crud` / `qa-backend-web-spec-intake` / `qa-backend-web` / `qa-backend-web-analytics` は `qa_refs` に残り、本章にも併記する |
 | モバイル (mobile) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |
 | タブレット (tablet) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |
 | デスクトップ (Windows) (desktop-windows) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |
@@ -75,10 +75,11 @@ serves_goals: [G1, G2]
 |---|---|
 | セル | backend × web |
 | 状態 | 確定 |
-| 確定質疑 (qa_ref) | `qa-backend-web-spec-intake` |
+| 確定質疑 (qa_ref) | `qa-backend-web-site-blueprint` (2026-08-25 再々確定。出典 kind: user-dialogue。直前は `qa-backend-web-blog-ops-crud`) |
+| 裏付け (qa_refs) | `qa-backend-web-site-blueprint`, `qa-backend-web-blog-ops-crud`, `qa-backend-web-spec-intake`, `qa-backend-web`, `qa-backend-web-analytics` (`extend-qa-refs` で退避値の前へ追記) |
 | 資するゴール (serves_goals) | G2, G1 |
-| required-info | `domain-model` — missing_effect: block / 接地: 済 (`qa-backend-web-spec-intake`) |
-| 出典 kind | written-requirements |
+| required-info | `domain-model` — missing_effect: block / 接地: 済 (`qa-backend-web-site-blueprint`。2026-08-25 の再々確定でサイト網 (SiteNetwork) を含む集約へ拡張したため接地先を移した。直前は `qa-backend-web-blog-ops-crud`、それ以前は `qa-backend-web-spec-intake`) |
+| 出典 kind (qa_refs[1] `qa-backend-web-spec-intake`) | written-requirements |
 | 出典 path | `docs/spec/04-二層構造統合仕様.md` |
 | 出典 節 | §3 WebMCP の確定契約 / §4 禁止依存 |
 | 出典 sha256 | `101ad27f5bf796c7180815bd2d1e582f9378b645c5aea9e9f1d65330af27b6ef` |
@@ -106,6 +107,50 @@ C05 gaps[0] の「再生成して本文へ載せる」を採らず、本節は�
 - **鍵の扱い**: API 鍵は利用者本人がブラウザまたは別端末で登録する。値も断片もこの作業場所には置かない。
 
 ## 確定内容 (質疑録)
+
+### qa-backend-web-site-blueprint (対応セル: web)
+
+**質問**: backend×web: `review-media-classic` v1.1 のサイト網・配信部品・記事型・追加部品を、v1.0 のユースケース群と不変条件にどう追加するか (2026-08-25 対話ヒアリング)
+
+**回答**: v1.0 (`qa-backend-web-blog-ops-crud`) のユースケース・役割・監査イベントを維持し、次を追加する。
+
+| # | 集約 / 領域 | 内容 |
+|---|---|---|
+| 1 | SiteNetwork | `createNetwork` / `attachSite(role, path_prefix)` / `detachSite` / `setHubSite` / `updateSisterBand` / `updateHero`。不変条件: network 内 hub は 1 件、`path_prefix` 一意、hub を detach する前に別 hub を指定。owner のみ |
+| 2 | Article | `setTemplate(T1–T4)` は下書き時のみ、`setDisclosure`、`assignAuthorProfile`。公開ゲートに「T1 は製品カード 1 件以上」「`disclosure_enabled=false` は owner 承認」を追加 |
+| 3 | Layout | `updateSlots(top_sections/sidebar_normal/sidebar_sticky/footer)` は部品 id 集合外を拒否。`custom-html-slot` はサニタイズ後に保存し、危険タグ検出時は拒否して監査イベント `layout.custom_html.rejected` を記録 |
+| 4 | Delivery | `buildFeed` / `buildCommentsFeed` / `buildSitemapIndex` / `buildSitemapPart(type, year)` / `buildLlmsTxt` / `buildLlmsFullTxt` / `buildJsonLd(page)`。公開記事のみ対象 (非公開・予約・アーカイブを含めない)。生成ごとに `delivery_snapshots` へ指紋を記録 |
+| 5 | Tag / LegalPage | `setKind(brand|topic)`。LegalPage kind 8 種。hub は 6 種の公開が公開条件、sub は company の公開が公開条件 |
+| 6 | 公開読取 | network 単位の nav/footer 木、site 単位の sidebar。feed/sitemap/llms は edge cache (TTL 10 分、公開イベントで purge) |
+| 7 | 監査イベント | `network.created` / `site.attached` / `site.detached` / `hub.changed` / `article.template.changed` / `article.disclosure.changed` / `delivery.generated` |
+| 8 | 受入条件 | 不変条件違反はドメインエラーとして 4xx で返り、部分更新を残さない。参考サイト由来の文章・素材は API 応答に含まれない |
+
+ドメインモデル (required-info `domain-model`) の接地は本 entry が担う: 集約 = SiteNetwork / Site / Article / Layout / Tag / LegalPage / Delivery(問い合わせ側)。
+
+### qa-backend-web-blog-ops-crud (対応セル: web)
+
+**質問**: backend×web: ブログ運営 CRUD の usecase/API 契約 (ブログ・記事・カテゴリ・固定ページ・商品部品・評価モデレーション・画像・レイアウト構成・アーカイブ/復元・公開/予約) と権限、ドメイン不変条件をどう定めるか (2026-08-25 対話ヒアリング)
+
+**回答**: 利用者要望 (`qa-uiux-web-blog-ops-crud`) を backend×web の usecase 契約へ落とす。既存の Better Auth セッションとチーム権限 (§25) の上に置く。
+
+**usecase 一覧** (Server Action と内部 API の両方から呼ぶ単一の application 層):
+
+| 集約 | usecase |
+|---|---|
+| Blog | list, create (template_id, theme_id, name, slug), updateSettings, archive, restore, purge (30 日超バッチ) |
+| Article | list (filters), create, update (blocks 全置換), preview, publish (preview_confirmed 必須), schedule, unpublish, duplicate, archive, restore, bulkUpdate (publish/unpublish/category のみ、最大 100 件) |
+| Category | tree, create, update, reorder, delete (配下記事 0 件のときのみ) |
+| LegalPage | list, upsert (kind 固定 6 種), publish |
+| ProductCard | list, create, update, delete (参照ブロック 0 件のときのみ) |
+| Review | submitPublic (レート制限・honeypot・ip_hash), listPending, approve, hide, reply。承認/非表示時に rating 集計を更新 |
+| Media | upload (alt_text 必須、webp 変換キュー), list, delete (参照 0 件のときのみ) |
+| LayoutConfig | get, update (部品 id は blueprint の許可一覧のみ) |
+
+- **ドメイン不変条件**: 記事は `preview_confirmed` が真でないと published へ遷移できない。scheduled は `scheduled_at` が未来のときのみ。archived からは restore 以外の遷移不可。カテゴリは 2 階層まで。法定ページ 6 種は削除不可 (非公開のみ)。商品カード/画像/カテゴリは参照が残る限り削除不可。
+- **権限**: ブログ単位の role (owner/editor/reviewer)。editor は記事 CRUD と下書き、publish/archive/purge/settings は owner、reviewer は Review モデレーションのみ。閲覧者の評価投稿は未認証で可。
+- **公開面の読み取り**: getSiteHome, getCategoryHub, getArticle (blocks+toc+related+prev/next), search (タイトル/本文/タグの LIKE、初期は D1 のみ), getLegalPage。published かつ `archived_at` null のみ返す。
+- **監査**: publish/unpublish/archive/restore/purge/approve/hide はイベント記録 (actor, target, at, before/after status)。
+- **受入条件**: 全 usecase に単体テスト (不変条件の拒否ケースを含む)。CRUD 経路の統合テストはローカル D1 で通す。参考ブログ由来の固有名を契約・seed に含めない。
 
 ### qa-backend-web-overhaul-v2 (対応セル: web)
 

@@ -11,16 +11,19 @@
 
 適用範囲: `/admin` 以下（読者のページとログインの往復は通す）
 
-開いている扉: **0 件** / 全 121 件
+開いている扉: **0 件** / 全 149 件
 
-「誰でも」と宣言してある行: **31 件**
+「誰でも」と宣言してある行: **36 件**
 （宣言すればその扉は差の数から消える。だから宣言の件数そのものにも上限がある）
 
 - `src/app/page.tsx` — 入口の案内
+- `src/app/s/[site]/[fixedPage]/page.tsx` — 読者向けの公開ページ
 - `src/app/s/[site]/advertising-policy/page.tsx` — 読者向けの公開ページ
 - `src/app/s/[site]/ai-policy/page.tsx` — 読者向けの公開ページ
 - `src/app/s/[site]/authors/[author]/page.tsx` — 読者向けの公開ページ
 - `src/app/s/[site]/best/[topic]/page.tsx` — 読者向けの公開ページ
+- `src/app/s/[site]/blog/[article]/page.tsx` — 読者向けの公開ページ
+- `src/app/s/[site]/blog/page.tsx` — 読者向けの公開ページ
 - `src/app/s/[site]/categories/[category]/page.tsx` — 読者向けの公開ページ
 - `src/app/s/[site]/compare/[comparison]/page.tsx` — 読者向けの公開ページ
 - `src/app/s/[site]/contact/page.tsx` — 読者向けの公開ページ
@@ -39,6 +42,7 @@
 - `src/app/s/[site]/tools/[tool]/page.tsx` — 読者向けの公開ページ
 - `src/app/signin/page.tsx` — サインイン画面
 - `src/app/api/auth/[...all]/route.ts` — ログインの入口（Google との往復）
+- `src/app/api/dev-signin/route.ts` — 手元で画面を確かめるための入口（積んだ環境には存在しない）
 - `src/app/api/telemetry/route.ts` — 読者の画面から届く計測（未ログインの読者が送るので、門は置けない）
 - `src/app/go/[code]/route.ts` — 成果リンクの転送（読者がクリックする先）
 - `src/app/indexnow.txt/route.ts` — IndexNow 鍵ファイル（公開配信が所有権証明の仕組みそのもの。鍵未設定なら 404）
@@ -47,6 +51,7 @@
 - `src/app/s/[site]/robots.txt/route.ts` — クローラー方針（AI クローラーを明示許可し sitemap の場所を知らせる）
 - `src/app/s/[site]/sitemap.xml/route.ts` — サイトマップ（公開記事の一覧を検索エンジン・AI へ配る）
 - `submitContactAction()` — 読者からの問い合わせ（公開フォーム）（src/presentation/site/contact-action.ts）
+- `submitReaderRatingAction()` — 記事に点を付ける（公開フォーム。押し直すと上書きされる）（src/presentation/site/reader-rating-action.ts）
 
 うち、**誰でも実行できて取り返しがつかない操作: 0 件**
 （公開・配信・鍵の失効・削除。塞ぐ順を決めるときはここから読む）
@@ -109,6 +114,17 @@
 | `src/app/admin/affiliate/page.tsx` | 管理画面 | ログイン | ログイン | — |
 | `src/app/admin/ai-usage/page.tsx` | 管理画面 | ログイン | ログイン | — |
 | `src/app/admin/analytics/page.tsx` | 管理画面 | ログイン | ログイン | — |
+| `src/app/admin/blog/articles/[article]/page.tsx` | 管理画面 | ログイン | ログイン | — |
+| `src/app/admin/blog/articles/deleted/page.tsx` | 管理画面 | ログイン | ログイン | — |
+| `src/app/admin/blog/articles/new/page.tsx` | 管理画面 | ログイン | ログイン | — |
+| `src/app/admin/blog/articles/page.tsx` | 管理画面 | ログイン | ログイン | — |
+| `src/app/admin/blog/delivery/page.tsx` | 管理画面 | ログイン | ログイン | — |
+| `src/app/admin/blog/evaluate/[article]/page.tsx` | 管理画面 | ログイン | ログイン | — |
+| `src/app/admin/blog/evaluate/page.tsx` | 管理画面 | ログイン | ログイン | — |
+| `src/app/admin/blog/layout/page.tsx` | 管理画面 | ログイン | ログイン | — |
+| `src/app/admin/blog/page.tsx` | 管理画面 | ログイン | ログイン | — |
+| `src/app/admin/blog/pages/page.tsx` | 管理画面 | ログイン | ログイン | — |
+| `src/app/admin/blog/tags/page.tsx` | 管理画面 | ログイン | ログイン | — |
 | `src/app/admin/content/[variant]/edit/page.tsx` | 管理画面 | ログイン | ログイン | — |
 | `src/app/admin/content/[variant]/page.tsx` | 管理画面 | ログイン | ログイン | — |
 | `src/app/admin/content/[variant]/progress/page.tsx` | 管理画面 | ログイン | ログイン | — |
@@ -148,6 +164,10 @@
 | `src/app/admin/settings/roles/page.tsx` | 管理画面 | ログイン | ログイン | — |
 | `src/app/admin/settings/seo/page.tsx` | 管理画面 | ログイン | ログイン | — |
 | `src/app/admin/settings/workspaces/page.tsx` | 管理画面 | ログイン | ログイン | — |
+| `src/app/admin/site-network/[node]/page.tsx` | 管理画面 | ログイン | ログイン | — |
+| `src/app/admin/site-network/deleted/page.tsx` | 管理画面 | ログイン | ログイン | — |
+| `src/app/admin/site-network/new/page.tsx` | 管理画面 | ログイン | ログイン | — |
+| `src/app/admin/site-network/page.tsx` | 管理画面 | ログイン | ログイン | — |
 | `src/app/admin/sites/[site]/edit/page.tsx` | 管理画面 | ログイン | ログイン | — |
 | `src/app/admin/sites/[site]/page.tsx` | 管理画面 | ログイン | ログイン | — |
 | `src/app/admin/sites/new/page.tsx` | 管理画面 | ログイン | ログイン | — |
@@ -156,10 +176,13 @@
 | `src/app/admin/ui-catalog/page.tsx` | 管理画面 | ログイン | ログイン | — |
 | `src/app/admin/writing/page.tsx` | 管理画面 | ログイン | ログイン | — |
 | `src/app/page.tsx` | 入口の案内 | 誰でも | 誰でも | — |
+| `src/app/s/[site]/[fixedPage]/page.tsx` | 読者向けの公開ページ | 誰でも | 誰でも | — |
 | `src/app/s/[site]/advertising-policy/page.tsx` | 読者向けの公開ページ | 誰でも | 誰でも | — |
 | `src/app/s/[site]/ai-policy/page.tsx` | 読者向けの公開ページ | 誰でも | 誰でも | — |
 | `src/app/s/[site]/authors/[author]/page.tsx` | 読者向けの公開ページ | 誰でも | 誰でも | — |
 | `src/app/s/[site]/best/[topic]/page.tsx` | 読者向けの公開ページ | 誰でも | 誰でも | — |
+| `src/app/s/[site]/blog/[article]/page.tsx` | 読者向けの公開ページ | 誰でも | 誰でも | — |
+| `src/app/s/[site]/blog/page.tsx` | 読者向けの公開ページ | 誰でも | 誰でも | — |
 | `src/app/s/[site]/categories/[category]/page.tsx` | 読者向けの公開ページ | 誰でも | 誰でも | — |
 | `src/app/s/[site]/compare/[comparison]/page.tsx` | 読者向けの公開ページ | 誰でも | 誰でも | — |
 | `src/app/s/[site]/contact/page.tsx` | 読者向けの公開ページ | 誰でも | 誰でも | — |
@@ -183,6 +206,7 @@
 | 入口・操作 | 何ができるか | 本来 | いま | 差 |
 |---|---|---|---|---|
 | `src/app/api/auth/[...all]/route.ts` | ログインの入口（Google との往復） | 誰でも | 誰でも | — |
+| `src/app/api/dev-signin/route.ts` | 手元で画面を確かめるための入口（積んだ環境には存在しない） | 誰でも | 誰でも | — |
 | `src/app/api/feedback-captures/[capture]/route.ts` | 指摘に添えた画面の写しの取り出し | ログイン | ログイン | — |
 | `src/app/api/feedback/pending/route.ts` | 未処理の指摘の取り出し | 鍵 | 鍵 | — |
 | `src/app/api/mcp/route.ts` | 操作の実行（MCP） | 鍵 | 鍵 | — |
@@ -216,10 +240,12 @@
 |---|---|---|---|---|---|
 | `advanceLoopRunAction()` | 比較に観測値を書く・判定する・打ち切る（判定は採用した見せ方を残す）（src/presentation/admin/improvement-action.ts） | ログイン | ログイン | — | **つかない** |
 | `cancelPublicationAction()` | 予定していた配信を取りやめる（取りやめた先は終点で、予定へは戻せない）（src/presentation/admin/delete-form-action.ts） | ログイン | ログイン | — | **つかない** |
+| `checkBlogDeliveryAction()` | 配信物を組み立て直して、結果を履歴に積む（src/presentation/admin/blog-layout-action.ts） | ログイン | ログイン | — | **つかない** |
 | `createSiteFromDraftAction()` | 下書きからサイトを作る（消す口が無い）（src/presentation/admin/site-wizard-action.ts） | ログイン | ログイン | — | **つかない** |
 | `deleteContentVariantAction()` | 記事を消す（本文を後から確かめる手段が残らない）（src/presentation/admin/delete-form-action.ts） | ログイン | ログイン | — | **つかない** |
 | `deleteManagedSiteAction()` | ブログを消す（記事ごと消える）（src/presentation/admin/delete-form-action.ts） | ログイン | ログイン | — | **つかない** |
 | `deleteProductAction()` | 商品を消す（順位表と比較表の入力が消える）（src/presentation/admin/delete-form-action.ts） | ログイン | ログイン | — | **つかない** |
+| `manageBlogTagAction()` | タグを作る・直す・消す（消したタグの説明は残らない）（src/presentation/admin/blog-tag-action.ts） | ログイン | ログイン | — | **つかない** |
 | `manageIntegrationAccessAction()` | 外部連携の鍵を作る・失効させる（src/presentation/admin/feedback-action.ts） | ログイン | ログイン | — | **つかない** |
 | `manageLlmCredentialAction()` | 生成 AI の API キーを預ける・消す（預けた鍵で課金が発生する）（src/presentation/admin/llm-credential-action.ts） | ログイン | ログイン | — | **つかない** |
 | `manageMemberAction()` | 担当者を招く・役割を変える・担当から外す（入ってよい人の一覧が変わる）（src/presentation/admin/member-action.ts） | ログイン | ログイン | — | **つかない** |
@@ -240,14 +266,21 @@
 | `createProductAction()` | 商品を登録する（src/presentation/admin/product-form-action.ts） | ログイン | ログイン | — | つく |
 | `draftVariantSpecAction()` | 見せ方の試作を登録する（src/presentation/admin/improvement-action.ts） | ログイン | ログイン | — | つく |
 | `handOffFeedbackAction()` | 指摘を引き継ぐ（src/presentation/admin/feedback-action.ts） | ログイン | ログイン | — | つく |
+| `manageBlogArticleAction()` | 記事を作る・直す・論理削除し、本文・タグ・評価ごと同じURLへ復元する（src/presentation/admin/blog-article-action.ts） | ログイン | ログイン | — | つく |
+| `manageBlogDeliveryAction()` | 配信部品を出し入れする（src/presentation/admin/blog-layout-action.ts） | ログイン | ログイン | — | つく |
+| `manageBlogLayoutAction()` | 版面の枠と帯を並べ替える・出し入れする（src/presentation/admin/blog-layout-action.ts） | ログイン | ログイン | — | つく |
+| `manageBlogPageAction()` | 固定ページを作る・直す・論理削除し、削除済み一覧から元の本文と公開状態で復元する（src/presentation/admin/blog-page-action.ts） | ログイン | ログイン | — | つく |
+| `manageBlogRatingAction()` | 読者が付けた評価を伏せる・戻す（票は消えず、平均と件数から外れるだけ）（src/presentation/admin/blog-rating-action.ts） | ログイン | ログイン | — | つく |
 | `manageGuidelineReferenceAction()` | SEO/AI 指針の出典を登録する・確認日を更新する（一覧に残り、後から直せる）（src/presentation/admin/guideline-reference-action.ts） | ログイン | ログイン | — | つく |
+| `manageSiteNetworkAction()` | サイト網の枝を足す・直す・論理削除し、削除済み一覧から同じURLへ復元する（src/presentation/admin/site-network-action.ts） | ログイン | ログイン | — | つく |
 | `sampleAction()` | 見本帳のボタンの見本（何もしない）（src/app/admin/ui-catalog/sample-action.ts） | ログイン | ログイン | — | つく |
 | `saveSiteDraftStepAction()` | サイトの下書きを保存する（src/presentation/admin/site-wizard-action.ts） | ログイン | ログイン | — | つく |
 | `startSiteDraftAction()` | サイトの下書きを始める（src/presentation/admin/site-wizard-action.ts） | ログイン | ログイン | — | つく |
 | `submitAffiliateUrlAction()` | 成果リンクを登録する（src/presentation/admin/inbox-action.ts） | ログイン | ログイン | — | つく |
 | `submitContactAction()` | 読者からの問い合わせ（公開フォーム）（src/presentation/site/contact-action.ts） | 誰でも | 誰でも | — | つく |
 | `submitFeedbackAction()` | 指摘を登録する（src/presentation/admin/feedback-action.ts） | ログイン | ログイン | — | つく |
+| `submitReaderRatingAction()` | 記事に点を付ける（公開フォーム。押し直すと上書きされる）（src/presentation/site/reader-rating-action.ts） | 誰でも | 誰でも | — | つく |
 | `updateContentVariantAction()` | 記事の題名・本文・要約を直す（src/presentation/admin/content-form-action.ts） | ログイン | ログイン | — | つく |
 | `updateManagedSiteAction()` | ブログの設定を直す（src/presentation/admin/site-form-action.ts） | ログイン | ログイン | — | つく |
 | `updateProductAction()` | 商品の内容を直す（src/presentation/admin/product-form-action.ts） | ログイン | ログイン | — | つく |
-<!-- 生成物の指紋 sha256:311cd5e3848ef67e4d0e0a7cb40f56ede0d76698ed33886d13798b29ee11b5e4 -->
+<!-- 生成物の指紋 sha256:48c199ea2d9a2faaf4e14b36c6f88197b178b29cacfd92a5b7cc825118eac4fd -->

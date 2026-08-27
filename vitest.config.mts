@@ -1,6 +1,6 @@
 import { fileURLToPath } from "node:url";
 import { defineConfig } from "vitest/config";
-import { GLOBAL_COVERAGE } from "./quality-gates.config.mjs";
+import { GLOBAL_COVERAGE, SCREEN_RENDER_BUDGET_MS } from "./quality-gates.config.mjs";
 
 /**
  * ドメイン層と依存方向の検査を回すための設定。
@@ -18,13 +18,16 @@ export default defineConfig({
     // テストファイルごとに書くと、書き忘れたファイルだけが落ちる。
     setupFiles: ["tests/setup.ts"],
     /*
-      既定の 5 秒だと、画面を描く検査（Next.js のページを取り込んで描き、
-      読み上げの自動検査までかける）がカバレッジ計測と重なったときに時々超える。
-      **判定は 1 つも緩めていない**（違反 0 件・見出しの決まりはそのまま）。
-      待ち時間だけを広げる理由は、「たまに赤くなる検査」を放置すると
-      赤そのものが無視されるようになり、検査が飾りになるため。
+      待ち時間の正本は `quality-gates.config.mjs` にある。**数字をここへ書き写さない。**
+      画面を描く検査は自前の待ち時間を持つものと既定に任せるものが混ざっており、
+      2 か所に数字があると**既定に任せている側だけが古い数字のまま取り残される。**
+      2026-08-26 に実際そうなった: 自前で 20 秒を持つ検査を直しても、
+      既定の 30 秒で走る `page-degraded` / `page-empty` が別の日に同じ形で落ちた。
+
+      **判定は 1 つも緩めていない。**なぜ広げてよいのか、代わりに何が見えなく
+      なるのかは向こうの説明に書いてある。
     */
-    testTimeout: 30_000,
+    testTimeout: SCREEN_RENDER_BUDGET_MS,
     coverage: {
       provider: "v8",
       /*

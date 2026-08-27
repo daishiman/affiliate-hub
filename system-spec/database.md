@@ -67,7 +67,7 @@ serves_goals: [G1, G2]
 
 | プラットフォーム | 状態 | 根拠 |
 |---|---|---|
-| Web (web) | 確定 | 確定質疑: `qa-database-web-spec-intake` (正本 `spec-state.json` の `qa_ref`)。先行質疑 `qa-database-web-analytics` は `qa_refs` に残り、本章にも併記する |
+| Web (web) | 確定 | 確定質疑: `qa-database-web-site-blueprint` (2026-08-25 再々確定、正本 `spec-state.json` の `qa_ref`)。先行質疑 `qa-database-web-blog-ops-crud` / `qa-database-web-spec-intake` / `qa-database-web` / `qa-database-web-analytics` は `qa_refs` に残り、本章にも併記する |
 | モバイル (mobile) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |
 | タブレット (tablet) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |
 | デスクトップ (Windows) (desktop-windows) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |
@@ -82,10 +82,11 @@ serves_goals: [G1, G2]
 |---|---|
 | セル | database × web |
 | 状態 | 確定 |
-| 確定質疑 (qa_ref) | `qa-database-web-spec-intake` |
+| 確定質疑 (qa_ref) | `qa-database-web-site-blueprint` (2026-08-25 再々確定。出典 kind: user-dialogue。直前は `qa-database-web-blog-ops-crud`) |
+| 裏付け (qa_refs) | `qa-database-web-site-blueprint`, `qa-database-web-blog-ops-crud`, `qa-database-web-spec-intake`, `qa-database-web`, `qa-database-web-analytics` (`extend-qa-refs` で退避値の前へ追記) |
 | 資するゴール (serves_goals) | G1, G2 |
 | required-info | なし (この確定に block 指定の必須情報は登録されていない) |
-| 出典 kind | written-requirements |
+| 出典 kind (qa_refs[1] `qa-database-web-spec-intake`) | written-requirements |
 | 出典 path | `docs/spec/06-サイトブループリント-記事構成テンプレート.md` |
 | 出典 節 | §2 SiteBlueprint のパラメータ定義 |
 | 出典 sha256 | `d53fe38abd234fffa7905c74000b7198c025e5c84cbb019b88fa30245c99e18b` |
@@ -134,6 +135,45 @@ C05 gaps[0] は「8 章 + 00 を再生成して確定セル内容と decisions[]
 - **`decision-editorial-commercial-split` が本章に効く形**: 「報酬額をランキングの入力にしない」という禁止を、コードの中ではなく **D1 を 2 本に分ける**位置で担保する。越えるには設定を書き換えるしかなくなり、越えた事実が差分に残る。
 
 ## 確定内容 (質疑録)
+
+### qa-database-web-site-blueprint (対応セル: web)
+
+**質問**: database×web: `review-media-classic` v1.1 (サイト網・記事型・追加部品・固定ページ 8 種・ブランドタグ・配信部品) を D1 + Drizzle のスキーマにどう写像するか (2026-08-25 対話ヒアリング)
+
+**回答**: v1.0 (`qa-database-web-blog-ops-crud`) のエンティティを維持し、次を追加する (migration 0023 以降)。
+
+| # | 追加 | 内容 |
+|---|---|---|
+| 1 | `site_network` / `sites` 拡張 | `site_network` (id, name, hub_site_id, sister_band_enabled, sister_band_max=4, created_at)。`sites` に `network_id` (nullable FK)、`network_role` enum(hub, sub, mini)、`path_prefix` (network 内で一意)、`mini_kind` enum(dictionary, navigator, shop)。制約: network 内の hub は 1 件、sub/mini は hub と異なる site |
+| 2 | `blog_hero_config` | site_id PK, headline, description, search_note, persona_comment, persona_image_asset_id |
+| 3 | `blog_layout_config` 拡張 | slot 配列 4 種 (`top_sections`, `sidebar_normal`, `sidebar_sticky`, `footer`) + header の JSON。slot id は v1.1 の部品 id 集合に限定 (app 層検証)。`custom-html-slot` の本文は `layout_custom_html` (id, site_id, slot_index, sanitized_html, updated_at) へ分離 |
+| 4 | `articles` 拡張 / `author_profiles` | `article_template` enum(T1_roundup, T2_single_review, T3_guide, T4_hub)、`disclosure_enabled` boolean (既定 true)、`author_profile_id` FK。`author_profiles` (id, site_id, display_name, credential_text, avatar_asset_id, guideline_page_id FK legal_pages) |
+| 5 | `article_block` 拡張 | type に `intro_box`, `emphasis_box` を追加。製品カードの記事内再掲は `article_block` (type=product_card, placement enum(intro, compare, summary)) で表す |
+| 6 | `tags` 拡張 | `kind` enum(topic, brand)。brand は `brand-tag-cloud` の対象 |
+| 7 | `legal_pages.kind` 拡張 | 6 種 + `review_guidelines` + `company` の 8 種。hub は 6 種必須・sub は company 必須 (app 層検証) |
+| 8 | `delivery_snapshots` | 配信物は都度生成 (edge cache)。監査用に (site_id, kind enum(feed, comments_feed, sitemap_index, sitemap_part, llms, llms_full), generated_at, item_count, sha256) |
+| 9 | 受入条件 | 既存 migration 0001–0022 と衝突せず、全追加列に既定値があり、ロールバック migration を同時に用意する |
+
+### qa-database-web-blog-ops-crud (対応セル: web)
+
+**質問**: database×web: ブログ運営 CRUD ページ群を支える永続化 (ブログ・記事ブロック・2 階層カテゴリ・固定ページ・商品部品・評価/コメント・画像・レイアウト構成・アーカイブ) をどう設計するか (2026-08-25 対話ヒアリング)
+
+**回答**: 利用者要望 (`qa-uiux-web-blog-ops-crud`) を database×web の永続化方針へ落とす。既存エンティティ (`sites`, `articles`, `site_blueprints`, `blog_template`, `blog_theme`, `page_theme_override`, `legal_page`, `blog_affiliate_placement`) を土台にし、以下を追加・拡張する。
+
+| # | エンティティ | 列 / 制約 |
+|---|---|---|
+| 1 | `blog_category` (新規) | `id, site_id, parent_id (null=上位、非 null=下位。2 階層まで CHECK), slug, name, description, eyecatch_media_id, sort_order`。`site_id+slug` 一意 |
+| 2 | `articles` (拡張) | `status (draft/scheduled/published/unpublished/archived), scheduled_at, published_at, archived_at, category_id, eyecatch_media_id, pr_notice, supervisor_profile_id, view_count, rating_avg, rating_count` (集計列は再計算ジョブで更新) |
+| 3 | `article_block` (新規) | `id, article_id, position, type (heading/paragraph/figure/speech-bubble/spec-table/comparison-table/product-card/ranking/summary/cta), payload (JSON)`。`article_id+position` 一意。目次は heading ブロックから導出 |
+| 4 | `product_card` (新規) | `id, site_id, name, summary, image_media_id, price_label, source_credit, store_links (JSON)`。`article_block.payload` から id 参照し、ランキング/比較表/まとめで再掲 |
+| 5 | `article_review` (新規) | `id, article_id, rating (1-5), body, author_label, status (pending/approved/hidden), ip_hash, created_at` |
+| 6 | `media_asset` (新規) | `id, site_id, storage_key, mime, width, height, alt_text NOT NULL, webp_ready, created_at`。使用箇所は参照元からの逆引き |
+| 7 | `blog_layout_config` (新規) | `site_id, region (header/sidebar/footer), widgets (JSON: 部品 id・順序・有効フラグ)`。blueprint `review-media-classic` の既定値を `site_blueprints` 側の seed に持つ |
+| 8 | `legal_page` (拡張) | `kind` を 6 種 (`operator/all-categories/site-policy/privacy/tokushoho/contact`) に固定、`site_id+kind` 一意 |
+
+- **アーカイブ/復元**: `sites` と `articles` は `archived_at` で論理削除し、30 日超で物理削除するバッチ。物理削除は `article_block` / `article_review` / `blog_affiliate_placement` をカスケード。
+- **移行**: 既存 0001–0022 に続く Drizzle migration で追加し、既存 `articles` の本文はそのまま paragraph ブロック 1 件へ移す後方互換移行を用意する。
+- **受入条件**: 一覧クエリ (状態/カテゴリ/期間フィルタ+ページネーション) が D1 で index を使い 100ms 未満。参考ブログの固有名・文章を seed に含めない。
 
 ### qa-database-web-analytics (対応セル: web)
 

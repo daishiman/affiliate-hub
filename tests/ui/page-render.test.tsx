@@ -11,6 +11,8 @@
  * @req REQ-FB07
  * @req REQ-IM09
  * @req REQ-TM02, REQ-TM03, REQ-TM05, REQ-TM06, REQ-TM10
+ * @req REQ-BOPS01, REQ-BOPS02, REQ-BOPS03, REQ-BOPS04, REQ-BOPS05, REQ-BOPS06
+ * @req REQ-BOPS07, REQ-BOPS08, REQ-BOPS09, REQ-BOPS10, REQ-BOPS11, REQ-BOPS12, REQ-BOPS14
  * @types screen-states, a11y
  */
 import { existsSync, readdirSync } from "node:fs";
@@ -159,6 +161,28 @@ describe.each(ROUTE_CASES.map((r) => [r.file, r] as const))("%s", (_file, route)
     // 「例外にならない」だけでは、中身が空でも通る。
     // 画面として成立する最低限の分量が出ていることまで見る。
     expect(html.length).toBeGreaterThan(200);
+  });
+
+  it("目当ての物が見つかった状態を描いている", async () => {
+    const html = await renderCase(route);
+    /*
+     * `notFound()` (`src/domain/shared/errors.ts`) が出す
+     * 「〜 が見つかりません (id: …)」を、**画面が描いていないこと**。
+     *
+     * 2026-08-26 に実測: `tests/ui/route-table.ts` が
+     * `art_sample_review` / `net_sample_root` という**見本に無い id** で
+     * 2 枚を開いていた。画面は「見つかりません」を描き、それでも例外にならないので
+     * 分量の検査 (200 文字) も見出しの検査も axe も**全部緑**だった。
+     * 記事 1 本の画面とサイト網 1 節点の画面は、中身を 1 度も見られていない。
+     *
+     * 見ているのは `(id: ` を伴う形だけで、空一覧の案内文
+     * (「まだ 1 件もありません」など) は対象外である。
+     */
+    expect(
+      /が見つかりません \(id: /.test(html),
+      `${route.file} が「見つかりません」を描いています。` +
+        "route-table.ts の params が見本に実在する識別子かを確かめてください",
+    ).toBe(false);
   });
 
   it("見出しが 1 つの h1 から始まり、階層を飛ばさない", async () => {

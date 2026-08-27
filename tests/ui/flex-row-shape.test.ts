@@ -300,6 +300,42 @@ const EXEMPT: Record<string, Exemption> = {
       "箱がどの行のものか読めなくなる**ので、折り返さないことのほうが正しい。" +
       "文字側は縮む項目なので、狭いときは `span` の中で折れて器を超えない",
   },
+  // ── 記事本文の断片（`presentation/prose`）────────────────────────────
+  // **5 件とも「折り返させない」ではなく「折り返す先が無い」。**
+  // 印と短い名前、あるいは印 1 個だけを包む横並びで、途中で折り返すと
+  // 印だけが行に取り残される。帯そのもの（`.proseEditorBar` /
+  // `.proseEditorActions` / `.proseEditorAdd`）は折り返す側へ直した。
+  "src/presentation/prose/prose.module.css :: .proseCallout": {
+    measured: "記事の中の注意書き。左に印 1 個、右に題と本文の列（2026-08-26）",
+    reason:
+      "印を本文の上へ回さないための横並び。狭い画面で溢れるのは本文の側なので、" +
+      "縮む役は内側の `.proseCallout > div` が `min-width: 0` で受け持つ",
+  },
+  "src/presentation/prose/prose.module.css :: .proseEditorKind": {
+    measured: "編集中の断片の種類名。印 1 個と「箇条書き」程度の短い語（2026-08-26）",
+    reason: "印と種類名は 1 つの名前として読まれる。途中で折り返すと印だけが前の行に残る",
+  },
+  "src/presentation/prose/prose.module.css :: .proseEditorIconButton": {
+    measured: "断片を上下へ動かす・消す操作 1 個ぶん（2026-08-26）",
+    reason: "印 1 個を 44px の押しどころの中央へ置くためだけの inline-flex で、並べる直の子を持たない",
+  },
+  "src/presentation/prose/prose.module.css :: .proseEditorItemRow": {
+    measured: "箇条書き 1 項目ぶん。行頭の印と、1 行の入力欄（2026-08-26）",
+    reason:
+      "印を入力欄の上へ回さないための横並び。長い項目で溢れないよう、" +
+      "入力欄の側に `min-width: 0` を置いて縮ませている",
+  },
+  "src/presentation/prose/prose.module.css :: .proseEditorMenuItem": {
+    measured: "`/` の候補 1 つぶん。印 1 個と「比較表」程度の短い語（2026-08-26）",
+    reason: "候補は 1 行で読み切れることが選びやすさそのもので、折り返すと候補の境目が消える",
+  },
+  "src/presentation/prose/prose.module.css :: .proseOutline a": {
+    measured: "目次の 1 項目。中身は「1. 選び方の順番」のような文字だけ（2026-08-26）",
+    reason:
+      "横並びにしているのは中身を並べるためではなく、押しどころの下限 " +
+      "(`--tap-target-min`) を素の `<a>` へ効かせるため。子は文字ひとかたまりだけで、" +
+      "**折り返す先が無い**（長い項目名は文字の側が普通に折り返す）",
+  },
 };
 
 /** 除外の理由に書いてはいけない言い回し（要件 2）。 */
@@ -495,6 +531,16 @@ const SHRINKABLE: Record<string, Exemption> = {
   "src/presentation/ui/templates/site.module.css :: .article > *": {
     measured: "Chromium mobileの順位記事で327pxの記事を398pxへ広げた（2026-08-21）",
     reason: "記事grid直下のRankingTable外箱を縮め、表の横幅は内側tableWrapのscrollへ閉じ込めるため",
+  },
+  "src/presentation/prose/prose.module.css :: .proseCallout > div": {
+    measured: "注意書きの本文側。印と横に並ぶ列で、長い行や表を含みうる（2026-08-26）",
+    reason: "flex の子の最小幅は既定で `auto` なので、長い一行が注意書きごと横へ溢れるのを止めるため",
+  },
+  "src/presentation/prose/prose.module.css :: .proseEditorText,\n.proseEditorHeading3,\n.proseEditorHeading4,\n.proseEditorQuote": {
+    measured: "本文・小見出し・引用の入力欄。箇条書きでは行頭の印と横に並ぶ（2026-08-26）",
+    reason:
+      "入力欄は既定で中身に応じた最小幅を持つ。下げておかないと、" +
+      "`width: 100%` を書いても行ごと横へ溢れて印が画面外へ出る",
   },
 };
 

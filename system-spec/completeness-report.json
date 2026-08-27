@@ -38,21 +38,22 @@
       "verdict": "PASS",
       "auditor": "system-spec-matrix-auditor",
       "component": "C07",
-      "summary": "C07 の一次監査が PASS。48 セルの構造・対象外理由・qa_ref・aggregate はすべて整合し、ui-ux.web の 2026-08-23 二段階 R4-reopen についても discarded の退避が完全で append-only 原則を守っており一次証跡の上書きは無い、と独立に確認された。必須 sub-input の C06 も PASS。さらに本 run では PostToolUse/SubagentStop hook が audit-fork-ledger.jsonl へ resolution 行を書き、C07/C06/C08 の 3 receipt が session_id・tool_use_id・response_sha256・verdict の 4 点で台帳へ機械接地した。前回 FAIL の 2 因 (C06 FAIL / 台帳不在) はいずれも解消している。",
+      "summary": "48 セル全件に state があり未収集 0 / 対象外 40 (利用者承認 approval-platform-web-only) / 確定 8。2026-08-25 に 4 セル (ui-ux/frontend/database/backend × web) が同日中に二度の R4-reopen (ブログ運営 CRUD → 参考サイト全体構成の抽象ブループリント v1.1) を経て qa-*-web-site-blueprint で再々確定した。C07 は参照 38 件の qa_log 実在と reopen_log 8 件との整合を、C06 は written_up sha256 の実ファイル一致と asks_for の名指しを独立に確認し、いずれも PASS。決定論ゲートは coverage 4 モード exit 0。",
       "evidence": [
-        "C07: 8 categories x 6 canonical platforms = 48、unresolved 0 / excluded 40 / confirmed 8、placeholder reasons 0、qa_ref invalid 0、missing platform 0、aggregate mismatch 0、AUDIT_VERDICT: PASS",
-        "C07: ui-ux/web の reopen_log 2 entry は discarded に qa_ref・required_info・required_info_checks を完全退避、1 件目 reason の誤日付は 2 件目 reason が明示訂正 (append-only のため 1 件目自体は不変)",
-        "C06: 聞き漏れ 0 / 誘導質問 0 / 早期停止 0 / トレース欠落 0 / foundation 根拠欠落 0、AUDIT_VERDICT: PASS",
-        "deterministic matrix gates と required-info profile は exit 0",
-        "audit-fork-ledger.jsonl に record_kind=resolution / verdict_state=resolved の 3 行 (matrix / hearing / doc-freshness) が生成され、audit_delegations の 3 receipt が ledger_corroborates を通過",
-        "**2026-08-25 時点でこの台帳は再確認できない。**eval-log/ は .gitignore 済みでコミットされず、eval-log/system-spec-harness/audit-fork-ledger.jsonl は現在存在しない (aggregate-completeness.py --report が exists=False で 3 件の VIOLATION を出す)。上の 3 行は当時の run で確かに書かれたが、揮発物なので後から裏取りできない。台帳を残す先を gitignore の外へ移すか、評価のたびに実 fork し直すかの判断が要る (gap として起票)"
+        "48 セル (8 categories × 6 canonical platforms) 全件に state 実在: 確定 8 (全て web) / 対象外 40 / 未収集 0",
+        "対象外 40 件は全件 approval-platform-web-only (approval_log 実在、2026-08-16 利用者選択) を根拠に持つ",
+        "確定 8 セルの qa_ref / qa_refs / required_info[].grounded_by 参照 38 件を qa_log 47 件と突合し欠落 0",
+        "対象 4 セル (ui-ux/frontend/database/backend × web) の qa_ref は qa-*-web-site-blueprint で、question/answer/source/asks_for/design_applications/written_up を持つ実 entry",
+        "reopen_log 総 70 件のうち 2026-08-25 分は 8 件 (4 セル × 2 回: ブログ運営 CRUD → 参考サイト全体構成)。二度 reopen → 再々確定の履歴と現状セルが整合",
+        "validate-coverage-matrix 4 モード (無印 / --require-complete / +--require-foundation / +--require-counted-required-info) すべて exit 0",
+        "C06 sub_input PASS: トレーサビリティ: 確定 8 セルの参照 29 件が qa_log に実在 (dangling 0)。対象 4 セルの qa_ref entry は asks_for が本セルを名指し、written_up[].sha256 が system-spec/{ui-ux,frontend,database,backend}.md の現行全文 sha256 と 4/4 一致。旧 *-blog-ops-crud entry の written_up.sha256 は後続節追記による旧世代ハッシュで、現在の qa_ref のトレースは健全。auth/security の asks_for 無し qa_ref は asks_for_contract.legacy_ids に宣言済み"
       ]
     },
     "design_knowledge_reflection": {
       "verdict": "PASS",
       "auditor": "assign-system-spec-completeness-evaluator",
       "component": "C05",
-      "summary": "機械層の knowledge/doctrine グラフと全章の設計知識ポインタが成立し、意味層でも 8 カテゴリ全章が現在の確定 qa_ref に対する『本章での適用』を描画している。前回 FAIL の根拠だった 6 章 (backend / database / frontend / infrastructure / maintenance-ops / security) の mismatch は、各章が current qa_ref の節を持つことを章本文の走査で全件確認して解消した。旧 Q&A の適用節は履歴として併存しているが、current qa_ref の節が別に存在するため『現在の確定要件にどの原則が効くか』は章だけで追える。",
+      "summary": "機械層の knowledge/doctrine グラフと全章の設計知識ポインタが成立し、意味層でも 8 カテゴリ全章が現在の確定 qa_ref に対する『本章での適用』を描画している。前回 FAIL の根拠だった 6 章 (backend / database / frontend / infrastructure / maintenance-ops / security) の mismatch は、各章が current qa_ref の節を持つことを章本文の走査で全件確認して解消した。旧 Q&A の適用節は履歴として併存しているが、current qa_ref の節が別に存在するため『現在の確定要件にどの原則が効くか』は章だけで追える。2026-08-25 の再々確定では、参考サイト全体構成の抽象ブループリント (docs/spec/13 v1.1) を 4 章の qa-*-web-site-blueprint 節に転記し、design_applications をサイト網・記事型テンプレート・配信部品へ接続した。knowledge / doctrine / required-info / cross の 4 profile は exit 0。2026-08-25 の再々確定では、参考サイト全体構成の抽象ブループリント (docs/spec/13 v1.1) を 4 章の qa-*-web-site-blueprint 節に転記し、design_applications をサイト網・記事型テンプレート・配信部品へ接続した。knowledge / doctrine / required-info / cross の 4 profile は exit 0。",
       "evidence": [
         "8/8 章で current qa_ref の『確定内容 <qa_ref>』節が実在: database=qa-database-web-spec-intake / auth=qa-auth-web / ui-ux=qa-uiux-web-screen-priority / security=qa-security-web-spec-intake / infrastructure=qa-infra-web-migration-guard / backend=qa-backend-web-spec-intake / frontend=qa-frontend-web-spec-intake / maintenance-ops=qa-ops-web-migration-guard",
         "6 章は旧 Q&A の節 (qa-*-web-analytics / qa-infra-web-redirect / qa-infra-web-spec-intake / qa-security-web / qa-ops-web / qa-ops-web-spec-intake) を履歴として併存させたうえで current 節を持つ",
@@ -63,22 +64,21 @@
       "verdict": "PASS",
       "auditor": "system-spec-doc-freshness-auditor",
       "component": "C08",
-      "summary": "形式層は 15 targets / 15 references で exit 0、内容鮮度層も C08 の独立再照合で PASS。前回 FAIL の 3 因はすべて解消した: (1) Next.js の 16.3.1 は registry 現行 16.3.2 へ更新済みで C08 の独立 npm 照会と一致、(2) Apple HIG は 08-16/08-19/08-22 の 3 回の再取得で content_sha256 と Last-Modified が一致し続けることを証跡の reverification 欄で辿れる、(3) target inventory 欠落 7 件は全件登録済み。取得日を version/last_updated へ代入した record は 0 件、非公式 host 0 件、evidence_sha256 は 15 件全件が実ファイルと一致した。C08 が medium として残した owasp-asvs の出所欠落は、C08 の run 後に C05 が本文を再取得して解消した (下記 evidence の最終行)。delegation 側の evidence は C08 が監査した時点の観測をそのまま残してあり、後から書き換えていない。**この判定の対象は fetched-references.json であって章 md の出典表ではない。**章側は 2026-08-23 時点で 3 件が追随していなかったが、2026-08-25 に C03 compile を auth / security / ui-ux へ当てて食い違い 0 件になった (info finding bucket=doc_freshness に実測を記録)。",
+      "summary": "targets 15 = references 15 で完全一致、公式 host のみ、必須フィールド欠落 0、validate-source-citation exit 0。C08 が WebSearch で 12/15 を現行版と一致確認。到達不能 0 件、ツール制約による鮮度未確認 2 件 (apple-hig / vitest) と軽微な要再確認 1 件 (google-gemini 3.1-pro 表記) を明示。",
       "evidence": [
-        "C13 validate-source-citation.py exit 0、登録 15 targets の reference 欠落 0、非公式 host 0",
-        "C08 独立 npm 照会: next=16.3.2 / drizzle-orm=0.45.2 / @stryker-mutator/core=10.0.0 / better-auth=1.7.1 いずれも記録値と一致",
-        "C08 独立 sha256 再計算: retrieval-evidence/*.json 15 件全件が fetched-references の evidence_sha256 と一致",
-        "C08: retrieved_at を version/last_updated へ直接代入した record は 0 件。stryker-mutator と mdn-light-dark は取得日と同日の HTTP Last-Modified を rejected_candidate として明示棄却している",
-        "drizzle-orm と nextjs の証跡へ freshness_extraction を追記 (freshness_source=publisher-registry、2026-08-22T22:20:35Z の npm 照会を逐語記録)。body_declares_date は本文未保存のため null=未確認とし、false=探して 0 件と区別している",
-        "C08 AUDIT_VERDICT: PASS",
-        "owasp-asvs の出所欠落を解消 (2026-08-23T00:32Z、利用者が curl を実行し本文を取得)。本文 sec-main 節に \"Get the latest stable version of the ASVS (5.0.0) from the Downloads page.\" が逐語で実在。freshness_source=page-declared を確定し、version を publisher の表明に合わせて 5.0 から 5.0.0 へ精度を上げた。日付表明は 5 種のパターン (ISO 日付 / 英語月日 / last updated / released / 西暦単独) で走査して 0 件を確認し body_declares_date=false と記録。これで 15/15 件が freshness_source を持つ"
+        "targets 15 件 = references 15 件、target_id 完全一致・重複なし (欠落 0)",
+        "validate-source-citation exit 0: 必須フィールド (retrieved_at / source_url / official_publisher / official_host / version|last_updated / latest_checked_at / evidence_ref / evidence_sha256) 欠落 0、evidence_ref の repo 内実在と sha256 一致",
+        "非公式 host 0 件 (platform.claude.com / developers.openai.com も publisher 公式ホストとして裏取り)",
+        "WebSearch 再照合で 12/15 が現行版と一致 (better-auth 1.7.1 / next 16.3.2 / drizzle-orm 0.45.2 / stryker 10.0.0 / ASVS 5.0.0 / cloudflare-workers 2026-04-23 / cloudflare-d1 2026-04-30 / mdn 2026-04-18 / github-actions / google-sre 2017 / anthropic Claude 5 世代 / openai gpt-5.6)",
+        "鮮度未確認 2 件 (apple-hig, vitest): 本 fork は WebFetch 無効のため公式ページの Last-Modified を独立再確認できず。記録側に世代落ちの証拠は無く FAIL 対象にしない",
+        "軽微な要再確認 1 件: google-gemini の 3.1-pro は WebSearch 上 'gemini-3.1-pro-preview' 表記のみ確認 (stale とは断定しない)"
       ]
     },
     "prompt_quality": {
       "verdict": "PASS",
       "auditor": "assign-system-spec-completeness-evaluator",
       "component": "C05",
-      "summary": "system-spec-harness の prompts/*.md 18 件は prompt-creator の 2 validator を全件通過した。R1/R2 と監査 SSOT prompts は Layer 役割、L7→L1、成果状態・原子的停止条件・動的実行方式、Self-Evaluation を持つ。本 run の C07/C06/C08 供給文も locator-only の中立供給検査を通過した。",
+      "summary": "system-spec-harness の prompts/*.md 18 件は prompt-creator の 2 validator を全件通過した。R1/R2 と監査 SSOT prompts は Layer 役割、L7→L1、成果状態・原子的停止条件・動的実行方式、Self-Evaluation を持つ。本 run の C07/C06/C08 供給文も locator-only の中立供給検査を通過した。再々確定後の再監査 3 fork (C07/C06/C08) の prompt は supply_neutrality --prompt-file で 3/3 NEUTRAL_FORM。再々確定後の再監査 3 fork (C07/C06/C08) の prompt は supply_neutrality --prompt-file で 3/3 NEUTRAL_FORM。",
       "evidence": [
         "verify-completeness.py: 18/18 exit 0",
         "validate-prompt.py: 18/18 exit 0",
@@ -97,17 +97,17 @@
       "dispatch": {
         "tool": "Agent",
         "subagent_type": "system-spec-matrix-auditor",
-        "session_id": "64a084b5-9449-4f10-9879-60a8373d3ffa",
-        "tool_use_id": "toolu_01VQdpW25XPzxf6H4v66jXv6",
-        "response_sha256": "81035c3f62b3ecedff4a42c44826e88c7b161894db36e284b3f5b9fb718491b2"
+        "session_id": "ef8ad3b8-f23a-4b28-b254-3bcd0c96d979",
+        "tool_use_id": "toolu_016TXQh7nAfXsNADvEmudoLR",
+        "response_sha256": "be39fff504d84ef11e454dba41849f90f4b6f4f6312c6cca15b8422974f3ed87"
       },
       "evidence": [
-        "8 categories x 6 canonical platforms = 48 セル、未収集 0 / 対象外 40 / 確定 8",
-        "対象外 40 件の理由はすべて利用者承認 approval-platform-web-only を根拠に持ち placeholder 0",
-        "category_aggregate は 8 カテゴリ全件 確定 で真理値表と整合、platform 欠落 0 / aggregate 不一致 0 / qa_ref dangling 0",
-        "ui-ux/web の 2026-08-23 二段階 R4-reopen: reopen_log 2 entry の discarded に qa_ref・required_info・required_info_checks(2026-08-21 / 2026-08-23) を完全退避、append-only 遵守、一次証跡の上書き無し",
-        "required_info_checks 8 件の checked_on に未来日付・飛びなし。当日 (2026-08-23) は ui-ux/web のみで書き戻しと符合",
-        "LOW 1 件: qa-uiux-web-spec-intake がどの確定セルからも参照されない孤立 entry として残るが、scope_notes が経緯を自己記録しており隠蔽性なし"
+        "48 セル (8 categories × 6 canonical platforms) 全件に state 実在: 確定 8 (全て web) / 対象外 40 / 未収集 0",
+        "対象外 40 件は全件 approval-platform-web-only (approval_log 実在、2026-08-16 利用者選択) を根拠に持つ",
+        "確定 8 セルの qa_ref / qa_refs / required_info[].grounded_by 参照 38 件を qa_log 47 件と突合し欠落 0",
+        "対象 4 セル (ui-ux/frontend/database/backend × web) の qa_ref は qa-*-web-site-blueprint で、question/answer/source/asks_for/design_applications/written_up を持つ実 entry",
+        "reopen_log 総 70 件のうち 2026-08-25 分は 8 件 (4 セル × 2 回: ブログ運営 CRUD → 参考サイト全体構成)。二度 reopen → 再々確定の履歴と現状セルが整合",
+        "validate-coverage-matrix 4 モード (無印 / --require-complete / +--require-foundation / +--require-counted-required-info) すべて exit 0"
       ]
     },
     {
@@ -119,18 +119,16 @@
       "dispatch": {
         "tool": "Agent",
         "subagent_type": "system-spec-hearing-auditor",
-        "session_id": "64a084b5-9449-4f10-9879-60a8373d3ffa",
-        "tool_use_id": "toolu_01Gjtpzy3a7S9qUVNi1Q3zU5",
-        "response_sha256": "51ce19c6db4510b8f0db89b8695c62971f9de5aa60e32c6e2467381be211813d"
+        "session_id": "ef8ad3b8-f23a-4b28-b254-3bcd0c96d979",
+        "tool_use_id": "toolu_011sLR3pRWtc2byXVd2PKaTL",
+        "response_sha256": "eeb89f4330196afe1b4a136414e6fb9fe5657d65dd359a02aa0f0bb59b8f7e20"
       },
       "evidence": [
-        "qa_log 30 件の question を全件走査。断定・片側 Yes/No・複数論点の束ね込みは検出されず、誘導質問 0",
-        "hearing_progress: loop_count 3 / max_loops 5 / complete=true。未収集 0 と一致し早期停止 0",
-        "確定 8 セルの qa_ref は全件 qa_log に実在、dangling 0",
-        "foundation U1-U8 の source.sha256 を hashlib.sha256(answer utf-8) で独立再計算し全 8 件一致。U9 は user-dialogue 由来",
-        "U1/U3 は docs/spec/01-要求仕様書-v1.0.md §2.1 / §32 を実際に開き、answer が原文に逐語実在することを目視確認",
-        "decision-screen-priority の confirmed_at=2026-08-22T00:00:00Z と ui-ux.md ## 履歴 の決定日・書き戻し日の書き分けが整合。訂正記録は読み手にとって十分と判定",
-        "LOW 1 件: 主タスク優先順の選択肢提示文言の逐語ログが question 側に無い。ただし利用者は最も簡潔な選択肢を第 1 位に選んでおり誘導成立とは認定せず"
+        "聞き漏れ: 48 セル中 未収集 0 (確定 8 / 対象外 40)。next_question=null かつ complete=true は完了に整合",
+        "誘導質問: qa_log 47 件の question を全件目視、全問オープンクエスチョンで断定埋め込み・片側 Yes/No・多論点束ね 0 (対象 4 件 qa-*-web-site-blueprint も中立)",
+        "早期停止: loop_count 4 < max_loops 5、未収集 0 のため非該当",
+        "トレーサビリティ: 確定 8 セルの参照 29 件が qa_log に実在 (dangling 0)。対象 4 セルの qa_ref entry は asks_for が本セルを名指し、written_up[].sha256 が system-spec/{ui-ux,frontend,database,backend}.md の現行全文 sha256 と 4/4 一致。旧 *-blog-ops-crud entry の written_up.sha256 は後続節追記による旧世代ハッシュで、現在の qa_ref のトレースは健全。auth/security の asks_for 無し qa_ref は asks_for_contract.legacy_ids に宣言済み",
+        "foundation: approval-foundation-1 実在。U1-U8 は source.path 内に answer が逐語実在し sha256(answer)==source.sha256 を 8/8 再計算一致。U9 は user-dialogue。U1/U2/U3 非空"
       ]
     },
     {
@@ -142,18 +140,17 @@
       "dispatch": {
         "tool": "Agent",
         "subagent_type": "system-spec-doc-freshness-auditor",
-        "session_id": "64a084b5-9449-4f10-9879-60a8373d3ffa",
-        "tool_use_id": "toolu_01XoB1SgRZCBbCPbQSMAvDSU",
-        "response_sha256": "515ac6d2a7e59a8462d20836eea6be59a5d23cef92d4066ba6fc9ceb066d0704"
+        "session_id": "ef8ad3b8-f23a-4b28-b254-3bcd0c96d979",
+        "tool_use_id": "toolu_01HQpVxD6pmvD4GU5fcpARcC",
+        "response_sha256": "8e26a7657af8032e9f22596c231bd03ef2059dcbb670bce20df9bda46b13bdab"
       },
       "evidence": [
-        "spec-state.json targets 15 件と fetched-references 15 件が 1 対 1 対応、欠落 0",
-        "official_host 15 件すべて publisher の正規ドキュメントホスト。ミラー・第三者・個人ブログ 0",
-        "npm registry へ独立照会: next=16.3.2 / drizzle-orm=0.45.2 / @stryker-mutator/core=10.0.0 / better-auth=1.7.1 いずれも記録値と一致",
-        "WebSearch で独立確認: mdn-light-dark=2026-04-18 / cloudflare-workers=2026-04-23 / owasp-asvs=5.0.0 が現行、いずれも記録値と齟齬なし",
-        "retrieval-evidence/*.json 15 件の実ファイル sha256 を独立計算し evidence_sha256 と全件一致。改ざん・差し替えの痕跡なし",
-        "retrieved_at を version/last_updated へ直接代入した record 0 件。stryker-mutator は取得日と同日の HTTP Last-Modified を rejected_candidate として明示棄却",
-        "medium 1 件 (既知の未解決点): owasp-asvs のみ freshness_source 欠落。当環境から当該パスへの curl はガードにより denied"
+        "targets 15 件 = references 15 件、target_id 完全一致・重複なし (欠落 0)",
+        "validate-source-citation exit 0: 必須フィールド (retrieved_at / source_url / official_publisher / official_host / version|last_updated / latest_checked_at / evidence_ref / evidence_sha256) 欠落 0、evidence_ref の repo 内実在と sha256 一致",
+        "非公式 host 0 件 (platform.claude.com / developers.openai.com も publisher 公式ホストとして裏取り)",
+        "WebSearch 再照合で 12/15 が現行版と一致 (better-auth 1.7.1 / next 16.3.2 / drizzle-orm 0.45.2 / stryker 10.0.0 / ASVS 5.0.0 / cloudflare-workers 2026-04-23 / cloudflare-d1 2026-04-30 / mdn 2026-04-18 / github-actions / google-sre 2017 / anthropic Claude 5 世代 / openai gpt-5.6)",
+        "鮮度未確認 2 件 (apple-hig, vitest): 本 fork は WebFetch 無効のため公式ページの Last-Modified を独立再確認できず。記録側に世代落ちの証拠は無く FAIL 対象にしない",
+        "軽微な要再確認 1 件: google-gemini の 3.1-pro は WebSearch 上 'gemini-3.1-pro-preview' 表記のみ確認 (stale とは断定しない)"
       ]
     }
   ],
@@ -171,7 +168,7 @@
         "system-spec/spec-state.json"
       ],
       "exit_code": 0,
-      "stdout": "OK"
+      "stdout": "OK: 収集マトリクス網羅性 (loop) を満たす"
     },
     {
       "id": "G-matrix",
@@ -205,7 +202,7 @@
         "--require-foundation"
       ],
       "exit_code": 0,
-      "stdout": "OK"
+      "stdout": "OK: 収集マトリクス網羅性 (final(未収集0)+foundation(上位概念トレース)) を満たす"
     },
     {
       "id": "G-counted-required-info",
@@ -222,7 +219,7 @@
         "--require-counted-required-info"
       ],
       "exit_code": 0,
-      "stdout": "OK"
+      "stdout": "OK: 収集マトリクス網羅性 (final(未収集0)+counted-required-info(C16充足照合)) を満たす"
     },
     {
       "id": "G-knowledge-graph",
@@ -258,7 +255,7 @@
         "."
       ],
       "exit_code": 0,
-      "stdout": "15/15 registered targets satisfy structural citation rules"
+      "stdout": "OK: 出典記録が全件対応・必須フィールド・公式 host・時刻・取得証跡の一致を満たす"
     },
     {
       "id": "G-prompt-completeness",
@@ -305,7 +302,7 @@
         "--json"
       ],
       "exit_code": 0,
-      "stdout": "C07/C06/C08 locator-only prompts: 3/3 exit 0"
+      "stdout": "C07/C06/C08 locator-only prompts (再監査版): 3/3 exit 0"
     }
   ],
   "findings": [
@@ -384,284 +381,299 @@
         "validate-prompt 18/18",
         "supply_neutrality 3/3"
       ]
+    },
+    {
+      "severity": "low",
+      "bucket": "coverage",
+      "observation": "参考サイトの全ページ機械取得は権限拒否のため未実施で、docs/spec/13 (抽象ブループリント v1.1) のページ種別目録 23 種のうち、実観測はトップ・記事 1 本・sitemap index の存在に限られ、残りは導線 (メガナビ 32 / フッター 34 / 法務 6) からの推定である。仕様 4 章の qa-*-web-site-blueprint 節はこの区別を引き継いでいる。",
+      "suggested_fix": "取得手段が提供されたら、推定扱いの種別 (サブサイトのカテゴリ一覧・固定ページ・ミニサイト) を構造のみ観測し、docs/spec/13 §2 の観測/推定列を更新して CHG-13 として差分を追記する。文章・素材・固有名・色値は転用しない。",
+      "evidence": [
+        "docs/spec/13-参考サイト全体構成解析-抽象ブループリント.md §0 / §2",
+        "docs/product/ledgers.md ASM-001 status_2026_08_25"
+      ]
     }
   ],
   "gaps": [
     "compile の報告節 (`## compile が保てなかった行 (要判断)`) に挙がった行を正本へ接続し直す作業が人に残っている。適用済み 5 章に 55 行 (auth=2 / infrastructure=14 / maintenance-ops=17 / security=16 / ui-ux=6)、未適用 5 章を今 compile すると新たに 92 行 (00-requirements-definition=16 / database=39 / backend=8 / frontend=16 / index=13) が本文から報告へ移る。行は失われない (複製上の再測定で真の消失 0) が、報告節は毎回作り直して持ち越すため、放置しても減らない",
     "正本 qa_log[qa-backend-web-analytics].answer のコードフェンスが閉じておらず、compile が章の構造を守るために閉じて注記を打っている。正本側 (spec-state.json) の修正が要る",
     "監査 fork 台帳 (eval-log/system-spec-harness/audit-fork-ledger.jsonl) が .gitignore 配下の揮発物で、現在は存在しない。audit_delegations の 3 receipt を後から裏取りできず aggregate-completeness.py --report が 3 件の VIOLATION を出す。台帳の置き場を gitignore の外へ移すか、評価のたびに実 fork し直すかを決める必要がある",
-    "未適用 5 章 (00-requirements-definition / database / backend / frontend / index) は compile を当てていないため、正本から導出される層が古いままの可能性がある。database.md は章本文自身が『再生成すると規範本文が失われる』と測定つきで警告しており、規範本文の正本が章側にある。この章は compile 適用の前に正本と章の役割分担を決める必要がある"
+    "未適用 5 章 (00-requirements-definition / database / backend / frontend / index) は compile を当てていないため、正本から導出される層が古いままの可能性がある。database.md は章本文自身が『再生成すると規範本文が失われる』と測定つきで警告しており、規範本文の正本が章側にある。この章は compile 適用の前に正本と章の役割分担を決める必要がある",
+    "参考サイトの観測外ページ種別 (推定扱い) の構造確認は取得手段の提供待ちで、ASM-001 は部分解消のまま台帳に残る"
   ],
   "inputs": {
-    "sha256": "1e0e9068370cb14603a11961f42c8c046720378edbbc1ba53e4a283c5e1d9fbb",
-    "file_count": 53,
+    "file_count": 54,
+    "sha256": "8c80285f5f7e6fcc2064bbd51524702a7342362933cb1eb5746ab12efcc15f7b",
     "files": [
       {
         "path": "docs/spec/00-README.md",
         "sha256": "310885f2d2b0e2d743bf31a59d83f1ec423682c59a3cc007c9e9f62aa9d97782",
-        "mtime": 1787305982
+        "mtime": 1787658720
       },
       {
         "path": "docs/spec/01-要求仕様書-v1.0.md",
         "sha256": "b5fc60987cb79c08c30db4cd94b075a0bf89cd7acba7c8d1ffc8558af6439385",
-        "mtime": 1787305982
+        "mtime": 1787658720
       },
       {
         "path": "docs/spec/02-補充仕様-ギャップと追加要件.md",
         "sha256": "73b3204fcb5c71edf4704817b12af2d36939993ba1194bf04c1f4ceff9c8cd25",
-        "mtime": 1786881072
+        "mtime": 1787658720
       },
       {
         "path": "docs/spec/03-分析・解析基盤仕様.md",
         "sha256": "5d84913a2422b9e697422b0656f90cf90633b0bd75adcebe0c6696e01fc9e45f",
-        "mtime": 1787305982
+        "mtime": 1787658720
       },
       {
         "path": "docs/spec/04-二層構造統合仕様.md",
         "sha256": "d01442b19c1b9e29681719f2768847c39ec0fea34bfdf6438247c814c037f765",
-        "mtime": 1787305982
+        "mtime": 1787658720
       },
       {
         "path": "docs/spec/05-文章作成メソッド仕様.md",
         "sha256": "edcbd22afffe076c76aea32bf4ae744c57db441834ffa1d79ee2e29245502696",
-        "mtime": 1787305982
+        "mtime": 1787658720
       },
       {
         "path": "docs/spec/06-サイトブループリント-記事構成テンプレート.md",
-        "sha256": "462fcf098f3765cf3392566550e454bc77e693b269b975e5f542b134acf897ea",
-        "mtime": 1787305982
+        "sha256": "4758db202f1a48d1062ef871d94f609d058506486191d0f309be5540db43ce5f",
+        "mtime": 1787661985
       },
       {
         "path": "docs/spec/07-生成基盤設計.md",
         "sha256": "d155d9183ef16be0cda994d490bcf3fb359d0758f9415e61f950f3b4e43e0a3e",
-        "mtime": 1787305982
+        "mtime": 1787658720
       },
       {
         "path": "docs/spec/08-仕様の未修正点.md",
         "sha256": "b79d5715a63404442a0b3eab05299988c24f7f1eb544dca79fd81a61e3e56665",
-        "mtime": 1787305982
+        "mtime": 1787658720
       },
       {
         "path": "docs/spec/09-UIテーマ仕様.md",
         "sha256": "9bfeb611748edaf08e865fe740637e37e025af153c3a2bc0a5cffabb1dc6c6f1",
-        "mtime": 1787305982
+        "mtime": 1787658720
       },
       {
         "path": "docs/spec/10-テスト戦略仕様.md",
         "sha256": "c1ca47a0525aea84ef244d2e8b265e353c4df55288c0f27c2bb75a9e492ff3d5",
-        "mtime": 1787534449
+        "mtime": 1787658962
       },
       {
         "path": "docs/spec/11-CI-CD・品質ゲート仕様.md",
         "sha256": "12a79297845e8e801a6a1b27f5762d44cfac160f2d1a749e0768d268dbde2a1f",
-        "mtime": 1787606240
+        "mtime": 1787658962
       },
       {
         "path": "docs/spec/12-改善要望フィードバック仕様.md",
         "sha256": "f814f1a62e30eebb4512ba0c7964bfdb6986c4007af406aab7d8d7e58e17a856",
-        "mtime": 1787305982
+        "mtime": 1787658720
+      },
+      {
+        "path": "docs/spec/13-参考サイト全体構成解析-抽象ブループリント.md",
+        "sha256": "b84be536c32930d670ea9d23073a90707e931ee933f2593d9b00cea4645b5c3f",
+        "mtime": 1787661215
       },
       {
         "path": "docs/spec/ai-first-webmcp.md",
         "sha256": "35241bfe4e82f6536d871c179eb938681ec771991fa50a59c72d5d97d3c98713",
-        "mtime": 1786881072
+        "mtime": 1787658720
       },
       {
         "path": "docs/spec/completion-criteria.md",
         "sha256": "07cb3de0ca834a6776d6e08dfd11a3d6bd1b848d962d1f582d9e41f0705a8943",
-        "mtime": 1786881072
+        "mtime": 1787658720
       },
       {
         "path": "docs/spec/data-model-gap.md",
         "sha256": "97861d9844e975922b73715c49d5ea7f4a8db53e83fbbbf0e73a54a32fb6754c",
-        "mtime": 1786881072
+        "mtime": 1787658720
       },
       {
         "path": "docs/spec/dialogue-confirmations.md",
         "sha256": "1312a2372403173dc8b57112ae0178d713c93a05471124e201e084bf0da8daa1",
-        "mtime": 1787305982
+        "mtime": 1787658720
       },
       {
         "path": "docs/spec/feat-blog-ui-builder/final-review.md",
         "sha256": "39c2b7139bf6db0090238ccd53085a716b2159e94c34be373c0ceadeef9422ee",
-        "mtime": 1787604723
+        "mtime": 1787658962
       },
       {
         "path": "docs/spec/feat-blog-ui-builder/operations.md",
         "sha256": "e2d13aa6e106d1fc722a69d5cba181a855ac6d468aa138c32c690c7c5c295974",
-        "mtime": 1787604723
+        "mtime": 1787658962
       },
       {
         "path": "docs/spec/feat-blog-ui-builder/release-report.md",
         "sha256": "fddacdf296ff6b3077c958a34563314a925de820fda17e488ba97edc1cfac3a9",
-        "mtime": 1787604723
+        "mtime": 1787658962
       },
       {
         "path": "docs/spec/feat-blog-ui-builder/seo-ai-search-implementation.md",
         "sha256": "50fe812c1602072e92f34d0135bc79a97af7cca6b4ea5817d3477d9a9e62fcb8",
-        "mtime": 1787604723
+        "mtime": 1787658962
       },
       {
         "path": "docs/spec/feat-blog-ui-builder/spec-writeback-receipt.md",
         "sha256": "0eeee78ec7a7cf517edcb66e5c6e71eea741c231c1007ff8a5833af10050ca7e",
-        "mtime": 1787604723
+        "mtime": 1787658962
       },
       {
         "path": "docs/spec/feat-blog-ui-builder/ui-rules.md",
         "sha256": "ef4190022c1545a6be64202dccc8537c2d56c3225c3f6a2c36fd6d1689f98cb5",
-        "mtime": 1787604723
+        "mtime": 1787658962
       },
       {
         "path": "docs/spec/feat-uiux-overhaul/acceptance-report.md",
         "sha256": "7bfaa8778e04c2210da2f58d9e8638cc62b528e93bd82f4dbd56e3ffd61c2257",
-        "mtime": 1787604723
+        "mtime": 1787658962
       },
       {
         "path": "docs/spec/feat-uiux-overhaul/admin-api-contract.md",
         "sha256": "335d57d9a267c6d80f8ca6000e0f3513cfabe9364e72a222f35671e1490d5d11",
-        "mtime": 1787534449
+        "mtime": 1787658962
       },
       {
         "path": "docs/spec/feat-uiux-overhaul/blog-scaffold-contract.md",
         "sha256": "b1ebe26d43cbcefeb152ade3cf9c31781cab832a6aaff24b87971c97483d38da",
-        "mtime": 1787534449
+        "mtime": 1787658962
       },
       {
         "path": "docs/spec/feat-uiux-overhaul/component-contract.md",
         "sha256": "2926e4a4db7f77c4a2b247a520b839dfc2011025a5376df9180efe07dc2b02cb",
-        "mtime": 1787534449
+        "mtime": 1787658962
       },
       {
         "path": "docs/spec/feat-uiux-overhaul/design-review.md",
         "sha256": "e073aedc4734bfb763d429c4c116b0a6f1222ee3381ca9c20546a06b40d74bf6",
-        "mtime": 1787534449
+        "mtime": 1787658962
       },
       {
         "path": "docs/spec/feat-uiux-overhaul/evidence/README.md",
         "sha256": "14a86e2d542cf7f00d944f2f562924c4f15999a89c306b0a7293b85ede70364f",
-        "mtime": 1787534449
+        "mtime": 1787658962
       },
       {
         "path": "docs/spec/feat-uiux-overhaul/final-review.md",
         "sha256": "1f024f5e5c6fd87a7e7665266c703b3f284122f06ba1f4de81fe6f46e8a88c61",
-        "mtime": 1787604723
+        "mtime": 1787658962
       },
       {
         "path": "docs/spec/feat-uiux-overhaul/migration-report.md",
         "sha256": "3f3a69d30391831bdc11b70ee5fd0944952c32633b1c091a4a4f83f0372d7599",
-        "mtime": 1787534449
+        "mtime": 1787658962
       },
       {
         "path": "docs/spec/feat-uiux-overhaul/operations.md",
         "sha256": "a26d05b65d58040ff18bc515231d74671f4e99f654f6891b06deaf27bc0d4126",
-        "mtime": 1787534449
+        "mtime": 1787658962
       },
       {
         "path": "docs/spec/feat-uiux-overhaul/quality-report.md",
         "sha256": "4845a67556097d01c6ddd5184ec653a36eefef8e91c82cda19a8d2736236c1b6",
-        "mtime": 1787534449
+        "mtime": 1787658962
       },
       {
         "path": "docs/spec/feat-uiux-overhaul/release-report.md",
         "sha256": "ca0d80c81cf5929d534bc106dd0b2205bf03299020b983288fb0a1236cf592ba",
-        "mtime": 1787604723
+        "mtime": 1787658962
       },
       {
         "path": "docs/spec/feat-uiux-overhaul/requirements-baseline.md",
         "sha256": "e06d162c96e99970bf82a5c7530fa36515d1ceb2264b7005aad8e7169c48d895",
-        "mtime": 1787534449
+        "mtime": 1787658962
       },
       {
         "path": "docs/spec/feat-uiux-overhaul/screen-architecture.md",
         "sha256": "52edfd845500fdd6ceb0414e572caeb29f9fd259dcf229e465b1f575cf4bf635",
-        "mtime": 1787534449
+        "mtime": 1787658962
       },
       {
         "path": "docs/spec/feat-uiux-overhaul/screen-inventory.md",
         "sha256": "9adb840149a760eda0915cc537e219b2e8768f6963d349ac198fb0b7ab77d50e",
-        "mtime": 1787534449
+        "mtime": 1787658962
       },
       {
         "path": "docs/spec/feat-uiux-overhaul/sns-provider-contract.md",
         "sha256": "38bafcc8fb04b7fcdbabf15d22a8be550905d4c53c7a408cf7c9f377874ed5de",
-        "mtime": 1787534449
+        "mtime": 1787658962
       },
       {
         "path": "docs/spec/feat-uiux-overhaul/spec-writeback-receipt.md",
         "sha256": "82ac6891e55704f1b78a87dc3a1f31da12a888233141088bc3cd5d09bd0e2c6f",
-        "mtime": 1787534449
+        "mtime": 1787658962
       },
       {
         "path": "docs/spec/feat-uiux-overhaul/test-design.md",
         "sha256": "0218f0e65a9cf2efde9fb29821131a74dd80b4a1d5537766e7c6fc9399920abb",
-        "mtime": 1787534449
+        "mtime": 1787658962
       },
       {
         "path": "docs/spec/feat-uiux-overhaul/test-run-report.md",
         "sha256": "7c807e720628a7afef2204e97a039122bda8fa70eb74a1e4bb6a569d2289ae91",
-        "mtime": 1787534449
+        "mtime": 1787658962
       },
       {
         "path": "docs/spec/feat-uiux-overhaul/ui-rules.md",
         "sha256": "66ea836c06f39c9d71cd7f4d30706ce9d1a16a1defa3edb291ab8e01f27ce746",
-        "mtime": 1787534449
+        "mtime": 1787658962
       },
       {
         "path": "system-spec/00-requirements-definition.md",
         "sha256": "f0fe318e7e0f8c139174c5a16896947e40867e9ac4d77e1aff4a36eb3e7a05be",
-        "mtime": 1787610543
+        "mtime": 1787658962
       },
       {
         "path": "system-spec/auth.md",
         "sha256": "5d23de0416ed317668be8d37344d8d34573aa90dc4c5f86d26c42511018e1a61",
-        "mtime": 1787614084
+        "mtime": 1787658962
       },
       {
         "path": "system-spec/backend.md",
-        "sha256": "4b61c1533ad14b6aabf443271b7fc83d51e12bddd0065e4839020fb3a68b5814",
-        "mtime": 1787610543
+        "sha256": "850739465560be1c76643ba46ece1423a21855e58120ae385c29871fb5a6fcd1",
+        "mtime": 1787661695
       },
       {
         "path": "system-spec/database.md",
-        "sha256": "cdbd82a9e9e10a49ef9ecd649eeda30001e4f47e6a94b78176890e3ed5e4126f",
-        "mtime": 1787610543
+        "sha256": "ec4290624ed9423261a33e774d17112b70596614bd518854b1b019d9dfb8992a",
+        "mtime": 1787661522
       },
       {
         "path": "system-spec/frontend.md",
-        "sha256": "737845a6173b0419c03d97c19598aeba9d721428279d9ff3e532d694cb731431",
-        "mtime": 1787610543
+        "sha256": "7b029152ed5130b0c3e331bb390f3f344811fc97f9cb92b9f0b3557d9a9b54c1",
+        "mtime": 1787661504
       },
       {
         "path": "system-spec/index.md",
         "sha256": "409add2dc4ceef4637f1a2048bdd9a2e54a4a9873cc4e70a9d160a13c5d63e44",
-        "mtime": 1787610543
+        "mtime": 1787658720
       },
       {
         "path": "system-spec/infrastructure.md",
         "sha256": "2a728925aa7a69f6c9567348932668a3a9276a415ab3c044fb2644c05a672188",
-        "mtime": 1787613636
+        "mtime": 1787658962
       },
       {
         "path": "system-spec/maintenance-ops.md",
         "sha256": "88407c4511ffe740ca1aae8364ffcf5b585e36f16f5f51879265459fa6cd7785",
-        "mtime": 1787613636
+        "mtime": 1787658962
       },
       {
         "path": "system-spec/security.md",
         "sha256": "3eb2e5c41df33aa5d80d623a66dbbaa810a015767e805b86e1923dd90bfec3e4",
-        "mtime": 1787614084
+        "mtime": 1787658962
       },
       {
         "path": "system-spec/spec-state.json",
-        "sha256": "ff1a9c1e51f4d848a54fe68b415fc5fa5cee1267fb3ee0409197c208e4c6aca9",
-        "mtime": 1787609200
+        "sha256": "4e27cae2b56af7f1a8bc6891d4750ac7984b88380ea1be58d3a94454f19369e1",
+        "mtime": 1787661765
       },
       {
         "path": "system-spec/ui-ux.md",
-        "sha256": "2be5021b85c43065848044179a3021af9c1c05a2869583ece5a1457a7501d7c0",
-        "mtime": 1787614084
+        "sha256": "be0dc58a0e1e6f1b4e608826ae9ee40d9594dc0254c9f9db6d9e5aa47047297e",
+        "mtime": 1787661473
       }
-    ],
-    "pinned_at": "2026-08-24T23:35:48.085Z"
+    ]
   }
 }

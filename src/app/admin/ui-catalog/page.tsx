@@ -48,6 +48,7 @@ import {
   type ModelPickerGroup,
   type ScheduleCalendarDay,
 } from "@/presentation/ui";
+import { ProseSection } from "@/presentation/prose";
 import { sampleAction } from "./sample-action";
 import {
   ActionNoteSamples,
@@ -751,7 +752,21 @@ export default function UiCatalogPage() {
         <FormResultSamples />
       </Section>
 
-      <Section title="27. 見出し・注記・次の行き先">
+      <Section title="27. 見出し 1 つと本文の節" lead={<>
+          読者側の画面（道具ページ・ブログ記事）で本文を出すときの節です。
+          本文は**文字列のまま**渡します。呼ぶ側で段落に割ると、
+          割り方（空行 1 つ以上）が画面の数だけ写ります。
+          見出しを渡さなければ見出し行そのものを出しません——
+          「無題の節」のような当て字は、目次にも読み上げにも入り込むためです。
+        </>}
+      >
+        <ProseSection
+          title="結果の読み方"
+          body={"数値は目安です。置き場所によって体感は変わります。\n\n迷ったら、置ける大きさから決めると選択肢が減ります。"}
+        />
+      </Section>
+
+      <Section title="28. 見出し・注記・次の行き先">
         <Stack>
           <SectionHeading level={3}>小見出しの見本</SectionHeading>
           <Note>操作の判断に必要な補足を、本文とは別の役として示します。</Note>

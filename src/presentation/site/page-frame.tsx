@@ -2,11 +2,16 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { ReactNode } from "react";
 import type { PublicSiteBlueprint } from "@/application/usecases/site/read-site";
+import type { FixedPageKind } from "@/domain/blogops";
 import { appearanceOptions, readAppearance } from "@/presentation/appearance";
-import { readerActor, readerWebMcpDescriptors, siteUseCases } from "@/presentation/composition";
+import {
+  publicBlogEntry,
+  readerWebMcpDescriptors,
+} from "@/presentation/composition";
 import type { PageKind } from "@/presentation/tools/webmcp-policy";
 import {
   ErrorView,
+  Callout,
   SitePage,
   SiteShell,
   WebMcpProvider,
@@ -14,6 +19,8 @@ import {
 } from "@/presentation/ui";
 import { TelemetryCollector } from "@/presentation/telemetry/collector";
 import { readConsentDecision, readConsentChoice } from "@/presentation/telemetry/consent-server";
+import { blogSidebar } from "./blog-sidebar";
+import { readPublicSiteProjection, type PublicSiteProjection } from "./public-site-projection";
 import { breadcrumbsFor, siteBasePath, toChrome } from "./view-model";
 
 /**
@@ -29,6 +36,7 @@ export type SiteContext = {
   readonly siteSlug: string;
   readonly blueprint: PublicSiteBlueprint;
   readonly chrome: SiteChrome;
+  readonly projection: PublicSiteProjection;
 };
 
 /**
@@ -43,6 +51,8 @@ export async function SiteFrame({
   currentPath,
   trail = [],
   pageKind = "article",
+  sidebar = false,
+  requiredFixedPageKind,
   children,
 }: {
   readonly siteSlug: string;
@@ -55,25 +65,35 @@ export async function SiteFrame({
    * 比較のページに順位の説明の道具を渡しても、押す先が無い。
    */
   readonly pageKind?: PageKind;
-  readonly children: (ctx: SiteContext) => ReactNode;
+  /**
+   * 本文の脇に枠を出すか（§3.4）。
+   *
+   * **画面ごとに真偽値 1 つで決める。**どの枠を出すかは管理画面が正本なので、
+   * ここで選ぶのは「この画面は脇を持つ種類か」だけ。持たせるのは記事まわり
+   * （トップ・記事一覧・記事・カテゴリー）で、**説明のページには持たせない**。
+   * 問い合わせや計測の説明は、読者が 1 つのことをしに来る画面で、
+   * 脇に別の入口を並べると本題から目を離させる。
+   */
+  readonly sidebar?: boolean;
+  /** 指定した公開中固定ページが無ければ、骨格を描く前に 404 にする。 */
+  readonly requiredFixedPageKind?: FixedPageKind;
+  readonly children: (ctx: SiteContext) => ReactNode | Promise<ReactNode>;
 }) {
-  const result = await (await siteUseCases()).getSite.execute(readerActor(), { siteSlug });
-
-  if (!result.ok) {
-    /*
-      見つからないときは **404 として返す**。
-      以前はここで直接「見つかりませんでした」の画面を返していたが、
-      それでは通信の答えが 200 のままで、無いブログが検索結果に載りうるし、
-      公開後の見張りからも壊れと区別が付かなかった（残課題リスト 項目 32）。
-
-      画面の中身は `src/app/s/[site]/not-found.tsx` へ移した。
-      見出し・戻り先・言い直しの案内はそのまま。素っ気なくして解決していない。
-    */
+  const publicEntry = await publicBlogEntry();
+  const projected = await readPublicSiteProjection(siteSlug, publicEntry);
+  if (!projected.ok) {
+    throw new Error("公開サイトの保存値を読み込めませんでした。");
+  }
+  if (projected.value === null) notFound();
+  const projection = projected.value;
+  const blueprint = projection.reader.blueprint;
+  if (
+    requiredFixedPageKind !== undefined &&
+    !projection.fixedPages.some((page) => page.kind === requiredFixedPageKind)
+  ) {
     notFound();
   }
-
-  const blueprint = result.value.blueprint;
-  const chrome = toChrome(siteSlug, blueprint);
+  const chrome = toChrome(siteSlug, blueprint, projection);
 
   /*
     読者の明るさの選択を読む。**18 本のルートで別々に読まない。**
@@ -95,9 +115,32 @@ export async function SiteFrame({
     readConsentChoice(),
   ]);
 
+  /*
+    脇の枠を**先に作って、空かどうかを見てから**渡す。
+    `<BlogSidebar />` と JSX で置くと、中身が空でも「要素はある」ので
+    `SiteShell` が段組みを出し、空の脇のぶんだけ本文が狭くなる。
+    関数として呼べば `null` がここに返り、段組みを出さない判断ができる。
+
+    カテゴリーは設計図から渡す。**保存先へもう一度引きに行かない**
+    (`blueprint.categories` がこの時点で手元にある)。
+  */
+  const [asideNormal, asideSticky] = sidebar
+    ? [
+        blogSidebar({ siteSlug, region: "sidebar", categories: blueprint.categories, projection }),
+        blogSidebar({
+          siteSlug,
+          region: "sidebar_sticky",
+          categories: blueprint.categories,
+          projection,
+        }),
+      ]
+    : [null, null];
+
   return (
     <SiteShell
       chrome={chrome}
+      sidebar={asideNormal ?? undefined}
+      sidebarSticky={asideSticky ?? undefined}
       currentPath={currentPath}
       breadcrumbs={breadcrumbsFor(siteSlug, blueprint, trail)}
       appearance={{ current: appearance, modeOptions: appearanceOptions().modeOptions }}
@@ -111,7 +154,14 @@ export async function SiteFrame({
         />
       }
     >
-      {children({ siteSlug, blueprint, chrome })}
+      {projection.source === "sample" ? (
+        <Callout
+          tone="info"
+          title="見本データを表示中です"
+          reason="この表示は保存先の live データではありません。"
+        />
+      ) : null}
+      {await children({ siteSlug, blueprint, chrome, projection })}
       {/*
         ページを開いている AI に、この画面でできることを知らせる（WebMCP）。
         読み取りだけ・6 件までで、すべて通常の画面操作でも同じことができる。

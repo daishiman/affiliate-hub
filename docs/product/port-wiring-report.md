@@ -6,8 +6,8 @@
 **製品コード（`src/application` `src/presentation` `src/app`）から**
 呼ばれていないポートの手続きの一覧。テストからの呼び出しは数えない。
 
-- ポート 65 件 / 手続き 197 件
-- 呼ばれていない 74 件（上限 79）
+- ポート 68 件 / 手続き 231 件
+- 呼ばれていない 75 件（上限 79）
 - 理由つきの除外 0 件（上限 0）
 
 | ポート | 手続き | 宣言 |
@@ -65,6 +65,7 @@
 | `PolicyRuleRepositoryPort` | `save` | `src/application/ports/compliance.ts` |
 | `ProductRepositoryPort` | `findByIdentityKey` | `src/application/ports/product.ts` |
 | `PublicationRepositoryPort` | `listDue` | `src/application/ports/distribution.ts` |
+| `PublicBlogPort` | `listDeliveryParts` | `src/application/ports/blog-ops.ts` |
 | `RankingModelRepositoryPort` | `list` | `src/application/ports/ranking.ts` |
 | `RankingModelRepositoryPort` | `save` | `src/application/ports/ranking.ts` |
 | `ScoreCardRepositoryPort` | `save` | `src/application/ports/ranking.ts` |
@@ -93,7 +94,7 @@
 呼ばれていない**状態を拾えない。ここはその形を見る。
 
 - 届いていない 0 件（上限 0）
-- 理由つきの除外 4 件（上限 4）
+- 理由つきの除外 5 件（上限 5）
 
 - 読み書きを判定できない手続き 0 件（上限 0）
 
@@ -118,4 +119,4 @@
 | --- | --- |
 | `createStartSiteDraftUseCase` | `src/application/usecases/site/build-site.ts:417` |
 | `createSaveSiteDraftStepUseCase` | `src/application/usecases/site/build-site.ts:509` |
-<!-- 生成物の指紋 sha256:9f69167e1706f725d295aee2e7ef395ca3c794da8407ae06ed958a602c0e5c2f -->
+<!-- 生成物の指紋 sha256:914f48ac9877ea07f26aa1b31a43596e8385f59078f8e236a5a3be4e2231b179 -->

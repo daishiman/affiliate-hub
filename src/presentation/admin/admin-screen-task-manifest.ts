@@ -88,6 +88,21 @@ const PRIMARY_TASK_BY_ROUTE_ID = {
   "settings/roles": "役割で許される操作を確かめる",
   "settings/seo": "SEO/AI 指針の出典を登録し、90 日超を再確認する",
   "settings/workspaces": "この作業場所の契約と表示を確かめる",
+  "site-network": "ブログ同士のつながりを見て、行き止まりを見つける",
+  "site-network/[node]": "1 本のつながりを直す / 外す",
+  "site-network/deleted": "削除済みのつながりを確かめ、必要なら戻す",
+  "site-network/new": "つながりに 1 本足す",
+  blog: "ブログの見た目と中身のどこを直すか決める (索引)",
+  "blog/articles": "次に手を入れる記事を決める",
+  "blog/articles/[article]": "記事の中身を直し、公開まで進める",
+  "blog/articles/deleted": "削除済みの記事を確かめ、必要なら戻す",
+  "blog/articles/new": "記事を 1 本作る",
+  "blog/delivery": "読者へ届く経路 (feed・sitemap など) の出し入れを決める",
+  "blog/evaluate": "読者の評価から、手を入れる記事を選ぶ",
+  "blog/evaluate/[article]": "この記事に付いた票を 1 件ずつ見て、伏せるかどうかを決める",
+  "blog/layout": "ヘッダー・サイドバー・帯に何を出すか決める",
+  "blog/pages": "運営が示す固定ページの不足を埋める",
+  "blog/tags": "記事をまとめるタグを整える",
   sites: "運用中のブログを選ぶ / 新しく作る",
   "sites/[site]": "1 ブログの設計図を確かめ、運用を続けるか判断する",
   "sites/[site]/edit": "ブログの設計図を直す",
@@ -455,6 +470,95 @@ export const ADMIN_SCREEN_RUNTIME_ENTRIES: readonly AdminScreenRuntimeEntry[] = 
     "送信中表示の見本用で、signedInActorの確認後も実データを変更しない",
     edge("src/app/admin/ui-catalog/page.tsx", "UiCatalogPage"),
     edge("src/app/admin/ui-catalog/sample-action.ts", "sampleAction"),
+  ),
+  screenMutation(
+    "site-network.create-node",
+    "site-network/new",
+    edge("src/presentation/admin/site-network-form.tsx", "SiteNetworkForm"),
+    edge("src/presentation/admin/site-network-action.ts", "manageSiteNetworkAction"),
+  ),
+  screenMutation(
+    "site-network.update-node",
+    "site-network/[node]",
+    edge("src/presentation/admin/site-network-form.tsx", "SiteNetworkForm"),
+    edge("src/presentation/admin/site-network-action.ts", "manageSiteNetworkAction"),
+  ),
+  screenMutation(
+    "site-network.restore-node",
+    "site-network/deleted",
+    edge("src/presentation/admin/site-network-form.tsx", "SiteNetworkRestoreForm"),
+    edge("src/presentation/admin/site-network-action.ts", "manageSiteNetworkAction"),
+  ),
+  screenMutation(
+    "blog.save-layout-slot",
+    "blog/layout",
+    edge("src/presentation/admin/blog-layout-form.tsx", "BlogLayoutSlotForm"),
+    edge("src/presentation/admin/blog-layout-action.ts", "manageBlogLayoutAction"),
+  ),
+  screenMutation(
+    "blog.save-top-band",
+    "blog/layout",
+    edge("src/presentation/admin/blog-layout-form.tsx", "BlogLayoutBandForm"),
+    edge("src/presentation/admin/blog-layout-action.ts", "manageBlogLayoutAction"),
+  ),
+  screenMutation(
+    "blog.save-delivery-part",
+    "blog/delivery",
+    edge("src/presentation/admin/blog-delivery-form.tsx", "BlogDeliveryForm"),
+    edge("src/presentation/admin/blog-layout-action.ts", "manageBlogDeliveryAction"),
+  ),
+  /*
+    点検は**保存と別の意味 entry** である。同じ画面に居るが、
+    保存 (`blog.save-delivery-part`) は「出す / 切る」の意思を書き、
+    点検は「出せたか」の観測を積む。1 件に畳むと、保存した人が緑を作れる。
+  */
+  screenMutation(
+    "blog.check-delivery",
+    "blog/delivery",
+    edge("src/presentation/admin/blog-delivery-check.tsx", "BlogDeliveryCheck"),
+    edge("src/presentation/admin/blog-layout-action.ts", "checkBlogDeliveryAction"),
+  ),
+  screenMutation(
+    "blog.create-article",
+    "blog/articles/new",
+    edge("src/presentation/admin/blog-article-form.tsx", "BlogArticleCreateForm"),
+    edge("src/presentation/admin/blog-article-action.ts", "manageBlogArticleAction"),
+  ),
+  screenMutation(
+    "blog.edit-article",
+    "blog/articles/[article]",
+    edge("src/presentation/admin/blog-article-form.tsx", "BlogArticleEditForm"),
+    edge("src/presentation/admin/blog-article-action.ts", "manageBlogArticleAction"),
+  ),
+  screenMutation(
+    "blog.restore-article",
+    "blog/articles/deleted",
+    edge("src/presentation/admin/blog-article-form.tsx", "BlogArticleRestoreForm"),
+    edge("src/presentation/admin/blog-article-action.ts", "manageBlogArticleAction"),
+  ),
+  screenMutation(
+    "blog.save-fixed-page",
+    "blog/pages",
+    edge("src/presentation/admin/blog-page-form.tsx", "BlogPageForm"),
+    edge("src/presentation/admin/blog-page-action.ts", "manageBlogPageAction"),
+  ),
+  screenMutation(
+    "blog.restore-fixed-page",
+    "blog/pages",
+    edge("src/presentation/admin/blog-page-form.tsx", "BlogPageRestoreForm"),
+    edge("src/presentation/admin/blog-page-action.ts", "manageBlogPageAction"),
+  ),
+  screenMutation(
+    "blog.hide-rating",
+    "blog/evaluate/[article]",
+    edge("src/presentation/admin/blog-rating-form.tsx", "BlogRatingHideForm"),
+    edge("src/presentation/admin/blog-rating-action.ts", "manageBlogRatingAction"),
+  ),
+  screenMutation(
+    "blog.save-tag",
+    "blog/tags",
+    edge("src/presentation/admin/blog-tag-form.tsx", "BlogTagForm"),
+    edge("src/presentation/admin/blog-tag-action.ts", "manageBlogTagAction"),
   ),
 ];
 

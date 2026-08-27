@@ -6,7 +6,7 @@
     "release": "unpublished",
     "tracking": "active"
   },
-  "evaluated_digest": "sha256:90848d2265d0bd81a71546214dd7c80021e98ad7e6cadc44509a659e91b08624",
+  "evaluated_digest": "sha256:bad8350cefd17d7bba43e509d3f39517fcca318979306071b88c2aed88434278",
   "evidence_output": "docs/spec/feat-uiux-overhaul/evidence/09-acceptance-reconciliation.txt",
   "acceptance": [
     {

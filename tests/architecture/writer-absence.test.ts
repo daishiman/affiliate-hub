@@ -295,10 +295,14 @@ describe("B. 採否の欄に書き手が居ない (塞げていないことの�
    * 2026-08-25: 60 → **64**。本番 D1 スキーマ変更の自動化を利用者へ往復ヒアリング
    * した 2 entry（`qa-infra-web-migration-guard` / `qa-ops-web-migration-guard`）が
    * 設計適用を 2 件ずつ持って入った。**増分 4 件はすべて `applied`**——
-   * つまり ⑪ は塞がっていない。母数が増えたぶん、0 件であることの意味は強くなる。
+   * つまり ⑪ は塞がっていない。母数が増えたぶん、0 件であることの意味は強くなる。   *
+   * 2026-08-26: 64 → **80**。ブログ運用 CRUD（`feat-blog-ops-crud`）の確定質疑
+   * 8 entry（`qa-{uiux,frontend,database,backend}-web-{blog-ops-crud,site-blueprint}`）が
+   * 設計適用を 2 件ずつ持って入った。**増分 16 件はすべて `applied`**——
+   * ここでも不採用は 1 件も書かれていない。母数が増えたぶん、0 件であることの意味は強くなる。
    */
-  it("`applicability` は 64 件すべて `applied`——不採用が一度も無い", () => {
-    expect(counts).toEqual({ applied: 64 });
+  it("`applicability` は 80 件すべて `applied`——不採用が一度も無い", () => {
+    expect(counts).toEqual({ applied: 80 });
   });
 
   /**
@@ -337,7 +341,7 @@ describe("B. 採否の欄に書き手が居ない (塞げていないことの�
 
   /**
    * 数える側が効いていることを示す。`not_applicable` を書く側が現れた日に、
-   * 上の `{ applied: 64 }` が赤くなる——**そのとき ⑪ が塞がっている。**
+   * 上の `{ applied: 80 }` が赤くなる——**そのとき ⑪ が塞がっている。**
    * 塞がった日に、この describe を「不採用が 1 件以上ある」へ反転させて残すこと。
    */
   it("不採用を 1 件混ぜると数えられる（見つける側が動いている）", () => {
@@ -346,7 +350,7 @@ describe("B. 採否の欄に書き手が居ない (塞げていないことの�
       { design_applications: [{ applicability: "not_applicable" }] },
     ];
     expect(countApplicability(withRejection)).toEqual({
-      applied: 64,
+      applied: 80,
       not_applicable: 1,
     });
   });

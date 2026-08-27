@@ -12,21 +12,21 @@
     "evaluator": "PASS"
   },
   "artifacts": {
-    "system-spec/00-requirements-definition.md": "b5f4e61bea187723bcf1e1703985f816c1d50cb20c71743e5d5ca761ce1ae250",
-    "system-spec/completeness-report.json": "9d8776f39a6c4a6218d1750351a41fa4889c604a36b1a706f8bf4320c6659bce",
-    "system-spec/fetched-references.json": "37e273ff81303559de07aced7427fbd44fe55790783250a84a9494a15d9b07e5",
+    "system-spec/00-requirements-definition.md": "f0fe318e7e0f8c139174c5a16896947e40867e9ac4d77e1aff4a36eb3e7a05be",
+    "system-spec/completeness-report.json": "6ffac8f3a50c77499d310c4be14b89f27ba91cba627b0267c23e3e686c093dee",
+    "system-spec/fetched-references.json": "69e6168563d9500e86281f5ba40583edfff9bbb9dd9b59d3996c36bbe97b60fd",
     "system-spec/index.md": "409add2dc4ceef4637f1a2048bdd9a2e54a4a9873cc4e70a9d160a13c5d63e44",
-    "system-spec/spec-state.json": "b6dda29558fb7d336d0cdb3f0ea8e4884d7e0b07c7f3a5e160b82028f188e02c"
+    "system-spec/spec-state.json": "4e27cae2b56af7f1a8bc6891d4750ac7984b88380ea1be58d3a94454f19369e1"
   },
   "inputs": {
-    "file_count": 28,
-    "sha256": "8361108142ac76e73b0bbabb70112bf803024d323312262a79e87858e4aa9cd9"
+    "file_count": 54,
+    "sha256": "8c80285f5f7e6fcc2064bbd51524702a7342362933cb1eb5746ab12efcc15f7b"
   },
   "evaluator": {
     "report_path": "system-spec/completeness-report.json",
-    "report_sha256": "9d8776f39a6c4a6218d1750351a41fa4889c604a36b1a706f8bf4320c6659bce",
+    "report_sha256": "6ffac8f3a50c77499d310c4be14b89f27ba91cba627b0267c23e3e686c093dee",
     "fork_ledger_path": "eval-log/system-spec-harness/audit-fork-ledger.jsonl",
-    "session_id": "64a084b5-9449-4f10-9879-60a8373d3ffa"
+    "session_id": "ef8ad3b8-f23a-4b28-b254-3bcd0c96d979"
   },
-  "created_at": "2026-08-23T09:18:09Z"
+  "created_at": "2026-08-25T13:07:56Z"
 }
