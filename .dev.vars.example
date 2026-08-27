@@ -9,6 +9,13 @@
 # 見本に値を書くと、その値のまま使われる（検査: tests/architecture/test-honesty.test.ts）。
 MCP_TOKEN=""
 
+# 問い合わせフォームの Cloudflare Turnstile。
+# site key は公開値、secret は秘密値。HOSTNAMES はカンマ区切りで指定する。
+# 実値はこの見本ではなく、コピー先の .dev.vars にだけ入れる。
+TURNSTILE_SITE_KEY=""
+TURNSTILE_SECRET=""
+TURNSTILE_HOSTNAMES=""
+
 # --- 手元で画面を確かめるためのログイン（積んだ環境には配らない）---
 #
 # Google との往復には Google 側で登録した識別子と秘密の値が要る。手元には無いので、

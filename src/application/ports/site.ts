@@ -4,7 +4,7 @@ import type {
   PublishedArticle,
   PublishedPerson,
 } from "@/application/read-models/published-article";
-import type { ArticleType, SiteBlueprint } from "@/domain/authoring";
+import type { ArticleType, SiteBlueprint, SiteDocumentKey } from "@/domain/authoring";
 import type { Editorial, WorkspaceId } from "@/domain/shared";
 import type { PortResult } from "./common";
 
@@ -78,6 +78,8 @@ export type PublishedContentPort = {
  */
 export type PublishedArticleWriterPort = {
   save(workspaceId: WorkspaceId, article: PublishedArticle): PortResult<true>;
+  /** 公開の写しだけを外す。編集原稿と監査履歴は消さない。 */
+  unpublish(workspaceId: WorkspaceId, siteSlug: string, slug: string): PortResult<true>;
 };
 
 /**
@@ -103,7 +105,40 @@ export type ArticleOfferPort = {
   ): PortResult<readonly ArticleOffer[]>;
 };
 
+/**
+ * ブログの固定文書（運営者情報・各方針・規約）の読み書き。
+ *
+ * 読者向けの `findPolicyDocument` と**同じ行を読む**。別々に持つと、
+ * 管理画面で直した文と読者に出る文が食い違い、しかもその食い違いは
+ * 両方の画面を並べて見た人にしか分からない。
+ *
+ * 本文は段落の配列で持つ。1 つの長い文字列にすると、
+ * 改行の扱いが保存先ごとに変わる（読者に出る段落が消える事故がここで起きる）。
+ */
+export type SiteDocument = {
+  /** `SITE_DOCUMENT_KEYS` の値。ルート表から導かれる。 */
+  readonly key: SiteDocumentKey;
+  readonly title: string;
+  readonly body: readonly string[];
+  /** まだ 1 度も保存していないものは null（「未整備」を日付の不在で表す）。 */
+  readonly updatedAt: Date | null;
+};
+
+export type SiteDocumentRepositoryPort = {
+  /** そのブログに保存されている文書。**未整備のものは返さない**（空欄を作らない）。 */
+  listBySite(
+    workspaceId: WorkspaceId,
+    siteSlug: string,
+  ): PortResult<readonly SiteDocument[]>;
+  save(
+    workspaceId: WorkspaceId,
+    siteSlug: string,
+    document: Pick<SiteDocument, "key" | "title" | "body">,
+  ): PortResult<true>;
+};
+
 export type EditorialSiteRepositoryPort = Editorial<SiteRepositoryPort>;
+export type EditorialSiteDocumentRepositoryPort = Editorial<SiteDocumentRepositoryPort>;
 export type EditorialArticleOfferPort = Editorial<ArticleOfferPort>;
 export type EditorialPublishedArticleWriterPort = Editorial<PublishedArticleWriterPort>;
 export type EditorialPublishedContentPort = Editorial<PublishedContentPort>;

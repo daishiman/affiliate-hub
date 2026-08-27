@@ -110,11 +110,70 @@ const STAGE_TEXT: Readonly<Record<KeyStage, string>> = {
 
 const clamp = (value: number, max: number): number => Math.min(Math.max(value, 0), max);
 
+/**
+ * 座標を扱わずに黒塗りを置くための区切り。
+ *
+ * --- なぜ「要素の一覧」ではないのか（2026-08-26 に測った事実）---
+ *
+ * 当初の案は「3 番目の見出しを隠す」のように**要素の名前で選ぶ**道だった
+ * （`tasks/task-capture-element-selection.md`）。その仕様書の手順 1 は
+ * 「撮る側が要素の一覧（名前と位置）を持てるかを確かめる。持てないなら、ここで止まる」
+ * である。測った結果は **持てない**：
+ *
+ *   - 写しは `navigator.mediaDevices.getDisplayMedia` で撮った**映像の 1 枚**で、
+ *     DOM を写したものではない（`feedback-button.tsx` の `captureScreen`）。
+ *   - どの画面を渡すかは必ず本人が選ぶ。**別のウィンドウや別のアプリも選べる。**
+ *     `preferCurrentTab` は Chromium だけが見るただの希望で、保証にならない。
+ *   - よって、いま開いている DOM の位置を一覧にしても、**写った画像の座標と
+ *     一致する保証が無い。** ずれたまま「3 番目の見出し」と名乗って塗ると、
+ *     隠したはずのものが隠れていない写しが送られる。**この機能で最悪の壊れ方。**
+ *   - 宣言による自動マスク（`data-capture="mask"`）も、宣言だけがあって
+ *     付けている場所が 1 つも無い。撮る側は要素を 1 つも知らない。
+ *
+ * そこで**画像そのものを区切る**。写っているものが何であれ「上段の左」は嘘に
+ * ならないし、DOM と一致している必要も無い。要素の名前で呼ぶ道は、撮り方が
+ * DOM を写す形に変わった日に、この区切りの隣へ足せばよい。
+ *
+ * 82 で入れた座標の道は残す。要素になっていないもの（画像の中の文字、表の一部）は
+ * 座標でしか指せない。**置き換えではなく、近道を足す。**
+ */
+export const CAPTURE_REGION_ROWS = [
+  UI_COPY.feedback.captureRegionTop,
+  UI_COPY.feedback.captureRegionMiddle,
+  UI_COPY.feedback.captureRegionBottom,
+] as const;
+
+export const CAPTURE_REGION_COLUMNS = [
+  UI_COPY.feedback.captureRegionLeft,
+  UI_COPY.feedback.captureRegionCenter,
+  UI_COPY.feedback.captureRegionRight,
+] as const;
+
+/** 「上段の左」。読み上げにはこの名前しか届かないので、名前だけで位置が分かる形にする。 */
+export const captureRegionLabel = (row: number, col: number): string =>
+  `${CAPTURE_REGION_ROWS[row]}の${CAPTURE_REGION_COLUMNS[col]}`;
+
 type Shape =
   | { readonly tool: "pen"; readonly color: CanvasColor; readonly points: readonly Point[] }
   | { readonly tool: "rect" | "arrow"; readonly color: CanvasColor; readonly from: Point; readonly to: Point }
   | { readonly tool: "text"; readonly color: CanvasColor; readonly at: Point; readonly text: string }
-  | { readonly tool: "redact"; readonly from: Point; readonly to: Point };
+  | { readonly tool: "redact"; readonly from: Point; readonly to: Point }
+  /*
+    区画の黒塗りは**画素の座標を持たない**。持たせると、押したあとに画像が
+    読み込まれて台紙の寸法が変わった日に、塗った場所だけが元の寸法のまま残る。
+    行と列だけを覚えておき、描く直前にそのときの寸法から割り出す。
+  */
+  | { readonly tool: "region"; readonly row: number; readonly col: number };
+
+/**
+ * 引きずって描いている最中のもの。**区画はここへ入らない。**
+ *
+ * 区画は押した瞬間に決まるので「描きかけ」の状態を持たない。
+ * それを中で弾く形ではなく**型から外す形**で書いてある。中で弾くと、
+ * 区画を描きかけに入れる書き方が通ってしまい、黙って無視されるだけになる
+ * （すぐ上の `beginAt` が `"text"` を引数から外しているのと同じ理由）。
+ */
+type DrawingShape = Exclude<Shape, { readonly tool: "region" }>;
 
 type Point = { readonly x: number; readonly y: number };
 
@@ -146,7 +205,7 @@ export function CaptureCanvas({
   const [tool, setTool] = useState<CanvasTool>("pen");
   const [color, setColor] = useState<CanvasColor>("red");
   const [text, setText] = useState("");
-  const [drawing, setDrawing] = useState<Shape | null>(null);
+  const [drawing, setDrawing] = useState<DrawingShape | null>(null);
   /**
    * キーボードで動かしている位置。**触るまでは null。**
    * null のあいだは画素へ何も描かないし、読み上げも黙っている
@@ -154,6 +213,8 @@ export function CaptureCanvas({
    */
   const [caret, setCaret] = useState<Point | null>(null);
   const [stage, setStage] = useState<KeyStage>("idle");
+  /** 区画を押した結果。読み上げへ渡すためだけに持つ（画素には出ない）。 */
+  const [regionMessage, setRegionMessage] = useState("");
   /** canvas を使えない環境（描画機能のない実行環境など）。黙って空の画像を作らない。 */
   const [unavailable, setUnavailable] = useState(false);
 
@@ -167,7 +228,7 @@ export function CaptureCanvas({
       const image = imageRef.current;
       if (image) ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
       for (const shape of [...shapes, ...(drawing ? [drawing] : [])]) {
-        paint(ctx, shape);
+        paint(ctx, shape, canvas);
       }
       if (withCaret && caret) paintCaret(ctx, caret);
     },
@@ -329,7 +390,32 @@ export function CaptureCanvas({
     }
   };
 
-  const undo = (): void => setShapes((prev) => prev.slice(0, -1));
+  /**
+   * 区画を 1 つ塗る／外す。**座標を 1 度も動かさずに黒塗りが 1 つ決まる経路。**
+   *
+   * 押した結果を読み上げへ渡すところまでが経路である。画素は見えないので、
+   * 言葉にしないと「押したが、塗れたのか外れたのか分からない」で終わる。
+   */
+  const toggleRegion = (row: number, col: number): void => {
+    const already = shapes.some((s) => s.tool === "region" && s.row === row && s.col === col);
+    const label = captureRegionLabel(row, col);
+    if (already) {
+      setShapes((prev) => prev.filter((s) => !(s.tool === "region" && s.row === row && s.col === col)));
+      setRegionMessage(`${label}${UI_COPY.feedback.captureRegionRemoved}`);
+      return;
+    }
+    setShapes((prev) => [...prev, { tool: "region", row, col }]);
+    setRegionMessage(`${label}${UI_COPY.feedback.captureRegionAdded}`);
+  };
+
+  /**
+   * 1 つ戻す。**読み上げの文も一緒に消す。**
+   * 残すと、外したはずの区画について「黒塗りにしました」が読まれたままになる。
+   */
+  const undo = (): void => {
+    setShapes((prev) => prev.slice(0, -1));
+    setRegionMessage("");
+  };
 
   const exportImage = (): void => {
     const canvas = canvasRef.current;
@@ -337,7 +423,12 @@ export function CaptureCanvas({
     if (!canvas || !ctx || unavailable) return;
     // 位置の印を外した 1 枚を作ってから写す。目印は送るものではない。
     paintFrame(ctx, canvas, false);
-    const redactionCount = shapes.filter((s) => s.tool === "redact").length;
+    /*
+      区画で塗ったものも黒塗りとして数える。**塗り方が違うだけで、
+      隠れている面積は同じ。**ここで数え落とすと、domain 側は
+      「黒塗りの無い写し」として扱い、確認の手順が 1 つ飛ぶ。
+    */
+    const redactionCount = shapes.filter((s) => s.tool === "redact" || s.tool === "region").length;
     canvas.toBlob((blob) => {
       // ここで出るのは印を焼き込んだあとの 1 枚だけ。元画像は渡さない。
       if (blob) onExport({ blob, redactionCount, maskedElementCount });
@@ -365,8 +456,42 @@ export function CaptureCanvas({
         ))}
       </div>
 
-      {/* 黒塗りのときは色を出さない。選べるように見せると「薄い色で塗れる」と誤解される。 */}
-      {tool === "redact" ? null : (
+      {/*
+        黒塗りのときは色を出さない。選べるように見せると「薄い色で塗れる」と誤解される。
+        代わりに、その場所へ**区画で隠す道**を出す。色の選択が消えて空くのは
+        ちょうどこの位置で、黒塗りの選択肢が並ぶ場所として意味も揃っている。
+      */}
+      {tool === "redact" ? (
+        <>
+          <p className={styles.captureHint} id="capture-region-hint">
+            {UI_COPY.feedback.captureRegionHint}
+          </p>
+          <div
+            className={styles.captureRegionGrid}
+            role="group"
+            aria-label={UI_COPY.feedback.captureRegionTitle}
+            aria-describedby="capture-region-hint"
+          >
+            {CAPTURE_REGION_ROWS.map((_, row) =>
+              CAPTURE_REGION_COLUMNS.map((_col, col) => {
+                const filled = shapes.some((s) => s.tool === "region" && s.row === row && s.col === col);
+                return (
+                  <button
+                    key={`${row}-${col}`}
+                    type="button"
+                    // 塗ってあるかどうかを色だけで示さない。見分けの付かない人には届かない。
+                    aria-pressed={filled}
+                    className={styles.captureTool}
+                    onClick={() => toggleRegion(row, col)}
+                  >
+                    {captureRegionLabel(row, col)}
+                  </button>
+                );
+              }),
+            )}
+          </div>
+        </>
+      ) : (
         <div className={styles.captureTools} role="group" aria-label="色">
           {CANVAS_COLORS.map((c) => (
             <button
@@ -407,11 +532,23 @@ export function CaptureCanvas({
         onPointerLeave={end}
       />
 
-      {/* 画素の座標は画面のどこにも出ていない。数で言わないと、置いた場所が分からない。 */}
+      {/*
+        画素の座標は画面のどこにも出ていない。数で言わないと、置いた場所が分からない。
+
+        **読み上げの出口はここ 1 つにする。**区画を押した結果も同じ欄へ入れる。
+        欄を 2 つに分けると、読み上げの側は近いほうから読むので、
+        操作と読み上げの順番が入れ替わる（実際、分けた形では
+        「位置」を見ていた既存の検査が空の欄を拾った）。
+      */}
       <p className={styles.captureHint} aria-live="polite">
-        {caret === null
-          ? ""
-          : `${UI_COPY.feedback.captureKeyboardPosition} 横 ${Math.round(caret.x)}・縦 ${Math.round(caret.y)}。${STAGE_TEXT[stage]}`}
+        {[
+          caret === null
+            ? ""
+            : `${UI_COPY.feedback.captureKeyboardPosition} 横 ${Math.round(caret.x)}・縦 ${Math.round(caret.y)}。${STAGE_TEXT[stage]}`,
+          regionMessage,
+        ]
+          .filter((line) => line !== "")
+          .join(" ")}
       </p>
 
       <p className={styles.captureHint}>
@@ -456,7 +593,15 @@ function paintCaret(ctx: CanvasRenderingContext2D, at: Point): void {
 }
 
 /** 1 つの印を画素へ描く。**重ねるのではなく描く**のが要点。 */
-function paint(ctx: CanvasRenderingContext2D, shape: Shape): void {
+function paint(ctx: CanvasRenderingContext2D, shape: Shape, canvas: HTMLCanvasElement): void {
+  if (shape.tool === "region") {
+    // 区画は行と列しか覚えていない。**そのときの寸法から割り出す。**
+    const width = canvas.width / CAPTURE_REGION_COLUMNS.length;
+    const height = canvas.height / CAPTURE_REGION_ROWS.length;
+    ctx.fillStyle = REDACT_CODE;
+    ctx.fillRect(shape.col * width, shape.row * height, width, height);
+    return;
+  }
   if (shape.tool === "redact") {
     ctx.fillStyle = REDACT_CODE;
     ctx.fillRect(shape.from.x, shape.from.y, shape.to.x - shape.from.x, shape.to.y - shape.from.y);

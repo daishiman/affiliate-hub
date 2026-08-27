@@ -193,8 +193,10 @@
 すべて能力表から導かれているため、追加しただけで
 「300 字を超えたら止める」が全経路（画面・REST・WebMCP・MCP）で効く。
 
-**本実装（API 連携）を足すとき**: `src/infrastructure/channels/bluesky-connector.ts` を
-新規に書き、対応表の 1 行をスタブから差し替える。他の層は再び無変更。
+**2026-08-27 に API 連携も実装済み。**
+`src/infrastructure/channels/bluesky.ts` が実認証、DID固定、公式XRPC投稿を担い、
+`channel-registry.ts` の同じ対応表から選ばれる。初期の追加容易性の実測は上記のまま残し、
+本番接続で追加された安全境界は `docs/product/bluesky-distribution.md` を正本とする。
 
 **domain を触るか**: 触る（能力表に 1 件）。判定ロジックは触らない。
 

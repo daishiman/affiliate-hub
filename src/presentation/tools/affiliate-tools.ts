@@ -9,6 +9,10 @@ import {
   createListProductLinksUseCase,
 } from "@/application/usecases/monetization/manage-affiliate";
 import {
+  createDisableAffiliateLinkUseCase,
+  createListAffiliateLinksUseCase,
+} from "@/application/usecases/monetization/manage-affiliate-links";
+import {
   createListLinkInboxUseCase,
   createMatchLinkIngestionUseCase,
   createRejectLinkIngestionUseCase,
@@ -85,6 +89,32 @@ export function affiliateTools(deps: AppDeps): readonly AnyToolDefinition[] {
       schema: z.object({ productId: z.string().min(1) }),
       readOnly: true,
       useCase: createListProductLinksUseCase(affiliate),
+    }),
+    defineTool({
+      name: "list_affiliate_links",
+      description:
+        "登録済みの成果リンクを、読者に出ている商品名と状態（出ている・止めた・期限切れ）つきで返します。ASP が発行した URL は接続先だけを返し、全体は返しません。",
+      schema: z.object({}),
+      readOnly: true,
+      useCase: createListAffiliateLinksUseCase(affiliate),
+    }),
+    defineTool({
+      name: "disable_affiliate_link",
+      /*
+        **人の操作でのみ実行できる。** 止めると読者に出なくなり、元へは戻せない
+        （戻すには新しいリンクとして登録し直す）。AI が「表記が古そうだ」と
+        判断して止められると、実際には正しかったリンクが消え、
+        記事から成果リンクが静かに減っていく。減ったことは画面に出ない。
+      */
+      description:
+        "登録済みの成果リンクを止めます。記事に貼ったままでも公開のときに読者へ出なくなります。行は消えないので、いつまで出ていたかは後から辿れます。元へは戻せません。理由は必須で、記録に残ります。人の操作でのみ実行できます。",
+      schema: z.object({
+        affiliateLinkId: z.string().min(1),
+        reason: z.string().min(1),
+      }),
+      readOnly: false,
+      requiresHumanApproval: true,
+      useCase: createDisableAffiliateLinkUseCase(affiliate),
     }),
     defineTool({
       name: "adjust_conversion_reward",

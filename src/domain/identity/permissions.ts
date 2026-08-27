@@ -6,6 +6,7 @@ import {
   domainError,
   ok,
   err,
+  assertWorkspaceWideAccess,
 } from "../shared";
 
 /**
@@ -44,6 +45,8 @@ export type Capability =
   | "content.compliance_review"
   | "content.approve"
   | "content.publish"
+  /** workspace共通の外部媒体接続を登録・失効する。公開権限とは分離する。 */
+  | "channel_connection.manage"
   | "affiliate.manage"
   | "affiliate.read_revenue"
   | "analytics.read"
@@ -85,6 +88,7 @@ export type Capability =
 export const HUMAN_ONLY_CAPABILITIES: ReadonlySet<Capability> = new Set<Capability>([
   "content.approve",
   "content.publish",
+  "channel_connection.manage",
   "member.manage",
   "workspace.manage",
   "affiliate.manage",
@@ -127,6 +131,7 @@ const ROLE_CAPABILITIES: Readonly<Record<Role, readonly Capability[]>> = {
     "content.compliance_review",
     "content.approve",
     "content.publish",
+    "channel_connection.manage",
     "affiliate.manage",
     "affiliate.read_revenue",
     "analytics.read",
@@ -156,6 +161,7 @@ const ROLE_CAPABILITIES: Readonly<Record<Role, readonly Capability[]>> = {
     "content.compliance_review",
     "content.approve",
     "content.publish",
+    "channel_connection.manage",
     "affiliate.manage",
     "affiliate.read_revenue",
     "analytics.read",
@@ -247,6 +253,25 @@ export function can(actor: ActorContext, capability: Capability): boolean {
 }
 
 /**
+ * 現行モデルで brandId も、brandId へたどる lineage も持たない資源。
+ *
+ * ブランド限定担当者へ workspace 全体の値を返してから呼び出し側で絞ると、
+ * 絞り忘れた入口が 1 本あるだけで越境する。対応列を持つまでは capability の
+ * 共通入口で fail-close し、推測でどれかのブランドへ割り当てない。
+ */
+const WORKSPACE_WIDE_CAPABILITIES: ReadonlySet<Capability> = new Set<Capability>([
+  "site.manage",
+  "site.draft",
+  "product.read",
+  "product.write",
+  "evidence.write",
+  "ranking_model.manage",
+  "analytics.read",
+  "improvement.run",
+  "improvement.approve",
+]);
+
+/**
  * 権限を要求する。ユースケースの入口で必ず呼ぶ。
  *
  * 失敗メッセージに必要な権限名を含める。
@@ -257,7 +282,12 @@ export function requireCapability(
   capability: Capability,
   what: string,
 ): Result<true, DomainError> {
-  if (can(actor, capability)) return ok(true);
+  if (can(actor, capability)) {
+    if (WORKSPACE_WIDE_CAPABILITIES.has(capability)) {
+      return assertWorkspaceWideAccess(actor, what);
+    }
+    return ok(true);
+  }
   if (actor.isAiServiceAccount && HUMAN_ONLY_CAPABILITIES.has(capability)) {
     return err(
       domainError("FORBIDDEN", `${what} は人が行う必要があります。`, {
@@ -270,4 +300,18 @@ export function requireCapability(
       suggestedAction: `必要な権限: ${capability}。ワークスペース管理者に依頼してください。`,
     }),
   );
+}
+
+/**
+ * `content.read` / `content.write` のように、通常は brandId を照合できる capability を
+ * workspace 共通資源へ使うときの入口。role と資源範囲を別々に書かせず、順序も固定する。
+ */
+export function requireWorkspaceWideCapability(
+  actor: ActorContext,
+  capability: Capability,
+  what: string,
+): Result<true, DomainError> {
+  const allowed = requireCapability(actor, capability, what);
+  if (!allowed.ok) return allowed;
+  return assertWorkspaceWideAccess(actor, what);
 }

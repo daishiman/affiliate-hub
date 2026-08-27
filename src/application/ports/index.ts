@@ -4,6 +4,7 @@ export * from "./blog-ops";
 export * from "./common";
 export * from "./compliance";
 export * from "./distribution";
+export * from "./distribution-audit";
 export * from "./evidence";
 export * from "./identity";
 export * from "./improvement";

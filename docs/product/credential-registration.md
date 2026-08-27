@@ -342,6 +342,28 @@ Google のボタンを 1 回押せば入れます。以降しばらくは押さ�
 
 ## 技術的な補足（開発者向け）
 
+### 問い合わせフォームの Turnstile
+
+Turnstile は、ローカルでは `.dev.vars`、dev・本番では Cloudflare Dashboard の対象 Worker
+→ **Settings → Variables and Secrets** に次の名前で登録します。
+
+- `TURNSTILE_SITE_KEY`: 公開 site key（Variableでもよい。現在のdev・本番はSecret登録）
+- `TURNSTILE_SECRET`: Siteverify 用 secret（Secret。値をコマンド引数や文書へ書かない）
+- `TURNSTILE_HOSTNAMES`: 許可 host のカンマ区切り（Variableでもよい。現在のdev・本番はSecret登録）
+
+widget/action/検証契約は `turnstile-spin-v2`・`cf-turnstile-response`・Siteverify の
+`remoteip` 送信です。生の IP アドレスは保存しません。設定不足時は問い合わせを安全側に拒否します。
+
+Cloudflare の `affiliate-hub-contact` widget（dev・本番・localhost許可）と、dev・本番
+Worker の3設定は登録済みです。dummy keyによるローカル widget 契約と Siteverify 疎通は
+PASSです。2026-08-27 にdev D1をmigration 0039まで適用して現コードを公開し、公開HTMLの
+sitekey・`turnstile-spin-v2` action・公式scriptと、実secretによる不正token拒否まで確認しました。
+`contact_messages` 表の送信前行数は0件です。
+
+実widget token→Siteverify成功→D1保存は **NOT RUN** で、本番確認済みとは扱いません。人の
+通常ブラウザでdevへ問い合わせを1件送信し、action/hostnameとD1行を照合します。productionの
+migration・deployはdev確認と別承認の後に進めます。
+
 ### 鍵の道すじ（利用者が画面から入れるもの）
 
 | 段 | ファイル | 役目 |

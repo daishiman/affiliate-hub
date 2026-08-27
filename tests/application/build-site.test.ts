@@ -348,7 +348,15 @@ function buildDeps(
   over: Partial<BuildSiteDeps> = {},
 ): BuildSiteDeps & { readonly audit: ReturnType<typeof recordingAuditLog> } {
   const audit = recordingAuditLog();
-  return { drafts, ids: testDeps().ids, auditLog: audit.port, now: () => new Date(), ...over, audit };
+  return {
+    drafts,
+    ids: testDeps().ids,
+    auditLog: audit.port,
+    now: () => new Date(),
+    capacity: { withLease: async (_workspaceId, _kind, mutation) => mutation() },
+    ...over,
+    audit,
+  };
 }
 
 const DRAFT_ID = taggedString<"SiteDraftId">("sd_test") as SiteDraftId;
@@ -647,6 +655,41 @@ describe("住所の段階", () => {
 });
 
 describe("ブログを作る（つなぎ目を差し替えて）", () => {
+  it("上限なら公開保存の前に止める", async () => {
+    const drafts = memoryDrafts([filledDraft()]);
+    const result = await createCreateSiteFromDraftUseCase(
+      buildDeps(drafts.port, {
+        capacity: { withLease: async () => failing("ブログの上限です。") },
+      }),
+    ).execute(owner, { draftId: String(DRAFT_ID) });
+
+    expect(result.ok).toBe(false);
+    expect(drafts.published).toHaveLength(0);
+  });
+
+  it("既存ブログの再構築は件数を増やさないため、site容量を確保しない", async () => {
+    const drafts = memoryDrafts([
+      filledDraft({ slug: "changed-draft-slug", createdSiteSlug: "lens-start" }),
+    ]);
+    let leases = 0;
+    const result = await createCreateSiteFromDraftUseCase(
+      buildDeps(drafts.port, {
+        capacity: {
+          withLease: async () => {
+            leases += 1;
+            return failing("ブログの上限です。");
+          },
+        },
+      }),
+    ).execute(owner, { draftId: String(DRAFT_ID) });
+
+    expect(result.ok, result.ok ? "" : result.error.message).toBe(true);
+    expect(leases).toBe(0);
+    if (!result.ok) return;
+    expect(result.value.slug).toBe("lens-start");
+    expect(drafts.published).toEqual(["lens-start"]);
+  });
+
   it("信頼のために足りないページを、作ったあとに伝える", async () => {
     const drafts = memoryDrafts([filledDraft()]);
     const result = await createCreateSiteFromDraftUseCase(buildDeps(drafts.port)).execute(owner, {

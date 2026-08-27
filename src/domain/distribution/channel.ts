@@ -391,6 +391,8 @@ export type ChannelConnection = {
   /** 認証の有効期限。null は期限なし。切れたら再接続を促す。 */
   readonly expiresAt: Date | null;
   readonly revokedAt: Date | null;
+  /** providerが認証応答で返した不変の主体ID。BlueskyではDID。秘密ではない。 */
+  readonly providerIdentity: string | null;
   /** 認証情報の参照キー。値ではなく「どこに保管したか」だけを持つ。 */
   readonly credentialRef: string;
 };
@@ -402,6 +404,7 @@ export function createChannelConnection(input: {
   accountLabel: string;
   connectedAt: Date;
   expiresAt?: Date | null;
+  providerIdentity?: string | null;
   credentialRef: string;
 }): Result<ChannelConnection, DomainError> {
   if (input.accountLabel.trim() === "") {
@@ -422,6 +425,18 @@ export function createChannelConnection(input: {
       ),
     );
   }
+  const providerIdentity = input.providerIdentity?.trim() ?? null;
+  if (providerIdentity !== null && (providerIdentity === "" || providerIdentity.length > 512)) {
+    return err(validationError("接続先の識別子が正しくありません。", "providerIdentity"));
+  }
+  if (providerIdentity !== null && looksLikeSecret(providerIdentity)) {
+    return err(
+      validationError(
+        "認証情報の値そのものを接続先の識別子として保存できません。",
+        "providerIdentity",
+      ),
+    );
+  }
   return ok({
     id: input.id,
     workspaceId: input.workspaceId,
@@ -430,6 +445,7 @@ export function createChannelConnection(input: {
     connectedAt: input.connectedAt,
     expiresAt: input.expiresAt ?? null,
     revokedAt: null,
+    providerIdentity,
     credentialRef: input.credentialRef.trim(),
   });
 }
@@ -444,4 +460,13 @@ export function isConnectionUsable(c: ChannelConnection, at: Date): boolean {
   if (c.revokedAt !== null && c.revokedAt <= at) return false;
   if (c.expiresAt !== null && c.expiresAt <= at) return false;
   return true;
+}
+
+/** 自社サイト内の公開を除く、外部providerへ直接送る媒体。 */
+export const EXTERNAL_DIRECT_CHANNEL_KINDS = (
+  Object.keys(CHANNEL_CAPABILITIES) as ChannelKind[]
+).filter((kind) => kind !== "own_site" && supportsDirectPublish(kind));
+
+export function supportsExternalDirectPublish(kind: ChannelKind): boolean {
+  return EXTERNAL_DIRECT_CHANNEL_KINDS.includes(kind);
 }

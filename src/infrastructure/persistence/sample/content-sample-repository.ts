@@ -2,6 +2,7 @@ import type { TrackingCoveragePort } from "@/application/ports/analytics";
 import type {
   EditorialPublishedArticleWriterPort,
   EditorialPublishedContentPort,
+  EditorialSiteDocumentRepositoryPort,
 } from "@/application/ports/site";
 import { countTrackingCoverage } from "@/application/read-models/article-tracking";
 import {
@@ -10,7 +11,8 @@ import {
   type PublishedPerson,
   toSummary,
 } from "@/application/read-models/published-article";
-import { markEditorial, ok } from "@/domain/shared";
+import { SITE_DOCUMENT_KEYS, type SiteDocumentKey } from "@/domain/authoring";
+import { markEditorial, ok, type WorkspaceId } from "@/domain/shared";
 import { registerStub, stubCall } from "../../stub-registry";
 import { SAMPLE_SITE_SLUG, SECOND_SITE_SLUG } from "./site-sample-repository";
 
@@ -119,6 +121,20 @@ const LAPTOP_RANKING: PublishedArticle = {
     { speaker: "reader", text: "書き出しが速い機種を選べば間違いないですか。" },
     { speaker: "writer", text: "毎日持ち歩くなら重さも見てください。速さだけで選ぶと通勤で後悔します。" },
     { speaker: "expert", text: "計測は室温を揃えないと再現しません。この記事は 24℃ で統一しています。" },
+  ],
+  // 記事構成 `faq`。本文を読み終えた読者に残る問いへ、記事の中で先に答える。
+  // 問いと答えの対で持つので、そのまま `FAQPage` としても出る（検索・AI から引ける）。
+  faq: [
+    {
+      question: "書き出しの速さは、何分ちがえば体感できますか。",
+      answer:
+        "10 分程度の素材を 1 日 5 本扱う人なら、1 本あたり 2 分の差で 1 日 10 分変わります。週に数本なら、重さや静かさを優先しても構いません。",
+    },
+    {
+      question: "測った条件は、家で使うときと同じですか。",
+      answer:
+        "室温 24℃・同一素材・3 回の中央値です。夏の締め切った部屋ではこれより遅くなります。順位そのものは変わりません。",
+    },
   ],
   // 記事構成 `product_cards`。順位表と同じ商品を、同じ項目の並びで見せる。
   // 3 台とも同じ 4 項目で、測っていないものは値を伏せて「未計測」と出す
@@ -341,6 +357,57 @@ const STORAGE_GUIDE: PublishedArticle = {
   stub: STUB_MARK,
 };
 
+/*
+  道具（`/tools/storage-estimator`）の説明記事。
+
+  **`reader-interaction-sample.ts` の道具と slug を合わせてある。** 合わせるのは
+  見た目の都合ではない。`/tools/{slug}` という 1 つの住所に、道具の定義と
+  `tool` 型の記事が同居する決まりだからで、揃っていないと片方だけが読者に届く。
+
+  この記事があることで、道具のページに出典・書いた人・更新履歴が付く。
+  数字だけを出して解釈も根拠も示さない画面は、読者がそれを信じて物を買う場所になる。
+*/
+const STORAGE_ESTIMATOR_ARTICLE: PublishedArticle = {
+  slug: "storage-estimator",
+  siteSlug: SAMPLE_SITE_SLUG,
+  type: "tool",
+  title: "必要な保存容量の目安を出す",
+  summary: "撮影する時間と記録レートから、素材を置いておくのに要る大きさを計算します。",
+  categorySlug: "storage",
+  publishedAt: "2026-07-02",
+  updatedAt: "2026-07-28",
+  author: MIWA,
+  disclosureRequired: false,
+  sections: [
+    {
+      id: "outcome_state",
+      heading: "このツールでできること",
+      paragraphs: [
+        "1 か月に撮る時間・カメラの記録レート・手元に残す期間の 3 つを入れると、素材だけで何ギガバイト要るかが出ます。",
+        "買う前に「足りるかどうか」を数字で確かめるためのものです。",
+      ],
+      claims: [],
+    },
+    {
+      id: "how_to_choose",
+      heading: "計算・判定の根拠",
+      paragraphs: [
+        "記録レートは 1 秒あたりのメガビットなので、8 で割るとメガバイトになります。さらに 1000 で割ってギガバイトにし、撮影の分数と残す期間を掛けています。",
+        "段を分けて出しているのは、どこで桁が大きくなったかを追えるようにするためです。",
+      ],
+      claims: [
+        {
+          id: "c1",
+          statement: "編集中の一時ファイルと書き出し先は、この計算に含まれていません。",
+          kind: "inference",
+          evidence: [],
+        },
+      ],
+    },
+  ],
+  stub: STUB_MARK,
+};
+
 // ---------------------------------------------------------------------------
 // 2 本目のブログの記事（同じ型・同じ画面で表示される）
 // ---------------------------------------------------------------------------
@@ -431,6 +498,7 @@ const ARTICLES: readonly PublishedArticle[] = [
   LAPTOP_REVIEW,
   LAPTOP_COMPARISON,
   STORAGE_GUIDE,
+  STORAGE_ESTIMATOR_ARTICLE,
   RICE_COOKER_COMPARISON,
   OVEN_REVIEW,
 ];
@@ -469,7 +537,7 @@ const CORRECTIONS: readonly {
  * ブログごとに文言を変えられるようにしてあるが、既定は共通。
  * 画面側に直接書かない（書くと言い回しの変更が全画面に散る）。
  */
-const POLICIES: Readonly<Record<string, { title: string; body: readonly string[] }>> = {
+const POLICIES: Readonly<Record<SiteDocumentKey, { title: string; body: readonly string[] }>> = {
   methodology: {
     title: "評価方法",
     body: [
@@ -507,6 +575,22 @@ const POLICIES: Readonly<Record<string, { title: string; body: readonly string[]
     body: [
       "問い合わせでいただいた情報は、返信以外の目的に使いません。",
       "アクセス状況の把握には、個人を特定しない形の記録のみを使います。",
+    ],
+  },
+  operator: {
+    title: "運営者情報",
+    body: [
+      "このブログは、動画編集の道具を実際に使って比べている編集部が運営しています。",
+      "連絡先は問い合わせページからお願いします。返信は 3 営業日以内を目安にしています。",
+      "掲載内容についての指摘・訂正の依頼も、同じ窓口で受け付けています。",
+    ],
+  },
+  tokushoho: {
+    title: "特定商取引法に基づく表記",
+    body: [
+      "このブログは商品を販売していません。購入の契約は、リンク先の販売店と読者の間で成立します。",
+      "価格・送料・返品の条件・支払い方法は、購入前に販売店のページでご確認ください。",
+      "このブログの記載と販売店の記載が食い違う場合は、販売店の記載が優先されます。",
     ],
   },
   terms: {
@@ -556,10 +640,39 @@ export function createSampleTrackingCoverage(): TrackingCoveragePort {
   };
 }
 
+/**
+ * 固定文書の見本。
+ *
+ * 読むほうは本物と同じ形で返す（見本の実行でも法定ページが読める）。
+ * **書くほうは「保存できない」と名乗る。** ここで成功を返すと、
+ * 運営者情報を書き換えたつもりの人が、次に開いたとき元の文を見ることになる。
+ */
+export function createSampleSiteDocumentRepository(): EditorialSiteDocumentRepositoryPort {
+  return markEditorial({
+    async listBySite(_workspaceId: WorkspaceId, _siteSlug: string) {
+      return ok(
+        SITE_DOCUMENT_KEYS.map((key) => ({
+          key,
+          title: POLICIES[key].title,
+          body: POLICIES[key].body,
+          // 見本に「いつ直したか」は無い。作り話の日付を入れない。
+          updatedAt: null,
+        })),
+      );
+    },
+    async save() {
+      return stubCall<true>(stub, "固定ページの保存");
+    },
+  });
+}
+
 export function createSamplePublishedArticleWriter(): EditorialPublishedArticleWriterPort {
   return markEditorial({
     async save() {
       return stubCall<true>(stub, "記事の公開");
+    },
+    async unpublish() {
+      return stubCall<true>(stub, "記事の取り下げ");
     },
   });
 }
@@ -603,7 +716,8 @@ export function createSampleContentRepository(): EditorialPublishedContentPort {
       return ok(CORRECTIONS.filter((c) => c.siteSlug === siteSlug));
     },
     async findPolicyDocument(_siteSlug: string, key: string) {
-      return ok(POLICIES[key] ?? null);
+      if (!(SITE_DOCUMENT_KEYS as readonly string[]).includes(key)) return ok(null);
+      return ok(POLICIES[key as SiteDocumentKey]);
     },
   });
 }

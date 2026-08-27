@@ -214,6 +214,27 @@ export function createD1FeedbackRepository(
       }
     },
 
+    async findByCaptureId(
+      workspaceId: WorkspaceId,
+      captureId,
+    ): PortResult<FeedbackReport | null> {
+      try {
+        const rows = await db
+          .select()
+          .from(feedbackReports)
+          .where(
+            and(
+              eq(feedbackReports.workspaceId, String(workspaceId)),
+              eq(feedbackReports.captureId, String(captureId)),
+            ),
+          )
+          .limit(1);
+        return ok(rows.length === 0 ? null : toDomain(rows[0]));
+      } catch (cause) {
+        return storageFailure("画面の写しの所有者の読み出し", cause);
+      }
+    },
+
     async list(
       workspaceId: WorkspaceId,
       filter?: FeedbackFilter,

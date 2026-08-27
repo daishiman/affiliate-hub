@@ -46,7 +46,13 @@ import {
   type RegisterAffiliateLinkDeps,
 } from "@/application/usecases/monetization/register-affiliate-link";
 import type { EditorialArticleOfferPort } from "@/application/ports/site";
-import type { ActorContext, AffiliateLinkId } from "@/domain/shared";
+import { captureProductSnapshot, createAffiliateLink } from "@/domain/monetization";
+import type {
+  ActorContext,
+  AffiliateLinkId,
+  AffiliateProgramId,
+  ProductId,
+} from "@/domain/shared";
 import { taggedString } from "@/domain/shared";
 import { createDeps } from "@/infrastructure/composition";
 import { SAMPLE_WORKSPACE_ID } from "@/infrastructure/persistence/sample/ranking-sample-repository";
@@ -275,6 +281,42 @@ describe("登録から公開記事のカードまで（1 本の道）", () => {
     const count = await proxy.env.DB.prepare(
       "select count(*) as n from affiliate_links",
     ).first<{ n: number }>();
+    expect(count?.n).toBe(1);
+  });
+
+  it("同じ URL の同時保存は、DB境界で1本の正本へ収束する", async () => {
+    const url = "https://af.example.com/click?a=atomic&asp=amazon";
+    const now = new Date("2026-08-27T00:00:00.000Z");
+    const snapshot = captureProductSnapshot({
+      productName: "Alpha Studio 15",
+      brand: "Alpha",
+      oneLine: null,
+    });
+    if (!snapshot.ok) throw snapshot.error;
+    const link = (id: string) => createAffiliateLink({
+      id: taggedString<"AffiliateLinkId">(id) as AffiliateLinkId,
+      workspaceId: owner.workspaceId,
+      programId: taggedString<"AffiliateProgramId">(PROGRAM_ID) as AffiliateProgramId,
+      productId: taggedString<"ProductId">(PRODUCT_ID) as ProductId,
+      originalUrl: url,
+      trackingRef: `ref_${id}`,
+      createdAt: now,
+      expiresAt: null,
+    });
+    const first = link("al_atomic_1");
+    const second = link("al_atomic_2");
+    if (!first.ok || !second.ok) throw new Error("試験用リンクを作れません");
+
+    const [left, right] = await Promise.all([
+      registerDeps.links.createIfNoUsableUrl(first.value, snapshot.value, now),
+      registerDeps.links.createIfNoUsableUrl(second.value, snapshot.value, now),
+    ]);
+    if (!left.ok || !right.ok) throw new Error("同時保存に失敗しました");
+    expect([left.value.created, right.value.created].filter(Boolean)).toHaveLength(1);
+    expect(String(left.value.link.id)).toBe(String(right.value.link.id));
+    const count = await proxy.env.DB.prepare(
+      "select count(*) as n from affiliate_links where original_url = ?",
+    ).bind(url).first<{ n: number }>();
     expect(count?.n).toBe(1);
   });
 });

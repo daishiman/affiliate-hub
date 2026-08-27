@@ -1965,14 +1965,14 @@ export const PORT_WIRING_MAX_AUDIT_BEST_EFFORT = 2;
  * 手で数えた表を置かないのは、**手で書いた数字は古くなっても古く見えない**ため。
  *
  * --- 0 にしない理由 ---
- * 4 語は**機能そのものがまだ無い**。1 語ずつの理由は下の
+ * 2 語は**機能そのものがまだ無い**。1 語ずつの理由は下の
  * `AUDIT_ACTIONS_WITHOUT_EMITTER_REASONS` に書く。
  * 出す場所を先に作っても、呼ばれないコードが増えるだけである。
  *
  * **上げて緑にすることは禁止。下げる方向にしか動かさない。**
  * 語を消して下げるのも正しい（要件がその記録を求めていないなら、語を残さない）。
  */
-export const AUDIT_ACTIONS_MAX_WITHOUT_EMITTER = 4;
+export const AUDIT_ACTIONS_MAX_WITHOUT_EMITTER = 2;
 
 /**
  * 出す場所を持たない語の、**1 語ずつの理由**。
@@ -2000,12 +2000,9 @@ export const AUDIT_ACTIONS_WITHOUT_EMITTER_REASONS = Object.freeze({
   "content.corrected":
     "公開後の記事を訂正する操作が無い。記事を直す道は下書き（variants）だけで、" +
     "読者へ出したものを直す口が存在しない。訂正の機能が入った時点で出す。",
-  "ranking_model.changed":
-    "評価基準を変える操作が無い。`RankingModelRepositoryPort.save` を呼ぶ入口は 0 か所で、" +
-    "基準は見本データに固定されている。要件（仕様 §26 の必須記録 3 つ目）は" +
-    "この記録を求めているので、語は消さずに待つ。",
-  "connector.connected": "ASP・配信先への接続がスタブで、つなぐ操作そのものが無い。",
-  "connector.disconnected": "同上（接続が無いので、切る操作も無い）。",
+  "connector.disconnected":
+    "外部媒体へつなぐ操作は付いたが、既存の接続を切る操作はまだ無い。" +
+    "切断usecaseと監査記録を同じ変更で追加する。",
 });
 
 /**
@@ -2023,9 +2020,9 @@ export const AUDIT_ACTIONS_WITHOUT_EMITTER_REASONS = Object.freeze({
  * 2026-08-21 に 0 にした。直し方は語ごとに変えている:
  *   - `content.created`: **語を消した。** 要件（仕様 §7 の必須記録 6 つ、
  *     および `audit-log.ts` の必須 3 つ）が記事の作成を求めていない。
- *   - `ranking_model.changed`: **語は残し、見本の行を落とした。** こちらは
- *     要件が求めている記録なので消せない。出す場所が付くまでは
- *     `AUDIT_ACTIONS_WITHOUT_EMITTER_REASONS` の側で理由つきで持つ。
+ *   - `ranking_model.changed`: **語は残し、見本の行を落とした。** その後、
+ *     評価基準を保存する実処理が `ranking_model.changed` を出すようになったため、
+ *     `AUDIT_ACTIONS_WITHOUT_EMITTER_REASONS` からも外れた。
  *
  * 見本の行は、**実処理から出す場所を持つ語だけ**で組み直した。
  * 見本は「実際に起きうる操作」の見本でなければ、画面を見た人を欺く。
@@ -2043,7 +2040,7 @@ export const AUDIT_ACTIONS_MAX_SAMPLE_ONLY = 0;
  * だから出している側の数にも床を張る。
  *
  * ここは上限ではなく**下限**である。**下げて緑にすることは禁止。
- * 上げる方向にしか動かさない。**残る 6 語に機能が付いたら、そのぶん上げる。
+ * 上げる方向にしか動かさない。**残る 3 語に機能が付いたら、そのぶん上げる。
  *
  * 2026-08-21 に 20 → 27 へ上げた。20 を置いた日から、担当者の役割変更・配信予定・
  * サイト作成・改善ループなどの入口が記録へつながり、実測が 27 になっている。
@@ -2066,8 +2063,11 @@ export const AUDIT_ACTIONS_MAX_SAMPLE_ONLY = 0;
  * 出す場所（`src/application/access-denial.ts` の包み）が外れても、
  * 断りは今までどおり返るので、画面からも既存のどの検査からも気づけない。
  * 床で押さえるほかに気づく手立てが無い語である。
+ *
+ * 2026-08-26 に 32 → 33 へ上げた。評価基準の保存が
+ * `ranking_model.changed` を記録するようになり、理由だけあった語が実処理へ移った。
  */
-export const AUDIT_ACTIONS_MIN_EMITTED = 32;
+export const AUDIT_ACTIONS_MIN_EMITTED = 33;
 
 /**
  * テナント分離の検査で、**他社の身元で呼んで `ok` まで到達した道具の下限**。
@@ -2319,6 +2319,17 @@ export const OPEN_DOORS_MIN_IRREVERSIBLE_MARKED = 8;
 // 2026-08-24: feat-blog-ui-builder で機械向け配信 5 本
 // (sitemap.xml / robots.txt / feed.xml / llms.txt / indexnow.txt) を
 // 読者・クローラーの道として追加した。いずれも読み取り専用で、変更操作は無い。
+// 2026-08-26: 読者が自分の「気になる商品」を出し入れする 2 つ
+// (saveToShortlistAction / removeFromShortlistAction) を追加した。
+// **どちらも読者の道である。** 触れるのは、そのブラウザに配った合言葉に
+// 紐づく行だけで、他人の一覧にも運営側のデータにも届かない。
+// 取り返しは付く（外したものは押し直せば戻る）。
+// 2026-08-26: ブログの固定ページ 2 本 (/s/[site]/operator ・ /s/[site]/tokushoho) を
+// 追加した。**どちらも読者と取引先が読む道である。** 運営者情報と特定商取引法に
+// 基づく表記は、読む相手が未ログインであることが前提の表示で、
+// ログインの内側に置くと表示した意味が無くなる。読み取り専用で変更操作は無い。
+// 2026-08-27: dev を取り込んだ。上の 4 本と下の 5 本は別々に足したもので、
+// 重なりは無い。実測に合わせて 31 + 4 + 5 = 40 とする。
 // 2026-08-26: feat-blog-ops-crud で読者の道を 3 本足した。
 // 公開ページ 2 本 (`/s/[site]/blog` の一覧と `/s/[site]/blog/[article]` の記事) は
 // 公開済みの記事しか読まない読み取りの道。残る 1 本は記事に点を付ける
@@ -2337,7 +2348,7 @@ export const OPEN_DOORS_MIN_IRREVERSIBLE_MARKED = 8;
 // `src/app/s/[site]/[fixedPage]/page.tsx` は読み取り専用で、公開済み・未削除かつ
 // canonical語彙に一致する行だけを返し、未知語彙・別tenant・未公開は404へ閉じる。
 // 管理画面や変更操作を公開宣言へ逃がした増加ではないため、実測どおり1件だけ床を更新する。
-export const OPEN_DOORS_MAX_PUBLIC_BY_DECLARATION = 36;
+export const OPEN_DOORS_MAX_PUBLIC_BY_DECLARATION = 40;
 
 /**
  * **画面を 1 枚取り込んで描く検査の待ち時間。**

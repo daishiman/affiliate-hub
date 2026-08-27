@@ -49,6 +49,10 @@ const ADMIN_PARAM_EXAMPLES: Readonly<Record<string, string>> = {
   // どちらも見本に無い id で、2 枚は「見つかりません」を描いたまま緑だった。
   // 見本の側から取れば、id が変わった日に型が合わなくなって気づける。
   article: BLOG_OPS_SAMPLE_ROUTE_IDS.article,
+  // 見本のブランド。`SAMPLE_BRANDS` に必ず 1 件あるものを選ぶ。
+  // 無い番号にすると、走査が「そのブランドがありません」の側だけを見て、
+  // **欄が 1 つも描かれないまま検査が通る**。
+  brand: "br_sample",
   conversion: "cv_2026_08_a",
   node: BLOG_OPS_SAMPLE_ROUTE_IDS.node,
   product: "p_alpha_15",
@@ -87,11 +91,13 @@ const READER: readonly RouteCase[] = [
   { file: "s/[site]/guides/[topic]/page.tsx", params: { site: SITE, topic: "choosing-storage" } },
   { file: "s/[site]/measurement/page.tsx", params: { site: SITE } },
   { file: "s/[site]/methodology/page.tsx", params: { site: SITE } },
+  { file: "s/[site]/operator/page.tsx", params: { site: SITE } },
   { file: "s/[site]/privacy/page.tsx", params: { site: SITE } },
   { file: "s/[site]/reviews/[product]/page.tsx", params: { site: SITE, product: "alpha-studio-15" } },
   { file: "s/[site]/search/page.tsx", params: { site: SITE }, searchParams: { q: "ノートパソコン" } },
   { file: "s/[site]/shortlist/page.tsx", params: { site: SITE } },
   { file: "s/[site]/terms/page.tsx", params: { site: SITE } },
+  { file: "s/[site]/tokushoho/page.tsx", params: { site: SITE } },
   { file: "s/[site]/tools/[tool]/page.tsx", params: { site: SITE, tool: "storage-estimator" } },
 ];
 

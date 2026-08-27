@@ -55,16 +55,26 @@ const ADMIN_ROUTE_DEFINITIONS = {
   "products/compare": child("products", "商品を比べる"),
   "products/new": child("products", "商品を追加"),
   evidence: nav("根拠", "material", "content.read", "evidence"),
+  "evidence/new": child("evidence", "根拠を登録する"),
+  "evidence/claims/new": child("evidence", "言えることを登録する"),
+  "evidence/test-runs/new": child("evidence", "検証記録を登録する"),
   rankings: nav("評価基準と順位", "material", "content.read", "ranking"),
   "rankings/criteria": child("rankings", "評価基準"),
+  "rankings/models": child("rankings", "評価基準を管理する"),
+  "rankings/models/new": child("rankings/models", "評価基準を作る"),
+  "rankings/scores": child("rankings", "点を入れる"),
   content: nav("記事", "write", "content.read", "article"),
   "content/[variant]": child("content", null),
   "content/[variant]/edit": child("content/[variant]", "文章を直す"),
   "content/[variant]/progress": child("content/[variant]", "公開までの進み具合"),
   "content/matrix": child("content", "記事案をまとめて作る"),
+  "content/packages": child("content", "企画"),
+  "content/packages/new": child("content/packages", "企画を立てる"),
   "content/new": child("content", "記事を作る"),
   personas: nav("書き手と読者像", "write", "content.read", "audience"),
+  "personas/new": child("personas", "書き手を作る"),
   "personas/audiences": child("personas", "読者像"),
+  "personas/audiences/new": child("personas/audiences", "読者像を作る"),
   writing: nav("書き方の決めごと", "write", "content.read", "writing"),
   generation: nav("生成の仕組み", "write", "content.read", "generation"),
   "generation/inputs": child("generation", "生成に使う情報"),
@@ -88,6 +98,7 @@ const ADMIN_ROUTE_DEFINITIONS = {
   sites: nav("サイト", "publish", "content.read", "site"),
   "sites/[site]": child("sites", null),
   "sites/[site]/edit": child("sites/[site]", "サイトを直す"),
+  "sites/[site]/documents": child("sites/[site]", "固定ページ"),
   "sites/new": child("sites", "サイトを作る"),
   distribution: nav("配信", "publish", "content.read", "distribution"),
   "distribution/[publication]": child("distribution", null),
@@ -96,11 +107,23 @@ const ADMIN_ROUTE_DEFINITIONS = {
   "distribution/new": child("distribution", "配信を作る"),
   affiliate: nav("提携と成果", "earn", "affiliate.read_revenue", "affiliate"),
   "affiliate/[conversion]": child("affiliate", null),
+  // 登録の 2 口は一覧の下へ置く。提携先が先で、提携条件はその下にぶら下がる。
+  // 並びを逆にすると、まだ提携先が無い人が条件の画面から入ってしまう。
+  "affiliate/accounts/new": child("affiliate", "提携先を登録する"),
+  "affiliate/programs/new": child("affiliate", "提携条件を登録する"),
+  // 登録済みのリンクと、止める操作。**受信箱（inbox）とは別の場所にする。**
+  // 受信箱は「まだ記事に出ていないものを片付ける場所」で、ここは
+  // 「すでに読者に出ているものを見る場所」。混ぜると、出ているリンクが
+  // 片付け待ちの列に埋もれて、表記が古くなっても誰も気付かない。
+  "affiliate/links": child("affiliate", "登録したリンク"),
   inbox: nav("成果リンクの受信箱", "earn", "affiliate.read_revenue", "inbox"),
   analytics: nav("数字", "observe", "analytics.read", "analytics"),
   "ai-usage": nav("AI の利用と費用", "observe", "analytics.read", "aiUsage"),
   improvement: nav("改善の状況", "observe", "analytics.read", "improvement"),
   "improvement/dimensions": child("improvement", "改善の観点"),
+  // 読者から届く問い合わせ。改善要望（画面の右下から届く社内向け）とは別に置く。
+  // 混ぜると、読者へ返事をする必要があるものが、社内の作業一覧に埋もれる。
+  contact: nav("読者からの問い合わせ", "maintain", "feedback.read", "opinion"),
   feedback: nav("使い勝手を直す", "maintain", "feedback.read", "feedback"),
   "feedback/[report]": child("feedback", null),
   tools: nav("AI から使える道具", "maintain", "content.read", "tool"),
@@ -115,6 +138,11 @@ const ADMIN_ROUTE_DEFINITIONS = {
   "settings/roles": child("settings", "役割"),
   "settings/seo": child("settings", "SEO/AI 検索の指針"),
   "settings/workspaces": child("settings", "作業場所"),
+  // 直す画面を見るだけの画面の下へ置く。上限や広告表記を確かめに来ただけの人が、
+  // 契約の区分に触れる位置に立たないため（区分は上限そのもの）。
+  "settings/workspaces/edit": child("settings/workspaces", "設定を直す"),
+  "settings/brands/new": child("settings/workspaces", "ブランドを作る"),
+  "settings/brands/[brand]": child("settings/workspaces", "ブランドを直す"),
 } as const satisfies Record<string, RouteDefinition>;
 
 export type AdminRouteId = keyof typeof ADMIN_ROUTE_DEFINITIONS;

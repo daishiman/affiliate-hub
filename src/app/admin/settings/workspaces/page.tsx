@@ -42,7 +42,13 @@ export default async function WorkspaceSettingsPage() {
       routeId="settings/workspaces"
       title="この作業場所"
       lead="契約・上限・ブランド・広告表記。"
-      actions={<TextLink href="/admin/settings">設定へ戻る</TextLink>}
+      actions={
+        <>
+          <TextLink href="/admin/settings/workspaces/edit">設定を直す</TextLink>
+          <TextLink href="/admin/settings/brands/new">ブランドを作る</TextLink>
+          <TextLink href="/admin/settings">設定へ戻る</TextLink>
+        </>
+      }
     >
       {!overview.ok ? (
         <ErrorView
@@ -53,14 +59,6 @@ export default async function WorkspaceSettingsPage() {
         />
       ) : (
         <>
-          <StubNotice
-            what="作業場所・ブランド・広告表記の保存先"
-            blockedBy="ログインの仕組み（Better Auth と Google ログイン）と、各テーブルの追加"
-            stubId="persistence:settings-sample"
-          >
-            {settingsNotice()}
-          </StubNotice>
-
           {overview.value.blockedReason !== null && (
             <Callout
               tone="warn"
@@ -155,6 +153,11 @@ export default async function WorkspaceSettingsPage() {
                     {b.missing.length > 0 && (
                       <Note>公開の前に必要: {b.missing.join("・")}</Note>
                     )}
+                    {/* 行ごとに入口を置く。一覧の外に「直す」を 1 つだけ置くと、
+                        どれを直すのかを別の欄で選び直すことになる。 */}
+                    <TextLink href={`/admin/settings/brands/${encodeURIComponent(b.brandId)}`}>
+                      このブランドを直す
+                    </TextLink>
                   </SubSection>
                 ))}
               </>
@@ -162,6 +165,16 @@ export default async function WorkspaceSettingsPage() {
           </Section>
 
           <Section title="広告であることの表示">
+            {/* 作業場所とブランドは本物の保存先へ移った。ここだけがまだ見本なので、
+                断りもここだけに置く。画面の頭に出したままにすると、
+                直したブランドが保存されていないように読める。 */}
+            <StubNotice
+              what="広告表記の保存先"
+              blockedBy="disclosures テーブルの追加"
+              stubId="persistence:settings-sample"
+            >
+              {settingsNotice()}
+            </StubNotice>
             {!disclosures.ok ? (
               <ErrorView
                 title="広告表記を出せませんでした"

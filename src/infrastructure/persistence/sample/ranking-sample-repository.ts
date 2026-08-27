@@ -33,10 +33,11 @@ const stub = registerStub({
   id: "persistence:ranking-sample",
   port: "EditorialRankingModelRepositoryPort / EditorialScoreCardRepositoryPort",
   label: "ランキングの保存先（見本データ）",
-  // 表よりも先に入口が要る。順位づけの基準や採点表を作る操作がまだ無く、
-  // どのユースケースからも `save` が呼ばれていない（保存先だけ本物にしても空のまま）。
-  blockedBy:
-    "順位づけの基準と採点表を作る入口（画面と操作）の追加。そのうえで ranking_models / score_cards テーブルの追加とマイグレーション",
+  // 2026-08-26 に解消。入口（/admin/rankings/models/new と
+  // /admin/rankings/scores）を用意したうえで表をつないだ。
+  // この見本は消さない。1 件も作っていない状態で順位の画面が空になると、
+  // 「まだ作っていない」のか「壊れている」のかを画面から見分けられない。
+  blockedBy: "済み（保存先は D1 の ranking_models / score_cards）",
 });
 
 export const SAMPLE_WORKSPACE_ID = taggedString<"WorkspaceId">("ws_sample");
@@ -116,9 +117,13 @@ function buildSampleModel(): RankingModel {
   return built.value;
 }
 
-const SAMPLE_MODEL = buildSampleModel();
+/** 保存先（D1）が見本を消さずに重ねるために読む。 */
+export const SAMPLE_RANKING_MODELS: readonly RankingModel[] = [buildSampleModel()];
 
-const SAMPLE_CARDS: readonly EditorialScoreCard[] = [
+const SAMPLE_MODEL = SAMPLE_RANKING_MODELS[0];
+
+/** 同上。評価方法は 1 つしか無いので、どの見本の点数もその 1 つに属する。 */
+export const SAMPLE_SCORE_CARDS: readonly EditorialScoreCard[] = [
   {
     productId: productId("p_alpha_15"),
     scores: {
@@ -210,7 +215,7 @@ export function createSampleScoreCardRepository(): EditorialScoreCardRepositoryP
     ) {
       if (workspaceId !== SAMPLE_MODEL.workspaceId || modelId !== SAMPLE_MODEL.id) return ok([]);
       const wanted = new Set(productIds);
-      return ok(SAMPLE_CARDS.filter((c) => wanted.has(c.productId)));
+      return ok(SAMPLE_SCORE_CARDS.filter((c) => wanted.has(c.productId)));
     },
     save() {
       return notPersisted<EditorialScoreCard>("商品の評価");

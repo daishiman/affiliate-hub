@@ -454,7 +454,18 @@ const NON_WRITE_VERBS = [
   "observations",
   // 期間の合計を返すだけ。何も書き換えないので記録は要らない。
   "summarize",
+  // 手元の値から鍵や身元を組み立てて返すだけ（`deriveContactRateLimitKey` /
+  // `resolveIdentity`）。**外へ問い合わせても、こちら側は何も書き換えない。**
+  "derive",
+  "resolve",
 ];
+/**
+ * 動詞で始まらないが、読み取りだと分かっている名前。
+ *
+ * `forConnection` は「その接続に合う実装を選んで返す」だけの索引で、
+ * 動詞が無い（`getConnector` にすると、接続そのものを取ってくるように読める）。
+ * 名前を曲げるより、ここへ 1 行足すほうが正直である。
+ */
 
 /**
  * 動詞で始まらない手続き。**頭の一致では拾えないので、名前ごと書く。**
@@ -466,6 +477,8 @@ const NON_WRITE_EXACT = new Set([
   "current",
   "newId",
   "aiUsage",
+  // 接続 1 本ぶんの読み口を返すだけ（`forConnection`）。何も残さない。
+  "forConnection",
   // 公開面の入口を開けて、その場の見え方を返すだけ（`PublicBlogPort.openSite`）。
   //
   // **`open` を頭の一致へ足さない。**足すと `openTicket` のように「開いて残す」
@@ -508,6 +521,18 @@ const WRITE_VERBS = [
   // **返り値の形で読み書きを決めないこと**が、この 2 件の教訓である。
   "claim",
   "release",
+  // 出していたものを引っ込める（`unpublish`）。`publish` で始まらないので
+  // 前方一致では拾えない。**打ち消しの接頭辞は、消し忘れると
+  // 「公開は記録されるが取り下げは記録されない」という片側だけの記録になる。**
+  "unpublish",
+  // 使えなくする（`disable`）。消しはしないが、外から見える振る舞いは
+  // 消したのと同じなので、記録の要求は `remove` と同じ側に置く。
+  "disable",
+  // 印を付ける（`markHandled`）。付けた印で次の人の仕事が変わるので書き込み。
+  "mark",
+  // 読んでから書く 2 手を一手で決着させる（`compareAndSwap`）。
+  // `claim` と同じ理由でここに居る。返り値が真偽でも、返る前に書いている。
+  "compareAndSwap",
   // 伏せる / 伏せを解く（`setRatingHidden`）。
   //
   // **`set` は書き込みである。**「値を渡すだけ」に見えるが、渡した値は残る。

@@ -1,6 +1,6 @@
 import { type DomainError, domainError } from "./errors";
 import { type Result, err, ok } from "./result";
-import type { WorkspaceId } from "./ids";
+import type { BrandId, WorkspaceId } from "./ids";
 
 /**
  * テナント境界 (プラットフォーム層 §26.4)。
@@ -22,6 +22,13 @@ export type ActorContext = {
   readonly workspaceId: WorkspaceId;
   readonly userId: string;
   readonly roles: readonly Role[];
+  /**
+   * この人が扱えるブランド。空配列は workspace 内の全ブランド。
+   *
+   * Membership にだけ残すと、認証が終わった瞬間に範囲が消え、
+   * role は合っている限定担当者が別ブランドまで扱えてしまう。
+   */
+  readonly scopedBrandIds: readonly BrandId[];
   /** AI サービスアカウントかどうか。原則として公開操作を許可しない (§25)。 */
   readonly isAiServiceAccount: boolean;
   /**
@@ -123,6 +130,73 @@ export function assertSameTenant<T extends TenantScoped>(
     );
   }
   return ok(entity);
+}
+
+/** 空配列は workspace 全体、それ以外は列挙したブランドだけを表す。 */
+export function coversBrandScope(
+  scope: Pick<ActorContext, "scopedBrandIds">,
+  brandId: BrandId,
+): boolean {
+  return (
+    scope.scopedBrandIds.length === 0 ||
+    scope.scopedBrandIds.some((candidate) => String(candidate) === String(brandId))
+  );
+}
+
+/**
+ * nullable なブランド文脈を membership の範囲と照合する。
+ * 限定担当者にとって brandId=null は「全体」ではなく「担当を証明できない」ため拒否する。
+ */
+export function assertBrandScope(
+  actor: ActorContext,
+  brandId: BrandId | null,
+  what: string,
+): Result<true, DomainError> {
+  // 古いtool/clientがActorContextへ項目をまだ送らない場合も、実行時例外ではなく
+  // 従来のworkspace全体として扱う。session resolverは常に明示配列を返す。
+  if ((actor.scopedBrandIds?.length ?? 0) === 0) return ok(true);
+  if (brandId !== null && coversBrandScope(actor, brandId)) return ok(true);
+  return err(
+    domainError("TENANT_MISMATCH", `${what} が見つかりません。`, {
+      suggestedAction: "担当ブランドの一覧から選び直してください。",
+    }),
+  );
+}
+
+/**
+ * ブランドとの対応を持たない workspace 共通資源の安全側境界。
+ *
+ * 限定担当者へ「どのブランドのサイトか」を推測で割り当てない。SiteBlueprint など
+ * brandId を持たない資源は、対応列を導入するまでは workspace 全体を扱える人だけが触る。
+ */
+export function assertWorkspaceWideAccess(
+  actor: ActorContext,
+  what: string,
+): Result<true, DomainError> {
+  if ((actor.scopedBrandIds?.length ?? 0) === 0) return ok(true);
+  return err(
+    domainError("TENANT_MISMATCH", `${what} が見つかりません。`, {
+      suggestedAction:
+        "この資源はブランドとの対応を持たないため、ブランド限定のない担当者に依頼してください。",
+    }),
+  );
+}
+
+/**
+ * ブランドを参照する操作の共通境界。
+ *
+ * workspace 所有と membership のブランド範囲を 1 回で照合する。
+ * 範囲外も別 workspace と同じ NOT_FOUND 系の語調にして、IDOR で
+ * 「存在するが担当外」だけを見分けられないようにする。
+ */
+export function assertBrandAccess<T extends TenantScoped & { readonly id: BrandId }>(
+  actor: ActorContext,
+  brand: T,
+): Result<T, DomainError> {
+  const owned = assertSameTenant(actor, brand, "ブランド");
+  if (!owned.ok) return owned;
+  const scoped = assertBrandScope(actor, brand.id, "ブランド");
+  return scoped.ok ? ok(brand) : err(scoped.error);
 }
 
 export function hasRole(actor: ActorContext, ...roles: readonly Role[]): boolean {

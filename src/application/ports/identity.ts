@@ -2,6 +2,22 @@ import type { Brand, Membership, Workspace } from "@/domain/identity";
 import type { BrandId, MembershipId, UserId, WorkspaceId } from "@/domain/shared";
 import type { PageRequest, Paged, PortResult } from "./common";
 
+export type CapacityLeaseKind = "brand" | "site" | "member" | "generation";
+
+/**
+ * 容量を使う処理が走っている間だけ持つ印。
+ *
+ * `limit` は domain の `PLAN_LIMITS` から渡す。保存先に同じ上限値を持たせないことで、
+ * 契約を変えたのに判定だけ古い、という二重正本を作らない。
+ */
+export type AcquireCapacityLeaseInput = {
+  readonly id: string;
+  readonly kind: CapacityLeaseKind;
+  readonly limit: number;
+  readonly now: Date;
+  readonly expiresAt: Date;
+};
+
 export type WorkspaceRepositoryPort = {
   findById(id: WorkspaceId): PortResult<Workspace | null>;
   findByOwner(userId: UserId): PortResult<readonly Workspace[]>;
@@ -10,6 +26,13 @@ export type WorkspaceRepositoryPort = {
   countSites(id: WorkspaceId): PortResult<number>;
   /** 当月の AI 生成回数。上限判定に使う。 */
   countGenerationsThisMonth(id: WorkspaceId, now: Date): PortResult<number>;
+  /** 実件数と実行中 lease を同じ D1 statement で数え、空きがある時だけ取得する。 */
+  acquireCapacityLease(
+    workspaceId: WorkspaceId,
+    input: AcquireCapacityLeaseInput,
+  ): PortResult<boolean>;
+  /** 失敗を含む mutation 終了時に呼ぶ。既に無い lease の解放も成功として扱う。 */
+  releaseCapacityLease(workspaceId: WorkspaceId, id: string, now: Date): PortResult<void>;
 };
 
 export type BrandRepositoryPort = {

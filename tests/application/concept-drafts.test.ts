@@ -20,13 +20,17 @@ import {
 } from "@/application/usecases/content/concept-drafts";
 import type { EditContentDeps } from "@/application/usecases/content/edit-content";
 import type { ContentVariant } from "@/domain/authoring";
-import { type WorkspaceId, ok } from "@/domain/shared";
+import { type BrandId, type WorkspaceId, ok, taggedString } from "@/domain/shared";
 import { SAMPLE_WORKSPACE_ID } from "@/infrastructure/persistence/sample/ranking-sample-repository";
 import { aNobody, anOwner } from "../support/actors";
 import { failing, testDeps } from "../support/doubles";
 
 const WS = SAMPLE_WORKSPACE_ID as WorkspaceId;
 const owner = anOwner({ workspaceId: WS });
+const scopedOwner = anOwner({
+  workspaceId: WS,
+  scopedBrandIds: [taggedString<"BrandId">("brand_sample") as BrandId],
+});
 const nobody = aNobody({ workspaceId: WS });
 
 const PACKAGE = "cp_laptop_2026";
@@ -65,6 +69,15 @@ const THREE: readonly ConceptDraftTarget[] = [
 ];
 
 describe("ブログ別に記事の枠を書き分ける", () => {
+  it("ブランドとの対応が無いブログ先は限定担当者に推測させず拒否する", async () => {
+    const result = await createCreateConceptDraftsUseCase(deps()).execute(scopedOwner, {
+      contentPackageId: PACKAGE,
+      targets: THREE,
+    });
+    expect(result.ok).toBe(false);
+    if (!result.ok) expect(result.error.code).toBe("TENANT_MISMATCH");
+  });
+
   it("その権限が無い人には断る", async () => {
     const result = await createCreateConceptDraftsUseCase(deps()).execute(nobody, {
       contentPackageId: PACKAGE,

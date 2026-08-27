@@ -3,7 +3,7 @@ import fc from "fast-check";
 import { describe, expect, it } from "vitest";
 import { requiredSectionsFor, type ArticleType } from "@/domain/authoring/article-structure";
 import {
-  type GateRequirement,
+  type SitePublishGateRequirement,
   type PublishCandidate,
   type RelationshipType,
   buildVisibleMessage,
@@ -234,7 +234,7 @@ const VALID_CANDIDATE: PublishCandidate = {
 
 /** 項目ごとの「これ 1 つだけを欠いた記事」。1 項目に複数の欠け方がある場合は並べる。 */
 const SINGLE_VIOLATIONS: Readonly<
-  Record<GateRequirement, readonly (readonly [string, Partial<PublishCandidate>])[]>
+  Record<SitePublishGateRequirement, readonly (readonly [string, Partial<PublishCandidate>])[]>
 > = {
   author: [["著者がいない", { authorIds: [] }]],
   disclosure: [
@@ -271,7 +271,11 @@ describe("公開ゲートの 13 項目（どれ 1 つ欠けても公開できな
   });
 
   const rows = Object.entries(SINGLE_VIOLATIONS).flatMap(([requirement, cases]) =>
-    cases.map(([name, patch]) => ({ requirement: requirement as GateRequirement, name, patch })),
+    cases.map(([name, patch]) => ({
+      requirement: requirement as SitePublishGateRequirement,
+      name,
+      patch,
+    })),
   );
 
   it.each(rows)("$requirement: $name だけで公開できなくなる", ({ requirement, patch }) => {

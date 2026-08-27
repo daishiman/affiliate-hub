@@ -1,6 +1,10 @@
 import { AdminShell } from "@/presentation/admin/admin-shell";
 import { type AuthorOption, FactBoundaryCheckForm } from "@/presentation/admin/fact-boundary-form";
-import { currentActor, personaUseCases } from "@/presentation/composition";
+import {
+  currentActor,
+  personaStorageNotice,
+  personaUseCases,
+} from "@/presentation/composition";
 import {
   ActionNote,
   DataTable,
@@ -11,7 +15,7 @@ import {
   Note,
   Prose,
   Section,
-  StubNotice,
+  StorageNotice,
   SubSection,
   TextLink,
 } from "@/presentation/ui";
@@ -36,7 +40,7 @@ export const dynamic = "force-dynamic";
  */
 export default async function PersonasPage() {
   const actor = await currentActor();
-  const authors = await personaUseCases().listAuthors.execute(actor, {});
+  const authors = await (await personaUseCases()).listAuthors.execute(actor, {});
 
   const authorOptions: readonly AuthorOption[] = authors.ok
     ? authors.value.items.map((a) => ({ value: a.personaId, label: a.displayName }))
@@ -47,7 +51,12 @@ export default async function PersonasPage() {
       routeId="personas"
       title="書き手"
       lead="誰の立場で書くかを決めます。"
-      actions={<TextLink href="/admin/content">記事へ戻る</TextLink>}
+      actions={
+        <>
+          <TextLink href="/admin/personas/new">書き手を作る</TextLink>
+          <TextLink href="/admin/content">記事へ戻る</TextLink>
+        </>
+      }
     >
       {!authors.ok ? (
         <ErrorView
@@ -58,13 +67,12 @@ export default async function PersonasPage() {
         />
       ) : (
         <>
-          <StubNotice
-            what="書き手の保存先"
-            blockedBy="author_personas / audience_personas テーブルの追加と D1 への接続"
-            stubId="persistence:content-editorial-sample"
-          >
-            今は見本のデータを読んでいます。この画面から書き手を追加・変更することはまだできません。
-          </StubNotice>
+          {/*
+            条件を画面側に書かない。書いていた頃は、保存先をつないだあとも
+            「まだつながっていません」と出続けた（`stub-notice.tsx` に経緯）。
+            いま何で動いているかを知っているのは composition 側だけにする。
+          */}
+          <StorageNotice status={await personaStorageNotice()} />
 
           <Prose>
             記事の署名になる人が{authors.value.total}

@@ -15,13 +15,14 @@ import {
   type ManageDistributionDeps,
   createCancelPublicationUseCase,
   createExportManualDraftUseCase,
+  createGetContentChannelStatusUseCase,
   createGetPublicationUseCase,
   createListChannelsUseCase,
   createListPublicationsUseCase,
   createUpdatePublicationUseCase,
 } from "@/application/usecases/distribution/manage-distribution";
 import { CHANNEL_CAPABILITIES, type Publication } from "@/domain/distribution";
-import { ok } from "@/domain/shared";
+import { markEditorial, ok } from "@/domain/shared";
 import { OTHER_WORKSPACE, aNobody, anOutsider, anOwner, aWriter } from "../support/actors";
 import { aChannelConnection, aPublication } from "../support/factories";
 import { NOW, daysFrom } from "../support/clock";
@@ -50,9 +51,24 @@ function deps(over: Partial<ManageDistributionDeps> = {}): ManageDistributionDep
   const base = testDeps();
   return {
     connections: base.channelConnections,
+    connectors: {
+      forConnection: (connection) =>
+        ok({
+          kind: connection.kind,
+          resolveIdentity: async () =>
+            ok({ providerIdentity: "did:plc:test", accountLabel: "@test.example" }),
+          checkReadiness: async () => ok(true),
+          prepareDeliveryKey: async () => ok("test-delivery-key"),
+          validate: async () => ok([]),
+          publish: async () =>
+            ok({ externalId: "test", externalUrl: null, publishedAt: new Date() }),
+          unpublish: async () => ok(true),
+        }),
+    },
     publications: base.publications,
     manualExport: base.manualExport,
     variants: base.contentVariants,
+    contentPackages: base.contentPackages,
     ids: base.ids,
     // 見本の記録は書き足しを断る（保存先が無い）ので、溜める版を使う。
     auditLog: recordingAuditLog().port,
@@ -80,6 +96,7 @@ function withPublication(
       ...testDeps().publications,
       findById: async () => ok(publication),
       save: async (p: Publication) => ok(p),
+      compareAndSwap: async (_before: Publication, next: Publication) => ok(next),
       ...over,
     } as ManageDistributionDeps["publications"],
   };
@@ -113,14 +130,13 @@ describe("出し先の一覧", () => {
     }
   });
 
-  it("note は自動投稿できる先として出さない", async () => {
+  it("note は手動書き出しで利用でき、自動投稿対応とは表示しない", async () => {
     const view = await channels();
     const note = view.channels.find((c) => c.kind === "note");
     expect(note?.canDirectPublish).toBe(false);
     expect(note?.publishModeLabel).toBe(PUBLISH_MODE_LABEL.manual_export);
-    // 接続の有無にかかわらず、理由は「仕組みが無い」であって「未接続」ではない。
-    expect(note?.blockedReason).toContain("公開された投稿の仕組みがありません");
-    expect(note?.blockedReason).not.toContain("接続がまだありません");
+    // 接続なしで書き出せるので「いまは配信できません」にはしない。
+    expect(note?.blockedReason).toBeNull();
   });
 
   it("接続が無い先は、出せない理由が「未接続」になる", async () => {
@@ -209,6 +225,231 @@ describe("出し先の一覧", () => {
     expect(got.ok).toBe(false);
     if (got.ok) return;
     expect(got.error.code).toBe("FORBIDDEN");
+  });
+});
+
+describe("ブランド限定担当者の配信境界", () => {
+  const limited = anOwner({ scopedBrandIds: ["brand-allowed" as never] });
+
+  function branded(
+    publications: readonly Publication[],
+    brandByVariant: Readonly<Record<string, string | null>>,
+    over: Partial<ManageDistributionDeps> = {},
+  ): ManageDistributionDeps {
+    const base = testDeps();
+    const packageByVariant = new Map(
+      Object.keys(brandByVariant).map((variantId) => [variantId, `pkg-${variantId}`]),
+    );
+    return deps({
+      publications: {
+        ...base.publications,
+        listRecent: async () => ok(publications),
+        listByVariant: async (_workspaceId, variantId) =>
+          ok(publications.filter((publication) => String(publication.variantId) === String(variantId))),
+        findById: async (_workspaceId, publicationId) =>
+          ok(publications.find((publication) => String(publication.id) === String(publicationId)) ?? null),
+      } as ManageDistributionDeps["publications"],
+      variants: markEditorial({
+        ...base.contentVariants,
+        findById: async (
+          _workspaceId: Parameters<ManageDistributionDeps["variants"]["findById"]>[0],
+          variantId: Parameters<ManageDistributionDeps["variants"]["findById"]>[1],
+        ) => {
+          const packageId = packageByVariant.get(String(variantId));
+          return ok(
+            packageId === undefined
+              ? null
+              : ({
+                  workspaceId: owner.workspaceId,
+                  contentPackageId: packageId,
+                } as never),
+          );
+        },
+      }),
+      contentPackages: markEditorial({
+        ...base.contentPackages,
+        findById: async (
+          _workspaceId: Parameters<ManageDistributionDeps["contentPackages"]["findById"]>[0],
+          packageId: Parameters<ManageDistributionDeps["contentPackages"]["findById"]>[1],
+        ) => {
+          const variantId = String(packageId).replace(/^pkg-/, "");
+          const brandId = brandByVariant[variantId];
+          return ok(
+            brandId == null
+              ? null
+              : ({ workspaceId: owner.workspaceId, brandId } as never),
+          );
+        },
+      }),
+      ...over,
+    });
+  }
+
+  it("一覧は担当ブランドだけを返し、担当外と所有元不明の配信を隠す", async () => {
+    const allowed = aPublication({ id: "pub-allowed" as never, variantId: "cv-allowed" as never });
+    const outside = aPublication({ id: "pub-outside" as never, variantId: "cv-outside" as never });
+    const orphan = aPublication({ id: "pub-orphan" as never, variantId: "cv-orphan" as never });
+    const got = await createListPublicationsUseCase(
+      branded([allowed, outside, orphan], {
+        "cv-allowed": "brand-allowed",
+        "cv-outside": "brand-outside",
+      }),
+    ).execute(limited, {});
+
+    expect(got.ok).toBe(true);
+    if (!got.ok) return;
+    expect(got.value.items.map((item) => item.publicationId)).toEqual(["pub-allowed"]);
+  });
+
+  it("limitより前が担当外で埋まっていても、担当ブランドの次ページ候補を欠落させない", async () => {
+    const outsideA = aPublication({ id: "pub-outside-a" as never, variantId: "cv-outside-a" as never });
+    const outsideB = aPublication({ id: "pub-outside-b" as never, variantId: "cv-outside-b" as never });
+    const allowed = aPublication({ id: "pub-allowed" as never, variantId: "cv-allowed" as never });
+    const rows = [outsideA, outsideB, allowed];
+    const got = await createListPublicationsUseCase(
+      branded(
+        rows,
+        {
+          "cv-outside-a": "brand-outside",
+          "cv-outside-b": "brand-outside",
+          "cv-allowed": "brand-allowed",
+        },
+        {
+          publications: {
+            ...testDeps().publications,
+            listRecent: async (_workspaceId, limit, scope?: unknown) => {
+              const scoped = Array.isArray(
+                (scope as { readonly brandIds?: readonly unknown[] } | undefined)?.brandIds,
+              );
+              return ok((scoped ? [allowed] : rows).slice(0, limit));
+            },
+          } as ManageDistributionDeps["publications"],
+        },
+      ),
+    ).execute(limited, { limit: 2 });
+
+    expect(got.ok).toBe(true);
+    if (!got.ok) return;
+    expect(got.value.items.map((item) => item.publicationId)).toEqual(["pub-allowed"]);
+  });
+
+  it("担当外ブランドの配信は詳細を返さない", async () => {
+    const outside = aPublication({ id: "pub-outside" as never, variantId: "cv-outside" as never });
+    const got = await createGetPublicationUseCase(
+      branded([outside], { "cv-outside": "brand-outside" }),
+    ).execute(limited, { publicationId: "pub-outside" });
+
+    expect(got.ok).toBe(false);
+    if (got.ok) return;
+    expect(got.error.code).toBe("TENANT_MISMATCH");
+    expect(got.error.message).not.toContain("brand-outside");
+  });
+
+  it("担当外ブランドの配信は取りやめ・修正・本文書き出しを行わない", async () => {
+    const outside = aPublication({
+      id: "pub-outside" as never,
+      variantId: "cv-outside" as never,
+      state: "QUEUED",
+      channelKind: "note",
+    });
+    const saved: Publication[] = [];
+    const shared = branded([outside], { "cv-outside": "brand-outside" }, {
+      publications: {
+        ...testDeps().publications,
+        findById: async () => ok(outside),
+        save: async (publication) => {
+          saved.push(publication);
+          return ok(publication);
+        },
+      } as ManageDistributionDeps["publications"],
+    });
+
+    const cancelled = await createCancelPublicationUseCase(shared).execute(limited, {
+      publicationId: "pub-outside",
+    });
+    const updated = await createUpdatePublicationUseCase(shared).execute(limited, {
+      publicationId: "pub-outside",
+      scheduledAt: "2099-03-04T10:30",
+    });
+    const exported = await createExportManualDraftUseCase(shared).execute(limited, {
+      publicationId: "pub-outside",
+    });
+
+    expect(cancelled.ok).toBe(false);
+    expect(updated.ok).toBe(false);
+    expect(exported.ok).toBe(false);
+    expect(saved).toHaveLength(0);
+  });
+
+  it("担当ブランドの配信でも、所有brand不明の共有接続を使う直接配信は修正できない", async () => {
+    const publication = aPublication({
+      id: "pub-allowed" as never,
+      variantId: "cv-allowed" as never,
+      channelKind: "x",
+      connectionId: "conn-brandless" as never,
+      state: "QUEUED",
+    });
+    const saved: Publication[] = [];
+    const got = await createUpdatePublicationUseCase(
+      branded([publication], { "cv-allowed": "brand-allowed" }, {
+        publications: {
+          ...testDeps().publications,
+          findById: async () => ok(publication),
+          save: async (next) => {
+            saved.push(next);
+            return ok(next);
+          },
+        } as ManageDistributionDeps["publications"],
+      }),
+    ).execute(limited, {
+      publicationId: "pub-allowed",
+      scheduledAt: "2099-03-04T10:30",
+    });
+
+    expect(got.ok).toBe(false);
+    if (!got.ok) expect(got.error.code).toBe("TENANT_MISMATCH");
+    expect(saved).toHaveLength(0);
+  });
+
+  it("担当外ブランドの記事IDでは配信状況も返さない", async () => {
+    const outside = aPublication({ id: "pub-outside" as never, variantId: "cv-outside" as never });
+    const got = await createGetContentChannelStatusUseCase(
+      branded([outside], { "cv-outside": "brand-outside" }),
+    ).execute(limited, { variantId: "cv-outside" });
+
+    expect(got.ok).toBe(false);
+  });
+
+  it("限定担当者には接続を読まず、非機密な媒体能力カタログだけを返す", async () => {
+    let repositoryWasRead = false;
+    const got = await createListChannelsUseCase(
+      deps({
+        connections: {
+          ...testDeps().channelConnections,
+          listByWorkspace: async () => {
+            repositoryWasRead = true;
+            return failing("限定担当者には読ませない接続です。");
+          },
+        } as ManageDistributionDeps["connections"],
+      }),
+    ).execute(limited, {});
+
+    expect(got.ok).toBe(true);
+    expect(repositoryWasRead).toBe(false);
+    if (!got.ok) return;
+    expect(got.value.channels.map((channel) => channel.kind).sort()).toEqual(
+      Object.keys(CHANNEL_CAPABILITIES).sort(),
+    );
+
+    const direct = got.value.channels.find((channel) => channel.kind === "x");
+    expect(direct?.connectedAccounts).toEqual([]);
+    expect(direct?.unusableReasons).toEqual([]);
+    expect(direct?.blockedReason).toContain("ブランド限定");
+    expect(direct?.blockedReason).not.toContain("接続がまだありません");
+
+    const manual = got.value.channels.find((channel) => channel.kind === "note");
+    expect(manual?.canDirectPublish).toBe(false);
+    expect(manual?.blockedReason).toBeNull();
   });
 });
 
@@ -409,9 +650,20 @@ describe("取りやめ", () => {
 
   it("保存に失敗したら、取りやめたことにしない", async () => {
     const got = await cancel(aPublication({ state: "QUEUED" }), owner, {
-      save: async () => failing("保存できません。"),
+      compareAndSwap: async () => failing("保存できません。"),
     });
     expect(got.ok).toBe(false);
+  });
+
+  it("workerが先にclaimした版を、古い読み取りで取りやめへ上書きしない", async () => {
+    const got = await cancel(aPublication({ state: "QUEUED" }), owner, {
+      compareAndSwap: async () => ok(null),
+    });
+
+    expect(got.ok).toBe(false);
+    if (got.ok) return;
+    expect(got.error.code).toBe("CONFLICT");
+    expect(got.error.suggestedAction).toContain("読み直");
   });
 
   it("公開の権限が無い人は取りやめられない", async () => {
@@ -469,6 +721,8 @@ describe("手作業での書き出し", () => {
       variants: {
         ...testDeps().contentVariants,
         findById: async () => ok(variant),
+        findVersionedById: async () =>
+          ok(variant === null ? null : { variant, revision: 1, persisted: true }),
       } as ManageDistributionDeps["variants"],
     };
   }
@@ -556,11 +810,32 @@ describe("手作業での書き出し", () => {
     expect(got.error.message).toContain("記事");
   });
 
+  it("予約後に本文が変わったら、未承認の改版を下書きとして渡さない", async () => {
+    const got = await exportDraft(
+      aPublication({ channelKind: "note", variantRevision: 1 }),
+      owner,
+      {
+        variants: {
+          ...testDeps().contentVariants,
+          findVersionedById: async () =>
+            ok({ variant: noteVariant as never, revision: 2, persisted: true }),
+        } as ManageDistributionDeps["variants"],
+      },
+    );
+
+    expect(got.ok).toBe(false);
+    if (got.ok) return;
+    expect(got.error.code).toBe("CONFLICT");
+    expect(got.error.suggestedAction).toContain("承認");
+    expect(got.error.suggestedAction).toContain("予約");
+  });
+
   it("記事が読めないときは、見つからないと言い換えない", async () => {
     const got = await exportDraft(aPublication({ channelKind: "note" }), owner, {
       variants: {
         ...testDeps().contentVariants,
         findById: async () => failing("記事の保存先が読めません。"),
+        findVersionedById: async () => failing("記事の保存先が読めません。"),
       } as ManageDistributionDeps["variants"],
     });
 
@@ -606,6 +881,286 @@ describe("手作業での書き出し", () => {
 });
 
 describe("配信の修正", () => {
+  it("見本の記事を手動配信から外部自動配信へ変更して予約時検査を迂回できない", async () => {
+    const sampleOwner = anOwner({ workspaceId: SAMPLE_WORKSPACE_ID as typeof owner.workspaceId });
+    const publication = aPublication({
+      workspaceId: sampleOwner.workspaceId,
+      variantId: "cv_alpha_approved" as never,
+      variantRevision: 1,
+      state: "QUEUED",
+      channelKind: "note",
+      connectionId: null,
+    });
+
+    const got = await createUpdatePublicationUseCase(
+      deps(withPublication(publication)),
+    ).execute(sampleOwner, {
+      publicationId: String(publication.id),
+      channelKind: "bluesky",
+    });
+
+    expect(got.ok).toBe(false);
+    if (got.ok) return;
+    expect(got.error.code).toBe("CONFLICT");
+    expect(got.error.message).toContain("見本");
+    expect(got.error.suggestedAction).toContain("保存");
+    expect(got.error.suggestedAction).toContain("承認");
+  });
+
+  it("予約後に記事が改版されていれば外部自動配信への変更を断る", async () => {
+    const base = testDeps();
+    const sampleOwner = anOwner({ workspaceId: SAMPLE_WORKSPACE_ID as typeof owner.workspaceId });
+    const current = await base.contentVariants.findVersionedById(
+      sampleOwner.workspaceId,
+      "cv_alpha_approved" as never,
+    );
+    if (!current.ok || current.value === null) throw new Error("承認済み見本がありません。");
+    const currentVariant = current.value.variant;
+
+    const publication = aPublication({
+      workspaceId: sampleOwner.workspaceId,
+      variantId: currentVariant.id,
+      variantRevision: 1,
+      state: "QUEUED",
+      channelKind: "note",
+      connectionId: null,
+    });
+    const got = await createUpdatePublicationUseCase(
+      deps({
+        ...withPublication(publication),
+        variants: markEditorial({
+          ...base.contentVariants,
+          findVersionedById: async () =>
+            ok({ variant: currentVariant, revision: 2, persisted: true }),
+        }),
+      }),
+    ).execute(sampleOwner, {
+      publicationId: String(publication.id),
+      channelKind: "bluesky",
+    });
+
+    expect(got.ok).toBe(false);
+    if (got.ok) return;
+    expect(got.error.code).toBe("CONFLICT");
+    expect(got.error.message).toContain("変更");
+    expect(got.error.suggestedAction).toContain("承認");
+    expect(got.error.suggestedAction).toContain("予約");
+  });
+
+  it.each([
+    ["記事の保存先が読めない", () => failing("記事の保存先が読めません。"), "読めません"],
+    ["記事が消えている", () => ok(null), "見つかりません"],
+  ] as const)(
+    "%sときは、外部自動配信へ変えさせない",
+    async (_label, findVersionedById, expected) => {
+      // ここで通してしまうと、送る中身の無い予約が外部の順番待ちに入り、
+      // 送信時刻になってから初めて失敗する。
+      const base = testDeps();
+      const publication = aPublication({
+        state: "QUEUED",
+        channelKind: "note",
+        connectionId: null,
+      });
+      const got = await createUpdatePublicationUseCase(
+        deps({
+          ...withPublication(publication),
+          variants: markEditorial({
+            ...base.contentVariants,
+            findVersionedById: async () => findVersionedById(),
+          }) as ManageDistributionDeps["variants"],
+        }),
+      ).execute(owner, {
+        publicationId: String(publication.id),
+        channelKind: "bluesky",
+      });
+
+      expect(got.ok).toBe(false);
+      if (got.ok) return;
+      expect(got.error.message).toContain(expected);
+    },
+  );
+
+  it("他の作業場所の記事へ差し替わっていたら、外部自動配信へ変えさせない", async () => {
+    // 配信の側だけ自分のものでも、中身が他所の記事なら外へ出してはいけない。
+    const base = testDeps();
+    const current = await base.contentVariants.findVersionedById(
+      SAMPLE_WORKSPACE_ID,
+      "cv_alpha_approved" as never,
+    );
+    if (!current.ok || current.value === null) throw new Error("承認済み見本がありません。");
+    const currentVariant = current.value.variant;
+
+    const publication = aPublication({
+      state: "QUEUED",
+      channelKind: "note",
+      connectionId: null,
+      variantRevision: 1,
+    });
+    const got = await createUpdatePublicationUseCase(
+      deps({
+        ...withPublication(publication),
+        variants: markEditorial({
+          ...base.contentVariants,
+          findVersionedById: async () =>
+            ok({
+              variant: { ...currentVariant, workspaceId: OTHER_WORKSPACE },
+              revision: 1,
+              persisted: true,
+            }),
+        }) as ManageDistributionDeps["variants"],
+      }),
+    ).execute(owner, {
+      publicationId: String(publication.id),
+      channelKind: "bluesky",
+    });
+
+    expect(got.ok).toBe(false);
+    if (got.ok) return;
+    expect(got.error.code).toBe("TENANT_MISMATCH");
+  });
+
+  it("workerが先にclaimした版を、古い接続情報へ巻き戻さない", async () => {
+    const publication = aPublication({
+      state: "QUEUED",
+      channelKind: "bluesky",
+      connectionId: "conn-old" as never,
+      scheduledAt: new Date("2099-03-04T10:30:00.000Z"),
+    });
+    const got = await createUpdatePublicationUseCase(
+      deps(
+        withPublication(publication, {
+          compareAndSwap: async () => ok(null),
+        }),
+      ),
+    ).execute(owner, {
+      publicationId: String(publication.id),
+      scheduledAt: "2099-03-05T10:30:00.000Z",
+    });
+
+    expect(got.ok).toBe(false);
+    if (got.ok) return;
+    expect(got.error.code).toBe("CONFLICT");
+    expect(got.error.suggestedAction).toContain("読み直");
+  });
+
+  it("配信を直す権限が無い人には、読ませも直させもしない", async () => {
+    const publication = aPublication({ state: "QUEUED" });
+    const got = await createUpdatePublicationUseCase(
+      deps(withPublication(publication)),
+    ).execute(aNobody(), { publicationId: String(publication.id) });
+
+    expect(got.ok).toBe(false);
+    if (got.ok) return;
+    expect(got.error.code).toBe("FORBIDDEN");
+  });
+
+  it("配信の保存先が読めないときは、直せたことにしない", async () => {
+    const got = await createUpdatePublicationUseCase(
+      deps(
+        withPublication(null, {
+          findById: async () => failing("配信の保存先が読めません。"),
+        }),
+      ),
+    ).execute(owner, { publicationId: "pub-unreadable" });
+
+    expect(got.ok).toBe(false);
+    if (got.ok) return;
+    expect(got.error.message).toContain("配信の保存先が読めません");
+  });
+
+  it("他の作業場所の配信は直せない", async () => {
+    const publication = aPublication({ state: "QUEUED", workspaceId: OTHER_WORKSPACE });
+    const got = await createUpdatePublicationUseCase(
+      deps(withPublication(publication)),
+    ).execute(owner, { publicationId: String(publication.id) });
+
+    expect(got.ok).toBe(false);
+    if (got.ok) return;
+    expect(got.error.code).toBe("TENANT_MISMATCH");
+  });
+
+  it("予約時刻を空にすると、予約を外して「いま出す」に戻す", async () => {
+    const publication = aPublication({
+      state: "QUEUED",
+      channelKind: "note",
+      scheduledAt: daysFrom(NOW, 3),
+    });
+    const got = await createUpdatePublicationUseCase(
+      deps(withPublication(publication)),
+    ).execute(owner, { publicationId: String(publication.id), scheduledAt: "   " });
+
+    if (!got.ok) throw got.error;
+    expect(got.value.card.scheduledAt).toBeNull();
+  });
+
+  it.each([
+    ["読み取れない日時", "あしたの夕方", "読み取れ"],
+    ["過ぎた時刻", "2000-01-01T00:00:00.000Z", "過ぎた"],
+  ] as const)(
+    "%sは、直す口から入っても同じように断る",
+    async (_label, scheduledAt, expected) => {
+      // 予約を作る口と直す口で判断が違うと、直す口だけが抜け道になる。
+      const publication = aPublication({ state: "QUEUED", channelKind: "note" });
+      const got = await createUpdatePublicationUseCase(
+        deps(withPublication(publication)),
+      ).execute(owner, { publicationId: String(publication.id), scheduledAt });
+
+      expect(got.ok).toBe(false);
+      if (got.ok) return;
+      expect(got.error.field).toBe("scheduledAt");
+      expect(got.error.message).toContain(expected);
+    },
+  );
+
+  it("自動投稿できない先へ変えたら、前の媒体の接続は持ち越さない", async () => {
+    // X の鍵のまま note へ付け替えると、どちらのアカウントの話かが記録から読めなくなる。
+    const publication = aPublication({
+      state: "QUEUED",
+      channelKind: "x",
+      connectionId: "conn-x-old" as never,
+    });
+    const got = await createUpdatePublicationUseCase(
+      deps(withPublication(publication)),
+    ).execute(owner, { publicationId: String(publication.id), channelKind: "note" });
+
+    if (!got.ok) throw got.error;
+    expect(got.value.card.channelKind).toBe("note");
+    expect(got.value.manualExportNotice).not.toBeNull();
+  });
+
+  it("保存に失敗したら、直せたことにしない", async () => {
+    const publication = aPublication({ state: "QUEUED", channelKind: "note" });
+    const got = await createUpdatePublicationUseCase(
+      deps(
+        withPublication(publication, {
+          compareAndSwap: async () => failing("配信の保存先に繋がりません。"),
+        }),
+      ),
+    ).execute(owner, { publicationId: String(publication.id), scheduledAt: "" });
+
+    expect(got.ok).toBe(false);
+    if (got.ok) return;
+    expect(got.error.message).toContain("配信の保存先に繋がりません");
+  });
+
+  it("記録の追記に失敗しても、設定を保存したことは伝える", async () => {
+    // ここで「失敗しました」とだけ返すと、保存済みの変更を人がもう一度やり直す。
+    const publication = aPublication({ state: "QUEUED", channelKind: "note" });
+    const got = await createUpdatePublicationUseCase(
+      deps({
+        ...withPublication(publication),
+        auditLog: {
+          ...recordingAuditLog().port,
+          append: async () => failing("記録の保存先に繋がりません。"),
+        },
+      }),
+    ).execute(owner, { publicationId: String(publication.id), scheduledAt: "" });
+
+    expect(got.ok).toBe(false);
+    if (got.ok) return;
+    expect(got.error.message).toContain("配信の設定は保存しました");
+  });
+
   it.each(["SENDING", "PUBLISHED", "MANUAL_EXPORT_READY", "CANCELLED"] as const)(
     "%s の配信は直せない",
     async (state) => {

@@ -2184,6 +2184,758 @@
           "why": "消すと「伏せた」と「最初から無かった」が同じ姿になり、判断を後から確かめられない"
         }
       ]
+    },
+    {
+      "route": "/admin/affiliate/accounts/new",
+      "primary_task": "提携先（ASP アカウント）を 1 つ登録する",
+      "task_frequency": "low",
+      "failure_cost": "high",
+      "keep": [
+        {
+          "item": "「パスワードや API キーは入れないでください」の警告",
+          "why": "safety-critical: 鍵を入れる欄が無いこと自体が漏れない担保で、入れられると思わせた時点で担保が崩れる"
+        },
+        {
+          "item": "止めても行は消えないという断り",
+          "why": "消すと過去の成果の出どころがたどれなくなる"
+        },
+        {
+          "item": "アカウントの呼び名",
+          "why": "同じ ASP で 2 つ持っている人が見分けられる唯一の手がかり"
+        }
+      ],
+      "drop": [
+        {
+          "item": "接続情報の入力欄",
+          "why": "鍵そのものを受け取らない。保管先の名前だけを書く",
+          "method": "remove"
+        }
+      ],
+      "transform": [
+        {
+          "item": "空欄を空文字として保存する形",
+          "to": "空欄を未設定 (null) として保存する形",
+          "why": "空文字だと『公開されるIDが登録済み』と読めてしまい、未設定と区別できない"
+        }
+      ],
+      "baseline": {
+        "source": "src/app/admin/affiliate/accounts/new/page.tsx",
+        "lines": 38,
+        "lead_chars": 33,
+        "always_visible_callouts": 1,
+        "cards": 0,
+        "forms": 1
+      }
+    },
+    {
+      "route": "/admin/affiliate/programs/new",
+      "primary_task": "提携条件（広告主と報酬の決め方）を 1 つ登録する",
+      "task_frequency": "low",
+      "failure_cost": "high",
+      "keep": [
+        {
+          "item": "「この報酬額は記事の順位に入りません」の断り",
+          "why": "safety-critical: 収益で順位を動かすと広告表記の前提が崩れる"
+        },
+        {
+          "item": "掲載してよい書き方の条件",
+          "why": "機械では守れているか判定できず、公開前に人が確かめる唯一の控えになる"
+        },
+        {
+          "item": "「未取得」と 0 の区別",
+          "why": "取れていないだけの提携を 0% と書くと、確かめ直す人がいなくなる"
+        }
+      ],
+      "drop": [
+        {
+          "item": "ASP の選択",
+          "why": "選んだ提携先から引く。別々に選ばせると ASP の食い違った行が作れる",
+          "method": "remove"
+        },
+        {
+          "item": "報酬の 4 種類ぶんの欄を同時に出す形",
+          "why": "率も固定額も入った行が作れてしまう",
+          "method": "collapse"
+        }
+      ],
+      "transform": [
+        {
+          "item": "0〜1 の小数で承認率を入れる形",
+          "to": "％で入れる形",
+          "why": "人に 0.65 と書かせると、65 と書いた人の意図が黙って 6500% になる"
+        }
+      ],
+      "baseline": {
+        "source": "src/app/admin/affiliate/programs/new/page.tsx",
+        "lines": 67,
+        "lead_chars": 28,
+        "always_visible_callouts": 1,
+        "cards": 0,
+        "forms": 1
+      }
+    },
+    {
+      "route": "/admin/affiliate/links",
+      "primary_task": "読者に出ているリンクのうち、表記が古くなったものを止める",
+      "task_frequency": "low",
+      "failure_cost": "high",
+      "keep": [
+        {
+          "item": "読者に出ている商品名",
+          "why": "止める判断は ASP 側の名前との見比べで行う。名前が無いと識別子だけで選び、別のリンクを止める"
+        },
+        {
+          "item": "「直すのではなく止めて登録し直す」の断り",
+          "why": "safety-critical: 上書きできると思った人は直す口を探し続け、古い表記が読者に出たままになる"
+        },
+        {
+          "item": "止めた／期限切れ／出ている の 3 つの区別",
+          "why": "まとめて「使えません」にすると、押して止めたのか ASP 側の都合かが読めない"
+        }
+      ],
+      "drop": [
+        {
+          "item": "ASP が発行した URL の全体",
+          "why": "成果の割り当て先が入っており、見せた相手が成果を横取りできる文字列になる",
+          "method": "remove"
+        },
+        {
+          "item": "止め終わったリンクの操作欄",
+          "why": "押しても断られる欄を出す理由が無い。押せる形にすると止まっていないように見える",
+          "method": "remove"
+        }
+      ],
+      "transform": [
+        {
+          "item": "対象の名前を打ち写させる確認",
+          "to": "止める理由を一文書かせる確認",
+          "why": "打ち写しは読まずに写す動作で手しか止まらない。理由は書くために一度考える必要があり、そのまま記録に残る"
+        }
+      ],
+      "baseline": {
+        "source": "src/app/admin/affiliate/links/page.tsx",
+        "lines": 143,
+        "lead_chars": 33,
+        "always_visible_callouts": 1,
+        "cards": 0,
+        "forms": 1
+      }
+    },
+    {
+      "route": "/admin/content/packages",
+      "primary_task": "何のために記事を書くかを決める",
+      "task_frequency": "low",
+      "failure_cost": "high",
+      "keep": [
+        {
+          "item": "立てた企画の一覧（達成したいこと・書き手・読者・切り口）",
+          "why": "記事はここにぶら下がる。選ぶ対象"
+        },
+        {
+          "item": "書き始められない企画とその理由",
+          "why": "生成の直前で断られる前に、止まっている理由をここで見せる"
+        }
+      ],
+      "drop": [
+        {
+          "item": "企画に属する記事の一覧",
+          "why": "記事の画面が持つ。並べると「企画を見る」のか「記事を探す」のか分からなくなる",
+          "method": "remove"
+        }
+      ],
+      "transform": [
+        {
+          "item": "主張・根拠が空であること",
+          "to": "「まだ書き始められません（何が足りないか）」の一言",
+          "why": "欠けている項目名だけ出しても、それが何を止めているのかは伝わらない"
+        }
+      ],
+      "note": "足りないものを出すのは先へ進ませないためではなく、進めない理由を早く見せるため",
+      "baseline": {
+        "source": "src/app/admin/content/packages/page.tsx",
+        "lines": 117,
+        "lead_chars": 20,
+        "always_visible_callouts": 0,
+        "cards": 0,
+        "forms": 0
+      }
+    },
+    {
+      "route": "/admin/content/packages/new",
+      "primary_task": "企画を 1 つ立てる",
+      "task_frequency": "low",
+      "failure_cost": "high",
+      "keep": [
+        {
+          "item": "主題の商品・ブランド・分野の選択",
+          "why": "分野で書いてよい言い方が変わる。ここでしか決められない"
+        },
+        {
+          "item": "書き手と読者像の選択",
+          "why": "1 つの企画から読者ごとに書き分けるための軸"
+        },
+        {
+          "item": "切り口の複数選択",
+          "why": "同じ内容を切り口ごとに書き分けるための軸"
+        }
+      ],
+      "drop": [
+        {
+          "item": "主張と根拠の入力欄",
+          "why": "企画を立てる時点ではまだ調べ終わっていない。必須にすると「とりあえず何か入れる」が起きる",
+          "method": "remove"
+        },
+        {
+          "item": "立てた企画の一覧",
+          "why": "作っている最中に他の企画を見る必要がない",
+          "method": "remove"
+        }
+      ],
+      "transform": [
+        {
+          "item": "分野ごとの表現ルールの説明",
+          "to": "分野を選ばせる欄と、既定値を置かないこと",
+          "why": "読んで避けるより、選ばせないと進めない形にするほうが短い"
+        }
+      ],
+      "note": "分野に既定値を置かない。置くと全企画が「とくに規制の無い分野」になり、薬機法や金融のルールが 1 件も当たらないまま『違反 0 件』で通る",
+      "baseline": {
+        "source": "src/app/admin/content/packages/new/page.tsx",
+        "lines": 106,
+        "lead_chars": 22,
+        "always_visible_callouts": 0,
+        "cards": 0,
+        "forms": 1
+      }
+    },
+    {
+      "route": "/admin/evidence/new",
+      "primary_task": "根拠を 1 つ登録する",
+      "task_frequency": "medium",
+      "failure_cost": "high",
+      "keep": [
+        {
+          "item": "誰の情報かと利用条件の入力",
+          "why": "どちらかが空の資料は、後から下ろすことになったときに巻き込みが読めない"
+        },
+        {
+          "item": "登録した根拠の番号",
+          "why": "次の画面はこの番号で根拠を指す。出さないと一覧へ戻って探し直しになる"
+        }
+      ],
+      "drop": [
+        {
+          "item": "既に登録されている根拠の一覧",
+          "why": "登録の最中に他の資料を見る必要がない。重なりは題名で後から見つかる",
+          "method": "remove"
+        }
+      ],
+      "transform": [
+        {
+          "item": "抜粋の上限の字数を画面に書くこと",
+          "to": "「丸ごと保存はできません」という文だけを書く",
+          "why": "上限の数を写すと、上限を変えた日に画面の案内だけが古くなる"
+        }
+      ],
+      "note": "この画面には読み出しが 1 つも無い。読み出しを足すと、断られた読み出しのために登録そのものが止まる",
+      "baseline": {
+        "source": "src/app/admin/evidence/new/page.tsx",
+        "lines": 43,
+        "lead_chars": 25,
+        "always_visible_callouts": 1,
+        "cards": 0,
+        "forms": 1
+      }
+    },
+    {
+      "route": "/admin/evidence/claims/new",
+      "primary_task": "商品について言えることを 1 つ登録する",
+      "task_frequency": "high",
+      "failure_cost": "high",
+      "keep": [
+        {
+          "item": "根拠の番号の入力",
+          "why": "事実を名乗る種類は根拠なしに登録できない。ここが主張と資料をつなぐ唯一の場所"
+        },
+        {
+          "item": "いつまで言えるかの入力",
+          "why": "値段や在庫は変わる。期限の無い主張は、変わった後も記事に残り続ける"
+        },
+        {
+          "item": "登録直後は記事に使えないという断り",
+          "why": "確かめる工程が省ける道があると読者に届く前の関門が無くなる"
+        }
+      ],
+      "drop": [
+        {
+          "item": "根拠の全文の再掲",
+          "why": "番号で指す。ここへ写すと、資料を直しても写しだけが古いまま残る",
+          "method": "remove"
+        }
+      ],
+      "transform": [
+        {
+          "item": "確かさを 0.0〜1.0 で入れる形",
+          "to": "0〜100% で入れる形",
+          "why": "小数の暗算を人にさせない"
+        }
+      ],
+      "baseline": {
+        "source": "src/app/admin/evidence/claims/new/page.tsx",
+        "lines": 86,
+        "lead_chars": 30,
+        "always_visible_callouts": 1,
+        "cards": 0,
+        "forms": 1
+      }
+    },
+    {
+      "route": "/admin/evidence/test-runs/new",
+      "primary_task": "実際に測った記録を 1 つ登録する",
+      "task_frequency": "low",
+      "failure_cost": "high",
+      "keep": [
+        {
+          "item": "測り方の版の入力",
+          "why": "版を据え置くと、違う方法で出た数字が同じ列に並び、差の理由が後から分けられなくなる"
+        },
+        {
+          "item": "測った人の入力",
+          "why": "誰が測ったか示せない記録は根拠にできない"
+        },
+        {
+          "item": "測ったときの条件と生の値",
+          "why": "条件が無いと次の人が再現できない。生の値が無いと点の付け方を変えるたびに測り直しになる"
+        }
+      ],
+      "drop": [
+        {
+          "item": "過去の検証記録の一覧",
+          "why": "記録するのはいま測った 1 回分。過去は商品のページから辿る",
+          "method": "remove"
+        }
+      ],
+      "transform": [
+        {
+          "item": "条件と生の値を決めうちの欄で聞く形",
+          "to": "「名前: 値」の自由な行",
+          "why": "測る項目は商品の種類ごとに違う。欄に無い条件を書き残せないと再現できない"
+        }
+      ],
+      "baseline": {
+        "source": "src/app/admin/evidence/test-runs/new/page.tsx",
+        "lines": 77,
+        "lead_chars": 21,
+        "always_visible_callouts": 1,
+        "cards": 0,
+        "forms": 1
+      }
+    },
+    {
+      "route": "/admin/contact",
+      "primary_task": "読者から届いた問い合わせを読み、対応の済んだものに印を付ける",
+      "task_frequency": "medium",
+      "failure_cost": "high",
+      "keep": [
+        {
+          "item": "未対応の問い合わせの本文（全文）",
+          "why": "画面の目的。抜粋だけだと結局 1 件ずつ開くことになり、開かれなかったものが残る"
+        },
+        {
+          "item": "返信先が書かれているかどうか",
+          "why": "返せない相手だと分からないまま返事を書き始めるのを防ぐ"
+        },
+        {
+          "item": "メール通知がまだ無いことの注意書き",
+          "why": "届いたことに気づける道がこの画面しか無い。消すと放置が静かに起きる"
+        }
+      ],
+      "drop": [
+        {
+          "item": "対応済みの問い合わせ",
+          "why": "既定では不要。残りが何件かを毎回数え直すことになる",
+          "method": "collapse"
+        }
+      ],
+      "transform": [],
+      "baseline": {
+        "source": "src/app/admin/contact/page.tsx",
+        "lines": 143,
+        "lead_chars": 39,
+        "always_visible_callouts": 1,
+        "cards": 2,
+        "forms": 1
+      }
+    },
+    {
+      "route": "/admin/personas/new",
+      "primary_task": "書き手を 1 人作る",
+      "task_frequency": "low",
+      "failure_cost": "medium",
+      "keep": [
+        {
+          "item": "事実として書いてよい範囲の入力欄",
+          "why": "越えたら公開前に止まる境界を、ここでしか決められない"
+        },
+        {
+          "item": "文体の 6 軸",
+          "why": "生成の指示文へそのまま渡る値"
+        }
+      ],
+      "drop": [
+        {
+          "item": "既存の書き手の一覧",
+          "why": "作っている最中に他の書き手を見る必要がない",
+          "method": "remove"
+        }
+      ],
+      "transform": [
+        {
+          "item": "書き手の種類ごとの決まりごとの説明",
+          "to": "種類を選んだときに欄を出し入れする",
+          "why": "読んでから避けるより、入れられない形にするほうが短い"
+        }
+      ],
+      "note": "架空の人格を選ぶと資格と経験年数の欄が消える。断るのは domain だが、出したまま断ると「入れたのに消された」に見える",
+      "baseline": {
+        "source": "src/app/admin/personas/new/page.tsx",
+        "lines": 33,
+        "lead_chars": 26,
+        "always_visible_callouts": 0,
+        "cards": 0,
+        "forms": 0
+      }
+    },
+    {
+      "route": "/admin/personas/audiences/new",
+      "primary_task": "読者像を 1 つ作る",
+      "task_frequency": "low",
+      "failure_cost": "low",
+      "keep": [
+        {
+          "item": "「何で決めるか」の入力欄",
+          "why": "ここに書いたものがそのまま比較表の列になる"
+        },
+        {
+          "item": "どこまで気づいているかの選択",
+          "why": "記事の入り方が変わる"
+        }
+      ],
+      "drop": [
+        {
+          "item": "書き手の人物像",
+          "why": "決める順番も決める人も違う。混ぜると片方だけ埋めた状態を保存できる",
+          "method": "remove"
+        }
+      ],
+      "transform": [],
+      "baseline": {
+        "source": "src/app/admin/personas/audiences/new/page.tsx",
+        "lines": 30,
+        "lead_chars": 22,
+        "always_visible_callouts": 0,
+        "cards": 0,
+        "forms": 0
+      }
+    },
+    {
+      "route": "/admin/rankings/models",
+      "primary_task": "保存されている評価基準を並べ、次に使う版を選ぶ",
+      "task_frequency": "low",
+      "failure_cost": "medium",
+      "keep": [
+        {
+          "item": "版・読者・有効開始日",
+          "why": "どの測り方がいつから効いているかは、版名だけでは分からない"
+        },
+        {
+          "item": "重みの内訳",
+          "why": "版を選ぶ人が知りたいのは名前ではなく『何を重く見る測り方か』"
+        }
+      ],
+      "drop": [
+        {
+          "item": "順位表の中身",
+          "why": "結果を見に来た人は /admin/rankings へ行く",
+          "method": "remove"
+        },
+        {
+          "item": "測り方の長い説明",
+          "why": "読者向けの説明は /admin/rankings/criteria が持つ",
+          "method": "remove"
+        }
+      ],
+      "transform": [],
+      "note": "版を消す口を置いていない。消せると、その版で出した過去の順位が再現できなくなる",
+      "baseline": {
+        "source": "src/app/admin/rankings/models/page.tsx",
+        "lines": 82,
+        "lead_chars": 20,
+        "always_visible_callouts": 0,
+        "cards": 0,
+        "forms": 0
+      }
+    },
+    {
+      "route": "/admin/rankings/models/new",
+      "primary_task": "評価基準を 1 つ作る",
+      "task_frequency": "low",
+      "failure_cost": "high",
+      "keep": [
+        {
+          "item": "指標ごとの重み（%）",
+          "why": "順位の並びを決めるのはここだけ"
+        },
+        {
+          "item": "重みの合計の即時表示",
+          "why": "送信して初めて合計違いを知らされると 7 項目を打ち直すことになる"
+        },
+        {
+          "item": "測り方と合格ラインの入力",
+          "why": "読者に見せる文であり、他人が同じ手順を踏めることが要る"
+        }
+      ],
+      "drop": [
+        {
+          "item": "報酬額・広告主予算・販売実績の欄",
+          "why": "順位に入れられない。欄を置くこと自体が『入れてよい』の合図になる",
+          "method": "remove"
+        },
+        {
+          "item": "既存の基準の一覧",
+          "why": "作っている最中に他の版を見る必要がない",
+          "method": "remove"
+        }
+      ],
+      "transform": [
+        {
+          "item": "重みを 0.0〜1.0 で入れる形",
+          "to": "0〜100% で入れる形",
+          "why": "合計 1.0 に合わせる暗算を人にさせない"
+        }
+      ],
+      "note": "重み 0% の指標には測り方も合格ラインも聞かない。順位に影響しない項目のための作業を毎回増やさないため",
+      "baseline": {
+        "source": "src/app/admin/rankings/models/new/page.tsx",
+        "lines": 53,
+        "lead_chars": 24,
+        "always_visible_callouts": 1,
+        "cards": 0,
+        "forms": 1
+      }
+    },
+    {
+      "route": "/admin/rankings/scores",
+      "primary_task": "決めた基準で、商品 1 つの点を記録する",
+      "task_frequency": "medium",
+      "failure_cost": "high",
+      "keep": [
+        {
+          "item": "選んだ基準が使う指標だけの点欄",
+          "why": "基準が使わない項目の点は保存時に捨てられる"
+        },
+        {
+          "item": "根拠の入力",
+          "why": "根拠を示せない点は順位に使えない"
+        },
+        {
+          "item": "最後に測った日",
+          "why": "古い測定のまま上位にある商品を読者が見分けられるようにする"
+        }
+      ],
+      "drop": [
+        {
+          "item": "順位表",
+          "why": "並びを見るのは点を入れ終えた後",
+          "method": "remove"
+        },
+        {
+          "item": "許可されている指標の全一覧",
+          "why": "この基準が使わない指標に点を打たせない",
+          "method": "remove"
+        }
+      ],
+      "transform": [
+        {
+          "item": "基準を欄の中で選ばせる形",
+          "to": "画面が基準を決め、欄では変えられない形",
+          "why": "打ち終えてから測り方を聞くと、選び間違えた人が全項目を打ち直す"
+        }
+      ],
+      "note": "空欄と 0 点を区別する。同じ扱いにすると、まだ測っていない商品が最下位として順位に並ぶ",
+      "baseline": {
+        "source": "src/app/admin/rankings/scores/page.tsx",
+        "lines": 109,
+        "lead_chars": 30,
+        "always_visible_callouts": 0,
+        "cards": 0,
+        "forms": 1
+      }
+    },
+    {
+      "route": "/admin/sites/[site]/documents",
+      "primary_task": "運営者情報・各方針・規約・特定商取引法に基づく表記を書き、未記入を無くす",
+      "task_frequency": "low",
+      "failure_cost": "high",
+      "keep": [
+        {
+          "item": "未記入の枚数",
+          "why": "空の固定ページは読者に 404 として出ており、気付けるのはこの画面だけ"
+        },
+        {
+          "item": "読者に出る URL",
+          "why": "書いた文がどこに出るかを、書く前に確かめられる必要がある"
+        },
+        {
+          "item": "1 枚ごとの見出しと本文の欄",
+          "why": "画面の全て"
+        }
+      ],
+      "drop": [
+        {
+          "item": "更新日時の一覧",
+          "why": "いつ直したかより、埋まっているかどうかが先に要る",
+          "method": "remove"
+        }
+      ],
+      "transform": [
+        {
+          "item": "段落の配列",
+          "to": "空行で区切る 1 つの本文欄",
+          "why": "段落ごとに欄を足す操作を書く人に負わせない"
+        }
+      ],
+      "note": "AI から呼べない (HumanOnlyForm)。生成文を入れると、実在しない住所や連絡先が事業者の法的表示として読者に出る",
+      "baseline": {
+        "source": "src/app/admin/sites/[site]/documents/page.tsx",
+        "lines": 76,
+        "lead_chars": 24,
+        "always_visible_callouts": 0,
+        "cards": 0,
+        "forms": 1
+      }
+    },
+    {
+      "route": "/admin/settings/workspaces/edit",
+      "primary_task": "作業場所の名前・契約の区分・時間帯・通貨を直す",
+      "task_frequency": "low",
+      "failure_cost": "high",
+      "keep": [
+        {
+          "item": "契約の区分の選択",
+          "why": "区分はブランド数・ブログ数・生成回数の上限そのもので、ここ以外に上限を動かす場所が無い"
+        },
+        {
+          "item": "区分を下げても既にあるものは消えないという断り",
+          "why": "消える作りだと思われると、上限を確かめたい人が区分に触れなくなる"
+        },
+        {
+          "item": "時間帯の入力",
+          "why": "公開予約と締めの基準。ずれると予約済みの投稿が意図しない時刻に出る"
+        }
+      ],
+      "drop": [
+        {
+          "item": "使用数と上限の表の再掲",
+          "why": "見るだけの画面が出している。直す画面へ写すと、片方だけ古い数字になる",
+          "method": "link"
+        }
+      ],
+      "transform": [
+        {
+          "item": "上限超過を保存時に断る形",
+          "to": "保存した上で何が超えているかを返す形",
+          "why": "料金の欄を触っただけで記事の載っているブログが消えないようにする"
+        }
+      ],
+      "baseline": {
+        "source": "src/app/admin/settings/workspaces/edit/page.tsx",
+        "lines": 57,
+        "lead_chars": 16,
+        "always_visible_callouts": 1,
+        "cards": 0,
+        "forms": 1
+      }
+    },
+    {
+      "route": "/admin/settings/brands/new",
+      "primary_task": "ブランドを 1 つ作る",
+      "task_frequency": "low",
+      "failure_cost": "high",
+      "keep": [
+        {
+          "item": "運営者の表示名と問い合わせ先が空だと公開できないという断り",
+          "why": "読者が訂正を求める先を示せないまま広告を出すことになる"
+        },
+        {
+          "item": "上限に達しているときの警告",
+          "why": "書き終えてから保存で断られると、入れた内容が無駄になる"
+        },
+        {
+          "item": "使わない言い回しの入力",
+          "why": "言い切りすぎる言葉は、訂正が必要になったときに記事を全部直すことになる"
+        }
+      ],
+      "drop": [
+        {
+          "item": "作った後に一覧へ戻す誘導のみの画面",
+          "why": "保存の結果に足りない項目を並べる。戻して探し直させない",
+          "method": "remove"
+        }
+      ],
+      "transform": [
+        {
+          "item": "空欄を空文字として保存する形",
+          "to": "空欄を未設定 (null) として保存する形",
+          "why": "空文字だと公開前の確認が『埋まっている』と読み、問い合わせ先が空のまま公開できてしまう"
+        }
+      ],
+      "baseline": {
+        "source": "src/app/admin/settings/brands/new/page.tsx",
+        "lines": 80,
+        "lead_chars": 27,
+        "always_visible_callouts": 1,
+        "cards": 0,
+        "forms": 1
+      }
+    },
+    {
+      "route": "/admin/settings/brands/[brand]",
+      "primary_task": "ブランドの名前・問い合わせ先・文体を直す",
+      "task_frequency": "low",
+      "failure_cost": "high",
+      "keep": [
+        {
+          "item": "いま選ばれている文体・言葉づかいの表示",
+          "why": "まっさらな選択肢を出すと、名前だけ直したつもりの保存で文体が既定へ戻る"
+        },
+        {
+          "item": "公開できない理由の表示",
+          "why": "どの項目が足りないかが分からないと、直しに来た人が同じ画面を往復する"
+        }
+      ],
+      "drop": [
+        {
+          "item": "未設定という文字の入力欄への表示",
+          "why": "そのまま保存した人の問い合わせ先が『未設定』という文字列になる",
+          "method": "remove"
+        }
+      ],
+      "transform": [
+        {
+          "item": "作る画面と直す画面を別々に作る形",
+          "to": "同じ部品に番号を隠して渡す形",
+          "why": "分けると片方にだけ検査を足した状態が作れる"
+        }
+      ],
+      "baseline": {
+        "source": "src/app/admin/settings/brands/[brand]/page.tsx",
+        "lines": 108,
+        "lead_chars": 24,
+        "always_visible_callouts": 0,
+        "cards": 0,
+        "forms": 1
+      }
     }
   ],
   "current_measurement": {

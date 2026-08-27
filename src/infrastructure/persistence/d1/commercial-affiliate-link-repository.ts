@@ -1,12 +1,17 @@
-import { eq } from "drizzle-orm";
+import { and, eq, sql } from "drizzle-orm";
 import type { PortResult } from "@/application/ports/common";
-import type { CommercialAffiliateLinkRepositoryPort } from "@/application/ports/monetization";
+import type {
+  AffiliateLinkWithSnapshot,
+  CommercialAffiliateLinkRepositoryPort,
+} from "@/application/ports/monetization";
 import { type AffiliateLink, type ProductSnapshot, isLinkUsable } from "@/domain/monetization";
 import {
   type AffiliateLinkId,
   type AffiliateProgramId,
   type ProductId,
   type WorkspaceId,
+  domainError,
+  err,
   markCommercial,
   ok,
   taggedString,
@@ -179,6 +184,128 @@ export function createD1AffiliateLinkRepository(
         return ok(link);
       } catch (cause) {
         return storageFailure("成果リンクの保存", cause);
+      }
+    },
+
+    async createIfNoUsableUrl(link, snapshot, at) {
+      try {
+        const row = toRow(link, snapshot);
+        const createdAt = Math.floor(row.createdAt.getTime() / 1000);
+        const expiresAt = row.expiresAt === null ? null : Math.floor(row.expiresAt.getTime() / 1000);
+        const disabledAt = row.disabledAt === null ? null : Math.floor(row.disabledAt.getTime() / 1000);
+        const cutoff = Math.floor(at.getTime() / 1000);
+        const inserted = await db.run(sql`
+          INSERT INTO affiliate_links (
+            id, workspace_id, program_id, product_id, product_name, brand, one_line,
+            original_url, alteration_prohibited, tracking_ref, created_at, expires_at, disabled_at
+          )
+          SELECT
+            ${row.id}, ${row.workspaceId}, ${row.programId}, ${row.productId},
+            ${row.productName}, ${row.brand}, ${row.oneLine}, ${row.originalUrl},
+            ${row.alterationProhibited ? 1 : 0}, ${row.trackingRef}, ${createdAt},
+            ${expiresAt}, ${disabledAt}
+          WHERE NOT EXISTS (
+            SELECT 1 FROM affiliate_links
+            WHERE workspace_id = ${row.workspaceId}
+              AND original_url = ${row.originalUrl}
+              AND disabled_at IS NULL
+              AND (expires_at IS NULL OR expires_at > ${cutoff})
+          )
+        `);
+        if ((inserted.meta.changes ?? 0) > 0) return ok({ link, created: true });
+        const existing = await db
+          .select()
+          .from(affiliateLinks)
+          .where(and(
+            eq(affiliateLinks.workspaceId, row.workspaceId),
+            eq(affiliateLinks.originalUrl, row.originalUrl),
+          ));
+        const canonical = existing.map(toDomain).find((candidate) => isLinkUsable(candidate, at));
+        if (canonical === undefined) {
+          return err(
+            domainError("CONFLICT", "同じ成果リンクの登録状態が変わりました。", {
+              retryable: true,
+              suggestedAction: "一覧を開き直して、もう一度登録してください。",
+            }),
+          );
+        }
+        return ok({ link: canonical, created: false });
+      } catch (cause) {
+        return storageFailure("成果リンクの重複しない保存", cause);
+      }
+    },
+
+    /**
+     * 登録済みのリンクを、読者に出ている表記ごと並べる。
+     *
+     * **見本は重ねない。** ほかの読み出しは見本を重ねてあるが、この一覧は
+     * 「止める」の押し先になる。見本は行として存在しないので押しても止まらず、
+     * 押せる形で並べた時点で、押した人に嘘をつくことになる。
+     * 1 件も無いことは、この画面では「まだ登録していない」として正しく出る。
+     */
+    async listWithSnapshot(
+      workspaceId: WorkspaceId,
+    ): PortResult<readonly AffiliateLinkWithSnapshot[]> {
+      try {
+        const rows = await db
+          .select()
+          .from(affiliateLinks)
+          .where(eq(affiliateLinks.workspaceId, String(workspaceId)));
+        return ok(
+          rows.map((row) => ({
+            link: toDomain(row),
+            snapshot: {
+              productName: row.productName,
+              brand: row.brand,
+              oneLine: row.oneLine,
+            },
+          })),
+        );
+      } catch (cause) {
+        return storageFailure("成果リンクの一覧取得", cause);
+      }
+    },
+
+    /**
+     * 止める。**行は書き換えず `disabled_at` を立てるだけ。**
+     *
+     * 1 行も動かなかったときに成功を返さない。押した人は止まったと思い、
+     * リンクは記事に出続ける。**黙って何もしないのがいちばん悪い。**
+     * 見本のリンクがここに来るのは、ほかの読み出しが見本を重ねているため。
+     * 見本はコードの中にあるので、行を消しても次の読み出しでまた出てくる。
+     */
+    async disable(
+      workspaceId: WorkspaceId,
+      id: AffiliateLinkId,
+      at: Date,
+    ): PortResult<AffiliateLink> {
+      try {
+        const updated = await db
+          .update(affiliateLinks)
+          .set({ disabledAt: at })
+          .where(
+            and(
+              eq(affiliateLinks.workspaceId, String(workspaceId)),
+              eq(affiliateLinks.id, String(id)),
+            ),
+          )
+          .returning();
+        const row = updated[0];
+        if (row === undefined) {
+          const isSample = sampleAffiliateLinks().some((l) => l.id === id);
+          return err(
+            domainError(
+              "CONFLICT",
+              isSample
+                ? "これは見本として最初から入っているリンクなので止められません。自分で登録したリンクを選び直してください。"
+                : "このリンクが見つかりませんでした。すでに消されているか、別の作業場所のものです。",
+              { field: "affiliateLinkId" },
+            ),
+          );
+        }
+        return ok(toDomain(row));
+      } catch (cause) {
+        return storageFailure("成果リンクを止める", cause);
       }
     },
   });

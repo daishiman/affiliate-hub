@@ -54,6 +54,14 @@ export default async function SiteDetailPage({
           <TextLink href={`/admin/sites/${encodeURIComponent(siteSlug)}/edit`}>
             このブログを直す
           </TextLink>
+          {/*
+            固定ページ（運営者情報・各方針・規約・特商法表記）へ入る口。
+            ここに置かないと、埋まっていない固定ページに気付けるのは
+            フッターのリンクを踏んで 404 を見た読者だけになる。
+          */}
+          <TextLink href={`/admin/sites/${encodeURIComponent(siteSlug)}/documents`}>
+            固定ページ
+          </TextLink>
           <TextLink href="/admin/sites">ブログの一覧へ戻る</TextLink>
         </>
       }

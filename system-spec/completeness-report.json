@@ -483,415 +483,415 @@
   ],
   "gaps": [],
   "inputs": {
-    "sha256": "bca7bb778f9d0b659d43bffbb899c52104b6cfe0234874fd44a7f067718c5dcf",
+    "sha256": "4543fe7429a48f5626fdb823be6f856b7b7ddd20645db64df07b432bc9ceb470",
     "file_count": 81,
     "files": [
       {
         "path": "docs/spec/00-README.md",
         "sha256": "7b7483023b040d4bed7c648c50d7555e53d7ff0aaa0bb1294fc4a4cc22a869de",
-        "mtime": 1787805047
+        "mtime": 1787835673
       },
       {
         "path": "docs/spec/01-要求仕様書-v1.0.md",
         "sha256": "b5fc60987cb79c08c30db4cd94b075a0bf89cd7acba7c8d1ffc8558af6439385",
-        "mtime": 1787658720
+        "mtime": 1787694703
       },
       {
         "path": "docs/spec/02-補充仕様-ギャップと追加要件.md",
         "sha256": "73b3204fcb5c71edf4704817b12af2d36939993ba1194bf04c1f4ceff9c8cd25",
-        "mtime": 1787658720
+        "mtime": 1787694703
       },
       {
         "path": "docs/spec/03-分析・解析基盤仕様.md",
         "sha256": "5d84913a2422b9e697422b0656f90cf90633b0bd75adcebe0c6696e01fc9e45f",
-        "mtime": 1787658720
+        "mtime": 1787694703
       },
       {
         "path": "docs/spec/04-二層構造統合仕様.md",
         "sha256": "d01442b19c1b9e29681719f2768847c39ec0fea34bfdf6438247c814c037f765",
-        "mtime": 1787658720
+        "mtime": 1787694703
       },
       {
         "path": "docs/spec/05-文章作成メソッド仕様.md",
         "sha256": "edcbd22afffe076c76aea32bf4ae744c57db441834ffa1d79ee2e29245502696",
-        "mtime": 1787658720
+        "mtime": 1787694703
       },
       {
         "path": "docs/spec/06-サイトブループリント-記事構成テンプレート.md",
         "sha256": "4758db202f1a48d1062ef871d94f609d058506486191d0f309be5540db43ce5f",
-        "mtime": 1787661985
+        "mtime": 1787835673
       },
       {
         "path": "docs/spec/07-生成基盤設計.md",
         "sha256": "d155d9183ef16be0cda994d490bcf3fb359d0758f9415e61f950f3b4e43e0a3e",
-        "mtime": 1787658720
+        "mtime": 1787694703
       },
       {
         "path": "docs/spec/08-仕様の未修正点.md",
         "sha256": "b79d5715a63404442a0b3eab05299988c24f7f1eb544dca79fd81a61e3e56665",
-        "mtime": 1787658720
+        "mtime": 1787694703
       },
       {
         "path": "docs/spec/09-UIテーマ仕様.md",
         "sha256": "9bfeb611748edaf08e865fe740637e37e025af153c3a2bc0a5cffabb1dc6c6f1",
-        "mtime": 1787658720
+        "mtime": 1787694703
       },
       {
         "path": "docs/spec/10-テスト戦略仕様.md",
         "sha256": "c1ca47a0525aea84ef244d2e8b265e353c4df55288c0f27c2bb75a9e492ff3d5",
-        "mtime": 1787658962
+        "mtime": 1787694803
       },
       {
         "path": "docs/spec/11-CI-CD・品質ゲート仕様.md",
         "sha256": "12a79297845e8e801a6a1b27f5762d44cfac160f2d1a749e0768d268dbde2a1f",
-        "mtime": 1787658962
+        "mtime": 1787694803
       },
       {
         "path": "docs/spec/12-改善要望フィードバック仕様.md",
         "sha256": "f814f1a62e30eebb4512ba0c7964bfdb6986c4007af406aab7d8d7e58e17a856",
-        "mtime": 1787658720
+        "mtime": 1787694703
       },
       {
         "path": "docs/spec/13-参考サイト全体構成解析-抽象ブループリント.md",
         "sha256": "b84be536c32930d670ea9d23073a90707e931ee933f2593d9b00cea4645b5c3f",
-        "mtime": 1787661215
+        "mtime": 1787835673
       },
       {
         "path": "docs/spec/ai-first-webmcp.md",
         "sha256": "35241bfe4e82f6536d871c179eb938681ec771991fa50a59c72d5d97d3c98713",
-        "mtime": 1787658720
+        "mtime": 1787694703
       },
       {
         "path": "docs/spec/completion-criteria.md",
         "sha256": "07cb3de0ca834a6776d6e08dfd11a3d6bd1b848d962d1f582d9e41f0705a8943",
-        "mtime": 1787658720
+        "mtime": 1787694703
       },
       {
         "path": "docs/spec/data-model-gap.md",
         "sha256": "97861d9844e975922b73715c49d5ea7f4a8db53e83fbbbf0e73a54a32fb6754c",
-        "mtime": 1787658720
+        "mtime": 1787694703
       },
       {
         "path": "docs/spec/dialogue-confirmations.md",
         "sha256": "1312a2372403173dc8b57112ae0178d713c93a05471124e201e084bf0da8daa1",
-        "mtime": 1787658720
+        "mtime": 1787694703
       },
       {
         "path": "docs/spec/feat-auth-workspace/acceptance-report.md",
         "sha256": "df48a656a22f3da687a80545c849985241e09c53cc4066455637d93022e43fcc",
-        "mtime": 1787790254
+        "mtime": 1787694803
       },
       {
         "path": "docs/spec/feat-auth-workspace/architecture-design.md",
         "sha256": "f5ea3a5c23e1aa944922f0866fa91d383211995dfb3a3992c8918ffc73a10b8b",
-        "mtime": 1787790254
+        "mtime": 1787694803
       },
       {
         "path": "docs/spec/feat-auth-workspace/design-review-log.md",
         "sha256": "f4a33bdb58cf23589f324d32a0b8cc6fcb33c1fa8639a41805af6ae4e94bf5a0",
-        "mtime": 1787790254
+        "mtime": 1787694803
       },
       {
         "path": "docs/spec/feat-auth-workspace/final-review-log.md",
         "sha256": "66c0c83d336146aa1862149b2646a4883b58274bcef2fea2432c3e1a892388fd",
-        "mtime": 1787790254
+        "mtime": 1787694803
       },
       {
         "path": "docs/spec/feat-auth-workspace/handover.md",
         "sha256": "8a53779b8c420c29df0220d9afaafed4f4d1d0d211ad2dec792b572179a35f1b",
-        "mtime": 1787790254
+        "mtime": 1787694803
       },
       {
         "path": "docs/spec/feat-auth-workspace/migration-decision.md",
         "sha256": "d7d23e8d9d4e0feeefe9ec35356794b880d9fcd5d11c57b04954d162cc9cdbb6",
-        "mtime": 1787790254
+        "mtime": 1787694803
       },
       {
         "path": "docs/spec/feat-auth-workspace/quality-security-report.md",
         "sha256": "af15310a800eeb13c75abece152cbffd03a98ab4b620cd8ae175c6bf893cb597",
-        "mtime": 1787790254
+        "mtime": 1787694803
       },
       {
         "path": "docs/spec/feat-auth-workspace/release-notes.md",
         "sha256": "fc62c2a8b0dde07ed6280cf5c095d106a6457acb05aa904c479b0c68a104ae18",
-        "mtime": 1787790254
+        "mtime": 1787694803
       },
       {
         "path": "docs/spec/feat-auth-workspace/requirements-baseline.md",
         "sha256": "52887b55503f3046ca632c658ac85ba9504a2d1fbf49cf90657aa8bc46f2d1e0",
-        "mtime": 1787790254
+        "mtime": 1787694803
       },
       {
         "path": "docs/spec/feat-auth-workspace/runbook.md",
         "sha256": "7ffded97ab1fda314985f4a379a6f8998c35e4ff4539c7896ad2a4aad4f48d79",
-        "mtime": 1787790254
+        "mtime": 1787694803
       },
       {
         "path": "docs/spec/feat-auth-workspace/test-design.md",
         "sha256": "020dc16b26abafbd8173da335fb1314a51eaf3bf4f96981b308219fdeb9a65f2",
-        "mtime": 1787790254
+        "mtime": 1787694803
       },
       {
         "path": "docs/spec/feat-blog-ops-crud/acceptance-report.md",
         "sha256": "f2156a150619842c8018428cfb80680d9c94146a9282591a90a13afbf52e108d",
-        "mtime": 1787790533
+        "mtime": 1787835673
       },
       {
         "path": "docs/spec/feat-blog-ops-crud/api-contract.md",
         "sha256": "2464a8e475b942028cd3fffbd1babc8ae0dd00ea854eec96cb71742868ef4543",
-        "mtime": 1787782242
+        "mtime": 1787835673
       },
       {
         "path": "docs/spec/feat-blog-ops-crud/component-contract.md",
         "sha256": "e066ba6d540f886119dd1c1bdc277f1ca0a7c3c8753d3a22b464420128c40b99",
-        "mtime": 1787782157
+        "mtime": 1787835673
       },
       {
         "path": "docs/spec/feat-blog-ops-crud/data-model.md",
         "sha256": "39409a6c2edb939e017f669150949721c82c0f267c6bdb08f8297e5cd2259a82",
-        "mtime": 1787790533
+        "mtime": 1787835673
       },
       {
         "path": "docs/spec/feat-blog-ops-crud/design-review.md",
         "sha256": "c2410773b91312ccfd4f70ef0880dbbb12b861bf92d28d7333a3a9974dff2b87",
-        "mtime": 1787690586
+        "mtime": 1787835673
       },
       {
         "path": "docs/spec/feat-blog-ops-crud/evidence/index.md",
         "sha256": "48666e93be0778578c9654a32707f95db24e84bf60e565790c0fffacf7abde53",
-        "mtime": 1787756927
+        "mtime": 1787835673
       },
       {
         "path": "docs/spec/feat-blog-ops-crud/final-review.md",
         "sha256": "db20d1f7777f283b85a8dc61ad6d22fc8ad4c45523b95454fdb705f29a5d0dff",
-        "mtime": 1787758872
+        "mtime": 1787835673
       },
       {
         "path": "docs/spec/feat-blog-ops-crud/migration-plan.md",
         "sha256": "438c0084569901f6f8b1ed9edd1386db6e310981621bc01ae3ffe275afbf5afd",
-        "mtime": 1787790533
+        "mtime": 1787835673
       },
       {
         "path": "docs/spec/feat-blog-ops-crud/migration-report.md",
         "sha256": "2eaa9b7bdaa1252299c3aa32bee0ca2293e1f274bf6ca36c371ca5bd28939bd3",
-        "mtime": 1787790533
+        "mtime": 1787835673
       },
       {
         "path": "docs/spec/feat-blog-ops-crud/operations.md",
         "sha256": "f124dfc241f914c2d63a8d259e46ba6468d4e7eb0e8d012ebb02522cafc1476e",
-        "mtime": 1787782184
+        "mtime": 1787835673
       },
       {
         "path": "docs/spec/feat-blog-ops-crud/qa-report.md",
         "sha256": "b024d1fce572d76f75df8d1ce5220f5df940b7f282856616fb3875ea5ebb6858",
-        "mtime": 1787756927
+        "mtime": 1787835673
       },
       {
         "path": "docs/spec/feat-blog-ops-crud/release-report.md",
         "sha256": "0e15ed5ea752e0663b47ce30ff2a9e9723ca8893e7e5196cba6a7de2e3f6fcc0",
-        "mtime": 1787808903
+        "mtime": 1787835673
       },
       {
         "path": "docs/spec/feat-blog-ops-crud/requirements-baseline.md",
         "sha256": "561de7f744cd47d2714e15afc8b139399c5cff9290c8ffa619b41f80b0b34263",
-        "mtime": 1787779799
+        "mtime": 1787835673
       },
       {
         "path": "docs/spec/feat-blog-ops-crud/screen-inventory.md",
         "sha256": "5a6b1c728a33f1f46b951745ae93c1fae20b882b4a1b9137308dd14458d02cea",
-        "mtime": 1787782539
+        "mtime": 1787835673
       },
       {
         "path": "docs/spec/feat-blog-ops-crud/test-design.md",
         "sha256": "fa4bc74444631c0a31bcf51079828ff777a800f2005e1270cf2b4ed35f41fc91",
-        "mtime": 1787788837
+        "mtime": 1787835673
       },
       {
         "path": "docs/spec/feat-blog-ops-crud/test-run-report.md",
         "sha256": "60af15e4bc098da84041ef8f31f07430c52a48df00a371fdfcde7dff242bc305",
-        "mtime": 1787706742
+        "mtime": 1787835673
       },
       {
         "path": "docs/spec/feat-blog-ui-builder/final-review.md",
         "sha256": "39c2b7139bf6db0090238ccd53085a716b2159e94c34be373c0ceadeef9422ee",
-        "mtime": 1787658962
+        "mtime": 1787694803
       },
       {
         "path": "docs/spec/feat-blog-ui-builder/operations.md",
         "sha256": "e2d13aa6e106d1fc722a69d5cba181a855ac6d468aa138c32c690c7c5c295974",
-        "mtime": 1787658962
+        "mtime": 1787694803
       },
       {
         "path": "docs/spec/feat-blog-ui-builder/release-report.md",
         "sha256": "fddacdf296ff6b3077c958a34563314a925de820fda17e488ba97edc1cfac3a9",
-        "mtime": 1787658962
+        "mtime": 1787694803
       },
       {
         "path": "docs/spec/feat-blog-ui-builder/seo-ai-search-implementation.md",
         "sha256": "50fe812c1602072e92f34d0135bc79a97af7cca6b4ea5817d3477d9a9e62fcb8",
-        "mtime": 1787658962
+        "mtime": 1787694803
       },
       {
         "path": "docs/spec/feat-blog-ui-builder/spec-writeback-receipt.md",
         "sha256": "0eeee78ec7a7cf517edcb66e5c6e71eea741c231c1007ff8a5833af10050ca7e",
-        "mtime": 1787658962
+        "mtime": 1787694803
       },
       {
         "path": "docs/spec/feat-blog-ui-builder/ui-rules.md",
         "sha256": "ef4190022c1545a6be64202dccc8537c2d56c3225c3f6a2c36fd6d1689f98cb5",
-        "mtime": 1787658962
+        "mtime": 1787694803
       },
       {
         "path": "docs/spec/feat-uiux-overhaul/acceptance-report.md",
-        "sha256": "d2c53f7ece12dda4a429e206018b93804f74a987d8bfb20c881b30b882ac5916",
-        "mtime": 1787804397
+        "sha256": "500417a21d80867124f54d88e3b0657f1204d495e95364d19e9bdc309e531547",
+        "mtime": 1787839874
       },
       {
         "path": "docs/spec/feat-uiux-overhaul/admin-api-contract.md",
         "sha256": "335d57d9a267c6d80f8ca6000e0f3513cfabe9364e72a222f35671e1490d5d11",
-        "mtime": 1787658962
+        "mtime": 1787694803
       },
       {
         "path": "docs/spec/feat-uiux-overhaul/blog-scaffold-contract.md",
         "sha256": "b1ebe26d43cbcefeb152ade3cf9c31781cab832a6aaff24b87971c97483d38da",
-        "mtime": 1787658962
+        "mtime": 1787694803
       },
       {
         "path": "docs/spec/feat-uiux-overhaul/component-contract.md",
         "sha256": "2926e4a4db7f77c4a2b247a520b839dfc2011025a5376df9180efe07dc2b02cb",
-        "mtime": 1787658962
+        "mtime": 1787694803
       },
       {
         "path": "docs/spec/feat-uiux-overhaul/design-review.md",
         "sha256": "e073aedc4734bfb763d429c4c116b0a6f1222ee3381ca9c20546a06b40d74bf6",
-        "mtime": 1787658962
+        "mtime": 1787694803
       },
       {
         "path": "docs/spec/feat-uiux-overhaul/evidence/README.md",
         "sha256": "14a86e2d542cf7f00d944f2f562924c4f15999a89c306b0a7293b85ede70364f",
-        "mtime": 1787658962
+        "mtime": 1787694803
       },
       {
         "path": "docs/spec/feat-uiux-overhaul/final-review.md",
-        "sha256": "ab7032da468c99557289bb1c4e6758620f4e489f37e8d8eacec5844390fb3a4e",
-        "mtime": 1787804397
+        "sha256": "aaf676c78f50a374b88fea4eb7ac30205f898fac13f21ac3d6f6f35262e7a4d3",
+        "mtime": 1787839874
       },
       {
         "path": "docs/spec/feat-uiux-overhaul/migration-report.md",
         "sha256": "3f3a69d30391831bdc11b70ee5fd0944952c32633b1c091a4a4f83f0372d7599",
-        "mtime": 1787658962
+        "mtime": 1787694803
       },
       {
         "path": "docs/spec/feat-uiux-overhaul/operations.md",
         "sha256": "a26d05b65d58040ff18bc515231d74671f4e99f654f6891b06deaf27bc0d4126",
-        "mtime": 1787658962
+        "mtime": 1787694803
       },
       {
         "path": "docs/spec/feat-uiux-overhaul/quality-report.md",
         "sha256": "4845a67556097d01c6ddd5184ec653a36eefef8e91c82cda19a8d2736236c1b6",
-        "mtime": 1787658962
+        "mtime": 1787694803
       },
       {
         "path": "docs/spec/feat-uiux-overhaul/release-report.md",
-        "sha256": "a857dde28d1b53a43297cee3865744359bc32ffe599ec7a462e54e2688b3419b",
-        "mtime": 1787804397
+        "sha256": "a0cd5f9e8c7d564c65ddb399d64f08110593fdd6bef75b5bf7baaf9bb3524628",
+        "mtime": 1787839874
       },
       {
         "path": "docs/spec/feat-uiux-overhaul/requirements-baseline.md",
         "sha256": "e06d162c96e99970bf82a5c7530fa36515d1ceb2264b7005aad8e7169c48d895",
-        "mtime": 1787658962
+        "mtime": 1787694803
       },
       {
         "path": "docs/spec/feat-uiux-overhaul/screen-architecture.md",
         "sha256": "471fccee0e61c5bd1d1ae5cda56093cf1f18217ce71a4d5971f6940673c8a61b",
-        "mtime": 1787790254
+        "mtime": 1787694803
       },
       {
         "path": "docs/spec/feat-uiux-overhaul/screen-inventory.md",
         "sha256": "9adb840149a760eda0915cc537e219b2e8768f6963d349ac198fb0b7ab77d50e",
-        "mtime": 1787658962
+        "mtime": 1787694803
       },
       {
         "path": "docs/spec/feat-uiux-overhaul/sns-provider-contract.md",
         "sha256": "38bafcc8fb04b7fcdbabf15d22a8be550905d4c53c7a408cf7c9f377874ed5de",
-        "mtime": 1787658962
+        "mtime": 1787694803
       },
       {
         "path": "docs/spec/feat-uiux-overhaul/spec-writeback-receipt.md",
         "sha256": "82ac6891e55704f1b78a87dc3a1f31da12a888233141088bc3cd5d09bd0e2c6f",
-        "mtime": 1787658962
+        "mtime": 1787694803
       },
       {
         "path": "docs/spec/feat-uiux-overhaul/test-design.md",
         "sha256": "0218f0e65a9cf2efde9fb29821131a74dd80b4a1d5537766e7c6fc9399920abb",
-        "mtime": 1787658962
+        "mtime": 1787694803
       },
       {
         "path": "docs/spec/feat-uiux-overhaul/test-run-report.md",
         "sha256": "7c807e720628a7afef2204e97a039122bda8fa70eb74a1e4bb6a569d2289ae91",
-        "mtime": 1787658962
+        "mtime": 1787694803
       },
       {
         "path": "docs/spec/feat-uiux-overhaul/ui-rules.md",
         "sha256": "66ea836c06f39c9d71cd7f4d30706ce9d1a16a1defa3edb291ab8e01f27ce746",
-        "mtime": 1787658962
+        "mtime": 1787694803
       },
       {
         "path": "system-spec/00-requirements-definition.md",
         "sha256": "af460e02930459d08ad7ac2414875f4d5ab4fdc2489ce7cafe51c99263467058",
-        "mtime": 1787790254
+        "mtime": 1787694803
       },
       {
         "path": "system-spec/auth.md",
         "sha256": "97db352fad14d48fb48787d83fa3ed4bbdde2ae80b09eb4f32b71fb3bd4870a7",
-        "mtime": 1787790254
+        "mtime": 1787694803
       },
       {
         "path": "system-spec/backend.md",
         "sha256": "0029f838bb339c2c0523d51077436b4a45b4678814d3fca72c7f686c13643d07",
-        "mtime": 1787790974
+        "mtime": 1787694803
       },
       {
         "path": "system-spec/database.md",
         "sha256": "e11ddc574d682569ea0ccbde36804e99417f94c5e10ba85cae5c0fcc263ccfa7",
-        "mtime": 1787790974
+        "mtime": 1787694803
       },
       {
         "path": "system-spec/frontend.md",
         "sha256": "e6d0a385ee3324dba5668b7230abf9add5365d63a2a0a95295caf0a0dc86f152",
-        "mtime": 1787790974
+        "mtime": 1787694803
       },
       {
         "path": "system-spec/index.md",
         "sha256": "d3be7225ce351be5424414a85e715da82fb0e398f6bae1eb7de14a9d08498726",
-        "mtime": 1787790254
+        "mtime": 1787694803
       },
       {
         "path": "system-spec/infrastructure.md",
         "sha256": "8098857b50846b43b054379f6b58836187373a75da86336c1745fd4d65ff14fb",
-        "mtime": 1787790254
+        "mtime": 1787694803
       },
       {
         "path": "system-spec/maintenance-ops.md",
         "sha256": "f3ae1348368474959d456b7931c0d37a58b587b39356e21abcb19f03c5f8b8fa",
-        "mtime": 1787790254
+        "mtime": 1787694803
       },
       {
         "path": "system-spec/security.md",
         "sha256": "4e55a023c1bfb2cd43cd2d5e2c87e3f456a059b2ac1214a0d4938506aa68b889",
-        "mtime": 1787790254
+        "mtime": 1787694803
       },
       {
         "path": "system-spec/spec-state.json",
         "sha256": "3ebf070ee375222662b1e86906eae824fff8621caf4c6258c963b79a65b211e8",
-        "mtime": 1787790974
+        "mtime": 1787694803
       },
       {
         "path": "system-spec/ui-ux.md",
         "sha256": "27d9540866be6d02a4905e4866b4351d629bf6fe61bb41d144c242a3e2181e80",
-        "mtime": 1787790974
+        "mtime": 1787694803
       }
     ],
-    "pinned_at": "2026-08-27T05:35:13.942Z"
+    "pinned_at": "2026-08-27T14:11:29.879Z"
   }
 }

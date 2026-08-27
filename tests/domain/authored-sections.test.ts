@@ -1,4 +1,4 @@
-/** @tier 1 */
+/** @tier 1 @req REQ-P08 */
 import { describe, expect, it } from "vitest";
 import {
   ARTICLE_TYPES,

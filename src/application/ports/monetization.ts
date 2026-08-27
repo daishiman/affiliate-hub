@@ -81,6 +81,44 @@ export type AffiliateLinkRepositoryPort = {
    * ようにするため。写しの正本は登録の操作をした人であり、保存先ではない。
    */
   save(link: AffiliateLink, snapshot: ProductSnapshot): PortResult<AffiliateLink>;
+  /**
+   * 同じworkspace・URLに使える行が無い場合だけ、一つのDB statementで作る。
+   * 並行要求で先に作られた場合は、その正本とcreated=falseを返す。
+   */
+  createIfNoUsableUrl(
+    link: AffiliateLink,
+    snapshot: ProductSnapshot,
+    at: Date,
+  ): PortResult<{ readonly link: AffiliateLink; readonly created: boolean }>;
+  /**
+   * 登録済みの成果リンクを、**読者に出ている表記ごと**並べる。
+   *
+   * `AffiliateLink` は商品名を持たない（持たせると順位づけ側から名前が見える）。
+   * だが「表記が古くなったリンクを止める」ためには、運営する人が
+   * **いま読者に出ている名前**を見比べられなければならない。名前無しの一覧は、
+   * ID の羅列を見ながら ASP の管理画面と突き合わせる作業になる。
+   *
+   * `save` が写しを別引数で受け取るのと同じ形にしてある。写しは
+   * リンクの属性ではなく、リンクに添えて出し入れするものである。
+   */
+  listWithSnapshot(workspaceId: WorkspaceId): PortResult<readonly AffiliateLinkWithSnapshot[]>;
+  /**
+   * 成果リンクを止める。**行は書き換えず `disabled_at` を立てるだけ。**
+   *
+   * 表記を直す道は「止めてから新しい ID で登録し直す」の 2 手
+   * （`docs/product/design-decisions.md` §2）。上書きの口をここに作ると、
+   * 読者が実際に見た表記が、その日から誰にも分からなくなる。
+   *
+   * 見つからないもの・見本のものは失敗を返すこと。**黙って何もしないのは禁止。**
+   * 押した人は止まったと思い、リンクは記事に出続ける。
+   */
+  disable(workspaceId: WorkspaceId, id: AffiliateLinkId, at: Date): PortResult<AffiliateLink>;
+};
+
+/** 成果リンクと、それに添えて保存してある読者向けの写し。 */
+export type AffiliateLinkWithSnapshot = {
+  readonly link: AffiliateLink;
+  readonly snapshot: ProductSnapshot;
 };
 
 export type ConversionRepositoryPort = {

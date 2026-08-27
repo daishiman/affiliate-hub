@@ -15,6 +15,7 @@ import {
   type DomainError,
   type Result,
   containsCommercial,
+  assertWorkspaceWideAccess,
   domainError,
   err,
   ok,
@@ -154,6 +155,8 @@ export function createListManagedSitesUseCase(
   guardEditorial(deps);
   return {
     async execute(actor: ActorContext): Promise<Result<ListManagedSitesOutput, DomainError>> {
+      const scoped = assertWorkspaceWideAccess(actor, "ブログ");
+      if (!scoped.ok) return scoped;
       const listed = await deps.sites.list();
       if (!listed.ok) return listed;
       const items = ownedBy(actor, listed.value).map((s) => summarize(s.slug, s.blueprint));
@@ -186,6 +189,8 @@ export function createGetManagedSiteUseCase(
       actor: ActorContext,
       input: GetManagedSiteInput,
     ): Promise<Result<GetManagedSiteOutput, DomainError>> {
+      const scoped = assertWorkspaceWideAccess(actor, "ブログ");
+      if (!scoped.ok) return scoped;
       const found = await deps.sites.findBySlug(input.siteSlug);
       if (!found.ok) return found;
       const blueprint = found.value;
@@ -240,6 +245,8 @@ export function createCheckSiteDifferentiationUseCase(
   guardEditorial(deps);
   return {
     async execute(actor: ActorContext): Promise<Result<CheckSiteDifferentiationOutput, DomainError>> {
+      const scoped = assertWorkspaceWideAccess(actor, "ブログ");
+      if (!scoped.ok) return scoped;
       const listed = await deps.sites.list();
       if (!listed.ok) return listed;
       // 比べる相手も自分の会社のブログだけ。他社と比べて「似ている」と言われても直せない。

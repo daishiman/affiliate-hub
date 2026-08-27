@@ -1,8 +1,10 @@
 import { AdminShell } from "@/presentation/admin/admin-shell";
+import { BlueskyConnectionForm } from "@/presentation/admin/bluesky-connection-form";
 import {
   adminOperation,
   adminOperationRouteId,
 } from "@/presentation/admin/admin-operation-manifest";
+import { can } from "@/domain/identity";
 import { currentActor, distributionNotice, distributionUseCases } from "@/presentation/composition";
 import {
   ActionNote,
@@ -13,7 +15,6 @@ import {
   ExternalLink,
   FactList,
   ListView,
-  Prose,
   Section,
   StorageNotice,
   SubSection,
@@ -62,11 +63,21 @@ export default async function DistributionPage() {
         <>
           <StorageNotice status={await distributionNotice()} />
 
-          {/* いつ来ても同じ説明。枠から外し、代わりに配信先ごとの行にも同じことが分かる状態を保つ。 */}
-          <Prose>
-            接続の登録はこの画面では行いません。各サービスのパスワードや利用許可の情報は、ご自身のブラウザで登録していただきます。
-            この画面には控えを持ちません。
-          </Prose>
+          {can(actor, "channel_connection.manage") ? (
+            <Section
+              title="Blueskyを接続する"
+              lead="登録済みの認証情報でBlueskyへ接続し、接続先のアカウントを確認します。"
+            >
+              <BlueskyConnectionForm />
+            </Section>
+          ) : (
+            // 権限が無いときに節ごと消すと、何ができないのかも消える。
+            // 代わりに、何が要るのかと誰に頼めばよいのかを置く。
+            <Section
+              title="Blueskyを接続する"
+              lead="出し先の接続を変えるには、出し先を扱える権限が要ります。ワークスペースの管理者に依頼してください。"
+            />
+          )}
 
           <Section title="いつ出すかを見る">
             <ListView

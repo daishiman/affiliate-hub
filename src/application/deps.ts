@@ -15,6 +15,7 @@ import type {
 } from "./ports/authoring";
 import type {
   ChannelConnectionRepositoryPort,
+  ChannelConnectorProviderPort,
   ManualExportPort,
   PublicationRepositoryPort,
 } from "./ports/distribution";
@@ -52,7 +53,9 @@ import type {
   CommercialLinkIngestionRepositoryPort,
 } from "./ports/monetization";
 import type {
+  ContactRateLimitKeyPort,
   EditorialContactPort,
+  EditorialHumanCheckPort,
   EditorialReaderToolPort,
   EditorialShortlistPort,
 } from "./ports/reader-interaction";
@@ -60,6 +63,7 @@ import type {
   EditorialArticleOfferPort,
   EditorialPublishedArticleWriterPort,
   EditorialPublishedContentPort,
+  EditorialSiteDocumentRepositoryPort,
   EditorialSiteRepositoryPort,
 } from "./ports/site";
 
@@ -81,6 +85,13 @@ export type AppDeps = {
   readonly testRuns: EditorialTestRunRepositoryPort;
   readonly sites: EditorialSiteRepositoryPort;
   readonly publishedContent: EditorialPublishedContentPort;
+  /**
+   * ブログの固定文書（運営者情報・各方針・規約・特商法表記）を出し入れする口。
+   *
+   * 読者に出る 1 枚引き（`publishedContent.findPolicyDocument`）と**同じ表**を読む。
+   * 別々の置き場にすると、直したのに読者に出ない事故が静かに起きる。
+   */
+  readonly siteDocuments: EditorialSiteDocumentRepositoryPort;
   /** 記事を読者ページへ出す口。読み口と分けている理由は ports/site.ts に書いた。 */
   readonly publishedArticles: EditorialPublishedArticleWriterPort;
   /**
@@ -93,6 +104,9 @@ export type AppDeps = {
   readonly shortlist: EditorialShortlistPort;
   readonly readerTools: EditorialReaderToolPort;
   readonly contact: EditorialContactPort;
+  /** 生IP・利用者IDを保存先へ渡さず、秘密鍵付きの回数制限キーへ変換する。 */
+  readonly contactRateLimitKeys: ContactRateLimitKeyPort;
+  readonly humanCheck: EditorialHumanCheckPort;
   readonly contentPackages: EditorialContentPackageRepositoryPort;
   readonly contentVariants: EditorialContentVariantRepositoryPort;
   readonly personas: EditorialPersonaRepositoryPort;
@@ -108,6 +122,8 @@ export type AppDeps = {
    */
   readonly blogOps: BlogOpsRepositoryPort;
   readonly channelConnections: ChannelConnectionRepositoryPort;
+  /** 接続行から、秘密を外へ出さず実媒体コネクタを組み立てる。 */
+  readonly channelConnectors: ChannelConnectorProviderPort;
   readonly publications: PublicationRepositoryPort;
   readonly manualExport: ManualExportPort;
   readonly metrics: MetricsRepositoryPort;

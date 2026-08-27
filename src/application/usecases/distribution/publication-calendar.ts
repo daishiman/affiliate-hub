@@ -12,16 +12,20 @@ import {
   type ChannelKind,
   type Publication,
   type PublicationState,
-  advance,
+  RESCHEDULABLE_PUBLICATION_STATES,
+  changePublicationSchedule,
+  publicationMutationConflict,
 } from "@/domain/distribution";
 import { can, requireCapability } from "@/domain/identity";
 import {
   type ActorContext,
+  type BrandId,
   type DomainError,
   type PublicationId,
   type Result,
   assertSameTenant,
   buildEvent,
+  coversBrandScope,
   domainError,
   err,
   ok,
@@ -30,7 +34,15 @@ import {
 } from "@/domain/shared";
 import type { EventPublisherPort } from "@/application/ports/common";
 import type { UseCase } from "../usecase";
-import { PUBLICATION_STATE_LABEL } from "./manage-distribution";
+import {
+  PUBLICATION_STATE_LABEL,
+  listAllChannelConnections,
+} from "./manage-distribution";
+import {
+  ensurePublicationBrandAccess,
+  publicationListScopeOf,
+  type PublicationBrandAccessDeps,
+} from "./publication-brand-access";
 
 /**
  * 投稿カレンダー (§22.7)。
@@ -58,6 +70,13 @@ export type PublicationCalendarDeps = {
   readonly auditLog: AuditLogPort;
   readonly ids: IdGeneratorPort;
 };
+
+function brandAccessDeps(deps: PublicationCalendarDeps): PublicationBrandAccessDeps {
+  return {
+    contentVariants: deps.contentVariants,
+    contentPackages: deps.contentPackages,
+  };
+}
 
 /**
  * 予定日を動かしたことを記録する。
@@ -189,37 +208,21 @@ function dateKey(d: Date): string {
 }
 
 /**
- * 日時を変えてよい状態と、変えたあとに戻す先。
+ * 日時を変えてよい状態はdomainの正本を参照する。
  *
- * `null` は「状態は変えない」。日時だけを動かす。
- * ここを domain の遷移表と食い違わせないために、**戻す先も一緒に持つ**。
- * 「変えられる状態」だけを並べると、変えた直後に遷移が拒まれて
- * 保存されない、という無言の失敗が起きる。
+ * 状態の戻し先とretryAtの設定も `changePublicationSchedule` が持つ。
+ * 画面側で写経すると、FAILED_SENDを再試行へ戻してもworkerが拾う時刻だけ
+ * nullのまま、という到達不能を作れるためである。
  *
  * 取りやめ済み (CANCELLED) と公開済み (PUBLISHED) はどちらも行き止まり。
  * 日時を入れ直しても出ないので、変えられる側に入れない。
  */
-const RESCHEDULE_TARGET: Partial<Record<PublicationState, PublicationState | null>> = {
-  QUEUED: null,
-  // 検査で止まったものは、直したうえで順番待ちへ戻す。
-  FAILED_VALIDATION: "QUEUED",
-  // 送信に失敗したものは、時間をずらして送り直す枠へ移す。
-  FAILED_SEND: "RETRY_SCHEDULED",
-  RETRY_SCHEDULED: null,
-  // 手で貼り付ける先は、日時が「いつ貼るか」の覚え書きなので状態は動かさない。
-  MANUAL_EXPORT_READY: null,
-};
-
-const RESCHEDULABLE: readonly PublicationState[] = Object.keys(
-  RESCHEDULE_TARGET,
-) as PublicationState[];
-
 /** 権限が無い人に見せる理由。押せないボタンだけを置かないための文。 */
 const NO_PUBLISH_PERMISSION =
   "予定日を変える権限がありません。公開の担当者に日時の変更を依頼してください。";
 
 function reschedulableReason(state: PublicationState): string | null {
-  if (RESCHEDULABLE.includes(state)) return null;
+  if (RESCHEDULABLE_PUBLICATION_STATES.includes(state)) return null;
   if (state === "PUBLISHED") return "すでに公開されているため、予定日は変えられません。";
   if (state === "CANCELLED") {
     return "取りやめた配信です。出し直す場合は、記事の進行から配信をやり直してください。";
@@ -247,16 +250,28 @@ export function createGetPublicationCalendarUseCase(
         return err(validationError("月は 2026-08 の形で指定してください。", "month"));
       }
 
-      const [listed, connections] = await Promise.all([
-        deps.publications.listRecent(actor.workspaceId, 200),
-        deps.connections.listByWorkspace(actor.workspaceId, { limit: 100, cursor: null }),
-      ]);
+      const [year, monthNumber] = month.split("-").map(Number);
+      const fromInclusive = new Date(Date.UTC(year, monthNumber - 1, 1));
+      const toExclusive = new Date(Date.UTC(year, monthNumber, 1));
+      const mayRevealConnectionDetails = (actor.scopedBrandIds?.length ?? 0) === 0;
+      const listed = await deps.publications.listForCalendar(
+        actor.workspaceId,
+        fromInclusive,
+        toExclusive,
+        publicationListScopeOf(actor),
+      );
       if (!listed.ok) return listed;
+
+      // ChannelConnection は brandId を持たない workspace 共通資源。限定担当者の
+      // カレンダーでは保存先自体を読まず、許可ブランドの配信にも名称を出さない。
+      const connections = mayRevealConnectionDetails
+        ? await listAllChannelConnections(deps.connections, actor.workspaceId)
+        : null;
 
       // 媒体ごとの接続名。1 件ずつ問い合わせると配信の数だけ往復する。
       const accountOf = new Map<string, string>();
-      if (connections.ok) {
-        for (const c of connections.value.items) {
+      if (connections?.ok === true) {
+        for (const c of connections.value) {
           if (!accountOf.has(String(c.id))) accountOf.set(String(c.id), c.accountLabel);
         }
       }
@@ -268,11 +283,22 @@ export function createGetPublicationCalendarUseCase(
        */
       const mayReschedule = can(actor, "content.publish");
 
-      const entries = await Promise.all(
-        listed.value.map((p) => toEntry(deps, actor, p, accountOf, mayReschedule)),
+      const resolvedEntries = await Promise.all(
+        listed.value.map((p) =>
+          toEntry(
+            deps,
+            actor,
+            p,
+            accountOf,
+            mayReschedule,
+            mayRevealConnectionDetails,
+          ),
+        ),
+      );
+      const entries = resolvedEntries.filter(
+        (entry): entry is CalendarEntry => entry !== null,
       );
 
-      const [year, monthNumber] = month.split("-").map(Number);
       const daysInMonth = new Date(Date.UTC(year, monthNumber, 0)).getUTCDate();
       const todayKey = dateKey(at);
 
@@ -350,18 +376,28 @@ async function toEntry(
   p: Publication,
   accountOf: ReadonlyMap<string, string>,
   mayReschedule: boolean,
-): Promise<CalendarEntry> {
+  mayRevealConnectionDetails: boolean,
+): Promise<CalendarEntry | null> {
   const variant = await deps.contentVariants.findById(actor.workspaceId, p.variantId);
   const found = variant.ok ? variant.value : null;
 
   let campaignId: string | null = null;
   let packageId: string | null = null;
+  let packageBrandId: BrandId | null = null;
   if (found !== null) {
     packageId = String(found.contentPackageId);
     const pkg = await deps.contentPackages.findById(actor.workspaceId, found.contentPackageId);
-    if (pkg.ok && pkg.value !== null && pkg.value.campaignId !== null) {
-      campaignId = String(pkg.value.campaignId);
+    if (pkg.ok && pkg.value !== null && assertSameTenant(actor, pkg.value, "この企画").ok) {
+      packageBrandId = taggedString<"BrandId">(pkg.value.brandId) as BrandId;
+      if (pkg.value.campaignId !== null) campaignId = String(pkg.value.campaignId);
     }
+  }
+
+  // 限定担当者にだけは、表示用の欠損補完より所有確認を優先する。記事・親企画・
+  // brandId のどこかを辿れない配信は、題名なしの行として存在を知らせず隠す。
+  if ((actor.scopedBrandIds?.length ?? 0) > 0) {
+    if (found === null || !assertSameTenant(actor, found, "この記事").ok) return null;
+    if (packageBrandId === null || !coversBrandScope(actor, packageBrandId)) return null;
   }
 
   const approvalKey = found?.status ?? "unknown";
@@ -375,7 +411,9 @@ async function toEntry(
     accountLabel:
       p.connectionId === null
         ? "接続先のアカウントの指定なし"
-        : (accountOf.get(String(p.connectionId)) ?? "接続が見つかりません"),
+        : !mayRevealConnectionDetails
+          ? "接続先の詳細は、ブランド限定担当者には表示されません"
+          : (accountOf.get(String(p.connectionId)) ?? "接続が見つかりません"),
     scheduledAt: p.scheduledAt,
     scheduledLabel:
       p.scheduledAt === null
@@ -441,6 +479,12 @@ export function createReschedulePublicationUseCase(
 
       const same = assertSameTenant(actor, found.value, "この配信");
       if (!same.ok) return same;
+      const scoped = await ensurePublicationBrandAccess(
+        brandAccessDeps(deps),
+        actor,
+        found.value,
+      );
+      if (!scoped.ok) return scoped;
 
       const blocked = reschedulableReason(found.value.state);
       if (blocked !== null) {
@@ -448,9 +492,11 @@ export function createReschedulePublicationUseCase(
       }
 
       if (input.scheduledAt.trim() === "") {
-        const cleared = { ...found.value, scheduledAt: null };
-        const saved = await deps.publications.save(cleared);
+        const cleared = changePublicationSchedule(found.value, null, new Date());
+        if (!cleared.ok) return cleared;
+        const saved = await deps.publications.compareAndSwap(found.value, cleared.value);
         if (!saved.ok) return saved;
+        if (saved.value === null) return err(publicationMutationConflict());
 
         const recordedClear = await recordScheduleChange(deps, actor, {
           publicationId: String(saved.value.id),
@@ -462,7 +508,10 @@ export function createReschedulePublicationUseCase(
         return ok({
           publicationId: String(saved.value.id),
           scheduledLabel: "日時の指定なし",
-          message: "予定日を外しました。承認され次第すぐに出ます。",
+          message:
+            saved.value.state === "RETRY_SCHEDULED"
+              ? "予定日を外しました。次の配信処理で再試行します。"
+              : "予定日を外しました。承認され次第すぐに出ます。",
         });
       }
 
@@ -482,14 +531,12 @@ export function createReschedulePublicationUseCase(
         );
       }
 
-      // 状態を戻す先は、いまの状態ごとに決まっている（domain の遷移表に合わせる）。
-      const target = RESCHEDULE_TARGET[found.value.state] ?? null;
-      const moved =
-        target === null ? ok(found.value) : advance(found.value, target, { at: now });
+      const moved = changePublicationSchedule(found.value, parsed, now);
       if (!moved.ok) return moved;
 
-      const saved = await deps.publications.save({ ...moved.value, scheduledAt: parsed });
+      const saved = await deps.publications.compareAndSwap(found.value, moved.value);
       if (!saved.ok) return saved;
+      if (saved.value === null) return err(publicationMutationConflict());
 
       const recorded = await recordScheduleChange(deps, actor, {
         publicationId: String(saved.value.id),

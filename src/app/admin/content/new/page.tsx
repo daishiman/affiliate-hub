@@ -1,11 +1,11 @@
 import { AdminShell } from "@/presentation/admin/admin-shell";
 import { CreateContentForm } from "@/presentation/admin/content-form";
 import {
+  contentPackageUseCases,
   currentActor,
   personaUseCases,
-  sampleContentPackageId,
 } from "@/presentation/composition";
-import { ErrorView, Prose, Section, TextLink } from "@/presentation/ui";
+import { EmptyView, ErrorView, Prose, Section, TextLink } from "@/presentation/ui";
 
 export const dynamic = "force-dynamic";
 
@@ -18,14 +18,21 @@ export const dynamic = "force-dynamic";
  */
 export default async function NewContentPage() {
   const actor = await currentActor();
-  const personas = personaUseCases();
-  const [authors, audiences] = await Promise.all([
+  const personas = await personaUseCases();
+  const [authors, audiences, packages] = await Promise.all([
     personas.listAuthors.execute(actor, {}),
     personas.listAudiences.execute(actor, {}),
+    (await contentPackageUseCases()).listPackages.execute(actor, {}),
   ]);
 
   // 書き手と読者像は片方だけでは足りない。どちらが欠けても同じ案内を出す。
-  const failure = !authors.ok ? authors.error : !audiences.ok ? audiences.error : null;
+  const failure = !authors.ok
+    ? authors.error
+    : !audiences.ok
+      ? audiences.error
+      : !packages.ok
+        ? packages.error
+        : null;
 
   return (
     <AdminShell
@@ -34,20 +41,33 @@ export default async function NewContentPage() {
       lead="出し先と切り口を決めて 1 本作ります。"
       actions={<TextLink href="/admin/content">記事へ戻る</TextLink>}
     >
-      {failure !== null || !authors.ok || !audiences.ok ? (
+      {failure !== null || !authors.ok || !audiences.ok || !packages.ok ? (
         <ErrorView
           title="記事を作る画面を開けませんでした"
           body={failure?.message ?? "書き手と読者像を読めませんでした。"}
           suggestedAction={failure?.suggestedAction ?? null}
           action={<TextLink href="/admin/personas">書き手と読者像へ</TextLink>}
         />
+      ) : packages.value.items.length === 0 ? (
+        // 企画が 0 件のときに欄を出さない。出すと、選べない欄を空のまま送って
+        // 断られる——という遠回りを全員がすることになる。
+        <Section title="この記事の決めごと">
+          <EmptyView
+            title="先に企画を立てます"
+            body="記事は企画にぶら下がります。何のために書くかが決まっていないと、この記事が誰に何を伝えるものなのかを後から誰も辿れません。"
+            action={<TextLink href="/admin/content/packages/new">企画を立てる</TextLink>}
+          />
+        </Section>
       ) : (
         <Section title="この記事の決めごと">
           <Prose>
             広告の表記は決まった文言が自動で入ります。ここで書く必要はありません。
           </Prose>
           <CreateContentForm
-            contentPackageId={sampleContentPackageId()}
+            packages={packages.value.items.map((p) => ({
+              value: p.packageId,
+              label: p.objective,
+            }))}
             authors={authors.value.items.map((a) => ({
               value: a.personaId,
               label: `${a.displayName}（${a.role}）`,

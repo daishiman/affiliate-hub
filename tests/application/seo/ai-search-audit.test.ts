@@ -40,6 +40,7 @@ const goodArticle: PublishedArticle = {
       ],
     },
   ],
+  faq: [{ question: "予算はいくら見ればよい?", answer: "10 万円台から選べます。" }],
 };
 
 function checkOf(article: PublishedArticle, name: string): boolean {
@@ -96,6 +97,13 @@ describe("AI 検索への備えの点検", () => {
     expect(checkOf({ ...goodArticle, summary: "あ".repeat(161) }, "説明文")).toBe(false);
     expect(checkOf({ ...goodArticle, summary: "あ".repeat(50) }, "説明文")).toBe(true);
     expect(checkOf({ ...goodArticle, summary: "あ".repeat(160) }, "説明文")).toBe(true);
+  });
+
+  it("よくある質問が無ければ落ちる（空配列でも落ちる）", () => {
+    // 読み取りモデルは「無い」を undefined で表すが、空配列で来る道も塞ぐ。
+    // 空配列を通すと、欄だけ作って中身が無い記事が緑になる。
+    expect(checkOf({ ...goodArticle, faq: undefined }, "よくある質問")).toBe(false);
+    expect(checkOf({ ...goodArticle, faq: [] }, "よくある質問")).toBe(false);
   });
 
   it("全項目に hint がある（落ちた理由を人に調べさせない）", () => {

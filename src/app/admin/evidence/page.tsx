@@ -1,5 +1,5 @@
 import { AdminShell } from "@/presentation/admin/admin-shell";
-import { currentActor, productSampleNotice, productUseCases } from "@/presentation/composition";
+import { currentActor, productUseCases } from "@/presentation/composition";
 import {
   Callout,
   ClaimStatement,
@@ -9,7 +9,6 @@ import {
   Note,
   Section,
   Stack,
-  StubNotice,
   TextLink,
   type EvidenceView,
 } from "@/presentation/ui";
@@ -34,7 +33,18 @@ export default async function EvidencePage() {
       routeId="evidence"
       title="根拠"
       lead="登録内容と、その出所を確かめます。"
-      actions={<TextLink href="/admin">ホームへ戻る</TextLink>}
+      actions={
+        <>
+          {/*
+            登録の入口を一覧の側に置く。ここは「足りない箇所をさがす」画面で、
+            足りないと分かった直後に足せないと、探し直しから始めることになる。
+          */}
+          <TextLink href="/admin/evidence/new">根拠を登録する</TextLink>
+          <TextLink href="/admin/evidence/claims/new">言えることを登録する</TextLink>
+          <TextLink href="/admin/evidence/test-runs/new">検証記録を登録する</TextLink>
+          <TextLink href="/admin">ホームへ戻る</TextLink>
+        </>
+      }
     >
       {!listed.ok ? (
         <ErrorView
@@ -85,14 +95,6 @@ async function EvidenceOverview({ items }: { readonly items: readonly ProductRow
 
   return (
     <>
-      <StubNotice
-        what="根拠データの保存先"
-        blockedBy="products / claims / evidence / test_runs テーブルの追加とマイグレーション"
-        stubId="persistence:product-sample"
-      >
-        {productSampleNotice()}
-      </StubNotice>
-
       <Callout
         tone={unsupported === 0 ? "info" : "warn"}
         title={unsupported === 0 ? "根拠のない内容はありません" : "根拠のない内容があります"}

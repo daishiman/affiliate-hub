@@ -18,6 +18,7 @@ import {
   WISH_ABSENT_TEXT,
 } from "@/domain/feedback";
 import type { ActorContext, Role } from "@/domain/shared";
+import { asBrandId, ok } from "@/domain/shared";
 import {
   clearFeedbackStore,
   clearIntegrationKeyStore,
@@ -25,6 +26,7 @@ import {
 import { OTHER_WORKSPACE, WORKSPACE, aNobody, anAiAccount, anOwner } from "../support/actors";
 import type { AuditLogPort } from "@/application/ports/compliance";
 import { failing, recordingAuditLog, testDeps } from "../support/doubles";
+import { aBrand } from "../support/factories";
 
 /**
  * 改善要望（Product Feedback）のユースケース。
@@ -48,6 +50,7 @@ const aBrandManager = (over: { workspaceId?: typeof WORKSPACE } = {}): ActorCont
   workspaceId: over.workspaceId ?? WORKSPACE,
   userId: "user-brand",
   roles: ["brand_manager"] as readonly Role[],
+  scopedBrandIds: [],
   isAiServiceAccount: false,
   // 身元を確かめてある人。ここは権限の検査で、ログインの有無は見ていない。
   identified: true,
@@ -114,6 +117,12 @@ function submitUseCase(
   return createSubmitFeedbackUseCase({
     repository: deps.feedback,
     captures: deps.feedbackCaptures,
+    // 個別テストが所有境界だけを差し替えられるよう、既定は requested id と
+    // 同じ workspace のブランドを返す。
+    brands: {
+      ...deps.brands,
+      findById: async (workspaceId, id) => ok(aBrand({ id, workspaceId })),
+    },
     ids,
     auditLog,
     now: () => at,
@@ -163,6 +172,7 @@ async function submitOne(
     actor?: ActorContext;
     ids?: ReturnType<typeof seqIds>;
     at?: Date;
+    brandId?: string | null;
   } = {},
 ): Promise<string> {
   const result = await submitUseCase(over.ids ?? seqIds(`fb-${body.slice(0, 4)}`), over.at).execute(
@@ -173,6 +183,7 @@ async function submitOne(
       wish: over.wish,
       origin: origin(over.route),
       technical: technical(),
+      brandId: over.brandId,
     },
   );
   if (!result.ok) throw new Error(`送信できませんでした: ${result.error.message}`);
@@ -208,6 +219,67 @@ describe("送る", () => {
     });
 
     expect(result.ok).toBe(true);
+  });
+
+  it("限定担当者は担当ブランドだけへ送れ、担当外とbrand不明は保存しない", async () => {
+    const actor = { ...aBrandManager(), scopedBrandIds: [asBrandId("br_allowed")] };
+    const allowed = await submitUseCase(seqIds("fb-allowed")).execute(actor, {
+      kind: "not_working",
+      body: "担当ブランドの要望です。",
+      origin: origin(),
+      technical: technical(),
+      brandId: "br_allowed",
+    });
+    const outside = await submitUseCase(seqIds("fb-outside")).execute(actor, {
+      kind: "not_working",
+      body: "担当外ブランドの要望です。",
+      origin: origin(),
+      technical: technical(),
+      brandId: "br_outside",
+    });
+    const unknown = await submitUseCase(seqIds("fb-unknown")).execute(actor, {
+      kind: "not_working",
+      body: "ブランド不明の要望です。",
+      origin: origin(),
+      technical: technical(),
+      brandId: null,
+    });
+
+    expect(allowed.ok).toBe(true);
+    expect(outside.ok).toBe(false);
+    expect(unknown.ok).toBe(false);
+    if (!outside.ok) expect(outside.error.code).toBe("TENANT_MISMATCH");
+    if (!unknown.ok) expect(unknown.error.code).toBe("TENANT_MISMATCH");
+    const listed = await listUseCase().execute(anOwner(), {});
+    if (!listed.ok) throw listed.error;
+    expect(listed.value.rows.map((row) => row.summary)).toEqual(["担当ブランドの要望です。"]);
+  });
+
+  it("brandIdのlookupが別workspaceを返したら、要望を保存しない", async () => {
+    const actor = { ...aBrandManager(), scopedBrandIds: [asBrandId("br_allowed")] };
+    const result = await createSubmitFeedbackUseCase({
+      repository: deps.feedback,
+      captures: deps.feedbackCaptures,
+      brands: {
+        ...deps.brands,
+        findById: async (_workspaceId, id) =>
+          ok(aBrand({ id, workspaceId: OTHER_WORKSPACE })),
+      },
+      ids: seqIds("fb-cross"),
+      auditLog: recordingAuditLog().port,
+      now: () => AT,
+    }).execute(actor, {
+      kind: "not_working",
+      body: "別workspaceのブランドです。",
+      origin: origin(),
+      technical: technical(),
+      brandId: "br_allowed",
+    });
+
+    expect(result.ok).toBe(false);
+    if (!result.ok) expect(result.error.code).toBe("TENANT_MISMATCH");
+    const listed = await listUseCase().execute(anOwner(), {});
+    if (listed.ok) expect(listed.value.rows).toHaveLength(0);
   });
 
   it("画像を付けなくても送れる（付けないことを選べる）", async () => {
@@ -333,6 +405,20 @@ describe("一覧", () => {
     const listed = await listUseCase().execute(aNobody(), {});
     expect(listed.ok).toBe(false);
   });
+
+  it("限定担当者の一覧には担当ブランドだけを出し、担当外とbrand不明は件数にも入れない", async () => {
+    await submitOne("担当ブランド", { brandId: "br_allowed" });
+    await submitOne("担当外ブランド", { brandId: "br_outside" });
+    await submitOne("ブランド不明", { brandId: null });
+    const actor = { ...aBrandManager(), scopedBrandIds: [asBrandId("br_allowed")] };
+
+    const listed = await listUseCase().execute(actor, {});
+
+    expect(listed.ok).toBe(true);
+    if (!listed.ok) return;
+    expect(listed.value.rows.map((row) => row.summary)).toEqual(["担当ブランド"]);
+    expect(listed.value.counts.open).toBe(1);
+  });
 });
 
 describe("読む", () => {
@@ -365,6 +451,20 @@ describe("読む", () => {
 
     expect(read.ok).toBe(false);
     if (!read.ok) expect(read.error.code).toBe("NOT_FOUND");
+  });
+
+  it("限定担当者は担当外とbrand不明の詳細を、存在する番号でも読めない", async () => {
+    const outsideId = await submitOne("担当外ブランド", { brandId: "br_outside" });
+    const unknownId = await submitOne("ブランド不明", { brandId: null });
+    const actor = { ...aBrandManager(), scopedBrandIds: [asBrandId("br_allowed")] };
+
+    const outside = await readUseCase().execute(actor, { id: outsideId });
+    const unknown = await readUseCase().execute(actor, { id: unknownId });
+
+    expect(outside.ok).toBe(false);
+    expect(unknown.ok).toBe(false);
+    if (!outside.ok) expect(outside.error.code).toBe("TENANT_MISMATCH");
+    if (!unknown.ok) expect(unknown.error.code).toBe("TENANT_MISMATCH");
   });
 });
 
@@ -443,6 +543,26 @@ describe("払い出し", () => {
     expect(handed.value.prompts).toHaveLength(2);
     expect(handed.value.skipped).toHaveLength(1);
     expect(handed.value.skipped[0]?.reason).toContain("見つかりません");
+  });
+
+  it("限定担当者は担当外とbrand不明を払い出せず、担当ブランドだけを渡す", async () => {
+    const allowedId = await submitOne("担当ブランド", { brandId: "br_allowed" });
+    const outsideId = await submitOne("担当外ブランド", { brandId: "br_outside" });
+    const unknownId = await submitOne("ブランド不明", { brandId: null });
+    const actor = { ...aBrandManager(), scopedBrandIds: [asBrandId("br_allowed")] };
+
+    const handed = await handoffUseCase().execute(actor, {
+      ids: [allowedId, outsideId, unknownId],
+      route: "copied_by_human",
+    });
+
+    expect(handed.ok).toBe(true);
+    if (!handed.ok) return;
+    expect(handed.value.prompts.map((prompt) => prompt.reportId)).toEqual([allowedId]);
+    expect(handed.value.skipped.map((row) => row.reportId)).toEqual([outsideId, unknownId]);
+    expect(handed.value.skipped.every((row) => row.reason === "見つかりませんでした。")).toBe(
+      true,
+    );
   });
 
   it("指示文には本文が入り、囲いの中に収まっている", async () => {

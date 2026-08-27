@@ -1,14 +1,21 @@
 import { auditWriteFailure, buildAuditEntry } from "@/application/audit";
-import type { EditorialContentVariantRepositoryPort } from "@/application/ports/authoring";
+import type {
+  EditorialContentPackageRepositoryPort,
+  EditorialContentVariantRepositoryPort,
+} from "@/application/ports/authoring";
 import type { IdGeneratorPort } from "@/application/ports/common";
 import type { AuditLogPort } from "@/application/ports/compliance";
 import type {
   ChannelConnectionRepositoryPort,
+  ChannelConnectorProviderPort,
   ManualExportPort,
   PublicationRepositoryPort,
 } from "@/application/ports/distribution";
+import type { ContentVariant } from "@/domain/authoring";
+import { evaluateExternalPublicationGate } from "@/domain/compliance";
 import {
   CHANNEL_CAPABILITIES,
+  type ChannelConnection,
   type ChannelCapability,
   type ChannelKind,
   type Publication,
@@ -18,10 +25,13 @@ import {
   PUBLICATION_STATE_LABEL,
   advance,
   buildIdempotencyKey,
+  createChannelConnection,
   createPublication,
   isConnectionUsable,
+  publicationMutationConflict,
   rendersOwnArticle,
   supportsDirectPublish,
+  supportsExternalDirectPublish,
 } from "@/domain/distribution";
 import { requireCapability } from "@/domain/identity";
 import {
@@ -31,7 +41,9 @@ import {
   type DomainError,
   type PublicationId,
   type Result,
+  type WorkspaceId,
   assertSameTenant,
+  assertWorkspaceWideAccess,
   domainError,
   err,
   ok,
@@ -39,6 +51,13 @@ import {
   validationError,
 } from "@/domain/shared";
 import type { UseCase } from "../usecase";
+import {
+  ensurePublicationBrandAccess,
+  ensureVariantBrandAccess,
+  filterPublicationsByBrandScope,
+  publicationListScopeOf,
+  type PublicationBrandAccessDeps,
+} from "./publication-brand-access";
 
 /**
  * 配信（どこへ出すか）のユースケース。
@@ -51,6 +70,7 @@ import type { UseCase } from "../usecase";
  */
 export type ManageDistributionDeps = {
   readonly connections: ChannelConnectionRepositoryPort;
+  readonly connectors: ChannelConnectorProviderPort;
   readonly publications: PublicationRepositoryPort;
   readonly manualExport: ManualExportPort;
   /**
@@ -60,11 +80,20 @@ export type ManageDistributionDeps = {
    * 貼り付ける中身は記事側にあるので、ここから読む。
    */
   readonly variants: EditorialContentVariantRepositoryPort;
+  /** 記事が属するブランドを、クライアント入力ではなく親企画から逆引きする。 */
+  readonly contentPackages: EditorialContentPackageRepositoryPort;
   /** ID 生成。配信を新しく作るときに要る。 */
   readonly ids: IdGeneratorPort;
   /** 操作の記録。配信予定はいずれ外へ出るので、誰が動かしたかを残す。 */
   readonly auditLog: AuditLogPort;
 };
+
+function brandAccessDeps(deps: ManageDistributionDeps): PublicationBrandAccessDeps {
+  return {
+    contentVariants: deps.variants,
+    contentPackages: deps.contentPackages,
+  };
+}
 
 /**
  * 配信予定が変わったことを記録する。
@@ -202,14 +231,44 @@ export type ListChannelsOutput = {
 function blockedReasonFor(
   capability: ChannelCapability,
   connected: readonly string[],
+  connectionDetailsAvailable: boolean,
 ): string | null {
-  if (capability.publishMode === "manual_export") {
-    return `${capability.label} には公開された投稿の仕組みがありません。下書きを書き出して、ご自身で投稿してください。`;
+  // 手動書き出しは接続なしで使える。「自動投稿ではない」と「利用不可」を混ぜない。
+  if (capability.publishMode === "manual_export") return null;
+  if (!connectionDetailsAvailable) {
+    return "ブランド限定の担当者は、workspace共通の接続を利用できません。限定のない公開担当者に配信を依頼してください。";
   }
   if (connected.length === 0) {
     return `${capability.label} との接続がまだありません。接続してから配信できます。`;
   }
   return null;
+}
+
+/** cursorを最後まで辿り、媒体種別数を接続件数の上限として扱わない。 */
+export async function listAllChannelConnections(
+  connections: ChannelConnectionRepositoryPort,
+  workspaceId: WorkspaceId,
+  pageSize = 100,
+): Promise<Result<readonly ChannelConnection[], DomainError>> {
+  const items: ChannelConnection[] = [];
+  const seenCursors = new Set<string>();
+  let cursor: string | null = null;
+  do {
+    const page = await connections.listByWorkspace(workspaceId, { limit: pageSize, cursor });
+    if (!page.ok) return page;
+    items.push(...page.value.items);
+    const next = page.value.nextCursor;
+    if (next !== null && seenCursors.has(next)) {
+      return err(
+        domainError("INVARIANT_VIOLATED", "出し先の続きを正しく読み出せませんでした。", {
+          suggestedAction: "画面を開き直してください。",
+        }),
+      );
+    }
+    if (next !== null) seenCursors.add(next);
+    cursor = next;
+  } while (cursor !== null);
+  return ok(items);
 }
 
 export function createListChannelsUseCase(
@@ -219,27 +278,48 @@ export function createListChannelsUseCase(
     async execute(actor: ActorContext): Promise<Result<ListChannelsOutput, DomainError>> {
       const allowed = requireCapability(actor, "content.read", "配信先の参照");
       if (!allowed.ok) return allowed;
-
-      const listed = await deps.connections.listByWorkspace(actor.workspaceId, {
-        limit: 100,
-        cursor: null,
-      });
+      // 媒体能力は非機密なカタログ。限定担当者にも返す。一方、接続はbrandIdを
+      // 持たないworkspace共通資源なので、限定担当者のときはrepository自体を読まない。
+      const connectionDetailsAvailable = (actor.scopedBrandIds?.length ?? 0) === 0;
+      const listed = connectionDetailsAvailable
+        ? await listAllChannelConnections(deps.connections, actor.workspaceId)
+        : ok([] as readonly ChannelConnection[]);
       if (!listed.ok) return listed;
 
       const now = new Date();
-      const channels = (Object.keys(CHANNEL_CAPABILITIES) as ChannelKind[]).map((kind) => {
+      const channels = [];
+      for (const kind of Object.keys(CHANNEL_CAPABILITIES) as ChannelKind[]) {
         const capability = CHANNEL_CAPABILITIES[kind];
-        const mine = listed.value.items.filter((c) => c.kind === kind);
-        const usable = mine.filter((c) => isConnectionUsable(c, now));
-        const unusable = mine
-          .filter((c) => !isConnectionUsable(c, now))
-          .map((c) =>
-            c.revokedAt !== null
-              ? `${c.accountLabel}: 接続が取り消されています。`
-              : `${c.accountLabel}: 接続の期限が切れています。つなぎ直してください。`,
-          );
+        const mine = listed.value.filter((c) => c.kind === kind);
+        const usable: ChannelConnection[] = [];
+        const unusable: string[] = [];
+        for (const connection of mine) {
+          if (!isConnectionUsable(connection, now)) {
+            unusable.push(
+              connection.revokedAt !== null
+                ? `${connection.accountLabel}: 接続が取り消されています。`
+                : `${connection.accountLabel}: 接続の期限が切れています。つなぎ直してください。`,
+            );
+            continue;
+          }
+          if (!supportsExternalDirectPublish(kind)) {
+            usable.push(connection);
+            continue;
+          }
+          const connector = deps.connectors.forConnection(connection);
+          if (!connector.ok) {
+            unusable.push(`${connection.accountLabel}: ${connector.error.message}`);
+            continue;
+          }
+          const ready = await connector.value.checkReadiness();
+          if (!ready.ok) {
+            unusable.push(`${connection.accountLabel}: ${ready.error.message}`);
+            continue;
+          }
+          usable.push(connection);
+        }
         const connected = usable.map((c) => c.accountLabel);
-        return {
+        channels.push({
           kind,
           label: capability.label,
           publishModeLabel: PUBLISH_MODE_LABEL[capability.publishMode] ?? capability.publishMode,
@@ -253,14 +333,166 @@ export function createListChannelsUseCase(
           basisNote: capability.basisNote,
           connectedAccounts: connected,
           unusableReasons: unusable,
-          blockedReason: blockedReasonFor(capability, connected),
-        };
-      });
+          blockedReason: blockedReasonFor(
+            capability,
+            connected,
+            connectionDetailsAvailable,
+          ),
+        });
+      }
 
       return ok({
         channels,
         connectedCount: channels.filter((c) => c.connectedAccounts.length > 0).length,
         manualOnlyCount: channels.filter((c) => !c.canDirectPublish).length,
+      });
+    },
+  };
+}
+
+export type RegisterChannelConnectionInput = {
+  readonly channelKind: ChannelKind;
+  readonly accountLabel: string;
+  /** 秘密の値ではなくSecretResolverが読む参照名。 */
+  readonly credentialRef: string;
+  readonly expiresAt?: string | null;
+};
+
+export type RegisterChannelConnectionOutput = {
+  readonly connectionId: string;
+  readonly kind: ChannelKind;
+  readonly accountLabel: string;
+  readonly usable: boolean;
+  readonly unavailableReason: string | null;
+};
+
+function connectionIdentityConflict(): DomainError {
+  return domainError("CONFLICT", "この認証情報は、登録済みの接続先と一致しません。", {
+    suggestedAction:
+      "登録済み接続の認証情報を差し替えず、別の接続として新しい参照名で登録してください。",
+  });
+}
+
+async function recordConnectionRegistration(
+  deps: ManageDistributionDeps,
+  actor: ActorContext,
+  connection: ChannelConnection,
+  at: Date,
+): Promise<Result<void, DomainError>> {
+  const targetId = String(connection.id);
+  const alreadyRecorded = await deps.auditLog.listByTarget(
+    connection.workspaceId,
+    "channel_connection",
+    targetId,
+  );
+  if (!alreadyRecorded.ok) return alreadyRecorded;
+  if (alreadyRecorded.value.some((entry) => entry.action === "connector.connected")) {
+    return ok(undefined);
+  }
+
+  // 接続行ごとに監査IDを固定する。append成功後の応答喪失や並行retryでも
+  // connector.connectedを複製せず、同じ証拠へ収束させる。
+  const entry = buildAuditEntry(
+    { ids: { newId: () => `connector_connected_${targetId}` }, now: () => at },
+    actor,
+    {
+      action: "connector.connected",
+      targetType: "channel_connection",
+      targetId,
+      after: {
+        kind: connection.kind,
+        accountLabel: connection.accountLabel,
+        connectionConfigured: true,
+        usable: true,
+      },
+    },
+  );
+  if (!entry.ok) return entry;
+  const appended = await deps.auditLog.append(entry.value);
+  if (appended.ok) return ok(undefined);
+
+  // 同じ監査IDの並行appendに負けただけなら成功。保存先障害で欠けたならretryを促す。
+  const recovered = await deps.auditLog.listByTarget(
+    connection.workspaceId,
+    "channel_connection",
+    targetId,
+  );
+  if (
+    recovered.ok &&
+    recovered.value.some((candidate) => candidate.action === "connector.connected")
+  ) {
+    return ok(undefined);
+  }
+  return err(auditWriteFailure("外部媒体との接続は登録されています", appended.error.details));
+}
+
+/** workspace共通の外部接続を登録する。ブランド限定actorへは開かない。 */
+export function createRegisterChannelConnectionUseCase(
+  deps: ManageDistributionDeps,
+): UseCase<RegisterChannelConnectionInput, RegisterChannelConnectionOutput> {
+  return {
+    async execute(actor, input) {
+      const allowed = requireCapability(actor, "channel_connection.manage", "外部媒体との接続管理");
+      if (!allowed.ok) return allowed;
+      const workspaceWide = assertWorkspaceWideAccess(actor, "外部媒体との接続");
+      if (!workspaceWide.ok) return workspaceWide;
+      if (!supportsExternalDirectPublish(input.channelKind)) {
+        return err(domainError("NOT_SUPPORTED", `${CHANNEL_CAPABILITIES[input.channelKind].label} は接続を使う直接投稿に対応していません。`));
+      }
+      let expiresAt: Date | null = null;
+      if (input.expiresAt != null && input.expiresAt.trim() !== "") {
+        expiresAt = new Date(input.expiresAt);
+        if (Number.isNaN(expiresAt.getTime())) {
+          // 欄の名前を付けない。接続の画面に期限の入力欄は無く（値は provider 側から来る）、
+          // 名前を付けると断りが「その欄」を待って画面のどこにも出ないまま消える。
+          return err(validationError("接続期限の日時を読み取れませんでした。"));
+        }
+      }
+      const at = new Date();
+      // providerへ接続する前にも入力の参照名を検査する。秘密そのものなら外へ送らない。
+      const candidate = createChannelConnection({
+        id: taggedString<"ChannelConnectionId">(`conn_${deps.ids.newId()}`) as ChannelConnectionId,
+        workspaceId: actor.workspaceId,
+        kind: input.channelKind,
+        accountLabel: input.accountLabel,
+        connectedAt: at,
+        expiresAt,
+        credentialRef: input.credentialRef,
+      });
+      if (!candidate.ok) return candidate;
+      const connector = deps.connectors.forConnection(candidate.value);
+      if (!connector.ok) return connector;
+      const identity = await connector.value.resolveIdentity();
+      if (!identity.ok) return identity;
+
+      const built = createChannelConnection({
+        ...candidate.value,
+        accountLabel: identity.value.accountLabel,
+        providerIdentity: identity.value.providerIdentity,
+      });
+      if (!built.ok) return built;
+      const saved = await deps.connections.createIfAbsent(built.value);
+      if (!saved.ok) return saved;
+      if (
+        saved.value.connection.providerIdentity !== built.value.providerIdentity ||
+        saved.value.connection.credentialRef !== built.value.credentialRef
+      ) {
+        return err(connectionIdentityConflict());
+      }
+
+      const recorded = await recordConnectionRegistration(
+        deps,
+        actor,
+        saved.value.connection,
+        at,
+      );
+      if (!recorded.ok) return recorded;
+      return ok({
+        connectionId: String(saved.value.connection.id),
+        kind: saved.value.connection.kind,
+        accountLabel: saved.value.connection.accountLabel,
+        usable: true,
+        unavailableReason: null,
       });
     },
   };
@@ -323,10 +555,21 @@ export function createListPublicationsUseCase(
       const allowed = requireCapability(actor, "content.read", "配信の参照");
       if (!allowed.ok) return allowed;
 
-      const listed = await deps.publications.listRecent(actor.workspaceId, input.limit ?? 50);
+      const listed = await deps.publications.listRecent(
+        actor.workspaceId,
+        input.limit ?? 50,
+        publicationListScopeOf(actor),
+      );
       if (!listed.ok) return listed;
 
-      const items = listed.value.map(toCard);
+      const visible = await filterPublicationsByBrandScope(
+        brandAccessDeps(deps),
+        actor,
+        listed.value,
+      );
+      if (!visible.ok) return visible;
+
+      const items = visible.value.map(toCard);
       return ok({
         items,
         needsAttention: items.filter((i) => NEEDS_ATTENTION.includes(i.state)),
@@ -406,6 +649,12 @@ export function createGetPublicationUseCase(
 
       const same = assertSameTenant(actor, found.value, "この配信");
       if (!same.ok) return same;
+      const scoped = await ensurePublicationBrandAccess(
+        brandAccessDeps(deps),
+        actor,
+        found.value,
+      );
+      if (!scoped.ok) return scoped;
 
       const publication = found.value;
       const capability = CHANNEL_CAPABILITIES[publication.channelKind];
@@ -455,12 +704,19 @@ export function createCancelPublicationUseCase(
 
       const same = assertSameTenant(actor, found.value, "この配信");
       if (!same.ok) return same;
+      const scoped = await ensurePublicationBrandAccess(
+        brandAccessDeps(deps),
+        actor,
+        found.value,
+      );
+      if (!scoped.ok) return scoped;
 
       const moved = advance(found.value, "CANCELLED", { at: new Date() });
       if (!moved.ok) return moved;
 
-      const saved = await deps.publications.save(moved.value);
+      const saved = await deps.publications.compareAndSwap(found.value, moved.value);
       if (!saved.ok) return saved;
+      if (saved.value === null) return err(publicationMutationConflict());
 
       const recorded = await recordScheduleChange(deps, actor, {
         publicationId: input.publicationId,
@@ -512,6 +768,12 @@ export function createExportManualDraftUseCase(
 
       const same = assertSameTenant(actor, found.value, "この配信");
       if (!same.ok) return same;
+      const scoped = await ensurePublicationBrandAccess(
+        brandAccessDeps(deps),
+        actor,
+        found.value,
+      );
+      if (!scoped.ok) return scoped;
 
       const publication = found.value;
       const capability = CHANNEL_CAPABILITIES[publication.channelKind];
@@ -527,7 +789,10 @@ export function createExportManualDraftUseCase(
 
       // 本文が要る。空のまま書き出すと、貼り付けても何も出ない下書きを渡すことになり、
       // note へ出す唯一の道が事実上ふさがる。
-      const variant = await deps.variants.findById(actor.workspaceId, publication.variantId);
+      const variant = await deps.variants.findVersionedById(
+        actor.workspaceId,
+        publication.variantId,
+      );
       if (!variant.ok) return variant;
       if (variant.value === null) {
         return err(
@@ -536,15 +801,27 @@ export function createExportManualDraftUseCase(
           }),
         );
       }
+      if (
+        publication.variantRevision === null ||
+        publication.variantRevision !== variant.value.revision
+      ) {
+        return err(
+          domainError("CONFLICT", "予約後に記事が変更されたため、この下書きは書き出せません。", {
+            suggestedAction: "変更後の内容を人が承認し、配信を予約し直してください。",
+          }),
+        );
+      }
 
-      const draft = await deps.manualExport.buildDraft({
+      const draft = await deps.manualExport.buildDraft(publication.channelKind, {
         connectionId: publication.connectionId ?? taggedString<"ChannelConnectionId">("none"),
         idempotencyKey: publication.idempotencyKey,
-        title: variant.value.title,
-        body: variant.value.body,
+        providerDeliveryKey: publication.providerDeliveryKey,
+        title: variant.value.variant.title,
+        body: variant.value.variant.body,
         imageKeys: [],
         scheduledAt: publication.scheduledAt,
-        disclosureText: variant.value.disclosure,
+        providerRecordCreatedAt: publication.providerRecordCreatedAt,
+        disclosureText: variant.value.variant.disclosure,
       });
       if (!draft.ok) return draft;
 
@@ -596,6 +873,26 @@ export type SchedulePublicationOutput = {
   readonly manualExportNotice: string | null;
 };
 
+function sampleOnlyExternalPublicationError(): DomainError {
+  return domainError("CONFLICT", "見本の記事は外部サービスへ自動配信できません。", {
+    suggestedAction:
+      "自分の記事として本文を保存し、変更後の内容を人が承認してから配信してください。",
+  });
+}
+
+function validateExternalGate(variant: ContentVariant): Result<true, DomainError> {
+  const gate = evaluateExternalPublicationGate(variant);
+  return gate.ok
+    ? ok(true)
+    : err(
+        domainError(
+          "PUBLISH_GATE_FAILED",
+          gate.failures.map((failure) => failure.message).join(" / "),
+          { suggestedAction: "記事の画面で指摘を直し、人が承認してから配信してください。" },
+        ),
+      );
+}
+
 /**
  * 「この記事を、ここへ出す」を開始する。
  *
@@ -629,7 +926,7 @@ export function createSchedulePublicationUseCase(
 
       const variantId = taggedString<"ContentVariantId">(input.variantId) as ContentVariantId;
 
-      const variant = await deps.variants.findById(actor.workspaceId, variantId);
+      const variant = await deps.variants.findVersionedById(actor.workspaceId, variantId);
       if (!variant.ok) return variant;
       if (variant.value === null) {
         return err(
@@ -638,17 +935,35 @@ export function createSchedulePublicationUseCase(
           }),
         );
       }
-      const sameVariant = assertSameTenant(actor, variant.value, "この記事");
+      const sameVariant = assertSameTenant(actor, variant.value.variant, "この記事");
       if (!sameVariant.ok) return sameVariant;
+      const scopedVariant = await ensureVariantBrandAccess(
+        brandAccessDeps(deps),
+        actor,
+        variant.value.variant,
+      );
+      if (!scopedVariant.ok) return scopedVariant;
 
-      // 承認前を通さない。ここが最後の関所で、画面の出し分けは補助でしかない。
-      if (variant.value.status !== "approved" && variant.value.status !== "published") {
-        return err(
-          domainError("CONFLICT", "承認が済んでいない記事は配信できません。", {
-            suggestedAction:
-              "記事の画面で内容を確認し、承認してから配信してください（承認は人が行います）。",
-          }),
-        );
+      // D1の外部送信claimはcontent_variants実表の版を同じUPDATE文で照合する。
+      // 見本だけの記事は照合対象が無く永久にclaimできないため、予約成功を装わない。
+      if (supportsExternalDirectPublish(input.channelKind) && !variant.value.persisted) {
+        return err(sampleOnlyExternalPublicationError());
+      }
+
+      // 外部媒体の評価は予約時とworkerで同じComplianceの正本を使う。
+      const externalGate = validateExternalGate(variant.value.variant);
+      if (input.channelKind !== "own_site" && !externalGate.ok) {
+        return externalGate;
+      }
+      // 自社サイトの詳細な記事candidateは公開画面でcanonical evaluatePublishGateが評価する。
+      if (
+        input.channelKind === "own_site" &&
+        variant.value.variant.status !== "approved" &&
+        variant.value.variant.status !== "published"
+      ) {
+        return err(domainError("CONFLICT", "承認が済んでいない記事は配信できません。", {
+          suggestedAction: "記事の画面で内容を確認し、人が承認してから配信してください。",
+        }));
       }
 
       const raw = (input.scheduledAt ?? "").trim();
@@ -679,29 +994,18 @@ export function createSchedulePublicationUseCase(
       const connectionId = await resolveConnection(deps, actor, input);
       if (!connectionId.ok) return connectionId;
 
-      // 同じ要求が既にあれば、それを返す。作り直さない。
+      // 同じ要求は保存先の一意境界で原子的に1件へ収束させる。
       const idempotencyKey = buildIdempotencyKey({
         variantId,
+        variantRevision: variant.value.revision,
         channelKind: input.channelKind,
         scheduledAt,
       });
-      const existing = await deps.publications.findByIdempotencyKey(
-        actor.workspaceId,
-        idempotencyKey,
-      );
-      if (!existing.ok) return existing;
-      if (existing.value !== null) {
-        return ok({
-          card: toCard(existing.value),
-          alreadyExisted: true,
-          manualExportNotice: manualNoticeFor(input.channelKind),
-        });
-      }
-
       const created = createPublication({
         id: taggedString<"PublicationId">(`pub_${deps.ids.newId()}`) as PublicationId,
         workspaceId: actor.workspaceId,
         variantId,
+        variantRevision: variant.value.revision,
         channelKind: input.channelKind,
         connectionId: connectionId.value,
         scheduledAt,
@@ -709,11 +1013,25 @@ export function createSchedulePublicationUseCase(
       });
       if (!created.ok) return created;
 
-      const saved = await deps.publications.save(created.value);
-      if (!saved.ok) return saved;
+      const canonical = await deps.publications.createIfAbsent(created.value);
+      if (!canonical.ok) return canonical;
+      if (!canonical.value.created) {
+        const scopedExisting = await ensurePublicationBrandAccess(
+          brandAccessDeps(deps),
+          actor,
+          canonical.value.publication,
+        );
+        if (!scopedExisting.ok) return scopedExisting;
+        return ok({
+          card: toCard(canonical.value.publication),
+          alreadyExisted: true,
+          manualExportNotice: manualNoticeFor(input.channelKind),
+        });
+      }
+      const saved = canonical.value.publication;
 
       const recorded = await recordScheduleChange(deps, actor, {
-        publicationId: String(saved.value.id),
+        publicationId: String(saved.id),
         channelKind: input.channelKind,
         // 新しく作った配信なので、前の予定は無い。
         before: null,
@@ -723,7 +1041,7 @@ export function createSchedulePublicationUseCase(
       if (!recorded.ok) return recorded;
 
       return ok({
-        card: toCard(saved.value),
+        card: toCard(saved),
         alreadyExisted: false,
         manualExportNotice: manualNoticeFor(input.channelKind),
       });
@@ -734,6 +1052,20 @@ export function createSchedulePublicationUseCase(
 function manualNoticeFor(kind: ChannelKind): string | null {
   if (supportsDirectPublish(kind)) return null;
   return `${CHANNEL_CAPABILITIES[kind].label} には公開された投稿の仕組みがありません。下書きを書き出して、ご自身で投稿してください。`;
+}
+
+/**
+ * 自動投稿先の接続は、現行モデルでは workspace 共通で brandId を持たない。
+ * 限定担当者へ「この接続は担当ブランド用だろう」と推測で割り当てない。
+ */
+function ensureDirectChannelConnectionAccess(
+  actor: ActorContext,
+  kind: ChannelKind,
+): Result<true, DomainError> {
+  return supportsDirectPublish(kind)
+    && supportsExternalDirectPublish(kind)
+    ? assertWorkspaceWideAccess(actor, "配信先の接続")
+    : ok(true);
 }
 
 /**
@@ -748,22 +1080,28 @@ async function resolveConnection(
   input: SchedulePublicationInput,
 ): Promise<Result<ChannelConnectionId | null, DomainError>> {
   const capability = CHANNEL_CAPABILITIES[input.channelKind];
-  if (!supportsDirectPublish(input.channelKind)) return ok(null);
-
-  const listed = await deps.connections.listByWorkspace(actor.workspaceId, {
-    limit: 100,
-    cursor: null,
-  });
-  if (!listed.ok) return listed;
+  if (!supportsExternalDirectPublish(input.channelKind)) return ok(null);
+  const scopedConnection = ensureDirectChannelConnectionAccess(actor, input.channelKind);
+  if (!scopedConnection.ok) return scopedConnection;
 
   const now = new Date();
-  const usable = listed.value.items.filter(
-    (c) => c.kind === input.channelKind && isConnectionUsable(c, now),
-  );
-
+  async function ready(connection: ChannelConnection): Promise<boolean> {
+    if (!supportsExternalDirectPublish(connection.kind)) return true;
+    const connector = deps.connectors.forConnection(connection);
+    if (!connector.ok) return false;
+    return (await connector.value.checkReadiness()).ok;
+  }
   if (input.connectionId != null && input.connectionId !== "") {
-    const chosen = usable.find((c) => String(c.id) === input.connectionId);
-    if (chosen === undefined) {
+    const chosen = await deps.connections.findById(
+      actor.workspaceId,
+      taggedString<"ChannelConnectionId">(input.connectionId) as ChannelConnectionId,
+    );
+    if (!chosen.ok) return chosen;
+    if (
+      chosen.value === null ||
+      chosen.value.kind !== input.channelKind ||
+      !isConnectionUsable(chosen.value, now)
+    ) {
       return err(
         domainError("NOT_FOUND", `指定された ${capability.label} の接続が使えません。`, {
           suggestedAction:
@@ -771,7 +1109,24 @@ async function resolveConnection(
         }),
       );
     }
-    return ok(chosen.id);
+    if (!(await ready(chosen.value))) {
+      return err(
+        domainError("NOT_FOUND", `指定された ${capability.label} の接続は認証情報が未登録か、現在利用できません。`, {
+          suggestedAction: "接続設定で利用不可の理由を確認してください。",
+        }),
+      );
+    }
+    return ok(chosen.value.id);
+  }
+
+  const listed = await listAllChannelConnections(deps.connections, actor.workspaceId);
+  if (!listed.ok) return listed;
+  const candidates = listed.value.filter(
+    (c) => c.kind === input.channelKind && isConnectionUsable(c, now),
+  );
+  const usable: ChannelConnection[] = [];
+  for (const connection of candidates) {
+    if (await ready(connection)) usable.push(connection);
   }
 
   if (usable.length === 0) {
@@ -801,9 +1156,10 @@ async function resolveConnection(
  *
  * **本文は入っていない。** 配信は記事を指しているだけで、文章そのものは
  * 持っていない（`Publication` に本文の欄が無い）。文章を直したいときは
- * 記事の側（`update_content_variant`）を直せば、まだ出ていない配信には
- * そのまま反映される。ここで本文を持たせると、記事と配信で違う文章が
- * 保存できてしまい、「読者が読んだのはどちらか」が言えなくなる。
+ * 記事の側（`update_content_variant`）を直す。本文保存で版が進むため、既存の
+ * 配信は外部送信前に止まり、変更後の内容を人が承認して予約し直す。
+ * ここで本文を持たせると、記事と配信で違う文章が保存できてしまい、
+ * 「読者が読んだのはどちらか」が言えなくなる。
  */
 export type UpdatePublicationInput = {
   readonly publicationId: string;
@@ -825,6 +1181,48 @@ const NON_EDITABLE_PUBLICATION_STATES: ReadonlySet<PublicationState> = new Set([
   "MANUAL_EXPORT_READY",
   "CANCELLED",
 ]);
+
+/** 手動配信用の予約を、外部送信不能な記事のまま自動配信へ付け替えさせない。 */
+async function validateExternalChannelChange(
+  deps: ManageDistributionDeps,
+  actor: ActorContext,
+  publication: Publication,
+): Promise<Result<true, DomainError>> {
+  const current = await deps.variants.findVersionedById(
+    actor.workspaceId,
+    publication.variantId,
+  );
+  if (!current.ok) return current;
+  if (current.value === null) {
+    return err(
+      domainError("NOT_FOUND", "この配信のもとになった記事が見つかりません。", {
+        suggestedAction: "記事の一覧から選び直して、配信を予約し直してください。",
+      }),
+    );
+  }
+
+  const sameVariant = assertSameTenant(actor, current.value.variant, "この記事");
+  if (!sameVariant.ok) return sameVariant;
+
+  // D1のclaimはcontent_variants実表をEXISTSで照合する。見本だけの本文には
+  // 照合先が無いので、接続解決より前に断り、成功した予約を永久待ちにしない。
+  if (!current.value.persisted) {
+    return err(sampleOnlyExternalPublicationError());
+  }
+
+  if (
+    publication.variantRevision === null ||
+    publication.variantRevision !== current.value.revision
+  ) {
+    return err(
+      domainError("CONFLICT", "予約後に記事が変更されたため、外部自動配信へ変更できません。", {
+        suggestedAction: "変更後の内容を人が承認し、配信を予約し直してください。",
+      }),
+    );
+  }
+
+  return validateExternalGate(current.value.variant);
+}
 
 /**
  * 送信前の配信を直す。
@@ -854,8 +1252,17 @@ export function createUpdatePublicationUseCase(
 
       const same = assertSameTenant(actor, found.value, "この配信");
       if (!same.ok) return same;
+      const scoped = await ensurePublicationBrandAccess(
+        brandAccessDeps(deps),
+        actor,
+        found.value,
+      );
+      if (!scoped.ok) return scoped;
 
       const before = found.value;
+      const channelKind = input.channelKind ?? before.channelKind;
+      const scopedConnection = ensureDirectChannelConnectionAccess(actor, channelKind);
+      if (!scopedConnection.ok) return scopedConnection;
       if (NON_EDITABLE_PUBLICATION_STATES.has(before.state)) {
         return err(
           domainError(
@@ -904,7 +1311,6 @@ export function createUpdatePublicationUseCase(
         }
       }
 
-      const channelKind = input.channelKind ?? before.channelKind;
       /*
        * 媒体を変えたら、接続先も選び直す。
        *
@@ -914,6 +1320,10 @@ export function createUpdatePublicationUseCase(
        */
       let connectionId = before.connectionId;
       if (channelKind !== before.channelKind) {
+        if (supportsExternalDirectPublish(channelKind)) {
+          const validVariant = await validateExternalChannelChange(deps, actor, before);
+          if (!validVariant.ok) return validVariant;
+        }
         const resolved = await resolveConnection(deps, actor, {
           variantId: String(before.variantId),
           channelKind,
@@ -922,13 +1332,14 @@ export function createUpdatePublicationUseCase(
         connectionId = resolved.value;
       }
 
-      const saved = await deps.publications.save({
+      const saved = await deps.publications.compareAndSwap(before, {
         ...before,
         channelKind,
         connectionId,
         scheduledAt,
       });
       if (!saved.ok) return saved;
+      if (saved.value === null) return err(publicationMutationConflict());
 
       const entry = buildAuditEntry({ ids: deps.ids, now: () => new Date() }, actor, {
         action: "publication.changed",
@@ -1045,6 +1456,20 @@ export function createGetContentChannelStatusUseCase(
       if (!allowed.ok) return allowed;
 
       const variantId = taggedString<"ContentVariantId">(input.variantId) as ContentVariantId;
+      if ((actor.scopedBrandIds?.length ?? 0) > 0) {
+        const variant = await deps.variants.findById(actor.workspaceId, variantId);
+        if (!variant.ok) return variant;
+        if (variant.value === null) return err(notFound());
+        const sameVariant = assertSameTenant(actor, variant.value, "この記事");
+        if (!sameVariant.ok) return sameVariant;
+        const scopedVariant = await ensureVariantBrandAccess(
+          brandAccessDeps(deps),
+          actor,
+          variant.value,
+        );
+        if (!scopedVariant.ok) return scopedVariant;
+      }
+
       const listed = await deps.publications.listByVariant(actor.workspaceId, variantId);
       if (!listed.ok) return listed;
 

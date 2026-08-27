@@ -19,9 +19,9 @@
  * ここは 3 状態を並べて見る。
  */
 // @vitest-environment jsdom
-import { cleanup, render, screen } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it } from "vitest";
-import type { ConsentAnswer } from "@/presentation/ui/consent";
+import { CONSENT_COOKIE, type ConsentAnswer } from "@/presentation/ui/consent";
 import { ConsentBanner } from "@/presentation/ui/patterns/consent-banner";
 
 const DETAIL = "/s/blog-a/measurement";
@@ -87,5 +87,36 @@ describe("断りにくくしない", () => {
     draw("unset");
     const names = screen.getAllByRole("button").map((b) => b.textContent);
     expect(names.indexOf("記録しない")).toBeLessThan(names.indexOf("記録してよい"));
+  });
+});
+
+describe("押したら、答えが残って表示も変わる", () => {
+  // cookie は文書に残る。前の試験の答えが次へ漏れると、
+  // 「押していないのに答えが入っている」状態で緑になる。
+  afterEach(() => {
+    document.cookie = `${CONSENT_COOKIE}=; path=/; max-age=0`;
+  });
+
+  it.each([
+    ["記録しない", "denied", "行っていません"],
+    ["記録してよい", "granted", "許可いただいています"],
+  ] as const)("「%s」を押すと %s が残る", (name, stored, shown) => {
+    draw("unset");
+    fireEvent.click(screen.getByRole("button", { name }));
+
+    expect(document.cookie).toContain(`${CONSENT_COOKIE}=${stored}`);
+    // 押したのに聞き方が出たままだと、答えたことが伝わらない。
+    expect(document.body.textContent).toContain(shown);
+    expect(screen.queryByRole("button", { name: "記録しない" })).toBeNull();
+  });
+
+  it.each([
+    ["granted", "取り消す", "denied"],
+    ["denied", "許可する", "granted"],
+  ] as const)("%s のあと「%s」を押すと、反対側へ切り替わる", (current, name, next) => {
+    draw(current);
+    fireEvent.click(screen.getByRole("button", { name }));
+
+    expect(document.cookie).toContain(`${CONSENT_COOKIE}=${next}`);
   });
 });

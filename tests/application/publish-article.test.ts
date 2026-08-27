@@ -11,7 +11,10 @@ import type {
 } from "@/application/ports/site";
 import type { ArticleOffer } from "@/application/read-models/article-offer";
 import type { PublicationRepositoryPort } from "@/application/ports/distribution";
-import type { EditorialContentVariantRepositoryPort } from "@/application/ports/authoring";
+import type {
+  EditorialContentPackageRepositoryPort,
+  EditorialContentVariantRepositoryPort,
+} from "@/application/ports/authoring";
 import type { PublishedArticle } from "@/application/read-models/published-article";
 import {
   type PreparePublishArticleInput,
@@ -22,9 +25,10 @@ import {
   createPublishArticleUseCase,
 } from "@/application/usecases/site/publish-article";
 import { ARTICLE_TYPES, authoredSectionsFor, createSiteBlueprint } from "@/domain/authoring";
-import type { ContentVariant, SiteBlueprint } from "@/domain/authoring";
+import type { ContentPackage, ContentVariant, SiteBlueprint } from "@/domain/authoring";
 import type { Publication } from "@/domain/distribution";
 import {
+  type BrandId,
   type ContentVariantId,
   type Result,
   type WorkspaceId,
@@ -34,7 +38,7 @@ import {
   taggedString,
 } from "@/domain/shared";
 import type { AuditLogEntry } from "@/domain/compliance";
-import { WORKSPACE, anOwner, aWriter } from "../support/actors";
+import { OTHER_WORKSPACE, WORKSPACE, anOwner, aWriter } from "../support/actors";
 import { aPublication } from "../support/factories";
 import { failing, recordingAuditLog, testDeps } from "../support/doubles";
 
@@ -51,8 +55,33 @@ import { failing, recordingAuditLog, testDeps } from "../support/doubles";
 
 const SITE_SLUG = "video-editing-gear";
 const VARIANT_ID = taggedString<"ContentVariantId">("cv_publish_me") as ContentVariantId;
+const PACKAGE_ID = taggedString<"ContentPackageId">("cp_publish_me");
+const BRAND_ID = taggedString<"BrandId">("brand-publish") as BrandId;
 
-function aBlueprint(): SiteBlueprint {
+function aPackage(over: Partial<ContentPackage> = {}): ContentPackage {
+  return {
+    id: PACKAGE_ID,
+    workspaceId: WORKSPACE,
+    brandId: String(BRAND_ID),
+    campaignId: null,
+    primarySubjectId: taggedString<"ProductId">("product-publish"),
+    domainScope: "general",
+    comparisonSetId: null,
+    claimIds: [],
+    evidenceIds: [],
+    authorPersonaId: taggedString<"AuthorPersonaId">("author_yamada"),
+    audiencePersonaIds: [taggedString<"AudiencePersonaId">("aud_1")],
+    objective: "読者が商品を選べるようにする",
+    funnelStage: "decision",
+    contentAngles: ["conclusion_first"],
+    masterBriefId: null,
+    variantIds: [VARIANT_ID],
+    status: "approved",
+    ...over,
+  } as ContentPackage;
+}
+
+function aBlueprint(over: Partial<SiteBlueprint> = {}): SiteBlueprint {
   const built = createSiteBlueprint({
     id: taggedString<"SiteBlueprintId">("sb_test"),
     workspaceId: WORKSPACE,
@@ -78,14 +107,14 @@ function aBlueprint(): SiteBlueprint {
     },
   });
   if (!built.ok) throw new Error(built.error.message);
-  return built.value;
+  return { ...built.value, ...over };
 }
 
 function aVariant(over: Partial<ContentVariant> = {}): ContentVariant {
   return {
     id: VARIANT_ID,
     workspaceId: WORKSPACE,
-    contentPackageId: taggedString<"ContentPackageId">("cp_1"),
+    contentPackageId: PACKAGE_ID,
     channel: "own_site",
     format: "article",
     authorPersonaId: taggedString<"AuthorPersonaId">("author_yamada"),
@@ -165,6 +194,8 @@ type Harness = {
 function harness(options: {
   readonly publication?: Publication;
   readonly variant?: ContentVariant | null;
+  readonly contentPackage?: ContentPackage | null;
+  readonly sites?: readonly { readonly slug: string; readonly blueprint: SiteBlueprint }[];
   readonly writerFails?: boolean;
   /** 記録だけが落ちる状況。記事は出ているのに記録が無い、を作って確かめる。 */
   readonly auditFails?: boolean;
@@ -186,12 +217,13 @@ function harness(options: {
       publishedAt: null,
     });
 
+  const siteRows = options.sites ?? [{ slug: SITE_SLUG, blueprint: aBlueprint() }];
   const sites = {
     async findBySlug(slug: string) {
-      return ok(slug === SITE_SLUG ? aBlueprint() : null);
+      return ok(siteRows.find((entry) => entry.slug === slug)?.blueprint ?? null);
     },
     async list() {
-      return ok([{ slug: SITE_SLUG, blueprint: aBlueprint() }]);
+      return ok(siteRows);
     },
   } as unknown as EditorialSiteRepositoryPort;
 
@@ -200,6 +232,17 @@ function harness(options: {
       return ok(options.variant === undefined ? aVariant() : options.variant);
     },
   } as unknown as EditorialContentVariantRepositoryPort;
+
+  const contentPackage = options.contentPackage === undefined ? aPackage() : options.contentPackage;
+  const packages = {
+    async findById(workspaceId: WorkspaceId, id: string) {
+      const hit =
+        contentPackage !== null &&
+        workspaceId === contentPackage.workspaceId &&
+        String(id) === String(contentPackage.id);
+      return ok(hit ? contentPackage : null);
+    },
+  } as unknown as EditorialContentPackageRepositoryPort;
 
   const pubs = {
     async findById(workspaceId: WorkspaceId, id: string) {
@@ -246,6 +289,7 @@ function harness(options: {
   const base = testDeps();
   const uc = createPublishArticleUseCase({
     sites,
+    packages,
     variants,
     publications: pubs,
     articles,
@@ -257,6 +301,7 @@ function harness(options: {
   });
   const prepareUc = createPreparePublishArticleUseCase({
     sites,
+    packages,
     variants,
     publications: pubs,
     ids: base.ids,
@@ -278,6 +323,30 @@ beforeEach(() => {
 });
 
 describe("そろっているときの公開", () => {
+  it("担当外ブランドの記事はIDを知っていても公開準備も公開もできない", async () => {
+    const actor = anOwner({
+      scopedBrandIds: [taggedString<"BrandId">("brand-outside") as BrandId],
+    });
+    const prepared = await h.prepare({}, actor);
+    const published = await h.run({}, actor);
+    expect(prepared.ok).toBe(false);
+    expect(published.ok).toBe(false);
+    if (!prepared.ok) expect(prepared.error.code).toBe("TENANT_MISMATCH");
+    if (!published.ok) expect(published.error.code).toBe("TENANT_MISMATCH");
+    expect(h.saved).toEqual([]);
+  });
+
+  it("担当ブランドの記事でもブランド対応の無いブログ先は限定担当者に返さない", async () => {
+    const actor = anOwner({ scopedBrandIds: [BRAND_ID] });
+    const prepared = await h.prepare({}, actor);
+    const published = await h.run({}, actor);
+    expect(prepared.ok).toBe(false);
+    expect(published.ok).toBe(false);
+    if (!prepared.ok) expect(prepared.error.code).toBe("TENANT_MISMATCH");
+    if (!published.ok) expect(published.error.code).toBe("TENANT_MISMATCH");
+    expect(h.saved).toEqual([]);
+  });
+
   it("読者が開く URL を返す", async () => {
     const result = await h.run();
     expect(result.ok).toBe(true);
@@ -326,6 +395,30 @@ describe("そろっているときの公開", () => {
     });
     const evidence = h.saved[0].sections.flatMap((s) => s.claims ?? [])[0].evidence[0];
     expect(evidence.url).toBe("https://example.invalid/spec");
+  });
+
+  /**
+   * よくある質問。片方だけの行を落とすのは**ここ**の仕事。
+   * 画面で落とすと、AI 経由の公開（同じ入力の型を使う）だけが素通りする。
+   */
+  it("問いと答えが揃った行だけが記事に残る", async () => {
+    await h.run({
+      faq: [
+        { question: "  予算はいくら?  ", answer: "  10 万円台から。  " },
+        { question: "保証は?", answer: "   " },
+        { question: "", answer: "答えだけの行。" },
+      ],
+    });
+    expect(h.saved[0].faq).toEqual([{ question: "予算はいくら?", answer: "10 万円台から。" }]);
+  });
+
+  it("よくある質問が 1 件も無ければ、欄そのものを作らない", async () => {
+    // 空配列で入れると、画面の「あるか」の判定が真になり、
+    // 見出しだけの空欄が読者に出る。
+    await h.run({ faq: [] });
+    expect(h.saved[0].faq).toBeUndefined();
+    await h.run({ faq: [{ question: "問いだけ", answer: "" }] });
+    expect(h.saved.at(-1)?.faq).toBeUndefined();
   });
 
   it("見本の印を付けない（本物と見本を取り違えない）", async () => {
@@ -438,6 +531,22 @@ describe("公開できないとき", () => {
     expect(result.ok).toBe(false);
     if (result.ok) return;
     expect(result.error.message).toContain("ブログ");
+  });
+
+  it("別の作業場所が持つブログには公開できない", async () => {
+    const other = harness({
+      sites: [
+        {
+          slug: SITE_SLUG,
+          blueprint: aBlueprint({ workspaceId: OTHER_WORKSPACE }),
+        },
+      ],
+    });
+
+    const result = await other.run();
+
+    expect(result.ok).toBe(false);
+    expect(other.saved).toHaveLength(0);
   });
 
   it("そのブログに無いカテゴリーは選べない", async () => {
@@ -565,6 +674,27 @@ describe("出す前の画面に出すもの", () => {
     if (!result.ok) throw new Error("準備に失敗しました");
     expect(result.value.siteOptions.map((s) => s.slug)).toEqual([SITE_SLUG]);
     expect(result.value.siteOptions[0].categories.map((c) => c.slug)).toEqual(["laptop"]);
+  });
+
+  it("出し先には、自分の作業場所が持つブログだけを並べる", async () => {
+    const other = harness({
+      sites: [
+        { slug: SITE_SLUG, blueprint: aBlueprint() },
+        {
+          slug: "other-company-site",
+          blueprint: aBlueprint({
+            workspaceId: OTHER_WORKSPACE,
+            name: "別の会社のブログ",
+          }),
+        },
+      ],
+    });
+
+    const result = await other.prepare();
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.value.siteOptions.map((site) => site.slug)).toEqual([SITE_SLUG]);
   });
 
   it("広告との関係は、読者へ出す文そのものを選ばせる", async () => {

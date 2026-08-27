@@ -2,6 +2,7 @@ import type { LlmPort, LlmRequest, LlmResponse } from "@/application/ports";
 import type { LlmKeyAccess, LlmUsageRecorder } from "../key-access";
 import type { LlmPricingLookup, ModelPricing } from "../pricing";
 import { containsSecret, redactSecretsInText } from "@/domain/generation/llm-credential";
+import { markGenerationCapacityConsumed } from "@/domain/generation/capacity-consumption";
 import {
   type DomainError,
   type Result,
@@ -140,6 +141,7 @@ export function createHttpLlm(spec: ProviderSpec, deps: HttpLlmDeps): LlmPort {
     pricing: ModelPricing,
     inputTokens: number,
     outputTokens: number,
+    capacityConsumed: boolean,
     succeeded: boolean,
   ): Promise<Result<void, DomainError>> {
     return deps.usage.record({
@@ -151,6 +153,7 @@ export function createHttpLlm(spec: ProviderSpec, deps: HttpLlmDeps): LlmPort {
       outputTokens,
       estimatedCostMinor: costOf(inputTokens, outputTokens, pricing),
       currency: pricing.currency,
+      capacityConsumed,
       succeeded,
     });
   }
@@ -172,15 +175,19 @@ export function createHttpLlm(spec: ProviderSpec, deps: HttpLlmDeps): LlmPort {
       // 鍵の見えている範囲を通信の一瞬だけに縮める。
       const body = spec.buildBody(request, modelId);
 
+      let providerStarted = false;
       const called = await deps.vault.useKey({
         workspaceId: request.workspaceId,
         providerId: spec.providerId,
         fn: async (apiKey): Promise<Result<LlmResponse<T>, DomainError>> => {
-          const response = await doFetch(spec.endpoint(modelId), {
+          const endpoint = spec.endpoint(modelId);
+          const init: RequestInit = {
             method: "POST",
             headers: { "content-type": "application/json", ...spec.headers(apiKey) },
             body: JSON.stringify(body),
-          });
+          };
+          providerStarted = true;
+          const response = await doFetch(endpoint, init);
 
           if (!response.ok) {
             const text = await response.text().catch(() => "");
@@ -193,8 +200,18 @@ export function createHttpLlm(spec: ProviderSpec, deps: HttpLlmDeps): LlmPort {
 
       if (!called.ok) {
         // 鍵が無い・開けない・通信ごと失敗した。ここでは使った量が分からない。
-        const noted = await note(request.workspaceId, modelId, pricing.value, 0, 0, false);
-        if (!noted.ok) return noted;
+        const noted = await note(
+          request.workspaceId,
+          modelId,
+          pricing.value,
+          0,
+          0,
+          providerStarted,
+          false,
+        );
+        if (!noted.ok) {
+          return err(providerStarted ? markGenerationCapacityConsumed(noted.error) : noted.error);
+        }
         return called;
       }
       const result = called.value;
@@ -216,9 +233,10 @@ export function createHttpLlm(spec: ProviderSpec, deps: HttpLlmDeps): LlmPort {
         pricing.value,
         tokens.input,
         tokens.output,
+        true,
         result.ok,
       );
-      if (!noted.ok) return noted;
+      if (!noted.ok) return err(markGenerationCapacityConsumed(noted.error));
       return result;
     },
 

@@ -25,14 +25,19 @@ export const dynamic = "force-dynamic";
  */
 export default async function AudiencePersonasPage() {
   const actor = await currentActor();
-  const audiences = await personaUseCases().listAudiences.execute(actor, {});
+  const audiences = await (await personaUseCases()).listAudiences.execute(actor, {});
 
   return (
     <AdminShell
       routeId="personas/audiences"
       title="読者像"
       lead="誰に向けて書くかを決めます。"
-      actions={<TextLink href="/admin/personas">書き手へ戻る</TextLink>}
+      actions={
+        <>
+          <TextLink href="/admin/personas/audiences/new">読者像を作る</TextLink>
+          <TextLink href="/admin/personas">書き手へ戻る</TextLink>
+        </>
+      }
     >
       {!audiences.ok ? (
         /*

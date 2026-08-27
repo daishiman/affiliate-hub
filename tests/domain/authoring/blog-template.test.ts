@@ -38,6 +38,7 @@ import {
   orderBlocksForTemplate,
   resolvePageTheme,
 } from "@/domain/authoring/blog-template";
+import { SITE_DOCUMENT_KEYS, SITE_DOCUMENT_LABEL } from "@/domain/authoring/site-routes";
 
 /** 記事の中身は空でよい。ここで見ているのは並びと欠落だけ。 */
 function block(kind: ExpressionBlock["kind"], slotName?: string): ExpressionBlock {

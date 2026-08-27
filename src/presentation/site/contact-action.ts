@@ -1,5 +1,6 @@
 "use server";
 
+import { headers } from "next/headers";
 import { readerActor, readerUseCases } from "@/presentation/composition";
 import { refusalText } from "@/presentation/refusal-text";
 
@@ -33,13 +34,20 @@ export async function submitContactAction(
   const siteSlug = String(formData.get("siteSlug") ?? "");
   const body = String(formData.get("body") ?? "");
   const replyTo = String(formData.get("replyTo") ?? "");
-  const token = String(formData.get("humanCheckToken") ?? "");
+  const token = String(
+    formData.get("cf-turnstile-response") ?? formData.get("humanCheckToken") ?? "",
+  );
+  const requestIdentity = await contactRequestIdentity();
 
-  const result = await readerUseCases().submitContact.execute(readerActor(), {
+  const result = await (await readerUseCases()).submitContact.execute(readerActor(), {
     siteSlug,
     body,
     replyTo: replyTo === "" ? undefined : replyTo,
     humanCheckToken: token === "" ? undefined : token,
+    rateLimitIdentity: requestIdentity === undefined
+      ? undefined
+      : { scope: "ip", value: requestIdentity.remoteIp },
+    remoteIp: requestIdentity?.remoteIp,
   });
 
   if (!result.ok) {
@@ -54,4 +62,20 @@ export async function submitContactAction(
     status: "done",
     message: `受け付けました（受付番号 ${result.value.receiptId}）。`,
   };
+}
+
+async function contactRequestIdentity(): Promise<
+  { readonly remoteIp: string } | undefined
+> {
+  try {
+    const incoming = await headers();
+    // Cloudflareが認証して付ける値だけを信頼する。x-forwarded-forはクライアントが
+    // 任意に名乗れる環境があるため、回数制限にもSiteverifyにも渡さない。
+    const cloudflareIp = incoming.get("cf-connecting-ip")?.trim();
+    if (!cloudflareIp) return undefined;
+    return { remoteIp: cloudflareIp };
+  } catch {
+    // request metadata が取れない実行は、ユースケースが fail-closed で断る。
+    return undefined;
+  }
 }

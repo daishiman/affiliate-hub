@@ -17,23 +17,53 @@ import type {
   SiteDraftId,
   WorkspaceId,
 } from "@/domain/shared";
-import type { PageRequest, Paged, PortResult } from "./common";
+import type { BrandScopeFilter, PageRequest, Paged, PortResult } from "./common";
 
 export type ContentPackageRepositoryPort = {
   findById(workspaceId: WorkspaceId, id: ContentPackageId): PortResult<ContentPackage | null>;
-  list(workspaceId: WorkspaceId, page: PageRequest): PortResult<Paged<ContentPackage>>;
+  list(
+    workspaceId: WorkspaceId,
+    page: PageRequest,
+    brandScope?: BrandScopeFilter,
+  ): PortResult<Paged<ContentPackage>>;
   save(pkg: ContentPackage): PortResult<ContentPackage>;
 };
 
 export type ContentVariantRepositoryPort = {
   findById(workspaceId: WorkspaceId, id: ContentVariantId): PortResult<ContentVariant | null>;
+  /**
+   * 本文と、その保存先が管理する単調増加版を一緒に読む。
+   *
+   * `ContentVariant` は AI 出力契約なので保存用 metadata を混ぜない。
+   * 外部配信はこの版を予約時に固定し、送信権の確保時に現在版と照合する。
+   */
+  findVersionedById(
+    workspaceId: WorkspaceId,
+    id: ContentVariantId,
+  ): PortResult<{
+    readonly variant: ContentVariant;
+    readonly revision: number;
+    /** trueならcontent_variants実表にあり、D1の原子的claim条件で照合できる。 */
+    readonly persisted: boolean;
+  } | null>;
   listByPackage(
     workspaceId: WorkspaceId,
     packageId: ContentPackageId,
   ): PortResult<readonly ContentVariant[]>;
-  listByState(workspaceId: WorkspaceId, state: ContentState, page: PageRequest): PortResult<Paged<ContentVariant>>;
+  listByState(
+    workspaceId: WorkspaceId,
+    state: ContentState,
+    /** brandScope適用後のContentVariantId昇順。cursorは直前ページ末尾のID。 */
+    page: PageRequest,
+    brandScope?: BrandScopeFilter,
+  ): PortResult<Paged<ContentVariant>>;
   /** 次回確認日を過ぎた公開済み記事。運用の起点になる。 */
-  listReviewOverdue(workspaceId: WorkspaceId, at: Date, limit: number): PortResult<readonly ContentVariant[]>;
+  listReviewOverdue(
+    workspaceId: WorkspaceId,
+    at: Date,
+    limit: number,
+    brandScope?: BrandScopeFilter,
+  ): PortResult<readonly ContentVariant[]>;
   save(variant: ContentVariant): PortResult<ContentVariant>;
   /**
    * 進行の現在地（§18.1 の 12 段階）を読む。まだ記録が無ければ `null`。

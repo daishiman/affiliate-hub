@@ -27,6 +27,10 @@ import {
   taggedString,
 } from "@/domain/shared";
 import type { UseCase } from "../usecase";
+import {
+  assertContentPackageBrandScope,
+  assertContentVariantBrandScope,
+} from "./content-brand-access";
 
 /**
  * 記事 1 本を、人の手で作る・直す・消す。
@@ -85,6 +89,13 @@ async function loadOwned(
       }),
     );
   }
+  const scoped = await assertContentVariantBrandScope(
+    deps.packages,
+    actor,
+    found.value,
+    "記事",
+  );
+  if (!scoped.ok) return err(scoped.error);
   return ok(found.value);
 }
 
@@ -164,6 +175,8 @@ export function createCreateContentVariantUseCase(
           }),
         );
       }
+      const scoped = assertContentPackageBrandScope(actor, pkg.value, "記事のまとまり");
+      if (!scoped.ok) return err(scoped.error);
 
       const built = createContentVariant({
         id: taggedString<"ContentVariantId">(

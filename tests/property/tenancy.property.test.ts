@@ -49,6 +49,7 @@ const actorArb = (workspaceId: string) =>
         workspaceId: taggedString<"WorkspaceId">(workspaceId),
         userId: "u_prop",
         roles,
+        scopedBrandIds: [],
         isAiServiceAccount: isAi,
         identified: true,
       }),
@@ -68,6 +69,7 @@ describe("テナントの境界", () => {
             workspaceId: taggedString<"WorkspaceId">(actorWs),
             userId: "u_prop",
             roles: ["owner"],
+            scopedBrandIds: [],
             isAiServiceAccount: false,
             identified: true,
           };
@@ -95,6 +97,7 @@ describe("テナントの境界", () => {
             workspaceId: taggedString<"WorkspaceId">(actorWs),
             userId: "u_prop",
             roles: ["owner"],
+            scopedBrandIds: [],
             isAiServiceAccount: false,
             identified: true,
           };
@@ -117,7 +120,14 @@ describe("テナントの境界", () => {
         const id = taggedString<"WorkspaceId">(ws);
         const entity = { workspaceId: id, payload: "x" };
         const result = assertSameTenant(
-          { workspaceId: id, userId: "u", roles: [], isAiServiceAccount: false, identified: true },
+          {
+            workspaceId: id,
+            userId: "u",
+            roles: [],
+            scopedBrandIds: [],
+            isAiServiceAccount: false,
+            identified: true,
+          },
           entity,
           "記事",
         );
@@ -152,6 +162,7 @@ describe("権限の性質", () => {
           workspaceId: taggedString<"WorkspaceId">("ws"),
           userId: "u_ai",
           roles,
+          scopedBrandIds: [],
           isAiServiceAccount: true,
           identified: true,
         };
@@ -180,6 +191,7 @@ describe("権限の性質", () => {
               workspaceId: taggedString<"WorkspaceId">("ws"),
               userId: "u",
               roles: [],
+              scopedBrandIds: [],
               isAiServiceAccount: isAi,
               identified: true,
             },
@@ -208,6 +220,7 @@ describe("権限の性質", () => {
           workspaceId: taggedString<"WorkspaceId">("ws"),
           userId: "u",
           roles: have,
+          scopedBrandIds: [],
           isAiServiceAccount: false,
           identified: true,
         };

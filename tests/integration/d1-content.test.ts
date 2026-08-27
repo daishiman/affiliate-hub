@@ -6,16 +6,21 @@ import { drizzle } from "drizzle-orm/d1";
 import { getPlatformProxy } from "wrangler";
 import * as schema from "@/db/schema";
 import { createDeps } from "@/infrastructure/composition";
+import type { EditorialPublishedContentPort } from "@/application/ports/site";
+import type { PublishedArticle } from "@/application/read-models/published-article";
 import {
   createAdvanceContentStateUseCase,
   createApproveContentUseCase,
   createListContentBoardUseCase,
   createGetContentUseCase,
 } from "@/application/usecases/content/manage-content";
-import type { ManageContentDeps } from "@/application/usecases/content/manage-content";
-import type { ActorContext } from "@/domain/shared";
+import type { AdvanceContentStateDeps } from "@/application/usecases/content/manage-content";
+import type { Publication } from "@/domain/distribution";
+import type { ActorContext, ContentPackageId, ContentVariantId } from "@/domain/shared";
+import { ok, taggedString } from "@/domain/shared";
 import { SAMPLE_WORKSPACE_ID } from "@/infrastructure/persistence/sample/ranking-sample-repository";
 import { anOwner } from "../support/actors";
+import { failing } from "../support/doubles";
 
 /**
  * 記事の進行を、**本物の D1 と本物のマイグレーション**で通す結合テスト。
@@ -44,7 +49,8 @@ type TestEnv = { readonly DB: D1Database };
 type Proxy = Awaited<ReturnType<typeof getPlatformProxy<TestEnv>>>;
 
 let proxy: Proxy;
-let deps: ManageContentDeps;
+let deps: AdvanceContentStateDeps;
+let publishedContent: EditorialPublishedContentPort;
 
 /** 見本の記事と同じ作業場所にいて、記事の編集と承認ができる人。 */
 const editor: ActorContext = anOwner({ workspaceId: SAMPLE_WORKSPACE_ID });
@@ -86,7 +92,10 @@ beforeAll(async () => {
     auditLog: all.auditLog,
     ids: all.ids,
     events: all.events,
+    publications: all.publications,
+    articles: all.publishedArticles,
   };
+  publishedContent = all.publishedContent;
 }, 60_000);
 
 afterAll(async () => {
@@ -95,7 +104,22 @@ afterAll(async () => {
 
 beforeEach(async () => {
   await proxy.env.DB.prepare("DELETE FROM content_variants").run();
+  await proxy.env.DB.prepare("DELETE FROM content_packages").run();
   await proxy.env.DB.prepare("DELETE FROM audit_logs").run();
+  await proxy.env.DB.prepare("DELETE FROM publications").run();
+  await proxy.env.DB.prepare("DELETE FROM published_articles").run();
+  await proxy.env.DB.prepare("DELETE FROM published_article_tombstones").run();
+  await proxy.env.DB.prepare("DELETE FROM site_blueprints").run();
+  await proxy.env.DB.prepare(
+    `INSERT INTO site_blueprints
+      (id, workspace_id, slug, name, pattern, published_at, blueprint_json)
+     VALUES (
+       'sb_archive_owner', ?, 'archive-integration-site', '取り下げ検証ブログ',
+       'specialist_review', unixepoch(), '{}'
+     )`,
+  )
+    .bind(String(editor.workspaceId))
+    .run();
 });
 
 /** 承認の理由。空だと承認そのものが断られる（記録に理由が要るため）。 */
@@ -132,6 +156,148 @@ describe("マイグレーションそのもの", () => {
     expect(state, "進行の現在地の列がありません").toBeDefined();
     // 現在地を空にできると、どの列にも出ない記事が生まれる。
     expect(state?.notnull).toBe(1);
+    const revision = columns.results.find((c) => c.name === "revision");
+    expect(revision, "承認済み本文の版を表す列がありません").toBeDefined();
+    expect(revision?.notnull).toBe(1);
+  });
+});
+
+describe("記事本文の版", () => {
+  it("本文保存は版を単調増加し、進行状態だけの保存は版を変えない", async () => {
+    const id = taggedString<"ContentVariantId">(IN_FACT_CHECK) as ContentVariantId;
+    const initial = await deps.variants.findVersionedById(editor.workspaceId, id);
+    if (!initial.ok || initial.value === null) throw new Error("見本記事がありません");
+
+    const firstSave = await deps.variants.save({
+      ...initial.value.variant,
+      body: `${initial.value.variant.body}\n初回の本文変更`,
+    });
+    if (!firstSave.ok) throw firstSave.error;
+    const afterFirst = await deps.variants.findVersionedById(editor.workspaceId, id);
+    if (!afterFirst.ok || afterFirst.value === null) throw new Error("保存後の記事がありません");
+    expect(afterFirst.value.revision).toBe(initial.value.revision + 1);
+
+    const stateSaved = await deps.variants.saveState(editor.workspaceId, id, "COMPLIANCE_REVIEW");
+    if (!stateSaved.ok) throw stateSaved.error;
+    const afterState = await deps.variants.findVersionedById(editor.workspaceId, id);
+    if (!afterState.ok || afterState.value === null) throw new Error("進行更新後の記事がありません");
+    expect(afterState.value.revision).toBe(afterFirst.value.revision);
+
+    const secondSave = await deps.variants.save({
+      ...afterState.value.variant,
+      disclosure: `${afterState.value.variant.disclosure}（更新）`,
+    });
+    if (!secondSave.ok) throw secondSave.error;
+    const afterSecond = await deps.variants.findVersionedById(editor.workspaceId, id);
+    if (!afterSecond.ok || afterSecond.value === null) throw new Error("再保存後の記事がありません");
+    expect(afterSecond.value.revision).toBe(afterFirst.value.revision + 1);
+  });
+});
+
+describe("ブランド限定一覧のページング", () => {
+  it("担当外をlimit前に除き、nextCursorも担当記事だけで進める", async () => {
+    for (const [id, brandId] of [
+      ["cp-scope-outside", "brand-outside"],
+      ["cp-scope-allowed-1", "brand-allowed"],
+      ["cp-scope-allowed-2", "brand-allowed"],
+    ] as const) {
+      await proxy.env.DB.prepare(
+        `INSERT INTO content_packages
+          (id, workspace_id, objective, status, domain_scope, updated_at, package_json)
+         VALUES (?, ?, ?, 'researching', 'general', unixepoch(), ?)`,
+      )
+        .bind(id, String(editor.workspaceId), id, JSON.stringify({ brandId }))
+        .run();
+    }
+
+    const sample = await deps.variants.findById(
+      editor.workspaceId,
+      taggedString<"ContentVariantId">(IN_FACT_CHECK) as ContentVariantId,
+    );
+    if (!sample.ok || sample.value === null) throw new Error("見本記事がありません");
+    for (const [id, packageId] of [
+      ["cv-scope-outside", "cp-scope-outside"],
+      ["cv-scope-allowed-2", "cp-scope-allowed-2"],
+      ["cv-scope-allowed-1", "cp-scope-allowed-1"],
+    ] as const) {
+      const variant = {
+        ...sample.value,
+        id: taggedString<"ContentVariantId">(id) as ContentVariantId,
+        contentPackageId: taggedString<"ContentPackageId">(packageId) as ContentPackageId,
+      };
+      const saved = await deps.variants.save(variant);
+      if (!saved.ok) throw saved.error;
+      const state = await deps.variants.saveState(editor.workspaceId, variant.id, "FACT_CHECK");
+      if (!state.ok) throw state.error;
+    }
+
+    const scope = { brandIds: [taggedString<"BrandId">("brand-allowed")] };
+    const first = await deps.variants.listByState(
+      editor.workspaceId,
+      "FACT_CHECK",
+      { limit: 1, cursor: null },
+      scope,
+    );
+    expect(first.ok).toBe(true);
+    if (!first.ok) return;
+    expect(first.value.items.map((variant) => String(variant.id))).toEqual([
+      "cv-scope-allowed-1",
+    ]);
+    expect(first.value.nextCursor).toBe("cv-scope-allowed-1");
+
+    const removedCursor = await deps.variants.remove(
+      editor.workspaceId,
+      taggedString<"ContentVariantId">("cv-scope-allowed-1") as ContentVariantId,
+    );
+    if (!removedCursor.ok) throw removedCursor.error;
+    const insertedBeforeCursor = {
+      ...sample.value,
+      id: taggedString<"ContentVariantId">("cv-scope-allowed-0") as ContentVariantId,
+      contentPackageId: taggedString<"ContentPackageId">(
+        "cp-scope-allowed-1",
+      ) as ContentPackageId,
+    };
+    const inserted = await deps.variants.save(insertedBeforeCursor);
+    if (!inserted.ok) throw inserted.error;
+    const insertedState = await deps.variants.saveState(
+      editor.workspaceId,
+      insertedBeforeCursor.id,
+      "FACT_CHECK",
+    );
+    if (!insertedState.ok) throw insertedState.error;
+
+    const second = await deps.variants.listByState(
+      editor.workspaceId,
+      "FACT_CHECK",
+      { limit: 1, cursor: first.value.nextCursor },
+      scope,
+    );
+    expect(second.ok).toBe(true);
+    if (!second.ok) return;
+    expect(second.value.items.map((variant) => String(variant.id))).toEqual([
+      "cv-scope-allowed-2",
+    ]);
+    expect(second.value.nextCursor).toBeNull();
+
+    for (const id of ["cv-scope-outside", "cv-scope-allowed-0", "cv-scope-allowed-2"]) {
+      const moved = await deps.variants.saveState(
+        editor.workspaceId,
+        taggedString<"ContentVariantId">(id) as ContentVariantId,
+        "REFRESH_DUE",
+      );
+      if (!moved.ok) throw moved.error;
+    }
+    const overdue = await deps.variants.listReviewOverdue(
+      editor.workspaceId,
+      new Date(),
+      1,
+      scope,
+    );
+    expect(overdue.ok).toBe(true);
+    if (!overdue.ok) return;
+    expect(overdue.value.map((variant) => String(variant.id))).toEqual([
+      "cv-scope-allowed-0",
+    ]);
   });
 });
 
@@ -215,6 +381,138 @@ describe("進めた段階が保存される（読み直して確かめる）", (
       .bind(IN_FACT_CHECK)
       .all<{ n: number }>();
     expect(rows.results[0]?.n).toBe(0);
+  });
+
+  it("公開記事を ARCHIVED にすると、監査を残して読者向けの写しを外す", async () => {
+    const article: PublishedArticle = {
+      slug: "archive-integration",
+      siteSlug: "archive-integration-site",
+      type: "guide",
+      title: "取り下げ経路を確かめる記事",
+      summary: "公開した写しが ARCHIVED と一緒に外れることを確かめます。",
+      categorySlug: "checks",
+      publishedAt: "2026-08-26",
+      updatedAt: "2026-08-26",
+      author: { slug: "editor", name: "編集者", bio: "検証担当", credentials: [] },
+      disclosureRequired: false,
+      sections: [],
+    };
+    expect((await deps.articles.save(editor.workspaceId, article)).ok).toBe(true);
+    const publication = {
+      id: "pub_own_site",
+      workspaceId: editor.workspaceId,
+      variantId: IN_FACT_CHECK,
+      variantRevision: null,
+      channelKind: "own_site",
+      connectionId: "conn_own_site",
+      state: "PUBLISHED",
+      scheduledAt: null,
+      idempotencyKey: "archive-integration:key",
+      providerIdentity: null,
+      attempts: 1,
+      externalId: article.slug,
+      externalUrl: `/s/${article.siteSlug}/guides/${article.slug}`,
+      lastError: null,
+      publishedAt: new Date("2026-08-26T00:00:00Z"),
+    } as Publication;
+    expect((await deps.publications.save(publication)).ok).toBe(true);
+    expect(
+      (
+        await deps.variants.saveState(
+          editor.workspaceId,
+          IN_FACT_CHECK as ContentVariantId,
+          "PUBLISHED",
+        )
+      ).ok,
+    ).toBe(true);
+
+    const archived = await advance().execute(editor, {
+      variantId: IN_FACT_CHECK,
+      from: "PUBLISHED",
+      to: "ARCHIVED",
+      reason: "公開内容を見直すため",
+    });
+    expect(archived.ok, archived.ok ? "" : archived.error.message).toBe(true);
+
+    const found = await publishedContent.findArticle(article.siteSlug, article.slug);
+    if (!found.ok) throw new Error("読者向けの記事を読み直せませんでした");
+    expect(found.value).toBeNull();
+    const audit = await proxy.env.DB.prepare(
+      "SELECT action, reason FROM audit_logs WHERE target_id = ?",
+    )
+      .bind(IN_FACT_CHECK)
+      .all<{ action: string; reason: string | null }>();
+    expect(audit.results).toContainEqual({
+      action: "content.unpublished",
+      reason: "公開内容を見直すため",
+    });
+  });
+
+  it("監査だけ失敗したARCHIVEDを、同じ要求で補記し重複させない", async () => {
+    const moved = await deps.variants.saveState(
+      editor.workspaceId,
+      IN_FACT_CHECK as ContentVariantId,
+      "PUBLISHED",
+    );
+    if (!moved.ok) throw moved.error;
+
+    let rejectNextAppend = true;
+    const retryingDeps: AdvanceContentStateDeps = {
+      ...deps,
+      publications: {
+        ...deps.publications,
+        async listByVariant() {
+          return ok([]);
+        },
+      },
+      auditLog: {
+        ...deps.auditLog,
+        async append(entry) {
+          if (rejectNextAppend) {
+            rejectNextAppend = false;
+            return failing("監査記録の保存先に一時的に繋がりません。");
+          }
+          return deps.auditLog.append(entry);
+        },
+      },
+    };
+    const useCase = createAdvanceContentStateUseCase(retryingDeps);
+    const input = {
+      variantId: IN_FACT_CHECK,
+      from: "PUBLISHED" as const,
+      to: "ARCHIVED" as const,
+      reason: "公開内容を見直すため",
+    };
+
+    const first = await useCase.execute(editor, input);
+    expect(first.ok).toBe(false);
+    expect(await columnOf(IN_FACT_CHECK)).toBe("ARCHIVED");
+
+    const resumed = await useCase.execute(editor, input);
+    expect(resumed.ok, resumed.ok ? "" : resumed.error.message).toBe(true);
+    const repeated = await useCase.execute(editor, input);
+    expect(repeated.ok, repeated.ok ? "" : repeated.error.message).toBe(true);
+
+    const audits = await proxy.env.DB.prepare(
+      `SELECT action, reason, before_json, after_json
+       FROM audit_logs
+       WHERE workspace_id = ? AND target_type = 'content_variant' AND target_id = ?`,
+    )
+      .bind(String(editor.workspaceId), IN_FACT_CHECK)
+      .all<{
+        action: string;
+        reason: string | null;
+        before_json: string | null;
+        after_json: string | null;
+      }>();
+    expect(audits.results).toEqual([
+      {
+        action: "content.unpublished",
+        reason: "公開内容を見直すため",
+        before_json: JSON.stringify({ state: "PUBLISHED" }),
+        after_json: JSON.stringify({ state: "ARCHIVED" }),
+      },
+    ]);
   });
 });
 

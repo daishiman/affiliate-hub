@@ -10,7 +10,7 @@ import { normalizeInvitedEmail } from "@/domain/identity";
 import { type WorkspaceId, ok } from "@/domain/shared";
 import { WORKSPACE, aNobody, anAnalyst, anOwner } from "../support/actors";
 import { NOW } from "../support/clock";
-import { recordingAuditLog, testDeps } from "../support/doubles";
+import { failing, recordingAuditLog, testDeps } from "../support/doubles";
 import { aMembership } from "../support/factories";
 
 /**
@@ -71,6 +71,7 @@ function build(seed: readonly Membership[] = []) {
     auditLog: audit.port,
     ids: { newId: () => "id1" },
     now: () => NOW,
+    capacity: { withLease: async (_workspaceId, _kind, mutation) => mutation() },
   };
   return { uc: createManageMembersUseCase(deps), memberships, audit };
 }
@@ -78,6 +79,31 @@ function build(seed: readonly Membership[] = []) {
 const owner = anOwner();
 
 describe("担当者を招く", () => {
+  it("上限なら保存前に止める", async () => {
+    const memberships = memoryMemberships();
+    const audit = recordingAuditLog();
+    const deps = testDeps();
+    const result = await createManageMembersUseCase({
+      workspaces: deps.workspaces,
+      memberships: memberships.port,
+      brands: deps.brands,
+      disclosures: deps.disclosures,
+      auditLog: audit.port,
+      ids: { newId: () => "id-limit" },
+      now: () => NOW,
+      capacity: { withLease: async () => failing("担当者の上限です。") },
+    }).execute(owner, {
+      action: "invite",
+      invitedEmail: "limit@example.com",
+      displayName: "上限",
+      roles: ["writer"],
+    });
+
+    expect(result.ok).toBe(false);
+    expect(memberships.rows()).toHaveLength(0);
+    expect(audit.entries()).toHaveLength(0);
+  });
+
   it("行が残り、まだ誰のものでもない", async () => {
     const { uc, memberships } = build();
     const result = await uc.execute(owner, {

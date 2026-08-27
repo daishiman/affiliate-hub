@@ -146,6 +146,10 @@ export const REACHABLE_SCREENS: Readonly<Record<string, ReachEntry>> = {
 
   // ── 配信 ────────────────────────────────────────────────
   list_channels: { screen: "admin/distribution/page.tsx" },
+  register_channel_connection: {
+    screen: "admin/tools/page.tsx",
+    note: "人のセッション専用の道具実行画面。AIサービスアカウントとブランド限定担当者はusecaseで拒否する",
+  },
   list_publications: { screen: "admin/distribution/page.tsx" },
   get_publication: { screen: "admin/distribution/[publication]/page.tsx" },
   update_publication: { screen: "admin/distribution/[publication]/edit/page.tsx" },
@@ -172,6 +176,11 @@ export const REACHABLE_SCREENS: Readonly<Record<string, ReachEntry>> = {
   resolve_link_ingestion: { screen: "admin/inbox/page.tsx" },
   match_link_ingestion_product: { screen: "admin/inbox/page.tsx" },
   register_affiliate_link: { screen: "admin/inbox/page.tsx" },
+  list_affiliate_links: { screen: "admin/affiliate/links/page.tsx" },
+  disable_affiliate_link: {
+    screen: "admin/affiliate/links/page.tsx",
+    note: "行ごとの確認欄（止める理由が要る）",
+  },
   reject_link_ingestion: { screen: "admin/inbox/page.tsx" },
 
   // ── 数字 ────────────────────────────────────────────────

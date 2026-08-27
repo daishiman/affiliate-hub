@@ -1,5 +1,6 @@
 import { z } from "zod";
 import type { AppDeps } from "@/application/deps";
+import { createCapacityGuard } from "@/application/capacity";
 import {
   createCreateSiteFromDraftUseCase,
   createGetSiteDraftUseCase,
@@ -114,11 +115,16 @@ export function platformTools(deps: AppDeps): readonly AnyToolDefinition[] {
  * 名前も URL も後から気軽には変えられないため。
  */
 function siteBuilderTools(deps: AppDeps): readonly AnyToolDefinition[] {
+  const capacity = createCapacityGuard({
+    workspaces: deps.workspaces,
+    now: () => new Date(),
+  });
   const builder = {
     drafts: deps.siteDrafts,
     ids: deps.ids,
     auditLog: deps.auditLog,
     now: () => new Date(),
+    capacity,
   };
 
   return [

@@ -47,5 +47,8 @@ export function withTrackingLinkIssuance(
       if (!issued.ok) return writer.save(workspaceId, article);
       return writer.save(workspaceId, applyTrackingCodes(article, issued.value));
     },
+    unpublish(workspaceId: WorkspaceId, siteSlug: string, slug: string) {
+      return writer.unpublish(workspaceId, siteSlug, slug);
+    },
   });
 }

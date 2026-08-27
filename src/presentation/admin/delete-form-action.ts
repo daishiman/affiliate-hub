@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import {
+  affiliateUseCases,
   contentEditingUseCases,
   distributionUseCases,
   productEditingUseCases,
@@ -122,5 +123,39 @@ export async function cancelPublicationAction(
     status: "done",
     message: `${result.value.card.channelLabel} への配信を取りやめました。`,
     listPath: "/admin/distribution",
+  };
+}
+
+/**
+ * 成果リンクを止める。
+ *
+ * 上の 4 つと違い、**行は 1 つも消えない。** `disabled_at` が立つだけで、
+ * 記事に貼ったままでも公開のときに読者へ出なくなる。
+ * 消さないのは、読者が実際に見た商品名と URL を残すためで、
+ * 「この値段だと書いてあったから買った」に後から答えられるのはこの行だけである。
+ *
+ * だから戻り先は一覧のまま。止めた直後に、同じ商品を新しいリンクとして
+ * 登録し直す作業が続くので、その入口が見えている場所へ戻す。
+ */
+export async function disableAffiliateLinkAction(
+  _prev: DeleteFormState,
+  formData: FormData,
+): Promise<DeleteFormState> {
+  const actor = await signedInActor();
+  if (actor === null) return notSignedInFailure("成果リンクを止める");
+
+  const result = await (await affiliateUseCases()).disableLink.execute(actor, {
+    affiliateLinkId: String(formData.get("affiliateLinkId") ?? ""),
+    reason: String(formData.get("reason") ?? ""),
+  });
+
+  if (!result.ok) return failureFromDomainError(result.error);
+
+  revalidatePath("/admin/affiliate/links");
+
+  return {
+    status: "done",
+    message: result.value.message,
+    listPath: "/admin/affiliate/links",
   };
 }
