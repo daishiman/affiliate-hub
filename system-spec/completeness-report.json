@@ -483,7 +483,7 @@
   ],
   "gaps": [],
   "inputs": {
-    "sha256": "42b6a7888906cb20de19dd5d08c3a3128e2a45d0abd79c5137e76fa480d85bea",
+    "sha256": "bca7bb778f9d0b659d43bffbb899c52104b6cfe0234874fd44a7f067718c5dcf",
     "file_count": 81,
     "files": [
       {
@@ -688,8 +688,8 @@
       },
       {
         "path": "docs/spec/feat-blog-ops-crud/release-report.md",
-        "sha256": "841438fa2260115d16002c47306025437eb8e87b586b228f5dac4553f7426036",
-        "mtime": 1787756911
+        "sha256": "0e15ed5ea752e0663b47ce30ff2a9e9723ca8893e7e5196cba6a7de2e3f6fcc0",
+        "mtime": 1787808903
       },
       {
         "path": "docs/spec/feat-blog-ops-crud/requirements-baseline.md",
@@ -892,6 +892,6 @@
         "mtime": 1787790974
       }
     ],
-    "pinned_at": "2026-08-27T04:31:16.408Z"
+    "pinned_at": "2026-08-27T05:35:13.942Z"
   }
 }

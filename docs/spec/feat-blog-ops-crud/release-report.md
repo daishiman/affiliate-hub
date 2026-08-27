@@ -1,69 +1,80 @@
 # 公開報告（feat-blog-ops-crud / P13）
 
-更新日: 2026-08-27  
-execution status: **in_progress**  
-release: **blocked**
+更新日: 2026-08-27
+execution status: **in_progress**
+release: **未実施（PR は出ている / 配信はしていない）**
 
-P10 の現行判定は blocked であり、P13 の entry gate は開いていない。加えて commit / push / PR / deploy の権限もこの作業には含まれない。したがって開発環境反映・PR・system-spec書き戻しは実施せず、完了とも扱わない。
+## いまどこまで進んだか
 
-## Historical snapshot (invalidated prerequisites; audit only)
+| P13 の受入条件 | 結果 | 確かめ方 |
+|---|---|---|
+| `pnpm run build` | **exit 0** | 2026-08-27 実行。差分なし |
+| `pnpm run build:worker`（OpenNext 変換） | **exit 0** | `.open-next/worker.js` 生成（41M） |
+| `pnpm run preview`（workerd 起動） | **起動・応答あり** | 下表 |
+| `validate-system-plan.py --feature-package feature-package/feat-blog-ops-crud` | **exit 0** | `violations: []` |
+| `dev` への PR | **#33 OPEN / MERGEABLE / CI 緑** | base=`dev`, head=`daishiman/ブラグ作成のCRUD`。`gh pr view 33` で引ける |
+| `pnpm run deploy:dev`（開発環境への配信） | **未実施** | 下記「残っていること」 |
+| system-spec への書き戻し | **未実施** | 配信の結果を書くので、配信の後 |
 
-> 以下は 2026-08-26 の停止記録。当時の「前提」判定は現行 worktree の完了証明に使用しない。
+### workerd 上での応答
 
-記録日: 2026-08-26
+`opennextjs-cloudflare preview` を起動し、`env.DB`（D1）と `env.BUCKET`（R2）が
+local mode で解決された状態で確認した。
 
-## 判定: **blocked（未実施）**
+| 経路 | 応答 | 読み方 |
+|---|---|---|
+| `/` | 200 | |
+| `/signin` | 200 | |
+| `/admin` | **307** | 未ログインなので入口へ戻される。**ここが 200 なら異常**（Workers 上で認証の関所が効いていない） |
 
-**この phase は完了していない。** 完了扱いにしないために、
-止まった位置と、再開に必要な手順をここへ書く。
+`next build` が通っても workerd で落ちることはある。Node 前提の API が混ざると
+変換は成功して実行時に落ちるためで、受入条件が build と preview の 2 段に
+分かれているのはそのためである。今回は両方通っている。
 
-## なぜ止まっているか
+## 残っていること（この回では実施しない）
 
-P13 は次の 2 つを伴う。
+1. **PR #33 を `dev` へマージする** — 外向きの操作なので本人の判断で行う
+2. **`pnpm run deploy:dev`** — Cloudflare Workers / D1 / R2 への実際の反映。
+   取り消しの効かない外部への変更なので、明示の指示なしには実行しない
+3. **system-spec への書き戻し** — 2 の結果を記録するものなので、2 の後
 
-1. 開発環境（Cloudflare Workers）への配信 — `pnpm run deploy:dev`
-2. `dev` への PR 作成
+`dev` との差は 5 コミット（先頭 `f3a79b8`）。
 
-この回は **commit / push / PR 作成が明示的に禁止**されている。
-したがって 1 も 2 も実行していない。
+## 配信した後に確かめること
 
-**「ローカルで全部緑だから公開相当」とは書かない。** 公開していない。
-
-## 前提は満たしている
-
-[`final-review.md`](./final-review.md) の判定は **readiness = complete / promotion 可**。
-公開を止めているのは品質ではなく、この回の権限である。
-
-| ゲート | 結果 |
-|---|---|
-| 型検査 / 静的解析 | 0 件 / 0 件 |
-| 回帰 7235 件 | 0 失敗 |
-| E2E 364 件 | 0 失敗 |
-| a11y（主要 6 画面） | 重大 0 件 |
-| 転用禁止（構造） | 疑い 0 件 |
-
-## 再開する人がやること
-
-**枝の宛先に注意する。** この repository では PR の既定の宛先は `dev` で、
-`main` へ直接出すと `branch-flow.yml` が落とす（`AGENTS.md`）。
-
-1. 現在の差分を確認する（`git status`）
-2. `dev` から枝を切って commit する（枝名の例: `feat/blog-ops-crud`）
-3. 開発環境へ配信する（`pnpm run deploy:dev`）
-4. PR を `dev` へ出す（宛先を省くと既定ブランチ = `dev`）
-
-## 配信後に確かめること
-
-デプロイは「通った」だけでは足りない。**出したものが本当に出ているか**は
-この feature で入れた画面が見る。
+**デプロイが「通った」ことと、出したものが「出ている」ことは別である。**
+この feature で入れた点検画面がそこを見る。
 
 1. `/admin/blog/delivery` を開く
 2. 「点検する」を押す
 3. 9 種の配信部品が `ok` になるか、`missing` が出るかを見る
 
-**`unchecked`（まだ点検していません）のまま「問題なし」と読まない。**
+**`unchecked`（まだ点検していません）を「問題なし」と読まないこと。**
 押していないだけである。
 
-## system-spec への書き戻し
+## 枝の宛先
 
-未実施。P13 の完了時に行う。
+この repository では PR の既定の宛先は `dev` で、`main` へ直接出すと
+`branch-flow.yml` が落とす（`AGENTS.md`）。PR #33 の base は `dev` である。
+
+## 品質ゲートの結果
+
+[`final-review.md`](./final-review.md) の判定は readiness = complete / promotion 可。
+
+| ゲート | 結果 |
+|---|---|
+| `pnpm verify` 全 14 門 | 通過（2026-08-27） |
+| 回帰 8280 件 / 334 ファイル | 0 失敗 |
+| 型検査 / 静的解析 | 0 件 / 0 件 |
+| E2E 364 件 | 0 失敗 |
+| a11y（主要 6 画面） | 重大 0 件 |
+| 転用禁止（構造） | 疑い 0 件 |
+| 依存の脆弱性（high 以上） | 0 件 |
+
+閾値・層別下限・`KNOWN_STALE_MAX` はいずれも変更していない。
+
+## 過去の停止記録（2026-08-26 / 監査用）
+
+> 当時は commit / push / PR 作成が禁止されており、判定は **blocked（未実施）** だった。
+> その後 PR #33 が作成され CI が緑になったため、上の表が現行の判定である。
+> この段は経緯の記録として残す。当時の「前提」判定を完了証明に使わない。
