@@ -23,7 +23,7 @@ import type { BrandScopeFilter } from "@/application/ports/common";
 import type { BrandRepositoryPort } from "@/application/ports/identity";
 import type { EditorialProductRepositoryPort } from "@/application/ports/product";
 import {
-  type ManageContentPackagesDeps,
+  type RecordedContentPackagesDeps,
   createListContentPackagesUseCase,
   createSaveContentPackageUseCase,
 } from "@/application/usecases/authoring/manage-content-packages";
@@ -31,7 +31,9 @@ import type { ContentPackage } from "@/domain/authoring";
 import { markEditorial, ok, taggedString } from "@/domain/shared";
 import type { AudiencePersonaId, AuthorPersonaId } from "@/domain/shared";
 import { SAMPLE_CONTENT_PACKAGES } from "@/infrastructure/persistence/sample/content-editorial-sample-repository";
+import { createUnavailableAuditLog } from "@/infrastructure/persistence/sample/audit-log-sample-repository";
 import { OTHER_WORKSPACE, WORKSPACE, aNobody, anOwner } from "../support/actors";
+import { recordingAuditLog } from "../support/doubles";
 
 // この単体検査の既定actorと同じworkspaceへ置く。sample保存先のworkspaceを
 // そのまま借りると、所有境界を追加した瞬間に正常系まで他tenantになる。
@@ -112,9 +114,11 @@ function productPort(workspaceId: string | null = WORKSPACE): EditorialProductRe
   }) as unknown as EditorialProductRepositoryPort;
 }
 
-function deps(over: Partial<ManageContentPackagesDeps> = {}): ManageContentPackagesDeps {
+function deps(over: Partial<RecordedContentPackagesDeps> = {}): RecordedContentPackagesDeps {
   return {
     packages: packagesPort().port,
+    auditLog: recordingAuditLog().port,
+    now: () => new Date("2026-08-27T00:00:00.000Z"),
     personas: personasPort(
       [{ id: String(SAMPLE.authorPersonaId), displayName: "編集部の田中" }],
       SAMPLE.audiencePersonaIds.map((id, i) => ({ id: String(id), name: `読者像 ${i + 1}` })),
@@ -382,5 +386,31 @@ describe("企画の登録", () => {
     const author = taggedString<"AuthorPersonaId">("ap_nowhere") as AuthorPersonaId;
     expect(String(bogus)).toBe("dp_nowhere");
     expect(String(author)).toBe("ap_nowhere");
+  });
+
+  it("誰が企画を立てたかを記録に残す", async () => {
+    const audit = recordingAuditLog();
+    const { port } = packagesPort();
+
+    await createSaveContentPackageUseCase(
+      deps({ packages: port, auditLog: audit.port }),
+    ).execute(anOwner(), input);
+
+    expect(audit.actions()).toEqual(["content_package.changed"]);
+    expect(audit.entries()[0]?.targetType).toBe("content_package");
+  });
+
+  it("記録が残せなくても、企画そのものは巻き戻さない", async () => {
+    const { port, saved } = packagesPort();
+
+    const result = await createSaveContentPackageUseCase(
+      deps({ packages: port, auditLog: createUnavailableAuditLog() }),
+    ).execute(anOwner(), input);
+
+    expect(result.ok).toBe(false);
+    if (result.ok) return;
+    expect(result.error.code).toBe("UPSTREAM_UNAVAILABLE");
+    expect(result.error.message).toContain("企画の登録は済んでいます");
+    expect(saved).toHaveLength(1);
   });
 });

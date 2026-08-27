@@ -22,7 +22,7 @@ import type { MembershipRepositoryPort } from "@/application/ports/identity";
 import {
   CLAIM_TYPE_LABELS,
   EVIDENCE_TYPE_LABELS,
-  type ManageEvidenceDeps,
+  type RecordedEvidenceDeps,
   type SaveClaimInput,
   type SaveEvidenceInput,
   type SaveTestRunInput,
@@ -33,7 +33,9 @@ import {
 } from "@/application/usecases/evidence/manage-evidence";
 import type { Claim, Evidence, TestRun } from "@/domain/evidence";
 import { markEditorial, ok, taggedString } from "@/domain/shared";
+import { createUnavailableAuditLog } from "@/infrastructure/persistence/sample/audit-log-sample-repository";
 import { OTHER_WORKSPACE, WORKSPACE, aNobody, anOwner } from "../support/actors";
+import { recordingAuditLog } from "../support/doubles";
 
 /** 保存されたものを覚えておくだけの偽の保存先。根拠は登録済みの番号だけを返す。 */
 function fakes(
@@ -136,7 +138,7 @@ describe("根拠の参照範囲", () => {
   });
 });
 
-function deps(over: Partial<ManageEvidenceDeps> = {}): ManageEvidenceDeps {
+function deps(over: Partial<RecordedEvidenceDeps> = {}): RecordedEvidenceDeps {
   const f = fakes();
   return {
     evidence: f.evidence,
@@ -145,6 +147,8 @@ function deps(over: Partial<ManageEvidenceDeps> = {}): ManageEvidenceDeps {
     products: f.products,
     memberships: f.memberships,
     ids: { newId: () => "generated" },
+    auditLog: recordingAuditLog().port,
+    now: () => new Date("2026-08-27T00:00:00.000Z"),
     ...over,
   };
 }
@@ -193,13 +197,7 @@ describe("誰が登録できるか", () => {
 
   it("番号を作る道具が無いときは、保存を試みずに断る", async () => {
     const f = fakes();
-    const uc = createSaveEvidenceUseCase({
-      evidence: f.evidence,
-      claims: f.claims,
-      testRuns: f.testRuns,
-      products: f.products,
-      memberships: f.memberships,
-    });
+    const uc = createSaveEvidenceUseCase({ ...deps(), evidence: f.evidence, ids: undefined });
     const got = await uc.execute(anOwner(), AN_EVIDENCE);
     expect(got.ok).toBe(false);
     expect(f.savedEvidence).toHaveLength(0);
@@ -411,6 +409,254 @@ describe("検証記録の登録", () => {
   });
 });
 
+/**
+ * 根拠をさがす側。
+ *
+ * 登録の口にはテストがあったが、**探す口は空の一覧しか通っていなかった**。
+ * この画面は「言えることを書くときに、指せる根拠を選ぶ」ための唯一の入口で、
+ * ここが崩れると、開いても何も出ないリンクや、探し方の分からない空欄が出る。
+ */
+describe("根拠をさがす", () => {
+  const AN_EVIDENCE_ROW = {
+    id: "ev_known",
+    type: "official_source",
+    title: "書き出し時間の公式値",
+    sourceOwner: "製造元",
+    capturedAt: new Date("2026-08-01T09:00:00.000Z"),
+    urlOrAssetId: "https://example.com/spec",
+    excerptOrSummary: "4K10分の素材を6分12秒で書き出す",
+  };
+
+  /** 探した結果を差し替えられる保存先。呼ばれた引数もそのまま覚えておく。 */
+  function searching(items: readonly Record<string, unknown>[]) {
+    const calls: { filter: unknown; page: unknown }[] = [];
+    const evidence = markEditorial({
+      findById: async () => ok(null),
+      listByIds: async () => ok([]),
+      search: async (_ws: unknown, filter: unknown, page: unknown) => {
+        calls.push({ filter, page });
+        return ok({ items, nextCursor: null });
+      },
+      save: async (e: Evidence) => ok(e),
+    }) as unknown as EditorialEvidenceRepositoryPort;
+    return { evidence, calls };
+  }
+
+  it("見る権限が無ければ、保存先を読みにも行かない", async () => {
+    const s = searching([]);
+    const got = await createSearchEvidenceUseCase({ ...deps(), evidence: s.evidence }).execute(
+      aNobody(),
+      {},
+    );
+
+    expect(got.ok).toBe(false);
+    expect(s.calls).toHaveLength(0);
+  });
+
+  it("日付は年月日の日本語にして返す", async () => {
+    const s = searching([AN_EVIDENCE_ROW]);
+    const got = await createSearchEvidenceUseCase({ ...deps(), evidence: s.evidence }).execute(
+      anOwner(),
+      {},
+    );
+
+    expect(got.ok && got.value.items[0].capturedAt).toBe("2026年8月1日");
+    expect(got.ok && got.value.items[0].typeLabel).toBe(EVIDENCE_TYPE_LABELS.official_source);
+  });
+
+  it("開けない置き場所の番号は、リンクにしない", async () => {
+    const s = searching([{ ...AN_EVIDENCE_ROW, urlOrAssetId: "asset_01H9" }]);
+    const got = await createSearchEvidenceUseCase({ ...deps(), evidence: s.evidence }).execute(
+      anOwner(),
+      {},
+    );
+
+    // 押しても何も起きない箇所を一覧に混ぜない。
+    expect(got.ok && got.value.items[0].url).toBeNull();
+  });
+
+  it("一度に取る件数は 100 件までに抑える", async () => {
+    const s = searching([]);
+    await createSearchEvidenceUseCase({ ...deps(), evidence: s.evidence }).execute(anOwner(), {
+      limit: 500,
+    });
+
+    expect(s.calls[0].page).toEqual({ limit: 100, cursor: null });
+  });
+
+  it("件数を書かなければ 50 件で探す", async () => {
+    const s = searching([]);
+    await createSearchEvidenceUseCase({ ...deps(), evidence: s.evidence }).execute(anOwner(), {});
+
+    expect(s.calls[0].page).toEqual({ limit: 50, cursor: null });
+  });
+
+  it("探して 0 件のときと、まだ 1 件も無いときで、言うことを変える", async () => {
+    const s = searching([]);
+    const uc = createSearchEvidenceUseCase({ ...deps(), evidence: s.evidence });
+
+    const searched = await uc.execute(anOwner(), { text: "書き出し" });
+    const empty = await uc.execute(anOwner(), { text: "   " });
+
+    // 「探し方を変える」と「先に登録する」では、次にやることがまるで違う。
+    expect(searched.ok && searched.value.emptyReason).toContain("探し直して");
+    expect(empty.ok && empty.value.emptyReason).toContain("先に根拠を登録");
+  });
+
+  it("1 件でも見つかれば、空の理由は出さない", async () => {
+    const s = searching([AN_EVIDENCE_ROW]);
+    const got = await createSearchEvidenceUseCase({ ...deps(), evidence: s.evidence }).execute(
+      anOwner(),
+      { text: "書き出し" },
+    );
+
+    expect(got.ok && got.value.emptyReason).toBeNull();
+  });
+});
+
+describe("読めない値は入口で断る", () => {
+  it("根拠の種類が登録表に無ければ断る", async () => {
+    const f = fakes();
+    const got = await createSaveEvidenceUseCase({ ...deps(), evidence: f.evidence }).execute(
+      anOwner(),
+      { ...AN_EVIDENCE, type: "hearsay" },
+    );
+
+    expect(got.ok).toBe(false);
+    if (!got.ok) expect(got.error.field).toBe("type");
+    expect(f.savedEvidence).toHaveLength(0);
+  });
+
+  it("資料を取った日が空欄なら、今の日時で埋める", async () => {
+    const f = fakes();
+    await createSaveEvidenceUseCase({ ...deps(), evidence: f.evidence }).execute(anOwner(), {
+      ...AN_EVIDENCE,
+      capturedAt: "",
+    });
+
+    expect(f.savedEvidence[0].capturedAt.getTime()).toBeGreaterThan(0);
+  });
+
+  it("言えることの種類が登録表に無ければ断る", async () => {
+    const f = fakes();
+    const got = await createSaveClaimUseCase({ ...deps(), claims: f.claims }).execute(anOwner(), {
+      ...A_CLAIM,
+      type: "たぶんそう",
+    });
+
+    expect(got.ok).toBe(false);
+    if (!got.ok) expect(got.error.field).toBe("type");
+    expect(f.savedClaims).toHaveLength(0);
+  });
+
+  it.each([
+    ["いつから言えるか", "validFrom"],
+    ["いつまで言えるか", "validUntil"],
+  ] as const)("%sの日付が読めなければ断る", async (_name, field) => {
+    const f = fakes();
+    const got = await createSaveClaimUseCase({
+      ...deps(),
+      evidence: f.evidence,
+      claims: f.claims,
+      products: f.products,
+    }).execute(anOwner(), { ...A_CLAIM, [field]: "きのう" });
+
+    expect(got.ok).toBe(false);
+    if (!got.ok) expect(got.error.field).toBe(field);
+    expect(f.savedClaims).toHaveLength(0);
+  });
+
+  it("いつまで言えるかが空欄なら、期限なしとして保存する", async () => {
+    const f = fakes();
+    await createSaveClaimUseCase({
+      ...deps(),
+      evidence: f.evidence,
+      claims: f.claims,
+      products: f.products,
+    }).execute(anOwner(), { ...A_CLAIM, validUntil: "" });
+
+    expect(f.savedClaims[0].claim.validUntil).toBeNull();
+  });
+
+  it("空文字だけの根拠の指定は、指していないものとして落とす", async () => {
+    const f = fakes();
+    await createSaveClaimUseCase({
+      ...deps(),
+      evidence: f.evidence,
+      claims: f.claims,
+      products: f.products,
+    }).execute(anOwner(), { ...A_CLAIM, evidenceIds: ["ev_known", "  ", ""] });
+
+    expect(f.savedClaims[0].claim.evidenceIds).toEqual(["ev_known"]);
+  });
+
+  it.each([
+    ["測り始めた日", "startedAt"],
+    ["測り終えた日", "completedAt"],
+  ] as const)("%sの形が読めなければ断る", async (_name, field) => {
+    const f = fakes();
+    const got = await createSaveTestRunUseCase({
+      ...deps(),
+      evidence: f.evidence,
+      testRuns: f.testRuns,
+      products: f.products,
+      memberships: f.memberships,
+    }).execute(anOwner(), { ...A_TEST_RUN, [field]: "このまえ" });
+
+    expect(got.ok).toBe(false);
+    if (!got.ok) expect(got.error.field).toBe(field);
+    expect(f.savedRuns).toHaveLength(0);
+  });
+
+  it("測り終えた日が空欄なら、まだ終わっていない記録として保存する", async () => {
+    const f = fakes();
+    await createSaveTestRunUseCase({
+      ...deps(),
+      evidence: f.evidence,
+      testRuns: f.testRuns,
+      products: f.products,
+      memberships: f.memberships,
+    }).execute(anOwner(), { ...A_TEST_RUN, completedAt: "", startedAt: "" });
+
+    expect(f.savedRuns[0].completedAt).toBeNull();
+    expect(f.savedRuns[0].startedAt.getTime()).toBeGreaterThan(0);
+  });
+
+  it("空欄の道具と検証者は、書かれていないものとして落とす", async () => {
+    const f = fakes();
+    await createSaveTestRunUseCase({
+      ...deps(),
+      evidence: f.evidence,
+      testRuns: f.testRuns,
+      products: f.products,
+      memberships: f.memberships,
+    }).execute(anOwner(), {
+      ...A_TEST_RUN,
+      equipment: ["ストップウォッチ", "  ", ""],
+      testerIds: ["u_owner", "  "],
+    });
+
+    expect(f.savedRuns[0].equipment).toEqual(["ストップウォッチ"]);
+    expect(f.savedRuns[0].testerIds).toEqual(["u_owner"]);
+  });
+
+  it.each([
+    ["言えること", () => createSaveClaimUseCase, A_CLAIM],
+    ["検証記録", () => createSaveTestRunUseCase, A_TEST_RUN],
+  ] as const)("%sも、番号を作る道具が無ければ保存を試みない", async (_name, make, input) => {
+    const f = fakes();
+    const got = await make()({
+      ...deps({ evidence: f.evidence, claims: f.claims, testRuns: f.testRuns }),
+      ids: undefined,
+    }).execute(anOwner(), input as never);
+
+    expect(got.ok).toBe(false);
+    if (!got.ok) expect(got.error.code).toBe("NOT_IMPLEMENTED");
+    expect(f.savedClaims).toHaveLength(0);
+    expect(f.savedRuns).toHaveLength(0);
+  });
+});
+
 describe("画面へ出す名前", () => {
   it("種類の名前は、選ぶ人の言葉で書かれている（英字のままにしない）", () => {
     for (const label of [
@@ -420,5 +666,82 @@ describe("画面へ出す名前", () => {
       expect(label.trim()).not.toBe("");
       expect(/^[a-z_]+$/u.test(label)).toBe(false);
     }
+  });
+});
+
+/*
+ * 根拠・言えること・検証記録は、どれも「登録した」で 1 語にまとめたくなる。
+ * まとめないのは、後から追いたい問いが違うから。
+ *   根拠     — その出典は、いつ時点のものか
+ *   言えること — 誰が「これは書いてよい」と判断したか
+ *   検証記録 — 誰が測ったか
+ * 1 語にすると、この 3 つの問いが同じ一覧の中で混ざる。
+ */
+describe("登録したことを記録に残す", () => {
+  it.each([
+    [
+      "根拠",
+      "evidence.registered",
+      "evidence",
+      (d: RecordedEvidenceDeps) => createSaveEvidenceUseCase(d).execute(anOwner(), AN_EVIDENCE),
+    ],
+    [
+      "言えること",
+      "claim.registered",
+      "claim",
+      (d: RecordedEvidenceDeps) => createSaveClaimUseCase(d).execute(anOwner(), A_CLAIM),
+    ],
+    [
+      "検証記録",
+      "test_run.registered",
+      "test_run",
+      (d: RecordedEvidenceDeps) => createSaveTestRunUseCase(d).execute(anOwner(), A_TEST_RUN),
+    ],
+  ] as const)("%sは %s として残る", async (_name, action, targetType, run) => {
+    const audit = recordingAuditLog();
+    const got = await run(deps({ auditLog: audit.port }));
+
+    expect(got.ok).toBe(true);
+    expect(audit.actions()).toEqual([action]);
+    expect(audit.entries()[0]?.targetType).toBe(targetType);
+  });
+
+  it.each([
+    [
+      "根拠",
+      "根拠の登録は済んでいます",
+      (d: RecordedEvidenceDeps) => createSaveEvidenceUseCase(d).execute(anOwner(), AN_EVIDENCE),
+      (f: ReturnType<typeof fakes>) => f.savedEvidence,
+    ],
+    [
+      "言えること",
+      "言えることの登録は済んでいます",
+      (d: RecordedEvidenceDeps) => createSaveClaimUseCase(d).execute(anOwner(), A_CLAIM),
+      (f: ReturnType<typeof fakes>) => f.savedClaims,
+    ],
+    [
+      "検証記録",
+      "検証記録の登録は済んでいます",
+      (d: RecordedEvidenceDeps) => createSaveTestRunUseCase(d).execute(anOwner(), A_TEST_RUN),
+      (f: ReturnType<typeof fakes>) => f.savedRuns,
+    ],
+  ] as const)("記録が残せなくても、%sそのものは巻き戻さない", async (_name, message, run, saved) => {
+    const f = fakes();
+    const got = await run(
+      deps({
+        evidence: f.evidence,
+        claims: f.claims,
+        testRuns: f.testRuns,
+        auditLog: createUnavailableAuditLog(),
+      }),
+    );
+
+    expect(got.ok).toBe(false);
+    if (got.ok) return;
+    expect(got.error.code).toBe("UPSTREAM_UNAVAILABLE");
+    expect(got.error.retryable).toBe(true);
+    // 断りは返すが、登録は残る。消しに戻すと、断りを見た人が同じ資料を二度登録する。
+    expect(got.error.message).toContain(message);
+    expect(saved(f)).toHaveLength(1);
   });
 });

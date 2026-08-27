@@ -3,6 +3,9 @@ import type {
   EditorialContactPort,
 } from "@/application/ports/reader-interaction";
 import type { EditorialSiteRepositoryPort } from "@/application/ports/site";
+import type { IdGeneratorPort } from "@/application/ports/common";
+import type { AuditLogPort } from "@/application/ports/compliance";
+import { auditWriteFailure, buildAuditEntry } from "@/application/audit";
 import { requireCapability } from "@/domain/identity";
 import {
   type ActorContext,
@@ -30,6 +33,17 @@ import type { UseCase } from "../usecase";
 export type ManageContactDeps = {
   readonly contact: EditorialContactPort;
   readonly sites: EditorialSiteRepositoryPort;
+};
+
+/**
+ * 印を**付ける**側の口。一覧だけの口には持たせない。
+ *
+ * 中身は 1 文字も変わらない操作なので、`before` / `after` の差からは
+ * 何も読めない。「誰がいつ、これはもう見たと言ったか」は記録の行にしか残らない。
+ */
+export type RecordedContactDeps = ManageContactDeps & {
+  readonly ids: IdGeneratorPort;
+  readonly auditLog: AuditLogPort;
 };
 
 export type ListContactMessagesInput = {
@@ -138,7 +152,7 @@ export type MarkContactHandledInput = {
 };
 
 export function createMarkContactHandledUseCase(
-  deps: ManageContactDeps,
+  deps: RecordedContactDeps,
   now: () => Date = () => new Date(),
 ): UseCase<MarkContactHandledInput, true> {
   return {
@@ -157,13 +171,30 @@ export function createMarkContactHandledUseCase(
 
       const siteSlugs = await ownedSiteSlugs(deps, actor);
       if (!siteSlugs.ok) return siteSlugs;
-      return deps.contact.markHandled(
+
+      const entry = buildAuditEntry({ ids: deps.ids, now }, actor, {
+        action: "contact.handled",
+        targetType: "contact_message",
+        targetId: input.id,
+        before: null,
+        after: { handled: input.handled },
+      });
+      if (!entry.ok) return entry;
+
+      const marked = await deps.contact.markHandled(
         actor.workspaceId,
         siteSlugs.value,
         input.id,
         input.handled,
         now().toISOString(),
       );
+      if (!marked.ok) return marked;
+      const appended = await deps.auditLog.append(entry.value);
+      if (!appended.ok) {
+        const done = input.handled ? "対応済みの印は付いています" : "印を外すのは済んでいます";
+        return err(auditWriteFailure(done, appended.error.details));
+      }
+      return marked;
     },
   };
 }

@@ -1,7 +1,7 @@
 /**
  * @tier 1
  * @req REQ-B07
- * @types equivalence, boundary, adversarial
+ * @types equivalence, boundary, injection
  *
  * 読者向けの「診断・計算」の計算式。
  *

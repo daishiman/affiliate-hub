@@ -8,8 +8,10 @@
  */
 import { describe, expect, it } from "vitest";
 import type { EditorialPersonaRepositoryPort } from "@/application/ports/authoring";
+import type { AuditLogPort } from "@/application/ports/compliance";
 import {
   type ManagePersonasDeps,
+  type RecordedPersonasDeps,
   createCheckFactBoundaryUseCase,
   createGetAudiencePersonaUseCase,
   createGetAuthorPersonaUseCase,
@@ -22,8 +24,10 @@ import type { AudiencePersona, AuthorPersona, Tone } from "@/domain/authoring";
 import { createAudiencePersona, createAuthorPersona } from "@/domain/authoring";
 import { domainError, err, markEditorial, ok, taggedString } from "@/domain/shared";
 import type { AudiencePersonaId, AuthorPersonaId, TestRunId, WorkspaceId } from "@/domain/shared";
+import { createUnavailableAuditLog } from "@/infrastructure/persistence/sample/audit-log-sample-repository";
 import { currentActor, personaUseCases } from "@/presentation/composition";
 import { WORKSPACE, aNobody, anOwner } from "../support/actors";
+import { recordingAuditLog } from "../support/doubles";
 
 /**
  * 書き手と読者像の確認。
@@ -569,8 +573,11 @@ function fixedIds(value = "fixed"): { newId: () => string } {
 }
 
 /** 保存を受け取って、渡された中身を覚えておく保存先。 */
-function recordingDeps(ids?: { newId: () => string }): {
-  readonly deps: ManagePersonasDeps;
+function recordingDeps(
+  ids?: { newId: () => string },
+  auditLog: AuditLogPort = recordingAuditLog().port,
+): {
+  readonly deps: RecordedPersonasDeps;
   readonly savedAuthors: AuthorPersona[];
   readonly savedAudiences: AudiencePersona[];
 } {
@@ -598,7 +605,11 @@ function recordingDeps(ids?: { newId: () => string }): {
       return ok(p);
     },
   }) as unknown as EditorialPersonaRepositoryPort;
-  return { deps: { personas, ids }, savedAuthors, savedAudiences };
+  return {
+    deps: { personas, ids, auditLog, now: () => new Date("2026-08-27T00:00:00.000Z") },
+    savedAuthors,
+    savedAudiences,
+  };
 }
 
 const AUTHOR_INPUT = {
@@ -736,5 +747,35 @@ describe("読者像を登録する", () => {
 
     expect(String(savedAudiences[0].id)).toBe("dp_xyz");
     expect(savedAudiences[0].name).toBe("はじめて編集する人");
+  });
+});
+
+describe("像を書き換えたことを記録に残す", () => {
+  it("書き手と読者像は、同じ語で別の的として残る", async () => {
+    const audit = recordingAuditLog();
+    const { deps } = recordingDeps(fixedIds("abc"), audit.port);
+
+    await createSaveAuthorPersonaUseCase(deps).execute(owner, AUTHOR_INPUT);
+    await createSaveAudiencePersonaUseCase(deps).execute(owner, AUDIENCE_INPUT);
+
+    // 語を分けないのは、運営者から見ると「像を直した」という 1 つの操作だから。
+    expect(audit.actions()).toEqual(["persona.changed", "persona.changed"]);
+    // 的の種類は分ける。混ぜると、書き手の履歴に読者像の行が紛れ込む。
+    expect(audit.entries().map((e) => e.targetType)).toEqual([
+      "author_persona",
+      "audience_persona",
+    ]);
+  });
+
+  it("記録が残せなくても、像そのものは巻き戻さない", async () => {
+    const { deps, savedAuthors } = recordingDeps(fixedIds(), createUnavailableAuditLog());
+
+    const result = await createSaveAuthorPersonaUseCase(deps).execute(owner, AUTHOR_INPUT);
+
+    expect(result.ok).toBe(false);
+    if (result.ok) return;
+    expect(result.error.code).toBe("UPSTREAM_UNAVAILABLE");
+    expect(result.error.message).toContain("書き手の登録は済んでいます");
+    expect(savedAuthors).toHaveLength(1);
   });
 });

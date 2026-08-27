@@ -27,6 +27,7 @@ import {
 } from "@/application/usecases/ranking/manage-rankings";
 import type { EditorialScoreCard, RankingModel } from "@/domain/ranking";
 import { markEditorial, ok, taggedString } from "@/domain/shared";
+import { createUnavailableAuditLog } from "@/infrastructure/persistence/sample/audit-log-sample-repository";
 import { SAMPLE_RANKING_MODELS } from "@/infrastructure/persistence/sample/ranking-sample-repository";
 import { OTHER_WORKSPACE, WORKSPACE, aNobody, anOwner, aWriter } from "../support/actors";
 import { recordingAuditLog } from "../support/doubles";
@@ -117,6 +118,25 @@ function deps(over: Partial<SaveRankingModelDeps> = {}): SaveRankingModelDeps {
     now: () => new Date("2026-08-26T10:00:00Z"),
     ...over,
   };
+}
+
+/**
+ * 点の登録は、保存先と記録先の両方を見たい検査が多い。
+ * `deps()` は自前で `fakes()` を作ってしまうので、
+ * **同じ f を使い回したいとき**はこちらから組み立てる。
+ */
+function scoreDeps(
+  f: ReturnType<typeof fakes>,
+  over: Partial<SaveRankingModelDeps> = {},
+): SaveRankingModelDeps {
+  return deps({
+    rankingModels: f.rankingModels,
+    scoreCards: f.scoreCards,
+    products: f.products,
+    evidence: f.evidence,
+    auditLog: f.audit.port,
+    ...over,
+  });
 }
 
 const A_MODEL_INPUT: SaveRankingModelInput = {
@@ -384,12 +404,7 @@ const A_CARD_INPUT = {
 describe("商品の点の登録", () => {
   it("0〜100 で受けた点は 0.0〜1.0 へ直して保存する", async () => {
     const f = fakes();
-    const uc = createSaveScoreCardUseCase({
-      rankingModels: f.rankingModels,
-      scoreCards: f.scoreCards,
-      products: f.products,
-      evidence: f.evidence,
-    });
+    const uc = createSaveScoreCardUseCase(scoreDeps(f));
     const got = await uc.execute(anOwner(), A_CARD_INPUT);
     expect(got.ok).toBe(true);
     if (!got.ok) return;
@@ -398,12 +413,7 @@ describe("商品の点の登録", () => {
 
   it("どの評価基準で付けた点かを保存先へ渡す", async () => {
     const f = fakes();
-    const uc = createSaveScoreCardUseCase({
-      rankingModels: f.rankingModels,
-      scoreCards: f.scoreCards,
-      products: f.products,
-      evidence: f.evidence,
-    });
+    const uc = createSaveScoreCardUseCase(scoreDeps(f));
     await uc.execute(anOwner(), A_CARD_INPUT);
     // 渡さないと、版を上げて測り直した点が前の版を上書きする。
     expect(f.savedCards[0].modelId).toBe(String(MODEL.id));
@@ -431,12 +441,7 @@ describe("商品の点の登録", () => {
 
   it("評価基準に無い指標は保存しない", async () => {
     const f = fakes();
-    const uc = createSaveScoreCardUseCase({
-      rankingModels: f.rankingModels,
-      scoreCards: f.scoreCards,
-      products: f.products,
-      evidence: f.evidence,
-    });
+    const uc = createSaveScoreCardUseCase(scoreDeps(f));
     await uc.execute(anOwner(), {
       ...A_CARD_INPUT,
       scorePercents: { ...A_CARD_INPUT.scorePercents, specification: 50 },
@@ -454,12 +459,7 @@ describe("商品の点の登録", () => {
 
   it("測った日が空なら「分からない」として保存する", async () => {
     const f = fakes();
-    const uc = createSaveScoreCardUseCase({
-      rankingModels: f.rankingModels,
-      scoreCards: f.scoreCards,
-      products: f.products,
-      evidence: f.evidence,
-    });
+    const uc = createSaveScoreCardUseCase(scoreDeps(f));
     await uc.execute(anOwner(), { ...A_CARD_INPUT, testedAt: "" });
     // 空を「今日」で埋めると、測っていない日が測った日として読者へ出る。
     expect(f.savedCards[0].card.testedAt).toBeNull();
@@ -487,15 +487,35 @@ describe("商品の点の登録", () => {
     ["別の作業場所の根拠", { evidence: OTHER_WORKSPACE }],
   ] as const)("%sを参照した点は保存しない", async (_name, owners) => {
     const f = fakes(owners);
-    const got = await createSaveScoreCardUseCase({
-      rankingModels: f.rankingModels,
-      scoreCards: f.scoreCards,
-      products: f.products,
-      evidence: f.evidence,
-    }).execute(anOwner(), A_CARD_INPUT);
+    const got = await createSaveScoreCardUseCase(scoreDeps(f)).execute(anOwner(), A_CARD_INPUT);
 
     expect(got.ok).toBe(false);
     if (!got.ok) expect(got.error.code).toBe("VALIDATION_FAILED");
     expect(f.savedCards).toHaveLength(0);
+  });
+
+  it("誰がどの版へ点を入れたかを記録に残す", async () => {
+    const f = fakes();
+    await createSaveScoreCardUseCase(scoreDeps(f)).execute(anOwner(), A_CARD_INPUT);
+
+    expect(f.audit.actions()).toEqual(["score_card.changed"]);
+    const entry = f.audit.entries()[0];
+    expect(entry?.targetType).toBe("score_card");
+    // 版と商品の組で 1 行。商品だけだと、版を上げて測り直した点が同じ的に見える。
+    expect(entry?.targetId).toBe(`${String(MODEL.id)}:p_alpha_15`);
+  });
+
+  it("記録が残せなくても、点そのものは巻き戻さない", async () => {
+    const f = fakes();
+    const got = await createSaveScoreCardUseCase(
+      scoreDeps(f, { auditLog: createUnavailableAuditLog() }),
+    ).execute(anOwner(), A_CARD_INPUT);
+
+    expect(got.ok).toBe(false);
+    if (got.ok) return;
+    expect(got.error.code).toBe("UPSTREAM_UNAVAILABLE");
+    expect(got.error.message).toContain("点の登録は済んでいます");
+    // 消しに戻すと、順位だけが前の点のまま残り、画面と保存先が食い違う。
+    expect(f.savedCards).toHaveLength(1);
   });
 });

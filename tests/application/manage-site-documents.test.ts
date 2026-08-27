@@ -17,6 +17,7 @@
  *   4. **見出しだけ・本文だけの保存を通さない。** 通すと中身の無いページが読者に出る。
  */
 import { describe, expect, expectTypeOf, it } from "vitest";
+import type { AuditLogPort } from "@/application/ports/compliance";
 import type {
   EditorialSiteDocumentRepositoryPort,
   EditorialSiteRepositoryPort,
@@ -28,7 +29,9 @@ import {
 } from "@/application/usecases/site/manage-site-documents";
 import { SITE_DOCUMENT_KEYS, type SiteDocumentKey } from "@/domain/authoring";
 import { markEditorial, ok } from "@/domain/shared";
+import { createUnavailableAuditLog } from "@/infrastructure/persistence/sample/audit-log-sample-repository";
 import { OTHER_WORKSPACE, WORKSPACE, anOwner, aWriter } from "../support/actors";
+import { recordingAuditLog } from "../support/doubles";
 
 const owner = anOwner({ workspaceId: WORKSPACE });
 const stranger = anOwner({ workspaceId: OTHER_WORKSPACE });
@@ -124,11 +127,15 @@ describe("固定文書の保存", () => {
   async function save(
     input: { key?: string; title?: string; body?: readonly string[] },
     actor = owner,
+    auditLog: AuditLogPort = recordingAuditLog().port,
   ) {
     const documents = documentsOf();
     const r = await createSaveSiteDocumentUseCase({
       sites: sitesOf(),
       documents: documents.port,
+      ids: { newId: () => "log_1" },
+      auditLog,
+      now: () => new Date("2026-08-27T00:00:00.000Z"),
     }).execute(actor, {
       siteSlug: "tools",
       key: input.key ?? "operator",
@@ -179,5 +186,36 @@ describe("固定文書の保存", () => {
       title: "特定商取引法に基づく表記",
       body: ["事業者名: 例", "所在地: 請求があれば遅滞なく開示します。"],
     });
+  });
+
+  it("誰が直したかを記録に残す（本文そのものは写さない）", async () => {
+    const audit = recordingAuditLog();
+    await save({}, owner, audit.port);
+
+    expect(audit.actions()).toEqual(["site_document.changed"]);
+    const entry = audit.entries()[0];
+    expect(entry?.targetType).toBe("site_document");
+    // ブログと種類の組で 1 行。どちらか片方だと、別ブログの同じ種類と混ざる。
+    expect(entry?.targetId).toBe("tools:operator");
+    // 本文は写さず段落数だけ。記録先が本文の控えになると、消したはずの文が残る。
+    expect(entry?.after).toEqual({
+      siteSlug: "tools",
+      key: "operator",
+      title: "運営者情報",
+      paragraphs: 1,
+    });
+  });
+
+  it("記録が残せなくても、保存そのものは巻き戻さない", async () => {
+    const { r, saved } = await save({}, owner, createUnavailableAuditLog());
+
+    // 断りは返す。黙って成功にすると「誰が直したか分からない行」が増え続ける。
+    expect(r.ok).toBe(false);
+    if (r.ok) return;
+    expect(r.error.code).toBe("UPSTREAM_UNAVAILABLE");
+    expect(r.error.retryable).toBe(true);
+    expect(r.error.message).toContain("固定ページの保存は済んでいます");
+    // それでも保存は残る。消しに戻ると、断りを見た人が同じ内容を二度書く。
+    expect(saved).toHaveLength(1);
   });
 });

@@ -3,6 +3,8 @@ import type {
   EditorialPersonaRepositoryPort,
 } from "@/application/ports/authoring";
 import type { IdGeneratorPort } from "@/application/ports/common";
+import type { AuditLogPort } from "@/application/ports/compliance";
+import { auditWriteFailure, buildAuditEntry } from "@/application/audit";
 import type { BrandRepositoryPort } from "@/application/ports/identity";
 import type { EditorialProductRepositoryPort } from "@/application/ports/product";
 import { ensureOwnedReference } from "@/application/owned-reference";
@@ -62,6 +64,12 @@ export type ManageContentPackagesDeps = {
    */
   readonly ids?: IdGeneratorPort;
   readonly affiliateLinks?: never;
+};
+
+/** 企画を**書き換える**側の口。一覧だけの経路には持たせない。 */
+export type RecordedContentPackagesDeps = ManageContentPackagesDeps & {
+  readonly auditLog: AuditLogPort;
+  readonly now: () => Date;
 };
 
 /** 登録の口が ID の作り方を持たずに組まれたとき（`manage-personas.ts` と同じ理由）。 */
@@ -233,7 +241,7 @@ export type SavedContentPackage = {
  * だから作った直後の状態は `researching`（調べている）になる。
  */
 export function createSaveContentPackageUseCase(
-  deps: ManageContentPackagesDeps,
+  deps: RecordedContentPackagesDeps,
 ): UseCase<SaveContentPackageInput, SavedContentPackage> {
   return {
     async execute(actor, input): Promise<Result<SavedContentPackage, DomainError>> {
@@ -301,8 +309,26 @@ export function createSaveContentPackageUseCase(
       });
       if (!built.ok) return built;
 
+      const entry = buildAuditEntry({ ids: deps.ids, now: deps.now }, actor, {
+        action: "content_package.changed",
+        targetType: "content_package",
+        targetId: String(built.value.id),
+        before: null,
+        after: {
+          brandId: String(built.value.brandId),
+          objective: built.value.objective,
+          funnelStage: built.value.funnelStage,
+          authorPersonaId: String(built.value.authorPersonaId),
+        },
+      });
+      if (!entry.ok) return entry;
+
       const saved = await deps.packages.save(built.value);
       if (!saved.ok) return saved;
+      const appended = await deps.auditLog.append(entry.value);
+      if (!appended.ok) {
+        return err(auditWriteFailure("企画の登録は済んでいます", appended.error.details));
+      }
       return ok({ packageId: String(saved.value.id), objective: saved.value.objective });
     },
   };

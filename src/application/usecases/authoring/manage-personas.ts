@@ -1,5 +1,7 @@
 import type { EditorialPersonaRepositoryPort } from "@/application/ports/authoring";
 import type { IdGeneratorPort } from "@/application/ports/common";
+import type { AuditLogPort } from "@/application/ports/compliance";
+import { auditWriteFailure, buildAuditEntry } from "@/application/audit";
 import {
   type AudiencePersona,
   type AuthorPersona,
@@ -47,6 +49,18 @@ export type ManagePersonasDeps = {
    * 記録の有無を知る手段が要る。**報酬のつなぎ目はここに現れない。**
    */
   readonly affiliateLinks?: never;
+};
+
+/**
+ * 像を**書き換える**側の口。
+ *
+ * 参照だけの口（一覧・照会・範囲の確認）には持たせない。
+ * 像はこれから作られる記事の語り口をまとめて決めるので、
+ * 書き換えた人が残らない登録を型で作れないようにしておく。
+ */
+export type RecordedPersonasDeps = ManagePersonasDeps & {
+  readonly auditLog: AuditLogPort;
+  readonly now: () => Date;
 };
 
 /**
@@ -373,7 +387,7 @@ export type SaveAuthorPersonaInput = {
 };
 
 export function createSaveAuthorPersonaUseCase(
-  deps: ManagePersonasDeps,
+  deps: RecordedPersonasDeps,
 ): UseCase<SaveAuthorPersonaInput, AuthorPersonaView> {
   return {
     async execute(actor, input): Promise<Result<AuthorPersonaView, DomainError>> {
@@ -401,8 +415,25 @@ export function createSaveAuthorPersonaUseCase(
       });
       if (!built.ok) return built;
 
+      const entry = buildAuditEntry({ ids: deps.ids, now: deps.now }, actor, {
+        action: "persona.changed",
+        targetType: "author_persona",
+        targetId: String(built.value.id),
+        before: null,
+        after: {
+          displayName: built.value.displayName,
+          personaType: built.value.personaType,
+          role: built.value.role,
+        },
+      });
+      if (!entry.ok) return entry;
+
       const saved = await deps.personas.saveAuthor(built.value);
       if (!saved.ok) return saved;
+      const appended = await deps.auditLog.append(entry.value);
+      if (!appended.ok) {
+        return err(auditWriteFailure("書き手の登録は済んでいます", appended.error.details));
+      }
       return ok(toAuthorView(saved.value));
     },
   };
@@ -435,7 +466,7 @@ export type SaveAudiencePersonaInput = {
 };
 
 export function createSaveAudiencePersonaUseCase(
-  deps: ManagePersonasDeps,
+  deps: RecordedPersonasDeps,
 ): UseCase<SaveAudiencePersonaInput, AudiencePersonaView> {
   return {
     async execute(actor, input): Promise<Result<AudiencePersonaView, DomainError>> {
@@ -465,8 +496,25 @@ export function createSaveAudiencePersonaUseCase(
       });
       if (!built.ok) return built;
 
+      const entry = buildAuditEntry({ ids: deps.ids, now: deps.now }, actor, {
+        action: "persona.changed",
+        targetType: "audience_persona",
+        targetId: String(built.value.id),
+        before: null,
+        after: {
+          name: built.value.name,
+          primaryJob: built.value.primaryJob,
+          awarenessStage: built.value.awarenessStage,
+        },
+      });
+      if (!entry.ok) return entry;
+
       const saved = await deps.personas.saveAudience(built.value);
       if (!saved.ok) return saved;
+      const appended = await deps.auditLog.append(entry.value);
+      if (!appended.ok) {
+        return err(auditWriteFailure("読者像の登録は済んでいます", appended.error.details));
+      }
       return ok(toAudienceView(saved.value));
     },
   };

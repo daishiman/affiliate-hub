@@ -6,8 +6,8 @@
 テスト側の `@req` 印を重ねたもの。
 
 - 最終更新: 2026-08-27
-- テストファイル: 339 件
-- 由来の要件が分かる: 337 件
+- テストファイル: 354 件
+- 由来の要件が分かる: 352 件
 - **由来不明: 2 件**（上限 2 件）
 
 由来不明とは「どの要件のために書いたのか、機械から辿れない」という意味で、
@@ -79,6 +79,7 @@
 | `tests/application/register-affiliate-link.test.ts` | REQ-A07, REQ-E13 | 印 |
 | `tests/application/register-channel-connection.test.ts` | REQ-A06 | 印 |
 | `tests/application/review-loop-runs.test.ts` | REQ-IM01, REQ-IM08, REQ-IM09 | 印 |
+| `tests/application/run-improvement-loop.test.ts` | REQ-IM06, REQ-IM09 | 印 |
 | `tests/application/save-affiliate.test.ts` | REQ-A07, REQ-P09 | 印 |
 | `tests/application/schedule-publication.test.ts` | REQ-P08 | 印 |
 | `tests/application/seo/ai-search-audit.test.ts` | REQ-SEO03 | 印と表 |
@@ -178,6 +179,7 @@
 | `tests/infrastructure/anthropic-llm.test.ts` | REQ-SEC01, REQ-SEC05 | 印 |
 | `tests/infrastructure/better-auth-gate.test.ts` | REQ-S10 | 印 |
 | `tests/infrastructure/bluesky-connector.test.ts` | REQ-A06 | 印 |
+| `tests/infrastructure/cache-kv.test.ts` | REQ-TS03, REQ-TS08 | 印 |
 | `tests/infrastructure/channel-connector.test.ts` | REQ-P08 | 印 |
 | `tests/infrastructure/d1-affiliate-link-offers.test.ts` | REQ-E12, REQ-E13 | 印 |
 | `tests/infrastructure/d1-affiliate-program-repository.test.ts` | REQ-A07 | 印 |
@@ -243,15 +245,19 @@
 | `tests/presentation/admin-crud-actions.test.ts` | REQ-UX02 | 印 |
 | `tests/presentation/admin-edit-actions.test.ts` | REQ-UX02 | 印 |
 | `tests/presentation/admin-routes.test.ts` | REQ-FB07, REQ-P09, REQ-S02, REQ-S03, REQ-S10, REQ-TS05 | 表 |
+| `tests/presentation/affiliate-form-action.test.ts` | REQ-E10, REQ-E11, REQ-P09 | 印 |
 | `tests/presentation/api-routes.test.ts` | REQ-M03, REQ-TM11, REQ-WA02, REQ-WC06 | 印と表 |
 | `tests/presentation/api-scope-actor.test.ts` | REQ-API02, REQ-FB13 | 印 |
 | `tests/presentation/bluesky-connection-action.test.ts` | REQ-P08 | 印 |
 | `tests/presentation/composition-wiring.test.ts` | REQ-API01, REQ-TS09 | 印 |
 | `tests/presentation/composition.test.ts` | REQ-S09 | 表 |
-| `tests/presentation/contact-action.test.ts` | REQ-API01, REQ-B18 | 印 |
+| `tests/presentation/contact-action.test.ts` | REQ-B18, REQ-R06 | 印 |
 | `tests/presentation/contact-rate-key.test.ts` | REQ-B18 | 印 |
+| `tests/presentation/content-package-form-action.test.ts` | REQ-P06 | 印 |
+| `tests/presentation/delete-form-action.test.ts` | REQ-E12, REQ-P08 | 印 |
 | `tests/presentation/entry-points.test.ts` | REQ-API01, REQ-M03, REQ-TS04, REQ-WB02, REQ-WC08 | 印と表 |
 | `tests/presentation/error-format.test.ts` | REQ-WC07 | 印と表 |
+| `tests/presentation/evidence-form-action.test.ts` | REQ-E19, REQ-E21 | 印 |
 | `tests/presentation/feedback-actions.test.ts` | REQ-FB08, REQ-FB12 | 表 |
 | `tests/presentation/feedback-capture-route.test.ts` | REQ-FB13 | 印と表 |
 | `tests/presentation/feedback-pending-route.test.ts` | REQ-FB09 | 表 |
@@ -259,18 +265,26 @@
 | `tests/presentation/flag-decisions-separated.test.ts` | REQ-M03, REQ-WB02, REQ-WC04 | 印と表 |
 | `tests/presentation/go-route.test.ts` | REQ-E13 | 印 |
 | `tests/presentation/guideline-reference-actions.test.ts` | REQ-SEO05 | 印 |
+| `tests/presentation/improvement-action.test.ts` | REQ-IM06, REQ-IM09 | 印 |
 | `tests/presentation/improvement-actions.test.ts` | REQ-IM06, REQ-IM09 | 印と表 |
 | `tests/presentation/llm-credential-actions.test.ts` | REQ-SEC01 | 印 |
 | `tests/presentation/llm-credential-entry.test.ts` | REQ-SEC01 | 印 |
+| `tests/presentation/member-action.test.ts` | REQ-P01, REQ-R01 | 印 |
 | `tests/presentation/nav-grouping.test.ts` | REQ-S09 | 印 |
 | `tests/presentation/nav-permissions.test.ts` | REQ-FB02, REQ-FB07 | 表 |
 | `tests/presentation/non-empty-lines.test.ts` | REQ-UX02 | 印 |
 | `tests/presentation/one-usecase-three-adapters.test.ts` | REQ-API01, REQ-API02 | 印と表 |
+| `tests/presentation/persona-form-action.test.ts` | REQ-P05 | 印 |
 | `tests/presentation/publish-article-indexnow.test.ts` | REQ-SEO04 | 印 |
 | `tests/presentation/quality-check-labels.test.ts` | REQ-P06 | 印 |
+| `tests/presentation/ranking-form-action.test.ts` | REQ-P04 | 印 |
 | `tests/presentation/reader-tools.test.ts` | REQ-WB01 | 印 |
 | `tests/presentation/readonly-honesty.test.ts` | REQ-WC04 | 印 |
 | `tests/presentation/seo-route-handlers.test.ts` | REQ-SEO02 | 印 |
+| `tests/presentation/settings-form-action.test.ts` | REQ-E04, REQ-P01 | 印 |
+| `tests/presentation/shortlist-action.test.ts` | REQ-P10, REQ-UX02 | 印 |
+| `tests/presentation/site-contact-action.test.ts` | REQ-B18, REQ-SEC02 | 印 |
+| `tests/presentation/site-document-action.test.ts` | REQ-P07 | 印 |
 | `tests/presentation/site-metadata.test.ts` | REQ-SEO01 | 印 |
 | `tests/presentation/spec-contract.test.ts` | REQ-M01, REQ-M02, REQ-WA01, REQ-WA02 | 印と表 |
 | `tests/presentation/storage-notice.test.ts` | REQ-TS09 | 印 |
@@ -290,6 +304,7 @@
 | `tests/ui/admin-edit-forms.test.tsx` | REQ-UX02 | 印 |
 | `tests/ui/ai-usage-page.test.tsx` | REQ-TM02, REQ-TM03 | 印と表 |
 | `tests/ui/app-shell-nav.test.tsx` | REQ-S09, REQ-SEC08 | 印 |
+| `tests/ui/appearance-picker.test.tsx` | REQ-TH03 | 印 |
 | `tests/ui/article-faq.test.tsx` | REQ-SEO03, REQ-TM06 | 印と表 |
 | `tests/ui/article-frame.test.tsx` | REQ-TM06 | 印と表 |
 | `tests/ui/audit-log-notice.test.tsx` | REQ-SEC09 | 印 |
@@ -359,4 +374,4 @@
 | `tests/ui/uiux-spacing-and-copy.test.ts` | REQ-UX08, REQ-UX10 | 印と表 |
 | `tests/ui/zz-probe-tone.test.tsx` | REQ-TM07 | 表 |
 | `tests/visual/visual-regression.test.ts` | REQ-S09, REQ-TS12, REQ-UX08 | 印 |
-<!-- 生成物の指紋 sha256:a7dc5e052e488dba8c945946e1f09800e1d54251db39a70929afd63d3d511409 -->
+<!-- 生成物の指紋 sha256:6c0540b46c4acd56334c71029c3b6dd470df1f338deab153093fda73e6fdca16 -->

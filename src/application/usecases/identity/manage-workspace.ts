@@ -858,6 +858,12 @@ export const AUDIT_ACTION_LABEL: Readonly<Record<AuditAction, string>> = {
   "content.corrected": "記事を訂正した",
   "content.deleted": "記事を消した",
   "ranking_model.changed": "評価基準を変えた",
+  // 裏付けの 3 語 + 点。**「誰が言い切りを足したか」と「誰が資料を入れたか」を
+  // 別の行にする。** 景品表示の問い合わせで示す必要があるのは前者だけ。
+  "evidence.registered": "根拠を登録した",
+  "claim.registered": "言えることを登録した",
+  "test_run.registered": "検証記録を登録した",
+  "score_card.changed": "商品の点を登録した",
   "disclosure.changed": "広告表記を変えた",
   "policy_rule.changed": "表記のきまりを変えた",
   "guideline_reference.registered": "SEO/AI 指針の出典を登録した",
@@ -891,6 +897,13 @@ export const AUDIT_ACTION_LABEL: Readonly<Record<AuditAction, string>> = {
   // 作る前の下書き。「始めた → 段階を埋めた」で、作るまでの道のりが追える。
   "site_draft.started": "ブログを作り始めた",
   "site_draft.step_saved": "ブログ作成の入力を保存した",
+  // 固定ページと問い合わせ。前者は**公開できるかどうかを動かす**設定で、
+  // 後者は中身が 1 文字も変わらないため、どちらも記録の行にしか残らない。
+  "site_document.changed": "固定ページを作った・直した",
+  "contact.handled": "問い合わせの対応状況を変えた",
+  // 生成の入力。像を書き換えると、以後の記事の語り口がまとめて変わる。
+  "persona.changed": "書き手・読者像を作った・直した",
+  "content_package.changed": "記事の企画を作った・直した",
   "conversion.adjusted": "成果の数字を手で直した",
   // 提携の 2 語。**どちらも収益の出どころを動かす**が、画面の見た目は変わらない。
   "affiliate_account.changed": "提携先を登録・変更した",

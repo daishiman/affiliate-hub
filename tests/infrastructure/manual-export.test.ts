@@ -1,7 +1,7 @@
 /**
  * @tier 1
  * @req REQ-P08
- * @types equivalence, boundary, adversarial
+ * @types equivalence, boundary, injection
  *
  * 貼り付け用の書き出し。
  *

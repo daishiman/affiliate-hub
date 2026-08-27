@@ -1,4 +1,4 @@
-/** @tier 1 @req REQ-P08 @types boundary, pagination */
+/** @tier 1 @req REQ-P08 @types boundary, boundary */
 import { describe, expect, it } from "vitest";
 import {
   createSampleChannelConnectionRepository,

@@ -1,4 +1,4 @@
-/** @tier 1 @req REQ-A06 @types authorization, tenant-isolation, audit-log */
+/** @tier 1 @req REQ-A06 @types permission-matrix, tenant-isolation, audit-log */
 import { describe, expect, it } from "vitest";
 import type { ManageDistributionDeps } from "@/application/usecases/distribution/manage-distribution";
 import { createRegisterChannelConnectionUseCase } from "@/application/usecases/distribution/manage-distribution";

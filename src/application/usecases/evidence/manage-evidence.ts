@@ -4,8 +4,10 @@ import type {
   EditorialTestRunRepositoryPort,
 } from "@/application/ports";
 import type { IdGeneratorPort } from "@/application/ports/common";
+import type { AuditLogPort } from "@/application/ports/compliance";
 import type { MembershipRepositoryPort } from "@/application/ports/identity";
 import type { EditorialProductRepositoryPort } from "@/application/ports/product";
+import { auditWriteFailure, buildAuditEntry } from "@/application/audit";
 import { ensureOwnedReference } from "@/application/owned-reference";
 import { requireCapability, requireWorkspaceWideCapability } from "@/domain/identity";
 import {
@@ -63,6 +65,19 @@ export type ManageEvidenceDeps = {
   /** ID の作り方。**登録のときだけ要る。** 参照だけの経路には持たせない。 */
   readonly ids?: IdGeneratorPort;
   readonly affiliateLinks?: never;
+};
+
+/**
+ * 登録する側の口。
+ *
+ * **参照だけの口（`createSearchEvidenceUseCase`）には持たせない。**
+ * 持たせると、探しただけで記録が書ける形が型の上で作れる。
+ * ここで登録した 3 つは、後から「その言い切りを誰が書いてよいと判断したか」を
+ * 問われる側なので、書いた人が残らない登録を型で作れないようにしておく。
+ */
+export type RecordedEvidenceDeps = ManageEvidenceDeps & {
+  readonly auditLog: AuditLogPort;
+  readonly now: () => Date;
 };
 
 /** 登録の口が ID の作り方を持たずに組まれたとき（`manage-rankings.ts` と同じ理由）。 */
@@ -213,7 +228,7 @@ function readEvidenceType(value: string): EvidenceType | null {
 }
 
 export function createSaveEvidenceUseCase(
-  deps: ManageEvidenceDeps,
+  deps: RecordedEvidenceDeps,
 ): UseCase<SaveEvidenceInput, SavedEvidence> {
   return {
     async execute(actor, input): Promise<Result<SavedEvidence, DomainError>> {
@@ -250,8 +265,31 @@ export function createSaveEvidenceUseCase(
       });
       if (!built.ok) return built;
 
+      /*
+       * 記録の入れ物は保存より前に組み立てる。組み立てに失敗する条件
+       * （匿名の操作など）を保存の後に見つけると、資料だけ増えて
+       * 誰が入れたか分からない行が残る。
+       */
+      const entry = buildAuditEntry({ ids: deps.ids, now: deps.now }, actor, {
+        action: "evidence.registered",
+        targetType: "evidence",
+        targetId: String(built.value.id),
+        before: null,
+        after: {
+          type: built.value.type,
+          title: built.value.title,
+          sourceOwner: built.value.sourceOwner,
+          capturedAt: built.value.capturedAt.toISOString(),
+        },
+      });
+      if (!entry.ok) return entry;
+
       const saved = await deps.evidence.save(built.value);
       if (!saved.ok) return saved;
+      const appended = await deps.auditLog.append(entry.value);
+      if (!appended.ok) {
+        return err(auditWriteFailure("根拠の登録は済んでいます", appended.error.details));
+      }
       return ok({ evidenceId: String(saved.value.id), title: saved.value.title });
     },
   };
@@ -287,7 +325,7 @@ function readClaimType(value: string): ClaimType | null {
  * 画面上は根拠付きに見えて、開くと何も無い主張ができる。
  */
 export function createSaveClaimUseCase(
-  deps: ManageEvidenceDeps,
+  deps: RecordedEvidenceDeps,
 ): UseCase<SaveClaimInput, SavedClaim> {
   return {
     async execute(actor, input): Promise<Result<SavedClaim, DomainError>> {
@@ -353,12 +391,32 @@ export function createSaveClaimUseCase(
       });
       if (!built.ok) return built;
 
+      const entry = buildAuditEntry({ ids: deps.ids, now: deps.now }, actor, {
+        action: "claim.registered",
+        targetType: "claim",
+        targetId: String(built.value.id),
+        before: null,
+        after: {
+          productId: String(productId),
+          type: built.value.type,
+          statement: built.value.statement,
+          // 指した根拠の**番号だけ**を残す。中身を写すと、根拠を直した日から
+          // 記録側だけが古い文面を持ち続ける。
+          evidenceIds: built.value.evidenceIds.map(String),
+        },
+      });
+      if (!entry.ok) return entry;
+
       const saved = await deps.claims.saveForProduct(
         actor.workspaceId,
         productId,
         built.value,
       );
       if (!saved.ok) return saved;
+      const appended = await deps.auditLog.append(entry.value);
+      if (!appended.ok) {
+        return err(auditWriteFailure("言えることの登録は済んでいます", appended.error.details));
+      }
       return ok({ claimId: String(saved.value.id), statement: saved.value.statement });
     },
   };
@@ -393,7 +451,7 @@ export type SavedTestRun = { readonly testRunId: string; readonly methodVersion:
  * 「去年より良くなった」が方法の違いなのか実際の差なのか永久に分からなくなる。
  */
 export function createSaveTestRunUseCase(
-  deps: ManageEvidenceDeps,
+  deps: RecordedEvidenceDeps,
 ): UseCase<SaveTestRunInput, SavedTestRun> {
   return {
     async execute(actor, input): Promise<Result<SavedTestRun, DomainError>> {
@@ -476,8 +534,28 @@ export function createSaveTestRunUseCase(
       });
       if (!built.ok) return built;
 
+      const entry = buildAuditEntry({ ids: deps.ids, now: deps.now }, actor, {
+        action: "test_run.registered",
+        targetType: "test_run",
+        targetId: String(built.value.id),
+        before: null,
+        after: {
+          productId: String(productId),
+          methodVersion: built.value.methodVersion,
+          // 誰が測ったかは記録の本体。ここを落とすと、
+          // 「この測定は誰の手によるものか」がこの行から読めなくなる。
+          testerIds: built.value.testerIds.map(String),
+          startedAt: built.value.startedAt.toISOString(),
+        },
+      });
+      if (!entry.ok) return entry;
+
       const saved = await deps.testRuns.save(built.value);
       if (!saved.ok) return saved;
+      const appended = await deps.auditLog.append(entry.value);
+      if (!appended.ok) {
+        return err(auditWriteFailure("検証記録の登録は済んでいます", appended.error.details));
+      }
       return ok({ testRunId: String(saved.value.id), methodVersion: saved.value.methodVersion });
     },
   };

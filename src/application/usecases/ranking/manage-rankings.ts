@@ -52,16 +52,25 @@ export type ManageRankingsDeps = {
   readonly affiliateLinks?: never;
 };
 
-export type SaveRankingModelDeps = ManageRankingsDeps & {
-  /** 基準を変えた理由を、保存結果と同じ対象 ID で残す。 */
+/**
+ * 順位のきまりを**書き換える**側の口。
+ *
+ * 基準の変更と点の登録の両方がこれを受け取る。
+ * 参照だけの口（`createListRankingModelsUseCase`）には持たせない。
+ */
+export type RecordedRankingsDeps = ManageRankingsDeps & {
+  /** 変えた理由を、保存結果と同じ対象 ID で残す。 */
   readonly auditLog: AuditLogPort;
   readonly now: () => Date;
 };
 
+/** 旧名。基準の変更だけを指していた頃の名前で、点の登録が加わって意味が広がった。 */
+export type SaveRankingModelDeps = RecordedRankingsDeps;
+
 /** 登録の口が ID の作り方を持たずに組まれたとき（`manage-personas.ts` と同じ理由）。 */
-function idsMissing() {
+function idsMissing(what = "評価基準") {
   return err(
-    domainError("NOT_IMPLEMENTED", "評価基準の登録は、この画面からは行えません。", {
+    domainError("NOT_IMPLEMENTED", `${what}の登録は、この画面からは行えません。`, {
       suggestedAction: "公開した環境（pnpm run preview か本番）で開いてください。",
     }),
   );
@@ -305,7 +314,7 @@ export type SavedScoreCard = {
  * 渡さないと、版を上げて測り直した点が前の版を上書きする。
  */
 export function createSaveScoreCardUseCase(
-  deps: ManageRankingsDeps,
+  deps: RecordedRankingsDeps,
 ): UseCase<SaveScoreCardInput, SavedScoreCard> {
   return {
     async execute(actor, input): Promise<Result<SavedScoreCard, DomainError>> {
@@ -388,6 +397,24 @@ export function createSaveScoreCardUseCase(
         return err(validationError("測った日の形が読めません。", "testedAt"));
       }
 
+      if (deps.ids === undefined) return idsMissing("点");
+
+      const entry = buildAuditEntry({ ids: deps.ids, now: deps.now }, actor, {
+        action: "score_card.changed",
+        targetType: "score_card",
+        targetId: `${String(modelId)}:${String(productId)}`,
+        before: null,
+        after: {
+          modelId: String(modelId),
+          productId: String(productId),
+          // 点そのものを残す。順位が動いた理由を尋ねられたとき、
+          // 「どの指標が何点になったか」はこの行にしか無い。
+          scores,
+          evidenceRefs: refs,
+        },
+      });
+      if (!entry.ok) return entry;
+
       const saved = await deps.scoreCards.save(actor.workspaceId, modelId, {
         productId,
         scores,
@@ -395,6 +422,10 @@ export function createSaveScoreCardUseCase(
         testedAt,
       });
       if (!saved.ok) return saved;
+      const appended = await deps.auditLog.append(entry.value);
+      if (!appended.ok) {
+        return err(auditWriteFailure("点の登録は済んでいます", appended.error.details));
+      }
 
       return ok({
         productId: String(saved.value.productId),

@@ -1,4 +1,4 @@
-/** @tier 1 @req REQ-P08 @types authorization, secret-boundary */
+/** @tier 1 @req REQ-P08 @types permission-matrix, secrets */
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { ActorContext } from "@/domain/shared";
 import { domainError } from "@/domain/shared";

@@ -1,7 +1,7 @@
 /**
  * @tier 2
  * @req REQ-E13
- * @types equivalence, boundary, adversarial
+ * @types equivalence, boundary, injection
  *
  * 登録済みの成果リンクを見て、表記が古くなったものを止める。
  *

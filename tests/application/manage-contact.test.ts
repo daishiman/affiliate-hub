@@ -1,7 +1,7 @@
 /**
  * @tier 1
  * @req REQ-B18
- * @types equivalence, boundary, adversarial
+ * @types equivalence, boundary, injection
  *
  * 届いた問い合わせを運営者が読む側。
  *
@@ -19,13 +19,16 @@ import type {
   EditorialContactPort,
 } from "@/application/ports/reader-interaction";
 import type { EditorialSiteRepositoryPort } from "@/application/ports/site";
+import type { AuditLogPort } from "@/application/ports/compliance";
 import {
-  type ManageContactDeps,
+  type RecordedContactDeps,
   createListContactMessagesUseCase,
   createMarkContactHandledUseCase,
 } from "@/application/usecases/site/manage-contact";
 import { domainError, err, markEditorial, ok } from "@/domain/shared";
+import { createUnavailableAuditLog } from "@/infrastructure/persistence/sample/audit-log-sample-repository";
 import { OTHER_WORKSPACE, WORKSPACE, aNobody, anOwner } from "../support/actors";
+import { recordingAuditLog } from "../support/doubles";
 
 const SITE = "sample-site";
 
@@ -92,8 +95,11 @@ function sitesPort(): EditorialSiteRepositoryPort {
   }) as unknown as EditorialSiteRepositoryPort;
 }
 
-function deps(contact: EditorialContactPort): ManageContactDeps {
-  return { contact, sites: sitesPort() };
+function deps(
+  contact: EditorialContactPort,
+  auditLog: AuditLogPort = recordingAuditLog().port,
+): RecordedContactDeps {
+  return { contact, sites: sitesPort(), ids: { newId: () => "log_1" }, auditLog };
 }
 
 describe("届いた問い合わせを読む", () => {
@@ -266,5 +272,37 @@ describe("対応済みの印", () => {
 
     expect(result.ok).toBe(false);
     expect(calls).toHaveLength(0);
+  });
+
+  it("誰が印を動かしたかを記録に残す", async () => {
+    const { port } = contactPort([record()]);
+    const audit = recordingAuditLog();
+
+    await createMarkContactHandledUseCase(deps(port, audit.port)).execute(anOwner(), {
+      id: "cm_1",
+      handled: true,
+    });
+
+    expect(audit.actions()).toEqual(["contact.handled"]);
+    const entry = audit.entries()[0];
+    expect(entry?.targetType).toBe("contact_message");
+    expect(entry?.targetId).toBe("cm_1");
+    // 中身は 1 文字も変わらない操作なので、印の向きだけが後から追える手掛かりになる。
+    expect(entry?.after).toEqual({ handled: true });
+  });
+
+  it("記録が残せなくても、印そのものは巻き戻さない", async () => {
+    const { port, calls } = contactPort([record()]);
+
+    const result = await createMarkContactHandledUseCase(
+      deps(port, createUnavailableAuditLog()),
+    ).execute(anOwner(), { id: "cm_1", handled: true });
+
+    expect(result.ok).toBe(false);
+    if (result.ok) return;
+    expect(result.error.code).toBe("UPSTREAM_UNAVAILABLE");
+    expect(result.error.message).toContain("対応済みの印は付いています");
+    // 印は付いたまま。外しに戻ると、断りを見た人が同じ問い合わせへ二重に返信する。
+    expect(calls).toHaveLength(1);
   });
 });

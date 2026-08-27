@@ -1,3 +1,6 @@
+import type { IdGeneratorPort } from "@/application/ports/common";
+import type { AuditLogPort } from "@/application/ports/compliance";
+import { auditWriteFailure, buildAuditEntry } from "@/application/audit";
 import type {
   EditorialSiteDocumentRepositoryPort,
   EditorialSiteRepositoryPort,
@@ -36,6 +39,19 @@ import type { UseCase } from "../usecase";
 export type ManageSiteDocumentsDeps = {
   readonly sites: EditorialSiteRepositoryPort;
   readonly documents: EditorialSiteDocumentRepositoryPort;
+};
+
+/**
+ * 固定文書を**書き換える**側の口。
+ *
+ * 一覧だけの口には持たせない。ここが欠けるとそのブログの記事は
+ * 1 本も公開できなくなるので、「昨日まで出せていたのに」の答えを
+ * 記録の側に残せる形にしておく。
+ */
+export type RecordedSiteDocumentsDeps = ManageSiteDocumentsDeps & {
+  readonly ids: IdGeneratorPort;
+  readonly auditLog: AuditLogPort;
+  readonly now: () => Date;
 };
 
 /** 一覧の 1 行。未整備でも行は出る（`updatedAt` が null）。 */
@@ -133,7 +149,7 @@ export function createListSiteDocumentsUseCase(
 }
 
 export function createSaveSiteDocumentUseCase(
-  deps: ManageSiteDocumentsDeps,
+  deps: RecordedSiteDocumentsDeps,
 ): UseCase<SaveSiteDocumentInput, { readonly key: string }> {
   return {
     async execute(actor, input) {
@@ -176,12 +192,27 @@ export function createSaveSiteDocumentUseCase(
         );
       }
 
+      const entry = buildAuditEntry({ ids: deps.ids, now: deps.now }, actor, {
+        action: "site_document.changed",
+        targetType: "site_document",
+        targetId: `${input.siteSlug}:${key}`,
+        before: null,
+        // 本文は写さない。画面を開けば読めるものを記録側へ積み上げても
+        // 増える情報が無く、直すたびに同じ文章が二重に貯まる。
+        after: { siteSlug: input.siteSlug, key, title, paragraphs: body.length },
+      });
+      if (!entry.ok) return entry;
+
       const saved = await deps.documents.save(actor.workspaceId, input.siteSlug, {
         key,
         title,
         body,
       });
       if (!saved.ok) return saved;
+      const appended = await deps.auditLog.append(entry.value);
+      if (!appended.ok) {
+        return err(auditWriteFailure("固定ページの保存は済んでいます", appended.error.details));
+      }
       return ok({ key });
     },
   };

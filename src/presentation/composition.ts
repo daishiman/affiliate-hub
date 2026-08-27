@@ -676,6 +676,8 @@ export async function evidenceUseCases() {
     products: deps.products,
     memberships: deps.memberships,
     ids: deps.ids,
+    auditLog: deps.auditLog,
+    now: () => new Date(),
   };
   return auditDenials(deps, {
     searchEvidence: createSearchEvidenceUseCase(evidence),
@@ -857,7 +859,12 @@ export async function readerUseCases() {
  */
 export async function contactUseCases() {
   const deps = createDeps({ db: await tryGetDb() });
-  const contact = { contact: deps.contact, sites: deps.sites };
+  const contact = {
+    contact: deps.contact,
+    sites: deps.sites,
+    ids: deps.ids,
+    auditLog: deps.auditLog,
+  };
   return auditDenials(deps, {
     list: createListContactMessagesUseCase(contact),
     markHandled: createMarkContactHandledUseCase(contact),
@@ -938,7 +945,12 @@ export async function personaUseCases() {
   // `createDeps()` を db 無しで呼ぶと、書き手の保存先は見本のまま固定され、
   // 登録が成功したように見えて次に開くと消えている。
   const app = createDeps({ db: await tryGetDb() });
-  const personas = { personas: app.personas, ids: app.ids };
+  const personas = {
+    personas: app.personas,
+    ids: app.ids,
+    auditLog: app.auditLog,
+    now: () => new Date(),
+  };
   return auditDenials(app, {
     listAuthors: createListAuthorPersonasUseCase(personas),
     getAuthor: createGetAuthorPersonaUseCase(personas),
@@ -999,6 +1011,8 @@ export async function contentPackageUseCases() {
     brands: app.brands,
     products: app.products,
     ids: app.ids,
+    auditLog: app.auditLog,
+    now: () => new Date(),
   };
   return auditDenials(app, {
     listPackages: createListContentPackagesUseCase(packages),
@@ -1112,7 +1126,13 @@ export async function siteEditingUseCases() {
  */
 export async function siteDocumentUseCases() {
   const deps = createDeps({ db: await tryGetDb() });
-  const documentDeps = { sites: deps.sites, documents: deps.siteDocuments };
+  const documentDeps = {
+    sites: deps.sites,
+    documents: deps.siteDocuments,
+    ids: deps.ids,
+    auditLog: deps.auditLog,
+    now: () => new Date(),
+  };
   return auditDenials(deps, {
     list: createListSiteDocumentsUseCase(documentDeps),
     save: createSaveSiteDocumentUseCase(documentDeps),

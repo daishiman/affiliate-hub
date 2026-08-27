@@ -1,7 +1,7 @@
 /**
  * @tier 1
  * @req REQ-A06
- * @types state-transition, boundary, equivalence, audit-log, tenant-isolation
+ * @types state-transition, boundary, equivalence, audit-log, tenant-isolation, fault-injection
  */
 import { describe, expect, it } from "vitest";
 import type {
@@ -84,6 +84,25 @@ function queued(over: Partial<Publication> = {}): Publication {
     publishedAt: null,
     ...over,
   });
+}
+
+/** 何も邪魔しないコネクタ。1 か所だけ壊して試すための土台。 */
+function workingConnector(): ChannelConnectorPort {
+  return {
+    kind: "bluesky",
+    resolveIdentity: async () =>
+      ok({ providerIdentity: "did:plc:test", accountLabel: "@test.example" }),
+    checkReadiness: async () => ok(true),
+    prepareDeliveryKey: async () => ok("3m4exampletid"),
+    validate: async () => ok([]),
+    publish: async () =>
+      ok({
+        externalId: "at://did:plc:test/app.bsky.feed.post/3m4exampletid",
+        externalUrl: null,
+        publishedAt: AT,
+      }),
+    unpublish: async () => ok(true),
+  };
 }
 
 function memoryPublications(
@@ -689,5 +708,290 @@ describe("予約された外部配信の実行", () => {
     if (recovered.ok) expect(recovered.value).toEqual({ scanned: 1, delivered: 1, pending: 0 });
     expect(scenario.audit.entries()).toHaveLength(1);
     expect(scenario.audit.entries()[0]?.id).toBeTypeOf("string");
+  });
+});
+
+/**
+ * 外部へ届く前に止まる道。
+ *
+ * 送信の手前には確認が 8 つ並んでいて、どれも**外部へ 1 度も触れずに**
+ * 止まることに意味がある。触れてから止めると、相手側に半端な投稿が残る。
+ * したがってこの組では毎回 `publishInputs` が空であることを見る。
+ *
+ * もう 1 つ、止め方は状態で変わる。まだ 1 度も送っていない QUEUED は
+ * 検証失敗（FAILED_VALIDATION）へ、送信を始めた後の行は送信失敗として
+ * 数え直す。ここを取り違えると、送信回数の上限が効かなくなる。
+ */
+describe("送信の手前で止まる道", () => {
+  function blocked(over: Partial<Publication> = {}) {
+    const publications = memoryPublications([queued(over)]);
+    return { publications, scenario: setup({ publications }) };
+  }
+
+  async function runAndExpectStopped(
+    deps: Parameters<typeof executeDuePublications>[0],
+    scenario: ReturnType<typeof setup>,
+  ) {
+    const result = await executeDuePublications(deps, { at: AT, limit: 20 });
+
+    expect(result.ok).toBe(true);
+    expect(scenario.publishInputs, "止めたはずの配信を外部へ送っています").toHaveLength(0);
+    return result;
+  }
+
+  it("送信先の接続が結び付いていない行は、外部へ触れずに検証失敗にする", async () => {
+    const { publications, scenario } = blocked({ connectionId: null });
+
+    await runAndExpectStopped(scenario.deps, scenario);
+
+    const after = publications.get("pub_delivery" as PublicationId);
+    expect(after?.state).toBe("FAILED_VALIDATION");
+    expect(after?.lastError).toBe("送信先の接続がありません。");
+  });
+
+  it("送信を始めた後の行は、検証失敗ではなく送信失敗として数える", async () => {
+    // QUEUED から入る道と違い、状態の作り直しではなく送信失敗の記録として畳む。
+    const { publications, scenario } = blocked({
+      connectionId: null,
+      state: "RETRY_SCHEDULED",
+      attempts: 1,
+      retryAt: new Date(AT.getTime() - 1_000),
+    });
+
+    const result = await runAndExpectStopped(scenario.deps, scenario);
+
+    expect(result.ok && result.value.failed).toBe(1);
+    expect(publications.get("pub_delivery" as PublicationId)).toMatchObject({
+      state: "FAILED_SEND",
+      // 送信の回数は claim のときにだけ増える。届く前に止めた回は数えない。
+      attempts: 1,
+    });
+  });
+
+  it("送信する記事が消えていたら、その旨を残して止める", async () => {
+    const publications = memoryPublications([queued()]);
+    const scenario = setup({ publications, content: null });
+
+    await runAndExpectStopped(scenario.deps, scenario);
+
+    expect(publications.get("pub_delivery" as PublicationId)?.lastError).toBe(
+      "送信する記事が見つかりません。",
+    );
+  });
+
+  it("接続に本人確認情報が固定されていなければ、送らずに登録し直しを促す", async () => {
+    const publications = memoryPublications([queued()]);
+    const scenario = setup({
+      publications,
+      connection: aChannelConnection({
+        id: CONNECTION_ID,
+        workspaceId: WORKSPACE,
+        kind: "bluesky",
+        providerIdentity: null,
+      }),
+    });
+
+    await runAndExpectStopped(scenario.deps, scenario);
+
+    expect(publications.get("pub_delivery" as PublicationId)?.lastError).toContain(
+      "本人確認情報が固定されていません",
+    );
+  });
+
+  it("予約時の本人確認情報と接続の本人確認情報が食い違えば、別アカウントへ送らない", async () => {
+    const publications = memoryPublications([queued({ providerIdentity: "did:plc:old" })]);
+    const scenario = setup({ publications });
+
+    await runAndExpectStopped(scenario.deps, scenario);
+
+    // 接続側は did:plc:test。予約時と違う先へ黙って送るのが最悪の結末である。
+    expect(publications.get("pub_delivery" as PublicationId)?.state).toBe("FAILED_VALIDATION");
+  });
+
+  it("コネクタを組み立てられなければ、その理由を残して止める", async () => {
+    const { publications, scenario } = blocked();
+    const deps = {
+      ...scenario.deps,
+      connectors: {
+        forConnection: () => ({
+          ok: false as const,
+          error: {
+            code: "UPSTREAM_UNAVAILABLE" as const,
+            message: "接続情報を読み出せませんでした。",
+            retryable: true,
+          },
+        }),
+      } as ChannelConnectorProviderPort,
+    };
+
+    await runAndExpectStopped(deps, scenario);
+
+    expect(publications.get("pub_delivery" as PublicationId)?.lastError).toBe(
+      "接続情報を読み出せませんでした。",
+    );
+  });
+
+  it("コネクタの種類が予約と違えば、送信先を取り違える前に止める", async () => {
+    const publications = memoryPublications([queued()]);
+    const scenario = setup({
+      publications,
+      connector: { ...workingConnector(), kind: "x" },
+    });
+
+    await runAndExpectStopped(scenario.deps, scenario);
+
+    expect(publications.get("pub_delivery" as PublicationId)?.lastError).toBe(
+      "送信先とコネクタの種類が一致しません。",
+    );
+  });
+
+  it("送信の準備が整っていなければ、その理由を残して止める", async () => {
+    const publications = memoryPublications([queued()]);
+    const scenario = setup({
+      publications,
+      connector: {
+        ...workingConnector(),
+        checkReadiness: async () => ({
+          ok: false as const,
+          error: {
+            code: "UPSTREAM_UNAVAILABLE" as const,
+            message: "認証が切れています。",
+            retryable: true,
+          },
+        }),
+      },
+    });
+
+    await runAndExpectStopped(scenario.deps, scenario);
+
+    expect(publications.get("pub_delivery" as PublicationId)?.lastError).toBe("認証が切れています。");
+  });
+
+  it("コネクタの下見が指摘を返したら、指摘を並べて止める", async () => {
+    const publications = memoryPublications([queued()]);
+    const scenario = setup({
+      publications,
+      connector: {
+        ...workingConnector(),
+        validate: async () => ok(["本文が長すぎます", "画像が必要です"]),
+      },
+    });
+
+    await runAndExpectStopped(scenario.deps, scenario);
+
+    expect(publications.get("pub_delivery" as PublicationId)?.lastError).toBe(
+      "本文が長すぎます / 画像が必要です",
+    );
+  });
+
+  it("下見そのものが失敗したときも、指摘と同じ扱いで止める", async () => {
+    const publications = memoryPublications([queued()]);
+    const scenario = setup({
+      publications,
+      connector: {
+        ...workingConnector(),
+        validate: async () => ({
+          ok: false as const,
+          error: {
+            code: "UPSTREAM_UNAVAILABLE" as const,
+            message: "下見に応答がありません。",
+            retryable: true,
+          },
+        }),
+      },
+    });
+
+    await runAndExpectStopped(scenario.deps, scenario);
+
+    expect(publications.get("pub_delivery" as PublicationId)?.lastError).toBe(
+      "下見に応答がありません。",
+    );
+  });
+
+  it("投稿の鍵を用意できなければ、鍵なしで送らない", async () => {
+    const publications = memoryPublications([queued()]);
+    const scenario = setup({
+      publications,
+      connector: {
+        ...workingConnector(),
+        prepareDeliveryKey: async () => ({
+          ok: false as const,
+          error: {
+            code: "UPSTREAM_UNAVAILABLE" as const,
+            message: "投稿の鍵を発行できませんでした。",
+            retryable: true,
+          },
+        }),
+      },
+    });
+
+    await runAndExpectStopped(scenario.deps, scenario);
+
+    // 鍵が無いまま送ると、再送のたびに新しい投稿が増える。
+    expect(publications.get("pub_delivery" as PublicationId)?.lastError).toBe(
+      "投稿の鍵を発行できませんでした。",
+    );
+  });
+
+  it("送信の順番を確保できなければ、やり直せる断りとして呼び出し元へ返す", async () => {
+    const publications = memoryPublications([queued()]);
+    const scenario = setup({ publications });
+    const deps = {
+      ...scenario.deps,
+      connections: {
+        ...scenario.deps.connections,
+        acquireProviderDeliveryLease: async () => ({
+          ok: false as const,
+          error: { code: "UPSTREAM_UNAVAILABLE" as const, message: "KV障害", retryable: true },
+        }),
+      },
+    };
+
+    const result = await executeDuePublications(deps, { at: AT, limit: 20 });
+
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.error.retryable).toBe(true);
+      expect(result.error.message).toBe("送信先の利用順を確保できませんでした。");
+    }
+    expect(scenario.publishInputs).toHaveLength(0);
+  });
+
+  it("送信権の確保そのものが失敗したときも、やり直せる断りとして返す", async () => {
+    const publications = memoryPublications([queued()]);
+    const scenario = setup({ publications });
+    const deps = {
+      ...scenario.deps,
+      publications: {
+        ...publications.port,
+        claimForDelivery: async () => ({
+          ok: false as const,
+          error: { code: "UPSTREAM_UNAVAILABLE" as const, message: "D1障害", retryable: true },
+        }),
+      } as PublicationRepositoryPort,
+    };
+
+    const result = await executeDuePublications(deps, { at: AT, limit: 20 });
+
+    expect(result.ok).toBe(false);
+    if (!result.ok) expect(result.error.message).toBe("配信の送信権を確保できませんでした。");
+    expect(scenario.publishInputs).toHaveLength(0);
+  });
+});
+
+describe("監査だけを流し直す入口", () => {
+  it("件数は 1〜200 の間へ収める", async () => {
+    const seen: number[] = [];
+    const deliveryAudits = {
+      flush: async (limit: number) => {
+        seen.push(limit);
+        return ok({ scanned: 0, delivered: 0, pending: 0 });
+      },
+    } as unknown as PublicationDeliveryAuditOutboxPort;
+
+    await flushPublicationDeliveryAudits({ deliveryAudits }, { limit: 0 });
+    await flushPublicationDeliveryAudits({ deliveryAudits }, { limit: 5_000 });
+
+    expect(seen).toEqual([1, 200]);
   });
 });

@@ -1,4 +1,4 @@
-/** @tier 2 @req REQ-P08, REQ-TS07 @types db-migration, retry, idempotency */
+/** @tier 2 @req REQ-P08, REQ-TS07 @types db-migration, idempotency */
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { getPlatformProxy } from "wrangler";

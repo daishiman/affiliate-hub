@@ -1,7 +1,7 @@
 /**
  * @tier 1
  * @req REQ-B18
- * @types equivalence, boundary, adversarial
+ * @types equivalence, boundary, injection
  *
  * 読者から届いた問い合わせの保存先（D1）。
  *

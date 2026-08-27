@@ -1,7 +1,7 @@
 /**
  * @tier 2
  * @req REQ-A06
- * @types idempotency, concurrency, db-migration
+ * @types idempotency, db-concurrency, db-migration
  */
 import { readFileSync, readdirSync } from "node:fs";
 import path from "node:path";
