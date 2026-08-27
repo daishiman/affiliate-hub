@@ -23,7 +23,7 @@ import {
   createUpdateProductUseCase,
 } from "@/application/usecases/product/edit-product";
 import { type Product, type ProductIdentityKey } from "@/domain/product";
-import { type ProductId, type WorkspaceId, ok } from "@/domain/shared";
+import { type ProductId, type WorkspaceId, ok, taggedString } from "@/domain/shared";
 import { SAMPLE_PRODUCTS, SAMPLE_WORKSPACE_ID } from "@/infrastructure/persistence/sample/ranking-sample-repository";
 import { aNobody, anOwner } from "../support/actors";
 import { failing, testDeps } from "../support/doubles";
@@ -141,6 +141,33 @@ describe("商品を直す", () => {
     });
     expect(result.ok).toBe(false);
     if (!result.ok) expect(result.error.code).toBe("FORBIDDEN");
+  });
+
+  it("ブランド限定担当者には参照企画の件数も明かさず、保存先も読まない", async () => {
+    let referencesRead = false;
+    const guarded = deps({
+      packages: testDeps({
+        contentPackages: {
+          list: async () => {
+            referencesRead = true;
+            return failing();
+          },
+        },
+      }).contentPackages,
+    });
+    const scoped = anOwner({
+      workspaceId: WS,
+      scopedBrandIds: [taggedString<"BrandId">("brand-limited")],
+    });
+
+    const result = await createUpdateProductUseCase(guarded).execute(scoped, {
+      productId: REFERENCED,
+      officialUrl: "",
+    });
+
+    expect(result.ok).toBe(false);
+    if (!result.ok) expect(result.error.code).toBe("TENANT_MISMATCH");
+    expect(referencesRead).toBe(false);
   });
 
   it("無い商品は、一覧から選び直すよう添えて断る", async () => {

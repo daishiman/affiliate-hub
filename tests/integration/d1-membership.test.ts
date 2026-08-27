@@ -90,6 +90,7 @@ function manage(now = NOW) {
     auditLog: audit.port,
     ids: { newId: () => `${++seq}` },
     now: () => now,
+    capacity: { withLease: async (_workspaceId, _kind, mutation) => mutation() },
   });
   return { uc, audit, repository };
 }

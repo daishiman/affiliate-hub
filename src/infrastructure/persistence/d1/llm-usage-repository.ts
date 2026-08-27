@@ -36,6 +36,7 @@ export function createD1LlmUsage(deps: LlmUsageDeps): LlmUsagePort & LlmUsageRec
           outputTokens: entry.outputTokens,
           estimatedCostMinor: entry.estimatedCostMinor,
           currency: entry.currency,
+          capacityConsumed: entry.capacityConsumed,
           succeeded: entry.succeeded,
           occurredAt: deps.now(),
         });

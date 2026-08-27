@@ -16,6 +16,7 @@ import {
 } from "@/domain/shared";
 import type { DrizzleD1 } from "./link-inbox-repository";
 import { storageFailure } from "./storage-failure";
+import { pageById } from "../page-by-id";
 
 /**
  * 担当者の登録の**書く側**（D1）。招待の追加・役割の変更・担当の取り消し。
@@ -135,9 +136,8 @@ export function createD1MembershipRepository(db: DrizzleD1): MembershipRepositor
           .where(eq(memberships.workspaceId, String(workspaceId)))
           // 招待した順。**新しい順にしない。** 誰を先に招いたかが分かるほうが、
           // 「この人はいつからいるのか」を画面で追える。
-          .orderBy(asc(memberships.invitedAt))
-          .limit(page.limit);
-        return ok({ items: rows.map(toDomain), nextCursor: null });
+          .orderBy(asc(memberships.invitedAt), asc(memberships.id));
+        return ok(pageById(rows.map(toDomain), page, (membership) => String(membership.id)));
       } catch (cause) {
         return storageFailure("担当者の一覧取得", cause);
       }

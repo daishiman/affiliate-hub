@@ -63,6 +63,8 @@ export const FIELD_VALUES: Readonly<Record<string, unknown>> = {
   from: "FACT_CHECK",
   to: "COMPLIANCE_REVIEW",
   body: "この製品の重さは 1.5kg です。",
+  // 問い合わせは人による自動送信よけ完了が必須。値は入力契約の見本で、実検証済みtokenではない。
+  humanCheckToken: "turnstile-token-for-input-shape-test",
   text: "この文章には指示が含まれていません。",
   provided: {},
 
@@ -88,6 +90,9 @@ export const FIELD_VALUES: Readonly<Record<string, unknown>> = {
   publicationId: "pub_own_site_ready",
   scheduledAt: "2026-09-01T09:00:00.000Z",
   channelKind: "own_site",
+  accountLabel: "@publisher.example",
+  credentialRef: "channel/conn_bluesky/credentials",
+  expiresAt: "2027-08-27T00:00:00.000Z",
 
   // --- 自分のブログへ出す ---
   // 出せる条件（書き手・広告表記・次に見直す日・根拠）を全部そろえた値を置く。
@@ -124,6 +129,13 @@ export const FIELD_VALUES: Readonly<Record<string, unknown>> = {
   amountMinor: 1000,
   currency: "JPY",
   reason: "広告主からの確定連絡にあわせて修正しました。",
+  /*
+    止める対象は見本のリンク（`affiliate-sample-repository.ts` の `LINKS`）。
+    見本は止められない（保存先に行が無いので断られる）が、**断られる場所は
+    権限より先ではない。** 能力の検査と入力の検査を通り抜けたうえで、
+    保存先が断る形になっているかをここで通す。
+  */
+  affiliateLinkId: "lnk_amazon_pc",
   url: "https://example.com/products/alpha-studio-15",
   // 受け取り方は `LinkIngestionSource` の 5 つだけ（paste / csv / api / extension / webmcp）。
   // 2026-08-18 まで `manual` が入っていて、2 つの道具が入力の検査で断られていた。
@@ -192,9 +204,15 @@ export const FIELD_VALUES: Readonly<Record<string, unknown>> = {
  * ここに置くのは**その道具に固有の事情**だけで、共通の値は辞書側に置く。
  */
 export const TOOL_OVERRIDES: Readonly<Record<string, Readonly<Record<string, unknown>>>> = {
+  register_channel_connection: { channelKind: "bluesky" },
   get_person: { slug: "miwa" },
   get_reader_tool: { slug: "storage-estimator" },
-  run_reader_tool: { slug: "storage-estimator" },
+  // 計算が動くようになったので、値まで渡す（2026-08-26）。
+  // 空の `values` のままだと「欄が空です」で失敗し、正常系を見たことにならない。
+  run_reader_tool: {
+    slug: "storage-estimator",
+    values: { minutes: "60", bitrate: "100", months: "12" },
+  },
   get_policy_document: { key: "methodology" },
   get_article: { slug: "laptops-for-video-editing" },
   // 読者像は執筆者とは別の一覧にある。
@@ -260,8 +278,9 @@ export const NO_HAPPY_PATH: Readonly<Record<string, string>> = {
   // 見本の下書き `sd_sample` を 1 本置いたので、呼べば返るようになった。
   // 理由が消えたら行ごと消す。理由だけ残すと、次に見た人には
   // 「まだ通らない」と読める。
-  run_reader_tool:
-    "計算そのものがまだスタブで、NOT_IMPLEMENTED を返すため（返していることは検査する）",
+  // `run_reader_tool` は 2026-08-26 にここから外れた。
+  // 計算式を保存側から取って実際に解くようになったので、値を渡せば結果が返る
+  // (`src/domain/authoring/reader-tool-formula.ts`)。
 };
 
 function requiredList(schema: unknown): readonly string[] {

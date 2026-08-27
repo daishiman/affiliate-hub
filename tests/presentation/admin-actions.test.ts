@@ -1,4 +1,4 @@
-/** @tier 1 */
+/** @tier 1 @req REQ-P08 */
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { ActorContext } from "@/domain/shared";
 import { SAMPLE_ACTOR } from "@/infrastructure/identity/sample-actor";
@@ -795,7 +795,7 @@ describe("ブログ作成ウィザードの操作", () => {
 
 describe("事実の範囲の確認", () => {
   async function anAuthorId(): Promise<string> {
-    const list = await personaUseCases().listAuthors.execute(SAMPLE_ACTOR, {});
+    const list = await (await personaUseCases()).listAuthors.execute(SAMPLE_ACTOR, {});
     if (!list.ok) throw new Error("見本の書き手を取得できませんでした");
     const withoutTestRun = list.value.items.find((a) => a.verifiedExperienceCount === 0);
     return (withoutTestRun ?? list.value.items[0]).personaId;

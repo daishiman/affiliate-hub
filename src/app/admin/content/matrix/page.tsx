@@ -9,11 +9,12 @@ import { AdminShell } from "@/presentation/admin/admin-shell";
 import { createConceptDraftsAction } from "@/presentation/admin/concept-drafts-action";
 import type { SuccessOf } from "@/presentation/admin/use-case-result";
 import {
+  contentPackageUseCases,
   currentActor,
+  editorialContentNotice,
   generationMatrixUseCases,
   platformUseCases,
   productDisplayName,
-  sampleContentPackageId,
 } from "@/presentation/composition";
 import { refusalText } from "@/presentation/refusal-text";
 import {
@@ -26,7 +27,8 @@ import {
   ListView,
   Prose,
   Section,
-  StubNotice,
+  StorageNotice,
+  type StorageStatus,
   SubSection,
   TextLink,
   toConceptAxes,
@@ -56,6 +58,8 @@ export default async function ContentMatrixPage({
     readonly sites?: string;
     /** 直前の書き分けが断られた理由。押した先の画面から戻ってくる。 */
     readonly failed?: string;
+    /** どの企画の表を見るか。省くと一覧の先頭。 */
+    readonly pkg?: string;
   }>;
 }) {
   const {
@@ -63,6 +67,7 @@ export default async function ContentMatrixPage({
     limit: requestedLimit,
     sites: requestedSites,
     failed,
+    pkg: requestedPackage,
   } = await searchParams;
   const selectedSiteIds =
     requestedSites === undefined || requestedSites === "" ? [] : requestedSites.split(",");
@@ -71,8 +76,49 @@ export default async function ContentMatrixPage({
   const limit = LIMIT_CHOICES.find((l) => String(l) === requestedLimit) ?? DEFAULT_MATRIX_LIMIT;
 
   const actor = await currentActor();
+
+  /*
+   * どの企画の表を見るかは URL が持つ。
+   * 以前はここが見本の企画の決め打ちで、企画をいくつ立てても
+   * この画面はいつも同じ 1 件を映していた。
+   * 知らない ID を渡されたら断らずに先頭へ落とす——URL を手で触った人が
+   * 「表が出ない」ではなく「別の企画が出ている」で気づけるほうが早い。
+   */
+  const packages = await (await contentPackageUseCases()).listPackages.execute(actor, {});
+  const packageItems = packages.ok ? packages.value.items : [];
+  const selectedPackage =
+    packageItems.find((p) => p.packageId === requestedPackage) ?? packageItems[0] ?? null;
+
+  if (!packages.ok || selectedPackage === null) {
+    return (
+      <AdminShell
+        routeId="content/matrix"
+        title="生成マトリクス"
+        lead="1 つの企画を、誰に・どの切り口で出すか決めます。"
+        actions={<TextLink href="/admin/content">記事へ戻る</TextLink>}
+      >
+        {!packages.ok ? (
+          <ErrorView
+            title="企画の一覧を出せませんでした"
+            body={packages.error.message}
+            suggestedAction={packages.error.suggestedAction ?? null}
+            action={<TextLink href="/admin/content">記事へ戻る</TextLink>}
+          />
+        ) : (
+          <Section title="この企画で達成したいこと">
+            <EmptyView
+              title="先に企画を立てます"
+              body="書き分けるもとになる企画がありません。誰に何を伝えるかが決まっていないと、行にも列にも入れるものがありません。"
+              action={<TextLink href="/admin/content/packages/new">企画を立てる</TextLink>}
+            />
+          </Section>
+        )}
+      </AdminShell>
+    );
+  }
+
   const result = await (await generationMatrixUseCases()).getMatrix.execute(actor, {
-    packageId: sampleContentPackageId(),
+    packageId: selectedPackage.packageId,
     rowAxis: axis,
     limit,
   });
@@ -102,6 +148,12 @@ export default async function ContentMatrixPage({
         />
       ) : (
         <MatrixBody
+          storage={await editorialContentNotice()}
+          packageChoices={packageItems.map((p) => ({
+            packageId: p.packageId,
+            objective: p.objective,
+            statusLabel: p.statusLabel,
+          }))}
           matrix={result.value}
           selectedSiteIds={selectedSiteIds}
           siteItems={siteItems}
@@ -120,13 +172,23 @@ type SiteItem = SuccessOf<
   ReturnType<Awaited<ReturnType<typeof platformUseCases>>["listSites"]["execute"]>
 >["items"][number];
 
+type PackageChoice = {
+  readonly packageId: string;
+  readonly objective: string;
+  readonly statusLabel: string;
+};
+
 function MatrixBody({
+  storage,
+  packageChoices,
   matrix,
   selectedSiteIds,
   siteItems,
   sitesError,
   failed,
 }: {
+  readonly storage: StorageStatus;
+  readonly packageChoices: readonly PackageChoice[];
   readonly matrix: Matrix;
   readonly selectedSiteIds: readonly string[];
   readonly siteItems: readonly SiteItem[];
@@ -138,26 +200,57 @@ function MatrixBody({
     const next = selectedSiteIds.includes(slug)
       ? selectedSiteIds.filter((id) => id !== slug)
       : [...selectedSiteIds, slug];
-    const query = new URLSearchParams({ axis: matrix.rowAxis, limit: String(matrix.limit) });
+    const query = new URLSearchParams({
+      axis: matrix.rowAxis,
+      limit: String(matrix.limit),
+      pkg: matrix.packageId,
+    });
     if (next.length > 0) query.set("sites", next.join(","));
     return `/admin/content/matrix?${query.toString()}`;
   };
 
+  /**
+   * 企画を切り替える行き先。
+   *
+   * **表示条件（行の軸・本数の上限）は持ち越し、選んだブログは落とす。**
+   * 前の企画で選んだブログをそのまま連れて行くと、企画に合わない出し先が
+   * 選ばれたまま「書き分ける」を押せてしまう。
+   */
+  const packageHref = (packageId: string): string =>
+    `/admin/content/matrix?${new URLSearchParams({
+      axis: matrix.rowAxis,
+      limit: String(matrix.limit),
+      pkg: packageId,
+    }).toString()}`;
+
   return (
     <>
-      <StubNotice
-        what="企画（どの組み合わせを作るかの元）の保存先"
-        blockedBy="content_packages テーブルの追加と、企画を作る入口"
-        stubId="persistence:content-editorial-sample"
-      >
-        見本の企画 1 件を読んでいます。表に並ぶ記事の有無は保存先を見ています。この画面から生成を実行することはまだできません。
-      </StubNotice>
+      <StorageNotice status={storage} />
 
       <Callout
         tone="info"
         title="この表の読み方"
         reason="行は「誰に・どう切り出して・どの段階で」、列は出す先の媒体です。全部の組み合わせを作ると数が多くなりすぎるため、目的が重ならない代表だけを選びます。"
       />
+
+      {packageChoices.length < 2 ? null : (
+        <Section
+          title="どの企画の表を見るか"
+          lead="企画ごとに、行に並ぶ読者も切り口も変わります。"
+        >
+          <ListView
+            rows={packageChoices.map((choice) => ({
+              key: choice.packageId,
+              label:
+                choice.packageId === matrix.packageId
+                  ? `${choice.objective}（表示中）`
+                  : choice.objective,
+              href: packageHref(choice.packageId),
+              note: choice.statusLabel,
+            }))}
+          />
+        </Section>
+      )}
 
       <Section title="この企画で達成したいこと" lead={matrix.objective}>
         <FactList

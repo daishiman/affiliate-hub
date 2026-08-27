@@ -87,8 +87,14 @@ const CHANNEL_OPTIONS = Object.values(CHANNEL_CAPABILITIES).map((channel) => ({
 export type PersonaOption = { readonly value: string; readonly label: string };
 
 export type CreateContentFormProps = {
-  /** どの企画から作るか。画面が持ってきて、人には見せない。 */
-  readonly contentPackageId: string;
+  /**
+   * どの企画から作るか。**選ばせる。**
+   *
+   * 以前はここが 1 つの文字列で、画面が見本の企画を決め打ちで渡していた。
+   * 何本記事を作っても親の企画が同じになり、「この記事は何のために書いたのか」の
+   * 答えが全記事で一致してしまう——しかも画面には出ないので誰も気づけなかった。
+   */
+  readonly packages: readonly PersonaOption[];
   readonly authors: readonly PersonaOption[];
   readonly audiences: readonly PersonaOption[];
 };
@@ -102,9 +108,14 @@ export type CreateContentFormProps = {
  * 一度に作れるのは 1 本だけ。複数のブログへ書き分けるのは生成マトリクスの
  * 画面が持つ（同じ操作を 2 か所に置くと、既定の決め方が 2 通りになる）。
  */
-export function CreateContentForm({ contentPackageId, authors, audiences }: CreateContentFormProps) {
+export function CreateContentForm({ packages, authors, audiences }: CreateContentFormProps) {
   const operation = adminOperation("content.create");
   const [state, action, pending] = useActionState(createContentVariantAction, INITIAL_CONTENT_FORM_STATE);
+  // 企画が 1 件しか無いときだけ最初から入れておく。2 件以上あるときに
+  // 先頭を既定にすると、選ばなかった人の記事が全部 1 件目にぶら下がる。
+  const [contentPackageId, setContentPackageId] = useState(
+    packages.length === 1 ? packages[0].value : "",
+  );
   const [channel, setChannel] = useState("own_site");
   const [format, setFormat] = useState("article");
   const [authorPersonaId, setAuthorPersonaId] = useState(authors[0]?.value ?? "");
@@ -121,7 +132,17 @@ export function CreateContentForm({ contentPackageId, authors, audiences }: Crea
       toolName={operation.tool}
       toolDescription="記事の枠を 1 本作る。出し先・切り口・誰が誰に向けて書くかが要る"
     >
-      <FormValue name="contentPackageId" value={contentPackageId} />
+      <Select
+        name="contentPackageId"
+        label="どの企画の記事か"
+        value={contentPackageId}
+        onValueChange={setContentPackageId}
+        options={packages}
+        placeholder="選んでください"
+        hint="企画が、この記事で誰に何を伝えるかの前提になります。無いときは先に企画を立てます。"
+        error={state.field === "contentPackageId" ? state.message : null}
+        toolParamDescription="この記事がぶら下がる企画の ID"
+      />
 
       <Select
         name="channel"

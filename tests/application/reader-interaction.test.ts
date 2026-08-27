@@ -109,11 +109,21 @@ type ReaderToolPortShape = {
 };
 
 function contactPort(
-  onSubmit: (m: ContactMessage) => unknown = () => ok({ receiptId: "rc_0001" }),
+  onSubmit: (m: ContactMessage, workspaceId?: string) => unknown = () =>
+    ok({ receiptId: "rc_0001" }),
 ): EditorialContactPort {
   return markEditorial({
-    async submit(message: ContactMessage) {
-      return onSubmit(message);
+    async submit(...args: unknown[]) {
+      const message = args.length > 1 ? (args[1] as ContactMessage) : (args[0] as ContactMessage);
+      return onSubmit(message, args.length > 1 ? String(args[0]) : undefined);
+    },
+    // 送る側のユースケースは読み出しを使わないが、契約は満たしておく。
+    // 満たさない偽物を置くと、ポートが増えたことに試験が気づかなくなる。
+    async list() {
+      return ok([]);
+    },
+    async markHandled() {
+      return ok(true as const);
     },
   }) as EditorialContactPort;
 }
@@ -123,9 +133,38 @@ function readerDeps(over: Partial<ReaderInteractionDeps> = {}): ReaderInteractio
     shortlist: memoryShortlist().port,
     readerTools: toolPort(),
     contact: contactPort(),
+    contactRateLimitKeys: {
+      async derive(scope: "ip" | "actor", value: string) {
+        return ok(`protected:${scope}:${value}`);
+      },
+    },
+    sites: markEditorial({
+      async findBySlug(siteSlug: string) {
+        return ok(
+          siteSlug === "missing-site"
+            ? null
+            : ({ workspaceId: "ws_public", categories: [] } as unknown),
+        );
+      },
+      async list() {
+        return ok([]);
+      },
+    }),
+    humanCheck: {
+      async verify() {
+        return ok(true as const);
+      },
+    },
     ...over,
-  };
+  } as unknown as ReaderInteractionDeps;
 }
+
+const VERIFIED_CONTACT = {
+  siteSlug: "lens-start",
+  body: "問い合わせ本文",
+  humanCheckToken: "tok_verified",
+  rateLimitIdentity: { scope: "ip", value: "203.0.113.10" },
+} as const;
 
 /** 読者は誰でもよい。権限を持たない人でも同じように使える、が正しい姿。 */
 const reader = anOutsider();
@@ -386,7 +425,7 @@ describe("問い合わせ", () => {
           return ok({ receiptId: "rc_0001" });
         }),
       }),
-    ).execute(reader, { siteSlug: "lens-start", body: "記事の型番が古いようです。" });
+    ).execute(reader, { ...VERIFIED_CONTACT, body: "記事の型番が古いようです。" });
 
     expect(result.ok && result.value.receiptId).toBe("rc_0001");
     expect(received).not.toBeNull();
@@ -403,7 +442,7 @@ describe("問い合わせ", () => {
         }),
       }),
     ).execute(reader, {
-      siteSlug: "lens-start",
+      ...VERIFIED_CONTACT,
       body: "  前後に空白のある本文  ",
       replyTo: "reader@example.com",
       humanCheckToken: "tok_abc",
@@ -422,9 +461,90 @@ describe("問い合わせ", () => {
           err(domainError("NOT_IMPLEMENTED", "送信先が未設定です。")),
         ),
       }),
-    ).execute(reader, { siteSlug: "lens-start", body: "問い合わせ本文" });
+    ).execute(reader, VERIFIED_CONTACT);
 
     expect(result.ok).toBe(false);
+  });
+
+  it("存在しないサイトには保存しない", async () => {
+    let called = false;
+    const result = await createSubmitContactUseCase(
+      readerDeps({
+        contact: contactPort(() => {
+          called = true;
+          return ok({ receiptId: "unexpected" });
+        }),
+      }),
+    ).execute(reader, { ...VERIFIED_CONTACT, siteSlug: "missing-site" });
+    expect(result.ok).toBe(false);
+    if (!result.ok) expect(result.error.code).toBe("NOT_FOUND");
+    expect(called).toBe(false);
+  });
+
+  it("保存するworkspaceは公開サイトからserver-sideに解決する", async () => {
+    let workspaceSeen: string | undefined;
+    const result = await createSubmitContactUseCase(
+      readerDeps({
+        contact: contactPort((_message, workspaceId) => {
+          workspaceSeen = workspaceId;
+          return ok({ receiptId: "rc_owned" });
+        }),
+      }),
+    ).execute(reader, VERIFIED_CONTACT);
+    expect(result.ok).toBe(true);
+    expect(workspaceSeen).toBe("ws_public");
+  });
+
+  it.each([
+    ["humanCheckToken", { ...VERIFIED_CONTACT, humanCheckToken: undefined }],
+    ["body", { ...VERIFIED_CONTACT, body: "x".repeat(5001) }],
+    ["replyTo", { ...VERIFIED_CONTACT, replyTo: "not-an-email" }],
+    ["replyTo", { ...VERIFIED_CONTACT, replyTo: `${"a".repeat(250)}@example.com` }],
+    ["rateLimitKey", { ...VERIFIED_CONTACT, rateLimitIdentity: undefined }],
+  ])("敵対入力は保存前に %s の検証で止める", async (field, input) => {
+    let called = false;
+    const result = await createSubmitContactUseCase(
+      readerDeps({
+        contact: contactPort(() => {
+          called = true;
+          return ok({ receiptId: "unexpected" });
+        }),
+      }),
+    ).execute(reader, input as ContactMessage);
+    expect(result.ok).toBe(false);
+    if (!result.ok) expect(result.error.field).toBe(field);
+    expect(called).toBe(false);
+  });
+
+  it("human verifierが失敗したtokenは保存しない", async () => {
+    let called = false;
+    const result = await createSubmitContactUseCase(
+      readerDeps({
+        humanCheck: {
+          async verify() {
+            return err(domainError("FORBIDDEN", "自動送信よけの確認に失敗しました。"));
+          },
+        },
+        contact: contactPort(() => {
+          called = true;
+          return ok({ receiptId: "unexpected" });
+        }),
+      } as unknown as Partial<ReaderInteractionDeps>),
+    ).execute(reader, VERIFIED_CONTACT);
+    expect(result.ok).toBe(false);
+    expect(called).toBe(false);
+  });
+
+  it("保存境界が上限到達を返したらRATE_LIMITEDをそのまま返す", async () => {
+    const result = await createSubmitContactUseCase(
+      readerDeps({
+        contact: contactPort(() =>
+          err(domainError("RATE_LIMITED", "短時間に送れる回数を超えました。")),
+        ),
+      } as unknown as Partial<ReaderInteractionDeps>),
+    ).execute(reader, VERIFIED_CONTACT);
+    expect(result.ok).toBe(false);
+    if (!result.ok) expect(result.error.code).toBe("RATE_LIMITED");
   });
 });
 
@@ -470,23 +590,64 @@ describe("仮置きの見本", () => {
     expect(missing.ok && missing.value).toBeNull();
   });
 
-  it("見本の道具は、計算だけは動かない（でっち上げた数字を出さない）", async () => {
+  it("作り付けの道具は、揃った入力から実際に計算する", async () => {
+    const port = createSampleReaderToolRepository();
+    const run = await port.run("lens-start", "storage-estimator", {
+      minutes: "60",
+      bitrate: "100",
+      months: "12",
+    });
+    if (!run.ok) throw new Error(run.error.message);
+    // 60 分 × 100Mbps ÷ 8 ÷ 1000 = 45GB/月 → 12 か月で 540GB。
+    expect(run.value.rows).toEqual([
+      { label: "1 か月あたりの素材", value: "45.0 GB" },
+      { label: "残しておく期間ぶん", value: "540 GB" },
+      { label: "余裕を見た目安", value: "810 GB" },
+    ]);
+    expect(run.value.summary).toContain("540 GB");
+  });
+
+  it("入力が足りないときは、でっち上げた数字を出さず、その欄を名指しする", async () => {
     const port = createSampleReaderToolRepository();
     const run = await port.run("lens-start", "storage-estimator", { minutes: "60" });
     expect(run.ok).toBe(false);
     if (run.ok) return;
-    expect(run.error.code).toBe("NOT_IMPLEMENTED");
-    // 読者が読んで、いつ使えるようになるかが分かる文にする。
-    expect(run.error.suggestedAction).toContain("登録");
-    expect(run.error.retryable).toBe(false);
+    // 足りない欄を 0 とみなして計算すると、読者はその数字を信じて機材を買う。
+    expect(run.error.code).toBe("VALIDATION_FAILED");
+    expect(run.error.field).toBe("bitrate");
   });
 
-  it("見本の問い合わせは、送ったことにせず、別の連絡先を案内する", async () => {
+  it("知らない道具の数字は出さない", async () => {
+    const port = createSampleReaderToolRepository();
+    const run = await port.run("lens-start", "no-such", {});
+    expect(run.ok).toBe(false);
+    if (run.ok) return;
+    expect(run.error.code).toBe("NOT_FOUND");
+  });
+
+  it("控えの問い合わせは、受け取ったことにせず、別の連絡先を案内する", async () => {
     const port = createSampleContactSink();
-    const sent = await port.submit({ siteSlug: "lens-start", body: "本文" });
+    const sent = await port.submit("ws_sample" as never, { siteSlug: "lens-start", body: "本文" }, "ip_hash_1");
     expect(sent.ok).toBe(false);
     if (sent.ok) return;
-    expect(sent.error.code).toBe("NOT_IMPLEMENTED");
+    // 保存先が無いだけなので、直れば送れる（`retryable`）。実装が無いのではない。
+    expect(sent.error.code).toBe("UPSTREAM_UNAVAILABLE");
+    expect(sent.error.retryable).toBe(true);
     expect(sent.error.suggestedAction).toContain("lens-start");
+  });
+
+  it("控えは受け取らないので、読み出しはいつも空", async () => {
+    // 「まだ 0 件」ではなく「入る場所が無い」。ここに溜まった風の見本を混ぜると、
+    // 保存先が繋がっていないことに誰も気づかなくなる。
+    expect(
+      await createSampleContactSink().list(
+        "ws_sample" as never,
+        ["lens-start"],
+        "lens-start",
+      ),
+    ).toEqual({
+      ok: true,
+      value: [],
+    });
   });
 });

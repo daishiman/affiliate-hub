@@ -55,7 +55,14 @@ export default async function AffiliatePage({
       routeId="affiliate"
       title="提携と成果"
       lead="提携先と成果額を見ます。順位には影響しません。"
-      actions={<TextLink href="/admin">ホームへ戻る</TextLink>}
+      actions={
+        <>
+          <TextLink href="/admin/affiliate/links">登録したリンク</TextLink>
+          <TextLink href="/admin/affiliate/accounts/new">提携先を登録する</TextLink>
+          <TextLink href="/admin/affiliate/programs/new">提携条件を登録する</TextLink>
+          <TextLink href="/admin">ホームへ戻る</TextLink>
+        </>
+      }
     >
       {!accounts.ok ? (
         <ErrorView
@@ -79,6 +86,9 @@ export default async function AffiliatePage({
               <EmptyView
                 title="提携先がありません"
                 body={accounts.value.emptyReason ?? "まだ提携先を登録していません。"}
+                action={
+                  <TextLink href="/admin/affiliate/accounts/new">提携先を登録する</TextLink>
+                }
               />
             ) : (
               <>
@@ -129,6 +139,9 @@ export default async function AffiliatePage({
               <EmptyView
                 title="提携しているプログラムがありません"
                 body={programs.value.emptyReason ?? "まだ提携していません。"}
+                action={
+                  <TextLink href="/admin/affiliate/programs/new">提携条件を登録する</TextLink>
+                }
               />
             ) : (
               <>

@@ -1,8 +1,10 @@
 import { AdminShell } from "@/presentation/admin/admin-shell";
+import { BlueskyConnectionForm } from "@/presentation/admin/bluesky-connection-form";
 import {
   adminOperation,
   adminOperationRouteId,
 } from "@/presentation/admin/admin-operation-manifest";
+import { can } from "@/domain/identity";
 import { currentActor, distributionNotice, distributionUseCases } from "@/presentation/composition";
 import {
   ActionNote,
@@ -13,7 +15,6 @@ import {
   ExternalLink,
   FactList,
   ListView,
-  Prose,
   Section,
   StorageNotice,
   SubSection,
@@ -62,11 +63,14 @@ export default async function DistributionPage() {
         <>
           <StorageNotice status={await distributionNotice()} />
 
-          {/* いつ来ても同じ説明。枠から外し、代わりに配信先ごとの行にも同じことが分かる状態を保つ。 */}
-          <Prose>
-            接続の登録はこの画面では行いません。各サービスのパスワードや利用許可の情報は、ご自身のブラウザで登録していただきます。
-            この画面には控えを持ちません。
-          </Prose>
+          {can(actor, "channel_connection.manage") ? (
+            <Section
+              title="Blueskyを接続する"
+              lead="登録済みの認証情報でBlueskyへ接続し、実際のアカウントを確認します。"
+            >
+              <BlueskyConnectionForm />
+            </Section>
+          ) : null}
 
           <Section title="いつ出すかを見る">
             <ListView

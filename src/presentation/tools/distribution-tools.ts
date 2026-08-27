@@ -7,6 +7,7 @@ import {
   createGetPublicationUseCase,
   createListChannelsUseCase,
   createListPublicationsUseCase,
+  createRegisterChannelConnectionUseCase,
   createSchedulePublicationUseCase,
   createUpdatePublicationUseCase,
 } from "@/application/usecases/distribution/manage-distribution";
@@ -35,9 +36,11 @@ import type { AnyToolDefinition } from "./tool-definition";
 export function distributionTools(deps: AppDeps): readonly AnyToolDefinition[] {
   const distribution = {
     connections: deps.channelConnections,
+    connectors: deps.channelConnectors,
     publications: deps.publications,
     manualExport: deps.manualExport,
     variants: deps.contentVariants,
+    contentPackages: deps.contentPackages,
     ids: deps.ids,
     auditLog: deps.auditLog,
   };
@@ -55,6 +58,7 @@ export function distributionTools(deps: AppDeps): readonly AnyToolDefinition[] {
   // どちらが正しい手順なのかが説明できなくなる。
   const ownSite = {
     sites: deps.sites,
+    packages: deps.contentPackages,
     variants: deps.contentVariants,
     publications: deps.publications,
     articles: deps.publishedArticles,
@@ -77,6 +81,20 @@ export function distributionTools(deps: AppDeps): readonly AnyToolDefinition[] {
       schema: z.object({}),
       readOnly: true,
       useCase: createListChannelsUseCase(distribution),
+    }),
+    defineTool({
+      name: "register_channel_connection",
+      description:
+        "事前に安全な保管先へ登録した認証情報の参照名を、workspace共通の外部媒体接続として登録します。秘密の値そのものは受け付けません。",
+      schema: z.object({
+        channelKind: z.enum(Object.keys(CHANNEL_CAPABILITIES) as [ChannelKind, ...ChannelKind[]]),
+        accountLabel: z.string().min(1),
+        credentialRef: z.string().min(1),
+        expiresAt: z.string().optional(),
+      }),
+      readOnly: false,
+      requiresHumanApproval: true,
+      useCase: createRegisterChannelConnectionUseCase(distribution),
     }),
     defineTool({
       name: "list_publications",

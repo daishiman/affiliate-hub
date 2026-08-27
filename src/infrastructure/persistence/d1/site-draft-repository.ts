@@ -1,4 +1,4 @@
-import { and, desc, eq } from "drizzle-orm";
+import { and, desc, eq, sql } from "drizzle-orm";
 import type { EditorialSiteDraftRepositoryPort } from "@/application/ports/authoring";
 import type { SiteBlueprint, SiteDraft } from "@/domain/authoring";
 import {
@@ -14,10 +14,43 @@ import {
   type SiteBlueprintRow,
   type SiteDraftRow,
   siteBlueprints,
+  siteRetirements,
   siteDrafts,
 } from "@/db/schema";
 import type { DrizzleD1 } from "./link-inbox-repository";
 import { storageFailure } from "./storage-failure";
+
+/**
+ * 0034旧版がretired_at列を追加した途中状態も、独立墓標へ一度だけ救出する。
+ * 新規DBには列が無いので、その「列が無い」だけは互換状態として扱う。
+ */
+async function preserveLegacyRetirements(db: DrizzleD1): Promise<void> {
+  try {
+    await db.run(sql`
+      INSERT OR IGNORE INTO ${siteRetirements} (slug, workspace_id, retired_at)
+      SELECT slug, workspace_id, retired_at
+      FROM site_blueprints
+      WHERE retired_at IS NOT NULL
+    `);
+  } catch (cause) {
+    if (!String(cause).toLowerCase().includes("retired_at")) throw cause;
+  }
+}
+
+async function clearLegacyRetirement(
+  db: DrizzleD1,
+  workspaceId: WorkspaceId,
+  slug: string,
+): Promise<void> {
+  try {
+    await db.run(sql`
+      UPDATE site_blueprints SET retired_at = NULL
+      WHERE workspace_id = ${String(workspaceId)} AND slug = ${slug}
+    `);
+  } catch (cause) {
+    if (!String(cause).toLowerCase().includes("retired_at")) throw cause;
+  }
+}
 
 /**
  * ブログ作成ウィザードの下書きと、そこから作られたブログの保存先（D1）。
@@ -38,8 +71,8 @@ import { storageFailure } from "./storage-failure";
  *      1 つ足すたびに保存先の作り直しが要る形にしない。
  *   2. **一意にするのは URL 名だけ。** 同じ URL 名のブログが 2 本あると
  *      読者がどちらを見ているか決められない。逆に下書きは重複しても
- *      困らないので縛らない。公開は上書き（既にあれば差し替え）なので、
- *      2 回目のやり直しが永久に通らない形にはならない。
+ *      困らないので縛らない。同じ workspace からの作り直しだけを上書きとし、
+ *      別 workspace への URL 名の移管は読者データを守るため許可しない。
  */
 
 /** 行 → ドメイン。ID の作り方を知っているのはこの層だけ。 */
@@ -118,7 +151,7 @@ export function createD1SiteDraftRepository(db: DrizzleD1): EditorialSiteDraftRe
 
     async publishBlueprint(slug: string, blueprint: SiteBlueprint) {
       try {
-        await db
+        const saved = await db
           .insert(siteBlueprints)
           .values({
             id: String(blueprint.id),
@@ -129,19 +162,37 @@ export function createD1SiteDraftRepository(db: DrizzleD1): EditorialSiteDraftRe
             publishedAt: new Date(),
             blueprintJson: JSON.stringify(blueprint),
           })
-          // 同じ URL 名で作り直したら差し替える。**弾かない。**
-          // 弾くと、名前を決め直す以外に先へ進めなくなる。
+          // 同じ workspace が同じ URL 名で作り直す場合だけ差し替える。
+          // URL 名は問い合わせなど読者データの所属境界なので、別 workspace へ
+          // 所有権を移すと、過去の読者データまで新所有者へ渡ってしまう。
           .onConflictDoUpdate({
             target: siteBlueprints.slug,
             set: {
               id: String(blueprint.id),
-              workspaceId: String(blueprint.workspaceId),
               name: blueprint.name,
               pattern: blueprint.pattern,
               publishedAt: new Date(),
               blueprintJson: JSON.stringify(blueprint),
             },
-          });
+            setWhere: eq(siteBlueprints.workspaceId, String(blueprint.workspaceId)),
+          })
+          .returning({ workspaceId: siteBlueprints.workspaceId });
+        if (saved.length === 0) {
+          return err(
+            domainError("CONFLICT", "この URL の名前は使えません。", {
+              suggestedAction: "別の URL の名前を付けて、もう一度登録してください。",
+            }),
+          );
+        }
+        await clearLegacyRetirement(db, blueprint.workspaceId, slug);
+        await db
+          .delete(siteRetirements)
+          .where(
+            and(
+              eq(siteRetirements.workspaceId, String(blueprint.workspaceId)),
+              eq(siteRetirements.slug, slug),
+            ),
+          );
         return ok(blueprint);
       } catch (cause) {
         return storageFailure("ブログの登録", cause);
@@ -149,7 +200,7 @@ export function createD1SiteDraftRepository(db: DrizzleD1): EditorialSiteDraftRe
     },
 
     /**
-     * 登録済みのブログを取り下げる。
+     * 登録済みのブログを取り下げる（所有権は保持する）。
      *
      * **会社の絞り込みを消す条件にも入れる。** URL 名だけで消すと、
      * 同じ名前を別の会社が使っていたときに他社のブログが落ちる。
@@ -158,20 +209,39 @@ export function createD1SiteDraftRepository(db: DrizzleD1): EditorialSiteDraftRe
      */
     async removeBlueprint(workspaceId: WorkspaceId, slug: string) {
       try {
-        const deleted = await db
-          .delete(siteBlueprints)
+        /*
+         * 物理削除しない。URL 名は問い合わせ・公開記事などの所属境界で、
+         * 行を消すと別 workspace が同じ名前を取得でき、旧データが移管された形になる。
+         * retired_at を付けて読者一覧からだけ外し、所有権は墓標として残す。
+         */
+        await preserveLegacyRetirements(db);
+        const owned = await db
+          .select({ slug: siteBlueprints.slug })
+          .from(siteBlueprints)
           .where(
             and(
               eq(siteBlueprints.workspaceId, String(workspaceId)),
               eq(siteBlueprints.slug, slug),
             ),
           )
-          .returning({ slug: siteBlueprints.slug });
-        if (deleted.length === 0) {
+          .limit(1);
+        if (owned.length === 0) {
           return err(
             domainError("NOT_FOUND", "このブログは取り下げられませんでした。", {
               suggestedAction:
                 "見本として最初から入っているブログは消せません。自分で作ったブログを選び直してください。",
+            }),
+          );
+        }
+        const retired = await db
+          .insert(siteRetirements)
+          .values({ slug, workspaceId: String(workspaceId), retiredAt: new Date() })
+          .onConflictDoNothing({ target: siteRetirements.slug })
+          .returning({ slug: siteRetirements.slug });
+        if (retired.length === 0) {
+          return err(
+            domainError("NOT_FOUND", "このブログは取り下げられませんでした。", {
+              suggestedAction: "ブログの一覧を開き直してください。すでに取り下げ済みです。",
             }),
           );
         }
@@ -191,7 +261,22 @@ export function createD1SiteDraftRepository(db: DrizzleD1): EditorialSiteDraftRe
  */
 export async function listPublishedBlueprints(
   db: DrizzleD1,
-): Promise<readonly { readonly slug: string; readonly blueprint: SiteBlueprint }[]> {
-  const rows = await db.select().from(siteBlueprints).orderBy(desc(siteBlueprints.publishedAt));
-  return rows.map((row) => ({ slug: row.slug, blueprint: toBlueprint(row) }));
+): Promise<{
+  readonly published: readonly { readonly slug: string; readonly blueprint: SiteBlueprint }[];
+  readonly reservedSlugs: ReadonlySet<string>;
+}> {
+  await preserveLegacyRetirements(db);
+  const rows = await db
+    .select()
+    .from(siteBlueprints)
+    .orderBy(desc(siteBlueprints.publishedAt));
+  const retired = await db.select({ slug: siteRetirements.slug }).from(siteRetirements);
+  const reserved = new Set(retired.map((row) => row.slug));
+  return {
+    published: rows
+      .filter((row) => !reserved.has(row.slug))
+      .map((row) => ({ slug: row.slug, blueprint: toBlueprint(row) })),
+    // retired も予約済み。見本と同名の行を取り下げたあと、見本を再露出させない。
+    reservedSlugs: new Set(rows.map((row) => row.slug)),
+  };
 }

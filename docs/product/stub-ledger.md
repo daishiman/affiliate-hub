@@ -12,7 +12,7 @@
 
 ## まだ中身が無いもの
 
-件数: 33
+件数: 29
 
 | 識別子 | 何のスタブか | つなぎ目 | 何が済めば実装できるか |
 |---|---|---|---|
@@ -25,11 +25,10 @@
 | `asp:rakuten_affiliate` | 楽天アフィリエイト との連携 | AspAdapterPort | 楽天ウェブサービスのアプリID発行が必要 |
 | `asp:value_commerce` | バリューコマース との連携 | AspAdapterPort | バリューコマースのAPI利用申請と提携承認が必要 |
 | `asp:yahoo_shopping` | Yahoo!ショッピング との連携 | AspAdapterPort | Yahoo!デベロッパーネットワークのアプリケーションID発行が必要 |
-| `channel:bluesky` | Bluesky への配信 | ChannelConnectorPort | Bluesky (AT Protocol) のアプリパスワード発行が必要 |
 | `channel:facebook` | Facebook への配信 | ChannelConnectorPort | Facebook ページの連携と Graph API のアプリ審査が必要 |
 | `channel:instagram` | Instagram への配信 | ChannelConnectorPort | Instagram Graph API はプロアカウントと Facebook ページ連携が必要 |
 | `channel:newsletter` | メール配信 への配信 | ChannelConnectorPort | 配信基盤 (メール送信) の選定が必要 |
-| `channel:own_site` | 自社サイト への配信 | ChannelConnectorPort | 予約投稿と取り下げ（公開済みの記事を読者ページから外す道）の実装が必要。出すだけなら配信の画面から今できる |
+| `channel:own_site` | 自社サイト への配信 | ChannelConnectorPort | 予約時刻の実行とPublication状態の同期が必要。記事本文の即時公開・取り下げはContent側で実装済み |
 | `channel:threads` | Threads への配信 | ChannelConnectorPort | Threads API のアプリ登録が必要 |
 | `channel:tiktok` | TikTok への配信 | ChannelConnectorPort | TikTok Content Posting API の審査が必要 |
 | `channel:wordpress` | WordPress への配信 | ChannelConnectorPort | 接続先サイトの REST API とアプリケーションパスワードが必要 |
@@ -37,17 +36,14 @@
 | `channel:youtube` | YouTube への配信 | ChannelConnectorPort | YouTube Data API のクォータ申請が必要 |
 | `identity:sample-actor` | ログイン情報（見本） | 現在のログイン利用者の取得 | Better Auth と Google ログインの設定 |
 | `llm:workers_ai` | Cloudflare Workers AI での文章生成 | LlmPort | Workers AI は API キーではなく実行環境の結び付け（binding）で呼ぶ。結び付けの追加と、使うモデルの決定が必要 |
-| `persistence:affiliate-sample` | 提携と成果（見本データ） | 提携先・提携条件・提携リンクの保存先 | affiliate_accounts / affiliate_programs / affiliate_links テーブルの追加と、各 ASP の API 利用申請および接続情報の登録（利用者本人による）。成果そのものの保存先は解除済み（affiliate_conversions） |
-| `persistence:content-editorial-sample` | 記事と書き手（見本データ） | 記事・企画・書き手の保存先 | content_packages / personas テーブルの追加と、企画・書き手を作る入口 |
+| `persistence:affiliate-sample` | 提携リンク（見本データ） | 提携リンクの保存先 | affiliate_links テーブルの追加と、各 ASP の API 利用申請および接続情報の登録（利用者本人による） |
+| `persistence:content-editorial-sample` | 記事と書き手（見本データ） | 記事・企画・書き手の保存先 | 済み（保存先は D1 の content_packages / content_variants / author_personas / audience_personas） |
 | `persistence:content-sample` | 公開記事の保存先（見本データ） | PublishedContentPort | 保存先（D1）が結びついていない実行での代わり。結びつければ出した記事はそのまま残る |
 | `persistence:distribution-sample` | 配信（見本データ） | 配信先の接続と配信記録の保存先 | 各サービスの接続設定（利用者本人による認証） |
 | `persistence:policy-rule-sample` | 表現ポリシー（初期ルールのまま） | 表現ポリシーの保存先 | policy_rules テーブルの追加と、作業場所を作ったときに初期ルールを配る処理 |
-| `persistence:product-sample` | 商品と根拠（見本データ） | 商品・主張・根拠・検証記録の保存先 | 商品・主張・根拠を登録する入口（画面と操作）の追加。そのうえで products / claims / evidence / test_runs テーブルの追加とマイグレーション |
-| `persistence:ranking-sample` | ランキングの保存先（見本データ） | EditorialRankingModelRepositoryPort / EditorialScoreCardRepositoryPort | 順位づけの基準と採点表を作る入口（画面と操作）の追加。そのうえで ranking_models / score_cards テーブルの追加とマイグレーション |
-| `persistence:settings-sample` | 設定（見本データ） | 作業場所・ブランド・広告表記の保存先 | workspaces / brands / disclosures テーブルの追加 |
-| `reader:contact-sink` | 問い合わせの受け取り（送信せず記録のみ） | ContactPort | Turnstile の鍵と送信元メールアドレスの登録（利用者本人が登録する） |
-| `reader:shortlist-memory` | 気になる商品の保存（処理中のメモリ） | ShortlistPort | 読者ごとの保存先 (KV 名前空間) の作成 |
-| `reader:tools-sample` | 診断・計算の道具（見本の定義のみ） | ReaderToolPort | 商品データの取込と、道具ごとの計算式の登録 |
+| `persistence:product-sample` | 商品（見本データ） | 商品の保存先 | products テーブルの追加とマイグレーション |
+| `persistence:ranking-sample` | ランキングの保存先（見本データ） | EditorialRankingModelRepositoryPort / EditorialScoreCardRepositoryPort | 済み（保存先は D1 の ranking_models / score_cards） |
+| `persistence:settings-sample` | 広告表記（見本データ） | 広告表記の保存先 | disclosures テーブルの追加 |
 | `storage:signed-url` | ファイルの一時公開URL発行 | StoragePort.getSignedUrl | 画像・書き出しファイルの保存が本物になること（この置き場は現在どこからも使われていない）。配り方は写しと同じ Worker 経由に決定済み |
 
 ## 本物ができたあとの控え
@@ -56,12 +52,14 @@
 こちらへ回る。**消す予定は無いので、この件数は減らない。**
 何で動いているかは、必ず画面に文字で出す（黙って控えへ落ちない）。
 
-件数: 13
+件数: 19
 
 | 識別子 | 何の控えか | つなぎ目 | 本物の置き場所 |
 |---|---|---|---|
 | `llm:unavailable` | 生成 AI への接続 | LlmPort | `src/infrastructure/llm/llm-provider-registry.ts` |
 | `llm:unavailable-costs` | 生成 AI の費用見積り | LlmCostEstimatorPort | `src/infrastructure/llm/llm-provider-registry.ts` |
+| `persistence:affiliate-account-sample` | 提携先と提携条件（見本データ。保存はできません） | 提携先・提携条件の保存先 | `src/infrastructure/persistence/d1/affiliate-program-repository.ts` |
+| `persistence:affiliate-conversion-sample` | 成果（見本データ。保存はできません） | 成果の保存先 | `src/infrastructure/persistence/d1/conversion-repository.ts` |
 | `persistence:analytics-sample` | 数字（見本データ） | 指標の読み口 | `src/infrastructure/persistence/d1/telemetry-repository.ts` |
 | `persistence:audit-log-memory` | 操作の記録（この実行中だけ覚える仮置き） | 操作の記録先 | `src/infrastructure/persistence/d1/audit-log-repository.ts` |
 | `persistence:click-tracking-sample` | クリックの記録（この実行では保存先が無い） | クリック計測 | `src/infrastructure/persistence/d1/redirect-repository.ts` |
@@ -72,6 +70,10 @@
 | `persistence:site-draft-memory` | ブログ作成の下書き（プロセス内のみ） | SiteDraftRepositoryPort | `src/infrastructure/persistence/d1/site-draft-repository.ts` |
 | `persistence:site-sample` | ブログの設計図（見本データ） | SiteRepositoryPort | `src/infrastructure/persistence/d1/site-repository.ts` |
 | `persistence:telemetry-memory` | 計測の記録（この実行中だけ覚える仮置き） | 計測の記録先 | `src/infrastructure/persistence/d1/telemetry-repository.ts` |
+| `persistence:workspace-sample` | 作業場所とブランド（見本データ。保存はできません） | 作業場所とブランドの保存先 | `src/infrastructure/persistence/d1/settings-repository.ts` |
+| `reader:contact-sink` | 問い合わせの受け取り（保存先が無い環境では断る） | ContactPort | `src/infrastructure/persistence/d1/contact-repository.ts` |
+| `reader:shortlist-memory` | 気になる商品の保存（処理中のメモリ） | ShortlistPort | `src/infrastructure/persistence/d1/reader-shortlist-repository.ts` |
+| `reader:tools-sample` | 診断・計算の道具（作り付けの 1 つだけ） | ReaderToolPort | `src/infrastructure/persistence/d1/reader-tool-repository.ts` |
 | `storage:feedback-capture-memory` | 画面の写し（この実行中だけ覚える仮置き） | 画面の写しの置き場 | `src/infrastructure/platform/feedback-capture-r2.ts` |
 
 ## 実際の鍵で 1 度も呼んでいない提供元
@@ -113,4 +115,4 @@
 **Google Gemini の注意**: `responseSchema` は JSON Schema の一部しか解釈しない。
 受け付けられない形は 400 で返る（黙って自由文には落とさない）。
 実際の鍵で呼ぶとき、最初に踏むのはたいていここである。
-<!-- 生成物の指紋 sha256:f0049a01c0d1d225d140fffa56d88b32cd868f415afad9ac3afb44972c77d477 -->
+<!-- 生成物の指紋 sha256:6890c73f21a688c8046b2c9862cac6aed9697da500255362b12b5b99340b6c25 -->

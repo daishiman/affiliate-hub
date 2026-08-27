@@ -1,5 +1,9 @@
 import { auditWriteFailure, buildAuditEntry } from "@/application/audit";
-import type { EditorialContentVariantRepositoryPort } from "@/application/ports/authoring";
+import type {
+  EditorialContentPackageRepositoryPort,
+  EditorialContentVariantRepositoryPort,
+} from "@/application/ports/authoring";
+import { assertContentVariantBrandScope } from "@/application/usecases/content/content-brand-access";
 import type { IdGeneratorPort } from "@/application/ports/common";
 import type { AuditLogPort } from "@/application/ports/compliance";
 import type { PublicationRepositoryPort } from "@/application/ports/distribution";
@@ -41,6 +45,7 @@ import {
   type PublicationId,
   type Result,
   assertSameTenant,
+  assertWorkspaceWideAccess,
   domainError,
   err,
   ok,
@@ -62,11 +67,14 @@ import type { UseCase } from "../usecase";
  *   - 何を読者に見せるか … このファイルの `buildArticle`（表示用の形へ写す）
  * ここで条件式を組み直さない。組み直すと画面と AI 経路で判定がずれる。
  *
- * 出したあとの**取り下げはまだできない**。状態の遷移表に
- * 「公開済みから戻る道」が無いため。残課題として記録している。
+ * 出したあとの取り下げは、記事の進行を `ARCHIVED` へ進める入口が受け持つ。
+ * 公開時に配信へ残した URL と ID を使い、読者向けの写しだけを外すため、
+ * 編集原稿と監査履歴は取り下げ後も残る。
  */
 export type PublishArticleDeps = {
   readonly sites: EditorialSiteRepositoryPort;
+  /** 記事の企画を逆引きし、membership のブランド範囲をサーバー側で照合する。 */
+  readonly packages: EditorialContentPackageRepositoryPort;
   readonly variants: EditorialContentVariantRepositoryPort;
   readonly publications: PublicationRepositoryPort;
   readonly articles: EditorialPublishedArticleWriterPort;
@@ -92,6 +100,18 @@ export type PublishArticleClaimInput = {
   readonly checkedOn: string;
 };
 
+/**
+ * よくある質問 1 件ぶんの入力。
+ *
+ * 問いと答えは**両方そろって初めて 1 件**になる。片方だけの行は捨てる
+ * （問いだけを出すと答えの無い見出しが読者に並び、
+ *  答えだけを出すと何の答えか分からない段落になる）。
+ */
+export type PublishArticleFaqInput = {
+  readonly question: string;
+  readonly answer: string;
+};
+
 export type PublishArticleInput = {
   readonly publicationId: string;
   readonly siteSlug: string;
@@ -110,6 +130,13 @@ export type PublishArticleInput = {
   /** 次回確認日（YYYY-MM-DD）。未設定は公開できない。 */
   readonly nextReviewOn: string | null;
   readonly claims: readonly PublishArticleClaimInput[];
+  /**
+   * よくある質問。省略できる（付けない記事もある）。
+   *
+   * AI 検索は問いの形をそのまま拾うので、記事に入れると引用されやすい
+   * （`EXPRESSION_BLOCK_KINDS` の前半 5 つの 1 つ）。
+   */
+  readonly faq?: readonly PublishArticleFaqInput[];
   /** 節の識別子 → 本文。入力欄は `authoredSectionsFor` から作る。 */
   readonly sectionBodies: Readonly<Record<string, string>>;
 };
@@ -219,6 +246,17 @@ export function createPublishArticleUseCase(
         );
       }
       const variant = variantResult.value;
+      const variantScope = await assertContentVariantBrandScope(
+        deps.packages,
+        actor,
+        variant,
+        "記事",
+      );
+      if (!variantScope.ok) return err(variantScope.error);
+
+      // SiteBlueprint は brandId を持たないため、限定 actor へ公開先を推測で割り当てない。
+      const siteAccess = assertWorkspaceWideAccess(actor, "公開先のブログ");
+      if (!siteAccess.ok) return err(siteAccess.error);
 
       const siteResult = await deps.sites.findBySlug(input.siteSlug);
       if (!siteResult.ok) return siteResult;
@@ -230,6 +268,9 @@ export function createPublishArticleUseCase(
         );
       }
       const blueprint: SiteBlueprint = siteResult.value;
+
+      const sameSite = assertSameTenant(actor, blueprint, "このブログ");
+      if (!sameSite.ok) return sameSite;
 
       if (!blueprint.categories.some((c) => c.slug === input.categorySlug)) {
         return err(
@@ -422,6 +463,16 @@ export function createPreparePublishArticleUseCase(
           }),
         );
       }
+      const variantScope = await assertContentVariantBrandScope(
+        deps.packages,
+        actor,
+        variant,
+        "記事",
+      );
+      if (!variantScope.ok) return err(variantScope.error);
+
+      const siteAccess = assertWorkspaceWideAccess(actor, "公開先のブログ");
+      if (!siteAccess.ok) return err(siteAccess.error);
 
       const sitesResult = await deps.sites.list();
       if (!sitesResult.ok) return sitesResult;
@@ -436,11 +487,13 @@ export function createPreparePublishArticleUseCase(
             purpose: s.purpose,
           })),
         })),
-        siteOptions: sitesResult.value.map((entry) => ({
-          slug: entry.slug,
-          name: entry.blueprint.name,
-          categories: entry.blueprint.categories.map((c) => ({ slug: c.slug, name: c.name })),
-        })),
+        siteOptions: sitesResult.value
+          .filter((entry) => entry.blueprint.workspaceId === actor.workspaceId)
+          .map((entry) => ({
+            slug: entry.slug,
+            name: entry.blueprint.name,
+            categories: entry.blueprint.categories.map((c) => ({ slug: c.slug, name: c.name })),
+          })),
         relationshipOptions: (
           Object.keys(RELATIONSHIP_LABEL) as readonly RelationshipType[]
         ).map((value) => ({ value, label: RELATIONSHIP_LABEL[value] })),
@@ -548,6 +601,12 @@ export function buildArticle(
 
   const productCards = toProductCards(offers);
 
+  // 問いと答えが**両方**あるものだけ残す。片方だけの行は、
+  // 読者から見ると「答えの無い見出し」か「何の答えか分からない段落」になる。
+  const faq = (input.faq ?? [])
+    .map((item) => ({ question: item.question.trim(), answer: item.answer.trim() }))
+    .filter((item) => item.question !== "" && item.answer !== "");
+
   return {
     slug: input.slug,
     siteSlug: input.siteSlug,
@@ -568,5 +627,7 @@ export function buildArticle(
     // 1 件も無いときは欄ごと出さない。空配列を入れると、画面側の
     // 「商品カードがあるか」の判定が真になり、見出しだけの空欄が読者に出る。
     ...(productCards.length === 0 ? {} : { productCards }),
+    // 空配列を入れない理由は productCards と同じ（見出しだけの空欄を出さない）。
+    ...(faq.length === 0 ? {} : { faq }),
   };
 }

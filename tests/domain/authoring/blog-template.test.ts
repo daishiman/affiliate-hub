@@ -38,6 +38,7 @@ import {
   orderBlocksForTemplate,
   resolvePageTheme,
 } from "@/domain/authoring/blog-template";
+import { SITE_DOCUMENT_KEYS, SITE_DOCUMENT_LABEL } from "@/domain/authoring/site-routes";
 
 /** 記事の中身は空でよい。ここで見ているのは並びと欠落だけ。 */
 function block(kind: ExpressionBlock["kind"], slotName?: string): ExpressionBlock {
@@ -227,18 +228,9 @@ describe("表現ブロックと固定ページの名札", () => {
     });
   });
 
-  it("固定ページは 6 種で、名札がこの文言で入っている", () => {
-    expect([...LEGAL_PAGE_KINDS]).toEqual([
-      "operator", "all_categories", "site_policy", "privacy_policy", "tokushoho", "contact",
-    ]);
-    expect(LEGAL_PAGE_LABEL).toEqual({
-      operator: "運営者情報",
-      all_categories: "全カテゴリー",
-      site_policy: "サイトポリシー",
-      privacy_policy: "プライバシーポリシー",
-      tokushoho: "特定商取引法に基づく表記",
-      contact: "お問い合わせ",
-    });
+  it("旧来の固定ページ API も、編集可能なサイト文書の正本から導く", () => {
+    expect(LEGAL_PAGE_KINDS).toBe(SITE_DOCUMENT_KEYS);
+    expect(LEGAL_PAGE_LABEL).toBe(SITE_DOCUMENT_LABEL);
   });
 });
 

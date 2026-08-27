@@ -14,6 +14,7 @@ import { requireCapability, withBrandDefaults } from "@/domain/identity";
 import type { Brand } from "@/domain/identity";
 import { domainError, err, ok } from "@/domain/shared";
 import type { ActorContext, BrandId, DomainError, Result } from "@/domain/shared";
+import { assertBrandAccess, notFound } from "@/domain/shared";
 import type { BrandRepositoryPort } from "@/application/ports";
 import type {
   LlmCostEstimatorPort,
@@ -22,6 +23,7 @@ import type {
   LlmRequest,
 } from "@/application/ports";
 import type { UseCase } from "../usecase";
+import type { CapacityGuardPort } from "@/application/capacity";
 
 /**
  * 下書きを 1 本作らせるユースケース。
@@ -114,6 +116,8 @@ export type DraftContentVariantDeps = {
    * 渡してあるときだけ、**呼びかけ文と広告表記の既定値**をここから補う。
    */
   readonly brands?: BrandRepositoryPort;
+  /** production composition では必須。旧の純粋単体test adapterだけ省略可能。 */
+  readonly capacity?: CapacityGuardPort;
 };
 
 /** 生成の温度。低くしてあるのは、同じ素材から違う事実が出てくるのを避けるため。 */
@@ -216,61 +220,67 @@ export function createDraftContentVariantUseCase(
         temperature: TEMPERATURE,
       };
 
-      // ③ 呼ぶ前に見積もる。
-      const estimate = await deps.costs.estimate(request);
-      if (!estimate.ok) return err(estimate.error);
-      const budget = input.budgetMinor ?? null;
-      if (budget !== null && estimate.value.estimatedCostMinor > budget) {
-        return err(
-          domainError(
-            "VALIDATION_FAILED",
-            `見積り ${estimate.value.estimatedCostMinor} が上限 ${budget} を超えるため、生成しませんでした。`,
-            {
-              suggestedAction: "長さを短くするか、上限を見直してください。",
-              details: {
-                estimated: String(estimate.value.estimatedCostMinor),
-                budget: String(budget),
+      const generate = async (): Promise<Result<DraftContentVariantResult, DomainError>> => {
+        // ③ 容量を確保してから、呼ぶ前の見積りを行う。
+        const estimate = await deps.costs.estimate(request);
+        if (!estimate.ok) return err(estimate.error);
+        const budget = input.budgetMinor ?? null;
+        if (budget !== null && estimate.value.estimatedCostMinor > budget) {
+          return err(
+            domainError(
+              "VALIDATION_FAILED",
+              `見積り ${estimate.value.estimatedCostMinor} が上限 ${budget} を超えるため、生成しませんでした。`,
+              {
+                suggestedAction: "長さを短くするか、上限を見直してください。",
+                details: {
+                  estimated: String(estimate.value.estimatedCostMinor),
+                  budget: String(budget),
+                },
               },
-            },
-          ),
-        );
-      }
+            ),
+          );
+        }
 
-      const generated = await deps.llm.generateStructured<unknown>(request);
-      if (!generated.ok) return err(generated.error);
+        const generated = await deps.llm.generateStructured<unknown>(request);
+        if (!generated.ok) return err(generated.error);
 
       // ④ 途中で切れた本文をそのまま受け取らない。
       //    切れていることに気づかないまま保存すると、尻切れの記事が世に出る。
-      if (generated.value.truncated) {
-        return err(
-          domainError("VALIDATION_FAILED", "生成が途中で打ち切られました。", {
-            suggestedAction: "長さを短くしてやり直してください。途中までの本文は保存しません。",
-          }),
-        );
-      }
+        if (generated.value.truncated) {
+          return err(
+            domainError("VALIDATION_FAILED", "生成が途中で打ち切られました。", {
+              suggestedAction: "長さを短くしてやり直してください。途中までの本文は保存しません。",
+            }),
+          );
+        }
 
       // ⑤ 決めた形に一致しない返答は受け取らない。
-      const shaped = checkOutputShape(generated.value.output);
-      if (!shaped.ok) return err(shaped.error);
+        const shaped = checkOutputShape(generated.value.output);
+        if (!shaped.ok) return err(shaped.error);
 
-      return ok({
-        promptVersion: version,
-        providerId: model.providerId,
-        modelId: generated.value.modelId,
-        requestedModelId: model.modelId,
-        output: shaped.value,
-        estimatedCostMinor: estimate.value.estimatedCostMinor,
-        currency: estimate.value.currency,
-        inputTokens: generated.value.inputTokens,
-        outputTokens: generated.value.outputTokens,
-        instructionBlocks: renderInstructionBlocks(generationInput).map((b) => ({
-          id: b.id,
-          label: b.label,
-          charCount: b.text.length,
-        })),
-        materialCount: materials.length,
-        notForVerdict: [...SELF_REPORTED_FIELDS],
-      });
+        return ok({
+          promptVersion: version,
+          providerId: model.providerId,
+          modelId: generated.value.modelId,
+          requestedModelId: model.modelId,
+          output: shaped.value,
+          estimatedCostMinor: estimate.value.estimatedCostMinor,
+          currency: estimate.value.currency,
+          inputTokens: generated.value.inputTokens,
+          outputTokens: generated.value.outputTokens,
+          instructionBlocks: renderInstructionBlocks(generationInput).map((b) => ({
+            id: b.id,
+            label: b.label,
+            charCount: b.text.length,
+          })),
+          materialCount: materials.length,
+          notForVerdict: [...SELF_REPORTED_FIELDS],
+        });
+      };
+
+      return deps.capacity === undefined
+        ? generate()
+        : deps.capacity.withLease(actor.workspaceId, "generation", generate);
     },
   };
 }
@@ -295,7 +305,10 @@ async function applyBrandDefaults(
   if (brandId !== undefined) {
     const found = await brands.findById(actor.workspaceId, brandId);
     if (!found.ok) return err(found.error);
-    return ok(withBrandDefaults(found.value, provided));
+    if (found.value === null) return err(notFound("ブランド", String(brandId)));
+    const accessible = assertBrandAccess(actor, found.value);
+    if (!accessible.ok) return err(accessible.error);
+    return ok(withBrandDefaults(accessible.value, provided));
   }
 
   const sole = await soleBrandOf(brands, actor);
@@ -321,9 +334,20 @@ async function soleBrandOf(
   brands: BrandRepositoryPort,
   actor: ActorContext,
 ): Promise<Result<Brand | null, DomainError>> {
+  // 限定担当者には列挙された範囲だけを見る。1 件ならその 1 件を所有照合し、
+  // 複数なら従来どおり勝手に選ばない。
+  if (actor.scopedBrandIds.length > 0) {
+    if (actor.scopedBrandIds.length !== 1) return ok(null);
+    const found = await brands.findById(actor.workspaceId, actor.scopedBrandIds[0]);
+    if (!found.ok) return err(found.error);
+    if (found.value === null) return ok(null);
+    const accessible = assertBrandAccess(actor, found.value);
+    return accessible.ok ? ok(accessible.value) : err(accessible.error);
+  }
+
   // 2 件取れれば「2 つ以上ある」と判定できる。全件は要らない。
   const listed = await brands.list(actor.workspaceId, { limit: 2, cursor: null });
   if (!listed.ok) return err(listed.error);
-  const items = listed.value.items;
+  const items = listed.value.items.filter((brand) => assertBrandAccess(actor, brand).ok);
   return ok(items.length === 1 ? items[0] : null);
 }

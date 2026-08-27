@@ -89,3 +89,4 @@ tests/visual/__diff__/
 # 追跡すると同じファイルが 2 重に履歴へ入り、写しを直しても本体は直らない。
 # 検査から外す側は eslint.config.mjs の globalIgnores に書いてある。
 .claude/worktrees/
+.claude/logs/

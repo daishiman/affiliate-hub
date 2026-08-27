@@ -47,6 +47,8 @@ export function contentTools(deps: AppDeps): readonly AnyToolDefinition[] {
     auditLog: deps.auditLog,
     ids: deps.ids,
     events: deps.events,
+    publications: deps.publications,
+    articles: deps.publishedArticles,
   };
   const variantId = z.string().min(1);
   const state = z.enum(CONTENT_STATES);

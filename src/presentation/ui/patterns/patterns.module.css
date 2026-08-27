@@ -1080,6 +1080,24 @@
   gap: var(--space-1);
 }
 
+/*
+ * 区画で隠すボタン。**画面の並びと同じ形に置く。**
+ * 横一列に 9 つ並べると、どのボタンが画面のどこに当たるのかが
+ * 名前を読むまで分からない。3 列に置けば、押す前に位置が目で分かる。
+ * （読み上げの人には形が届かないので、名前のほうに「上段の左」と入れてある。）
+ */
+.captureRegionGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-1);
+  /*
+   * 幅は読みやすい行長に合わせる。**画面いっぱいに広げない。**
+   * 3 列が横へ伸びきると、押す前に「画面のどこか」を目で測ることになり、
+   * 区画で選ぶ意味（位置を決めなくてよい）が薄れる。
+   */
+  max-width: var(--readable-max-width);
+}
+
 /* 選んでいる道具は aria-pressed で示す。色だけで示さない。 */
 .captureTool {
   min-height: var(--tap-target-min);

@@ -10,6 +10,8 @@ import type { Role } from "@/domain/shared";
 import { ROLE_LABEL } from "@/application/usecases/identity/manage-workspace";
 import { type Capability, can, capabilitiesOf, requireCapability } from "@/domain/identity";
 import { aWriter, anAiAccount, anOwner } from "../support/actors";
+import { taggedString } from "@/domain/shared";
+import type { BrandId } from "@/domain/shared";
 
 /**
  * 誰が何をできるか。
@@ -251,6 +253,38 @@ describe("AI に必ず断るもの（REQ-R10）", () => {
 });
 
 describe("断り方", () => {
+  it("ブランド限定担当者は、ブランド対応を持たないサイト資源を操作できない", () => {
+    const scoped = anOwner({
+      scopedBrandIds: [taggedString<"BrandId">("brand-a") as BrandId],
+    });
+
+    for (const capability of ["site.manage", "site.draft"] as const) {
+      const refused = requireCapability(scoped, capability, "ブログ");
+      expect(refused.ok).toBe(false);
+      if (!refused.ok) expect(refused.error.code).toBe("TENANT_MISMATCH");
+    }
+    expect(requireCapability(scoped, "content.read", "記事").ok).toBe(true);
+  });
+
+  it.each([
+    "product.read",
+    "product.write",
+    "evidence.write",
+    "ranking_model.manage",
+    "analytics.read",
+    "improvement.run",
+    "improvement.approve",
+  ] as const)("ブランド限定担当者は、対応ブランドを特定できない %s を扱えない", (capability) => {
+    const scoped = anOwner({
+      scopedBrandIds: [taggedString<"BrandId">("brand-a") as BrandId],
+    });
+
+    const refused = requireCapability(scoped, capability, "ブランド対応のない資源");
+
+    expect(refused.ok).toBe(false);
+    if (!refused.ok) expect(refused.error.code).toBe("TENANT_MISMATCH");
+  });
+
   it("足りない権限の名前と、誰に頼めばよいかを言う", () => {
     const writer = aWriter();
     const refused = requireCapability(writer, "affiliate.read_revenue", "成果の金額の閲覧");

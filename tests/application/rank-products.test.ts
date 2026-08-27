@@ -32,6 +32,7 @@ import {
   err,
   markEditorial,
   ok,
+  taggedString,
 } from "@/domain/shared";
 import { OTHER_WORKSPACE, WORKSPACE, aNobody, anOwner } from "../support/actors";
 
@@ -139,6 +140,16 @@ describe("順位を作れる人", () => {
   it("権限があれば順位を作れる", async () => {
     const r = await run().promise;
     expect(r.ok).toBe(true);
+  });
+
+  it("ブランドとの対応を持たない順位材料を限定担当者へは出さない", async () => {
+    const r = await run(
+      {},
+      anOwner({ scopedBrandIds: [taggedString<"BrandId">("brand-limited")] }),
+    ).promise;
+
+    expect(r.ok).toBe(false);
+    if (!r.ok) expect(r.error.code).toBe("TENANT_MISMATCH");
   });
 });
 

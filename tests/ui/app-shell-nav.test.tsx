@@ -60,7 +60,7 @@ describe("案内の分類の読み上げ", () => {
 });
 
 describe("管理画面route metadataの正本", () => {
-  it("51画面・ナビ・分類は同じmetadataから派生する", () => {
+  it("69画面・ナビ・分類は同じmetadataから派生する", () => {
     /*
       画面を足したら人が必ずここで気づくための数え上げ。品質の閾値ではない。
 
@@ -69,8 +69,38 @@ describe("管理画面route metadataの正本", () => {
       どちらの枝も単独では「50」と書いていた。合流させた実物は 51 枚である。
       **片方の 50 をそのまま採ると、数え上げが実物とずれたまま緑になる。**
       `find src/app/admin -name page.tsx | wc -l` = 51 で確かめた。
+
+      2026-08-26: 51 → 53。書き手と読者像に**作る画面**を足した
+      （`personas/new` と `personas/audiences/new`）。
+      それまで一覧しか無く、保存先を D1 へ移しても入れる口が無いので
+      一覧が永久に見本のままだった。
+
+      2026-08-26: 53 → 55。企画に**一覧と作る画面**を足した
+      （`content/packages` と `content/packages/new`）。
+      それまで企画は見本の 1 件しか無く、記事を作る画面がそれを決め打ちで
+      渡していたので、何本作っても親の企画が全部同じだった。
+
+      2026-08-26: 55 → 58。順位づけの基準に**一覧・作る・点を入れる**を足した
+      （`rankings/models`・`rankings/models/new`・`rankings/scores`）。
+      それまで基準も点も見本の決め打ちで、商品を登録しても順位に現れず、
+      しかも順位の画面は正常に見えるので登録した人からは壊れて見えなかった。
+
+      2026-08-26: 58 → 61。根拠に**登録する 3 枚**を足した
+      （`evidence/new`・`evidence/claims/new`・`evidence/test-runs/new`）。
+      根拠の画面はそれまで見本の主張と根拠しか見ておらず、
+      **どれだけ調べても画面の中身が 1 文字も増えなかった。**
+      3 枚に分けたのは、資料・言えること・測った記録で決める人も決める順番も
+      違うため。1 枚にまとめると、片方だけ埋まった状態が保存できてしまう。
+
+      2026-08-26: 61 → 64。設定に**直す 3 枚**を足した
+      （`settings/workspaces/edit`・`settings/brands/new`・`settings/brands/[brand]`）。
+      ブランドはどこからも読めたが、**どこからも書けなかった。**
+      「運営者の表示名と問い合わせ先が未設定なので公開できません」という
+      表示だけが出て、埋めに行く先が 1 つも無い状態だった。
+      直す画面を見るだけの画面と分けたのは、契約の区分が上限そのもので、
+      上限を確かめに来ただけの人が区分に触れる位置に立たないため。
     */
-    expect(ADMIN_ROUTE_METADATA).toHaveLength(51);
+    expect(ADMIN_ROUTE_METADATA).toHaveLength(69);
 
     const navRoutes = ADMIN_ROUTE_METADATA.filter((route) => route.nav !== null);
     expect(ADMIN_NAV.map((item) => item.href)).toEqual(navRoutes.map((route) => route.pattern));

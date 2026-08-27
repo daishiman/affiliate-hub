@@ -58,7 +58,6 @@ const SCHEMA_FILES = ["src/db/schema.ts", "src/db/auth-schema.ts"];
 const UNWIRED: ReadonlySet<string> = new Set([
   "blog_theme",
   "page_theme_override",
-  "legal_page",
   "blog_template",
   "blog_affiliate_placement",
 ]);
@@ -101,11 +100,24 @@ const TABLE_EXEMPT: Readonly<
     kind: "not_tenant_data",
     why: "ログインを断った記録。断られた人はまだどの作業場所にも属していない",
   },
+  reader_shortlist_items: {
+    kind: "not_tenant_data",
+    why:
+      "読者が押した「気になる商品」。読者は作業場所に属さない。" +
+      "切り分けは site_slug + reader_key で、作業場所の列を足すと" +
+      "読者の行に運営側の所属が付き、読者と運営者を結び付けられるようになる",
+  },
   user: { kind: "not_tenant_data", why: "Better Auth の身元。1 人が複数の作業場所に属しうる" },
   session: { kind: "not_tenant_data", why: "Better Auth の内部表" },
   account: { kind: "not_tenant_data", why: "Better Auth の内部表（外部提供元との紐付け）" },
   verification: { kind: "not_tenant_data", why: "Better Auth の内部表" },
   rate_limit: { kind: "not_tenant_data", why: "Better Auth の内部表" },
+  channel_provider_delivery_leases: {
+    kind: "not_tenant_data",
+    why:
+      "provider DID単位の全workspace共通短期mutex。workspaceを鍵に含めると" +
+      "同じ外部アカウントへ別workspaceから並行送信できる",
+  },
 
   /*
    * --- まだ配線していない（2026-08-24 実測: src/ のどこからも import されていない） ---
@@ -121,7 +133,6 @@ const TABLE_EXEMPT: Readonly<
    */
   blog_theme: { kind: "unwired", why: "site_slug 鍵。読み書きする口がまだ無い" },
   page_theme_override: { kind: "unwired", why: "site_slug 鍵。読み書きする口がまだ無い" },
-  legal_page: { kind: "unwired", why: "site_slug 鍵。読み書きする口がまだ無い" },
 };
 
 /**
@@ -138,7 +149,7 @@ const INDEX_EXEMPT: Readonly<Record<string, string>> = {
 
   /*
    * この 2 本は `workspace_id` **列は持っている**が、索引が `site_slug` で始まる。
-   * 上の 3 本と根拠は同じ（未配線）なので `UNWIRED` に載っていることを機械が確かめる。
+   * 上の 2 本と根拠は同じ（未配線）なので `UNWIRED` に載っていることを機械が確かめる。
    * 最初の口を書く人が、索引を作業場所始まりに直す。
    */
   blog_template: "未配線。site_slug 始まりの索引しか無い。最初の口を書くときに直す",
@@ -152,6 +163,14 @@ const INDEX_EXEMPT: Readonly<Record<string, string>> = {
  * 上に 1 行足しただけで免除が外れて赤くなるのを避けるためである。
  */
 const QUERY_EXEMPT: Readonly<Record<string, { readonly count: number; readonly why: string }>> = {
+  "infrastructure/persistence/d1/site-document-repository.ts::legalPages::findSiteDocument": {
+    count: 1,
+    why: "読者向けの 1 枚引き。読者に作業場所は無い（URL 名がそのまま公開の単位）",
+  },
+  "infrastructure/persistence/d1/site-document-repository.ts::legalPages::save": {
+    count: 1,
+    why: "書き換え先の id は直前の作業場所つきの検索で得たもので、主キー 1 件を指す",
+  },
   "infrastructure/identity/session-issuer.ts::memberships::issue": {
     count: 1,
     why: "招待の受諾。受諾する時点でその人はまだどこにも属していない（属させるのがこの処理）",
@@ -168,6 +187,13 @@ const QUERY_EXEMPT: Readonly<Record<string, { readonly count: number; readonly w
     count: 1,
     why: "予定時刻の来た配信を全作業場所から集める。呼ぶのは人ではなく時計で、身元が無い",
   },
+  "infrastructure/persistence/d1/publication-delivery-audit-outbox.ts::publicationDeliveryAuditOutbox::flush":
+    {
+      count: 3,
+      why:
+        "時計が全workspaceのcommit済み・未配送intentを再送する。各行はworkspaceIdを保持し、" +
+        "人のtenant文脈で読む処理ではない",
+    },
   "infrastructure/persistence/d1/feedback-repository.ts::integrationKeys::authenticate": {
     count: 1,
     why: "鍵の値から作業場所を決める処理。作業場所はここの出力",
@@ -192,6 +218,14 @@ const QUERY_EXEMPT: Readonly<Record<string, { readonly count: number; readonly w
     count: 1,
     why: "同上（読者向け）",
   },
+  "infrastructure/persistence/d1/reader-tool-repository.ts::readerTools::findRow": {
+    count: 1,
+    why: "読者向けの診断・計算。読者に作業場所は無く、手がかりは URL の名前だけ",
+  },
+  "infrastructure/persistence/d1/reader-tool-repository.ts::readerTools::list": {
+    count: 1,
+    why: "同上（読者向け）。1 つのサイトの道具一覧で、他サイトの行は返らない",
+  },
   "infrastructure/persistence/d1/published-article-repository.ts::publishedArticles::findPerson": {
     count: 1,
     why: "同上（読者向け）",
@@ -199,6 +233,10 @@ const QUERY_EXEMPT: Readonly<Record<string, { readonly count: number; readonly w
   "infrastructure/persistence/d1/published-article-repository.ts::publishedArticles::listByPerson": {
     count: 1,
     why: "同上（読者向け）",
+  },
+  "infrastructure/persistence/d1/published-article-repository.ts::publishedArticleTombstones::hiddenSlugs": {
+    count: 1,
+    why: "読者向けの公開ページ。URL名に対応する墓標を全workspace横断で確認し、見本の再露出を防ぐ",
   },
   "infrastructure/persistence/d1/redirect-repository.ts::redirectResolutions::resolve": {
     count: 1,
@@ -210,6 +248,11 @@ const QUERY_EXEMPT: Readonly<Record<string, { readonly count: number; readonly w
   },
   "infrastructure/persistence/d1/site-draft-repository.ts::siteBlueprints::listPublishedBlueprints":
     { count: 1, why: "読者向けの公開ブログ一覧。読者に作業場所は無い" },
+  "infrastructure/persistence/d1/site-draft-repository.ts::siteRetirements::listPublishedBlueprints":
+    {
+      count: 1,
+      why: "読者向けの公開ブログ一覧。全体一意のURL名の墓標を重ね、取り下げた見本の再露出を防ぐ",
+    },
 };
 
 // ---------------------------------------------------------------------------
@@ -642,5 +685,58 @@ describe("広告表記を tenant 化する migration は、所有者を推測し
     expect(disclosureSchema).not.toMatch(
       /updatedAt:\s*integer\("updated_at"[^)]*\)[\s\S]{0,80}\.default\(sql`\(unixepoch\(\)\)`\)/,
     );
+  });
+});
+
+describe("固定文書を tenant 化する migration は、既存行を捨てない", () => {
+  const migration = readFileSync(join(ROOT, "drizzle/0034_parched_inhumans.sql"), "utf8");
+
+  it("旧表を事前検査し、公開名から所有者を復元してから旧表を落とす", () => {
+    const sourceCopy = migration.indexOf("INSERT INTO `_migration_0034_legal_page_source`");
+    const blueprintJoin = migration.indexOf("JOIN `site_blueprints`", sourceCopy);
+    const rebuild = migration.indexOf("INSERT INTO `_new_legal_page`", blueprintJoin);
+    const guard = migration.indexOf("_migration_0034_legal_page_guard");
+    const drop = migration.indexOf("DROP TABLE `legal_page`");
+
+    expect(guard).toBeGreaterThanOrEqual(0);
+    expect(sourceCopy).toBeGreaterThan(guard);
+    expect(blueprintJoin).toBeGreaterThan(sourceCopy);
+    expect(rebuild).toBeGreaterThan(blueprintJoin);
+    expect(drop).toBeGreaterThan(rebuild);
+  });
+
+  it("中断復旧用sourceは移行完了後に削除し、恒久的な第二正本にしない", () => {
+    const rebuild = migration.indexOf("INSERT INTO `_new_legal_page`");
+    const rename = migration.indexOf("ALTER TABLE `_new_legal_page` RENAME TO `legal_page`");
+    const cleanup = migration.lastIndexOf(
+      "DROP TABLE IF EXISTS `_migration_0034_legal_page_source`",
+    );
+
+    expect(rebuild).toBeGreaterThanOrEqual(0);
+    expect(rename).toBeGreaterThan(rebuild);
+    expect(cleanup).toBeGreaterThan(rename);
+  });
+
+  it("所有者を復元できない行があれば件数検査で停止する", () => {
+    expect(migration).toMatch(/`legacy_count`\s*=\s*`migrated_count`/);
+    expect(migration).toMatch(/`migrated_count`\s*=\s*`distinct_target_count`/);
+    expect(migration).not.toContain("行が 1 つも無いことが分かっている");
+  });
+
+  it("意味が一意な旧keyだけを明示変換し、曖昧な旧keyは推測しない", () => {
+    expect(migration).toContain("WHEN 'privacy_policy' THEN 'privacy'");
+    for (const ambiguous of ["all_categories", "site_policy", "contact"]) {
+      expect(migration).not.toMatch(new RegExp(`WHEN '${ambiguous}' THEN`));
+    }
+  });
+
+  it("旧表を落とす前に、再実行可能な独立URL墓標を用意する", () => {
+    const tombstone = migration.indexOf("CREATE TABLE IF NOT EXISTS `site_retirements`");
+    const drop = migration.indexOf("DROP TABLE `legal_page`");
+    expect(tombstone).toBeGreaterThanOrEqual(0);
+    expect(drop).toBeGreaterThan(tombstone);
+    expect(migration).not.toContain("ALTER TABLE `site_blueprints` ADD `retired_at`");
+    expect(migration).toContain("NATURAL LEFT JOIN (SELECT NULL AS `retired_at`)");
+    expect(migration).toContain("ON CONFLICT (`slug`) DO UPDATE SET");
   });
 });

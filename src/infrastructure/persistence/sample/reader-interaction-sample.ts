@@ -5,42 +5,56 @@ import type {
   ReaderToolDefinition,
   ShortlistItem,
 } from "@/application/ports/reader-interaction";
+import {
+  type ReaderToolFormula,
+  runReaderToolFormula,
+} from "@/domain/authoring/reader-tool-formula";
 import { domainError, err, markEditorial, ok } from "@/domain/shared";
 import { registerStub } from "../../stub-registry";
 
 /**
- * ★ これは仮置きの見本です（スタブ）。★
+ * 読者向けの 3 つの控え。
  *
- * 「気になる商品」「診断・計算」「問い合わせ」の 3 つは、
- * どれも**外側の用意が終わっていない**ため本物にできない:
+ *   気になる商品 … 保存先 (D1) が無い環境の控え。本物は `d1/reader-shortlist-repository.ts`。
+ *   診断・計算   … 保存先が無い環境の控え。計算そのものは本物と同じ読み取り機で解く。
+ *   問い合わせ   … 保存先が無い環境の控え。本物は `d1/contact-repository.ts`。
+ *                  **ここは受け取ったふりをしない。** メモリに置けば読者には
+ *                  送れたように見えるが、運営者が読む前に消える。
  *
- *   気になる商品 … 読者ごとの保存先 (KV) を用意していない。
- *                  ここでは処理中のメモリに置くので、再起動で消える。
- *   診断・計算   … 計算に使う商品データの取込が終わっていない。
- *   問い合わせ   … 自動送信よけ (Turnstile) と送信元メールの登録が済んでいない。
- *
- * 動いているように見せない。画面には必ず見本の表示を出す。
+ * まだ残っている外の作業は、問い合わせの**メール通知**だけ
+ * （自動送信よけ (Turnstile) の鍵と送信元アドレスの登録。利用者本人が登録する）。
+ * 通知が無くても、届いた分は /admin/contact で読める。
  */
 
 const shortlistStub = registerStub({
   id: "reader:shortlist-memory",
   port: "ShortlistPort",
   label: "気になる商品の保存（処理中のメモリ）",
-  blockedBy: "読者ごとの保存先 (KV 名前空間) の作成",
+  blockedBy: "保存先 (D1) がつながっていない環境での控え",
+  // 本物ができたので控えへ格下げ。保存先がある環境では
+  // `d1/reader-shortlist-repository.ts` が使われ、ここは通らない。
+  fallbackFor: "src/infrastructure/persistence/d1/reader-shortlist-repository.ts",
 });
 
 const toolStub = registerStub({
   id: "reader:tools-sample",
   port: "ReaderToolPort",
-  label: "診断・計算の道具（見本の定義のみ）",
-  blockedBy: "商品データの取込と、道具ごとの計算式の登録",
+  label: "診断・計算の道具（作り付けの 1 つだけ）",
+  blockedBy: "保存先 (D1) がつながっていない環境での控え",
+  // 本物ができたので控えへ格下げ。保存先がある環境では
+  // `d1/reader-tool-repository.ts` が使われ、運営者が道具を増やせる。
+  fallbackFor: "src/infrastructure/persistence/d1/reader-tool-repository.ts",
 });
 
 const contactStub = registerStub({
   id: "reader:contact-sink",
   port: "ContactPort",
-  label: "問い合わせの受け取り（送信せず記録のみ）",
-  blockedBy: "Turnstile の鍵と送信元メールアドレスの登録（利用者本人が登録する）",
+  label: "問い合わせの受け取り（保存先が無い環境では断る）",
+  blockedBy: "保存先 (D1) がつながっていない環境での控え",
+  // 本物ができたので控えへ格下げ。保存先がある環境では
+  // `d1/contact-repository.ts` が受け取り、/admin/contact で読める。
+  // メール通知はまだ無い（Turnstile の鍵と送信元アドレスの登録は利用者本人の作業）。
+  fallbackFor: "src/infrastructure/persistence/d1/contact-repository.ts",
 });
 
 export const READER_STUB_IDS = {
@@ -50,11 +64,11 @@ export const READER_STUB_IDS = {
 } as const;
 
 /**
- * 処理中のメモリに置く保存先。
+ * 処理中のメモリに置く保存先。**保存先 (D1) が無い環境だけの控え。**
  *
- * Workers では処理ごとに消える可能性がある。**それでよい。**
- * ここで localStorage や cookie に逃がすと、保存先が決まったつもりになり、
- * 本物の実装（KV）を用意する動機が消える。
+ * Workers では処理ごとに消える可能性がある。控えなので、それでよい。
+ * ここで localStorage や cookie に逃がすと、控えのほうが本物より
+ * よく残るようになり、D1 が繋がっていない状態に誰も気づかなくなる。
  */
 const memory = new Map<string, ShortlistItem[]>();
 
@@ -83,11 +97,12 @@ export function createSampleShortlistRepository(): EditorialShortlistPort {
 }
 
 /**
- * 見本の道具。
+ * 作り付けの道具（1 つだけ）。
  *
- * 「必要な保存容量の目安」だけを 1 つ置く。定義（入力欄と読み方）は本物の形にし、
- * 計算だけを見本にする。定義の形が決まっていれば、
- * 計算式を登録するだけで本物になる。
+ * **計算はもう見本ではない。** 式は本物と同じ読み取り機
+ * (`domain/authoring/reader-tool-formula.ts`) が解くので、
+ * 保存先が無い環境でも読者は正しい数字を受け取る。
+ * 保存先がある環境では、運営者が登録した道具がこれに置き換わる。
  */
 const STORAGE_ESTIMATOR: ReaderToolDefinition = {
   slug: "storage-estimator",
@@ -102,6 +117,54 @@ const STORAGE_ESTIMATOR: ReaderToolDefinition = {
     "出てくるのは素材だけの大きさです。編集中の一時ファイルと書き出し先を別に用意してください。",
 };
 
+/**
+ * 「必要な保存容量の目安」の計算式。
+ *
+ * 1 秒あたり `bitrate` メガビット → 8 で割ってメガバイト → 1000 で割ってギガバイト。
+ * 段を分けているのは、**読者が「どこで大きくなったか」を追えるようにするため**。
+ * 1 行で最終値だけ出すと、桁が思ったより大きくても理由が見えない。
+ */
+const STORAGE_ESTIMATOR_FORMULA: ReaderToolFormula = {
+  rows: [
+    {
+      label: "1 か月あたりの素材",
+      expression: "minutes * 60 * bitrate / 8 / 1000",
+      unit: " GB",
+      decimals: 1,
+      as: "monthly",
+    },
+    {
+      label: "残しておく期間ぶん",
+      expression: "monthly * months",
+      unit: " GB",
+      decimals: 0,
+      as: "total",
+    },
+    {
+      // 実際には編集中の一時ファイルと書き出し先が要る。素材ちょうどの容量を
+      // 買うと必ず足りなくなるので、余裕を見た数字も一緒に出す。
+      label: "余裕を見た目安",
+      expression: "total * 1.5",
+      unit: " GB",
+      decimals: 0,
+    },
+  ],
+  summary:
+    "素材だけで {残しておく期間ぶん} になります。編集の作業ぶんを足すと {余裕を見た目安} ほど見ておくと安心です。",
+};
+
+/**
+ * 作り付けの道具の一覧。**保存先がある環境からも参照する。**
+ *
+ * 保存先を繋いだ瞬間に、それまで動いていた道具が一覧から消えるのは
+ * 「登録し忘れ」ではなく壊れたようにしか見えない。
+ * D1 側はここへ重ねる（同じ `slug` を登録すれば運営者の定義が勝つ）。
+ */
+export const BUILT_IN_READER_TOOLS: readonly {
+  readonly definition: ReaderToolDefinition;
+  readonly formula: ReaderToolFormula;
+}[] = [{ definition: STORAGE_ESTIMATOR, formula: STORAGE_ESTIMATOR_FORMULA }];
+
 export function createSampleReaderToolRepository(): EditorialReaderToolPort {
   return markEditorial({
     async find(_siteSlug: string, slug: string) {
@@ -110,28 +173,55 @@ export function createSampleReaderToolRepository(): EditorialReaderToolPort {
     async list(_siteSlug: string) {
       return ok([STORAGE_ESTIMATOR]);
     },
-    async run(_siteSlug: string, slug: string, _values: Readonly<Record<string, string>>) {
-      // 計算式をでっち上げた数字で返すと、読者がそれを信じて機材を買う。
-      // 出せないものは出せないと返す。
-      return err(
-        domainError("NOT_IMPLEMENTED", `「${slug}」の計算はまだ登録されていません。`, {
-          suggestedAction:
-            "計算式の登録が済むと結果が出ます。それまでは入力欄と結果の読み方だけをご覧ください。",
-          retryable: false,
-        }),
-      );
+    async run(_siteSlug: string, slug: string, values: Readonly<Record<string, string>>) {
+      if (slug !== STORAGE_ESTIMATOR.slug) {
+        // 知らない道具の数字をでっち上げると、読者はそれを信じて機材を買う。
+        // 出せないものは出せないと返す。
+        return err(
+          domainError("NOT_FOUND", `「${slug}」という道具は登録されていません。`, {
+            suggestedAction: "トップから探し直してください。",
+            retryable: false,
+          }),
+        );
+      }
+      return runReaderToolFormula(STORAGE_ESTIMATOR_FORMULA, STORAGE_ESTIMATOR.inputs, values);
     },
   });
 }
 
+/**
+ * 保存先が無い環境の控え。
+ *
+ * **ここは受け付けない。** 気になる商品と違い、問い合わせを処理中のメモリに
+ * 置くと、読者には「送れた」と見えたまま、運営者が読む前に消える。
+ * 消えたことは誰にも分からない。受け取れないなら、受け取れないと言うほうがよい。
+ */
 export function createSampleContactSink(): EditorialContactPort {
   return markEditorial({
-    async submit(message) {
+    async submit(_workspaceId, message, _rateLimitKey) {
       // 本文はログにも残さない。個人情報が入りうるため。
       return err(
-        domainError("NOT_IMPLEMENTED", "問い合わせの送信先がまだ設定されていません。", {
-          suggestedAction: `お手数ですが、${message.siteSlug} の運営者へ直接ご連絡ください。設定が済み次第この画面から送れるようになります。`,
-          retryable: false,
+        domainError("UPSTREAM_UNAVAILABLE", "問い合わせの保存先につながっていません。", {
+          suggestedAction: `お手数ですが、${message.siteSlug} の運営者へ直接ご連絡ください。つながり次第この画面から送れるようになります。`,
+          retryable: true,
+        }),
+      );
+    },
+    async list(_workspaceId, _ownedSiteSlugs: readonly string[], _siteSlug?: string) {
+      // 受け付けていないので、いつも空。「まだ 0 件」ではなく「入る場所が無い」。
+      return ok([]);
+    },
+    async markHandled(
+      _workspaceId,
+      _ownedSiteSlugs: readonly string[],
+      _id: string,
+      _handled: boolean,
+      _at: string,
+    ) {
+      return err(
+        domainError("UPSTREAM_UNAVAILABLE", "問い合わせの保存先につながっていません。", {
+          suggestedAction: "保存先 (D1) をつないでから操作してください。",
+          retryable: true,
         }),
       );
     },

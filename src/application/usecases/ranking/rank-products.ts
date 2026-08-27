@@ -2,7 +2,7 @@ import type {
   EditorialRankingModelRepositoryPort,
   EditorialScoreCardRepositoryPort,
 } from "@/application/ports/ranking";
-import { requireCapability } from "@/domain/identity";
+import { requireWorkspaceWideCapability } from "@/domain/identity";
 import { type RankingResult, rankProducts } from "@/domain/ranking";
 import {
   type ActorContext,
@@ -98,7 +98,7 @@ export function createRankProductsUseCase(
       actor: ActorContext,
       input: RankProductsInput,
     ): Promise<Result<RankingResult, DomainError>> {
-      const allowed = requireCapability(actor, "content.read", "ランキングの参照");
+      const allowed = requireWorkspaceWideCapability(actor, "content.read", "ランキングの参照");
       if (!allowed.ok) return allowed;
 
       if (input.productIds.length === 0) {

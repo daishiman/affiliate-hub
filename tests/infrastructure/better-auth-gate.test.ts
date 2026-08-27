@@ -314,30 +314,41 @@ describe("往復のあとに通行証を出す", () => {
  * **出ないことが症状を隠す**ので、出ること自体を固定する。
  */
 describe("失敗を記録に残す", () => {
-  it("往復の失敗は、例外の中身ごと記録に出す", () => {
+  it("往復の失敗は原因を残し、token・cookie・secret は記録に出さない", () => {
     const spy = vi.spyOn(console, "error").mockImplementation(() => {});
-    const cause = new Error("no such column: issuer");
+    const cause = Object.assign(
+      new Error("no such column: issuer; token=session-token-value"),
+      {
+        cookie: "ah_session=session-cookie-value",
+        secret: "oauth-client-secret-value",
+      },
+    );
 
     reportAuthApiError(cause);
 
-    // 例外そのものを渡す。要約に畳むと、今回の原因だった列名が消える。
-    expect(spy).toHaveBeenCalledWith("[auth] ログインの往復が失敗しました:", cause);
+    const recorded = JSON.stringify(spy.mock.calls);
+    expect(recorded).toContain("no such column: issuer");
+    expect(recorded).not.toContain("session-token-value");
+    expect(recorded).not.toContain("session-cookie-value");
+    expect(recorded).not.toContain("oauth-client-secret-value");
     spy.mockRestore();
   });
 
-  it("Better Auth 側の記録は、message の後ろの args まで落とさない", () => {
+  it("Better Auth 側は安全な例外argsを残し、Authorizationを秘匿する", () => {
     const spy = vi.spyOn(console, "error").mockImplementation(() => {});
-    const cause = new Error("no such column: issuer");
+    const cause = Object.assign(new Error("no such column: issuer"), {
+      headers: {
+        authorization: "Bearer bearer-token-value",
+        cookie: "better-auth.session_token=session-cookie-value",
+      },
+    });
 
     reportBetterAuthLog("error", "Better auth was unable to query your database.", cause);
 
-    // `message` は「問い合わせられませんでした」までしか言わない。
-    // 原因を指しているのは常に args の側なので、ここを捨てない。
-    expect(spy).toHaveBeenCalledWith(
-      "[better-auth:error]",
-      "Better auth was unable to query your database.",
-      cause,
-    );
+    const recorded = JSON.stringify(spy.mock.calls);
+    expect(recorded).toContain("no such column: issuer");
+    expect(recorded).not.toContain("bearer-token-value");
+    expect(recorded).not.toContain("session-cookie-value");
     spy.mockRestore();
   });
 

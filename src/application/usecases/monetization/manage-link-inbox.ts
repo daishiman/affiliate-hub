@@ -223,6 +223,7 @@ export function createSubmitAffiliateUrlUseCase(
 
       const normalized = normalizeAffiliateUrl(input.url);
       if (!normalized.ok) return normalized;
+      const normalizedUrl = normalized.value;
 
       /*
        * 重複の判定は「先に読む」ではなく「先に取りに行く」。
@@ -237,10 +238,21 @@ export function createSubmitAffiliateUrlUseCase(
       const id = taggedString<"LinkIngestionId">(`li_${deps.ids.newId()}`) as LinkIngestionId;
       const claimed = await deps.inbox.claimNormalizedUrl(
         actor.workspaceId,
-        normalized.value,
+        normalizedUrl,
         id,
       );
       if (!claimed.ok) return claimed;
+      const ownsClaim = String(claimed.value) === String(id);
+      async function failAfterClaim<T>(failure: Result<T, DomainError>): Promise<Result<T, DomainError>> {
+        if (!ownsClaim || failure.ok) return failure;
+        const released = await deps.inbox.releaseNormalizedUrl(
+          actor.workspaceId,
+          normalizedUrl,
+          id,
+        );
+        // 解放できないほうが後続を恒久的に塞ぐため、こちらを優先して知らせる。
+        return released.ok ? failure : released;
+      }
 
       /*
        * 取れなかったときだけ、相手を読みに行く。
@@ -265,10 +277,10 @@ export function createSubmitAffiliateUrlUseCase(
         existing,
         note: input.note ?? null,
       });
-      if (!created.ok) return created;
+      if (!created.ok) return failAfterClaim(created);
 
       const saved = await deps.inbox.save(created.value);
-      if (!saved.ok) return saved;
+      if (!saved.ok) return failAfterClaim(saved);
 
       await emit(deps, actor, "affiliate_url.submitted", {
         linkIngestionId: String(saved.value.id),

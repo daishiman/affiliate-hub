@@ -6,6 +6,7 @@ import {
   type Role,
   type UserId,
   type WorkspaceId,
+  coversBrandScope,
   err,
   ok,
   validationError,
@@ -197,5 +198,5 @@ export function isActiveMembership(m: Membership, at: Date): boolean {
 
 /** そのブランドを扱えるか。scopedBrandIds が空なら全ブランド。 */
 export function coversBrand(m: Membership, brandId: BrandId): boolean {
-  return m.scopedBrandIds.length === 0 || m.scopedBrandIds.includes(brandId);
+  return coversBrandScope(m, brandId);
 }

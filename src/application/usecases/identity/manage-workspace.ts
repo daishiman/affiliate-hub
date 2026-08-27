@@ -13,10 +13,13 @@ import {
   relAttributeFor,
   requiresDisclosure,
 } from "@/domain/compliance";
+import type { Brand, BrandVoice, WorkspacePlan } from "@/domain/identity";
 import {
+  DEFAULT_BRAND_VOICE,
   HUMAN_ONLY_CAPABILITIES,
   type Capability,
   capabilitiesOf,
+  createBrand,
   changeMembershipRoles,
   createMembership,
   isActiveMembership,
@@ -33,14 +36,41 @@ import {
   type MembershipId,
   type Result,
   type Role,
+  assertBrandAccess,
   asBrandId,
   domainError,
   err,
   ok,
   taggedString,
+  validationError,
 } from "@/domain/shared";
 import { type AuditClock, auditWriteFailure, buildAuditEntry } from "@/application/audit";
 import type { UseCase } from "../usecase";
+import type { CapacityGuardPort } from "@/application/capacity";
+import type { PageRequest, Paged, PortResult } from "@/application/ports/common";
+
+async function collectPaged<T>(
+  list: (page: PageRequest) => PortResult<Paged<T>>,
+): PortResult<readonly T[]> {
+  const items: T[] = [];
+  const seen = new Set<string>();
+  let cursor: string | null = null;
+  do {
+    const page = await list({ limit: 100, cursor });
+    if (!page.ok) return page;
+    items.push(...page.value.items);
+    cursor = page.value.nextCursor;
+    if (cursor !== null && seen.has(cursor)) {
+      return err(
+        domainError("INVARIANT_VIOLATED", "一覧の続きを正しく取得できませんでした。", {
+          suggestedAction: "保存先のページング設定を確認してください。",
+        }),
+      );
+    }
+    if (cursor !== null) seen.add(cursor);
+  } while (cursor !== null);
+  return ok(items);
+}
 
 /**
  * 設定（ワークスペース・担当者・ブランド・広告表記）のユースケース。
@@ -100,6 +130,7 @@ export const CAPABILITY_LABEL: Readonly<Record<Capability, string>> = {
   "feedback.status_update": "改善要望の対応状況を変える",
   "feedback.manage": "改善要望の扱いを決める",
   "integration_key.manage": "取得用の鍵を管理する",
+  "channel_connection.manage": "外部媒体との接続を管理する",
   "export.perform": "データを書き出す",
 };
 
@@ -129,6 +160,14 @@ export type CapacityRow = {
 export type GetSettingsOverviewOutput = {
   readonly workspaceName: string;
   readonly planLabel: string;
+  /**
+   * 選び直す欄に、いま選ばれている区分を出すための素の値。
+   *
+   * `planLabel` は読むための日本語で、選択肢の値には使えない。
+   * ここを出さないと、直す画面が毎回先頭の区分を選んだ状態で開き、
+   * **名前だけ直したつもりの保存で契約が「ひとり用」へ落ちる。**
+   */
+  readonly plan: "solo" | "team" | "business";
   readonly timezone: string;
   readonly currency: string;
   readonly suspended: boolean;
@@ -181,6 +220,7 @@ export function createGetSettingsOverviewUseCase(
       return ok({
         workspaceName: workspace.name,
         planLabel: PLAN_LABEL[workspace.plan],
+        plan: workspace.plan,
         timezone: workspace.timezone,
         currency: workspace.currency,
         suspended: workspace.suspendedAt !== null,
@@ -293,13 +333,13 @@ export function createListMembersUseCase(
       const allowed = requireCapability(actor, "content.read", "担当者の参照");
       if (!allowed.ok) return allowed;
 
-      const listed = await deps.memberships.list(actor.workspaceId, { limit: 100, cursor: null });
+      const listed = await collectPaged((page) => deps.memberships.list(actor.workspaceId, page));
       if (!listed.ok) return listed;
       const owner = await deps.memberships.findOwner(actor.workspaceId);
       if (!owner.ok) return owner;
 
       const now = new Date();
-      const rows = listed.value.items.map((m): MemberRow => {
+      const rows = listed.value.map((m): MemberRow => {
         const active = isActiveMembership(m, now);
         return {
           membershipId: String(m.id),
@@ -339,7 +379,9 @@ export function createListMembersUseCase(
  * 時計を引数で受けるのは、**招待した日と外した日が記録に残る**ため。
  * `new Date()` を中で呼ぶと、その 2 つを検査で固定できない。
  */
-export type ManageMembersDeps = ManageWorkspaceDeps & AuditClock;
+export type ManageMembersDeps = ManageWorkspaceDeps & AuditClock & {
+  readonly capacity: CapacityGuardPort;
+};
 
 export type ManageMembersInput =
   /** 招待を出す。まだ `user_id` は決まらない（初回ログインで埋まる）。 */
@@ -456,45 +498,47 @@ export function createManageMembersUseCase(
           }
         }
 
-        const built = createMembership({
-          id: taggedString<"MembershipId">(`mb_${deps.ids.newId()}`) as MembershipId,
-          workspaceId: actor.workspaceId,
-          invitedEmail,
-          roles: input.roles,
-          scopedBrandIds: (input.scopedBrandIds ?? []).map(
-            (id) => asBrandId(id) as BrandId,
-          ),
-          displayName: input.displayName,
-          invitedAt: now,
-        });
-        if (!built.ok) return built;
+        return deps.capacity.withLease(actor.workspaceId, "member", async () => {
+          const built = createMembership({
+            id: taggedString<"MembershipId">(`mb_${deps.ids.newId()}`) as MembershipId,
+            workspaceId: actor.workspaceId,
+            invitedEmail,
+            roles: input.roles,
+            scopedBrandIds: (input.scopedBrandIds ?? []).map(
+              (id) => asBrandId(id) as BrandId,
+            ),
+            displayName: input.displayName,
+            invitedAt: now,
+          });
+          if (!built.ok) return built;
 
-        const saved = await deps.memberships.save(built.value);
-        if (!saved.ok) return saved;
+          const saved = await deps.memberships.save(built.value);
+          if (!saved.ok) return saved;
 
-        const entry = buildAuditEntry(deps, actor, {
-          action: "member.role_changed",
-          targetType: "membership",
-          targetId: String(built.value.id),
-          before: null,
-          after: { invitedEmail, roles: [...input.roles], state: "invited" },
-          reason: DEFAULT_REASON.invite,
-        });
-        if (!entry.ok) return entry;
-        const appended = await deps.auditLog.append(entry.value);
-        if (!appended.ok) {
-          return err(
-            auditWriteFailure(`${invitedEmail} への招待は保存されています`, {
-              membershipId: String(built.value.id),
-            }),
-          );
-        }
+          const entry = buildAuditEntry(deps, actor, {
+            action: "member.role_changed",
+            targetType: "membership",
+            targetId: String(built.value.id),
+            before: null,
+            after: { invitedEmail, roles: [...input.roles], state: "invited" },
+            reason: DEFAULT_REASON.invite,
+          });
+          if (!entry.ok) return entry;
+          const appended = await deps.auditLog.append(entry.value);
+          if (!appended.ok) {
+            return err(
+              auditWriteFailure(`${invitedEmail} への招待は保存されています`, {
+                membershipId: String(built.value.id),
+              }),
+            );
+          }
 
-        return ok({
-          membershipId: String(built.value.id),
-          message:
-            `${invitedEmail} を招待しました。` +
-            "この人が Google で初めてログインしたときに参加が成立します（名簿にも載っている必要があります）。",
+          return ok({
+            membershipId: String(built.value.id),
+            message:
+              `${invitedEmail} を招待しました。` +
+              "この人が Google で初めてログインしたときに参加が成立します（名簿にも載っている必要があります）。",
+          });
         });
       }
 
@@ -636,6 +680,16 @@ export type BrandRow = {
   readonly legalName: string | null;
   readonly contactEmail: string | null;
   readonly voiceLabel: string;
+  /**
+   * 選び直す欄に、いま選ばれているものを出すための素の値。
+   *
+   * `voiceLabel` は読むための 1 行で、選択肢の値には使えない。
+   * ここを出さないと、直す画面が**毎回まっさらな選択肢**を出し、
+   * 名前だけ直したつもりの保存で文体が既定へ戻る。
+   */
+  readonly politeness: BrandVoice["politeness"];
+  readonly vocabulary: BrandVoice["vocabulary"];
+  readonly firstPerson: string;
   readonly avoidPhrases: readonly string[];
   readonly disclaimer: string | null;
   /** 言語・時間帯・標準の行動文言。記事ごとに書き起こさないための既定値。 */
@@ -660,16 +714,22 @@ export function createListBrandsUseCase(
       const allowed = requireCapability(actor, "content.read", "ブランドの参照");
       if (!allowed.ok) return allowed;
 
-      const listed = await deps.brands.list(actor.workspaceId, { limit: 100, cursor: null });
+      const listed = await collectPaged((page) => deps.brands.list(actor.workspaceId, page));
       if (!listed.ok) return listed;
 
-      const rows = listed.value.items.map((b): BrandRow => ({
+      // Repository の workspace filter に加え、返ってきた実体の所有と
+      // membership のブランド範囲をここでも照合する。
+      const visible = listed.value.filter((brand) => assertBrandAccess(actor, brand).ok);
+      const rows = visible.map((b): BrandRow => ({
         brandId: String(b.id),
         displayName: b.displayName,
         positioning: b.positioning,
         legalName: b.legalName,
         contactEmail: b.contactEmail,
         voiceLabel: `${b.voice.politeness === "polite" ? "です・ます" : "だ・である"} / 一人称「${b.voice.firstPerson}」`,
+        politeness: b.voice.politeness,
+        vocabulary: b.voice.vocabulary,
+        firstPerson: b.voice.firstPerson,
         avoidPhrases: b.voice.avoidPhrases,
         disclaimer: b.disclaimer,
         locale: b.locale,
@@ -814,8 +874,13 @@ export const AUDIT_ACTION_LABEL: Readonly<Record<AuditAction, string>> = {
   "llm_credential.revoked": "生成 AI の API キーを失効させた",
   "publication.schedule_changed": "配信の予定を変えた",
   "publication.changed": "配信の中身（文面・送り先）を直した",
+  "publication.delivery_changed": "外部媒体への配信状態が変わった",
   "integration_key.issued": "取得用の鍵を発行した",
   "integration_key.revoked": "取得用の鍵を止めた",
+  // ブランドと作業場所。どちらも**公開できるかどうかを動かす**設定で、
+  // 画面の見た目は変わらないため、記録が無いと原因に辿り着けない。
+  "brand.changed": "ブランドを作った・直した",
+  "workspace.changed": "作業場所の設定を直した",
   "site.created": "サイトを作った",
   "site.changed": "サイトの設定を変えた",
   "site.deleted": "サイトを取り下げた",
@@ -827,6 +892,9 @@ export const AUDIT_ACTION_LABEL: Readonly<Record<AuditAction, string>> = {
   "site_draft.started": "ブログを作り始めた",
   "site_draft.step_saved": "ブログ作成の入力を保存した",
   "conversion.adjusted": "成果の数字を手で直した",
+  // 提携の 2 語。**どちらも収益の出どころを動かす**が、画面の見た目は変わらない。
+  "affiliate_account.changed": "提携先を登録・変更した",
+  "affiliate_program.changed": "提携条件を登録・変更した",
   // 改善要望の 4 語。「届いた → 扱いを決めた → 外へ出した」に、
   // 人ではなく時計が動かす「保存期間が来たので診断を消した」を加える。
   "feedback.submitted": "改善要望が届いた",
@@ -890,3 +958,282 @@ export function createListAuditLogUseCase(
     },
   };
 }
+
+// --- ブランドを作る・直す ---------------------------------------------------
+
+export type SaveBrandDeps = ManageWorkspaceDeps & AuditClock & {
+  readonly capacity: CapacityGuardPort;
+};
+
+export type SaveBrandInput = {
+  /** 直すときだけ入る。空なら新しく作る。 */
+  readonly brandId?: string;
+  readonly displayName: string;
+  readonly legalName: string;
+  readonly contactEmail: string;
+  readonly positioning: string;
+  readonly politeness: string;
+  readonly firstPerson: string;
+  readonly vocabulary: string;
+  readonly avoidPhrases: readonly string[];
+  readonly disclaimer: string;
+  readonly locale: string;
+  readonly timeZone: string;
+  readonly defaultCta: string;
+};
+
+export type SavedBrand = {
+  readonly brandId: string;
+  readonly displayName: string;
+  /** 公開の前に埋める必要がある項目。空なら公開できる。 */
+  readonly missing: readonly string[];
+};
+
+function readPoliteness(value: string): BrandVoice["politeness"] | null {
+  return value === "polite" || value === "plain" ? value : null;
+}
+
+function readVocabulary(value: string): BrandVoice["vocabulary"] | null {
+  return value === "plain" || value === "mixed" || value === "technical" ? value : null;
+}
+
+/**
+ * ブランドを 1 つ作る、または直す。
+ *
+ * --- なぜ「作る」と「直す」を 1 つの口にしているか ---
+ *
+ * 入る値が同じで、確かめることも同じだからである。分けると、
+ * 片方にだけ検査を足した状態が作れる。**そこを通した値だけが緩い。**
+ * 新しいかどうかは `brandId` が空かどうかで決まり、差は記録の `before` に出る。
+ *
+ * --- 空欄を「未設定」として入れる ---
+ *
+ * 運営者の表示名と問い合わせ先は、空欄のときに `null` を入れる。
+ * 空文字を入れると `missingPublishReadiness` が「埋まっている」と読み、
+ * **問い合わせ先が空のまま公開できてしまう。** 読者は訂正を求める先を失う。
+ */
+export function createSaveBrandUseCase(deps: SaveBrandDeps): UseCase<SaveBrandInput, SavedBrand> {
+  return {
+    async execute(actor: ActorContext, input: SaveBrandInput): Promise<Result<SavedBrand, DomainError>> {
+      const allowed = requireCapability(actor, "brand.manage", "ブランドの管理");
+      if (!allowed.ok) return allowed;
+
+      const editing = (input.brandId ?? "").trim() !== "";
+      if (!editing && actor.scopedBrandIds.length > 0) {
+        return err(
+          domainError("FORBIDDEN", "担当ブランドが限定されているため、新しいブランドは作れません。", {
+            suggestedAction: "workspace 全体を扱う管理担当に作成を依頼してください。",
+          }),
+        );
+      }
+
+      const politeness = readPoliteness(input.politeness);
+      if (politeness === null) {
+        return err(validationError("文体（です・ます／だ・である）を選んでください。", "politeness"));
+      }
+      const vocabulary = readVocabulary(input.vocabulary);
+      if (vocabulary === null) {
+        return err(validationError("言葉づかいを選んでください。", "vocabulary"));
+      }
+
+      let before: Brand | null = null;
+      if (editing) {
+        const found = await deps.brands.findById(
+          actor.workspaceId,
+          asBrandId(input.brandId as string) as BrandId,
+        );
+        if (!found.ok) return found;
+        if (found.value === null) {
+          return err(
+            domainError("NOT_FOUND", "直そうとしたブランドが見つかりません。", {
+              field: "brandId",
+              suggestedAction: "ブランドの一覧から選び直してください。",
+            }),
+          );
+        }
+        const accessible = assertBrandAccess(actor, found.value);
+        if (!accessible.ok) return accessible;
+        before = accessible.value;
+      }
+
+      const save = async (): Promise<Result<SavedBrand, DomainError>> => {
+        const built = createBrand({
+        id: editing
+          ? (asBrandId(input.brandId as string) as BrandId)
+          : (taggedString<"BrandId">(`br_${deps.ids.newId()}`) as BrandId),
+        workspaceId: actor.workspaceId,
+        displayName: input.displayName,
+        // 空欄は空文字ではなく「未設定」。ここを空文字で入れると、
+        // 公開の前の確認が「埋まっている」と読む。
+        legalName: input.legalName.trim() === "" ? null : input.legalName.trim(),
+        contactEmail: input.contactEmail.trim() === "" ? null : input.contactEmail.trim(),
+        positioning: input.positioning,
+        voice: {
+          politeness,
+          firstPerson: input.firstPerson.trim() === "" ? DEFAULT_BRAND_VOICE.firstPerson : input.firstPerson.trim(),
+          vocabulary,
+          avoidPhrases: input.avoidPhrases.map((p) => p.trim()).filter((p) => p !== ""),
+        },
+        disclaimer: input.disclaimer.trim() === "" ? null : input.disclaimer.trim(),
+        locale: input.locale,
+        timeZone: input.timeZone,
+        defaultCta: input.defaultCta,
+        // 作った日は変えない。直すたびに動かすと、いつからあるブランドかが消える。
+        createdAt: before?.createdAt ?? deps.now(),
+      });
+        if (!built.ok) return built;
+
+        const saved = await deps.brands.save(built.value);
+        if (!saved.ok) return saved;
+
+        const entry = buildAuditEntry(deps, actor, {
+        action: "brand.changed",
+        targetType: "brand",
+        targetId: String(built.value.id),
+        before:
+          before === null
+            ? null
+            : { legalName: before.legalName, contactEmail: before.contactEmail },
+        after: {
+          displayName: built.value.displayName,
+          legalName: built.value.legalName,
+          contactEmail: built.value.contactEmail,
+        },
+      });
+        if (!entry.ok) return entry;
+        const appended = await deps.auditLog.append(entry.value);
+        if (!appended.ok) {
+          return err(
+            auditWriteFailure(`${built.value.displayName} は保存されています`, {
+              brandId: String(built.value.id),
+            }),
+          );
+        }
+
+        return ok({
+          brandId: String(built.value.id),
+          displayName: built.value.displayName,
+          missing: missingPublishReadiness(built.value),
+        });
+      };
+
+      return editing
+        ? save()
+        : deps.capacity.withLease(actor.workspaceId, "brand", save);
+    },
+  };
+}
+
+// --- 作業場所の設定を直す ---------------------------------------------------
+
+export type UpdateWorkspaceDeps = ManageWorkspaceDeps & AuditClock;
+
+export type UpdateWorkspaceInput = {
+  readonly name: string;
+  readonly plan: string;
+  readonly timezone: string;
+  readonly currency: string;
+};
+
+export type UpdatedWorkspace = {
+  readonly workspaceName: string;
+  readonly planLabel: string;
+  /** 契約の区分を下げたときに、上限を超えてしまうもの。空なら何も超えていない。 */
+  readonly overLimits: readonly string[];
+};
+
+function readPlan(value: string): WorkspacePlan | null {
+  return value === "solo" || value === "team" || value === "business" ? value : null;
+}
+
+/**
+ * 作業場所の設定を直す。
+ *
+ * --- 区分を下げたときに、既にあるものを消さない ---
+ *
+ * 契約の区分はブランド数・ブログ数・生成回数の上限そのもの。
+ * 下げると、既にあるものが上限を超えることがある。**そこで消さない。**
+ * 消すと、料金の設定を触っただけで記事の載っているブログが消える。
+ * 超えた分はそのまま残し、**新しく作れないだけ**にして、何が超えているかを返す。
+ */
+export function createUpdateWorkspaceUseCase(
+  deps: UpdateWorkspaceDeps,
+): UseCase<UpdateWorkspaceInput, UpdatedWorkspace> {
+  return {
+    async execute(
+      actor: ActorContext,
+      input: UpdateWorkspaceInput,
+    ): Promise<Result<UpdatedWorkspace, DomainError>> {
+      const allowed = requireCapability(actor, "workspace.manage", "作業場所の設定");
+      if (!allowed.ok) return allowed;
+
+      const plan = readPlan(input.plan);
+      if (plan === null) {
+        return err(validationError("契約の区分を選んでください。", "plan"));
+      }
+      if (input.name.trim() === "") {
+        return err(validationError("作業場所の名前を入れてください。", "name"));
+      }
+
+      const found = await deps.workspaces.findById(actor.workspaceId);
+      if (!found.ok) return found;
+      if (found.value === null) {
+        return err(
+          domainError("NOT_FOUND", "作業場所が見つかりません。", {
+            suggestedAction: "運営者に連絡してください。",
+          }),
+        );
+      }
+
+      const next = {
+        ...found.value,
+        name: input.name.trim(),
+        plan,
+        timezone: input.timezone.trim() === "" ? found.value.timezone : input.timezone.trim(),
+        currency: input.currency.trim() === "" ? found.value.currency : input.currency.trim(),
+      };
+
+      const saved = await deps.workspaces.save(next);
+      if (!saved.ok) return saved;
+
+      const [brandCount, siteCount] = await Promise.all([
+        deps.workspaces.countBrands(actor.workspaceId),
+        deps.workspaces.countSites(actor.workspaceId),
+      ]);
+      const limits = limitsOf(next);
+      const overLimits: string[] = [];
+      if (brandCount.ok && brandCount.value > limits.maxBrands) {
+        overLimits.push(`ブランド ${brandCount.value} 件（上限 ${limits.maxBrands} 件）`);
+      }
+      if (siteCount.ok && siteCount.value > limits.maxSites) {
+        overLimits.push(`ブログ ${siteCount.value} 件（上限 ${limits.maxSites} 件）`);
+      }
+
+      const entry = buildAuditEntry(deps, actor, {
+        action: "workspace.changed",
+        targetType: "workspace",
+        targetId: String(next.id),
+        before: {
+          name: found.value.name,
+          plan: found.value.plan,
+          timezone: found.value.timezone,
+          currency: found.value.currency,
+        },
+        after: { name: next.name, plan: next.plan, timezone: next.timezone, currency: next.currency },
+      });
+      if (!entry.ok) return entry;
+      const appended = await deps.auditLog.append(entry.value);
+      if (!appended.ok) {
+        return err(auditWriteFailure("設定は保存されています", { workspaceId: String(next.id) }));
+      }
+
+      return ok({
+        workspaceName: next.name,
+        planLabel: PLAN_LABEL[next.plan],
+        overLimits,
+      });
+    },
+  };
+}
+
+export { PLAN_LABEL };

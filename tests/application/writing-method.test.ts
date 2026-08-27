@@ -17,6 +17,7 @@ const actor: ActorContext = {
   userId: taggedString("user_test"),
   workspaceId: taggedString("ws_test"),
   roles: ["writer"],
+  scopedBrandIds: [],
   isAiServiceAccount: false,
   // 身元を確かめてある人。ここは権限の検査で、ログインの有無は見ていない。
   identified: true,

@@ -159,13 +159,19 @@ describe("Worker の入口と定期実行の配線", () => {
     expect(entry, "技術診断の削除を呼んでいません").toContain(
       "runFeedbackDiagnosticsPurge",
     );
+    expect(entry, "予約された外部配信を呼んでいません").toContain(
+      "runScheduledDistribution",
+    );
+    expect(entry, "配信監査outboxの再送を呼んでいません").toContain(
+      "runPublicationDeliveryAuditFlush",
+    );
     expect(entry, "D1 binding の欠落を安全側で扱っていません").toContain(
       "env.DB === undefined",
     );
     expect(
       (entry.match(/ctx\.waitUntil\(/g) ?? []).length,
-      "R2 と D1 を同じ待ち行列へ戻すと、片方の欠落で両方止まります",
-    ).toBeGreaterThanOrEqual(2);
+      "配信・R2・D1を同じ待ち行列へ戻すと、配信失敗で保持期限処理まで止まります",
+    ).toBeGreaterThanOrEqual(4);
   });
 
   it("入口は、生成物が出している入れ物をすべて通している", () => {

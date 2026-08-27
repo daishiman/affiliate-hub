@@ -20,6 +20,9 @@ const seen = vi.hoisted(() => ({ input: null as ContactMessage | null, actorRole
 const answer = vi.hoisted(() => ({
   value: null as unknown,
 }));
+const requestHeaders = vi.hoisted(() => ({
+  value: new Headers({ "cf-connecting-ip": "203.0.113.10" }),
+}));
 
 vi.mock("@/presentation/composition", async (importOriginal) => {
   const actual = await importOriginal<Record<string, unknown>>();
@@ -37,6 +40,10 @@ vi.mock("@/presentation/composition", async (importOriginal) => {
   };
 });
 
+vi.mock("next/headers", () => ({
+  headers: async () => requestHeaders.value,
+}));
+
 const { submitContactAction } = await import("@/presentation/site/contact-action");
 
 function form(entries: Record<string, string>): FormData {
@@ -51,6 +58,7 @@ beforeEach(() => {
   seen.input = null;
   seen.actorRoles = -1;
   answer.value = ok({ receiptId: "rc_0001" });
+  requestHeaders.value = new Headers({ "cf-connecting-ip": "203.0.113.10" });
 });
 
 describe("送れたとき", () => {
@@ -71,17 +79,30 @@ describe("送れたとき", () => {
         humanCheckToken: "tok_abc",
       }),
     );
-    expect(seen.input).toEqual({
+    expect(seen.input).toMatchObject({
       siteSlug: "lens-start",
       body: "記事の型番が古いようです。",
       replyTo: "reader@example.com",
       humanCheckToken: "tok_abc",
     });
+    expect((seen.input as ContactMessage & { rateLimitIdentity?: unknown }).rateLimitIdentity).toEqual({
+      scope: "ip",
+      value: "203.0.113.10",
+    });
+    expect((seen.input as ContactMessage & { remoteIp?: string }).remoteIp).toBe("203.0.113.10");
   });
 
   it("読者は権限を持たない人として扱う（ログインを求めない）", async () => {
     await submitContactAction(IDLE, form({ siteSlug: "lens-start", body: "本文" }));
     expect(seen.actorRoles).toBe(0);
+  });
+
+  it("Cloudflareが保証しないx-forwarded-forを送信元として信頼しない", async () => {
+    requestHeaders.value = new Headers({ "x-forwarded-for": "198.51.100.40" });
+    await submitContactAction(IDLE, form({ siteSlug: "lens-start", body: "本文" }));
+    expect((seen.input as ContactMessage & { rateLimitIdentity?: unknown }).rateLimitIdentity)
+      .toBeUndefined();
+    expect((seen.input as ContactMessage & { remoteIp?: string }).remoteIp).toBeUndefined();
   });
 });
 
@@ -108,6 +129,8 @@ describe("書かれなかった欄", () => {
       body: "",
       replyTo: undefined,
       humanCheckToken: undefined,
+      rateLimitIdentity: { scope: "ip", value: "203.0.113.10" },
+      remoteIp: "203.0.113.10",
     });
   });
 });

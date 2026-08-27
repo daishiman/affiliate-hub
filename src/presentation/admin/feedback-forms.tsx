@@ -20,6 +20,7 @@ import {
   ToolForm,
   UI_COPY,
 } from "@/presentation/ui";
+import { CopyButton } from "./copy-button";
 import { changeFeedbackStatusAction, handOffFeedbackAction } from "./feedback-action";
 import { INITIAL_FEEDBACK_HANDOFF_STATE, INITIAL_FEEDBACK_STATUS_STATE } from "./feedback-state";
 
@@ -38,35 +39,8 @@ import { INITIAL_FEEDBACK_HANDOFF_STATE, INITIAL_FEEDBACK_STATUS_STATE } from ".
  * 書き込み用のクリップボードは、ブラウザや設定によっては使えない。
  * 押しても何も起きないボタンを作らないため、文面そのものも常に画面へ出し、
  * 手で選んでコピーできる状態を保つ。
+ * ボタンそのものは `copy-button.tsx` にある（他の画面でも同じ振る舞いにするため）。
  */
-
-/** 文字列をコピーする。使えない環境では、その旨を出して画面の文へ誘導する。 */
-function CopyButton({ label, text }: { readonly label: string; readonly text: string }) {
-  const [notice, setNotice] = useState<string | null>(null);
-
-  const copy = async (): Promise<void> => {
-    const clipboard = navigator.clipboard as { writeText?: (v: string) => Promise<void> } | undefined;
-    if (typeof clipboard?.writeText !== "function") {
-      setNotice("この環境ではコピーできません。下の文をそのまま選んでコピーしてください。");
-      return;
-    }
-    try {
-      await clipboard.writeText(text);
-      setNotice("コピーしました。");
-    } catch {
-      setNotice("コピーできませんでした。下の文をそのまま選んでコピーしてください。");
-    }
-  };
-
-  return (
-    <>
-      <Button tone="secondary" onClick={copy}>
-        {label}
-      </Button>
-      {notice === null ? null : <p>{notice}</p>}
-    </>
-  );
-}
 
 /**
  * まとめて渡す。

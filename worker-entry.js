@@ -22,6 +22,10 @@
 import openNextWorker from "./.open-next/worker.js";
 import { sweepExpiredCaptures } from "./src/infrastructure/platform/feedback-capture-r2.ts";
 import { runFeedbackDiagnosticsPurge } from "./src/infrastructure/platform/feedback-diagnostics-purge.ts";
+import {
+  runPublicationDeliveryAuditFlush,
+  runScheduledDistribution,
+} from "./src/infrastructure/platform/distribution-scheduler.ts";
 
 // キャッシュの仕組みが使う入れ物。生成物が公開しているものをそのまま通す。
 // ここで落とすと、公開時に「宣言された入れ物が見つからない」で失敗する。
@@ -54,6 +58,53 @@ const handlers = {
         } catch (error) {
           // 掃除できなくても、読み出し側が期限切れを渡さないので外へは出ない。
           console.error("[sweep] 掃除に失敗しました", error);
+        }
+      })(),
+    );
+
+    /*
+     * 配信監査outbox。外部投稿とは別の待ち行列に置く。
+     * 監査保存の障害で投稿側を再実行すると外部二重送信になるため、監査だけを再試行する。
+     */
+    ctx.waitUntil(
+      (async () => {
+        if (env.DB === undefined) {
+          console.warn("[distribution-audit] 保存先がつながっていないので、監査を再送できませんでした");
+          return;
+        }
+        try {
+          const result = await runPublicationDeliveryAuditFlush(env.DB);
+          console.log("[distribution-audit] 配信監査を処理しました", result);
+        } catch {
+          // outboxには完全payloadが残る。秘密やDB応答は出さず、次のcronで同じIDを再試行する。
+          console.error("[distribution-audit] 配信監査の処理に失敗しました");
+        }
+      })(),
+    );
+
+    /*
+     * 外部媒体の予約配信。保持期限の2処理とは独立した待ち行列に置く。
+     * provider障害で配信が失敗しても、写し・技術診断の削除を止めない。
+     */
+    ctx.waitUntil(
+      (async () => {
+        if (env.DB === undefined) {
+          console.warn("[distribution] 保存先がつながっていないので、予約配信を行いませんでした");
+          return;
+        }
+        try {
+          const result = await runScheduledDistribution(env.DB, env, now);
+          console.log("[distribution] 予約配信を処理しました", {
+            scanned: result.scanned,
+            claimed: result.claimed,
+            published: result.published,
+            retryScheduled: result.retryScheduled,
+            failed: result.failed,
+            skipped: result.skipped,
+          });
+        } catch {
+          // 秘密やprovider応答を出さない。詳細はPublicationの安全化済みlastErrorへ残る。
+          console.error("[distribution] 予約配信の処理に失敗しました");
         }
       })(),
     );

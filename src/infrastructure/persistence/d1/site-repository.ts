@@ -20,9 +20,11 @@ import { storageFailure } from "./storage-failure";
 type SiteEntry = { readonly slug: string; readonly blueprint: SiteBlueprint };
 
 async function allSites(db: DrizzleD1): Promise<readonly SiteEntry[]> {
-  const published = await listPublishedBlueprints(db);
-  const takenSlugs = new Set(published.map((entry) => entry.slug));
-  return [...published, ...sampleSites().filter((entry) => !takenSlugs.has(entry.slug))];
+  const stored = await listPublishedBlueprints(db);
+  return [
+    ...stored.published,
+    ...sampleSites().filter((entry) => !stored.reservedSlugs.has(entry.slug)),
+  ];
 }
 
 /**

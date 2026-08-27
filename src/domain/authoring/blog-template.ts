@@ -1,4 +1,9 @@
 import type { SitePattern, StandardPage } from "./site-blueprint";
+import {
+  SITE_DOCUMENT_KEYS,
+  SITE_DOCUMENT_LABEL,
+  type SiteDocumentKey,
+} from "./site-routes";
 
 /**
  * ブログのテンプレート（feat-blog-ui-builder）。
@@ -205,25 +210,12 @@ export function fillSlots(
   });
 }
 
-/** 固定ページ 6 種（legal_page）。 */
-export const LEGAL_PAGE_KINDS = [
-  "operator",
-  "all_categories",
-  "site_policy",
-  "privacy_policy",
-  "tokushoho",
-  "contact",
-] as const;
-export type LegalPageKind = (typeof LEGAL_PAGE_KINDS)[number];
+/** @deprecated 固定文書の正本は `SITE_DOCUMENT_KEYS` 。 */
+export const LEGAL_PAGE_KINDS = SITE_DOCUMENT_KEYS;
+export type LegalPageKind = SiteDocumentKey;
 
-export const LEGAL_PAGE_LABEL: Readonly<Record<LegalPageKind, string>> = {
-  operator: "運営者情報",
-  all_categories: "全カテゴリー",
-  site_policy: "サイトポリシー",
-  privacy_policy: "プライバシーポリシー",
-  tokushoho: "特定商取引法に基づく表記",
-  contact: "お問い合わせ",
-};
+/** @deprecated 固定文書の名札の正本は `SITE_DOCUMENT_LABEL` 。 */
+export const LEGAL_PAGE_LABEL = SITE_DOCUMENT_LABEL;
 
 /**
  * 配色の 2 層。ブログ既定（blog_theme）とページ単位の上書き（page_theme_override）。

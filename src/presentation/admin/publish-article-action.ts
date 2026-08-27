@@ -13,15 +13,8 @@ import {
   siteUseCases,
 } from "@/presentation/composition";
 import type { PublishArticleFormState } from "./publish-article-state";
+import { parseNonEmptyLines } from "./non-empty-lines";
 import { failureFromDomainError, notSignedInFailure } from "./use-case-result";
-
-/** 1 行 1 件のものを配列にする。空行は落とす。 */
-function toLines(value: string): readonly string[] {
-  return value
-    .split("\n")
-    .map((line) => line.trim())
-    .filter((line) => line !== "");
-}
 
 /**
  * 記事に添える言い切りを組み立てる。
@@ -43,6 +36,19 @@ function readClaims(formData: FormData) {
       checkedOn: (checkedOn[i] ?? "").trim(),
     }))
     .filter((claim) => claim.statement !== "");
+}
+
+/**
+ * よくある質問を読む。
+ *
+ * 問いと答えが同じ名前で複数回送られてくる（言い切りと同じ形）。
+ * **片方だけの行は捨てる**判断はユースケース側（`buildArticle`）に置いてある。
+ * ここで捨てると、AI 経路から呼んだときだけ片側だけの質問が通る。
+ */
+function readFaq(formData: FormData) {
+  const questions = formData.getAll("faqQuestion").map(String);
+  const answers = formData.getAll("faqAnswer").map(String);
+  return questions.map((question, i) => ({ question, answer: answers[i] ?? "" }));
 }
 
 /**
@@ -105,11 +111,12 @@ export async function publishArticleAction(
     conclusion: String(formData.get("conclusion") ?? "").trim(),
     authorName: String(formData.get("authorName") ?? "").trim(),
     authorBio: String(formData.get("authorBio") ?? "").trim(),
-    authorCredentials: toLines(String(formData.get("authorCredentials") ?? "")),
+    authorCredentials: parseNonEmptyLines(String(formData.get("authorCredentials") ?? "")),
     relationshipType: relationship === "" ? null : (relationship as RelationshipType),
     disclosureMessage: String(formData.get("disclosureMessage") ?? "").trim(),
     nextReviewOn: nextReviewOn === "" ? null : nextReviewOn,
     claims: readClaims(formData),
+    faq: readFaq(formData),
     sectionBodies: readSectionBodies(formData),
   });
 

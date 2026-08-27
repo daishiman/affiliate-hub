@@ -74,6 +74,13 @@ const EXEMPT: Readonly<Record<string, string>> = {
   // 時刻で起動する処理。全作業場所をまたいで「今出すもの」を集める。
   "PublicationRepositoryPort.listDue":
     "予定時刻の到来した配信を全作業場所から集める。呼ぶのは人ではなく時計",
+
+  // 外部providerの身元はworkspaceを越えて同じアカウントを指す。
+  // workspaceで分けると、同じDIDへ複数workspaceから同時送信できてしまう。
+  "ChannelConnectionRepositoryPort.acquireProviderDeliveryLease":
+    "provider DID単位の全作業場所共通mutex。作業場所で分けると同じ外部アカウントへ並行送信できる",
+  "ChannelConnectionRepositoryPort.releaseProviderDeliveryLease":
+    "取得時tokenが一致する全作業場所共通mutexだけを解放する。作業場所で分ける境界ではない",
 };
 
 type PortMethod = {

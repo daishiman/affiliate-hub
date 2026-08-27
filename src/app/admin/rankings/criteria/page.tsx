@@ -19,7 +19,8 @@ export const dynamic = "force-dynamic";
  */
 export default async function RankingCriteriaPage() {
   const actor = await currentActor();
-  const result = await invokeTool(rankingTool(), actor, rankingScreenTarget());
+  const { modelId, productIds } = await rankingScreenTarget();
+  const result = await invokeTool(await rankingTool(), actor, { modelId, productIds });
 
   return (
     <AdminShell

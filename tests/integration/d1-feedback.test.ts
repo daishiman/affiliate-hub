@@ -13,7 +13,7 @@ import { createUpdateFeedbackStatusUseCase } from "@/application/usecases/feedba
 import type { AppDeps } from "@/application/deps";
 import * as schema from "@/db/schema";
 import { DIAGNOSTICS_RETENTION_DAYS } from "@/domain/feedback";
-import type { ActorContext } from "@/domain/shared";
+import { asFeedbackCaptureId, type ActorContext } from "@/domain/shared";
 import { createDeps } from "@/infrastructure/composition";
 import {
   createD1FeedbackDiagnosticsPurge,
@@ -102,6 +102,7 @@ const submit = (now = new Date("2026-08-17T03:00:00Z")) =>
   createSubmitFeedbackUseCase({
     repository: deps.feedback,
     captures: deps.feedbackCaptures,
+    brands: deps.brands,
     ids: deps.ids,
     // 記録も本物の保存先を使う。差し替えると、この段でしか出ない
     // 「記録は書けるが要望が書けない」ような食い違いを見逃す。
@@ -208,6 +209,44 @@ describe("保存して読み戻す", () => {
     if (!detail.ok) return;
     expect(detail.value.body).toContain("並び替え");
     expect(detail.value.screenName).toBe("順位表");
+  });
+
+  it("capture IDから同じworkspaceの要望だけを逆引きし、他workspaceには返さない", async () => {
+    const sent = await submit().execute(
+      owner,
+      aSubmission({
+        capture: {
+          image: new ArrayBuffer(32),
+          submission: {
+            redactionsBurnedIn: true,
+            retainsOriginal: false,
+            redactionCount: 1,
+            maskedElementCount: 1,
+            byteLength: 32,
+            mimeType: "image/png",
+          },
+        },
+      }),
+    );
+    expect(sent.ok).toBe(true);
+    if (!sent.ok) return;
+    const row = await proxy.env.DB.prepare(
+      "SELECT capture_id AS captureId FROM feedback_reports WHERE id = ?",
+    )
+      .bind(sent.value.reportId)
+      .first<{ captureId: string }>();
+    expect(row?.captureId).toBeTruthy();
+    const findByCaptureId = deps.feedback.findByCaptureId;
+    if (row === null) return;
+
+    const own = await findByCaptureId(owner.workspaceId, asFeedbackCaptureId(row.captureId));
+    const other = await findByCaptureId(
+      otherOwner.workspaceId,
+      asFeedbackCaptureId(row.captureId),
+    );
+
+    expect(own.ok && String(own.value?.id)).toBe(sent.value.reportId);
+    expect(other.ok && other.value).toBeNull();
   });
 
   it("日付が日付のまま戻る（文字列になっていない）", async () => {

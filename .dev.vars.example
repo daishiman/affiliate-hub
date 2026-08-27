@@ -8,3 +8,10 @@
 # 値はここに書かず、コピーした .dev.vars 側にだけ入れる。
 # 見本に値を書くと、その値のまま使われる（検査: tests/architecture/test-honesty.test.ts）。
 MCP_TOKEN=""
+
+# 問い合わせフォームの Cloudflare Turnstile。
+# site key は公開値、secret は秘密値。HOSTNAMES はカンマ区切りで指定する。
+# 実値はこの見本ではなく、コピー先の .dev.vars にだけ入れる。
+TURNSTILE_SITE_KEY=""
+TURNSTILE_SECRET=""
+TURNSTILE_HOSTNAMES=""

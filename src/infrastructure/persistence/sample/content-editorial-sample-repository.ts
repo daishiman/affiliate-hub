@@ -3,7 +3,7 @@ import type {
   EditorialContentVariantRepositoryPort,
   EditorialPersonaRepositoryPort,
 } from "@/application/ports/authoring";
-import type { PageRequest } from "@/application/ports/common";
+import type { BrandScopeFilter, PageRequest, Paged } from "@/application/ports/common";
 import {
   type AudiencePersona,
   type AuthorPersona,
@@ -44,9 +44,11 @@ const stub = registerStub({
   id: "persistence:content-editorial-sample",
   port: "記事・企画・書き手の保存先",
   label: "記事と書き手（見本データ）",
-  // 記事本文と進行の現在地は D1（content_variants）へつないだので、ここには残っていない。
-  // 残っているのは企画と書き手で、表が無いからではなく**作る入口がどこにも無い**ため。
-  blockedBy: "content_packages / personas テーブルの追加と、企画・書き手を作る入口",
+  // 記事本文と進行の現在地は D1（content_variants）へ、書き手と読者像は
+  // D1（author_personas / audience_personas）へ、企画は D1（content_packages）へ
+  // つないだ。ここに残っているのは、保存先が無い環境（pnpm dev・自動テスト）の
+  // 控えと、一覧が空にならないように重ねる見本データだけ。
+  blockedBy: "済み（保存先は D1 の content_packages / content_variants / author_personas / audience_personas）",
 });
 
 export function sampleEditorialContentNotice(): string {
@@ -128,7 +130,16 @@ const CHARACTER_AUTHOR: AuthorPersona = unwrap(
   "書き手（案内役）",
 );
 
-const AUTHORS: readonly AuthorPersona[] = [AUTHOR, CHARACTER_AUTHOR];
+/**
+ * 見本の書き手。**保存先をつないだあとも残す。**
+ *
+ * 1 人も登録していない状態で一覧が空になると、「まだ作っていない」のか
+ * 「壊れている」のかを画面から見分けられない。D1 版が `mergeWithSamples` で
+ * 保存された分の後ろへ重ねるので、ここを外から読めるようにしてある。
+ */
+export const SAMPLE_AUTHOR_PERSONAS: readonly AuthorPersona[] = [AUTHOR, CHARACTER_AUTHOR];
+
+const AUTHORS: readonly AuthorPersona[] = SAMPLE_AUTHOR_PERSONAS;
 
 /**
  * 読者ペルソナの見本。
@@ -140,7 +151,7 @@ function audience(input: Parameters<typeof createAudiencePersona>[0]): AudienceP
   return unwrap(createAudiencePersona(input), `読者像（${input.name}）`);
 }
 
-const AUDIENCES: readonly AudiencePersona[] = [
+export const SAMPLE_AUDIENCE_PERSONAS: readonly AudiencePersona[] = [
   audience({
     id: AUDIENCE_ID,
     workspaceId: WS,
@@ -204,6 +215,8 @@ const AUDIENCES: readonly AudiencePersona[] = [
   }),
 ];
 
+const AUDIENCES: readonly AudiencePersona[] = SAMPLE_AUDIENCE_PERSONAS;
+
 const PACKAGE: ContentPackage = unwrap(
   createContentPackage({
     id: PACKAGE_ID,
@@ -225,6 +238,9 @@ const PACKAGE: ContentPackage = unwrap(
   }),
   "企画",
 );
+
+/** 保存先（D1）が見本を消さずに重ねるために読む。 */
+export const SAMPLE_CONTENT_PACKAGES: readonly ContentPackage[] = [PACKAGE];
 
 /**
  * 広告表示の文言。
@@ -284,6 +300,42 @@ function variant(input: {
  */
 /** 記事 1 本と、その進行の現在地。**現在地は本文とは別に持つ**（§18.1）。 */
 export type SampleVariant = { readonly state: ContentState; readonly variant: ContentVariant };
+
+/**
+ * 記事一覧の永続カーソル順。D1 と見本で同じ関数を使い、保存先の返却順に依存しない。
+ */
+export function compareContentVariantPageOrder(
+  left: ContentVariant,
+  right: ContentVariant,
+): number {
+  const leftId = String(left.id);
+  const rightId = String(right.id);
+  return leftId < rightId ? -1 : leftId > rightId ? 1 : 0;
+}
+
+export function orderContentVariantsForPaging(
+  variants: readonly ContentVariant[],
+): readonly ContentVariant[] {
+  return [...variants].sort(compareContentVariantPageOrder);
+}
+
+export function pageContentVariants(
+  variants: readonly ContentVariant[],
+  page: PageRequest,
+): Paged<ContentVariant> {
+  const ordered = orderContentVariantsForPaging(variants);
+  const cursor = page.cursor;
+  const remaining =
+    cursor === null
+      ? ordered
+      : ordered.filter((variant) => String(variant.id) > cursor);
+  const items = remaining.slice(0, page.limit);
+  return {
+    items,
+    nextCursor:
+      items.length > 0 && items.length < remaining.length ? String(items.at(-1)?.id) : null,
+  };
+}
 
 /*
  * 見本の記事。**書き換えない。**
@@ -370,6 +422,29 @@ const VARIANTS: readonly SampleVariant[] = [
   },
 ];
 
+/** 見本本文の保存版。見本は不変なので全件同じ初版を持つ。 */
+export const SAMPLE_CONTENT_VARIANT_REVISION = 1;
+
+export function sampleContentVariantVersion(
+  workspaceId: WorkspaceId,
+  id: ContentVariantId,
+): {
+  readonly variant: ContentVariant;
+  readonly revision: number;
+  readonly persisted: false;
+} | null {
+  const found = VARIANTS.find(
+    ({ variant }) => variant.workspaceId === workspaceId && variant.id === id,
+  );
+  return found === undefined
+    ? null
+    : {
+        variant: found.variant,
+        revision: SAMPLE_CONTENT_VARIANT_REVISION,
+        persisted: false,
+      };
+}
+
 function saveRejected(what: string) {
   return err(
     domainError("NOT_IMPLEMENTED", `${what}の保存はまだできません。`, {
@@ -394,6 +469,9 @@ export function createSampleContentVariantRepository(): EditorialContentVariantR
     async findById(_ws: WorkspaceId, id: ContentVariantId) {
       return ok(VARIANTS.find((v) => v.variant.id === id)?.variant ?? null);
     },
+    async findVersionedById(workspaceId: WorkspaceId, id: ContentVariantId) {
+      return ok(sampleContentVariantVersion(workspaceId, id));
+    },
     async findState(_ws: WorkspaceId, id: ContentVariantId) {
       return ok(VARIANTS.find((v) => v.variant.id === id)?.state ?? null);
     },
@@ -401,13 +479,31 @@ export function createSampleContentVariantRepository(): EditorialContentVariantR
       return saveRejected("記事の進行");
     },
     async listByPackage(_ws: WorkspaceId, packageId: ContentPackageId) {
-      return ok(VARIANTS.filter((v) => v.variant.contentPackageId === packageId).map((v) => v.variant));
+      return ok(
+        orderContentVariantsForPaging(
+          VARIANTS.filter((v) => v.variant.contentPackageId === packageId).map((v) => v.variant),
+        ),
+      );
     },
-    async listByState(_ws: WorkspaceId, state: ContentState, page: PageRequest) {
-      const items = VARIANTS.filter((v) => v.state === state)
+    async listByState(
+      _ws: WorkspaceId,
+      state: ContentState,
+      page: PageRequest,
+      brandScope?: BrandScopeFilter,
+    ) {
+      const candidates = VARIANTS.filter(
+        (v) => v.state === state && v.variant.workspaceId === _ws,
+      )
         .map((v) => v.variant)
-        .slice(0, page.limit);
-      return ok({ items, nextCursor: null });
+        .filter((variant) => {
+          if (brandScope === undefined) return true;
+          const pkg = SAMPLE_CONTENT_PACKAGES.find((item) => item.id === variant.contentPackageId);
+          return (
+            pkg !== undefined &&
+            brandScope.brandIds.some((brandId) => String(brandId) === pkg.brandId)
+          );
+        });
+      return ok(pageContentVariants(candidates, page));
     },
     async listReviewOverdue() {
       // 見本には公開済みの記事が無いので、見直し対象も無い。
@@ -429,8 +525,30 @@ export function createSampleContentPackageRepository(): EditorialContentPackageR
     async findById(_ws: WorkspaceId, id: ContentPackageId) {
       return ok(id === PACKAGE_ID ? PACKAGE : null);
     },
-    async list(_ws: WorkspaceId, page: PageRequest) {
-      return ok({ items: [PACKAGE].slice(0, page.limit), nextCursor: null });
+    async list(
+      _ws: WorkspaceId,
+      page: PageRequest,
+      brandScope?: BrandScopeFilter,
+    ) {
+      const candidates =
+        PACKAGE.workspaceId === _ws &&
+        (brandScope === undefined ||
+          brandScope.brandIds.some((brandId) => String(brandId) === PACKAGE.brandId))
+          ? [PACKAGE]
+          : [];
+      const cursorIndex =
+        page.cursor === null
+          ? -1
+          : candidates.findIndex((pkg) => String(pkg.id) === page.cursor);
+      const start = cursorIndex + 1;
+      const items = candidates.slice(start, start + page.limit);
+      return ok({
+        items,
+        nextCursor:
+          items.length > 0 && start + items.length < candidates.length
+            ? String(items.at(-1)?.id)
+            : null,
+      });
     },
     async save() {
       return saveRejected("企画");

@@ -329,6 +329,58 @@ describe("手元と機械で同じ検査が走る（REQ-CI01 / REQ-CI03）", () 
       "0023_orange_mystique",
       // 断りの記録に糸（request ID）を持たせるための列と索引。旧 0023。
       "0024_aromatic_flatman",
+      // 書き手と読者像の保存先（author_personas / audience_personas）。
+      // 見本データから D1 へ移すため。
+      "0025_sleepy_wind_dancer",
+      // 企画の保存先（content_packages）。記事の親を見本の 1 件から
+      // 実データへ移すため。入れる口は /admin/content/packages/new。
+      "0026_aspiring_psylocke",
+      // 順位づけの基準（ranking_models）と点（score_cards）の保存先。
+      // 入れる口は /admin/rankings/models/new と /admin/rankings/scores。
+      "0027_milky_sir_ram",
+      // 根拠（evidence_records）・言えること（claims）・検証記録（test_runs）の保存先。
+      // 入れる口は /admin/evidence/new・/admin/evidence/claims/new・
+      // /admin/evidence/test-runs/new。
+      "0028_shocking_otto_octavius",
+      // ブランド（brands）の保存先。作業場所（workspaces）は 0001 からあり、
+      // ここで入れる口が付いた: /admin/settings/brands/new・
+      // /admin/settings/brands/[brand]・/admin/settings/workspaces/edit。
+      // 運営者の表示名と問い合わせ先を列へ出しているのは、
+      // 「あと何件埋めれば公開できるか」を数えるのに全件を開かないため。
+      "0029_reflective_ronan",
+      // 提携先（affiliate_accounts）と提携条件（affiliate_programs）の保存先。
+      // 入れる口は /admin/affiliate/accounts/new・/admin/affiliate/programs/new。
+      // 秘密の値を入れる列は作っていない。あるのは credential_ref（保管先の名前）だけで、
+      // 鍵そのものは列として持たせない、が唯一の担保になる。
+      "0030_real_slayback",
+      // 読者の「気になる商品」の保存先。入れる口は記事の中の「気になる」と、
+      // /s/[site]/shortlist の外す操作。読者を特定する列は作っていない。
+      // あるのは reader_key（ブラウザごとの意味の無い合言葉）だけで、
+      // 名前も連絡先も列として持たせない、が唯一の担保になる。
+      "0031_quick_wild_pack",
+      // 読者向けの「診断・計算」の道具。入力欄と結果の読み方だけでなく、
+      // **計算式まで保存する**。道具を 1 つ増やすのに画面もコードも足さずに済む。
+      // 式の列に入るのは四則演算と入力欄の名前だけで、解くのは
+      // src/domain/authoring/reader-tool-formula.ts の小さな読み取り機。
+      // eval に渡さない、が唯一の担保になる（渡すとこの列が乗っ取りの入口になる）。
+      "0032_uneven_gwen_stacy",
+      // 読者から届いた問い合わせの保存先。入れる口は /s/[site]/contact、
+      // 読む口は /admin/contact。**読む口を同時に作らずに保存だけ足すと、
+      // 「受け付けました」が嘘になる。** 本文と返信先は個人情報になりうるので、
+      // 操作の記録（監査ログ）へは写さない。読者を追跡する列（IP・端末・閲覧履歴）は
+      // 作っていない、が唯一の担保になる。
+      "0033_majestic_rumiko_fujikawa",
+      "0034_parched_inhumans",
+      // 配信idempotencyをDB境界で一意にし、生成枠を「提供元への通信開始」で数える。
+      "0035_workable_titania",
+      // 外部配信workerのretry時刻・lease・provider側冪等key。
+      "0036_young_thunderbolts",
+      // 予約時に承認済み本文のrevisionを固定し、送信直前CASでも同じ版を要求する。
+      "0037_zippy_sprite",
+      // Bluesky DID固定、provider主体ごとの分散lease、provider key一意境界。
+      "0038_absent_blackheart",
+      // 配信状態確定と監査outboxを原子化し、監査だけを安全に再送する。
+      "0039_sudden_luckman",
     ];
     const journal = JSON.parse(read("drizzle/meta/_journal.json")) as {
       entries: Array<{ tag: string }>;

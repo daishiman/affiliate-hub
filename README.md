@@ -102,6 +102,34 @@ git push origin origin/main:dev
 > （＝ dev のリソース）を見に行き、本番の DB 名を渡しても "Couldn't find a D1 DB" になります。
 > `db:migrate:*` はバインディング名 `DB` + `--env` で指定しています。
 
+### 問い合わせフォームの Turnstile 設定
+
+ローカルでは `.dev.vars.example` を `.dev.vars` へコピーし、次の 3 項目を設定します。
+dev・本番では Cloudflare Dashboard の対象 Worker → **Settings → Variables and Secrets** に
+同じ名前で登録します。`TURNSTILE_SECRET` は必ずSecretにします。公開値の残り2つはVariableでも
+動きますが、現在のdev・本番は3項目とも`secret_text`として登録済みです。
+
+| 名前 | 用途 | 値の形 |
+| --- | --- | --- |
+| `TURNSTILE_SITE_KEY` | ブラウザへ渡す公開 site key | Turnstile widget の site key（VariableまたはSecret） |
+| `TURNSTILE_SECRET` | Siteverify のサーバー検証 | Turnstile widget の secret key（Secret として登録） |
+| `TURNSTILE_HOSTNAMES` | Siteverify 応答で許可する host | カンマ区切り。VariableまたはSecret |
+
+widget の action は `turnstile-spin-v2`、応答 field は標準の
+`cf-turnstile-response` です。サーバーは Siteverify に `remoteip` を検証時だけ渡し、
+生の IP アドレスは保存しません。3 項目のいずれかが欠ける環境は安全側に送信を拒否します。
+
+`affiliate-hub-contact` widget は dev・本番・localhost を許可して作成済みで、dev・本番
+Worker の上記 3 項目も登録済みです。ローカルの dummy key による widget 契約と
+Siteverify 疎通は PASS です。2026-08-27 に dev D1 を migration 0039 まで適用して現コードを
+devへ公開し、公開HTMLのsitekey・`turnstile-spin-v2` action・公式scriptと、実secretによる
+不正tokenの拒否（`invalid-input-response`）まで確認しました。`contact_messages` 表もあり、
+送信前の行数は0件です。
+
+実widget token→Siteverify成功→D1保存は **NOT RUN** のままです。人の通常ブラウザでdevの
+問い合わせを1件送信し、action/hostnameとD1行を照合するまで本番確認済みとは扱いません。
+productionのmigration・deployはdevの成功確認と別承認の後に行います。
+
 ## スクリプト
 
 | コマンド | 用途 |

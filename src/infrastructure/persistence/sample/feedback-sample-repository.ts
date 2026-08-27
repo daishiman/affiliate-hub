@@ -182,6 +182,16 @@ export function createSampleFeedbackRepository(): FeedbackRepositoryPort {
       return ok(found);
     },
 
+    async findByCaptureId(workspaceId, captureId) {
+      const found = [...reports.values()].find(
+        (report) =>
+          report.workspaceId === workspaceId &&
+          report.captureId !== null &&
+          String(report.captureId) === String(captureId),
+      );
+      return ok(found ?? null);
+    },
+
     async list(workspaceId, filter) {
       const rows = [...reports.values()].filter(
         (r) => r.workspaceId === workspaceId && matches(r, filter),

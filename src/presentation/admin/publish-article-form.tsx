@@ -22,6 +22,11 @@ const EMPTY_CLAIM: ClaimDraft = {
   checkedOn: "",
 };
 
+/** よくある質問 1 件ぶんの入力。画面の中だけで使う形。 */
+type FaqDraft = { readonly question: string; readonly answer: string };
+
+const EMPTY_FAQ: FaqDraft = { question: "", answer: "" };
+
 /**
  * 「いまサイトに出す」欄。
  *
@@ -57,6 +62,7 @@ export function PublishArticleForm({
   const [nextReviewOn, setNextReviewOn] = useState("");
   const [claims, setClaims] = useState<readonly ClaimDraft[]>([EMPTY_CLAIM]);
   const [sectionBodies, setSectionBodies] = useState<Readonly<Record<string, string>>>({});
+  const [faq, setFaq] = useState<readonly FaqDraft[]>([EMPTY_FAQ]);
 
   const selectedType = options.articleTypes.find((t) => t.value === articleType);
   const sections = selectedType?.sections ?? [];
@@ -72,6 +78,10 @@ export function PublishArticleForm({
 
   function updateClaim(index: number, patch: Partial<ClaimDraft>) {
     setClaims((prev) => prev.map((c, i) => (i === index ? { ...c, ...patch } : c)));
+  }
+
+  function updateFaq(index: number, patch: Partial<FaqDraft>) {
+    setFaq((prev) => prev.map((f, i) => (i === index ? { ...f, ...patch } : f)));
   }
 
   const errorFor = (field: string) => (state.field === field ? state.message : null);
@@ -280,6 +290,41 @@ export function PublishArticleForm({
 
       <Button type="button" tone="quiet" onClick={() => setClaims((prev) => [...prev, EMPTY_CLAIM])}>
         根拠の欄を増やす
+      </Button>
+
+      {/* --- よくある質問 ---------------------------------------------
+       * 読者が記事を読み終えても残る問いを、記事の中で先に答えておく欄。
+       * AI 検索は問いの形をそのまま拾うので、ここが埋まっている記事は引用されやすい。
+       * 問いと答えの**両方**が埋まった行だけが記事に載る（片方だけの行は捨てる）。
+       */}
+      {faq.map((item, index) => (
+        // 並べ替えも削除もしないので、位置で数える（根拠の欄と同じ）。
+        // biome-ignore lint/suspicious/noArrayIndexKey: 行は末尾に足すだけで、並べ替えない
+        <div key={index}>
+          <Field
+            name="faqQuestion"
+            label={`よくある質問 ${index + 1}`}
+            value={item.question}
+            onValueChange={(next) => updateFaq(index, { question: next })}
+            optional
+            hint="読者がそのまま検索に打ち込む形で書きます（例: 静音モデルは本当に静かですか）。"
+            toolParamDescription="よくある質問の問い"
+          />
+          <TextArea
+            name="faqAnswer"
+            label="その答え"
+            value={item.answer}
+            onValueChange={(next) => updateFaq(index, { answer: next })}
+            optional
+            rows={3}
+            hint="1〜3 文で答えます。問いと答えのどちらかが空の行は、記事に載りません。"
+            toolParamDescription="よくある質問の答え"
+          />
+        </div>
+      ))}
+
+      <Button type="button" tone="quiet" onClick={() => setFaq((prev) => [...prev, EMPTY_FAQ])}>
+        よくある質問の欄を増やす
       </Button>
 
       <PublishArticleResult state={state} />

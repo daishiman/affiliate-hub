@@ -4,6 +4,7 @@ import {
   type ContentPackageId,
   type DomainError,
   type Result,
+  assertWorkspaceWideAccess,
   domainError,
   err,
   ok,
@@ -14,6 +15,7 @@ import {
   type EditContentDeps,
   createCreateContentVariantUseCase,
 } from "./edit-content";
+import { assertContentPackageBrandScope } from "./content-brand-access";
 
 /**
  * 1 商品を、選んだブログの数だけ書き分ける (A5)。
@@ -129,6 +131,13 @@ export function createCreateConceptDraftsUseCase(
           }),
         );
       }
+      const scoped = assertContentPackageBrandScope(actor, pkg.value, "記事のまとまり");
+      if (!scoped.ok) return err(scoped.error);
+
+      // SiteBlueprint はまだ brandId を持たない。限定担当者へ入力されたブログ名を
+      // 担当ブランドのものだと推測して own_site の枠を作らない。
+      const siteAccess = assertWorkspaceWideAccess(actor, "書き分け先のブログ");
+      if (!siteAccess.ok) return err(siteAccess.error);
 
       const audiencePersonaId = pkg.value.audiencePersonaIds[0];
       if (audiencePersonaId === undefined) {

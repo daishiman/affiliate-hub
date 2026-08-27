@@ -106,13 +106,15 @@ async function ProductDetail({
   const { product, specifications, retrievedAt, validUntil } = detail;
   const actor = await currentActor();
   const uc = await productUseCases();
-  const target = rankingScreenTarget();
+  // 順位の説明に要るのは「どの基準で・どの商品群の中で」の 2 つだけ。
+  // 画面向けの付随情報（選択肢や表示名）はここへ渡さない。
+  const { modelId, productIds } = await rankingScreenTarget();
 
   const [evidence, testRuns, alternatives, explained, links] = await Promise.all([
     uc.getEvidence.execute(actor, { productId }),
     uc.listTestRuns.execute(actor, { productId }),
     uc.findAlternatives.execute(actor, { productId }),
-    uc.explainRanking.execute(actor, { ...target, productId }),
+    uc.explainRanking.execute(actor, { modelId, productIds, productId }),
     // 提携リンクは商業の区分。上の順位の計算とは別のつなぎ目から取る。
     (await affiliateUseCases()).listProductLinks.execute(actor, { productId }),
   ]);

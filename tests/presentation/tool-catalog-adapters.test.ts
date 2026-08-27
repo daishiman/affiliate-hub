@@ -381,6 +381,20 @@ describe("エラー形式", () => {
 });
 
 describe("まだ出来ていないものが、出来ているふりをしないこと", () => {
+  it("正常系を免れている道具は、理由つきで一覧に載っているものだけ", () => {
+    // **一覧が 0 件になっても、この describe が消えないようにする。**
+    // 空の `it.each` は検査を 1 つも作らない。下の 1 本だけだと、
+    // 一覧が空になった瞬間にこの塊ごと静かに消え、次に 1 件足した人が
+    // 「前からこの検査は無かった」と読める状態になる。
+    for (const [name, why] of Object.entries(NO_HAPPY_PATH)) {
+      expect(
+        catalog.some((t) => t.name === name),
+        `${name} という道具はもうありません。一覧から外してください`,
+      ).toBe(true);
+      expect(why.length, `${name} の理由が書かれていません`).toBeGreaterThan(10);
+    }
+  });
+
   it.each(Object.keys(NO_HAPPY_PATH))("%s は、理由どおり結果を返さない", async (name) => {
     // **NO_HAPPY_PATH は書き得にしない。** ここに名前を書けば正常系の検査を
     // 免れる、という状態にすると、実装が終わった道具もそのまま残り続ける。

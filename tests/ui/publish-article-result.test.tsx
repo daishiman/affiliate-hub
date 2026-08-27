@@ -1,4 +1,4 @@
-/** @tier 2 */
+/** @tier 2 @req REQ-P08 */
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 import { PublishArticleResult } from "@/presentation/admin/publish-article-result";

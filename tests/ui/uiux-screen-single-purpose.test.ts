@@ -275,8 +275,44 @@ describe("A1 §1 全管理画面は primary task をちょうど 1 つ持つ", (
     どちらの枝も単独では「50」と書いたため、git は食い違いと見なさず素通りさせた。
     合流後の実物は 51 枚（`find src/app/admin -name page.tsx | wc -l`）。
     数え上げの仕掛け線であって品質の閾値ではない。
+
+    2026-08-26: 55 → 58。順位づけの基準に**一覧・作る・点を入れる**の 3 枚を足した
+    （`rankings/models`・`rankings/models/new`・`rankings/scores`）。
+    それまで基準は見本の 1 件しか無く、順位の画面がそれを決め打ちで見ていたので、
+    商品をいくつ登録しても順位に 1 件も現れなかった。
+
+    2026-08-26: 58 → 61。根拠に**登録する 3 枚**を足した
+    （`evidence/new`・`evidence/claims/new`・`evidence/test-runs/new`）。
+    根拠の画面はそれまで見本の主張と根拠しか見ておらず、調べても中身が増えなかった。
+
+    2026-08-26: 61 → 64。設定に**直す 3 枚**を足した
+    （`settings/workspaces/edit`・`settings/brands/new`・`settings/brands/[brand]`）。
+    ブランドはどこからも読めたが、どこからも書けなかった。
+    そのため「問い合わせ先が未設定なので公開できません」という表示が出ても、
+    埋めに行く先が 1 つも無かった。
+
+    2026-08-26: 64 → 66。提携に**登録する 2 枚**を足した
+    （`affiliate/accounts/new`・`affiliate/programs/new`）。
+    提携先も提携条件も見本だけで、増やす口がどこにも無かった。
+    自分の ASP アカウントを 1 件も登録できないので、
+    成果の画面に出る金額は最後まで他人の見本の数字だった。
+
+    2026-08-26: 67 → 68。ブログの固定ページを書く 1 枚を足した
+    （`sites/[site]/documents`）。運営者情報・各方針・規約・特定商取引法に基づく表記は
+    `legal_page` 表に置き場がありながら**書く口が 1 つも無く**、読者に出ていたのは
+    見本の文だった。**読者に出る文を、書いた覚えの無いまま出さない。**
+
+    2026-08-26: 68 → 69。登録済みの成果リンクを**止める 1 枚**を足した
+    （`affiliate/links`）。商品名も URL も上書きしない決まりなので、表記が古く
+    なったときの直し方は「止めて登録し直す」しかない。その 1 手目が無く、
+    **ASP 側で名前が変わっても読者のカードには古い名前が出続けていた。**
+
+    2026-08-26: 66 → 67。読者からの問い合わせを**読む 1 枚**を足した（`contact`）。
+    それまで問い合わせは受け取れず、読者には別の連絡先を案内していた。
+    保存できるようにするなら読む画面も同時に要る。
+    **読む口が無いまま保存だけ足すと「受け付けました」が嘘になる。**
   */
-  it("実在route・route metadata・task manifest・priority mapが51件で1対1になる", () => {
+  it("実在route・route metadata・task manifest・priority mapが69件で1対1になる", () => {
     const priority = JSON.parse(readFileSync(PRIORITY_MAP, "utf8")) as {
       readonly screens: readonly { readonly route: string; readonly primary_task: string }[];
     };
@@ -285,12 +321,12 @@ describe("A1 §1 全管理画面は primary task をちょうど 1 つ持つ", (
     const tasks = ADMIN_SCREEN_TASK_MANIFEST.map((screen) => screen.route).sort();
     const documented = priority.screens.map((screen) => screen.route).sort();
 
-    expect(actual).toHaveLength(51);
+    expect(actual).toHaveLength(69);
     expect(metadata).toEqual(actual);
     expect(tasks).toEqual(actual);
     expect(documented).toEqual(actual);
-    expect(new Set(ADMIN_SCREEN_TASK_MANIFEST.map((screen) => screen.routeId)).size).toBe(51);
-    expect(new Set(priority.screens.map((screen) => screen.route)).size).toBe(51);
+    expect(new Set(ADMIN_SCREEN_TASK_MANIFEST.map((screen) => screen.routeId)).size).toBe(69);
+    expect(new Set(priority.screens.map((screen) => screen.route)).size).toBe(69);
     expect(ADMIN_SCREEN_TASK_MANIFEST.map((screen) => [screen.route, screen.primaryTask]).sort()).toEqual(
       priority.screens.map((screen) => [screen.route, screen.primary_task]).sort(),
     );
@@ -307,16 +343,16 @@ describe("A1 §2 全business mutationを単一のprimary taskへ所属させる"
       })).values(),
     ].sort((a, b) => siteKey(a).localeCompare(siteKey(b)));
 
-    expect(discovered).toHaveLength(37);
+    expect(discovered).toHaveLength(52);
     expect(declared, "未申告または実在しないexecution siteがあります").toEqual(discovered);
     expect(new Set(
       ADMIN_SCREEN_RUNTIME_ENTRIES
         .filter((entry) => entry.classification === "business-mutation")
         .map((entry) => edgeKey(entry.action)),
-    ).size).toBe(35);
+    ).size).toBe(50);
   });
 
-  it("同じactionの複数route・複数form用途を畳まず、意味entry 47件を床固定する", () => {
+  it("同じactionの複数route・複数form用途を畳まず、意味entry 63件を床固定する", () => {
     const discovered = DISCOVERED_SCREEN_EXECUTION_SITES;
     const declared = ADMIN_SCREEN_RUNTIME_ENTRIES
       .filter((entry) => entry.scope === "screen")
@@ -329,9 +365,9 @@ describe("A1 §2 全business mutationを単一のprimary taskへ所属させる"
       .sort((a, b) => screenSiteKey(a).localeCompare(screenSiteKey(b)));
 
     expect(declared, "route/form単位の意味entryに欠落または余剰があります").toEqual(discovered);
-    expect(discovered).toHaveLength(46);
-    expect(ADMIN_SCREEN_RUNTIME_ENTRIES).toHaveLength(47);
-    expect(new Set(ADMIN_SCREEN_RUNTIME_ENTRIES.map((entry) => entry.id)).size).toBe(47);
+    expect(discovered).toHaveLength(62);
+    expect(ADMIN_SCREEN_RUNTIME_ENTRIES).toHaveLength(63);
+    expect(new Set(ADMIN_SCREEN_RUNTIME_ENTRIES.map((entry) => entry.id)).size).toBe(63);
   });
 
   it("screen意味entryはどの1件を削ってもdiscoveryとの差分になる", () => {
@@ -346,7 +382,7 @@ describe("A1 §2 全business mutationを単一のprimary taskへ所属させる"
       }))
       .sort();
 
-    expect(new Set(declared).size).toBe(46);
+    expect(new Set(declared).size).toBe(62);
     for (let index = 0; index < declared.length; index += 1) {
       expect(declared.filter((_, candidate) => candidate !== index)).not.toEqual(discovered);
     }

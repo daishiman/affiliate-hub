@@ -284,6 +284,25 @@ describe("受け取り", () => {
     expect(result.error.message.trim()).not.toBe("");
   });
 
+  it("取り合いに勝った後で保存できなければ、孤児claimを残さない", async () => {
+    const released: string[] = [];
+    const inbox = inboxThatFails({
+      claimNormalizedUrl: async (_ws: unknown, _url: string, candidateId: LinkIngestionId) =>
+        ok(candidateId),
+      save: async () => failing(),
+      releaseNormalizedUrl: async (_ws: unknown, url: string, id: LinkIngestionId) => {
+        released.push(`${url} ${String(id)}`);
+        return ok(undefined);
+      },
+    });
+    const result = await createSubmitAffiliateUrlUseCase(deps({ inbox })).execute(actor, {
+      url: freshUrl(),
+      source: "paste",
+    });
+    expect(result.ok).toBe(false);
+    expect(released).toHaveLength(1);
+  });
+
   it("受け取ったことは、出来事として流れる", async () => {
     const events = recordingEvents();
     const result = await createSubmitAffiliateUrlUseCase(

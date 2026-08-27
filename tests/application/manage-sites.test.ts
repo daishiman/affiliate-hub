@@ -36,6 +36,7 @@ import {
 import {
   type SiteBlueprintId,
   type WorkspaceId,
+  type BrandId,
   domainError,
   err,
   markCommercial,
@@ -129,6 +130,19 @@ describe("組み立てのときに、商業データを断る", () => {
 });
 
 describe("運用中のブログ一覧", () => {
+  it("ブランド限定担当者には、所属workspaceのサイトも列挙しない", async () => {
+    const scoped = anOwner({
+      workspaceId: WORKSPACE,
+      scopedBrandIds: [taggedString<"BrandId">("brand-a") as BrandId],
+    });
+    const result = await createListManagedSitesUseCase({
+      sites: sitesOf([{ slug: "mine", blueprint: blueprint("mine") }]),
+    }).execute(scoped, {});
+
+    expect(result.ok).toBe(false);
+    if (!result.ok) expect(result.error.code).toBe("TENANT_MISMATCH");
+  });
+
   it("自分の会社のブログだけを並べる", async () => {
     const view = await listSites([
       { slug: "mine", blueprint: blueprint("mine") },

@@ -22,13 +22,23 @@ import {
   createUpdateContentVariantUseCase,
 } from "@/application/usecases/content/edit-content";
 import type { ContentVariant } from "@/domain/authoring";
-import { type ContentVariantId, type WorkspaceId, ok } from "@/domain/shared";
+import {
+  type BrandId,
+  type ContentVariantId,
+  type WorkspaceId,
+  ok,
+  taggedString,
+} from "@/domain/shared";
 import { SAMPLE_WORKSPACE_ID } from "@/infrastructure/persistence/sample/ranking-sample-repository";
 import { aNobody, anOwner } from "../support/actors";
 import { failing, testDeps } from "../support/doubles";
 
 const WS = SAMPLE_WORKSPACE_ID as WorkspaceId;
 const owner = anOwner({ workspaceId: WS });
+const outsideBrandOwner = anOwner({
+  workspaceId: WS,
+  scopedBrandIds: [taggedString<"BrandId">("brand-outside") as BrandId],
+});
 const nobody = aNobody({ workspaceId: WS });
 
 const PACKAGE = "cp_laptop_2026";
@@ -95,6 +105,15 @@ async function aCreateInput(over: Record<string, unknown> = {}) {
 }
 
 describe("記事の枠を作る", () => {
+  it("担当外ブランドの企画には記事の枠を作れない", async () => {
+    const result = await createCreateContentVariantUseCase(deps()).execute(
+      outsideBrandOwner,
+      await aCreateInput(),
+    );
+    expect(result.ok).toBe(false);
+    if (!result.ok) expect(result.error.code).toBe("TENANT_MISMATCH");
+  });
+
   it("その権限が無い人には断る", async () => {
     const result = await createCreateContentVariantUseCase(deps()).execute(
       nobody,
@@ -174,6 +193,15 @@ describe("記事の枠を作る", () => {
 });
 
 describe("記事を直す", () => {
+  it("担当外ブランドの記事はIDを知っていても直せない", async () => {
+    const result = await createUpdateContentVariantUseCase(deps()).execute(outsideBrandOwner, {
+      variantId: DRAFT,
+      title: "担当外からの変更",
+    });
+    expect(result.ok).toBe(false);
+    if (!result.ok) expect(result.error.code).toBe("TENANT_MISMATCH");
+  });
+
   it("その権限が無い人には断る", async () => {
     const result = await createUpdateContentVariantUseCase(deps()).execute(nobody, {
       variantId: DRAFT,
@@ -298,6 +326,15 @@ describe("記事を直す", () => {
 });
 
 describe("記事を消す", () => {
+  it("担当外ブランドの記事はIDを知っていても消せない", async () => {
+    const result = await createDeleteContentVariantUseCase(deps()).execute(outsideBrandOwner, {
+      variantId: DRAFT,
+      reason: "担当外からの削除",
+    });
+    expect(result.ok).toBe(false);
+    if (!result.ok) expect(result.error.code).toBe("TENANT_MISMATCH");
+  });
+
   it("その権限が無い人には断る", async () => {
     const result = await createDeleteContentVariantUseCase(deps()).execute(nobody, {
       variantId: DRAFT,

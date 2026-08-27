@@ -30,18 +30,67 @@ export const dynamic = "force-dynamic";
  * 画面用に別の計算を書くと、画面と AI の答えがずれる
  * （仕様が禁じている「WebMCP 内に独自のランキング式を実装」と同じ壊れ方）。
  */
-export default async function RankingsPage() {
+export default async function RankingsPage({
+  searchParams,
+}: {
+  readonly searchParams: Promise<{
+    /** どの評価基準で並べるか。省くと一覧の先頭（＝いちばん新しい版）。 */
+    readonly model?: string;
+  }>;
+}) {
+  const { model: requestedModel } = await searchParams;
   const actor = await currentActor();
-  const target = rankingScreenTarget();
-  const result = await invokeTool(rankingTool(), actor, target);
+  const target = await rankingScreenTarget(requestedModel);
+  const result = await invokeTool(await rankingTool(), actor, {
+    modelId: target.modelId,
+    productIds: target.productIds,
+  });
+
+  /** 商品の名前。保存された商品の名前を優先し、無いものだけ見本の名前で補う。 */
+  const nameOf = (productId: string): string =>
+    target.productNames[productId] ?? productDisplayName(productId);
 
   return (
     <AdminShell
       routeId="rankings"
       title="順位"
       lead="どの商品が上に来たか。"
-      actions={<TextLink href="/admin">ホームへ戻る</TextLink>}
+      actions={
+        <>
+          <TextLink href="/admin/rankings/models">評価基準を管理する</TextLink>
+          <TextLink href="/admin/rankings/scores">点を入れる</TextLink>
+          <TextLink href="/admin">ホームへ戻る</TextLink>
+        </>
+      }
     >
+      {target.emptyReason !== null ? (
+        <Callout
+          tone="warn"
+          title="表示している中身について"
+          reason={target.emptyReason}
+          action={<TextLink href="/admin/rankings/models/new">評価基準を作る</TextLink>}
+        />
+      ) : null}
+
+      {/* 基準が 1 つしか無いうちは切り替え欄を出さない。選べない選択肢は迷いにしかならない。 */}
+      {target.models.length < 2 ? null : (
+        <Section title="どの基準で並べるか" lead="版を上げると、同じ商品でも並びが変わります。">
+          <ListView
+            rows={target.models.map((m) => ({
+              key: m.modelId,
+              label: m.label,
+              // いま見ている行はリンクにしない。押しても何も起きない行を残すと、
+              // 押した人は「切り替えに失敗した」と受け取る。
+              href:
+                m.modelId === target.modelId
+                  ? undefined
+                  : `/admin/rankings?model=${encodeURIComponent(m.modelId)}`,
+              note: m.modelId === target.modelId ? "いま見ています" : undefined,
+            }))}
+          />
+        </Section>
+      )}
+
       {!result.ok ? (
         <ErrorView
           title="順位を出せませんでした"
@@ -81,7 +130,7 @@ export default async function RankingsPage() {
                   cells: [
                     row.rank,
                     <>
-                      {productDisplayName(row.productId)}
+                      {nameOf(row.productId)}
                       {/* 内訳を隠さない。総合点だけでは、どこで差が付いたか読めない。 */}
                       <ListView
                         rows={row.breakdown.map((b) => ({
@@ -108,7 +157,7 @@ export default async function RankingsPage() {
               <ListView
                 rows={result.value.excluded.map((row) => ({
                   key: row.productId,
-                  label: productDisplayName(row.productId),
+                  label: nameOf(row.productId),
                   note: row.reason,
                 }))}
               />

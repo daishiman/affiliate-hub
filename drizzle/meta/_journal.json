@@ -176,6 +176,111 @@
       "when": 1787555081532,
       "tag": "0024_aromatic_flatman",
       "breakpoints": true
+    },
+    {
+      "idx": 25,
+      "version": "6",
+      "when": 1787696594977,
+      "tag": "0025_sleepy_wind_dancer",
+      "breakpoints": true
+    },
+    {
+      "idx": 26,
+      "version": "6",
+      "when": 1787699923006,
+      "tag": "0026_aspiring_psylocke",
+      "breakpoints": true
+    },
+    {
+      "idx": 27,
+      "version": "6",
+      "when": 1787701567103,
+      "tag": "0027_milky_sir_ram",
+      "breakpoints": true
+    },
+    {
+      "idx": 28,
+      "version": "6",
+      "when": 1787704095483,
+      "tag": "0028_shocking_otto_octavius",
+      "breakpoints": true
+    },
+    {
+      "idx": 29,
+      "version": "6",
+      "when": 1787707373480,
+      "tag": "0029_reflective_ronan",
+      "breakpoints": true
+    },
+    {
+      "idx": 30,
+      "version": "6",
+      "when": 1787712792817,
+      "tag": "0030_real_slayback",
+      "breakpoints": true
+    },
+    {
+      "idx": 31,
+      "version": "6",
+      "when": 1787714432371,
+      "tag": "0031_quick_wild_pack",
+      "breakpoints": true
+    },
+    {
+      "idx": 32,
+      "version": "6",
+      "when": 1787716705479,
+      "tag": "0032_uneven_gwen_stacy",
+      "breakpoints": true
+    },
+    {
+      "idx": 33,
+      "version": "6",
+      "when": 1787719010285,
+      "tag": "0033_majestic_rumiko_fujikawa",
+      "breakpoints": true
+    },
+    {
+      "idx": 34,
+      "version": "6",
+      "when": 1787724948126,
+      "tag": "0034_parched_inhumans",
+      "breakpoints": true
+    },
+    {
+      "idx": 35,
+      "version": "6",
+      "when": 1787788300398,
+      "tag": "0035_workable_titania",
+      "breakpoints": true
+    },
+    {
+      "idx": 36,
+      "version": "6",
+      "when": 1787795114423,
+      "tag": "0036_young_thunderbolts",
+      "breakpoints": true
+    },
+    {
+      "idx": 37,
+      "version": "6",
+      "when": 1787798665309,
+      "tag": "0037_zippy_sprite",
+      "breakpoints": true
+    },
+    {
+      "idx": 38,
+      "version": "6",
+      "when": 1787798854022,
+      "tag": "0038_absent_blackheart",
+      "breakpoints": true
+    },
+    {
+      "idx": 39,
+      "version": "6",
+      "when": 1787798911008,
+      "tag": "0039_sudden_luckman",
+      "breakpoints": true
     }
   ]
 }

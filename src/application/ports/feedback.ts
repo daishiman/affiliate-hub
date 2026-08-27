@@ -21,6 +21,15 @@ export type FeedbackRepositoryPort = {
   findById(workspaceId: WorkspaceId, id: string): PortResult<FeedbackReport | null>;
 
   /**
+   * R2のcapture keyから、それを所有する要望をserver-sideで逆引きする。
+   * 全adapterの必須契約にして、画像認可だけ逆引きが抜ける実装を型で防ぐ。
+   */
+  findByCaptureId(
+    workspaceId: WorkspaceId,
+    captureId: FeedbackCaptureId,
+  ): PortResult<FeedbackReport | null>;
+
+  /**
    * 一覧。絞り込みは重ねられる（状態 × 種類 × 画面 × 払い出しの有無）。
    * 指定しなかった条件は「絞らない」で、空配列とは区別する。
    */

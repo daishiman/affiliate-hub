@@ -2,6 +2,7 @@ import { AdminShell } from "@/presentation/admin/admin-shell";
 import { adminOperation } from "@/presentation/admin/admin-operation-manifest";
 import { cancelPublicationAction } from "@/presentation/admin/delete-form-action";
 import { DeleteConfirm } from "@/presentation/admin/delete-confirm";
+import { ManualDraftCopy } from "@/presentation/admin/manual-draft-copy";
 import { PublishArticleForm } from "@/presentation/admin/publish-article-form";
 import type { SuccessOf } from "@/presentation/admin/use-case-result";
 import { currentActor, distributionNotice, distributionUseCases } from "@/presentation/composition";
@@ -17,7 +18,9 @@ import {
   Prose,
   Section,
   StorageNotice,
+  SubSection,
   TextLink,
+  UI_COPY,
 } from "@/presentation/ui";
 
 export const dynamic = "force-dynamic";
@@ -201,7 +204,7 @@ async function PublicationBody({
       )}
 
       {draft === null ? null : (
-        <Section title="貼り付け用の下書き">
+        <Section title={UI_COPY.distribution.draftTitle}>
           {!draft.ok ? (
             <ErrorView
               title="下書きを書き出せませんでした"
@@ -210,8 +213,29 @@ async function PublicationBody({
             />
           ) : (
             <>
-              <Prose>{draft.value.instructions}</Prose>
-              <CodeBlock>{draft.value.markdown}</CodeBlock>
+              <SubSection title={UI_COPY.distribution.draftSteps}>
+                <Prose>{draft.value.instructions}</Prose>
+              </SubSection>
+
+              <SubSection title={UI_COPY.distribution.draftBodyTitle}>
+                {/*
+                 * コピーのボタンと本文の枠を**両方**出す。
+                 * クリップボードは環境によっては使えず、ボタンだけだとそこで道が終わる。
+                 *
+                 * 広告表記の注意は、注意書きの枠を増やさず**押す物の隣**に置く。
+                 * 上に注意書きを積むほど、どれも読まれなくなる。
+                 * ここは「これから持ち出す」ちょうどその場所なので、いちばん届く。
+                 */}
+                <ManualDraftCopy
+                  markdown={draft.value.markdown}
+                  instructions={draft.value.instructions}
+                />
+                <Note>{UI_COPY.distribution.draftDisclosureWarning}</Note>
+                <Note>{UI_COPY.distribution.draftManualHint}</Note>
+                <CodeBlock>{draft.value.markdown}</CodeBlock>
+              </SubSection>
+
+              <Note>{UI_COPY.distribution.draftExportedNote}</Note>
             </>
           )}
         </Section>

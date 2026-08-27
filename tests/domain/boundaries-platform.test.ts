@@ -522,6 +522,7 @@ describe("配信を進めてよい順序", () => {
       id: asPublicationId("pb_1"),
       workspaceId: WS,
       variantId: asContentVariantId("cv_1"),
+      variantRevision: 1,
       channelKind,
       connectionId: channelKind === "note" ? null : asChannelConnectionId("cc_1"),
       idempotencyKey: "k_1",
@@ -633,6 +634,7 @@ describe("配信を進めてよい順序", () => {
       id: asPublicationId("pb_2"),
       workspaceId: WS,
       variantId: asContentVariantId("cv_1"),
+      variantRevision: 1,
       channelKind: "x",
       connectionId: null,
       idempotencyKey: "k_2",
@@ -645,6 +647,7 @@ describe("配信を進めてよい順序", () => {
       id: asPublicationId("pb_3"),
       workspaceId: WS,
       variantId: asContentVariantId("cv_1"),
+      variantRevision: 1,
       channelKind: "own_site",
       connectionId: asChannelConnectionId("cc_1"),
       idempotencyKey: "   ",
@@ -655,6 +658,7 @@ describe("配信を進めてよい順序", () => {
   it("同じ原稿・同じ配信先・同じ予定時刻なら、鍵も同じになる", () => {
     const input = {
       variantId: asContentVariantId("cv_1"),
+      variantRevision: 1,
       channelKind: "own_site" as const,
       scheduledAt: NOW,
     };
@@ -662,6 +666,10 @@ describe("配信を進めてよい順序", () => {
     // 予定時刻が違えば別の投稿。定期投稿で同じ原稿を出し直せる。
     expect(buildIdempotencyKey(input)).not.toBe(
       buildIdempotencyKey({ ...input, scheduledAt: new Date(NOW.getTime() + 1) }),
+    );
+    // 承認後に本文を直した版は新しい予約。古い失敗Publicationへ収束させない。
+    expect(buildIdempotencyKey(input)).not.toBe(
+      buildIdempotencyKey({ ...input, variantRevision: input.variantRevision + 1 }),
     );
     expect(buildIdempotencyKey({ ...input, scheduledAt: null })).toContain("immediate");
   });

@@ -50,6 +50,18 @@ export function auditArticleForAiSearch(article: PublishedArticle): readonly AiS
       hint: "言い切り（claims）に evidence を付ける。出典の無い主張は AI にも読者にも検証できない。",
     },
     {
+      /*
+       * よくある質問。`EXPRESSION_BLOCK_KINDS` の `faq` にあたる。
+       *
+       * 問いと答えが対になっている文は、AI が「その問いへの答え」として
+       * そのまま引ける形になっている。本文の中に同じ内容が散らばっていても、
+       * どこが答えなのかは読み取り側には分からない。
+       */
+      check: "よくある質問がある",
+      ok: (article.faq ?? []).length > 0,
+      hint: "読者から実際に来る問いを 2〜3 件、問いと答えの対で足す。対で書いた分だけ FAQPage としても出る。",
+    },
+    {
       check: `説明文が ${SUMMARY_MIN_CHARS}〜${SUMMARY_MAX_CHARS} 字に収まっている`,
       ok: summaryLength >= SUMMARY_MIN_CHARS && summaryLength <= SUMMARY_MAX_CHARS,
       hint: "summary を 50〜160 字にする。短すぎると内容が伝わらず、長すぎると検索結果で途中で切れる。",

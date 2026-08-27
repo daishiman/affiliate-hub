@@ -95,6 +95,33 @@ function recordingLinks(): {
         rows.push({ link, snapshot });
         return ok(link);
       },
+      async createIfNoUsableUrl(link, snapshot, at) {
+        const existing = rows.find(
+          (row) =>
+            row.link.workspaceId === link.workspaceId &&
+            row.link.originalUrl === link.originalUrl &&
+            isLinkUsable(row.link, at),
+        );
+        if (existing !== undefined) return ok({ link: existing.link, created: false });
+        rows.push({ link, snapshot });
+        return ok({ link, created: true });
+      },
+      async listWithSnapshot(workspaceId) {
+        return ok(rows.filter((r) => r.link.workspaceId === workspaceId));
+      },
+      /*
+        止める口も**本当に効く形**で持つ。空の返事にしておくと、
+        登録したリンクを止めても登録の側の試験は緑のままで、
+        「登録と停止が同じ保存先を見ている」ことを誰も確かめていない状態になる。
+      */
+      async disable(workspaceId, id, at) {
+        const row = rows.find((r) => r.link.workspaceId === workspaceId && r.link.id === id);
+        if (row === undefined) {
+          return err(domainError("NOT_FOUND", "そのリンクはありません。", { field: "id" }));
+        }
+        row.link = { ...row.link, disabledAt: at };
+        return ok(row.link);
+      },
     }) as CommercialAffiliateLinkRepositoryPort,
     saved: () => rows,
   };

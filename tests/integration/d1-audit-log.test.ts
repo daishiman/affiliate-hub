@@ -287,7 +287,11 @@ describe("操作の記録（D1）", () => {
 
     // 後続のテストのために作り直す（この検査だけが表を壊す）。
     for (const statement of migrationStatements()) {
-      if (statement.includes("audit_logs")) {
+      if (
+        /^CREATE TABLE `audit_logs`/.test(statement) ||
+        /^ALTER TABLE `audit_logs` ADD /.test(statement) ||
+        /^CREATE INDEX `audit_logs_/.test(statement)
+      ) {
         await proxy.env.DB.prepare(statement).run();
       }
     }

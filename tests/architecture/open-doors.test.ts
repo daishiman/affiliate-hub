@@ -244,9 +244,20 @@ const ACTION_INTENT: Readonly<
 > = {
   // --- 取り返しがつかない（公開・配信・失効・削除） ---
   publishArticleAction: { intent: "ログイン", what: "記事を公開する", reversible: "つかない" },
+  saveSiteDocumentAction: {
+    intent: "ログイン",
+    what: "ブログの固定ページを書き換える（運営者情報・特定商取引法に基づく表記を含む）",
+    // 書き換えると前の文は残らない。事業者の法的な表示がそのまま入れ替わる。
+    reversible: "つかない",
+  },
   schedulePublicationAction: {
     intent: "ログイン",
     what: "投稿を予定に入れる（時刻が来たら外へ出る）",
+    reversible: "つかない",
+  },
+  registerBlueskyConnectionAction: {
+    intent: "ログイン",
+    what: "Blueskyへ実認証し、workspace共通の配信先DIDを固定する",
     reversible: "つかない",
   },
   reschedulePublicationAction: {
@@ -324,6 +335,18 @@ const ACTION_INTENT: Readonly<
     reversible: "つかない",
   },
 
+  /*
+    止めた日時は押し直せない。二度押しは domain（`disableAffiliateLink`）が断る。
+    断らせている理由は、押すたびに日時が後ろへずれると
+    「いつ読者に出なくなったか」が言えなくなるため。行は消えないが、
+    **消えないことと戻せることは別**で、止めたものを読者へ戻す道は無い。
+  */
+  disableAffiliateLinkAction: {
+    intent: "ログイン",
+    what: "登録済みの成果リンクを止める（記事に貼ったままでも読者へ出なくなる。戻すには新しいリンクとして登録し直す）",
+    reversible: "つかない",
+  },
+
   // --- 取り返しがつく（記録が残り、後から直せる） ---
   /*
     作成と更新は「つく」。作ったものは消せるし、直した内容は上書きで戻せる。
@@ -335,6 +358,72 @@ const ACTION_INTENT: Readonly<
   updateContentVariantAction: {
     intent: "ログイン",
     what: "記事の題名・本文・要約を直す",
+    reversible: "つく",
+  },
+  createAuthorPersonaAction: {
+    intent: "ログイン",
+    what: "書き手（記事をどの立場・文体で書かせるか）を登録する",
+    reversible: "つく",
+  },
+  createAudiencePersonaAction: {
+    intent: "ログイン",
+    what: "読者像（誰に向けて書くか・何を比べたいか）を登録する",
+    reversible: "つく",
+  },
+  createContentPackageAction: {
+    intent: "ログイン",
+    what: "企画（どの商品を・誰が・誰に向けて・何のために書くか）を立てる",
+    reversible: "つく",
+  },
+  createRankingModelAction: {
+    intent: "ログイン",
+    what: "順位づけの基準（何をどれだけ重く見るか・どう測るか）を立てる",
+    reversible: "つく",
+  },
+  saveScoreCardAction: {
+    intent: "ログイン",
+    what: "決めた基準で測った商品 1 つの点と、その根拠を登録する",
+    reversible: "つく",
+  },
+  /*
+    ブランドと作業場所は、どちらも**画面の見た目を変えずに公開の可否を動かす**。
+    ブランドの問い合わせ先を空にすると記事が公開できなくなり、
+    作業場所の区分を下げると新しく作れなくなる。どちらも直後は何も起きないので、
+    記録が無いと後から原因に辿り着けない。よって 2 つとも記録を残す。
+
+    作業場所の区分を下げても、**上限を超えた分は消さない**。
+    消す作りにすると、料金の欄を触っただけで記事の載っているブログが消える。
+  */
+  saveBrandAction: {
+    intent: "ログイン",
+    what: "読者から見た書き手（名前・問い合わせ先・文体）を 1 つ作る・直す",
+    reversible: "つく",
+  },
+  updateWorkspaceAction: {
+    intent: "ログイン",
+    what: "作業場所の名前・契約の区分・時間帯・通貨を直す",
+    reversible: "つく",
+  },
+  /*
+    根拠・言えること・検証記録は 3 つとも「つく」。
+    入れた直後の言えることは「確認待ち」で、確かめる人が承認するまで記事に出ない。
+    つまり**間違えて入れても、外へは出ない**。
+    根拠は後から下ろせるが、下ろすとそれに支えられていた言えることが
+    まとめて根拠なしへ落ちる。落ちるだけで消えないので、付け直せる。
+  */
+  createEvidenceAction: {
+    intent: "ログイン",
+    what: "記事に書くことの出所になる資料を 1 つ登録する",
+    reversible: "つく",
+  },
+  createClaimAction: {
+    intent: "ログイン",
+    what: "商品について記事に書ける 1 文と、その裏付けを登録する（確認待ちで入る）",
+    reversible: "つく",
+  },
+  createTestRunAction: {
+    intent: "ログイン",
+    what: "いつ・誰が・どの方法で測ったかの記録を登録する",
     reversible: "つく",
   },
   createProductAction: { intent: "ログイン", what: "商品を登録する", reversible: "つく" },
@@ -377,6 +466,21 @@ const ACTION_INTENT: Readonly<
   */
   sampleAction: { intent: "ログイン", what: "見本帳のボタンの見本（何もしない）", reversible: "つく" },
   adjustConversionAction: { intent: "ログイン", what: "成果の実績を手で直す", reversible: "つく" },
+  /*
+    提携の 2 語。**鍵そのものは通らない。** 通るのは保管先の名前だけで、
+    値を入れる列も無い。止める・終了にするは行を消さないので、
+    間違えても過去の成果の出どころは残る。
+  */
+  saveAffiliateAccountAction: {
+    intent: "ログイン",
+    what: "提携先（ASP のアカウント）を登録・変更する",
+    reversible: "つく",
+  },
+  saveAffiliateProgramAction: {
+    intent: "ログイン",
+    what: "提携条件（広告主と報酬の決め方）を登録・変更する",
+    reversible: "つく",
+  },
   advanceContentStateAction: {
     intent: "ログイン",
     what: "記事の作業段階を進める",
@@ -390,6 +494,13 @@ const ACTION_INTENT: Readonly<
   },
   submitFeedbackAction: { intent: "ログイン", what: "指摘を登録する", reversible: "つく" },
   changeFeedbackStatusAction: { intent: "ログイン", what: "指摘の状態を変える", reversible: "つく" },
+  // 印を付けても外せる（同じ場所に戻すボタンがある）ので「つく」。
+  // 問い合わせの本文そのものは、この操作では消えない。
+  markContactHandledAction: {
+    intent: "ログイン",
+    what: "読者からの問い合わせに対応済みの印を付ける・外す",
+    reversible: "つく",
+  },
   handOffFeedbackAction: { intent: "ログイン", what: "指摘を引き継ぐ", reversible: "つく" },
   submitAffiliateUrlAction: { intent: "ログイン", what: "成果リンクを登録する", reversible: "つく" },
   advanceLinkIngestionAction: {
@@ -415,6 +526,18 @@ const ACTION_INTENT: Readonly<
   submitContactAction: {
     intent: "誰でも",
     what: "読者からの問い合わせ（公開フォーム）",
+    reversible: "つく",
+  },
+  // 読者が自分の「気になる」を出し入れするだけの 2 つ。ログインは求めない。
+  // 触れるのは自分のブラウザの合言葉に紐づく行だけで、他人の一覧には届かない。
+  saveToShortlistAction: {
+    intent: "誰でも",
+    what: "読者が自分の「気になる商品」へ 1 件保存する",
+    reversible: "つく",
+  },
+  removeFromShortlistAction: {
+    intent: "誰でも",
+    what: "読者が自分の「気になる商品」から 1 件外す",
     reversible: "つく",
   },
   manageGuidelineReferenceAction: {

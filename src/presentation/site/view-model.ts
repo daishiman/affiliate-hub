@@ -143,7 +143,12 @@ export function toArticleView(siteSlug: string, article: PublishedArticle): Arti
       })),
     })),
     conversation: article.conversation,
+    // よくある質問はそのまま渡す。ここで並べ替えたり丸めたりしない
+    //（同じ並びで JSON-LD にも出すので、片方だけ変わると読者と機械で中身がずれる）。
+    faq: article.faq,
     productCards: article.productCards?.map((card) => ({
+      // どの商品かを画面まで運ぶ。「気になる」の保存先を決めるのに要る。
+      productId: card.productId,
       name: card.name,
       brand: card.brand,
       oneLine: card.oneLine,

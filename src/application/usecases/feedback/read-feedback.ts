@@ -25,6 +25,7 @@ import {
   err,
 } from "@/domain/shared";
 import type { UseCase } from "../usecase";
+import { ensureFeedbackAccess } from "./feedback-access";
 
 /**
  * 改善要望を 1 件読む。
@@ -109,7 +110,9 @@ export function createReadFeedbackUseCase(
       const found = await deps.repository.findById(actor.workspaceId, input.id);
       if (!found.ok) return found;
       if (found.value === null) return err(notFound("改善要望", input.id));
-      const report = found.value;
+      const accessible = ensureFeedbackAccess(actor, found.value);
+      if (!accessible.ok) return accessible;
+      const report = accessible.value;
 
       let captureUrl: string | null = null;
       let captureAbsentReason: string | null = null;

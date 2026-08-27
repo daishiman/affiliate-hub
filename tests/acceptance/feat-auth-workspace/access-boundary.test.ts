@@ -5,10 +5,12 @@
  */
 import { describe, expect, it } from "vitest";
 import { decideEntry, isGuardedPath } from "@/infrastructure/identity/entry-gate";
+import { createSessionActorResolver } from "@/infrastructure/identity/session-actor";
 import type { SessionReaderPort } from "@/infrastructure/identity/session-repository";
 import { assertSameTenant } from "@/domain/shared/tenancy";
 import { requireCapability } from "@/domain/identity";
 import { asUserId, asWorkspaceId, notFound, ok } from "@/domain/shared";
+import type { Membership } from "@/domain/identity";
 import { errorResponse } from "@/presentation/http/error-response";
 import { anAnalyst } from "../../support/actors";
 import type { WorkspaceId } from "@/domain/shared/ids";
@@ -104,5 +106,40 @@ describe("AWS-ACC-04 権限の無い役は公開できない／許された操�
   it("断られた本人が次に何をすればよいか分かる", () => {
     const got = requireCapability(analyst, "content.publish", "記事の公開");
     if (!got.ok) expect(got.error.suggestedAction ?? "").not.toBe("");
+  });
+});
+
+describe("認証→所属→権限→所有の 4 段を 1 本で通す", () => {
+  it("有効な通行証でも、別workspace・別userの担当登録から公開権限を借りられない", async () => {
+    const otherMembership = {
+      id: asUserId("membership-other"),
+      workspaceId: asWorkspaceId("ws-other"),
+      userId: asUserId("user-other"),
+      invitedEmail: "other@example.com",
+      roles: ["publisher"],
+      scopedBrandIds: [],
+      displayName: "別の担当者",
+      invitedAt: NOW,
+      acceptedAt: NOW,
+      revokedAt: null,
+    } as unknown as Membership;
+    const resolve = createSessionActorResolver({
+      sessions: reader,
+      memberships: { findByUser: async () => ok(otherMembership) },
+      now: () => NOW,
+    });
+
+    const resolved = await resolve(VALID);
+    const fourLayersPassed =
+      resolved.kind === "actor" &&
+      requireCapability(resolved.actor, "content.publish", "記事の公開").ok &&
+      assertSameTenant(
+        resolved.actor,
+        { workspaceId: asWorkspaceId("ws-1"), id: "article-1" },
+        "記事",
+      ).ok;
+
+    expect(fourLayersPassed).toBe(false);
+    expect(resolved.kind).toBe("not_member");
   });
 });

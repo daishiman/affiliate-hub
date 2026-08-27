@@ -201,8 +201,17 @@ export function createRegisterAffiliateLinkUseCase(
       });
       if (!built.ok) return built;
 
-      const saved = await deps.links.save(built.value, snapshot.value);
-      if (!saved.ok) return saved;
+      const createdLink = await deps.links.createIfNoUsableUrl(built.value, snapshot.value, now);
+      if (!createdLink.ok) return createdLink;
+      if (!createdLink.value.created) {
+        return err(
+          validationError(
+            `この URL は成果リンクとして登録済みです（${String(createdLink.value.link.id)}）。表記を直すときは、いまのリンクを止めてから登録し直してください。`,
+            "linkIngestionId",
+          ),
+        );
+      }
+      const saved = createdLink.value.link;
 
       /*
        * 誰がこのリンクを記事に出せる状態にしたか。**記録は保存の後**に書く。
@@ -217,13 +226,13 @@ export function createRegisterAffiliateLinkUseCase(
       const entry = buildAuditEntry({ ids: deps.ids, now: deps.now }, actor, {
         action: "affiliate_link.created",
         targetType: "affiliate_link",
-        targetId: String(saved.value.id),
+        targetId: String(saved.id),
         after: {
           // URL 全体は残さない（成果の割り当て先が入っている）。
-          host: hostOf(saved.value.originalUrl),
+          host: hostOf(saved.originalUrl),
           linkIngestionId: String(ingestion.id),
-          programId: String(saved.value.programId),
-          productId: saved.value.productId === null ? null : String(saved.value.productId),
+          programId: String(saved.programId),
+          productId: saved.productId === null ? null : String(saved.productId),
           productName: snapshot.value.productName,
           brand: snapshot.value.brand,
         },
@@ -234,7 +243,7 @@ export function createRegisterAffiliateLinkUseCase(
         return err(auditWriteFailure("成果リンクは登録されています", appended.error.details));
       }
 
-      return ok(toOutput(saved.value, snapshot.value.productName));
+      return ok(toOutput(saved, snapshot.value.productName));
     },
   };
 }
