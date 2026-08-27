@@ -6,8 +6,8 @@
 テスト側の `@req` 印を重ねたもの。
 
 - 最終更新: 2026-08-27
-- テストファイル: 328 件
-- 由来の要件が分かる: 326 件
+- テストファイル: 334 件
+- 由来の要件が分かる: 332 件
 - **由来不明: 2 件**（上限 2 件）
 
 由来不明とは「どの要件のために書いたのか、機械から辿れない」という意味で、
@@ -35,6 +35,7 @@
 | `tests/application/audit-actor-identity.test.ts` | REQ-SEC09 | 印 |
 | `tests/application/audit-entry-build.test.ts` | REQ-P01, REQ-R08 | 印 |
 | `tests/application/blog-delivery-check.test.ts` | REQ-BLOG04, REQ-BOPS08 | 印と表 |
+| `tests/application/blog-ops-storage-failures.test.ts` | REQ-BOPS01, REQ-BOPS02, REQ-BOPS03, REQ-BOPS04, REQ-BOPS06, REQ-BOPS07, REQ-BOPS08, REQ-BOPS09, REQ-BOPS10 | 印 |
 | `tests/application/blog-ops-usecases.test.ts` | REQ-BLOG04, REQ-BOPS01, REQ-BOPS02, REQ-BOPS03, REQ-BOPS04, REQ-BOPS05, REQ-BOPS06, REQ-BOPS07, REQ-BOPS08, REQ-BOPS09, REQ-BOPS10 | 印と表 |
 | `tests/application/build-site.test.ts` | REQ-A05, REQ-P07, REQ-S06 | 印と表 |
 | `tests/application/concept-drafts.test.ts` | REQ-UX02 | 印 |
@@ -198,7 +199,10 @@
 | `tests/infrastructure/membership-reader.test.ts` | REQ-S10 | 印 |
 | `tests/infrastructure/product-sample-repository.test.ts` | REQ-B01 | 印 |
 | `tests/infrastructure/prompt-assembly.test.ts` | REQ-P06 | 表 |
+| `tests/infrastructure/sample-blog-ops-repository.test.ts` | REQ-BOPS01, REQ-BOPS02, REQ-BOPS03, REQ-BOPS06, REQ-BOPS07, REQ-BOPS08, REQ-BOPS09 | 印 |
 | `tests/infrastructure/sample-blog-ops-tenancy.test.ts` | REQ-BOPS01, REQ-BOPS04, REQ-BOPS05, REQ-BOPS06, REQ-BOPS08, REQ-BOPS09, REQ-BOPS12, REQ-BOPS14 | 印と表 |
+| `tests/infrastructure/sample-feedback-repository.test.ts` | REQ-FB04, REQ-FB06, REQ-FB07, REQ-FB08 | 印 |
+| `tests/infrastructure/sample-integration-keys.test.ts` | REQ-FB07, REQ-FB08 | 印 |
 | `tests/infrastructure/session-actor.test.ts` | REQ-S10 | 印 |
 | `tests/infrastructure/session-issuer.test.ts` | REQ-S10 | 印 |
 | `tests/infrastructure/settings-sample-repository.test.ts` | REQ-P01 | 印 |
@@ -231,6 +235,7 @@
 | `tests/presentation/blog-action-input.test.ts` | REQ-BOPS01, REQ-BOPS02, REQ-BOPS03, REQ-BOPS04, REQ-BOPS05, REQ-BOPS08 | 印 |
 | `tests/presentation/blog-ops-actions.test.ts` | REQ-BOPS03, REQ-BOPS04, REQ-BOPS05, REQ-BOPS06, REQ-BOPS08, REQ-BOPS12 | 印 |
 | `tests/presentation/blog-ops-tools.test.ts` | REQ-BLOG06 | 印と表 |
+| `tests/presentation/blog-rating-actions.test.ts` | REQ-BOPS09 | 印 |
 | `tests/presentation/blog-tag-and-member-actions.test.ts` | REQ-BOPS07, REQ-BOPS12, REQ-UX02 | 印 |
 | `tests/presentation/composition-wiring.test.ts` | REQ-API01, REQ-TS09 | 印 |
 | `tests/presentation/composition.test.ts` | REQ-S09 | 表 |
@@ -317,6 +322,7 @@
 | `tests/ui/page-render-restricted.test.tsx` | REQ-S09, REQ-S10 | 印 |
 | `tests/ui/page-render.test.tsx` | REQ-B01, REQ-B02, REQ-B03, REQ-B04, REQ-B05, REQ-B06, REQ-B07, REQ-B08, REQ-B09, REQ-B10, REQ-B11, REQ-B12, REQ-B13, REQ-B14, REQ-B15, REQ-B16, REQ-B17, REQ-B18, REQ-BOPS01, REQ-BOPS02, REQ-BOPS03, REQ-BOPS04, REQ-BOPS05, REQ-BOPS06, REQ-BOPS07, REQ-BOPS08, REQ-BOPS09, REQ-BOPS10, REQ-BOPS11, REQ-BOPS12, REQ-BOPS14, REQ-FB07, REQ-FB08, REQ-IM09, REQ-P01, REQ-P02, REQ-P03, REQ-P04, REQ-P05, REQ-P06, REQ-P07, REQ-P08, REQ-P09, REQ-P10, REQ-S01, REQ-S02, REQ-S03, REQ-S04, REQ-S05, REQ-S06, REQ-S07, REQ-S08, REQ-S09, REQ-S10, REQ-SEC08, REQ-TH01, REQ-TM02, REQ-TM03, REQ-TM05, REQ-TM06, REQ-TM10, REQ-TS05 | 印と表 |
 | `tests/ui/patterns-render.test.tsx` | REQ-S09, REQ-SEC08 | 表 |
+| `tests/ui/prose-body.test.tsx` | REQ-BOPS04, REQ-BOPS05 | 印 |
 | `tests/ui/prose-editor.test.tsx` | REQ-BOPS04, REQ-BOPS05, REQ-UX02 | 印 |
 | `tests/ui/public-shell-appearance.test.tsx` | REQ-TH03, REQ-TH04 | 印 |
 | `tests/ui/public-site-projection.test.ts` | REQ-BLOG02, REQ-BOPS02, REQ-BOPS03, REQ-BOPS06, REQ-BOPS11 | 印と表 |
@@ -348,4 +354,4 @@
 | `tests/ui/uiux-spacing-and-copy.test.ts` | REQ-UX08, REQ-UX10 | 印と表 |
 | `tests/ui/zz-probe-tone.test.tsx` | REQ-TM07 | 表 |
 | `tests/visual/visual-regression.test.ts` | REQ-S09, REQ-TS12, REQ-UX08 | 印 |
-<!-- 生成物の指紋 sha256:bf051f13e26bacffb02593d53247447b416bac33f95a2224e538b93995db647b -->
+<!-- 生成物の指紋 sha256:3fd2205a66cea529d9164f403a33462af02d2013bfd95e5838b8d1aaf27cee5f -->
