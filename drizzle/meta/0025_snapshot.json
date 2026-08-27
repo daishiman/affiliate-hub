@@ -1,8 +1,8 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "3d275b0c-a028-4753-b534-7cd81f73f1cd",
-  "prevId": "b3b4e447-b5c8-4db8-b8ad-7d2b7c6fdc4a",
+  "id": "7f024cf7-d981-4343-8cbf-e0bc00f49b79",
+  "prevId": "6ef753ef-51b3-4a72-99f3-a068ef122583",
   "tables": {
     "affiliate_conversions": {
       "name": "affiliate_conversions",
@@ -756,6 +756,13 @@
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
+        },
+        "request_id": {
+          "name": "request_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
         }
       },
       "indexes": {
@@ -782,6 +789,14 @@
             "workspace_id",
             "action",
             "occurred_at"
+          ],
+          "isUnique": false
+        },
+        "audit_logs_workspace_request_idx": {
+          "name": "audit_logs_workspace_request_idx",
+          "columns": [
+            "workspace_id",
+            "request_id"
           ],
           "isUnique": false
         }
@@ -961,14 +976,6 @@
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false
-        },
-        "hidden": {
-          "name": "hidden",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": false
         },
         "created_at": {
           "name": "created_at",
@@ -1428,14 +1435,6 @@
           "notNull": true,
           "autoincrement": false,
           "default": "''"
-        },
-        "kind": {
-          "name": "kind",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": "'topic'"
         }
       },
       "indexes": {
@@ -2303,9 +2302,39 @@
           "notNull": true,
           "autoincrement": false,
           "default": "(unixepoch())"
+        },
+        "workspace_id": {
+          "name": "workspace_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "ai_assisted": {
+          "name": "ai_assisted",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": false
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
         }
       },
-      "indexes": {},
+      "indexes": {
+        "disclosures_workspace_idx": {
+          "name": "disclosures_workspace_idx",
+          "columns": [
+            "workspace_id"
+          ],
+          "isUnique": false
+        }
+      },
       "foreignKeys": {},
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
@@ -5331,6 +5360,112 @@
           "name": "verification_identifier_idx",
           "columns": [
             "identifier"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    },
+    "policy_rules": {
+      "name": "policy_rules",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "workspace_id": {
+          "name": "workspace_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "domain_scope": {
+          "name": "domain_scope",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "channel_scope": {
+          "name": "channel_scope",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "severity": {
+          "name": "severity",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "pattern": {
+          "name": "pattern",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "ignore_case": {
+          "name": "ignore_case",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": true
+        },
+        "basis": {
+          "name": "basis",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "suggestion": {
+          "name": "suggestion",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "enabled": {
+          "name": "enabled",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": true
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "(unixepoch())"
+        }
+      },
+      "indexes": {
+        "policy_rules_workspace_enabled_idx": {
+          "name": "policy_rules_workspace_enabled_idx",
+          "columns": [
+            "workspace_id",
+            "enabled"
           ],
           "isUnique": false
         }

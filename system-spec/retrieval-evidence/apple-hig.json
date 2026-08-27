@@ -1,30 +1,19 @@
 {
- "target_id": "apple-hig",
- "source_url": "https://developer.apple.com/design/human-interface-guidelines",
- "retrieved_at": "2026-08-19T15:30:40Z",
- "http_status": 200,
- "content_bytes": 17681,
- "content_sha256": "7367359951847c16af1772013a4aee1f7ab4b4ca59f1f6b7902e875a65de53c0",
- "page_title": "Human Interface Guidelines | Apple Developer Documentation",
- "freshness_extraction": {
-  "freshness_source": "http-last-modified",
-  "value": "2026-08-06",
-  "found_in": [
-   "HTTP ヘッダ Last-Modified: Thu, 06 Aug 2026 02:58:13 GMT"
-  ],
-  "body_declares_date": false,
-  "body_search_method": "本文 17681 bytes 全体に対し 3 通りで探した: (1) 4 桁年トークン (19|20)[0-9]{2} の全抽出 → 2000 が 7 件、全て http://www.w3.org/2000/svg の namespace URI。(2) 日付語彙 (updated/revised/modified/published/copyright/月名/最終更新/更新日) → 0 件。(3) 構造化日付 (<time>, <meta ...date...>, JSON-LD \"*Date\") → 0 件。(1) が上限を与える: 年を含まない更新日は記録できないので、年トークンの全抽出はあらゆる日付表明の上位集合である。陰性対照: 同じ 3 通りを cloudflare-workers/d1 へ適用すると dateModified と <time> を検出するので、探し方は動いている。",
-  "note": "HTTP ヘッダは配信側の都合で動くため内容の更新日とは限らない。2026-08-16 取得分と content_sha256 が一致しており、内容は 3 日間変わっていない。"
- },
- "reverification": [
-  {
-   "checked_at": "2026-08-22T15:05:18Z",
-   "http_status": 200,
-   "content_bytes": 17681,
-   "content_sha256": "7367359951847c16af1772013a4aee1f7ab4b4ca59f1f6b7902e875a65de53c0",
-   "http_last_modified": "Thu, 06 Aug 2026 02:58:13 GMT",
-   "verdict": "一致",
-   "note": "上流へ独立に取り直した結果。content_sha256 が 08-16 / 08-19 / 08-22 の 3 回で同一、Last-Modified も 2026-08-06 のまま。freshness_source='http-last-modified' の値 2026-08-06 は上流で裏が取れており、この record が古い取得の使い回しでないことが示せた。本文側の日付表明は今回も 0 件で、http-last-modified を採る判断は変わらない。"
+  "target_id": "apple-hig",
+  "source_url": "https://developer.apple.com/design/human-interface-guidelines",
+  "retrieved_at": "2026-08-25T12:13:56Z",
+  "http_status": 200,
+  "content_bytes": 17681,
+  "content_sha256": "df1ebc77d27bea72edbcddbad438f349d496ab7a437ef652679f74c3f62928e6",
+  "page_title": "Human Interface Guidelines | Apple Developer Documentation",
+  "freshness_extraction": {
+    "freshness_source": "http-last-modified",
+    "value": "2026-08-24",
+    "found_in": [
+      "HTTP ヘッダ Last-Modified: Mon, 24 Aug 2026 22:18:15 GMT"
+    ],
+    "body_declares_date": false,
+    "body_search_method": "本文 17681 bytes 全体について年トークン、更新日語彙、time/meta/JSON-LD の構造化日付を確認したが、このページ自身の版・更新日の表明は得られなかった。現行レスポンスが返した Last-Modified を採用する。",
+    "note": "2026-08-25 の公式 host 再取得で本文 sha256 が前回から変化し、Last-Modified も 2026-08-24 に進んだ。HTTP ヘッダは内容更新日と一致する保証がないため、freshness_source=http-last-modified の制約を明示する。"
   }
- ]
 }

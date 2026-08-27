@@ -21,6 +21,7 @@
 // @ts-expect-error: ビルド後にだけ存在する
 import openNextWorker from "./.open-next/worker.js";
 import { sweepExpiredCaptures } from "./src/infrastructure/platform/feedback-capture-r2.ts";
+import { runFeedbackDiagnosticsPurge } from "./src/infrastructure/platform/feedback-diagnostics-purge.ts";
 
 // キャッシュの仕組みが使う入れ物。生成物が公開しているものをそのまま通す。
 // ここで落とすと、公開時に「宣言された入れ物が見つからない」で失敗する。
@@ -37,6 +38,7 @@ const handlers = {
    * 投げると Cloudflare 側で再実行が積まれるが、掃除は次の回で拾えるので必要ない。
    */
   async scheduled(controller, env, ctx) {
+    const now = new Date(controller.scheduledTime);
     ctx.waitUntil(
       (async () => {
         if (env.BUCKET === undefined) {
@@ -44,7 +46,7 @@ const handlers = {
           return;
         }
         try {
-          const result = await sweepExpiredCaptures(env.BUCKET, new Date(controller.scheduledTime));
+          const result = await sweepExpiredCaptures(env.BUCKET, now);
           console.log(
             `[sweep] 期限切れの画面の写しを ${result.deleted} 件消しました` +
               (result.finished ? "" : "（上限に達したため、続きは次の回で消します）"),
@@ -52,6 +54,39 @@ const handlers = {
         } catch (error) {
           // 掃除できなくても、読み出し側が期限切れを渡さないので外へは出ない。
           console.error("[sweep] 掃除に失敗しました", error);
+        }
+      })(),
+    );
+
+    /*
+     * 技術診断の保持期限（REQ-FB08 / REQ-TM09）。
+     *
+     * **写しの掃除とは別の待ち行列にする。** 一つにまとめると、
+     * 置き場がつながっていない環境（上の early return）で、こちらまで
+     * 一緒に止まる。消えないまま「消えます」と画面に書き続けることになる。
+     */
+    ctx.waitUntil(
+      (async () => {
+        if (env.DB === undefined) {
+          console.warn("[retention] 保存先がつながっていないので、技術情報を消せませんでした");
+          return;
+        }
+        try {
+          const result = await runFeedbackDiagnosticsPurge(env.DB, now);
+          console.log(
+            `[retention] 技術情報を ${result.purged} 件消しました` +
+              `（作業場所 ${result.workspaces} 件）` +
+              (result.unfinished.length === 0
+                ? ""
+                : `（上限に達したため、続きは次の回で消します：${result.unfinished.join(", ")}）`),
+          );
+          // 失敗した作業場所は、消えずに残っている。次の回が同じ行を拾い直す。
+          // 黙っていると「消えたはず」のまま何年も残るので、必ず出す。
+          for (const failure of result.failures) {
+            console.error(`[retention] ${failure.workspaceId}: ${failure.message}`);
+          }
+        } catch (error) {
+          console.error("[retention] 技術情報の削除に失敗しました", error);
         }
       })(),
     );

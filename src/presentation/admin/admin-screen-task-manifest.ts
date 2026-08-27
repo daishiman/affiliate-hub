@@ -82,6 +82,7 @@ const PRIMARY_TASK_BY_ROUTE_ID = {
   settings: "設定したい対象へ移動する (索引)",
   "settings/appearance": "この端末での見た目を選ぶ",
   "settings/audit": "誰がいつ何をしたかを辿る",
+  "settings/compliance": "広告であることの表示と、表現を止めるきまりを直す",
   "settings/integration-access": "取得用の鍵を発行・失効する",
   "settings/llm": "生成 AI の API キーを登録・確認・失効する",
   "settings/members": "誰が何を担当しているかを見る",
@@ -198,7 +199,30 @@ const manageGuidelineReferenceAction = edge(
   "manageGuidelineReferenceAction",
 );
 
+const editPolicyRuleAction = edge(
+  "src/presentation/admin/compliance-action.ts",
+  "editPolicyRuleAction",
+);
+
 export const ADMIN_SCREEN_RUNTIME_ENTRIES: readonly AdminScreenRuntimeEntry[] = [
+  screenMutation(
+    "compliance.edit-disclosure",
+    "settings/compliance",
+    edge("src/presentation/admin/compliance-forms.tsx", "EditDisclosureForm"),
+    edge("src/presentation/admin/compliance-action.ts", "editDisclosureAction"),
+  ),
+  screenMutation(
+    "compliance.add-policy-rule",
+    "settings/compliance",
+    edge("src/presentation/admin/compliance-forms.tsx", "AddPolicyRuleForm"),
+    editPolicyRuleAction,
+  ),
+  screenMutation(
+    "compliance.stop-policy-rule",
+    "settings/compliance",
+    edge("src/presentation/admin/compliance-forms.tsx", "StopPolicyRuleForm"),
+    editPolicyRuleAction,
+  ),
   screenMutation(
     "affiliate.adjust-conversion",
     "affiliate/[conversion]",

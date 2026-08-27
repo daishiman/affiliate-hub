@@ -177,15 +177,26 @@ function toPage(row: typeof legalPages.$inferSelect): FixedPageRecord {
 
 /** 記事 1 本ぶんの部品とタグを読み揃える。3 回の問い合わせを 1 か所にまとめる。 */
 async function loadDetail(db: DrizzleD1, row: BlogArticleRow): Promise<BlogArticleDetail> {
+  // `articles.workspace_id` は旧AI記事のぶんが null のままなので、子表側の
+  // 空文字と突き合わせる。**null と '' を混ぜて持たない**ように、子表は
+  // notNull default '' で揃えてある（`drizzle/0033_tenant_scope_blog_children.sql`）。
+  const rowWorkspaceId = row.workspaceId ?? "";
   const blocks = await db
     .select()
     .from(blogArticleBlocks)
-    .where(eq(blogArticleBlocks.articleId, row.id))
+    .where(
+      and(
+        eq(blogArticleBlocks.workspaceId, rowWorkspaceId),
+        eq(blogArticleBlocks.articleId, row.id),
+      ),
+    )
     .orderBy(asc(blogArticleBlocks.position));
   const tags = await db
     .select()
     .from(blogArticleTags)
-    .where(eq(blogArticleTags.articleId, row.id));
+    .where(
+      and(eq(blogArticleTags.workspaceId, rowWorkspaceId), eq(blogArticleTags.articleId, row.id)),
+    );
   return {
     article: toArticle(row),
     blocks: blocks.map((b) => ({
@@ -706,7 +717,12 @@ export function createD1BlogOpsRepository(db: DrizzleD1): BlogOpsRepositoryPort 
         const rows = await db
           .select({ articleId: blogArticleBlocks.articleId, kind: blogArticleBlocks.kind })
           .from(blogArticleBlocks)
-          .where(inArray(blogArticleBlocks.articleId, ownedIds));
+          .where(
+            and(
+              eq(blogArticleBlocks.workspaceId, workspaceId),
+              inArray(blogArticleBlocks.articleId, ownedIds),
+            ),
+          );
         const result: Record<string, ArticleBlockKind[]> = Object.fromEntries(
           ownedIds.map((id) => [id, []]),
         );
@@ -801,18 +817,31 @@ export function createD1BlogOpsRepository(db: DrizzleD1): BlogOpsRepositoryPort 
                     isNull(blogArticles.deletedAt),
                   ),
                 );
+        // 子表も作業場所で絞る。記事 ID だけで消すと、他所の作業場所の記事 ID を
+        // 渡された時に消せてしまう。ID が推測しにくいことを守りにしない。
         const deleteBlocks = db
           .delete(blogArticleBlocks)
-          .where(eq(blogArticleBlocks.articleId, input.id));
+          .where(
+            and(
+              eq(blogArticleBlocks.workspaceId, workspaceId),
+              eq(blogArticleBlocks.articleId, input.id),
+            ),
+          );
         const deleteTags = db
           .delete(blogArticleTags)
-          .where(eq(blogArticleTags.articleId, input.id));
+          .where(
+            and(
+              eq(blogArticleTags.workspaceId, workspaceId),
+              eq(blogArticleTags.articleId, input.id),
+            ),
+          );
         const insertBlocks =
           input.blocks.length === 0
             ? null
             : db.insert(blogArticleBlocks).values(
                 input.blocks.map((b) => ({
                   id: b.id,
+                  workspaceId,
                   articleId: input.id,
                   kind: b.kind,
                   heading: b.heading,
@@ -825,7 +854,7 @@ export function createD1BlogOpsRepository(db: DrizzleD1): BlogOpsRepositoryPort 
             ? null
             : db
                 .insert(blogArticleTags)
-                .values(input.tagIds.map((tagId) => ({ articleId: input.id, tagId })));
+                .values(input.tagIds.map((tagId) => ({ workspaceId, articleId: input.id, tagId })));
 
         if (insertBlocks !== null && insertTags !== null) {
           await db.batch([
@@ -951,9 +980,12 @@ export function createD1BlogOpsRepository(db: DrizzleD1): BlogOpsRepositoryPort 
     },
 
     /*
-     * 固定ページだけ `workspace_id` の列が無い（既存の `legal_page` をそのまま使う）。
-     * 表を作り直すと、既に書かれている方針ページが消える。
-     * `site_slug` が全 workspace で 1 件だけで、その 1 件が操作者のものときだけ読み書きする。
+     * 固定ページは `workspace_id` を持ち、そのうえで `site_slug` の帰属も確かめる。
+     *
+     * 列だけでは足りない。`site_slug` は `site_blueprints` の索引 1 本が一意性を
+     * 支えているだけで、作業場所ごとに slug を再利用したくなった日に崩れる。
+     * 逆に slug の確認だけでも足りない。**1 本のクエリが単体で作業場所に絞れること**を
+     * 表の側でも持たせる（`tests/architecture/tenant-scoped-schema.test.ts`）。
      * 同名のブログが複数 workspace にあるときは、帰属先を決められないので見せない。
      */
     async listFixedPages(workspaceId, siteSlug): PortResult<readonly FixedPageRecord[]> {
@@ -965,6 +997,7 @@ export function createD1BlogOpsRepository(db: DrizzleD1): BlogOpsRepositoryPort 
           .from(legalPages)
           .where(
             and(
+              eq(legalPages.workspaceId, workspaceId),
               eq(legalPages.siteSlug, siteSlug),
               inArray(legalPages.kind, [...FIXED_PAGE_KINDS]),
               isNull(legalPages.deletedAt),
@@ -984,6 +1017,7 @@ export function createD1BlogOpsRepository(db: DrizzleD1): BlogOpsRepositoryPort 
           .from(legalPages)
           .where(
             and(
+              eq(legalPages.workspaceId, workspaceId),
               eq(legalPages.siteSlug, siteSlug),
               inArray(legalPages.kind, [...FIXED_PAGE_KINDS]),
               isNotNull(legalPages.deletedAt),
@@ -1002,17 +1036,26 @@ export function createD1BlogOpsRepository(db: DrizzleD1): BlogOpsRepositoryPort 
         }
         // id が既に別サイトの行を指すなら、upsert でその本文を書き換えない。
         const existing = await db
-          .select({ siteSlug: legalPages.siteSlug })
+          .select({ siteSlug: legalPages.siteSlug, workspaceId: legalPages.workspaceId })
           .from(legalPages)
           .where(eq(legalPages.id, input.id))
           .limit(1);
-        if (existing[0] !== undefined && existing[0].siteSlug !== input.siteSlug) {
+        if (
+          existing[0] !== undefined &&
+          (existing[0].siteSlug !== input.siteSlug || existing[0].workspaceId !== workspaceId)
+        ) {
           return ownedResourceNotFound("固定ページ");
         }
         const sameKind = await db
           .select({ deletedAt: legalPages.deletedAt })
           .from(legalPages)
-          .where(and(eq(legalPages.siteSlug, input.siteSlug), eq(legalPages.kind, input.kind)))
+          .where(
+            and(
+              eq(legalPages.workspaceId, workspaceId),
+              eq(legalPages.siteSlug, input.siteSlug),
+              eq(legalPages.kind, input.kind),
+            ),
+          )
           .limit(1);
         if (sameKind[0]?.deletedAt !== null && sameKind[0]?.deletedAt !== undefined) {
           return err(
@@ -1027,6 +1070,7 @@ export function createD1BlogOpsRepository(db: DrizzleD1): BlogOpsRepositoryPort 
           .insert(legalPages)
           .values({
             id: input.id,
+            workspaceId,
             siteSlug: input.siteSlug,
             kind: input.kind,
             title: input.title,
@@ -1055,7 +1099,7 @@ export function createD1BlogOpsRepository(db: DrizzleD1): BlogOpsRepositoryPort 
         const pages = await db
           .select({ siteSlug: legalPages.siteSlug })
           .from(legalPages)
-          .where(eq(legalPages.id, pageId))
+          .where(and(eq(legalPages.workspaceId, workspaceId), eq(legalPages.id, pageId)))
           .limit(1);
         const page = pages[0];
         if (page === undefined || !(await ownsUniqueSiteSlug(db, workspaceId, page.siteSlug))) {
@@ -1066,6 +1110,7 @@ export function createD1BlogOpsRepository(db: DrizzleD1): BlogOpsRepositoryPort 
           .set({ deletedAt: new Date() })
           .where(
             and(
+              eq(legalPages.workspaceId, workspaceId),
               eq(legalPages.id, pageId),
               eq(legalPages.siteSlug, page.siteSlug),
               isNull(legalPages.deletedAt),
@@ -1084,7 +1129,13 @@ export function createD1BlogOpsRepository(db: DrizzleD1): BlogOpsRepositoryPort 
         const pages = await db
           .select({ siteSlug: legalPages.siteSlug })
           .from(legalPages)
-          .where(and(eq(legalPages.id, pageId), isNotNull(legalPages.deletedAt)))
+          .where(
+            and(
+              eq(legalPages.workspaceId, workspaceId),
+              eq(legalPages.id, pageId),
+              isNotNull(legalPages.deletedAt),
+            ),
+          )
           .limit(1);
         const page = pages[0];
         if (page === undefined || !(await ownsUniqueSiteSlug(db, workspaceId, page.siteSlug))) {
@@ -1095,6 +1146,7 @@ export function createD1BlogOpsRepository(db: DrizzleD1): BlogOpsRepositoryPort 
           .set({ deletedAt: null, updatedAt: restoredAt })
           .where(
             and(
+              eq(legalPages.workspaceId, workspaceId),
               eq(legalPages.id, pageId),
               eq(legalPages.siteSlug, page.siteSlug),
               isNotNull(legalPages.deletedAt),
@@ -1131,7 +1183,10 @@ export function createD1BlogOpsRepository(db: DrizzleD1): BlogOpsRepositoryPort 
           .where(
             ownedIds.length === 0
               ? eq(blogArticleRatings.articleId, "")
-              : inArray(blogArticleRatings.articleId, ownedIds),
+              : and(
+                  eq(blogArticleRatings.workspaceId, workspaceId),
+                  inArray(blogArticleRatings.articleId, ownedIds),
+                ),
           );
         // 伏せた票をここで落とさない。**落とすのは集計の側の仕事**にしてある
         // (`summarizeRatings` の説明を見ること)。ここで落とすと、同じ判断が
@@ -1171,7 +1226,12 @@ export function createD1BlogOpsRepository(db: DrizzleD1): BlogOpsRepositoryPort 
         const rows = await db
           .select()
           .from(blogArticleRatings)
-          .where(eq(blogArticleRatings.articleId, articleId))
+          .where(
+            and(
+              eq(blogArticleRatings.workspaceId, workspaceId),
+              eq(blogArticleRatings.articleId, articleId),
+            ),
+          )
           .orderBy(desc(blogArticleRatings.createdAt));
         // **伏せたものも返す。**運営者が「何を伏せたか」を確かめる口なので。
         return ok(
@@ -1203,7 +1263,12 @@ export function createD1BlogOpsRepository(db: DrizzleD1): BlogOpsRepositoryPort 
               isNull(blogArticles.deletedAt),
             ),
           )
-          .where(eq(blogArticleRatings.id, ratingId))
+          .where(
+            and(
+              eq(blogArticleRatings.workspaceId, workspaceId),
+              eq(blogArticleRatings.id, ratingId),
+            ),
+          )
           .limit(1);
         const target = owned[0];
         if (target === undefined) return ownedResourceNotFound("評価");
@@ -1213,6 +1278,7 @@ export function createD1BlogOpsRepository(db: DrizzleD1): BlogOpsRepositoryPort 
           .set({ hidden })
           .where(
             and(
+              eq(blogArticleRatings.workspaceId, workspaceId),
               eq(blogArticleRatings.id, ratingId),
               eq(blogArticleRatings.articleId, target.articleId),
             ),
@@ -1238,7 +1304,7 @@ export function createD1ArticleRatingPort(db: DrizzleD1): ArticleRatingPort {
     async put(input): PortResult<true> {
       try {
         const active = await db
-          .select({ id: blogArticles.id })
+          .select({ id: blogArticles.id, workspaceId: blogArticles.workspaceId })
           .from(blogArticles)
           .where(
             and(
@@ -1248,10 +1314,14 @@ export function createD1ArticleRatingPort(db: DrizzleD1): ArticleRatingPort {
             ),
           )
           .limit(1);
-        if (active.length === 0) return ownedResourceNotFound("公開中の記事");
+        const target = active[0];
+        if (target === undefined) return ownedResourceNotFound("公開中の記事");
+        // 読者に作業場所は無い。**票が属する記事の作業場所**をここで写す。
+        // 写さないと、運営者が自分の票を数えるたび `articles` を join する形になり、
+        // join を 1 度忘れた日に他所の票が混ざる。
         await db
           .insert(blogArticleRatings)
-          .values(input)
+          .values({ ...input, workspaceId: target.workspaceId ?? "" })
           .onConflictDoUpdate({
             target: [blogArticleRatings.articleId, blogArticleRatings.readerKey],
             /*
@@ -1455,6 +1525,7 @@ export function createD1PublicBlogPort(
               .from(legalPages)
               .where(
                 and(
+                  eq(legalPages.workspaceId, identity.workspaceId),
                   eq(legalPages.siteSlug, identity.siteSlug),
                   inArray(legalPages.kind, [...FIXED_PAGE_KINDS]),
                   eq(legalPages.status, "published"),

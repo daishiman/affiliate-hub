@@ -15,7 +15,7 @@ serves_goals: [G1]
 
 | プラットフォーム | 状態 | 根拠 |
 |---|---|---|
-| Web (web) | 確定 | 確定質疑: qa-security-web-spec-intake |
+| Web (web) | 確定 | 確定質疑: qa-security-web-spec-intake。裏付け質疑 (`qa_refs`): `qa-security-web` — 本章の「確定内容 (質疑録)」へ接地根拠として併記 |
 | モバイル (mobile) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |
 | タブレット (tablet) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |
 | デスクトップ (Windows) (desktop-windows) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |
@@ -66,6 +66,8 @@ serves_goals: [G1]
 - **security が引用可になる条件**: authentication の reversal と同じ。ASVS 本体を取得できた日に両 concern を同時に available へ変える。
 
 ## 適用された設計知識
+
+> 以下の deep knowledge card は設計判断を支援する**非規範の参考資料**であり、実装済み・検証済みの証拠ではない。カード内の `採否: applied` は設計採用を意味し、実装状態は意味しない。規範となる差分は本章の To-Be / Delta 節と参照先仕様で管理する。
 
 ### Secure by Design — deep knowledge card
 
@@ -233,24 +235,3 @@ C05 gaps[0] の「再生成して本文へ載せる」を採らず、本節は�
 
 - **本章を主担当とする decision は 0 件**である (分母 = 上表 7 行)。これは security の論点が漏れているという意味ではなく、7 件のいずれも第一の適用先を security としないという意味である。security へ波及する条件を持つのは 2 件 — `decision-auth-method` (認証方式そのもの) と `decision-llm-provider` (API 鍵の預け先) で、どちらも主担当章側で確定済み。
 - **`decision-llm-provider` の security 面の含意**: API 鍵は利用者本人がブラウザまたは別端末で登録する。**鍵の値も、その断片 (先頭数文字を含む) も、この作業場所に置かない・受け取らない・要求しない。**これは §5 秘密情報の運用そのものである。
-
-## compile が保てなかった行 (要判断)
-
-> 正本から導出できず、節・小節の引き継ぎでも守れなかった 16 行。版の更新のように**正しく消える行**も混ざる。正本へ接続するか、不要と確かめて消すこと。この節は compile のたびに作り直す。
-
-- `| Web (web) | 確定 | 確定質疑: `qa-security-web-spec-intake` (正本 `spec-state.json` の `qa_ref`)。先行質疑 `qa-security-web` は `qa_refs` に残り、本章にも併記する |`
-- `### qa-security-web (対応セル: web)`
-- `* ローカルIP・メタデータIPの遮断`
-- `* DNS再束縛対策`
-- `* リダイレクト回数制限`
-- `* ファイルサイズ制限`
-- `* MIME確認`
-- `* タイムアウト`
-- `* 危険ドメイン`
-- `* HTMLサニタイズ`
-- `* JavaScriptを実行しない安全取得`
-- `* ページ本文をAI命令として扱わない`
-- `##### 確定内容 qa-security-web (対応セル: web)`
-- `- 確定要件: * SSRF対策`
-- `- 資するゴール: G1`
-- `| owasp-asvs | 5.0 | OWASP Foundation (owasp.org) | https://owasp.org/www-project-application-security-verification-standard/ | 2026-08-16T09:11:19Z | 2026-08-16T09:11:39Z |`

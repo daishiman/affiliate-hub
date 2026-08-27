@@ -630,7 +630,7 @@ pnpm exec wrangler secret list --env production
 
 | 番号               | 課題     | 正本                                              |
 | ---------------- | ------ | ----------------------------------------------- |
-| S-02〜S-04, S-17  | ah-361 | `tasks/feat-auth-workspace/`                    |
+| S-02〜S-04, S-17  | ah-361（closed。ローカル MVP 済。Google 実登録と remote D1 は未検証） | `tasks/feat-auth-workspace/`                    |
 | S-05, S-13, S-14 | ah-ag8 | `tasks/task-llm-provider-connection.md`         |
 | S-06〜S-11        | ah-08q | `tasks/task-deploy-credentials-registration.md` |
 | S-12             | ah-p9e | `tasks/task-mcp-bearer-identity.md`             |

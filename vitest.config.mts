@@ -1,6 +1,10 @@
+import { availableParallelism } from "node:os";
 import { fileURLToPath } from "node:url";
 import { defineConfig } from "vitest/config";
 import { GLOBAL_COVERAGE, SCREEN_RENDER_BUDGET_MS } from "./quality-gates.config.mjs";
+import { createTestProjects } from "./vitest.projects.mjs";
+
+const NORMAL_MAX_WORKERS = Math.max(2, Math.ceil(availableParallelism() * 0.6));
 
 /**
  * ドメイン層と依存方向の検査を回すための設定。
@@ -12,8 +16,8 @@ import { GLOBAL_COVERAGE, SCREEN_RENDER_BUDGET_MS } from "./quality-gates.config
 export default defineConfig({
   test: {
     environment: "node",
-    // .tsx を入れ忘れると、部品の描画テストが 1 件も走らないまま全部緑になる。
-    include: ["tests/**/*.test.ts", "tests/**/*.test.tsx"],
+    // 対象ファイルは下の各 project に置く。親にも置くと extends が配列を結合し、
+    // worker-runtime 側でも全テストが重複実行される。
     // 画面を描くのに要る「要求ごとの入れ物」をここで 1 回だけ用意する。
     // テストファイルごとに書くと、書き忘れたファイルだけが落ちる。
     setupFiles: ["tests/setup.ts"],
@@ -28,6 +32,28 @@ export default defineConfig({
       なるのかは向こうの説明に書いてある。
     */
     testTimeout: SCREEN_RENDER_BUDGET_MS,
+    /*
+      **走らせる並列度に上限を置く。判定は 1 つも動かしていない。**
+
+      2026-08-25 実測（10 コア、`npx vitest run` 全 296 ファイル / 7036 件）:
+        既定の並列度: 6 件が 30 秒超で赤 → 再実行すると**別の 1 件**が赤
+        `--maxWorkers=6`: **7036 件すべて緑**、しかも 293 秒 → 226 秒と**速い**
+
+      その後の再実測では、6 worker のうち複数が `getPlatformProxy` を同時起動すると
+      workerd が途中停止し、後続が ECONNREFUSED になった。同時に通常側の axe も
+      CPU を待って 30 秒を超えた。そこで下の projects で、通常側を先に並列実行し、
+      axe の10ファイルと workerd の15ファイルを別々に1ファイルずつ実行する。
+
+      赤くなった中身はいずれも画面を描いて読み上げを自動検査するもので、
+      単独で走らせると 143 件 19 秒で通る。つまり遅いのは検査ではなく、
+      **コアの数より多くの worker が同時に取り合っていたこと**だった。
+      待ち時間をもう一段広げても、取り合いは減らないので同じ日がまた来る。
+
+      毎回違う 1 件が赤くなる検査は、**赤を「またあれか」と読ませる。**
+      上の testTimeout の但し書きと同じ理由で、ここを直しておく。
+    */
+    maxWorkers: NORMAL_MAX_WORKERS,
+    projects: createTestProjects(NORMAL_MAX_WORKERS),
     coverage: {
       provider: "v8",
       /*

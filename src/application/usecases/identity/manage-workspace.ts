@@ -8,6 +8,7 @@ import type { AuditAction } from "@/domain/compliance";
 import {
   DISCLOSURE_SURFACES,
   type DisclosureSurface,
+  type EditorialInfluence,
   type RelationshipType,
   relAttributeFor,
   requiresDisclosure,
@@ -699,6 +700,14 @@ export const RELATIONSHIP_SHORT_LABEL: Readonly<Record<RelationshipType, string>
 
 export type DisclosureRow = {
   readonly disclosureId: string;
+  /**
+   * 保存されている値そのもの。名札（`relationshipLabel`）とは別に返す。
+   *
+   * 直す画面が選択欄の初期値に使う。名札から逆に引かせると、
+   * **名札の文を 1 文字直しただけで初期値が外れ、選び直しになる。**
+   */
+  readonly relationshipType: RelationshipType;
+  readonly editorialInfluence: EditorialInfluence;
   readonly relationshipLabel: string;
   readonly required: boolean;
   readonly visibleMessage: string;
@@ -744,6 +753,8 @@ export function createListDisclosuresUseCase(
 
       const rows = listed.value.items.map((d): DisclosureRow => ({
         disclosureId: String(d.id),
+        relationshipType: d.relationshipType,
+        editorialInfluence: d.editorialInfluence,
         relationshipLabel: RELATIONSHIP_SHORT_LABEL[d.relationshipType],
         required: requiresDisclosure(d.relationshipType),
         visibleMessage: d.visibleMessage,
@@ -774,6 +785,10 @@ export type AuditRow = {
 };
 
 export const AUDIT_ACTION_LABEL: Readonly<Record<AuditAction, string>> = {
+  // 断り。**日本語も「断った」と書く。** 「できなかった」と書くと、
+  // 保存先の不調と見分けが付かず、一覧を読む人が原因を取り違える。
+  "access.denied": "権限が足りず断った",
+  "access.cross_workspace_blocked": "別の作業場所のものへの操作を断った",
   "content.created": "記事を作った",
   "content.changed": "記事の内容を直した",
   "content.state_changed": "記事の状態を進めた",
@@ -812,10 +827,12 @@ export const AUDIT_ACTION_LABEL: Readonly<Record<AuditAction, string>> = {
   "site_draft.started": "ブログを作り始めた",
   "site_draft.step_saved": "ブログ作成の入力を保存した",
   "conversion.adjusted": "成果の数字を手で直した",
-  // 改善要望の 3 語。「届いた → 扱いを決めた → 外へ出した」の順で追える。
+  // 改善要望の 4 語。「届いた → 扱いを決めた → 外へ出した」に、
+  // 人ではなく時計が動かす「保存期間が来たので診断を消した」を加える。
   "feedback.submitted": "改善要望が届いた",
   "feedback.status_changed": "改善要望の扱いを変えた",
   "feedback.handed_off": "改善要望を指示文として払い出した",
+  "feedback.diagnostics_purged": "改善要望の技術情報を保存期間の満了で消した",
   // 改善ループの 6 語。「試作を作る → 承認する」と「始める → 測る → 決める／やめる」。
   "variant_spec.drafted": "見せ方の試作を登録した",
   "variant_spec.approved": "見せ方の試作を承認した",

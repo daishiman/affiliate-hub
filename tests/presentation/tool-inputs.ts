@@ -144,6 +144,8 @@ export const FIELD_VALUES: Readonly<Record<string, unknown>> = {
   // どの順で呼んでも結果が変わらない）。
   linkIngestionId: "li_received_1",
   programId: "prg_amazon_pc",
+  // 成果リンクとして登録したとき、読者のカードにそのまま出る写し。
+  productName: "Alpha Studio 15",
 
   // --- 数字 ---
   target: "article_revision",
@@ -217,6 +219,11 @@ export const TOOL_OVERRIDES: Readonly<Record<string, Readonly<Record<string, unk
   },
   // 商品との結びつけは、広告主が決まった行にしかできない。
   match_link_ingestion_product: { linkIngestionId: "li_resolved_1", productId: "p_alpha_15" },
+  // 登録は商品まで決まった行だけが通る。受信・広告主決定の見本を流用しない。
+  register_affiliate_link: {
+    linkIngestionId: "li_matched_1",
+    productName: "Alpha Studio 15",
+  },
   // 鍵の道具は選択肢（一覧・発行・失効）に分かれている。先頭の枝は「一覧」で、
   // これだけが何も壊さずに呼べる。`action` は他の道具では使われない項目名なので、
   // 辞書ではなくここに置く。

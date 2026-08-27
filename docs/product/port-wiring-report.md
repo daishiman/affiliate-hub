@@ -6,8 +6,8 @@
 **製品コード（`src/application` `src/presentation` `src/app`）から**
 呼ばれていないポートの手続きの一覧。テストからの呼び出しは数えない。
 
-- ポート 68 件 / 手続き 231 件
-- 呼ばれていない 75 件（上限 79）
+- ポート 68 件 / 手続き 234 件
+- 呼ばれていない 69 件（上限 79）
 - 理由つきの除外 0 件（上限 0）
 
 | ポート | 手続き | 宣言 |
@@ -15,7 +15,6 @@
 | `AffiliateAccountRepositoryPort` | `findById` | `src/application/ports/monetization.ts` |
 | `AffiliateAccountRepositoryPort` | `save` | `src/application/ports/monetization.ts` |
 | `AffiliateLinkRepositoryPort` | `findById` | `src/application/ports/monetization.ts` |
-| `AffiliateLinkRepositoryPort` | `save` | `src/application/ports/monetization.ts` |
 | `AffiliateProgramRepositoryPort` | `save` | `src/application/ports/monetization.ts` |
 | `AspAdapterPort` | `searchProducts` | `src/application/ports/monetization.ts` |
 | `AspAdapterPort` | `fetchConversions` | `src/application/ports/monetization.ts` |
@@ -23,7 +22,6 @@
 | `AuditLogPort` | `listByTarget` | `src/application/ports/compliance.ts` |
 | `AuthenticationPort` | `currentUserId` | `src/application/ports/identity.ts` |
 | `AuthenticationPort` | `profileOf` | `src/application/ports/identity.ts` |
-| `BrandRepositoryPort` | `findById` | `src/application/ports/identity.ts` |
 | `BrandRepositoryPort` | `save` | `src/application/ports/identity.ts` |
 | `CachePort` | `get` | `src/application/ports/common.ts` |
 | `CachePort` | `set` | `src/application/ports/common.ts` |
@@ -43,12 +41,11 @@
 | `ConsentStorePort` | `write` | `src/application/ports/telemetry.ts` |
 | `ContentPackageRepositoryPort` | `save` | `src/application/ports/authoring.ts` |
 | `ConversionRepositoryPort` | `findByExternalId` | `src/application/ports/monetization.ts` |
-| `DisclosureRepositoryPort` | `findById` | `src/application/ports/compliance.ts` |
-| `DisclosureRepositoryPort` | `save` | `src/application/ports/compliance.ts` |
 | `EvidenceRepositoryPort` | `findById` | `src/application/ports/evidence.ts` |
 | `EvidenceRepositoryPort` | `search` | `src/application/ports/evidence.ts` |
 | `EvidenceRepositoryPort` | `save` | `src/application/ports/evidence.ts` |
 | `FeedbackCaptureStoragePort` | `deleteExpired` | `src/application/ports/feedback.ts` |
+| `FeedbackRepositoryPort` | `purgeExpiredDiagnostics` | `src/application/ports/feedback.ts` |
 | `LlmPort` | `embed` | `src/application/ports/llm.ts` |
 | `LoggerPort` | `info` | `src/application/ports/common.ts` |
 | `LoggerPort` | `error` | `src/application/ports/common.ts` |
@@ -61,11 +58,8 @@
 | `MetricsRepositoryPort` | `record` | `src/application/ports/analytics.ts` |
 | `PersonaRepositoryPort` | `saveAuthor` | `src/application/ports/authoring.ts` |
 | `PersonaRepositoryPort` | `saveAudience` | `src/application/ports/authoring.ts` |
-| `PolicyRuleRepositoryPort` | `findById` | `src/application/ports/compliance.ts` |
-| `PolicyRuleRepositoryPort` | `save` | `src/application/ports/compliance.ts` |
 | `ProductRepositoryPort` | `findByIdentityKey` | `src/application/ports/product.ts` |
 | `PublicationRepositoryPort` | `listDue` | `src/application/ports/distribution.ts` |
-| `PublicBlogPort` | `listDeliveryParts` | `src/application/ports/blog-ops.ts` |
 | `RankingModelRepositoryPort` | `list` | `src/application/ports/ranking.ts` |
 | `RankingModelRepositoryPort` | `save` | `src/application/ports/ranking.ts` |
 | `ScoreCardRepositoryPort` | `save` | `src/application/ports/ranking.ts` |
@@ -119,4 +113,4 @@
 | --- | --- |
 | `createStartSiteDraftUseCase` | `src/application/usecases/site/build-site.ts:417` |
 | `createSaveSiteDraftStepUseCase` | `src/application/usecases/site/build-site.ts:509` |
-<!-- 生成物の指紋 sha256:914f48ac9877ea07f26aa1b31a43596e8385f59078f8e236a5a3be4e2231b179 -->
+<!-- 生成物の指紋 sha256:13e7b4a24740b1c3e945e6de98512b438fcfe75266ac50270a7b55a63c041849 -->

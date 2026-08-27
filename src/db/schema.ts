@@ -26,6 +26,11 @@ import {
   TOP_BANDS,
 } from "@/domain/blogops";
 import {
+  POLICY_CHANNEL_SCOPES,
+  POLICY_DOMAIN_SCOPES,
+  POLICY_SEVERITIES,
+} from "@/domain/compliance";
+import {
   COMPLIANCE_STATUSES,
   CONTENT_ANGLES,
   CONTENT_STATES,
@@ -223,23 +228,98 @@ export const people = sqliteTable("people", {
  * 記事・AI 回答・WebMCP の 3 経路が同じ 1 行を参照する。
  * 経路ごとに文言を書くと §28 の「広告関係が 3 経路で一貫する」が破れる。
  */
-export const disclosures = sqliteTable("disclosures", {
-  id: text("id").primaryKey(),
-  relationshipType: text("relationship_type", {
-    enum: ["affiliate", "sponsored", "supplied", "loaned", "purchased"],
-  }).notNull(),
-  advertiserOrSupplier: text("advertiser_or_supplier"),
-  editorialInfluence: text("editorial_influence", {
-    enum: ["none", "limited", "declared"],
-  })
-    .notNull()
-    .default("none"),
-  // 読者に実際に表示する文言。§17.1 が要求する「判別できる表現」。
-  visibleMessage: text("visible_message").notNull(),
-  createdAt: integer("created_at", { mode: "timestamp" })
-    .notNull()
-    .default(sql`(unixepoch())`),
-});
+export const disclosures = sqliteTable(
+  "disclosures",
+  {
+    id: text("id").primaryKey(),
+    /**
+     * どの作業場所の表記か。**列として持つ。**
+     *
+     * 足す前は列が無く、行は作業場所をまたいで 1 つの海に浮かんでいた。
+     * 表記は法令の要る表示なので、**別の作業場所の表記が自分の記事に出る**のは
+     * 「表示が無い」のと同じくらい悪い（出典の違う断りが読者に出る）。
+     * 読み口（`DisclosureRepositoryPort.list`）は作業場所を必ず受け取るので、
+     * 列が無いままでは絞りようがなかった。
+     */
+    workspaceId: text("workspace_id").notNull(),
+    relationshipType: text("relationship_type", {
+      // `paid_partnership` は domain の `RelationshipType` にあって表に無かった。
+      // 語彙が片側だけ広いと、選べるのに保存できない関係が生まれる。
+      enum: ["affiliate", "sponsored", "supplied", "loaned", "purchased", "paid_partnership"],
+    }).notNull(),
+    advertiserOrSupplier: text("advertiser_or_supplier"),
+    editorialInfluence: text("editorial_influence", {
+      enum: ["none", "limited", "declared"],
+    })
+      .notNull()
+      .default("none"),
+    /**
+     * 本文の作成に AI を使ったか（§20.1）。**列として持つ。**
+     * 表示文（`visible_message`）から読み取らない。文は言い回しが変わりうるので、
+     * 文字列を検索して判定する形にすると、言い回しを直した日に印が消える。
+     */
+    aiAssisted: integer("ai_assisted", { mode: "boolean" }).notNull().default(false),
+    // 読者に実際に表示する文言。§17.1 が要求する「判別できる表現」。
+    visibleMessage: text("visible_message").notNull(),
+    createdAt: integer("created_at", { mode: "timestamp" })
+      .notNull()
+      .default(sql`(unixepoch())`),
+    /**
+     * 最後に変えた時刻。**表記の変更は監査の対象**（§26 の必須記録 3 つ目）なので、
+     * 「いつからその表記だったか」が行の側からも言えるようにしておく。
+     * 誰が変えたかは `audit_logs` にある（ここへ写すと正本が 2 つになる）。
+     */
+    updatedAt: integer("updated_at", { mode: "timestamp" }).notNull(),
+  },
+  (t) => [index("disclosures_workspace_idx").on(t.workspaceId)],
+);
+
+/**
+ * 表現ポリシー（§20 / §26）。
+ *
+ * --- なぜ表が要るか ---
+ * きまりは `policy-rule-seed.ts` の初期 13 件が正本だったが、**読むだけだった**。
+ * 法令も規約も改定されるうえ、扱う分野は作業場所ごとに違う。
+ * 追加も無効化もできない状態は、「効いていないきまりを外せない」ことと
+ * 「新しい規制に追いつけない」ことを同時に意味する。
+ *
+ * --- 初期ルールをこの表へ流し込まない ---
+ * 作業場所を作った時点で 13 行を書き込む形にはしていない。そうすると、
+ * 初期ルールを直したときに**既に作られた作業場所だけが古いまま**残り、
+ * どの作業場所がどの版のきまりで確認されたのかが誰にも言えなくなる。
+ * この表が持つのは**初期ルールからの差分**（無効化と、上書きと、足したもの）で、
+ * 触っていないきまりは `buildSeedPolicyRules()` 側が正本のまま返る。
+ * 詳しくは `src/infrastructure/persistence/d1/policy-rule-repository.ts`。
+ *
+ * 規範: docs/product/traceability.md REQ-SEC07 / REQ-QC11
+ */
+export const policyRules = sqliteTable(
+  "policy_rules",
+  {
+    id: text("id").primaryKey(),
+    workspaceId: text("workspace_id").notNull(),
+    name: text("name").notNull(),
+    // 語彙は domain の配列がそのまま正本。ここで並べ直さない。
+    domainScope: text("domain_scope", { enum: POLICY_DOMAIN_SCOPES }).notNull(),
+    channelScope: text("channel_scope", { enum: POLICY_CHANNEL_SCOPES }).notNull(),
+    severity: text("severity", { enum: POLICY_SEVERITIES }).notNull(),
+    /** 検出する表現。正規表現の文字列。壊れた式は登録の時点で断る（domain 側）。 */
+    pattern: text("pattern").notNull(),
+    ignoreCase: integer("ignore_case", { mode: "boolean" }).notNull().default(true),
+    /** 根拠。**空では保存できない**（domain 側が断る）。理由の書けないきまりは運用されない。 */
+    basis: text("basis").notNull(),
+    /** 代わりの書き方。禁止だけ示すと執筆が止まる。 */
+    suggestion: text("suggestion").notNull(),
+    enabled: integer("enabled", { mode: "boolean" }).notNull().default(true),
+    updatedAt: integer("updated_at", { mode: "timestamp" })
+      .notNull()
+      .default(sql`(unixepoch())`),
+  },
+  (t) => [
+    // 記事を 1 本確認するたびに引く索引。無いと全件走査になる。
+    index("policy_rules_workspace_enabled_idx").on(t.workspaceId, t.enabled),
+  ],
+);
 
 /**
  * 商品。Phase 1 では最小限に留める。
@@ -855,11 +935,28 @@ export const auditLogs = sqliteTable(
     afterJson: text("after_json"),
     /** なぜその操作をしたか。承認・取り下げ・訂正では必須（domain 側で断る）。 */
     reason: text("reason"),
+    /**
+     * その操作が入ってきた**一回の要求**を指す名前。
+     *
+     * **断りの記録（`access.*`）では必ず入る**（domain 側が空を断る）。
+     * 通した操作では入らない回がある（定期実行など、要求の外で起きたもの）。
+     *
+     * 既存の行は `null` になる。この列を足す前に書かれた行は、
+     * 断りを 1 行も持っていない（語そのものが無かった）ので、
+     * 「断りなのに糸が無い行」は生まれない。
+     */
+    requestId: text("request_id"),
     occurredAt: integer("occurred_at", { mode: "timestamp" }).notNull(),
   },
   (t) => [
     // 「この記事に何が起きたか」を引く索引。無いと全件走査になる。
     index("audit_logs_workspace_target_idx").on(t.workspaceId, t.targetType, t.targetId),
+    /*
+     * 「同じ一回の要求で、ほかに何が断られたか」を引く索引。
+     * 断りは 1 件では読めない。総当たりは 1 回の要求の中で何十件も断られ、
+     * 役の付け忘れは 1 件で終わる。糸で引けないと、この差が一覧から読めない。
+     */
+    index("audit_logs_workspace_request_idx").on(t.workspaceId, t.requestId),
     index("audit_logs_workspace_occurred_idx").on(t.workspaceId, t.occurredAt),
     index("audit_logs_workspace_action_occurred_idx").on(t.workspaceId, t.action, t.occurredAt),
   ],
@@ -1552,6 +1649,8 @@ export type SiteBlueprintRow = typeof siteBlueprints.$inferSelect;
 export type PublishedArticleRow = typeof publishedArticles.$inferSelect;
 export type TelemetryEventRow = typeof telemetryEvents.$inferSelect;
 export type AuditLogRow = typeof auditLogs.$inferSelect;
+export type PolicyRuleRow = typeof policyRules.$inferSelect;
+export type DisclosureRow = typeof disclosures.$inferSelect;
 export type LlmCredentialRow = typeof llmCredentials.$inferSelect;
 export type LlmUsageRow = typeof llmUsages.$inferSelect;
 export type VariantSpecRow = typeof variantSpecs.$inferSelect;
@@ -1561,7 +1660,6 @@ export type LoopObservationRow = typeof loopObservations.$inferSelect;
 // 読者ドメイン
 export type Category = typeof categories.$inferSelect;
 export type Person = typeof people.$inferSelect;
-export type Disclosure = typeof disclosures.$inferSelect;
 export type Product = typeof products.$inferSelect;
 export type Article = typeof articles.$inferSelect;
 export type ArticlePerson = typeof articlePeople.$inferSelect;
@@ -1636,6 +1734,15 @@ export const legalPages = sqliteTable(
   "legal_page",
   {
     id: text("id").primaryKey(),
+    /**
+     * 作業場所。`site_slug` から辿れば分かる、では足りない。
+     *
+     * slug の一意性は `site_blueprints` の索引 1 本が支えているだけで、
+     * 作業場所ごとに slug を再利用したくなった日に黙って崩れる。
+     * **1 本のクエリが単体で作業場所に絞れること**を、表の側で持つ
+     * （`tests/architecture/tenant-scoped-schema.test.ts`）。
+     */
+    workspaceId: text("workspace_id").notNull().default(""),
     siteSlug: text("site_slug").notNull(),
     kind: text("kind", { enum: FIXED_PAGE_KINDS }).notNull(),
     title: text("title").notNull(),
@@ -1648,7 +1755,10 @@ export const legalPages = sqliteTable(
       .notNull()
       .default(sql`(unixepoch())`),
   },
-  (t) => [uniqueIndex("legal_page_site_kind_idx").on(t.siteSlug, t.kind)],
+  (t) => [
+    uniqueIndex("legal_page_site_kind_idx").on(t.siteSlug, t.kind),
+    index("legal_page_workspace_idx").on(t.workspaceId, t.siteSlug, t.kind),
+  ],
 );
 
 /**
@@ -1793,13 +1903,18 @@ export const blogArticleBlocks = sqliteTable(
   "blog_article_block",
   {
     id: text("id").primaryKey(),
+    /** 親記事の作業場所の写し。子表だけを読む 1 本でも他所の行に触れない。 */
+    workspaceId: text("workspace_id").notNull().default(""),
     articleId: text("article_id").notNull(),
     kind: text("kind", { enum: ARTICLE_BLOCK_KINDS }).notNull(),
     heading: text("heading").notNull().default(""),
     body: text("body").notNull().default(""),
     position: integer("position").notNull().default(0),
   },
-  (t) => [index("blog_article_block_article_idx").on(t.articleId, t.position)],
+  (t) => [
+    index("blog_article_block_article_idx").on(t.articleId, t.position),
+    index("blog_article_block_workspace_idx").on(t.workspaceId, t.articleId, t.position),
+  ],
 );
 
 /** ブランドタグ (§3.4 の brand-tag-cloud)。 */
@@ -1827,6 +1942,8 @@ export const blogTags = sqliteTable(
 export const blogArticleTags = sqliteTable(
   "blog_article_tag",
   {
+    /** 親記事の作業場所の写し。結び付きだけを数える 1 本でも作業場所で切れる。 */
+    workspaceId: text("workspace_id").notNull().default(""),
     articleId: text("article_id")
       .notNull()
       .references(() => articles.id, { onDelete: "cascade" }),
@@ -1834,7 +1951,10 @@ export const blogArticleTags = sqliteTable(
       .notNull()
       .references(() => blogTags.id, { onDelete: "cascade" }),
   },
-  (t) => [primaryKey({ columns: [t.articleId, t.tagId] })],
+  (t) => [
+    primaryKey({ columns: [t.articleId, t.tagId] }),
+    index("blog_article_tag_workspace_idx").on(t.workspaceId, t.articleId),
+  ],
 );
 
 /** 配信部品 9 種 (§6)。 */
@@ -1881,13 +2001,17 @@ export const blogDeliverySnapshots = sqliteTable(
 /**
  * 閲覧者の評価。
  *
- * workspace_id を持たない。読者に作業場所は無く、所属は article_id が決める。
+ * 読者に作業場所は無い。それでも `workspace_id` を持つのは、**書いた人の所属**
+ * ではなく**票が属する記事の所属**を写しているからである。運営者が自分の作業場所の
+ * 票だけを集計するとき、この列が無いと必ず `articles` を join することになり、
+ * join を 1 度忘れた日に他所の票が混ざる。
  * reader_key は cookie 由来の不透明な鍵で、個人を特定する値は入れない。
  */
 export const blogArticleRatings = sqliteTable(
   "blog_article_rating",
   {
     id: text("id").primaryKey(),
+    workspaceId: text("workspace_id").notNull().default(""),
     articleId: text("article_id").notNull(),
     readerKey: text("reader_key").notNull(),
     score: integer("score").notNull(),
@@ -1904,7 +2028,10 @@ export const blogArticleRatings = sqliteTable(
       .notNull()
       .default(sql`(unixepoch())`),
   },
-  (t) => [uniqueIndex("blog_article_rating_reader_idx").on(t.articleId, t.readerKey)],
+  (t) => [
+    uniqueIndex("blog_article_rating_reader_idx").on(t.articleId, t.readerKey),
+    index("blog_article_rating_workspace_idx").on(t.workspaceId, t.articleId),
+  ],
 );
 
 export type SiteNetworkNodeRow = typeof siteNetworkNodes.$inferSelect;

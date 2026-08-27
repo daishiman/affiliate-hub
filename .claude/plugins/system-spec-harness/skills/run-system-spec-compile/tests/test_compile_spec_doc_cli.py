@@ -140,12 +140,38 @@ def test_vanishing_lines_ignores_moved_sections_and_finds_real_loss():
     assert mod.vanishing_lines("## A\n\n版 1.6.29\n", "## A\n\n版 1.7.1\n") == ["版 1.6.29"]
 
 
-def test_write_docset_reports_lines_lost_inside_generated_sections(tmp_path):
-    """節を引き継いでも守れない損失が、黙って通らないこと。
+def test_vanishing_lines_does_not_call_deduplication_a_loss():
+    """**写しが 2 通から 1 通になっただけの行を、損失と呼ばないこと。**
+
+    質疑の役割が主 (`qa_ref`) から裏付け (`qa_refs`) へ移ると、その回答は質疑録に
+    1 度だけ描かれ、設計知識の側は参照ポインタになる。本文は 1 行も失われていないのに、
+    多重集合の引き算では 7 行 × 2 章が「保てなかった行」として章末へ並んだ
+    (2026-08-25 実測、infrastructure / maintenance-ops)。
+    """
+    twice = "## A\n\n同じ行\n\n## B\n\n同じ行\n"
+    once = "## A\n\n同じ行\n\n## B\n"
+    assert mod.vanishing_lines(twice, once) == []
+
+
+def test_vanishing_lines_still_reports_a_line_that_left_the_document():
+    """上が緩みでないことの陽性対照。**1 通も残らなければ、今も報告に出る。**"""
+    twice = "## A\n\n同じ行\n\n## B\n\n同じ行\n"
+    assert mod.vanishing_lines(twice, "## A\n\n## B\n") == ["同じ行"]
+
+
+def test_write_docset_carries_handwritten_subsections_instead_of_losing_them(tmp_path):
+    """生成節の内側の手書き小節は、**報告ではなく本文として**残ること。
 
     2026-08-23 に本物の章で実測したとき、preserve でも 351 行が消えた。
     先行質疑 (qa-security-web など) と ui-ux の食い違い記録がそこに含まれていた。
-    節単位の検出だけを信じると、この層の損失は見えないまま通る。
+    当時この試験は「消えたことが報告に出る」を求めていた。報告は消失そのものを
+    止めないので、**当時取れた最善**ではあっても、置き場所ではなかった。
+
+    2026-08-25、`handwritten_subsections` が `###` 以下を引き継ぐようになった。
+    求めるものはここで 1 段上がる——**消えたと言えることではなく、消えないこと。**
+    したがって損失報告が空であることは緑であり、退行ではない。本文が
+    `CARRIED_HEADING` の節に居ることを、同じ 1 件で必ず確かめる
+    (報告が空なだけの緑は、引き継ぎが黙って壊れた日と見分けがつかない)。
     """
     out = tmp_path / "out"
     out.mkdir()
@@ -153,10 +179,32 @@ def test_write_docset_reports_lines_lost_inside_generated_sections(tmp_path):
     (out / "a.md").write_text("## 収集状態\n\nあ\n\n### 先行質疑\n\n消えては困る記録\n", encoding="utf-8")
     losses: list = []
     mod.write_docset({"a.md": "## 収集状態\n\nあ\n"}, out, on_handwritten="preserve", loss_report=losses)
-    assert losses, "生成節の中の手書き行が消えたのに報告されなかった"
+    written = (out / "a.md").read_text(encoding="utf-8")
+    assert mod.CARRIED_HEADING in written, "引き継ぎ節そのものが立っていない"
+    assert "### 先行質疑" in written
+    assert "消えては困る記録" in written
+    assert losses == [], f"引き継げているのに消失として報告された: {losses}"
+
+
+def test_write_docset_still_reports_lines_that_have_nowhere_to_be_carried(tmp_path):
+    """**引き継ぎ先が無い 1 行は、今も報告に出ること。**
+
+    上の試験が緩みでないことの陽性対照である。小節を引き継げるようになっても、
+    見出しに属さない裸の 1 行 (表の行など) は行き場が無い。表から切り離せば意味が
+    壊れ、生成節へ差し戻せば正本の投影と手書きの区別が消える。だから本文ではなく
+    報告として残す——この層が黙り出したら、上の緑は「引き継いだ」ではなく
+    「見ていない」を意味するようになる。
+    """
+    out = tmp_path / "out"
+    out.mkdir()
+    (out / "a.md").write_text("## 収集状態\n\n| Web | 確定 | 手で足した行 |\n", encoding="utf-8")
+    losses: list = []
+    mod.write_docset({"a.md": "## 収集状態\n\nあ\n"}, out, on_handwritten="preserve", loss_report=losses)
+    assert losses, "引き継ぎ先の無い行が消えたのに報告されなかった"
     name, lines = losses[0]
     assert name == "a.md"
-    assert "消えては困る記録" in lines
+    assert any("手で足した行" in l for l in lines)
+    assert mod.RESIDUE_HEADING in (out / "a.md").read_text(encoding="utf-8")
 
 
 def test_write_docset_rejects_unknown_mode(tmp_path):

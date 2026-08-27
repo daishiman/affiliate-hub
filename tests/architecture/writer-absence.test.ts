@@ -301,8 +301,29 @@ describe("B. 採否の欄に書き手が居ない (塞げていないことの�
    * 設計適用を 2 件ずつ持って入った。**増分 16 件はすべて `applied`**——
    * ここでも不採用は 1 件も書かれていない。母数が増えたぶん、0 件であることの意味は強くなる。
    */
-  it("`applicability` は 80 件すべて `applied`——不採用が一度も無い", () => {
-    expect(counts).toEqual({ applied: 80 });
+  /**
+   * **【2026-08-25 追記】主張と母数を 1 本に相乗りさせていた。**
+   *
+   * `toEqual({ applied: 60 })` は「不採用が 0 件」と「母数がちょうど 60」を
+   * 同時に言っていた。設計適用が 60 → 65 へ**増えた**日にこれが赤くなり、
+   * 赤の宛先は主張（⑪ が塞がったか）ではなく数字の付け替えになる。
+   * **増えて赤くなる床は、書き手に「数字を実測へ合わせる」癖を教える。**
+   * その癖がついた状態では、`not_applicable` が 1 件現れた日の赤も同じ手で消える。
+   *
+   * そこで 2 件に割った。主張は下の「不採用が 0 件」であり、母数は増える方向にだけ
+   * 動く別の床として置く（実測 2026-08-25: 65、`python3` / 単位は
+   * design_application / 対象は `qa_log[].design_applications`）。
+   */
+  it("`applicability` に `not_applicable` が一度も無い（⑪ が塞がっていない証拠）", () => {
+    expect(counts.not_applicable ?? 0).toBe(0);
+  });
+
+  /**
+   * 母数の床。**上げる方向にしか動かさない。**下がったら、写しの整理か
+   * 記録の消失かを下の「種類」の検査と併せて見分けること。
+   */
+  it("設計適用は 60 件を下回らない（0 件という報せの母数）", () => {
+    expect(counts.applied ?? 0).toBeGreaterThanOrEqual(60);
   });
 
   /**
@@ -345,13 +366,19 @@ describe("B. 採否の欄に書き手が居ない (塞げていないことの�
    * 塞がった日に、この describe を「不採用が 1 件以上ある」へ反転させて残すこと。
    */
   it("不採用を 1 件混ぜると数えられる（見つける側が動いている）", () => {
+    // 2026-08-25: 正本の実測値を混ぜていたので、正本が増えるたびにここも赤くなり、
+    // **数える側が動いているかとは無関係な理由で書き換えられていた。**
+    // 合成の入力だけで閉じれば、この対照は正本の増減から独立する。
+    const synthetic = [
+      { design_applications: [{ applicability: "applied" }] },
+      { design_applications: [{ applicability: "not_applicable" }] },
+    ] as unknown as typeof state.qa_log;
+    expect(countApplicability(synthetic)).toEqual({ applied: 1, not_applicable: 1 });
+    // 正本に混ぜても、増えるのは `not_applicable` の 1 件だけである。
     const withRejection = [
       ...state.qa_log,
       { design_applications: [{ applicability: "not_applicable" }] },
-    ];
-    expect(countApplicability(withRejection)).toEqual({
-      applied: 80,
-      not_applicable: 1,
-    });
+    ] as unknown as typeof state.qa_log;
+    expect(countApplicability(withRejection).not_applicable).toBe(1);
   });
 });

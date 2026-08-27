@@ -341,18 +341,16 @@ function main() {
         const implementation = requirementRows.get(r.req) ?? "";
         if (MUTATION_LAYERS.some((layer) => implementation.includes(layer))) have.add("mutation");
         const ex = r.exclusions.map((e) => e.type);
-        return (
-          [
-            `| ${r.req}`,
-            r.traits.join(", "),
-            required.map((t) => `\`${t}\``).join(" "),
-            required
-              .filter((t) => have.has(t))
-              .map((t) => `\`${t}\``)
-              .join(" ") || "—",
-            ex.map((t) => `\`${t}\``).join(" ") || "—",
-          ].join(" | ") + " |"
-        );
+        return `${[
+          `| ${r.req}`,
+          r.traits.join(", "),
+          required.map((t) => `\`${t}\``).join(" "),
+          required
+            .filter((t) => have.has(t))
+            .map((t) => `\`${t}\``)
+            .join(" ") || "—",
+          ex.map((t) => `\`${t}\``).join(" ") || "—",
+        ].join(" | ")} |`;
       }),
     "",
     "## 理由つき除外の中身",

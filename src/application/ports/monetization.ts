@@ -6,6 +6,7 @@ import type {
   Conversion,
   LinkIngestion,
   LinkIngestionState,
+  ProductSnapshot,
 } from "@/domain/monetization";
 import type {
   AffiliateAccountId,
@@ -39,6 +40,23 @@ export type AffiliateProgramRepositoryPort = {
 
 export type AffiliateLinkRepositoryPort = {
   findById(workspaceId: WorkspaceId, id: AffiliateLinkId): PortResult<AffiliateLink | null>;
+  /**
+   * 同じ URL の、いま使えるリンクを探す。**登録の前に必ず通す。**
+   *
+   * 受信箱の重複判定（`claimNormalizedUrl`）は「受け取った URL」の取り合いで、
+   * こちらは「登録済みの成果リンク」を見る。別物なので両方要る。
+   * 同じ URL が 2 本登録されると、記事に同じ商品が 2 枚並び、
+   * クリックが 2 つの合言葉へ割れて、どちらの数字も本当の数にならない。
+   *
+   * 止まっているもの（停止・期限切れ）は返さない。差し替えは
+   * 「旧を止めてから登録し直す」道なので、止まったものを重複扱いにすると
+   * 差し替えができなくなる。
+   */
+  findUsableByOriginalUrl(
+    workspaceId: WorkspaceId,
+    originalUrl: string,
+    at: Date,
+  ): PortResult<AffiliateLink | null>;
   listByProduct(workspaceId: WorkspaceId, productId: ProductId): PortResult<readonly AffiliateLink[]>;
   /**
    * 手当てが要るリンク（期限切れ・停止済み）。
@@ -51,7 +69,18 @@ export type AffiliateLinkRepositoryPort = {
     at: Date,
     limit: number,
   ): PortResult<readonly AffiliateLink[]>;
-  save(link: AffiliateLink): PortResult<AffiliateLink>;
+  /**
+   * 成果リンクを保存する。**商品の写しを一緒に渡さないと保存できない。**
+   *
+   * `AffiliateLink` は ASP が発行した URL とその素性しか持たず、
+   * 読者のカードに出る商品名を持たない。ところが保存先の行は商品名を必須にする。
+   * 引数を 1 つにすると、保存する実装が名前を**どこかから作る**しかなくなり、
+   * 商品の表（まだ空）を引いて「—」で埋めるような創作がここで起きる。
+   *
+   * 2 つ目の引数にしてあるのは、**呼ぶ側が正本を言い切るまでコンパイルが通らない**
+   * ようにするため。写しの正本は登録の操作をした人であり、保存先ではない。
+   */
+  save(link: AffiliateLink, snapshot: ProductSnapshot): PortResult<AffiliateLink>;
 };
 
 export type ConversionRepositoryPort = {

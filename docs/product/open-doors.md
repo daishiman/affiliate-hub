@@ -11,7 +11,7 @@
 
 適用範囲: `/admin` 以下（読者のページとログインの往復は通す）
 
-開いている扉: **0 件** / 全 149 件
+開いている扉: **0 件** / 全 152 件
 
 「誰でも」と宣言してある行: **36 件**
 （宣言すればその扉は差の数から消える。だから宣言の件数そのものにも上限がある）
@@ -157,6 +157,7 @@
 | `src/app/admin/rankings/page.tsx` | 管理画面 | ログイン | ログイン | — |
 | `src/app/admin/settings/appearance/page.tsx` | 管理画面 | ログイン | ログイン | — |
 | `src/app/admin/settings/audit/page.tsx` | 管理画面 | ログイン | ログイン | — |
+| `src/app/admin/settings/compliance/page.tsx` | 管理画面 | ログイン | ログイン | — |
 | `src/app/admin/settings/integration-access/page.tsx` | 管理画面 | ログイン | ログイン | — |
 | `src/app/admin/settings/llm/page.tsx` | 管理画面 | ログイン | ログイン | — |
 | `src/app/admin/settings/members/page.tsx` | 管理画面 | ログイン | ログイン | — |
@@ -265,6 +266,8 @@
 | `createContentVariantAction()` | 記事の枠を作る（src/presentation/admin/content-form-action.ts） | ログイン | ログイン | — | つく |
 | `createProductAction()` | 商品を登録する（src/presentation/admin/product-form-action.ts） | ログイン | ログイン | — | つく |
 | `draftVariantSpecAction()` | 見せ方の試作を登録する（src/presentation/admin/improvement-action.ts） | ログイン | ログイン | — | つく |
+| `editDisclosureAction()` | 広告であることの断り書きを登録・変更する（読者に出る文が変わる）（src/presentation/admin/compliance-action.ts） | ログイン | ログイン | — | つく |
+| `editPolicyRuleAction()` | 表記のきまりを足す・止める・効かせ直す（止めている間は記事の表現が確認されない）（src/presentation/admin/compliance-action.ts） | ログイン | ログイン | — | つく |
 | `handOffFeedbackAction()` | 指摘を引き継ぐ（src/presentation/admin/feedback-action.ts） | ログイン | ログイン | — | つく |
 | `manageBlogArticleAction()` | 記事を作る・直す・論理削除し、本文・タグ・評価ごと同じURLへ復元する（src/presentation/admin/blog-article-action.ts） | ログイン | ログイン | — | つく |
 | `manageBlogDeliveryAction()` | 配信部品を出し入れする（src/presentation/admin/blog-layout-action.ts） | ログイン | ログイン | — | つく |
@@ -283,4 +286,4 @@
 | `updateContentVariantAction()` | 記事の題名・本文・要約を直す（src/presentation/admin/content-form-action.ts） | ログイン | ログイン | — | つく |
 | `updateManagedSiteAction()` | ブログの設定を直す（src/presentation/admin/site-form-action.ts） | ログイン | ログイン | — | つく |
 | `updateProductAction()` | 商品の内容を直す（src/presentation/admin/product-form-action.ts） | ログイン | ログイン | — | つく |
-<!-- 生成物の指紋 sha256:48c199ea2d9a2faaf4e14b36c6f88197b178b29cacfd92a5b7cc825118eac4fd -->
+<!-- 生成物の指紋 sha256:fc2bd8fef547d5c2ef519d094aaf6f96f100df77e59bc469873b0b91d97bdb94 -->

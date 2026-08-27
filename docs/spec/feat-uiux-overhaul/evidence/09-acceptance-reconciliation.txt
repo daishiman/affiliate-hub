@@ -1,13 +1,13 @@
 # acceptance reconciliation（自動生成）
 
-- generated_at: 2026-08-26T21:51:14.295Z
+- generated_at: 2026-08-27T01:06:09.621Z
 - feature_id: feat-uiux-overhaul
 - implementation_status: pass
 - release_status: unpublished
 - tracking_status: active
 - acceptance_count: 10
-- evidence_file_count: 157
-- evaluated_digest: sha256:bad8350cefd17d7bba43e509d3f39517fcca318979306071b88c2aed88434278
+- evidence_file_count: 160
+- evaluated_digest: sha256:00153966901cb0656d074c8a9c0e0f96f2eecdeacd6263c165871c552f0e1f6a
 - verdict: PASS
 
 A1〜A10は、仕様・runtime・test・report・trackingの共通IDでjoin済み。

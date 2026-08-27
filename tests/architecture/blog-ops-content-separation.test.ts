@@ -101,7 +101,7 @@ describe("記事の管理画面 2 系統の境界", () => {
     );
     expect(repository).toContain("articles as blogArticles");
 
-    const migration = readFileSync(join(ROOT, "drizzle", "0028_unify_blog_article_ssot.sql"), "utf8");
+    const migration = readFileSync(join(ROOT, "drizzle", "0030_unify_blog_article_ssot.sql"), "utf8");
     expect(migration).toContain("INSERT INTO `articles`");
     expect(migration).toContain("FROM `blog_article`");
     expect(migration).toContain("DROP TABLE `blog_article`");

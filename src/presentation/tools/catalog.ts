@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { withAccessDenialAudit } from "@/application/access-denial";
 import type { RankProductsInput } from "@/application/usecases/ranking/rank-products";
 import { createRankProductsUseCase } from "@/application/usecases/ranking/rank-products";
 import type { AppDeps } from "@/application/deps";
@@ -106,9 +107,20 @@ export function buildToolCatalog(deps: CatalogDeps): readonly AnyToolDefinition[
     ...settingsTools(deps),
     ...feedbackTools(deps),
   ];
-  // 仕様書 §24 の名前でも同じユースケースへ入れるようにする。
+  /*
+   * REST / WebMCP / MCP が共通して通る catalog の最終境界で、use case の拒否を包む。
+   * 元の道具を先に 1 回だけ包み、その参照から別名を作る。別名ごとに包むと、
+   * 「別名は元と同じ処理を指す」という catalog の契約が崩れ、同じ処理の写しが増える。
+   * 入口の scope / 人の承認ゲートは `invokeTool` の責務で、ここへ二重計上しない。
+   */
+  const audited = own.map((tool) => ({
+    ...tool,
+    useCase: withAccessDenialAudit(deps, tool.name, tool.useCase),
+  }));
+
+  // 仕様書 §24 の名前でも、上で包んだ**同じユースケース**へ入れるようにする。
   // 処理は増えない。名前の対応が付いていないものは載らず、スタブとして表に残る。
-  return [...own, ...contractAliasTools(own)];
+  return [...audited, ...contractAliasTools(audited)];
 }
 
 export function findTool(

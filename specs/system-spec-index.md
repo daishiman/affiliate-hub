@@ -12,7 +12,7 @@ iteration: null
 title: "system-spec compiled specification"
 owners: ["system-spec-harness"]
 created_at: "2026-08-16T12:08:04Z"
-updated_at: "2026-08-25T09:30:00Z"
+updated_at: "2026-08-24T13:30:00Z"
 status: "active"
 depends_on: []
 related_nodes: ["feat-uiux-overhaul", "feat-blog-ui-builder"]
@@ -31,8 +31,8 @@ template_id: "specification"
 template_version: "1.0.0"
 confirmation_status: "confirmed"
 evaluation_status: "pass"
-confirmation_evidence: {"evaluated_digest":"6ffac8f3a50c77499d310c4be14b89f27ba91cba627b0267c23e3e686c093dee","evaluator":"system-spec-harness/assign-system-spec-completeness-evaluator","evidence_ref":"system-spec/completeness-report.json"}
-source_lineage: {"imported_at":"2026-08-25T09:30:00Z","origin_kind":"system-spec-harness","source_digest":"409add2dc4ceef4637f1a2048bdd9a2e54a4a9873cc4e70a9d160a13c5d63e44","source_path":"system-spec/index.md","source_plugin":"system-spec-harness","source_version":"0.1.0"}
+confirmation_evidence: {"evaluated_digest":"0615d70d74973bac98929d7e3ce7b444933ac7e7280718ebbb74b8fef7676ca6","evaluator":"system-spec-harness/assign-system-spec-completeness-evaluator","evidence_ref":"system-spec/completeness-report.json"}
+source_lineage: {"imported_at":"2026-08-16T12:08:04Z","origin_kind":"system-spec-harness","source_digest":"409add2dc4ceef4637f1a2048bdd9a2e54a4a9873cc4e70a9d160a13c5d63e44","source_path":"system-spec/index.md","source_plugin":"system-spec-harness","source_version":"0.1.0"}
 classification_confidence: 1.0
 classification_reason: "system-spec-harness が compile した specification index の import。"
 classification_candidates: [{"artifact_kind":"specification","candidate_path":"specs/system-spec-index.md","confidence":1.0}]
@@ -43,8 +43,8 @@ github_publication: {"labels":[],"milestone":null,"mode":"local_only","project_a
 github_project_linkages: []
 pull_request_linkages: []
 execution_contexts: []
-completion_evidence: {"completed_at":"2026-08-16T12:08:04Z","evidence_refs":["system-spec/completeness-report.json"],"policy":"manual","reconciled_at":"2026-08-25T09:30:00Z","source":"manual","status":"done"}
-implementation_readiness: {"checked_at":"2026-08-25T09:30:00Z","missing_sections":[],"status":"complete"}
+completion_evidence: {"completed_at":"2026-08-16T12:08:04Z","evidence_refs":["system-spec/completeness-report.json"],"policy":"manual","reconciled_at":"2026-08-16T12:08:04Z","source":"manual","status":"done"}
+implementation_readiness: {"checked_at":"2026-08-16T12:08:04Z","missing_sections":[],"status":"complete"}
 ---
 
 # システム構築仕様書 index
@@ -78,9 +78,9 @@ implementation_readiness: {"checked_at":"2026-08-25T09:30:00Z","missing_sections
 | カテゴリ | 章 | 収集状態 | 実装状態 | 検証状態 | 資するゴール | 対応セル |
 |---|---|---|---|---|---|---|
 | データベース (database) | [database.md](./database.md) | 確定 | `partial` (単一D1・運営者3テーブル + Phase 1 読者ドメイン + ブログ UI 6 テーブルはスキーマのみ) | `unverified` | G1 G2 | database.web database.mobile database.tablet database.desktop-windows database.desktop-linux database.desktop-macos |
-| 認証(ログイン) (auth) | [auth.md](./auth.md) | 確定 | `not_started` (現行はMCP_TOKEN) | `unverified` | G1 | auth.web auth.mobile auth.tablet auth.desktop-windows auth.desktop-linux auth.desktop-macos |
-| UI-UX (ui-ux) | [ui-ux.md](./ui-ux.md) | 確定 | `partial` (管理画面 50 を単一用途へ分割。規則は feat-uiux-overhaul。読者面の SEO/AI 指針画面は feat-blog-ui-builder MVP) | `unverified` | G1 | ui-ux.web ui-ux.mobile ui-ux.tablet ui-ux.desktop-windows ui-ux.desktop-linux ui-ux.desktop-macos |
-| セキュリティ (security) | [security.md](./security.md) | 確定 | `partial` (PoC認証・環境分離のみ) | `unverified` | G1 | security.web security.mobile security.tablet security.desktop-windows security.desktop-linux security.desktop-macos |
+| 認証(ログイン) (auth) | [auth.md](./auth.md) | 確定 | `partial` (Better Auth / Workspace / tenant / capability はローカル実装。Google 実往復と remote D1 は未検証) | `pass` (ローカル受入) / `unverified` (Workers・本番) | G1 | auth.web auth.mobile auth.tablet auth.desktop-windows auth.desktop-linux auth.desktop-macos |
+| UI-UX (ui-ux) | [ui-ux.md](./ui-ux.md) | 確定 | `partial` (管理画面 51 を単一用途へ分割。規則は feat-uiux-overhaul。読者面の SEO/AI 指針画面は feat-blog-ui-builder MVP) | `unverified` | G1 | ui-ux.web ui-ux.mobile ui-ux.tablet ui-ux.desktop-windows ui-ux.desktop-linux ui-ux.desktop-macos |
+| セキュリティ (security) | [security.md](./security.md) | 確定 | `partial` (tenant 分離と capability 認可はローカル実装。同意ゲートは未実装) | `unverified` | G1 | security.web security.mobile security.tablet security.desktop-windows security.desktop-linux security.desktop-macos |
 | インフラ (infrastructure) | [infrastructure.md](./infrastructure.md) | 確定 | `partial` (Workers・単一D1・R2) | `unverified` | G2 G1 | infrastructure.web infrastructure.mobile infrastructure.tablet infrastructure.desktop-windows infrastructure.desktop-linux infrastructure.desktop-macos |
 | バックエンド (backend) | [backend.md](./backend.md) | 確定 | `partial` (3 MCPツールのPoC) | `unverified` | G2 G1 | backend.web backend.mobile backend.tablet backend.desktop-windows backend.desktop-linux backend.desktop-macos |
 | フロントエンド (frontend) | [frontend.md](./frontend.md) | 確定 | `partial` (管理画面の共通部品 3 段と CRUD。公開面の sitemap/robots/RSS/llms.txt/JSON-LD/IndexNow は feat-blog-ui-builder MVP) | `unverified` | G1 G2 | frontend.web frontend.mobile frontend.tablet frontend.desktop-windows frontend.desktop-linux frontend.desktop-macos |
@@ -112,6 +112,10 @@ implementation_readiness: {"checked_at":"2026-08-25T09:30:00Z","missing_sections
 ## 実装からの書き戻し（feat-uiux-overhaul）
 
 2026-08-23 時点で、運営者面の UI/UX 全面改善は実装受入に合格し、未公開である。章の質疑録への投影（`qa-uiux-web-overhaul-v2` ほか）と、画面規則の正本（`docs/spec/feat-uiux-overhaul/`）の所在は [`docs/spec/feat-uiux-overhaul/spec-writeback-receipt.md`](../docs/spec/feat-uiux-overhaul/spec-writeback-receipt.md) に受領した。`system-spec/*.md` を手で太らせて completeness を緑にはしていない。
+
+## 実装からの書き戻し（feat-auth-workspace / 2026-08-24）
+
+認証章 `system-spec/auth.md` は R4 reopen で実装投影だけを更新済み。本ファイルは completeness 指紋の外にある投影であり、上表の auth / security 実装状態を 2026-08-24 の実測へ揃えた。`system-spec/index.md` は C03 compile 出力のため、再 compile が手書き節を落とす既知リスク（`ah-a0o`）がある間は触らない。受領は [`docs/spec-writeback-receipt.md`](../docs/spec-writeback-receipt.md)。
 
 ## 実装からの書き戻し（feat-blog-ui-builder）
 

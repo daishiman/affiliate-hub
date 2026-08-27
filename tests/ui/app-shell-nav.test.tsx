@@ -60,8 +60,12 @@ describe("案内の分類の読み上げ", () => {
 });
 
 describe("管理画面route metadataの正本", () => {
-  it("65画面・ナビ・分類は同じmetadataから派生する", () => {
-    expect(ADMIN_ROUTE_METADATA).toHaveLength(65);
+  it("66画面・ナビ・分類は同じmetadataから派生する", () => {
+    // 2026-08-27: 51 → 66。**両側が別々に画面を足していた。**dev が 50 → 51 へ、
+    // こちらが blog 運用の 15 枚を足しており、どちらの枝も単独では自分の数を
+    // 書いていた。片側の数をそのまま採ると、数え上げが実物とずれたまま緑になる。
+    // 合流させた実物は `find src/app/admin -name page.tsx | wc -l` = 66 枚である。
+    expect(ADMIN_ROUTE_METADATA).toHaveLength(66);
 
     const navRoutes = ADMIN_ROUTE_METADATA.filter((route) => route.nav !== null);
     expect(ADMIN_NAV.map((item) => item.href)).toEqual(navRoutes.map((route) => route.pattern));

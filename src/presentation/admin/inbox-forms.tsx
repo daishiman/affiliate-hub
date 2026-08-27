@@ -73,10 +73,22 @@ export function AdvanceIngestionForm({
   const [programId, setProgramId] = useState("");
   const [productId, setProductId] = useState("");
   const [reason, setReason] = useState("");
+  const [productName, setProductName] = useState("");
+  const [brand, setBrand] = useState("");
+  const [oneLine, setOneLine] = useState("");
 
   const canResolve = item.nextStates.includes("resolved");
   const canMatch = item.nextStates.includes("matched");
   const canReject = item.nextStates.includes("rejected");
+  /*
+   * 登録は状態の遷移ではないので `nextStates` には出てこない。
+   * 受信箱の状態は「商品まで決まった（`matched`）」で終わりで、
+   * その先の登録は `affiliate_links` 側の話になる。
+   *
+   * 重複の印が付いているものは出さない。押しても断られるだけで、
+   * 直す場所（どちらを本体にするか）はここではなく受信箱の一覧側にある。
+   */
+  const canRegister = item.state === "matched" && item.duplicateOf === null;
 
   if (item.nextStates.length === 0) {
     return (
@@ -99,6 +111,9 @@ export function AdvanceIngestionForm({
    * 道具も 3 つで、目録にも `resolve_link_ingestion` /
    * `match_link_ingestion_product` / `reject_link_ingestion` の 3 つがある。
    * 詰めていたほうが目録とずれていた。
+   *
+   * 登録（`register_affiliate_link`）を 4 つ目として同じ形で足してある。
+   * 詰め直すと、その瞬間にまた AI から呼べない操作が 1 つ増える。
    *
    * `name="intent"` を submit ボタンから隠し欄へ移したのは、
    * 1 form に 1 ボタンになったため。ボタンに値を載せる書き方は
@@ -150,6 +165,52 @@ export function AdvanceIngestionForm({
           />
           <Button type="submit" tone="primary" busy={pending}>
             商品に結びつける
+          </Button>
+        </ToolForm>
+      ) : null}
+
+      {canRegister ? (
+        <ToolForm
+          action={action}
+          toolName="register_affiliate_link"
+          toolDescription="商品まで決まった受信箱のリンクを、記事に出せる成果リンクとして登録する"
+        >
+          <FormValue name="linkIngestionId" value={item.id} />
+          <FormValue name="intent" value="register" />
+          {/*
+            商品名をここで受け取るのは、**この欄が写しの正本**だからである。
+            商品の表はまだ空で、リンク先を取りに行くのは別の危うさを増やす。
+            ASP の管理画面に出ている表記を、そのまま写してもらう。
+          */}
+          <Field
+            name="productName"
+            label="商品名（読者のカードに出ます）"
+            value={productName}
+            onValueChange={setProductName}
+            error={state.field === "productName" ? state.message : null}
+            hint="ASP の管理画面に出ている表記をそのまま入れてください。ここで入れた名前が、そのまま記事に出ます。"
+            toolParamDescription="読者のカードに出す商品名（ASP の表記のまま）"
+          />
+          <Field
+            name="brand"
+            label="ブランド"
+            optional
+            value={brand}
+            onValueChange={setBrand}
+            hint="分からないときは空のままにしてください。当てて書かないでください。"
+            toolParamDescription="商品の作り手・ブランド名（任意）"
+          />
+          <Field
+            name="oneLine"
+            label="1 文の説明"
+            optional
+            value={oneLine}
+            onValueChange={setOneLine}
+            hint="カードの見出しの下に出ます。空でも登録できます。"
+            toolParamDescription="カードに出す 1 文の説明（任意）"
+          />
+          <Button type="submit" tone="primary" busy={pending}>
+            成果リンクとして登録する
           </Button>
         </ToolForm>
       ) : null}

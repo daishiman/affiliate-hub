@@ -2,6 +2,8 @@ import type { FeedbackCaptureStoragePort, FeedbackRepositoryPort } from "@/appli
 import {
   type FeedbackHistoryEntry,
   type FeedbackReport,
+  DIAGNOSTICS_PURGED_TEXT,
+  DIAGNOSTICS_RETENTION_NOTICE,
   FEEDBACK_DISPOSITION_LABELS,
   FEEDBACK_KIND_LABELS,
   FEEDBACK_STATUS_LABELS,
@@ -9,6 +11,8 @@ import {
   HANDOFF_IDEMPOTENCY_TEXT,
   HANDOFF_ROUTE_LABELS,
   WISH_ABSENT_TEXT,
+  diagnosticsExpireAt,
+  isDiagnosticsPurged,
 } from "@/domain/feedback";
 import { requireCapability } from "@/domain/identity";
 import {
@@ -70,6 +74,17 @@ export type ReadFeedbackOutput = {
   readonly failedRequestCount: number;
   readonly redactedCount: number;
   readonly technical: FeedbackReport["technical"];
+  /**
+   * 技術情報の保持について画面へ出す説明（REQ-FB08）。
+   * **画面が日数を書かない。** 書くと、期限を変えた日に画面だけが古くなる。
+   */
+  readonly diagnosticsRetentionNotice: string;
+  /** いつ消えるか。すでに消えていれば、消した時刻。 */
+  readonly diagnosticsExpiresAt: Date;
+  readonly diagnosticsPurged: boolean;
+  readonly diagnosticsPurgedAt: Date | null;
+  /** 消えたあとに各欄へ出す文。空欄にも「記録されていません」にもしない。 */
+  readonly diagnosticsPurgedText: string;
   readonly handoffCount: number;
   readonly handoffHistory: readonly HandoffHistoryRow[];
   readonly handoffHistoryEmptyText: string;
@@ -136,6 +151,11 @@ export function createReadFeedbackUseCase(
         failedRequestCount: report.technical.failedRequests.length,
         redactedCount: report.technical.redactedCount,
         technical: report.technical,
+        diagnosticsRetentionNotice: DIAGNOSTICS_RETENTION_NOTICE,
+        diagnosticsExpiresAt: diagnosticsExpireAt(report.submittedAt),
+        diagnosticsPurged: isDiagnosticsPurged(report.technical),
+        diagnosticsPurgedAt: report.technical.purgedAt,
+        diagnosticsPurgedText: DIAGNOSTICS_PURGED_TEXT,
         handoffCount: report.handoff.count,
         handoffHistory: report.handoff.entries.map((e) => ({
           at: e.at,

@@ -21,6 +21,7 @@ import {
   createAffiliateLink,
   createAffiliateProgram,
   createConversion,
+  isLinkUsable,
   normalizeExternalId,
 } from "@/domain/monetization";
 import {
@@ -335,11 +336,31 @@ export function createSampleAffiliateProgramRepository(): AffiliateProgramReposi
   };
 }
 
+/**
+ * 見本の成果リンク。**保存先（D1）版もこれを重ねて返す。**
+ *
+ * 消すと、1 件も登録していない状態で一覧が空になり、
+ * 「まだ登録していない」のか「壊れている」のかを画面から見分けられなくなる。
+ */
+export function sampleAffiliateLinks(): readonly AffiliateLink[] {
+  return LINKS;
+}
+
 /** 商業の印を付けて返す。印が無いものは、順位づけ側へ渡せてしまう。 */
 export function createSampleAffiliateLinkRepository(): CommercialAffiliateLinkRepositoryPort {
   return markCommercial({
     async findById(workspaceId: WorkspaceId, id: AffiliateLink["id"]) {
       return ok(LINKS.find((l) => l.workspaceId === workspaceId && l.id === id) ?? null);
+    },
+    async findUsableByOriginalUrl(workspaceId: WorkspaceId, originalUrl: string, at: Date) {
+      return ok(
+        LINKS.find(
+          (l) =>
+            l.workspaceId === workspaceId &&
+            l.originalUrl === originalUrl &&
+            isLinkUsable(l, at),
+        ) ?? null,
+      );
     },
     async listByProduct(workspaceId: WorkspaceId, productId: ProductId) {
       return ok(LINKS.filter((l) => l.workspaceId === workspaceId && l.productId === productId));

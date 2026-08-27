@@ -12,6 +12,7 @@ import { describe, expect, it } from "vitest";
 import { EVAL_CASES } from "../../evals/generation/cases";
 import { AI_EVAL_BUDGET, CHECKS, LAYER_COVERAGE, TIERS } from "../../quality-gates.config.mjs";
 import strykerConfig from "../../stryker.config.mjs";
+import { createTestProjects } from "../../vitest.projects.mjs";
 
 /**
  * 自動化の設定そのものを見る。**コードを 1 行も変えずに壊れる場所**である。
@@ -75,6 +76,7 @@ const mentions = (text: string, id: string) =>
 
 /** 置いてあるべきワークフロー。**実装から読まず、ここに書き写して固定する。** */
 const EXPECTED_WORKFLOWS = [
+  "actions-usage.yml",
   "ai-eval.yml",
   "branch-flow.yml",
   "ci.yml",
@@ -152,7 +154,7 @@ function scanWrittenThresholds(dir: string): string[] {
 }
 
 describe("ワークフローの一覧（REQ-CI04）", () => {
-  it("6 本ちょうどで、名前も固定されている", () => {
+  it("7 本ちょうどで、名前も固定されている", () => {
     const dir = join(ROOT, ".github/workflows");
     // 一覧が空でも緑になるのを防ぐ。ディレクトリごと消えたら、ここで落ちる。
     expect(existsSync(dir), ".github/workflows がありません").toBe(true);
@@ -319,22 +321,34 @@ describe("手元と機械で同じ検査が走る（REQ-CI01 / REQ-CI03）", () 
       "0020_stiff_fabian_cortez",
       "0021_secret_vin_gonzales",
       "0022_neat_virginia_dare",
-      // ブログ運用の 8 表（feat-blog-ops-crud）。
-      "0023_faithful_ultimatum",
+      /*
+        dev 側の 0022 と番号が衝突したので 0022 → 0023 へずらしたもの。
+        中身（disclosures の workspace 化と policy_rules）は変えていない。
+        dev が先に着地しているので、こちらが後ろへ寄る。
+      */
+      "0023_orange_mystique",
+      // 断りの記録に糸（request ID）を持たせるための列と索引。旧 0023。
+      "0024_aromatic_flatman",
+      // ブログ運用の 8 表（feat-blog-ops-crud）。dev の 0023/0024 と番号がぶつかったので
+      // 0023..0030 → 0025..0032 へずらした。中身は変えていない。
+      "0025_faithful_ultimatum",
       // 読者の評価を「消さずに伏せる」ための印（blog_article_rating.hidden）。
-      "0024_black_vargas",
+      "0026_black_vargas",
       // タグの種類（blog_tag.kind）。既定は topic — 既存タグを勝手にブランド扱いしない。
-      "0025_careless_goliath",
+      "0027_careless_goliath",
       // 配信物を点検した結果（blog_delivery_snapshot）。設定表とは別の表で、履歴として積む。
-      "0026_cuddly_nuke",
+      "0028_cuddly_nuke",
       // サイト網・ブログ記事の論理削除日時。hidden / archived とは別のライフサイクル。
-      "0027_dashing_gamma_corps",
+      "0029_dashing_gamma_corps",
       // 記事編集の正本を articles へ一本化し、旧 blog_article を移送後に廃止する。
-      "0028_unify_blog_article_ssot",
+      "0030_unify_blog_article_ssot",
       // 固定ページへ公開状態と論理削除日時を足し、公開投影の境界を保存する。
-      "0029_publish_fixed_pages",
+      "0031_publish_fixed_pages",
       // 記事・タグ結合の親 FK。保存検証後の競合削除も batch 全体で戻す。
-      "0030_square_wolfpack",
+      "0032_square_wolfpack",
+      // ブログの子表（部品・タグ結合・評価）と固定ページへ作業場所の列と索引を足す。
+      // 親から辿れば分かる、では足りない——join を 1 度忘れた 1 本で他所の行に触れる。
+      "0033_tenant_scope_blog_children",
     ];
     const journal = JSON.parse(read("drizzle/meta/_journal.json")) as {
       entries: Array<{ tag: string }>;
@@ -658,6 +672,74 @@ describe("秘密情報の置き場所（REQ-CI07）", () => {
 });
 
 describe("重い検査の置き場所（REQ-CI09 / REQ-CI10 / REQ-CI11）", () => {
+  it("axe と workerd の検査は、通常テストのあとに 1 ファイルずつ走る", () => {
+    type Project = {
+      readonly test?: {
+        readonly name?: string | { readonly label?: string };
+        readonly include?: readonly string[];
+        readonly exclude?: readonly string[];
+        readonly fileParallelism?: boolean;
+        readonly sequence?: { readonly groupOrder?: number };
+      };
+    };
+    const projects = createTestProjects(6) as readonly Project[];
+    const nameOf = (project: Project) =>
+      typeof project.test?.name === "string" ? project.test.name : project.test?.name?.label;
+    const normal = projects.find((project) => nameOf(project) === "normal");
+    const a11y = projects.find((project) => nameOf(project) === "a11y");
+    const workerRuntime = projects.find((project) => nameOf(project) === "worker-runtime");
+
+    expect(normal, "通常テスト用 project がありません").toBeDefined();
+    expect(a11y, "axe テスト用 project がありません").toBeDefined();
+    expect(workerRuntime, "workerd 結合テスト用 project がありません").toBeDefined();
+    // 親にも include があると `extends: true` が配列を結合し、両 project で全件が走る。
+    const configSource = read("vitest.config.mts");
+    expect(configSource).toContain("projects: createTestProjects(NORMAL_MAX_WORKERS)");
+    expect(configSource).not.toMatch(/^ {4}include:/m);
+    expect(normal?.test?.include).toEqual(["tests/**/*.test.ts", "tests/**/*.test.tsx"]);
+    expect(workerRuntime?.test?.include).toEqual([
+      "tests/integration/d1-*.test.ts",
+      "tests/integration/r2-feedback-capture.test.ts",
+    ]);
+    expect(normal?.test?.exclude).toEqual(
+      expect.arrayContaining([
+        ...(a11y?.test?.include ?? []),
+        ...(workerRuntime?.test?.include ?? []),
+      ]),
+    );
+    expect(normal?.test?.sequence?.groupOrder).toBeLessThan(
+      a11y?.test?.sequence?.groupOrder ?? 0,
+    );
+    expect(a11y?.test?.sequence?.groupOrder).toBeLessThan(
+      workerRuntime?.test?.sequence?.groupOrder ?? 0,
+    );
+    expect(a11y?.test?.fileParallelism).toBe(false);
+    expect(workerRuntime?.test?.fileParallelism).toBe(false);
+
+    const a11yUsers = readdirSync(join(ROOT, "tests/ui"))
+      .filter((name) => name.endsWith(".test.ts") || name.endsWith(".test.tsx"))
+      .filter((name) =>
+        readFileSync(join(ROOT, "tests/ui", name), "utf8").includes('from "../support/a11y"'),
+      )
+      .map((name) => `tests/ui/${name}`)
+      .sort();
+    expect(a11yUsers.length, "axe の利用箇所を読めていません").toBeGreaterThan(0);
+    expect([...(a11y?.test?.include ?? [])].sort()).toEqual(a11yUsers);
+
+    // 新しい getPlatformProxy テストが通常側へ紛れたら、workerd の同時起動が再発する。
+    const integrationDir = join(ROOT, "tests/integration");
+    const proxyUsers = readdirSync(integrationDir)
+      .filter((name) => name.endsWith(".test.ts"))
+      .filter((name) => readFileSync(join(integrationDir, name), "utf8").includes("getPlatformProxy"));
+    expect(proxyUsers.length, "getPlatformProxy の利用箇所を読めていません").toBeGreaterThan(0);
+    expect(
+      proxyUsers.filter(
+        (name) => !/^d1-.+\.test\.ts$/.test(name) && name !== "r2-feedback-capture.test.ts",
+      ),
+      "直列 project の glob に入らない getPlatformProxy テストがあります",
+    ).toEqual([]);
+  });
+
   it("深い門は自動で走らない（定例を廃止した 2026-08-18 の決定）", () => {
     // 定例で走らせると、赤を消すために夜間の検査そのものが外される。
     for (const name of ["nightly.yml", "ai-eval.yml"]) {

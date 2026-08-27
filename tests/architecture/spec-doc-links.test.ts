@@ -1,4 +1,4 @@
-/** @tier 1 @req REQ-CI08 */
+/** @tier 1 @req REQ-CI08 @types code-boundary */
 import { existsSync, readFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { describe, expect, it } from "vitest";

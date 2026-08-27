@@ -6,15 +6,15 @@
 feat-blog-ui-builder が同じ 0023 を取りに来る可能性があるため、
 衝突したときは番号ではなく**内容**で突き合わせる (P08 が所有)。
 
-**実ファイル名は `drizzle/0023_faithful_ultimatum.sql`。**
+**実ファイル名は `drizzle/0025_faithful_ultimatum.sql`。**
 計画時は `0023_blog_ops_crud.sql` と書いていたが、生成は `drizzle-kit generate`
 が行い、名前は drizzle 側が採番と一緒に付ける (人が付ける余地がない)。
 計画側の名前を残すと、実在しないファイル名を探す人が出るのでここで実名に直した
 (2026-08-26)。突き合わせる先は名前ではなく**内容**である。
 
-P08 corrective migration の実ファイルは `drizzle/0028_unify_blog_article_ssot.sql`。
+P08 corrective migration の実ファイルは `drizzle/0030_unify_blog_article_ssot.sql`。
 0023 は当初表の履歴、0028 は記事正本を `articles` へ一本化する是正 migration であり、役割を混同しない。
-現行の最新は `drizzle/0030_square_wolfpack.sql`。`blog_article_tag` の親 FK を
+現行の最新は `drizzle/0032_square_wolfpack.sql`。`blog_article_tag` の親 FK を
 追加し、移行前 guard が既存不整合を見つけたら削除せず中断する。
 
 ## P08 corrective migration: 記事正本の一本化

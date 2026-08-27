@@ -6,10 +6,10 @@ local implementation validation: **GREEN**
 
 ## 現行の決着: `articles` が唯一の編集正本
 
-- `drizzle/0027_dashing_gamma_corps.sql`: 統合前の `blog_article` と `site_network_node` に `deleted_at` を追加
-- `drizzle/0028_unify_blog_article_ssot.sql`: `articles` にブログ属性を追加し、`blog_article` 全行を ID 維持で backfill した後に過渡表を DROP
-- `drizzle/0029_publish_fixed_pages.sql`: 固定ページの公開状態・論理削除と canonical kind への移行
-- `drizzle/0030_square_wolfpack.sql`: `blog_article_tag` から `articles` / `blog_tag` へ
+- `drizzle/0029_dashing_gamma_corps.sql`: 統合前の `blog_article` と `site_network_node` に `deleted_at` を追加
+- `drizzle/0030_unify_blog_article_ssot.sql`: `articles` にブログ属性を追加し、`blog_article` 全行を ID 維持で backfill した後に過渡表を DROP
+- `drizzle/0031_publish_fixed_pages.sql`: 固定ページの公開状態・論理削除と canonical kind への移行
+- `drizzle/0032_square_wolfpack.sql`: `blog_article_tag` から `articles` / `blog_tag` へ
   `ON DELETE CASCADE` FK を追加
 
 0028 は T1→`ranking`, T2→`review`, T3/T4→`guide` を domain mapping と同じ対応で backfill し、ステータス・公開時刻・論理削除時刻・作成更新時刻を保持する。legacy AI 行のブログ属性は推測せず NULL のまま保つ。`content_variants` / `publications` の `articles.id` 参照は維持する。
@@ -65,7 +65,7 @@ published generation は digest で固定された記録なので書き換えな
 
 追加した表は 9 つ (`site_network_node` / `blog_layout_slot` / `blog_layout_band` /
 `blog_article` / `blog_article_block` / `blog_delivery_part` / `blog_tag` /
-`blog_article_tag` / `blog_article_rating`)。実ファイルは `drizzle/0023_faithful_ultimatum.sql`。
+`blog_article_tag` / `blog_article_rating`)。実ファイルは `drizzle/0025_faithful_ultimatum.sql`。
 
 - 既存行への backfill: **不要** (既存表に変更が無い)
 - ロールバック時のデータ損失: **既存に無い**。新設 9 表を落とすだけで戻る

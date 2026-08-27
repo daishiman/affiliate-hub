@@ -26,6 +26,7 @@ export { Field, type FieldProps } from "./primitives/field";
 export { FormValue, type FormValueProps } from "./primitives/form-value";
 export { Select, type SelectProps, type SelectOption } from "./primitives/select";
 export { CheckboxGroup, type CheckboxGroupProps } from "./primitives/checkbox-group";
+export { Checkbox, type CheckboxProps } from "./primitives/checkbox";
 export { TextArea, type TextAreaProps } from "./primitives/textarea";
 export { ToolForm } from "./primitives/tool-form";
 // ToolForm の対。AI から呼べない操作は素の <form> ではなくこちらを使う。

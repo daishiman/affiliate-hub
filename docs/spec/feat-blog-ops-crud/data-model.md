@@ -83,7 +83,7 @@ batch 全体でロールバックする。
 | 列 | 内容 |
 |---|---|
 | id / site_slug / slug / name / description | |
-| kind | `brand` (商品の作り手) / `topic` (記事のまとめ方)。既定 `topic` (migration `0025_careless_goliath`) |
+| kind | `brand` (商品の作り手) / `topic` (記事のまとめ方)。既定 `topic` (migration `0027_careless_goliath`) |
 
 **`brand-tag-cloud` に出るのは `kind='brand'` だけである。**
 枠は読者に「これは商品の作り手だ」と言っているので、話題タグが混じると
@@ -135,7 +135,7 @@ unique(`workspace_id`, `site_slug`, `part`)
 | reader_key | 閲覧者の識別。個人を特定する値は入れない (cookie 由来の不透明な鍵) |
 | score | 1–5 の整数 |
 | comment | 任意。空文字は NULL |
-| hidden | 運営が伏せた印。既定 `false` (migration `0024_black_vargas`) |
+| hidden | 運営が伏せた印。既定 `false` (migration `0026_black_vargas`) |
 | created_at | |
 
 unique(`article_id`, `reader_key`) — 同じ閲覧者の再送は置き換え (`REQ-BOPS09`)。

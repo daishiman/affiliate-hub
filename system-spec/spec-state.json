@@ -759,23 +759,23 @@
     "database": {
       "web": {
         "state": "確定",
-        "qa_ref": "qa-database-web-site-blueprint",
-        "serves_goals": [
-          "G1",
-          "G2"
-        ],
+        "qa_ref": "qa-database-web-blog-builder",
         "qa_refs": [
-          "qa-database-web-site-blueprint",
-          "qa-database-web-blog-ops-crud",
+          "qa-database-web-blog-builder",
           "qa-database-web-spec-intake",
           "qa-database-web",
           "qa-database-web-analytics"
+        ],
+        "serves_goals": [
+          "G1",
+          "G2"
         ],
         "required_info_checks": [
           {
             "checked_on": "2026-08-25",
             "checked_with": "record-required-info-check",
-            "blocking_item_count": 0
+            "blocking_item_count": 0,
+            "unmet_blocking_items": 0
           }
         ]
       },
@@ -817,9 +817,15 @@
         ],
         "required_info_checks": [
           {
-            "checked_on": "2026-08-21",
+            "checked_on": "2026-08-24",
             "checked_with": "record-required-info-check",
             "blocking_item_count": 1
+          },
+          {
+            "checked_on": "2026-08-25",
+            "checked_with": "record-required-info-check",
+            "blocking_item_count": 1,
+            "unmet_blocking_items": 0
           }
         ]
       },
@@ -847,7 +853,15 @@
     "ui-ux": {
       "web": {
         "state": "確定",
-        "qa_ref": "qa-uiux-web-site-blueprint",
+        "qa_ref": "qa-uiux-web-seo-ai-search-v2",
+        "qa_refs": [
+          "qa-uiux-web-seo-ai-search-v2",
+          "qa-uiux-web-blog-builder",
+          "qa-uiux-web-screen-priority",
+          "qa-uiux-web-spec-intake",
+          "qa-uiux-web",
+          "qa-uiux-web-overhaul-v2"
+        ],
         "required_info": [
           {
             "item_id": "product-goal",
@@ -859,7 +873,7 @@
             "item_id": "screen-information-priority",
             "missing_effect": "block",
             "status": "grounded",
-            "grounded_by": "qa-uiux-web-blog-ops-crud"
+            "grounded_by": "qa-uiux-web-screen-priority"
           },
           {
             "item_id": "target-platforms",
@@ -869,13 +883,15 @@
           }
         ],
         "serves_goals": [
-          "G1"
+          "G1",
+          "G2"
         ],
         "required_info_checks": [
           {
             "checked_on": "2026-08-25",
             "checked_with": "record-required-info-check",
-            "blocking_item_count": 3
+            "blocking_item_count": 3,
+            "unmet_blocking_items": 0
           }
         ]
       },
@@ -924,6 +940,12 @@
             "checked_on": "2026-08-22",
             "checked_with": "record-required-info-check",
             "blocking_item_count": 1
+          },
+          {
+            "checked_on": "2026-08-25",
+            "checked_with": "record-required-info-check",
+            "blocking_item_count": 1,
+            "unmet_blocking_items": 0
           }
         ]
       },
@@ -967,6 +989,12 @@
             "checked_on": "2026-08-25",
             "checked_with": "record-required-info-check",
             "blocking_item_count": 0
+          },
+          {
+            "checked_on": "2026-08-25",
+            "checked_with": "record-required-info-check",
+            "blocking_item_count": 0,
+            "unmet_blocking_items": 0
           }
         ]
       },
@@ -994,31 +1022,31 @@
     "backend": {
       "web": {
         "state": "確定",
-        "qa_ref": "qa-backend-web-site-blueprint",
+        "qa_ref": "qa-backend-web-spec-intake",
+        "qa_refs": [
+          "qa-backend-web-spec-intake",
+          "qa-backend-web",
+          "qa-backend-web-analytics",
+          "qa-backend-web-overhaul-v2"
+        ],
         "required_info": [
           {
             "item_id": "domain-model",
             "missing_effect": "block",
             "status": "grounded",
-            "grounded_by": "qa-backend-web-site-blueprint"
+            "grounded_by": "qa-backend-web-spec-intake"
           }
         ],
         "serves_goals": [
           "G2",
           "G1"
         ],
-        "qa_refs": [
-          "qa-backend-web-site-blueprint",
-          "qa-backend-web-blog-ops-crud",
-          "qa-backend-web-spec-intake",
-          "qa-backend-web",
-          "qa-backend-web-analytics"
-        ],
         "required_info_checks": [
           {
             "checked_on": "2026-08-25",
             "checked_with": "record-required-info-check",
-            "blocking_item_count": 1
+            "blocking_item_count": 1,
+            "unmet_blocking_items": 0
           }
         ]
       },
@@ -1046,23 +1074,25 @@
     "frontend": {
       "web": {
         "state": "確定",
-        "qa_ref": "qa-frontend-web-site-blueprint",
+        "qa_ref": "qa-frontend-web-seo-ai-search-v2",
+        "qa_refs": [
+          "qa-frontend-web-seo-ai-search-v2",
+          "qa-frontend-web-blog-builder",
+          "qa-frontend-web-spec-intake",
+          "qa-frontend-web",
+          "qa-frontend-web-analytics",
+          "qa-frontend-web-overhaul-v2"
+        ],
         "serves_goals": [
           "G1",
           "G2"
-        ],
-        "qa_refs": [
-          "qa-frontend-web-site-blueprint",
-          "qa-frontend-web-blog-ops-crud",
-          "qa-frontend-web-spec-intake",
-          "qa-frontend-web",
-          "qa-frontend-web-analytics"
         ],
         "required_info_checks": [
           {
             "checked_on": "2026-08-25",
             "checked_with": "record-required-info-check",
-            "blocking_item_count": 0
+            "blocking_item_count": 0,
+            "unmet_blocking_items": 0
           }
         ]
       },
@@ -1105,6 +1135,12 @@
             "checked_on": "2026-08-25",
             "checked_with": "record-required-info-check",
             "blocking_item_count": 0
+          },
+          {
+            "checked_on": "2026-08-25",
+            "checked_with": "record-required-info-check",
+            "blocking_item_count": 0,
+            "unmet_blocking_items": 0
           }
         ]
       },
@@ -2355,12 +2391,18 @@
     {
       "id": "qa-uiux-web-seo-ai-search",
       "question": "ui-ux×web: SEO と AI 検索 (AI Overviews / AI Mode / ChatGPT search / Perplexity 等) からの評価・引用を高めるために、ブログ UI ビルダーの記事構造・固定ページ・管理画面をどう整えるか。また海外・日本の最新ガイドラインを取得して反映する運用をどう見せるか。2026-08-24 対話ヒアリング (利用者原文を逐語主旨で記録) + 同日ウェブ調査。",
-      "answer": "利用者本人の回答を逐語主旨で記録する。\n(1) 合わせて、SEO や AI による『その SEO に変わるやつ』(AI 検索・生成 AI 回答での引用) にも対応できるようにしておく。AI からの検索や評価が高くなるような仕組みにしておく。\n(2) 最新のこれらの情報 (SEO / AI 検索最適化のガイドライン) をウェブから、海外も日本の情報も含めて取得した上で、それを反映できるようなブログを構築できるようにしておく。\n## 調査結果 (2026-08-24、海外+日本。一次情報と業者推定を区別)\n- 一次情報: Google Search Central『AI 最適化ガイド』(2026-05-15 公開) は、AI Overviews / AI Mode が既存ランキング+RAG+query fan-out で動き、追加の技術要件は無く、index 可能かつ snippet 表示可能であることが唯一の条件、llms.txt や特別な schema は不要と明言する。Search Console に AI 機能由来の impressions を見る report がある。\n- 一次情報: llms.txt (Answer.AI) は root の /llms.txt に Markdown を置く規約で正式標準ではない。IndexNow (Bing/Yandex/Naver/Seznam) は URL 更新 push で Google 非対応。ChatGPT search の retrieval は Bing index 由来のため IndexNow が AI 検索への到達経路になる。\n- 海外/日本の業者知見 (推定値扱い): AI クローラ (GPTBot / ClaudeBot / PerplexityBot / Google-Extended) を遮断しない、各節冒頭に 2〜3 文の『答え』、統計・出典の明記、FAQPage/HowTo/Article/Person/Organization/BreadcrumbList の JSON-LD、最終更新日と『〜時点』の可視化、著者ページ (E-E-A-T)、AI 引用の定点観測。日本では FAQ 構造化データと結論ファーストを優先する論調が多く、アフィリエイト記事は一次体験・独自比較表・図解が有利。\n## ui-ux 章への反映方針\n- 記事テンプレートに『結論ブロック (冒頭 2〜3 文の答え)』『要点リスト』『比較表』『FAQ ブロック』『出典ブロック』『最終更新日 / 〜時点 表示』を標準ブロックとして追加し、AI が引用しやすい構造を編集 UI で促す (必須ではなく既定で配置)。\n- 固定ページ 6 種に『著者プロフィール』を加え、記事に著者・監修者・一次体験の明示欄を置く (E-E-A-T)。\n- 管理画面に『SEO / AI 検索 チェック』パネルを置く: index 可否 (noindex / robots)・構造化データの有無・最終更新からの経過日数 (90 日超で更新推奨)・AI 引用定点観測の記録欄 (手動)。数値目標は業者推定値なので受入条件に置かず、検証可能項目 (index 可能・JSON-LD 妥当・更新日表示) だけを受入条件にする。\n- 『最新ガイドライン反映』の運用 UI: 参照レジストリ (出典 URL・発行元・確認日・要約) を管理画面で一覧し、確認日から 90 日超を要再確認として表示する。ガイドライン変更時に仕様セルを R4-reopen する運用を README に明記する。"
+      "answer": "利用者本人の回答を逐語主旨で記録する。\n(1) 合わせて、SEO や AI による『その SEO に変わるやつ』(AI 検索・生成 AI 回答での引用) にも対応できるようにしておく。AI からの検索や評価が高くなるような仕組みにしておく。\n(2) 最新のこれらの情報 (SEO / AI 検索最適化のガイドライン) をウェブから、海外も日本の情報も含めて取得した上で、それを反映できるようなブログを構築できるようにしておく。\n## 調査結果 (2026-08-24、海外+日本。一次情報と業者推定を区別)\n- 一次情報: Google Search Central『AI 最適化ガイド』(2026-05-15 公開) は、AI Overviews / AI Mode が既存ランキング+RAG+query fan-out で動き、追加の技術要件は無く、index 可能かつ snippet 表示可能であることが唯一の条件、llms.txt や特別な schema は不要と明言する。Search Console に AI 機能由来の impressions を見る report がある。\n- 一次情報: llms.txt (Answer.AI) は root の /llms.txt に Markdown を置く規約で正式標準ではない。IndexNow (Bing/Yandex/Naver/Seznam) は URL 更新 push で Google 非対応。ChatGPT search の retrieval は Bing index 由来のため IndexNow が AI 検索への到達経路になる。\n- 海外/日本の業者知見 (推定値扱い): AI クローラ (GPTBot / ClaudeBot / PerplexityBot / Google-Extended) を遮断しない、各節冒頭に 2〜3 文の『答え』、統計・出典の明記、FAQPage/HowTo/Article/Person/Organization/BreadcrumbList の JSON-LD、最終更新日と『〜時点』の可視化、著者ページ (E-E-A-T)、AI 引用の定点観測。日本では FAQ 構造化データと結論ファーストを優先する論調が多く、アフィリエイト記事は一次体験・独自比較表・図解が有利。\n## ui-ux 章への反映方針\n- 記事テンプレートに『結論ブロック (冒頭 2〜3 文の答え)』『要点リスト』『比較表』『FAQ ブロック』『出典ブロック』『最終更新日 / 〜時点 表示』を標準ブロックとして追加し、AI が引用しやすい構造を編集 UI で促す (必須ではなく既定で配置)。\n- 固定ページ 6 種に『著者プロフィール』を加え、記事に著者・監修者・一次体験の明示欄を置く (E-E-A-T)。\n- 管理画面に『SEO / AI 検索 チェック』パネルを置く: index 可否 (noindex / robots)・構造化データの有無・最終更新からの経過日数 (90 日超で更新推奨)・AI 引用定点観測の記録欄 (手動)。数値目標は業者推定値なので受入条件に置かず、検証可能項目 (index 可能・JSON-LD 妥当・更新日表示) だけを受入条件にする。\n- 『最新ガイドライン反映』の運用 UI: 参照レジストリ (出典 URL・発行元・確認日・要約) を管理画面で一覧し、確認日から 90 日超を要再確認として表示する。ガイドライン変更時に仕様セルを R4-reopen する運用を README に明記する。",
+      "source": {
+        "kind": "user-dialogue"
+      }
     },
     {
       "id": "qa-frontend-web-seo-ai-search",
       "question": "frontend×web: SEO と AI 検索最適化 (SSR・構造化データ自動生成・robots/sitemap/RSS/llms.txt・IndexNow・鮮度表示) の実装契約と、最新ガイドライン出典の取り込み経路をどうするか。2026-08-24 対話ヒアリング (利用者原文を逐語主旨で記録) + 同日ウェブ調査。",
-      "answer": "利用者本人の回答を逐語主旨で記録する。\n(1) 合わせて、SEO や AI による『その SEO に変わるやつ』(AI 検索・生成 AI 回答での引用) にも対応できるようにしておく。AI からの検索や評価が高くなるような仕組みにしておく。\n(2) 最新のこれらの情報 (SEO / AI 検索最適化のガイドライン) をウェブから、海外も日本の情報も含めて取得した上で、それを反映できるようなブログを構築できるようにしておく。\n## 調査結果 (2026-08-24、海外+日本。一次情報と業者推定を区別)\n- 一次情報: Google Search Central『AI 最適化ガイド』(2026-05-15 公開) は、AI Overviews / AI Mode が既存ランキング+RAG+query fan-out で動き、追加の技術要件は無く、index 可能かつ snippet 表示可能であることが唯一の条件、llms.txt や特別な schema は不要と明言する。Search Console に AI 機能由来の impressions を見る report がある。\n- 一次情報: llms.txt (Answer.AI) は root の /llms.txt に Markdown を置く規約で正式標準ではない。IndexNow (Bing/Yandex/Naver/Seznam) は URL 更新 push で Google 非対応。ChatGPT search の retrieval は Bing index 由来のため IndexNow が AI 検索への到達経路になる。\n- 海外/日本の業者知見 (推定値扱い): AI クローラ (GPTBot / ClaudeBot / PerplexityBot / Google-Extended) を遮断しない、各節冒頭に 2〜3 文の『答え』、統計・出典の明記、FAQPage/HowTo/Article/Person/Organization/BreadcrumbList の JSON-LD、最終更新日と『〜時点』の可視化、著者ページ (E-E-A-T)、AI 引用の定点観測。日本では FAQ 構造化データと結論ファーストを優先する論調が多く、アフィリエイト記事は一次体験・独自比較表・図解が有利。\n## frontend 章への反映方針\n- 公開面は SSR/ISR で本文を HTML に含め、semantic HTML (article/section/h1〜h3/time) で出力する。robots.txt はテンプレート既定で AI クローラを許可し、ブログ単位で拒否リストを設定できる。\n- ブロック構造から JSON-LD を自動生成する: BlogPosting/Article・Person (著者)・Organization・BreadcrumbList・FAQPage (FAQ ブロック)・HowTo (手順ブロック)・Product/Review (比較表・レビュー)。schema.org の型・必須プロパティを検証する pure 関数を置き、テストで妥当性を確認する。\n- 配信: sitemap.xml・RSS/Atom・/llms.txt (低コスト・効果未確認と明記) を自動生成し、公開・更新時に IndexNow へ送信する (API key はブログ単位、秘密はサーバ側のみ)。\n- 鮮度: 各記事に dateModified を出し、公開面にも『最終更新日』『〜時点』を表示する。\n- 最新情報の取り込み: SEO / AI 検索ガイドラインの出典 (Google AI 最適化ガイド・AI 機能ページ・llms.txt・IndexNow) を仕様状態の targets / fetched-references に登録し、doc-fetch (C02) と鮮度監査 (C08) で再取得・再照合できるようにする。アプリ側は参照レジストリ (guideline_references) を DB に持ち、管理画面で確認日・要約を更新できる。"
+      "answer": "利用者本人の回答を逐語主旨で記録する。\n(1) 合わせて、SEO や AI による『その SEO に変わるやつ』(AI 検索・生成 AI 回答での引用) にも対応できるようにしておく。AI からの検索や評価が高くなるような仕組みにしておく。\n(2) 最新のこれらの情報 (SEO / AI 検索最適化のガイドライン) をウェブから、海外も日本の情報も含めて取得した上で、それを反映できるようなブログを構築できるようにしておく。\n## 調査結果 (2026-08-24、海外+日本。一次情報と業者推定を区別)\n- 一次情報: Google Search Central『AI 最適化ガイド』(2026-05-15 公開) は、AI Overviews / AI Mode が既存ランキング+RAG+query fan-out で動き、追加の技術要件は無く、index 可能かつ snippet 表示可能であることが唯一の条件、llms.txt や特別な schema は不要と明言する。Search Console に AI 機能由来の impressions を見る report がある。\n- 一次情報: llms.txt (Answer.AI) は root の /llms.txt に Markdown を置く規約で正式標準ではない。IndexNow (Bing/Yandex/Naver/Seznam) は URL 更新 push で Google 非対応。ChatGPT search の retrieval は Bing index 由来のため IndexNow が AI 検索への到達経路になる。\n- 海外/日本の業者知見 (推定値扱い): AI クローラ (GPTBot / ClaudeBot / PerplexityBot / Google-Extended) を遮断しない、各節冒頭に 2〜3 文の『答え』、統計・出典の明記、FAQPage/HowTo/Article/Person/Organization/BreadcrumbList の JSON-LD、最終更新日と『〜時点』の可視化、著者ページ (E-E-A-T)、AI 引用の定点観測。日本では FAQ 構造化データと結論ファーストを優先する論調が多く、アフィリエイト記事は一次体験・独自比較表・図解が有利。\n## frontend 章への反映方針\n- 公開面は SSR/ISR で本文を HTML に含め、semantic HTML (article/section/h1〜h3/time) で出力する。robots.txt はテンプレート既定で AI クローラを許可し、ブログ単位で拒否リストを設定できる。\n- ブロック構造から JSON-LD を自動生成する: BlogPosting/Article・Person (著者)・Organization・BreadcrumbList・FAQPage (FAQ ブロック)・HowTo (手順ブロック)・Product/Review (比較表・レビュー)。schema.org の型・必須プロパティを検証する pure 関数を置き、テストで妥当性を確認する。\n- 配信: sitemap.xml・RSS/Atom・/llms.txt (低コスト・効果未確認と明記) を自動生成し、公開・更新時に IndexNow へ送信する (API key はブログ単位、秘密はサーバ側のみ)。\n- 鮮度: 各記事に dateModified を出し、公開面にも『最終更新日』『〜時点』を表示する。\n- 最新情報の取り込み: SEO / AI 検索ガイドラインの出典 (Google AI 最適化ガイド・AI 機能ページ・llms.txt・IndexNow) を仕様状態の targets / fetched-references に登録し、doc-fetch (C02) と鮮度監査 (C08) で再取得・再照合できるようにする。アプリ側は参照レジストリ (guideline_references) を DB に持ち、管理画面で確認日・要約を更新できる。",
+      "source": {
+        "kind": "user-dialogue"
+      }
     },
     {
       "id": "qa-uiux-web-seo-ai-search-v2",
@@ -2432,6 +2474,99 @@
           ]
         }
       ]
+    },
+    {
+      "id": "qa-backend-web-overhaul-v2",
+      "question": "backend×web: UI/UX 改善で必要になる API は何か (2026-08-21 利用者ヒアリング逐語)",
+      "answer": "利用者本人の回答を逐語主旨で記録する。「この UI、UX を整える際に必要な API があれば、それも併せて実行するような流れにしておいてください」。具体的には (1) 各管理対象 (商品・ブログ・SNS チャネル・記事等) の新規作成・削除を含む CRUD API。(2) 商品×ブログの多対多対応付けと、ブログごとのコンセプト管理 API。(3) コンセプトごとの文章生成・保存 API。(4) X・Facebook 等を抽象化した SNS チャネル登録・投稿状態参照 API (プロバイダ追加可能な構成)。(5) ブログごとの構成 (セクション並び・テンプレート・コンポーネントセット) を保存・取得する構成管理 API。ドメインモデルは既確定の qa-backend-web-spec-intake を基礎とし、ブログ構成とチャネルの 2 概念を拡張する。既存のバックエンドスタック (Cloudflare Workers/D1) を継続使用する。",
+      "asks_for": [
+        {
+          "category": "backend",
+          "platform": "web"
+        }
+      ],
+      "design_applications": [
+        {
+          "knowledge_ref": "user-dialogue:2026-08-21#必要API併走",
+          "principle": "UI の各操作は対応する API 契約と対で定義し、画面だけが先行して API 不在で死んでいる状態を作らない",
+          "applicability": "applied",
+          "rationale": "利用者が「UI/UX を整える際に必要な API があれば併せて実行する」と明言した。各サイト・各 SNS への投稿部分が画面に反映されていない現状は、表示に必要な API/データ供給の欠落が一因であり、画面と API を同一タスク境界で対にする",
+          "tradeoffs": [
+            "API を同時に整備するぶん 1 機能あたりの実装範囲は広がる。画面ごとに必要最小の API から段階導入し、プロバイダ別 SNS 連携の実配信は契約定義と投稿状態参照を先行させる"
+          ]
+        }
+      ],
+      "source": {
+        "kind": "user-dialogue"
+      }
+    },
+    {
+      "id": "qa-frontend-web-overhaul-v2",
+      "question": "frontend×web: 単一用途画面分割・基本管理機能・再利用コンポーネント・マルチブログ/マルチ SNS 対応のフロントエンド要件は何か (2026-08-21 利用者ヒアリング逐語)",
+      "answer": "利用者本人の回答を逐語主旨で記録する。(1) 管理画面を単一用途ごとの画面に分割する (一覧・詳細・作成・編集の分離)。(2) 各管理対象に新規作成・削除を含む基本 CRUD 操作の UI を備える。(3) 1 つの商品に対して複数のブログを対応付けられる構成にする。各ブログにはそれぞれのコンセプトがあり、コンセプトごとに文章を作成できる UI にする。(4) SNS は X・Facebook など様々なものに対応できる拡張可能なチャネル構成とし、各 SNS への投稿状態が画面に反映されるようにする。(5) UI はコンポーネント化して再利用する。ハードコーディングの重複を書かず共通化する。(6) ブログごとにブログの構成を作成したい。新しくブログを構築する際には、そのブログごとにコンポーネントを作成できる仕様にする (ブログ単位の構成テンプレート/コンポーネントセットを定義・管理できる)。(7) 既存スタック (Next.js/React) を継続使用する。",
+      "asks_for": [
+        {
+          "category": "frontend",
+          "platform": "web"
+        }
+      ],
+      "design_applications": [
+        {
+          "knowledge_ref": "user-dialogue:2026-08-21#ブログ別構成コンポーネント",
+          "principle": "ブログ (配信先) ごとの構成をデータとして定義し、構成要素を再利用可能なコンポーネントとして組み立てる",
+          "applicability": "applied",
+          "rationale": "利用者が「ブログごとにブログの構成を作成したい」「新しくブログを構築する際には、そのブログごとにコンポーネントを作成するような仕様にしたい」と明言した。ブログ=チャネルの構成 (セクション並び・記事テンプレート) を宣言的データとして持ち、レンダリングは共通コンポーネント群が担う構成にする",
+          "tradeoffs": [
+            "構成の自由度を上げるほどスキーマとエディタ UI が複雑になる。初期はセクション型の固定カタログから選ぶ方式に絞り、任意レイアウトは後続にする"
+          ]
+        },
+        {
+          "knowledge_ref": "ref-system-design-knowledge:information-design",
+          "principle": "一覧・詳細・作成・編集を分離し、各画面の主要アクションを 1 つにする",
+          "applicability": "applied",
+          "rationale": "単一用途画面への分割要求 (qa-uiux-web-overhaul-v2) をフロントエンドのルーティング/画面構成として実装する。CRUD の各操作は専用画面または明示的なモーダルに分離し、破壊的操作 (削除・公開) のみ確認を挟む (本人回答の誤操作コスト境界に従う)",
+          "tradeoffs": [
+            "画面数が増えるため、共通レイアウト・ナビゲーション (整理後のサイドバー) の一貫性維持が前提になる"
+          ]
+        }
+      ],
+      "source": {
+        "kind": "user-dialogue"
+      }
+    },
+    {
+      "id": "qa-uiux-web-overhaul-v2",
+      "question": "ui-ux×web: 管理画面の UI/UX 全面改善で何をどう改善するか (2026-08-21 利用者ヒアリング逐語)",
+      "answer": "利用者本人の回答を逐語主旨で記録する。(1) 一つの画面に複数用途が混在しているため、各画面は単一用途に特化させる。(2) 新規作成・削除といった基本管理機能が不足しており追加する。(3) カード間隔が不適切で直感的な視認性が損なわれており、間隔を最適化する。文章量が多すぎる点も削減する。(4) サイドバーの各項目間が間延びして見づらいので詰める。サイドバーの情報量が増える可能性があるため最適な粒度で整理する。(5) 全画面を見直す。現在 UI/UX が整っておらず画面が全く活きていない。(6) 各サイト・各 SNS への投稿部分が画面に反映されていないので反映する。(7) 各 UI/UX はコンポーネント化して再利用できるようにする。何度も同じようにハードコーディングでコードを書くのではなく共通化する。既存仕様の画面別情報優先度 (qa-uiux-web-screen-priority) は維持し、その上に本改善を適用する。",
+      "asks_for": [
+        {
+          "category": "ui-ux",
+          "platform": "web"
+        }
+      ],
+      "design_applications": [
+        {
+          "knowledge_ref": "ref-system-design-knowledge:information-design",
+          "principle": "1 画面 1 主要タスクとし、情報の優先/補助/省略を task 頻度×失敗コストで決める",
+          "applicability": "applied",
+          "rationale": "利用者が「一つの画面に複数用途が混在している」「文章量が多すぎる」と明言しており、単一用途画面への分割とテキスト削減は情報優先度の原則の直接適用である。既確定の画面別情報優先度 (qa-uiux-web-screen-priority の 9 軸本人回答) を分割後の各画面へ継承する",
+          "tradeoffs": [
+            "画面分割により遷移回数は増えるが、週 1 回利用・PC 中心では 1 画面の判断負荷低減を優先する。文章量削減による初見時の説明不足を避けるため、補助情報は削除せず折りたたみ・ツールチップへ退避する"
+          ]
+        },
+        {
+          "knowledge_ref": "user-dialogue:2026-08-21#コンポーネント共通化",
+          "principle": "同一の視覚要素・操作パターンはコンポーネント化して再利用し、ハードコーディングの重複を排除する",
+          "applicability": "applied",
+          "rationale": "利用者が「何度も同じようにハードコーディングとかコードを書くのではなく、共通化するようにしておいてほしい」と明言した。カード・サイドバー項目・一覧・フォーム等の共通コンポーネントとデザイントークン (間隔・タイポグラフィ) を単一の正本にする",
+          "tradeoffs": [
+            "共通化は初期コストが掛かり、画面固有の微調整には variant/prop 設計が要る。過剰な抽象化を避け、3 回目の重複が出た時点で共通化する"
+          ]
+        }
+      ],
+      "source": {
+        "kind": "user-dialogue"
+      }
     },
     {
       "id": "qa-infra-web-migration-guard",
@@ -2528,420 +2663,6 @@
             "answer_span": "控えは成果物として 30 日保管し (migrate.yml と同条件)、落ちても残るよう適用より先に保存する。",
             "note": "控えが空だったときは適用を中止する。保管は 30 日で migrate.yml と揃え、保管に失敗したこと自体も落ちる扱いにする。",
             "origin_qa_id": "qa-ops-web-migration-guard"
-          }
-        ],
-        "recorded_with": "set-qa-scope-notes"
-      }
-    },
-    {
-      "id": "qa-uiux-web-blog-ops-crud",
-      "question": "ui-ux×web: ブログ運営 CRUD ページ群 (作成者側の管理・作成・編集・削除・一覧・公開、閲覧者側の閲覧・検索・評価) の画面一覧と情報優先度、および参考ブログ (docs 記載 URL) の構成を抽象化したレイアウト・ブループリントをどう定めるか。2026-08-25 対話ヒアリング (利用者原文を逐語主旨で記録)。参考ブログは構成のみを抽象化して反映し、文章・素材・固有名・配色値は転用しない。",
-      "answer": "利用者本人の回答を逐語主旨で記録する。\n(1) ブログを運営する・作成する・見る、の全てについて、作成者と閲覧者それぞれが管理・作成・削除・一覧表示・評価できるページが必要だが、そのためのページが一切ない。ブログ運営に必要な CRUD 処理の全内容を UI/UX を整えて用意する。\n(2) docs に記録された参考ブログを真似して構築できるように、サイドバー・ヘッダー/フッター・画像の使い方・説明の仕方を仕様に取りまとめる。今の仕様ではこのブログを真似して構築できない。\n(3) 参考ブログをまるっとコピーして運用・作成できる粒度で構築できるようにする。ただし 100% 真似していると分からないよう抽象度を上げ、構成はしっかり反映する。\n\n反映方針 (ui-ux):\nA. 作成者側の画面群 (管理面 /admin/blogs 配下、既存の単一目的画面規約を踏襲):\n- ブログ: 一覧 (名称・公開状態・記事数・最終更新・適用テンプレート/テーマ)、新規作成 (テンプレート選択→基本情報→テーマ選択の 3 段ウィザード)、設定編集 (基本情報/ナビ構成/サイドバー構成/フッター構成/SEO 既定/法定ページ)、削除 (アーカイブ→30 日以内復元可、二段確認)。\n- 記事: 一覧 (タイトル・状態 下書き/予約/公開/非公開・カテゴリ・更新日・閲覧数・評価平均、状態/カテゴリ/期間で絞込、一括 公開/非公開/カテゴリ変更)、作成・編集 (ブロックエディタ: 見出し/本文/図版/吹き出し/比較表/仕様表/商品カード/ランキング/まとめ/CTA、右ペインに公開設定・アイキャッチ・SEO・目次プレビュー)、プレビュー (閲覧者側と同一レイアウトで描画)、公開/予約/下書き戻し、複製、削除 (ゴミ箱→復元)。\n- カテゴリ: 2 階層 (上位カテゴリ→下位カテゴリ) のツリー編集、並び替え、ハブページ用の説明文・アイキャッチ設定。\n- 固定ページ: 運営者情報・全カテゴリー一覧・サイトポリシー・プライバシーポリシー・特定商取引法に基づく表記・お問い合わせ の 6 種を法定ページ管理として一覧・編集・公開。\n- 商品/比較ブロック: 商品カード (画像・名称・要点・出典表記・価格・販売店リンク) の一覧・作成・編集・削除、比較表・ランキングの部品管理、アフィリエイト配置との対応表示 (既存 qa-uiux-web-blog-builder の方針を踏襲)。\n- 評価・コメント: 閲覧者の評価とコメントのモデレーション一覧 (承認/非表示/返信)、記事別の評価集計。\n- 画像ライブラリ: アップロード・代替テキスト必須・webp 変換状態・使用箇所の表示。\n- ナビ/レイアウト構成エディタ: ヘッダーのメガナビ (上位→下位カテゴリ)、サイドバー部品の並び、フッターのカテゴリツリー・法定リンク・ロゴナビを部品単位で有効化/並び替え。\nB. 閲覧者側の画面群 (公開面 /s/[site] 配下):\n- トップ: 新着記事帯 → 姉妹メディア/関連サイト カード帯 → 上位カテゴリごとのハブ (h2) に下位カテゴリ (h3) と記事リスト → ナビゲータ (用途別の入口) の順。\n- カテゴリハブ: 上位カテゴリ説明 → 下位カテゴリ帯 → 記事カード一覧 (ページネーション)。\n- 記事: パンくず → H1 → アイキャッチ → PR 表記 → 導入ボックス (吹き出し付き) → 階層目次 → 監修者/執筆者ボックス → H2 節 (必要に応じてレスポンシブ仕様表) → 判断軸ごとの H3 (中央配置の図版 + 箇条書き + 吹き出し) → ランキング H2 (強調ボックス + 商品カード列) → 横スクロール比較表 → まとめ H2 (商品カード再掲) → 評価/コメント → 前後記事。\n- 検索結果・タグ一覧・固定ページ (法定 6 種)・評価/コメント投稿 (認証不要、スパム対策あり)。\nC. 抽象化レイアウト・ブループリント (blueprint id: review-media-classic として登録し、固有名を持たない部品名で定義):\n- Header: ロゴ + サイト内検索 + 2 階層メガナビ (上位カテゴリにホバー/タップで下位カテゴリ一覧)。モバイルはハンバーガー→アコーディオン。\n- Sidebar (右、デスクトップのみ。モバイルは本文下へ降格): 検索、入れ子カテゴリ一覧、ブランド/タグクラウド、カテゴリ即時ボタン群、プロフィールカード (4 つの正方形リンクボタン)、最近のコメント、追従 (sticky) 目次。\n- Footer: プロフィール、全カテゴリツリー、法定 6 リンク、ロゴナビ。\n- 画像方針: アイキャッチは記事カードと記事冒頭で共通、H3 ごとに中央配置の説明図版、webp + 遅延読込、代替テキスト必須。\n- 説明の仕方: 導入で読者の課題を吹き出しで代弁 → 判断軸を先に提示 → 軸ごとに図版+箇条書き → 比較表で横断 → まとめで再掲、という説明順序をテンプレートとして固定する。\nD. 情報優先度 (画面ごと): 記事一覧は「状態→タイトル→カテゴリ→更新日」の順で列を固定し、閲覧数・評価は補助列。記事編集は本文を最大幅、公開設定は右ペインに畳む。削除は失敗コストが高いため一覧の行内には置かず詳細画面の末尾に置き、二段確認+復元導線を必須にする。公開はプレビュー確認を経ないと押せない。\nE. 受入条件: sticky ヘッダー/目次/サイドバーは 400% 拡大とフォーカス移動時に本文を覆わない (既存方針を継承)。キーボードだけで全 CRUD が完結する。モバイル幅ではサイドバーをドロワーへ降格し、比較表は横スクロール容器に入れる。参考ブログの文章・画像・固有名・色値の転用は 0 件で、構成部品名は抽象名のみを使う。",
-      "source": {
-        "kind": "user-dialogue"
-      },
-      "asks_for": [
-        {
-          "category": "ui-ux",
-          "platform": "web"
-        }
-      ],
-      "design_applications": [
-        {
-          "knowledge_ref": "information-design.md#中核概念",
-          "principle": "表現物ごとに残す・落とす・加工する情報を task 頻度×失敗コストで順位付けする",
-          "applicability": "applied",
-          "rationale": "記事一覧では頻度の高い「状態確認→編集へ移動」を最優先し列順を固定、失敗コストの高い削除は一覧から外して詳細末尾+二段確認+復元導線に置く。閲覧者側の記事レイアウトは「課題提示→判断軸→軸別説明→横断比較→まとめ」の説明順序を固定し、参考ブログの構成を部品名の抽象化で再現する",
-          "tradeoffs": [
-            "削除導線を遠ざけるほど大量整理の手数が増える。一括操作は公開/非公開/カテゴリ変更に限り、一括削除はアーカイブ経由のみ許す",
-            "説明順序を固定するほど記事の自由度が下がる。ブロック単位の省略は許し、順序入替は blueprint 設定で明示的に変える"
-          ]
-        },
-        {
-          "knowledge_ref": "usability-accessibility.md#適用条件",
-          "principle": "WCAG 2.2 reflow / focus-not-obscured を sticky 要素に適用し、CRUD 操作をキーボードだけで完結させる",
-          "applicability": "applied",
-          "rationale": "追従目次・サイドバー・ヘッダーを増やす blueprint は本文を覆う失敗モードを持つため、達成基準を受入条件に組み込む。管理面はブロックエディタを含め全操作をキーボードで到達可能にする",
-          "tradeoffs": [
-            "モバイル幅では sticky を解除しドロワーへ降格するため、レイアウト分岐が増える",
-            "ブロックエディタのキーボード操作は実装コストが高い。初期は見出し/本文/図版/表の 4 ブロックから対応する"
-          ]
-        }
-      ],
-      "written_up": [
-        {
-          "path": "system-spec/ui-ux.md",
-          "sha256": "bc41280194391a6e38f27513fcedb1f2599e7397ca9b6e4c84dd8651ddf276a0",
-          "recorded_on": "2026-08-25",
-          "recorded_with": "set-qa-written-up",
-          "section": "## 確定内容 (質疑録) > ### qa-uiux-web-blog-ops-crud"
-        }
-      ]
-    },
-    {
-      "id": "qa-frontend-web-blog-ops-crud",
-      "question": "frontend×web: ブログ運営 CRUD ページ群 (管理面 /admin/blogs 配下と公開面 /s/[site] 配下) と抽象化ブループリント review-media-classic を、既存の App Router / SiteFrame / 単一目的画面規約の上でどう実装するか。2026-08-25 対話ヒアリング。",
-      "answer": "利用者要望 (qa-uiux-web-blog-ops-crud に記録) を frontend×web の実装方針へ落とす。\n(1) ルーティング: 管理面は /admin/blogs (一覧), /admin/blogs/new, /admin/blogs/[blogId] (設定), /admin/blogs/[blogId]/articles, /admin/blogs/[blogId]/articles/new, /admin/blogs/[blogId]/articles/[articleId] (編集), /admin/blogs/[blogId]/articles/[articleId]/preview, /admin/blogs/[blogId]/categories, /admin/blogs/[blogId]/pages (法定固定ページ), /admin/blogs/[blogId]/products (商品カード/比較部品), /admin/blogs/[blogId]/reviews (評価・コメント モデレーション), /admin/blogs/[blogId]/media, /admin/blogs/[blogId]/layout (ナビ/サイドバー/フッター構成)。公開面は /s/[site] (トップ), /s/[site]/c/[category] (ハブ), /s/[site]/c/[category]/[sub], /s/[site]/a/[slug] (記事), /s/[site]/search, /s/[site]/t/[tag], /s/[site]/p/[page] (固定ページ)。\n(2) レイアウト部品: 公開面は既存 SiteFrame/SiteShell を拡張し、blueprint review-media-classic の Header (ロゴ+検索+2 階層メガナビ) / Sidebar (7 部品) / Footer (プロフィール+全カテゴリツリー+法定 6 リンク+ロゴナビ) を部品単位で有効化・並び替えできる slot 構成にする。部品は blog_layout_config (database 章) から読み、固有名を持たない部品 id (site-search, nested-category-list, tag-cloud, quick-category-buttons, profile-card, recent-comments, sticky-toc) で表現する。\n(3) 記事描画: 記事本文はブロック配列 (heading/paragraph/figure/speech-bubble/spec-table/comparison-table/product-card/ranking/summary/cta) をサーバー側で描画し、目次はブロックの見出しから生成する。比較表は横スクロール容器、図版は中央配置+webp+遅延読込+alt 必須。\n(4) 管理面エディタ: ブロックエディタはクライアントコンポーネントで、保存は Server Action 経由。プレビューは公開面と同一の描画関数を使い、下書きデータで描画する。公開ボタンはプレビュー確認フラグが立つまで無効。削除は二段確認ダイアログ+アーカイブ (復元導線を一覧のフィルタ「アーカイブ済み」に置く)。\n(5) 一覧: 記事一覧は状態/カテゴリ/期間フィルタと一括操作 (公開/非公開/カテゴリ変更) を URL search params で保持し、ページネーションはサーバー側。列順は ui-ux 章の情報優先度に従う。\n(6) SEO/構造化データ: 公開面は meta description・OGP・JSON-LD (WebSite/Organization/Article/Person/BreadcrumbList) を generateMetadata と専用コンポーネントで出力する。\n(7) 評価/コメント投稿: 認証不要のフォームを Server Action で受け、レート制限と honeypot を frontend 側で実装、保存後は保留状態で管理面のモデレーション一覧に出す。\n(8) 受入条件: 上記ルート全てが SSR で 200 を返す。主要 CRUD (ブログ作成→記事作成→プレビュー→公開→閲覧→評価→モデレーション→アーカイブ→復元) が E2E で通る。参考ブログの文章・画像・固有名・色値の転用 0 件。",
-      "source": {
-        "kind": "user-dialogue"
-      },
-      "asks_for": [
-        {
-          "category": "frontend",
-          "platform": "web"
-        }
-      ],
-      "design_applications": [
-        {
-          "knowledge_ref": "nextjs:app-router",
-          "principle": "描画はサーバーを既定とし、対話が要る部分だけクライアントコンポーネントにする",
-          "applicability": "applied",
-          "rationale": "公開面の記事・ハブ・トップは SSR で描画し SEO と初期表示を確保する。管理面のブロックエディタとプレビュー切替だけをクライアント側にし、保存・公開・削除は Server Action に寄せる",
-          "tradeoffs": [
-            "プレビューと公開面で描画関数を共有するため、公開面の変更がエディタにも波及する。共有部品の snapshot テストを置く",
-            "Server Action 経由の一括操作は件数が多いと遅い。上限 100 件でページ単位に分ける"
-          ]
-        },
-        {
-          "knowledge_ref": "information-design.md#中核概念",
-          "principle": "表現物ごとに残す・落とす・加工する情報を task 頻度×失敗コストで順位付けする",
-          "applicability": "applied",
-          "rationale": "一覧の列順・フィルタ・一括操作の範囲を ui-ux 章の優先度に一致させ、削除を一括操作から外す。blueprint の部品を抽象 id で持つことで参考構成を再現しつつ固有名の転用を防ぐ",
-          "tradeoffs": [
-            "部品 id を抽象化するほど、参考構成との対応が読み手に伝わりにくい。blueprint 定義書に部品ごとの役割説明を添える"
-          ]
-        }
-      ],
-      "written_up": [
-        {
-          "path": "system-spec/frontend.md",
-          "sha256": "1e0462cd79e1262f63c7e7bb2c60e97883cd8725598936fda78a661916cd19ca",
-          "recorded_on": "2026-08-25",
-          "recorded_with": "set-qa-written-up",
-          "section": "## 確定内容 (質疑録) > ### qa-frontend-web-blog-ops-crud"
-        }
-      ]
-    },
-    {
-      "id": "qa-database-web-blog-ops-crud",
-      "question": "database×web: ブログ運営 CRUD ページ群を支える永続化 (ブログ・記事ブロック・2 階層カテゴリ・固定ページ・商品部品・評価/コメント・画像・レイアウト構成・アーカイブ) をどう設計するか。2026-08-25 対話ヒアリング。",
-      "answer": "利用者要望 (qa-uiux-web-blog-ops-crud) を database×web の永続化方針へ落とす。既存エンティティ (sites, articles, site_blueprints, blog_template, blog_theme, page_theme_override, legal_page, blog_affiliate_placement) を土台にし、以下を追加・拡張する。\n(1) blog_category: id, site_id, parent_id (null=上位カテゴリ、非 null=下位カテゴリ、2 階層まで CHECK), slug, name, description, eyecatch_media_id, sort_order。site_id+slug 一意。\n(2) articles 拡張: status (draft/scheduled/published/unpublished/archived), scheduled_at, published_at, archived_at, category_id, eyecatch_media_id, pr_notice (bool), supervisor_profile_id, view_count, rating_avg/rating_count (集計列、再計算ジョブで更新)。\n(3) article_block: id, article_id, position, type (heading/paragraph/figure/speech-bubble/spec-table/comparison-table/product-card/ranking/summary/cta), payload (JSON)。article_id+position 一意。本文はブロック配列で持ち、目次は heading ブロックから導出する。\n(4) product_card: id, site_id, name, summary, image_media_id, price_label, source_credit, store_links (JSON)。article_block.payload から product_card.id を参照し、ランキング/比較表/まとめで再掲できる。\n(5) article_review: id, article_id, rating (1-5), body, author_label, status (pending/approved/hidden), ip_hash, created_at。閲覧者評価とコメントを一体で持ち、モデレーション状態を持つ。\n(6) media_asset: id, site_id, storage_key, mime, width, height, alt_text (NOT NULL), webp_ready, created_at。使用箇所は article_block/product_card/blog_category からの参照で逆引きする。\n(7) blog_layout_config: site_id, region (header/sidebar/footer), widgets (JSON: 部品 id と順序と有効フラグ)。blueprint review-media-classic の既定値を site_blueprints 側の seed として持つ。\n(8) legal_page 拡張: kind に 6 種 (operator/all-categories/site-policy/privacy/tokushoho/contact) を固定し、site_id+kind 一意。\n(9) アーカイブ/復元: sites と articles は archived_at で論理削除し、30 日超で物理削除するバッチ。物理削除は article_block/article_review/blog_affiliate_placement をカスケード。\n(10) 移行: 既存 0001–0022 に続く Drizzle migration で追加し、既存 articles の本文はそのまま paragraph ブロック 1 件へ移す後方互換移行を用意する。\n(11) 受入条件: 一覧クエリ (状態/カテゴリ/期間フィルタ+ページネーション) が D1 で index を使い 100ms 未満。参考ブログの固有名・文章を seed に含めない。",
-      "source": {
-        "kind": "user-dialogue"
-      },
-      "asks_for": [
-        {
-          "category": "database",
-          "platform": "web"
-        }
-      ],
-      "design_applications": [
-        {
-          "knowledge_ref": "cloudflare:d1-drizzle",
-          "principle": "D1 の制約 (単一リージョン・SQLite 方言・行サイズ上限) を前提に、JSON 列は読み専用の payload に限り、検索・絞込に使う値は列へ正規化する",
-          "applicability": "applied",
-          "rationale": "記事本文はブロック配列を article_block の行として持ち、payload だけを JSON にする。状態・カテゴリ・日時・評価集計は列に持ち、一覧の絞込と並び替えを index で支える",
-          "tradeoffs": [
-            "ブロックを行に分けるほど保存時の書込み件数が増える。保存はトランザクションで全置換し、差分更新は初期スコープ外にする",
-            "評価集計列は非正規化なので再計算ジョブとの整合が要る。承認/非表示の状態変更時に同期更新する"
-          ]
-        },
-        {
-          "knowledge_ref": "ddd.md#中核概念",
-          "principle": "集約境界を不変条件で決め、集約をまたぐ参照は id だけで持つ",
-          "applicability": "applied",
-          "rationale": "記事 (articles+article_block) を 1 集約、商品カードを別集約とし、ブロックからは product_card.id だけを参照する。カテゴリは 2 階層という不変条件を CHECK で守る",
-          "tradeoffs": [
-            "商品カードを別集約にすると記事プレビューで結合が要る。表示用の読み取りモデルをキャッシュで補う"
-          ]
-        }
-      ],
-      "written_up": [
-        {
-          "path": "system-spec/database.md",
-          "sha256": "b0023267a27c7245a1ce242009f1ff793b8d076f9c3bd484a49814de536be4b6",
-          "recorded_on": "2026-08-25",
-          "recorded_with": "set-qa-written-up",
-          "section": "## 確定内容 (質疑録) > ### qa-database-web-blog-ops-crud"
-        }
-      ]
-    },
-    {
-      "id": "qa-backend-web-blog-ops-crud",
-      "question": "backend×web: ブログ運営 CRUD の usecase/API 契約 (ブログ・記事・カテゴリ・固定ページ・商品部品・評価モデレーション・画像・レイアウト構成・アーカイブ/復元・公開/予約) と権限、ドメイン不変条件をどう定めるか。2026-08-25 対話ヒアリング。",
-      "answer": "利用者要望 (qa-uiux-web-blog-ops-crud) を backend×web の usecase 契約へ落とす。既存の Better Auth セッションとチーム権限 (§25) の上に置く。\n(1) usecase 一覧 (Server Action + 内部 API の両方から呼ぶ単一の application 層):\n- Blog: list, create (template_id, theme_id, name, slug), updateSettings, archive, restore, purge (30 日超バッチ)。\n- Article: list (filters), create, update (blocks 全置換), preview (draft を描画用 DTO へ), publish (preview_confirmed 必須), schedule, unpublish, duplicate, archive, restore, bulkUpdate (publish/unpublish/category のみ、最大 100 件)。\n- Category: tree, create, update, reorder, delete (配下記事 0 件のときのみ)。\n- LegalPage: list, upsert (kind 固定 6 種), publish。\n- ProductCard: list, create, update, delete (参照ブロック 0 件のときのみ)。\n- Review: submitPublic (レート制限・honeypot・ip_hash), listPending, approve, hide, reply。承認/非表示時に rating 集計を更新。\n- Media: upload (alt_text 必須、webp 変換キュー), list, delete (参照 0 件のときのみ)。\n- LayoutConfig: get, update (部品 id は blueprint の許可一覧のみ)。\n(2) ドメイン不変条件: 記事は preview_confirmed が真でないと published へ遷移できない。scheduled は scheduled_at が未来のときのみ。archived からは restore 以外の遷移不可。カテゴリは 2 階層まで。法定ページ 6 種は削除不可 (非公開のみ)。商品カード/画像/カテゴリは参照が残る限り削除不可。\n(3) 権限: ブログ単位の role (owner/editor/reviewer)。editor は記事 CRUD と下書き、publish/archive/purge/settings は owner、reviewer は Review モデレーションのみ。閲覧者の評価投稿は未認証で可。\n(4) 公開面の読み取り: getSiteHome, getCategoryHub, getArticle (blocks+toc+related+prev/next), search (タイトル/本文/タグの LIKE、初期は D1 のみ), getLegalPage。published かつ archived_at null のみ返す。\n(5) 監査: publish/unpublish/archive/restore/purge/approve/hide はイベント記録 (actor, target, at, before/after status)。\n(6) 受入条件: 全 usecase に単体テスト (不変条件の拒否ケースを含む)。CRUD 経路の統合テストはローカル D1 で通す。参考ブログ由来の固有名を契約・seed に含めない。",
-      "source": {
-        "kind": "user-dialogue"
-      },
-      "asks_for": [
-        {
-          "category": "backend",
-          "platform": "web"
-        }
-      ],
-      "design_applications": [
-        {
-          "knowledge_ref": "ddd.md#中核概念",
-          "principle": "状態遷移と不変条件を集約内で守り、application 層は usecase 単位で公開する",
-          "applicability": "applied",
-          "rationale": "記事の状態機械 (draft→scheduled/published→unpublished/archived→restore) と preview_confirmed ゲートを集約に置き、Server Action と内部 API が同じ usecase を呼ぶことで経路差による抜けを防ぐ",
-          "tradeoffs": [
-            "usecase を細かく分けるほど関数数が増える。一覧系は filters オブジェクトで 1 関数にまとめる",
-            "参照が残る限り削除不可にすると整理の手数が増える。参照箇所を一覧に表示して先に外せる導線を frontend 側で用意する"
-          ]
-        },
-        {
-          "knowledge_ref": "secure-by-design.md#中核概念",
-          "principle": "入力は境界で検証し、権限判定を usecase 入口で一律に行う",
-          "applicability": "applied",
-          "rationale": "未認証の評価投稿はレート制限・honeypot・本文長上限を境界で検証し、保存後は保留状態にする。管理系 usecase は role 判定を共通の guard に集約する",
-          "tradeoffs": [
-            "レート制限を D1 だけで実装すると精度が粗い。初期は ip_hash+時間窓の簡易実装とし、KV への移行余地を残す"
-          ]
-        }
-      ],
-      "written_up": [
-        {
-          "path": "system-spec/backend.md",
-          "sha256": "6a020be347385ba2b5171ff643376d7343ab6b8bcaba445c0ab955f6bfca78b0",
-          "recorded_on": "2026-08-25",
-          "recorded_with": "set-qa-written-up",
-          "section": "## 確定内容 (質疑録) > ### qa-backend-web-blog-ops-crud"
-        }
-      ]
-    },
-    {
-      "id": "qa-uiux-web-site-blueprint",
-      "question": "ui-ux×web: 利用者が指定した参考ブログの全ページ種別 (トップ・サブサイト・カテゴリ・記事・タグ・検索・固定ページ・配信) を分析・解析し、その構成で作成できるよう抽象ブループリント review-media-classic を v1.1 へ拡張して確定内容に反映するには何を定めるか。2026-08-25 対話ヒアリング (利用者原文を逐語主旨で記録)。",
-      "answer": "利用者本人の指示を逐語主旨で記録する。\n(1) 指定 URL のブログを分析・解析し、この構成で作成できるように整えてほしい。まずはここを目指す。\n(2) このページだけではなく、全てのページを分析解析した上で、これを反映できるようにしておく。\n(3) このブログの URL は記憶しておく (→ bd remember の永続メモに保持。仕様本文には URL・固有名を載せない)。\n\n観測範囲: トップページ 1 件とサブサイトの比較記事 1 件の静的 HTML、sitemap index、ナビ/フッター/内部リンク目録 (メガナビ 32 項目、フッター木 34 項目、法定ナビ 6 項目)。全ページの機械取得は本セッションで権限拒否され行っていない。観測/推定の区別は docs/spec/13-参考サイト全体構成解析-抽象ブループリント.md §2 の被覆表に記録した。\n\n反映方針 (ui-ux, v1.0 = qa-uiux-web-blog-ops-crud の反映方針 A–E を維持したうえで追加):\nF. サイト網: ブログ単体ではなく「ハブ + テーマ別サブサイト + ミニサイト (辞典/ナビゲータ/物販)」の網を第一級概念にする。ヘッダーのブランド・メガナビとフッターのカテゴリ木は網で共有し、サブサイトは独自のカテゴリ木 (2 階層)・サイドバー・feed・運営者情報ページを持つ。メガナビの下位項目は他サブサイトのカテゴリを直接指してよい。トップには姉妹サイト帯 (最大 4 件のカード) を置く。\nG. ページ種別 23 種 (docs/spec/13 §2 P1–P23): ハブトップ / サブサイトトップ / 新着一覧 / 上位カテゴリハブ / 下位カテゴリ一覧 / まとめ記事 / 単品レビュー / ブランドタグ一覧 / 検索結果 / 用途別ナビゲータ / 用語辞典 / 固定ページ 8 種 (運営者情報・全カテゴリー・サイトポリシー・プライバシーポリシー・特商法表記・お問い合わせ・レビュー指針・サブサイト運営者情報) / feed / sitemap / llms.txt。\nH. 領域別部品 (v1.1): Header = header-brand / header-search-modal / mega-nav / hero-banner (トップのみ: 見出し・説明・検索・マスコットの一言)。トップ = latest-posts-band → sister-sites-band → category-hub-grid (上位 h2 / 下位 h3 タイル、遷移先は下位カテゴリの代表まとめ記事) → navigator-band、サイドバー無しの全幅。記事 = breadcrumb → article-title → article-meta → featured-image → disclosure-notice → intro-box → hierarchical-toc → editor-credential-box (レビュー指針リンク・折りたたみ) → 本文ブロック → comment-form → prev-next。Sidebar = 通常 8 (site-search / nested-category-list / brand-tag-cloud / quick-link-menu / custom-html-slot / profile-card / recent-comments / custom-html-slot) + 追従 2 (sticky-promo-slot / sticky-toc)。Footer = footer-profile (人気記事リスト付き) / footer-category-tree (網全体) / footer-logo-nav / legal-nav 6。\nI. 記事型テンプレート T1 まとめ (紹介・比較・まとめの 3 箇所で製品カード再掲) / T2 単品レビュー / T3 ガイド・辞典 / T4 ハブ、題名規則付き。判断軸 h3 ごとに中央配置図版 1–2 枚。\nJ. 作成者側の画面追加: ブログ設定に「サイト網」タブ (役割 hub/sub/mini、姉妹サイト帯、hero 編集、レビュー指針・運営者情報ページ)、記事編集に PR 表記トグルと執筆者/監修者ボックス選択と記事型選択、レイアウト構成エディタに追従枠と自由 HTML 枠のスロットを追加、タグ管理に「ブランド」種別。\nK. 受入条件: 参考サイトの文章・画像・固有名・色値・テーマ/プラグイン名の転用 0 件。被覆表の推定ページ種別は取得許可後に構造のみ照合し CHG 追記する。sticky 部品の reflow / focus-not-obscured 条件と、モバイルでのサイドバー降格は v1.0 を継承。",
-      "source": {
-        "kind": "user-dialogue"
-      },
-      "asks_for": [
-        {
-          "category": "ui-ux",
-          "platform": "web"
-        }
-      ],
-      "design_applications": [
-        {
-          "knowledge_ref": "information-design.md#中核概念",
-          "principle": "表現物ごとに残す・落とす・加工する情報を task 頻度×失敗コストで順位付けする",
-          "applicability": "applied",
-          "rationale": "参考サイトの部品を件数・順序・階層だけの抽象部品 id に加工し、文章・画像・固有名は落とす。トップは全幅ハブ (探索頻度が高い下位カテゴリタイルを最前面)、記事は判断軸→比較→まとめの順序を固定し、PR 表記と執筆者ボックスを本文より前に置いて信頼判断の情報を先に出す",
-          "tradeoffs": [
-            "抽象化するほど参考サイトとの見た目の一致は下がる。一致させるのは構成・件数・順序だけと決め、装飾は自サイトのテーマに委ねる",
-            "推定ページ種別 (被覆表の 推定) を仕様に含めると、実物と違う構成を固定する危険がある。推定は CHG 追記の対象として明示し、取得許可後に照合する"
-          ]
-        },
-        {
-          "knowledge_ref": "usability-accessibility.md#適用条件",
-          "principle": "WCAG 2.2 reflow / focus-not-obscured を sticky 要素に適用し、操作をキーボードだけで完結させる",
-          "applicability": "applied",
-          "rationale": "追従枠が 1 → 2 (promo + toc) に増えるため、400% 拡大時に本文を覆わない条件と、モバイルでの降格を v1.0 から継承して受入条件に残す",
-          "tradeoffs": [
-            "追従枠を増やすほど狭い画面で本文領域が減る。追従は desktop 幅のみ有効にする"
-          ]
-        }
-      ],
-      "written_up": [
-        {
-          "path": "system-spec/ui-ux.md",
-          "sha256": "be0dc58a0e1e6f1b4e608826ae9ee40d9594dc0254c9f9db6d9e5aa47047297e",
-          "recorded_on": "2026-08-25",
-          "recorded_with": "set-qa-written-up",
-          "section": "## 確定内容 (質疑録) > ### qa-uiux-web-site-blueprint"
-        }
-      ],
-      "scope_notes": {
-        "bundled": false,
-        "topics": [
-          {
-            "topic_id": "uiux-web-site-blueprint",
-            "covers_cell": {
-              "category": "ui-ux",
-              "platform": "web"
-            },
-            "answer_span": "参考サイトの文章・画像・固有名・色値・テーマ/プラグイン名の転用 0 件。",
-            "note": "参考サイト全体構成の抽象ブループリント review-media-classic v1.1 (サイト網・記事型 T1–T4・追加部品・固定ページ 8 種) を ui-ux×web の反映方針として確定した回。転用禁止の受入条件はこの回で決めた。",
-            "origin_qa_id": "qa-uiux-web-site-blueprint"
-          }
-        ],
-        "recorded_with": "set-qa-scope-notes"
-      }
-    },
-    {
-      "id": "qa-frontend-web-site-blueprint",
-      "question": "frontend×web: 参考ブログ全ページ種別の解析結果 (review-media-classic v1.1、docs/spec/13) を、既存 App Router / SiteFrame / 公開面 /s/[site] と管理面 /admin/blogs の上でどう実装するか。2026-08-25 対話ヒアリング。",
-      "answer": "利用者指示 (qa-uiux-web-site-blueprint に記録) を frontend×web の実装方針へ落とす。v1.0 (qa-frontend-web-blog-ops-crud) のルーティング・slot 構成・ブロック描画は維持し、次を追加する。\n(1) サイト網: サブサイト/ミニサイトは独立した site (各 /s/[site]) とし、network_id で網に属する。Header の mega-nav と Footer の footer-category-tree は network 単位の設定から描画し、サブサイトでは header-brand の名称だけを差し替える。独自ドメイン運用時は network の path_prefix (例 /<sub>/) を site へ写像する middleware を置く。\n(2) 追加ルート (公開面): /s/[site]/blog (新着一覧、ページネーション)、/s/[site]/p/review-guidelines と /s/[site]/p/company (固定ページ種別の追加)、/s/[site]/feed.xml と /s/[site]/comments/feed.xml、/s/[site]/sitemap.xml (index) と /s/[site]/sitemap-[type]-[year].xml、/s/[site]/llms.txt と /s/[site]/llms-full.txt、/s/[site]/robots.txt。タグ一覧 /s/[site]/t/[tag] は brand 種別を表示名に反映する。\n(3) 追加部品 (slot id): hero-banner, latest-posts-band, sister-sites-band, category-hub-grid, navigator-band, disclosure-notice, editor-credential-box, prev-next, brand-tag-cloud, quick-link-menu, custom-html-slot, sticky-promo-slot。既存 sticky-toc と合わせ、blog_layout_config の top_sections / sidebar_normal / sidebar_sticky / footer の 4 slot 配列で有効化と並び順を制御する。custom-html-slot の HTML はサニタイズ済みの許可タグのみ描画する。\n(4) 記事型テンプレート: article.article_template (T1–T4) に応じて body-blocks の既定順序と製品カードの再掲位置 (T1 は紹介・比較・まとめの 3 箇所) をサーバー側で組み立てる。intro-box / emphasis-box をブロック型に追加する。\n(5) 構造化データ: WebSite+Organization (ハブトップ)、Article+WebPage+Person+Organization+ImageObject (記事)、CollectionPage (カテゴリ/サブサイト)、BreadcrumbList (パンくず) を JSON-LD で出力し、canonical と OG/Twitter meta を全ページに付ける。\n(6) 管理面: /admin/blogs/[blogId] 設定に「サイト網」タブ、記事編集に PR 表記トグル・執筆者ボックス選択・記事型選択、/admin/blogs/[blogId]/layout に追従枠・自由 HTML 枠のスロット、/admin/blogs/[blogId]/tags に brand 種別を追加する。\n(7) 受入条件: 上記ルートが全て SSR で描画され、feed/sitemap/llms.txt は公開記事だけを含む。参考サイトの文章・画像・固有名・色値の転用 0 件。",
-      "source": {
-        "kind": "user-dialogue"
-      },
-      "asks_for": [
-        {
-          "category": "frontend",
-          "platform": "web"
-        }
-      ],
-      "design_applications": [
-        {
-          "knowledge_ref": "nextjs:app-router",
-          "principle": "ルートごとに Server Component で描画し、配信物 (feed/sitemap/llms.txt) は Route Handler で生成する",
-          "applicability": "applied",
-          "rationale": "配信部品は HTML ではなく XML/テキストのため Route Handler に分離し、記事ページは既存 SiteFrame の Server Component 描画に slot を足すだけで済ませる",
-          "tradeoffs": [
-            "Route Handler の増加で route 数が増える。sitemap の分割は投稿種別×年に限定する"
-          ]
-        },
-        {
-          "knowledge_ref": "information-design.md#中核概念",
-          "principle": "表現物ごとに残す・落とす・加工する情報を順位付けする",
-          "applicability": "applied",
-          "rationale": "slot 配列で部品の有無と順序だけを設定に持たせ、部品の中身は固定の描画規則にする。これにより参考サイトの構成を件数・順序で再現しつつ装飾を分離できる",
-          "tradeoffs": [
-            "slot を増やすほど設定画面が複雑になる。既定の並びを blueprint v1.1 の値で初期化する"
-          ]
-        }
-      ],
-      "written_up": [
-        {
-          "path": "system-spec/frontend.md",
-          "sha256": "7b029152ed5130b0c3e331bb390f3f344811fc97f9cb92b9f0b3557d9a9b54c1",
-          "recorded_on": "2026-08-25",
-          "recorded_with": "set-qa-written-up",
-          "section": "## 確定内容 (質疑録) > ### qa-frontend-web-site-blueprint"
-        }
-      ],
-      "scope_notes": {
-        "bundled": false,
-        "topics": [
-          {
-            "topic_id": "frontend-web-site-blueprint",
-            "covers_cell": {
-              "category": "frontend",
-              "platform": "web"
-            },
-            "answer_span": "上記ルートが全て SSR で描画され、feed/sitemap/llms.txt は公開記事だけを含む。",
-            "note": "v1.1 の追加ルート・slot 構成・記事型テンプレート・構造化データを App Router へ写像した回。公開面の受入条件はこの回で決めた。",
-            "origin_qa_id": "qa-frontend-web-site-blueprint"
-          }
-        ],
-        "recorded_with": "set-qa-scope-notes"
-      }
-    },
-    {
-      "id": "qa-database-web-site-blueprint",
-      "question": "database×web: review-media-classic v1.1 (サイト網・記事型・追加部品・固定ページ 8 種・ブランドタグ・配信部品) を D1 + Drizzle のスキーマにどう写像するか。2026-08-25 対話ヒアリング。",
-      "answer": "v1.0 (qa-database-web-blog-ops-crud) のエンティティを維持し、次を追加する (migration 0023 以降)。\n(1) site_network (id, name, hub_site_id, sister_band_enabled, sister_band_max=4, created_at)。sites に network_id (nullable FK)、network_role enum(hub, sub, mini)、path_prefix (network 内で一意)、mini_kind enum(dictionary, navigator, shop) を追加。制約: network 内の hub は 1 件、sub/mini は hub と異なる site。\n(2) blog_hero_config (site_id PK, headline, description, search_note, persona_comment, persona_image_asset_id)。\n(3) blog_layout_config を slot 配列 4 種 (top_sections, sidebar_normal, sidebar_sticky, footer) + header の JSON に拡張し、slot id は v1.1 の部品 id 集合に限定する CHECK 相当を app 層で検証する。custom-html-slot の本文は layout_custom_html (id, site_id, slot_index, sanitized_html, updated_at) に分離する。\n(4) articles に article_template enum(T1_roundup, T2_single_review, T3_guide, T4_hub)、disclosure_enabled boolean (既定 true)、author_profile_id FK を追加。author_profiles (id, site_id, display_name, credential_text, avatar_asset_id, guideline_page_id FK legal_pages)。\n(5) article_block の type に intro_box, emphasis_box を追加。product_card の記事内再掲は article_block (type=product_card, placement enum(intro, compare, summary)) で表す。\n(6) tags に kind enum(topic, brand) を追加し、brand は brand-tag-cloud の対象。\n(7) legal_pages.kind を 6 種 + review_guidelines + company の 8 種へ拡張し、hub は 6 種必須・sub は company 必須を app 層で検証する。\n(8) 配信物は都度生成 (キャッシュは edge) とし、delivery_snapshots (site_id, kind enum(feed, comments_feed, sitemap_index, sitemap_part, llms, llms_full), generated_at, item_count, sha256) を監査用に持つ。\n(9) 受入条件: 既存 migration 0001–0022 と衝突せず、全追加列に既定値があり、ロールバック migration を同時に用意する。",
-      "source": {
-        "kind": "user-dialogue"
-      },
-      "asks_for": [
-        {
-          "category": "database",
-          "platform": "web"
-        }
-      ],
-      "design_applications": [
-        {
-          "knowledge_ref": "cloudflare:d1-drizzle",
-          "principle": "D1 の制約に合わせ、enum は CHECK/app 層検証、JSON 列は小さく保つ",
-          "applicability": "applied",
-          "rationale": "slot 配列は部品 id の短い配列なので JSON 列で持ち、自由 HTML は別表へ分離して JSON 列の肥大化を避ける。配信物は生成物を保存せずスナップショットの指紋だけを残す",
-          "tradeoffs": [
-            "JSON 列は D1 で索引できないため、slot 検索は app 層で行う"
-          ]
-        },
-        {
-          "knowledge_ref": "ddd.md#中核概念",
-          "principle": "集約境界を不変条件の単位で切る",
-          "applicability": "applied",
-          "rationale": "site_network を独立集約にし、hub 唯一性と path_prefix 一意性をその集約で守る。記事の記事型・PR 表記・執筆者は article 集約の属性にとどめる",
-          "tradeoffs": [
-            "network と site の 2 集約にまたがる整合 (hub の削除) はアプリケーションサービスで順序制御する"
-          ]
-        }
-      ],
-      "written_up": [
-        {
-          "path": "system-spec/database.md",
-          "sha256": "ec4290624ed9423261a33e774d17112b70596614bd518854b1b019d9dfb8992a",
-          "recorded_on": "2026-08-25",
-          "recorded_with": "set-qa-written-up",
-          "section": "## 確定内容 (質疑録) > ### qa-database-web-site-blueprint"
-        }
-      ],
-      "scope_notes": {
-        "bundled": false,
-        "topics": [
-          {
-            "topic_id": "database-web-site-blueprint",
-            "covers_cell": {
-              "category": "database",
-              "platform": "web"
-            },
-            "answer_span": "既存 migration 0001–0022 と衝突せず、全追加列に既定値があり、ロールバック migration を同時に用意する。",
-            "note": "site_network・blog_hero_config・記事型・ブランドタグ・配信指紋を D1 + Drizzle のスキーマへ写像した回。migration の受入条件はこの回で決めた。",
-            "origin_qa_id": "qa-database-web-site-blueprint"
-          }
-        ],
-        "recorded_with": "set-qa-scope-notes"
-      }
-    },
-    {
-      "id": "qa-backend-web-site-blueprint",
-      "question": "backend×web: review-media-classic v1.1 のサイト網・配信部品・記事型・追加部品を、v1.0 のユースケース群と不変条件にどう追加するか。2026-08-25 対話ヒアリング。",
-      "answer": "v1.0 (qa-backend-web-blog-ops-crud) のユースケース・役割・監査イベントを維持し、次を追加する。\n(1) SiteNetwork 集約: createNetwork / attachSite(role, path_prefix) / detachSite / setHubSite / updateSisterBand / updateHero。不変条件: network 内 hub は 1 件、path_prefix 一意、hub を detach する前に別 hub を指定。owner のみ実行可。\n(2) Article: setTemplate(T1–T4) は下書き時のみ、setDisclosure、assignAuthorProfile。公開ゲートに「T1 は製品カード 1 件以上」「disclosure_enabled=false は owner 承認」を追加。\n(3) Layout: updateSlots(top_sections/sidebar_normal/sidebar_sticky/footer) は部品 id 集合外を拒否、custom-html-slot はサニタイズ後に保存し、危険タグ検出時は拒否して監査イベント layout.custom_html.rejected を記録。\n(4) Delivery: buildFeed / buildCommentsFeed / buildSitemapIndex / buildSitemapPart(type, year) / buildLlmsTxt / buildLlmsFullTxt / buildJsonLd(page)。公開記事のみを対象にし、非公開・予約・アーカイブは含めない。生成ごとに delivery_snapshots へ指紋を記録。\n(5) Tag: setKind(brand|topic)。LegalPage: kind 8 種、hub は 6 種の公開が公開条件、sub は company の公開が公開条件。\n(6) 公開読取: network 単位の nav/footer 木、site 単位の sidebar、feed/sitemap/llms は edge cache (TTL 10 分、公開イベントで purge)。\n(7) 監査イベント: network.created/site.attached/site.detached/hub.changed/article.template.changed/article.disclosure.changed/delivery.generated。\n(8) 受入条件: 不変条件違反はドメインエラーとして 4xx で返り、部分更新を残さない。参考サイト由来の文章・素材は API 応答に含まれない。",
-      "source": {
-        "kind": "user-dialogue"
-      },
-      "asks_for": [
-        {
-          "category": "backend",
-          "platform": "web"
-        }
-      ],
-      "design_applications": [
-        {
-          "knowledge_ref": "ddd.md#中核概念",
-          "principle": "集約境界を不変条件の単位で切り、ユースケースは集約の公開操作だけを呼ぶ",
-          "applicability": "applied",
-          "rationale": "hub 唯一性・path_prefix 一意性を SiteNetwork 集約に閉じ込め、記事型や PR 表記は Article 集約に置く。配信物の生成は集約を読むだけの問い合わせ側サービスにする",
-          "tradeoffs": [
-            "集約を分けるため hub 切替は 2 段階 (新 hub 指定→旧 hub 降格) になる"
-          ]
-        },
-        {
-          "knowledge_ref": "secure-by-design.md#中核概念",
-          "principle": "外部入力は境界で正規化・検証し、危険な入力は拒否して記録する",
-          "applicability": "applied",
-          "rationale": "自由 HTML 枠は XSS の主経路になるため、許可タグ・属性のホワイトリストでサニタイズし、拒否を監査イベントに残す。配信物は公開状態だけを条件に生成し、非公開記事の漏えいを防ぐ",
-          "tradeoffs": [
-            "ホワイトリストが厳しいほど装飾の自由度が下がる。iframe/script は不許可、埋め込みは専用ブロックで扱う"
-          ]
-        }
-      ],
-      "written_up": [
-        {
-          "path": "system-spec/backend.md",
-          "sha256": "850739465560be1c76643ba46ece1423a21855e58120ae385c29871fb5a6fcd1",
-          "recorded_on": "2026-08-25",
-          "recorded_with": "set-qa-written-up",
-          "section": "## 確定内容 (質疑録) > ### qa-backend-web-site-blueprint"
-        }
-      ],
-      "scope_notes": {
-        "bundled": false,
-        "topics": [
-          {
-            "topic_id": "backend-web-site-blueprint",
-            "covers_cell": {
-              "category": "backend",
-              "platform": "web"
-            },
-            "answer_span": "不変条件違反はドメインエラーとして 4xx で返り、部分更新を残さない。",
-            "note": "SiteNetwork 集約・配信生成・記事型ゲート・監査イベントを v1.0 のユースケース群へ足した回。ドメインエラーの返し方はこの回で決めた。",
-            "origin_qa_id": "qa-backend-web-site-blueprint"
           }
         ],
         "recorded_with": "set-qa-scope-notes"
@@ -3945,6 +3666,33 @@
       }
     },
     {
+      "category": "auth",
+      "platform": "web",
+      "reason": "2026-08-24 final review: feat-auth-workspace の実装・検証結果に対し auth.md の implementation_status=not_started / verification_status=unverified が古いため、要求判断 qa-auth-web は変更せず実装投影だけを正規書き戻しする",
+      "from": "確定",
+      "discarded": {
+        "qa_ref": "qa-auth-web",
+        "serves_goals": [
+          "G1"
+        ],
+        "required_info": [
+          {
+            "item_id": "auth-model",
+            "missing_effect": "block",
+            "status": "grounded",
+            "grounded_by": "qa-auth-web"
+          }
+        ],
+        "required_info_checks": [
+          {
+            "checked_on": "2026-08-21",
+            "checked_with": "record-required-info-check",
+            "blocking_item_count": 1
+          }
+        ]
+      }
+    },
+    {
       "category": "ui-ux",
       "platform": "web",
       "reason": "2026-08-24 利用者要望: ブログ構築 UI (テンプレート・配色・常時表示レイアウト・法定ページ・アフィリエイト反映管理) が既存確定内容に未収録",
@@ -4072,6 +3820,204 @@
       }
     },
     {
+      "category": "ui-ux",
+      "platform": "web",
+      "reason": "2026-08-25 接地のやり直し。2026-08-24 のブログ構築 UI / SEO・AI 検索の R4-reopen は記録に残っているが、再確定が最後まで通っていなかった。原因は門ではなく道で、新しい qa_ref で再確定すると restore-qa-refs の『退避値の先頭が再確定後の qa_ref と同じ』条件が必ず外れ、裏付けの範囲を書ける writer が 1 つも無くなる。結果セルは退避スナップショットと同じ値のまま確定に見え、集めた質疑 7 件がどこからも参照されない孤立記録になった (C05 完全性評価 / C06 / C07 が独立検出)。confirm に qa_refs 接地口を足したうえで、収集済みの質疑を接地させ直す。",
+      "from": "確定",
+      "discarded": {
+        "qa_ref": "qa-uiux-web-screen-priority",
+        "serves_goals": [
+          "G1"
+        ],
+        "required_info": [
+          {
+            "item_id": "product-goal",
+            "missing_effect": "block",
+            "status": "grounded",
+            "grounded_by": "qa-foundation-u1"
+          },
+          {
+            "item_id": "screen-information-priority",
+            "missing_effect": "block",
+            "status": "grounded",
+            "grounded_by": "qa-uiux-web-screen-priority"
+          },
+          {
+            "item_id": "target-platforms",
+            "missing_effect": "block",
+            "status": "grounded",
+            "grounded_by": "qa-platform-scope"
+          }
+        ],
+        "required_info_checks": [
+          {
+            "checked_on": "2026-08-23",
+            "checked_with": "record-required-info-check",
+            "blocking_item_count": 3
+          }
+        ]
+      }
+    },
+    {
+      "category": "frontend",
+      "platform": "web",
+      "reason": "2026-08-25 接地のやり直し (ui-ux/web と同一原因)。2026-08-24 のブログテンプレート / SEO・AI 検索実装契約の R4-reopen が再確定まで届かず、qa-frontend-web-blog-builder / qa-frontend-web-seo-ai-search-v2 がどの確定セルからも引かれていなかった。",
+      "from": "確定",
+      "discarded": {
+        "qa_ref": "qa-frontend-web-spec-intake",
+        "qa_refs": [
+          "qa-frontend-web-spec-intake",
+          "qa-frontend-web",
+          "qa-frontend-web-analytics"
+        ],
+        "serves_goals": [
+          "G1",
+          "G2"
+        ],
+        "required_info_checks": [
+          {
+            "checked_on": "2026-08-22",
+            "checked_with": "record-required-info-check",
+            "blocking_item_count": 0
+          }
+        ]
+      }
+    },
+    {
+      "category": "database",
+      "platform": "web",
+      "reason": "2026-08-25 接地のやり直し (ui-ux/web と同一原因)。2026-08-24 のブログテンプレート / テーマ / 固定ページ / アフィリエイト反映の永続化に関する R4-reopen が再確定まで届かず、qa-database-web-blog-builder がどの確定セルからも引かれていなかった。",
+      "from": "確定",
+      "discarded": {
+        "qa_ref": "qa-database-web-spec-intake",
+        "qa_refs": [
+          "qa-database-web-spec-intake",
+          "qa-database-web",
+          "qa-database-web-analytics"
+        ],
+        "serves_goals": [
+          "G1",
+          "G2"
+        ],
+        "required_info_checks": [
+          {
+            "checked_on": "2026-08-22",
+            "checked_with": "record-required-info-check",
+            "blocking_item_count": 0
+          }
+        ]
+      }
+    },
+    {
+      "category": "backend",
+      "platform": "web",
+      "reason": "2026-08-25 章にしか無かった 2026-08-21 利用者ヒアリングを正本へ戻す。qa-backend-web-overhaul-v2 の質問・回答・設計適用は章本文にだけ在り、正本 qa_log に 1 件も無かった (実測: qa_log の id 集合に不在、`user-dialogue:2026-08-21#` の語も spec-state.json に 0 件)。章は正本の純関数なので、この状態で compile を回すと利用者の発言そのものが消える。**消えないように章を手で守るのではなく、消えようのない場所へ移す。**確定質疑 (qa_ref) は現行のまま変えず、本ヒアリングは裏付け (qa_refs) として接地させる。",
+      "from": "確定",
+      "discarded": {
+        "qa_ref": "qa-backend-web-spec-intake",
+        "qa_refs": [
+          "qa-backend-web-spec-intake",
+          "qa-backend-web",
+          "qa-backend-web-analytics"
+        ],
+        "serves_goals": [
+          "G2",
+          "G1"
+        ],
+        "required_info": [
+          {
+            "item_id": "domain-model",
+            "missing_effect": "block",
+            "status": "grounded",
+            "grounded_by": "qa-backend-web-spec-intake"
+          }
+        ],
+        "required_info_checks": [
+          {
+            "checked_on": "2026-08-22",
+            "checked_with": "record-required-info-check",
+            "blocking_item_count": 1
+          }
+        ]
+      }
+    },
+    {
+      "category": "frontend",
+      "platform": "web",
+      "reason": "2026-08-25 章にしか無かった 2026-08-21 利用者ヒアリングを正本へ戻す。qa-frontend-web-overhaul-v2 の質問・回答・設計適用は章本文にだけ在り、正本 qa_log に 1 件も無かった (実測: qa_log の id 集合に不在、`user-dialogue:2026-08-21#` の語も spec-state.json に 0 件)。章は正本の純関数なので、この状態で compile を回すと利用者の発言そのものが消える。**消えないように章を手で守るのではなく、消えようのない場所へ移す。**確定質疑 (qa_ref) は現行のまま変えず、本ヒアリングは裏付け (qa_refs) として接地させる。",
+      "from": "確定",
+      "discarded": {
+        "qa_ref": "qa-frontend-web-seo-ai-search-v2",
+        "qa_refs": [
+          "qa-frontend-web-seo-ai-search-v2",
+          "qa-frontend-web-blog-builder",
+          "qa-frontend-web-spec-intake",
+          "qa-frontend-web",
+          "qa-frontend-web-analytics"
+        ],
+        "serves_goals": [
+          "G1",
+          "G2"
+        ],
+        "required_info_checks": [
+          {
+            "checked_on": "2026-08-25",
+            "checked_with": "record-required-info-check",
+            "blocking_item_count": 0,
+            "unmet_blocking_items": 0
+          }
+        ]
+      }
+    },
+    {
+      "category": "ui-ux",
+      "platform": "web",
+      "reason": "2026-08-25 章にしか無かった 2026-08-21 利用者ヒアリングを正本へ戻す。qa-uiux-web-overhaul-v2 の質問・回答・設計適用は章本文にだけ在り、正本 qa_log に 1 件も無かった (実測: qa_log の id 集合に不在、`user-dialogue:2026-08-21#` の語も spec-state.json に 0 件)。章は正本の純関数なので、この状態で compile を回すと利用者の発言そのものが消える。**消えないように章を手で守るのではなく、消えようのない場所へ移す。**確定質疑 (qa_ref) は現行のまま変えず、本ヒアリングは裏付け (qa_refs) として接地させる。",
+      "from": "確定",
+      "discarded": {
+        "qa_ref": "qa-uiux-web-seo-ai-search-v2",
+        "qa_refs": [
+          "qa-uiux-web-seo-ai-search-v2",
+          "qa-uiux-web-blog-builder",
+          "qa-uiux-web-screen-priority",
+          "qa-uiux-web-spec-intake",
+          "qa-uiux-web"
+        ],
+        "serves_goals": [
+          "G1",
+          "G2"
+        ],
+        "required_info": [
+          {
+            "item_id": "product-goal",
+            "missing_effect": "block",
+            "status": "grounded",
+            "grounded_by": "qa-foundation-u1"
+          },
+          {
+            "item_id": "screen-information-priority",
+            "missing_effect": "block",
+            "status": "grounded",
+            "grounded_by": "qa-uiux-web-screen-priority"
+          },
+          {
+            "item_id": "target-platforms",
+            "missing_effect": "block",
+            "status": "grounded",
+            "grounded_by": "qa-platform-scope"
+          }
+        ],
+        "required_info_checks": [
+          {
+            "checked_on": "2026-08-25",
+            "checked_with": "record-required-info-check",
+            "blocking_item_count": 3,
+            "unmet_blocking_items": 0
+          }
+        ]
+      }
+    },
+    {
       "category": "infrastructure",
       "platform": "web",
       "reason": "本番 D1 スキーマ変更の自動適用可否を利用者へ往復ヒアリングし、根拠 (qa_log) をセルへ接続するため (C07 finding matrix-qa-evidence-gap-cicd-migration-guard の是正)",
@@ -4116,253 +4062,6 @@
             "checked_on": "2026-08-22",
             "checked_with": "record-required-info-check",
             "blocking_item_count": 0
-          }
-        ]
-      }
-    },
-    {
-      "category": "ui-ux",
-      "platform": "web",
-      "reason": "2026-08-25 利用者要望: ブログ運営 CRUD ページ群 (作成者側/閲覧者側) と参考ブログ構成を抽象化したブループリントを確定内容へ追加するため再収集",
-      "from": "確定",
-      "discarded": {
-        "qa_ref": "qa-uiux-web-screen-priority",
-        "serves_goals": [
-          "G1"
-        ],
-        "required_info": [
-          {
-            "item_id": "product-goal",
-            "missing_effect": "block",
-            "status": "grounded",
-            "grounded_by": "qa-foundation-u1"
-          },
-          {
-            "item_id": "screen-information-priority",
-            "missing_effect": "block",
-            "status": "grounded",
-            "grounded_by": "qa-uiux-web-screen-priority"
-          },
-          {
-            "item_id": "target-platforms",
-            "missing_effect": "block",
-            "status": "grounded",
-            "grounded_by": "qa-platform-scope"
-          }
-        ],
-        "required_info_checks": [
-          {
-            "checked_on": "2026-08-23",
-            "checked_with": "record-required-info-check",
-            "blocking_item_count": 3
-          }
-        ]
-      }
-    },
-    {
-      "category": "frontend",
-      "platform": "web",
-      "reason": "2026-08-25 利用者要望: ブログ運営 CRUD ページ群 (作成者側/閲覧者側) と参考ブログ構成を抽象化したブループリントを確定内容へ追加するため再収集",
-      "from": "確定",
-      "discarded": {
-        "qa_ref": "qa-frontend-web-spec-intake",
-        "qa_refs": [
-          "qa-frontend-web-spec-intake",
-          "qa-frontend-web",
-          "qa-frontend-web-analytics"
-        ],
-        "serves_goals": [
-          "G1",
-          "G2"
-        ],
-        "required_info_checks": [
-          {
-            "checked_on": "2026-08-22",
-            "checked_with": "record-required-info-check",
-            "blocking_item_count": 0
-          }
-        ]
-      }
-    },
-    {
-      "category": "database",
-      "platform": "web",
-      "reason": "2026-08-25 利用者要望: ブログ運営 CRUD ページ群 (作成者側/閲覧者側) と参考ブログ構成を抽象化したブループリントを確定内容へ追加するため再収集",
-      "from": "確定",
-      "discarded": {
-        "qa_ref": "qa-database-web-spec-intake",
-        "qa_refs": [
-          "qa-database-web-spec-intake",
-          "qa-database-web",
-          "qa-database-web-analytics"
-        ],
-        "serves_goals": [
-          "G1",
-          "G2"
-        ],
-        "required_info_checks": [
-          {
-            "checked_on": "2026-08-22",
-            "checked_with": "record-required-info-check",
-            "blocking_item_count": 0
-          }
-        ]
-      }
-    },
-    {
-      "category": "backend",
-      "platform": "web",
-      "reason": "2026-08-25 利用者要望: ブログ運営 CRUD ページ群 (作成者側/閲覧者側) と参考ブログ構成を抽象化したブループリントを確定内容へ追加するため再収集",
-      "from": "確定",
-      "discarded": {
-        "qa_ref": "qa-backend-web-spec-intake",
-        "qa_refs": [
-          "qa-backend-web-spec-intake",
-          "qa-backend-web",
-          "qa-backend-web-analytics"
-        ],
-        "serves_goals": [
-          "G2",
-          "G1"
-        ],
-        "required_info": [
-          {
-            "item_id": "domain-model",
-            "missing_effect": "block",
-            "status": "grounded",
-            "grounded_by": "qa-backend-web-spec-intake"
-          }
-        ],
-        "required_info_checks": [
-          {
-            "checked_on": "2026-08-22",
-            "checked_with": "record-required-info-check",
-            "blocking_item_count": 1
-          }
-        ]
-      }
-    },
-    {
-      "category": "ui-ux",
-      "platform": "web",
-      "reason": "2026-08-25 利用者指示: 参考ブログの全ページ種別を分析・解析し、サイト網 (ハブ+サブサイト)・トップ区画・記事部品列・サイドバー/フッター・配信部品を抽象ブループリント v1.1 (docs/spec/13) として確定内容へ追加するため再収集",
-      "from": "確定",
-      "discarded": {
-        "qa_ref": "qa-uiux-web-blog-ops-crud",
-        "serves_goals": [
-          "G1"
-        ],
-        "required_info": [
-          {
-            "item_id": "product-goal",
-            "missing_effect": "block",
-            "status": "grounded",
-            "grounded_by": "qa-foundation-u1"
-          },
-          {
-            "item_id": "screen-information-priority",
-            "missing_effect": "block",
-            "status": "grounded",
-            "grounded_by": "qa-uiux-web-screen-priority"
-          },
-          {
-            "item_id": "target-platforms",
-            "missing_effect": "block",
-            "status": "grounded",
-            "grounded_by": "qa-platform-scope"
-          }
-        ],
-        "required_info_checks": [
-          {
-            "checked_on": "2026-08-25",
-            "checked_with": "record-required-info-check",
-            "blocking_item_count": 3
-          }
-        ]
-      }
-    },
-    {
-      "category": "frontend",
-      "platform": "web",
-      "reason": "2026-08-25 利用者指示: 参考ブログの全ページ種別を分析・解析し、サイト網 (ハブ+サブサイト)・トップ区画・記事部品列・サイドバー/フッター・配信部品を抽象ブループリント v1.1 (docs/spec/13) として確定内容へ追加するため再収集",
-      "from": "確定",
-      "discarded": {
-        "qa_ref": "qa-frontend-web-blog-ops-crud",
-        "qa_refs": [
-          "qa-frontend-web-blog-ops-crud",
-          "qa-frontend-web-spec-intake",
-          "qa-frontend-web",
-          "qa-frontend-web-analytics"
-        ],
-        "serves_goals": [
-          "G1",
-          "G2"
-        ],
-        "required_info_checks": [
-          {
-            "checked_on": "2026-08-25",
-            "checked_with": "record-required-info-check",
-            "blocking_item_count": 0
-          }
-        ]
-      }
-    },
-    {
-      "category": "database",
-      "platform": "web",
-      "reason": "2026-08-25 利用者指示: 参考ブログの全ページ種別を分析・解析し、サイト網 (ハブ+サブサイト)・トップ区画・記事部品列・サイドバー/フッター・配信部品を抽象ブループリント v1.1 (docs/spec/13) として確定内容へ追加するため再収集",
-      "from": "確定",
-      "discarded": {
-        "qa_ref": "qa-database-web-blog-ops-crud",
-        "qa_refs": [
-          "qa-database-web-blog-ops-crud",
-          "qa-database-web-spec-intake",
-          "qa-database-web",
-          "qa-database-web-analytics"
-        ],
-        "serves_goals": [
-          "G1",
-          "G2"
-        ],
-        "required_info_checks": [
-          {
-            "checked_on": "2026-08-25",
-            "checked_with": "record-required-info-check",
-            "blocking_item_count": 0
-          }
-        ]
-      }
-    },
-    {
-      "category": "backend",
-      "platform": "web",
-      "reason": "2026-08-25 利用者指示: 参考ブログの全ページ種別を分析・解析し、サイト網 (ハブ+サブサイト)・トップ区画・記事部品列・サイドバー/フッター・配信部品を抽象ブループリント v1.1 (docs/spec/13) として確定内容へ追加するため再収集",
-      "from": "確定",
-      "discarded": {
-        "qa_ref": "qa-backend-web-blog-ops-crud",
-        "qa_refs": [
-          "qa-backend-web-blog-ops-crud",
-          "qa-backend-web-spec-intake",
-          "qa-backend-web",
-          "qa-backend-web-analytics"
-        ],
-        "serves_goals": [
-          "G2",
-          "G1"
-        ],
-        "required_info": [
-          {
-            "item_id": "domain-model",
-            "missing_effect": "block",
-            "status": "grounded",
-            "grounded_by": "qa-backend-web-blog-ops-crud"
-          }
-        ],
-        "required_info_checks": [
-          {
-            "checked_on": "2026-08-25",
-            "checked_with": "record-required-info-check",
-            "blocking_item_count": 1
           }
         ]
       }
@@ -4726,7 +4425,7 @@
           "section": "§32 (L2441)",
           "quote": "一つのアフィリエイトURLを起点に、正しい商品情報、比較候補、根拠、書き手、読者、媒体、広告表示を統合し、目的の異なる高品質コンテンツを安全に作成・公開・改善できること。",
           "sha256": "b5fc60987cb79c08c30db4cd94b075a0bf89cd7acba7c8d1ffc8558af6439385",
-          "sealed_on": "2026-08-21",
+          "sealed_on": "2026-08-25",
           "sealed_with": "seal-foundation-sources"
         },
         {
@@ -4737,7 +4436,7 @@
           "quote": "* どの商品、媒体、文章パターンが成果につながったか確認できる",
           "note": "G2 は §32 (U3 の sha256 束縛済み原文) に対応記述が無い。§2.3 の 2 行へ分かれて在る。L110 の「* アフィリエイトリンクを一元管理できる」が「一元管理」側の対応。",
           "sha256": "b5fc60987cb79c08c30db4cd94b075a0bf89cd7acba7c8d1ffc8558af6439385",
-          "sealed_on": "2026-08-21",
+          "sealed_on": "2026-08-25",
           "sealed_with": "seal-foundation-sources"
         },
         {
@@ -4747,7 +4446,7 @@
           "section": "§27.1",
           "quote": "根拠確認と人間承認を完了し、複数媒体へ展開されたコンテンツパッケージ数",
           "sha256": "b5fc60987cb79c08c30db4cd94b075a0bf89cd7acba7c8d1ffc8558af6439385",
-          "sealed_on": "2026-08-21",
+          "sealed_on": "2026-08-25",
           "sealed_with": "seal-foundation-sources"
         },
         {
@@ -4757,7 +4456,7 @@
           "section": "§27.1",
           "quote": "単なる生成数や投稿数を中心指標にしない。",
           "sha256": "b5fc60987cb79c08c30db4cd94b075a0bf89cd7acba7c8d1ffc8558af6439385",
-          "sealed_on": "2026-08-21",
+          "sealed_on": "2026-08-25",
           "sealed_with": "seal-foundation-sources"
         },
         {
@@ -4767,7 +4466,7 @@
           "section": "§7.1 (L489)",
           "quote": "蓄積されたロールアップから「クリック率・成果に効いている要因」を定期的に抽出し",
           "sha256": "5d84913a2422b9e697422b0656f90cf90633b0bd75adcebe0c6696e01fc9e45f",
-          "sealed_on": "2026-08-21",
+          "sealed_on": "2026-08-25",
           "sealed_with": "seal-foundation-sources"
         },
         {
@@ -4777,7 +4476,7 @@
           "section": "L475",
           "quote": "突合率(sub_id一致の割合)自体を運用KPIとし、sub_id非対応プログラムには「詳細分析不可」バッジを付ける",
           "sha256": "5d84913a2422b9e697422b0656f90cf90633b0bd75adcebe0c6696e01fc9e45f",
-          "sealed_on": "2026-08-21",
+          "sealed_on": "2026-08-25",
           "sealed_with": "seal-foundation-sources"
         },
         {
@@ -4785,9 +4484,9 @@
           "kind": "written-requirements",
           "path": "docs/spec/01-要求仕様書-v1.0.md",
           "section": "§30.8",
-          "quote": "## 30.8 追跡可能性",
+          "quote": "次の経路を双方向に追跡できる。",
           "sha256": "b5fc60987cb79c08c30db4cd94b075a0bf89cd7acba7c8d1ffc8558af6439385",
-          "sealed_on": "2026-08-21",
+          "sealed_on": "2026-08-25",
           "sealed_with": "seal-foundation-sources"
         },
         {
@@ -4795,9 +4494,9 @@
           "kind": "written-requirements",
           "path": "docs/spec/01-要求仕様書-v1.0.md",
           "section": "§30 (L2278)",
-          "quote": "# 30. 受け入れ条件",
+          "quote": "## 30.1 URL登録\n\n* アフィリエイトURLを元の状態で保存できる\n* 商品を識別できる\n* 不確実な場合は確認待ちになる\n* 情報源を確認できる\n* 危険なURLを拒否できる",
           "sha256": "b5fc60987cb79c08c30db4cd94b075a0bf89cd7acba7c8d1ffc8558af6439385",
-          "sealed_on": "2026-08-21",
+          "sealed_on": "2026-08-25",
           "sealed_with": "seal-foundation-sources"
         },
         {
@@ -4807,7 +4506,7 @@
           "section": "L683",
           "quote": "| パフォーマンス概要 | 期間比較付きの主要KPI(PV/クリック/CTR/発生・承認CVR/承認・支払EPC/承認・支払報酬)。watermarkによる速報・確定・遅延を区別 |",
           "sha256": "5d84913a2422b9e697422b0656f90cf90633b0bd75adcebe0c6696e01fc9e45f",
-          "sealed_on": "2026-08-21",
+          "sealed_on": "2026-08-25",
           "sealed_with": "seal-foundation-sources"
         },
         {
@@ -4815,9 +4514,9 @@
           "kind": "written-requirements",
           "path": "docs/spec/01-要求仕様書-v1.0.md",
           "section": "§2.2",
-          "quote": "## 2.2 読者に対する価値",
+          "quote": "* 自分に合う商品か判断できる\n* 商品の長所だけでなく弱点も確認できる\n* 他の商品との違いが分かる\n* おすすめの根拠を確認できる\n* 広告・アフィリエイトであることを認識できる",
           "sha256": "b5fc60987cb79c08c30db4cd94b075a0bf89cd7acba7c8d1ffc8558af6439385",
-          "sealed_on": "2026-08-21",
+          "sealed_on": "2026-08-25",
           "sealed_with": "seal-foundation-sources"
         },
         {
@@ -4825,9 +4524,9 @@
           "kind": "written-requirements",
           "path": "docs/spec/01-要求仕様書-v1.0.md",
           "section": "§2.3",
-          "quote": "## 2.3 発信者に対する価値",
+          "quote": "* 商品調査を媒体ごとに繰り返さなくてよい\n* 一つの情報から複数媒体向けコンテンツを作れる\n* 自分らしい文章表現を維持できる\n* 読者層ごとに文章を変えられる\n* 複数ブログを一つの管理画面で運営できる\n* アフィリエイトリンクを一元管理できる\n* 公開済みコンテンツの古い情報を検出できる\n* どの商品、媒体、文章パターンが成果につながったか確認できる",
           "sha256": "b5fc60987cb79c08c30db4cd94b075a0bf89cd7acba7c8d1ffc8558af6439385",
-          "sealed_on": "2026-08-21",
+          "sealed_on": "2026-08-25",
           "sealed_with": "seal-foundation-sources"
         },
         {
@@ -4835,9 +4534,9 @@
           "kind": "written-requirements",
           "path": "docs/spec/01-要求仕様書-v1.0.md",
           "section": "§25 (L2006-2019)",
-          "quote": "# 25. 権限",
+          "quote": "| Researcher         | 商品、比較、根拠        |\n| Writer             | 原稿、生成、修正        |\n| Reviewer           | 事実、表現、広告確認      |\n| Publisher          | 予約、公開、更新        |\n| Analyst            | 分析、レポート         |",
           "sha256": "b5fc60987cb79c08c30db4cd94b075a0bf89cd7acba7c8d1ffc8558af6439385",
-          "sealed_on": "2026-08-21",
+          "sealed_on": "2026-08-25",
           "sealed_with": "seal-foundation-sources"
         },
         {
@@ -4847,7 +4546,7 @@
           "section": "§2.1 (L85)",
           "quote": "> 発信者が、一つの信頼できる商品・サービス情報を起点に、複数のブログやSNSへ、「誰が・誰に・何を・なぜ伝えるか」が一貫した高品質コンテンツを効率的に生成・公開・改善できる状態をつくり、読者の意思決定品質と発信者の継続的な収益性を同時に高める。",
           "sha256": "b5fc60987cb79c08c30db4cd94b075a0bf89cd7acba7c8d1ffc8558af6439385",
-          "sealed_on": "2026-08-21",
+          "sealed_on": "2026-08-25",
           "sealed_with": "seal-foundation-sources"
         },
         {
@@ -4857,7 +4556,7 @@
           "section": "§3.1 (L121)",
           "quote": "現在のコンテンツ運営では、次の情報が別々の場所で管理されやすい。",
           "sha256": "b5fc60987cb79c08c30db4cd94b075a0bf89cd7acba7c8d1ffc8558af6439385",
-          "sealed_on": "2026-08-21",
+          "sealed_on": "2026-08-25",
           "sealed_with": "seal-foundation-sources"
         },
         {
@@ -4867,7 +4566,7 @@
           "section": "§3.4 (L184)",
           "quote": "WordPress、X、Instagram、Threadsなどは公式APIによる投稿連携が可能だが、認証、権限、投稿形式、利用料金、審査条件が異なる。",
           "sha256": "b5fc60987cb79c08c30db4cd94b075a0bf89cd7acba7c8d1ffc8558af6439385",
-          "sealed_on": "2026-08-21",
+          "sealed_on": "2026-08-25",
           "sealed_with": "seal-foundation-sources"
         },
         {
@@ -4877,7 +4576,7 @@
           "section": "§3.4 (L186)",
           "quote": "一方、noteは2026年8月16日時点で一般公開の公式投稿APIを提供していない。そのため、noteについては非公式APIやログイン自動操作を前提にせず、コピー用原稿、ファイル出力、WXR／MT形式のインポート支援として設計する。noteは公式にWXRまたはMT形式のインポートを案内している。",
           "sha256": "b5fc60987cb79c08c30db4cd94b075a0bf89cd7acba7c8d1ffc8558af6439385",
-          "sealed_on": "2026-08-21",
+          "sealed_on": "2026-08-25",
           "sealed_with": "seal-foundation-sources"
         },
         {
@@ -4887,7 +4586,7 @@
           "section": "§10.1 (L767)",
           "quote": "`original_url` は、成果計測に必要な情報を保持するため変更しない。",
           "sha256": "b5fc60987cb79c08c30db4cd94b075a0bf89cd7acba7c8d1ffc8558af6439385",
-          "sealed_on": "2026-08-21",
+          "sealed_on": "2026-08-25",
           "sealed_with": "seal-foundation-sources"
         },
         {
@@ -4897,7 +4596,7 @@
           "section": "§20 (L1614)",
           "quote": "日本では、広告であるにもかかわらず広告であることを判別しにくい表示が、景品表示法上のステルスマーケティング規制の対象となる。",
           "sha256": "b5fc60987cb79c08c30db4cd94b075a0bf89cd7acba7c8d1ffc8558af6439385",
-          "sealed_on": "2026-08-21",
+          "sealed_on": "2026-08-25",
           "sealed_with": "seal-foundation-sources"
         },
         {
@@ -4907,7 +4606,7 @@
           "section": "§5.5 (L326)",
           "quote": "外部公開、予約投稿、個人情報送信、アフィリエイトリンク挿入などの重要操作は、原則として人間の確認を経る。",
           "sha256": "b5fc60987cb79c08c30db4cd94b075a0bf89cd7acba7c8d1ffc8558af6439385",
-          "sealed_on": "2026-08-21",
+          "sealed_on": "2026-08-25",
           "sealed_with": "seal-foundation-sources"
         },
         {
@@ -4917,7 +4616,7 @@
           "section": "§1 (L38)",
           "quote": "同一商品・類似商品・比較候補を抽出",
           "sha256": "b5fc60987cb79c08c30db4cd94b075a0bf89cd7acba7c8d1ffc8558af6439385",
-          "sealed_on": "2026-08-21",
+          "sealed_on": "2026-08-25",
           "sealed_with": "seal-foundation-sources"
         },
         {
@@ -4927,7 +4626,7 @@
           "section": "§1 (L44)",
           "quote": "ブログ・X・Instagram・Threads・note等の媒体別に文章を生成",
           "sha256": "b5fc60987cb79c08c30db4cd94b075a0bf89cd7acba7c8d1ffc8558af6439385",
-          "sealed_on": "2026-08-21",
+          "sealed_on": "2026-08-25",
           "sealed_with": "seal-foundation-sources"
         },
         {
@@ -4937,7 +4636,7 @@
           "section": "§1 (L50)",
           "quote": "クリック・成果・反応を収集",
           "sha256": "b5fc60987cb79c08c30db4cd94b075a0bf89cd7acba7c8d1ffc8558af6439385",
-          "sealed_on": "2026-08-21",
+          "sealed_on": "2026-08-25",
           "sealed_with": "seal-foundation-sources"
         },
         {
@@ -4947,11 +4646,13 @@
           "section": "§27.5 (L2174)",
           "quote": "商品の編集評価には自動反映しない。",
           "sha256": "b5fc60987cb79c08c30db4cd94b075a0bf89cd7acba7c8d1ffc8558af6439385",
-          "sealed_on": "2026-08-21",
+          "sealed_on": "2026-08-25",
           "sealed_with": "seal-foundation-sources"
         }
       ]
-    }
+    },
+    "objectives_note": "目標値は根拠のない数値を確定しない。各指標は `current / target / measurement_window / event_or_query / owner / decision_due` を一組で持ち、初回実装では `current=未計測` として基準値を取得する。基準値取得後に target を決定するまで、能力要件の充足と成果目標の達成を混同しない。",
+    "success_criteria_note": "成功基準の判定には、少なくとも tenant 越境拒否、未同意イベント、同一成果の再取込、成果状態更新、計測D1障害中の既知リンク転送、KPI定義一致、n不足時の結論抑制を含む受入証拠が必要である。"
   },
   "decisions": [
     {
@@ -5741,7 +5442,7 @@
   ],
   "knowledge_candidates": [],
   "hearing_progress": {
-    "loop_count": 4,
+    "loop_count": 2,
     "next_question": null,
     "complete": true,
     "max_loops": 5,
@@ -5781,5 +5482,18 @@
       "qa-uiux-web-screen-priority",
       "qa-uiux-web-spec-intake"
     ]
+  },
+  "chapter_notes": {
+    "ui-ux": [
+      {
+        "heading": "既存記録との食い違い (均さずに両方残す)",
+        "body": "**以下は利用者の回答ではない。**上の表と混ぜて読まないために区切ってある。食い違いを消して片方だけを残すと、どちらが一次根拠だったかが後から引けなくなる。\n\n**(1) 主タスクの優先順 ↔ `UIUX-REQ-001`**\n\n**この食い違いは 2026-08-23 に解消した。**以下は解消前の記録で、消さずに残す。決着の内容と手続きは「## 履歴」を見ること。\n\n収集時点の `UIUX-REQ-001` は「一覧ではなく『今、利用者が判断・回復すべき業務状態』を優先順位にし」と書いていた。利用者は**記事ごとの成績比較を第 1 位**に置き、業務状態の回復を第 2 位に置いた。**先頭が入れ替わっていた。**\n\n- 一次根拠は利用者回答である。旧 `UIUX-REQ-001` は書面 (`docs/spec/01` §17.4 / §22、`docs/spec/03` §7〜§8) から後に導かれた設計判断で、本人に確認したものではない。\n- **収集の記録がその場で `UIUX-REQ-001` を書き換えることはしなかった。**両者が争っていたのは「先頭に何を置くか」だけで、「業務状態を出すこと」自体は利用者も第 2 位として要求している。要件 ID の本文を収集の記録が勝手に書き換えると、後から「いつ誰が変えたか」が消える。解消は設計側の判断として別に行い、その経路が「## 履歴」の R4-reopen である。\n- **この食い違いは、放置すると静かに消える種類のものだった。**画面を作る人は `UIUX-REQ-001` だけを読み、業務キューを先頭に置く。利用者は成績比較を探して見つけられない。**そのとき誰も規約違反をしていない。**だからここに書いてあり、だから解消も記録付きで行った。\n\n**(2) 利用頻度・端末・熟練度 ↔ 既存 `design_applications` の代理推定**\n\n`qa-uiux-web-spec-intake` の `design_applications[0]` (`elicit-question-bank:screen-information-priority`) は、同じ 9 項目を**書面からの代理推定**で既に埋めている。本人回答と照合すると 9 軸中 3 軸が食い違う (分母 = カタログ `completion_rule` の 9 軸):\n\n| 軸 | 代理推定 (既存) | 本人回答 (今回) |\n|---|---|---|\n| 利用頻度 | 毎日 | 週 1 回程度 |\n| 端末 | PC主体+モバイル併用(レスポンシブ) | PC 中心（キーボードとマウス） |\n| 熟練度 | 初中級中心 | 反復利用する本人 |\n\n残る 6 軸 (ロール／主タスクの構成要素／データ量／比較・一括操作／誤操作コスト／visual device 方針) は方向が一致する。\n\n- **既存の代理推定を消さない。**消すと「この章は一度、聞かずに埋められた」という事実が引けなくなる。C16 の block ゲートが求めているのは利用者根拠への接地であって、過去の推定の抹消ではない。\n- **3/9 が外れたことのほうが記録として重い。**代理推定は 6 軸当たっており、当たっている分だけ「聞かなくても書ける」ように見える。外れた 3 軸はいずれも画面の骨格を変える軸である (週 1 回なら差分提示が要る／PC 中心ならレスポンシブ前提の制約が外れる／反復利用者なら初回向け説明より変化の可視化)。**当たった 6 軸は、外れた 3 軸の危険を打ち消さない。**\n\n**(3) 週 1 回であることの帰結 (設計側への申し送り。ここでは確定しない)**\n\n毎日開く前提の「同じ手順を速く回す」最適化より、**「前回以降に何が変わったか」**が効く。本章 `## To-Be` の 4 要件はこの想定を持っていない。差分の基準時刻をどこに置くか (前回ログイン／前回操作／固定期間) は設計判断であり、収集の記録では決めない。",
+        "reason": "2026-08-25: この散文は章 ui-ux.md にしか無く、生成節 `## 確定内容 (質疑録)` の内側 (`####`) に書かれていたため compile のたび消失していた。節の引き継ぎは `##` 単位でしか効かず、生成節の内側は原理上守れない。利用者の逐語 (qa_log[].answer) へ足すと利用者が言っていないことが利用者の声で残るため、突き合わせの記録として別欄へ置く。",
+        "recorded_with": "set-chapter-note"
+      }
+    ]
+  },
+  "excluded_categories": {
+    "api": "API 契約は backend カテゴリの質疑で扱っており、独立したカテゴリ行を立てない。根拠: qa-backend-web-overhaul-v2 に利用者本人の逐語『この UI、UX を整える際に必要な API があれば、それも併せて実行するような流れにしておいてください』が記録され、各管理対象の CRUD API を backend 要件として収集済み。qa-backend-web-analytics でも外部 API 連携 (SNS API / ASP API) を扱う。API を作らないという意味ではない。"
   }
 }

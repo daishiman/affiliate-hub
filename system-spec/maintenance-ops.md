@@ -15,7 +15,7 @@ serves_goals: [G1, G2]
 
 | プラットフォーム | 状態 | 根拠 |
 |---|---|---|
-| Web (web) | 確定 | 確定質疑: qa-ops-web-migration-guard |
+| Web (web) | 確定 | 確定質疑: qa-ops-web-migration-guard。裏付け質疑 (`qa_refs`): `qa-ops-web-spec-intake`, `qa-ops-web` — 本章の「確定内容 (質疑録)」へ接地根拠として併記 |
 | モバイル (mobile) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |
 | タブレット (tablet) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |
 | デスクトップ (Windows) (desktop-windows) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |
@@ -67,6 +67,8 @@ serves_goals: [G1, G2]
 - **operations が引用可になる条件**: targets[] に SRE Workbook を足して C02 で取得できた日に state を available へ変え、cited_clauses を埋め、検査を『この章は条項を引いていること』側へ反転させる。取得すれば塞がる穴であって、塞げない穴ではない。
 
 ## 適用された設計知識
+
+> 以下の deep knowledge card は設計判断を支援する**非規範の参考資料**であり、実装済み・検証済みの証拠ではない。カード内の `採否: applied` は設計採用を意味し、実装状態は意味しない。規範となる差分は本章の To-Be / Delta 節と参照先仕様で管理する。
 
 ### Clean Code — deep knowledge card
 
@@ -167,7 +169,7 @@ codeを、次の変更者が意図・制約・failureを短時間で理解し、
 | 対象 | バージョン | 公式発行元 | 出典URL | 取得 | 最新確認 |
 |---|---|---|---|---|---|
 | google-sre | 2017 | Google (sre.google) | https://sre.google/sre-book/table-of-contents/ | 2026-08-19T15:30:40Z | 2026-08-19T15:30:40Z |
-| vitest | 2026-04-08 | Vitest (vitest.dev) | https://vitest.dev/guide/ | 2026-08-22T15:05:10Z | 2026-08-22T15:05:10Z |
+| vitest | 4.1.11 | Vitest (vitest.dev) | https://vitest.dev/guide/ | 2026-08-24T11:38:56Z | 2026-08-24T11:38:55Z |
 | github-actions | free-pro-team@latest | GitHub (docs.github.com) | https://docs.github.com/en/actions | 2026-08-22T15:05:16Z | 2026-08-22T15:05:16Z |
 | stryker-mutator | 10.0.0 | Stryker Mutator (stryker-mutator.io) | https://stryker-mutator.io/docs/stryker-js/introduction/ | 2026-08-22T21:18:38Z | 2026-08-22T21:19:48Z |
 
@@ -258,25 +260,3 @@ C05 gaps[0] の「再生成して本文へ載せる」を採らず、本節は�
 - **`decision-test-ci-tooling` の結論は「現行のまま」だが、「Playwright は不要」という判断ではない。** 10 の 7 種のうち**見た目の回帰だけは現行で測れておらず、その穴は実在する**。足さない理由は必要性ではなく走らせ方にある。11 §8-2 の 3 段 (手動・止めない) は 2026-08-18 に定例をやめており、いま基準を足しても回す場所が無い。穴があることを消さずに残すのが本項の要点である。
 - **確定の出どころ**: 利用者本人が 2 つの選択肢から直接選び、回答原文は「現行のままで確定」(`user_decision.verbatim`、2026-08-20)。AI の推奨を昇格させたものでも、オーケストレーターが代理で決めたものでもない。
 - **注意**: `system-spec/completeness-report.json` の gaps[3] は本項を `recommended_pending_confirmation` として未確定扱いしているが、これは **2026-08-16 時点の評価**である。正本ではすでに `confirmed`。C05 を再評価すれば消える。
-
-## compile が保てなかった行 (要判断)
-
-> 正本から導出できず、節・小節の引き継ぎでも守れなかった 17 行。版の更新のように**正しく消える行**も混ざる。正本へ接続するか、不要と確かめて消すこと。この節は compile のたびに作り直す。
-
-- `| Web (web) | 確定 | 確定質疑: `qa-ops-web-spec-intake` (正本 `spec-state.json` の `qa_ref`)。先行質疑 `qa-ops-web` は `qa_refs` に残り、本章にも併記する |`
-- `### qa-ops-web (対応セル: web)`
-- `| レート制限 | 各Connectorにレートリミッタとコスト上限(特にX API従量課金)。上限接近で警告、超過で自動停止 |`
-- `| バックアップ | Workspace単位のエクスポート(記事・商品・リンク・成果CSV)。退会時データポータビリティ |`
-- `| 監査 | AuditLog の必須記録対象を列挙:公開/削除/リンク差し替え/権限変更/成果データ修正/エクスポート |`
-- `| 障害時 | 計測系障害単独を理由に既知の有効resolver entryの転送を止めない。未知・停止・破損entryは安全側で拒否し、SLOと劣化条件を監視 |`
-- `| 障害時 | 計測系障害単独を理由に既知の有効resolver entryの転送を止めない。未知・停止・破損entryは安全側で拒否し、SLOと劣化条件を監視 |`
-- `| 検索 | 記事・商品・リンクの横断全文検索。テナント別インデックス(26.4章と整合) |`
-- `### qa-ops-web-spec-intake (対応セル: web)`
-- `| スタブを厚くテストして全体を押し上げる | 中身が仮の場所は行数が少なく通しやすい。**最も壊れると痛い場所は覆われないまま数字だけ上がる** |`
-- `| 閾値を下げて緑にする | 下げた記録が残らなければ、次の人は「元から 60% だった」と思う |`
-- `| 到達しにくい分岐を消して分母を減らす | 異常系を削るのは、異常系を守らないという意思決定である |`
-- `##### 確定内容 qa-ops-web (対応セル: web)`
-- `- 確定要件: | 通知 | 投稿失敗・リンク切れ・プログラム終了・成果確定をメール/Slack/アプリ内で通知。通知チャネルはWorkspace設定 |`
-- `- 資するゴール: G1, G2`
-- `##### 確定内容 qa-ops-web-spec-intake (対応セル: web)`
-- `- 確定要件: | アサーションの無いテスト | 実行するだけで「通った」ことになる。壊れても赤くならない |`

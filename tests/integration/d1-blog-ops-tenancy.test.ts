@@ -4,9 +4,10 @@
  * @req REQ-BOPS07, REQ-BOPS08, REQ-BOPS09, REQ-BOPS11, REQ-BOPS14
  * @types boundary, db-migration, state-transition, tenant-isolation
  *
- * `legal_page` と `blog_article_rating` は workspace_id を持たない。
- * それでも、親のサイト／記事が操作者の workspace に属するときだけ読み書きできることを、
- * 本物の D1 と migration で確かめる。
+ * `legal_page` と blog の子表（部品・タグ結合・評価）は workspace_id を持ち、
+ * そのうえで親のサイト／記事が操作者の workspace に属するときだけ読み書きできる。
+ * 二重にしてあるのは、片方だけだと 1 本のクエリが単体では他所の行に届くからで、
+ * その両方を本物の D1 と migration で確かめる。
  */
 import { readFileSync, readdirSync } from "node:fs";
 import path from "node:path";
@@ -103,9 +104,9 @@ beforeEach(async () => {
     .bind("snn_tenant_owned", String(OWNER), SITE, "所有者のブログ")
     .run();
   await proxy.env.DB.prepare(
-    "INSERT INTO legal_page (id, site_slug, kind, title, body) VALUES (?, ?, 'profile', ?, ?)",
+    "INSERT INTO legal_page (id, workspace_id, site_slug, kind, title, body) VALUES (?, ?, ?, 'profile', ?, ?)",
   )
-    .bind(PAGE_ID, SITE, "運営者情報", "所有者だけが読める本文")
+    .bind(PAGE_ID, String(OWNER), SITE, "運営者情報", "所有者だけが読める本文")
     .run();
   await proxy.env.DB.prepare(
     "INSERT INTO articles (id, workspace_id, site_slug, slug, article_template, type, title) VALUES (?, ?, ?, ?, 'T1', 'ranking', ?)",
@@ -113,14 +114,14 @@ beforeEach(async () => {
     .bind(ARTICLE_ID, String(OWNER), SITE, "owned-article", "所有者の記事")
     .run();
   await proxy.env.DB.prepare(
-    "INSERT INTO blog_article_rating (id, article_id, reader_key, score, comment) VALUES (?, ?, ?, 5, ?)",
+    "INSERT INTO blog_article_rating (id, workspace_id, article_id, reader_key, score, comment) VALUES (?, ?, ?, ?, 5, ?)",
   )
-    .bind(RATING_ID, ARTICLE_ID, "reader_tenant_test", "所有者の評価")
+    .bind(RATING_ID, String(OWNER), ARTICLE_ID, "reader_tenant_test", "所有者の評価")
     .run();
   await proxy.env.DB.prepare(
-    "INSERT INTO blog_article_block (id, article_id, kind, heading, body, position) VALUES (?, ?, 'summary-section', ?, ?, 0)",
+    "INSERT INTO blog_article_block (id, workspace_id, article_id, kind, heading, body, position) VALUES (?, ?, ?, 'summary-section', ?, ?, 0)",
   )
-    .bind(BLOCK_ID, ARTICLE_ID, "所有者の見出し", "所有者の本文")
+    .bind(BLOCK_ID, String(OWNER), ARTICLE_ID, "所有者の見出し", "所有者の本文")
     .run();
   await proxy.env.DB.prepare(
     "INSERT INTO blog_tag (id, workspace_id, site_slug, slug, name, description, kind) VALUES (?, ?, ?, ?, ?, '', 'topic')",
@@ -128,9 +129,9 @@ beforeEach(async () => {
     .bind(TAG_ID, String(OWNER), SITE, "owned-tag", "所有者のタグ")
     .run();
   await proxy.env.DB.prepare(
-    "INSERT INTO blog_article_tag (article_id, tag_id) VALUES (?, ?)",
+    "INSERT INTO blog_article_tag (workspace_id, article_id, tag_id) VALUES (?, ?, ?)",
   )
-    .bind(ARTICLE_ID, TAG_ID)
+    .bind(String(OWNER), ARTICLE_ID, TAG_ID)
     .run();
 });
 
@@ -167,9 +168,15 @@ describe("固定ページの workspace 境界", () => {
       .bind(PAGE_ID)
       .run();
     await proxy.env.DB.prepare(
-      "INSERT INTO legal_page (id, site_slug, kind, title, body, status, deleted_at) VALUES ('lgp_draft', ?, 'contact', 'draft', 'draft', 'draft', NULL), ('lgp_deleted', ?, 'company', 'deleted', 'deleted', 'published', ?)",
+      "INSERT INTO legal_page (id, workspace_id, site_slug, kind, title, body, status, deleted_at) VALUES ('lgp_draft', ?, ?, 'contact', 'draft', 'draft', 'draft', NULL), ('lgp_deleted', ?, ?, 'company', 'deleted', 'deleted', 'published', ?)",
     )
-      .bind(SITE, SITE, Math.floor(DELETED_AT.getTime() / 1000))
+      .bind(
+        String(OWNER),
+        SITE,
+        String(OWNER),
+        SITE,
+        Math.floor(DELETED_AT.getTime() / 1000),
+      )
       .run();
 
     const opened = await publicRepository().openSite(SITE);
@@ -688,8 +695,10 @@ describe("親リソースと子リソースの workspace 境界", () => {
       .bind(String(OWNER), SITE)
       .run();
     await proxy.env.DB.prepare(
-      "INSERT INTO blog_article_block (id, article_id, kind, heading, body, position) VALUES ('bab_conflict', 'bar_conflict', 'summary-section', '', '', 0)",
-    ).run();
+      "INSERT INTO blog_article_block (id, workspace_id, article_id, kind, heading, body, position) VALUES ('bab_conflict', ?, 'bar_conflict', 'summary-section', '', '', 0)",
+    )
+      .bind(String(OWNER))
+      .run();
 
     const result = await repository().saveArticle(OWNER, {
       id: ARTICLE_ID,

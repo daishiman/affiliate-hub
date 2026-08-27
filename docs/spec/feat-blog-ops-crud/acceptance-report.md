@@ -152,7 +152,7 @@ P09 (qa-report) と P10 (final-review) が判断できる唯一の材料であ�
 **機械が見ている。**
 
 - 種類そのもの: `blog_tag.kind` (`brand` / `topic`、既定 `topic`、migration
-  `0025_careless_goliath`)。**既定を `topic` にしたのは、間違え方が軽い側だから。**
+  `0027_careless_goliath`)。**既定を `topic` にしたのは、間違え方が軽い側だから。**
   種類を足す前からあるタグはどちらとも分からない。既定を `brand` にすると枠が
   「これは作り手だ」と嘘を言い、`topic` にすると枠が寂しくなるだけで済む。
 - **絞る条件は 1 か所**: `brandTagCloud()` (`src/domain/blogops/blog-tag.ts`) だけが
@@ -248,7 +248,7 @@ P09 (qa-report) と P10 (final-review) が判断できる唯一の材料であ�
   画面は `/admin/blog/evaluate/[article]`
   (`src/app/admin/blog/evaluate/[article]/page.tsx` + `blog-rating-form.tsx`)、
   監査の語は `blog_rating.hidden` / `blog_rating.shown`、列は `blog_article_rating.hidden`
-  (migration `0024_black_vargas`)。
+  (migration `0026_black_vargas`)。
   **消す口は作っていない。**消せる形にすると「伏せた」と「最初から無かった」が
   同じ姿になり、伏せた判断そのものを後から確かめられなくなる。
 - **見張りが弱い**: 公開面の描画そのものを見る検査は、読者向けの集計

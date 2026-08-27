@@ -4,11 +4,11 @@
 末尾の指紋がその見張りで、手で 1 文字でも書くと次の実行が**上書きせずに止まる**（書いた行は残る）。
 宣言は `docs/product/required-test-types.md`、語彙と上限は `quality-gates.config.mjs` が正本。
 
-- 最終更新: 2026-08-26
-- 要件表の要件: 285 件
-- 性質を宣言済: 278 件
-- **未宣言: 7 件**（上限 7 件）
-- 理由つきの除外: 7 件（上限 7 件）
+- 最終更新: 2026-08-27
+- 要件表の要件: 286 件
+- 性質を宣言済: 281 件
+- **未宣言: 5 件**（上限 5 件）
+- 理由つきの除外: 6 件（上限 7 件）
 
 未宣言とは「必須種別をまだ決めていない」という意味で、
 テストが無いという意味ではない。**新しい要件は宣言しないと CI が落ちる。**
@@ -107,6 +107,7 @@
 | REQ-FD02 | has-enumerated-input, has-code-placement-rule | `code-boundary` `decision-table` `equivalence` | `code-boundary` `decision-table` `equivalence` | — |
 | REQ-FD03 | has-input | `boundary` `equivalence` | `boundary` `equivalence` | — |
 | REQ-FD01 | has-code-placement-rule | `code-boundary` | `code-boundary` | — |
+| REQ-FD04 | has-code-placement-rule | `code-boundary` | `code-boundary` | — |
 | REQ-FD05 | has-code-placement-rule | `code-boundary` | `code-boundary` | — |
 | REQ-FD06 | has-code-placement-rule | `code-boundary` | `code-boundary` | — |
 | REQ-TM12 | has-code-placement-rule | `code-boundary` | `code-boundary` | — |
@@ -170,7 +171,7 @@
 | REQ-SEC06 | has-enumerated-input | `decision-table` `equivalence` | `decision-table` `equivalence` | — |
 | REQ-SEC07 | has-enumerated-input | `decision-table` `equivalence` | `decision-table` `equivalence` | — |
 | REQ-SEC08 | has-screen | `a11y` `keyboard` `screen-states` | `a11y` `keyboard` `screen-states` | — |
-| REQ-SEC09 | has-input, has-secret, has-db-table, has-recorded-operation | `audit-log` `boundary` `db-migration` `equivalence` `secrets` | `audit-log` `db-migration` `equivalence` `secrets` | `boundary` |
+| REQ-SEC09 | has-input, has-secret, has-db-table, has-recorded-operation | `audit-log` `boundary` `db-migration` `equivalence` `secrets` | `audit-log` `boundary` `db-migration` `equivalence` `secrets` | — |
 | REQ-SEC10 | has-secret, has-runtime-config | `infra-config` `secrets` | `infra-config` `secrets` | — |
 | REQ-A01 | has-input, has-state, has-user-supplied-url | `boundary` `equivalence` `ssrf` `state-transition` | `boundary` `equivalence` `ssrf` `state-transition` | — |
 | REQ-A02 | has-input | `boundary` `equivalence` | `boundary` `equivalence` | — |
@@ -271,11 +272,13 @@
 | REQ-CI05 | has-runtime-config | `infra-config` | `infra-config` | — |
 | REQ-CI06 | has-runtime-config | `infra-config` | `infra-config` | — |
 | REQ-CI07 | has-runtime-config, has-secret | `infra-config` `secrets` | `infra-config` `secrets` | — |
+| REQ-CI08 | has-code-placement-rule | `code-boundary` | `code-boundary` | — |
 | REQ-CI09 | has-runtime-config | `infra-config` | `infra-config` | — |
 | REQ-CI10 | has-runtime-config | `infra-config` | `infra-config` | — |
 | REQ-CI11 | has-runtime-config | `infra-config` | `infra-config` | — |
 | REQ-CI12 | has-input | `boundary` `equivalence` | `boundary` `equivalence` | — |
 | REQ-CI13 | has-runtime-config | `infra-config` | `infra-config` | — |
+| REQ-CI14 | has-runtime-config, has-input, has-secret | `boundary` `equivalence` `infra-config` `secrets` | `boundary` `equivalence` `infra-config` `secrets` | — |
 | REQ-FB01 | has-enumerated-input | `decision-table` `equivalence` | `decision-table` `equivalence` | — |
 | REQ-FB02 | has-screen, has-permission | `a11y` `keyboard` `permission-matrix` `screen-states` | `a11y` `keyboard` `permission-matrix` `screen-states` | — |
 | REQ-FB03 | has-input, has-screen | `a11y` `boundary` `equivalence` `keyboard` `screen-states` | `a11y` `boundary` `equivalence` `keyboard` `screen-states` | — |
@@ -310,10 +313,8 @@
   - `fault-injection`: ASP への実接続がスタブで、落とす外部接続が実在しない
 - **REQ-QC12**
   - `boundary`: 公開ゲートの 13 項目は真偽の組合せで、大小の端が無い。組合せ側は `tests/property/publish-gate.property.test.ts` の手書きの決定表（13 項目 × 単独違反 18 行）が当てている（2026-08-21 に理由を差し替え。§4 参照）
-- **REQ-SEC09**
-  - `boundary`: 監査記録の入力は操作内容と差分で、大小の端が無い。見ているのは消す / 消さないの分かれ目だけ
 
 ## 未宣言の要件
 
-`REQ-CI08` `REQ-FD04` `REQ-TH04` `REQ-TH05` `REQ-TS02` `REQ-TS03` `REQ-TS10`
-<!-- 生成物の指紋 sha256:1ba9b4d839d818ac8d27f2377c88912a70662607df33cde5bae9fcbbdbb3e064 -->
+`REQ-TH04` `REQ-TH05` `REQ-TS02` `REQ-TS03` `REQ-TS10`
+<!-- 生成物の指紋 sha256:4d92525daa6663924d2a017db72153c2104186f2d953a41b6f7a9f43ceeff48f -->
