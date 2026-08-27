@@ -39,10 +39,18 @@ export { LoadingView, EmptyView, ErrorView } from "./primitives/state-view";
 export { Icon, type IconName, type IconSize } from "./primitives/icon";
 /* 節の見出し。`level` は必須で、文書階層 2〜4 をそのまま渡す。 */
 export { SectionHeading, type SectionHeadingLevel } from "./primitives/heading";
+export { proseParagraphs } from "./primitives/prose-paragraphs";
+/*
+  本文の断片を描く部品 (`ProseBody` / `ProseEditor` / `ProseSection`) はここから出さない。
+  `@/domain/blogops` を読むので共通UIの決まりに当たらない。置き場は
+  `@/presentation/prose`（同ディレクトリの README に理由）。
+*/
 /* 注記の段落。余白も `className` も持たない。寄せてはいけないものは `note.tsx` の doc。 */
 export { Note } from "./patterns/note";
 /* 「続きはあちら」の行き先 1 本。`Note` と見た目は同じで役が違う（`see-also.tsx` の doc）。 */
 export { SeeAlso } from "./patterns/see-also";
+/* 見ている対象の切り替え。文ではなく操作なので押しどころの下限を持つ（`scope-switch.tsx` の doc）。 */
+export { ScopeSwitch } from "./patterns/scope-switch";
 
 /* --- patterns（仕様固有。画面ごとに書き起こさない） --------------------- */
 export {

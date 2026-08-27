@@ -11,6 +11,8 @@
  * @req REQ-FB07
  * @req REQ-IM09
  * @req REQ-TM02, REQ-TM03, REQ-TM05, REQ-TM06, REQ-TM10
+ * @req REQ-BOPS01, REQ-BOPS02, REQ-BOPS03, REQ-BOPS04, REQ-BOPS05, REQ-BOPS06
+ * @req REQ-BOPS07, REQ-BOPS08, REQ-BOPS09, REQ-BOPS10, REQ-BOPS11, REQ-BOPS12, REQ-BOPS14
  * @types keyboard
  */
 import { describe, expect, it } from "vitest";

@@ -387,9 +387,10 @@ export function createSaveScoreCardUseCase(
       }
 
       if (Object.keys(scores).length === 0) {
-        return err(
-          validationError("点を 1 つも入れていません。少なくとも 1 項目は必要です。", "scorePercents"),
-        );
+        // 欄の名前を付けない。画面にあるのは `score_<項目>` の集まりで、
+        // `scorePercents` という欄は 1 つも無い。無い欄の名前を付けると、
+        // 画面側は「自分の欄ではない」と判断して**この断りをどこにも出さない**。
+        return err(validationError("点を 1 つも入れていません。少なくとも 1 項目は必要です。"));
       }
 
       const testedAt = input.testedAt.trim() === "" ? null : new Date(input.testedAt);

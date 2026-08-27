@@ -194,6 +194,15 @@ const ROUTE_INTENT: Readonly<Record<string, { readonly intent: Gate; readonly wh
     intent: "誰でも",
     what: "ログインの入口（Google との往復）",
   },
+  "src/app/api/dev-signin/route.ts": {
+    // 手元で画面を見るためだけの入口。**旗が 2 つ同時に立ったときしか存在しない**
+    // （`DEV_SIGNIN_ENABLED=1` かつ積んだ環境でない、[[dev-signin]]）。
+    // 積んだ環境では 404 を返すので、ここでの「誰でも」は
+    // 「手元でだけ、誰でも」を指す。通行証は本番と同じ発行側が出すため、
+    // 担当者の登録が無いアドレスはこの口を通っても入れない。
+    intent: "誰でも",
+    what: "手元で画面を確かめるための入口（積んだ環境には存在しない）",
+  },
   "src/app/api/telemetry/route.ts": {
     intent: "誰でも",
     what: "読者の画面から届く計測（未ログインの読者が送るので、門は置けない）",
@@ -538,6 +547,72 @@ const ACTION_INTENT: Readonly<
   removeFromShortlistAction: {
     intent: "誰でも",
     what: "読者が自分の「気になる商品」から 1 件外す",
+    reversible: "つく",
+  },
+  /*
+    ブログ運用の 6 操作（feat-blog-ops-crud）。
+
+    網・記事・固定ページは論理削除され、所有workspaceの削除済み一覧から同じID/URLまたは
+    同じ種別へ元の内容で復元できるため「つく」。タグだけは旧内容を復元するUIが無い。
+    版面（枠）と配信部品は並べ替えと切り替えだけで、消しても同じ枠をもう一度置ける。
+  */
+  manageSiteNetworkAction: {
+    intent: "ログイン",
+    what: "サイト網の枝を足す・直す・論理削除し、削除済み一覧から同じURLへ復元する",
+    reversible: "つく",
+  },
+  manageBlogArticleAction: {
+    intent: "ログイン",
+    what: "記事を作る・直す・論理削除し、本文・タグ・評価ごと同じURLへ復元する",
+    reversible: "つく",
+  },
+  manageBlogRatingAction: {
+    intent: "ログイン",
+    // **「消す」がここに無い。**票は行として残り、印だけが付け替わる。
+    // だから取り消しが「つく」。消す口を作っていれば「つかない」になっていた。
+    what: "読者が付けた評価を伏せる・戻す（票は消えず、平均と件数から外れるだけ）",
+    reversible: "つく",
+  },
+  manageBlogTagAction: {
+    intent: "ログイン",
+    what: "タグを作る・直す・消す（消したタグの説明は残らない）",
+    reversible: "つかない",
+  },
+  manageBlogPageAction: {
+    intent: "ログイン",
+    what: "固定ページを作る・直す・論理削除し、削除済み一覧から元の本文と公開状態で復元する",
+    reversible: "つく",
+  },
+  manageBlogLayoutAction: {
+    intent: "ログイン",
+    what: "版面の枠と帯を並べ替える・出し入れする",
+    reversible: "つく",
+  },
+  manageBlogDeliveryAction: {
+    intent: "ログイン",
+    what: "配信部品を出し入れする",
+    reversible: "つく",
+  },
+  /*
+    点検は**読むだけに見えて、書く口である**（結果を履歴として積む）。
+    読み取りと同じ扱いにすると、誰でも押せる口から表が伸び続ける。
+  */
+  checkBlogDeliveryAction: {
+    intent: "ログイン",
+    what: "配信物を組み立て直して、結果を履歴に積む",
+    reversible: "つかない",
+  },
+  /*
+    読者の評価。**門を置かない**のは、点を付けるのに名前も連絡先も要らないため
+    （要求すると、点の分布が「登録した人の分布」に変わる）。
+
+    「つく」なのは、同じ端末の目印で**上書き**されるからである。
+    押し直せば前の点は残らず、票も増えない。記事の本文はこの口から触れない
+    （`ArticleRatingPort` に記事を書く道が無い）。
+  */
+  submitReaderRatingAction: {
+    intent: "誰でも",
+    what: "記事に点を付ける（公開フォーム。押し直すと上書きされる）",
     reversible: "つく",
   },
   manageGuidelineReferenceAction: {

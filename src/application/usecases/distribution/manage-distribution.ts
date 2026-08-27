@@ -443,7 +443,9 @@ export function createRegisterChannelConnectionUseCase(
       if (input.expiresAt != null && input.expiresAt.trim() !== "") {
         expiresAt = new Date(input.expiresAt);
         if (Number.isNaN(expiresAt.getTime())) {
-          return err(validationError("接続期限の日時を読み取れませんでした。", "expiresAt"));
+          // 欄の名前を付けない。接続の画面に期限の入力欄は無く（値は provider 側から来る）、
+          // 名前を付けると断りが「その欄」を待って画面のどこにも出ないまま消える。
+          return err(validationError("接続期限の日時を読み取れませんでした。"));
         }
       }
       const at = new Date();

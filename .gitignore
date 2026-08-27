@@ -89,4 +89,10 @@ tests/visual/__diff__/
 # 追跡すると同じファイルが 2 重に履歴へ入り、写しを直しても本体は直らない。
 # 検査から外す側は eslint.config.mjs の globalIgnores に書いてある。
 .claude/worktrees/
+
+# エージェントの実行ログ。走らせるたびに追記されるので、履歴へ入れると
+# 差分が毎回出る。中身は手元の実行記録で、他の人が読んで役に立つものではない。
 .claude/logs/
+
+# 参考サイトの禁止語一覧 (手元と CI の secret にだけ置く)
+.reference-ban.local

@@ -312,7 +312,7 @@ describe("A1 §1 全管理画面は primary task をちょうど 1 つ持つ", (
     保存できるようにするなら読む画面も同時に要る。
     **読む口が無いまま保存だけ足すと「受け付けました」が嘘になる。**
   */
-  it("実在route・route metadata・task manifest・priority mapが69件で1対1になる", () => {
+  it("実在route・route metadata・task manifest・priority mapが84件で1対1になる", () => {
     const priority = JSON.parse(readFileSync(PRIORITY_MAP, "utf8")) as {
       readonly screens: readonly { readonly route: string; readonly primary_task: string }[];
     };
@@ -321,12 +321,12 @@ describe("A1 §1 全管理画面は primary task をちょうど 1 つ持つ", (
     const tasks = ADMIN_SCREEN_TASK_MANIFEST.map((screen) => screen.route).sort();
     const documented = priority.screens.map((screen) => screen.route).sort();
 
-    expect(actual).toHaveLength(69);
+    expect(actual).toHaveLength(84);
     expect(metadata).toEqual(actual);
     expect(tasks).toEqual(actual);
     expect(documented).toEqual(actual);
-    expect(new Set(ADMIN_SCREEN_TASK_MANIFEST.map((screen) => screen.routeId)).size).toBe(69);
-    expect(new Set(priority.screens.map((screen) => screen.route)).size).toBe(69);
+    expect(new Set(ADMIN_SCREEN_TASK_MANIFEST.map((screen) => screen.routeId)).size).toBe(84);
+    expect(new Set(priority.screens.map((screen) => screen.route)).size).toBe(84);
     expect(ADMIN_SCREEN_TASK_MANIFEST.map((screen) => [screen.route, screen.primaryTask]).sort()).toEqual(
       priority.screens.map((screen) => [screen.route, screen.primary_task]).sort(),
     );
@@ -348,16 +348,16 @@ describe("A1 §2 全business mutationを単一のprimary taskへ所属させる"
       （`bluesky-connection-form.tsx` → `registerBlueskyConnectionAction`）。
       認証情報を保存する操作は業務状態の変更なので、申告しないまま動かさない。
     */
-    expect(discovered).toHaveLength(53);
+    expect(discovered).toHaveLength(61);
     expect(declared, "未申告または実在しないexecution siteがあります").toEqual(discovered);
     expect(new Set(
       ADMIN_SCREEN_RUNTIME_ENTRIES
         .filter((entry) => entry.classification === "business-mutation")
         .map((entry) => edgeKey(entry.action)),
-    ).size).toBe(51);
+    ).size).toBe(59);
   });
 
-  it("同じactionの複数route・複数form用途を畳まず、意味entry 64件を床固定する", () => {
+  it("同じactionの複数route・複数form用途を畳まず、意味entry 77件を床固定する", () => {
     const discovered = DISCOVERED_SCREEN_EXECUTION_SITES;
     const declared = ADMIN_SCREEN_RUNTIME_ENTRIES
       .filter((entry) => entry.scope === "screen")
@@ -370,9 +370,9 @@ describe("A1 §2 全business mutationを単一のprimary taskへ所属させる"
       .sort((a, b) => screenSiteKey(a).localeCompare(screenSiteKey(b)));
 
     expect(declared, "route/form単位の意味entryに欠落または余剰があります").toEqual(discovered);
-    expect(discovered).toHaveLength(63);
-    expect(ADMIN_SCREEN_RUNTIME_ENTRIES).toHaveLength(64);
-    expect(new Set(ADMIN_SCREEN_RUNTIME_ENTRIES.map((entry) => entry.id)).size).toBe(64);
+    expect(discovered).toHaveLength(77);
+    expect(ADMIN_SCREEN_RUNTIME_ENTRIES).toHaveLength(78);
+    expect(new Set(ADMIN_SCREEN_RUNTIME_ENTRIES.map((entry) => entry.id)).size).toBe(78);
   });
 
   it("screen意味entryはどの1件を削ってもdiscoveryとの差分になる", () => {
@@ -387,7 +387,7 @@ describe("A1 §2 全business mutationを単一のprimary taskへ所属させる"
       }))
       .sort();
 
-    expect(new Set(declared).size).toBe(63);
+    expect(new Set(declared).size).toBe(77);
     for (let index = 0; index < declared.length; index += 1) {
       expect(declared.filter((_, candidate) => candidate !== index)).not.toEqual(discovered);
     }

@@ -12,6 +12,7 @@ type LayoutAudit = {
   readonly emptyControls: readonly string[];
   readonly offscreenControls: readonly string[];
   readonly overlappingControls: readonly string[];
+  readonly coveredControls: readonly string[];
 };
 
 async function settle(page: Page): Promise<void> {
@@ -129,11 +130,27 @@ async function auditLayout(page: Page): Promise<LayoutAudit> {
           !reachableByHorizontalScroll(element),
       )
       .map(({ element }) => label(element));
+    /*
+     * **本文の上に浮くと自分で名乗っている操作**（`data-floating-overlay`）。
+     * いまは右下固定の「改善したいことを送る」だけ。
+     *
+     * 重なり判定から外す。外さないと、意図してそこに在る 1 個が、たまたま画面下端に
+     * 来ている操作すべてと組になって報告される。2026-08-26 の実測では 21 画面が
+     * これだけで落ちた。中身はどれも「浮いたボタンが隅に重なっている」で、
+     * **壊れている画面は 1 枚も無かった。**
+     *
+     * 代わりに `coveredControls` を測る。名乗れば無罪ではなく、
+     * **送れば下から逃がせること**を別途確かめる。
+     */
+    const isFloatingOverlay = (element: Element): boolean =>
+      element.closest("[data-floating-overlay]") !== null;
     const overlappingControls: string[] = [];
     for (let index = 0; index < boxes.length; index += 1) {
       const first = boxes[index];
+      if (isFloatingOverlay(first.element)) continue;
       for (let otherIndex = index + 1; otherIndex < boxes.length; otherIndex += 1) {
         const second = boxes[otherIndex];
+        if (isFloatingOverlay(second.element)) continue;
         if (first.element.contains(second.element) || second.element.contains(first.element)) continue;
         const overlaps = first.rects.some((firstRect) =>
           second.rects.some((secondRect) => {
@@ -155,6 +172,34 @@ async function auditLayout(page: Page): Promise<LayoutAudit> {
         }
       }
     }
+    /*
+     * 浮いたボタンの下に**取り残される**操作。
+     *
+     * 浮いている以上、いまこの瞬間どこかに重なるのは避けられない。害になるのは
+     * 「送っても外へ出せない」ときだけである。だから今の位置ではなく、
+     * **一番下まで送った後の位置**で測る。
+     *
+     * 一番下まで送ってもなお、ボタンの帯（横の範囲も見る）に食い込む操作は、
+     * その画面で一生隅が隠れたままになる。多くは本文の下余白が足りない画面で、
+     * 直す場所は `.content` の `padding-bottom`（`ui.module.css`）である。
+     */
+    const coveredControls: string[] = [];
+    const overlay = document.querySelector("[data-floating-overlay]");
+    if (overlay !== null && visible(overlay)) {
+      const overlayRect = overlay.getBoundingClientRect();
+      const maxScroll = Math.max(0, document.documentElement.scrollHeight - innerHeight);
+      for (const { element, rects } of boxes) {
+        if (isFloatingOverlay(element)) continue;
+        const trapped = rects.some((rect) => {
+          const sideBySide = rect.right <= overlayRect.left + 1 || rect.left >= overlayRect.right - 1;
+          if (sideBySide) return false;
+          // 一番下まで送ったときの、この操作の下端（画面座標）。
+          const bottomAtEnd = rect.bottom + scrollY - maxScroll;
+          return bottomAtEnd > overlayRect.top + 1;
+        });
+        if (trapped) coveredControls.push(label(element));
+      }
+    }
     return {
       scrollWidth: document.documentElement.scrollWidth,
       clientWidth: document.documentElement.clientWidth,
@@ -162,14 +207,24 @@ async function auditLayout(page: Page): Promise<LayoutAudit> {
       emptyControls,
       offscreenControls,
       overlappingControls,
+      coveredControls,
     };
   });
 }
 
-test("route registryは54画面、signin確認済みを除く監査対象は53画面", () => {
-  expect(ALL_ROUTES).toHaveLength(54);
-  expect(AUDITED_ROUTES).toHaveLength(53);
-  expect(new Set(AUDITED_ROUTES.map((route) => urlOf(route))).size).toBe(53);
+/*
+ * **54 ではなく 87 である**（2026-08-26 に数え直した。同日中に
+ * `admin/blog/evaluate/[article]` が 1 枚増えて 86 → 87）。
+ *
+ * 54 は、この spec が最後に実際に走った日の数である。以後この spec は
+ * `readBrowserRoutes()` が投げるようになり（`source-registries.ts` 冒頭に経緯）、
+ * **収集の時点で落ちて 1 件も走らないまま**、画面だけが 32 枚増えていた。
+ * 落ちていたので、数が合わないことも誰にも見えていなかった。
+ */
+test("route registryは87画面、signin確認済みを除く監査対象は86画面", () => {
+  expect(ALL_ROUTES).toHaveLength(87);
+  expect(AUDITED_ROUTES).toHaveLength(86);
+  expect(new Set(AUDITED_ROUTES.map((route) => urlOf(route))).size).toBe(86);
 });
 
 for (const route of AUDITED_ROUTES) {
@@ -213,6 +268,9 @@ for (const route of AUDITED_ROUTES) {
     expect.soft(layout.emptyControls, "大きさが0の主要操作があります").toEqual([]);
     expect.soft(layout.offscreenControls, "画面外に隠れた主要操作があります").toEqual([]);
     expect.soft(layout.overlappingControls, "主要操作どうしが重なっています").toEqual([]);
+    expect
+      .soft(layout.coveredControls, "浮いたボタンの下から出せない主要操作があります")
+      .toEqual([]);
     expect.soft(consoleErrors, "console.error が出ています").toEqual([]);
     expect.soft(pageErrors, "pageerror が出ています").toEqual([]);
   });

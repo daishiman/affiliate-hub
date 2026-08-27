@@ -1,0 +1,3 @@
+$ npx tsc --noEmit
+(exit code: 0)
+(標準出力・標準エラーとも空 = 型エラー 0 件)

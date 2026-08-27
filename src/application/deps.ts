@@ -6,6 +6,7 @@ import type {
   EditorialScoreCardRepositoryPort,
   EditorialTestRunRepositoryPort,
 } from "./ports";
+import type { BlogOpsRepositoryPort } from "./ports/blog-ops";
 import type {
   EditorialContentPackageRepositoryPort,
   EditorialContentVariantRepositoryPort,
@@ -111,6 +112,15 @@ export type AppDeps = {
   readonly personas: EditorialPersonaRepositoryPort;
   /** ブログ作成ウィザードの下書き。ブログを増やすのはコードではなくここのデータ。 */
   readonly siteDrafts: EditorialSiteDraftRepositoryPort;
+  /**
+   * ブログ運用（版面・記事・タグ・固定ページ）の保管庫。
+   *
+   * **画面だけでなく道具 (`src/presentation/tools/blog-ops-tools.ts`) もここを見る。**
+   * 画面用に別の組み立てを持っていたころは、手元の CLI から記事を書く口が
+   * そもそも存在しなかった。1 か所にしてあるので、
+   * 「画面ではできるが AI からはできない」を作れない。
+   */
+  readonly blogOps: BlogOpsRepositoryPort;
   readonly channelConnections: ChannelConnectionRepositoryPort;
   /** 接続行から、秘密を外へ出さず実媒体コネクタを組み立てる。 */
   readonly channelConnectors: ChannelConnectorProviderPort;

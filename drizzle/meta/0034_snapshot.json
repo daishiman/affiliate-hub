@@ -1,8 +1,8 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "84507365-2083-4e87-88cf-e6ff857e14bf",
-  "prevId": "8178b712-7831-4be2-a0b9-9b9cbb63afc7",
+  "id": "16db91e9-91c6-4a97-ac3a-71def188d22e",
+  "prevId": "7fc725b1-1e8f-4bdd-8448-3171c6e90729",
   "tables": {
     "affiliate_accounts": {
       "name": "affiliate_accounts",
@@ -653,6 +653,27 @@
           "notNull": true,
           "autoincrement": false
         },
+        "workspace_id": {
+          "name": "workspace_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "site_slug": {
+          "name": "site_slug",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "article_template": {
+          "name": "article_template",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
         "type": {
           "name": "type",
           "type": "text",
@@ -673,6 +694,14 @@
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false
+        },
+        "lead": {
+          "name": "lead",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "''"
         },
         "status": {
           "name": "status",
@@ -703,8 +732,23 @@
           "notNull": false,
           "autoincrement": false
         },
+        "author_name": {
+          "name": "author_name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "''"
+        },
         "published_at": {
           "name": "published_at",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "deleted_at": {
+          "name": "deleted_at",
           "type": "integer",
           "primaryKey": false,
           "notNull": false,
@@ -763,13 +807,6 @@
         }
       },
       "indexes": {
-        "articles_slug_unique": {
-          "name": "articles_slug_unique",
-          "columns": [
-            "slug"
-          ],
-          "isUnique": true
-        },
         "articles_status_idx": {
           "name": "articles_status_idx",
           "columns": [
@@ -790,6 +827,23 @@
             "next_review_at"
           ],
           "isUnique": false
+        },
+        "articles_site_slug_idx": {
+          "name": "articles_site_slug_idx",
+          "columns": [
+            "workspace_id",
+            "site_slug",
+            "slug"
+          ],
+          "isUnique": true
+        },
+        "articles_legacy_slug_idx": {
+          "name": "articles_legacy_slug_idx",
+          "columns": [
+            "slug"
+          ],
+          "isUnique": true,
+          "where": "\"articles\".\"workspace_id\" is null and \"articles\".\"site_slug\" is null"
         }
       },
       "foreignKeys": {
@@ -1208,6 +1262,631 @@
             "article_slug"
           ],
           "isUnique": false
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    },
+    "blog_article_block": {
+      "name": "blog_article_block",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "workspace_id": {
+          "name": "workspace_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "''"
+        },
+        "article_id": {
+          "name": "article_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "kind": {
+          "name": "kind",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "heading": {
+          "name": "heading",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "''"
+        },
+        "body": {
+          "name": "body",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "''"
+        },
+        "position": {
+          "name": "position",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        }
+      },
+      "indexes": {
+        "blog_article_block_article_idx": {
+          "name": "blog_article_block_article_idx",
+          "columns": [
+            "article_id",
+            "position"
+          ],
+          "isUnique": false
+        },
+        "blog_article_block_workspace_idx": {
+          "name": "blog_article_block_workspace_idx",
+          "columns": [
+            "workspace_id",
+            "article_id",
+            "position"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    },
+    "blog_article_rating": {
+      "name": "blog_article_rating",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "workspace_id": {
+          "name": "workspace_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "''"
+        },
+        "article_id": {
+          "name": "article_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "reader_key": {
+          "name": "reader_key",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "score": {
+          "name": "score",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "comment": {
+          "name": "comment",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "hidden": {
+          "name": "hidden",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "(unixepoch())"
+        }
+      },
+      "indexes": {
+        "blog_article_rating_reader_idx": {
+          "name": "blog_article_rating_reader_idx",
+          "columns": [
+            "article_id",
+            "reader_key"
+          ],
+          "isUnique": true
+        },
+        "blog_article_rating_workspace_idx": {
+          "name": "blog_article_rating_workspace_idx",
+          "columns": [
+            "workspace_id",
+            "article_id"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    },
+    "blog_article_tag": {
+      "name": "blog_article_tag",
+      "columns": {
+        "workspace_id": {
+          "name": "workspace_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "''"
+        },
+        "article_id": {
+          "name": "article_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "tag_id": {
+          "name": "tag_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {
+        "blog_article_tag_workspace_idx": {
+          "name": "blog_article_tag_workspace_idx",
+          "columns": [
+            "workspace_id",
+            "article_id"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {
+        "blog_article_tag_article_id_articles_id_fk": {
+          "name": "blog_article_tag_article_id_articles_id_fk",
+          "tableFrom": "blog_article_tag",
+          "tableTo": "articles",
+          "columnsFrom": [
+            "article_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "blog_article_tag_tag_id_blog_tag_id_fk": {
+          "name": "blog_article_tag_tag_id_blog_tag_id_fk",
+          "tableFrom": "blog_article_tag",
+          "tableTo": "blog_tag",
+          "columnsFrom": [
+            "tag_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "blog_article_tag_article_id_tag_id_pk": {
+          "columns": [
+            "article_id",
+            "tag_id"
+          ],
+          "name": "blog_article_tag_article_id_tag_id_pk"
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    },
+    "blog_delivery_part": {
+      "name": "blog_delivery_part",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "workspace_id": {
+          "name": "workspace_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "site_slug": {
+          "name": "site_slug",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "part": {
+          "name": "part",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "enabled": {
+          "name": "enabled",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": true
+        },
+        "note": {
+          "name": "note",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "''"
+        },
+        "position": {
+          "name": "position",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        }
+      },
+      "indexes": {
+        "blog_delivery_part_unique_idx": {
+          "name": "blog_delivery_part_unique_idx",
+          "columns": [
+            "workspace_id",
+            "site_slug",
+            "part"
+          ],
+          "isUnique": true
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    },
+    "blog_delivery_snapshot": {
+      "name": "blog_delivery_snapshot",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "workspace_id": {
+          "name": "workspace_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "site_slug": {
+          "name": "site_slug",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "part": {
+          "name": "part",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "ok": {
+          "name": "ok",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "detail": {
+          "name": "detail",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "''"
+        },
+        "checked_at": {
+          "name": "checked_at",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "(unixepoch())"
+        }
+      },
+      "indexes": {
+        "blog_delivery_snapshot_site_idx": {
+          "name": "blog_delivery_snapshot_site_idx",
+          "columns": [
+            "workspace_id",
+            "site_slug",
+            "part"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    },
+    "blog_layout_band": {
+      "name": "blog_layout_band",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "workspace_id": {
+          "name": "workspace_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "site_slug": {
+          "name": "site_slug",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "band": {
+          "name": "band",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "title": {
+          "name": "title",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "''"
+        },
+        "enabled": {
+          "name": "enabled",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": true
+        },
+        "position": {
+          "name": "position",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        },
+        "item_limit": {
+          "name": "item_limit",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 3
+        }
+      },
+      "indexes": {
+        "blog_layout_band_unique_idx": {
+          "name": "blog_layout_band_unique_idx",
+          "columns": [
+            "workspace_id",
+            "site_slug",
+            "band"
+          ],
+          "isUnique": true
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    },
+    "blog_layout_slot": {
+      "name": "blog_layout_slot",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "workspace_id": {
+          "name": "workspace_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "site_slug": {
+          "name": "site_slug",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "region": {
+          "name": "region",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "slot_key": {
+          "name": "slot_key",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "title": {
+          "name": "title",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "''"
+        },
+        "body": {
+          "name": "body",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "''"
+        },
+        "position": {
+          "name": "position",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        },
+        "enabled": {
+          "name": "enabled",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": true
+        }
+      },
+      "indexes": {
+        "blog_layout_slot_unique_idx": {
+          "name": "blog_layout_slot_unique_idx",
+          "columns": [
+            "workspace_id",
+            "site_slug",
+            "region",
+            "slot_key"
+          ],
+          "isUnique": true
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    },
+    "blog_tag": {
+      "name": "blog_tag",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "workspace_id": {
+          "name": "workspace_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "site_slug": {
+          "name": "site_slug",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "slug": {
+          "name": "slug",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "description": {
+          "name": "description",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "''"
+        },
+        "kind": {
+          "name": "kind",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "'topic'"
+        }
+      },
+      "indexes": {
+        "blog_tag_site_slug_idx": {
+          "name": "blog_tag_site_slug_idx",
+          "columns": [
+            "workspace_id",
+            "site_slug",
+            "slug"
+          ],
+          "isUnique": true
         }
       },
       "foreignKeys": {},
@@ -1726,6 +2405,13 @@
           "notNull": false,
           "autoincrement": false
         },
+        "provider_identity": {
+          "name": "provider_identity",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
         "credential_ref": {
           "name": "credential_ref",
           "type": "text",
@@ -1742,10 +2428,96 @@
             "kind"
           ],
           "isUnique": false
+        },
+        "channel_connections_workspace_provider_identity_idx": {
+          "name": "channel_connections_workspace_provider_identity_idx",
+          "columns": [
+            "workspace_id",
+            "kind",
+            "provider_identity"
+          ],
+          "isUnique": true
+        },
+        "channel_connections_workspace_credential_ref_idx": {
+          "name": "channel_connections_workspace_credential_ref_idx",
+          "columns": [
+            "workspace_id",
+            "kind",
+            "credential_ref"
+          ],
+          "isUnique": true
         }
       },
       "foreignKeys": {},
       "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    },
+    "channel_provider_delivery_leases": {
+      "name": "channel_provider_delivery_leases",
+      "columns": {
+        "kind": {
+          "name": "kind",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "provider_identity": {
+          "name": "provider_identity",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "holder_publication_id": {
+          "name": "holder_publication_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "lease_token": {
+          "name": "lease_token",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "acquired_at": {
+          "name": "acquired_at",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "expires_at": {
+          "name": "expires_at",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {
+        "channel_provider_delivery_leases_expiry_idx": {
+          "name": "channel_provider_delivery_leases_expiry_idx",
+          "columns": [
+            "expires_at"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {
+        "channel_provider_delivery_leases_kind_provider_identity_pk": {
+          "columns": [
+            "kind",
+            "provider_identity"
+          ],
+          "name": "channel_provider_delivery_leases_kind_provider_identity_pk"
+        }
+      },
       "uniqueConstraints": {},
       "checkConstraints": {}
     },
@@ -2162,6 +2934,14 @@
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
+        },
+        "revision": {
+          "name": "revision",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 1
         },
         "state": {
           "name": "state",
@@ -3022,7 +3802,8 @@
           "type": "text",
           "primaryKey": false,
           "notNull": true,
-          "autoincrement": false
+          "autoincrement": false,
+          "default": "''"
         },
         "site_slug": {
           "name": "site_slug",
@@ -3052,6 +3833,21 @@
           "notNull": true,
           "autoincrement": false
         },
+        "status": {
+          "name": "status",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "'draft'"
+        },
+        "deleted_at": {
+          "name": "deleted_at",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
         "updated_at": {
           "name": "updated_at",
           "type": "integer",
@@ -3062,14 +3858,6 @@
         }
       },
       "indexes": {
-        "legal_page_workspace_site_idx": {
-          "name": "legal_page_workspace_site_idx",
-          "columns": [
-            "workspace_id",
-            "site_slug"
-          ],
-          "isUnique": false
-        },
         "legal_page_site_kind_idx": {
           "name": "legal_page_site_kind_idx",
           "columns": [
@@ -3077,6 +3865,15 @@
             "kind"
           ],
           "isUnique": true
+        },
+        "legal_page_workspace_idx": {
+          "name": "legal_page_workspace_idx",
+          "columns": [
+            "workspace_id",
+            "site_slug",
+            "kind"
+          ],
+          "isUnique": false
         }
       },
       "foreignKeys": {},
@@ -3397,6 +4194,14 @@
           "notNull": true,
           "autoincrement": false
         },
+        "capacity_consumed": {
+          "name": "capacity_consumed",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": true
+        },
         "occurred_at": {
           "name": "occurred_at",
           "type": "integer",
@@ -3419,6 +4224,16 @@
           "columns": [
             "workspace_id",
             "provider_id",
+            "occurred_at"
+          ],
+          "isUnique": false
+        },
+        "llm_usages_workspace_capacity_idx": {
+          "name": "llm_usages_workspace_capacity_idx",
+          "columns": [
+            "workspace_id",
+            "purpose",
+            "capacity_consumed",
             "occurred_at"
           ],
           "isUnique": false
@@ -4183,6 +4998,148 @@
       "uniqueConstraints": {},
       "checkConstraints": {}
     },
+    "publication_delivery_audit_outbox": {
+      "name": "publication_delivery_audit_outbox",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "workspace_id": {
+          "name": "workspace_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "action": {
+          "name": "action",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "actor_user_id": {
+          "name": "actor_user_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "actor_is_ai": {
+          "name": "actor_is_ai",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "actor_identified": {
+          "name": "actor_identified",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "actor_model_id": {
+          "name": "actor_model_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "target_type": {
+          "name": "target_type",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "target_id": {
+          "name": "target_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "before_json": {
+          "name": "before_json",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "after_json": {
+          "name": "after_json",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "reason": {
+          "name": "reason",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "request_id": {
+          "name": "request_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "occurred_at": {
+          "name": "occurred_at",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "committed_at": {
+          "name": "committed_at",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "delivered_at": {
+          "name": "delivered_at",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        }
+      },
+      "indexes": {
+        "publication_delivery_audit_outbox_pending_idx": {
+          "name": "publication_delivery_audit_outbox_pending_idx",
+          "columns": [
+            "delivered_at",
+            "committed_at",
+            "occurred_at"
+          ],
+          "isUnique": false
+        },
+        "publication_delivery_audit_outbox_workspace_pending_idx": {
+          "name": "publication_delivery_audit_outbox_workspace_pending_idx",
+          "columns": [
+            "workspace_id",
+            "delivered_at",
+            "committed_at",
+            "occurred_at"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    },
     "publications": {
       "name": "publications",
       "columns": {
@@ -4205,6 +5162,13 @@
           "type": "text",
           "primaryKey": false,
           "notNull": true,
+          "autoincrement": false
+        },
+        "variant_revision": {
+          "name": "variant_revision",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
           "autoincrement": false
         },
         "kind": {
@@ -4235,11 +5199,46 @@
           "notNull": false,
           "autoincrement": false
         },
+        "retry_at": {
+          "name": "retry_at",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "delivery_lease_until": {
+          "name": "delivery_lease_until",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
         "idempotency_key": {
           "name": "idempotency_key",
           "type": "text",
           "primaryKey": false,
           "notNull": true,
+          "autoincrement": false
+        },
+        "provider_identity": {
+          "name": "provider_identity",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "provider_delivery_key": {
+          "name": "provider_delivery_key",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "provider_record_created_at": {
+          "name": "provider_record_created_at",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
           "autoincrement": false
         },
         "attempts": {
@@ -4277,6 +5276,13 @@
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false
+        },
+        "last_delivery_audit_id": {
+          "name": "last_delivery_audit_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
         }
       },
       "indexes": {
@@ -4294,13 +5300,38 @@
             "workspace_id",
             "idempotency_key"
           ],
-          "isUnique": false
+          "isUnique": true
+        },
+        "publications_provider_delivery_key_idx": {
+          "name": "publications_provider_delivery_key_idx",
+          "columns": [
+            "kind",
+            "provider_identity",
+            "provider_delivery_key"
+          ],
+          "isUnique": true
         },
         "publications_state_scheduled_idx": {
           "name": "publications_state_scheduled_idx",
           "columns": [
             "state",
             "scheduled_at"
+          ],
+          "isUnique": false
+        },
+        "publications_state_retry_idx": {
+          "name": "publications_state_retry_idx",
+          "columns": [
+            "state",
+            "retry_at"
+          ],
+          "isUnique": false
+        },
+        "publications_state_lease_idx": {
+          "name": "publications_state_lease_idx",
+          "columns": [
+            "state",
+            "delivery_lease_until"
           ],
           "isUnique": false
         }
@@ -5166,6 +6197,122 @@
           "columns": [
             "workspace_id",
             "updated_at"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    },
+    "site_network_node": {
+      "name": "site_network_node",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "workspace_id": {
+          "name": "workspace_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "site_slug": {
+          "name": "site_slug",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "role": {
+          "name": "role",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "parent_slug": {
+          "name": "parent_slug",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "one_line": {
+          "name": "one_line",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "''"
+        },
+        "position": {
+          "name": "position",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        },
+        "status": {
+          "name": "status",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "'active'"
+        },
+        "deleted_at": {
+          "name": "deleted_at",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "(unixepoch())"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "(unixepoch())"
+        }
+      },
+      "indexes": {
+        "site_network_node_ws_slug_idx": {
+          "name": "site_network_node_ws_slug_idx",
+          "columns": [
+            "workspace_id",
+            "site_slug"
+          ],
+          "isUnique": true
+        },
+        "site_network_node_parent_idx": {
+          "name": "site_network_node_parent_idx",
+          "columns": [
+            "workspace_id",
+            "parent_slug"
           ],
           "isUnique": false
         }

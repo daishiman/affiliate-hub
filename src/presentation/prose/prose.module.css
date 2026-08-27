@@ -1,0 +1,323 @@
+/* ---------------------------------------------------------------------------
+   本文の断片 (ProseBody / ProseEditor)
+
+   **`.callout` とは別に持つ。**あちらは「画面が操作を止めた理由」で、
+   こちらは「記事の中の注意書き」である。見た目を共有すると、読者は
+   記事の装飾と画面の警告を同じ強さで受け取る。
+   --------------------------------------------------------------------------- */
+
+.proseCallout {
+  display: flex;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  border-left: var(--border-width-marker) solid;
+  border-radius: var(--radius-sm);
+  line-height: var(--leading-body);
+}
+.proseCallout > div {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-width: 0;
+}
+.proseCallout p:last-child {
+  margin-bottom: 0;
+}
+
+.proseCalloutInfo {
+  background: var(--color-intent-info-subtle);
+  border-color: var(--color-intent-info);
+}
+.proseCalloutTip {
+  background: var(--color-intent-success-subtle);
+  border-color: var(--color-intent-success);
+}
+.proseCalloutWarn {
+  background: var(--color-accent-subtle);
+  border-color: var(--color-accent-border);
+}
+.proseCalloutNote {
+  background: var(--color-surface-sunken);
+  border-color: var(--color-border-strong);
+}
+
+.proseCalloutTitle {
+  font-weight: var(--weight-bold);
+  color: var(--color-text-strong);
+}
+
+.proseQuote {
+  margin: 0;
+  padding-left: var(--space-4);
+  border-left: var(--border-width-marker) solid var(--color-border-strong);
+  color: var(--color-text-muted);
+}
+
+/*
+  **表そのものではなく、外側の箱を流す。**`overflow-x` を `<table>` へ
+  直接かけると、読み上げの行と桁の関係が崩れる実装系がある。
+*/
+.proseTableScroll {
+  overflow-x: auto;
+  max-width: 100%;
+}
+
+.proseTable {
+  border-collapse: collapse;
+  min-width: 100%;
+}
+.proseTable th,
+.proseTable td {
+  padding: var(--space-2) var(--space-3);
+  border: var(--border-width-default) solid var(--color-border-subtle);
+  text-align: left;
+  vertical-align: top;
+}
+.proseTable th {
+  background: var(--color-surface-sunken);
+  color: var(--color-text-strong);
+  font-weight: var(--weight-bold);
+}
+
+.proseImage {
+  max-width: 100%;
+  height: auto;
+  border-radius: var(--radius-sm);
+}
+
+.proseDivider {
+  border: 0;
+  border-top: var(--border-width-default) solid var(--color-border-subtle);
+  margin: var(--space-5) 0;
+}
+
+/* --- 本文を書く欄 (`prose-editor.tsx`) ---------------------------------
+   出来上がりの見た目に寄せる。入力欄の枠を消し、字の大きさは公開面と同じ
+   ものを使う。**書いている画面と読まれる画面が違う字で出ると、
+   運営者は毎回「公開してから確かめる」ことになる。** */
+.proseEditor {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  border: var(--border-width-default) solid var(--color-border-default);
+  border-radius: var(--radius-md);
+  padding: var(--space-3);
+  background: var(--color-surface-default);
+}
+
+.proseEditorRow {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  /*
+    **見えない枠を先に置く。**手が入っている断片を地色だけで示すと、
+    強制配色（Windows のハイコントラスト等）で地色が均された瞬間に
+    「いまどこを書いているか」が消える。枠の色だけを差し替える形にしておく。
+  */
+  border: var(--border-width-default) solid transparent;
+  border-radius: var(--radius-sm);
+  padding: var(--space-2);
+}
+
+.proseEditorRow:focus-within {
+  border-color: var(--color-border-strong);
+  background: var(--color-surface-raised);
+}
+
+.proseEditorBar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.proseEditorKind {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  color: var(--color-text-muted);
+}
+
+.proseEditorActions {
+  display: inline-flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+}
+
+.proseEditorIconButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  /*
+    アイコンだけの操作は、字が無いぶん見た目の面積が中身の大きさで決まる。
+    下限を書かないと、印そのものの大きさが押しどころになる。
+    上げ下げ・削除・足すが隣り合って並ぶ場所なので、押し間違えると
+    直したい断片ではなく隣の断片が動く（2026-08-27 に赤で出た）。
+  */
+  min-height: var(--tap-target-min);
+  min-width: var(--tap-target-min);
+  border: var(--border-width-default) solid transparent;
+  border-radius: var(--radius-sm);
+  padding: var(--space-1);
+  background: transparent;
+  color: var(--color-text-muted);
+  cursor: pointer;
+}
+
+.proseEditorIconButton:hover:not(:disabled) {
+  border-color: var(--color-border-default);
+  color: var(--color-text-default);
+}
+
+.proseEditorIconButton:disabled {
+  color: var(--color-text-muted);
+  cursor: not-allowed;
+  opacity: 0.4;
+}
+
+.proseEditorStack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  align-items: flex-start;
+}
+
+.proseEditorInline {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+.proseEditorItemRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  width: 100%;
+}
+
+.proseEditorItemMark {
+  color: var(--color-text-muted);
+}
+
+/* 枠を持たない入力欄。字と行送りは公開面のまま。 */
+.proseEditorText,
+.proseEditorHeading3,
+.proseEditorHeading4,
+.proseEditorQuote {
+  width: 100%;
+  min-width: 0;
+  /*
+    打ち込む欄も押しどころである。ここへ指を置けないと、
+    そもそも本文を書き始められない。
+  */
+  min-height: var(--tap-target-min);
+  border: none;
+  border-bottom: var(--border-width-default) solid transparent;
+  background: transparent;
+  color: var(--color-text-default);
+  font: inherit;
+  line-height: var(--leading-body);
+  resize: vertical;
+}
+
+.proseEditorText:focus,
+.proseEditorHeading3:focus,
+.proseEditorHeading4:focus,
+.proseEditorQuote:focus {
+  outline: none;
+  border-bottom-color: var(--color-border-strong);
+}
+
+.proseEditorHeading3 {
+  font-size: var(--text-lg);
+  font-weight: var(--weight-bold);
+}
+
+.proseEditorHeading4 {
+  font-weight: var(--weight-bold);
+}
+
+.proseEditorQuote {
+  border-left: var(--border-width-marker) solid var(--color-border-default);
+  padding-left: var(--space-3);
+  color: var(--color-text-muted);
+}
+
+.proseEditorSelect {
+  border: var(--border-width-default) solid var(--color-border-default);
+  border-radius: var(--radius-sm);
+  padding: var(--space-1) var(--space-2);
+  background: var(--color-surface-default);
+  color: var(--color-text-default);
+  font: inherit;
+}
+
+.proseEditorCallout {
+  width: 100%;
+}
+
+/* `/` の候補。押す場所であって探す場所ではないので、1 列で短く出す。 */
+.proseEditorMenu {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  margin: 0;
+  padding: var(--space-2);
+  list-style: none;
+  border: var(--border-width-default) solid var(--color-border-strong);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-raised);
+}
+
+.proseEditorMenuItem {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  width: 100%;
+  /* 上と同じ理由。指している候補が、強制配色で見分けられなくならないようにする。 */
+  border: var(--border-width-default) solid transparent;
+  border-radius: var(--radius-sm);
+  padding: var(--space-1) var(--space-2);
+  background: transparent;
+  color: var(--color-text-default);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.proseEditorMenuItem:hover {
+  border-color: var(--color-border-default);
+  background: var(--color-surface-default);
+}
+
+.proseEditorMenuEmpty {
+  margin: 0;
+  color: var(--color-text-muted);
+}
+
+.proseEditorAdd {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  border-top: var(--border-width-default) solid var(--color-border-default);
+  padding-top: var(--space-2);
+}
+
+/*
+  目次。**指で押される場所なので、行の高さでは足りない。**
+  素の `<a>` は文字の高さぶんしか無く、隣の項目と押し間違える。
+  下限は `--tap-target-min` 1 か所で決めてある
+  （`tests/ui/tap-target-floor.test.ts` が正本）。
+
+  入れ子の目次は自分の中でもう一度この規則に当たるので、
+  段が増えても押しどころは狭くならない。
+*/
+.proseOutline a {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--tap-target-min);
+}

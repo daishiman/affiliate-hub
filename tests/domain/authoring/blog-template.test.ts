@@ -228,9 +228,20 @@ describe("表現ブロックと固定ページの名札", () => {
     });
   });
 
-  it("旧来の固定ページ API も、編集可能なサイト文書の正本から導く", () => {
-    expect(LEGAL_PAGE_KINDS).toBe(SITE_DOCUMENT_KEYS);
-    expect(LEGAL_PAGE_LABEL).toBe(SITE_DOCUMENT_LABEL);
+  it("固定ページは公開語彙 8 種と同じ正本を指す", () => {
+    expect([...LEGAL_PAGE_KINDS]).toEqual([
+      "profile", "sitemap", "site_policy", "privacy_policy", "commercial_transaction", "contact", "review_guidelines", "company",
+    ]);
+    expect(LEGAL_PAGE_LABEL).toEqual({
+      profile: "運営者プロフィール",
+      sitemap: "サイトマップ",
+      site_policy: "サイトポリシー",
+      privacy_policy: "プライバシーポリシー",
+      commercial_transaction: "特定商取引法に基づく表記",
+      contact: "お問い合わせ",
+      review_guidelines: "レビュー方針",
+      company: "運営会社",
+    });
   });
 });
 

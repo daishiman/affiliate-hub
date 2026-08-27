@@ -947,6 +947,78 @@ describe("配信の修正", () => {
     expect(got.error.suggestedAction).toContain("予約");
   });
 
+  it.each([
+    ["記事の保存先が読めない", () => failing("記事の保存先が読めません。"), "読めません"],
+    ["記事が消えている", () => ok(null), "見つかりません"],
+  ] as const)(
+    "%sときは、外部自動配信へ変えさせない",
+    async (_label, findVersionedById, expected) => {
+      // ここで通してしまうと、送る中身の無い予約が外部の順番待ちに入り、
+      // 送信時刻になってから初めて失敗する。
+      const base = testDeps();
+      const publication = aPublication({
+        state: "QUEUED",
+        channelKind: "note",
+        connectionId: null,
+      });
+      const got = await createUpdatePublicationUseCase(
+        deps({
+          ...withPublication(publication),
+          variants: markEditorial({
+            ...base.contentVariants,
+            findVersionedById: async () => findVersionedById(),
+          }) as ManageDistributionDeps["variants"],
+        }),
+      ).execute(owner, {
+        publicationId: String(publication.id),
+        channelKind: "bluesky",
+      });
+
+      expect(got.ok).toBe(false);
+      if (got.ok) return;
+      expect(got.error.message).toContain(expected);
+    },
+  );
+
+  it("他の作業場所の記事へ差し替わっていたら、外部自動配信へ変えさせない", async () => {
+    // 配信の側だけ自分のものでも、中身が他所の記事なら外へ出してはいけない。
+    const base = testDeps();
+    const current = await base.contentVariants.findVersionedById(
+      SAMPLE_WORKSPACE_ID,
+      "cv_alpha_approved" as never,
+    );
+    if (!current.ok || current.value === null) throw new Error("承認済み見本がありません。");
+    const currentVariant = current.value.variant;
+
+    const publication = aPublication({
+      state: "QUEUED",
+      channelKind: "note",
+      connectionId: null,
+      variantRevision: 1,
+    });
+    const got = await createUpdatePublicationUseCase(
+      deps({
+        ...withPublication(publication),
+        variants: markEditorial({
+          ...base.contentVariants,
+          findVersionedById: async () =>
+            ok({
+              variant: { ...currentVariant, workspaceId: OTHER_WORKSPACE },
+              revision: 1,
+              persisted: true,
+            }),
+        }) as ManageDistributionDeps["variants"],
+      }),
+    ).execute(owner, {
+      publicationId: String(publication.id),
+      channelKind: "bluesky",
+    });
+
+    expect(got.ok).toBe(false);
+    if (got.ok) return;
+    expect(got.error.code).toBe("TENANT_MISMATCH");
+  });
+
   it("workerが先にclaimした版を、古い接続情報へ巻き戻さない", async () => {
     const publication = aPublication({
       state: "QUEUED",
@@ -969,6 +1041,124 @@ describe("配信の修正", () => {
     if (got.ok) return;
     expect(got.error.code).toBe("CONFLICT");
     expect(got.error.suggestedAction).toContain("読み直");
+  });
+
+  it("配信を直す権限が無い人には、読ませも直させもしない", async () => {
+    const publication = aPublication({ state: "QUEUED" });
+    const got = await createUpdatePublicationUseCase(
+      deps(withPublication(publication)),
+    ).execute(aNobody(), { publicationId: String(publication.id) });
+
+    expect(got.ok).toBe(false);
+    if (got.ok) return;
+    expect(got.error.code).toBe("FORBIDDEN");
+  });
+
+  it("配信の保存先が読めないときは、直せたことにしない", async () => {
+    const got = await createUpdatePublicationUseCase(
+      deps(
+        withPublication(null, {
+          findById: async () => failing("配信の保存先が読めません。"),
+        }),
+      ),
+    ).execute(owner, { publicationId: "pub-unreadable" });
+
+    expect(got.ok).toBe(false);
+    if (got.ok) return;
+    expect(got.error.message).toContain("配信の保存先が読めません");
+  });
+
+  it("他の作業場所の配信は直せない", async () => {
+    const publication = aPublication({ state: "QUEUED", workspaceId: OTHER_WORKSPACE });
+    const got = await createUpdatePublicationUseCase(
+      deps(withPublication(publication)),
+    ).execute(owner, { publicationId: String(publication.id) });
+
+    expect(got.ok).toBe(false);
+    if (got.ok) return;
+    expect(got.error.code).toBe("TENANT_MISMATCH");
+  });
+
+  it("予約時刻を空にすると、予約を外して「いま出す」に戻す", async () => {
+    const publication = aPublication({
+      state: "QUEUED",
+      channelKind: "note",
+      scheduledAt: daysFrom(NOW, 3),
+    });
+    const got = await createUpdatePublicationUseCase(
+      deps(withPublication(publication)),
+    ).execute(owner, { publicationId: String(publication.id), scheduledAt: "   " });
+
+    if (!got.ok) throw got.error;
+    expect(got.value.card.scheduledAt).toBeNull();
+  });
+
+  it.each([
+    ["読み取れない日時", "あしたの夕方", "読み取れ"],
+    ["過ぎた時刻", "2000-01-01T00:00:00.000Z", "過ぎた"],
+  ] as const)(
+    "%sは、直す口から入っても同じように断る",
+    async (_label, scheduledAt, expected) => {
+      // 予約を作る口と直す口で判断が違うと、直す口だけが抜け道になる。
+      const publication = aPublication({ state: "QUEUED", channelKind: "note" });
+      const got = await createUpdatePublicationUseCase(
+        deps(withPublication(publication)),
+      ).execute(owner, { publicationId: String(publication.id), scheduledAt });
+
+      expect(got.ok).toBe(false);
+      if (got.ok) return;
+      expect(got.error.field).toBe("scheduledAt");
+      expect(got.error.message).toContain(expected);
+    },
+  );
+
+  it("自動投稿できない先へ変えたら、前の媒体の接続は持ち越さない", async () => {
+    // X の鍵のまま note へ付け替えると、どちらのアカウントの話かが記録から読めなくなる。
+    const publication = aPublication({
+      state: "QUEUED",
+      channelKind: "x",
+      connectionId: "conn-x-old" as never,
+    });
+    const got = await createUpdatePublicationUseCase(
+      deps(withPublication(publication)),
+    ).execute(owner, { publicationId: String(publication.id), channelKind: "note" });
+
+    if (!got.ok) throw got.error;
+    expect(got.value.card.channelKind).toBe("note");
+    expect(got.value.manualExportNotice).not.toBeNull();
+  });
+
+  it("保存に失敗したら、直せたことにしない", async () => {
+    const publication = aPublication({ state: "QUEUED", channelKind: "note" });
+    const got = await createUpdatePublicationUseCase(
+      deps(
+        withPublication(publication, {
+          compareAndSwap: async () => failing("配信の保存先に繋がりません。"),
+        }),
+      ),
+    ).execute(owner, { publicationId: String(publication.id), scheduledAt: "" });
+
+    expect(got.ok).toBe(false);
+    if (got.ok) return;
+    expect(got.error.message).toContain("配信の保存先に繋がりません");
+  });
+
+  it("記録の追記に失敗しても、設定を保存したことは伝える", async () => {
+    // ここで「失敗しました」とだけ返すと、保存済みの変更を人がもう一度やり直す。
+    const publication = aPublication({ state: "QUEUED", channelKind: "note" });
+    const got = await createUpdatePublicationUseCase(
+      deps({
+        ...withPublication(publication),
+        auditLog: {
+          ...recordingAuditLog().port,
+          append: async () => failing("記録の保存先に繋がりません。"),
+        },
+      }),
+    ).execute(owner, { publicationId: String(publication.id), scheduledAt: "" });
+
+    expect(got.ok).toBe(false);
+    if (got.ok) return;
+    expect(got.error.message).toContain("配信の設定は保存しました");
   });
 
   it.each(["SENDING", "PUBLISHED", "MANUAL_EXPORT_READY", "CANCELLED"] as const)(

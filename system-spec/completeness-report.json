@@ -483,13 +483,13 @@
   ],
   "gaps": [],
   "inputs": {
-    "sha256": "94967f39f18a1e896c0cda51a30fb2922cbda5fa863f2aebfe7176643c6083e5",
-    "file_count": 64,
+    "sha256": "4543fe7429a48f5626fdb823be6f856b7b7ddd20645db64df07b432bc9ceb470",
+    "file_count": 81,
     "files": [
       {
         "path": "docs/spec/00-README.md",
-        "sha256": "310885f2d2b0e2d743bf31a59d83f1ec423682c59a3cc007c9e9f62aa9d97782",
-        "mtime": 1787811534
+        "sha256": "7b7483023b040d4bed7c648c50d7555e53d7ff0aaa0bb1294fc4a4cc22a869de",
+        "mtime": 1787835673
       },
       {
         "path": "docs/spec/01-要求仕様書-v1.0.md",
@@ -518,8 +518,8 @@
       },
       {
         "path": "docs/spec/06-サイトブループリント-記事構成テンプレート.md",
-        "sha256": "462fcf098f3765cf3392566550e454bc77e693b269b975e5f542b134acf897ea",
-        "mtime": 1787811534
+        "sha256": "4758db202f1a48d1062ef871d94f609d058506486191d0f309be5540db43ce5f",
+        "mtime": 1787835673
       },
       {
         "path": "docs/spec/07-生成基盤設計.md",
@@ -550,6 +550,11 @@
         "path": "docs/spec/12-改善要望フィードバック仕様.md",
         "sha256": "f814f1a62e30eebb4512ba0c7964bfdb6986c4007af406aab7d8d7e58e17a856",
         "mtime": 1787694703
+      },
+      {
+        "path": "docs/spec/13-参考サイト全体構成解析-抽象ブループリント.md",
+        "sha256": "b84be536c32930d670ea9d23073a90707e931ee933f2593d9b00cea4645b5c3f",
+        "mtime": 1787835673
       },
       {
         "path": "docs/spec/ai-first-webmcp.md",
@@ -627,6 +632,86 @@
         "mtime": 1787694803
       },
       {
+        "path": "docs/spec/feat-blog-ops-crud/acceptance-report.md",
+        "sha256": "f2156a150619842c8018428cfb80680d9c94146a9282591a90a13afbf52e108d",
+        "mtime": 1787835673
+      },
+      {
+        "path": "docs/spec/feat-blog-ops-crud/api-contract.md",
+        "sha256": "2464a8e475b942028cd3fffbd1babc8ae0dd00ea854eec96cb71742868ef4543",
+        "mtime": 1787835673
+      },
+      {
+        "path": "docs/spec/feat-blog-ops-crud/component-contract.md",
+        "sha256": "e066ba6d540f886119dd1c1bdc277f1ca0a7c3c8753d3a22b464420128c40b99",
+        "mtime": 1787835673
+      },
+      {
+        "path": "docs/spec/feat-blog-ops-crud/data-model.md",
+        "sha256": "39409a6c2edb939e017f669150949721c82c0f267c6bdb08f8297e5cd2259a82",
+        "mtime": 1787835673
+      },
+      {
+        "path": "docs/spec/feat-blog-ops-crud/design-review.md",
+        "sha256": "c2410773b91312ccfd4f70ef0880dbbb12b861bf92d28d7333a3a9974dff2b87",
+        "mtime": 1787835673
+      },
+      {
+        "path": "docs/spec/feat-blog-ops-crud/evidence/index.md",
+        "sha256": "48666e93be0778578c9654a32707f95db24e84bf60e565790c0fffacf7abde53",
+        "mtime": 1787835673
+      },
+      {
+        "path": "docs/spec/feat-blog-ops-crud/final-review.md",
+        "sha256": "db20d1f7777f283b85a8dc61ad6d22fc8ad4c45523b95454fdb705f29a5d0dff",
+        "mtime": 1787835673
+      },
+      {
+        "path": "docs/spec/feat-blog-ops-crud/migration-plan.md",
+        "sha256": "438c0084569901f6f8b1ed9edd1386db6e310981621bc01ae3ffe275afbf5afd",
+        "mtime": 1787835673
+      },
+      {
+        "path": "docs/spec/feat-blog-ops-crud/migration-report.md",
+        "sha256": "2eaa9b7bdaa1252299c3aa32bee0ca2293e1f274bf6ca36c371ca5bd28939bd3",
+        "mtime": 1787835673
+      },
+      {
+        "path": "docs/spec/feat-blog-ops-crud/operations.md",
+        "sha256": "f124dfc241f914c2d63a8d259e46ba6468d4e7eb0e8d012ebb02522cafc1476e",
+        "mtime": 1787835673
+      },
+      {
+        "path": "docs/spec/feat-blog-ops-crud/qa-report.md",
+        "sha256": "b024d1fce572d76f75df8d1ce5220f5df940b7f282856616fb3875ea5ebb6858",
+        "mtime": 1787835673
+      },
+      {
+        "path": "docs/spec/feat-blog-ops-crud/release-report.md",
+        "sha256": "0e15ed5ea752e0663b47ce30ff2a9e9723ca8893e7e5196cba6a7de2e3f6fcc0",
+        "mtime": 1787835673
+      },
+      {
+        "path": "docs/spec/feat-blog-ops-crud/requirements-baseline.md",
+        "sha256": "561de7f744cd47d2714e15afc8b139399c5cff9290c8ffa619b41f80b0b34263",
+        "mtime": 1787835673
+      },
+      {
+        "path": "docs/spec/feat-blog-ops-crud/screen-inventory.md",
+        "sha256": "5a6b1c728a33f1f46b951745ae93c1fae20b882b4a1b9137308dd14458d02cea",
+        "mtime": 1787835673
+      },
+      {
+        "path": "docs/spec/feat-blog-ops-crud/test-design.md",
+        "sha256": "fa4bc74444631c0a31bcf51079828ff777a800f2005e1270cf2b4ed35f41fc91",
+        "mtime": 1787835673
+      },
+      {
+        "path": "docs/spec/feat-blog-ops-crud/test-run-report.md",
+        "sha256": "60af15e4bc098da84041ef8f31f07430c52a48df00a371fdfcde7dff242bc305",
+        "mtime": 1787835673
+      },
+      {
         "path": "docs/spec/feat-blog-ui-builder/final-review.md",
         "sha256": "39c2b7139bf6db0090238ccd53085a716b2159e94c34be373c0ceadeef9422ee",
         "mtime": 1787694803
@@ -658,8 +743,8 @@
       },
       {
         "path": "docs/spec/feat-uiux-overhaul/acceptance-report.md",
-        "sha256": "979324ab36a235a0de3909228fbd1e3b839ba435d2bbf2df734fec4a16c96522",
-        "mtime": 1787820911
+        "sha256": "500417a21d80867124f54d88e3b0657f1204d495e95364d19e9bdc309e531547",
+        "mtime": 1787839874
       },
       {
         "path": "docs/spec/feat-uiux-overhaul/admin-api-contract.md",
@@ -688,8 +773,8 @@
       },
       {
         "path": "docs/spec/feat-uiux-overhaul/final-review.md",
-        "sha256": "6b9b2a6bd6b6c42495c9714848efb9582a704b058c9deac1a545b51821a29ffe",
-        "mtime": 1787820911
+        "sha256": "aaf676c78f50a374b88fea4eb7ac30205f898fac13f21ac3d6f6f35262e7a4d3",
+        "mtime": 1787839874
       },
       {
         "path": "docs/spec/feat-uiux-overhaul/migration-report.md",
@@ -708,8 +793,8 @@
       },
       {
         "path": "docs/spec/feat-uiux-overhaul/release-report.md",
-        "sha256": "9e7b221bdf330d270325ef429afb49d128b5ffc0e406c40cbc73d8aa3f357ad5",
-        "mtime": 1787820911
+        "sha256": "a0cd5f9e8c7d564c65ddb399d64f08110593fdd6bef75b5bf7baaf9bb3524628",
+        "mtime": 1787839874
       },
       {
         "path": "docs/spec/feat-uiux-overhaul/requirements-baseline.md",
@@ -807,6 +892,6 @@
         "mtime": 1787694803
       }
     ],
-    "pinned_at": "2026-08-27T09:09:38.123Z"
+    "pinned_at": "2026-08-27T14:11:29.879Z"
   }
 }

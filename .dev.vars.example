@@ -15,3 +15,14 @@ MCP_TOKEN=""
 TURNSTILE_SITE_KEY=""
 TURNSTILE_SECRET=""
 TURNSTILE_HOSTNAMES=""
+
+# --- 手元で画面を確かめるためのログイン（積んだ環境には配らない）---
+#
+# Google との往復には Google 側で登録した識別子と秘密の値が要る。手元には無いので、
+# 旗を立てると /signin に「その担当者として入る」口が出る（src/app/api/dev-signin）。
+# 通行証は本番と同じ発行側が出すので、担当者の登録が無いアドレスでは入れない。
+#
+# **wrangler.jsonc の vars に書かないこと。** 書くと積んだ環境にも配られる
+# （検査: tests/infrastructure/dev-signin.test.ts）。
+DEV_SIGNIN_ENABLED=""
+DEV_SIGNIN_EMAIL=""

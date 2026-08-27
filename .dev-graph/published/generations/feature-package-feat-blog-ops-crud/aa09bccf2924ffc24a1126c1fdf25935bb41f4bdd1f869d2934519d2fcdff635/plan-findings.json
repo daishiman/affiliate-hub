@@ -1,0 +1,177 @@
+{
+  "schema_version": "1.0.0",
+  "plan_dir": ".dev-graph/staging/feature-package-feat-blog-ops-crud",
+  "evaluator": {
+    "name": "assign-system-dev-plan-evaluator",
+    "version": "0.1.0",
+    "context": "fork"
+  },
+  "evaluated_digest": "sha256:aa09bccf2924ffc24a1126c1fdf25935bb41f4bdd1f869d2934519d2fcdff635",
+  "verdict": "PASS",
+  "conditions": {
+    "C1": {
+      "id": "C1",
+      "status": "PASS",
+      "summary": "feature-package.json/task-graph.json/workstream-inventory.json/system-build-handoff.json の全13 task entryで parent_feature=feat-blog-ops-crud, feature_package_id=feature-package/feat-blog-ops-crud, source_feature_digest=sha256:8e703c6cfaaae2084e56fac291ab12ed531024b8478e058ee5905d2b976baa44 が完全一致し矛盾なし (機械検査済み、独立再計算)。全13 task spec の「スコープ外」節は feat-blog-ops-crud の scope_out 8件 (テーマ・配色・テンプレート6種選択UI=feat-blog-ui-builder所有、Blueprint複製規則・article_template検証規則の定義=feat-site-blueprint所有、ブログ作成ウィザードの入口=feat-site-builder所有、記事本文AI生成、アフィリエイトURL登録・商品識別・配置逆引き、クリック計測・成果突合、参考サイト文章・画像・固有名・色値・テーマ名の転用、独自ドメイン・DNS運用) を同一文言の派生で列挙し、いずれの task もこれらへ踏み込んでいない。P05/P08 の write_scope (src/db/schema.ts, drizzle/, src/application/usecases/, src/application/read-models/, src/infrastructure/persistence/d1/, src/presentation/ui/templates/, src/presentation/ui/patterns/, src/app/s/[site]/, src/app/api/admin/) は依存元 feat-blog-ui-builder の write_scope と重なるが、feat-blog-ops-crud は feat-blog-ui-builder に depends_on を宣言しており (features/feat-blog-ops-crud.md#depends_on)、両 feature の task spec 本文が相手の所有領域 (テーマ/テンプレート選択UI vs サイト網・記事CRUD) を明示的にスコープ外としているため、共有インフラ層への追加拡張として整合し矛盾ではない。参考サイト固有のドメイン名・URL・色値のコード上の混入は staging 全17ファイルへの grep で0件。",
+      "evidence": [
+        "feature-package.json#parent_feature",
+        "feature-package.json#source_feature_digest",
+        "task-graph.json#nodes",
+        "task-specs/phase-01-requirements.md#背景",
+        "task-specs/phase-05-implementation.md#スコープ外",
+        "task-specs/phase-05-implementation.md#Write scope/touches",
+        "task-specs/phase-08-refactoring-migration.md#スコープ外",
+        "gate:deterministic-validation"
+      ]
+    },
+    "C2": {
+      "id": "C2",
+      "status": "PASS",
+      "summary": "features/feat-blog-ops-crud.md の frontmatter tags には qa-NNN 形式の宣言がなく (tags=[blog, crud, site-network, blueprint, review-media-classic, reader-surface, admin])、C12 の QA_REF_PATTERN (qa-\\d{3}) 検査でも0件で qa-ref-unregistered は該当なしと確認 (独立再実行 gate:deterministic-validation の violations=[] と一致)。一方で本 feature が実質的に依拠する上流質疑 qa-uiux-web-site-blueprint / qa-database-web-site-blueprint / qa-frontend-web-site-blueprint / qa-backend-web-site-blueprint (system-spec/spec-state.json#qa_log) は goal-spec.json#lineage.system_spec_sources に正本として明記され、P01 (task-specs/phase-01-requirements.md#背景) と P02 (task-specs/phase-02-architecture.md#背景) の本文へ id 単位で trace できる。qa-uiux-web-site-blueprint の確認済み回答 F〜K (サイト網/ハブ・サブサイト・ミニサイト第一級化、ページ種別23種、領域別部品 header/top/sidebar/footer 構成、記事型テンプレートT1-T4、作成者側画面追加、転用禁止受入) の各見出しは goal-spec.json の purpose/goal/scope_in/acceptance (14件) へ意味として反映されており (サイト網CRUD→scope_in[1]/acceptance[1]、hero-banner等5帯→scope_in[2]/acceptance[2]、header3/sidebar8+2/footer4→scope_in[3]/acceptance[6]、T1-T4記事CRUD→scope_in[4]/acceptance[4-5]、固定ページ8種→scope_in[5]/acceptance[7]、ブランドタグ→scope_in[6]/acceptance[8]、配信部品9種→scope_in[7]/acceptance[9]、評価列と閲覧者評価→scope_in[8]/acceptance[10-11]、監査記録とedge cache→scope_in[10]/acceptance[12]、転用禁止ゲート→scope_in[11]/acceptance[13])、さらに P01→P02(データモデル/コンポーネント契約)→P05(実装)→P06/P07(テスト・受入判定 A1-A14)→P09(axe-core/grepゲート)→P11(証跡集約)の全P01-P13へ trace できる。qa-uiux-web-blog-ops-crud/qa-frontend-web-blog-ops-crud/qa-backend-web-blog-ops-crud は id 単独では task spec 本文に引用されていないが、これらは qa-uiux-web-site-blueprint の回答文中で『v1.0 = qa-uiux-web-blog-ops-crud の反映方針A-Eを維持したうえで追加』と明記され v1.1へ統合済みであり、その統合結果 (review-media-classic v1.1, docs/spec/13) が goal-spec.json#architecture_refs と全 task spec の前提条件に正本として引用されているため、意味内容としては qa-*-web-site-blueprint 経由で欠落なく伝播している。qa-task-trace の欠落は確認されなかった。",
+      "evidence": [
+        "gate:deterministic-validation",
+        "task-specs/phase-01-requirements.md#背景",
+        "task-specs/phase-02-architecture.md#背景",
+        "task-specs/phase-01-requirements.md#成果物",
+        "task-specs/phase-02-architecture.md#成果物",
+        "task-specs/phase-07-acceptance.md#目的",
+        "task-specs/phase-09-quality-assurance.md#目的"
+      ]
+    },
+    "C3": {
+      "id": "C3",
+      "status": "PASS",
+      "summary": "全13 task spec は同一の必須 section 構成 (Machine-readable registration fields/目的/背景/前提条件/Workstream applicability/Architecture and deploy unit/成果物/Tracker publication and completion/スコープ外/テスト戦略/Verification and evidence/Inner goal-seek execution loop/Rollout and rollback/Handoff/参照情報 相当) を持ち (C12 task_spec_violations=0件)。feature-package.json#task_node_ids と task-graph.json#nodes[].id、workstream-inventory.json#tasks[].id は SYS-BLOG-OPS-CRUD-P01..P13 で完全一致。staging-manifest.json#files の17件の宣言 sha256 を独立再計算した結果、全件が一致 (feature-package.json/system-build-handoff.json/task-graph.json/workstream-inventory.json/task-specs 13件)。workstream-inventory.json#repo_context.repo_identity=github:daishiman/affiliate-hub, system-build-handoff.json#identity.repository_id=github:daishiman/affiliate-hub は .dev-graph/config.json と一致し、feature-package.json#source_feature_digest はfeatures/feat-blog-ops-crud.context.jsonの独立再計算sha256と完全一致した。TODO/TBD/placeholder表記は staging 全17ファイルで0件。",
+      "evidence": [
+        "staging-manifest.json#files",
+        "feature-package.json#task_node_ids",
+        "feature-package.json#source_feature_digest",
+        "workstream-inventory.json#repo_context",
+        "system-build-handoff.json#identity",
+        "gate:deterministic-validation"
+      ]
+    },
+    "C4": {
+      "id": "C4",
+      "status": "PASS",
+      "summary": "task-graph.json の13 node の depends_on を独立再計算した結果、全edgeが前方DAG (P01→P02→P03→P04→P05→P06→P07 の直列に加え、P05→P08→P09→P10、P07とP09→P11、P10とP11→P12→P13 の分岐/合流) であり循環・後方edge・feature外task参照 (SYS-BLOG-OPS-CRUD- 以外のprefix) は0件。P01以外の12 nodeは全て1件以上のincoming edgeを持ちorphanは0件。task-graph.json#edges (14本) は同#nodes[].depends_on の鏡映と完全一致し、workstream-inventory.json#tasks[].depends_on および system-build-handoff.json#execution_tasks[].depends_on とも3ファイル間で完全一致した。",
+      "evidence": [
+        "task-graph.json#nodes",
+        "task-graph.json#edges",
+        "workstream-inventory.json#tasks",
+        "system-build-handoff.json#execution_tasks",
+        "gate:deterministic-validation"
+      ]
+    }
+  },
+  "gate_results": [
+    {
+      "id": "deterministic-validation",
+      "name": "validate-system-plan",
+      "command": [
+        "python3",
+        ".claude/plugins/system-dev-planner/scripts/validate-system-plan.py",
+        "--repo-root",
+        ".",
+        "--staging",
+        ".dev-graph/staging/feature-package-feat-blog-ops-crud"
+      ],
+      "exit_code": 0,
+      "conditions": [
+        "C1",
+        "C2",
+        "C3",
+        "C4"
+      ],
+      "stdout": "{\n  \"schema_version\": \"1.0.0\",\n  \"status\": \"pass\",\n  \"validated_digest\": \"sha256:aa09bccf2924ffc24a1126c1fdf25935bb41f4bdd1f869d2934519d2fcdff635\",\n  \"feature_package_id\": \"feature-package/feat-blog-ops-crud\",\n  \"parent_feature\": \"feat-blog-ops-crud\",\n  \"phase_refs\": [\"P01\",\"P02\",\"P03\",\"P04\",\"P05\",\"P06\",\"P07\",\"P08\",\"P09\",\"P10\",\"P11\",\"P12\",\"P13\"],\n  \"contract_version\": \"1.3.0\",\n  \"contract_baseline_exemption\": false,\n  \"test_strategy_contract\": {\"mode\": \"enforced\", \"contract_version\": \"1.3.0\", \"enforced_from\": \"1.2.0\"},\n  \"rerun_command_contract\": {\"mode\": \"enforced\", \"contract_version\": \"1.3.0\", \"enforced_from\": \"1.3.0\"},\n  \"violations\": []\n}",
+      "stderr": ""
+    }
+  ],
+  "evaluated_inputs": [
+    {
+      "path": "feature-package.json",
+      "sha256": "098ff8c804a426d5ef72965c6be68289137edded4bf1aa2eb901e3d5d8e4dc21"
+    },
+    {
+      "path": "system-build-handoff.json",
+      "sha256": "d4a05db3f6c07569d7498a787ae1bd9da34f14d831ee0ed503ca35740b014285"
+    },
+    {
+      "path": "task-graph.json",
+      "sha256": "8317d49a01551badd4fc0f4e5b391da1698b37d6c1bad3cc0589a2d8110a7491"
+    },
+    {
+      "path": "task-specs/phase-01-requirements.md",
+      "sha256": "640c771c74ed117ac3f83578e989ced6e0fbdeaa48c9503f8deea89e5c6d479a"
+    },
+    {
+      "path": "task-specs/phase-02-architecture.md",
+      "sha256": "e852d33245afdf58c616f6dc19f3d5e17a9ca852ddf491112dd859f2f39eb466"
+    },
+    {
+      "path": "task-specs/phase-03-design-review.md",
+      "sha256": "f4cabfd2b914263f2e7f2306032d61b7f6467109d9cb330516a4ec6bac204fdf"
+    },
+    {
+      "path": "task-specs/phase-04-test-design.md",
+      "sha256": "bcb2653edae3c5bdce1ca98f7c7b74505ad142a4f3e60bcb9984a7bc94b5b26f"
+    },
+    {
+      "path": "task-specs/phase-05-implementation.md",
+      "sha256": "58da7b6205999d40b5f7474ef54e4cc0683f2c3e03dbe6b39f2a037612ccc690"
+    },
+    {
+      "path": "task-specs/phase-06-test-run.md",
+      "sha256": "748d2d25b81dc9aa8d0cc7cbc0b27cc294d73315ada8e7d77cdc3fe8b82d4470"
+    },
+    {
+      "path": "task-specs/phase-07-acceptance.md",
+      "sha256": "a781a989df0d16ab5a2faabb0de158310a034da71789483182aeb4e88a17aeb7"
+    },
+    {
+      "path": "task-specs/phase-08-refactoring-migration.md",
+      "sha256": "3960223b0afd29b367bad7855f485d0dbcbfb5d8cb12ca2744b07a18558fcbae"
+    },
+    {
+      "path": "task-specs/phase-09-quality-assurance.md",
+      "sha256": "369c9b8fde0c24a842788836821e300f910801806f57a3392a4a41aaa03e5777"
+    },
+    {
+      "path": "task-specs/phase-10-final-review.md",
+      "sha256": "26c2e71eaff08f27023f1181d303546df5b3c7dd25d4d6093f0c630ba5bd4c3f"
+    },
+    {
+      "path": "task-specs/phase-11-evidence.md",
+      "sha256": "271670a5c1b84adf80b3af0543f3a98569d96bb204109181a2524990635814b3"
+    },
+    {
+      "path": "task-specs/phase-12-documentation-operations.md",
+      "sha256": "36b04ef3df22ec861329768ba9a84b9ab22d6d65f1012894b10797e97ba6d9fa"
+    },
+    {
+      "path": "task-specs/phase-13-release-deploy.md",
+      "sha256": "91c8423a8669baf1b5b0f00c0f3df68f7a4d8e604d17e6191e6b67787c509bad"
+    },
+    {
+      "path": "workstream-inventory.json",
+      "sha256": "03112c5c50af1351b92ba0ffa5bc988617bf915af054cc5b432787a310ced321"
+    },
+    {
+      "path": "staging-manifest.json",
+      "sha256": "672f4bad1144a9a042f95b9e9d00362a2c3d346074a3d39d3a17a6670a6f803f"
+    }
+  ],
+  "staleness_rule": "evaluated_digest は staging-manifest.json#canonical_digest (=sha256:aa09bccf2924ffc24a1126c1fdf25935bb41f4bdd1f869d2934519d2fcdff635) に束縛される。staging配下の17ファイル (feature-package.json/workstream-inventory.json/task-graph.json/system-build-handoff.json/task-specs 13件) のいずれか1件でも内容が変わりcanonical_digestが再計算されて変化した場合、本plan-findings.jsonは無効となり新しいdigestに対して評価をやり直す必要がある。source_feature_digest=sha256:8e703c6cfaaae2084e56fac291ab12ed531024b8478e058ee5905d2b976baa44 が変化した場合 (features/feat-blog-ops-crud.md/context.jsonの再確定) や system-spec/spec-state.json#qa_log[qa-uiux-web-site-blueprint 等] が変化した場合も同様に無効化し、system-dev-plan-architectによる再生成からやり直す。",
+  "findings": [
+    {
+      "severity": "low",
+      "bucket": "C1-scope-boundary",
+      "observation": "P05 (implementation) の write_scope が src/db/schema.ts, drizzle/, src/application/usecases/, src/application/read-models/, src/infrastructure/persistence/d1/, src/presentation/ui/templates/, src/presentation/ui/patterns/, src/app/s/[site]/, src/app/api/admin/ を含み、依存元 feat-blog-ui-builder の write_scope と広く重なる。両 feature は depends_on 関係にあり task spec 本文で相手の所有領域を明示的にスコープ外としているため FAIL 相当の逸脱ではないが、共有インフラファイル (特に src/db/schema.ts と drizzle/ migration) への同時変更はマージ競合・migration番号衝突のリスクがある。P08 (refactoring-migration) 実行時に、feat-blog-ui-builder 側の migration が先行適用済みであることを確認し、migration番号の重複0件を検査することを推奨する。",
+      "evidence": [
+        "task-specs/phase-05-implementation.md#Write scope/touches",
+        "task-specs/phase-08-refactoring-migration.md#Write scope/touches",
+        "task-specs/phase-01-requirements.md#背景"
+      ]
+    }
+  ]
+}

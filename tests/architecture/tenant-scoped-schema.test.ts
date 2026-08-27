@@ -84,10 +84,6 @@ const TABLE_EXEMPT: Readonly<
     kind: "legacy_unused",
     why: "旧・商品。いまの商品は catalog_products（作業場所つき）",
   },
-  articles: {
-    kind: "legacy_unused",
-    why: "旧・記事。いまの記事は content_variants / published_articles",
-  },
   article_people: { kind: "legacy_unused", why: "旧・記事の関連表" },
   article_products: { kind: "legacy_unused", why: "旧・記事の関連表" },
   conversation_blocks: { kind: "legacy_unused", why: "旧・記事の構成要素" },
@@ -245,6 +241,10 @@ const QUERY_EXEMPT: Readonly<Record<string, { readonly count: number; readonly w
   "infrastructure/persistence/d1/redirect-repository.ts::redirectResolutions::issue": {
     count: 1,
     why: "無効にする行は直前の findSlot(workspaceId, ...) で作業場所つきに絞って取った行。code は主キー",
+  },
+  "infrastructure/persistence/d1/blog-ops-repository.ts::blogArticleRatings::summarize": {
+    count: 1,
+    why: "読者向けの平均点。読者に作業場所は無く、手がかりは公開中の記事 id だけ",
   },
   "infrastructure/persistence/d1/site-draft-repository.ts::siteBlueprints::listPublishedBlueprints":
     { count: 1, why: "読者向けの公開ブログ一覧。読者に作業場所は無い" },
@@ -688,55 +688,71 @@ describe("広告表記を tenant 化する migration は、所有者を推測し
   });
 });
 
+/**
+ * 2026-08-27、dev を取り込んだときに**検査する相手が入れ替わった**。
+ *
+ * こちらの枝は `0034_parched_inhumans` で legal_page を作り直し、
+ * 所有者を復元できない行があれば件数検査で止める形にしていた。
+ * dev は同じ狙いを、表を作り直さずに 2 本へ分けて済ませていた
+ * （`0031_publish_fixed_pages` が名札を、`0033_tenant_scope_blog_children` が作業場所を）。
+ * 番号が重なったので dev を正本にし、こちらの 1 本は消えた。
+ *
+ * **検査ごと消さない。** 消すと、この先 legal_page を触る誰かが
+ * 「既存行を捨てない」を守っているかどうかを見る場所が無くなる。
+ * 相手のファイル名を差し替え、dev の作り方に合わせて言い直す。
+ */
 describe("固定文書を tenant 化する migration は、既存行を捨てない", () => {
-  const migration = readFileSync(join(ROOT, "drizzle/0034_parched_inhumans.sql"), "utf8");
+  const kindRename = readFileSync(join(ROOT, "drizzle/0031_publish_fixed_pages.sql"), "utf8");
+  const tenantScope = readFileSync(
+    join(ROOT, "drizzle/0033_tenant_scope_blog_children.sql"),
+    "utf8",
+  );
 
-  it("旧表を事前検査し、公開名から所有者を復元してから旧表を落とす", () => {
-    const sourceCopy = migration.indexOf("INSERT INTO `_migration_0034_legal_page_source`");
-    const blueprintJoin = migration.indexOf("JOIN `site_blueprints`", sourceCopy);
-    const rebuild = migration.indexOf("INSERT INTO `_new_legal_page`", blueprintJoin);
-    const guard = migration.indexOf("_migration_0034_legal_page_guard");
-    const drop = migration.indexOf("DROP TABLE `legal_page`");
-
-    expect(guard).toBeGreaterThanOrEqual(0);
-    expect(sourceCopy).toBeGreaterThan(guard);
-    expect(blueprintJoin).toBeGreaterThan(sourceCopy);
-    expect(rebuild).toBeGreaterThan(blueprintJoin);
-    expect(drop).toBeGreaterThan(rebuild);
+  it("名札の言い直しに、表の作り直しを使わない", () => {
+    // 作り直すと、途中で落ちた実行が「旧表は消えた・新表は空」を残せる。
+    // UPDATE だけなら、何度流しても行は 1 つも減らない。
+    expect(kindRename).toMatch(/UPDATE `legal_page` SET `kind` =/);
+    expect(kindRename).not.toContain("DROP TABLE `legal_page`");
+    expect(kindRename).not.toContain("_new_legal_page");
   });
 
-  it("中断復旧用sourceは移行完了後に削除し、恒久的な第二正本にしない", () => {
-    const rebuild = migration.indexOf("INSERT INTO `_new_legal_page`");
-    const rename = migration.indexOf("ALTER TABLE `_new_legal_page` RENAME TO `legal_page`");
-    const cleanup = migration.lastIndexOf(
-      "DROP TABLE IF EXISTS `_migration_0034_legal_page_source`",
-    );
-
-    expect(rebuild).toBeGreaterThanOrEqual(0);
-    expect(rename).toBeGreaterThan(rebuild);
-    expect(cleanup).toBeGreaterThan(rename);
-  });
-
-  it("所有者を復元できない行があれば件数検査で停止する", () => {
-    expect(migration).toMatch(/`legacy_count`\s*=\s*`migrated_count`/);
-    expect(migration).toMatch(/`migrated_count`\s*=\s*`distinct_target_count`/);
-    expect(migration).not.toContain("行が 1 つも無いことが分かっている");
-  });
-
-  it("意味が一意な旧keyだけを明示変換し、曖昧な旧keyは推測しない", () => {
-    expect(migration).toContain("WHEN 'privacy_policy' THEN 'privacy'");
-    for (const ambiguous of ["all_categories", "site_policy", "contact"]) {
-      expect(migration).not.toMatch(new RegExp(`WHEN '${ambiguous}' THEN`));
+  it("旧い名札は 1 対 1 のものだけを明示変換し、推測で寄せない", () => {
+    for (const [from, to] of [
+      ["operator", "profile"],
+      ["all_categories", "sitemap"],
+      ["tokushoho", "commercial_transaction"],
+    ]) {
+      expect(kindRename).toContain(`SET \`kind\` = '${to}' WHERE \`kind\` = '${from}'`);
     }
+    // 綴りが同じものは触らない。触る理由が無いのに UPDATE を足すと、
+    // 「何を変えたのか」が diff から読み取れなくなる。
+    expect(kindRename).not.toMatch(/WHERE `kind` = 'privacy_policy'/);
+    expect(kindRename).not.toMatch(/WHERE `kind` = 'contact'/);
   });
 
-  it("旧表を落とす前に、再実行可能な独立URL墓標を用意する", () => {
-    const tombstone = migration.indexOf("CREATE TABLE IF NOT EXISTS `site_retirements`");
-    const drop = migration.indexOf("DROP TABLE `legal_page`");
-    expect(tombstone).toBeGreaterThanOrEqual(0);
-    expect(drop).toBeGreaterThan(tombstone);
-    expect(migration).not.toContain("ALTER TABLE `site_blueprints` ADD `retired_at`");
-    expect(migration).toContain("NATURAL LEFT JOIN (SELECT NULL AS `retired_at`)");
-    expect(migration).toContain("ON CONFLICT (`slug`) DO UPDATE SET");
+  it("作業場所の列を足したあと、必ず親から埋める", () => {
+    const addColumn = tenantScope.indexOf("ALTER TABLE `legal_page` ADD `workspace_id`");
+    const backfill = tenantScope.indexOf("UPDATE `legal_page`\nSET `workspace_id` = coalesce(");
+
+    expect(addColumn).toBeGreaterThanOrEqual(0);
+    // 列だけ足して既定値 '' のまま放置すると、**どの作業場所にも属さない行**が残る。
+    // 列の有無しか見ない検査は緑のままなので、埋める側をここで見る。
+    expect(backfill).toBeGreaterThan(addColumn);
+    expect(tenantScope).toContain("from `site_blueprints` b where b.`slug` = `legal_page`.`site_slug`");
+  });
+
+  it("埋め戻しは何度流しても同じ結果になる", () => {
+    // `WHERE workspace_id = ''` が無いと、あとから手で直した行を
+    // 再実行のたびに親の値へ引き戻す。移行は 1 度で終わるとは限らない。
+    const backfill = tenantScope.slice(tenantScope.indexOf("UPDATE `legal_page`"));
+    expect(backfill).toContain("WHERE `workspace_id` = ''");
+  });
+
+  it("独立URLの墓標を、サイト表の列で代用しない", () => {
+    // 取り下げた URL の記録をサイト表の列にすると、サイトを消した日に一緒に消える。
+    // 消えた瞬間、その URL は「まだ誰も使っていない」に戻る。
+    const schema = readFileSync(join(ROOT, "drizzle/0034_huge_echo.sql"), "utf8");
+    expect(schema).toContain("CREATE TABLE `site_retirements`");
+    expect(schema).not.toContain("ALTER TABLE `site_blueprints` ADD `retired_at`");
   });
 });

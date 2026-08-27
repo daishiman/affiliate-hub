@@ -210,12 +210,12 @@ export function fillSlots(
   });
 }
 
-/** @deprecated 固定文書の正本は `SITE_DOCUMENT_KEYS` 。 */
-export const LEGAL_PAGE_KINDS = SITE_DOCUMENT_KEYS;
-export type LegalPageKind = SiteDocumentKey;
-
-/** @deprecated 固定文書の名札の正本は `SITE_DOCUMENT_LABEL` 。 */
-export const LEGAL_PAGE_LABEL = SITE_DOCUMENT_LABEL;
+/** @deprecated 固定ページの正本は blogops/fixed-page。旧 import 名だけを保つ。 */
+export {
+  FIXED_PAGE_KINDS as LEGAL_PAGE_KINDS,
+  FIXED_PAGE_LABEL as LEGAL_PAGE_LABEL,
+  type FixedPageKind as LegalPageKind,
+} from "../blogops/fixed-page";
 
 /**
  * 配色の 2 層。ブログ既定（blog_theme）とページ単位の上書き（page_theme_override）。

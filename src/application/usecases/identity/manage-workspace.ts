@@ -921,6 +921,26 @@ export const AUDIT_ACTION_LABEL: Readonly<Record<AuditAction, string>> = {
   "loop_run.observed": "比較の観測値を記録した",
   "loop_run.concluded": "比較を判定した",
   "loop_run.stopped": "比較を打ち切った",
+  "site_network.created": "サイト網にブログを足した",
+  "site_network.changed": "サイト網のブログの設定を変えた",
+  "site_network.deleted": "サイト網からブログを外した",
+  "site_network.restored": "サイト網へブログを戻した",
+  "blog_layout.changed": "ブログの枠・帯の並びを変えた",
+  "blog_delivery.changed": "配信部品の入切を変えた",
+  "blog_delivery.checked": "配信物を点検した",
+  "blog_article.created": "ブログ記事を作った",
+  "blog_article.changed": "ブログ記事を直した",
+  "blog_article.deleted": "ブログ記事を消した",
+  "blog_article.restored": "ブログ記事を戻した",
+  "blog_page.changed": "固定ページを保存した",
+  "blog_page.deleted": "固定ページを消した",
+  "blog_page.restored": "固定ページを戻した",
+  "blog_tag.changed": "タグを保存した",
+  "blog_tag.deleted": "タグを消した",
+  // **「伏せた」と「戻した」を別の言葉にしている。**型でも別の語なので、
+  // ここで 1 つにまとめると、一覧を読む人が差分を開くまで区別できなくなる。
+  "blog_rating.hidden": "読者の評価を伏せた",
+  "blog_rating.shown": "伏せた評価を読者に戻した",
 };
 
 export type ListAuditLogInput = { readonly limit?: number };

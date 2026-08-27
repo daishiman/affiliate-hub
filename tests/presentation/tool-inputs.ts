@@ -32,6 +32,12 @@ export const FIELD_VALUES: Readonly<Record<string, unknown>> = {
   kind: "author",
   key: "methodology",
   readerKey: "reader-test",
+  // 見本に**在る**記事を指す。作る側 (`create_blog_article`) と違い、
+  // 読む・直す側は既にある行でないと一度も動かない。
+  articleId: "ba_sample_starter_kit",
+  // 記事型は `ARTICLE_TEMPLATES` の 4 つ。数字でも日本語でもない。
+  template: "T1",
+  lead: "はじめて選ぶ人が、どこから見ればよいかだけを先に決められるようにまとめました。",
 
   // --- 商品と順位 ---
   productId: "p_alpha_15",
@@ -240,6 +246,14 @@ export const TOOL_OVERRIDES: Readonly<Record<string, Readonly<Record<string, unk
   // これだけが何も壊さずに呼べる。`action` は他の道具では使われない項目名なので、
   // 辞書ではなくここに置く。
   manage_integration_keys: { action: "list" },
+  // 公開状態は `BLOG_ARTICLE_STATUSES` の 4 つ。`published` は使わない
+  // ——記事型が要求する部品がそろっていないと断られる側の枝で、
+  // そこで緑になると「公開の道が通った」と読み違える。
+  set_blog_article_status: { status: "review" },
+  // 消す道具だけ**別の記事**を指す。読む・直す道具と同じ行を指すと、
+  // 検査の並び順が変わった日に「消えた行を読もうとした」で落ちる。
+  // 落ちた側を直すと、消す道具か読む道具のどちらかが検査から外れる。
+  delete_blog_article: { articleId: "ba_sample_draft" },
   // 対応状況の変更は「状態・扱いの決定・取り消し」のどれか 1 つが要る。
   // 先頭の枝は状態なので、通る状態を 1 つ置く（`status` は他の道具でも使われうる
   // 名前で、要望の状態はこの道具に固有）。

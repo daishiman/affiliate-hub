@@ -75,7 +75,12 @@ export async function renderRoute(
  * 置き換え方そのものを表に書かないのは、表を vitest から切り離しておくため。
  * **表は名前だけを言い、置き換え方はここが持つ。**
  */
-export type RouteWorld = "signed-in" | "auth-configured" | "authorized" | "no-audience";
+export type RouteWorld =
+  | "signed-in"
+  | "auth-configured"
+  | "authorized"
+  | "no-audience"
+  | "blog-ops-ready";
 
 /**
  * 前提ごとの置き換え。
@@ -90,6 +95,32 @@ export type RouteWorld = "signed-in" | "auth-configured" | "authorized" | "no-au
  * ここで見たい「その枝が描けること」から離れる。
  * **だからここが確かめているのは、認証の成立ではなく描画の到達である。**
  */
+/**
+ * 運営画面を描くときの身元。**`authorized` と `blog-ops-ready` が同じものを見る。**
+ *
+ * 2 か所に書くと、片方に役を足した日にもう片方だけが「権限がありません」を
+ * 描き続ける。それは赤にならない——描けてしまうので。
+ * 役をなぜ並べているかは `authorized` の説明にある。
+ */
+async function authorizedActor(): Promise<Record<string, unknown>> {
+  const { SAMPLE_ACTOR } = await import("@/infrastructure/identity/sample-actor");
+  return {
+    ...SAMPLE_ACTOR,
+    roles: [
+      // 見本が元から持っている（記事・数字・成果の読み取り）。
+      "analyst",
+      // 改善要望の 9 枚と、外部連携の鍵の画面。
+      "feedback_admin",
+      // 商品・裏づけの画面（`product.read` は単独では取れない）。
+      "researcher",
+      // 記事の生成と、ブログの下書き作成。
+      "writer",
+      // ブログの設定と配信の予定表。
+      "brand_manager",
+    ],
+  };
+}
+
 const WORLDS: Record<RouteWorld, () => void> = {
   /** ログインできている人として描く。身元は見本のものをそのまま使う（値を手で作らない）。 */
   "signed-in": () => {
@@ -133,22 +164,7 @@ const WORLDS: Record<RouteWorld, () => void> = {
   authorized: () => {
     vi.doMock("@/presentation/composition", async (importOriginal) => {
       const actual = await importOriginal<Record<string, unknown>>();
-      const { SAMPLE_ACTOR } = await import("@/infrastructure/identity/sample-actor");
-      const actor = {
-        ...SAMPLE_ACTOR,
-        roles: [
-          // 見本が元から持っている（記事・数字・成果の読み取り）。
-          "analyst",
-          // 改善要望の 9 枚と、外部連携の鍵の画面。
-          "feedback_admin",
-          // 商品・裏づけの画面（`product.read` は単独では取れない）。
-          "researcher",
-          // 記事の生成と、ブログの下書き作成。
-          "writer",
-          // ブログの設定と配信の予定表。
-          "brand_manager",
-        ],
-      };
+      const actor = await authorizedActor();
       return {
         ...actual,
         currentActor: async () => actor,
@@ -243,6 +259,64 @@ const WORLDS: Record<RouteWorld, () => void> = {
       };
     });
   },
+  /**
+   * **ブログ運用の 7 枚を、保存先が用意できている状態で描く。**
+   *
+   * --- なぜ要るのか（2026-08-27 の実測）---
+   *
+   * `blogOpsEntry()` は `tryGetDb()` が `null` を返すと
+   * `{ ready: false }` で返る。自動テストに D1 は無いので**常に false** で、
+   * 7 枚の `page.tsx` はどれも冒頭の
+   * 「いまは編集できません」で `return` していた。総当たり
+   * （`page-render.test.tsx`）は 7 枚とも描いているのに、**描いていたのは
+   * 同じ 1 枚**である。分岐の実測がそれを示した——
+   * `admin/blog/pages/page.tsx` は 29 本中 1 本しか通っていなかった。
+   *
+   * `route-cases.ts` に書かれている「5 件とも 1 文字も違わない
+   * 『権限がありません』を描いていた」のと同じ形が、新しい画面で再発している。
+   * **理由が丁寧に書かれた総当たりほど、読む側は「測れている」と読む。**
+   *
+   * --- 置き換えているもの（2 つだけ）---
+   *
+   * 1. `tryGetDb` を**空の入れ物**にする。`blogOpsEntry` の早期 return を
+   *    抜けるためだけの値で、この db にクエリは飛ばない（次の 2 で使われない）。
+   * 2. `createDeps` を `db: null` 固定にする。**保管庫だけが見本になる。**
+   *
+   * `blogOpsEntry` の中身（usecase 30 個の組み立て）は**本物がそのまま走る**。
+   * `blogOpsEntry` ごと偽物にすれば 3 行で済むが、それでは
+   * 「画面が描けること」しか測れず、**配線そのものは一度も通らない。**
+   * 配線は 2 か所（画面側と道具側）に散らばりやすいと
+   * `composition.ts:1769` が書いている場所で、まさにそこを測りたい。
+   *
+   * 身元は `authorized` と同じものを使う。ブログの設定は `brand_manager`、
+   * 記事は `writer` が要るので、見本の身元（`analyst` だけ）では
+   * 保存先を用意しても「権限がありません」に落ちる。
+   */
+  "blog-ops-ready": () => {
+    // **登録の順番に意味がある。**`@/presentation/composition` を
+    // `importOriginal` で読む時点で、その import 先が差し替わっている必要がある。
+    vi.doMock("@/infrastructure/persistence/d1/connection", async (importOriginal) => {
+      const actual = await importOriginal<Record<string, unknown>>();
+      return { ...actual, tryGetDb: async () => ({}) };
+    });
+    vi.doMock("@/infrastructure/composition", async (importOriginal) => {
+      const actual = await importOriginal<Record<string, unknown>>();
+      const create = actual.createDeps as (options?: Record<string, unknown>) => unknown;
+      return {
+        ...actual,
+        createDeps: (options: Record<string, unknown> = {}) => create({ ...options, db: null }),
+      };
+    });
+    vi.doMock("@/presentation/composition", async (importOriginal) => {
+      const actual = await importOriginal<Record<string, unknown>>();
+      const actor = await authorizedActor();
+      return {
+        ...actual,
+        currentActor: async () => actor,
+        signedInActor: async () => actor,
+      };
+    });
+  },
 };
 
 /**
@@ -268,6 +342,8 @@ export async function renderRouteIn(
     // **世界を足したら、ここにも足すこと。**外し忘れは赤にならない
     // ——同じファイルの後ろのテストがその世界のまま描かれ、しかも描けてしまう。
     vi.doUnmock("@/application/usecases/authoring/plan-generation-matrix");
+    vi.doUnmock("@/infrastructure/persistence/d1/connection");
+    vi.doUnmock("@/infrastructure/composition");
     vi.resetModules();
   }
 }

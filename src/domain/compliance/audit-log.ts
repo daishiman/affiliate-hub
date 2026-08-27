@@ -330,6 +330,78 @@ export type AuditAction =
   | "loop_run.concluded"
   | "loop_run.stopped"
   /**
+   * サイト網の節点を足した／直した／外した。
+   *
+   * ブログそのもの（`site.*`）とは別の語にしている。あちらは
+   * 「そのブログの中身がどう変わったか」で、こちらは
+   * 「ブログどうしの上下関係がどう変わったか」である。1 語にまとめると、
+   * どの親子関係をいつ変えたかを履歴から追えない。
+   *
+   * 外したものだけ理由を必須にしている。有効な子がある親の削除は
+   * 全体を拒否し、子を孤立させた成功と監査記録は作らない。
+   */
+  | "site_network.created"
+  | "site_network.changed"
+  | "site_network.deleted"
+  | "site_network.restored"
+  /**
+   * ブログの見た目の枠・帯の設定が変わった。
+   *
+   * **1 語にまとめている。** ヘッダー・サイドバー・フッターの枠と
+   * トップの帯は、後から読むときの問いが同じ（「そのとき読者に何がどの順で見えていたか」）で、
+   * 差は `before` / `after` に出る。部位ごとに語を分けると、
+   * 一度の並べ替えが 4 行になり、履歴の行数と操作の回数が合わなくなる。
+   */
+  | "blog_layout.changed"
+  /**
+   * 配信部品（RSS・sitemap・機械可読の要約など）の入切が変わった。
+   *
+   * 見た目の枠（`blog_layout.changed`）と分けているのは、**外へ出るものだから**である。
+   * 枠は読者が来たときにだけ見えるが、こちらは検索や AI が取りに来る口で、
+   * 切った瞬間から外側の索引が古くなる。「いつ止めたか」は差分からは読めても、
+   * 枠の変更に埋もれると探せない。
+   */
+  | "blog_delivery.changed"
+  | "blog_delivery.checked"
+  /**
+   * ブログ記事を作った／直した／消した。
+   *
+   * 生成の流れに乗る記事（`content.*`）とは別の語にしている。あちらは
+   * 下書き→校正→承認→公開の位置を持ち、承認の履歴が問われる。
+   * こちらは読者に見える面の記事で、問われるのは版面（T1–T4）と
+   * 必要な部品が揃っていたかである。1 語にまとめると、
+   * 承認を通っていない記事が承認済みの一覧に混ざる。
+   */
+  | "blog_article.created"
+  | "blog_article.changed"
+  | "blog_article.deleted"
+  | "blog_article.restored"
+  /**
+   * 固定ページ（運営者情報・各種方針など 8 種）を保存／論理削除／復元した。
+   *
+   * 削除だけ理由を必須にする。行と本文は残り、`blog_page.restored` の
+   * 明示操作で元の ID・URL・内容へ戻す。通常保存で暗黙に復活させない。
+   */
+  | "blog_page.changed"
+  | "blog_page.deleted"
+  | "blog_page.restored"
+  /** ブランドタグを保存した／消した。 */
+  | "blog_tag.changed"
+  | "blog_tag.deleted"
+  /**
+   * 読者が付けた評価を伏せた／戻した。
+   *
+   * **消す語 (`*.deleted`) を作っていない。** 票は行として残し、印だけ付け替える。
+   * 消す形にすると「伏せた」と「最初から無かった」が同じ姿になり、
+   * 伏せた判断そのものを後から確かめられない。
+   *
+   * **伏せると戻すを 2 語に分ける。** どちらも `before`/`after` に印の差は出るが、
+   * 一覧を「伏せた操作だけ」で読みたい場面（読者の書き込みを見えなくした回数を
+   * 数える、まとめて見直す）が実際にあり、1 語だと差分を全部開くまで数えられない。
+   */
+  | "blog_rating.hidden"
+  | "blog_rating.shown"
+  /**
    * 権限が足りずに断った。
    *
    * **語が無かったこと自体が穴だった。** 断りは「何も起きなかった」ように見えるが、
@@ -431,10 +503,22 @@ const REASON_REQUIRED: ReadonlySet<AuditAction> = new Set<AuditAction>([
   "conversion.adjusted",
   "affiliate_link.rejected",
   "loop_run.stopped",
-  // 消す操作。取り消せないうえ、`after` が無いので差分から動機が読めない。
+  // 消す操作。復元可能な対象も通常表示・公開から外す動機は差分だけで読めない。
   "site.deleted",
   "product.deleted",
   "content.deleted",
+  "site_network.deleted",
+  "blog_article.deleted",
+  "blog_page.deleted",
+  "blog_tag.deleted",
+  /*
+   * 読者が書いたものを見えなくする／戻す操作。行は消えないので `before`/`after` に
+   * 印の差は残るが、**なぜそう判断したかは差からは読めない。** 理由の欄にしか残らない。
+   * 戻す側も必須にしているのは、「伏せたのを誰がどんな理由で戻したか」が
+   * 言えないと、伏せた判断が黙って覆せることになるため。
+   */
+  "blog_rating.hidden",
+  "blog_rating.shown",
 ]);
 
 /**

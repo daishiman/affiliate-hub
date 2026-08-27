@@ -1,7 +1,8 @@
 import { SiteFrame } from "@/presentation/site/page-frame";
 import { ContactForm } from "@/presentation/site/contact-form";
+import { PublicFixedPageContent } from "@/presentation/site/public-fixed-page";
 import { siteHref } from "@/presentation/site/view-model";
-import { Note, SitePage, UI_COPY } from "@/presentation/ui";
+import { Note } from "@/presentation/ui";
 import { tryGetWorkerEnv } from "@/infrastructure/platform/worker-env";
 
 export const dynamic = "force-dynamic";
@@ -31,17 +32,24 @@ export default async function ContactPage({
       siteSlug={site}
       currentPath={siteHref(site, "/contact")}
       trail={[{ label: "問い合わせ" }]}
+      requiredFixedPageKind="contact"
     >
-      {() => (
-        <SitePage title="問い合わせ" lead={UI_COPY.reader.contactNote}>
-          <ContactForm siteSlug={site} turnstileSiteKey={turnstileSiteKey} />
-          <Note>
-            いただいた内容は運営者へ届きますが、メールでの自動通知はまだ設定していません。
-            お返事までにお時間をいただくことがあります。お急ぎの場合は、
-            記事の中に案内している連絡先をご利用ください。
-          </Note>
-        </SitePage>
-      )}
+      {({ projection }) => {
+        // 見出しと本文は運営が書いた固定ページから出す。
+        // 無いときに既定文へ落とさないのは、見本の文を本物として配らないため。
+        const page = projection.fixedPages.find((candidate) => candidate.kind === "contact");
+        if (page === undefined) return null;
+        return (
+          <PublicFixedPageContent page={page}>
+            <ContactForm siteSlug={site} turnstileSiteKey={turnstileSiteKey} />
+            <Note>
+              いただいた内容は運営者へ届きますが、メールでの自動通知はまだ設定していません。
+              お返事までにお時間をいただくことがあります。お急ぎの場合は、
+              記事の中に案内している連絡先をご利用ください。
+            </Note>
+          </PublicFixedPageContent>
+        );
+      }}
     </SiteFrame>
   );
 }

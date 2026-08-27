@@ -473,7 +473,19 @@ const NON_WRITE_VERBS = [
  * `new` や `run` を頭の一致に足すと広く効きすぎる（`newOrder` を作る手続きまで
  * 書き込みでない側へ落ちる）。数が少ないうちは名前ごと並べるほうが安全である。
  */
-const NON_WRITE_EXACT = new Set(["current", "newId", "aiUsage", "forConnection"]);
+const NON_WRITE_EXACT = new Set([
+  "current",
+  "newId",
+  "aiUsage",
+  // 接続 1 本ぶんの読み口を返すだけ（`forConnection`）。何も残さない。
+  "forConnection",
+  // 公開面の入口を開けて、その場の見え方を返すだけ（`PublicBlogPort.openSite`）。
+  //
+  // **`open` を頭の一致へ足さない。**足すと `openTicket` のように「開いて残す」
+  // 手続きまで書き込みでない側へ落ちる。ここで読み取りなのは `openSite` 1 件で、
+  // 名前ごと書けば効き過ぎない。
+  "openSite",
+]);
 const WRITE_VERBS = [
   "save",
   "create",
@@ -521,6 +533,18 @@ const WRITE_VERBS = [
   // 読んでから書く 2 手を一手で決着させる（`compareAndSwap`）。
   // `claim` と同じ理由でここに居る。返り値が真偽でも、返る前に書いている。
   "compareAndSwap",
+  // 伏せる / 伏せを解く（`setRatingHidden`）。
+  //
+  // **`set` は書き込みである。**「値を渡すだけ」に見えるが、渡した値は残る。
+  // 読み取りの `get` と対で覚えている語なので読み側へ入れたくなるが、
+  // そちらへ入れると、書いたのに記録が要らない手続きが 1 つ生まれる。
+  "set",
+  // 論理削除を取り消す（`restoreArticle` / `restoreFixedPage` / `restoreNetworkNode`）。
+  //
+  // **「戻す」は書き込みである。**元の値へ戻すだけなので何も足していないように
+  // 読めるが、`deleted_at` を消すのは行の状態を変える一手で、消した人と時刻が
+  // 記録に残らないと「いつ誰が戻したのか」を後から言えない。
+  "restore",
 ];
 const startsWithVerb = (name, verbs) => verbs.some((v) => name.startsWith(v));
 /** 書き込み / 書き込みでない / 判定できない のどれかを返す。 */

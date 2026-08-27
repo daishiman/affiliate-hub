@@ -2,8 +2,8 @@
 
 import { revalidatePath } from "next/cache";
 import { contactUseCases, signedInActor } from "@/presentation/composition";
-import { notSignedInText, refusalText } from "@/presentation/refusal-text";
 import type { ContactHandledState } from "./contact-state";
+import { failureFromDomainError, notSignedInFailure } from "./use-case-result";
 
 /**
  * 問い合わせに「対応済み」の印を付ける / 外す。
@@ -24,7 +24,7 @@ export async function markContactHandledAction(
   if (actor === null) {
     // `formData` を読む前に断る。読んでから断ると、断り文が
     // 「どの問い合わせか分かりません」に化けて、原因が身元だと伝わらない。
-    return { status: "failed", message: notSignedInText("問い合わせの対応状況の変更") };
+    return notSignedInFailure("問い合わせの対応状況の変更");
   }
 
   const id = String(formData.get("id") ?? "");
@@ -36,7 +36,7 @@ export async function markContactHandledAction(
 
   const result = await (await contactUseCases()).markHandled.execute(actor, { id, handled });
   if (!result.ok) {
-    return { status: "failed", message: refusalText(result.error), field: result.error.field };
+    return failureFromDomainError(result.error);
   }
 
   revalidatePath("/admin/contact");

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { readerActor, siteUseCases } from "@/presentation/composition";
 import { siteHomeMetadata } from "@/presentation/site/site-metadata";
 import { SiteFrame } from "@/presentation/site/page-frame";
+import { BlogTopBands } from "@/presentation/site/blog-top-bands";
 import { siteHref, toArticleCards } from "@/presentation/site/view-model";
 import { ArticleList, ErrorView, ListView, Section, SitePage, UI_COPY } from "@/presentation/ui";
 
@@ -28,9 +29,23 @@ export default async function SiteHome({ params }: { params: Promise<{ site: str
   const recent = await (await siteUseCases()).listRecent.execute(readerActor(), { siteSlug: site });
 
   return (
-    <SiteFrame siteSlug={site} currentPath={siteHref(site, "/")} pageKind="site_home">
-      {({ blueprint }) => (
+    <SiteFrame siteSlug={site} currentPath={siteHref(site, "/")} pageKind="site_home" sidebar>
+      {({ blueprint, projection }) => (
         <SitePage title={blueprint.name} lead={blueprint.purpose} wide>
+          {/*
+            管理画面で並べた帯。保存された順番・見出し・件数のとおりに描く。
+            まだ 1 本も設定していないブログでは何も出ず、下の既定の並びだけになる。
+          */}
+          <BlogTopBands
+            siteSlug={site}
+            projection={projection}
+            categories={blueprint.categories.map((c) => ({
+              slug: c.slug,
+              name: c.name,
+              oneLine: c.oneLine,
+            }))}
+          />
+
           <Section title="カテゴリー">
             <ListView
               rows={blueprint.categories.map((c) => ({

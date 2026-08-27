@@ -3,8 +3,8 @@
 import { revalidatePath } from "next/cache";
 import { siteBasePathBySlug } from "@/domain/authoring/site";
 import { signedInActor, siteDocumentUseCases } from "@/presentation/composition";
-import { notSignedInText, refusalText } from "@/presentation/refusal-text";
 import type { SiteDocumentState } from "./site-document-state";
+import { failureFromDomainError, notSignedInFailure } from "./use-case-result";
 
 /**
  * ブログの固定文書を 1 枚保存する。
@@ -20,7 +20,7 @@ export async function saveSiteDocumentAction(
 ): Promise<SiteDocumentState> {
   const actor = await signedInActor();
   if (actor === null) {
-    return { status: "failed", message: notSignedInText("固定ページの保存") };
+    return notSignedInFailure("固定ページの保存");
   }
 
   const siteSlug = String(formData.get("siteSlug") ?? "");
@@ -38,7 +38,7 @@ export async function saveSiteDocumentAction(
   });
 
   if (!result.ok) {
-    return { status: "failed", message: refusalText(result.error), field: result.error.field };
+    return failureFromDomainError(result.error);
   }
 
   // 管理画面と読者の画面の両方を作り直す。管理画面だけだと、

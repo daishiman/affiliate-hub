@@ -1,6 +1,7 @@
 import type { ReaderToolDefinition } from "@/application/ports/reader-interaction";
 import type { DomainError } from "@/domain/shared";
-import { ErrorView, Note, SectionHeading } from "@/presentation/ui";
+import { ProseSection } from "@/presentation/prose";
+import { ErrorView, Note } from "@/presentation/ui";
 import { ReaderToolForm } from "./reader-tool-form";
 
 /**
@@ -36,15 +37,10 @@ export function ReaderToolSection({
         initialValues={values}
       />
 
-      <section>
-        <SectionHeading level={2}>結果の読み方</SectionHeading>
-        <p>{definition.howToRead}</p>
-      </section>
+      <ProseSection title="結果の読み方" body={definition.howToRead} />
 
       {run === null ? null : run.ok ? (
-        <section>
-          <SectionHeading level={2}>結果</SectionHeading>
-          <p>{run.value.summary}</p>
+        <ProseSection title="結果" body={run.value.summary}>
           <dl>
             {run.value.rows.map((row) => (
               <div key={row.label}>
@@ -54,7 +50,7 @@ export function ReaderToolSection({
             ))}
           </dl>
           <Note>入力した数字から計算した目安です。実際の値は使い方や機器によって変わります。</Note>
-        </section>
+        </ProseSection>
       ) : (
         // 入力の不足・書き間違いと、道具そのものの不備を、同じ見出しで出さない。
         // 読者から見て「自分が直せること」なのかどうかが、見出しで分かるようにする。

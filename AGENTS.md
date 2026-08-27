@@ -110,3 +110,41 @@ bd prime                # Refresh Beads context
 
 **Architecture in one line:** issues live in a local Dolt DB; sync uses `refs/dolt/data` on your git remote; `.beads/issues.jsonl` is a passive export. See https://github.com/gastownhall/beads/blob/main/docs/SYNC_CONCEPTS.md for details and anti-patterns.
 <!-- END BEADS CODEX SETUP -->
+
+
+## Beads を書き換えるときの正規経路（このリポジトリ固有）
+
+**上のブロックにある Quick Reference は beads が自動で書き込む汎用の文面で、
+このリポジトリのフックとは食い違っています。** `bd` の書き換え系サブコマンド
+（create / update / close / delete / purge / sql）を直に叩くと、PreToolUse フック
+`.claude/plugins/dev-graph/hooks/guard-graph-schema.py` が次のように拒否します:
+
+```
+[guard-graph-schema] BLOCKED: Beads mutation は scripts/bd-bridge.py の単一チョークポイント経由に限定
+```
+
+実際に通るのは次の形だけです（フックが見ているのは「コマンド文字列に
+`bd-bridge.py` が含まれるか」なので、この形なら通ります）:
+
+```bash
+B=.claude/plugins/dev-graph/scripts/bd-bridge.py
+
+python3 $B --op show    --repo-root . --bd-issue-id <id>
+python3 $B --op claim   --repo-root . --bd-issue-id <id>
+python3 $B --op close   --repo-root . --bd-issue-id <id> --reason "<なぜ完了と言えるか>"
+python3 $B --op update  --repo-root . --bd-issue-id <id> --status <status>
+python3 $B --op dep-add --repo-root . --bd-issue-id <id> --depends-on <id>
+```
+
+`--dry-run` を付けると何も書かずに内容だけ返します。**先にこれで確かめること。**
+
+epic（`issue_type=epic` の投影）を閉じるには `--feature-rollup-manifest` が要ります。
+子が全部閉じたことを機械が確かめてからでないと epic は閉じられません。
+「親だけ閉じて完了に見せる」ができないようにするためです。
+
+読み取り系（一覧・詳細・ready・blocked・memories）はそのまま使えます。
+止まるのは書き込みだけです。
+
+**迂回しないこと。** チョークポイントは冪等性の確認・dev-graph node との突き合わせ・
+workspace identity の検査をここ 1 か所でやっています。素の CLI が通ってしまうと、
+Beads と dev-graph の状態が黙って食い違います。

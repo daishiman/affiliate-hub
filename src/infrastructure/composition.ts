@@ -8,6 +8,7 @@ import {
   createCommercialD1LinkInboxRepository,
   type DrizzleD1,
 } from "./persistence/d1/link-inbox-repository";
+import { createD1BlogOpsRepository } from "./persistence/d1/blog-ops-repository";
 import { createD1SiteDraftRepository } from "./persistence/d1/site-draft-repository";
 import {
   createD1ChannelConnectionRepository,
@@ -146,6 +147,7 @@ import {
 import { createHandoffTemplates } from "./generation/handoff-templates";
 import { hashSecret, mintSecret } from "./platform/secret-minter";
 import { createSampleLinkIngestionRepository } from "./persistence/sample/link-inbox-sample-repository";
+import { createSampleBlogOpsRepository } from "./persistence/sample/blog-ops-sample-repository";
 import { createSampleSiteDraftRepository } from "./persistence/sample/site-draft-sample-repository";
 import { createSampleSiteRepository } from "./persistence/sample/site-sample-repository";
 import { idGenerator } from "./platform/id-generator";
@@ -248,6 +250,7 @@ export function createDeps(
     // 保存先が無い環境では、出す操作は**失敗を返す**（保存できたことにしない）。
     sites: db === null ? createSampleSiteRepository() : createD1SiteRepository(db),
     siteDrafts: db === null ? createSampleSiteDraftRepository() : createD1SiteDraftRepository(db),
+    blogOps: db === null ? createSampleBlogOpsRepository() : createD1BlogOpsRepository(db),
     publishedContent: db === null ? createSampleContentRepository() : createD1ContentRepository(db),
     // ブログの固定文書（運営者情報・各方針・規約・特商法表記）。
     // **見本へ落とさない。** 落とすと、まだ書いていない運営者情報の位置に

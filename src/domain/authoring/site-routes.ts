@@ -23,6 +23,8 @@ export type RouteKind =
   | "profile"
   /** 方針・規約などの固定文書。 */
   | "policy"
+  /** 保存済み固定ページ。実際の語彙と公開可否は blogops の正本で決める。 */
+  | "fixed-page"
   /** 操作する画面（検索・候補の保存・問い合わせ）。 */
   | "interactive";
 
@@ -48,7 +50,9 @@ export type SiteRoute = {
  * 18 ルート。並びは仕様書 §7 の順。
  *
  * `/privacy` と `/terms` は仕様上 1 項目にまとめられているが、
- * 画面は別なので 2 行に分けている（合計 20 行 / 18 項目 + 計測についての 1 本）。
+ * 画面は別なので 2 行に分けている。
+ * ここに仕様書の 18 項目のほか、「計測について」1 本と
+ * ブログの記事 2 本（一覧・記事）を足してあり、合計 22 行になる。
  */
 export const SITE_ROUTES = [
   {
@@ -104,6 +108,48 @@ export const SITE_ROUTES = [
     reachedFrom: "トップの初心者向け導線・カテゴリーページ",
     page: "how_to_choose",
     requiresDisclosure: true,
+  },
+  {
+    /*
+      ブログの記事一覧（feat-blog-ops-crud）。**`page: null` にしてある。**
+      記事の並びは設計図の設定ではなく「書いた記事があるかどうか」で決まる。
+      設定で消せる作りにすると、記事を書いたのに読者から辿れないブログが作れてしまう。
+    */
+    key: "blog",
+    path: "/blog",
+    label: "記事一覧",
+    kind: "listing",
+    reachedFrom: "全ページ共通のヘッダー・トップの新着",
+    page: null,
+    requiresDisclosure: false,
+  },
+  {
+    /*
+      記事 1 本。広告表示が要る（`requiresDisclosure: true`）。
+      本文に商品への案内が入りうるので、入っていない記事でも
+      **表示の有無を記事ごとの判断に委ねない。**
+    */
+    key: "blog-article",
+    path: "/blog/{article}",
+    label: "記事",
+    kind: "article",
+    reachedFrom: "記事一覧・タグ・関連記事",
+    page: null,
+    requiresDisclosure: true,
+  },
+  {
+    /*
+      固定ページ8種のうち contact 以外を受ける動的route。
+      `{fixedPage}` を既定footerへ直接出さず、保存済み・公開済みの具体的なリンクは
+      PublicSiteProjection が canonical 語彙から組み立てる。
+    */
+    key: "fixed-page",
+    path: "/{fixedPage}",
+    label: "運営情報の固定ページ",
+    kind: "fixed-page",
+    reachedFrom: "公開済み固定ページのフッターリンク",
+    page: null,
+    requiresDisclosure: false,
   },
   {
     key: "tool",

@@ -10,7 +10,7 @@ import {
 } from "@/application/usecases/distribution/manage-distribution";
 import type { ContentVariant } from "@/domain/authoring";
 import type { Publication } from "@/domain/distribution";
-import { markEditorial, ok } from "@/domain/shared";
+import { domainError, err, markEditorial, ok } from "@/domain/shared";
 import { OTHER_WORKSPACE, WORKSPACE, aNobody, anOwner } from "../support/actors";
 import { aChannelConnection, aPublication } from "../support/factories";
 import { NOW, daysFrom } from "../support/clock";
@@ -392,6 +392,87 @@ describe("配信を作る", () => {
     if (got.ok) return;
     expect(got.error.field).toBe("scheduledAt");
     expect(got.error.message).toContain("読み取れません");
+  });
+
+  it.each([
+    ["別の媒体の接続", aChannelConnection({ id: "conn-named" as never, kind: "bluesky", workspaceId: WORKSPACE })],
+    ["取り消された接続", aChannelConnection({ id: "conn-named" as never, kind: "x", workspaceId: WORKSPACE, revokedAt: daysFrom(NOW, -1) })],
+    ["存在しない接続", null],
+  ] as const)("名指しされたのが%sなら、他の接続へ勝手に付け替えない", async (_label, chosen) => {
+    // ここで「使える接続を探し直す」と、指定した覚えのないアカウントへ投稿される。
+    const usable = aChannelConnection({ id: "conn-other" as never, kind: "x", workspaceId: WORKSPACE });
+    const base = deps({ variant: await approved(), connections: [usable] });
+    const got = await createSchedulePublicationUseCase({
+      ...base,
+      connections: {
+        ...base.connections,
+        findById: async () => ok(chosen),
+      },
+    }).execute(owner, {
+      variantId: "cv_alpha_review",
+      channelKind: "x",
+      connectionId: "conn-named",
+    });
+
+    expect(got.ok).toBe(false);
+    if (got.ok) return;
+    expect(got.error.code).toBe("NOT_FOUND");
+    expect(got.error.message).toContain("使えません");
+  });
+
+  it("名指しされた接続の認証情報が使えないなら、送れる先として扱わない", async () => {
+    // 期限内でも、鍵が抜かれていれば送れない。ここを通すと順番待ちのまま失敗する。
+    const chosen = aChannelConnection({ id: "conn-named" as never, kind: "x", workspaceId: WORKSPACE });
+    const base = deps({ variant: await approved(), connections: [chosen] });
+    const got = await createSchedulePublicationUseCase({
+      ...base,
+      connections: { ...base.connections, findById: async () => ok(chosen) },
+      connectors: {
+        forConnection: () =>
+          err(domainError("NOT_FOUND", "この接続の認証情報が読めません。")),
+      },
+    }).execute(owner, {
+      variantId: "cv_alpha_review",
+      channelKind: "x",
+      connectionId: "conn-named",
+    });
+
+    expect(got.ok).toBe(false);
+    if (got.ok) return;
+    expect(got.error.message).toContain("認証情報");
+  });
+
+  it("接続の保存先が読めないときは、接続なしとして作らない", async () => {
+    // 読めないことを「1 つも無い」と同じに扱うと、
+    // 一時的な障害のたびに「接続してください」という誤った案内が出る。
+    const base = deps({ variant: await approved() });
+    const got = await createSchedulePublicationUseCase({
+      ...base,
+      connections: {
+        ...base.connections,
+        listByWorkspace: async () => failing("接続の保存先が読めません。"),
+      },
+    }).execute(owner, { variantId: "cv_alpha_review", channelKind: "x" });
+
+    expect(got.ok).toBe(false);
+    if (got.ok) return;
+    expect(got.error.message).toContain("接続の保存先が読めません");
+  });
+
+  it("認証情報が使えない接続しか無ければ、使える接続として数えない", async () => {
+    const got = await createSchedulePublicationUseCase({
+      ...deps({
+        variant: await approved(),
+        connections: [aChannelConnection({ kind: "x", workspaceId: WORKSPACE })],
+      }),
+      connectors: {
+        forConnection: () => err(domainError("NOT_FOUND", "この接続の認証情報が読めません。")),
+      },
+    }).execute(owner, { variantId: "cv_alpha_review", channelKind: "x" });
+
+    expect(got.ok).toBe(false);
+    if (got.ok) return;
+    expect(got.error.message).toContain("接続がまだありません");
   });
 
   it("自動で投稿できない先は、接続が無くても作れて、書き出しの案内が付く", async () => {
