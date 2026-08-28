@@ -1,4 +1,4 @@
-/** @tier 1 */
+/** @tier 1 @req REQ-R11, REQ-SEC01, REQ-SEC09 @types tenant-isolation, audit-log, authorization */
 import { describe, expect, it } from "vitest";
 import type { PublishedArticleAdminPort } from "@/application/ports/site";
 import type { PublishedArticle } from "@/application/read-models/published-article";
