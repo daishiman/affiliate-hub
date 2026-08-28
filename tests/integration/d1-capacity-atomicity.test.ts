@@ -35,14 +35,19 @@ const TABLES = [
     capacity_consumed INTEGER NOT NULL,
     occurred_at INTEGER NOT NULL
   )`,
+  // 本物（drizzle/0034 + 0036）と同じ形にする。
+  // 2026-08-28 まで、ここには本物に無い CHECK (kind IN (...)) と、本物と違う
+  // 索引名 capacity_leases_active_idx が書かれていた。**検査の前提だけが本物より
+  // 厳しい**状態で、無効な kind が弾かれることを確かめる検査は 1 件も無かった。
+  // 手で近似を書くと、この検査が緑でも本番が同じように振る舞う保証は無くなる。
   `CREATE TABLE capacity_leases (
     id TEXT PRIMARY KEY,
     workspace_id TEXT NOT NULL,
-    kind TEXT NOT NULL CHECK (kind IN ('brand', 'site', 'member', 'generation')),
+    kind TEXT NOT NULL,
     acquired_at INTEGER NOT NULL,
     expires_at INTEGER NOT NULL
   )`,
-  "CREATE INDEX capacity_leases_active_idx ON capacity_leases (workspace_id, kind, expires_at)",
+  "CREATE INDEX capacity_leases_workspace_kind_expiry_idx ON capacity_leases (workspace_id, kind, expires_at)",
 ] as const;
 
 async function insertWorkspace(id: string): Promise<void> {

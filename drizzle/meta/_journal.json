@@ -253,6 +253,13 @@
       "when": 1787836500000,
       "tag": "0035_non_generated_boundaries",
       "breakpoints": true
+    },
+    {
+      "idx": 36,
+      "version": "6",
+      "when": 1787836560000,
+      "tag": "0036_rebuild_drifted_tables",
+      "breakpoints": true
     }
   ]
 }
