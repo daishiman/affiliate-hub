@@ -6,8 +6,8 @@
 テスト側の `@req` 印を重ねたもの。
 
 - 最終更新: 2026-08-28
-- テストファイル: 210 件
-- 由来の要件が分かる: 182 件
+- テストファイル: 212 件
+- 由来の要件が分かる: 184 件
 - **由来不明: 28 件**（上限 28 件）
 
 由来不明とは「どの要件のために書いたのか、機械から辿れない」という意味で、
@@ -183,6 +183,7 @@
 | `tests/presentation/llm-credential-entry.test.ts` | REQ-SEC01 | 印 |
 | `tests/presentation/nav-permissions.test.ts` | REQ-FB02, REQ-FB07 | 表 |
 | `tests/presentation/one-usecase-three-adapters.test.ts` | REQ-API01 | 印 |
+| `tests/presentation/published-article-actions.test.ts` | REQ-R11, REQ-SEC01, REQ-SEC09 | 印 |
 | `tests/presentation/reader-tools.test.ts` | REQ-WB01 | 印 |
 | `tests/presentation/readonly-honesty.test.ts` | REQ-WC04 | 印 |
 | `tests/presentation/spec-contract.test.ts` | REQ-M01, REQ-M02, REQ-WA01, REQ-WA02 | 印 |
@@ -222,6 +223,7 @@
 | `tests/ui/patterns-render.test.tsx` | REQ-SEC08 | 表 |
 | `tests/ui/publish-article-form.test.tsx` | REQ-P08 | 表 |
 | `tests/ui/publish-article-result.test.tsx` | REQ-P08 | 表 |
+| `tests/ui/published-article-form.test.tsx` | REQ-R11 | 印 |
 | `tests/ui/schedule-publication-form.test.tsx` | REQ-P08 | 表 |
 | `tests/ui/site-not-found.test.tsx` | REQ-B01 | 表 |
 | `tests/ui/telemetry-attrs.test.tsx` | REQ-TM05, REQ-TM06 | 印と表 |
@@ -230,4 +232,4 @@
 | `tests/ui/tool-form.test.tsx` | REQ-WC05 | 印と表 |
 | `tests/ui/ui-layers.test.ts` | REQ-S09, REQ-TM05 | 表 |
 | `tests/visual/visual-regression.test.ts` | REQ-TS12 | 印 |
-<!-- 生成物の指紋 sha256:a10887661ec27367c1d4476d90fbf9cf23e669d2117bba6b688610db7c237806 -->
+<!-- 生成物の指紋 sha256:3dab98239885d9d590185e97f493add7967505978fdd9af97aa9df9dd5ddccc2 -->
