@@ -76,6 +76,8 @@ export type ArticleViewModel = {
   readonly updatedAt: string;
   readonly authorName: string;
   readonly authorHref: string;
+  readonly authorBio?: string;
+  readonly authorCredentials?: readonly string[];
   readonly expertName?: string;
   readonly expertHref?: string;
   readonly disclosureRequired: boolean;
@@ -107,11 +109,25 @@ export type ArticleViewModel = {
  * 読者は「無い項目」へ飛ばされる。節が 2 つ以下のときは出さない
  * （目次を読む手間のほうが大きい）。
  */
-function TableOfContents({ sections }: { readonly sections: readonly SectionView[] }) {
+export function ArticleTableOfContents({
+  sections,
+  placement = "inline",
+}: {
+  readonly sections: readonly SectionView[];
+  readonly placement?: "inline" | "sidebar";
+}) {
   if (sections.length < 3) return null;
   return (
-    <nav className={styles.section} aria-label={UI_COPY.article.tocTitle}>
-      <h2 className={styles.sectionHeading}>{UI_COPY.article.tocTitle}</h2>
+    <nav
+      className={[
+        styles.tableOfContents,
+        placement === "sidebar" ? styles.tocSidebar : styles.tocInline,
+      ].join(" ")}
+      aria-label={`${UI_COPY.article.tocTitle}（${
+        placement === "sidebar" ? "サイドバー" : "本文"
+      }）`}
+    >
+      <p className={styles.tocLabel}>{UI_COPY.article.tocTitle}</p>
       <ul>
         {sections.map((s) => (
           <li key={s.id}>
@@ -216,7 +232,24 @@ export function ArticleView({ article }: { readonly article: ArticleViewModel })
         </span>
       </div>
 
-      <TableOfContents sections={article.sections} />
+      <ArticleTableOfContents sections={article.sections} />
+
+      <section className={styles.authorCard} aria-label="この記事の書き手">
+        <p className={styles.authorCardLabel}>この記事の書き手</p>
+        <h2>
+          <Link href={article.authorHref}>{article.authorName}</Link>
+        </h2>
+        {article.authorBio !== undefined && <p>{article.authorBio}</p>}
+        {article.authorCredentials !== undefined && article.authorCredentials.length > 0 && (
+          <ul>
+            {article.authorCredentials.map((credential) => (
+              <li key={credential}>{credential}</li>
+            ))}
+          </ul>
+        )}
+      </section>
+
+      {article.conversation !== undefined && <Conversation lines={article.conversation} />}
 
       {article.sections.map((section) => (
         <Section key={section.id} section={section} />
@@ -254,8 +287,6 @@ export function ArticleView({ article }: { readonly article: ArticleViewModel })
           </div>
         </section>
       )}
-
-      {article.conversation !== undefined && <Conversation lines={article.conversation} />}
 
       <UpdateHistory publishedAt={article.publishedAt} updatedAt={article.updatedAt} />
     </article>

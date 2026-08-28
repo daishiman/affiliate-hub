@@ -1,5 +1,6 @@
 import type { TrackingCoveragePort } from "@/application/ports/analytics";
 import type {
+  EditorialPublishedArticleAdminPort,
   EditorialPublishedArticleWriterPort,
   EditorialPublishedContentPort,
 } from "@/application/ports/site";
@@ -13,6 +14,7 @@ import {
 import { markEditorial, ok } from "@/domain/shared";
 import { registerStub, stubCall } from "../../stub-registry";
 import { SAMPLE_SITE_SLUG, SECOND_SITE_SLUG } from "./site-sample-repository";
+import { SAMPLE_WORKSPACE_ID } from "./ranking-sample-repository";
 
 /**
  * ★ これは仮置きの見本記事です（スタブ）。★
@@ -560,6 +562,30 @@ export function createSamplePublishedArticleWriter(): EditorialPublishedArticleW
   return markEditorial({
     async save() {
       return stubCall<true>(stub, "記事の公開");
+    },
+  });
+}
+
+/** D1 が無い開発実行で、公開済みを書き換えたふりをしない口。 */
+export function createSamplePublishedArticleAdminRepository(): EditorialPublishedArticleAdminPort {
+  return markEditorial({
+    async list(workspaceId) {
+      return ok(
+        workspaceId === SAMPLE_WORKSPACE_ID
+          ? ARTICLES.map((article) => ({ article, archivedAt: null }))
+          : [],
+      );
+    },
+    async find(workspaceId, siteSlug, slug) {
+      if (workspaceId !== SAMPLE_WORKSPACE_ID) return ok(null);
+      const article = ARTICLES.find((item) => item.siteSlug === siteSlug && item.slug === slug);
+      return ok(article === undefined ? null : { article, archivedAt: null });
+    },
+    async replace() {
+      return stubCall<boolean>(stub, "公開済み記事の訂正");
+    },
+    async archive() {
+      return stubCall<boolean>(stub, "公開済み記事の非表示化");
     },
   });
 }

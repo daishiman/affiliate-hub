@@ -1,4 +1,10 @@
 import {
+  createArchivePublishedArticleUseCase,
+  createGetPublishedArticleUseCase,
+  createListPublishedArticlesUseCase,
+  createUpdatePublishedArticleUseCase,
+} from "@/application/usecases/site/manage-published-articles";
+import {
   createGetArticleUseCase,
   createGetPersonUseCase,
   createGetPolicyDocumentUseCase,
@@ -573,6 +579,24 @@ export async function contentUseCases() {
     listReviewOverdue: createListReviewOverdueUseCase(content),
     advanceState: createAdvanceContentStateUseCase(content),
     approve: createApproveContentUseCase(content),
+  };
+}
+
+/** 公開後の記事を訂正・非表示化する管理画面の入口。 */
+export async function publishedArticleAdminUseCases() {
+  const deps = createDeps({ db: await tryGetDb() });
+  const read = { articles: deps.publishedArticleAdmin };
+  const write = {
+    ...read,
+    auditLog: deps.auditLog,
+    ids: deps.ids,
+    now: () => new Date(),
+  };
+  return {
+    list: createListPublishedArticlesUseCase(read),
+    get: createGetPublishedArticleUseCase(read),
+    update: createUpdatePublishedArticleUseCase(write),
+    archive: createArchivePublishedArticleUseCase(write),
   };
 }
 

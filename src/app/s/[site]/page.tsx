@@ -1,8 +1,13 @@
-import Link from "next/link";
 import { readerActor, siteUseCases } from "@/presentation/composition";
 import { SiteFrame } from "@/presentation/site/page-frame";
 import { siteHref, toArticleCards } from "@/presentation/site/view-model";
-import { ArticleList, ErrorView, SitePage, UI_COPY } from "@/presentation/ui";
+import {
+  ArticleList,
+  CategoryDirectory,
+  ErrorView,
+  SiteHomeHero,
+  UI_COPY,
+} from "@/presentation/ui";
 
 export const dynamic = "force-dynamic";
 
@@ -18,21 +23,15 @@ export default async function SiteHome({ params }: { params: Promise<{ site: str
 
   return (
     <SiteFrame siteSlug={site} currentPath={siteHref(site, "/")} pageKind="site_home">
-      {({ blueprint }) => (
-        <SitePage title={blueprint.name} lead={blueprint.purpose} wide>
+      {({ blueprint, chrome }) => (
+        <div>
+          <SiteHomeHero
+            name={blueprint.name}
+            purpose={blueprint.purpose}
+            searchHref={chrome.searchHref}
+          />
           <section>
-            <h2>カテゴリー</h2>
-            <ul>
-              {blueprint.categories.map((c) => (
-                <li key={c.slug}>
-                  <Link href={siteHref(site, `/categories/${c.slug}`)}>{c.name}</Link> — {c.oneLine}
-                </li>
-              ))}
-            </ul>
-          </section>
-
-          <section>
-            <h2>新着</h2>
+            <h2>新着記事</h2>
             {recent.ok ? (
               <ArticleList
                 articles={toArticleCards(site, recent.value)}
@@ -46,7 +45,18 @@ export default async function SiteHome({ params }: { params: Promise<{ site: str
               />
             )}
           </section>
-        </SitePage>
+
+          <section>
+            <h2>テーマから探す</h2>
+            <CategoryDirectory
+              items={blueprint.categories.map((category) => ({
+                href: siteHref(site, `/categories/${category.slug}`),
+                label: category.name,
+                description: category.oneLine,
+              }))}
+            />
+          </section>
+        </div>
       )}
     </SiteFrame>
   );

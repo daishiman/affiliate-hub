@@ -5,6 +5,7 @@ import { drizzle } from "drizzle-orm/d1";
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import { getPlatformProxy } from "wrangler";
 import type {
+  EditorialPublishedArticleAdminPort,
   EditorialPublishedArticleWriterPort,
   EditorialPublishedContentPort,
 } from "@/application/ports/site";
@@ -13,6 +14,7 @@ import * as schema from "@/db/schema";
 import type { WorkspaceId } from "@/domain/shared";
 import {
   createD1PublishedArticleWriter,
+  createD1PublishedArticleAdminRepository,
   createD1ContentRepository,
 } from "@/infrastructure/persistence/d1/published-article-repository";
 import { SAMPLE_WORKSPACE_ID } from "@/infrastructure/persistence/sample/ranking-sample-repository";
@@ -46,6 +48,7 @@ type Proxy = Awaited<ReturnType<typeof getPlatformProxy<TestEnv>>>;
 let proxy: Proxy;
 let writer: EditorialPublishedArticleWriterPort;
 let content: EditorialPublishedContentPort;
+let admin: EditorialPublishedArticleAdminPort;
 
 const workspaceId = SAMPLE_WORKSPACE_ID as WorkspaceId;
 
@@ -76,6 +79,7 @@ beforeAll(async () => {
   const db = drizzle(proxy.env.DB, { schema });
   writer = createD1PublishedArticleWriter(db);
   content = createD1ContentRepository(db);
+  admin = createD1PublishedArticleAdminRepository(db);
 }, 60_000);
 
 afterAll(async () => {
@@ -271,5 +275,47 @@ describe("訂正と方針は見本のまま", () => {
     expect(policy.ok).toBe(true);
     if (!policy.ok) throw new Error("読み取りに失敗しました");
     expect(policy.value).not.toBeNull();
+  });
+});
+
+describe("公開済み記事の非表示化", () => {
+  it("読者の一覧・本文・検索からは消え、管理一覧には残る", async () => {
+    await writer.save(workspaceId, anArticle({ updatedAt: "2099-01-01" }));
+    const archived = await admin.archive(
+      workspaceId,
+      SAMPLE_SITE_SLUG,
+      "quiet-laptop",
+      "2026-08-28T09:00:00.000Z",
+    );
+    expect(archived.ok && archived.value).toBe(true);
+
+    const [recent, found, searched, managed] = await Promise.all([
+      content.listRecent(SAMPLE_SITE_SLUG, 20),
+      content.findArticle(SAMPLE_SITE_SLUG, "quiet-laptop"),
+      content.search(SAMPLE_SITE_SLUG, "静かな", 10),
+      admin.list(workspaceId),
+    ]);
+    if (!recent.ok || !found.ok || !searched.ok || !managed.ok) {
+      throw new Error("非表示後の読み込みに失敗しました");
+    }
+    expect(recent.value.map((item) => item.slug)).not.toContain("quiet-laptop");
+    expect(found.value).toBeNull();
+    expect(searched.value.map((item) => item.slug)).not.toContain("quiet-laptop");
+    expect(managed.value.find((item) => item.article.slug === "quiet-laptop")?.archivedAt).toBe(
+      "2026-08-28T09:00:00.000Z",
+    );
+  });
+
+  it("見本と同じ URL の保存記事を非表示にしても見本へ逆戻りしない", async () => {
+    await writer.save(workspaceId, anArticle({ slug: "laptops-for-video-editing" }));
+    await admin.archive(
+      workspaceId,
+      SAMPLE_SITE_SLUG,
+      "laptops-for-video-editing",
+      "2026-08-28T09:00:00.000Z",
+    );
+    const found = await content.findArticle(SAMPLE_SITE_SLUG, "laptops-for-video-editing");
+    if (!found.ok) throw new Error("記事を読み込めませんでした");
+    expect(found.value).toBeNull();
   });
 });

@@ -34,6 +34,14 @@ export type SiteChrome = {
   readonly brandTheme: string;
   /** ヘッダーの案内。カテゴリーと探す画面。 */
   readonly nav: readonly SiteNavItem[];
+  /** サイドバーに出すカテゴリーだけの案内。 */
+  readonly categoryNav: readonly SiteNavItem[];
+  /** ロゴとサイドバーから戻るブログの入口。 */
+  readonly homeHref: string;
+  /** 共通検索フォームの送信先。 */
+  readonly searchHref: string;
+  /** ブログの運営方針。フッター配列の並びに依存させない。 */
+  readonly aboutHref: string;
   /** 足元の案内。方針・訂正・問い合わせ。 */
   readonly footer: readonly SiteNavItem[];
 };
@@ -45,6 +53,7 @@ export function SiteShell({
   appearance,
   consent,
   telemetry,
+  sidebar,
   children,
 }: {
   readonly chrome: SiteChrome;
@@ -73,6 +82,8 @@ export function SiteShell({
   };
   /** 計測を拾う部品。画面ではなく骨格に置く（置き忘れを起こさないため）。 */
   readonly telemetry?: ReactNode;
+  /** 記事目次など、その画面にだけ必要な補助導線。 */
+  readonly sidebar?: ReactNode;
   readonly children: ReactNode;
 }) {
   return (
@@ -80,10 +91,20 @@ export function SiteShell({
       {telemetry}
       <header className={styles.siteHeader}>
         <div className={styles.siteHeaderInner}>
-          <Link href={chrome.nav[0]?.href ?? currentPath} className={styles.siteName}>
-            {chrome.siteName}
-          </Link>
-          <span className={styles.siteTagline}>{chrome.tagline}</span>
+          <div className={styles.siteIdentity}>
+            <Link href={chrome.homeHref} className={styles.siteName}>
+              {chrome.siteName}
+            </Link>
+            <span className={styles.siteTagline}>{chrome.tagline}</span>
+          </div>
+          <SiteSearch
+            action={chrome.searchHref}
+            inputId="site-header-search"
+            landmarkLabel="ヘッダーから記事を探す"
+            compact
+          />
+        </div>
+        <div className={styles.siteNavBar}>
           <nav className={styles.siteNav} aria-label="このブログの案内">
             {chrome.nav.map((item) => (
               <Link
@@ -113,11 +134,47 @@ export function SiteShell({
             ))}
           </nav>
         )}
-        {children}
+        <div className={styles.siteBody}>
+          <div className={styles.siteContent}>{children}</div>
+          <aside className={styles.siteSidebar} aria-label="記事を探す">
+            {sidebar}
+            <section className={styles.sidebarSection}>
+              <h2 className={styles.sidebarHeading}>キーワードから探す</h2>
+              <SiteSearch
+                action={chrome.searchHref}
+                inputId="site-sidebar-search"
+                landmarkLabel="サイドバーから記事を探す"
+              />
+            </section>
+            <section className={styles.sidebarSection}>
+              <h2 className={styles.sidebarHeading}>カテゴリーから探す</h2>
+              <nav aria-label="カテゴリーの案内">
+                <ul className={styles.sidebarLinks}>
+                  {chrome.categoryNav.map((item) => (
+                    <li key={item.href}>
+                      <Link href={item.href}>{item.label}</Link>
+                    </li>
+                  ))}
+                </ul>
+              </nav>
+            </section>
+            <section className={styles.sidebarSection}>
+              <h2 className={styles.sidebarHeading}>このブログについて</h2>
+              <p>{chrome.tagline}</p>
+              <Link href={chrome.aboutHref}>運営方針を見る</Link>
+            </section>
+          </aside>
+        </div>
       </main>
 
       <footer className={styles.siteFooter}>
         <div className={styles.siteFooterInner}>
+          <div className={styles.footerAbout}>
+            <Link href={chrome.homeHref} className={styles.footerSiteName}>
+              {chrome.siteName}
+            </Link>
+            <p>{chrome.tagline}</p>
+          </div>
           <nav aria-label="方針と問い合わせ">
             <ul className={styles.footerLinks}>
               {chrome.footer.map((item) => (
@@ -144,9 +201,84 @@ export function SiteShell({
               description="暗い場所で読むときは「暗い画面」を選べます。"
             />
           )}
+          <p className={styles.copyright}>© {new Date().getFullYear()} {chrome.siteName}</p>
         </div>
       </footer>
     </div>
+  );
+}
+
+function SiteSearch({
+  action,
+  inputId,
+  landmarkLabel,
+  compact = false,
+}: {
+  readonly action: string;
+  readonly inputId: string;
+  readonly landmarkLabel: string;
+  readonly compact?: boolean;
+}) {
+  return (
+    <form
+      action={action}
+      role="search"
+      aria-label={landmarkLabel}
+      className={[styles.siteSearch, compact ? styles.siteSearchCompact : null]
+        .filter(Boolean)
+        .join(" ")}
+    >
+      <label htmlFor={inputId} className={styles.srOnly}>
+        記事をキーワードで探す
+      </label>
+      <input
+        id={inputId}
+        type="search"
+        name="q"
+        placeholder="記事を検索"
+      />
+      <button type="submit">検索</button>
+    </form>
+  );
+}
+
+export type CategoryDirectoryItem = SiteNavItem & { readonly description: string };
+
+/** ホームの主役。ブログの対象と探し始める場所を 1 画面内に置く。 */
+export function SiteHomeHero({
+  name,
+  purpose,
+  searchHref,
+}: {
+  readonly name: string;
+  readonly purpose: string;
+  readonly searchHref: string;
+}) {
+  return (
+    <section className={styles.homeHero}>
+      <p className={styles.homeEyebrow}>知りたいことから、記事を探せます</p>
+      <h1>{name}</h1>
+      <p>{purpose}</p>
+      <SiteSearch
+        action={searchHref}
+        inputId="site-home-search"
+        landmarkLabel="ホームから記事を探す"
+      />
+    </section>
+  );
+}
+
+/** カテゴリーは色分けせず、名前と 1 文で選べる索引にする。 */
+export function CategoryDirectory({ items }: { readonly items: readonly CategoryDirectoryItem[] }) {
+  return (
+    <ul className={styles.categoryDirectory}>
+      {items.map((item) => (
+        <li key={item.href}>
+          <Link href={item.href}>{item.label}</Link>
+          <p>{item.description}</p>
+        </li>
+      ))}
+    </ul>
   );
 }
 

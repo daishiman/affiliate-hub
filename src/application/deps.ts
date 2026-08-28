@@ -56,6 +56,7 @@ import type {
   EditorialShortlistPort,
 } from "./ports/reader-interaction";
 import type {
+  EditorialPublishedArticleAdminPort,
   EditorialPublishedArticleWriterPort,
   EditorialPublishedContentPort,
   EditorialSiteRepositoryPort,
@@ -81,6 +82,8 @@ export type AppDeps = {
   readonly publishedContent: EditorialPublishedContentPort;
   /** 記事を読者ページへ出す口。読み口と分けている理由は ports/site.ts に書いた。 */
   readonly publishedArticles: EditorialPublishedArticleWriterPort;
+  /** 公開後の訂正と非表示化。読者用の口に混ぜない。 */
+  readonly publishedArticleAdmin: EditorialPublishedArticleAdminPort;
   readonly shortlist: EditorialShortlistPort;
   readonly readerTools: EditorialReaderToolPort;
   readonly contact: EditorialContactPort;

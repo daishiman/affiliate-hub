@@ -138,12 +138,16 @@ export {
 export {
   SiteShell,
   SitePage,
+  SiteHomeHero,
+  CategoryDirectory,
   PublicShell,
   type SiteChrome,
   type SiteNavItem,
+  type CategoryDirectoryItem,
 } from "./templates/site-shell";
 export {
   ArticleView,
+  ArticleTableOfContents,
   ArticleList,
   PersonView,
   PolicyView,
