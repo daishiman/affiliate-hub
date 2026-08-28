@@ -1,3 +1,4 @@
+/** @tier 1 */
 import { describe, expect, it } from "vitest";
 import type { PublishedArticleAdminPort } from "@/application/ports/site";
 import type { PublishedArticle } from "@/application/read-models/published-article";
