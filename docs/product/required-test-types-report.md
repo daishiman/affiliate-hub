@@ -4,9 +4,9 @@
 末尾の指紋がその見張りで、手で 1 文字でも書くと次の実行が**上書きせずに止まる**（書いた行は残る）。
 宣言は `docs/product/required-test-types.md`、語彙と上限は `quality-gates.config.mjs` が正本。
 
-- 最終更新: 2026-08-27
-- 要件表の要件: 286 件
-- 性質を宣言済: 281 件
+- 最終更新: 2026-08-28
+- 要件表の要件: 288 件
+- 性質を宣言済: 283 件
 - **未宣言: 5 件**（上限 5 件）
 - 理由つきの除外: 6 件（上限 7 件）
 
@@ -87,7 +87,7 @@
 | REQ-W05 | has-enumerated-input | `decision-table` `equivalence` | `decision-table` `equivalence` | — |
 | REQ-W06 | has-enumerated-input | `decision-table` `equivalence` | `decision-table` `equivalence` | — |
 | REQ-W07 | has-enumerated-input | `decision-table` `equivalence` | `decision-table` `equivalence` | — |
-| REQ-W08 | has-enumerated-input | `decision-table` `equivalence` | `decision-table` `equivalence` | — |
+| REQ-W08 | has-input, has-enumerated-input | `boundary` `decision-table` `equivalence` | `boundary` `decision-table` `equivalence` | — |
 | REQ-W09 | has-input | `boundary` `equivalence` | `boundary` `equivalence` | — |
 | REQ-W10 | has-input | `boundary` `equivalence` | `boundary` `equivalence` | — |
 | REQ-W11 | has-enumerated-input | `decision-table` `equivalence` | `decision-table` `equivalence` | — |
@@ -228,6 +228,8 @@
 | REQ-TS17 | has-input | `boundary` `equivalence` | `boundary` `equivalence` | — |
 | REQ-TS18 | has-known-breakage, has-input | `boundary` `equivalence` `regression` | `boundary` `equivalence` `regression` | — |
 | REQ-TS19 | has-input | `boundary` `equivalence` | `boundary` `equivalence` | — |
+| REQ-TS20 | has-input | `boundary` `equivalence` | `boundary` `equivalence` | — |
+| REQ-TS21 | has-known-breakage, has-input | `boundary` `equivalence` `regression` | `boundary` `equivalence` `regression` | — |
 | REQ-SEO01 | has-input | `boundary` `equivalence` | `boundary` `equivalence` | — |
 | REQ-SEO02 | has-input | `boundary` `equivalence` | `boundary` `equivalence` | — |
 | REQ-SEO03 | has-input | `boundary` `equivalence` | `boundary` `equivalence` | — |
@@ -317,4 +319,4 @@
 ## 未宣言の要件
 
 `REQ-TH04` `REQ-TH05` `REQ-TS02` `REQ-TS03` `REQ-TS10`
-<!-- 生成物の指紋 sha256:4d92525daa6663924d2a017db72153c2104186f2d953a41b6f7a9f43ceeff48f -->
+<!-- 生成物の指紋 sha256:4ab1fbcdd44456ccd4ed129c775fd54d2e11f6b9aab5e9e1c916a9b9035937b7 -->

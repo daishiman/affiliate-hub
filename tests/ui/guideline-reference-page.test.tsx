@@ -46,20 +46,23 @@ function reference(over: Record<string, unknown> = {}) {
     publisher: "Google Search Central",
     region: "global",
     checkedAt: "2026-06-01",
+    verification: { kind: "summary_only" },
     ...over,
   };
 }
 
-function readyWith(rows: readonly unknown[]) {
+function readyWith(rows: readonly unknown[], reopenRequests: readonly unknown[] = []) {
   return {
     ready: true as const,
-    manage: { execute: async () => listed ?? { ok: true, value: { rows } } },
+    manage: {
+      execute: async () => listed ?? { ok: true, value: { rows, reopenRequests } },
+    },
   };
 }
 
 beforeEach(() => {
   listed = null;
-  entry = readyWith([{ reference: reference(), status: "fresh", registered: true }]);
+  entry = readyWith([{ reference: reference(), status: "verified_fresh", registered: true }]);
 });
 
 describe("保存先がまだ無いとき", () => {
@@ -78,13 +81,13 @@ describe("使える状態", () => {
     const html = await renderMarkup(Page());
     expect(html).toContain("登録済みの出典");
     expect(html).toContain("Google Search Central");
-    expect(html).toContain("確認済み");
+    expect(html).toContain("原典確認済み");
     expect(html).toContain("海外");
   });
 
   it("日本の指針は「日本」と出る（値の global/jp をそのまま出さない）", async () => {
     entry = readyWith([
-      { reference: reference({ region: "jp", publisher: "消費者庁" }), status: "fresh", registered: true },
+      { reference: reference({ region: "jp", publisher: "消費者庁" }), status: "verified_fresh", registered: true },
     ]);
     const html = await renderMarkup(Page());
     expect(html).toContain("日本");
@@ -100,7 +103,11 @@ describe("使える状態", () => {
 
   it("再確認が要る行が先に並ぶ（この画面へ来る理由の大半がそれ）", async () => {
     entry = readyWith([
-      { reference: reference({ id: "gr_fresh", title: "新しいほう" }), status: "fresh", registered: true },
+      {
+        reference: reference({ id: "gr_fresh", title: "新しいほう" }),
+        status: "verified_fresh",
+        registered: true,
+      },
       { reference: reference({ id: "gr_due", title: "古いほう" }), status: "review_due", registered: true },
     ]);
     const { document, cleanup } = await renderDom(Page());
@@ -122,10 +129,10 @@ describe("使える状態", () => {
 
   it("初期候補は別の節に出て、登録済みへ混ざらない", async () => {
     entry = readyWith([
-      { reference: reference(), status: "fresh", registered: true },
+      { reference: reference(), status: "verified_fresh", registered: true },
       {
         reference: reference({ id: "gr_cand", title: "未登録の候補", note: "要約しか読めていない" }),
-        status: "fresh",
+        status: "unverified",
         registered: false,
       },
     ]);
@@ -133,6 +140,63 @@ describe("使える状態", () => {
     expect(html).toContain("初期候補 (未登録)");
     expect(html).toContain("登録するまで保存先には入りません");
     expect(html).toContain("未登録の候補");
+  });
+
+  it("原典未取得の行は「確認済み」と名乗らない（表示と検証状態を食い違わせない）", async () => {
+    entry = readyWith([{ reference: reference(), status: "unverified", registered: true }]);
+    const { document, cleanup } = await renderDom(Page());
+    // 状態は表の行で見る。案内文にも同じ語が出るので、本文全体だと判定にならない。
+    const cells = [...document.querySelectorAll("tbody tr td")].map((td) => td.textContent ?? "");
+    expect(cells).toContain("原典未取得");
+    expect(cells).not.toContain("原典確認済み");
+    cleanup();
+  });
+
+  it("登録済みがあれば、原典を取り込む口が出る", async () => {
+    const html = await renderMarkup(Page());
+    expect(html).toContain("原典を取り込む");
+    expect(html).toContain("本文は残しません");
+  });
+
+  it("登録が 1 件も無ければ、原典を取り込む口は出さない", async () => {
+    entry = readyWith([]);
+    const html = await renderMarkup(Page());
+    expect(html).not.toContain("原典を取り込む");
+  });
+
+  it("再評価の対象があれば、理由と開き直す章まで出す", async () => {
+    entry = readyWith(
+      [{ reference: reference(), status: "unverified", registered: true }],
+      [
+        {
+          referenceId: "gr_google",
+          url: "https://developers.google.com/search/docs/ai",
+          reason: "content_changed",
+          contentSha256: "b".repeat(64),
+          chapters: ["ui-ux", "frontend"],
+        },
+      ],
+    );
+    const { document, cleanup } = await renderDom(Page());
+    const html = document.body.innerHTML;
+    expect([...document.querySelectorAll("h2")].map((h) => h.textContent)).toContain(
+      "仕様を評価し直す対象",
+    );
+    expect(html).toContain("原典の中身が前回と変わりました");
+    // どの章を開けばよいかまで出す。出さないと次の一手が決められない。
+    expect(html).toContain("ui-ux.md");
+    expect(html).toContain("frontend.md");
+    expect(html).toContain("仕様の再評価を完了した");
+    expect(html).toContain("b".repeat(64));
+    cleanup();
+  });
+
+  it("再評価の対象が無ければ、その節ごと出さない（空の警告を常設しない）", async () => {
+    // 節の見出しで見る。案内文が同じ語を含むので、本文全体だと判定にならない。
+    const { document, cleanup } = await renderDom(Page());
+    const headings = [...document.querySelectorAll("h2")].map((h) => h.textContent ?? "");
+    expect(headings).not.toContain("仕様を評価し直す対象");
+    cleanup();
   });
 
   it("一覧が出せなかったときは、理由と戻り道を出す（画面を白くしない）", async () => {

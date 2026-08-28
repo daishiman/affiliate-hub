@@ -379,6 +379,9 @@ describe("手元と機械で同じ検査が走る（REQ-CI01 / REQ-CI03）", () 
         混ざっていると、次に生成し直した日にこれだけ消えたことに気づけない。
       */
       "0035_non_generated_boundaries",
+      "0036_opposite_harrier",
+      // 指針本文の再評価完了版を正本化し、再取得だけでは変更警告を消さない。
+      "0037_flimsy_hobgoblin",
     ];
     const journal = JSON.parse(read("drizzle/meta/_journal.json")) as {
       entries: Array<{ tag: string }>;

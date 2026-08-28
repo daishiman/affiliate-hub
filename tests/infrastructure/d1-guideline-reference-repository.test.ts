@@ -32,6 +32,12 @@ function row(over: Partial<GuidelineReferenceRow> = {}): GuidelineReferenceRow {
     publisher: "Google Search Central",
     region: "global",
     checkedAt: "2026-06-01",
+    // 既定は原典未取得。取得済みは、その事実を立てた試験だけが名乗る。
+    sourceFetchedAt: null,
+    sourceSha256: null,
+    previousSourceSha256: null,
+    reEvaluatedSha256: null,
+    reEvaluatedAt: null,
     note: null,
     createdAt: new Date("2026-06-01T00:00:00.000Z"),
     ...over,
@@ -44,7 +50,11 @@ function row(over: Partial<GuidelineReferenceRow> = {}): GuidelineReferenceRow {
  * `where` に渡された値は drizzle の式なので中身を読まない。代わりに
  * **呼ばれた回数と順序**、および `set` に渡した値を控える。
  */
-function fakeDb(rows: readonly GuidelineReferenceRow[], failOn?: "select" | "insert" | "update") {
+function fakeDb(
+  rows: readonly GuidelineReferenceRow[],
+  failOn?: "select" | "insert" | "update",
+  updateReturnsEmpty = false,
+) {
   const calls = { select: 0, insert: 0, update: 0, where: 0, limit: 0 };
   const inserted: Record<string, unknown>[] = [];
   const updated: Record<string, unknown>[] = [];
@@ -85,15 +95,32 @@ function fakeDb(rows: readonly GuidelineReferenceRow[], failOn?: "select" | "ins
         calls.update += 1;
         boom("update");
         updated.push(v);
-        return { where: (..._args: unknown[]) => Promise.resolve() };
+        return {
+          where: (..._args: unknown[]) => {
+            calls.where += 1;
+            return {
+              // 既存の更新は where 自体を await する。
+              then: (resolve: (value: undefined) => unknown) => resolve(undefined),
+              // 競合を閉じる更新は、実際に更新できた行を確認する。
+              returning: () =>
+                Promise.resolve(
+                  updateReturnsEmpty ? [] : rows.map((existing) => ({ ...existing, ...v })),
+                ),
+            };
+          },
+        };
       },
     }),
   };
   return { db: db as unknown as DrizzleD1, calls, inserted, updated };
 }
 
-function repo(rows: readonly GuidelineReferenceRow[] = [], failOn?: "select" | "insert" | "update") {
-  const fake = fakeDb(rows, failOn);
+function repo(
+  rows: readonly GuidelineReferenceRow[] = [],
+  failOn?: "select" | "insert" | "update",
+  updateReturnsEmpty = false,
+) {
+  const fake = fakeDb(rows, failOn, updateReturnsEmpty);
   return {
     ...fake,
     port: createD1GuidelineReferenceRepository({
@@ -117,6 +144,7 @@ describe("一覧", () => {
       publisher: "Google Search Central",
       region: "global",
       checkedAt: "2026-06-01",
+      verification: { kind: "summary_only" },
     });
     expect("note" in result.value[0]).toBe(false);
   });
@@ -159,6 +187,7 @@ describe("登録", () => {
     publisher: "Example",
     region: "jp" as const,
     checkedAt: "2026-08-24",
+    verification: { kind: "summary_only" as const },
   };
 
   it("作業場所と作成時刻を添えて保存し、登録したものをそのまま返す", async () => {
@@ -172,6 +201,17 @@ describe("登録", () => {
       checkedAt: "2026-08-24",
     });
     expect(inserted[0].createdAt).toEqual(new Date("2026-08-24T09:00:00.000Z"));
+  });
+
+  it("原典未取得で登録したら、取得の 3 列はすべて null で入る", async () => {
+    // 半端に埋まった列があると、読み戻しで「取得済み」を名乗りかねない。
+    const { port, inserted } = repo();
+    await port.add({ workspaceId: WS, reference });
+    expect(inserted[0].sourceFetchedAt).toBeNull();
+    expect(inserted[0].sourceSha256).toBeNull();
+    expect(inserted[0].previousSourceSha256).toBeNull();
+    expect(inserted[0].reEvaluatedSha256).toBeNull();
+    expect(inserted[0].reEvaluatedAt).toBeNull();
   });
 
   it("但し書きが無いときは null で埋める（未指定の欄を作らない）", async () => {
@@ -231,5 +271,175 @@ describe("再確認（確認日の更新）", () => {
     expect(result.ok).toBe(false);
     if (result.ok) return;
     expect(result.error.message).toContain("指針の確認日の更新");
+  });
+});
+
+describe("原典取得の記録", () => {
+  const SHA_A = "a".repeat(64);
+  const SHA_B = "b".repeat(64);
+
+  it("時刻と指紋が揃った行だけが取得済みとして読み戻る", async () => {
+    const { port } = repo([row({ sourceFetchedAt: "2026-08-20T00:00:00.000Z", sourceSha256: SHA_A })]);
+    const listed = await port.list(WS);
+    expect(listed.ok).toBe(true);
+    if (!listed.ok) return;
+    expect(listed.value[0].verification).toEqual({
+      kind: "source_fetched",
+      fetchedAt: "2026-08-20T00:00:00.000Z",
+      contentSha256: SHA_A,
+    });
+  });
+
+  it("片方だけ残った行は未取得へ倒す（半端な列を確かめた証拠にしない）", async () => {
+    for (const half of [
+      { sourceFetchedAt: "2026-08-20T00:00:00.000Z", sourceSha256: null },
+      { sourceFetchedAt: null, sourceSha256: SHA_A },
+    ]) {
+      const { port } = repo([row(half)]);
+      const listed = await port.list(WS);
+      expect(listed.ok).toBe(true);
+      if (!listed.ok) return;
+      expect(listed.value[0].verification).toEqual({ kind: "summary_only" });
+    }
+  });
+
+  it("取り込むと、いま入っている指紋が「前回」へ 1 世代だけ繰り上がる", async () => {
+    const { port, updated } = repo([
+      row({
+        sourceFetchedAt: "2026-08-20T00:00:00.000Z",
+        sourceSha256: SHA_A,
+        reEvaluatedSha256: SHA_A,
+        reEvaluatedAt: "2026-08-20T00:00:00.000Z",
+      }),
+    ]);
+    const result = await port.recordSourceFetch({
+      workspaceId: WS,
+      id: "gr_google",
+      fetchedAt: "2026-08-24T09:00:00.000Z",
+      contentSha256: SHA_B,
+      checkedAt: "2026-08-24",
+    });
+    expect(result.ok).toBe(true);
+    expect(updated[0]).toEqual({
+      sourceFetchedAt: "2026-08-24T09:00:00.000Z",
+      sourceSha256: SHA_B,
+      previousSourceSha256: SHA_A,
+      reEvaluatedSha256: SHA_A,
+      reEvaluatedAt: "2026-08-20T00:00:00.000Z",
+      checkedAt: "2026-08-24",
+    });
+    if (!result.ok) return;
+    expect(result.value.verification).toMatchObject({
+      kind: "source_fetched",
+      contentSha256: SHA_B,
+      previousSha256: SHA_A,
+      reEvaluatedSha256: SHA_A,
+    });
+    // 確認日も取り込んだ日へ揃う。原典を読んだ日と食い違わせない。
+    expect(result.value.checkedAt).toBe("2026-08-24");
+  });
+
+  it("初回取得だけは、取得した本文版を再評価済みの基準値にする", async () => {
+    const { port, updated } = repo([row()]);
+    const result = await port.recordSourceFetch({
+      workspaceId: WS,
+      id: "gr_google",
+      fetchedAt: "2026-08-24T09:00:00.000Z",
+      contentSha256: SHA_A,
+      checkedAt: "2026-08-24",
+    });
+    expect(result.ok).toBe(true);
+    expect(updated[0]).toMatchObject({
+      reEvaluatedSha256: SHA_A,
+      reEvaluatedAt: "2026-08-24T09:00:00.000Z",
+    });
+  });
+
+  it("消えた出典への取り込みは NOT_FOUND で断り、書き込まない", async () => {
+    const { port, updated } = repo([]);
+    const result = await port.recordSourceFetch({
+      workspaceId: WS,
+      id: "gr_gone",
+      fetchedAt: "2026-08-24T09:00:00.000Z",
+      contentSha256: SHA_A,
+      checkedAt: "2026-08-24",
+    });
+    expect(result.ok).toBe(false);
+    if (!result.ok) expect(result.error.code).toBe("NOT_FOUND");
+    expect(updated).toHaveLength(0);
+  });
+
+  it("保存先が落ちても投げない", async () => {
+    const { port } = repo([row()], "update");
+    const result = await port.recordSourceFetch({
+      workspaceId: WS,
+      id: "gr_google",
+      fetchedAt: "2026-08-24T09:00:00.000Z",
+      contentSha256: SHA_A,
+      checkedAt: "2026-08-24",
+    });
+    expect(result.ok).toBe(false);
+    if (result.ok) return;
+    expect(result.error.message).toContain("原典取得の記録");
+  });
+});
+
+describe("仕様の再評価完了", () => {
+  const SHA_A = "a".repeat(64);
+  const SHA_B = "b".repeat(64);
+
+  const changedRow = () =>
+    row({
+      sourceFetchedAt: "2026-08-24T09:00:00.000Z",
+      sourceSha256: SHA_B,
+      previousSourceSha256: SHA_A,
+      reEvaluatedSha256: SHA_A,
+      reEvaluatedAt: "2026-08-20T09:00:00.000Z",
+    });
+
+  it("画面で確認した最新版だけを再評価済みにして返す", async () => {
+    const { port, updated } = repo([changedRow()]);
+    const result = await port.acknowledgeReevaluation({
+      workspaceId: WS,
+      id: "gr_google",
+      expectedContentSha256: SHA_B,
+      reEvaluatedAt: "2026-08-25T09:00:00.000Z",
+    });
+    expect(result.ok).toBe(true);
+    expect(updated[0]).toEqual({
+      reEvaluatedSha256: SHA_B,
+      reEvaluatedAt: "2026-08-25T09:00:00.000Z",
+    });
+    if (!result.ok) return;
+    expect(result.value.verification).toMatchObject({
+      contentSha256: SHA_B,
+      reEvaluatedSha256: SHA_B,
+      reEvaluatedAt: "2026-08-25T09:00:00.000Z",
+    });
+  });
+
+  it("画面で見た後に本文版が変わっていたら、古い版の完了操作を断る", async () => {
+    const { port, updated } = repo([changedRow()]);
+    const result = await port.acknowledgeReevaluation({
+      workspaceId: WS,
+      id: "gr_google",
+      expectedContentSha256: SHA_A,
+      reEvaluatedAt: "2026-08-25T09:00:00.000Z",
+    });
+    expect(result.ok).toBe(false);
+    if (!result.ok) expect(result.error.code).toBe("CONFLICT");
+    expect(updated).toHaveLength(0);
+  });
+
+  it("読み取り直後に本文版が変わる競合も、条件付き更新の0件で断る", async () => {
+    const { port } = repo([changedRow()], undefined, true);
+    const result = await port.acknowledgeReevaluation({
+      workspaceId: WS,
+      id: "gr_google",
+      expectedContentSha256: SHA_B,
+      reEvaluatedAt: "2026-08-25T09:00:00.000Z",
+    });
+    expect(result.ok).toBe(false);
+    if (!result.ok) expect(result.error.code).toBe("CONFLICT");
   });
 });

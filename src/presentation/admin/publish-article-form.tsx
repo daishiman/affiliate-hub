@@ -60,6 +60,7 @@ export function PublishArticleForm({
   const [relationshipType, setRelationshipType] = useState("");
   const [disclosureMessage, setDisclosureMessage] = useState(options.prefill.disclosureMessage);
   const [nextReviewOn, setNextReviewOn] = useState("");
+  const [keyPoints, setKeyPoints] = useState("");
   const [claims, setClaims] = useState<readonly ClaimDraft[]>([EMPTY_CLAIM]);
   const [sectionBodies, setSectionBodies] = useState<Readonly<Record<string, string>>>({});
   const [faq, setFaq] = useState<readonly FaqDraft[]>([EMPTY_FAQ]);
@@ -161,6 +162,22 @@ export function PublishArticleForm({
         hint="一覧と検索結果にそのまま出ます。読んだ人が、記事を開かなくても判断できる一文にします。"
         error={errorFor("conclusion")}
         toolParamDescription="記事の結論を 1 文で"
+      />
+
+      {/* --- 要点 ------------------------------------------------------
+       * 結論のすぐ下に置く。記事でもこの順（結論 → 要点）で読者に出る。
+       * 欄の並びを読む順と同じにしておかないと、書き手は自分が今どこを
+       * 書いているのか分からないまま埋めることになる。
+       */}
+      <TextArea
+        name="keyPoints"
+        label="記事の要点"
+        value={keyPoints}
+        onValueChange={setKeyPoints}
+        rows={4}
+        optional
+        hint="1 行に 1 つ書きます（例: 静音性は 30dB 以下が目安）。結論のすぐ下に箇条書きで出ます。空の行は載りません。"
+        toolParamDescription="記事の要点（改行区切り）"
       />
 
       {/* --- 書き手 --------------------------------------------------- */}
@@ -328,6 +345,24 @@ export function PublishArticleForm({
       </Button>
 
       <PublishArticleResult state={state} />
+
+      {/*
+        出す前の点検（REQ-SEO03）。**同じ form・同じ action を通す**ので、
+        点検した内容と出す内容が別物にならない。どちらが押されたかは
+        `name="intent"` の値だけで決まる（押されたボタンの値だけが送られる）。
+
+        目立たせない（quiet）のは、ここが行き止まりだからである。点検は
+        何も出さない。いちばんしてほしいのは下の「いまサイトに出す」。
+      */}
+      <Button
+        type="submit"
+        name="intent"
+        value="check"
+        tone="quiet"
+        disabled={pending || siteSlug === ""}
+      >
+        {pending ? "点検しています…" : "公開前に点検する（まだ出しません）"}
+      </Button>
 
       <Button type="submit" tone="primary" disabled={pending || siteSlug === ""}>
         {pending ? "出しています…" : "いまサイトに出す"}

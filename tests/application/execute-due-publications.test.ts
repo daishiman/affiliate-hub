@@ -587,10 +587,14 @@ describe("予約された外部配信の実行", () => {
       at = new Date((current?.retryAt ?? at).getTime() + 1);
     }
 
-    expect(sends).toBe(MAX_SEND_ATTEMPTS);
+    // **上限そのものを書き写す。**`MAX_SEND_ATTEMPTS` と突き合わせると、
+    // 5 を 507 に変えても期待値が一緒に動いて緑のまま通る（実測、2026-08-28）。
+    // 送り直しの回数は相手先へ掛ける負荷なので、いくらでも増やせては困る。
+    expect(MAX_SEND_ATTEMPTS, "送り直しの上限回数が動いている").toBe(5);
+    expect(sends).toBe(5);
     expect(publications.get("pub_delivery" as PublicationId)).toMatchObject({
       state: "FAILED_SEND",
-      attempts: MAX_SEND_ATTEMPTS,
+      attempts: 5,
       retryAt: null,
       deliveryLeaseUntil: null,
     });

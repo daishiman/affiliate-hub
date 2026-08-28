@@ -36,6 +36,7 @@ import {
   markUsed,
   recordHandoff,
   revokeIntegrationKey,
+  STORED_DIAGNOSTICS_LIMIT,
   undoDisposition,
 } from "@/domain/feedback";
 import {
@@ -107,10 +108,29 @@ describe("改善要望を受け取る", () => {
     expect(result.error.field).toBe("body");
   });
 
+  /**
+   * 決めた字数を手で書き写す。**`MAX_BODY_LENGTH` / `MAX_WISH_LENGTH` から
+   * 入力を組み立てない。**
+   *
+   * ここを直した理由。**上限を 4000→400007、200→20007 と**緩める向き**へ動かしても
+   * 7990 件すべて緑だった**（実測、2026-08-28）。下の 2 件は `MAX + 1` で
+   * 長すぎる側の入力を作っていたので、**上限をいくつ上げても入力が一緒に伸びて、
+   * 常に 1 文字だけ超えた位置に居続けた。**上限を実質無効化しても止まらない。
+   * （`0` へ**縮める向き**は赤だったが、それは `repeat(0)` が空文字になって
+   * 「必須が空」で落ちていただけで、上限を見ていたわけではない。）
+   */
+  const DECLARED_BODY_LENGTH = 4000;
+  const DECLARED_WISH_LENGTH = 200;
+
+  it("床: 本文と「どうなってほしいか」の上限が、ここに書き写した字数と一致している", () => {
+    expect(MAX_BODY_LENGTH, "本文の上限が動いている").toBe(DECLARED_BODY_LENGTH);
+    expect(MAX_WISH_LENGTH, "「どうなってほしいか」の上限が動いている").toBe(DECLARED_WISH_LENGTH);
+  });
+
   it("本文の上限を超えたら、どうすればよいかを添えて断る（境界値）", () => {
-    const justFit = makeReport({ body: "あ".repeat(MAX_BODY_LENGTH) });
+    const justFit = makeReport({ body: "あ".repeat(DECLARED_BODY_LENGTH) });
     expect(justFit.ok).toBe(true);
-    const tooLong = makeReport({ body: "あ".repeat(MAX_BODY_LENGTH + 1) });
+    const tooLong = makeReport({ body: "あ".repeat(DECLARED_BODY_LENGTH + 1) });
     expect(tooLong.ok).toBe(false);
     if (tooLong.ok) return;
     expect(tooLong.error.suggestedAction).toBeTruthy();
@@ -119,9 +139,9 @@ describe("改善要望を受け取る", () => {
   it("「どうなってほしいか」にも上限があり、その境目で切り替わる（境界値）", () => {
     // 本文の境目だけを見ていて、こちらは誰も見ていなかった。
     // 上限を 1 文字動かしても緑のまま通ることを、実際に測って確かめてある。
-    expect(makeReport({ wish: "い".repeat(MAX_WISH_LENGTH - 1) }).ok).toBe(true);
-    expect(makeReport({ wish: "い".repeat(MAX_WISH_LENGTH) }).ok).toBe(true);
-    const tooLong = makeReport({ wish: "い".repeat(MAX_WISH_LENGTH + 1) });
+    expect(makeReport({ wish: "い".repeat(DECLARED_WISH_LENGTH - 1) }).ok).toBe(true);
+    expect(makeReport({ wish: "い".repeat(DECLARED_WISH_LENGTH) }).ok).toBe(true);
+    const tooLong = makeReport({ wish: "い".repeat(DECLARED_WISH_LENGTH + 1) });
     expect(tooLong.ok).toBe(false);
     if (tooLong.ok) return;
     expect(tooLong.error.field).toBe("wish");
@@ -166,6 +186,45 @@ describe("改善要望を受け取る", () => {
     expect(result.value.technical.jsErrors).toEqual(["TypeError"]);
     expect(result.value.technical.recentActions).toEqual(["操作を実行した"]);
     expect(result.value.technical.redactedCount).toBeGreaterThan(0);
+  });
+
+  /**
+   * 診断行の件数の上限が、実際に効いている。
+   *
+   * ここを足した理由。**`STORED_DIAGNOSTICS_LIMIT` を 8 から 807 にしても 0 にしても
+   * 7990 件すべて緑だった**（実測、2026-08-28）。この定数を見ている検査が
+   * 1 件も無かった——上限を実質無効化しても、逆に全部捨てても、誰も気づかない。
+   * 診断は「本文を押しのけない件数」に固定するために在るので、
+   * 押しのけ放題になっても止まらないのは、決めたことが飾りになっている状態である。
+   *
+   * **期待値を定数から組み立てない。**`slice(-STORED_DIAGNOSTICS_LIMIT)` で期待値を
+   * 作ると、定数をいくつに変えても同じ側に居続けて永久に赤くならない。
+   */
+  it("診断行は新しいほうから 8 件だけ残す（古いぶんは落ちる）", () => {
+    /** 決めた件数を手で書き写す。実装から輸入しない（同じものを 2 度見ることになる）。 */
+    const DECLARED_LIMIT = 8;
+    expect(STORED_DIAGNOSTICS_LIMIT, "診断行の保存件数が動いている").toBe(DECLARED_LIMIT);
+
+    // 上限より 1 本だけ多く渡す。宛先の番号で、どれが落ちたか見分けられる。
+    const requests = Array.from({ length: DECLARED_LIMIT + 1 }, (_, i) => `404 /p${i}`);
+    const result = createFeedbackReport({
+      id: asFeedbackReportId("fb-bounded"),
+      workspaceId: WORKSPACE,
+      kind: "not_working",
+      body: "保存できません。",
+      origin: { screenName: "画面", url: "https://example.com/a", route: "/a", viewportWidth: 800, viewportHeight: 600 },
+      technical: { jsErrors: [], failedRequests: requests, userAgent: "", recentActions: [], redactedCount: 0 },
+      submittedBy: USER,
+      at: AT,
+    });
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    // 落ちるのは**古いほう**（先頭）である。新しいほうを捨てると、
+    // 直前に何が起きたかが分からなくなって診断の役に立たない。
+    expect(result.value.technical.failedRequests).toEqual(
+      Array.from({ length: DECLARED_LIMIT }, (_, i) => `404 /p${i + 1}`),
+    );
   });
 
   it("どの識別子を悪性 payload に混ぜても domain の外へ持ち越さない", () => {
@@ -484,7 +543,11 @@ describe("取りに来るときの鍵", () => {
     if (!result.ok) return;
     expect(Object.keys(result.value)).not.toContain("value");
     expect(result.value.hashedValue).toBe("hashed-value");
-    expect(result.value.rateLimitPerMinute).toBe(DEFAULT_RATE_LIMIT_PER_MINUTE);
+    // **`DEFAULT_RATE_LIMIT_PER_MINUTE` と突き合わせない。**そう書くと、
+    // 既定を 30 から 3007 に変えても期待値が一緒に動いて緑のまま通る
+    // （実測、2026-08-28）。既定として決めた数を手で書き写す。
+    expect(DEFAULT_RATE_LIMIT_PER_MINUTE, "1 分あたりの既定の回数が動いている").toBe(30);
+    expect(result.value.rateLimitPerMinute).toBe(30);
     expect(result.value.lastUsedAt).toBeNull();
   });
 

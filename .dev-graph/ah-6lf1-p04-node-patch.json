@@ -1,0 +1,23 @@
+{
+  "graph_node_id": "SYS-BLOG-UI-BUILDER-P04",
+  "patch": {
+    "title": "受入全件に対応するテスト設計",
+    "purpose": "feat-blog-ui-builderの受入全件 (受入正本レジストリの canonical ID) それぞれに対応するテストを振る舞いベースで設計し、実装着手前に失敗する状態でtests/配下へ配置した状態を成立させる。",
+    "goal": "feat-blog-ui-builderの受入全件 (受入正本レジストリの canonical ID) それぞれに対応するテストを振る舞いベースで設計し、実装着手前に失敗する状態でtests/配下へ配置した状態を成立させる。",
+    "scope_in": [
+      "Produced artifacts: docs/spec/feat-blog-ui-builder/test-design.md (受入条件とテストケースの対応表); tests/ui/ 配下のブログテンプレート選択・配色上書き・stickyレイアウト・固定ページ・表現ブロックのテスト; tests/application/ 配下のユースケース単体テスト; tests/infrastructure/ 配下のD1永続化結合テスト; tests/acceptance/ 配下の受入条件対応シナリオテスト",
+      "Consumed artifacts: docs/spec/feat-blog-ui-builder/design-review.md, docs/spec/feat-blog-ui-builder/admin-api-contract.md, docs/spec/feat-blog-ui-builder/component-contract.md",
+      "Write scope/touches: docs/spec/feat-blog-ui-builder/test-design.md, tests/ui/, tests/application/, tests/infrastructure/, tests/acceptance/"
+    ],
+    "scope_out": [
+      "feat-blog-ui-builder の scope_out に該当する変更",
+      "write_scope外のパスへの実装コード変更 (テスト対象実装はP05が所有する)"
+    ],
+    "acceptance": [
+      "Automated commands: `pnpm test` (新規テストが実装前は失敗し、既存テストは回帰0件のまま維持されることを確認する)",
+      "Automated commands: `python3 .claude/plugins/system-dev-planner/scripts/validate-system-plan.py --repo-root . --feature-package feature-package/feat-blog-ui-builder` (本 package の C12 決定論検証を世代非依存に再実行する)",
+      "Required evidence: P04 の 成果物 section に記載した produced artifacts のパス"
+    ],
+    "architecture_refs": ["arch-two-layer-platform"]
+  }
+}

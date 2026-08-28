@@ -67,6 +67,39 @@ function readSectionBodies(formData: FormData): Record<string, string> {
 }
 
 /**
+ * 送られてきた欄を、ユースケースの入力へ写す。
+ *
+ * 公開（`publishArticleAction`）と公開前の点検（同じ action の分岐）で
+ * **同じ関数を通す**。点検のほうへ写しを書くと、点検が見ている記事と
+ * 実際に出る記事が別物になり、「点検は通ったのに出たものが違う」が起きる。
+ */
+function readInput(formData: FormData) {
+  const relationship = String(formData.get("relationshipType") ?? "");
+  const nextReviewOn = String(formData.get("nextReviewOn") ?? "").trim();
+  return {
+    publicationId: String(formData.get("publicationId") ?? ""),
+    siteSlug: String(formData.get("siteSlug") ?? ""),
+    categorySlug: String(formData.get("categorySlug") ?? ""),
+    articleType: String(formData.get("articleType") ?? "guide") as ArticleType,
+    slug: String(formData.get("slug") ?? "").trim(),
+    title: String(formData.get("title") ?? "").trim(),
+    conclusion: String(formData.get("conclusion") ?? "").trim(),
+    authorName: String(formData.get("authorName") ?? "").trim(),
+    authorBio: String(formData.get("authorBio") ?? "").trim(),
+    authorCredentials: parseNonEmptyLines(String(formData.get("authorCredentials") ?? "")),
+    relationshipType: relationship === "" ? null : (relationship as RelationshipType),
+    disclosureMessage: String(formData.get("disclosureMessage") ?? "").trim(),
+    nextReviewOn: nextReviewOn === "" ? null : nextReviewOn,
+    claims: readClaims(formData),
+    // 要点は 1 行 1 項目。裏づけ欄と同じ読み方（`parseNonEmptyLines`）に
+    // 揃える。行ごとの欄にすると、書き手が項目数を先に決めることになる。
+    keyPoints: parseNonEmptyLines(String(formData.get("keyPoints") ?? "")),
+    faq: readFaq(formData),
+    sectionBodies: readSectionBodies(formData),
+  };
+}
+
+/**
  * 自分のブログへ記事を出す操作。
  *
  * ここは画面からの入口で、REST・WebMCP・バックエンド MCP と同じ
@@ -95,30 +128,31 @@ export async function publishArticleAction(
     return notSignedInFailure("記事の公開");
   }
 
-  const publicationId = String(formData.get("publicationId") ?? "");
-  const relationship = String(formData.get("relationshipType") ?? "");
-  const nextReviewOn = String(formData.get("nextReviewOn") ?? "").trim();
-  const siteSlug = String(formData.get("siteSlug") ?? "");
-  const slug = String(formData.get("slug") ?? "").trim();
+  const input = readInput(formData);
+  const useCases = await distributionUseCases();
 
-  const result = await (await distributionUseCases()).publishArticle.execute(actor, {
-    publicationId,
-    siteSlug,
-    categorySlug: String(formData.get("categorySlug") ?? ""),
-    articleType: String(formData.get("articleType") ?? "guide") as ArticleType,
-    slug,
-    title: String(formData.get("title") ?? "").trim(),
-    conclusion: String(formData.get("conclusion") ?? "").trim(),
-    authorName: String(formData.get("authorName") ?? "").trim(),
-    authorBio: String(formData.get("authorBio") ?? "").trim(),
-    authorCredentials: parseNonEmptyLines(String(formData.get("authorCredentials") ?? "")),
-    relationshipType: relationship === "" ? null : (relationship as RelationshipType),
-    disclosureMessage: String(formData.get("disclosureMessage") ?? "").trim(),
-    nextReviewOn: nextReviewOn === "" ? null : nextReviewOn,
-    claims: readClaims(formData),
-    faq: readFaq(formData),
-    sectionBodies: readSectionBodies(formData),
-  });
+  /*
+   * 押されたのが「公開前に点検する」なら、**何も出さずに点検だけ返す**。
+   * 分岐を押したボタン（`name="intent"`）で決めるのは、欄が 1 組しか無い
+   * ためである。点検用の画面を別に作ると、そこに写した欄が本番の欄から
+   * 遅れて、点検した内容と出す内容がずれる。
+   */
+  if (String(formData.get("intent") ?? "") === "check") {
+    const checked = await useCases.auditArticleDraft.execute(actor, input);
+    if (!checked.ok) return failureFromDomainError(checked.error);
+    return {
+      status: "done",
+      phase: "checked",
+      // **「公開しました」と読み違えられない文にする。** ここで出したものは
+      // まだ読者に見えていない。読者ページへの導線も付かない（url が無い）。
+      message: "点検しました。まだ公開していません。直してから、下の「いまサイトに出す」を押してください。",
+      skipped: checked.value.skipped,
+      aiSearch: checked.value.aiSearch,
+    };
+  }
+
+  const { publicationId, siteSlug, slug } = input;
+  const result = await useCases.publishArticle.execute(actor, input);
 
   if (!result.ok) {
     /*
@@ -165,6 +199,7 @@ export async function publishArticleAction(
 
   return {
     status: "done",
+    phase: "published",
     message: "記事を公開しました。下のリンクから、読者に見える形を確かめられます。",
     url: result.value.url,
     skipped: result.value.skipped,

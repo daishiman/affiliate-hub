@@ -54,6 +54,33 @@ def test_cli_compile_matches_golden(tmp_path):
     assert (out_dir / "index.md").read_text(encoding="utf-8") == (FIXTURES / "expected-index.md").read_text(encoding="utf-8")
 
 
+def test_cli_acknowledge_prior_residue_clears_only_the_reviewed_copy(tmp_path):
+    """明示CLIだけが、レビュー済みの過去residueを正規writer出力から外す。"""
+    out_dir = tmp_path / "system-spec"
+    base_args = [
+        "compile",
+        "--spec",
+        str(SPEC),
+        "--references",
+        str(REFS),
+        "--out-dir",
+        str(out_dir),
+        "--only",
+        "database.md",
+    ]
+    assert mod.main(base_args) == 0
+    target = out_dir / "database.md"
+    reviewed = "| Drizzle | `1.6.29` | 旧公式version |"
+    target.write_text(target.read_text(encoding="utf-8") + reviewed + "\n", encoding="utf-8")
+
+    assert mod.main(base_args) == 0
+    assert f"- `{reviewed}`" in target.read_text(encoding="utf-8")
+    assert mod.main([*base_args, "--acknowledge-prior-residue"]) == 0
+    out = target.read_text(encoding="utf-8")
+    assert reviewed not in out
+    assert mod.RESIDUE_HEADING not in out
+
+
 def test_cli_bad_spec_returns_1(tmp_path):
     rc = mod.main(["compile", "--spec", str(tmp_path / "nope.json"), "--references", str(REFS), "--out-dir", str(tmp_path / "o")])
     assert rc == 1

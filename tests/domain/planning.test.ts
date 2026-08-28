@@ -1,6 +1,8 @@
 /** @tier 1 @req REQ-SEC07, REQ-E23 @types decision-table, equivalence */
 import { describe, expect, it } from "vitest";
 import {
+  CONTENT_LENGTHS,
+  FUNNEL_STAGES,
   canStartGeneration,
   createContentPackage,
   selectRepresentativeCells,
@@ -59,6 +61,39 @@ function blueprint(over: Partial<Parameters<typeof createSiteBlueprint>[0]> = {}
     ...over,
   });
 }
+
+/**
+ * 生成パターンの品ぞろえ（§15.3）。
+ *
+ * ここを足した理由。**`CONTENT_LENGTHS` から 1 項目抜いても、7 項目のどれを抜いても
+ * 8005 件すべて緑だった**（実測、2026-08-28）。この一覧は `ContentLength` 型の
+ * 材料でもあるので、**一覧が縮むと型も一緒に縮む**。「台本」が消えれば
+ * 台本を作る指定はコンパイル時に弾かれ、赤くはならず、ただ作れなくなる。
+ *
+ * **期待値を実装から組み立てない。**仕様の箇条書きを手で書き写す。
+ */
+describe("生成パターンの品ぞろえ", () => {
+  it("文章の長さは、仕様 §15.3 が並べた 7 種が順番どおりにそろっている", () => {
+    // `docs/spec/01-要求仕様書-v1.0.md` §15.3「文章の長さ」
+    // （一文・短文・標準・長文・スレッド・記事・台本）。実装から輸入しない。
+    expect([...CONTENT_LENGTHS]).toEqual([
+      "one_sentence",
+      "short",
+      "standard",
+      "long",
+      "thread",
+      "article",
+      "script",
+    ]);
+  });
+
+  it("購買段階は、仕様の 4 段が順番どおりにそろっている", () => {
+    // `docs/spec/01-要求仕様書-v1.0.md` L473 の `funnel_stage`。
+    // **4 項目とも、抜いても 8007 件すべて緑だった**（実測、2026-08-28）。
+    // 順番も見る。認知より先に決定が来る並びは、企画の意味が変わる。
+    expect([...FUNNEL_STAGES]).toEqual(["awareness", "consideration", "decision", "retention"]);
+  });
+});
 
 describe("ブログの設計図", () => {
   it("必要なものがそろえば作れて、信頼ページが最初から入っている", () => {

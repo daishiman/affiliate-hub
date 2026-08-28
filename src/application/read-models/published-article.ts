@@ -166,6 +166,17 @@ export type PublishedArticle = {
   /** 監修者。付いていない記事もある。 */
   readonly reviewedBy?: PublishedPerson;
   readonly disclosureRequired: boolean;
+  /**
+   * 記事の要点（`EXPRESSION_BLOCK_KINDS` の `key_points`）。
+   *
+   * 10 種の表現ブロックのうち、**置き場が他に無いのはこれだけ**である。
+   * 結論は `summary`、出典は `sections[].claims[].evidence`、更新日は
+   * `updatedAt`、質問は `faq` に既に住んでいるので、それらを別欄で
+   * 二重に持たない（`docs/product/design-decisions.md` §6）。
+   *
+   * **空配列では入れない**（`faq` と同じ扱い）。
+   */
+  readonly keyPoints?: readonly string[];
   readonly sections: readonly PublishedSection[];
   readonly conversation?: readonly PublishedConversationLine[];
   /**

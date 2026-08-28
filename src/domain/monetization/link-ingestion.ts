@@ -166,14 +166,12 @@ export function createLinkIngestion(input: {
   submittedUrl: string;
   source: LinkIngestionSource;
   submittedAt: Date;
-  /** 既に受信箱にあるもの。重複判定に使う。 */
-  existing?: readonly LinkIngestion[];
+  /** 保存先の原子的な取り合いで確定した重複相手。 */
+  duplicateOf?: LinkIngestionId | null;
   note?: string | null;
 }): Result<LinkIngestion, DomainError> {
   const normalized = normalizeAffiliateUrl(input.submittedUrl);
   if (!normalized.ok) return normalized;
-
-  const duplicate = findDuplicate(input.existing ?? [], normalized.value);
 
   return ok({
     id: input.id,
@@ -186,17 +184,10 @@ export function createLinkIngestion(input: {
     programId: null,
     productId: null,
     // 重複でも捨てない。捨てると「送ったのに無い」が起きる。印を付けて残す。
-    duplicateOf: duplicate?.id ?? null,
+    duplicateOf: input.duplicateOf ?? null,
     note: input.note ?? null,
     rejectedReason: null,
   });
-}
-
-export function findDuplicate(
-  existing: readonly LinkIngestion[],
-  normalizedUrl: string,
-): LinkIngestion | null {
-  return existing.find((i) => i.normalizedUrl === normalizedUrl && i.state !== "rejected") ?? null;
 }
 
 /** 広告主が判明した。ここから先は「どの商品か」を決める作業になる。 */

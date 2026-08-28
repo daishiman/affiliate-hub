@@ -1,8 +1,9 @@
 /**
- * ログインの要らない「静止した写し」を 1 枚の HTML に組み立てる。
+ * ログインの要らない「静止した写し」を 1 枚の HTML に焼いて書き出す。
  *
- * ここに置いてあるのは**組み立てだけ**で、描画も書き出しもしない。
- * 分けてあるのは、次の 1 点を検査で固定するためである。
+ * 描画する中身だけを各 writer から受け取り、本物の CSS を集めるところから
+ * `docs/` へ書き出すところまでをここ 1 か所で行う。分けてあるのは、
+ * 次の 1 点を検査で固定するためである。
  *
  *   **本物の CSS を読まずに書き出せてしまう経路が無いこと。**
  *
@@ -15,8 +16,12 @@
  * 認証なしで見せる仕掛けではなく、**別に作った静止画**である。
  */
 
-import { readdirSync, statSync } from "node:fs";
-import { join, relative } from "node:path";
+import { mkdirSync, readdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
+import { dirname, isAbsolute, join, relative, resolve, sep } from "node:path";
+import postcss from "postcss";
+import tailwind from "@tailwindcss/postcss";
+
+const ENTRY_CSS = "src/app/globals.css";
 
 /** 押しても動かないことを、開いた人が最初に読む場所に置く。 */
 export const STATIC_NOTE =
@@ -66,6 +71,65 @@ export function findModuleCss(root) {
 }
 
 /**
+ * 本物の CSS と描画済みの中身を 1 枚に焼き、アプリが配らない `docs/` へ書き出す。
+ *
+ * CSS の入口・変換手段・部品 CSS の探索・書き出し先の境界を writer ごとに
+ * 書かせない。ここを通る限り、どの写しにも同じ安全条件が当たる。
+ *
+ * @param {object} input
+ * @param {string} input.out リポジトリルートから見た `docs/` 配下の出力先
+ * @param {string} input.bodyHtml React などで静的描画済みの中身
+ * @param {Record<string, string>} input.htmlAttributes
+ * @param {string} input.generatedAt
+ * @param {string} [input.title]
+ * @param {string} [input.source]
+ * @param {string} [input.writtenLabel] 完了表示へ添える件数など
+ * @returns {Promise<string>} 書き出した HTML
+ */
+export async function writeStaticPreview({
+  out,
+  bodyHtml,
+  htmlAttributes,
+  generatedAt,
+  title,
+  source,
+  writtenLabel,
+}) {
+  if (!out.startsWith("docs/")) {
+    throw new Error(`静止した写しは docs/ 配下にだけ書き出せます: ${out}`);
+  }
+
+  const root = process.cwd();
+  const docsRoot = resolve(root, "docs");
+  const outputPath = resolve(root, out);
+  const pathFromDocs = relative(docsRoot, outputPath);
+  if (pathFromDocs === "" || pathFromDocs.startsWith(`..${sep}`) || isAbsolute(pathFromDocs)) {
+    throw new Error(`静止した写しの出力先が docs/ の外を指しています: ${out}`);
+  }
+
+  const from = join(root, ENTRY_CSS);
+  const result = await postcss([tailwind()]).process(readFileSync(from, "utf8"), { from });
+  const html = buildDocument({
+    tailwindCss: result.css,
+    moduleCss: findModuleCss(root).map((path) => ({
+      path,
+      text: readFileSync(join(root, path), "utf8"),
+    })),
+    bodyHtml,
+    htmlAttributes,
+    generatedAt,
+    title,
+    source,
+  });
+
+  mkdirSync(dirname(outputPath), { recursive: true });
+  writeFileSync(outputPath, html);
+  const suffix = writtenLabel === undefined ? "" : `（${writtenLabel}）`;
+  console.log(`書き出しました: ${out}${suffix}`);
+  return html;
+}
+
+/**
  * 1 枚の HTML を組み立てる。
  *
  * `tailwindCss` は本物の入口（`src/app/globals.css`）を本物の道具に通した結果、
@@ -79,6 +143,8 @@ export function findModuleCss(root) {
  * @param {string} input.bodyHtml
  * @param {Record<string, string>} input.htmlAttributes
  * @param {string} input.generatedAt
+ * @param {string} [input.title] 開いた人がタブで見る題。写しが 2 枚以上になったので足した。
+ * @param {string} [input.source] 書き出した本。「手で直さない」の宛先が写しごとに違う。
  * @returns {string}
  */
 export function buildDocument({
@@ -87,6 +153,8 @@ export function buildDocument({
   bodyHtml,
   htmlAttributes,
   generatedAt,
+  title = "静止した写し — 案内の分類と、詰まり具合の見比べ",
+  source = "scripts/write-static-preview.tsx",
 }) {
   if (tailwindCss.trim() === "") {
     throw new Error("トークンの CSS が空です。本物の CSS を読めていないまま焼こうとしています。");
@@ -113,8 +181,8 @@ export function buildDocument({
     "<head>",
     '<meta charset="utf-8">',
     '<meta name="viewport" content="width=device-width, initial-scale=1">',
-    "<title>静止した写し — 案内の分類と、詰まり具合の見比べ</title>",
-    `<!-- 生成物。${generatedAt} に scripts/write-static-preview.tsx が書き出した。手で直さない（次の書き出しで消える）。 -->`,
+    `<title>${escapeText(title)}</title>`,
+    `<!-- 生成物。${generatedAt} に ${source} が書き出した。手で直さない（次の書き出しで消える）。 -->`,
     "<style>",
     "/* ここから下は src/app/globals.css を本物の道具に通した結果。写しではない。 */",
     tailwindCss,

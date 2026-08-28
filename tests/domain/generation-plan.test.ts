@@ -54,6 +54,7 @@ import {
   requireNewVersion,
   reviewMaterial,
   PROMPT_ROOT,
+  SHARED_PROMPT_FILES,
   selfInspectionBreaches,
   separationBreaches,
   skillOrderBreaches,
@@ -162,6 +163,42 @@ describe("指示文の組み立て", () => {
     expect(isPromptVersion("v1")).toBe(true);
     expect(isPromptVersion("v0")).toBe(false);
     expect(isPromptVersion("draft")).toBe(false);
+  });
+
+  /**
+   * 全プロンプト共通で読み込む土台のファイル一覧。
+   *
+   * ここを足した理由。**この一覧から 1 項目抜いても 8001 件すべて緑だった**
+   * （4 項目とも実測、2026-08-28）。`SHARED_PROMPT_FILES` は src からも
+   * 1 か所も参照されておらず、テストにも名前が出てこなかった——
+   * 仕様 §07 §1-1 の樹形図を写した一覧が、写したきり誰も読んでいない。
+   * 一覧が黙って縮むのは「共通の土台が 1 枚外れる」ことなので、
+   * 文体規則や禁止表現を読まないまま生成が走る状態を素通しにする。
+   *
+   * **期待値を実装から組み立てない。**仕様の樹形図を手で書き写して突き合わせる。
+   * `map` で作った期待値は、一覧が縮むと期待値も一緒に縮んで永久に赤くならない。
+   */
+  it("共通の土台は、仕様が並べた 4 枚がそろっている", () => {
+    // `docs/spec/07-生成基盤設計.md` §1-1 の `_shared/` 直下。実装から輸入しない。
+    expect(SHARED_PROMPT_FILES.map((f) => f.file)).toEqual([
+      "_shared/system-base.md",
+      "_shared/fact-discipline.md",
+      "_shared/style-rules.md",
+      "_shared/forbidden-expressions.md",
+    ]);
+    // どの枚にも「何が書いてあるか」が添えてある。空だと、版を切るときに
+    // 中身を確かめずファイル名だけ引き写すことになる。
+    for (const f of SHARED_PROMPT_FILES) {
+      expect(f.contains.length, `${f.file} に中身の説明がありません`).toBeGreaterThan(3);
+    }
+  });
+
+  it("共通の土台は、版のフォルダの下に置かれる", () => {
+    // 置き場所の根だけ実物から引く。共通の土台も版ごとに固定しないと、
+    // 「過去の版を再現できる」（§1-1）が成り立たない。
+    for (const f of SHARED_PROMPT_FILES) {
+      expect(`${PROMPT_ROOT}/v1/${f.file}`).toBe(`prompts/generation/v1/${f.file}`);
+    }
   });
 
   it("指示文の置き場所は版ごとに分かれる", () => {
@@ -372,8 +409,12 @@ describe("役の分け方", () => {
   });
 
   it("3 回書き直しても残る指摘は、人へ回す", () => {
+    // **試験名が名乗る 3 を書き写す。**`MAX_REVISION_ROUNDS` を渡すと、
+    // 3 を 307 に変えても入力が一緒に動いて緑のまま通る（実測、2026-08-28）。
+    // 回数を増やせば、人へ回さないまま AI が延々と書き直し続けられてしまう。
+    expect(MAX_REVISION_ROUNDS, "書き直しの上限回数が動いている").toBe(3);
     expect(concludeRevision(1, 2).kind).toBe("retry");
-    const handed = concludeRevision(MAX_REVISION_ROUNDS, 2);
+    const handed = concludeRevision(3, 2);
     expect(handed.kind).toBe("hand_to_human");
     if (handed.kind !== "hand_to_human") return;
     expect(handed.reason).toContain("解消したことにせず");

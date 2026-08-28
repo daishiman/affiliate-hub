@@ -1,9 +1,4 @@
 import type { SitePattern, StandardPage } from "./site-blueprint";
-import {
-  SITE_DOCUMENT_KEYS,
-  SITE_DOCUMENT_LABEL,
-  type SiteDocumentKey,
-} from "./site-routes";
 
 /**
  * ブログのテンプレート（feat-blog-ui-builder）。

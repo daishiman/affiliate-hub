@@ -6,6 +6,8 @@
 import { describe, expect, it } from "vitest";
 import { createUser, canActAsHuman, isActiveUser } from "@/domain/identity";
 import {
+  ASSET_KINDS,
+  ASSET_KIND_LABELS,
   createSite,
   publishSite,
   isSiteVisible,
@@ -396,6 +398,30 @@ describe("Asset（E26）: 由来と利用条件の無い素材を持たない", 
     altText: "机の上に置かれた 14 インチのノートパソコン",
     createdAt: NOW,
   };
+
+  /**
+   * 素材の種類 5 つ。
+   *
+   * ここを足した理由。**この一覧から 1 項目抜いても、5 項目のどれを抜いても
+   * 8007 件すべて緑だった**（実測、2026-08-28）。`AssetKind` 型の材料なので、
+   * **一覧が縮むと型も一緒に縮む**。「グラフ」が消えれば、グラフを登録する道が
+   * コンパイル時に閉じるだけで、赤くはならない。由来と利用条件を必須にした
+   * 仕組み（§E26）は、まず「その種類の素材が持てること」の上に載っている。
+   *
+   * **期待値を実装から組み立てない。**種類と表示名を手で書き写して並べる。
+   */
+  it("素材の種類は 5 つで、表示名も同じ並びでそろっている", () => {
+    const expected = [
+      ["image", "写真"],
+      ["diagram", "図"],
+      ["chart", "グラフ"],
+      ["table", "表"],
+      ["file", "ファイル"],
+    ];
+    expect([...ASSET_KINDS]).toEqual(expected.map(([key]) => key));
+    // 表示名が欠けると、画面の選択肢に「undefined」が並ぶ。
+    expect(Object.entries(ASSET_KIND_LABELS)).toEqual(expected);
+  });
 
   it("由来つきなら作れる", () => {
     expect(provenance.ok).toBe(true);

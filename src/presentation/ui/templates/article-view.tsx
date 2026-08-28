@@ -97,6 +97,8 @@ export type ArticleViewModel = {
   readonly policyHref: string;
   readonly sections: readonly SectionView[];
   readonly conversation?: readonly ConversationLineView[];
+  /** 記事の要点。1 件も無い記事では欄ごと出さない。 */
+  readonly keyPoints?: readonly string[];
   /** よくある質問。1 件も無い記事では欄ごと出さない。 */
   readonly faq?: readonly FaqItemView[];
   readonly productCards?: readonly ProductCardView[];
@@ -182,6 +184,31 @@ function UpdateHistory({
  * 折りたたまない。畳むと、開いていない答えは検索にも AI にも読まれにくく、
  * ここへ書く理由（先に答えておく）がそのまま消える。
  */
+/**
+ * 記事の要点。
+ *
+ * **結論の直後、目次より前に出す。** テンプレートの並び
+ * （`orderBlocksForTemplate` の `AI_FIRST`）が answer → key_points と
+ * 決めており、AI 検索も読者も先頭から読む。目次の後ろへ回すと、
+ * 記事を開いた人が最初に見るのが「見出しの一覧」になる。
+ */
+function KeyPointsSection({ items }: { readonly items: readonly string[] }) {
+  return (
+    <section
+      id="key-points"
+      className={styles.section}
+      {...telemetrySectionAttrs({ kind: "conclusion", id: "key-points" })}
+    >
+      <h2 className={styles.sectionHeading}>{UI_COPY.article.keyPointsTitle}</h2>
+      <ul>
+        {items.map((item) => (
+          <li key={item}>{item}</li>
+        ))}
+      </ul>
+    </section>
+  );
+}
+
 function FaqSection({ items }: { readonly items: readonly FaqItemView[] }) {
   return (
     <section
@@ -262,6 +289,11 @@ export function ArticleView({ article }: { readonly article: ArticleViewModel })
           {UI_COPY.article.updatedAt} {article.updatedAt}
         </span>
       </div>
+
+      {/* 結論の次に要点。読む順とテンプレートの並びを一致させる。 */}
+      {article.keyPoints !== undefined && article.keyPoints.length > 0 && (
+        <KeyPointsSection items={article.keyPoints} />
+      )}
 
       <TableOfContents sections={article.sections} />
 
