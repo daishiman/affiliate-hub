@@ -33,6 +33,12 @@ const ADMIN: readonly RouteCase[] = [
   { file: "admin/ai-usage/page.tsx" },
   { file: "admin/analytics/page.tsx" },
   { file: "admin/content/page.tsx" },
+  { file: "admin/content/new/page.tsx" },
+  { file: "admin/content/published/page.tsx" },
+  {
+    file: "admin/content/published/[site]/[slug]/edit/page.tsx",
+    params: { site: SITE, slug: "laptops-for-video-editing" },
+  },
   { file: "admin/content/[variant]/page.tsx", params: { variant: "cv_alpha_review" } },
   { file: "admin/content/matrix/page.tsx" },
   { file: "admin/distribution/page.tsx" },

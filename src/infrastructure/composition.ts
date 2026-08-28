@@ -18,6 +18,7 @@ import { createD1ConversionRepository } from "./persistence/d1/conversion-reposi
 import { createD1SiteRepository } from "./persistence/d1/site-repository";
 import {
   createD1ContentRepository,
+  createD1PublishedArticleAdminRepository,
   createD1PublishedArticleWriter,
 } from "./persistence/d1/published-article-repository";
 import {
@@ -39,6 +40,7 @@ import { createD1LlmUsage } from "./persistence/d1/llm-usage-repository";
 import { MIN_MASTER_SECRET_LENGTH } from "./platform/secret-box";
 import {
   createSampleContentRepository,
+  createSamplePublishedArticleAdminRepository,
   createSamplePublishedArticleWriter,
   createSampleTrackingCoverage,
 } from "./persistence/sample/content-sample-repository";
@@ -203,6 +205,10 @@ export function createDeps(
       db === null ? createSamplePublishedArticleWriter() : createD1PublishedArticleWriter(db),
       db === null ? createSampleTrackingLinkIssuer() : createD1TrackingLinkIssuer(db),
     ),
+    publishedArticleAdmin:
+      db === null
+        ? createSamplePublishedArticleAdminRepository()
+        : createD1PublishedArticleAdminRepository(db),
     // ★ 見本（スタブ）。読者が自分で操作するもの。
     //   保存先 (KV)・計算式・問い合わせの送信先が用意できたら差し替える。
     shortlist: createSampleShortlistRepository(),

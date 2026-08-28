@@ -36,14 +36,27 @@ import tailwind from "@tailwindcss/postcss";
 import { DEFAULT_APPEARANCE } from "@/domain/authoring/appearance";
 import { appearanceAttributes } from "@/presentation/ui/appearance";
 import { Card, Page } from "@/presentation/ui";
+import { ArticleTableOfContents, ArticleView, SiteShell } from "@/presentation/ui";
 import { AppShell } from "@/presentation/ui/templates/app-shell";
 import { DensitySamples } from "@/app/admin/ui-catalog/density-samples";
 import styles from "@/app/admin/admin.module.css";
+import { createSampleContentRepository } from "@/infrastructure/persistence/sample/content-sample-repository";
+import {
+  createSampleSiteRepository,
+  SAMPLE_SITE_SLUG,
+} from "@/infrastructure/persistence/sample/site-sample-repository";
+import {
+  siteHref,
+  toArticleCards,
+  toArticleView,
+  toChrome,
+} from "@/presentation/site/view-model";
 import { buildDocument, findModuleCss } from "./lib/static-preview.mjs";
 
 const ROOT = process.cwd();
 const ENTRY_CSS = "src/app/globals.css";
-const OUT = "docs/product/preview/nav-and-density.html";
+const NAV_OUT = "docs/product/preview/nav-and-density.html";
+const BLOG_OUT = "docs/product/preview/blog-article-shell.html";
 
 async function tailwindCss(): Promise<string> {
   const from = join(ROOT, ENTRY_CSS);
@@ -70,21 +83,63 @@ function body(): string {
   );
 }
 
-async function main(): Promise<void> {
+async function blogBody(): Promise<string> {
+  const content = createSampleContentRepository();
+  const [site, article, recent] = await Promise.all([
+    createSampleSiteRepository().findBySlug(SAMPLE_SITE_SLUG),
+    content.findArticle(SAMPLE_SITE_SLUG, "laptops-for-video-editing"),
+    content.listRecent(SAMPLE_SITE_SLUG, 4),
+  ]);
+  if (!site.ok || site.value === null || !article.ok || article.value === null) {
+    throw new Error("ブログ記事の見本を読み込めませんでした。");
+  }
+  const blueprint = site.value;
+  const currentArticle = article.value;
+  const chrome = toChrome(SAMPLE_SITE_SLUG, blueprint);
+  const relatedArticles = recent.ok
+    ? toArticleCards(
+        SAMPLE_SITE_SLUG,
+        recent.value.filter((candidate) => candidate.slug !== currentArticle.slug).slice(0, 3),
+      )
+    : undefined;
+  const view = toArticleView(SAMPLE_SITE_SLUG, currentArticle, relatedArticles);
+  const path = siteHref(SAMPLE_SITE_SLUG, "/best/laptops-for-video-editing");
+  return renderToStaticMarkup(
+    <SiteShell
+      chrome={chrome}
+      currentPath={path}
+      breadcrumbs={[
+        { label: blueprint.name, href: chrome.homeHref },
+        { label: "おすすめ順位" },
+        { label: view.title },
+      ]}
+      sidebar={<ArticleTableOfContents sections={view.sections} placement="sidebar" />}
+    >
+      <ArticleView article={view} />
+    </SiteShell>,
+  );
+}
+
+function writePreview(output: string, bodyHtml: string, css: string): void {
   const html = buildDocument({
-    tailwindCss: await tailwindCss(),
+    tailwindCss: css,
     moduleCss: findModuleCss(ROOT).map((path) => ({
       path,
       text: readFileSync(join(ROOT, path), "utf8"),
     })),
-    bodyHtml: body(),
+    bodyHtml,
     htmlAttributes: { lang: "ja", ...appearanceAttributes(DEFAULT_APPEARANCE) },
     generatedAt: new Date().toISOString().slice(0, 10),
   });
+  mkdirSync(dirname(join(ROOT, output)), { recursive: true });
+  writeFileSync(join(ROOT, output), html);
+  console.log(`書き出しました: ${output}`);
+}
 
-  mkdirSync(dirname(join(ROOT, OUT)), { recursive: true });
-  writeFileSync(join(ROOT, OUT), html);
-  console.log(`書き出しました: ${OUT}`);
+async function main(): Promise<void> {
+  const css = await tailwindCss();
+  writePreview(NAV_OUT, body(), css);
+  writePreview(BLOG_OUT, await blogBody(), css);
 }
 
 main().catch((error: unknown) => {

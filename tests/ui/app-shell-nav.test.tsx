@@ -2,7 +2,7 @@
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 import { ADMIN_NAV_GROUPS } from "@/presentation/ui";
-import { AppShell } from "@/presentation/ui/templates/app-shell";
+import { AppShell, Page } from "@/presentation/ui/templates/app-shell";
 
 /**
  * 分類が読み上げにも届いていること。
@@ -19,6 +19,31 @@ function markup(capabilities?: readonly string[]): string {
     </AppShell>,
   );
 }
+
+describe("全管理画面の共通骨格", () => {
+  it("ブランドから運営ホームへ戻れ、本文へ直接移動できる", () => {
+    const html = markup();
+
+    expect(html).toContain('href="/admin"');
+    expect(html).toContain("ブログ運営メニュー");
+    expect(html).toContain('href="#admin-main-content"');
+    expect(html).toContain('id="admin-main-content"');
+  });
+
+  it("一覧・作成・編集が同じ運営画面の見出し順を使う", () => {
+    const html = renderToStaticMarkup(
+      <Page title="記事を編集" lead="内容を確かめ、公開中の記事を更新します。">
+        <p>編集フォーム</p>
+      </Page>,
+    );
+
+    expect(html.indexOf("運営画面")).toBeLessThan(html.indexOf("記事を編集"));
+    expect(html.indexOf("記事を編集")).toBeLessThan(
+      html.indexOf("内容を確かめ、公開中の記事を更新します。"),
+    );
+    expect((html.match(/<h1/g) ?? []).length).toBe(1);
+  });
+});
 
 describe("案内の分類の読み上げ", () => {
   it("分類ごとに、まとまりの印と、それが指す見出しが出る", () => {

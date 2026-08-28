@@ -15,7 +15,14 @@
  */
 import { readdirSync } from "node:fs";
 import { join, relative } from "node:path";
+import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
+import { ArticleList } from "@/presentation/ui/templates/article-view";
+import {
+  CategoryArticleGroups,
+  PublicShell,
+  SiteSection,
+} from "@/presentation/ui/templates/site-shell";
 import { ROUTE_CASES, ROUTE_STATE_CASES, importPathOf, propsOf } from "./route-table";
 import { headingLevels, intoDom, renderRoute } from "../support/render";
 import { describeViolations, findA11yViolations } from "../support/a11y";
@@ -83,6 +90,106 @@ function expectHeadingStructure(html: string): void {
     cleanup();
   }
 }
+
+describe("公開画面へ共通で波及する読み順", () => {
+  it("ブログ一覧とログインはヘッダー・案内・本文・フッターを同じ順で持つ", () => {
+    const html = renderToStaticMarkup(
+      <PublicShell title="affiliate-hub">
+        <h1>ブログ一覧</h1>
+      </PublicShell>,
+    );
+
+    const positions = ["<header", "サイトの案内", 'id="public-main-content"', "<footer"].map(
+      (text) => html.indexOf(text),
+    );
+    expect(positions.every((position) => position >= 0)).toBe(true);
+    for (let index = 1; index < positions.length; index += 1) {
+      expect(positions[index - 1]).toBeLessThan(positions[index]);
+    }
+    expect(html).toContain('href="#public-main-content"');
+  });
+
+  it("ホームは新着のあとにカテゴリー別の実記事と全件導線を並べる", () => {
+    const html = renderToStaticMarkup(
+      <>
+        <SiteSection
+          id="recent-articles"
+          eyebrow="新着"
+          title="新着記事"
+          lead="更新順に紹介します。"
+        >
+          <ArticleList
+            articles={[
+              {
+                slug: "recent-pc",
+                href: "/s/demo/guides/recent-pc",
+                title: "最近のパソコン記事",
+                summary: "新しい記事です。",
+                updatedAt: "2026-08-28",
+                authorName: "山田",
+              },
+            ]}
+            emptyTitle=""
+            emptyBody=""
+            headingLevel="h3"
+          />
+        </SiteSection>
+        <SiteSection
+          id="category-articles"
+          eyebrow="カテゴリー"
+          title="テーマから探す"
+          lead="テーマごとの代表記事です。"
+        >
+          <CategoryArticleGroups
+            groups={[
+              {
+                href: "/s/demo/categories/pc",
+                label: "パソコン",
+                description: "選び方と使い方",
+                articles: [
+                  {
+                    slug: "quiet-pc",
+                    href: "/s/demo/guides/quiet-pc",
+                    title: "静かなパソコンの選び方",
+                    summary: "音の見方を紹介します。",
+                    updatedAt: "2026-08-20",
+                    authorName: "山田",
+                  },
+                ],
+              },
+            ]}
+          />
+        </SiteSection>
+      </>,
+    );
+
+    expect(html.indexOf("新着記事")).toBeLessThan(html.indexOf("テーマから探す"));
+    expect(html.indexOf("パソコン")).toBeLessThan(html.indexOf("静かなパソコンの選び方"));
+    expect(html).toContain("このカテゴリーをすべて見る");
+    expect(html).toContain('<h2 id="recent-articles"');
+    expect(html).toMatch(/<h3[^>]*><a[^>]*>最近のパソコン記事<\/a><\/h3>/);
+    expect(html).toMatch(/<h4[^>]*><a[^>]*>静かなパソコンの選び方<\/a><\/h4>/);
+  });
+
+  it("代表記事が無いカテゴリーも索引から消さない", () => {
+    const html = renderToStaticMarkup(
+      <CategoryArticleGroups
+        groups={[
+          {
+            href: "/s/demo/categories/audio",
+            label: "オーディオ",
+            description: "音を楽しむ道具",
+            articles: [],
+          },
+        ]}
+      />,
+    );
+
+    expect(html).toContain("オーディオ");
+    expect(html).toContain("カテゴリーの案内を見る");
+    expect(html).toContain('href="/s/demo/categories/audio"');
+  });
+});
 
 describe("画面の一覧", () => {
   it("経路の表と実在するファイルが 1 対 1 で対応する", () => {

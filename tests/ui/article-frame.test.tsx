@@ -25,6 +25,8 @@ function article(over: Partial<ArticleViewModel> = {}): ArticleViewModel {
     updatedAt: "2026-08-15",
     authorName: "山田",
     authorHref: "/s/demo/authors/yamada",
+    authorBio: "生活家電を実際に使い、静音性を比べている書き手です。",
+    authorCredentials: ["家電販売の実務 5 年"],
     disclosureRequired: true,
     methodologyHref: "/s/demo/methodology",
     policyHref: "/s/demo/policy",
@@ -33,9 +35,70 @@ function article(over: Partial<ArticleViewModel> = {}): ArticleViewModel {
       { id: "pros", heading: "良い点", paragraphs: ["静か。"] },
       { id: "cons", heading: "気になる点", paragraphs: ["水の補充が要る。"] },
     ],
+    relatedArticles: [
+      {
+        slug: "humidifier-care",
+        href: "/s/demo/guides/humidifier-care",
+        title: "加湿器を清潔に保つ方法",
+        summary: "毎日と週1回の手入れを分けて紹介します。",
+        updatedAt: "2026-08-10",
+        authorName: "山田",
+      },
+    ],
     ...over,
   };
 }
+
+describe("記事を読み終えたあとの導線", () => {
+  it("更新履歴のあとに書き手と関連記事が続く", () => {
+    const html = renderToStaticMarkup(<ArticleView article={article()} />);
+
+    expect(html).toContain("この記事を書いた人");
+    expect(html).toContain("あわせて読みたい");
+    expect(html).toContain("加湿器を清潔に保つ方法");
+    expect(html.indexOf("更新履歴")).toBeLessThan(html.indexOf("この記事を書いた人"));
+    expect(html.indexOf("この記事を書いた人")).toBeLessThan(html.indexOf("あわせて読みたい"));
+  });
+
+  it("関連記事が取得できないときは記事本体だけを表示する", () => {
+    const html = renderToStaticMarkup(
+      <ArticleView article={article({ relatedArticles: undefined })} />,
+    );
+
+    expect(html).toContain("静かな加湿器の選び方");
+    expect(html).not.toContain("あわせて読みたい");
+  });
+});
+
+describe("記事を読み始める順序", () => {
+  it("結論と書誌情報のあとに注意書きと導入を読み、目次から本文へ進める", () => {
+    const html = renderToStaticMarkup(
+      <ArticleView
+        article={article({
+          stub: { label: "測定結果", blockedBy: "実機測定", stubId: "sample" },
+          conversation: [{ speaker: "reader", text: "寝室でも音が気になりませんか？" }],
+        })}
+      />,
+    );
+
+    const positions = [
+      "静かな加湿器の選び方",
+      "寝室で使うなら運転音 30dB 以下を選ぶ。",
+      "書き手:",
+      "見本",
+      "広告を含みます",
+      "この記事の書き手",
+      "よくある行き違い",
+      "目次",
+      'id="how_to_choose"',
+    ].map((text) => html.indexOf(text));
+
+    expect(positions.every((position) => position >= 0)).toBe(true);
+    for (let index = 1; index < positions.length; index += 1) {
+      expect(positions[index - 1]).toBeLessThan(positions[index]);
+    }
+  });
+});
 
 describe("節が種類を名乗る（滞在時間を測る単位）", () => {
   /**

@@ -137,7 +137,12 @@ function Shell({ children }: { readonly children: ReactNode }) {
     <AdminShell
       currentPath="/admin/content"
       breadcrumbs={[{ label: "ホーム", href: "/admin" }, { label: "記事" }]}
-      actions={<Link href="/admin">ホームへ戻る</Link>}
+      actions={
+        <>
+          <Link href="/admin/content/published">公開済み記事</Link>
+          <Link href="/admin/content/new">新しい記事を作る</Link>
+        </>
+      }
     >
       <Page
         title="記事"

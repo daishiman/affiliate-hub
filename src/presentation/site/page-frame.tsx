@@ -43,6 +43,7 @@ export async function SiteFrame({
   currentPath,
   trail = [],
   pageKind = "article",
+  sidebar,
   children,
 }: {
   readonly siteSlug: string;
@@ -55,6 +56,8 @@ export async function SiteFrame({
    * 比較のページに順位の説明の道具を渡しても、押す先が無い。
    */
   readonly pageKind?: PageKind;
+  /** 記事目次など、現在の画面に限定した補助導線。 */
+  readonly sidebar?: ReactNode;
   readonly children: (ctx: SiteContext) => ReactNode;
 }) {
   const result = await (await siteUseCases()).getSite.execute(readerActor(), { siteSlug });
@@ -110,6 +113,7 @@ export async function SiteFrame({
           suppressAll={decision.suppressAll}
         />
       }
+      sidebar={sidebar}
     >
       {children({ siteSlug, blueprint, chrome })}
       {/*
