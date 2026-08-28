@@ -485,6 +485,32 @@ describe("閾値も検査名も書き写さない（REQ-CI02）", () => {
 });
 
 describe("データの形の変更は、控えを取ってからだけ（REQ-CI05）", () => {
+  it("運用文書は統合後の migration / drift コマンドだけを案内する", () => {
+    const guides = [
+      read("README.md"),
+      read("docs/spec/feat-auth-workspace/runbook.md"),
+      read("docs/spec/11-CI-CD・品質ゲート仕様.md"),
+      read("docs/product/ci-cd-guide.md"),
+    ].join("\n");
+
+    expect(guides).not.toMatch(/db:migrate:(?:dev|prod)/);
+    expect(guides).not.toMatch(/db:drift:(?:dev|prod)/);
+    expect(guides).toContain("db:migrate:remote --env dev");
+    expect(guides).toContain("db:drift --env dev");
+  });
+
+  it("deploy と migrate は同じ環境の D1 操作を同じ concurrency group で直列化する", () => {
+    const deploy = codeOf("deploy.yml");
+    const migrate = codeOf("migrate.yml");
+
+    expect(deploy).toContain(
+      "group: d1-${{ github.ref == 'refs/heads/main' && 'production' || 'dev' }}",
+    );
+    expect(migrate).toContain("group: d1-${{ inputs.environment }}");
+    expect(deploy).toContain("cancel-in-progress: false");
+    expect(migrate).toContain("cancel-in-progress: false");
+  });
+
   it("migrate.yml は自動で走らず、確認文字列が合わないと最初のステップで落ちる", () => {
     const body = workflow("migrate.yml");
     expect(body).toMatch(/on:\s*\n\s*workflow_dispatch:/);
@@ -537,6 +563,41 @@ describe("データの形の変更は、控えを取ってからだけ（REQ-CI0
     // 控えは migrate.yml と同じ条件で残す。
     expect(code).toMatch(/if-no-files-found:\s*error/);
     expect(code).toMatch(/retention-days:\s*30/);
+  });
+
+  it("deploy は apply と台帳確認の後、公開の前に同じ D1_ENV で形を検査する", () => {
+    const code = codeOf("deploy.yml");
+    const apply = code.indexOf("db:migrate:");
+    const ledger = code.lastIndexOf("require-migrations-applied.sh");
+    const drift = code.indexOf("pnpm run db:drift");
+    const publish = code.indexOf("pnpm deploy:prod");
+
+    expect(code).toContain(
+      "D1_ENV: ${{ github.ref == 'refs/heads/main' && 'production' || 'dev' }}",
+    );
+    expect(apply).toBeGreaterThan(-1);
+    expect(ledger).toBeGreaterThan(apply);
+    expect(drift).toBeGreaterThan(ledger);
+    expect(publish).toBeGreaterThan(drift);
+  });
+
+  it("migrate は apply 後に workflow input と同じ D1_ENV で形を検査する", () => {
+    const code = codeOf("migrate.yml");
+    const apply = code.indexOf("db:migrate:");
+    const drift = code.indexOf("pnpm run db:drift");
+
+    expect(code).toContain("D1_ENV: ${{ inputs.environment }}");
+    expect(apply).toBeGreaterThan(-1);
+    expect(drift).toBeGreaterThan(apply);
+  });
+
+  it("migrate 完了後の案内は dev と production で次の反映先を取り違えない", () => {
+    const code = codeOf("migrate.yml");
+    const summary = code.slice(code.indexOf("- name: 次にすること"));
+
+    expect(summary).toContain('if [ "$D1_ENV" = "production" ]');
+    expect(summary).toContain("main への反映");
+    expect(summary).toContain("dev への反映");
   });
 
   it("D1 へ届くかどうかは検査一式より前に見る", () => {
@@ -642,8 +703,11 @@ describe("データの形の変更は、控えを取ってからだけ（REQ-CI0
       expect(step, `環境で外せるマイグレーションがあります: ${head}`).not.toMatch(/^\s*if:/m);
     }
 
-    // 本番側の適用が実在すること。dev だけに戻ったら、ここで落ちる。
-    expect(code, "本番の適用がありません").toContain("db:migrate:prod");
+    // 1 本化した適用コマンドへ、枝から導いた production/dev を必ず渡す。
+    expect(code, "共通のリモート適用がありません").toContain("db:migrate:remote");
+    expect(code, "本番を導く D1_ENV がありません").toContain(
+      "D1_ENV: ${{ github.ref == 'refs/heads/main' && 'production' || 'dev' }}",
+    );
   });
 });
 

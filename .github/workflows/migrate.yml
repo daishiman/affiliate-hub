@@ -1,10 +1,5 @@
-# 本番データの**形**を変える。壊せるのは本番データそのもので、元に戻せない。
-#
-# だから自動で走らせない。人が起動し、`APPLY` と打った時だけ動く。
-# 公開 (`deploy.yml`) に混ぜると、マージした瞬間に本番データの形が変わる。
-#
-# 順番は常に **この migrate.yml → deploy.yml**。
-# 列を消す変更は 2 段階に分ける（先に新しいコードを出して誰も読まない状態にしてから消す）。
+# 公開と切り離して先に migration を適用・修復するときの手動経路。
+# 通常の公開は deploy.yml が同じ安全手順を自動実行する。詳細は CI/CD 仕様が正本。
 #
 # 規範: docs/spec/11-CI-CD・品質ゲート仕様.md / docs/product/ci-cd-guide.md
 name: データの形の変更
@@ -24,7 +19,8 @@ on:
         type: string
 
 concurrency:
-  group: migrate-${{ inputs.environment }}
+  # deploy.yml と同じ環境名を使い、同じ D1 への操作を直列化する。
+  group: d1-${{ inputs.environment }}
   cancel-in-progress: false
 
 permissions:
@@ -39,6 +35,7 @@ jobs:
     env:
       CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
       CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      D1_ENV: ${{ inputs.environment }}
 
     steps:
       # 押し間違いで本番データの形が変わらないようにする最後の関門。
@@ -67,8 +64,8 @@ jobs:
       - name: 適用前のバックアップ
         run: |
           mkdir -p backup
-          backup_path="backup/${{ inputs.environment }}-$(date -u +%Y%m%dT%H%M%SZ).sql"
-          pnpm exec wrangler d1 export DB --env "${{ inputs.environment }}" --remote \
+          backup_path="backup/${D1_ENV}-$(date -u +%Y%m%dT%H%M%SZ).sql"
+          pnpm exec wrangler d1 export DB --env "$D1_ENV" --remote \
             --output "$backup_path"
           test -s "$backup_path"
           ls -la backup
@@ -83,19 +80,18 @@ jobs:
           retention-days: 30
 
       - name: 未適用の一覧（適用前）
-        run: pnpm exec wrangler d1 migrations list DB --env "${{ inputs.environment }}" --remote
+        run: pnpm exec wrangler d1 migrations list DB --env "$D1_ENV" --remote
 
       - name: 適用
-        run: |
-          if [ "${{ inputs.environment }}" = "production" ]; then
-            pnpm db:migrate:prod
-          else
-            pnpm db:migrate:dev
-          fi
+        run: pnpm run db:migrate:remote --env "$D1_ENV"
 
       # 「適用した」ではなく「未適用が 0 件になった」を確かめる。
       - name: 未適用の一覧（適用後）
-        run: pnpm exec wrangler d1 migrations list DB --env "${{ inputs.environment }}" --remote
+        run: pnpm exec wrangler d1 migrations list DB --env "$D1_ENV" --remote
+
+      # deploy.yml と同じ定義比較を通す。詳細と修復手順は CI/CD 仕様が正本。
+      - name: データの形が移行ファイルと同じか
+        run: pnpm run db:drift
 
       - name: 次にすること
         run: |
@@ -104,6 +100,10 @@ jobs:
             echo ""
             echo "バックアップはこの実行の成果物 \`d1-backup-${{ inputs.environment }}-${{ github.run_number }}\` にあります（30 日間）。"
             echo ""
-            echo "**次は公開です。** main へマージすると「公開」が走ります。"
+            if [ "$D1_ENV" = "production" ]; then
+              echo "**次は main への反映です。** 本番の「公開」が走ります。"
+            else
+              echo "**次は dev への反映です。** 試し場の「公開」が走ります。"
+            fi
             echo "順番は データの形の変更 → 公開 で固定です。逆にすると本番が落ちます。"
           } >> "$GITHUB_STEP_SUMMARY"

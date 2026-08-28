@@ -5,9 +5,9 @@
 要件 → テストの向きは `docs/product/traceability.md` が正本で、ここはその裏返しに
 テスト側の `@req` 印を重ねたもの。
 
-- 最終更新: 2026-08-27
-- テストファイル: 390 件
-- 由来の要件が分かる: 388 件
+- 最終更新: 2026-08-28
+- テストファイル: 391 件
+- 由来の要件が分かる: 389 件
 - **由来不明: 2 件**（上限 2 件）
 
 由来不明とは「どの要件のために書いたのか、機械から辿れない」という意味で、
@@ -120,6 +120,7 @@
 | `tests/architecture/quality-gates.test.ts` | REQ-CI02, REQ-CI03, REQ-CI09, REQ-TS09, REQ-TS10 | 印 |
 | `tests/architecture/refusal-field-wiring.test.ts` | REQ-FD06 | 印 |
 | `tests/architecture/required-test-types-registry-scope.test.ts` | REQ-TS09 | 印 |
+| `tests/architecture/schema-drift.test.ts` | REQ-CI15 | 印と表 |
 | `tests/architecture/schema-version-prose-drift.test.ts` | REQ-TS16 | 印 |
 | `tests/architecture/screen-budget-single-source.test.ts` | REQ-TS09 | 印 |
 | `tests/architecture/secrets-not-in-repo.test.ts` | REQ-CI07, REQ-SEC10 | 印と表 |
@@ -410,4 +411,4 @@
 | `tests/ui/uiux-spacing-and-copy.test.ts` | REQ-UX08, REQ-UX10 | 印と表 |
 | `tests/ui/zz-probe-tone.test.tsx` | REQ-TM07 | 表 |
 | `tests/visual/visual-regression.test.ts` | REQ-S09, REQ-TS12, REQ-UX08 | 印 |
-<!-- 生成物の指紋 sha256:b3d8a337090fabfd07bd56d52036263c5a8a3ed6418d5d62ec40274cf2711b58 -->
+<!-- 生成物の指紋 sha256:9e3c40dba034838fdffaff53222268ee46cca7ac2252d397944408afc474f4a5 -->

@@ -140,7 +140,8 @@ productionのmigration・deployはdevの成功確認と別承認の後に行い�
 | `pnpm cf-typegen` | バインディングの型 (`cloudflare-env.d.ts`) を生成 |
 | `pnpm db:generate` | スキーマ変更からマイグレーション SQL を生成 |
 | `pnpm db:migrate:local` | ローカル D1 に適用 |
-| `pnpm db:migrate:dev` / `:prod` | 各環境の D1 に適用 |
+| `pnpm run db:migrate:remote --env dev` / `--env production` | 指定環境の D1 に適用 |
+| `pnpm run db:drift --env dev` / `--env production` | 指定環境の D1 と migration の最終形を比較 |
 
 ## CI/CD
 
