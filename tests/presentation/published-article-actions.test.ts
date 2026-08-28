@@ -1,7 +1,7 @@
 /**
  * @tier 1
  * @req REQ-R11, REQ-SEC01, REQ-SEC09
- * @types authorization, audit-log, tenant-isolation
+ * @types permission-matrix, audit-log, tenant-isolation
  */
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { SAMPLE_ACTOR } from "@/infrastructure/identity/sample-actor";

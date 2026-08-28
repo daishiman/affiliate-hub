@@ -467,6 +467,9 @@ const WRITE_VERBS = [
   "save",
   "create",
   "update",
+  // 公開済み記事の同じ行を、本文 JSON と検索列を揃えて差し替える。
+  // 新規作成ではなく訂正なので、ポートの語彙は `replace` のまま書き込み側へ置く。
+  "replace",
   "delete",
   "remove",
   "insert",
