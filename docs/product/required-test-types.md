@@ -305,6 +305,7 @@
 | REQ-CI12 | has-input | — |
 | REQ-CI13 | has-runtime-config | — |
 | REQ-CI14 | has-runtime-config, has-input, has-secret | — |
+| REQ-CI15 | has-runtime-config, has-input | — |
 | REQ-FB01 | has-enumerated-input | — |
 | REQ-FB02 | has-screen, has-permission | — |
 | REQ-FB03 | has-input, has-screen | — |

@@ -1,8 +1,8 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "d17d4e1f-3be1-4efa-aadc-527f10719132",
-  "prevId": "16db91e9-91c6-4a97-ac3a-71def188d22e",
+  "id": "59c4a6ad-bea1-4b27-9d72-d9c23a38eaa5",
+  "prevId": "d17d4e1f-3be1-4efa-aadc-527f10719132",
   "tables": {
     "affiliate_accounts": {
       "name": "affiliate_accounts",
@@ -3614,6 +3614,20 @@
         },
         "previous_source_sha256": {
           "name": "previous_source_sha256",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "re_evaluated_sha256": {
+          "name": "re_evaluated_sha256",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "re_evaluated_at": {
+          "name": "re_evaluated_at",
           "type": "text",
           "primaryKey": false,
           "notNull": false,

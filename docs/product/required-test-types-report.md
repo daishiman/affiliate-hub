@@ -5,8 +5,8 @@
 宣言は `docs/product/required-test-types.md`、語彙と上限は `quality-gates.config.mjs` が正本。
 
 - 最終更新: 2026-08-28
-- 要件表の要件: 288 件
-- 性質を宣言済: 283 件
+- 要件表の要件: 287 件
+- 性質を宣言済: 282 件
 - **未宣言: 5 件**（上限 5 件）
 - 理由つきの除外: 6 件（上限 7 件）
 
@@ -87,7 +87,7 @@
 | REQ-W05 | has-enumerated-input | `decision-table` `equivalence` | `decision-table` `equivalence` | — |
 | REQ-W06 | has-enumerated-input | `decision-table` `equivalence` | `decision-table` `equivalence` | — |
 | REQ-W07 | has-enumerated-input | `decision-table` `equivalence` | `decision-table` `equivalence` | — |
-| REQ-W08 | has-input, has-enumerated-input | `boundary` `decision-table` `equivalence` | `boundary` `decision-table` `equivalence` | — |
+| REQ-W08 | has-enumerated-input | `decision-table` `equivalence` | `decision-table` `equivalence` | — |
 | REQ-W09 | has-input | `boundary` `equivalence` | `boundary` `equivalence` | — |
 | REQ-W10 | has-input | `boundary` `equivalence` | `boundary` `equivalence` | — |
 | REQ-W11 | has-enumerated-input | `decision-table` `equivalence` | `decision-table` `equivalence` | — |
@@ -228,8 +228,6 @@
 | REQ-TS17 | has-input | `boundary` `equivalence` | `boundary` `equivalence` | — |
 | REQ-TS18 | has-known-breakage, has-input | `boundary` `equivalence` `regression` | `boundary` `equivalence` `regression` | — |
 | REQ-TS19 | has-input | `boundary` `equivalence` | `boundary` `equivalence` | — |
-| REQ-TS20 | has-input | `boundary` `equivalence` | `boundary` `equivalence` | — |
-| REQ-TS21 | has-known-breakage, has-input | `boundary` `equivalence` `regression` | `boundary` `equivalence` `regression` | — |
 | REQ-SEO01 | has-input | `boundary` `equivalence` | `boundary` `equivalence` | — |
 | REQ-SEO02 | has-input | `boundary` `equivalence` | `boundary` `equivalence` | — |
 | REQ-SEO03 | has-input | `boundary` `equivalence` | `boundary` `equivalence` | — |
@@ -281,6 +279,7 @@
 | REQ-CI12 | has-input | `boundary` `equivalence` | `boundary` `equivalence` | — |
 | REQ-CI13 | has-runtime-config | `infra-config` | `infra-config` | — |
 | REQ-CI14 | has-runtime-config, has-input, has-secret | `boundary` `equivalence` `infra-config` `secrets` | `boundary` `equivalence` `infra-config` `secrets` | — |
+| REQ-CI15 | has-runtime-config, has-input | `boundary` `equivalence` `infra-config` | `boundary` `equivalence` `infra-config` | — |
 | REQ-FB01 | has-enumerated-input | `decision-table` `equivalence` | `decision-table` `equivalence` | — |
 | REQ-FB02 | has-screen, has-permission | `a11y` `keyboard` `permission-matrix` `screen-states` | `a11y` `keyboard` `permission-matrix` `screen-states` | — |
 | REQ-FB03 | has-input, has-screen | `a11y` `boundary` `equivalence` `keyboard` `screen-states` | `a11y` `boundary` `equivalence` `keyboard` `screen-states` | — |
@@ -319,4 +318,4 @@
 ## 未宣言の要件
 
 `REQ-TH04` `REQ-TH05` `REQ-TS02` `REQ-TS03` `REQ-TS10`
-<!-- 生成物の指紋 sha256:4ab1fbcdd44456ccd4ed129c775fd54d2e11f6b9aab5e9e1c916a9b9035937b7 -->
+<!-- 生成物の指紋 sha256:e9fee7a32396141e1b7d9c62f346255a1220a642d46fde0aa820a11a8b8bb7b4 -->

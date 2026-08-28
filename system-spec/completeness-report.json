@@ -1,416 +1,4 @@
 {
-  "inputs": {
-    "file_count": 81,
-    "sha256": "8b07616cf704c5a2e9c7fee3f4b03735f7c4120e6fba32811b7f64439ca0487b",
-    "files": [
-      {
-        "path": "docs/spec/00-README.md",
-        "sha256": "7b7483023b040d4bed7c648c50d7555e53d7ff0aaa0bb1294fc4a4cc22a869de",
-        "mtime": 1787864196
-      },
-      {
-        "path": "docs/spec/01-要求仕様書-v1.0.md",
-        "sha256": "b5fc60987cb79c08c30db4cd94b075a0bf89cd7acba7c8d1ffc8558af6439385",
-        "mtime": 1787864085
-      },
-      {
-        "path": "docs/spec/02-補充仕様-ギャップと追加要件.md",
-        "sha256": "73b3204fcb5c71edf4704817b12af2d36939993ba1194bf04c1f4ceff9c8cd25",
-        "mtime": 1787864085
-      },
-      {
-        "path": "docs/spec/03-分析・解析基盤仕様.md",
-        "sha256": "5d84913a2422b9e697422b0656f90cf90633b0bd75adcebe0c6696e01fc9e45f",
-        "mtime": 1787864085
-      },
-      {
-        "path": "docs/spec/04-二層構造統合仕様.md",
-        "sha256": "d01442b19c1b9e29681719f2768847c39ec0fea34bfdf6438247c814c037f765",
-        "mtime": 1787864085
-      },
-      {
-        "path": "docs/spec/05-文章作成メソッド仕様.md",
-        "sha256": "edcbd22afffe076c76aea32bf4ae744c57db441834ffa1d79ee2e29245502696",
-        "mtime": 1787864085
-      },
-      {
-        "path": "docs/spec/06-サイトブループリント-記事構成テンプレート.md",
-        "sha256": "4758db202f1a48d1062ef871d94f609d058506486191d0f309be5540db43ce5f",
-        "mtime": 1787864196
-      },
-      {
-        "path": "docs/spec/07-生成基盤設計.md",
-        "sha256": "d155d9183ef16be0cda994d490bcf3fb359d0758f9415e61f950f3b4e43e0a3e",
-        "mtime": 1787864085
-      },
-      {
-        "path": "docs/spec/08-仕様の未修正点.md",
-        "sha256": "b79d5715a63404442a0b3eab05299988c24f7f1eb544dca79fd81a61e3e56665",
-        "mtime": 1787864085
-      },
-      {
-        "path": "docs/spec/09-UIテーマ仕様.md",
-        "sha256": "9bfeb611748edaf08e865fe740637e37e025af153c3a2bc0a5cffabb1dc6c6f1",
-        "mtime": 1787864085
-      },
-      {
-        "path": "docs/spec/10-テスト戦略仕様.md",
-        "sha256": "c1ca47a0525aea84ef244d2e8b265e353c4df55288c0f27c2bb75a9e492ff3d5",
-        "mtime": 1787864196
-      },
-      {
-        "path": "docs/spec/11-CI-CD・品質ゲート仕様.md",
-        "sha256": "12a79297845e8e801a6a1b27f5762d44cfac160f2d1a749e0768d268dbde2a1f",
-        "mtime": 1787864196
-      },
-      {
-        "path": "docs/spec/12-改善要望フィードバック仕様.md",
-        "sha256": "f814f1a62e30eebb4512ba0c7964bfdb6986c4007af406aab7d8d7e58e17a856",
-        "mtime": 1787864085
-      },
-      {
-        "path": "docs/spec/13-参考サイト全体構成解析-抽象ブループリント.md",
-        "sha256": "b84be536c32930d670ea9d23073a90707e931ee933f2593d9b00cea4645b5c3f",
-        "mtime": 1787864196
-      },
-      {
-        "path": "docs/spec/ai-first-webmcp.md",
-        "sha256": "35241bfe4e82f6536d871c179eb938681ec771991fa50a59c72d5d97d3c98713",
-        "mtime": 1787864085
-      },
-      {
-        "path": "docs/spec/completion-criteria.md",
-        "sha256": "07cb3de0ca834a6776d6e08dfd11a3d6bd1b848d962d1f582d9e41f0705a8943",
-        "mtime": 1787864085
-      },
-      {
-        "path": "docs/spec/data-model-gap.md",
-        "sha256": "97861d9844e975922b73715c49d5ea7f4a8db53e83fbbbf0e73a54a32fb6754c",
-        "mtime": 1787864085
-      },
-      {
-        "path": "docs/spec/dialogue-confirmations.md",
-        "sha256": "1312a2372403173dc8b57112ae0178d713c93a05471124e201e084bf0da8daa1",
-        "mtime": 1787864085
-      },
-      {
-        "path": "docs/spec/feat-auth-workspace/acceptance-report.md",
-        "sha256": "df48a656a22f3da687a80545c849985241e09c53cc4066455637d93022e43fcc",
-        "mtime": 1787864196
-      },
-      {
-        "path": "docs/spec/feat-auth-workspace/architecture-design.md",
-        "sha256": "f5ea3a5c23e1aa944922f0866fa91d383211995dfb3a3992c8918ffc73a10b8b",
-        "mtime": 1787864196
-      },
-      {
-        "path": "docs/spec/feat-auth-workspace/design-review-log.md",
-        "sha256": "f4a33bdb58cf23589f324d32a0b8cc6fcb33c1fa8639a41805af6ae4e94bf5a0",
-        "mtime": 1787864196
-      },
-      {
-        "path": "docs/spec/feat-auth-workspace/final-review-log.md",
-        "sha256": "66c0c83d336146aa1862149b2646a4883b58274bcef2fea2432c3e1a892388fd",
-        "mtime": 1787864196
-      },
-      {
-        "path": "docs/spec/feat-auth-workspace/handover.md",
-        "sha256": "8a53779b8c420c29df0220d9afaafed4f4d1d0d211ad2dec792b572179a35f1b",
-        "mtime": 1787864196
-      },
-      {
-        "path": "docs/spec/feat-auth-workspace/migration-decision.md",
-        "sha256": "d7d23e8d9d4e0feeefe9ec35356794b880d9fcd5d11c57b04954d162cc9cdbb6",
-        "mtime": 1787864196
-      },
-      {
-        "path": "docs/spec/feat-auth-workspace/quality-security-report.md",
-        "sha256": "af15310a800eeb13c75abece152cbffd03a98ab4b620cd8ae175c6bf893cb597",
-        "mtime": 1787864196
-      },
-      {
-        "path": "docs/spec/feat-auth-workspace/release-notes.md",
-        "sha256": "fc62c2a8b0dde07ed6280cf5c095d106a6457acb05aa904c479b0c68a104ae18",
-        "mtime": 1787864196
-      },
-      {
-        "path": "docs/spec/feat-auth-workspace/requirements-baseline.md",
-        "sha256": "52887b55503f3046ca632c658ac85ba9504a2d1fbf49cf90657aa8bc46f2d1e0",
-        "mtime": 1787864196
-      },
-      {
-        "path": "docs/spec/feat-auth-workspace/runbook.md",
-        "sha256": "7ffded97ab1fda314985f4a379a6f8998c35e4ff4539c7896ad2a4aad4f48d79",
-        "mtime": 1787864196
-      },
-      {
-        "path": "docs/spec/feat-auth-workspace/test-design.md",
-        "sha256": "020dc16b26abafbd8173da335fb1314a51eaf3bf4f96981b308219fdeb9a65f2",
-        "mtime": 1787864196
-      },
-      {
-        "path": "docs/spec/feat-blog-ops-crud/acceptance-report.md",
-        "sha256": "f2156a150619842c8018428cfb80680d9c94146a9282591a90a13afbf52e108d",
-        "mtime": 1787864196
-      },
-      {
-        "path": "docs/spec/feat-blog-ops-crud/api-contract.md",
-        "sha256": "2464a8e475b942028cd3fffbd1babc8ae0dd00ea854eec96cb71742868ef4543",
-        "mtime": 1787864196
-      },
-      {
-        "path": "docs/spec/feat-blog-ops-crud/component-contract.md",
-        "sha256": "e066ba6d540f886119dd1c1bdc277f1ca0a7c3c8753d3a22b464420128c40b99",
-        "mtime": 1787864196
-      },
-      {
-        "path": "docs/spec/feat-blog-ops-crud/data-model.md",
-        "sha256": "39409a6c2edb939e017f669150949721c82c0f267c6bdb08f8297e5cd2259a82",
-        "mtime": 1787864196
-      },
-      {
-        "path": "docs/spec/feat-blog-ops-crud/design-review.md",
-        "sha256": "c2410773b91312ccfd4f70ef0880dbbb12b861bf92d28d7333a3a9974dff2b87",
-        "mtime": 1787864196
-      },
-      {
-        "path": "docs/spec/feat-blog-ops-crud/evidence/index.md",
-        "sha256": "48666e93be0778578c9654a32707f95db24e84bf60e565790c0fffacf7abde53",
-        "mtime": 1787864196
-      },
-      {
-        "path": "docs/spec/feat-blog-ops-crud/final-review.md",
-        "sha256": "db20d1f7777f283b85a8dc61ad6d22fc8ad4c45523b95454fdb705f29a5d0dff",
-        "mtime": 1787864196
-      },
-      {
-        "path": "docs/spec/feat-blog-ops-crud/migration-plan.md",
-        "sha256": "438c0084569901f6f8b1ed9edd1386db6e310981621bc01ae3ffe275afbf5afd",
-        "mtime": 1787864196
-      },
-      {
-        "path": "docs/spec/feat-blog-ops-crud/migration-report.md",
-        "sha256": "2eaa9b7bdaa1252299c3aa32bee0ca2293e1f274bf6ca36c371ca5bd28939bd3",
-        "mtime": 1787864196
-      },
-      {
-        "path": "docs/spec/feat-blog-ops-crud/operations.md",
-        "sha256": "f124dfc241f914c2d63a8d259e46ba6468d4e7eb0e8d012ebb02522cafc1476e",
-        "mtime": 1787864196
-      },
-      {
-        "path": "docs/spec/feat-blog-ops-crud/qa-report.md",
-        "sha256": "b024d1fce572d76f75df8d1ce5220f5df940b7f282856616fb3875ea5ebb6858",
-        "mtime": 1787864196
-      },
-      {
-        "path": "docs/spec/feat-blog-ops-crud/release-report.md",
-        "sha256": "0e15ed5ea752e0663b47ce30ff2a9e9723ca8893e7e5196cba6a7de2e3f6fcc0",
-        "mtime": 1787864196
-      },
-      {
-        "path": "docs/spec/feat-blog-ops-crud/requirements-baseline.md",
-        "sha256": "561de7f744cd47d2714e15afc8b139399c5cff9290c8ffa619b41f80b0b34263",
-        "mtime": 1787864196
-      },
-      {
-        "path": "docs/spec/feat-blog-ops-crud/screen-inventory.md",
-        "sha256": "5a6b1c728a33f1f46b951745ae93c1fae20b882b4a1b9137308dd14458d02cea",
-        "mtime": 1787864196
-      },
-      {
-        "path": "docs/spec/feat-blog-ops-crud/test-design.md",
-        "sha256": "fa4bc74444631c0a31bcf51079828ff777a800f2005e1270cf2b4ed35f41fc91",
-        "mtime": 1787864196
-      },
-      {
-        "path": "docs/spec/feat-blog-ops-crud/test-run-report.md",
-        "sha256": "60af15e4bc098da84041ef8f31f07430c52a48df00a371fdfcde7dff242bc305",
-        "mtime": 1787864196
-      },
-      {
-        "path": "docs/spec/feat-blog-ui-builder/final-review.md",
-        "sha256": "39c2b7139bf6db0090238ccd53085a716b2159e94c34be373c0ceadeef9422ee",
-        "mtime": 1787864196
-      },
-      {
-        "path": "docs/spec/feat-blog-ui-builder/operations.md",
-        "sha256": "e2d13aa6e106d1fc722a69d5cba181a855ac6d468aa138c32c690c7c5c295974",
-        "mtime": 1787864196
-      },
-      {
-        "path": "docs/spec/feat-blog-ui-builder/release-report.md",
-        "sha256": "fddacdf296ff6b3077c958a34563314a925de820fda17e488ba97edc1cfac3a9",
-        "mtime": 1787864196
-      },
-      {
-        "path": "docs/spec/feat-blog-ui-builder/seo-ai-search-implementation.md",
-        "sha256": "50fe812c1602072e92f34d0135bc79a97af7cca6b4ea5817d3477d9a9e62fcb8",
-        "mtime": 1787864196
-      },
-      {
-        "path": "docs/spec/feat-blog-ui-builder/spec-writeback-receipt.md",
-        "sha256": "0eeee78ec7a7cf517edcb66e5c6e71eea741c231c1007ff8a5833af10050ca7e",
-        "mtime": 1787864196
-      },
-      {
-        "path": "docs/spec/feat-blog-ui-builder/ui-rules.md",
-        "sha256": "ef4190022c1545a6be64202dccc8537c2d56c3225c3f6a2c36fd6d1689f98cb5",
-        "mtime": 1787864196
-      },
-      {
-        "path": "docs/spec/feat-uiux-overhaul/acceptance-report.md",
-        "sha256": "7bf3a12d02e494ce76dccc4f4f38f6cae0e38f1ce517ddc84bdac9679eb3d2e1",
-        "mtime": 1787925323
-      },
-      {
-        "path": "docs/spec/feat-uiux-overhaul/admin-api-contract.md",
-        "sha256": "335d57d9a267c6d80f8ca6000e0f3513cfabe9364e72a222f35671e1490d5d11",
-        "mtime": 1787864196
-      },
-      {
-        "path": "docs/spec/feat-uiux-overhaul/blog-scaffold-contract.md",
-        "sha256": "b1ebe26d43cbcefeb152ade3cf9c31781cab832a6aaff24b87971c97483d38da",
-        "mtime": 1787864196
-      },
-      {
-        "path": "docs/spec/feat-uiux-overhaul/component-contract.md",
-        "sha256": "2926e4a4db7f77c4a2b247a520b839dfc2011025a5376df9180efe07dc2b02cb",
-        "mtime": 1787864196
-      },
-      {
-        "path": "docs/spec/feat-uiux-overhaul/design-review.md",
-        "sha256": "e073aedc4734bfb763d429c4c116b0a6f1222ee3381ca9c20546a06b40d74bf6",
-        "mtime": 1787864196
-      },
-      {
-        "path": "docs/spec/feat-uiux-overhaul/evidence/README.md",
-        "sha256": "14a86e2d542cf7f00d944f2f562924c4f15999a89c306b0a7293b85ede70364f",
-        "mtime": 1787864196
-      },
-      {
-        "path": "docs/spec/feat-uiux-overhaul/final-review.md",
-        "sha256": "f97ae66833c9a639a2aa35256e3e1942f4b94c6f7d95634367db4ddefaae1461",
-        "mtime": 1787925323
-      },
-      {
-        "path": "docs/spec/feat-uiux-overhaul/migration-report.md",
-        "sha256": "3f3a69d30391831bdc11b70ee5fd0944952c32633b1c091a4a4f83f0372d7599",
-        "mtime": 1787864196
-      },
-      {
-        "path": "docs/spec/feat-uiux-overhaul/operations.md",
-        "sha256": "a26d05b65d58040ff18bc515231d74671f4e99f654f6891b06deaf27bc0d4126",
-        "mtime": 1787864196
-      },
-      {
-        "path": "docs/spec/feat-uiux-overhaul/quality-report.md",
-        "sha256": "4845a67556097d01c6ddd5184ec653a36eefef8e91c82cda19a8d2736236c1b6",
-        "mtime": 1787864196
-      },
-      {
-        "path": "docs/spec/feat-uiux-overhaul/release-report.md",
-        "sha256": "c4914bc325aa530f8c1af44ade182927995dadc8a4837d867c0d05e932803a31",
-        "mtime": 1787925323
-      },
-      {
-        "path": "docs/spec/feat-uiux-overhaul/requirements-baseline.md",
-        "sha256": "e06d162c96e99970bf82a5c7530fa36515d1ceb2264b7005aad8e7169c48d895",
-        "mtime": 1787864196
-      },
-      {
-        "path": "docs/spec/feat-uiux-overhaul/screen-architecture.md",
-        "sha256": "471fccee0e61c5bd1d1ae5cda56093cf1f18217ce71a4d5971f6940673c8a61b",
-        "mtime": 1787864196
-      },
-      {
-        "path": "docs/spec/feat-uiux-overhaul/screen-inventory.md",
-        "sha256": "9adb840149a760eda0915cc537e219b2e8768f6963d349ac198fb0b7ab77d50e",
-        "mtime": 1787864196
-      },
-      {
-        "path": "docs/spec/feat-uiux-overhaul/sns-provider-contract.md",
-        "sha256": "38bafcc8fb04b7fcdbabf15d22a8be550905d4c53c7a408cf7c9f377874ed5de",
-        "mtime": 1787864196
-      },
-      {
-        "path": "docs/spec/feat-uiux-overhaul/spec-writeback-receipt.md",
-        "sha256": "82ac6891e55704f1b78a87dc3a1f31da12a888233141088bc3cd5d09bd0e2c6f",
-        "mtime": 1787864196
-      },
-      {
-        "path": "docs/spec/feat-uiux-overhaul/test-design.md",
-        "sha256": "0218f0e65a9cf2efde9fb29821131a74dd80b4a1d5537766e7c6fc9399920abb",
-        "mtime": 1787864196
-      },
-      {
-        "path": "docs/spec/feat-uiux-overhaul/test-run-report.md",
-        "sha256": "7c807e720628a7afef2204e97a039122bda8fa70eb74a1e4bb6a569d2289ae91",
-        "mtime": 1787864196
-      },
-      {
-        "path": "docs/spec/feat-uiux-overhaul/ui-rules.md",
-        "sha256": "66ea836c06f39c9d71cd7f4d30706ce9d1a16a1defa3edb291ab8e01f27ce746",
-        "mtime": 1787864196
-      },
-      {
-        "path": "system-spec/00-requirements-definition.md",
-        "sha256": "af460e02930459d08ad7ac2414875f4d5ab4fdc2489ce7cafe51c99263467058",
-        "mtime": 1787901827
-      },
-      {
-        "path": "system-spec/auth.md",
-        "sha256": "38b9be49514368d3f88ed96d807fe7ec6e2b3db2c035fef7df1d93721f29aafb",
-        "mtime": 1787926633
-      },
-      {
-        "path": "system-spec/backend.md",
-        "sha256": "0029f838bb339c2c0523d51077436b4a45b4678814d3fca72c7f686c13643d07",
-        "mtime": 1787901827
-      },
-      {
-        "path": "system-spec/database.md",
-        "sha256": "e11ddc574d682569ea0ccbde36804e99417f94c5e10ba85cae5c0fcc263ccfa7",
-        "mtime": 1787901827
-      },
-      {
-        "path": "system-spec/frontend.md",
-        "sha256": "708427c86e053c89849b4c6ff9a49dba506d2fff1c1be43f3a1b533059c60fb3",
-        "mtime": 1787926633
-      },
-      {
-        "path": "system-spec/index.md",
-        "sha256": "d3be7225ce351be5424414a85e715da82fb0e398f6bae1eb7de14a9d08498726",
-        "mtime": 1787901827
-      },
-      {
-        "path": "system-spec/infrastructure.md",
-        "sha256": "8098857b50846b43b054379f6b58836187373a75da86336c1745fd4d65ff14fb",
-        "mtime": 1787901827
-      },
-      {
-        "path": "system-spec/maintenance-ops.md",
-        "sha256": "f3ae1348368474959d456b7931c0d37a58b587b39356e21abcb19f03c5f8b8fa",
-        "mtime": 1787901827
-      },
-      {
-        "path": "system-spec/security.md",
-        "sha256": "4e55a023c1bfb2cd43cd2d5e2c87e3f456a059b2ac1214a0d4938506aa68b889",
-        "mtime": 1787901827
-      },
-      {
-        "path": "system-spec/spec-state.json",
-        "sha256": "3ebf070ee375222662b1e86906eae824fff8621caf4c6258c963b79a65b211e8",
-        "mtime": 1787864196
-      },
-      {
-        "path": "system-spec/ui-ux.md",
-        "sha256": "27d9540866be6d02a4905e4866b4351d629bf6fe61bb41d144c242a3e2181e80",
-        "mtime": 1787901827
-      }
-    ],
-    "pinned_at": "2026-08-28T14:32:44Z"
-  },
   "evaluator": {
     "name": "assign-system-spec-completeness-evaluator",
     "version": "0.1.0",
@@ -423,74 +11,70 @@
       "verdict": "PASS",
       "auditor": "assign-system-spec-completeness-evaluator",
       "component": "C05",
-      "summary": "U1-U9 全項目が値で確定 (confirmed=true, approval_ref=approval-foundation-1)。essential_purpose/background/goals[2]/objectives[2]/success_criteria[3]/stakeholders[3]/scope/constraints[5]/concrete_intents[4] すべて非空。00-requirements-definition.md と spec-state.json が整合し、全 8 技術章 frontmatter serves_goals が G1/G2 へトレース。dangling なし。",
+      "summary": "requirements_foundation は essential_purpose/background/goals/objectives/success_criteria/stakeholders/scope/constraints/concrete_intents (U1-U9 相当) が全て値で確定し confirmed=true、approval_ref=approval-foundation-1 が approval_log に実在。--require-foundation exit0。C06 sub_input が U1-U8 の written-requirements 逐語実在 (docs/spec/01 の該当節を Read) と sha256 一致、U9 の user-dialogue、provenance.field_sources 23 件の原典 sha256 一致と要素数の完全一致 (2/2/3/3/5/4)、scope の in 24 / out 13 の網羅を独立確認。goals G1/G2 → objectives → intents → 各章 serves_goals → セルへの trace に dangling なし (index の資するゴール列と各章末尾が一致)。00-requirements-definition.md は spec-state と同じ 7 decisions (7/7 confirmed) を転記。",
       "evidence": [
-        "requirements_foundation.confirmed=true, approval_ref=approval-foundation-1 が approval_log に実在",
-        "U1-U9 全項目に値あり (N/A なし)",
-        "全 8 技術章が frontmatter serves_goals で G1/G2 へ anchor",
-        "validate-coverage-matrix.py --require-complete exit 0 (foundation 含む)"
+        "G-foundation exit0",
+        "C06 axis5: field_sources 23/23 sha256 一致・quote 逐語実在・approval_ref 実在・U1/U2/U3 値必須充足",
+        "system-spec/00-requirements-definition.md U1-U9 節 + decisions 表 (7/7 confirmed)",
+        "index.md 章表の『資するゴール』が各章末尾『資するゴール』と一致 (例 backend=G2,G1 / ui-ux=G1,G2)"
       ]
     },
     "decision_guidance": {
       "verdict": "PASS",
       "auditor": "assign-system-spec-completeness-evaluator",
       "component": "C05",
-      "summary": "decisions[] 7 件が 2-3 案・無料/低コスト案・recommendation を持つ。全件 state=needs_guidance で利用者判断待ち (AI 推奨のみで confirmed にしたものは 0 件)。各 decision は category に紐づいている。",
+      "summary": "decisions[] 7 件すべてが 2〜3 案 (計 17 案) を持ち、各案に cost_model・free_tier_limits・goal_fit・security_fit・pros/cons/risks・lock_in・ops_burden・evidence_refs が揃う。無料/低コスト案が全 7 件に存在。recommendation は rationale・caveats を持ち、user_decision は 7/7 で利用者本人の選択を記録 (auth-method / test-ci-tooling / screen-priority は直接選択、他 4 件は confirmation_mode=『推奨への一任』を明記)。AI 推奨のみで confirmed にした decision は無い。decision-screen-priority は本人回答と既存要件 ID の食い違いを均さず本人裁定で確定している。",
       "evidence": [
-        "decisions[] = 7 件、全件 options 2-3 案",
-        "全件に free/低コスト option を含む",
-        "全件に recommendation あり",
-        "全件 state=needs_guidance (AI 推奨のみで confirmed にしていない)"
+        "spec-state.decisions[] 7 件 / options 17 件 / user_decision 7 件 (decided_by または note/verbatim に本人選択の記録)",
+        "decision-test-ci-tooling.user_decision.verbatim=『現行のままで確定』+ provenance で AI 昇格でないことを明記",
+        "低: 非採択案の evidence_refs (clerk / tailwind / playwright / cloudflare queues・r2・workers-ai・ai-gateway・cloudflare-one 等) は fetched-references の source_url と一致せず取得証跡を持たない (採択案は取得済み出典と整合)"
       ]
     },
     "matrix_coverage": {
       "verdict": "PASS",
       "auditor": "system-spec-matrix-auditor",
       "component": "C07",
-      "summary": "C07 (primary) は全 48 セル検証で PASS。C06 (sub_input) も 5 軸全てで PASS (前回検出の誘導・foundation 根拠欠落が是正済み)。決定論ゲート 2 モード exit 0。C16 必須情報被覆 exit 0。",
+      "summary": "一次根拠 = C07 fork の AUDIT_VERDICT: PASS (台帳 resolved, session 51d89a6f) + validate-coverage-matrix.py --require-complete exit0。C05 独立再実行の 7 モード (loop / complete / foundation / catalog-domain-coverage / counted-required-info / grounded-design-applications / declared-qa-supersession) も全て exit0。C07 意味層: 未収集 0/48、対象外 40 (理由要改善 0)、確定 8 (qa_ref 要確認 0)、platform 欠落 0、集約不一致 0、excluded_categories.api は利用者逐語根拠付き。C16: --profile required-info exit0、確定 8 セルの required_info 6 件に status=ungrounded 0 件。sub_input C06 は 5 軸すべて検出 0 で PASS (ヒアリング品質・トレースの補助根拠)。",
       "evidence": [
-        "validate-coverage-matrix.py --require-complete exit 0",
-        "validate-coverage-matrix.py (loop) exit 0",
-        "validate-knowledge-graph.py --profile required-info exit 0",
-        "C07 独立監査: AUDIT_VERDICT: PASS (全 5 軸検証済み)",
-        "C06 sub-input: AUDIT_VERDICT: PASS (誘導 0 / foundation 根拠欠落 0 / 聞き漏れ 0 / 早期停止 0 / トレース欠落 0)"
+        "G-matrix exit0 / G-catalog-domain-coverage exit0 / G-counted-required-info exit0 / G-grounded-design-applications exit0 / G-declared-qa-supersession exit0",
+        "C07 意味層: 未収集 0/48・対象外 40 (理由要改善 0)・確定 8 (qa_ref 要確認 0)・platform 欠落 0・集約不一致 0",
+        "C06 sub_input: 聞き漏れ 0 / 誘導 0 / 早期停止 0 / トレース欠落 0 / foundation 根拠欠落 0",
+        "C16: required_info 6 件 (確定セル) すべて status=grounded、ungrounded 0 (C05 実測)"
       ]
     },
     "design_knowledge_reflection": {
       "verdict": "PASS",
       "auditor": "assign-system-spec-completeness-evaluator",
       "component": "C05",
-      "summary": "全 8 技術章に設計知識ポインタ節あり (機械層)。DDD/クリーンアーキテクチャ/セキュアバイデザイン等の原則が各カテゴリの確定セル要件へ具体適用されている (意味層)。汎用ポインタのみの章は検出されなかった。C13 knowledge graph exit 0、C14 topo_order exit 0、C15 doctrine anchor exit 0。",
+      "summary": "機械層: 8 技術章すべてに『上流指針 (doctrine anchor)』『条項引用の可否』『適用された設計知識』節が存在し、G-knowledge-graph (knowledge/doctrine/required-info/cross) exit0、G-grounded-design-applications exit0。意味層: 各章『本章での適用』が qa 単位で『原則 → 採否 → 章固有の根拠 → トレードオフ』を持ち、原則が確定セル要件へ具体適用されている (例: backend=ランキング純関数を src/lib/domain に 1 箇所・FD-1〜FD-5・GC-1/GC-5・冪等キー+監査ログ・append-only イベント・UI と API の対定義 (利用者逐語) / auth=最小権限を §25 ロールへ・秘密情報の分離 / infrastructure=控え→確認→適用→未適用 0 の順序 / ui-ux=1 画面 1 主要タスク・9 軸本人回答・コンポーネント共通化 (利用者逐語))。汎用ポインタのみの章は無い。設計解釈の記録経路は 41 経路中 39 が dialogue、2 が unrecorded (ui-ux の qa-foundation-u1 / qa-platform-scope: foundation・platform-scope の接地根拠で ui-ux 固有の設計原則を担わない) — PASS 根拠には数えず medium finding として C01 へ差し戻す。legacy_backfill 0。C14: 各章が doctrine anchor → deep knowledge card → 章適用の上位→下位順で並び、位相順を破って下位技術を先に確定した章は無い。C15 意味層: ASVS / Apple HIG / Clean Architecture / SRE Workbook は cited_clauses が空だが各章が『条項引用不可』の reason_class (取得したが本文無し / 取得対象に無い / 取得経路が原理的に無い) と反転条件を明示し、authority の上流原則自体は確定セル要件へ適用されている。今回の C03 再生成 (backend.md / ui-ux.md) の差分は『最新ドキュメント出典』表の行のみで、設計知識節は前回評価から不変であることを git diff で確認。",
       "evidence": [
-        "全 8 章に設計知識ポインタ節あり",
-        "validate-knowledge-graph.py --profile knowledge exit 0",
-        "validate-knowledge-graph.py --profile doctrine exit 0",
-        "validate-knowledge-graph.py --profile cross exit 0"
+        "G-knowledge-graph exit0 (knowledge/doctrine/required-info/cross) / G-grounded-design-applications exit0",
+        "system-spec/{auth,backend,database,frontend,infrastructure,maintenance-ops,security,ui-ux}.md の『本章での適用』を C05 が直接読み、章固有の根拠・トレードオフの具体性を確認 (backend.md L240-L316 を逐次確認)",
+        "設計解釈の記録経路: dialogue 39 / unrecorded 2 (ui-ux.md L462, L467) / legacy_backfill 0",
+        "条項引用の可否: auth/security (ASVS landing page のみ)・frontend/ui-ux (Apple HIG JS シェル)・backend/database/frontend (Clean Architecture 書籍)・infrastructure/maintenance-ops (SRE Workbook 未取得) が reason_class と反転条件を明示"
       ]
     },
     "doc_freshness": {
       "verdict": "PASS",
       "auditor": "system-spec-doc-freshness-auditor",
       "component": "C08",
-      "summary": "層 0 (転記忠実性) exit 0: 全 15 target 転記が証跡と逐語一致。層 1 (形式・証跡) exit 0: 全 target の必須フィールド・host 一致・証跡 digest 整合。層 2 (内容鮮度) WebSearch/WebFetch で全 15 target を公式サイト現行版と再照合し、14 件一致、1 件 (apple-hig) は JS 必須で鮮度未確認だが層 0/1 が整合し MAX_UNVERIFIED_FRESHNESS=1 以内で全体 PASS。",
+      "summary": "一次根拠 = C08 fork の AUDIT_VERDICT: PASS (台帳 resolved, session 51d89a6f)。層0: validate-evidence-transcription.py exit0 (15 件 sha256 一致、C05 独立再実行も exit0)。層1: validate-source-citation.py exit0 (15 target ↔ 15 references 全件対応、C05 独立再実行も exit0)。層2 (WebSearch のみ): 15 target 全件の official_host を publisher 正規ホストと確認し非公式 host 0、確認できた世代落ち 0、確認時刻/出典欠落 0。鮮度未確認 1 件 (stryker-mutator: 記録 10.0.0 vs WebSearch 要約 9.6.1、GET 不可で決着不能。層0 逐語一致のため記録の誤りではなく再取得要求として C02 へ) は上限 1 件内で隠さず surface。WebFetch が tool 構成に無いため日付・header 値の GET 照合は未実施と明示 (cloudflare-workers / google-sre / github-actions / apple-hig は矛盾なしだが積極再確認もできず)。前回 run 後に更新された anthropic-claude / google-gemini / apple-hig の記録は証跡と逐語一致し、C03 再生成で章の出典表へ反映済み。",
       "evidence": [
-        "validate-evidence-transcription.py exit 0 (転記違反 0)",
-        "validate-source-citation.py exit 0 (形式・証跡 OK)",
-        "層 2: 14/15 target が公式サイト現行版と一致",
-        "apple-hig: JS 必須で WebFetch 不能だが層 0/1 整合 (鮮度未確認として surface 済み)",
-        "C08 独立監査: AUDIT_VERDICT: PASS"
+        "G-source-citation exit0 / G-evidence-transcription exit0",
+        "C08 層2: 非公式 host 0・世代落ち 0・確認時刻/出典欠落 0・鮮度未確認 1 (stryker-mutator)",
+        "鮮度未確認 1 件と GET 未実施の限界を隠していない",
+        "git diff: backend.md / ui-ux.md の差分は最新ドキュメント出典表の行のみ (anthropic-claude / google-gemini / apple-hig)"
       ]
     },
     "prompt_quality": {
       "verdict": "PASS",
       "auditor": "assign-system-spec-completeness-evaluator",
       "component": "C05",
-      "summary": "prompt-creator 外部 plugin 不在のため verify-completeness.py / validate-prompt.py 機械ゲートは skip (rubric deterministic_gate_dependency 例外)。意味層: 主要 prompt は 7 層形式を具備し L5 にゴール定義・原子的停止条件を持つ。独立 design findings に high なし。",
+      "summary": "system-spec-harness の prompts/*.md 18 件すべてで verify-completeness.py (7 層 + l5-contract v2.0) と validate-prompt.py が exit0。意味層: R1-score / R2-delegate / R6-audit-hearing / R7-audit-matrix / R4-audit-doc-freshness は L5 に成果状態・停止条件 checklist・動的実行方式を持ち、L7→L1 の提示契約 (最終行 AUDIT_VERDICT marker) が agent 定義と一致し、本 run の 3 fork 応答が実際に最終行 marker を満たして台帳 resolved になった。R2-delegate の停止条件 (supply_neutrality exit0 / 台帳 resolved のみ receipt) を本 run で実際に満たした。独立 design finding に high なし。",
       "evidence": [
-        "prompt-creator plugin 不在 → 機械ゲート skip (deterministic_gate_dependency 例外適用)",
-        "R1-score.md: L1-L7 全層具備、L5.3 に完了チェックリスト",
-        "R2-delegate.md: L1-L7 全層具備、L5.3 に完了チェックリスト",
-        "高 severity の独立 design finding なし"
+        "G-prompt-completeness exit0 (18/18)",
+        "G-prompt-validate exit0 (18/18)",
+        "G-supply-neutrality exit0 x3 / 台帳 3 行 verdict_state=resolved"
       ]
     }
   },
@@ -501,19 +85,17 @@
       "auditor": "system-spec-matrix-auditor",
       "component": "C07",
       "dispatch": {
-        "tool": "Task",
+        "tool": "Agent",
         "subagent_type": "system-spec-matrix-auditor",
-        "session_id": "105ca20f-2aa3-4efe-a4c9-ec2a403f7606",
-        "tool_use_id": "toolu_01VQwALottYJXdCeQrzyD9mA",
-        "response_sha256": "a30dbdeaba5973902153a120ef6f0261b3ca4b421b4f4eb6319d02dcc0218990"
+        "session_id": "51d89a6f-9ed0-4da7-a605-b49848a57bdb",
+        "tool_use_id": "toolu_01M46HS1mnSvsZ8bDLaty8Ho",
+        "response_sha256": "1e9443376c546dcac3716feafe6ac4bc17b3679a301f55813849c38d113cd320"
       },
       "verdict": "PASS",
       "evidence": [
-        "全 48 セル検証: 確定 8 / 対象外 40 / 未収集 0",
-        "決定論ゲート loop exit 0 + --require-complete exit 0",
-        "対象外理由: 全件 approval-platform-web-only に接地、placeholder 0",
-        "確定 qa_refs: 全件 qa_log に実在、dangling 0",
-        "category_aggregate 真理値表: 不一致 0"
+        "agent_id=aecd305fb99919f22 (独立 context fork, foreground, status=completed)。台帳行 schema 1.2 verdict_state=resolved ts=2026-08-25T12:56:27Z",
+        "監査本文: loop / フル opt-in (complete+foundation+counted-required-info+catalog-domain-coverage+grounded-design-applications+declared-qa-supersession) 両モード exit0、VIOLATION 0。catalog 行 sha256:e8e9e1308efd は worktree の 1 本と一致",
+        "意味層 5 軸: 未収集 0/48・対象外 40 (理由要改善 0、approval-platform-web-only の射程内)・確定 8 (qa_refs 全件 qa_log 実在、dangling 0)・集約不一致 0・platform 欠落 0。loop_pass=PASS / final_ready=PASS"
       ]
     },
     {
@@ -522,19 +104,17 @@
       "auditor": "system-spec-hearing-auditor",
       "component": "C06",
       "dispatch": {
-        "tool": "Task",
+        "tool": "Agent",
         "subagent_type": "system-spec-hearing-auditor",
-        "session_id": "105ca20f-2aa3-4efe-a4c9-ec2a403f7606",
-        "tool_use_id": "toolu_01ErbwfYjJ2BXizraAdsFctd",
-        "response_sha256": "755ac4aa9da84a5044e16811421e41da12759ee86f1458f6f9d6db01bc2c075d"
+        "session_id": "51d89a6f-9ed0-4da7-a605-b49848a57bdb",
+        "tool_use_id": "toolu_01DQYYP7yomZ43pR6tXbr2bV",
+        "response_sha256": "a4de3af6564f9bc88604e8c6b64931d3ede56878d5617d901dc4cd2643ad072b"
       },
       "verdict": "PASS",
       "evidence": [
-        "聞き漏れ 0 件: 未収集セル 0",
-        "誘導質問 0 件: 全 16 件の対話質問に断定・前提埋込・片側 Yes/No なし",
-        "早期停止 0 件: loop_count=2 < max_loops=5、complete=true",
-        "トレース欠落 0 件: 全確定セル qa_refs が qa_log に実在",
-        "foundation 根拠欠落 0 件: U1-U9 全件に field_sources 照合成立"
+        "agent_id=a2764c8fdb58832cd (独立 context fork, foreground, status=completed)。台帳行 schema 1.2 verdict_state=resolved ts=2026-08-25T12:58:26Z",
+        "5 軸: 聞き漏れ 0 / 誘導質問 0 (現行確定根拠 39 件走査、bundled=true なし) / 早期停止 0 (loop_count 2 < max_loops 5、complete=true と未収集 0 が整合) / トレース欠落 0 (qa_refs[] 全件) / foundation 根拠欠落 0 (U1-U8 は written-requirements の逐語実在と sha256 一致を Read で確認、U9 は user-dialogue、field_sources 23/23 sha256 一致)",
+        "参考付記 (検出外): qa-uiux-web-screen-priority.scope_notes の注記『qa-uiux-web-spec-intake はどの確定セルからも指されていない』は現行 matrix (ui-ux×web の qa_refs[] に含む) と食い違い、記述が古い可能性"
       ]
     },
     {
@@ -543,77 +123,163 @@
       "auditor": "system-spec-doc-freshness-auditor",
       "component": "C08",
       "dispatch": {
-        "tool": "Task",
+        "tool": "Agent",
         "subagent_type": "system-spec-doc-freshness-auditor",
-        "session_id": "105ca20f-2aa3-4efe-a4c9-ec2a403f7606",
-        "tool_use_id": "toolu_01RBXBW7HKYDoGf2nMBSh3i5",
-        "response_sha256": "e172bea482e1c6691d113e52bdcaf4c43663bd11d99dd10e19621eb7e6861360"
+        "session_id": "51d89a6f-9ed0-4da7-a605-b49848a57bdb",
+        "tool_use_id": "toolu_01B2LBdNRhxSjfJWrBGRCDgo",
+        "response_sha256": "88691d5e3691cc0db2179916e6e570b852c978e42c933c780023f3ebe2a65717"
       },
       "verdict": "PASS",
       "evidence": [
-        "層 0 (C08a): exit 0 — 全 15 target 転記が証跡と逐語一致",
-        "層 1 (C13): exit 0 — 形式・証跡 OK",
-        "層 2: 14/15 target が公式サイト現行版と一致 (apple-hig のみ JS 必須で鮮度未確認)",
-        "AUDIT_VERDICT: PASS"
+        "agent_id=a61df948672b7c680 (独立 context fork, foreground, status=completed)。台帳行 schema 1.2 verdict_state=resolved ts=2026-08-25T12:56:44Z",
+        "層0 validate-evidence-transcription.py exit0 (転記違反 0) / 層1 validate-source-citation.py exit0 (15 target ↔ 15 references 全件対応、欠落 0)",
+        "層2 (WebSearch のみ、WebFetch は tool 構成に無く GET 照合は未実施と明示): 非公式 host 0 / 確認できた世代落ち 0 / 確認時刻・出典欠落 0 / 鮮度未確認 1 (stryker-mutator: 記録 10.0.0 に対し WebSearch 要約は 9.6.1 を返し、npm 直接 GET で決着できず。層0 逐語一致のため FAIL ではなく INDETERMINATE 扱い、上限 1 件内)",
+        "cloudflare-workers / google-sre / github-actions / apple-hig は host 確認済みだが日付・header 値の再現照合は GET 不可のため『矛盾なし・積極再確認もできず』と限界を明示"
       ]
     }
   ],
   "gate_results": [
     {
-      "id": "G-matrix",
-      "name": "validate-coverage-matrix",
-      "conditions": [
-        "matrix_coverage"
-      ],
+      "id": "G-matrix-loop",
+      "name": "validate-coverage-matrix.py",
       "command": [
-        "python3",
-        ".claude/plugins/system-spec-harness/scripts/validate-coverage-matrix.py",
+        "/Library/Frameworks/Python.framework/Versions/3.11/bin/python3",
+        "/Users/dm/orca/workspaces/affiliate-hub/task20-2/.claude/plugins/system-spec-harness/scripts/validate-coverage-matrix.py",
+        "--matrix",
+        "system-spec/spec-state.json"
+      ],
+      "conditions": [
+        "loop (未収集許容)"
+      ],
+      "exit_code": 0,
+      "stdout": "OK: 収集マトリクス網羅性 (loop) を満たす\n",
+      "stderr": ""
+    },
+    {
+      "id": "G-matrix",
+      "name": "validate-coverage-matrix.py --require-complete",
+      "command": [
+        "/Library/Frameworks/Python.framework/Versions/3.11/bin/python3",
+        "/Users/dm/orca/workspaces/affiliate-hub/task20-2/.claude/plugins/system-spec-harness/scripts/validate-coverage-matrix.py",
         "--matrix",
         "system-spec/spec-state.json",
         "--require-complete"
       ],
+      "conditions": [
+        "final: 未収集 0"
+      ],
       "exit_code": 0,
-      "stdout": "OK: 収集マトリクス網羅性 (final(未収集0)) を満たす"
+      "stdout": "OK: 収集マトリクス網羅性 (final(未収集0)) を満たす\n",
+      "stderr": ""
     },
     {
-      "id": "G-matrix-loop",
-      "name": "validate-coverage-matrix-loop",
-      "conditions": [
-        "matrix_coverage"
-      ],
+      "id": "G-foundation",
+      "name": "validate-coverage-matrix.py --require-foundation",
       "command": [
-        "python3",
-        ".claude/plugins/system-spec-harness/scripts/validate-coverage-matrix.py",
+        "/Library/Frameworks/Python.framework/Versions/3.11/bin/python3",
+        "/Users/dm/orca/workspaces/affiliate-hub/task20-2/.claude/plugins/system-spec-harness/scripts/validate-coverage-matrix.py",
         "--matrix",
-        "system-spec/spec-state.json"
+        "system-spec/spec-state.json",
+        "--require-foundation"
+      ],
+      "conditions": [
+        "U1-U9 値/N/A理由・decisions・goal trace"
       ],
       "exit_code": 0,
-      "stdout": "OK: 収集マトリクス網羅性 (loop) を満たす"
+      "stdout": "OK: 収集マトリクス網羅性 (loop+foundation(上位概念トレース)) を満たす\n",
+      "stderr": ""
+    },
+    {
+      "id": "G-catalog-domain-coverage",
+      "name": "validate-coverage-matrix.py --require-complete --require-catalog-domain-coverage",
+      "command": [
+        "/Library/Frameworks/Python.framework/Versions/3.11/bin/python3",
+        "/Users/dm/orca/workspaces/affiliate-hub/task20-2/.claude/plugins/system-spec-harness/scripts/validate-coverage-matrix.py",
+        "--matrix",
+        "system-spec/spec-state.json",
+        "--require-complete",
+        "--require-catalog-domain-coverage"
+      ],
+      "conditions": [
+        "カタログ in_scope domain の勘定先"
+      ],
+      "exit_code": 0,
+      "stdout": "catalog: /Users/dm/orca/workspaces/affiliate-hub/task20-2/.claude/plugins/system-spec-harness/skills/run-system-spec-elicit/references/required-info-catalog.json (sha256:e8e9e1308efd)\nOK: 収集マトリクス網羅性 (final(未収集0)+catalog-domain-coverage(カタログ domain の勘定先)) を満たす\n",
+      "stderr": ""
+    },
+    {
+      "id": "G-counted-required-info",
+      "name": "validate-coverage-matrix.py --require-complete --require-counted-required-info",
+      "command": [
+        "/Library/Frameworks/Python.framework/Versions/3.11/bin/python3",
+        "/Users/dm/orca/workspaces/affiliate-hub/task20-2/.claude/plugins/system-spec-harness/scripts/validate-coverage-matrix.py",
+        "--matrix",
+        "system-spec/spec-state.json",
+        "--require-complete",
+        "--require-counted-required-info"
+      ],
+      "conditions": [
+        "C16 block item 充足照合"
+      ],
+      "exit_code": 0,
+      "stdout": "catalog: /Users/dm/orca/workspaces/affiliate-hub/task20-2/.claude/plugins/system-spec-harness/skills/run-system-spec-elicit/references/required-info-catalog.json (sha256:e8e9e1308efd)\nOK: 収集マトリクス網羅性 (final(未収集0)+counted-required-info(C16充足照合)) を満たす\n",
+      "stderr": ""
+    },
+    {
+      "id": "G-grounded-design-applications",
+      "name": "validate-coverage-matrix.py --require-grounded-design-applications",
+      "command": [
+        "/Library/Frameworks/Python.framework/Versions/3.11/bin/python3",
+        "/Users/dm/orca/workspaces/affiliate-hub/task20-2/.claude/plugins/system-spec-harness/scripts/validate-coverage-matrix.py",
+        "--matrix",
+        "system-spec/spec-state.json",
+        "--require-grounded-design-applications"
+      ],
+      "conditions": [
+        "設計適用の接地"
+      ],
+      "exit_code": 0,
+      "stdout": "OK: 収集マトリクス網羅性 (loop+grounded-design-applications(設計適用の接地)) を満たす\n",
+      "stderr": ""
+    },
+    {
+      "id": "G-declared-qa-supersession",
+      "name": "validate-coverage-matrix.py --require-declared-qa-supersession",
+      "command": [
+        "/Library/Frameworks/Python.framework/Versions/3.11/bin/python3",
+        "/Users/dm/orca/workspaces/affiliate-hub/task20-2/.claude/plugins/system-spec-harness/scripts/validate-coverage-matrix.py",
+        "--matrix",
+        "system-spec/spec-state.json",
+        "--require-declared-qa-supersession"
+      ],
+      "conditions": [
+        "孤立質疑の後継申告"
+      ],
+      "exit_code": 0,
+      "stdout": "OK: 収集マトリクス網羅性 (loop+declared-qa-supersession(孤立質疑の後継申告)) を満たす\n",
+      "stderr": ""
     },
     {
       "id": "G-knowledge-graph",
-      "name": "validate-knowledge-graph",
-      "conditions": [
-        "design_knowledge_reflection",
-        "matrix_coverage"
-      ],
+      "name": "validate-knowledge-graph.py (knowledge/doctrine/required-info/cross)",
       "command": [
-        "python3",
-        "aggregate-completeness.py",
+        "/Library/Frameworks/Python.framework/Versions/3.11/bin/python3",
+        "/Users/dm/orca/workspaces/affiliate-hub/task20-2/.claude/plugins/system-spec-harness/skills/assign-system-spec-completeness-evaluator/scripts/aggregate-completeness.py",
         "--knowledge-graph"
       ],
+      "conditions": [
+        "C13/C15/C16/cross 4 profile 全 exit0"
+      ],
       "exit_code": 0,
-      "stdout": "knowledge=exit0, doctrine=exit0, required-info=exit0, cross=exit0"
+      "stdout": "rr\": \"\"\n    },\n    {\n      \"profile\": \"required-info\",\n      \"command\": [\n        \"/Library/Frameworks/Python.framework/Versions/3.11/bin/python3\",\n        \"/Users/dm/orca/workspaces/affiliate-hub/task20-2/.claude/plugins/system-spec-harness/scripts/validate-knowledge-graph.py\",\n        \"--profile\",\n        \"required-info\",\n        \"--input\",\n        \"/Users/dm/orca/workspaces/affiliate-hub/task20-2/.claude/plugins/system-spec-harness/skills/run-system-spec-elicit/references/required-info-catalog.json\"\n      ],\n      \"exit_code\": 0,\n      \"stderr\": \"\"\n    },\n    {\n      \"profile\": \"cross\",\n      \"command\": [\n        \"/Library/Frameworks/Python.framework/Versions/3.11/bin/python3\",\n        \"/Users/dm/orca/workspaces/affiliate-hub/task20-2/.claude/plugins/system-spec-harness/scripts/validate-knowledge-graph.py\",\n        \"--profile\",\n        \"cross\",\n        \"--taxonomy\",\n        \"/Users/dm/orca/workspaces/affiliate-hub/task20-2/.claude/plugins/system-spec-harness/skills/ref-system-design-knowledge/references/system-category-taxonomy.json\",\n        \"--doctrine\",\n        \"/Users/dm/orca/workspaces/affiliate-hub/task20-2/.claude/plugins/system-spec-harness/skills/ref-system-design-knowledge/references/doctrine-anchor-registry.json\",\n        \"--required-info\",\n        \"/Users/dm/orca/workspaces/affiliate-hub/task20-2/.claude/plugins/system-spec-harness/skills/run-system-spec-elicit/references/required-info-catalog.json\"\n      ],\n      \"exit_code\": 0,\n      \"stderr\": \"\"\n    }\n  ]\n}\n",
+      "stderr": ""
     },
     {
       "id": "G-source-citation",
-      "name": "validate-source-citation",
-      "conditions": [
-        "doc_freshness"
-      ],
+      "name": "validate-source-citation.py --targets --references --state --repo-root",
       "command": [
-        "python3",
-        ".claude/plugins/system-spec-harness/scripts/validate-source-citation.py",
+        "/Library/Frameworks/Python.framework/Versions/3.11/bin/python3",
+        "/Users/dm/orca/workspaces/affiliate-hub/task20-2/.claude/plugins/system-spec-harness/scripts/validate-source-citation.py",
         "--targets",
         "system-spec/spec-state.json",
         "--references",
@@ -621,49 +287,611 @@
         "--state",
         "system-spec/spec-state.json",
         "--repo-root",
-        "."
+        "/Users/dm/orca/workspaces/affiliate-hub/task20-2"
+      ],
+      "conditions": [
+        "全 target 対応・必須 field・official host・取得証跡一致"
       ],
       "exit_code": 0,
-      "stdout": "OK: 出典記録が全件対応・必須フィールド・公式 host・時刻・取得証跡の一致を満たす"
+      "stdout": "OK: 出典記録が全件対応・必須フィールド・公式 host・時刻・取得証跡の一致を満たす\n",
+      "stderr": ""
+    },
+    {
+      "id": "G-evidence-transcription",
+      "name": "validate-evidence-transcription.py",
+      "command": [
+        "/Library/Frameworks/Python.framework/Versions/3.11/bin/python3",
+        "/Users/dm/orca/workspaces/affiliate-hub/task20-2/.claude/plugins/system-spec-harness/scripts/validate-evidence-transcription.py",
+        "--references",
+        "system-spec/fetched-references.json"
+      ],
+      "conditions": [
+        "retrieval-evidence との逐語一致"
+      ],
+      "exit_code": 0,
+      "stdout": "OK: 取得記録 15 件は証跡と逐語一致する\n未判定: 上流ページが取得後に変わったかは本検査の対象外 (再取得が要る。転記の忠実さと混ぜると、直せない事柄が FAIL になる)\n",
+      "stderr": ""
+    },
+    {
+      "id": "G-prompt-completeness",
+      "name": "verify-completeness.py --input x 18 prompts",
+      "command": [
+        "/Library/Frameworks/Python.framework/Versions/3.11/bin/python3",
+        "/Users/dm/orca/workspaces/affiliate-hub/task20-2/.claude/plugins/prompt-creator/skills/run-prompt-creator-7layer/scripts/verify-completeness.py",
+        "--input",
+        "<each of 18 prompts>"
+      ],
+      "conditions": [
+        "7 層網羅 + l5-contract v2.0"
+      ],
+      "exit_code": 0,
+      "stdout": "exit codes: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]",
+      "stderr": ""
+    },
+    {
+      "id": "G-prompt-validate",
+      "name": "validate-prompt.py --input x 18 prompts",
+      "command": [
+        "/Library/Frameworks/Python.framework/Versions/3.11/bin/python3",
+        "/Users/dm/orca/workspaces/affiliate-hub/task20-2/.claude/plugins/prompt-creator/skills/run-prompt-creator-7layer/scripts/validate-prompt.py",
+        "--input",
+        "<each of 18 prompts>"
+      ],
+      "conditions": [
+        "prompt-creator schema"
+      ],
+      "exit_code": 0,
+      "stdout": "exit codes: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]",
+      "stderr": ""
+    },
+    {
+      "id": "G-supply-neutrality",
+      "name": "supply_neutrality.py x 3 fork prompts",
+      "command": [
+        "/Library/Frameworks/Python.framework/Versions/3.11/bin/python3",
+        "/Users/dm/orca/workspaces/affiliate-hub/task20-2/.claude/plugins/system-spec-harness/skills/assign-system-spec-completeness-evaluator/scripts/supply_neutrality.py",
+        "--repo-root",
+        ".",
+        "<stdin: fork prompt for C07 / C06 / C08>"
+      ],
+      "conditions": [
+        "locator 区画外に参照なし・区画内に散文なし・locator 実在"
+      ],
+      "exit_code": 0,
+      "stdout": "通過: 供給は所在のみで構成されている。 (C07 / C06 / C08 の 3 件とも exit 0。fork 前に実行)",
+      "stderr": ""
+    },
+    {
+      "id": "G-installed-copy-drift",
+      "name": "check-installed-copy-drift.py",
+      "command": [
+        "/Library/Frameworks/Python.framework/Versions/3.11/bin/python3",
+        "/Users/dm/orca/workspaces/affiliate-hub/task20-2/.claude/plugins/system-spec-harness/scripts/check-installed-copy-drift.py"
+      ],
+      "conditions": [
+        "runtime 複製 = repo 複製 (情報。合否には含めない: 本 run では repo 側 hook が実際に台帳を書いた)"
+      ],
+      "exit_code": 1,
+      "stdout": "NG: system-spec-harness@harness-local が repo と 83 箇所ちがう (/Users/dm/.claude/plugins/cache/harness-local/system-spec-harness/0.1.11)\n  missing 30: hooks/record-audit-fork.py, hooks/references/hook-guard-protection-scope.md, lib/spec_docset_catalog.py, lib/spec_docset_chapters.py, lib/spec_docset_citation.py, lib/spec_docset_foundation.py, lib/spec_input_inventory.py, scripts/check-installed-copy-drift.py ほか 22 件\n  differing 48: agents/system-spec-doc-freshness-auditor.md, agents/system-spec-hearing-auditor.md, agents/system-spec-matrix-auditor.md, commands/spec-compile.md, hooks/guard-confirmed-chapter-overwrite.py, hooks/hooks.json, schemas/fetched-references.schema.json, schemas/spec-state.schema.json ほか 40 件\n  extra 5: schemas/information-priority-map.schema.json, scripts/validate-information-priority.py, skills/run-skill-feedback/SKILL.md, skills/run-skill-feedback/references/notion-submit-contract.md, skills/run-skill-feedback/workflow-manifest.json\n\n**repo を直しても runtime には効いていない。**宛先は plugin の入れ直しで、\n章や仕様書の書き換えではない。`/plugin` から当該 plugin を更新すること。\n",
+      "stderr": ""
     }
   ],
   "findings": [
     {
-      "severity": "info",
-      "bucket": "foundation_trace",
-      "observation": "U1-U9 全項目が値で確定済み。goal G1/G2 へのトレースが全 8 技術章で成立。dangling なし。"
-    },
-    {
-      "severity": "info",
-      "bucket": "decision_guidance",
-      "observation": "decisions[] 7 件が 2-3 案・無料案・recommendation を具備。全件 state=needs_guidance で利用者判断待ち (AI 推奨のみでの confirmed は 0 件)。"
-    },
-    {
-      "severity": "info",
-      "bucket": "matrix_coverage",
-      "observation": "決定論ゲート 2 モード exit 0。C07 は全 48 セル (確定 8 / 対象外 40 / 未収集 0) で PASS。C06 は 5 軸全てで PASS (前回検出の誘導・根拠欠落が是正済み)。C16 必須情報被覆 exit 0。"
-    },
-    {
-      "severity": "info",
-      "bucket": "design_knowledge_reflection",
-      "observation": "全 8 章に設計知識ポインタ節あり。DDD/クリーンアーキテクチャ等の原則が確定セル要件へ具体適用されている。C13/C14/C15 知識グラフ gates 全 exit 0。"
-    },
-    {
-      "severity": "info",
-      "bucket": "doc_freshness",
-      "observation": "C08 が三層監査で PASS: 層 0 (転記忠実性) exit 0 / 層 1 (形式・証跡) exit 0 / 層 2 (内容鮮度) 14/15 target 一致。apple-hig のみ鮮度未確認 (JS 必須)。"
+      "severity": "medium",
+      "bucket": "design_knowledge_reflection / 設計解釈の記録経路 unrecorded",
+      "observation": "ui-ux.md の接地根拠 qa-foundation-u1 (L462) と qa-platform-scope (L467) は『設計解釈の記録経路: unrecorded』で、設計原則の採否根拠が『未記録 — qa_log[].design_applications を writer 経由で補完すること』のまま (前回 run から未解消)。両 qa は foundation / platform-scope の接地根拠で ui-ux 固有の設計原則を担わないため観点 PASS の根拠には数えていないが、compile 出力が自ら未記録を名乗っている以上、放置すると『未記録のまま確定』が常態化する。",
+      "suggested_fix": "C01 run-system-spec-elicit の writer (apply-spec-transition) 経由で qa-foundation-u1 / qa-platform-scope に design_applications を記録する (設計原則が『非適用』であるならその採否と理由を記録する)。",
+      "evidence": [
+        "system-spec/ui-ux.md L459-L468"
+      ]
     },
     {
       "severity": "low",
-      "bucket": "doc_freshness",
-      "observation": "apple-hig (developer.apple.com) は JS 必須のため WebFetch で現行値を取得できず鮮度未確認。層 0/1 は整合しており、記録 last_updated=2026-08-24 が証跡と逐語一致。C08 は apple-hig 単体を鮮度未確認とした上で全体 PASS を維持 (MAX_UNVERIFIED_FRESHNESS=1 以内)。",
-      "suggested_fix": "C02 (doc-fetch) が HTTP HEAD リクエストで apple-hig の現行 Last-Modified を再確認し、記録値と照合する。"
+      "bucket": "doc_freshness / 鮮度未確認 (stryker-mutator)",
+      "observation": "C08 は stryker-mutator の記録 version 10.0.0 (npm view で 2026-08-22 取得、証跡と逐語一致) に対し、WebSearch 要約が 9.6.1 を返したが、WebFetch が無く npm を直接 GET して決着できなかった。層0 逐語一致のため記録の誤りではなく『鮮度未確認 1 件』(上限内) として PASS。",
+      "suggested_fix": "C02 run-system-spec-doc-fetch で stryker-mutator を再取得して現行版を確定するか、C08 監査 agent に WebFetch を実効付与する (または curl -I / npm view の Bash 経路を SSOT に明記する)。",
+      "evidence": [
+        "C08 response: 鮮度未確認 1 件 (stryker-mutator 10.0.0 vs WebSearch 9.6.1)",
+        "system-spec/retrieval-evidence/stryker-mutator.json"
+      ]
+    },
+    {
+      "severity": "low",
+      "bucket": "doc_freshness / GET 照合未実施",
+      "observation": "C08 の tool 構成に WebFetch が無く、層2 は WebSearch の二次要約による照合に留まった。cloudflare-workers / google-sre / github-actions / apple-hig は host 確認済みだが last_updated・header 値の積極的な再確認はできていない (矛盾は無し)。",
+      "suggested_fix": "C08 agent の tools 宣言 (WebFetch) が runtime で実効になるよう plugin install を更新するか、Bash 経路 (curl -sI) を SSOT に追加する。",
+      "evidence": [
+        "C08 response: 判定できなかった軸の明示"
+      ]
+    },
+    {
+      "severity": "low",
+      "bucket": "design_knowledge_reflection / doctrine 条項引用",
+      "observation": "auth / security (OWASP ASVS landing page) と frontend / ui-ux (Apple HIG JS シェル)、backend / database / frontend (Clean Architecture 書籍)、infrastructure / maintenance-ops (SRE Workbook 未取得) の doctrine anchor は cited_clauses が空。各章が『条項引用不可』の reason_class と反転条件を明示しており、authority の上流原則自体は確定セル要件へ適用されているため形骸化ではないが、条項番号で引ける状態にはない。",
+      "suggested_fix": "C02 で ASVS 本体 (要件番号付き配布物)・Apple HIG 本文 (browser-render 経路)・SRE Workbook を targets[] に追加取得し、cited_clauses を埋めて検査を『引いていること』側へ反転させる (Clean Architecture は書籍で反転先なし)。",
+      "evidence": [
+        "system-spec/auth.md / ui-ux.md / backend.md / infrastructure.md『条項引用の可否』"
+      ]
+    },
+    {
+      "severity": "low",
+      "bucket": "compile 出力の件数表記",
+      "observation": "backend.md / frontend.md / infrastructure.md / maintenance-ops.md の『条項引用の可否』本文は『fetched-references.json の取得対象 8 件』と書くが、現在の fetched-references.json / spec-state.targets[] は 15 件。結論 (Clean Architecture・SRE Workbook が取得対象に無い) は 15 件に対しても真だが、件数表記が古い。",
+      "suggested_fix": "C03 run-system-spec-compile の条項引用テンプレートで取得対象件数を fetched-references.json から動的に埋めるか、件数表記を外す。",
+      "evidence": [
+        "system-spec/backend.md L103 / frontend.md L121 / infrastructure.md L68 / maintenance-ops.md L65"
+      ]
+    },
+    {
+      "severity": "low",
+      "bucket": "decision_guidance / evidence URL",
+      "observation": "decisions[].options[].evidence_refs のうち clerk / tailwind / playwright / cloudflare queues・cron-triggers・r2・workers-ai・ai-gateway・cloudflare-one / docs.claude.com / platform.openai.com は fetched-references の source_url と一致せず取得証跡を持たない URL への参照になっている。採択案は取得済み出典と整合。",
+      "suggested_fix": "C02 で非採択案の比較根拠 URL も targets[] に加えるか、採択案のみ取得済み出典で裏取りする方針を rubric に明記する。",
+      "evidence": [
+        "spec-state.decisions[] evidence_refs vs fetched-references.references[].source_url"
+      ]
+    },
+    {
+      "severity": "low",
+      "bucket": "spec-state / scope_notes の古い注記",
+      "observation": "C06 が参考付記: qa-uiux-web-screen-priority.scope_notes の注記『qa-uiux-web-spec-intake はどの確定セルからも指されていない』は現行 matrix (ui-ux×web の qa_refs[] に qa-uiux-web-spec-intake を含む) と食い違う。トレーサビリティ自体は充足しており検出対象外だが、注記が古い。",
+      "suggested_fix": "C01 writer 経由で scope_notes の注記を現行 matrix に合わせて更新する。",
+      "evidence": [
+        "C06 response: 境界確認"
+      ]
+    },
+    {
+      "severity": "low",
+      "bucket": "ハーネス配線 / installed copy drift",
+      "observation": "check-installed-copy-drift.py は installed 複製が repo と 48 箇所異なり 5 件過剰と報告する (exit 1)。本 run では repo 側 hook (record-audit-fork.py) が実際に session 51d89a6f の台帳 3 行を書いたため合否には含めないが、runtime 複製の更新は未実施。",
+      "suggested_fix": "/plugin から system-spec-harness を更新し runtime 複製を repo と一致させる。",
+      "evidence": [
+        "G-installed-copy-drift stdout",
+        "eval-log/system-spec-harness/audit-fork-ledger.jsonl 3 行 (session 51d89a6f)"
+      ]
     },
     {
       "severity": "info",
-      "bucket": "prompt_quality",
-      "observation": "主要 prompt (R1-score/R2-delegate) が 7 層形式を具備。外部 prompt-creator 機械ゲートは plugin 不在により skip (dependency exception)。意味層は PASS。"
+      "bucket": "評価の独立性 / 帰属の接地",
+      "observation": "C07 / C06 / C08 を Agent tool で独立 context に foreground fork し、PostToolUse hook が書いた台帳 3 行 (schema 1.2, verdict_state=resolved, session=51d89a6f-9ed0-4da7-a605-b49848a57bdb, tool=Agent) と receipt の tool_use_id / response_sha256 / verdict を全一致で束縛した。fork prompt 3 件は fork 前に supply_neutrality.py exit0 (locator のみ供給・読みを供給しない)。C05 は仕様書・参照・plugin 実装を書き換えていない (書込 0 件)。",
+      "suggested_fix": "なし (記録)。",
+      "evidence": [
+        "audit-fork-ledger.jsonl: toolu_01M46HS1mnSvsZ8bDLaty8Ho / toolu_01DQYYP7yomZ43pR6tXbr2bV / toolu_01B2LBdNRhxSjfJWrBGRCDgo",
+        "G-supply-neutrality exit0"
+      ]
+    },
+    {
+      "severity": "info",
+      "bucket": "前回 run (session c8f20fa6) からの差分",
+      "observation": "前回 PASS の入力指紋 0a521dc2… は、出典更新 (anthropic-claude / google-gemini / apple-hig の retrieval-evidence と fetched-references) と C03 再生成 (backend.md / ui-ux.md の出典表行) により失効。今回の指紋を build_inventory() で再計測し全観点を再評価した。git diff で確認した差分は出典表行のみで、設計知識節・確定要件は不変。",
+      "suggested_fix": "なし (記録)。",
+      "evidence": [
+        "git diff -- system-spec/backend.md system-spec/ui-ux.md",
+        "inputs.sha256 (本レポート)"
+      ]
+    },
+    {
+      "severity": "info",
+      "bucket": "design_knowledge_reflection / Goodhart 防止",
+      "observation": "ポインタ節の存在 (compile 機械注入) を PASS 根拠にせず、8 章の『本章での適用』を C05 が直接読み、原則ごとの『章固有の根拠』が確定セルの利用者回答 (逐語) と設計制約 (docs/spec 参照) に接地していることを確認した。",
+      "suggested_fix": "なし (記録)。",
+      "evidence": [
+        "system-spec/*.md 『本章での適用』41 経路"
+      ]
     }
   ],
-  "gaps": []
+  "gaps": [],
+  "inputs": {
+    "sha256": "403c76018a0364c6c430f229f1d2a345c7eaf8469996e643be11285fd3c81c5c",
+    "file_count": 81,
+    "files": [
+      {
+        "path": "docs/spec/00-README.md",
+        "sha256": "7b7483023b040d4bed7c648c50d7555e53d7ff0aaa0bb1294fc4a4cc22a869de",
+        "mtime": 1787867973
+      },
+      {
+        "path": "docs/spec/01-要求仕様書-v1.0.md",
+        "sha256": "b5fc60987cb79c08c30db4cd94b075a0bf89cd7acba7c8d1ffc8558af6439385",
+        "mtime": 1787864988
+      },
+      {
+        "path": "docs/spec/02-補充仕様-ギャップと追加要件.md",
+        "sha256": "73b3204fcb5c71edf4704817b12af2d36939993ba1194bf04c1f4ceff9c8cd25",
+        "mtime": 1787864988
+      },
+      {
+        "path": "docs/spec/03-分析・解析基盤仕様.md",
+        "sha256": "5d84913a2422b9e697422b0656f90cf90633b0bd75adcebe0c6696e01fc9e45f",
+        "mtime": 1787864988
+      },
+      {
+        "path": "docs/spec/04-二層構造統合仕様.md",
+        "sha256": "d01442b19c1b9e29681719f2768847c39ec0fea34bfdf6438247c814c037f765",
+        "mtime": 1787864988
+      },
+      {
+        "path": "docs/spec/05-文章作成メソッド仕様.md",
+        "sha256": "edcbd22afffe076c76aea32bf4ae744c57db441834ffa1d79ee2e29245502696",
+        "mtime": 1787864988
+      },
+      {
+        "path": "docs/spec/06-サイトブループリント-記事構成テンプレート.md",
+        "sha256": "4758db202f1a48d1062ef871d94f609d058506486191d0f309be5540db43ce5f",
+        "mtime": 1787867973
+      },
+      {
+        "path": "docs/spec/07-生成基盤設計.md",
+        "sha256": "d155d9183ef16be0cda994d490bcf3fb359d0758f9415e61f950f3b4e43e0a3e",
+        "mtime": 1787864988
+      },
+      {
+        "path": "docs/spec/08-仕様の未修正点.md",
+        "sha256": "b79d5715a63404442a0b3eab05299988c24f7f1eb544dca79fd81a61e3e56665",
+        "mtime": 1787864988
+      },
+      {
+        "path": "docs/spec/09-UIテーマ仕様.md",
+        "sha256": "9bfeb611748edaf08e865fe740637e37e025af153c3a2bc0a5cffabb1dc6c6f1",
+        "mtime": 1787864988
+      },
+      {
+        "path": "docs/spec/10-テスト戦略仕様.md",
+        "sha256": "c1ca47a0525aea84ef244d2e8b265e353c4df55288c0f27c2bb75a9e492ff3d5",
+        "mtime": 1787867973
+      },
+      {
+        "path": "docs/spec/11-CI-CD・品質ゲート仕様.md",
+        "sha256": "4ad93aa85d133acb21abe45760b96625e3bddfc9d7e528201e6cce0d2616409d",
+        "mtime": 1787876827
+      },
+      {
+        "path": "docs/spec/12-改善要望フィードバック仕様.md",
+        "sha256": "f814f1a62e30eebb4512ba0c7964bfdb6986c4007af406aab7d8d7e58e17a856",
+        "mtime": 1787864988
+      },
+      {
+        "path": "docs/spec/13-参考サイト全体構成解析-抽象ブループリント.md",
+        "sha256": "b84be536c32930d670ea9d23073a90707e931ee933f2593d9b00cea4645b5c3f",
+        "mtime": 1787867973
+      },
+      {
+        "path": "docs/spec/ai-first-webmcp.md",
+        "sha256": "35241bfe4e82f6536d871c179eb938681ec771991fa50a59c72d5d97d3c98713",
+        "mtime": 1787864988
+      },
+      {
+        "path": "docs/spec/completion-criteria.md",
+        "sha256": "07cb3de0ca834a6776d6e08dfd11a3d6bd1b848d962d1f582d9e41f0705a8943",
+        "mtime": 1787864988
+      },
+      {
+        "path": "docs/spec/data-model-gap.md",
+        "sha256": "97861d9844e975922b73715c49d5ea7f4a8db53e83fbbbf0e73a54a32fb6754c",
+        "mtime": 1787864988
+      },
+      {
+        "path": "docs/spec/dialogue-confirmations.md",
+        "sha256": "1312a2372403173dc8b57112ae0178d713c93a05471124e201e084bf0da8daa1",
+        "mtime": 1787864988
+      },
+      {
+        "path": "docs/spec/feat-auth-workspace/acceptance-report.md",
+        "sha256": "df48a656a22f3da687a80545c849985241e09c53cc4066455637d93022e43fcc",
+        "mtime": 1787867973
+      },
+      {
+        "path": "docs/spec/feat-auth-workspace/architecture-design.md",
+        "sha256": "f5ea3a5c23e1aa944922f0866fa91d383211995dfb3a3992c8918ffc73a10b8b",
+        "mtime": 1787867973
+      },
+      {
+        "path": "docs/spec/feat-auth-workspace/design-review-log.md",
+        "sha256": "f4a33bdb58cf23589f324d32a0b8cc6fcb33c1fa8639a41805af6ae4e94bf5a0",
+        "mtime": 1787867973
+      },
+      {
+        "path": "docs/spec/feat-auth-workspace/final-review-log.md",
+        "sha256": "66c0c83d336146aa1862149b2646a4883b58274bcef2fea2432c3e1a892388fd",
+        "mtime": 1787867973
+      },
+      {
+        "path": "docs/spec/feat-auth-workspace/handover.md",
+        "sha256": "8a53779b8c420c29df0220d9afaafed4f4d1d0d211ad2dec792b572179a35f1b",
+        "mtime": 1787867973
+      },
+      {
+        "path": "docs/spec/feat-auth-workspace/migration-decision.md",
+        "sha256": "d7d23e8d9d4e0feeefe9ec35356794b880d9fcd5d11c57b04954d162cc9cdbb6",
+        "mtime": 1787867973
+      },
+      {
+        "path": "docs/spec/feat-auth-workspace/quality-security-report.md",
+        "sha256": "af15310a800eeb13c75abece152cbffd03a98ab4b620cd8ae175c6bf893cb597",
+        "mtime": 1787867973
+      },
+      {
+        "path": "docs/spec/feat-auth-workspace/release-notes.md",
+        "sha256": "fc62c2a8b0dde07ed6280cf5c095d106a6457acb05aa904c479b0c68a104ae18",
+        "mtime": 1787867973
+      },
+      {
+        "path": "docs/spec/feat-auth-workspace/requirements-baseline.md",
+        "sha256": "52887b55503f3046ca632c658ac85ba9504a2d1fbf49cf90657aa8bc46f2d1e0",
+        "mtime": 1787867973
+      },
+      {
+        "path": "docs/spec/feat-auth-workspace/runbook.md",
+        "sha256": "75009a2d176f3cf8a4911a96ab29303152c86e7723ee738499db9e1e1370a045",
+        "mtime": 1787877019
+      },
+      {
+        "path": "docs/spec/feat-auth-workspace/test-design.md",
+        "sha256": "020dc16b26abafbd8173da335fb1314a51eaf3bf4f96981b308219fdeb9a65f2",
+        "mtime": 1787867973
+      },
+      {
+        "path": "docs/spec/feat-blog-ops-crud/acceptance-report.md",
+        "sha256": "f2156a150619842c8018428cfb80680d9c94146a9282591a90a13afbf52e108d",
+        "mtime": 1787867973
+      },
+      {
+        "path": "docs/spec/feat-blog-ops-crud/api-contract.md",
+        "sha256": "2464a8e475b942028cd3fffbd1babc8ae0dd00ea854eec96cb71742868ef4543",
+        "mtime": 1787867973
+      },
+      {
+        "path": "docs/spec/feat-blog-ops-crud/component-contract.md",
+        "sha256": "e066ba6d540f886119dd1c1bdc277f1ca0a7c3c8753d3a22b464420128c40b99",
+        "mtime": 1787867973
+      },
+      {
+        "path": "docs/spec/feat-blog-ops-crud/data-model.md",
+        "sha256": "39409a6c2edb939e017f669150949721c82c0f267c6bdb08f8297e5cd2259a82",
+        "mtime": 1787867973
+      },
+      {
+        "path": "docs/spec/feat-blog-ops-crud/design-review.md",
+        "sha256": "c2410773b91312ccfd4f70ef0880dbbb12b861bf92d28d7333a3a9974dff2b87",
+        "mtime": 1787867973
+      },
+      {
+        "path": "docs/spec/feat-blog-ops-crud/evidence/index.md",
+        "sha256": "48666e93be0778578c9654a32707f95db24e84bf60e565790c0fffacf7abde53",
+        "mtime": 1787867973
+      },
+      {
+        "path": "docs/spec/feat-blog-ops-crud/final-review.md",
+        "sha256": "db20d1f7777f283b85a8dc61ad6d22fc8ad4c45523b95454fdb705f29a5d0dff",
+        "mtime": 1787867973
+      },
+      {
+        "path": "docs/spec/feat-blog-ops-crud/migration-plan.md",
+        "sha256": "438c0084569901f6f8b1ed9edd1386db6e310981621bc01ae3ffe275afbf5afd",
+        "mtime": 1787867973
+      },
+      {
+        "path": "docs/spec/feat-blog-ops-crud/migration-report.md",
+        "sha256": "2eaa9b7bdaa1252299c3aa32bee0ca2293e1f274bf6ca36c371ca5bd28939bd3",
+        "mtime": 1787867973
+      },
+      {
+        "path": "docs/spec/feat-blog-ops-crud/operations.md",
+        "sha256": "f124dfc241f914c2d63a8d259e46ba6468d4e7eb0e8d012ebb02522cafc1476e",
+        "mtime": 1787867973
+      },
+      {
+        "path": "docs/spec/feat-blog-ops-crud/qa-report.md",
+        "sha256": "b024d1fce572d76f75df8d1ce5220f5df940b7f282856616fb3875ea5ebb6858",
+        "mtime": 1787867973
+      },
+      {
+        "path": "docs/spec/feat-blog-ops-crud/release-report.md",
+        "sha256": "0e15ed5ea752e0663b47ce30ff2a9e9723ca8893e7e5196cba6a7de2e3f6fcc0",
+        "mtime": 1787867973
+      },
+      {
+        "path": "docs/spec/feat-blog-ops-crud/requirements-baseline.md",
+        "sha256": "561de7f744cd47d2714e15afc8b139399c5cff9290c8ffa619b41f80b0b34263",
+        "mtime": 1787867973
+      },
+      {
+        "path": "docs/spec/feat-blog-ops-crud/screen-inventory.md",
+        "sha256": "5a6b1c728a33f1f46b951745ae93c1fae20b882b4a1b9137308dd14458d02cea",
+        "mtime": 1787867973
+      },
+      {
+        "path": "docs/spec/feat-blog-ops-crud/test-design.md",
+        "sha256": "fa4bc74444631c0a31bcf51079828ff777a800f2005e1270cf2b4ed35f41fc91",
+        "mtime": 1787867973
+      },
+      {
+        "path": "docs/spec/feat-blog-ops-crud/test-run-report.md",
+        "sha256": "60af15e4bc098da84041ef8f31f07430c52a48df00a371fdfcde7dff242bc305",
+        "mtime": 1787867973
+      },
+      {
+        "path": "docs/spec/feat-blog-ui-builder/final-review.md",
+        "sha256": "39c2b7139bf6db0090238ccd53085a716b2159e94c34be373c0ceadeef9422ee",
+        "mtime": 1787867973
+      },
+      {
+        "path": "docs/spec/feat-blog-ui-builder/operations.md",
+        "sha256": "e2d13aa6e106d1fc722a69d5cba181a855ac6d468aa138c32c690c7c5c295974",
+        "mtime": 1787867973
+      },
+      {
+        "path": "docs/spec/feat-blog-ui-builder/release-report.md",
+        "sha256": "fddacdf296ff6b3077c958a34563314a925de820fda17e488ba97edc1cfac3a9",
+        "mtime": 1787867973
+      },
+      {
+        "path": "docs/spec/feat-blog-ui-builder/seo-ai-search-implementation.md",
+        "sha256": "50fe812c1602072e92f34d0135bc79a97af7cca6b4ea5817d3477d9a9e62fcb8",
+        "mtime": 1787867973
+      },
+      {
+        "path": "docs/spec/feat-blog-ui-builder/spec-writeback-receipt.md",
+        "sha256": "0eeee78ec7a7cf517edcb66e5c6e71eea741c231c1007ff8a5833af10050ca7e",
+        "mtime": 1787867973
+      },
+      {
+        "path": "docs/spec/feat-blog-ui-builder/ui-rules.md",
+        "sha256": "ef4190022c1545a6be64202dccc8537c2d56c3225c3f6a2c36fd6d1689f98cb5",
+        "mtime": 1787867973
+      },
+      {
+        "path": "docs/spec/feat-uiux-overhaul/acceptance-report.md",
+        "sha256": "500417a21d80867124f54d88e3b0657f1204d495e95364d19e9bdc309e531547",
+        "mtime": 1787867973
+      },
+      {
+        "path": "docs/spec/feat-uiux-overhaul/admin-api-contract.md",
+        "sha256": "335d57d9a267c6d80f8ca6000e0f3513cfabe9364e72a222f35671e1490d5d11",
+        "mtime": 1787867973
+      },
+      {
+        "path": "docs/spec/feat-uiux-overhaul/blog-scaffold-contract.md",
+        "sha256": "b1ebe26d43cbcefeb152ade3cf9c31781cab832a6aaff24b87971c97483d38da",
+        "mtime": 1787867973
+      },
+      {
+        "path": "docs/spec/feat-uiux-overhaul/component-contract.md",
+        "sha256": "2926e4a4db7f77c4a2b247a520b839dfc2011025a5376df9180efe07dc2b02cb",
+        "mtime": 1787867973
+      },
+      {
+        "path": "docs/spec/feat-uiux-overhaul/design-review.md",
+        "sha256": "e073aedc4734bfb763d429c4c116b0a6f1222ee3381ca9c20546a06b40d74bf6",
+        "mtime": 1787867973
+      },
+      {
+        "path": "docs/spec/feat-uiux-overhaul/evidence/README.md",
+        "sha256": "14a86e2d542cf7f00d944f2f562924c4f15999a89c306b0a7293b85ede70364f",
+        "mtime": 1787867973
+      },
+      {
+        "path": "docs/spec/feat-uiux-overhaul/final-review.md",
+        "sha256": "aaf676c78f50a374b88fea4eb7ac30205f898fac13f21ac3d6f6f35262e7a4d3",
+        "mtime": 1787867973
+      },
+      {
+        "path": "docs/spec/feat-uiux-overhaul/migration-report.md",
+        "sha256": "3f3a69d30391831bdc11b70ee5fd0944952c32633b1c091a4a4f83f0372d7599",
+        "mtime": 1787867973
+      },
+      {
+        "path": "docs/spec/feat-uiux-overhaul/operations.md",
+        "sha256": "a26d05b65d58040ff18bc515231d74671f4e99f654f6891b06deaf27bc0d4126",
+        "mtime": 1787867973
+      },
+      {
+        "path": "docs/spec/feat-uiux-overhaul/quality-report.md",
+        "sha256": "4845a67556097d01c6ddd5184ec653a36eefef8e91c82cda19a8d2736236c1b6",
+        "mtime": 1787867973
+      },
+      {
+        "path": "docs/spec/feat-uiux-overhaul/release-report.md",
+        "sha256": "a0cd5f9e8c7d564c65ddb399d64f08110593fdd6bef75b5bf7baaf9bb3524628",
+        "mtime": 1787867973
+      },
+      {
+        "path": "docs/spec/feat-uiux-overhaul/requirements-baseline.md",
+        "sha256": "e06d162c96e99970bf82a5c7530fa36515d1ceb2264b7005aad8e7169c48d895",
+        "mtime": 1787867973
+      },
+      {
+        "path": "docs/spec/feat-uiux-overhaul/screen-architecture.md",
+        "sha256": "471fccee0e61c5bd1d1ae5cda56093cf1f18217ce71a4d5971f6940673c8a61b",
+        "mtime": 1787867973
+      },
+      {
+        "path": "docs/spec/feat-uiux-overhaul/screen-inventory.md",
+        "sha256": "9adb840149a760eda0915cc537e219b2e8768f6963d349ac198fb0b7ab77d50e",
+        "mtime": 1787867973
+      },
+      {
+        "path": "docs/spec/feat-uiux-overhaul/sns-provider-contract.md",
+        "sha256": "38bafcc8fb04b7fcdbabf15d22a8be550905d4c53c7a408cf7c9f377874ed5de",
+        "mtime": 1787867973
+      },
+      {
+        "path": "docs/spec/feat-uiux-overhaul/spec-writeback-receipt.md",
+        "sha256": "82ac6891e55704f1b78a87dc3a1f31da12a888233141088bc3cd5d09bd0e2c6f",
+        "mtime": 1787867973
+      },
+      {
+        "path": "docs/spec/feat-uiux-overhaul/test-design.md",
+        "sha256": "0218f0e65a9cf2efde9fb29821131a74dd80b4a1d5537766e7c6fc9399920abb",
+        "mtime": 1787867973
+      },
+      {
+        "path": "docs/spec/feat-uiux-overhaul/test-run-report.md",
+        "sha256": "7c807e720628a7afef2204e97a039122bda8fa70eb74a1e4bb6a569d2289ae91",
+        "mtime": 1787867973
+      },
+      {
+        "path": "docs/spec/feat-uiux-overhaul/ui-rules.md",
+        "sha256": "66ea836c06f39c9d71cd7f4d30706ce9d1a16a1defa3edb291ab8e01f27ce746",
+        "mtime": 1787867973
+      },
+      {
+        "path": "system-spec/00-requirements-definition.md",
+        "sha256": "af460e02930459d08ad7ac2414875f4d5ab4fdc2489ce7cafe51c99263467058",
+        "mtime": 1787867973
+      },
+      {
+        "path": "system-spec/auth.md",
+        "sha256": "97db352fad14d48fb48787d83fa3ed4bbdde2ae80b09eb4f32b71fb3bd4870a7",
+        "mtime": 1787867973
+      },
+      {
+        "path": "system-spec/backend.md",
+        "sha256": "0029f838bb339c2c0523d51077436b4a45b4678814d3fca72c7f686c13643d07",
+        "mtime": 1787867973
+      },
+      {
+        "path": "system-spec/database.md",
+        "sha256": "e11ddc574d682569ea0ccbde36804e99417f94c5e10ba85cae5c0fcc263ccfa7",
+        "mtime": 1787867973
+      },
+      {
+        "path": "system-spec/frontend.md",
+        "sha256": "e6d0a385ee3324dba5668b7230abf9add5365d63a2a0a95295caf0a0dc86f152",
+        "mtime": 1787867973
+      },
+      {
+        "path": "system-spec/index.md",
+        "sha256": "d3be7225ce351be5424414a85e715da82fb0e398f6bae1eb7de14a9d08498726",
+        "mtime": 1787867973
+      },
+      {
+        "path": "system-spec/infrastructure.md",
+        "sha256": "8098857b50846b43b054379f6b58836187373a75da86336c1745fd4d65ff14fb",
+        "mtime": 1787867973
+      },
+      {
+        "path": "system-spec/maintenance-ops.md",
+        "sha256": "f3ae1348368474959d456b7931c0d37a58b587b39356e21abcb19f03c5f8b8fa",
+        "mtime": 1787867973
+      },
+      {
+        "path": "system-spec/security.md",
+        "sha256": "4e55a023c1bfb2cd43cd2d5e2c87e3f456a059b2ac1214a0d4938506aa68b889",
+        "mtime": 1787867973
+      },
+      {
+        "path": "system-spec/spec-state.json",
+        "sha256": "3ebf070ee375222662b1e86906eae824fff8621caf4c6258c963b79a65b211e8",
+        "mtime": 1787867973
+      },
+      {
+        "path": "system-spec/ui-ux.md",
+        "sha256": "27d9540866be6d02a4905e4866b4351d629bf6fe61bb41d144c242a3e2181e80",
+        "mtime": 1787867973
+      }
+    ],
+    "pinned_at": "2026-08-28T00:58:09.107Z"
+  }
 }

@@ -187,11 +187,11 @@ pnpm drizzle-kit generate
    `src/db/auth-schema.ts` を読み比べ、**足りない列・索引を手で足す**。
    そのうえで `pnpm run db:generate`（drizzle のマイグレーションを作る）
 4. `pnpm vitest run tests/infrastructure/better-auth-gate.test.ts` が緑
-5. `pnpm run db:migrate:dev` で dev の D1 へ形を当てる
+5. `pnpm run db:migrate:remote --env dev` で dev の D1 へ形を当てる
 6. **dev で実際に 1 回ログインする。**（4 と 5 が緑でも、ここが本番）
    `pnpm exec wrangler tail --env dev` を別のターミナルで開いたまま行い、
    `[auth]` で始まる行が出ていないことを見る
-7. 本番へは、dev で 6 が通ってから（`pnpm run db:migrate:prod` → 公開）
+7. 本番へは、dev で 6 が通ってから（`pnpm run db:migrate:remote --env production` → 公開）
 
 **5 を飛ばして公開してはいけない。** 形の変更が本番の D1 に届く前にコードが出ると、
 ログインが全面的に落ちる。`deploy.yml` は移行が追いつく前の公開を止めるようになっているが、
@@ -341,7 +341,7 @@ pnpm exec wrangler d1 execute DB --env dev --remote --command \
 | 確かめること | 打つもの | 読み方 |
 | --- | --- | --- |
 | D1 に届くか | `pnpm exec wrangler d1 execute DB --env dev --remote --command "SELECT 1"` | 落ちれば、入口が全員を断っているのは仕様どおりの動作 |
-| 表の形が当たっているか | `pnpm exec wrangler d1 migrations list DB --env dev --remote` | 未適用が残っていれば `pnpm run db:migrate:dev` |
+| 表の形が当たっているか | `pnpm exec wrangler d1 migrations list DB --env dev --remote` | 未適用が残っていれば `pnpm run db:migrate:remote --env dev` |
 | 手元（preview）で見るとき | `sqlite3 .wrangler/state/v3/d1/miniflare-D1DatabaseObject/*.sqlite "SELECT count(*) FROM sessions"` | preview を**止めてから**読む |
 
 **手元の preview の入口は `localhost:8788` である。8787 ではない。**

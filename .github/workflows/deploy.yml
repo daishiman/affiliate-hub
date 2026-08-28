@@ -1,30 +1,6 @@
-# 公開する。壊せるのは**アプリ**（データではない）。
-#
-# 出す先は枝で決まる:
-#   dev  へ push  → 試し場（preview 環境）。ここで人が触って確かめる
-#   main へ push  → 本番。承認を経てから出る
-#
-# 順番は常に「データの形の変更 → 公開」。
-# 逆にすると、新しいコードが存在しない列を読んで本番が全面エラーになる。
-# その順番は `.github/scripts/require-migrations-applied.sh` が公開の直前に見張る。
-#
-# **順番の守らせ方は、出し先で変わらない。**
-# どちらの環境でも「控えを取る → 空でないことを確かめる → 適用する → 未適用 0 件を確かめる」
-# の順で走る。控えが取れなければ、そこで止まって適用へ進まない。
-#
-# 本番で人が立つ場所は、この並びの中ではなく**手前**にある。
-# `environment: production` に承認者を登録してあるので、マージしても
-# **人が承認するまで job そのものが始まらない**。承認したあとの手順を
-# 人の記憶に頼らせるより、機械に同じ順番で踏ませるほうが取り違えが起きない。
-#
-# 手動の経路（`migrate.yml` の手動起動＋`APPLY`）は消していない。
-# 公開とは別に、先にデータの形だけ変えたいときに使う。
-#
-# 手元から `wrangler deploy` を打たない理由:
-# wrangler は git のコミットではなく**その場の作業ツリー**をビルドする。
-# 未コミットの実験コードが本番へ混ざり得る。CI は毎回まっさらな取得なので、
-# この事故が構造的に起きない。これが自動化する最大の理由で、時短ではない。
-#
+# dev/main の対象環境へ、控え→migration適用→台帳/定義確認→公開を直列実行する。
+# 同じ D1 を触る手動 migrate とは共有 concurrency で排他する。
+# 本番承認、失敗時の診断、修復手順は次の規範に集約する。
 # 規範: docs/spec/11-CI-CD・品質ゲート仕様.md / docs/product/ci-cd-guide.md
 name: 公開
 
@@ -34,8 +10,8 @@ on:
   workflow_dispatch:
 
 concurrency:
-  # 公開は打ち切らない。途中で止めると、どの版が出ているか分からなくなる。
-  group: deploy-${{ github.ref }}
+  # 同じ D1 を触る migrate.yml とも直列化する。途中の DB 操作・公開は打ち切らない。
+  group: d1-${{ github.ref == 'refs/heads/main' && 'production' || 'dev' }}
   cancel-in-progress: false
 
 permissions:
@@ -148,12 +124,7 @@ jobs:
 
       # 未適用が無ければ wrangler が何もせずに終わるので、条件で囲まなくてよい。
       - name: データの形を合わせる
-        run: |
-          if [ "$IS_PRODUCTION" = "true" ]; then
-            pnpm db:migrate:prod
-          else
-            pnpm db:migrate:dev
-          fi
+        run: pnpm run db:migrate:remote --env "$D1_ENV"
 
       # 順番（データの形の変更 → 公開）が守られたかを、人の記憶ではなく機械が見る。
       #
@@ -167,6 +138,10 @@ jobs:
         env:
           PENDING_ACTION: fail
         run: bash .github/scripts/require-migrations-applied.sh
+
+      # 台帳だけでなく sqlite_master の定義も確認する。詳細と修復手順は CI/CD 仕様が正本。
+      - name: データの形が移行ファイルと同じか（公開の直前）
+        run: pnpm run db:drift
 
       - name: 公開
         run: |
