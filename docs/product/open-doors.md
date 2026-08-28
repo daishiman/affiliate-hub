@@ -11,7 +11,7 @@
 
 適用範囲: `/admin` 以下（読者のページとログインの往復は通す）
 
-開いている扉: **0 件** / 全 84 件
+開いている扉: **0 件** / 全 89 件
 
 「誰でも」と宣言してある行: **26 件**
 （宣言すればその扉は差の数から消える。だから宣言の件数そのものにも上限がある）
@@ -106,7 +106,10 @@
 | `src/app/admin/analytics/page.tsx` | 管理画面 | ログイン | ログイン | — |
 | `src/app/admin/content/[variant]/page.tsx` | 管理画面 | ログイン | ログイン | — |
 | `src/app/admin/content/matrix/page.tsx` | 管理画面 | ログイン | ログイン | — |
+| `src/app/admin/content/new/page.tsx` | 管理画面 | ログイン | ログイン | — |
 | `src/app/admin/content/page.tsx` | 管理画面 | ログイン | ログイン | — |
+| `src/app/admin/content/published/[site]/[slug]/edit/page.tsx` | 管理画面 | ログイン | ログイン | — |
+| `src/app/admin/content/published/page.tsx` | 管理画面 | ログイン | ログイン | — |
 | `src/app/admin/distribution/[publication]/page.tsx` | 管理画面 | ログイン | ログイン | — |
 | `src/app/admin/distribution/calendar/page.tsx` | 管理画面 | ログイン | ログイン | — |
 | `src/app/admin/distribution/page.tsx` | 管理画面 | ログイン | ログイン | — |
@@ -199,6 +202,7 @@
 | `advanceLinkIngestionAction()` | 成果リンクの取り込みを進める（src/presentation/admin/inbox-action.ts） | ログイン | ログイン | — | つく |
 | `approveContentAction()` | 記事を承認する（src/presentation/admin/content-progress-action.ts） | ログイン | ログイン | — | つく |
 | `approveVariantSpecAction()` | 見せ方の試作を承認する（比較に出せる状態にする）（src/presentation/admin/improvement-action.ts） | ログイン | ログイン | — | つく |
+| `archivePublishedArticleAction()` | 公開済み記事を非表示にする（データは残す）（src/presentation/admin/published-article-action.ts） | ログイン | ログイン | — | つく |
 | `changeFeedbackStatusAction()` | 指摘の状態を変える（src/presentation/admin/feedback-action.ts） | ログイン | ログイン | — | つく |
 | `checkFactBoundaryAction()` | 書ける範囲の判定を試す（src/presentation/admin/fact-boundary-action.ts） | ログイン | ログイン | — | つく |
 | `draftVariantSpecAction()` | 見せ方の試作を登録する（src/presentation/admin/improvement-action.ts） | ログイン | ログイン | — | つく |
@@ -208,4 +212,5 @@
 | `submitAffiliateUrlAction()` | 成果リンクを登録する（src/presentation/admin/inbox-action.ts） | ログイン | ログイン | — | つく |
 | `submitContactAction()` | 読者からの問い合わせ（公開フォーム）（src/presentation/site/contact-action.ts） | 誰でも | 誰でも | — | つく |
 | `submitFeedbackAction()` | 指摘を登録する（src/presentation/admin/feedback-action.ts） | ログイン | ログイン | — | つく |
-<!-- 生成物の指紋 sha256:85c4d65f53bff41faae3471ac6ddcb36c79fa4fd59576a180a077867a2e49d0a -->
+| `updatePublishedArticleAction()` | 公開済み記事を訂正する（src/presentation/admin/published-article-action.ts） | ログイン | ログイン | — | つく |
+<!-- 生成物の指紋 sha256:e5324e4b19a91da410bb1eccf815c20c0278cdedc523e9b4767073fd01819ab3 -->

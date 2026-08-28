@@ -128,16 +128,18 @@ describe("本物の CSS を読まずに書き出せる経路が無い", () => {
     expect(writer).toContain("buildDocument");
   });
 
-  it("焼いた 1 枚は、アプリが配る場所へは置かない", () => {
+  it("焼いた写しは、どれもアプリが配る場所へは置かない", () => {
     const writer = readFileSync(join(ROOT, "scripts/write-static-preview.tsx"), "utf8");
-    const out = /const OUT = "([^"]+)"/.exec(writer)?.[1];
+    const outputs = [...writer.matchAll(/const \w*OUT = "([^"]+)"/g)].map((match) => match[1]);
 
     // `public/` へ置くと、門を通さずにアプリ自身が配ってしまう。
     // それは「別に作った静止画」ではなく、入口に開けた穴になる。
     // （門そのものは `tests/architecture/open-doors.test.ts` が測っている。）
-    expect(out).toBeDefined();
-    expect(out?.startsWith("docs/")).toBe(true);
-    expect(out?.startsWith("public/")).toBe(false);
-    expect(out?.startsWith("src/")).toBe(false);
+    expect(outputs.length).toBeGreaterThan(0);
+    for (const out of outputs) {
+      expect(out.startsWith("docs/")).toBe(true);
+      expect(out.startsWith("public/")).toBe(false);
+      expect(out.startsWith("src/")).toBe(false);
+    }
   });
 });

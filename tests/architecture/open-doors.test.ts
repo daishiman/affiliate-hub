@@ -258,6 +258,11 @@ const ACTION_INTENT: Readonly<
   },
 
   // --- 取り返しがつく（記録が残り、後から直せる） ---
+  archivePublishedArticleAction: {
+    intent: "ログイン",
+    what: "公開済み記事を非表示にする（データは残す）",
+    reversible: "つく",
+  },
   adjustConversionAction: { intent: "ログイン", what: "成果の実績を手で直す", reversible: "つく" },
   advanceContentStateAction: {
     intent: "ログイン",
@@ -297,6 +302,11 @@ const ACTION_INTENT: Readonly<
   submitContactAction: {
     intent: "誰でも",
     what: "読者からの問い合わせ（公開フォーム）",
+    reversible: "つく",
+  },
+  updatePublishedArticleAction: {
+    intent: "ログイン",
+    what: "公開済み記事を訂正する",
     reversible: "つく",
   },
 };
