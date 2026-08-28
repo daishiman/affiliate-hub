@@ -379,6 +379,26 @@ describe("手元と機械で同じ検査が走る（REQ-CI01 / REQ-CI03）", () 
         混ざっていると、次に生成し直した日にこれだけ消えたことに気づけない。
       */
       "0035_non_generated_boundaries",
+      /*
+        0034 の作り直しが残した**形のずれ**を、実体を壊さずに畳む 1 本。
+
+        0033/0034 は列を `ALTER TABLE ADD` で足す。SQLite の ADD は
+        閉じ括弧の外へ列を並べるので、先頭から流し直した結果は
+        「宣言どおりの順に並んだ表」ではなく「末尾に付け足された表」になる。
+        列の集合は合っているので、名前だけを見る関門（require-migrations-applied.sh）
+        でも、列名だけを見る突き合わせでも、これは緑のまま通る。
+
+        scripts/check-schema-drift.mjs が定義そのものを見るようになって
+        初めて 4 件見えた（capacity_leases / legal_page / channel_connections /
+        publications）。ALTER TABLE は列順も CHECK も変えられないので、
+        表を作り直すしかない。**適用済みファイルは書き換えない**——
+        d1_migrations はファイル名しか見ないため、直しても既に適用した環境へは
+        二度と流れず、これから作る環境とのずれがむしろ広がる。
+
+        作り直した後の形は schema.ts の宣言と一致させる。ここで独自の形にすると、
+        次に drizzle-kit generate を走らせた人が「なぜか差分が出る」から始める。
+      */
+      "0036_rebuild_drifted_tables",
     ];
     const journal = JSON.parse(read("drizzle/meta/_journal.json")) as {
       entries: Array<{ tag: string }>;
