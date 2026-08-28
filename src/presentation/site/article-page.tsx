@@ -2,7 +2,7 @@ import { readerActor, siteUseCases } from "@/presentation/composition";
 import type { PageKind } from "@/presentation/tools/webmcp-policy";
 import { ArticleTableOfContents, ArticleView } from "@/presentation/ui";
 import { ReadFailureBody, SiteFrame } from "./page-frame";
-import { siteHref, toArticleView } from "./view-model";
+import { siteHref, toArticleCards, toArticleView } from "./view-model";
 
 /**
  * 記事 1 本の画面。
@@ -39,9 +39,20 @@ export async function ArticlePage({
   readonly pathPrefix: string;
   readonly routeLabel: string;
 }) {
-  const result = await (await siteUseCases()).getArticle.execute(readerActor(), { siteSlug, slug });
+  const useCases = await siteUseCases();
+  const actor = readerActor();
+  const [result, recent] = await Promise.all([
+    useCases.getArticle.execute(actor, { siteSlug, slug }),
+    useCases.listRecent.execute(actor, { siteSlug, limit: 4 }),
+  ]);
   const path = `${pathPrefix}/${slug}`;
-  const article = result.ok ? toArticleView(siteSlug, result.value) : null;
+  const relatedArticles = recent.ok
+    ? toArticleCards(
+        siteSlug,
+        recent.value.filter((candidate) => candidate.slug !== slug).slice(0, 3),
+      )
+    : undefined;
+  const article = result.ok ? toArticleView(siteSlug, result.value, relatedArticles) : null;
   const failure = result.ok ? null : result.error;
 
   return (

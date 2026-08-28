@@ -3,9 +3,10 @@ import { SiteFrame } from "@/presentation/site/page-frame";
 import { siteHref, toArticleCards } from "@/presentation/site/view-model";
 import {
   ArticleList,
-  CategoryDirectory,
+  CategoryArticleGroups,
   ErrorView,
   SiteHomeHero,
+  SiteSection,
   UI_COPY,
 } from "@/presentation/ui";
 
@@ -30,13 +31,18 @@ export default async function SiteHome({ params }: { params: Promise<{ site: str
             purpose={blueprint.purpose}
             searchHref={chrome.searchHref}
           />
-          <section>
-            <h2>新着記事</h2>
+          <SiteSection
+            id="recent-articles"
+            eyebrow="新着"
+            title="新着記事"
+            lead="公開・更新された記事から順に紹介します。"
+          >
             {recent.ok ? (
               <ArticleList
                 articles={toArticleCards(site, recent.value)}
                 emptyTitle={UI_COPY.article.emptyListTitle}
                 emptyBody={UI_COPY.article.emptyListBody}
+                headingLevel="h3"
               />
             ) : (
               <ErrorView
@@ -44,18 +50,30 @@ export default async function SiteHome({ params }: { params: Promise<{ site: str
                 body={recent.error.suggestedAction ?? recent.error.message}
               />
             )}
-          </section>
+          </SiteSection>
 
-          <section>
-            <h2>テーマから探す</h2>
-            <CategoryDirectory
-              items={blueprint.categories.map((category) => ({
+          <SiteSection
+            id="category-articles"
+            eyebrow="カテゴリー"
+            title="テーマから探す"
+            lead="知りたいテーマを選び、関連記事をまとめて探せます。"
+          >
+            <CategoryArticleGroups
+              groups={blueprint.categories.map((category) => ({
                 href: siteHref(site, `/categories/${category.slug}`),
                 label: category.name,
                 description: category.oneLine,
+                articles: recent.ok
+                  ? toArticleCards(
+                      site,
+                      recent.value
+                        .filter((article) => article.categorySlug === category.slug)
+                        .slice(0, 2),
+                    )
+                  : [],
               }))}
             />
-          </section>
+          </SiteSection>
         </div>
       )}
     </SiteFrame>

@@ -128,6 +128,15 @@ describe("本物の CSS を読まずに書き出せる経路が無い", () => {
     expect(writer).toContain("buildDocument");
   });
 
+  it("記事の写しも実データの関連記事を読み、現在の記事を除いて焼く", () => {
+    const writer = readFileSync(join(ROOT, "scripts/write-static-preview.tsx"), "utf8");
+
+    expect(writer).toContain("content.listRecent");
+    expect(writer).toContain("candidate.slug !== currentArticle.slug");
+    expect(writer).toContain("toArticleCards");
+    expect(writer).toContain("toArticleView(SAMPLE_SITE_SLUG, currentArticle, relatedArticles)");
+  });
+
   it("焼いた写しは、どれもアプリが配る場所へは置かない", () => {
     const writer = readFileSync(join(ROOT, "scripts/write-static-preview.tsx"), "utf8");
     const outputs = [...writer.matchAll(/const \w*OUT = "([^"]+)"/g)].map((match) => match[1]);

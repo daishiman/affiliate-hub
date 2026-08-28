@@ -45,7 +45,12 @@ import {
   createSampleSiteRepository,
   SAMPLE_SITE_SLUG,
 } from "@/infrastructure/persistence/sample/site-sample-repository";
-import { siteHref, toArticleView, toChrome } from "@/presentation/site/view-model";
+import {
+  siteHref,
+  toArticleCards,
+  toArticleView,
+  toChrome,
+} from "@/presentation/site/view-model";
 import { buildDocument, findModuleCss } from "./lib/static-preview.mjs";
 
 const ROOT = process.cwd();
@@ -79,16 +84,25 @@ function body(): string {
 }
 
 async function blogBody(): Promise<string> {
-  const [site, article] = await Promise.all([
+  const content = createSampleContentRepository();
+  const [site, article, recent] = await Promise.all([
     createSampleSiteRepository().findBySlug(SAMPLE_SITE_SLUG),
-    createSampleContentRepository().findArticle(SAMPLE_SITE_SLUG, "laptops-for-video-editing"),
+    content.findArticle(SAMPLE_SITE_SLUG, "laptops-for-video-editing"),
+    content.listRecent(SAMPLE_SITE_SLUG, 4),
   ]);
   if (!site.ok || site.value === null || !article.ok || article.value === null) {
     throw new Error("ブログ記事の見本を読み込めませんでした。");
   }
   const blueprint = site.value;
+  const currentArticle = article.value;
   const chrome = toChrome(SAMPLE_SITE_SLUG, blueprint);
-  const view = toArticleView(SAMPLE_SITE_SLUG, article.value);
+  const relatedArticles = recent.ok
+    ? toArticleCards(
+        SAMPLE_SITE_SLUG,
+        recent.value.filter((candidate) => candidate.slug !== currentArticle.slug).slice(0, 3),
+      )
+    : undefined;
+  const view = toArticleView(SAMPLE_SITE_SLUG, currentArticle, relatedArticles);
   const path = siteHref(SAMPLE_SITE_SLUG, "/best/laptops-for-video-editing");
   return renderToStaticMarkup(
     <SiteShell

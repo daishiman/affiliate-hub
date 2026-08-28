@@ -227,8 +227,16 @@ export function AppShell({
 
   return (
     <div className={styles.shell}>
+      <a className={styles.skipLink} href="#admin-main-content">
+        本文へ移動
+      </a>
       <nav className={styles.sidebar} aria-label="主な案内">
-        <span className={styles.brandName}>affiliate-hub</span>
+        <div className={styles.brandBlock}>
+          <Link href="/admin" className={styles.brandName}>
+            affiliate-hub
+          </Link>
+          <span className={styles.brandContext}>ブログ運営メニュー</span>
+        </div>
         {nav.ungrouped.map(navLink)}
         {nav.groups.map(({ group, items }) => (
           // 分類の境目を、見た目の隙間だけでなく読み上げにも伝える。
@@ -267,7 +275,9 @@ export function AppShell({
           {actions !== undefined && <div className={styles.headerActions}>{actions}</div>}
         </header>
 
-        <main className={styles.content}>{children}</main>
+        <main id="admin-main-content" className={styles.content}>
+          {children}
+        </main>
       </div>
 
       {feedback !== undefined && (
@@ -297,6 +307,7 @@ export function Page({
       {/* 見出しと説明文をひとまとめにする。ばらばらに置くと、
           画面全体の縦の間隔と、見出し・説明文の間隔を 1 箇所で決められない。 */}
       <header className={styles.pageHead}>
+        <p className={styles.pageEyebrow}>運営画面</p>
         <h1 className={styles.pageTitle}>{title}</h1>
         <p className={styles.pageLead}>{lead}</p>
       </header>

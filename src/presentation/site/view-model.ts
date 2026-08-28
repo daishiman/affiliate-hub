@@ -120,7 +120,11 @@ export function toArticleCards(
 }
 
 /** 記事 1 本。順位表の商品名は、レビューがある商品だけリンクにする。 */
-export function toArticleView(siteSlug: string, article: PublishedArticle): ArticleViewModel {
+export function toArticleView(
+  siteSlug: string,
+  article: PublishedArticle,
+  relatedArticles?: readonly ArticleCardView[],
+): ArticleViewModel {
   return {
     title: article.title,
     summary: article.summary,
@@ -215,6 +219,7 @@ export function toArticleView(siteSlug: string, article: PublishedArticle): Arti
               ),
             })),
           },
+    relatedArticles,
     stub:
       article.stub === undefined
         ? undefined

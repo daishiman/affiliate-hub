@@ -6,6 +6,7 @@ import type { ConsentAnswer } from "../consent";
 import { AppearancePicker } from "../patterns/appearance-picker";
 import { ConsentBanner } from "../patterns/consent-banner";
 import type { SelectOption } from "../primitives/select";
+import { ArticleList, type ArticleCardView } from "./article-view";
 import styles from "./site.module.css";
 
 /**
@@ -89,6 +90,9 @@ export function SiteShell({
   return (
     <div className={styles.siteShell} data-brand-theme={chrome.brandTheme}>
       {telemetry}
+      <a className={styles.skipLink} href="#site-main-content">
+        本文へ移動
+      </a>
       <header className={styles.siteHeader}>
         <div className={styles.siteHeaderInner}>
           <div className={styles.siteIdentity}>
@@ -119,7 +123,7 @@ export function SiteShell({
         </div>
       </header>
 
-      <main className={styles.siteMain}>
+      <main id="site-main-content" className={styles.siteMain}>
         {breadcrumbs !== undefined && breadcrumbs.length > 0 && (
           <nav className={styles.breadcrumb} aria-label="現在の場所">
             {breadcrumbs.map((crumb, i) => (
@@ -244,6 +248,71 @@ function SiteSearch({
 
 export type CategoryDirectoryItem = SiteNavItem & { readonly description: string };
 
+/** ホームの章。新着とカテゴリーを同じ見出し階層・余白で読むための共通枠。 */
+export function SiteSection({
+  id,
+  eyebrow,
+  title,
+  lead,
+  children,
+}: {
+  readonly id: string;
+  readonly eyebrow: string;
+  readonly title: string;
+  readonly lead: string;
+  readonly children: ReactNode;
+}) {
+  return (
+    <section className={styles.siteSection} aria-labelledby={id}>
+      <header className={styles.siteSectionHead}>
+        <p>{eyebrow}</p>
+        <h2 id={id}>{title}</h2>
+        <span>{lead}</span>
+      </header>
+      {children}
+    </section>
+  );
+}
+
+export type CategoryArticleGroupView = CategoryDirectoryItem & {
+  readonly articles: readonly ArticleCardView[];
+};
+
+/** カテゴリーごとの代表記事と、そのカテゴリー全体への出口。 */
+export function CategoryArticleGroups({
+  groups,
+}: {
+  readonly groups: readonly CategoryArticleGroupView[];
+}) {
+  return (
+    <ul className={styles.categoryArticleGroups}>
+      {groups.map((group) => (
+        <li key={group.href}>
+          <header className={styles.categoryArticleGroupHead}>
+            <div>
+              <h3>{group.label}</h3>
+              <p>{group.description}</p>
+            </div>
+            <Link href={group.href}>このカテゴリーをすべて見る</Link>
+          </header>
+          {group.articles.length > 0 ? (
+            <ArticleList
+              articles={group.articles}
+              emptyTitle=""
+              emptyBody=""
+              headingLevel="h4"
+            />
+          ) : (
+            <p className={styles.categoryArticleGroupEmpty}>
+              代表記事は準備中です。<Link href={group.href}>カテゴリーの案内を見る</Link>
+            </p>
+          )}
+        </li>
+      ))}
+    </ul>
+  );
+}
+
 /** ホームの主役。ブログの対象と探し始める場所を 1 画面内に置く。 */
 export function SiteHomeHero({
   name,
@@ -298,14 +367,45 @@ export function PublicShell({
 }) {
   return (
     <div className={styles.siteShell}>
+      <a className={styles.skipLink} href="#public-main-content">
+        本文へ移動
+      </a>
       <header className={styles.siteHeader}>
         <div className={styles.siteHeaderInner}>
-          <Link href="/" className={styles.siteName}>
-            {title}
-          </Link>
+          <div className={styles.siteIdentity}>
+            <Link href="/" className={styles.siteName}>
+              {title}
+            </Link>
+            <span className={styles.siteTagline}>運営するブログと記事を一か所から案内します</span>
+          </div>
+        </div>
+        <div className={styles.siteNavBar}>
+          <nav className={styles.siteNav} aria-label="サイトの案内">
+            <Link href="/">ブログ一覧</Link>
+            <Link href="/signin">運営者ログイン</Link>
+          </nav>
         </div>
       </header>
-      <main className={styles.siteMain}>{children}</main>
+      <main id="public-main-content" className={styles.siteMain}>
+        {children}
+      </main>
+      <footer className={styles.siteFooter}>
+        <div className={styles.siteFooterInner}>
+          <div className={styles.footerAbout}>
+            <Link href="/" className={styles.footerSiteName}>
+              {title}
+            </Link>
+            <p>ブログを読む人と運営する人の入口です。</p>
+          </div>
+          <nav aria-label="サイトの足元の案内">
+            <ul className={styles.footerLinks}>
+              <li><Link href="/">ブログ一覧</Link></li>
+              <li><Link href="/signin">運営者ログイン</Link></li>
+            </ul>
+          </nav>
+          <p className={styles.copyright}>© {new Date().getFullYear()} {title}</p>
+        </div>
+      </footer>
     </div>
   );
 }
