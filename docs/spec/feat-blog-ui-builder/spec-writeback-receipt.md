@@ -187,3 +187,52 @@ feature node の lineage digest がずれる。
 
 検証: `vitest run tests/architecture` → **60 files / 758 tests 全通過**。
 `aggregate-completeness.py` exit 0、`spec-freshness.mjs` **FRESH**。
+
+## §13 赤の正体は、道具不足ではなく規則の取り違えだった
+
+§10 で「この環境では doc_freshness は PASS になれない」と書いた。**これは誤診だった。**
+訂正しておく。誤診のまま残すと、次の人が同じ壁を「環境のせい」と読んで手を止める。
+
+`R4-audit-doc-freshness.md` の Layer 4 は 2 分岐である。
+
+| 条件 | 帰結 |
+|---|---|
+| 層2 を**一件も実施できなかった** | 監査不成立 → `INDETERMINATE` |
+| 道具は使えるが**特定 target だけ**確定できない | 当該 target を算入対象から外す。未確認が `MAX_UNVERIFIED_FRESHNESS = 1` 以内で、確定分がすべて公式・現行なら `PASS` |
+
+分岐条件は**道具の有無ではなく実施件数**である。前 run は WebFetch の不在を理由に
+上段を選んでいたが、実際には層2 を 13 件実施していた。上段の条件を満たしていない。
+
+**評価者は判定を書き換えていない。**期待する verdict を渡さず、
+「どちらの分岐の条件を満たすかを、実施件数と条件文を並べて示せ」とだけ求めて
+再監査させた（供給は `supply_neutrality.py` 通過、所在のみ）。fork は自ら 14 件実施・
+未確認 1 件と数え、上限の内側であることを示して **PASS** を返した。
+
+**再取得は無駄ではなかった。**未確認が 2 件から 1 件へ減ったのは、`anthropic-claude` の
+鮮度根拠を `page-declared`（本文埋め込みの `lifecycle=active` 集合）へ改めたためで、
+これで WebFetch なしでも照合できるようになった。上限が 1 件である以上、
+再取得をしていなければ 2 件残って規則どおり `FAIL` だった。
+
+### 到達状態
+
+| 検査 | 結果 |
+|---|---|
+| 6 観点 | すべて `PASS` |
+| `aggregate-completeness.py` | exit 0（`verdict=PASS`） |
+| `scripts/spec-freshness.mjs` | FRESH / 判定 PASS / **exit 0** |
+| `vitest run tests/architecture` | 60 files / 758 tests passed |
+| `pytest .claude/plugins/system-spec-harness/tests/` | 668 passed |
+
+閾値・上限には一切触れていない。
+
+### 残す穴
+
+`apple-hig` は `freshness_source=http-last-modified` で、生の HTTP ヘッダを読む手段が
+無いと照合できない。未確認 1 件として個別に残してある（**除外は消去ではない**）。
+上限が 1 件なので、**今後 1 件でも未確認が増えれば規則どおり総合が落ちる**。
+この緑に余裕は無い。→ `ah-v84h`
+
+### 学び
+
+**「できない」と書く前に、できないと言っている規則の条件文を読む。**
+今回それをしていれば、環境の穴として 1 日持ち越さずに済んだ。
