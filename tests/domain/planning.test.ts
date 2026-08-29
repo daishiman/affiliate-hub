@@ -2,6 +2,7 @@
 import { describe, expect, it } from "vitest";
 import {
   CONTENT_LENGTHS,
+  CTA_TYPES,
   FUNNEL_STAGES,
   canStartGeneration,
   createContentPackage,
@@ -84,6 +85,37 @@ describe("生成パターンの品ぞろえ", () => {
       "thread",
       "article",
       "script",
+    ]);
+  });
+
+  it("CTA は、仕様 §15.3 が並べた 10 種が順番どおりにそろっている", () => {
+    // `docs/spec/01-要求仕様書-v1.0.md` §15.3「CTA」
+    // （詳細記事を読む・比較表を見る・公式情報を確認・販売店で価格確認・保存・
+    //   コメント・フォロー・メール登録・無料診断・資料請求）。実装から輸入しない。
+    //
+    // **ここを足した理由（実測、2026-08-29）。**`CTA_TYPES` から「資料請求」を
+    // 抜いたところ、**型検査 exit 0・テスト 9757 件すべて緑**だった。
+    // 要件表 REQ-P06 の判定欄は「CTA種別」を PASS の根拠に挙げているが、
+    // その主張に当たる検査が 1 件も無かった。
+    //
+    // 長さ・購買段階と違い、CTA は消費する側がほとんど居ない。渡り先は
+    // `z.enum(CTA_TYPES)` と `quality-check.ts` の 2 値の名指しだけで、
+    // **`z.enum` は与えられた集合をそのまま受け入れる**ので、集合が縮んでも
+    // 何も言わない。切り口が守られているのは、言い換え表が
+    // `Record<ContentAngle, string>` で全項目を要求しているからである
+    // （`checklist` を改名すると型検査が 5 件で止まることを実測）。
+    // **CTA にはその表が無い。**だからここで直接当てる。
+    expect([...CTA_TYPES]).toEqual([
+      "read_detail",
+      "view_comparison",
+      "check_official",
+      "check_price_at_merchant",
+      "save",
+      "comment",
+      "follow",
+      "email_signup",
+      "free_diagnosis",
+      "request_material",
     ]);
   });
 

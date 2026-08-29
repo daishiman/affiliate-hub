@@ -182,7 +182,7 @@
 | `tests/domain/membership-write.test.ts` | REQ-P01 | 印 |
 | `tests/domain/metrics-from-telemetry.test.ts` | REQ-P10, REQ-TM01, REQ-TM04 | 印 |
 | `tests/domain/permissions.test.ts` | REQ-API02, REQ-R01, REQ-R02, REQ-R03, REQ-R04, REQ-R05, REQ-R06, REQ-R07, REQ-R08, REQ-R09, REQ-R10, REQ-R11, REQ-R12 | 印と表 |
-| `tests/domain/planning.test.ts` | REQ-E23, REQ-SEC07 | 印と表 |
+| `tests/domain/planning.test.ts` | REQ-E23, REQ-P06, REQ-SEC07 | 印と表 |
 | `tests/domain/policy-channel-scope.test.ts` | REQ-SEC07 | 印と表 |
 | `tests/domain/policy-rule-seed.test.ts` | REQ-QC11, REQ-SEC07 | 印と表 |
 | `tests/domain/quality-check-tables.test.ts` | REQ-QC02, REQ-QC03, REQ-QC05, REQ-QC06, REQ-QC07, REQ-W08, REQ-W12 | 印 |
@@ -419,4 +419,4 @@
 | `tests/ui/uiux-spacing-and-copy.test.ts` | REQ-UX08, REQ-UX10 | 印と表 |
 | `tests/ui/zz-probe-tone.test.tsx` | REQ-TM07 | 表 |
 | `tests/visual/visual-regression.test.ts` | REQ-S09, REQ-TS12, REQ-UX08 | 印 |
-<!-- 生成物の指紋 sha256:d6d1af45e916d7ce5ee4e80fa7a477a09d100a95855e3b96a0d76083352e79d1 -->
+<!-- 生成物の指紋 sha256:c0f185854100644bf1ad1f7dea3ff50686ef892258c7c9093d383b95ad7d3002 -->
