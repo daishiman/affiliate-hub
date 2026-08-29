@@ -96,7 +96,8 @@ async function tailwindCss(): Promise<string> {
 function adminBody(): string {
   return renderToStaticMarkup(
     <AppShell
-      currentPath="/admin/ui-catalog"
+      actualRoutePath="/admin/ui-catalog"
+      navContextPath="/admin/ui-catalog"
       breadcrumbs={[{ label: "ホーム", href: "/admin" }, { label: "画面部品の見本" }]}
     >
       <Page
@@ -377,7 +378,7 @@ function renderSheets(sites: readonly PreviewSiteData[]): readonly Sheet[] {
             chrome={chrome}
             currentPath={appHref}
             breadcrumbs={[
-              { label: blueprint.name, href: chrome.homeHref },
+              { label: blueprint.name, href: siteHref(slug, "/") },
               { label: view.title },
             ]}
             sidebar={<ArticleTableOfContents sections={view.sections} placement="sidebar" />}

@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import { telemetryAttrs } from "../telemetry-attrs";
 import { AffiliateLink } from "./disclosure";
 import { FactualityBadge } from "./factuality";
@@ -37,6 +38,7 @@ export function ProductCard({
   blockedReason,
   detailHref,
   productId,
+  saveSlot,
 }: {
   readonly name: string;
   readonly brand: string;
@@ -56,6 +58,12 @@ export function ProductCard({
   readonly detailHref?: string;
   /** 計測用。どの商品のカードか。 */
   readonly productId?: string;
+  /**
+   * 「気になる」の押しどころ。**この部品では作らない。**
+   * 保存はサーバ動作なので、作れるのは画面の側だけ。ここで作れる形にすると、
+   * 見た目の部品が読者の保存先を知ることになる。
+   */
+  readonly saveSlot?: ReactNode;
 }) {
   return (
     <article
@@ -105,6 +113,11 @@ export function ProductCard({
             {blockedReason ?? "販売ページへの案内は、いま用意できていません。"}
           </span>
         )}
+        {/*
+          「気になる」は、買う導線が出せないときにも出す。
+          提携が切れている商品ほど、読者は覚えておきたい。
+        */}
+        {saveSlot}
       </footer>
     </article>
   );

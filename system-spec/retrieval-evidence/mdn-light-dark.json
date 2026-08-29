@@ -1,0 +1,21 @@
+{
+ "target_id": "mdn-light-dark",
+ "source_url": "https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Values/color_value/light-dark",
+ "requested_url": "https://developer.mozilla.org/en-US/docs/Web/CSS/color_value/light-dark",
+ "retrieved_at": "2026-08-22T15:05:07Z",
+ "http_status": 200,
+ "content_bytes": 339098,
+ "content_sha256": "0b98653ffd5acd23a86d89b21b1814a32595ea2763f3e1f0f102f4624d9a4eec",
+ "page_title": "light-dark() CSS function - CSS | MDN",
+ "redirect_note": "host は変わらず、path が /Web/CSS/color_value/... から /Web/CSS/Reference/Values/color_value/... へ再編された。source_url には最終 path を記録する。",
+ "freshness_extraction": {
+  "freshness_source": "page-declared",
+  "value": "2026-04-18",
+  "found_in": [
+   "<time datetime=\"2026-04-18T06:09:41.000Z\">Apr 18, 2026</time>"
+  ],
+  "http_last_modified": "Sat, 22 Aug 2026 00:52:17 GMT",
+  "note": "HTTP ヘッダの Last-Modified (2026-08-22) と本文の <time> (2026-04-18) が食い違う。MDN は全ページを日次で再生成するため、ヘッダは配信物の生成時刻であって記事の更新日ではない。R3 の優先順に従い本文の表明 (page-declared) を採る。ヘッダ値を採ると取得日と同日になり、C13 の取得日代入検査に掛かるべき性質の値でもある。"
+ },
+ "baseline_note": "本文の Baseline 表記逐語: \"Baseline 2024 * Newly available\" / \"Since May 2024, this feature works across the latest devices and browser versions.\" — light-dark() の対応状況を出典自身が申告している。"
+}

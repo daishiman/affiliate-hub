@@ -12,7 +12,12 @@ import { existsSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { describe, expect, it } from "vitest";
 import { createToolCatalog } from "@/presentation/composition";
-import { isToolAllowedForScope, refusalReason, visibleTools } from "@/presentation/http/tool-scope";
+import {
+  isToolAllowedForScope,
+  loadScopedCatalog,
+  refusalReason,
+  visibleTools,
+} from "@/presentation/http/tool-scope";
 import { findTool } from "@/presentation/tools/catalog";
 import { MAX_TOOLS_PER_PAGE, toWebMcpDescriptors } from "@/presentation/tools/webmcp-adapter";
 import type { AnyToolDefinition } from "@/presentation/tools/tool-definition";
@@ -70,21 +75,48 @@ describe("誰に何を許すか", () => {
       }
     }
   });
+
+  it("1 回の要求では、全体と公開範囲を同じカタログ生成結果から作る", async () => {
+    let loads = 0;
+    const loaded = await loadScopedCatalog(async () => {
+      loads += 1;
+      return [readOnly, write, humanOnly];
+    }, "bearer");
+
+    expect(loads).toBe(1);
+    expect(loaded.all).toEqual([readOnly, write, humanOnly]);
+    expect(loaded.visible).toEqual([readOnly, write]);
+  });
 });
 
 describe("AI へ公開する範囲（WebMCP）", () => {
-  it("読み取り専用だけ、6 件まで", () => {
+  /** 表に名前を書く、という掲載の根拠を、見本の道具で作る。 */
+  const listing = (...names: string[]) => ({ listed: (n: string) => names.includes(n) });
+
+  it("表に名前があるものだけ、6 件まで", () => {
     const catalog = [
       ...Array.from({ length: 10 }, (_, i) => fakeTool({ name: `r${i}`, readOnly: true })),
       fakeTool({ name: "w", readOnly: false }),
     ];
-    const descriptors = toWebMcpDescriptors(catalog);
+    const names = Array.from({ length: 10 }, (_, i) => `r${i}`);
+    const descriptors = toWebMcpDescriptors(catalog, listing(...names));
     expect(descriptors.length).toBeLessThanOrEqual(MAX_TOOLS_PER_PAGE);
     expect(descriptors.some((d) => d.name === "w")).toBe(false);
   });
 
+  /**
+   * **既定は「載せない」。**
+   *
+   * 以前は道具定義の `readOnly` が掲載を決めていたので、既定は「載せる」だった。
+   * 読み取りの道具を 1 つ足すたびに、ページ内の AI の手が届く範囲が黙って広がる。
+   * 表に書き忘れたときに載らないほうが、事故は軽い。
+   */
+  it("読み取り専用を名乗っていても、表に無ければ載らない", () => {
+    expect(toWebMcpDescriptors([fakeTool({ name: "r", readOnly: true })])).toEqual([]);
+  });
+
   it("実行の関数を混ぜない（ブラウザへ渡せる形だけにする）", () => {
-    const [first] = toWebMcpDescriptors([fakeTool({ name: "r", readOnly: true })]);
+    const [first] = toWebMcpDescriptors([fakeTool({ name: "r", readOnly: true })], listing("r"));
     expect(Object.keys(first)).toEqual(["name", "description", "inputSchema"]);
   });
 });

@@ -18,8 +18,11 @@ import {
   CANVAS_COLORS,
   CANVAS_KEY_STEP,
   CANVAS_TOOLS,
+  CAPTURE_REGION_COLUMNS,
+  CAPTURE_REGION_ROWS,
   CaptureCanvas,
   REDACT_CODE,
+  captureRegionLabel,
 } from "@/presentation/ui/patterns/capture-canvas";
 import { describeViolations, findA11yViolations } from "../support/a11y";
 
@@ -42,14 +45,24 @@ afterEach(cleanup);
 
 type Mounted = {
   /** `onExport` に渡ってきたもの。付けなかった場合は空のまま。 */
-  readonly exported: { count: number; redactionCount: number | null; type: string | null };
+  readonly exported: {
+    count: number;
+    redactionCount: number | null;
+    maskedElementCount: number | null;
+    type: string | null;
+  };
   readonly retake: { count: number };
   readonly drop: { count: number };
   readonly container: HTMLElement;
 };
 
 function mount(): Mounted {
-  const exported = { count: 0, redactionCount: null as number | null, type: null as string | null };
+  const exported = {
+    count: 0,
+    redactionCount: null as number | null,
+    maskedElementCount: null as number | null,
+    type: null as string | null,
+  };
   const retake = { count: 0 };
   const drop = { count: 0 };
   const { container } = render(
@@ -59,6 +72,7 @@ function mount(): Mounted {
       onExport={(capture) => {
         exported.count += 1;
         exported.redactionCount = capture.redactionCount;
+        exported.maskedElementCount = capture.maskedElementCount;
         exported.type = capture.blob.type;
       }}
       onRetake={() => {
@@ -450,6 +464,8 @@ describe("描画面がある環境", () => {
     expect(exported.count).toBe(1);
     // 手書きは黒塗りではない。数を多く申告すると domain 側の検査と食い違う。
     expect(exported.redactionCount).toBe(2);
+    // DOM の自動マスク数は、技術診断の伏せ数へ足さず画像の申告として運ぶ。
+    expect(exported.maskedElementCount).toBe(2);
     // 画面が書き出す形式は、domain 側が受け取ると決めた形式そのものでなければならない。
     // ここに "image/png" と書き写すと、受け取り側だけが変わったときに気づけない。
     expect(exported.type).toBe(ALLOWED_CAPTURE_MIME);
@@ -473,6 +489,141 @@ describe("描画面がある環境", () => {
   it("自動で隠した箇所の数を、撮った直後に見せる", () => {
     mount();
     expect(screen.getByText(new RegExp("自動で隠した箇所: 2"))).not.toBeNull();
+  });
+
+  /**
+   * --- 座標を扱わずに黒塗りを置けるか ---
+   *
+   * 82（キーボードで座標を動かす道）を入れたあとも、**座標を動かす操作そのものが
+   * 読み上げの人には届きにくい**という穴が残っていた
+   * （`tasks/task-capture-element-selection.md`）。
+   *
+   * 当初の案は「3 番目の見出しを隠す」のように要素の名前で選ぶ道で、その仕様書の
+   * 手順 1 は「撮る側が要素の一覧を持てるかを確かめる。**持てないなら、ここで止まる**」
+   * だった。2026-08-26 に測った結果は持てない（写しは画面共有で撮った映像の 1 枚で、
+   * 利用者は別のウィンドウも選べる。DOM の位置と一致する保証が無い）。
+   * ずれた位置を「3 番目の見出し」と名乗って塗ると、**隠したはずのものが
+   * 隠れていない写し**が送られる。仕様書の「やらないこと」もそれを禁じている。
+   *
+   * そこで**画像そのものを区切った**。写っているものが何であれ「上段の左」は
+   * 嘘にならない。ここで見るのは、その区画が
+   * **本当に画素へ焼き込まれ、黒塗りとして数に入るか**である。
+   */
+  describe("座標を扱わずに、区画で黒塗りを置ける", () => {
+    it("黒塗りを選んだときだけ、区画が出る", () => {
+      mount();
+      // 黒塗り以外のときに出すと、画面に押せるものが常時 9 つ増える。
+      expect(screen.queryByRole("group", { name: UI_COPY.feedback.captureRegionTitle })).toBeNull();
+
+      pick(UI_COPY.feedback.toolRedact);
+      expect(screen.getByRole("group", { name: UI_COPY.feedback.captureRegionTitle })).not.toBeNull();
+      expect(screen.getAllByRole("button", { name: /^(上段|中段|下段)の/ })).toHaveLength(
+        CAPTURE_REGION_ROWS.length * CAPTURE_REGION_COLUMNS.length,
+      );
+    });
+
+    it("押すだけで、その区画が画素へ焼き込まれる", () => {
+      const { container } = mount();
+      pick(UI_COPY.feedback.toolRedact);
+      draws = [];
+
+      // 矢印キーもポインタも 1 度も使わない。押すのはこのボタン 1 つだけ。
+      pick(captureRegionLabel(0, 2));
+
+      const canvas = canvasOf(container);
+      const [width, height] = [
+        canvas.width / CAPTURE_REGION_COLUMNS.length,
+        canvas.height / CAPTURE_REGION_ROWS.length,
+      ];
+      const filled = draws.filter((d) => d.op === "fillRect");
+      expect(filled.length, "区画が画素へ描かれていません").toBeGreaterThan(0);
+      // 薄い色で塗れないことは、ほかの黒塗りと同じ決まりで見る。
+      for (const d of filled) expect(d.fillStyle).toBe(REDACT_CODE);
+      /*
+        寸法から割り出していること。ここへ実数を書き写すと、
+        区画が画像の寸法ではなく決め打ちの位置を塗っていても緑になる
+        （台紙の寸法が変わった日に、隠したはずの場所からずれる）。
+      */
+      expect(filled.at(-1)?.args).toEqual([width * 2, 0, width, height]);
+    });
+
+    it("もう一度押すと、その区画だけ外れる", () => {
+      const { container } = mount();
+      pick(UI_COPY.feedback.toolRedact);
+      pick(captureRegionLabel(0, 0));
+      pick(captureRegionLabel(2, 1));
+      draws = [];
+
+      pick(captureRegionLabel(0, 0));
+
+      const canvas = canvasOf(container);
+      const [width, height] = [
+        canvas.width / CAPTURE_REGION_COLUMNS.length,
+        canvas.height / CAPTURE_REGION_ROWS.length,
+      ];
+      // 外した区画は消え、もう片方は残る。まとめて消えると、やり直す手が無い。
+      const filled = draws.filter((d) => d.op === "fillRect").map((d) => d.args);
+      expect(filled).not.toContainEqual([0, 0, width, height]);
+      expect(filled).toContainEqual([width, height * 2, width, height]);
+    });
+
+    it("塗ってあるかどうかは、色ではなく状態として読み上げられる", () => {
+      mount();
+      pick(UI_COPY.feedback.toolRedact);
+      const cell = (): HTMLElement => screen.getByRole("button", { name: captureRegionLabel(1, 1) });
+      // 色だけで示すと、見分けの付かない人には「もう塗ったのか」が最後まで分からない。
+      expect(cell().getAttribute("aria-pressed")).toBe("false");
+      fireEvent.click(cell());
+      expect(cell().getAttribute("aria-pressed")).toBe("true");
+      fireEvent.click(cell());
+      expect(cell().getAttribute("aria-pressed")).toBe("false");
+    });
+
+    it("押した結果を言葉で知らせ、戻したときは言い直す", () => {
+      const { container } = mount();
+      pick(UI_COPY.feedback.toolRedact);
+      const live = (): string =>
+        [...container.querySelectorAll("[aria-live]")].map((el) => el.textContent ?? "").join(" ");
+
+      pick(captureRegionLabel(2, 0));
+      expect(live()).toContain(`${captureRegionLabel(2, 0)}${UI_COPY.feedback.captureRegionAdded}`);
+
+      pick(captureRegionLabel(2, 0));
+      expect(live()).toContain(`${captureRegionLabel(2, 0)}${UI_COPY.feedback.captureRegionRemoved}`);
+
+      // 「元に戻す」で消したのに「黒塗りにしました」が読まれたままだと嘘になる。
+      pick(captureRegionLabel(0, 1));
+      fireEvent.click(screen.getByRole("button", { name: UI_COPY.feedback.captureUndo }));
+      expect(live()).not.toContain(UI_COPY.feedback.captureRegionAdded);
+    });
+
+    it("区画の黒塗りも、写しに焼き込まれて数に入る", () => {
+      const { exported } = mount();
+      pick(UI_COPY.feedback.toolRedact);
+      pick(captureRegionLabel(0, 0));
+      pick(captureRegionLabel(1, 2));
+
+      fireEvent.click(screen.getByRole("button", { name: "この写しを付ける" }));
+
+      /*
+        ここが 0 だと、domain 側は「黒塗りの無い写し」として扱う。
+        塗り方が違うだけで隠れている面積は同じなので、数え落としてはいけない。
+      */
+      expect(exported.redactionCount).toBe(2);
+      expect(exported.count).toBe(1);
+      expect(opsAtBlob, "外へ出す 1 枚に区画が載っていません").toContain("fillRect");
+    });
+
+    it("区画で塗っても、82 の座標の道は残っている", () => {
+      const { container, exported } = mount();
+      pick(UI_COPY.feedback.toolRedact);
+      pick(captureRegionLabel(0, 0));
+      // 区画になっていないもの（画像の中の文字、表の一部）は座標でしか指せない。
+      drag(canvasOf(container), [10, 20], [60, 50]);
+
+      fireEvent.click(screen.getByRole("button", { name: "この写しを付ける" }));
+      expect(exported.redactionCount).toBe(2);
+    });
   });
 
   /**

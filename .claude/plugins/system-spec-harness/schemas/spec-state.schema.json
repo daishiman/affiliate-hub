@@ -20,18 +20,36 @@
     "hearing_progress"
   ],
   "properties": {
-    "schema_version": {"enum": ["1.0", "1.1", "1.2"]},
-    "design_application_contract_version": {"const": "1.0"},
-    "categories": {"type": "array", "minItems": 1},
-    "platforms": {"type": "array", "minItems": 1},
+    "schema_version": {
+      "enum": [
+        "1.0",
+        "1.1",
+        "1.2"
+      ]
+    },
+    "design_application_contract_version": {
+      "const": "1.0"
+    },
+    "categories": {
+      "type": "array",
+      "minItems": 1
+    },
+    "platforms": {
+      "type": "array",
+      "minItems": 1
+    },
     "matrix": {
       "type": "object",
       "additionalProperties": {
         "type": "object",
-        "additionalProperties": {"$ref": "#/$defs/matrixCell"}
+        "additionalProperties": {
+          "$ref": "#/$defs/matrixCell"
+        }
       }
     },
-    "category_aggregate": {"type": "object"},
+    "category_aggregate": {
+      "type": "object"
+    },
     "requirements_foundation": {
       "type": "object",
       "properties": {
@@ -40,19 +58,37 @@
           "properties": {
             "field_sources": {
               "type": "array",
-              "items": {"$ref": "#/$defs/foundationFieldSource"}
+              "items": {
+                "$ref": "#/$defs/foundationFieldSource"
+              }
             }
           }
+        },
+        "objectives_note": {
+          "type": "string",
+          "description": "U4 目標 の**読み方の規則**。値そのものではなく、値をどう立て・どう判定するかを言う。U キーではないので確定必須ではなく、出典の欠け勘定にも入らない (既に出典の付いた値の使い方を縛るだけで、新しい要求を足さないため)。writer は set-foundation。"
+        },
+        "success_criteria_note": {
+          "type": "string",
+          "description": "U5 成功基準 の**読み方の規則**。値そのものではなく、値をどう立て・どう判定するかを言う。U キーではないので確定必須ではなく、出典の欠け勘定にも入らない (既に出典の付いた値の使い方を縛るだけで、新しい要求を足さないため)。writer は set-foundation。"
         }
       }
     },
     "qa_log": {
       "type": "array",
-      "items": {"$ref": "#/$defs/qaEntry"}
+      "items": {
+        "$ref": "#/$defs/qaEntry"
+      }
     },
-    "approval_log": {"type": "array"},
-    "reopen_log": {"type": "array"},
-    "targets": {"type": "array"},
+    "approval_log": {
+      "type": "array"
+    },
+    "reopen_log": {
+      "type": "array"
+    },
+    "targets": {
+      "type": "array"
+    },
     "decisions": {
       "type": "array",
       "items": {
@@ -71,34 +107,108 @@
         }
       }
     },
-    "knowledge_candidates": {"type": "array"},
-    "hearing_progress": {"type": "object"},
+    "knowledge_candidates": {
+      "type": "array"
+    },
+    "hearing_progress": {
+      "type": "object"
+    },
     "asks_for_contract": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["version", "legacy_ids"],
+      "required": [
+        "version",
+        "legacy_ids"
+      ],
       "description": "asks_for (質問が狙った対象) の必須化契約。有効化した state では、以後に追記される qa_log entry は asks_for を持たなければならない (持たない新規 entry は legacy ではなく違反)。legacy_ids は有効化した時点で qa_log に実在した id の集合で、件数ではなく id で凍結する — 件数だけだと入れ替えが通る。この欄が無い state は従来どおり asks_for 無しで書ける (段階的採用)。塞げていない穴: この JSON からこの欄を消せば再有効化が通る。塞ぐには state の完全性を守る鍵が別に要る",
       "properties": {
-        "version": {"const": "1.0"},
-        "legacy_ids": {"type": "array", "items": {"type": "string", "minLength": 1}, "maxItems": 30}
+        "version": {
+          "const": "1.0"
+        },
+        "legacy_ids": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "maxItems": 30
+        }
       }
     },
-    "excluded_categories": {"type": "object"},
-    "lifecycle": {"type": "object"},
-    "implementation_snapshot": {"type": "object"},
-    "delivery_dependencies": {"type": "array"},
-    "review_runs": {"type": "array"}
+    "excluded_categories": {
+      "type": "object"
+    },
+    "lifecycle": {
+      "type": "object"
+    },
+    "implementation_snapshot": {
+      "type": "object"
+    },
+    "delivery_dependencies": {
+      "type": "array"
+    },
+    "review_runs": {
+      "type": "array"
+    },
+    "chapter_notes": {
+      "type": "object",
+      "description": "章にしか居場所の無い散文の置き場 (カテゴリ id -> 注記の配列)。**なぜ在るか。**章は正本の純関数なので、正本に無い散文は compile のたび消える。節の引き継ぎ (--on-handwritten preserve) は `##` 単位でしか効かず、生成節の内側 (`###` 以下) に書かれた散文は原理上守れない。守るのではなく、消えようのない場所を用意する。利用者の逐語 (qa_log[].answer) には足さない — 後から気づいた突き合わせをそこへ足すと、利用者が言っていないことが利用者の声の顔で残る。writer = set-chapter-note",
+      "additionalProperties": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "required": [
+            "heading",
+            "body",
+            "reason",
+            "recorded_with"
+          ],
+          "properties": {
+            "heading": {
+              "type": "string",
+              "description": "章の `###` 見出しになる。同名は同一注記とみなし、内容違いの再適用は writer が拒む"
+            },
+            "body": {
+              "type": "string",
+              "description": "Markdown 本文。逐語で保つ"
+            },
+            "reason": {
+              "type": "string",
+              "description": "なぜこの散文を正本へ入れたのか"
+            },
+            "recorded_with": {
+              "type": "string",
+              "description": "書いた writer 名 (set-chapter-note)。呼び出し側から受け取らず writer が打刻する"
+            }
+          }
+        }
+      }
+    }
   },
   "oneOf": [
     {
-      "properties": {"schema_version": {"const": "1.0"}},
-      "not": {"required": ["design_application_contract_version"]}
+      "properties": {
+        "schema_version": {
+          "const": "1.0"
+        }
+      },
+      "not": {
+        "required": [
+          "design_application_contract_version"
+        ]
+      }
     },
     {
-      "required": ["design_application_contract_version"],
+      "required": [
+        "design_application_contract_version"
+      ],
       "properties": {
-        "schema_version": {"const": "1.1"},
-        "design_application_contract_version": {"const": "1.0"}
+        "schema_version": {
+          "const": "1.1"
+        },
+        "design_application_contract_version": {
+          "const": "1.0"
+        }
       }
     },
     {
@@ -111,23 +221,51 @@
         "review_runs"
       ],
       "properties": {
-        "schema_version": {"const": "1.2"},
-        "design_application_contract_version": {"const": "1.0"}
+        "schema_version": {
+          "const": "1.2"
+        },
+        "design_application_contract_version": {
+          "const": "1.0"
+        }
       }
     }
   ],
   "$defs": {
     "foundationFieldSource": {
       "type": "object",
-      "required": ["field", "kind"],
+      "required": [
+        "field",
+        "kind"
+      ],
       "properties": {
-        "field": {"type": "string", "minLength": 1},
-        "kind": {"enum": ["written-requirements", "user-dialogue"]},
-        "path": {"type": "string", "minLength": 1},
-        "section": {"type": "string"},
-        "quote": {"type": "string", "minLength": 1},
-        "qa_id": {"type": "string", "minLength": 1},
-        "note": {"type": "string"},
+        "field": {
+          "type": "string",
+          "minLength": 1
+        },
+        "kind": {
+          "enum": [
+            "written-requirements",
+            "user-dialogue"
+          ]
+        },
+        "path": {
+          "type": "string",
+          "minLength": 1
+        },
+        "section": {
+          "type": "string"
+        },
+        "quote": {
+          "type": "string",
+          "minLength": 1
+        },
+        "qa_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "note": {
+          "type": "string"
+        },
         "sha256": {
           "type": "string",
           "pattern": "^[0-9a-f]{64}$",
@@ -146,41 +284,102 @@
     },
     "qaEntry": {
       "type": "object",
-      "required": ["id", "question", "answer"],
+      "required": [
+        "id",
+        "question",
+        "answer",
+        "source"
+      ],
       "properties": {
-        "id": {"type": "string", "minLength": 1},
-        "question": {"type": "string", "minLength": 1},
-        "answer": {"type": "string"},
-        "source": {
-          "type": ["object", "string"],
-          "description": "この回答の出所。object の場合、kind=written-requirements なら path/section/sha256 を持つ。sha256 は writer が answer から計算し、呼び出し側からは受け取らない。**この digest は answer 自身の指紋なので、文書にそう書いてあることは示さない** — 逐語かどうかは reseal-written-source writer が書く時点で source.path を読んで確かめる",
-          "properties": {
-            "kind": {"type": "string", "minLength": 1},
-            "path": {"type": "string", "minLength": 1},
-            "section": {"type": "string", "minLength": 1},
-            "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
-            "requoted_with": {"const": "requote-written-source", "description": "文書と食い違った引用行を文書の側の行で置き換えた記録。直す向きは state → 文書 の一方向"},
-            "requoted_on": {"type": "string", "minLength": 1},
-            "resealed_with": {"const": "reseal-written-source", "description": "本文を source.path へ逐語照合してから sha256 を取り直した記録"},
-            "resealed_on": {"type": "string", "minLength": 1}
-          }
+        "id": {
+          "type": "string",
+          "minLength": 1
         },
-        "approval_id": {"type": "string", "minLength": 1},
-        "legacy_exempt": {"type": "boolean"},
-        "legacy_exempt_reason": {"type": "string", "minLength": 1},
+        "question": {
+          "type": "string",
+          "minLength": 1
+        },
+        "answer": {
+          "type": "string"
+        },
+        "source": {
+          "type": "object",
+          "description": "この回答の出所。**任意欄ではない。**由来を名乗らずに作れた時代に 5 件が名乗り無しで入り、確定セルがそれを引いていたため独立監査が『由来を機械で辿れない確定』として FAIL を出した (2026-08-25)。`kind=user-dialogue` は裏取りではなく、**裏取りが存在しないことの宣言**である。名乗りが無いと、書面か対話かを問うことすらできない。kind=written-requirements なら path/section/sha256 を持つ。sha256 は writer が answer から計算し、呼び出し側からは受け取らない。**この digest は answer 自身の指紋なので、文書にそう書いてあることは示さない** — 逐語かどうかは reseal-written-source writer が書く時点で source.path を読んで確かめる",
+          "properties": {
+            "kind": {
+              "type": "string",
+              "minLength": 1,
+              "enum": [
+                "user-dialogue",
+                "written-requirements"
+              ]
+            },
+            "path": {
+              "type": "string",
+              "minLength": 1
+            },
+            "section": {
+              "type": "string",
+              "minLength": 1
+            },
+            "sha256": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            },
+            "requoted_with": {
+              "const": "requote-written-source",
+              "description": "文書と食い違った引用行を文書の側の行で置き換えた記録。直す向きは state → 文書 の一方向"
+            },
+            "requoted_on": {
+              "type": "string",
+              "minLength": 1
+            },
+            "resealed_with": {
+              "const": "reseal-written-source",
+              "description": "本文を source.path へ逐語照合してから sha256 を取り直した記録"
+            },
+            "resealed_on": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "required": [
+            "kind"
+          ]
+        },
+        "approval_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "legacy_exempt": {
+          "type": "boolean"
+        },
+        "legacy_exempt_reason": {
+          "type": "string",
+          "minLength": 1
+        },
         "design_application_provenance": {
           "type": "object",
           "additionalProperties": false,
-          "required": ["mode", "writer"],
+          "required": [
+            "mode",
+            "writer"
+          ],
           "properties": {
-            "mode": {"const": "legacy_backfill"},
-            "writer": {"const": "set-qa-design-applications"}
+            "mode": {
+              "const": "legacy_backfill"
+            },
+            "writer": {
+              "const": "set-qa-design-applications"
+            }
           }
         },
         "design_applications": {
           "type": "array",
           "minItems": 1,
-          "items": {"$ref": "#/$defs/designApplication"}
+          "items": {
+            "$ref": "#/$defs/designApplication"
+          }
         },
         "asks_for": {
           "type": "array",
@@ -190,13 +389,31 @@
             "type": "object",
             "additionalProperties": false,
             "oneOf": [
-              {"required": ["category", "platform"]},
-              {"required": ["u"]}
+              {
+                "required": [
+                  "category",
+                  "platform"
+                ]
+              },
+              {
+                "required": [
+                  "u"
+                ]
+              }
             ],
             "properties": {
-              "category": {"type": "string", "minLength": 1},
-              "platform": {"type": "string", "minLength": 1},
-              "u": {"type": "string", "pattern": "^U[1-9]$"}
+              "category": {
+                "type": "string",
+                "minLength": 1
+              },
+              "platform": {
+                "type": "string",
+                "minLength": 1
+              },
+              "u": {
+                "type": "string",
+                "pattern": "^U[1-9]$"
+              }
             }
           }
         },
@@ -226,7 +443,10 @@
                   },
                   "covers_cell": {
                     "description": "この論点が裏付けている確定セル。裏付けでなければ null",
-                    "type": ["object", "null"]
+                    "type": [
+                      "object",
+                      "null"
+                    ]
                   },
                   "answer_span": {
                     "type": "string",
@@ -238,7 +458,10 @@
                     "description": "この論点が何を覆っているかの説明"
                   },
                   "origin_qa_id": {
-                    "type": ["string", "null"],
+                    "type": [
+                      "string",
+                      "null"
+                    ],
                     "description": "この節がどの entry 由来か。束ね解除で節を返す先であり、answer_span の指し先を決める entry でもある"
                   },
                   "released_section_heading": {
@@ -269,7 +492,10 @@
             "absorbed_origins_released": {
               "type": "array",
               "uniqueItems": true,
-              "items": {"type": "string", "minLength": 1},
+              "items": {
+                "type": "string",
+                "minLength": 1
+              },
               "description": "この entry へ寄せられていて、束ね解除で自分の entry へ戻された論点の origin id。**追記の記録であって参照ではない** — セルがどの entry を引くかは matrix cell 側の qa_refs が持つ"
             }
           }
@@ -281,15 +507,38 @@
           "items": {
             "type": "object",
             "additionalProperties": false,
-            "required": ["path", "sha256", "recorded_on", "recorded_with"],
+            "required": [
+              "path",
+              "sha256",
+              "recorded_on",
+              "recorded_with"
+            ],
             "properties": {
-              "path": {"type": "string", "minLength": 1},
-              "section": {"type": "string", "minLength": 1},
-              "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
-              "recorded_on": {"type": "string", "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"},
-              "recorded_with": {"const": "set-qa-written-up"}
+              "path": {
+                "type": "string",
+                "minLength": 1
+              },
+              "section": {
+                "type": "string",
+                "minLength": 1
+              },
+              "sha256": {
+                "type": "string",
+                "pattern": "^[0-9a-f]{64}$"
+              },
+              "recorded_on": {
+                "type": "string",
+                "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"
+              },
+              "recorded_with": {
+                "const": "set-qa-written-up"
+              }
             }
           }
+        },
+        "superseded_by": {
+          "type": "string",
+          "description": "この質疑を置き換えた後継 qa_log entry の id。**孤立を禁じるのではなく、名乗らせるための欄である。**質疑を作り直すと古い方はどのセルからも引かれなくなる。それ自体は正しい経過だが、正本にそれを言う欄が無いと『置き換えた』のか『接地を忘れた』のかを機械が区別できず、監査は毎回同じ件を欠陥として報告し続ける。writer は supersede-qa のみ。まだ引かれている質疑には付けられない。"
         }
       },
       "additionalProperties": true
@@ -298,34 +547,84 @@
       "type": "object",
       "description": "マトリクスの 1 セル。writer が書く欄をここで名前として宣言する。additionalProperties は開けたままにしてある — 閉じると、既存 state に在って未把握の欄が黙って落ちるのではなく弾かれる形になり、閉じる前に全欄の棚卸しが要る。開いている以上『schema を通した』は名前の宣言までであり、姿の検査ではない",
       "properties": {
-        "state": {"enum": ["未収集", "確定", "対象外"]},
-        "qa_ref": {"type": "string", "minLength": 1},
+        "state": {
+          "enum": [
+            "未収集",
+            "確定",
+            "対象外"
+          ]
+        },
+        "qa_ref": {
+          "type": "string",
+          "minLength": 1
+        },
         "qa_refs": {
           "type": "array",
           "minItems": 1,
           "uniqueItems": true,
-          "items": {"type": "string", "minLength": 1},
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
           "description": "このセルの確定を支える qa_log entry の**全件**。**`qa_ref` を置き換えない。**`qa_ref` は決定論ゲートが文字列で照合する主参照として残り、この欄はそこへ収まりきらない裏付けを足す (先頭要素は `qa_ref` と一致する)。この欄が無かったあいだ、セルは 1 件しか引けなかったため、複数の質疑を 1 entry へ本文ごと寄せる『束ね』が起きていた (qa_log[].scope_notes.bundling_reason に逐語で残っている)。単数欄を消さないのは、`qa_ref` を読む側が harness の内外に多数在り、消せばそれらが黙って壊れるからである"
         },
-        "serves_goals": {"type": "array"},
-        "serves_intents": {"type": "array"},
-        "reason": {"type": "string", "minLength": 1},
-        "approval_ref": {"type": "string", "minLength": 1},
-        "reopened_from": {"type": "string", "minLength": 1},
-        "reopen_reason": {"type": "string", "minLength": 1},
+        "serves_goals": {
+          "type": "array"
+        },
+        "serves_intents": {
+          "type": "array"
+        },
+        "reason": {
+          "type": "string",
+          "minLength": 1
+        },
+        "approval_ref": {
+          "type": "string",
+          "minLength": 1
+        },
+        "reopened_from": {
+          "type": "string",
+          "minLength": 1
+        },
+        "reopen_reason": {
+          "type": "string",
+          "minLength": 1
+        },
         "required_info": {
           "type": "array",
           "minItems": 1,
           "items": {
             "type": "object",
             "additionalProperties": false,
-            "required": ["item_id", "missing_effect", "status"],
+            "required": [
+              "item_id",
+              "missing_effect",
+              "status"
+            ],
             "properties": {
-              "item_id": {"type": "string", "minLength": 1},
-              "missing_effect": {"type": "string", "minLength": 1},
-              "status": {"enum": ["grounded", "not_applicable", "ungrounded"]},
-              "grounded_by": {"type": "string", "minLength": 1},
-              "reason": {"type": "string", "minLength": 1}
+              "item_id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "missing_effect": {
+                "type": "string",
+                "minLength": 1
+              },
+              "status": {
+                "enum": [
+                  "grounded",
+                  "not_applicable",
+                  "ungrounded"
+                ]
+              },
+              "grounded_by": {
+                "type": "string",
+                "minLength": 1
+              },
+              "reason": {
+                "type": "string",
+                "minLength": 1
+              }
             }
           }
         },
@@ -336,11 +635,37 @@
           "items": {
             "type": "object",
             "additionalProperties": false,
-            "required": ["checked_on", "checked_with", "blocking_item_count"],
+            "required": [
+              "checked_on",
+              "checked_with",
+              "blocking_item_count"
+            ],
             "properties": {
-              "checked_on": {"type": "string", "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"},
-              "checked_with": {"const": "record-required-info-check"},
-              "blocking_item_count": {"type": "integer", "minimum": 0}
+              "checked_on": {
+                "type": "string",
+                "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"
+              },
+              "checked_with": {
+                "const": "record-required-info-check"
+              },
+              "blocking_item_count": {
+                "type": "integer",
+                "minimum": 0,
+                "description": "収集必須 (missing_effect=block) item が当該 category に**何件あるか**。未充足件数ではない。0 件が正常であって、0 件を目指す欄ではない"
+              },
+              "unmet_blocking_items": {
+                "type": "integer",
+                "minimum": 0,
+                "description": "そのうち **grounded でも not_applicable でもない** 件数。**0 が正常。**blocking_item_count を未充足件数と読む誤りが 2026-08-24 の C07 監査で実際に起き、充足済みの 4 セルが差し戻し対象に挙がった。欄名を変えると既存記録が読めなくなるので、消さずに分かれていることが見える欄を足した。この欄が無い記録は、その区別が付く前に書かれたものである"
+              },
+              "unmet_item_ids": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "minItems": 1,
+                "description": "未充足 item の id。件数だけでは何を集め直せばよいか分からないので、0 件でないときだけ置く"
+              }
             }
           }
         }
@@ -349,16 +674,39 @@
     "designApplication": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["knowledge_ref", "principle", "applicability", "rationale", "tradeoffs"],
+      "required": [
+        "knowledge_ref",
+        "principle",
+        "applicability",
+        "rationale",
+        "tradeoffs"
+      ],
       "properties": {
-        "knowledge_ref": {"type": "string", "minLength": 1},
-        "principle": {"type": "string", "minLength": 1},
-        "applicability": {"enum": ["applied", "not_applicable"]},
-        "rationale": {"type": "string", "minLength": 1},
+        "knowledge_ref": {
+          "type": "string",
+          "minLength": 1
+        },
+        "principle": {
+          "type": "string",
+          "minLength": 1
+        },
+        "applicability": {
+          "enum": [
+            "applied",
+            "not_applicable"
+          ]
+        },
+        "rationale": {
+          "type": "string",
+          "minLength": 1
+        },
         "tradeoffs": {
           "type": "array",
           "minItems": 1,
-          "items": {"type": "string", "minLength": 1}
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
         }
       }
     }

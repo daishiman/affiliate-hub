@@ -1,0 +1,10 @@
+{
+  "schema_version": "1.0.0",
+  "status": "completed",
+  "staging": ".dev-graph/staging/feature-package-feat-blog-ui-builder",
+  "destination": ".dev-graph/published/feature-package-feat-blog-ui-builder",
+  "digest": "sha256:9a2832f2d6f8656f3495435827399bed84d70c893a027d828694b07b46506fe1",
+  "feature_package_id": "feature-package/feat-blog-ui-builder",
+  "receipt": ".dev-graph/published/feature-package-feat-blog-ui-builder/atomic-promotion-receipt.json",
+  "completed_at": "2026-08-24T03:56:57Z"
+}

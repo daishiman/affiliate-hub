@@ -4,7 +4,7 @@ import { articleHref } from "@/application/read-models/published-article";
 import { siteBasePathBySlug } from "@/domain/authoring";
 import { AdminShell } from "@/presentation/admin/admin-shell";
 import { currentActor, publishedArticleAdminUseCases } from "@/presentation/composition";
-import { Card, EmptyView, ErrorView, Page } from "@/presentation/ui";
+import { Card, EmptyView, ErrorView } from "@/presentation/ui";
 import styles from "../../admin.module.css";
 
 export const dynamic = "force-dynamic";
@@ -25,16 +25,12 @@ export default async function PublishedArticlesPage({
 
   return (
     <AdminShell
-      currentPath="/admin/content"
-      breadcrumbs={[
-        { label: "ホーム", href: "/admin" },
-        { label: "記事", href: "/admin/content" },
-        { label: "公開済み記事" },
-      ]}
+      routeId="content/published"
+      title="公開済み記事"
+      lead="読者に出ている記事を探し、訂正または非表示化します。"
       actions={<Link href="/admin/content/new">新しい記事を作る</Link>}
     >
-      <Page title="公開済み記事" lead="読者に出ている記事を探し、訂正または非表示化します。">
-        <Card>
+      <Card>
           <Form action="/admin/content/published" className={styles.publishedFilter}>
             <label htmlFor="published-query"><span>記事を検索</span><input id="published-query" type="search" name="q" defaultValue={query} placeholder="タイトル・結論・サイト名" /></label>
             <label htmlFor="published-visibility"><span>公開状態</span><select id="published-visibility" name="visibility" defaultValue={visibility}>
@@ -44,7 +40,7 @@ export default async function PublishedArticlesPage({
               </select></label>
             <button type="submit">絞り込む</button>
           </Form>
-        </Card>
+      </Card>
 
         {!result.ok ? (
           <ErrorView title="公開済み記事を出せませんでした" body={result.error.message} suggestedAction={result.error.suggestedAction ?? null} />
@@ -75,7 +71,6 @@ export default async function PublishedArticlesPage({
             </div>
           </Card>
         )}
-      </Page>
     </AdminShell>
   );
 }

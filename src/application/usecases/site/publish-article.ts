@@ -1,12 +1,18 @@
 import { auditWriteFailure, buildAuditEntry } from "@/application/audit";
-import type { EditorialContentVariantRepositoryPort } from "@/application/ports/authoring";
+import type {
+  EditorialContentPackageRepositoryPort,
+  EditorialContentVariantRepositoryPort,
+} from "@/application/ports/authoring";
+import { assertContentVariantBrandScope } from "@/application/usecases/content/content-brand-access";
 import type { IdGeneratorPort } from "@/application/ports/common";
 import type { AuditLogPort } from "@/application/ports/compliance";
 import type { PublicationRepositoryPort } from "@/application/ports/distribution";
 import type {
+  EditorialArticleOfferPort,
   EditorialPublishedArticleWriterPort,
   EditorialSiteRepositoryPort,
 } from "@/application/ports/site";
+import { type ArticleOffer, toProductCards } from "@/application/read-models/article-offer";
 import type {
   PublishedArticle,
   PublishedClaim,
@@ -39,6 +45,7 @@ import {
   type PublicationId,
   type Result,
   assertSameTenant,
+  assertWorkspaceWideAccess,
   domainError,
   err,
   ok,
@@ -60,14 +67,26 @@ import type { UseCase } from "../usecase";
  *   - 何を読者に見せるか … このファイルの `buildArticle`（表示用の形へ写す）
  * ここで条件式を組み直さない。組み直すと画面と AI 経路で判定がずれる。
  *
- * 出したあとの**取り下げはまだできない**。状態の遷移表に
- * 「公開済みから戻る道」が無いため。残課題として記録している。
+ * 出したあとの取り下げは、記事の進行を `ARCHIVED` へ進める入口が受け持つ。
+ * 公開時に配信へ残した URL と ID を使い、読者向けの写しだけを外すため、
+ * 編集原稿と監査履歴は取り下げ後も残る。
  */
 export type PublishArticleDeps = {
   readonly sites: EditorialSiteRepositoryPort;
+  /** 記事の企画を逆引きし、membership のブランド範囲をサーバー側で照合する。 */
+  readonly packages: EditorialContentPackageRepositoryPort;
   readonly variants: EditorialContentVariantRepositoryPort;
   readonly publications: PublicationRepositoryPort;
   readonly articles: EditorialPublishedArticleWriterPort;
+  /**
+   * 版が持つ成果リンクの ID を、読者に見せる写しへ引き当てる口。
+   *
+   * **これが無いと、版の `affiliateLinkIds` は公開された記事へ 1 件も渡らない。**
+   * 判定（表現のきまり）は ID の件数だけを見るので、画面上は「広告あり」の
+   * 記事として成立して見える。読者に成果リンクが 1 件も出ていないことは、
+   * `/admin/analytics` の未突合の件数からしか分からない（残課題 58）。
+   */
+  readonly offers: EditorialArticleOfferPort;
   readonly auditLog: AuditLogPort;
   readonly ids: IdGeneratorPort;
 };
@@ -79,6 +98,18 @@ export type PublishArticleClaimInput = {
   readonly sourceUrl: string | null;
   /** いつ確認したか（YYYY-MM-DD）。 */
   readonly checkedOn: string;
+};
+
+/**
+ * よくある質問 1 件ぶんの入力。
+ *
+ * 問いと答えは**両方そろって初めて 1 件**になる。片方だけの行は捨てる
+ * （問いだけを出すと答えの無い見出しが読者に並び、
+ *  答えだけを出すと何の答えか分からない段落になる）。
+ */
+export type PublishArticleFaqInput = {
+  readonly question: string;
+  readonly answer: string;
 };
 
 export type PublishArticleInput = {
@@ -99,6 +130,13 @@ export type PublishArticleInput = {
   /** 次回確認日（YYYY-MM-DD）。未設定は公開できない。 */
   readonly nextReviewOn: string | null;
   readonly claims: readonly PublishArticleClaimInput[];
+  /**
+   * よくある質問。省略できる（付けない記事もある）。
+   *
+   * AI 検索は問いの形をそのまま拾うので、記事に入れると引用されやすい
+   * （`EXPRESSION_BLOCK_KINDS` の前半 5 つの 1 つ）。
+   */
+  readonly faq?: readonly PublishArticleFaqInput[];
   /** 節の識別子 → 本文。入力欄は `authoredSectionsFor` から作る。 */
   readonly sectionBodies: Readonly<Record<string, string>>;
 };
@@ -208,6 +246,17 @@ export function createPublishArticleUseCase(
         );
       }
       const variant = variantResult.value;
+      const variantScope = await assertContentVariantBrandScope(
+        deps.packages,
+        actor,
+        variant,
+        "記事",
+      );
+      if (!variantScope.ok) return err(variantScope.error);
+
+      // SiteBlueprint は brandId を持たないため、限定 actor へ公開先を推測で割り当てない。
+      const siteAccess = assertWorkspaceWideAccess(actor, "公開先のブログ");
+      if (!siteAccess.ok) return err(siteAccess.error);
 
       const siteResult = await deps.sites.findBySlug(input.siteSlug);
       if (!siteResult.ok) return siteResult;
@@ -220,6 +269,9 @@ export function createPublishArticleUseCase(
       }
       const blueprint: SiteBlueprint = siteResult.value;
 
+      const sameSite = assertSameTenant(actor, blueprint, "このブログ");
+      if (!sameSite.ok) return sameSite;
+
       if (!blueprint.categories.some((c) => c.slug === input.categorySlug)) {
         return err(
           validationError(
@@ -230,7 +282,34 @@ export function createPublishArticleUseCase(
       }
 
       const now = new Date();
-      const article = buildArticle(input, variant, now);
+
+      /*
+       * 版が指している成果リンクを引き当てる。**記事を保存する前に引く。**
+       *
+       * ここで失敗したら公開しない。合言葉の発行（`tracking-issuing-writer.ts`）は
+       * 失敗しても公開を止めないが、あれは「後から足せる計測」で、こちらは
+       * 記事の中身そのものである。読み取れないまま出すと、広告表記だけが付いて
+       * 買う導線が 1 件も無い記事が読者に出る。まだ何も保存していないので、
+       * 保存先が戻ってから出し直せば同じ URL で出せる。
+       */
+      const offersResult = await deps.offers.listByIds(
+        actor.workspaceId,
+        variant.affiliateLinkIds.map(String),
+        now,
+      );
+      if (!offersResult.ok) return offersResult;
+      const offers = offersResult.value;
+
+      /*
+       * 引き当てられなかった ID。**記事には出さず、公開した人へ返す。**
+       * 名前も URL も分からないものを空のカードで出すと、読者には
+       * 「用意し忘れ」と見分けが付かない。落としたことは黙って消さない。
+       */
+      const missing = variant.affiliateLinkIds
+        .map(String)
+        .filter((id) => !offers.some((o) => o.affiliateLinkId === id));
+
+      const article = buildArticle(input, variant, now, offers);
 
       // 出してよいかの判定。ここで条件式を組み立てず、判定は Compliance に任せる。
       const gate = evaluatePublishGate({
@@ -284,10 +363,16 @@ export function createPublishArticleUseCase(
 
       return ok({
         url,
-        skipped: gate.skipped.map((s) => ({
-          label: GATE_REQUIREMENT_LABEL[s.requirement],
-          reason: s.reason,
-        })),
+        skipped: [
+          ...gate.skipped.map((s) => ({
+            label: GATE_REQUIREMENT_LABEL[s.requirement],
+            reason: s.reason,
+          })),
+          ...missing.map((id) => ({
+            label: "成果リンク",
+            reason: `${id} の登録が見つからないため、記事に出していません。`,
+          })),
+        ],
       });
     },
   };
@@ -343,7 +428,7 @@ export type PreparePublishArticleInput = {
  * 片方だけ古くなる。
  */
 export function createPreparePublishArticleUseCase(
-  deps: Omit<PublishArticleDeps, "articles">,
+  deps: Omit<PublishArticleDeps, "articles" | "offers">,
 ): UseCase<PreparePublishArticleInput, PublishArticleFormOptions> {
   return {
     async execute(
@@ -378,6 +463,16 @@ export function createPreparePublishArticleUseCase(
           }),
         );
       }
+      const variantScope = await assertContentVariantBrandScope(
+        deps.packages,
+        actor,
+        variant,
+        "記事",
+      );
+      if (!variantScope.ok) return err(variantScope.error);
+
+      const siteAccess = assertWorkspaceWideAccess(actor, "公開先のブログ");
+      if (!siteAccess.ok) return err(siteAccess.error);
 
       const sitesResult = await deps.sites.list();
       if (!sitesResult.ok) return sitesResult;
@@ -392,11 +487,13 @@ export function createPreparePublishArticleUseCase(
             purpose: s.purpose,
           })),
         })),
-        siteOptions: sitesResult.value.map((entry) => ({
-          slug: entry.slug,
-          name: entry.blueprint.name,
-          categories: entry.blueprint.categories.map((c) => ({ slug: c.slug, name: c.name })),
-        })),
+        siteOptions: sitesResult.value
+          .filter((entry) => entry.blueprint.workspaceId === actor.workspaceId)
+          .map((entry) => ({
+            slug: entry.slug,
+            name: entry.blueprint.name,
+            categories: entry.blueprint.categories.map((c) => ({ slug: c.slug, name: c.name })),
+          })),
         relationshipOptions: (
           Object.keys(RELATIONSHIP_LABEL) as readonly RelationshipType[]
         ).map((value) => ({ value, label: RELATIONSHIP_LABEL[value] })),
@@ -454,11 +551,24 @@ function toParagraphs(body: string): readonly string[] {
  * 保存するのはこの写しであり、書き込み側の集約ではない。
  * 書き込み側の型をそのまま保存すると、編集中の状態や採点が
  * 読者向けの読み取り経路に現れる。
+ *
+ * --- 成果リンクは商品カードとして出す ---
+ * 版が持つ成果リンク（`offers`）は `productCards` になる。カードは
+ * 順位・レビュー・比較のどの型の記事でも使える形で、これを出せば
+ * 画面側は既にある道筋（`view-model.ts` → `ProductCard` → `AffiliateLink`）で
+ * `/go/<合言葉>` まで通る。
+ *
+ * **順位表（`ranking`）はここで作らない。** 順位表の行は総合点と評価軸ごとの
+ * 点数を持つ。成果リンクからは分からない値なので、作るには点を捏造するしかない。
+ * 順位は Ranking の仕事であり、報酬側のデータからは決して作らない
+ * （Editorial / Commercial の遮断そのもの）。順位記事の順位表は、
+ * 採点の保存先（`score_cards`）が本物になったときにそちらから渡す。
  */
 export function buildArticle(
   input: PublishArticleInput,
   variant: ContentVariant,
   at: Date,
+  offers: readonly ArticleOffer[],
 ): PublishedArticle {
   const labels = new Map(sectionsFor(input.articleType).map((s) => [s.id, s.label]));
   const claims: readonly PublishedClaim[] = input.claims.map((c, i) => ({
@@ -489,6 +599,14 @@ export function buildArticle(
     ...(s.id === claimHost && claims.length > 0 ? { claims } : {}),
   }));
 
+  const productCards = toProductCards(offers);
+
+  // 問いと答えが**両方**あるものだけ残す。片方だけの行は、
+  // 読者から見ると「答えの無い見出し」か「何の答えか分からない段落」になる。
+  const faq = (input.faq ?? [])
+    .map((item) => ({ question: item.question.trim(), answer: item.answer.trim() }))
+    .filter((item) => item.question !== "" && item.answer !== "");
+
   return {
     slug: input.slug,
     siteSlug: input.siteSlug,
@@ -506,5 +624,10 @@ export function buildArticle(
     },
     disclosureRequired: input.relationshipType !== null,
     sections,
+    // 1 件も無いときは欄ごと出さない。空配列を入れると、画面側の
+    // 「商品カードがあるか」の判定が真になり、見出しだけの空欄が読者に出る。
+    ...(productCards.length === 0 ? {} : { productCards }),
+    // 空配列を入れない理由は productCards と同じ（見出しだけの空欄を出さない）。
+    ...(faq.length === 0 ? {} : { faq }),
   };
 }

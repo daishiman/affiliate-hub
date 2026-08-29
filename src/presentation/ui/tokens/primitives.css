@@ -167,6 +167,13 @@
   --font-weight-semibold: 600;
   --font-weight-bold: 700;
 
+  /*
+    等幅。打ち込む名前（道具名・欄名）にだけ使う。
+    先頭に置く 3 つは、`l` と `1`、`0` と `O` を別の形で描く字。
+    見た目のためではなく、写し間違いが写した側に見えるようにするため。
+  */
+  --font-family-mono: "SFMono-Regular", "Menlo", "Consolas", ui-monospace, monospace;
+
   /* 字間。小さい大文字ラベルだけ広げる（本文は 0 のまま）。 */
   --letter-spacing-normal: 0;
   --letter-spacing-wide: 0.04em;

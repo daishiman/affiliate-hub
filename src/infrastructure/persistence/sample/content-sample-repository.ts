@@ -3,9 +3,11 @@ import type {
   EditorialPublishedArticleAdminPort,
   EditorialPublishedArticleWriterPort,
   EditorialPublishedContentPort,
+  EditorialSiteDocumentRepositoryPort,
 } from "@/application/ports/site";
+import { SITE_DOCUMENT_KEYS } from "@/domain/authoring";
 import { countTrackingCoverage } from "@/application/read-models/article-tracking";
-import { markEditorial, ok } from "@/domain/shared";
+import { markEditorial, ok, type WorkspaceId } from "@/domain/shared";
 import { stubCall } from "../../stub-registry";
 import {
   CONTENT_SAMPLE_STUB,
@@ -53,6 +55,26 @@ export function createSamplePublishedArticleWriter(): EditorialPublishedArticleW
   return markEditorial({
     async save() {
       return stubCall<true>(CONTENT_SAMPLE_STUB, "記事の公開");
+    },
+    async unpublish() {
+      return stubCall<true>(CONTENT_SAMPLE_STUB, "記事の取り下げ");
+    },
+  });
+}
+
+/** 保存先のない実行でも固定文書は読めるが、書き換えたふりはしない。 */
+export function createSampleSiteDocumentRepository(): EditorialSiteDocumentRepositoryPort {
+  return markEditorial({
+    async listBySite(_workspaceId: WorkspaceId, siteSlug: string) {
+      return ok(
+        SITE_DOCUMENT_KEYS.map((key) => {
+          const document = SAMPLE_SITE_POLICY_OVERRIDES[siteSlug]?.[key] ?? SAMPLE_BASE_POLICIES[key];
+          return { key, title: document.title, body: document.body, updatedAt: null };
+        }),
+      );
+    },
+    async save() {
+      return stubCall<true>(CONTENT_SAMPLE_STUB, "固定ページの保存");
     },
   });
 }

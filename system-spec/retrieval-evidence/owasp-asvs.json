@@ -5,5 +5,17 @@
  "http_status": 200,
  "content_bytes": 67761,
  "content_sha256": "a70024b3fa74b74f6c2d0f73dca17486733340a1d0310cbbbd0cc9d3f247e0bd",
- "page_title": "OWASP Application Security Verification Standard (ASVS) | OWASP Foundation"
+ "page_title": "OWASP Application Security Verification Standard (ASVS) | OWASP Foundation",
+ "freshness_extraction": {
+  "freshness_source": "page-declared",
+  "value": "5.0.0",
+  "found_in": [
+   "2026-08-23T00:32Z 再取得 (HTTP 200 / 67761 bytes / sha256 ef0a7a1752ae257107250a5dd281d51756d9670efde5c0eae008ca35ff5a7f54) の本文 sec-main 節に逐語: \"Get the latest stable version of the ASVS (5.0.0) from the Downloads page.\" (リンク先 https://github.com/OWASP/ASVS/tree/v5.0.0#latest-stable-version---500)",
+   "同節に逐語: \"which as of version 5.0.0 of this standard is:\"",
+   "同節の識別子書式の例示に逐語: \"v5.0.0-1.2.5\" および \"... from version 5.0.0\""
+  ],
+  "body_declares_date": false,
+  "body_search_method": "sec-main 節 (6609 字) を 5 種のパターンで走査した: ISO 日付 (20\\d{2}-\\d{2}-\\d{2}) 0 件 / 英語月日 (Jan-Dec + 日 + 年) 0 件 / last (updated|modified|revised) 0 件 / releas(ed|e date) 0 件 / 西暦単独 2 件。西暦単独の 2 件は Related Projects 節の他プロジェクト名 (Top Ten Proactive Controls (2018) / Top Ten Risks (2017)) であり、ASVS 自身の更新日ではないので採用しない。よって本文は版を表明するが日付は表明しない。false は「探して 0 件だった」であり、drizzle-orm / nextjs の null (本文未保存につき未確認) とは別の状態である。",
+  "note": "C08 鮮度監査 (2026-08-22) が「version 5.0 の出所が本文から確かめられていない」を medium finding として検出したため補った。取得は外部変更ガードで遮断されていたので利用者本人にコマンドを実行してもらい、その本文を読んだ。**注意: 今回の再取得は content_bytes が記録値と同一 (67761) でありながら content_sha256 が異なる (ef0a7a17… vs a70024b3…)。同じ長さで中身だけが変わる要素 (埋め込みトークン等) がある可能性があるが、2026-08-16 の本文を保存していないので何が変わったかは今から確かめられない。** content_sha256 は 2026-08-16 の取得証跡なので書き換えない。fetched-references の version は publisher の表明に合わせて 5.0 から 5.0.0 へ精度を上げる。"
+ }
 }

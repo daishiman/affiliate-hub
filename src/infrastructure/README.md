@@ -41,16 +41,13 @@ return { searchProducts: () => stubCall(entry, "searchProducts") };
 
 ## フォルダ
 
-| フォルダ | 責務 | 現在の実装を確認する正本 |
+| フォルダ | 中身 | 状態 |
 | --- | --- | --- |
-| `platform/` | ID 生成・ログ・秘密の取り出し・KV・R2・Queue | `src/infrastructure/composition.ts` と `stub-registry.ts` |
-| `asp/` | ASP アダプタと登録所 | `src/infrastructure/composition.ts` と各アダプタ |
-| `llm/` | 生成 AI アダプタとプロンプト組み立て | `src/infrastructure/composition.ts` と各アダプタ |
-| `channels/` | 配信コネクタと書き出し | `src/infrastructure/composition.ts` と各コネクタ |
-| `persistence/` | D1 + Drizzle と、未接続時の見本リポジトリ | `src/infrastructure/composition.ts` と `drizzle/` |
-
-実装済み・未接続をこの文書へ手で複製しない。実行時に何を使うかは
-`src/infrastructure/composition.ts`、未接続理由は `stub-registry.ts` の登録内容を正本とする。
+| `platform/` | ID 生成・ログ・秘密の取り出し・KV・R2・Queue | 実装済み（署名付きURLは**使わないと決めた**ので仮のまま。`docs/product/design-decisions.md` §5） |
+| `asp/` | ASP アダプタと登録所 | 登録所は実装済み、各 ASP はスタブ |
+| `llm/` | 生成 AI アダプタとプロンプト組み立て | 組み立てと費用概算は実装済み、送信はスタブ |
+| `channels/` | 配信コネクタと書き出し | 書き出しは実装済み、送信はスタブ |
+| `persistence/` | D1 + Drizzle のリポジトリ | 未着手 |
 
 ## 秘密情報
 

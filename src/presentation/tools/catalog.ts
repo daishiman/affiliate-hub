@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { withAccessDenialAudit } from "@/application/access-denial";
 import type { RankProductsInput } from "@/application/usecases/ranking/rank-products";
 import { createRankProductsUseCase } from "@/application/usecases/ranking/rank-products";
 import type { AppDeps } from "@/application/deps";
@@ -9,6 +10,7 @@ import type { AnyToolDefinition, ToolDefinition } from "./tool-definition";
 import { parseWith, toJsonSchema } from "./define-tool";
 import { affiliateTools } from "./affiliate-tools";
 import { analyticsTools } from "./analytics-tools";
+import { blogOpsTools } from "./blog-ops-tools";
 import { contentTools } from "./content-tools";
 import { distributionTools } from "./distribution-tools";
 import { feedbackTools } from "./feedback-tools";
@@ -96,6 +98,7 @@ export function buildToolCatalog(deps: CatalogDeps): readonly AnyToolDefinition[
     ...readerTools(deps),
     ...productTools(deps),
     ...contentTools(deps),
+    ...blogOpsTools(deps),
     ...platformTools(deps),
     ...distributionTools(deps),
     ...affiliateTools(deps),
@@ -104,9 +107,20 @@ export function buildToolCatalog(deps: CatalogDeps): readonly AnyToolDefinition[
     ...settingsTools(deps),
     ...feedbackTools(deps),
   ];
-  // 仕様書 §24 の名前でも同じユースケースへ入れるようにする。
+  /*
+   * REST / WebMCP / MCP が共通して通る catalog の最終境界で、use case の拒否を包む。
+   * 元の道具を先に 1 回だけ包み、その参照から別名を作る。別名ごとに包むと、
+   * 「別名は元と同じ処理を指す」という catalog の契約が崩れ、同じ処理の写しが増える。
+   * 入口の scope / 人の承認ゲートは `invokeTool` の責務で、ここへ二重計上しない。
+   */
+  const audited = own.map((tool) => ({
+    ...tool,
+    useCase: withAccessDenialAudit(deps, tool.name, tool.useCase),
+  }));
+
+  // 仕様書 §24 の名前でも、上で包んだ**同じユースケース**へ入れるようにする。
   // 処理は増えない。名前の対応が付いていないものは載らず、スタブとして表に残る。
-  return [...own, ...contractAliasTools(own)];
+  return [...audited, ...contractAliasTools(audited)];
 }
 
 export function findTool(
@@ -116,7 +130,14 @@ export function findTool(
   return catalog.find((t) => t.name === name) ?? null;
 }
 
-/** WebMCP に載せてよいもの。状態を変えるツールはページ内の AI へ渡さない。 */
+/**
+ * 読み取り専用を**名乗っている**もの。
+ *
+ * **WebMCP に載せてよいものの一覧ではない。**載せる先は
+ * `webmcp-policy.ts` の `PAGE_TOOLS` が名前で決める（`isListedOnWebMcp`）。
+ * ここを載せる根拠に使うと、読み取りの道具を足しただけで
+ * ページ内の AI の手が届く範囲が広がる。
+ */
 export function readOnlyTools(catalog: readonly AnyToolDefinition[]): readonly AnyToolDefinition[] {
   return catalog.filter((t) => t.readOnly);
 }

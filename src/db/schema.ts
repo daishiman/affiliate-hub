@@ -15,6 +15,22 @@ import {
   type PublicationState,
 } from "@/domain/distribution";
 import {
+  ARTICLE_BLOCK_KINDS,
+  ARTICLE_TEMPLATES,
+  BLOG_TAG_KINDS,
+  DELIVERY_PARTS,
+  FIXED_PAGE_KINDS,
+  LAYOUT_REGIONS,
+  NETWORK_ROLES,
+  NETWORK_STATUSES,
+  TOP_BANDS,
+} from "@/domain/blogops";
+import {
+  POLICY_CHANNEL_SCOPES,
+  POLICY_DOMAIN_SCOPES,
+  POLICY_SEVERITIES,
+} from "@/domain/compliance";
+import {
   COMPLIANCE_STATUSES,
   CONTENT_ANGLES,
   CONTENT_STATES,
@@ -212,23 +228,98 @@ export const people = sqliteTable("people", {
  * 記事・AI 回答・WebMCP の 3 経路が同じ 1 行を参照する。
  * 経路ごとに文言を書くと §28 の「広告関係が 3 経路で一貫する」が破れる。
  */
-export const disclosures = sqliteTable("disclosures", {
-  id: text("id").primaryKey(),
-  relationshipType: text("relationship_type", {
-    enum: ["affiliate", "sponsored", "supplied", "loaned", "purchased"],
-  }).notNull(),
-  advertiserOrSupplier: text("advertiser_or_supplier"),
-  editorialInfluence: text("editorial_influence", {
-    enum: ["none", "limited", "declared"],
-  })
-    .notNull()
-    .default("none"),
-  // 読者に実際に表示する文言。§17.1 が要求する「判別できる表現」。
-  visibleMessage: text("visible_message").notNull(),
-  createdAt: integer("created_at", { mode: "timestamp" })
-    .notNull()
-    .default(sql`(unixepoch())`),
-});
+export const disclosures = sqliteTable(
+  "disclosures",
+  {
+    id: text("id").primaryKey(),
+    /**
+     * どの作業場所の表記か。**列として持つ。**
+     *
+     * 足す前は列が無く、行は作業場所をまたいで 1 つの海に浮かんでいた。
+     * 表記は法令の要る表示なので、**別の作業場所の表記が自分の記事に出る**のは
+     * 「表示が無い」のと同じくらい悪い（出典の違う断りが読者に出る）。
+     * 読み口（`DisclosureRepositoryPort.list`）は作業場所を必ず受け取るので、
+     * 列が無いままでは絞りようがなかった。
+     */
+    workspaceId: text("workspace_id").notNull(),
+    relationshipType: text("relationship_type", {
+      // `paid_partnership` は domain の `RelationshipType` にあって表に無かった。
+      // 語彙が片側だけ広いと、選べるのに保存できない関係が生まれる。
+      enum: ["affiliate", "sponsored", "supplied", "loaned", "purchased", "paid_partnership"],
+    }).notNull(),
+    advertiserOrSupplier: text("advertiser_or_supplier"),
+    editorialInfluence: text("editorial_influence", {
+      enum: ["none", "limited", "declared"],
+    })
+      .notNull()
+      .default("none"),
+    /**
+     * 本文の作成に AI を使ったか（§20.1）。**列として持つ。**
+     * 表示文（`visible_message`）から読み取らない。文は言い回しが変わりうるので、
+     * 文字列を検索して判定する形にすると、言い回しを直した日に印が消える。
+     */
+    aiAssisted: integer("ai_assisted", { mode: "boolean" }).notNull().default(false),
+    // 読者に実際に表示する文言。§17.1 が要求する「判別できる表現」。
+    visibleMessage: text("visible_message").notNull(),
+    createdAt: integer("created_at", { mode: "timestamp" })
+      .notNull()
+      .default(sql`(unixepoch())`),
+    /**
+     * 最後に変えた時刻。**表記の変更は監査の対象**（§26 の必須記録 3 つ目）なので、
+     * 「いつからその表記だったか」が行の側からも言えるようにしておく。
+     * 誰が変えたかは `audit_logs` にある（ここへ写すと正本が 2 つになる）。
+     */
+    updatedAt: integer("updated_at", { mode: "timestamp" }).notNull(),
+  },
+  (t) => [index("disclosures_workspace_idx").on(t.workspaceId)],
+);
+
+/**
+ * 表現ポリシー（§20 / §26）。
+ *
+ * --- なぜ表が要るか ---
+ * きまりは `policy-rule-seed.ts` の初期 13 件が正本だったが、**読むだけだった**。
+ * 法令も規約も改定されるうえ、扱う分野は作業場所ごとに違う。
+ * 追加も無効化もできない状態は、「効いていないきまりを外せない」ことと
+ * 「新しい規制に追いつけない」ことを同時に意味する。
+ *
+ * --- 初期ルールをこの表へ流し込まない ---
+ * 作業場所を作った時点で 13 行を書き込む形にはしていない。そうすると、
+ * 初期ルールを直したときに**既に作られた作業場所だけが古いまま**残り、
+ * どの作業場所がどの版のきまりで確認されたのかが誰にも言えなくなる。
+ * この表が持つのは**初期ルールからの差分**（無効化と、上書きと、足したもの）で、
+ * 触っていないきまりは `buildSeedPolicyRules()` 側が正本のまま返る。
+ * 詳しくは `src/infrastructure/persistence/d1/policy-rule-repository.ts`。
+ *
+ * 規範: docs/product/traceability.md REQ-SEC07 / REQ-QC11
+ */
+export const policyRules = sqliteTable(
+  "policy_rules",
+  {
+    id: text("id").primaryKey(),
+    workspaceId: text("workspace_id").notNull(),
+    name: text("name").notNull(),
+    // 語彙は domain の配列がそのまま正本。ここで並べ直さない。
+    domainScope: text("domain_scope", { enum: POLICY_DOMAIN_SCOPES }).notNull(),
+    channelScope: text("channel_scope", { enum: POLICY_CHANNEL_SCOPES }).notNull(),
+    severity: text("severity", { enum: POLICY_SEVERITIES }).notNull(),
+    /** 検出する表現。正規表現の文字列。壊れた式は登録の時点で断る（domain 側）。 */
+    pattern: text("pattern").notNull(),
+    ignoreCase: integer("ignore_case", { mode: "boolean" }).notNull().default(true),
+    /** 根拠。**空では保存できない**（domain 側が断る）。理由の書けないきまりは運用されない。 */
+    basis: text("basis").notNull(),
+    /** 代わりの書き方。禁止だけ示すと執筆が止まる。 */
+    suggestion: text("suggestion").notNull(),
+    enabled: integer("enabled", { mode: "boolean" }).notNull().default(true),
+    updatedAt: integer("updated_at", { mode: "timestamp" })
+      .notNull()
+      .default(sql`(unixepoch())`),
+  },
+  (t) => [
+    // 記事を 1 本確認するたびに引く索引。無いと全件走査になる。
+    index("policy_rules_workspace_enabled_idx").on(t.workspaceId, t.enabled),
+  ],
+);
 
 /**
  * 商品。Phase 1 では最小限に留める。
@@ -267,13 +358,19 @@ export const articles = sqliteTable(
   "articles",
   {
     id: text("id").primaryKey(),
-    slug: text("slug").notNull().unique(),
+    slug: text("slug").notNull(),
+    /** ブログCRUDでは公開URLの所属をこの組で決める。旧AI記事では null。 */
+    workspaceId: text("workspace_id"),
+    siteSlug: text("site_slug"),
+    /** T1〜T4。旧AI記事では null のままにし、推測値を保存しない。 */
+    template: text("article_template", { enum: ARTICLE_TEMPLATES }),
     type: text("type", {
       enum: ["ranking", "review", "comparison", "guide", "tool"],
     }).notNull(),
     title: text("title").notNull(),
     // 一文の結論 (§8)。要約ではなく結論を書く。
     summary: text("summary"),
+    lead: text("lead").notNull().default(""),
     status: text("status", { enum: ["draft", "review", "published", "archived"] })
       .notNull()
       .default("draft"),
@@ -286,7 +383,11 @@ export const articles = sqliteTable(
      * 仕様書 §12 には無いフィールドだが、完了条件側が要求している。
      */
     ownerId: text("owner_id").references(() => people.id, { onDelete: "restrict" }),
+    /** 表示名の写し。人物マスタを持たないブログCRUDでも署名を失わない。 */
+    authorName: text("author_name").notNull().default(""),
     publishedAt: integer("published_at", { mode: "timestamp" }),
+    /** null は通常、日時ありは削除済み。archived は公開状態なので代用しない。 */
+    deletedAt: integer("deleted_at", { mode: "timestamp" }),
     updatedAt: integer("updated_at", { mode: "timestamp" })
       .notNull()
       .default(sql`(unixepoch())`),
@@ -309,6 +410,10 @@ export const articles = sqliteTable(
     index("articles_status_idx").on(t.status),
     index("articles_category_id_idx").on(t.categoryId),
     index("articles_next_review_at_idx").on(t.nextReviewAt),
+    uniqueIndex("articles_site_slug_idx").on(t.workspaceId, t.siteSlug, t.slug),
+    uniqueIndex("articles_legacy_slug_idx")
+      .on(t.slug)
+      .where(sql`${t.workspaceId} is null and ${t.siteSlug} is null`),
   ],
 );
 
@@ -438,9 +543,8 @@ export const updateLogs = sqliteTable(
  * （`tests/integration/d1-link-inbox.test.ts`）。
  * 索引は重複相手を引くために残す。一意にはしない。
  *
- * 同時に 2 人が同じ URL を入れたときは、どちらも重複の印が付かないまま
- * 2 行入る。受信箱は重複を持てる作りなので、これは表示上の取りこぼしであって
- * データの破損ではない。残課題として記録してある。
+ * 同時に 2 人が同じ URL を入れたときにどちらへ印を付けるかは、
+ * この表ではなく次の `link_ingestion_url_claims` が決める。
  */
 export const linkIngestions = sqliteTable(
   "link_ingestions",
@@ -468,6 +572,39 @@ export const linkIngestions = sqliteTable(
     index("link_ingestions_workspace_state_idx").on(t.workspaceId, t.state),
     index("link_ingestions_workspace_normalized_url_idx").on(t.workspaceId, t.normalizedUrl),
   ],
+);
+
+/**
+ * 「その URL を最初に受け取ったのは誰か」の取り合い（§9.2 の重複判定）。
+ *
+ * **なぜ受信箱の外に置くのか。**
+ * 重複の印を付けるには「自分より先に同じ URL があったか」を知る必要があるが、
+ * 先に読んでから書く形（SELECT してから INSERT）では、2 人が同時に貼ったときに
+ * 両方が「無い」を見て、どちらにも印が付かないまま 2 行入る。
+ * かといって `link_ingestions.normalized_url` を一意にすると、
+ * 2 回目の貼り付けが**やり直しても永久に通らない失敗**に戻ってしまう
+ * （それを避けるために一意制約を落とした経緯が上のコメント）。
+ *
+ * そこで、**受け取りは今までどおり全部通したまま**、
+ * 「最初の 1 本」だけをこの表の主キー（作業場所 + 正規化 URL）で取り合わせる。
+ * 取れなければ相手の `link_ingestion_id` が返り、それが `duplicate_of` になる。
+ * 主キーは 1 行しか許さないので、同時に来ても勝つのは必ず 1 本だけになる。
+ *
+ * 対象外にした（`rejected`）ときは、この行を消して取り合いから降りる。
+ * 降ろさないと、捨てたリンクを相手に指した「重複」が延々と出続ける。
+ */
+export const linkIngestionUrlClaims = sqliteTable(
+  "link_ingestion_url_claims",
+  {
+    workspaceId: text("workspace_id").notNull(),
+    normalizedUrl: text("normalized_url").notNull(),
+    /** 取り合いに勝った受信リンク。重複の印はここを指す。 */
+    linkIngestionId: text("link_ingestion_id").notNull(),
+    claimedAt: integer("claimed_at", { mode: "timestamp" })
+      .notNull()
+      .default(sql`(unixepoch())`),
+  },
+  (t) => [primaryKey({ columns: [t.workspaceId, t.normalizedUrl] })],
 );
 
 /**
@@ -665,7 +802,8 @@ export const siteDrafts = sqliteTable(
  * `slug` に一意の索引を置く。読者の URL（`/s/<URL名>`）がこの値そのもので、
  * 同じ URL 名が 2 つあると、どちらを出すか決められないためである。
  * 受信箱の URL（重複しても受け取る）と違い、ここは重複に意味が無い。
- * 作り直しは**上書き**として扱うので、2 回目が永久に通らない失敗にはならない。
+ * 同じ workspace からの作り直しだけを**上書き**として扱う。
+ * 取り下げ後も行を残すため、別 workspace へ URL 名を移管せず読者データを守れる。
  */
 export const siteBlueprints = sqliteTable(
   "site_blueprints",
@@ -688,11 +826,26 @@ export const siteBlueprints = sqliteTable(
 );
 
 /**
+ * ブログURLの取り下げ墓標。site_blueprints本体を変形せず、再利用を永久に防ぐ。
+ * SQLiteに `ADD COLUMN IF NOT EXISTS` が無いため、独立表ならmigration再実行も安全。
+ */
+export const siteRetirements = sqliteTable(
+  "site_retirements",
+  {
+    slug: text("slug").primaryKey(),
+    workspaceId: text("workspace_id").notNull(),
+    retiredAt: integer("retired_at", { mode: "timestamp" })
+      .notNull()
+      .default(sql`(unixepoch())`),
+  },
+  (t) => [index("site_retirements_workspace_idx").on(t.workspaceId)],
+);
+
+/**
  * 読者ページへ出した記事（そのとき出した内容の**写し**）。
  *
- * すでにある `articles` 表とは別に置く。あちらは分類・人物・広告表記を
- * 別表への参照で持つ形で、参照先を作る入口がまだ無い（作れない行になっている）。
- * こちらは**出した瞬間の内容をそのまま**保存する。
+ * `articles` は編集の唯一の正本。こちらは別の編集正本ではなく、
+ * **出した瞬間の内容をそのまま**保存する公開 read projection である。
  *
  * 内容全体は `article_json` に入れ、**列に出すのは一覧と検索が実際に使う項目だけ**。
  * 節を 1 つ足すたびにマイグレーションが要る形にすると、記事の構成を直すのが
@@ -733,6 +886,29 @@ export const publishedArticles = sqliteTable(
     index("published_articles_site_updated_idx").on(t.siteSlug, t.updatedAt),
     index("published_articles_site_author_idx").on(t.siteSlug, t.authorSlug),
     index("published_articles_workspace_idx").on(t.workspaceId),
+  ],
+);
+
+/**
+ * 公開記事の取り下げ墓標。
+ *
+ * 公開行を消すだけでは、同じURLの見本記事が再び読者へ出てしまう。
+ * 取り下げたURLを独立して残し、一覧・検索・1枚引きの全てで見本より優先する。
+ * 再公開時だけ同じworkspaceが墓標を外せる。
+ */
+export const publishedArticleTombstones = sqliteTable(
+  "published_article_tombstones",
+  {
+    siteSlug: text("site_slug").notNull(),
+    slug: text("slug").notNull(),
+    workspaceId: text("workspace_id").notNull(),
+    unpublishedAt: integer("unpublished_at", { mode: "timestamp" })
+      .notNull()
+      .default(sql`(unixepoch())`),
+  },
+  (t) => [
+    primaryKey({ columns: [t.siteSlug, t.slug] }),
+    index("published_article_tombstones_workspace_idx").on(t.workspaceId),
   ],
 );
 
@@ -801,11 +977,28 @@ export const auditLogs = sqliteTable(
     afterJson: text("after_json"),
     /** なぜその操作をしたか。承認・取り下げ・訂正では必須（domain 側で断る）。 */
     reason: text("reason"),
+    /**
+     * その操作が入ってきた**一回の要求**を指す名前。
+     *
+     * **断りの記録（`access.*`）では必ず入る**（domain 側が空を断る）。
+     * 通した操作では入らない回がある（定期実行など、要求の外で起きたもの）。
+     *
+     * 既存の行は `null` になる。この列を足す前に書かれた行は、
+     * 断りを 1 行も持っていない（語そのものが無かった）ので、
+     * 「断りなのに糸が無い行」は生まれない。
+     */
+    requestId: text("request_id"),
     occurredAt: integer("occurred_at", { mode: "timestamp" }).notNull(),
   },
   (t) => [
     // 「この記事に何が起きたか」を引く索引。無いと全件走査になる。
     index("audit_logs_workspace_target_idx").on(t.workspaceId, t.targetType, t.targetId),
+    /*
+     * 「同じ一回の要求で、ほかに何が断られたか」を引く索引。
+     * 断りは 1 件では読めない。総当たりは 1 回の要求の中で何十件も断られ、
+     * 役の付け忘れは 1 件で終わる。糸で引けないと、この差が一覧から読めない。
+     */
+    index("audit_logs_workspace_request_idx").on(t.workspaceId, t.requestId),
     index("audit_logs_workspace_occurred_idx").on(t.workspaceId, t.occurredAt),
     index("audit_logs_workspace_action_occurred_idx").on(t.workspaceId, t.action, t.occurredAt),
   ],
@@ -840,9 +1033,8 @@ export const telemetryEvents = sqliteTable(
  * 「どこに保管したか」の名前だけ。値を列に入れると、この表を読めた人が
  * そのまま他人のアカウントへ投稿できてしまう。
  *
- * 行を作る入口（各サービスとの接続）は、利用者ご自身がブラウザで
- * 認証するものなのでまだ無い。表と読み書きは、入口が付いた日に
- * そのまま使える形で先に用意してある（`sessions` と同じ考え方）。
+ * 接続登録の入口は、対応済みproviderでは実認証から返った不変IDを保存する。
+ * 未実装providerは登録所が明示的に止め、入力された表示名だけで接続済みにしない。
  */
 export const channelConnections = sqliteTable(
   "channel_connections",
@@ -857,21 +1049,56 @@ export const channelConnections = sqliteTable(
     /** 認証の有効期限。null は期限なし。 */
     expiresAt: integer("expires_at", { mode: "timestamp" }),
     revokedAt: integer("revoked_at", { mode: "timestamp" }),
+    /** providerが実認証で返した不変ID。BlueskyではDID。token/JWTは保存しない。 */
+    providerIdentity: text("provider_identity"),
     /** 保管先の名前。**値ではない。** */
     credentialRef: text("credential_ref").notNull(),
   },
-  (t) => [index("channel_connections_workspace_kind_idx").on(t.workspaceId, t.kind)],
+  (t) => [
+    index("channel_connections_workspace_kind_idx").on(t.workspaceId, t.kind),
+    uniqueIndex("channel_connections_workspace_provider_identity_idx").on(
+      t.workspaceId,
+      t.kind,
+      t.providerIdentity,
+    ),
+    // 同じsecret参照を別DIDへ差し替えて2行目を作る経路も保存先で閉じる。
+    uniqueIndex("channel_connections_workspace_credential_ref_idx").on(
+      t.workspaceId,
+      t.kind,
+      t.credentialRef,
+    ),
+  ],
+);
+
+/**
+ * provider主体ごとの短期送信lease。
+ * workspaceを主キーへ含めない。同じDIDを複数workspaceから登録しても、
+ * provider側から見れば同じ送信主体なので、外部通信は全体で1件へ直列化する。
+ */
+export const channelProviderDeliveryLeases = sqliteTable(
+  "channel_provider_delivery_leases",
+  {
+    kind: text("kind", { enum: CHANNEL_KIND_VALUES }).notNull(),
+    providerIdentity: text("provider_identity").notNull(),
+    holderPublicationId: text("holder_publication_id").notNull(),
+    /** acquireごとに変わるfencing token。旧workerのreleaseから新leaseを守る。 */
+    leaseToken: text("lease_token").notNull(),
+    acquiredAt: integer("acquired_at", { mode: "timestamp" }).notNull(),
+    expiresAt: integer("expires_at", { mode: "timestamp" }).notNull(),
+  },
+  (t) => [
+    primaryKey({ columns: [t.kind, t.providerIdentity] }),
+    index("channel_provider_delivery_leases_expiry_idx").on(t.expiresAt),
+  ],
 );
 
 /**
  * 配信（いつ・どこへ出すか、と出した結果）。
  *
- * **`idempotency_key` に一意制約を付けない。** 同じ記事・同じ先・同じ日時を
- * 二度登録したときに断るのは配信のユースケース側の仕事で、そこは
- * 「作らずに、すでにある 1 件を返す」という成功で応じる。保存先が
- * 一意制約で弾くと、その応答が**やり直しても永久に通らない失敗**になる
- * （受信箱で実際にその形になった。`link_ingestions` の注記を参照）。
- * 代わりに索引を張って、探す側を速くする。
+ * 同じ記事・同じ先・同じ日時は、workspace内で1件に収束させる。
+ * ユースケースの事前確認だけでは並行要求の競合窓が残るため、保存先の
+ * 一意制約とcreate-if-absentを最終境界にする。競合は例外ではなく、先に
+ * 作られた正本を読み直して成功として返す。
  */
 export const publications = sqliteTable(
   "publications",
@@ -879,6 +1106,8 @@ export const publications = sqliteTable(
     id: text("id").primaryKey(),
     workspaceId: text("workspace_id").notNull(),
     variantId: text("variant_id").notNull(),
+    /** 予約時に公開前確認を通したcontent_variants.revision。旧行はfail-closedのためnull。 */
+    variantRevision: integer("variant_revision"),
     kind: text("kind", { enum: CHANNEL_KIND_VALUES }).notNull(),
     /** 出し先の接続。書き出し（note）だけは接続を持たないので null。 */
     connectionId: text("connection_id"),
@@ -886,18 +1115,81 @@ export const publications = sqliteTable(
     state: text("state", { enum: PUBLICATION_STATE_VALUES }).notNull(),
     /** 予約時刻。null は即時。 */
     scheduledAt: integer("scheduled_at", { mode: "timestamp" }),
+    /** 一時失敗後に次に試してよい時刻。予約時刻の意味を上書きしない。 */
+    retryAt: integer("retry_at", { mode: "timestamp" }),
+    /** 送信中workerのclaim期限。期限切れのSENDINGだけを別workerが回収する。 */
+    deliveryLeaseUntil: integer("delivery_lease_until", { mode: "timestamp" }),
     idempotencyKey: text("idempotency_key").notNull(),
+    /** 外部送信claim時に固定したprovider主体。provider keyの一意境界に使う。 */
+    providerIdentity: text("provider_identity"),
+    /** provider側のrecord key。最初のclaimで確定し、retryでも変えない。 */
+    providerDeliveryKey: text("provider_delivery_key"),
+    /** provider record本文のcreatedAt。即時配信でも初回claim後は変えない。 */
+    providerRecordCreatedAt: integer("provider_record_created_at", { mode: "timestamp" }),
     attempts: integer("attempts").notNull().default(0),
     externalId: text("external_id"),
     externalUrl: text("external_url"),
     lastError: text("last_error"),
     publishedAt: integer("published_at", { mode: "timestamp" }),
+    /** 配信状態CASとoutboxを結ぶ内部token。業務状態としては公開しない。 */
+    lastDeliveryAuditId: text("last_delivery_audit_id"),
   },
   (t) => [
     index("publications_workspace_variant_idx").on(t.workspaceId, t.variantId),
-    index("publications_workspace_idempotency_idx").on(t.workspaceId, t.idempotencyKey),
+    uniqueIndex("publications_workspace_idempotency_idx").on(t.workspaceId, t.idempotencyKey),
+    // TIDのclock idが別isolateで衝突しても、外部送信前のclaimを片方だけにする。
+    uniqueIndex("publications_provider_delivery_key_idx").on(
+      t.kind,
+      t.providerIdentity,
+      t.providerDeliveryKey,
+    ),
     // 予約の時間が来たものを拾う索引。無いと、送る側が毎回全件を読む。
     index("publications_state_scheduled_idx").on(t.state, t.scheduledAt),
+    index("publications_state_retry_idx").on(t.state, t.retryAt),
+    index("publications_state_lease_idx").on(t.state, t.deliveryLeaseUntil),
+  ],
+);
+
+/**
+ * 外部配信の状態確定と同じtransactionで積む監査outbox。
+ *
+ * audit_logs と同じpayloadを保持し、flush時に再生成しない。再試行しても同じIDを
+ * insert-if-absentするため、監査保存後の停止でも重複記録にならない。
+ */
+export const publicationDeliveryAuditOutbox = sqliteTable(
+  "publication_delivery_audit_outbox",
+  {
+    id: text("id").primaryKey(),
+    workspaceId: text("workspace_id").notNull(),
+    action: text("action").notNull(),
+    actorUserId: text("actor_user_id"),
+    actorIsAi: integer("actor_is_ai", { mode: "boolean" }).notNull(),
+    actorIdentified: integer("actor_identified", { mode: "boolean" }).notNull(),
+    actorModelId: text("actor_model_id"),
+    targetType: text("target_type").notNull(),
+    targetId: text("target_id").notNull(),
+    beforeJson: text("before_json"),
+    afterJson: text("after_json"),
+    reason: text("reason"),
+    requestId: text("request_id"),
+    occurredAt: integer("occurred_at", { mode: "timestamp" }).notNull(),
+    /** Publication CAS triggerが同一transaction内で確定した時刻。nullは未確定intent。 */
+    committedAt: integer("committed_at", { mode: "timestamp" }),
+    /** audit_logsへの配送と同じbatchで入る。nullだけを次cronが拾う。 */
+    deliveredAt: integer("delivered_at", { mode: "timestamp" }),
+  },
+  (t) => [
+    index("publication_delivery_audit_outbox_pending_idx").on(
+      t.deliveredAt,
+      t.committedAt,
+      t.occurredAt,
+    ),
+    index("publication_delivery_audit_outbox_workspace_pending_idx").on(
+      t.workspaceId,
+      t.deliveredAt,
+      t.committedAt,
+      t.occurredAt,
+    ),
   ],
 );
 
@@ -965,6 +1257,86 @@ export const affiliateConversions = sqliteTable(
 );
 
 /**
+ * ASP アカウント（提携先）。
+ *
+ * **秘密の値をこの表に置かない。** 置いてよいのは
+ * `credential_ref`（保管先の名前）と `public_tracking_id`（リンクに現れる公開 ID）だけ。
+ * 鍵そのものを列にすると、保存先を読める全員が鍵を読めることになり、
+ * 画面に出さない配慮も、権限の判定も、すべて意味を失う。
+ *
+ * `disabled_at` で止める。行を消さないのは、止めた提携先で発生した過去の成果が
+ * **どこの成果だったのか分からなくなる**ため。
+ */
+export const affiliateAccounts = sqliteTable(
+  "affiliate_accounts",
+  {
+    id: text("id").primaryKey(),
+    workspaceId: text("workspace_id").notNull(),
+    /** ASP。正本は domain/monetization/affiliate-program.ts の `ASP_LABEL`。 */
+    asp: text("asp", { enum: ASP_KIND_VALUES }).notNull(),
+    /** 画面に出す識別名。同じ ASP を複数持てるので、これが人の目印になる。 */
+    label: text("label").notNull(),
+    /** リンクに現れる公開 ID。秘密ではない。未取得は空文字ではなく null。 */
+    publicTrackingId: text("public_tracking_id"),
+    /** 認証情報の**保管先の名前**。値そのものは決してここに入らない。 */
+    credentialRef: text("credential_ref"),
+    connectedAt: integer("connected_at", { mode: "timestamp" })
+      .notNull()
+      .default(sql`(unixepoch())`),
+    disabledAt: integer("disabled_at", { mode: "timestamp" }),
+  },
+  (t) => [index("affiliate_accounts_workspace_idx").on(t.workspaceId)],
+);
+
+/**
+ * 提携プログラム（広告主ごとの条件）。
+ *
+ * **報酬の決め方は 3 列に割らず、種類 + 値で持つ。** 率・固定額・段階制・未取得は
+ * 排他で、列を並べると「率も固定額も入っている行」が作れてしまう。
+ * とくに **未取得（`unknown`）と 0 円を同じ形にしない**。同じにすると、
+ * 取れていないだけの提携が「報酬 0 円の提携」として画面に並ぶ。
+ *
+ * `restrictions`（掲載条件）は文章の並びで、機械では判定できない。
+ * 判定できないものを列に割ると、割った形が判定できるかのように見える。
+ */
+export const affiliatePrograms = sqliteTable(
+  "affiliate_programs",
+  {
+    id: text("id").primaryKey(),
+    workspaceId: text("workspace_id").notNull(),
+    /** どの提携先アカウントの下の提携か。 */
+    accountId: text("account_id").notNull(),
+    asp: text("asp", { enum: ASP_KIND_VALUES }).notNull(),
+    advertiserName: text("advertiser_name").notNull(),
+    /** 報酬の決め方の種類。正本は domain の `RewardModel`。 */
+    rewardKind: text("reward_kind", {
+      enum: ["rate", "fixed", "tiered", "unknown"],
+    }).notNull(),
+    /** `rate` のときの率（%）。 */
+    rewardPercent: integer("reward_percent"),
+    /** `fixed` のときの額と通貨。片方だけ入っている行は未取得として読む。 */
+    rewardAmountMinor: integer("reward_amount_minor"),
+    rewardCurrency: text("reward_currency"),
+    /** `tiered` のときの説明。詳細は ASP 側にしか無い。 */
+    rewardNote: text("reward_note"),
+    /** 承認率（0〜1）。**null は未取得で、0 ではない。** */
+    approvalRate: real("approval_rate"),
+    confirmationDays: integer("confirmation_days"),
+    cookieDurationDays: integer("cookie_duration_days"),
+    /** 人が読んで確かめる掲載条件。 */
+    restrictions: text("restrictions", { mode: "json" }).$type<string[]>().notNull(),
+    joinedAt: integer("joined_at", { mode: "timestamp" })
+      .notNull()
+      .default(sql`(unixepoch())`),
+    endedAt: integer("ended_at", { mode: "timestamp" }),
+  },
+  (t) => [
+    index("affiliate_programs_workspace_idx").on(t.workspaceId),
+    index("affiliate_programs_account_idx").on(t.workspaceId, t.accountId),
+  ],
+);
+
+/**
  * 記事（媒体別の文章）1 本。
  *
  * **進行の現在地（`state`）を同じ行に持つ。** 別表にすると、記事を消したのに
@@ -972,9 +1344,8 @@ export const affiliateConversions = sqliteTable(
  * 一方で業務の型（`ContentVariant`）には入れていない。あれは AI の出力契約で、
  * AI が文章を返しただけで段階が進んだことにはならないため。
  *
- * 企画（content_packages）と書き手（personas）はまだ表を作っていない。
- * **作る入口がどこにも無いから**で、入口の無い表を先に作ると、
- * 一生埋まらない空の一覧が画面に増える。
+ * 親の企画（`content_packages`）は別表。1 つの企画から記事が何本も生まれるので、
+ * 同じ行に混ぜると企画の決めごとが記事の本数だけ重複する。
  */
 export const contentVariants = sqliteTable(
   "content_variants",
@@ -1008,6 +1379,8 @@ export const contentVariants = sqliteTable(
     generationPromptVersion: text("generation_prompt_version").notNull(),
     modelId: text("model_id").notNull(),
     status: text("status", { enum: CONTENT_VARIANT_STATUS_VALUES }).notNull(),
+    /** 本文・表記・根拠などContentVariant本体を保存するたびに単調増加する版。 */
+    revision: integer("revision").notNull().default(1),
     /** 進行の現在地。正本は domain/authoring/content-state.ts の `CONTENT_STATES`。 */
     state: text("state", { enum: CONTENT_STATE_VALUES }).notNull(),
     /**
@@ -1023,6 +1396,72 @@ export const contentVariants = sqliteTable(
     index("content_variants_workspace_state_idx").on(t.workspaceId, t.state),
     index("content_variants_workspace_package_idx").on(t.workspaceId, t.contentPackageId),
     index("content_variants_review_due_idx").on(t.state, t.reviewDueAt),
+  ],
+);
+
+/**
+ * 運営者が管理する商品（比較表と順位表の入力）。
+ *
+ * **読者ドメインの `products` とは別の表である。** 名前が似ているのは
+ * 同じものを指しているからではない。あちらは読者ページに出す商品の見出し
+ * （slug・カテゴリー・型番）で、カテゴリーへの外部キーを必須にしている。
+ * こちらは編集側の入力で、比較表の列になる仕様と、その出どころ
+ * （どこに書いてあった値か・いつ確かめたか・どこまで信じてよいか）を持つ。
+ *
+ * 1 つの表にまとめると、読者ページに出す前の商品を登録できなくなるか、
+ * カテゴリーの無い行を読者ページが拾ってしまうかのどちらかになる。
+ *
+ * `specifications` と `identity_keys` を JSON にしているのは、
+ * **列が分野ごとに違うため。** ノートパソコンの「重さ」と洗剤の「容量」を
+ * 同じ列に並べる方法は無く、分野ごとに表を足すと分野を 1 つ増やすたびに
+ * マイグレーションが要る。揃っているかどうかは比較のときに見る
+ * （`compare_products` が「全商品で値が揃っている項目だけを列にする」）。
+ */
+export const catalogProducts = sqliteTable(
+  "catalog_products",
+  {
+    id: text("id").primaryKey(),
+    workspaceId: text("workspace_id").notNull(),
+    brand: text("brand").notNull(),
+    name: text("name").notNull(),
+    manufacturer: text("manufacturer"),
+    /**
+     * 分野。読者ドメインの `categories` へは**つながない。**
+     * 読者ページに出していない分野の商品も登録できる必要があるため。
+     */
+    categoryId: text("category_id"),
+    /** 同一性の鍵。正本は domain/product/product-identity.ts の `IDENTITY_KEY_PRIORITY`。 */
+    identityKeys: text("identity_keys", { mode: "json" })
+      .$type<{ kind: string; value: string }[]>()
+      .notNull(),
+    description: text("description"),
+    specifications: text("specifications", { mode: "json" })
+      .$type<Record<string, string | number>>()
+      .notNull(),
+    imageAssetIds: text("image_asset_ids", { mode: "json" }).$type<string[]>().notNull(),
+    releaseDate: integer("release_date", { mode: "timestamp" }),
+    discontinuedAt: integer("discontinued_at", { mode: "timestamp" }),
+    officialUrl: text("official_url"),
+    officialSourceIds: text("official_source_ids", { mode: "json" }).$type<string[]>().notNull(),
+    /**
+     * 出どころ。**列に開いて持つ。**
+     *
+     * JSON 1 本にまとめると「取得日時が古い商品」を問い合わせで拾えない。
+     * 仕様の値が古くなっているかどうかは運用の中心の問いなので、
+     * ここだけは分野に依らず形が決まっている。
+     */
+    provenanceSourceType: text("provenance_source_type").notNull(),
+    provenanceSourceName: text("provenance_source_name").notNull(),
+    provenanceSourceUrl: text("provenance_source_url"),
+    provenanceRetrievedAt: integer("provenance_retrieved_at", { mode: "timestamp" }).notNull(),
+    provenanceValidUntil: integer("provenance_valid_until", { mode: "timestamp" }),
+    provenanceConfidence: real("provenance_confidence").notNull(),
+    provenancePermittedUsage: text("provenance_permitted_usage").notNull(),
+  },
+  (t) => [
+    index("catalog_products_workspace_idx").on(t.workspaceId, t.name),
+    index("catalog_products_workspace_category_idx").on(t.workspaceId, t.categoryId),
+    index("catalog_products_stale_idx").on(t.workspaceId, t.provenanceRetrievedAt),
   ],
 );
 
@@ -1084,11 +1523,79 @@ export const llmUsages = sqliteTable(
     currency: text("currency").notNull(),
     /** 失敗した呼び出しも残す。失敗にも料金が掛かることがあるため。 */
     succeeded: integer("succeeded", { mode: "boolean" }).notNull(),
+    /** 提供元への通信を開始したか。月次枠では `purpose = 'draft'` の行だけを数える。 */
+    capacityConsumed: integer("capacity_consumed", { mode: "boolean" })
+      .notNull()
+      .default(true),
     occurredAt: integer("occurred_at", { mode: "timestamp" }).notNull(),
   },
   (t) => [
     index("llm_usages_workspace_occurred_idx").on(t.workspaceId, t.occurredAt),
     index("llm_usages_workspace_provider_idx").on(t.workspaceId, t.providerId, t.occurredAt),
+    index("llm_usages_workspace_capacity_idx").on(
+      t.workspaceId,
+      t.purpose,
+      t.capacityConsumed,
+      t.occurredAt,
+    ),
+  ],
+);
+
+/**
+ * 成果リンク（ASP が発行した URL）の保存先。
+ *
+ * **記事の版（`content_variants.affiliate_link_ids`）が指している先がここ。**
+ * 版は ID の列しか持たないので、この表が無いと、公開のときに
+ * 「どの商品の、どこへ行く、何という名前のリンクか」が 1 つも分からない。
+ * その状態では記事に成果リンクを 1 件も載せられない（残課題 58）。
+ *
+ * **`original_url` は ASP が発行した URL そのもの。** 加工して保存する列は置かない。
+ * 印を足した URL は多くの ASP で規約違反になり、成果そのものが計上されなくなる。
+ * 入れる前に https であることを確かめる（`createAffiliateLink`）。
+ * 差し替えるときは上書きせず新しい行を作る（`disabled_at` を入れて止める）。
+ *
+ * --- なぜ商品名をここに持つのか ---
+ * 商品の表（`products`）は、**作る入口がまだ無いので空**である。そこを引くと、
+ * 実運用では名前が引けず、リンクだけのカードになる。ASP でリンクを発行した
+ * 時点では商品名が分かっているので、**そのときの名前をここへ写す**。
+ * 写しなので古くなりうる。古くなったら行を作り直す（URL と同じ扱い）。
+ *
+ * **報酬額はここに置かない。** 記事の組み立てはこの表を読むので、
+ * 置いた時点で「よく売れる商品を上に出す」実装が書ける形になる
+ * （Editorial / Commercial の遮断。`tests/architecture/commercial-isolation.test.ts`）。
+ *
+ * 規範: docs/spec/01-要求仕様書-v1.0.md §19.2 / REQ-E13、tasks/task-publish-article-affiliate-links.md
+ */
+export const affiliateLinks = sqliteTable(
+  "affiliate_links",
+  {
+    id: text("id").primaryKey(),
+    workspaceId: text("workspace_id").notNull(),
+    programId: text("program_id").notNull(),
+    /** どの商品のリンクか。商品に結びついていないリンクもある。 */
+    productId: text("product_id"),
+    /** 発行したときの商品名。読者のカードにそのまま出る。 */
+    productName: text("product_name").notNull(),
+    /** 作り手・ブランド。分からないときは空にせず未設定（null）にする。 */
+    brand: text("brand"),
+    /** 1 文の説明。カードの見出しの下に出る。 */
+    oneLine: text("one_line"),
+    /** ASP が発行した URL。**1 文字も変えずに入れ、1 文字も変えずに出す。** */
+    originalUrl: text("original_url").notNull(),
+    alterationProhibited: integer("alteration_prohibited", { mode: "boolean" })
+      .notNull()
+      .default(true),
+    /** 内部の計測用識別子。URL には足さない。 */
+    trackingRef: text("tracking_ref").notNull(),
+    createdAt: integer("created_at", { mode: "timestamp" })
+      .notNull()
+      .default(sql`(unixepoch())`),
+    expiresAt: integer("expires_at", { mode: "timestamp" }),
+    disabledAt: integer("disabled_at", { mode: "timestamp" }),
+  },
+  (t) => [
+    index("affiliate_links_workspace_idx").on(t.workspaceId),
+    index("affiliate_links_workspace_product_idx").on(t.workspaceId, t.productId),
   ],
 );
 
@@ -1266,6 +1773,59 @@ export const workspaces = sqliteTable("workspaces", {
 });
 
 /**
+ * mutation開始から保存完了までだけ保持する容量リース。
+ * 取得は対象実表の件数と有効リース数を同じINSERT文で判定し、並行超過を防ぐ。
+ */
+export const capacityLeases = sqliteTable(
+  "capacity_leases",
+  {
+    id: text("id").primaryKey(),
+    workspaceId: text("workspace_id").notNull(),
+    kind: text("kind", { enum: ["brand", "site", "member", "generation"] }).notNull(),
+    acquiredAt: integer("acquired_at", { mode: "timestamp" }).notNull(),
+    expiresAt: integer("expires_at", { mode: "timestamp" }).notNull(),
+  },
+  (t) => [
+    index("capacity_leases_workspace_kind_expiry_idx").on(
+      t.workspaceId,
+      t.kind,
+      t.expiresAt,
+    ),
+  ],
+);
+
+/**
+ * ブランド。読者から見た「誰が言っているか」。
+ *
+ * --- なぜ運営者の表示名と問い合わせ先を列へ出すか ---
+ *
+ * この 2 つが欠けていると記事を公開できない（`missingPublishReadiness`）。
+ * JSON の中に入れると、**公開できないブランドを数えるために全件を開く**ことになる。
+ * 「あと何件埋めれば公開できるか」は設定画面がいつも出す数字なので、列で持つ。
+ *
+ * --- なぜ声（voice）は JSON か ---
+ *
+ * 一人称・敬体か常体か・使わない言い回しは、どれも一覧の並べ替えにも
+ * 絞り込みにも使わない。列へ出すと、言い回しの禁止を 1 つ足すたびに
+ * テーブルの形が変わる。
+ */
+export const brands = sqliteTable(
+  "brands",
+  {
+    id: text("id").primaryKey(),
+    workspaceId: text("workspace_id").notNull(),
+    displayName: text("display_name").notNull(),
+    /** 特定商取引法の表示に使う名前。未設定のまま公開はできない。 */
+    legalName: text("legal_name"),
+    /** 訂正の連絡先。未設定のまま公開はできない。 */
+    contactEmail: text("contact_email"),
+    createdAt: integer("created_at", { mode: "timestamp" }).notNull(),
+    brandJson: text("brand_json").notNull(),
+  },
+  (t) => [index("brands_workspace_idx").on(t.workspaceId)],
+);
+
+/**
  * 担当者の登録。**権限の正本はここ 1 か所。**
  *
  * ログインの合言葉の中に権限を書き込まない。書き込むと、担当を外した人の権限が
@@ -1349,20 +1909,282 @@ export const signinDenials = sqliteTable(
   (t) => [index("signin_denials_email_idx").on(t.email, t.at)],
 );
 
+/**
+ * 書き手（§13）。
+ *
+ * **これは記事の署名（`people`）ではない。** `people` は読者へ名前が出る人物で、
+ * こちらは「どの立場・どの文体で書かせるか」という生成の設定である。
+ * 1 人の署名に対して書き手の設定が複数あってよいし、その逆もある。
+ * 同じ表に混ぜると、署名を消したいだけで生成の設定まで消えることになる。
+ *
+ * 列の切り方は `site_drafts` と同じ決めごとに従う。
+ * **一覧が絞り込みと並べ替えに使うものだけを列にする。**
+ * 文体の 6 軸・使ってよい言い回し・事実の範囲は項目が増え続けるので
+ * JSON 1 列にまとめる。軸を 1 つ足すたびに保存先の作り直しが要る形にしない。
+ */
+export const authorPersonas = sqliteTable(
+  "author_personas",
+  {
+    id: text("id").primaryKey(),
+    workspaceId: text("workspace_id").notNull(),
+    /** 一覧の見出し。並べ替えにも使うので列に出す。 */
+    displayName: text("display_name").notNull(),
+    updatedAt: integer("updated_at", { mode: "timestamp" })
+      .notNull()
+      .default(sql`(unixepoch())`),
+    personaJson: text("persona_json").notNull(),
+  },
+  (t) => [
+    index("author_personas_workspace_name_idx").on(t.workspaceId, t.displayName),
+    // 同じ作業場所に同じ名前の書き手が 2 人いると、記事の設定でどちらを
+    // 選んだのか画面から判別できない。名前は読者へ出る値ではないので
+    // 縛っても運用が詰まらない（読者向けの署名は `people` 側）。
+    uniqueIndex("author_personas_workspace_display_name_idx").on(t.workspaceId, t.displayName),
+  ],
+);
+
+/**
+ * 企画（§7.3）。
+ *
+ * 記事 1 本ではなく、**記事を何本も生む親**。
+ * 「どの商品を・どの根拠で・誰が・誰に向けて・何のために・どの購買段階で・
+ * どの切り口で」までをここで決め、媒体と長さと CTA は記事（`content_variants`）が持つ。
+ *
+ * 列の切り方は `author_personas` と同じ決めごとに従う。
+ * **一覧が絞り込みと並べ替えに使うものだけを列にする。**
+ * 切り口・主張・根拠・生まれた記事の一覧は増え続けるので JSON 1 列にまとめる。
+ * とくに `variant_ids` を列にすると、記事を 1 本作るたびに企画の行の作り直しが
+ * 要る形になり、記事の追加と企画の編集がぶつかる。
+ *
+ * `domain_scope` は列に出す。**分野ごとの表現ルール（薬機法・金融・賭博など）を
+ * 当てる唯一の手がかり**で、分野で絞って一覧を見る操作が実際に要るため。
+ */
+export const contentPackages = sqliteTable(
+  "content_packages",
+  {
+    id: text("id").primaryKey(),
+    workspaceId: text("workspace_id").notNull(),
+    /** 一覧の見出し。この企画で達成したいこと。 */
+    objective: text("objective").notNull(),
+    /** 進み具合。かんばんの絞り込みに使う。 */
+    status: text("status").notNull(),
+    /** 記事の分野。表現ルールを選ぶ手がかり。 */
+    domainScope: text("domain_scope").notNull(),
+    updatedAt: integer("updated_at", { mode: "timestamp" })
+      .notNull()
+      .default(sql`(unixepoch())`),
+    packageJson: text("package_json").notNull(),
+  },
+  (t) => [
+    index("content_packages_workspace_status_idx").on(t.workspaceId, t.status),
+    // 目的では縛らない。同じ商品について「初心者向け」と「買い替え向け」を
+    // 別の企画として立てるとき、目的の文言が似通うのはむしろ普通だから。
+    index("content_packages_workspace_updated_idx").on(t.workspaceId, t.updatedAt),
+  ],
+);
+
+/**
+ * 読者像（§14）。
+ *
+ * 「誰に向けて書くか」。比較表の列（`decisionCriteria`）がここから決まるので、
+ * **記事より先に決まっていないと、観点の無い比較表ができる。**
+ */
+export const audiencePersonas = sqliteTable(
+  "audience_personas",
+  {
+    id: text("id").primaryKey(),
+    workspaceId: text("workspace_id").notNull(),
+    name: text("name").notNull(),
+    updatedAt: integer("updated_at", { mode: "timestamp" })
+      .notNull()
+      .default(sql`(unixepoch())`),
+    personaJson: text("persona_json").notNull(),
+  },
+  (t) => [
+    index("audience_personas_workspace_name_idx").on(t.workspaceId, t.name),
+    uniqueIndex("audience_personas_workspace_name_unique_idx").on(t.workspaceId, t.name),
+  ],
+);
+
+/**
+ * 順位づけの基準（§17.4）。
+ *
+ * **報酬の列を置かない。** 報酬額・広告主予算・成果件数の列がここに 1 つでも
+ * あると、順位を決める処理からそれが読めてしまう。読めるものは、いつか読まれる。
+ * 禁止された指標は `criteria` の中身として domain が断るが、
+ * **表の形として持てないようにしておくのが最後の壁**になる。
+ *
+ * 評価の仕方を変えたら `version` を上げる決まり（domain の不変条件）なので、
+ * 同じ `categoryId` に版違いが何本も並ぶ。だから `id` が主キーで、
+ * カテゴリーは主キーにしない。
+ */
+export const rankingModels = sqliteTable(
+  "ranking_models",
+  {
+    id: text("id").primaryKey(),
+    workspaceId: text("workspace_id").notNull(),
+    /** どの分類の順位か。同じ分類に読者別・版違いが並ぶ。 */
+    categoryId: text("category_id").notNull(),
+    /** 評価の仕方の版。上げないと過去の順位を再現できなくなる。 */
+    version: text("version").notNull(),
+    /** 誰向けの順位か。一覧で選ぶ手がかり。 */
+    audience: text("audience").notNull(),
+    /** いつからの評価か。新しい順に並べるために列へ出す。 */
+    effectiveFrom: integer("effective_from", { mode: "timestamp" }).notNull(),
+    modelJson: text("model_json").notNull(),
+  },
+  (t) => [
+    index("ranking_models_workspace_effective_idx").on(t.workspaceId, t.effectiveFrom),
+    // 同じ分類・同じ読者・同じ版を 2 本持たない。持てると、どちらの順位が
+    // 出ているのか画面からも記録からも決められなくなる。
+    uniqueIndex("ranking_models_workspace_category_audience_version_unique_idx").on(
+      t.workspaceId,
+      t.categoryId,
+      t.audience,
+      t.version,
+    ),
+  ],
+);
+
+/**
+ * 商品ごとの採点表（§20.3）。
+ *
+ * 主キーが（作業場所・評価方法・商品）の 3 つなのは、**同じ商品でも
+ * 評価方法が変われば点が変わる**から。商品だけを主キーにすると、
+ * 版を上げた瞬間に古い版の順位が再現できなくなる。
+ *
+ * `evidenceRefs`（根拠）は JSON 側に持つ。根拠を示せない点数は使わない決まりで、
+ * 空かどうかは domain が見る。列に出しても増える一方で絞り込みに使わない。
+ */
+export const scoreCards = sqliteTable(
+  "score_cards",
+  {
+    workspaceId: text("workspace_id").notNull(),
+    modelId: text("model_id").notNull(),
+    productId: text("product_id").notNull(),
+    /** 最後に測った日。読者へ出すので列に置き、古い順に洗い替えできるようにする。 */
+    testedAt: integer("tested_at", { mode: "timestamp" }),
+    cardJson: text("card_json").notNull(),
+  },
+  (t) => [
+    primaryKey({ columns: [t.workspaceId, t.modelId, t.productId] }),
+    index("score_cards_workspace_model_idx").on(t.workspaceId, t.modelId),
+  ],
+);
+
+/**
+ * 根拠（§12 Evidence）。
+ *
+ * **他サイトの本文をここへ丸ごと入れられないようにしてある。**
+ * 抜粋の上限は domain（`MAX_EXCERPT_LENGTH`）が断るが、
+ * 列の名前を `excerpt_or_summary` にしてあるのは、
+ * 保存先を直接触る人にも「全文の置き場ではない」と分かるようにするため。
+ *
+ * `title` を列に出しているのは探すため。JSON の中だけに置くと、
+ * 題名で絞るのに全件を読んで JSON を開くことになる。
+ */
+export const evidenceRecords = sqliteTable(
+  "evidence_records",
+  {
+    id: text("id").primaryKey(),
+    workspaceId: text("workspace_id").notNull(),
+    /** 公式資料・検証結果・写真など。何を根拠にしているかで絞る。 */
+    type: text("type").notNull(),
+    title: text("title").notNull(),
+    /** いつ時点の情報か。古い根拠を洗い替えるために列へ出す。 */
+    capturedAt: integer("captured_at", { mode: "timestamp" }).notNull(),
+    evidenceJson: text("evidence_json").notNull(),
+  },
+  (t) => [
+    index("evidence_records_workspace_captured_idx").on(t.workspaceId, t.capturedAt),
+  ],
+);
+
+/**
+ * 主張（§21.1 / §12 Claim）。
+ *
+ * **`product_id` は domain の `Claim` に無い列。** どの商品について
+ * 言っていることかは保存先の関心事で、主張そのものの成り立ちには関わらない。
+ * ここに列として置くのは、商品ページが「この商品について何が言えるか」を
+ * 引くのが主な使い道だから。
+ *
+ * `valid_until` を列に出すのは、期限切れが近いものを探すため。
+ * JSON の中だけに置くと、期限の点検に全件を開くことになる。
+ */
+export const claims = sqliteTable(
+  "claims",
+  {
+    id: text("id").primaryKey(),
+    workspaceId: text("workspace_id").notNull(),
+    productId: text("product_id").notNull(),
+    /** 公式・実測・体験・推論・外部・商業。事実を名乗る種類は根拠が要る。 */
+    type: text("type").notNull(),
+    /** 未確認・確認済み・却下・期限切れ。確認済みでなければ公開に使えない。 */
+    verificationStatus: text("verification_status").notNull(),
+    validFrom: integer("valid_from", { mode: "timestamp" }).notNull(),
+    validUntil: integer("valid_until", { mode: "timestamp" }),
+    claimJson: text("claim_json").notNull(),
+  },
+  (t) => [
+    index("claims_workspace_product_idx").on(t.workspaceId, t.productId),
+    // 期限切れが近いものを探す経路。作業場所と期限の 2 列で引く。
+    index("claims_workspace_valid_until_idx").on(t.workspaceId, t.validUntil),
+  ],
+);
+
+/**
+ * 検証記録（§12 TestRun）。
+ *
+ * 「実際に使ってみました」と書けるかどうかは、この記録の有無で決まる。
+ * 記録が無いのに体験を名乗る文は、書き手ペルソナの事実境界が止める。
+ *
+ * `method_version` を列に出すのは、測り方を変えた前後の記録を
+ * 混ぜないため。混ざると、比べてはいけない数字が同じ表に並ぶ。
+ */
+export const testRuns = sqliteTable(
+  "test_runs",
+  {
+    id: text("id").primaryKey(),
+    workspaceId: text("workspace_id").notNull(),
+    productId: text("product_id").notNull(),
+    methodVersion: text("method_version").notNull(),
+    startedAt: integer("started_at", { mode: "timestamp" }).notNull(),
+    completedAt: integer("completed_at", { mode: "timestamp" }),
+    runJson: text("run_json").notNull(),
+  },
+  (t) => [index("test_runs_workspace_product_idx").on(t.workspaceId, t.productId)],
+);
+
 // 運営者ドメイン
+export type EvidenceRecordRow = typeof evidenceRecords.$inferSelect;
+export type ClaimRow = typeof claims.$inferSelect;
+export type TestRunRow = typeof testRuns.$inferSelect;
 export type WorkspaceRow = typeof workspaces.$inferSelect;
+export type BrandRow = typeof brands.$inferSelect;
+export type AuthorPersonaRow = typeof authorPersonas.$inferSelect;
+export type AudiencePersonaRow = typeof audiencePersonas.$inferSelect;
 export type MembershipRow = typeof memberships.$inferSelect;
 export type SigninDenialRow = typeof signinDenials.$inferSelect;
 export type Asp = typeof asps.$inferSelect;
+export type AffiliateLinkRow = typeof affiliateLinks.$inferSelect;
 export type RedirectResolutionRow = typeof redirectResolutions.$inferSelect;
+export type ContentPackageRow = typeof contentPackages.$inferSelect;
+export type RankingModelRow = typeof rankingModels.$inferSelect;
+export type ScoreCardRow = typeof scoreCards.$inferSelect;
 export type ContentVariantRow = typeof contentVariants.$inferSelect;
+export type CatalogProductRow = typeof catalogProducts.$inferSelect;
 export type ChannelConnectionRow = typeof channelConnections.$inferSelect;
 export type PublicationRow = typeof publications.$inferSelect;
+export type PublicationDeliveryAuditOutboxRow =
+  typeof publicationDeliveryAuditOutbox.$inferSelect;
 export type SessionRow = typeof sessions.$inferSelect;
 export type Program = typeof programs.$inferSelect;
 export type Conversion = typeof conversions.$inferSelect;
 export type AffiliateConversionRow = typeof affiliateConversions.$inferSelect;
+export type AffiliateAccountRow = typeof affiliateAccounts.$inferSelect;
+export type AffiliateProgramRow = typeof affiliatePrograms.$inferSelect;
 export type LinkIngestionRow = typeof linkIngestions.$inferSelect;
+export type LinkIngestionUrlClaimRow = typeof linkIngestionUrlClaims.$inferSelect;
 export type FeedbackReportRow = typeof feedbackReports.$inferSelect;
 export type IntegrationKeyRow = typeof integrationKeys.$inferSelect;
 export type IntegrationKeyUsageRow = typeof integrationKeyUsages.$inferSelect;
@@ -1371,6 +2193,8 @@ export type SiteBlueprintRow = typeof siteBlueprints.$inferSelect;
 export type PublishedArticleRow = typeof publishedArticles.$inferSelect;
 export type TelemetryEventRow = typeof telemetryEvents.$inferSelect;
 export type AuditLogRow = typeof auditLogs.$inferSelect;
+export type PolicyRuleRow = typeof policyRules.$inferSelect;
+export type DisclosureRow = typeof disclosures.$inferSelect;
 export type LlmCredentialRow = typeof llmCredentials.$inferSelect;
 export type LlmUsageRow = typeof llmUsages.$inferSelect;
 export type VariantSpecRow = typeof variantSpecs.$inferSelect;
@@ -1380,7 +2204,6 @@ export type LoopObservationRow = typeof loopObservations.$inferSelect;
 // 読者ドメイン
 export type Category = typeof categories.$inferSelect;
 export type Person = typeof people.$inferSelect;
-export type Disclosure = typeof disclosures.$inferSelect;
 export type Product = typeof products.$inferSelect;
 export type Article = typeof articles.$inferSelect;
 export type ArticlePerson = typeof articlePeople.$inferSelect;
@@ -1388,6 +2211,294 @@ export type ArticleProduct = typeof articleProducts.$inferSelect;
 export type ConversationBlock = typeof conversationBlocks.$inferSelect;
 export type Faq = typeof faqs.$inferSelect;
 export type UpdateLog = typeof updateLogs.$inferSelect;
+
+
+// ---------------------------------------------------------------------------
+// ブログ UI ビルダー (feat-blog-ui-builder)
+// ---------------------------------------------------------------------------
+
+/**
+ * ブログごとのテンプレート選択。
+ *
+ * テンプレートは**並び方だけ**を決める（`src/domain/authoring/blog-template.ts`）。
+ * 記事の中身はテンプレートを知らないので、この行を書き換えても記事は壊れない。
+ */
+export const blogTemplateSelections = sqliteTable(
+  "blog_template",
+  {
+    id: text("id").primaryKey(),
+    workspaceId: text("workspace_id").notNull(),
+    siteSlug: text("site_slug").notNull(),
+    templateId: text("template_id").notNull(),
+    updatedAt: integer("updated_at", { mode: "timestamp" })
+      .notNull()
+      .default(sql`(unixepoch())`),
+  },
+  (t) => [uniqueIndex("blog_template_site_idx").on(t.siteSlug)],
+);
+
+/**
+ * ブログ既定の配色。値は `tokens.css` の `light-dark()` を選ぶ data 属性の
+ * 名前であって、色そのものではない（decision-ui-theme-implementation）。
+ */
+export const blogThemes = sqliteTable(
+  "blog_theme",
+  {
+    id: text("id").primaryKey(),
+    siteSlug: text("site_slug").notNull(),
+    brandTheme: text("brand_theme").notNull(),
+    colorMode: text("color_mode", { enum: ["auto", "light", "dark"] })
+      .notNull()
+      .default("auto"),
+  },
+  (t) => [uniqueIndex("blog_theme_site_idx").on(t.siteSlug)],
+);
+
+/**
+ * ページ単位の配色上書き。行を消すとブログ既定へ戻る（受入条件 2）。
+ * 「上書きが無い」状態を NULL 値でなく行の不在で表す。
+ */
+export const pageThemeOverrides = sqliteTable(
+  "page_theme_override",
+  {
+    id: text("id").primaryKey(),
+    siteSlug: text("site_slug").notNull(),
+    pagePath: text("page_path").notNull(),
+    brandTheme: text("brand_theme"),
+    colorMode: text("color_mode", { enum: ["auto", "light", "dark"] }),
+  },
+  (t) => [uniqueIndex("page_theme_override_site_page_idx").on(t.siteSlug, t.pagePath)],
+);
+
+/**
+ * 固定ページ 8 種。語彙は domain/blogops/fixed-page が唯一の正本。
+ * 1 ブログにつき各 1 枚。draft と削除済みは公開経路から必ず除く。
+ * 無いことは「未整備」であって既定文を出さない（見本の文を本物として配らない）。
+ *
+ * `/admin/sites/[site]/documents` からの固定文書編集も同じ表へ入る。
+ * あちらのルート鍵（`SITE_DOCUMENT_KEYS`）は URL のための名前で、
+ * この表の名札とは別物なので、repository が写像してから書く
+ * （`src/infrastructure/persistence/d1/site-document-repository.ts`）。
+ * **名札を 2 系統このまま同居させない。** 同居させると、同じ 1 枚を
+ * 2 つの画面が別の行として作り、後から書いたほうが黙って勝つ。
+ */
+export const legalPages = sqliteTable(
+  "legal_page",
+  {
+    id: text("id").primaryKey(),
+    /**
+     * 作業場所。`site_slug` から辿れば分かる、では足りない。
+     *
+     * slug の一意性は `site_blueprints` の索引 1 本が支えているだけで、
+     * 作業場所ごとに slug を再利用したくなった日に黙って崩れる。
+     * **1 本のクエリが単体で作業場所に絞れること**を、表の側で持つ
+     * （`tests/architecture/tenant-scoped-schema.test.ts`）。
+     */
+    workspaceId: text("workspace_id").notNull().default(""),
+    siteSlug: text("site_slug").notNull(),
+    kind: text("kind", { enum: FIXED_PAGE_KINDS }).notNull(),
+    title: text("title").notNull(),
+    body: text("body").notNull(),
+    status: text("status", { enum: ["draft", "published"] })
+      .notNull()
+      .default("draft"),
+    deletedAt: integer("deleted_at", { mode: "timestamp" }),
+    updatedAt: integer("updated_at", { mode: "timestamp" })
+      .notNull()
+      .default(sql`(unixepoch())`),
+  },
+  (t) => [
+    uniqueIndex("legal_page_site_kind_idx").on(t.siteSlug, t.kind),
+    // 作業場所始まり。絞り込みの 1 段目を必ず作業場所にする。
+    index("legal_page_workspace_idx").on(t.workspaceId, t.siteSlug, t.kind),
+  ],
+);
+
+/**
+ * ブログ×アフィリエイトの配置管理（どの記事のどの位置に成果リンクが在るか）。
+ * 読者向け読み取り経路はこの表を読まない（報酬情報を読者経路に混ぜない）。
+ */
+export const blogAffiliatePlacements = sqliteTable(
+  "blog_affiliate_placement",
+  {
+    id: text("id").primaryKey(),
+    workspaceId: text("workspace_id").notNull(),
+    siteSlug: text("site_slug").notNull(),
+    articleSlug: text("article_slug").notNull(),
+    placement: text("placement").notNull(),
+    trackingCode: text("tracking_code"),
+    position: integer("position").notNull().default(0),
+  },
+  (t) => [index("blog_affiliate_placement_site_article_idx").on(t.siteSlug, t.articleSlug)],
+);
+
+/**
+ * SEO/AI 検索ガイドラインの参照レジストリ。
+ *
+ * 海外・日本の出典 URL・発行元・確認日を登録し、確認日から 90 日超は
+ * 再確認対象として表示する（`src/domain/seo/guideline-reference.ts`）。
+ * 出典そのものの本文は保存しない（古くなった写しを正本に見せない）。
+ */
+export const guidelineReferences = sqliteTable(
+  "guideline_references",
+  {
+    id: text("id").primaryKey(),
+    workspaceId: text("workspace_id").notNull(),
+    title: text("title").notNull(),
+    url: text("url").notNull(),
+    publisher: text("publisher").notNull(),
+    region: text("region", { enum: ["global", "jp"] }).notNull(),
+    /** YYYY-MM-DD。90 日判定はドメイン関数が行う。 */
+    checkedAt: text("checked_at").notNull(),
+    note: text("note"),
+    createdAt: integer("created_at", { mode: "timestamp" })
+      .notNull()
+      .default(sql`(unixepoch())`),
+  },
+  (t) => [index("guideline_references_workspace_idx").on(t.workspaceId)],
+);
+
+/**
+ * 読者の「気になる商品」。
+ *
+ * --- 読者を特定しない ---
+ * 持つのは `reader_key` だけ。これはブラウザごとに 1 度だけ発行する
+ * 意味の無い文字列で、名前も連絡先も持たない。個人を特定できる列を
+ * 作らないことが、読者の情報を漏らさないことの唯一の担保になる。
+ *
+ * --- 報酬の列を作らない ---
+ * ここに報酬の列があると、「保存した商品を報酬順に並べる」実装が書けてしまう。
+ * 読者が自分で選んで保存したものの並びに、こちらの都合を混ぜない。
+ *
+ * --- 主キーは 3 つ組 ---
+ * 同じ読者が同じ商品を 2 回押しても増えない。押せてしまうだけの操作にしない。
+ */
+export const readerShortlistItems = sqliteTable(
+  "reader_shortlist_items",
+  {
+    siteSlug: text("site_slug").notNull(),
+    /** ブラウザごとの合言葉。個人は特定できない。 */
+    readerKey: text("reader_key").notNull(),
+    productId: text("product_id").notNull(),
+    productName: text("product_name").notNull(),
+    savedAt: text("saved_at").notNull(),
+    /** どの記事から保存したか。「なぜ保存したか」を思い出す手がかり。 */
+    fromArticleHref: text("from_article_href"),
+    oneLine: text("one_line"),
+  },
+  (t) => [
+    primaryKey({ columns: [t.siteSlug, t.readerKey, t.productId] }),
+    index("reader_shortlist_items_reader_idx").on(t.siteSlug, t.readerKey),
+  ],
+);
+
+export type ReaderShortlistItemRow = typeof readerShortlistItems.$inferSelect;
+
+/**
+ * 読者向けの「診断・計算」の道具。
+ *
+ * --- なぜ入力欄と計算式まで保存するのか ---
+ * 道具は運営者が増やす。道具 1 つごとに画面とコードを書き足す形にすると、
+ * **道具を増やすたびに公開作業が要る**。定義を保存側に置けば、
+ * 画面は 1 枚のまま、登録するだけで増える。
+ *
+ * --- 計算式は文字列だが、実行はしない ---
+ * `formula` に入るのは四則演算と入力欄の名前だけの式で、解くのは
+ * `src/domain/authoring/reader-tool-formula.ts` の小さな読み取り機である。
+ * **`eval` に渡さない。** 渡すと、この列が乗っ取りの入口になる。
+ */
+export const readerTools = sqliteTable(
+  "reader_tools",
+  {
+    workspaceId: text("workspace_id").notNull(),
+    siteSlug: text("site_slug").notNull(),
+    slug: text("slug").notNull(),
+    name: text("name").notNull(),
+    purpose: text("purpose").notNull(),
+    /** 入力欄の並び。`{ key, label, hint?, unit? }` の配列。 */
+    inputs: text("inputs", { mode: "json" })
+      .notNull()
+      .$type<readonly { key: string; label: string; hint?: string; unit?: string }[]>(),
+    /** 結果の読み方。数字だけ出して解釈を読者任せにしない。 */
+    howToRead: text("how_to_read").notNull(),
+    /** `{ rows: [{ label, expression, unit?, decimals?, as? }], summary }`。 */
+    formula: text("formula", { mode: "json" })
+      .notNull()
+      .$type<{
+        rows: readonly {
+          label: string;
+          expression: string;
+          unit?: string;
+          decimals?: number;
+          as?: string;
+        }[];
+        summary: string;
+      }>(),
+    updatedAt: integer("updated_at", { mode: "timestamp" })
+      .notNull()
+      .default(sql`(unixepoch())`),
+  },
+  (t) => [
+    primaryKey({ columns: [t.siteSlug, t.slug] }),
+    // 読者側は URL の名前しか持たないので site_slug で引く。
+    // 運営側（作業場所ごとの一覧）は作業場所で始まる索引で引く。
+    // 索引が片方しか無いと、もう片方は全作業場所の行を走ることになる。
+    index("reader_tools_site_idx").on(t.siteSlug),
+    index("reader_tools_workspace_idx").on(t.workspaceId, t.siteSlug),
+  ],
+);
+
+export type ReaderToolRow = typeof readerTools.$inferSelect;
+
+/**
+ * 読者から届いた問い合わせ。
+ *
+ * --- なぜ保存するのか ---
+ * これまでは「送信先が未設定」として送れなかった。読者には別の連絡先を案内していたが、
+ * **案内先が無いサイトでは、書いた文章がどこにも行かずに消えていた。**
+ * メールの送信は鍵の登録が要るが、受け取って運営者が読むだけなら保存先だけで足りる。
+ *
+ * --- 中身は個人情報になりうる ---
+ * `body` と `reply_to` には、書いた人が自分の事情を書く。
+ * ここは**運営者が読むためだけの場所**で、記録（監査ログ）へは写さない。
+ * 読者を追跡する列（閲覧履歴・IP・端末）は持たない。持てば、問い合わせが
+ * 「連絡」ではなく「その人を辿る手がかり」になる。
+ *
+ * 読者は workspace を名乗らない。公開サイトを server-side で引き、
+ * その所有 workspace を保存する。slug の再利用規則が変わっても所属を失わない。
+ */
+export const contactMessages = sqliteTable(
+  "contact_messages",
+  {
+    id: text("id").primaryKey(),
+    workspaceId: text("workspace_id").notNull(),
+    siteSlug: text("site_slug").notNull(),
+    body: text("body").notNull(),
+    /** 返信先。書かなくても送れる（意見だけ伝えたい人を締め出さない）。 */
+    replyTo: text("reply_to"),
+    /** 生のIPを保存せず、送信元ごとの直近回数を数える匿名化済みキー。 */
+    rateLimitKey: text("rate_limit_key").notNull(),
+    receivedAt: text("received_at").notNull(),
+    /** 運営者が読んで対応を終えた日時。未対応は null。 */
+    handledAt: text("handled_at"),
+  },
+  (t) => [
+    index("contact_messages_workspace_site_idx").on(
+      t.workspaceId,
+      t.siteSlug,
+      t.receivedAt,
+    ),
+  ],
+);
+
+export type ContactMessageRow = typeof contactMessages.$inferSelect;
+
+export type BlogTemplateSelectionRow = typeof blogTemplateSelections.$inferSelect;
+export type BlogThemeRow = typeof blogThemes.$inferSelect;
+export type PageThemeOverrideRow = typeof pageThemeOverrides.$inferSelect;
+export type LegalPageRow = typeof legalPages.$inferSelect;
+export type BlogAffiliatePlacementRow = typeof blogAffiliatePlacements.$inferSelect;
+export type GuidelineReferenceRow = typeof guidelineReferences.$inferSelect;
 
 /**
  * 認証基盤（Better Auth）が使うテーブル。
@@ -1398,4 +2509,227 @@ export type UpdateLog = typeof updateLogs.$inferSelect;
  * `src/db/schema.ts` だけを見ているためである。
  * 出し忘れると、テーブルが本番に作られないままログインだけが動く形になる。
  */
+
+/* ------------------------------------------------------------------ *
+ * ブログ運用 (feat-blog-ops-crud) — migration 0023
+ *
+ * 抽象ブループリント `review-media-classic` (docs/spec/13) の
+ * サイト網・レイアウト枠・記事・タグ・配信部品・閲覧者評価。
+ *
+ * 記事本体は既存 `articles` を編集正本とし、ブログ固有の所属・型・削除状態も
+ * そこに保存する。以下の表はサイト網・版面・記事子要素など、
+ * `articles` と意味の異なる集約だけを持つ。
+ * ------------------------------------------------------------------ */
+
+/** サイト網の節点 (ハブ / サブサイト / ミニサイト)。 */
+export const siteNetworkNodes = sqliteTable(
+  "site_network_node",
+  {
+    id: text("id").primaryKey(),
+    workspaceId: text("workspace_id").notNull(),
+    siteSlug: text("site_slug").notNull(),
+    role: text("role", { enum: NETWORK_ROLES }).notNull(),
+    /** 上位の URL 名。ハブは null。 */
+    parentSlug: text("parent_slug"),
+    name: text("name").notNull(),
+    oneLine: text("one_line").notNull().default(""),
+    position: integer("position").notNull().default(0),
+    status: text("status", { enum: NETWORK_STATUSES }).notNull().default("active"),
+    /** null は通常、日時ありは削除済み。hidden は公開可否なので代用しない。 */
+    deletedAt: integer("deleted_at", { mode: "timestamp" }),
+    createdAt: integer("created_at", { mode: "timestamp" })
+      .notNull()
+      .default(sql`(unixepoch())`),
+    updatedAt: integer("updated_at", { mode: "timestamp" })
+      .notNull()
+      .default(sql`(unixepoch())`),
+  },
+  (t) => [
+    uniqueIndex("site_network_node_ws_slug_idx").on(t.workspaceId, t.siteSlug),
+    index("site_network_node_parent_idx").on(t.workspaceId, t.parentSlug),
+  ],
+);
+
+/** ヘッダー・サイドバー・フッターの枠 (§3.1 / §3.4 / §3.5)。 */
+export const blogLayoutSlots = sqliteTable(
+  "blog_layout_slot",
+  {
+    id: text("id").primaryKey(),
+    workspaceId: text("workspace_id").notNull(),
+    siteSlug: text("site_slug").notNull(),
+    region: text("region", { enum: LAYOUT_REGIONS }).notNull(),
+    /** docs/spec/13 §3 の部品 id。 */
+    slotKey: text("slot_key").notNull(),
+    title: text("title").notNull().default(""),
+    body: text("body").notNull().default(""),
+    position: integer("position").notNull().default(0),
+    enabled: integer("enabled", { mode: "boolean" }).notNull().default(true),
+  },
+  (t) => [
+    uniqueIndex("blog_layout_slot_unique_idx").on(t.workspaceId, t.siteSlug, t.region, t.slotKey),
+  ],
+);
+
+/** ハブトップの 4 帯 (§3.2)。 */
+export const blogLayoutBands = sqliteTable(
+  "blog_layout_band",
+  {
+    id: text("id").primaryKey(),
+    workspaceId: text("workspace_id").notNull(),
+    siteSlug: text("site_slug").notNull(),
+    band: text("band", { enum: TOP_BANDS }).notNull(),
+    title: text("title").notNull().default(""),
+    enabled: integer("enabled", { mode: "boolean" }).notNull().default(true),
+    position: integer("position").notNull().default(0),
+    itemLimit: integer("item_limit").notNull().default(3),
+  },
+  (t) => [uniqueIndex("blog_layout_band_unique_idx").on(t.workspaceId, t.siteSlug, t.band)],
+);
+
+/** 記事本文の部品列 (§3.3)。 */
+export const blogArticleBlocks = sqliteTable(
+  "blog_article_block",
+  {
+    id: text("id").primaryKey(),
+    /** 親記事の作業場所の写し。子表だけを読む 1 本でも他所の行に触れない。 */
+    workspaceId: text("workspace_id").notNull().default(""),
+    articleId: text("article_id").notNull(),
+    kind: text("kind", { enum: ARTICLE_BLOCK_KINDS }).notNull(),
+    heading: text("heading").notNull().default(""),
+    body: text("body").notNull().default(""),
+    position: integer("position").notNull().default(0),
+  },
+  (t) => [
+    index("blog_article_block_article_idx").on(t.articleId, t.position),
+    index("blog_article_block_workspace_idx").on(t.workspaceId, t.articleId, t.position),
+  ],
+);
+
+/** ブランドタグ (§3.4 の brand-tag-cloud)。 */
+export const blogTags = sqliteTable(
+  "blog_tag",
+  {
+    id: text("id").primaryKey(),
+    workspaceId: text("workspace_id").notNull(),
+    siteSlug: text("site_slug").notNull(),
+    slug: text("slug").notNull(),
+    name: text("name").notNull(),
+    description: text("description").notNull().default(""),
+    /**
+     * ブランドか、話題か。`brand-tag-cloud` に出るのは `brand` だけ。
+     *
+     * **既定は `topic`。**種類を足す前からあるタグはどちらとも分からないので、
+     * 枠が「これは作り手だ」と嘘を言わない側へ倒す (`domain/blogops/blog-tag.ts`)。
+     */
+    kind: text("kind", { enum: BLOG_TAG_KINDS }).notNull().default("topic"),
+  },
+  (t) => [uniqueIndex("blog_tag_site_slug_idx").on(t.workspaceId, t.siteSlug, t.slug)],
+);
+
+/** 記事とタグの結び付き。 */
+export const blogArticleTags = sqliteTable(
+  "blog_article_tag",
+  {
+    /** 親記事の作業場所の写し。結び付きだけを数える 1 本でも作業場所で切れる。 */
+    workspaceId: text("workspace_id").notNull().default(""),
+    articleId: text("article_id")
+      .notNull()
+      .references(() => articles.id, { onDelete: "cascade" }),
+    tagId: text("tag_id")
+      .notNull()
+      .references(() => blogTags.id, { onDelete: "cascade" }),
+  },
+  (t) => [
+    primaryKey({ columns: [t.articleId, t.tagId] }),
+    index("blog_article_tag_workspace_idx").on(t.workspaceId, t.articleId),
+  ],
+);
+
+/** 配信部品 9 種 (§6)。 */
+export const blogDeliveryParts = sqliteTable(
+  "blog_delivery_part",
+  {
+    id: text("id").primaryKey(),
+    workspaceId: text("workspace_id").notNull(),
+    siteSlug: text("site_slug").notNull(),
+    part: text("part", { enum: DELIVERY_PARTS }).notNull(),
+    enabled: integer("enabled", { mode: "boolean" }).notNull().default(true),
+    note: text("note").notNull().default(""),
+    position: integer("position").notNull().default(0),
+  },
+  (t) => [uniqueIndex("blog_delivery_part_unique_idx").on(t.workspaceId, t.siteSlug, t.part)],
+);
+
+/**
+ * 配信物の点検記録 (受入 A9)。
+ *
+ * **設定 (`blog_delivery_part`) とは別の表にする。**設定は「出す / 切る」の意思、
+ * こちらは「生成してみたら出たか」の事実である。1 つの表に畳むと、
+ * 設定を直した拍子に事実が上書きされ、**いつの結果なのかが分からなくなる。**
+ *
+ * 行は積む (履歴)。同じ部品の最新だけを一覧が採る (`deliveryHealth`)。
+ * 上書きにすると「先週までは出ていた」が消え、いつ壊れたかを誰も言えなくなる。
+ */
+export const blogDeliverySnapshots = sqliteTable(
+  "blog_delivery_snapshot",
+  {
+    id: text("id").primaryKey(),
+    workspaceId: text("workspace_id").notNull(),
+    siteSlug: text("site_slug").notNull(),
+    part: text("part", { enum: DELIVERY_PARTS }).notNull(),
+    ok: integer("ok", { mode: "boolean" }).notNull(),
+    detail: text("detail").notNull().default(""),
+    checkedAt: integer("checked_at", { mode: "timestamp" })
+      .notNull()
+      .default(sql`(unixepoch())`),
+  },
+  (t) => [index("blog_delivery_snapshot_site_idx").on(t.workspaceId, t.siteSlug, t.part)],
+);
+
+/**
+ * 閲覧者の評価。
+ *
+ * 読者に作業場所は無い。それでも `workspace_id` を持つのは、**書いた人の所属**
+ * ではなく**票が属する記事の所属**を写しているからである。運営者が自分の作業場所の
+ * 票だけを集計するとき、この列が無いと必ず `articles` を join することになり、
+ * join を 1 度忘れた日に他所の票が混ざる。
+ * reader_key は cookie 由来の不透明な鍵で、個人を特定する値は入れない。
+ */
+export const blogArticleRatings = sqliteTable(
+  "blog_article_rating",
+  {
+    id: text("id").primaryKey(),
+    workspaceId: text("workspace_id").notNull().default(""),
+    articleId: text("article_id").notNull(),
+    readerKey: text("reader_key").notNull(),
+    score: integer("score").notNull(),
+    comment: text("comment"),
+    /**
+     * 運営者が伏せた票。**消さずに伏せる。**
+     *
+     * 消すと「伏せた」と「最初から無かった」が同じ形になり、
+     * 伏せた判断そのものを後から確かめられなくなる。伏せた票は
+     * 平均にも件数にも入らないが、行としては残り、監査の記録から辿れる。
+     */
+    hidden: integer("hidden", { mode: "boolean" }).notNull().default(false),
+    createdAt: integer("created_at", { mode: "timestamp" })
+      .notNull()
+      .default(sql`(unixepoch())`),
+  },
+  (t) => [
+    uniqueIndex("blog_article_rating_reader_idx").on(t.articleId, t.readerKey),
+    index("blog_article_rating_workspace_idx").on(t.workspaceId, t.articleId),
+  ],
+);
+
+export type SiteNetworkNodeRow = typeof siteNetworkNodes.$inferSelect;
+export type BlogLayoutSlotRow = typeof blogLayoutSlots.$inferSelect;
+export type BlogLayoutBandRow = typeof blogLayoutBands.$inferSelect;
+export type BlogArticleRow = typeof articles.$inferSelect;
+export type BlogArticleBlockRow = typeof blogArticleBlocks.$inferSelect;
+export type BlogTagRow = typeof blogTags.$inferSelect;
+export type BlogArticleTagRow = typeof blogArticleTags.$inferSelect;
+export type BlogDeliveryPartRow = typeof blogDeliveryParts.$inferSelect;
+export type BlogArticleRatingRow = typeof blogArticleRatings.$inferSelect;
+
 export * from "./auth-schema";

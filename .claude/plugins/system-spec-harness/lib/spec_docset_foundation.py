@@ -1,6 +1,7 @@
 """Foundation, index, and document-set assembly for deterministic spec compilation."""
 from __future__ import annotations
 
+import re
 from pathlib import Path
 
 from spec_docset_catalog import *
@@ -33,6 +34,104 @@ def _list_value(value) -> list:
     return value if isinstance(value, list) else []
 
 
+_COST_CATEGORY_JA = {"free": "無料", "low-cost": "低コスト", "paid": "有料"}
+_BILLING_PERIOD_JA = {"monthly": "月額", "yearly": "年額", "one-time": "一括"}
+
+
+def _foundation_note(rf: dict, key: str) -> list[str]:
+    """U4/U5 の読み方の規則を、正本 requirements_foundation から節の直後に置く。
+
+    値の表・箇条書きだけでは「その数値をどう立てるか」「何をもって満たしたと
+    するか」が分からない。分からないままにすると、章の側に人が書き足す。
+    """
+    note = str(rf.get(key) or "").strip()
+    return ["", note] if note else []
+
+
+def _confirmed_semantics_suffix(spec: dict) -> str:
+    r"""`status: confirmed` が何を意味しないのかを、正本 lifecycle から添える。
+
+    実測 (2026-08-25): 章には `- 確定マーカー: \`status: confirmed\` (要求判断の
+    収集済みを表す。実装完了・試験合格ではない)` と手で書かれていた。**括弧の中身は
+    正本 `lifecycle.confirmed_semantics` にほぼ同じ文で在る。**機械が黙っていたので
+    人が書き写していたのであり、写しである以上、正本が変わっても追随しない。
+    """
+    lifecycle = spec.get("lifecycle")
+    if not isinstance(lifecycle, dict):
+        return ""
+    semantics = str(lifecycle.get("confirmed_semantics") or "").strip()
+    return f" ({semantics})" if semantics else ""
+
+
+def render_implementation_snapshot(spec: dict) -> list[str]:
+    """正本 implementation_snapshot を章へ描く。
+
+    実測 (2026-08-25): 正本は `captured_at` / `basis` / `current` /
+    `planned_not_implemented` を持っているのに、compile はこれを 1 行も描かなかった。
+    そのため章には `- 実装の現在地: 単一D1、...は未実装` という**手で要約した 1 行**が
+    置かれていた。要約は正本が動いても動かない。**黙っている機械の隣には、必ず手写しが育つ。**
+
+    取得時刻を必ず添える。実装状態は古くなる種類の事実で、いつ数えたかが分からない
+    現在地は「いま」と読まれてしまう。
+    """
+    snapshot = spec.get("implementation_snapshot")
+    if not isinstance(snapshot, dict):
+        return []
+    captured = str(snapshot.get("captured_at") or "(取得時刻不明)")
+    current = [x for x in (snapshot.get("current") or []) if isinstance(x, str)]
+    planned = [x for x in (snapshot.get("planned_not_implemented") or []) if isinstance(x, str)]
+    basis = [x for x in (snapshot.get("basis") or []) if isinstance(x, str)]
+    lines = [
+        "",
+        "## 実装の現在地 (implementation_snapshot)",
+        "",
+        f"> 正本 `spec-state.json` の `implementation_snapshot` をそのまま描く。取得時点: **{captured}**。",
+        "> **収集状態 (`status: confirmed`) とは別の軸である。**確定は要求判断の収集済みを表し、"
+        "ここは実装の有無を表す。",
+        "",
+        f"### 実装済み ({len(current)} 件)",
+        "",
+    ]
+    lines += [f"- {item}" for item in current] or ["- (記録なし)"]
+    lines += ["", f"### 未実装 ({len(planned)} 件)", ""]
+    lines += [f"- {item}" for item in planned] or ["- (記録なし)"]
+    if basis:
+        lines += ["", "### 数えた基準ファイル", ""]
+        lines += [f"- `{item}`" for item in basis]
+    return lines
+
+
+def render_cost_model(cost) -> str:
+    """費用モデルを、仕様書に載せられる形へ整える。
+
+    なぜ要るか: `cost_model` は dict である。書式へそのまま差し込むと
+    `{'category': 'free', 'amount': 0, 'currency': 'JPY', ...}` という
+    **Python の repr** が意思決定表のセルに出る。
+
+    実測 (2026-08-25): 章の側に「**この 1 行だけ書式が違うのは生成器の出力
+    そのままだからで、真似すべき書式ではない。残り 6 行は手で書いた**」という
+    注記が書かれていた。人が生成器の後始末を手でしていたのである。
+    後始末が手である限り、再コンパイルのたびに消えて repr へ戻る。
+    直すべきは章ではなく、repr を出している側だった。
+
+    `tco` には既に人向けの説明が入っている。金額の要約に続けてそれを添える。
+    未知の category / billing_period は日本語へ潰さずそのまま出す
+    (知らない値を勝手に名付けない)。
+    """
+    if not isinstance(cost, dict):
+        return str(cost) if cost else "-"
+    category = cost.get("category")
+    head = _COST_CATEGORY_JA.get(category, category or "-")
+    amount = cost.get("amount")
+    if isinstance(amount, (int, float)) and amount:
+        period = cost.get("billing_period")
+        period_ja = _BILLING_PERIOD_JA.get(period, period or "")
+        currency = cost.get("currency") or ""
+        head = f"{head} {period_ja}{amount} {currency}".strip()
+    tco = cost.get("tco")
+    return f"{head} ({tco})" if tco else head
+
+
 def render_decisions(spec: dict) -> str:
     """AI推奨とユーザー確認を分離した意思決定支援表を描画する。"""
     decisions = spec.get("decisions")
@@ -52,7 +151,8 @@ def render_decisions(spec: dict) -> str:
                 "{id}:{label} / cost={cost} / free={free} / fit={fit} / pros={pros} / "
                 "cons={cons} / risks={risks} / lock-in={lock} / ops={ops} / evidence={evidence}".format(
                     id=option.get("id", "-"), label=option.get("label", "-"),
-                    cost=option.get("cost_model", "-"), free=option.get("free_tier_limits", "-"),
+                    cost=render_cost_model(option.get("cost_model")),
+                    free=option.get("free_tier_limits", "-"),
                     fit=option.get("goal_fit", "-"), pros=", ".join(option.get("pros") or []),
                     cons=", ".join(option.get("cons") or []), risks=", ".join(option.get("risks") or []),
                     lock=option.get("lock_in", "-"), ops=option.get("ops_burden", "-"), evidence=evidence,
@@ -76,7 +176,35 @@ def render_decisions(spec: dict) -> str:
             f"{decision.get('status', '-')} | {'<br>'.join(options)} | {rec_text} | {user_text} | "
             f"{', '.join(decision.get('serves_goals') or []) or '-'} |"
         )
+    lines += _decision_tally(decisions)
     return "\n".join(lines)
+
+
+def _decision_tally(decisions: list) -> list[str]:
+    """状態の内訳と確定日の幅を、表から数えて添える。
+
+    **表は 1 行ずつしか読ませない。**「全部確定しているのか」「いつ確定したのか」は
+    表を目で数えないと分からず、数えた結果が章に手で書き込まれていた
+    (実測 2026-08-25:「**7 件すべて `status: confirmed`**（分母 = ...全件）。
+    うち 6 件は ... 2026-08-19〜22 に確定した」)。数えるのは機械の仕事である。
+    手で数えた行は、8 件目が増えた日に黙って嘘になる。
+    """
+    total = len(decisions)
+    counts: dict[str, int] = {}
+    for decision in decisions:
+        counts[str(decision.get("status", "-"))] = counts.get(str(decision.get("status", "-")), 0) + 1
+    breakdown = ", ".join(f"`{k}` {v} 件" for k, v in sorted(counts.items()))
+    dates = sorted(
+        str((decision.get("user_decision") or {}).get("confirmed_at"))
+        for decision in decisions
+        if isinstance(decision.get("user_decision"), dict)
+        and (decision.get("user_decision") or {}).get("confirmed_at")
+    )
+    span = f"利用者確定日: {dates[0]} 〜 {dates[-1]}" if dates else "利用者確定日: (なし)"
+    return [
+        "",
+        f"- 内訳 (分母 = 正本 `spec-state.json` の `decisions[]` 全 {total} 件): {breakdown}。{span}。",
+    ]
 
 
 def render_requirements_definition(spec: dict) -> str:
@@ -99,7 +227,8 @@ def render_requirements_definition(spec: dict) -> str:
         "> 以降の各技術章は frontmatter の serves_goals でここ (ゴール) へトレース (anchor) する。",
         "> 上位概念がブレなければ、仕様が整った後もブレない。",
         "",
-        f"- 確定マーカー: `status: {status}`",
+        f"- 確定マーカー: `status: {status}`{_confirmed_semantics_suffix(spec)}",
+        "- 状態の正本: `spec-state.json` の `lifecycle` と `review_runs`",
         "",
         "## U1 本質的目的 (essential_purpose)",
         "",
@@ -127,8 +256,10 @@ def render_requirements_definition(spec: dict) -> str:
             parts.append(f"| {o.get('id', '-')} | {o.get('text', '')} | {o.get('measure') or '-'} |")
     else:
         parts.append("- (未記入)")
+    parts += _foundation_note(rf, "objectives_note")
     parts += ["", "## U5 成功基準 (success_criteria)", ""]
     parts += _bullet_list(rf.get("success_criteria"))
+    parts += _foundation_note(rf, "success_criteria_note")
     parts += ["", "## U6 ステークホルダー (stakeholders)", ""]
     parts += _bullet_list(rf.get("stakeholders"))
     scope = rf.get("scope") or {}
@@ -151,6 +282,7 @@ def render_requirements_definition(spec: dict) -> str:
             parts.append(f"| {it.get('id', '-')} | {it.get('text', '')} | {serves} |")
     else:
         parts.append("- (未記入)")
+    parts += render_implementation_snapshot(spec)
     parts += ["", render_decisions(spec), ""]
     return "\n".join(parts)
 
@@ -169,6 +301,20 @@ def render_index(spec: dict, refs_by_cat: dict[str, list[dict]], unassigned: lis
         "収集マトリクス (カテゴリ×プラットフォーム) の各章と集約状態の相互参照。",
         "集約状態は 未着手 / 収集中 / 確定 / 対象外 の 4 値 (真理値表導出)。",
         "",
+    ]
+    # **index はいちばん最初に読まれる。**`確定` の一語をここで取り違えると、
+    # 以降の章をすべてその誤解で読むことになる。正本 `lifecycle.confirmed_semantics`
+    # が意味を持っているのに index が黙っていたので、章に手書きの `> **重要:**` が
+    # 育っていた (実測 2026-08-25: index.md:10)。
+    semantics = _confirmed_semantics_suffix(spec).strip()
+    if semantics:
+        lines += [
+            "> **重要:** この index の `確定` / `confirmed` の意味は正本 "
+            f"`lifecycle.confirmed_semantics` が定める — {semantics[1:-1]}。"
+            "実装や検証の判断には、下記の状態軸と各章の As-Is / To-Be / Delta / Acceptance を使う。",
+            "",
+        ]
+    lines += [
         "## 要件定義書 (上位概念・憲法)",
         "",
         f"- [要件定義書](./{REQUIREMENTS_CHAPTER}) — 上位概念 U1-U9 の正本 "
@@ -232,13 +378,291 @@ def compile_docset(spec: dict, refs_data: dict) -> dict[str, str]:
     return docset
 
 
-def write_docset(docset: dict[str, str], out_dir: Path) -> list[Path]:
-    """組み立てた docset を out_dir へ書き出す。書き出したパス一覧を返す。"""
+def _section_map(text: str) -> "dict[str, str]":
+    """Markdown 本文を `## 見出し` 単位へ割る。{見出し行: 節本文 (見出し含む)}。
+
+    frontmatter と最初の `## ` より前の導入部は節に属さないので含めない。
+    見出しが重複する場合は最後の 1 つを採る (同名節を 2 つ持つ章は無い前提)。
+    """
+    sections: dict[str, str] = {}
+    current: str | None = None
+    buf: list[str] = []
+    for line in text.splitlines():
+        if line.startswith("## "):
+            if current is not None:
+                sections[current] = "\n".join(buf).rstrip() + "\n"
+            current = line.strip()
+            buf = [line]
+        elif current is not None:
+            buf.append(line)
+    if current is not None:
+        sections[current] = "\n".join(buf).rstrip() + "\n"
+    return sections
+
+
+def handwritten_sections(existing: str, generated: str) -> "list[str]":
+    """既存ファイルにあって生成物に無い `## 節` の見出しを、既存の並び順で返す。
+
+    compile は正本 (spec-state / registry / C04 card) からの純関数導出しか書かない。
+    よって**生成物に無い節は、人が後から書いた節**である。上書きすれば黙って消える。
+    """
+    gen = _section_map(generated)
+    return [h for h in _section_map(existing) if h not in gen]
+
+
+_SUBSECTION = re.compile(r"^(#{3,6}) (.+)$")
+_CELL_BOUND = re.compile(r"^(?:確定内容|接地根拠) (\S+) \(対応セル|^(\S+) \(対応セル")
+
+
+def _subsection_key(level: str, title: str) -> tuple:
+    """小節見出しの同一性キー。
+
+    `(対応セル: …)` を名乗る見出しは**階層と ref だけ**で照合する。同じ問答でも役割が
+    主から裏付けへ移ると見出しの文言は変わる (`### x` → `### x — 接地根拠 (…)`)。
+    文言で照合すると、役割が変わっただけの節を「消えた」と誤判定し、compile のたびに
+    同じ本文が末尾へ複製されて増え続ける。それ以外の見出しは文言そのもので照合する。
+    """
+    m = _CELL_BOUND.match(title)
+    if m:
+        return (level, m.group(1) or m.group(2))
+    return (level, title.strip())
+
+
+def handwritten_subsections(existing: str, generated: str) -> "list[tuple[str, str]]":
+    """既存章にあって生成物に無い**`###` 以下の小節**を (見出し, 本文) で並び順に返す。
+
+    **なぜ `##` 単位では足りないか (2026-08-25 実測)**: 質疑録は `## 確定内容 (質疑録)`
+    という**生成される**節の内側に `### <ref> (対応セル: …)` として並ぶ。節そのものは
+    生成物にも在るので `handwritten_sections` は何も検出せず、`preserve` は緑のまま
+    小節ごと本文を落とす。8 章で 369 行が消えたときの主因がこれである。
+
+    質疑録だけではない。`#### 既存記録との食い違い` のような**人が書いた考察**も、
+    `##### 確定内容 <ref>` の設計適用も、生成される `##` 節の内側に住んでいる。実測では
+    ui-ux 章の食い違い記録 (「この食い違いは 2026-08-23 に解消した」以下の全文) が
+    ここから消えていた。
+
+    **照合は `_subsection_key` に任せる。**`(対応セル)` を名乗る見出しは階層と ref だけで
+    突き合わせる。役割が主から裏付けへ移ると見出しの文言は変わるので、文言で照合すると
+    「消えた」と誤判定し、compile のたびに同じ本文が末尾へ増え続ける。
+
+    qa の回答本文そのものが見出しを含むことがある (ui-ux の
+    `qa-uiux-web-screen-priority` など)。それらは生成物にも同じ見出しで現れるので、
+    「生成物に無い」条件で自然に除かれる。
+
+    引き継ぐ先に残るのは**正本から導出できない小節**である。`qa-uiux-web-overhaul-v2`
+    などは `qa_log` にすら無く、章にしか本文が存在しない。**引き継がなければ、この世から
+    消える。**
+
+    切り出しの境界は「次の小節見出し」または「次の `## ` 見出し」とする。回答本文に
+    見出しが埋まっている ref では本文が途中で切れうるが、そのぶんは `vanishing_lines`
+    の報告に出る。**黙って消えるのではなく、報告に出る側へ倒している。**
+
+    **生成物に無い `## 節` の内側は見ない。**そこは `handwritten_sections` が節ごと
+    引き継ぐ。両方が拾うと、前回引き継いだ本文が compile のたびに 2 通の形で積まれ、
+    章が回を重ねるごとに太る。冪等でない引き継ぎは、引き継がないのと同じくらい悪い。
+    """
+    gen_keys = {
+        _subsection_key(m.group(1), m.group(2))
+        for l in generated.splitlines()
+        if (m := _SUBSECTION.match(l))
+    }
+    gen_sections = set(_section_map(generated))
+    lines = existing.splitlines()
+    out: list[tuple[str, str]] = []
+    section: str | None = None
+    for i, line in enumerate(lines):
+        if line.startswith("## "):
+            section = line.strip()  # `_section_map` の鍵は見出し行そのもの
+            continue
+        if section is not None and section not in gen_sections:
+            continue
+        m = _SUBSECTION.match(line)
+        if not m or _subsection_key(m.group(1), m.group(2)) in gen_keys:
+            continue
+        end = len(lines)
+        for j in range(i + 1, len(lines)):
+            if _SUBSECTION.match(lines[j]) or lines[j].startswith("## "):
+                end = j
+                break
+        out.append((line.strip(), "\n".join(lines[i:end]).rstrip() + "\n"))
+    return out
+
+
+CARRIED_HEADING = "## 章にしか無い記述 (正本へ未接続)"
+RESIDUE_HEADING = "## compile が保てなかった行 (要判断)"
+
+
+_RESIDUE_ITEM = re.compile(r"^- `(.*)`$")
+
+
+def split_residue(text: str) -> "tuple[str, list[str]]":
+    """前回の compile が置いた「保てなかった行」節を、本文と写しの行へ分ける。
+
+    節を本文に残したまま次回の既存本文として数えると、写し自身が「章に在って生成物に
+    無い行」に該当し、写しの写しが積まれる。1 回ごとに倍になるので数回で章が読めなくなる。
+    かといって**落とすだけでは、その行の唯一の残りが消える** — 元の行はもう本文にも
+    生成物にも無いから、写しがこの世で最後の一部なのである。
+
+    よって落としたうえで**今回の報告へ持ち越す**。節は毎回作り直され、中身は減らない。
+
+    `CARRIED_HEADING` のほうは触らない。あちらの中身は写しではなく本文であり、生成物に
+    無い `##` 節として `handwritten_sections` の引き継ぎ経路に乗る。
+    """
+    body: list[str] = []
+    carried: list[str] = []
+    skipping = False
+    for line in text.splitlines():
+        if line.startswith("## "):
+            skipping = line.strip() == RESIDUE_HEADING
+        if skipping:
+            m = _RESIDUE_ITEM.match(line)
+            if m:
+                carried.append(m.group(1))
+        else:
+            body.append(line)
+    return ("\n".join(body).rstrip("\n") + "\n" if body else "", carried)
+
+
+def vanishing_lines(existing: str, final: str) -> "list[str]":
+    """既存本文にあって最終本文の**どこにも**無くなる非空行を、既存の並び順で返す。
+
+    節ごと消えたのか末尾へ移っただけなのかは、行の集合で引けば区別できる。
+    版の更新のように**正しく消える行**もあるので、これは拒否の根拠ではなく報告の材料である。
+    `## 節` 単位の検出では、生成節の中に人が書き足した `###` 小節や表の 1 行が拾えない。
+
+    **数え方は多重集合ではなく集合である (2026-08-25 に直した)。**以前は
+    `Counter` の引き算で「2 回あった行が 1 回になった」も損失として数えていた。
+    docstring は当時から「どこにも無くなる行」と言っており、実装だけがずれていた。
+
+    実測でこれが効いた: 質疑の役割が主 (`qa_ref`) から裏付け (`qa_refs`) へ移ると、
+    その質疑の回答は「確定内容 (質疑録)」に 1 度だけ描かれ、「適用された設計知識」側は
+    参照ポインタになる。**本文は 1 行も失われていないのに、写しが 2 通から 1 通へ
+    減っただけで 7 行 × 2 章が「保てなかった行」として章末に並んだ。**
+
+    失われていないものを「痩せた」と報せる報告は、本当に痩せた日に信じてもらえない。
+    重複が減ったことを知りたいなら、それは損失報告とは別の軸で数えるべきである。
+    """
+    new_set = {l.rstrip() for l in final.splitlines() if l.strip()}
+    seen: set[str] = set()
+    lost: list[str] = []
+    for raw in existing.splitlines():
+        line = raw.rstrip()
+        if not line.strip() or line in new_set or line in seen:
+            continue
+        seen.add(line)
+        lost.append(line)
+    return lost
+
+
+def write_docset(
+    docset: dict[str, str],
+    out_dir: Path,
+    *,
+    on_handwritten: str = "refuse",
+    loss_report: "list[tuple[str, list[str]]] | None" = None,
+) -> list[Path]:
+    """組み立てた docset を out_dir へ書き出す。書き出したパス一覧を返す。
+
+    既存ファイルが**生成物に無い節**を持つとき、既定では書かずに CompileError を上げる
+    (fail-closed)。compile は正本からの導出しか生成しないので、そういう節は人が書いた
+    ものであり、黙って消すと差分を見るまで誰も気づかない。
+
+    on_handwritten:
+      - "refuse"   : 手書き節を見つけたら 1 文字も書かずに中止する (既定)
+      - "preserve" : 生成本文の末尾へ手書き節を既存の並び順で引き継いでから書く
+
+    loss_report を渡すと、節・小節を引き継いでもなお消える行を [(ファイル名, [行, ...])]
+    で受け取れる。preserve のときは同じ内容を章末の `RESIDUE_HEADING` 節へも写す。
+    **節でも小節でもない 1 行は、引き継ぐ場所が無い**からである — 表の行を表から切り離せば
+    意味が壊れ、生成節へ差し戻せば正本の投影と手書きの区別が消える。本文としてではなく
+    報告として残せば、消えはせず、表も壊れず、正本へ戻す動機が章の上に残る。
+    **preserve は「正本と一致した」という意味ではない。**呼び手はこの節を読んで、
+    正本へ接続するか不要と確かめて消すこと。
+    """
+    if on_handwritten not in ("refuse", "preserve"):
+        raise CompileError(f"on_handwritten は refuse|preserve のいずれか (受領: {on_handwritten!r})")
+
+    # 1 ファイルでも危ないものがあれば 1 文字も書かない。部分適用は差分を読みにくくする。
+    carried: dict[str, list[str]] = {}
+    # 生成される `##` 節の内側に住む手書きの小節 (質疑録の `###`、人の考察の `####`、
+    # 設計適用の `#####`) は `##` 単位の検出をすり抜ける。**refuse も preserve も、
+    # ここを同じ根拠で扱う。**片方だけ見張ると「refuse なら安全」が嘘になる。
+    carried_sub: dict[str, list[tuple[str, str]]] = {}
+    for name, content in docset.items():
+        p = out_dir / name
+        if not p.is_file():
+            continue
+        existing_text, _ = split_residue(p.read_text(encoding="utf-8"))
+        lost = handwritten_sections(existing_text, content)
+        if lost:
+            carried[name] = lost
+        lost_sub = handwritten_subsections(existing_text, content)
+        if lost_sub:
+            carried_sub[name] = lost_sub
+
+    if (carried or carried_sub) and on_handwritten == "refuse":
+        detail = "; ".join(f"{name}: {' / '.join(heads)}" for name, heads in sorted(carried.items()))
+        if carried_sub:
+            sub_detail = "; ".join(
+                f"{name}: {' / '.join(head for head, _ in subs)}"
+                for name, subs in sorted(carried_sub.items())
+            )
+            detail = f"{detail} / 小節: {sub_detail}" if detail else f"小節: {sub_detail}"
+        raise CompileError(
+            "生成物に無い節を持つ既存章があるため中止した (何も書いていない)。"
+            f"消えるはずだった節: {detail}。"
+            "引き継ぐなら --on-handwritten preserve、"
+            "消してよいと確かめたなら該当節を先に削ってから compile すること。"
+        )
+
     out_dir.mkdir(parents=True, exist_ok=True)
     written: list[Path] = []
     for name, content in docset.items():
         p = out_dir / name
+        # 前回の写しは既存本文として数えず、今回の報告へ持ち越す (`split_residue` 参照)。
+        before, prior_residue = (
+            split_residue(p.read_text(encoding="utf-8")) if p.is_file() else (None, [])
+        )
         text = content if content.endswith("\n") else content + "\n"
+        if name in carried:
+            existing = _section_map(before or "")
+            text = text.rstrip("\n") + "\n\n" + "\n".join(existing[h] for h in carried[name])
+        if name in carried_sub:
+            # 元の生成節の内側へ差し戻さない。**正本から導けない記述であることを、章の上で
+            # 読めるようにする。**生成節へ混ぜると、正本の投影と手書きの区別が消え、次に
+            # 誰かが正本を直す動機も消える。
+            heads = ", ".join(f"`{h}`" for h, _ in carried_sub[name])
+            text = (
+                text.rstrip("\n")
+                + f"\n\n{CARRIED_HEADING}\n\n"
+                + f"> 以下の {len(carried_sub[name])} 件は正本 `spec-state.json` の `qa_ref` /"
+                + " `qa_refs` / `required_info[].grounded_by` のいずれからも導けない"
+                + f" ({heads})。compile が消さずに引き継いでいるだけで、**章が正本の投影で"
+                + "ある性質はここだけ破れている**。正本へ接続するか、不要と確かめて消すこと。\n\n"
+                + "\n".join(body for _, body in carried_sub[name])
+            )
+        residue = vanishing_lines(before, text) if before is not None else []
+        # 持ち越し分を先に置く。順序を回ごとに入れ替えると、差分が中身の変化に見える。
+        residue = [l for l in prior_residue if l not in residue] + residue
+        if loss_report is not None and residue:
+            loss_report.append((name, residue))
+        if residue:
+            # refuse でも書く。行の消失は refuse の停止条件ではない (節が無事なら通る) が、
+            # **通す回に黙って消すのはこのモジュールが一貫して避けてきたこと**である。
+            # 止めた回は既にここへ来ていないので、部分適用にはならない。
+            # **節でも小節でもない 1 行は、引き継ぐ場所が無い。**表の行を表から切り離せば
+            # 意味が壊れ、生成節へ差し戻せば正本の投影と手書きの区別が消える。そこで
+            # 本文としてではなく**報告として**章の末尾へ写す。消えはせず、表も壊れず、
+            # 正本へ戻す動機が章の上に残る。写しなので次回は `strip_residue` が落とす。
+            text = (
+                text.rstrip("\n")
+                + f"\n\n{RESIDUE_HEADING}\n\n"
+                + f"> 正本から導出できず、節・小節の引き継ぎでも守れなかった {len(residue)} 行。"
+                + "版の更新のように**正しく消える行**も混ざる。正本へ接続するか、"
+                + "不要と確かめて消すこと。この節は compile のたびに作り直す。\n\n"
+                + "\n".join(f"- `{line}`" for line in residue)
+                + "\n"
+            )
         p.write_text(text, encoding="utf-8")
         written.append(p)
     return written

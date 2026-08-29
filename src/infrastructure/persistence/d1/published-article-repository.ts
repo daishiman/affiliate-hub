@@ -11,9 +11,10 @@ import {
   toSummary,
 } from "@/application/read-models/published-article";
 import { publishedArticles } from "@/db/schema";
-import { markEditorial, ok, type WorkspaceId } from "@/domain/shared";
+import { domainError, err, markEditorial, ok, type WorkspaceId } from "@/domain/shared";
 import { createSampleContentRepository } from "../sample/content-sample-repository";
 import type { DrizzleD1 } from "./link-inbox-repository";
+import { findSiteDocument } from "./site-document-repository";
 import { storageFailure } from "./storage-failure";
 
 /**
@@ -89,6 +90,23 @@ export function createD1PublishedArticleWriter(db: DrizzleD1): EditorialPublishe
       } catch (cause) {
         return storageFailure("記事の公開", cause);
       }
+    },
+    async unpublish(workspaceId, siteSlug, slug) {
+      const archived = await createD1PublishedArticleAdminRepository(db).archive(
+        workspaceId,
+        siteSlug,
+        slug,
+        new Date().toISOString(),
+      );
+      if (!archived.ok) return archived;
+      if (!archived.value) {
+        return err(
+          domainError("NOT_FOUND", "取り下げる記事が見つかりませんでした。", {
+            suggestedAction: "記事の一覧を開き直して、公開状態を確認してください。",
+          }),
+        );
+      }
+      return ok(true as const);
     },
   });
 }
@@ -288,9 +306,7 @@ export function createD1ContentRepository(db: DrizzleD1): EditorialPublishedCont
     listCorrections(siteSlug: string) {
       return samples.listCorrections(siteSlug);
     },
-    findPolicyDocument(siteSlug: string, key: string) {
-      return samples.findPolicyDocument(siteSlug, key);
-    },
+    findPolicyDocument: findSiteDocument({ db }),
   });
 }
 

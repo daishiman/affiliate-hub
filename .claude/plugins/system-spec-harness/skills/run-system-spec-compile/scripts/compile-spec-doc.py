@@ -78,13 +78,47 @@ def main(argv: list[str]) -> int:
     p_compile.add_argument("--spec", required=True, help="spec-state.json のパス")
     p_compile.add_argument("--references", required=True, help="fetched-references.json のパス")
     p_compile.add_argument("--out-dir", default="system-spec", help="出力ディレクトリ (既定 system-spec)")
+    p_compile.add_argument(
+        "--on-handwritten",
+        choices=("refuse", "preserve"),
+        default="refuse",
+        help=(
+            "既存章が生成物に無い節 (人が後から書いた節) を持つときの扱い。"
+            "refuse=何も書かずに中止 (既定) / preserve=生成本文の末尾へ引き継ぐ"
+        ),
+    )
+    p_compile.add_argument(
+        "--only",
+        action="append",
+        metavar="FILE",
+        help=(
+            "書き出す章を絞る (例 --only infrastructure.md --only maintenance-ops.md)。"
+            "**組み立ては常に全章を通す**ので index の相互参照は正本どおりに導出される。"
+            "絞るのは書き出しだけである。触っていないセルの章まで書き換えて、"
+            "生成節の中の手書き行を巻き込む事故を避けるために使う"
+        ),
+    )
     args = ap.parse_args(argv)
 
+    losses: list[tuple[str, list[str]]] = []
     try:
         spec = load_json(args.spec)
         refs_data = load_json(args.references)
         docset = compile_docset(spec, refs_data)
-        written = write_docset(docset, Path(args.out_dir))
+        if args.only:
+            unknown = [n for n in args.only if n not in docset]
+            if unknown:
+                # 綴り違いを「0 件書けた」で通すと、直したつもりの章が直っていない。
+                print(
+                    f"CompileError: --only に無い章がある: {', '.join(unknown)} "
+                    f"(選べるのは {', '.join(sorted(docset))})",
+                    file=sys.stderr,
+                )
+                return 1
+            docset = {n: docset[n] for n in docset if n in set(args.only)}
+        written = write_docset(
+            docset, Path(args.out_dir), on_handwritten=args.on_handwritten, loss_report=losses
+        )
     except (OSError, json.JSONDecodeError) as exc:
         print(f"IO/JSON error: {exc}", file=sys.stderr)
         return 1
@@ -92,6 +126,37 @@ def main(argv: list[str]) -> int:
         print(f"CompileError: {exc}", file=sys.stderr)
         return 1
     print(f"OK: {len(written)} ファイルを {args.out_dir}/ へ生成 " f"({', '.join(p.name for p in written)})")
+
+    # 節を引き継いでも、生成節の中の手書き行までは守れない。黙って消さず必ず出す。
+    if losses:
+        total = sum(len(lines) for _, lines in losses)
+        print(
+            f"\n注意: 節の引き継ぎでは守れず消えた行が {total} 本ある "
+            f"({len(losses)} ファイル)。版の更新のように正しく消える行も含むので、"
+            "差分を読んでから正本へ適用すること。",
+            file=sys.stderr,
+        )
+        # **消えたと言うだけでは、次も同じ場所で消える。**
+        # 節の引き継ぎ (`--on-handwritten preserve`) は `##` 単位でしか効かない。
+        # 生成節の中に `###` 以下で書かれた手書きは、原理上どうやっても守れない。
+        # 実測 2026-08-25: ui-ux.md の `#### 既存記録との食い違い` が
+        # `## 確定内容 (質疑録)` の中に在ったため、毎回この一覧に載っていた。
+        # 残す手立ては 2 つしかないので、その 2 つを名指しで出す。
+        print(
+            "\n残したい行がある場合、手立ては 2 つだけである:\n"
+            "  (1) 事実が正本 spec-state.json から引けるものなら、"
+            "章へ手で書くのをやめ、compile が正本から描くようにする (推奨)。\n"
+            "  (2) 正本に居場所の無い記録なら、生成節の中 (`###` 以下) ではなく"
+            "**独立した `##` 節**へ移す。節の引き継ぎは `##` 単位でしか効かないため、"
+            "生成節の内側の手書きは移さない限り必ず消える。",
+            file=sys.stderr,
+        )
+        for name, lines in losses:
+            print(f"  {name}: {len(lines)} 本", file=sys.stderr)
+            for line in lines[:3]:
+                print(f"    - {line if len(line) <= 100 else line[:97] + '...'}", file=sys.stderr)
+            if len(lines) > 3:
+                print(f"    ... 他 {len(lines) - 3} 本", file=sys.stderr)
     return 0
 
 

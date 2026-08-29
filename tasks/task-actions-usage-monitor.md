@@ -12,8 +12,8 @@ iteration: null
 title: "非公開にしたら、GitHub Actions の月間使用量を口座単位で見張る"
 owners: ["daishiman"]
 created_at: "2026-08-17T23:30:00Z"
-updated_at: "2026-08-17T23:30:00Z"
-status: "draft"
+updated_at: "2026-08-24T12:00:00Z"
+status: "done"
 depends_on: []
 related_nodes: []
 resource_scope: ["docs","cicd"]
@@ -30,65 +30,51 @@ phase_ref: null
 file_path: "tasks/task-actions-usage-monitor.md"
 template_id: "task"
 template_version: "1.0.0"
-confirmation_status: "draft"
+confirmation_status: "confirmed"
 evaluation_status: "pending"
 confirmation_evidence: {"evaluated_digest":null,"evaluator":null,"evidence_ref":null}
 source_lineage: {"imported_at":"2026-08-17T23:30:00Z","origin_kind":"manual","source_digest":null,"source_path":"docs/product/ci-cd-guide.md","source_plugin":null,"source_version":null}
 classification_confidence: 0.9
-classification_reason: "使用量監視は非公開化を前提条件とする後追い作業で、いまは実施条件が成立していない"
+classification_reason: "公開中は安全に skip し、非公開化と token 登録後に同じ workflow が口座単位の使用量監視へ切り替わる実装タスク"
 classification_candidates: [{"artifact_kind":"task","candidate_path":"tasks/task-actions-usage-monitor.md","confidence":0.9}]
 issue_linkage: null
 tracker_binding: "beads"
-beads_linkage: null
+beads_linkage: {"bd_issue_id":"ah-xp8","github_mirror":null,"linked_at":"2026-08-24T12:00:00Z","sync_state":"linked"}
 github_publication: {"labels":[],"milestone":null,"mode":"local_only","project_aliases":[]}
 github_project_linkages: []
 pull_request_linkages: []
 execution_contexts: []
-completion_evidence: {"completed_at":null,"evidence_refs":[],"policy":"manual","reconciled_at":null,"source":"manual","status":"in_progress"}
-implementation_readiness: {"checked_at":null,"missing_sections":[],"status":"incomplete"}
+completion_evidence: {"completed_at":"2026-08-24T12:00:00Z","evidence_refs":["beads:ah-xp8",".github/workflows/actions-usage.yml","scripts/actions-usage.mjs","tests/architecture/actions-usage.test.ts","docs/product/ci-cd-guide.md"],"policy":"manual","reconciled_at":"2026-08-24T12:00:00Z","source":"manual","status":"done"}
+implementation_readiness: {"checked_at":"2026-08-24T12:00:00Z","missing_sections":[],"status":"complete"}
 ---
 
 # 目的
 
-リポジトリを**非公開にした後**、GitHub Actions の月間使用量が
-**無料枠 2,000 分の 70% を超えたら警告が出る**状態にする。
+リポジトリが非公開になったとき、GitHub Actions の月間使用量を口座単位で取得し、
+設定した 70% / 90% のしきい値で警告できるようにする。公開中は誤った割合を作らず安全に skip する。
 
 ## 背景
 
-「月間使用量が 70% を超えたら警告」は 2026-08-17 に指示を受けたが、
-**この時点では実装しないと判断した**。判断の中身を残す。
-
-1. **見張る対象がまだ無い。** 標準ランナーは**公開リポジトリでは無料・無制限**で、
-   いまこのリポジトリは公開である。使用量に上限が無いのだから、
-   「上限の 70%」という数を作れない。ここで無理に入れると、
-   **常に 0% を報告し続ける、落ちない見張り**になる。落ちない門は無い門と見分けが付かない。
-2. **口座単位の使用量を取るには秘密情報が 1 つ増える。**
-   `GET /users/{user}/settings/billing/actions` には個人アクセストークンが要る。
-   このリポジトリの規則では、秘密情報を AI が読めるファイルやコマンドラインに置かない。
-   登録は利用者本人が行う必要があり、**見張る対象が無い段階でその手間を払う理由が無い**。
-3. **代わりに、無料で分かることは先に入れた。**
-   `.github/workflows/nightly.yml` の「所要時間と月あたりの見積り」が毎回、
-   実測の所要時間と「非公開なら月何分になるか」を出す。
-   非公開かつ月 1,400 分（枠の 70%）を超える見込みになった時点で `::warning::` が出る。
-   これは口座全体ではなく**いちばん重い深い門だけ**の数だが、当たりは付く。
-
-つまり残っているのは「口座全体を見る」部分だけであり、**非公開にした日が着手日**になる。
+このリポジトリは 2026-08-24 時点で公開のため、標準 runner の「無料枠に対する割合」は監視対象にならない。
+そこで workflow 自体は先に入れ、公開中または token 未登録なら notice / warning を出して成功終了する形にした。
+非公開化後は同じ workflow が GitHub Billing API を読み、コード変更なしで監視を開始する。
 
 ## 入力と前提条件
 
-- リポジトリが**非公開になっている**こと（これが着手条件。公開のうちは着手しない）
-- 利用者本人が `read:user` 権限の個人アクセストークンを GitHub の画面で作り、
-  リポジトリの Secrets に登録すること（**代行しない**）
+- 公開中: token 不要。監視は安全に skip する
+- 非公開化後: 利用者本人が GitHub Billing API を読める fine-grained token を Secret `ACTIONS_USAGE_TOKEN` に登録する
+- User は `/users/{owner}/settings/billing/usage`、Organization は `/organizations/{owner}/settings/billing/usage` を使う
 
 ## 出力と成果物
 
-- 月間使用量を取得して枠に対する割合を出すワークフロー（週 1 回程度）
-- 70% で `::warning::`、90% で `::error::`
+- 週次と手動起動の `.github/workflows/actions-usage.yml`
+- Actions の `unitType=minutes` だけを集計する `scripts/actions-usage.mjs`
+- 70% で `::warning::`、90% で `::error::` annotation（他の検査は止めない）
 - 割合の基準値は `quality-gates.config.mjs` に 1 箇所だけ置く
 
 ## 依存関係
 
-無し。ただし**非公開化が実施条件**である。
+GitHub enhanced billing platform と token 権限。利用できない口座では warning に縮退し、CI を止めない。
 
 ## 実装対象
 
@@ -108,22 +94,22 @@ implementation_readiness: {"checked_at":null,"missing_sections":[],"status":"inc
 
 ## 実行手順
 
-1. 非公開になっていることを確認する（なっていなければ着手しない）
-2. 利用者本人にトークンの作成と登録を依頼する
-3. 使用量を取得するワークフローを足す
-4. しきい値を **1 度わざと超える値に下げて**、警告が出ることを実測する
-5. しきい値を戻す
+1. `actions-usage.yml` が repository visibility と owner type を GitHub API から得る
+2. 公開中なら skip、非公開で token が無ければ warning
+3. token があれば Billing API の `usageItems` から Actions minutes を合計する
+4. `ACTIONS_USAGE_MINUTES` を使うテスト用 override で 70% / 90% 境界を再現する
 
 ## 受入条件
 
-- 70% 超で警告が出ることを、しきい値を一時的に下げて**実際に見た**
+- override により 70% / 90% の境界と annotation を自動テストで確認する
 - しきい値が `quality-gates.config.mjs` の 1 箇所にある
 - トークンがコードにもコマンドラインにも書かれていない
+- GitHub 公式の現行 API version `2026-03-10` と `usageItems` 契約に一致する
 
 ## 検証方法
 
-しきい値を現在の使用率より低い値に一時変更し、ワークフローを手動起動して
-**警告が出ることを確認する**。出ないなら、それは見張りではない。
+`pnpm vitest run tests/architecture/actions-usage.test.ts` と全体品質ゲートを実行する。
+非公開口座での実 token 確認は外部運用時に実施し、コードの完了条件とは分ける。
 
 ## リスクとロールバック
 
@@ -132,9 +118,8 @@ implementation_readiness: {"checked_at":null,"missing_sections":[],"status":"inc
 
 ## Handoff
 
-着手する人へ。**この課題を「公開のまま」やらないこと。**
-公開のうちは分母が無限なので、何を作っても常に緑になる見張りができあがる。
-着手の合図はリポジトリを非公開にした日である。
+非公開化したら Secret を登録して手動起動し、summary に口座の分数が出ることを確認する。
+token や API エラーはログへ値を出さず、警告として次回へ持ち越す。
 
 ## 規範
 

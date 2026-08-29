@@ -89,8 +89,10 @@ def _load_sibling(stem: str):
 
 _dispatch = _load_sibling("dispatch-ready-set")
 _summarize = _load_sibling("summarize-task-progress")
+_dependencies = _load_sibling("task-graph-dependencies")
 merge_state = _dispatch.merge_state
 summarize = _summarize.summarize
+normalize_dependency_edges = _dependencies.normalize_dependency_edges
 
 
 def _read_json(path: Path) -> dict:
@@ -564,6 +566,7 @@ def render_value_section(narrative: dict | None) -> str:
 def _relationships(graph: dict) -> dict:
     """task-graph の depends_on エッジから依存関係ビューを構築する (plan 構造の可視化)。
 
+    ``main`` で検証・consumer 向きへ正規化済みの graph を受け取る。
     edge {type:depends_on, from:consumer, to:producer} は「from は to の完了後に着手」を表す。
     各 node の依存先 (upstream) / 被依存 (downstream) と、依存なしの起点タスクを返す。
     """
@@ -894,7 +897,7 @@ def render_html(
     )
 
     graph_nodes = len(graph.get("nodes", [])) if isinstance(graph.get("nodes"), list) else 0
-    graph_edges = len(graph.get("edges", [])) if isinstance(graph.get("edges"), list) else 0
+    graph_edges = _relationships(graph)["count"]
 
     # plan モード (build 前) は完了率でなく構成・依存関係を主役にする。
     if plan_mode:
@@ -1075,12 +1078,12 @@ def main(argv: list[str] | None = None) -> int:
     state_path = Path(args.task_state) if args.task_state else None
     plan_mode = state_path is None  # task-state 無し = build 前の計画構造レポート
     try:
-        graph = _read_json(graph_path)
+        graph = normalize_dependency_edges(_read_json(graph_path))
         task_state = (
             _read_json(state_path) if state_path
             else {"schema_version": "1.0", "graph_hash": None, "nodes": []}
         )
-    except (OSError, json.JSONDecodeError) as exc:
+    except (OSError, json.JSONDecodeError, ValueError) as exc:
         print(f"読込/parse 失敗: {exc}", file=sys.stderr)
         return 2
 

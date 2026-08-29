@@ -2,11 +2,16 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { ReactNode } from "react";
 import type { PublicSiteBlueprint } from "@/application/usecases/site/read-site";
+import type { FixedPageKind } from "@/domain/blogops";
 import { appearanceOptions, readAppearance } from "@/presentation/appearance";
-import { readerActor, readerWebMcpDescriptors, siteUseCases } from "@/presentation/composition";
+import {
+  publicBlogEntry,
+  readerWebMcpDescriptors,
+} from "@/presentation/composition";
 import type { PageKind } from "@/presentation/tools/webmcp-policy";
 import {
   ErrorView,
+  Callout,
   SitePage,
   SiteShell,
   WebMcpProvider,
@@ -14,6 +19,8 @@ import {
 } from "@/presentation/ui";
 import { TelemetryCollector } from "@/presentation/telemetry/collector";
 import { readConsentDecision, readConsentChoice } from "@/presentation/telemetry/consent-server";
+import { blogSidebar } from "./blog-sidebar";
+import { readPublicSiteProjection, type PublicSiteProjection } from "./public-site-projection";
 import { breadcrumbsFor, siteBasePath, toChrome } from "./view-model";
 
 /**
@@ -29,6 +36,7 @@ export type SiteContext = {
   readonly siteSlug: string;
   readonly blueprint: PublicSiteBlueprint;
   readonly chrome: SiteChrome;
+  readonly projection: PublicSiteProjection;
 };
 
 /**
@@ -43,7 +51,8 @@ export async function SiteFrame({
   currentPath,
   trail = [],
   pageKind = "article",
-  sidebar,
+  sidebar = false,
+  requiredFixedPageKind,
   children,
 }: {
   readonly siteSlug: string;
@@ -56,27 +65,35 @@ export async function SiteFrame({
    * 比較のページに順位の説明の道具を渡しても、押す先が無い。
    */
   readonly pageKind?: PageKind;
-  /** 記事目次など、現在の画面に限定した補助導線。 */
-  readonly sidebar?: ReactNode;
-  readonly children: (ctx: SiteContext) => ReactNode;
+  /**
+   * 本文の脇に枠を出すか（§3.4）。
+   *
+   * **画面ごとに真偽値 1 つで決める。**どの枠を出すかは管理画面が正本なので、
+   * ここで選ぶのは「この画面は脇を持つ種類か」だけ。持たせるのは記事まわり
+   * （トップ・記事一覧・記事・カテゴリー）で、**説明のページには持たせない**。
+   * 問い合わせや計測の説明は、読者が 1 つのことをしに来る画面で、
+   * 脇に別の入口を並べると本題から目を離させる。
+   */
+  readonly sidebar?: boolean;
+  /** 指定した公開中固定ページが無ければ、骨格を描く前に 404 にする。 */
+  readonly requiredFixedPageKind?: FixedPageKind;
+  readonly children: (ctx: SiteContext) => ReactNode | Promise<ReactNode>;
 }) {
-  const result = await (await siteUseCases()).getSite.execute(readerActor(), { siteSlug });
-
-  if (!result.ok) {
-    /*
-      見つからないときは **404 として返す**。
-      以前はここで直接「見つかりませんでした」の画面を返していたが、
-      それでは通信の答えが 200 のままで、無いブログが検索結果に載りうるし、
-      公開後の見張りからも壊れと区別が付かなかった（残課題リスト 項目 32）。
-
-      画面の中身は `src/app/s/[site]/not-found.tsx` へ移した。
-      見出し・戻り先・言い直しの案内はそのまま。素っ気なくして解決していない。
-    */
+  const publicEntry = await publicBlogEntry();
+  const projected = await readPublicSiteProjection(siteSlug, publicEntry);
+  if (!projected.ok) {
+    throw new Error("公開サイトの保存値を読み込めませんでした。");
+  }
+  if (projected.value === null) notFound();
+  const projection = projected.value;
+  const blueprint = projection.reader.blueprint;
+  if (
+    requiredFixedPageKind !== undefined &&
+    !projection.fixedPages.some((page) => page.kind === requiredFixedPageKind)
+  ) {
     notFound();
   }
-
-  const blueprint = result.value.blueprint;
-  const chrome = toChrome(siteSlug, blueprint);
+  const chrome = toChrome(siteSlug, blueprint, projection);
 
   /*
     読者の明るさの選択を読む。**18 本のルートで別々に読まない。**
@@ -98,9 +115,32 @@ export async function SiteFrame({
     readConsentChoice(),
   ]);
 
+  /*
+    脇の枠を**先に作って、空かどうかを見てから**渡す。
+    `<BlogSidebar />` と JSX で置くと、中身が空でも「要素はある」ので
+    `SiteShell` が段組みを出し、空の脇のぶんだけ本文が狭くなる。
+    関数として呼べば `null` がここに返り、段組みを出さない判断ができる。
+
+    カテゴリーは設計図から渡す。**保存先へもう一度引きに行かない**
+    (`blueprint.categories` がこの時点で手元にある)。
+  */
+  const [asideNormal, asideSticky] = sidebar
+    ? [
+        blogSidebar({ siteSlug, region: "sidebar", categories: blueprint.categories, projection }),
+        blogSidebar({
+          siteSlug,
+          region: "sidebar_sticky",
+          categories: blueprint.categories,
+          projection,
+        }),
+      ]
+    : [null, null];
+
   return (
     <SiteShell
       chrome={chrome}
+      sidebar={asideNormal ?? undefined}
+      sidebarSticky={asideSticky ?? undefined}
       currentPath={currentPath}
       breadcrumbs={breadcrumbsFor(siteSlug, blueprint, trail)}
       appearance={{ current: appearance, modeOptions: appearanceOptions().modeOptions }}
@@ -113,9 +153,15 @@ export async function SiteFrame({
           suppressAll={decision.suppressAll}
         />
       }
-      sidebar={sidebar}
     >
-      {children({ siteSlug, blueprint, chrome })}
+      {projection.source === "sample" ? (
+        <Callout
+          tone="info"
+          title="見本データを表示中です"
+          reason="この表示は保存先の live データではありません。"
+        />
+      ) : null}
+      {await children({ siteSlug, blueprint, chrome, projection })}
       {/*
         ページを開いている AI に、この画面でできることを知らせる（WebMCP）。
         読み取りだけ・6 件までで、すべて通常の画面操作でも同じことができる。
@@ -135,60 +181,56 @@ export async function SiteFrame({
 export const UNAVAILABLE_NOTICE = "いま表示できません";
 
 /**
- * 読めなかったときの表示。**「無い」と「取れなかった」を分ける。**
+ * 「無い」と分かった時点で 404 にする。**画面を描き始める前に呼ぶ。**
  *
- * 分けないと、保存先が落ちているだけの状態で読者に
- * 「その記事は存在しません」と言うことになる。読者は探すのをやめ、
- * 運営は気づけない。**どちらも画面上はきれいに見える**ので、
- * 目で見て気づくことはできない。
+ * 呼ぶ場所が結果を変える。Next.js の `notFound()` は投げた時点で応答が
+ * まだ流れ出していなければ 404 を返すが、流し込みが始まったあとに投げると
+ * 状態コードは 200 のまま `noindex` だけが付く（`notFound` の公式ドキュメント
+ * "Calling `notFound()` after streaming has started"）。
+ * つまり **JSX を返したあとに気づいても遅い**。だから各画面は、ユースケースを
+ * `await` した直後・`<SiteFrame>` を組み立てる前にこれを呼ぶ。
  *
- * 分かれ目は `NOT_FOUND` かどうかの 1 点だけ。
- * それ以外（保存先に繋がらない・上流が落ちている・まだ実装が無い）は
- * すべて「いま表示できません」に寄せる。読者にとって差が無いからである。
+ * 「無い」と「取れなかった」を分けるのはここ 1 箇所。分けないと、保存先が
+ * 落ちているだけの状態で読者に「その記事は存在しません」と言い、さらに
+ * 404 を返して検索結果から実在する記事を消してしまう。
+ * 分かれ目は `NOT_FOUND` かどうかの 1 点だけで、それ以外（保存先に繋がらない・
+ * 上流が落ちている・まだ実装が無い）はすべて「いま表示できません」に寄せる。
+ *
+ * 規範: 残課題リスト 項目 36 / docs/product/traceability.md REQ-B01
+ */
+export function stopIfMissing(error: { readonly code: string } | undefined): void {
+  if (error?.code === "NOT_FOUND") notFound();
+}
+
+/**
+ * 読めなかったときの表示。**ここに来るのは「取れなかった」だけ。**
+ *
+ * 「無い」は呼び出し側の `stopIfMissing` が先に 404 として打ち切る。
+ * ここでも保険として `notFound()` を投げたくなるが、**投げない。**
+ * 投げると、呼び出し側が呼び忘れても画面上は正しく 404 になり、
+ * 「JSX を返す前に打ち切る」という肝心の設計が守られているかを
+ * 検査から見分けられなくなる（実装を壊しても緑のままになる）。
+ * 呼び忘れはこの関数が「いま表示できません」を描くことで表に出て、
+ * `tests/ui/resource-not-found.test.tsx` が 200 として赤くする。
+ *
+ * 失敗の中身（`DomainError`）を受け取らないのはそのため。受け取ると
+ * 「ここでも `NOT_FOUND` を見よう」に必ず戻り、上の理由が崩れる。
+ * 読者に見せる文言も、保存先が落ちた理由で変えるべきものではない。
  */
 export function ReadFailureBody({
-  error,
   what,
   siteSlug,
 }: {
-  readonly error: { readonly code: string };
   /** 「記事」「カテゴリー」など、読もうとしたもの。 */
   readonly what: string;
   readonly siteSlug: string;
 }) {
-  if (error.code === "NOT_FOUND") return <NotFoundBody what={what} siteSlug={siteSlug} />;
-
   const title = `${what}を${UNAVAILABLE_NOTICE}`;
   return (
     <SitePage title={title}>
       <ErrorView
         title={title}
         body="こちらの都合で読み込めませんでした。しばらくしてから、もう一度お試しください。"
-        action={<Link href={siteBasePath(siteSlug)}>トップへ戻る</Link>}
-      />
-    </SitePage>
-  );
-}
-
-/** 記事や人が見つからないときの表示。ここも 1 箇所にまとめる。 */
-export function NotFoundBody({
-  what,
-  siteSlug,
-}: {
-  readonly what: string;
-  readonly siteSlug: string;
-}) {
-  /*
-    `SitePage` で包むのは飾りではない。h1 が無い画面は、
-    読み上げで開いたときに「どこに着いたのか」が一言も告げられない。
-    見えている人には「見つかりませんでした」の文字が目に入るので、
-    **この抜けは目視では発見できない。**
-  */
-  return (
-    <SitePage title={`${what}が見つかりませんでした`}>
-      <ErrorView
-        title={`${what}が見つかりませんでした`}
-        body="URL が変わったか、公開が取り下げられた可能性があります。"
         action={<Link href={siteBasePath(siteSlug)}>トップへ戻る</Link>}
       />
     </SitePage>
