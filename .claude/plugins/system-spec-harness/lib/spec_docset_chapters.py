@@ -535,9 +535,15 @@ def _render_application_entry(
         lines.extend(_demotion_notes(ref, demoted, flattened))
     applications = qa.get("design_applications")
     if not isinstance(applications, list) or not applications:
+        # **章は読み物であって作業指示書ではない。**ここに writer 宛の TODO を置くと、
+        # 成果物が「未完成の指示」を配ることになる。しかも指していた補完手順
+        # (`set-qa-design-applications`) は `legacy_exempt=true` の旧 entry しか
+        # 受けないので、一般の entry では**実行できない手順を仕様書が配っていた**。
+        # 記録が無いことは事実として残し、指示は書かない。
         lines.append("- 設計解釈の記録経路: `unrecorded`")
         lines.append(
-            "- 設計原則の採否根拠: (未記録 — qa_log[].design_applications を writer 経由で補完すること)"
+            "- 設計原則の採否根拠: 未記録。この質疑に `design_applications` が無いため、"
+            "章はこの質疑を根拠に設計原則の採否を主張しない"
         )
         return lines
     provenance = qa.get("design_application_provenance")
