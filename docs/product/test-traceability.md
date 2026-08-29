@@ -5,9 +5,9 @@
 要件 → テストの向きは `docs/product/traceability.md` が正本で、ここはその裏返しに
 テスト側の `@req` 印を重ねたもの。
 
-- 最終更新: 2026-08-28
-- テストファイル: 212 件
-- 由来の要件が分かる: 184 件
+- 最終更新: 2026-08-29
+- テストファイル: 215 件
+- 由来の要件が分かる: 187 件
 - **由来不明: 28 件**（上限 28 件）
 
 由来不明とは「どの要件のために書いたのか、機械から辿れない」という意味で、
@@ -72,6 +72,7 @@
 | `tests/application/read-product.test.ts` | REQ-A02, REQ-A08 | 印と表 |
 | `tests/application/reader-interaction.test.ts` | REQ-TS01 | 表 |
 | `tests/application/schedule-publication.test.ts` | REQ-P08 | 印と表 |
+| `tests/architecture/affiliate-content-harness.test.ts` | REQ-QC03, REQ-QC05, REQ-QC12 | 印 |
 | `tests/architecture/ai-eval-budget.test.ts` | REQ-CI13 | 表 |
 | `tests/architecture/audit-action-emitters.test.ts` | REQ-SEC09 | 印 |
 | `tests/architecture/backlog-item-floor.test.ts` | REQ-TS17 | 印 |
@@ -84,6 +85,7 @@
 | `tests/architecture/doc-source-version-gap.test.ts` | REQ-TS14 | 印と表 |
 | `tests/architecture/doctrine-citation-gap.test.ts` | REQ-TS13 | 印と表 |
 | `tests/architecture/doctrine-clause-citation.test.ts` | REQ-TS13 | 印 |
+| `tests/architecture/documentation-links.test.ts` | REQ-TS09 | 印 |
 | `tests/architecture/form2-population-floor.test.ts` | REQ-TS17 | 印と表 |
 | `tests/architecture/generated-doc-freshness.test.ts` | REQ-TS09 | 印 |
 | `tests/architecture/generated-docs.test.ts` | REQ-TS09 | 印 |
@@ -154,6 +156,7 @@
 | `tests/infrastructure/llm-usage-repository.test.ts` | REQ-SEC01 | 印 |
 | `tests/infrastructure/membership-reader.test.ts` | REQ-S10 | 印 |
 | `tests/infrastructure/prompt-assembly.test.ts` | REQ-P06 | 表 |
+| `tests/infrastructure/sample-catalog-consistency.test.ts` | REQ-B07, REQ-P03, REQ-P07 | 印 |
 | `tests/infrastructure/session-issuer.test.ts` | REQ-S10 | 印 |
 | `tests/infrastructure/stub-ledger.test.ts` | REQ-TS09 | 表 |
 | `tests/integration/d1-audit-log.test.ts` | REQ-SEC09 | 印と表 |
@@ -232,4 +235,4 @@
 | `tests/ui/tool-form.test.tsx` | REQ-WC05 | 印と表 |
 | `tests/ui/ui-layers.test.ts` | REQ-S09, REQ-TM05 | 表 |
 | `tests/visual/visual-regression.test.ts` | REQ-TS12 | 印 |
-<!-- 生成物の指紋 sha256:3dab98239885d9d590185e97f493add7967505978fdd9af97aa9df9dd5ddccc2 -->
+<!-- 生成物の指紋 sha256:565df3f97705e6e569371716a2eb225d47322c22d5eb06c22e396cb76fedf214 -->

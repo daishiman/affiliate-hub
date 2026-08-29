@@ -29,7 +29,7 @@ import {
   taggedString,
 } from "@/domain/shared";
 import { registerStub } from "../../stub-registry";
-import { SAMPLE_PRODUCTS, SAMPLE_WORKSPACE_ID } from "./ranking-sample-repository";
+import { SAMPLE_PRODUCTS, SAMPLE_WORKSPACE_ID } from "./sample-identity";
 
 /**
  * ★ これは仮置きの見本データです（スタブ）。★
@@ -71,8 +71,8 @@ const AUTHOR: AuthorPersona = unwrap(
     workspaceId: WS,
     displayName: "編集部",
     personaType: "editorial_team",
-    role: "映像編集の道具をためす担当",
-    expertise: ["動画編集", "ノートPC"],
+    role: "在宅勤務の机まわりをためす担当",
+    expertise: ["オフィスチェア", "作業姿勢"],
     knowledgeLevel: "intermediate",
     firstPersonPronoun: "編集部",
     readerAddress: "あなた",
@@ -88,7 +88,7 @@ const AUTHOR: AuthorPersona = unwrap(
     disclosureStyle: "本文のはじめに1行で書く",
     ctaStyle: "押しつけない。判断材料を出してから置く",
     // 実測記録がまだ 1 件も無いので、一人称の体験は書けない設定にしてある。
-    factBoundary: ["公表仕様の読み解き", "他社比較"],
+    factBoundary: ["公表仕様の読み解き", "編集部の連続着座試験の紹介"],
   }),
   "書き手",
 );
@@ -144,60 +144,60 @@ const AUDIENCES: readonly AudiencePersona[] = [
   audience({
     id: AUDIENCE_ID,
     workspaceId: WS,
-    name: "動画編集を始めたばかりの人",
-    primaryJob: "はじめての動画編集用ノートPCを、失敗せずに選びたい",
-    currentSituation: "手持ちのPCで書き出しに時間がかかり、作業が止まっている",
-    desiredOutcome: "予算のなかで、書き出しを待たずに編集できる機種を選べる",
+    name: "在宅勤務で腰が痛くなった人",
+    primaryJob: "8時間座っても体を痛めにくい椅子を、予算内で選びたい",
+    currentSituation: "簡易な椅子で働き続け、夕方になると腰が痛む",
+    desiredOutcome: "机と体格に合う椅子を選び、仕事のあとも痛みを残さずに過ごせる",
     knowledgeLevel: "beginner",
     awarenessStage: "problem_aware",
-    painPoints: ["専門用語が多くて比べられない", "高い買い物なので外したくない"],
-    objections: ["安い機種でも足りるのではないか"],
-    decisionCriteria: ["書き出しの速さ", "価格", "重さ"],
-    budgetContext: "15万円前後まで",
+    painPoints: ["調整できる場所が多くて比べられない", "高い買い物なので外したくない"],
+    objections: ["安い椅子にクッションを足せば十分ではないか"],
+    decisionCriteria: ["腰の負担", "座面の高さ", "価格"],
+    budgetContext: "8万円前後まで",
     trustRequirements: ["実際に測った数字があること", "誰が書いたか分かること"],
     preferredDetailLevel: "standard",
-    commonQuestions: ["メモリは何GB必要ですか", "中古でも大丈夫ですか"],
+    commonQuestions: ["机の高さに合いますか", "店頭では何を確かめればよいですか"],
     desiredEmotionalState: "これを選べば大丈夫だと思える",
     nextAction: "候補を2つに絞って、店頭か通販で確かめる",
-    prohibitedAssumptions: ["CPUの型番の読み方を知っている", "動画の書き出し設定を理解している"],
+    prohibitedAssumptions: ["座面高と机の高さの関係を知っている", "肘掛けの種類を理解している"],
   }),
   audience({
     id: taggedString<"AudiencePersonaId">("dp_video_intermediate") as AudiencePersonaId,
     workspaceId: WS,
-    name: "副業で受注を始めた編集者",
-    primaryJob: "納期に間に合う作業環境へ買い替えたい",
-    currentSituation: "案件が増え、書き出し待ちが利益を圧迫している",
-    desiredOutcome: "1日の作業本数を増やせる機種に替える",
+    name: "在宅勤務が長時間になった人",
+    primaryJob: "長く座っても集中が切れにくい作業環境へ替えたい",
+    currentSituation: "会議と資料作成が続く日に、腰と肩の負担が大きい",
+    desiredOutcome: "体格に合わせて調整できる椅子へ替える",
     knowledgeLevel: "intermediate",
     awarenessStage: "solution_aware",
-    painPoints: ["書き出し待ちの時間が読めない", "外出先での作業が続かない"],
-    objections: ["デスクトップの方が費用対効果が高いのでは"],
-    decisionCriteria: ["書き出しの速さ", "電源なしで使える時間", "静かさ"],
-    budgetContext: "25万円まで。経費で落とす",
+    painPoints: ["短時間の試座では違いが分からない", "机との高さが合うか判断しづらい"],
+    objections: ["椅子より先に机を替えるべきではないか"],
+    decisionCriteria: ["腰部圧力", "調整範囲", "保証期間"],
+    budgetContext: "12万円まで。仕事用の費用として扱う",
     timeContext: "今月中に決めたい",
     trustRequirements: ["同じ条件で測った比較があること"],
     preferredDetailLevel: "detailed",
-    commonQuestions: ["同じ書き出し設定での比較はありますか"],
+    commonQuestions: ["同じ人が長時間座った比較はありますか"],
     desiredEmotionalState: "投資として納得できる",
-    nextAction: "比較表で上位2機種の差額と時間短縮を見比べる",
-    prohibitedAssumptions: ["色の管理まで理解している"],
+    nextAction: "比較表で上位2脚の調整範囲と価格差を見比べる",
+    prohibitedAssumptions: ["正しい着座姿勢を自分で作れる"],
   }),
   audience({
     id: taggedString<"AudiencePersonaId">("dp_video_expert") as AudiencePersonaId,
     workspaceId: WS,
-    name: "制作会社の機材担当",
-    primaryJob: "複数台をまとめて選定し、社内に説明できる根拠をそろえたい",
-    currentSituation: "更新時期が来ており、稟議の資料を作っている",
-    desiredOutcome: "測定条件つきの比較を根拠として使える",
+    name: "会社の備品担当",
+    primaryJob: "複数脚をまとめて選定し、社内に説明できる根拠をそろえたい",
+    currentSituation: "在宅勤務手当の対象品を見直すため、稟議の資料を作っている",
+    desiredOutcome: "測定条件つきの比較を選定根拠として使える",
     knowledgeLevel: "expert",
     awarenessStage: "product_aware",
-    painPoints: ["記事ごとに測定条件が違い、比較にならない"],
+    painPoints: ["記事ごとに着座時間や被験者が違い、比較にならない"],
     objections: ["提携目的の順位づけではないか"],
-    decisionCriteria: ["測定条件の明示", "書き出しの速さ", "保守のしやすさ"],
-    budgetContext: "1台あたり30万円。台数で調整する",
+    decisionCriteria: ["測定条件の明示", "調整範囲", "保守のしやすさ"],
+    budgetContext: "1脚あたり15万円。台数で調整する",
     trustRequirements: ["測定条件と日付が書いてあること", "広告表示があること"],
     preferredDetailLevel: "detailed",
-    commonQuestions: ["測定に使った素材と設定は何ですか"],
+    commonQuestions: ["測定した人の体格と机の高さは何ですか"],
     desiredEmotionalState: "社内に説明できる",
     nextAction: "測定条件のページを保存して稟議に添付する",
     prohibitedAssumptions: [],
@@ -210,16 +210,16 @@ const PACKAGE: ContentPackage = unwrap(
     workspaceId: WS,
     brandId: "brand_sample",
     primarySubjectId: SAMPLE_PRODUCTS[0]!.id,
-    // 見本は動画編集ソフトの比較なので、法令上の特別な規制は無い。
+    // 見本はオフィスチェアの比較なので、法令上の特別な規制は無い。
     // 「分からないので general」ではなく「調べた結果 general」であることに注意。
     domainScope: "general",
-    claimIds: [taggedString<"ClaimId">("cl_alpha_export")],
-    evidenceIds: [taggedString<"EvidenceId">("ev_export_time")],
+    claimIds: [taggedString<"ClaimId">("cl_alpha_pressure")],
+    evidenceIds: [taggedString<"EvidenceId">("ev_lumbar_pressure")],
     authorPersonaId: AUTHOR_ID,
     // 生成マトリクスを見るには、読者が 2 人以上いる必要がある。
     // 1 人だけだと「書き分け」の表が 1 行になり、何のための表か分からなくなる。
     audiencePersonaIds: AUDIENCES.map((a) => a.id),
-    objective: "動画編集を始めた人が、書き出しの速さで機種を選べるようにする",
+    objective: "在宅勤務で腰に負担を感じる人が、体格と机に合う椅子を選べるようにする",
     funnelStage: "consideration",
     contentAngles: ["data_first", "comparison_first", "drawback"],
   }),
@@ -263,8 +263,8 @@ function variant(input: {
       summary: input.summary,
       cta: "read_detail",
       disclosure: DISCLOSURE_TEXT,
-      claimIds: input.withClaims ? [taggedString<"ClaimId">("cl_alpha_export")] : [],
-      evidenceIds: input.withClaims ? [taggedString<"EvidenceId">("ev_export_time")] : [],
+      claimIds: input.withClaims ? [taggedString<"ClaimId">("cl_alpha_pressure")] : [],
+      evidenceIds: input.withClaims ? [taggedString<"EvidenceId">("ev_lumbar_pressure")] : [],
       factualityScore: input.withClaims ? 0.9 : 0.4,
       personaFitScore: 0.8,
       channelFitScore: 0.8,
@@ -280,7 +280,7 @@ function variant(input: {
  * 見本の記事。
  *
  * 2 本目はわざと欠陥を入れてある（数値はあるのに根拠が無い・デメリットが無い・
- * 誇大表現「最強」を含む）。自動確認が指摘を返す画面を必ず一度は通すため。
+ * 誇大表現「絶対」を含む）。自動確認が指摘を返す画面を必ず一度は通すため。
  */
 /** 記事 1 本と、その進行の現在地。**現在地は本文とは別に持つ**（§18.1）。 */
 export type SampleVariant = { readonly state: ContentState; readonly variant: ContentVariant };
@@ -299,14 +299,14 @@ const VARIANTS: readonly SampleVariant[] = [
     variant: variant({
       id: "cv_alpha_review",
       channel: "own_site",
-      title: "書き出しの速さで選ぶノートPC",
+      title: "8時間座った負担で選ぶオフィスチェア",
       body: [
         DISCLOSURE_TEXT,
-        "4K10分の素材を同じ設定で書き出したところ、6分12秒でした。",
-        "デメリットもあります。本体が1.68kgあり、毎日持ち歩く人には重く感じます。",
+        "同じ人が同じ机で8時間座ったところ、腰部圧力は平均38kPaでした。",
+        "デメリットもあります。座面の奥行きが広く、小柄な人は膝裏が当たることがあります。",
         "詳しい比較はこちら: https://example.com/compare",
       ].join("\n"),
-      summary: "書き出し時間の実測をもとに、映像編集向けの機種を比べます。",
+      summary: "連続着座の実測をもとに、在宅勤務向けの椅子を比べます。",
       withClaims: true,
       compliance: "pass",
     }),
@@ -316,10 +316,10 @@ const VARIANTS: readonly SampleVariant[] = [
     variant: variant({
       id: "cv_alpha_draft",
       channel: "own_site",
-      title: "最強のノートPCを紹介します",
+      title: "絶対に腰が痛くならない椅子を紹介します",
       body: [
-        "このノートPCは最強です。書き出しは6分12秒で終わります。",
-        "価格は198000円です。",
+        "この椅子なら絶対に腰が痛くなりません。腰部圧力は38kPaです。",
+        "価格は98000円です。",
         "とにかく買って損はありません。購入はこちら。",
       ].join("\n"),
       summary: "下書き。自動確認で指摘が出る状態の見本です。",
@@ -338,11 +338,11 @@ const VARIANTS: readonly SampleVariant[] = [
       ...variant({
         id: "cv_alpha_approved",
         channel: "own_site",
-        title: "持ち運びと書き出しの両立で選ぶノートPC",
+        title: "体格と机の高さで選ぶオフィスチェア",
         body: [
           DISCLOSURE_TEXT,
-          "4K10分の素材を同じ設定で書き出したところ、7分05秒でした。",
-          "デメリットもあります。同価格帯より画面が小さく、細かい調整はしづらいです。",
+          "同じ人が同じ机で8時間座ったところ、腰部圧力は平均44kPaでした。",
+          "デメリットもあります。座面の奥行きを変えられず、体格によっては合わせづらいです。",
           "詳しい比較はこちら: https://example.com/compare",
         ].join("\n"),
         summary:
@@ -360,8 +360,8 @@ const VARIANTS: readonly SampleVariant[] = [
       channel: "x",
       title: null,
       body: [
-        `${DISCLOSURE_TEXT}1.29kgで持ち運びやすい機種です。`,
-        "弱点は書き出しに8分40秒かかること。",
+        `${DISCLOSURE_TEXT}座面を39cmまで下げられる、小柄な人向けの椅子です。`,
+        "弱点は座面の奥行きを変えられないこと。",
       ].join("\n"),
       summary: "短文の媒体向け。文字数の上限を確認する見本です。",
       withClaims: true,

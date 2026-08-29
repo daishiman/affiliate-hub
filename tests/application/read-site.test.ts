@@ -197,14 +197,14 @@ describe("記事の一覧", () => {
   it("カテゴリーの一覧は、カテゴリー名と 1 文説明も一緒に返す", async () => {
     const result = await createListByCategoryUseCase(realDeps()).execute(reader, {
       siteSlug: SAMPLE_SITE_SLUG,
-      categorySlug: "laptops",
+      categorySlug: "chairs",
     });
     expect(result.ok).toBe(true);
     if (!result.ok) return;
     // 画面側に設計図を引き直させない（引き直させると名前の出どころがばらける）。
     expect(result.value.category.name.length).toBeGreaterThan(0);
     expect(result.value.category.oneLine.length).toBeGreaterThan(0);
-    expect(result.value.category.slug).toBe("laptops");
+    expect(result.value.category.slug).toBe("chairs");
   });
 
   it("そのブログに無いカテゴリーを指したときは「無い」と返す", async () => {
@@ -219,7 +219,7 @@ describe("記事の一覧", () => {
   it("ブログ自体が無いときは、カテゴリーではなくブログが無いと返す", async () => {
     const result = await createListByCategoryUseCase(realDeps()).execute(reader, {
       siteSlug: "no-such-site",
-      categorySlug: "laptops",
+      categorySlug: "chairs",
     });
     expect(result.ok).toBe(false);
     if (!result.ok) expect(result.error.message).toContain("ブログ");
@@ -228,7 +228,7 @@ describe("記事の一覧", () => {
   it("設計図は引けたが記事が読めないときは、失敗をそのまま上げる", async () => {
     const result = await createListByCategoryUseCase(
       realDeps({ content: brokenContent() }),
-    ).execute(reader, { siteSlug: SAMPLE_SITE_SLUG, categorySlug: "laptops" });
+    ).execute(reader, { siteSlug: SAMPLE_SITE_SLUG, categorySlug: "chairs" });
     expect(result.ok).toBe(false);
     if (!result.ok) expect(result.error.code).toBe("UPSTREAM_UNAVAILABLE");
   });
@@ -236,7 +236,7 @@ describe("記事の一覧", () => {
   it("設計図が読めないときは、カテゴリーを探しにいかない", async () => {
     const result = await createListByCategoryUseCase(realDeps({ sites: brokenSites() })).execute(
       reader,
-      { siteSlug: SAMPLE_SITE_SLUG, categorySlug: "laptops" },
+      { siteSlug: SAMPLE_SITE_SLUG, categorySlug: "chairs" },
     );
     expect(result.ok).toBe(false);
     if (!result.ok) expect(result.error.code).toBe("UPSTREAM_UNAVAILABLE");
@@ -247,15 +247,15 @@ describe("記事 1 本", () => {
   it("ある記事は、そのまま返す", async () => {
     const result = await createGetArticleUseCase(realDeps()).execute(reader, {
       siteSlug: SAMPLE_SITE_SLUG,
-      slug: "laptops-for-video-editing",
+      slug: "chairs-for-long-hours",
     });
-    expect(result.ok && result.value.slug).toBe("laptops-for-video-editing");
+    expect(result.ok && result.value.slug).toBe("chairs-for-long-hours");
   });
 
   it("別のブログの記事は、そのブログからは引けない", async () => {
     const result = await createGetArticleUseCase(realDeps()).execute(reader, {
       siteSlug: SECOND_SITE_SLUG,
-      slug: "laptops-for-video-editing",
+      slug: "chairs-for-long-hours",
     });
     expect(result.ok).toBe(false);
     if (!result.ok) expect(result.error.code).toBe("NOT_FOUND");
@@ -264,7 +264,7 @@ describe("記事 1 本", () => {
   it("読み出しに失敗したときは、無いと言い換えない", async () => {
     const result = await createGetArticleUseCase(realDeps({ content: brokenContent() })).execute(
       reader,
-      { siteSlug: SAMPLE_SITE_SLUG, slug: "laptops-for-video-editing" },
+      { siteSlug: SAMPLE_SITE_SLUG, slug: "chairs-for-long-hours" },
     );
     expect(result.ok).toBe(false);
     if (!result.ok) expect(result.error.code).toBe("UPSTREAM_UNAVAILABLE");
@@ -343,7 +343,7 @@ describe("書き手・監修者", () => {
     const result = await createGetPersonUseCase(realDeps()).execute(reader, {
       siteSlug: SAMPLE_SITE_SLUG,
       kind: "author",
-      slug: "miwa",
+      slug: "mochizuki",
     });
     expect(result.ok).toBe(true);
     if (!result.ok) return;
@@ -357,7 +357,7 @@ describe("書き手・監修者", () => {
     const result = await createGetPersonUseCase(realDeps()).execute(reader, {
       siteSlug: SAMPLE_SITE_SLUG,
       kind: "expert",
-      slug: "arai",
+      slug: "sakuma",
     });
     expect(result.ok && result.value.kind).toBe("expert");
   });
@@ -366,7 +366,7 @@ describe("書き手・監修者", () => {
     const result = await createGetPersonUseCase(realDeps()).execute(reader, {
       siteSlug: SAMPLE_SITE_SLUG,
       kind: "expert",
-      slug: "miwa",
+      slug: "mochizuki",
     });
     expect(result.ok).toBe(false);
   });
@@ -387,7 +387,7 @@ describe("書き手・監修者", () => {
   it("人は引けたが記事が読めないときは、失敗をそのまま上げる", async () => {
     const content = markEditorial({
       async findPerson() {
-        return ok({ slug: "miwa", name: "三輪 さとし", bio: "紹介文", credentials: ["経歴"] });
+        return ok({ slug: "mochizuki", name: "三輪 さとし", bio: "紹介文", credentials: ["経歴"] });
       },
       async listByPerson() {
         return err(domainError("UPSTREAM_UNAVAILABLE", "記事を読み出せません。"));
@@ -397,7 +397,7 @@ describe("書き手・監修者", () => {
     const result = await createGetPersonUseCase(realDeps({ content })).execute(reader, {
       siteSlug: SAMPLE_SITE_SLUG,
       kind: "author",
-      slug: "miwa",
+      slug: "mochizuki",
     });
     expect(result.ok).toBe(false);
     if (!result.ok) expect(result.error.code).toBe("UPSTREAM_UNAVAILABLE");
@@ -406,7 +406,7 @@ describe("書き手・監修者", () => {
   it("人の読み出しに失敗したときは、無いと言い換えない", async () => {
     const result = await createGetPersonUseCase(realDeps({ content: brokenContent() })).execute(
       reader,
-      { siteSlug: SAMPLE_SITE_SLUG, kind: "author", slug: "miwa" },
+      { siteSlug: SAMPLE_SITE_SLUG, kind: "author", slug: "mochizuki" },
     );
     expect(result.ok).toBe(false);
     if (!result.ok) expect(result.error.code).toBe("UPSTREAM_UNAVAILABLE");

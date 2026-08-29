@@ -97,7 +97,7 @@ function anArticle(over: Partial<PublishedArticle> = {}): PublishedArticle {
     type: "guide",
     title: "静かなノートパソコンの選び方",
     summary: "ファンの音が気になるなら、まず放熱の設計を見てください。",
-    categorySlug: "laptops",
+    categorySlug: "chairs",
     publishedAt: "2026-08-17",
     updatedAt: "2026-08-17",
     author: {
@@ -160,15 +160,15 @@ describe("出した記事を読み直す", () => {
 
   it("見本の記事は消えない", async () => {
     await writer.save(workspaceId, anArticle());
-    const sample = await content.findArticle(SAMPLE_SITE_SLUG, "laptops-for-video-editing");
+    const sample = await content.findArticle(SAMPLE_SITE_SLUG, "chairs-for-long-hours");
     expect(sample.ok).toBe(true);
     if (!sample.ok) throw new Error("読み取りに失敗しました");
     expect(sample.value?.stub).toBeDefined();
   });
 
   it("見本と同じ URL 名で出したら、出したほうが勝つ", async () => {
-    await writer.save(workspaceId, anArticle({ slug: "laptops-for-video-editing" }));
-    const found = await content.findArticle(SAMPLE_SITE_SLUG, "laptops-for-video-editing");
+    await writer.save(workspaceId, anArticle({ slug: "chairs-for-long-hours" }));
+    const found = await content.findArticle(SAMPLE_SITE_SLUG, "chairs-for-long-hours");
     expect(found.ok).toBe(true);
     if (!found.ok) throw new Error("読み取りに失敗しました");
     expect(found.value?.title).toBe("静かなノートパソコンの選び方");
@@ -208,7 +208,7 @@ describe("一覧と検索に出る", () => {
 
   it("カテゴリーの一覧に出る", async () => {
     await writer.save(workspaceId, anArticle());
-    const listed = await content.listByCategory(SAMPLE_SITE_SLUG, "laptops");
+    const listed = await content.listByCategory(SAMPLE_SITE_SLUG, "chairs");
     if (!listed.ok) throw new Error("一覧を読めませんでした");
     expect(listed.value.map((a) => a.slug)).toContain("quiet-laptop");
   });
@@ -257,7 +257,7 @@ describe("書き手のページ", () => {
 
   it("見本の書き手も引ける（重ねても消さない）", async () => {
     await writer.save(workspaceId, anArticle());
-    const person = await content.findPerson(SAMPLE_SITE_SLUG, "author", "miwa");
+    const person = await content.findPerson(SAMPLE_SITE_SLUG, "author", "mochizuki");
     if (!person.ok) throw new Error("人物を読めませんでした");
     expect(person.value).not.toBeNull();
   });
@@ -307,14 +307,14 @@ describe("公開済み記事の非表示化", () => {
   });
 
   it("見本と同じ URL の保存記事を非表示にしても見本へ逆戻りしない", async () => {
-    await writer.save(workspaceId, anArticle({ slug: "laptops-for-video-editing" }));
+    await writer.save(workspaceId, anArticle({ slug: "chairs-for-long-hours" }));
     await admin.archive(
       workspaceId,
       SAMPLE_SITE_SLUG,
-      "laptops-for-video-editing",
+      "chairs-for-long-hours",
       "2026-08-28T09:00:00.000Z",
     );
-    const found = await content.findArticle(SAMPLE_SITE_SLUG, "laptops-for-video-editing");
+    const found = await content.findArticle(SAMPLE_SITE_SLUG, "chairs-for-long-hours");
     if (!found.ok) throw new Error("記事を読み込めませんでした");
     expect(found.value).toBeNull();
   });

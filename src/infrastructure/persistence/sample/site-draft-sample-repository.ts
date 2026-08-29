@@ -3,7 +3,7 @@ import type { SiteBlueprint, SiteDraft } from "@/domain/authoring";
 import { createSiteDraft } from "@/domain/authoring";
 import { type WorkspaceId, markEditorial, ok, taggedString } from "@/domain/shared";
 import { registerStub, stubReason } from "../../stub-registry";
-import { SAMPLE_WORKSPACE_ID } from "./ranking-sample-repository";
+import { SAMPLE_WORKSPACE_ID } from "./sample-identity";
 
 /**
  * ★ これは仮置きの保存先です（スタブ）。★
@@ -85,7 +85,7 @@ const CREATED: { slug: string; blueprint: SiteBlueprint }[] = [];
  * ウィザードで作られたブログ。
  *
  * 見本のブログ一覧 (`site-sample-repository`) がこれを読み、
- * 見本の 3 本と同じ扱いで返す。**読者側の画面は区別しない。**
+ * 見本と同じ扱いで返す。**読者側の画面は区別しない。**
  */
 export function createdSites(): readonly { readonly slug: string; readonly blueprint: SiteBlueprint }[] {
   return CREATED;

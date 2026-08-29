@@ -1349,7 +1349,7 @@ export async function siteDraftNotice(): Promise<StorageStatus> {
 /**
  * ブログの一覧がいま何で動いているかを画面に出すための一文。
  *
- * 保存先がつながっていても**見本の 3 本は残す**ので、
+ * 保存先がつながっていても**見本は残す**ので、
  * 「並んでいるものの一部は見本」であることは、つながったあとも黙らない。
  */
 export async function siteStorageNotice(): Promise<StorageStatus> {

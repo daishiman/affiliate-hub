@@ -9,7 +9,7 @@ import { buildVisibleMessage } from "@/domain/compliance";
 import type { Brand, Membership, Workspace } from "@/domain/identity";
 import { DEFAULT_BRAND_VOICE, DEFAULT_CTA, DEFAULT_LOCALE, DEFAULT_TIME_ZONE } from "@/domain/identity";
 import { ok, taggedString } from "@/domain/shared";
-import { SAMPLE_WORKSPACE_ID } from "./ranking-sample-repository";
+import { SAMPLE_WORKSPACE_ID } from "./sample-identity";
 import { registerStub, stubCall } from "../../stub-registry";
 
 /**

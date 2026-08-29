@@ -85,30 +85,82 @@ export function createSampleShortlistRepository(): EditorialShortlistPort {
 /**
  * 見本の道具。
  *
- * 「必要な保存容量の目安」だけを 1 つ置く。定義（入力欄と読み方）は本物の形にし、
- * 計算だけを見本にする。定義の形が決まっていれば、
- * 計算式を登録するだけで本物になる。
+ * 定義（入力欄と読み方）は本物の形にし、計算だけを見本にする。
+ * 定義の形が決まっていれば、計算式を登録するだけで本物になる。
+ *
+ * **ブログごとに違う道具を置く。** 道具は「そのブログの読者が最初につまずくこと」
+ * に対応して初めて意味を持つ。全ブログに同じ道具が出る状態では、
+ * 「道具を持つブログと持たないブログで案内がどう変わるか」を確かめられない。
+ * 道具を 1 つも持たないブログ（`first-camera`・`run-and-recover`）も残してある。
+ * 空のときの見え方は、道具を足したあとには確かめられない。
  */
-const STORAGE_ESTIMATOR: ReaderToolDefinition = {
-  slug: "storage-estimator",
-  name: "必要な保存容量の目安",
-  purpose: "撮影する時間と画質から、編集に必要な保存容量のおおよその大きさを出す。",
-  inputs: [
-    { key: "minutes", label: "1 か月に撮影する時間", unit: "分", hint: "半角数字で入力してください。" },
-    { key: "bitrate", label: "映像の記録レート", unit: "Mbps", hint: "カメラの説明書に書かれています。" },
-    { key: "months", label: "手元に残しておきたい期間", unit: "か月" },
+const TOOLS_BY_SITE: Readonly<Record<string, readonly ReaderToolDefinition[]>> = {
+  "home-office-desk": [
+    {
+      slug: "desk-fit",
+      name: "机と椅子の高さの目安",
+      purpose: "身長と机の高さから、椅子の座面をどこに合わせればよいかを出す。",
+      inputs: [
+        { key: "height", label: "身長", unit: "cm", hint: "半角数字で入力してください。" },
+        { key: "desk_height", label: "いま使っている机の高さ", unit: "cm" },
+        { key: "shoe", label: "室内で靴を履くか", hint: "「はい」か「いいえ」で入力してください。" },
+      ],
+      howToRead:
+        "出てくるのは出発点の数字です。座って肘が 90 度になるかを必ず確かめ、合わなければ 1cm ずつ動かしてください。",
+    },
+    {
+      slug: "monitor-distance",
+      name: "画面までの距離の目安",
+      purpose: "画面の大きさと解像度から、目が疲れにくい距離を出す。",
+      inputs: [
+        { key: "inch", label: "画面の大きさ", unit: "インチ" },
+        { key: "resolution", label: "横方向の画素数", unit: "px", hint: "例: 2560" },
+      ],
+      howToRead: "距離を取れない場合は、文字の大きさを上げるほうが先です。",
+    },
   ],
-  howToRead:
-    "出てくるのは素材だけの大きさです。編集中の一時ファイルと書き出し先を別に用意してください。",
+  "compact-kitchen-gear": [
+    {
+      slug: "counter-space",
+      name: "調理台に置けるかの確認",
+      purpose: "調理台の寸法と、置きたい機器の寸法から、作業できる場所が残るかを出す。",
+      inputs: [
+        { key: "counter_width", label: "調理台の幅", unit: "cm" },
+        { key: "counter_depth", label: "調理台の奥行き", unit: "cm" },
+        { key: "device_width", label: "置きたい機器の幅", unit: "cm" },
+        { key: "device_depth", label: "置きたい機器の奥行き", unit: "cm" },
+      ],
+      howToRead:
+        "本体の寸法だけでは足りません。蒸気の逃げ道として、上方向に 10cm 以上あるかも確かめてください。",
+    },
+  ],
+  "mobile-plan-navi": [
+    {
+      slug: "data-plan-fit",
+      name: "必要なデータ量の目安",
+      purpose: "動画や地図の使い方から、月に必要なデータ量を出す。",
+      inputs: [
+        { key: "video_minutes", label: "1 日に外で見る動画の時間", unit: "分" },
+        { key: "map_days", label: "1 か月に地図を使う日数", unit: "日" },
+        { key: "wifi", label: "自宅に固定回線があるか", hint: "「はい」か「いいえ」で入力してください。" },
+      ],
+      howToRead:
+        "出てくるのは平均の月の目安です。旅行のある月は 1.5 倍で見てください。上限を超えた月の速度制限は、プランごとに違います。",
+    },
+  ],
 };
+
+function toolsFor(siteSlug: string): readonly ReaderToolDefinition[] {
+  return TOOLS_BY_SITE[siteSlug] ?? [];
+}
 
 export function createSampleReaderToolRepository(): EditorialReaderToolPort {
   return markEditorial({
-    async find(_siteSlug: string, slug: string) {
-      return ok(slug === STORAGE_ESTIMATOR.slug ? STORAGE_ESTIMATOR : null);
+    async find(siteSlug: string, slug: string) {
+      return ok(toolsFor(siteSlug).find((t) => t.slug === slug) ?? null);
     },
-    async list(_siteSlug: string) {
-      return ok([STORAGE_ESTIMATOR]);
+    async list(siteSlug: string) {
+      return ok(toolsFor(siteSlug));
     },
     async run(_siteSlug: string, slug: string, _values: Readonly<Record<string, string>>) {
       // 計算式をでっち上げた数字で返すと、読者がそれを信じて機材を買う。

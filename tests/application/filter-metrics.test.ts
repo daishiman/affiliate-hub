@@ -86,7 +86,7 @@ describe("絞り込まないとき", () => {
 
 describe("分けられない指標を 0 と書かない", () => {
   it("絞り込むと、分けて数えていない指標は値ではなく理由を返す", async () => {
-    const view = await filter({ site: "site_makuring" });
+    const view = await filter({ site: "site_home_office" });
     const unsplittable = view.rows.filter((r) => r.value === null && r.unavailableReason !== null);
     expect(unsplittable.length).toBeGreaterThan(0);
     for (const row of unsplittable) {
@@ -99,7 +99,7 @@ describe("分けられない指標を 0 と書かない", () => {
   });
 
   it("分けて数えている指標は、絞り込んでも値が出る", async () => {
-    const view = await filter({ site: "site_makuring" });
+    const view = await filter({ site: "site_home_office" });
     const views = view.rows.find((r) => r.key === "page_views");
     expect(views?.value).not.toBeNull();
     expect(views?.unavailableReason).toBeNull();
@@ -107,7 +107,7 @@ describe("分けられない指標を 0 と書かない", () => {
 
   it("絞り込むと、全体より値が小さくなる（絞ったのに同じ数字にならない）", async () => {
     const all = await filter();
-    const one = await filter({ site: "site_makuring" });
+    const one = await filter({ site: "site_home_office" });
     const allViews = all.rows.find((r) => r.key === "page_views")?.value ?? 0;
     const oneViews = one.rows.find((r) => r.key === "page_views")?.value ?? 0;
     expect(oneViews).toBeGreaterThan(0);
@@ -123,14 +123,14 @@ describe("分けられない指標を 0 と書かない", () => {
 
 describe("いま何で絞っているかを言葉で出す", () => {
   it("絞り込み中の一文に、軸の名前と選んだ値の名前が入る", async () => {
-    const view = await filter({ site: "site_makuring" });
+    const view = await filter({ site: "site_home_office" });
     expect(view.filterSummary).not.toBeNull();
     expect(view.filterSummary).toContain("ブログ");
     expect(view.appliedAxisCount).toBe(1);
   });
 
   it("2 つの軸で絞ると、両方が一文に入る", async () => {
-    const view = await filter({ site: "site_makuring", channel: "own_site" });
+    const view = await filter({ site: "site_home_office", channel: "own_site" });
     expect(view.appliedAxisCount).toBe(2);
     expect(view.filterSummary).toContain("ブログ");
     expect(view.filterSummary).toContain("媒体");
@@ -158,7 +158,7 @@ describe("お金に近い切り口の注意", () => {
   });
 
   it("お金に近くない切り口では注意を出さない（毎回出すと読まれなくなる）", async () => {
-    const view = await filter({ site: "site_makuring" });
+    const view = await filter({ site: "site_home_office" });
     expect(view.commercialWarning).toBeNull();
   });
 

@@ -41,9 +41,9 @@ const catalog = await createToolCatalog();
 const reader = readerActor();
 
 /** 見本の順位記事。順位・評価基準・商品カードが揃っている。 */
-const RANKING_ARTICLE = { siteSlug: SAMPLE_SITE_SLUG, slug: "laptops-for-video-editing" };
+const RANKING_ARTICLE = { siteSlug: SAMPLE_SITE_SLUG, slug: "chairs-for-long-hours" };
 /** 見本の比較記事。比較表が入っている。 */
-const COMPARISON_ARTICLE = { siteSlug: SAMPLE_SITE_SLUG, slug: "alpha-vs-beta" };
+const COMPARISON_ARTICLE = { siteSlug: SAMPLE_SITE_SLUG, slug: "ergo-one-vs-flexseat" };
 
 async function callAsReader(name: string, args: Record<string, unknown>) {
   const tool = findTool(catalog, name);
@@ -117,7 +117,7 @@ describe("読者の身元で、読者ページの道具が動く", () => {
     const value = result.value as {
       card: { name: string; specs: readonly { label: string; value: string | null }[] } | null;
     };
-    expect(value.card?.name).toBe("Alpha Studio 15");
+    expect(value.card?.name).toBe("ErgoOne Pro");
     // 値が無い項目を落とすと、商品ごとに並びが変わって横に見比べられなくなる。
     expect(value.card?.specs.some((s) => s.value === null)).toBe(true);
   });
@@ -160,7 +160,7 @@ describe("読者の身元で、読者ページの道具が動く", () => {
   it("絞り込みが、0 件のときも元の件数と理由を返す", async () => {
     const hit = await callAsReader("reader_filter_products", {
       ...RANKING_ARTICLE,
-      text: "Alpha",
+      text: "Ergo",
     });
     expect(hit.ok).toBe(true);
     if (!hit.ok) return;

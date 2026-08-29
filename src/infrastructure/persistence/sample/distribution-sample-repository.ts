@@ -18,7 +18,7 @@ import {
   taggedString,
 } from "@/domain/shared";
 import { registerStub, stubCall } from "../../stub-registry";
-import { SAMPLE_WORKSPACE_ID } from "./ranking-sample-repository";
+import { SAMPLE_WORKSPACE_ID } from "./sample-identity";
 
 /**
  * ★ これは仮置きの見本データです（スタブ）。★
