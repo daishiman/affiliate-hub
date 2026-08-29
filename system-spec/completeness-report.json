@@ -1,7 +1,7 @@
 {
   "inputs": {
     "file_count": 81,
-    "sha256": "8b07616cf704c5a2e9c7fee3f4b03735f7c4120e6fba32811b7f64439ca0487b",
+    "sha256": "03d6f089293255f046d4f4ae6fa86cca61c09d7beeac071e48d2f1c0486b7fd2",
     "files": [
       {
         "path": "docs/spec/00-README.md",
@@ -60,8 +60,8 @@
       },
       {
         "path": "docs/spec/11-CI-CD・品質ゲート仕様.md",
-        "sha256": "12a79297845e8e801a6a1b27f5762d44cfac160f2d1a749e0768d268dbde2a1f",
-        "mtime": 1787864196
+        "sha256": "4ad93aa85d133acb21abe45760b96625e3bddfc9d7e528201e6cce0d2616409d",
+        "mtime": 1787930876
       },
       {
         "path": "docs/spec/12-改善要望フィードバック仕様.md",
@@ -140,8 +140,8 @@
       },
       {
         "path": "docs/spec/feat-auth-workspace/runbook.md",
-        "sha256": "7ffded97ab1fda314985f4a379a6f8998c35e4ff4539c7896ad2a4aad4f48d79",
-        "mtime": 1787864196
+        "sha256": "75009a2d176f3cf8a4911a96ab29303152c86e7723ee738499db9e1e1370a045",
+        "mtime": 1787930876
       },
       {
         "path": "docs/spec/feat-auth-workspace/test-design.md",
@@ -261,7 +261,7 @@
       {
         "path": "docs/spec/feat-uiux-overhaul/acceptance-report.md",
         "sha256": "7bf3a12d02e494ce76dccc4f4f38f6cae0e38f1ce517ddc84bdac9679eb3d2e1",
-        "mtime": 1787925323
+        "mtime": 1787927898
       },
       {
         "path": "docs/spec/feat-uiux-overhaul/admin-api-contract.md",
@@ -291,7 +291,7 @@
       {
         "path": "docs/spec/feat-uiux-overhaul/final-review.md",
         "sha256": "f97ae66833c9a639a2aa35256e3e1942f4b94c6f7d95634367db4ddefaae1461",
-        "mtime": 1787925323
+        "mtime": 1787927898
       },
       {
         "path": "docs/spec/feat-uiux-overhaul/migration-report.md",
@@ -311,7 +311,7 @@
       {
         "path": "docs/spec/feat-uiux-overhaul/release-report.md",
         "sha256": "c4914bc325aa530f8c1af44ade182927995dadc8a4837d867c0d05e932803a31",
-        "mtime": 1787925323
+        "mtime": 1787927898
       },
       {
         "path": "docs/spec/feat-uiux-overhaul/requirements-baseline.md",
@@ -408,8 +408,7 @@
         "sha256": "27d9540866be6d02a4905e4866b4351d629bf6fe61bb41d144c242a3e2181e80",
         "mtime": 1787901827
       }
-    ],
-    "pinned_at": "2026-08-28T14:32:44Z"
+    ]
   },
   "evaluator": {
     "name": "assign-system-spec-completeness-evaluator",
@@ -417,67 +416,68 @@
     "context": "fork"
   },
   "spec_dir": "system-spec",
-  "verdict": "PASS",
+  "verdict": "FAIL",
   "aspects": {
     "foundation_trace": {
       "verdict": "PASS",
       "auditor": "assign-system-spec-completeness-evaluator",
       "component": "C05",
-      "summary": "U1-U9 全項目が値で確定 (confirmed=true, approval_ref=approval-foundation-1)。essential_purpose/background/goals[2]/objectives[2]/success_criteria[3]/stakeholders[3]/scope/constraints[5]/concrete_intents[4] すべて非空。00-requirements-definition.md と spec-state.json が整合し、全 8 技術章 frontmatter serves_goals が G1/G2 へトレース。dangling なし。",
+      "summary": "射程外として前回判定を引き継ぐ。本観点の入力は requirements_foundation (spec-state.json) と provenance.field_sources が名乗る原典、および全 8 技術章の frontmatter serves_goals である。今回変わった 2 ファイルはいずれも field_sources の 原典ではなく (foundation の書面根拠は docs/spec/01-要求仕様書-v1.0.md の 8 節に閉じており、その sha256 はファイル全体の指紋で不変)、system-spec/*.md も無変更。前回根拠: U1-U9 全項目が値で確定 (confirmed=true, approval_ref=approval-foundation-1)、全 8 技術章が serves_goals で G1/G2 へ anchor、dangling なし。",
       "evidence": [
-        "requirements_foundation.confirmed=true, approval_ref=approval-foundation-1 が approval_log に実在",
-        "U1-U9 全項目に値あり (N/A なし)",
-        "全 8 技術章が frontmatter serves_goals で G1/G2 へ anchor",
-        "validate-coverage-matrix.py --require-complete exit 0 (foundation 含む)"
+        "変更 2 ファイルは requirements_foundation.provenance.field_sources の原典に含まれない (foundation 書面根拠は docs/spec/01 の §2.1/§3.1/§32/§27.1/§30.8/§2.2-2.3/§6/§3.4 のみ)",
+        "system-spec/*.md 11 件は inputs 指紋で全件一致 (serves_goals 記述は無変更)",
+        "validate-coverage-matrix.py --require-complete exit 0 (foundation 含む) を本 run で再取得"
       ]
     },
     "decision_guidance": {
       "verdict": "PASS",
       "auditor": "assign-system-spec-completeness-evaluator",
       "component": "C05",
-      "summary": "decisions[] 7 件が 2-3 案・無料/低コスト案・recommendation を持つ。全件 state=needs_guidance で利用者判断待ち (AI 推奨のみで confirmed にしたものは 0 件)。各 decision は category に紐づいている。",
+      "summary": "射程外として前回判定を引き継ぐ。本観点の入力は spec-state.json の decisions[] と 00-requirements-definition.md であり、どちらも inputs 指紋で無変更。前回根拠: decisions[] 7 件が 2-3 案・無料/低コスト案・recommendation を持ち、全件 state=needs_guidance で利用者判断待ち (AI 推奨のみで confirmed にしたものは 0 件)。",
       "evidence": [
-        "decisions[] = 7 件、全件 options 2-3 案",
-        "全件に free/低コスト option を含む",
-        "全件に recommendation あり",
-        "全件 state=needs_guidance (AI 推奨のみで confirmed にしていない)"
+        "spec-state.json の sha256 が inputs 指紋で前回レポートと一致 (decisions[] 無変更)",
+        "system-spec/00-requirements-definition.md の sha256 が一致",
+        "変更 2 ファイルは decisions[] のどの option/recommendation の出典にもならない"
       ]
     },
     "matrix_coverage": {
       "verdict": "PASS",
       "auditor": "system-spec-matrix-auditor",
       "component": "C07",
-      "summary": "C07 (primary) は全 48 セル検証で PASS。C06 (sub_input) も 5 軸全てで PASS (前回検出の誘導・foundation 根拠欠落が是正済み)。決定論ゲート 2 モード exit 0。C16 必須情報被覆 exit 0。",
+      "summary": "監査 receipt を再利用できると判断した。C07 (primary) の読取入力は spec-state.json だけで、inputs 指紋により無変更を確認。C06 (sub_input) は spec-state.json に加え qa_log[].source.kind=written-requirements の原典を節単位で読むが、docs/spec/11 を名乗るのは §8 検査の段 と §5 秘密情報 の 2 件のみで、この 2 節は変更前後で byte 単位一致 (§5: 328B sha256 3ce8d377… / §8: 3819B sha256 94cc815d…)。変わったのは §4 と §7 で、C06 の 5 軸はどちらも読まない。決定論ゲートは本 run で 2 モード exit 0 を再取得。ただし §4-1 の変更内容そのものは design_knowledge_reflection 側で FAIL として拾っている。",
       "evidence": [
-        "validate-coverage-matrix.py --require-complete exit 0",
-        "validate-coverage-matrix.py (loop) exit 0",
-        "validate-knowledge-graph.py --profile required-info exit 0",
-        "C07 独立監査: AUDIT_VERDICT: PASS (全 5 軸検証済み)",
-        "C06 sub-input: AUDIT_VERDICT: PASS (誘導 0 / foundation 根拠欠落 0 / 聞き漏れ 0 / 早期停止 0 / トレース欠落 0)"
+        "validate-coverage-matrix.py --require-complete exit 0 (本 run 再実行)",
+        "validate-coverage-matrix.py (loop) exit 0 (本 run 再実行)",
+        "validate-knowledge-graph.py --profile required-info exit 0 (C16)",
+        "C07 の入力 spec-state.json は inputs 指紋で無変更 → 全 48 セル (確定 8 / 対象外 40 / 未収集 0) の判定はいまの木にも当てはまる",
+        "C06 が照合する書面節 §5 / §8 は変更前後で byte 一致 (git show 5f2247a~1 との節単位比較)",
+        "C06 の foundation 軸が読む docs/spec/01-要求仕様書-v1.0.md も inputs 指紋で無変更"
       ]
     },
     "design_knowledge_reflection": {
-      "verdict": "PASS",
+      "verdict": "FAIL",
       "auditor": "assign-system-spec-completeness-evaluator",
       "component": "C05",
-      "summary": "全 8 技術章に設計知識ポインタ節あり (機械層)。DDD/クリーンアーキテクチャ/セキュアバイデザイン等の原則が各カテゴリの確定セル要件へ具体適用されている (意味層)。汎用ポインタのみの章は検出されなかった。C13 knowledge graph exit 0、C14 topo_order exit 0、C15 doctrine anchor exit 0。",
+      "summary": "射程に入るため再採点し、FAIL へ下げた。機械層 (全 8 章の設計知識ポインタ節の存在、C13/C14/C15 の knowledge-graph gates 全 exit 0) は前回どおり満たす。意味層で失敗している。infrastructure.md と maintenance-ops.md の design_applications は docs/spec/11-CI-CD・品質ゲート仕様.md#§4-1 / #§4-1-1 を knowledge_ref に取るが、その §4 は本 run の入力で変わった (3261B → 5225B)。引用している 4 原則自体は現行 §4-1/§4-1-1 に残っており矛盾はしない。一方で現行 §4-1 は公開手順を 4 手から 7 手へ増やし、適用後・公開前の形の一致確認 (§4-1-2) を必須の段として追加し、deploy と migrate の同一環境同時実行の禁止も規範として置いた。infrastructure.md の確定要件は『控え → 空でない確認 → 適用 → 未適用 0 件』の 4 手のままで、追加された段を 1 つも持たない。ポインタ先が動いたのに確定セルへの具体適用が旧版のままで、『ポインタは在るが適用が原典に接地していない』形骸化に当たる。",
       "evidence": [
-        "全 8 章に設計知識ポインタ節あり",
-        "validate-knowledge-graph.py --profile knowledge exit 0",
-        "validate-knowledge-graph.py --profile doctrine exit 0",
-        "validate-knowledge-graph.py --profile cross exit 0"
+        "変更ファイル docs/spec/11 の §4 が変化 (sha256 156b1c76… → 852ca2c0…)、§7 受け入れ条件も変化 (bfc45f4f… → d4dfe8ca…)",
+        "infrastructure.md:126 の確定要件が 4 手の並びのまま (現行 §4-1 は 7 手)",
+        "system-spec/*.md 全 11 件に『形のずれ』『§4-1-2』の語が 0 件 (infrastructure.md:110 の drift は IaC 一般論で別文脈)",
+        "現行 §7 は CI-AC-04 の意味を変え CI-AC-20 / CI-AC-21 を追加したが、対応する確定要件が無い",
+        "引用 4 原則 (控えの中身判定 / 保管失敗の区別 / 戻る先の一点 / 測れなかったを緑にしない) は現行 §4-1・§4-1-1 に残存し矛盾は無い",
+        "validate-knowledge-graph.py --profile knowledge / doctrine / cross exit 0 (機械層は満たす)"
       ]
     },
     "doc_freshness": {
       "verdict": "PASS",
       "auditor": "system-spec-doc-freshness-auditor",
       "component": "C08",
-      "summary": "層 0 (転記忠実性) exit 0: 全 15 target 転記が証跡と逐語一致。層 1 (形式・証跡) exit 0: 全 target の必須フィールド・host 一致・証跡 digest 整合。層 2 (内容鮮度) WebSearch/WebFetch で全 15 target を公式サイト現行版と再照合し、14 件一致、1 件 (apple-hig) は JS 必須で鮮度未確認だが層 0/1 が整合し MAX_UNVERIFIED_FRESHNESS=1 以内で全体 PASS。",
+      "summary": "監査 receipt を再利用できると判断した。C08 の読取入力は fetched-references.json / system-spec/retrieval-evidence/*.json / spec-state.json の targets[] であり、変わった 2 ファイルはいずれもこの集合に入らない (C08 は docs/spec を読まない)。入力の不変は inputs 指紋 (spec-state.json) と、本 run で再実行した層 0 / 層 1 の exit 0 で裏付けた。前回根拠: 層 0 (転記忠実性) exit 0 / 層 1 (形式・証跡) exit 0 / 層 2 は 15 target 中 14 件が公式現行版と一致、apple-hig 1 件のみ鮮度未確認。",
       "evidence": [
-        "validate-evidence-transcription.py exit 0 (転記違反 0)",
-        "validate-source-citation.py exit 0 (形式・証跡 OK)",
-        "層 2: 14/15 target が公式サイト現行版と一致",
-        "apple-hig: JS 必須で WebFetch 不能だが層 0/1 整合 (鮮度未確認として surface 済み)",
+        "validate-evidence-transcription.py exit 0 (本 run 再実行・取得記録 15 件が証跡と逐語一致)",
+        "validate-source-citation.py exit 0 (本 run 再実行)",
+        "変更 2 ファイルは fetched-references.json の references[] にも retrieval-evidence にも現れない",
+        "層 2: 14/15 target が公式サイト現行版と一致 (apple-hig のみ JS 必須で鮮度未確認)",
         "C08 独立監査: AUDIT_VERDICT: PASS"
       ]
     },
@@ -485,12 +485,11 @@
       "verdict": "PASS",
       "auditor": "assign-system-spec-completeness-evaluator",
       "component": "C05",
-      "summary": "prompt-creator 外部 plugin 不在のため verify-completeness.py / validate-prompt.py 機械ゲートは skip (rubric deterministic_gate_dependency 例外)。意味層: 主要 prompt は 7 層形式を具備し L5 にゴール定義・原子的停止条件を持つ。独立 design findings に high なし。",
+      "summary": "射程外として前回判定を引き継ぐ。本観点の入力は prompts/*.md であり、変わった 2 ファイルは docs/spec 配下の仕様書で prompt ではない。前回根拠: prompt-creator 外部 plugin 不在のため 機械ゲートは skip (rubric deterministic_gate_dependency 例外)、意味層で主要 prompt が 7 層形式と L5 の原子的停止条件を具備、high severity の design finding なし。",
       "evidence": [
+        "変更 2 ファイルは prompts/*.md に該当しない (docs/spec 配下の仕様書)",
         "prompt-creator plugin 不在 → 機械ゲート skip (deterministic_gate_dependency 例外適用)",
-        "R1-score.md: L1-L7 全層具備、L5.3 に完了チェックリスト",
-        "R2-delegate.md: L1-L7 全層具備、L5.3 に完了チェックリスト",
-        "高 severity の独立 design finding なし"
+        "R1-score.md / R2-delegate.md: L1-L7 全層具備、L5.3 に完了チェックリスト"
       ]
     }
   },
@@ -509,8 +508,9 @@
       },
       "verdict": "PASS",
       "evidence": [
+        "再利用の根拠: C07 の読取入力は spec-state.json のみで、inputs 指紋により本 run でも無変更",
         "全 48 セル検証: 確定 8 / 対象外 40 / 未収集 0",
-        "決定論ゲート loop exit 0 + --require-complete exit 0",
+        "決定論ゲート loop exit 0 + --require-complete exit 0 (本 run で再取得)",
         "対象外理由: 全件 approval-platform-web-only に接地、placeholder 0",
         "確定 qa_refs: 全件 qa_log に実在、dangling 0",
         "category_aggregate 真理値表: 不一致 0"
@@ -530,6 +530,8 @@
       },
       "verdict": "PASS",
       "evidence": [
+        "再利用の根拠: C06 が読む書面原典のうち今回変わったのは docs/spec/11 だが、C06 が照合するのはその §8 と §5 の 2 節のみで、両節は変更前後で byte 一致 (§5 sha256 3ce8d377… / §8 sha256 94cc815d…)",
+        "変わった §4 / §7 は C06 の 5 軸のどれも読まない (design_applications の knowledge_ref は C05 の担当)",
         "聞き漏れ 0 件: 未収集セル 0",
         "誘導質問 0 件: 全 16 件の対話質問に断定・前提埋込・片側 Yes/No なし",
         "早期停止 0 件: loop_count=2 < max_loops=5、complete=true",
@@ -551,8 +553,9 @@
       },
       "verdict": "PASS",
       "evidence": [
-        "層 0 (C08a): exit 0 — 全 15 target 転記が証跡と逐語一致",
-        "層 1 (C13): exit 0 — 形式・証跡 OK",
+        "再利用の根拠: C08 の読取入力 (fetched-references.json / retrieval-evidence / targets) に変更 2 ファイルは含まれない",
+        "層 0 (C08a): exit 0 — 全 15 target 転記が証跡と逐語一致 (本 run で再取得)",
+        "層 1 (C13): exit 0 — 形式・証跡 OK (本 run で再取得)",
         "層 2: 14/15 target が公式サイト現行版と一致 (apple-hig のみ JS 必須で鮮度未確認)",
         "AUDIT_VERDICT: PASS"
       ]
@@ -625,45 +628,111 @@
       ],
       "exit_code": 0,
       "stdout": "OK: 出典記録が全件対応・必須フィールド・公式 host・時刻・取得証跡の一致を満たす"
+    },
+    {
+      "id": "G-evidence-transcription",
+      "name": "validate-evidence-transcription",
+      "conditions": [
+        "doc_freshness"
+      ],
+      "command": [
+        "python3",
+        ".claude/plugins/system-spec-harness/scripts/validate-evidence-transcription.py",
+        "--references",
+        "system-spec/fetched-references.json"
+      ],
+      "exit_code": 0,
+      "stdout": "OK: 取得記録 15 件は証跡と逐語一致する"
     }
   ],
   "findings": [
     {
       "severity": "info",
-      "bucket": "foundation_trace",
-      "observation": "U1-U9 全項目が値で確定済み。goal G1/G2 へのトレースが全 8 技術章で成立。dangling なし。"
+      "bucket": "inputs",
+      "observation": "前回レポートが名乗る入力指紋 (sha256 8b07616c…) を build_inventory() でツリーから数え直したところ 03d6f089… と食い違い、81 件中 2 件が変わっていた: docs/spec/11-CI-CD・品質ゲート仕様.md と docs/spec/feat-auth-workspace/runbook.md。追加・削除は 0 件。両者は 5f2247a で変わった版であり、前回レポートは 5f2247a~1 の版を名乗っていた (評価の後に dev 由来の変更を取り込んだため)。本 run の inputs は現在のツリーの実測値へ差し替えてある。",
+      "evidence": [
+        "build_inventory('.') → file_count=81, sha256=03d6f089293255f046d4f4ae6fa86cca61c09d7beeac071e48d2f1c0486b7fd2",
+        "前回レポート inputs.sha256 = 8b07616cf704c5a2e9c7fee3f4b03735f7c4120e6fba32811b7f64439ca0487b",
+        "差分 2 件はいずれも sha256 が 5f2247a の版と一致"
+      ]
     },
     {
-      "severity": "info",
-      "bucket": "decision_guidance",
-      "observation": "decisions[] 7 件が 2-3 案・無料案・recommendation を具備。全件 state=needs_guidance で利用者判断待ち (AI 推奨のみでの confirmed は 0 件)。"
+      "severity": "high",
+      "bucket": "design_knowledge_reflection",
+      "observation": "infrastructure×web と maintenance-ops×web の確定要件が、自分の knowledge_ref が指す docs/spec/11-CI-CD・品質ゲート仕様.md#§4-1 の現行内容へ接地していない。現行 §4-1 は公開手順を 7 手に増やし『適用の後・公開の前に、実際の表・索引・トリガーが正本と合うことを確かめる』(§4-1-2 形のずれ) を必須の段として置き、deploy と migrate が同一環境の D1 を同時に変更しないことも規範に加えた。system-spec/*.md 側は 4 手のままで、この段も同時実行の禁止も 1 章にも現れない。ポインタは在るが、その原則の確定セルへの具体適用が原典の旧版で止まっている (存在確認だけで緑にしない = Goodhart 防止に該当)。なおこの取りこぼしは C07/C06 の入力 (spec-state.json と §5/§8) には現れないため、監査 receipt が PASS であることと矛盾しない。",
+      "suggested_fix": "C01 (run-system-spec-elicit) の R4-reopen で infrastructure×web と maintenance-ops×web を再オープンし、現行 §4-1 / §4-1-2 / §7 (CI-AC-04 の意味変更・CI-AC-20 / CI-AC-21 の追加) を書面入力として再収集したうえで、C03 compile が両章を焼き直す。評価者は read-only のため仕様書側は書き換えていない。",
+      "evidence": [
+        "docs/spec/11 §4 sha256 156b1c763ca4… → 852ca2c09d4d… (3261B → 5225B)",
+        "docs/spec/11 §7 sha256 bfc45f4f1a2b… → d4dfe8ca8ca5…",
+        "system-spec/infrastructure.md:126 の確定要件が『控え → 空でない確認 → 適用 → 未適用 0 件』の 4 手",
+        "system-spec/*.md 全 11 件に『形のずれ』『4-1-2』が 0 件"
+      ]
+    },
+    {
+      "severity": "medium",
+      "bucket": "attribution",
+      "observation": "本 run の実行環境が読んでいる plugin コピーは PostToolUse / SubagentStop の監査 fork 台帳 writer を持たない。marketplace 側の hooks.json は PreToolUse のguard-confirmed-chapter-overwrite だけを宣言しており record-audit-fork.py も同梱していない(worktree 側の .claude/plugins/... には両方在る)。C06 の裏取りとしてsystem-spec-hearing-auditor を実際に fork し直したが、起動の前後で台帳の行数は 18 行のまま増えず、この fork は receipt にできない。台帳を手で書くことは禁じられているため書いていない。したがって本レポートの 3 receipt はいずれも 2026-08-28T14:2x の session 105ca20f の既存行を指しており、再利用の妥当性は『その監査が読んだ byte がいまの木でも同一である』ことの機械的な突合で担保している (receipt の新規取得では担保していない)。",
+      "suggested_fix": "PLUGIN_ROOT を worktree 側の .claude/plugins/system-spec-harness へ向けるか、marketplace 側のコピーへ hooks.json の PostToolUse / SubagentStop と record-audit-fork.py を同期する (check-installed-copy-drift.py の対象)。そのうえで 3 監査を fork し直せばreceipt をいまの木で取り直せる。",
+      "evidence": [
+        "marketplace hooks.json の hooks キーは PreToolUse のみ",
+        "marketplace hooks/ 配下に record-audit-fork.py が無い",
+        "fork 前後とも eval-log/system-spec-harness/audit-fork-ledger.jsonl は 18 行",
+        "台帳外の裏取りとして得た C06 再監査の結論は AUDIT_VERDICT: PASS (48 セル / 未収集 0 / 誘導 0 / 早期停止 0 / dangling 0 / foundation 根拠欠落 0) で既存 receipt と一致するが、台帳行が無いため receipt としては採用していない",
+        "供給中立ゲート supply_neutrality.py --prompt-file <C06 fork prompt> --repo-root . は exit 0 (所在のみの供給) を fork 前に確認済み"
+      ]
     },
     {
       "severity": "info",
       "bucket": "matrix_coverage",
-      "observation": "決定論ゲート 2 モード exit 0。C07 は全 48 セル (確定 8 / 対象外 40 / 未収集 0) で PASS。C06 は 5 軸全てで PASS (前回検出の誘導・根拠欠落が是正済み)。C16 必須情報被覆 exit 0。"
-    },
-    {
-      "severity": "info",
-      "bucket": "design_knowledge_reflection",
-      "observation": "全 8 章に設計知識ポインタ節あり。DDD/クリーンアーキテクチャ等の原則が確定セル要件へ具体適用されている。C13/C14/C15 知識グラフ gates 全 exit 0。"
+      "observation": "C07 / C06 の receipt を再利用できると判断した根拠。C07 の読取入力は spec-state.json のみでinputs 指紋により無変更。C06 は spec-state.json に加え written-requirements の原典を節単位で読むが、変わった docs/spec/11 について C06 が照合するのは §8 と §5 の 2 節だけで、この 2 節は変更前後で byte 一致する。変わったのは §4 と §7 で、C06 の 5 軸はどちらも読まない。決定論ゲートは本 run で 2 モードとも exit 0 を再取得した。",
+      "evidence": [
+        "§5: 328B, sha256 3ce8d3771691… (変更前後で一致)",
+        "§8: 3819B, sha256 94cc815d97d4… (変更前後で一致)",
+        "§2: 214B (変更前後で一致)",
+        "qa_log の written-requirements で docs/spec/11 を名乗るのは qa-infra-web-spec-intake (§8) と qa-security-web-spec-intake (§5) の 2 件のみ"
+      ]
     },
     {
       "severity": "info",
       "bucket": "doc_freshness",
-      "observation": "C08 が三層監査で PASS: 層 0 (転記忠実性) exit 0 / 層 1 (形式・証跡) exit 0 / 層 2 (内容鮮度) 14/15 target 一致。apple-hig のみ鮮度未確認 (JS 必須)。"
+      "observation": "C08 の receipt を再利用できると判断した根拠。C08 が読むのは fetched-references.json、system-spec/retrieval-evidence/*.json、spec-state.json の targets[] であり、変わった 2 ファイルはこのどれでもない (C08 は docs/spec を読まない)。層 0 / 層 1 の決定論ゲートは本 run で再実行し、いずれも exit 0 だった。",
+      "evidence": [
+        "validate-evidence-transcription.py exit 0 (本 run)",
+        "validate-source-citation.py exit 0 (本 run)",
+        "変更 2 ファイルは references[] の source_url / evidence_ref に現れない"
+      ]
     },
     {
       "severity": "low",
       "bucket": "doc_freshness",
-      "observation": "apple-hig (developer.apple.com) は JS 必須のため WebFetch で現行値を取得できず鮮度未確認。層 0/1 は整合しており、記録 last_updated=2026-08-24 が証跡と逐語一致。C08 は apple-hig 単体を鮮度未確認とした上で全体 PASS を維持 (MAX_UNVERIFIED_FRESHNESS=1 以内)。",
+      "observation": "apple-hig (developer.apple.com) は JS 必須のため WebFetch で現行値を取得できず鮮度未確認。層 0/1 は整合しており、記録 last_updated=2026-08-24 が証跡と逐語一致する。C08 は apple-hig 単体を鮮度未確認とした上で全体 PASS を維持 (MAX_UNVERIFIED_FRESHNESS=1 以内)。この判定は前回から持ち越しで、入力が変わっていないため再照合していない。",
       "suggested_fix": "C02 (doc-fetch) が HTTP HEAD リクエストで apple-hig の現行 Last-Modified を再確認し、記録値と照合する。"
     },
     {
       "severity": "info",
+      "bucket": "foundation_trace",
+      "observation": "射程外の理由: foundation の書面根拠 (requirements_foundation.provenance.field_sources と canonical qa-foundation-u1〜u8) はすべて docs/spec/01-要求仕様書-v1.0.md の 8 節を指しており、今回変わった 2 ファイルを 1 件も含まない。serves_goals を持つ system-spec/*.md も inputs 指紋で全件一致。よって前回の PASS と根拠をそのまま引き継いだ。"
+    },
+    {
+      "severity": "info",
+      "bucket": "decision_guidance",
+      "observation": "射程外の理由: decisions[] は spec-state.json の中にあり、その sha256 が inputs 指紋で前回と一致する。変わった 2 ファイルは decisions[] の option / recommendation の根拠として引かれていない。よって前回の PASS と根拠をそのまま引き継いだ。"
+    },
+    {
+      "severity": "info",
       "bucket": "prompt_quality",
-      "observation": "主要 prompt (R1-score/R2-delegate) が 7 層形式を具備。外部 prompt-creator 機械ゲートは plugin 不在により skip (dependency exception)。意味層は PASS。"
+      "observation": "射程外の理由: 本観点の入力は prompts/*.md であり、変わった 2 ファイルは docs/spec 配下の仕様書で prompt ではない。plugin 側の prompts も inputs の対象外かつ無変更。よって前回の PASS と根拠 (機械ゲートは plugin 不在で skip、意味層は 7 層形式を具備) をそのまま引き継いだ。"
+    },
+    {
+      "severity": "info",
+      "bucket": "scope",
+      "observation": "docs/spec/feat-auth-workspace/runbook.md の変更は全観点で射程外。差分はdb:migrate:dev / db:migrate:prod を db:migrate:remote --env <環境> へ言い換えたコマンド名の追従 3 箇所のみで、system-spec/*.md からこのファイルへの参照は 0 件、qa_log の written-requirements 原典にも requirements_foundation の field_sources にも現れない。inputs 指紋の構成要素としてだけ効いている。"
     }
   ],
-  "gaps": []
+  "gaps": [
+    "infrastructure×web の確定要件が、現行 docs/spec/11 §4-1 の公開手順 7 手のうち『適用の後・公開の前に形の一致を確かめる』段 (§4-1-2) を持たない。C01 R4-reopen で当該セルを再オープンし、書面入力を取り直したうえで C03 compile が infrastructure.md を焼き直すこと。",
+    "maintenance-ops×web の確定要件が、現行 §4-1-2 の『落ちたときの直し方』(控えを取る → 新しい番号の前方修復 → 適用済みファイルは書き換えない → d1_migrations への直接 INSERT/UPDATE/DELETE を通常修復で行わない) を 1 項目も持たない。同じく C01 R4-reopen へ差し戻す。",
+    "現行 §7 受け入れ条件の変更 (CI-AC-04 の意味変更、CI-AC-20 / CI-AC-21 の追加、CI-AC-03 の 6 本 → 7 本) が確定要件へ反映されていない。C01 で再収集すること。",
+    "本 run の plugin コピーに監査 fork 台帳 writer が無く、いまの木で receipt を取り直せない。PLUGIN_ROOT の解決先を worktree 側へ向けるか marketplace コピーへ hooks を同期し、C07 / C06 / C08 を fork し直して receipt を現行 session で取得すること。"
+  ]
 }
