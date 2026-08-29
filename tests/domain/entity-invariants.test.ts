@@ -432,6 +432,25 @@ describe("Asset（E26）: 由来と利用条件の無い素材を持たない", 
     expect(isAssetUsable(r.value, NOW)).toBe(true);
   });
 
+  /*
+   * ここを足した理由（実測、2026-08-29）。`createAsset` の 3 本の門
+   *（保管先・代替テキスト・利用条件）を同時に素通しにしたところ、
+   * **赤くなったのは下の 2 本だけ**で、保管先の門は誰にも見られていなかった。
+   *
+   * 保管先が空の素材は、型の上では作れてしまう（`storageKey: string`）。
+   * 作れたあと記事に載ると、読者には「壊れた画像」だけが届く。
+   * 由来も利用条件も揃っているので、あとから見ても原因が分からない。
+   */
+  it("保管先が空だと作れない", () => {
+    expect(provenance.ok).toBe(true);
+    if (!provenance.ok) return;
+    const r = createAsset({ ...base, storageKey: "  ", provenance: provenance.value });
+    expect(r.ok).toBe(false);
+    if (r.ok) return;
+    expect(r.error.message).toContain("保管先");
+    expect(r.error.field).toBe("storageKey");
+  });
+
   it("代替テキストが空だと作れない", () => {
     expect(provenance.ok).toBe(true);
     if (!provenance.ok) return;
