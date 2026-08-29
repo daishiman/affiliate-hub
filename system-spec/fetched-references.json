@@ -80,16 +80,16 @@
     },
     {
       "target_id": "apple-hig",
-      "retrieved_at": "2026-08-25T12:13:56Z",
+      "retrieved_at": "2026-08-29T13:28:38Z",
       "source_url": "https://developer.apple.com/design/human-interface-guidelines",
       "official_publisher": "Apple",
       "official_host": "developer.apple.com",
-      "last_updated": "2026-08-24",
+      "last_updated": "2026-08-27",
       "freshness_source": "http-last-modified",
-      "latest_checked_at": "2026-08-25T12:13:56Z",
+      "latest_checked_at": "2026-08-29T13:28:38Z",
       "evidence_ref": "system-spec/retrieval-evidence/apple-hig.json",
-      "evidence_sha256": "da569a279c943d4879bd99fca46b9127d226c8da856e0712f1c3badb0bbde9de",
-      "summary": "Apple Human Interface Guidelines 公式ページ。presentation concern の doctrine authority。本文は版・更新日を表明しないため、2026-08-25 の公式レスポンスが返した Last-Modified 2026-08-24 を制約付きで採用した。前回から本文 sha256 とヘッダ値が変化したため再取得済み。"
+      "evidence_sha256": "54ab7d78f9012c7a905ca0de915cafaa40939fbf06f22e87dd1fb86f627945ef",
+      "summary": "Apple Human Interface Guidelines 公式ページ。presentation concern の doctrine authority。本文は版・更新日を表明しないため、2026-08-29 の公式 レスポンスが返した Last-Modified 2026-08-27 を制約付きで採用した。前回 (2026-08-25) からヘッダ値は進んだが本文 sha256 は同一で、内容は動いていない。"
     },
     {
       "target_id": "google-sre",
@@ -106,16 +106,16 @@
     },
     {
       "target_id": "anthropic-claude",
-      "retrieved_at": "2026-08-25T12:13:56Z",
+      "retrieved_at": "2026-08-29T13:28:38Z",
       "source_url": "https://platform.claude.com/docs/en/models/overview",
       "official_publisher": "Anthropic",
       "official_host": "platform.claude.com",
       "version": "現行 active モデル (claude-fable-5 / claude-opus-5 / claude-sonnet-5 / claude-haiku-4-5-20251001)",
       "freshness_source": "page-declared",
-      "latest_checked_at": "2026-08-25T12:13:56Z",
+      "latest_checked_at": "2026-08-29T13:28:38Z",
       "evidence_ref": "system-spec/retrieval-evidence/anthropic-claude.json",
-      "evidence_sha256": "55910c7fca572cdb1605973740fdbd85ec0f6fd9ba6b627b18f859c22f99249f",
-      "summary": "Anthropic Claude 公式モデル一覧。現行比較表と埋め込みデータが active と表明する model ID を記録した。旧記録の claude-mythos-5 は案内見出しには残るが active model ID ではないため除外し、恒久移送後の canonical URL へ更新した。"
+      "evidence_sha256": "ded7e0c260afed6459ede6950730518afd5c81f58880c9a9b360fb8f524b5d31",
+      "summary": "Claude Platform Docs のモデル一覧。ai-integration concern の一次出典。2026-08-29 の再取得で、埋め込みモデルデータの lifecycle=active entry が ちょうど 4 件 (claude-fable-5 / claude-opus-5 / claude-sonnet-5 / claude-haiku-4-5-20251001) であることを機械的に確認した。ページの体裁は 前回から変わったが、この target が根拠にする現行 active モデルは同一である。"
     },
     {
       "target_id": "openai-platform",
