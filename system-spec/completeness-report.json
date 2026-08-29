@@ -8,7 +8,7 @@
  "verdict": "FAIL",
  "inputs": {
   "file_count": 81,
-  "sha256": "eecf176e6301c7f7bb472b4e5973aa61479749b829a3f9ab81f6e2bacf1bdf3e",
+  "sha256": "0dd51b62a837d53b289f9931a26aa052352a2a5f376ffaef23ed9af489d92189",
   "files": [
    {
     "path": "docs/spec/00-README.md",
@@ -257,8 +257,8 @@
    },
    {
     "path": "docs/spec/feat-blog-ui-builder/spec-writeback-receipt.md",
-    "sha256": "2feb48604a485a189424f29527a54513a4937653ac33a9317d34c158b03b72c9",
-    "mtime": 1788010793
+    "sha256": "ac1e95e31319802a0c53b9271728e477ca03b05622167946d54d3e0ef8a3e0d0",
+    "mtime": 1788011411
    },
    {
     "path": "docs/spec/feat-blog-ui-builder/ui-rules.md",
@@ -821,7 +821,7 @@
   {
    "severity": "info",
    "bucket": "採点後の木の移動",
-   "observation": "本レポートの観点の文中にある入力指紋は、各監査 fork が実際に読んだ木を指す記録なので書き換えていない。採点後に木は 2 度動いており、入力目録だけを現行の木から取り直した。動いた中身は次の 2 つで、いずれも監査済みの判断を覆さない。① 利用者の承認を得た再取得により retrieval-evidence 2 件と fetched-references.json が更新され、それに追随して ui-ux 章の出典表 1 行 (apple-hig の版・取得・最新確認) が compile で組み直された。② その章の byte が動いたため、dev-graph feature node feat-blog-ui-builder の source_lineage.source_digest を upsert-node.py 経由で現物へ合わせた。どちらも要件文・確定セル・qa_log に触れていない。",
+   "observation": "本レポートの観点の文中にある入力指紋は、各監査 fork が実際に読んだ木を指す記録なので書き換えていない。採点後に木は 3 度動いており、入力目録だけを現行の木から取り直した。動いた中身は次の 2 つで、いずれも監査済みの判断を覆さない。① 利用者の承認を得た再取得により retrieval-evidence 2 件と fetched-references.json が更新され、それに追随して ui-ux 章の出典表 1 行 (apple-hig の版・取得・最新確認) が compile で組み直された。② その章の byte が動いたため、dev-graph feature node feat-blog-ui-builder の source_lineage.source_digest を upsert-node.py 経由で現物へ合わせた。どちらも要件文・確定セル・qa_log に触れていない。③ 本回で得た統治上の学び (章は導出物であって作業指示書ではない / 出典を取り直したら採点より先に compile を回す) を architecture の ADR と tasks の進捗として書き足した。architecture/ と tasks/ は入力目録に含まれるため指紋が動くが、内容は本レポート自身の所見の明文化であり、採点対象の主張を変えていない。",
    "suggested_fix": "次に全観点を採り直すときは、この 2 つの変更後の木を起点にすること。章の出典表は fetched-references.json から compile が導出するので、**出典を取り直したら必ず compile を回してから採点する** — 順序を逆にするとtests/architecture/doc-source-version-gap.test.ts が二重管理の再発として赤くなる。"
   }
  ],
