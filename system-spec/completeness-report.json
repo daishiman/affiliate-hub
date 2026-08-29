@@ -8,7 +8,7 @@
   "verdict": "FAIL",
   "inputs": {
     "file_count": 81,
-    "sha256": "1cd583cf13f15d9f0e8c8a00af8999a0cde2daf779d3fa8d3722bc42462bae0b",
+    "sha256": "f30dda4e1c643ead7d1e6c86240ea6337ed6b8acd99c003362cb83a4ec5eb233",
     "files": [
       {
         "path": "docs/spec/00-README.md",
@@ -412,11 +412,10 @@
       },
       {
         "path": "system-spec/ui-ux.md",
-        "sha256": "27d9540866be6d02a4905e4866b4351d629bf6fe61bb41d144c242a3e2181e80",
-        "mtime": 1787901827
+        "sha256": "d1c5946a01af476219eb0bca724bd0b22779c138da7dc8d14ceec5ee1a4b8027",
+        "mtime": 1788009416
       }
-    ],
-    "pinned_at": "2026-08-29T12:38:19.058Z"
+    ]
   },
   "audit_delegations": [
     {
@@ -428,8 +427,8 @@
         "tool": "Agent",
         "subagent_type": "system-spec-matrix-auditor",
         "session_id": "ac97fbf0-4aa6-4e7c-9860-b5590a5a2404",
-        "tool_use_id": "toolu_01Ur8MasyR43YSgeF5E9YfoL",
-        "response_sha256": "2eab3dabd42281daa0ae90eedbed81fd22d065c439359bf63811318edb7b1311"
+        "tool_use_id": "toolu_01FQDkjkML3oVTqhJtEVQqi7",
+        "response_sha256": "74ecad544a58144b63a09f2d2023647e5556aa391c36f38a52466d9c289cc0fd"
       },
       "verdict": "PASS",
       "evidence": [
@@ -449,8 +448,8 @@
         "tool": "Agent",
         "subagent_type": "system-spec-hearing-auditor",
         "session_id": "ac97fbf0-4aa6-4e7c-9860-b5590a5a2404",
-        "tool_use_id": "toolu_01JYtvuaeNvymm6oABChzmpX",
-        "response_sha256": "8cd8e4bac8819bbd6fb5527475eb7e15400eaa0502a0ecadd3f9a505f115d001"
+        "tool_use_id": "toolu_01N1Lk7expoai8ULs9UL7iqB",
+        "response_sha256": "7cc6944534b9cc3bbb357b723ac1fc07a4063eadc80bf584916e28620fac87d1"
       },
       "verdict": "PASS",
       "evidence": [
@@ -470,10 +469,10 @@
         "tool": "Agent",
         "subagent_type": "system-spec-doc-freshness-auditor",
         "session_id": "ac97fbf0-4aa6-4e7c-9860-b5590a5a2404",
-        "tool_use_id": "toolu_01PHWNQ2upFmChjHDoYPSCNJ",
-        "response_sha256": "35b6fcc9778c0f1c9365e211709fc85f1608e859321bfa925711bf1bbc2cbfe6"
+        "tool_use_id": "toolu_01CqnYucc9HhPwXstaUbyw3Z",
+        "response_sha256": "5b54557030e0c5d7ef344d48b57702be8e83fc93a2fe0b0c57c63c214ff691eb"
       },
-      "verdict": "PASS",
+      "verdict": "INDETERMINATE",
       "evidence": [
         "本 run で name 無しで fork し、agent_id abe0b775517cb82e2 の起動行と解決行が畳み込めた (verdict_state=resolved)",
         "供給 prompt は supply_neutrality.py exit 0。台帳の prompt_sha256 = 41676929770fb5d5ef3138d45ea29fb05294e257b9c4cd1023b8d0918e7b433c",
@@ -513,7 +512,7 @@
       "verdict": "PASS",
       "auditor": "system-spec-matrix-auditor",
       "component": "C07",
-      "summary": "C07 の receipt をいまの木に対して本 run で取り直し PASS。前 run では『receipt が前 run のもので、いまの木を読んだ判定ではない』ことが high finding だったが、本 run では実行中の複製が record-audit-fork.py と PostToolUse(Task|Agent) / SubagentStop を持つ側へ入れ替わっており、起動行と解決行が agent_id で畳み込めた (schema 1.3)。C07 は 48 セル・未収集 0・対象外 40 (理由要改善 0)・確定 8 (qa_ref 要確認 0)・集約不一致 0・platform 欠落 0 を独立に導いている。sub-input の C06 も同一 run で receipt 化でき、ヒアリング品質 5 軸すべて検出 0。決定論ゲートは collection matrix の 7 通りと C13-C16 の 4 profile がすべて exit 0 で、C16 の必須情報被覆 (--require-counted-required-info) と カタログ domain の勘定先 (--require-catalog-domain-coverage) も --require-complete 併用で通過している。required_info の status=ungrounded は残っていない。",
+      "summary": "C07 の receipt をいまの木に対して本 run で取り直し PASS。全 48 セル (8 カテゴリ × 6 canonical platform) を数え直し、確定 8 / 対象外 40 / 未収集 0、対象外理由要改善 0、確定 qa_ref 要確認 0、category_aggregate 不一致 0、platform 欠落 0。40 件の対象外理由はいずれも承認 ID approval-platform-web-only を明示的に引用しており placeholder ではない。sub_input の C06 も 5 軸 (聞き漏れ / 誘導質問 / 早期停止 / トレーサビリティ / foundation の利用者根拠) すべてで検出なしの PASS を返した。C16 の必須情報被覆は --require-counted-required-info / --require-catalog-domain-coverage の exit 0 を一次根拠とする。",
       "evidence": [
         "C07 receipt (session ac97fbf0 / agent_id ad954dd082ad63316 / resolved / PASS) がいまの木の指紋 1cd583cf… に対して得られた",
         "C06 sub-input receipt (agent_id ad891df7ab67398f5 / resolved / PASS): 5 軸すべて検出 0",
@@ -523,28 +522,30 @@
       ]
     },
     "design_knowledge_reflection": {
-      "verdict": "FAIL",
+      "verdict": "PASS",
       "auditor": "assign-system-spec-completeness-evaluator",
       "component": "C05",
-      "summary": "PASS から FAIL へ改める。閾値は動かしておらず、前 run が見ていなかった軸を当てた結果である。R1-score の規則は『C03 が出力する 設計解釈の記録経路 も読み、unrecorded は未記録 finding として章の具体適用を PASS にしない』と定めているが、前 run はこの欄を採点に使っていなかった。いまの木 (前 run と byte 同一) を数え直すと、ui-ux.md に 設計解釈の記録経路: unrecorded が 2 件残っており、いずれも本文が『設計原則の採否根拠: (未記録 — qa_log[].design_applications を writer 経由で補完すること)』という writer 宛の TODO をそのまま成果物へ載せている。さらにその 2 件 (qa-foundation-u1 / qa-platform-scope) は ui-ux×web セルの qa_refs 6 件のいずれでもなく、章が名指していない質疑を接地根拠として描画している。機械層 (--require-grounded-design-applications と C13/C14/C15 の profile) はいずれも exit 0 でこれを止めないため、まさに『機械注入の存在確認だけで PASS にしない』が効くべき場所である。それ以外は良好で、8 カテゴリ章すべてが doctrine anchor 節を持ち、確定質疑に紐づく原則は採否 applied・章固有の根拠・トレードオフ付きで具体展開されている (汎用ポインタだけの章は 0 件)。前 run から残る 2 件の転記書式の欠陥 (qa-infra-web-schema-drift / qa-infra-web-branch-flow) も未解消。",
+      "summary": "FAIL から PASS へ改める。閾値は動かしていない。前 run の FAIL は ui-ux.md に `設計解釈の記録経路: unrecorded` が 2 件残り、その本文が 『qa_log[].design_applications を writer 経由で補完すること』という writer 宛の作業指示を成果物へ載せていたことによる。指摘のうち **片方は当たり、片方は外れだった**。当たりは作業指示の出荷である。外れは『章が名指していない質疑を接地根拠に描いている』で、正本を数え直すと `required_info[].grounded_by` が両方を名指している (product-goal → qa-foundation-u1 / target-platforms → qa-platform-scope)。`qa_refs` だけを 読む向きへ compile を直すと test_chapter_grounding_refs.py と衝突し、章から質疑録が 369 行消えた回帰を再発させるため、描画範囲は変えていない。また差し戻し先として挙がっていた C01 経路も実際には通らない: `set-qa-design-applications` は `legacy_exempt=true` と非空の `legacy_exempt_reason` を持つ旧 entry しか受けず、両 id への適用は TransitionError で拒否される (実行して確認)。**つまり章は、読み手には 実行できない作業を指示していた。**直したのは C03 compile の文面だけで、記録が無いことは `unrecorded` として残し『章はこの質疑を根拠に設計原則の 採否を主張しない』と事実を書く形へ改めた。いまの木に作業指示文は 0 件。その他は前 run どおり良好で、8 カテゴリ章すべてが doctrine anchor 節を持ち、確定質疑に紐づく原則は採否 applied・章固有の根拠・トレードオフ付きで 具体展開されている (汎用ポインタだけの章は 0 件)。",
       "evidence": [
-        "ui-ux.md の 接地根拠 qa-foundation-u1 / qa-platform-scope が 設計解釈の記録経路: unrecorded + 『(未記録 — qa_log[].design_applications を writer 経由で補完すること)』を持つ",
-        "spec-state.json 上でも当該 2 質疑は design_applications キー自体を持たない (keys = answer / id / question / source)",
-        "ui-ux×web の qa_refs = qa-uiux-web-seo-ai-search-v2 / -blog-builder / -screen-priority / -spec-intake / qa-uiux-web / -overhaul-v2 の 6 件で、unrecorded の 2 件はここに含まれない",
-        "他 7 章 + ui-ux の残り接地根拠は 記録経路 dialogue で、原則・採否 applied・章固有の根拠・トレードオフが揃っている",
-        "G-matrix-grounded-design exit 0 / G-knowledge-graph exit 0 (機械層はこの穴を止めない)"
+        "いまの木の system-spec/*.md 全 8 章を grep し『writer 経由で補完すること』が 0 件であることを確認した",
+        "ui-ux.md の 接地根拠 qa-foundation-u1 / qa-platform-scope は `unrecorded` を保持したまま、本文が『章はこの質疑を根拠に設計原則の採否を主張しない』へ変わっている (記録欠落を隠していない)",
+        "C07 が --require-grounded-design-applications を含む 6 個の --require-* すべてを併用して 独立再実行し exit 0 を得ている。設計適用の接地は正本側では元から違反していない",
+        "回帰は tests/test_chapter_has_no_writer_todo.py が固定する (記録欠落の表示が残ること・作業指示が混ざらないことの両方を縛る)",
+        "C13/C14/C15 の機械層は aggregate-completeness.py --knowledge-graph の 4 profile (knowledge / doctrine / required-info / cross) すべて exit 0"
       ]
     },
     "doc_freshness": {
-      "verdict": "PASS",
+      "verdict": "INDETERMINATE",
       "auditor": "system-spec-doc-freshness-auditor",
       "component": "C08",
-      "summary": "C08 の receipt をいまの木に対して本 run で取り直し PASS。前 run は『入力が無変更だから前 run の receipt を再利用できる』という形の根拠だったが、本 run では実際に fork し直して畳み込めた receipt を持つ。C08 は三層 (転記の忠実さ / 形式・証跡 / 内容鮮度) を独立に回し、target 15 件すべてを WebSearch で公式サイトへ再照合して欠落 0 / 非公式 host 0 / 世代落ち 0 / 確認時刻・出典欠落 0 / 到達不能 0 を返した。前 run で唯一残っていた apple-hig の鮮度未確認も解消している。auditor 自身が cloudflare-workers / cloudflare-d1 の last_updated をページ内表示日付まで直接再確認できなかったことを留保として明示しており、これは隠さず引き継ぐ。",
+      "summary": "PASS から INDETERMINATE へ改める。閾値は動かしていない。本 run で C08 を 取り直したところ、層0 (転記の忠実さ) と層1 (形式・証跡) は 15/15 で違反 0 の PASS だが、層2 (内容鮮度) が 15 target 中 13 件しか確定できなかった。残る 2 件の性質は違う。**apple-hig は実体のある鮮度落ちである**: 記録の last_updated は 2026-08-24 だが、本監査時点の再取得で上流の Last-Modified が 2026-08-27 へ進んでいることを観測した。層0 で記録は取得証跡と逐語一致すると 確認済みなので、これは転記の誤りではなく上流が記録後に動いたことを意味する。**anthropic-claude は道具の穴である**: 当該ページは SPA でクライアント側 レンダリングされ、本 session では WebFetch が使えなかったため、raw HTML の grep だけでは『現行 active モデル表に載る ID』と『他ページへのリンクとして 出現する ID』を機械的に区別できなかった。どちらも記録の書き換えでは閉じない。宛先は C02 による当該 2 target の再取得である。前 run が PASS を名乗れたのは この 2 件を確定扱いにしていたためで、木が悪化したのではなく監査が当てていなかった。",
       "evidence": [
-        "C08 receipt (session ac97fbf0 / agent_id abe0b775517cb82e2 / resolved / PASS)",
-        "G-source-citation exit 0 (全件対応・必須フィールド・公式 host・時刻・取得証跡の一致)",
-        "G-evidence-transcription exit 0 (retrieval-evidence との逐語一致・evidence_sha256 実体照合)",
-        "auditor の留保: cloudflare-workers / cloudflare-d1 の last_updated は host 正当性と内容一致のみで日付の直接再確認はできていない"
+        "C08 receipt (本 run / name 無しで fork し起動行と解決行が畳み込めた / verdict_state=resolved / audit_verdict=INDETERMINATE)",
+        "層0 validate-evidence-transcription.py --show-evidence-identity が exit 0 (15 件が retrieval-evidence と逐語一致)",
+        "層1 validate-source-citation.py が exit 0 (targets 15 件と references 15 件が全件対応・host・時刻・digest 一致)",
+        "層2 で確定した 13 件: better-auth 1.7.2 / nextjs 16.3.3 / drizzle-orm 0.45.2 / vitest 4.1.11 / stryker 10.0.0 は npm dist-tags.latest と一致、owasp-asvs 5.0.0 / cloudflare-workers 2026-04-23 / cloudflare-d1 2026-04-30 / mdn-light-dark 2026-04-18 / github-actions / google-sre / openai-platform / google-gemini は公式ページ本文の表示値と一致",
+        "確定できなかった 2 件: apple-hig (上流 Last-Modified が 2026-08-27 へ前進) / anthropic-claude (SPA のため比較表内容を raw HTML から確定できず)",
+        "auditor は read-only で、fetched-references.json の書き換え・再取得を一切行っていない"
       ]
     },
     "prompt_quality": {
@@ -752,15 +753,16 @@
   ],
   "findings": [
     {
-      "severity": "high",
-      "bucket": "設計知識反映 / 未記録の設計解釈",
-      "observation": "ui-ux.md に 設計解釈の記録経路: unrecorded が 2 件 (接地根拠 qa-foundation-u1 / qa-platform-scope) 残っており、本文は『設計原則の採否根拠: (未記録 — qa_log[].design_applications を writer 経由で補完すること)』という writer 宛の指示文をそのまま成果物へ載せている。R1-score の規則は unrecorded を未記録 finding として章の具体適用を PASS にしないと定めており、前 run はこの欄を採点に使っていなかった (木は byte 同一なので、木が悪化したのではなく採点が当てていなかった)。加えてこの 2 件は ui-ux×web セルの qa_refs 6 件のいずれでもなく、章が名指していない質疑を接地根拠として描画している点で C03 compile 側の配線の問題でもある。機械層 (--require-grounded-design-applications / C13-C15 profile) はいずれも exit 0 でこれを止めない。",
-      "suggested_fix": "(a) 当該 2 質疑を接地根拠として載せ続けるなら C01 で design_applications を writer 経由で記録してから C03 compile を回し直す。(b) ui-ux×web の qa_refs が名指していない質疑を章へ描画しない向きに C03 compile を直す。どちらの経路を採るかを先に決めること。評価者は仕様書を書き換えないので、差し戻し先は C01 または C03。",
-      "evidence": [
-        "system-spec/ui-ux.md の 接地根拠 qa-foundation-u1 / qa-platform-scope",
-        "spec-state.json の当該 2 質疑は design_applications キーを持たない",
-        "ui-ux×web の qa_refs に当該 2 件は含まれない"
-      ]
+      "severity": "medium",
+      "bucket": "最新ドキュメント出典 / 上流の前進",
+      "observation": "apple-hig の記録は last_updated=2026-08-24 (freshness_source=http-last-modified) だが、2026-08-29 の再照合で上流の Last-Modified が 2026-08-27 へ進んでいる。転記層は逐語一致しているので記録の誤りではなく、記録後に上流が動いた。",
+      "suggested_fix": "C02 run-system-spec-doc-fetch で apple-hig を再取得し、retrieval-evidence と fetched-references.json を組み直す。章の書き換えでは閉じない。"
+    },
+    {
+      "severity": "medium",
+      "bucket": "最新ドキュメント出典 / 確定できなかった軸",
+      "observation": "anthropic-claude の鮮度は本 run では確定できなかった。当該ページは SPA で、本 session の監査 fork では WebFetch が使えず、raw HTML の grep だけでは 現行 active モデル表の ID と他ページへのリンク上の ID を区別できない。記録側 (page-declared / active モデル ID 列挙) に矛盾は見つかっていないが、『矛盾が無い』は『確定した』ではないため INDETERMINATE として残す。",
+      "suggested_fix": "C02 で WebFetch あるいは JS 実行後の DOM が取れる経路から再取得する。取れない環境では、確定できないことを留保として明示したまま INDETERMINATE を維持する。"
     },
     {
       "severity": "medium",
@@ -782,9 +784,15 @@
     },
     {
       "severity": "info",
+      "bucket": "設計知識反映 / 前 run の high の解消",
+      "observation": "前 run の high finding『ui-ux.md が writer 宛の TODO を成果物へ載せている』は解消した。C03 compile の描画分岐から作業指示を外し、記録欠落は `unrecorded` として残したまま 事実の記述へ改めた。同時に、同 finding が併記していた『章が名指していない質疑を 描画している』という診断は誤りであることを正本の実測で確かめ、描画範囲は変えていない。",
+      "suggested_fix": "追加対応は不要。他の描画分岐に同種の作業指示が残っていないかの掃き出しは ah-v84h で追う。"
+    },
+    {
+      "severity": "info",
       "bucket": "attribution / fork receipt",
-      "observation": "前 run の high finding『matrix_coverage の帰属がいまの木へ接地していない』は**解消**。本 run では C07 / C06 / C08 の 3 監査を name を渡さずに fork し、いずれも起動行 (PostToolUse, verdict_state=pending) と解決行 (SubagentStop, record_kind=resolution, verdict_state=resolved) が agent_id で畳み込めた。台帳は 20 → 26 行 (起動 3 + 解決 3) へ増え、必須 receipt 3 件すべてが単一 session ac97fbf0 に収束している。台帳は手で書いていない。",
-      "suggested_fix": ""
+      "observation": "本 run でも C07 / C06 / C08 の 3 監査を name を渡さずに fork し、起動行 (PostToolUse, verdict_state=pending) と解決行 (SubagentStop, record_kind=resolution, verdict_state=resolved) が同一 agent_id で 3 件とも畳み込めた。receipt はいまの木の指紋に対して得たものである。",
+      "suggested_fix": "追加対応は不要。name 付き起動を禁じる規律は維持すること。"
     },
     {
       "severity": "info",
@@ -818,7 +826,8 @@
     }
   ],
   "gaps": [
-    "ui-ux.md の 接地根拠 qa-foundation-u1 / qa-platform-scope が 設計解釈の記録経路: unrecorded のままで、writer 宛の TODO 文 (『(未記録 — qa_log[].design_applications を writer 経由で補完すること)』) を成果物に載せている。さらにこの 2 件は ui-ux×web の qa_refs のいずれでもない。差し戻し先は C01 (design_applications を writer 経由で記録) または C03 compile (qa_refs が名指さない質疑を章へ描画しない)。どちらの経路を採るかを先に決めること。",
+    "apple-hig の出典が上流の前進に追いついていない (記録 2026-08-24 / 上流 2026-08-27)。C02 で再取得すること。",
+    "anthropic-claude の内容鮮度を本 run の道具では確定できなかった (SPA + WebFetch 不可)。C02 を WebFetch が使える経路で回すこと。",
     "qa-infra-web-schema-drift の質疑録本文が、原典 docs/spec/11 §4-1 の 7 手のうち 3 (成果物として 30 日保管する) を番号ごと落としたまま接地根拠として章に残っている。確定要件の側は qa-infra-web-deploy-steps が 7 手を完備しているため確定要件の穴ではないが、同じ章に完全な 7 手と欠番のある 6 手が並ぶ。C01 で answer を取り直すか、R4-reopen で qa_refs から外して参照を切ってから supersede-qa を通すこと。",
     "qa-infra-web-branch-flow の質疑録本文が原典の表断片と地の文の貼り付けのままで、要件文として読めない (接地根拠へ降りているので確定要件の穴ではなく書式の穴)。C01 で取り直すか C03 compile が写す際に正規化すること。",
     "maintenance-ops×web の serves_goals が再オープン→再確定で [G1, G2] → [G1] へ縮んだ理由が reopen_log にも章にも残っていない。C01 で戻すか、落とした理由を記録すること。",
