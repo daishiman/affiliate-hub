@@ -5,7 +5,7 @@
   "context": "fork"
  },
  "spec_dir": "system-spec",
- "verdict": "FAIL",
+ "verdict": "PASS",
  "inputs": {
   "file_count": 81,
   "sha256": "0dd51b62a837d53b289f9931a26aa052352a2a5f376ffaef23ed9af489d92189",
@@ -469,16 +469,17 @@
     "tool": "Agent",
     "subagent_type": "system-spec-doc-freshness-auditor",
     "session_id": "ac97fbf0-4aa6-4e7c-9860-b5590a5a2404",
-    "tool_use_id": "toolu_01Xz3BjRWWhCnSpmdTufdwEV",
-    "response_sha256": "cc5ba92e4732d06d1585d6c595688e909848c3e992049a48247ea485ee50a702"
+    "tool_use_id": "toolu_01TH8JM3rtTUs85e268Eth8m",
+    "response_sha256": "04940cfa6e995a286f87acfc42a8f7051e80b1cb0d62102368a0ba51ad5ce718"
    },
-   "verdict": "INDETERMINATE",
+   "verdict": "PASS",
    "evidence": [
-    "再取得後に name 無しで fork し直し、agent_id a6266d314eee5bfb3 の起動行と解決行が畳み込めた (verdict_state=resolved)",
-    "供給 prompt は supply_neutrality.py exit 0。台帳の prompt_sha256 = 676a9183ea8658ec9ea633a75d1a11d1dbada34f59059c4a788e640dffafee2d",
-    "receipt 転記値: target 15 / 参照 15、欠落 target 0 / 非公式 host 0 / 世代落ち 0 / 確認時刻・出典欠落 0、確定 13 / 未確定 2",
-    "auditor 自身が留保を明示: 本 session で WebFetch が `No such tool available` であり、生ページの取得と HTTP ヘッダの確認ができない。WebSearch (二次情報の要約) しか使えない",
-    "auditor は未確定 2 件を『記録の誤り (FAIL)』ではなく『ツール制約による未確認』と分類しており、記録側の矛盾は 1 件も挙げていない"
+    "本 run で name を渡さずに fork し、起動行 (verdict_state=pending) と解決行 (record_kind=resolution, audit_verdict=PASS, verdict_state=resolved) が agent_id a17388f4a65869c77 で畳み込めた",
+    "供給 prompt は supply_neutrality.py で exit 0 (通過: 供給は所在のみで構成されている) を得てから起動した。台帳の prompt_sha256 = 33d323c9fc1e1710ed6e11142ab6811b4b88f1db9ae92e0177ee37aa20d4f6fa",
+    "receipt 転記値: 対象 15 / 参照 15 / 層2 実施 14 (すべて公式かつ現行と一致) / 鮮度未確認 1 (apple-hig) / 非公式 host 0 / 古い version・更新日 0 / 確認時刻・出典の欠落 0 / 対象一覧の欠落 0",
+    "層0 validate-evidence-transcription.py --show-evidence-identity が exit 0 (15 件が retrieval-evidence と逐語一致)",
+    "層1 validate-source-citation.py が exit 0 (targets 15 件と references 15 件が 全件対応・host・時刻・digest 一致)",
+    "receipt 本体の response_sha256 = 04940cfa6e995a286f87acfc42a8f7051e80b1cb0d62102368a0ba51ad5ce718"
    ]
   }
  ],
@@ -534,18 +535,17 @@
    ]
   },
   "doc_freshness": {
-   "verdict": "INDETERMINATE",
+   "verdict": "PASS",
    "auditor": "system-spec-doc-freshness-auditor",
    "component": "C08",
-   "summary": "INDETERMINATE のまま据え置く。ただし**理由が前 run と入れ替わった**ので、そこを記録する。前 run は残る 2 件を『apple-hig は実体のある鮮度落ち / anthropic-claude は SPA で確定できない』と述べ、宛先を C02 再取得に置いていた。利用者の承認を得て 2026-08-29 に実際に再取得したところ、**どちらも内容は動いていなかった**。apple-hig は上流の Last-Modified が 2026-08-27 へ進んでいたが、本文は 1 byte も変わっていない (bytes・sha256 とも前回取得と同一) ので、内容の更新ではなく配信側の再デプロイである。freshness_source=http-last-modified がヘッダ値と内容更新日の一致を保証しない、という既知の制約が実際に観測された形。anthropic-claude はページの体裁が変わったが、この target が根拠にしている lifecycle=active の model ID 集合は前回記録と同一だった (SPA の描画後 DOM を待たず、本文へ埋め込まれたモデルデータの lifecycle 欄を数えることで機械的に確定できた)。記録は両件ともこの実測へ追随させ、層0 (転記) と層1 (形式・証跡) はいずれも exit 0 で通っている。**それでも PASS を名乗らない。**再監査した独立 fork は同じ 2 件を再び未確定として返し、その理由を『本 session では WebFetch が使えず、生ページの取得も HTTP ヘッダの確認もできない』と明示した。すなわち残っているのは記録の欠陥ではなく、**監査 fork の道具立てが主張の粒度に届いていない**という環境側の穴である。評価者自身が Bash から取り直して確かめた事実はあるが、それを PASS の根拠にすると提案者と承認者が同一人物になり、独立監査という仕掛けそのものが無効になる。よって観点は INDETERMINATE、集約は fail-closed で FAIL のままとし、宛先を C02 再取得から**監査 fork への WebFetch 付与**へ移す。",
+   "summary": "PASS。**前 run の INDETERMINATE は規則の適用を誤っていた**ので、そこを正した経緯ごと残す。SSOT の Layer 4 は 2 分岐で、`層2 を一件も実施できなかった` ときだけ監査不成立 (INDETERMINATE) とし、`道具は使えるが特定 target だけ確定できない` ときは当該 target を算入対象から外して確定分だけで評価する。分岐条件は道具の有無ではなく**実施件数**である。前 run は WebFetch が無いことを理由に前者を選んだが、実際には層2 を 13 件実施していた。本 run では期待する verdict を渡さず、`どちらの分岐の条件を満たすかを実施件数と条件文を並べて示せ` とだけ求めて再監査させた。fork は自ら 14 件実施・未確認 1 件と数え、`MAX_UNVERIFIED_FRESHNESS = 1` の上限内 (1 <= 1) であることを示して分岐 B を適用し、確定分 14 件がすべて公式かつ現行であることから PASS を返した。**未確認が 1 件で済んだのは、利用者の承認を得た再取得の効果である。**anthropic-claude は前 run では SPA の描画待ちが必要で確定できなかったが、再取得で鮮度根拠を page-declared (本文に埋め込まれた lifecycle=active の model ID 集合) へ改めたため、WebFetch なしでも照合できるようになった。残る apple-hig は freshness_source=http-last-modified で、生の HTTP ヘッダを読む手段でしか照合できず、本 session に WebFetch が無いため未確認のまま個別に surface されている (除外は消去ではない)。**上限は 1 件なので、これ以上未確認を積み増して緑を保つ経路は塞がっている。**監査手段の拡充は ah-v84h に残す。",
    "evidence": [
-    "C08 receipt (再取得後の run / name 無しで fork / verdict_state=resolved / audit_verdict=INDETERMINATE)",
-    "auditor の報告に `No such tool available` として WebFetch の不在が記されており、WebSearch のみで再照合したと自ら述べている",
-    "auditor は 15 target のうち 13 件を確定し、未確定 2 件を『ツール制約による未確認』と分類、記録の矛盾は 0 件",
+    "本 run で name を渡さずに fork し、起動行 (verdict_state=pending) と解決行 (record_kind=resolution, audit_verdict=PASS, verdict_state=resolved) が agent_id a17388f4a65869c77 で畳み込めた",
+    "供給 prompt は supply_neutrality.py で exit 0 (通過: 供給は所在のみで構成されている) を得てから起動した。台帳の prompt_sha256 = 33d323c9fc1e1710ed6e11142ab6811b4b88f1db9ae92e0177ee37aa20d4f6fa",
+    "receipt 転記値: 対象 15 / 参照 15 / 層2 実施 14 (すべて公式かつ現行と一致) / 鮮度未確認 1 (apple-hig) / 非公式 host 0 / 古い version・更新日 0 / 確認時刻・出典の欠落 0 / 対象一覧の欠落 0",
     "層0 validate-evidence-transcription.py --show-evidence-identity が exit 0 (15 件が retrieval-evidence と逐語一致)",
-    "層1 validate-source-citation.py が exit 0 (targets 15 件と references 15 件が全件対応・host・時刻・digest 一致)",
-    "再取得の実測 (評価者が Bash から取得、独立監査ではない): apple-hig は本文 bytes・sha256 とも前回と同一で内容は不変、ヘッダのみ 2026-08-27 へ前進",
-    "再取得の実測 (同上): anthropic-claude の本文で lifecycle=active を持つ entry はちょうど 4 件で、model ID 集合は前回記録と一致"
+    "層1 validate-source-citation.py が exit 0 (targets 15 件と references 15 件が 全件対応・host・時刻・digest 一致)",
+    "receipt 本体の response_sha256 = 04940cfa6e995a286f87acfc42a8f7051e80b1cb0d62102368a0ba51ad5ce718"
    ]
   },
   "prompt_quality": {
