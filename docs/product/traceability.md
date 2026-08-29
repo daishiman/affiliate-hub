@@ -258,7 +258,7 @@ D1 への差し替えは、この列だけを別の実装に取り替えれば�
 | REQ-E03 | Membership | `identity/membership.ts` | 見本データ | REQ-S09 | 実装済 |
 | REQ-E04 | Brand | `identity/brand.ts` | 見本データ | REQ-S06 | 実装済 |
 | REQ-E05 | Site | `authoring/site.ts`（**広告表記が空だと公開できない**をテストで固定） | 見本データ | REQ-S06 | スタブ（解除条件: 画面がいま設計図と下書きで動いているため、公開状態の管理をこの型へ寄せる作業） |
-| REQ-E06 | SiteBlueprint | `authoring/site-blueprint.ts` | 見本データ | REQ-S06 | 実装済 |
+| REQ-E06 | SiteBlueprint | `authoring/site-blueprint.ts`（**収益モデルが仕様と食い違っている**。下の注を参照） | 見本データ | REQ-S06 | 実装済（ただし出典のずれ 1 件が未解決） |
 | REQ-E07 | AuthorPersona | `authoring/author-persona.ts` | `people` | REQ-S04 | 実装済 |
 | REQ-E08 | AudiencePersona | `authoring/audience-persona.ts` | 見本データ | REQ-S04 | 実装済 |
 | REQ-E09 | ChannelConnection | `distribution/channel.ts`（**認証情報の値そのものを渡すと断る**を `tests/domain/entity-guards.test.ts` で固定） | 見本データ | REQ-S07 | 実装済（各媒体への実接続のみスタブ）。**2026-08-19 まで、作る関数を直接呼ぶテストが 1 つも無かった**（見本データが正しい値で 1 回呼ぶだけで、断る道は一度も通っていなかった）。断り 3 か所を消して全部走らせても 3875 件すべてが緑だった。いまは秘密の形 6 通り・長さの端 200/201 を当てている |
@@ -285,6 +285,25 @@ D1 への差し替えは、この列だけを別の実装に取り替えれば�
 | REQ-E30 | Experiment | `analytics/experiment.ts`（**件数が足りないうちは判定できない**をテストで固定） | 見本データ | REQ-S08 | スタブ（解除条件: 実測値の取り込み。件数が無いと実験そのものが成立しない） |
 | REQ-E31 | PolicyRule | `compliance/policy-rule.ts` | `disclosures` | REQ-S06 | 実装済 |
 | REQ-E32 | AuditLog | `compliance/audit-log.ts` | 見本データ | REQ-S09 | スタブ（解除条件: 追記だけができる保存先。書き換えられる場所に置くと監査の意味が無くなるため、見本データのままにしている） |
+
+**REQ-E06 の注: 収益モデルは仕様 4 種・実装 5 種で食い違っている（2026-08-29 記録）。**
+
+`docs/spec/06-サイトブループリント-記事構成テンプレート.md` の step 5 は
+`model: enum[アフィリエイト, 広告, 自社商品, 複合]` の **4 種**である。
+実装 `REVENUE_MODELS` は **5 種**で、`lead`（問い合わせの送客）が仕様側に無い。
+
+これを書いているのは、`tests/domain/writing-rules.test.ts` の
+「収益モデルは、5 種が順番どおりにそろっている」が
+**「食い違いは `docs/product/traceability.md` の REQ-E06 へ書き出す」と宣言していながら、
+その書き出しがこの表に無かった**からである。検査が名指しした行き先が
+存在しない状態で、2026-08-28 から今日まで残っていた（CI01 型）。
+
+どちらが正かはここでは決めない。決めるのに要るのは
+「`lead` のブログを作れる必要があるか」であって、それは表からは出てこない。
+いま固定しているのは**実装の 5 種が静かに縮まないこと**だけである
+（同テストは 5 種を手で書き写して `toEqual` している。実測 2026-08-28: 5 項目のうち
+`affiliate` 以外の 4 つは、抜いても 8007 件すべて緑だった）。
+**一覧が縮むのを止めるのと、出典のずれを直すのは別の作業である。**
 
 **32 件すべてにドメイン型がある。**
 
