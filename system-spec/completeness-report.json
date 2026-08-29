@@ -8,7 +8,7 @@
  "verdict": "FAIL",
  "inputs": {
   "file_count": 81,
-  "sha256": "f30dda4e1c643ead7d1e6c86240ea6337ed6b8acd99c003362cb83a4ec5eb233",
+  "sha256": "eecf176e6301c7f7bb472b4e5973aa61479749b829a3f9ab81f6e2bacf1bdf3e",
   "files": [
    {
     "path": "docs/spec/00-README.md",
@@ -257,8 +257,8 @@
    },
    {
     "path": "docs/spec/feat-blog-ui-builder/spec-writeback-receipt.md",
-    "sha256": "0eeee78ec7a7cf517edcb66e5c6e71eea741c231c1007ff8a5833af10050ca7e",
-    "mtime": 1787864196
+    "sha256": "2feb48604a485a189424f29527a54513a4937653ac33a9317d34c158b03b72c9",
+    "mtime": 1788010793
    },
    {
     "path": "docs/spec/feat-blog-ui-builder/ui-rules.md",
@@ -412,8 +412,8 @@
    },
    {
     "path": "system-spec/ui-ux.md",
-    "sha256": "d1c5946a01af476219eb0bca724bd0b22779c138da7dc8d14ceec5ee1a4b8027",
-    "mtime": 1788009416
+    "sha256": "e95019160425608e469d88cdb1e53aa39252de500219c5d1d960c49f78622cd7",
+    "mtime": 1788011148
    }
   ]
  },
@@ -817,6 +817,12 @@
    "bucket": "harness 側の穴 (未解消)",
    "observation": "audit_fork_attribution.DOWNGRADE_REASONS は sub_input_fail / provenance_contamination の 2 コードしか持たず、『receipt が読んだ入力が変わった』を表せない。本 run は 3 監査すべてをいまの木に対して取り直したためこのコードを必要としなかったが、入力が動いた状態で受け渡す運用では依然として塞がっていない。",
    "suggested_fix": "stale_input 相当のコードと、機械で引ける根拠 (receipt が名乗る inputs 指紋と現指紋の不一致) を harness 側へ足すこと。"
+  },
+  {
+   "severity": "info",
+   "bucket": "採点後の木の移動",
+   "observation": "本レポートの観点の文中にある入力指紋は、各監査 fork が実際に読んだ木を指す記録なので書き換えていない。採点後に木は 2 度動いており、入力目録だけを現行の木から取り直した。動いた中身は次の 2 つで、いずれも監査済みの判断を覆さない。① 利用者の承認を得た再取得により retrieval-evidence 2 件と fetched-references.json が更新され、それに追随して ui-ux 章の出典表 1 行 (apple-hig の版・取得・最新確認) が compile で組み直された。② その章の byte が動いたため、dev-graph feature node feat-blog-ui-builder の source_lineage.source_digest を upsert-node.py 経由で現物へ合わせた。どちらも要件文・確定セル・qa_log に触れていない。",
+   "suggested_fix": "次に全観点を採り直すときは、この 2 つの変更後の木を起点にすること。章の出典表は fetched-references.json から compile が導出するので、**出典を取り直したら必ず compile を回してから採点する** — 順序を逆にするとtests/architecture/doc-source-version-gap.test.ts が二重管理の再発として赤くなる。"
   }
  ],
  "gaps": [

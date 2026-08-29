@@ -148,3 +148,42 @@ graph_node_id: `feat-blog-ui-builder`
 - 単一 writer 経由での章反映: **完了**（`compile-spec-doc.py`。手書きしていない）
 - 独立監査の再取得: **完了**（C06 / C07 / C08 を本 session で再起動、3 件とも解決行あり）
 - 総合判定: **FAIL**。宛先は仕様書ではなく監査 fork の道具立て（`ah-v84h`）
+
+## 12. CI が捕まえた順序ミス（2026-08-29 追記）
+
+PR #38 の CI が 2 件落ちた。**どちらも本回の変更が原因**で、内容の誤りではなく
+**手順の順序**の誤りだった。
+
+| 落ちた検査 | 何を言っていたか |
+|---|---|
+| `doc-source-version-gap.test.ts` | 章 md `apple-hig=2026-08-24` / 参照 `=2026-08-27` の食い違い |
+| `blog-ui-spec-governance.test.ts` | feature node の `source_lineage.source_digest` が `system-spec/ui-ux.md` の実体と不一致 |
+
+**原因。** `compile` を出典の再取得より**先に**回していた。章の出典表は
+`fetched-references.json` から `compile-spec-doc.py` が導出する純関数なので、
+参照側だけが進み章が置き去りになった。これは二重管理の再発ではなく、
+正しい導出を古い入力で行った結果である。
+
+2 件目は 1 件目の連鎖。`ui-ux.md` の byte が動けば、その章を出所として記録している
+feature node の lineage digest がずれる。
+
+**直し方。**
+
+1. `compile-spec-doc.py compile --only ui-ux.md --on-handwritten preserve --acknowledge-prior-residue`
+   を **2 回**。1 回目は旧行を残渣節へ退避し、2 回目でレビュー済みとして落とす。
+   版の更新は「行が消える」形で現れるため、compile は正しく消えた行と誤って消えた行を
+   区別できず、必ず一度退避する。
+2. `upsert-node.py --repo-root . --input <node 全体>` で lineage digest を現物へ合わせる。
+   このスクリプトは patch ではなく node 全体を受け取り、提案後のグラフを schema で
+   検証する。欄を欠くと `required property` が並ぶので、既存 node を土台に 1 欄だけ
+   差し替えること。
+3. 章の byte が動いたのでレポートの入力目録がずれる。評価者の公開 API
+   `lib/spec_input_inventory.py` の `build_inventory` で取り直す。
+   **観点の文中にある指紋は書き換えない** — あれは「どの木を採点したか」の記録であり、
+   現行値へ揃えると嘘になる。木が動いた事実は info finding として併記した。
+
+**再発防止として覚えること: 出典を取り直したら、採点より先に compile を回す。**
+順序を逆にすると `doc-source-version-gap.test.ts` が二重管理の再発として赤くなる。
+
+検証: `vitest run tests/architecture` → **60 files / 758 tests 全通過**。
+`aggregate-completeness.py` exit 0、`spec-freshness.mjs` **FRESH**。

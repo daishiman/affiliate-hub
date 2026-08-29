@@ -1,5 +1,5 @@
 {
-  "graph_revision": 303,
+  "graph_revision": 304,
   "nodes": [
     {
       "acceptance": [],
@@ -14064,7 +14064,7 @@
       "source_lineage": {
         "imported_at": "2026-08-24T02:20:00Z",
         "origin_kind": "generated",
-        "source_digest": "27d9540866be6d02a4905e4866b4351d629bf6fe61bb41d144c242a3e2181e80",
+        "source_digest": "e95019160425608e469d88cdb1e53aa39252de500219c5d1d960c49f78622cd7",
         "source_path": "system-spec/ui-ux.md",
         "source_plugin": "dev-graph",
         "source_version": "0.1.0"
