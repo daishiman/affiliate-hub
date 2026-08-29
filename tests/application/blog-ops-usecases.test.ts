@@ -56,7 +56,10 @@ import {
 import {
   DELIVERY_PARTS,
   FIXED_PAGE_KINDS,
+  FOOTER_SLOT_KEYS,
+  HEADER_SLOT_KEYS,
   SIDEBAR_SLOT_KEYS,
+  SIDEBAR_STICKY_SLOT_KEYS,
   TOP_BANDS,
 } from "@/domain/blogops";
 import { createUnavailableAuditLog } from "@/infrastructure/persistence/sample/audit-log-sample-repository";
@@ -390,6 +393,48 @@ describe("版面の設定", () => {
       SIDEBAR_SLOT_KEYS.length,
     );
     expect(SIDEBAR_SLOT_KEYS).toHaveLength(8);
+  });
+
+  it("枠の名前と居場所は、仕様 §13 の表のとおりである（領域をまたいで移せない）", () => {
+    /*
+     * 期待値は `docs/spec/13-参考サイト全体構成解析-抽象ブループリント.md` の
+     * §3.1 / §3.4 / §3.5 の表を手で書き写す。実装から組み立てない。
+     *
+     * **2026-08-29 まで、居場所を見ているものは何も無かった。**当時あったのは
+     * 上の `toBe(4 + 8 + 2 + 4)` で、これは**合計しか見ない**。実測: `hero-banner` を
+     * ヘッダーからフッターへ移した（ヘッダー 3・フッター 5、合計は 18 のまま）ところ、
+     * 型検査 exit 0・この検査も緑のままだった。
+     *
+     * 枠の名前は領域ごとに決まっていて、`SLOT_KEYS_BY_REGION` は「フッターの枠に
+     * サイドバーの名前が入る」を保存の時点で断るためにある。その表が静かに入れ替わると、
+     * 断る条件のほうが動くので、**間違った組み合わせが正しいものとして通る**ようになる。
+     * 合計だけを見ている限り、その入れ替えは永久に赤くならない。
+     */
+    expect([...HEADER_SLOT_KEYS]).toEqual([
+      "header-brand",
+      "header-search-modal",
+      "mega-nav",
+      "hero-banner",
+    ]);
+    expect([...SIDEBAR_SLOT_KEYS]).toEqual([
+      "site-search",
+      "nested-category-list",
+      "brand-tag-cloud",
+      "quick-link-menu",
+      // 仕様 §3.4 は 5 番と 8 番がどちらも `custom-html-slot` である。
+      // 同じ名前を 2 つ持てないので、実装は上下で名前を分けている。
+      "custom-html-slot-upper",
+      "profile-card",
+      "recent-comments",
+      "custom-html-slot-lower",
+    ]);
+    expect([...SIDEBAR_STICKY_SLOT_KEYS]).toEqual(["sticky-promo-slot", "sticky-toc"]);
+    expect([...FOOTER_SLOT_KEYS]).toEqual([
+      "footer-profile",
+      "footer-category-tree",
+      "footer-logo-nav",
+      "legal-nav",
+    ]);
   });
 
   it("領域に無い枠の名前は保存で断る", async () => {

@@ -308,9 +308,46 @@ describe("取り込んだ文章の扱い", () => {
 
 describe("受け取りの形", () => {
   it("仕様の 20 項目を必須にしている", () => {
-    expect(OUTPUT_REQUIRED_FIELDS).toHaveLength(20);
+    /*
+     * 期待値は `docs/spec/07-生成基盤設計.md` の `"required": [...]` を手で書き写す。
+     *
+     * **2026-08-29 まで、ここは名前を見ていなかった。**当時の形は
+     * `toHaveLength(20)` と `expect(schema.required).toEqual([...OUTPUT_REQUIRED_FIELDS])`
+     * で、後者は期待値を実装から組み立てる自己参照だった。集合と一緒に縮む／一緒に
+     * 変わるので、**件数が動かない壊し方は素通りする**。
+     *
+     * 実測: `"fact_fingerprint"` を `"fact_fingerprint_RENAMED"` に改名したところ、
+     * 型検査 exit 0・この検査も緑のままだった（当日の全件実行で落ちたのは
+     * 機械の飽和による a11y の時間切れ 6 件だけで、名前を見る検査は 1 つも無かった）。
+     * 必須欄の名前は生成 AI に渡る schema にそのまま出るので、綴りが変わると
+     * 「モデルは返しているのに、こちらが受け取らない」に静かに変わる。
+     */
+    const spec = [
+      "body",
+      "summary",
+      "channel",
+      "format",
+      "author_persona_id",
+      "audience_persona_id",
+      "angle",
+      "claims_used",
+      "evidence_used",
+      "assumptions",
+      "affiliate_link_ids",
+      "disclosure",
+      "cta",
+      "platform_warnings",
+      "factuality_score",
+      "persona_fit_score",
+      "channel_fit_score",
+      "compliance_status",
+      "generation_prompt_version",
+      "fact_fingerprint",
+    ];
+    expect(spec).toHaveLength(20);
     const schema = generatedVariantJsonSchema() as { required: string[] };
-    expect(schema.required).toEqual([...OUTPUT_REQUIRED_FIELDS]);
+    expect(schema.required).toEqual(spec);
+    expect([...OUTPUT_REQUIRED_FIELDS]).toEqual(spec);
   });
 
   it("決めきれなかったことの決め手は、仕様 §07 が並べた 3 者である", () => {
