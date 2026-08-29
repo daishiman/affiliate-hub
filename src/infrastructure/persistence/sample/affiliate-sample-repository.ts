@@ -4,6 +4,12 @@ import type {
   CommercialAffiliateLinkRepositoryPort,
   CommercialConversionRepositoryPort,
 } from "@/application/ports/monetization";
+import type { EditorialArticleOfferPort } from "@/application/ports/site";
+import {
+  type ArticleOffer,
+  type ArticleOfferDisplay,
+  toArticleOffer,
+} from "@/application/read-models/article-offer";
 import {
   type AffiliateAccount,
   type AffiliateLink,
@@ -15,6 +21,7 @@ import {
   createAffiliateLink,
   createAffiliateProgram,
   createConversion,
+  isLinkUsable,
   normalizeExternalId,
 } from "@/domain/monetization";
 import {
@@ -23,7 +30,10 @@ import {
   type Money,
   type ProductId,
   type WorkspaceId,
+  domainError,
+  err,
   markCommercial,
+  markEditorial,
   money,
   ok,
   taggedString,
@@ -48,10 +58,43 @@ import { SAMPLE_WORKSPACE_ID } from "./sample-identity";
  */
 const stub = registerStub({
   id: "persistence:affiliate-sample",
-  port: "提携先・提携条件・提携リンクの保存先",
-  label: "提携と成果（見本データ）",
+  port: "提携リンクの保存先",
+  label: "提携リンク（見本データ）",
   blockedBy:
-    "affiliate_accounts / affiliate_programs / affiliate_links テーブルの追加と、各 ASP の API 利用申請および接続情報の登録（利用者本人による）。成果そのものの保存先は解除済み（affiliate_conversions）",
+    "affiliate_links テーブルの追加と、各 ASP の API 利用申請および接続情報の登録（利用者本人による）",
+});
+
+/**
+ * 提携先と提携条件の控え。
+ *
+ * 2026-08-26 に `affiliate_accounts` / `affiliate_programs` を作り、
+ * `/admin/affiliate/accounts/new` と `/admin/affiliate/programs/new` から
+ * 実際に入れられるようにした。上のスタブへまとめたままにすると、
+ * **本当に書けるものを「保存先が無い」と数え続ける**ことになる。
+ *
+ * それでも見本が残るのは、保存先が供給されない実行（`pnpm dev`・自動テスト）が
+ * あるためである。そこでは `save` が失敗を返す——**保存できないのに成功を装わない。**
+ */
+const accountStub = registerStub({
+  id: "persistence:affiliate-account-sample",
+  port: "提携先・提携条件の保存先",
+  label: "提携先と提携条件（見本データ。保存はできません）",
+  blockedBy: "済み（保存先は D1 の affiliate_accounts / affiliate_programs）",
+  fallbackFor: "src/infrastructure/persistence/d1/affiliate-program-repository.ts",
+});
+
+/**
+ * 成果の控え。保存先は `../d1/conversion-repository.ts` にもうある。
+ *
+ * 上のスタブを指したままにすると、金額を直せなかったときの文が
+ * 「提携リンク（見本データ）の 成果の保存」になり、リンクの側を調べ始めることになる。
+ */
+const conversionStub = registerStub({
+  id: "persistence:affiliate-conversion-sample",
+  port: "成果の保存先",
+  label: "成果（見本データ。保存はできません）",
+  blockedBy: "済み（保存先は D1 の affiliate_conversions）",
+  fallbackFor: "src/infrastructure/persistence/d1/conversion-repository.ts",
 });
 
 export function sampleAffiliateNotice(): string {
@@ -298,6 +341,21 @@ const CONVERSIONS: readonly Conversion[] = [
   }),
 ];
 
+/**
+ * 見本の提携先。**保存先（D1）版もこれを重ねて返す。**
+ *
+ * 消すと、まだ 1 件も登録していない人の画面から提携先が消え、
+ * 「登録していない」のか「読めていない」のかを見分けられなくなる。
+ */
+export function sampleAffiliateAccounts(): readonly AffiliateAccount[] {
+  return ACCOUNTS;
+}
+
+/** 見本の提携条件。上と同じ理由で、保存先版もこれを重ねる。 */
+export function sampleAffiliatePrograms(): readonly AffiliateProgram[] {
+  return PROGRAMS;
+}
+
 export function createSampleAffiliateAccountRepository(): AffiliateAccountRepositoryPort {
   return {
     async findById(workspaceId, id) {
@@ -309,7 +367,7 @@ export function createSampleAffiliateAccountRepository(): AffiliateAccountReposi
         nextCursor: null,
       });
     },
-    save: () => stubCall(stub, "提携先の保存"),
+    save: () => stubCall(accountStub, "提携先の保存"),
   };
 }
 
@@ -324,8 +382,18 @@ export function createSampleAffiliateProgramRepository(): AffiliateProgramReposi
         nextCursor: null,
       });
     },
-    save: () => stubCall(stub, "提携条件の保存"),
+    save: () => stubCall(accountStub, "提携条件の保存"),
   };
+}
+
+/**
+ * 見本の成果リンク。**保存先（D1）版もこれを重ねて返す。**
+ *
+ * 消すと、1 件も登録していない状態で一覧が空になり、
+ * 「まだ登録していない」のか「壊れている」のかを画面から見分けられなくなる。
+ */
+export function sampleAffiliateLinks(): readonly AffiliateLink[] {
+  return LINKS;
 }
 
 /** 商業の印を付けて返す。印が無いものは、順位づけ側へ渡せてしまう。 */
@@ -333,6 +401,16 @@ export function createSampleAffiliateLinkRepository(): CommercialAffiliateLinkRe
   return markCommercial({
     async findById(workspaceId: WorkspaceId, id: AffiliateLink["id"]) {
       return ok(LINKS.find((l) => l.workspaceId === workspaceId && l.id === id) ?? null);
+    },
+    async findUsableByOriginalUrl(workspaceId: WorkspaceId, originalUrl: string, at: Date) {
+      return ok(
+        LINKS.find(
+          (l) =>
+            l.workspaceId === workspaceId &&
+            l.originalUrl === originalUrl &&
+            isLinkUsable(l, at),
+        ) ?? null,
+      );
     },
     async listByProduct(workspaceId: WorkspaceId, productId: ProductId) {
       return ok(LINKS.filter((l) => l.workspaceId === workspaceId && l.productId === productId));
@@ -347,6 +425,95 @@ export function createSampleAffiliateLinkRepository(): CommercialAffiliateLinkRe
       );
     },
     save: () => stubCall(stub, "提携リンクの保存"),
+    createIfNoUsableUrl: () => stubCall(stub, "提携リンクの保存"),
+
+    /**
+     * 一覧。見本は**読者に出ている表記つき**で並べる。
+     * 表記が無い行は出さない。名前の無い行を並べると、
+     * 「どれを止めるか」を ID だけで選ぶことになり、押し間違いが起きる。
+     */
+    async listWithSnapshot(workspaceId: WorkspaceId) {
+      return ok(
+        LINKS.filter((l) => l.workspaceId === workspaceId).flatMap((link) => {
+          const display = OFFER_DISPLAY[String(link.id)];
+          return display === undefined
+            ? []
+            : [
+                {
+                  link,
+                  snapshot: {
+                    productName: display.productName,
+                    brand: display.brand,
+                    oneLine: display.oneLine,
+                  },
+                },
+              ];
+        }),
+      );
+    },
+
+    /**
+     * 見本は止められない。
+     *
+     * **黙って成功にしない。** 見本はコードの中の定数なので、止めたことにしても
+     * 次に画面を開けばまた「読者に出ています」に戻る。成功を返すと、
+     * 押した人は止めたと思い、リンクは出続ける。断る文で理由まで返す。
+     */
+    async disable(_workspaceId: WorkspaceId, _id: AffiliateLink["id"], _at: Date) {
+      return err(
+        domainError(
+          "CONFLICT",
+          "これは見本として最初から入っているリンクなので止められません。保存先（D1）につないでから、自分で登録したリンクを止めてください。",
+          { field: "affiliateLinkId" },
+        ),
+      );
+    },
+  });
+}
+
+/**
+ * 記事に載せる写しの見本。
+ *
+ * **見本にも商品名を持たせる。** 名前が無いと、公開しても名前の無いカードが
+ * 出るか、カードそのものが出ない。どちらも「成果リンクが出ている」ことを
+ * 確かめられない状態になる。
+ *
+ * 期限切れのリンク（`lnk_direct_soft`）はわざと混ぜてある。
+ * 「切れたリンクは URL を出さず、理由を出す」が見本のままでも確かめられる。
+ */
+const OFFER_DISPLAY: Readonly<Record<string, ArticleOfferDisplay>> = {
+  lnk_amazon_pc: {
+    productName: "Alpha Studio 15",
+    brand: "Alpha",
+    oneLine: "書き出しの速さと持ち運びやすさの釣り合いが取れた機種。",
+  },
+  lnk_direct_soft: {
+    productName: "Delta Light 13",
+    brand: "Delta",
+    oneLine: "最も軽く電池が長持ちする。書き出しは時間がかかる。",
+  },
+};
+
+/**
+ * 成果リンクの ID から、記事に載せる写しを引く（見本）。
+ *
+ * 報酬を持たない形しか返さないので、記事の組み立てへ渡してよい
+ * （Editorial の印を付ける理由は `d1/affiliate-link-repository.ts` 冒頭）。
+ */
+export function createSampleArticleOfferReader(): EditorialArticleOfferPort {
+  return markEditorial({
+    async listByIds(workspaceId: WorkspaceId, affiliateLinkIds: readonly string[], at: Date) {
+      const offers: ArticleOffer[] = [];
+      // 版が並べた順のまま返す。見本と D1 で並びが変わると、
+      // 見本で確かめた並びが本番で再現しない。
+      for (const id of affiliateLinkIds) {
+        const link = LINKS.find((l) => l.workspaceId === workspaceId && String(l.id) === id);
+        const display = OFFER_DISPLAY[id];
+        if (link === undefined || display === undefined) continue;
+        offers.push(toArticleOffer(link, display, at));
+      }
+      return ok(offers as readonly ArticleOffer[]);
+    },
   });
 }
 
@@ -389,7 +556,7 @@ export function createSampleConversionRepository(): CommercialConversionReposito
       });
     },
     // 保存はできない。できたふりをすると「直したのに戻っている」が起きる。
-    save: () => stubCall(stub, "成果の保存"),
+    save: () => stubCall(conversionStub, "成果の保存"),
   });
 }
 

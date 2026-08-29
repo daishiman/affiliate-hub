@@ -129,12 +129,39 @@ def _receipt_binding(c09, root: Path, relative: str) -> dict[str, str]:
     return {"path": relative, "sha256": "sha256:" + hashlib.sha256(path.read_bytes()).hexdigest()}
 
 
-def _registration_receipt_binding(c09, root: Path, legacy_relative: str) -> dict[str, str]:
-    """正準名を優先し、規約導入前の legacy 名だけを互換入力として受ける。
+def _registration_receipt_binding(
+    c09,
+    root: Path,
+    legacy_relative: str,
+    current_relative: str,
+    superseded_digest: str,
+) -> dict[str, str]:
+    """旧 flat package または同digestのarchiveからreceipt authorityを一意に解決する。
 
-    両方がある場合は authority が二重になるため fail-closed で拒否する。
+    generation layout 導入前の flat package は canonical bytes を不変に保つため、C02 receipt
+    が content-addressed archive にだけ保存されている場合がある。flat package へ同じreceiptを
+    複製せず、現行generationの親directoryと旧digestからarchive locatorを決定論的に導く。
+    正準名とlegacy名、flatとarchiveのいずれを跨いでも複数見つかればauthorityが二重になるため
+    fail-closedで拒否する。
     """
-    candidates = [f"{legacy_relative}/{name}" for name in REGISTRATION_RECEIPT_NAMES]
+    digest_prefix = "sha256:"
+    digest_hex = superseded_digest.removeprefix(digest_prefix)
+    if (
+        not superseded_digest.startswith(digest_prefix)
+        or len(digest_hex) != 64
+        or any(char not in "0123456789abcdef" for char in digest_hex)
+    ):
+        raise LineageError(f"supersedes.published_digest が不正: {superseded_digest!r}")
+
+    candidate_dirs = [legacy_relative]
+    archive_relative = (Path(current_relative).parent / digest_hex).as_posix()
+    if archive_relative not in candidate_dirs:
+        candidate_dirs.append(archive_relative)
+    candidates = [
+        f"{directory}/{name}"
+        for directory in candidate_dirs
+        for name in REGISTRATION_RECEIPT_NAMES
+    ]
     existing: list[str] = []
     for relative in candidates:
         path = _contained(c09, root, relative)
@@ -259,7 +286,13 @@ def _check_package(c09, root: Path, pointer_path: Path, write_markers: bool) -> 
     try:
         superseded_receipts = {
             "promotion": _receipt_binding(c09, root, supersedes["receipt"]),
-            "registration": _registration_receipt_binding(c09, root, supersedes["published_path"]),
+            "registration": _registration_receipt_binding(
+                c09,
+                root,
+                supersedes["published_path"],
+                pointer["published_path"],
+                supersedes["published_digest"],
+            ),
         }
     except LineageError as exc:
         add("V6-superseded-digest", str(exc))

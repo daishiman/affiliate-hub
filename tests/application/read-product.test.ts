@@ -25,7 +25,7 @@ import {
   createListTestRunsUseCase,
 } from "@/application/usecases/product/read-product";
 import type { EditorialScoreCard } from "@/domain/ranking";
-import { markEditorial, ok } from "@/domain/shared";
+import { markEditorial, ok, taggedString } from "@/domain/shared";
 import type { ProductId, WorkspaceId } from "@/domain/shared";
 import { SAMPLE_MODEL_ID, SAMPLE_WORKSPACE_ID } from "@/infrastructure/persistence/sample/ranking-sample-repository";
 import { aNobody, anOwner } from "../support/actors";
@@ -447,6 +447,25 @@ describe("順位と、その理由", () => {
       (await createExplainRankingUseCase(deps()).execute(nobody, { ...input, productId: "p_alpha_15" }))
         .ok,
     ).toBe(false);
+  });
+
+  it("ブランドとの対応を持たない順位と理由を限定担当者へは返さない", async () => {
+    const input = { modelId: MODEL, productIds: ranked };
+    const scoped = anOwner({
+      workspaceId: WS,
+      scopedBrandIds: [taggedString<"BrandId">("brand-limited")],
+    });
+
+    const listed = await createListRankingUseCase(deps()).execute(scoped, input);
+    const explained = await createExplainRankingUseCase(deps()).execute(scoped, {
+      ...input,
+      productId: "p_alpha_15",
+    });
+
+    expect(listed.ok).toBe(false);
+    if (!listed.ok) expect(listed.error.code).toBe("TENANT_MISMATCH");
+    expect(explained.ok).toBe(false);
+    if (!explained.ok) expect(explained.error.code).toBe("TENANT_MISMATCH");
   });
 });
 

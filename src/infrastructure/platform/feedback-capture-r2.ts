@@ -21,6 +21,8 @@ import type { FeedbackCaptureId, WorkspaceId } from "@/domain/shared";
  * 置き場の住所は外に出ず、どの作業場所のものかは口の側で決める。
  * ログインが入ったら、その口に権限の判定を足すだけで閉じられる。
  * URL を配る形にしていたら、配った先を後から閉じることはできない。
+ *
+ * 判断の全文は `docs/product/design-decisions.md` の §5。
  */
 
 /** R2 バケットのうち、ここで使うところだけ。 */

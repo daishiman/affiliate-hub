@@ -1,11 +1,12 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
-import type { AppearanceValues } from "../appearance";
+import { APPEARANCE_ATTR, type AppearanceValues } from "../appearance";
 import { UI_COPY } from "../copy";
 import type { ConsentAnswer } from "../consent";
 import { AppearancePicker } from "../patterns/appearance-picker";
 import { ConsentBanner } from "../patterns/consent-banner";
 import type { SelectOption } from "../primitives/select";
+import uiStyles from "../primitives/ui.module.css";
 import { ArticleList, type ArticleCardView } from "./article-view";
 import styles from "./site.module.css";
 
@@ -55,6 +56,7 @@ export function SiteShell({
   consent,
   telemetry,
   sidebar,
+  sidebarSticky,
   children,
 }: {
   readonly chrome: SiteChrome;
@@ -83,12 +85,47 @@ export function SiteShell({
   };
   /** 計測を拾う部品。画面ではなく骨格に置く（置き忘れを起こさないため）。 */
   readonly telemetry?: ReactNode;
-  /** 記事目次など、その画面にだけ必要な補助導線。 */
+  /**
+   * 本文の脇に置く欄（§3.4 の通常枠）。
+   *
+   * **渡さなければ段組みそのものが出ない。**空の脇を作って本文を狭めない。
+   * 中身が何かをこの枠は知らない。知ると「このブログのときだけ」が
+   * ここに戻ってくる。
+   */
   readonly sidebar?: ReactNode;
+  /**
+   * 脇の欄のうち、巻いても付いてくる分（§3.4 の追従枠）。
+   *
+   * `sidebar` と分けているのは、**追従は位置の話で、中身の話ではない**から。
+   * 同じ配列で渡して「後ろ 2 つは追従」と決めると、枠が 1 つ増えた日に
+   * 追従する枠が入れ替わる。
+   */
+  readonly sidebarSticky?: ReactNode;
   readonly children: ReactNode;
 }) {
+  const hasAside = sidebar !== undefined || sidebarSticky !== undefined;
+  const main = (
+    <main id="site-main-content" className={[styles.siteMain, hasAside ? styles.siteMainWithAside : ""].join(" ").trim()}>
+      {breadcrumbs !== undefined && breadcrumbs.length > 0 && (
+        <nav className={styles.breadcrumb} aria-label="現在の場所">
+          {breadcrumbs.map((crumb, i) => (
+            <span key={`${crumb.label}-${i}`}>
+              {i > 0 && <span aria-hidden="true"> / </span>}
+              {crumb.href !== undefined && i < breadcrumbs.length - 1 ? (
+                <Link href={crumb.href}>{crumb.label}</Link>
+              ) : (
+                <span>{crumb.label}</span>
+              )}
+            </span>
+          ))}
+        </nav>
+      )}
+      {children}
+    </main>
+  );
+
   return (
-    <div className={styles.siteShell} data-brand-theme={chrome.brandTheme}>
+    <div className={styles.siteShell} {...{ [APPEARANCE_ATTR.scheme]: chrome.brandTheme }}>
       {telemetry}
       <a className={styles.skipLink} href="#site-main-content">
         本文へ移動
@@ -123,53 +160,25 @@ export function SiteShell({
         </div>
       </header>
 
-      <main id="site-main-content" className={styles.siteMain}>
-        {breadcrumbs !== undefined && breadcrumbs.length > 0 && (
-          <nav className={styles.breadcrumb} aria-label="現在の場所">
-            {breadcrumbs.map((crumb, i) => (
-              <span key={`${crumb.label}-${i}`}>
-                {i > 0 && <span aria-hidden="true"> / </span>}
-                {crumb.href !== undefined && i < breadcrumbs.length - 1 ? (
-                  <Link href={crumb.href}>{crumb.label}</Link>
-                ) : (
-                  <span>{crumb.label}</span>
-                )}
-              </span>
-            ))}
-          </nav>
-        )}
+      {hasAside ? (
         <div className={styles.siteBody}>
-          <div className={styles.siteContent}>{children}</div>
-          <aside className={styles.siteSidebar} aria-label="記事を探す">
+          {main}
+          {/*
+            `<aside>` に名前を付ける。名前の無い `aside` は読み上げの
+            目印一覧に「補足」としか出ず、本文との行き来ができない。
+            **本文より後ろに置く。**読み上げと Tab の順は書いた順なので、
+            前に置くと記事へ着くまでに枠を全部通ることになる（見た目の左右は CSS の話）。
+          */}
+          <aside className={styles.siteAside} aria-label="この記事の周辺">
             {sidebar}
-            <section className={styles.sidebarSection}>
-              <h2 className={styles.sidebarHeading}>キーワードから探す</h2>
-              <SiteSearch
-                action={chrome.searchHref}
-                inputId="site-sidebar-search"
-                landmarkLabel="サイドバーから記事を探す"
-              />
-            </section>
-            <section className={styles.sidebarSection}>
-              <h2 className={styles.sidebarHeading}>カテゴリーから探す</h2>
-              <nav aria-label="カテゴリーの案内">
-                <ul className={styles.sidebarLinks}>
-                  {chrome.categoryNav.map((item) => (
-                    <li key={item.href}>
-                      <Link href={item.href}>{item.label}</Link>
-                    </li>
-                  ))}
-                </ul>
-              </nav>
-            </section>
-            <section className={styles.sidebarSection}>
-              <h2 className={styles.sidebarHeading}>このブログについて</h2>
-              <p>{chrome.tagline}</p>
-              <Link href={chrome.aboutHref}>運営方針を見る</Link>
-            </section>
+            {sidebarSticky !== undefined && (
+              <div className={styles.siteAsideSticky}>{sidebarSticky}</div>
+            )}
           </aside>
         </div>
-      </main>
+      ) : (
+        main
+      )}
 
       <footer className={styles.siteFooter}>
         <div className={styles.siteFooterInner}>
@@ -226,6 +235,13 @@ function SiteSearch({
   return (
     <form
       action={action}
+      /*
+       * **既定と同じ `get` を、あえて書いてある。**書かなければ既定で `get` に
+       * なるが、それはタグを読んだだけでは分からない。この検索は住所を変えて
+       * 別の画面へ行くだけで、何も書き換えない——その宣言をタグの上に残す
+       * （`tests/ui/uiux-form-declaration.test.ts`）。
+       */
+      method="get"
       role="search"
       aria-label={landmarkLabel}
       className={[styles.siteSearch, compact ? styles.siteSearchCompact : null]
@@ -266,7 +282,9 @@ export function SiteSection({
     <section className={styles.siteSection} aria-labelledby={id}>
       <header className={styles.siteSectionHead}>
         <p>{eyebrow}</p>
-        <h2 id={id}>{title}</h2>
+        <h2 id={id} className={styles.siteSectionTitle}>
+          {title}
+        </h2>
         <span>{lead}</span>
       </header>
       {children}
@@ -290,7 +308,7 @@ export function CategoryArticleGroups({
         <li key={group.href}>
           <header className={styles.categoryArticleGroupHead}>
             <div>
-              <h3>{group.label}</h3>
+              <h3 className={styles.categoryArticleGroupTitle}>{group.label}</h3>
               <p>{group.description}</p>
             </div>
             <Link href={group.href}>このカテゴリーをすべて見る</Link>
@@ -326,7 +344,7 @@ export function SiteHomeHero({
   return (
     <section className={styles.homeHero}>
       <p className={styles.homeEyebrow}>知りたいことから、記事を探せます</p>
-      <h1>{name}</h1>
+      <h1 className={styles.homeHeroTitle}>{name}</h1>
       <p>{purpose}</p>
       <SiteSearch
         action={searchHref}
@@ -357,6 +375,50 @@ export function CategoryDirectory({ items }: { readonly items: readonly Category
  * ブログの枠（`SiteShell`）を流用しない。流用すると、ブログ名も方針リンクも
  * 無いまま読者向けの見た目だけが出て、「どのブログを読んでいるのか」が
  * 分からない画面になる。ここは「まだブログを選んでいない」状態の枠。
+ *
+ * **`SiteShell` と違って `data-brand-theme` を当てない。これは付け忘れではない。**
+ * ブランド配色は「このブログの色」であり、当てるにはどのブログかが決まっていないと
+ * いけない。入口ページ（`/`・`/signin`・見つからないブログ）は、まさにそれが
+ * 決まっていない画面である。ここで何かのブログの色を当てれば、
+ * 無関係なブログの見た目でログイン画面が出ることになる。
+ * だから `chrome` を受け取る口ごと持たない。**揃っていないのが正しい状態**であり、
+ * 揃えると壊れる。（`tests/ui/public-shell-appearance.test.tsx` が見ている）
+ *
+ * では何色で出るのか: `src/app/layout.tsx` が `<html>` に、その人が選んだ配色を
+ * 当てている。属性セレクタで宣言されたトークンは子孫へ継承されるので、
+ * ここに出るのは**製品の既定色ではなく、その人自身が選んだ配色**である。
+ * `SiteShell` は、それをブログのブランドで上書きしている側。
+ *
+ * 明暗（`data-color-mode`）も同じく `<html>` 側にある。**`SiteShell` も
+ * `PublicShell` も明暗を持たない**ので、ログイン前だけ暗い画面の選択が
+ * 無視される、ということは起きない。枠が明暗を持ち始めたら、
+ * 持たない側の画面だけ選択が効かなくなる。持たせないこと。
+ *
+ * --- 足元に何を出すか（UX-04）---
+ * `SiteShell` の足元は `chrome.footer`（そのブログの方針・訂正・問い合わせ）と
+ * 同意の帯と読みやすさの切り替えを持つが、**ここはそのどれも出せない。**
+ * ブログが決まっていないので方針リンクの行き先が無く（製品としての方針ページは
+ * まだ 1 枚も無い。方針は全部 `s/[site]/…` の下にある）、同意はブログごとの話で、
+ * どのブログでもない画面で聞いても**誰に対する同意か決まらない**。
+ *
+ * **読みやすさの切り替え（`AppearancePicker`）も置かない。これも意図である。**
+ * 「ログイン前に眩しい画面を出されて、直す手段がその画面に無い」形を避けたくなるが、
+ * その形はここでは起きない。明暗の既定は `auto`（`DEFAULT_THEME.colorScheme`）で、
+ * `auto` のとき `layout.tsx` は `data-color-mode` を出さず、`:root` の
+ * `color-scheme: light dark` が残る。つまり**何も選んでいない人には端末の設定が
+ * そのまま出る**。選んだ人の選択は `<html>` に載って効いている。
+ * どちらの人も、この画面で困らない。
+ * 置く側にも値段がある: ここに切り替えを出すには、3 つの呼び出し元
+ * （`app/page.tsx` / `s/[site]/not-found.tsx` / `signin/page.tsx`）がそれぞれ
+ * `readAppearance()` を呼んで渡す配線が要り、**cookie を読む場所を数える決まり**
+ * （`presentation/appearance.ts` の「呼ぶのは 3 箇所だけ」）が 6 箇所に増える。
+ * 通り過ぎる 3 画面のために払う値段ではない。
+ *
+ * 出しているのは広告の断り 1 文だけ。`UI_COPY.disclosure.footerNote` の説明が
+ * 「全ページの足元に常時出す。記事だけに出すと、**一覧経由の読者に伝わらない**」
+ * と言っており、入口ページ（`/`）はまさにその一覧そのものだから。
+ * ログイン画面にも同じ 1 文が出るが、景品表示法で問題になるのは**出し漏れ**であって
+ * 出しすぎではないので、枠に分岐を足してまで消し分けない。
  */
 export function PublicShell({
   title,
@@ -403,11 +465,38 @@ export function PublicShell({
               <li><Link href="/signin">運営者ログイン</Link></li>
             </ul>
           </nav>
+          <p className={styles.footerNote}>{UI_COPY.disclosure.footerNote}</p>
           <p className={styles.copyright}>© {new Date().getFullYear()} {title}</p>
         </div>
       </footer>
     </div>
   );
+}
+
+/**
+ * 1 つの作業だけの画面を、真ん中の 1 枚に収める型。
+ *
+ * ログイン・招待を受ける・設定が済むまでの案内——**その画面ですることが 1 つしか
+ * 無い**画面のための型。画面幅いっぱいの中に文が左端から並ぶと、
+ * 「読むところ」と「操作するところ」の境目が無く、
+ * ここで何かを終わらせる画面には見えない。
+ *
+ * **画面側に書かない。**1 枚のためだけなら型にする意味が無く、
+ * 2 枚目が来たときに必ず微妙に違う箱ができる。
+ *
+ * 箱の見た目は共通部品の `.card` をそのまま使う（枠 + 影）。
+ * **影だけで浮かせない。**強制配色（Windows のハイコントラスト）では
+ * `box-shadow` が落ちるので、影しか無い箱は境目ごと消える。
+ * ここが持つのは幅の上限と中央寄せと中身の間隔だけ。
+ *
+ * **縦中央にはしていない。**`.siteMain` は `align-content: start`（UX-01 で直した所。
+ * `tests/ui/design-tokens.test.ts` が見張っている）なので、行は中身の高さのまま
+ * 上に詰められ、余った高さは行の外に残る。grid 項目の `margin-block: auto` が
+ * 吸えるのは**自分の行の中の余り**だけなので、ここで縦中央は作れない。
+ * 作るには `.siteMain` 側の配ぶんを変えることになり、それは UX-01 の戻しになる。
+ */
+export function FocusedTask({ children }: { readonly children: ReactNode }) {
+  return <div className={[styles.focusedTask, uiStyles.card].join(" ")}>{children}</div>;
 }
 
 /** 読者向けの見出しブロック。記事以外の画面（一覧・探す・方針）で使う。 */

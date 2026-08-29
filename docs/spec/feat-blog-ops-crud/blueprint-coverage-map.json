@@ -1,0 +1,147 @@
+{
+  "blueprint": "review-media-classic",
+  "blueprint_version": "1.1",
+  "acceptance_registry": {
+    "canonical_source": "features/feat-blog-ops-crud.md#frontmatter.acceptance",
+    "source_digest": "sha256:7d03855a6d54fdd216e92734e92d4ff5e6baf89dd094c6a4fcd9904c515603e5"
+  },
+  "source_docs": [
+    "docs/spec/13-参考サイト全体構成解析-抽象ブループリント.md",
+    "docs/spec/06-サイトブループリント-記事構成テンプレート.md"
+  ],
+  "coverage": [
+    {
+      "param": "site_network",
+      "spec_ref": "13 §1/§8",
+      "requirement_refs": [
+        "REQ-BOPS01",
+        "REQ-BOPS02"
+      ],
+      "tables": [
+        "site_network_node"
+      ],
+      "status": "planned"
+    },
+    {
+      "param": "layout.header",
+      "spec_ref": "13 §3.1",
+      "requirement_refs": [
+        "REQ-BOPS03"
+      ],
+      "tables": [
+        "blog_layout_slot"
+      ],
+      "status": "planned"
+    },
+    {
+      "param": "layout.top_bands",
+      "spec_ref": "13 §3.2",
+      "requirement_refs": [
+        "REQ-BOPS02"
+      ],
+      "tables": [
+        "blog_layout_band"
+      ],
+      "status": "planned"
+    },
+    {
+      "param": "layout.article_parts",
+      "spec_ref": "13 §3.3",
+      "requirement_refs": [
+        "REQ-BOPS04"
+      ],
+      "tables": [
+        "blog_article_block"
+      ],
+      "status": "planned"
+    },
+    {
+      "param": "layout.sidebar",
+      "spec_ref": "13 §3.4",
+      "requirement_refs": [
+        "REQ-BOPS03"
+      ],
+      "tables": [
+        "blog_layout_slot"
+      ],
+      "status": "planned"
+    },
+    {
+      "param": "layout.footer",
+      "spec_ref": "13 §3.5",
+      "requirement_refs": [
+        "REQ-BOPS03"
+      ],
+      "tables": [
+        "blog_layout_slot"
+      ],
+      "status": "planned"
+    },
+    {
+      "param": "article_templates",
+      "spec_ref": "13 §4 / 06",
+      "requirement_refs": [
+        "REQ-BOPS04",
+        "REQ-BOPS11"
+      ],
+      "tables": [
+        "blog_article"
+      ],
+      "status": "planned"
+    },
+    {
+      "param": "fixed_pages",
+      "spec_ref": "13 §2/§8",
+      "requirement_refs": [
+        "REQ-BOPS06"
+      ],
+      "tables": [
+        "legal_page"
+      ],
+      "status": "planned"
+    },
+    {
+      "param": "delivery",
+      "spec_ref": "13 §6",
+      "requirement_refs": [
+        "REQ-BOPS08"
+      ],
+      "tables": [
+        "blog_delivery_part"
+      ],
+      "status": "planned"
+    },
+    {
+      "param": "reader_rating",
+      "spec_ref": "13 §3.3 (評価部品)",
+      "requirement_refs": [
+        "REQ-BOPS09",
+        "REQ-BOPS10"
+      ],
+      "tables": [
+        "blog_article_rating"
+      ],
+      "status": "planned"
+    },
+    {
+      "param": "image_policy",
+      "spec_ref": "13 §5",
+      "requirement_refs": [
+        "REQ-BOPS13"
+      ],
+      "tables": [],
+      "status": "out_of_scope_reuse_ban"
+    }
+  ],
+  "reuse_ban": {
+    "gate": "scripts/check-reference-site-reuse.mjs",
+    "requirement_ref": "REQ-BOPS13",
+    "canonical_acceptance_refs": ["A13"],
+    "scope": [
+      "docs/spec/feat-blog-ops-crud/**",
+      "src/**",
+      "drizzle/**",
+      "scripts/seed/local-seed-data.ts"
+    ]
+  }
+}

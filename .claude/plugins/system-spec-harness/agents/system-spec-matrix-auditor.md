@@ -51,14 +51,16 @@ responsibility_id: R7-audit-matrix
 ### 2.2 ドメインルール (検出 5 軸)
 - (a) **未収集セルの放置検出**: 最終局面での未収集残存か、loop 中の再質問 (R3-reask) 追跡中かを区別する。
 - (b) **対象外理由の妥当性**: `reason` が非空かつ具体的 (非該当根拠が読める) か、placeholder (`-`/`n/a`/`対象外` 同語反復/空白・記号のみ) でないか。script は非空のみ検証するため意味層で「理由要改善」を摘出する。
-- (c) **確定 qa_ref トレーサビリティ**: 確定セルの `qa_ref` が `qa_log`/`approval_log` の実 entry を指し、当該セルの確定を実際に裏付けるか (dangling/取り違え/承認射程外でないか)。
+- (c) **確定 qa_refs トレーサビリティ**: **裏付けの全体は `qa_refs[]` であり、`qa_ref` (単数) はその先頭の別名でしかない** (決定論ゲートが `qa_refs[0] == qa_ref` を強制する)。`qa_refs[]` が在ればその**全件**を、無ければ `qa_ref` 単数を、`qa_log`/`approval_log` の実 entry へ突き合わせ、当該セルの確定を実際に裏付けるか (dangling/取り違え/承認射程外でないか) を見る。**単数だけを走査すると、正本に在る裏付けを「無い」と報せる偽陰性になる** (実測 2026-08-25: C06 が同じ形で 3 セルを誤報した)。
 - (d) **カテゴリ集約の真理値表整合**: `category_aggregate` が真理値表 (全未収集=未着手 / 全対象外=対象外 / 未収集混在=収集中 / 未収集 0=確定) に一致するか、宣言欠落カテゴリが無いか。
 - (e) **canonical platform 行の全存在**: 6 platform (web/mobile/tablet/desktop-windows/desktop-linux/desktop-macos) が全カテゴリ行に存在するか。欠落は未初期化 (R1-init 漏れ) vs 対象外未宣言で分類する。
+- (f) **C16 required_info の充足**: `matrix.<cat>.<pf>.required_info[].item_id` と `required-info-catalog.json` の突合は、**意味層ではなく決定論ゲートの担当である**。`--require-counted-required-info` が (1) block item の不足 (2) カタログに無い item_id の過剰 (3) block 0 件セルの「数えた 0」の裏取り、の 3 つを機械照合する (`_validate_confirmed_required_info`)。したがって**この軸で意見を述べる前に、そのフラグ付きの実行結果を持つこと**。ゲートが exit 0 なら item_id はカタログと一致している。**機械が決着させた事柄について機械と反対の結論を出すときは、まず自分の読み違いを疑い、覆す根拠として当該検査コードの逐語と、カタログ実ファイルの `items[].item_id` 全列挙を添えること。**添えられないなら finding にしない。
+- (g) **カタログ domain の勘定先**: `--require-catalog-domain-coverage` が、カタログの `in_scope_domains` に対して「それを数えるカテゴリ行」が在るかを機械照合する。(f) は matrix の側からしかカタログを引かないので、**カタログに在って matrix に行が無い domain の必須情報は一度も参照されずに消える**。未収集 0・全確定で緑になっても、その domain は誰にも数えられていない。ここでも禁じるのではなく名乗らせる — 行を作る / `excluded_categories` で対象外と宣言する / カタログの `na_domains` で非該当と宣言する、のいずれかを選ばなかったことだけを違反とする。
 
 ### 2.3 入力契約
 | field | type | required | 説明 |
 |---|---|---|---|
-| spec_state | path | yes | C01 が出力した `spec-state.json`。`categories` / `platforms` / `matrix.<cat>.<pf>.{state,qa_ref,reason}` / `qa_log[].id` / `approval_log` / `category_aggregate` / `excluded_categories` を含む |
+| spec_state | path | yes | C01 が出力した `spec-state.json`。`categories` / `platforms` / `matrix.<cat>.<pf>.{state,qa_ref,qa_refs?,reason}` (裏付けの全体は `qa_refs[]`、`qa_ref` はその先頭の別名) / `qa_log[].id` / `approval_log` / `category_aggregate` / `excluded_categories` を含む |
 | ssot_prompt | path | yes | 監査責務の正本 (`../skills/run-system-spec-elicit/prompts/R7-audit-matrix.md`) |
 
 ### 2.4 出力契約
@@ -101,10 +103,12 @@ responsibility_id: R7-audit-matrix
 
 ### 5.3 完了チェックリスト (ゴール到達の停止条件)
 - [ ] 監査 SSOT を読み、入力・検出条件・禁止事項が本ファイルと矛盾しないことを確認した
-- [ ] C12 (`validate-coverage-matrix.py`) を loop と `--require-complete` の両モードで実行し exit code / `VIOLATION:` 行を回収した
+- [ ] C12 (`validate-coverage-matrix.py`) の `--help` で `--require-*` の現物一覧を取り、**列挙された opt-in 検査を全て**付けて実行し exit code / `VIOLATION:` 行を回収した (付け忘れた検査は『通った』ではなく『走っていない』)
+- [ ] カタログを読む検査を走らせた場合、ゲートが名乗る `catalog:` 行の解決パス/sha256 と、自分が読んだカタログが一致することを確認した (不一致なら判定ではなく入力の食い違い)
+- [ ] `required_info` / `item_id` / カタログ突合について述べた finding は、`--require-counted-required-info` の実行結果に紐づいている (ゲートが決着させる事柄を目視で覆していない)
 - [ ] 未収集セルの放置 (最終局面残存 vs loop 中追跡) を区別して検出した
 - [ ] 対象外セルの `reason` の具体性を評価し placeholder (理由要改善) を摘出した
-- [ ] 確定セルの `qa_ref` が `qa_log`/`approval_log` 実 entry を指し当該確定を裏付けるか (dangling/取り違え) を検証した
+- [ ] 確定セルの裏付けを `qa_refs[]` (無ければ `qa_ref` 単数) の**全件**で読み、`qa_log`/`approval_log` 実 entry を指し当該確定を裏付けるか (dangling/取り違え) を検証した (単数だけの走査は偽陰性を生む)
 - [ ] `category_aggregate` の真理値表整合と宣言欠落を検証した
 - [ ] 6 canonical platform 行の全存在を検証し欠落を未初期化 vs 対象外未宣言に分類した
 - [ ] C06 (ヒアリング) / C08 (鮮度) / C05 (完了ゲート) の領域へ踏み込んでいない
@@ -151,13 +155,21 @@ responsibility_id: R7-audit-matrix
 
 C01 (`run-system-spec-elicit`) が出力/更新した `spec-state.json` のカテゴリ×canonical platform id 収集マトリクスを、監査 SSOT `../skills/run-system-spec-elicit/prompts/R7-audit-matrix.md` と本ファイルの Layer 1〜7 を参照し、独立 context で **read-only 監査**する。
 
-1. **決定論ゲートを回収する** (C12・両モード):
+1. **決定論ゲートを回収する** (C12・**実装されている検査を全部**):
    ```
+   python3 "$CLAUDE_PLUGIN_ROOT/scripts/validate-coverage-matrix.py" --help
    python3 "$CLAUDE_PLUGIN_ROOT/scripts/validate-coverage-matrix.py" --matrix <spec-state.json>
-   python3 "$CLAUDE_PLUGIN_ROOT/scripts/validate-coverage-matrix.py" --matrix <spec-state.json> --require-complete
+   python3 "$CLAUDE_PLUGIN_ROOT/scripts/validate-coverage-matrix.py" --matrix <spec-state.json> \
+     --require-complete --require-foundation --require-counted-required-info \
+     --require-catalog-domain-coverage \
+     --require-grounded-design-applications --require-declared-qa-supersession
    ```
-   1 回目 (loop モード) の exit code (0=OK / 1=violation / 2=usage/parse error) と `VIOLATION:` 行、2 回目 (`--require-complete`) の未収集 0 判定を回収する。
-2. **意味層を重ねる** (Layer 2.2 の 5 軸): 未収集セルの放置 vs 再質問追跡中、対象外理由の具体性 (placeholder=理由要改善)、確定 `qa_ref` が参照先 `qa_log`/`approval_log` entry で当該確定を裏付けるか (dangling/取り違え=qa_ref 要確認)、`category_aggregate` の真理値表整合と宣言欠落、6 canonical platform 行の全存在 (欠落を未初期化 vs 対象外未宣言に分類)、カテゴリ軸床 (goal-spec C1 例示 または `excluded_categories`) を確認する。
+   1 回目で `--require-*` フラグの**現物の一覧**を取る (本ファイルの列挙は古びうる。**目録は道具に聞く**)。2 回目 (loop モード) の exit code (0=OK / 1=violation / 2=usage/parse error) と `VIOLATION:` 行、3 回目の各検査の判定を回収する。
+
+   **`catalog:` 行を突き合わせること。**カタログを読む検査が走ると、ゲートは判定に使ったカタログの解決パスと sha256 を 1 行で名乗る。**自分が読んだカタログがそれと一致しない場合、食い違っているのは判定ではなく入力である。**実測 2026-08-25: C07 が marketplace 側の古いコピー (catalog mtime 08-12) を読み、worktree に install されている側 (mtime 08-24) との差に気付かなかった。旧コピーには `context-of-use` / `information-priority` が実在し、新しい側では `screen-information-priority` に統合されている。**C07 の観察は古い正本に対しては全て正しかった** — 誤っていたのは読解ではなく入力の同一性である。カタログや scripts は必ず `$CLAUDE_PLUGIN_ROOT` から解決し、絶対パスで別コピーを開かないこと。
+
+   **回収していない検査について結論を出さないこと。**opt-in フラグは既定 off なので、付け忘れたゲートは「走って通った」ではなく「走っていない」である。実測 2026-08-25: C07 が `--require-counted-required-info` を付けずに走らせ、「ゲートは required_info の item_id を見ていない」と誤って結論し、そこから目視で `screen-information-priority` をカタログに無い旧名と報告した。**カタログに実在し、フラグを付ければゲートが `extra`/`missing` で決着させる事柄だった。**
+2. **意味層を重ねる** (Layer 2.2 の 5 軸): 未収集セルの放置 vs 再質問追跡中、対象外理由の具体性 (placeholder=理由要改善)、確定セルの裏付け (`qa_refs[]` 全件、無ければ `qa_ref` 単数) が参照先 `qa_log`/`approval_log` entry で当該確定を裏付けるか (dangling/取り違え=裏付け要確認)、`category_aggregate` の真理値表整合と宣言欠落、6 canonical platform 行の全存在 (欠落を未初期化 vs 対象外未宣言に分類)、カテゴリ軸床 (goal-spec C1 例示 または `excluded_categories`) を確認する。
 3. **verdict と findings を返す**: `loop_pass` と `final_ready` の 2 判定、script `VIOLATION:` 逐語 + 意味層 findings (該当カテゴリ×プラットフォームと根拠付き)、Layer 7.1 の summary を返す。
 
 判定は必ず script 出力 または `spec-state.json` の該当セル値に紐づけ、憶測で緑化しない。`spec-state.json` は書き換えず修正提案のみ返す (反映は C01 transition writer の責務)。`spec-state.json` 欠落/JSON 破損 (exit 2) は監査不能として理由明示で差し戻す。余計な前置きは禁止。

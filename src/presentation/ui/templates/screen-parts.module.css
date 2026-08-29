@@ -1,0 +1,262 @@
+/*
+ * 画面組み立て部品の見た目。
+ *
+ * 値を直に書かない。すべてトークン (tokens/) から取る。
+ * ここに `16px` と書いた瞬間、間隔の決めごとが 2 か所になる。
+ */
+
+.title {
+  margin: 0 0 var(--space-2);
+  font-size: var(--text-lg);
+  line-height: var(--leading-heading);
+  font-weight: var(--weight-bold);
+  color: var(--color-text-strong);
+}
+
+/*
+ * 節の説明文。
+ *
+ * 行の長さに上限を置く。上限が無いと、画面を広げたぶんだけ 1 行が伸び、
+ * 読み終えた行の次がどこかを見失う。表やカードは広く使ってよいので、
+ * 上限は器ではなく文の側に置く。
+ */
+.lead {
+  max-width: var(--readable-max-width);
+  margin: 0 0 var(--space-4);
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
+
+/*
+ * 節の中の塊。
+ *
+ * 枠線を引かない。カードの中に枠をもう 1 本引くと、
+ * 「どちらが 1 件分か」が見た目から読めなくなる。区切りは余白で示す。
+ */
+.subSection {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding-top: var(--space-4);
+}
+
+.subSection + .subSection {
+  margin-top: var(--space-2);
+  border-top: var(--border-width-default) solid var(--color-border-subtle);
+}
+
+.subTitle {
+  margin: 0;
+  font-size: var(--text-base);
+  line-height: var(--leading-heading);
+  font-weight: var(--weight-bold);
+  color: var(--color-text-strong);
+}
+
+.note {
+  max-width: var(--readable-max-width);
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/*
+ * 順番に意味がある並びだけ番号を出す。
+ *
+ * 番号を消さない。消すと `ol` にした意味が見た目から消え、
+ * 目で見ている人には「順不同の箇条書き」と同じものになる。
+ */
+ol.list {
+  padding-left: var(--space-5);
+  list-style: decimal;
+}
+
+.list > li {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.list > li > a {
+  display: inline-flex;
+  align-items: center;
+  align-self: flex-start;
+  min-height: var(--tap-target-min);
+}
+
+/* --- 表 ----------------------------------------------------------------- */
+
+.tableWrap {
+  min-width: 0;
+  overflow-x: auto;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--text-sm);
+}
+
+.table th,
+.table td {
+  padding: var(--space-3);
+  text-align: left;
+  border-bottom: var(--border-width-default) solid var(--color-border-subtle);
+  vertical-align: top;
+}
+
+.table thead th {
+  color: var(--color-text-muted);
+  font-weight: var(--weight-semibold);
+  white-space: nowrap;
+}
+
+.table td > a,
+.table th > a {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--tap-target-min);
+}
+
+/*
+ * 表が何の一覧かの 1 文。
+ *
+ * 見えなくしない。読み上げにだけ渡すと、目で見ている人には
+ * 「何の表か」がどこにも書かれていない画面になる。
+ */
+.caption {
+  margin-bottom: var(--space-2);
+  text-align: left;
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
+
+/* 数字は桁を揃えて右寄せにする。並べて比べるための列なので。 */
+.numeric {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+/* --- 項目と値 ------------------------------------------------------------ */
+
+.facts {
+  display: grid;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+}
+
+.factRow {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 2fr);
+  gap: var(--space-3);
+  align-items: baseline;
+}
+
+.factRow dt {
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
+
+.factRow dd {
+  margin: 0;
+  color: var(--color-text-strong);
+}
+
+.factRow dd > a {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--tap-target-min);
+}
+
+/* --- 畳む / 画像 --------------------------------------------------------- */
+
+.foldable {
+  border: var(--border-width-default) solid var(--color-border-subtle);
+  border-radius: var(--radius-md);
+  padding: var(--space-3);
+}
+
+/*
+ * 開閉の印は残す。`list-style: none` で三角を消すと、
+ * 押せる場所であることが見た目から消える。
+ */
+.foldableSummary {
+  cursor: pointer;
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
+
+.foldableBody {
+  padding-top: var(--space-3);
+}
+
+.rowSelector {
+  display: inline-flex;
+  gap: var(--space-2);
+  align-items: center;
+  min-height: var(--tap-target-min);
+  cursor: pointer;
+}
+
+.figure {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+/* 器からはみ出させない。画面の幅より大きい写しは横に切れて読めなくなる。 */
+.figureImage {
+  max-width: 100%;
+  height: auto;
+  border: var(--border-width-default) solid var(--color-border-subtle);
+  border-radius: var(--radius-md);
+}
+
+/* --- 器 ----------------------------------------------------------------- */
+
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-3);
+  align-items: center;
+}
+
+/* --- 打ち込む名前 -------------------------------------------------------- */
+
+/*
+  折り返しを許す。折り返さないと、長い場所の書き方が 1 つあるだけで
+  表そのものが横へ伸び、他の列まで読めなくなる。
+*/
+.code {
+  font-family: var(--font-code);
+  font-size: var(--text-sm);
+  overflow-wrap: anywhere;
+}
+
+/*
+  写し取ってもらう塊。改行と字下げは保ったまま、行の折り返しだけ許す。
+  `pre` の既定は折り返さないので、明示的に上書きする。
+*/
+.codeBlock {
+  font-family: var(--font-code);
+  font-size: var(--text-sm);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  margin: 0;
+}

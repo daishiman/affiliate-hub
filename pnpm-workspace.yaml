@@ -1,3 +1,13 @@
 ignoredBuiltDependencies:
   - sharp
   - unrs-resolver
+
+# Apple Silicon では通常の arm64 Node と Rosetta/x64 Node が同じ
+# worktree を使う。workerd などの optional native package を片側だけに
+# しないことで、どちらから pnpm/Wrangler を実行しても再 install を不要にする。
+supportedArchitectures:
+  os:
+    - current
+  cpu:
+    - arm64
+    - x64

@@ -89,7 +89,10 @@ const HOME_OFFICE = build(SAMPLE_SITE_SLUG, {
       slug: "desks",
       name: "机",
       oneLine: "天板の広さと、昇降させたときの揺れで比べた机。",
-      initialArticleTypes: ["review"],
+      // 2026-08-30: `tool` を追加。道具の説明記事（`/tools/storage-estimator`）が
+      // この分類へ結び直されたため。**分類の予定と実物は同じ表から測る**ので、
+      // 記事を足したらここも足す（`tests/infrastructure/sample-catalog-consistency.test.ts`）。
+      initialArticleTypes: ["review", "tool"],
     },
     {
       slug: "lighting",

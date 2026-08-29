@@ -8,7 +8,7 @@
  */
 
 import { execFileSync } from "node:child_process";
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
@@ -27,11 +27,30 @@ import {
   STATIC_NOTE,
   buildDocument,
   findModuleCss,
+  writeStaticPreview,
 } from "../../scripts/lib/static-preview.mjs";
 
 const ROOT = process.cwd();
 const PREVIEW_DIR = join(ROOT, "docs/product/preview");
 const INDEX_FILE = join(PREVIEW_DIR, "index.html");
+const RUNNER = "scripts/lib/static-preview.mjs";
+const RUNNER_SOURCE = readFileSync(join(ROOT, RUNNER), "utf8");
+
+/**
+ * 写しを焼く本を、**手で並べずに `scripts/` からさがす。**
+ *
+ * ここは 2026-08-28 まで `scripts/write-static-preview.tsx` を名指ししていた。
+ * その日に 2 本目（`scripts/write-blog-preview.tsx`）が増えて、下の 3 つの検査が
+ * **1 本目だけを見ている状態**になった。名指しは、増えた本を黙って検査の外へ置く。
+ * さがして拾えば、足した時点で同じ決まりが当たる。
+ *
+ * さがす形は「`scripts/write-` で始まり `-preview.tsx` で終わる」。
+ * 名前の付け方を決めごとにするのは、名指しを避けるための代償である。
+ */
+const WRITERS = readdirSync(join(ROOT, "scripts"))
+  .filter((name) => name.startsWith("write-") && name.endsWith("-preview.tsx"))
+  .sort()
+  .map((name) => `scripts/${name}`);
 
 /** そろっている入力。ここから 1 つずつ欠けさせて「止まる例」を作る。 */
 const COMPLETE = {
@@ -91,8 +110,26 @@ describe("静止した写しの組み立て", () => {
       expect(() => buildDocument({ ...(COMPLETE as unknown as Input), ...hole })).toThrow();
     });
   }
+});
 
-  it("部品 CSS は src 全体から拾い、空のファイルを混ぜない", () => {
+describe("静止した写しの書き出し先", () => {
+  it("public・src と docs から外へ戻る経路は、CSS を読む前に拒む", async () => {
+    for (const out of ["public/preview.html", "src/preview.html", "docs/../public/preview.html"]) {
+      await expect(
+        writeStaticPreview({
+          out,
+          bodyHtml: COMPLETE.bodyHtml,
+          htmlAttributes: COMPLETE.htmlAttributes,
+          generatedAt: COMPLETE.generatedAt,
+        }),
+        out,
+      ).rejects.toThrow("docs/");
+    }
+  });
+});
+
+describe("本物の CSS を読まずに書き出せる経路が無い", () => {
+  it("部品の CSS の一覧は、手で書かずに src からさがして作る", () => {
     const found = findModuleCss(ROOT);
 
     expect(found).toContain("src/app/admin/admin.module.css");
@@ -173,7 +210,11 @@ describe("実際に書き出した静止冊子", () => {
       const generated = readFileSync(join(PREVIEW_DIR, "sites", `${slug}.html`), "utf8");
       const expectedContent = new JSDOM(sharedBody).window.document.body.firstElementChild;
       const generatedContent = new JSDOM(generated).window.document.querySelector(
-        "#site-main-content .siteContent > div",
+        // 本文は `<main id="site-main-content">` の直下に入る。
+        // 2026-08-30 の統合まで `.siteContent` を挟んで探していたが、
+        // その入れ物は枠の作り直しで消えており、**選べないまま
+        // `undefined` 同士を比べる**形になっていた。
+        "#site-main-content > div",
       );
 
       expect(generatedContent?.textContent).toBe(expectedContent?.textContent);
@@ -278,4 +319,90 @@ function formActionsOf(root: Element | null): readonly string[] {
   return [...(root?.querySelectorAll<HTMLFormElement>("form[action]") ?? [])].map(
     (form) => form.getAttribute("action") ?? "",
   );
+}
+
+/**
+ * 焼く本が増えても、同じ安全条件が当たり続けるか。
+ *
+ * ここは 2026-08-28 まで `scripts/write-static-preview.tsx` を名指ししていた。
+ * その日に 2 本目が増えて、検査が**1 本目だけを見ている状態**になった。
+ * 名指しは、増えた本を黙って検査の外へ置く。さがして拾えば、足した時点で当たる。
+ */
+describe("焼く本はすべて共通 runner を通る", () => {
+  it("焼く本が 1 本も見つからない、ということが起きていない", () => {
+    // さがす形を間違えると、下の検査が「0 件を回す」検査に化けて全部緑になる。
+    expect(WRITERS.length).toBeGreaterThanOrEqual(3);
+    expect(WRITERS).toContain("scripts/write-static-preview.tsx");
+    expect(WRITERS).toContain("scripts/write-blog-preview.tsx");
+    expect(WRITERS).toContain("scripts/write-site-preview.tsx");
+  });
+
+  it("焼く側にトークンの写しが置かれていない", () => {
+    // トークンの定義がここに現れたら、それは本物を読まずに書ける経路である。
+    for (const path of [RUNNER, ...WRITERS]) {
+      expect(readFileSync(join(ROOT, path), "utf8"), path).not.toContain("--color-");
+    }
+  });
+
+  it("共通 runner だけが、本物の CSS を集めて文書を組み立て、docs へ書き出す", () => {
+    expect(readFileSync(join(ROOT, "src/app/globals.css"), "utf8").trim()).not.toBe("");
+
+    expect(RUNNER_SOURCE).toContain('const ENTRY_CSS = "src/app/globals.css"');
+    expect(RUNNER_SOURCE).toContain('import tailwind from "@tailwindcss/postcss"');
+    expect(RUNNER_SOURCE).toContain("postcss([tailwind()])");
+    expect(RUNNER_SOURCE).toContain("findModuleCss(root).map");
+    expect(RUNNER_SOURCE).toContain("buildDocument({");
+    expect(RUNNER_SOURCE).toContain("mkdirSync(dirname(outputPath), { recursive: true })");
+    expect(RUNNER_SOURCE).toContain("writeFileSync(outputPath, html)");
+    expect(RUNNER_SOURCE).toContain('out.startsWith("docs/")');
+  });
+
+  it("焼く本は共通 runner に固有値だけを渡し、CSS 取得と書き出しを重複させない", () => {
+    for (const path of WRITERS) {
+      const writer = readFileSync(join(ROOT, path), "utf8");
+      expect(writer, path).toContain("writeStaticPreview");
+      expect(writer, path).not.toContain('import tailwind from "@tailwindcss/postcss"');
+      expect(writer, path).not.toContain('from "postcss"');
+      expect(writer, path).not.toContain("buildDocument");
+      expect(writer, path).not.toContain("findModuleCss");
+      expect(writer, path).not.toContain("readFileSync");
+      expect(writer, path).not.toContain("writeFileSync");
+      expect(writer, path).not.toContain("mkdirSync");
+    }
+  });
+
+  it("焼いた写しは、アプリが配る場所へは置かない", () => {
+    for (const path of WRITERS) {
+      const outs = outsOf(path);
+      // 出し先を 1 つも読めないなら、下の判定は「0 件を回す」検査に化ける。
+      expect(outs.length, path).toBeGreaterThan(0);
+      for (const out of outs) {
+        // `public/` へ置くと、門を通さずにアプリ自身が配ってしまう。
+        // それは「別に作った静止画」ではなく、入口に開けた穴になる。
+        // （門そのものは `tests/architecture/open-doors.test.ts` が測っている。）
+        expect(out.startsWith("docs/"), `${path}: ${out}`).toBe(true);
+        expect(out.startsWith("public/"), `${path}: ${out}`).toBe(false);
+        expect(out.startsWith("src/"), `${path}: ${out}`).toBe(false);
+      }
+    }
+  });
+
+  it("焼いた写しどうしが、同じ場所を上書きし合っていない", () => {
+    // 出し先が同じだと、後から焼いたほうが前のを消す。両方あると思ったまま
+    // 片方だけが残り、消えたことは焼いた人にも見えない。
+    const outs = WRITERS.flatMap(outsOf);
+    expect(new Set(outs).size).toBe(outs.length);
+  });
+});
+
+/**
+ * 焼く本が宣言している出し先を読む。
+ *
+ * 1 枚ものは `const OUT`、冊子は `const INDEX_OUT` のように複数を持つ。
+ * **`OUT` で終わる定数をすべて拾う。**1 本目の書き方だけを見ていると、
+ * 冊子が増やした出し先が黙って検査の外へ出る。
+ */
+function outsOf(path: string): readonly string[] {
+  const source = readFileSync(join(ROOT, path), "utf8");
+  return [...source.matchAll(/const [A-Z_]*OUT(?:_DIR)? = "([^"]+)"/g)].map((m) => m[1] ?? "");
 }

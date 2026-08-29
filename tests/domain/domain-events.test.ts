@@ -86,10 +86,39 @@ function walk(dir: string): string[] {
   });
 }
 
-/** その名前を実際に発行している場所。文字列を探すのではなく、使用箇所を数える。 */
+/**
+ * コメントを落とす。名前が**コメントに書いてあるだけ**を発行と数えないため。
+ * `//` は URL の `https://` を巻き込まないように、直前が `:` でない場合だけ見る。
+ */
+function stripComments(source: string): string {
+  return source.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:])\/\/.*$/gm, "$1");
+}
+
+/**
+ * その本文が `name` を**発行している**か。
+ *
+ * **文字列の出現では数えない。**
+ * 2026-08-21 に実測: 以前はファイル本文に `"affiliate_url.submitted"` という
+ * 文字列が在れば「発行あり」に数えていた。発行の呼び出しを丸ごと消して
+ * 同じ名前をコメントに 1 行残しただけで、このファイルは 7 件とも緑のままで、
+ * 台帳も「発行あり」と書き続けた。数えるのは**発行の呼び出し**にする。
+ *
+ * 見るのは `emit(deps, actor, "名前", …)` と `buildEvent("名前", …)` の 2 つ。
+ * 監査記録の `action: "…"` や権限名は同じ書式の文字列だが、呼び出しの中に
+ * 無いので数えない（`affiliate_link.created` などが実在する）。
+ */
+function emitsEvent(source: string, name: string): boolean {
+  const escaped = name.replace(/\./g, "\\.");
+  // `[^;]` で式 1 つぶんに区切る。次の文まで跨いで拾わないため。
+  return new RegExp(String.raw`\b(?:emit|buildEvent)\s*\([^;]{0,400}?"${escaped}"`).test(
+    stripComments(source),
+  );
+}
+
+/** その名前を実際に発行している場所。 */
 function emissionSites(name: DomainEventName): string[] {
   return walk(join(ROOT, "src/application"))
-    .filter((path) => readFileSync(path, "utf8").includes(`"${name}"`))
+    .filter((path) => emitsEvent(readFileSync(path, "utf8"), name))
     .map((path) => path.slice(ROOT.length + 1));
 }
 
@@ -191,6 +220,38 @@ describe("文脈をまたぐ連絡（イベント）", () => {
       expect(result.value.name).toBe("content_variant.approved");
       expect(result.value.occurredAt).toBe(at);
     }
+  });
+
+  it("「発行あり」は呼び出しで数えていて、名前が書いてあるだけでは数えない", () => {
+    // **この検査が台帳の「うち N 件を実際に発行している」の担保。**
+    // 数え方が文字列一致に戻ると、発行をやめても台帳は「発行あり」と書き続ける。
+    const name = "affiliate_url.submitted";
+    expect(emitsEvent(`await emit(deps, actor, "${name}", { url });`, name)).toBe(true);
+    expect(emitsEvent(`const e = buildEvent("${name}", ws, now, payload);`, name)).toBe(true);
+    // 発行をやめて名前だけ残した形。ここが true になるなら数え方が壊れている。
+    expect(emitsEvent(`// もう出していない "${name}"`, name), "コメントを発行に数えています").toBe(
+      false,
+    );
+    expect(
+      emitsEvent(`/* 出す予定 "${name}" */`, name),
+      "ブロックコメントを発行に数えています",
+    ).toBe(false);
+    // 監査記録の action 名は書式が同じだが発行ではない。
+    expect(
+      emitsEvent(`await deps.audit.write({ action: "${name}" });`, name),
+      "監査記録を発行に数えています",
+    ).toBe(false);
+    // 別の名前の発行に巻き込まれない。
+    expect(emitsEvent(`await emit(deps, actor, "product.matched", {});`, name)).toBe(false);
+  });
+
+  it("実際に発行しているイベントが 1 件以上ある", () => {
+    // **母集団の床。**走査先を間違えると全件が「まだ発行していない」になり、
+    // 上の待ち条件の検査は BLOCKED_BY を全件見るだけで緑のまま通る。
+    const files = walk(join(ROOT, "src/application"));
+    expect(files.length, "src/application を歩けていません").toBeGreaterThan(5);
+    const emitted = DOMAIN_EVENT_NAMES.filter((name) => emissionSites(name).length > 0);
+    expect(emitted.length, "発行している場所を 1 件も見つけられていません").toBeGreaterThan(0);
   });
 
   it("まだ出していないイベントには、何を待っているかが書いてある", () => {

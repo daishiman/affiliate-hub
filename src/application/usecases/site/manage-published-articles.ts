@@ -130,7 +130,15 @@ export function createUpdatePublishedArticleUseCase(
       const before = found.value.article;
       const byId = new Map(input.sections.map((section) => [section.id, section]));
       if (byId.size !== before.sections.length || before.sections.some((section) => !byId.has(section.id))) {
-        return err(validationError("記事の節構成が変わっています。開き直してから訂正してください。", "sections"));
+        /*
+          **欄の名前を付けない。**この断りは 1 つの欄の話ではなく、
+          開いている画面と保存されている記事の**形そのものがずれている**という
+          報せである。`"sections"` という欄は画面に存在せず（在るのは節ごとの
+          `sectionHeading` / `sectionBody`）、名前を付けても指す先が無い。
+          名前の無い断りは画面上部の状態欄にそのまま出る
+          （`tests/architecture/refusal-field-wiring.test.ts`）。
+        */
+        return err(validationError("記事の節構成が変わっています。開き直してから訂正してください。"));
       }
 
       const nextSections = [];

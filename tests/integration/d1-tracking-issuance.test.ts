@@ -120,8 +120,17 @@ afterAll(async () => {
 
 beforeEach(async () => {
   await proxy.env.DB.prepare("DELETE FROM published_articles").run();
+  await proxy.env.DB.prepare("DELETE FROM published_article_tombstones").run();
   await proxy.env.DB.prepare("DELETE FROM redirect_resolutions").run();
   await proxy.env.DB.prepare("DELETE FROM telemetry_events").run();
+  await proxy.env.DB.prepare("DELETE FROM site_blueprints").run();
+  await proxy.env.DB.prepare(
+    `INSERT INTO site_blueprints
+      (id, workspace_id, slug, name, pattern, published_at, blueprint_json)
+     VALUES ('sb_tracking_owner', ?, 'sample-site', '計測ブログ', 'specialist_review', unixepoch(), '{}')`,
+  )
+    .bind(String(owner))
+    .run();
 });
 
 function anArticle(over: Partial<PublishedArticle> = {}): PublishedArticle {
@@ -207,6 +216,18 @@ describe("記事を出すと、合言葉が発行される", () => {
       "SELECT count(*) as n FROM redirect_resolutions",
     ).first<{ n: number }>();
     expect(count?.n).toBe(1);
+  });
+
+  it("合言葉の発行で包んだ後も、公開記事の取り下げを保存先へ渡す", async () => {
+    const article = anArticle();
+    await writer.save(owner, article);
+
+    const unpublished = await writer.unpublish(owner, article.siteSlug, article.slug);
+    expect(unpublished.ok).toBe(true);
+
+    const found = await content.findArticle(article.siteSlug, article.slug);
+    if (!found.ok) throw new Error("読み取りに失敗しました");
+    expect(found.value).toBeNull();
   });
 
   it("転送先が変わると新しい合言葉を出し、古い合言葉は 410 になる", async () => {

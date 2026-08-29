@@ -14,7 +14,26 @@ export type ClaimRepositoryPort = {
   listByProduct(workspaceId: WorkspaceId, productId: ProductId): PortResult<readonly Claim[]>;
   /** 期限切れが近い主張。更新の対象を見つける。 */
   listExpiringBefore(workspaceId: WorkspaceId, at: Date, limit: number): PortResult<readonly Claim[]>;
+  /**
+   * 既にある主張を直す（確認済みにする・期限を延ばす）。
+   *
+   * **どの商品についてかは変えない。** `Claim` は商品を知らないので
+   * （`domain/evidence/claim.ts`）、ここへ渡しても伝えようがない。
+   * 新しく入れるときは下の `saveForProduct` を使う。
+   */
   save(claim: Claim): PortResult<Claim>;
+  /**
+   * 主張を新しく入れる。どの商品についてかを添える。
+   *
+   * `listByProduct` があるのに入れる側に商品が無いのは、
+   * **紐付けを推測で埋めるしかない形**だった。推測で埋めると、
+   * 関係のない商品のページに見覚えのない主張が現れる。
+   */
+  saveForProduct(
+    workspaceId: WorkspaceId,
+    productId: ProductId,
+    claim: Claim,
+  ): PortResult<Claim>;
 };
 
 export type EvidenceRepositoryPort = {

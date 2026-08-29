@@ -22,6 +22,7 @@ RECEIPT_WRITER = (
     / "scripts"
     / "build-resume-receipt.py"
 )
+RECEIPT_SCHEMA = RECEIPT_WRITER.parent.parent / "schemas" / "resume-receipt.schema.json"
 SESSION_ID = "fixture-c19-resume-session"
 
 
@@ -63,6 +64,38 @@ def test_changed_artifact_invalidates_resume_receipt(tmp_path: Path) -> None:
     code, report = run(root)
     assert code == 2
     assert "artifact-digest-stale:system-spec/index.md" in report["failures"]
+
+
+def test_an_input_outside_the_receipt_artifacts_invalidates_reuse(tmp_path: Path) -> None:
+    """受領書が指紋を持っていない入力を 1 つ足すと、再利用が無効になる。
+
+    受領書の `artifacts` は 5 本しか見ていない。仕様書の章 (`system-spec/*.md`) は
+    そこに入らないので、**章を足しても artifacts の指紋は 1 つも動かない**。
+    ここが素通りするあいだ、評価前の PASS が「いまの仕様書についての PASS」の
+    顔で再利用され続ける。入力インベントリだけがこの差を見る。
+    """
+    root = fixture(tmp_path)
+    (root / "system-spec" / "auth.md").write_text(
+        "---\nstatus: confirmed\n---\n\n# 認証 (評価のあとで足した章)\n", encoding="utf-8"
+    )
+    code, report = run(root)
+    assert code == 2
+    assert "receipt-inputs-stale" in report["failures"]
+    assert "receipt-inputs-count-stale" in report["failures"]
+    # 対照: 従来の門はこの書き換えを 1 件も見ていない。つまりこの赤は
+    # 入力インベントリだけが出せる赤であり、既存の検査の言い換えではない。
+    assert not [item for item in report["failures"] if item.startswith("artifact-digest-stale")]
+
+
+def test_the_input_binding_is_green_when_nothing_moved(tmp_path: Path) -> None:
+    """陽性対照: 何も書き換えていなければ、上の赤は出ない。
+
+    これが無いと「常に stale と言う」壊れ方でも上の検査が緑になる。
+    """
+    root = fixture(tmp_path)
+    code, report = run(root)
+    assert code == 0, report
+    assert not [item for item in report["failures"] if item.startswith("receipt-inputs")]
 
 
 def test_non_pass_evaluator_cannot_be_reused(tmp_path: Path) -> None:
@@ -159,7 +192,10 @@ def test_production_writer_builds_a_digest_and_ledger_bound_receipt(tmp_path: Pa
     )
     assert proc.returncode == 0, proc.stdout + proc.stderr
     receipt = json.loads(output.read_text(encoding="utf-8"))
-    assert receipt["schema_version"] == "1.1"
+    # 版は schema の const と突き合わせる。ここに版を**書く**と、schema を上げた
+    # ときに検査だけが古い版を主張し、上げ忘れと見分けがつかない赤になる。
+    schema = json.loads(RECEIPT_SCHEMA.read_text(encoding="utf-8"))
+    assert receipt["schema_version"] == schema["properties"]["schema_version"]["const"]
     assert receipt["evaluator"]["session_id"] == SESSION_ID
     code, report = run(root)
     assert code == 0, report

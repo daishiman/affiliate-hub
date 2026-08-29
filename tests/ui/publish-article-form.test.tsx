@@ -1,4 +1,4 @@
-/** @tier 2 */
+/** @tier 2 @req REQ-P08 */
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 import type { PublishArticleFormOptions } from "@/application/usecases/site/publish-article";
@@ -136,6 +136,15 @@ describe("いまサイトに出す欄", () => {
     const html = render();
     expect(html).toContain('name="nextReviewOn"');
     expect(html).toContain("設定しないと公開できません");
+  });
+
+  it("よくある質問を、問いと答えの対で書ける", () => {
+    // 対で送れないと、公開されたあと問いだけ・答えだけの行が読者に出る。
+    // 欄は言い切りと同じく同名の繰り返しで、行の対応は送信順で決まる。
+    const html = render();
+    expect(html).toContain('name="faqQuestion"');
+    expect(html).toContain('name="faqAnswer"');
+    expect(html).toContain("よくある質問");
   });
 
   it("AI から呼ぶ名前が、道具の名前と同じである（別名を作らない）", () => {

@@ -6,7 +6,7 @@ import type { ImprovementRepositoryPort, LoopObservation } from "@/application/p
 import type { LlmCostEstimatorPort, LlmPort, LlmRequest } from "@/application/ports";
 import type { TelemetrySinkPort } from "@/application/ports/telemetry";
 import {
-  type ManageContentDeps,
+  type AdvanceContentStateDeps,
   createAdvanceContentStateUseCase,
   createApproveContentUseCase,
   createGetContentUseCase,
@@ -95,6 +95,7 @@ const NOW = new Date("2026-08-17T00:00:00Z");
 function memoryVariants(): EditorialContentVariantRepositoryPort {
   const base = testDeps().contentVariants;
   const saved = new Map<string, ContentVariant>();
+  const revisions = new Map<string, number>();
   /**
    * 進行の現在地も覚える。本文だけ覚えて現在地を見本に任せると、
    * 1 周のあいだ段階が進まず、承認の手前で毎回止まる。
@@ -108,6 +109,17 @@ function memoryVariants(): EditorialContentVariantRepositoryPort {
       if (mine !== undefined) return ok(mine);
       return base.findById(workspaceId, id);
     },
+    async findVersionedById(workspaceId: WorkspaceId, id: ContentVariantId) {
+      const mine = saved.get(String(id));
+      if (mine !== undefined) {
+        return ok({
+          variant: mine,
+          revision: revisions.get(String(id)) ?? 1,
+          persisted: true,
+        });
+      }
+      return base.findVersionedById(workspaceId, id);
+    },
     async findState(workspaceId: WorkspaceId, id: ContentVariantId) {
       const mine = states.get(String(id));
       if (mine !== undefined) return ok(mine);
@@ -119,6 +131,7 @@ function memoryVariants(): EditorialContentVariantRepositoryPort {
     },
     async save(variant: ContentVariant) {
       saved.set(String(variant.id), variant);
+      revisions.set(String(variant.id), (revisions.get(String(variant.id)) ?? 0) + 1);
       return ok(variant);
     },
   }) as EditorialContentVariantRepositoryPort;
@@ -134,14 +147,45 @@ function memoryPublications(): PublicationRepositoryPort {
     async findByIdempotencyKey(_workspaceId: WorkspaceId, key: string) {
       return ok([...rows.values()].find((p) => p.idempotencyKey === key) ?? null);
     },
+    async createIfAbsent(publication: Publication) {
+      const existing = [...rows.values()].find(
+        (candidate) =>
+          candidate.workspaceId === publication.workspaceId &&
+          candidate.idempotencyKey === publication.idempotencyKey,
+      );
+      if (existing !== undefined) return ok({ publication: existing, created: false });
+      rows.set(String(publication.id), publication);
+      return ok({ publication, created: true });
+    },
     async listByVariant(_workspaceId: WorkspaceId, variantId: ContentVariantId) {
       return ok([...rows.values()].filter((p) => p.variantId === variantId));
     },
     async listDue() {
       return ok([]);
     },
+    async compareAndSwap(before, next) {
+      const current = rows.get(String(before.id));
+      if (current !== before) return ok(null);
+      rows.set(String(next.id), next);
+      return ok(next);
+    },
+    async claimForDelivery(before, next) {
+      const current = rows.get(String(before.id));
+      if (current !== before || before.variantRevision === null) return ok(null);
+      rows.set(String(next.id), next);
+      return ok(next);
+    },
     async listRecent() {
       return ok([...rows.values()]);
+    },
+    async listForCalendar(_workspaceId, fromInclusive, toExclusive) {
+      return ok(
+        [...rows.values()].filter(
+          (publication) =>
+            publication.scheduledAt === null ||
+            (publication.scheduledAt >= fromInclusive && publication.scheduledAt < toExclusive),
+        ),
+      );
     },
     async save(publication: Publication) {
       rows.set(String(publication.id), publication);
@@ -361,7 +405,7 @@ beforeEach(() => {
   sink = memorySink();
 });
 
-function contentDeps(): ManageContentDeps {
+function contentDeps(): AdvanceContentStateDeps {
   const base = testDeps();
   return {
     packages: base.contentPackages,
@@ -371,6 +415,8 @@ function contentDeps(): ManageContentDeps {
     auditLog: auditLog.port,
     ids: base.ids,
     events: events.port,
+    publications,
+    articles: base.publishedArticles,
   };
 }
 
@@ -384,9 +430,11 @@ function distributionDeps(): ManageDistributionDeps {
       ...base.channelConnections,
       listByWorkspace: async () => ok({ items: [CONNECTION], nextCursor: null }),
     } as ManageDistributionDeps["connections"],
+    connectors: base.channelConnectors,
     publications,
     manualExport: base.manualExport,
     variants,
+    contentPackages: base.contentPackages,
     ids: base.ids,
     // 1 周を通したときに、配信の予定を作った記録も同じ帳面へ積まれる。
     // 別の帳面にすると「誰が何をしたか」を 1 本の並びで読めなくなる。
@@ -595,6 +643,7 @@ describe("1 周（作る → 承認 → 公開 → 測る → 分析 → 提案 
       id: taggedString<"PublicationId">("pub_loop_2") as PublicationId,
       workspaceId: WS,
       variantId: taggedString<"ContentVariantId">(VARIANT_ID) as ContentVariantId,
+      variantRevision: 1,
       channelKind: "own_site",
       connectionId: CONNECTION.id,
       idempotencyKey: "idem-loop-2",

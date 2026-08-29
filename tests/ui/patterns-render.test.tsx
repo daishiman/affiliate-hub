@@ -5,9 +5,10 @@ import { AffiliateLink, DisclosureNotice } from "@/presentation/ui/patterns/disc
 import { RankingTable, type CriterionView } from "@/presentation/ui/patterns/ranking-table";
 import { ComparisonTable } from "@/presentation/ui/patterns/comparison-table";
 import { ApprovalFlow } from "@/presentation/ui/patterns/approval";
+import { ChannelBadge } from "@/presentation/ui/patterns/channel-status";
 import { StubNotice } from "@/presentation/ui/patterns/stub-notice";
 import { EvidenceList } from "@/presentation/ui/patterns/evidence";
-import { FactualityBadge } from "@/presentation/ui/patterns/factuality";
+import { FactSourceBadge, FactualityBadge } from "@/presentation/ui/patterns/factuality";
 
 /**
  * パターン部品が「実際に何を出力するか」の確認。
@@ -203,8 +204,46 @@ describe("事実と推測の区別", () => {
       ["inference", "推測"],
       ["opinion", "意見"],
     ] as const) {
-      expect(renderToStaticMarkup(<FactualityBadge kind={kind} />)).toContain(label);
+      const html = renderToStaticMarkup(<FactualityBadge kind={kind} />);
+      expect(html).toContain(label);
+      expect(html, `${kind} の目印が共通アイコンではありません`).toContain("<svg");
     }
+  });
+
+  it("利用者レビューを文字の顔ではなく共通アイコンで示す", () => {
+    const html = renderToStaticMarkup(<FactSourceBadge source="external" />);
+    expect(html).toContain("利用者レビュー");
+    expect(html).toContain("<svg");
+    expect(html).not.toContain("☺");
+  });
+});
+
+describe("配信方式", () => {
+  it.each([
+    ["api_publish", "自動投稿"],
+    ["api_schedule", "予約投稿"],
+    ["manual_export", "手動投稿"],
+  ] as const)("%s を共通アイコンと文字で示す", (iconName, label) => {
+    const html = renderToStaticMarkup(
+      <ChannelBadge
+        capability={{
+          kind: iconName,
+          label,
+          accentToken: "--color-text-muted",
+          iconName,
+          statusLabels: {
+            not_started: "未着手",
+            scheduled: "予定",
+            sending: "処理中",
+            done: "完了",
+            failed: "失敗",
+          },
+        }}
+        state="not_started"
+      />,
+    );
+    expect(html).toContain(label);
+    expect(html, `${iconName} の目印が共通アイコンではありません`).toContain("<svg");
   });
 });
 
@@ -232,6 +271,7 @@ describe("承認の流れ", () => {
     const html = renderToStaticMarkup(<ApprovalFlow current="review" />);
     expect(html).toContain('aria-current="step"');
     expect(html).toContain("確認中");
+    expect(html, "完了した段階の目印が共通アイコンではありません").toContain("<svg");
   });
 
   it("取り下げ済みは流れの中に混ぜない", () => {

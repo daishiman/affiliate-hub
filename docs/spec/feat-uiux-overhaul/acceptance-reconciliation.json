@@ -1,0 +1,241 @@
+{
+  "schema_version": 1,
+  "feature_id": "feat-uiux-overhaul",
+  "status": {
+    "implementation": "pass",
+    "release": "unpublished",
+    "tracking": "active"
+  },
+  "evaluated_digest": "sha256:1c5a67484bce5785c7a79125db3daec6ee10742a837db8b92d9085faa8299a27",
+  "evidence_output": "docs/spec/feat-uiux-overhaul/evidence/09-acceptance-reconciliation.txt",
+  "acceptance": [
+    {
+      "id": "A1",
+      "implementation_status": "pass",
+      "requirement_refs": [
+        "docs/spec/feat-uiux-overhaul/requirements-baseline.md"
+      ],
+      "runtime_refs": [
+        {
+          "pattern": "src/app/admin/**/page.tsx",
+          "min_matches": 49
+        }
+      ],
+      "test_refs": [
+        "tests/ui/uiux-screen-single-purpose.test.ts"
+      ],
+      "report_refs": [
+        "docs/spec/feat-uiux-overhaul/acceptance-report.md",
+        "docs/spec/feat-uiux-overhaul/final-review.md",
+        "docs/spec/feat-uiux-overhaul/release-report.md"
+      ],
+      "tracking_ref": "features/feat-uiux-overhaul.md"
+    },
+    {
+      "id": "A2",
+      "implementation_status": "pass",
+      "requirement_refs": [
+        "docs/spec/feat-uiux-overhaul/requirements-baseline.md"
+      ],
+      "runtime_refs": [
+        "src/presentation/admin/admin-operation-manifest.ts",
+        "src/presentation/tools/content-tools.ts",
+        "src/presentation/tools/product-tools.ts",
+        "src/presentation/tools/distribution-tools.ts",
+        {
+          "pattern": "src/app/admin/{content,products,sites,distribution}/**/page.tsx",
+          "min_matches": 16
+        }
+      ],
+      "test_refs": [
+        "tests/ui/uiux-admin-api-contract.test.ts"
+      ],
+      "report_refs": [
+        "docs/spec/feat-uiux-overhaul/acceptance-report.md",
+        "docs/spec/feat-uiux-overhaul/final-review.md",
+        "docs/spec/feat-uiux-overhaul/release-report.md"
+      ],
+      "tracking_ref": "features/feat-uiux-overhaul.md"
+    },
+    {
+      "id": "A3",
+      "implementation_status": "pass",
+      "requirement_refs": [
+        "docs/spec/feat-uiux-overhaul/requirements-baseline.md"
+      ],
+      "runtime_refs": [
+        "src/presentation/ui/patterns/channel-status.tsx",
+        "src/app/admin/content/page.tsx",
+        "src/app/admin/content/[variant]/page.tsx"
+      ],
+      "test_refs": [
+        "tests/ui/uiux-channel-status.test.tsx"
+      ],
+      "report_refs": [
+        "docs/spec/feat-uiux-overhaul/acceptance-report.md",
+        "docs/spec/feat-uiux-overhaul/final-review.md",
+        "docs/spec/feat-uiux-overhaul/release-report.md"
+      ],
+      "tracking_ref": "features/feat-uiux-overhaul.md"
+    },
+    {
+      "id": "A4",
+      "implementation_status": "pass",
+      "requirement_refs": [
+        "docs/spec/feat-uiux-overhaul/requirements-baseline.md"
+      ],
+      "runtime_refs": [
+        "src/domain/distribution/channel.ts",
+        "src/infrastructure/channels/channel-registry.ts",
+        "src/presentation/ui/patterns/channel-status.tsx"
+      ],
+      "test_refs": [
+        "tests/ui/uiux-channel-status.test.tsx"
+      ],
+      "report_refs": [
+        "docs/spec/feat-uiux-overhaul/acceptance-report.md",
+        "docs/spec/feat-uiux-overhaul/final-review.md",
+        "docs/spec/feat-uiux-overhaul/release-report.md"
+      ],
+      "tracking_ref": "features/feat-uiux-overhaul.md"
+    },
+    {
+      "id": "A5",
+      "implementation_status": "pass",
+      "requirement_refs": [
+        "docs/spec/feat-uiux-overhaul/requirements-baseline.md"
+      ],
+      "runtime_refs": [
+        "src/presentation/ui/patterns/concept-matrix.tsx",
+        "src/application/usecases/content/concept-drafts.ts",
+        "src/app/admin/content/matrix/page.tsx"
+      ],
+      "test_refs": [
+        "tests/ui/uiux-concept-matrix.test.tsx",
+        "tests/application/concept-drafts.test.ts"
+      ],
+      "report_refs": [
+        "docs/spec/feat-uiux-overhaul/acceptance-report.md",
+        "docs/spec/feat-uiux-overhaul/final-review.md",
+        "docs/spec/feat-uiux-overhaul/release-report.md"
+      ],
+      "tracking_ref": "features/feat-uiux-overhaul.md"
+    },
+    {
+      "id": "A6",
+      "implementation_status": "pass",
+      "requirement_refs": [
+        "docs/spec/feat-uiux-overhaul/requirements-baseline.md"
+      ],
+      "runtime_refs": [
+        {
+          "pattern": "src/presentation/ui/**/*.tsx",
+          "min_matches": 30
+        },
+        {
+          "pattern": "src/presentation/admin/**/*form*.tsx",
+          "min_matches": 10
+        }
+      ],
+      "test_refs": [
+        "tests/ui/uiux-duplicate-implementation.test.ts"
+      ],
+      "report_refs": [
+        "docs/spec/feat-uiux-overhaul/acceptance-report.md",
+        "docs/spec/feat-uiux-overhaul/final-review.md",
+        "docs/spec/feat-uiux-overhaul/release-report.md"
+      ],
+      "tracking_ref": "features/feat-uiux-overhaul.md"
+    },
+    {
+      "id": "A7",
+      "implementation_status": "pass",
+      "requirement_refs": [
+        "docs/spec/feat-uiux-overhaul/requirements-baseline.md"
+      ],
+      "runtime_refs": [
+        "scripts/scaffold-blog-components.ts",
+        "src/presentation/sites/index.ts",
+        "src/app/admin/sites/new/page.tsx"
+      ],
+      "test_refs": [
+        "tests/ui/uiux-blog-scaffold.test.ts"
+      ],
+      "report_refs": [
+        "docs/spec/feat-uiux-overhaul/acceptance-report.md",
+        "docs/spec/feat-uiux-overhaul/final-review.md",
+        "docs/spec/feat-uiux-overhaul/release-report.md"
+      ],
+      "tracking_ref": "features/feat-uiux-overhaul.md"
+    },
+    {
+      "id": "A8",
+      "implementation_status": "pass",
+      "requirement_refs": [
+        "docs/spec/feat-uiux-overhaul/requirements-baseline.md"
+      ],
+      "runtime_refs": [
+        "src/presentation/ui/tokens/semantic.css",
+        "src/presentation/ui/primitives/ui.module.css",
+        "src/app/admin/admin.module.css",
+        {
+          "pattern": "src/app/admin/**/page.tsx",
+          "min_matches": 49
+        }
+      ],
+      "test_refs": [
+        "tests/ui/uiux-spacing-and-copy.test.ts"
+      ],
+      "report_refs": [
+        "docs/spec/feat-uiux-overhaul/acceptance-report.md",
+        "docs/spec/feat-uiux-overhaul/final-review.md",
+        "docs/spec/feat-uiux-overhaul/release-report.md"
+      ],
+      "tracking_ref": "features/feat-uiux-overhaul.md"
+    },
+    {
+      "id": "A9",
+      "implementation_status": "pass",
+      "requirement_refs": [
+        "docs/spec/feat-uiux-overhaul/requirements-baseline.md"
+      ],
+      "runtime_refs": [
+        "src/presentation/ui/templates/app-shell.tsx",
+        "src/presentation/ui/admin-route-metadata.ts",
+        "src/presentation/ui/patterns/nav-collapse-toggle.tsx"
+      ],
+      "test_refs": [
+        "tests/ui/uiux-sidebar-icons.test.tsx"
+      ],
+      "report_refs": [
+        "docs/spec/feat-uiux-overhaul/acceptance-report.md",
+        "docs/spec/feat-uiux-overhaul/final-review.md",
+        "docs/spec/feat-uiux-overhaul/release-report.md"
+      ],
+      "tracking_ref": "features/feat-uiux-overhaul.md"
+    },
+    {
+      "id": "A10",
+      "implementation_status": "pass",
+      "requirement_refs": [
+        "docs/spec/feat-uiux-overhaul/requirements-baseline.md",
+        "docs/spec/feat-uiux-overhaul/information-priority-map.json"
+      ],
+      "runtime_refs": [
+        {
+          "pattern": "src/app/admin/**/page.tsx",
+          "min_matches": 49
+        }
+      ],
+      "test_refs": [
+        "tests/ui/uiux-spacing-and-copy.test.ts"
+      ],
+      "report_refs": [
+        "docs/spec/feat-uiux-overhaul/acceptance-report.md",
+        "docs/spec/feat-uiux-overhaul/final-review.md",
+        "docs/spec/feat-uiux-overhaul/release-report.md"
+      ],
+      "tracking_ref": "features/feat-uiux-overhaul.md"
+    }
+  ]
+}

@@ -9,4 +9,5 @@ export * from "./affiliate-link";
 export * from "./affiliate-program";
 export * from "./conversion";
 export * from "./link-ingestion";
+export * from "./product-snapshot";
 export * from "./tracking-link";

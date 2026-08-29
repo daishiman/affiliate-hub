@@ -3,9 +3,9 @@
 import { revalidatePath } from "next/cache";
 import { articleHref } from "@/application/read-models/published-article";
 import { siteBasePathBySlug } from "@/domain/authoring";
-import { notSignedInText } from "@/presentation/refusal-text";
 import { publishedArticleAdminUseCases, signedInActor } from "@/presentation/composition";
 import type { PublishedArticleFormState } from "./published-article-state";
+import { failureFromDomainError, notSignedInFailure } from "./use-case-result";
 
 function lines(value: FormDataEntryValue | null): readonly string[] {
   return String(value ?? "")
@@ -24,20 +24,12 @@ function sections(formData: FormData) {
   }));
 }
 
-function failure(message: string, suggestedAction?: string, field?: string): PublishedArticleFormState {
-  return {
-    status: "failed",
-    message: suggestedAction === undefined ? message : `${message} ${suggestedAction}`,
-    field,
-  };
-}
-
 export async function updatePublishedArticleAction(
   _previous: PublishedArticleFormState,
   formData: FormData,
 ): Promise<PublishedArticleFormState> {
   const actor = await signedInActor();
-  if (actor === null) return failure(notSignedInText("公開済み記事の訂正"));
+  if (actor === null) return notSignedInFailure("公開済み記事の訂正");
   const siteSlug = String(formData.get("siteSlug") ?? "");
   const slug = String(formData.get("slug") ?? "");
   const result = await (await publishedArticleAdminUseCases()).update.execute(actor, {
@@ -51,9 +43,7 @@ export async function updatePublishedArticleAction(
     sections: sections(formData),
     reason: String(formData.get("reason") ?? ""),
   });
-  if (!result.ok) {
-    return failure(result.error.message, result.error.suggestedAction, result.error.field);
-  }
+  if (!result.ok) return failureFromDomainError(result.error);
   revalidatePath("/admin/content/published");
   revalidatePath(`/admin/content/published/${encodeURIComponent(siteSlug)}/${encodeURIComponent(slug)}/edit`);
   revalidatePath(`${siteBasePathBySlug(siteSlug)}${articleHref(result.value)}`);
@@ -65,7 +55,7 @@ export async function archivePublishedArticleAction(
   formData: FormData,
 ): Promise<PublishedArticleFormState> {
   const actor = await signedInActor();
-  if (actor === null) return failure(notSignedInText("公開済み記事の非表示化"));
+  if (actor === null) return notSignedInFailure("公開済み記事の非表示化");
   const siteSlug = String(formData.get("siteSlug") ?? "");
   const slug = String(formData.get("slug") ?? "");
   const result = await (await publishedArticleAdminUseCases()).archive.execute(actor, {
@@ -73,9 +63,7 @@ export async function archivePublishedArticleAction(
     slug,
     reason: String(formData.get("archiveReason") ?? ""),
   });
-  if (!result.ok) {
-    return failure(result.error.message, result.error.suggestedAction, result.error.field);
-  }
+  if (!result.ok) return failureFromDomainError(result.error);
   revalidatePath("/admin/content/published");
   revalidatePath(`/admin/content/published/${encodeURIComponent(siteSlug)}/${encodeURIComponent(slug)}/edit`);
   revalidatePath(siteBasePathBySlug(siteSlug));

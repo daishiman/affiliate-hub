@@ -31,6 +31,18 @@ export type PublishedEvidence = {
   readonly expired?: boolean;
 };
 
+/**
+ * よくある質問 1 件（`EXPRESSION_BLOCK_KINDS` の `faq`）。
+ *
+ * 節（`PublishedSection`）と分けて持つ。節に混ぜると、問いと答えの対が
+ * 「見出しと段落」に崩れ、`FAQPage` の構造化データを作れなくなる
+ * （どの見出しが問いなのかを後から言い当てられない）。
+ */
+export type PublishedFaqItem = {
+  readonly question: string;
+  readonly answer: string;
+};
+
 /** 記事の 1 節。見出しと本文。 */
 export type PublishedSection = {
   readonly id: string;
@@ -154,8 +166,26 @@ export type PublishedArticle = {
   /** 監修者。付いていない記事もある。 */
   readonly reviewedBy?: PublishedPerson;
   readonly disclosureRequired: boolean;
+  /**
+   * 記事の要点（`EXPRESSION_BLOCK_KINDS` の `key_points`）。
+   *
+   * 10 種の表現ブロックのうち、**置き場が他に無いのはこれだけ**である。
+   * 結論は `summary`、出典は `sections[].claims[].evidence`、更新日は
+   * `updatedAt`、質問は `faq` に既に住んでいるので、それらを別欄で
+   * 二重に持たない（`docs/product/design-decisions.md` §6）。
+   *
+   * **空配列では入れない**（`faq` と同じ扱い）。
+   */
+  readonly keyPoints?: readonly string[];
   readonly sections: readonly PublishedSection[];
   readonly conversation?: readonly PublishedConversationLine[];
+  /**
+   * よくある質問。無い記事もあるので任意。
+   *
+   * **空配列では入れない。** 空で入れると画面の「あるか」の判定が真になり、
+   * 見出しだけの空欄が読者に出る（商品カードと同じ扱い）。
+   */
+  readonly faq?: readonly PublishedFaqItem[];
   /** 商品カード。順位・レビュー・比較のどの型でも使う。 */
   readonly productCards?: readonly PublishedProductCard[];
   /** 順位記事のときだけ入る。 */

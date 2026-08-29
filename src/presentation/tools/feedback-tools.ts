@@ -153,6 +153,7 @@ function submitFeedbackTool(deps: AppDeps): ToolDefinition<SubmitFeedbackInput, 
     useCase: createSubmitFeedbackUseCase({
       repository: deps.feedback,
       captures: deps.feedbackCaptures,
+      brands: deps.brands,
       ids: deps.ids,
       auditLog: deps.auditLog,
       now: () => new Date(),

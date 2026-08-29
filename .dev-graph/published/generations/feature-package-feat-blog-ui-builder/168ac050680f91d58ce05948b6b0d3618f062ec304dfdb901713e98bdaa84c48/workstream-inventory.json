@@ -1,0 +1,1119 @@
+{
+  "schema_version": "1.0.0",
+  "feature_package_id": "feature-package/feat-blog-ui-builder",
+  "parent_feature": "feat-blog-ui-builder",
+  "p01_entry_gate": {
+    "selector": "parent_feature.depends_on",
+    "operator": "all",
+    "required_statuses": ["done", "closed"]
+  },
+  "repo_context": {
+    "config_path": ".dev-graph/config.json",
+    "repo_identity": "github:daishiman/affiliate-hub",
+    "root_resolution_source": "explicit-cli"
+  },
+  "source_lineage": {
+    "source_plugin": "system-spec-harness",
+    "source_version": "0.1.0",
+    "compile_entrypoint": "run-system-spec-compile",
+    "completeness_entrypoint": "assign-system-spec-completeness-evaluator",
+    "source_paths": [
+      "system-spec/index.md",
+      "system-spec/00-requirements-definition.md",
+      "system-spec/ui-ux.md",
+      "system-spec/frontend.md",
+      "system-spec/database.md",
+      "architecture/system-spec-overview.md",
+      "architecture/arch-two-layer-platform.md"
+    ],
+    "confirmed": true
+  },
+  "tasks": [
+    {
+      "id": "SYS-BLOG-UI-BUILDER-P01",
+      "feature_package_id": "feature-package/feat-blog-ui-builder",
+      "parent_feature": "feat-blog-ui-builder",
+      "title": "ブログ UI ビルダーの要求ベースライン確定",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p01",
+        "feat-blog-ui-builder"
+      ],
+      "related_nodes": [],
+      "workstream_kind": "documentation",
+      "secondary_workstreams": [
+        "frontend",
+        "data"
+      ],
+      "build_target_kind": "application-code",
+      "phase_ref": "P01",
+      "depends_on": [],
+      "write_scope": [
+        "docs/spec/feat-blog-ui-builder/requirements-baseline.md",
+        "docs/spec/feat-blog-ui-builder/screen-inventory.md",
+        "docs/spec/feat-blog-ui-builder/information-priority-map.json"
+      ],
+      "deploy_unit": "cloudflare-workers-opennext-app (Next.js 16 + OpenNext, Workers/D1/R2)",
+      "source_lineage": [
+        "system-spec/index.md",
+        "system-spec/00-requirements-definition.md",
+        "system-spec/ui-ux.md",
+        "system-spec/frontend.md",
+        "system-spec/database.md",
+        "architecture/system-spec-overview.md",
+        "architecture/arch-two-layer-platform.md"
+      ],
+      "classification": {
+        "confidence": 1.0,
+        "reason": "feat-blog-ui-builder の P01 lifecycle 責務への確定写像",
+        "candidates": [
+          {
+            "artifact_kind": "task",
+            "confidence": 1.0,
+            "candidate_path": "tasks/feat-blog-ui-builder/sys-blog-ui-builder-p01.md"
+          }
+        ]
+      },
+      "tracker_binding_intent": "beads",
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "pr_completion_policy": "linked_pr_merged_all",
+      "branch_policy": {
+        "strategy": "one-task-one-branch",
+        "worktree_lease_required": true,
+        "completion_projection": "default-branch-reconciliation",
+        "assignment_owner": "dev-graph-scheduler"
+      },
+      "acceptance": [
+        "P01: feat-blog-ui-builder の受入14件 (A1-A14) それぞれについて、検証可能な受入条件文と対応する画面/データ要求がrequirements-baseline.md に一意対応表として存在し、既存 src/app/admin/sites・src/app/s/[site] の画面棚卸しがscreen-inventory.md に、画面別の残す/落とす/加工する情報優先度が information-priority-map.json に機械可読で確定している状態を成立させる。"
+      ],
+      "verification": [
+        "P01 の Verification and evidence section に記載する自動コマンドと証跡パスで検証する"
+      ],
+      "rollback": "P01 の write_scope に含まれる変更を revert し、直前の promoted generation へ差し戻す",
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-08-28T00:00:00Z"
+      },
+      "graph_node_registration": {
+        "graph_node_id": "SYS-BLOG-UI-BUILDER-P01",
+        "file_path": "tasks/feat-blog-ui-builder/sys-blog-ui-builder-p01.md",
+        "parent_feature": "feat-blog-ui-builder",
+        "feature_package_id": "feature-package/feat-blog-ui-builder",
+        "phase_ref": "P01"
+      }
+    },
+    {
+      "id": "SYS-BLOG-UI-BUILDER-P02",
+      "feature_package_id": "feature-package/feat-blog-ui-builder",
+      "parent_feature": "feat-blog-ui-builder",
+      "title": "データモデル・テーマ契約・コンポーネント契約・管理API契約・SEO/AI検索契約の設計",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p02",
+        "feat-blog-ui-builder"
+      ],
+      "related_nodes": [],
+      "workstream_kind": "documentation",
+      "secondary_workstreams": [
+        "frontend",
+        "backend",
+        "data"
+      ],
+      "build_target_kind": "application-code",
+      "phase_ref": "P02",
+      "depends_on": [
+        "SYS-BLOG-UI-BUILDER-P01"
+      ],
+      "write_scope": [
+        "docs/spec/feat-blog-ui-builder/data-model.md",
+        "docs/spec/feat-blog-ui-builder/theme-contract.md",
+        "docs/spec/feat-blog-ui-builder/component-contract.md",
+        "docs/spec/feat-blog-ui-builder/admin-api-contract.md",
+        "docs/spec/feat-blog-ui-builder/seo-ai-search-contract.md"
+      ],
+      "deploy_unit": "cloudflare-workers-opennext-app (Next.js 16 + OpenNext, Workers/D1/R2)",
+      "source_lineage": [
+        "system-spec/index.md",
+        "system-spec/00-requirements-definition.md",
+        "system-spec/ui-ux.md",
+        "system-spec/frontend.md",
+        "system-spec/database.md",
+        "architecture/system-spec-overview.md",
+        "architecture/arch-two-layer-platform.md"
+      ],
+      "classification": {
+        "confidence": 1.0,
+        "reason": "feat-blog-ui-builder の P02 lifecycle 責務への確定写像",
+        "candidates": [
+          {
+            "artifact_kind": "task",
+            "confidence": 1.0,
+            "candidate_path": "tasks/feat-blog-ui-builder/sys-blog-ui-builder-p02.md"
+          }
+        ]
+      },
+      "tracker_binding_intent": "beads",
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "pr_completion_policy": "linked_pr_merged_all",
+      "branch_policy": {
+        "strategy": "one-task-one-branch",
+        "worktree_lease_required": true,
+        "completion_projection": "default-branch-reconciliation",
+        "assignment_owner": "dev-graph-scheduler"
+      },
+      "acceptance": [
+        "P02: blog_template/blog_theme/page_theme_override/legal_page/blog_affiliate_placement/guideline_references のデータモデル、light-dark()+data属性によるテーマ実装契約、sticky header/sidebar/footerと記事表現ブロック5種(figure/comparison/cta/summary/spec-table)+ガジェット差替スロット+SEO/AI引用用標準ブロック(answer/key-points/FAQ/sources/freshness)のコンポーネント契約、ブログ×アフィリエイト配置の管理一覧・逆引きAPI契約、JSON-LD自動生成/sitemap/robots/llms.txt/IndexNow/guideline_references のSEO/AI検索契約が設計文書として確定した状態を成立させる。"
+      ],
+      "verification": [
+        "P02 の Verification and evidence section に記載する自動コマンドと証跡パスで検証する"
+      ],
+      "rollback": "P02 の write_scope に含まれる変更を revert し、直前の promoted generation へ差し戻す",
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-08-28T00:00:00Z"
+      },
+      "graph_node_registration": {
+        "graph_node_id": "SYS-BLOG-UI-BUILDER-P02",
+        "file_path": "tasks/feat-blog-ui-builder/sys-blog-ui-builder-p02.md",
+        "parent_feature": "feat-blog-ui-builder",
+        "feature_package_id": "feature-package/feat-blog-ui-builder",
+        "phase_ref": "P02"
+      }
+    },
+    {
+      "id": "SYS-BLOG-UI-BUILDER-P03",
+      "feature_package_id": "feature-package/feat-blog-ui-builder",
+      "parent_feature": "feat-blog-ui-builder",
+      "title": "設計レビューと参照妥当性・テーマ一貫性・SEO/AI検索設計の独立検証",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p03",
+        "feat-blog-ui-builder"
+      ],
+      "related_nodes": [],
+      "workstream_kind": "quality",
+      "secondary_workstreams": [
+        "documentation",
+        "frontend"
+      ],
+      "build_target_kind": "application-code",
+      "phase_ref": "P03",
+      "depends_on": [
+        "SYS-BLOG-UI-BUILDER-P02"
+      ],
+      "write_scope": [
+        "docs/spec/feat-blog-ui-builder/design-review.md"
+      ],
+      "deploy_unit": "cloudflare-workers-opennext-app (Next.js 16 + OpenNext, Workers/D1/R2)",
+      "source_lineage": [
+        "system-spec/index.md",
+        "system-spec/00-requirements-definition.md",
+        "system-spec/ui-ux.md",
+        "system-spec/frontend.md",
+        "system-spec/database.md",
+        "architecture/system-spec-overview.md",
+        "architecture/arch-two-layer-platform.md"
+      ],
+      "classification": {
+        "confidence": 1.0,
+        "reason": "feat-blog-ui-builder の P03 lifecycle 責務への確定写像",
+        "candidates": [
+          {
+            "artifact_kind": "task",
+            "confidence": 1.0,
+            "candidate_path": "tasks/feat-blog-ui-builder/sys-blog-ui-builder-p03.md"
+          }
+        ]
+      },
+      "tracker_binding_intent": "beads",
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "pr_completion_policy": "linked_pr_merged_all",
+      "branch_policy": {
+        "strategy": "one-task-one-branch",
+        "worktree_lease_required": true,
+        "completion_projection": "default-branch-reconciliation",
+        "assignment_owner": "dev-graph-scheduler"
+      },
+      "acceptance": [
+        "P03: P02の設計に対する独立レビューが完了し、makuring.jp参照の妥当性・配色2層の一貫性・sticky要素のアクセシビリティ適合・記事表現ブロックのスロット拡張性・JSON-LD自動生成とSSR出力の整合・IndexNow鍵のリポジトリ非保存・guideline_references の90日再確認設計の各観点の指摘が設計へ反映されるか残課題として明示された状態を成立させる。"
+      ],
+      "verification": [
+        "P03 の Verification and evidence section に記載する自動コマンドと証跡パスで検証する"
+      ],
+      "rollback": "P03 の write_scope に含まれる変更を revert し、直前の promoted generation へ差し戻す",
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-08-28T00:00:00Z"
+      },
+      "graph_node_registration": {
+        "graph_node_id": "SYS-BLOG-UI-BUILDER-P03",
+        "file_path": "tasks/feat-blog-ui-builder/sys-blog-ui-builder-p03.md",
+        "parent_feature": "feat-blog-ui-builder",
+        "feature_package_id": "feature-package/feat-blog-ui-builder",
+        "phase_ref": "P03"
+      }
+    },
+    {
+      "id": "SYS-BLOG-UI-BUILDER-P04",
+      "feature_package_id": "feature-package/feat-blog-ui-builder",
+      "parent_feature": "feat-blog-ui-builder",
+      "title": "受入14件に対応するテスト設計",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p04",
+        "feat-blog-ui-builder"
+      ],
+      "related_nodes": [],
+      "workstream_kind": "quality",
+      "secondary_workstreams": [
+        "frontend",
+        "backend"
+      ],
+      "build_target_kind": "application-code",
+      "phase_ref": "P04",
+      "depends_on": [
+        "SYS-BLOG-UI-BUILDER-P03"
+      ],
+      "write_scope": [
+        "docs/spec/feat-blog-ui-builder/test-design.md",
+        "tests/ui/",
+        "tests/application/",
+        "tests/infrastructure/",
+        "tests/acceptance/"
+      ],
+      "deploy_unit": "cloudflare-workers-opennext-app (Next.js 16 + OpenNext, Workers/D1/R2)",
+      "source_lineage": [
+        "system-spec/index.md",
+        "system-spec/00-requirements-definition.md",
+        "system-spec/ui-ux.md",
+        "system-spec/frontend.md",
+        "system-spec/database.md",
+        "architecture/system-spec-overview.md",
+        "architecture/arch-two-layer-platform.md"
+      ],
+      "classification": {
+        "confidence": 1.0,
+        "reason": "feat-blog-ui-builder の P04 lifecycle 責務への確定写像",
+        "candidates": [
+          {
+            "artifact_kind": "task",
+            "confidence": 1.0,
+            "candidate_path": "tasks/feat-blog-ui-builder/sys-blog-ui-builder-p04.md"
+          }
+        ]
+      },
+      "tracker_binding_intent": "beads",
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "pr_completion_policy": "linked_pr_merged_all",
+      "branch_policy": {
+        "strategy": "one-task-one-branch",
+        "worktree_lease_required": true,
+        "completion_projection": "default-branch-reconciliation",
+        "assignment_owner": "dev-graph-scheduler"
+      },
+      "acceptance": [
+        "P04: 受入14件 (A1-A14) それぞれに対応するテストが振る舞いベースで設計され、実装前に失敗する状態でtests/配下(tests/ui・tests/application・tests/infrastructure・tests/acceptance) に配置された状態を成立させる。A10-A14 (SEO/AI検索) については pure 関数の単体テスト・sitemap/robots/llms.txt の生成テスト・IndexNow 送信スキップテスト・guideline_references の90日境界テストを含む。"
+      ],
+      "verification": [
+        "P04 の Verification and evidence section に記載する自動コマンドと証跡パスで検証する"
+      ],
+      "rollback": "P04 の write_scope に含まれる変更を revert し、直前の promoted generation へ差し戻す",
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-08-28T00:00:00Z"
+      },
+      "graph_node_registration": {
+        "graph_node_id": "SYS-BLOG-UI-BUILDER-P04",
+        "file_path": "tasks/feat-blog-ui-builder/sys-blog-ui-builder-p04.md",
+        "parent_feature": "feat-blog-ui-builder",
+        "feature_package_id": "feature-package/feat-blog-ui-builder",
+        "phase_ref": "P04"
+      }
+    },
+    {
+      "id": "SYS-BLOG-UI-BUILDER-P05",
+      "feature_package_id": "feature-package/feat-blog-ui-builder",
+      "parent_feature": "feat-blog-ui-builder",
+      "title": "テンプレート・配色2層・sticky常時表示・固定ページ・表現ブロック・配置管理・SEO/AI検索の実装",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p05",
+        "feat-blog-ui-builder"
+      ],
+      "related_nodes": [],
+      "workstream_kind": "frontend",
+      "secondary_workstreams": [
+        "backend",
+        "api",
+        "data",
+        "quality"
+      ],
+      "build_target_kind": "application-code",
+      "phase_ref": "P05",
+      "depends_on": [
+        "SYS-BLOG-UI-BUILDER-P04"
+      ],
+      "write_scope": [
+        "src/app/admin/sites/",
+        "src/app/admin/sites/new/",
+        "src/app/admin/settings/seo/",
+        "src/app/api/admin/",
+        "src/presentation/ui/templates/",
+        "src/presentation/ui/patterns/",
+        "src/presentation/ui/tokens.css",
+        "src/app/s/[site]/",
+        "src/application/usecases/",
+        "src/application/read-models/",
+        "src/application/seo/",
+        "src/application/ports/",
+        "src/infrastructure/persistence/d1/",
+        "src/db/schema.ts",
+        "drizzle/"
+      ],
+      "deploy_unit": "cloudflare-workers-opennext-app (Next.js 16 + OpenNext, Workers/D1/R2)",
+      "source_lineage": [
+        "system-spec/index.md",
+        "system-spec/00-requirements-definition.md",
+        "system-spec/ui-ux.md",
+        "system-spec/frontend.md",
+        "system-spec/database.md",
+        "architecture/system-spec-overview.md",
+        "architecture/arch-two-layer-platform.md"
+      ],
+      "classification": {
+        "confidence": 1.0,
+        "reason": "feat-blog-ui-builder の P05 lifecycle 責務への確定写像",
+        "candidates": [
+          {
+            "artifact_kind": "task",
+            "confidence": 1.0,
+            "candidate_path": "tasks/feat-blog-ui-builder/sys-blog-ui-builder-p05.md"
+          }
+        ]
+      },
+      "tracker_binding_intent": "beads",
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "pr_completion_policy": "linked_pr_merged_all",
+      "branch_policy": {
+        "strategy": "one-task-one-branch",
+        "worktree_lease_required": true,
+        "completion_projection": "default-branch-reconciliation",
+        "assignment_owner": "dev-graph-scheduler"
+      },
+      "acceptance": [
+        "P05: 受入14件 (A1-A14) に対応する実装が完了し、P04で設計したテストが緑化した状態を成立させる。特にテンプレート差替後の既存記事の非破壊 (A1)、配色上書きの解除復帰 (A2)、狭幅でのサイドバー折りたたみ (A3)、固定ページ6種の作成・編集・公開 (A4)、記事表現ブロックのスロット差替 (A5)、配置の一覧・逆引き (A6)、作成/保存/公開面の表示一致 (A7)、D1再読み込み後の保持 (A8)、記事ページSSRへのJSON-LD/canonical/OGP埋め込み (A10)、sitemap/robots/feed/llms.txt自動生成 (A11)、SEO/AI標準ブロックとdateModified可視化 (A12)、IndexNow鍵の環境変数分離 (A13)、guideline_references管理画面と90日再確認 (A14) を満たす。"
+      ],
+      "verification": [
+        "P05 の Verification and evidence section に記載する自動コマンドと証跡パスで検証する"
+      ],
+      "rollback": "P05 の write_scope に含まれる変更を revert し、直前の promoted generation へ差し戻す",
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-08-28T00:00:00Z"
+      },
+      "graph_node_registration": {
+        "graph_node_id": "SYS-BLOG-UI-BUILDER-P05",
+        "file_path": "tasks/feat-blog-ui-builder/sys-blog-ui-builder-p05.md",
+        "parent_feature": "feat-blog-ui-builder",
+        "feature_package_id": "feature-package/feat-blog-ui-builder",
+        "phase_ref": "P05"
+      }
+    },
+    {
+      "id": "SYS-BLOG-UI-BUILDER-P06",
+      "feature_package_id": "feature-package/feat-blog-ui-builder",
+      "parent_feature": "feat-blog-ui-builder",
+      "title": "テスト全量実行と回帰0件の確認",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p06",
+        "feat-blog-ui-builder"
+      ],
+      "related_nodes": [],
+      "workstream_kind": "quality",
+      "secondary_workstreams": [
+        "frontend",
+        "backend"
+      ],
+      "build_target_kind": "application-code",
+      "phase_ref": "P06",
+      "depends_on": [
+        "SYS-BLOG-UI-BUILDER-P05"
+      ],
+      "write_scope": [
+        "docs/spec/feat-blog-ui-builder/test-run-report.md"
+      ],
+      "deploy_unit": "cloudflare-workers-opennext-app (Next.js 16 + OpenNext, Workers/D1/R2)",
+      "source_lineage": [
+        "system-spec/index.md",
+        "system-spec/00-requirements-definition.md",
+        "system-spec/ui-ux.md",
+        "system-spec/frontend.md",
+        "system-spec/database.md",
+        "architecture/system-spec-overview.md",
+        "architecture/arch-two-layer-platform.md"
+      ],
+      "classification": {
+        "confidence": 1.0,
+        "reason": "feat-blog-ui-builder の P06 lifecycle 責務への確定写像",
+        "candidates": [
+          {
+            "artifact_kind": "task",
+            "confidence": 1.0,
+            "candidate_path": "tasks/feat-blog-ui-builder/sys-blog-ui-builder-p06.md"
+          }
+        ]
+      },
+      "tracker_binding_intent": "beads",
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "pr_completion_policy": "linked_pr_merged_all",
+      "branch_policy": {
+        "strategy": "one-task-one-branch",
+        "worktree_lease_required": true,
+        "completion_projection": "default-branch-reconciliation",
+        "assignment_owner": "dev-graph-scheduler"
+      },
+      "acceptance": [
+        "P06: `pnpm test` と `pnpm run test:coverage` の全量実行が完了し、失敗0件・既存テストの回帰0件・新規実装コードのカバレッジ80%以上が証跡として記録された状態を成立させる。A10-A14 (SEO/AI検索) のテストを含む全14受入対応テストが緑化していること。"
+      ],
+      "verification": [
+        "P06 の Verification and evidence section に記載する自動コマンドと証跡パスで検証する"
+      ],
+      "rollback": "P06 の write_scope に含まれる変更を revert し、直前の promoted generation へ差し戻す",
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-08-28T00:00:00Z"
+      },
+      "graph_node_registration": {
+        "graph_node_id": "SYS-BLOG-UI-BUILDER-P06",
+        "file_path": "tasks/feat-blog-ui-builder/sys-blog-ui-builder-p06.md",
+        "parent_feature": "feat-blog-ui-builder",
+        "feature_package_id": "feature-package/feat-blog-ui-builder",
+        "phase_ref": "P06"
+      }
+    },
+    {
+      "id": "SYS-BLOG-UI-BUILDER-P07",
+      "feature_package_id": "feature-package/feat-blog-ui-builder",
+      "parent_feature": "feat-blog-ui-builder",
+      "title": "受入14件の受け入れ判定",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p07",
+        "feat-blog-ui-builder"
+      ],
+      "related_nodes": [],
+      "workstream_kind": "quality",
+      "secondary_workstreams": [
+        "frontend",
+        "documentation"
+      ],
+      "build_target_kind": "application-code",
+      "phase_ref": "P07",
+      "depends_on": [
+        "SYS-BLOG-UI-BUILDER-P06"
+      ],
+      "write_scope": [
+        "docs/spec/feat-blog-ui-builder/acceptance-report.md"
+      ],
+      "deploy_unit": "cloudflare-workers-opennext-app (Next.js 16 + OpenNext, Workers/D1/R2)",
+      "source_lineage": [
+        "system-spec/index.md",
+        "system-spec/00-requirements-definition.md",
+        "system-spec/ui-ux.md",
+        "system-spec/frontend.md",
+        "system-spec/database.md",
+        "architecture/system-spec-overview.md",
+        "architecture/arch-two-layer-platform.md"
+      ],
+      "classification": {
+        "confidence": 1.0,
+        "reason": "feat-blog-ui-builder の P07 lifecycle 責務への確定写像",
+        "candidates": [
+          {
+            "artifact_kind": "task",
+            "confidence": 1.0,
+            "candidate_path": "tasks/feat-blog-ui-builder/sys-blog-ui-builder-p07.md"
+          }
+        ]
+      },
+      "tracker_binding_intent": "beads",
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "pr_completion_policy": "linked_pr_merged_all",
+      "branch_policy": {
+        "strategy": "one-task-one-branch",
+        "worktree_lease_required": true,
+        "completion_projection": "default-branch-reconciliation",
+        "assignment_owner": "dev-graph-scheduler"
+      },
+      "acceptance": [
+        "P07: A1-A14すべてについて `pnpm run preview` 上での実物判定が完了し、各受入条件の判定結果 (PASS/FAIL) と根拠 (スクリーンショット・axe-core結果・操作記録・HTML/JSON-LD出力・sitemap/robots/llms.txt内容・IndexNowスキップログ・guideline_references画面) がacceptance-report.mdに記録された状態を成立させる。"
+      ],
+      "verification": [
+        "P07 の Verification and evidence section に記載する自動コマンドと証跡パスで検証する"
+      ],
+      "rollback": "P07 の write_scope に含まれる変更を revert し、直前の promoted generation へ差し戻す",
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-08-28T00:00:00Z"
+      },
+      "graph_node_registration": {
+        "graph_node_id": "SYS-BLOG-UI-BUILDER-P07",
+        "file_path": "tasks/feat-blog-ui-builder/sys-blog-ui-builder-p07.md",
+        "parent_feature": "feat-blog-ui-builder",
+        "feature_package_id": "feature-package/feat-blog-ui-builder",
+        "phase_ref": "P07"
+      }
+    },
+    {
+      "id": "SYS-BLOG-UI-BUILDER-P08",
+      "feature_package_id": "feature-package/feat-blog-ui-builder",
+      "parent_feature": "feat-blog-ui-builder",
+      "title": "既存サイト管理画面の新エンティティへの移行と重複実装の解消",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p08",
+        "feat-blog-ui-builder"
+      ],
+      "related_nodes": [],
+      "workstream_kind": "frontend",
+      "secondary_workstreams": [
+        "backend",
+        "api",
+        "quality"
+      ],
+      "build_target_kind": "application-code",
+      "phase_ref": "P08",
+      "depends_on": [
+        "SYS-BLOG-UI-BUILDER-P05"
+      ],
+      "write_scope": [
+        "src/app/admin/sites/",
+        "src/app/admin/sites/[site]/",
+        "src/presentation/ui/templates/",
+        "docs/spec/feat-blog-ui-builder/migration-report.md"
+      ],
+      "deploy_unit": "cloudflare-workers-opennext-app (Next.js 16 + OpenNext, Workers/D1/R2)",
+      "source_lineage": [
+        "system-spec/index.md",
+        "system-spec/00-requirements-definition.md",
+        "system-spec/ui-ux.md",
+        "system-spec/frontend.md",
+        "system-spec/database.md",
+        "architecture/system-spec-overview.md",
+        "architecture/arch-two-layer-platform.md"
+      ],
+      "classification": {
+        "confidence": 1.0,
+        "reason": "feat-blog-ui-builder の P08 lifecycle 責務への確定写像",
+        "candidates": [
+          {
+            "artifact_kind": "task",
+            "confidence": 1.0,
+            "candidate_path": "tasks/feat-blog-ui-builder/sys-blog-ui-builder-p08.md"
+          }
+        ]
+      },
+      "tracker_binding_intent": "beads",
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "pr_completion_policy": "linked_pr_merged_all",
+      "branch_policy": {
+        "strategy": "one-task-one-branch",
+        "worktree_lease_required": true,
+        "completion_projection": "default-branch-reconciliation",
+        "assignment_owner": "dev-graph-scheduler"
+      },
+      "acceptance": [
+        "P08: 既存 src/app/admin/sites 配下のテンプレート/配色/固定ページ関連画面が新エンティティ参照へ移行され、同等機能の重複実装が0件であることが機械検査 (lint/typecheck) で確認された状態を成立させる。"
+      ],
+      "verification": [
+        "P08 の Verification and evidence section に記載する自動コマンドと証跡パスで検証する"
+      ],
+      "rollback": "P08 の write_scope に含まれる変更を revert し、直前の promoted generation へ差し戻す",
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-08-28T00:00:00Z"
+      },
+      "graph_node_registration": {
+        "graph_node_id": "SYS-BLOG-UI-BUILDER-P08",
+        "file_path": "tasks/feat-blog-ui-builder/sys-blog-ui-builder-p08.md",
+        "parent_feature": "feat-blog-ui-builder",
+        "feature_package_id": "feature-package/feat-blog-ui-builder",
+        "phase_ref": "P08"
+      }
+    },
+    {
+      "id": "SYS-BLOG-UI-BUILDER-P09",
+      "feature_package_id": "feature-package/feat-blog-ui-builder",
+      "parent_feature": "feat-blog-ui-builder",
+      "title": "品質保証とアクセシビリティ・非機能検査",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p09",
+        "feat-blog-ui-builder"
+      ],
+      "related_nodes": [],
+      "workstream_kind": "quality",
+      "secondary_workstreams": [
+        "security",
+        "frontend"
+      ],
+      "build_target_kind": "application-code",
+      "phase_ref": "P09",
+      "depends_on": [
+        "SYS-BLOG-UI-BUILDER-P08"
+      ],
+      "write_scope": [
+        "docs/spec/feat-blog-ui-builder/quality-report.md"
+      ],
+      "deploy_unit": "cloudflare-workers-opennext-app (Next.js 16 + OpenNext, Workers/D1/R2)",
+      "source_lineage": [
+        "system-spec/index.md",
+        "system-spec/00-requirements-definition.md",
+        "system-spec/ui-ux.md",
+        "system-spec/frontend.md",
+        "system-spec/database.md",
+        "architecture/system-spec-overview.md",
+        "architecture/arch-two-layer-platform.md"
+      ],
+      "classification": {
+        "confidence": 1.0,
+        "reason": "feat-blog-ui-builder の P09 lifecycle 責務への確定写像",
+        "candidates": [
+          {
+            "artifact_kind": "task",
+            "confidence": 1.0,
+            "candidate_path": "tasks/feat-blog-ui-builder/sys-blog-ui-builder-p09.md"
+          }
+        ]
+      },
+      "tracker_binding_intent": "beads",
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "pr_completion_policy": "linked_pr_merged_all",
+      "branch_policy": {
+        "strategy": "one-task-one-branch",
+        "worktree_lease_required": true,
+        "completion_projection": "default-branch-reconciliation",
+        "assignment_owner": "dev-graph-scheduler"
+      },
+      "acceptance": [
+        "P09: 型検査・lint・axe-core (重大違反0件)・light/dark両方のコントラスト検査・表示崩れ検査・応答性能検査が基準を満たし、結果がquality-report.mdに記録された状態を成立させる。"
+      ],
+      "verification": [
+        "P09 の Verification and evidence section に記載する自動コマンドと証跡パスで検証する"
+      ],
+      "rollback": "P09 の write_scope に含まれる変更を revert し、直前の promoted generation へ差し戻す",
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-08-28T00:00:00Z"
+      },
+      "graph_node_registration": {
+        "graph_node_id": "SYS-BLOG-UI-BUILDER-P09",
+        "file_path": "tasks/feat-blog-ui-builder/sys-blog-ui-builder-p09.md",
+        "parent_feature": "feat-blog-ui-builder",
+        "feature_package_id": "feature-package/feat-blog-ui-builder",
+        "phase_ref": "P09"
+      }
+    },
+    {
+      "id": "SYS-BLOG-UI-BUILDER-P10",
+      "feature_package_id": "feature-package/feat-blog-ui-builder",
+      "parent_feature": "feat-blog-ui-builder",
+      "title": "最終レビューと残課題の確定",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p10",
+        "feat-blog-ui-builder"
+      ],
+      "related_nodes": [],
+      "workstream_kind": "quality",
+      "secondary_workstreams": [
+        "documentation",
+        "frontend"
+      ],
+      "build_target_kind": "application-code",
+      "phase_ref": "P10",
+      "depends_on": [
+        "SYS-BLOG-UI-BUILDER-P09"
+      ],
+      "write_scope": [
+        "docs/spec/feat-blog-ui-builder/final-review.md"
+      ],
+      "deploy_unit": "cloudflare-workers-opennext-app (Next.js 16 + OpenNext, Workers/D1/R2)",
+      "source_lineage": [
+        "system-spec/index.md",
+        "system-spec/00-requirements-definition.md",
+        "system-spec/ui-ux.md",
+        "system-spec/frontend.md",
+        "system-spec/database.md",
+        "architecture/system-spec-overview.md",
+        "architecture/arch-two-layer-platform.md"
+      ],
+      "classification": {
+        "confidence": 1.0,
+        "reason": "feat-blog-ui-builder の P10 lifecycle 責務への確定写像",
+        "candidates": [
+          {
+            "artifact_kind": "task",
+            "confidence": 1.0,
+            "candidate_path": "tasks/feat-blog-ui-builder/sys-blog-ui-builder-p10.md"
+          }
+        ]
+      },
+      "tracker_binding_intent": "beads",
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "pr_completion_policy": "linked_pr_merged_all",
+      "branch_policy": {
+        "strategy": "one-task-one-branch",
+        "worktree_lease_required": true,
+        "completion_projection": "default-branch-reconciliation",
+        "assignment_owner": "dev-graph-scheduler"
+      },
+      "acceptance": [
+        "P10: P01からP09の成果を通しでレビューし、受入14件 (A1-A14) の充足判定と、未充足があれば残課題がfinal-review.mdに確定した状態を成立させる。"
+      ],
+      "verification": [
+        "P10 の Verification and evidence section に記載する自動コマンドと証跡パスで検証する"
+      ],
+      "rollback": "P10 の write_scope に含まれる変更を revert し、直前の promoted generation へ差し戻す",
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-08-28T00:00:00Z"
+      },
+      "graph_node_registration": {
+        "graph_node_id": "SYS-BLOG-UI-BUILDER-P10",
+        "file_path": "tasks/feat-blog-ui-builder/sys-blog-ui-builder-p10.md",
+        "parent_feature": "feat-blog-ui-builder",
+        "feature_package_id": "feature-package/feat-blog-ui-builder",
+        "phase_ref": "P10"
+      }
+    },
+    {
+      "id": "SYS-BLOG-UI-BUILDER-P11",
+      "feature_package_id": "feature-package/feat-blog-ui-builder",
+      "parent_feature": "feat-blog-ui-builder",
+      "title": "受入・品質証跡の集約と検証可能性の確保",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p11",
+        "feat-blog-ui-builder"
+      ],
+      "related_nodes": [],
+      "workstream_kind": "documentation",
+      "secondary_workstreams": [
+        "quality"
+      ],
+      "build_target_kind": "application-code",
+      "phase_ref": "P11",
+      "depends_on": [
+        "SYS-BLOG-UI-BUILDER-P07",
+        "SYS-BLOG-UI-BUILDER-P09"
+      ],
+      "write_scope": [
+        "docs/spec/feat-blog-ui-builder/evidence/"
+      ],
+      "deploy_unit": "cloudflare-workers-opennext-app (Next.js 16 + OpenNext, Workers/D1/R2)",
+      "source_lineage": [
+        "system-spec/index.md",
+        "system-spec/00-requirements-definition.md",
+        "system-spec/ui-ux.md",
+        "system-spec/frontend.md",
+        "system-spec/database.md",
+        "architecture/system-spec-overview.md",
+        "architecture/arch-two-layer-platform.md"
+      ],
+      "classification": {
+        "confidence": 1.0,
+        "reason": "feat-blog-ui-builder の P11 lifecycle 責務への確定写像",
+        "candidates": [
+          {
+            "artifact_kind": "task",
+            "confidence": 1.0,
+            "candidate_path": "tasks/feat-blog-ui-builder/sys-blog-ui-builder-p11.md"
+          }
+        ]
+      },
+      "tracker_binding_intent": "beads",
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "pr_completion_policy": "linked_pr_merged_all",
+      "branch_policy": {
+        "strategy": "one-task-one-branch",
+        "worktree_lease_required": true,
+        "completion_projection": "default-branch-reconciliation",
+        "assignment_owner": "dev-graph-scheduler"
+      },
+      "acceptance": [
+        "P07の受入判定証跡 (スクリーンショット・axe-core結果・操作記録・HTML/JSON-LD出力・sitemap/robots/llms.txt内容・IndexNowスキップログ・guideline_references画面) とP09の品質検査証跡がdocs/spec/feat-blog-ui-builder/evidence/ 配下へ集約され、A1-A14の14件すべての再現手順を含めて第三者が検証できる状態を成立させる。"
+      ],
+      "verification": [
+        "P11 の Verification and evidence section に記載する自動コマンドと証跡パスで検証する"
+      ],
+      "rollback": "P11 の write_scope に含まれる変更を revert し、直前の promoted generation へ差し戻す",
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-08-28T00:00:00Z"
+      },
+      "graph_node_registration": {
+        "graph_node_id": "SYS-BLOG-UI-BUILDER-P11",
+        "file_path": "tasks/feat-blog-ui-builder/sys-blog-ui-builder-p11.md",
+        "parent_feature": "feat-blog-ui-builder",
+        "feature_package_id": "feature-package/feat-blog-ui-builder",
+        "phase_ref": "P11"
+      }
+    },
+    {
+      "id": "SYS-BLOG-UI-BUILDER-P12",
+      "feature_package_id": "feature-package/feat-blog-ui-builder",
+      "parent_feature": "feat-blog-ui-builder",
+      "title": "UI規則・SEO/AI検索運用規則と運用手順の文書化",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p12",
+        "feat-blog-ui-builder"
+      ],
+      "related_nodes": [],
+      "workstream_kind": "documentation",
+      "secondary_workstreams": [
+        "operations"
+      ],
+      "build_target_kind": "application-code",
+      "phase_ref": "P12",
+      "depends_on": [
+        "SYS-BLOG-UI-BUILDER-P10",
+        "SYS-BLOG-UI-BUILDER-P11"
+      ],
+      "write_scope": [
+        "docs/spec/feat-blog-ui-builder/ui-rules.md",
+        "docs/spec/feat-blog-ui-builder/operations.md"
+      ],
+      "deploy_unit": "cloudflare-workers-opennext-app (Next.js 16 + OpenNext, Workers/D1/R2)",
+      "source_lineage": [
+        "system-spec/index.md",
+        "system-spec/00-requirements-definition.md",
+        "system-spec/ui-ux.md",
+        "system-spec/frontend.md",
+        "system-spec/database.md",
+        "architecture/system-spec-overview.md",
+        "architecture/arch-two-layer-platform.md"
+      ],
+      "classification": {
+        "confidence": 1.0,
+        "reason": "feat-blog-ui-builder の P12 lifecycle 責務への確定写像",
+        "candidates": [
+          {
+            "artifact_kind": "task",
+            "confidence": 1.0,
+            "candidate_path": "tasks/feat-blog-ui-builder/sys-blog-ui-builder-p12.md"
+          }
+        ]
+      },
+      "tracker_binding_intent": "beads",
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "pr_completion_policy": "linked_pr_merged_all",
+      "branch_policy": {
+        "strategy": "one-task-one-branch",
+        "worktree_lease_required": true,
+        "completion_projection": "default-branch-reconciliation",
+        "assignment_owner": "dev-graph-scheduler"
+      },
+      "acceptance": [
+        "P12: テンプレート6種の選定基準・配色2層の運用規則・記事表現ブロックのスロット差替規則・SEO/AI標準ブロックの挿入規則・guideline_references更新の90日サイクル規則がui-rules.mdに、新規ブログ追加・新規テンプレート追加・新規固定ページ追加・アフィリエイト配置更新・IndexNow鍵のローテーション・guideline_references登録の運用手順がoperations.mdに文書化された状態を成立させる。"
+      ],
+      "verification": [
+        "P12 の Verification and evidence section に記載する自動コマンドと証跡パスで検証する"
+      ],
+      "rollback": "P12 の write_scope に含まれる変更を revert し、直前の promoted generation へ差し戻す",
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-08-28T00:00:00Z"
+      },
+      "graph_node_registration": {
+        "graph_node_id": "SYS-BLOG-UI-BUILDER-P12",
+        "file_path": "tasks/feat-blog-ui-builder/sys-blog-ui-builder-p12.md",
+        "parent_feature": "feat-blog-ui-builder",
+        "feature_package_id": "feature-package/feat-blog-ui-builder",
+        "phase_ref": "P12"
+      }
+    },
+    {
+      "id": "SYS-BLOG-UI-BUILDER-P13",
+      "feature_package_id": "feature-package/feat-blog-ui-builder",
+      "parent_feature": "feat-blog-ui-builder",
+      "title": "開発環境へのリリースとsystem-specへの書き戻し",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p13",
+        "feat-blog-ui-builder"
+      ],
+      "related_nodes": [],
+      "workstream_kind": "operations",
+      "secondary_workstreams": [
+        "documentation",
+        "quality"
+      ],
+      "build_target_kind": "application-code",
+      "phase_ref": "P13",
+      "depends_on": [
+        "SYS-BLOG-UI-BUILDER-P12"
+      ],
+      "write_scope": [
+        "docs/spec/feat-blog-ui-builder/release-report.md",
+        "system-spec/ui-ux.md",
+        "system-spec/frontend.md",
+        "system-spec/database.md"
+      ],
+      "deploy_unit": "cloudflare-workers-opennext-app (Next.js 16 + OpenNext, Workers/D1/R2)",
+      "source_lineage": [
+        "system-spec/index.md",
+        "system-spec/00-requirements-definition.md",
+        "system-spec/ui-ux.md",
+        "system-spec/frontend.md",
+        "system-spec/database.md",
+        "architecture/system-spec-overview.md",
+        "architecture/arch-two-layer-platform.md"
+      ],
+      "classification": {
+        "confidence": 1.0,
+        "reason": "feat-blog-ui-builder の P13 lifecycle 責務への確定写像",
+        "candidates": [
+          {
+            "artifact_kind": "task",
+            "confidence": 1.0,
+            "candidate_path": "tasks/feat-blog-ui-builder/sys-blog-ui-builder-p13.md"
+          }
+        ]
+      },
+      "tracker_binding_intent": "beads",
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "pr_completion_policy": "linked_pr_merged_all",
+      "branch_policy": {
+        "strategy": "one-task-one-branch",
+        "worktree_lease_required": true,
+        "completion_projection": "default-branch-reconciliation",
+        "assignment_owner": "dev-graph-scheduler"
+      },
+      "acceptance": [
+        "P13: 本featureの変更を含むPRがdevブランチへ提出・レビュー・マージされ、`pnpm run deploy:dev`相当の開発環境反映が完了し、実装で確定したUI規則・コンポーネント契約・データモデル・SEO/AI検索実装契約がsystem-spec/ui-ux.md・frontend.md・database.md へR4-reopen経由で書き戻された状態を成立させる。"
+      ],
+      "verification": [
+        "P13 の Verification and evidence section に記載する自動コマンドと証跡パスで検証する"
+      ],
+      "rollback": "P13 の write_scope に含まれる変更を revert し、直前の promoted generation へ差し戻す",
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-08-28T00:00:00Z"
+      },
+      "graph_node_registration": {
+        "graph_node_id": "SYS-BLOG-UI-BUILDER-P13",
+        "file_path": "tasks/feat-blog-ui-builder/sys-blog-ui-builder-p13.md",
+        "parent_feature": "feat-blog-ui-builder",
+        "feature_package_id": "feature-package/feat-blog-ui-builder",
+        "phase_ref": "P13"
+      }
+    }
+  ]
+}

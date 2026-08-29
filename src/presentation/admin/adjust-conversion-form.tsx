@@ -2,7 +2,7 @@
 
 import { useActionState, useState } from "react";
 import type { CurrencyCode } from "@/domain/shared";
-import { Button, Callout, Field, TextArea, ToolForm } from "@/presentation/ui";
+import { Button, Field, FormResult, FormValue, TextArea, ToolForm } from "@/presentation/ui";
 import { adjustConversionAction } from "./adjust-conversion-action";
 import { INITIAL_ADJUST_CONVERSION_STATE } from "./adjust-conversion-state";
 
@@ -29,10 +29,7 @@ export function AdjustConversionForm({
   readonly conversionId: string;
   readonly currency: CurrencyCode;
 }) {
-  const [state, action, pending] = useActionState(
-    adjustConversionAction,
-    INITIAL_ADJUST_CONVERSION_STATE,
-  );
+  const [state, action, pending] = useActionState(adjustConversionAction, INITIAL_ADJUST_CONVERSION_STATE);
   const [amount, setAmount] = useState("");
   const [reason, setReason] = useState("");
 
@@ -42,8 +39,8 @@ export function AdjustConversionForm({
       toolName="adjust_conversion_reward"
       toolDescription="成果の報酬額を手で直す（取り込んだ額は残す）"
     >
-      <input type="hidden" name="conversionId" value={conversionId} />
-      <input type="hidden" name="currency" value={currency} />
+      <FormValue name="conversionId" value={conversionId} />
+      <FormValue name="currency" value={currency} />
 
       <Field
         name="amount"
@@ -67,9 +64,7 @@ export function AdjustConversionForm({
         value={reason}
         onValueChange={setReason}
         hint="あとから金額の根拠をたどれるようにするため、必ず残します。"
-        error={
-          state.status === "failed" && state.field === "adjustmentReason" ? state.message : null
-        }
+        error={state.status === "failed" && state.field === "adjustmentReason" ? state.message : null}
         toolParamDescription="金額を直した理由（空にできない）"
       />
 
@@ -78,10 +73,7 @@ export function AdjustConversionForm({
       </Button>
 
       {/* 欄に紐づかない断り（締め済み・権限など）は、操作全体の断りとして出す。 */}
-      {state.status === "failed" && state.field === undefined ? (
-        <Callout tone="warn" reason={state.message} />
-      ) : null}
-      {state.status === "done" ? <Callout tone="success" reason={state.message} /> : null}
+      <FormResult state={state} />
     </ToolForm>
   );
 }

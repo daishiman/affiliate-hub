@@ -21,10 +21,11 @@ import { invokeTool } from "@/presentation/tools/tool-definition";
 describe("組み立て", () => {
   it("画面の入口と AI の入口が同じ順位を返す", async () => {
     const actor = await currentActor();
-    const target = rankingScreenTarget();
+    const { modelId, productIds } = await rankingScreenTarget();
+    const target = { modelId, productIds };
 
     // 画面が使う型付きの入口
-    const fromScreen = await invokeTool(rankingTool(), actor, target);
+    const fromScreen = await invokeTool(await rankingTool(), actor, target);
 
     // AI が使うカタログ経由の入口
     const tool = (await createToolCatalog()).find((t) => t.name === "rank_products");
@@ -66,7 +67,8 @@ describe("組み立て", () => {
 
   it("順位には理由が付き、選外にも理由が付く", async () => {
     const actor = await currentActor();
-    const result = await invokeTool(rankingTool(), actor, rankingScreenTarget());
+    const { modelId, productIds } = await rankingScreenTarget();
+    const result = await invokeTool(await rankingTool(), actor, { modelId, productIds });
     expect(result.ok).toBe(true);
     if (!result.ok) return;
 
@@ -85,7 +87,8 @@ describe("組み立て", () => {
 
   it("読者へ見せる評価基準が空にならない", async () => {
     const actor = await currentActor();
-    const result = await invokeTool(rankingTool(), actor, rankingScreenTarget());
+    const { modelId, productIds } = await rankingScreenTarget();
+    const result = await invokeTool(await rankingTool(), actor, { modelId, productIds });
     expect(result.ok).toBe(true);
     if (!result.ok) return;
 
@@ -95,10 +98,13 @@ describe("組み立て", () => {
     }
   });
 
-  it("商品は ID ではなく名前で表示できる", () => {
-    const target = rankingScreenTarget();
+  it("商品は ID ではなく名前で表示できる", async () => {
+    // 名前は 2 か所から来る。保存された商品はその名前、見本の商品は見本の名前。
+    // どちらの経路でも ID がそのまま画面に出ないことを固定する。
+    const target = await rankingScreenTarget();
     for (const id of target.productIds) {
-      expect(productDisplayName(id)).not.toBe(id);
+      const shown = target.productNames[id] ?? productDisplayName(id);
+      expect(shown).not.toBe(id);
     }
   });
 

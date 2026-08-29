@@ -74,7 +74,14 @@ function notFound(what: string): DomainError {
  */
 export type PublicSiteBlueprint = Omit<SiteBlueprint, "workspaceId">;
 
-function toPublicBlueprint(blueprint: SiteBlueprint): PublicSiteBlueprint {
+/**
+ * 作業場所の識別子を落とす。**落とす場所はここだけ。**
+ *
+ * 公開する読み口を組み立てる側（静止した写しを焼く道具も含む）は、
+ * 自分で `workspaceId` を消さずにこれを呼ぶ。各自で消すと、
+ * 消し忘れた 1 経路だけが内部識別子を載せて出る形が作れる。
+ */
+export function toPublicBlueprint(blueprint: SiteBlueprint): PublicSiteBlueprint {
   const { workspaceId: _workspaceId, ...rest } = blueprint;
   return rest;
 }
