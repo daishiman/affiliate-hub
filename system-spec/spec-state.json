@@ -5873,13 +5873,7 @@
     "next_question": null,
     "complete": true,
     "max_loops": 8,
-    "max_loops_policy": "strict",
-    "limit_overrun": {
-      "loop_count": 4,
-      "max_loops": 3,
-      "reason": "2026-08-29 の C05 再評価に伴う追補 (qa-infra-web-branch-flow) の chunk 実行で、--max-loops に実測の loop_count (4) より小さい 3 を渡したため上限が計数を下回った。ヒアリングの往復が上限を超えたのではなく、上限側を誤って下げた記録である。運用上の上限は 5。",
-      "recorded_at": null
-    }
+    "max_loops_policy": "strict"
   },
   "asks_for_contract": {
     "version": "1.0",
