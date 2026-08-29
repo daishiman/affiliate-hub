@@ -72,3 +72,79 @@ graph_node_id: `feat-blog-ui-builder`
 - マトリクス現行 qa_ref の差し替え: **未完了（`ah-6lf.3`）**
 - 本 feature の A1–A9: **未充足**。本 PR は SEO / AI 検索 MVP スライス
 - 本 feature の公開: **未実施**
+
+---
+
+# 追補：2026-08-29 の最終レビュー（CI の赤を閉じにいった回）
+
+記録日: 2026-08-29
+記録者: 最終レビュー（git status / diff / 完全性評価の再実行 / 独立監査 fork の再起動）
+graph_node_id: `feat-blog-ui-builder`
+対象 Beads: `ah-6lf`（親）、`ah-v84h`（本回で起票・open）
+
+## 7. 判定
+
+**影響はある。** ただし製品コードではなく、**仕様書そのものの中身**が動いた。
+`system-spec/ui-ux.md` に載っていた 2 行が、読み手ではなく writer を向いた作業指示
+（「`qa_log[].design_applications` を writer 経由で補完すること」）だった。しかも
+その手順は実行できない — 補完 verb `set-qa-design-applications` は `legacy_exempt=true`
+の旧 entry しか受けないため、一般の質疑では writer に拒否される。
+**仕様書が、実行できない手順を読み手へ配っていた。**
+
+## 8. 正規フローで反映したもの
+
+| 正本 | 反映内容 | 経路 |
+|---|---|---|
+| `.claude/plugins/system-spec-harness/lib/spec_docset_chapters.py` | 未記録分岐から作業指示を外し、記録が無いという事実の記述へ改めた | 描画側の修正 |
+| `.claude/plugins/system-spec-harness/tests/test_chapter_has_no_writer_todo.py` | 章に作業指示が混ざったら落ちる検査を新設 | 固定 |
+| `system-spec/ui-ux.md` | 上記 2 行を差し替え | **`compile-spec-doc.py`（単一 writer）**。手で書いていない |
+| `system-spec/retrieval-evidence/apple-hig.json` / `anthropic-claude.json` | 利用者の承認を得た再取得の実測へ追随 | C02 相当の再取得 |
+| `system-spec/fetched-references.json` | 上記 2 件を assembler で組み直し | C02 assembler |
+| `system-spec/completeness-report.json` | 6 観点の再採点。赤の宛先を書き換え | 評価者 |
+
+`spec-state.json` は**書き換えていない**。C07 が 6 個の決定論ゲートを併用して独立再実行し
+すべて exit 0 だったため、状態側は最初から違反していなかったと確認できたからである。
+直すべきは状態ではなく描画だった。
+
+## 9. 品質ゲート（2026-08-29）
+
+| コマンド | 結果 |
+|---|---|
+| `pytest .claude/plugins/system-spec-harness/tests/` | 668 passed |
+| `aggregate-completeness.py --report --fork-ledger --session` | exit 0（レポート形状・判定整合・fork 証跡接地を満たす） |
+| `node scripts/spec-freshness.mjs` | **FRESH**（レポートが見た木＝いまの木）／レポート判定は FAIL のため exit 1 |
+| `validate-evidence-transcription.py --show-evidence-identity` | exit 0（15 件が証跡と逐語一致） |
+| `validate-source-citation.py` | exit 0（targets 15 / references 15 が全件対応） |
+| 独立監査 fork C06 / C07 / C08 | 3 件とも起動行と解決行が畳み込み済み（`verdict_state=resolved`） |
+
+## 10. 残る赤と、その宛先
+
+総合判定は **FAIL** のまま出荷する。理由を明記する。
+
+| 観点 | 判定 | 宛先 |
+|---|---|---|
+| foundation_trace / decision_guidance / matrix_coverage / prompt_quality | PASS | — |
+| **design_knowledge_reflection** | FAIL → **PASS**（本回で解消） | — |
+| **doc_freshness** | **INDETERMINATE** | **監査 fork への WebFetch 付与（`ah-v84h`）** |
+
+`doc_freshness` は fail-closed で総合を FAIL に落とす。だが**その原因は仕様書側にない**。
+鮮度が未確定だった 2 出典は利用者の承認を得て再取得し、どちらも内容が動いていない
+ことを確かめてある（片方は配信側の再デプロイでヘッダだけが進み本文は 1 byte も
+変わらず、もう片方は体裁が変わっただけで根拠にしている active モデルの集合は同一）。
+層0（転記）と層1（形式・証跡）はいずれも exit 0。
+
+それでも独立監査 fork は同じ 2 件を未確定として返す。fork の session に WebFetch が
+供給されておらず、HTTP ヘッダ値も SPA 本文の埋め込み構造化データも観測できないためで、
+この 2 件の鮮度主張はどちらもその粒度を要求する。**この環境では、記録が正しくても
+この観点は PASS になれない。**
+
+評価者自身が取り直して確かめた事実はあるが、それを合格の根拠に流用しない。
+提案者と承認者が同一人物になり、独立監査という仕掛けそのものが無効になるからである。
+**緑にできるのに緑にしない**のではなく、**緑にする資格が評価者に無い**。
+
+## 11. 受領
+
+- 仕様・設計への影響: **あり**
+- 単一 writer 経由での章反映: **完了**（`compile-spec-doc.py`。手書きしていない）
+- 独立監査の再取得: **完了**（C06 / C07 / C08 を本 session で再起動、3 件とも解決行あり）
+- 総合判定: **FAIL**。宛先は仕様書ではなく監査 fork の道具立て（`ah-v84h`）
