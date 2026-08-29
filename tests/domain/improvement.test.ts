@@ -11,6 +11,8 @@ import {
   DEFAULT_MINIMUM_SAMPLES,
   LOOP_KINDS,
   MAX_SIMULTANEOUS_DIMENSIONS,
+  APPLY_POINTS,
+  CANDIDATE_SOURCES,
   NON_OPTIMIZABLE,
   OPTIMIZATION_DIMENSIONS,
   UNIVERSAL_GUARDRAILS,
@@ -766,6 +768,36 @@ describe("一覧の中身そのもの（実装から期待値を作らない）"
     ["generation_cost", "planned"],
     ["product_improvement", "implemented"],
   ] as const;
+
+  /**
+   * どこに効かせるか（5 種）と、候補の作り方（3 種）。
+   *
+   * ここを足した理由。**`APPLY_POINTS` から 1 項目抜いても、5 項目のどれを抜いても
+   * 8011 件すべて緑だった**（実測、2026-08-28）。この一覧は `ApplyPoint` 型の材料で、
+   * 上の `EXPECTED_DIMENSIONS` が見ているのは軸の `key` と `group` だけなので、
+   * **効かせ先が 1 つ消えても軸の一覧はそのまま通る**。消えた効かせ先を指す軸は
+   * 型で弾かれ、赤くならずに「その改善はできない」に変わる。
+   *
+   * `CANDIDATE_SOURCES` も同じ形なので、実測前だがここで一緒に固定する。
+   * （`llm` が消えると「AI に案を作らせる軸」が丸ごと登録できなくなる。）
+   */
+  it("効かせ先は 5 種、候補の作り方は 3 種そろっている", () => {
+    // 実装の doc コメント（`optimization.ts`）が並べた順に書き写す。輸入しない。
+    expect([...APPLY_POINTS]).toEqual(["prompt", "structure", "layout", "theme", "linking"]);
+    expect([...CANDIDATE_SOURCES]).toEqual(["preset", "numeric", "llm"]);
+  });
+
+  it("登録済みの軸は、どれも実在する効かせ先と作り方を指している", () => {
+    // 一覧が縮んだのに軸の側が古い名前を持ち続ける状態を止める。
+    // 型では止まるが、型は実行時には残らない（保存済みの設定値は素の文字列で戻る）。
+    for (const d of OPTIMIZATION_DIMENSIONS) {
+      expect(APPLY_POINTS, `${d.key} の効かせ先 ${d.appliedAt} が一覧に無い`).toContain(d.appliedAt);
+      expect(
+        CANDIDATE_SOURCES,
+        `${d.key} の作り方 ${d.candidateSource} が一覧に無い`,
+      ).toContain(d.candidateSource);
+    }
+  });
 
   it("調整してはいけないものの一覧が、1 件も欠けていない", () => {
     expect(NON_OPTIMIZABLE.map((n) => n.key)).toEqual([...EXPECTED_NON_OPTIMIZABLE]);

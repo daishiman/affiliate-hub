@@ -54,6 +54,7 @@ import {
   requireNewVersion,
   reviewMaterial,
   PROMPT_ROOT,
+  SHARED_PROMPT_FILES,
   selfInspectionBreaches,
   separationBreaches,
   skillOrderBreaches,
@@ -164,6 +165,42 @@ describe("指示文の組み立て", () => {
     expect(isPromptVersion("draft")).toBe(false);
   });
 
+  /**
+   * 全プロンプト共通で読み込む土台のファイル一覧。
+   *
+   * ここを足した理由。**この一覧から 1 項目抜いても 8001 件すべて緑だった**
+   * （4 項目とも実測、2026-08-28）。`SHARED_PROMPT_FILES` は src からも
+   * 1 か所も参照されておらず、テストにも名前が出てこなかった——
+   * 仕様 §07 §1-1 の樹形図を写した一覧が、写したきり誰も読んでいない。
+   * 一覧が黙って縮むのは「共通の土台が 1 枚外れる」ことなので、
+   * 文体規則や禁止表現を読まないまま生成が走る状態を素通しにする。
+   *
+   * **期待値を実装から組み立てない。**仕様の樹形図を手で書き写して突き合わせる。
+   * `map` で作った期待値は、一覧が縮むと期待値も一緒に縮んで永久に赤くならない。
+   */
+  it("共通の土台は、仕様が並べた 4 枚がそろっている", () => {
+    // `docs/spec/07-生成基盤設計.md` §1-1 の `_shared/` 直下。実装から輸入しない。
+    expect(SHARED_PROMPT_FILES.map((f) => f.file)).toEqual([
+      "_shared/system-base.md",
+      "_shared/fact-discipline.md",
+      "_shared/style-rules.md",
+      "_shared/forbidden-expressions.md",
+    ]);
+    // どの枚にも「何が書いてあるか」が添えてある。空だと、版を切るときに
+    // 中身を確かめずファイル名だけ引き写すことになる。
+    for (const f of SHARED_PROMPT_FILES) {
+      expect(f.contains.length, `${f.file} に中身の説明がありません`).toBeGreaterThan(3);
+    }
+  });
+
+  it("共通の土台は、版のフォルダの下に置かれる", () => {
+    // 置き場所の根だけ実物から引く。共通の土台も版ごとに固定しないと、
+    // 「過去の版を再現できる」（§1-1）が成り立たない。
+    for (const f of SHARED_PROMPT_FILES) {
+      expect(`${PROMPT_ROOT}/v1/${f.file}`).toBe(`prompts/generation/v1/${f.file}`);
+    }
+  });
+
   it("指示文の置き場所は版ごとに分かれる", () => {
     // 置き場所の根は実物から引く。版・名前・種別は**引数そのもの**なので素の字で残す
     // （ここまで組み立てで書くと、promptPath の中身をもう一度書くだけになり何も見なくなる）。
@@ -271,9 +308,78 @@ describe("取り込んだ文章の扱い", () => {
 
 describe("受け取りの形", () => {
   it("仕様の 20 項目を必須にしている", () => {
-    expect(OUTPUT_REQUIRED_FIELDS).toHaveLength(20);
+    /*
+     * 期待値は `docs/spec/07-生成基盤設計.md` の `"required": [...]` を手で書き写す。
+     *
+     * **2026-08-29 まで、ここは名前を見ていなかった。**当時の形は
+     * `toHaveLength(20)` と `expect(schema.required).toEqual([...OUTPUT_REQUIRED_FIELDS])`
+     * で、後者は期待値を実装から組み立てる自己参照だった。集合と一緒に縮む／一緒に
+     * 変わるので、**件数が動かない壊し方は素通りする**。
+     *
+     * 実測: `"fact_fingerprint"` を `"fact_fingerprint_RENAMED"` に改名したところ、
+     * 型検査 exit 0・この検査も緑のままだった（当日の全件実行で落ちたのは
+     * 機械の飽和による a11y の時間切れ 6 件だけで、名前を見る検査は 1 つも無かった）。
+     * 必須欄の名前は生成 AI に渡る schema にそのまま出るので、綴りが変わると
+     * 「モデルは返しているのに、こちらが受け取らない」に静かに変わる。
+     */
+    const spec = [
+      "body",
+      "summary",
+      "channel",
+      "format",
+      "author_persona_id",
+      "audience_persona_id",
+      "angle",
+      "claims_used",
+      "evidence_used",
+      "assumptions",
+      "affiliate_link_ids",
+      "disclosure",
+      "cta",
+      "platform_warnings",
+      "factuality_score",
+      "persona_fit_score",
+      "channel_fit_score",
+      "compliance_status",
+      "generation_prompt_version",
+      "fact_fingerprint",
+    ];
+    expect(spec).toHaveLength(20);
     const schema = generatedVariantJsonSchema() as { required: string[] };
-    expect(schema.required).toEqual([...OUTPUT_REQUIRED_FIELDS]);
+    expect(schema.required).toEqual(spec);
+    expect([...OUTPUT_REQUIRED_FIELDS]).toEqual(spec);
+  });
+
+  it("決めきれなかったことの決め手は、仕様 §07 が並べた 3 者である", () => {
+    // `docs/spec/07-生成基盤設計.md` の
+    // `"who_decides": { "enum": ["editor", "supervisor", "owner"] }` を書き写す。
+    // 実装（`ASSUMPTION_DECIDERS`）から組み立てない。
+    //
+    // **ここを足した理由（実測、2026-08-29）。**`ASSUMPTION_DECIDERS` から
+    // "supervisor" を抜いたところ、**型検査 exit 0・テスト 9747 件すべて緑**だった。
+    // 語彙の集合 76 本 478 項目を機械で洗い、その後 14 本を壊して測った結果、
+    // 当たりが 1 つも無かったのはこの集合だけである。
+    //
+    // 無防備だった理由は形にある。この家の語彙の集合はたいてい隣に
+    // `Record<Type, string>` の言い換え表を持っていて、項目を抜くと表の側が
+    // 余る欄になって型検査が止まる（8 本がこれで赤くなった）。
+    // 残りは検査の中の素の数字で止まる（`toHaveLength(20)` や `4 + 8 + 2 + 4`。5 本）。
+    // `ASSUMPTION_DECIDERS` はそのどちらも持っていなかった。
+    //
+    // しかもこの 3 語は `output-contract.ts` の型 `"editor" | "supervisor" | "owner"`
+    // に手で二重に書かれている。配列だけ減らしても型は変わらないので、
+    // 「AI に渡す enum だけが狭まって型は元のまま」がそのまま通ってしまう。
+    // だから配列ではなく、**実際に AI へ渡る schema の値**を見る。
+    const schema = generatedVariantJsonSchema() as {
+      properties: {
+        assumptions: { items: { properties: { who_decides: { enum: string[] } } } };
+      };
+    };
+    expect(schema.properties.assumptions.items.properties.who_decides.enum).toEqual([
+      "editor",
+      "supervisor",
+      "owner",
+    ]);
   });
 
   it("散文で返ってきたら受け取らない", () => {
@@ -372,8 +478,12 @@ describe("役の分け方", () => {
   });
 
   it("3 回書き直しても残る指摘は、人へ回す", () => {
+    // **試験名が名乗る 3 を書き写す。**`MAX_REVISION_ROUNDS` を渡すと、
+    // 3 を 307 に変えても入力が一緒に動いて緑のまま通る（実測、2026-08-28）。
+    // 回数を増やせば、人へ回さないまま AI が延々と書き直し続けられてしまう。
+    expect(MAX_REVISION_ROUNDS, "書き直しの上限回数が動いている").toBe(3);
     expect(concludeRevision(1, 2).kind).toBe("retry");
-    const handed = concludeRevision(MAX_REVISION_ROUNDS, 2);
+    const handed = concludeRevision(3, 2);
     expect(handed.kind).toBe("hand_to_human");
     if (handed.kind !== "hand_to_human") return;
     expect(handed.reason).toContain("解消したことにせず");

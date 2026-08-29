@@ -2,29 +2,29 @@
   "references": [
     {
       "target_id": "better-auth",
-      "retrieved_at": "2026-08-19T15:30:39Z",
+      "retrieved_at": "2026-08-28T14:07:27Z",
       "source_url": "https://www.better-auth.com/docs/introduction",
       "official_publisher": "Better Auth",
       "official_host": "www.better-auth.com",
-      "version": "1.7.1",
+      "version": "1.7.2",
       "freshness_source": "publisher-registry",
-      "latest_checked_at": "2026-08-19T15:30:39Z",
+      "latest_checked_at": "2026-08-28T14:07:27Z",
       "evidence_ref": "system-spec/retrieval-evidence/better-auth.json",
-      "evidence_sha256": "0e7f11353a036d1008d3b2ac662ea4c9b360e5289ce9e8621b29d2e0d2240ad0",
-      "summary": "Better Auth 公式ドキュメント導入章。TypeScript 向け自己ホスト認証フレームワーク。OAuth (Google 含む)・セッション管理・組織/マルチテナント・パスキー等のプラグインと Drizzle アダプタを提供。docs は rolling で版を表明しないため、version は publisher の配布 registry が示す現行版 1.7.1 (この repo の導入版 1.7.0 とは別物。version は出典が説明している対象の版である)。"
+      "evidence_sha256": "620b4c90db4d31388940e8e2e84c42ae320aec250b148c1d36a09e4312496469",
+      "summary": "Better Auth 公式ドキュメント導入章。TypeScript 向け自己ホスト認証フレームワーク。OAuth (Google 含む)・セッション管理・組織/マルチテナント・パスキー等のプラグインと Drizzle アダプタを提供。docs は rolling で版を表明しないため、version は publisher の配布 registry が示す現行版 1.7.2 (この repo の導入版 1.7.0 とは別物)。2026-08-28T14:07:27Z に公式 docs と registry を raw HTTP 再取得し、内容 digest を証跡へ記録した。"
     },
     {
       "target_id": "nextjs",
-      "retrieved_at": "2026-08-16T09:01:51Z",
+      "retrieved_at": "2026-08-28T14:07:27Z",
       "source_url": "https://nextjs.org/docs",
       "official_publisher": "Vercel",
       "official_host": "nextjs.org",
-      "version": "16.3.2",
+      "version": "16.3.3",
       "freshness_source": "publisher-registry",
-      "latest_checked_at": "2026-08-22T22:20:35Z",
+      "latest_checked_at": "2026-08-28T14:07:27Z",
       "evidence_ref": "system-spec/retrieval-evidence/nextjs.json",
-      "evidence_sha256": "ba58126ef21261e83348b9587888055e9af68ac736b266a211e039d4cdc930d6",
-      "summary": "Next.js 公式ドキュメント。App Router・Server Components・ルーティング/データ取得の現行仕様。frontend カテゴリの正本参照。docs は rolling で版を表明しないため、version は publisher の配布 registry (npm) が示す現行版を採る。2026-08-22T08:13:50Z に `npm view next version` / `npm view next dist-tags.latest` で照会し、いずれも 16.3.2 を返した (それまで記録していた 16.3.1 は、2026-08-16 時点の WebSearch 由来で registry の実状態より遅れていた)。evidence_ref は 2026-08-16 の docs ページ取得証跡であり、registry 照会の証跡ではない。この環境からは HTTP 取得ができないため docs ページの再取得は行っていない。2026-08-22T22:20:35Z に同じ照会を繰り返し、version / dist-tags.latest とも 16.3.2 (registry の最終更新 2026-08-21T23:53:41.293Z) で記録値と一致することを再確認し、その照会結果を evidence_ref の freshness_extraction へ書き足した。 なお 2026-08-25 に retrieved_at を '2026-08-23T13:12:16Z' から証跡どおりの '2026-08-16T09:01:51Z' へ改めた。docs ページを再取得していないのに 2026-08-23 の取得を名乗っており、どの証跡もその日付を支えていなかった。実際より新しく見せる記録は、古いことより悪い (古さは再取得で直るが、支えの無い新しさは誰にも気付かれない)。registry 照会の時刻は latest_checked_at が持っており、取得時刻と混ぜない。"
+      "evidence_sha256": "7dedfbf1117b886d69b5066087e825edfc7e2b87c0463bf07267a53a710303fd",
+      "summary": "Next.js 公式ドキュメント。App Router・Server Components・ルーティング/データ取得の現行仕様。frontend カテゴリの正本参照。docs は rolling で版を表明しないため、version は publisher の配布 registry (npm) が示す現行版 16.3.3。2026-08-28T14:07:27Z に公式 docs と registry を raw HTTP 再取得し、docs 内の版表記と内容 digest を証跡へ記録した。"
     },
     {
       "target_id": "cloudflare-workers",
@@ -80,16 +80,16 @@
     },
     {
       "target_id": "apple-hig",
-      "retrieved_at": "2026-08-25T12:13:56Z",
+      "retrieved_at": "2026-08-29T13:28:38Z",
       "source_url": "https://developer.apple.com/design/human-interface-guidelines",
       "official_publisher": "Apple",
       "official_host": "developer.apple.com",
-      "last_updated": "2026-08-24",
+      "last_updated": "2026-08-27",
       "freshness_source": "http-last-modified",
-      "latest_checked_at": "2026-08-25T12:13:56Z",
+      "latest_checked_at": "2026-08-29T13:28:38Z",
       "evidence_ref": "system-spec/retrieval-evidence/apple-hig.json",
-      "evidence_sha256": "da569a279c943d4879bd99fca46b9127d226c8da856e0712f1c3badb0bbde9de",
-      "summary": "Apple Human Interface Guidelines 公式ページ。presentation concern の doctrine authority。本文は版・更新日を表明しないため、2026-08-25 の公式レスポンスが返した Last-Modified 2026-08-24 を制約付きで採用した。前回から本文 sha256 とヘッダ値が変化したため再取得済み。"
+      "evidence_sha256": "54ab7d78f9012c7a905ca0de915cafaa40939fbf06f22e87dd1fb86f627945ef",
+      "summary": "Apple Human Interface Guidelines 公式ページ。presentation concern の doctrine authority。本文は版・更新日を表明しないため、2026-08-29 の公式 レスポンスが返した Last-Modified 2026-08-27 を制約付きで採用した。前回 (2026-08-25) からヘッダ値は進んだが本文 sha256 は同一で、内容は動いていない。"
     },
     {
       "target_id": "google-sre",
@@ -106,16 +106,16 @@
     },
     {
       "target_id": "anthropic-claude",
-      "retrieved_at": "2026-08-25T12:13:56Z",
+      "retrieved_at": "2026-08-29T13:28:38Z",
       "source_url": "https://platform.claude.com/docs/en/models/overview",
       "official_publisher": "Anthropic",
       "official_host": "platform.claude.com",
       "version": "現行 active モデル (claude-fable-5 / claude-opus-5 / claude-sonnet-5 / claude-haiku-4-5-20251001)",
       "freshness_source": "page-declared",
-      "latest_checked_at": "2026-08-25T12:13:56Z",
+      "latest_checked_at": "2026-08-29T13:28:38Z",
       "evidence_ref": "system-spec/retrieval-evidence/anthropic-claude.json",
-      "evidence_sha256": "55910c7fca572cdb1605973740fdbd85ec0f6fd9ba6b627b18f859c22f99249f",
-      "summary": "Anthropic Claude 公式モデル一覧。現行比較表と埋め込みデータが active と表明する model ID を記録した。旧記録の claude-mythos-5 は案内見出しには残るが active model ID ではないため除外し、恒久移送後の canonical URL へ更新した。"
+      "evidence_sha256": "ded7e0c260afed6459ede6950730518afd5c81f58880c9a9b360fb8f524b5d31",
+      "summary": "Claude Platform Docs のモデル一覧。ai-integration concern の一次出典。2026-08-29 の再取得で、埋め込みモデルデータの lifecycle=active entry が ちょうど 4 件 (claude-fable-5 / claude-opus-5 / claude-sonnet-5 / claude-haiku-4-5-20251001) であることを機械的に確認した。ページの体裁は 前回から変わったが、この target が根拠にする現行 active モデルは同一である。"
     },
     {
       "target_id": "openai-platform",

@@ -4,6 +4,7 @@ import {
   articleHref,
   outboundHref,
 } from "@/application/read-models/published-article";
+import { expressionBlocksOf } from "@/application/seo/expression-blocks";
 import type { PublicSiteBlueprint } from "@/application/usecases/site/read-site";
 import {
   type ArticleType,
@@ -140,11 +141,17 @@ export function toArticleCards(
 
 /** 記事 1 本。順位表の商品名は、レビューがある商品だけリンクにする。 */
 export function toArticleView(siteSlug: string, article: PublishedArticle): ArticleViewModel {
+  const blocks = expressionBlocksOf(article);
+  const answer = blocks.find((block) => block.kind === "answer");
+  const keyPoints = blocks.find((block) => block.kind === "key_points");
+  const faq = blocks.find((block) => block.kind === "faq");
+  const freshness = blocks.find((block) => block.kind === "freshness");
+
   return {
     title: article.title,
-    summary: article.summary,
+    summary: answer?.text ?? "",
     publishedAt: article.publishedAt,
-    updatedAt: article.updatedAt,
+    updatedAt: freshness?.asOf ?? "",
     authorName: article.author.name,
     authorHref: siteHref(siteSlug, `/authors/${article.author.slug}`),
     expertName: article.reviewedBy?.name,
@@ -173,9 +180,10 @@ export function toArticleView(siteSlug: string, article: PublishedArticle): Arti
       })),
     })),
     conversation: article.conversation,
-    // よくある質問はそのまま渡す。ここで並べ替えたり丸めたりしない
-    //（同じ並びで JSON-LD にも出すので、片方だけ変わると読者と機械で中身がずれる）。
-    faq: article.faq,
+    // answer / key_points / faq / freshness は画面で読み直さない。
+    // 公開前監査・JSON-LD と同じ射影に、空白の扱いまで揃える。
+    keyPoints: keyPoints?.items,
+    faq: faq?.items,
     productCards: article.productCards?.map((card) => ({
       // どの商品かを画面まで運ぶ。「気になる」の保存先を決めるのに要る。
       productId: card.productId,

@@ -111,7 +111,7 @@
 | REQ-W05 | has-enumerated-input | — |
 | REQ-W06 | has-enumerated-input | — |
 | REQ-W07 | has-enumerated-input | — |
-| REQ-W08 | has-enumerated-input | — |
+| REQ-W08 | has-input, has-enumerated-input | — |
 | REQ-W09 | has-input | — |
 | REQ-W10 | has-input | — |
 | REQ-W11 | has-enumerated-input | — |
@@ -252,6 +252,8 @@
 | REQ-TS17 | has-input | — |
 | REQ-TS18 | has-known-breakage, has-input | — |
 | REQ-TS19 | has-input | — |
+| REQ-TS20 | has-input | — |
+| REQ-TS21 | has-known-breakage, has-input | — |
 | REQ-SEO01 | has-input | — |
 | REQ-SEO02 | has-input | — |
 | REQ-SEO03 | has-input | — |

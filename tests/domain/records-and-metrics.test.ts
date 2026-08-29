@@ -83,16 +83,30 @@ describe("根拠 (Evidence)", () => {
     if (!r.ok) expect(r.error.field).toBe("licenseOrPermission");
   });
 
+  /**
+   * 決めた字数を手で書き写す。**`MAX_EXCERPT_LENGTH` から入力を組み立てない。**
+   *
+   * ここを直した理由。**上限を 400 から 400007 へ**緩める向き**に動かしても
+   * 7990 件すべて緑だった**（実測、2026-08-28）。`MAX_EXCERPT_LENGTH + 1` で
+   * 超える側の入力を作っていたので、**上限をいくつ上げても入力が一緒に伸びて、
+   * 常に 1 文字だけ超えた位置に居続けた。**上限を実質無効化しても止まらない。
+   */
+  const DECLARED_EXCERPT_LENGTH = 400;
+
+  it("床: 抜粋の上限が、ここに書き写した 400 文字と一致している", () => {
+    expect(MAX_EXCERPT_LENGTH, "抜粋の上限が動いている").toBe(DECLARED_EXCERPT_LENGTH);
+  });
+
   it("抜粋はちょうど上限までは通り、1 文字超えると断る", () => {
     // 上限そのものを通すかどうかは、実装を読まないと分からない。ここで固定する。
-    expect(evidence({ excerptOrSummary: "あ".repeat(MAX_EXCERPT_LENGTH) }).ok).toBe(true);
+    expect(evidence({ excerptOrSummary: "あ".repeat(DECLARED_EXCERPT_LENGTH) }).ok).toBe(true);
 
-    const over = evidence({ excerptOrSummary: "あ".repeat(MAX_EXCERPT_LENGTH + 1) });
+    const over = evidence({ excerptOrSummary: "あ".repeat(DECLARED_EXCERPT_LENGTH + 1) });
     expect(over.ok).toBe(false);
     if (!over.ok) {
       expect(over.error.field).toBe("excerptOrSummary");
       // 何文字だったかを言う。言わないと直しようがない。
-      expect(over.error.message).toContain(String(MAX_EXCERPT_LENGTH + 1));
+      expect(over.error.message).toContain(String(DECLARED_EXCERPT_LENGTH + 1));
     }
   });
 });

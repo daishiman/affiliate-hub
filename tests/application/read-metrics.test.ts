@@ -79,13 +79,26 @@ describe("指標の一覧", () => {
     expect(view.rows.map((r) => r.key)).toEqual(METRIC_DEFINITIONS.map((d) => d.key));
   });
 
+  /**
+   * 試験名が名乗る数を手で書き写す。**`DEFAULT_METRICS_WINDOW_DAYS` から
+   * 期待値を組み立てない。**
+   *
+   * ここを直した理由。**30 を 3007 にしても 0 にしても 7990 件すべて緑だった**
+   * （実測、2026-08-28）。期待値を `DEFAULT_METRICS_WINDOW_DAYS * 24 * 60 * 60 * 1000`
+   * で作っていたので、**定数をいくつに変えても期待値が一緒に動いた。**
+   * 「既定で 30 日ぶん」と名乗りながら、実際に見ていたのは
+   * 「その定数が使われているか」だけだった。
+   */
+  const DECLARED_WINDOW_DAYS = 30;
+
   it("問い合わせる期間は、既定で 30 日ぶん", async () => {
+    expect(DEFAULT_METRICS_WINDOW_DAYS, "既定の集計期間が動いている").toBe(DECLARED_WINDOW_DAYS);
     const { calls } = await list([]);
     const call = calls[0];
     expect(call).toBeDefined();
     if (!call) return;
     expect(call.to.getTime() - call.from.getTime()).toBe(
-      DEFAULT_METRICS_WINDOW_DAYS * 24 * 60 * 60 * 1000,
+      DECLARED_WINDOW_DAYS * 24 * 60 * 60 * 1000,
     );
   });
 

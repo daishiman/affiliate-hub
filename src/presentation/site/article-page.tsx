@@ -171,7 +171,7 @@ export async function ArticlePage({
               答えが検索結果に出る（構造化データの誤用そのもの）。
             */}
             {(() => {
-              const faq = buildFaqPage(result.value.faq ?? []);
+              const faq = buildFaqPage(result.value);
               return faq === null ? null : (
                 <script
                   type="application/ld+json"

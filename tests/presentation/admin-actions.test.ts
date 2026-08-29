@@ -1315,6 +1315,43 @@ describe("自分のブログへ記事を出す操作", () => {
     const state = await publishArticleAction(IDLE, fullForm());
     expect(state.message, "断る理由が画面に出ていません").toContain("ログイン");
   });
+
+  /**
+   * 公開前の点検（REQ-SEO03）。
+   *
+   * ここは見本の保存先なので**出そうとすると必ず落ちる**。その差がそのまま
+   * 検査になる。点検が保存まで進んでいれば、同じ理由で落ちるはずである。
+   */
+  it("点検は何も出さずに結果だけ返す（出す道は同じ入力で落ちる）", async () => {
+    asPublisher();
+    const checked = await publishArticleAction(IDLE, fullForm({ intent: "check" }));
+
+    expect(checked.status).toBe("done");
+    expect(checked.phase).toBe("checked");
+    // **読者ページへの導線を付けない。** まだ何も出ていない。
+    expect(checked.url).toBeUndefined();
+    expect(checked.message).toContain("まだ公開していません");
+    expect(checked.aiSearch?.length ?? 0).toBeGreaterThan(0);
+
+    // 同じ入力で出そうとすると保存で落ちる = 点検は保存へ進んでいない。
+    expect((await publishArticleAction(IDLE, fullForm())).status).toBe("failed");
+  });
+
+  it("点検でも、公開と同じ理由で断られる（点検だけ通る抜け道を作らない）", async () => {
+    asPublisher();
+    const state = await publishArticleAction(IDLE, fullForm({ intent: "check", slug: "静かなノート" }));
+
+    expect(state.status).toBe("failed");
+    expect(state.field).toBe("slug");
+  });
+
+  it("ログインしていない人は、点検もできない", async () => {
+    asPublisher();
+    loggedIn = false;
+    const state = await publishArticleAction(IDLE, fullForm({ intent: "check" }));
+    expect(state.status).toBe("failed");
+    expect(state.message).toContain("ログイン");
+  });
 });
 
 /**

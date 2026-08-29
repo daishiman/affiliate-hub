@@ -16,14 +16,13 @@ import {
   createSiteBlueprint,
 } from "@/domain/authoring";
 import { advance, createPublication, MAX_SEND_ATTEMPTS } from "@/domain/distribution";
-import { createClaim, createEvidence, createTestRun, MAX_EXCERPT_LENGTH } from "@/domain/evidence";
+import { createClaim, createEvidence, createTestRun } from "@/domain/evidence";
 import { createBrand, createMembership, createWorkspace, checkCapacity } from "@/domain/identity";
 import { createAffiliateLink, createConversion } from "@/domain/monetization";
 import {
   createComparisonSet,
   createIdentityKey,
   createMerchantOffer,
-  MAX_COMPARISON_CANDIDATES,
   scoreComparison,
 } from "@/domain/product";
 import { createProvenance } from "@/domain/shared";
@@ -485,9 +484,12 @@ describe("ComparisonSet（E18）: 比較候補の件数の端", () => {
   };
 
   it("上限ちょうどまで通り、1 件超えた時点で断る", () => {
-    const eight = Array.from({ length: MAX_COMPARISON_CANDIDATES }, (_, i) => candidate(i + 1));
+    // 数は書き写す。`MAX_COMPARISON_CANDIDATES + 1` で作ると、上限をいくつ上げても
+    // 入力が一緒に増えて永久に赤くならない（実測、2026-08-28）。
+    // 実装との一致は `boundaries-platform.test.ts` の床が見ている。
+    const eight = Array.from({ length: 8 }, (_, i) => candidate(i + 1));
     expect(createComparisonSet({ ...base, candidates: eight }).ok).toBe(true);
-    const nine = [...eight, candidate(MAX_COMPARISON_CANDIDATES + 1)];
+    const nine = [...eight, candidate(9)];
     expect(createComparisonSet({ ...base, candidates: nine }).ok).toBe(false);
   });
 
@@ -578,8 +580,11 @@ describe("Evidence（E20）: 抜粋の長さの端", () => {
    * `>` を `>=` に書き換えた日に気づけない。
    */
   it("抜粋は上限ちょうどまで通り、1 文字超えた時点で断る", () => {
-    const at = "あ".repeat(MAX_EXCERPT_LENGTH);
-    const over = "あ".repeat(MAX_EXCERPT_LENGTH + 1);
+    // 数は書き写す。`MAX_EXCERPT_LENGTH + 1` で作ると、上限をいくつ上げても
+    // 入力が一緒に伸びて永久に赤くならない（実測、2026-08-28）。
+    // 実装との一致は `records-and-metrics.test.ts` の床が見ている。
+    const at = "あ".repeat(400);
+    const over = "あ".repeat(401);
     expect(createEvidence({ ...base, excerptOrSummary: at }).ok).toBe(true);
     expect(createEvidence({ ...base, excerptOrSummary: over }).ok).toBe(false);
   });

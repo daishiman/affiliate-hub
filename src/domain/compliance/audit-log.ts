@@ -59,6 +59,9 @@ export type AuditAction =
    */
   | "guideline_reference.registered"
   | "guideline_reference.rechecked"
+  | "guideline_reference.source_verified"
+  /** 指針の特定本文版について、根拠にしている仕様章の再評価を完了した。 */
+  | "guideline_reference.reopen_acknowledged"
   | "affiliate_link.created"
   | "affiliate_link.changed"
   /**
