@@ -313,6 +313,38 @@ describe("受け取りの形", () => {
     expect(schema.required).toEqual([...OUTPUT_REQUIRED_FIELDS]);
   });
 
+  it("決めきれなかったことの決め手は、仕様 §07 が並べた 3 者である", () => {
+    // `docs/spec/07-生成基盤設計.md` の
+    // `"who_decides": { "enum": ["editor", "supervisor", "owner"] }` を書き写す。
+    // 実装（`ASSUMPTION_DECIDERS`）から組み立てない。
+    //
+    // **ここを足した理由（実測、2026-08-29）。**`ASSUMPTION_DECIDERS` から
+    // "supervisor" を抜いたところ、**型検査 exit 0・テスト 9747 件すべて緑**だった。
+    // 語彙の集合 76 本 478 項目を機械で洗い、その後 14 本を壊して測った結果、
+    // 当たりが 1 つも無かったのはこの集合だけである。
+    //
+    // 無防備だった理由は形にある。この家の語彙の集合はたいてい隣に
+    // `Record<Type, string>` の言い換え表を持っていて、項目を抜くと表の側が
+    // 余る欄になって型検査が止まる（8 本がこれで赤くなった）。
+    // 残りは検査の中の素の数字で止まる（`toHaveLength(20)` や `4 + 8 + 2 + 4`。5 本）。
+    // `ASSUMPTION_DECIDERS` はそのどちらも持っていなかった。
+    //
+    // しかもこの 3 語は `output-contract.ts` の型 `"editor" | "supervisor" | "owner"`
+    // に手で二重に書かれている。配列だけ減らしても型は変わらないので、
+    // 「AI に渡す enum だけが狭まって型は元のまま」がそのまま通ってしまう。
+    // だから配列ではなく、**実際に AI へ渡る schema の値**を見る。
+    const schema = generatedVariantJsonSchema() as {
+      properties: {
+        assumptions: { items: { properties: { who_decides: { enum: string[] } } } };
+      };
+    };
+    expect(schema.properties.assumptions.items.properties.who_decides.enum).toEqual([
+      "editor",
+      "supervisor",
+      "owner",
+    ]);
+  });
+
   it("散文で返ってきたら受け取らない", () => {
     const result = checkOutputShape("いい感じの記事を書きました。");
     expect(result.ok).toBe(false);

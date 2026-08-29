@@ -307,6 +307,59 @@ implementation_readiness: {"checked_at":null,"missing_sections":[],"status":"inc
   「使っている場所が在るかどうかで守られ方が変わる」のは `CTA_TYPES` 固有の話ではないので、
   **語彙の集合を全件洗う 1 巡**が別に要る（数値定数 33 件でやったのと同じ形）。
 
+- **2026-08-29: 語彙の集合を全件洗った（76 本 478 項目）。当たり無しは 1 本。**
+
+  上の 1 巡をその日のうちに実施した。手順は 2 段にした。全件を 1 本ずつ
+  壊して全テストを回すと 76 × 5 分で数時間になるので、先に機械で絞った。
+
+  1. **機械で絞る。**`export const X = [...] as const` を 76 本抽出し、
+     項目 478 件それぞれについて「定義ファイルの外に文字列として出てくるか」を数えた。
+     出現 0 の項目を持つ集合が **14 本**。ここだけが「抜いても型検査が通る」候補になる。
+     機械に当てられるのはここまでで、**赤くなるかどうかは測らないと分からない**
+     （3 型スイープと同じ限界）。
+  2. **壊して測る。**その 14 本から 1 項目ずつ抜き、まず `npx tsc --noEmit`、
+     生き残った分だけ全件テストを 1 回で回した。守られているはずの
+     `SIDEBAR_SLOT_KEYS`（`toHaveLength(8)` 有り）を**対照として一緒に壊し**、
+     これが赤くなることで測り方が壊れていないことを確かめている。
+
+  結果は 3 群に分かれた。
+
+  | 守られ方 | 本数 | 何が止めたか |
+  |---|---|---|
+  | 型検査が止める | 8 | 隣の `Record<Type, string>` 言い換え表が余る欄になる |
+  | 検査の中の素の数字が止める | 5 | `toHaveLength(20)` / `toHaveLength(8)` / `toBe(4 + 8 + 2 + 4)` |
+  | **何も止めない** | **1** | `ASSUMPTION_DECIDERS` |
+
+  型で止まった 8 本: `MATRIX_ROW_AXES` / `DISCLOSURE_SURFACES` / `EXPERIMENT_STATUSES` /
+  `OPTIMIZATION_GROUPS` / `BRAND_THEMES` / `CAMPAIGN_STATUSES` /
+  `ENVELOPE_PLACEHOLDERS` / `GENERATION_INPUT_KEYS`。
+  数字で止まった 5 本: `OUTPUT_REQUIRED_FIELDS` / `SIDEBAR_SLOT_KEYS`（対照） /
+  `HEADER_SLOT_KEYS` / `SIDEBAR_STICKY_SLOT_KEYS` / `FOOTER_SLOT_KEYS`
+  （後ろ 3 本は 1 本ずつの当たりではなく、合計の `4 + 8 + 2 + 4` で一緒に止まっている）。
+
+  **`ASSUMPTION_DECIDERS` から `"supervisor"` を抜くと、型検査 exit 0・
+  テスト 9747 件すべて緑だった。**この集合は `generatedVariantJsonSchema()` の
+  `who_decides` の enum になってそのまま生成 AI へ渡る。黙って狭まると
+  「監修者が決める」と書けなくなる。しかも同じ 3 語が `output-contract.ts` の型
+  `"editor" | "supervisor" | "owner"` に手で二重に書いてあり、
+  配列だけ減らしても型は変わらない。
+
+  同日 `tests/domain/generation-plan.test.ts`「決めきれなかったことの決め手は、
+  仕様 §07 が並べた 3 者である」を足して塞いだ。期待値は
+  `docs/spec/07-生成基盤設計.md` の `"who_decides": { "enum": [...] }` を手で写している。
+  当たりは配列ではなく **AI へ渡る schema の値**に置いた（型と配列が食い違う形を捕まえるため）。
+  無傷で 44 件緑、`"supervisor"` を抜くと 1 件赤になることを両方向で確認した。
+
+  **この 1 巡が当てていないこと。**測ったのは「1 項目抜く」だけである。
+  - **改名は測っていない。**素の数字で止まっている 5 本は件数しか見ていないので、
+    `fact_fingerprint` を別名にしても緑のままのはずである（未測定）。
+    `OUTPUT_REQUIRED_FIELDS` の名前の当たりは
+    `toEqual([...OUTPUT_REQUIRED_FIELDS])` で実装から組み立てており、自己参照である。
+  - **入れ替えも測っていない。**`4 + 8 + 2 + 4` は合計しか見ないので、
+    ヘッダーが 1 増えてフッターが 1 減る形は通る。
+  - 型で止まった 8 本が守られているのは検査の意図ではなく**言い換え表の副産物**である。
+    表を消すと同時に無防備になる。
+
 一括で判定欄を消すのではなく、1 件ずつ確かめる作業になる。
 判定欄がすべて嘘なわけではない（実測の引用として正しい行のほうが多い）。
 
