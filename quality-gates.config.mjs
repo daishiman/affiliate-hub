@@ -1390,6 +1390,14 @@ export const CHECKS = [
     why: "スキーマだけ変えて公開すると、存在しない列を読んで本番が落ちる。1 秒で終わるので手元でも走らせる",
   },
   {
+    id: "affiliate-content-set",
+    label: "公開前コンテンツ一式の検品",
+    command: ["pnpm", "run", "content:validate"],
+    blocking: true,
+    tier: 1,
+    why: "記事・投稿を個別に通しても媒体間の食い違いと成果物の渡し忘れは残る。実在する2案件を単一入口で5検品へ通し、媒体の不足と過剰も公開前に止める",
+  },
+  {
     id: "test",
     label: "テストとカバレッジ",
     command: ["node", "scripts/run-tests.mjs", "--coverage"],

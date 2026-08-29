@@ -1,0 +1,50 @@
+{
+  "_": "apply-style-genome の tone-undefined 分岐を確かめるための検証用ブログ。quiet-rental とは題材を離してある（あちらは騒音を測る話なので、tone の書き直し案が定義 L36 の例文とほぼ同じになってしまい、規則が働いたのか例文を写しただけなのかを区別できない）。",
+
+  "slug": "kids-english-trial",
+  "name": "子どもの英会話、体験レッスンの記録",
+  "purpose": "子ども向けオンライン英会話を申し込む前に、講師の当たり外れがどのくらいあるかを親が把握できるようにする",
+  "genre": "教育サービス・オンライン英会話",
+
+  "pattern": "personal_brand",
+  "revenueModel": "affiliate",
+
+  "extraPages": ["search", "faq", "how_to_choose"],
+
+  "categories": [
+    {
+      "slug": "trial",
+      "name": "体験レッスン",
+      "oneLine": "同じ子どもが受けた記録から、当たり外れの幅で選ぶ。",
+      "initialArticleTypes": ["review", "comparison"]
+    },
+    {
+      "slug": "continue",
+      "name": "続け方",
+      "oneLine": "やめた週に何があったかから、続く条件を探す。",
+      "initialArticleTypes": ["guide"]
+    }
+  ],
+
+  "theme": {
+    "brandTheme": "graphite-amber",
+    "colorScheme": "auto",
+    "density": "comfortable",
+    "radius": "medium"
+  },
+
+  "differentiation": {
+    "targetReader": "小学 2 年生の子に英会話をさせたい親。英語は自分では教えられない",
+    "searchIntent": "無料体験の評判がどれも良いので、実際の当たり外れを知りたい",
+    "articlePurpose": "申し込む前に、外れた回に何が起きるかを親が想像できるようにする",
+    "evaluationAxis": "同じ子どもが受けた 12 回のうち、最後まで座っていられた回数と、途中で離席した回に何が起きたか",
+    "usageScene": "平日 18 時、リビングのタブレットで親が横に座っている状態",
+    "uniqueExperience": "同一の子ども 1 名が 3 社の体験を各 4 回ずつ受けた記録",
+    "comparisonScope": "小学校低学年向けのマンツーマン英会話に限る（グループ授業・教材のみのサービスは除く）",
+    "conclusionStance": "続けられるかを最優先し、子どもの人見知りの度合いで結論を分ける",
+    "internalLinkStrategy": "体験レッスンの記録から、続け方の記事へ落とす",
+    "ctaStrategy": "無料体験までを勧め、有料契約は 1 か月続いてから判断するよう書く"
+  },
+
+  "emitLlmsTxt": true
+}

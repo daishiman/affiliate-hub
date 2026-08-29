@@ -1,0 +1,64 @@
+{
+  "_": "ブログ 1 本の設計図。タイトル・タブ（カテゴリー）・固定ページ・見た目・差別化の軸を、ここだけで決める。画面のコードは 1 行も触らない。",
+
+  "slug": "home-office-desk",
+  "name": "在宅ワークの机まわり",
+  "purpose": "家で 8 時間働く人が、机と椅子と照明で失敗しないようにする",
+  "genre": "オフィス家具・作業環境",
+
+  "_pattern": "使える値は src/domain/authoring/site-blueprint.ts の SITE_PATTERNS。既定の固定ページがこれで決まる。",
+  "pattern": "specialist_review",
+
+  "_revenueModel": "affiliate / ad / lead / own_product / mixed。買う導線と広告表記の書き方がこれで変わる。",
+  "revenueModel": "affiliate",
+
+  "_extraPages": "パターンの既定ページと、信頼のための必須ページに足すもの。重複しても構わない（自動で 1 つにまとまる）。",
+  "extraPages": ["search", "shortlist", "faq", "glossary", "how_to_choose", "tools"],
+
+  "_categories": "ヘッダーのタブになる。slug は URL、name はタブの文字、oneLine はカテゴリーページ冒頭にそのまま出る。",
+  "categories": [
+    {
+      "slug": "chairs",
+      "name": "椅子",
+      "oneLine": "8 時間座ったときの腰への負担で選ぶ。",
+      "initialArticleTypes": ["ranking", "review", "comparison"]
+    },
+    {
+      "slug": "desks",
+      "name": "机",
+      "oneLine": "天板の広さと、昇降させたときの揺れで選ぶ。",
+      "initialArticleTypes": ["review", "guide"]
+    },
+    {
+      "slug": "lighting",
+      "name": "照明",
+      "oneLine": "画面への映り込みを起こさない当て方から選ぶ。",
+      "initialArticleTypes": ["guide", "comparison"]
+    }
+  ],
+
+  "_theme": "brandTheme は名札だけ。色そのものは持たせない（そのブログだけ読めない配色、を作れないようにするため）。省略した項目は既定値になる。",
+  "theme": {
+    "brandTheme": "graphite-amber",
+    "colorScheme": "auto",
+    "density": "comfortable",
+    "radius": "medium"
+  },
+
+  "_differentiation": "10 軸すべて必須。ここを埋めずに書くと、他のブログの言い換え記事になる。",
+  "differentiation": {
+    "targetReader": "在宅勤務で 1 日 8 時間、同じ机に向かう人",
+    "searchIntent": "腰が痛い原因が椅子なのか机の高さなのかを切り分けたい",
+    "articlePurpose": "買う前に自宅で測るべき寸法を決めさせる",
+    "evaluationAxis": "8 時間連続着座後の腰部圧力と、調整範囲",
+    "usageScene": "6 畳の個室、机の後ろが通路になっている部屋",
+    "uniqueExperience": "同一の被験者が全機種で 8 時間ずつ座った記録",
+    "comparisonScope": "5 万円〜12 万円の作業用椅子に限る（座椅子・ゲーミングは除く）",
+    "conclusionStance": "腰の負担を最優先し、体重帯で結論を分ける",
+    "internalLinkStrategy": "順位記事から個別レビューへ、レビューから寸法の測り方へ落とす",
+    "ctaStrategy": "店頭で座ることを勧めたうえで、提携先のあるものだけ購入先を出す"
+  },
+
+  "_emitLlmsTxt": "AI に読ませる目次（llms.txt）を出すか。",
+  "emitLlmsTxt": true
+}

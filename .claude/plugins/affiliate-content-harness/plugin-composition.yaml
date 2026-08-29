@@ -1,0 +1,114 @@
+# CapabilityBundle 宣言 — .claude/plugins/affiliate-content-harness
+# 用途: 1 つのアフィリエイト案件から、ブログ記事と 5 媒体ぶんの投稿を、
+#       主張が食い違わない状態で出すための harness の自己記述。
+# 配布しない（distributable:false）。affiliate-hub リポジトリ内でのみ使う。
+
+name: affiliate-content-harness
+description: 1 つのアフィリエイト案件を正本にして、ブログ記事と各媒体の投稿文を同じ主張・同じ根拠から生成し、媒体をまたいでも食い違わない状態で公開するための harness。
+kind: plugin-composition
+version: 0.1.0
+owner: affiliate-hub
+since: 2026-08-28
+last-audited: 2026-08-29
+
+contract:
+  intent: |
+    媒体ごとに原稿を書き下ろすと、ブログ「38kPa」・X「38kPa」・Instagram「40kPa」という
+    状態が生まれる。3 つとも単体では正しく、単体検品も全部通る。気づけるのは 2 つ以上を
+    並べて読んだ人だけ、つまり読者だけ。主張・根拠・買う導線を案件ブリーフ 1 箇所へ集め、
+    各媒体はそこから継ぎ、媒体をまたいだ突合を機械でやる。
+  interface:
+    inputs:
+      - campaign-brief.json
+      - site.json
+      - article.<type>.json
+      - post.<medium>.json
+      - references/media-profiles.json
+    outputs:
+      - blog-content/<site>/campaign-brief.json
+      - blog-content/<site>/articles/<slug>.json
+      - blog-content/<site>/posts/<campaign>.<medium>.json
+      - 検品レポート（標準出力・終了コード 0/1/2）
+  invariant:
+    - 使ってよい値（記事の型・サイトのパターン・言い切りの印・URL へ足せないもの）は
+      src/ から実行時に読む。プラグインへ書き写さない。写すと、コード側に選択肢を足した日に
+      「正しい入力を弾く検品」という最も質の悪い壊れ方になる
+    - 媒体ごとの規則の正本は references/media-profiles.json 1 つ。生成側（run-social-post）と
+      検品側（validate-media-post.mjs）が同じファイルを読む。片方にだけ書くと、
+      生成が通して検品が落とす状態になり、書き手には理由が見えない
+    - ASP が発行した URL は改変しない。パラメータを足したリンクは動くので、
+      規約違反に誰も気づかない（hook が保存前に止める）
+    - 広告表記の向きは媒体で反転する。ブログ記事は本文に書かない（画面が disclosureRequired を
+      見て自動で描画する）。SNS は本文に書く（誰も出してくれない）
+    - 媒体をまたいだ突合は、成果物が自分で申告した主張だけを対象にする
+      （記事は claim の sourceClaimId、投稿は claimRefs）。申告に絞らないと、
+      同じ単位の別の量（案件「壁から 68cm」と記事「机の奥行き 60cm」）を食い違い扱いにする
+    - 検品の終了コードは 0 通過 / 1 止めるものがある / 2 そもそも読めなかった。
+      1 と 2 を分けるのは、「直せば通る」のか「渡すファイルを間違えた」のかを
+      呼ぶ側が見分けられるようにするため
+    - 成果物本文・検品メッセージ・報告は日本語。JSON キー・CLI 引数は英語のまま
+
+capabilities:
+  # === Skills ===
+  - { kind: skill, ref: skills/run-campaign-brief, tier: core }   # C01 案件ブリーフ（全媒体の正本）
+  - { kind: skill, ref: skills/run-blog-create, tier: core }      # C02 ブログの設計図
+  - { kind: skill, ref: skills/run-blog-article, tier: core }     # C03 記事 1 本（最初の媒体）
+  - { kind: skill, ref: skills/run-social-post, tier: core }      # C04 5 媒体への展開
+
+  # === Agents ===
+  - { kind: agent, ref: agents/assign-blog-content-reviewer, tier: core }  # C05 記事を別の文脈で読み直す
+  - { kind: agent, ref: agents/assign-social-post-reviewer, tier: core }   # C06 投稿を「スクロールしている人」として読む
+  - { kind: agent, ref: agents/apply-style-genome, tier: core }            # C07 6 媒体を同じ書き手に見せる
+  - { kind: agent, ref: agents/optimize-media-length, tier: core }         # C08 何を削り何を足すか
+
+  # === Commands ===
+  - { kind: command, ref: commands/create-campaign.md, tier: core }      # C09 案件を立ち上げ、最初の 1 本まで
+  - { kind: command, ref: commands/publish-content-set.md, tier: core }  # C10 公開前に一式を確かめる
+
+  # === Hook ===
+  - { kind: hook, ref: "hook:PreToolUse-WriteEdit/guard-blocked-affiliate-link", tier: core }  # C11
+
+  # === Scripts（決定論の検品） ===
+  - { kind: script, ref: scripts/validate-content-set.mjs, tier: core }               # C17 公開前の単一入口・媒体過不足
+  - { kind: script, ref: scripts/validate-campaign-brief.mjs, tier: core }           # C13 案件そのもの
+  - { kind: script, ref: scripts/validate-blog-content.mjs, tier: core }             # C12 記事と設計図
+  - { kind: script, ref: scripts/validate-media-post.mjs, tier: core }               # C16 媒体ごとの規則
+  - { kind: script, ref: scripts/validate-affiliate-disclosure.mjs, tier: core }     # C15 広告表記
+  - { kind: script, ref: scripts/validate-cross-media-consistency.mjs, tier: core }  # C14 媒体間の食い違い
+  - { kind: script, ref: scripts/lib/harness.mjs, tier: support }                    # 共有の判定
+
+dependencies:
+  # 呼び出しの向き。逆流させると、案件を通らない主張が媒体へ広がる。
+  - { from: commands/create-campaign.md,      to: skills/run-campaign-brief,      type: calls }
+  - { from: commands/create-campaign.md,      to: skills/run-blog-create,         type: calls }
+  - { from: commands/create-campaign.md,      to: skills/run-blog-article,        type: calls }
+  - { from: commands/create-campaign.md,      to: agents/assign-blog-content-reviewer, type: calls }
+  - { from: commands/publish-content-set.md,  to: agents/apply-style-genome,      type: calls }
+  - { from: commands/publish-content-set.md,  to: scripts/validate-content-set.mjs, type: calls }
+  - { from: scripts/validate-content-set.mjs, to: scripts/validate-campaign-brief.mjs, type: calls }
+  - { from: scripts/validate-content-set.mjs, to: scripts/validate-blog-content.mjs, type: calls }
+  - { from: scripts/validate-content-set.mjs, to: scripts/validate-media-post.mjs, type: calls }
+  - { from: scripts/validate-content-set.mjs, to: scripts/validate-affiliate-disclosure.mjs, type: calls }
+  - { from: scripts/validate-content-set.mjs, to: scripts/validate-cross-media-consistency.mjs, type: calls }
+  - { from: skills/run-blog-article,          to: skills/run-campaign-brief,      type: inherits }
+  - { from: skills/run-social-post,           to: skills/run-campaign-brief,      type: inherits }
+  - { from: skills/run-social-post,           to: agents/optimize-media-length,   type: calls }
+  - { from: skills/run-social-post,           to: agents/assign-social-post-reviewer, type: calls }
+  - { from: agents/optimize-media-length,     to: skills/run-social-post,         type: reads-rule }
+
+# 規則の正本。ここに無いものを各所へ書き写さない。
+ssot:
+  media_rules: references/media-profiles.json
+  allowed_values: src/domain/authoring/site-blueprint.ts        # 実行時に読む
+  claim_kinds: src/application/read-models/published-article.ts # 実行時に読む
+  outbound_contract: src/domain/monetization/affiliate-link.ts  # 実行時に読む
+  screen_copy: src/presentation/ui/copy.ts
+  trim_order: skills/run-social-post/SKILL.md  # 「入りきらないときに何から削るか」
+
+external_dependencies: {}
+
+supersedes:
+  - blog-authoring  # validate-blog-content.mjs・記事テンプレート 4 種・references 3 種・記事レビュアーを承継
+
+eval_sinks:
+  - EVALS.json
