@@ -1,19 +1,19 @@
 {
-  "target_id": "apple-hig",
-  "source_url": "https://developer.apple.com/design/human-interface-guidelines",
-  "retrieved_at": "2026-08-25T12:13:56Z",
-  "http_status": 200,
-  "content_bytes": 17681,
-  "content_sha256": "df1ebc77d27bea72edbcddbad438f349d496ab7a437ef652679f74c3f62928e6",
-  "page_title": "Human Interface Guidelines | Apple Developer Documentation",
-  "freshness_extraction": {
-    "freshness_source": "http-last-modified",
-    "value": "2026-08-24",
-    "found_in": [
-      "HTTP ヘッダ Last-Modified: Mon, 24 Aug 2026 22:18:15 GMT"
-    ],
-    "body_declares_date": false,
-    "body_search_method": "本文 17681 bytes 全体について年トークン、更新日語彙、time/meta/JSON-LD の構造化日付を確認したが、このページ自身の版・更新日の表明は得られなかった。現行レスポンスが返した Last-Modified を採用する。",
-    "note": "2026-08-25 の公式 host 再取得で本文 sha256 が前回から変化し、Last-Modified も 2026-08-24 に進んだ。HTTP ヘッダは内容更新日と一致する保証がないため、freshness_source=http-last-modified の制約を明示する。"
-  }
+ "target_id": "apple-hig",
+ "source_url": "https://developer.apple.com/design/human-interface-guidelines",
+ "retrieved_at": "2026-08-29T13:28:38Z",
+ "http_status": 200,
+ "content_bytes": 17681,
+ "content_sha256": "df1ebc77d27bea72edbcddbad438f349d496ab7a437ef652679f74c3f62928e6",
+ "page_title": "Human Interface Guidelines | Apple Developer Documentation",
+ "freshness_extraction": {
+  "freshness_source": "http-last-modified",
+  "value": "2026-08-27",
+  "found_in": [
+   "HTTP ヘッダ Last-Modified: Thu, 27 Aug 2026 10:05:26 GMT"
+  ],
+  "body_declares_date": false,
+  "body_search_method": "本文 17681 bytes 全体について年トークン、更新日語彙、time/meta/JSON-LD の構造化日付を確認したが、このページ自身の版・更新日の表明は得られなかった。現行レスポンスが返した Last-Modified を採用する。",
+  "note": "2026-08-29 の再取得で Last-Modified が 2026-08-24 から 2026-08-27 へ進んだが、**本文は 1 byte も変わっていない** (content_bytes 17681 / content_sha256 とも前回取得と同一)。すなわち内容の更新ではなく配信側の再デプロイである。freshness_source=http-last-modified がヘッダ値と内容更新日の一致を保証しないという制約が、実際に観測された形。ヘッダ値は記録の忠実さのために現行値へ追随させ、内容が動いていないことを digest 一致として併記する。"
+ }
 }

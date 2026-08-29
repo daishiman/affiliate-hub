@@ -8,7 +8,7 @@
  */
 
 import { execFileSync } from "node:child_process";
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
@@ -27,11 +27,17 @@ import {
   STATIC_NOTE,
   buildDocument,
   findModuleCss,
+  writeStaticPreview,
 } from "../../scripts/lib/static-preview.mjs";
 
 const ROOT = process.cwd();
 const PREVIEW_DIR = join(ROOT, "docs/product/preview");
 const INDEX_FILE = join(PREVIEW_DIR, "index.html");
+const RUNNER = "scripts/lib/static-preview.mjs";
+const WRITERS = readdirSync(join(ROOT, "scripts"))
+  .filter((name) => name.startsWith("write-") && name.endsWith("-preview.tsx"))
+  .sort()
+  .map((name) => `scripts/${name}`);
 
 /** そろっている入力。ここから 1 つずつ欠けさせて「止まる例」を作る。 */
 const COMPLETE = {
@@ -102,6 +108,51 @@ describe("静止した写しの組み立て", () => {
       expect(path.endsWith(".module.css")).toBe(true);
       expect(readFileSync(join(ROOT, path), "utf8").trim()).not.toBe("");
     }
+  });
+
+  it("docs の外へは書き出さない", async () => {
+    for (const out of ["public/preview.html", "src/preview.html", "docs/../public/preview.html"]) {
+      await expect(
+        writeStaticPreview({
+          out,
+          bodyHtml: COMPLETE.bodyHtml,
+          htmlAttributes: COMPLETE.htmlAttributes,
+          generatedAt: COMPLETE.generatedAt,
+        }),
+      ).rejects.toThrow("docs/");
+    }
+  });
+
+  it("すべての writer が共通 runner を通り、出力先を重複させない", () => {
+    expect(WRITERS).toEqual(
+      expect.arrayContaining([
+        "scripts/write-static-preview.tsx",
+        "scripts/write-blog-preview.tsx",
+        "scripts/write-site-preview.tsx",
+      ]),
+    );
+
+    const outputs: string[] = [];
+    for (const path of WRITERS) {
+      const writer = readFileSync(join(ROOT, path), "utf8");
+      expect(writer, path).toContain("writeStaticPreview");
+      expect(writer, path).not.toContain('import tailwind from "@tailwindcss/postcss"');
+      expect(writer, path).not.toContain('from "postcss"');
+      expect(writer, path).not.toContain("buildDocument");
+      expect(writer, path).not.toContain("findModuleCss");
+      expect(writer, path).not.toContain("writeFileSync");
+      const matches = [...writer.matchAll(/const (?:OUT|INDEX_OUT|NAV_OUT) = "([^"]+)"/g)];
+      for (const match of matches) {
+        expect(match[1], path).toMatch(/^docs\//);
+        outputs.push(match[1] ?? "");
+      }
+    }
+    expect(new Set(outputs).size).toBe(outputs.length);
+
+    const runner = readFileSync(join(ROOT, RUNNER), "utf8");
+    expect(runner).toContain('const ENTRY_CSS = "src/app/globals.css"');
+    expect(runner).toContain('out.startsWith("docs/")');
+    expect(runner).toContain("postcss([tailwind()])");
   });
 });
 

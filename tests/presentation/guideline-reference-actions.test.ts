@@ -104,6 +104,15 @@ describe("届く前に断る", () => {
     expect(revalidated).toHaveLength(0);
   });
 
+  it("ログイン済みでも site.manage が無ければ、入力や保存手続きへ進めない", async () => {
+    signedIn = { ...SIGNED_IN_ACTOR, roles: ["analyst"] };
+    const state = await run(ADD);
+    expect(state.status).toBe("failed");
+    expect(state.message).toContain("site.manage");
+    expect(executed).toHaveLength(0);
+    expect(revalidated).toHaveLength(0);
+  });
+
   it("入口が使えないときは、その理由をそのまま返す（「登録できませんでした」で終わらせない）", async () => {
     entry = { ready: false, reason: "保存先（D1）が設定されていません。" };
     const state = await run(ADD);
@@ -128,26 +137,22 @@ describe("登録", () => {
     });
   });
 
-  it("intent が空でも登録として扱う（再確認へ落ちない）", async () => {
-    await run({ ...ADD, intent: "" });
-    expect((executed[0]?.input as { action: string }).action).toBe("add");
+  it("intent が空なら境界で断り、登録へ暗黙変換しない", async () => {
+    const state = await run({ ...ADD, intent: "" });
+    expect(state).toMatchObject({ status: "failed", field: "intent" });
+    expect(executed).toHaveLength(0);
   });
 
-  it("知らない intent も登録として扱う（黙って再確認にしない）", async () => {
-    await run({ ...ADD, intent: "delete" });
-    expect((executed[0]?.input as { action: string }).action).toBe("add");
+  it("知らない intent は境界で断り、別の操作へ暗黙変換しない", async () => {
+    const state = await run({ ...ADD, intent: "delete" });
+    expect(state).toMatchObject({ status: "failed", field: "intent" });
+    expect(executed).toHaveLength(0);
   });
 
-  it("欄が丸ごと無いときは空文字として渡る（undefined を手続きへ流さない）", async () => {
-    await run({ intent: "add" });
-    expect(executed[0]?.input).toEqual({
-      action: "add",
-      title: "",
-      url: "",
-      publisher: "",
-      region: "",
-      checkedAt: "",
-    });
+  it("必須欄が丸ごと無いときは境界で断り、undefined を手続きへ流さない", async () => {
+    const state = await run({ intent: "add" });
+    expect(state.status).toBe("failed");
+    expect(executed).toHaveLength(0);
   });
 
   it("但し書きは前後の空白を落として渡る", async () => {
@@ -164,7 +169,36 @@ describe("登録", () => {
     const state = await run(ADD);
     expect(state.status).toBe("done");
     expect(state.message).toContain("登録しました");
-    expect(state.message).toContain("90 日");
+    // 登録しただけでは原典を確かめたことにならない。次に何が要るかまで言う。
+    expect(state.message).toContain("原典未取得");
+    expect(revalidated).toEqual(["/admin/settings/seo"]);
+  });
+});
+
+describe("原典の取り込み", () => {
+  it("intent=verify_source のときは、id と本文だけが渡る", async () => {
+    await run({
+      intent: "verify_source",
+      id: "gr_google",
+      body: "原典の本文",
+      checkedAt: "2026-08-24",
+      title: "無視される",
+    });
+    expect(executed[0]?.input).toEqual({
+      action: "verify_source",
+      id: "gr_google",
+      body: "原典の本文",
+    });
+  });
+
+  it("できたら、登録・再確認のどちらとも違う文を返す", async () => {
+    const state = await run({ intent: "verify_source", id: "gr_google", body: "原典の本文" });
+    expect(state.status).toBe("done");
+    expect(state.message).toContain("指紋");
+    // 本文を保存したと誤解させない。何を残したのかを言い切る。
+    expect(state.message).toContain("本文そのものは保存していません");
+    expect(state.message).not.toContain("登録しました");
+    expect(state.message).not.toContain("確認日を更新しました");
     expect(revalidated).toEqual(["/admin/settings/seo"]);
   });
 });
@@ -185,6 +219,28 @@ describe("再確認", () => {
     expect(state.message).toContain("確認日を更新しました");
     expect(state.message).not.toContain("登録しました");
     expect(revalidated).toEqual(["/admin/settings/seo"]);
+  });
+});
+
+describe("仕様の再評価完了", () => {
+  it("画面で確認した本文指紋だけを、再評価完了として渡す", async () => {
+    const sha = "b".repeat(64);
+    await run({ intent: "acknowledge_reopen", id: "gr_google", expectedContentSha256: sha });
+    expect(executed[0]?.input).toEqual({
+      action: "acknowledge_reopen",
+      id: "gr_google",
+      expectedContentSha256: sha,
+    });
+  });
+
+  it("本文指紋が64桁の16進でなければ手続きへ渡さない", async () => {
+    const state = await run({
+      intent: "acknowledge_reopen",
+      id: "gr_google",
+      expectedContentSha256: "not-a-sha",
+    });
+    expect(state).toMatchObject({ status: "failed", field: "expectedContentSha256" });
+    expect(executed).toHaveLength(0);
   });
 });
 

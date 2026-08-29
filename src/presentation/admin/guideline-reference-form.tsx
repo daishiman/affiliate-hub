@@ -1,7 +1,7 @@
 "use client";
 
 import { useActionState, useState } from "react";
-import { Button, Field, FormResult, FormValue, Select, ToolForm } from "@/presentation/ui";
+import { Button, Field, FormResult, FormValue, Select, TextArea, ToolForm } from "@/presentation/ui";
 import { manageGuidelineReferenceAction } from "./guideline-reference-action";
 import { INITIAL_GUIDELINE_REFERENCE_STATE } from "./guideline-reference-state";
 
@@ -178,6 +178,92 @@ export function RecheckGuidelineReferenceForm({
       />
       <Button type="submit" tone="secondary" busy={pending} busyLabel="更新しています">
         再確認した
+      </Button>
+      <FormResult state={state} />
+    </ToolForm>
+  );
+}
+
+/**
+ * 原典の本文を取り込んで、取得した事実を記録する。
+ *
+ * --- なぜ URL を渡してサーバに取りに行かせないか ---
+ * 管理画面から任意の URL をサーバに取得させる口を作ると、それは
+ * 「社内からしか見えない住所」へ到達できる踏み台になる (SSRF)。
+ * 出典の鮮度のために、その口を常設する釣り合いではない。
+ * 取ってくるのは人 (または AI) が行い、**取れた本文を貼る**。
+ *
+ * --- なぜ本文を保存しないか ---
+ * 保存した写しは原典が更新された日から嘘になり、しかも正本の顔をする。
+ * 残すのは指紋 (sha256) と取得時刻だけにして、中身は原典を読ませる。
+ */
+export function VerifyGuidelineSourceForm({
+  id,
+  title,
+}: {
+  readonly id: string;
+  readonly title: string;
+}) {
+  const [state, action, pending] = useActionState(
+    manageGuidelineReferenceAction,
+    INITIAL_GUIDELINE_REFERENCE_STATE,
+  );
+  const [body, setBody] = useState("");
+
+  return (
+    <ToolForm
+      action={action}
+      toolName="verify_guideline_source"
+      toolDescription="指針の原典本文を取り込み、取得時刻と本文の指紋を記録する (本文は保存しない)"
+    >
+      <FormValue name="intent" value="verify_source" />
+      <FormValue name="id" value={id} />
+      <TextArea
+        name="body"
+        label={`「${title}」の原典本文`}
+        value={body}
+        onValueChange={setBody}
+        rows={6}
+        hint="原典を開いて本文を貼り付けます。保存されるのは指紋と取得時刻だけで、本文は残りません。"
+        error={state.field === "body" ? state.message : null}
+        toolParamDescription="原典 URL から取得した本文そのもの。要約ではなく取得できた本文を渡すこと。"
+      />
+      <Button type="submit" tone="secondary" busy={pending} busyLabel="取り込んでいます">
+        原典を取り込んだ
+      </Button>
+      <FormResult state={state} />
+    </ToolForm>
+  );
+}
+
+/**
+ * 画面で見ている本文版について、仕様章の再評価が完了したことを記録する。
+ * 指紋を hidden で渡すだけで信頼はせず、Server Action と保存先が最新版との一致を
+ * 改めて検査する。表示後に新しい版が取得されていれば、古い完了操作は断られる。
+ */
+export function AcknowledgeGuidelineReopenForm({
+  id,
+  expectedContentSha256,
+}: {
+  readonly id: string;
+  readonly expectedContentSha256: string;
+}) {
+  const [state, action, pending] = useActionState(
+    manageGuidelineReferenceAction,
+    INITIAL_GUIDELINE_REFERENCE_STATE,
+  );
+
+  return (
+    <ToolForm
+      action={action}
+      toolName="acknowledge_guideline_reopen"
+      toolDescription="画面で確認した原典本文版について、根拠にしている仕様章の再評価完了を記録する"
+    >
+      <FormValue name="intent" value="acknowledge_reopen" />
+      <FormValue name="id" value={id} />
+      <FormValue name="expectedContentSha256" value={expectedContentSha256} />
+      <Button type="submit" tone="secondary" busy={pending} busyLabel="記録しています">
+        仕様の再評価を完了した
       </Button>
       <FormResult state={state} />
     </ToolForm>

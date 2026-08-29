@@ -1,5 +1,5 @@
 {
-  "graph_revision": 272,
+  "graph_revision": 304,
   "nodes": [
     {
       "acceptance": [],
@@ -813,22 +813,22 @@
       "classification_confidence": 1.0,
       "classification_reason": "system-spec-harness が確定した architecture context の import。",
       "completion_evidence": {
-        "completed_at": "2026-08-16T12:08:04Z",
+        "completed_at": "2026-08-28T08:34:56Z",
         "evidence_refs": [
           "system-spec/completeness-report.json"
         ],
         "policy": "manual",
-        "reconciled_at": "2026-08-16T12:08:04Z",
+        "reconciled_at": "2026-08-28T08:34:56Z",
         "source": "manual",
         "status": "done"
       },
       "confirmation_evidence": {
-        "evaluated_digest": "84a14314eba919b18c81204c87eec40d007cdd2e3612890cf624deec6e800a63",
+        "evaluated_digest": "8397bc1442ca97442364acb4d0897583f6c56ca267d0e84c1f7c2b7cfa5000fd",
         "evaluator": "system-spec-harness/assign-system-spec-completeness-evaluator",
         "evidence_ref": "system-spec/completeness-report.json"
       },
       "confirmation_status": "confirmed",
-      "created_at": "2026-08-16T12:08:04Z",
+      "created_at": "2026-08-28T08:34:56Z",
       "depends_on": [],
       "domain": "system-spec",
       "evaluation_status": "pass",
@@ -845,7 +845,7 @@
       "goal": "仕様由来の architecture context を feature から参照できる状態。",
       "graph_node_id": "arch-system-spec-overview",
       "implementation_readiness": {
-        "checked_at": "2026-08-24T07:40:00Z",
+        "checked_at": "2026-08-28T08:34:56Z",
         "missing_sections": [],
         "status": "complete"
       },
@@ -872,9 +872,9 @@
         "confirmed artifacts are not rewritten by this adapter"
       ],
       "source_lineage": {
-        "imported_at": "2026-08-24T07:40:00Z",
+        "imported_at": "2026-08-28T08:34:56Z",
         "origin_kind": "system-spec-harness",
-        "source_digest": "28aef5e05a80392a4d1303e15fd9886923f8a3904cbd9b6926007f19800aa4b5",
+        "source_digest": "af460e02930459d08ad7ac2414875f4d5ab4fdc2489ce7cafe51c99263467058",
         "source_path": "system-spec/00-requirements-definition.md",
         "source_plugin": "system-spec-harness",
         "source_version": "0.1.0"
@@ -891,7 +891,7 @@
       "template_version": "1.0.0",
       "title": "system-spec architecture overview",
       "tracker_binding": "none",
-      "updated_at": "2026-08-24T07:40:00Z"
+      "updated_at": "2026-08-28T08:34:56Z"
     },
     {
       "acceptance": [
@@ -919,22 +919,22 @@
       "classification_confidence": 1.0,
       "classification_reason": "system-spec-harness が compile した specification index の import。",
       "completion_evidence": {
-        "completed_at": "2026-08-16T12:08:04Z",
+        "completed_at": "2026-08-28T08:34:56Z",
         "evidence_refs": [
           "system-spec/completeness-report.json"
         ],
         "policy": "manual",
-        "reconciled_at": "2026-08-16T12:08:04Z",
+        "reconciled_at": "2026-08-28T08:34:56Z",
         "source": "manual",
         "status": "done"
       },
       "confirmation_evidence": {
-        "evaluated_digest": "84a14314eba919b18c81204c87eec40d007cdd2e3612890cf624deec6e800a63",
+        "evaluated_digest": "8397bc1442ca97442364acb4d0897583f6c56ca267d0e84c1f7c2b7cfa5000fd",
         "evaluator": "system-spec-harness/assign-system-spec-completeness-evaluator",
         "evidence_ref": "system-spec/completeness-report.json"
       },
       "confirmation_status": "confirmed",
-      "created_at": "2026-08-16T12:08:04Z",
+      "created_at": "2026-08-28T08:34:56Z",
       "depends_on": [],
       "domain": "system-spec",
       "evaluation_status": "pass",
@@ -951,7 +951,7 @@
       "goal": "仕様と architecture context を source lineage 付きで結ぶ。",
       "graph_node_id": "spec-system-spec-index",
       "implementation_readiness": {
-        "checked_at": "2026-08-24T07:40:00Z",
+        "checked_at": "2026-08-28T08:34:56Z",
         "missing_sections": [],
         "status": "complete"
       },
@@ -978,9 +978,9 @@
         "confirmed artifacts are not rewritten by this adapter"
       ],
       "source_lineage": {
-        "imported_at": "2026-08-24T07:40:00Z",
+        "imported_at": "2026-08-28T08:34:56Z",
         "origin_kind": "system-spec-harness",
-        "source_digest": "64948a0b6e91a88c1aa75850661e2b0722c4fffba01e385d4f7433b3545b5399",
+        "source_digest": "d3be7225ce351be5424414a85e715da82fb0e398f6bae1eb7de14a9d08498726",
         "source_path": "system-spec/index.md",
         "source_plugin": "system-spec-harness",
         "source_version": "0.1.0"
@@ -997,7 +997,7 @@
       "template_version": "1.0.0",
       "title": "system-spec compiled specification",
       "tracker_binding": "none",
-      "updated_at": "2026-08-24T07:40:00Z"
+      "updated_at": "2026-08-28T08:34:56Z"
     },
     {
       "acceptance": [
@@ -13939,7 +13939,12 @@
         "管理一覧でブログごとの掲載アフィリエイトが一覧でき、アフィリエイトから掲載ブログ/ページへ逆引きできる",
         "作成・保存・公開面の各面で当該ページに反映されているアフィリエイトが表示され、保存前後で表示が一致する",
         "配色・テンプレート・固定ページの設定は D1 (Drizzle) に永続化され、再読み込み後も保持される",
-        "公開面のレイアウト・配色は axe-core の重大違反 0 件で、light/dark 両方で本文コントラストが基準を満たす"
+        "公開面のレイアウト・配色は axe-core の重大違反 0 件で、light/dark 両方で本文コントラストが基準を満たす",
+        "記事ページの HTML に本文・タイトル・description・canonical・OGP・JSON-LD (BlogPosting+BreadcrumbList、FAQ ブロックがあれば FAQPage) がサーバー側で含まれ、pure 関数の単体テストで検証できる",
+        "/s/{site}/sitemap.xml・/s/{site}/robots.txt・/s/{site}/feed.xml・/s/{site}/llms.txt が公開記事から自動生成され、robots.txt が GPTBot/ClaudeBot/PerplexityBot/Google-Extended を遮断しない",
+        "記事に結論・要点・FAQ・出典・最終更新ブロックを挿入でき、公開面で最終更新日 (dateModified) が可視化される",
+        "IndexNow 送信は鍵をサーバー環境変数からのみ読み、鍵未設定時は送信をスキップして記録に残す (鍵をリポジトリや管理画面に保存しない)",
+        "管理画面の参照レジストリで SEO/AI 検索ガイドラインの出典 (URL・発行元・確認日) を登録・一覧でき、確認日から 90 日超は再確認対象として表示される"
       ],
       "architecture_refs": [
         "arch-system-spec-overview",
@@ -13947,7 +13952,12 @@
       ],
       "artifact_kind": "feature",
       "artifact_subtypes": [],
-      "beads_linkage": null,
+      "beads_linkage": {
+        "bd_issue_id": "ah-6lf",
+        "github_mirror": null,
+        "linked_at": "2026-08-24T12:00:00Z",
+        "sync_state": "linked"
+      },
       "classification_candidates": [
         {
           "artifact_kind": "feature",
@@ -13959,16 +13969,19 @@
       "classification_reason": "利用者要望 (ブログ UI 更新: テンプレート/配色/常時表示/固定ページ/表現ブロック/アフィリエイト配置管理) を C14 macro 分解で 1 feature 化。細分は system-dev-planner の P01..P13 に委譲",
       "completion_evidence": {
         "completed_at": null,
-        "evidence_refs": [],
+        "evidence_refs": [
+          "docs/spec/feat-blog-ui-builder/final-review.md",
+          "docs/spec/feat-blog-ui-builder/spec-writeback-receipt.md"
+        ],
         "policy": "manual",
         "reconciled_at": null,
         "source": null,
         "status": "in_progress"
       },
       "confirmation_evidence": {
-        "evaluated_digest": "7c28f632dc2de006d755a4c28a4948d1d76b06797ba43c105dc006f80c2a9464",
-        "evaluator": "system-spec-harness/assign-system-spec-completeness-evaluator",
-        "evidence_ref": "system-spec/completeness-report.json"
+        "evaluated_digest": "168ac050680f91d58ce05948b6b0d3618f062ec304dfdb901713e98bdaa84c48",
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-blog-ui-builder/168ac050680f91d58ce05948b6b0d3618f062ec304dfdb901713e98bdaa84c48/plan-findings.json"
       },
       "confirmation_status": "confirmed",
       "created_at": "2026-08-24T02:20:00Z",
@@ -13992,7 +14005,7 @@
       "goal": "テンプレートから新規ブログを作成でき、配色をブログ既定とページ単位で選べ、ヘッダー・サイドバー・フッターが常時表示され、運営者情報・全カテゴリー・サイトポリシー・プライバシーポリシー・特定商取引法に基づく表記・お問い合わせの固定ページと図解・比較などの表現ブロックを構築でき、公開面/作成/保存/管理一覧の各面でブログ×アフィリエイトの配置が一覧・逆引きできる状態になっている",
       "graph_node_id": "feat-blog-ui-builder",
       "implementation_readiness": {
-        "checked_at": "2026-08-24T02:20:00Z",
+        "checked_at": "2026-08-28T00:00:00Z",
         "missing_sections": [],
         "status": "complete"
       },
@@ -14005,7 +14018,20 @@
       "phase_ref": null,
       "priority": "high",
       "project_id": "affiliate-hub",
-      "pull_request_linkages": [],
+      "pull_request_linkages": [
+        {
+          "base_branch": "dev",
+          "closing_reference_verified": false,
+          "head_branch": "devgraph/feat-blog-ui-builder",
+          "linked_at": "2026-08-24T12:00:00Z",
+          "merge_commit_sha": "7fd2b3b1e5323b4699fae74fa945845cda336b51",
+          "merged_at": "2026-08-24T14:09:41Z",
+          "pr_number": 28,
+          "repo": "daishiman/affiliate-hub",
+          "state": "merged",
+          "url": "https://github.com/daishiman/affiliate-hub/pull/28"
+        }
+      ],
       "purpose": "ブログごとにテンプレートと配色を選び、公開面・作成・保存・管理一覧のどの面でも「どのブログにどのアフィリエイトが載っているか」を迷わず把握できるブログ UI を提供する",
       "related_nodes": [
         "spec-system-spec-index"
@@ -14023,7 +14049,10 @@
         "固定ページ 6 種の構築 UI: 運営者情報 / 全カテゴリー / サイトポリシー / プライバシーポリシー / 特定商取引法に基づく表記 / お問い合わせ (legal_page)",
         "記事表現ブロック: figure (図解) / comparison (比較表) / cta / summary / spec-table と、ガジェット依存部分の差し替え可能なスロット",
         "ブログ×アフィリエイト配置 (blog_affiliate_placement) の管理一覧・逆引き (アフィリエイト→掲載ブログ/ページ) と、公開面・作成・保存の各面での表示",
-        "参考ブログ (makuring.jp) の構成・配置・表記法の参照を反映した情報設計 (丸パクリはしない。利用者説明を一次根拠とする)"
+        "参考ブログ (makuring.jp) の構成・配置・表記法の参照を反映した情報設計 (丸パクリはしない。利用者説明を一次根拠とする)",
+        "SEO/AI 検索 (AI Overviews・AI Mode・ChatGPT search・Perplexity 等) への最適化: SSR で本文を HTML に含める semantic HTML、robots.txt で AI クローラ許可を既定、ページ種別ごとの JSON-LD (BlogPosting/Person/Organization/BreadcrumbList/FAQPage/HowTo/Product/Review) をブロック木から自動生成、generateMetadata、sitemap.xml/RSS/llms.txt の自動生成、IndexNow 送信、dateModified の可視化 (仕様章 frontend §SEO/AI 検索)",
+        "AI 引用されやすい記事構造の標準ブロック: 結論 (answer) / 要点 (key-points) / FAQ / 出典 (sources) / 最終更新 (freshness) と著者プロフィール固定ページ、管理画面の SEO/AI チェックパネル (仕様章 ui-ux §SEO/AI 検索)",
+        "最新 SEO/AI 検索ガイドラインの参照レジストリ (guideline_references): 海外・日本の出典 URL・発行元・確認日を登録し 90 日で再確認を促す。fetched-references.json の公式 4 出典 (Google AI 最適化ガイド / AI features / llms.txt / IndexNow) を初期データにする"
       ],
       "scope_out": [
         "記事本文の AI 生成そのもの (feat-ai-content-studio)",
@@ -14035,7 +14064,7 @@
       "source_lineage": {
         "imported_at": "2026-08-24T02:20:00Z",
         "origin_kind": "generated",
-        "source_digest": "1e0995ba4c805e9fe4826b6e03081c8372a3eacb91591c73b163f6651e952559",
+        "source_digest": "e95019160425608e469d88cdb1e53aa39252de500219c5d1d960c49f78622cd7",
         "source_path": "system-spec/ui-ux.md",
         "source_plugin": "dev-graph",
         "source_version": "0.1.0"
@@ -14055,9 +14084,17 @@
       "template_version": "1.0.0",
       "title": "ブログ UI ビルダー (テンプレート・配色・アフィリエイト配置管理)",
       "tracker_binding": "beads",
-      "updated_at": "2026-08-24T02:20:00Z"
+      "updated_at": "2026-08-28T13:51:38.774990Z"
     },
     {
+      "acceptance": [
+        "Automated commands: `pnpm run typecheck` (要求文書中の information-priority-map.json が既存型契約と矛盾しないことを静的に確認する)",
+        "Automated commands: `python3 .claude/plugins/system-dev-planner/scripts/validate-system-plan.py --repo-root . --feature-package feature-package/feat-blog-ui-builder` (本 package の C12 決定論検証を世代非依存に再実行する)",
+        "Required evidence: P01 の 成果物 section に記載した produced artifacts のパス"
+      ],
+      "architecture_refs": [
+        "arch-two-layer-platform"
+      ],
       "artifact_kind": "task",
       "artifact_subtypes": [],
       "beads_linkage": null,
@@ -14065,26 +14102,26 @@
         {
           "artifact_kind": "task",
           "candidate_path": "tasks/feat-blog-ui-builder/sys-blog-ui-builder-p01.md",
-          "confidence": 1.0
+          "confidence": 1
         }
       ],
-      "classification_confidence": 1.0,
+      "classification_confidence": 1,
       "classification_reason": "feat-blog-ui-builder の P01 lifecycle 責務への確定写像",
       "completion_evidence": {
         "completed_at": null,
         "evidence_refs": [],
-        "policy": "linked_pr_merged_all",
+        "policy": "manual",
         "reconciled_at": null,
         "source": null,
         "status": "in_progress"
       },
       "confirmation_evidence": {
-        "evaluated_digest": "9a2832f2d6f8656f3495435827399bed84d70c893a027d828694b07b46506fe1",
+        "evaluated_digest": "168ac050680f91d58ce05948b6b0d3618f062ec304dfdb901713e98bdaa84c48",
         "evaluator": "system-dev-plan-evaluator",
-        "evidence_ref": ".dev-graph/published/feature-package-feat-blog-ui-builder/plan-findings.json"
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-blog-ui-builder/168ac050680f91d58ce05948b6b0d3618f062ec304dfdb901713e98bdaa84c48/plan-findings.json"
       },
       "confirmation_status": "confirmed",
-      "created_at": "2026-08-24T03:56:57Z",
+      "created_at": "2026-08-28T13:02:37Z",
       "depends_on": [],
       "domain": "documentation",
       "evaluation_status": "pass",
@@ -14098,9 +14135,10 @@
         "mode": "local_only",
         "project_aliases": []
       },
+      "goal": "feat-blog-ui-builder の受入14件 (A1-A14) を実装着手前に一意で検証可能な要求ベースラインへ確定し、テンプレート6種・配色2層・sticky常時表示・固定ページ6種・記事表現ブロック5種・blog_affiliate_placement一覧/逆引き・SEO/AI検索最適化 (JSON-LD/sitemap/robots/llms.txt/IndexNow/guideline_references) の各要求を、既存 src/app/admin/sites 配下と src/app/s/[site] 配下の画面棚卸しに接地させた状態を成立させる。",
       "graph_node_id": "SYS-BLOG-UI-BUILDER-P01",
       "implementation_readiness": {
-        "checked_at": "2026-08-24T02:35:00Z",
+        "checked_at": "2026-08-28T00:00:00Z",
         "missing_sections": [],
         "status": "complete"
       },
@@ -14114,17 +14152,27 @@
       "priority": null,
       "project_id": "feature-package-feat-blog-ui-builder",
       "pull_request_linkages": [],
+      "purpose": "feat-blog-ui-builder の受入14件 (A1-A14) を実装着手前に一意で検証可能な要求ベースラインへ確定し、テンプレート6種・配色2層・sticky常時表示・固定ページ6種・記事表現ブロック5種・blog_affiliate_placement一覧/逆引き・SEO/AI検索最適化 (JSON-LD/sitemap/robots/llms.txt/IndexNow/guideline_references) の各要求を、既存 src/app/admin/sites 配下と src/app/s/[site] 配下の画面棚卸しに接地させた状態を成立させる。",
       "related_nodes": [],
       "resource_scope": [
         "docs/spec/feat-blog-ui-builder/requirements-baseline.md",
         "docs/spec/feat-blog-ui-builder/screen-inventory.md",
         "docs/spec/feat-blog-ui-builder/information-priority-map.json"
       ],
+      "scope_in": [
+        "Produced artifacts: docs/spec/feat-blog-ui-builder/requirements-baseline.md (A1-A14の検証可能化と参照仕様の対応表); docs/spec/feat-blog-ui-builder/screen-inventory.md (既存 src/app/admin/sites・src/app/s/[site] の棚卸しと新規画面差分); docs/spec/feat-blog-ui-builder/information-priority-map.json (画面別の残す/落とす/加工する情報の優先度束)",
+        "Consumed artifacts: features/feat-blog-ui-builder.md, features/feat-blog-ui-builder.context.json, system-spec/ui-ux.md, system-spec/frontend.md, system-spec/database.md",
+        "Write scope/touches: docs/spec/feat-blog-ui-builder/requirements-baseline.md, docs/spec/feat-blog-ui-builder/screen-inventory.md, docs/spec/feat-blog-ui-builder/information-priority-map.json"
+      ],
+      "scope_out": [
+        "feat-blog-ui-builder の scope_out (記事本文のAI生成本体・アフィリエイトURL登録/商品識別・クリック計測分析基盤・管理画面全体の単一用途画面再編・独自ドメイン運用) に該当する変更",
+        "makuring.jp の機械取得や文章・素材の複製"
+      ],
       "source_lineage": {
-        "imported_at": "2026-08-24T03:56:57Z",
+        "imported_at": "2026-08-28T13:02:37Z",
         "origin_kind": "system-dev-planner",
-        "source_digest": "9a2832f2d6f8656f3495435827399bed84d70c893a027d828694b07b46506fe1",
-        "source_path": ".dev-graph/published/feature-package-feat-blog-ui-builder/task-specs/phase-01-requirements.md",
+        "source_digest": "168ac050680f91d58ce05948b6b0d3618f062ec304dfdb901713e98bdaa84c48",
+        "source_path": ".dev-graph/published/generations/feature-package-feat-blog-ui-builder/168ac050680f91d58ce05948b6b0d3618f062ec304dfdb901713e98bdaa84c48/task-specs/phase-01-requirements.md",
         "source_plugin": "system-dev-planner",
         "source_version": "0.1.0"
       },
@@ -14136,12 +14184,20 @@
       ],
       "target_date": null,
       "template_id": "task",
-      "template_version": "1.0.0",
+      "template_version": "1.1.0",
       "title": "ブログ UI ビルダーの要求ベースライン確定",
       "tracker_binding": "beads",
-      "updated_at": "2026-08-24T03:56:57Z"
+      "updated_at": "2026-08-28T13:02:37Z"
     },
     {
+      "acceptance": [
+        "Automated commands: `pnpm run typecheck` (契約文書に対応する型定義の追加箇所が既存 tsconfig と矛盾しないことを確認する)",
+        "Automated commands: `python3 .claude/plugins/system-dev-planner/scripts/validate-system-plan.py --repo-root . --feature-package feature-package/feat-blog-ui-builder` (本 package の C12 決定論検証を世代非依存に再実行する)",
+        "Required evidence: P02 の 成果物 section に記載した produced artifacts のパス"
+      ],
+      "architecture_refs": [
+        "arch-two-layer-platform"
+      ],
       "artifact_kind": "task",
       "artifact_subtypes": [],
       "beads_linkage": null,
@@ -14149,26 +14205,26 @@
         {
           "artifact_kind": "task",
           "candidate_path": "tasks/feat-blog-ui-builder/sys-blog-ui-builder-p02.md",
-          "confidence": 1.0
+          "confidence": 1
         }
       ],
-      "classification_confidence": 1.0,
+      "classification_confidence": 1,
       "classification_reason": "feat-blog-ui-builder の P02 lifecycle 責務への確定写像",
       "completion_evidence": {
         "completed_at": null,
         "evidence_refs": [],
-        "policy": "linked_pr_merged_all",
+        "policy": "manual",
         "reconciled_at": null,
         "source": null,
         "status": "in_progress"
       },
       "confirmation_evidence": {
-        "evaluated_digest": "9a2832f2d6f8656f3495435827399bed84d70c893a027d828694b07b46506fe1",
+        "evaluated_digest": "168ac050680f91d58ce05948b6b0d3618f062ec304dfdb901713e98bdaa84c48",
         "evaluator": "system-dev-plan-evaluator",
-        "evidence_ref": ".dev-graph/published/feature-package-feat-blog-ui-builder/plan-findings.json"
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-blog-ui-builder/168ac050680f91d58ce05948b6b0d3618f062ec304dfdb901713e98bdaa84c48/plan-findings.json"
       },
       "confirmation_status": "confirmed",
-      "created_at": "2026-08-24T03:56:57Z",
+      "created_at": "2026-08-28T13:02:37Z",
       "depends_on": [
         "SYS-BLOG-UI-BUILDER-P01"
       ],
@@ -14184,9 +14240,10 @@
         "mode": "local_only",
         "project_aliases": []
       },
+      "goal": "blog_template/blog_theme/page_theme_override/legal_page/blog_affiliate_placement/guideline_references のデータモデル、decision-ui-theme-implementation (CSS light-dark()+data属性) に従う配色2層のテーマ実装契約、sticky header/sidebar/footer と記事表現ブロック5種+スロット+SEO/AI引用用標準ブロック (answer/key-points/FAQ/sources/freshness) のコンポーネント契約、ブログ作成・配色設定・固定ページ・アフィリエイト配置の管理API契約、JSON-LD自動生成/sitemap/robots.txt/llms.txt/IndexNow/guideline_references のSEO/AI検索実装契約を確定する。受入A10-A14 (SEO/AI検索) の設計を含む。",
       "graph_node_id": "SYS-BLOG-UI-BUILDER-P02",
       "implementation_readiness": {
-        "checked_at": "2026-08-24T02:35:00Z",
+        "checked_at": "2026-08-28T00:00:00Z",
         "missing_sections": [],
         "status": "complete"
       },
@@ -14200,18 +14257,29 @@
       "priority": null,
       "project_id": "feature-package-feat-blog-ui-builder",
       "pull_request_linkages": [],
+      "purpose": "blog_template/blog_theme/page_theme_override/legal_page/blog_affiliate_placement/guideline_references のデータモデル、decision-ui-theme-implementation (CSS light-dark()+data属性) に従う配色2層のテーマ実装契約、sticky header/sidebar/footer と記事表現ブロック5種+スロット+SEO/AI引用用標準ブロック (answer/key-points/FAQ/sources/freshness) のコンポーネント契約、ブログ作成・配色設定・固定ページ・アフィリエイト配置の管理API契約、JSON-LD自動生成/sitemap/robots.txt/llms.txt/IndexNow/guideline_references のSEO/AI検索実装契約を確定する。受入A10-A14 (SEO/AI検索) の設計を含む。",
       "related_nodes": [],
       "resource_scope": [
         "docs/spec/feat-blog-ui-builder/data-model.md",
         "docs/spec/feat-blog-ui-builder/theme-contract.md",
         "docs/spec/feat-blog-ui-builder/component-contract.md",
-        "docs/spec/feat-blog-ui-builder/admin-api-contract.md"
+        "docs/spec/feat-blog-ui-builder/admin-api-contract.md",
+        "docs/spec/feat-blog-ui-builder/seo-ai-search-contract.md"
+      ],
+      "scope_in": [
+        "Produced artifacts: docs/spec/feat-blog-ui-builder/data-model.md (6エンティティのカラム/関連/D1永続化契約); docs/spec/feat-blog-ui-builder/theme-contract.md (blog_theme既定+page_theme_override上書きのlight-dark()契約); docs/spec/feat-blog-ui-builder/component-contract.md (sticky layout・記事ブロック5種・スロット差替・SEO/AI標準ブロック契約); docs/spec/feat-blog-ui-builder/admin-api-contract.md (テンプレート/配色/固定ページ/配置のCRUD+逆引きAPI契約); docs/spec/feat-blog-ui-builder/seo-ai-search-contract.md (JSON-LD自動生成/sitemap/robots/llms.txt/IndexNow/guideline_references の実装契約)",
+        "Consumed artifacts: docs/spec/feat-blog-ui-builder/requirements-baseline.md, docs/spec/feat-blog-ui-builder/screen-inventory.md, system-spec/database.md, system-spec/frontend.md, src/db/schema.ts",
+        "Write scope/touches: docs/spec/feat-blog-ui-builder/data-model.md, docs/spec/feat-blog-ui-builder/theme-contract.md, docs/spec/feat-blog-ui-builder/component-contract.md, docs/spec/feat-blog-ui-builder/admin-api-contract.md, docs/spec/feat-blog-ui-builder/seo-ai-search-contract.md"
+      ],
+      "scope_out": [
+        "feat-blog-ui-builder の scope_out に該当する変更",
+        "既存 feat-uiux-overhaul が所有する管理画面全体の単一用途画面再編"
       ],
       "source_lineage": {
-        "imported_at": "2026-08-24T03:56:57Z",
+        "imported_at": "2026-08-28T13:02:37Z",
         "origin_kind": "system-dev-planner",
-        "source_digest": "9a2832f2d6f8656f3495435827399bed84d70c893a027d828694b07b46506fe1",
-        "source_path": ".dev-graph/published/feature-package-feat-blog-ui-builder/task-specs/phase-02-architecture.md",
+        "source_digest": "168ac050680f91d58ce05948b6b0d3618f062ec304dfdb901713e98bdaa84c48",
+        "source_path": ".dev-graph/published/generations/feature-package-feat-blog-ui-builder/168ac050680f91d58ce05948b6b0d3618f062ec304dfdb901713e98bdaa84c48/task-specs/phase-02-architecture.md",
         "source_plugin": "system-dev-planner",
         "source_version": "0.1.0"
       },
@@ -14223,12 +14291,20 @@
       ],
       "target_date": null,
       "template_id": "task",
-      "template_version": "1.0.0",
-      "title": "データモデル・テーマ契約・コンポーネント契約・管理API契約の設計",
+      "template_version": "1.1.0",
+      "title": "データモデル・テーマ契約・コンポーネント契約・管理API契約・SEO/AI検索契約の設計",
       "tracker_binding": "beads",
-      "updated_at": "2026-08-24T03:56:57Z"
+      "updated_at": "2026-08-28T13:02:37Z"
     },
     {
+      "acceptance": [
+        "Automated commands: `pnpm run lint` (design-review.md記載の指摘に対応するコード規約が既存lint設定と矛盾しないことを確認する)",
+        "Automated commands: `python3 .claude/plugins/system-dev-planner/scripts/validate-system-plan.py --repo-root . --feature-package feature-package/feat-blog-ui-builder` (本 package の C12 決定論検証を世代非依存に再実行する)",
+        "Required evidence: P03 の 成果物 section に記載した produced artifacts のパス"
+      ],
+      "architecture_refs": [
+        "arch-two-layer-platform"
+      ],
       "artifact_kind": "task",
       "artifact_subtypes": [],
       "beads_linkage": null,
@@ -14236,26 +14312,26 @@
         {
           "artifact_kind": "task",
           "candidate_path": "tasks/feat-blog-ui-builder/sys-blog-ui-builder-p03.md",
-          "confidence": 1.0
+          "confidence": 1
         }
       ],
-      "classification_confidence": 1.0,
+      "classification_confidence": 1,
       "classification_reason": "feat-blog-ui-builder の P03 lifecycle 責務への確定写像",
       "completion_evidence": {
         "completed_at": null,
         "evidence_refs": [],
-        "policy": "linked_pr_merged_all",
+        "policy": "manual",
         "reconciled_at": null,
         "source": null,
         "status": "in_progress"
       },
       "confirmation_evidence": {
-        "evaluated_digest": "9a2832f2d6f8656f3495435827399bed84d70c893a027d828694b07b46506fe1",
+        "evaluated_digest": "168ac050680f91d58ce05948b6b0d3618f062ec304dfdb901713e98bdaa84c48",
         "evaluator": "system-dev-plan-evaluator",
-        "evidence_ref": ".dev-graph/published/feature-package-feat-blog-ui-builder/plan-findings.json"
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-blog-ui-builder/168ac050680f91d58ce05948b6b0d3618f062ec304dfdb901713e98bdaa84c48/plan-findings.json"
       },
       "confirmation_status": "confirmed",
-      "created_at": "2026-08-24T03:56:57Z",
+      "created_at": "2026-08-28T13:02:37Z",
       "depends_on": [
         "SYS-BLOG-UI-BUILDER-P02"
       ],
@@ -14271,9 +14347,10 @@
         "mode": "local_only",
         "project_aliases": []
       },
+      "goal": "P02の設計に対する独立レビューを行い、makuring.jp参照が構成・配置・表記法の参照に留まり丸パクリになっていないこと、配色2層 (blog_theme/page_theme_override) の一貫性、sticky要素のWCAG 2.2 reflow/focus-not-obscured適合、記事表現ブロックのスロット差替可能性、JSON-LD自動生成とSSR出力の整合 (A10対応)、IndexNow鍵のリポジトリ非保存ポリシー (A13対応)、guideline_references の90日再確認設計 (A14対応) の各観点で指摘が反映または残課題化された状態を成立させる。",
       "graph_node_id": "SYS-BLOG-UI-BUILDER-P03",
       "implementation_readiness": {
-        "checked_at": "2026-08-24T02:35:00Z",
+        "checked_at": "2026-08-28T00:00:00Z",
         "missing_sections": [],
         "status": "complete"
       },
@@ -14287,15 +14364,25 @@
       "priority": null,
       "project_id": "feature-package-feat-blog-ui-builder",
       "pull_request_linkages": [],
+      "purpose": "P02の設計に対する独立レビューを行い、makuring.jp参照が構成・配置・表記法の参照に留まり丸パクリになっていないこと、配色2層 (blog_theme/page_theme_override) の一貫性、sticky要素のWCAG 2.2 reflow/focus-not-obscured適合、記事表現ブロックのスロット差替可能性、JSON-LD自動生成とSSR出力の整合 (A10対応)、IndexNow鍵のリポジトリ非保存ポリシー (A13対応)、guideline_references の90日再確認設計 (A14対応) の各観点で指摘が反映または残課題化された状態を成立させる。",
       "related_nodes": [],
       "resource_scope": [
         "docs/spec/feat-blog-ui-builder/design-review.md"
       ],
+      "scope_in": [
+        "Produced artifacts: docs/spec/feat-blog-ui-builder/design-review.md (観点別の指摘・反映結果・残課題)",
+        "Consumed artifacts: docs/spec/feat-blog-ui-builder/data-model.md, docs/spec/feat-blog-ui-builder/theme-contract.md, docs/spec/feat-blog-ui-builder/component-contract.md, docs/spec/feat-blog-ui-builder/admin-api-contract.md, docs/spec/feat-blog-ui-builder/seo-ai-search-contract.md",
+        "Write scope/touches: docs/spec/feat-blog-ui-builder/design-review.md"
+      ],
+      "scope_out": [
+        "feat-blog-ui-builder の scope_out に該当する変更",
+        "P02設計文書そのものの書き換え (指摘の反映はP02再訪または残課題記録に限る)"
+      ],
       "source_lineage": {
-        "imported_at": "2026-08-24T03:56:57Z",
+        "imported_at": "2026-08-28T13:02:37Z",
         "origin_kind": "system-dev-planner",
-        "source_digest": "9a2832f2d6f8656f3495435827399bed84d70c893a027d828694b07b46506fe1",
-        "source_path": ".dev-graph/published/feature-package-feat-blog-ui-builder/task-specs/phase-03-design-review.md",
+        "source_digest": "168ac050680f91d58ce05948b6b0d3618f062ec304dfdb901713e98bdaa84c48",
+        "source_path": ".dev-graph/published/generations/feature-package-feat-blog-ui-builder/168ac050680f91d58ce05948b6b0d3618f062ec304dfdb901713e98bdaa84c48/task-specs/phase-03-design-review.md",
         "source_plugin": "system-dev-planner",
         "source_version": "0.1.0"
       },
@@ -14307,12 +14394,20 @@
       ],
       "target_date": null,
       "template_id": "task",
-      "template_version": "1.0.0",
-      "title": "設計レビューと参照妥当性・テーマ一貫性の独立検証",
+      "template_version": "1.1.0",
+      "title": "設計レビューと参照妥当性・テーマ一貫性・SEO/AI検索設計の独立検証",
       "tracker_binding": "beads",
-      "updated_at": "2026-08-24T03:56:57Z"
+      "updated_at": "2026-08-28T13:02:37Z"
     },
     {
+      "acceptance": [
+        "Automated commands: `pnpm test` (新規テストが実装前は失敗し、既存テストは回帰0件のまま維持されることを確認する)",
+        "Automated commands: `python3 .claude/plugins/system-dev-planner/scripts/validate-system-plan.py --repo-root . --feature-package feature-package/feat-blog-ui-builder` (本 package の C12 決定論検証を世代非依存に再実行する)",
+        "Required evidence: P04 の 成果物 section に記載した produced artifacts のパス"
+      ],
+      "architecture_refs": [
+        "arch-two-layer-platform"
+      ],
       "artifact_kind": "task",
       "artifact_subtypes": [],
       "beads_linkage": null,
@@ -14320,26 +14415,26 @@
         {
           "artifact_kind": "task",
           "candidate_path": "tasks/feat-blog-ui-builder/sys-blog-ui-builder-p04.md",
-          "confidence": 1.0
+          "confidence": 1
         }
       ],
-      "classification_confidence": 1.0,
+      "classification_confidence": 1,
       "classification_reason": "feat-blog-ui-builder の P04 lifecycle 責務への確定写像",
       "completion_evidence": {
         "completed_at": null,
         "evidence_refs": [],
-        "policy": "linked_pr_merged_all",
+        "policy": "manual",
         "reconciled_at": null,
         "source": null,
         "status": "in_progress"
       },
       "confirmation_evidence": {
-        "evaluated_digest": "9a2832f2d6f8656f3495435827399bed84d70c893a027d828694b07b46506fe1",
+        "evaluated_digest": "168ac050680f91d58ce05948b6b0d3618f062ec304dfdb901713e98bdaa84c48",
         "evaluator": "system-dev-plan-evaluator",
-        "evidence_ref": ".dev-graph/published/feature-package-feat-blog-ui-builder/plan-findings.json"
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-blog-ui-builder/168ac050680f91d58ce05948b6b0d3618f062ec304dfdb901713e98bdaa84c48/plan-findings.json"
       },
       "confirmation_status": "confirmed",
-      "created_at": "2026-08-24T03:56:57Z",
+      "created_at": "2026-08-28T13:02:37Z",
       "depends_on": [
         "SYS-BLOG-UI-BUILDER-P03"
       ],
@@ -14355,9 +14450,10 @@
         "mode": "local_only",
         "project_aliases": []
       },
+      "goal": "feat-blog-ui-builderの受入14件 (A1-A14) それぞれに対応するテストを振る舞いベースで設計し、実装着手前に失敗する状態でtests/配下へ配置した状態を成立させる。A10-A14 (SEO/AI検索) については pure 関数の単体テスト・sitemap/robots/llms.txt の生成テスト・IndexNow 送信スキップテスト・guideline_references の90日境界テストを含む。",
       "graph_node_id": "SYS-BLOG-UI-BUILDER-P04",
       "implementation_readiness": {
-        "checked_at": "2026-08-24T02:35:00Z",
+        "checked_at": "2026-08-28T00:00:00Z",
         "missing_sections": [],
         "status": "complete"
       },
@@ -14371,6 +14467,7 @@
       "priority": null,
       "project_id": "feature-package-feat-blog-ui-builder",
       "pull_request_linkages": [],
+      "purpose": "feat-blog-ui-builderの受入14件 (A1-A14) それぞれに対応するテストを振る舞いベースで設計し、実装着手前に失敗する状態でtests/配下へ配置した状態を成立させる。A10-A14 (SEO/AI検索) については pure 関数の単体テスト・sitemap/robots/llms.txt の生成テスト・IndexNow 送信スキップテスト・guideline_references の90日境界テストを含む。",
       "related_nodes": [],
       "resource_scope": [
         "docs/spec/feat-blog-ui-builder/test-design.md",
@@ -14379,11 +14476,20 @@
         "tests/infrastructure/",
         "tests/acceptance/"
       ],
+      "scope_in": [
+        "Produced artifacts: docs/spec/feat-blog-ui-builder/test-design.md (A1-A14とテストケースの対応表); tests/ui/ 配下のブログテンプレート選択・配色上書き・stickyレイアウト・固定ページ・表現ブロック・SEO/AI標準ブロックのテスト; tests/application/ 配下のユースケース単体テスト (JSON-LD生成・IndexNow送信スキップ・guideline_references 90日境界を含む); tests/infrastructure/ 配下のD1永続化結合テスト; tests/acceptance/ 配下のA1-A14対応シナリオテスト",
+        "Consumed artifacts: docs/spec/feat-blog-ui-builder/design-review.md, docs/spec/feat-blog-ui-builder/admin-api-contract.md, docs/spec/feat-blog-ui-builder/component-contract.md, docs/spec/feat-blog-ui-builder/seo-ai-search-contract.md",
+        "Write scope/touches: docs/spec/feat-blog-ui-builder/test-design.md, tests/ui/, tests/application/, tests/infrastructure/, tests/acceptance/"
+      ],
+      "scope_out": [
+        "feat-blog-ui-builder の scope_out に該当する変更",
+        "write_scope外のパスへの実装コード変更 (テスト対象実装はP05が所有する)"
+      ],
       "source_lineage": {
-        "imported_at": "2026-08-24T03:56:57Z",
+        "imported_at": "2026-08-28T13:02:37Z",
         "origin_kind": "system-dev-planner",
-        "source_digest": "9a2832f2d6f8656f3495435827399bed84d70c893a027d828694b07b46506fe1",
-        "source_path": ".dev-graph/published/feature-package-feat-blog-ui-builder/task-specs/phase-04-test-design.md",
+        "source_digest": "168ac050680f91d58ce05948b6b0d3618f062ec304dfdb901713e98bdaa84c48",
+        "source_path": ".dev-graph/published/generations/feature-package-feat-blog-ui-builder/168ac050680f91d58ce05948b6b0d3618f062ec304dfdb901713e98bdaa84c48/task-specs/phase-04-test-design.md",
         "source_plugin": "system-dev-planner",
         "source_version": "0.1.0"
       },
@@ -14395,12 +14501,22 @@
       ],
       "target_date": null,
       "template_id": "task",
-      "template_version": "1.0.0",
-      "title": "受入9件に対応するテスト設計",
+      "template_version": "1.1.0",
+      "title": "受入14件に対応するテスト設計",
       "tracker_binding": "beads",
-      "updated_at": "2026-08-24T03:56:57Z"
+      "updated_at": "2026-08-28T13:02:37Z"
     },
     {
+      "acceptance": [
+        "Automated commands: `pnpm test` (P04で設計したテストの緑化を確認する)",
+        "Automated commands: `pnpm run typecheck` (型検査)",
+        "Automated commands: `pnpm run db:generate` (drizzleスキーマ変更からのマイグレーション生成を確認する)",
+        "Automated commands: `python3 .claude/plugins/system-dev-planner/scripts/validate-system-plan.py --repo-root . --feature-package feature-package/feat-blog-ui-builder` (本 package の C12 決定論検証を世代非依存に再実行する)",
+        "Required evidence: P05 の 成果物 section に記載した produced artifacts のパス"
+      ],
+      "architecture_refs": [
+        "arch-two-layer-platform"
+      ],
       "artifact_kind": "task",
       "artifact_subtypes": [],
       "beads_linkage": null,
@@ -14408,26 +14524,26 @@
         {
           "artifact_kind": "task",
           "candidate_path": "tasks/feat-blog-ui-builder/sys-blog-ui-builder-p05.md",
-          "confidence": 1.0
+          "confidence": 1
         }
       ],
-      "classification_confidence": 1.0,
+      "classification_confidence": 1,
       "classification_reason": "feat-blog-ui-builder の P05 lifecycle 責務への確定写像",
       "completion_evidence": {
         "completed_at": null,
         "evidence_refs": [],
-        "policy": "linked_pr_merged_all",
+        "policy": "manual",
         "reconciled_at": null,
         "source": null,
         "status": "in_progress"
       },
       "confirmation_evidence": {
-        "evaluated_digest": "9a2832f2d6f8656f3495435827399bed84d70c893a027d828694b07b46506fe1",
+        "evaluated_digest": "168ac050680f91d58ce05948b6b0d3618f062ec304dfdb901713e98bdaa84c48",
         "evaluator": "system-dev-plan-evaluator",
-        "evidence_ref": ".dev-graph/published/feature-package-feat-blog-ui-builder/plan-findings.json"
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-blog-ui-builder/168ac050680f91d58ce05948b6b0d3618f062ec304dfdb901713e98bdaa84c48/plan-findings.json"
       },
       "confirmation_status": "confirmed",
-      "created_at": "2026-08-24T03:56:57Z",
+      "created_at": "2026-08-28T13:02:37Z",
       "depends_on": [
         "SYS-BLOG-UI-BUILDER-P04"
       ],
@@ -14443,9 +14559,10 @@
         "mode": "local_only",
         "project_aliases": []
       },
+      "goal": "受入14件 (A1-A14) に対応する実装 (テンプレート6種からのブログ作成・差替、配色2層のlight-dark()実装、sticky header/sidebar/footerと狭幅折りたたみ、固定ページ6種の構築UI、記事表現ブロック5種+スロット差替+SEO/AI標準ブロック、blog_affiliate_placementの管理一覧・逆引きと公開/作成/保存各面での表示、D1永続化、記事ページSSRへのJSON-LD/canonical/OGP埋め込み、sitemap/robots.txt/feed.xml/llms.txtの自動生成、IndexNow送信の鍵環境変数分離、guideline_references管理画面と90日再確認) を完了し、P04のテストを緑化した状態を成立させる。",
       "graph_node_id": "SYS-BLOG-UI-BUILDER-P05",
       "implementation_readiness": {
-        "checked_at": "2026-08-24T02:35:00Z",
+        "checked_at": "2026-08-28T00:00:00Z",
         "missing_sections": [],
         "status": "complete"
       },
@@ -14459,10 +14576,12 @@
       "priority": null,
       "project_id": "feature-package-feat-blog-ui-builder",
       "pull_request_linkages": [],
+      "purpose": "受入14件 (A1-A14) に対応する実装 (テンプレート6種からのブログ作成・差替、配色2層のlight-dark()実装、sticky header/sidebar/footerと狭幅折りたたみ、固定ページ6種の構築UI、記事表現ブロック5種+スロット差替+SEO/AI標準ブロック、blog_affiliate_placementの管理一覧・逆引きと公開/作成/保存各面での表示、D1永続化、記事ページSSRへのJSON-LD/canonical/OGP埋め込み、sitemap/robots.txt/feed.xml/llms.txtの自動生成、IndexNow送信の鍵環境変数分離、guideline_references管理画面と90日再確認) を完了し、P04のテストを緑化した状態を成立させる。",
       "related_nodes": [],
       "resource_scope": [
         "src/app/admin/sites/",
         "src/app/admin/sites/new/",
+        "src/app/admin/settings/seo/",
         "src/app/api/admin/",
         "src/presentation/ui/templates/",
         "src/presentation/ui/patterns/",
@@ -14470,15 +14589,27 @@
         "src/app/s/[site]/",
         "src/application/usecases/",
         "src/application/read-models/",
+        "src/application/seo/",
+        "src/application/ports/",
         "src/infrastructure/persistence/d1/",
         "src/db/schema.ts",
         "drizzle/"
       ],
+      "scope_in": [
+        "Produced artifacts: src/app/admin/sites/ 配下のブログテンプレート選択・配色設定・固定ページ編集・アフィリエイト配置一覧画面; src/app/admin/settings/seo/ 配下のguideline_references管理画面; src/app/api/admin/ 配下のテンプレート/配色/固定ページ/配置/guideline_references のCRUD+逆引きAPI; src/presentation/ui/templates・patterns 配下のsticky layout・記事表現ブロック5種・スロット差替・SEO/AI標準ブロックコンポーネント; src/app/s/[site]/ 配下の固定ページ6種の公開面ルートと配色反映・sitemap/robots/feed/llms.txt生成; src/application/usecases・read-models 配下のブログ作成/配色設定/配置管理/guideline_references ユースケース; src/application/seo/ 配下のJSON-LD生成・IndexNow送信・structured-data 純関数; src/application/ports/ 配下のguideline-reference ポート契約; src/infrastructure/persistence/d1 配下の6エンティティリポジトリ; src/db/schema.ts への6エンティティ追加とdrizzle/配下のマイグレーション",
+        "Consumed artifacts: docs/spec/feat-blog-ui-builder/data-model.md, docs/spec/feat-blog-ui-builder/theme-contract.md, docs/spec/feat-blog-ui-builder/component-contract.md, docs/spec/feat-blog-ui-builder/admin-api-contract.md, docs/spec/feat-blog-ui-builder/seo-ai-search-contract.md, docs/spec/feat-blog-ui-builder/test-design.md",
+        "Write scope/touches: src/app/admin/sites/, src/app/admin/sites/new/, src/app/admin/settings/seo/, src/app/api/admin/, src/presentation/ui/templates/, src/presentation/ui/patterns/, src/presentation/ui/tokens.css, src/app/s/[site]/, src/application/usecases/, src/application/read-models/, src/application/seo/, src/application/ports/, src/infrastructure/persistence/d1/, src/db/schema.ts, drizzle/"
+      ],
+      "scope_out": [
+        "feat-blog-ui-builder の scope_out に該当する変更",
+        "write_scope外のパスへの変更",
+        "既存 feat-uiux-overhaul が所有する管理画面全体の単一用途画面再編"
+      ],
       "source_lineage": {
-        "imported_at": "2026-08-24T03:56:57Z",
+        "imported_at": "2026-08-28T13:02:37Z",
         "origin_kind": "system-dev-planner",
-        "source_digest": "9a2832f2d6f8656f3495435827399bed84d70c893a027d828694b07b46506fe1",
-        "source_path": ".dev-graph/published/feature-package-feat-blog-ui-builder/task-specs/phase-05-implementation.md",
+        "source_digest": "168ac050680f91d58ce05948b6b0d3618f062ec304dfdb901713e98bdaa84c48",
+        "source_path": ".dev-graph/published/generations/feature-package-feat-blog-ui-builder/168ac050680f91d58ce05948b6b0d3618f062ec304dfdb901713e98bdaa84c48/task-specs/phase-05-implementation.md",
         "source_plugin": "system-dev-planner",
         "source_version": "0.1.0"
       },
@@ -14490,12 +14621,21 @@
       ],
       "target_date": null,
       "template_id": "task",
-      "template_version": "1.0.0",
-      "title": "テンプレート・配色2層・sticky常時表示・固定ページ・表現ブロック・配置管理の実装",
+      "template_version": "1.1.0",
+      "title": "テンプレート・配色2層・sticky常時表示・固定ページ・表現ブロック・配置管理・SEO/AI検索の実装",
       "tracker_binding": "beads",
-      "updated_at": "2026-08-24T03:56:57Z"
+      "updated_at": "2026-08-28T13:02:37Z"
     },
     {
+      "acceptance": [
+        "Automated commands: `pnpm test` (全量実行、失敗0件を確認する)",
+        "Automated commands: `pnpm run test:coverage` (カバレッジ80%以上を確認する)",
+        "Automated commands: `python3 .claude/plugins/system-dev-planner/scripts/validate-system-plan.py --repo-root . --feature-package feature-package/feat-blog-ui-builder` (本 package の C12 決定論検証を世代非依存に再実行する)",
+        "Required evidence: P06 の 成果物 section に記載した produced artifacts のパス"
+      ],
+      "architecture_refs": [
+        "arch-two-layer-platform"
+      ],
       "artifact_kind": "task",
       "artifact_subtypes": [],
       "beads_linkage": null,
@@ -14503,26 +14643,26 @@
         {
           "artifact_kind": "task",
           "candidate_path": "tasks/feat-blog-ui-builder/sys-blog-ui-builder-p06.md",
-          "confidence": 1.0
+          "confidence": 1
         }
       ],
-      "classification_confidence": 1.0,
+      "classification_confidence": 1,
       "classification_reason": "feat-blog-ui-builder の P06 lifecycle 責務への確定写像",
       "completion_evidence": {
         "completed_at": null,
         "evidence_refs": [],
-        "policy": "linked_pr_merged_all",
+        "policy": "manual",
         "reconciled_at": null,
         "source": null,
         "status": "in_progress"
       },
       "confirmation_evidence": {
-        "evaluated_digest": "9a2832f2d6f8656f3495435827399bed84d70c893a027d828694b07b46506fe1",
+        "evaluated_digest": "168ac050680f91d58ce05948b6b0d3618f062ec304dfdb901713e98bdaa84c48",
         "evaluator": "system-dev-plan-evaluator",
-        "evidence_ref": ".dev-graph/published/feature-package-feat-blog-ui-builder/plan-findings.json"
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-blog-ui-builder/168ac050680f91d58ce05948b6b0d3618f062ec304dfdb901713e98bdaa84c48/plan-findings.json"
       },
       "confirmation_status": "confirmed",
-      "created_at": "2026-08-24T03:56:57Z",
+      "created_at": "2026-08-28T13:02:37Z",
       "depends_on": [
         "SYS-BLOG-UI-BUILDER-P05"
       ],
@@ -14538,9 +14678,10 @@
         "mode": "local_only",
         "project_aliases": []
       },
+      "goal": "P05実装に対する全テストの全量実行が完了し、失敗0件・既存テストの回帰0件・カバレッジ目標80%達成が証跡として記録された状態を成立させる。A1-A14 全14件の受入対応テストが緑化していることを確認する。",
       "graph_node_id": "SYS-BLOG-UI-BUILDER-P06",
       "implementation_readiness": {
-        "checked_at": "2026-08-24T02:35:00Z",
+        "checked_at": "2026-08-28T00:00:00Z",
         "missing_sections": [],
         "status": "complete"
       },
@@ -14554,15 +14695,25 @@
       "priority": null,
       "project_id": "feature-package-feat-blog-ui-builder",
       "pull_request_linkages": [],
+      "purpose": "P05実装に対する全テストの全量実行が完了し、失敗0件・既存テストの回帰0件・カバレッジ目標80%達成が証跡として記録された状態を成立させる。A1-A14 全14件の受入対応テストが緑化していることを確認する。",
       "related_nodes": [],
       "resource_scope": [
         "docs/spec/feat-blog-ui-builder/test-run-report.md"
       ],
+      "scope_in": [
+        "Produced artifacts: docs/spec/feat-blog-ui-builder/test-run-report.md (実行結果・失敗0件・回帰0件・カバレッジ・A1-A14全件対応テスト緑化の記録)",
+        "Consumed artifacts: tests/ui/, tests/application/, tests/infrastructure/, tests/acceptance/",
+        "Write scope/touches: docs/spec/feat-blog-ui-builder/test-run-report.md"
+      ],
+      "scope_out": [
+        "feat-blog-ui-builder の scope_out に該当する変更",
+        "テスト失敗時の実装修正 (write_scope外であり、必要な場合はP05へ差し戻す)"
+      ],
       "source_lineage": {
-        "imported_at": "2026-08-24T03:56:57Z",
+        "imported_at": "2026-08-28T13:02:37Z",
         "origin_kind": "system-dev-planner",
-        "source_digest": "9a2832f2d6f8656f3495435827399bed84d70c893a027d828694b07b46506fe1",
-        "source_path": ".dev-graph/published/feature-package-feat-blog-ui-builder/task-specs/phase-06-test-run.md",
+        "source_digest": "168ac050680f91d58ce05948b6b0d3618f062ec304dfdb901713e98bdaa84c48",
+        "source_path": ".dev-graph/published/generations/feature-package-feat-blog-ui-builder/168ac050680f91d58ce05948b6b0d3618f062ec304dfdb901713e98bdaa84c48/task-specs/phase-06-test-run.md",
         "source_plugin": "system-dev-planner",
         "source_version": "0.1.0"
       },
@@ -14574,12 +14725,21 @@
       ],
       "target_date": null,
       "template_id": "task",
-      "template_version": "1.0.0",
+      "template_version": "1.1.0",
       "title": "テスト全量実行と回帰0件の確認",
       "tracker_binding": "beads",
-      "updated_at": "2026-08-24T03:56:57Z"
+      "updated_at": "2026-08-28T13:02:37Z"
     },
     {
+      "acceptance": [
+        "Automated commands: `pnpm run preview` (Workersランタイム, localhost:8787) 上でA1-A14を実物確認する",
+        "Automated commands: `pnpm run test:e2e` (E2E受入シナリオを実行する)",
+        "Automated commands: `python3 .claude/plugins/system-dev-planner/scripts/validate-system-plan.py --repo-root . --feature-package feature-package/feat-blog-ui-builder` (本 package の C12 決定論検証を世代非依存に再実行する)",
+        "Required evidence: P07 の 成果物 section に記載した produced artifacts のパス"
+      ],
+      "architecture_refs": [
+        "arch-two-layer-platform"
+      ],
       "artifact_kind": "task",
       "artifact_subtypes": [],
       "beads_linkage": null,
@@ -14587,26 +14747,26 @@
         {
           "artifact_kind": "task",
           "candidate_path": "tasks/feat-blog-ui-builder/sys-blog-ui-builder-p07.md",
-          "confidence": 1.0
+          "confidence": 1
         }
       ],
-      "classification_confidence": 1.0,
+      "classification_confidence": 1,
       "classification_reason": "feat-blog-ui-builder の P07 lifecycle 責務への確定写像",
       "completion_evidence": {
         "completed_at": null,
         "evidence_refs": [],
-        "policy": "linked_pr_merged_all",
+        "policy": "manual",
         "reconciled_at": null,
         "source": null,
         "status": "in_progress"
       },
       "confirmation_evidence": {
-        "evaluated_digest": "9a2832f2d6f8656f3495435827399bed84d70c893a027d828694b07b46506fe1",
+        "evaluated_digest": "168ac050680f91d58ce05948b6b0d3618f062ec304dfdb901713e98bdaa84c48",
         "evaluator": "system-dev-plan-evaluator",
-        "evidence_ref": ".dev-graph/published/feature-package-feat-blog-ui-builder/plan-findings.json"
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-blog-ui-builder/168ac050680f91d58ce05948b6b0d3618f062ec304dfdb901713e98bdaa84c48/plan-findings.json"
       },
       "confirmation_status": "confirmed",
-      "created_at": "2026-08-24T03:56:57Z",
+      "created_at": "2026-08-28T13:02:37Z",
       "depends_on": [
         "SYS-BLOG-UI-BUILDER-P06"
       ],
@@ -14622,9 +14782,10 @@
         "mode": "local_only",
         "project_aliases": []
       },
+      "goal": "feat-blog-ui-builderの受入14件 (A1-A14) すべてについて実物 (pnpm run preview上のWorkersランタイム) での判定が完了し、判定結果と根拠が記録された状態を成立させる。A10-A14 (SEO/AI検索) については HTML ソースの確認・sitemap/robots/llms.txt の内容確認・IndexNow送信スキップログの確認・guideline_references管理画面の90日表示確認を含む。",
       "graph_node_id": "SYS-BLOG-UI-BUILDER-P07",
       "implementation_readiness": {
-        "checked_at": "2026-08-24T02:35:00Z",
+        "checked_at": "2026-08-28T00:00:00Z",
         "missing_sections": [],
         "status": "complete"
       },
@@ -14638,15 +14799,25 @@
       "priority": null,
       "project_id": "feature-package-feat-blog-ui-builder",
       "pull_request_linkages": [],
+      "purpose": "feat-blog-ui-builderの受入14件 (A1-A14) すべてについて実物 (pnpm run preview上のWorkersランタイム) での判定が完了し、判定結果と根拠が記録された状態を成立させる。A10-A14 (SEO/AI検索) については HTML ソースの確認・sitemap/robots/llms.txt の内容確認・IndexNow送信スキップログの確認・guideline_references管理画面の90日表示確認を含む。",
       "related_nodes": [],
       "resource_scope": [
         "docs/spec/feat-blog-ui-builder/acceptance-report.md"
       ],
+      "scope_in": [
+        "Produced artifacts: docs/spec/feat-blog-ui-builder/acceptance-report.md (A1-A14の判定結果と根拠)",
+        "Consumed artifacts: docs/spec/feat-blog-ui-builder/test-run-report.md, docs/spec/feat-blog-ui-builder/requirements-baseline.md",
+        "Write scope/touches: docs/spec/feat-blog-ui-builder/acceptance-report.md"
+      ],
+      "scope_out": [
+        "feat-blog-ui-builder の scope_out に該当する変更",
+        "判定でFAILとなった場合の実装修正 (write_scope外であり、必要な場合はP05へ差し戻す)"
+      ],
       "source_lineage": {
-        "imported_at": "2026-08-24T03:56:57Z",
+        "imported_at": "2026-08-28T13:02:37Z",
         "origin_kind": "system-dev-planner",
-        "source_digest": "9a2832f2d6f8656f3495435827399bed84d70c893a027d828694b07b46506fe1",
-        "source_path": ".dev-graph/published/feature-package-feat-blog-ui-builder/task-specs/phase-07-acceptance.md",
+        "source_digest": "168ac050680f91d58ce05948b6b0d3618f062ec304dfdb901713e98bdaa84c48",
+        "source_path": ".dev-graph/published/generations/feature-package-feat-blog-ui-builder/168ac050680f91d58ce05948b6b0d3618f062ec304dfdb901713e98bdaa84c48/task-specs/phase-07-acceptance.md",
         "source_plugin": "system-dev-planner",
         "source_version": "0.1.0"
       },
@@ -14658,12 +14829,21 @@
       ],
       "target_date": null,
       "template_id": "task",
-      "template_version": "1.0.0",
-      "title": "受入9件の受け入れ判定",
+      "template_version": "1.1.0",
+      "title": "受入14件の受け入れ判定",
       "tracker_binding": "beads",
-      "updated_at": "2026-08-24T03:56:57Z"
+      "updated_at": "2026-08-28T13:02:37Z"
     },
     {
+      "acceptance": [
+        "Automated commands: `pnpm run lint` (重複コンポーネントの静的検出)",
+        "Automated commands: `pnpm run typecheck` (移行後の型整合性を確認する)",
+        "Automated commands: `python3 .claude/plugins/system-dev-planner/scripts/validate-system-plan.py --repo-root . --feature-package feature-package/feat-blog-ui-builder` (本 package の C12 決定論検証を世代非依存に再実行する)",
+        "Required evidence: P08 の 成果物 section に記載した produced artifacts のパス"
+      ],
+      "architecture_refs": [
+        "arch-two-layer-platform"
+      ],
       "artifact_kind": "task",
       "artifact_subtypes": [],
       "beads_linkage": null,
@@ -14671,26 +14851,26 @@
         {
           "artifact_kind": "task",
           "candidate_path": "tasks/feat-blog-ui-builder/sys-blog-ui-builder-p08.md",
-          "confidence": 1.0
+          "confidence": 1
         }
       ],
-      "classification_confidence": 1.0,
+      "classification_confidence": 1,
       "classification_reason": "feat-blog-ui-builder の P08 lifecycle 責務への確定写像",
       "completion_evidence": {
         "completed_at": null,
         "evidence_refs": [],
-        "policy": "linked_pr_merged_all",
+        "policy": "manual",
         "reconciled_at": null,
         "source": null,
         "status": "in_progress"
       },
       "confirmation_evidence": {
-        "evaluated_digest": "9a2832f2d6f8656f3495435827399bed84d70c893a027d828694b07b46506fe1",
+        "evaluated_digest": "168ac050680f91d58ce05948b6b0d3618f062ec304dfdb901713e98bdaa84c48",
         "evaluator": "system-dev-plan-evaluator",
-        "evidence_ref": ".dev-graph/published/feature-package-feat-blog-ui-builder/plan-findings.json"
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-blog-ui-builder/168ac050680f91d58ce05948b6b0d3618f062ec304dfdb901713e98bdaa84c48/plan-findings.json"
       },
       "confirmation_status": "confirmed",
-      "created_at": "2026-08-24T03:56:57Z",
+      "created_at": "2026-08-28T13:02:37Z",
       "depends_on": [
         "SYS-BLOG-UI-BUILDER-P05"
       ],
@@ -14706,9 +14886,10 @@
         "mode": "local_only",
         "project_aliases": []
       },
+      "goal": "既存 src/app/admin/sites 配下のサイト管理画面が新規追加したblog_template/blog_theme/page_theme_override/legal_page/blog_affiliate_placementの参照へ移行され、テンプレート/配色/固定ページ選択に関する重複実装が0件であることが確認された状態を成立させる。",
       "graph_node_id": "SYS-BLOG-UI-BUILDER-P08",
       "implementation_readiness": {
-        "checked_at": "2026-08-24T02:35:00Z",
+        "checked_at": "2026-08-28T00:00:00Z",
         "missing_sections": [],
         "status": "complete"
       },
@@ -14722,6 +14903,7 @@
       "priority": null,
       "project_id": "feature-package-feat-blog-ui-builder",
       "pull_request_linkages": [],
+      "purpose": "既存 src/app/admin/sites 配下のサイト管理画面が新規追加したblog_template/blog_theme/page_theme_override/legal_page/blog_affiliate_placementの参照へ移行され、テンプレート/配色/固定ページ選択に関する重複実装が0件であることが確認された状態を成立させる。",
       "related_nodes": [],
       "resource_scope": [
         "src/app/admin/sites/",
@@ -14729,11 +14911,20 @@
         "src/presentation/ui/templates/",
         "docs/spec/feat-blog-ui-builder/migration-report.md"
       ],
+      "scope_in": [
+        "Produced artifacts: src/app/admin/sites 配下の移行後画面 (新エンティティ参照への一本化); src/presentation/ui/templates 配下の重複コンポーネント整理; docs/spec/feat-blog-ui-builder/migration-report.md (移行前後の対応表と重複解消の証跡)",
+        "Consumed artifacts: docs/spec/feat-blog-ui-builder/data-model.md, src/app/admin/sites/",
+        "Write scope/touches: src/app/admin/sites/, src/app/admin/sites/[site]/, src/presentation/ui/templates/, docs/spec/feat-blog-ui-builder/migration-report.md"
+      ],
+      "scope_out": [
+        "feat-blog-ui-builder の scope_out に該当する変更",
+        "既存 feat-uiux-overhaul が所有する管理画面全体の単一用途画面再編"
+      ],
       "source_lineage": {
-        "imported_at": "2026-08-24T03:56:57Z",
+        "imported_at": "2026-08-28T13:02:37Z",
         "origin_kind": "system-dev-planner",
-        "source_digest": "9a2832f2d6f8656f3495435827399bed84d70c893a027d828694b07b46506fe1",
-        "source_path": ".dev-graph/published/feature-package-feat-blog-ui-builder/task-specs/phase-08-refactoring-migration.md",
+        "source_digest": "168ac050680f91d58ce05948b6b0d3618f062ec304dfdb901713e98bdaa84c48",
+        "source_path": ".dev-graph/published/generations/feature-package-feat-blog-ui-builder/168ac050680f91d58ce05948b6b0d3618f062ec304dfdb901713e98bdaa84c48/task-specs/phase-08-refactoring-migration.md",
         "source_plugin": "system-dev-planner",
         "source_version": "0.1.0"
       },
@@ -14745,12 +14936,22 @@
       ],
       "target_date": null,
       "template_id": "task",
-      "template_version": "1.0.0",
+      "template_version": "1.1.0",
       "title": "既存サイト管理画面の新エンティティへの移行と重複実装の解消",
       "tracker_binding": "beads",
-      "updated_at": "2026-08-24T03:56:57Z"
+      "updated_at": "2026-08-28T13:02:37Z"
     },
     {
+      "acceptance": [
+        "Automated commands: `pnpm run typecheck` (型検査、src/application/seo 配下を含む)",
+        "Automated commands: `pnpm run lint` (静的解析)",
+        "Automated commands: `pnpm run visual` (視覚回帰・axe-core検査を含む)",
+        "Automated commands: `python3 .claude/plugins/system-dev-planner/scripts/validate-system-plan.py --repo-root . --feature-package feature-package/feat-blog-ui-builder` (本 package の C12 決定論検証を世代非依存に再実行する)",
+        "Required evidence: P09 の 成果物 section に記載した produced artifacts のパス"
+      ],
+      "architecture_refs": [
+        "arch-two-layer-platform"
+      ],
       "artifact_kind": "task",
       "artifact_subtypes": [],
       "beads_linkage": null,
@@ -14758,26 +14959,26 @@
         {
           "artifact_kind": "task",
           "candidate_path": "tasks/feat-blog-ui-builder/sys-blog-ui-builder-p09.md",
-          "confidence": 1.0
+          "confidence": 1
         }
       ],
-      "classification_confidence": 1.0,
+      "classification_confidence": 1,
       "classification_reason": "feat-blog-ui-builder の P09 lifecycle 責務への確定写像",
       "completion_evidence": {
         "completed_at": null,
         "evidence_refs": [],
-        "policy": "linked_pr_merged_all",
+        "policy": "manual",
         "reconciled_at": null,
         "source": null,
         "status": "in_progress"
       },
       "confirmation_evidence": {
-        "evaluated_digest": "9a2832f2d6f8656f3495435827399bed84d70c893a027d828694b07b46506fe1",
+        "evaluated_digest": "168ac050680f91d58ce05948b6b0d3618f062ec304dfdb901713e98bdaa84c48",
         "evaluator": "system-dev-plan-evaluator",
-        "evidence_ref": ".dev-graph/published/feature-package-feat-blog-ui-builder/plan-findings.json"
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-blog-ui-builder/168ac050680f91d58ce05948b6b0d3618f062ec304dfdb901713e98bdaa84c48/plan-findings.json"
       },
       "confirmation_status": "confirmed",
-      "created_at": "2026-08-24T03:56:57Z",
+      "created_at": "2026-08-28T13:02:37Z",
       "depends_on": [
         "SYS-BLOG-UI-BUILDER-P08"
       ],
@@ -14793,9 +14994,10 @@
         "mode": "local_only",
         "project_aliases": []
       },
+      "goal": "型検査・静的解析・axe-coreによるアクセシビリティ検査 (重大違反0件、light/dark両方のコントラスト基準充足)、表示崩れ・応答性能の各検査が基準を満たし、結果が記録された状態を成立させる。",
       "graph_node_id": "SYS-BLOG-UI-BUILDER-P09",
       "implementation_readiness": {
-        "checked_at": "2026-08-24T02:35:00Z",
+        "checked_at": "2026-08-28T00:00:00Z",
         "missing_sections": [],
         "status": "complete"
       },
@@ -14809,15 +15011,25 @@
       "priority": null,
       "project_id": "feature-package-feat-blog-ui-builder",
       "pull_request_linkages": [],
+      "purpose": "型検査・静的解析・axe-coreによるアクセシビリティ検査 (重大違反0件、light/dark両方のコントラスト基準充足)、表示崩れ・応答性能の各検査が基準を満たし、結果が記録された状態を成立させる。",
       "related_nodes": [],
       "resource_scope": [
         "docs/spec/feat-blog-ui-builder/quality-report.md"
       ],
+      "scope_in": [
+        "Produced artifacts: docs/spec/feat-blog-ui-builder/quality-report.md (型検査・lint・axe-core・視覚回帰・性能の結果)",
+        "Consumed artifacts: docs/spec/feat-blog-ui-builder/migration-report.md, src/app/s/[site]/, src/application/seo/",
+        "Write scope/touches: docs/spec/feat-blog-ui-builder/quality-report.md"
+      ],
+      "scope_out": [
+        "feat-blog-ui-builder の scope_out に該当する変更",
+        "検査でFAILとなった場合の実装修正 (write_scope外であり、必要な場合はP05/P08へ差し戻す)"
+      ],
       "source_lineage": {
-        "imported_at": "2026-08-24T03:56:57Z",
+        "imported_at": "2026-08-28T13:02:37Z",
         "origin_kind": "system-dev-planner",
-        "source_digest": "9a2832f2d6f8656f3495435827399bed84d70c893a027d828694b07b46506fe1",
-        "source_path": ".dev-graph/published/feature-package-feat-blog-ui-builder/task-specs/phase-09-quality-assurance.md",
+        "source_digest": "168ac050680f91d58ce05948b6b0d3618f062ec304dfdb901713e98bdaa84c48",
+        "source_path": ".dev-graph/published/generations/feature-package-feat-blog-ui-builder/168ac050680f91d58ce05948b6b0d3618f062ec304dfdb901713e98bdaa84c48/task-specs/phase-09-quality-assurance.md",
         "source_plugin": "system-dev-planner",
         "source_version": "0.1.0"
       },
@@ -14829,12 +15041,20 @@
       ],
       "target_date": null,
       "template_id": "task",
-      "template_version": "1.0.0",
+      "template_version": "1.1.0",
       "title": "品質保証とアクセシビリティ・非機能検査",
       "tracker_binding": "beads",
-      "updated_at": "2026-08-24T03:56:57Z"
+      "updated_at": "2026-08-28T13:02:37Z"
     },
     {
+      "acceptance": [
+        "Automated commands: `pnpm test` (最終レビュー時点での全量回帰0件を再確認する)",
+        "Automated commands: `python3 .claude/plugins/system-dev-planner/scripts/validate-system-plan.py --repo-root . --feature-package feature-package/feat-blog-ui-builder` (本 package の C12 決定論検証を世代非依存に再実行する)",
+        "Required evidence: P10 の 成果物 section に記載した produced artifacts のパス"
+      ],
+      "architecture_refs": [
+        "arch-two-layer-platform"
+      ],
       "artifact_kind": "task",
       "artifact_subtypes": [],
       "beads_linkage": null,
@@ -14842,26 +15062,26 @@
         {
           "artifact_kind": "task",
           "candidate_path": "tasks/feat-blog-ui-builder/sys-blog-ui-builder-p10.md",
-          "confidence": 1.0
+          "confidence": 1
         }
       ],
-      "classification_confidence": 1.0,
+      "classification_confidence": 1,
       "classification_reason": "feat-blog-ui-builder の P10 lifecycle 責務への確定写像",
       "completion_evidence": {
         "completed_at": null,
         "evidence_refs": [],
-        "policy": "linked_pr_merged_all",
+        "policy": "manual",
         "reconciled_at": null,
         "source": null,
         "status": "in_progress"
       },
       "confirmation_evidence": {
-        "evaluated_digest": "9a2832f2d6f8656f3495435827399bed84d70c893a027d828694b07b46506fe1",
+        "evaluated_digest": "168ac050680f91d58ce05948b6b0d3618f062ec304dfdb901713e98bdaa84c48",
         "evaluator": "system-dev-plan-evaluator",
-        "evidence_ref": ".dev-graph/published/feature-package-feat-blog-ui-builder/plan-findings.json"
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-blog-ui-builder/168ac050680f91d58ce05948b6b0d3618f062ec304dfdb901713e98bdaa84c48/plan-findings.json"
       },
       "confirmation_status": "confirmed",
-      "created_at": "2026-08-24T03:56:57Z",
+      "created_at": "2026-08-28T13:02:37Z",
       "depends_on": [
         "SYS-BLOG-UI-BUILDER-P09"
       ],
@@ -14877,9 +15097,10 @@
         "mode": "local_only",
         "project_aliases": []
       },
+      "goal": "P01からP09の成果を通しでレビューし、受入14件 (A1-A14) の充足判定と残課題が確定した状態を成立させる。",
       "graph_node_id": "SYS-BLOG-UI-BUILDER-P10",
       "implementation_readiness": {
-        "checked_at": "2026-08-24T02:35:00Z",
+        "checked_at": "2026-08-28T00:00:00Z",
         "missing_sections": [],
         "status": "complete"
       },
@@ -14893,15 +15114,25 @@
       "priority": null,
       "project_id": "feature-package-feat-blog-ui-builder",
       "pull_request_linkages": [],
+      "purpose": "P01からP09の成果を通しでレビューし、受入14件 (A1-A14) の充足判定と残課題が確定した状態を成立させる。",
       "related_nodes": [],
       "resource_scope": [
         "docs/spec/feat-blog-ui-builder/final-review.md"
       ],
+      "scope_in": [
+        "Produced artifacts: docs/spec/feat-blog-ui-builder/final-review.md (A1-A14充足判定の総括と残課題)",
+        "Consumed artifacts: docs/spec/feat-blog-ui-builder/acceptance-report.md, docs/spec/feat-blog-ui-builder/quality-report.md",
+        "Write scope/touches: docs/spec/feat-blog-ui-builder/final-review.md"
+      ],
+      "scope_out": [
+        "feat-blog-ui-builder の scope_out に該当する変更",
+        "未充足観点の実装修正 (write_scope外であり、必要な場合は該当phaseへ差し戻す)"
+      ],
       "source_lineage": {
-        "imported_at": "2026-08-24T03:56:57Z",
+        "imported_at": "2026-08-28T13:02:37Z",
         "origin_kind": "system-dev-planner",
-        "source_digest": "9a2832f2d6f8656f3495435827399bed84d70c893a027d828694b07b46506fe1",
-        "source_path": ".dev-graph/published/feature-package-feat-blog-ui-builder/task-specs/phase-10-final-review.md",
+        "source_digest": "168ac050680f91d58ce05948b6b0d3618f062ec304dfdb901713e98bdaa84c48",
+        "source_path": ".dev-graph/published/generations/feature-package-feat-blog-ui-builder/168ac050680f91d58ce05948b6b0d3618f062ec304dfdb901713e98bdaa84c48/task-specs/phase-10-final-review.md",
         "source_plugin": "system-dev-planner",
         "source_version": "0.1.0"
       },
@@ -14913,12 +15144,20 @@
       ],
       "target_date": null,
       "template_id": "task",
-      "template_version": "1.0.0",
+      "template_version": "1.1.0",
       "title": "最終レビューと残課題の確定",
       "tracker_binding": "beads",
-      "updated_at": "2026-08-24T03:56:57Z"
+      "updated_at": "2026-08-28T13:02:37Z"
     },
     {
+      "acceptance": [
+        "Automated commands: `pnpm run verify` (証跡再現手順に含まれる検証スクリプトを実行する)",
+        "Automated commands: `python3 .claude/plugins/system-dev-planner/scripts/validate-system-plan.py --repo-root . --feature-package feature-package/feat-blog-ui-builder` (本 package の C12 決定論検証を世代非依存に再実行する)",
+        "Required evidence: P11 の 成果物 section に記載した produced artifacts のパス"
+      ],
+      "architecture_refs": [
+        "arch-two-layer-platform"
+      ],
       "artifact_kind": "task",
       "artifact_subtypes": [],
       "beads_linkage": null,
@@ -14926,26 +15165,26 @@
         {
           "artifact_kind": "task",
           "candidate_path": "tasks/feat-blog-ui-builder/sys-blog-ui-builder-p11.md",
-          "confidence": 1.0
+          "confidence": 1
         }
       ],
-      "classification_confidence": 1.0,
+      "classification_confidence": 1,
       "classification_reason": "feat-blog-ui-builder の P11 lifecycle 責務への確定写像",
       "completion_evidence": {
         "completed_at": null,
         "evidence_refs": [],
-        "policy": "linked_pr_merged_all",
+        "policy": "manual",
         "reconciled_at": null,
         "source": null,
         "status": "in_progress"
       },
       "confirmation_evidence": {
-        "evaluated_digest": "9a2832f2d6f8656f3495435827399bed84d70c893a027d828694b07b46506fe1",
+        "evaluated_digest": "168ac050680f91d58ce05948b6b0d3618f062ec304dfdb901713e98bdaa84c48",
         "evaluator": "system-dev-plan-evaluator",
-        "evidence_ref": ".dev-graph/published/feature-package-feat-blog-ui-builder/plan-findings.json"
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-blog-ui-builder/168ac050680f91d58ce05948b6b0d3618f062ec304dfdb901713e98bdaa84c48/plan-findings.json"
       },
       "confirmation_status": "confirmed",
-      "created_at": "2026-08-24T03:56:57Z",
+      "created_at": "2026-08-28T13:02:37Z",
       "depends_on": [
         "SYS-BLOG-UI-BUILDER-P07",
         "SYS-BLOG-UI-BUILDER-P09"
@@ -14962,9 +15201,10 @@
         "mode": "local_only",
         "project_aliases": []
       },
+      "goal": "P07の受入判定証跡 (A1-A14全14件) とP09の品質検査証跡が一箇所 (docs/spec/feat-blog-ui-builder/evidence/) へ集約され、第三者が同じ手順で再現・検証できる状態を成立させる。A10-A14 (SEO/AI検索) の証跡として、HTML/JSON-LD出力サンプル・sitemap/robots/llms.txt内容・IndexNow送信スキップログ・guideline_references管理画面スクリーンショットを含む。",
       "graph_node_id": "SYS-BLOG-UI-BUILDER-P11",
       "implementation_readiness": {
-        "checked_at": "2026-08-24T02:35:00Z",
+        "checked_at": "2026-08-28T00:00:00Z",
         "missing_sections": [],
         "status": "complete"
       },
@@ -14978,15 +15218,25 @@
       "priority": null,
       "project_id": "feature-package-feat-blog-ui-builder",
       "pull_request_linkages": [],
+      "purpose": "P07の受入判定証跡 (A1-A14全14件) とP09の品質検査証跡が一箇所 (docs/spec/feat-blog-ui-builder/evidence/) へ集約され、第三者が同じ手順で再現・検証できる状態を成立させる。A10-A14 (SEO/AI検索) の証跡として、HTML/JSON-LD出力サンプル・sitemap/robots/llms.txt内容・IndexNow送信スキップログ・guideline_references管理画面スクリーンショットを含む。",
       "related_nodes": [],
       "resource_scope": [
         "docs/spec/feat-blog-ui-builder/evidence/"
       ],
+      "scope_in": [
+        "Produced artifacts: docs/spec/feat-blog-ui-builder/evidence/ (受入判定+品質検査証跡一式と再現手順。A1-A9: スクリーンショット・axe-core結果・操作記録。A10: HTML/JSON-LDサンプル。A11: sitemap/robots/llms.txtサンプル。A12: SEO/AI標準ブロック出力サンプル。A13: IndexNowスキップログ。A14: guideline_references管理画面スクリーンショット)",
+        "Consumed artifacts: docs/spec/feat-blog-ui-builder/acceptance-report.md, docs/spec/feat-blog-ui-builder/quality-report.md",
+        "Write scope/touches: docs/spec/feat-blog-ui-builder/evidence/"
+      ],
+      "scope_out": [
+        "feat-blog-ui-builder の scope_out に該当する変更",
+        "証跡の新規生成 (P07/P09が既に生成した証跡の集約に限る)"
+      ],
       "source_lineage": {
-        "imported_at": "2026-08-24T03:56:57Z",
+        "imported_at": "2026-08-28T13:02:37Z",
         "origin_kind": "system-dev-planner",
-        "source_digest": "9a2832f2d6f8656f3495435827399bed84d70c893a027d828694b07b46506fe1",
-        "source_path": ".dev-graph/published/feature-package-feat-blog-ui-builder/task-specs/phase-11-evidence.md",
+        "source_digest": "168ac050680f91d58ce05948b6b0d3618f062ec304dfdb901713e98bdaa84c48",
+        "source_path": ".dev-graph/published/generations/feature-package-feat-blog-ui-builder/168ac050680f91d58ce05948b6b0d3618f062ec304dfdb901713e98bdaa84c48/task-specs/phase-11-evidence.md",
         "source_plugin": "system-dev-planner",
         "source_version": "0.1.0"
       },
@@ -14998,12 +15248,20 @@
       ],
       "target_date": null,
       "template_id": "task",
-      "template_version": "1.0.0",
+      "template_version": "1.1.0",
       "title": "受入・品質証跡の集約と検証可能性の確保",
       "tracker_binding": "beads",
-      "updated_at": "2026-08-24T03:56:57Z"
+      "updated_at": "2026-08-28T13:02:37Z"
     },
     {
+      "acceptance": [
+        "Automated commands: `pnpm run lint` (運用手順に記載したscaffoldスクリプト参照が既存ファイルと一致することを確認する)",
+        "Automated commands: `python3 .claude/plugins/system-dev-planner/scripts/validate-system-plan.py --repo-root . --feature-package feature-package/feat-blog-ui-builder` (本 package の C12 決定論検証を世代非依存に再実行する)",
+        "Required evidence: P12 の 成果物 section に記載した produced artifacts のパス"
+      ],
+      "architecture_refs": [
+        "arch-two-layer-platform"
+      ],
       "artifact_kind": "task",
       "artifact_subtypes": [],
       "beads_linkage": null,
@@ -15011,26 +15269,26 @@
         {
           "artifact_kind": "task",
           "candidate_path": "tasks/feat-blog-ui-builder/sys-blog-ui-builder-p12.md",
-          "confidence": 1.0
+          "confidence": 1
         }
       ],
-      "classification_confidence": 1.0,
+      "classification_confidence": 1,
       "classification_reason": "feat-blog-ui-builder の P12 lifecycle 責務への確定写像",
       "completion_evidence": {
         "completed_at": null,
         "evidence_refs": [],
-        "policy": "linked_pr_merged_all",
+        "policy": "manual",
         "reconciled_at": null,
         "source": null,
         "status": "in_progress"
       },
       "confirmation_evidence": {
-        "evaluated_digest": "9a2832f2d6f8656f3495435827399bed84d70c893a027d828694b07b46506fe1",
+        "evaluated_digest": "168ac050680f91d58ce05948b6b0d3618f062ec304dfdb901713e98bdaa84c48",
         "evaluator": "system-dev-plan-evaluator",
-        "evidence_ref": ".dev-graph/published/feature-package-feat-blog-ui-builder/plan-findings.json"
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-blog-ui-builder/168ac050680f91d58ce05948b6b0d3618f062ec304dfdb901713e98bdaa84c48/plan-findings.json"
       },
       "confirmation_status": "confirmed",
-      "created_at": "2026-08-24T03:56:57Z",
+      "created_at": "2026-08-28T13:02:37Z",
       "depends_on": [
         "SYS-BLOG-UI-BUILDER-P10",
         "SYS-BLOG-UI-BUILDER-P11"
@@ -15047,9 +15305,10 @@
         "mode": "local_only",
         "project_aliases": []
       },
+      "goal": "テンプレート/配色2層/固定ページ/表現ブロック/SEO/AI標準ブロックのUI規則、guideline_references更新の90日サイクル規則 (A14対応)、新規テンプレート追加・新規固定ページ種別追加・配置管理運用・IndexNow鍵のローテーション (A13対応)・guideline_references登録の手順が文書化された状態を成立させる。",
       "graph_node_id": "SYS-BLOG-UI-BUILDER-P12",
       "implementation_readiness": {
-        "checked_at": "2026-08-24T02:35:00Z",
+        "checked_at": "2026-08-28T00:00:00Z",
         "missing_sections": [],
         "status": "complete"
       },
@@ -15063,16 +15322,26 @@
       "priority": null,
       "project_id": "feature-package-feat-blog-ui-builder",
       "pull_request_linkages": [],
+      "purpose": "テンプレート/配色2層/固定ページ/表現ブロック/SEO/AI標準ブロックのUI規則、guideline_references更新の90日サイクル規則 (A14対応)、新規テンプレート追加・新規固定ページ種別追加・配置管理運用・IndexNow鍵のローテーション (A13対応)・guideline_references登録の手順が文書化された状態を成立させる。",
       "related_nodes": [],
       "resource_scope": [
         "docs/spec/feat-blog-ui-builder/ui-rules.md",
         "docs/spec/feat-blog-ui-builder/operations.md"
       ],
+      "scope_in": [
+        "Produced artifacts: docs/spec/feat-blog-ui-builder/ui-rules.md (テンプレート/配色2層/表現ブロック/SEO/AI標準ブロック/guideline_references 90日サイクルの規則); docs/spec/feat-blog-ui-builder/operations.md (新規ブログ/テンプレート/固定ページ追加・アフィリエイト配置更新・IndexNow鍵ローテーション・guideline_references登録の運用手順)",
+        "Consumed artifacts: docs/spec/feat-blog-ui-builder/final-review.md, docs/spec/feat-blog-ui-builder/evidence/",
+        "Write scope/touches: docs/spec/feat-blog-ui-builder/ui-rules.md, docs/spec/feat-blog-ui-builder/operations.md"
+      ],
+      "scope_out": [
+        "feat-blog-ui-builder の scope_out に該当する変更",
+        "実装コードの変更 (write_scope外)"
+      ],
       "source_lineage": {
-        "imported_at": "2026-08-24T03:56:57Z",
+        "imported_at": "2026-08-28T13:02:37Z",
         "origin_kind": "system-dev-planner",
-        "source_digest": "9a2832f2d6f8656f3495435827399bed84d70c893a027d828694b07b46506fe1",
-        "source_path": ".dev-graph/published/feature-package-feat-blog-ui-builder/task-specs/phase-12-documentation-operations.md",
+        "source_digest": "168ac050680f91d58ce05948b6b0d3618f062ec304dfdb901713e98bdaa84c48",
+        "source_path": ".dev-graph/published/generations/feature-package-feat-blog-ui-builder/168ac050680f91d58ce05948b6b0d3618f062ec304dfdb901713e98bdaa84c48/task-specs/phase-12-documentation-operations.md",
         "source_plugin": "system-dev-planner",
         "source_version": "0.1.0"
       },
@@ -15084,12 +15353,21 @@
       ],
       "target_date": null,
       "template_id": "task",
-      "template_version": "1.0.0",
-      "title": "UI規則と運用手順の文書化",
+      "template_version": "1.1.0",
+      "title": "UI規則・SEO/AI検索運用規則と運用手順の文書化",
       "tracker_binding": "beads",
-      "updated_at": "2026-08-24T03:56:57Z"
+      "updated_at": "2026-08-28T13:02:37Z"
     },
     {
+      "acceptance": [
+        "Automated commands: `pnpm run build` (リリース前ビルド確認)",
+        "Automated commands: `pnpm run preview` (Workersランタイムでのリリース前最終確認)",
+        "Automated commands: `python3 .claude/plugins/system-dev-planner/scripts/validate-system-plan.py --repo-root . --feature-package feature-package/feat-blog-ui-builder` (本 package の C12 決定論検証を世代非依存に再実行する)",
+        "Required evidence: P13 の 成果物 section に記載した produced artifacts のパス"
+      ],
+      "architecture_refs": [
+        "arch-two-layer-platform"
+      ],
       "artifact_kind": "task",
       "artifact_subtypes": [],
       "beads_linkage": null,
@@ -15097,26 +15375,26 @@
         {
           "artifact_kind": "task",
           "candidate_path": "tasks/feat-blog-ui-builder/sys-blog-ui-builder-p13.md",
-          "confidence": 1.0
+          "confidence": 1
         }
       ],
-      "classification_confidence": 1.0,
+      "classification_confidence": 1,
       "classification_reason": "feat-blog-ui-builder の P13 lifecycle 責務への確定写像",
       "completion_evidence": {
         "completed_at": null,
         "evidence_refs": [],
-        "policy": "linked_pr_merged_all",
+        "policy": "manual",
         "reconciled_at": null,
         "source": null,
         "status": "in_progress"
       },
       "confirmation_evidence": {
-        "evaluated_digest": "9a2832f2d6f8656f3495435827399bed84d70c893a027d828694b07b46506fe1",
+        "evaluated_digest": "168ac050680f91d58ce05948b6b0d3618f062ec304dfdb901713e98bdaa84c48",
         "evaluator": "system-dev-plan-evaluator",
-        "evidence_ref": ".dev-graph/published/feature-package-feat-blog-ui-builder/plan-findings.json"
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-blog-ui-builder/168ac050680f91d58ce05948b6b0d3618f062ec304dfdb901713e98bdaa84c48/plan-findings.json"
       },
       "confirmation_status": "confirmed",
-      "created_at": "2026-08-24T03:56:57Z",
+      "created_at": "2026-08-28T13:02:37Z",
       "depends_on": [
         "SYS-BLOG-UI-BUILDER-P12"
       ],
@@ -15132,9 +15410,10 @@
         "mode": "local_only",
         "project_aliases": []
       },
+      "goal": "本featureの成果をdevブランチ経由で開発環境へ反映し、実装で確定したテーマ実装契約・コンポーネント契約・データモデル・SEO/AI検索実装契約 (JSON-LD/sitemap/IndexNow/guideline_references) がsystem-spec (ui-ux.md/frontend.md/database.md) へ書き戻された状態を成立させる。",
       "graph_node_id": "SYS-BLOG-UI-BUILDER-P13",
       "implementation_readiness": {
-        "checked_at": "2026-08-24T02:35:00Z",
+        "checked_at": "2026-08-28T00:00:00Z",
         "missing_sections": [],
         "status": "complete"
       },
@@ -15148,6 +15427,7 @@
       "priority": null,
       "project_id": "feature-package-feat-blog-ui-builder",
       "pull_request_linkages": [],
+      "purpose": "本featureの成果をdevブランチ経由で開発環境へ反映し、実装で確定したテーマ実装契約・コンポーネント契約・データモデル・SEO/AI検索実装契約 (JSON-LD/sitemap/IndexNow/guideline_references) がsystem-spec (ui-ux.md/frontend.md/database.md) へ書き戻された状態を成立させる。",
       "related_nodes": [],
       "resource_scope": [
         "docs/spec/feat-blog-ui-builder/release-report.md",
@@ -15155,11 +15435,20 @@
         "system-spec/frontend.md",
         "system-spec/database.md"
       ],
+      "scope_in": [
+        "Produced artifacts: docs/spec/feat-blog-ui-builder/release-report.md (PRリンク・デプロイ結果・書き戻し内容の記録); system-spec/ui-ux.md・frontend.md・database.md への実装確定内容の書き戻し (R4-reopen経由。SEO/AI検索実装契約を含む)",
+        "Consumed artifacts: docs/spec/feat-blog-ui-builder/ui-rules.md, docs/spec/feat-blog-ui-builder/operations.md",
+        "Write scope/touches: docs/spec/feat-blog-ui-builder/release-report.md, system-spec/ui-ux.md, system-spec/frontend.md, system-spec/database.md"
+      ],
+      "scope_out": [
+        "feat-blog-ui-builder の scope_out に該当する変更",
+        "mainブランチへの直接PR (宛先は既定でdevとする)"
+      ],
       "source_lineage": {
-        "imported_at": "2026-08-24T03:56:57Z",
+        "imported_at": "2026-08-28T13:02:37Z",
         "origin_kind": "system-dev-planner",
-        "source_digest": "9a2832f2d6f8656f3495435827399bed84d70c893a027d828694b07b46506fe1",
-        "source_path": ".dev-graph/published/feature-package-feat-blog-ui-builder/task-specs/phase-13-release-deploy.md",
+        "source_digest": "168ac050680f91d58ce05948b6b0d3618f062ec304dfdb901713e98bdaa84c48",
+        "source_path": ".dev-graph/published/generations/feature-package-feat-blog-ui-builder/168ac050680f91d58ce05948b6b0d3618f062ec304dfdb901713e98bdaa84c48/task-specs/phase-13-release-deploy.md",
         "source_plugin": "system-dev-planner",
         "source_version": "0.1.0"
       },
@@ -15171,10 +15460,10 @@
       ],
       "target_date": null,
       "template_id": "task",
-      "template_version": "1.0.0",
+      "template_version": "1.1.0",
       "title": "開発環境へのリリースとsystem-specへの書き戻し",
       "tracker_binding": "beads",
-      "updated_at": "2026-08-24T03:56:57Z"
+      "updated_at": "2026-08-28T13:02:37Z"
     },
     {
       "acceptance": [

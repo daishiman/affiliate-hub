@@ -1,12 +1,15 @@
 import { AdminShell } from "@/presentation/admin/admin-shell";
 import {
+  AcknowledgeGuidelineReopenForm,
   RecheckGuidelineReferenceForm,
   RegisterGuidelineReferenceForm,
+  VerifyGuidelineSourceForm,
 } from "@/presentation/admin/guideline-reference-form";
 import { currentActor, guidelineReferenceEntry } from "@/presentation/composition";
 import type { GuidelineReferenceListRow } from "@/application/usecases/seo/manage-guideline-references";
 import {
   INITIAL_GUIDELINE_REFERENCES,
+  type ReferenceReviewStatus,
   referenceReviewStatus,
 } from "@/domain/seo/guideline-reference";
 import {
@@ -87,10 +90,14 @@ async function GuidelineReferenceManager({ entry }: { readonly entry: ReadyEntry
 
   const registered = listed.value.rows.filter((row) => row.registered);
   const candidates = listed.value.rows.filter((row) => !row.registered);
-  // 再確認が要る行から先に並べる。この画面へ来る理由の大半がそれだからである。
-  const reviewFirst = [...registered].sort((a, b) =>
-    a.status === b.status ? 0 : a.status === "review_due" ? -1 : 1,
-  );
+  // 手当てが要る行から先に並べる。この画面へ来る理由の大半がそれだからである。
+  // 原典未取得を確認済みより前に置くのは、日付が新しくても根拠として弱いため。
+  const rank: Readonly<Record<ReferenceReviewStatus, number>> = {
+    review_due: 0,
+    unverified: 1,
+    verified_fresh: 2,
+  };
+  const reviewFirst = [...registered].sort((a, b) => rank[a.status] - rank[b.status]);
 
   return (
     <>
@@ -103,13 +110,71 @@ async function GuidelineReferenceManager({ entry }: { readonly entry: ReadyEntry
         ) : (
           <ReferenceTable
             rows={reviewFirst}
-            caption="「再確認」は確認日から 90 日を超えた出典です。原典を読み直してから確認日を更新します。"
+            caption="「再確認」は確認日から 90 日を超えた出典、「原典未取得」は本文をまだ取り込んでいない出典です。"
           />
         )}
       </Section>
 
+      {listed.value.reopenRequests.length > 0 && (
+        <Section title="仕様を評価し直す対象">
+          <Callout
+            tone="warn"
+            title={`${listed.value.reopenRequests.length} 件の指針は、仕様の根拠を見直す必要があります`}
+            reason="理由を確認し、必要なら原典を取り込んで、該当する仕様章を評価し直してください。本文変更の行は、再評価後に完了を記録できます。"
+          />
+          <DataTable
+            caption="出典と、その出典を根拠にしている仕様章です。"
+            columns={[
+              { key: "url", label: "出典" },
+              { key: "reason", label: "理由" },
+              { key: "chapters", label: "評価し直す章" },
+              { key: "complete", label: "再評価後" },
+            ]}
+            rows={listed.value.reopenRequests.map((request) => ({
+              key: request.referenceId,
+              cells: [
+                <ExternalLink key="url" href={request.url}>
+                  {request.url}
+                </ExternalLink>,
+                REOPEN_REASON_LABELS[request.reason],
+                request.chapters.map((chapter) => `system-spec/${chapter}.md`).join("、"),
+                request.reason === "content_changed" ? (
+                  <AcknowledgeGuidelineReopenForm
+                    key="complete"
+                    id={request.referenceId}
+                    expectedContentSha256={request.contentSha256}
+                  />
+                ) : (
+                  "原典を取り込み、該当章を評価してください"
+                ),
+              ],
+            }))}
+          />
+        </Section>
+      )}
+
+      {registered.length > 0 && (
+        <Section title="原典を取り込む">
+          <Note>
+            原典を開いて本文を貼り付けます。保存するのは取得時刻と本文の指紋だけで、本文は残しません。
+            前回の指紋と変わっていれば、上の「仕様を評価し直す対象」に出ます。
+          </Note>
+          {registered.map((row) => (
+            <VerifyGuidelineSourceForm
+              key={row.reference.id}
+              id={row.reference.id}
+              title={row.reference.title}
+            />
+          ))}
+        </Section>
+      )}
+
       {reviewFirst.length > 0 && (
         <Section title="確認日を更新する">
+          <Note>
+            原典を取り込まずに日付だけ動かすと、状態は「原典未取得」のままです。
+            読み直しただけの記録なので、それでよいときに使います。
+          </Note>
           {reviewFirst.map((row) => (
             <RecheckGuidelineReferenceForm
               key={row.reference.id}
@@ -146,11 +211,31 @@ async function GuidelineReferenceManager({ entry }: { readonly entry: ReadyEntry
         <RegisterGuidelineReferenceForm />
         <Note>
           原典の URL を登録します。本文の写しは保存しません (古くなった写しが正本に見えるため)。
+          登録した直後は「原典未取得」です。本文を取り込むと「原典確認済み」になります。
         </Note>
       </Section>
     </>
   );
 }
+
+/**
+ * 状態の呼び名。
+ *
+ * 「確認済み」を原典未取得の行に使わない。要旨だけ読んだ行と原典を取った行が
+ * 同じ言葉で並ぶと、画面の表示が実際の検証状態と食い違う。
+ */
+const STATUS_LABELS: Readonly<Record<ReferenceReviewStatus, string>> = {
+  verified_fresh: "原典確認済み",
+  review_due: "再確認",
+  unverified: "原典未取得",
+};
+
+/** 再評価が要る理由の言い換え。何が起きたのでこの行が出ているのかを書く。 */
+const REOPEN_REASON_LABELS = {
+  content_changed: "原典の中身が前回と変わりました",
+  review_due: "確認から 90 日を超えました",
+  unverified: "原典の本文をまだ取得していません",
+} as const;
 
 /** 一覧表。登録済みと候補で同じ形にし、列の読み方を 1 度だけ覚えれば済むようにする。 */
 function ReferenceTable({
@@ -179,7 +264,7 @@ function ReferenceTable({
           row.reference.publisher,
           row.reference.region === "jp" ? "日本" : "海外",
           row.reference.checkedAt,
-          row.status === "review_due" ? "再確認" : "確認済み",
+          STATUS_LABELS[row.status],
         ],
       }))}
     />

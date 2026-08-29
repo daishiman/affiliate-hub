@@ -357,7 +357,7 @@ describe("A1 §2 全business mutationを単一のprimary taskへ所属させる"
     ).size).toBe(59);
   });
 
-  it("同じactionの複数route・複数form用途を畳まず、意味entry 77件を床固定する", () => {
+  it("同じactionの複数route・複数form用途を畳まず、意味entry 79件を床固定する", () => {
     const discovered = DISCOVERED_SCREEN_EXECUTION_SITES;
     const declared = ADMIN_SCREEN_RUNTIME_ENTRIES
       .filter((entry) => entry.scope === "screen")
@@ -370,9 +370,11 @@ describe("A1 §2 全business mutationを単一のprimary taskへ所属させる"
       .sort((a, b) => screenSiteKey(a).localeCompare(screenSiteKey(b)));
 
     expect(declared, "route/form単位の意味entryに欠落または余剰があります").toEqual(discovered);
-    expect(discovered).toHaveLength(77);
-    expect(ADMIN_SCREEN_RUNTIME_ENTRIES).toHaveLength(78);
-    expect(new Set(ADMIN_SCREEN_RUNTIME_ENTRIES.map((entry) => entry.id)).size).toBe(78);
+    // 2026-08-28: 指針本文の変更後に仕様再評価を完了する口を追加。
+    // 原典取得とは別の業務操作なので、同じactionでも畳まない。
+    expect(discovered).toHaveLength(79);
+    expect(ADMIN_SCREEN_RUNTIME_ENTRIES).toHaveLength(80);
+    expect(new Set(ADMIN_SCREEN_RUNTIME_ENTRIES.map((entry) => entry.id)).size).toBe(80);
   });
 
   it("screen意味entryはどの1件を削ってもdiscoveryとの差分になる", () => {
@@ -387,7 +389,7 @@ describe("A1 §2 全business mutationを単一のprimary taskへ所属させる"
       }))
       .sort();
 
-    expect(new Set(declared).size).toBe(77);
+    expect(new Set(declared).size).toBe(79);
     for (let index = 0; index < declared.length; index += 1) {
       expect(declared.filter((_, candidate) => candidate !== index)).not.toEqual(discovered);
     }

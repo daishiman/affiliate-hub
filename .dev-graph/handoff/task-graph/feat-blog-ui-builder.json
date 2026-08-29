@@ -3,15 +3,13 @@
   "handoff_target": "task-graph",
   "feature_id": "feat-blog-ui-builder",
   "feature_package_id": "feature-package/feat-blog-ui-builder",
-  "graph_snapshot_digest": "sha256:4b8bf3499e31990362e80da0979a604cda150cf140446f5c61a5c3ec0dec906e",
-  "graph_revision": 267,
+  "graph_snapshot_digest": "sha256:6603c7a9867f573bd27c980e047a15a0858f7e4bf6e07136e2fde8b9208f5231",
+  "graph_revision": 303,
   "requirements_document": "docs/requirements/feat-blog-ui-builder-implementation-requirements.md",
-  "requirements_document_sha256": "bc0f5fb99db68f2e1d793813c2070b5919b441b08cb352ae4e8c45294fcd7bbf",
-  "promoted_generation": ".dev-graph/published/feature-package-feat-blog-ui-builder",
+  "requirements_document_sha256": "3ae18afcd360346f709eb03264b7fa11dc682cf0159ce3f155a0864ad07bb98a",
+  "promoted_generation": ".dev-graph/published/generations/feature-package-feat-blog-ui-builder/168ac050680f91d58ce05948b6b0d3618f062ec304dfdb901713e98bdaa84c48",
+  "promoted_generation_digest": "sha256:168ac050680f91d58ce05948b6b0d3618f062ec304dfdb901713e98bdaa84c48",
   "lineage_closure": [
-    "arch-system-spec-overview",
-    "arch-two-layer-platform",
-    "feat-blog-ui-builder",
     "SYS-BLOG-UI-BUILDER-P01",
     "SYS-BLOG-UI-BUILDER-P02",
     "SYS-BLOG-UI-BUILDER-P03",
@@ -24,7 +22,10 @@
     "SYS-BLOG-UI-BUILDER-P10",
     "SYS-BLOG-UI-BUILDER-P11",
     "SYS-BLOG-UI-BUILDER-P12",
-    "SYS-BLOG-UI-BUILDER-P13"
+    "SYS-BLOG-UI-BUILDER-P13",
+    "arch-system-spec-overview",
+    "arch-two-layer-platform",
+    "feat-blog-ui-builder"
   ],
   "readiness": {
     "status": "complete",
@@ -45,16 +46,17 @@
       "scope": "closure 16 node"
     },
     "source_digest": {
-      "command": "registered source_lineage.source_digest vs promoted published_digest",
-      "checked": 13,
+      "command": "validate-source-digest.py --repo-root . --registered <lineage closure 16 node>",
+      "exit": 0,
+      "checked": 16,
       "registered_mismatch": 0
     },
     "validate_system_plan": {
-      "command": "validate-system-plan.py --repo-root . --staging .dev-graph/published/feature-package-feat-blog-ui-builder",
+      "command": "validate-system-plan.py --repo-root . --feature-package feature-package/feat-blog-ui-builder",
       "exit": 0,
       "status": "pass",
       "violations": 0,
-      "validated_digest": "sha256:9a2832f2d6f8656f3495435827399bed84d70c893a027d828694b07b46506fe1"
+      "validated_digest": "sha256:168ac050680f91d58ce05948b6b0d3618f062ec304dfdb901713e98bdaa84c48"
     }
   },
   "tasks": [
@@ -177,5 +179,5 @@
     }
   ],
   "implementation_code_generated": 0,
-  "emitted_at": "2026-08-24T04:10:00Z"
+  "emitted_at": "2026-08-28T13:52:39Z"
 }

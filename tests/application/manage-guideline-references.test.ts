@@ -50,12 +50,24 @@ function ref(over: Partial<GuidelineReference> = {}): GuidelineReference {
     publisher: "Google Search Central",
     region: "global",
     checkedAt: "2026-08-01",
+    // 既定を「原典取得済み」にしておく。日数の境界を見る試験で、
+    // 取得の有無が混ざると何を測っているのか分からなくなる。
+    verification: {
+      kind: "source_fetched",
+      fetchedAt: "2026-08-01T00:00:00Z",
+      contentSha256: "a".repeat(64),
+    },
     ...over,
   };
 }
 
 /** どの口を落とすか。保存先の不調が、成功として素通りしないことを見るため。 */
-type PortFailure = "list" | "add" | "updateCheckedAt";
+type PortFailure =
+  | "list"
+  | "add"
+  | "updateCheckedAt"
+  | "recordSourceFetch"
+  | "acknowledgeReevaluation";
 
 /**
  * 呼ばれた事実を数える偽ポート。保存の副作用と、渡された引数をここで観測する。
@@ -64,12 +76,24 @@ type PortFailure = "list" | "add" | "updateCheckedAt";
  * 採番した id や trim した題名が入れ替わっても気づけない。
  */
 function fakePort(stored: readonly GuidelineReference[] = [], failing?: PortFailure) {
-  const calls = { add: 0, updateCheckedAt: 0, list: 0 };
+  const calls = {
+    add: 0,
+    updateCheckedAt: 0,
+    list: 0,
+    recordSourceFetch: 0,
+    acknowledgeReevaluation: 0,
+  };
   const seen: {
     added: GuidelineReference | null;
     checked: { id: string; checkedAt: string } | null;
+    fetched: { id: string; fetchedAt: string; contentSha256: string; checkedAt: string } | null;
+    acknowledged: {
+      id: string;
+      expectedContentSha256: string;
+      reEvaluatedAt: string;
+    } | null;
     workspaceIds: string[];
-  } = { added: null, checked: null, workspaceIds: [] };
+  } = { added: null, checked: null, fetched: null, acknowledged: null, workspaceIds: [] };
   const port: GuidelineReferencePort = {
     async list(workspaceId) {
       calls.list += 1;
@@ -90,6 +114,53 @@ function fakePort(stored: readonly GuidelineReference[] = [], failing?: PortFail
       seen.workspaceIds.push(String(input.workspaceId));
       if (failing === "updateCheckedAt") return err(domainError("UPSTREAM_UNAVAILABLE", "更新できません。"));
       return ok({ ...ref(), id: input.id, checkedAt: input.checkedAt });
+    },
+    async recordSourceFetch(input) {
+      calls.recordSourceFetch += 1;
+      seen.fetched = {
+        id: input.id,
+        fetchedAt: input.fetchedAt,
+        contentSha256: input.contentSha256,
+        checkedAt: input.checkedAt,
+      };
+      seen.workspaceIds.push(String(input.workspaceId));
+      if (failing === "recordSourceFetch") {
+        return err(domainError("UPSTREAM_UNAVAILABLE", "記録できません。"));
+      }
+      return ok({
+        ...ref(),
+        id: input.id,
+        checkedAt: input.checkedAt,
+        verification: {
+          kind: "source_fetched",
+          fetchedAt: input.fetchedAt,
+          contentSha256: input.contentSha256,
+        },
+      });
+    },
+    async acknowledgeReevaluation(input) {
+      calls.acknowledgeReevaluation += 1;
+      seen.acknowledged = {
+        id: input.id,
+        expectedContentSha256: input.expectedContentSha256,
+        reEvaluatedAt: input.reEvaluatedAt,
+      };
+      seen.workspaceIds.push(String(input.workspaceId));
+      if (failing === "acknowledgeReevaluation") {
+        return err(domainError("UPSTREAM_UNAVAILABLE", "完了を記録できません。"));
+      }
+      return ok({
+        ...ref(),
+        id: input.id,
+        verification: {
+          kind: "source_fetched",
+          fetchedAt: "2026-08-24T00:00:00.000Z",
+          contentSha256: input.expectedContentSha256,
+          previousSha256: "a".repeat(64),
+          reEvaluatedSha256: input.expectedContentSha256,
+          reEvaluatedAt: input.reEvaluatedAt,
+        },
+      });
     },
   };
   return { port, calls, seen };
@@ -181,7 +252,7 @@ describe("90 日の判定 (境界)", () => {
     expect(on.ok).toBe(true);
     if (on.ok) {
       const row = on.value.rows.find((r) => r.reference.id === "gr_edge");
-      expect(row?.status).toBe("fresh");
+      expect(row?.status).toBe("verified_fresh");
     }
 
     const { manage: over } = usecase([ref({ id: "gr_edge", checkedAt: "2026-05-26" })], "2026-08-25");
@@ -425,7 +496,9 @@ describe("一覧の並びと判定の基準日", () => {
     const listed = await manage.execute(actor("owner"), { action: "list" });
     expect(listed.ok).toBe(true);
     if (listed.ok) {
-      expect(listed.value.rows.find((r) => r.reference.id === "gr_edge")?.status).toBe("fresh");
+      expect(listed.value.rows.find((r) => r.reference.id === "gr_edge")?.status).toBe(
+        "verified_fresh",
+      );
     }
   });
 
@@ -437,7 +510,8 @@ describe("一覧の並びと判定の基準日", () => {
     const candidates = listed.value.rows.filter((r) => !r.registered);
     expect(candidates.length).toBeGreaterThan(0);
     for (const row of candidates) {
-      expect(["fresh", "review_due"]).toContain(row.status);
+      // 初期候補は原典未取得なので、期限内でも verified_fresh は名乗らない。
+      expect(["unverified", "review_due"]).toContain(row.status);
     }
   });
 });
@@ -533,5 +607,229 @@ describe("操作の記録", () => {
     expect(failed.ok).toBe(false);
     if (!failed.ok) expect(failed.error.message).toContain("確認日は更新されています");
     expect(seen.checked).toEqual({ id: "gr_x", checkedAt: "2026-08-24" });
+  });
+});
+
+describe("原典の取り込み (verify_source)", () => {
+  it("本文が空なら body の欄で断り、保存先を触らない", async () => {
+    const { manage, calls } = usecase([ref({ id: "gr_x" })]);
+    const refused = await manage.execute(actor("owner"), {
+      action: "verify_source",
+      id: "gr_x",
+      body: "   \n  ",
+    });
+    expect(refused.ok).toBe(false);
+    if (!refused.ok) expect(refused.error.field).toBe("body");
+    expect(calls.recordSourceFetch).toBe(0);
+  });
+
+  it("どの出典かが空なら id の欄で断る", async () => {
+    const { manage, calls } = usecase([ref({ id: "gr_x" })]);
+    const refused = await manage.execute(actor("owner"), {
+      action: "verify_source",
+      id: "  ",
+      body: "本文",
+    });
+    expect(refused.ok).toBe(false);
+    if (!refused.ok) expect(refused.error.field).toBe("id");
+    expect(calls.recordSourceFetch).toBe(0);
+  });
+
+  it("取り込みも site.manage が要る", async () => {
+    const { manage, calls } = usecase([ref({ id: "gr_x" })]);
+    const refused = await manage.execute(actor("analyst"), {
+      action: "verify_source",
+      id: "gr_x",
+      body: "本文",
+    });
+    expect(refused.ok).toBe(false);
+    if (!refused.ok) expect(refused.error.code).toBe("FORBIDDEN");
+    expect(calls.recordSourceFetch).toBe(0);
+  });
+
+  it("取得時刻はサーバの時計で打ち、確認日もその日へ揃える", async () => {
+    const { manage, seen } = usecase([ref({ id: "gr_x" })], "2026-08-24");
+    const done = await manage.execute(actor("owner"), {
+      action: "verify_source",
+      id: "gr_x",
+      body: "本文",
+    });
+    expect(done.ok).toBe(true);
+    // 呼び出し側から時刻を渡させない。渡せると、取ってもいない「取得済み」を作れる。
+    expect(seen.fetched?.fetchedAt).toBe("2026-08-24T00:00:00.000Z");
+    expect(seen.fetched?.checkedAt).toBe("2026-08-24");
+  });
+
+  it("指紋は 64 桁の 16 進で、同じ本文なら同じ・違えば違う", async () => {
+    const a = usecase([ref({ id: "gr_x" })]);
+    await a.manage.execute(actor("owner"), { action: "verify_source", id: "gr_x", body: "同じ本文" });
+    const b = usecase([ref({ id: "gr_x" })]);
+    await b.manage.execute(actor("owner"), { action: "verify_source", id: "gr_x", body: "同じ本文" });
+    const c = usecase([ref({ id: "gr_x" })]);
+    await c.manage.execute(actor("owner"), { action: "verify_source", id: "gr_x", body: "違う本文" });
+
+    expect(a.seen.fetched?.contentSha256).toMatch(/^[0-9a-f]{64}$/);
+    expect(b.seen.fetched?.contentSha256).toBe(a.seen.fetched?.contentSha256);
+    expect(c.seen.fetched?.contentSha256).not.toBe(a.seen.fetched?.contentSha256);
+  });
+
+  it("記録には取得時刻と指紋だけを残し、本文そのものは残さない", async () => {
+    const { manage, audit } = usecase([ref({ id: "gr_x" })], "2026-08-24");
+    const done = await manage.execute(actor("owner"), {
+      action: "verify_source",
+      id: "gr_x",
+      // 本文が記録へ漏れていれば、この語が JSON に現れる。
+      body: "原典の中身であることを示す目印",
+    });
+    expect(done.ok).toBe(true);
+    expect(audit).toHaveLength(1);
+    expect(audit[0].action).toBe("guideline_reference.source_verified");
+    expect(audit[0].targetId).toBe("gr_x");
+    expect(JSON.stringify(audit[0])).not.toContain("原典の中身であることを示す目印");
+    expect(Object.keys(audit[0].after ?? {}).sort()).toEqual(["contentSha256", "fetchedAt"]);
+  });
+
+  it("保存に失敗したら取り込めたことにせず、記録も書かない", async () => {
+    const { manage, audit, calls } = usecase([ref({ id: "gr_x" })], "2026-08-24", {
+      failing: "recordSourceFetch",
+    });
+    const failed = await manage.execute(actor("owner"), {
+      action: "verify_source",
+      id: "gr_x",
+      body: "本文",
+    });
+    expect(failed.ok).toBe(false);
+    expect(audit).toHaveLength(0);
+    expect(calls.list).toBe(0);
+  });
+
+  it("記録だけ書けなかったときは、取り込みは済んでいることを断り文に書く", async () => {
+    const { manage } = usecase([ref({ id: "gr_x" })], "2026-08-24", { auditFailing: true });
+    const failed = await manage.execute(actor("owner"), {
+      action: "verify_source",
+      id: "gr_x",
+      body: "本文",
+    });
+    expect(failed.ok).toBe(false);
+    if (!failed.ok) expect(failed.error.message).toContain("記録されています");
+  });
+});
+
+describe("仕様の再評価へ戻す (reopenRequests)", () => {
+  it("原典未取得の出典は、根拠にしている章つきで再評価の対象に出る", async () => {
+    const google = INITIAL_GUIDELINE_REFERENCES[0];
+    const { manage } = usecase(
+      [
+        ref({
+          id: "gr_x",
+          url: google.url,
+          checkedAt: "2026-08-24",
+          verification: { kind: "summary_only" },
+        }),
+      ],
+      "2026-08-24",
+    );
+    const listed = await manage.execute(actor("owner"), { action: "list" });
+    expect(listed.ok).toBe(true);
+    if (!listed.ok) return;
+    const request = listed.value.reopenRequests.find((r) => r.referenceId === "gr_x");
+    expect(request?.reason).toBe("unverified");
+    // 章が分からないと、読んだ人が次に何を開けばよいか決められない。
+    expect(request?.chapters.length).toBeGreaterThan(0);
+  });
+
+  it("期限内で原典取得済みなら、再評価の対象に出ない", async () => {
+    const google = INITIAL_GUIDELINE_REFERENCES[0];
+    const { manage } = usecase(
+      [ref({ id: "gr_x", url: google.url, checkedAt: "2026-08-24" })],
+      "2026-08-24",
+    );
+    const listed = await manage.execute(actor("owner"), { action: "list" });
+    expect(listed.ok).toBe(true);
+    if (listed.ok) expect(listed.value.reopenRequests).toHaveLength(0);
+  });
+
+  it("未登録の候補は再評価の理由にしない（まだ誰も根拠にしていない）", async () => {
+    const { manage } = usecase([], "2026-08-24");
+    const listed = await manage.execute(actor("owner"), { action: "list" });
+    expect(listed.ok).toBe(true);
+    if (listed.ok) expect(listed.value.reopenRequests).toHaveLength(0);
+  });
+});
+
+describe("仕様の再評価完了 (acknowledge_reopen)", () => {
+  const SHA_B = "b".repeat(64);
+
+  it("id と本文指紋を検査し、作業場所とサーバ時刻を保存先へ渡す", async () => {
+    const { manage, seen } = usecase([ref({ id: "gr_x" })], "2026-08-25");
+    const done = await manage.execute(actor("owner"), {
+      action: "acknowledge_reopen",
+      id: "gr_x",
+      expectedContentSha256: SHA_B,
+    });
+    expect(done.ok).toBe(true);
+    expect(seen.acknowledged).toEqual({
+      id: "gr_x",
+      expectedContentSha256: SHA_B,
+      reEvaluatedAt: "2026-08-25T00:00:00.000Z",
+    });
+    expect(seen.workspaceIds).toContain(String(WS));
+  });
+
+  it("空の id と不正な指紋は保存先へ渡さない", async () => {
+    for (const input of [
+      { action: "acknowledge_reopen" as const, id: " ", expectedContentSha256: SHA_B },
+      { action: "acknowledge_reopen" as const, id: "gr_x", expectedContentSha256: "not-a-sha" },
+    ]) {
+      const { manage, calls } = usecase([ref({ id: "gr_x" })]);
+      const refused = await manage.execute(actor("owner"), input);
+      expect(refused.ok).toBe(false);
+      expect(calls.acknowledgeReevaluation).toBe(0);
+    }
+  });
+
+  it("閲覧権限だけでは完了にできない", async () => {
+    const { manage, calls } = usecase([ref({ id: "gr_x" })]);
+    const refused = await manage.execute(actor("analyst"), {
+      action: "acknowledge_reopen",
+      id: "gr_x",
+      expectedContentSha256: SHA_B,
+    });
+    expect(refused.ok).toBe(false);
+    if (!refused.ok) expect(refused.error.code).toBe("FORBIDDEN");
+    expect(calls.acknowledgeReevaluation).toBe(0);
+  });
+
+  it("本文を含めず、完了した本文版と時刻を監査に残す", async () => {
+    const { manage, audit } = usecase([ref({ id: "gr_x" })], "2026-08-25");
+    const done = await manage.execute(actor("owner"), {
+      action: "acknowledge_reopen",
+      id: "gr_x",
+      expectedContentSha256: SHA_B,
+    });
+    expect(done.ok).toBe(true);
+    expect(audit).toHaveLength(1);
+    expect(audit[0]).toMatchObject({
+      action: "guideline_reference.reopen_acknowledged",
+      targetId: "gr_x",
+      after: {
+        contentSha256: SHA_B,
+        reEvaluatedAt: "2026-08-25T00:00:00.000Z",
+      },
+    });
+  });
+
+  it("監査だけ失敗したら、再評価完了は保存済みだと返す", async () => {
+    const { manage, calls } = usecase([ref({ id: "gr_x" })], "2026-08-25", {
+      auditFailing: true,
+    });
+    const failed = await manage.execute(actor("owner"), {
+      action: "acknowledge_reopen",
+      id: "gr_x",
+      expectedContentSha256: SHA_B,
+    });
+    expect(failed.ok).toBe(false);
+    if (!failed.ok) expect(failed.error.message).toContain("再評価完了は記録されています");
+    expect(calls.acknowledgeReevaluation).toBe(1);
   });
 });

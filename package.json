@@ -32,7 +32,9 @@
     "content:validate": "node .claude/plugins/affiliate-content-harness/scripts/validate-content-set.mjs --content-set blog-content/quiet-rental --content-set blog-content/kids-english-trial",
     "verify": "node scripts/verify.mjs",
     "mutation": "stryker run",
-    "mutation:changed": "stryker run --since=origin/dev"
+    "mutation:changed": "stryker run --since=origin/dev",
+    "preview:blog": "tsx --require ./scripts/lib/css-module-hook.cjs scripts/write-blog-preview.tsx",
+    "preview:site": "tsx --require ./scripts/lib/css-module-hook.cjs scripts/write-site-preview.tsx"
   },
   "dependencies": {
     "@opennextjs/cloudflare": "^1.20.2",

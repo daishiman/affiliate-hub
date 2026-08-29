@@ -328,12 +328,31 @@ describe("価格をどう見せるか", () => {
 
   const hoursAfter = (h: number) => new Date(NOW.getTime() + h * 3_600_000);
 
+  /**
+   * 要件が名乗る数を手で書き写す。**`PRICE_FRESHNESS_HOURS` から入力を組み立てない。**
+   *
+   * ここを直した理由。**定数を 24 から 9999 にしても 1 にしても 7989 件すべて緑だった**
+   * （実測、2026-08-28）。下の 2 件は `hoursAfter(PRICE_FRESHNESS_HOURS)` で入力を作って
+   * いたので、**定数をいくつに変えても入力が同じ側に居続けた**。
+   * 境目を当てているつもりで、当てていたのは「その式が使われているか」だけだった。
+   *
+   * 試験の名前は「ちょうど 24 時間」と名乗っている。名乗った数を実際に書くと、
+   * 実装が動いた日に**まず名前と実装の食い違いとして現れる。**
+   */
+  const DECLARED_FRESHNESS_HOURS = 24;
+
+  it("床: 実装の鮮度の上限が、試験名が名乗る 24 時間と一致している", () => {
+    expect(PRICE_FRESHNESS_HOURS, "実装と試験名で価格の鮮度の上限が食い違っている").toBe(
+      DECLARED_FRESHNESS_HOURS,
+    );
+  });
+
   it("確認からちょうど 24 時間までは、そのままの価格として出す", () => {
-    expect(resolvePriceDisplay(offer(), hoursAfter(PRICE_FRESHNESS_HOURS)).kind).toBe("fresh");
+    expect(resolvePriceDisplay(offer(), hoursAfter(DECLARED_FRESHNESS_HOURS)).kind).toBe("fresh");
   });
 
   it("24 時間を 1 ミリ秒でも超えたら、確認日つきの参考値にする", () => {
-    const at = new Date(NOW.getTime() + PRICE_FRESHNESS_HOURS * 3_600_000 + 1);
+    const at = new Date(NOW.getTime() + DECLARED_FRESHNESS_HOURS * 3_600_000 + 1);
     const d = resolvePriceDisplay(offer(), at);
     expect(d.kind).toBe("stale");
     // 「少し前」ではなく具体的な日付を出す。
@@ -422,14 +441,29 @@ describe("比較の候補", () => {
       scopeDescription: "10万円以下の動画編集向けノートPC",
     });
 
+  /**
+   * 決めた件数を手で書き写す。**`MAX_COMPARISON_CANDIDATES` から入力を組み立てない。**
+   *
+   * ここを直した理由。**上限を 8 から 807 へ**緩める向き**に動かしても
+   * 7990 件すべて緑だった**（実測、2026-08-28）。`MAX + 1` で超える側を
+   * 作っていたので、**上限をいくつ上げても入力が一緒に増えて、
+   * 常に 1 件だけ超えた位置に居続けた。**「読者が判断できなくなる」として
+   * 決めた件数が、いくらでも増やせる状態だった。
+   */
+  const DECLARED_MAX_CANDIDATES = 8;
+
+  it("床: 比較候補の上限が、ここに書き写した 8 件と一致している", () => {
+    expect(MAX_COMPARISON_CANDIDATES, "比較候補の上限が動いている").toBe(DECLARED_MAX_CANDIDATES);
+  });
+
   it("上限ちょうどまでは並べられる", () => {
-    expect(set(MAX_COMPARISON_CANDIDATES).ok).toBe(true);
+    expect(set(DECLARED_MAX_CANDIDATES).ok).toBe(true);
   });
 
   it("上限を 1 つ超えたら断る（読者が判断できなくなる）", () => {
-    const r = set(MAX_COMPARISON_CANDIDATES + 1);
+    const r = set(DECLARED_MAX_CANDIDATES + 1);
     expect(r.ok).toBe(false);
-    if (!r.ok) expect(r.error.message).toContain(String(MAX_COMPARISON_CANDIDATES));
+    if (!r.ok) expect(r.error.message).toContain(String(DECLARED_MAX_CANDIDATES));
   });
 
   it("候補 0 件でも作れる（比べる相手が無いことも結果）", () => {

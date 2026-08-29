@@ -98,6 +98,14 @@ def main(argv: list[str]) -> int:
             "生成節の中の手書き行を巻き込む事故を避けるために使う"
         ),
     )
+    p_compile.add_argument(
+        "--acknowledge-prior-residue",
+        action="store_true",
+        help=(
+            "レビュー済みの過去の『compile が保てなかった行』だけを持ち越さない。"
+            "このrunで新たに消える行は従来どおり章末とstderrへ報告する"
+        ),
+    )
     args = ap.parse_args(argv)
 
     losses: list[tuple[str, list[str]]] = []
@@ -117,7 +125,11 @@ def main(argv: list[str]) -> int:
                 return 1
             docset = {n: docset[n] for n in docset if n in set(args.only)}
         written = write_docset(
-            docset, Path(args.out_dir), on_handwritten=args.on_handwritten, loss_report=losses
+            docset,
+            Path(args.out_dir),
+            on_handwritten=args.on_handwritten,
+            loss_report=losses,
+            acknowledge_prior_residue=args.acknowledge_prior_residue,
         )
     except (OSError, json.JSONDecodeError) as exc:
         print(f"IO/JSON error: {exc}", file=sys.stderr)

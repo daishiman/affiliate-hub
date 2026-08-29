@@ -459,6 +459,18 @@ export const ADMIN_SCREEN_RUNTIME_ENTRIES: readonly AdminScreenRuntimeEntry[] = 
     manageGuidelineReferenceAction,
   ),
   screenMutation(
+    "guideline.verify-source",
+    "settings/seo",
+    edge("src/presentation/admin/guideline-reference-form.tsx", "VerifyGuidelineSourceForm"),
+    manageGuidelineReferenceAction,
+  ),
+  screenMutation(
+    "guideline.acknowledge-reopen",
+    "settings/seo",
+    edge("src/presentation/admin/guideline-reference-form.tsx", "AcknowledgeGuidelineReopenForm"),
+    manageGuidelineReferenceAction,
+  ),
+  screenMutation(
     "member.invite",
     "settings/members",
     edge("src/presentation/admin/member-forms.tsx", "InviteMemberForm"),

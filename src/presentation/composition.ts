@@ -181,6 +181,7 @@ import {
 import { createCreateConceptDraftsUseCase } from "@/application/usecases/content/concept-drafts";
 import {
   createPreparePublishArticleUseCase,
+  createAuditArticleDraftUseCase,
   createPublishArticleUseCase,
 } from "@/application/usecases/site/publish-article";
 import {
@@ -1226,6 +1227,8 @@ export async function distributionUseCases() {
     channelStatus: createGetContentChannelStatusUseCase(distribution),
     preparePublishArticle: createPreparePublishArticleUseCase(ownSite),
     publishArticle: createPublishArticleUseCase(ownSite),
+    // 出す前の点検（REQ-SEO03）。公開と同じ道を通り、何も保存しない。
+    auditArticleDraft: createAuditArticleDraftUseCase(ownSite),
   });
 }
 

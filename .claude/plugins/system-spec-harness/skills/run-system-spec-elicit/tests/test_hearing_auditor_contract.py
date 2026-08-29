@@ -46,3 +46,15 @@ def test_leading_question_requires_evidence_that_neutrality_is_impaired() -> Non
         assert "`scope_notes.bundled`" in text
         assert "現行の確定根拠" in text
         assert "`reopen_log`" in text
+        assert "条件付き後続問だけでは片側 Yes/No と判定しない" in text
+
+
+def test_auditor_does_not_expand_the_foundation_or_current_evidence_population() -> None:
+    adapter = ADAPTER.read_text(encoding="utf-8")
+    ssot = SSOT.read_text(encoding="utf-8")
+
+    for text in (adapter, ssot):
+        assert "評価母集団外" in text
+        assert "`対象外` セルの `reason`" in text
+        assert "`provenance.field_sources[].sha256`" in text
+        assert "原典ファイル全体" in text

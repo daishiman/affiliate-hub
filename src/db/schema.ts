@@ -2348,6 +2348,19 @@ export const guidelineReferences = sqliteTable(
     region: text("region", { enum: ["global", "jp"] }).notNull(),
     /** YYYY-MM-DD。90 日判定はドメイン関数が行う。 */
     checkedAt: text("checked_at").notNull(),
+    /**
+     * 原典の本文を取得した時刻（ISO 8601）。null は「まだ取得していない」。
+     * 確認日とは別に持つ。要旨だけ読んだ日と、本文を取った時刻は別の事実である。
+     */
+    sourceFetchedAt: text("source_fetched_at"),
+    /** 取得した本文の sha256。null は未取得。 */
+    sourceSha256: text("source_sha256"),
+    /** 1 つ前の取得の sha256。これと違えば指針が書き換わっている。 */
+    previousSourceSha256: text("previous_source_sha256"),
+    /** この本文版について仕様の再評価を完了した指紋。再取得だけでは動かさない。 */
+    reEvaluatedSha256: text("re_evaluated_sha256"),
+    /** 再評価完了を記録した時刻。初回取得の基準値では取得時刻と同じ。 */
+    reEvaluatedAt: text("re_evaluated_at"),
     note: text("note"),
     createdAt: integer("created_at", { mode: "timestamp" })
       .notNull()

@@ -460,19 +460,19 @@ serves_goals: [G1, G2]
 
 - 本文: 「確定内容 (質疑録)」の `qa-foundation-u1` を参照
 - 設計解釈の記録経路: `unrecorded`
-- 設計原則の採否根拠: (未記録 — qa_log[].design_applications を writer 経由で補完すること)
+- 設計原則の採否根拠: 未記録。この質疑に `design_applications` が無いため、章はこの質疑を根拠に設計原則の採否を主張しない
 ##### 接地根拠 qa-platform-scope (対応セル: web)
 
 - 本文: 「確定内容 (質疑録)」の `qa-platform-scope` を参照
 - 設計解釈の記録経路: `unrecorded`
-- 設計原則の採否根拠: (未記録 — qa_log[].design_applications を writer 経由で補完すること)
+- 設計原則の採否根拠: 未記録。この質疑に `design_applications` が無いため、章はこの質疑を根拠に設計原則の採否を主張しない
 - 資するゴール: G1, G2
 
 ## 最新ドキュメント出典
 
 | 対象 | バージョン | 公式発行元 | 出典URL | 取得 | 最新確認 |
 |---|---|---|---|---|---|
-| apple-hig | 2026-08-24 | Apple (developer.apple.com) | https://developer.apple.com/design/human-interface-guidelines | 2026-08-25T12:13:56Z | 2026-08-25T12:13:56Z |
+| apple-hig | 2026-08-27 | Apple (developer.apple.com) | https://developer.apple.com/design/human-interface-guidelines | 2026-08-29T13:28:38Z | 2026-08-29T13:28:38Z |
 
 ## 状態の意味 (State semantics)
 

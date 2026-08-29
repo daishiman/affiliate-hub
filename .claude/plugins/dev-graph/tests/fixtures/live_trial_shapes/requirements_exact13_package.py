@@ -356,6 +356,15 @@ def write_package_sources(out: Path, repository_id: str, source_feature_digest: 
             }
             for phase in PHASES
         ],
+        "edges": [
+            {
+                "type": "depends_on",
+                "from": dependency,
+                "to": task_id(phase),
+            }
+            for phase in PHASES
+            for dependency in depends[phase]
+        ],
     })
 
     # handoff 生成前の manifest。canonical_digest は source 16 file だけを覆う。
