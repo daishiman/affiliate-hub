@@ -1,17 +1,23 @@
 import type { EditorialPersonaRepositoryPort } from "@/application/ports/authoring";
+import type { IdGeneratorPort } from "@/application/ports/common";
+import type { AuditLogPort } from "@/application/ports/compliance";
+import { auditWriteFailure, buildAuditEntry } from "@/application/audit";
 import {
   type AudiencePersona,
   type AuthorPersona,
   type FactBoundaryViolation,
   checkFactBoundary,
   checkProhibitedPhrases,
+  createAudiencePersona,
+  createAuthorPersona,
 } from "@/domain/authoring";
-import { requireCapability } from "@/domain/identity";
+import { requireWorkspaceWideCapability } from "@/domain/identity";
 import {
   type AudiencePersonaId,
   type AuthorPersonaId,
   type DomainError,
   type Result,
+  domainError,
   err,
   notFound,
   ok,
@@ -30,12 +36,47 @@ import type { UseCase } from "../usecase";
 export type ManagePersonasDeps = {
   readonly personas: EditorialPersonaRepositoryPort;
   /**
+   * ID の作り方。**登録のときだけ要る。**
+   *
+   * 参照だけのユースケース（一覧・照会・範囲の確認）は ID を作らないので、
+   * 省略できるようにしてある。必須にすると、読むだけの経路まで
+   * 「ID を作れる道具」を持つことになり、持たせる理由の無い能力が広がる。
+   */
+  readonly ids?: IdGeneratorPort;
+  /**
    * 検証記録の照会。
    * 一人称の体験を書いてよいかは「その書き手の実測記録があるか」で決まるので、
    * 記録の有無を知る手段が要る。**報酬のつなぎ目はここに現れない。**
    */
   readonly affiliateLinks?: never;
 };
+
+/**
+ * 像を**書き換える**側の口。
+ *
+ * 参照だけの口（一覧・照会・範囲の確認）には持たせない。
+ * 像はこれから作られる記事の語り口をまとめて決めるので、
+ * 書き換えた人が残らない登録を型で作れないようにしておく。
+ */
+export type RecordedPersonasDeps = ManagePersonasDeps & {
+  readonly auditLog: AuditLogPort;
+  readonly now: () => Date;
+};
+
+/**
+ * 登録の口が ID の作り方を持たずに組まれたとき。
+ *
+ * 空文字の ID を作ってしのがない。**同じ ID の行が上書きし合う**保存先ができ、
+ * 書き手を 2 人登録したはずが 1 人になる。しかも保存は成功して返るので、
+ * 利用者は次に一覧を開くまで気づけない。
+ */
+function idsMissing(what: string) {
+  return err(
+    domainError("NOT_IMPLEMENTED", `${what}の登録は、この画面からは行えません。`, {
+      suggestedAction: "公開した環境（pnpm run preview か本番）で開いてください。",
+    }),
+  );
+}
 
 const KNOWLEDGE_LABEL: Readonly<Record<AuthorPersona["knowledgeLevel"], string>> = {
   beginner: "はじめての人",
@@ -160,7 +201,7 @@ export function createListAuthorPersonasUseCase(
 ): UseCase<Record<string, never>, ListAuthorPersonasOutput> {
   return {
     async execute(actor): Promise<Result<ListAuthorPersonasOutput, DomainError>> {
-      const allowed = requireCapability(actor, "content.read", "書き手の一覧");
+      const allowed = requireWorkspaceWideCapability(actor, "content.read", "書き手の一覧");
       if (!allowed.ok) return allowed;
 
       const listed = await deps.personas.listAuthors(actor.workspaceId, {
@@ -187,7 +228,7 @@ export function createGetAuthorPersonaUseCase(
 ): UseCase<{ readonly personaId: string }, AuthorPersonaView> {
   return {
     async execute(actor, input): Promise<Result<AuthorPersonaView, DomainError>> {
-      const allowed = requireCapability(actor, "content.read", "書き手の参照");
+      const allowed = requireWorkspaceWideCapability(actor, "content.read", "書き手の参照");
       if (!allowed.ok) return allowed;
 
       const found = await deps.personas.findAuthor(
@@ -261,7 +302,7 @@ export function createListAudiencePersonasUseCase(
 ): UseCase<Record<string, never>, ListAudiencePersonasOutput> {
   return {
     async execute(actor): Promise<Result<ListAudiencePersonasOutput, DomainError>> {
-      const allowed = requireCapability(actor, "content.read", "読者像の一覧");
+      const allowed = requireWorkspaceWideCapability(actor, "content.read", "読者像の一覧");
       if (!allowed.ok) return allowed;
 
       const listed = await deps.personas.listAudiences(actor.workspaceId, {
@@ -295,7 +336,7 @@ export function createGetAudiencePersonaUseCase(
 ): UseCase<{ readonly personaId: string }, AudiencePersonaView> {
   return {
     async execute(actor, input): Promise<Result<AudiencePersonaView, DomainError>> {
-      const allowed = requireCapability(actor, "content.read", "読者像の参照");
+      const allowed = requireWorkspaceWideCapability(actor, "content.read", "読者像の参照");
       if (!allowed.ok) return allowed;
 
       const found = await deps.personas.findAudience(
@@ -305,6 +346,176 @@ export function createGetAudiencePersonaUseCase(
       if (!found.ok) return found;
       if (found.value === null) return err(notFound("読者像", input.personaId));
       return ok(toAudienceView(found.value));
+    },
+  };
+}
+
+// --- 登録 -------------------------------------------------------------------
+
+/**
+ * 書き手を 1 人登録する。
+ *
+ * --- なぜ画面ごとに書かないか ---
+ *
+ * 画面・REST・WebMCP・バックエンド MCP の 4 経路がこの 1 つを呼ぶ。
+ * 「架空の人物に資格を持たせない」（§13.3）の判定は
+ * `createAuthorPersona` の中にあり、ここは呼ぶだけ。経路ごとに写すと、
+ * 写した側だけが古くなり、片方の経路からだけ架空の資格が入る。
+ *
+ * --- 事実の範囲は最初から空でよい ---
+ *
+ * 実際に試した記録（`verifiedExperienceIds`）は登録の場では決められない。
+ * 空で作ると、その書き手は一人称の体験を書けない状態から始まる。
+ * **これは正しい初期値。** 記録が付くまで体験を書けないのが仕様であって、
+ * 登録の手間を減らすために最初から書ける状態にしてはならない。
+ */
+export type SaveAuthorPersonaInput = {
+  readonly displayName: string;
+  readonly personaType: AuthorPersona["personaType"];
+  readonly role: string;
+  readonly knowledgeLevel: AuthorPersona["knowledgeLevel"];
+  readonly firstPersonPronoun: string;
+  readonly readerAddress: string;
+  readonly tone: AuthorPersona["tone"];
+  readonly expertise?: readonly string[];
+  readonly verifiedCredentials?: readonly string[];
+  readonly experienceYears?: number | null;
+  readonly prohibitedPhrases?: readonly string[];
+  readonly factBoundary?: readonly string[];
+  readonly disclosureStyle: string;
+  readonly ctaStyle: string;
+};
+
+export function createSaveAuthorPersonaUseCase(
+  deps: RecordedPersonasDeps,
+): UseCase<SaveAuthorPersonaInput, AuthorPersonaView> {
+  return {
+    async execute(actor, input): Promise<Result<AuthorPersonaView, DomainError>> {
+      const allowed = requireWorkspaceWideCapability(actor, "content.write", "書き手の登録");
+      if (!allowed.ok) return allowed;
+      if (deps.ids === undefined) return idsMissing("書き手");
+
+      const built = createAuthorPersona({
+        id: taggedString<"AuthorPersonaId">(`ap_${deps.ids.newId()}`) as AuthorPersonaId,
+        workspaceId: actor.workspaceId,
+        displayName: input.displayName.trim(),
+        personaType: input.personaType,
+        role: input.role.trim(),
+        expertise: input.expertise,
+        verifiedCredentials: input.verifiedCredentials,
+        experienceYears: input.experienceYears,
+        knowledgeLevel: input.knowledgeLevel,
+        firstPersonPronoun: input.firstPersonPronoun.trim(),
+        readerAddress: input.readerAddress.trim(),
+        tone: input.tone,
+        prohibitedPhrases: input.prohibitedPhrases,
+        factBoundary: input.factBoundary,
+        disclosureStyle: input.disclosureStyle.trim(),
+        ctaStyle: input.ctaStyle.trim(),
+      });
+      if (!built.ok) return built;
+
+      const entry = buildAuditEntry({ ids: deps.ids, now: deps.now }, actor, {
+        action: "persona.changed",
+        targetType: "author_persona",
+        targetId: String(built.value.id),
+        before: null,
+        after: {
+          displayName: built.value.displayName,
+          personaType: built.value.personaType,
+          role: built.value.role,
+        },
+      });
+      if (!entry.ok) return entry;
+
+      const saved = await deps.personas.saveAuthor(built.value);
+      if (!saved.ok) return saved;
+      const appended = await deps.auditLog.append(entry.value);
+      if (!appended.ok) {
+        return err(auditWriteFailure("書き手の登録は済んでいます", appended.error.details));
+      }
+      return ok(toAuthorView(saved.value));
+    },
+  };
+}
+
+/**
+ * 読者像を 1 つ登録する。
+ *
+ * **判断基準（`decisionCriteria`）を必須にしている。**
+ * ここが空の読者像を作れると、その読者像で組んだ比較表に列が立たない。
+ * 「あとで足す」を許すと、列の無い比較表が公開まで進んでしまう。
+ */
+export type SaveAudiencePersonaInput = {
+  readonly name: string;
+  readonly primaryJob: string;
+  readonly currentSituation?: string;
+  readonly desiredOutcome: string;
+  readonly knowledgeLevel: AudiencePersona["knowledgeLevel"];
+  readonly awarenessStage: AudiencePersona["awarenessStage"];
+  readonly decisionCriteria: readonly string[];
+  readonly painPoints?: readonly string[];
+  readonly objections?: readonly string[];
+  readonly budgetContext?: string | null;
+  readonly timeContext?: string | null;
+  readonly preferredDetailLevel: AudiencePersona["preferredDetailLevel"];
+  readonly preferredTone: string;
+  readonly desiredEmotionalState: string;
+  readonly nextAction: string;
+  readonly prohibitedAssumptions?: readonly string[];
+};
+
+export function createSaveAudiencePersonaUseCase(
+  deps: RecordedPersonasDeps,
+): UseCase<SaveAudiencePersonaInput, AudiencePersonaView> {
+  return {
+    async execute(actor, input): Promise<Result<AudiencePersonaView, DomainError>> {
+      const allowed = requireWorkspaceWideCapability(actor, "content.write", "読者像の登録");
+      if (!allowed.ok) return allowed;
+      if (deps.ids === undefined) return idsMissing("読者像");
+
+      const built = createAudiencePersona({
+        id: taggedString<"AudiencePersonaId">(`dp_${deps.ids.newId()}`) as AudiencePersonaId,
+        workspaceId: actor.workspaceId,
+        name: input.name.trim(),
+        primaryJob: input.primaryJob.trim(),
+        currentSituation: input.currentSituation,
+        desiredOutcome: input.desiredOutcome.trim(),
+        knowledgeLevel: input.knowledgeLevel,
+        awarenessStage: input.awarenessStage,
+        decisionCriteria: input.decisionCriteria,
+        painPoints: input.painPoints,
+        objections: input.objections,
+        budgetContext: input.budgetContext,
+        timeContext: input.timeContext,
+        preferredDetailLevel: input.preferredDetailLevel,
+        preferredTone: input.preferredTone.trim(),
+        desiredEmotionalState: input.desiredEmotionalState.trim(),
+        nextAction: input.nextAction.trim(),
+        prohibitedAssumptions: input.prohibitedAssumptions,
+      });
+      if (!built.ok) return built;
+
+      const entry = buildAuditEntry({ ids: deps.ids, now: deps.now }, actor, {
+        action: "persona.changed",
+        targetType: "audience_persona",
+        targetId: String(built.value.id),
+        before: null,
+        after: {
+          name: built.value.name,
+          primaryJob: built.value.primaryJob,
+          awarenessStage: built.value.awarenessStage,
+        },
+      });
+      if (!entry.ok) return entry;
+
+      const saved = await deps.personas.saveAudience(built.value);
+      if (!saved.ok) return saved;
+      const appended = await deps.auditLog.append(entry.value);
+      if (!appended.ok) {
+        return err(auditWriteFailure("読者像の登録は済んでいます", appended.error.details));
+      }
+      return ok(toAudienceView(saved.value));
     },
   };
 }
@@ -337,7 +548,11 @@ export function createCheckFactBoundaryUseCase(
 ): UseCase<CheckFactBoundaryInput, CheckFactBoundaryOutput> {
   return {
     async execute(actor, input): Promise<Result<CheckFactBoundaryOutput, DomainError>> {
-      const allowed = requireCapability(actor, "content.read", "事実の範囲の確認");
+      const allowed = requireWorkspaceWideCapability(
+        actor,
+        "content.read",
+        "事実の範囲の確認",
+      );
       if (!allowed.ok) return allowed;
 
       const found = await deps.personas.findAuthor(

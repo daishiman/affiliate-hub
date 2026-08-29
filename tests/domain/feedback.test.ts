@@ -3,6 +3,7 @@
  * @req REQ-FB03, REQ-FB06
  * @types equivalence, boundary
  */
+import fc from "fast-check";
 import { describe, expect, it } from "vitest";
 import {
   ANNOTATION_TOOLS,
@@ -128,6 +129,113 @@ describe("改善要望を受け取る", () => {
 
   it("種類は 3 つだけ", () => {
     expect([...FEEDBACK_KINDS]).toEqual(["not_working", "hard_to_use", "want_feature"]);
+  });
+
+  it("ブラウザ由来の URL・例外・操作名を保存前に安全な形へ縮約する", () => {
+    const secret = "secret-token-abc123";
+    const result = createFeedbackReport({
+      id: asFeedbackReportId("fb-malicious"),
+      workspaceId: WORKSPACE,
+      kind: "not_working",
+      body: "保存できません。",
+      origin: {
+        screenName: `担当者 user@example.test ${secret}`,
+        url: `https://example.com/admin/feedback?token=${secret}#private`,
+        route: `/admin/feedback?email=user@example.test#${secret}`,
+        viewportWidth: 999_999,
+        viewportHeight: -100,
+      },
+      technical: {
+        jsErrors: [`TypeError: request failed for https://example.com/?token=${secret}`],
+        failedRequests: [`500 https://example.com/api/save?token=${secret}#private`],
+        userAgent: `user@example.test ${secret}`,
+        recentActions: [`「顧客 user@example.test ${secret}」を押した`],
+        redactedCount: 0,
+      },
+      submittedBy: USER,
+      at: AT,
+    });
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    const persisted = JSON.stringify({ origin: result.value.origin, technical: result.value.technical });
+    expect(persisted).not.toContain(secret);
+    expect(persisted).not.toContain("user@example.test");
+    expect(result.value.origin.url).toBe("https://example.com/admin/feedback");
+    expect(result.value.origin.route).toBe("/admin/feedback");
+    expect(result.value.technical.jsErrors).toEqual(["TypeError"]);
+    expect(result.value.technical.recentActions).toEqual(["操作を実行した"]);
+    expect(result.value.technical.redactedCount).toBeGreaterThan(0);
+  });
+
+  it("どの識別子を悪性 payload に混ぜても domain の外へ持ち越さない", () => {
+    fc.assert(
+      fc.property(fc.uuid(), (secret) => {
+        const result = createFeedbackReport({
+          id: asFeedbackReportId("fb-property"),
+          workspaceId: WORKSPACE,
+          kind: "hard_to_use",
+          body: "使いにくいです。",
+          origin: {
+            screenName: `user-${secret}@example.test`,
+            url: `https://example.com/admin?token=${secret}#${secret}`,
+            route: `/admin?email=user-${secret}@example.test`,
+            viewportWidth: 375,
+            viewportHeight: 667,
+          },
+          technical: {
+            jsErrors: [`Error: ${secret}`],
+            failedRequests: [`届きませんでした https://example.com/api?token=${secret}`],
+            userAgent: secret,
+            recentActions: [`「${secret}」を押した`],
+            redactedCount: 0,
+          },
+          submittedBy: USER,
+          at: AT,
+        });
+        expect(result.ok).toBe(true);
+        if (!result.ok) return;
+        expect(JSON.stringify(result.value.origin)).not.toContain(secret);
+        expect(JSON.stringify(result.value.technical)).not.toContain(secret);
+      }),
+    );
+  });
+
+  it("型を迂回した壊れた診断値でも server 境界で落ちず、安全な既定値へ縮約する", () => {
+    const createForgedReport = () =>
+      createFeedbackReport({
+        id: asFeedbackReportId("fb-forged"),
+        workspaceId: WORKSPACE,
+        kind: "not_working",
+        body: "送信できません。",
+        origin: {
+          screenName: null as never,
+          url: { token: "secret-token" } as never,
+          route: "/admin/feedback",
+          viewportWidth: Number.NaN,
+          viewportHeight: Number.POSITIVE_INFINITY,
+        },
+        technical: {
+          jsErrors: "TypeError: secret-token" as never,
+          failedRequests: null as never,
+          userAgent: 123 as never,
+          recentActions: { label: "user@example.test" } as never,
+          redactedCount: Number.NaN,
+        },
+        submittedBy: USER,
+        at: AT,
+      });
+
+    expect(createForgedReport).not.toThrow();
+    const result = createForgedReport();
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.value.origin.screenName).toBe("画面");
+    expect(result.value.origin.url).toBe("/admin/feedback");
+    expect(result.value.technical.jsErrors).toEqual([]);
+    expect(result.value.technical.failedRequests).toEqual([]);
+    expect(result.value.technical.recentActions).toEqual([]);
+    expect(result.value.technical.redactedCount).toBeGreaterThan(0);
   });
 
   it("履歴は積むだけで、前の行が消えない", () => {

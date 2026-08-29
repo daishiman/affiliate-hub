@@ -59,6 +59,8 @@ export type ConversationLineView = {
 };
 
 export type ProductCardView = {
+  /** どの商品か。「気になる」の保存先を決めるのに要る。 */
+  readonly productId?: string;
   readonly name: string;
   readonly brand: string;
   readonly oneLine: string;
@@ -67,6 +69,18 @@ export type ProductCardView = {
   readonly affiliateHref?: string;
   readonly blockedReason?: string;
   readonly detailHref?: string;
+  /**
+   * 「気になる」の押しどころ。**部品側では作らない。**
+   * 保存はサーバ動作なので、作れるのは画面の側だけ。ここで作れる形にすると、
+   * 見た目の部品が保存先を知ることになり、読者の一覧に商業の都合を
+   * 混ぜる実装がこの部品から書けてしまう。
+   */
+  readonly saveSlot?: ReactNode;
+};
+
+export type FaqItemView = {
+  readonly question: string;
+  readonly answer: string;
 };
 
 export type ArticleViewModel = {
@@ -76,8 +90,6 @@ export type ArticleViewModel = {
   readonly updatedAt: string;
   readonly authorName: string;
   readonly authorHref: string;
-  readonly authorBio?: string;
-  readonly authorCredentials?: readonly string[];
   readonly expertName?: string;
   readonly expertHref?: string;
   readonly disclosureRequired: boolean;
@@ -85,6 +97,8 @@ export type ArticleViewModel = {
   readonly policyHref: string;
   readonly sections: readonly SectionView[];
   readonly conversation?: readonly ConversationLineView[];
+  /** よくある質問。1 件も無い記事では欄ごと出さない。 */
+  readonly faq?: readonly FaqItemView[];
   readonly productCards?: readonly ProductCardView[];
   readonly ranking?: {
     readonly caption: string;
@@ -98,8 +112,6 @@ export type ArticleViewModel = {
     readonly columns: readonly ComparisonColumn[];
     readonly rows: readonly ComparisonRow[];
   };
-  /** 同じブログで次に読める公開記事。取得に失敗したときは欄ごと出さない。 */
-  readonly relatedArticles?: readonly ArticleCardView[];
   /** 中身がまだ無い記事であることの明示。見本を本物に見せない。 */
   readonly stub?: { readonly label: string; readonly blockedBy: string; readonly stubId: string };
 };
@@ -111,25 +123,11 @@ export type ArticleViewModel = {
  * 読者は「無い項目」へ飛ばされる。節が 2 つ以下のときは出さない
  * （目次を読む手間のほうが大きい）。
  */
-export function ArticleTableOfContents({
-  sections,
-  placement = "inline",
-}: {
-  readonly sections: readonly SectionView[];
-  readonly placement?: "inline" | "sidebar";
-}) {
+function TableOfContents({ sections }: { readonly sections: readonly SectionView[] }) {
   if (sections.length < 3) return null;
   return (
-    <nav
-      className={[
-        styles.tableOfContents,
-        placement === "sidebar" ? styles.tocSidebar : styles.tocInline,
-      ].join(" ")}
-      aria-label={`${UI_COPY.article.tocTitle}（${
-        placement === "sidebar" ? "サイドバー" : "本文"
-      }）`}
-    >
-      <p className={styles.tocLabel}>{UI_COPY.article.tocTitle}</p>
+    <nav className={styles.section} aria-label={UI_COPY.article.tocTitle}>
+      <h2 className={styles.sectionHeading}>{UI_COPY.article.tocTitle}</h2>
       <ul>
         {sections.map((s) => (
           <li key={s.id}>
@@ -159,16 +157,47 @@ function UpdateHistory({
       <h2 className={styles.sectionHeading}>{UI_COPY.article.historyTitle}</h2>
       <ul>
         <li>
-          {publishedAt} {UI_COPY.article.historyPublished}
+          <time dateTime={publishedAt}>{publishedAt}</time> {UI_COPY.article.historyPublished}
         </li>
         {updatedAt === publishedAt ? (
           <li>{UI_COPY.article.historyNoUpdate}</li>
         ) : (
           <li>
-            {updatedAt} {UI_COPY.article.historyUpdated}
+            {/* dateModified の機械可読化。JSON-LD と同じ値を <time> でも示す。 */}
+            <time dateTime={updatedAt}>{updatedAt}</time> {UI_COPY.article.historyUpdated}
           </li>
         )}
       </ul>
+    </section>
+  );
+}
+
+/**
+ * よくある質問。
+ *
+ * `<dl>` で組む。問いと答えの対であることが、見た目を切っても機械に伝わる形。
+ * `<h2>` と `<p>` を並べると、読み上げでも AI でも「見出しと本文」にしか見えず、
+ * どこまでが 1 つの問いへの答えかが分からなくなる。
+ *
+ * 折りたたまない。畳むと、開いていない答えは検索にも AI にも読まれにくく、
+ * ここへ書く理由（先に答えておく）がそのまま消える。
+ */
+function FaqSection({ items }: { readonly items: readonly FaqItemView[] }) {
+  return (
+    <section
+      id="faq"
+      className={styles.section}
+      {...telemetrySectionAttrs({ kind: "faq", id: "faq" })}
+    >
+      <h2 className={styles.sectionHeading}>{UI_COPY.article.faqTitle}</h2>
+      <dl>
+        {items.map((item) => (
+          <div key={item.question}>
+            <dt>{item.question}</dt>
+            <dd>{item.answer}</dd>
+          </div>
+        ))}
+      </dl>
     </section>
   );
 }
@@ -203,21 +232,6 @@ export function ArticleView({ article }: { readonly article: ArticleViewModel })
       <h1 className={styles.articleTitle}>{article.title}</h1>
       <p className={styles.articleSummary}>{article.summary}</p>
 
-      <div className={styles.byline}>
-        <span>
-          書き手: <Link href={article.authorHref}>{article.authorName}</Link>
-        </span>
-        {article.expertName !== undefined && article.expertHref !== undefined && (
-          <span>
-            監修: <Link href={article.expertHref}>{article.expertName}</Link>
-          </span>
-        )}
-        <span>公開 {article.publishedAt}</span>
-        <span>
-          {UI_COPY.article.updatedAt} {article.updatedAt}
-        </span>
-      </div>
-
       {article.stub !== undefined && (
         <StubNotice
           what={article.stub.label}
@@ -234,17 +248,22 @@ export function ArticleView({ article }: { readonly article: ArticleViewModel })
         />
       )}
 
-      <section className={styles.articleIntroAuthor} aria-label="冒頭の書き手紹介">
-        <p className={styles.authorCardLabel}>この記事の書き手</p>
-        <h2>
-          <Link href={article.authorHref}>{article.authorName}</Link>
-        </h2>
-        {article.authorBio !== undefined && <p>{article.authorBio}</p>}
-      </section>
+      <div className={styles.byline}>
+        <span>
+          書き手: <Link href={article.authorHref}>{article.authorName}</Link>
+        </span>
+        {article.expertName !== undefined && article.expertHref !== undefined && (
+          <span>
+            監修: <Link href={article.expertHref}>{article.expertName}</Link>
+          </span>
+        )}
+        <span>公開 {article.publishedAt}</span>
+        <span>
+          {UI_COPY.article.updatedAt} {article.updatedAt}
+        </span>
+      </div>
 
-      {article.conversation !== undefined && <Conversation lines={article.conversation} />}
-
-      <ArticleTableOfContents sections={article.sections} />
+      <TableOfContents sections={article.sections} />
 
       {article.sections.map((section) => (
         <Section key={section.id} section={section} />
@@ -277,43 +296,18 @@ export function ArticleView({ article }: { readonly article: ArticleViewModel })
           <h2 className={styles.sectionHeading}>この記事で取り上げた商品</h2>
           <div className={styles.cardList}>
             {article.productCards.map((card) => (
-              <ProductCard key={card.name} {...card} />
+              <ProductCard key={card.productId ?? card.name} {...card} />
             ))}
           </div>
         </section>
       )}
 
+      {article.conversation !== undefined && <Conversation lines={article.conversation} />}
+
+      {/* 本文を読み終えた読者に残る問いへ、ここで先に答える。 */}
+      {article.faq !== undefined && article.faq.length > 0 && <FaqSection items={article.faq} />}
+
       <UpdateHistory publishedAt={article.publishedAt} updatedAt={article.updatedAt} />
-
-      <section className={styles.articleAuthorProfile} aria-label="詳細な著者プロフィール">
-        <p className={styles.authorCardLabel}>この記事を書いた人</p>
-        <h2>
-          <Link href={article.authorHref}>{article.authorName}</Link>
-        </h2>
-        {article.authorBio !== undefined && <p>{article.authorBio}</p>}
-        {article.authorCredentials !== undefined && article.authorCredentials.length > 0 && (
-          <ul>
-            {article.authorCredentials.map((credential) => (
-              <li key={credential}>{credential}</li>
-            ))}
-          </ul>
-        )}
-      </section>
-
-      {article.relatedArticles !== undefined && article.relatedArticles.length > 0 && (
-        <section className={styles.relatedArticles} aria-labelledby="related-articles-heading">
-          <p className={styles.authorCardLabel}>次に読む</p>
-          <h2 id="related-articles-heading" className={styles.sectionHeading}>
-            あわせて読みたい
-          </h2>
-          <ArticleList
-            articles={article.relatedArticles}
-            emptyTitle=""
-            emptyBody=""
-            headingLevel="h3"
-          />
-        </section>
-      )}
     </article>
   );
 }
@@ -338,34 +332,27 @@ export function ArticleList({
   emptyTitle,
   emptyBody,
   emptyAction,
-  headingLevel = "h2",
 }: {
   readonly articles: readonly ArticleCardView[];
   readonly emptyTitle: string;
   readonly emptyBody: string;
   readonly emptyAction?: ReactNode;
-  readonly headingLevel?: "h2" | "h3" | "h4";
 }) {
   if (articles.length === 0) {
     return <EmptyView title={emptyTitle} body={emptyBody} action={emptyAction} />;
   }
 
-  const Heading = headingLevel;
-
   return (
-    <ul className={styles.articleList}>
+    <ul className={styles.cardList}>
       {articles.map((a) => (
-        <li key={a.slug} className={styles.articleListItem}>
-          <time className={styles.articleListDate} dateTime={a.updatedAt}>
-            {a.updatedAt}
-          </time>
-          <div className={styles.articleListBody}>
-            <Heading className={styles.cardTitle}>
-              <Link href={a.href}>{a.title}</Link>
-            </Heading>
-            <p>{a.summary}</p>
-            <span className={styles.cardMeta}>書き手: {a.authorName}</span>
-          </div>
+        <li key={a.slug} className={styles.cardItem}>
+          <h2 className={styles.cardTitle}>
+            <Link href={a.href}>{a.title}</Link>
+          </h2>
+          <p>{a.summary}</p>
+          <span className={styles.cardMeta}>
+            {UI_COPY.article.updatedAt} {a.updatedAt} / {a.authorName}
+          </span>
         </li>
       ))}
     </ul>

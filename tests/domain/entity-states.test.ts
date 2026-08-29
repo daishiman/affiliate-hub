@@ -68,6 +68,7 @@ function queued(): Publication {
     id: asPublicationId("pb-1"),
     workspaceId: WS,
     variantId: asContentVariantId("cv-1"),
+    variantRevision: 1,
     channelKind: "x",
     connectionId: asChannelConnectionId("ch-1"),
     idempotencyKey: "pb-1:key",

@@ -17,7 +17,8 @@
     "slide-report-generator@harness-hub": true,
     "spec-drift-guardian@harness-hub": true,
     "system-dev-planner@harness-hub": true,
-    "system-spec-harness@harness-hub": true
+    "system-spec-harness@harness-hub": true,
+    "system-spec-harness@harness-local": false
   },
   "extraKnownMarketplaces": {
     "harness-hub": {

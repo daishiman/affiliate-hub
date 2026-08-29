@@ -23,12 +23,34 @@ export { TERMS, UI_COPY, term, fill, DEFAULT_LOCALE, type Locale, type TermKey }
 /* --- primitives -------------------------------------------------------- */
 export { Button, type ButtonProps, type ButtonTone } from "./primitives/button";
 export { Field, type FieldProps } from "./primitives/field";
+export { FormValue, type FormValueProps } from "./primitives/form-value";
 export { Select, type SelectProps, type SelectOption } from "./primitives/select";
 export { CheckboxGroup, type CheckboxGroupProps } from "./primitives/checkbox-group";
+export { Checkbox, type CheckboxProps } from "./primitives/checkbox";
 export { TextArea, type TextAreaProps } from "./primitives/textarea";
 export { ToolForm } from "./primitives/tool-form";
+// ToolForm の対。AI から呼べない操作は素の <form> ではなくこちらを使う。
+// 素の <form> だと「決めた」と「忘れた」が同じ見た目になる。
+export { HumanOnlyForm } from "./primitives/human-only-form";
+export { ActionButton } from "./primitives/action-button";
 export { Callout, type CalloutTone } from "./primitives/callout";
+export { ActionNote } from "./primitives/action-note";
 export { LoadingView, EmptyView, ErrorView } from "./primitives/state-view";
+export { Icon, type IconName, type IconSize } from "./primitives/icon";
+/* 節の見出し。`level` は必須で、文書階層 2〜4 をそのまま渡す。 */
+export { SectionHeading, type SectionHeadingLevel } from "./primitives/heading";
+export { proseParagraphs } from "./primitives/prose-paragraphs";
+/*
+  本文の断片を描く部品 (`ProseBody` / `ProseEditor` / `ProseSection`) はここから出さない。
+  `@/domain/blogops` を読むので共通UIの決まりに当たらない。置き場は
+  `@/presentation/prose`（同ディレクトリの README に理由）。
+*/
+/* 注記の段落。余白も `className` も持たない。寄せてはいけないものは `note.tsx` の doc。 */
+export { Note } from "./patterns/note";
+/* 「続きはあちら」の行き先 1 本。`Note` と見た目は同じで役が違う（`see-also.tsx` の doc）。 */
+export { SeeAlso } from "./patterns/see-also";
+/* 見ている対象の切り替え。文ではなく操作なので押しどころの下限を持つ（`scope-switch.tsx` の doc）。 */
+export { ScopeSwitch } from "./patterns/scope-switch";
 
 /* --- patterns（仕様固有。画面ごとに書き起こさない） --------------------- */
 export {
@@ -80,6 +102,7 @@ export {
 } from "./appearance";
 export { WorkBoard, type WorkBoardItem } from "./patterns/work-board";
 export { FilterBar, type FilterAxis } from "./patterns/filter-bar";
+export { FormResult, type FormOutcome } from "./patterns/form-result";
 export { MaterialReview, type MaterialFinding } from "./patterns/material-review";
 export {
   ModelPicker,
@@ -91,6 +114,21 @@ export {
   type ScheduleCalendarDay,
   type ScheduleCalendarEntry,
 } from "./patterns/schedule-calendar";
+export {
+  ChannelStatusList,
+  ChannelBadge,
+  type ChannelStatusEntry,
+} from "./patterns/channel-status";
+export { NavCollapseToggle, NAV_COLLAPSED_ATTR } from "./patterns/nav-collapse-toggle";
+export {
+  ConceptMatrixLauncher,
+  toConceptAxes,
+  type ConceptAxes,
+  type ConceptMatrixSite,
+  type ConceptMatrixProduct,
+  type ConceptOverride,
+  type ConceptMatrixLauncherProps,
+} from "./patterns/concept-matrix";
 export { ConsentBanner } from "./patterns/consent-banner";
 export { FeedbackButton, type FeedbackSubmission } from "./patterns/feedback-button";
 export {
@@ -119,6 +157,16 @@ export {
   type TelemetrySectionMark,
 } from "./telemetry-attrs";
 export { WebMcpProvider } from "./webmcp-provider";
+export {
+  ADMIN_NAV_GROUP_LABELS,
+  ADMIN_ROUTE_METADATA,
+  resolveAdminRoute,
+  type AdminBreadcrumb,
+  type AdminNavGroupId,
+  type AdminRouteId,
+  type AdminRouteMetadata,
+  type ResolvedAdminRoute,
+} from "./admin-route-metadata";
 
 /* --- templates --------------------------------------------------------- */
 export {
@@ -130,27 +178,44 @@ export {
   UNGROUPED_NAV_HREFS,
   visibleNav,
   groupedNav,
+  currentNavHref,
   type NavItem,
   type NavGroup,
   type GroupedNav,
   type Breadcrumb,
 } from "./templates/app-shell";
 export {
+  Section,
+  SubSection,
+  Prose,
+  ListView,
+  StepList,
+  DataTable,
+  FactList,
+  Foldable,
+  Figure,
+  RowSelector,
+  TextLink,
+  ExternalLink,
+  Code,
+  CodeBlock,
+  Stack,
+  Row,
+  type ListRow,
+  type TableColumn,
+  type TableRow,
+  type FactRow,
+} from "./templates/screen-parts";
+export {
   SiteShell,
   SitePage,
-  SiteSection,
-  SiteHomeHero,
-  CategoryDirectory,
-  CategoryArticleGroups,
   PublicShell,
+  FocusedTask,
   type SiteChrome,
   type SiteNavItem,
-  type CategoryDirectoryItem,
-  type CategoryArticleGroupView,
 } from "./templates/site-shell";
 export {
   ArticleView,
-  ArticleTableOfContents,
   ArticleList,
   PersonView,
   PolicyView,

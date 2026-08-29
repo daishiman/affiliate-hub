@@ -156,7 +156,39 @@ export async function findA11yViolations(html: string): Promise<readonly A11yVio
   }));
 }
 
-async function runAxe(html: string) {
+/**
+ * **止めているものも基準の外のものも含めて、axe が持っている規則を全部当てる。**
+ *
+ * 普段の検査（`runA11y` / `findA11yViolations`）は `A11Y_TAGS` で絞り、`DISABLED_RULES` を止める。
+ * だから「違反が出なかった」には **3 通りの理由**があり、そのままでは見分けが付かない:
+ *   1. 拾う規則が axe に無い
+ *   2. 拾う規則はあるが、`A11Y_TAGS` の外か `DISABLED_RULES` で止めている
+ *   3. 拾う規則はあり有効だが、jsdom では判定不能になる
+ *
+ * **2 と 3 は設定を変えれば届く。1 だけが「原理的に届かない」である。**
+ * この口はその 3 つを分けるためだけにある。**普段の検査には使わない**
+ * （全部当てると jsdom で判定不能になる規則が大量に混ざり、本当の指摘が埋もれる）。
+ *
+ * axe を呼ぶ口は `tests/support/a11y.ts` の 1 つだけ、という契約
+ * （`tests/architecture/test-foundation.test.ts`）があるので、ここに置く。
+ */
+export async function runAllRulesA11y(html: string): Promise<A11yBuckets> {
+  const raw = await runAxe(html, { allRules: true });
+  return {
+    violations: raw.violations.map((r) => r.id),
+    passes: raw.passes.map((r) => r.id),
+    incomplete: raw.incomplete.map((r) => r.id),
+    inapplicable: raw.inapplicable.map((r) => r.id),
+  };
+}
+
+/** axe が持っている規則の総数。**手書きの定数ではなく axe に訊く。** */
+export async function allRuleIds(): Promise<readonly string[]> {
+  const axe = (await import("axe-core")).default;
+  return axe.getRules().map((r) => r.ruleId);
+}
+
+async function runAxe(html: string, opts: { readonly allRules?: boolean } = {}) {
   const dom = sharedDom();
   dom.window.document.body.innerHTML = html;
 
@@ -170,12 +202,19 @@ async function runAxe(html: string) {
 
   try {
     const axe = (await import("axe-core")).default;
-    const result = await axe.run(dom.window.document, {
-      runOnly: { type: "tag", values: [...A11Y_TAGS] },
-      // 止める規則は `DISABLED_RULES` から組み立てる。
-      // ここへ直接書くと、理由つきの一覧が**飾りになる**（一覧に無い規則も止められてしまう）。
-      rules: Object.fromEntries(DISABLED_RULES.map((r) => [r.id, { enabled: false }])),
-    });
+    // 全規則版は絞りも止めもしない。**同じ `axe.run` を通す**ので、
+    // 「普段は届かないが全部当てれば届く」を、経路の違いで説明できない。
+    const result = await axe.run(
+      dom.window.document,
+      opts.allRules
+        ? {}
+        : {
+            runOnly: { type: "tag", values: [...A11Y_TAGS] },
+            // 止める規則は `DISABLED_RULES` から組み立てる。
+            // ここへ直接書くと、理由つきの一覧が**飾りになる**（一覧に無い規則も止められてしまう）。
+            rules: Object.fromEntries(DISABLED_RULES.map((r) => [r.id, { enabled: false }])),
+          },
+    );
     return result;
   } finally {
     g.window = saved.window;

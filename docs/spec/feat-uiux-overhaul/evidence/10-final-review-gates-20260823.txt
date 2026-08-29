@@ -1,0 +1,51 @@
+# 最終レビュー品質ゲート（2026-08-23）
+
+枝: daishiman/ui-ux調整
+HEAD: 43a12ce
+作業ツリー: 未コミットの feat-uiux-overhaul 実装を含む
+
+## 型検査
+
+npx tsc --noEmit --incremental false
+→ exit=0（エラー 0 件） Duration 44.40s
+
+## 受入・CRUD・関連検査
+
+npx vitest run tests/ui/uiux-*.test.ts tests/ui/uiux-*.test.tsx \
+  tests/ui/admin-edit-forms.test.tsx tests/ui/catalog-and-signin-clients.test.tsx \
+  tests/ui/app-shell-nav.test.tsx tests/architecture/acceptance-reconciliation.test.ts \
+  tests/application/concept-drafts.test.ts tests/application/edit-content.test.ts \
+  tests/application/edit-product.test.ts tests/application/edit-sites.test.ts \
+  tests/presentation/admin-crud-actions.test.ts tests/presentation/admin-edit-actions.test.ts \
+  tests/presentation/admin-action-result.test.ts
+→ Test Files 20 passed (20) / Tests 521 passed (521)
+
+npx vitest run tests/application/manage-distribution.test.ts \
+  tests/domain/entity-enumerations.test.ts tests/architecture/open-doors.test.ts \
+  tests/ui/ui-layers.test.ts tests/ui/layout-density.test.ts \
+  tests/ui/uiux-form-declaration.test.ts tests/infrastructure/d1-product-repository.test.ts \
+  tests/infrastructure/product-sample-repository.test.ts \
+  tests/presentation/tool-inputs.ts tests/presentation/contact-action.test.ts
+→ Test Files 9 passed (9) / Tests 141 passed (141)
+
+合計 29 files / 662 tests PASS（上記 2 コマンドの和。重複ファイルなし）
+
+## 受入突合
+
+node scripts/acceptance-reconciliation.mjs
+→ 受入reconciliation: PASS（10 IDs / 128 evidence files）
+sha256:396ddfc13e9918420b5b29734b4c023880bd1b39d949de0396751ee93962cd82
+
+## 計画パッケージ検証（既知どおり入口で止まる）
+
+python3 .claude/plugins/system-dev-planner/scripts/validate-system-plan.py \
+  --repo-root . --feature-package feature-package/feat-uiux-overhaul
+→ exit=2
+[validate fail-closed] current pointer が無い:
+.dev-graph/state/current/feature-package-feat-uiux-overhaul.json
+手でポインタを書いて通していない。Beads: ah-k9b
+
+## 未実行
+
+pnpm run preview（Workers ランタイム）。MVP のため本レビューの最小ゲートから外す。
+全量 vitest + coverage。既知 blocker（章再生成）と混ざるため、本 feature の受入検査に限定した。

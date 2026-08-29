@@ -50,9 +50,76 @@ function block(
   return { ...result.value, ...overrides };
 }
 
+/**
+ * 仕様 §8 の共通骨格 25 節を、**並び順・名前・必須かどうかまで手で書き写した表**。
+ *
+ * `COMMON_ARTICLE_SECTIONS` から作らないこと。作ると、節を書き換えても
+ * 書き換わったほうの一覧を回して緑を返す
+ * （`tests/domain/article-type-sections.test.ts` が型ごとの節で同じ形にしてある）。
+ *
+ * **2026-08-21 まで、この骨格には「25 件ある」という数の検査しか無かった。**
+ * 25 件のうち名前が挙がっていたのは `disclosure` / `cons` / `sources` /
+ * `correction_report` の 4 つだけで、残り 21 節は**必須を任意へ落としても緑**だった
+ * （実測: `alternatives` と `update_log` を `required: false` にして
+ * `tests/domain` / `tests/application` / `tests/presentation` の 2821 件が緑のまま）。
+ * 必須が任意へ落ちると、その節が無いまま公開ゲートを通る。
+ * 数だけを見る検査は、**入れ替えと格下げのどちらも見ていない**。
+ */
+const EXPECTED_COMMON: readonly (readonly [string, string, boolean])[] = [
+  ["breadcrumb", "パンくず", true],
+  ["disclosure", "広告・アフィリエイト表記", true],
+  ["h1", "タイトル", true],
+  ["one_sentence_conclusion", "一文の結論", true],
+  ["dates", "公開日・更新日・検証日", true],
+  ["byline", "著者・編集者・監修者", true],
+  ["target_audience", "対象読者", false],
+  ["suitable_for", "向いている人", true],
+  ["not_suitable_for", "向いていない人", true],
+  ["pros", "主要なメリット", true],
+  ["cons", "主要なデメリット", true],
+  ["quick_comparison", "簡易比較", false],
+  ["toc", "目次", true],
+  ["how_to_choose", "選び方または評価方法", true],
+  ["body", "根拠付き本文", true],
+  ["measurements", "実測・体験・引用", false],
+  ["conversation", "会話ブロック", false],
+  ["alternatives", "代替候補", true],
+  ["faq", "FAQ", true],
+  ["final_conclusion", "最終結論", true],
+  ["merchant_options", "販売店の選択肢", false],
+  ["sources", "出典", true],
+  ["update_log", "更新履歴", true],
+  ["correction_report", "訂正報告", true],
+  ["author_profile", "著者情報", true],
+];
+
 describe("記事の骨格", () => {
   it("共通の骨格は 25 節（仕様 §8 の数）", () => {
     expect(COMMON_ARTICLE_SECTIONS).toHaveLength(25);
+    // 書き写した表のほうも 25 行であること。表が痩せると上の数と一緒にずれる。
+    expect(EXPECTED_COMMON).toHaveLength(25);
+  });
+
+  it("25 節が、並び順も名前も必須かどうかも仕様 §8 のとおり", () => {
+    expect(COMMON_ARTICLE_SECTIONS.map((s) => [s.id, s.label, s.required])).toEqual(
+      EXPECTED_COMMON.map((r) => [...r]),
+    );
+  });
+
+  it("必須と書いた 20 節は、どの記事の型でも必須一覧に残る（黙って任意へ落ちない）", () => {
+    /*
+     * 上の 1 件は一覧そのものの形を見る。こちらは**公開ゲートが読む側**を見る。
+     * `required` を任意へ落とすと、一覧の形は「そう書いてある」だけになり、
+     * 節が無いまま公開できる状態が実際に生まれる。
+     */
+    const mustBeRequired = EXPECTED_COMMON.filter(([, , req]) => req).map(([id]) => id);
+    expect(mustBeRequired).toHaveLength(20);
+    for (const type of ARTICLE_TYPES) {
+      const required = requiredSectionsFor(type);
+      for (const id of mustBeRequired) {
+        expect(required, `${type} で ${id} が必須一覧から落ちています`).toContain(id);
+      }
+    }
   });
 
   it("節の名前が重複していない", () => {
@@ -203,6 +270,39 @@ describe("吹き出し", () => {
       { hasVerifiedExpert: true },
     );
     expect(issues).toEqual([]);
+  });
+
+  /**
+   * **話者は 4 役だけ（ブログ層 §11）。**
+   *
+   * `SpeakerRole` は型のうえの直和で、実行時の一覧をどこにも持っていない。
+   * 2026-08-21 に測ったところ、5 つ目の役（`"sponsor_message"`）を足しても
+   * **2836 件が緑のまま**通った。`SpeakerRole` は `conversation-block.ts` の外から
+   * 1 度も参照されておらず、足した役は
+   * `validateConversationFlow` のどの分岐にも当たらない
+   * ＝**本文の裏付けを 1 度も問われない話者**が生まれる（`W03` 型）。
+   *
+   * 下の表はその実行時の一覧を兼ねる。`Record<SpeakerRole, …>` にしてあるので、
+   * 役が増えれば `pnpm exec tsc --noEmit` が鍵の不足で落ち、
+   * 役が減れば余分な鍵で落ちる。値のほうは実際に流して突き合わせる。
+   */
+  const SPEAKER_NEEDS_FACT_IN_BODY: Readonly<Record<ConversationBlock["role"], boolean>> = {
+    reader_question: false, // 疑問は事実ではない
+    guide_answer: false, // 要約と次の行動。事実そのものは本文が持つ
+    reviewer_note: true, // 検証した人の感想。根拠が吹き出しだけに残ってはいけない
+    expert_caution: true, // 専門性に基づく注意。同上
+  };
+
+  it("話者は 4 役で、役ごとに「本文の裏付けが要るか」が決まっている", () => {
+    const roles = Object.keys(SPEAKER_NEEDS_FACT_IN_BODY) as ConversationBlock["role"][];
+    expect(roles).toHaveLength(4);
+    for (const role of roles) {
+      const issues = validateConversationFlow([block(role, { factAlsoInBody: false })], {
+        hasVerifiedExpert: true,
+      });
+      const stopped = issues.some((i) => i.message.includes("本文にありません"));
+      expect(stopped, `${role} の扱いが表と違います`).toBe(SPEAKER_NEEDS_FACT_IN_BODY[role]);
+    }
   });
 });
 

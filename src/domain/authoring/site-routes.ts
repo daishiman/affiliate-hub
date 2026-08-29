@@ -23,6 +23,8 @@ export type RouteKind =
   | "profile"
   /** 方針・規約などの固定文書。 */
   | "policy"
+  /** 保存済み固定ページ。実際の語彙と公開可否は blogops の正本で決める。 */
+  | "fixed-page"
   /** 操作する画面（検索・候補の保存・問い合わせ）。 */
   | "interactive";
 
@@ -48,9 +50,11 @@ export type SiteRoute = {
  * 18 ルート。並びは仕様書 §7 の順。
  *
  * `/privacy` と `/terms` は仕様上 1 項目にまとめられているが、
- * 画面は別なので 2 行に分けている（合計 20 行 / 18 項目 + 計測についての 1 本）。
+ * 画面は別なので 2 行に分けている。
+ * ここに仕様書の 18 項目のほか、「計測について」1 本と
+ * ブログの記事 2 本（一覧・記事）を足してあり、合計 22 行になる。
  */
-export const SITE_ROUTES: readonly SiteRoute[] = [
+export const SITE_ROUTES = [
   {
     key: "home",
     path: "/",
@@ -104,6 +108,48 @@ export const SITE_ROUTES: readonly SiteRoute[] = [
     reachedFrom: "トップの初心者向け導線・カテゴリーページ",
     page: "how_to_choose",
     requiresDisclosure: true,
+  },
+  {
+    /*
+      ブログの記事一覧（feat-blog-ops-crud）。**`page: null` にしてある。**
+      記事の並びは設計図の設定ではなく「書いた記事があるかどうか」で決まる。
+      設定で消せる作りにすると、記事を書いたのに読者から辿れないブログが作れてしまう。
+    */
+    key: "blog",
+    path: "/blog",
+    label: "記事一覧",
+    kind: "listing",
+    reachedFrom: "全ページ共通のヘッダー・トップの新着",
+    page: null,
+    requiresDisclosure: false,
+  },
+  {
+    /*
+      記事 1 本。広告表示が要る（`requiresDisclosure: true`）。
+      本文に商品への案内が入りうるので、入っていない記事でも
+      **表示の有無を記事ごとの判断に委ねない。**
+    */
+    key: "blog-article",
+    path: "/blog/{article}",
+    label: "記事",
+    kind: "article",
+    reachedFrom: "記事一覧・タグ・関連記事",
+    page: null,
+    requiresDisclosure: true,
+  },
+  {
+    /*
+      固定ページ8種のうち contact 以外を受ける動的route。
+      `{fixedPage}` を既定footerへ直接出さず、保存済み・公開済みの具体的なリンクは
+      PublicSiteProjection が canonical 語彙から組み立てる。
+    */
+    key: "fixed-page",
+    path: "/{fixedPage}",
+    label: "運営情報の固定ページ",
+    kind: "fixed-page",
+    reachedFrom: "公開済み固定ページのフッターリンク",
+    page: null,
+    requiresDisclosure: false,
   },
   {
     key: "tool",
@@ -229,6 +275,38 @@ export const SITE_ROUTES: readonly SiteRoute[] = [
     requiresDisclosure: false,
   },
   {
+    /*
+      運営者情報。**`page: null`（設定で消せない）にしてある。**
+
+      誰が運営しているか分からないブログは、読者にとって
+      「書いてあることを誰の責任で読めばよいか」が無い状態になる。
+      設定で消せる形にすると、消えていること自体に誰も気づかない。
+    */
+    key: "operator",
+    path: "/operator",
+    label: "運営者情報",
+    kind: "policy",
+    reachedFrom: "フッター",
+    page: null,
+    requiresDisclosure: false,
+  },
+  {
+    /*
+      特定商取引法に基づく表記。こちらも `page: null`。
+
+      アフィリエイトだけなら販売者ではないので必須とは限らないが、
+      **必要かどうかを画面の有無で表さない。** 必要になった日に
+      「無い」ことに気づける場所が要る。中身が未整備なら未整備と出す。
+    */
+    key: "tokushoho",
+    path: "/tokushoho",
+    label: "特定商取引法に基づく表記",
+    kind: "policy",
+    reachedFrom: "フッター",
+    page: null,
+    requiresDisclosure: false,
+  },
+  {
     key: "contact",
     path: "/contact",
     label: "問い合わせ",
@@ -237,7 +315,50 @@ export const SITE_ROUTES: readonly SiteRoute[] = [
     page: "contact",
     requiresDisclosure: false,
   },
-];
+] as const satisfies readonly SiteRoute[];
+
+/**
+ * 本文が固定文書として**編集できない**ルート。
+ *
+ * 訂正は記事の訂正履歴から、計測についてはこちらの計測の作りから
+ * それぞれ本文が組み上がる。編集できる文書として並べると、
+ * 打ち込んだ本文と実際に出る本文が別物になる。
+ */
+type SiteRouteEntry = (typeof SITE_ROUTES)[number];
+type PolicySiteRoute = Extract<SiteRouteEntry, { readonly kind: "policy" }>;
+
+const GENERATED_POLICY_ROUTES = [
+  "corrections",
+  "measurement",
+] as const satisfies readonly PolicySiteRoute["key"][];
+type GeneratedPolicyRouteKey = (typeof GENERATED_POLICY_ROUTES)[number];
+type SiteDocumentRoute = Exclude<PolicySiteRoute, { readonly key: GeneratedPolicyRouteKey }>;
+export type SiteDocumentKey = SiteDocumentRoute["key"];
+
+function isSiteDocumentRoute(route: SiteRouteEntry): route is SiteDocumentRoute {
+  return (
+    route.kind === "policy" &&
+    !(GENERATED_POLICY_ROUTES as readonly string[]).includes(route.key)
+  );
+}
+
+/**
+ * 固定文書として編集できるページの鍵。
+ *
+ * **ルート表から導く。手で並べない。** 手で並べると、ルートを 1 本足した日に
+ * 「画面はあるのに編集できない（＝見本のまま出続ける）」ページが生まれ、
+ * それは公開されるまで誰にも見えない。
+ *
+ * 保存先は `legal_page` 表。表の `kind` はこの鍵をそのまま入れる。
+ */
+export const SITE_DOCUMENT_KEYS: readonly SiteDocumentKey[] = SITE_ROUTES.filter(
+  isSiteDocumentRoute,
+).map((route) => route.key);
+
+/** 固定文書の名札。画面の見出しと同じ言葉を使う（別名を作らない）。 */
+export const SITE_DOCUMENT_LABEL = Object.fromEntries(
+  SITE_DOCUMENT_KEYS.map((key) => [key, findRoute(key)?.label ?? key]),
+) as Readonly<Record<SiteDocumentKey, string>>;
 
 /**
  * このブログで出すルート。

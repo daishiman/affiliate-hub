@@ -1,7 +1,14 @@
 import type { EditorialSiteDraftRepositoryPort } from "@/application/ports/authoring";
 import type { SiteBlueprint, SiteDraft } from "@/domain/authoring";
 import { createSiteDraft } from "@/domain/authoring";
-import { type WorkspaceId, markEditorial, ok, taggedString } from "@/domain/shared";
+import {
+  type WorkspaceId,
+  domainError,
+  err,
+  markEditorial,
+  ok,
+  taggedString,
+} from "@/domain/shared";
 import { registerStub, stubReason } from "../../stub-registry";
 import { SAMPLE_WORKSPACE_ID } from "./sample-identity";
 
@@ -112,6 +119,28 @@ export function createSampleSiteDraftRepository(): EditorialSiteDraftRepositoryP
       if (i === -1) CREATED.push({ slug, blueprint });
       else CREATED[i] = { slug, blueprint };
       return ok(blueprint);
+    },
+    /**
+     * 取り下げ。この場でしか生きていない一覧から 1 件外す。
+     *
+     * **無かったものを消して成功にしない。** 見本として最初から入っている
+     * 3 本はこの一覧に居ないので、ここへ来ると必ず断りになる。
+     * それが正しい——見本はコードの中にあり、次に開けばまた居る。
+     */
+    async removeBlueprint(workspaceId: WorkspaceId, slug: string) {
+      const i = CREATED.findIndex(
+        (c) => c.slug === slug && c.blueprint.workspaceId === workspaceId,
+      );
+      if (i === -1) {
+        return err(
+          domainError("NOT_FOUND", "このブログは取り下げられませんでした。", {
+            suggestedAction:
+              "見本として最初から入っているブログは消せません。自分で作ったブログを選び直してください。",
+          }),
+        );
+      }
+      CREATED.splice(i, 1);
+      return ok(true as const);
     },
   });
 }

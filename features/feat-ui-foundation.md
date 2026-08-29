@@ -12,7 +12,7 @@ iteration: null
 title: "UI/UX 共通基盤"
 owners: ["daishiman"]
 created_at: "2026-08-16T13:20:00Z"
-updated_at: "2026-08-16T14:20:00Z"
+updated_at: "2026-08-22T00:00:00Z"
 status: "active"
 depends_on: ["feat-auth-workspace"]
 related_nodes: ["spec-system-spec-index"]
@@ -84,6 +84,15 @@ implementation_readiness: {"checked_at":"2026-08-16T13:20:00Z","missing_sections
 
 - `depends_on`: feat-auth-workspace
 - 依存理由: ログインとロールが決まらないと権限なし状態の表現を実装できない
+
+## 実装の現在地（2026-08-22 / ah-8h2）
+
+共通の並べ方を画面から部品へ寄せた。
+
+- 同格の行き先は `InlineNav`。縦一覧は `StackedList` / `StackedRow`
+- ログイン画面専用 CSS は参照 0 件になったため削除し、`SectionHeading` / `DefinitionList` / `Note` / `SeeAlso` / `Button` を正本にする
+- 押しどころ 44px は、実ブラウザで不足していた見出しリンク・サイト名・商品名リンクへだけ広げた
+- 実ブラウザ監査は `tests/e2e/`（signin を除く 53 画面 × desktop/mobile）
 
 ## Handoff
 

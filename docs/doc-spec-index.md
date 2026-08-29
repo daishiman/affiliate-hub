@@ -81,9 +81,12 @@ docs/spec が製品正本、system-spec が実装投影、specs / architecture /
 - docs/spec/00-README.md
 - feat-spec-canonicalization
 - task-spec-writeback
+- features/feat-auth-workspace.md
+- docs/spec/feat-auth-workspace/
 
 ## 変更履歴
 
 | Date | Change | Author |
 |---|---|---|
 | 2026-08-16 | 正本表に Phase 0 文書と graph 投影を追加 | daishiman |
+| 2026-08-24 | feat-auth-workspace の派生文書と feature 投影を関連資料へ追加 | daishiman |

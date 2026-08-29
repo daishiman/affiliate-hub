@@ -1,6 +1,4 @@
-/** @tier 2 */
-import { readdirSync } from "node:fs";
-import { resolve } from "node:path";
+/** @tier 2 @req REQ-A01, REQ-A02, REQ-A03, REQ-A04, REQ-A05, REQ-A06, REQ-A07, REQ-A08 */
 import { describe, expect, it } from "vitest";
 import { buildToolCatalog, findTool } from "@/presentation/tools/catalog";
 import { invokeTool } from "@/presentation/tools/tool-definition";
@@ -11,6 +9,7 @@ import { UI_COPY } from "@/presentation/ui/copy";
 import { readerActor } from "@/presentation/composition";
 import { SAMPLE_SITE_SLUG } from "@/infrastructure/persistence/sample/site-sample-repository";
 import { recordingAuditLog } from "../support/doubles";
+import { renderRoute } from "../support/render";
 
 /**
  * 受け入れ条件（要求仕様 §30.1〜§30.8）。
@@ -319,12 +318,41 @@ describe("§30.5 ブログ", () => {
     expect(disclosure?.required).toBe(true);
   });
 
-  it("会話・比較・商品カードを利用できる", () => {
-    const dir = resolve(import.meta.dirname, "../../src/presentation/ui/patterns");
-    const files = readdirSync(dir).join(" ");
-    expect(files).toMatch(/conversation/);
-    expect(files).toMatch(/compar/);
-    expect(files).toMatch(/product/);
+  /*
+   * 2026-08-21 まで、ここは `patterns` フォルダの**ファイル名**が
+   * `conversation` / `compar` / `product` に当たるかだけを見ていた。
+   *
+   * ファイル名は、部品の中身が空になっても、書き出されなくなっても、
+   * どの画面からも呼ばれなくなっても変わらない。
+   * 「共通部品として在る」を確かめたつもりで、**名前が在ること**を見ていた。
+   * 実測: 記事の描画から会話ブロックの 1 行を消しても、この検査は緑のままだった。
+   *
+   * 読者の画面を実際に描いて、3 つの塊が出ていることを見る形へ変えた。
+   * 見るのは class 名ではなく、読者と読み上げに届く印
+   *（塊の名前と、話し手のラベルと、表の見出し）。
+   */
+  it("会話・比較・商品カードを利用できる（読者の画面にそのまま出る）", async () => {
+    const ranking = await renderRoute("@/app/s/[site]/best/[topic]/page", {
+      params: Promise.resolve({ site: SAMPLE_SITE_SLUG, topic: "laptops-for-video-editing" }),
+      searchParams: Promise.resolve({}),
+    });
+    // 会話: 塊に名前が付き、発言ごとに話し手が出る（仕様 §11.2 の 4 種類）。
+    expect(ranking).toContain('aria-label="よくある行き違い"');
+    for (const speaker of ["読者", "書き手", "監修者"]) {
+      expect(ranking, `話し手のラベル: ${speaker}`).toContain(`>${speaker}<`);
+    }
+    // 商品カード: 取り上げた商品の塊が、名前付きで出る。
+    expect(ranking).toContain('aria-label="この記事で取り上げた商品"');
+    expect(ranking).toContain("Alpha Studio 15");
+
+    const compare = await renderRoute("@/app/s/[site]/compare/[comparison]/page", {
+      params: Promise.resolve({ site: SAMPLE_SITE_SLUG, comparison: "alpha-vs-beta" }),
+      searchParams: Promise.resolve({}),
+    });
+    // 比較: 表として出る（見出しの無い升目の並びにしない）。
+    expect(compare).toMatch(/<table/);
+    expect(compare).toContain("主要な仕様の比較");
+    expect(compare).toMatch(/<th[^>]*scope="row"/);
   });
 
   it("自社ブログへ公開できる（読者向けの道が出ている）", async () => {

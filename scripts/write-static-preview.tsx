@@ -50,7 +50,7 @@ import tailwind from "@tailwindcss/postcss";
 import { DEFAULT_APPEARANCE } from "@/domain/authoring/appearance";
 import { appearanceAttributes } from "@/presentation/ui/appearance";
 import { Card, Page } from "@/presentation/ui";
-import { ArticleTableOfContents, ArticleView, SiteShell } from "@/presentation/ui";
+import { ArticleView, SiteShell } from "@/presentation/ui";
 import { AppShell } from "@/presentation/ui/templates/app-shell";
 import { DensitySamples } from "@/app/admin/ui-catalog/density-samples";
 import styles from "@/app/admin/admin.module.css";
@@ -61,7 +61,7 @@ import {
   sampleSites,
 } from "@/infrastructure/persistence/sample/site-sample-repository";
 import { SiteHomeContent, toSiteHomeView } from "@/presentation/site/home-content";
-import { siteHref, toArticleCards, toArticleView, toChrome } from "@/presentation/site/view-model";
+import { siteHref, toArticleView, toChrome } from "@/presentation/site/view-model";
 import type { PublicSiteBlueprint } from "@/application/usecases/site/read-site";
 import {
   articleHref,
@@ -96,7 +96,8 @@ async function tailwindCss(): Promise<string> {
 function adminBody(): string {
   return renderToStaticMarkup(
     <AppShell
-      currentPath="/admin/ui-catalog"
+      actualRoutePath="/admin/ui-catalog"
+      navContextPath="/admin/ui-catalog"
       breadcrumbs={[{ label: "ホーム", href: "/admin" }, { label: "画面部品の見本" }]}
     >
       <Page
@@ -328,10 +329,10 @@ async function collectPreviewSites(): Promise<readonly PreviewSiteData[]> {
     }
     const blueprint = found.value;
 
-    // 全記事が要る。1 本だけだと、その 1 本に出る分岐しか確かめられない。
+    // 存在する記事は全件読む。記事がまだ無いサイトもトップの空状態を描く。
+    // 1 本だけに絞ると、その 1 本に出る分岐しか確かめられない。
     const recent = await content.listRecent(slug, 200);
     if (!recent.ok) throw new Error(`記事の一覧を読み込めませんでした: ${slug}`);
-    if (recent.value.length === 0) throw new Error(`記事が 1 本もありません: ${slug}`);
 
     const articles: PublishedArticle[] = [];
     for (const summary of recent.value) {
@@ -363,11 +364,7 @@ function renderSheets(sites: readonly PreviewSiteData[]): readonly Sheet[] {
 
     const chrome = toChrome(slug, blueprint);
     for (const current of articles) {
-      const related = toArticleCards(
-        slug,
-        summaries.filter((candidate) => candidate.slug !== current.slug).slice(0, 3),
-      );
-      const view = toArticleView(slug, current, related);
+      const view = toArticleView(slug, current);
       const appHref = siteHref(slug, articleHref(current));
       sheets.push({
         out: `${ARTICLES_DIR_OUT}/${slug}__${current.slug}.html`,
@@ -377,10 +374,9 @@ function renderSheets(sites: readonly PreviewSiteData[]): readonly Sheet[] {
             chrome={chrome}
             currentPath={appHref}
             breadcrumbs={[
-              { label: blueprint.name, href: chrome.homeHref },
+              { label: blueprint.name, href: siteHref(slug, "/") },
               { label: view.title },
             ]}
-            sidebar={<ArticleTableOfContents sections={view.sections} placement="sidebar" />}
           >
             <ArticleView article={view} />
           </SiteShell>,

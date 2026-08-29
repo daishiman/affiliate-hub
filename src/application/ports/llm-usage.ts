@@ -28,6 +28,8 @@ export type LlmUsageEntry = {
   readonly outputTokens: number;
   readonly estimatedCostMinor: number;
   readonly currency: string;
+  /** 提供元への通信を開始したか。月次枠は `purpose === "draft"` との組で数える。 */
+  readonly capacityConsumed: boolean;
   readonly succeeded: boolean;
 };
 

@@ -1,4 +1,4 @@
-/** @tier 2 */
+/** @tier 2 @req REQ-P08 */
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 import { PublishArticleResult } from "@/presentation/admin/publish-article-result";
@@ -56,6 +56,52 @@ describe("記事を出したあとの知らせ", () => {
     expect(html).toContain("事実確認");
     // 成功の知らせも消えない。両方出るのが正しい。
     expect(html).toContain("記事を公開しました");
+  });
+
+  it("AI 検索への備えが全て揃っていれば、点数と一言だけを出す", () => {
+    const html = render({
+      status: "done",
+      message: "記事を公開しました。",
+      url: "/s/quiet-desk/guides/quiet-laptop",
+      aiSearch: [
+        { check: "冒頭に結論がある", ok: true, hint: "" },
+        { check: "更新日がある", ok: true, hint: "" },
+      ],
+    });
+    expect(html).toContain("AI 検索への備え: 2/2");
+    expect(html).toContain("構造が揃っています");
+  });
+
+  it("AI 検索への備えが欠けている項目は、直し方（hint)まで出す", () => {
+    // 項目名だけ出すと、直し方を人に調べさせることになる。
+    const html = render({
+      status: "done",
+      message: "記事を公開しました。",
+      url: "/s/quiet-desk/guides/quiet-laptop",
+      aiSearch: [
+        { check: "冒頭に結論がある", ok: true, hint: "" },
+        {
+          check: "出典がある",
+          ok: false,
+          hint: "言い切り（claims）に evidence を付ける。",
+        },
+      ],
+    });
+    expect(html).toContain("AI 検索への備え: 1/2");
+    expect(html).toContain("出典がある");
+    expect(html).toContain("evidence を付ける");
+    // 成功の知らせも消えない。公開できた事実と、もう一歩の余地は別の話。
+    expect(html).toContain("記事を公開しました");
+  });
+
+  it("点検が返っていない（読み直せなかった）ときは、点検の枠ごと出さない", () => {
+    // 推測の点検を出すより、無いことがそのまま伝わる方がよい。
+    const html = render({
+      status: "done",
+      message: "記事を公開しました。",
+      url: "/s/quiet-desk/guides/quiet-laptop",
+    });
+    expect(html).not.toContain("AI 検索への備え");
   });
 
   it("押す前は何も出さない", () => {

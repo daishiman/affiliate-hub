@@ -37,6 +37,7 @@ import {
   validationError,
 } from "@/domain/shared";
 import type { UseCase } from "../usecase";
+import type { CapacityGuardPort } from "@/application/capacity";
 
 /**
  * ブログ作成ウィザード（プラットフォーム層 §16.2・§22.6）。
@@ -53,6 +54,7 @@ export type BuildSiteDeps = {
   readonly ids: IdGeneratorPort;
   readonly auditLog: AuditLogPort;
   readonly now: () => Date;
+  readonly capacity: CapacityGuardPort;
   readonly affiliateLinks?: never;
 };
 
@@ -734,8 +736,9 @@ export function createCreateSiteFromDraftUseCase(
         return err(validationError("選択項目が空のままです。前の段階に戻って選んでください。", "draftId"));
       }
 
+      const siteSlug = draft.createdSiteSlug ?? draft.slug;
       const blueprint = createSiteBlueprint({
-        id: taggedString<"SiteBlueprintId">(`sb_${draft.slug.replace(/-/g, "_")}`) as SiteBlueprintId,
+        id: taggedString<"SiteBlueprintId">(`sb_${siteSlug.replace(/-/g, "_")}`) as SiteBlueprintId,
         workspaceId: actor.workspaceId,
         name: draft.name,
         pattern: draft.pattern,
@@ -749,57 +752,63 @@ export function createCreateSiteFromDraftUseCase(
       });
       if (!blueprint.ok) return blueprint;
 
-      const published = await deps.drafts.publishBlueprint(draft.slug, blueprint.value);
-      if (!published.ok) return published;
+      const publish = async (): Promise<Result<CreateSiteOutput, DomainError>> => {
+        const published = await deps.drafts.publishBlueprint(siteSlug, blueprint.value);
+        if (!published.ok) return published;
 
-      const saved = await deps.drafts.save({ ...draft, createdSiteSlug: draft.slug });
-      if (!saved.ok) return saved;
+        const saved = await deps.drafts.save({ ...draft, createdSiteSlug: siteSlug });
+        if (!saved.ok) return saved;
 
-      /*
-       * 誰がこのブログを作ったかを残す。**記録は保存の後**に書く。
-       * 先に書くと、作れていないブログの記録だけが残る。
-       *
-       * ブログを消す口はまだ無い。つまりこれは**取り消せない操作**で、
-       * 「誰が・いつ・どんな設計で作ったか」はここでしか残せない。
-       *
-       * `recreated` を入れてあるのは、同じ下書きから 2 度目を通したときに
-       * 設計図が上書きされるため。「作った」が 2 行並んだとき、
-       * どちらが最初かを後から読めるようにしておく。
-       */
-      const entry = buildAuditEntry({ ids: deps.ids, now: deps.now }, actor, {
-        action: "site.created",
-        targetType: "site",
-        targetId: draft.slug,
-        after: {
+        /*
+         * 誰がこのブログを作ったかを残す。**記録は保存の後**に書く。
+         * 先に書くと、作れていないブログの記録だけが残る。
+         *
+         * ブログを消す口はまだ無い。つまりこれは**取り消せない操作**で、
+         * 「誰が・いつ・どんな設計で作ったか」はここでしか残せない。
+         *
+         * `recreated` を入れてあるのは、同じ下書きから 2 度目を通したときに
+         * 設計図が上書きされるため。「作った」が 2 行並んだとき、
+         * どちらが最初かを後から読めるようにしておく。
+         */
+        const entry = buildAuditEntry({ ids: deps.ids, now: deps.now }, actor, {
+          action: "site.created",
+          targetType: "site",
+          targetId: siteSlug,
+          after: {
+            name: draft.name,
+            pattern: draft.pattern,
+            revenueModel: draft.revenueModel,
+            pageCount: blueprint.value.pages.length,
+            categoryCount: blueprint.value.categories.length,
+            recreated: draft.createdSiteSlug !== null,
+          },
+        });
+        if (!entry.ok) return entry;
+        const appended = await deps.auditLog.append(entry.value);
+        if (!appended.ok) {
+          return err(
+            auditWriteFailure(
+              `「${draft.name}」は作られていて、読む人からも見えます`,
+              appended.error.details,
+            ),
+          );
+        }
+
+        const trustGaps = missingTrustPages(blueprint.value);
+        return ok({
+          slug: siteSlug,
           name: draft.name,
-          pattern: draft.pattern,
-          revenueModel: draft.revenueModel,
+          readerPath: `/s/${siteSlug}`,
           pageCount: blueprint.value.pages.length,
           categoryCount: blueprint.value.categories.length,
-          recreated: draft.createdSiteSlug !== null,
-        },
-      });
-      if (!entry.ok) return entry;
-      const appended = await deps.auditLog.append(entry.value);
-      if (!appended.ok) {
-        return err(
-          auditWriteFailure(
-            `「${draft.name}」は作られていて、読む人からも見えます`,
-            appended.error.details,
-          ),
-        );
-      }
+          missingTrustPages: trustGaps.map(String),
+          summary: `「${draft.name}」を作りました。${blueprint.value.pages.length}種類のページと${blueprint.value.categories.length}個のカテゴリーが用意されています。`,
+        });
+      };
 
-      const trustGaps = missingTrustPages(blueprint.value);
-      return ok({
-        slug: draft.slug,
-        name: draft.name,
-        readerPath: `/s/${draft.slug}`,
-        pageCount: blueprint.value.pages.length,
-        categoryCount: blueprint.value.categories.length,
-        missingTrustPages: trustGaps.map(String),
-        summary: `「${draft.name}」を作りました。${blueprint.value.pages.length}種類のページと${blueprint.value.categories.length}個のカテゴリーが用意されています。`,
-      });
+      // 作り直しは同じ設計図を上書きするだけで、ブログ件数を増やさない。
+      if (draft.createdSiteSlug !== null) return publish();
+      return deps.capacity.withLease(actor.workspaceId, "site", publish);
     },
   };
 }

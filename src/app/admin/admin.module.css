@@ -3,201 +3,110 @@
  * 色・余白・文字サイズは必ずトークン変数を使う（この値をここで作らない）。
  */
 
+/*
+ * 節の見出し。管理画面の 176 箇所で使う。
+ *
+ * **`font-weight` は必ず書くこと。書き忘れると 400 に落ちる。**
+ * `globals.css` の `@import "tailwindcss"` が Preflight を連れてきて、
+ * その中に `h1..h6 { font-size: inherit; font-weight: inherit }` がある
+ * （`node_modules/tailwindcss/preflight.css:81`）。Preflight は `@layer base` の
+ * 中なので、layer の外に居る CSS Modules は**詳細度で勝てる**——だが
+ * **勝ち負け以前に、書いていない宣言は勝ちようがない。**
+ * 「レイヤーの外だから安全」は、書いてある宣言にしか効かない。
+ *
+ * 2026-08-21 まで、ここには `font-weight` が無かった。大きさと色は書いてあるので
+ * **半分だけ効いて見え**、壊れているようには見えない。その結果、
+ * 管理画面の節見出し 176 箇所が、アプリ内の他のどの見出しより 1 段軽いまま出ていた
+ * （兄弟は全部 600 か 700: `site.module.css` の `.sectionHeading` / `.cardTitle`、
+ * `patterns.module.css` の `.sectionHeading`、`ui.module.css` の `.pageTitle`）。
+ *
+ * **在るものの誤りではなく、無いことの誤りである。**値の直書きを見張る検査にも、
+ * トークンの検査にも、`tsc` にも出ない。jsdom は CSS Modules も Tailwind も
+ * 適用しないので `tests/ui` でも出ない。**見張りは「宣言が在ること」を数える側に要る。**
+ */
+/*
+ * **押しどころの下限をここへ書いていないのは、書き忘れではない。**
+ *
+ * 2026-08-21 の走査で、この見出しを包むリンクが 7 本「下限の宣言が無い」として出た
+ * （`admin/evidence` 4 / `admin/sites` 3。どちらも `<h2 class="sectionTitle"><Link>…`）。
+ * 直せば緑になるが、**その緑は「小さかったものが大きくなった」を意味しない。**
+ * ここは `--text-lg` の見出しで、行の高さはすでに下限を超えている見込みが高い。
+ * jsdom は組版をしないので**足す前が足りていたのかを確かめられない**（残課題 143）。
+ *
+ * `patterns.module.css` の `.cardTitle` / `.productCardName`、
+ * `site.module.css` の `.siteName` も同じ理由で保留してある。
+ * **測れない変更を入れて緑にするより、保留のほうがまし。**
+ * 実物を見てから決める（`docs/product/ui-ux-tasks.md` の「実物で見る項目」／残課題 155）。
+ *
+ * **2026-08-21 夜、扱いを「赤のまま」から「名指しの保留」へ変えた。**判断は
+ * 変えていない（直す先は依然ここで、実物を見るまで直さない）。変えたのは
+ * 見張りの側で、`tests/ui/screen-hit-and-current.test.tsx` の `PENDING` に
+ * 入れ物を名指しで挙げ、それ以外は赤にした。**赤のまま置くと 16 件目が
+ * 混ざっても見分けが付かず、新しい違反が保留の陰に隠れる。**
+ * ここに下限を足したら、あちらの一覧からも外すこと（残っていると赤になる）。
+ */
 .sectionTitle {
   margin: 0 0 var(--space-2);
   font-size: var(--text-lg);
+  font-weight: var(--weight-semibold);
   line-height: var(--leading-heading);
   color: var(--color-text-strong);
 }
 
 /*
- * 節の説明文。
+ * 節の説明文の書式は、ここには無い。
  *
- * **行の長さに上限を置く。** 置かないと、画面を広げたぶんだけ 1 行が伸びる。
- * 幅 1024px・16px の文字で 1 行 64 字になり、行を追うときに戻り先を見失う。
- * 上限は 34rem（全角で約 34 字）。表やカードは広く使ってよいが、
- * 読ませる文だけは別に絞る。
+ * `screen-parts.module.css` の `.lead` が持っており、画面からは `Prose`
+ * （見出しを伴わない前書き・後書き）か `Section` / `SubSection` の `lead`
+ * （見出しに続く 1 文）を通して使う。
+ *
+ * 元はここに `.sectionLead` があり、`.lead` と 1 行も違わない同じ宣言だった
+ * （2026-08-22 / ah-jbj）。**役割が同じものが 2 つの css に分かれていると、
+ * 行の長さを直したときに片方だけが直る。** 写しが生まれた理由は、当時
+ * 見出しを伴わない文を置く口が無かったこと。`Prose` がその口である。
  */
-.sectionLead {
-  max-width: var(--readable-max-width);
-  margin: 0 0 var(--space-4);
-  font-size: var(--text-sm);
-  color: var(--color-text-muted);
-}
 
-.linkList {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-3);
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.linkList > li {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-1);
-}
-
+/*
+ * 行に添える小書き。
+ *
+ * 一覧の中で使われていた分（役A）は `StackedRow` の `note` へ移った。
+ * **残っているのは `<li>` の外に出ている 5 箇所（役C）で、これは注記ではない。**
+ * 内訳は `settings/llm` 1・`tools` 2・`feedback` 1・`generation` 1。
+ * （記録では 6 だったが、`improvement` の 1 件は `<li>` の中の置換跡だった
+ * ——`StackedRow` の `note` が注記を持っているのに、固定文の `<span>` が
+ * 中身の側に残り、**各行に同じ文が n 回並んでいた**。消してある。）
+ * とくに `admin/feedback/page.tsx` の 1 件は `<label>` の中にあり、
+ * **チェックボックスのラベル文そのもの**である。見た目が同じというだけで
+ * 注記の部品へ通すと、**表示は合ったまま意味が嘘になる**（残課題 148）。
+ *
+ * つまりこの規則が残っているのは、**まだ移していないからではなく、
+ * 移してはいけないものが残っているから**である。
+ */
 .linkNote {
   font-size: var(--text-sm);
   color: var(--color-text-muted);
 }
 
-/* --- 公開済み記事の管理 -------------------------------------------- */
-
-.publishedFilter {
-  display: grid;
-  grid-template-columns: minmax(0, 2fr) minmax(0, 1fr) auto;
-  align-items: end;
-  gap: var(--space-3);
-}
-
-.publishedFilter label {
-  display: grid;
-  gap: var(--space-2);
-  color: var(--color-text-strong);
-  font-size: var(--text-sm);
-  font-weight: var(--weight-semibold);
-}
-
-.publishedFilter input,
-.publishedFilter select,
-.publishedFilter button {
-  min-height: var(--tap-target-min);
-  border: var(--border-width-default) solid var(--color-border-default);
-  border-radius: var(--radius-md);
-  font: inherit;
-}
-
-.publishedFilter input,
-.publishedFilter select {
-  padding-inline: var(--space-3);
-  background: var(--color-surface-default);
-  color: var(--color-text-default);
-}
-
-.publishedFilter button {
-  padding-inline: var(--space-4);
-  background: var(--color-action-default);
-  color: var(--color-text-on-action);
-  cursor: pointer;
-}
-
-.publishedTableHost {
-  width: 100%;
-  overflow-x: auto;
-  container-type: inline-size;
-}
-
-.publishedTable {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: var(--text-sm);
-}
-
-.publishedTable th,
-.publishedTable td {
-  padding: var(--space-3);
-  text-align: left;
-  vertical-align: top;
-  border-bottom: var(--border-width-default) solid var(--color-border-subtle);
-}
-
-.publishedTable th {
-  color: var(--color-text-muted);
-  font-size: var(--text-xs);
-  font-weight: var(--weight-semibold);
-  white-space: nowrap;
-}
-
-.publishedTable td:first-child {
-  min-width: var(--card-min-width);
-}
-
-.publishedTable td:first-child span {
-  display: block;
-  margin-top: var(--space-1);
-  color: var(--color-text-muted);
-}
-
-.publishedTable td:last-child {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-3);
-  white-space: nowrap;
-}
-
-.publishedStatus {
-  display: inline-flex;
-  align-items: center;
-  min-height: var(--space-6);
-  padding-inline: var(--space-2);
-  border: var(--border-width-default) solid var(--color-border-default);
-  border-radius: var(--radius-pill);
-  background: var(--color-surface-raised);
-  font-size: var(--text-xs);
-  font-weight: var(--weight-semibold);
-  white-space: nowrap;
-}
-
-.publishedEditor {
-  display: grid;
-  gap: var(--space-4);
-}
-
-.publishedMeta {
-  display: grid;
-  gap: var(--space-3);
-  margin: 0;
-}
-
-.publishedMeta div {
-  display: grid;
-  grid-template-columns: 1fr 3fr;
-  gap: var(--space-3);
-}
-
-.publishedMeta dt {
-  color: var(--color-text-muted);
-  font-size: var(--text-sm);
-}
-
-.publishedMeta dd {
-  margin: 0;
-  overflow-wrap: anywhere;
-}
-
-.creationSteps {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: var(--space-4);
-  list-style: none;
-  margin: 0;
-  padding: 0;
-}
-
-.creationSteps li > * {
-  height: 100%;
-}
-
-.creationSteps span {
-  color: var(--color-text-muted);
-  font-variant-numeric: tabular-nums;
-  font-weight: var(--weight-bold);
-}
-
-.creationSteps h2,
-.creationSteps p {
-  margin: 0;
-}
-
-.creationSteps h2 {
-  font-size: var(--text-lg);
-}
-
 /* --- 順位の表 ---------------------------------------------------------- */
+
+/*
+ * 表を横へ流すための器。**`.rankTable` を使うなら必ず包むこと。**
+ *
+ * 積む規則を消した（下の、消した `@media` についての注記を読むこと）ので、器が無いと狭い画面で
+ * 表が画面幅を突き破る。`.rankTable { display: block; overflow-x: auto }` で
+ * 逃げてはいけない——`display: block` にした表は支援技術から行列の関係が
+ * 失われ、**今回避けたばかりの「名前を失う」と同じ害**になる。
+ *
+ * `patterns.module.css` の `.tableWrap`（`DataTable` が使う器）と同じ骨だが、
+ * 借りずに持っている。管理画面の CSS が部品の CSS を読むと、
+ * 部品側の都合で変えた日にここが黙って壊れるため。
+ * 型 D/E の 2 件が `DataTable` へ入れば、この器ごと消える。
+ */
+.rankTableWrap {
+  overflow-x: auto;
+  border: var(--border-width-default) solid var(--color-border-subtle);
+  border-radius: var(--radius-md);
+}
 
 .rankTable {
   width: 100%;
@@ -219,6 +128,48 @@
   white-space: nowrap;
 }
 
+/*
+ * 升目に単独で置かれた行き先。`patterns.module.css` の `.table td > a` と同じ骨だが、
+ * **借りずに持っている**（この表が向こうの器を借りない理由は `.rankTableWrap` の注記）。
+ *
+ * `td` だけで `th` を書いていないのは、**この表の `th` に行き先が 1 つも無いから**である
+ * （`admin/content/matrix` は行の名前、`admin/feedback` は届いた日）。
+ * 向こうの `.table` は `rowHeader: true` の列にリンクを描いているので `th` も書いてある。
+ * **形を揃えるためではなく、実際に居るものに合わせて書くこと。**
+ * `th` にリンクを置いた日に、ここへ 1 行足す。
+ *
+ * 2026-08-21 に確かめた中身: `admin/content/matrix` の升目は「状態の文字か、
+ * リンク 1 本か」のどちらか、`admin/feedback` の升目は要望の見出し 1 本。
+ * **文の中にリンクが埋まっている升目は無い。**
+ */
+.rankTable td > a {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--tap-target-min);
+}
+
+/*
+ * チェックの押しどころ。**箱ではなく、文字を含めた `label` 全体が押しどころである。**
+ * 走査もそう見ている（`el.closest("label")` を通して、囲っている側が下限を持つなら足りている
+ * と判断する）ので、`input` に下限を書くのは誤りになる——箱だけ大きくなって、
+ * **文字の上を押しても反応する範囲は変わらない。**
+ *
+ * `inline-flex` は下限を効かせるために要る。`td` は flex の器ではないので、
+ * 素の `label`（`display: inline`）に `min-height` を書いても当たらない。
+ *
+ * 中身は箱と文字の 2 つで、**横に並べるのが正しい**（箱はその文字の説明に付いている）。
+ * `flex-row-shape.test.ts` の除外一覧に、その理由で 1 行入れてある。
+ *
+ * `gap` を書いていないのは書き忘れではない。**いまの JSX は箱と文字の間に空白を持たない**
+ * （改行だけで区切られた要素どうしは詰められる）ので、ここで隙間を足すと
+ * 「下限を張った」ではなく「見た目を変えた」になる。隙間の是非は実物を見る側の話。
+ */
+.rankTable label {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--tap-target-min);
+}
+
 /* 数字は桁を揃えて右寄せにする。並べて比べるための列なので。 */
 .numeric {
   text-align: right;
@@ -232,6 +183,9 @@
   min-width: var(--space-6);
   padding: var(--space-1) var(--space-2);
   border-radius: var(--radius-sm);
+  /* 順位の丸を背景だけで作らない（UX-08）。強制配色では背景が地の面へ均されるので、
+     輪郭が無いと「1」「2」がただの数字になって順位に見えなくなる。 */
+  border: var(--border-width-default) solid var(--color-border-default);
   background: var(--color-action-subtle);
   color: var(--color-text-strong);
   font-weight: var(--weight-bold);
@@ -248,114 +202,64 @@
   font-size: var(--text-xs);
 }
 
-.criteria {
-  display: grid;
-  gap: var(--space-2);
-  margin: 0;
-  padding: 0;
-}
+/*
+ * **かつてここには `.criteria`（項目と値の対）があった。2026-08-21 に消した。**
+ * 27 箇所で使われていて、うち 1 つは `src/app/signin/page.tsx` からの
+ * 借り物だった（ログイン画面が管理画面の CSS を読んでいた）。
+ * `DefinitionList`（`src/presentation/ui/patterns/definition-list.tsx`）へ
+ * 上げて全部そこを通したので、この名前はもう誰も使っていない。
+ * 借り物は 3 つから 2 つ（`.sectionTitle` / `.linkNote`）へ減った。
+ *
+ * `patterns.module.css` にも `.criteria` があるが**別物**である
+ * （枠と背景を持つ「評価基準の箱」）。名前が同じで意味が違うので、
+ * 新しい部品側は `def` で始まる名前にしてある。
+ * **`grep styles.criteria` は 5 件出るが、4 件はそちらで 1 件は doc の引用である。**
+ * 数える前に体系を分けないと、この 5 が「まだ使われている」に見える。
+ */
 
-.criteria dt {
-  color: var(--color-text-strong);
-  font-weight: var(--weight-semibold);
-}
-
-.criteria dd {
-  margin: 0 0 var(--space-2);
-  color: var(--color-text-muted);
-  font-size: var(--text-sm);
-}
-
-@media (width < 48rem) { /* --breakpoint-md */
-  .publishedFilter,
-  .creationSteps {
-    grid-template-columns: 1fr;
-  }
-
-  .publishedFilter label {
-    grid-row: auto;
-  }
-
-  .publishedFilter input,
-  .publishedFilter select,
-  .publishedFilter button {
-    width: 100%;
-  }
-
-  .publishedMeta div {
-    grid-template-columns: 1fr;
-    gap: var(--space-1);
-  }
-
-  .publishedTableHost {
-    overflow-x: visible;
-  }
-
-  .publishedTable,
-  .publishedTable tbody,
-  .publishedTable tr,
-  .publishedTable td {
-    display: block;
-    width: 100%;
-  }
-
-  .publishedTable thead {
-    display: none;
-  }
-
-  .publishedTable tr {
-    padding: var(--space-4);
-    border: var(--border-width-default) solid var(--color-border-default);
-    border-radius: var(--radius-lg);
-  }
-
-  .publishedTable tr + tr {
-    margin-top: var(--space-3);
-  }
-
-  .publishedTable td,
-  .publishedTable td:first-child {
-    min-width: 0;
-    padding: var(--space-2) 0;
-    border: 0;
-  }
-
-  .publishedTable td::before {
-    display: block;
-    margin-bottom: var(--space-1);
-    color: var(--color-text-muted);
-    content: attr(data-label);
-    font-size: var(--text-xs);
-    font-weight: var(--weight-semibold);
-  }
-
-  /* 狭い画面では表を積む。横スクロールで隠れる列を作らない。 */
-  .rankTable,
-  .rankTable tbody,
-  .rankTable tr,
-  .rankTable td {
-    display: block;
-    width: 100%;
-  }
-
-  .rankTable thead {
-    display: none;
-  }
-
-  .rankTable tr {
-    padding: var(--space-3) 0;
-    border-bottom: var(--border-width-default) solid var(--color-border-subtle);
-  }
-
-  .rankTable td {
-    padding: var(--space-1) 0;
-    border: 0;
-  }
-
-  .numeric {
-    text-align: left;
-  }
-}
+/*
+ * **かつてここには `@media (width < 48rem)` のブロックがあった。2026-08-21 に消した。**
+ *
+ * ① 「狭い画面では表を積む」規則。
+ * 元の理由は「横スクロールで隠れる列を作らない」——**隠れた列に気づけない**ことを
+   * 嫌ったものだった。だが積む形は `thead { display: none }` と一体で、
+   * **列の名前そのものを失わせる**。隠れた列は横へ流せば出てくるが、
+   * 名前を失った値は復元する手立てが画面上に無い。
+   * 元の決定が嫌ったものを、より強い形で実現していた。
+   * 判断の全文は `src/presentation/ui/patterns/data-table.tsx` の doc にある。
+   *
+   * **消す踏ん切りが付いたのは、当たり先が反転したのを見たからである。**
+   * 置き換え前は 34 の表に薄く当たっていて、多くは 4 列の読む表だったので
+   * 害は中くらいだった。`DataTable` への置き換えで母数が 2 件まで減った結果、
+   * 規則の当たり先が**「害が小さい多数」から「害が最大の 2 件」へ移った**——
+   *
+   *   - `feedback:168` は 10 列で、1 列目がフォームの入力（チェックボックス）。
+   *     列の名前が消えると、**何にチェックを入れているか分からないまま送信できる**。
+   *   - `content/matrix:176` は交差表で、セルの意味は列の見出しにしかない。
+   *     「◯」がどの媒体の◯なのかをセル自身は言わないので、見出しを消すと
+   *     値は復元できないのではなく**最初から意味を持たない**。
+   *
+ * **規則を変えていないのに悪化した。**除外リストは、除外した理由の順に
+ * 並ぶわけではない——部品化から外れる理由（列が実行時に決まる／form の一部）と、
+ * 積むと壊れる度合いは無関係だった。**母数が変わったら、規則が誰に当たって
+ * いるかを数え直すこと。**
+ *
+ * ② `.numeric` を狭い画面で左寄せへ戻す規則。①を消したときは残した。
+ * 理由は「`styles.numeric` は 22 箇所で使われていて、うち 16 箇所は `<dl>` の中。
+ * 積んだ形では右寄せの数字がラベルから離れて浮くから左へ戻す」だった。
+ * その数時間後に `<dl>` を 27 箇所とも `DefinitionList` へ上げたので、
+ * **`admin.module.css` の `.numeric` を読む使用は 1 箇所だけになった**
+ * （`feedback/page.tsx:212`。しかもそれは `.rankTable` の中）。左へ戻す相手が居ない。
+ * 一時は `.rankTable .numeric` で打ち消す形にしたが、**2 行が互いを潰し合って
+ * 何もしていない**状態だったので、ブロックごと落とした。
+ *
+ * **これは今日 2 度目である。**①も②も、規則そのものは触っていないのに
+ * 母数が動いて意味が変わった。**母数を動かす作業をしたら、その作業の中で
+ * 規則を数え直すこと**——あとで気づくのではなく。
+ *
+ * `<dl>` 側の寄せは `patterns.module.css` の `.defNumeric` が持っている。
+ * そちらは右寄せをそもそも採っていない（理由は向こうのコメントに）。
+ */
 
 /* --- 部品の見本帳 ------------------------------------------------------ */
 
@@ -450,15 +354,14 @@
   font-size: var(--text-sm);
 }
 
-/* 読ませる文の行の長さ。左は器の幅いっぱいまで伸びる。 */
+/*
+ * 読ませる文の行の長さ、直す前。器の幅いっぱいまで伸びる。
+ *
+ * 「直したあと」の側はここに無い。**見本は実物でなければならない**ので、
+ * `Prose` をそのまま置く（2026-08-22 / ah-jbj）。写しを置くと、`Prose` を
+ * 直した日に見本だけが古くなり、見比べる画面が嘘をつく。
+ */
 .densityProse {
-  font-size: var(--text-sm);
-  line-height: var(--leading-body);
-  color: var(--color-text-muted);
-}
-
-.densityProseFixed {
-  max-width: var(--readable-max-width);
   font-size: var(--text-sm);
   line-height: var(--leading-body);
   color: var(--color-text-muted);

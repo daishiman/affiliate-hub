@@ -1,0 +1,7 @@
+{
+  "schema_version": "1.0.0",
+  "feature_package_id": "feature-package/feat-blog-ui-builder",
+  "published_path": ".dev-graph/published/feature-package-feat-blog-ui-builder",
+  "published_digest": "sha256:9a2832f2d6f8656f3495435827399bed84d70c893a027d828694b07b46506fe1",
+  "receipt": ".dev-graph/published/feature-package-feat-blog-ui-builder/atomic-promotion-receipt.json"
+}

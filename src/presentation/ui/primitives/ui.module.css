@@ -62,6 +62,54 @@
   color: var(--color-text-default);
 }
 
+/*
+ * 強制配色（Windows のハイコントラスト）でのボタンの区別。
+ *
+ * --- 何が起きるか（2026-08-21 実測、UX-08）---
+ * 強制配色では色が利用者の配色へ**均される**。消えるのではなく、
+ * 4 つの tone が全部同じ ButtonFace / ButtonText になり、
+ * **「主操作はどれか」だけが落ちる。**1 画面に 1 つだけ置く決まりが意味を失う。
+ *
+ * --- なぜ border を足すだけでは駄目だったか ---
+ * 基底 `.button` は `border: ... solid transparent` を持っている。
+ * 強制配色は色を上書きするが、**`transparent` は例外として保たれる**
+ * （CSS Color Adjust L1）。つまり「枠はあるが見えない」まま残る。
+ * ここで色を明示して初めて枠が出る。
+ *
+ * `Highlight` / `ButtonText` は利用者の配色から来る名前で、生の色ではない。
+ * トークンを噛ませないのは、トークンも同じく均されて意味が無くなるため。
+ */
+@media (forced-colors: active) {
+  .buttonPrimary {
+    border-color: Highlight;
+    border-width: var(--border-width-emphasis);
+  }
+
+  /* 素の状態で輪郭ゼロなので、hover の背景も均されると触れた手応えが消える。 */
+  .buttonQuiet:hover:not(:disabled) {
+    border-color: ButtonText;
+  }
+}
+
+/*
+ * **`.navGroupLabel` に輪郭を足しかけて、戻した。**（2026-08-21）
+ *
+ * `tests/ui/surface-outline-count.test.ts` の `EXEMPT` に「**ここは輪郭が
+ * 要る側**。地色が消えると文字が行に食い込んで見える」と書いてあったので、
+ * `@media (forced-colors: active) and (width >= 48rem)` に `border-bottom` を
+ * 足した。**前提が誤っている。**
+ *
+ * 強制配色は色を**消すのではなく均す**（CSS Color Adjust L1）。`background`
+ * は `Canvas` などへ上書きされるだけで**不透明なまま残る**ので、貼り付いた
+ * 見出しは相変わらず下の行を隠す。消えるのは `box-shadow` と、`transparent`
+ * として書かれた色だけ。`docs/product/ui-ux-tasks.md` UX-08 ②は、まさに
+ * この理屈で「②は手を入れない。**入れると、強制配色で普通に動いている所を
+ * 壊す**」と結論している。
+ *
+ * **同じ日に書かれた 2 つの記録が、この 1 クラスについて正反対を向いていた。**
+ * doc が正しい。見張り側の理由文を直した（あちらに経緯を書いてある）。
+ */
+
 /* 取り消せない操作。押す前に確認を出す前提で使う。 */
 .buttonDanger {
   background: var(--color-surface-default);
@@ -213,6 +261,32 @@
   align-self: flex-start;
 }
 
+/*
+ * 理由の箱の導線に、押しどころの下限を持たせる。
+ *
+ * **ここは 79 箇所ある。**`Callout` の `action=` 枠は全部この中に入り、
+ * 78 が `<Link>`、1 つが素の `<a>`（`admin/rankings/page.tsx:57` の
+ * ページ内アンカー）。**要素の種類は 1 件だけ違うが、下限の欠落は
+ * 79 箇所そろって在った。**違いの在る場所と、壊れの在る場所は別である。
+ * だから `<a>` を `<Link>` へ揃えても押しどころは 1mm も直らない——
+ * 直すのは**入れ物の側**で、1 本で 79 箇所に効く。
+ *
+ * **`display` を書いているのは、ここでは書かないと効かないから。**
+ * `.callout` は `display: flex` の縦並びなので `.calloutAction`（span）は
+ * flex 項目として block 化されるが、**その子の `<a>` は素の inline** で、
+ * inline には `min-height` が効かない。`inline-flex` にして初めて効く。
+ *
+ * **下限を `.calloutAction` の側へ書かないこと。**あちらは span で、
+ * 押せるのは中の `<a>` だけである。span を 44px にすると
+ * `screen-hit-and-current.test.tsx` は緑になるが、**指で押せる面積は
+ * 1px も増えない**（検査だけが通る形）。
+ */
+.calloutAction > a {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--tap-target-min);
+}
+
 /* --- 4 つの状態 --------------------------------------------------------- */
 
 .state {
@@ -267,22 +341,6 @@
   background: var(--color-surface-sunken);
 }
 
-.skipLink {
-  position: fixed;
-  inset-block-start: var(--space-2);
-  inset-inline-start: var(--space-2);
-  z-index: var(--z-overlay);
-  padding: var(--space-2) var(--space-3);
-  border-radius: var(--radius-md);
-  background: var(--color-text-strong);
-  color: var(--color-surface-default);
-  transform: translateY(calc(-100% - var(--space-3)));
-}
-
-.skipLink:focus {
-  transform: translateY(0);
-}
-
 /*
  * 左の案内。
  *
@@ -306,9 +364,13 @@
   border-right: var(--border-width-default) solid var(--color-border-subtle);
 }
 
-.brandBlock {
-  display: grid;
-  gap: var(--space-1);
+/* 名前と畳むボタンの行。畳んでもボタンだけは残る（戻す口が消えると詰む）。 */
+.sidebarHead {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  align-items: center;
+  justify-content: space-between;
   margin-bottom: var(--space-4);
 }
 
@@ -316,13 +378,81 @@
   font-size: var(--text-lg);
   font-weight: var(--weight-bold);
   color: var(--color-text-strong);
-  text-decoration: none;
 }
 
-.brandContext {
-  color: var(--color-text-muted);
-  font-size: var(--text-xs);
-  letter-spacing: var(--tracking-wide);
+/*
+ * 畳んだ状態。
+ *
+ * **潰すのは見た目だけ。** 項目の名前も行き先も HTML には残っているので、
+ * 読み上げでは畳む前と何も変わらない。見えるものを減らすために、
+ * 聞こえるものまで減らさない。
+ *
+ * 判定を 2 か所に書いてあるのは、最初の描画（サーバー側）が骨格の属性を、
+ * 押したあと（ブラウザ側）が html の属性を立てるため。
+ * html 側を後に書いて、押した結果が最初の描画より強くなるようにしている。
+ */
+.shell[data-nav-collapsed="true"] {
+  grid-template-columns: auto 1fr;
+}
+
+.shell[data-nav-collapsed="true"] .navLabel,
+.shell[data-nav-collapsed="true"] .navGroupLabel,
+.shell[data-nav-collapsed="true"] .brandName {
+  /* 読み上げからは消さない。消すと、押せる何かが 19 個並ぶだけの画面になる。 */
+  position: absolute;
+  width: var(--sr-only-size);
+  height: var(--sr-only-size);
+  padding: 0;
+  margin: calc(-1 * var(--sr-only-size));
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+:global(:root[data-nav-collapsed="false"]) .shell {
+  grid-template-columns: var(--layout-sidebar-width) 1fr;
+}
+
+:global(:root[data-nav-collapsed="false"]) .navLabel,
+:global(:root[data-nav-collapsed="false"]) .navGroupLabel,
+:global(:root[data-nav-collapsed="false"]) .brandName {
+  position: static;
+  width: auto;
+  height: auto;
+  margin: 0;
+  overflow: visible;
+  clip-path: none;
+  white-space: normal;
+}
+
+:global(:root[data-nav-collapsed="true"]) .shell {
+  grid-template-columns: auto 1fr;
+}
+
+:global(:root[data-nav-collapsed="true"]) .navLabel,
+:global(:root[data-nav-collapsed="true"]) .navGroupLabel,
+:global(:root[data-nav-collapsed="true"]) .brandName {
+  position: absolute;
+  width: var(--sr-only-size);
+  height: var(--sr-only-size);
+  padding: 0;
+  margin: calc(-1 * var(--sr-only-size));
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* 目印のアイコン。畳んだときに残るのはこれだけなので、幅を固定して縦に揃える。 */
+.navIcon {
+  flex: none;
+  width: var(--icon-md);
+  display: inline-grid;
+  place-items: center;
+  color: currentColor;
+}
+
+.navLabel {
+  min-width: 0;
 }
 
 .navGroup {
@@ -447,26 +577,58 @@
   min-width: 0;
 }
 
-/* 現在地と退避先は常に見える位置に固定する。 */
+/*
+ * 現在地と退避先は常に見える位置に固定する。
+ *
+ * **この帯は `position: sticky` である。**溢れたら画面の上端に貼り付いたまま残り、
+ * 下へ送っても消えない。管理画面 32 枚すべての骨格なので、狭い画面での逃げ道を
+ * ここに持たせないと 32 枚が同時に読めなくなる。
+ *
+ * **寄せ方を `justify-content` に持たせない。** `space-between` は
+ * 「1 行に収まっている」ことを前提にした指定で、折り返した瞬間に意味が変わる
+ * （行が 1 つずつになるので、両端に寄せる相手が消えて左寄せに戻る）。
+ * 代わりに `.headerActions` の `margin-inline-start: auto` で寄せる。
+ * こちらは行が 1 本でも 2 本でも「操作は行の右端」で同じことを言う。
+ */
 .header {
   position: sticky;
   top: 0;
   z-index: var(--z-sticky);
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: var(--space-4);
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-4);
   padding: var(--space-3) var(--space-5);
   background: var(--color-surface-default);
   border-bottom: var(--border-width-default) solid var(--color-border-subtle);
 }
 
+/*
+ * **`min-width: 0` が要る。**flex の子の最小幅は既定で `auto`、つまり
+ * 中身より小さくならない。パンくずは画面名をそのまま並べるので、
+ * 深い画面（3 段が 13 枚ある）では帯ごと横へ広がって溢れる。
+ * `.main` は同じ理由で既にこれを持っていて（この上）、帯の子だけが持っていなかった。
+ *
+ * 縮められるようにしたうえで、縮めた先で切り落とさずに折り返す。
+ * パンくずは「どこから来たか」なので、末尾だけ残して切ると意味が消える。
+ */
 .breadcrumb {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
+  min-width: 0;
   gap: var(--space-2);
   font-size: var(--text-sm);
   color: var(--color-text-muted);
+}
+
+/* パンくずの親へ戻るリンクは、退避先そのもの。**いちばん押される的が
+   いちばん小さかった**（文字の高さぶんしか無かった）。行の中に置いたまま
+   高さだけ下限まで伸ばすので、`inline-flex` で寄せる。 */
+.breadcrumb a {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--tap-target-min);
 }
 
 .breadcrumbCurrent {
@@ -474,37 +636,67 @@
   color: var(--color-text-strong);
 }
 
+/*
+ * 操作。**寄せ方はここが持つ**（`.header` の注釈を参照）。
+ * 操作が増えた画面では、この中でも折り返す。折り返した行は右端に揃える
+ * ——押す的が行ごとに左右へ動くと、目で追う位置が定まらない。
+ */
 .headerActions {
   display: flex;
-  gap: var(--space-2);
-  align-items: center;
   flex-wrap: wrap;
+  justify-content: flex-end;
+  margin-inline-start: auto;
+  gap: var(--space-2);
 }
 
-.headerActions a {
+/*
+ * 見出しの右肩に並ぶ導線に、押しどころの下限を持たせる。
+ *
+ * 隣に `Button` が並ぶ位置なので、**押せる大きさが揃っていないと
+ * リンクだけが細い**。実測 35 箇所（2026-08-21、残課題 146）。
+ *
+ * **`display` を書いても箱は動かない。**`.headerActions` は `display: flex`
+ * なので、中の `<a>` は flex 項目として既に block 化されている
+ * （`inline-flex` は flex 項目の上では `flex` に計算される）。
+ * つまり外側の見え方は変わらず、**変わるのは内側だけ**で、
+ * `align-items: center` で字を 44px の箱の中央へ置けるようになる。
+ * これを書かないと、字は箱の上端に張り付く。
+ *
+ * **`.breadcrumb a`（下の方に在る）と同じ形に見えるが、理由が違う。**
+ * あちらは地の文の中の inline なので `inline-flex` が無いと下限が効かない。
+ * ここは既に block 化されているので、下限だけなら `min-height` で足りる。
+ * **前例が在ることは、前例と同じ理由が在ることを意味しない。**
+ */
+.headerActions > a {
   display: inline-flex;
   align-items: center;
-  justify-content: center;
   min-height: var(--tap-target-min);
-  padding-inline: var(--space-3);
-  border: var(--border-width-default) solid var(--color-border-default);
-  border-radius: var(--radius-md);
-  background: var(--color-surface-default);
-  color: var(--color-text-default);
-  font-size: var(--text-sm);
-  font-weight: var(--weight-semibold);
-  text-decoration: none;
-}
-
-.headerActions a:hover,
-.headerActions a:focus-visible {
-  border-color: var(--color-border-strong);
-  background: var(--color-surface-raised);
 }
 
 .content {
+  /*
+   * 右下に浮くボタンの逃げ場。**画面の広さで変えない。**
+   *
+   * ここに名前を付けてあるのは、狭い画面用の指定が下の方で `padding` の
+   * まとめ書きをするからである。まとめ書きは下余白ごと上書きするので、
+   * 向こう側でもう一度この名前を書く。数値を書き写すと片方だけ古くなる。
+   */
+  --overlay-clearance: calc(var(--tap-target-min) + var(--space-4) * 2);
   flex: 1;
   padding: var(--space-5);
+  /*
+   * 下だけ深くしてある。**右下に固定された「改善したいことを送る」の逃げ場。**
+   *
+   * 2026-08-26 に実測: 本物のブラウザで開くと、21 画面で固定ボタンが本文の
+   * 最後の操作（保存・やめる・一覧へ戻る・入力欄の右下）に 20% 以上重なっていた。
+   * 重なった側は押せない。押せないのは**画面ごとの最後の 1 手**なので、
+   * 「保存できない画面」として届く。
+   *
+   * ボタン自身の高さ（`--tap-target-min`）と、下端からの浮き（`--space-4`）の
+   * 両方を空ける。ボタンの寸法を変えたらここも動く関係にあるので、
+   * 数値ではなく同じ変数から作る。
+   */
+  padding-bottom: var(--overlay-clearance);
 }
 
 /*
@@ -516,7 +708,7 @@
  *
  * 幅の上限は「一覧・表」の 72rem。以前は「本文カラム」の 64rem を中身の種類に関係なく
  * 当てていたが、管理画面の中身はほとんどが一覧・表・入力欄で、本文ではない。
- * 読ませる文の行の長さは `.pageLead` と `.sectionLead` が別に絞る。
+ * 読ませる文の行の長さは `.pageLead` と `screen-parts.module.css` の `.lead` が別に絞る。
  */
 .page {
   display: grid;
@@ -526,18 +718,15 @@
   margin: 0 auto;
 }
 
+/* grid子の既定min-width:autoで、内側の表や長い語が画面全体を押し広げないようにする。 */
+.page > * {
+  min-width: 0;
+}
+
 /* 見出しと説明文は 1 組。間隔だけ上の gap より詰めて、続きものだと分かるようにする。 */
 .pageHead {
   display: grid;
   gap: var(--space-2);
-}
-
-.pageEyebrow {
-  margin: 0;
-  color: var(--color-text-muted);
-  font-size: var(--text-xs);
-  font-weight: var(--weight-bold);
-  letter-spacing: var(--tracking-wide);
 }
 
 .pageTitle {
@@ -548,7 +737,7 @@
   color: var(--color-text-strong);
 }
 
-/* この画面で何ができるかの 1 文。読ませる文なので行の長さを絞る（`.sectionLead` と同じ理由）。 */
+/* この画面で何ができるかの 1 文。読ませる文なので行の長さを絞る（`screen-parts.module.css` の `.lead` と同じ理由）。 */
 .pageLead {
   max-width: var(--readable-max-width);
   margin: 0;
@@ -583,25 +772,8 @@
     border-bottom: var(--border-width-default) solid var(--color-border-subtle);
   }
 
-  .brandBlock {
+  .brandName {
     display: none;
-  }
-
-  .header {
-    align-items: stretch;
-    flex-direction: column;
-    gap: var(--space-2);
-    padding: var(--space-3);
-  }
-
-  .breadcrumb,
-  .headerActions {
-    overflow-x: auto;
-    flex-wrap: nowrap;
-  }
-
-  .headerActions a {
-    flex: none;
   }
 
   /* 横に流れる並びでも分類は残す。消すと、狭い画面だけ 19 項目の横並びに戻る。 */
@@ -633,6 +805,15 @@
 
   .content {
     padding: var(--space-4) var(--space-3);
+    /*
+     * **まとめ書きの後に、もう一度。**
+     *
+     * 上の `padding` は下余白も 0 に戻す。狭い画面ほど浮いたボタンは本文の
+     * 横幅いっぱいに被るので、逃げ場が無いと最後の操作が一生隅に隠れる。
+     * 2026-08-26 の実測では、狭い画面だけ 11 画面がこれで落ちた
+     *（広い画面は本文が広く、ボタンが右端にしか無いので当たらなかった）。
+     */
+    padding-bottom: var(--overlay-clearance);
   }
 }
 
@@ -682,4 +863,72 @@
 .choiceItem:focus-within {
   outline: var(--focus-ring-width) solid var(--color-focus-ring);
   outline-offset: var(--focus-ring-offset);
+}
+
+/* --- 節の見出し ------------------------------------------------------- */
+
+/*
+ * `SectionHeading` の見た目。**段ごとに大きさを変える。**
+ *
+ * 値は新しく作っていない。どちらも既にこのリポジトリで使われている段である——
+ * 2 段目は `site.module.css` の `.sectionHeading`（読者側の節の見出し）、
+ * 3 段目は `patterns.module.css` の `.sectionHeading` と `.cardTitle`。
+ * **していることは順番を付けただけ。**
+ *
+ * **`font-weight` を必ず書くこと。** `globals.css` の `@import "tailwindcss"` が
+ * 連れてくる Preflight に `h1..h6 { font-size: inherit; font-weight: inherit }`
+ * があり（`node_modules/tailwindcss/preflight.css:81`）、書き忘れると 400 に落ちる。
+ * 大きさと色は効いたままなので**半分だけ効いて見え、壊れて見えない**（残課題 144）。
+ */
+/*
+ * **下余白は 3 段とも同じ `--space-2`。**（2026-08-21、UX-17 で `margin: 0` から変えた）
+ *
+ * `Card`（`.card`）は `gap` を持たない素のブロックなので、**見出しの下余白を
+ * 落とすと本文がくっつく。**管理画面 179 箇所が使っていた `.sectionTitle`
+ * （`admin.module.css:41`）が `margin: 0 0 var(--space-2)` を持っていたのは
+ * このためで、通す側が同じものを持たないと 179 箇所が同時に詰まる。
+ *
+ * **段ごとに余白を変えないこと。**「深い段ほど詰める」は一見もっともらしいが、
+ * `.card` の中で段が混ざると、**同じ見出しでも隣の段の有無で間隔が変わって
+ * 見える**。段の違いは大きさで言う。間隔は言わない。
+ */
+.headingLevel2 {
+  margin: 0 0 var(--space-2);
+  font-size: var(--text-xl);
+  font-weight: var(--weight-semibold);
+  line-height: var(--leading-heading);
+  color: var(--color-text-strong);
+}
+
+/* 実ブラウザで 28px と実測した、見出し全体が行き先になる場合だけ44pxへ広げる。 */
+.headingLevel2 > a {
+  display: inline-flex;
+  align-items: center;
+  min-block-size: var(--tap-target-min);
+}
+
+.headingLevel3 {
+  margin: 0 0 var(--space-2);
+  font-size: var(--text-lg);
+  font-weight: var(--weight-semibold);
+  line-height: var(--leading-heading);
+  color: var(--color-text-strong);
+}
+
+/*
+ * 4 段目。**`--text-sm` は `.sectionLead`（節の説明文）と同じ大きさで、
+ * 本文より小さい。**理由は `heading.tsx` に書いてある——本文と同じ大きさで
+ * 太いだけにすると、強制配色で `color` が均されたとき手掛かりが
+ * `font-weight` 1 つに減る。
+ *
+ * 3 段目との差が他より大きいのは意図的。4 段目まで潜る画面は
+ * `admin/personas` の 1 枚しかなく、**中間の値を新しく足すより既存の値で
+ * 済ませる**ほうを選んだ。
+ */
+.headingLevel4 {
+  margin: 0 0 var(--space-2);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  line-height: var(--leading-heading);
+  color: var(--color-text-strong);
 }

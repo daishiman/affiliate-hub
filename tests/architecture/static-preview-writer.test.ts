@@ -173,7 +173,7 @@ describe("実際に書き出した静止冊子", () => {
       const generated = readFileSync(join(PREVIEW_DIR, "sites", `${slug}.html`), "utf8");
       const expectedContent = new JSDOM(sharedBody).window.document.body.firstElementChild;
       const generatedContent = new JSDOM(generated).window.document.querySelector(
-        "#site-main-content .siteContent > div",
+        "main.siteMain > div",
       );
 
       expect(generatedContent?.textContent).toBe(expectedContent?.textContent);

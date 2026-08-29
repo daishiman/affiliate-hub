@@ -206,124 +206,255 @@
         "category": "maintenance-ops",
         "platform": "desktop-macos"
       }
-    ]
+    ],
+    "source": {
+      "kind": "user-dialogue"
+    }
   },
   {
     "question": "データベース（database）× Web の要件は?",
     "answer": "PostgreSQL 15。ユーザー/請求/監査ログの3スキーマ。日次バックアップ。",
     "qa_id": "qa-001",
-    "design_applications": [{"knowledge_ref": "ddd.md#Bounded Context", "principle": "Bounded Context", "applicability": "applied", "rationale": "ユーザー・請求・監査の境界をスキーマで分離する", "tradeoffs": ["境界間整合は明示的に管理する"]}],
+    "design_applications": [
+      {
+        "knowledge_ref": "ddd.md#Bounded Context",
+        "principle": "Bounded Context",
+        "applicability": "applied",
+        "rationale": "ユーザー・請求・監査の境界をスキーマで分離する",
+        "tradeoffs": [
+          "境界間整合は明示的に管理する"
+        ]
+      }
+    ],
     "ops": [
       {
         "action": "confirm",
         "category": "database",
         "platform": "web"
       }
-    ]
+    ],
+    "source": {
+      "kind": "user-dialogue"
+    }
   },
   {
     "question": "認証(ログイン)（auth）× Web の要件は?",
     "answer": "OIDC(社内 IdP)+ ロールベース認可。セッションは 8h。",
     "qa_id": "qa-002",
-    "design_applications": [{"knowledge_ref": "security-patterns.md#Least Privilege", "principle": "Least Privilege", "applicability": "applied", "rationale": "社内 IdP の認証後もロール単位で権限を限定する", "tradeoffs": ["ロール設計と棚卸しの運用コストが増える"]}],
+    "design_applications": [
+      {
+        "knowledge_ref": "security-patterns.md#Least Privilege",
+        "principle": "Least Privilege",
+        "applicability": "applied",
+        "rationale": "社内 IdP の認証後もロール単位で権限を限定する",
+        "tradeoffs": [
+          "ロール設計と棚卸しの運用コストが増える"
+        ]
+      }
+    ],
     "ops": [
       {
         "action": "confirm",
         "category": "auth",
         "platform": "web",
         "required_info": [
-          { "item_id": "auth-model", "status": "grounded", "grounded_by": "qa-002" }
+          {
+            "item_id": "auth-model",
+            "status": "grounded",
+            "grounded_by": "qa-002"
+          }
         ]
       }
-    ]
+    ],
+    "source": {
+      "kind": "user-dialogue"
+    }
   },
   {
     "question": "UI-UX（ui-ux）× Web の要件は?",
     "answer": "レスポンシブ Web。WCAG 2.1 AA 目標。主要動線は3クリック以内。",
     "qa_id": "qa-003",
-    "design_applications": [{"knowledge_ref": "api-design-patterns.md#Progressive Disclosure", "principle": "Progressive Disclosure", "applicability": "applied", "rationale": "主要操作を短い動線へ絞り詳細を段階表示する", "tradeoffs": ["深い機能への到達手順を別途案内する"]}],
+    "design_applications": [
+      {
+        "knowledge_ref": "api-design-patterns.md#Progressive Disclosure",
+        "principle": "Progressive Disclosure",
+        "applicability": "applied",
+        "rationale": "主要操作を短い動線へ絞り詳細を段階表示する",
+        "tradeoffs": [
+          "深い機能への到達手順を別途案内する"
+        ]
+      }
+    ],
     "ops": [
       {
         "action": "confirm",
         "category": "ui-ux",
         "platform": "web",
         "required_info": [
-          { "item_id": "product-goal", "status": "grounded", "grounded_by": "qa-000" },
-          { "item_id": "target-platforms", "status": "grounded", "grounded_by": "qa-000" },
-          { "item_id": "screen-information-priority", "status": "grounded", "grounded_by": "qa-003" }
+          {
+            "item_id": "product-goal",
+            "status": "grounded",
+            "grounded_by": "qa-000"
+          },
+          {
+            "item_id": "target-platforms",
+            "status": "grounded",
+            "grounded_by": "qa-000"
+          },
+          {
+            "item_id": "screen-information-priority",
+            "status": "grounded",
+            "grounded_by": "qa-003"
+          }
         ]
       }
-    ]
+    ],
+    "source": {
+      "kind": "user-dialogue"
+    }
   },
   {
     "question": "セキュリティ（security）× Web の要件は?",
     "answer": "TLS1.3・入力検証・監査ログ・OWASP Top10 受動対策。",
     "qa_id": "qa-004",
-    "design_applications": [{"knowledge_ref": "security-patterns.md#Defense in Depth", "principle": "Defense in Depth", "applicability": "applied", "rationale": "通信・入力・監査の複数層で攻撃経路を抑える", "tradeoffs": ["検査層ごとの設定と監視が必要になる"]}],
+    "design_applications": [
+      {
+        "knowledge_ref": "security-patterns.md#Defense in Depth",
+        "principle": "Defense in Depth",
+        "applicability": "applied",
+        "rationale": "通信・入力・監査の複数層で攻撃経路を抑える",
+        "tradeoffs": [
+          "検査層ごとの設定と監視が必要になる"
+        ]
+      }
+    ],
     "ops": [
       {
         "action": "confirm",
         "category": "security",
         "platform": "web",
         "required_info": [
-          { "item_id": "security-posture", "status": "grounded", "grounded_by": "qa-004" }
+          {
+            "item_id": "security-posture",
+            "status": "grounded",
+            "grounded_by": "qa-004"
+          }
         ]
       }
-    ]
+    ],
+    "source": {
+      "kind": "user-dialogue"
+    }
   },
   {
     "question": "インフラ（infrastructure）× Web の要件は?",
     "answer": "コンテナを社内 k8s にデプロイ。CI/CD は GitHub Actions。",
     "qa_id": "qa-005",
-    "design_applications": [{"knowledge_ref": "twelve-factor.md#Build Release Run", "principle": "Build, release, run", "applicability": "applied", "rationale": "CI/CD と社内 k8s の実行責務を分離する", "tradeoffs": ["release 成果物の追跡情報を維持する"]}],
+    "design_applications": [
+      {
+        "knowledge_ref": "twelve-factor.md#Build Release Run",
+        "principle": "Build, release, run",
+        "applicability": "applied",
+        "rationale": "CI/CD と社内 k8s の実行責務を分離する",
+        "tradeoffs": [
+          "release 成果物の追跡情報を維持する"
+        ]
+      }
+    ],
     "ops": [
       {
         "action": "confirm",
         "category": "infrastructure",
         "platform": "web"
       }
-    ]
+    ],
+    "source": {
+      "kind": "user-dialogue"
+    }
   },
   {
     "question": "バックエンド（backend）× Web の要件は?",
     "answer": "Python/FastAPI。REST + 非同期ジョブ(キュー)。",
     "qa_id": "qa-006",
-    "design_applications": [{"knowledge_ref": "clean-architecture.md#Dependency Rule", "principle": "Dependency Rule", "applicability": "applied", "rationale": "REST と非同期処理から業務ロジックを分離する", "tradeoffs": ["境界 adapter の実装量が増える"]}],
+    "design_applications": [
+      {
+        "knowledge_ref": "clean-architecture.md#Dependency Rule",
+        "principle": "Dependency Rule",
+        "applicability": "applied",
+        "rationale": "REST と非同期処理から業務ロジックを分離する",
+        "tradeoffs": [
+          "境界 adapter の実装量が増える"
+        ]
+      }
+    ],
     "ops": [
       {
         "action": "confirm",
         "category": "backend",
         "platform": "web",
         "required_info": [
-          { "item_id": "domain-model", "status": "grounded", "grounded_by": "qa-006" }
+          {
+            "item_id": "domain-model",
+            "status": "grounded",
+            "grounded_by": "qa-006"
+          }
         ]
       }
-    ]
+    ],
+    "source": {
+      "kind": "user-dialogue"
+    }
   },
   {
     "question": "フロントエンド（frontend）× Web の要件は?",
     "answer": "React + TypeScript。状態管理は最小限のグローバルストア。",
     "qa_id": "qa-007",
-    "design_applications": [{"knowledge_ref": "clean-architecture.md#Dependency Rule", "principle": "Dependency Rule", "applicability": "applied", "rationale": "画面固有状態を局所化し共有状態だけを store に置く", "tradeoffs": ["共有範囲の判断規約が必要になる"]}],
+    "design_applications": [
+      {
+        "knowledge_ref": "clean-architecture.md#Dependency Rule",
+        "principle": "Dependency Rule",
+        "applicability": "applied",
+        "rationale": "画面固有状態を局所化し共有状態だけを store に置く",
+        "tradeoffs": [
+          "共有範囲の判断規約が必要になる"
+        ]
+      }
+    ],
     "ops": [
       {
         "action": "confirm",
         "category": "frontend",
         "platform": "web"
       }
-    ]
+    ],
+    "source": {
+      "kind": "user-dialogue"
+    }
   },
   {
     "question": "保守運用管理（maintenance-ops）× Web の要件は?",
     "answer": "オンコール輪番・障害 runbook・週次リストア訓練。",
     "qa_id": "qa-008",
-    "design_applications": [{"knowledge_ref": "sre.md#Error Budget", "principle": "Operational Readiness", "applicability": "applied", "rationale": "復旧手順を訓練して障害時の判断を再現可能にする", "tradeoffs": ["週次訓練の運用時間を確保する"]}],
+    "design_applications": [
+      {
+        "knowledge_ref": "sre.md#Error Budget",
+        "principle": "Operational Readiness",
+        "applicability": "applied",
+        "rationale": "復旧手順を訓練して障害時の判断を再現可能にする",
+        "tradeoffs": [
+          "週次訓練の運用時間を確保する"
+        ]
+      }
+    ],
     "ops": [
       {
         "action": "confirm",
         "category": "maintenance-ops",
         "platform": "web"
       }
-    ]
+    ],
+    "source": {
+      "kind": "user-dialogue"
+    }
   }
 ]

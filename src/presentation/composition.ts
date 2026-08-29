@@ -1,10 +1,4 @@
 import {
-  createArchivePublishedArticleUseCase,
-  createGetPublishedArticleUseCase,
-  createListPublishedArticlesUseCase,
-  createUpdatePublishedArticleUseCase,
-} from "@/application/usecases/site/manage-published-articles";
-import {
   createGetArticleUseCase,
   createGetPersonUseCase,
   createGetPolicyDocumentUseCase,
@@ -25,6 +19,10 @@ import {
   createSubmitContactUseCase,
 } from "@/application/usecases/site/reader-interaction";
 import {
+  createListContactMessagesUseCase,
+  createMarkContactHandledUseCase,
+} from "@/application/usecases/site/manage-contact";
+import {
   createAdvanceContentStateUseCase,
   createApproveContentUseCase,
   createGetContentUseCase,
@@ -32,21 +30,44 @@ import {
   createListReviewOverdueUseCase,
 } from "@/application/usecases/content/manage-content";
 import {
+  createListContentPackagesUseCase,
+  createSaveContentPackageUseCase,
+} from "@/application/usecases/authoring/manage-content-packages";
+import {
   createCheckFactBoundaryUseCase,
   createGetAudiencePersonaUseCase,
   createGetAuthorPersonaUseCase,
   createListAudiencePersonasUseCase,
   createListAuthorPersonasUseCase,
+  createSaveAudiencePersonaUseCase,
+  createSaveAuthorPersonaUseCase,
 } from "@/application/usecases/authoring/manage-personas";
+import {
+  allowedCriteriaForForm,
+  createListRankingModelsUseCase,
+  createSaveRankingModelUseCase,
+  createSaveScoreCardUseCase,
+} from "@/application/usecases/ranking/manage-rankings";
+import {
+  CLAIM_TYPE_LABELS,
+  EVIDENCE_TYPE_LABELS,
+  createSaveClaimUseCase,
+  createSaveEvidenceUseCase,
+  createSaveTestRunUseCase,
+  createSearchEvidenceUseCase,
+} from "@/application/usecases/evidence/manage-evidence";
 import { createGetGenerationMatrixUseCase } from "@/application/usecases/authoring/plan-generation-matrix";
 import { createReadWritingMethodUseCase } from "@/application/usecases/authoring/read-writing-method";
 import {
   createCancelPublicationUseCase,
   createExportManualDraftUseCase,
+  createGetContentChannelStatusUseCase,
   createGetPublicationUseCase,
   createListChannelsUseCase,
   createListPublicationsUseCase,
+  createRegisterChannelConnectionUseCase,
   createSchedulePublicationUseCase,
+  createUpdatePublicationUseCase,
 } from "@/application/usecases/distribution/manage-distribution";
 import {
   createGetPublicationCalendarUseCase,
@@ -83,17 +104,26 @@ import {
   createReviewMaterialUseCase,
 } from "@/application/usecases/generation/read-generation-plan";
 import { createDraftContentVariantUseCase } from "@/application/usecases/generation/draft-content-variant";
+import { createCapacityGuard } from "@/application/capacity";
 import { createListSelectableModelsUseCase } from "@/application/usecases/generation/list-selectable-models";
 import type { GenerationInput } from "@/domain/generation";
 import { sampleGenerationInput } from "@/infrastructure/persistence/sample/generation-sample-input";
 import {
+  aspOptions,
   createAdjustConversionUseCase,
   createGetConversionUseCase,
   createListAffiliateAccountsUseCase,
   createListAffiliateProgramsUseCase,
   createListConversionsUseCase,
   createListProductLinksUseCase,
+  createSaveAffiliateAccountUseCase,
+  createSaveAffiliateProgramUseCase,
 } from "@/application/usecases/monetization/manage-affiliate";
+import {
+  createDisableAffiliateLinkUseCase,
+  createListAffiliateLinksUseCase,
+} from "@/application/usecases/monetization/manage-affiliate-links";
+import { createRegisterAffiliateLinkUseCase } from "@/application/usecases/monetization/register-affiliate-link";
 import {
   createListLinkInboxUseCase,
   createMatchLinkIngestionUseCase,
@@ -102,12 +132,21 @@ import {
   createSubmitAffiliateUrlUseCase,
 } from "@/application/usecases/monetization/manage-link-inbox";
 import {
+  createEditDisclosureUseCase,
+  createEditPolicyRuleUseCase,
+  createListPolicyRulesUseCase,
+} from "@/application/usecases/compliance/manage-compliance";
+import {
+  PLAN_LABEL,
   createGetSettingsOverviewUseCase,
   createListAuditLogUseCase,
   createListBrandsUseCase,
   createListDisclosuresUseCase,
   createListMembersUseCase,
   createListRolesUseCase,
+  createManageMembersUseCase,
+  createSaveBrandUseCase,
+  createUpdateWorkspaceUseCase,
 } from "@/application/usecases/identity/manage-workspace";
 import {
   createCreateSiteFromDraftUseCase,
@@ -121,6 +160,25 @@ import {
   createGetManagedSiteUseCase,
   createListManagedSitesUseCase,
 } from "@/application/usecases/site/manage-sites";
+import {
+  createListSiteDocumentsUseCase,
+  createSaveSiteDocumentUseCase,
+} from "@/application/usecases/site/manage-site-documents";
+import {
+  createDeleteManagedSiteUseCase,
+  createUpdateManagedSiteUseCase,
+} from "@/application/usecases/site/edit-sites";
+import {
+  createCreateProductUseCase,
+  createDeleteProductUseCase,
+  createUpdateProductUseCase,
+} from "@/application/usecases/product/edit-product";
+import {
+  createCreateContentVariantUseCase,
+  createDeleteContentVariantUseCase,
+  createUpdateContentVariantUseCase,
+} from "@/application/usecases/content/edit-content";
+import { createCreateConceptDraftsUseCase } from "@/application/usecases/content/concept-drafts";
 import {
   createPreparePublishArticleUseCase,
   createPublishArticleUseCase,
@@ -136,10 +194,13 @@ import {
 } from "@/application/usecases/product/read-product";
 import { createGetDashboardUseCase } from "@/application/usecases/dashboard/read-dashboard";
 import type { ActorContext } from "@/domain/shared";
-import { taggedString } from "@/domain/shared";
+import { asFeedbackCaptureId, taggedString } from "@/domain/shared";
 import { type KeyScope, authorize } from "@/domain/feedback";
 import type { StorageStatus } from "@/presentation/ui/patterns/stub-notice";
 import { createDeps, createLlmCredentialManagement } from "@/infrastructure/composition";
+import { auditDenials } from "@/application/access-denial";
+import { ensureFeedbackAccess } from "@/application/usecases/feedback/feedback-access";
+import { requestIdOf, withRequestId } from "@/presentation/http/request-id";
 import { appContext } from "@/infrastructure/app-context";
 import {
   createManageLlmCredentialsUseCase,
@@ -160,6 +221,7 @@ import { sampleSiteDraftNotice } from "@/infrastructure/persistence/sample/site-
 import { getCurrentActor, sampleActorNotice } from "@/infrastructure/identity/sample-actor";
 import {
   SESSION_COOKIE_NAME,
+  selectAdminReadActor,
   type ActorResolution,
 } from "@/infrastructure/identity/session-actor";
 import { sampleEditorialContentNotice } from "@/infrastructure/persistence/sample/content-editorial-sample-repository";
@@ -168,11 +230,59 @@ import {
   SAMPLE_PERIODS,
   sampleAffiliateNotice,
 } from "@/infrastructure/persistence/sample/affiliate-sample-repository";
+import {
+  createSampleArticleRatingPort,
+  createSamplePublicBlogPort,
+} from "@/infrastructure/persistence/sample/blog-ops-sample-repository";
 import { sampleAnalyticsNotice } from "@/infrastructure/persistence/sample/analytics-sample-repository";
 import { sampleLinkInboxNotice } from "@/infrastructure/persistence/sample/link-inbox-sample-repository";
+import {
+  type ManageGuidelineReferencesInput,
+  type ManageGuidelineReferencesOutput,
+  createManageGuidelineReferencesUseCase,
+} from "@/application/usecases/seo/manage-guideline-references";
+import { createD1GuidelineReferenceRepository } from "@/infrastructure/persistence/d1/guideline-reference-repository";
 import { tryGetDb } from "@/infrastructure/persistence/d1/connection";
+import {
+  createD1ArticleRatingPort,
+  createD1PublicBlogPort,
+} from "@/infrastructure/persistence/d1/blog-ops-repository";
+import {
+  createCreateBlogArticleUseCase,
+  createCreateSiteNetworkNodeUseCase,
+  createDeleteBlogArticleUseCase,
+  createDeleteBlogTagUseCase,
+  createDeleteFixedPageUseCase,
+  createDeleteSiteNetworkNodeUseCase,
+  createEvaluateBlogArticlesUseCase,
+  createGetBlogArticleUseCase,
+  createListBlogArticlesUseCase,
+  createListDeletedBlogArticlesUseCase,
+  createListBlogTagsUseCase,
+  createListFixedPagesUseCase,
+  createListDeletedFixedPagesUseCase,
+  createListSiteNetworkUseCase,
+  createListDeletedSiteNetworkUseCase,
+  createReadBlogLayoutUseCase,
+  createSaveBlogLayoutBandUseCase,
+  createSaveBlogLayoutSlotUseCase,
+  createSaveBlogTagUseCase,
+  createCheckBlogDeliveryUseCase,
+  createSaveDeliveryPartUseCase,
+  createSaveFixedPageUseCase,
+  createListArticleRatingsUseCase,
+  createSetArticleRatingHiddenUseCase,
+  createRestoreBlogArticleUseCase,
+  createRestoreFixedPageUseCase,
+  createRestoreSiteNetworkNodeUseCase,
+  createSubmitArticleRatingUseCase,
+  createUpdateBlogArticleUseCase,
+  createUpdateSiteNetworkNodeUseCase,
+} from "@/application/usecases/blog-ops";
 import { tryGetBucket } from "@/infrastructure/platform/bucket-connection";
+import { submitToIndexNow } from "@/infrastructure/indexnow/indexnow-client";
 import { CAPTURE_RETENTION_DAYS } from "@/domain/feedback";
+import type { ArticleRatingPort, PublicBlogPort } from "@/application/ports/blog-ops";
 import { sampleProductNotice } from "@/infrastructure/persistence/sample/product-sample-repository";
 import { sampleSettingsNotice } from "@/infrastructure/persistence/sample/settings-sample-repository";
 import {
@@ -244,12 +354,34 @@ export type IntegrationAccessResolution =
     }
   | { ok: false; status: number; message: string };
 
+/**
+ * 連携の鍵を載せる見出し。
+ *
+ * `Authorization` と分けてあるのは、**1 つの呼び出しが 2 つの別のことを
+ * 名乗る必要がある**ため。`Authorization: Bearer <MCP_TOKEN>` は
+ * 「この入口を叩いてよい相手か」（門）、`X-Integration-Key` は
+ * 「どの作業場所の誰か」（身元）である。見出しが 1 つしかないと、
+ * MCP の入口では門しか名乗れず、身元が決まらないまま管理用のデータが出る
+ * ことになる（それが `ah-p9e` の穴だった）。
+ *
+ * 鍵だけで来る既存の入口（`/api/feedback/pending`）のために、
+ * `Authorization: Bearer <鍵>` も引き続き受ける。
+ */
+export const INTEGRATION_KEY_HEADER = "x-integration-key";
+
+/** 呼び出しに載っている連携の鍵の平文。無ければ空文字。 */
+function integrationKeyValue(request: Request): string {
+  const dedicated = request.headers.get(INTEGRATION_KEY_HEADER)?.trim() ?? "";
+  if (dedicated !== "") return dedicated;
+  const header = request.headers.get("authorization") ?? "";
+  return header.startsWith("Bearer ") ? header.slice("Bearer ".length).trim() : "";
+}
+
 export async function resolveIntegrationAccess(
   request: Request,
   scope: KeyScope,
 ): Promise<IntegrationAccessResolution> {
-  const header = request.headers.get("authorization") ?? "";
-  const value = header.startsWith("Bearer ") ? header.slice("Bearer ".length).trim() : "";
+  const value = integrationKeyValue(request);
   if (value === "") {
     return {
       ok: false,
@@ -294,6 +426,8 @@ export async function resolveIntegrationAccess(
       workspaceId: key.workspaceId,
       userId: `鍵: ${key.label}`,
       roles: ["ai_service_account"],
+      // 連携鍵は membership 由来ではない。ブランド操作権限も持たない。
+      scopedBrandIds: [],
       isAiServiceAccount: true,
       // 誰もログインしていないが、**どの鍵か**は照合してある。
       // だから記録に「鍵: ○○」と残してよい。人ではないことは
@@ -361,7 +495,32 @@ async function resolveActor(): Promise<ActorResolution> {
  */
 export async function currentActor(): Promise<ActorContext> {
   const resolved = await resolveActor();
-  return resolved.kind === "actor" ? resolved.actor : getCurrentActor();
+  const actor = selectAdminReadActor(resolved, await getCurrentActor());
+  if (actor === null) {
+    // 有効な session の利用者が担当から外れた／membership を確認できない場合に、
+    // SAMPLE_ACTOR へ落として管理データを読み続けない。signin 側は currentActor を
+    // 呼ばないため、ここから戻しても循環しない。
+    const { redirect } = await import("next/navigation");
+    redirect("/signin");
+    throw new Error("redirect did not terminate");
+  }
+  return withRequestId(actor, await currentRequestId());
+}
+
+/**
+ * いま処理している要求を指す名前を、見出しから取り出す。
+ *
+ * 画面の側（Server Action・サーバーで組み立てる画面）には `Request` が
+ * 渡ってこないので、`next/headers` から取る。取れない場所（テスト・組み立て時）は
+ * `null` になる。**そこで作らない**理由は `request-id.ts` に書いてある。
+ */
+async function currentRequestId(): Promise<string | null> {
+  try {
+    const { headers } = await import("next/headers");
+    return requestIdOf(await headers());
+  } catch {
+    return null;
+  }
 }
 
 /**
@@ -382,7 +541,24 @@ export async function currentActor(): Promise<ActorContext> {
  */
 export async function signedInActor(): Promise<ActorContext | null> {
   const resolved = await resolveActor();
-  return resolved.kind === "actor" ? resolved.actor : null;
+  if (resolved.kind !== "actor") return null;
+  return withRequestId(resolved.actor, await currentRequestId());
+}
+
+/** capture IDから要望をserver-sideで逆引きし、workspace所有とbrand scopeを確認する。 */
+export async function canReadFeedbackCapture(
+  actor: ActorContext,
+  captureId: string,
+): Promise<boolean> {
+  try {
+    const deps = createDeps({ db: await tryGetDb() });
+    const findByCaptureId = deps.feedback.findByCaptureId;
+    const found = await findByCaptureId(actor.workspaceId, asFeedbackCaptureId(captureId));
+    if (!found.ok || found.value === null) return false;
+    return ensureFeedbackAccess(actor, found.value).ok;
+  } catch {
+    return false;
+  }
 }
 
 /**
@@ -396,16 +572,40 @@ export async function signedInActor(): Promise<ActorContext | null> {
  * （残課題 28 の 2 件目 / `ah-2ro`。原因は `ah-3n1` と同じ）。
  *
  * 決め方はこうである。
- *   - `bearer`      → `currentActor()`。鍵で入口を通った呼び出しで、従来どおり
+ *   - `bearer`      → 連携の鍵（`X-Integration-Key`）から**作業場所つきの身元**を組み立てる。
+ *                     鍵が無い・通らないときは**読者**へ落とす
  *   - `same-origin` → ログインできていればその人、できていなければ**読者**
+ *
+ * `bearer` を `currentActor()` にしていたのが `ah-p9e` である。
+ * `MCP_TOKEN` は「呼んでよい相手か」しか決めない。**どの作業場所の誰か**を
+ * 決めないので `currentActor()` は見本へ落ち、身元の分からない呼び出しが
+ * 見本の権限で管理用のデータを読めていた。門（`MCP_TOKEN`）と
+ * 身元（連携の鍵）は別のものなので、名乗る見出しも分けてある。
+ *
+ * 鍵が通らないときに**断らずに読者へ落とす**のは、`actorForScope` が
+ * 身元を返す関数で、断りを返せないため。管理用の読み取りは読者の身元では
+ * 通らない（`FORBIDDEN` になる）ので、結果は「断られる」と同じである。
+ * ここで見本へ落とすことだけはしない。それが 3 件の課題の共通の原因だった。
  *
  * 同一サイトを丸ごと断らないのは、読者ページの AI 向けの入口（WebMCP）が
  * この経路を使っているため。断ると、読者ページの案内が**黙って**動かなくなる。
  * 読者へ落とすぶんには、読者ページの画面がもともと通している範囲と同じになる。
  */
-export async function actorForScope(scope: "bearer" | "same-origin"): Promise<ActorContext> {
-  if (scope === "bearer") return currentActor();
-  return (await signedInActor()) ?? readerActor();
+export async function actorForScope(
+  scope: "bearer" | "same-origin",
+  request: Request,
+): Promise<ActorContext> {
+  // 糸は**要求そのもの**から取る。API の入口にはここで `Request` が届いている。
+  const requestId = requestIdOf(request.headers);
+  if (scope === "bearer") {
+    // 門を通ったこと（`MCP_TOKEN`）は、身元の根拠にならない。
+    // 鍵が載っていなければ、鍵の照合そのものを試みない。
+    if ((request.headers.get(INTEGRATION_KEY_HEADER)?.trim() ?? "") === "")
+      return withRequestId(readerActor(), requestId);
+    const access = await resolveIntegrationAccess(request, "read");
+    return withRequestId(access.ok ? access.actor : readerActor(), requestId);
+  }
+  return withRequestId((await signedInActor()) ?? readerActor(), requestId);
 }
 
 /** いまどの身元で動いているかを画面に出すための一文。 */
@@ -415,9 +615,9 @@ export async function actorNotice(): Promise<string> {
     case "actor":
       return "ログイン中の情報で表示しています。";
     case "not_member":
-      return "ログインはできていますが、この作業場所の担当者として登録されていません。見本の情報で表示しています。";
+      return "ログインはできていますが、この作業場所の担当者として登録されていないため、管理情報は表示しません。";
     case "unavailable":
-      return `ログイン状態を確認できませんでした（${resolved.reason}）。見本の情報で表示しています。`;
+      return `ログイン状態を確認できませんでした（${resolved.reason}）。確認できるまで管理情報は表示しません。`;
     case "anonymous":
       return sampleActorNotice();
   }
@@ -427,7 +627,8 @@ export async function actorNotice(): Promise<string> {
  * 読者のページに載せる、AI 向けの操作宣言（WebMCP）。
  *
  * 4 つの決まりをここで守る。守る場所を 1 箇所にしないと、ページごとにずれる。
- *   1. 読み取り専用だけ（`toWebMcpDescriptors` が絞る）
+ *   1. 表に名前があるものだけ（`PAGE_TOOLS`。`toWebMcpDescriptors` が絞る）。
+ *      道具定義の `readOnly` は根拠にしない。旗を根拠にすると既定が「載る」になる
  *   2. 1 ページ 6 件まで（`MAX_TOOLS_PER_PAGE`）
  *   3. ページ種別ごとに選ぶ（`PAGE_TOOLS`。記事と比較で要る道具は違う）
  *   4. すべて通常の画面操作でも同じことができる
@@ -464,20 +665,181 @@ function descriptorsForPage(kind: PageKind): readonly WebMcpDescriptor[] {
   return toWebMcpDescriptors(picked);
 }
 
-/** 順位の画面が使う入口。型が付いているので、戻り値をキャストせずに描ける。 */
-export function rankingTool(): ToolDefinition<RankProductsInput, RankingResult> {
-  return rankProductsTool(createDeps());
+/**
+ * 順位の画面が使う入口。型が付いているので、戻り値をキャストせずに描ける。
+ *
+ * **保存先の接続を渡す。** 渡していなかった頃は、評価基準を作っても
+ * 点を入れても、順位の画面はいつも見本の 1 件で計算していた。
+ * 画面は正常に見えるので、直したつもりのまま何も変わらない。
+ */
+export async function rankingTool(): Promise<ToolDefinition<RankProductsInput, RankingResult>> {
+  return rankProductsTool(createDeps({ db: await tryGetDb() }));
 }
+
+/**
+ * 順位づけの基準と点の管理の入口。
+ *
+ * **順位を見る入口（`rankingTool()`）とは別に置く。** あちらは
+ * 「決めた測り方で並べる」操作で、こちらは測り方そのものを決める操作。
+ * 混ぜると、順位を見に来た人が測り方を書き換えられる画面になる。
+ */
+export async function rankingUseCases() {
+  const deps = createDeps({ db: await tryGetDb() });
+  const ranking = {
+    rankingModels: deps.rankingModels,
+    scoreCards: deps.scoreCards,
+    products: deps.products,
+    evidence: deps.evidence,
+    ids: deps.ids,
+    auditLog: deps.auditLog,
+    now: () => new Date(),
+  };
+  return auditDenials(deps, {
+    listModels: createListRankingModelsUseCase(ranking),
+    saveModel: createSaveRankingModelUseCase(ranking),
+    saveScoreCard: createSaveScoreCardUseCase(ranking),
+  });
+}
+
+/**
+ * 根拠・言えること・検証記録の登録と参照。
+ *
+ * 3 つを 1 つの入口から返すのは、**どれか 1 つだけでは意味を持たない**から。
+ * 別々の入口にすると、根拠だけ本物・主張は見本、のような中途の組み方が
+ * 型の上で作れてしまい、画面から見ると正常に動いているように見える。
+ */
+export async function evidenceUseCases() {
+  const deps = createDeps({ db: await tryGetDb() });
+  const evidence = {
+    evidence: deps.evidence,
+    claims: deps.claims,
+    testRuns: deps.testRuns,
+    products: deps.products,
+    memberships: deps.memberships,
+    ids: deps.ids,
+    auditLog: deps.auditLog,
+    now: () => new Date(),
+  };
+  return auditDenials(deps, {
+    searchEvidence: createSearchEvidenceUseCase(evidence),
+    saveEvidence: createSaveEvidenceUseCase(evidence),
+    saveClaim: createSaveClaimUseCase(evidence),
+    saveTestRun: createSaveTestRunUseCase(evidence),
+  });
+}
+
+/**
+ * 登録の欄に並べる種類。
+ *
+ * domain の一覧（`EVIDENCE_TYPE_LABELS` / `CLAIM_TYPE_LABELS`）から作る。
+ * 画面へ書き写すと、種類を足した日に**古い選択肢だけが残った画面**ができる。
+ */
+export function evidenceTypeOptions(): readonly { key: string; label: string }[] {
+  return Object.entries(EVIDENCE_TYPE_LABELS).map(([key, label]) => ({ key, label }));
+}
+
+export function claimTypeOptions(): readonly { key: string; label: string }[] {
+  return Object.entries(CLAIM_TYPE_LABELS).map(([key, label]) => ({ key, label }));
+}
+
+/**
+ * ブランドの欄に並べる文体と言葉づかい、作業場所の欄に並べる契約の区分。
+ *
+ * `PLAN_LABEL` は application 側が持つ。画面へ書き写すと、
+ * 区分を足した日に**選べない区分が上限の表にだけ出る**状態ができる。
+ * 文体と言葉づかいは domain の型（`BrandVoice`）が持つ 2 択・3 択で、
+ * 型に無い値を選ばせないために、ここで 1 度だけ日本語を当てる。
+ */
+export function brandPolitenessOptions(): readonly { key: string; label: string }[] {
+  return [
+    { key: "polite", label: "です・ます（敬体）" },
+    { key: "plain", label: "だ・である（常体）" },
+  ];
+}
+
+export function brandVocabularyOptions(): readonly { key: string; label: string }[] {
+  return [
+    { key: "plain", label: "やさしい言葉（専門語を避ける）" },
+    { key: "mixed", label: "ふつう（専門語は説明を添える）" },
+    { key: "technical", label: "専門的（読者は詳しい前提）" },
+  ];
+}
+
+export function workspacePlanOptions(): readonly { key: string; label: string }[] {
+  return Object.entries(PLAN_LABEL).map(([key, label]) => ({ key, label }));
+}
+
+/** 評価基準の欄に並べる指標。domain の許可一覧から作る（画面に書き写さない）。 */
+export function rankingCriteriaOptions(): readonly { key: string; label: string }[] {
+  return allowedCriteriaForForm().map((c) => ({ key: String(c.key), label: c.label }));
+}
+
+export type RankingScreenTarget = {
+  readonly modelId: string;
+  readonly productIds: readonly string[];
+  /** 切り替えの選択肢。1 件しか無いときは画面が切り替え欄を出さない。 */
+  readonly models: readonly { readonly modelId: string; readonly label: string }[];
+  /** 商品 ID → 表示名。見本の名前しか知らない `productDisplayName` の代わり。 */
+  readonly productNames: Readonly<Record<string, string>>;
+  /** 順位を出せないときの理由。空表を黙って出さないため。 */
+  readonly emptyReason: string | null;
+};
 
 /**
  * 順位の画面が表示する対象。
  *
- * いまは見本データ。商品を選ぶ画面ができたら、そこからの選択に差し替える。
+ * **保存された評価基準と、保存された商品から決める。**
+ * 以前はここが見本の評価方法 1 つと見本の商品 4 つの決め打ちで、
+ * 商品をいくつ登録しても順位に 1 件も現れなかった。しかも画面は
+ * 「順位が出ている」ように見えるので、登録した人からは壊れて見えない。
+ *
+ * 知らない基準 ID を渡されたら断らずに先頭へ落とす。URL を手で触った人が
+ * 「表が出ない」ではなく「別の基準の順位が出ている」で気づけるほうが早い。
  */
-export function rankingScreenTarget(): { modelId: string; productIds: readonly string[] } {
+export async function rankingScreenTarget(requestedModelId?: string): Promise<RankingScreenTarget> {
+  const actor = await currentActor();
+  const [models, products] = await Promise.all([
+    (await rankingUseCases()).listModels.execute(actor, {}),
+    // 上限を置く。順位は「絞ってから並べる」もので、登録した全商品を
+    // 毎回採点対象にすると、点の無い商品が選外として延々と並ぶ。
+    (await productUseCases()).filterProducts.execute(actor, { limit: 50 }),
+  ]);
+
+  const modelItems = models.ok ? models.value.items : [];
+  const selected =
+    modelItems.find((m) => m.modelId === requestedModelId) ?? modelItems[0] ?? null;
+  const productItems = products.ok ? products.value.items : [];
+
+  const productNames: Record<string, string> = {};
+  for (const p of productItems) productNames[p.productId] = `${p.brand} ${p.name}`.trim();
+
   return {
-    modelId: String(SAMPLE_MODEL_ID),
-    productIds: SAMPLE_PRODUCTS.map((p) => String(p.id)),
+    modelId: selected?.modelId ?? String(SAMPLE_MODEL_ID),
+    productIds:
+      productItems.length > 0
+        ? productItems.map((p) => p.productId)
+        : SAMPLE_PRODUCTS.map((p) => String(p.id)),
+    models: modelItems.map((m) => ({
+      modelId: m.modelId,
+      label: `${m.audience}向け・${m.version}`,
+    })),
+    productNames,
+    /*
+     * 「読めなかった」と「1 件も無い」を同じ文にしない。
+     *
+     * 権限が足りずに商品の一覧を読めなかった人へ「商品がまだ登録されていません」と
+     * 出すと、その人は**登録しようとして**、また断られる。原因が権限だと
+     * 分かる文なら、担当者へ頼むという次の一手がその場で選べる。
+     */
+    emptyReason: !models.ok
+      ? "評価基準を読める権限がありません。管理者に頼んでください。"
+      : !products.ok
+        ? "商品の一覧を読める権限がないため、見本の商品で表示しています。実際の順位は管理者に頼んでください。"
+        : selected === null
+          ? "評価基準がまだありません。どう測るかを決めないと順位は出せません。"
+          : productItems.length === 0
+            ? "商品がまだ登録されていません。見本の商品で表示しています。"
+            : null,
   };
 }
 
@@ -490,7 +852,7 @@ export function rankingScreenTarget(): { modelId: string; productIds: readonly s
 export async function siteUseCases() {
   const deps = createDeps({ db: await tryGetDb() });
   const site = { sites: deps.sites, content: deps.publishedContent };
-  return {
+  return auditDenials(deps, {
     getSite: createGetSiteUseCase(site),
     listSites: createListSitesUseCase(site),
     listRecent: createListRecentArticlesUseCase(site),
@@ -500,7 +862,7 @@ export async function siteUseCases() {
     getPerson: createGetPersonUseCase(site),
     listCorrections: createListCorrectionsUseCase(site),
     getPolicy: createGetPolicyDocumentUseCase(site),
-  };
+  });
 }
 
 /**
@@ -508,14 +870,18 @@ export async function siteUseCases() {
  *
  * 画面も REST も WebMCP もここから取る。入口ごとに組み立て直さない。
  */
-export function readerUseCases() {
-  const deps = createDeps();
+export async function readerUseCases() {
+  const context = await appContext();
+  const deps = createDeps({ db: context.db, env: context.env });
   const reader = {
     shortlist: deps.shortlist,
     readerTools: deps.readerTools,
     contact: deps.contact,
+    contactRateLimitKeys: deps.contactRateLimitKeys,
+    sites: deps.sites,
+    humanCheck: deps.humanCheck,
   };
-  return {
+  return auditDenials(deps, {
     listShortlist: createListShortlistUseCase(reader),
     saveToShortlist: createSaveToShortlistUseCase(reader),
     removeFromShortlist: createRemoveFromShortlistUseCase(reader),
@@ -523,7 +889,27 @@ export function readerUseCases() {
     listReaderTools: createListReaderToolsUseCase(reader),
     runReaderTool: createRunReaderToolUseCase(reader),
     submitContact: createSubmitContactUseCase(reader),
+  });
+}
+
+/**
+ * 届いた問い合わせを運営者が読む側。
+ *
+ * `readerUseCases()` と分けているのは権限の有無が違うから。
+ * 送るのは誰でもできる。読むのは `feedback.read` を持つ人だけ。
+ */
+export async function contactUseCases() {
+  const deps = createDeps({ db: await tryGetDb() });
+  const contact = {
+    contact: deps.contact,
+    sites: deps.sites,
+    ids: deps.ids,
+    auditLog: deps.auditLog,
   };
+  return auditDenials(deps, {
+    list: createListContactMessagesUseCase(contact),
+    markHandled: createMarkContactHandledUseCase(contact),
+  });
 }
 
 /**
@@ -533,8 +919,13 @@ export function readerUseCases() {
  * `src/presentation/tools/product-tools.ts` も同じユースケースを載せているので、
  * 画面に出る内容と AI が返す内容がずれない。
  */
-export function productUseCases() {
-  const deps = createDeps();
+export async function productUseCases() {
+  /*
+    接続を渡す。渡さないと、`productEditingUseCases()` で登録した商品が
+    読む側には見えない。**書けるのに読めない**という、一番気づきにくい壊れ方をする。
+    登録した本人は登録できたと思い、一覧を開いて「消えた」と受け取る。
+  */
+  const deps = createDeps({ db: await tryGetDb() });
   const product = {
     products: deps.products,
     claims: deps.claims,
@@ -543,7 +934,7 @@ export function productUseCases() {
     rankingModels: deps.rankingModels,
     scoreCards: deps.scoreCards,
   };
-  return {
+  return auditDenials(deps, {
     getProduct: createGetProductUseCase(product),
     filterProducts: createFilterProductsUseCase(product),
     compareProducts: createCompareProductsUseCase(product),
@@ -551,7 +942,7 @@ export function productUseCases() {
     getEvidence: createGetEvidenceUseCase(product),
     listTestRuns: createListTestRunsUseCase(product),
     explainRanking: createExplainRankingUseCase(product),
-  };
+  });
 }
 
 /**
@@ -572,32 +963,16 @@ export async function contentUseCases() {
     auditLog: deps.auditLog,
     ids: deps.ids,
     events: deps.events,
+    publications: deps.publications,
+    articles: deps.publishedArticles,
   };
-  return {
+  return auditDenials(deps, {
     listBoard: createListContentBoardUseCase(content),
     getContent: createGetContentUseCase(content),
     listReviewOverdue: createListReviewOverdueUseCase(content),
     advanceState: createAdvanceContentStateUseCase(content),
     approve: createApproveContentUseCase(content),
-  };
-}
-
-/** 公開後の記事を訂正・非表示化する管理画面の入口。 */
-export async function publishedArticleAdminUseCases() {
-  const deps = createDeps({ db: await tryGetDb() });
-  const read = { articles: deps.publishedArticleAdmin };
-  const write = {
-    ...read,
-    auditLog: deps.auditLog,
-    ids: deps.ids,
-    now: () => new Date(),
-  };
-  return {
-    list: createListPublishedArticlesUseCase(read),
-    get: createGetPublishedArticleUseCase(read),
-    update: createUpdatePublishedArticleUseCase(write),
-    archive: createArchivePublishedArticleUseCase(write),
-  };
+  });
 }
 
 /**
@@ -606,15 +981,26 @@ export async function publishedArticleAdminUseCases() {
  * **記事を作る前に決めるもの。** 誰の立場で、誰に向けて書くかが決まらないと、
  * 比較の観点も、使ってよい言い回しも決まらない。
  */
-export function personaUseCases() {
-  const personas = { personas: createDeps().personas };
-  return {
+export async function personaUseCases() {
+  // 保存先の接続をここで取る。**取らないと本物の保存先へ届かない。**
+  // `createDeps()` を db 無しで呼ぶと、書き手の保存先は見本のまま固定され、
+  // 登録が成功したように見えて次に開くと消えている。
+  const app = createDeps({ db: await tryGetDb() });
+  const personas = {
+    personas: app.personas,
+    ids: app.ids,
+    auditLog: app.auditLog,
+    now: () => new Date(),
+  };
+  return auditDenials(app, {
     listAuthors: createListAuthorPersonasUseCase(personas),
     getAuthor: createGetAuthorPersonaUseCase(personas),
     listAudiences: createListAudiencePersonasUseCase(personas),
     getAudience: createGetAudiencePersonaUseCase(personas),
     checkFactBoundary: createCheckFactBoundaryUseCase(personas),
-  };
+    saveAuthor: createSaveAuthorPersonaUseCase(personas),
+    saveAudience: createSaveAudiencePersonaUseCase(personas),
+  });
 }
 
 /**
@@ -624,7 +1010,10 @@ export function personaUseCases() {
  * 画面・AI 向けの道具・生成の指示文が同じ定義を見る。
  */
 export function writingMethodUseCases() {
-  return { readMethod: createReadWritingMethodUseCase() };
+  const app = createDeps();
+  return auditDenials(app, {
+    readMethod: createReadWritingMethodUseCase(),
+  });
 }
 
 /**
@@ -640,12 +1029,45 @@ export async function generationMatrixUseCases() {
     variants: deps.contentVariants,
     personas: deps.personas,
   };
-  return {
+  return auditDenials(deps, {
     getMatrix: createGetGenerationMatrixUseCase(matrix),
-  };
+  });
 }
 
-/** 見本データで開く企画。マトリクス画面の初期表示に使う。 */
+/**
+ * 企画（記事を何本も生む親）の入口。
+ *
+ * **記事の入口（`contentUseCases()`）とは別に置く。** あちらは 1 本の記事を
+ * 進める操作で、こちらは「どの商品を・誰が・誰に向けて・何のために」という
+ * 記事より前の決めごと。同じ入口に混ぜると、記事を 1 本作る操作と
+ * 企画を立てる操作の区別が画面から消える。
+ */
+export async function contentPackageUseCases() {
+  // 保存先の接続をここで取る。取らないと、立てた企画が
+  // 次に開いたときには消えている。
+  const app = createDeps({ db: await tryGetDb() });
+  const packages = {
+    packages: app.contentPackages,
+    personas: app.personas,
+    brands: app.brands,
+    products: app.products,
+    ids: app.ids,
+    auditLog: app.auditLog,
+    now: () => new Date(),
+  };
+  return auditDenials(app, {
+    listPackages: createListContentPackagesUseCase(packages),
+    savePackage: createSaveContentPackageUseCase(packages),
+  });
+}
+
+/**
+ * 見本データで開く企画。マトリクス画面の初期表示に使う。
+ *
+ * **記事を作る画面はもうこれを使っていない。** 使っていた頃は、作られる記事が
+ * すべてこの 1 件にぶら下がり、「どの企画の記事か」の答えが全部同じになっていた。
+ * 今は `/admin/content/packages` で選んだ企画が渡る。
+ */
 export function sampleContentPackageId(): string {
   return "cp_laptop_2026";
 }
@@ -657,12 +1079,105 @@ export function sampleContentPackageId(): string {
  * 変わるのは保存されている設計図の設定値だけ。
  */
 export async function platformUseCases() {
-  const sites = { sites: createDeps({ db: await tryGetDb() }).sites };
-  return {
+  const app = createDeps({ db: await tryGetDb() });
+  const sites = { sites: app.sites };
+  return auditDenials(app, {
     listSites: createListManagedSitesUseCase(sites),
     getSite: createGetManagedSiteUseCase(sites),
     checkDifferentiation: createCheckSiteDifferentiationUseCase(sites),
+  });
+}
+
+/**
+ * 商品を人の手で登録する・直す・消す入口。
+ *
+ * 読む側の `productUseCases()` と分けているのは `product-tools.ts` と同じ理由で、
+ * **参照の数え方が違う**ため。読むほうは根拠と順位が要り、書くほうが要るのは
+ * 「この商品を使っている記事が何本あるか」だけである。
+ *
+ * こちらだけ `tryGetDb()` を通しているのは、登録した商品が
+ * 次に開いたときに消えていては登録した意味が無いため。
+ */
+export async function productEditingUseCases() {
+  const deps = createDeps({ db: await tryGetDb() });
+  const editing = {
+    products: deps.products,
+    packages: deps.contentPackages,
+    auditLog: deps.auditLog,
+    ids: deps.ids,
   };
+  return auditDenials(deps, {
+    create: createCreateProductUseCase(editing),
+    update: createUpdateProductUseCase(editing),
+    remove: createDeleteProductUseCase(editing),
+  });
+}
+
+/**
+ * 記事の枠を作る・直す・消す入口。
+ *
+ * 盤面を読む `contentUseCases()` とは別に置く。あちらは段階を進める操作で、
+ * こちらは中身を書き換える操作である。**承認が外れるのはこちらだけ**で、
+ * 同じ入口にすると「進めたつもりが承認を外していた」が起きる。
+ */
+export async function contentEditingUseCases() {
+  const deps = createDeps({ db: await tryGetDb() });
+  const editing = {
+    variants: deps.contentVariants,
+    packages: deps.contentPackages,
+    auditLog: deps.auditLog,
+    ids: deps.ids,
+  };
+  return auditDenials(deps, {
+    create: createCreateContentVariantUseCase(editing),
+    update: createUpdateContentVariantUseCase(editing),
+    remove: createDeleteContentVariantUseCase(editing),
+    // ブログ別の書き分けは、1 本ずつ作る操作の上に載っている。
+    // 同じつなぎ目から取るのは、片方だけ別の保存先を向くのを防ぐため。
+    createConceptDrafts: createCreateConceptDraftsUseCase(editing),
+  });
+}
+
+/**
+ * ブログの設計図を直す・取り下げる入口。
+ *
+ * 読む `platformUseCases()` より依存が多い。書くのは登録の窓口 (`drafts`) で、
+ * 取り下げの前に `publishedContent` で残っている記事を数えるため。
+ */
+export async function siteEditingUseCases() {
+  const deps = createDeps({ db: await tryGetDb() });
+  const siteEditing = {
+    sites: deps.sites,
+    drafts: deps.siteDrafts,
+    publishedContent: deps.publishedContent,
+    auditLog: deps.auditLog,
+    ids: deps.ids,
+  };
+  return auditDenials(deps, {
+    update: createUpdateManagedSiteUseCase(siteEditing),
+    remove: createDeleteManagedSiteUseCase(siteEditing),
+  });
+}
+
+/**
+ * ブログの固定文書（運営者情報・各方針・規約・特商法表記）の入口。
+ *
+ * 記事とは別に置く。記事の下書きの口を渡すと、固定文書の画面から
+ * 記事を書き換えられる形になり、権限の話がここに紛れ込む。
+ */
+export async function siteDocumentUseCases() {
+  const deps = createDeps({ db: await tryGetDb() });
+  const documentDeps = {
+    sites: deps.sites,
+    documents: deps.siteDocuments,
+    ids: deps.ids,
+    auditLog: deps.auditLog,
+    now: () => new Date(),
+  };
+  return auditDenials(deps, {
+    list: createListSiteDocumentsUseCase(documentDeps),
+    save: createSaveSiteDocumentUseCase(documentDeps),
+  });
 }
 
 /**
@@ -674,12 +1189,15 @@ export async function platformUseCases() {
 export async function distributionUseCases() {
   // 保存先の接続をここで取る。**画面ごとに取らない。**
   // 取り方が画面ごとに分かれると、片方だけ見本のまま残る。
-  const deps = createDeps({ db: await tryGetDb() });
+  const context = await appContext();
+  const deps = createDeps({ db: context.db, env: context.env });
   const distribution = {
     connections: deps.channelConnections,
+    connectors: deps.channelConnectors,
     publications: deps.publications,
     manualExport: deps.manualExport,
     variants: deps.contentVariants,
+    contentPackages: deps.contentPackages,
     ids: deps.ids,
     auditLog: deps.auditLog,
   };
@@ -688,22 +1206,27 @@ export async function distributionUseCases() {
   // 決めるのが配信の仕事だから。両方に置くと、同じ記事が 2 度出る。
   const ownSite = {
     sites: deps.sites,
+    packages: deps.contentPackages,
     variants: deps.contentVariants,
     publications: deps.publications,
     articles: deps.publishedArticles,
+    offers: deps.articleOffers,
     auditLog: deps.auditLog,
     ids: deps.ids,
   };
-  return {
+  return auditDenials(deps, {
     listChannels: createListChannelsUseCase(distribution),
     listPublications: createListPublicationsUseCase(distribution),
+    registerConnection: createRegisterChannelConnectionUseCase(distribution),
     getPublication: createGetPublicationUseCase(distribution),
     exportManualDraft: createExportManualDraftUseCase(distribution),
     cancel: createCancelPublicationUseCase(distribution),
     schedule: createSchedulePublicationUseCase(distribution),
+    update: createUpdatePublicationUseCase(distribution),
+    channelStatus: createGetContentChannelStatusUseCase(distribution),
     preparePublishArticle: createPreparePublishArticleUseCase(ownSite),
     publishArticle: createPublishArticleUseCase(ownSite),
-  };
+  });
 }
 
 /**
@@ -723,10 +1246,10 @@ export async function publicationCalendarUseCases() {
     auditLog: deps.auditLog,
     ids: deps.ids,
   };
-  return {
+  return auditDenials(deps, {
     getCalendar: createGetPublicationCalendarUseCase(calendar),
     reschedule: createReschedulePublicationUseCase(calendar),
-  };
+  });
 }
 
 /**
@@ -749,14 +1272,25 @@ export async function affiliateUseCases() {
     auditLog: deps.auditLog,
     now: () => new Date(),
   };
-  return {
+  return auditDenials(deps, {
     listAccounts: createListAffiliateAccountsUseCase(affiliate),
     listPrograms: createListAffiliateProgramsUseCase(affiliate),
     listConversions: createListConversionsUseCase(affiliate),
     getConversion: createGetConversionUseCase(affiliate),
     listProductLinks: createListProductLinksUseCase(affiliate),
     adjustConversion: createAdjustConversionUseCase(affiliate),
-  };
+    // 登録の 2 口。**一覧しか無い間は、提携先も提携条件も見本のまま増やせなかった。**
+    saveAccount: createSaveAffiliateAccountUseCase(affiliate),
+    saveProgram: createSaveAffiliateProgramUseCase(affiliate),
+    /*
+     * 登録したリンクを見て、古くなったものを止める 2 口。
+     * **止める口が無い間、表記を直す手段は 1 つも無かった。** 写しは上書きしない
+     * 決まり（`docs/product/design-decisions.md` §2）なので、直し方は
+     * 「止めて登録し直す」しかなく、その 1 手目が存在しなかった。
+     */
+    listLinks: createListAffiliateLinksUseCase(affiliate),
+    disableLink: createDisableAffiliateLinkUseCase(affiliate),
+  });
 }
 
 /**
@@ -776,13 +1310,25 @@ export async function linkInboxUseCases() {
     auditLog: deps.auditLog,
     now: () => new Date(),
   };
-  return {
+  return auditDenials(deps, {
     list: createListLinkInboxUseCase(inbox),
     submit: createSubmitAffiliateUrlUseCase(inbox),
     resolve: createResolveLinkIngestionUseCase(inbox),
     match: createMatchLinkIngestionUseCase(inbox),
     reject: createRejectLinkIngestionUseCase(inbox),
-  };
+    /*
+     * 受信箱の最後の一歩。**ここまで来て初めて、記事に出せるリンクになる。**
+     * 商品まで決めた 1 件を `affiliate_links` へ登録する口で、
+     * これが無いと表は空のままで、公開した記事に成果リンクが 1 件も出ない。
+     */
+    register: createRegisterAffiliateLinkUseCase({
+      inbox: deps.linkInbox,
+      links: deps.affiliateLinks,
+      ids: deps.ids,
+      auditLog: deps.auditLog,
+      now: () => new Date(),
+    }),
+  });
 }
 
 /**
@@ -816,7 +1362,7 @@ export async function analyticsUseCases() {
   // 画面には見本の数字が出続ける（受信箱・改善要望で実際に起きた形）。
   const deps = createDeps({ db: await tryGetDb() });
   const analytics = { metrics: deps.metrics };
-  return {
+  return auditDenials(deps, {
     listMetrics: createListMetricsUseCase(analytics),
     listUsableMetrics: createListUsableMetricsUseCase(analytics),
     checkFeedback: createCheckFeedbackUseCase(analytics),
@@ -827,7 +1373,7 @@ export async function analyticsUseCases() {
     trackingCoverage: createReadTrackingCoverageUseCase({
       trackingCoverage: deps.trackingCoverage,
     }),
-  };
+  });
 }
 
 /**
@@ -837,11 +1383,12 @@ export async function analyticsUseCases() {
  * 記録先を差し替えるときに触るのは infrastructure の 1 行だけ。
  */
 export async function telemetryUseCases() {
-  const deps = { sink: createDeps({ db: await tryGetDb() }).telemetry };
-  return {
+  const app = createDeps({ db: await tryGetDb() });
+  const deps = { sink: app.telemetry };
+  return auditDenials(app, {
     aiUsage: createAiUsageReportUseCase(deps),
     explain: createExplainTelemetryUseCase(),
-  };
+  });
 }
 
 /**
@@ -903,7 +1450,7 @@ export async function improvementUseCases() {
   // 回す側は id と時刻、それに**操作の記録先**が要る。読む側と同じ保存先を使う
   // （画面用にもう 1 つ保存の道を作らない）。
   const run = { ...deps, auditLog: app.auditLog, ids: app.ids, now: () => new Date() };
-  return {
+  return auditDenials(app, {
     review: createReviewLoopRunsUseCase(deps),
     dimensions: createListImprovementDimensionsUseCase(deps),
     draftSpec: createDraftVariantSpecUseCase(run),
@@ -912,7 +1459,7 @@ export async function improvementUseCases() {
     observe: createRecordLoopObservationUseCase(run),
     conclude: createConcludeLoopRunUseCase(run),
     stop: createStopLoopRunUseCase(run),
-  };
+  });
 }
 
 /** 改善ループの記録先が見本であることを画面に出すための一文。 */
@@ -942,11 +1489,12 @@ export async function feedbackUseCases() {
   const feedback = {
     repository: deps.feedback,
     captures: deps.feedbackCaptures,
+    brands: deps.brands,
     ids: deps.ids,
     auditLog: deps.auditLog,
     now: () => new Date(),
   };
-  return {
+  return auditDenials(deps, {
     submit: createSubmitFeedbackUseCase(feedback),
     list: createListFeedbackUseCase({ repository: deps.feedback }),
     read: createReadFeedbackUseCase({
@@ -973,7 +1521,7 @@ export async function feedbackUseCases() {
       now: feedback.now,
       auditLog: deps.auditLog,
     }),
-  };
+  });
 }
 
 /**
@@ -1036,7 +1584,11 @@ export async function generationUseCases() {
   const context = await appContext();
   const deps = createDeps({ db: context.db, env: context.env });
   const management = createLlmCredentialManagement(context);
-  return {
+  const capacity = createCapacityGuard({
+    workspaces: deps.workspaces,
+    now: () => new Date(),
+  });
+  return auditDenials(deps, {
     readPlan: createReadGenerationPlanUseCase(),
     checkInput: createCheckGenerationInputUseCase(),
     reviewMaterial: createReviewMaterialUseCase(),
@@ -1046,8 +1598,17 @@ export async function generationUseCases() {
         ? { available: true, vault: management.vault }
         : { available: false, reason: management.reason },
     }),
-    draft: createDraftContentVariantUseCase({ llm: deps.llm, costs: deps.llmCosts }),
-  };
+    // brands を渡すのは、AWS-ACC-03（ブランドの標準 CTA・標準免責が既定値として入る）が
+    // 経路を限定していないため。ここを省くと、道具経路（/api/tools）では届くのに
+    // 画面経路（/admin/generation）では届かない、という利用者から見て説明不能な差になる。
+    // P10 の FR-01 が実測したのがまさにこの欠落である。
+    draft: createDraftContentVariantUseCase({
+      llm: deps.llm,
+      costs: deps.llmCosts,
+      brands: deps.brands,
+      capacity,
+    }),
+  });
 }
 
 /**
@@ -1098,6 +1659,40 @@ export async function llmCredentialEntry(): Promise<LlmCredentialEntry> {
 }
 
 /**
+ * SEO/AI 検索の指針の出典レジストリの入口。
+ *
+ * 保存先 (D1) が無い実行では `ready: false` と理由だけを返す。
+ * 見本の保存先へ黙って落とすと、登録したつもりの出典が次の実行で消える。
+ */
+export type GuidelineReferenceEntry =
+  | {
+      readonly ready: true;
+      readonly manage: UseCase<ManageGuidelineReferencesInput, ManageGuidelineReferencesOutput>;
+    }
+  | { readonly ready: false; readonly reason: string };
+
+export async function guidelineReferenceEntry(): Promise<GuidelineReferenceEntry> {
+  const db = await tryGetDb();
+  if (db === null) {
+    return {
+      ready: false,
+      reason:
+        "保存先 (D1) が用意されていません。出典の登録と確認日の更新は、保存先がある実行でだけ使えます。",
+    };
+  }
+  const deps = createDeps({ db });
+  return {
+    ready: true,
+    manage: createManageGuidelineReferencesUseCase({
+      references: createD1GuidelineReferenceRepository({ db, now: () => new Date() }),
+      auditLog: deps.auditLog,
+      ids: deps.ids,
+      now: () => new Date(),
+    }),
+  };
+}
+
+/**
  * 18 項目がそろった状態の見本。
  *
  * **見本データ（スタブ）である。** 画面で「そろった状態」を実際に押して
@@ -1125,14 +1720,66 @@ export async function settingsUseCases() {
     disclosures: deps.disclosures,
     auditLog: deps.auditLog,
   };
-  return {
+  const capacity = createCapacityGuard({
+    workspaces: deps.workspaces,
+    now: () => new Date(),
+  });
+  const compliance = {
+    disclosures: deps.disclosures,
+    policyRules: deps.policyRules,
+    auditLog: deps.auditLog,
+    ids: deps.ids,
+    now: () => new Date(),
+  };
+  return auditDenials(deps, {
     getOverview: createGetSettingsOverviewUseCase(settings),
     listRoles: createListRolesUseCase(settings),
     listMembers: createListMembersUseCase(settings),
+    /**
+     * 担当者を書く口（招待・役割の変更・取り消し）。
+     *
+     * 読む口と同じ `settings` を渡す。保存先が用意できていれば本物（D1）で、
+     * 無い実行では見本のまま保存が失敗を返す。**どちらで動いているかは
+     * 画面に文字で出す**（`settingsNotice()`）。黙って見本へ落ちない。
+     */
+    manageMembers: createManageMembersUseCase({
+      ...settings,
+      ids: deps.ids,
+      now: () => new Date(),
+      capacity,
+    }),
     listBrands: createListBrandsUseCase(settings),
+    /**
+     * ブランドを作る・直す口。
+     *
+     * **読む口と同じ保存先を渡す。** 別に組み立てると、直した内容が
+     * 一覧に出ない（読み側だけ見本を読み続ける）状態が作れる。
+     */
+    saveBrand: createSaveBrandUseCase({
+      ...settings,
+      ids: deps.ids,
+      now: () => new Date(),
+      capacity,
+    }),
+    updateWorkspace: createUpdateWorkspaceUseCase({
+      ...settings,
+      ids: deps.ids,
+      now: () => new Date(),
+    }),
     listDisclosures: createListDisclosuresUseCase(settings),
     listAuditLog: createListAuditLogUseCase(settings),
-  };
+    /**
+     * 表記のきまりの一覧と、広告表記・きまりを**変える**口。
+     *
+     * §26 が必ず記録すると定めている 3 つのうち 1 つが
+     * 「広告表記・ランキング基準の変更」で、ここがその変更の入口である。
+     * 読む口と同じ保存先を渡す。用意できていれば本物（D1）で、
+     * 無い実行では見本のまま保存が失敗を返す（`settingsNotice()` が画面に書く）。
+     */
+    listPolicyRules: createListPolicyRulesUseCase({ policyRules: deps.policyRules }),
+    editDisclosure: createEditDisclosureUseCase(compliance),
+    editPolicyRule: createEditPolicyRuleUseCase(compliance),
+  });
 }
 
 /**
@@ -1144,7 +1791,7 @@ export async function settingsUseCases() {
  */
 export async function dashboardUseCases() {
   const deps = createDeps({ db: await tryGetDb() });
-  return {
+  return auditDenials(deps, {
     getDashboard: createGetDashboardUseCase({
       contentVariants: deps.contentVariants,
       products: deps.products,
@@ -1154,7 +1801,7 @@ export async function dashboardUseCases() {
       affiliateLinks: deps.affiliateLinks,
       conversions: deps.conversions,
     }),
-  };
+  });
 }
 
 /** 設定が見本データであることを画面に出すための一文。 */
@@ -1185,6 +1832,17 @@ export async function analyticsNotice(): Promise<StorageStatus> {
 }
 
 /** 提携と成果が見本データであることを画面に出すための一文。 */
+/**
+ * 提携先の選択肢。
+ *
+ * ドメインの `ASP_LABEL` から作る。画面側に一覧を写すと、
+ * ASP を 1 つ足したときに写したほうだけが古くなり、
+ * 「保存はできるのに選べない種類」が生まれる。
+ */
+export function affiliateAspOptions(): readonly { key: string; label: string }[] {
+  return aspOptions().map((o) => ({ key: o.key, label: o.label }));
+}
+
 export function affiliateNotice(): string {
   return sampleAffiliateNotice();
 }
@@ -1247,21 +1905,45 @@ export async function distributionNotice(): Promise<StorageStatus> {
  *
  * **2 つのことを分けて書く。**
  *   1. 記事の本文と進行の現在地が保存されるか（保存先があれば保存される）
- *   2. 企画と書き手が見本のままであること（作る入口がまだ無い）
- * 1 が済んだからといって 2 も済んだように読める文にすると、
- * 「書き手を増やせない」を故障と誤解させる。
+ *   2. はじめから並んでいるものが見本であること
+ * 1 が済んだからといって 2 が消えるわけではない。見本を消すと、
+ * まだ 1 件も作っていない状態と壊れている状態を画面から見分けられなくなる。
+ *
+ * **画面側にこの条件を書かない。** 書いていた頃は、保存先をつないだあとも
+ * 「まだつながっていません」と出続けた（2026-08-17、Workers 上の確認で判明）。
  */
 export async function editorialContentNotice(): Promise<StorageStatus> {
   const db = await tryGetDb();
   return {
     persisted: db !== null,
-    what: "記事の本文と進行の現在地の保存先",
-    blockedBy: "企画・書き手を作る入口（content_packages / personas）",
+    what: "企画と記事の保存先",
+    blockedBy: "保存先（D1）への接続",
     stubId: "persistence:content-editorial-sample",
     message:
       db === null
         ? sampleEditorialContentNotice()
-        : "進めた段階と承認は保存されます（保存先: D1 の content_variants）。はじめから並んでいる記事は見本で、消さずに残してあります。企画と書き手はまだ見本です（作る入口がないため）。",
+        : "立てた企画と、進めた段階・承認は保存されます（保存先: D1 の content_packages / content_variants）。はじめから並んでいる企画と記事は見本で、消さずに残してあります。",
+  };
+}
+
+/**
+ * 書き手と読者像が保存されるか。
+ *
+ * 記事の側（`editorialContentNotice()`）と分けている。**同じ保存先の話ではなく、
+ * 利用者がこの画面で気にしているのが「増やした書き手が残るか」だけ**だから。
+ * 記事の進行の話を混ぜると、書き手の画面で記事の説明を読まされる。
+ */
+export async function personaStorageNotice(): Promise<StorageStatus> {
+  const db = await tryGetDb();
+  return {
+    persisted: db !== null,
+    what: "書き手と読者像の保存先",
+    blockedBy: "保存先（D1）への接続",
+    stubId: "persistence:content-editorial-sample",
+    message:
+      db === null
+        ? sampleEditorialContentNotice()
+        : "登録した書き手と読者像は保存されます（保存先: D1 の author_personas / audience_personas）。はじめから並んでいる分は見本で、消さずに残してあります。",
   };
 }
 
@@ -1281,6 +1963,7 @@ export function readerActor(): ActorContext {
     workspaceId: taggedString<"WorkspaceId">("ws_public"),
     userId: taggedString<"UserId">("anonymous"),
     roles: [],
+    scopedBrandIds: [],
     isAiServiceAccount: false,
     /**
      * **確かめていない。** `anonymous` は誰でもある。
@@ -1380,17 +2063,199 @@ export function productDisplayName(productId: string): string {
  */
 export async function siteBuilderUseCases() {
   const deps = createDeps({ db: await tryGetDb() });
+  const capacity = createCapacityGuard({
+    workspaces: deps.workspaces,
+    now: () => new Date(),
+  });
   const builder = {
     drafts: deps.siteDrafts,
     ids: deps.ids,
     auditLog: deps.auditLog,
     now: () => new Date(),
+    capacity,
   };
-  return {
+  return auditDenials(deps, {
     listDrafts: createListSiteDraftsUseCase(builder),
     getDraft: createGetSiteDraftUseCase(builder),
     startDraft: createStartSiteDraftUseCase(builder),
     saveStep: createSaveSiteDraftStepUseCase(builder),
     createSite: createCreateSiteFromDraftUseCase(builder),
+  });
+}
+
+/**
+ * 公開した記事を IndexNow で検索エンジンへ知らせる差し込み口。
+ *
+ * 送信の実体（鍵の取得・fetch）はインフラ層にあり、画面側はこの口だけを見る。
+ * **失敗しても throw しない**（`submitToIndexNow` の契約）。通知は公開の条件では
+ * ないので、通知先の障害が記事の公開を道連れにしない。鍵は戻り値にもログにも
+ * 現れない。skipped/failed の別は呼び出し元が記録する。
+ */
+export async function notifyIndexNowOfPublish(
+  origin: string,
+  urls: readonly string[],
+): Promise<{ readonly status: "skipped" | "sent" | "failed"; readonly detail: string }> {
+  const result = await submitToIndexNow(origin, urls);
+  switch (result.status) {
+    case "sent":
+      return { status: "sent", detail: `${result.count} 件を通知しました。` };
+    case "skipped":
+      return { status: "skipped", detail: result.reason };
+    case "failed":
+      return { status: "failed", detail: result.error };
+  }
+}
+
+/* ------------------------------------------------------------------ *
+ * ブログ運用（サイト網・版面・記事・固定ページ・タグ・評価）
+ * ------------------------------------------------------------------ */
+
+/**
+ * 作成者向けの口。
+ *
+ * 出典の登録（`guidelineReferenceEntry`）と同じく、**保存先が無ければ
+ * `ready:false` を理由つきで返す**。ここで見本へ落とすと、書いた記事が
+ * 保存されていないのに保存されたように見える。
+ */
+export type BlogOpsEntry =
+  | {
+      readonly ready: true;
+      readonly listNetwork: ReturnType<typeof createListSiteNetworkUseCase>;
+      readonly listDeletedNetwork: ReturnType<typeof createListDeletedSiteNetworkUseCase>;
+      readonly createNetworkNode: ReturnType<typeof createCreateSiteNetworkNodeUseCase>;
+      readonly updateNetworkNode: ReturnType<typeof createUpdateSiteNetworkNodeUseCase>;
+      readonly deleteNetworkNode: ReturnType<typeof createDeleteSiteNetworkNodeUseCase>;
+      readonly restoreNetworkNode: ReturnType<typeof createRestoreSiteNetworkNodeUseCase>;
+      readonly readLayout: ReturnType<typeof createReadBlogLayoutUseCase>;
+      readonly saveLayoutSlot: ReturnType<typeof createSaveBlogLayoutSlotUseCase>;
+      readonly saveLayoutBand: ReturnType<typeof createSaveBlogLayoutBandUseCase>;
+      readonly saveDeliveryPart: ReturnType<typeof createSaveDeliveryPartUseCase>;
+      /** 配信物を実際に組み立ててみて、結果を履歴として積む (受入 A9)。 */
+      readonly checkDelivery: ReturnType<typeof createCheckBlogDeliveryUseCase>;
+      readonly listArticles: ReturnType<typeof createListBlogArticlesUseCase>;
+      readonly listDeletedArticles: ReturnType<typeof createListDeletedBlogArticlesUseCase>;
+      readonly getArticle: ReturnType<typeof createGetBlogArticleUseCase>;
+      readonly createArticle: ReturnType<typeof createCreateBlogArticleUseCase>;
+      readonly updateArticle: ReturnType<typeof createUpdateBlogArticleUseCase>;
+      readonly deleteArticle: ReturnType<typeof createDeleteBlogArticleUseCase>;
+      readonly restoreArticle: ReturnType<typeof createRestoreBlogArticleUseCase>;
+      readonly listFixedPages: ReturnType<typeof createListFixedPagesUseCase>;
+      readonly listDeletedFixedPages: ReturnType<typeof createListDeletedFixedPagesUseCase>;
+      readonly saveFixedPage: ReturnType<typeof createSaveFixedPageUseCase>;
+      readonly deleteFixedPage: ReturnType<typeof createDeleteFixedPageUseCase>;
+      readonly restoreFixedPage: ReturnType<typeof createRestoreFixedPageUseCase>;
+      readonly listTags: ReturnType<typeof createListBlogTagsUseCase>;
+      readonly saveTag: ReturnType<typeof createSaveBlogTagUseCase>;
+      readonly deleteTag: ReturnType<typeof createDeleteBlogTagUseCase>;
+      readonly evaluate: ReturnType<typeof createEvaluateBlogArticlesUseCase>;
+      /**
+       * 記事 1 本に付いた票を 1 件ずつ読む口。**伏せたものも返す。**
+       * 読者側の集計（`publicBlogEntry.summarizeRating`）とは別にしてある。
+       * あちらは「読者に見える数」なので伏せた票が消えるのが正しく、
+       * こちらは運営者が「何を伏せたか」を確かめる口なので、消えたら用を成さない。
+       */
+      readonly listRatings: ReturnType<typeof createListArticleRatingsUseCase>;
+      /** 票を伏せる／戻す。**行は消さない。** */
+      readonly setRatingHidden: ReturnType<typeof createSetArticleRatingHiddenUseCase>;
+    }
+  | { readonly ready: false; readonly reason: string };
+
+export async function blogOpsEntry(): Promise<BlogOpsEntry> {
+  const db = await tryGetDb();
+  if (db === null) {
+    return {
+      ready: false,
+      reason:
+        "保存先 (D1) が用意されていません。ブログの版面・記事・固定ページの編集は、保存先がある実行でだけ使えます。",
+    };
+  }
+  const deps = createDeps({ db });
+  /*
+    **保管庫は組み立て側 (`createDeps`) から受け取る。**
+    ここで `createD1BlogOpsRepository(db)` を自前で作っていたころは、
+    同じ保管庫の作り方が画面側と道具側の 2 か所にあった。
+    2 か所あると、片方だけ差し替えた日に「画面ではできるが AI からはできない」が生まれる。
+  */
+  const repository = deps.blogOps;
+  const now = () => new Date();
+  const base = { repository, ids: deps.ids, auditLog: deps.auditLog, now };
+  return {
+    ready: true,
+    listNetwork: createListSiteNetworkUseCase(base),
+    listDeletedNetwork: createListDeletedSiteNetworkUseCase(base),
+    createNetworkNode: createCreateSiteNetworkNodeUseCase(base),
+    updateNetworkNode: createUpdateSiteNetworkNodeUseCase(base),
+    deleteNetworkNode: createDeleteSiteNetworkNodeUseCase(base),
+    restoreNetworkNode: createRestoreSiteNetworkNodeUseCase(base),
+    readLayout: createReadBlogLayoutUseCase(base),
+    saveLayoutSlot: createSaveBlogLayoutSlotUseCase(base),
+    saveLayoutBand: createSaveBlogLayoutBandUseCase(base),
+    saveDeliveryPart: createSaveDeliveryPartUseCase(base),
+    checkDelivery: createCheckBlogDeliveryUseCase(base),
+    listArticles: createListBlogArticlesUseCase(base),
+    listDeletedArticles: createListDeletedBlogArticlesUseCase(base),
+    getArticle: createGetBlogArticleUseCase(base),
+    createArticle: createCreateBlogArticleUseCase(base),
+    updateArticle: createUpdateBlogArticleUseCase(base),
+    deleteArticle: createDeleteBlogArticleUseCase(base),
+    restoreArticle: createRestoreBlogArticleUseCase(base),
+    listFixedPages: createListFixedPagesUseCase(base),
+    listDeletedFixedPages: createListDeletedFixedPagesUseCase(base),
+    saveFixedPage: createSaveFixedPageUseCase(base),
+    deleteFixedPage: createDeleteFixedPageUseCase(base),
+    restoreFixedPage: createRestoreFixedPageUseCase(base),
+    listTags: createListBlogTagsUseCase(base),
+    saveTag: createSaveBlogTagUseCase(base),
+    deleteTag: createDeleteBlogTagUseCase(base),
+    evaluate: createEvaluateBlogArticlesUseCase({ repository, now }),
+    listRatings: createListArticleRatingsUseCase(base),
+    setRatingHidden: createSetArticleRatingHiddenUseCase(base),
+  };
+}
+
+/**
+ * 読者に見える面の入口。
+ *
+ * 作成者向けと**別の口**にしてある。同じ口を使い回すと、絞り忘れ 1 か所で
+ * 下書きが読者側に出る。ここは `PublicBlogPort`（公開済みしか返さない）
+ * だけを握る。
+ *
+ * **`ready: false` を持たない。** 保存先 (D1) が無いところでは見本へ落ちる。
+ * 「用意できていません」を返す形にしていた頃は、記事の画面が
+ * どんな住所でも 200 を返し、「無い記事は 404」という約束を
+ * 確かめられる場所が本番だけになっていた（他の入口も同じ理由で見本へ落ちる）。
+ */
+export type PublicBlogEntry = {
+  /** 見本を live と誤認させないための公開契約。 */
+  readonly source: "live" | "sample";
+  readonly port: PublicBlogPort;
+  readonly submitRating: ReturnType<typeof createSubmitArticleRatingUseCase>;
+  /**
+   * いまの件数と平均を読むだけの口。
+   *
+   * 管理側の `summarizeRatings`（会社ごとに絞る）とは別にしてある。
+   * 記事 1 本の所属は記事 id が決めるので、読者側に会社は要らない。
+   */
+  readonly summarizeRating: ArticleRatingPort["summarize"];
+};
+
+export async function publicBlogEntry(): Promise<PublicBlogEntry> {
+  const db = await tryGetDb();
+  const deps = createDeps({ db });
+  const publicBlog =
+    db === null
+      ? createSamplePublicBlogPort(deps.sites)
+      : createD1PublicBlogPort(db, deps.sites);
+  const ratings = db === null ? createSampleArticleRatingPort() : createD1ArticleRatingPort(db);
+  return {
+    source: db === null ? "sample" : "live",
+    port: publicBlog,
+    summarizeRating: ratings.summarize,
+    submitRating: createSubmitArticleRatingUseCase({
+      ratings,
+      publicBlog,
+      ids: deps.ids,
+      now: () => new Date(),
+    }),
   };
 }

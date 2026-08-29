@@ -1,9 +1,22 @@
+import type { Metadata } from "next";
 import { readerActor, siteUseCases } from "@/presentation/composition";
-import { SiteHomeContent, toSiteHomeView } from "@/presentation/site/home-content";
+import { siteHomeMetadata } from "@/presentation/site/site-metadata";
 import { SiteFrame } from "@/presentation/site/page-frame";
-import { siteHref } from "@/presentation/site/view-model";
+import { BlogTopBands } from "@/presentation/site/blog-top-bands";
+import { siteHref, toArticleCards } from "@/presentation/site/view-model";
+import { ArticleList, ErrorView, ListView, Section, SitePage, UI_COPY } from "@/presentation/ui";
 
 export const dynamic = "force-dynamic";
+
+/** ブログ名と目的を検索結果・SNS・AI 検索へ渡す。設計図が正本。 */
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ site: string }>;
+}): Promise<Metadata> {
+  const { site } = await params;
+  return siteHomeMetadata(site);
+}
 
 /**
  * ブログのトップ。
@@ -16,19 +29,49 @@ export default async function SiteHome({ params }: { params: Promise<{ site: str
   const recent = await (await siteUseCases()).listRecent.execute(readerActor(), { siteSlug: site });
 
   return (
-    <SiteFrame siteSlug={site} currentPath={siteHref(site, "/")} pageKind="site_home">
-      {({ blueprint }) => (
-        <SiteHomeContent
-          view={toSiteHomeView(site, blueprint, recent.ok ? recent.value : [])}
-          recentError={
-            recent.ok
-              ? undefined
-              : {
-                  title: "記事を読み込めませんでした",
-                  body: recent.error.suggestedAction ?? recent.error.message,
-                }
-          }
-        />
+    <SiteFrame siteSlug={site} currentPath={siteHref(site, "/")} pageKind="site_home" sidebar>
+      {({ blueprint, projection }) => (
+        <SitePage title={blueprint.name} lead={blueprint.purpose} wide>
+          {/*
+            管理画面で並べた帯。保存された順番・見出し・件数のとおりに描く。
+            まだ 1 本も設定していないブログでは何も出ず、下の既定の並びだけになる。
+          */}
+          <BlogTopBands
+            siteSlug={site}
+            projection={projection}
+            categories={blueprint.categories.map((c) => ({
+              slug: c.slug,
+              name: c.name,
+              oneLine: c.oneLine,
+            }))}
+          />
+
+          <Section title="カテゴリー">
+            <ListView
+              rows={blueprint.categories.map((c) => ({
+                key: c.slug,
+                label: c.name,
+                href: siteHref(site, `/categories/${c.slug}`),
+                note: c.oneLine,
+              }))}
+            />
+          </Section>
+
+          <Section title="新着">
+            {recent.ok ? (
+              <ArticleList
+                articles={toArticleCards(site, recent.value)}
+                emptyTitle={UI_COPY.article.emptyListTitle}
+                emptyBody={UI_COPY.article.emptyListBody}
+              />
+            ) : (
+              <ErrorView
+                title="記事を読み込めませんでした"
+                body={recent.error.suggestedAction ?? recent.error.message}
+              />
+            )}
+          </Section>
+        </SitePage>
       )}
     </SiteFrame>
   );

@@ -83,6 +83,7 @@ describe("疎通確認", () => {
     expect(result.ok).toBe(true);
     // 下書きと混ざらないこと（記事の数と生成の回数が合わなくなるため）。
     expect(usage.entries[0]?.purpose).toBe("verification");
+    expect(usage.entries[0]?.capacityConsumed).toBe(true);
   });
 
   it("鍵が拒まれたら失敗を返す（確認済みにしない）", async () => {
@@ -156,6 +157,7 @@ describe("疎通確認", () => {
     expect(result.error.code).toBe("UPSTREAM_UNAVAILABLE");
     // 呼んだので、確認として記録も残る。
     expect(usage.entries[0]?.purpose).toBe("verification");
+    expect(usage.entries[0]?.capacityConsumed).toBe(true);
     expect(usage.entries[0]?.providerId).toBe("xai");
   });
 

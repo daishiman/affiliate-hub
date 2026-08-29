@@ -632,6 +632,53 @@ describe("軸を 1 つ増やしたときの影響（変更容易性シナリオ 
     expect(suggestions[0]?.verdict).toBe("improved");
   });
 
+  /**
+   * 上の 1 件は**表に無い軸名を 1 つ**渡しただけである。
+   * 「ループ本体が軸の名前を知らない」の反対は「表に**ある**軸名を特別扱いする」で、
+   * そちらは上の試験を素通りする。実測（2026-08-21）：`buildSuggestions` に
+   * `d.dimensionKey === "brand_theme" ? "improved" : …` の 1 行を足しても
+   * **2837 件が緑のまま**通った。`improvement.ts` の見出しには
+   * 「ここに軸ごとの分岐を書き始めると…」と書いてあるが、
+   * **それを見ている検査が無かった**（`W03` 型）。
+   *
+   * ここでは登録済みの 20 軸すべてと、表に無い名前を**同じ観測値で**通し、
+   * 判定・提案文・承認要否が**軸によって変わらない**ことを見る。
+   * 変わってよいのは、軸そのものを写している 2 つ（`dimensionKey` と `dimensionLabel`）だけ。
+   */
+  it("登録済みの軸を含め、どの軸名でも判定と提案文が変わらない（特別扱いが無い）", () => {
+    const judged = judgeComparison({
+      metric: "read_completion_rate",
+      baselineValue: 0.4,
+      baselineSamples: 900,
+      candidateValue: 0.3,
+      candidateSamples: 900,
+      minimumSamples: DEFAULT_MINIMUM_SAMPLES,
+      comparisonCount: 1,
+    });
+    if (!judged.ok) throw new Error(judged.error.message);
+
+    const keys = [...OPTIMIZATION_DIMENSIONS.map((d) => d.key), "brand_new_axis"];
+    const shapes = keys.map((key) => {
+      const s = buildSuggestions(
+        [{ dimensionKey: key, label: key, baseline: "A", candidate: "B" }],
+        [judged.value],
+      )[0];
+      return { key, verdict: s?.verdict, rationale: s?.rationale, approval: s?.requiresApproval };
+    });
+
+    // 20 軸を数え落としていないこと。ここが 1 になっても緑にならないようにする。
+    expect(shapes.length).toBe(OPTIMIZATION_DIMENSIONS.length + 1);
+    const first = shapes[0];
+    for (const s of shapes) {
+      expect(s.verdict, `${s.key} だけ判定が違う`).toBe(first.verdict);
+      expect(s.rationale, `${s.key} だけ提案文が違う`).toBe(first.rationale);
+      expect(s.approval, `${s.key} だけ承認の要否が違う`).toBe(true);
+    }
+    // 観測値のほうは実際に「悪くなった」まで動いていること
+    //（全部 pending で揃っていても上の総当たりは緑になる）。
+    expect(first.verdict).toBe("worsened");
+  });
+
   it("登録表に足した軸は、探せば必ず見つかる（画面の書き起こしが要らない）", () => {
     for (const d of OPTIMIZATION_DIMENSIONS) {
       expect(findOptimizationDimension(d.key)?.label).toBe(d.label);
