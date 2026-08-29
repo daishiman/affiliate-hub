@@ -1,0 +1,14 @@
+{
+  "campaignId": "silentbase-mat-2026h2",
+  "medium": "x-short",
+
+  "claimRefs": ["c1", "c2"],
+
+  "body": "洗濯機の下に防振マットを敷いて、\n脱水中に階下の真下で測ったら42dBが36dBになりました。\n3回の平均で、暗騒音は31dBです。\n\nただし低音域（125Hz帯）だけを取り出すと、\n下がったのは1dBでした。\n「ドン」と言われた人には効きません。\n\n測り方と、効かなかったほうの数字はブログに置いています。\nhttps://example.com/reviews/silentbase-mat-20mm\n\n広告（アフィリエイト）を含みます。",
+
+  "hashtags": ["#賃貸"],
+
+  "links": ["https://example.com/reviews/silentbase-mat-20mm"],
+
+  "disclosure": "広告（アフィリエイト）を含みます。"
+}

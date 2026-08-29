@@ -1,0 +1,87 @@
+{
+  "_": "検証用の案件。concept.tone を**抽象語だけ**にしてあるのが要点で、apply-style-genome の tone-undefined 分岐（定義 L32-38）が働くかを見るために置いている。promise と differentiation は具体的なので、tone を書き直すための材料はここに揃っている — 材料があるのに tone だけが抽象、という状態を作るのが目的。",
+  "campaignId": "kidstalk-trial-2026h2",
+  "siteSlug": "kids-english-trial",
+  "product": {
+    "productId": "p_kidstalk",
+    "name": "KidsTalk オンライン英会話",
+    "brand": "KidsTalk"
+  },
+  "persona": {
+    "who": "小学 2 年生の子を持つ 30 代の親。自分は英語を話せない。平日 18 時なら横に座っていられる。",
+    "situation": "無料体験の口コミがどこも高評価で、実際に子どもが続けられるのかが読み取れない。3 社まで絞ったが決められない。",
+    "jobToBeDone": "子どもが嫌がらずに続けられるかを、申し込む前に見当をつけたい。",
+    "objection": "体験レッスンだけ良い講師が当たるのではないか。悪かった回のことを誰も書いていない。"
+  },
+  "concept": {
+    "promise": "同じ子どもが 3 社の体験を各 4 回ずつ受けた記録を、良かった回も外れた回も同じ書き方で出す。",
+    "differentiation": "平均評価や星の数を出さない。12 回のうち最後まで座っていられた回数と、離席した回に何が起きたかを回ごとに書く。",
+    "tone": "親しみやすく、わかりやすく。"
+  },
+  "claims": [
+    {
+      "id": "c1",
+      "statement": "12 回のうち最後まで座っていられたのは 8 回で、離席した 4 回はすべて開始 10 分以内でした。",
+      "kind": "fact",
+      "evidence": [
+        {
+          "id": "e1",
+          "sourceLabel": "自宅での記録（2026-06-02〜2026-07-10、同一児童 1 名・平日 18 時）",
+          "checkedAt": "2026-07-10"
+        }
+      ]
+    },
+    {
+      "id": "c2",
+      "statement": "離席した 4 回のうち 3 回は、講師が最初の 3 分を英語だけで進めた回でした。",
+      "kind": "fact",
+      "evidence": [
+        {
+          "id": "e2",
+          "sourceLabel": "自宅での記録（録画を見返して開始 3 分の使用言語を数えた、2026-07-12）",
+          "checkedAt": "2026-07-12"
+        }
+      ]
+    },
+    {
+      "id": "c3",
+      "statement": "講師は毎回変わり、12 回で 11 名でした。同じ講師に当たったのは 1 度だけです。",
+      "kind": "fact",
+      "evidence": [
+        {
+          "id": "e3",
+          "sourceLabel": "予約画面の履歴（2026-07-10 時点）",
+          "checkedAt": "2026-07-10"
+        }
+      ]
+    },
+    {
+      "id": "c4",
+      "statement": "人見知りの強い子ほど、最初の 3 分を日本語で進める講師に当たるかどうかで結果が変わると考えられますが、1 名の記録なので幅を持たせています。",
+      "kind": "inference",
+      "evidence": []
+    },
+    {
+      "id": "c5",
+      "statement": "講師を指名できる仕組みがないうちは、有料契約は 1 か月ようすを見てから決めるほうがよいと思います。",
+      "kind": "opinion",
+      "evidence": []
+    }
+  ],
+  "productCards": [
+    {
+      "productId": "p_kidstalk",
+      "name": "KidsTalk オンライン英会話",
+      "brand": "KidsTalk",
+      "oneLine": "毎回講師が変わる。最初の 3 分の進め方で結果が分かれた。",
+      "trackingCode": "kidstalk26",
+      "affiliateUrl": "https://example.com/click?aid=sample&pid=kidstalk"
+    }
+  ],
+  "disclosureRequired": true,
+  "media": [
+    "x-long",
+    "note",
+    "facebook"
+  ]
+}

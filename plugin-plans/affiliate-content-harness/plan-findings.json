@@ -1,0 +1,360 @@
+{
+  "plan_dir": "/Users/dm/orca/workspaces/affiliate-hub/サンプルブログ/plugin-plans/affiliate-content-harness",
+  "evaluator": {
+    "name": "assign-plugin-plan-evaluator",
+    "version": "0.2.0",
+    "context": "fork"
+  },
+  "verdict": "PASS",
+  "conditions": {
+    "C1": {
+      "id": "no_contradiction",
+      "status": "PASS",
+      "summary": "決定論ゲート(check-build-handoff)は exit0。周回2差分(design_notes.existing_asset_migration・shape_marker明示・受入例/事前解決済み判断サブ節)を index.md/phase-02/phase-13/component-inventory.json横断で突合したが新規矛盾は検出されず、前回high 3件はいずれも現物で解消を確認した(詳細はfindings参照)。index.md受入確認表の文言とP13チェックリストの粒度に軽微な非対称(low)を残す。",
+      "evidence": [
+        "check-build-handoff exit=0",
+        "handoff-run-plugin-dev-plan.json routes[16] が component_kind と builder を整合的に写像"
+      ]
+    },
+    "C2": {
+      "id": "no_missing",
+      "status": "PASS",
+      "summary": "漏れなし: detect-unassigned/check-spec-frontmatter/check-spec-gates/check-surface-inventory/check-requirements-coverage は exit0。前回high(goal-spec C9の既存資産6ファイル未承継)は component-inventory.json.design_notes.existing_asset_migration の新設とC02/C03/C15 purpose_background・index.md・phase-02・phase-13本文への具体的な承継先明記により実体レベルで解消したことをgrep/Readで確認した。",
+      "evidence": [
+        "detect-unassigned exit=0",
+        "grep 'templates/|display-map' index.md phase-02-design.md phase-13-release.md component-inventory.json → 6件全ての承継先(templates/site.json→C02, article.{ranking,review,comparison,guide}.json→C03, display-map.md→C15)が複数箇所で一致して記述",
+        "index.md L76: references_config_assets(plugin-level surface) に allowed-values.md/granularity.md/display-map.md が追加追跡済み",
+        "C02.build_target='plugins/affiliate-content-harness/skills/run-blog-create/'・C03.build_target='.../run-blog-article/' 配下にtemplates/置き場が成立"
+      ]
+    },
+    "C3": {
+      "id": "consistent",
+      "status": "PASS",
+      "summary": "整合性あり: マトリクス self-test/PLAN は exit0。前回medium(C03.output_contractに案件id参照欠落)はC03.output_contractへ『案件id参照を含む』が追加され解消。前回medium(campaign.ts等5ファイルの抽象度差)もC01/C11-C16のpurpose/purpose_backgroundに具体的な型・エクスポート名(AffiliateLink/Disclosure/ClaimType/ChannelKind/Campaign等)が接地され、site-blueprint.tsと同水準になったことを確認した。",
+      "evidence": [
+        "check-spec-matrix-coverage-self-test exit=0",
+        "check-spec-matrix-coverage-plan exit=0",
+        "component-inventory.json C03.output_contract = 'article.json (型別テンプレート準拠・案件id参照を含む・campaign-brief.jsonのclaims/evidenceを継承)'",
+        "C01/C11/C12/C13/C14/C15/C16 のpurpose/purpose_backgroundにcampaign.ts/channel.ts/claim.ts/affiliate-link.ts/disclosure.tsの具体的な型・関数名を確認(grep+Read)"
+      ]
+    },
+    "C4": {
+      "id": "dependency_integrity",
+      "status": "PASS",
+      "summary": "依存関係整合: index の phase 昇順列挙・inventory DAG 非循環・orphan 0・task-graph 構造検証すべて exit0。前回high(task-graphがbuild dispatchを駆動できない)は、architectが shape_marker=fixed-13-phase を index.md frontmatter に明示し、references/task-graph-contract.md の bootstrap→target 移行 gate (l) が定める非発火(後方互換)経路を採用したことをtask-graph-contract.md原文とvalidate-task-graph.py/render-task-execution-envelope.pyの実機動作で裏付け確認した。build dispatchはhandoffのroutes[]が単独で担う設計であり、gateはこれをexit0で受理する。",
+      "evidence": [
+        "verify-index-topsort exit=0",
+        "detect-unassigned exit=0",
+        "check-build-handoff exit=0",
+        "check-runtime-portability exit=0",
+        "validate-task-graph exit=0 (移行gate(l)非発火を含め全violation 0)",
+        "render-task-execution-envelope.py --task-id P02-C01-01 → exit=1 (execution_kind enum外/task_spec_ref欠落) は fixed-13-phase shapeでの期待どおりの拒否と確認"
+      ]
+    }
+  },
+  "gate_results": [
+    {
+      "id": "G1",
+      "name": "verify-index-topsort",
+      "command": [
+        "/Users/dm/miniconda3/bin/python3",
+        "/Users/dm/dev/dev/個人開発/harness/plugins/plugin-dev-planner/skills/run-plugin-dev-plan/scripts/verify-index-topsort.py",
+        "/Users/dm/orca/workspaces/affiliate-hub/サンプルブログ/plugin-plans/affiliate-content-harness"
+      ],
+      "exit_code": 0,
+      "conditions": ["C4"],
+      "stdout": "OK: index が §9 section 床を満たし P01..P13 を昇順全列挙し component 依存 DAG が非循環",
+      "stderr": ""
+    },
+    {
+      "id": "G2",
+      "name": "detect-unassigned",
+      "command": [
+        "/Users/dm/miniconda3/bin/python3",
+        "/Users/dm/dev/dev/個人開発/harness/plugins/plugin-dev-planner/skills/run-plugin-dev-plan/scripts/detect-unassigned.py",
+        "--inventory",
+        "/Users/dm/orca/workspaces/affiliate-hub/サンプルブログ/plugin-plans/affiliate-content-harness/component-inventory.json",
+        "--specs-dir",
+        "/Users/dm/orca/workspaces/affiliate-hub/サンプルブログ/plugin-plans/affiliate-content-harness"
+      ],
+      "exit_code": 0,
+      "conditions": ["C2", "C4"],
+      "stdout": "OK: 13 フェーズ完全・section 床充足・orphan 0 件・全 component が build_target を保持",
+      "stderr": ""
+    },
+    {
+      "id": "G3",
+      "name": "check-spec-frontmatter",
+      "command": [
+        "/Users/dm/miniconda3/bin/python3",
+        "/Users/dm/dev/dev/個人開発/harness/plugins/plugin-dev-planner/skills/run-plugin-dev-plan/scripts/check-spec-frontmatter.py",
+        "--specs-dir",
+        "/Users/dm/orca/workspaces/affiliate-hub/サンプルブログ/plugin-plans/affiliate-content-harness"
+      ],
+      "exit_code": 0,
+      "conditions": ["C2", "C3"],
+      "stdout": "OK: 13 phase frontmatter + inventory component 契約を充足",
+      "stderr": ""
+    },
+    {
+      "id": "G4",
+      "name": "check-spec-gates",
+      "command": [
+        "/Users/dm/miniconda3/bin/python3",
+        "/Users/dm/dev/dev/個人開発/harness/plugins/plugin-dev-planner/skills/run-plugin-dev-plan/scripts/check-spec-gates.py",
+        "--specs-dir",
+        "/Users/dm/orca/workspaces/affiliate-hub/サンプルブログ/plugin-plans/affiliate-content-harness"
+      ],
+      "exit_code": 0,
+      "conditions": ["C2", "C3"],
+      "stdout": "OK: inventory component gates/harness + index.plugin_meta 規律を機械強制で満たす",
+      "stderr": ""
+    },
+    {
+      "id": "G5",
+      "name": "check-spec-matrix-coverage-self-test",
+      "command": [
+        "/Users/dm/miniconda3/bin/python3",
+        "/Users/dm/dev/dev/個人開発/harness/plugins/plugin-dev-planner/skills/run-plugin-dev-plan/scripts/check-spec-matrix-coverage.py",
+        "--self-test"
+      ],
+      "exit_code": 0,
+      "conditions": ["C3"],
+      "stdout": "OK: 46行 table と reflection.md が一致 (id 集合/分類/焼き先層 drift なし)",
+      "stderr": ""
+    },
+    {
+      "id": "G6",
+      "name": "check-spec-matrix-coverage-plan",
+      "command": [
+        "/Users/dm/miniconda3/bin/python3",
+        "/Users/dm/dev/dev/個人開発/harness/plugins/plugin-dev-planner/skills/run-plugin-dev-plan/scripts/check-spec-matrix-coverage.py",
+        "/Users/dm/orca/workspaces/affiliate-hub/サンプルブログ/plugin-plans/affiliate-content-harness"
+      ],
+      "exit_code": 0,
+      "conditions": ["C3"],
+      "stdout": "matrix 分類: OP=10 / conditional=19 / N-A=17 (計 46)\nOK: 適用される全マトリクス行の焼き先が反映済み",
+      "stderr": ""
+    },
+    {
+      "id": "G7",
+      "name": "check-surface-inventory",
+      "command": [
+        "/Users/dm/miniconda3/bin/python3",
+        "/Users/dm/dev/dev/個人開発/harness/plugins/plugin-dev-planner/skills/run-plugin-dev-plan/scripts/check-surface-inventory.py",
+        "/Users/dm/orca/workspaces/affiliate-hub/サンプルブログ/plugin-plans/affiliate-content-harness/component-inventory.json"
+      ],
+      "exit_code": 0,
+      "conditions": ["C2"],
+      "stdout": "OK: 5 component_kind 検討証跡 + plugin-level surface 採否が明示済み",
+      "stderr": ""
+    },
+    {
+      "id": "G8",
+      "name": "check-build-handoff",
+      "command": [
+        "/Users/dm/miniconda3/bin/python3",
+        "/Users/dm/dev/dev/個人開発/harness/plugins/plugin-dev-planner/skills/run-plugin-dev-plan/scripts/check-build-handoff.py",
+        "/Users/dm/orca/workspaces/affiliate-hub/サンプルブログ/plugin-plans/affiliate-content-harness/handoff-run-plugin-dev-plan.json"
+      ],
+      "exit_code": 0,
+      "conditions": ["C1", "C4"],
+      "stdout": "OK: build handoff が 16 routes と envelope 契約を満たす",
+      "stderr": ""
+    },
+    {
+      "id": "G9",
+      "name": "check-requirements-coverage",
+      "command": [
+        "/Users/dm/miniconda3/bin/python3",
+        "/Users/dm/dev/dev/個人開発/harness/plugins/plugin-dev-planner/skills/run-plugin-dev-plan/scripts/check-requirements-coverage.py",
+        "/Users/dm/orca/workspaces/affiliate-hub/サンプルブログ/plugin-plans/affiliate-content-harness"
+      ],
+      "exit_code": 0,
+      "conditions": ["C2"],
+      "stdout": "OK: goal-spec checklist の全要件 id が index の完了チェックリスト/受入確認へトレース済み",
+      "stderr": ""
+    },
+    {
+      "id": "G10",
+      "name": "check-runtime-portability",
+      "command": [
+        "/Users/dm/miniconda3/bin/python3",
+        "/Users/dm/dev/dev/個人開発/harness/plugins/plugin-dev-planner/skills/run-plugin-dev-plan/scripts/check-runtime-portability.py",
+        "/Users/dm/orca/workspaces/affiliate-hub/サンプルブログ/plugin-plans/affiliate-content-harness"
+      ],
+      "exit_code": 0,
+      "conditions": ["C4"],
+      "stdout": "OK: 共有 script は plugin-root へ hoist 済・全 build_target が plugin 内自己完結",
+      "stderr": ""
+    },
+    {
+      "id": "G11",
+      "name": "validate-task-graph",
+      "command": [
+        "/Users/dm/miniconda3/bin/python3",
+        "/Users/dm/dev/dev/個人開発/harness/plugins/plugin-dev-planner/skills/run-plugin-dev-plan/scripts/validate-task-graph.py",
+        "/Users/dm/orca/workspaces/affiliate-hub/サンプルブログ/plugin-plans/affiliate-content-harness"
+      ],
+      "exit_code": 0,
+      "conditions": ["C4"],
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "id": "G12",
+      "name": "check-generative-fidelity",
+      "command": [
+        "python3",
+        "/Users/dm/dev/dev/個人開発/harness/plugins/plugin-dev-planner/skills/run-plugin-dev-plan/scripts/check-generative-fidelity.py",
+        "/Users/dm/orca/workspaces/affiliate-hub/サンプルブログ/plugin-plans/affiliate-content-harness"
+      ],
+      "exit_code": 0,
+      "conditions": ["C2"],
+      "stdout": "OK: 曖昧語 violation 0 件 / 未カスタマイズ節 0 件 (ignored_context 0 件は除外)",
+      "stderr": ""
+    },
+    {
+      "id": "G13",
+      "name": "check-downstream-harness",
+      "command": [
+        "python3",
+        "/Users/dm/dev/dev/個人開発/harness/plugins/plugin-dev-planner/skills/run-plugin-dev-plan/scripts/check-downstream-harness.py",
+        "/Users/dm/orca/workspaces/affiliate-hub/サンプルブログ/plugin-plans/affiliate-content-harness"
+      ],
+      "exit_code": 0,
+      "conditions": ["C2"],
+      "stdout": "OK: 全 phase の完了チェックリストが受入例/事前解決済み判断サブ節契約を満たす",
+      "stderr": ""
+    }
+  ],
+  "findings": [
+    {
+      "severity": "info",
+      "bucket": "C1-C4",
+      "observation": "全 plan-scoped 決定論ゲート(G1-G11)+補助機械検出(G12/G13)が exit0。5 component_kind の検討証跡・plugin-level surface の required/omitted_reason も明示済みで単一 skill 退化は認められない(16実体それぞれ固有の必要性根拠あり)。周回1からの差分適用後もこの状態は維持されている。",
+      "evidence": [
+        "gate_results G1-G13 exit_code=0",
+        "component-inventory.json considered_component_kinds=[skill, sub-agent, slash-command, hook, script]"
+      ]
+    },
+    {
+      "severity": "info",
+      "bucket": "C2",
+      "observation": "解消: 前回high(goal-spec C9の既存資産6ファイル未承継)。component-inventory.json に design_notes.existing_asset_migration が新設され、templates/site.json→C02、templates/article.{ranking,review,comparison,guide}.json(4件)→C03、references/display-map.md→C15の承継先が具体的な理由(構造のみ踏襲/型別テンプレート/判定根拠)とともに宣言されている。index.md(L68/L76/L129)・phase-02(L35/L59)・phase-13(L40/L45)・component-inventory.json(C02/C03/C15のpurpose_background)の5箇所以上で一貫して同じ承継先を記述しており齟齬はない。allowed-values.md/granularity.mdは既存どおりplugin_meta.ssot_dedup.references_config_assetsで追跡され、display-map.mdも同フィールドに追加された。C02/C03のbuild_target配下にtemplates/を置く設計は既存の慣行(既存blog-authoring資産の移設パターン)と整合し、置き場所として妥当。",
+      "evidence": [
+        "component-inventory.json design_notes.existing_asset_migration (6ファイル全ての承継先を明示)",
+        "grep 'templates/|display-map' index.md phase-02-design.md phase-13-release.md component-inventory.json → 全て承継先の記述で一致",
+        "component-inventory.json C02.build_target='plugins/affiliate-content-harness/skills/run-blog-create/'、C03.build_target='.../run-blog-article/'"
+      ]
+    },
+    {
+      "severity": "info",
+      "bucket": "C4",
+      "observation": "解消: 前回high(task-graphがbuild dispatchを駆動できない)。architectの主張(shape_marker=fixed-13-phaseはtask-graph-contract.mdのbootstrap→target移行gate(l)が定める非発火・後方互換経路であり、既存6 bootstrap planと同じ意図的設計)をSSOT原文(task-graph-contract.md L137-157 の bootstrap→target 移行 gate (l) 節)で裏付け確認した。非発火条件は『shape_marker=fixed-13-phase かつ execution_kind 全不在』であり、本plan(全302nodeがexecution_kind∈{verification-claim,phase-gate}のみ)はこれに合致する。validate-task-graph.pyのmigration gate(l)実装がこれを機械検査しexit0(追加violation 0)。render-task-execution-envelope.pyを実機実行するとexit1(execution_kind enum外・task_spec_ref欠落)となり、これはtarget shape専用の合成器がfixed-13-phaseを構造でfail-closed拒否する期待どおりの挙動であることをtask-graph-contract.mdの当該script説明と突合して確認した。build dispatchはhandoff-run-plugin-dev-plan.json.routes[](16件、component_kind/builder/build_target明示)が単独で担う設計であり、check-build-handoffもこれをexit0で受理する。GAP-TASK-GRAPH-SHAPE-001(severity=low)としてhandoff.open_issuesに記録されている点も適切。",
+      "evidence": [
+        "task-graph-contract.md L137-157 (bootstrap→target 移行 gate (l)・非発火条件の原文定義)",
+        "validate-task-graph.py _check_migration_gate 実装 (L204-)・G11 exit=0",
+        "render-task-execution-envelope.py --task-id P02-C01-01 実行 → exit=1 (execution_kind enum外/task_spec_ref欠落)",
+        "handoff-run-plugin-dev-plan.json.open_issues[GAP-TASK-GRAPH-SHAPE-001].severity='low'"
+      ]
+    },
+    {
+      "severity": "medium",
+      "bucket": "task-graph-consumer",
+      "observation": "advisory: H2の対応はtask-graph-contract.mdが定める現行の機械gateには完全準拠しているが、同文書のGAP-BOOTSTRAP-TARGET-SHAPE-001節が『C01 build完了後の新規planから明示route_ref parityを必須化する意図だったが、optionalの常態化でC17が風化するリスクがある』と明記する既知の移行債務を、本plan(新規plan)がshape_marker=fixed-13-phase選択によりそのまま延命させている。gate違反ではなく現状ブロッカーではないが、次回以降のcycle(または本plan運用後の改善)でtask-graph-derived shapeへの移行検討をP02設計判断の見直し対象として残すことを推奨する。",
+      "evidence": [
+        "task-graph-contract.md L137-141 (GAP-BOOTSTRAP-TARGET-SHAPE-001: 'legacy joinはshape markerでだけ後方互換許可する' 節の風化リスク言及)",
+        "handoff-run-plugin-dev-plan.json.open_issues[GAP-TASK-GRAPH-SHAPE-001] (本plan固有のecho、severity=low)"
+      ],
+      "suggested_fix": "次cycleでtask-specs/*.mdとexecution_kind=component-buildノードを導入しtarget shapeへ移行する計画をopen_issuesまたはbacklogに追加する(本cycleのblockerにはしない)。"
+    },
+    {
+      "severity": "info",
+      "bucket": "layer-b-downstream-harness",
+      "observation": "解消: 前回high(全13 phaseで受入例/事前解決済み判断サブ節が総不在)。check-downstream-harness.pyがexit0(全phase充足)を機械確認した上で、P01/P02/P03/P04/P05/P06/P07/P08/P09/P10/P11/P12/P13の13ファイル全てをReadし目視検証した。全て各phase固有の入力/出力(例: P05は依存top-sort順のbuild順序、P06はC15の12件以上テストケース、P09はevaluator閾値80、P11は目視確認の切り分け)を持ち、汎用文の使い回しは確認されなかった。genuine PASS。",
+      "evidence": [
+        "check-downstream-harness.py exit=0",
+        "phase-01/05/06/09/13の受入例/事前解決済み判断を全文Read、各phase固有の対象component/判断が記述されていることを確認",
+        "phase-02/03/04/07/08/10/11/12も同様に確認、汎用テンプレ流用なし"
+      ]
+    },
+    {
+      "severity": "info",
+      "bucket": "layer-a-generative-fidelity",
+      "observation": "解消: 前回medium(campaign.ts/channel.ts/claim.ts/affiliate-link.ts/disclosure.ts/published-article.tsの抽象度差)。check-generative-fidelity.pyがexit0(曖昧語0件・未カスタマイズ節0件)であることに加え、C01(campaign.ts Campaign型・claim.ts ClaimType)、C11(affiliate-link.ts AffiliateLink型・resolveOutboundUrl等)、C13(channel.ts ChannelKind)、C14(claim.ts ClaimType)、C15(affiliate-link.ts・disclosure.ts Disclosure型・RelationshipType・READER_DISCLOSURE_TEXT)、C16(campaign.ts・channel.ts)のpurpose/purpose_backgroundに具体的な型・エクスポート名が接地されており、site-blueprint.tsと同水準の具体度になったことをReadで確認した。",
+      "evidence": [
+        "check-generative-fidelity.py exit=0",
+        "component-inventory.json C01/C11/C12/C13/C14/C15/C16のpurpose/purpose_backgroundにcampaign.ts/channel.ts/claim.ts/affiliate-link.ts/disclosure.tsの具体的な型・関数名を確認"
+      ]
+    },
+    {
+      "severity": "info",
+      "bucket": "C3",
+      "observation": "解消: 前回medium(C03.output_contractに案件idフィールドの明示欠落)。C03.output_contractへ『案件id参照を含む』が追加され、C04と同水準の明示性になった。C14/C15のpurposeが前提とする『同一案件idを参照する成果物』の契約とも整合する。",
+      "evidence": [
+        "component-inventory.json C03.output_contract = 'article.json (型別テンプレート準拠・案件id参照を含む・campaign-brief.jsonのclaims/evidenceを継承)'"
+      ]
+    },
+    {
+      "severity": "low",
+      "bucket": "C1",
+      "observation": "index.md L129の受入確認表は『(既存blog-authoring資産の統合が)旧ディレクトリが残存しないことを確認』と明記するが、P13-release.mdの完了チェックリスト(L40)は『6ファイルが承継先へ重複なく統合されている』のみを要求し、旧ディレクトリの削除/残存なし確認そのものをチェック項目として明示していない。承継先の宣言は完了しているため実害はないが、index.mdが約束する確認内容とP13本文の粒度に軽微な非対称がある。",
+      "evidence": [
+        "index.md L129: '...旧ディレクトリが残存しないことを確認 | P02 design note + P13 release'",
+        "phase-13-release.md L40: '...design_notes.existing_asset_migration の承継先へ重複なく統合されている(C9)' (旧ディレクトリ削除確認の明示なし)"
+      ],
+      "suggested_fix": "phase-13-release.mdの完了チェックリストに『.claude/plugins/blog-authoring/ の旧6ファイルが削除され残存しないことを確認』の1行を追加し、index.mdの受入確認表の文言と粒度を揃える。"
+    },
+    {
+      "severity": "info",
+      "bucket": "task-graph-semantics",
+      "observation": "S5 genuine判定(周回2でも構造不変): task-graph.jsonの16件のproducesエッジはC01-C16各entityの先頭ノード1件ずつに接地しており、entity単位でproduces1件以上・write_scopeが成果物パスに接地という条件を満たす。edge種別はdepends_on(3129)/parent_of(289)/produces(16)の3種のみでconsumesは0件だが、型誤用は確認されなかった(genuine PASS)。",
+      "evidence": [
+        "task-graph.json edges type Counter: {'depends_on': 3129, 'parent_of': 289, 'produces': 16} (周回1と同一)",
+        "produces エッジの src node は全て entity_ref=C01..C16 の先頭ノードでwrite_scope=build_target一致"
+      ]
+    },
+    {
+      "severity": "info",
+      "bucket": "task-graph-consumer",
+      "observation": "S7 genuine判定: handoff-run-plugin-dev-plan.json の実際の build dispatch は routes[](16件、component_kind/builder/build_target を明示)経由で行われ、task_graph_ref は補助的な参照(path指定のみ)に留まる。consumer(harness-creator L4)がroutes[]経由でdispatchする限り producer契約(builder↔component_kind整合)の逸脱は確認されない。execution-envelope経由の消費経路が非適用であることはfixed-13-phase shapeの設計どおりであり(上記C4 finding参照)、沈黙破綻ではなく明示宣言済みのため高severityとしない。",
+      "evidence": [
+        "handoff-run-plugin-dev-plan.json.routes[16] (component_kind/builder/build_target明示)",
+        "handoff-run-plugin-dev-plan.json.task_graph_ref = {path: 'task-graph.json', schema_version: '1.0'}"
+      ]
+    },
+    {
+      "severity": "info",
+      "bucket": "execution-envelope",
+      "observation": "S8 genuine判定: 本plan は shape_marker=fixed-13-phase を採用し全302nodeがexecution_kind∈{verification-claim,phase-gate}のみで dispatch対象leaf(component-build/direct-task)を1件も持たないため、render-task-execution-envelope.pyのTaskExecutionEnvelope合成はそもそも適用対象外(N/A)。実機実行でexit1(execution_kind enum外/task_spec_ref欠落)を確認したが、これはtask-graph-contract.mdが定義するtarget shape専用ツールがfixed-13-phaseをfail-closedで拒否する設計どおりの挙動であり、着手不能な空虚さではなく非適用の正しい拒否と判定した(genuine N/A、前回のhigh判定を撤回)。",
+      "evidence": [
+        "render-task-execution-envelope.py --task-id P02-C01-01 → exit=1 (execution_kind='verification-claim'が enum外)",
+        "task-graph-contract.md L124-134 (execution_kind/TaskExecutionEnvelope(C17)節、fixed-13-phaseは非携帯後方互換と明記)"
+      ]
+    }
+  ],
+  "evaluated_inputs": [
+    {"path": ".gate/provenance-chain.pass", "sha256": "55bbcdab70abf736554b57c0e33e941a117fea122037146cb949491c3c154ea2"},
+    {"path": "component-inventory.json", "sha256": "dfbf1ba43b941a4d019099f567b46ae4f20fb81ad74ed0f1bac6d78f24223572"},
+    {"path": "envelope-draft/plugin.json", "sha256": "81abab7c5158f52f9b9a3f5ac78ce9e9444155451b7d404cd094b784196554dd"},
+    {"path": "goal-spec.json", "sha256": "0371419cd2209cbbd1435095dcf4bbe58eb167dd8f7517ec552498c6d704168a"},
+    {"path": "handoff-run-plugin-dev-plan.json", "sha256": "f97f745cfcb1f9083261b28fc0cde5bdd39c6ce8f72b45657a6fcaa23e342ccc"},
+    {"path": "index.md", "sha256": "a0e6173ca7b9f4e187cc9b66470f615acd81101d5fe4b99fae7547a724763959"},
+    {"path": "phase-01-requirements.md", "sha256": "da8195fb6c22b04d713a546821b661471cd0f9b00df864cc094526d089319327"},
+    {"path": "phase-02-design.md", "sha256": "9d23b8fc705a15a2be776e4628a277e0369c73996d0e443728b75fbcebd332e5"},
+    {"path": "phase-03-design-review.md", "sha256": "17d94fb96313291488cac65aecee874781b32a8c56409265515369a1c5b1b15c"},
+    {"path": "phase-04-test-design.md", "sha256": "7ad8a6783f14d8c34c682410f23e3d9b34e2f846bb6716065dc99afbaeea3691"},
+    {"path": "phase-05-implementation.md", "sha256": "a5c9fa7b52002eb107ca619bbe5c32d3be21381b8c9d7e3a045d195fe36da75c"},
+    {"path": "phase-06-test-run.md", "sha256": "c6173fad7927a83da73cdc47ced28a33f70975c9187df0e5fab86a8016563344"},
+    {"path": "phase-07-acceptance-criteria.md", "sha256": "22c1818593b8394d794fe9fe51735871884ad056a558fa23b7f1c88584c85c9d"},
+    {"path": "phase-08-refactoring.md", "sha256": "09bb4d6621c70d3d95652eda4ab335c10f7d9c58d17eb6c5e4350b3baaf4c626"},
+    {"path": "phase-09-quality-assurance.md", "sha256": "a47d26890ae222983ec33600b69b008261d8a72849c7dda557377159ce7d565f"},
+    {"path": "phase-10-final-review.md", "sha256": "e23c02405dc88d1cf0cd59691072f255b6c109e877cde52ce099051d8d0a481c"},
+    {"path": "phase-11-evidence.md", "sha256": "497559fcf96196f58456906f7855ffb513daf517825273c967ad4333924ab62b"},
+    {"path": "phase-12-documentation.md", "sha256": "436053816ae9afd4caf2cdbfd1b4ec6752bc15828dbb44e4e6b8da7519399899"},
+    {"path": "phase-13-release.md", "sha256": "dae469727c1f5840a1a1c622db3a61d0bf7d33324ccf6e433b7b936e3e5c48dd"},
+    {"path": "task-graph.json", "sha256": "b9abae6ef09e083f73b13bdbb5d28913f6fb058bbf8fd0317606dbe17efc408a"}
+  ],
+  "staleness_rule": "evaluated_inputs は plan 配下の安定 artifact を再帰収集した鮮度台帳である。path 集合または sha256 が現物と一致しない findings は stale とする。この台帳は semantic 再評価範囲を決めず、証拠再利用を認可しない。"
+}

@@ -23,6 +23,7 @@
     "db:migrate:dev": "wrangler d1 migrations apply DB --env dev --remote",
     "db:migrate:prod": "wrangler d1 migrations apply DB --env production --remote",
     "catalog:sync": "node scripts/catalog-sync.mjs",
+    "content:validate": "node .claude/plugins/affiliate-content-harness/scripts/validate-content-set.mjs --content-set blog-content/quiet-rental --content-set blog-content/kids-english-trial",
     "verify": "node scripts/verify.mjs",
     "mutation": "stryker run",
     "mutation:changed": "stryker run --since=origin/dev"

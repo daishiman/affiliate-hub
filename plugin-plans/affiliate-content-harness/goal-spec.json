@@ -1,0 +1,90 @@
+{
+  "purpose": "1 つのアフィリエイト案件（商品軸または記事軸）を正本にして、ブログ本体の記事と、X 長文・X 短文・将来的に Instagram / note / Facebook の投稿文までを、同じコンセプトとペルソナから生成し、媒体をまたいでも主張と根拠が食い違わない状態で公開できるようにする。",
+  "background": "現状 .claude/plugins/blog-authoring/ にブログ単体の暫定プラグイン（plugin.json / 3 スキル / 3 リファレンス / 5 テンプレート / validate-blog-content.mjs）がある。しかし (1) 文章の粒度が骨組み止まりで、参考ブログ（makuring.jp）並みの読み応えに届かない、(2) 文体が固定されておらず、ブログのコンセプトとペルソナに書き方が結びついていない、(3) SNS への展開経路が無く、記事と投稿で主張がずれても誰も気づかない、という 3 つの穴がある。X 長文投稿については /Users/dm/dev/dev/ObsidianMemo/.claude/skills/x-longpost-creator に成熟した資産（スタイルゲノム L1〜L8、writing-guidelines、heading-structure-rules、anti-ai-writing-guide、title-guidelines、horizontal-vertical-guide）があるが、一人称「僕」のカジュアル個人文体に固定されており、監修者の付くアフィリエイト記事へそのまま適用すると信頼性が落ちる。層構造と検査の作り方だけを再利用し、ゲノムそのものはブログごとに差し替え可能な入力として持たせる必要がある。ブログ側の型の正本は src/domain/authoring/site-blueprint.ts（SITE_PATTERNS / REVENUE_MODELS / STANDARD_PAGES / BRAND_THEMES / 差別化 10 軸）と src/application/read-models/published-article.ts（claims の fact|inference|opinion、evidence、productCards、ranking、comparison、conversation と各型のルート）であり、案件・根拠・導線の業務ルールは src/domain/distribution/campaign.ts・src/domain/distribution/channel.ts・src/domain/evidence/claim.ts・src/domain/monetization/affiliate-link.ts・src/domain/compliance/disclosure.ts が持つ。プラグインはこれらを書き写さず実行時に読む。",
+  "goal": "ブログ 1 本の設計図（タイトル・タブ・固定ページ・配色・差別化 10 軸・ペルソナ・スタイルゲノム）と、そこに紐づく案件 1 件から、ブログ記事 JSON と媒体別投稿文（X 長文 / X 短文 / Instagram / note / Facebook）が同一の主張・根拠・導線契約のもとで生成され、媒体ごとの文字数・見出し・改行・禁止表現と、媒体をまたいだ主張の一貫性・導線の妥当性が機械で検品される状態。",
+  "artifact_class": "plugin-plan",
+  "target_plugin_slug": "affiliate-content-harness",
+  "plan_dir": "plugin-plans/affiliate-content-harness",
+  "out_dir": null,
+  "requested_count": null,
+  "checklist": [
+    {
+      "id": "C1",
+      "criterion": "ブログ 1 本の設計図（pattern / revenueModel / タブ / 固定ページ / theme / 差別化 10 軸）を対話で確定し、コード側の列挙値を実行時に読んで検証できる",
+      "done": false,
+      "verify_by": "script"
+    },
+    {
+      "id": "C2",
+      "criterion": "ブログごとのペルソナ（読者像・書き手像・監修者の有無）と、そこから導かれるスタイルゲノム（L1 字種と改行 / L2 語彙 / L4 談話構造 / L5 リズム / L8 対人距離）を、固定値ではなく設計図の一部として持てる",
+      "done": false,
+      "verify_by": "script"
+    },
+    {
+      "id": "C3",
+      "criterion": "案件 1 件（商品軸または記事軸）を正本として宣言でき、そこから派生した全媒体の成果物が同じ案件 id を指す",
+      "done": false,
+      "verify_by": "script"
+    },
+    {
+      "id": "C4",
+      "criterion": "ブログ記事（ranking / review / comparison / guide）を、参考ブログ並みの粒度（セクション数・本文字数・claims 件数・fact 割合・型別の追加要件）で生成し、粒度を機械で検品できる",
+      "done": false,
+      "verify_by": "script"
+    },
+    {
+      "id": "C5",
+      "criterion": "同じ案件から X 長文投稿を生成でき、スタイルゲノムの適用（1 文 1 行・冒頭の問いかけ・転換マーカー・文末の多様性・禁止表現）を機械で検品できる",
+      "done": false,
+      "verify_by": "script"
+    },
+    {
+      "id": "C6",
+      "criterion": "媒体を追加するとき、媒体ごとの規則（文字数上限・見出し記法・改行規則・ハッシュタグ・リンク可否・禁止表現）を 1 か所の媒体プロファイルに足すだけで、生成と検品の両方が追随する",
+      "done": false,
+      "verify_by": "script"
+    },
+    {
+      "id": "C7",
+      "criterion": "媒体をまたいだ主張の一貫性を検品できる。ブログ記事で fact として根拠付きで述べたことと、SNS 投稿で言い切っていることが食い違う場合に止まる",
+      "done": false,
+      "verify_by": "script"
+    },
+    {
+      "id": "C8",
+      "criterion": "提携が無い商品に購入導線を出さない契約が全媒体で守られる。ブログ側の blockedReason と、SNS 側のリンク有無・広告表記が矛盾する場合に止まる",
+      "done": false,
+      "verify_by": "script"
+    },
+    {
+      "id": "C9",
+      "criterion": "既存の .claude/plugins/blog-authoring/ の資産（検品スクリプト・リファレンス・テンプレート）が取り込まれ、二重管理にならない",
+      "done": false,
+      "verify_by": "reasoning"
+    },
+    {
+      "id": "C10",
+      "criterion": "生成物を人が読み直す経路（独立した文脈でのレビュー）が、ブログ記事と SNS 投稿の双方にある",
+      "done": false,
+      "verify_by": "reasoning"
+    }
+  ],
+  "constraints": [
+    "使ってよい値（SITE_PATTERNS / REVENUE_MODELS / STANDARD_PAGES / BRAND_THEMES / COLOR_MODES）はプラグインに書き写さず src/domain/authoring/site-blueprint.ts から実行時に読む。書き写すと、コード側に選択肢を足した日に正しい入力を弾く検品になる",
+    "tool 型の記事は生成しない。/tools/<slug> は読者の道具を描く経路であり、記事本文が表示されない",
+    "商品カードで提携が無いことを示すときは affiliateUrl と trackingCode を両方とも省く。片方でも残すと blockedReason は黙って消える",
+    "未計測は省略ではなく value: null。省略すると商品ごとに行の並びが変わり横に見比べられなくなる",
+    "theme は名札のみ。色の値（#rrggbb 等）を持たせない",
+    "x-longpost-creator のスタイルゲノムは方法として参照し、一人称「僕」等の具体値は流用しない。文体はブログごとの入力とする",
+    "参考ブログ（makuring.jp）の文章・素材・固有名・色値は転用しない。構成の細かさのみを合わせる",
+    "検品スクリプトは Node 標準機能のみで動かす（既存 validate-blog-content.mjs と同じ流儀）",
+    "この計画は計画のみを生成し、実プラグインは build しない"
+  ],
+  "handoff_targets": ["run-skill-create", "run-build-skill"],
+  "max_loops": 3,
+  "open_questions": [
+    "Instagram / note / Facebook の媒体プロファイルは、今回は骨組み（規則の置き場所と検品の口）だけを用意し、実際の規則値は媒体を運用し始めてから埋める想定でよいか",
+    "SNS 投稿の文体をブログの監修付き記事と揃えるか、SNS だけ個人の声（一人称・カジュアル）に寄せるかは、ブログのペルソナ設定で選べるようにする想定でよいか",
+    "生成した投稿を実際に SNS へ投稿する経路（API 連携）は今回のスコープ外とし、文面の生成と検品までで止める想定でよいか"
+  ]
+}

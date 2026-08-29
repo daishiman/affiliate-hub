@@ -1,0 +1,96 @@
+{
+  "campaignId": "silentbase-mat-2026h2",
+  "siteSlug": "quiet-rental",
+
+  "product": {
+    "productId": "p_silentbase_20",
+    "name": "SilentBase 防振マット 20mm",
+    "brand": "SilentBase"
+  },
+
+  "persona": {
+    "who": "木造アパート 2 階、1LDK に一人暮らし。20 代後半。洗濯機は洗面所の直貼りフローリングに直置きで、階下にも人が住んでいる。",
+    "situation": "夜 10 時に洗濯機を回したら、翌日に階下から管理会社経由で連絡が来た。時間をずらすしかないと思っているが、朝も出勤前で回せない。",
+    "jobToBeDone": "退去時に原状回復できる範囲で、夜に洗濯機を回せる状態にしたい。",
+    "objection": "マットを敷いた程度で本当に変わるのか。レビューは「静かになった」ばかりで、どのくらい下がったのかが書いていない。"
+  },
+
+  "concept": {
+    "promise": "同じ部屋・同じ洗濯機・同じ位置で、敷く前と後を騒音計で測った数字を出す。下がらない帯域があることを先に言う。",
+    "differentiation": "「静かになった」ではなく、階下で測った騒音レベルを dB で出す。全体の平均だけでなく、下がらなかった低音域を分けて書く。設置で干渉した寸法も出す。",
+    "tone": "測ったことは言い切り、測っていないことは測っていないと書く。読者を持ち上げず、煽らない。絵文字は使わない。"
+  },
+
+  "claims": [
+    {
+      "id": "c1",
+      "statement": "脱水中に階下の真下で測った騒音は、敷く前が 42dB、敷いた後が 36dB でした。",
+      "kind": "fact",
+      "evidence": [
+        {
+          "id": "e1",
+          "sourceLabel": "自室での実測（2026-07-05、騒音計を階下の同一位置に固定、脱水 3 回の平均）",
+          "checkedAt": "2026-07-05"
+        }
+      ]
+    },
+    {
+      "id": "c2",
+      "statement": "低音域（125Hz 帯）だけを取り出すと、下がったのは 1dB でした。",
+      "kind": "fact",
+      "evidence": [
+        {
+          "id": "e2",
+          "sourceLabel": "同じ録音を帯域ごとに分けて解析（2026-07-05）",
+          "checkedAt": "2026-07-05"
+        }
+      ]
+    },
+    {
+      "id": "c3",
+      "statement": "マットの厚みは 20mm で、敷くと洗濯機の高さが 2cm 上がり、給水ホースが蛇口に対して突っ張りました。",
+      "kind": "fact",
+      "evidence": [
+        {
+          "id": "e3",
+          "sourceLabel": "設置時の実測（2026-07-05）",
+          "checkedAt": "2026-07-05"
+        }
+      ]
+    },
+    {
+      "id": "c4",
+      "statement": "下がったのは主に中高音域の接触音で、低音の振動は床ではなく建物の構造を通っていると考えられます。",
+      "kind": "inference",
+      "evidence": []
+    },
+    {
+      "id": "c5",
+      "statement": "苦情の原因が低音の「ドン」という音なら、この対策では解決しないので、時間をずらすほうが早いと思います。",
+      "kind": "opinion",
+      "evidence": []
+    }
+  ],
+
+  "productCards": [
+    {
+      "productId": "p_silentbase_20",
+      "name": "SilentBase 防振マット 20mm",
+      "brand": "SilentBase",
+      "oneLine": "階下で測った騒音が 6dB 下がった。ただし低音は下がらない。",
+      "trackingCode": "sbmat20",
+      "affiliateUrl": "https://example.com/click?aid=sample&pid=silentbase20"
+    },
+    {
+      "productId": "p_quietfloor_10",
+      "name": "QuietFloor 防音マット 10mm",
+      "brand": "QuietFloor",
+      "oneLine": "厚みが半分。蛇口に干渉する環境で比較用に測った。",
+      "blockedReason": "この商品は提携がありません。比較のために測っただけで、購入先は出せません。"
+    }
+  ],
+
+  "disclosureRequired": true,
+
+  "media": ["blog", "x-long", "x-short", "instagram", "note", "facebook"]
+}

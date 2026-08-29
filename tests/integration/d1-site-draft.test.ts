@@ -205,7 +205,7 @@ describe("下書きから読者向けの 1 本になるまで（1 本の道）",
     expect(view.value.slug).toBe("first-lens");
   });
 
-  it("作ると、読者向けの一覧に載る（見本の 3 本は消えない）", async () => {
+  it("作ると、読者向けの一覧に載る（見本は消えない）", async () => {
     const draftId = await completeDraft("first-lens");
     const created = await createCreateSiteFromDraftUseCase(deps).execute(owner, { draftId });
     expect(created.ok).toBe(true);

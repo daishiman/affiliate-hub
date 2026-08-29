@@ -459,7 +459,7 @@ describe("§30.7 アフィリエイト", () => {
     // こちらが法令に照らして決めた文ではない。だから文そのものを突き合わせる。
     const forReader = await value(
       "reader_get_disclosure",
-      { siteSlug: SAMPLE_SITE_SLUG, slug: "laptops-for-video-editing" },
+      { siteSlug: SAMPLE_SITE_SLUG, slug: "chairs-for-long-hours" },
       READER,
     );
     expect(forReader.disclosureRequired).toBe(true);

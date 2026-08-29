@@ -1,0 +1,109 @@
+{
+  "_": "案件ブリーフ。1 つのアフィリエイト案件について、全媒体が共有する唯一の正本。ブログ記事も X 長文も Instagram も、claims / evidence / productCards をここから継ぐ。媒体ごとに書き下ろすと、X では 38kPa、Instagram では 40kPa という状態が起き、並べて読む人だけが気づく。",
+
+  "campaignId": "ergoone-pro-2026h2",
+  "siteSlug": "home-office-desk",
+
+  "product": {
+    "productId": "p_alpha_15",
+    "name": "ErgoOne Pro",
+    "brand": "ErgoOne"
+  },
+
+  "_persona": "誰に向けて書くか。4 つとも埋める。1 つでも空だと、書き手が媒体ごとに自分の想像で埋め、違う読者へ向けた文章ができる。",
+  "persona": {
+    "who": "在宅勤務 3 年目、30 代後半。6 畳の個室に幅 120cm の机を壁付けで置いている。1 日 8 時間座る。",
+    "situation": "夕方になると必ず腰が張る。2 万円台の椅子を 2 年使っていて、そろそろ買い替えたいが、10 万円の椅子が本当に違うのか確信がない。",
+    "jobToBeDone": "腰の張りを減らしたい。ただし部屋が狭いので、置けるかどうかを先に確かめたい。",
+    "objection": "高い椅子を買っても結局同じなのではないか。レビューはどれも褒めていて信用できない。"
+  },
+
+  "_concept": "全媒体が共有する約束と口調。ここが揃っていないと、同じ人が書いたように見えない。",
+  "concept": {
+    "promise": "同じ条件で測った数字と、置くのに必要な寸法を出す。合わない人にははっきり合わないと言う。",
+    "differentiation": "商品説明の言い換えをせず、自分で 8 時間座って測った圧力と、背もたれを倒すのに要る後方スペースを出す。体重帯で順位が逆転することまで書く。",
+    "tone": "測ったことは言い切り、測っていないことは測っていないと書く。読者を持ち上げず、煽らない。絵文字は使わない。"
+  },
+
+  "_claims": "各媒体はここから主張を継ぐ。媒体側で新しい主張を足すときは、まずここへ足してから展開する（そうしないと媒体間の突合が効かない）。",
+  "claims": [
+    {
+      "id": "c1",
+      "statement": "8 時間着座後の腰部圧力は平均 38kPa で、同価格帯の 3 機種では最も低い値でした。",
+      "kind": "fact",
+      "evidence": [
+        {
+          "id": "e1",
+          "sourceLabel": "自社検証（2026-07-12、被験者 1 名・8 時間連続着座）",
+          "checkedAt": "2026-07-12"
+        }
+      ]
+    },
+    {
+      "id": "c2",
+      "statement": "背もたれを最大まで倒すと、壁から 68cm の空間が必要でした。",
+      "kind": "fact",
+      "evidence": [
+        {
+          "id": "e2",
+          "sourceLabel": "自社検証（実測、2026-05-20）",
+          "url": "https://example.com/lab/ergoone-clearance",
+          "checkedAt": "2026-05-20"
+        }
+      ]
+    },
+    {
+      "id": "c3",
+      "statement": "体重 55kg 未満では座面が沈みきらず、2 位の FlexSeat 2 に逆転されました。",
+      "kind": "fact",
+      "evidence": [
+        {
+          "id": "e3",
+          "sourceLabel": "自社検証（体重帯を変えた追試、2026-07-18）",
+          "checkedAt": "2026-07-18"
+        }
+      ]
+    },
+    {
+      "id": "c4",
+      "statement": "分かれ目の体重はおおよそ 55〜60kg のあいだにあると考えられますが、1 名ずつの計測なので幅を持たせています。",
+      "kind": "inference",
+      "evidence": []
+    },
+    {
+      "id": "c5",
+      "statement": "6 畳の部屋に置くなら、机の後ろが通路になっていない配置をおすすめします。",
+      "kind": "opinion",
+      "evidence": []
+    },
+    {
+      "id": "c6",
+      "statement": "座面の沈み込みは購入直後 12mm、3 か月後 13mm でした。",
+      "kind": "fact",
+      "evidence": [
+        {
+          "id": "e4",
+          "sourceLabel": "自社検証（同一被験者・同一条件での再計測、2026-08-11）",
+          "checkedAt": "2026-08-11"
+        }
+      ]
+    }
+  ],
+
+  "_productCards": "買う導線はここで一度だけ決める。affiliateUrl と trackingCode を両方省いたときだけ blockedReason が画面に出る。片方でも残すと理由は黙って消える。",
+  "productCards": [
+    {
+      "productId": "p_alpha_15",
+      "name": "ErgoOne Pro",
+      "brand": "ErgoOne",
+      "oneLine": "腰の負担が最も小さい。肘掛けは 4 方向に動く。",
+      "trackingCode": "ergo1pro",
+      "affiliateUrl": "https://example.com/click?aid=sample&pid=ergoonepro"
+    }
+  ],
+
+  "disclosureRequired": true,
+
+  "_media": "展開先。references/media-profiles.json にある媒体だけ書ける。媒体を足すときは、まずあちらへ 1 エントリ足す。",
+  "media": ["blog", "x-long", "x-short", "instagram", "note", "facebook"]
+}

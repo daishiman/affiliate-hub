@@ -1,0 +1,38 @@
+{
+  "plan_dir": "plugin-plans/affiliate-content-harness",
+  "target_plugin_slug": "affiliate-content-harness",
+  "loop": 2,
+  "max_loops": 3,
+  "status": "converged",
+  "components_total": 16,
+  "components_by_kind": {
+    "skill": 4,
+    "sub-agent": 4,
+    "slash-command": 2,
+    "hook": 1,
+    "script": 5
+  },
+  "phase_files_generated": 13,
+  "gates": {
+    "check-plugin-goal-spec.py (input-gate)": 0,
+    "derive-task-graph.py": 0,
+    "validate-task-graph.py": 0,
+    "verify-index-topsort.py": 0,
+    "detect-unassigned.py": 0,
+    "check-spec-frontmatter.py": 0,
+    "check-spec-gates.py": 0,
+    "check-spec-matrix-coverage.py --self-test": 0,
+    "check-spec-matrix-coverage.py <plan_dir>": 0,
+    "check-surface-inventory.py": 0,
+    "check-build-handoff.py": 0,
+    "check-runtime-portability.py": 0,
+    "check-requirements-coverage.py": 0,
+    "check-downstream-harness.py": 0
+  },
+  "unresolved_issues": [
+    "GAP-ENVELOPE-001 (open_issues[0], severity=medium): plugin envelope executor は run-plugin-dev-plan 外部",
+    "GAP-SCRIPT-BUILDER (open_issues[1], severity=medium): script route (C12-C16) の実行実体は harness-creator 側 builder の責務",
+    "GAP-NODE-SCRIPT-CONVENTION (open_issues[2], severity=low): 成果物 script は Node.js 標準モジュールのみで実装する意図的逸脱。P02 design note で記録済み",
+    "GAP-TASK-GRAPH-SHAPE-001 (open_issues[3], severity=low): shape_marker=fixed-13-phase の非発火経路採用。render-task-execution-envelope.py の non-applicability は fail-closed の期待挙動であり欠陥ではない"
+  ]
+}

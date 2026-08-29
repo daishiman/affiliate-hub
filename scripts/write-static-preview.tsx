@@ -1,5 +1,5 @@
 /**
- * ログインの要らない「静止した写し」を 1 枚の HTML に焼く。
+ * ログインの要らない「静止した写し」を焼く。1 枚ではなく**冊子**にする。
  *
  * ```
  * pnpm run preview:static
@@ -9,18 +9,32 @@
  *
  * **動いているアプリを認証なしで見せる仕掛けではない。**入口の門
  * （`src/middleware.ts`）にも `matcher` にも触っていない。ここがしているのは、
- * 画面の部品を Node の上で静かに描いて、本物の CSS と一緒に 1 枚へ焼くことだけである。
+ * 画面の部品を Node の上で静かに描いて、本物の CSS と一緒に焼くことだけである。
  * 焼いた HTML はサーバーに繋がっておらず、押しても何も起きない。
  * 門を緩めずに見た目だけを渡すための、**別のもの**である。
  *
+ * ## なぜ 1 枚ではなく冊子なのか
+ *
+ * 見てもらいたいのは「1 つの記事の見た目」ではなく、**表示の分かれ方が
+ * 全部出ているか**である。順位表・比較表・商品カード・提携が無いときの断り・
+ * 未計測の欄・会話は、どれも別々の記事にしか出ない。1 枚に焼くと、
+ * 焼いた 1 本に出る分岐しか確かめられず、出ていない分岐は
+ * 「無い」のか「壊れている」のか区別がつかない。
+ *
+ * だから見本のブログ 5 本と、その全記事を 1 ページずつ焼き、
+ * `index.html` に**どの分岐がどのページで見られるか**の対応表を置く。
+ *
  * ## 本物であることをどう保つか
  *
- * 1. **部品は本物を描く。** 見本帳の 22 節は `DensitySamples`、案内は `AppShell`。
- *    どちらもアプリが描いているのと同じものを、同じ引数で描いている。
- * 2. **CSS は本物を通す。** トークンは `src/app/globals.css` を
+ * 1. **部品は本物を描く。** 記事は `ArticleView`、ブログのトップは
+ *    `SiteHomeContent`、管理画面は
+ *    `AppShell`。どれもアプリが描いているのと同じものを、同じ引数で描いている。
+ * 2. **中身も本物を読む。** 記事も設計図も、アプリが読むのと同じ
+ *    見本リポジトリから取る。ここに文言を書き写さない。
+ * 3. **CSS は本物を通す。** トークンは `src/app/globals.css` を
  *    `@tailwindcss/postcss`（アプリが使っている道具そのもの）に通した結果、
  *    部品の見た目は `.module.css` の本文そのまま。**どこにも書き写しが無い。**
- * 3. **空なら止まる。** 読めていないまま焼くと、見た目の無い写しが
+ * 4. **空なら止まる。** 読めていないまま焼くと、見た目の無い写しが
  *    「これが実物です」という顔で残る。判定は `scripts/lib/static-preview.mjs`。
  *
  * 名前の扱いだけ本番と違う。本番の束ね役は `.module.css` の名前を隠して衝突を防ぐが、
@@ -44,19 +58,32 @@ import { createSampleContentRepository } from "@/infrastructure/persistence/samp
 import {
   createSampleSiteRepository,
   SAMPLE_SITE_SLUG,
+  sampleSites,
 } from "@/infrastructure/persistence/sample/site-sample-repository";
+import { SiteHomeContent, toSiteHomeView } from "@/presentation/site/home-content";
+import { siteHref, toArticleCards, toArticleView, toChrome } from "@/presentation/site/view-model";
+import type { PublicSiteBlueprint } from "@/application/usecases/site/read-site";
 import {
-  siteHref,
-  toArticleCards,
-  toArticleView,
-  toChrome,
-} from "@/presentation/site/view-model";
+  articleHref,
+  type ArticleSummary,
+  type PublishedArticle,
+} from "@/application/read-models/published-article";
 import { buildDocument, findModuleCss } from "./lib/static-preview.mjs";
 
 const ROOT = process.cwd();
 const ENTRY_CSS = "src/app/globals.css";
+
+/**
+ * 焼いた冊子の置き場所。
+ *
+ * `public/` へ置くと、門を通さずにアプリ自身が配ってしまう。それは
+ * 「別に作った静止画」ではなく、入口に開けた穴になる。だから `docs/` の下だけ。
+ * （検査は `tests/architecture/static-preview-writer.test.ts`。）
+ */
+const INDEX_OUT = "docs/product/preview/index.html";
 const NAV_OUT = "docs/product/preview/nav-and-density.html";
-const BLOG_OUT = "docs/product/preview/blog-article-shell.html";
+const SITES_DIR_OUT = "docs/product/preview/sites";
+const ARTICLES_DIR_OUT = "docs/product/preview/articles";
 
 async function tailwindCss(): Promise<string> {
   const from = join(ROOT, ENTRY_CSS);
@@ -64,7 +91,9 @@ async function tailwindCss(): Promise<string> {
   return result.css;
 }
 
-function body(): string {
+/* --- 管理画面の見本 ------------------------------------------------------ */
+
+function adminBody(): string {
   return renderToStaticMarkup(
     <AppShell
       currentPath="/admin/ui-catalog"
@@ -83,66 +112,330 @@ function body(): string {
   );
 }
 
-async function blogBody(): Promise<string> {
-  const content = createSampleContentRepository();
-  const [site, article, recent] = await Promise.all([
-    createSampleSiteRepository().findBySlug(SAMPLE_SITE_SLUG),
-    content.findArticle(SAMPLE_SITE_SLUG, "laptops-for-video-editing"),
-    content.listRecent(SAMPLE_SITE_SLUG, 4),
-  ]);
-  if (!site.ok || site.value === null || !article.ok || article.value === null) {
-    throw new Error("ブログ記事の見本を読み込めませんでした。");
-  }
-  const blueprint = site.value;
-  const currentArticle = article.value;
-  const chrome = toChrome(SAMPLE_SITE_SLUG, blueprint);
-  const relatedArticles = recent.ok
-    ? toArticleCards(
-        SAMPLE_SITE_SLUG,
-        recent.value.filter((candidate) => candidate.slug !== currentArticle.slug).slice(0, 3),
-      )
-    : undefined;
-  const view = toArticleView(SAMPLE_SITE_SLUG, currentArticle, relatedArticles);
-  const path = siteHref(SAMPLE_SITE_SLUG, "/best/laptops-for-video-editing");
+/* --- ブログのトップ ------------------------------------------------------ */
+
+/**
+ * ブログのトップ。`src/app/s/[site]/page.tsx` と同じ部品・同じ引数で描く。
+ *
+ * 描き方をここで作り直すと、実物が変わった日に写しだけ古いまま残り、
+ * しかも見た目からは分からない。だから並べる順も節の見出しも実物に合わせる。
+ */
+function siteBody(
+  siteSlug: string,
+  blueprint: PublicSiteBlueprint,
+  recent: readonly ArticleSummary[],
+): string {
+  const chrome = toChrome(siteSlug, blueprint);
   return renderToStaticMarkup(
-    <SiteShell
-      chrome={chrome}
-      currentPath={path}
-      breadcrumbs={[
-        { label: blueprint.name, href: chrome.homeHref },
-        { label: "おすすめ順位" },
-        { label: view.title },
-      ]}
-      sidebar={<ArticleTableOfContents sections={view.sections} placement="sidebar" />}
-    >
-      <ArticleView article={view} />
+    <SiteShell chrome={chrome} currentPath={siteHref(siteSlug, "/")}>
+      <SiteHomeContent view={toSiteHomeView(siteSlug, blueprint, recent)} />
     </SiteShell>,
   );
 }
 
-function writePreview(output: string, bodyHtml: string, css: string): void {
-  const html = buildDocument({
-    tailwindCss: css,
+/* --- 冊子の組み立て ------------------------------------------------------ */
+
+/** 取得境界から描画境界へ渡す、ブログ 1 本ぶんの読み取り結果。 */
+type PreviewSiteData = {
+  readonly slug: string;
+  readonly blueprint: PublicSiteBlueprint;
+  readonly summaries: readonly ArticleSummary[];
+  readonly articles: readonly PublishedArticle[];
+};
+
+/** 焼く 1 ページぶん。どの分岐がここで見られるかも一緒に持たせる。 */
+type Sheet = {
+  readonly out: string;
+  readonly title: string;
+  readonly bodyHtml: string;
+  /** 実アプリで同じ内容を開く URL。目次に文字として載せる。 */
+  readonly appHref: string;
+  readonly kind: "site" | "article" | "admin";
+  /** 冊子の目次に出す肩書き（ブログ名など）。 */
+  readonly group: string;
+  /** この記事に出ている表示の分かれ方。目次の対応表がこれで作られる。 */
+  readonly branches: readonly string[];
+};
+
+/**
+ * 記事に出ている表示の分かれ方を、記事そのものから読む。
+ *
+ * 手で「この記事には順位表がある」と書かない。書くと、記事を差し替えた日に
+ * 対応表だけ古いまま残り、**出ていない分岐を「出ている」と読ませる**。
+ * 記事を見て言えることだけを言う。
+ */
+function branchesOf(article: PublishedArticle): readonly string[] {
+  const found: string[] = [`記事の型: ${article.type}`];
+  if (article.ranking !== undefined) found.push("順位表");
+  if (article.comparison !== undefined) found.push("比較表");
+  if (article.conversation !== undefined) found.push("会話");
+
+  const cards = article.productCards ?? [];
+  if (cards.length > 0) found.push("商品カード");
+  // 提携が無いことの断りは、行き先と計測符号を**両方**省いたときだけ出る。
+  // 片方でも残っていると理由は黙って消えるので、両方を見る。
+  if (cards.some((c) => c.affiliateUrl === undefined && c.trackingCode === undefined)) {
+    found.push("提携が無いときの断り");
+  }
+  if (cards.some((c) => (c.specs ?? []).some((s) => s.value === null))) {
+    found.push("未計測の欄");
+  }
+
+  const kinds = new Set(
+    article.sections.flatMap((s) => (s.claims ?? []).map((c) => c.kind)),
+  );
+  for (const kind of ["fact", "inference", "opinion"] as const) {
+    if (kinds.has(kind)) found.push(`主張の印: ${kind}`);
+  }
+  return found;
+}
+
+/** 冊子の中を移る案内。書き出すページから実在する 2 ページへの道を作る。 */
+function navHtml(from: string): string {
+  return [
+    "<strong>静止した写しの冊子</strong>",
+    `<a href="${hrefFrom(from, INDEX_OUT)}">目次</a>`,
+    `<a href="${hrefFrom(from, NAV_OUT)}">管理画面の見本</a>`,
+  ].join("");
+}
+
+/** 目次。どの分岐がどのページで見られるかを、焼いた実物から作る。 */
+function indexBody(sheets: readonly Sheet[]): string {
+  const groups = new Map<string, Sheet[]>();
+  for (const sheet of sheets) {
+    const list = groups.get(sheet.group) ?? [];
+    list.push(sheet);
+    groups.set(sheet.group, list);
+  }
+
+  const allBranches = [...new Set(sheets.flatMap((s) => s.branches))].sort();
+  const rows = allBranches.map((branch) => {
+    const where = sheets.filter((s) => s.branches.includes(branch));
+    return [
+      "<tr>",
+      `<th scope="row">${escapeText(branch)}</th>`,
+      `<td>${where.length}</td>`,
+      `<td>${where
+        .slice(0, 4)
+        .map((s) => `<a href="${hrefFrom(INDEX_OUT, s.out)}">${escapeText(s.title)}</a>`)
+        .join("、")}${where.length > 4 ? " ほか" : ""}</td>`,
+      "</tr>",
+    ].join("");
+  });
+
+  return [
+    '<main class="catalog">',
+    "<h1>静止した写しの冊子</h1>",
+    `<p>見本のブログ ${sheets.filter((sheet) => sheet.kind === "site").length} 本と、その全記事 ${
+      sheets.filter((sheet) => sheet.kind === "article").length
+    } 本を 1 ページずつ焼いています。押しても動きませんが、見た目と中身は実物です。</p>`,
+    "<h2>表示の分かれ方が、どこで見られるか</h2>",
+    "<p>この表は焼いた記事そのものから作っています。手で書いていないので、記事を差し替えれば表も変わります。件数が 0 の行はここに出ません（出ていない分岐は、そもそも記事に無いということです）。</p>",
+    '<table class="catalog-table">',
+    "<thead><tr><th>表示の分かれ方</th><th>出ている記事の数</th><th>見られるページ</th></tr></thead>",
+    `<tbody>${rows.join("")}</tbody>`,
+    "</table>",
+    "<h2>ページの一覧</h2>",
+    ...[...groups.entries()].map(([group, list]) =>
+      [
+        `<h3>${escapeText(group)}</h3>`,
+        "<ul>",
+        ...list.map(
+          (s) =>
+            `<li><a href="${hrefFrom(INDEX_OUT, s.out)}">${escapeText(s.title)}</a>` +
+            `<br><code>${escapeText(s.appHref)}</code>` +
+            `<br><small>${escapeText(s.branches.join(" / "))}</small></li>`,
+        ),
+        "</ul>",
+      ].join(""),
+    ),
+    "</main>",
+    CATALOG_STYLE,
+  ].join("\n");
+}
+
+/** 目次だけの見た目。実物の部品を使わないので、ここだけ素の値で書く。 */
+const CATALOG_STYLE = `<style>
+.catalog { max-width: 60rem; margin: 0 auto; padding: 24px 16px 64px; font-family: system-ui, sans-serif; line-height: 1.8; }
+.catalog h1 { font-size: 1.6rem; margin: 0 0 8px; }
+.catalog h2 { font-size: 1.2rem; margin: 32px 0 8px; border-bottom: 1px solid #d4d9e0; padding-bottom: 4px; }
+.catalog h3 { font-size: 1rem; margin: 20px 0 4px; }
+.catalog ul { margin: 0; padding-left: 1.2em; }
+.catalog li { margin-bottom: 6px; }
+.catalog small { color: #5b6472; }
+.catalog-table { border-collapse: collapse; width: 100%; font-size: 0.9rem; }
+.catalog-table th, .catalog-table td { border: 1px solid #d4d9e0; padding: 6px 10px; text-align: left; vertical-align: top; }
+.catalog-table thead th { background: #eef2f7; }
+</style>`;
+
+/** `from` のページから `to` のページへ届く相対の道。 */
+function hrefFrom(from: string, to: string): string {
+  const fromParts = from.split("/").slice(0, -1);
+  const toParts = to.split("/");
+  let shared = 0;
+  while (shared < fromParts.length && fromParts[shared] === toParts[shared]) shared += 1;
+  const up = "../".repeat(fromParts.length - shared);
+  return `${up}${toParts.slice(shared).join("/")}`;
+}
+
+function escapeText(value: string): string {
+  return value.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+}
+
+/* --- 書き出し ------------------------------------------------------------ */
+
+type StyleBundle = {
+  readonly tailwindCss: string;
+  readonly moduleCss: readonly { readonly path: string; readonly text: string }[];
+};
+
+/** CSS の読み取りは全冊子で 1 回だけ。ページごとに同じファイルを読み直さない。 */
+async function loadStyles(): Promise<StyleBundle> {
+  return {
+    tailwindCss: await tailwindCss(),
     moduleCss: findModuleCss(ROOT).map((path) => ({
       path,
       text: readFileSync(join(ROOT, path), "utf8"),
     })),
-    bodyHtml,
+  };
+}
+
+/** 1 ページを文書へ組み立てて書く。データ取得や React 描画はここへ持ち込まない。 */
+function writeSheet(sheet: Sheet, styles: StyleBundle, generatedAt: string): void {
+  const html = buildDocument({
+    tailwindCss: styles.tailwindCss,
+    moduleCss: styles.moduleCss,
+    bodyHtml: sheet.bodyHtml,
     htmlAttributes: { lang: "ja", ...appearanceAttributes(DEFAULT_APPEARANCE) },
-    generatedAt: new Date().toISOString().slice(0, 10),
+    generatedAt,
+    title: sheet.title,
+    navHtml: navHtml(sheet.out),
   });
-  mkdirSync(dirname(join(ROOT, output)), { recursive: true });
-  writeFileSync(join(ROOT, output), html);
-  console.log(`書き出しました: ${output}`);
+  mkdirSync(dirname(join(ROOT, sheet.out)), { recursive: true });
+  writeFileSync(join(ROOT, sheet.out), html);
+}
+
+/** 見本リポジトリを読む境界。ここでは HTML を描かない。 */
+async function collectPreviewSites(): Promise<readonly PreviewSiteData[]> {
+  const content = createSampleContentRepository();
+  const siteRepo = createSampleSiteRepository();
+  const sites: PreviewSiteData[] = [];
+
+  for (const { slug } of sampleSites()) {
+    const found = await siteRepo.findBySlug(slug);
+    if (!found.ok || found.value === null) {
+      throw new Error(`ブログの設計図を読み込めませんでした: ${slug}`);
+    }
+    const blueprint = found.value;
+
+    // 全記事が要る。1 本だけだと、その 1 本に出る分岐しか確かめられない。
+    const recent = await content.listRecent(slug, 200);
+    if (!recent.ok) throw new Error(`記事の一覧を読み込めませんでした: ${slug}`);
+    if (recent.value.length === 0) throw new Error(`記事が 1 本もありません: ${slug}`);
+
+    const articles: PublishedArticle[] = [];
+    for (const summary of recent.value) {
+      const article = await content.findArticle(slug, summary.slug);
+      if (!article.ok || article.value === null) {
+        throw new Error(`記事を読み込めませんでした: ${slug}/${summary.slug}`);
+      }
+      articles.push(article.value);
+    }
+    sites.push({ slug, blueprint, summaries: recent.value, articles });
+  }
+  return sites;
+}
+
+/** 取得済みのデータを描画する純粋境界。CSS とファイル出力は扱わない。 */
+function renderSheets(sites: readonly PreviewSiteData[]): readonly Sheet[] {
+  const sheets: Sheet[] = [];
+
+  for (const { slug, blueprint, summaries, articles } of sites) {
+    sheets.push({
+      out: `${SITES_DIR_OUT}/${slug}.html`,
+      title: `${blueprint.name}（トップ）`,
+      bodyHtml: siteBody(slug, blueprint, summaries),
+      appHref: siteHref(slug, "/"),
+      kind: "site",
+      group: blueprint.name,
+      branches: ["ブログのトップ"],
+    });
+
+    const chrome = toChrome(slug, blueprint);
+    for (const current of articles) {
+      const related = toArticleCards(
+        slug,
+        summaries.filter((candidate) => candidate.slug !== current.slug).slice(0, 3),
+      );
+      const view = toArticleView(slug, current, related);
+      const appHref = siteHref(slug, articleHref(current));
+      sheets.push({
+        out: `${ARTICLES_DIR_OUT}/${slug}__${current.slug}.html`,
+        title: `${blueprint.name} — ${view.title}`,
+        bodyHtml: renderToStaticMarkup(
+          <SiteShell
+            chrome={chrome}
+            currentPath={appHref}
+            breadcrumbs={[
+              { label: blueprint.name, href: chrome.homeHref },
+              { label: view.title },
+            ]}
+            sidebar={<ArticleTableOfContents sections={view.sections} placement="sidebar" />}
+          >
+            <ArticleView article={view} />
+          </SiteShell>,
+        ),
+        appHref,
+        kind: "article",
+        group: blueprint.name,
+        branches: branchesOf(current),
+      });
+    }
+  }
+
+  sheets.push({
+    out: NAV_OUT,
+    title: "管理画面 — 案内の分類と、詰まり具合の見比べ",
+    bodyHtml: adminBody(),
+    appHref: "/admin/ui-catalog",
+    kind: "admin",
+    group: "管理画面",
+    branches: ["管理画面の案内", "詰まり具合"],
+  });
+
+  return sheets;
 }
 
 async function main(): Promise<void> {
-  const css = await tailwindCss();
-  writePreview(NAV_OUT, body(), css);
-  writePreview(BLOG_OUT, await blogBody(), css);
+  const [styles, sites] = await Promise.all([loadStyles(), collectPreviewSites()]);
+  const sheets = renderSheets(sites);
+  const generatedAt = new Date().toISOString().slice(0, 10);
+
+  for (const sheet of sheets) writeSheet(sheet, styles, generatedAt);
+  writeSheet(
+    {
+      out: INDEX_OUT,
+      title: "静止した写しの冊子 — 目次",
+      bodyHtml: indexBody(sheets),
+      appHref: "/",
+      kind: "admin",
+      group: "目次",
+      branches: [],
+    },
+    styles,
+    generatedAt,
+  );
+
+  console.log(`書き出しました: ${INDEX_OUT}（ほか ${sheets.length} ページ）`);
+  console.log(`  ブログ ${sheets.filter((sheet) => sheet.kind === "site").length} 本 / 記事 ${
+    sheets.filter((sheet) => sheet.kind === "article").length
+  } 本`);
 }
 
 main().catch((error: unknown) => {
   console.error(error);
   process.exitCode = 1;
 });
+
+/** 1 本だけを見たいときの入口。冊子の中で最初に開く記事を決めている。 */
+export const FIRST_SITE = SAMPLE_SITE_SLUG;

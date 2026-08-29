@@ -1,0 +1,156 @@
+{
+  "_": "媒体ごとの規則の正本。媒体を足すときは、このファイルに 1 エントリ足すだけでよい。生成（run-social-post）も検品（validate-media-post.mjs）も、ここだけを読む。どちらかにだけ規則を書くと、生成が通して検品が落とす（またはその逆）状態になり、書き手には理由が見えない。",
+  "_fields": {
+    "label": "画面と検品の言葉に出る媒体名。",
+    "maxChars": "本文の上限。コードポイント数で数える（絵文字や合字を 1 と数えるため）。",
+    "minChars": "下限。これを下回ると、その媒体に出す意味が無い（別媒体へのリンクだけになる）。",
+    "headingStyle": "markdown = # を使う / none = 見出し記法を使わない（プレーンテキストの媒体）。",
+    "headingMaxChars": "headingStyle=markdown のときの見出し 1 の上限。null なら制限しない。",
+    "lineBreakRule": "context = 文節・句読点で折る / paragraph = 段落だけ空行で分ける。",
+    "hashtags": "min/max は本文末に付ける個数。max=0 の媒体はハッシュタグそのものを禁止する。",
+    "linkAllowed": "本文中に外部リンクを置けるか。false の媒体では、導線はプロフィール等へ逃がす。",
+    "disclosureStyle": "inline = 本文に広告表記を入れる / linked = リンク先の記事側に任せる / none = 導線が無いので不要。",
+    "emojiAllowed": "絵文字を使ってよいか。",
+    "forbiddenPatterns": "その媒体で使わない表現。正規表現の文字列。",
+    "notes": "人が読むための補足。検品はここを見ない。"
+  },
+  "_emoji": "絵文字は全媒体で禁止にしてある。参照元の x-longpost-creator が絵文字を絶対禁止としており、同じ書き手の文体をブログと SNS で揃えるのがこの harness の目的だから。媒体ごとに変えると、同じ人が書いたように見えなくなる。",
+  "_hype": "煽り語。全媒体で △ を出す。止めない理由は、案件の concept.tone が「煽らない」と決めているかどうかで重さが変わるから。そこの判定は apply-style-genome の担当で、ここは見落としを無くすためだけに置いてある。リストに載っていない煽りも同じ agent が拾う。",
+  "hypeWords": [
+    "マジで",
+    "マジ",
+    "衝撃",
+    "知らないと損",
+    "必見",
+    "話題沸騰",
+    "神",
+    "ヤバい",
+    "ヤバイ",
+    "驚愕",
+    "最強",
+    "革命"
+  ],
+  "_decoration": "記号による装飾。この harness は装飾を見出しの言葉そのもので表す（_emoji と同じ理由）。絵文字は fail、記号は △ にしてある。記号は引用や単位で正当に出ることがあるため。",
+  "decorationMarks": [
+    "▼",
+    "▲",
+    "＼",
+    "／",
+    "―――",
+    "★",
+    "☆",
+    "■",
+    "◆",
+    "※※",
+    "!!",
+    "！！"
+  ],
+  "media": {
+    "blog": {
+      "label": "ブログ記事",
+      "maxChars": null,
+      "minChars": 1200,
+      "headingStyle": "markdown",
+      "headingMaxChars": null,
+      "lineBreakRule": "paragraph",
+      "hashtags": {
+        "min": 0,
+        "max": 0
+      },
+      "linkAllowed": true,
+      "disclosureStyle": "inline",
+      "emojiAllowed": false,
+      "forbiddenPatterns": [],
+      "notes": "本体。下限 1200 字は references/granularity.md の本文字数と同じ値で、validate-blog-content.mjs 側が正本。ここは媒体一覧に blog を欠けさせないために置いてある。文体は、読者が自分で確かめに来ている前提で書く — 条件と留保は削らずに全部残す。呼びかけの多少はここでは決めない（実測では blog が最多になる案件もある）。**他媒体との文体差を見るときの基準を blog に置かない** — apply-style-genome は「この案件で並べた媒体すべて」を基準にすると決めており、blog を含まない案件もある。"
+    },
+    "x-long": {
+      "label": "X 長文投稿",
+      "maxChars": 2000,
+      "minChars": 1200,
+      "headingStyle": "markdown",
+      "headingMaxChars": 50,
+      "lineBreakRule": "context",
+      "hashtags": {
+        "min": 0,
+        "max": 3
+      },
+      "linkAllowed": true,
+      "disclosureStyle": "inline",
+      "emojiAllowed": false,
+      "forbiddenPatterns": [],
+      "notes": "見出し 1 の 50 字は、タイムラインで最初に読まれるのが先頭 30 字程度であることに合わせた編集規範。切り詰めではなく書き直しで収める。見出し 1 の後には見出し 2 を必ず置く。文体は**説明する側**に置く（案件に blog があれば blog と同じ側）。ただし見出しで区切って読ませるため 1 節が短く、節ごとに言い切る回数は説明する側の長い媒体より増える。増えるのは言い切りの回数であって、言い切ってよい主張の種類ではない — inference と opinion の留保は媒体が変わっても落とさない。呼びかけも、他の媒体に無い種類を足す理由にはならない（同じ種類が 1 件増えるのは同じ書き手の範囲）。短いのは節であって、読者との距離ではない。**この行は blog の有無に依存しない** — 案件によっては x-long が最も長い媒体になる。"
+    },
+    "x-short": {
+      "label": "X 短文投稿",
+      "maxChars": 280,
+      "minChars": 120,
+      "headingStyle": "none",
+      "headingMaxChars": null,
+      "lineBreakRule": "context",
+      "hashtags": {
+        "min": 0,
+        "max": 2
+      },
+      "linkAllowed": true,
+      "disclosureStyle": "linked",
+      "emojiAllowed": false,
+      "forbiddenPatterns": [],
+      "notes": "1 投稿 1 主張。長文の要約ではなく、長文から 1 つの主張を取り出して単体で成立させる。導線はブログ記事へ送り、広告表記は記事側で出す。"
+    },
+    "instagram": {
+      "label": "Instagram キャプション",
+      "maxChars": 2200,
+      "minChars": 300,
+      "headingStyle": "none",
+      "headingMaxChars": null,
+      "lineBreakRule": "paragraph",
+      "hashtags": {
+        "min": 3,
+        "max": 20
+      },
+      "linkAllowed": false,
+      "disclosureStyle": "inline",
+      "emojiAllowed": false,
+      "forbiddenPatterns": [
+        "リンクはこちら",
+        "下のリンク",
+        "URLをタップ"
+      ],
+      "notes": "本文中のリンクが機能しない媒体。「リンクはこちら」と書くと、押せない場所を指すことになる。禁止表現はそのための実害対策。導線が無くても広告表記は本文に入れる（プロフィール経由で報酬が発生しうるため）。文体は、画像で引いた読者が本文で確かめる前提。呼びかけは他の媒体と同じものを同じ言い方で残す（案件に blog があれば blog と同じ言い方）。本文が短いぶん密度は上がるが、種類は増やさない。"
+    },
+    "note": {
+      "label": "note 記事",
+      "maxChars": null,
+      "minChars": 1000,
+      "headingStyle": "markdown",
+      "headingMaxChars": 60,
+      "lineBreakRule": "paragraph",
+      "hashtags": {
+        "min": 0,
+        "max": 5
+      },
+      "linkAllowed": true,
+      "disclosureStyle": "inline",
+      "emojiAllowed": false,
+      "forbiddenPatterns": [],
+      "notes": "**判断の過程を書く場**。何をどう測ったかではなく、測った結果から何を決めたかを書く。案件に blog があるときは、blog が商品を測る場・note が判断の過程を書く場、と役割を分ける（分けないと重複コンテンツになる）。**blog を含まない案件では、最も長い媒体との間で同じ分け方をする。** 呼びかけは他媒体と同じ種類に揃える — 読み物だからといって、他に無い形の呼びかけを足す理由にはならない。"
+    },
+    "facebook": {
+      "label": "Facebook 投稿",
+      "maxChars": 1500,
+      "minChars": 200,
+      "headingStyle": "none",
+      "headingMaxChars": null,
+      "lineBreakRule": "paragraph",
+      "hashtags": {
+        "min": 0,
+        "max": 2
+      },
+      "linkAllowed": true,
+      "disclosureStyle": "inline",
+      "emojiAllowed": false,
+      "forbiddenPatterns": [],
+      "notes": "先頭 3 行までしか展開前に見えないため、結論を最初に置く。ハッシュタグは機能が弱く、多いと読みにくいだけになる。"
+    }
+  }
+}
