@@ -7,8 +7,8 @@
   "spec_dir": "system-spec",
   "verdict": "FAIL",
   "inputs": {
+    "sha256": "1cd583cf13f15d9f0e8c8a00af8999a0cde2daf779d3fa8d3722bc42462bae0b",
     "file_count": 81,
-    "sha256": "dcf1a90fa910480437b75004e383888bd5b85d2146ef76a737efef02aa09342c",
     "files": [
       {
         "path": "docs/spec/00-README.md",
@@ -392,13 +392,13 @@
       },
       {
         "path": "system-spec/infrastructure.md",
-        "sha256": "a385ad7ecfa4b46a20a1cc8af176a3142c5113311757fb88b7cadfff94deaef1",
-        "mtime": 1787969429
+        "sha256": "359cb34f21c9334aa521412d907b579b0fea8f962039739349cd61f16f3c1591",
+        "mtime": 1787970367
       },
       {
         "path": "system-spec/maintenance-ops.md",
-        "sha256": "2785eff6e5e34f75264b246fd9ffd58d77b60c6eff4e6be97f95d54250155ab3",
-        "mtime": 1787969429
+        "sha256": "dc82f1f5675b97e861c1a1691bc328f7e650afb2134188949965c08dbce3eee7",
+        "mtime": 1787970367
       },
       {
         "path": "system-spec/security.md",
@@ -407,15 +407,16 @@
       },
       {
         "path": "system-spec/spec-state.json",
-        "sha256": "35b7f4b900222b53dc5c3c98cf821c79cd8f4443774d63e009c8bb702000fd3b",
-        "mtime": 1787969399
+        "sha256": "97374689418106598a079e418346e92b888eedaf83bf3b0421506bbf2bf1e9b4",
+        "mtime": 1787995741
       },
       {
         "path": "system-spec/ui-ux.md",
         "sha256": "27d9540866be6d02a4905e4866b4351d629bf6fe61bb41d144c242a3e2181e80",
         "mtime": 1787901827
       }
-    ]
+    ],
+    "pinned_at": "2026-08-29T12:12:10.020Z"
   },
   "audit_delegations": [
     {
@@ -434,9 +435,10 @@
       "evidence": [
         "**この receipt は前 run (session 105ca20f) のもので、いまの木を読んだ判定ではない**",
         "再利用根拠は本 run でも成立しない: C07 の読取入力 spec-state.json は matrix / qa_log / reopen_log / hearing_progress が変化した",
-        "本 run で供給中立ゲート exit 0 の prompt で C07 を fork し直し AUDIT_VERDICT: PASS を得たが、台帳は 18 行のまま増えず receipt にできなかった",
+        "本 run で supply_neutrality.py exit 0 の prompt を用い name 無しで C07 を fork し直し AUDIT_VERDICT: PASS を得たが、台帳は 18 行のまま増えず receipt にできなかった",
+        "台帳が書かれない原因を本 run で機械特定: 実行中の複製 harness-local 0.1.11 に hooks/record-audit-fork.py が無く hooks.json も PreToolUse のみ (check-installed-copy-drift.py)",
         "receipt 転記値: 全 48 セル (確定 8 / 対象外 40 / 未収集 0)",
-        "決定論ゲートは本 run のツリーで再取得済み (loop / --require-complete ほか全 6 フラグ exit 0)"
+        "決定論ゲートは本 run のツリーで再取得済み (7 フラグすべて exit 0)"
       ]
     },
     {
@@ -455,7 +457,7 @@
       "evidence": [
         "**この receipt は前 run (session 105ca20f) のもので、いまの木を読んだ判定ではない**",
         "再利用根拠は本 run でも成立しない: C06 の読取入力 spec-state.json が変化した",
-        "本 run で供給中立ゲート exit 0 の prompt で C06 を fork し直し AUDIT_VERDICT: PASS を得たが、台帳は 18 行のまま増えず receipt にできなかった",
+        "本 run では C06 を fork し直していない (C07 の再 fork で台帳が 1 行も増えないことを実測したため、同じ環境で C06 を起動しても receipt にできないことが先に分かった)",
         "receipt 転記値: 聞き漏れ 0 / 誘導質問 0 / 早期停止 0 / トレース欠落 0 / foundation 根拠欠落 0"
       ]
     },
@@ -483,70 +485,89 @@
       "verdict": "PASS",
       "auditor": "assign-system-spec-completeness-evaluator",
       "component": "C05",
-      "summary": "本 run の差分 3 ファイル (system-spec/infrastructure.md / system-spec/maintenance-ops.md / system-spec/spec-state.json) を機械的に特定してから再採点し PASS。requirements_foundation / decisions / targets / approval_log / categories は HEAD とキー単位比較で SAME、原典 docs/spec/* は inputs 指紋で無変更。--require-foundation を本 run のツリーで再実行し exit 0。前回 low だった goal トレースの欠け (infrastructure×web の serves_goals が [G2, G1] から [G1] へ縮み根拠が残っていない) は**解消**した: 現行 spec-state.json / 章 frontmatter / 『資するゴール』行のいずれも [G1, G2] へ戻っている。",
+      "summary": "本 run (2026-08-29 / session 617163b6 / HEAD 2c79b28) のツリーで再採点し PASS。前回評価の指紋 dcf1a90f… との差分は system-spec/infrastructure.md / system-spec/maintenance-ops.md / system-spec/spec-state.json の 3 件のみで、件数は 81 件のまま増減 0。spec-state.json をキー単位で 9e43df2 と突き合わせ、requirements_foundation / decisions / targets / approval_log / categories / category_aggregate / excluded_categories は SAME、変化は matrix / qa_log / reopen_log / hearing_progress の 4 キー。--require-foundation を本 run のツリーで再実行し exit 0。確定 8 セルの serves_goals は G1 / G2 とも 他セルで担われており dangling は無い。ただし maintenance-ops×web が再オープン→再確定の過程で serves_goals [G1, G2] → [G1] へ縮んでおり、reopen_log の reason は §4-3 の未接地しか述べておらず縮小そのものの根拠を持たない (low)。",
       "evidence": [
-        "G-matrix-foundation exit 0",
-        "requirements_foundation / decisions / targets / approval_log / category_aggregate は HEAD とキー単位で SAME",
-        "matrix.infrastructure.web.serves_goals = [G1, G2] / infrastructure.md frontmatter serves_goals: [G1, G2] / 『資するゴール: G1, G2』"
+        "G-matrix-foundation exit 0 (loop+foundation(上位概念トレース))",
+        "spec-state.json キー単位比較 (vs 9e43df2): requirements_foundation / decisions / targets / approval_log = SAME",
+        "確定 8 セル: database/ui-ux/infrastructure/backend/frontend = [G1, G2] 系、auth/security/maintenance-ops = [G1]",
+        "maintenance-ops×web の reopen_log discarded.serves_goals = [G1, G2] / 再確定後 = [G1] (縮小理由の記録なし)"
       ]
     },
     "decision_guidance": {
       "verdict": "PASS",
       "auditor": "assign-system-spec-completeness-evaluator",
       "component": "C05",
-      "summary": "射程外として前回判定を引き継ぐ。本観点の入力は spec-state.json の decisions[] と system-spec/00-requirements-definition.md であり、decisions[] は HEAD とキー単位比較で SAME、00-requirements-definition.md は inputs 指紋で無変更 (本 run の差分 3 ファイルに含まれない)。前回根拠: decisions[] 7 件が 2-3 案・無料/低コスト案・recommendation を持ち、AI 推奨のみで confirmed にしたものは 0 件。",
+      "summary": "射程外として前回判定を引き継ぐ。本観点の入力は spec-state.json の decisions[] と system-spec/00-requirements-definition.md であり、decisions[] は 9e43df2 とキー単位比較で SAME、00-requirements-definition.md は inputs 指紋で無変更 (本 run の差分 3 ファイルに含まれない)。前回根拠: decisions[] 7 件が 2-3 案・無料/低コスト案・recommendation を持ち、AI 推奨のみで confirmed にしたものは 0 件。",
       "evidence": [
-        "inputs 指紋の差分は infrastructure.md / maintenance-ops.md / spec-state.json の 3 件のみ",
-        "spec-state.json の decisions キーは HEAD と byte 一致"
+        "decisions[] の canonical JSON digest が 9e43df2 と一致 (SAME)",
+        "system-spec/00-requirements-definition.md は本 run の差分 3 ファイルに含まれない"
       ]
     },
     "matrix_coverage": {
       "verdict": "PASS",
       "auditor": "system-spec-matrix-auditor",
       "component": "C07",
-      "summary": "**この PASS は前 run の receipt の忠実転記であり、いまの木についての独立監査の receipt ではない。**決定論ゲートはいまの木で全て回し直しており、そちらは現状についての根拠になる: loop / --require-complete / --require-foundation / --require-counted-required-info / --require-catalog-domain-coverage / --require-grounded-design-applications / --require-declared-qa-supersession および C13-C16 の 4 profile が すべて exit 0。C16 は確定 8 セルすべてが required_info_checks を持ち、required_info[].status=ungrounded は 0 件。帰属はいまの木へ接地できていない: receipt は前 run (session 105ca20f) 由来で、その再利用根拠だった 『C07 / C06 の読取入力 spec-state.json が無変更』は本 run でも崩れている (matrix / qa_log / reopen_log / hearing_progress が変化)。本 run で供給中立ゲート exit 0 の prompt で C07 / C06 を fork し直し両者とも AUDIT_VERDICT: PASS を得たが、この実行環境が読む plugin コピーに台帳 writer が無く 1 行も記録されなかったため receipt にできない (high finding)。schema の verdict_downgrade 語彙は sub_input_fail / provenance_contamination の 2 コードのみで『receipt が読んだ入力が変わった』を表せず、観点を receipt より厳しく採る道を機械層が塞いでいる。よって観点 verdict は receipt の忠実転記に留め、接地の欠落は high finding と gaps で赤のまま残す。",
+      "summary": "**この PASS は前 run (session 105ca20f) の receipt の忠実転記であり、いまの木についての独立監査の receipt ではない。**再利用根拠は本 run でも成立しない (C07 / C06 の読取入力 spec-state.json の matrix / qa_log / reopen_log / hearing_progress が変化した)。本 run で supply_neutrality.py exit 0 の prompt で C07 を name 無しで fork し直し AUDIT_VERDICT: PASS (48 セル・未収集 0・対象外 40 の理由要改善 0・確定 8 の qa_ref 要確認 0・集約不一致 0・platform 欠落 0) を得たが、**台帳は fork の前後とも 18 行のまま 1 行も増えなかった**ため receipt にできない。原因は本 run で機械的に特定した: 実行中の plugin 複製は harness-local 0.1.11 (~/.claude/plugins/cache/harness-local/system-spec-harness/0.1.11) で、hooks.json が PreToolUse しか宣言せず hooks/record-audit-fork.py を持たない。決定論ゲートはいまの木で全て回し直しており、そちらは現状についての根拠になる (7 通りの collection matrix フラグと C13-C16 の 4 profile がすべて exit 0)。",
       "evidence": [
-        "G-matrix / G-matrix-loop / G-matrix-foundation / G-matrix-counted-required-info / G-matrix-catalog-domain / G-matrix-grounded-design-applications / G-matrix-declared-qa-supersession すべて exit 0 (本 run のツリーで再実行)",
-        "G-knowledge-graph (C13-C16 の knowledge / doctrine / required-info / cross 4 profile) exit 0",
-        "確定 8 セル / 対象外 40 セル / 未収集 0、確定セルの required_info[].status=ungrounded は 0 件",
-        "receipt は前 run 由来。本 run の再 fork は台帳未記録 (18 行のまま) のため根拠に使っていない"
+        "G-matrix / G-matrix-loop / G-matrix-foundation / G-matrix-counted-required-info / G-matrix-catalog-domain / G-matrix-grounded-design / G-matrix-declared-qa-supersession が すべて exit 0",
+        "G-knowledge-graph (knowledge / doctrine / required-info / cross) exit 0",
+        "本 run の C07 再 fork: AUDIT_VERDICT: PASS (**台帳に無いので receipt ではない = 観測**)",
+        "G-installed-copy-drift: harness-local 0.1.11 は repo と 83 箇所ちがい missing に hooks/record-audit-fork.py を含む",
+        "実際に発火した PreToolUse guard のコマンド文字列が harness-local 側 (${PLUGIN_ROOT:-<marketplace>/hooks/guard-confirmed-chapter-overwrite.py}) であることを実測"
       ]
     },
     "design_knowledge_reflection": {
-      "verdict": "FAIL",
+      "verdict": "PASS",
       "auditor": "assign-system-spec-completeness-evaluator",
       "component": "C05",
-      "summary": "再採点し FAIL を維持する。前回の 3 medium は 解消 1 / 部分的 2、加えて新規 1 件。**解消**: 『compile が保てなかった行 (要判断)』は両章から消えた (system-spec/*.md 全体で 『保てなかった』『要判断』の出現 0 件)。**部分的 (1)**: qa-infra-web-schema-drift の 7 手欠番は、infrastructure×web の確定質疑が qa-infra-web-deploy-steps へ差し替わり、そちらが原典 docs/spec/11 §4-1 の 7 手を 3 (成果物として 30 日保管する) も含めて逐語で持つことで、確定要件としての穴は塞がった。ただし schema-drift の質疑録本文はいまも 1./2./4./5./6./7. のままで、接地根拠として章に残り続けている。**部分的 (2)**: qa-infra-web-branch-flow の書式の穴も、当該質疑が確定質疑から接地根拠へ降りたことで 『確定要件が表断片で始まる』状態は解消したが、質疑録本文は原典の表行と地の文の貼り付けのままである。**新規**: 現行 docs/spec/11 §4-3 と受け入れ条件 CI-AC-05 (公開後のスモークテストが間隔を空けて 2 回走り、落ちたら失敗する) が、確定要件にも design_applications にもどこにも接地していない。deploy-steps の確定要件は 7 『アプリを公開する』で終わっており、公開後に確かめる段を持たない。CI-AC-03 / CI-AC-20 のときと同じ形の 接地切れである。",
+      "summary": "**FAIL から PASS へ改める。**閾値は動かしていない。前回 FAIL の主因だった『現行 docs/spec/11 §4-3 と CI-AC-05 (公開後スモークを 30 秒 → 1 回目 → 90 秒 → 2 回目 の二段構え、落ちたら失敗、戻し方は wrangler rollback) がどの確定要件にも design_applications にも接地していない』は、c9abc84 の R4-reopen で解消したことを章本文から直接確かめた。infrastructure×web の確定質疑は qa-infra-web-post-deploy-smoke へ差し替わり、30 秒/90 秒の二段構えと『落ちたらワークフローを失敗させる』を逐語で持ち、『届いたことと動いていることは別である』『実行環境が入れ替わる途中で測らない』の 2 原則が 採否 applied・章固有の根拠・トレードオフ 3 件付きで適用されている。maintenance-ops×web も qa-ops-web-rollback へ差し替わり wrangler rollback と『戻す手立ては書いてあることで担保する』を持つ。機械層は全カテゴリ章が doctrine anchor 節 + 適用された設計知識 + 本章での適用を持ち、--require-grounded-design-applications と C13/C14/C15 の profile がすべて exit 0。汎用ポインタだけの章・形骸化した章は 0 件。残る 2 件 (qa-infra-web-schema-drift の質疑録本文が §4-1 の 7 手のうち 3 を番号ごと欠く / qa-infra-web-branch-flow の質疑録本文が表断片) は、いずれも**確定要件ではなく接地根拠**の転記書式の欠陥で、同じ章に完備した 7 手 (qa-infra-web-deploy-steps) が並存する。設計知識の適用が無い・形骸化しているという本観点の FAIL 条件には当たらないため medium finding として残し、観点は PASS とする。",
       "evidence": [
-        "grep '保てなかった|要判断' system-spec/*.md → 0 件 (前回は infrastructure.md 10 行 / maintenance-ops.md 4 行)",
-        "qa-infra-web-deploy-steps の確定要件が docs/spec/11 §4-1 の 7 手 (1〜7) を欠番なく保持",
-        "qa-infra-web-schema-drift の質疑録本文はいまも 1/2/4/5/6/7 (接地根拠として残存)",
-        "qa-infra-web-branch-flow の質疑録本文は `| `branch-flow.yml` | main への PR | 比較元の枝を見る | **なし** |` で始まる表断片のまま",
-        "docs/spec/11 §4-3 / CI-AC-05 のスモークテスト規範に対応する語 (スモーク / rollback / 30 秒 / 90 秒) が system-spec/*.md に 0 件",
-        "G-matrix-grounded-design-applications exit 0 (機械層は通る。FAIL は意味層由来)"
+        "system-spec/infrastructure.md L27-37 (確定質疑 qa-infra-web-post-deploy-smoke) と L180-200 (本章での適用) を直読",
+        "system-spec/maintenance-ops.md の確定質疑 qa-ops-web-rollback と適用 2 原則を直読",
+        "G-matrix-grounded-design exit 0 / G-knowledge-graph exit 0 (knowledge/doctrine/required-info/cross)",
+        "doctrine anchor: infrastructure = Google SRE (reliability/operations)、条項引用可否まで章に明記",
+        "残存は接地根拠の転記書式 2 件のみ (確定要件側の穴ではない)"
       ]
     },
     "doc_freshness": {
       "verdict": "PASS",
       "auditor": "system-spec-doc-freshness-auditor",
       "component": "C08",
-      "summary": "監査 receipt を再利用できると判断した。C08 の読取入力は fetched-references.json / system-spec/retrieval-evidence/*.json / spec-state.json の targets[] であり、本 run の差分 3 ファイルのうち fetched-references.json と retrieval-evidence は含まれず、spec-state.json は変わったが targets[] は HEAD とキー単位比較で byte 一致 (SAME)。C08 は docs/spec も system-spec/*.md も読まないため、infrastructure.md / maintenance-ops.md の変更は本観点の入力に触れない。前回根拠: 15 target 中 14 件が公式現行版と一致、apple-hig 1 件のみ JS 必須で鮮度未確認。",
+      "summary": "監査 receipt を再利用できると判断した。C08 の読取入力は fetched-references.json / system-spec/retrieval-evidence/*.json / spec-state.json の targets[] であり、本 run の差分 3 ファイルに fetched-references.json と retrieval-evidence は含まれず、targets[] は 9e43df2 とキー単位比較で SAME。C08 は docs/spec も system-spec/*.md も読まないため、infrastructure.md / maintenance-ops.md の変更は本観点の入力に触れない。前回根拠: 15 target 中 14 件が公式現行版と一致、apple-hig 1 件のみ JS 必須で鮮度未確認。",
       "evidence": [
-        "spec-state.json の targets キーは HEAD と byte 一致 (SAME)",
-        "inputs 指紋の差分に fetched-references.json / retrieval-evidence は含まれない"
+        "targets[] の canonical JSON digest が 9e43df2 と一致 (SAME)",
+        "fetched-references.json / system-spec/retrieval-evidence/*.json は本 run の差分 3 ファイルに含まれない",
+        "receipt 転記値: 15 target 中 14 件一致 / apple-hig のみ鮮度未確認"
       ]
     },
     "prompt_quality": {
       "verdict": "PASS",
       "auditor": "assign-system-spec-completeness-evaluator",
       "component": "C05",
-      "summary": "射程外として前回判定を引き継ぐ。本観点の入力は plugin の prompts/*.md であり、本 run の差分 3 ファイルは いずれも system-spec 配下の生成物・正本であって prompt ではない。前回根拠: prompt-creator 外部 plugin 不在のため 機械ゲートは skip (rubric の deterministic_gate_dependency 例外)、意味層で主要 prompt が 7 層形式と L5 の原子的停止条件を具備、high severity の design finding なし。",
+      "summary": "射程外として前回判定を引き継ぐ。本観点の入力は plugin の prompts/*.md であり、本 run の差分 3 ファイルは いずれも system-spec 配下の生成物・正本であって prompt ではない。前回根拠: prompt-creator 外部 plugin 不在のため機械ゲートは skip (rubric の deterministic_gate_dependency 例外)、意味層で主要 prompt が 7 層形式と L5 の原子的停止条件を具備、high severity の design finding なし。",
       "evidence": [
-        "inputs 指紋の差分は system-spec/infrastructure.md / system-spec/maintenance-ops.md / system-spec/spec-state.json の 3 件のみ"
+        "本 run の差分 3 ファイルに prompts/*.md は含まれない",
+        "prompt-creator 依存の verify-completeness.py / validate-prompt.py は単独 install 環境で解決不能 (機械ゲートのみ skip)"
       ]
     }
   },
   "gate_results": [
+    {
+      "id": "G-matrix-loop",
+      "name": "validate-coverage-matrix-loop",
+      "conditions": [
+        "matrix_coverage"
+      ],
+      "command": [
+        "python3",
+        ".claude/plugins/system-spec-harness/scripts/validate-coverage-matrix.py",
+        "--matrix",
+        "system-spec/spec-state.json"
+      ],
+      "exit_code": 0,
+      "stdout": "OK: 収集マトリクス網羅性 (loop) を満たす",
+      "stderr": ""
+    },
     {
       "id": "G-matrix",
       "name": "validate-coverage-matrix",
@@ -565,8 +586,8 @@
       "stderr": ""
     },
     {
-      "id": "G-matrix-loop",
-      "name": "validate-coverage-matrix-loop",
+      "id": "G-matrix-foundation",
+      "name": "validate-coverage-matrix-foundation",
       "conditions": [
         "matrix_coverage"
       ],
@@ -574,10 +595,11 @@
         "python3",
         ".claude/plugins/system-spec-harness/scripts/validate-coverage-matrix.py",
         "--matrix",
-        "system-spec/spec-state.json"
+        "system-spec/spec-state.json",
+        "--require-foundation"
       ],
       "exit_code": 0,
-      "stdout": "OK: 収集マトリクス網羅性 (loop) を満たす",
+      "stdout": "OK: 収集マトリクス網羅性 (loop+foundation(上位概念トレース)) を満たす",
       "stderr": ""
     },
     {
@@ -617,39 +639,20 @@
       "stderr": ""
     },
     {
-      "id": "G-matrix-foundation",
-      "name": "validate-coverage-matrix-foundation",
-      "conditions": [
-        "foundation_trace"
-      ],
-      "command": [
-        "python3",
-        ".claude/plugins/system-spec-harness/scripts/validate-coverage-matrix.py",
-        "--matrix",
-        "system-spec/spec-state.json",
-        "--require-complete",
-        "--require-foundation"
-      ],
-      "exit_code": 0,
-      "stdout": "OK: 収集マトリクス網羅性 (final(未収集0)+foundation(上位概念トレース)) を満たす",
-      "stderr": ""
-    },
-    {
-      "id": "G-matrix-grounded-design-applications",
+      "id": "G-matrix-grounded-design",
       "name": "validate-coverage-matrix-grounded-design-applications",
       "conditions": [
-        "design_knowledge_reflection"
+        "matrix_coverage"
       ],
       "command": [
         "python3",
         ".claude/plugins/system-spec-harness/scripts/validate-coverage-matrix.py",
         "--matrix",
         "system-spec/spec-state.json",
-        "--require-complete",
         "--require-grounded-design-applications"
       ],
       "exit_code": 0,
-      "stdout": "OK: 収集マトリクス網羅性 (final(未収集0)+grounded-design-applications(設計適用の接地)) を満たす",
+      "stdout": "OK: 収集マトリクス網羅性 (loop+grounded-design-applications(設計適用の接地)) を満たす",
       "stderr": ""
     },
     {
@@ -663,16 +666,15 @@
         ".claude/plugins/system-spec-harness/scripts/validate-coverage-matrix.py",
         "--matrix",
         "system-spec/spec-state.json",
-        "--require-complete",
         "--require-declared-qa-supersession"
       ],
       "exit_code": 0,
-      "stdout": "OK: 収集マトリクス網羅性 (final(未収集0)+declared-qa-supersession(孤立質疑の後継申告)) を満たす",
+      "stdout": "OK: 収集マトリクス網羅性 (loop+declared-qa-supersession(孤立質疑の後継申告)) を満たす",
       "stderr": ""
     },
     {
       "id": "G-knowledge-graph",
-      "name": "validate-knowledge-graph",
+      "name": "validate-knowledge-graph (C13-C16 4 profile)",
       "conditions": [
         "design_knowledge_reflection",
         "matrix_coverage"
@@ -683,7 +685,23 @@
         "--knowledge-graph"
       ],
       "exit_code": 0,
-      "stdout": "4 profile (knowledge/doctrine/required-info/cross) すべて exit 0",
+      "stdout": "knowledge / doctrine / required-info / cross の 4 profile をすべて exit 0 で再実行",
+      "stderr": ""
+    },
+    {
+      "id": "G-installed-copy-drift",
+      "name": "check-installed-copy-drift",
+      "conditions": [
+        "matrix_coverage"
+      ],
+      "command": [
+        "python3",
+        ".claude/plugins/system-spec-harness/scripts/check-installed-copy-drift.py",
+        "--repo",
+        ".claude/plugins/system-spec-harness"
+      ],
+      "exit_code": 1,
+      "stdout": "NG: system-spec-harness@harness-local が repo と 83 箇所ちがう (/Users/dm/.claude/plugins/cache/harness-local/system-spec-harness/0.1.11)\n  missing 30: hooks/record-audit-fork.py, hooks/references/hook-guard-protection-scope.md, lib/spec_docset_catalog.py, lib/spec_docset_chapters.py, lib/spec_docset_citation.py, lib/spec_docset_foundation.py, lib/spec_input_inventory.py, scripts/check-installed-copy-drift.py ほか 22 件\n  differing 48: agents/system-spec-doc-freshness-auditor.md, agents/system-spec-hearing-auditor.md, agents/system-spec-matrix-auditor.md, commands/spec-compile.md, hooks/guard-confirmed-chapter-overwrite.py, hooks/hooks.json, schemas/fetched-references.schema.json, schemas/spec-state.schema.json ほか 40 件\n  extra 5: schemas/information-priority-map.schema.json, scripts/validate-information-priority.py, skills/run-skill-feedback/SKILL.md, skills/run-skill-feedback/references/notion-submit-contract.md, skills/run-skill-feedback/workflow-manifest.json\nNG: system-spec-harness@harness-local が repo と 83 箇所ちがう (/Users/dm/.claude/plugins/cache/harness-local/system-spec-harness/0.1.11)\n  missing 30: hooks/record-audit-fork.py, hooks/references/hook-guard-protection-scope.md, lib/spec_do",
       "stderr": ""
     }
   ],
@@ -691,129 +709,74 @@
     {
       "severity": "high",
       "bucket": "attribution / fork receipt",
-      "observation": "前回 high finding (matrix_coverage の帰属がいまの木へ接地していない) は**未解消**で、同じ理由で本 run でも閉じられなかった。audit_delegations の C07 primary / C06 sub_input は 前 run (session 105ca20f) の receipt であり、その再利用根拠だった『C07 / C06 の読取入力 spec-state.json が無変更』は 本 run でも崩れている (matrix / qa_log / reopen_log / hearing_progress が変化)。本 run で supply_neutrality.py exit 0 の prompt で C07 / C06 を fork し直し両者から AUDIT_VERDICT: PASS を得たが、台帳は fork 前後とも 18 行のままで 1 行も追記されなかった。よって matrix_coverage の PASS は『いまの木を独立監査した結果』ではなく、前 run の判定の忠実転記にすぎない。",
-      "suggested_fix": "この実行環境が読む plugin コピー (PLUGIN_ROOT 既定値の marketplace 側) へ hooks/record-audit-fork.py と PostToolUse (Task|Agent) / SubagentStop の配線を同期するか、PLUGIN_ROOT を worktree 側の .claude/plugins/system-spec-harness へ向けたうえで C07 / C06 を同一 session で起動し直し、起動行と agent_id 一致の解決行が畳み込めた receipt で matrix_coverage を採り直す。",
-      "evidence": [
-        "台帳 eval-log/system-spec-harness/audit-fork-ledger.jsonl は fork 前後とも 18 行 (最新 session は 105ca20f)",
-        "marketplace 側 hooks/hooks.json は PreToolUse だけを宣言し PostToolUse / SubagentStop を持たない",
-        "marketplace 側 hooks/ に record-audit-fork.py が存在しない (worktree 側には存在する)"
-      ]
+      "observation": "matrix_coverage の帰属がいまの木へ接地していない状態が**未解消**。audit_delegations の C07 primary / C06 sub_input は前 run (session 105ca20f) の receipt であり、その再利用根拠だった 『C07 / C06 の読取入力 spec-state.json が無変更』は本 run でも崩れている (matrix / qa_log / reopen_log / hearing_progress が変化)。本 run で supply_neutrality.py exit 0 の prompt を用い name を渡さずに C07 を fork し直し AUDIT_VERDICT: PASS を得たが、台帳は fork 前後とも 18 行のまま 1 行も追記されなかった。原因を本 run で機械的に特定した: 実行中の plugin 複製は harness-local 0.1.11 (~/.claude/plugins/cache/harness-local/system-spec-harness/0.1.11) で、hooks/record-audit-fork.py を持たず hooks.json も PreToolUse のみ。実際に発火した PreToolUse guard のコマンド文字列が harness-local 側であることも実測した。harness-hub の cache 複製 (0.1.0) は PostToolUse(Task|Agent) と SubagentStop を宣言し record-audit-fork.py も持つが、この session ではそちらが効いていない。よって matrix_coverage の PASS は『いまの木を独立監査した結果』ではなく、前 run の判定の忠実転記にすぎない。",
+      "suggested_fix": "session の plugin を harness-hub 側 (record-audit-fork.py と PostToolUse/SubagentStop を持つ複製) へ入れ替えて Claude Code を起動し直し (/plugin から system-spec-harness を更新・harness-local を無効化)、同一 session で C07 / C06 を name 無しで起動し直す。起動行と agent_id 一致の解決行が畳み込めた receipt を得てから matrix_coverage を採り直す。**作業ツリー内の仕様書修正では閉じられない。**"
     },
     {
       "severity": "medium",
-      "bucket": "design_knowledge_reflection / 上流規範の接地",
-      "observation": "新規。現行 docs/spec/11 §4-3 (公開後は必ず確かめる: スモークテストを 30 秒待つ → 1 回目 → 90 秒待つ → 2 回目 の二段構えで実行し、落ちたらワークフローを失敗させる。戻し方は wrangler rollback) と、それに対応する受け入れ条件 CI-AC-05 が、確定要件にも design_applications にも接地していない。infrastructure×web の新しい確定要件 qa-infra-web-deploy-steps は 7 『アプリを公開する』で終わり、公開後に確かめる段を持たない。『デプロイ成功はファイルが届いたことしか意味しない』という原典の要点が、生成章のどこにも現れない。",
-      "suggested_fix": "C01 で infrastructure×web (または maintenance-ops×web) に §4-3 / CI-AC-05 を対象とする質疑を立て、確定要件へ接地させたうえで C03 compile を回す。",
-      "evidence": [
-        "docs/spec/11-CI-CD・品質ゲート仕様.md §4-3 / CI-AC-05 (272 行台の受け入れ条件表)",
-        "grep 'スモーク|rollback|30 秒|90 秒' system-spec/*.md → 該当する接地 0 件"
-      ]
+      "bucket": "転記の忠実性",
+      "observation": "qa-infra-web-schema-drift の質疑録本文が、原典 docs/spec/11 §4-1 の 7 手のうち 3 (成果物として 30 日保管する) を番号ごと落としたまま接地根拠として章に残っている (1./2./4./5./6./7.)。確定要件の側は qa-infra-web-deploy-steps が 7 手を完備しているため確定要件の穴ではないが、同じ章の中に完全な 7 手と欠番のある 6 手が並んで載っている。本 run で requote-written-source (欠落行の挿入ができず差分なし) と supersede-qa (まだセルから引かれているため拒否) の両方が writer 側で拒否されることを既知として引き継ぐ。",
+      "suggested_fix": "C01 で当該質疑の answer を取り直す。または R4-reopen で当該セルの qa_refs から qa-infra-web-schema-drift を外し、参照が切れた状態で supersede-qa を通してから C03 compile を回す。"
     },
     {
       "severity": "medium",
-      "bucket": "design_knowledge_reflection / 転記の忠実性",
-      "observation": "前回 medium (qa-infra-web-schema-drift の確定要件が原典 §4-1 の 7 手のうち 3 を番号ごと落としている) は**部分的に解消**。確定質疑が qa-infra-web-deploy-steps へ差し替わり、そちらは 7 手を 3 も含めて逐語で持つため、『確定要件が手順を欠く』穴は塞がった。しかし schema-drift 自身の質疑録本文は 1./2./4./5./6./7. のままで、接地根拠として章に残っている。同じ章の中に、完全な 7 手と欠番のある 6 手が並んで載っている状態である。",
-      "suggested_fix": "C01 で qa-infra-web-schema-drift の answer を取り直すか、当該質疑を接地根拠からも外す。",
-      "evidence": [
-        "system-spec/infrastructure.md の qa-infra-web-deploy-steps は 1〜7 を欠番なく持つ",
-        "同章 qa-infra-web-schema-drift (接地根拠) の answer は 1/2/4/5/6/7"
-      ]
-    },
-    {
-      "severity": "medium",
-      "bucket": "design_knowledge_reflection / 転記の忠実性",
-      "observation": "前回 medium (qa-infra-web-branch-flow の確定要件が原典の表断片と地の文の貼り付けで要件文として読めない) は**部分的に解消**。当該質疑は確定質疑から接地根拠へ降りたので『確定要件が表断片で始まる』状態は無くなったが、質疑録本文は `| `branch-flow.yml` | main への PR | 比較元の枝を見る | **なし** |` から始まる貼り付けのままで、CI-AC-03 / CI-AC-20 の内容は表行の形でしか載っていない。接地の穴ではなく書式の穴として残る。",
-      "suggested_fix": "C01 で answer を要件文として取り直すか、C03 compile が接地根拠欄へ写す際に正規化する。",
-      "evidence": [
-        "system-spec/infrastructure.md の qa-infra-web-branch-flow (接地根拠) 本文"
-      ]
+      "bucket": "転記の忠実性",
+      "observation": "qa-infra-web-branch-flow の質疑録本文が原典の表断片 (`| `branch-flow.yml` | main への PR | 比較元の枝を見る | **なし** |`) と地の文の貼り付けのままで、要件文として読めない。CI-AC-03 / CI-AC-20 の内容は表行の形でしか載っていない。接地の穴ではなく書式の穴として残る (確定要件ではなく接地根拠)。",
+      "suggested_fix": "C01 で answer を要件文として取り直すか、C03 compile が接地根拠欄へ写す際に正規化する。"
     },
     {
       "severity": "low",
-      "bucket": "matrix_coverage / ヒアリング記録の自己整合",
-      "observation": "前回 low (hearing_progress が loop_count=4 / max_loops=3 / strict / complete=true という自己矛盾を抱えている) は**部分的に解消**。現行は loop_count=2 / max_loops=6 / strict / complete=true で、生きている数どうしの矛盾は無い。ただし同じ構造に残された limit_overrun は『運用上の上限は 5』と名乗っており、いま置かれている max_loops=6 と 食い違う。矛盾の場所が『生きている数どうし』から『生きている数と、その根拠として残された記録』へ移っただけである。",
-      "suggested_fix": "C01 で max_loops を記録が名乗る 5 に合わせるか、limit_overrun の側に 6 へ改めた理由を書く。",
-      "evidence": [
-        "spec-state.json hearing_progress: loop_count=2 / max_loops=6 / max_loops_policy=strict / complete=true",
-        "同 limit_overrun.reason: 『運用上の上限は 5』"
-      ]
+      "bucket": "foundation_trace / goal トレース",
+      "observation": "maintenance-ops×web が再オープン → 再確定の過程で serves_goals [G1, G2] → [G1] へ縮んでいる (reopen_log の discarded.serves_goals = [G1, G2]、再確定後の cell と章 frontmatter は [G1])。reopen_log の reason は §4-3 の未接地しか述べておらず、G2 を落とした根拠は残っていない。G2 自体は他の 4 セルが担うため dangling にはならず、--require-foundation も exit 0。前回 run で infrastructure×web に対して同じ形の指摘 (縮小根拠の欠落) が出て解消されており、同じ形が別カテゴリで再発している。",
+      "suggested_fix": "C01 で maintenance-ops×web の serves_goals を戻すか、G2 を落とした理由を reopen_log / 章へ記録する。"
     },
     {
       "severity": "info",
       "bucket": "gap 分類 / 解消",
-      "observation": "前回 gaps の『infrastructure.md (10 行) と maintenance-ops.md (4 行) の末尾に compile 自身が保てなかった行 (要判断) を残している』は**解消**。system-spec/*.md 全体で『保てなかった』『要判断』の出現が 0 件になった。",
-      "evidence": [
-        "grep -n '保てなかった|要判断' system-spec/*.md → 出力なし"
-      ]
+      "observation": "前回 gaps[0] の『docs/spec/11 §4-3 と CI-AC-05 (公開後スモークの二段構え) がどこにも接地していない』は**解消**。infrastructure.md の確定質疑 qa-infra-web-post-deploy-smoke が 30 秒 → 1 回目 → 90 秒 → 2 回目 と『落ちたらワークフローを失敗させる』を逐語で持ち、maintenance-ops.md の確定質疑 qa-ops-web-rollback が wrangler rollback と運用文書への記載を持つ。両章とも design_applications に採否 applied・章固有の根拠・トレードオフ付きで原則が展開されている (『スモーク』5 件・『90 秒』3 件が章に現存)。",
+      "suggested_fix": ""
     },
     {
       "severity": "info",
       "bucket": "gap 分類 / 解消",
-      "observation": "前回 gaps の『infrastructure×web の serves_goals が [G2, G1] から [G1] へ縮んだ根拠が残っていない』は**解消**。現行 spec-state.json の当該セル・章 frontmatter・『資するゴール』行のいずれも [G1, G2] を持つ。縮んだ状態そのものが元に戻ったので、根拠の記録を求める必要が消えた。",
-      "evidence": [
-        "matrix.infrastructure.web.serves_goals = ['G1','G2']",
-        "system-spec/infrastructure.md frontmatter serves_goals: [G1, G2] / 末尾『資するゴール: G1, G2』"
-      ]
+      "observation": "前回 gaps[5] の『hearing_progress の limit_overrun が「運用上の上限は 5」と名乗り max_loops と食い違う』は**解消**。現行は loop_count=4 / max_loops=8 / max_loops_policy=strict / complete=true のみで、偽の limit_overrun は 2c79b28 (set-hearing-policy --policy strict) により writer 自身の規則で除かれている。生きている数どうしにも、生きている数と残された記録のあいだにも矛盾は無い。",
+      "suggested_fix": ""
     },
     {
       "severity": "info",
       "bucket": "gap 分類 / 未解消",
-      "observation": "前回 gaps の『この実行環境が読む plugin コピーに PostToolUse の記録者 record-audit-fork.py が無く、C07 / C06 を fork し直しても台帳に 1 行も書かれない』は**未解消**。本 run でも同じ状態を実測した (marketplace 側 hooks.json は PreToolUse のみ・record-audit-fork.py 不在・台帳 18 行のまま)。同じく『audit_fork_attribution.DOWNGRADE_REASONS が sub_input_fail / provenance_contamination の 2 コードしか持たず 《receipt が読んだ入力が変わった》を表せない』も**未解消** (MAX_DOWNGRADE_REASONS=2 のまま)。この 2 件はいずれも作業ツリー内の仕様書修正では閉じられない。",
-      "evidence": [
-        "marketplace 側 hooks/hooks.json に PostToolUse / SubagentStop の宣言なし",
-        "scripts/audit_fork_attribution.py: MAX_DOWNGRADE_REASONS = 2"
-      ]
+      "observation": "前回 gaps[3] / gaps[4] は**未解消**。(3) 実行中の plugin 複製に record-audit-fork.py が無く台帳が書かれない — 本 run では check-installed-copy-drift.py で機械的に裏取りした (harness-local 0.1.11 が repo と 83 箇所ちがい、missing 30 件の先頭が hooks/record-audit-fork.py)。(4) audit_fork_attribution.DOWNGRADE_REASONS が sub_input_fail / provenance_contamination の 2 コードしか持たず『receipt が読んだ入力が変わった』を表せない (MAX_DOWNGRADE_REASONS=2 のまま)。この 2 件はいずれも作業ツリー内の仕様書修正では閉じられない。",
+      "suggested_fix": ""
     },
     {
       "severity": "info",
       "bucket": "入力インベントリ",
-      "observation": "前レポートが名乗る指紋 335a46c892cd0595… を build_inventory() でツリーから数え直したところ dcf1a90fa9104804… で不一致だった。件数は 81 件で増減 0、差分は system-spec/infrastructure.md / system-spec/maintenance-ops.md / system-spec/spec-state.json の 3 件のみ。この 3 件を先に機械的に特定してから読み、仕様ドキュメント群を最初から読み直すことはしていない。本レポートの inputs は build_inventory() の返り値をそのまま入れた。",
-      "evidence": [
-        "aggregate-completeness.py --report --spec-root . が前レポートに対し inputs.sha256 不一致 1 件のみを VIOLATION として返した"
-      ]
-    },
-    {
-      "severity": "info",
-      "bucket": "前回 receipt との突合",
-      "observation": "system-spec/resume-receipt.json (verdict=PASS) の inputs.sha256 = 8b07616cf704c5a2… は今回の指紋 dcf1a90fa9104804… と 異なるため、前回の PASS は再利用せず全観点を採点し直した。本 run の総合判定は FAIL なので新しい resume-receipt は書かない。",
-      "evidence": [
-        "resume-receipt.json inputs.sha256 = 8b07616cf704c5a2…"
-      ]
+      "observation": "前レポートが名乗る指紋 dcf1a90fa9104804… をツリーから数え直したところ現指紋と不一致で、件数は 81 件のまま増減 0、差分は system-spec/infrastructure.md / system-spec/maintenance-ops.md / system-spec/spec-state.json の 3 件のみだった (c9abc84 と 2c79b28 が触れた範囲と一致)。この 3 件を先に機械的に特定してから読み、射程外の観点は入力不変を根拠に前回判定を引き継いだ。本レポートの inputs は spec-freshness.mjs の fingerprint() が返す現ツリーの値を焼き付けている。",
+      "suggested_fix": ""
     },
     {
       "severity": "info",
       "bucket": "供給中立ゲート",
-      "observation": "C07 / C06 へ渡した prompt 2 件を fork の前に supply_neutrality.py --repo-root . へ通し、どちらも exit 0 (通過: 供給は所在のみで構成されている) を得てから起動した。prompt は <SUPPLIED_LOCATORS> 区画に locator を 置くだけで、どの条文が優先かも何が governing かも渡していない。Task tool の name は渡していない (台帳の照合 ID を崩さないため)。",
-      "evidence": [
-        "supply_neutrality.py --prompt-file <C07 prompt> → exit 0",
-        "supply_neutrality.py --prompt-file <C06 prompt> → exit 0"
-      ]
+      "observation": "C07 へ渡した prompt を fork の前に supply_neutrality.py --repo-root . へ通し exit 0 (通過: 供給は所在のみで構成されている) を得てから起動した。prompt は <SUPPLIED_INPUTS> / <SUPPLIED_LOCATORS> 区画に locator を置くだけで、どの条文が優先かも何が governing かも渡していない。Agent tool の name は渡していない (台帳の照合 ID を崩さないため)。",
+      "suggested_fix": ""
     },
     {
       "severity": "info",
       "bucket": "監査観測 (receipt 化不能)",
-      "observation": "本 run で fork し直した C07 は AUDIT_VERDICT: PASS (48 セル・未収集 0・対象外 40 の理由要改善 0・確定 8 の qa_ref 要確認 0・集約不一致 0・platform 欠落 0)、C06 も AUDIT_VERDICT: PASS (聞き漏れ 0 / 誘導質問 0 / 早期停止 0 / トレース欠落 0 / foundation 根拠欠落 0、loop_count 2 / max_loops 6) を返した。**これらは台帳に記録されていないので receipt ではない。**観測として残すだけで、matrix_coverage の帰属根拠には使っていない。台帳は手で書いていない。",
-      "evidence": [
-        "fork 前 18 行 / fork 後 18 行 (増分 0)",
-        "両 fork の応答最終行はいずれも AUDIT_VERDICT: PASS"
-      ]
+      "observation": "本 run で fork し直した C07 は AUDIT_VERDICT: PASS (48 セル・未収集 0・対象外 40 の理由要改善 0・確定 8 の qa_ref 要確認 0・集約不一致 0・platform 欠落 0) を返した。**これは台帳に記録されていないので receipt ではない。**観測として残すだけで、matrix_coverage の帰属根拠には使っていない。台帳は手で書いていない (18 行のまま)。",
+      "suggested_fix": ""
     },
     {
       "severity": "info",
       "bucket": "決定論ゲート",
-      "observation": "本 run のツリーで collection matrix の 7 通りと knowledge-graph の 4 profile を回し直し、すべて exit 0 だった。C16 については確定 8 セルすべてが required_info_checks (checked_on=2026-08-29 / blocking_item_count=0 / unmet_blocking_items=0) を持ち、required_info[].status=ungrounded は 0 件であることを state から直接数えた。",
-      "evidence": [
-        "gate_results の 8 件すべて exit_code 0",
-        "確定セル 8 / 全セル 48 / ungrounded required_info 0"
-      ]
+      "observation": "本 run のツリーで collection matrix の 7 通り (loop / --require-complete / --require-foundation / --require-counted-required-info / --require-catalog-domain-coverage / --require-grounded-design-applications / --require-declared-qa-supersession) と knowledge-graph の 4 profile (knowledge / doctrine / required-info / cross) を回し直し、すべて exit 0 だった。--require-counted-required-info と --require-catalog-domain-coverage は --require-complete との併用が必須で、単独指定は VIOLATION になる (本 run で実測)。",
+      "suggested_fix": ""
     }
   ],
   "gaps": [
-    "現行 docs/spec/11 §4-3 と受け入れ条件 CI-AC-05 (公開後のスモークテストを 30 秒 → 1 回目 → 90 秒 → 2 回目 の二段構えで走らせ、落ちたらワークフローを失敗させる。戻し方は wrangler rollback) が、確定要件にも design_applications にもどこにも接地していない。qa-infra-web-deploy-steps の確定要件は 7 『アプリを公開する』で終わっている。C01 で当該質疑を立て、C03 compile を回すこと。",
-    "qa-infra-web-schema-drift の質疑録本文が、原典 docs/spec/11 §4-1 の 7 手のうち 3 (成果物として 30 日保管する) を番号ごと落としたまま接地根拠として章に残っている (1./2./4./5./6./7.)。確定要件の側は qa-infra-web-deploy-steps が 7 手を完備したので穴は縮んだが、同じ章に完全な 7 手と欠番のある 6 手が並んでいる。C01 で answer を取り直すこと。",
-    "qa-infra-web-branch-flow の質疑録本文が原典の表断片と地の文の貼り付けのままで、要件文として読めない (接地根拠へ降りたので確定要件の穴ではなく書式の穴)。C01 で取り直すか C03 compile が写す際に正規化すること。",
-    "本 run の実行環境が読む plugin コピー (PLUGIN_ROOT 既定値の marketplace 側) に PostToolUse の記録者 record-audit-fork.py が無く、hooks.json も PreToolUse しか宣言していない。よって C07 / C06 を fork し直しても台帳に 1 行も書かれず (18 行のまま)、matrix_coverage の帰属をいまの木へ接地し直せない。PLUGIN_ROOT を worktree 側へ向けるか marketplace コピーへ hooks を同期し、同一 session で監査を起動し直すこと。**作業ツリー内の仕様書修正では閉じられない。**",
-    "harness 側の穴: audit_fork_attribution.DOWNGRADE_REASONS が sub_input_fail / provenance_contamination の 2 コードしか持たず、『receipt が読んだ入力が変わった』を表せない。そのため入力が変わった receipt を額面どおり転記する以外に選択肢が無く、観点を receipt より厳しく採る道が塞がっている。stale_input 相当のコードと機械で引ける根拠 (receipt が名乗る inputs 指紋と現指紋の不一致) を harness 側へ足すこと。**作業ツリー内の仕様書修正では閉じられない。**",
-    "spec-state.json の hearing_progress が max_loops=6 を置きながら、同じ構造の limit_overrun は『運用上の上限は 5』と名乗っており食い違う。C01 で数を合わせるか、6 へ改めた理由を記録すること。"
+    "qa-infra-web-schema-drift の質疑録本文が、原典 docs/spec/11 §4-1 の 7 手のうち 3 (成果物として 30 日保管する) を番号ごと落としたまま接地根拠として章に残っている (1./2./4./5./6./7.)。確定要件の側は qa-infra-web-deploy-steps が7 手を完備しているため確定要件の穴ではないが、同じ章に完全な 7 手と欠番のある 6 手が並ぶ。C01 で answer を取り直すか、R4-reopen で qa_refs から外して参照を切ってから supersede-qa を通すこと。",
+    "qa-infra-web-branch-flow の質疑録本文が原典の表断片と地の文の貼り付けのままで、要件文として読めない (接地根拠へ降りているので確定要件の穴ではなく書式の穴)。C01 で取り直すか C03 compile が写す際に正規化すること。",
+    "本 run の実行環境が読む plugin 複製は harness-local 0.1.11 で、PostToolUse の記録者 record-audit-fork.py を持たず hooks.json も PreToolUse しか宣言していない (check-installed-copy-drift.py が repo と 83 箇所の差、missing に record-audit-fork.py を含むことを機械的に示した)。よって C07 / C06 を fork し直しても台帳に 1 行も書かれず (18 行のまま)、matrix_coverage の帰属をいまの木へ接地し直せない。harness-hub 側の複製 (PostToolUse(Task|Agent) と SubagentStop を宣言し record-audit-fork.py を持つ) が効く形へ plugin を入れ直したうえで、同一 session で監査を起動し直すこと。**作業ツリー内の仕様書修正では閉じられない。**",
+    "harness 側の穴: audit_fork_attribution.DOWNGRADE_REASONS が sub_input_fail / provenance_contamination の 2 コードしか持たず、『receipt が読んだ入力が変わった』を表せない。そのため入力が変わった receipt を額面どおり転記する以外に選択肢が無く、観点を receipt より厳しく採る道が塞がっている。stale_input 相当のコードと機械で引ける根拠 (receipt が名乗る inputs 指紋と現指紋の不一致) を harness 側へ足すこと。**作業ツリー内の仕様書修正では閉じられない。**"
   ]
 }
