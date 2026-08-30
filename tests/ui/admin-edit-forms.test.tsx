@@ -20,9 +20,9 @@
  */
 import { renderToStaticMarkup } from "react-dom/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import type { PublicationFormState } from "@/presentation/admin/publication-form-state";
-import type { SiteFormState } from "@/presentation/admin/site-form-state";
-import type { ProductFormState } from "@/presentation/admin/product-form-state";
+import type { PublicationFormState } from "@/presentation/admin/publish/publication-form-state";
+import type { SiteFormState } from "@/presentation/admin/publish/site-form-state";
+import type { ProductFormState } from "@/presentation/admin/material/product-form-state";
 
 /** 押した後の状態。各 it が入れ替える。null なら初期値のまま。 */
 let injected: unknown = null;
@@ -46,10 +46,10 @@ vi.mock("next/link", () => ({
   ),
 }));
 
-const { UpdateSiteForm } = await import("@/presentation/admin/site-form");
-const { UpdatePublicationForm } = await import("@/presentation/admin/publication-form");
+const { UpdateSiteForm } = await import("@/presentation/admin/publish/site-form");
+const { UpdatePublicationForm } = await import("@/presentation/admin/publish/publication-form");
 const { CreateProductForm, UpdateProductForm } = await import(
-  "@/presentation/admin/product-form"
+  "@/presentation/admin/material/product-form"
 );
 
 const SITE_DEFAULTS = {

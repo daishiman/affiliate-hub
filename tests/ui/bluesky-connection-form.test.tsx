@@ -1,7 +1,7 @@
 /** @tier 2 @req REQ-P08 */
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
-import { BlueskyConnectionForm } from "@/presentation/admin/bluesky-connection-form";
+import { BlueskyConnectionForm } from "@/presentation/admin/publish/bluesky-connection-form";
 
 function render(): string {
   return renderToStaticMarkup(<BlueskyConnectionForm />);

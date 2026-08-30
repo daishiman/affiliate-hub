@@ -80,7 +80,7 @@ describe("saveToShortlistAction", () => {
     expect(input.item.productName).toBe("商品");
     expect(input.item.fromArticleHref).toBe("/s/blog/a");
     expect(input.item.oneLine).toBe("軽い");
-    expect(Date.parse(input.item.savedAt)).toBeGreaterThanOrEqual(before);
+    expect(Date.parse(input.item.shortlistedAt)).toBeGreaterThanOrEqual(before);
     expect(ensureReaderIdentity).toHaveBeenCalledTimes(1);
     expect(revalidatePath).toHaveBeenCalledWith("/s/blog/shortlist");
     expect(state).toEqual({ status: "done", message: "「気になる」に保存しました。" });

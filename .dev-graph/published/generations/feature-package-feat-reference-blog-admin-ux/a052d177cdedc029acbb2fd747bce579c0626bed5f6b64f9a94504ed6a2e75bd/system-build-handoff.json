@@ -1,0 +1,236 @@
+{
+  "digest_contract": {
+    "algorithm": "sha256",
+    "final_manifest_digest_scope": "all manifest files including handoff; manifest itself excluded",
+    "handoff_digest_location": "staging-manifest.json#files/system-build-handoff.json",
+    "self_reference_policy": "handoff omits its own digest and final manifest digest",
+    "source_digest_scope": "source_inputs only; handoff and manifest excluded"
+  },
+  "execution_tasks": [
+    {
+      "build_target_kind": "application-code",
+      "depends_on": [],
+      "phase_ref": "P01",
+      "task_id": "SYS-REFERENCE-BLOG-ADMIN-UX-P01",
+      "task_spec_path": "task-specs/phase-01-requirements.md"
+    },
+    {
+      "build_target_kind": "application-code",
+      "depends_on": [
+        "SYS-REFERENCE-BLOG-ADMIN-UX-P01"
+      ],
+      "phase_ref": "P02",
+      "task_id": "SYS-REFERENCE-BLOG-ADMIN-UX-P02",
+      "task_spec_path": "task-specs/phase-02-architecture.md"
+    },
+    {
+      "build_target_kind": "application-code",
+      "depends_on": [
+        "SYS-REFERENCE-BLOG-ADMIN-UX-P02"
+      ],
+      "phase_ref": "P03",
+      "task_id": "SYS-REFERENCE-BLOG-ADMIN-UX-P03",
+      "task_spec_path": "task-specs/phase-03-design-review.md"
+    },
+    {
+      "build_target_kind": "application-code",
+      "depends_on": [
+        "SYS-REFERENCE-BLOG-ADMIN-UX-P03"
+      ],
+      "phase_ref": "P04",
+      "task_id": "SYS-REFERENCE-BLOG-ADMIN-UX-P04",
+      "task_spec_path": "task-specs/phase-04-test-design.md"
+    },
+    {
+      "build_target_kind": "application-code",
+      "depends_on": [
+        "SYS-REFERENCE-BLOG-ADMIN-UX-P04"
+      ],
+      "phase_ref": "P05",
+      "task_id": "SYS-REFERENCE-BLOG-ADMIN-UX-P05",
+      "task_spec_path": "task-specs/phase-05-implementation.md"
+    },
+    {
+      "build_target_kind": "application-code",
+      "depends_on": [
+        "SYS-REFERENCE-BLOG-ADMIN-UX-P05"
+      ],
+      "phase_ref": "P06",
+      "task_id": "SYS-REFERENCE-BLOG-ADMIN-UX-P06",
+      "task_spec_path": "task-specs/phase-06-test-run.md"
+    },
+    {
+      "build_target_kind": "application-code",
+      "depends_on": [
+        "SYS-REFERENCE-BLOG-ADMIN-UX-P06"
+      ],
+      "phase_ref": "P07",
+      "task_id": "SYS-REFERENCE-BLOG-ADMIN-UX-P07",
+      "task_spec_path": "task-specs/phase-07-acceptance.md"
+    },
+    {
+      "build_target_kind": "application-code",
+      "depends_on": [
+        "SYS-REFERENCE-BLOG-ADMIN-UX-P05"
+      ],
+      "phase_ref": "P08",
+      "task_id": "SYS-REFERENCE-BLOG-ADMIN-UX-P08",
+      "task_spec_path": "task-specs/phase-08-refactoring-migration.md"
+    },
+    {
+      "build_target_kind": "application-code",
+      "depends_on": [
+        "SYS-REFERENCE-BLOG-ADMIN-UX-P07",
+        "SYS-REFERENCE-BLOG-ADMIN-UX-P08"
+      ],
+      "phase_ref": "P09",
+      "task_id": "SYS-REFERENCE-BLOG-ADMIN-UX-P09",
+      "task_spec_path": "task-specs/phase-09-quality-assurance.md"
+    },
+    {
+      "build_target_kind": "application-code",
+      "depends_on": [
+        "SYS-REFERENCE-BLOG-ADMIN-UX-P09"
+      ],
+      "phase_ref": "P10",
+      "task_id": "SYS-REFERENCE-BLOG-ADMIN-UX-P10",
+      "task_spec_path": "task-specs/phase-10-final-review.md"
+    },
+    {
+      "build_target_kind": "application-code",
+      "depends_on": [
+        "SYS-REFERENCE-BLOG-ADMIN-UX-P07",
+        "SYS-REFERENCE-BLOG-ADMIN-UX-P09",
+        "SYS-REFERENCE-BLOG-ADMIN-UX-P10"
+      ],
+      "phase_ref": "P11",
+      "task_id": "SYS-REFERENCE-BLOG-ADMIN-UX-P11",
+      "task_spec_path": "task-specs/phase-11-evidence.md"
+    },
+    {
+      "build_target_kind": "application-code",
+      "depends_on": [
+        "SYS-REFERENCE-BLOG-ADMIN-UX-P10",
+        "SYS-REFERENCE-BLOG-ADMIN-UX-P11"
+      ],
+      "phase_ref": "P12",
+      "task_id": "SYS-REFERENCE-BLOG-ADMIN-UX-P12",
+      "task_spec_path": "task-specs/phase-12-documentation-operations.md"
+    },
+    {
+      "build_target_kind": "application-code",
+      "depends_on": [
+        "SYS-REFERENCE-BLOG-ADMIN-UX-P12"
+      ],
+      "phase_ref": "P13",
+      "task_id": "SYS-REFERENCE-BLOG-ADMIN-UX-P13",
+      "task_spec_path": "task-specs/phase-13-release-deploy.md"
+    }
+  ],
+  "identity": {
+    "feature_id": "feat-reference-blog-admin-ux",
+    "feature_package_id": "feature-package/feat-reference-blog-admin-ux",
+    "parent_feature": "feat-reference-blog-admin-ux",
+    "repository_id": "github:daishiman/affiliate-hub",
+    "source_feature_digest": "sha256:fa33ed568cc66d4464e229eb5a72980f7c51c8679da9c01e5ca4d25ef7b69b1c"
+  },
+  "kind": "system-build-handoff",
+  "p01_entry_gate": {
+    "operator": "all",
+    "required_statuses": [
+      "done",
+      "closed"
+    ],
+    "selector": "parent_feature.depends_on"
+  },
+  "registration_request": {
+    "consumer": "dev-graph/C02",
+    "owner": "system-dev-planner/C11",
+    "path": "dev-graph-registration.json",
+    "promotion_receipt": {
+      "owner": "system-dev-planner/C11",
+      "path": "atomic-promotion-receipt.json",
+      "produced_by_this_component": false,
+      "status": "not-emitted"
+    },
+    "registration_receipt": {
+      "owner": "dev-graph/C02",
+      "path": "dev-graph-registration-receipt.json",
+      "produced_by_this_component": false,
+      "status": "not-emitted"
+    },
+    "status": "deferred-until-promotion"
+  },
+  "schema_version": "1.0.0",
+  "source_inputs": [
+    {
+      "path": "feature-package.json",
+      "sha256": "aee7cbb6c4cb91498d061e895c466383dc4bfa382417e1ab9191038344ed31fa"
+    },
+    {
+      "path": "workstream-inventory.json",
+      "sha256": "68a430d160fcd121dbb46f177c4411db0a61b5e3e82b2c871c4d3f329bf159ad"
+    },
+    {
+      "path": "task-graph.json",
+      "sha256": "0cef4e4efc1824915ad22659a7764261a96c94a88d222c84ef679e85afa21d48"
+    },
+    {
+      "path": "task-specs/phase-01-requirements.md",
+      "sha256": "cf41a98dd8e832140a04bb5f55c0f6a190980736e4af227800a30c367adc7220"
+    },
+    {
+      "path": "task-specs/phase-02-architecture.md",
+      "sha256": "5bd8e2f33e8e225ec7b24a2cc51aa39d1a40741c02735755912d0c3338633858"
+    },
+    {
+      "path": "task-specs/phase-03-design-review.md",
+      "sha256": "bf88dba223449d0dd59b3600507682e1aaa3eb672012df10bfa9f6ac6903f97a"
+    },
+    {
+      "path": "task-specs/phase-04-test-design.md",
+      "sha256": "cbd71af98c4e53332d3d61f412a59cb95b830e83469ad621e4080e382f2823c2"
+    },
+    {
+      "path": "task-specs/phase-05-implementation.md",
+      "sha256": "ba32250483e4fac5028dc7d227533e87a058b9208dfd9cb30cdfa6b67758718c"
+    },
+    {
+      "path": "task-specs/phase-06-test-run.md",
+      "sha256": "570cd2eb0e0ac9e9b5aec27c68fe53a410ef4ecb2ea498ee3ddd263e8cc6e20b"
+    },
+    {
+      "path": "task-specs/phase-07-acceptance.md",
+      "sha256": "bc20ba5291ca7c9e1f6335f0704f6748a24697baa003d4f0a30dcd42f7e57634"
+    },
+    {
+      "path": "task-specs/phase-08-refactoring-migration.md",
+      "sha256": "646b7bdc3427feb4260ff34c2e26b7c916d775e594e8f86193ec43b68a2fd94a"
+    },
+    {
+      "path": "task-specs/phase-09-quality-assurance.md",
+      "sha256": "7c3a8a44ef1fbd2ba88ee952faaf793c622fa946493de643cfc55f17da678625"
+    },
+    {
+      "path": "task-specs/phase-10-final-review.md",
+      "sha256": "a4ad411ab1726f6b214d9baf539fcbb5c8a8f5e3b8e4cb10205aec75c5d7afba"
+    },
+    {
+      "path": "task-specs/phase-11-evidence.md",
+      "sha256": "394aa5da973536b46928f6b646065bd4a8009b329315d34932c10fb1c009e870"
+    },
+    {
+      "path": "task-specs/phase-12-documentation-operations.md",
+      "sha256": "3510eb641cb645eba47b0ae49f360260ab23e47a3f78064c6a1df63e13a2cce6"
+    },
+    {
+      "path": "task-specs/phase-13-release-deploy.md",
+      "sha256": "45f9a74189e4ca2ff7c11a24635b53cc867f935a82380ad051d868b570c7bbd8"
+    }
+  ],
+  "source_manifest": {
+    "canonical_digest_before_handoff": "sha256:66d2ac0fbaa2eea7854c926b27cc1b1058d01ec6b7a016271e4322fa710cd607",
+    "path": "staging-manifest.json",
+    "sha256_before_handoff": "1f3107e2285cfd494d503735955b61b650beb42cb3e35209c532a4be90199b07"
+  }
+}

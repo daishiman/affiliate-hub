@@ -9,7 +9,7 @@
  *   1. 参考サイト由来の文章・固有名・色値は 1 つも書かない（`check:reference-reuse` の対象）。
  *   2. 作業場所は見本と同じ `ws_sample`。別 ID にすると、既にある見本の
  *      画面と、ここで入れた行が別々の作業場所に分かれて見える。
- *   3. ブログの URL 名は見本のブログ（`video-editing-gear`）に合わせる。
+ *   3. ブログの URL 名は `SAMPLE_SITE_SLUG` の見本ブログに合わせる。
  *      読者側の設計図は見本が持っているので、ここで新しい名前を作ると
  *      `/s/<名前>` が 404 になる。
  */
@@ -39,7 +39,12 @@ import type {
   FixedPageRecord,
   SiteNetworkRecord,
 } from "@/application/ports/blog-ops";
+import {
+  SITE_DOCUMENT_ONLY_STORAGE_KINDS,
+  type SiteDocumentOnlyStorageKind,
+} from "@/domain/authoring";
 import { BLOG_OPS_SAMPLE_ROUTE_IDS } from "@/infrastructure/persistence/sample/blog-ops-sample-repository";
+import { SAMPLE_SITE_SLUG } from "@/infrastructure/persistence/sample/site-sample-repository";
 
 /** 見本の作業場所。`SAMPLE_WORKSPACE_ID` と同じ値であることを検査が見る。 */
 export const SEED_WORKSPACE_ID = "ws_sample";
@@ -55,9 +60,125 @@ export const SEED_USER_NAME = "ローカル検証用の担当者";
  * 通信で開く）だけが `/s/<名前>` 以下すべてで 404 になる。
  * 揃えるのは URL に出る名前だけで、記事の中身までは合わせない
  * （検査は `tests/architecture/seed-and-sample-agree.test.ts`）。
+ *
+ * **同じ名前を 2 か所に書かず、見本側の定数を借りる。** 書き写しにすると
+ * 「揃っているか」を検査が見張る話になるが、借りれば揃わない状態が作れない。
+ * 検査の側は引き続き意味を持つ——見張っているのは 2 つの文字列の一致ではなく、
+ * `buildSeedSql` がそのブログの行を実際に吐いているかである。
  */
-export const SEED_HUB_SLUG = "home-office-desk";
+export const SEED_HUB_SLUG = SAMPLE_SITE_SLUG;
 export const SEED_SUB_SLUG = "gear-for-small-kitchen";
+
+/**
+ * 成果リンク画面の見本。固定IDの行だけを入れ直すため、
+ * 開発者が手で登録したリンクは seed の再実行で消えない。
+ */
+export const SEED_AFFILIATE_ACCOUNTS = [
+  { id: "afa_seed_amazon", asp: "amazon_associates", label: "Amazon 見本用" },
+  { id: "afa_seed_rakuten", asp: "rakuten_affiliate", label: "楽天 見本用" },
+] as const;
+
+export const SEED_AFFILIATE_PROGRAMS = [
+  {
+    id: "afp_seed_amazon",
+    accountId: "afa_seed_amazon",
+    asp: "amazon_associates",
+    advertiserName: "Amazon.co.jp",
+  },
+  {
+    id: "afp_seed_rakuten",
+    accountId: "afa_seed_rakuten",
+    asp: "rakuten_affiliate",
+    advertiserName: "楽天市場",
+  },
+] as const;
+
+export const SEED_AFFILIATE_LINKS = [
+  {
+    id: "afl_seed_usable",
+    programId: "afp_seed_amazon",
+    state: "usable",
+    productName: "図で選べるデスクライト",
+    brand: "見本堂",
+    oneLine: "明るさと置き場所を図で比べられる見本商品です。",
+    originalUrl: "https://www.amazon.co.jp/dp/B0SEEDDEMO1?tag=local-seed-22",
+    canonicalUrl: "https://www.amazon.co.jp/dp/B0SEEDDEMO1",
+    merchantName: "Amazon.co.jp",
+    priceMinor: 4980,
+    currency: "JPY",
+    sourceMethod: "provider-metadata",
+    lastCheckedDaysAgo: 2,
+    expiresDaysFromNow: 120,
+    disabledDaysAgo: null,
+  },
+  {
+    id: "afl_seed_expired",
+    programId: "afp_seed_rakuten",
+    state: "expired",
+    productName: "図で分かるポータブルSSD",
+    brand: "試作ラボ",
+    oneLine: "期限切れと古い確認日の表示を確かめる見本です。",
+    originalUrl: "https://hb.afl.rakuten.co.jp/hgc/local-seed-expired",
+    canonicalUrl: "https://item.rakuten.co.jp/seed-shop/demo-ssd/",
+    merchantName: "楽天市場",
+    priceMinor: 7980,
+    currency: "JPY",
+    sourceMethod: "provider-metadata",
+    lastCheckedDaysAgo: 45,
+    expiresDaysFromNow: -3,
+    disabledDaysAgo: null,
+  },
+  {
+    id: "afl_seed_disabled",
+    programId: "afp_seed_amazon",
+    state: "disabled",
+    productName: "図で確認するUSBハブ",
+    brand: "見本堂",
+    oneLine: "停止済みと未確認の表示を確かめる見本です。",
+    originalUrl: "https://www.amazon.co.jp/dp/B0SEEDDEMO2?tag=local-seed-22",
+    canonicalUrl: "https://www.amazon.co.jp/dp/B0SEEDDEMO2",
+    merchantName: "Amazon.co.jp",
+    priceMinor: 3280,
+    currency: "JPY",
+    sourceMethod: "manual-fallback",
+    lastCheckedDaysAgo: null,
+    expiresDaysFromNow: 120,
+    disabledDaysAgo: 1,
+  },
+] as const;
+
+export const SEED_AFFILIATE_PLACEMENTS = [
+  {
+    id: "bap_seed_active",
+    affiliateLinkId: "afl_seed_usable",
+    articleSlug: BLOG_OPS_SAMPLE_ROUTE_IDS.articleSlug,
+    blockId: "bb_ba_sample_starter_kit_7",
+    placement: "product-card",
+    status: "active",
+    position: 0,
+    lastRenderedDaysAgo: 1,
+  },
+  {
+    id: "bap_seed_removed",
+    affiliateLinkId: "afl_seed_usable",
+    articleSlug: "portable-ssd-for-editing",
+    blockId: "bb_ba_seed_review_full_11",
+    placement: "product-card",
+    status: "removed",
+    position: 1,
+    lastRenderedDaysAgo: 20,
+  },
+  {
+    id: "bap_seed_legacy",
+    affiliateLinkId: null,
+    articleSlug: BLOG_OPS_SAMPLE_ROUTE_IDS.articleSlug,
+    blockId: null,
+    placement: "article-footer",
+    status: "active",
+    position: 2,
+    lastRenderedDaysAgo: null,
+  },
+] as const;
 
 /** SQLite の文字列。`'` を 2 つ重ねる以外の細工をしない。 */
 function q(value: string): string {
@@ -468,6 +589,28 @@ const LEGAL_PAGES = FIXED_PAGE_KINDS.map(
   (kind) => [kind, FIXED_PAGE_LABEL[kind], LEGAL_PAGE_BODY[kind]] as const,
 );
 
+/** 専用routeを持つ方針文書4種。8種のブログ固定ページと同じ行を共有しない。 */
+const SITE_DOCUMENT_ONLY_TEXT: Readonly<
+  Record<SiteDocumentOnlyStorageKind, { readonly title: string; readonly body: string }>
+> = {
+  methodology: {
+    title: "評価方法",
+    body: "比較に使った条件と、数値の確かめ方を書きます。",
+  },
+  editorial_policy: {
+    title: "編集方針",
+    body: "事実と意見を分け、根拠を確かめてから公開します。",
+  },
+  advertising_policy: {
+    title: "広告に関する方針",
+    body: "広告の報酬は、商品を選ぶ順番や記事の評価に使いません。",
+  },
+  ai_policy: {
+    title: "AI の使い方",
+    body: "下書きに AI を使う場合も、公開前に人が事実と表現を確かめます。",
+  },
+};
+
 /**
  * 記事 1 本ぶんの部品を、位置と文章まで決めた形で返す。
  *
@@ -664,10 +807,24 @@ export function seedArticleRecord(article: SeedArticle, now: Date): BlogArticle 
 export function buildSeedSql(nowSeconds: number): readonly string[] {
   const ws = q(SEED_WORKSPACE_ID);
   const hub = q(SEED_HUB_SLUG);
-  const sub = q(SEED_SUB_SLUG);
   const out: string[] = [];
 
+  const seedPlacementIds = SEED_AFFILIATE_PLACEMENTS.map((row) => q(row.id)).join(", ");
+  const seedLinkIds = SEED_AFFILIATE_LINKS.map((row) => q(row.id)).join(", ");
+  const seedProgramIds = SEED_AFFILIATE_PROGRAMS.map((row) => q(row.id)).join(", ");
+  const seedAccountIds = SEED_AFFILIATE_ACCOUNTS.map((row) => q(row.id)).join(", ");
+  const seedLegalPageIds = SEED_SITE_KEYS.flatMap((siteKey) => [
+    ...FIXED_PAGE_KINDS.map((kind) => q(`lp_seed_${siteKey}_${kind}`)),
+    ...SITE_DOCUMENT_ONLY_STORAGE_KINDS.map((kind) =>
+      q(`lp_seed_${siteKey}_document_${kind}`),
+    ),
+  ]).join(", ");
+
   out.push(
+    `DELETE FROM blog_affiliate_placement WHERE workspace_id = ${ws} AND id IN (${seedPlacementIds});`,
+    `DELETE FROM affiliate_links WHERE workspace_id = ${ws} AND id IN (${seedLinkIds});`,
+    `DELETE FROM affiliate_programs WHERE workspace_id = ${ws} AND id IN (${seedProgramIds});`,
+    `DELETE FROM affiliate_accounts WHERE workspace_id = ${ws} AND id IN (${seedAccountIds});`,
     `DELETE FROM blog_article_rating WHERE article_id IN (SELECT id FROM articles WHERE workspace_id = ${ws});`,
     `DELETE FROM blog_article_tag WHERE article_id IN (SELECT id FROM articles WHERE workspace_id = ${ws});`,
     `DELETE FROM blog_article_block WHERE article_id IN (SELECT id FROM articles WHERE workspace_id = ${ws});`,
@@ -677,7 +834,7 @@ export function buildSeedSql(nowSeconds: number): readonly string[] {
     `DELETE FROM blog_layout_band WHERE workspace_id = ${ws};`,
     `DELETE FROM blog_delivery_part WHERE workspace_id = ${ws};`,
     `DELETE FROM site_network_node WHERE workspace_id = ${ws};`,
-    `DELETE FROM legal_page WHERE site_slug IN (${hub}, ${sub});`,
+    `DELETE FROM legal_page WHERE id IN (${seedLegalPageIds});`,
   );
 
   // 入口（作業場所・担当者・認証基盤の人）。担当の行が無いと通行証が出ない。
@@ -751,8 +908,8 @@ export function buildSeedSql(nowSeconds: number): readonly string[] {
 
     for (const block of seedArticleBlocks(article)) {
       out.push(
-        `INSERT INTO blog_article_block (id, article_id, kind, heading, body, position)
-           VALUES (${q(block.id)}, ${q(article.id)}, ${q(block.kind)}, ${q(block.heading)}, ${q(block.body)}, ${block.position});`,
+        `INSERT INTO blog_article_block (id, workspace_id, article_id, kind, heading, body, position)
+           VALUES (${q(block.id)}, ${ws}, ${q(article.id)}, ${q(block.kind)}, ${q(block.heading)}, ${q(block.body)}, ${block.position});`,
       );
     }
 
@@ -767,14 +924,14 @@ export function buildSeedSql(nowSeconds: number): readonly string[] {
       (article.site === "sub" ? [] : [TAGS[articleIndex % TAGS.length].id]);
     for (const tagId of tagIds) {
       out.push(
-        `INSERT INTO blog_article_tag (article_id, tag_id) VALUES (${q(article.id)}, ${q(tagId)});`,
+        `INSERT INTO blog_article_tag (workspace_id, article_id, tag_id) VALUES (${ws}, ${q(article.id)}, ${q(tagId)});`,
       );
     }
 
     article.ratings.forEach((score, index) => {
       out.push(
-        `INSERT INTO blog_article_rating (id, article_id, reader_key, score, comment, created_at)
-           VALUES (${q(`br_${article.id}_${index}`)}, ${q(article.id)}, ${q(`reader_seed_${index}`)}, ${score}, NULL, ${at});`,
+        `INSERT INTO blog_article_rating (id, workspace_id, article_id, reader_key, score, comment, created_at)
+           VALUES (${q(`br_${article.id}_${index}`)}, ${ws}, ${q(article.id)}, ${q(`reader_seed_${index}`)}, ${score}, NULL, ${at});`,
       );
     });
   });
@@ -783,10 +940,53 @@ export function buildSeedSql(nowSeconds: number): readonly string[] {
   for (const siteKey of SEED_SITE_KEYS) {
     for (const page of seedFixedPages(siteKey, new Date(nowSeconds * 1000))) {
       out.push(
-        `INSERT INTO legal_page (id, site_slug, kind, title, body, status, deleted_at, updated_at)
-           VALUES (${q(page.id)}, ${q(page.siteSlug)}, ${q(page.kind)}, ${q(page.title)}, ${q(page.body)}, ${q(page.status)}, ${page.deletedAt === null ? "NULL" : String(Math.floor(page.deletedAt.getTime() / 1000))}, ${nowSeconds});`,
+        `INSERT INTO legal_page (id, workspace_id, site_slug, kind, title, body, status, deleted_at, updated_at)
+           VALUES (${q(page.id)}, ${ws}, ${q(page.siteSlug)}, ${q(page.kind)}, ${q(page.title)}, ${q(page.body)}, ${q(page.status)}, ${page.deletedAt === null ? "NULL" : String(Math.floor(page.deletedAt.getTime() / 1000))}, ${nowSeconds});`,
       );
     }
+    for (const kind of SITE_DOCUMENT_ONLY_STORAGE_KINDS) {
+      const document = SITE_DOCUMENT_ONLY_TEXT[kind];
+      out.push(
+        `INSERT INTO legal_page (id, workspace_id, site_slug, kind, title, body, status, deleted_at, updated_at)
+           VALUES (${q(`lp_seed_${siteKey}_document_${kind}`)}, ${ws}, ${q(seedSiteSlug(siteKey))}, ${q(kind)}, ${q(document.title)}, ${q(document.body)}, 'published', NULL, ${nowSeconds});`,
+      );
+    }
+  }
+
+  // 提携先と成果リンク。画像は権利確認の無い外部写真を保存せず、図の代替表示にする。
+  for (const account of SEED_AFFILIATE_ACCOUNTS) {
+    out.push(
+      `INSERT INTO affiliate_accounts (id, workspace_id, asp, label, public_tracking_id, credential_ref, connected_at, disabled_at)
+         VALUES (${q(account.id)}, ${ws}, ${q(account.asp)}, ${q(account.label)}, NULL, NULL, ${seconds(90, nowSeconds)}, NULL);`,
+    );
+  }
+  for (const program of SEED_AFFILIATE_PROGRAMS) {
+    out.push(
+      `INSERT INTO affiliate_programs (id, workspace_id, account_id, asp, advertiser_name, reward_kind, reward_percent, reward_amount_minor, reward_currency, reward_note, approval_rate, confirmation_days, cookie_duration_days, restrictions, joined_at, ended_at)
+         VALUES (${q(program.id)}, ${ws}, ${q(program.accountId)}, ${q(program.asp)}, ${q(program.advertiserName)}, 'unknown', NULL, NULL, NULL, NULL, NULL, NULL, NULL, '[]', ${seconds(90, nowSeconds)}, NULL);`,
+    );
+  }
+  for (const link of SEED_AFFILIATE_LINKS) {
+    const checkedAt =
+      link.lastCheckedDaysAgo === null ? "NULL" : String(seconds(link.lastCheckedDaysAgo, nowSeconds));
+    const disabledAt =
+      link.disabledDaysAgo === null ? "NULL" : String(seconds(link.disabledDaysAgo, nowSeconds));
+    const expiresAt = nowSeconds + link.expiresDaysFromNow * 24 * 60 * 60;
+    out.push(
+      `INSERT INTO affiliate_links (id, workspace_id, program_id, product_id, product_name, brand, one_line, original_url, canonical_url, merchant_name, image_url, price_minor, currency, retrieved_at, source_method, alteration_prohibited, tracking_ref, created_at, last_checked_at, expires_at, disabled_at)
+         VALUES (${q(link.id)}, ${ws}, ${q(link.programId)}, NULL, ${q(link.productName)}, ${q(link.brand)}, ${q(link.oneLine)}, ${q(link.originalUrl)}, ${q(link.canonicalUrl)}, ${q(link.merchantName)}, NULL, ${link.priceMinor}, ${q(link.currency)}, ${seconds(2, nowSeconds)}, ${q(link.sourceMethod)}, 1, ${q(`seed-${link.id}`)}, ${seconds(90, nowSeconds)}, ${checkedAt}, ${expiresAt}, ${disabledAt});`,
+    );
+  }
+
+  for (const placement of SEED_AFFILIATE_PLACEMENTS) {
+    const renderedAt =
+      placement.lastRenderedDaysAgo === null
+        ? "NULL"
+        : String(seconds(placement.lastRenderedDaysAgo, nowSeconds));
+    out.push(
+      `INSERT INTO blog_affiliate_placement (id, workspace_id, affiliate_link_id, site_slug, article_slug, block_id, placement, tracking_code, status, position, last_rendered_at, updated_at)
+         VALUES (${q(placement.id)}, ${ws}, ${placement.affiliateLinkId === null ? "NULL" : q(placement.affiliateLinkId)}, ${hub}, ${q(placement.articleSlug)}, ${placement.blockId === null ? "NULL" : q(placement.blockId)}, ${q(placement.placement)}, NULL, ${q(placement.status)}, ${placement.position}, ${renderedAt}, ${nowSeconds});`,
+    );
   }
 
   return out;

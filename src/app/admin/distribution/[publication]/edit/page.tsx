@@ -1,5 +1,5 @@
 import { AdminShell } from "@/presentation/admin/admin-shell";
-import { UpdatePublicationForm } from "@/presentation/admin/publication-form";
+import { UpdatePublicationForm } from "@/presentation/admin/publish/publication-form";
 import { currentActor, distributionUseCases } from "@/presentation/composition";
 import { ErrorView, Prose, Section, TextLink } from "@/presentation/ui";
 

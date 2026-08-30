@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { AdminShell } from "@/presentation/admin/admin-shell";
-import { PublishedArticleForm } from "@/presentation/admin/published-article-form";
+import { PublishedArticleForm } from "@/presentation/admin/publish/published-article-form";
 import { currentActor, publishedArticleAdminUseCases } from "@/presentation/composition";
 import { Card, EmptyView, ErrorView, FactList } from "@/presentation/ui";
 import styles from "../../../../../admin.module.css";

@@ -119,7 +119,9 @@ def test_render_design_refs_distinguishes_dialogue_and_legacy_backfill():
 
 def test_render_design_refs_missing_application_is_fail_visible_not_generic_pass():
     rendered = mod.render_design_refs("database", _spec())
-    assert "qa_log[].design_applications を writer 経由で補完" in rendered
+    assert "この質疑に `design_applications` が無いため" in rendered
+    assert "章はこの質疑を根拠に設計原則の採否を主張しない" in rendered
+    assert "writer 経由で補完" not in rendered
     assert "上記原則は確定内容" not in rendered
 
 

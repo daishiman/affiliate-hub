@@ -1,0 +1,1161 @@
+{
+  "schema_version": "1.0.0",
+  "feature_package_id": "feature-package/feat-reference-blog-admin-ux",
+  "parent_feature": "feat-reference-blog-admin-ux",
+  "p01_entry_gate": {
+    "selector": "parent_feature.depends_on",
+    "operator": "all",
+    "required_statuses": [
+      "done",
+      "closed"
+    ]
+  },
+  "repo_context": {
+    "config_path": ".dev-graph/config.json",
+    "repo_identity": "github:daishiman/affiliate-hub",
+    "root_resolution_source": "explicit-cli"
+  },
+  "source_lineage": {
+    "source_plugin": "system-spec-harness",
+    "source_version": "0.1.0",
+    "compile_entrypoint": "run-system-spec-compile",
+    "completeness_entrypoint": "assign-system-spec-completeness-evaluator",
+    "source_paths": [
+      "system-spec/index.md",
+      "system-spec/00-requirements-definition.md",
+      "system-spec/ui-ux.md",
+      "system-spec/frontend.md",
+      "system-spec/backend.md",
+      "system-spec/database.md",
+      "architecture/system-spec-overview.md",
+      "architecture/arch-two-layer-platform.md"
+    ],
+    "confirmed": true
+  },
+  "tasks": [
+    {
+      "id": "SYS-REFERENCE-BLOG-ADMIN-UX-P01",
+      "feature_package_id": "feature-package/feat-reference-blog-admin-ux",
+      "parent_feature": "feat-reference-blog-admin-ux",
+      "title": "全公開URL・画面型・現行画面の要求ベースライン確定",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p01",
+        "feat-reference-blog-admin-ux"
+      ],
+      "related_nodes": [
+        "spec-system-spec-index",
+        "arch-system-spec-overview"
+      ],
+      "workstream_kind": "documentation",
+      "secondary_workstreams": [
+        "quality"
+      ],
+      "build_target_kind": "application-code",
+      "phase_ref": "P01",
+      "depends_on": [],
+      "write_scope": [
+        "docs/spec/feat-reference-blog-admin-ux/requirements-baseline.md",
+        "docs/spec/feat-reference-blog-admin-ux/reference-url-inventory.json",
+        "docs/spec/feat-reference-blog-admin-ux/sitemap-snapshot.json",
+        "docs/spec/feat-reference-blog-admin-ux/page-archetype-analysis.md",
+        "docs/spec/feat-reference-blog-admin-ux/screen-inventory.md",
+        "docs/spec/feat-reference-blog-admin-ux/current-screen-gap-ledger.md",
+        "docs/spec/feat-reference-blog-admin-ux/acceptance-traceability.json"
+      ],
+      "deploy_unit": "cloudflare-workers-opennext-app",
+      "source_lineage": [
+        "features/feat-reference-blog-admin-ux.md",
+        "features/feat-reference-blog-admin-ux.context.json",
+        "system-spec/ui-ux.md",
+        "system-spec/frontend.md",
+        "system-spec/completeness-report.json"
+      ],
+      "classification": {
+        "confidence": 1,
+        "reason": "feat-reference-blog-admin-ux の P01 lifecycle責務への確定写像",
+        "candidates": [
+          {
+            "artifact_kind": "task",
+            "confidence": 1,
+            "candidate_path": "tasks/feat-reference-blog-admin-ux/sys-reference-blog-admin-ux-p01.md"
+          }
+        ]
+      },
+      "tracker_binding_intent": "beads",
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "pr_completion_policy": "linked_pr_merged_all",
+      "branch_policy": {
+        "strategy": "one-task-one-branch",
+        "worktree_lease_required": true,
+        "completion_projection": "default-branch-reconciliation",
+        "assignment_owner": "dev-graph-scheduler"
+      },
+      "acceptance": [
+        "P01: 14サブサイトマップと1,072件ベースラインを再取得可能なsitemap-snapshotとURL台帳で検算でき、全URLの画面型未分類0件、各画面型のdesktop/mobile代表解析あり、A1–A12と画面・データ・証跡の未対応0件、現行画面gapの根拠URLまたはローカルroute欠落0件の状態を成立させる。"
+      ],
+      "verification": [
+        "P01のVerification and evidenceに記載した世代非依存commandとrequired evidenceを実行する"
+      ],
+      "rollback": "P01のrubric verdictがFAILのまま上限へ到達した場合、write_scope内の当phase変更を戻し、直前のpromoted generationへ復帰する",
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-08-29T14:38:12Z"
+      },
+      "graph_node_registration": {
+        "graph_node_id": "SYS-REFERENCE-BLOG-ADMIN-UX-P01",
+        "file_path": "tasks/feat-reference-blog-admin-ux/sys-reference-blog-admin-ux-p01.md",
+        "parent_feature": "feat-reference-blog-admin-ux",
+        "feature_package_id": "feature-package/feat-reference-blog-admin-ux",
+        "phase_ref": "P01"
+      }
+    },
+    {
+      "id": "SYS-REFERENCE-BLOG-ADMIN-UX-P02",
+      "feature_package_id": "feature-package/feat-reference-blog-admin-ux",
+      "parent_feature": "feat-reference-blog-admin-ux",
+      "title": "低認知負荷UI・URLプレビュー・非模倣公開面の設計",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p02",
+        "feat-reference-blog-admin-ux"
+      ],
+      "related_nodes": [
+        "spec-system-spec-index",
+        "arch-system-spec-overview"
+      ],
+      "workstream_kind": "documentation",
+      "secondary_workstreams": [
+        "frontend",
+        "backend",
+        "api",
+        "data",
+        "security"
+      ],
+      "build_target_kind": "application-code",
+      "phase_ref": "P02",
+      "depends_on": [
+        "SYS-REFERENCE-BLOG-ADMIN-UX-P01"
+      ],
+      "write_scope": [
+        "docs/spec/feat-reference-blog-admin-ux/data-model.md",
+        "docs/spec/feat-reference-blog-admin-ux/api-contract.md",
+        "docs/spec/feat-reference-blog-admin-ux/interaction-state-machine.md",
+        "docs/spec/feat-reference-blog-admin-ux/component-contract.md",
+        "docs/spec/feat-reference-blog-admin-ux/non-copying-design-system.md",
+        "docs/spec/feat-reference-blog-admin-ux/affiliate-preview-contract.md"
+      ],
+      "deploy_unit": "cloudflare-workers-opennext-app",
+      "source_lineage": [
+        "features/feat-reference-blog-admin-ux.md",
+        "features/feat-reference-blog-admin-ux.context.json",
+        "system-spec/ui-ux.md",
+        "system-spec/frontend.md",
+        "system-spec/completeness-report.json"
+      ],
+      "classification": {
+        "confidence": 1,
+        "reason": "feat-reference-blog-admin-ux の P02 lifecycle責務への確定写像",
+        "candidates": [
+          {
+            "artifact_kind": "task",
+            "confidence": 1,
+            "candidate_path": "tasks/feat-reference-blog-admin-ux/sys-reference-blog-admin-ux-p02.md"
+          }
+        ]
+      },
+      "tracker_binding_intent": "beads",
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "pr_completion_policy": "linked_pr_merged_all",
+      "branch_policy": {
+        "strategy": "one-task-one-branch",
+        "worktree_lease_required": true,
+        "completion_projection": "default-branch-reconciliation",
+        "assignment_owner": "dev-graph-scheduler"
+      },
+      "acceptance": [
+        "P02: screen IDごとのdesktop/mobile構成、1画面1目的・単一primary action・progressive disclosure、保存5状態、改善差分適用、affiliate URL preview 9項目、掲載先逆引き、図解fallback、非模倣tokenをdata/API/component/state contractへ欠落なく対応させ、既存blog-ops/affiliate責務との重複実装方針0件にする。"
+      ],
+      "verification": [
+        "P02のVerification and evidenceに記載した世代非依存commandとrequired evidenceを実行する"
+      ],
+      "rollback": "P02のrubric verdictがFAILのまま上限へ到達した場合、write_scope内の当phase変更を戻し、直前のpromoted generationへ復帰する",
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-08-29T14:38:12Z"
+      },
+      "graph_node_registration": {
+        "graph_node_id": "SYS-REFERENCE-BLOG-ADMIN-UX-P02",
+        "file_path": "tasks/feat-reference-blog-admin-ux/sys-reference-blog-admin-ux-p02.md",
+        "parent_feature": "feat-reference-blog-admin-ux",
+        "feature_package_id": "feature-package/feat-reference-blog-admin-ux",
+        "phase_ref": "P02"
+      }
+    },
+    {
+      "id": "SYS-REFERENCE-BLOG-ADMIN-UX-P03",
+      "feature_package_id": "feature-package/feat-reference-blog-admin-ux",
+      "parent_feature": "feat-reference-blog-admin-ux",
+      "title": "設計の独立レビューと非模倣・安全性ゲート",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p03",
+        "feat-reference-blog-admin-ux"
+      ],
+      "related_nodes": [
+        "spec-system-spec-index",
+        "arch-system-spec-overview"
+      ],
+      "workstream_kind": "quality",
+      "secondary_workstreams": [
+        "security",
+        "frontend"
+      ],
+      "build_target_kind": "application-code",
+      "phase_ref": "P03",
+      "depends_on": [
+        "SYS-REFERENCE-BLOG-ADMIN-UX-P02"
+      ],
+      "write_scope": [
+        "docs/spec/feat-reference-blog-admin-ux/design-review.md"
+      ],
+      "deploy_unit": "cloudflare-workers-opennext-app",
+      "source_lineage": [
+        "features/feat-reference-blog-admin-ux.md",
+        "features/feat-reference-blog-admin-ux.context.json",
+        "system-spec/ui-ux.md",
+        "system-spec/frontend.md",
+        "system-spec/completeness-report.json"
+      ],
+      "classification": {
+        "confidence": 1,
+        "reason": "feat-reference-blog-admin-ux の P03 lifecycle責務への確定写像",
+        "candidates": [
+          {
+            "artifact_kind": "task",
+            "confidence": 1,
+            "candidate_path": "tasks/feat-reference-blog-admin-ux/sys-reference-blog-admin-ux-p03.md"
+          }
+        ]
+      },
+      "tracker_binding_intent": "beads",
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "pr_completion_policy": "linked_pr_merged_all",
+      "branch_policy": {
+        "strategy": "one-task-one-branch",
+        "worktree_lease_required": true,
+        "completion_projection": "default-branch-reconciliation",
+        "assignment_owner": "dev-graph-scheduler"
+      },
+      "acceptance": [
+        "P03: C1矛盾なし・C2漏れなし・C3整合性あり・C4依存整合に加え、独自token、文章/写真/ロゴ/固有名/色値の転用0、公開URL境界、SSRF防御、single primary action、保存状態の見分け、affiliate reverse lookupの全チェックを証拠付きPASSにする。"
+      ],
+      "verification": [
+        "P03のVerification and evidenceに記載した世代非依存commandとrequired evidenceを実行する"
+      ],
+      "rollback": "P03のrubric verdictがFAILのまま上限へ到達した場合、write_scope内の当phase変更を戻し、直前のpromoted generationへ復帰する",
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-08-29T14:38:12Z"
+      },
+      "graph_node_registration": {
+        "graph_node_id": "SYS-REFERENCE-BLOG-ADMIN-UX-P03",
+        "file_path": "tasks/feat-reference-blog-admin-ux/sys-reference-blog-admin-ux-p03.md",
+        "parent_feature": "feat-reference-blog-admin-ux",
+        "feature_package_id": "feature-package/feat-reference-blog-admin-ux",
+        "phase_ref": "P03"
+      }
+    },
+    {
+      "id": "SYS-REFERENCE-BLOG-ADMIN-UX-P04",
+      "feature_package_id": "feature-package/feat-reference-blog-admin-ux",
+      "parent_feature": "feat-reference-blog-admin-ux",
+      "title": "受入・回帰・アクセシビリティ・ユーザビリティのテスト設計",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p04",
+        "feat-reference-blog-admin-ux"
+      ],
+      "related_nodes": [
+        "spec-system-spec-index",
+        "arch-system-spec-overview"
+      ],
+      "workstream_kind": "quality",
+      "secondary_workstreams": [
+        "frontend",
+        "backend",
+        "security"
+      ],
+      "build_target_kind": "application-code",
+      "phase_ref": "P04",
+      "depends_on": [
+        "SYS-REFERENCE-BLOG-ADMIN-UX-P03"
+      ],
+      "write_scope": [
+        "docs/spec/feat-reference-blog-admin-ux/test-design.md",
+        "docs/spec/feat-reference-blog-admin-ux/usability-test-protocol.md",
+        "tests/fixtures/reference-blog-admin-ux/"
+      ],
+      "deploy_unit": "cloudflare-workers-opennext-app",
+      "source_lineage": [
+        "features/feat-reference-blog-admin-ux.md",
+        "features/feat-reference-blog-admin-ux.context.json",
+        "system-spec/ui-ux.md",
+        "system-spec/frontend.md",
+        "system-spec/completeness-report.json"
+      ],
+      "classification": {
+        "confidence": 1,
+        "reason": "feat-reference-blog-admin-ux の P04 lifecycle責務への確定写像",
+        "candidates": [
+          {
+            "artifact_kind": "task",
+            "confidence": 1,
+            "candidate_path": "tasks/feat-reference-blog-admin-ux/sys-reference-blog-admin-ux-p04.md"
+          }
+        ]
+      },
+      "tracker_binding_intent": "beads",
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "pr_completion_policy": "linked_pr_merged_all",
+      "branch_policy": {
+        "strategy": "one-task-one-branch",
+        "worktree_lease_required": true,
+        "completion_projection": "default-branch-reconciliation",
+        "assignment_owner": "dev-graph-scheduler"
+      },
+      "acceptance": [
+        "P04: A1–A12ごとに正常・空・読込・失敗・権限・境界・mobileのケース、初見参加者のタスク成功率90%以上の測定法、axe重大違反0、200% zoom、keyboard完結、SSRF negative fixture、画像無しfallback、重複URL、保存競合・復元のテストが一意IDで定義される。"
+      ],
+      "verification": [
+        "P04のVerification and evidenceに記載した世代非依存commandとrequired evidenceを実行する"
+      ],
+      "rollback": "P04のrubric verdictがFAILのまま上限へ到達した場合、write_scope内の当phase変更を戻し、直前のpromoted generationへ復帰する",
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-08-29T14:38:12Z"
+      },
+      "graph_node_registration": {
+        "graph_node_id": "SYS-REFERENCE-BLOG-ADMIN-UX-P04",
+        "file_path": "tasks/feat-reference-blog-admin-ux/sys-reference-blog-admin-ux-p04.md",
+        "parent_feature": "feat-reference-blog-admin-ux",
+        "feature_package_id": "feature-package/feat-reference-blog-admin-ux",
+        "phase_ref": "P04"
+      }
+    },
+    {
+      "id": "SYS-REFERENCE-BLOG-ADMIN-UX-P05",
+      "feature_package_id": "feature-package/feat-reference-blog-admin-ux",
+      "parent_feature": "feat-reference-blog-admin-ux",
+      "title": "分析基盤・公開面・直感的管理CRUD・affiliate可視化の実装",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p05",
+        "feat-reference-blog-admin-ux"
+      ],
+      "related_nodes": [
+        "spec-system-spec-index",
+        "arch-system-spec-overview"
+      ],
+      "workstream_kind": "frontend",
+      "secondary_workstreams": [
+        "backend",
+        "api",
+        "data",
+        "security"
+      ],
+      "build_target_kind": "application-code",
+      "phase_ref": "P05",
+      "depends_on": [
+        "SYS-REFERENCE-BLOG-ADMIN-UX-P04"
+      ],
+      "write_scope": [
+        "scripts/reference-site-analysis/",
+        "src/app/admin/blog/",
+        "src/app/admin/content/",
+        "src/app/admin/affiliate/links/",
+        "src/app/s/[site]/",
+        "src/presentation/admin/",
+        "src/presentation/site/",
+        "src/presentation/ui/",
+        "src/domain/blogops/",
+        "src/domain/monetization/",
+        "src/application/usecases/blog-ops/",
+        "src/application/usecases/monetization/",
+        "src/application/read-models/",
+        "src/application/ports/",
+        "src/infrastructure/persistence/d1/",
+        "src/infrastructure/persistence/sample/",
+        "src/db/schema.ts",
+        "drizzle/",
+        "tests/"
+      ],
+      "deploy_unit": "cloudflare-workers-opennext-app",
+      "source_lineage": [
+        "features/feat-reference-blog-admin-ux.md",
+        "features/feat-reference-blog-admin-ux.context.json",
+        "system-spec/ui-ux.md",
+        "system-spec/frontend.md",
+        "system-spec/completeness-report.json"
+      ],
+      "classification": {
+        "confidence": 1,
+        "reason": "feat-reference-blog-admin-ux の P05 lifecycle責務への確定写像",
+        "candidates": [
+          {
+            "artifact_kind": "task",
+            "confidence": 1,
+            "candidate_path": "tasks/feat-reference-blog-admin-ux/sys-reference-blog-admin-ux-p05.md"
+          }
+        ]
+      },
+      "tracker_binding_intent": "beads",
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "pr_completion_policy": "linked_pr_merged_all",
+      "branch_policy": {
+        "strategy": "one-task-one-branch",
+        "worktree_lease_required": true,
+        "completion_projection": "default-branch-reconciliation",
+        "assignment_owner": "dev-graph-scheduler"
+      },
+      "acceptance": [
+        "P05: 依存順に、分析snapshot/read model、独自tokenのheader/body/sidebar/footer・記事型、図解block、admin共通save state、記事new/edit/improvement、affiliate URL previewとerror/duplicate/fallback、affiliate ledgerとplacement reverse map、永続化・監査・権限を実装し、P04のテストをgreenにする。既存blog-ops/affiliate usecaseの重複実装は0件にする。"
+      ],
+      "verification": [
+        "P05のVerification and evidenceに記載した世代非依存commandとrequired evidenceを実行する"
+      ],
+      "rollback": "P05のrubric verdictがFAILのまま上限へ到達した場合、write_scope内の当phase変更を戻し、直前のpromoted generationへ復帰する",
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-08-29T14:38:12Z"
+      },
+      "graph_node_registration": {
+        "graph_node_id": "SYS-REFERENCE-BLOG-ADMIN-UX-P05",
+        "file_path": "tasks/feat-reference-blog-admin-ux/sys-reference-blog-admin-ux-p05.md",
+        "parent_feature": "feat-reference-blog-admin-ux",
+        "feature_package_id": "feature-package/feat-reference-blog-admin-ux",
+        "phase_ref": "P05"
+      }
+    },
+    {
+      "id": "SYS-REFERENCE-BLOG-ADMIN-UX-P06",
+      "feature_package_id": "feature-package/feat-reference-blog-admin-ux",
+      "parent_feature": "feat-reference-blog-admin-ux",
+      "title": "単体・結合・E2E・securityテストの実行と緑化",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p06",
+        "feat-reference-blog-admin-ux"
+      ],
+      "related_nodes": [
+        "spec-system-spec-index",
+        "arch-system-spec-overview"
+      ],
+      "workstream_kind": "quality",
+      "secondary_workstreams": [
+        "frontend",
+        "backend",
+        "security"
+      ],
+      "build_target_kind": "application-code",
+      "phase_ref": "P06",
+      "depends_on": [
+        "SYS-REFERENCE-BLOG-ADMIN-UX-P05"
+      ],
+      "write_scope": [
+        "docs/spec/feat-reference-blog-admin-ux/test-run-report.md",
+        "test-results/reference-blog-admin-ux/"
+      ],
+      "deploy_unit": "cloudflare-workers-opennext-app",
+      "source_lineage": [
+        "features/feat-reference-blog-admin-ux.md",
+        "features/feat-reference-blog-admin-ux.context.json",
+        "system-spec/ui-ux.md",
+        "system-spec/frontend.md",
+        "system-spec/completeness-report.json"
+      ],
+      "classification": {
+        "confidence": 1,
+        "reason": "feat-reference-blog-admin-ux の P06 lifecycle責務への確定写像",
+        "candidates": [
+          {
+            "artifact_kind": "task",
+            "confidence": 1,
+            "candidate_path": "tasks/feat-reference-blog-admin-ux/sys-reference-blog-admin-ux-p06.md"
+          }
+        ]
+      },
+      "tracker_binding_intent": "beads",
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "pr_completion_policy": "linked_pr_merged_all",
+      "branch_policy": {
+        "strategy": "one-task-one-branch",
+        "worktree_lease_required": true,
+        "completion_projection": "default-branch-reconciliation",
+        "assignment_owner": "dev-graph-scheduler"
+      },
+      "acceptance": [
+        "P06: typecheck、content validation、unit、contract、DB integration、E2E、a11y、security、performance、non-copying gateが失敗0件で、各command・exit・件数・artifact pathがtest-run-reportに記録される。"
+      ],
+      "verification": [
+        "P06のVerification and evidenceに記載した世代非依存commandとrequired evidenceを実行する"
+      ],
+      "rollback": "P06のrubric verdictがFAILのまま上限へ到達した場合、write_scope内の当phase変更を戻し、直前のpromoted generationへ復帰する",
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-08-29T14:38:12Z"
+      },
+      "graph_node_registration": {
+        "graph_node_id": "SYS-REFERENCE-BLOG-ADMIN-UX-P06",
+        "file_path": "tasks/feat-reference-blog-admin-ux/sys-reference-blog-admin-ux-p06.md",
+        "parent_feature": "feat-reference-blog-admin-ux",
+        "feature_package_id": "feature-package/feat-reference-blog-admin-ux",
+        "phase_ref": "P06"
+      }
+    },
+    {
+      "id": "SYS-REFERENCE-BLOG-ADMIN-UX-P07",
+      "feature_package_id": "feature-package/feat-reference-blog-admin-ux",
+      "parent_feature": "feat-reference-blog-admin-ux",
+      "title": "A1–A12と初見操作性のfeature受入",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p07",
+        "feat-reference-blog-admin-ux"
+      ],
+      "related_nodes": [
+        "spec-system-spec-index",
+        "arch-system-spec-overview"
+      ],
+      "workstream_kind": "quality",
+      "secondary_workstreams": [
+        "frontend",
+        "operations"
+      ],
+      "build_target_kind": "application-code",
+      "phase_ref": "P07",
+      "depends_on": [
+        "SYS-REFERENCE-BLOG-ADMIN-UX-P06"
+      ],
+      "write_scope": [
+        "docs/spec/feat-reference-blog-admin-ux/acceptance-report.md",
+        "docs/spec/feat-reference-blog-admin-ux/usability-report.md"
+      ],
+      "deploy_unit": "cloudflare-workers-opennext-app",
+      "source_lineage": [
+        "features/feat-reference-blog-admin-ux.md",
+        "features/feat-reference-blog-admin-ux.context.json",
+        "system-spec/ui-ux.md",
+        "system-spec/frontend.md",
+        "system-spec/completeness-report.json"
+      ],
+      "classification": {
+        "confidence": 1,
+        "reason": "feat-reference-blog-admin-ux の P07 lifecycle責務への確定写像",
+        "candidates": [
+          {
+            "artifact_kind": "task",
+            "confidence": 1,
+            "candidate_path": "tasks/feat-reference-blog-admin-ux/sys-reference-blog-admin-ux-p07.md"
+          }
+        ]
+      },
+      "tracker_binding_intent": "beads",
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "pr_completion_policy": "linked_pr_merged_all",
+      "branch_policy": {
+        "strategy": "one-task-one-branch",
+        "worktree_lease_required": true,
+        "completion_projection": "default-branch-reconciliation",
+        "assignment_owner": "dev-graph-scheduler"
+      },
+      "acceptance": [
+        "P07: A1–A12の全件が手順・expected・actual・evidenceでPASSし、初見参加者の主タスク成功率90%以上、保存済み判別90%以上、affiliate掲載先特定90%以上、重大な誤操作0件をusability-reportで証明する。"
+      ],
+      "verification": [
+        "P07のVerification and evidenceに記載した世代非依存commandとrequired evidenceを実行する"
+      ],
+      "rollback": "P07のrubric verdictがFAILのまま上限へ到達した場合、write_scope内の当phase変更を戻し、直前のpromoted generationへ復帰する",
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-08-29T14:38:12Z"
+      },
+      "graph_node_registration": {
+        "graph_node_id": "SYS-REFERENCE-BLOG-ADMIN-UX-P07",
+        "file_path": "tasks/feat-reference-blog-admin-ux/sys-reference-blog-admin-ux-p07.md",
+        "parent_feature": "feat-reference-blog-admin-ux",
+        "feature_package_id": "feature-package/feat-reference-blog-admin-ux",
+        "phase_ref": "P07"
+      }
+    },
+    {
+      "id": "SYS-REFERENCE-BLOG-ADMIN-UX-P08",
+      "feature_package_id": "feature-package/feat-reference-blog-admin-ux",
+      "parent_feature": "feat-reference-blog-admin-ux",
+      "title": "既存blog-ops・affiliate・保存モデルとの移行と重複解消",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p08",
+        "feat-reference-blog-admin-ux"
+      ],
+      "related_nodes": [
+        "spec-system-spec-index",
+        "arch-system-spec-overview"
+      ],
+      "workstream_kind": "data",
+      "secondary_workstreams": [
+        "backend",
+        "frontend"
+      ],
+      "build_target_kind": "application-code",
+      "phase_ref": "P08",
+      "depends_on": [
+        "SYS-REFERENCE-BLOG-ADMIN-UX-P05"
+      ],
+      "write_scope": [
+        "src/db/schema.ts",
+        "drizzle/",
+        "src/domain/blogops/",
+        "src/domain/monetization/",
+        "src/application/usecases/blog-ops/",
+        "src/application/usecases/monetization/",
+        "src/infrastructure/persistence/d1/",
+        "src/presentation/admin/",
+        "docs/spec/feat-reference-blog-admin-ux/migration-report.md"
+      ],
+      "deploy_unit": "cloudflare-workers-opennext-app",
+      "source_lineage": [
+        "features/feat-reference-blog-admin-ux.md",
+        "features/feat-reference-blog-admin-ux.context.json",
+        "system-spec/ui-ux.md",
+        "system-spec/frontend.md",
+        "system-spec/completeness-report.json"
+      ],
+      "classification": {
+        "confidence": 1,
+        "reason": "feat-reference-blog-admin-ux の P08 lifecycle責務への確定写像",
+        "candidates": [
+          {
+            "artifact_kind": "task",
+            "confidence": 1,
+            "candidate_path": "tasks/feat-reference-blog-admin-ux/sys-reference-blog-admin-ux-p08.md"
+          }
+        ]
+      },
+      "tracker_binding_intent": "beads",
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "pr_completion_policy": "linked_pr_merged_all",
+      "branch_policy": {
+        "strategy": "one-task-one-branch",
+        "worktree_lease_required": true,
+        "completion_projection": "default-branch-reconciliation",
+        "assignment_owner": "dev-graph-scheduler"
+      },
+      "acceptance": [
+        "P08: 既存URL・article/affiliate ID・draft内容・placementを保持したmigration/backfillが再実行可能で、legacy routeはredirectまたは互換adapterで収束し、保存・preview・affiliate一覧の正本usecaseが各1つ、rollback rehearsalが成功し、migration-reportに件数差0が記録される。"
+      ],
+      "verification": [
+        "P08のVerification and evidenceに記載した世代非依存commandとrequired evidenceを実行する"
+      ],
+      "rollback": "P08のrubric verdictがFAILのまま上限へ到達した場合、write_scope内の当phase変更を戻し、直前のpromoted generationへ復帰する",
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-08-29T14:38:12Z"
+      },
+      "graph_node_registration": {
+        "graph_node_id": "SYS-REFERENCE-BLOG-ADMIN-UX-P08",
+        "file_path": "tasks/feat-reference-blog-admin-ux/sys-reference-blog-admin-ux-p08.md",
+        "parent_feature": "feat-reference-blog-admin-ux",
+        "feature_package_id": "feature-package/feat-reference-blog-admin-ux",
+        "phase_ref": "P08"
+      }
+    },
+    {
+      "id": "SYS-REFERENCE-BLOG-ADMIN-UX-P09",
+      "feature_package_id": "feature-package/feat-reference-blog-admin-ux",
+      "parent_feature": "feat-reference-blog-admin-ux",
+      "title": "アクセシビリティ・性能・安全性・非模倣の独立QA",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p09",
+        "feat-reference-blog-admin-ux"
+      ],
+      "related_nodes": [
+        "spec-system-spec-index",
+        "arch-system-spec-overview"
+      ],
+      "workstream_kind": "quality",
+      "secondary_workstreams": [
+        "security",
+        "frontend",
+        "operations"
+      ],
+      "build_target_kind": "application-code",
+      "phase_ref": "P09",
+      "depends_on": [
+        "SYS-REFERENCE-BLOG-ADMIN-UX-P07",
+        "SYS-REFERENCE-BLOG-ADMIN-UX-P08"
+      ],
+      "write_scope": [
+        "docs/spec/feat-reference-blog-admin-ux/qa-report.md",
+        "test-results/reference-blog-admin-ux/qa/"
+      ],
+      "deploy_unit": "cloudflare-workers-opennext-app",
+      "source_lineage": [
+        "features/feat-reference-blog-admin-ux.md",
+        "features/feat-reference-blog-admin-ux.context.json",
+        "system-spec/ui-ux.md",
+        "system-spec/frontend.md",
+        "system-spec/completeness-report.json"
+      ],
+      "classification": {
+        "confidence": 1,
+        "reason": "feat-reference-blog-admin-ux の P09 lifecycle責務への確定写像",
+        "candidates": [
+          {
+            "artifact_kind": "task",
+            "confidence": 1,
+            "candidate_path": "tasks/feat-reference-blog-admin-ux/sys-reference-blog-admin-ux-p09.md"
+          }
+        ]
+      },
+      "tracker_binding_intent": "beads",
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "pr_completion_policy": "linked_pr_merged_all",
+      "branch_policy": {
+        "strategy": "one-task-one-branch",
+        "worktree_lease_required": true,
+        "completion_projection": "default-branch-reconciliation",
+        "assignment_owner": "dev-graph-scheduler"
+      },
+      "acceptance": [
+        "P09: 主要public/admin画面のaxe重大違反0、keyboard完結、200% zoom欠落0、状態の色のみ依存0、Core Web Vitals budget、URL previewのprivate/loop/oversize拒否、tenant越境0、固有文章/画像/logo/色値転用0、P07 usability閾値達成を独立証跡でPASSにする。"
+      ],
+      "verification": [
+        "P09のVerification and evidenceに記載した世代非依存commandとrequired evidenceを実行する"
+      ],
+      "rollback": "P09のrubric verdictがFAILのまま上限へ到達した場合、write_scope内の当phase変更を戻し、直前のpromoted generationへ復帰する",
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-08-29T14:38:12Z"
+      },
+      "graph_node_registration": {
+        "graph_node_id": "SYS-REFERENCE-BLOG-ADMIN-UX-P09",
+        "file_path": "tasks/feat-reference-blog-admin-ux/sys-reference-blog-admin-ux-p09.md",
+        "parent_feature": "feat-reference-blog-admin-ux",
+        "feature_package_id": "feature-package/feat-reference-blog-admin-ux",
+        "phase_ref": "P09"
+      }
+    },
+    {
+      "id": "SYS-REFERENCE-BLOG-ADMIN-UX-P10",
+      "feature_package_id": "feature-package/feat-reference-blog-admin-ux",
+      "parent_feature": "feat-reference-blog-admin-ux",
+      "title": "目的・受入・品質証跡の独立最終レビュー",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p10",
+        "feat-reference-blog-admin-ux"
+      ],
+      "related_nodes": [
+        "spec-system-spec-index",
+        "arch-system-spec-overview"
+      ],
+      "workstream_kind": "quality",
+      "secondary_workstreams": [
+        "documentation"
+      ],
+      "build_target_kind": "application-code",
+      "phase_ref": "P10",
+      "depends_on": [
+        "SYS-REFERENCE-BLOG-ADMIN-UX-P09"
+      ],
+      "write_scope": [
+        "docs/spec/feat-reference-blog-admin-ux/final-review.md"
+      ],
+      "deploy_unit": "cloudflare-workers-opennext-app",
+      "source_lineage": [
+        "features/feat-reference-blog-admin-ux.md",
+        "features/feat-reference-blog-admin-ux.context.json",
+        "system-spec/ui-ux.md",
+        "system-spec/frontend.md",
+        "system-spec/completeness-report.json"
+      ],
+      "classification": {
+        "confidence": 1,
+        "reason": "feat-reference-blog-admin-ux の P10 lifecycle責務への確定写像",
+        "candidates": [
+          {
+            "artifact_kind": "task",
+            "confidence": 1,
+            "candidate_path": "tasks/feat-reference-blog-admin-ux/sys-reference-blog-admin-ux-p10.md"
+          }
+        ]
+      },
+      "tracker_binding_intent": "beads",
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "pr_completion_policy": "linked_pr_merged_all",
+      "branch_policy": {
+        "strategy": "one-task-one-branch",
+        "worktree_lease_required": true,
+        "completion_projection": "default-branch-reconciliation",
+        "assignment_owner": "dev-graph-scheduler"
+      },
+      "acceptance": [
+        "P10: A1–A12の証跡欠落0、high finding 0、P07/P09のdigest一致、既存feature境界逸脱0、非模倣gate PASS、release blocker 0の場合のみreadiness=completeとし、それ以外はFAILと修正phaseを明記する。"
+      ],
+      "verification": [
+        "P10のVerification and evidenceに記載した世代非依存commandとrequired evidenceを実行する"
+      ],
+      "rollback": "P10のrubric verdictがFAILのまま上限へ到達した場合、write_scope内の当phase変更を戻し、直前のpromoted generationへ復帰する",
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-08-29T14:38:12Z"
+      },
+      "graph_node_registration": {
+        "graph_node_id": "SYS-REFERENCE-BLOG-ADMIN-UX-P10",
+        "file_path": "tasks/feat-reference-blog-admin-ux/sys-reference-blog-admin-ux-p10.md",
+        "parent_feature": "feat-reference-blog-admin-ux",
+        "feature_package_id": "feature-package/feat-reference-blog-admin-ux",
+        "phase_ref": "P10"
+      }
+    },
+    {
+      "id": "SYS-REFERENCE-BLOG-ADMIN-UX-P11",
+      "feature_package_id": "feature-package/feat-reference-blog-admin-ux",
+      "parent_feature": "feat-reference-blog-admin-ux",
+      "title": "全URL分析・受入・QA証跡の再現可能な集約",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p11",
+        "feat-reference-blog-admin-ux"
+      ],
+      "related_nodes": [
+        "spec-system-spec-index",
+        "arch-system-spec-overview"
+      ],
+      "workstream_kind": "documentation",
+      "secondary_workstreams": [
+        "quality"
+      ],
+      "build_target_kind": "application-code",
+      "phase_ref": "P11",
+      "depends_on": [
+        "SYS-REFERENCE-BLOG-ADMIN-UX-P07",
+        "SYS-REFERENCE-BLOG-ADMIN-UX-P09",
+        "SYS-REFERENCE-BLOG-ADMIN-UX-P10"
+      ],
+      "write_scope": [
+        "docs/spec/feat-reference-blog-admin-ux/evidence/"
+      ],
+      "deploy_unit": "cloudflare-workers-opennext-app",
+      "source_lineage": [
+        "features/feat-reference-blog-admin-ux.md",
+        "features/feat-reference-blog-admin-ux.context.json",
+        "system-spec/ui-ux.md",
+        "system-spec/frontend.md",
+        "system-spec/completeness-report.json"
+      ],
+      "classification": {
+        "confidence": 1,
+        "reason": "feat-reference-blog-admin-ux の P11 lifecycle責務への確定写像",
+        "candidates": [
+          {
+            "artifact_kind": "task",
+            "confidence": 1,
+            "candidate_path": "tasks/feat-reference-blog-admin-ux/sys-reference-blog-admin-ux-p11.md"
+          }
+        ]
+      },
+      "tracker_binding_intent": "beads",
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "pr_completion_policy": "linked_pr_merged_all",
+      "branch_policy": {
+        "strategy": "one-task-one-branch",
+        "worktree_lease_required": true,
+        "completion_projection": "default-branch-reconciliation",
+        "assignment_owner": "dev-graph-scheduler"
+      },
+      "acceptance": [
+        "P11: evidence/index.jsonが全URL台帳snapshot、画面型代表証跡、A1–A12、P06/P07/P09/P10をpath・digest・取得日時・tool versionで参照し、missing/duplicate/stale 0、写真・本文の再配布0、再実行commandがexit0になる。"
+      ],
+      "verification": [
+        "P11のVerification and evidenceに記載した世代非依存commandとrequired evidenceを実行する"
+      ],
+      "rollback": "P11のrubric verdictがFAILのまま上限へ到達した場合、write_scope内の当phase変更を戻し、直前のpromoted generationへ復帰する",
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-08-29T14:38:12Z"
+      },
+      "graph_node_registration": {
+        "graph_node_id": "SYS-REFERENCE-BLOG-ADMIN-UX-P11",
+        "file_path": "tasks/feat-reference-blog-admin-ux/sys-reference-blog-admin-ux-p11.md",
+        "parent_feature": "feat-reference-blog-admin-ux",
+        "feature_package_id": "feature-package/feat-reference-blog-admin-ux",
+        "phase_ref": "P11"
+      }
+    },
+    {
+      "id": "SYS-REFERENCE-BLOG-ADMIN-UX-P12",
+      "feature_package_id": "feature-package/feat-reference-blog-admin-ux",
+      "parent_feature": "feat-reference-blog-admin-ux",
+      "title": "管理者ガイド・分析更新runbook・障害対応の確定",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p12",
+        "feat-reference-blog-admin-ux"
+      ],
+      "related_nodes": [
+        "spec-system-spec-index",
+        "arch-system-spec-overview"
+      ],
+      "workstream_kind": "documentation",
+      "secondary_workstreams": [
+        "operations"
+      ],
+      "build_target_kind": "application-code",
+      "phase_ref": "P12",
+      "depends_on": [
+        "SYS-REFERENCE-BLOG-ADMIN-UX-P10",
+        "SYS-REFERENCE-BLOG-ADMIN-UX-P11"
+      ],
+      "write_scope": [
+        "docs/spec/feat-reference-blog-admin-ux/admin-guide.md",
+        "docs/spec/feat-reference-blog-admin-ux/analysis-refresh-runbook.md",
+        "docs/spec/feat-reference-blog-admin-ux/affiliate-preview-runbook.md",
+        "docs/spec/feat-reference-blog-admin-ux/operations.md",
+        "docs/spec/feat-reference-blog-admin-ux/api-contract.md",
+        "docs/spec/feat-reference-blog-admin-ux/data-model.md"
+      ],
+      "deploy_unit": "cloudflare-workers-opennext-app",
+      "source_lineage": [
+        "features/feat-reference-blog-admin-ux.md",
+        "features/feat-reference-blog-admin-ux.context.json",
+        "system-spec/ui-ux.md",
+        "system-spec/frontend.md",
+        "system-spec/completeness-report.json"
+      ],
+      "classification": {
+        "confidence": 1,
+        "reason": "feat-reference-blog-admin-ux の P12 lifecycle責務への確定写像",
+        "candidates": [
+          {
+            "artifact_kind": "task",
+            "confidence": 1,
+            "candidate_path": "tasks/feat-reference-blog-admin-ux/sys-reference-blog-admin-ux-p12.md"
+          }
+        ]
+      },
+      "tracker_binding_intent": "beads",
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "pr_completion_policy": "linked_pr_merged_all",
+      "branch_policy": {
+        "strategy": "one-task-one-branch",
+        "worktree_lease_required": true,
+        "completion_projection": "default-branch-reconciliation",
+        "assignment_owner": "dev-graph-scheduler"
+      },
+      "acceptance": [
+        "P12: 初回利用者向けガイドが主タスク4つを各3段階以内の説明で案内し、分析再取得・差分レビュー・preview retry/manual fallback・placement差替え・保存競合復元・rollback・監査確認のrunbookがowner/trigger/command/evidence/escalationを持ち、P02契約が実装確定内容へ更新される。"
+      ],
+      "verification": [
+        "P12のVerification and evidenceに記載した世代非依存commandとrequired evidenceを実行する"
+      ],
+      "rollback": "P12のrubric verdictがFAILのまま上限へ到達した場合、write_scope内の当phase変更を戻し、直前のpromoted generationへ復帰する",
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-08-29T14:38:12Z"
+      },
+      "graph_node_registration": {
+        "graph_node_id": "SYS-REFERENCE-BLOG-ADMIN-UX-P12",
+        "file_path": "tasks/feat-reference-blog-admin-ux/sys-reference-blog-admin-ux-p12.md",
+        "parent_feature": "feat-reference-blog-admin-ux",
+        "feature_package_id": "feature-package/feat-reference-blog-admin-ux",
+        "phase_ref": "P12"
+      }
+    },
+    {
+      "id": "SYS-REFERENCE-BLOG-ADMIN-UX-P13",
+      "feature_package_id": "feature-package/feat-reference-blog-admin-ux",
+      "parent_feature": "feat-reference-blog-admin-ux",
+      "title": "development段階展開・rollback確認・仕様書への書き戻し",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p13",
+        "feat-reference-blog-admin-ux"
+      ],
+      "related_nodes": [
+        "spec-system-spec-index",
+        "arch-system-spec-overview"
+      ],
+      "workstream_kind": "operations",
+      "secondary_workstreams": [
+        "infrastructure",
+        "documentation"
+      ],
+      "build_target_kind": "application-code",
+      "phase_ref": "P13",
+      "depends_on": [
+        "SYS-REFERENCE-BLOG-ADMIN-UX-P12"
+      ],
+      "write_scope": [
+        "docs/spec/feat-reference-blog-admin-ux/release-report.md",
+        "system-spec/ui-ux.md",
+        "system-spec/frontend.md",
+        "system-spec/backend.md",
+        "system-spec/database.md",
+        "architecture/system-spec-overview.md"
+      ],
+      "deploy_unit": "cloudflare-workers-opennext-app development",
+      "source_lineage": [
+        "features/feat-reference-blog-admin-ux.md",
+        "features/feat-reference-blog-admin-ux.context.json",
+        "system-spec/ui-ux.md",
+        "system-spec/frontend.md",
+        "system-spec/completeness-report.json"
+      ],
+      "classification": {
+        "confidence": 1,
+        "reason": "feat-reference-blog-admin-ux の P13 lifecycle責務への確定写像",
+        "candidates": [
+          {
+            "artifact_kind": "task",
+            "confidence": 1,
+            "candidate_path": "tasks/feat-reference-blog-admin-ux/sys-reference-blog-admin-ux-p13.md"
+          }
+        ]
+      },
+      "tracker_binding_intent": "beads",
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "pr_completion_policy": "linked_pr_merged_all",
+      "branch_policy": {
+        "strategy": "one-task-one-branch",
+        "worktree_lease_required": true,
+        "completion_projection": "default-branch-reconciliation",
+        "assignment_owner": "dev-graph-scheduler"
+      },
+      "acceptance": [
+        "P13: development deployment、smoke、save/preview/placement telemetry、rollback rehearsalがPASSし、本番releaseが未承認ならN/A理由を記録し、P13 spec/architecture writeback: required としてUI・frontend・backend・database・architectureの確定章へ実装差分と残findingをR4-reopen経由で反映しclose-out receiptを残す。"
+      ],
+      "verification": [
+        "P13のVerification and evidenceに記載した世代非依存commandとrequired evidenceを実行する"
+      ],
+      "rollback": "P13のrubric verdictがFAILのまま上限へ到達した場合、write_scope内の当phase変更を戻し、直前のpromoted generationへ復帰する",
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-08-29T14:38:12Z"
+      },
+      "graph_node_registration": {
+        "graph_node_id": "SYS-REFERENCE-BLOG-ADMIN-UX-P13",
+        "file_path": "tasks/feat-reference-blog-admin-ux/sys-reference-blog-admin-ux-p13.md",
+        "parent_feature": "feat-reference-blog-admin-ux",
+        "feature_package_id": "feature-package/feat-reference-blog-admin-ux",
+        "phase_ref": "P13"
+      }
+    }
+  ]
+}

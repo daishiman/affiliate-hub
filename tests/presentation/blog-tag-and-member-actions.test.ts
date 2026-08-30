@@ -72,8 +72,8 @@ vi.mock("@/presentation/composition", async (importOriginal) => {
   };
 });
 
-const { manageBlogTagAction } = await import("@/presentation/admin/blog-tag-action");
-const { manageMemberAction } = await import("@/presentation/admin/member-action");
+const { manageBlogTagAction } = await import("@/presentation/admin/publish/blog-tag-action");
+const { manageMemberAction } = await import("@/presentation/admin/maintain/member-action");
 
 const IDLE = { status: "idle", message: "" } as const;
 

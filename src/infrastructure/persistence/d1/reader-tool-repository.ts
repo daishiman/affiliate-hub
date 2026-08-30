@@ -137,8 +137,14 @@ export function createD1ReaderToolRepository(db: DrizzleD1): EditorialReaderTool
     return rows[0] === undefined ? null : decodeStoredRow(rows[0]);
   }
 
-  function builtIn(slug: string) {
-    return BUILT_IN_READER_TOOLS.find((t) => t.definition.slug === slug) ?? null;
+  function builtInsFor(siteSlug: string) {
+    return BUILT_IN_READER_TOOLS.filter(
+      (tool) => tool.siteSlugs === undefined || tool.siteSlugs.includes(siteSlug),
+    );
+  }
+
+  function builtIn(siteSlug: string, slug: string) {
+    return builtInsFor(siteSlug).find((t) => t.definition.slug === slug) ?? null;
   }
 
   return markEditorial({
@@ -146,7 +152,7 @@ export function createD1ReaderToolRepository(db: DrizzleD1): EditorialReaderTool
       try {
         const row = await findRow(siteSlug, slug);
         if (row !== null) return ok(toDefinition(row));
-        return ok(builtIn(slug)?.definition ?? null);
+        return ok(builtIn(siteSlug, slug)?.definition ?? null);
       } catch (cause) {
         return storageFailure("道具の読み出し", cause);
       }
@@ -162,7 +168,7 @@ export function createD1ReaderToolRepository(db: DrizzleD1): EditorialReaderTool
         const taken = new Set(stored.map((d) => d.slug));
         const all = [
           ...stored,
-          ...BUILT_IN_READER_TOOLS.filter((t) => !taken.has(t.definition.slug)).map(
+          ...builtInsFor(siteSlug).filter((t) => !taken.has(t.definition.slug)).map(
             (t) => t.definition,
           ),
         ];
@@ -185,7 +191,7 @@ export function createD1ReaderToolRepository(db: DrizzleD1): EditorialReaderTool
         // どの欄が原因かは `field` に載っているので、画面はその欄の下に出せる。
         return runReaderToolFormula(row.formula, row.inputs, values);
       }
-      const fallback = builtIn(slug);
+      const fallback = builtIn(siteSlug, slug);
       if (fallback === null) {
         return err(
           domainError("NOT_FOUND", `「${slug}」という道具は登録されていません。`, {

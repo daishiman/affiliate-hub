@@ -853,8 +853,9 @@
     "ui-ux": {
       "web": {
         "state": "確定",
-        "qa_ref": "qa-uiux-web-seo-ai-search-v2",
+        "qa_ref": "qa-uiux-web-cognitive-load-affiliate-visibility-v3",
         "qa_refs": [
+          "qa-uiux-web-cognitive-load-affiliate-visibility-v3",
           "qa-uiux-web-seo-ai-search-v2",
           "qa-uiux-web-blog-builder",
           "qa-uiux-web-screen-priority",
@@ -888,7 +889,7 @@
         ],
         "required_info_checks": [
           {
-            "checked_on": "2026-08-25",
+            "checked_on": "2026-08-30",
             "checked_with": "record-required-info-check",
             "blocking_item_count": 3,
             "unmet_blocking_items": 0
@@ -973,16 +974,12 @@
     "infrastructure": {
       "web": {
         "state": "確定",
-        "qa_ref": "qa-infra-web-post-deploy-smoke",
+        "qa_ref": "qa-infra-web-migration-guard",
         "serves_goals": [
-          "G1",
-          "G2"
+          "G2",
+          "G1"
         ],
         "qa_refs": [
-          "qa-infra-web-post-deploy-smoke",
-          "qa-infra-web-deploy-steps",
-          "qa-infra-web-branch-flow",
-          "qa-infra-web-schema-drift",
           "qa-infra-web-migration-guard",
           "qa-infra-web-spec-intake",
           "qa-infra-web",
@@ -990,7 +987,12 @@
         ],
         "required_info_checks": [
           {
-            "checked_on": "2026-08-29",
+            "checked_on": "2026-08-25",
+            "checked_with": "record-required-info-check",
+            "blocking_item_count": 0
+          },
+          {
+            "checked_on": "2026-08-25",
             "checked_with": "record-required-info-check",
             "blocking_item_count": 0,
             "unmet_blocking_items": 0
@@ -1073,8 +1075,9 @@
     "frontend": {
       "web": {
         "state": "確定",
-        "qa_ref": "qa-frontend-web-seo-ai-search-v2",
+        "qa_ref": "qa-frontend-web-affiliate-link-preview-v3",
         "qa_refs": [
+          "qa-frontend-web-affiliate-link-preview-v3",
           "qa-frontend-web-seo-ai-search-v2",
           "qa-frontend-web-blog-builder",
           "qa-frontend-web-spec-intake",
@@ -1088,7 +1091,7 @@
         ],
         "required_info_checks": [
           {
-            "checked_on": "2026-08-25",
+            "checked_on": "2026-08-29",
             "checked_with": "record-required-info-check",
             "blocking_item_count": 0,
             "unmet_blocking_items": 0
@@ -1119,20 +1122,24 @@
     "maintenance-ops": {
       "web": {
         "state": "確定",
-        "qa_ref": "qa-ops-web-rollback",
+        "qa_ref": "qa-ops-web-migration-guard",
         "serves_goals": [
-          "G1"
+          "G1",
+          "G2"
         ],
         "qa_refs": [
-          "qa-ops-web-rollback",
-          "qa-ops-web-drift-repair",
           "qa-ops-web-migration-guard",
           "qa-ops-web-spec-intake",
           "qa-ops-web"
         ],
         "required_info_checks": [
           {
-            "checked_on": "2026-08-29",
+            "checked_on": "2026-08-25",
+            "checked_with": "record-required-info-check",
+            "blocking_item_count": 0
+          },
+          {
+            "checked_on": "2026-08-25",
             "checked_with": "record-required-info-check",
             "blocking_item_count": 0,
             "unmet_blocking_items": 0
@@ -2664,257 +2671,69 @@
       }
     },
     {
-      "id": "qa-infra-web-schema-drift",
-      "question": "infrastructure×web: データの形を適用したあと、アプリを公開する前に何を確かめるか。また、公開経路と手動適用経路が同じ環境の D1 を同時に触ることを許すか (書面入力 docs/spec/11-CI-CD・品質ゲート仕様.md §4-1 / §4-1-2)",
-      "answer": "1. 控えを取る（`wrangler d1 export`）\n2. **中身が空でないことを確かめる。空ならそこで止まり、適用へ進まない**\n4. データの形を適用する\n5. 未適用が 0 件になったことを確かめる（公開の直前・§4-1-1）\n6. 実際の表・列・索引・トリガーが正本と合うことを確かめる（§4-1-2）\n7. アプリを公開する\n- `deploy.yml` と `migrate.yml` は、同じ dev / production の D1 を同時に変更しない。\n  同一環境の concurrency group を共有し、先に始まったほうが台帳・形の確認まで終わるのを待つ\n置き場所は**適用の後・公開の前**でなければならない。適用の前に置くと、\n未適用の分がすべて「足りない」として出て、常に赤になる。\n`deploy.yml` と `migrate.yml` の両方に置く。**片方だけ緩いと、ずれはその片方から入る。**",
+      "id": "qa-uiux-web-cognitive-load-affiliate-visibility-v3",
+      "question": "ui-ux×web: 管理画面の新規作成・改善・保存・アフィリエイト一覧・リンク設定を、どの程度直感的にし、画面確認をどう要件化するか（2026-08-29 利用者追加入力）",
+      "answer": "認知負荷を極限まで下げ、直感的に操作できる仕組みにしてください。特に、管理画面での新規作成、改善、保存、およびアフィリエイトの一覧表示やリンク設定などについて、直感的な操作性を重視してください。とりあえず、画面を見て、確認もしておいてください。",
       "source": {
-        "kind": "written-requirements",
-        "path": "docs/spec/11-CI-CD・品質ゲート仕様.md",
-        "section": "§4-1 データの形は、控えが取れたときだけ変える / §4-1-2 形のずれ",
-        "sha256": "822d5e7f36224606589f496cffe5887a727f3b35543cdf7993c895ffa1126d4f",
-        "resealed_with": "reseal-written-source",
-        "resealed_on": "2026-08-29"
+        "kind": "user-dialogue"
       },
       "asks_for": [
         {
-          "category": "infrastructure",
+          "category": "ui-ux",
           "platform": "web"
         }
       ],
       "design_applications": [
         {
-          "knowledge_ref": "docs/spec/11-CI-CD・品質ゲート仕様.md#§4-1-2",
-          "principle": "台帳に名前が載っていることと、実体の形が合っていることは別物である。名前だけを見る見張りは、逆向きのずれを緑のまま通す",
+          "knowledge_ref": "ref-system-design-knowledge:information-design",
+          "principle": "各画面は主要タスクを一つに絞り、次に行う操作・現在状態・完了結果を同じ視線の流れで判断できるようにする",
           "applicability": "applied",
-          "rationale": "適用の後・公開の前に、毎回空の一時ローカル D1 へ drizzle/*.sql を先頭から全部当てた結果を正本とし、対象環境のリモート D1 と sqlite_master どうしを比べる。不足・余り・同名異所属/異定義のいずれでも落とし、測れなかったときも落とす。適用の前に置くと未適用ぶんが常に不足として出るため、置き場所は適用の後でなければならない",
+          "rationale": "現行管理画面は単一用途への分割と処理結果表示が進んでいる一方、成果リンクの登録は受信、広告主確定、商品対応、読者表示用登録が別々の手入力として並ぶ。今回の要求を満たすため、一覧から対象を選ぶ、リンクを貼る、取得結果を確認する、保存する、掲載先を確認する、という一方向の主導線とし、各段階で未完了理由と次の一操作だけを強調する。新規作成・改善・保存では同じ配置、語彙、結果表示を共有し、保存済みかどうかを利用者の記憶に委ねない",
           "tradeoffs": [
-            "適用と公開の間に検査を 1 段はさむので、移行を伴う公開は必ずその分だけ遅れる。緊急の修正でも同じだけ待たされる",
-            "実体と正本を突き合わせる検査自体が壊れると、移行が正しくても公開が止まる。見張りが増えた分、止まる理由も増える",
-            "検査対象は表・列・索引・トリガーの形だけで、中身のデータのずれは見ない。形が合っていれば通るので「全部確かめた」とは言えない"
+            "一画面の説明量を減らすと例外条件を見落としやすいため、危険操作・広告規約・リンク改変禁止の説明は削除せず、該当操作の直前に必要な分だけ段階表示する"
           ]
         },
         {
-          "knowledge_ref": "docs/spec/11-CI-CD・品質ゲート仕様.md#§4-1",
-          "principle": "同じものを変えうる経路が 2 本あるなら、同時に走らせない。片方の途中の状態をもう片方が正本として読む",
+          "knowledge_ref": "ref-system-design-knowledge:usability-accessibility",
+          "principle": "認知負荷の低減を色や慣れだけに依存させず、可視ラベル、キーボード操作、取り消し、保存状態、エラー回復を一貫させる",
           "applicability": "applied",
-          "rationale": "deploy.yml と migrate.yml は同一環境の concurrency group を共有し、先に始まったほうが台帳と形の確認まで終わるのを待つ。通常公開は deploy.yml だけを起点にし、migrate.yml は公開と分けた明示適用と前方修復のためだけに残す",
+          "rationale": "PC中心・週1回程度という既確定の利用状況では、操作手順の暗記よりも前回状態、未保存差分、次の操作を再認識できることが重要である。主要操作は動詞を揃え、保存中・保存済み・未保存・失敗を常時区別し、破壊的操作だけ確認を要求する。アフィリエイト一覧は掲載中、確認待ち、停止、リンク切れを色だけでなく文言と件数で区別し、ブログまたは記事からリンクへ、リンクから掲載先へ往復できる",
           "tradeoffs": [
-            "同一環境への 2 経路が直列になるため、移行が走っている間の公開は待ち行列に入る。並べれば速い場面でも速くできない",
-            "片方が長く詰まると、無関係な変更の公開まで巻き添えで待つ",
-            "group を環境ごとに切る前提なので、環境名の付け方を間違えると別環境どうしが不要に直列化する、あるいは同一環境が直列にならない"
+            "状態ラベルと戻り導線を常時出すぶん表示要素は増えるため、主要操作と状態以外の補助情報は段階的開示にし、一覧の列は利用頻度と誤操作コストで固定する"
           ]
         }
       ]
     },
     {
-      "id": "qa-ops-web-drift-repair",
-      "question": "maintenance-ops×web: 実体と正本の形がずれて公開が落ちたとき、どの順で直すか。台帳そのものを書き換えて揃えることを許すか (書面入力 docs/spec/11-CI-CD・品質ゲート仕様.md §4-1-2 落ちたときの直し方)",
-      "answer": "1. 出力の `missing`（不足）/ `extra`（余り）/ `changed`（同名異所属・異定義）を読む\n2. 自動公開の再実行で押し切らず、その環境の公開と手動適用を止める\n3. 必ず控えを取り、新しい番号の**前方修復マイグレーション**で実体を正本へ寄せる。\n   適用済みファイルは書き換えない。列削除は §4-1 の 2 段階の規範に従う\n4. ローカル D1 で前方修復と drift 検査を通し、対象環境の `migrate.yml` を\n   `APPLY` 付きで明示実行する。その後に通常の公開を再開する\n5. `d1_migrations` への直接 `INSERT` / `UPDATE` / `DELETE` は通常修復で行わない。\n   台帳破損のため前方移行自体を適用できない場合はこの手順の対象外とし、\n   所有者承認・復旧点・実測記録を持つ別の事故対応に切り替える\n6. `pnpm run db:drift --env dev` / `pnpm run db:drift --env production` で\n   `missing` / `extra` / `changed` がすべて 0 と確認してから公開する",
+      "id": "qa-frontend-web-affiliate-link-preview-v3",
+      "question": "frontend×web: 成果リンクを貼り付けた直後、登録判断のために何を画面へ表示するか（2026-08-29 利用者追加入力）",
+      "answer": "アフィリエイトの、えーと、リンクを貼ったら、えーと、その画像、えーと、が表示されるとか、えー、この辺、えー、とりあえず、えー、画面を見て、えー、確認もしておいてください。",
       "source": {
-        "kind": "written-requirements",
-        "path": "docs/spec/11-CI-CD・品質ゲート仕様.md",
-        "section": "§4-1-2 形のずれ / 落ちたときの直し方",
-        "sha256": "66736305cf01fd8fa5698dcdbd8838c1f25bfb8d9fa32d979175cff8e2eb25c2",
-        "resealed_with": "reseal-written-source",
-        "resealed_on": "2026-08-29"
+        "kind": "user-dialogue"
       },
       "asks_for": [
         {
-          "category": "maintenance-ops",
+          "category": "frontend",
           "platform": "web"
         }
       ],
       "design_applications": [
         {
-          "knowledge_ref": "docs/spec/11-CI-CD・品質ゲート仕様.md#§4-1-2",
-          "principle": "戻せない場所の修復は、記録を書き換えて辻褄を合わせるのではなく、新しい一歩を足して実体を正本へ寄せる",
+          "knowledge_ref": "ref-system-design-knowledge:information-design",
+          "principle": "識別子ではなく判断対象そのものを先に見せ、入力と確認結果を同じ文脈に置く",
           "applicability": "applied",
-          "rationale": "控えを取り、新しい番号の前方修復マイグレーションで実体を正本へ寄せる。適用済みファイルは書き換えない。d1_migrations への直接 INSERT/UPDATE/DELETE は通常修復で行わず、台帳破損で前方移行自体が当てられない場合は所有者承認・復旧点・実測記録を持つ別の事故対応へ切り替える",
+          "rationale": "現行の成果リンク受信箱はホスト名、URL、状態、商品IDの手入力を中心に表示し、リンクが指す商品を視覚的に照合できない。URL入力後は安全なサーバー取得を経て、取得元、正規URL、商品タイトル、販売元、利用可能な商品画像、価格の取得時点、既存商品候補、重複候補を一つの確認カードに表示する。画像が取得できない場合も壊れた枠にせず、取得不可の理由と手動選択を同じ位置に出す。確認前は保存可能な成果リンクとして扱わない",
           "tradeoffs": [
-            "戻す操作を使わないので、失敗した移行の記録も列に残り続ける。履歴は事実に忠実になる代わりに読みにくく長くなる",
-            "修復のたびに移行が 1 本増えるため、後から見て「どれが本筋か」が分かりにくくなる",
-            "壊れた状態を即座に消せない。直るまでの間、ずれたままの実体で運用する時間が必ず生じる"
+            "外部URLからのメタデータ取得には遅延・失敗・画像利用条件・SSRFの危険があるため、貼り付けと同時にクライアントから直接取得せず、許可済み接続先をサーバー側で検査し、取得結果の出典と確認日時を表示する"
           ]
         },
         {
-          "knowledge_ref": "docs/spec/11-CI-CD・品質ゲート仕様.md#§4-1",
-          "principle": "直したことは、直したと言うのではなく測って示す",
+          "knowledge_ref": "ref-system-design-knowledge:usability-accessibility",
+          "principle": "非同期処理の進行、成功、部分成功、失敗と回復手段を利用者が見失わないようにする",
           "applicability": "applied",
-          "rationale": "自動公開の再実行で押し切らず、その環境の公開と手動適用を止める。ローカル D1 で前方修復と drift 検査を通してから migrate.yml を APPLY 付きで明示実行し、db:drift で missing / extra / changed がすべて 0 と確認してから公開を再開する",
+          "rationale": "リンク貼り付け後は解析中、確認待ち、取得済み、画像のみ未取得、重複、取得失敗を可視テキストで区別し、入力値を保持したまま再試行、手動補完、対象外を選べるようにする。保存後は保存済み時刻と掲載先件数を表示し、一覧へ戻っても同じ状態語彙を使う",
           "tradeoffs": [
-            "直したという申告だけでは公開を再開できないので、復旧までの時間が検査 1 回分ずつ延びる",
-            "検査そのものが落ちている状況では、実体が直っていても再開できず、手当ての経路が別途要る",
-            "検査が見るのは形の一致だけなので、これを合格の唯一の根拠にすると「形は合ったが直っていない」を見逃す"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "qa-infra-web-branch-flow",
-      "question": "公開へ至る枝の順番は、何によって守られるか。またワークフローはどの単位で分かれているか。",
-      "answer": "| `branch-flow.yml` | main への PR | 比較元の枝を見る | **なし** |\n`branch-flow.yml` を `ci.yml` に混ぜなかった理由は、見ているものが違うからである。\n`ci.yml` は**中身が正しいか**を、`branch-flow.yml` は**どこから来たか**を見る。\n混ぜると、枝の順番だけを守らせたい場面で検査一式が動く。\n| CI-AC-03 | ワークフローが壊すものの重さで分かれている（検査 / 枝の順番 / 公開 / 構造変更 / 深い門 / AI 評価 / Actions 使用量の 7 本） | — |\n| CI-AC-20 | `main` への PR は比較元が `dev` か `hotfix/*` でないとマージ前に落ちる | — |",
-      "source": {
-        "kind": "written-requirements",
-        "path": "docs/spec/11-CI-CD・品質ゲート仕様.md",
-        "section": "§3 ワークフローの分かれ方 / §7 受け入れ条件 CI-AC-03・CI-AC-20",
-        "sha256": "cd30626f29f6f852a238ec91ea14ac523e709c169be081083f48726d43384caa",
-        "resealed_with": "reseal-written-source",
-        "resealed_on": "2026-08-29"
-      },
-      "asks_for": [
-        {
-          "category": "infrastructure",
-          "platform": "web"
-        }
-      ],
-      "design_applications": [
-        {
-          "knowledge_ref": "docs/spec/11-CI-CD・品質ゲート仕様.md#§3",
-          "principle": "見張りは、見ているものが違うなら分けて置く。中身が正しいかと、どこから来たかは別の問いである",
-          "applicability": "applied",
-          "rationale": "枝の順番だけを守らせたい場面で検査一式が動くと、順番の違反を知るまでに検査 1 本ぶんの時間がかかり、順番を直すだけの PR も同じ待ち時間を負う。分けておけば、どこから来たかの判定は検査の完了を待たずに返る",
-          "tradeoffs": [
-            "ワークフローが 7 本に増え、どれがどれを見ているかを把握する手間が増える",
-            "門ごとに起動の重複が生じ、Actions 使用量は 1 本に束ねるより増える",
-            "1 つの PR に対する結果が 7 個に散るため、全部緑かどうかを見るには一覧をたどる必要がある"
-          ]
-        },
-        {
-          "knowledge_ref": "docs/spec/11-CI-CD・品質ゲート仕様.md#§7",
-          "principle": "合流できる経路を機械で狭める。作業者の記憶ではなく、マージ前に落ちる仕組みで守る",
-          "applicability": "applied",
-          "rationale": "main へ直接出せてしまうと dev だけが古いまま取り残され、開発環境で確かめる手段が失われる。比較元を機械が見て落とすなら、間違えた側は必ず気づく",
-          "tradeoffs": [
-            "正当な例外 (dev が壊れていて hotfix でもない状況) でも一律に落ちるため、迂回には枝の付け替えが要る",
-            "hotfix/* を通した後に dev へ戻す作業は機械が強制しないので、そこは依然として人の手順に依存する",
-            "枝名の綴りに判定が依存し、命名規則を変えるとゲートも同時に直す必要がある"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "qa-infra-web-deploy-steps",
-      "question": "通常の公開は、どの順序で何をするか。その並びのどこが支点で、同じ対象を変えうる別経路とはどう調停するか。",
-      "answer": "`deploy.yml` は dev / 本番のどちらでも、通常の公開を1 本で完了させる。\n1. 控えを取る（`wrangler d1 export`）\n2. **中身が空でないことを確かめる。空ならそこで止まり、適用へ進まない**\n3. 成果物として 30 日保管する（落ちても控えが残るよう、適用より先に保存する）\n4. データの形を適用する\n5. 未適用が 0 件になったことを確かめる（公開の直前・§4-1-1）\n6. 実際の表・列・索引・トリガーが正本と合うことを確かめる（§4-1-2）\n7. アプリを公開する\n2 が支点である。ここが通らなければ 4 は起きない。\n- `deploy.yml` と `migrate.yml` は、同じ dev / production の D1 を同時に変更しない。\n  同一環境の concurrency group を共有し、先に始まったほうが台帳・形の確認まで終わるのを待つ",
-      "source": {
-        "kind": "written-requirements",
-        "path": "docs/spec/11-CI-CD・品質ゲート仕様.md",
-        "section": "§4-1 データの形は、控えが取れたときだけ変える",
-        "sha256": "5cb5c4b591ef3f055ea5556553d8bbdb14c437e26980e5ce7f7962b3ac049ca7",
-        "resealed_with": "reseal-written-source",
-        "resealed_on": "2026-08-29"
-      },
-      "asks_for": [
-        {
-          "category": "infrastructure",
-          "platform": "web"
-        }
-      ],
-      "design_applications": [
-        {
-          "knowledge_ref": "docs/spec/11-CI-CD・品質ゲート仕様.md#§4-1",
-          "principle": "戻せない操作を機械にやらせる条件は 1 つだけである — 戻る先があること。控えを取るだけでなく、中身が空でないことを確かめ、適用より先に保管する",
-          "applicability": "applied",
-          "rationale": "控えの取得が成功を返しても中身が空なら戻る先は無い。空検査を適用の手前に置き、保管を適用より先に済ませることで、適用が落ちた瞬間にも既に控えが残っている状態を作る",
-          "tradeoffs": [
-            "公開のたびに控えの取得・検査・保管の 3 手が必ず走るため、形を変えない公開でも所要時間が延びる",
-            "30 日ぶんの成果物を保持するので保管量と費用が積み上がる",
-            "空でないことしか見ないので、中身が壊れている控えは通る。戻る先が在ることの保証は完全ではない"
-          ]
-        },
-        {
-          "knowledge_ref": "docs/spec/11-CI-CD・品質ゲート仕様.md#§4-1",
-          "principle": "同じものを変えうる経路が 2 本あるなら同時に走らせない。片方の途中の状態を、もう片方が正本として読む",
-          "applicability": "applied",
-          "rationale": "deploy と migrate が同一環境の D1 を同時に触ると、台帳の未適用件数も形の一致確認も、相手の途中経過を見て判定してしまう。concurrency group を共有し、先に始まったほうが確認まで終わるのを待たせる",
-          "tradeoffs": [
-            "同一環境への 2 経路が直列化するため、移行中の公開は待ち行列に入る",
-            "片方が詰まると無関係な変更の公開まで巻き添えで待つ",
-            "group を環境ごとに切る前提なので、環境名を誤ると別環境どうしが不要に直列化する"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "qa-infra-web-post-deploy-smoke",
-      "question": "公開が終わったあと、動いていることをどう確かめるか。1 回の確認で足りるか。",
-      "answer": "「デプロイ成功」はファイルが届いたことしか意味しない。\n- スモークテストを **30 秒待つ → 1 回目 → 90 秒待つ → 2 回目** の二段構えで実行する。\n  Cloudflare Workers は旧版の実行環境を数十秒〜1〜2 分保持するため、\n  1 回だけの確認では反映を判定できない（直っているのに落ちる／壊れているのに通る、が両方起こる）。\n- スモークテストが落ちたらワークフローを失敗させる。\n  **「デプロイは成功したがアプリは壊れている」を緑で通さない。**",
-      "source": {
-        "kind": "written-requirements",
-        "path": "docs/spec/11-CI-CD・品質ゲート仕様.md",
-        "section": "§4-3 公開後は必ず確かめる",
-        "sha256": "36ec5dffe8bab717cd0b29c380be09b32681389445498c40f9036dd0a670c71c",
-        "resealed_with": "reseal-written-source",
-        "resealed_on": "2026-08-29"
-      },
-      "asks_for": [
-        {
-          "category": "infrastructure",
-          "platform": "web"
-        }
-      ],
-      "design_applications": [
-        {
-          "knowledge_ref": "docs/spec/11-CI-CD・品質ゲート仕様.md#§4-3",
-          "principle": "届いたことと動いていることは別である。公開の成功をもって正常とみなさない",
-          "applicability": "applied",
-          "rationale": "デプロイ成功はファイルが届いたことしか意味しない。実際に応答を取りに行って初めて、壊れているかどうかが分かる",
-          "tradeoffs": [
-            "公開のたびに待ち時間と確認 2 回ぶんが加算され、ワークフローの所要時間が最低でも 2 分ほど延びる",
-            "スモークテスト自体が不安定だと、正常な公開まで赤くなる",
-            "確認するのは叩いた経路だけで、叩いていない画面の故障は依然として通る"
-          ]
-        },
-        {
-          "knowledge_ref": "docs/spec/11-CI-CD・品質ゲート仕様.md#§4-3",
-          "principle": "実行環境が入れ替わる途中で測らない。間隔を空けて 2 回測り、両方で判定する",
-          "applicability": "applied",
-          "rationale": "Cloudflare Workers は旧版の実行環境を数十秒から 1〜2 分保持する。1 回だけの確認では、直っているのに落ちる場合と壊れているのに通る場合が両方起こる",
-          "tradeoffs": [
-            "30 秒 + 90 秒の待機が固定費として公開のたびにかかる",
-            "保持時間が想定より長い環境では 2 回目でも旧版を掴む可能性が残る",
-            "待ち時間を仕様に埋め込んだので、基盤側の挙動が変われば仕様の側も直す必要がある"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "qa-ops-web-rollback",
-      "question": "公開後の確認で壊れていると分かったとき、どう戻すか。その手順はどこに書くか。",
-      "answer": "「デプロイ成功」はファイルが届いたことしか意味しない。\n- スモークテストが落ちたらワークフローを失敗させる。\n  **「デプロイは成功したがアプリは壊れている」を緑で通さない。**\n- 戻し方は `wrangler rollback`。手順を運用文書に書く。",
-      "source": {
-        "kind": "written-requirements",
-        "path": "docs/spec/11-CI-CD・品質ゲート仕様.md",
-        "section": "§4-3 公開後は必ず確かめる",
-        "sha256": "38defc9c7a1d1ee9806c9fc20347ccf1e738a43541616ee6afa358439f59204a",
-        "resealed_with": "reseal-written-source",
-        "resealed_on": "2026-08-29"
-      },
-      "asks_for": [
-        {
-          "category": "maintenance-ops",
-          "platform": "web"
-        }
-      ],
-      "design_applications": [
-        {
-          "knowledge_ref": "docs/spec/11-CI-CD・品質ゲート仕様.md#§4-3",
-          "principle": "デプロイは成功したがアプリは壊れている、を緑で通さない。確認が落ちたらワークフロー自体を失敗させる",
-          "applicability": "applied",
-          "rationale": "確認だけ走らせて結果を握り潰すと、記録上は成功した公開が並び、壊れた版がいつ入ったかを後から特定できなくなる",
-          "tradeoffs": [
-            "確認の失敗が公開の失敗として記録されるため、原因がアプリ側か確認側かは記録だけでは分からない",
-            "赤が増えることで、赤に慣れて見なくなる方向の圧力がかかる"
-          ]
-        },
-        {
-          "knowledge_ref": "docs/spec/11-CI-CD・品質ゲート仕様.md#§4-3",
-          "principle": "戻す手立ては、あることではなく書いてあることで担保する。手順を運用文書に置く",
-          "applicability": "applied",
-          "rationale": "戻せる仕組みが在っても、壊れている最中に手順を思い出せなければ使えない。文書にあることが、慌てている人にとっての可用性である",
-          "tradeoffs": [
-            "文書が実際の手順から遅れると、書いてあるのに動かない状態になり、無いよりたちが悪い",
-            "rollback はコードだけを戻すのでデータの形は戻らず、移行を伴う公開では単独では足りない"
+            "状態を細分化すると表示語彙が増えるため、内部状態をそのまま露出せず、利用者が次に行える操作が同じものは一つの表示状態にまとめる"
           ]
         }
       ]
@@ -4318,139 +4137,68 @@
       }
     },
     {
-      "category": "infrastructure",
+      "category": "ui-ux",
       "platform": "web",
-      "reason": "現行 docs/spec/11-CI-CD・品質ゲート仕様.md §4-1 が公開手順を 7 手にし、適用の後・公開の前に実体と正本の形が合うことを確かめる段 (§4-1-2) を必須に加えたが、確定要件は 4 手のままでこの段も deploy/migrate 同時実行の禁止も持たない。C05 の design_knowledge_reflection が high で検出した接地切れを直すため再オープンする。",
+      "reason": "2026-08-29 利用者が、管理画面の認知負荷を極限まで下げ、新規作成・改善・保存・アフィリエイト一覧・リンク設定を直感的にし、現行画面を実見して確認するよう追加要求した。既存確定は単一用途と一覧を含むが、操作完了までの認知負荷と掲載状態の可視化を追加ヒアリングへ戻す必要がある。",
       "from": "確定",
       "discarded": {
-        "qa_ref": "qa-infra-web-migration-guard",
+        "qa_ref": "qa-uiux-web-seo-ai-search-v2",
         "qa_refs": [
-          "qa-infra-web-migration-guard",
-          "qa-infra-web-spec-intake",
-          "qa-infra-web",
-          "qa-infra-web-redirect"
+          "qa-uiux-web-seo-ai-search-v2",
+          "qa-uiux-web-blog-builder",
+          "qa-uiux-web-screen-priority",
+          "qa-uiux-web-spec-intake",
+          "qa-uiux-web",
+          "qa-uiux-web-overhaul-v2"
         ],
         "serves_goals": [
-          "G2",
-          "G1"
+          "G1",
+          "G2"
         ],
-        "required_info_checks": [
+        "required_info": [
           {
-            "checked_on": "2026-08-25",
-            "checked_with": "record-required-info-check",
-            "blocking_item_count": 0
+            "item_id": "product-goal",
+            "missing_effect": "block",
+            "status": "grounded",
+            "grounded_by": "qa-foundation-u1"
           },
           {
-            "checked_on": "2026-08-25",
-            "checked_with": "record-required-info-check",
-            "blocking_item_count": 0,
-            "unmet_blocking_items": 0
-          }
-        ]
-      }
-    },
-    {
-      "category": "maintenance-ops",
-      "platform": "web",
-      "reason": "現行 §4-1-2 が形のずれで落ちたときの直し方 (控えを取る → 新しい番号の前方修復 → 適用済みファイルは書き換えない → d1_migrations への直接 DML を通常修復で行わない) を規範として置いたが、確定要件は 1 項目も持たない。同じ接地切れを直すため再オープンする。",
-      "from": "確定",
-      "discarded": {
-        "qa_ref": "qa-ops-web-migration-guard",
-        "qa_refs": [
-          "qa-ops-web-migration-guard",
-          "qa-ops-web-spec-intake",
-          "qa-ops-web"
-        ],
-        "serves_goals": [
-          "G1",
-          "G2"
-        ],
-        "required_info_checks": [
-          {
-            "checked_on": "2026-08-25",
-            "checked_with": "record-required-info-check",
-            "blocking_item_count": 0
+            "item_id": "screen-information-priority",
+            "missing_effect": "block",
+            "status": "grounded",
+            "grounded_by": "qa-uiux-web-screen-priority"
           },
           {
+            "item_id": "target-platforms",
+            "missing_effect": "block",
+            "status": "grounded",
+            "grounded_by": "qa-platform-scope"
+          }
+        ],
+        "required_info_checks": [
+          {
             "checked_on": "2026-08-25",
             "checked_with": "record-required-info-check",
-            "blocking_item_count": 0,
+            "blocking_item_count": 3,
             "unmet_blocking_items": 0
           }
         ]
       }
     },
     {
-      "category": "infrastructure",
+      "category": "frontend",
       "platform": "web",
-      "reason": "現行 docs/spec/11 §7 の受け入れ条件のうち CI-AC-03 (ワークフローは壊すものの重さで 7 本に分かれる) と CI-AC-20 (main への PR は比較元が dev か hotfix/* でないと落ちる) が 11 章のどこにも接地していない。C05 の再評価が gap 3 の未解消分として指摘したため再オープンする。",
+      "reason": "2026-08-29 利用者が、アフィリエイトリンク貼り付け直後に商品画像が表示されることを具体例として追加要求した。現行受信箱はURL・ホスト・状態・手入力項目のみで画像プレビューが無いため、フロントエンド表示契約を追加ヒアリングへ戻す。",
       "from": "確定",
       "discarded": {
-        "qa_ref": "qa-infra-web-schema-drift",
+        "qa_ref": "qa-frontend-web-seo-ai-search-v2",
         "qa_refs": [
-          "qa-infra-web-schema-drift",
-          "qa-infra-web-migration-guard",
-          "qa-infra-web-spec-intake",
-          "qa-infra-web",
-          "qa-infra-web-redirect"
-        ],
-        "serves_goals": [
-          "G2",
-          "G1"
-        ],
-        "required_info_checks": [
-          {
-            "checked_on": "2026-08-29",
-            "checked_with": "record-required-info-check",
-            "blocking_item_count": 0,
-            "unmet_blocking_items": 0
-          }
-        ]
-      }
-    },
-    {
-      "category": "infrastructure",
-      "platform": "web",
-      "reason": "2026-08-29 の C05 再評価が gaps[2] として、確定要件の答えが §4-1 の公開手順 7 手のうち 3 (成果物として 30 日保管する) を落としており 1./2./4./5./6./7. の並びになっていることを指摘した。手順を欠けたまま確定要件に据えると、控えを取ったが保管しない実装が要件を満たしたことになる。7 手を欠けなく持つ確定要件へ差し替えるため再オープンする。",
-      "from": "確定",
-      "discarded": {
-        "qa_ref": "qa-infra-web-branch-flow",
-        "qa_refs": [
-          "qa-infra-web-branch-flow",
-          "qa-infra-web-schema-drift",
-          "qa-infra-web-migration-guard",
-          "qa-infra-web-spec-intake",
-          "qa-infra-web",
-          "qa-infra-web-redirect"
-        ],
-        "serves_goals": [
-          "G1"
-        ],
-        "required_info_checks": [
-          {
-            "checked_on": "2026-08-29",
-            "checked_with": "record-required-info-check",
-            "blocking_item_count": 0,
-            "unmet_blocking_items": 0
-          }
-        ]
-      }
-    },
-    {
-      "category": "infrastructure",
-      "platform": "web",
-      "reason": "2026-08-29 の C05 再評価が新規 medium として、docs/spec/11 §4-3 と CI-AC-05 (公開後スモークテストを間隔を空けて 2 回) がどの章にも接地しておらず、確定要件が『7. アプリを公開する』で終わっていることを指摘した。公開が届いたことと動いていることは別なので、公開後の確認まで含む確定要件へ差し替えるため再オープンする。",
-      "from": "確定",
-      "discarded": {
-        "qa_ref": "qa-infra-web-deploy-steps",
-        "qa_refs": [
-          "qa-infra-web-deploy-steps",
-          "qa-infra-web-branch-flow",
-          "qa-infra-web-schema-drift",
-          "qa-infra-web-migration-guard",
-          "qa-infra-web-spec-intake",
-          "qa-infra-web",
-          "qa-infra-web-redirect"
+          "qa-frontend-web-seo-ai-search-v2",
+          "qa-frontend-web-blog-builder",
+          "qa-frontend-web-spec-intake",
+          "qa-frontend-web",
+          "qa-frontend-web-analytics",
+          "qa-frontend-web-overhaul-v2"
         ],
         "serves_goals": [
           "G1",
@@ -4458,34 +4206,7 @@
         ],
         "required_info_checks": [
           {
-            "checked_on": "2026-08-29",
-            "checked_with": "record-required-info-check",
-            "blocking_item_count": 0,
-            "unmet_blocking_items": 0
-          }
-        ]
-      }
-    },
-    {
-      "category": "maintenance-ops",
-      "platform": "web",
-      "reason": "同じ再評価が §4-3 の未接地を指摘した。公開後に壊れていると分かったときの戻し方 (wrangler rollback) と、それを運用文書へ書くという規範が maintenance-ops のどこにも無い。前方修復だけを持ち、戻す手立てを持たない確定要件になっていたため再オープンする。",
-      "from": "確定",
-      "discarded": {
-        "qa_ref": "qa-ops-web-drift-repair",
-        "qa_refs": [
-          "qa-ops-web-drift-repair",
-          "qa-ops-web-migration-guard",
-          "qa-ops-web-spec-intake",
-          "qa-ops-web"
-        ],
-        "serves_goals": [
-          "G1",
-          "G2"
-        ],
-        "required_info_checks": [
-          {
-            "checked_on": "2026-08-29",
+            "checked_on": "2026-08-25",
             "checked_with": "record-required-info-check",
             "blocking_item_count": 0,
             "unmet_blocking_items": 0
@@ -5869,10 +5590,10 @@
   ],
   "knowledge_candidates": [],
   "hearing_progress": {
-    "loop_count": 4,
+    "loop_count": 2,
     "next_question": null,
     "complete": true,
-    "max_loops": 8,
+    "max_loops": 5,
     "max_loops_policy": "strict"
   },
   "asks_for_contract": {

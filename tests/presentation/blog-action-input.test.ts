@@ -16,14 +16,14 @@ import {
   parseFiniteIntegerOrFailure,
   parseIntentOrFailure,
   parsePresentTextOrFailure,
-} from "@/presentation/admin/blog-action-input";
+} from "@/presentation/admin/publish/blog-action-input";
 import {
   manageBlogLayoutAction,
-} from "@/presentation/admin/blog-layout-action";
-import { manageBlogArticleAction } from "@/presentation/admin/blog-article-action";
-import { manageBlogPageAction } from "@/presentation/admin/blog-page-action";
-import { INITIAL_BLOG_OPS_STATE } from "@/presentation/admin/blog-ops-state";
-import { manageSiteNetworkAction } from "@/presentation/admin/site-network-action";
+} from "@/presentation/admin/publish/blog-layout-action";
+import { manageBlogArticleAction } from "@/presentation/admin/publish/blog-article-action";
+import { manageBlogPageAction } from "@/presentation/admin/publish/blog-page-action";
+import { INITIAL_BLOG_OPS_STATE } from "@/presentation/admin/publish/blog-ops-state";
+import { manageSiteNetworkAction } from "@/presentation/admin/publish/site-network-action";
 
 const actionDoubles = vi.hoisted(() => ({
   saveLayoutBand: vi.fn(async () => ({ ok: true as const, value: true as const })),

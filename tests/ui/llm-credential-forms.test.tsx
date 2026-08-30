@@ -25,7 +25,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 let actionResult: unknown = { status: "idle", message: "" };
 const sent: FormData[] = [];
 
-vi.mock("@/presentation/admin/llm-credential-action", () => ({
+vi.mock("@/presentation/admin/maintain/llm-credential-action", () => ({
   manageLlmCredentialAction: async (_prev: unknown, formData: FormData) => {
     sent.push(formData);
     return actionResult;
@@ -33,7 +33,7 @@ vi.mock("@/presentation/admin/llm-credential-action", () => ({
 }));
 
 const { RegisterLlmKeyForm, RevokeLlmKeyForm, VerifyLlmKeyForm } = await import(
-  "@/presentation/admin/llm-credential-form"
+  "@/presentation/admin/maintain/llm-credential-form"
 );
 
 const MODELS = [

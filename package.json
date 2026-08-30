@@ -30,6 +30,7 @@
     "content:validate": "node .claude/plugins/affiliate-content-harness/scripts/validate-content-set.mjs --content-set blog-content/quiet-rental --content-set blog-content/kids-english-trial",
     "acceptance:reconcile": "node scripts/acceptance-reconciliation.mjs",
     "check:reference-reuse": "node scripts/check-reference-site-reuse.mjs",
+    "content:validate": "node .claude/plugins/affiliate-content-harness/scripts/validate-content-set.mjs --content-set blog-content/quiet-rental --content-set blog-content/kids-english-trial",
     "verify": "node scripts/verify.mjs",
     "mutation": "stryker run",
     "mutation:changed": "stryker run --since=origin/dev",

@@ -82,7 +82,7 @@ vi.mock("@/presentation/composition", async (importOriginal) => {
 });
 
 const { submitReaderRatingAction } = await import("@/presentation/site/reader-rating-action");
-const { manageBlogRatingAction } = await import("@/presentation/admin/blog-rating-action");
+const { manageBlogRatingAction } = await import("@/presentation/admin/publish/blog-rating-action");
 
 const READER_IDLE = { status: "idle", message: "" } as const;
 const OPS_IDLE = { status: "idle", message: "" } as const;

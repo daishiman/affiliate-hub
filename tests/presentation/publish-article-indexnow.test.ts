@@ -53,7 +53,7 @@ vi.mock("@/presentation/composition", () => ({
   }),
 }));
 
-const { publishArticleAction } = await import("@/presentation/admin/publish-article-action");
+const { publishArticleAction } = await import("@/presentation/admin/publish/publish-article-action");
 
 function publishForm(): FormData {
   const data = new FormData();

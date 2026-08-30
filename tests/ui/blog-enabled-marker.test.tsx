@@ -10,9 +10,9 @@ vi.mock("react", async (importOriginal) => {
   };
 });
 
-const { BlogDeliveryForm } = await import("@/presentation/admin/blog-delivery-form");
+const { BlogDeliveryForm } = await import("@/presentation/admin/publish/blog-delivery-form");
 const { BlogLayoutBandForm, BlogLayoutSlotForm } = await import(
-  "@/presentation/admin/blog-layout-form"
+  "@/presentation/admin/publish/blog-layout-form"
 );
 
 describe("checkbox の存在marker", () => {

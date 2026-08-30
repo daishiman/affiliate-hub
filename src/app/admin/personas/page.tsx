@@ -1,5 +1,5 @@
 import { AdminShell } from "@/presentation/admin/admin-shell";
-import { type AuthorOption, FactBoundaryCheckForm } from "@/presentation/admin/fact-boundary-form";
+import { type AuthorOption, FactBoundaryCheckForm } from "@/presentation/admin/write/fact-boundary-form";
 import {
   currentActor,
   personaStorageNotice,

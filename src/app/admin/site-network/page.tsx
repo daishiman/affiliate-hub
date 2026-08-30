@@ -5,7 +5,7 @@ import {
   OperationalHealthControls,
   OperationalHealthView,
   parseOperationalHealthQuery,
-} from "@/presentation/admin/operational-health-view";
+} from "@/presentation/admin/publish/operational-health-view";
 import {
   Callout,
   DataTable,

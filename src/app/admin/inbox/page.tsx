@@ -7,7 +7,7 @@ import {
   AdvanceIngestionForm,
   type ProgramOption,
   SubmitAffiliateUrlForm,
-} from "@/presentation/admin/inbox-forms";
+} from "@/presentation/admin/earn/inbox-forms";
 import {
   affiliateUseCases,
   currentActor,

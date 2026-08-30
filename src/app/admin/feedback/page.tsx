@@ -5,7 +5,7 @@ import {
   FEEDBACK_STATUS_LABELS,
 } from "@/domain/feedback";
 import { AdminShell } from "@/presentation/admin/admin-shell";
-import { FeedbackHandoffForm } from "@/presentation/admin/feedback-forms";
+import { FeedbackHandoffForm } from "@/presentation/admin/maintain/feedback-forms";
 import { currentActor, feedbackNotice, feedbackUseCases } from "@/presentation/composition";
 import {
   Callout,

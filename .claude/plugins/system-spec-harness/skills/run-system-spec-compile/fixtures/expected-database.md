@@ -103,7 +103,7 @@ businessの重要なruleと用語をmodel/code/会話で一致させ、複雑性
 
 - 確定要件: PostgreSQL 16 を全プラットフォーム共通で採用
 - 設計解釈の記録経路: `unrecorded`
-- 設計原則の採否根拠: (未記録 — qa_log[].design_applications を writer 経由で補完すること)
+- 設計原則の採否根拠: 未記録。この質疑に `design_applications` が無いため、章はこの質疑を根拠に設計原則の採否を主張しない
 - 資するゴール: G1
 
 ## 最新ドキュメント出典

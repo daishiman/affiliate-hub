@@ -60,7 +60,14 @@ let deps: AppDeps;
 const owner: ActorContext = anOwner({ workspaceId: WORKSPACE });
 const otherOwner: ActorContext = anOwner({ workspaceId: OTHER_WORKSPACE });
 
-const SITE = "makuring";
+/**
+ * 計測イベントに載せるブログの slug。**ただの値**で、実在サイトを指す必要はない。
+ * 以前は参考サイトのホスト名をそのまま置いていたが、
+ * 転用ゲート (`scripts/check-reference-site-reuse.mjs`) が禁じている実名の写しであり、
+ * この検査が見ているのは「送った slug がそのまま数字の切り口になるか」だけなので、
+ * 中立な slug に置き換えた。値は path 側とここで必ず一致させる。
+ */
+const SITE = "sample-blog";
 
 /** 何の切り口も指定していない状態。数字を直接書き込めないことの確認だけに使う。 */
 const EMPTY_DIMENSIONS: MetricDimensions = {
@@ -124,7 +131,7 @@ function pageView(over: Record<string, unknown> = {}) {
   return {
     key: "page_view",
     payload: {
-      path: "/s/makuring/a/laptop",
+      path: `/s/${SITE}/a/laptop`,
       siteSlug: SITE,
       referrerKind: "search",
       ...over,
@@ -135,14 +142,14 @@ function pageView(over: Record<string, unknown> = {}) {
 function pageExit(seconds: number, percent = 60) {
   return {
     key: "page_exit",
-    payload: { path: "/s/makuring/a/laptop", siteSlug: SITE, percent, seconds },
+    payload: { path: `/s/${SITE}/a/laptop`, siteSlug: SITE, percent, seconds },
   };
 }
 
 function scrollDepth(percent: number) {
   return {
     key: "scroll_depth",
-    payload: { path: "/s/makuring/a/laptop", siteSlug: SITE, percent },
+    payload: { path: `/s/${SITE}/a/laptop`, siteSlug: SITE, percent },
   };
 }
 
@@ -159,7 +166,7 @@ async function row(actor: ActorContext, key: string) {
 describe("計測から数字までを本物の D1 で通す", () => {
   it("送ったページ表示が、そのまま表示回数の数字になる", async () => {
     const written = await record().execute(owner, {
-      events: [pageView(), pageView({ path: "/s/makuring/a/tablet" }), pageView()],
+      events: [pageView(), pageView({ path: `/s/${SITE}/a/tablet` }), pageView()],
       signals: CONSENTED,
     });
     expect(written.ok && written.value.accepted, "受け取れていません").toBe(3);

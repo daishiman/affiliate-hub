@@ -28,7 +28,7 @@ vi.mock("@/presentation/composition", () => ({
 }));
 
 const { createAuthorPersonaAction, createAudiencePersonaAction } = await import(
-  "@/presentation/admin/persona-form-action"
+  "@/presentation/admin/write/persona-form-action"
 );
 
 const IDLE = { status: "idle", message: "" } as const;

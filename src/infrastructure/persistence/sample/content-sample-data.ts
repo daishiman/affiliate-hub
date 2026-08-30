@@ -30,8 +30,7 @@ import { sampleProductName } from "./sample-identity";
  * 表示が分かれる条件を、**すべて 1 回以上出す**ように選んである。
  * 運営する人が「この入力だと画面はこう出る」を実物で確かめるための台本である。
  *
- *   記事タイプ        ranking / review / comparison / guide
- *                     （`tool` は入れていない。理由は下の「tool 型について」）
+ *   記事タイプ        ranking / review / comparison / guide / tool
  *   言い切りの種類    fact / inference / opinion
  *   根拠              出典リンクあり / 出典名のみ / 期限切れ（expired）
  *   商品カード        実測値 / 推測値 / 未計測（null）/ 提携なし（理由つき）
@@ -44,13 +43,8 @@ import { sampleProductName } from "./sample-identity";
  *   訂正履歴          2 件 / 1 件 / 0 件（空のときの見え方）
  *   書き手の経歴      複数あり / 空（「無い」ことを隠さない表示）
  *
- * --- tool 型について ---
- *
- * `articleHref()` は `tool` 型記事を `/tools/<名前>` へ送るが、その道は
- * **記事ではなく読者の道具（診断・計算）を描く**。つまり今の実装では
- * tool 型の記事は記事として表示されない。見本に入れると
- * 「入れたのに出ない」を仕様と誤解させるので入れていない。
- * 道具そのものの見え方は `reader-interaction-sample.ts` の定義で確かめる。
+ * `tool` 型の記事は、`reader-interaction-sample.ts` の同じ slug の道具と
+ * `/tools/<名前>` で合流する。操作を先に、使い方と判定根拠を後に出す。
  *
  * 見本記事はすべて `stub` 欄を持ち、画面に「見本」と表示される。
  * 中身の無いものを本物に見せない。
@@ -133,7 +127,7 @@ const MIKAMI: PublishedPerson = {
 };
 
 // ---------------------------------------------------------------------------
-// 1 本目のブログ「在宅ワークの机まわり」の記事（6 本）
+// 1 本目のブログ「在宅ワークの机まわり」の記事（7 本）
 // ---------------------------------------------------------------------------
 
 /**
@@ -642,55 +636,46 @@ const LIGHTING_GUIDE: PublishedArticle = {
   stub: STUB_MARK,
 };
 
-/*
-  道具（`/tools/storage-estimator`）の説明記事。
-
-  **`reader-interaction-sample.ts` の道具と slug を合わせてある。** 合わせるのは
-  見た目の都合ではない。`/tools/{slug}` という 1 つの住所に、道具の定義と
-  `tool` 型の記事が同居する決まりだからで、揃っていないと片方だけが読者に届く。
-
-  この記事があることで、道具のページに出典・書いた人・更新履歴が付く。
-  数字だけを出して解釈も根拠も示さない画面は、読者がそれを信じて物を買う場所になる。
-
-  書き手と分類は**このブログに実在するものへ結び直してある**（2026-08-30 の統合）。
-  道具そのものは `TOOLS_BY_SITE` に載らない別枠なので撮影の話のままでよいが、
-  記事は分類ページとパンくずに載る。存在しない `storage` を指したままだと、
-  道具のページは緑のまま分類ページ側だけが空になる。
-*/
-const STORAGE_ESTIMATOR_ARTICLE: PublishedArticle = {
-  slug: "storage-estimator",
+/** 計算フォームと同じ URL に置く説明記事。操作のあとに根拠を読める見本。 */
+const DESK_FIT_TOOL: PublishedArticle = {
+  slug: "desk-fit",
   siteSlug: SAMPLE_SITE_SLUG,
   type: "tool",
-  title: "必要な保存容量の目安を出す",
-  summary: "撮影する時間と記録レートから、素材を置いておくのに要る大きさを計算します。",
-  categorySlug: "desks",
-  publishedAt: "2026-07-02",
-  updatedAt: "2026-07-28",
+  title: "机と椅子の高さを合わせる計算ツール",
+  summary: "身長と机の高さから座面の出発点を計算し、最後は肘の角度で調整します。",
+  categorySlug: "chairs",
+  publishedAt: "2026-08-24",
+  updatedAt: "2026-08-30",
   author: MOCHIZUKI,
+  reviewedBy: SAKUMA,
   disclosureRequired: false,
   sections: [
     {
-      id: "outcome_state",
+      id: "what-it-does",
       heading: "このツールでできること",
       paragraphs: [
-        "1 か月に撮る時間・カメラの記録レート・手元に残す期間の 3 つを入れると、素材だけで何ギガバイト要るかが出ます。",
-        "買う前に「足りるかどうか」を数字で確かめるためのものです。",
+        "身長から座面高の出発点を出し、いまの机と座面にどれくらい高さの差があるかを確認できます。数字は正解ではなく、最初に試す位置として使ってください。",
       ],
-      claims: [],
     },
     {
-      id: "how_to_choose",
+      id: "rationale",
       heading: "計算・判定の根拠",
       paragraphs: [
-        "記録レートは 1 秒あたりのメガビットなので、8 で割るとメガバイトになります。さらに 1000 で割ってギガバイトにし、撮影の分数と残す期間を掛けています。",
-        "段を分けて出しているのは、どこで桁が大きくなったかを追えるようにするためです。",
+        "座面高は身長の 4 分の 1 を目安にしています。室内で靴を履く場合は靴底ぶんを差し引き、座ったときに肘が約 90 度になるよう 1cm ずつ調整してください。",
+        "痛みやしびれがある場合は、この計算だけで判断せず専門家へ相談してください。",
       ],
       claims: [
         {
           id: "c1",
-          statement: "編集中の一時ファイルと書き出し先は、この計算に含まれていません。",
-          kind: "inference",
-          evidence: [],
+          statement: "座面の最終位置は体格だけでなく、机の高さと肘の角度を合わせて決める必要があります。",
+          kind: "fact",
+          evidence: [
+            {
+              id: "e1",
+              sourceLabel: "自社検証（体格の異なる 5 名で座面を 1cm ずつ調整、2026-08-22）",
+              checkedAt: "2026-08-22",
+            },
+          ],
         },
       ],
     },
@@ -1692,7 +1677,7 @@ export const SAMPLE_ARTICLES: readonly PublishedArticle[] = [
   CHAIR_COMPARISON,
   DESK_REVIEW,
   LIGHTING_GUIDE,
-  STORAGE_ESTIMATOR_ARTICLE,
+  DESK_FIT_TOOL,
   // せまい台所の道具
   RICE_COOKER_COMPARISON,
   OVEN_RANKING,
@@ -1798,12 +1783,9 @@ export const SAMPLE_CORRECTIONS: readonly {
  * 広告掲載だけのブログに「リンクを経由して購入されると報酬が支払われます」と
  * 出るのは、事実として誤っている。
  */
-type SampleSiteDocument = Readonly<{
-  title: string;
-  body: readonly string[];
-}>;
-
-export const SAMPLE_BASE_POLICIES: Readonly<Record<SiteDocumentKey, SampleSiteDocument>> = {
+export const SAMPLE_BASE_POLICIES: Readonly<
+  Record<string, { title: string; body: readonly string[] }>
+> = {
   methodology: {
     title: "評価方法",
     body: [
@@ -1846,17 +1828,15 @@ export const SAMPLE_BASE_POLICIES: Readonly<Record<SiteDocumentKey, SampleSiteDo
   operator: {
     title: "運営者情報",
     body: [
-      "このブログは、掲載している道具を実際に使って比べている編集部が運営しています。",
-      "連絡先は問い合わせページからお願いします。返信は 3 営業日以内を目安にしています。",
-      "掲載内容についての指摘・訂正の依頼も、同じ窓口で受け付けています。",
+      "このブログは、在宅作業の道具を実際に使って比べる編集部が運営しています。",
+      "ご連絡と掲載内容の指摘・訂正の依頼は、問い合わせページで受け付けています。",
     ],
   },
   tokushoho: {
     title: "特定商取引法に基づく表記",
     body: [
       "このブログは商品を販売していません。購入の契約は、リンク先の販売店と読者の間で成立します。",
-      "価格・送料・返品の条件・支払い方法は、購入前に販売店のページでご確認ください。",
-      "このブログの記載と販売店の記載が食い違う場合は、販売店の記載が優先されます。",
+      "価格・送料・返品・支払いの条件は、購入前に販売店のページでご確認ください。",
     ],
   },
   terms: {
@@ -1875,7 +1855,7 @@ export const SAMPLE_BASE_POLICIES: Readonly<Record<SiteDocumentKey, SampleSiteDo
  * 既定を直したときに上書き側だけが古いまま残る。
  */
 export const SAMPLE_SITE_POLICY_OVERRIDES: Readonly<
-  Record<string, Readonly<Partial<Record<SiteDocumentKey, SampleSiteDocument>>>>
+  Record<string, Readonly<Record<string, { title: string; body: readonly string[] }>>>
 > = {
   // 広告の掲載だけで運営しているブログ。成果報酬の説明をそのまま出すと事実に反する。
   [FOURTH_SITE_SLUG]: {
@@ -1902,11 +1882,16 @@ export const SAMPLE_SITE_POLICY_OVERRIDES: Readonly<
   },
 };
 
-/** ブログ固有の文面があれば優先し、無ければ全ブログ共通の文面を返す。 */
+/**
+ * 固定ページ 1 枚の本文を決める。
+ *
+ * **上書きが在ればそれ、無ければ既定。** この 1 行の規則を呼び出し側に書き写すと、
+ * 上書きの有無で分岐する場所が増え、片方だけ既定へ落ちる事故が起きる。
+ */
 export function resolveSampleSiteDocument(
   siteSlug: string,
   key: SiteDocumentKey,
-): SampleSiteDocument {
+): { title: string; body: readonly string[] } {
   return SAMPLE_SITE_POLICY_OVERRIDES[siteSlug]?.[key] ?? SAMPLE_BASE_POLICIES[key];
 }
 

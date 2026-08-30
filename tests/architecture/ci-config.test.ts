@@ -413,20 +413,22 @@ describe("手元と機械で同じ検査が走る（REQ-CI01 / REQ-CI03）", () 
       "0037_opposite_harrier",
       // 指針本文の再評価完了版を正本化し、再取得だけでは変更警告を消さない。
       "0038_flimsy_hobgoblin",
-      /*
-        2026-08-30: 公開済み記事の取り下げ（`archived_at`）。
-
-        **この 1 本は main 側で `0019` として既に本番の D1 へ流れている。**
-        こちらの枝では番号が埋まっていたので末尾へ回したが、名前で照合する
-        仕組みから見ると `0039_gentle_archive` は「まだ流していない 1 本」に
-        見え、main へ戻した日にもう一度流れる。列は既に在るので失敗する。
-
-        流す前に、main の `d1_migrations` に何が入っているかを実物で確かめ、
-        入っているなら台帳へ手で入れて流さない側へ倒すこと。
-        （#35 の門は台帳の名前ではなく D1 の実形を比べるので、
-        取りこぼしても公開の手前で止まる。）
-      */
+      // 記事の下書き退避（dev 側で 0039 を先に埋めていた）。
       "0039_gentle_archive",
+      /*
+        2026-08-30: dev を取り込んだとき、0039 を**両側が別の中身で名乗って**いた。
+        dev の `0039_gentle_archive` は dev 環境の d1_migrations に名前が入っており、
+        こちらの `0039_daily_masque` / `0040_outgoing_valkyrie` はまだどこへも
+        流れていない。0036 のときと同じ理由で、**実体が動いていない側**を捨てる。
+
+        ただし今回はずらすのではなく **1 本へ作り直した**。2 本とも未適用なので
+        「この順で流れた」という事実が守るべきものとして存在せず、番号だけずらすと
+        中身の無い刻みが履歴に残る。schema.ts から drizzle-kit generate で
+        引き直せば、差分の出所は宣言 1 か所になる。
+        中身は捨てた 2 本の和（記事の楽観ロック + 成果リンクの取得 snapshot と
+        掲載先の逆引き）で、宣言側は変えていない。
+      */
+      "0040_merged_blog_ops",
     ];
     const journal = JSON.parse(read("drizzle/meta/_journal.json")) as {
       entries: Array<{ tag: string }>;
@@ -841,6 +843,7 @@ describe("重い検査の置き場所（REQ-CI09 / REQ-CI10 / REQ-CI11）", () =
     expect(normal?.test?.include).toEqual(["tests/**/*.test.ts", "tests/**/*.test.tsx"]);
     expect(workerRuntime?.test?.include).toEqual([
       "tests/integration/d1-*.test.ts",
+      "tests/integration/local-seed-idempotency.test.ts",
       "tests/integration/r2-feedback-capture.test.ts",
     ]);
     expect(normal?.test?.exclude).toEqual(
@@ -876,7 +879,10 @@ describe("重い検査の置き場所（REQ-CI09 / REQ-CI10 / REQ-CI11）", () =
     expect(proxyUsers.length, "getPlatformProxy の利用箇所を読めていません").toBeGreaterThan(0);
     expect(
       proxyUsers.filter(
-        (name) => !/^d1-.+\.test\.ts$/.test(name) && name !== "r2-feedback-capture.test.ts",
+        (name) =>
+          !/^d1-.+\.test\.ts$/.test(name) &&
+          name !== "local-seed-idempotency.test.ts" &&
+          name !== "r2-feedback-capture.test.ts",
       ),
       "直列 project の glob に入らない getPlatformProxy テストがあります",
     ).toEqual([]);
