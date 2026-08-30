@@ -27,6 +27,7 @@
  */
 
 import { BLOG_OPS_SAMPLE_ROUTE_IDS } from "@/infrastructure/persistence/sample/blog-ops-sample-repository";
+import { SAMPLE_ARTICLES } from "@/infrastructure/persistence/sample/content-sample-data";
 import { SAMPLE_SITE_SLUG } from "@/infrastructure/persistence/sample/site-sample-repository";
 import { ADMIN_ROUTE_METADATA } from "@/presentation/ui/admin-route-metadata";
 
@@ -59,6 +60,10 @@ const ADMIN_PARAM_EXAMPLES: Readonly<Record<string, string>> = {
   publication: "pub_own_site",
   report: "fb_sample_sort",
   site: SITE,
+  // `/admin/content/published/[site]/[slug]/edit` — 見本のブログに載っている
+  // 公開記事 1 本。文字列を手で書かないのは `article` と同じ理由で、
+  // 見本の記事が入れ替わった日に「見つかりません」を描いたまま緑になるため。
+  slug: SAMPLE_ARTICLES.find((article) => article.siteSlug === SITE)?.slug ?? "",
   variant: "cv_alpha_review",
 };
 
@@ -68,7 +73,28 @@ const ADMIN: readonly RouteCase[] = ADMIN_ROUTE_METADATA.map((route) => {
     file: route.file,
     ...(names.length === 0
       ? {}
-      : { params: Object.fromEntries(names.map((name) => [name, ADMIN_PARAM_EXAMPLES[name]])) }),
+      : {
+          params: Object.fromEntries(
+            names.map((name) => {
+              const example = ADMIN_PARAM_EXAMPLES[name];
+              /*
+                **表に無い名前は、ここで止める。** 以前は `undefined` がそのまま
+                params に入り、`resolveAdminRoute` が描画の途中で投げていた。
+                落ちる場所が「画面を描く検査」なので、原因が
+                「値の表に 1 行足し忘れた」だと読み取れず、2026-08-30 に
+                `[slug]` を足したときは 18 件が同じ例外で落ちた。
+                欠けを射影の時点で名指しすれば、足す場所がそのまま出る。
+              */
+              if (example === undefined || example === "") {
+                throw new Error(
+                  `ADMIN_PARAM_EXAMPLES に "${name}" の例がない（${route.pattern}）。` +
+                    "見本データから引ける値を 1 行足すこと。",
+                );
+              }
+              return [name, example];
+            }),
+          ),
+        }),
   };
 });
 

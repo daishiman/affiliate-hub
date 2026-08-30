@@ -1,23 +1,24 @@
 import type { TrackingCoveragePort } from "@/application/ports/analytics";
 import type {
+  EditorialPublishedArticleAdminPort,
   EditorialPublishedArticleWriterPort,
   EditorialPublishedContentPort,
   EditorialSiteDocumentRepositoryPort,
 } from "@/application/ports/site";
 import { countTrackingCoverage } from "@/application/read-models/article-tracking";
-import { SITE_DOCUMENT_KEYS } from "@/domain/authoring";
+import { SITE_DOCUMENT_KEYS, type SiteDocumentKey } from "@/domain/authoring";
 import { markEditorial, ok, type WorkspaceId } from "@/domain/shared";
 import { stubCall } from "../../stub-registry";
 import {
   CONTENT_SAMPLE_STUB,
   SAMPLE_ARTICLES,
-  SAMPLE_BASE_POLICIES,
   SAMPLE_CORRECTIONS,
   SAMPLE_PEOPLE,
-  SAMPLE_SITE_POLICY_OVERRIDES,
+  resolveSampleSiteDocument,
   sampleArticleSummaries,
   sampleArticlesBySite,
 } from "./content-sample-data";
+import { SAMPLE_WORKSPACE_ID } from "./sample-identity";
 
 /** 見本の記事であることを画面に出すための一文。 */
 export function sampleContentNotice(): string {
@@ -49,6 +50,31 @@ export function createSampleTrackingCoverage(): TrackingCoveragePort {
   };
 }
 
+/**
+ * 固定文書の見本。
+ *
+ * 読むほうは本物と同じ形で返す（見本の実行でも法定ページが読める）。
+ * **書くほうは「保存できない」と名乗る。** ここで成功を返すと、
+ * 運営者情報を書き換えたつもりの人が、次に開いたとき元の文を見ることになる。
+ */
+export function createSampleSiteDocumentRepository(): EditorialSiteDocumentRepositoryPort {
+  return markEditorial({
+    async listBySite(_workspaceId: WorkspaceId, siteSlug: string) {
+      return ok(
+        SITE_DOCUMENT_KEYS.map((key) => ({
+          key,
+          ...resolveSampleSiteDocument(siteSlug, key),
+          // 見本に「いつ直したか」は無い。作り話の日付を入れない。
+          updatedAt: null,
+        })),
+      );
+    },
+    async save() {
+      return stubCall<true>(CONTENT_SAMPLE_STUB, "固定ページの保存");
+    },
+  });
+}
+
 export function createSamplePublishedArticleWriter(): EditorialPublishedArticleWriterPort {
   return markEditorial({
     async save() {
@@ -60,24 +86,28 @@ export function createSamplePublishedArticleWriter(): EditorialPublishedArticleW
   });
 }
 
-/**
- * D1 を結ばない開発実行で、固定ページを読むための見本。
- * 読み取りは記事と同じ方針を参照し、保存は成功したふりをしない。
- */
-export function createSampleSiteDocumentRepository(): EditorialSiteDocumentRepositoryPort {
+/** D1 が無い開発実行で、公開済みを書き換えたふりをしない口。 */
+export function createSamplePublishedArticleAdminRepository(): EditorialPublishedArticleAdminPort {
   return markEditorial({
-    async listBySite(_workspaceId: WorkspaceId, siteSlug: string) {
+    async list(workspaceId) {
       return ok(
-        SITE_DOCUMENT_KEYS.flatMap((key) => {
-          const policy = SAMPLE_SITE_POLICY_OVERRIDES[siteSlug]?.[key] ?? SAMPLE_BASE_POLICIES[key];
-          return policy === undefined
-            ? []
-            : [{ key, title: policy.title, body: policy.body, updatedAt: null }];
-        }),
+        workspaceId === SAMPLE_WORKSPACE_ID
+          ? SAMPLE_ARTICLES.map((article) => ({ article, archivedAt: null }))
+          : [],
       );
     },
-    async save() {
-      return stubCall<true>(CONTENT_SAMPLE_STUB, "固定ページの保存");
+    async find(workspaceId, siteSlug, slug) {
+      if (workspaceId !== SAMPLE_WORKSPACE_ID) return ok(null);
+      const article = SAMPLE_ARTICLES.find(
+        (item) => item.siteSlug === siteSlug && item.slug === slug,
+      );
+      return ok(article === undefined ? null : { article, archivedAt: null });
+    },
+    async replace() {
+      return stubCall<boolean>(CONTENT_SAMPLE_STUB, "公開済み記事の訂正");
+    },
+    async archive() {
+      return stubCall<boolean>(CONTENT_SAMPLE_STUB, "公開済み記事の非表示化");
     },
   });
 }
@@ -128,7 +158,12 @@ export function createSampleContentRepository(): EditorialPublishedContentPort {
       return ok(SAMPLE_CORRECTIONS.filter((c) => c.siteSlug === siteSlug));
     },
     async findPolicyDocument(siteSlug: string, key: string) {
-      return ok(SAMPLE_SITE_POLICY_OVERRIDES[siteSlug]?.[key] ?? SAMPLE_BASE_POLICIES[key] ?? null);
+      // ルート表に無い鍵は、上書きも既定も引かずに「無い」と答える。
+      // 既定側を任意の文字列で引けるままにすると、綴り違いが黙って null になり、
+      // 「画面はあるのに文書が出ない」の原因がルート表かデータか分からなくなる。
+      if (!(SITE_DOCUMENT_KEYS as readonly string[]).includes(key)) return ok(null);
+      const documentKey = key as SiteDocumentKey;
+      return ok(resolveSampleSiteDocument(siteSlug, documentKey));
     },
   });
 }

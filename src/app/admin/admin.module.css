@@ -87,6 +87,92 @@
   color: var(--color-text-muted);
 }
 
+/* --- 公開済み記事の管理 -------------------------------------------- */
+
+.publishedFilter {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 1fr) auto;
+  align-items: end;
+  gap: var(--space-3);
+}
+
+.publishedFilter label {
+  display: grid;
+  gap: var(--space-2);
+  color: var(--color-text-strong);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+}
+
+.publishedFilter input,
+.publishedFilter select,
+.publishedFilter button {
+  min-height: var(--tap-target-min);
+  border: var(--border-width-default) solid var(--color-border-default);
+  border-radius: var(--radius-md);
+  font: inherit;
+}
+
+.publishedFilter input,
+.publishedFilter select {
+  padding-inline: var(--space-3);
+  background: var(--color-surface-default);
+  color: var(--color-text-default);
+}
+
+.publishedFilter button {
+  padding-inline: var(--space-4);
+  background: var(--color-action-default);
+  color: var(--color-text-on-action);
+  cursor: pointer;
+}
+
+.publishedStatus {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--space-6);
+  padding-inline: var(--space-2);
+  border: var(--border-width-default) solid var(--color-border-default);
+  border-radius: var(--radius-pill);
+  background: var(--color-surface-raised);
+  font-size: var(--text-xs);
+  font-weight: var(--weight-semibold);
+  white-space: nowrap;
+}
+
+.publishedEditor {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.creationSteps {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-4);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.creationSteps li > * {
+  height: 100%;
+}
+
+.creationSteps span {
+  color: var(--color-text-muted);
+  font-variant-numeric: tabular-nums;
+  font-weight: var(--weight-bold);
+}
+
+.creationSteps h2,
+.creationSteps p {
+  margin: 0;
+}
+
+.creationSteps h2 {
+  font-size: var(--text-lg);
+}
+
 /* --- 順位の表 ---------------------------------------------------------- */
 
 /*

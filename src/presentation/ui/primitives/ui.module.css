@@ -341,6 +341,22 @@
   background: var(--color-surface-sunken);
 }
 
+.skipLink {
+  position: fixed;
+  inset-block-start: var(--space-2);
+  inset-inline-start: var(--space-2);
+  z-index: var(--z-overlay);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-md);
+  background: var(--color-text-strong);
+  color: var(--color-surface-default);
+  transform: translateY(calc(-100% - var(--space-3)));
+}
+
+.skipLink:focus {
+  transform: translateY(0);
+}
+
 /*
  * 左の案内。
  *
@@ -364,6 +380,12 @@
   border-right: var(--border-width-default) solid var(--color-border-subtle);
 }
 
+.brandBlock {
+  display: grid;
+  gap: var(--space-1);
+  margin-bottom: var(--space-4);
+}
+
 /* 名前と畳むボタンの行。畳んでもボタンだけは残る（戻す口が消えると詰む）。 */
 .sidebarHead {
   display: flex;
@@ -378,6 +400,13 @@
   font-size: var(--text-lg);
   font-weight: var(--weight-bold);
   color: var(--color-text-strong);
+  text-decoration: none;
+}
+
+.brandContext {
+  color: var(--color-text-muted);
+  font-size: var(--text-xs);
+  letter-spacing: var(--tracking-wide);
 }
 
 /*
@@ -647,6 +676,29 @@
   justify-content: flex-end;
   margin-inline-start: auto;
   gap: var(--space-2);
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.headerActions a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: var(--tap-target-min);
+  padding-inline: var(--space-3);
+  border: var(--border-width-default) solid var(--color-border-default);
+  border-radius: var(--radius-md);
+  background: var(--color-surface-default);
+  color: var(--color-text-default);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  text-decoration: none;
+}
+
+.headerActions a:hover,
+.headerActions a:focus-visible {
+  border-color: var(--color-border-strong);
+  background: var(--color-surface-raised);
 }
 
 /*
@@ -729,6 +781,14 @@
   gap: var(--space-2);
 }
 
+.pageEyebrow {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: var(--text-xs);
+  font-weight: var(--weight-bold);
+  letter-spacing: var(--tracking-wide);
+}
+
 .pageTitle {
   margin: 0;
   font-size: var(--text-2xl);
@@ -772,8 +832,25 @@
     border-bottom: var(--border-width-default) solid var(--color-border-subtle);
   }
 
-  .brandName {
+  .brandBlock {
     display: none;
+  }
+
+  .header {
+    align-items: stretch;
+    flex-direction: column;
+    gap: var(--space-2);
+    padding: var(--space-3);
+  }
+
+  .breadcrumb,
+  .headerActions {
+    overflow-x: auto;
+    flex-wrap: nowrap;
+  }
+
+  .headerActions a {
+    flex: none;
   }
 
   /* 横に流れる並びでも分類は残す。消すと、狭い画面だけ 19 項目の横並びに戻る。 */

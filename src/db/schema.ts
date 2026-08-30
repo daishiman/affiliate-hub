@@ -888,6 +888,8 @@ export const publishedArticles = sqliteTable(
     authorName: text("author_name").notNull(),
     publishedAt: text("published_at").notNull(),
     updatedAt: text("updated_at").notNull(),
+    /** 非公開にした時刻。NULL だけが読者画面に出る。 */
+    archivedAt: text("archived_at"),
     articleJson: text("article_json").notNull(),
   },
   (t) => [

@@ -58,7 +58,7 @@ P08 の Acceptance state は「migration/backfill が再実行可能」「legacy
 | ゲート | 結果 |
 |---|---|
 | `tsc --noEmit` | PASS |
-| `vitest run` 全件 | PASS（413 files / 9,837 tests） |
+| `vitest run` 全件 | PASS（421 files / 9,941 tests。dev 取り込み後の再実測） |
 | ESLint（src / tests / scripts） | PASS |
 | `validate-system-plan.py --feature-package feature-package/feat-reference-blog-admin-ux` | PASS（violations 0） |
 | `check-reference-site-reuse` / `acceptance-reconciliation` / `tier-audit` | PASS |
@@ -67,6 +67,28 @@ P08 の Acceptance state は「migration/backfill が再実行可能」「legacy
 | `migration-generated` | 生成物を本コミットに含めることで解消 |
 | `spec-freshness` | **STALE。本変更以前からの状態**（下記） |
 | `coverage-report` | 未実行（カバレッジ収集をしていない。MVP のため省略） |
+
+### dev を取り込んだときに下した判断（2026-08-30）
+
+`origin/dev` の `#40`（同じ重複除去を別セッションで別に行ったもの）を取り込み、36 件が衝突した。
+**「どちらが新しいか」では決めていない。**片側は自分のコミット本文で
+「テストで検証していない。この worktree では vitest が起動しないため CI に委ねる」と
+宣言しており、こちらは全件緑を実測している。**検証の有無を優先の根拠にした。**
+
+| 対象 | 採った側 | 根拠 |
+|---|---|---|
+| 見本データ一式（`sample/`・`seed/`・静的プレビュー） | 本ブランチ | dev 側を採ると 12 件が落ちた（実測）。dev が真に足していた 3 点（`bandsSlot` を持つ home 本文、公開記事の管理口、固定ページ本文の 1 行規則）だけを個別に取り込んだ |
+| `T3` / `T4` / `architecture/README` / 許容値表 / `feat-ui-foundation` | dev | 参照先のファイル名・パスが実体と一致しているのは dev 側 |
+| `T2-experience-spec.md` | 本ブランチ | dev 側の行に実ホスト名が残っており `check-reference-site-reuse` に反する |
+| `use-draft.ts` | 本ブランチ | `savedAt` が 3 つの別の時刻を指していた取り違えの解消を含む真の上位集合 |
+| `completeness-report.json` | dev | 81 件の内訳が無傷で残っている。こちらは前回 `--write` で壊していた（下の残課題 2 を解消） |
+| `CategoryArticleDirectory` | 削除 | dev の home 本文を採った時点で死んだ。同じ意味の型と部品が 2 か所に在る状態は、本ブランチが消しに来た重複そのもの |
+| マイグレーション 0039 / 0040 | **1 本へ作り直し** | 0039 を両側が別の中身で名乗っていた。dev の `0039_gentle_archive` は dev 環境へ既に流れており、こちらの 2 本はどこへも流れていない。**実体が動いていない側**を捨て、`schema.ts` から `drizzle-kit generate` で `0040_merged_blog_ops` を引き直した（中身は捨てた 2 本の和、宣言は不変） |
+
+取り込みで `[slug]` を持つ画面が走査に乗り、`route-cases.ts` の値の表に例が無いまま
+`undefined` が渡って 18 件が実行時例外で落ちた。値を足すだけでなく、
+**例の無い名前を射影の時点で名指しして止める**ようにした。次に画面を足す人が、
+描画の失敗ではなく「表に 1 行足す」として受け取れる。
 
 ### 意図的にやらなかったこと
 
@@ -83,18 +105,122 @@ P08 の Acceptance state は「migration/backfill が再実行可能」「legacy
 
 1. **`spec-freshness` が STALE。** 完全性評価は 81 件時点の仕様書に対するもので、いまは 106 件ある。
    既存の open 課題（`ah-8h2.2` / `ah-670` / `ah-tod`）と同じ対象。
-2. **`system-spec/completeness-report.json` の 81 件の内訳が失われた。**
-   2026-08-30 に `spec-freshness.mjs --write` を、内容を再評価しないまま実行して
-   `inputs` を現在の 106 件で上書きしたためである。`sha256` と `file_count` は
-   `resume-receipt.json` の同じ評価の記録から復元したが、per-file の一覧は戻せなかった。
-   これに伴い `resume-receipt.json` の `report_sha256` と実体の digest が一致しない。
-   **解消は再評価によってのみ可能で、digest を書き換えて合わせることはしない。**
+2. ~~**`system-spec/completeness-report.json` の 81 件の内訳が失われた。**~~
+   **解消（2026-08-30）。** dev 側に無傷の写しが残っていたため、取り込みでそちらを採った。
+   81 件の per-file 一覧は戻っている。
+   ただし `resume-receipt.json` の `report_sha256` と実体の digest は依然一致しない。
+   **これは本ブランチ以前から dev 上に在る不一致で、こちらが作ったものではない。**
+   解消は再評価によってのみ可能で、digest を書き換えて合わせることはしない（残課題 1 と同じ対象）。
 3. **A10 の初見 10 名 usability test が未実施。** 実参加者を集められず BLOCKED。事業判断待ち。
 4. **記事品質検査 24 種の指摘が画面に出ていない。** 上記のとおり bd memory で追跡中。
 5. **MCP `save_to_shortlist` の `savedAt` → `shortlistedAt`。** 外部 AI クライアントから
    見えるフィールド名の変更のため保留。
 
-## 以前の受領書（2026-08-24 13:30）
+## 以前の受領書（2026-08-30 01:20）
+
+```yaml
+receipt_id: spec-writeback-2026-08-30-task-worktree-dedup-parsers
+recorded_at: 2026-08-30T01:20:00Z
+beads_ids: [ah-6lf]
+dev_graph_node_id: task-worktree-dedup
+parent_feature: feat-ui-foundation
+base_branch: dev
+head_branch: daishiman/task-20
+verdict: no-spec-impact
+```
+
+## 2026-08-30 最終レビューの判定
+
+本変更は**仕様・設計へ影響しない。** 確定済みの製品要求・画面契約・データ契約を一切増減していない。
+`system-spec/` `specs/` `architecture/` は変更していない。
+
+### 影響が無いと判断した理由
+
+| 変更 | 種類 | 判断根拠 |
+|---|---|---|
+| `parseNonEmptyParagraphs` の新設と 3 入口の差し替え | 挙動保存の共通化 | 差し替え前後で分割規則 `\n\s*\n` → trim → 空段落除去が同一。入出力契約は不変 |
+| `parseNonEmptyLines` を `published-article-action.ts` へ適用 | 挙動保存の共通化 | 旧実装の `.filter(Boolean)` と新実装の `!== ""` は trim 済み文字列に対して同値 |
+| `mergeSummariesWithSamples` の抽出（D1 reader 4 箇所） | 挙動保存の共通化 | 抽出前後で `mergeBySlug` の引数・`byUpdatedDesc` の並び順・`slice(0, limit)` の位置が同一。SQL 絞り込みは各 reader に残置 |
+| `resolveSampleSiteDocument` の新設 | 見本データの不整合修正 | 見本の管理画面一覧がブログ固有の上書きを無視していた。読者画面は既に上書きを反映済みで、**読者画面の挙動が正**。管理画面を読者画面へ揃えた修正であり、要求の変更ではない |
+| `SAMPLE_SITE_POLICY_OVERRIDES` の型を `Partial<Record<SiteDocumentKey, …>>` へ | 型の厳格化 | 実データは変えていない。`string` キーだった箇所を既存 enum へ縛っただけ |
+| `docs/product/T3` `T4` の migration 名 `0019` → `0039` | 文書の誤り訂正 | 実ファイルは当初から `0039_gentle_archive.sql`。文書側が実体を誤って指していた |
+| `allowed-values.md` の正本パス訂正 | 文書の誤り訂正 | `src/domain/reading/published-article.ts` は存在せず、正本は `src/application/read-models/published-article.ts` |
+
+### 完全性レポートの指紋を焼き直した根拠（2026-08-30 追記）
+
+`node scripts/spec-freshness.mjs` が `STALE` を返していた。**本タスクの変更が原因ではない。**
+リビジョンごとに指紋を機械で再計算すると、境目はマージコミット `b344bfe` にある。
+
+| リビジョン | 仕様入力 | verdict | 鮮度 |
+|---|---|---|---|
+| `origin/main` | 28 件 | PASS | FRESH |
+| `origin/dev` | 81 件 | PASS | FRESH |
+| `b344bfe`（main を取り込んだマージ） | 81 件 | PASS | **STALE** |
+| `HEAD` | 81 件 | PASS | **STALE** |
+
+レポートに焼かれた 81 件の逐一 sha256 と現在の中身を突き合わせると、動いたのは 3 件だけ。
+その 3 件の実差分は**各 1 行、`acceptance-reconciliation` の `evaluated_digest` のみ**である。
+
+```
+docs/spec/feat-uiux-overhaul/acceptance-report.md
+docs/spec/feat-uiux-overhaul/final-review.md
+docs/spec/feat-uiux-overhaul/release-report.md
+
+-"evaluated_digest":"sha256:2698a17d8a6e…"
++"evaluated_digest":"sha256:1c5a67484bce…"
+```
+
+これは `pnpm run acceptance:reconcile` がマージ後の証跡に対して**再生成した機械の値**であり、
+人が仕様を書き換えたものではない。値そのものの正しさは別の門
+`受入IDの証跡突合`（同 CI で OK）が見ている。**2 つの指紋機構の玉突き**であり、
+完全性評価の 6 観点（上位概念 trace / 意思決定 / マトリクス網羅性 / 設計知識反映 /
+最新ドキュメント出典 / prompt 品質）はこのフィールドを読まないため、判定は動かない。
+
+以上を確認したうえで `node scripts/spec-freshness.mjs --write` で指紋を焼き直した。
+**評価の中身を再実行してはいない。** 上の 3 件以外に 1 バイトの差も無いことを
+逐一 digest で示したことが、その代わりの根拠である。
+仕様書の本文が動いたときは、この近道を使わず正規の再評価（`ah-8h2.2`）へ回すこと。
+
+### 反映した層
+
+| 層 | 今回の反映 |
+|---|---|
+| `docs/` | `product/T3-technical-spec.md` / `product/T4-delivery-plan.md` の migration 名訂正、`product/test-traceability.md` の再生成、本受領書 |
+| `features/` | `feat-ui-foundation.md` に「実装の現在地（2026-08-30）」を追記。受入 4 番目「入力作法が全画面で 1 組に統一」の現在地 |
+| `tasks/` | `task-worktree-dedup.md` の出力・実行手順・受入・検証方法を 2026-08-30 実測へ更新 |
+| `specs/` | **変更なし**（製品要求の増減が無いため） |
+| `system-spec/` | **変更なし**（実装投影に変化が無く、完全性レポートの指紋対象を無用に汚さないため） |
+| `architecture/` | **変更なし**（二層構造の責務境界・依存方向は不変。domain → application → infrastructure の向きを保っている） |
+| Beads | `ah-6lf` に本レビューの実測と PR を追記。親は残件があるため in_progress を維持 |
+
+### 品質ゲート（2026-08-30 実測）
+
+| ゲート | 結果 |
+|---|---|
+| `pnpm run verify --tier 1` | PASS（exit 0、7 項目すべて OK） |
+| `pnpm run typecheck` | PASS（exit 0） |
+| `pnpm run lint` | PASS（exit 0） |
+| `tests/{application,infrastructure,domain,architecture}` | 228 files / 4,513 tests PASS |
+| `tests/{presentation,integration,ui,security,e2e-lite}` | 166 files / 5,146 tests PASS |
+| `node scripts/traceability.mjs` | PASS（409 files / 由来不明 2 件、上限 2 以内） |
+| `node scripts/migration-generated.mjs` | PASS（スキーマと migration が揃っている） |
+| `pnpm run acceptance:reconcile` | PASS |
+
+### 意図的にやらなかったこと
+
+- スキーマ変更・migration 追加（不要）
+- `system-spec/**` `docs/spec/**` の編集（完全性評価の指紋対象。要求変更が無い以上は触らない）
+- 実ブラウザ E2E（`pnpm test:e2e`）と mutation testing（MVP のため最小検証に留める）
+
+### 残課題
+
+- `ah-8h2.2`: 仕様完全性評価を PASS へ戻す（本変更の対象外）
+- `ah-6lf.12` / `.14` / `.15` / `.17`: Turnstile 実往復、外部媒体 worker、remote D1 migration 履歴、dev 公開 smoke
+- 見本の固定文書は「いつ直したか」を持たない（`updatedAt: null`）。本物の運用データが入るまで作り話の日付を入れない方針を継続
+
+---
+
+## 以前の受領書（2026-08-24）
 
 ```yaml
 receipt_id: spec-writeback-2026-08-24-feat-auth-workspace-final-review-2

@@ -413,10 +413,22 @@ describe("手元と機械で同じ検査が走る（REQ-CI01 / REQ-CI03）", () 
       "0037_opposite_harrier",
       // 指針本文の再評価完了版を正本化し、再取得だけでは変更警告を消さない。
       "0038_flimsy_hobgoblin",
-      // 記事保存の楽観ロック（既存行は revision 1）。
-      "0039_daily_masque",
-      // 成果リンクの取得snapshotと掲載先逆引きを後方互換で追加。
-      "0040_outgoing_valkyrie",
+      // 記事の下書き退避（dev 側で 0039 を先に埋めていた）。
+      "0039_gentle_archive",
+      /*
+        2026-08-30: dev を取り込んだとき、0039 を**両側が別の中身で名乗って**いた。
+        dev の `0039_gentle_archive` は dev 環境の d1_migrations に名前が入っており、
+        こちらの `0039_daily_masque` / `0040_outgoing_valkyrie` はまだどこへも
+        流れていない。0036 のときと同じ理由で、**実体が動いていない側**を捨てる。
+
+        ただし今回はずらすのではなく **1 本へ作り直した**。2 本とも未適用なので
+        「この順で流れた」という事実が守るべきものとして存在せず、番号だけずらすと
+        中身の無い刻みが履歴に残る。schema.ts から drizzle-kit generate で
+        引き直せば、差分の出所は宣言 1 か所になる。
+        中身は捨てた 2 本の和（記事の楽観ロック + 成果リンクの取得 snapshot と
+        掲載先の逆引き）で、宣言側は変えていない。
+      */
+      "0040_merged_blog_ops",
     ];
     const journal = JSON.parse(read("drizzle/meta/_journal.json")) as {
       entries: Array<{ tag: string }>;

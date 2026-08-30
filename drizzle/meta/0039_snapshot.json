@@ -1,7 +1,7 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "c2586bdf-b5dc-4f42-9e71-7a1f6f7b3adb",
+  "id": "ae3c7884-9123-4a0c-ac37-438bf2ca6ef1",
   "prevId": "59c4a6ad-bea1-4b27-9d72-d9c23a38eaa5",
   "tables": {
     "affiliate_accounts": {
@@ -761,21 +761,6 @@
           "notNull": true,
           "autoincrement": false,
           "default": "(unixepoch())"
-        },
-        "revision": {
-          "name": "revision",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": 1
-        },
-        "save_token": {
-          "name": "save_token",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
         },
         "tested_at": {
           "name": "tested_at",
@@ -5524,6 +5509,13 @@
           "type": "text",
           "primaryKey": false,
           "notNull": true,
+          "autoincrement": false
+        },
+        "archived_at": {
+          "name": "archived_at",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
           "autoincrement": false
         },
         "article_json": {

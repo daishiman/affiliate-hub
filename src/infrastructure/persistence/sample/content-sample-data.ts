@@ -4,6 +4,7 @@ import {
   type PublishedPerson,
   toSummary,
 } from "@/application/read-models/published-article";
+import type { SiteDocumentKey } from "@/domain/authoring";
 import { registerStub } from "../../stub-registry";
 import {
   FIFTH_SITE_SLUG,
@@ -1880,6 +1881,19 @@ export const SAMPLE_SITE_POLICY_OVERRIDES: Readonly<
     },
   },
 };
+
+/**
+ * 固定ページ 1 枚の本文を決める。
+ *
+ * **上書きが在ればそれ、無ければ既定。** この 1 行の規則を呼び出し側に書き写すと、
+ * 上書きの有無で分岐する場所が増え、片方だけ既定へ落ちる事故が起きる。
+ */
+export function resolveSampleSiteDocument(
+  siteSlug: string,
+  key: SiteDocumentKey,
+): { title: string; body: readonly string[] } {
+  return SAMPLE_SITE_POLICY_OVERRIDES[siteSlug]?.[key] ?? SAMPLE_BASE_POLICIES[key];
+}
 
 export function sampleArticlesBySite(siteSlug: string): readonly PublishedArticle[] {
   return SAMPLE_ARTICLES.filter((a) => a.siteSlug === siteSlug);

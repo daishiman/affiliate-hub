@@ -52,7 +52,20 @@ export const SEED_WORKSPACE_ID = "ws_sample";
 export const SEED_USER_ID = "usr_local_owner";
 export const SEED_USER_EMAIL = "owner@local.test";
 export const SEED_USER_NAME = "ローカル検証用の担当者";
-/** 見本のブログ。読者側の設計図を見本が持っている 2 本。 */
+/**
+ * 見本のブログ。読者側の設計図を見本が持っている 2 本。
+ *
+ * 親側は**見本の `SAMPLE_SITE_SLUG` と同じ名前にする**。揃えないと、
+ * vitest（見本の上で描く）は緑のまま、Playwright（seed 済みの D1 を本物の
+ * 通信で開く）だけが `/s/<名前>` 以下すべてで 404 になる。
+ * 揃えるのは URL に出る名前だけで、記事の中身までは合わせない
+ * （検査は `tests/architecture/seed-and-sample-agree.test.ts`）。
+ *
+ * **同じ名前を 2 か所に書かず、見本側の定数を借りる。** 書き写しにすると
+ * 「揃っているか」を検査が見張る話になるが、借りれば揃わない状態が作れない。
+ * 検査の側は引き続き意味を持つ——見張っているのは 2 つの文字列の一致ではなく、
+ * `buildSeedSql` がそのブログの行を実際に吐いているかである。
+ */
 export const SEED_HUB_SLUG = SAMPLE_SITE_SLUG;
 export const SEED_SUB_SLUG = "gear-for-small-kitchen";
 

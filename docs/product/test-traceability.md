@@ -6,8 +6,8 @@
 テスト側の `@req` 印を重ねたもの。
 
 - 最終更新: 2026-08-30
-- テストファイル: 413 件
-- 由来の要件が分かる: 413 件
+- テストファイル: 421 件
+- 由来の要件が分かる: 421 件
 - **由来不明: 0 件**（上限 2 件）
 
 由来不明とは「どの要件のために書いたのか、機械から辿れない」という意味で、
@@ -63,6 +63,7 @@
 | `tests/application/manage-llm-credentials.test.ts` | REQ-SEC01, REQ-SEC05 | 印 |
 | `tests/application/manage-members.test.ts` | REQ-P01 | 印 |
 | `tests/application/manage-personas.test.ts` | REQ-A03, REQ-P05, REQ-S04, REQ-W12 | 印と表 |
+| `tests/application/manage-published-articles.test.ts` | REQ-R11, REQ-SEC01, REQ-SEC09 | 印 |
 | `tests/application/manage-rankings.test.ts` | REQ-B01, REQ-P05 | 印 |
 | `tests/application/manage-site-documents.test.ts` | REQ-S06, REQ-W10 | 印 |
 | `tests/application/manage-sites.test.ts` | REQ-S06, REQ-W10 | 印 |
@@ -126,6 +127,8 @@
 | `tests/architecture/native-dependencies.test.ts` | REQ-CI01 | 印 |
 | `tests/architecture/open-doors.test.ts` | REQ-S10, REQ-TS12 | 印と表 |
 | `tests/architecture/package-manager-source.test.ts` | REQ-CI01 | 印と表 |
+| `tests/architecture/product-source-links.test.ts` | REQ-TS12 | 印 |
+| `tests/architecture/published-article-reader-merge.test.ts` | REQ-TS09 | 印 |
 | `tests/architecture/qa-scope-notes-coverage.test.ts` | REQ-TS19 | 印と表 |
 | `tests/architecture/qa-source-digest-meaning.test.ts` | REQ-TS20 | 印と表 |
 | `tests/architecture/quality-gates.test.ts` | REQ-CI02, REQ-CI03, REQ-CI09, REQ-TS09, REQ-TS10 | 印 |
@@ -190,6 +193,7 @@
 | `tests/domain/loop-record.test.ts` | REQ-IM13 | 印 |
 | `tests/domain/membership-write.test.ts` | REQ-P01 | 印 |
 | `tests/domain/metrics-from-telemetry.test.ts` | REQ-P10, REQ-TM01, REQ-TM04 | 印 |
+| `tests/domain/non-empty-paragraphs.test.ts` | REQ-TS12 | 印 |
 | `tests/domain/permissions.test.ts` | REQ-API02, REQ-R01, REQ-R02, REQ-R03, REQ-R04, REQ-R05, REQ-R06, REQ-R07, REQ-R08, REQ-R09, REQ-R10, REQ-R11, REQ-R12 | 印と表 |
 | `tests/domain/planning.test.ts` | REQ-E23, REQ-P06, REQ-SEC07 | 印と表 |
 | `tests/domain/policy-channel-scope.test.ts` | REQ-SEC07 | 印と表 |
@@ -251,6 +255,7 @@
 | `tests/infrastructure/sample-distribution-pagination.test.ts` | REQ-P08 | 印 |
 | `tests/infrastructure/sample-feedback-repository.test.ts` | REQ-FB04, REQ-FB06, REQ-FB07, REQ-FB08 | 印 |
 | `tests/infrastructure/sample-integration-keys.test.ts` | REQ-FB07, REQ-FB08 | 印 |
+| `tests/infrastructure/sample-site-document-repository.test.ts` | REQ-P07 | 印 |
 | `tests/infrastructure/secret-minter.test.ts` | REQ-FB12 | 印と表 |
 | `tests/infrastructure/session-actor.test.ts` | REQ-S10 | 印 |
 | `tests/infrastructure/session-issuer.test.ts` | REQ-S10 | 印 |
@@ -321,6 +326,7 @@
 | `tests/presentation/one-usecase-three-adapters.test.ts` | REQ-API01, REQ-API02 | 印と表 |
 | `tests/presentation/persona-form-action.test.ts` | REQ-P05 | 印 |
 | `tests/presentation/publish-article-indexnow.test.ts` | REQ-SEO04 | 印 |
+| `tests/presentation/published-article-actions.test.ts` | REQ-R11, REQ-SEC01, REQ-SEC09 | 印 |
 | `tests/presentation/quality-check-labels.test.ts` | REQ-P06 | 印 |
 | `tests/presentation/ranking-form-action.test.ts` | REQ-P04 | 印 |
 | `tests/presentation/reader-tools.test.ts` | REQ-WB01 | 印 |
@@ -352,6 +358,7 @@
 | `tests/ui/app-shell-nav.test.tsx` | REQ-S09, REQ-SEC08 | 印 |
 | `tests/ui/appearance-picker.test.tsx` | REQ-TH03 | 印 |
 | `tests/ui/article-faq.test.tsx` | REQ-SEO03, REQ-TM06 | 印 |
+| `tests/ui/article-frame.test.tsx` | REQ-TM06 | 印 |
 | `tests/ui/article-layout-suggestion-panel.test.tsx` | REQ-BOPS05, REQ-IM09 | 印 |
 | `tests/ui/article-save-status.test.tsx` | REQ-BOPS04, REQ-BOPS05 | 印 |
 | `tests/ui/audit-log-notice.test.tsx` | REQ-SEC09 | 印 |
@@ -405,6 +412,7 @@
 | `tests/ui/public-site-projection.test.ts` | REQ-BLOG02, REQ-BOPS02, REQ-BOPS03, REQ-BOPS06, REQ-BOPS11 | 印と表 |
 | `tests/ui/publish-article-form.test.tsx` | REQ-P08 | 印と表 |
 | `tests/ui/publish-article-result.test.tsx` | REQ-P08 | 印と表 |
+| `tests/ui/published-article-form.test.tsx` | REQ-R11 | 印 |
 | `tests/ui/ranking-model-form.test.tsx` | REQ-P05, REQ-SEC09 | 印 |
 | `tests/ui/resource-not-found.test.tsx` | REQ-B01 | 印と表 |
 | `tests/ui/route-branch-reached.test.ts` | REQ-S09 | 印 |
@@ -434,4 +442,4 @@
 | `tests/ui/use-draft.test.tsx` | REQ-BOPS04, REQ-BOPS05 | 印 |
 | `tests/ui/zz-probe-tone.test.tsx` | REQ-TM07 | 表 |
 | `tests/visual/visual-regression.test.ts` | REQ-S09, REQ-TS12, REQ-UX08 | 印 |
-<!-- 生成物の指紋 sha256:1f5c29ae5f0c61302aac58564a66ef8cbabb610156990000de6f8b993e37e2d2 -->
+<!-- 生成物の指紋 sha256:fd82323e34b4b8e6f31b05a89e6ed363b1185f364d54aa731bb5117a31060cc7 -->

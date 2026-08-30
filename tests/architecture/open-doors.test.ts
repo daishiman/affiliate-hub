@@ -362,6 +362,11 @@ const ACTION_INTENT: Readonly<
   },
 
   // --- 取り返しがつく（記録が残り、後から直せる） ---
+  archivePublishedArticleAction: {
+    intent: "ログイン",
+    what: "公開済み記事を非表示にする（データは残す）",
+    reversible: "つく",
+  },
   /*
     作成と更新は「つく」。作ったものは消せるし、直した内容は上書きで戻せる。
     ただし `updatePublicationAction` だけは別で、予定日を前倒しにすると
@@ -540,6 +545,11 @@ const ACTION_INTENT: Readonly<
   submitContactAction: {
     intent: "誰でも",
     what: "読者からの問い合わせ（公開フォーム）",
+    reversible: "つく",
+  },
+  updatePublishedArticleAction: {
+    intent: "ログイン",
+    what: "公開済み記事を訂正する",
     reversible: "つく",
   },
   // 読者が自分の「気になる」を出し入れするだけの 2 つ。ログインは求めない。

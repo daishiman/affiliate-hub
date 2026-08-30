@@ -64,6 +64,7 @@ export default async function SearchPage({
                 articles={toArticleCards(site, result.value.hits)}
                 emptyTitle={UI_COPY.article.searchEmptyTitle}
                 emptyBody={UI_COPY.article.searchEmptyBody}
+                headingLevel="h3"
               />
             </Section>
           ) : (

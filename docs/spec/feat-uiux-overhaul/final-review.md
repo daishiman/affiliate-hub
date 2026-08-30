@@ -12,7 +12,7 @@ phase ごとの判定は、その phase の中でだけ辻褄が合っていれ�
 [`migration-report.md`](./migration-report.md)（P08 の移行実測）/
 [`quality-report.md`](./quality-report.md)（P09 の品質実測）
 
-<!-- acceptance-reconciliation {"implementation_status":"pass","release_status":"unpublished","tracking_status":"active","evaluated_digest":"sha256:cb1895d442d249cf8c59a173bed3de361eac456aabd48c27104764ef1a6b8cd4","acceptance_ids":["A1","A2","A3","A4","A5","A6","A7","A8","A9","A10"]} -->
+<!-- acceptance-reconciliation {"implementation_status":"pass","release_status":"unpublished","tracking_status":"active","evaluated_digest":"sha256:2b93e82a55334186cad33770bb5290132266c244e4bc1c3690dfa201b1c744b8","acceptance_ids":["A1","A2","A3","A4","A5","A6","A7","A8","A9","A10"]} -->
 
 > この文書は 2026-08-22 の P10 履歴である。現在の状態は
 > **実装受入は合格 / 未公開 / tracking は active** の3軸で表す。

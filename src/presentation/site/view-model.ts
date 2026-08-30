@@ -74,16 +74,19 @@ export function toChrome(
   const routes = routesFor(blueprint);
   const home = routes.find((r) => r.key === "home");
   const search = routes.find((r) => r.key === "search");
+  const editorialPolicy = routes.find((r) => r.key === "editorial-policy");
+
+  const categoryNav = blueprint.categories.map((c) => ({
+    href: siteHref(siteSlug, `/categories/${c.slug}`),
+    label: c.name,
+  }));
 
   const headerSlots = projection?.chrome.headerSlots ?? [];
   const savedHeader = headerSlots.length > 0;
   const headerBrand = headerSlots.find((slot) => slot.slotKey === "header-brand");
   const nav = [
     ...(home === undefined ? [] : [{ href: siteRouteHref(siteSlug, home), label: "トップ" }]),
-    ...blueprint.categories.map((c) => ({
-      href: siteHref(siteSlug, `/categories/${c.slug}`),
-      label: c.name,
-    })),
+    ...categoryNav,
     ...(search === undefined || (savedHeader && !headerSlots.some((s) => s.slotKey === "header-search-modal"))
       ? []
       : [{ href: siteRouteHref(siteSlug, search), label: search.label }]),
@@ -117,6 +120,14 @@ export function toChrome(
     tagline: blueprint.purpose,
     brandTheme: blueprint.theme.brandTheme,
     nav,
+    categoryNav,
+    homeHref: home === undefined ? siteBasePathBySlug(siteSlug) : siteRouteHref(siteSlug, home),
+    searchHref:
+      search === undefined ? `${siteBasePathBySlug(siteSlug)}/search` : siteRouteHref(siteSlug, search),
+    aboutHref:
+      editorialPolicy === undefined
+        ? siteBasePathBySlug(siteSlug)
+        : siteRouteHref(siteSlug, editorialPolicy),
     footer,
   };
 }
@@ -140,7 +151,11 @@ export function toArticleCards(
 }
 
 /** 記事 1 本。順位表の商品名は、レビューがある商品だけリンクにする。 */
-export function toArticleView(siteSlug: string, article: PublishedArticle): ArticleViewModel {
+export function toArticleView(
+  siteSlug: string,
+  article: PublishedArticle,
+  relatedArticles?: readonly ArticleCardView[],
+): ArticleViewModel {
   const blocks = expressionBlocksOf(article);
   const answer = blocks.find((block) => block.kind === "answer");
   const keyPoints = blocks.find((block) => block.kind === "key_points");
@@ -154,6 +169,8 @@ export function toArticleView(siteSlug: string, article: PublishedArticle): Arti
     updatedAt: freshness?.asOf ?? "",
     authorName: article.author.name,
     authorHref: siteHref(siteSlug, `/authors/${article.author.slug}`),
+    authorBio: article.author.bio,
+    authorCredentials: article.author.credentials,
     expertName: article.reviewedBy?.name,
     expertHref:
       article.reviewedBy === undefined
@@ -245,6 +262,7 @@ export function toArticleView(siteSlug: string, article: PublishedArticle): Arti
               ),
             })),
           },
+    relatedArticles,
     stub:
       article.stub === undefined
         ? undefined

@@ -13,4 +13,6 @@ ALTER TABLE `affiliate_links` ADD `price_minor` integer;--> statement-breakpoint
 ALTER TABLE `affiliate_links` ADD `currency` text;--> statement-breakpoint
 ALTER TABLE `affiliate_links` ADD `retrieved_at` integer;--> statement-breakpoint
 ALTER TABLE `affiliate_links` ADD `source_method` text;--> statement-breakpoint
-ALTER TABLE `affiliate_links` ADD `last_checked_at` integer;
+ALTER TABLE `affiliate_links` ADD `last_checked_at` integer;--> statement-breakpoint
+ALTER TABLE `articles` ADD `revision` integer DEFAULT 1 NOT NULL;--> statement-breakpoint
+ALTER TABLE `articles` ADD `save_token` text;

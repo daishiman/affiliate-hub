@@ -1,8 +1,8 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "8f188c99-f32b-4a0c-838b-407dc6a8f218",
-  "prevId": "c2586bdf-b5dc-4f42-9e71-7a1f6f7b3adb",
+  "id": "73800e71-ca90-4469-bd0e-d1e8bf9713f9",
+  "prevId": "ae3c7884-9123-4a0c-ac37-438bf2ca6ef1",
   "tables": {
     "affiliate_accounts": {
       "name": "affiliate_accounts",
@@ -5629,6 +5629,13 @@
           "type": "text",
           "primaryKey": false,
           "notNull": true,
+          "autoincrement": false
+        },
+        "archived_at": {
+          "name": "archived_at",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
           "autoincrement": false
         },
         "article_json": {
