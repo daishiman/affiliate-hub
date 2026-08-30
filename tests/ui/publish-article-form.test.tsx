@@ -1,153 +1,220 @@
-/** @tier 2 @req REQ-P08 */
-import { renderToStaticMarkup } from "react-dom/server";
-import { describe, expect, it } from "vitest";
-import type { PublishArticleFormOptions } from "@/application/usecases/site/publish-article";
-import { ARTICLE_TYPES, ARTICLE_TYPE_LABEL, authoredSectionsFor } from "@/domain/authoring";
-import { RELATIONSHIP_LABEL } from "@/domain/compliance";
-import { PublishArticleForm } from "@/presentation/admin/publish/publish-article-form";
-
 /**
- * 「いまサイトに出す」欄。
+ * @tier 2
+ * @req REQ-UX02, REQ-SEO03
+ * @types state-transition, boundary
  *
- * --- ここで固定したいこと ---
+ * 承認済みの記事を自分のブログへ出す欄。
  *
- * **欄の並びを画面が書き起こしていないこと。** 記事の構成表を 1 つ直した日に、
- * 直った種類と直っていない種類が同じ画面に混ざるのを防ぐ。
+ * --- ここで見ること ---
  *
- * **広告表記は読者に出る文そのものを選ばせること。** 画面で「アフィリエイト」と
- * 短く言い換えると、選んだ言葉と記事に出る言葉が違ってしまい、
- * 何を選んだのかを後から確かめられなくなる。
+ * **欄が何から作られているか**と、**選び直したときに何が起きるか**。
+ * 出す処理そのもの（`publishArticleAction` の先）は
+ * `tests/presentation/` 側が本物の道で確かめている。
  *
- * **全種類ぶんの欄が一度に手元にあること。** 種類を選び直すたびに読み直すと、
- * 書きかけの原稿が消える。
+ * --- なぜテストを足したか（2026-08-30）---
  *
- * 規範: docs/spec/10-テスト戦略仕様.md §2
+ * 分岐 60.7%・関数 33.3%。**種類を選び直す・ブログを選び直す・欄を増やす**の
+ * どれも 1 度も押されていなかった。この 3 つは全部「書きかけを消さない」ための
+ * 作りなのに、消えても緑のままだった。
  */
+// @vitest-environment jsdom
+import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { afterEach, describe, expect, it, vi } from "vitest";
+import type { PublishArticleFormOptions } from "@/application/usecases/site/publish-article";
+
+vi.mock("@/presentation/admin/publish/publish-article-action", () => ({
+  publishArticleAction: async () => ({ status: "idle", message: "", field: null }),
+}));
+
+const { PublishArticleForm } = await import("@/presentation/admin/publish/publish-article-form");
 
 const OPTIONS: PublishArticleFormOptions = {
-  articleTypes: ARTICLE_TYPES.map((value) => ({
-    value,
-    label: ARTICLE_TYPE_LABEL[value],
-    sections: authoredSectionsFor(value).map((s) => ({
-      id: s.id,
-      label: s.label,
-      purpose: s.purpose,
-    })),
-  })),
-  siteOptions: [
+  articleTypes: [
     {
-      slug: "quiet-desk",
-      name: "静かな机",
-      categories: [
-        { slug: "laptop", name: "ノートパソコン" },
-        { slug: "keyboard", name: "キーボード" },
+      value: "ranking",
+      label: "順位づけ",
+      sections: [
+        { id: "how_to_choose", label: "選び方の基準", purpose: "何で比べたかを書く" },
+        { id: "ranking_list", label: "選んだもの", purpose: "順位と理由を書く" },
       ],
     },
+    {
+      value: "review",
+      label: "単品レビュー",
+      sections: [{ id: "experience", label: "使ってみて", purpose: "実際に使った結果を書く" }],
+    },
   ],
-  relationshipOptions: (Object.keys(RELATIONSHIP_LABEL) as (keyof typeof RELATIONSHIP_LABEL)[]).map(
-    (value) => ({ value, label: RELATIONSHIP_LABEL[value] }),
-  ),
+  siteOptions: [
+    {
+      slug: "hub",
+      name: "本店",
+      categories: [
+        { slug: "chairs", name: "椅子" },
+        { slug: "desks", name: "机" },
+      ],
+    },
+    { slug: "annex", name: "別館", categories: [{ slug: "lights", name: "照明" }] },
+  ],
+  relationshipOptions: [
+    { value: "affiliate", label: "成果報酬" },
+    { value: "sponsored", label: "提供" },
+  ] as PublishArticleFormOptions["relationshipOptions"],
   prefill: {
-    title: "静かなノートパソコンの選び方",
-    conclusion: "書き出しの速さで選ぶ。",
+    title: "静かなノートPCの選び方",
+    conclusion: "30dB を下回るものを選べばよい。",
     disclosureMessage: "この記事には広告が含まれます。",
-    body: "結論から書く。",
+    body: "本文",
   },
 };
 
-function render(options: PublishArticleFormOptions = OPTIONS): string {
-  return renderToStaticMarkup(
-    <PublishArticleForm publicationId="pub_own" options={options} />,
-  );
+const value = (name: string) => (document.querySelector(`[name="${name}"]`) as HTMLInputElement | null)?.value;
+const namesOf = (name: string) =>
+  [...document.querySelectorAll(`[name="${name}"]`)].map((n) => (n as HTMLInputElement).value);
+
+afterEach(cleanup);
+
+function renderForm(options: PublishArticleFormOptions = OPTIONS) {
+  return render(<PublishArticleForm publicationId="pub_own_site" options={options} />);
 }
 
-describe("いまサイトに出す欄", () => {
-  it("どの配信かを一緒に送る（取り違えを起こさない）", () => {
-    expect(render()).toContain('value="pub_own"');
+describe("最初に出ている値", () => {
+  it("もとの記事から写した値が、すでに入っている", () => {
+    renderForm();
+    /*
+      **同じことを 2 回打たせない。** 承認までに書いた題と結論は既に在るので、
+      空欄から始めさせると、書き手はそれを写す作業から始めることになる。
+    */
+    expect(value("title")).toBe(OPTIONS.prefill.title);
+    expect(value("conclusion")).toBe(OPTIONS.prefill.conclusion);
+    expect(value("disclosureMessage")).toBe(OPTIONS.prefill.disclosureMessage);
   });
 
-  it("記事の種類の選択肢が、構成表の種類と 1 対 1 で並ぶ", () => {
-    const html = render();
-    for (const type of ARTICLE_TYPES) {
-      expect(html, `${type} が選べません`).toContain(`value="${type}"`);
-      expect(html).toContain(ARTICLE_TYPE_LABEL[type]);
-    }
+  it("出し先と、そのブログの最初のカテゴリーが選ばれている", () => {
+    renderForm();
+    expect(value("siteSlug")).toBe("hub");
+    expect(value("categorySlug")).toBe("chairs");
   });
 
-  it("原稿の欄は、選んだ種類の構成表から作られる", () => {
-    const html = render();
-    // 既定は一覧の先頭。手で決め打った種類の欄を並べていないことを見る。
-    for (const section of authoredSectionsFor(ARTICLE_TYPES[0])) {
-      expect(html, `${section.label} の欄がありません`).toContain(`name="section:${section.id}"`);
-      // 見出しだけでは書けない。何を書くかの説明も一緒に出す。
-      expect(html).toContain(section.purpose);
-    }
+  it("どの記事を出すのかを添える", () => {
+    renderForm();
+    expect(document.querySelector('[name="publicationId"]')?.getAttribute("value")).toBe("pub_own_site");
+  });
+});
+
+describe("記事の種類を選び直す", () => {
+  it("原稿の欄が、その種類のものへ入れ替わる", () => {
+    renderForm();
+    expect(screen.getByLabelText(/選び方の基準/)).toBeTruthy();
+    expect(screen.queryByLabelText(/使ってみて/)).toBeNull();
+
+    fireEvent.change(screen.getByLabelText(/記事の種類/), { target: { value: "review" } });
+
+    expect(screen.queryByLabelText(/選び方の基準/)).toBeNull();
+    expect(screen.getByLabelText(/使ってみて/)).toBeTruthy();
   });
 
-  it("選んでいない種類の欄は出さない（全種類を一度に並べない）", () => {
-    const html = render();
-    const shown = new Set(authoredSectionsFor(ARTICLE_TYPES[0]).map((s) => s.id));
-    const others = ARTICLE_TYPES.flatMap((t) => authoredSectionsFor(t))
-      .map((s) => s.id)
-      .filter((id) => !shown.has(id));
-    for (const id of new Set(others)) {
-      expect(html, `選んでいない種類の欄 ${id} が出ています`).not.toContain(
-        `name="section:${id}"`,
-      );
-    }
+  it("選び直しても、書いた内容は消えない", () => {
+    renderForm();
+    fireEvent.change(screen.getByLabelText(/選び方の基準/), { target: { value: "静音性で比べた" } });
+
+    fireEvent.change(screen.getByLabelText(/記事の種類/), { target: { value: "review" } });
+    fireEvent.change(screen.getByLabelText(/記事の種類/), { target: { value: "ranking" } });
+
+    /*
+      **選び直しで読み直しをしない**のは、これのため。読み直す作りにすると、
+      種類を確かめようと 1 度触っただけで書きかけの原稿が消える。
+    */
+    expect((screen.getByLabelText(/選び方の基準/) as HTMLTextAreaElement).value).toBe("静音性で比べた");
   });
 
-  it("広告との関係は、読者へ出す文そのものを選ばせる", () => {
-    const html = render();
-    expect(html).toContain("アフィリエイト広告を利用しています");
-    // 自費購入も選べる（表記が要らない場合を「未設定」と区別する）。
-    expect(html).toContain('value="purchased"');
+  it("表に無い種類が選ばれたら、原稿の欄を 1 つも出さない", () => {
+    renderForm({ ...OPTIONS, articleTypes: [] });
+    expect(screen.queryByLabelText(/選び方の基準/)).toBeNull();
+    // 空の一覧でも落とさない。落とすと、記事の構成を消した日に画面が白紙になる。
+    expect(screen.getByLabelText(/タイトル/)).toBeTruthy();
+  });
+});
+
+describe("出し先のブログを選び直す", () => {
+  it("カテゴリーも、そのブログのものへ入れ替わる", () => {
+    renderForm();
+    fireEvent.change(screen.getByLabelText(/出し先のブログ/), { target: { value: "annex" } });
+
+    expect(value("siteSlug")).toBe("annex");
+    /*
+      **入れ替えないと、前のブログのカテゴリーが残ったまま送られて弾かれる。**
+      弾かれた理由は「カテゴリーが無い」で、書き手には何のことか分からない。
+    */
+    expect(value("categorySlug")).toBe("lights");
   });
 
-  it("広告との関係は既定で未選択（勝手に決めない）", () => {
-    // 一度出た記事の表記は取り消せない。既定値を入れると、
-    // 何も選ばずに押した人の記事に、選んでいない表記が付く。
-    expect(render()).toContain("選んでください");
+  it("カテゴリーの無いブログを選んだら、カテゴリーを空にする", () => {
+    renderForm({
+      ...OPTIONS,
+      siteOptions: [OPTIONS.siteOptions[0]!, { slug: "annex", name: "別館", categories: [] }],
+    });
+    fireEvent.change(screen.getByLabelText(/出し先のブログ/), { target: { value: "annex" } });
+    // 前のブログの値を残さない。残ると、存在しない組み合わせで送られる。
+    expect(value("categorySlug")).toBe("");
   });
 
-  it("もとの記事の初期値が入っている（同じことを 2 回打たせない）", () => {
-    const html = render();
-    expect(html).toContain("静かなノートパソコンの選び方");
-    expect(html).toContain("書き出しの速さで選ぶ。");
-    expect(html).toContain("この記事には広告が含まれます。");
+  it("出し先が 1 つも無ければ、出すボタンを押させない", () => {
+    renderForm({ ...OPTIONS, siteOptions: [] });
+    /*
+      **押せる状態にしない。** 押せると「出した」と思った書き手が
+      画面を閉じ、実際にはどこにも出ていない記事が残る。
+    */
+    expect(screen.getByText("いまサイトに出す").hasAttribute("disabled")).toBe(true);
+    expect(
+      screen.getByText("公開前に点検する（まだ出しません）").hasAttribute("disabled"),
+    ).toBe(true);
+  });
+});
+
+describe("欄を増やす", () => {
+  it("根拠の欄は、増やしても既に書いた行を消さない", () => {
+    renderForm();
+    fireEvent.change(screen.getByLabelText(/言い切り 1/), { target: { value: "30dB を下回る" } });
+
+    fireEvent.click(screen.getByText("根拠の欄を増やす"));
+
+    expect(namesOf("claimStatement")).toEqual(["30dB を下回る", ""]);
+    expect(screen.getByLabelText(/言い切り 2/)).toBeTruthy();
   });
 
-  it("出し先のブログとカテゴリーを選べる", () => {
-    const html = render();
-    expect(html).toContain('value="quiet-desk"');
-    expect(html).toContain('value="laptop"');
-    expect(html).toContain('value="keyboard"');
+  it("根拠の 4 つの欄は、行ごとに独立して直せる", () => {
+    renderForm();
+    fireEvent.click(screen.getByText("根拠の欄を増やす"));
+
+    const urls = document.querySelectorAll('[name="claimSourceUrl"]');
+    fireEvent.change(urls[1]!, { target: { value: "https://example.invalid/spec" } });
+
+    // 1 行目を巻き込まない。巻き込むと、出典が全部同じものに揃う。
+    expect(namesOf("claimSourceUrl")).toEqual(["", "https://example.invalid/spec"]);
   });
 
-  it("出し先のブログが 1 つも無いときは押せない", () => {
-    // ブログが無いのに押せると、押してから断られる。押す前に分かるようにする。
-    // 「無いときに disabled が出る」だけでは、常に disabled でも通ってしまう。
-    // あるときに押せることも一緒に見る。
-    expect(render({ ...OPTIONS, siteOptions: [] })).toContain("disabled");
-    expect(render()).not.toContain("disabled");
-  });
+  it("よくある質問の欄も、同じように増える", () => {
+    renderForm();
+    fireEvent.change(screen.getByLabelText(/よくある質問 1/), { target: { value: "静かですか" } });
 
-  it("次に見直す日の欄があり、無いと出せないことが書いてある", () => {
-    const html = render();
-    expect(html).toContain('name="nextReviewOn"');
-    expect(html).toContain("設定しないと公開できません");
-  });
+    fireEvent.click(screen.getByText("よくある質問の欄を増やす"));
 
-  it("よくある質問を、問いと答えの対で書ける", () => {
-    // 対で送れないと、公開されたあと問いだけ・答えだけの行が読者に出る。
-    // 欄は言い切りと同じく同名の繰り返しで、行の対応は送信順で決まる。
-    const html = render();
-    expect(html).toContain('name="faqQuestion"');
-    expect(html).toContain('name="faqAnswer"');
-    expect(html).toContain("よくある質問");
+    expect(namesOf("faqQuestion")).toEqual(["静かですか", ""]);
+    expect(namesOf("faqAnswer")).toEqual(["", ""]);
   });
+});
 
-  it("AI から呼ぶ名前が、道具の名前と同じである（別名を作らない）", () => {
-    expect(render()).toContain('toolname="publish_article_to_own_site"');
+describe("点検と公開を、同じ道に通す", () => {
+  it("どちらを押したかは、送られる 1 つの値だけで決まる", () => {
+    renderForm();
+    const check = screen.getByText("公開前に点検する（まだ出しません）");
+    /*
+      **同じ form・同じ action を通す。** 別々にすると、点検した内容と
+      出す内容が別物になり、「点検は通ったのに出したら落ちた」が起きる。
+      押されたボタンの値だけが送られるので、区別はこの 1 つで足りる。
+    */
+    expect(check.getAttribute("name")).toBe("intent");
+    expect(check.getAttribute("value")).toBe("check");
+    expect(screen.getByText("いまサイトに出す").getAttribute("name")).toBeNull();
   });
 });

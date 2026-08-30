@@ -6,8 +6,8 @@
 テスト側の `@req` 印を重ねたもの。
 
 - 最終更新: 2026-08-30
-- テストファイル: 421 件
-- 由来の要件が分かる: 421 件
+- テストファイル: 422 件
+- 由来の要件が分かる: 422 件
 - **由来不明: 0 件**（上限 2 件）
 
 由来不明とは「どの要件のために書いたのか、機械から辿れない」という意味で、
@@ -364,6 +364,7 @@
 | `tests/ui/audit-log-notice.test.tsx` | REQ-SEC09 | 印 |
 | `tests/ui/axe-blind-spots.test.ts` | REQ-TS06 | 印と表 |
 | `tests/ui/axe-rule-coverage.test.ts` | REQ-SEC08, REQ-TS06 | 印と表 |
+| `tests/ui/blog-article-edit-form.test.tsx` | REQ-BOPS01, REQ-BOPS05, REQ-UX02 | 印 |
 | `tests/ui/blog-article-view.test.tsx` | REQ-BLOG03 | 印 |
 | `tests/ui/blog-enabled-marker.test.tsx` | REQ-BOPS02, REQ-BOPS03, REQ-BOPS08 | 印 |
 | `tests/ui/blog-ops-a11y-floor.test.tsx` | REQ-BLOG04, REQ-BOPS03, REQ-BOPS04, REQ-BOPS05, REQ-BOPS06, REQ-BOPS07, REQ-BOPS08, REQ-BOPS09, REQ-BOPS10, REQ-BOPS11, REQ-BOPS14 | 印と表 |
@@ -410,7 +411,7 @@
 | `tests/ui/prose-editor.test.tsx` | REQ-BOPS04, REQ-BOPS05, REQ-UX02 | 印 |
 | `tests/ui/public-shell-appearance.test.tsx` | REQ-TH03, REQ-TH04 | 印 |
 | `tests/ui/public-site-projection.test.ts` | REQ-BLOG02, REQ-BOPS02, REQ-BOPS03, REQ-BOPS06, REQ-BOPS11 | 印と表 |
-| `tests/ui/publish-article-form.test.tsx` | REQ-P08 | 印と表 |
+| `tests/ui/publish-article-form.test.tsx` | REQ-P08, REQ-SEO03, REQ-UX02 | 印と表 |
 | `tests/ui/publish-article-result.test.tsx` | REQ-P08 | 印と表 |
 | `tests/ui/published-article-form.test.tsx` | REQ-R11 | 印 |
 | `tests/ui/ranking-model-form.test.tsx` | REQ-P05, REQ-SEC09 | 印 |
@@ -442,4 +443,4 @@
 | `tests/ui/use-draft.test.tsx` | REQ-BOPS04, REQ-BOPS05 | 印 |
 | `tests/ui/zz-probe-tone.test.tsx` | REQ-TM07 | 表 |
 | `tests/visual/visual-regression.test.ts` | REQ-S09, REQ-TS12, REQ-UX08 | 印 |
-<!-- 生成物の指紋 sha256:fd82323e34b4b8e6f31b05a89e6ed363b1185f364d54aa731bb5117a31060cc7 -->
+<!-- 生成物の指紋 sha256:4442af1dabf4cc111b79941f49310974292a4ce1a9af2dd06a9ffd1cee896c3d -->

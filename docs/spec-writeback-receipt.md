@@ -122,11 +122,43 @@ P08 の Acceptance state は「migration/backfill が再実行可能」「legacy
    ただし `resume-receipt.json` の `report_sha256` と実体の digest は依然一致しない。
    **これは本ブランチ以前から dev 上に在る不一致で、こちらが作ったものではない。**
    解消は再評価によってのみ可能で、digest を書き換えて合わせることはしない（残課題 1 と同じ対象）。
-3. **新規 5 ファイルのテストが薄い（本 PR を draft に留める理由）。**
-   `mutation --changed` 58.7%（下限 65%、生き残り 478・テストが無い 149）と
-   `coverage-report` の 3 下限割れは同じ原因。最も薄いのは
-   `preview-affiliate-url.ts`（28.2%）→ `affiliate-preview.ts`（50.3%）→
-   `manage-blog-articles.ts`（55.4%）の順。ここから埋めるのが最短。
+3. ~~**新規 5 ファイルのテストが薄い（本 PR を draft に留める理由）。**~~
+   **解消（2026-08-30）。CI の `verify` を落としていたのはこの 1 件だけだった。**
+   薄い 2 ファイルへテストを足し、`mutation --changed` は **58.56% → 72.11%**（下限 65%）。
+
+   | ファイル | 前 | 後 |
+   |---|---|---|
+   | `preview-affiliate-url.ts` | 28.16% | **95.41%** |
+   | `affiliate-preview.ts` | 50.30% | **89.35%** |
+
+   **閾値は 1 つも動かしていない。**倒した変異が 889 → 1,099 に増えたことによる。
+
+   このとき実装を 1 か所広げた。`preview-affiliate-url.ts` の商品名による重複照合は
+   `trim().toLocaleLowerCase()` だけで、`Alpha Studio 15` と `ＡＬＰＨＡ　ＳＴＵＤＩＯ１５`、
+   `AlphaStudio15` を別商品として扱っていた。ASP ごとの表記揺れで実際に起きる形である。
+   **候補欄は保存を止めるものではなく人が確定前に見る一覧なので、誤検出は 1 行余計に
+   読むだけで済み、見逃すと同じ商品が二重登録されて成果が 2 本に割れる。**
+   コストが対称でないため、NFKC + 空白除去 + `ja-JP` 固定の小文字化へ広げた
+   （`productKey`）。型番が 1 文字違うものまでは寄せない。
+
+   残る薄さ（`manage-blog-articles.ts` 55.4% / `manage-affiliate-links.ts` 57.1% /
+   `link-ingestion.ts` 70.8%）は**下限を満たしたうえでの改善余地**であり、
+   ゲートを止めるものではない。
+
+   併せて層別カバレッジの 2 か所の不足も閉じた。**全層が下限を満たしている。**
+
+   | 層 | 指標 | 前 | 後 | 下限 |
+   |---|---|---|---|---|
+   | domain | 分岐 | 92.0 | **93.1** | 93 |
+   | presentation | 分岐 | 79.9 | **80.3** | 80 |
+   | presentation | 関数 | 86.4 | **88.6** | 87 |
+
+   presentation を動かしたのは `blog-article-form.tsx` の編集画面と
+   `publish-article-form.tsx` の選び直しである。どちらも**描かれてはいたが
+   1 度も操作されていなかった**。並べ替えの端（先頭を上へ／末尾を下へ）、
+   記事の種類の選び直し、出し先ブログの選び直し — いずれも
+   「書きかけを消さない」ための作りなのに、消えても緑のままだった。
+   `fireEvent` で状態遷移を起こして初めて、ハンドラと `useMemo` の中身が分母から出る。
 4. **A10 の初見 10 名 usability test が未実施。** 実参加者を集められず BLOCKED。事業判断待ち。
 5. **記事品質検査 24 種の指摘が画面に出ていない。** 上記のとおり bd memory で追跡中。
 6. **MCP `save_to_shortlist` の `savedAt` → `shortlistedAt`。** 外部 AI クライアントから
