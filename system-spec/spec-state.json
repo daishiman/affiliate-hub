@@ -1073,8 +1073,9 @@
     "frontend": {
       "web": {
         "state": "確定",
-        "qa_ref": "qa-frontend-web-seo-ai-search-v2",
+        "qa_ref": "qa-frontend-web-capture-self-occlusion",
         "qa_refs": [
+          "qa-frontend-web-capture-self-occlusion",
           "qa-frontend-web-seo-ai-search-v2",
           "qa-frontend-web-blog-builder",
           "qa-frontend-web-spec-intake",
@@ -1088,7 +1089,7 @@
         ],
         "required_info_checks": [
           {
-            "checked_on": "2026-08-25",
+            "checked_on": "2026-08-30",
             "checked_with": "record-required-info-check",
             "blocking_item_count": 0,
             "unmet_blocking_items": 0
@@ -1121,7 +1122,8 @@
         "state": "確定",
         "qa_ref": "qa-ops-web-rollback",
         "serves_goals": [
-          "G1"
+          "G1",
+          "G2"
         ],
         "qa_refs": [
           "qa-ops-web-rollback",
@@ -2918,6 +2920,41 @@
           ]
         }
       ]
+    },
+    {
+      "id": "qa-frontend-web-capture-self-occlusion",
+      "question": "frontend×web: 改善要望フィードバックで画面の写しを撮るとき、送信モーダルと固定ボタン自身の写り込みをどう扱うか (2026-08-30 利用者ヒアリング)",
+      "answer": "利用者本人の回答を逐語主旨で記録する。(1) 「改善したい箇所のスクリーンショットを撮ると、編集画面の『改善したいことを送る』という画面が表示され、そのスクリーンショットが貼られてしまう」。(2) 「これでは本当に改善したい箇所を伝えることができない」。(3) 対処の範囲を 3 案 (機能ごと無効化 / 撮影中だけ自動で隠す / モーダルの自動表示だけ止める) で確認したところ、利用者は「撮影中だけ自動で隠す」を選択した。すなわちフィードバック機能そのものは残し、写しの取得が確定するまでの間だけ、送信モーダルと右下の固定ボタンを写しの対象から外す。(4) 撮り直し (再撮影) のときも同じ扱いとする。",
+      "source": {
+        "kind": "user-dialogue"
+      },
+      "asks_for": [
+        {
+          "category": "frontend",
+          "platform": "web"
+        }
+      ],
+      "design_applications": [
+        {
+          "knowledge_ref": "user-dialogue:2026-08-30#撮影中だけ自動で隠す",
+          "principle": "自己観測する UI は、観測の対象から自分自身を外す (観測器を被写体に含めない)",
+          "applicability": "applied",
+          "rationale": "写しの用途は『利用者が伝えたい箇所』の提示であり、送信 UI 自身はその情報を 1 ビットも運ばない。むしろ画面の中央を占有して被写体を隠すため、写りは純粋な損失である。撮影開始 (getDisplayMedia 呼出) と、送信 UI の可視化を別の時点に分け、写しが確定するまで送信 UI を描かない。撮影開始そのものは押した勢い (transient activation) を失わないよう onClick 内に留める。",
+          "tradeoffs": [
+            "モーダルの出現が写しの確定まで遅れるため、押してから開くまでの体感が伸びる。写しが撮れない・断られた環境では即座に開く経路を残し、待ちが無限に伸びないようにする",
+            "『押した瞬間に開く』という既存の設計意図 (feedback-button.tsx の注記) を意図的に変更するため、変更理由をコード側にも残さないと元へ戻される"
+          ]
+        },
+        {
+          "knowledge_ref": "ref-system-design-knowledge:information-design",
+          "principle": "本文の上に浮く操作は、記録・監査の対象になるときだけ自分を名乗り、それ以外では退く",
+          "applicability": "applied",
+          "rationale": "右下固定の起動ボタンは data-floating-overlay で本文の上に居ることを名乗っている。同じ理由で、写しという記録の中では退く側に回る。名乗りと退避を同じ属性系で扱うことで、重なり監査 (tests/e2e/app-routes.spec.ts) と写しの除外規則が別々の手掛かりに分岐しない。",
+          "tradeoffs": [
+            "隠す対象を属性で選ぶため、将来別の浮遊要素が増えたときに同じ属性を付け忘れると写り込みが再発する。属性の付与漏れを検査で拾う必要がある"
+          ]
+        }
+      ]
     }
   ],
   "approval_log": [
@@ -4492,6 +4529,65 @@
           }
         ]
       }
+    },
+    {
+      "category": "frontend",
+      "platform": "web",
+      "reason": "改善要望フィードバックの画面の写しに、送信モーダル自身と右下の固定ボタンが写り込み、利用者が伝えたい箇所が隠れる。FB-AC 群に『撮影の瞬間に自分の UI を写り込ませない』要件が無いため、新規収集して再確定する (2026-08-30 利用者ヒアリング)。",
+      "from": "確定",
+      "discarded": {
+        "qa_ref": "qa-frontend-web-seo-ai-search-v2",
+        "qa_refs": [
+          "qa-frontend-web-seo-ai-search-v2",
+          "qa-frontend-web-blog-builder",
+          "qa-frontend-web-spec-intake",
+          "qa-frontend-web",
+          "qa-frontend-web-analytics",
+          "qa-frontend-web-overhaul-v2"
+        ],
+        "serves_goals": [
+          "G1",
+          "G2"
+        ],
+        "required_info_checks": [
+          {
+            "checked_on": "2026-08-25",
+            "checked_with": "record-required-info-check",
+            "blocking_item_count": 0,
+            "unmet_blocking_items": 0
+          }
+        ]
+      }
+    },
+    {
+      "category": "frontend",
+      "platform": "web",
+      "reason": "章 frontend.md に残る前版の残骸節 (CARRIED_HEADING『章にしか無い記述 (正本へ未接続)』) を除去するための一時再オープン。当該節は qa-frontend-web-seo-ai-search-v2 が確定質疑から接地根拠へ移った際の写しで、同一本文が『確定内容 (質疑録)』の接地根拠節へ既に描画済みである (frontend.md 33-51 行)。正本 spec-state.json の内容は 1 文字も変えず、確定内容・qa_ref・qa_refs・serves_goals は再確定時に同一値へ戻す (2026-08-30 完成度 evaluator の medium finding 対応)。",
+      "from": "確定",
+      "discarded": {
+        "qa_ref": "qa-frontend-web-capture-self-occlusion",
+        "qa_refs": [
+          "qa-frontend-web-capture-self-occlusion",
+          "qa-frontend-web-seo-ai-search-v2",
+          "qa-frontend-web-blog-builder",
+          "qa-frontend-web-spec-intake",
+          "qa-frontend-web",
+          "qa-frontend-web-analytics",
+          "qa-frontend-web-overhaul-v2"
+        ],
+        "serves_goals": [
+          "G1",
+          "G2"
+        ],
+        "required_info_checks": [
+          {
+            "checked_on": "2026-08-30",
+            "checked_with": "record-required-info-check",
+            "blocking_item_count": 0,
+            "unmet_blocking_items": 0
+          }
+        ]
+      }
     }
   ],
   "category_aggregate": {
@@ -5869,10 +5965,10 @@
   ],
   "knowledge_candidates": [],
   "hearing_progress": {
-    "loop_count": 4,
+    "loop_count": 1,
     "next_question": null,
     "complete": true,
-    "max_loops": 8,
+    "max_loops": 5,
     "max_loops_policy": "strict"
   },
   "asks_for_contract": {

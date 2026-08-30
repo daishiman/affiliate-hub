@@ -3,7 +3,7 @@ status: confirmed
 category: maintenance-ops
 aggregate: 確定
 spec_cells: [maintenance-ops.web, maintenance-ops.mobile, maintenance-ops.tablet, maintenance-ops.desktop-windows, maintenance-ops.desktop-linux, maintenance-ops.desktop-macos]
-serves_goals: [G1]
+serves_goals: [G1, G2]
 ---
 
 # 保守運用管理 (maintenance-ops)
@@ -224,7 +224,7 @@ codeを、次の変更者が意図・制約・failureを短時間で理解し、
   - 章固有の根拠: 価格・仕様・販売状態の変更を検知して影響記事を一覧化し、人間確認を経て更新履歴を保存する
   - トレードオフ:
     - 検知頻度を上げると外部API利用量が増えるため、レート予算内でジャンル別に頻度を調整する
-- 資するゴール: G1
+- 資するゴール: G1, G2
 
 ## 最新ドキュメント出典
 

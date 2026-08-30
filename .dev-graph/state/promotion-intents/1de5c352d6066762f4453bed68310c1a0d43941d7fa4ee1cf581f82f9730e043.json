@@ -1,0 +1,17 @@
+{
+  "schema_version": "1.0.0",
+  "status": "completed",
+  "staging": ".dev-graph/staging/feature-package-feat-feedback-capture-self-exclusion/run-20260830T115648Z-elegant",
+  "destination": ".dev-graph/published/generations/feature-package-feat-feedback-capture-self-exclusion/892cd5611c443a5f90b97047a9542489c44be963ff4d775c30b640e7aca40b7d",
+  "digest": "sha256:892cd5611c443a5f90b97047a9542489c44be963ff4d775c30b640e7aca40b7d",
+  "feature_package_id": "feature-package/feat-feedback-capture-self-exclusion",
+  "package_slug": "feature-package-feat-feedback-capture-self-exclusion",
+  "generation_id": "892cd5611c443a5f90b97047a9542489c44be963ff4d775c30b640e7aca40b7d",
+  "supersedes": {
+    "published_path": ".dev-graph/published/feature-package-feat-feedback-capture-self-exclusion",
+    "published_digest": "sha256:13ad980aa71b9f1c7e2e661bdfc41f4cc44de5f2854df51ae40f4c676d1d6f9b",
+    "receipt": ".dev-graph/published/feature-package-feat-feedback-capture-self-exclusion/atomic-promotion-receipt.json"
+  },
+  "receipt": ".dev-graph/published/generations/feature-package-feat-feedback-capture-self-exclusion/892cd5611c443a5f90b97047a9542489c44be963ff4d775c30b640e7aca40b7d/atomic-promotion-receipt.json",
+  "completed_at": "2026-08-30T12:31:04Z"
+}

@@ -1,0 +1,146 @@
+{
+  "schema": "dev-graph-requirements-handoff/v1",
+  "handoff_target": "task-graph",
+  "feature_id": "feat-feedback-capture-self-exclusion",
+  "feature_package_id": "feature-package/feat-feedback-capture-self-exclusion",
+  "graph_snapshot_digest": "sha256:881715642300f0e307126ef9d297f1db1489e4720d418bae0eb709c9d1abef87",
+  "graph_revision": 353,
+  "requirements_document": "docs/requirements/feat-feedback-capture-self-exclusion-implementation-requirements.md",
+  "requirements_document_sha256": "0eead1f6fc9a9df447997ebccf5171bb7b71906b928909926fd5c58d5245cafb",
+  "promoted_generation": ".dev-graph/published/generations/feature-package-feat-feedback-capture-self-exclusion/892cd5611c443a5f90b97047a9542489c44be963ff4d775c30b640e7aca40b7d",
+  "promoted_generation_digest": "sha256:892cd5611c443a5f90b97047a9542489c44be963ff4d775c30b640e7aca40b7d",
+  "lineage_closure": [
+    "SYS-FB-CAPTURE-EXCLUSION-P01",
+    "SYS-FB-CAPTURE-EXCLUSION-P02",
+    "SYS-FB-CAPTURE-EXCLUSION-P03",
+    "SYS-FB-CAPTURE-EXCLUSION-P04",
+    "SYS-FB-CAPTURE-EXCLUSION-P05",
+    "SYS-FB-CAPTURE-EXCLUSION-P06",
+    "SYS-FB-CAPTURE-EXCLUSION-P07",
+    "SYS-FB-CAPTURE-EXCLUSION-P08",
+    "SYS-FB-CAPTURE-EXCLUSION-P09",
+    "SYS-FB-CAPTURE-EXCLUSION-P10",
+    "SYS-FB-CAPTURE-EXCLUSION-P11",
+    "SYS-FB-CAPTURE-EXCLUSION-P12",
+    "SYS-FB-CAPTURE-EXCLUSION-P13",
+    "arch-two-layer-platform",
+    "feat-feedback-capture-self-exclusion"
+  ],
+  "readiness": {
+    "status": "complete",
+    "missing_sections": [],
+    "remediation_owner": null
+  },
+  "gates": {
+    "C11_validate_graph_schema": {
+      "command": "validate-graph-schema.py --graph .dev-graph/state/graph.json --repo-root .",
+      "exit": 0,
+      "valid": true,
+      "violations": 0,
+      "implementation_readiness": "complete"
+    },
+    "C02_saved_state": {
+      "implementation_readiness": "complete",
+      "evaluation_status": "pass",
+      "confirmation_status": "confirmed",
+      "scope": "closure 15 node",
+      "receipt": ".dev-graph/published/generations/feature-package-feat-feedback-capture-self-exclusion/892cd5611c443a5f90b97047a9542489c44be963ff4d775c30b640e7aca40b7d/dev-graph-registration-receipt.json",
+      "expected_count": 13,
+      "applied_count": 13
+    },
+    "source_digest": {
+      "method": "package.source_feature_digest と features/feat-feedback-capture-self-exclusion.context.json の現行 bytes sha256 を直接照合",
+      "checked": 1,
+      "registered_mismatch": 0,
+      "digest": "sha256:3ff191c19523cd47fb620ed9b27ade3221ab8e58124bc02b4d3550447727da28"
+    },
+    "validate_system_plan": {
+      "command": "validate-system-plan.py --repo-root . --feature-package feature-package/feat-feedback-capture-self-exclusion",
+      "exit": 0,
+      "status": "pass",
+      "violations": 0,
+      "validated_digest": "sha256:892cd5611c443a5f90b97047a9542489c44be963ff4d775c30b640e7aca40b7d"
+    }
+  },
+  "entry_gate": {
+    "p01_entry_gate": "parent_feature.depends_on all done|closed",
+    "parent_feature_depends_on": [
+      "feat-improvement-feedback"
+    ],
+    "satisfied": true,
+    "blocking_nodes": [],
+    "remediation_owner": null
+  },
+  "tracker_parity": {
+    "canonical_manifest": {
+      "path": "eval-log/dev-graph/run-dev-graph-schedule/parity-manifest.json",
+      "source_graph_digest": "sha256:eab45b734257f5afb88f72e6cac6478b0f9f9c731afe135b20e11e093f9bbb9d",
+      "generated_at": "2026-08-30T13:42:29Z"
+    },
+    "intra_feature_phase_chain": {
+      "status": "pass",
+      "graph_nodes": 13,
+      "graph_edges": 12,
+      "beads_issues": 13,
+      "verification": "bd-bridge show --verify-parity succeeded for P01-P13"
+    },
+    "feature_level_dependencies": {
+      "status": "unprojectable",
+      "graph_edge": {
+        "from": "feat-feedback-capture-self-exclusion",
+        "to": "feat-improvement-feedback"
+      },
+      "beads_edge": {
+        "from": "ah-0d2q",
+        "from_issue_type": "epic",
+        "to": "ah-w6y",
+        "to_issue_type": "task",
+        "present": false
+      },
+      "reason": "Beads rejects epic-to-task blocking dependencies: epics can only block other epics, not tasks",
+      "mutation_result": "rejected_without_write",
+      "c28_conflict": {
+        "expected_depends_on": [
+          "ah-w6y"
+        ],
+        "actual_depends_on": [],
+        "missing_edges": [
+          "ah-w6y"
+        ]
+      },
+      "canonical_type_migration": {
+        "available": false,
+        "evidence": "bd-bridge update rejects --type and projection create fails closed when an existing external_ref has a different issue_type",
+        "dry_run_exit": 2
+      },
+      "handling": "retain the semantically correct dev-graph dependency; do not retry, delete it, bypass bd-bridge, mutate the adapter, or create a duplicate epic; treat this as an adapter limitation distinct from the 13-phase edge parity"
+    }
+  },
+  "execution_lifecycle": {
+    "P01-P06": {
+      "graph_status": "closed",
+      "completion_evidence_status": "done",
+      "beads_status": "closed"
+    },
+    "P07": {
+      "graph_status": "active",
+      "completion_evidence_status": "open",
+      "beads_status": "open",
+      "reason": "acceptance overall is PARTIAL; A1 actual capture pixels remain unobserved after the local Chromium probe stopped at the OS screen-recording boundary with NotReadableError: Could not start video source"
+    },
+    "P08-P13": {
+      "graph_status": "active",
+      "completion_evidence_status": "blocked",
+      "beads_status": "open",
+      "reason": "blocked by the incomplete predecessor chain rooted at P07"
+    },
+    "P13_external_boundary": {
+      "pull_request": "not_performed",
+      "ci": "not_performed",
+      "merge": "not_performed",
+      "canonical_writeback": "not_completed"
+    }
+  },
+  "implementation_code_generated": 0,
+  "emitted_at": "2026-08-30T13:42:29Z"
+}
