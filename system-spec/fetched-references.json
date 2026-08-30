@@ -2,28 +2,28 @@
   "references": [
     {
       "target_id": "better-auth",
-      "retrieved_at": "2026-08-29T14:02:13Z",
+      "retrieved_at": "2026-08-29T23:02:28Z",
       "source_url": "https://better-auth.com/docs/introduction",
       "official_publisher": "Better Auth",
       "official_host": "better-auth.com",
       "version": "1.7.2",
       "freshness_source": "page-declared",
-      "latest_checked_at": "2026-08-29T14:02:13Z",
+      "latest_checked_at": "2026-08-29T23:02:28Z",
       "evidence_ref": "system-spec/retrieval-evidence/better-auth.json",
-      "evidence_sha256": "1b4c913ed590a4629d4a793aeb660d721dc59cef8b0dae8c3f3b2c6b68770a96",
+      "evidence_sha256": "db6005079d6beb8b25869d785051e14ab8767f10506b07fed2bb4f56757b0959",
       "summary": "Better Auth 公式 Introduction。TypeScript 向け認証・認可フレームワークで、公式ページ自身の Latest Version 表示 1.7.2 を 2026-08-29 に再取得して確認した。OAuth、セッション、組織、パスキー等のプラグインと Drizzle アダプタを提供する。"
     },
     {
       "target_id": "nextjs",
-      "retrieved_at": "2026-08-29T14:02:13Z",
+      "retrieved_at": "2026-08-29T23:02:28Z",
       "source_url": "https://nextjs.org/docs",
       "official_publisher": "Vercel",
       "official_host": "nextjs.org",
       "version": "16.3.3",
       "freshness_source": "page-declared",
-      "latest_checked_at": "2026-08-29T14:02:13Z",
+      "latest_checked_at": "2026-08-29T23:02:28Z",
       "evidence_ref": "system-spec/retrieval-evidence/nextjs.json",
-      "evidence_sha256": "051de46ff2c8429e5973b85cecc6d5576bbb70488681631156d8feae13d7f8ac",
+      "evidence_sha256": "48e6294a256d752713676d28fdb020a58571c35f66583bc3be57c0be41720f1e",
       "summary": "Next.js 公式 Docs。App Router、Server Components、データ取得・変更等の現行仕様。公式 Docs の Latest Version と Vercel の npm registry latest がともに 16.3.3 であることを 2026-08-29 に再取得して確認した。"
     },
     {
@@ -80,15 +80,15 @@
     },
     {
       "target_id": "apple-hig",
-      "retrieved_at": "2026-08-29T14:02:13Z",
+      "retrieved_at": "2026-08-29T23:02:28Z",
       "source_url": "https://developer.apple.com/design/human-interface-guidelines/design-principles",
       "official_publisher": "Apple",
       "official_host": "developer.apple.com",
       "last_updated": "2026-06-08",
       "freshness_source": "page-declared",
-      "latest_checked_at": "2026-08-29T14:02:13Z",
+      "latest_checked_at": "2026-08-29T23:02:28Z",
       "evidence_ref": "system-spec/retrieval-evidence/apple-hig.json",
-      "evidence_sha256": "e8757217ccc68d47bc67274d3f921ccbd2df2613fae50c336f9d8329e6c75f2c",
+      "evidence_sha256": "64ebcd442e70fd283191fe9f664106e2a05345efc6fdca2e2fb7e46ad1cc71d6",
       "summary": "Apple Human Interface Guidelines の公式 Design principles。presentation concern の doctrine authority。HIG 入口の再現困難な Last-Modified ではなく、公式ページ自身が表明する 2026-06-08 の公開・再導入日を採用し、2026-08-29 に再取得した。"
     },
     {

@@ -114,14 +114,41 @@ P08 の Acceptance state は「migration/backfill が再実行可能」「legacy
 
 ### 残課題
 
-1. **`spec-freshness` が STALE。** 完全性評価は 81 件時点の仕様書に対するもので、いまは 106 件ある。
-   既存の open 課題（`ah-8h2.2` / `ah-670` / `ah-tod`）と同じ対象。
-2. ~~**`system-spec/completeness-report.json` の 81 件の内訳が失われた。**~~
-   **解消（2026-08-30）。** dev 側に無傷の写しが残っていたため、取り込みでそちらを採った。
-   81 件の per-file 一覧は戻っている。
-   ただし `resume-receipt.json` の `report_sha256` と実体の digest は依然一致しない。
-   **これは本ブランチ以前から dev 上に在る不一致で、こちらが作ったものではない。**
-   解消は再評価によってのみ可能で、digest を書き換えて合わせることはしない（残課題 1 と同じ対象）。
+1. ~~**`spec-freshness` が STALE。**~~ **解消（2026-08-30）。**
+
+   **前の版でこれを「本ブランチ以前から dev 上に在る」と書いたのは誤りだった。訂正する。**
+   `origin/dev` の CI は緑で、dev 側の入力は 81 件、指紋も一致していた。STALE にしたのは
+   本ブランチである。内訳は `docs/spec/feat-reference-blog-admin-ux/` の **新規 25 件**と、
+   `system-spec/{auth,frontend,ui-ux}.md`・`spec-state.json` ほか **書き換え 10 件**。
+   どれも正規フローで書いた本ブランチの成果物で、レポートだけが 81 件時点に取り残されていた。
+
+   焼き直す前に、**完全性レポートが記録している機械ゲート 11 件を、いまの 106 件の仕様書に
+   対して全部実行し直した。11/11 が記録どおりの exit code を返した。**その実測を根拠に
+   `node scripts/spec-freshness.mjs --write` で指紋を焼き付けた。
+
+   **fork 監査 6 観点（`foundation_trace` / `decision_guidance` / `matrix_coverage` /
+   `design_knowledge_reflection` / `doc_freshness` / `prompt_quality`）は再実行していない。**
+   新しい確定質疑 2 件（`qa-frontend-web-affiliate-link-preview-v3` /
+   `qa-uiux-web-cognitive-load-affiliate-visibility-v3`）が加わっているので、厳密には
+   再監査の対象である。MVP の検証水準として機械ゲートの実測までで打ち切ることを
+   利用者が選んだ。**この判断を隠さないためにここへ書く。**
+
+2. **証跡と索引の割れを直した（本ブランチが持ち込んだもの）。**
+   `system-spec/fetched-references.json` の `better-auth` / `nextjs` / `apple-hig` の
+   3 件で、`evidence_sha256` と `retrieved_at` が `retrieval-evidence/*.json` の実体と
+   食い違っていた。`origin/dev` では 3 件とも一致していたので、割ったのは本ブランチである。
+
+   `source_url`・`freshness_source`・`last_updated` は証跡と一致していたので、
+   **同じ取得回のペアでありながら索引だけが追随していなかった**形。証跡ファイルが
+   後から整形し直されて指紋が動いたと見られる。
+
+   **直した向きは索引 → 一次記録。**証跡（HTTP 取得の生記録）は 1 バイトも触っていない。
+   逆向き（証跡を索引に合わせる）は、取得していない事実を作ることになる。
+   `resume-receipt.json` の `report_sha256` を書き換えないのと同じ理由である。
+   これで `G-source-citation` と `G-evidence-transcription` が PASS へ戻った。
+
+   `resume-receipt.json` の `report_sha256` と実体 digest の不一致は**残っている**。
+   こちらは再評価によってのみ解消でき、digest を書き換えて合わせることはしない。
 3. ~~**新規 5 ファイルのテストが薄い（本 PR を draft に留める理由）。**~~
    **解消（2026-08-30）。CI の `verify` を落としていたのはこの 1 件だけだった。**
    薄い 2 ファイルへテストを足し、`mutation --changed` は **58.56% → 72.11%**（下限 65%）。
