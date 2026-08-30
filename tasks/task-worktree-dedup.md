@@ -106,13 +106,12 @@ implementation_readiness: {"checked_at":"2026-08-22T00:00:00Z","missing_sections
 
 1. 役の違う横並びを `InlineNav` へ移し、旧 `.linkList` を削除する
 2. 参照 0 件の `signin.module.css` を削除する
-3. 技術診断を収集側と保存側の両方で固定語彙へ縮約する
-4. 担当者数を `countCurrent` に移す
-5. MCP catalog の二重生成を止める
-6. `pnpm run verify --tier 1` を通す
-7. （2026-08-30）本文欄の段落分けを `parseNonEmptyParagraphs` へ、読者向け一覧の重ね方を
+3. 担当者数を `countCurrent` に移す
+4. MCP catalog の二重生成を止める
+5. `pnpm run verify --tier 1` を通す
+6. （2026-08-30）本文欄の段落分けを `parseNonEmptyParagraphs` へ、読者向け一覧の重ね方を
    `mergeSummariesWithSamples` へ、見本の固定文書の解決を `resolveSampleSiteDocument` へ寄せる
-8. （2026-08-30）寄せた先が再び分岐しないよう、構造そのものを検査で固定する。
+7. （2026-08-30）寄せた先が再び分岐しないよう、構造そのものを検査で固定する。
    製品文書が挙げる migration と正本 source は実在を機械で確かめる
 
 ## 受入条件

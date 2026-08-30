@@ -28,6 +28,41 @@ verdict: no-spec-impact
 | `docs/product/T3` `T4` の migration 名 `0019` → `0039` | 文書の誤り訂正 | 実ファイルは当初から `0039_gentle_archive.sql`。文書側が実体を誤って指していた |
 | `allowed-values.md` の正本パス訂正 | 文書の誤り訂正 | `src/domain/reading/published-article.ts` は存在せず、正本は `src/application/read-models/published-article.ts` |
 
+### 完全性レポートの指紋を焼き直した根拠（2026-08-30 追記）
+
+`node scripts/spec-freshness.mjs` が `STALE` を返していた。**本タスクの変更が原因ではない。**
+リビジョンごとに指紋を機械で再計算すると、境目はマージコミット `b344bfe` にある。
+
+| リビジョン | 仕様入力 | verdict | 鮮度 |
+|---|---|---|---|
+| `origin/main` | 28 件 | PASS | FRESH |
+| `origin/dev` | 81 件 | PASS | FRESH |
+| `b344bfe`（main を取り込んだマージ） | 81 件 | PASS | **STALE** |
+| `HEAD` | 81 件 | PASS | **STALE** |
+
+レポートに焼かれた 81 件の逐一 sha256 と現在の中身を突き合わせると、動いたのは 3 件だけ。
+その 3 件の実差分は**各 1 行、`acceptance-reconciliation` の `evaluated_digest` のみ**である。
+
+```
+docs/spec/feat-uiux-overhaul/acceptance-report.md
+docs/spec/feat-uiux-overhaul/final-review.md
+docs/spec/feat-uiux-overhaul/release-report.md
+
+-"evaluated_digest":"sha256:2698a17d8a6e…"
++"evaluated_digest":"sha256:1c5a67484bce…"
+```
+
+これは `pnpm run acceptance:reconcile` がマージ後の証跡に対して**再生成した機械の値**であり、
+人が仕様を書き換えたものではない。値そのものの正しさは別の門
+`受入IDの証跡突合`（同 CI で OK）が見ている。**2 つの指紋機構の玉突き**であり、
+完全性評価の 6 観点（上位概念 trace / 意思決定 / マトリクス網羅性 / 設計知識反映 /
+最新ドキュメント出典 / prompt 品質）はこのフィールドを読まないため、判定は動かない。
+
+以上を確認したうえで `node scripts/spec-freshness.mjs --write` で指紋を焼き直した。
+**評価の中身を再実行してはいない。** 上の 3 件以外に 1 バイトの差も無いことを
+逐一 digest で示したことが、その代わりの根拠である。
+仕様書の本文が動いたときは、この近道を使わず正規の再評価（`ah-8h2.2`）へ回すこと。
+
 ### 反映した層
 
 | 層 | 今回の反映 |
