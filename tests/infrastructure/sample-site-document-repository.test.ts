@@ -1,7 +1,7 @@
 /**
  * @tier 1
  * @req REQ-P07
- * @types equivalence, boundary
+ * @types equivalence
  *
  * 見本の固定文書は、管理画面と読者画面で同じ site/key の文書を返す。
  * 片方だけがブログ固有の上書きを忘れると、運営者が確認した文面と

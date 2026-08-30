@@ -1,7 +1,7 @@
 /**
  * @tier 1
  * @req REQ-TS09
- * @types structural
+ * @types code-boundary
  *
  * 読者向けの一覧は、保存済み・予約済み URL・非表示 URL・見本を
  * 同じ規則で重ねる。この規則が reader ごとに複製されると、たとえば
