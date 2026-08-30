@@ -1,5 +1,5 @@
 {
-  "graph_revision": 355,
+  "graph_revision": 356,
   "nodes": [
     {
       "acceptance": [],
@@ -19837,6 +19837,105 @@
       "title": "見本データが読者側の入口を満たしていない（設計図・作業場所・URL 名の 3 点）",
       "tracker_binding": "beads",
       "updated_at": "2026-08-30T13:00:00Z"
+    },
+    {
+      "acceptance": [],
+      "architecture_refs": [],
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "beads_linkage": null,
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "candidate_path": "tasks/task-network-reach-decision.md",
+          "confidence": 0.9
+        }
+      ],
+      "classification_confidence": 0.9,
+      "classification_reason": "公開範囲の決め方そのものを問う仕様判断。実装ではなく決定が先に要る",
+      "completion_evidence": {
+        "completed_at": null,
+        "evidence_refs": [],
+        "policy": "manual",
+        "reconciled_at": null,
+        "source": "manual",
+        "status": "in_progress"
+      },
+      "confirmation_evidence": {
+        "evaluated_digest": null,
+        "evaluator": null,
+        "evidence_ref": null
+      },
+      "confirmation_status": "draft",
+      "created_at": "2026-08-31T06:30:00Z",
+      "depends_on": [
+        "task-seed-satisfies-public-entry"
+      ],
+      "domain": "data",
+      "evaluation_status": "pending",
+      "execution_contexts": [],
+      "feature_package_id": null,
+      "file_path": "tasks/task-network-reach-decision.md",
+      "github_project_linkages": [],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "goal": null,
+      "graph_node_id": "task-network-reach-decision",
+      "implementation_readiness": {
+        "checked_at": null,
+        "missing_sections": [],
+        "status": "incomplete"
+      },
+      "issue_linkage": null,
+      "iteration": null,
+      "mvp_alignment": {
+        "background": "見本の設計図は 5 本あるが、site_network_node に載るのは 2 本だけで、残り 3 本は 404 になる",
+        "mvp_fit": "enabling",
+        "purpose": "設計図を持つブログのうち何本を公開扱いにするかを決め、決めた形を機械で見張る",
+        "rationale": "いまの 2 本は誰かが決めた本数ではなく、書いた順に 2 本入れた結果である。決めていないことと、決めた結果 2 本であることは、画面から区別が付かない"
+      },
+      "owners": [
+        "daishiman"
+      ],
+      "parent_feature": null,
+      "phase_ref": null,
+      "priority": "medium",
+      "project_id": "affiliate-hub",
+      "pull_request_linkages": [],
+      "purpose": null,
+      "related_nodes": [
+        "task-seed-satisfies-public-entry"
+      ],
+      "resource_scope": [
+        "scripts",
+        "tests"
+      ],
+      "scope_in": [],
+      "scope_out": [],
+      "source_lineage": {
+        "imported_at": "2026-08-31T06:30:00Z",
+        "origin_kind": "manual",
+        "source_digest": null,
+        "source_path": "src/infrastructure/persistence/d1/blog-ops-repository.ts",
+        "source_plugin": null,
+        "source_version": null
+      },
+      "start_date": null,
+      "status": "draft",
+      "tags": [
+        "data",
+        "dx"
+      ],
+      "target_date": null,
+      "template_id": "task",
+      "template_version": "1.0.0",
+      "title": "設計図を持つ 5 本のうち 2 本しか公開していないのは、決めた結果ではない",
+      "tracker_binding": "beads",
+      "updated_at": "2026-08-31T06:30:00Z"
     }
   ],
   "repository_id": "github:daishiman/affiliate-hub",

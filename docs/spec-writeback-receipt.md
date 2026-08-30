@@ -585,6 +585,7 @@ verdict: no-spec-impact
 
 ## 残課題
 
-- 網に載せる本数を 2 本のままにするかの仕様判断（未起票）
-- `docs/product/test-traceability.md` の再生成は、他セッションの変更が
-  出そろってからまとめて行う
+- 網に載せる本数を 2 本のままにするかの仕様判断 → **`ah-vctm`** で起票済み
+  （`task-network-reach-decision`。`ah-ghmb` に依存）
+- `docs/product/test-traceability.md` は本 PR のマージ結果で再生成済み（427 件）。
+  他セッションの未コミットテストが出そろったら、そちらでもう一度生成し直す
