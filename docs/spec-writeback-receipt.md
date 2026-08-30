@@ -328,3 +328,70 @@ verdict: accepted-with-follow-up
 - `ah-7lo`: `system-spec/completeness-report.json` が STALE。入力 hash 付きで再評価する
 - `ah-ez9`: 読者面と発信者面の接続境界は 02 §9 項 5 が open
 - Auth / Workspace / 2 D1 / Redirect / Insight は未実装（本 PR の対象外）
+
+---
+
+# 仕様反映 受領書（2026-08-31・見本データと読者側の入口）
+
+```yaml
+receipt_id: spec-writeback-2026-08-31-task-seed-satisfies-public-entry
+recorded_at: 2026-08-31T06:10:00Z
+beads_ids: [ah-ghmb]
+dev_graph_node_id: task-seed-satisfies-public-entry
+base_branch: dev
+head_branch: devgraph/task-seed-satisfies-public-entry
+verdict: no-spec-impact
+```
+
+## 判定
+
+本変更は **仕様・設計へ影響しない。** 確定済みの製品要求・画面契約・データ契約を
+一切増減していない。`system-spec/` `specs/` `architecture/` は変更していない。
+
+変えたのは **開発機に入れる見本データ**と、それを見張る回帰検査だけである。
+
+## 影響が無いと判断した理由
+
+| 変更 | 種類 | 判断根拠 |
+|---|---|---|
+| `site_blueprints` への `DELETE` + `INSERT` を追加 | 見本データの欠落補填 | 公開の条件は `resolvePublicSiteIdentity` が既に定めており、そこは変えていない。**条件を満たすデータを入れていなかった側**を直した |
+| `SEED_SUB_SLUG` を `SECOND_SITE_SLUG` の import へ | 見本データの不整合修正 | 手書きの `gear-for-small-kitchen` は見本のどこにも存在しない URL 名だった。正本（`sampleSites()`）を指し直しただけ |
+| `legal_page` の `DELETE` を id 接頭辞へ | 冪等性の修正 | 同じ行を 2 度当てても増えない、という既存の性質を保つための修正。表の定義は不変 |
+| `seed-covers-cases.test.ts` の id 抽出を列名基準へ | 検査の誤報修正 | 「1 番目の値が id」の決め打ちが、列を足した日に別の値を id と誤認していた。判定の意味は不変 |
+| 新規検査 3 本 | 回帰の固定 | 検査の追加は仕様を増やさない。既に正本にある条件を機械で確かめるだけ |
+
+## 仕様側に反映したこと（文書のみ）
+
+`README.md` のセットアップに `pnpm seed:local` と、読者側の公開が
+**`site_blueprints` と `site_network_node` の組**で決まることの明記を足した。
+
+これは要求の追加ではなく、**既にコードが要求していた条件を人が読める場所に書いた**ものである。
+手順を飛ばすと `/s/` 以下が 404 になることが、いままでどこにも書かれていなかった。
+
+## 品質ゲート
+
+| ゲート | 結果 |
+| --- | --- |
+| `npx tsc --noEmit --incremental false` | PASS（出力なし） |
+| `npx eslint`（対象 5 ファイル） | PASS（出力なし） |
+| `npx vitest run tests/architecture` | PASS（69 files / 837 tests） |
+| `npx vitest run`（全体） | PASS（434 files / 10101 tests） |
+| `pytest test_compile_heading_demotion_real_data.py` | PASS（7 passed） |
+| `upsert-node.py`（dev-graph node 登録） | PASS（revision 305 → 306） |
+| `bd-bridge.py --op create` | PASS（ah-ghmb） |
+
+## 意図的にやらなかったこと
+
+- **網に載せるブログの本数を増やすこと。** 3〜5 本目（`first-camera` /
+  `run-and-recover` / `mobile-plan-navi`）は設計図は在るが `site_network_node` に
+  載っておらず 404 になる。これは `resolvePublicSiteIdentity` の定めどおりであり、
+  本数を変えるのは仕様判断なので触っていない。
+- `docs/product/test-traceability.md` の再生成分のコミット。生成物であり、
+  他セッションの未コミットテストを大量に含むため、含めると docs が実在しない
+  ファイルを指すことになる。
+
+## 残課題
+
+- 網に載せる本数を 2 本のままにするかの仕様判断（未起票）
+- `docs/product/test-traceability.md` の再生成は、他セッションの変更が
+  出そろってからまとめて行う

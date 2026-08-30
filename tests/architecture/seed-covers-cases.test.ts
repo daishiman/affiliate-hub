@@ -178,13 +178,29 @@ describe("入れる SQL そのものの決まり", () => {
   it("同じ行の id が 2 度出てこない", () => {
     // 2 度当てても増えないように先に消しているが、1 回の中で id がぶつかると
     // 当てた時点で失敗する。両方のブログへ敷くようになってから起きやすくなった。
+    /*
+     * **列名を読んでから位置を決める。**
+     *
+     * 「1 番目の値が id」と決め打ちすると、列を 1 つ前に足した日に別の値を
+     * id として数え始める。2026-08-30 に `blog_article_tag` へ `workspace_id` を
+     * 足したところ、この検査は作業場所の名前を id と見なして
+     * 「8 件重複している」と報せた。**表に id 列が無いことすら見ていなかった。**
+     */
     const ids = SQL.flatMap((line) => {
-      const m = /INSERT INTO (\w+) [^)]*\)\s*\n?\s*VALUES \('([^']+)'/.exec(line);
-      return m === null ? [] : [`${m[1]}:${m[2]}`];
+      const m = /INSERT INTO (\w+)\s*\(([^)]*)\)\s*\n?\s*VALUES \(([\s\S]*)/.exec(line);
+      if (m === null) return [];
+      const at = m[2].split(",").map((c) => c.trim()).indexOf("id");
+      if (at < 0) return []; // 複合主キーの表には id 列が無い。
+      const values = m[3].match(/'(?:[^']|'')*'|[^,()]+/g) ?? [];
+      const value = values[at]?.trim();
+      return value === undefined ? [] : [`${m[1]}:${value}`];
     });
     const seen = new Set<string>();
     const duplicated = ids.filter((id) => (seen.has(id) ? true : (seen.add(id), false)));
     expect(duplicated, "同じ id を 2 度入れようとしています").toEqual([]);
+    // 母数。**上の主張は 0 件でも通る。**解析が壊れて何も拾えなくなった日、
+    // 「重複は無い」と言い続けたまま何も見なくなるので、ここが先に赤くなる。
+    expect(ids.length, "id を 1 つも拾えていません").toBeGreaterThan(150);
   });
 
   it("部品の位置が 0 から続き番号になっている", () => {

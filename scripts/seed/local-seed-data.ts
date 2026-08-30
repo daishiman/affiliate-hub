@@ -36,10 +36,14 @@ import type {
   BlogLayoutBandRecord,
   BlogLayoutSlotRecord,
   BlogTagRecord,
-  FixedPageRecord,
   SiteNetworkRecord,
 } from "@/application/ports/blog-ops";
 import { BLOG_OPS_SAMPLE_ROUTE_IDS } from "@/infrastructure/persistence/sample/blog-ops-sample-repository";
+import {
+  SAMPLE_SITE_SLUG,
+  SECOND_SITE_SLUG,
+  sampleSites,
+} from "@/infrastructure/persistence/sample/site-sample-repository";
 
 /** 見本の作業場所。`SAMPLE_WORKSPACE_ID` と同じ値であることを検査が見る。 */
 export const SEED_WORKSPACE_ID = "ws_sample";
@@ -56,8 +60,19 @@ export const SEED_USER_NAME = "ローカル検証用の担当者";
  * 揃えるのは URL に出る名前だけで、記事の中身までは合わせない
  * （検査は `tests/architecture/seed-and-sample-agree.test.ts`）。
  */
-export const SEED_HUB_SLUG = "home-office-desk";
-export const SEED_SUB_SLUG = "gear-for-small-kitchen";
+export const SEED_HUB_SLUG = SAMPLE_SITE_SLUG;
+/**
+ * 子側。**見本の 2 本目をそのまま指す。**
+ *
+ * 2026-08-30 まで、ここだけ手書きの `"gear-for-small-kitchen"` だった。
+ * 見本の 2 本目は `compact-kitchen-gear` なので、**設計図の無い URL 名**へ
+ * 固定ページと版面と記事を入れていたことになる。`/s/gear-for-small-kitchen`
+ * 以下は 1 枚残らず 404 で、しかも「まだ作っていないブログ」と区別が付かない。
+ *
+ * 親側は `SAMPLE_SITE_SLUG` を写した値だったので偶然一致していた。
+ * **偶然の一致は次に見本が変わった日に切れる**ので、両方とも写さずに指す。
+ */
+export const SEED_SUB_SLUG = SECOND_SITE_SLUG;
 
 /** SQLite の文字列。`'` を 2 つ重ねる以外の細工をしない。 */
 function q(value: string): string {
@@ -595,10 +610,21 @@ export function seedTags(): readonly BlogTagRecord[] {
 }
 
 /** 固定ページ 8 種。両方のブログに置く。 */
+export type SeedFixedPage = {
+  readonly id: string;
+  readonly siteSlug: string;
+  readonly kind: FixedPageKind;
+  readonly title: string;
+  readonly body: string;
+  readonly status: "published";
+  readonly deletedAt: null;
+  readonly updatedAt: Date;
+};
+
 export function seedFixedPages(
   siteKey: SeedSiteKey,
   updatedAt: Date,
-): readonly FixedPageRecord[] {
+): readonly SeedFixedPage[] {
   return LEGAL_PAGES.map(([kind, title, body]) => ({
     id: `lp_seed_${siteKey}_${kind}`,
     siteSlug: seedSiteSlug(siteKey),
@@ -677,8 +703,45 @@ export function buildSeedSql(nowSeconds: number): readonly string[] {
     `DELETE FROM blog_layout_band WHERE workspace_id = ${ws};`,
     `DELETE FROM blog_delivery_part WHERE workspace_id = ${ws};`,
     `DELETE FROM site_network_node WHERE workspace_id = ${ws};`,
-    `DELETE FROM legal_page WHERE site_slug IN (${hub}, ${sub});`,
+    /*
+     * 固定ページは **URL 名ではなく id の接頭辞で消す。**
+     *
+     * URL 名で消すと、`SEED_SUB_SLUG` が指す先が変わった日に古い名前の行だけが
+     * 残り、id は同じなので次の `INSERT` が主キー衝突で落ちる。2026-08-30 に
+     * 実際そうなった（`gear-for-small-kitchen` → `compact-kitchen-gear`）。
+     * 種として入れた行は全部 `lp_seed_` で始まるので、そちらを目印にする。
+     */
+    `DELETE FROM legal_page WHERE id LIKE 'lp_seed_%' OR site_slug IN (${hub}, ${sub});`,
   );
+
+  /*
+   * ブログの設計図。**これが無いと、他を全部入れても画面は 404 しか返さない。**
+   *
+   * 2026-08-30 まで seed はこの表を 1 行も書いていなかった。それでも画面が
+   * 出ていたのは、開発機の D1 に**過去の別経路で入った行が残っていた**だけである。
+   * `pnpm db:migrate:local` から作り直せば表は空になり、`/s/` 以下は全滅する。
+   * 読者側の入口 (`page-frame.tsx`) は設計図を読めなければ骨格を描く前に
+   * `notFound()` するので、**記事も固定ページも版面も、全部あるのに出ない**。
+   *
+   * 値は見本 (`sampleSites()`) をそのまま JSON にする。**写さない。**
+   * 写せば、見本にブログを 1 本足した日に seed だけ古いままになり、
+   * vitest (見本の上で描く) は緑・本物の通信だけが 404 という、
+   * 一番見つけにくい形へ戻る。
+   *
+   * 消す範囲は見本の 5 本に限る。手で作ったブログを巻き込まない。
+   */
+  const blueprints = sampleSites();
+  out.push(
+    `DELETE FROM site_blueprints WHERE workspace_id = ${ws} AND slug IN (${blueprints
+      .map((site) => q(site.slug))
+      .join(", ")});`,
+  );
+  for (const site of blueprints) {
+    out.push(
+      `INSERT INTO site_blueprints (id, workspace_id, slug, name, pattern, published_at, blueprint_json)
+         VALUES (${q(String(site.blueprint.id))}, ${ws}, ${q(site.slug)}, ${q(site.blueprint.name)}, ${q(site.blueprint.pattern)}, ${nowSeconds}, ${q(JSON.stringify(site.blueprint))});`,
+    );
+  }
 
   // 入口（作業場所・担当者・認証基盤の人）。担当の行が無いと通行証が出ない。
   out.push(
@@ -751,8 +814,8 @@ export function buildSeedSql(nowSeconds: number): readonly string[] {
 
     for (const block of seedArticleBlocks(article)) {
       out.push(
-        `INSERT INTO blog_article_block (id, article_id, kind, heading, body, position)
-           VALUES (${q(block.id)}, ${q(article.id)}, ${q(block.kind)}, ${q(block.heading)}, ${q(block.body)}, ${block.position});`,
+        `INSERT INTO blog_article_block (id, workspace_id, article_id, kind, heading, body, position)
+           VALUES (${q(block.id)}, ${ws}, ${q(article.id)}, ${q(block.kind)}, ${q(block.heading)}, ${q(block.body)}, ${block.position});`,
       );
     }
 
@@ -767,14 +830,14 @@ export function buildSeedSql(nowSeconds: number): readonly string[] {
       (article.site === "sub" ? [] : [TAGS[articleIndex % TAGS.length].id]);
     for (const tagId of tagIds) {
       out.push(
-        `INSERT INTO blog_article_tag (article_id, tag_id) VALUES (${q(article.id)}, ${q(tagId)});`,
+        `INSERT INTO blog_article_tag (workspace_id, article_id, tag_id) VALUES (${ws}, ${q(article.id)}, ${q(tagId)});`,
       );
     }
 
     article.ratings.forEach((score, index) => {
       out.push(
-        `INSERT INTO blog_article_rating (id, article_id, reader_key, score, comment, created_at)
-           VALUES (${q(`br_${article.id}_${index}`)}, ${q(article.id)}, ${q(`reader_seed_${index}`)}, ${score}, NULL, ${at});`,
+        `INSERT INTO blog_article_rating (id, workspace_id, article_id, reader_key, score, comment, created_at)
+           VALUES (${q(`br_${article.id}_${index}`)}, ${ws}, ${q(article.id)}, ${q(`reader_seed_${index}`)}, ${score}, NULL, ${at});`,
       );
     });
   });
@@ -783,8 +846,13 @@ export function buildSeedSql(nowSeconds: number): readonly string[] {
   for (const siteKey of SEED_SITE_KEYS) {
     for (const page of seedFixedPages(siteKey, new Date(nowSeconds * 1000))) {
       out.push(
-        `INSERT INTO legal_page (id, site_slug, kind, title, body, status, deleted_at, updated_at)
-           VALUES (${q(page.id)}, ${q(page.siteSlug)}, ${q(page.kind)}, ${q(page.title)}, ${q(page.body)}, ${q(page.status)}, ${page.deletedAt === null ? "NULL" : String(Math.floor(page.deletedAt.getTime() / 1000))}, ${nowSeconds});`,
+        // `workspace_id` を書く。**書かないと空文字が入る**（列は
+        // `DEFAULT '' NOT NULL`）。読む側は作業場所で絞るので、空文字の行は
+        // 1 件も返らない。実測 2026-08-30: これで固定ページの 16 経路が全部 404
+        // だった——表には 18 行あり、`status` も `published` なのに、である。
+        // **画面もログも「無い」としか言わない**ので、データを見ても原因に見えない。
+        `INSERT INTO legal_page (id, workspace_id, site_slug, kind, title, body, status, deleted_at, updated_at)
+           VALUES (${q(page.id)}, ${ws}, ${q(page.siteSlug)}, ${q(page.kind)}, ${q(page.title)}, ${q(page.body)}, ${q(page.status)}, NULL, ${nowSeconds});`,
       );
     }
   }

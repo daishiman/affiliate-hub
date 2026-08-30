@@ -1,5 +1,5 @@
 {
-  "graph_revision": 304,
+  "graph_revision": 306,
   "nodes": [
     {
       "acceptance": [],
@@ -14064,7 +14064,7 @@
       "source_lineage": {
         "imported_at": "2026-08-24T02:20:00Z",
         "origin_kind": "generated",
-        "source_digest": "e95019160425608e469d88cdb1e53aa39252de500219c5d1d960c49f78622cd7",
+        "source_digest": "6dba5f055a8452644ce8d57807fb62a77cb9356a6018dcaa32c7c62b4c9d81a3",
         "source_path": "system-spec/ui-ux.md",
         "source_plugin": "dev-graph",
         "source_version": "0.1.0"
@@ -14084,7 +14084,7 @@
       "template_version": "1.0.0",
       "title": "ブログ UI ビルダー (テンプレート・配色・アフィリエイト配置管理)",
       "tracker_binding": "beads",
-      "updated_at": "2026-08-28T13:51:38.774990Z"
+      "updated_at": "2026-08-30T16:59:49.388535Z"
     },
     {
       "acceptance": [
@@ -16831,6 +16831,102 @@
       "title": "開発環境へのリリースとsystem-specへの書き戻し",
       "tracker_binding": "beads",
       "updated_at": "2026-08-25T14:00:26Z"
+    },
+    {
+      "acceptance": [],
+      "architecture_refs": [],
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "beads_linkage": null,
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "candidate_path": "tasks/task-seed-satisfies-public-entry.md",
+          "confidence": 0.9
+        }
+      ],
+      "classification_confidence": 0.9,
+      "classification_reason": "開発機の見本データと読者側公開経路の整合。実装ではなく開発体験と回帰検査の課題",
+      "completion_evidence": {
+        "completed_at": null,
+        "evidence_refs": [],
+        "policy": "manual",
+        "reconciled_at": null,
+        "source": "manual",
+        "status": "in_progress"
+      },
+      "confirmation_evidence": {
+        "evaluated_digest": null,
+        "evaluator": null,
+        "evidence_ref": null
+      },
+      "confirmation_status": "draft",
+      "created_at": "2026-08-30T13:00:00Z",
+      "depends_on": [],
+      "domain": "data",
+      "evaluation_status": "pending",
+      "execution_contexts": [],
+      "feature_package_id": null,
+      "file_path": "tasks/task-seed-satisfies-public-entry.md",
+      "github_project_linkages": [],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "goal": null,
+      "graph_node_id": "task-seed-satisfies-public-entry",
+      "implementation_readiness": {
+        "checked_at": null,
+        "missing_sections": [],
+        "status": "incomplete"
+      },
+      "issue_linkage": null,
+      "iteration": null,
+      "mvp_alignment": {
+        "background": "固定ページ 16 経路が 404 だったので実測したところ、見本データが読者側の公開条件を 3 点で満たしていなかった",
+        "mvp_fit": "enabling",
+        "purpose": "開発機で画面を触れる状態を、DB の残骸に頼らず見本データだけで再現できるようにする",
+        "rationale": "3 つとも INSERT は成功し行も在りログも無言なので、画面の 404 からは『まだ作っていないページ』と区別が付かない。検査を SQL の側に置く"
+      },
+      "owners": [
+        "daishiman"
+      ],
+      "parent_feature": null,
+      "phase_ref": null,
+      "priority": "high",
+      "project_id": "affiliate-hub",
+      "pull_request_linkages": [],
+      "purpose": null,
+      "related_nodes": [],
+      "resource_scope": [
+        "scripts",
+        "tests"
+      ],
+      "scope_in": [],
+      "scope_out": [],
+      "source_lineage": {
+        "imported_at": "2026-08-30T13:00:00Z",
+        "origin_kind": "manual",
+        "source_digest": null,
+        "source_path": "scripts/seed/local-seed-data.ts",
+        "source_plugin": null,
+        "source_version": null
+      },
+      "start_date": null,
+      "status": "draft",
+      "tags": [
+        "data",
+        "dx",
+        "regression"
+      ],
+      "target_date": null,
+      "template_id": "task",
+      "template_version": "1.0.0",
+      "title": "見本データが読者側の入口を満たしていない（設計図・作業場所・URL 名の 3 点）",
+      "tracker_binding": "beads",
+      "updated_at": "2026-08-30T13:00:00Z"
     }
   ],
   "repository_id": "github:daishiman/affiliate-hub",
