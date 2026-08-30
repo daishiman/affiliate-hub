@@ -297,6 +297,7 @@ describe.each(CASES.map((c) => [c.spec.label, c] as const))("%s への接続", (
 
     expect(usage.entries).toHaveLength(1);
     const entry = usage.entries[0];
+    expect(entry?.capacityConsumed).toBe(true);
     expect(entry?.succeeded).toBe(true);
     expect(entry?.inputTokens).toBe(1_000);
     expect(entry?.outputTokens).toBe(400);
@@ -322,6 +323,7 @@ describe.each(CASES.map((c) => [c.spec.label, c] as const))("%s への接続", (
     expect(result.ok).toBe(false);
     // 読めなかった呼び出しにも料金は掛かっている。記録は残す。
     expect(usage.entries).toHaveLength(1);
+    expect(usage.entries[0]?.capacityConsumed).toBe(true);
     expect(usage.entries[0]?.succeeded).toBe(false);
   });
 
@@ -361,16 +363,18 @@ describe.each(CASES.map((c) => [c.spec.label, c] as const))("%s への接続", (
     // 返る失敗に鍵が混ざらないこと。
     expect(JSON.stringify(result.error)).not.toContain(API_KEY);
     // 失敗した呼び出しも記録に残ること（失敗にも料金が掛かることがある）。
+    expect(usage.entries[0]?.capacityConsumed).toBe(true);
     expect(usage.entries[0]?.succeeded).toBe(false);
   });
 
   it("提供元が落ちているときは、やり直せる失敗として返る", async () => {
-    const { llm } = build(spec, { status: 503, text: "service unavailable" });
+    const { llm, usage } = build(spec, { status: 503, text: "service unavailable" });
     const result = await llm.generateStructured(REQUEST);
     expect(result.ok).toBe(false);
     if (result.ok) return;
     expect(result.error.code).toBe("UPSTREAM_UNAVAILABLE");
     expect(result.error.retryable).toBe(true);
+    expect(usage.entries[0]?.capacityConsumed).toBe(true);
   });
 
   it("類似記事の検出は、できないと答える（0 埋めを返さない）", async () => {
@@ -395,6 +399,101 @@ describe("表が提供元を覆っている", () => {
       .filter((kind) => kind !== "workers_ai")
       .sort();
     expect(covered).toEqual(known);
+  });
+});
+
+describe("利用量確定失敗の容量境界", () => {
+  it("鍵を使えず提供元を呼んでいない記録は容量を消費しない", async () => {
+    const usage = fakeUsage();
+    const fetcher = fakeFetch({ status: 200, json: CASES[0]?.success });
+    const llm = createHttpLlm(ANTHROPIC_SPEC, {
+      vault: {
+        useKey: async () => err(domainError("NOT_FOUND", "API キーが登録されていません。")),
+      },
+      pricing: fixedPricing(PRICING),
+      usage: usage.port,
+      fetchImpl: fetcher.impl,
+    });
+
+    const result = await llm.generateStructured(requestFor(ANTHROPIC_SPEC));
+
+    expect(result.ok).toBe(false);
+    expect(fetcher.sent).toHaveLength(0);
+    expect(usage.entries).toHaveLength(1);
+    expect(usage.entries[0]?.capacityConsumed).toBe(false);
+  });
+
+  it("通信開始後の例外は応答が無くても容量を消費する", async () => {
+    const usage = fakeUsage();
+    const llm = createHttpLlm(ANTHROPIC_SPEC, {
+      vault: {
+        useKey: async <T>(input: { fn: (apiKey: string) => Promise<T> }) => {
+          try {
+            return { ok: true as const, value: await input.fn(API_KEY) };
+          } catch {
+            return err(domainError("UPSTREAM_UNAVAILABLE", "生成 AI の呼び出しに失敗しました。"));
+          }
+        },
+      },
+      pricing: fixedPricing(PRICING),
+      usage: usage.port,
+      fetchImpl: async () => {
+        throw new Error("network unavailable");
+      },
+    });
+
+    const result = await llm.generateStructured(requestFor(ANTHROPIC_SPEC));
+
+    expect(result.ok).toBe(false);
+    expect(usage.entries).toHaveLength(1);
+    expect(usage.entries[0]?.capacityConsumed).toBe(true);
+  });
+
+  it("提供元を呼ぶ前の記録失敗をcapacity guardへ消費済みとして伝えない", async () => {
+    const llm = createHttpLlm(ANTHROPIC_SPEC, {
+      vault: {
+        useKey: async () => err(domainError("NOT_FOUND", "API キーが登録されていません。")),
+      },
+      pricing: fixedPricing(PRICING),
+      usage: {
+        record: async () =>
+          err(
+            domainError("UPSTREAM_UNAVAILABLE", "生成 AI の利用量を記録できませんでした。", {
+              retryable: true,
+            }),
+          ),
+      },
+    });
+
+    const result = await llm.generateStructured(requestFor(ANTHROPIC_SPEC));
+
+    expect(result.ok).toBe(false);
+    if (result.ok) return;
+    expect(result.error.details?.generationCapacityConsumed).not.toBe(true);
+  });
+
+  it("提供元成功後に記録だけ失敗したことをcapacity guardへ伝える", async () => {
+    const fetcher = fakeFetch({ status: 200, json: CASES[0]?.success });
+    const llm = createHttpLlm(ANTHROPIC_SPEC, {
+      vault: fakeVault(),
+      pricing: fixedPricing(PRICING),
+      usage: {
+        record: async () =>
+          err(
+            domainError("UPSTREAM_UNAVAILABLE", "生成 AI の利用量を記録できませんでした。", {
+              retryable: true,
+            }),
+          ),
+      },
+      fetchImpl: fetcher.impl,
+    });
+
+    const result = await llm.generateStructured(requestFor(ANTHROPIC_SPEC));
+
+    expect(fetcher.sent).toHaveLength(1);
+    expect(result.ok).toBe(false);
+    if (result.ok) return;
+    expect(result.error.details?.generationCapacityConsumed).toBe(true);
   });
 });
 

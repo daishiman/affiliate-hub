@@ -1,11 +1,20 @@
-import Link from "next/link";
 import { ROLE_LABEL } from "@/application/usecases/identity/manage-workspace";
 import { authAvailability } from "@/infrastructure/identity/better-auth";
+import { devSignInDecision } from "@/infrastructure/identity/dev-signin";
 import type { Role } from "@/domain/shared";
 import { actorNotice, signedInActor } from "@/presentation/composition";
-import { Callout, PublicShell, SitePage } from "@/presentation/ui";
+import {
+  ActionButton,
+  Callout,
+  FactList,
+  Note,
+  SeeAlso,
+  PublicShell,
+  Section,
+  SitePage,
+  TextLink,
+} from "@/presentation/ui";
 import { GoogleSignInButton } from "./google-signin-button";
-import styles from "../admin/admin.module.css";
 
 export const dynamic = "force-dynamic";
 
@@ -29,11 +38,12 @@ export default async function SignInPage({
 }: {
   readonly searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
-  const [availability, actor, notice, params] = await Promise.all([
+  const [availability, actor, notice, params, devSignIn] = await Promise.all([
     authAvailability(),
     signedInActor(),
     actorNotice(),
     searchParams,
+    devSignInDecision(),
   ]);
   const failed = params.error !== undefined;
 
@@ -74,42 +84,63 @@ export default async function SignInPage({
         {availability.ready && actor === null && (
           <>
             <GoogleSignInButton callbackUrl="/admin" />
-            <p className={styles.linkNote}>
+            <Note>
               入れるのは、あらかじめ登録されたアドレスの人だけです。
               登録が無いアドレスでは、Google の確認が通っても中には入れません。
-            </p>
+            </Note>
           </>
+        )}
+
+        {devSignIn.kind === "open" && actor === null && (
+          <Section title="手元で確かめるための入口">
+            <Note>
+              この節は手元の設定（{"DEV_SIGNIN_ENABLED"}）が立っているときだけ出ます。
+              積んだ環境では旗が無く、押す口そのものが存在しません。
+              入るのは {devSignIn.email} の担当者としてで、担当者の登録が無ければここでも入れません。
+            </Note>
+            <ActionButton
+              action="/api/dev-signin"
+              label={`${devSignIn.email} として入る`}
+              tone="quiet"
+              reason={
+                "手元の画面を人が目で確かめるための口である。AI から呼べると、" +
+                "AI が自分で管理者の通行証を取れることになり、権限の判定を置いた意味が無くなる。"
+              }
+            />
+          </Section>
         )}
 
         {actor !== null && (
-          <>
-            <h2 className={styles.sectionTitle}>いま誰として動いているか</h2>
-            <table className={styles.rankTable}>
-              <tbody>
-                <tr>
-                  <th scope="row">担当者</th>
-                  <td>{String(actor.userId)}</td>
-                </tr>
-                <tr>
-                  <th scope="row">役割</th>
-                  <td>{actor.roles.map((r) => ROLE_LABEL[r as Role]).join("・")}</td>
-                </tr>
-              </tbody>
-            </table>
-
-            <form method="post" action="/api/auth/sign-out">
-              <button type="submit" className={styles.linkNote}>
-                ログアウトする
-              </button>
-            </form>
-          </>
+          <Section title="いま誰として動いているか">
+            <FactList
+              rows={[
+                { key: "user", label: "担当者", value: String(actor.userId) },
+                {
+                  key: "roles",
+                  label: "役割",
+                  value: actor.roles.map((r) => ROLE_LABEL[r as Role]).join("・"),
+                },
+              ]}
+            />
+            {/* 出る操作は身元の隣に置く。設定の奥に隠すと、別人のまま操作が続く。 */}
+            <ActionButton
+              action="/api/auth/sign-out"
+              label="ログアウトする"
+              tone="quiet"
+              reason={
+                "ログアウトは、いま画面を見ている人の在席そのものを終わらせる操作である。" +
+                "AI から呼べると、AI が人を締め出せる。締め出された側には" +
+                "「押していないのにログイン画面へ戻された」としか見えず、原因を確かめる手段が無い。"
+              }
+            />
+          </Section>
         )}
 
-        <p className={styles.linkNote}>{notice}</p>
+        <Note>{notice}</Note>
 
-        <p className={styles.linkNote}>
-          <Link href="/admin">管理画面へ戻る</Link>
-        </p>
+        <SeeAlso>
+          <TextLink href="/admin">管理画面へ戻る</TextLink>
+        </SeeAlso>
       </SitePage>
     </PublicShell>
   );

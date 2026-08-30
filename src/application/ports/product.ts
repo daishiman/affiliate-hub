@@ -28,6 +28,14 @@ export type ProductRepositoryPort = {
     page: PageRequest,
   ): PortResult<Paged<Product>>;
   save(product: Product): PortResult<Product>;
+  /**
+   * 商品を 1 件消す。
+   *
+   * **無かったものを消したときも成功にしない。** 押した人は「消えた」と読むが、
+   * 実際には別の会社の商品を指していた、という取り違えが黙って通る。
+   * 見つからないときは断りを返す（`NOT_FOUND`）。
+   */
+  remove(workspaceId: WorkspaceId, id: ProductId): PortResult<true>;
 };
 
 export type MerchantOfferRepositoryPort = {

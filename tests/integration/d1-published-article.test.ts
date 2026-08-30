@@ -8,6 +8,7 @@ import type {
   EditorialPublishedArticleAdminPort,
   EditorialPublishedArticleWriterPort,
   EditorialPublishedContentPort,
+  EditorialSiteDocumentRepositoryPort,
 } from "@/application/ports/site";
 import type { PublishedArticle } from "@/application/read-models/published-article";
 import * as schema from "@/db/schema";
@@ -17,8 +18,10 @@ import {
   createD1PublishedArticleAdminRepository,
   createD1ContentRepository,
 } from "@/infrastructure/persistence/d1/published-article-repository";
+import { createD1SiteDocumentRepository } from "@/infrastructure/persistence/d1/site-document-repository";
 import { SAMPLE_WORKSPACE_ID } from "@/infrastructure/persistence/sample/ranking-sample-repository";
 import { SAMPLE_SITE_SLUG, SECOND_SITE_SLUG } from "@/infrastructure/persistence/sample/site-sample-repository";
+import { OTHER_WORKSPACE } from "../support/actors";
 
 /**
  * 出した記事が**本物の D1 と本物のマイグレーション**で読み直せることを見る。
@@ -49,6 +52,7 @@ let proxy: Proxy;
 let writer: EditorialPublishedArticleWriterPort;
 let content: EditorialPublishedContentPort;
 let admin: EditorialPublishedArticleAdminPort;
+let documents: EditorialSiteDocumentRepositoryPort;
 
 const workspaceId = SAMPLE_WORKSPACE_ID as WorkspaceId;
 
@@ -80,6 +84,11 @@ beforeAll(async () => {
   writer = createD1PublishedArticleWriter(db);
   content = createD1ContentRepository(db);
   admin = createD1PublishedArticleAdminRepository(db);
+  documents = createD1SiteDocumentRepository({
+    db,
+    now: () => new Date("2026-08-26T00:00:00Z"),
+    newId: () => "lp_test",
+  });
 }, 60_000);
 
 afterAll(async () => {
@@ -88,6 +97,16 @@ afterAll(async () => {
 
 beforeEach(async () => {
   await proxy.env.DB.prepare("DELETE FROM published_articles").run();
+  await proxy.env.DB.prepare("DELETE FROM published_article_tombstones").run();
+  await proxy.env.DB.prepare("DELETE FROM legal_page").run();
+  await proxy.env.DB.prepare("DELETE FROM site_blueprints").run();
+  await proxy.env.DB.prepare(
+    `INSERT INTO site_blueprints
+      (id, workspace_id, slug, name, pattern, published_at, blueprint_json)
+     VALUES ('sb_article_owner', ?, ?, '所有ブログ', 'specialist_review', unixepoch(), '{}')`,
+  )
+    .bind(String(workspaceId), SAMPLE_SITE_SLUG)
+    .run();
 });
 
 function anArticle(over: Partial<PublishedArticle> = {}): PublishedArticle {
@@ -158,6 +177,223 @@ describe("出した記事を読み直す", () => {
     expect(found.value).toBeNull();
   });
 
+  it("公開を取り下げた記事は、読者向けの 1 枚引きから消える", async () => {
+    await writer.save(workspaceId, anArticle());
+
+    const unpublished = await writer.unpublish(
+      workspaceId,
+      SAMPLE_SITE_SLUG,
+      "quiet-laptop",
+    );
+    expect(unpublished.ok).toBe(true);
+
+    const found = await content.findArticle(SAMPLE_SITE_SLUG, "quiet-laptop");
+    if (!found.ok) throw new Error("読み取りに失敗しました");
+    expect(found.value).toBeNull();
+  });
+
+  it("見本と同じURLの記事を取り下げても、見本が同じURLへ再露出しない", async () => {
+    const slug = "laptops-for-video-editing";
+    await writer.save(workspaceId, anArticle({ slug }));
+
+    const unpublished = await writer.unpublish(workspaceId, SAMPLE_SITE_SLUG, slug);
+    expect(unpublished.ok).toBe(true);
+
+    const found = await content.findArticle(SAMPLE_SITE_SLUG, slug);
+    expect(found).toEqual({ ok: true, value: null });
+    const recent = await content.listRecent(SAMPLE_SITE_SLUG, 50);
+    if (!recent.ok) throw new Error("一覧を読めませんでした");
+    expect(recent.value.map((article) => article.slug)).not.toContain(slug);
+  });
+
+  it("部分成功後の再試行は、既に取り下げたURLを成功扱いにする", async () => {
+    await writer.save(workspaceId, anArticle());
+    expect((await writer.unpublish(workspaceId, SAMPLE_SITE_SLUG, "quiet-laptop")).ok).toBe(true);
+
+    const retry = await writer.unpublish(workspaceId, SAMPLE_SITE_SLUG, "quiet-laptop");
+
+    expect(retry).toEqual({ ok: true, value: true });
+  });
+
+  it("取り下げたURLへ同じworkspaceが出し直すと、墓標を外して新しい記事だけを出す", async () => {
+    await writer.save(workspaceId, anArticle());
+    await writer.unpublish(workspaceId, SAMPLE_SITE_SLUG, "quiet-laptop");
+
+    const republished = await writer.save(
+      workspaceId,
+      anArticle({ title: "再公開した記事", updatedAt: "2026-09-02" }),
+    );
+
+    expect(republished.ok).toBe(true);
+    const found = await content.findArticle(SAMPLE_SITE_SLUG, "quiet-laptop");
+    if (!found.ok) throw new Error("再公開記事を読めませんでした");
+    expect(found.value?.title).toBe("再公開した記事");
+  });
+
+  it("再公開と取り下げが競合しても、公開行と墓標が半端な組み合わせにならない", async () => {
+    await writer.save(workspaceId, anArticle({ slug: "laptops-for-video-editing" }));
+
+    await Promise.all([
+      writer.unpublish(workspaceId, SAMPLE_SITE_SLUG, "laptops-for-video-editing"),
+      writer.save(
+        workspaceId,
+        anArticle({ slug: "laptops-for-video-editing", title: "競合後の再公開" }),
+      ),
+    ]);
+
+    const article = await proxy.env.DB.prepare(
+      "SELECT count(*) as total FROM published_articles WHERE site_slug = ? AND slug = ?",
+    )
+      .bind(SAMPLE_SITE_SLUG, "laptops-for-video-editing")
+      .first<{ total: number }>();
+    const tombstone = await proxy.env.DB.prepare(
+      "SELECT count(*) as total FROM published_article_tombstones WHERE site_slug = ? AND slug = ?",
+    )
+      .bind(SAMPLE_SITE_SLUG, "laptops-for-video-editing")
+      .first<{ total: number }>();
+    expect([article?.total, tombstone?.total]).toEqual(
+      expect.arrayContaining([0, 1]),
+    );
+    expect((article?.total ?? 0) + (tombstone?.total ?? 0)).toBe(1);
+
+    const visible = await content.findArticle(SAMPLE_SITE_SLUG, "laptops-for-video-editing");
+    if (!visible.ok) throw new Error("競合後の記事を読めませんでした");
+    if (article?.total === 1) expect(visible.value?.title).toBe("競合後の再公開");
+    else expect(visible.value).toBeNull();
+  });
+
+  it("A workspaceの取り下げとB workspaceの同URL公開が競合しても、Bは所有権を奪えない", async () => {
+    const slug = "cross-workspace-race";
+    expect((await writer.save(workspaceId, anArticle({ slug }))).ok).toBe(true);
+
+    const [unpublished, attacked] = await Promise.all([
+      writer.unpublish(workspaceId, SAMPLE_SITE_SLUG, slug),
+      writer.save(
+        OTHER_WORKSPACE,
+        anArticle({ slug, title: "別の作業場所が公開した記事" }),
+      ),
+    ]);
+
+    expect(unpublished.ok).toBe(true);
+    expect(attacked.ok).toBe(false);
+    const occupants = await proxy.env.DB.prepare(
+      `SELECT 'article' AS kind, workspace_id FROM published_articles
+       WHERE site_slug = ? AND slug = ?
+       UNION ALL
+       SELECT 'tombstone' AS kind, workspace_id FROM published_article_tombstones
+       WHERE site_slug = ? AND slug = ?`,
+    )
+      .bind(SAMPLE_SITE_SLUG, slug, SAMPLE_SITE_SLUG, slug)
+      .all<{ kind: "article" | "tombstone"; workspace_id: string }>();
+    expect(occupants.results).toEqual([
+      { kind: "tombstone", workspace_id: String(workspaceId) },
+    ]);
+  });
+
+  it("別workspaceは、所有しているブログの未使用URLにも記事を公開できない", async () => {
+    const slug = "unused-but-owned-site";
+    const attacked = await writer.save(
+      OTHER_WORKSPACE,
+      anArticle({ slug, title: "別の作業場所が差し込んだ記事" }),
+    );
+
+    expect(attacked.ok).toBe(false);
+    const stored = await proxy.env.DB.prepare(
+      "SELECT workspace_id FROM published_articles WHERE site_slug = ? AND slug = ?",
+    )
+      .bind(SAMPLE_SITE_SLUG, slug)
+      .all<{ workspace_id: string }>();
+    expect(stored.results).toEqual([]);
+  });
+
+  it("DB境界が、公開行と別workspace墓標の同一URL共存を拒否する", async () => {
+    const slug = "protected-by-db";
+    expect((await writer.save(workspaceId, anArticle({ slug }))).ok).toBe(true);
+
+    await expect(
+      proxy.env.DB.prepare(
+        `INSERT INTO published_article_tombstones
+           (site_slug, slug, workspace_id, unpublished_at)
+         VALUES (?, ?, ?, unixepoch())`,
+      )
+        .bind(SAMPLE_SITE_SLUG, slug, String(OTHER_WORKSPACE))
+        .run(),
+    ).rejects.toThrow();
+
+    const occupants = await proxy.env.DB.prepare(
+      `SELECT 'article' AS kind, workspace_id FROM published_articles
+       WHERE site_slug = ? AND slug = ?
+       UNION ALL
+       SELECT 'tombstone' AS kind, workspace_id FROM published_article_tombstones
+       WHERE site_slug = ? AND slug = ?`,
+    )
+      .bind(SAMPLE_SITE_SLUG, slug, SAMPLE_SITE_SLUG, slug)
+      .all<{ kind: "article" | "tombstone"; workspace_id: string }>();
+    expect(occupants.results).toEqual([
+      { kind: "article", workspace_id: String(workspaceId) },
+    ]);
+  });
+
+  it("DB境界が、墓標と別workspace公開行の同一URL共存を拒否する", async () => {
+    const slug = "protected-tombstone";
+    const article = anArticle({ slug });
+    expect((await writer.save(workspaceId, article)).ok).toBe(true);
+    expect((await writer.unpublish(workspaceId, SAMPLE_SITE_SLUG, slug)).ok).toBe(true);
+
+    await expect(
+      proxy.env.DB.prepare(
+        `INSERT INTO published_articles
+           (site_slug, slug, workspace_id, type, title, summary, category_slug,
+            author_slug, author_name, published_at, updated_at, article_json)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      )
+        .bind(
+          article.siteSlug,
+          article.slug,
+          String(OTHER_WORKSPACE),
+          article.type,
+          article.title,
+          article.summary,
+          article.categorySlug,
+          article.author.slug,
+          article.author.name,
+          article.publishedAt,
+          article.updatedAt,
+          JSON.stringify(article),
+        )
+        .run(),
+    ).rejects.toThrow();
+
+    const occupants = await proxy.env.DB.prepare(
+      `SELECT 'article' AS kind, workspace_id FROM published_articles
+       WHERE site_slug = ? AND slug = ?
+       UNION ALL
+       SELECT 'tombstone' AS kind, workspace_id FROM published_article_tombstones
+       WHERE site_slug = ? AND slug = ?`,
+    )
+      .bind(SAMPLE_SITE_SLUG, slug, SAMPLE_SITE_SLUG, slug)
+      .all<{ kind: "article" | "tombstone"; workspace_id: string }>();
+    expect(occupants.results).toEqual([
+      { kind: "tombstone", workspace_id: String(workspaceId) },
+    ]);
+  });
+
+  it("別の作業場所からの取り下げでは、公開中の記事を消さない", async () => {
+    const article = anArticle({ title: "元の作業場所が公開した記事" });
+    await writer.save(workspaceId, article);
+
+    const attacked = await writer.unpublish(
+      OTHER_WORKSPACE,
+      SAMPLE_SITE_SLUG,
+      article.slug,
+    );
+    expect(attacked.ok).toBe(false);
+
+    const found = await content.findArticle(SAMPLE_SITE_SLUG, article.slug);
+    if (!found.ok) throw new Error("元の記事を読み直せませんでした");
+    expect(found.value?.title).toBe("元の作業場所が公開した記事");
+  });
+
   it("見本の記事は消えない", async () => {
     await writer.save(workspaceId, anArticle());
     const sample = await content.findArticle(SAMPLE_SITE_SLUG, "chairs-for-long-hours");
@@ -193,6 +429,20 @@ describe("出した記事を読み直す", () => {
     if (!listed.ok) throw new Error("一覧を読めませんでした");
     // 差し替えであって追加ではない。2 本になっていたら、読者には同じ記事が 2 つ見える。
     expect(listed.value.filter((a) => a.slug === "quiet-laptop")).toHaveLength(1);
+  });
+
+  it("別の作業場所は、同じブログ名と URL 名の衝突で既存記事を上書きできない", async () => {
+    await writer.save(workspaceId, anArticle({ title: "元の作業場所の記事" }));
+
+    const attacked = await writer.save(
+      OTHER_WORKSPACE,
+      anArticle({ title: "別の作業場所からの差し替え" }),
+    );
+
+    expect(attacked.ok).toBe(false);
+    const found = await content.findArticle(SAMPLE_SITE_SLUG, "quiet-laptop");
+    if (!found.ok || found.value === null) throw new Error("元の記事を読み直せませんでした");
+    expect(found.value.title).toBe("元の作業場所の記事");
   });
 });
 
@@ -263,18 +513,53 @@ describe("書き手のページ", () => {
   });
 });
 
-describe("訂正と方針は見本のまま", () => {
+describe("訂正は見本のまま", () => {
   it("記事を出しても訂正の一覧は失敗しない", async () => {
     await writer.save(workspaceId, anArticle());
     const corrections = await content.listCorrections(SAMPLE_SITE_SLUG);
     expect(corrections.ok).toBe(true);
   });
+});
 
-  it("方針の文書を引ける", async () => {
+/**
+ * 固定文書（運営者情報・各方針・規約・特商法表記）。
+ *
+ * 2026-08-26 まで、D1 でも見本の文をそのまま返していた。運営者情報の位置に
+ * **書いた覚えの無い文**が本物の顔で出ていたということで、これは
+ * 「まだ書いていない」より悪い。ここでは 2 つを見る。
+ *
+ *   1. 書いていない固定ページは `null`（読者は 404）。**見本へ落ちない。**
+ *   2. 管理画面で保存したものが、読者向けの 1 枚引きにそのまま出る。
+ */
+describe("固定文書は保存したものだけが出る", () => {
+  it("1 度も書いていなければ null（見本の文へ落ちない）", async () => {
     const policy = await content.findPolicyDocument(SAMPLE_SITE_SLUG, "privacy");
     expect(policy.ok).toBe(true);
     if (!policy.ok) throw new Error("読み取りに失敗しました");
-    expect(policy.value).not.toBeNull();
+    expect(policy.value).toBeNull();
+  });
+
+  it("保存した本文が、段落のまま読者向けの経路へ出る", async () => {
+    const saved = await documents.save(workspaceId, SAMPLE_SITE_SLUG, {
+      key: "operator",
+      title: "運営者情報",
+      body: ["この記事は編集部が書いています。", "連絡先は問い合わせ欄からどうぞ。"],
+    });
+    expect(saved.ok).toBe(true);
+
+    const policy = await content.findPolicyDocument(SAMPLE_SITE_SLUG, "operator");
+    if (!policy.ok) throw new Error("読み取りに失敗しました");
+    expect(policy.value).toEqual({
+      title: "運営者情報",
+      // 段落の区切りが保存先を往復しても消えない（1 列に畳んでいるので、ここが要）。
+      body: ["この記事は編集部が書いています。", "連絡先は問い合わせ欄からどうぞ。"],
+    });
+  });
+
+  it("別の作業場所からは、同じブログの文書が見えない", async () => {
+    const others = await documents.listBySite("ws_other" as WorkspaceId, SAMPLE_SITE_SLUG);
+    if (!others.ok) throw new Error("読み取りに失敗しました");
+    expect(others.value).toEqual([]);
   });
 });
 

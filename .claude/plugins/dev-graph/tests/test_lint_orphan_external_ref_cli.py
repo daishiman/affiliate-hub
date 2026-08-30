@@ -18,6 +18,8 @@ from pathlib import Path
 
 import pytest
 
+from plugin_layout_contract import optional_source_inventory
+
 
 # --- repo 側データ契約 (shrink-only ratchet の正本) -------------------------
 
@@ -110,7 +112,11 @@ def test_makefile_wires_the_lint_outside_of_ci_targets(orphan_lint) -> None:
     `.beads/issues.jsonl` は gitignore 対象で CI には存在しないため、ローカル専用の
     独立ターゲットとして持つのが唯一整合する配置。
     """
-    makefile = (orphan_lint.repo_root / "Makefile").read_text(encoding="utf-8")
+    makefile_path = orphan_lint.repo_root / "Makefile"
+    if optional_source_inventory(orphan_lint.plugin) is None:
+        assert orphan_lint.script.is_file()
+        return
+    makefile = makefile_path.read_text(encoding="utf-8")
     assert "orphan-external-ref:" in makefile
     command = next(
         line for line in makefile.splitlines()

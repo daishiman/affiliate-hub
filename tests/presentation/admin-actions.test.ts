@@ -1,4 +1,4 @@
-/** @tier 1 */
+/** @tier 1 @req REQ-P08 */
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { ActorContext } from "@/domain/shared";
 import { SAMPLE_ACTOR } from "@/infrastructure/identity/sample-actor";
@@ -48,9 +48,18 @@ vi.mock("@/infrastructure/identity/sample-actor", async (importOriginal) => {
  * 断る側から見ると同じもので、`signedInActor()` はどちらも `null` を返す。
  */
 let loggedIn = true;
+const executeDisclosure = vi.fn();
+const executePolicyRule = vi.fn();
 vi.mock("@/presentation/composition", async (importOriginal) => {
   const actual = await importOriginal<Record<string, unknown>>();
-  return { ...actual, signedInActor: async () => (loggedIn ? signedIn : null) };
+  return {
+    ...actual,
+    signedInActor: async () => (loggedIn ? signedIn : null),
+    settingsUseCases: async () => ({
+      editDisclosure: { execute: executeDisclosure },
+      editPolicyRule: { execute: executePolicyRule },
+    }),
+  };
 });
 
 /**
@@ -93,6 +102,9 @@ const {
 } = await import("@/presentation/admin/content-progress-action");
 const { adjustConversionAction } = await import("@/presentation/admin/adjust-conversion-action");
 const { publishArticleAction } = await import("@/presentation/admin/publish-article-action");
+const { editDisclosureAction, editPolicyRuleAction } = await import(
+  "@/presentation/admin/compliance-action"
+);
 const { schedulePublicationAction } = await import(
   "@/presentation/admin/schedule-publication-action"
 );
@@ -139,6 +151,155 @@ beforeEach(() => {
   signedIn = SAMPLE_ACTOR;
   loggedIn = true;
   auditWritable = true;
+  executeDisclosure.mockReset();
+  executePolicyRule.mockReset();
+});
+
+describe("コンプライアンス設定の操作", () => {
+  it("ログインしていない人は、保存先へ届く前に2操作とも止める", async () => {
+    loggedIn = false;
+
+    const disclosure = await editDisclosureAction(IDLE, form({}));
+    const policy = await editPolicyRuleAction(IDLE, form({}));
+
+    expect(disclosure).toMatchObject({ status: "failed" });
+    expect(policy).toMatchObject({ status: "failed" });
+    expect(executeDisclosure).not.toHaveBeenCalled();
+    expect(executePolicyRule).not.toHaveBeenCalled();
+  });
+
+  it("広告表記の全入力をユースケースへ渡し、読者に出る文まで成功結果へ載せる", async () => {
+    executeDisclosure.mockResolvedValue({
+      ok: true,
+      value: {
+        message: "広告表記を変更しました。",
+        visibleMessage: "スポンサーから商品の提供を受けています。",
+      },
+    });
+
+    const state = await editDisclosureAction(
+      IDLE,
+      form({
+        disclosureId: "dc_existing",
+        relationshipType: "sponsored",
+        advertiserOrSupplier: "見本商事",
+        editorialInfluence: "limited",
+        aiAssisted: "on",
+        reason: "提供条件が変わったため。",
+      }),
+    );
+
+    expect(executeDisclosure).toHaveBeenCalledWith(SAMPLE_ACTOR, {
+      disclosureId: "dc_existing",
+      relationshipType: "sponsored",
+      advertiserOrSupplier: "見本商事",
+      editorialInfluence: "limited",
+      aiAssisted: true,
+      reason: "提供条件が変わったため。",
+    });
+    expect(state).toEqual({
+      status: "done",
+      message:
+        "広告表記を変更しました。 読者にはこう出ます:「スポンサーから商品の提供を受けています。」",
+    });
+  });
+
+  it("省略入力を勝手に補わず、業務エラーの欄と理由を画面へ返す", async () => {
+    executeDisclosure.mockResolvedValue({
+      ok: false,
+      error: { code: "VALIDATION_FAILED", message: "関係の種類を選んでください。", field: "relationshipType" },
+    });
+
+    const state = await editDisclosureAction(IDLE, form({ advertiserOrSupplier: "   " }));
+
+    expect(executeDisclosure).toHaveBeenCalledWith(SAMPLE_ACTOR, {
+      relationshipType: "",
+      advertiserOrSupplier: null,
+      editorialInfluence: "",
+      aiAssisted: false,
+      reason: "",
+    });
+    expect(state).toMatchObject({
+      status: "failed",
+      field: "relationshipType",
+    });
+  });
+
+  it("きまりの有効・無効を専用の指示へ変換する", async () => {
+    executePolicyRule.mockResolvedValue({
+      ok: true,
+      value: { message: "表記のきまりを有効にしました。" },
+    });
+
+    const state = await editPolicyRuleAction(
+      IDLE,
+      form({
+        intent: "set_enabled",
+        ruleId: "rule_1",
+        enabled: "true",
+        reason: "公開前検査へ戻すため。",
+      }),
+    );
+
+    expect(executePolicyRule).toHaveBeenCalledWith(SAMPLE_ACTOR, {
+      action: "set_enabled",
+      ruleId: "rule_1",
+      enabled: true,
+      reason: "公開前検査へ戻すため。",
+    });
+    expect(state).toEqual({ status: "done", message: "表記のきまりを有効にしました。" });
+  });
+
+  it("false の無効化と保存指示を区別し、失敗も共通状態へ変換する", async () => {
+    executePolicyRule
+      .mockResolvedValueOnce({
+        ok: false,
+        error: { code: "NOT_FOUND", message: "表記のきまりが見つかりません。" },
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        value: { message: "表記のきまりを保存しました。" },
+      });
+
+    const disabled = await editPolicyRuleAction(
+      IDLE,
+      form({ intent: "set_enabled", ruleId: "rule_missing", enabled: "false", reason: "終了" }),
+    );
+    const saved = await editPolicyRuleAction(
+      IDLE,
+      form({
+        intent: "save",
+        name: "誇大表現",
+        domainScope: "general",
+        channelScope: "any",
+        severity: "warn",
+        pattern: "世界一",
+        basis: "景品表示法 第5条",
+        suggestion: "比較条件を明示する",
+        reason: "検査項目を追加するため。",
+      }),
+    );
+
+    expect(executePolicyRule).toHaveBeenNthCalledWith(1, SAMPLE_ACTOR, {
+      action: "set_enabled",
+      ruleId: "rule_missing",
+      enabled: false,
+      reason: "終了",
+    });
+    expect(executePolicyRule).toHaveBeenNthCalledWith(2, SAMPLE_ACTOR, {
+      action: "save",
+      name: "誇大表現",
+      domainScope: "general",
+      channelScope: "any",
+      severity: "warn",
+      pattern: "世界一",
+      basis: "景品表示法 第5条",
+      suggestion: "比較条件を明示する",
+      reason: "検査項目を追加するため。",
+    });
+    expect(disabled).toMatchObject({ status: "failed" });
+    expect(saved).toEqual({ status: "done", message: "表記のきまりを保存しました。" });
+  });
 });
 
 describe("受信箱の操作", () => {
@@ -342,6 +503,52 @@ describe("受信箱の操作", () => {
       form({ linkIngestionId: "li_matched_1", intent: "reject", reason: "対象外にします。" }),
     );
     expect(state.message, "断る理由が画面に出ていません").toContain("ログイン");
+  });
+
+  /*
+   * --- 成果リンクとして登録する（受信箱の最後の一歩） ---
+   * ここまでの 3 操作は受信箱の中で状態を進めるだけで、`affiliate_links` には
+   * 1 行も入らなかった。入る口が無いので、記事を公開しても成果リンクが
+   * 1 件も出ない状態が続いていた（残課題 58 / REQ-E13）。
+   *
+   * 見本の置き場では保存そのものが断られる（`stubCall`）。通る側を見るのは
+   * `tests/integration/d1-affiliate-link.test.ts`。ここで見るのは
+   * **保存へ届く前に止まるもの**、つまり入口の閉じ方だけである。
+   */
+  it("ログインしていない人は、成果リンクを登録できない", async () => {
+    // 役では断られない人のまま、ログインだけ外す。役で断られる人で測ると、
+    // 入口が開いていても役が塞いでくれて緑になる（`ah-dao` と同じ形）。
+    asAffiliateManager();
+    loggedIn = false;
+    const state = await advanceLinkIngestionAction(
+      IDLE,
+      form({ linkIngestionId: "li_matched_1", intent: "register", productName: "Alpha Studio 15" }),
+    );
+
+    expect(state.status).toBe("failed");
+    expect(state.message, "断る理由が画面に出ていません").toContain("ログイン");
+  });
+
+  it("商品名が空のまま登録しようとすると、その欄を指して断る", async () => {
+    // ここで画面側が「—」などを補うと、その文字列がそのまま読者のカードに
+    // 商品名として出る。補わずにユースケースへ断らせる。
+    asAffiliateManager();
+    const state = await advanceLinkIngestionAction(
+      IDLE,
+      form({ linkIngestionId: "li_matched_1", intent: "register", productName: "   " }),
+    );
+
+    expect(state.status).toBe("failed");
+    expect(state.field).toBe("productName");
+  });
+
+  it("できることの並びに、成果リンクとしての登録が入っている", async () => {
+    asAffiliateManager();
+    const state = await advanceLinkIngestionAction(IDLE, form({ intent: "unknown" }));
+
+    // 入口を 1 つにまとめている以上、増えた操作が案内に出ていないと、
+    // 画面からしか呼べない操作になる（AI からは名前が分からない）。
+    expect(state.message).toContain("成果リンクとして登録する");
   });
 });
 
@@ -588,7 +795,7 @@ describe("ブログ作成ウィザードの操作", () => {
 
 describe("事実の範囲の確認", () => {
   async function anAuthorId(): Promise<string> {
-    const list = await personaUseCases().listAuthors.execute(SAMPLE_ACTOR, {});
+    const list = await (await personaUseCases()).listAuthors.execute(SAMPLE_ACTOR, {});
     if (!list.ok) throw new Error("見本の書き手を取得できませんでした");
     const withoutTestRun = list.value.items.find((a) => a.verifiedExperienceCount === 0);
     return (withoutTestRun ?? list.value.items[0]).personaId;
@@ -1107,6 +1314,43 @@ describe("自分のブログへ記事を出す操作", () => {
     loggedIn = false;
     const state = await publishArticleAction(IDLE, fullForm());
     expect(state.message, "断る理由が画面に出ていません").toContain("ログイン");
+  });
+
+  /**
+   * 公開前の点検（REQ-SEO03）。
+   *
+   * ここは見本の保存先なので**出そうとすると必ず落ちる**。その差がそのまま
+   * 検査になる。点検が保存まで進んでいれば、同じ理由で落ちるはずである。
+   */
+  it("点検は何も出さずに結果だけ返す（出す道は同じ入力で落ちる）", async () => {
+    asPublisher();
+    const checked = await publishArticleAction(IDLE, fullForm({ intent: "check" }));
+
+    expect(checked.status).toBe("done");
+    expect(checked.phase).toBe("checked");
+    // **読者ページへの導線を付けない。** まだ何も出ていない。
+    expect(checked.url).toBeUndefined();
+    expect(checked.message).toContain("まだ公開していません");
+    expect(checked.aiSearch?.length ?? 0).toBeGreaterThan(0);
+
+    // 同じ入力で出そうとすると保存で落ちる = 点検は保存へ進んでいない。
+    expect((await publishArticleAction(IDLE, fullForm())).status).toBe("failed");
+  });
+
+  it("点検でも、公開と同じ理由で断られる（点検だけ通る抜け道を作らない）", async () => {
+    asPublisher();
+    const state = await publishArticleAction(IDLE, fullForm({ intent: "check", slug: "静かなノート" }));
+
+    expect(state.status).toBe("failed");
+    expect(state.field).toBe("slug");
+  });
+
+  it("ログインしていない人は、点検もできない", async () => {
+    asPublisher();
+    loggedIn = false;
+    const state = await publishArticleAction(IDLE, fullForm({ intent: "check" }));
+    expect(state.status).toBe("failed");
+    expect(state.message).toContain("ログイン");
   });
 });
 

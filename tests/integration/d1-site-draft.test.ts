@@ -1,4 +1,4 @@
-/** @tier 2 */
+/** @tier 2 @req REQ-P07, REQ-S06, REQ-W10, REQ-TS07 */
 import { readFileSync, readdirSync } from "node:fs";
 import path from "node:path";
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
@@ -19,7 +19,8 @@ import {
 import { SITE_WIZARD_STEPS } from "@/domain/authoring";
 import type { ActorContext } from "@/domain/shared";
 import { SAMPLE_WORKSPACE_ID } from "@/infrastructure/persistence/sample/ranking-sample-repository";
-import { anOwner } from "../support/actors";
+import { SAMPLE_SITE_SLUG } from "@/infrastructure/persistence/sample/site-sample-repository";
+import { OTHER_WORKSPACE, anOwner } from "../support/actors";
 import { recordingAuditLog } from "../support/doubles";
 
 /**
@@ -91,6 +92,7 @@ beforeAll(async () => {
     ids: all.ids,
     auditLog: recordingAuditLog().port,
     now: () => new Date(),
+    capacity: { withLease: async (_workspaceId, _kind, mutation) => mutation() },
   };
   sites = createD1SiteRepository(db);
   readerSide = all;
@@ -284,6 +286,86 @@ describe("下書きから読者向けの 1 本になるまで（1 本の道）",
       "select count(*) as n from site_blueprints where slug = 'first-lens'",
     ).all<{ n: number }>();
     expect(rows.results[0]?.n).toBe(1);
+  });
+
+  it("同じ URL 名を別の作業場所から登録しても、所有者は入れ替わらない", async () => {
+    const draftId = await completeDraft("owned-lens", "元の所有者のブログ");
+    const created = await createCreateSiteFromDraftUseCase(deps).execute(owner, { draftId });
+    if (!created.ok) throw created.error;
+
+    const current = await sites.findBySlug("owned-lens");
+    if (!current.ok || current.value === null) throw new Error("登録したブログを読めませんでした");
+
+    const attacked = await deps.drafts.publishBlueprint("owned-lens", {
+      ...current.value,
+      workspaceId: OTHER_WORKSPACE,
+      name: "別の作業場所からの差し替え",
+    });
+
+    expect(attacked.ok).toBe(false);
+    const rows = await proxy.env.DB.prepare(
+      "select workspace_id as workspaceId, name from site_blueprints where slug = 'owned-lens'",
+    ).all<{ workspaceId: string; name: string }>();
+    expect(rows.results).toEqual([
+      { workspaceId: String(owner.workspaceId), name: "元の所有者のブログ" },
+    ]);
+  });
+
+  it("取り下げた URL 名も、別の作業場所へ再割り当てしない", async () => {
+    const draftId = await completeDraft("retired-lens", "取り下げ前のブログ");
+    const created = await createCreateSiteFromDraftUseCase(deps).execute(owner, { draftId });
+    if (!created.ok) throw created.error;
+
+    const before = await sites.findBySlug("retired-lens");
+    if (!before.ok || before.value === null) throw new Error("登録したブログを読めませんでした");
+
+    const removed = await deps.drafts.removeBlueprint(owner.workspaceId, "retired-lens");
+    expect(removed.ok).toBe(true);
+
+    const attacked = await deps.drafts.publishBlueprint("retired-lens", {
+      ...before.value,
+      workspaceId: OTHER_WORKSPACE,
+      name: "別の作業場所が再利用したブログ",
+    });
+
+    expect(attacked.ok).toBe(false);
+    const rows = await proxy.env.DB.prepare(
+      `select b.workspace_id as workspaceId, r.retired_at as retiredAt
+       from site_blueprints b
+       inner join site_retirements r on r.slug = b.slug
+       where b.slug = 'retired-lens'`,
+    ).all<{ workspaceId: string; retiredAt: number | null }>();
+    expect(rows.results).toHaveLength(1);
+    expect(rows.results[0]?.workspaceId).toBe(String(owner.workspaceId));
+    expect(rows.results[0]?.retiredAt).not.toBeNull();
+
+    const hidden = await sites.findBySlug("retired-lens");
+    expect(hidden).toEqual({ ok: true, value: null });
+  });
+
+  it("見本と同じslugを取り下げても、見本がfallbackで再露出しない", async () => {
+    /*
+      **見本の slug を書き写さない。**2026-08-30 の統合まで
+      `"video-editing-gear"` と直書きしてあり、見本の中身が入れ替わった日に
+      その名前は消えた。名前が消えても検査は「見本サイトがありません」で
+      落ちるだけで、**何を確かめたかったのかは読み取れない**。
+      見本の正本から取れば、見本を差し替えても検査の意味は動かない。
+    */
+    const slug = SAMPLE_SITE_SLUG;
+    const sample = await sites.findBySlug(slug);
+    if (!sample.ok || sample.value === null) throw new Error("見本サイトがありません");
+
+    const published = await deps.drafts.publishBlueprint(slug, {
+      ...sample.value,
+      workspaceId: owner.workspaceId,
+      name: "所有者が公開した同名サイト",
+    });
+    expect(published.ok).toBe(true);
+    const removed = await deps.drafts.removeBlueprint(owner.workspaceId, slug);
+    expect(removed.ok).toBe(true);
+
+    const hidden = await sites.findBySlug(slug);
+    expect(hidden).toEqual({ ok: true, value: null });
   });
 
   it("作りかけの下書きは、2 本とも一覧に残る", async () => {

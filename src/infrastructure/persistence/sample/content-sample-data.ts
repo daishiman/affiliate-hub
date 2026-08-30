@@ -4,6 +4,7 @@ import {
   type PublishedPerson,
   toSummary,
 } from "@/application/read-models/published-article";
+import type { SiteDocumentKey } from "@/domain/authoring";
 import { registerStub } from "../../stub-registry";
 import {
   FIFTH_SITE_SLUG,
@@ -636,6 +637,62 @@ const LIGHTING_GUIDE: PublishedArticle = {
       id: "checklist",
       heading: "買う前に測るもの",
       paragraphs: ["机の奥行き、画面の高さ、部屋の主照明の位置。この 3 つだけで決まります。"],
+    },
+  ],
+  stub: STUB_MARK,
+};
+
+/*
+  道具（`/tools/storage-estimator`）の説明記事。
+
+  **`reader-interaction-sample.ts` の道具と slug を合わせてある。** 合わせるのは
+  見た目の都合ではない。`/tools/{slug}` という 1 つの住所に、道具の定義と
+  `tool` 型の記事が同居する決まりだからで、揃っていないと片方だけが読者に届く。
+
+  この記事があることで、道具のページに出典・書いた人・更新履歴が付く。
+  数字だけを出して解釈も根拠も示さない画面は、読者がそれを信じて物を買う場所になる。
+
+  書き手と分類は**このブログに実在するものへ結び直してある**（2026-08-30 の統合）。
+  道具そのものは `TOOLS_BY_SITE` に載らない別枠なので撮影の話のままでよいが、
+  記事は分類ページとパンくずに載る。存在しない `storage` を指したままだと、
+  道具のページは緑のまま分類ページ側だけが空になる。
+*/
+const STORAGE_ESTIMATOR_ARTICLE: PublishedArticle = {
+  slug: "storage-estimator",
+  siteSlug: SAMPLE_SITE_SLUG,
+  type: "tool",
+  title: "必要な保存容量の目安を出す",
+  summary: "撮影する時間と記録レートから、素材を置いておくのに要る大きさを計算します。",
+  categorySlug: "desks",
+  publishedAt: "2026-07-02",
+  updatedAt: "2026-07-28",
+  author: MOCHIZUKI,
+  disclosureRequired: false,
+  sections: [
+    {
+      id: "outcome_state",
+      heading: "このツールでできること",
+      paragraphs: [
+        "1 か月に撮る時間・カメラの記録レート・手元に残す期間の 3 つを入れると、素材だけで何ギガバイト要るかが出ます。",
+        "買う前に「足りるかどうか」を数字で確かめるためのものです。",
+      ],
+      claims: [],
+    },
+    {
+      id: "how_to_choose",
+      heading: "計算・判定の根拠",
+      paragraphs: [
+        "記録レートは 1 秒あたりのメガビットなので、8 で割るとメガバイトになります。さらに 1000 で割ってギガバイトにし、撮影の分数と残す期間を掛けています。",
+        "段を分けて出しているのは、どこで桁が大きくなったかを追えるようにするためです。",
+      ],
+      claims: [
+        {
+          id: "c1",
+          statement: "編集中の一時ファイルと書き出し先は、この計算に含まれていません。",
+          kind: "inference",
+          evidence: [],
+        },
+      ],
     },
   ],
   stub: STUB_MARK,
@@ -1635,6 +1692,7 @@ export const SAMPLE_ARTICLES: readonly PublishedArticle[] = [
   CHAIR_COMPARISON,
   DESK_REVIEW,
   LIGHTING_GUIDE,
+  STORAGE_ESTIMATOR_ARTICLE,
   // せまい台所の道具
   RICE_COOKER_COMPARISON,
   OVEN_RANKING,
@@ -1740,9 +1798,12 @@ export const SAMPLE_CORRECTIONS: readonly {
  * 広告掲載だけのブログに「リンクを経由して購入されると報酬が支払われます」と
  * 出るのは、事実として誤っている。
  */
-export const SAMPLE_BASE_POLICIES: Readonly<
-  Record<string, { title: string; body: readonly string[] }>
-> = {
+type SampleSiteDocument = Readonly<{
+  title: string;
+  body: readonly string[];
+}>;
+
+export const SAMPLE_BASE_POLICIES: Readonly<Record<SiteDocumentKey, SampleSiteDocument>> = {
   methodology: {
     title: "評価方法",
     body: [
@@ -1782,6 +1843,22 @@ export const SAMPLE_BASE_POLICIES: Readonly<
       "アクセス状況の把握には、個人を特定しない形の記録のみを使います。",
     ],
   },
+  operator: {
+    title: "運営者情報",
+    body: [
+      "このブログは、掲載している道具を実際に使って比べている編集部が運営しています。",
+      "連絡先は問い合わせページからお願いします。返信は 3 営業日以内を目安にしています。",
+      "掲載内容についての指摘・訂正の依頼も、同じ窓口で受け付けています。",
+    ],
+  },
+  tokushoho: {
+    title: "特定商取引法に基づく表記",
+    body: [
+      "このブログは商品を販売していません。購入の契約は、リンク先の販売店と読者の間で成立します。",
+      "価格・送料・返品の条件・支払い方法は、購入前に販売店のページでご確認ください。",
+      "このブログの記載と販売店の記載が食い違う場合は、販売店の記載が優先されます。",
+    ],
+  },
   terms: {
     title: "利用規約",
     body: [
@@ -1798,7 +1875,7 @@ export const SAMPLE_BASE_POLICIES: Readonly<
  * 既定を直したときに上書き側だけが古いまま残る。
  */
 export const SAMPLE_SITE_POLICY_OVERRIDES: Readonly<
-  Record<string, Readonly<Record<string, { title: string; body: readonly string[] }>>>
+  Record<string, Readonly<Partial<Record<SiteDocumentKey, SampleSiteDocument>>>>
 > = {
   // 広告の掲載だけで運営しているブログ。成果報酬の説明をそのまま出すと事実に反する。
   [FOURTH_SITE_SLUG]: {
@@ -1824,6 +1901,14 @@ export const SAMPLE_SITE_POLICY_OVERRIDES: Readonly<
     },
   },
 };
+
+/** ブログ固有の文面があれば優先し、無ければ全ブログ共通の文面を返す。 */
+export function resolveSampleSiteDocument(
+  siteSlug: string,
+  key: SiteDocumentKey,
+): SampleSiteDocument {
+  return SAMPLE_SITE_POLICY_OVERRIDES[siteSlug]?.[key] ?? SAMPLE_BASE_POLICIES[key];
+}
 
 export function sampleArticlesBySite(siteSlug: string): readonly PublishedArticle[] {
   return SAMPLE_ARTICLES.filter((a) => a.siteSlug === siteSlug);

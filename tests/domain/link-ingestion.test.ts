@@ -24,7 +24,6 @@ import { describe, expect, it } from "vitest";
 import {
   type LinkIngestion,
   createLinkIngestion,
-  findDuplicate,
   isInternalHost,
   matchProduct,
   nextActionsFor,
@@ -138,7 +137,7 @@ describe("重複", () => {
       submittedUrl: "https://example.invalid/p?utm_source=b",
       source: "csv",
       submittedAt: new Date("2026-08-16T01:00:00Z"),
-      existing: [first],
+      duplicateOf: first.id,
     });
     expect(built.ok).toBe(true);
     if (!built.ok) return;
@@ -146,14 +145,6 @@ describe("重複", () => {
     expect(built.value.id).toBe("li_2");
     expect(built.value.duplicateOf).toBe("li_1");
     expect(built.value.state).toBe("received");
-  });
-
-  it("対象外にしたものは重複の相手にしない", () => {
-    const first = received("https://example.invalid/p", "li_1");
-    const rejected = rejectIngestion(first, "提携終了のため");
-    expect(rejected.ok).toBe(true);
-    if (!rejected.ok) return;
-    expect(findDuplicate([rejected.value], first.normalizedUrl)).toBeNull();
   });
 });
 

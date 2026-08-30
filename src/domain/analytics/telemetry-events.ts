@@ -356,6 +356,36 @@ export function buildTelemetryEvent<K extends TelemetryEventKey>(input: {
   const forbidden = assertNoForbiddenField(input.payload);
   if (!forbidden.ok) return forbidden;
 
+  /*
+   * **宣言していない項目は入れない。**
+   *
+   * 2026-08-21 まで、ここは宣言された項目を見るだけで、
+   * 表に無い項目は素通りして `payload` にそのまま保存されていた。
+   * 落とせていたのは `FORBIDDEN_FIELDS` の 17 語に当たった名前だけなので、
+   * `editorNote` のような名前を付ければ**生成された文章そのものを記録に残せた**
+   * （実測。`ai_model_usage` で通した）。
+   * 禁止語の一覧は「うっかり」を止める網であって、
+   * 「参照 ID だけを持つ」を支える根拠にはならない。名前は無限に作れる。
+   *
+   * 表に無い項目を落とすほうを正とする。計測を足すときは登録表に足す。
+   * それがこの節（P 節前書き①）の決めごとそのものである。
+   */
+  const undeclared = Object.keys(input.payload).filter(
+    (name) => !Object.hasOwn(spec.fields, name),
+  );
+  if (undeclared.length > 0) {
+    return err(
+      domainError(
+        "VALIDATION_FAILED",
+        `計測イベント ${String(input.key)} に、登録表に無い項目が入っています: ${undeclared.join("・")}`,
+        {
+          suggestedAction:
+            "記録したい項目は domain/analytics/telemetry-events.ts の登録表へ足してください。表に無い項目は保存しません（文章そのものが紛れ込む道になるため）。",
+        },
+      ),
+    );
+  }
+
   const missing: string[] = [];
   for (const [name, fieldSpec] of Object.entries(spec.fields)) {
     const optional = fieldSpec.endsWith("?");

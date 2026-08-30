@@ -2,12 +2,8 @@
 
 import { useActionState, useState } from "react";
 import type { LinkIngestionView } from "@/application/usecases/monetization/manage-link-inbox";
-import { Button, Callout, Field, Select, ToolForm } from "@/presentation/ui";
-import {
-  type InboxFormState,
-  advanceLinkIngestionAction,
-  submitAffiliateUrlAction,
-} from "./inbox-action";
+import { Button, Field, FormResult, FormValue, Select, ToolForm } from "@/presentation/ui";
+import { type InboxFormState, advanceLinkIngestionAction, submitAffiliateUrlAction } from "./inbox-action";
 
 const INITIAL: InboxFormState = { status: "idle", message: "" };
 
@@ -54,12 +50,8 @@ export function SubmitAffiliateUrlForm() {
         受信箱に入れる
       </Button>
 
-      {state.status === "done" ? (
-        <Callout tone={state.warn ? "warn" : "success"} reason={state.message} />
-      ) : null}
-      {state.status === "failed" && state.field === undefined ? (
-        <Callout tone="warn" reason={state.message} />
-      ) : null}
+      {/* 進めはしたが人が見るべきものが残ったとき、成功のまま warn にする。 */}
+      <FormResult state={state} doneTone={state.warn ? "warn" : "success"} />
     </ToolForm>
   );
 }
@@ -81,10 +73,22 @@ export function AdvanceIngestionForm({
   const [programId, setProgramId] = useState("");
   const [productId, setProductId] = useState("");
   const [reason, setReason] = useState("");
+  const [productName, setProductName] = useState("");
+  const [brand, setBrand] = useState("");
+  const [oneLine, setOneLine] = useState("");
 
   const canResolve = item.nextStates.includes("resolved");
   const canMatch = item.nextStates.includes("matched");
   const canReject = item.nextStates.includes("rejected");
+  /*
+   * 登録は状態の遷移ではないので `nextStates` には出てこない。
+   * 受信箱の状態は「商品まで決まった（`matched`）」で終わりで、
+   * その先の登録は `affiliate_links` 側の話になる。
+   *
+   * 重複の印が付いているものは出さない。押しても断られるだけで、
+   * 直す場所（どちらを本体にするか）はここではなく受信箱の一覧側にある。
+   */
+  const canRegister = item.state === "matched" && item.duplicateOf === null;
 
   if (item.nextStates.length === 0) {
     return (
@@ -95,12 +99,36 @@ export function AdvanceIngestionForm({
     );
   }
 
+  /*
+   * 3 つの進め方を **3 つの `ToolForm`** に分ける。
+   *
+   * 元は 1 つの素の `<form>` に intent を 3 つ詰めていた。動きは正しかったが、
+   * 素の `<form>` は道具として名乗らないので、この 3 つは AI から呼べなかった。
+   * それでいて中の `Select` / `Field` には `toolParamDescription`
+   * （AI へ何の値かを説明する宣言）が書いてあった。**届かない説明**である。
+   *
+   * `ToolForm` の `toolName` は 1 つしか持てない。intent が 3 つあるなら
+   * 道具も 3 つで、目録にも `resolve_link_ingestion` /
+   * `match_link_ingestion_product` / `reject_link_ingestion` の 3 つがある。
+   * 詰めていたほうが目録とずれていた。
+   *
+   * 登録（`register_affiliate_link`）を 4 つ目として同じ形で足してある。
+   * 詰め直すと、その瞬間にまた AI から呼べない操作が 1 つ増える。
+   *
+   * `name="intent"` を submit ボタンから隠し欄へ移したのは、
+   * 1 form に 1 ボタンになったため。ボタンに値を載せる書き方は
+   * 「どのボタンで送ったか」で分岐するときのもので、分岐が消えたら要らない。
+   */
   return (
-    <form action={action}>
-      <input type="hidden" name="linkIngestionId" value={item.id} />
-
+    <>
       {canResolve ? (
-        <>
+        <ToolForm
+          action={action}
+          toolName="resolve_link_ingestion"
+          toolDescription="受信箱のリンクがどの提携プログラムのものかを決める"
+        >
+          <FormValue name="linkIngestionId" value={item.id} />
+          <FormValue name="intent" value="resolve" />
           <Select
             name="programId"
             label="どの提携プログラムのリンクか"
@@ -112,14 +140,20 @@ export function AdvanceIngestionForm({
             hint="リンク先をたどって確かめてから選んでください。"
             toolParamDescription="このリンクが属する提携プログラムの ID"
           />
-          <Button type="submit" name="intent" value="resolve" tone="primary" busy={pending}>
+          <Button type="submit" tone="primary" busy={pending}>
             広告主を決める
           </Button>
-        </>
+        </ToolForm>
       ) : null}
 
       {canMatch ? (
-        <>
+        <ToolForm
+          action={action}
+          toolName="match_link_ingestion_product"
+          toolDescription="受信箱のリンクを商品に結びつける"
+        >
+          <FormValue name="linkIngestionId" value={item.id} />
+          <FormValue name="intent" value="match" />
           <Field
             name="productId"
             label="結びつける商品の ID"
@@ -129,14 +163,66 @@ export function AdvanceIngestionForm({
             hint="商品の画面で確認できます。広告主が決まっていないと結びつけられません。"
             toolParamDescription="このリンクが指す商品の ID"
           />
-          <Button type="submit" name="intent" value="match" tone="primary" busy={pending}>
+          <Button type="submit" tone="primary" busy={pending}>
             商品に結びつける
           </Button>
-        </>
+        </ToolForm>
+      ) : null}
+
+      {canRegister ? (
+        <ToolForm
+          action={action}
+          toolName="register_affiliate_link"
+          toolDescription="商品まで決まった受信箱のリンクを、記事に出せる成果リンクとして登録する"
+        >
+          <FormValue name="linkIngestionId" value={item.id} />
+          <FormValue name="intent" value="register" />
+          {/*
+            商品名をここで受け取るのは、**この欄が写しの正本**だからである。
+            商品の表はまだ空で、リンク先を取りに行くのは別の危うさを増やす。
+            ASP の管理画面に出ている表記を、そのまま写してもらう。
+          */}
+          <Field
+            name="productName"
+            label="商品名（読者のカードに出ます）"
+            value={productName}
+            onValueChange={setProductName}
+            error={state.field === "productName" ? state.message : null}
+            hint="ASP の管理画面に出ている表記をそのまま入れてください。ここで入れた名前が、そのまま記事に出ます。"
+            toolParamDescription="読者のカードに出す商品名（ASP の表記のまま）"
+          />
+          <Field
+            name="brand"
+            label="ブランド"
+            optional
+            value={brand}
+            onValueChange={setBrand}
+            hint="分からないときは空のままにしてください。当てて書かないでください。"
+            toolParamDescription="商品の作り手・ブランド名（任意）"
+          />
+          <Field
+            name="oneLine"
+            label="1 文の説明"
+            optional
+            value={oneLine}
+            onValueChange={setOneLine}
+            hint="カードの見出しの下に出ます。空でも登録できます。"
+            toolParamDescription="カードに出す 1 文の説明（任意）"
+          />
+          <Button type="submit" tone="primary" busy={pending}>
+            成果リンクとして登録する
+          </Button>
+        </ToolForm>
       ) : null}
 
       {canReject ? (
-        <>
+        <ToolForm
+          action={action}
+          toolName="reject_link_ingestion"
+          toolDescription="受信箱のリンクを理由付きで対象外にする"
+        >
+          <FormValue name="linkIngestionId" value={item.id} />
+          <FormValue name="intent" value="reject" />
           <Field
             name="reason"
             label="対象外にする理由"
@@ -146,16 +232,17 @@ export function AdvanceIngestionForm({
             hint="後から見て分かるように書いてください。理由の無い除外は残せません。"
             toolParamDescription="このリンクを対象外にする理由"
           />
-          <Button type="submit" name="intent" value="reject" tone="quiet" busy={pending}>
+          <Button type="submit" tone="quiet" busy={pending}>
             対象外にする
           </Button>
-        </>
+        </ToolForm>
       ) : null}
 
-      {state.status === "done" ? <Callout tone="success" reason={state.message} /> : null}
-      {state.status === "failed" && state.field === undefined ? (
-        <Callout tone="warn" reason={state.message} />
-      ) : null}
-    </form>
+      {/*
+        結果は 3 つの外に 1 度だけ置く。`useActionState` の状態は 1 つしか無いので、
+        中へ入れると、どれを押しても 3 つ全部に同じ結果が出る。
+      */}
+      <FormResult state={state} />
+    </>
   );
 }

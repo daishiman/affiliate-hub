@@ -1,3 +1,4 @@
+import { FormValue } from "../primitives/form-value";
 import { Callout } from "../primitives/callout";
 import styles from "./patterns.module.css";
 
@@ -58,14 +59,17 @@ export function ModelPicker({
   /** 1 つも選べないときの理由。選べるものがあれば `null`。 */
   readonly emptyReason: string | null;
   /** 選択と一緒に送り直す値（いまの試し方など）。 */
-  readonly hiddenFields?: readonly { readonly name: string; readonly value: string }[];
+  readonly hiddenFields?: readonly {
+    readonly name: string;
+    readonly value: string;
+  }[];
   readonly submitLabel: string;
 }) {
   return (
     <div className={styles.materialForm}>
       <form method="get" action={action}>
         {hiddenFields.map((f) => (
-          <input key={f.name} type="hidden" name={f.name} value={f.value} />
+          <FormValue key={f.name} name={f.name} value={f.value} />
         ))}
         <label className={styles.materialLabel} htmlFor="model-picker-select">
           どのモデルで書くか
@@ -84,11 +88,7 @@ export function ModelPicker({
           {groups.map((group) => (
             <optgroup
               key={group.providerId}
-              label={
-                group.unavailableReason === null
-                  ? group.label
-                  : `${group.label}（いまは選べません）`
-              }
+              label={group.unavailableReason === null ? group.label : `${group.label}（いまは選べません）`}
               disabled={group.unavailableReason !== null}
             >
               {group.models.length === 0 ? (

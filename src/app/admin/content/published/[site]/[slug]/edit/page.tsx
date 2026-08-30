@@ -2,7 +2,7 @@ import Link from "next/link";
 import { AdminShell } from "@/presentation/admin/admin-shell";
 import { PublishedArticleForm } from "@/presentation/admin/published-article-form";
 import { currentActor, publishedArticleAdminUseCases } from "@/presentation/composition";
-import { Card, EmptyView, ErrorView, Page } from "@/presentation/ui";
+import { Card, EmptyView, ErrorView, FactList } from "@/presentation/ui";
 import styles from "../../../../../admin.module.css";
 
 export const dynamic = "force-dynamic";
@@ -19,26 +19,33 @@ export default async function EditPublishedArticlePage({
   });
   return (
     <AdminShell
-      currentPath="/admin/content"
-      breadcrumbs={[
-        { label: "ホーム", href: "/admin" },
-        { label: "記事", href: "/admin/content" },
-        { label: "公開済み記事", href: "/admin/content/published" },
-        { label: "編集" },
-      ]}
+      routeId="content/published/[site]/[slug]/edit"
+      routeParams={{ site, slug }}
+      title={result.ok ? (result.value?.article.title ?? "公開済み記事") : "公開済み記事"}
+      lead="読者に出ている文章を訂正し、変更理由を記録に残します。"
       actions={<Link href="/admin/content/published">一覧へ戻る</Link>}
     >
-      <Page title={result.ok ? result.value?.article.title ?? "公開済み記事" : "公開済み記事"} lead="読者に出ている文章を訂正し、変更理由を操作記録に残します。">
         {!result.ok ? (
           <ErrorView title="公開済み記事を開けませんでした" body={result.error.message} suggestedAction={result.error.suggestedAction ?? null} />
         ) : result.value !== null ? (
           <div className={styles.publishedEditor}>
             <Card>
-              <dl className={styles.publishedMeta}>
-                <div><dt>サイト</dt><dd>{result.value.article.siteSlug}</dd></div>
-                <div><dt>URL</dt><dd>{result.value.article.slug}</dd></div>
-                <div><dt>状態</dt><dd>{result.value.archivedAt === null ? "公開中" : "非表示"}</dd></div>
-              </dl>
+              {/*
+                項目と値の並びは `FactList` が 1 か所で持つ。ここで `dl` を
+                書き起こすと、読み上げの対の作り方が 2 通りになる
+                （`tests/ui/uiux-duplicate-implementation.test.ts`）。
+              */}
+              <FactList
+                rows={[
+                  { key: "site", label: "サイト", value: result.value.article.siteSlug },
+                  { key: "slug", label: "URL", value: result.value.article.slug },
+                  {
+                    key: "status",
+                    label: "状態",
+                    value: result.value.archivedAt === null ? "公開中" : "非表示",
+                  },
+                ]}
+              />
             </Card>
             <Card><PublishedArticleForm article={result.value.article} archivedAt={result.value.archivedAt} /></Card>
           </div>
@@ -49,7 +56,6 @@ export default async function EditPublishedArticlePage({
             action={<Link href="/admin/content/published">公開済み記事一覧へ戻る</Link>}
           />
         )}
-      </Page>
     </AdminShell>
   );
 }

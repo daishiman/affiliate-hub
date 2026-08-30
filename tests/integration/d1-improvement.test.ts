@@ -1,6 +1,6 @@
 /**
  * @tier 2
- * @req REQ-IM13
+ * @req REQ-IM13, REQ-E14
  * @types db-migration, tenant-isolation, state-transition, equivalence, decision-table
  */
 import { readFileSync, readdirSync } from "node:fs";
@@ -12,7 +12,7 @@ import * as schema from "@/db/schema";
 import type { ImprovementRepositoryPort } from "@/application/ports/improvement";
 import { createD1ImprovementRepository } from "@/infrastructure/persistence/d1/improvement-repository";
 import type { LoopRun, VariantSetting, VariantSpec } from "@/domain/analytics";
-import { asExperimentId, asWorkspaceId, type WorkspaceId } from "@/domain/shared";
+import { asExperimentId, asWorkspaceId, isExpired, type WorkspaceId } from "@/domain/shared";
 
 /**
  * 改善ループの記録先（`variant_specs` / `loop_runs` / `loop_observations`）を、
@@ -178,6 +178,51 @@ describe("見せ方の設定を残す", () => {
     expect(found?.provenance.retrievedAt).toBeInstanceOf(Date);
     expect(found?.provenance.retrievedAt.toISOString()).toBe("2026-07-01T00:00:00.000Z");
     expect(found?.approvedAt).toBeInstanceOf(Date);
+  });
+
+  it("由来の有効期限と信頼度が、往復で欠けない（期限切れの判断がそのまま通る）", async () => {
+    /*
+     * `retrievedAt` だけを見ていると、`validUntil` の revive を落としても緑になる
+     * （2026-08-21 に実測。`toSpecRow` で `validUntil: null` / `confidence: 0` に
+     * 落としても 94 件すべてが緑だった）。上の試験の見本は `validUntil: null` で、
+     * revive の `validUntil` 側の枝へ一度も入っていなかった。
+     *
+     * 期限が文字列のまま戻ると `isExpired` の比較が静かに文字列比較になり、
+     * **期限切れの素材が永久に期限内として通る**。判定式ではなく、
+     * その判定を実際に呼んで測る。
+     */
+    const validUntil = new Date("2026-09-01T00:00:00.000Z");
+    const spec = aSpec({
+      id: "vs_expiry",
+      provenance: {
+        sourceType: "manual",
+        sourceName: "編集の責任者が決定",
+        sourceUrl: null,
+        retrievedAt: new Date("2026-07-01T00:00:00.000Z"),
+        validUntil,
+        confidence: 0.42,
+        permittedUsage: "社内の記録として保持する",
+      },
+    });
+    const saved = await repo.saveVariantSpec(WS, { spec, siteSlug: SITE });
+    expect(saved.ok).toBe(true);
+
+    const listed = await repo.listVariantSpecs(WS, { siteSlug: SITE });
+    expect(listed.ok).toBe(true);
+    if (!listed.ok) return;
+    const found = listed.value.find((s) => s.id === "vs_expiry");
+    expect(found).toBeDefined();
+    if (!found) return;
+
+    expect(found.provenance.sourceName).toBe("編集の責任者が決定");
+    expect(found.provenance.confidence).toBe(0.42);
+    expect(found.provenance.validUntil).toBeInstanceOf(Date);
+    expect(found.provenance.validUntil?.toISOString()).toBe(validUntil.toISOString());
+
+    // 期限そのものではなく、期限を使う判断が往復のあとも動くこと。
+    expect(isExpired(found.provenance, new Date("2026-08-31T23:59:59.999Z"))).toBe(false);
+    expect(isExpired(found.provenance, validUntil)).toBe(true);
+    expect(isExpired(found.provenance, new Date("2026-09-01T00:00:00.001Z"))).toBe(true);
   });
 
   it("同じ id で保存し直すと上書きされる（増えない）", async () => {

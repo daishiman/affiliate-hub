@@ -1,18 +1,25 @@
 import { auditWriteFailure, buildAuditEntry } from "@/application/audit";
-import type { EditorialContentVariantRepositoryPort } from "@/application/ports/authoring";
+import type {
+  EditorialContentPackageRepositoryPort,
+  EditorialContentVariantRepositoryPort,
+} from "@/application/ports/authoring";
+import { assertContentVariantBrandScope } from "@/application/usecases/content/content-brand-access";
 import type { IdGeneratorPort } from "@/application/ports/common";
 import type { AuditLogPort } from "@/application/ports/compliance";
 import type { PublicationRepositoryPort } from "@/application/ports/distribution";
 import type {
+  EditorialArticleOfferPort,
   EditorialPublishedArticleWriterPort,
   EditorialSiteRepositoryPort,
 } from "@/application/ports/site";
+import { type ArticleOffer, toProductCards } from "@/application/read-models/article-offer";
 import type {
   PublishedArticle,
   PublishedClaim,
   PublishedSection,
 } from "@/application/read-models/published-article";
 import { articleHref } from "@/application/read-models/published-article";
+import { type AiSearchCheck, auditArticleForAiSearch } from "@/application/seo/ai-search-audit";
 import {
   ARTICLE_TYPES,
   ARTICLE_TYPE_LABEL,
@@ -22,6 +29,7 @@ import {
   type SiteBlueprint,
   authoredSectionsFor,
   filledSectionIds,
+  parseNonEmptyParagraphs,
   sectionsFor,
   siteBasePathBySlug,
 } from "@/domain/authoring";
@@ -29,9 +37,10 @@ import type { RelationshipType } from "@/domain/compliance";
 import {
   GATE_REQUIREMENT_LABEL,
   RELATIONSHIP_LABEL,
+  type GateSkip,
   evaluatePublishGate,
 } from "@/domain/compliance";
-import { advance, recordSendSuccess } from "@/domain/distribution";
+import { type Publication, advance, recordSendSuccess } from "@/domain/distribution";
 import { requireCapability } from "@/domain/identity";
 import {
   type ActorContext,
@@ -39,6 +48,7 @@ import {
   type PublicationId,
   type Result,
   assertSameTenant,
+  assertWorkspaceWideAccess,
   domainError,
   err,
   ok,
@@ -60,14 +70,26 @@ import type { UseCase } from "../usecase";
  *   - 何を読者に見せるか … このファイルの `buildArticle`（表示用の形へ写す）
  * ここで条件式を組み直さない。組み直すと画面と AI 経路で判定がずれる。
  *
- * 出したあとの**取り下げはまだできない**。状態の遷移表に
- * 「公開済みから戻る道」が無いため。残課題として記録している。
+ * 出したあとの取り下げは、記事の進行を `ARCHIVED` へ進める入口が受け持つ。
+ * 公開時に配信へ残した URL と ID を使い、読者向けの写しだけを外すため、
+ * 編集原稿と監査履歴は取り下げ後も残る。
  */
 export type PublishArticleDeps = {
   readonly sites: EditorialSiteRepositoryPort;
+  /** 記事の企画を逆引きし、membership のブランド範囲をサーバー側で照合する。 */
+  readonly packages: EditorialContentPackageRepositoryPort;
   readonly variants: EditorialContentVariantRepositoryPort;
   readonly publications: PublicationRepositoryPort;
   readonly articles: EditorialPublishedArticleWriterPort;
+  /**
+   * 版が持つ成果リンクの ID を、読者に見せる写しへ引き当てる口。
+   *
+   * **これが無いと、版の `affiliateLinkIds` は公開された記事へ 1 件も渡らない。**
+   * 判定（表現のきまり）は ID の件数だけを見るので、画面上は「広告あり」の
+   * 記事として成立して見える。読者に成果リンクが 1 件も出ていないことは、
+   * `/admin/analytics` の未突合の件数からしか分からない（残課題 58）。
+   */
+  readonly offers: EditorialArticleOfferPort;
   readonly auditLog: AuditLogPort;
   readonly ids: IdGeneratorPort;
 };
@@ -79,6 +101,18 @@ export type PublishArticleClaimInput = {
   readonly sourceUrl: string | null;
   /** いつ確認したか（YYYY-MM-DD）。 */
   readonly checkedOn: string;
+};
+
+/**
+ * よくある質問 1 件ぶんの入力。
+ *
+ * 問いと答えは**両方そろって初めて 1 件**になる。片方だけの行は捨てる
+ * （問いだけを出すと答えの無い見出しが読者に並び、
+ *  答えだけを出すと何の答えか分からない段落になる）。
+ */
+export type PublishArticleFaqInput = {
+  readonly question: string;
+  readonly answer: string;
 };
 
 export type PublishArticleInput = {
@@ -99,6 +133,22 @@ export type PublishArticleInput = {
   /** 次回確認日（YYYY-MM-DD）。未設定は公開できない。 */
   readonly nextReviewOn: string | null;
   readonly claims: readonly PublishArticleClaimInput[];
+  /**
+   * よくある質問。省略できる（付けない記事もある）。
+   *
+   * AI 検索は問いの形をそのまま拾うので、記事に入れると引用されやすい
+   * （`EXPRESSION_BLOCK_KINDS` の前半 5 つの 1 つ）。
+   */
+  readonly faq?: readonly PublishArticleFaqInput[];
+  /**
+   * 記事の要点。1 行に 1 つ。省略できる。
+   *
+   * `EXPRESSION_BLOCK_KINDS` の 10 種のうち、読み取りモデルに他の置き場が
+   * **無いのはこれだけ**なので、ここだけを受け取って保存する。結論・出典・
+   * 更新日・質問は既に別の欄が正本なので、二重に受け取らない
+   * （`src/application/seo/expression-blocks.ts`）。
+   */
+  readonly keyPoints?: readonly string[];
   /** 節の識別子 → 本文。入力欄は `authoredSectionsFor` から作る。 */
   readonly sectionBodies: Readonly<Record<string, string>>;
 };
@@ -107,10 +157,191 @@ export type PublishArticleOutput = {
   /** 読者が開く URL。 */
   readonly url: string;
   /** 検査できなかった項目。隠さずそのまま返す。 */
-  readonly skipped: readonly { readonly label: string; readonly reason: string }[];
+  readonly skipped: readonly ArticleDraftWarning[];
+};
+
+/** 公開と事前点検のどちらでも、利用者に返す未確認・未解決の 1 件。 */
+export type ArticleDraftWarning = {
+  readonly label: string;
+  readonly reason: string;
 };
 
 const SLUG_PATTERN = /^[a-z0-9]+(-[a-z0-9]+)*$/;
+
+/**
+ * 公開しようとしている記事を、**保存する手前まで**組み立てる。
+ *
+ * 公開（`publishArticle`）と公開前の点検（`auditArticleDraft`）が
+ * 同じ道を通るために切り出してある。点検のほうへ同じ手順を書き写すと、
+ * 点検が見ている記事と実際に出る記事が少しずつ別物になり、
+ * 「点検は通ったのに、出たものが違う」が起きる。
+ *
+ * ここまでで**何も保存しない**。保存は呼び出し側の仕事。
+ */
+type ArticleDraft = {
+  readonly publication: Publication;
+  readonly article: PublishedArticle;
+  readonly gate: ReturnType<typeof evaluatePublishGate>;
+  /** 引き当てられなかった成果リンクの ID。黙って消さない。 */
+  readonly missing: readonly string[];
+};
+
+/**
+ * 公開ゲートの未実施と、引き当てられなかった成果リンクを画面用の警告へ写す。
+ *
+ * 公開と事前点検がこの 1 本を共有することで、点検時に見えた警告が
+ * 実際の公開結果で欠けたり、言い方がずれたりする経路を無くす。
+ */
+export function articleDraftWarnings(
+  skipped: readonly GateSkip[],
+  missingOfferIds: readonly string[],
+): readonly ArticleDraftWarning[] {
+  return [
+    ...skipped.map((item) => ({
+      label: GATE_REQUIREMENT_LABEL[item.requirement],
+      reason: item.reason,
+    })),
+    ...missingOfferIds.map((id) => ({
+      label: "成果リンク",
+      reason: `${id} の登録が見つからないため、記事に出していません。`,
+    })),
+  ];
+}
+
+async function resolveArticleDraft(
+  deps: PublishArticleDeps,
+  actor: ActorContext,
+  input: PublishArticleInput,
+  now: Date,
+): Promise<Result<ArticleDraft, DomainError>> {
+    const allowed = requireCapability(actor, "content.publish", "記事の公開");
+    if (!allowed.ok) return allowed;
+
+    const checked = checkFields(input);
+    if (!checked.ok) return checked;
+
+    const found = await deps.publications.findById(
+      actor.workspaceId,
+      taggedString<"PublicationId">(input.publicationId) as PublicationId,
+    );
+    if (!found.ok) return found;
+    if (found.value === null) {
+      return err(
+        domainError("NOT_FOUND", "この配信が見つかりませんでした。", {
+          suggestedAction: "配信の一覧から選び直してください。",
+        }),
+      );
+    }
+    const publication = found.value;
+
+    const same = assertSameTenant(actor, publication, "この配信");
+    if (!same.ok) return same;
+
+    if (publication.channelKind !== "own_site") {
+      return err(
+        domainError("FORBIDDEN", "この操作は自社サイトへ出す配信でだけ使えます。", {
+          suggestedAction: "他の配信先は、貼り付け用の下書きを書き出してご自身で投稿してください。",
+        }),
+      );
+    }
+
+    const variantResult = await deps.variants.findById(actor.workspaceId, publication.variantId);
+    if (!variantResult.ok) return variantResult;
+    if (variantResult.value === null) {
+      return err(
+        domainError("NOT_FOUND", "もとの記事が見つかりませんでした。", {
+          suggestedAction: "記事の一覧から、公開したい記事を選び直してください。",
+        }),
+      );
+    }
+    const variant = variantResult.value;
+    const variantScope = await assertContentVariantBrandScope(
+      deps.packages,
+      actor,
+      variant,
+      "記事",
+    );
+    if (!variantScope.ok) return err(variantScope.error);
+
+    // SiteBlueprint は brandId を持たないため、限定 actor へ公開先を推測で割り当てない。
+    const siteAccess = assertWorkspaceWideAccess(actor, "公開先のブログ");
+    if (!siteAccess.ok) return err(siteAccess.error);
+
+    const siteResult = await deps.sites.findBySlug(input.siteSlug);
+    if (!siteResult.ok) return siteResult;
+    if (siteResult.value === null) {
+      return err(
+        domainError("NOT_FOUND", `「${input.siteSlug}」というブログがありません。`, {
+          suggestedAction: "出す先のブログを選び直してください。",
+        }),
+      );
+    }
+    const blueprint: SiteBlueprint = siteResult.value;
+
+    const sameSite = assertSameTenant(actor, blueprint, "このブログ");
+    if (!sameSite.ok) return sameSite;
+
+    if (!blueprint.categories.some((c) => c.slug === input.categorySlug)) {
+      return err(
+        validationError(
+          `このブログに「${input.categorySlug}」というカテゴリーはありません。`,
+          "categorySlug",
+        ),
+      );
+    }
+
+    /*
+     * 版が指している成果リンクを引き当てる。**記事を保存する前に引く。**
+     *
+     * ここで失敗したら公開しない。合言葉の発行（`tracking-issuing-writer.ts`）は
+     * 失敗しても公開を止めないが、あれは「後から足せる計測」で、こちらは
+     * 記事の中身そのものである。読み取れないまま出すと、広告表記だけが付いて
+     * 買う導線が 1 件も無い記事が読者に出る。まだ何も保存していないので、
+     * 保存先が戻ってから出し直せば同じ URL で出せる。
+     */
+    const offersResult = await deps.offers.listByIds(
+      actor.workspaceId,
+      variant.affiliateLinkIds.map(String),
+      now,
+    );
+    if (!offersResult.ok) return offersResult;
+    const offers = offersResult.value;
+
+    /*
+     * 引き当てられなかった ID。**記事には出さず、公開した人へ返す。**
+     * 名前も URL も分からないものを空のカードで出すと、読者には
+     * 「用意し忘れ」と見分けが付かない。落としたことは黙って消さない。
+     */
+    const missing = variant.affiliateLinkIds
+      .map(String)
+      .filter((id) => !offers.some((o) => o.affiliateLinkId === id));
+
+    const article = buildArticle(input, variant, now, offers);
+
+    // 出してよいかの判定。ここで条件式を組み立てず、判定は Compliance に任せる。
+    const gate = evaluatePublishGate({
+      articleType: input.articleType,
+      presentSections: filledSectionIds(input.articleType, input.sectionBodies),
+      authorIds: [String(variant.authorPersonaId)],
+      updateOwnerId: actor.userId,
+      relationshipType: input.relationshipType,
+      disclosureVisibleMessage: input.disclosureMessage,
+      claimCount: input.claims.length,
+      evidenceCount: input.claims.filter((c) => c.sourceLabel.trim() !== "").length,
+      hasAffiliateCta: variant.affiliateLinkIds.length > 0,
+      merchantOptionCount: variant.affiliateLinkIds.length,
+      imageRightsConfirmed: null,
+      structuredDataValid: null,
+      mobileChecked: null,
+      linksChecked: null,
+      aiAnswerEvalPassed: null,
+      webmcpSchemaEval: "not_applicable",
+      nextReviewAt: parseDate(input.nextReviewOn),
+      now,
+    });
+
+  return ok({ publication, article, gate, missing });
+}
 
 export function createPublishArticleUseCase(
   deps: PublishArticleDeps,
@@ -167,92 +398,11 @@ export function createPublishArticleUseCase(
       actor: ActorContext,
       input: PublishArticleInput,
     ): Promise<Result<PublishArticleOutput, DomainError>> {
-      const allowed = requireCapability(actor, "content.publish", "記事の公開");
-      if (!allowed.ok) return allowed;
-
-      const checked = checkFields(input);
-      if (!checked.ok) return checked;
-
-      const found = await deps.publications.findById(
-        actor.workspaceId,
-        taggedString<"PublicationId">(input.publicationId) as PublicationId,
-      );
-      if (!found.ok) return found;
-      if (found.value === null) {
-        return err(
-          domainError("NOT_FOUND", "この配信が見つかりませんでした。", {
-            suggestedAction: "配信の一覧から選び直してください。",
-          }),
-        );
-      }
-      const publication = found.value;
-
-      const same = assertSameTenant(actor, publication, "この配信");
-      if (!same.ok) return same;
-
-      if (publication.channelKind !== "own_site") {
-        return err(
-          domainError("FORBIDDEN", "この操作は自社サイトへ出す配信でだけ使えます。", {
-            suggestedAction: "他の配信先は、貼り付け用の下書きを書き出してご自身で投稿してください。",
-          }),
-        );
-      }
-
-      const variantResult = await deps.variants.findById(actor.workspaceId, publication.variantId);
-      if (!variantResult.ok) return variantResult;
-      if (variantResult.value === null) {
-        return err(
-          domainError("NOT_FOUND", "もとの記事が見つかりませんでした。", {
-            suggestedAction: "記事の一覧から、公開したい記事を選び直してください。",
-          }),
-        );
-      }
-      const variant = variantResult.value;
-
-      const siteResult = await deps.sites.findBySlug(input.siteSlug);
-      if (!siteResult.ok) return siteResult;
-      if (siteResult.value === null) {
-        return err(
-          domainError("NOT_FOUND", `「${input.siteSlug}」というブログがありません。`, {
-            suggestedAction: "出す先のブログを選び直してください。",
-          }),
-        );
-      }
-      const blueprint: SiteBlueprint = siteResult.value;
-
-      if (!blueprint.categories.some((c) => c.slug === input.categorySlug)) {
-        return err(
-          validationError(
-            `このブログに「${input.categorySlug}」というカテゴリーはありません。`,
-            "categorySlug",
-          ),
-        );
-      }
-
       const now = new Date();
-      const article = buildArticle(input, variant, now);
+      const draft = await resolveArticleDraft(deps, actor, input, now);
+      if (!draft.ok) return draft;
+      const { publication, article, gate, missing } = draft.value;
 
-      // 出してよいかの判定。ここで条件式を組み立てず、判定は Compliance に任せる。
-      const gate = evaluatePublishGate({
-        articleType: input.articleType,
-        presentSections: filledSectionIds(input.articleType, input.sectionBodies),
-        authorIds: [String(variant.authorPersonaId)],
-        updateOwnerId: actor.userId,
-        relationshipType: input.relationshipType,
-        disclosureVisibleMessage: input.disclosureMessage,
-        claimCount: input.claims.length,
-        evidenceCount: input.claims.filter((c) => c.sourceLabel.trim() !== "").length,
-        hasAffiliateCta: variant.affiliateLinkIds.length > 0,
-        merchantOptionCount: variant.affiliateLinkIds.length,
-        imageRightsConfirmed: null,
-        structuredDataValid: null,
-        mobileChecked: null,
-        linksChecked: null,
-        aiAnswerEvalPassed: null,
-        webmcpSchemaEval: "not_applicable",
-        nextReviewAt: parseDate(input.nextReviewOn),
-        now,
-      });
 
       // 状態を 1 つずつ進める。ゲートの結果は VALIDATING の先で domain が見る。
       const rendering = advance(publication, "RENDERING", { at: now });
@@ -284,10 +434,59 @@ export function createPublishArticleUseCase(
 
       return ok({
         url,
-        skipped: gate.skipped.map((s) => ({
-          label: GATE_REQUIREMENT_LABEL[s.requirement],
-          reason: s.reason,
-        })),
+        skipped: articleDraftWarnings(gate.skipped, missing),
+      });
+    },
+  };
+}
+
+/**
+ * 公開前の点検の結果（REQ-SEO03）。
+ *
+ * **`url` を持たない。** 何も出していないので、読者が開ける住所はまだ無い。
+ * 公開の結果（`PublishArticleOutput`）と同じ形にすると、
+ * 点検しただけの結果を「公開しました」と読み違える画面が書ける。
+ */
+export type AuditArticleDraftOutput = {
+  /** AI 検索への備え。落ちた項目には直し方が付いている。 */
+  readonly aiSearch: readonly AiSearchCheck[];
+  /**
+   * 出してよいかの判定で、機械が確かめられなかった項目。
+   * 公開したときに返るものと同じ（点検の段階で先に見せる）。
+   */
+  readonly skipped: readonly ArticleDraftWarning[];
+};
+
+/**
+ * 出す前に、AI 検索への備えを点検する（REQ-SEO03）。
+ *
+ * --- なぜ公開の中でやらないのか ---
+ * 記事の公開は**押した後に元へ戻す口が無い**。出た記事は読者から見え、
+ * 検索にも載る。公開した後で「要点がありません」と出しても、
+ * 直すには一度出したものを取り下げるしかない。
+ *
+ * --- なぜ公開を止めないのか ---
+ * ここは**止めない**。止めるのは表現のきまり（`evaluatePublishGate`）の役目で、
+ * あちらは法令と根拠に関わる。AI 検索への備えが薄いことは、
+ * 記事が間違っているという意味ではない。止めると「引用されにくい」を
+ * 理由に、正しい記事が出せなくなる。
+ *
+ * --- なぜ公開と同じ道を通るのか ---
+ * `resolveArticleDraft` を公開と共有している。点検のためにもう 1 本
+ * 記事の組み立てを書くと、点検が見ている記事と実際に出る記事が別物になる。
+ * **保存は一切しない**（配信の状態も進めない）。
+ */
+export function createAuditArticleDraftUseCase(
+  deps: PublishArticleDeps,
+): UseCase<PublishArticleInput, AuditArticleDraftOutput> {
+  return {
+    async execute(actor, input) {
+      const draft = await resolveArticleDraft(deps, actor, input, new Date());
+      if (!draft.ok) return draft;
+      const { article, gate, missing } = draft.value;
+      return ok({
+        aiSearch: auditArticleForAiSearch(article),
+        skipped: articleDraftWarnings(gate.skipped, missing),
       });
     },
   };
@@ -343,7 +542,7 @@ export type PreparePublishArticleInput = {
  * 片方だけ古くなる。
  */
 export function createPreparePublishArticleUseCase(
-  deps: Omit<PublishArticleDeps, "articles">,
+  deps: Omit<PublishArticleDeps, "articles" | "offers">,
 ): UseCase<PreparePublishArticleInput, PublishArticleFormOptions> {
   return {
     async execute(
@@ -378,6 +577,16 @@ export function createPreparePublishArticleUseCase(
           }),
         );
       }
+      const variantScope = await assertContentVariantBrandScope(
+        deps.packages,
+        actor,
+        variant,
+        "記事",
+      );
+      if (!variantScope.ok) return err(variantScope.error);
+
+      const siteAccess = assertWorkspaceWideAccess(actor, "公開先のブログ");
+      if (!siteAccess.ok) return err(siteAccess.error);
 
       const sitesResult = await deps.sites.list();
       if (!sitesResult.ok) return sitesResult;
@@ -392,11 +601,13 @@ export function createPreparePublishArticleUseCase(
             purpose: s.purpose,
           })),
         })),
-        siteOptions: sitesResult.value.map((entry) => ({
-          slug: entry.slug,
-          name: entry.blueprint.name,
-          categories: entry.blueprint.categories.map((c) => ({ slug: c.slug, name: c.name })),
-        })),
+        siteOptions: sitesResult.value
+          .filter((entry) => entry.blueprint.workspaceId === actor.workspaceId)
+          .map((entry) => ({
+            slug: entry.slug,
+            name: entry.blueprint.name,
+            categories: entry.blueprint.categories.map((c) => ({ slug: c.slug, name: c.name })),
+          })),
         relationshipOptions: (
           Object.keys(RELATIONSHIP_LABEL) as readonly RelationshipType[]
         ).map((value) => ({ value, label: RELATIONSHIP_LABEL[value] })),
@@ -440,25 +651,30 @@ function toDateString(at: Date): string {
   return at.toISOString().slice(0, 10);
 }
 
-/** 段落へ切る。空行で切り、空の段落は落とす。 */
-function toParagraphs(body: string): readonly string[] {
-  return body
-    .split(/\n\s*\n/)
-    .map((p) => p.trim())
-    .filter((p) => p !== "");
-}
-
 /**
  * 入力を「読者に見せる形」へ写す。
  *
  * 保存するのはこの写しであり、書き込み側の集約ではない。
  * 書き込み側の型をそのまま保存すると、編集中の状態や採点が
  * 読者向けの読み取り経路に現れる。
+ *
+ * --- 成果リンクは商品カードとして出す ---
+ * 版が持つ成果リンク（`offers`）は `productCards` になる。カードは
+ * 順位・レビュー・比較のどの型の記事でも使える形で、これを出せば
+ * 画面側は既にある道筋（`view-model.ts` → `ProductCard` → `AffiliateLink`）で
+ * `/go/<合言葉>` まで通る。
+ *
+ * **順位表（`ranking`）はここで作らない。** 順位表の行は総合点と評価軸ごとの
+ * 点数を持つ。成果リンクからは分からない値なので、作るには点を捏造するしかない。
+ * 順位は Ranking の仕事であり、報酬側のデータからは決して作らない
+ * （Editorial / Commercial の遮断そのもの）。順位記事の順位表は、
+ * 採点の保存先（`score_cards`）が本物になったときにそちらから渡す。
  */
 export function buildArticle(
   input: PublishArticleInput,
   variant: ContentVariant,
   at: Date,
+  offers: readonly ArticleOffer[],
 ): PublishedArticle {
   const labels = new Map(sectionsFor(input.articleType).map((s) => [s.id, s.label]));
   const claims: readonly PublishedClaim[] = input.claims.map((c, i) => ({
@@ -485,9 +701,20 @@ export function buildArticle(
   const sections: readonly PublishedSection[] = written.map((s) => ({
     id: s.id,
     heading: labels.get(s.id) ?? s.label,
-    paragraphs: toParagraphs(input.sectionBodies[s.id] ?? ""),
+    paragraphs: parseNonEmptyParagraphs(input.sectionBodies[s.id] ?? ""),
     ...(s.id === claimHost && claims.length > 0 ? { claims } : {}),
   }));
+
+  const productCards = toProductCards(offers);
+
+  // 問いと答えが**両方**あるものだけ残す。片方だけの行は、
+  // 読者から見ると「答えの無い見出し」か「何の答えか分からない段落」になる。
+  const faq = (input.faq ?? [])
+    .map((item) => ({ question: item.question.trim(), answer: item.answer.trim() }))
+    .filter((item) => item.question !== "" && item.answer !== "");
+
+  // 要点。空行は捨てる（画面の箇条書きに空の項目を出さない）。
+  const keyPoints = (input.keyPoints ?? []).map((k) => k.trim()).filter((k) => k !== "");
 
   return {
     slug: input.slug,
@@ -505,6 +732,13 @@ export function buildArticle(
       credentials: input.authorCredentials.filter((c) => c.trim() !== ""),
     },
     disclosureRequired: input.relationshipType !== null,
+    // 空配列を入れない理由は faq と同じ（見出しだけの空欄を出さない）。
+    ...(keyPoints.length === 0 ? {} : { keyPoints }),
     sections,
+    // 1 件も無いときは欄ごと出さない。空配列を入れると、画面側の
+    // 「商品カードがあるか」の判定が真になり、見出しだけの空欄が読者に出る。
+    ...(productCards.length === 0 ? {} : { productCards }),
+    // 空配列を入れない理由は productCards と同じ（見出しだけの空欄を出さない）。
+    ...(faq.length === 0 ? {} : { faq }),
   };
 }

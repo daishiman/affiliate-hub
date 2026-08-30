@@ -8,20 +8,26 @@
  */
 import { describe, expect, it } from "vitest";
 import type { EditorialPersonaRepositoryPort } from "@/application/ports/authoring";
+import type { AuditLogPort } from "@/application/ports/compliance";
 import {
   type ManagePersonasDeps,
+  type RecordedPersonasDeps,
   createCheckFactBoundaryUseCase,
   createGetAudiencePersonaUseCase,
   createGetAuthorPersonaUseCase,
   createListAudiencePersonasUseCase,
   createListAuthorPersonasUseCase,
+  createSaveAudiencePersonaUseCase,
+  createSaveAuthorPersonaUseCase,
 } from "@/application/usecases/authoring/manage-personas";
 import type { AudiencePersona, AuthorPersona, Tone } from "@/domain/authoring";
 import { createAudiencePersona, createAuthorPersona } from "@/domain/authoring";
 import { domainError, err, markEditorial, ok, taggedString } from "@/domain/shared";
 import type { AudiencePersonaId, AuthorPersonaId, TestRunId, WorkspaceId } from "@/domain/shared";
+import { createUnavailableAuditLog } from "@/infrastructure/persistence/sample/audit-log-sample-repository";
 import { currentActor, personaUseCases } from "@/presentation/composition";
 import { WORKSPACE, aNobody, anOwner } from "../support/actors";
+import { recordingAuditLog } from "../support/doubles";
 
 /**
  * 書き手と読者像の確認。
@@ -31,7 +37,7 @@ import { WORKSPACE, aNobody, anOwner } from "../support/actors";
  */
 describe("書き手", () => {
   it("一覧が空でなく、空のときは理由が付く", async () => {
-    const result = await personaUseCases().listAuthors.execute(await currentActor(), {});
+    const result = await (await personaUseCases()).listAuthors.execute(await currentActor(), {});
     expect(result.ok).toBe(true);
     if (!result.ok) return;
 
@@ -41,7 +47,7 @@ describe("書き手", () => {
   });
 
   it("文体の度合いは数字ではなく読める言葉で返る", async () => {
-    const result = await personaUseCases().listAuthors.execute(await currentActor(), {});
+    const result = await (await personaUseCases()).listAuthors.execute(await currentActor(), {});
     expect(result.ok).toBe(true);
     if (!result.ok) return;
 
@@ -56,7 +62,7 @@ describe("書き手", () => {
   });
 
   it("架空の書き手には、資格を名乗れない理由が付く", async () => {
-    const result = await personaUseCases().listAuthors.execute(await currentActor(), {});
+    const result = await (await personaUseCases()).listAuthors.execute(await currentActor(), {});
     expect(result.ok).toBe(true);
     if (!result.ok) return;
 
@@ -69,7 +75,7 @@ describe("書き手", () => {
   });
 
   it("居ない書き手を指すと、見つからないと分かる誤りが返る", async () => {
-    const result = await personaUseCases().getAuthor.execute(await currentActor(), {
+    const result = await (await personaUseCases()).getAuthor.execute(await currentActor(), {
       personaId: "ap_does_not_exist",
     });
     expect(result.ok).toBe(false);
@@ -80,7 +86,7 @@ describe("書き手", () => {
 
 describe("読者像", () => {
   it("知識量が 1 種類に偏っていない見本を持つ", async () => {
-    const result = await personaUseCases().listAudiences.execute(await currentActor(), {});
+    const result = await (await personaUseCases()).listAudiences.execute(await currentActor(), {});
     expect(result.ok).toBe(true);
     if (!result.ok) return;
 
@@ -90,7 +96,7 @@ describe("読者像", () => {
   });
 
   it("選ぶときの基準が空の読者像を作らない", async () => {
-    const result = await personaUseCases().listAudiences.execute(await currentActor(), {});
+    const result = await (await personaUseCases()).listAudiences.execute(await currentActor(), {});
     expect(result.ok).toBe(true);
     if (!result.ok) return;
 
@@ -104,7 +110,7 @@ describe("読者像", () => {
 
 describe("事実の範囲の確認", () => {
   async function firstAuthorId(): Promise<string> {
-    const list = await personaUseCases().listAuthors.execute(await currentActor(), {});
+    const list = await (await personaUseCases()).listAuthors.execute(await currentActor(), {});
     if (!list.ok) throw new Error("見本の書き手を取得できませんでした");
     const withoutTestRun = list.value.items.find((a) => a.verifiedExperienceCount === 0);
     return (withoutTestRun ?? list.value.items[0]!).personaId;
@@ -112,7 +118,7 @@ describe("事実の範囲の確認", () => {
 
   it("試した記録が無い書き手の一人称の体験は止まる", async () => {
     const personaId = await firstAuthorId();
-    const result = await personaUseCases().checkFactBoundary.execute(await currentActor(), {
+    const result = await (await personaUseCases()).checkFactBoundary.execute(await currentActor(), {
       personaId,
       body: "実際に使ってみたところ、書き出しがとても速くなりました。",
     });
@@ -130,7 +136,7 @@ describe("事実の範囲の確認", () => {
 
   it("公式情報に基づく書き方は通る", async () => {
     const personaId = await firstAuthorId();
-    const result = await personaUseCases().checkFactBoundary.execute(await currentActor(), {
+    const result = await (await personaUseCases()).checkFactBoundary.execute(await currentActor(), {
       personaId,
       body: "メーカーの公表値では、書き出し時間は前の型より短くなっています。",
     });
@@ -143,7 +149,7 @@ describe("事実の範囲の確認", () => {
   it("通っても止まっても、必ず 1 行の説明が返る", async () => {
     const personaId = await firstAuthorId();
     for (const body of ["実際に試しました。", "公式の仕様では対応しています。"]) {
-      const result = await personaUseCases().checkFactBoundary.execute(await currentActor(), {
+      const result = await (await personaUseCases()).checkFactBoundary.execute(await currentActor(), {
         personaId,
         body,
       });
@@ -280,6 +286,24 @@ describe("見られる人", () => {
     const result = await usecase.execute(aNobody(), { personaId: "ap_test", body: "本文" });
     expect(result.ok).toBe(false);
     if (!result.ok) expect(result.error.code).toBe("FORBIDDEN");
+  });
+
+  it.each([
+    ["書き手の一覧", createListAuthorPersonasUseCase],
+    ["書き手 1 人", createGetAuthorPersonaUseCase],
+    ["読者像の一覧", createListAudiencePersonasUseCase],
+    ["読者像 1 つ", createGetAudiencePersonaUseCase],
+    ["書き手の登録", createSaveAuthorPersonaUseCase],
+    ["読者像の登録", createSaveAudiencePersonaUseCase],
+    ["事実の範囲の確認", createCheckFactBoundaryUseCase],
+  ])("%s: ブランドとの対応を持たないため限定担当者は扱えない", async (_name, create) => {
+    const usecase = (create as (d: ManagePersonasDeps) => AnyUseCase)(personaDeps({ fail: true }));
+    const scoped = anOwner({ scopedBrandIds: [taggedString<"BrandId">("brand-limited")] });
+
+    const result = await usecase.execute(scoped, { personaId: "ap_test", body: "本文" });
+
+    expect(result.ok).toBe(false);
+    if (!result.ok) expect(result.error.code).toBe("TENANT_MISMATCH");
   });
 });
 
@@ -533,5 +557,225 @@ describe("事実の範囲の確認（保存先を差し替えて）", () => {
     ).execute(owner, { personaId: "ap_test", body: "メーカーの公表値です。" });
     // 空文字は「どの文字列にも含まれる」ため、素直に書くと全部止まる。
     expect(result.ok && result.value.prohibitedPhrasesFound).toEqual([]);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// 登録するぶん。
+//
+// 読む口だけを本物にすると、書き込む操作が無いので一覧が永久に見本のままになる。
+// ここで固定するのは「入れる口が、読む口と同じ約束で断る」こと。
+// ---------------------------------------------------------------------------
+
+/** ID を配る係。**採番はユースケースの持ち物ではない**ので外から渡す。 */
+function fixedIds(value = "fixed"): { newId: () => string } {
+  return { newId: () => value };
+}
+
+/** 保存を受け取って、渡された中身を覚えておく保存先。 */
+function recordingDeps(
+  ids?: { newId: () => string },
+  auditLog: AuditLogPort = recordingAuditLog().port,
+): {
+  readonly deps: RecordedPersonasDeps;
+  readonly savedAuthors: AuthorPersona[];
+  readonly savedAudiences: AudiencePersona[];
+} {
+  const savedAuthors: AuthorPersona[] = [];
+  const savedAudiences: AudiencePersona[] = [];
+  const personas = markEditorial({
+    async listAuthors() {
+      return ok({ items: [], nextCursor: null });
+    },
+    async listAudiences() {
+      return ok({ items: [], nextCursor: null });
+    },
+    async findAuthor() {
+      return ok(null);
+    },
+    async findAudience() {
+      return ok(null);
+    },
+    async saveAuthor(p: AuthorPersona) {
+      savedAuthors.push(p);
+      return ok(p);
+    },
+    async saveAudience(p: AudiencePersona) {
+      savedAudiences.push(p);
+      return ok(p);
+    },
+  }) as unknown as EditorialPersonaRepositoryPort;
+  return {
+    deps: { personas, ids, auditLog, now: () => new Date("2026-08-27T00:00:00.000Z") },
+    savedAuthors,
+    savedAudiences,
+  };
+}
+
+const AUTHOR_INPUT = {
+  displayName: "  三輪 さとし  ",
+  personaType: "real_person" as const,
+  role: "編集担当",
+  expertise: ["ノートパソコン"],
+  verifiedCredentials: [],
+  experienceYears: 8,
+  knowledgeLevel: "expert" as const,
+  firstPersonPronoun: "私",
+  readerAddress: "あなた",
+  tone: aTone(),
+  prohibitedPhrases: [],
+  factBoundary: ["メーカー公表値"],
+  disclosureStyle: "冒頭に広告表記を置く",
+  ctaStyle: "押しつけない",
+};
+
+const AUDIENCE_INPUT = {
+  name: "  はじめて編集する人  ",
+  primaryJob: "手持ちのパソコンで動画を編集し終えたい",
+  desiredOutcome: "書き出しで待たされずに終える",
+  knowledgeLevel: "beginner" as const,
+  awarenessStage: "problem_aware" as const,
+  decisionCriteria: ["書き出し時間", "価格"],
+  preferredDetailLevel: "standard" as const,
+  preferredTone: "落ち着いた説明",
+  desiredEmotionalState: "これなら選べる、と思える",
+  nextAction: "比較表から 1 台に絞る",
+};
+
+describe("書き手を登録する", () => {
+  it("記事を書く権限が無い人は登録できない", async () => {
+    const { deps } = recordingDeps(fixedIds());
+    const result = await createSaveAuthorPersonaUseCase(deps).execute(aNobody(), AUTHOR_INPUT);
+
+    expect(result.ok).toBe(false);
+    if (!result.ok) expect(result.error.code).toBe("FORBIDDEN");
+  });
+
+  it("前後の空白を落として保存する", async () => {
+    const { deps, savedAuthors } = recordingDeps(fixedIds());
+    const result = await createSaveAuthorPersonaUseCase(deps).execute(owner, AUTHOR_INPUT);
+
+    expect(result.ok).toBe(true);
+    // 打ち間違えの空白で「同じ名前の別人」が 2 人並ぶのを防ぐ。
+    expect(savedAuthors[0].displayName).toBe("三輪 さとし");
+  });
+
+  it("ID は保存先ではなく、外から渡した採番でつける", async () => {
+    const { deps, savedAuthors } = recordingDeps(fixedIds("abc"));
+    await createSaveAuthorPersonaUseCase(deps).execute(owner, AUTHOR_INPUT);
+
+    // 接頭辞があるので、ID だけを見て何の ID か分かる。
+    expect(String(savedAuthors[0].id)).toBe("ap_abc");
+    expect(String(savedAuthors[0].workspaceId)).toBe(String(owner.workspaceId));
+  });
+
+  it("架空の人格に資格を持たせようとしたら断る", async () => {
+    const { deps, savedAuthors } = recordingDeps(fixedIds());
+    const result = await createSaveAuthorPersonaUseCase(deps).execute(owner, {
+      ...AUTHOR_INPUT,
+      personaType: "brand_character",
+      verifiedCredentials: ["家電アドバイザー"],
+      experienceYears: null,
+    });
+
+    expect(result.ok).toBe(false);
+    if (!result.ok) expect(result.error.code).toBe("FACT_BOUNDARY_VIOLATED");
+    // 断ったのに保存されていたら、断りは見た目だけということになる。
+    expect(savedAuthors).toEqual([]);
+  });
+
+  it("文体の目盛りが 0.0〜1.0 の外なら断る", async () => {
+    const { deps } = recordingDeps(fixedIds());
+    const result = await createSaveAuthorPersonaUseCase(deps).execute(owner, {
+      ...AUTHOR_INPUT,
+      tone: aTone({ humor: 1.5 }),
+    });
+
+    expect(result.ok).toBe(false);
+    if (!result.ok) expect(result.error.field).toBe("tone");
+  });
+
+  it("採番の口が無いときは、黙って保存せずに理由を返す", async () => {
+    // 読むだけのユースケースに ID を配る力を渡さないため、`ids` は任意にしてある。
+    // 任意にした以上、無いまま呼ばれる道が必ずあるので、そこを黙らせない。
+    const { deps } = recordingDeps(undefined);
+    const result = await createSaveAuthorPersonaUseCase(deps).execute(owner, AUTHOR_INPUT);
+
+    expect(result.ok).toBe(false);
+    if (!result.ok) expect(result.error.code).toBe("NOT_IMPLEMENTED");
+  });
+});
+
+describe("読者像を登録する", () => {
+  it("記事を書く権限が無い人は登録できない", async () => {
+    const { deps } = recordingDeps(fixedIds());
+    const result = await createSaveAudiencePersonaUseCase(deps).execute(aNobody(), AUDIENCE_INPUT);
+
+    expect(result.ok).toBe(false);
+    if (!result.ok) expect(result.error.code).toBe("FORBIDDEN");
+  });
+
+  it("判断基準が 1 つも無ければ断る", async () => {
+    const { deps, savedAudiences } = recordingDeps(fixedIds());
+    const result = await createSaveAudiencePersonaUseCase(deps).execute(owner, {
+      ...AUDIENCE_INPUT,
+      decisionCriteria: [],
+    });
+
+    // ここが空の読者像で組んだ比較表には列が立たない。
+    expect(result.ok).toBe(false);
+    if (!result.ok) expect(result.error.field).toBe("decisionCriteria");
+    expect(savedAudiences).toEqual([]);
+  });
+
+  it("予算と時間は、空のときに「決めていない」として残る", async () => {
+    const { deps, savedAudiences } = recordingDeps(fixedIds());
+    await createSaveAudiencePersonaUseCase(deps).execute(owner, {
+      ...AUDIENCE_INPUT,
+      budgetContext: null,
+      timeContext: null,
+    });
+
+    // 空文字にすると、画面に「予算: 」という空の見出しが立ち、調べた結果に見える。
+    expect(savedAudiences[0].budgetContext).toBeNull();
+    expect(savedAudiences[0].timeContext).toBeNull();
+  });
+
+  it("ID は読者像だと分かる接頭辞でつける", async () => {
+    const { deps, savedAudiences } = recordingDeps(fixedIds("xyz"));
+    await createSaveAudiencePersonaUseCase(deps).execute(owner, AUDIENCE_INPUT);
+
+    expect(String(savedAudiences[0].id)).toBe("dp_xyz");
+    expect(savedAudiences[0].name).toBe("はじめて編集する人");
+  });
+});
+
+describe("像を書き換えたことを記録に残す", () => {
+  it("書き手と読者像は、同じ語で別の的として残る", async () => {
+    const audit = recordingAuditLog();
+    const { deps } = recordingDeps(fixedIds("abc"), audit.port);
+
+    await createSaveAuthorPersonaUseCase(deps).execute(owner, AUTHOR_INPUT);
+    await createSaveAudiencePersonaUseCase(deps).execute(owner, AUDIENCE_INPUT);
+
+    // 語を分けないのは、運営者から見ると「像を直した」という 1 つの操作だから。
+    expect(audit.actions()).toEqual(["persona.changed", "persona.changed"]);
+    // 的の種類は分ける。混ぜると、書き手の履歴に読者像の行が紛れ込む。
+    expect(audit.entries().map((e) => e.targetType)).toEqual([
+      "author_persona",
+      "audience_persona",
+    ]);
+  });
+
+  it("記録が残せなくても、像そのものは巻き戻さない", async () => {
+    const { deps, savedAuthors } = recordingDeps(fixedIds(), createUnavailableAuditLog());
+
+    const result = await createSaveAuthorPersonaUseCase(deps).execute(owner, AUTHOR_INPUT);
+
+    expect(result.ok).toBe(false);
+    if (result.ok) return;
+    expect(result.error.code).toBe("UPSTREAM_UNAVAILABLE");
+    expect(result.error.message).toContain("書き手の登録は済んでいます");
+    expect(savedAuthors).toHaveLength(1);
   });
 });

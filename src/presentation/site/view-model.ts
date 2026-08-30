@@ -4,6 +4,7 @@ import {
   articleHref,
   outboundHref,
 } from "@/application/read-models/published-article";
+import { expressionBlocksOf } from "@/application/seo/expression-blocks";
 import type { PublicSiteBlueprint } from "@/application/usecases/site/read-site";
 import {
   type ArticleType,
@@ -19,6 +20,7 @@ import type {
   CorrectionView,
   SiteChrome,
 } from "@/presentation/ui";
+import type { PublicSiteProjection } from "./public-site-projection";
 
 /**
  * 保存されている形 → 画面に出す形 の変換。
@@ -64,7 +66,11 @@ export function siteRouteHref(
  * 中身はすべて設計図とルート表から作る。ブログごとに書き並べない。
  * 書き並べると、ブログを 1 本増やすたびに案内を作り直すことになる。
  */
-export function toChrome(siteSlug: string, blueprint: PublicSiteBlueprint): SiteChrome {
+export function toChrome(
+  siteSlug: string,
+  blueprint: PublicSiteBlueprint,
+  projection?: PublicSiteProjection,
+): SiteChrome {
   const routes = routesFor(blueprint);
   const home = routes.find((r) => r.key === "home");
   const search = routes.find((r) => r.key === "search");
@@ -75,14 +81,42 @@ export function toChrome(siteSlug: string, blueprint: PublicSiteBlueprint): Site
     label: c.name,
   }));
 
+  const headerSlots = projection?.chrome.headerSlots ?? [];
+  const savedHeader = headerSlots.length > 0;
+  const headerBrand = headerSlots.find((slot) => slot.slotKey === "header-brand");
   const nav = [
     ...(home === undefined ? [] : [{ href: siteRouteHref(siteSlug, home), label: "トップ" }]),
     ...categoryNav,
-    ...(search === undefined ? [] : [{ href: siteRouteHref(siteSlug, search), label: search.label }]),
+    ...(search === undefined || (savedHeader && !headerSlots.some((s) => s.slotKey === "header-search-modal"))
+      ? []
+      : [{ href: siteRouteHref(siteSlug, search), label: search.label }]),
   ];
 
+  const defaultFooter = footerRoutes(blueprint).map((route) => ({
+    href: siteRouteHref(siteSlug, route),
+    label: route.label,
+  }));
+  const savedFooter = projection?.chrome.footerSlots ?? [];
+  const projectedFooter =
+    savedFooter.length === 0
+      ? defaultFooter
+      : [
+          ...(savedFooter.some((slot) => slot.slotKey === "footer-logo-nav")
+            ? defaultFooter
+            : []),
+          ...(savedFooter.some((slot) => slot.slotKey === "footer-category-tree")
+            ? blueprint.categories.map((category) => ({
+                href: siteHref(siteSlug, `/categories/${category.slug}`),
+                label: category.name,
+              }))
+            : []),
+        ];
+  const footer = [...projectedFooter, ...(projection?.chrome.fixedPageLinks ?? [])].filter(
+    (item, index, all) => all.findIndex((candidate) => candidate.href === item.href) === index,
+  );
+
   return {
-    siteName: blueprint.name,
+    siteName: headerBrand?.title.trim() || blueprint.name,
     tagline: blueprint.purpose,
     brandTheme: blueprint.theme.brandTheme,
     nav,
@@ -94,10 +128,7 @@ export function toChrome(siteSlug: string, blueprint: PublicSiteBlueprint): Site
       editorialPolicy === undefined
         ? siteBasePathBySlug(siteSlug)
         : siteRouteHref(siteSlug, editorialPolicy),
-    footer: footerRoutes(blueprint).map((r) => ({
-      href: siteRouteHref(siteSlug, r),
-      label: r.label,
-    })),
+    footer,
   };
 }
 
@@ -125,11 +156,17 @@ export function toArticleView(
   article: PublishedArticle,
   relatedArticles?: readonly ArticleCardView[],
 ): ArticleViewModel {
+  const blocks = expressionBlocksOf(article);
+  const answer = blocks.find((block) => block.kind === "answer");
+  const keyPoints = blocks.find((block) => block.kind === "key_points");
+  const faq = blocks.find((block) => block.kind === "faq");
+  const freshness = blocks.find((block) => block.kind === "freshness");
+
   return {
     title: article.title,
-    summary: article.summary,
+    summary: answer?.text ?? "",
     publishedAt: article.publishedAt,
-    updatedAt: article.updatedAt,
+    updatedAt: freshness?.asOf ?? "",
     authorName: article.author.name,
     authorHref: siteHref(siteSlug, `/authors/${article.author.slug}`),
     authorBio: article.author.bio,
@@ -160,7 +197,13 @@ export function toArticleView(
       })),
     })),
     conversation: article.conversation,
+    // answer / key_points / faq / freshness は画面で読み直さない。
+    // 公開前監査・JSON-LD と同じ射影に、空白の扱いまで揃える。
+    keyPoints: keyPoints?.items,
+    faq: faq?.items,
     productCards: article.productCards?.map((card) => ({
+      // どの商品かを画面まで運ぶ。「気になる」の保存先を決めるのに要る。
+      productId: card.productId,
       name: card.name,
       brand: card.brand,
       oneLine: card.oneLine,

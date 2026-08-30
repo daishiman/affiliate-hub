@@ -27,6 +27,10 @@ import {
   validationError,
 } from "@/domain/shared";
 import type { UseCase } from "../usecase";
+import {
+  assertContentPackageBrandScope,
+  filterContentVariantsByBrandScope,
+} from "../content/content-brand-access";
 
 /**
  * 生成マトリクス（プラットフォーム層 §15.4・§22.5）。
@@ -166,6 +170,14 @@ export type GetGenerationMatrixInput = {
 
 export type GetGenerationMatrixOutput = {
   readonly packageId: string;
+  /**
+   * この企画が主題にしている商品。
+   *
+   * 画面が「1 商品を複数ブログ向けに書き分ける」導線 (A5) を出すのに要る。
+   * 画面側で企画をもう一度引かせない——引かせると、企画を引く条件が
+   * 2 か所に分かれ、片方だけが会社の絞り込みを忘れられる。
+   */
+  readonly primarySubjectId: string;
   readonly objective: string;
   readonly rowAxis: MatrixRowAxis;
   readonly rowAxisLabel: string;
@@ -230,9 +242,17 @@ export function createGetGenerationMatrixUseCase(
       if (!found.ok) return found;
       if (found.value === null) return err(notFound("企画", input.packageId));
       const pkg = found.value;
+      const scoped = assertContentPackageBrandScope(actor, pkg, "企画");
+      if (!scoped.ok) return err(scoped.error);
 
       const existing = await deps.variants.listByPackage(actor.workspaceId, pkg.id);
       if (!existing.ok) return existing;
+      const visibleExisting = await filterContentVariantsByBrandScope(
+        deps.packages,
+        actor,
+        existing.value,
+      );
+      if (!visibleExisting.ok) return visibleExisting;
 
       // 代表の選び方は domain の関数に任せる。画面ごとに選び直さない。
       const channelNames = MATRIX_CHANNELS.map(String);
@@ -257,7 +277,7 @@ export function createGetGenerationMatrixUseCase(
         const cells: MatrixCellView[] = MATRIX_CHANNELS.map((channel) => {
           const capability = CHANNEL_CAPABILITIES[channel];
 
-          const variant = existing.value.find(
+          const variant = visibleExisting.value.find(
             (v) => v.channel === String(channel) && matchesRow(v, axis, rowId, pkg),
           );
           if (variant !== undefined) {
@@ -307,6 +327,7 @@ export function createGetGenerationMatrixUseCase(
       const flat = rows.flatMap((r) => r.cells);
       return ok({
         packageId: String(pkg.id),
+        primarySubjectId: String(pkg.primarySubjectId),
         objective: pkg.objective,
         rowAxis: axis,
         rowAxisLabel: MATRIX_ROW_AXIS_LABEL[axis],

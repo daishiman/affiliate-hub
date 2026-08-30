@@ -7,6 +7,7 @@ export * from "./content-state";
 export * from "./content-variant";
 export * from "./conversation-block";
 export * from "./master-brief";
+export * from "./non-empty-paragraphs";
 export * from "./quality-check";
 export * from "./site";
 export * from "./site-blueprint";

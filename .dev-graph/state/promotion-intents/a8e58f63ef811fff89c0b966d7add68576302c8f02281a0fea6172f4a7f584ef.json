@@ -1,0 +1,17 @@
+{
+  "schema_version": "1.0.0",
+  "status": "completed",
+  "staging": ".dev-graph/staging/feature-package-feat-blog-ui-builder",
+  "destination": ".dev-graph/published/generations/feature-package-feat-blog-ui-builder/168ac050680f91d58ce05948b6b0d3618f062ec304dfdb901713e98bdaa84c48",
+  "digest": "sha256:168ac050680f91d58ce05948b6b0d3618f062ec304dfdb901713e98bdaa84c48",
+  "feature_package_id": "feature-package/feat-blog-ui-builder",
+  "package_slug": "feature-package-feat-blog-ui-builder",
+  "generation_id": "168ac050680f91d58ce05948b6b0d3618f062ec304dfdb901713e98bdaa84c48",
+  "supersedes": {
+    "published_path": ".dev-graph/published/feature-package-feat-blog-ui-builder",
+    "published_digest": "sha256:9a2832f2d6f8656f3495435827399bed84d70c893a027d828694b07b46506fe1",
+    "receipt": ".dev-graph/published/feature-package-feat-blog-ui-builder/atomic-promotion-receipt.json"
+  },
+  "receipt": ".dev-graph/published/generations/feature-package-feat-blog-ui-builder/168ac050680f91d58ce05948b6b0d3618f062ec304dfdb901713e98bdaa84c48/atomic-promotion-receipt.json",
+  "completed_at": "2026-08-28T13:02:37Z"
+}

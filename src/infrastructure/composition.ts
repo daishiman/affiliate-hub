@@ -8,19 +8,33 @@ import {
   createCommercialD1LinkInboxRepository,
   type DrizzleD1,
 } from "./persistence/d1/link-inbox-repository";
+import { createD1BlogOpsRepository } from "./persistence/d1/blog-ops-repository";
 import { createD1SiteDraftRepository } from "./persistence/d1/site-draft-repository";
 import {
   createD1ChannelConnectionRepository,
   createD1PublicationRepository,
 } from "./persistence/d1/distribution-repository";
+import { createD1ContentPackageRepository } from "./persistence/d1/content-package-repository";
+import {
+  createD1ClaimRepository,
+  createD1EvidenceRepository,
+  createD1TestRunRepository,
+} from "./persistence/d1/evidence-repository";
+import {
+  createD1RankingModelRepository,
+  createD1ScoreCardRepository,
+} from "./persistence/d1/ranking-repository";
 import { createD1ContentVariantRepository } from "./persistence/d1/content-repository";
 import { createD1ConversionRepository } from "./persistence/d1/conversion-repository";
+import { createD1ProductRepository } from "./persistence/d1/product-repository";
+import { createD1PersonaRepository } from "./persistence/d1/persona-repository";
 import { createD1SiteRepository } from "./persistence/d1/site-repository";
 import {
   createD1ContentRepository,
   createD1PublishedArticleAdminRepository,
   createD1PublishedArticleWriter,
 } from "./persistence/d1/published-article-repository";
+import { createD1SiteDocumentRepository } from "./persistence/d1/site-document-repository";
 import {
   createD1FeedbackRepository,
   createD1IntegrationKeyStore,
@@ -42,17 +56,23 @@ import {
   createSampleContentRepository,
   createSamplePublishedArticleAdminRepository,
   createSamplePublishedArticleWriter,
+  createSampleSiteDocumentRepository,
   createSampleTrackingCoverage,
 } from "./persistence/sample/content-sample-repository";
 import {
   createSampleRankingModelRepository,
   createSampleScoreCardRepository,
 } from "./persistence/sample/ranking-sample-repository";
+import { createD1ShortlistRepository } from "./persistence/d1/reader-shortlist-repository";
+import { createD1ContactRepository } from "./persistence/d1/contact-repository";
+import { createD1ReaderToolRepository } from "./persistence/d1/reader-tool-repository";
 import {
   createSampleContactSink,
   createSampleReaderToolRepository,
   createSampleShortlistRepository,
 } from "./persistence/sample/reader-interaction-sample";
+import { createTurnstileHumanCheck } from "./platform/turnstile";
+import { createContactRateLimitKeyDeriver } from "./platform/contact-rate-key";
 import {
   createSampleClaimRepository,
   createSampleEvidenceRepository,
@@ -66,9 +86,13 @@ import {
 } from "./persistence/sample/content-editorial-sample-repository";
 import {
   createSampleChannelConnectionRepository,
-  createSampleManualExport,
   createSamplePublicationRepository,
 } from "./persistence/sample/distribution-sample-repository";
+import {
+  createChannelConnectorProvider,
+  createChannelExporter,
+} from "./channels/channel-registry";
+import { createSecretResolver } from "./platform/secret-resolver";
 import {
   createSampleClickTracking,
   createSampleMetricsRepository,
@@ -88,13 +112,27 @@ import {
   createD1TelemetrySink,
 } from "./persistence/d1/telemetry-repository";
 import { createD1AuditLog } from "./persistence/d1/audit-log-repository";
+import { createD1DisclosureRepository } from "./persistence/d1/disclosure-repository";
+import {
+  createD1BrandRepository,
+  createD1WorkspaceRepository,
+} from "./persistence/d1/settings-repository";
+import { createD1PolicyRuleRepository } from "./persistence/d1/policy-rule-repository";
+import { createD1MembershipRepository } from "./persistence/d1/membership-repository";
 import { createSampleImprovementRepository } from "./persistence/sample/improvement-sample-repository";
 import {
   createSampleAffiliateAccountRepository,
   createSampleAffiliateLinkRepository,
   createSampleAffiliateProgramRepository,
+  createSampleArticleOfferReader,
   createSampleConversionRepository,
 } from "./persistence/sample/affiliate-sample-repository";
+import { createD1ArticleOfferReader } from "./persistence/d1/affiliate-link-repository";
+import { createD1AffiliateLinkRepository } from "./persistence/d1/commercial-affiliate-link-repository";
+import {
+  createD1AffiliateAccountRepository,
+  createD1AffiliateProgramRepository,
+} from "./persistence/d1/affiliate-program-repository";
 import {
   createSampleAuditLog,
   createSampleBrandRepository,
@@ -111,6 +149,7 @@ import {
 import { createHandoffTemplates } from "./generation/handoff-templates";
 import { hashSecret, mintSecret } from "./platform/secret-minter";
 import { createSampleLinkIngestionRepository } from "./persistence/sample/link-inbox-sample-repository";
+import { createSampleBlogOpsRepository } from "./persistence/sample/blog-ops-sample-repository";
 import { createSampleSiteDraftRepository } from "./persistence/sample/site-draft-sample-repository";
 import { createSampleSiteRepository } from "./persistence/sample/site-sample-repository";
 import { idGenerator } from "./platform/id-generator";
@@ -146,6 +185,12 @@ export function createDeps(
 ): AppDeps {
   const db = options.db ?? null;
   const bucket = options.bucket ?? null;
+  const appSigningSecret =
+    typeof options.env?.BETTER_AUTH_SECRET === "string"
+      ? options.env.BETTER_AUTH_SECRET
+      : db === null
+        ? "sample-contact-rate-limit-secret-not-for-production"
+        : "";
   /**
    * 生成 AI。**鍵の預かり所と同じ組み立てを使う。**
    *
@@ -176,15 +221,27 @@ export function createDeps(
       ? createSampleTelemetrySink()
       : createD1TelemetrySink({ db, newId: () => idGenerator.newId() });
   return {
-    // ★ 見本データ（スタブ）。ranking_models / score_cards テーブルができたら差し替える。
-    rankingModels: createSampleRankingModelRepository(),
-    scoreCards: createSampleScoreCardRepository(),
-    // ★ 見本データ（スタブ）。順位表と同じ 4 商品。products / claims /
-    //   evidence / test_runs テーブルができたら差し替える。
-    products: createSampleProductRepository(),
-    claims: createSampleClaimRepository(),
-    evidence: createSampleEvidenceRepository(),
-    testRuns: createSampleTestRunRepository(),
+    // 順位づけの基準と採点表も、保存先が用意できていれば本物（D1）。
+    // **入れる口（/admin/rankings/models/new と /admin/rankings/scores）を
+    // 先に用意してからつないでいる。**
+    // それまでは見本の評価方法 1 つと見本の商品 4 つを決め打ちで見ており、
+    // 商品をいくつ登録しても順位に現れなかった（しかも画面は正常に見えた）。
+    rankingModels:
+      db === null ? createSampleRankingModelRepository() : createD1RankingModelRepository(db),
+    scoreCards: db === null ? createSampleScoreCardRepository() : createD1ScoreCardRepository(db),
+    // 商品は、保存先が用意できていれば本物（D1）。
+    // 入れる口（商品の登録・修正・削除）が先にできたので本物にした。
+    // **見本の 4 商品は消さずに重ねる**（`d1/product-repository.ts` に理由）。
+    //
+    // 主張・根拠・検証記録も本物（D1）にした。ここも順番は同じで、
+    // **入れる口（/admin/evidence/new・/admin/evidence/claims/new・
+    // /admin/evidence/test-runs/new）を先に作ってからつないでいる。**
+    // それまで `/admin/evidence` は見本の主張と根拠しか見ておらず、
+    // **どれだけ調べても画面の中身が 1 文字も増えなかった。**
+    products: db === null ? createSampleProductRepository() : createD1ProductRepository(db),
+    claims: db === null ? createSampleClaimRepository() : createD1ClaimRepository(db),
+    evidence: db === null ? createSampleEvidenceRepository() : createD1EvidenceRepository(db),
+    testRuns: db === null ? createSampleTestRunRepository() : createD1TestRunRepository(db),
     // ブログの下書きと、作られたブログは、保存先が用意できていれば本物（D1）。
     // ここを先に本物にしたのは、**入れる口（作成ウィザード）が既にあるから**。
     // 入れる口が無いものを本物にすると、一生埋まらない空の画面ができる。
@@ -195,12 +252,31 @@ export function createDeps(
     // 保存先が無い環境では、出す操作は**失敗を返す**（保存できたことにしない）。
     sites: db === null ? createSampleSiteRepository() : createD1SiteRepository(db),
     siteDrafts: db === null ? createSampleSiteDraftRepository() : createD1SiteDraftRepository(db),
+    blogOps: db === null ? createSampleBlogOpsRepository() : createD1BlogOpsRepository(db),
     publishedContent: db === null ? createSampleContentRepository() : createD1ContentRepository(db),
+    // ブログの固定文書（運営者情報・各方針・規約・特商法表記）。
+    // **見本へ落とさない。** 落とすと、まだ書いていない運営者情報の位置に
+    // 見本の運営者情報が出て、読者にはそれが本物として読まれる。
+    // 未整備は未整備のまま（読者は 404）にして、管理画面の一覧で目立たせる。
+    siteDocuments:
+      db === null
+        ? createSampleSiteDocumentRepository()
+        : createD1SiteDocumentRepository({
+            db,
+            now: () => new Date(),
+            newId: () => idGenerator.newId(),
+          }),
     //
     // **出す口を合言葉の発行で包んでいる。** 記事を出す経路はここ 1 つなので、
     // 包んでおけば発行が漏れない。写しに書く作業場所は `save` の引数
     // （＝そのブログを持っている側）をそのまま使うので、読者の身元が
     // 写しへ入る経路が型の上で存在しない（残課題 25 / 56 の再発を構造で止める）。
+    // 記事に載せる成果リンクは、保存先が用意できていれば本物（D1）。
+    // **この 1 行が無いと、版の `affiliateLinkIds` は読者へ 1 件も届かない。**
+    // 版は ID の列しか持たないので、引き当てる先が無ければ記事に出しようがない。
+    // 返す形に報酬の欄が無いので、記事の組み立てへ渡せる（Editorial の印）。
+    articleOffers:
+      db === null ? createSampleArticleOfferReader() : createD1ArticleOfferReader(db),
     publishedArticles: withTrackingLinkIssuance(
       db === null ? createSamplePublishedArticleWriter() : createD1PublishedArticleWriter(db),
       db === null ? createSampleTrackingLinkIssuer() : createD1TrackingLinkIssuer(db),
@@ -209,22 +285,44 @@ export function createDeps(
       db === null
         ? createSamplePublishedArticleAdminRepository()
         : createD1PublishedArticleAdminRepository(db),
-    // ★ 見本（スタブ）。読者が自分で操作するもの。
-    //   保存先 (KV)・計算式・問い合わせの送信先が用意できたら差し替える。
-    shortlist: createSampleShortlistRepository(),
-    readerTools: createSampleReaderToolRepository(),
-    contact: createSampleContactSink(),
+    // 気になる商品は、保存先が用意できていれば本物（D1）。
+    // **KV を待たずに D1 で作った。** 見本版は処理中のメモリに置くので、
+    // 読者から見ると「保存できたのに翌日消えている」。何も知らせずに消える。
+    // D1 はもう繋がっているので、先に消えないようにするほうが待つより早い。
+    // ここは見本を重ねない。押していない商品が最初から並ぶ一覧は、読者の一覧ではない。
+    shortlist: db === null ? createSampleShortlistRepository() : createD1ShortlistRepository(db),
+    // 診断・計算は、保存先が用意できていれば本物（D1）。
+    // 定義（入力欄と読み方）だけでなく**計算式まで保存側から取る**ので、
+    // 道具を 1 つ増やすのに画面もコードも足さずに済む。
+    // 式は `domain/authoring/reader-tool-formula.ts` が解く（`eval` に渡さない）。
+    // 作り付けの 1 つはどちらの環境でも残る（`reader-tool-repository.ts` に理由）。
+    readerTools:
+      db === null ? createSampleReaderToolRepository() : createD1ReaderToolRepository(db),
+    // 問い合わせも、保存先が用意できていれば本物（D1）。
+    // メール通知はまだ無いが、**届いた分は /admin/contact で読める**。
+    // 読む口を同時に作らずに保存だけ足すと「受け付けました」が嘘になる。
+    // 保存先が無い環境では受け取らずに断る（`reader-interaction-sample.ts` に理由）。
+    contact: db === null ? createSampleContactSink() : createD1ContactRepository(db),
+    contactRateLimitKeys: createContactRateLimitKeyDeriver(appSigningSecret),
+    humanCheck: createTurnstileHumanCheck(options.env ?? {}),
     // 記事（本文と進行の現在地）は、保存先が用意できていれば本物（D1）。
     // 入れる口（段階を進める・承認する）が先にあるので本物にした。
     // **見本は消さずに重ねる**（`d1/content-repository.ts` に理由）。
     //
-    // ★ 企画と書き手はまだ見本データ（スタブ）。
-    //   表を作っていないのではなく、**作る入口がどこにも無い**ため。
-    //   入口の無い表を先に用意すると、一生埋まらない空の一覧が画面に増える。
-    contentPackages: createSampleContentPackageRepository(),
+    // 企画も、保存先が用意できていれば本物（D1）。
+    // **入れる口（/admin/content/packages/new）を先に用意してからつないでいる。**
+    // それまでは記事を作る画面が見本の企画 1 件を決め打ちで渡していたので、
+    // 何本記事を作っても「どの企画の記事か」の答えが全部同じになっていた。
+    contentPackages:
+      db === null ? createSampleContentPackageRepository() : createD1ContentPackageRepository(db),
     contentVariants:
       db === null ? createSampleContentVariantRepository() : createD1ContentVariantRepository(db),
-    personas: createSamplePersonaRepository(),
+    // 書き手と読者像は、保存先が用意できていれば本物（D1）。
+    // **入れる口（/admin/personas/new と /admin/personas/audiences/new）を
+    // 先に作ってからつないでいる。** 読む口だけを本物にすると、
+    // 書き込む操作が無いので一覧が永久に見本のままになる。
+    // 見本は消さずに重ねる（`d1/persona-repository.ts` に理由）。
+    personas: db === null ? createSamplePersonaRepository() : createD1PersonaRepository(db),
     // 配信の記録は、保存先が用意できていれば本物（D1）。
     // 入れる口（記事の画面の「この記事を出す」）が先にあるので本物にした。
     // **見本は消さずに重ねる**（`d1/distribution-repository.ts` に理由）。
@@ -236,8 +334,14 @@ export function createDeps(
       db === null
         ? createSampleChannelConnectionRepository()
         : createD1ChannelConnectionRepository(db),
+    channelConnectors: createChannelConnectorProvider({
+      secrets: createSecretResolver(options.env ?? {}),
+    }),
     publications: db === null ? createSamplePublicationRepository() : createD1PublicationRepository(db),
-    manualExport: createSampleManualExport(),
+    // 書き出しは**保存先の有無で分けない**。外へ出さず、保存もせず、
+    // 記事の中身と出し先の種類だけで文面が決まるので、見本の環境でも本物が動く。
+    // ここを見本に落としていた間、出し先が何であっても手順書は note のまま出ていた。
+    manualExport: createChannelExporter(),
     // 数字は、保存先が用意できていれば**計測の記録から導く**（D1）。
     // 指標を別の表に貯めないので、ここで渡すのは同じ接続 1 つだけ。
     // 接続が無い環境では見本データに落ちる（何で動いているかは画面に出す）。
@@ -279,14 +383,39 @@ export function createDeps(
         ? createSampleIntegrationKeyStore({ hash: hashSecret })
         : createD1IntegrationKeyStore({ db, hash: hashSecret, newId: () => idGenerator.newId() }),
     mintSecret,
-    // ★ 見本データ（スタブ）。作業場所・担当者・ブランド・広告表記・操作の記録。
-    //   本物にするには認証（Better Auth + Google）と各テーブルが要る。
-    workspaces: createSampleWorkspaceRepository(),
-    memberships: createSampleMembershipRepository(),
-    brands: createSampleBrandRepository(),
-    disclosures: createSampleDisclosureRepository(),
-    // ★ 見本データ（スタブ）。中身は初期ルールそのもので、読み取りは本物と同じ結果を返す。
-    policyRules: createSamplePolicyRuleRepository(),
+    // 作業場所も、保存先が用意できていれば**本物**（D1 の workspaces）。
+    //
+    // 上限（プランごとのブランド数・ブログ数・生成回数）は数えて出す。
+    // 作業場所の行に持ち回ると、増やすたびに 2 か所へ書くことになり、
+    // 落ちた回だけ数字がずれる。ずれた上限は、作れるはずのものを作らせない。
+    workspaces:
+      db === null ? createSampleWorkspaceRepository() : createD1WorkspaceRepository(db),
+    // 担当者の登録は、保存先が用意できていれば**本物**（D1 の memberships）。
+    //
+    // **見本と混ぜない。** ほかの保存先は見本を重ねているが、ここは権限そのものである。
+    // 見本の担当者が本物の一覧に並ぶと、実在しない人に役が付いて見え、
+    // 「この作業場所には誰が入れるのか」を画面から確かめられなくなる。
+    // 接続の無い実行では見本のまま（保存は失敗を返す。招待できたふりをしない）。
+    memberships:
+      db === null ? createSampleMembershipRepository() : createD1MembershipRepository(db),
+    // ブランドも、保存先が用意できていれば**本物**（D1 の brands）。
+    // 入れる口は /admin/settings/brands/new と /admin/settings/brands/[brand]。
+    brands: db === null ? createSampleBrandRepository() : createD1BrandRepository(db),
+    // 広告表記は、保存先が用意できていれば**本物**（D1 の disclosures）。
+    //
+    // **見本と混ぜない。** これは読者へ実際に出る断り文である。見本の
+    // 「見本メーカー株式会社」が本物の一覧に並ぶと、存在しない提供元の表記を
+    // 記事へ出せてしまう。接続の無い実行では見本のまま（保存は失敗を返す）。
+    disclosures:
+      db === null ? createSampleDisclosureRepository() : createD1DisclosureRepository(db),
+    // 表記のきまりも、保存先が用意できていれば**本物**（D1 の policy_rules）。
+    //
+    // **表が空でも「きまり 0 件」にはならない。** D1 版が返すのは
+    // 「初期ルール ＋ この作業場所の変更（無効化・上書き・追加）」で、
+    // 触っていないきまりは `buildSeedPolicyRules()` 側が正本のまま返る。
+    // 接続の無い実行では見本のまま（読み取りは初期ルール、保存は失敗を返す）。
+    policyRules:
+      db === null ? createSamplePolicyRuleRepository() : createD1PolicyRuleRepository(db),
     auditLog: db === null ? createSampleAuditLog() : createD1AuditLog(db),
     // 起きたことの発行。購読側（通知・再生成・リンク切れ検出）はまだ無いので
     // 記録だけする。購読を足すときに変えるのはこの 1 行だけ。
@@ -297,12 +426,28 @@ export function createDeps(
     // 鍵が未登録のあいだはスタブが失敗を返す。空の記事を作らない。
     llm: llmPorts.llm,
     llmCosts: llmPorts.costs,
-    // ★ 見本データ（スタブ）。提携先・提携条件・提携リンク。
-    //   本物の数字には各 ASP の API 申請と、利用者ご自身による接続情報の登録が要る。
-    //   ここで作るものには商業の印が付いており、順位づけへは型として渡せない。
-    affiliateAccounts: createSampleAffiliateAccountRepository(),
-    affiliatePrograms: createSampleAffiliateProgramRepository(),
-    affiliateLinks: createSampleAffiliateLinkRepository(),
+    // 提携先と提携条件は、保存先が用意できていれば本物（D1）。
+    // **入れる口（`/admin/affiliate/accounts/new`・`/admin/affiliate/programs/new`）を
+    // 先に作ってからつないでいる。** 読む口だけを本物にしても、書く口が無ければ
+    // 表は永久に空で、見本以外の提携先を 1 件も持てない。
+    // 成果の取り込み自体には各 ASP の API 申請と、利用者ご自身による接続情報の
+    // 登録が要る。ここで扱うのは**その手前の「どこと提携しているか」**だけで、
+    // 秘密の値は列としても持たない（保管先の名前だけ）。
+    affiliateAccounts:
+      db === null
+        ? createSampleAffiliateAccountRepository()
+        : createD1AffiliateAccountRepository(db),
+    affiliatePrograms:
+      db === null
+        ? createSampleAffiliateProgramRepository()
+        : createD1AffiliateProgramRepository(db),
+    // 成果リンクだけは、保存先が用意できていれば本物（D1）。
+    // **入れる口（受信箱の「成果リンクとして登録する」）を先に作ってからつないでいる。**
+    // 読む口だけを本物にしても、書く口が無ければ表は永久に空で、
+    // 公開した記事に成果リンクが 1 件も出ない（残課題 58 / REQ-E13）。
+    // 見本は消さずに重ねる（`d1/commercial-affiliate-link-repository.ts` に理由）。
+    affiliateLinks:
+      db === null ? createSampleAffiliateLinkRepository() : createD1AffiliateLinkRepository(db),
     // 成果は、保存先が用意できていれば本物（D1）。取り込みはまだ ASP の
     // 接続待ちだが、**金額を手で直す入口が画面にある**ので保存先を先に本物にした。
     // 入口があるのに保存できないと、直した額が次に開くと元へ戻る。
