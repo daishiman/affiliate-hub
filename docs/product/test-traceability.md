@@ -6,8 +6,8 @@
 テスト側の `@req` 印を重ねたもの。
 
 - 最終更新: 2026-08-30
-- テストファイル: 422 件
-- 由来の要件が分かる: 422 件
+- テストファイル: 424 件
+- 由来の要件が分かる: 424 件
 - **由来不明: 0 件**（上限 2 件）
 
 由来不明とは「どの要件のために書いたのか、機械から辿れない」という意味で、
@@ -385,7 +385,9 @@
 | `tests/ui/fact-source.test.ts` | REQ-QC04, REQ-W07 | 印と表 |
 | `tests/ui/feedback-admin-forms.test.tsx` | REQ-FB08, REQ-FB12 | 表 |
 | `tests/ui/feedback-button.test.tsx` | REQ-FB02, REQ-FB03, REQ-FB04 | 印と表 |
+| `tests/ui/feedback-capture-exclusion.test.tsx` | REQ-FB02, REQ-FB03 | 印 |
 | `tests/ui/flex-row-shape.test.ts` | REQ-S09 | 印 |
+| `tests/ui/floating-overlay-declaration.test.ts` | REQ-FB02 | 印 |
 | `tests/ui/grid-stretch-align.test.ts` | REQ-S09 | 印 |
 | `tests/ui/guideline-reference-page.test.tsx` | REQ-SEO05 | 印と表 |
 | `tests/ui/header-wrap-shape.test.ts` | REQ-S09 | 印 |
@@ -443,4 +445,4 @@
 | `tests/ui/use-draft.test.tsx` | REQ-BOPS04, REQ-BOPS05 | 印 |
 | `tests/ui/zz-probe-tone.test.tsx` | REQ-TM07 | 表 |
 | `tests/visual/visual-regression.test.ts` | REQ-S09, REQ-TS12, REQ-UX08 | 印 |
-<!-- 生成物の指紋 sha256:4442af1dabf4cc111b79941f49310974292a4ce1a9af2dd06a9ffd1cee896c3d -->
+<!-- 生成物の指紋 sha256:5f98268968a2d35c2f8f78e70ac1b64ce9d0eed04b002fb2b384cd04b47751e7 -->
