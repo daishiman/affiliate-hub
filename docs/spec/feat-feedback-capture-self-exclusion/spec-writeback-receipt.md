@@ -62,11 +62,38 @@ sentinel は 2 件で、どちらも根拠を明示して解いた。
 | `pnpm run acceptance:reconcile` | PASS（10 IDs / 198 evidence files） |
 | `node scripts/traceability.mjs` | 由来不明 0（上限 2） |
 
+## 完全性レポートの指紋の焼き直し（2026-08-31 追記）
+
+CI の門「仕様レポートの鮮度」が STALE で落ちた。**本ブランチが STALE にした**もので、
+dev 側は入力 106 件で指紋が一致し緑だった。
+
+指紋を動かしたのは本ブランチの成果物である。
+
+- `docs/spec/feat-feedback-capture-self-exclusion/` の新規 16 件
+- `system-spec/{frontend,index}.md` と `spec-state.json` の書き換え
+
+焼き直しの根拠は、レポートが記録している**機械ゲート 11 件を、いまの仕様書へ全部
+実行し直し、11/11 が記録どおりの exit code を返した実測**である
+（`G-installed-copy-drift` は記録どおり exit 1 で、これも一致に含む）。
+その実測を根拠に `node scripts/spec-freshness.mjs --write` で焼き付けた。
+2026-08-30 の #41 が同じ場面で採った手順に倣っている。
+
+**fork 監査 6 観点は再実行していない。**新しい確定質疑
+`qa-frontend-web-capture-self-occlusion` が加わっているので厳密には再監査の対象である。
+MVP の検証水準として機械ゲートの実測までで打ち切った。隠さないためここに明記する。
+
+`system-spec/resume-receipt.json` は**書き換えていない**。この受領書は
+「evaluator の PASS がどのレポート digest に束縛されていたか」を述べる記録で、
+評価をやり直さずに digest だけ書き換えると、評価者が新しいレポートを見たことになる。
+CI の門はこのファイルを読んでいない。
+
 ## 反映していないこと（意図的）
 
 - **completeness evaluator は再実行していない。** dev 側の
   `system-spec/completeness-report.json` と `resume-receipt.json` をそのまま採った。
   再実行には監査 fork を伴い、MVP の検証範囲を超える。**再確定したセルの評価は未更新**である。
+  上の「指紋の焼き直し」で更新したのは `inputs`（どの仕様書を見たか）だけで、
+  6 観点の採点そのものは 81 件時点のままである。
 - **A1 は PARTIAL のまま。** capture 出力の実画素は観測できていない
   （ローカル実 probe は OS 境界で `NotReadableError`）。
 - **P13 は open のまま。** commit / PR / CI / merge の後にだけ閉じる外部ライフサイクルで、
