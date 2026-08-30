@@ -41,7 +41,7 @@ tracker_binding: "beads"
 beads_linkage: null
 github_publication: {"labels":[],"milestone":null,"mode":"local_only","project_aliases":[]}
 github_project_linkages: []
-pull_request_linkages: []
+pull_request_linkages: ["https://github.com/daishiman/affiliate-hub/pull/41"]
 execution_contexts: []
 completion_evidence: {"completed_at":null,"evidence_refs":[],"policy":"manual","reconciled_at":null,"source":null,"status":"in_progress"}
 implementation_readiness: {"checked_at":"2026-08-29T14:36:00Z","missing_sections":[],"status":"complete"}

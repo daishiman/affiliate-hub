@@ -7,7 +7,7 @@ beads_ids: [ah-z8x6, ah-z8x6.8]
 dev_graph_node_id: feat-reference-blog-admin-ux
 base_branch: dev
 head_branch: devgraph/feat-reference-blog-admin-ux
-draft_pr: (下の「残課題」を参照。作成後にここへ追記する)
+draft_pr: https://github.com/daishiman/affiliate-hub/pull/41
 verdict: accepted-with-open-blockers
 ```
 
