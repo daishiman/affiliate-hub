@@ -1,6 +1,63 @@
 # 仕様反映 受領書
 
 ```yaml
+receipt_id: spec-writeback-2026-08-31-admin-representation-revaluation
+recorded_at: 2026-08-31T08:40:00Z
+beads_ids: [ah-6lf, ah-0i08]
+dev_graph_node_id: feat-admin-cognitive-load-ui
+base_branch: dev
+head_branch: devgraph/feat-admin-cognitive-load-ui
+verdict: spec-impact-applied
+```
+
+## 2026-08-31 表現語彙の拡張と主表現の再判定
+
+**本変更は確定済みの製品要求を増減しない。** 増えたのは
+「どの表現でその要求を満たすか」の選択肢で、要求そのものは同一である。
+ただし**情報表現の規則表は正本なので、台帳と食い違わせないために反映した。**
+
+| 層 | 今回の反映 |
+|---|---|
+| `docs/spec/feat-admin-cognitive-load-ui/` | `representation-rule-table.json` / `.md` の許可表現を 5 → 8 (board / list / timeline を追加)。決定順に「まず board を判定する」を追加し、table が既定値になっていた原因を明記。`operations-runbook.md` の新規 route 手順に、目的を具体的な動詞で書く工程と `plannedPrimary` 宣言を追加。`screen-information-ledger.json` / `.md` は 86 route の目的・主操作・主表現を再判定 |
+| `features/` | **変更なし。** `feat-ui-foundation` / `feat-uiux-overhaul` の scope_in は「状態表現 4 種」「単一用途画面」の水準で書かれており、表現語彙の粒度を持たない |
+| `specs/` | **変更なし。** `system-spec-index.md` に情報表現語彙の記載は無い |
+| `system-spec/` | **変更なし。** 確定章の直接編集は禁止。To-Be は変わらない |
+| `architecture/` | **変更なし。** 層構成・依存方向・テナント境界に変更なし。`admin-shell.tsx` の追加は presentation 層内で完結する |
+| `tasks/` | **変更なし。** published task spec は byte-for-byte 不変。P12 の acceptance 2 件は更新後も充足 |
+| Beads | `ah-6lf` に本レビューの実測値を追記。新規課題は残乖離 22 件として記録 |
+
+### 要求変更が無い判断理由
+
+- 「画面目的に応じて表現を使い分ける」は既に feature goal に含まれる。今回はその
+  **使い分けが機能していなかった事実**（`purpose` のユニーク率 1/86）を直した。
+- 新しい画面・新しい API・新しい権限は 1 つも増えていない。
+- `board` / `list` / `timeline` の 3 部品（`WorkBoard` / `ListView` / `StepList` /
+  `ScheduleCalendar`）は**すべて実装済みで既に使われている**。語彙が実装に追いついた
+  だけで、逆ではない。
+
+### 品質ゲート（本レビュー）
+
+- `validate-system-plan.py --feature-package feature-package/feat-admin-cognitive-load-ui`:
+  `violations: []`、13 phase、contract_version 1.3.0
+- `tests/acceptance` + `tests/architecture`: 63 files / 786 tests PASS
+- `tests/ui`: 89 files / 3305 tests PASS
+- `npx tsc --noEmit`: exit 0
+- `npx eslint`（変更 10 ファイル）: exit 0
+- `node scripts/acceptance-reconciliation.mjs --write`: PASS（10 IDs / 199 evidence files）、
+  digest `sha256:c485a5450e0b85866dff1f5878c300b71cbfe2ae793d5c7ae4cfbec8aca18921`
+
+### 残る乖離（意図的に残した 22 件）
+
+あるべき表現 (`plannedPrimary`) と実装 (`primary`) が食い違う 22 route を
+`plannedPrimaryGapRouteIds` に実名で記録した。台帳側を下げて乖離を消せないよう、
+テストが台帳から再計算して集合一致を要求し、上限 22 で回帰を止める。
+画面実装（`src/app/admin/**`）は本 PR の範囲外。
+
+---
+
+## 以前の受領書（2026-08-24 13:30）
+
+```yaml
 receipt_id: spec-writeback-2026-08-24-feat-auth-workspace-final-review-2
 recorded_at: 2026-08-24T13:30:00Z
 beads_ids: [ah-361, ah-361.1, ah-361.2, ah-361.3, ah-361.4, ah-361.5, ah-361.6, ah-361.7, ah-361.8, ah-361.9, ah-361.10, ah-361.11, ah-361.12, ah-361.13, ah-099, ah-lqu, ah-au4, ah-xp8, ah-6hc.5]

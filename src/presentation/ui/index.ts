@@ -35,7 +35,7 @@ export { HumanOnlyForm } from "./primitives/human-only-form";
 export { ActionButton } from "./primitives/action-button";
 export { Callout, type CalloutTone } from "./primitives/callout";
 export { ActionNote } from "./primitives/action-note";
-export { LoadingView, EmptyView, ErrorView } from "./primitives/state-view";
+export { LoadingView, EmptyView, ErrorView, IdealView, PartialView, SlowView } from "./primitives/state-view";
 export { Icon, type IconName, type IconSize } from "./primitives/icon";
 /* 節の見出し。`level` は必須で、文書階層 2〜4 をそのまま渡す。 */
 export { SectionHeading, type SectionHeadingLevel } from "./primitives/heading";
@@ -101,6 +101,12 @@ export {
   type AppearanceValues,
 } from "./appearance";
 export { WorkBoard, type WorkBoardItem } from "./patterns/work-board";
+export { SummaryStrip, type SummaryMetric } from "./patterns/summary-strip";
+export { BarChart, type BarChartPoint } from "./patterns/bar-chart";
+export {
+  DecisionStatus,
+  type DecisionStatusKind,
+} from "./patterns/decision-status";
 export { FilterBar, type FilterAxis } from "./patterns/filter-bar";
 export { FormResult, type FormOutcome } from "./patterns/form-result";
 export { MaterialReview, type MaterialFinding } from "./patterns/material-review";
@@ -167,6 +173,20 @@ export {
   type AdminRouteMetadata,
   type ResolvedAdminRoute,
 } from "./admin-route-metadata";
+export {
+  ADMIN_SCREEN_STATE_CONTRACTS,
+  ADMIN_SCREEN_STATES,
+  adminScreenStateContract,
+  type AdminScreenStateContract,
+  type OperationalScreenState,
+  type ScreenStateInstruction,
+} from "./admin-screen-state-contract";
+export { ADMIN_CARD_ROUTE_IDS, type AdminCardRouteId } from "./admin-card-contract";
+export {
+  ADMIN_DISCLOSURE_CONTRACTS,
+  adminDisclosureContract,
+  type AdminDisclosureContract,
+} from "./admin-disclosure-contract";
 
 /* --- templates --------------------------------------------------------- */
 export {

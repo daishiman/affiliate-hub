@@ -28,7 +28,7 @@ import styles from "./ui.module.css";
  *
  * **値そのものは寄せている。**新しく作った値は 1 つも無い:
  *   - level 2 = `site.module.css` の `.sectionHeading` と同値。
- *   - level 3 = `admin.module.css` の `.sectionTitle` から下余白を外したもの
+ *   - level 3 = かつて `admin.module.css` に在った `.sectionTitle` から下余白を外したもの
  *     （= `patterns.module.css` の `.sectionHeading` に `line-height` を足したもの。
  *     この 2 つは `line-height` の有無だけが違い、それ以外は同じ）。
  *
@@ -38,7 +38,7 @@ import styles from "./ui.module.css";
  *
  * **`level` は必須。** 省略できると、書く人は「いちばん近い見た目」を選び、
  * 文書の段と見た目の段がずれる。実際に管理画面はそうなっていて、
- * `.sectionTitle` を h2 / h3 / h4 の**3 段すべてに同じ見た目で**当てている
+ * `.sectionTitle` を h2 / h3 / h4 の**3 段すべてに同じ見た目で**当てていた
  * （`admin/personas/page.tsx` は h2 →h3 →h4 と 3 段入れ子で、全部同じ大きさ）。
  * 文書の構造は 3 段あるのに、目に見えるのは 1 段しかない。
  * **段を宣言させれば、この形は作れない。**`DataTable` が `align` を列の
@@ -89,11 +89,13 @@ import styles from "./ui.module.css";
  *
  * 既に通っていた 10 箇所は、下余白が付く方向に変わる。
  *
- * --- 通していない 3 箇所 ---
+ * --- 通していない 3 箇所（**もう無い**）---
  *
- * `admin/ui-catalog/page.tsx` の h4 / h5 / h6 は `.sectionTitle` のまま残す。
- * **あれは見本で、「3 つとも同じ大きさで出る」ことを見せるために在る。**
- * 通すと見本が主張を失う。
+ * ここには「`admin/ui-catalog/page.tsx` の h4 / h5 / h6 は `.sectionTitle` の
+ * まま残す。あれは見本で、3 つとも同じ大きさで出ることを見せるために在る」と
+ * 書いてあった。2026-08-31 に確かめたところ、あの画面に h4 / h5 / h6 も
+ * `.sectionTitle` も残っていない。`.sectionTitle` は管理画面から参照ゼロになり、
+ * 同日 `admin.module.css` から消した。**除外はもう 1 箇所も無い。**
  */
 export type SectionHeadingLevel = 2 | 3 | 4;
 

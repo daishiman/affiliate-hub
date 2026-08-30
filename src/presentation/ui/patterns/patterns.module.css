@@ -100,11 +100,143 @@
 
 /* === 表（順位・比較の共通土台） ========================================= */
 
+/* === 要約とグラフ ======================================================= */
+
+.summaryStrip {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(var(--card-min-width), 1fr));
+  gap: var(--space-3);
+  margin: 0;
+}
+
+.summaryMetric {
+  display: grid;
+  gap: var(--space-1);
+  padding-block: var(--space-3);
+  border-bottom: var(--border-width-default) solid var(--color-border-default);
+}
+
+.summaryLabel,
+.summaryMeaning,
+.summaryAction,
+.summaryValue {
+  margin: 0;
+}
+
+.summaryLabel,
+.summaryMeaning {
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+}
+
+.summaryValue {
+  color: var(--color-text-strong);
+  font-size: var(--text-2xl);
+  font-weight: var(--weight-bold);
+  line-height: var(--leading-heading);
+  font-variant-numeric: tabular-nums;
+}
+
+.summaryAction > a {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  min-height: var(--tap-target-min);
+}
+
+.barChart {
+  display: grid;
+  gap: var(--space-3);
+  margin: 0;
+  padding: var(--space-4);
+  background: var(--color-surface-raised);
+  border: var(--border-width-default) solid var(--color-border-default);
+  border-radius: var(--radius-md);
+}
+
+.barChart figcaption {
+  display: grid;
+  gap: var(--space-1);
+}
+
+.decisionStatus {
+  display: inline-flex;
+  align-items: center;
+  min-block-size: var(--tap-target-min);
+  padding-inline: var(--space-2);
+  border: var(--border-width-emphasis) solid currentColor;
+  border-radius: var(--radius-pill);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+.decisionStatus::before {
+  content: "●";
+  margin-inline-end: var(--space-1);
+  font-size: 0.65em;
+}
+
+.chartTitle {
+  color: var(--color-text-strong);
+  font-size: var(--text-base);
+  font-weight: var(--weight-bold);
+}
+
+.chartSummary,
+.chartLabel {
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+}
+
+.chartList {
+  display: grid;
+  gap: var(--space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.chartRow {
+  display: grid;
+  /* viewportが768pxでもsidebarを除く本文は約614px。viewport基準のmedia queryだけに
+     任せると、2列のcard最小幅が本文を押し広げる。棒グラフの列は内容幅まで縮める。 */
+  grid-template-columns: minmax(0, 1fr) minmax(0, 2fr) auto;
+  gap: var(--space-3);
+  align-items: center;
+}
+
+.chartRow meter {
+  width: 100%;
+  accent-color: var(--color-action-default);
+}
+
+.chartValue {
+  color: var(--color-text-strong);
+  font-size: var(--text-sm);
+  font-variant-numeric: tabular-nums;
+}
+
+@media (width < 48rem) { /* --breakpoint-md */
+  .chartRow {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .chartRow meter {
+    grid-column: 1 / -1;
+    grid-row: 2;
+  }
+}
+
+
 .tableWrap {
   width: 100%;
   max-width: 100%;
+  max-block-size: var(--table-scroll-max-block);
   min-width: 0;
-  overflow-x: auto;
+  overflow: auto;
+  overscroll-behavior: contain;
   border: var(--border-width-default) solid var(--color-border-subtle);
   border-radius: var(--radius-md);
 }
@@ -136,6 +268,7 @@
   top: 0;
   z-index: var(--z-sticky);
   background: var(--color-surface-raised);
+  border-bottom: var(--border-width-default) solid var(--color-border-subtle);
   color: var(--color-text-strong);
   font-weight: var(--weight-semibold);
 }
@@ -164,7 +297,11 @@
 
 /* 行の見出し（商品名・順位）は横スクロールしても残す。 */
 .table tbody th {
+  position: sticky;
+  left: 0;
+  z-index: var(--z-raised);
   background: var(--color-surface-default);
+  border-bottom: var(--border-width-default) solid var(--color-border-subtle);
   color: var(--color-text-strong);
   font-weight: var(--weight-semibold);
 }
@@ -320,12 +457,6 @@
   line-height: var(--leading-body);
 }
 
-@media (width < 48rem) { /* --breakpoint-md */
-  .table thead th {
-    position: static;
-  }
-}
-
 /*
  * 作業ボード（ホーム画面の数字）。
  *
@@ -348,19 +479,35 @@
   gap: var(--space-2);
   padding: var(--space-4);
   border: var(--border-width-default) solid var(--color-border-subtle);
-  border-inline-start: var(--border-width-marker) solid var(--color-border-default);
   border-radius: var(--radius-md);
   background: var(--color-surface-default);
 }
 
 .boardItemAttention {
-  border-inline-start-color: var(--color-accent-border);
-  background: var(--color-accent-subtle);
+  border-color: var(--color-accent-border);
 }
 
 .boardItemProblem {
-  border-inline-start-color: var(--color-intent-danger);
-  background: var(--color-intent-danger-subtle);
+  border-color: var(--color-intent-danger);
+}
+
+.boardState {
+  justify-self: start;
+  padding: var(--space-1) var(--space-2);
+  border: var(--border-width-default) solid var(--color-border-default);
+  border-radius: var(--radius-pill);
+  background: var(--color-surface-raised);
+  color: var(--color-text-default);
+  font-size: var(--text-xs);
+  font-weight: var(--weight-semibold);
+}
+
+.boardStateAttention {
+  border-color: var(--color-accent-border);
+}
+
+.boardStateProblem {
+  border-color: var(--color-intent-danger);
 }
 
 .boardLabel {
@@ -1200,7 +1347,7 @@
  * 数字の値。**`dd` にだけ当たる**（`dt` は項目の名前で、数字ではない）。
  * `DataTable` が見出しと値の両方へ寄せを当てるのと非対称だが、意図したもの。
  *
- * **右寄せにしない。**`admin.module.css` の `.numeric` は右寄せで、狭い画面
+ * **右寄せにしない。**かつて `admin.module.css` に在った `.numeric` は右寄せで、狭い画面
  * （`@media`）だけ左へ戻していた。だが `.defRow` は画面幅に関係なく積む形で、
  * `dd` は常に器の幅いっぱいを占める。右寄せにすると**幅に関係なく数字が
  * ラベルから離れて浮く**——「狭いときだけ問題」ではなかった。
@@ -1218,7 +1365,7 @@
 }
 
 /*
-  注記（`Note`）。値は `admin.module.css` の `.linkNote` と同じで、新しい値は無い。
+  注記（`Note`）。値はかつて `admin.module.css` に在った `.linkNote` と同じで、新しい値は無い。
 
   **余白を書いていないのは決めた結果である。**いまの 43 箇所は余白ゼロで出ており、
   実物を描いて確かめる手立てが無い以上、現状を写すのが唯一の実測に基づく選択で、
@@ -1275,9 +1422,17 @@
 }
 
 /*
-  縦に積む一覧（`StackedList`）。**`.linkList` を写したもので、名前だけ変えてある。**
+  媒体の状態を縦に積む一覧。**かつて `admin.module.css` に在った `.linkList` を
+  写したもので、名前だけ変えてある。**
 
-  名前を変えた理由は残課題 156 に実測がある——`.linkList` を使う 26 ファイル・
+  **`StackedList` という部品にはなっていない。**残課題 156 はその名前で
+  書かれているが、2026-08-31 に確かめたところ `StackedList` / `StackedRow` は
+  src のどこにも定義されていない。実際にこのクラスを使っているのは
+  `channel-status.tsx` の 1 箇所だけで、管理画面の一覧はそちらではなく
+  `templates/screen-parts.tsx` の `ListView` / `StepList` へ移っている。
+  **ここを一般の「積む一覧」だと思って呼び出しを増やさないこと。**
+
+  名前を変えた理由は残課題 156 に実測がある——`.linkList` を使っていた 26 ファイル・
   `<li>` 61 件のうち、**リンクを含むのは 23 件だけ**で、残り 38 件は素の文章
   （書き手の資格、読者像の判断軸・困りごと、権限の一覧など）。
   **名前が中身を偽っていた。**部品へ上げるときに `LinkList` と名乗らせると、
@@ -1289,7 +1444,7 @@
   **`.note` と `.seeAlso` を分けたときは基準を満たしていた**（押しどころの下限が
   片方には当てられ片方には当てられない）。こちらは満たしていない。
 
-  値は `admin.module.css` の `.linkList` からそのまま写した。**1 つも変えていない。**
+  値は `.linkList` からそのまま写した。**1 つも変えていない。**
   実物を描いて見る手立てが無いので、変えれば推測になる（`note.tsx` と同じ判断）。
 */
 .channelList {
@@ -1457,13 +1612,18 @@
 }
 
 /*
-  行の説明（`.linkNote` の役A、36 箇所）。**`.note` と同じ 2 宣言だが、
-  写しであって共有ではない**——`.note` / `.seeAlso` を分けたのと同じ理由で、
-  こちらは**行の中に居る**ので、行の外の注記とは別々に動かせる必要がある。
+  ここには「行の説明（`.linkNote` の役A）」の規則を書く予定の断り書きが
+  あったが、**規則そのものは一度もこのファイルに作られなかった**
+  （2026-08-31 に確認。この位置に続く選択子が無い）。
 
-  **`Note` を中へ入れる形にしなかった。**`note.tsx` が「一覧の 1 行を
-  部品と生クラスの継ぎ目で割らないこと」と書いており、行の一部を別部品にすると
-  その継ぎ目が部品どうしの間へ移るだけである。行は 1 つの部品が丸ごと持つ。
+  役を実際に持っているのは 2 つで、どちらもこのファイルの外にある:
+    - 表の行に添える一言は `ranking-table.tsx` が使う `.rowNote`（このファイルの上のほう）。
+    - 一覧の行に添える一言は `templates/screen-parts.tsx` の `ListRow` の `note`。
+
+  **`Note` を行の中へ入れる形にしなかった**という判断だけは生きている。
+  `note.tsx` が「一覧の 1 行を部品と生クラスの継ぎ目で割らないこと」と書いており、
+  行の一部を別部品にするとその継ぎ目が部品どうしの間へ移るだけである。
+  行は 1 つの部品が丸ごと持つ。
 */
 
 /*

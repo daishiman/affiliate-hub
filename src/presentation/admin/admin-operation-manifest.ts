@@ -1,4 +1,5 @@
-import type { AdminRouteId } from "@/presentation/ui";
+// route metadata は純データなので、UI barrel ではなく実体から直接取る。
+import { ADMIN_ROUTE_METADATA, type AdminRouteId } from "@/presentation/ui/admin-route-metadata";
 
 /**
  * 管理画面の 16 操作セルの意味 task manifest。
@@ -41,7 +42,11 @@ export type AdminOperationTask = {
   readonly operation: AdminOperation;
   readonly label: string;
   readonly uiEntry: UiEntryEdge;
-  readonly uiRoute: `/admin/${string}`;
+  /**
+   * 画面の URL。`${string}` ではなく AdminRouteId に縛る。
+   * route metadata に無い綴りを書いた時点で compile が落ち、実行時まで持ち越さない。
+   */
+  readonly uiRoute: `/admin/${AdminRouteId}`;
   readonly formAction: FormActionEdge;
   readonly tool: string;
   readonly permission: PermissionEdge;
@@ -322,7 +327,17 @@ export function adminOperation(id: AdminOperationId): (typeof ADMIN_OPERATION_MA
   return task;
 }
 
-/** manifest のURLを AdminShell の route metadata キーへ写す。 */
+const ROUTE_ID_BY_PATTERN = new Map(ADMIN_ROUTE_METADATA.map((route) => [route.pattern, route.id]));
+
+/**
+ * manifest のURLを AdminShell の route metadata キーへ写す。
+ *
+ * 以前は `slice()` の結果を `as AdminRouteId` で押し込んでおり、綴りが metadata に
+ * 無くても型検査を素通りしていた。metadata から引き当てて得た id をそのまま返せば
+ * キャストが要らず、戻り値が本当に存在する route であることを型と実行時の両方が言える。
+ */
 export function adminOperationRouteId(task: AdminOperationTask): AdminRouteId {
-  return task.uiRoute.slice("/admin/".length) as AdminRouteId;
+  const routeId = ROUTE_ID_BY_PATTERN.get(task.uiRoute);
+  if (routeId === undefined) throw new Error(`Unknown admin route: ${task.uiRoute}`);
+  return routeId;
 }
