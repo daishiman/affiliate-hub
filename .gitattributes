@@ -1,1 +1,7 @@
 drizzle/*.sql text eol=lf
+
+# graph.json は 1 ファイルに全 node が並ぶため、行ベース 3-way では近接した
+# 追加/削除を誤って衝突にする。node 単位の構造マージ driver を使う。
+# driver 本体の登録は clone/worktree ごとに一度:
+#   python3 .claude/plugins/dev-graph/scripts/build-merged-graph.py --install
+.dev-graph/state/graph.json merge=devgraph-json

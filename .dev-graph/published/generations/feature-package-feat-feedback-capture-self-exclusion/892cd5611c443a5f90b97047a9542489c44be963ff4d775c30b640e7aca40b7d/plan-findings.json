@@ -1,0 +1,193 @@
+{
+  "schema_version": "1.0.0",
+  "plan_dir": ".dev-graph/staging/feature-package-feat-feedback-capture-self-exclusion/run-20260830T115648Z-elegant",
+  "evaluator": {
+    "name": "assign-system-dev-plan-evaluator",
+    "version": "0.1.0",
+    "context": "fork"
+  },
+  "evaluated_digest": "sha256:892cd5611c443a5f90b97047a9542489c44be963ff4d775c30b640e7aca40b7d",
+  "verdict": "PASS",
+  "conditions": {
+    "C1": {
+      "id": "C1",
+      "status": "PASS",
+      "summary": "feature の目的・scope・受入7件が P01〜P13 の責務へ一貫して写像され、共通 parent/package、P01 entry gate、P06 の test scope、P13 の canonical writeback と未実行 PR/CI 境界、handoff identity の間に意味矛盾はない。",
+      "evidence": [
+        "gate:deterministic-validation",
+        "feature-package.json",
+        "workstream-inventory.json#p01_entry_gate",
+        "workstream-inventory.json#tasks",
+        "task-specs/phase-01-requirements.md#前提条件",
+        "task-specs/phase-05-implementation.md#目的",
+        "task-specs/phase-06-test-run.md#成果物",
+        "task-specs/phase-13-release-deploy.md#Inner goal-seek execution loop",
+        "system-build-handoff.json#identity"
+      ]
+    },
+    "C2": {
+      "id": "C2",
+      "status": "PASS",
+      "summary": "P01〜P13 exact-set、必須 section、placeholder 0、各 phase の強制 test strategy、受入7件の要求・実装・検査・証跡・運用・release/writeback の被覆が揃っている。feature tags に qa-NNN 宣言はなく、追加の QA semantic-coverage gate 対象漏れもない。",
+      "evidence": [
+        "gate:deterministic-validation",
+        "staging-manifest.json#files",
+        "feature-package.json#task_count",
+        "workstream-inventory.json#tasks",
+        "task-specs/phase-01-requirements.md#テスト戦略",
+        "task-specs/phase-02-architecture.md#テスト戦略",
+        "task-specs/phase-03-design-review.md#テスト戦略",
+        "task-specs/phase-04-test-design.md#テスト戦略",
+        "task-specs/phase-05-implementation.md#テスト戦略",
+        "task-specs/phase-06-test-run.md#テスト戦略",
+        "task-specs/phase-07-acceptance.md#テスト戦略",
+        "task-specs/phase-08-refactoring-migration.md#テスト戦略",
+        "task-specs/phase-09-quality-assurance.md#テスト戦略",
+        "task-specs/phase-10-final-review.md#テスト戦略",
+        "task-specs/phase-11-evidence.md#テスト戦略",
+        "task-specs/phase-12-documentation-operations.md#テスト戦略",
+        "task-specs/phase-13-release-deploy.md#テスト戦略"
+      ]
+    },
+    "C3": {
+      "id": "C3",
+      "status": "PASS",
+      "summary": "package/inventory/graph/handoff の ID・phase・path・repository identity は一致する。P06 write_scope は非重複の tests/ui と tests/e2e で feature resource scope 内、他 phase の write_scope も current feature resource scope 内に収まる。P13 は canonical docs/spec と system-spec への将来 writeback を要求し、PR/CI を既完了とは表現していない。",
+      "evidence": [
+        "gate:deterministic-validation",
+        "feature-package.json#task_node_ids",
+        "workstream-inventory.json#repo_context",
+        "workstream-inventory.json#tasks",
+        "task-graph.json#nodes",
+        "task-specs/phase-06-test-run.md#成果物",
+        "task-specs/phase-13-release-deploy.md#成果物",
+        "system-build-handoff.json#execution_tasks"
+      ]
+    },
+    "C4": {
+      "id": "C4",
+      "status": "PASS",
+      "summary": "P01 は canonical parent feature depends_on の全 done|closed を都度読む派生 gate を持ち、feature edge を task DAG へ複製しない。intra-feature DAG は P01→…→P13 の前方・非循環 chain で、nodes[].depends_on と explicit producer→consumer edges、inventory、handoff execution_tasks が exact parity を保つ。",
+      "evidence": [
+        "gate:deterministic-validation",
+        "workstream-inventory.json#p01_entry_gate",
+        "workstream-inventory.json#tasks",
+        "task-graph.json#nodes",
+        "task-graph.json#edges",
+        "task-specs/phase-01-requirements.md#前提条件",
+        "system-build-handoff.json#p01_entry_gate",
+        "system-build-handoff.json#execution_tasks",
+        "system-build-handoff.json#registration_request"
+      ]
+    }
+  },
+  "gate_results": [
+    {
+      "id": "deterministic-validation",
+      "name": "validate-system-plan",
+      "command": [
+        "python3",
+        ".claude/plugins/system-dev-planner/scripts/validate-system-plan.py",
+        "--repo-root",
+        ".",
+        "--staging",
+        ".dev-graph/staging/feature-package-feat-feedback-capture-self-exclusion/run-20260830T115648Z-elegant"
+      ],
+      "exit_code": 0,
+      "conditions": [
+        "C1",
+        "C2",
+        "C3",
+        "C4"
+      ],
+      "stdout": "{\n  \"schema_version\": \"1.0.0\",\n  \"status\": \"pass\",\n  \"validated_digest\": \"sha256:892cd5611c443a5f90b97047a9542489c44be963ff4d775c30b640e7aca40b7d\",\n  \"feature_package_id\": \"feature-package/feat-feedback-capture-self-exclusion\",\n  \"parent_feature\": \"feat-feedback-capture-self-exclusion\",\n  \"phase_refs\": [\n    \"P01\",\n    \"P02\",\n    \"P03\",\n    \"P04\",\n    \"P05\",\n    \"P06\",\n    \"P07\",\n    \"P08\",\n    \"P09\",\n    \"P10\",\n    \"P11\",\n    \"P12\",\n    \"P13\"\n  ],\n  \"contract_version\": \"1.3.0\",\n  \"contract_baseline_exemption\": false,\n  \"test_strategy_contract\": {\n    \"mode\": \"enforced\",\n    \"contract_version\": \"1.3.0\",\n    \"enforced_from\": \"1.2.0\"\n  },\n  \"rerun_command_contract\": {\n    \"mode\": \"enforced\",\n    \"contract_version\": \"1.3.0\",\n    \"enforced_from\": \"1.3.0\"\n  },\n  \"violations\": []\n}\n"
+    }
+  ],
+  "evaluated_inputs": [
+    {
+      "path": "feature-package.json",
+      "sha256": "f16758ee58a8a96112b4bac24ae5a2267496549f227bc873e46f1a500c4acfe7"
+    },
+    {
+      "path": "system-build-handoff.json",
+      "sha256": "ef2b0da1a49668ac55c09fbc68e727abcea9da39a3e34fe47b8cbb367195c6ba"
+    },
+    {
+      "path": "task-graph.json",
+      "sha256": "11e8e3a8507647e03f09d40025366ce3ed8ff7c910d4e268f014958c7befdffa"
+    },
+    {
+      "path": "task-specs/phase-01-requirements.md",
+      "sha256": "704d38b372eafaa99be855ebf54153918d6191348d8a18dbe837192068a649f1"
+    },
+    {
+      "path": "task-specs/phase-02-architecture.md",
+      "sha256": "3650cefc8c54abad7061f64bd8127273933e0dcd0efe26b881ec6aad773b44cd"
+    },
+    {
+      "path": "task-specs/phase-03-design-review.md",
+      "sha256": "60d557e06b5be26ec781e49f5a1c0cf1547625b92b765dc2629946f1a3d72ac5"
+    },
+    {
+      "path": "task-specs/phase-04-test-design.md",
+      "sha256": "cec50970d28847e88bcdf95b53f582cdbd9ab677c8736929f84b4fff44c222bf"
+    },
+    {
+      "path": "task-specs/phase-05-implementation.md",
+      "sha256": "da2dada3d070e7623a491fd6896e3421deff7250313b534c533bf1646e3bff91"
+    },
+    {
+      "path": "task-specs/phase-06-test-run.md",
+      "sha256": "79e6aa52bdfabdb06c188024582b0f6926a9e6d9c999c8a16d573e78395585e3"
+    },
+    {
+      "path": "task-specs/phase-07-acceptance.md",
+      "sha256": "48c1ff82897d4f75e8eab7649fb7843e50e93dcf7a8b11b34d71aa7c7ad4ec46"
+    },
+    {
+      "path": "task-specs/phase-08-refactoring-migration.md",
+      "sha256": "4c50d374c7761f2d8527cb256cc7ff69812768813c895d9c2f1f1eee5e6b798c"
+    },
+    {
+      "path": "task-specs/phase-09-quality-assurance.md",
+      "sha256": "1665d4d46417fb3faeefc478132680632e447456ef1d9ffee0237767f10cc456"
+    },
+    {
+      "path": "task-specs/phase-10-final-review.md",
+      "sha256": "28f717a3bedfec7351a0167be863df6c73d33ea05ec16fdfb1e3cb3677344ba5"
+    },
+    {
+      "path": "task-specs/phase-11-evidence.md",
+      "sha256": "f0f28c7db0a65aae8ae84692122d4951d12b1bbcf32080ea415740deff5fff2e"
+    },
+    {
+      "path": "task-specs/phase-12-documentation-operations.md",
+      "sha256": "d7ab87621e75c034f73eec1c223b2d119ebef7a37bd151614f1d691671dc1e8e"
+    },
+    {
+      "path": "task-specs/phase-13-release-deploy.md",
+      "sha256": "25418b98f20aacfcf11e099383d9a398df84636caff0236f4567107f560e929b"
+    },
+    {
+      "path": "workstream-inventory.json",
+      "sha256": "7c9deb7782b714e745044c6a93a1593e0e8eca9ea509c81afb45f912e7eb6788"
+    },
+    {
+      "path": "staging-manifest.json",
+      "sha256": "5fb842bd5e2f7e1d7c71804ba45b3f2cdd9c5c0d0b75010add3f14c3ccf9c5a8"
+    }
+  ],
+  "staleness_rule": "promotion 時に staging-manifest.json#files の exact-set と staging-manifest.json 自身の current bytes を再読し、evaluated_inputs の全 SHA-256 が完全一致し、repo-local validator の validated_digest が evaluated_digest と一致する場合だけ本 verdict を有効とする。1 byte でも変化した場合は stale として再評価する。",
+  "findings": [
+    {
+      "severity": "info",
+      "bucket": "authority-version-skew",
+      "observation": "promotion を所有する repository-local producer/schema/validator/promoter 契約は top-level p01_entry_gate を必須として内部整合し、本 package はそれを満たす。一方、installed host cache system-dev-planner 0.1.10 の workstream-inventory schema は同 field を未定義のまま additionalProperties=false とする stale 版であり、host schema を誤って authority にすると正しい package を拒否する。これは active repo-local authority で解決済みの環境 version skew で、package defect ではない。",
+      "evidence": [
+        "gate:deterministic-validation",
+        "workstream-inventory.json#p01_entry_gate",
+        "system-build-handoff.json#p01_entry_gate"
+      ]
+    }
+  ]
+}
