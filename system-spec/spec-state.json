@@ -1089,6 +1089,14 @@
         "serves_goals": [
           "G1",
           "G2"
+        ],
+        "required_info_checks": [
+          {
+            "checked_on": "2026-08-30",
+            "checked_with": "record-required-info-check",
+            "blocking_item_count": 0,
+            "unmet_blocking_items": 0
+          }
         ]
       },
       "mobile": {
