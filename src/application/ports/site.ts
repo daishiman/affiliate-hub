@@ -137,8 +137,33 @@ export type SiteDocumentRepositoryPort = {
   ): PortResult<true>;
 };
 
+/**
+ * 公開済み記事を運営者が訂正・非表示化する口。
+ *
+ * 読者の `PublishedContentPort` と分け、必ず workspaceId で絞る。
+ * `archive` は物理削除ではなく、公開側から隠す操作である。
+ */
+export type PublishedArticleAdminPort = {
+  list(
+    workspaceId: WorkspaceId,
+  ): PortResult<readonly { readonly article: PublishedArticle; readonly archivedAt: string | null }[]>;
+  find(
+    workspaceId: WorkspaceId,
+    siteSlug: string,
+    slug: string,
+  ): PortResult<{ readonly article: PublishedArticle; readonly archivedAt: string | null } | null>;
+  replace(workspaceId: WorkspaceId, article: PublishedArticle): PortResult<boolean>;
+  archive(
+    workspaceId: WorkspaceId,
+    siteSlug: string,
+    slug: string,
+    archivedAt: string,
+  ): PortResult<boolean>;
+};
+
 export type EditorialSiteRepositoryPort = Editorial<SiteRepositoryPort>;
 export type EditorialSiteDocumentRepositoryPort = Editorial<SiteDocumentRepositoryPort>;
 export type EditorialArticleOfferPort = Editorial<ArticleOfferPort>;
 export type EditorialPublishedArticleWriterPort = Editorial<PublishedArticleWriterPort>;
+export type EditorialPublishedArticleAdminPort = Editorial<PublishedArticleAdminPort>;
 export type EditorialPublishedContentPort = Editorial<PublishedContentPort>;

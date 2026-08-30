@@ -113,6 +113,14 @@ const EXEMPT: Record<string, Exemption> = {
     measured: "Chromium実DOMで修正前の高さ23px（2026-08-21）",
     reason: "記事題の文字1つを包むリンクで、44pxの的を作るためだけのinline-flex",
   },
+  "src/presentation/ui/templates/site.module.css :: .tableOfContents a": {
+    measured: "目次 1 項目のリンク。中身は節の見出し文字だけ（2026-08-30）",
+    reason: "44px の押しどころを作るためだけの inline-flex。折り返しは器の ul 側が持つ",
+  },
+  "src/presentation/ui/templates/site.module.css :: .articleIntroAuthorName a,\n.articleAuthorProfileName a": {
+    measured: "書き手の名前を包むリンク。見出しの中に単独で在る（2026-08-30）",
+    reason: "44px の押しどころを作るためだけの inline-flex。中身は名前の文字 1 つ",
+  },
   "src/presentation/ui/templates/site.module.css :: .siteName": {
     measured: "Chromium実DOMで修正前の高さ32.39px（2026-08-21）",
     reason: "ブログ名の文字1つを包むリンクで、44pxの的を作るためだけのinline-flex",
@@ -346,6 +354,53 @@ const EXEMPT: Record<string, Exemption> = {
       "(`--tap-target-min`) を素の `<a>` へ効かせるため。子は文字ひとかたまりだけで、" +
       "**折り返す先が無い**（長い項目名は文字の側が普通に折り返す）",
   },
+  // ── 読者向けブログの骨格（2026-08-30 の統合で合流）──────────────────
+  // **7 件とも、縮む役を別の規則が持っている。**折り返しを足すのではなく、
+  // 「どこが縮むか」を辿ってから除外している。辿れないものは除外しない。
+  "src/app/admin/admin.module.css :: .publishedStatus": {
+    measured: "公開済み記事の一覧に付く状態の印。中身は「公開中」「非表示」程度の短い語（2026-08-30）",
+    reason:
+      "丸い枠の中の 1 語。`white-space: nowrap` を自分で持っていて、" +
+      "**枠と語が割れないことが印の意味そのもの**である。長い語は入らない",
+  },
+  "src/presentation/ui/primitives/ui.module.css :: .headerActions a": {
+    measured: "上端の帯に並ぶ操作 1 個ぶん。押しどころの下限を素の `<a>` へ効かせる包み（2026-08-30）",
+    reason:
+      "横並びにしているのは中身を並べるためではなく、`min-height: var(--tap-target-min)` の" +
+      "中央へ文字を置くため。子は文字ひとかたまりだけで**折り返す先が無い**。" +
+      "帯の側（`.headerActions`）が `flex-wrap: wrap` を持ち、操作と操作の間で折れる",
+  },
+  "src/presentation/ui/templates/site.module.css :: .categoryArticleGroupHead": {
+    measured: "分類ごとの見出し帯。左に題と説明の列、右に「もっと見る」1 個（2026-08-30）",
+    reason:
+      "題の列と、その分類へ進むリンク。**割れると「もっと見る」がどの分類のものか読めなくなる**。" +
+      "縮む役は左の `div`（`display: grid`）が持ち、題も説明も文字の側で折り返す",
+  },
+  "src/presentation/ui/templates/site.module.css :: .categoryArticleGroupHead > a": {
+    measured: "上の帯の右端のリンク 1 個。中身は「もっと見る」程度の短い語（2026-08-30）",
+    reason: "押しどころの下限へ文字を収めるための包み。子は文字ひとかたまりだけで、折り返す先が無い",
+  },
+  "src/presentation/ui/templates/site.module.css :: .sidebarLinks a": {
+    measured: "補助列の 1 項目。中身は分類名か記事の題（2026-08-30）",
+    reason:
+      "押しどころの下限（`--tap-target-min`）を素の `<a>` へ効かせるための横並び。" +
+      "子は文字ひとかたまりだけで、長い題は文字の側が普通に折り返す",
+  },
+  "src/presentation/ui/templates/site.module.css :: .siteHeaderInner": {
+    measured: "読者向けブログの上端。左にブログ名、右に検索の 2 つ（2026-08-30）",
+    reason:
+      "**名前と検索が上下に割れると、検索が本文の始まりに見える。**" +
+      "縮む役は両側が持っていて、名前は `.siteIdentity` の `min-width: 0`、" +
+      "検索は `.siteSearch input` の `min-width: 0` で受ける",
+  },
+  "src/presentation/ui/templates/site.module.css :: .siteNav": {
+    measured: "ブログの分類の並び。項目数はブログの分類の数（見本は 3〜4）（2026-08-30）",
+    reason:
+      "**逃げ道が折り返しではなく `overflow-x: auto` である。**分類の並びは" +
+      "「全部で何本あるか」が一目で分かることに意味があり、折り返すと段数が" +
+      "分類の数で変わって上端の高さが画面ごとに動く。横へ流して、" +
+      "はみ出した先は指と車輪で辿れるようにしてある",
+  },
 };
 
 /** 除外の理由に書いてはいけない言い回し（要件 2）。 */
@@ -551,6 +606,38 @@ const SHRINKABLE: Record<string, Exemption> = {
     reason:
       "入力欄は既定で中身に応じた最小幅を持つ。下げておかないと、" +
       "`width: 100%` を書いても行ごと横へ溢れて印が画面外へ出る",
+  },
+  // ── 読者向けブログの骨格（2026-08-30 の統合で合流）──────────────────
+  // 上の 2 本（`.siteMain > *` / `.article > *`）が「本文の中身」を閉じ込めるのに対し、
+  // ここは**本文の柱そのもの**が横へ広がらないようにする側。柱が広がると、
+  // 中の包みがいくら縮んでも上端の帯と補助列ごと画面外へ出る。
+  "src/presentation/ui/templates/site.module.css :: .article": {
+    measured: "記事 1 本の器。表・長い URL・引用を含みうる（2026-08-30）",
+    reason:
+      "`.siteMain` の grid の子。これが無いと記事の最小内容幅が本文の柱へ伝わり、" +
+      "内側の `.article > *` で閉じ込めた横スクロールが効かなくなる",
+  },
+  "src/presentation/ui/templates/site.module.css :: .articleListBody": {
+    measured: "一覧に並ぶ記事 1 件ぶんの題と要約（2026-08-30）",
+    reason:
+      "日付や印と横に並ぶ列。長い題が行ごと横へ押し出すのを止め、" +
+      "**題の側で折り返させる**ため（切り落とすと、どの記事か読めなくなる）",
+  },
+  "src/presentation/ui/templates/site.module.css :: .categoryDirectory li": {
+    measured: "分類の一覧の 1 項目。分類名と本数が横に並ぶ（2026-08-30）",
+    reason: "長い分類名が本数を項目の外へ押し出さないよう、名前の側を縮めて折り返させるため",
+  },
+  "src/presentation/ui/templates/site.module.css :: .siteIdentity": {
+    measured: "上端のブログ名と一言説明。検索と横に並ぶ（2026-08-30）",
+    reason:
+      "flex の子の最小幅は既定で `auto`。長いブログ名がそのまま幅になると、" +
+      "**折り返さない上端（`.siteHeaderInner`）ごと検索を画面外へ押し出す**",
+  },
+  "src/presentation/ui/templates/site.module.css :: .siteSearch input": {
+    measured: "上端の検索欄。入力欄は既定で中身に応じた最小幅を持つ（2026-08-30）",
+    reason:
+      "`grid-template-columns: minmax(0, 1fr) auto` の 1fr 側。下げておかないと" +
+      "入力欄の既定幅が上端の幅を決めてしまい、狭い画面でブログ名が消える",
   },
 };
 

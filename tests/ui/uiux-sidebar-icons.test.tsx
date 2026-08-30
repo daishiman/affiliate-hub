@@ -44,6 +44,19 @@ function iconOf(item: (typeof ADMIN_NAV)[number]): string {
  */
 const UNICODE_ICON = /[\p{Emoji_Presentation}\p{Extended_Pictographic}\u25a0-\u25ff\u2600-\u27bf]/u;
 
+/**
+ * \u7d75\u67c4\u3067\u306f\u306a\u304f**\u6587\u7ae0\u306e\u4e00\u90e8**\u3068\u3057\u3066\u4f7f\u3046\u8a18\u53f7\u3002\u8d70\u67fb\u306e\u524d\u306b\u843d\u3068\u3059\u3002
+ *
+ * `\u00a9` \u306f `Extended_Pictographic` \u306b\u5165\u3063\u3066\u3044\u308b\u304c\u3001\u4e0a\u306e\u7406\u7531\uff08OS \u3054\u3068\u306b\u898b\u305f\u76ee\u304c
+ * \u5909\u308f\u308b\u304b\u3089 SVG \u3078\u7d71\u4e00\u3059\u308b\uff09\u304c\u5f53\u3066\u306f\u307e\u3089\u306a\u3044\u3002**\u3053\u308c\u306f\u8457\u4f5c\u6a29\u8868\u793a\u306e\u672c\u6587\u3067\u3001
+ * \u5dee\u3057\u66ff\u3048\u308b\u5148\u306e\u5358\u8272\u30a2\u30a4\u30b3\u30f3\u304c\u5b58\u5728\u3057\u306a\u3044\u3002**`&copy;` \u3068\u66f8\u3051\u3070\u8d70\u67fb\u306f\u901a\u308b\u304c\u3001
+ * \u305d\u308c\u306f\u691c\u67fb\u3092\u907f\u3051\u305f\u3060\u3051\u3067\u3001\u753b\u9762\u306b\u51fa\u308b\u6587\u5b57\u306f\u540c\u3058\u3067\u3042\u308b\u3002
+ *
+ * \u3053\u3053\u3092\u5897\u3084\u3059\u3068\u304d\u306f\u300cSVG \u3078\u7f6e\u304d\u63db\u3048\u3089\u308c\u308b\u304b\u300d\u3092\u5148\u306b\u898b\u308b\u3053\u3068\u3002
+ * \u7f6e\u304d\u63db\u3048\u3089\u308c\u308b\u3082\u306e\u306f\u7d75\u67c4\u3067\u3001\u3053\u306e\u4e00\u89a7\u306b\u306f\u5165\u3089\u306a\u3044\uff082026-08-30\uff09\u3002
+ */
+const TEXTUAL_SYMBOLS = /[\u00a9\u00ae\u2122]/gu;
+
 function typescriptSources(directory: string): readonly string[] {
   return readdirSync(directory, { withFileTypes: true }).flatMap((entry) => {
     const path = join(directory, entry.name);
@@ -70,8 +83,9 @@ function unicodeIconsIn(path: string): readonly string[] {
   );
   const offenders: string[] = [];
   const visit = (node: ts.Node) => {
-    if ((ts.isStringLiteralLike(node) || ts.isJsxText(node)) && UNICODE_ICON.test(node.text)) {
-      offenders.push(node.text);
+    if (ts.isStringLiteralLike(node) || ts.isJsxText(node)) {
+      const text = node.text.replace(TEXTUAL_SYMBOLS, "");
+      if (UNICODE_ICON.test(text)) offenders.push(node.text);
     }
     ts.forEachChild(node, visit);
   };

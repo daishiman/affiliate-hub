@@ -1,0 +1,288 @@
+{
+  "_": "順位記事。並びは 結論 → 評価方法 → 順位 → 個別 → 選び方。/best/<slug> に出る。粒度の基準は references/granularity.md。",
+  "slug": "chairs-for-long-hours",
+  "siteSlug": "home-office-desk",
+  "type": "ranking",
+  "title": "8 時間座る人のための椅子の順位",
+  "summary": "同じ人が同じ姿勢で 8 時間座り、腰まわりの圧力を 10 分ごとに測って並べました。体重帯で結論が変わります。",
+  "categorySlug": "chairs",
+  "publishedAt": "2026-07-25",
+  "updatedAt": "2026-08-20",
+  "author": {
+    "slug": "mochizuki",
+    "name": "望月 かおる",
+    "bio": "在宅勤務の作業環境を 6 年ぶん記録してきました。腰痛で 2 度離職しています。",
+    "credentials": [
+      "福祉用具専門相談員",
+      "自社検証環境で年間 40 脚を計測"
+    ]
+  },
+  "_reviewedBy": "監修者。いない記事は丸ごと省略する（空の人物を置かない）。",
+  "reviewedBy": {
+    "slug": "sakuma",
+    "name": "佐久間 りく",
+    "bio": "理学療法士。着座姿勢と腰部負担の関係を確認しています。",
+    "credentials": [
+      "理学療法士（国家資格）",
+      "整形外科での臨床 9 年"
+    ]
+  },
+  "_disclosureRequired": "買う導線を 1 つでも置くなら true。false のまま導線を置くと検品で止まる。",
+  "disclosureRequired": true,
+  "_sections": "セクションは最低 3 つ、本文は合計 1200 字以上。1 段落 60 字未満は「見出しにする理由がない」ものとして検品が拾う。",
+  "sections": [
+    {
+      "id": "conclusion",
+      "heading": "結論",
+      "_paragraphs": "結論は最初のセクションに置き、条件付きで言い切る。「A がおすすめ」は誰にも当たらない。",
+      "paragraphs": [
+        "腰の負担を最優先にするなら ErgoOne Pro です。8 時間座り続けたあとの腰部圧力が 3 機種のなかで最も低く、平均 38kPa でした。ただし背もたれを最大まで倒すには壁から 68cm の空間が要るので、机の後ろが通路になっている部屋では実力が出ません。",
+        "体重 55kg 未満の方は FlexSeat 2 を選んでください。ErgoOne Pro は座面が沈みきらず、設計上いちばん体圧が分散する位置まで腰が落ちません。実測でも同じ体勢で 44kPa と、軽い体重帯では順位が入れ替わりました。",
+        "予算を 5 万円以内に抑えるなら 3 位の DeskChair Air でも 8 時間は座れます。腰部圧力は 52kPa と 1 位から 14kPa 高いものの、痛みが出るかどうかの分かれ目はここではなく、肘掛けの高さが変えられない点にあります。机の天板が 72cm より高い場合は肩がすくむので、避けてください。"
+      ],
+      "_claims": "kind は fact / inference / opinion。fact には根拠が要る（無いと検品で止まる）。fact が全体の 1/3 を下回ると感想文として扱われる。",
+      "claims": [
+        {
+          "id": "a1",
+          "sourceClaimId": "c1",
+          "statement": "ErgoOne Pro は 8 時間着座後の腰部圧力が最も低く、平均 38kPa でした。",
+          "kind": "fact",
+          "evidence": [
+            {
+              "id": "e1",
+              "sourceLabel": "自社検証（2026-07-12、被験者 1 名・8 時間連続着座）",
+              "checkedAt": "2026-07-12"
+            }
+          ]
+        },
+        {
+          "id": "a2",
+          "sourceClaimId": "c3",
+          "statement": "体重 55kg 未満では ErgoOne Pro の座面が設計上の沈み込み量に届かず、FlexSeat 2 のほうが体圧が分散しました。",
+          "kind": "fact",
+          "evidence": [
+            {
+              "id": "e2",
+              "sourceLabel": "自社検証（2026-07-18、体重 52kg の被験者による追試）",
+              "checkedAt": "2026-07-18"
+            }
+          ]
+        },
+        {
+          "id": "a3",
+          "statement": "この 14kPa の差は、毎日 8 時間座る人であれば 2 週間ほどで体感できると考えられます。",
+          "kind": "inference",
+          "evidence": []
+        },
+        {
+          "id": "a4",
+          "statement": "座り心地の好みは体格で大きく変わるので、可能なら店頭で座ってから決めてほしいです。",
+          "kind": "opinion",
+          "evidence": []
+        }
+      ]
+    },
+    {
+      "id": "methodology",
+      "heading": "どうやって比べたか",
+      "paragraphs": [
+        "同一の被験者が、同じ机・同じ画面の高さで各機種に 8 時間ずつ座り、座面に敷いた圧力センサーで 10 分ごとに記録しました。室温は 24℃、着衣も揃えています。姿勢を強制すると日常の使い方から離れるため、立ち歩きは 1 時間に 1 回・5 分以内という条件だけを決め、それ以外は自由にしました。",
+        "順位に使ったのは平均値ではなく、後半 4 時間の平均です。座り始めの 1〜2 時間はどの椅子も差が出ず、疲れが出てからの落ち方に機種差が現れたためです。前半を含めた平均で並べると、2 位と 3 位が入れ替わります。この処理は結果を都合よく見せるためではありませんが、選び方が変われば順位も変わることは書いておきます。",
+        "測っていないものも挙げます。耐久性（5 万回加圧後の沈み込み変化）は試験機がないため未計測で、商品カードでは空欄ではなく「未計測」と出しています。張地の通気性と、組み立ての難しさも順位には入れていません。"
+      ],
+      "claims": [
+        {
+          "id": "a5",
+          "statement": "測定に使った圧力センサーは、測定前に基準分銅で校正しています。",
+          "kind": "fact",
+          "evidence": [
+            {
+              "id": "e3",
+              "sourceLabel": "校正記録（2026-07-01）",
+              "url": "https://example.com/lab/calibration-2026-07",
+              "checkedAt": "2026-07-01",
+              "_expired": "確認から時間が経った根拠は true にする。読者に古さが見える。",
+              "expired": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "how-to-choose",
+      "heading": "選び方",
+      "paragraphs": [
+        "腰の負担・肘掛けの調整範囲・座面の広さの 3 つで、どれを諦めるかを先に決めると絞り込めます。3 つとも満たす椅子は 10 万円を超えるので、予算が 8 万円までなら必ず 1 つは捨てることになります。捨てる順を決めずに探すと、どれも中途半端に見えて選べなくなります。",
+        "捨てる基準は、机が固定天板かどうかで変わります。高さを変えられない机なら、肘掛けの調整範囲を最優先にしてください。机に合わせて座面を上げると足が浮き、その分が腰に来ます。昇降机を使っているなら、肘掛けは妥協して腰の負担を取ったほうが効きます。",
+        "買う前に測るのは 2 か所です。天板の高さ（床から天板の上面まで）と、机の後ろに取れる空間。後者は背もたれを倒すのに要る寸法で、6 畳の個室では 68cm が取れないことがよくあります。取れない部屋で 1 位を買うと、倒せない椅子として使うことになります。"
+      ]
+    },
+    {
+      "id": "not-covered",
+      "heading": "この順位で扱っていないもの",
+      "paragraphs": [
+        "座椅子とゲーミングチェアは範囲外です。前者は着座姿勢そのものが違い、後者は長時間の作業ではなく前傾姿勢を前提に設計されているため、同じ基準で測っても比べたことになりません。5 万円を下回る製品も、調整機構がほぼ無く 8 時間の連続着座を想定していないため外しています。",
+        "背もたれの無いスツール型（WoodStool Basic など）も同じ理由で外しました。除外した理由は順位表の下にも出しています。外したものを黙って消すと、都合の悪い商品を隠したのと読者からは区別が付きません。"
+      ]
+    }
+  ],
+  "_conversation": "任意。話者は reader / writer / expert / assistant の 4 種。1 発言 40〜120 字。2 人以上いないと会話にならない。",
+  "conversation": [
+    {
+      "speaker": "reader",
+      "text": "腰が痛くならない椅子を教えてください。予算は 8 万円くらいで、机は今のものを使い続けたいです。"
+    },
+    {
+      "speaker": "writer",
+      "text": "8 万円なら 1 位か 2 位が入ります。体重が軽い方は座面が沈みきらないので、2 位のほうが合いますよ。机の高さも先に測ってください。"
+    },
+    {
+      "speaker": "expert",
+      "text": "圧力が低いことと痛みが出ないことは別です。どの椅子を選んでも、1 時間に 1 度は立ってください。"
+    }
+  ],
+  "productCards": [
+    {
+      "productId": "p_alpha_15",
+      "name": "ErgoOne Pro",
+      "brand": "ErgoOne",
+      "oneLine": "腰の負担が最も小さい。肘掛けは 4 方向に動く。",
+      "_specs": "測っていない項目は省略せず value を null にする。省略すると商品ごとに並びが変わり、横に見比べられなくなる。",
+      "specs": [
+        {
+          "label": "8時間後の腰部圧力",
+          "value": "38kPa",
+          "kind": "fact"
+        },
+        {
+          "label": "座面の沈み込み",
+          "value": "12mm",
+          "kind": "fact"
+        },
+        {
+          "label": "肘掛けの調整",
+          "value": "上下・前後・左右・角度",
+          "kind": "fact"
+        },
+        {
+          "label": "5万回加圧後の沈み込み変化",
+          "value": null,
+          "kind": "fact"
+        }
+      ],
+      "priceNote": "価格は変わります。最新の金額は販売ページでご確認ください。",
+      "_trackingCode": "あると /go/<合言葉> を通り、画面の JavaScript が止まっていてもクリックを数えられる。",
+      "trackingCode": "ergo1pro",
+      "affiliateUrl": "https://example.com/click?aid=sample&pid=ergoonepro",
+      "reviewSlug": "ergo-one-pro"
+    },
+    {
+      "_": "提携していない商品。affiliateUrl と trackingCode を両方消したときだけ blockedReason が表示される。片方でも残すと理由は黙って消える。",
+      "productId": "p_gamma_16",
+      "name": "DeskChair Air",
+      "brand": "DeskChair",
+      "oneLine": "5 万円を切る。肘掛けの高さは固定。",
+      "specs": [
+        {
+          "label": "8時間後の腰部圧力",
+          "value": "52kPa",
+          "kind": "fact"
+        },
+        {
+          "label": "座面の沈み込み",
+          "value": null,
+          "kind": "fact"
+        },
+        {
+          "label": "肘掛けの調整",
+          "value": "なし（固定）",
+          "kind": "fact"
+        },
+        {
+          "label": "5万回加圧後の沈み込み変化",
+          "value": null,
+          "kind": "fact"
+        }
+      ],
+      "blockedReason": "この商品は、いま提携している販売先がありません。"
+    }
+  ],
+  "ranking": {
+    "caption": "8 時間座る人のためのオフィスチェアの順位",
+    "updatedAt": "2026-08-20",
+    "_criteria": "weight の合計は 1。measurement（どう測ったか）が書けない基準は、基準にしない。3 つ以上が目安。",
+    "criteria": [
+      {
+        "key": "lumbar_load",
+        "label": "腰への負担",
+        "weight": 0.5,
+        "measurement": "8 時間連続着座後の腰部圧力を 10 分ごとに記録し、後半 4 時間の平均で比較"
+      },
+      {
+        "key": "adjustability",
+        "label": "調整範囲",
+        "weight": 0.3,
+        "measurement": "座面高・座面奥行き・肘掛け・背もたれ角の可動域を実測"
+      },
+      {
+        "key": "price_value",
+        "label": "価格性能比",
+        "weight": 0.2,
+        "measurement": "計測した性能を実売価格で割った値を正規化"
+      }
+    ],
+    "_entries": "rank は 1 から連番。criterionScores は criteria と同じ数・同じ並び。oneLine は全件必須（点数だけでは理由が伝わらない）。reviewSlug は実在する記事だけ。",
+    "entries": [
+      {
+        "productId": "p_alpha_15",
+        "rank": 1,
+        "productName": "ErgoOne Pro",
+        "totalScore": 81,
+        "criterionScores": [
+          94,
+          88,
+          52
+        ],
+        "trackingCode": "ergo1pro",
+        "affiliateUrl": "https://example.com/click?aid=sample&pid=ergoonepro",
+        "reviewSlug": "ergo-one-pro",
+        "oneLine": "腰の負担が最も小さい。ただし後ろに 68cm の空間が要る。"
+      },
+      {
+        "productId": "p_beta_14",
+        "rank": 2,
+        "productName": "FlexSeat 2",
+        "totalScore": 74,
+        "criterionScores": [
+          81,
+          70,
+          68
+        ],
+        "trackingCode": "flexseat2",
+        "affiliateUrl": "https://example.com/click?aid=sample&pid=flexseat2",
+        "_reviewSlug": "レビュー記事をまだ書いていないので付けない。付けると商品名が存在しないページへのリンクになる（--all を付けた検品が止める）。",
+        "oneLine": "体重 55kg 未満なら 1 位より合う。肘掛けは上下と前後のみ。"
+      },
+      {
+        "productId": "p_gamma_16",
+        "rank": 3,
+        "productName": "DeskChair Air",
+        "totalScore": 63,
+        "criterionScores": [
+          61,
+          40,
+          92
+        ],
+        "oneLine": "5 万円を切る。肘掛けの高さが固定なので、机の高さを選ぶ。"
+      }
+    ],
+    "_excluded": "除外した商品と理由。理由の無い除外は、都合の悪い商品を隠したのと区別が付かない。無ければ空配列。",
+    "excluded": [
+      {
+        "productId": "p_delta_13",
+        "productName": "WoodStool Basic",
+        "reason": "背もたれが無く、8 時間の連続着座を前提にできないため"
+      }
+    ]
+  }
+}

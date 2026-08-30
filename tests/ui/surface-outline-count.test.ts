@@ -264,6 +264,63 @@ const EXEMPT: Record<string, Exemption> = {
       "このリポジトリでは確かめられない。**分からないものを分かったことにしないため、" +
       "理由ではなく「分からない」を書いてある**（残課題 146）",
   },
+
+  /*
+   * --- 輪郭を「組にしたセレクタ」が持っている（2026-08-30 の統合で合流）-----
+   *
+   * 下の 4 件は**輪郭を着ている。**ただし `border` を書いているのは
+   * `.publishedFilter input, .publishedFilter select, .publishedFilter button`
+   * のような**組にしたセレクタ**で、この走査はそれを別の鍵として数える。
+   * 地色を足す側の規則だけを見ると、輪郭が無いように読める。
+   *
+   * **②と同じ形の誤差が、部分一致ではなくセレクタの組で起きている。**
+   * 走査の側で組をほどくことも考えたが、ほどくと鍵の体系が全部変わり、
+   * この一覧も他の見張りの一覧も一斉に作り直しになる。**誤差の在り処が
+   * 分かっていて、件数が数えられている間は、一覧で持つほうが安い。**
+   */
+  "src/app/admin/admin.module.css :: .publishedFilter input, .publishedFilter select": {
+    measured: "2026-08-30。公開済み記事の絞り込みの入力欄と選択欄",
+    reason:
+      "**輪郭は組にしたセレクタが持っている**（`input, select, button` の 3 つ組に " +
+      "`border` と `border-radius`）。ここは地色と字色だけを足す規則で、面だけで区別してはいない",
+  },
+  "src/app/admin/admin.module.css :: .publishedFilter button": {
+    measured: "2026-08-30。同じ絞り込みの実行ボタン",
+    reason:
+      "同上。輪郭は 3 つ組の側にあり、ここは押せることを示す地色（`--color-action-default`）を足すだけ。" +
+      "面が消えても、字の色と押しどころの大きさで操作だと分かる",
+  },
+  "src/presentation/ui/templates/site.module.css :: .siteSearch input": {
+    measured: "2026-08-30。読者向けブログの上端の検索欄",
+    reason:
+      "輪郭は `.siteSearch input, .siteSearch button` の組が持っている。" +
+      "こちらは角の丸めを左側だけにして、隣のボタンと 1 つの部品に見せる役",
+  },
+  "src/presentation/ui/templates/site.module.css :: .siteSearch button": {
+    measured: "2026-08-30。同じ検索の実行ボタン",
+    reason:
+      "同上。`border-inline-start: 0` で入力欄と辺を共有し、右側だけ丸める。" +
+      "**輪郭を自分で足すと、共有した辺が二重線になる**",
+  },
+
+  /*
+   * --- 現れたときに周りが無い（本文へ飛ぶ近道）-----------------------------
+   *
+   * 2 つのファイルに同じ形で在る。読者側と運営側で骨格が別なので、
+   * いまは同じ文面が 2 か所にある（`uiux-duplicate-implementation.test.ts` が
+   * まとめ先を別に見張る）。ここでは「面だけで区別しているか」だけを見る。
+   */
+  "src/presentation/ui/primitives/ui.module.css :: .skipLink": {
+    measured: "2026-08-30。運営側の全画面。既定では画面の外へ退避している",
+    reason:
+      "**焦点が当たったときだけ現れる。**現れた瞬間、周りに比べる相手がいないので" +
+      "「隣と違うこと」を輪郭で示す必要が無い。区別は `:focus` の輪と、" +
+      "画面の隅に浮くという位置そのものが持っている",
+  },
+  "src/presentation/ui/templates/site.module.css :: .skipLink": {
+    measured: "2026-08-30。読者側の全画面。同じ形",
+    reason: "同上。読者側の骨格にも同じ近道を置いてあり、現れ方も同じ",
+  },
 };
 
 const ALL = cssFilesUnder(join(ROOT, "src")).flatMap(rulesOf);
@@ -298,7 +355,14 @@ describe("面の地色だけで区別している規則は、理由つきで数�
       // `border-radius` を 2026-08-21 に自分で読んでいて、それでもこの一覧へ
       // 書き写すときに 3 件にした。**②の誤差は、直した後でも同じ手つきで再発する。**
       "src/presentation/ui/primitives/ui.module.css :: .navLink",
+      // 2026-08-30 の統合で 4 件増えた。増えたぶんは**セレクタの組**が輪郭を
+      // 持っている側で、②の「角の丸めを輪郭と読む」誤差と同じ姿に見える。
+      // 上の `EXEMPT` に理由を書いてある。
       "src/presentation/ui/primitives/ui.module.css :: .skeleton",
+      "src/presentation/ui/primitives/ui.module.css :: .skipLink",
+      "src/presentation/ui/templates/site.module.css :: .siteSearch button",
+      "src/presentation/ui/templates/site.module.css :: .siteSearch input",
+      "src/presentation/ui/templates/site.module.css :: .skipLink",
     ]);
   });
 

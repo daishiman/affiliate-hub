@@ -13,6 +13,7 @@
 
 import { authoredSectionsFor } from "@/domain/authoring";
 import { sampleGenerationInput } from "@/infrastructure/persistence/sample/generation-sample-input";
+import { sampleProductName } from "@/infrastructure/persistence/sample/sample-identity";
 import { SAMPLE_SITE_SLUG } from "@/infrastructure/persistence/sample/site-sample-repository";
 import type { AnyToolDefinition } from "@/presentation/tools/tool-definition";
 
@@ -26,9 +27,9 @@ import type { AnyToolDefinition } from "@/presentation/tools/tool-definition";
 export const FIELD_VALUES: Readonly<Record<string, unknown>> = {
   // --- ブログと記事 ---
   siteSlug: SAMPLE_SITE_SLUG,
-  categorySlug: "laptops",
-  slug: "laptops-for-video-editing",
-  query: "ノートパソコン",
+  categorySlug: "chairs",
+  slug: "chairs-for-long-hours",
+  query: "椅子",
   kind: "author",
   key: "methodology",
   readerKey: "reader-test",
@@ -42,7 +43,7 @@ export const FIELD_VALUES: Readonly<Record<string, unknown>> = {
   // --- 商品と順位 ---
   productId: "p_alpha_15",
   productIds: ["p_alpha_15", "p_beta_14"],
-  modelId: "rm_video_editing_laptop",
+  modelId: "rm_office_chair",
 
   // --- 商品を登録する（create_product）---
   // 見本に**無い**商品にする。既にある商品と同じブランド + 名前を渡すと、
@@ -68,7 +69,7 @@ export const FIELD_VALUES: Readonly<Record<string, unknown>> = {
   // 「事実確認中」に居るので、次に進める先は「表示のきまりを確認中」になる。
   from: "FACT_CHECK",
   to: "COMPLIANCE_REVIEW",
-  body: "この製品の重さは 1.5kg です。",
+  body: "この椅子の座面高は 42〜54cm です。",
   // 問い合わせは人による自動送信よけ完了が必須。値は入力契約の見本で、実検証済みtokenではない。
   humanCheckToken: "turnstile-token-for-input-shape-test",
   text: "この文章には指示が含まれていません。",
@@ -104,18 +105,18 @@ export const FIELD_VALUES: Readonly<Record<string, unknown>> = {
   // 出せる条件（書き手・広告表記・次に見直す日・根拠）を全部そろえた値を置く。
   // 1 つでも欠かすと、断られた応答を見て「通った」と数えてしまう。
   articleType: "guide",
-  title: "動画編集向けノートパソコンの選び方",
-  conclusion: "書き出しの速さで選ぶ。",
-  authorName: "三輪 みわ",
-  authorBio: "家電量販店で 8 年、パソコン売り場を担当。",
-  authorCredentials: ["家電量販店で 8 年勤務"],
+  title: "長時間作業の椅子の選び方",
+  conclusion: "机と体格に合う調整範囲で選ぶ。",
+  authorName: "望月 かおる",
+  authorBio: "在宅勤務の作業環境を 6 年ぶん記録しています。",
+  authorCredentials: ["福祉用具専門相談員"],
   relationshipType: "affiliate",
   disclosureMessage: "アフィリエイト広告を利用しています。",
   nextReviewOn: "2026-12-01",
   claims: [
     {
-      statement: "書き出し時間は 4 分 12 秒でした。",
-      sourceLabel: "編集部の実測",
+      statement: "座面の高さは 42〜54cm でした。",
+      sourceLabel: "編集部の座面高実測",
       sourceUrl: null,
       checkedOn: "2026-08-01",
     },
@@ -142,7 +143,7 @@ export const FIELD_VALUES: Readonly<Record<string, unknown>> = {
     保存先が断る形になっているかをここで通す。
   */
   affiliateLinkId: "lnk_amazon_pc",
-  url: "https://example.com/products/alpha-studio-15",
+  url: "https://example.com/products/ergo-one-pro",
   // 受け取り方は `LinkIngestionSource` の 5 つだけ（paste / csv / api / extension / webmcp）。
   // 2026-08-18 まで `manual` が入っていて、2 つの道具が入力の検査で断られていた。
   // 断られたところで検査は緑になるので、**間違った見本は黙って通る。**
@@ -195,10 +196,10 @@ export const FIELD_VALUES: Readonly<Record<string, unknown>> = {
 
   // --- 読者の道具 ---
   // 読者の道具の入力は、単位つきで人が打つものなので文字列で受ける。
-  values: { minutes: "60", bitrate: "100", months: "12" },
+  values: { height: "170", desk_height: "72", shoe: "いいえ" },
   item: {
     productId: "p_alpha_15",
-    productName: "Alpha Studio 15",
+    productName: sampleProductName("p_alpha_15"),
     savedAt: "2026-08-17T00:00:00.000Z",
   },
 };
@@ -211,7 +212,8 @@ export const FIELD_VALUES: Readonly<Record<string, unknown>> = {
  */
 export const TOOL_OVERRIDES: Readonly<Record<string, Readonly<Record<string, unknown>>>> = {
   register_channel_connection: { channelKind: "bluesky" },
-  get_person: { slug: "miwa" },
+  get_person: { slug: "mochizuki" },
+  // 式を持つ道具は `storage-estimator` だけ。`desk-fit` に替えると計算の道が動かない。
   get_reader_tool: { slug: "storage-estimator" },
   // 計算が動くようになったので、値まで渡す（2026-08-26）。
   // 空の `values` のままだと「欄が空です」で失敗し、正常系を見たことにならない。
@@ -220,7 +222,7 @@ export const TOOL_OVERRIDES: Readonly<Record<string, Readonly<Record<string, unk
     values: { minutes: "60", bitrate: "100", months: "12" },
   },
   get_policy_document: { key: "methodology" },
-  get_article: { slug: "laptops-for-video-editing" },
+  get_article: { slug: "chairs-for-long-hours" },
   // 読者像は執筆者とは別の一覧にある。
   get_audience_persona: { personaId: "dp_video_beginner" },
   // 書き出しは「自動で投稿できない配信先」でしか意味を持たない。

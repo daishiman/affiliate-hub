@@ -1,0 +1,54 @@
+{
+  "slug": "quiet-rental",
+  "name": "賃貸の静けさ",
+  "purpose": "壁も床も変えられない賃貸で、隣室と階下への音で揉めないようにする",
+  "genre": "住環境・防音",
+
+  "pattern": "comparison_lab",
+  "revenueModel": "affiliate",
+
+  "extraPages": ["search", "how_to_choose", "glossary", "faq"],
+
+  "categories": [
+    {
+      "slug": "floor",
+      "name": "床",
+      "oneLine": "階下へ落ちる足音と物音を、実測の低減量で選ぶ。",
+      "initialArticleTypes": ["comparison", "review"]
+    },
+    {
+      "slug": "wall",
+      "name": "壁",
+      "oneLine": "隣室へ抜ける話し声とテレビ音を、周波数帯ごとに見る。",
+      "initialArticleTypes": ["comparison", "guide"]
+    },
+    {
+      "slug": "appliance",
+      "name": "家電",
+      "oneLine": "夜に回せるかどうかで選ぶ。カタログ値ではなく実測で。",
+      "initialArticleTypes": ["ranking", "review"]
+    }
+  ],
+
+  "theme": {
+    "brandTheme": "indigo-teal",
+    "colorScheme": "auto",
+    "density": "comfortable",
+    "radius": "medium"
+  },
+
+  "differentiation": {
+    "targetReader": "木造・軽量鉄骨のアパートに住み、上下左右に人がいる人",
+    "searchIntent": "原状回復できる範囲で、どこまで音が下がるのか知りたい",
+    "articlePurpose": "買う前に自室の騒音を測らせ、効く対策と効かない対策を切り分けさせる",
+    "evaluationAxis": "同じ音源・同じ距離で測った騒音レベルの低減量（dB）と、退去時に原状回復できるか",
+    "usageScene": "木造アパートの 1 室、床は直貼りフローリング、壁は石膏ボード",
+    "uniqueExperience": "同じ部屋・同じ音源で、対策の前後を騒音計で測り続けた記録",
+    "comparisonScope": "工事を伴わない対策に限る（内窓・防音室・床の張り替えは範囲外）",
+    "conclusionStance": "低音は下がらないことを先に言い、下がる帯域だけで判断させる",
+    "internalLinkStrategy": "比較記事から測り方の手引きへ落とし、手引きから個別レビューへ戻す",
+    "ctaStrategy": "まず騒音計で測ることを勧め、測って効果が見込める人にだけ購入先を出す"
+  },
+
+  "emitLlmsTxt": true
+}

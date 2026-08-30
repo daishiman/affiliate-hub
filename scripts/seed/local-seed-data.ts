@@ -47,8 +47,16 @@ export const SEED_WORKSPACE_ID = "ws_sample";
 export const SEED_USER_ID = "usr_local_owner";
 export const SEED_USER_EMAIL = "owner@local.test";
 export const SEED_USER_NAME = "ローカル検証用の担当者";
-/** 見本のブログ。読者側の設計図を見本が持っている 2 本。 */
-export const SEED_HUB_SLUG = "video-editing-gear";
+/**
+ * 見本のブログ。読者側の設計図を見本が持っている 2 本。
+ *
+ * 親側は**見本の `SAMPLE_SITE_SLUG` と同じ名前にする**。揃えないと、
+ * vitest（見本の上で描く）は緑のまま、Playwright（seed 済みの D1 を本物の
+ * 通信で開く）だけが `/s/<名前>` 以下すべてで 404 になる。
+ * 揃えるのは URL に出る名前だけで、記事の中身までは合わせない
+ * （検査は `tests/architecture/seed-and-sample-agree.test.ts`）。
+ */
+export const SEED_HUB_SLUG = "home-office-desk";
 export const SEED_SUB_SLUG = "gear-for-small-kitchen";
 
 /** SQLite の文字列。`'` を 2 つ重ねる以外の細工をしない。 */

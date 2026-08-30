@@ -51,6 +51,7 @@ export async function PersonPage({
                 articles={toArticleCards(siteSlug, result.value.articles)}
                 emptyTitle={UI_COPY.article.emptyListTitle}
                 emptyBody={UI_COPY.article.emptyListBody}
+                headingLevel="h3"
               />
             </section>
           </SitePage>

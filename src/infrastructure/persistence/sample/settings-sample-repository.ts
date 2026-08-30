@@ -15,7 +15,7 @@ import {
   normalizeInvitedEmail,
 } from "@/domain/identity";
 import { ok, taggedString } from "@/domain/shared";
-import { SAMPLE_WORKSPACE_ID } from "./ranking-sample-repository";
+import { SAMPLE_WORKSPACE_ID } from "./sample-identity";
 import { registerStub, stubCall } from "../../stub-registry";
 import { pageById } from "../page-by-id";
 

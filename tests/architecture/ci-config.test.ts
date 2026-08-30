@@ -413,6 +413,20 @@ describe("手元と機械で同じ検査が走る（REQ-CI01 / REQ-CI03）", () 
       "0037_opposite_harrier",
       // 指針本文の再評価完了版を正本化し、再取得だけでは変更警告を消さない。
       "0038_flimsy_hobgoblin",
+      /*
+        2026-08-30: 公開済み記事の取り下げ（`archived_at`）。
+
+        **この 1 本は main 側で `0019` として既に本番の D1 へ流れている。**
+        こちらの枝では番号が埋まっていたので末尾へ回したが、名前で照合する
+        仕組みから見ると `0039_gentle_archive` は「まだ流していない 1 本」に
+        見え、main へ戻した日にもう一度流れる。列は既に在るので失敗する。
+
+        流す前に、main の `d1_migrations` に何が入っているかを実物で確かめ、
+        入っているなら台帳へ手で入れて流さない側へ倒すこと。
+        （#35 の門は台帳の名前ではなく D1 の実形を比べるので、
+        取りこぼしても公開の手前で止まる。）
+      */
+      "0039_gentle_archive",
     ];
     const journal = JSON.parse(read("drizzle/meta/_journal.json")) as {
       entries: Array<{ tag: string }>;

@@ -27,6 +27,7 @@
     "db:drift": "node scripts/check-schema-drift.mjs",
     "seed:local": "tsx scripts/seed-local.ts",
     "catalog:sync": "node scripts/catalog-sync.mjs",
+    "content:validate": "node .claude/plugins/affiliate-content-harness/scripts/validate-content-set.mjs --content-set blog-content/quiet-rental --content-set blog-content/kids-english-trial",
     "acceptance:reconcile": "node scripts/acceptance-reconciliation.mjs",
     "check:reference-reuse": "node scripts/check-reference-site-reuse.mjs",
     "verify": "node scripts/verify.mjs",

@@ -333,7 +333,7 @@ describe("§30.5 ブログ", () => {
    */
   it("会話・比較・商品カードを利用できる（読者の画面にそのまま出る）", async () => {
     const ranking = await renderRoute("@/app/s/[site]/best/[topic]/page", {
-      params: Promise.resolve({ site: SAMPLE_SITE_SLUG, topic: "laptops-for-video-editing" }),
+      params: Promise.resolve({ site: SAMPLE_SITE_SLUG, topic: "chairs-for-long-hours" }),
       searchParams: Promise.resolve({}),
     });
     // 会話: 塊に名前が付き、発言ごとに話し手が出る（仕様 §11.2 の 4 種類）。
@@ -343,15 +343,15 @@ describe("§30.5 ブログ", () => {
     }
     // 商品カード: 取り上げた商品の塊が、名前付きで出る。
     expect(ranking).toContain('aria-label="この記事で取り上げた商品"');
-    expect(ranking).toContain("Alpha Studio 15");
+    expect(ranking).toContain("ErgoOne Pro");
 
     const compare = await renderRoute("@/app/s/[site]/compare/[comparison]/page", {
-      params: Promise.resolve({ site: SAMPLE_SITE_SLUG, comparison: "alpha-vs-beta" }),
+      params: Promise.resolve({ site: SAMPLE_SITE_SLUG, comparison: "ergo-one-vs-flexseat" }),
       searchParams: Promise.resolve({}),
     });
     // 比較: 表として出る（見出しの無い升目の並びにしない）。
     expect(compare).toMatch(/<table/);
-    expect(compare).toContain("主要な仕様の比較");
+    expect(compare).toContain("主要な計測値の比較");
     expect(compare).toMatch(/<th[^>]*scope="row"/);
   });
 
@@ -487,7 +487,7 @@ describe("§30.7 アフィリエイト", () => {
     // こちらが法令に照らして決めた文ではない。だから文そのものを突き合わせる。
     const forReader = await value(
       "reader_get_disclosure",
-      { siteSlug: SAMPLE_SITE_SLUG, slug: "laptops-for-video-editing" },
+      { siteSlug: SAMPLE_SITE_SLUG, slug: "chairs-for-long-hours" },
       READER,
     );
     expect(forReader.disclosureRequired).toBe(true);

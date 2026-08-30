@@ -5,7 +5,6 @@ import type {
 import type { PageRequest, Paged } from "@/application/ports/common";
 import { type EditorialScoreCard, type RankingModel, createRankingModel } from "@/domain/ranking";
 import {
-  type CategoryId,
   type DomainError,
   type ProductId,
   type RankingModelId,
@@ -18,6 +17,18 @@ import {
   taggedString,
 } from "@/domain/shared";
 import { registerStub } from "../../stub-registry";
+import {
+  SAMPLE_CATEGORY_ID,
+  SAMPLE_MODEL_ID,
+  SAMPLE_WORKSPACE_ID,
+} from "./sample-identity";
+
+export {
+  SAMPLE_MODEL_ID,
+  SAMPLE_PRODUCTS,
+  SAMPLE_WORKSPACE_ID,
+  sampleProductName,
+} from "./sample-identity";
 
 /**
  * ★ これは仮置きの見本データです（スタブ）。★
@@ -40,57 +51,40 @@ const stub = registerStub({
   blockedBy: "済み（保存先は D1 の ranking_models / score_cards）",
 });
 
-export const SAMPLE_WORKSPACE_ID = taggedString<"WorkspaceId">("ws_sample");
-export const SAMPLE_MODEL_ID = taggedString<"RankingModelId">("rm_video_editing_laptop");
-
-const SAMPLE_CATEGORY_ID = taggedString<"CategoryId">("cat_laptop");
-
 function productId(value: string): ProductId {
   return taggedString<"ProductId">(value);
-}
-
-/** 見本の商品。名前は画面で使うため一緒に持つ。 */
-export const SAMPLE_PRODUCTS: readonly { readonly id: ProductId; readonly name: string }[] = [
-  { id: productId("p_alpha_15"), name: "Alpha Studio 15" },
-  { id: productId("p_beta_14"), name: "Beta Creator 14" },
-  { id: productId("p_gamma_16"), name: "Gamma Pro 16" },
-  { id: productId("p_delta_13"), name: "Delta Light 13" },
-];
-
-export function sampleProductName(id: ProductId): string {
-  return SAMPLE_PRODUCTS.find((p) => p.id === id)?.name ?? String(id);
 }
 
 function buildSampleModel(): RankingModel {
   const built = createRankingModel({
     id: SAMPLE_MODEL_ID,
-    workspaceId: SAMPLE_WORKSPACE_ID as WorkspaceId,
-    categoryId: SAMPLE_CATEGORY_ID as CategoryId,
+    workspaceId: SAMPLE_WORKSPACE_ID,
+    categoryId: SAMPLE_CATEGORY_ID,
     version: "2026.08-2",
-    audience: "動画編集をする人",
+    audience: "1 日 8 時間、机に向かう人",
     criteria: [
       {
         key: "measured_performance",
         weight: 0.4,
-        measurement: "同一素材の 4K 書き出し時間を 3 回計測し、中央値で比較",
+        measurement: "8 時間連続着座後の腰部圧力を 10 分ごとに記録し、平均で比較",
         passThreshold: 0.3,
       },
       {
         key: "usability",
         weight: 0.2,
-        measurement: "実機での画面の明るさ・色域・キーボード操作を評価",
+        measurement: "座面高・座面奥行き・肘掛け・背もたれ角の可動域を実測",
         passThreshold: 0.3,
       },
       {
         key: "durability",
         weight: 0.15,
-        measurement: "連続 60 分書き出し時の温度と動作音を計測",
+        measurement: "座面へ 80kg を 5 万回加えたあとの沈み込み量の変化を計測",
         passThreshold: 0.2,
       },
       {
         key: "support",
         weight: 0.1,
-        measurement: "保証期間と修理受付の窓口の有無を確認",
+        measurement: "保証期間と、部品単位で交換できるかを確認",
         passThreshold: 0.0,
       },
       {
@@ -103,7 +97,7 @@ function buildSampleModel(): RankingModel {
         // 変更容易性シナリオ⑤の実測で足した軸。コードの分岐は 1 つも増えていない。
         key: "repairability",
         weight: 0.05,
-        measurement: "交換部品の入手可否と、自分で開けられるかを確認",
+        measurement: "交換部品の入手可否と、工具なしで分解できるかを確認",
         passThreshold: 0.0,
       },
     ],
@@ -134,7 +128,7 @@ export const SAMPLE_SCORE_CARDS: readonly EditorialScoreCard[] = [
       support: 0.6,
       price_value: 0.55,
     },
-    evidenceRefs: ["testrun_2026-07-12_alpha15"],
+    evidenceRefs: ["testrun_2026-07-12_ergoone"],
     testedAt: new Date("2026-07-12T00:00:00Z"),
   },
   {
@@ -147,7 +141,7 @@ export const SAMPLE_SCORE_CARDS: readonly EditorialScoreCard[] = [
       support: 0.8,
       price_value: 0.82,
     },
-    evidenceRefs: ["testrun_2026-07-15_beta14"],
+    evidenceRefs: ["testrun_2026-07-15_flexseat"],
     testedAt: new Date("2026-07-15T00:00:00Z"),
   },
   {
@@ -160,7 +154,7 @@ export const SAMPLE_SCORE_CARDS: readonly EditorialScoreCard[] = [
       support: 0.4,
       price_value: 0.41,
     },
-    evidenceRefs: ["testrun_2026-07-20_gamma16"],
+    evidenceRefs: ["testrun_2026-07-20_deskchair"],
     testedAt: new Date("2026-07-20T00:00:00Z"),
   },
   {
@@ -174,7 +168,7 @@ export const SAMPLE_SCORE_CARDS: readonly EditorialScoreCard[] = [
       support: 0.5,
       price_value: 0.9,
     },
-    evidenceRefs: ["testrun_2026-07-22_delta13"],
+    evidenceRefs: ["testrun_2026-07-22_woodstool"],
     testedAt: new Date("2026-07-22T00:00:00Z"),
   },
 ];

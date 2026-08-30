@@ -31,6 +31,7 @@ import { createD1PersonaRepository } from "./persistence/d1/persona-repository";
 import { createD1SiteRepository } from "./persistence/d1/site-repository";
 import {
   createD1ContentRepository,
+  createD1PublishedArticleAdminRepository,
   createD1PublishedArticleWriter,
 } from "./persistence/d1/published-article-repository";
 import { createD1SiteDocumentRepository } from "./persistence/d1/site-document-repository";
@@ -53,8 +54,9 @@ import { createD1LlmUsage } from "./persistence/d1/llm-usage-repository";
 import { MIN_MASTER_SECRET_LENGTH } from "./platform/secret-box";
 import {
   createSampleContentRepository,
-  createSampleSiteDocumentRepository,
+  createSamplePublishedArticleAdminRepository,
   createSamplePublishedArticleWriter,
+  createSampleSiteDocumentRepository,
   createSampleTrackingCoverage,
 } from "./persistence/sample/content-sample-repository";
 import {
@@ -279,6 +281,10 @@ export function createDeps(
       db === null ? createSamplePublishedArticleWriter() : createD1PublishedArticleWriter(db),
       db === null ? createSampleTrackingLinkIssuer() : createD1TrackingLinkIssuer(db),
     ),
+    publishedArticleAdmin:
+      db === null
+        ? createSamplePublishedArticleAdminRepository()
+        : createD1PublishedArticleAdminRepository(db),
     // 気になる商品は、保存先が用意できていれば本物（D1）。
     // **KV を待たずに D1 で作った。** 見本版は処理中のメモリに置くので、
     // 読者から見ると「保存できたのに翌日消えている」。何も知らせずに消える。

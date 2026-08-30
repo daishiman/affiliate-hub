@@ -78,7 +78,7 @@ function scoreCard(productId: string, score: number): EditorialScoreCard {
   return {
     productId: productId as ProductId,
     scores: Object.fromEntries(keys.map((k) => [k, score])),
-    evidenceRefs: ["ev_export_time"],
+    evidenceRefs: ["ev_lumbar_pressure"],
     testedAt: new Date("2026-08-01T00:00:00Z"),
   };
 }
@@ -98,7 +98,7 @@ describe("商品 1 件", () => {
     const got = await createGetProductUseCase(deps()).execute(owner, { productId: "p_alpha_15" });
     if (!got.ok) throw new Error(got.error.message);
 
-    expect(got.value.specifications.map((s) => s.key)).toContain("重さ");
+    expect(got.value.specifications.map((s) => s.key)).toContain("座面の高さ");
     // 情報の古さを読者が自分で判断できるようにする。
     expect(got.value.retrievedAt).toBeInstanceOf(Date);
     expect(got.value.claims.length).toBeGreaterThan(0);
@@ -139,7 +139,7 @@ describe("商品 1 件", () => {
 
 describe("絞り込み", () => {
   it("言葉で絞れる", async () => {
-    const found = await createFilterProductsUseCase(deps()).execute(owner, { text: "軽" });
+    const found = await createFilterProductsUseCase(deps()).execute(owner, { text: "小柄" });
     if (!found.ok) throw new Error(found.error.message);
 
     expect(found.value.items.length).toBeGreaterThan(0);
@@ -204,10 +204,10 @@ describe("比較", () => {
     });
     if (!compared.ok) throw new Error(compared.error.message);
 
-    expect(compared.value.columns).toContain("重さ");
+    expect(compared.value.columns).toContain("座面の高さ");
     // 片方にしか無い項目を列にすると、空欄が「その機能が無い」に見える。
-    expect(compared.value.columns).not.toContain("冷却方式");
-    expect(compared.value.missingColumns).toContain("冷却方式");
+    expect(compared.value.columns).not.toContain("張地");
+    expect(compared.value.missingColumns).toContain("張地");
   });
 
   it("揃わなかった項目を、読者から隠さない", async () => {
@@ -226,10 +226,10 @@ describe("比較", () => {
     });
     if (!compared.ok) throw new Error(compared.error.message);
 
-    const weightAt = compared.value.columns.indexOf("重さ");
+    const heightAt = compared.value.columns.indexOf("座面の高さ");
     expect(compared.value.rows).toHaveLength(2);
-    expect(compared.value.rows[0][weightAt]).toBe("1.68kg");
-    expect(compared.value.rows[1][weightAt]).toBe("1.29kg");
+    expect(compared.value.rows[0][heightAt]).toBe("42〜54cm");
+    expect(compared.value.rows[1][heightAt]).toBe("39〜51cm");
   });
 
   it("1 つだけでは比較にならないので断る", async () => {

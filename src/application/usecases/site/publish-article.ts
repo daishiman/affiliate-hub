@@ -29,6 +29,7 @@ import {
   type SiteBlueprint,
   authoredSectionsFor,
   filledSectionIds,
+  parseNonEmptyParagraphs,
   sectionsFor,
   siteBasePathBySlug,
 } from "@/domain/authoring";
@@ -650,14 +651,6 @@ function toDateString(at: Date): string {
   return at.toISOString().slice(0, 10);
 }
 
-/** 段落へ切る。空行で切り、空の段落は落とす。 */
-function toParagraphs(body: string): readonly string[] {
-  return body
-    .split(/\n\s*\n/)
-    .map((p) => p.trim())
-    .filter((p) => p !== "");
-}
-
 /**
  * 入力を「読者に見せる形」へ写す。
  *
@@ -708,7 +701,7 @@ export function buildArticle(
   const sections: readonly PublishedSection[] = written.map((s) => ({
     id: s.id,
     heading: labels.get(s.id) ?? s.label,
-    paragraphs: toParagraphs(input.sectionBodies[s.id] ?? ""),
+    paragraphs: parseNonEmptyParagraphs(input.sectionBodies[s.id] ?? ""),
     ...(s.id === claimHost && claims.length > 0 ? { claims } : {}),
   }));
 

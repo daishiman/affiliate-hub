@@ -1,0 +1,44 @@
+{
+  "name": "affiliate-content-harness",
+  "distributable": false,
+  "version": "0.1.0",
+  "description": "アフィリエイト案件(campaign)1件を正本にして、ブログ記事とX長文/X短文/Instagram/note/Facebookの投稿文を、同じ主張・根拠・導線契約のもとで生成し機械検品するプラグイン。案件は run-campaign-brief、ブログ設計図は run-blog-create、記事は run-blog-article、SNS投稿は媒体プロファイル駆動の run-social-post が担う。媒体内検品(validate-media-post.mjs)・媒体横断の主張一貫性検品(validate-cross-media-consistency.mjs)・導線と広告表記の整合検品(validate-affiliate-disclosure.mjs)・案件正本の整合検品(validate-campaign-brief.mjs)を独立scriptとして持ち、既存 .claude/plugins/blog-authoring/scripts/validate-blog-content.mjs を移設・拡張する。",
+  "author": {
+    "name": "affiliate-hub maintainers"
+  },
+  "owner": "affiliate-hub",
+  "since": "2026-08-28",
+  "source": ".claude/plugins/affiliate-content-harness/",
+  "entry_points": {
+    "skills": [
+      "run-campaign-brief",
+      "run-blog-create",
+      "run-blog-article",
+      "run-social-post"
+    ],
+    "agents": [
+      "apply-style-genome",
+      "optimize-media-length",
+      "assign-blog-content-reviewer",
+      "assign-social-post-reviewer"
+    ],
+    "commands": [
+      "create-campaign",
+      "publish-content-set"
+    ]
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$CLAUDE_PLUGIN_ROOT/hooks/guard-blocked-affiliate-link.mjs\""
+          }
+        ]
+      }
+    ]
+  },
+  "depends_on": []
+}

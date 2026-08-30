@@ -20,7 +20,11 @@ import {
   taggedString,
 } from "@/domain/shared";
 import { registerStub } from "../../stub-registry";
-import { SAMPLE_PRODUCTS, SAMPLE_WORKSPACE_ID } from "./ranking-sample-repository";
+import {
+  SAMPLE_CATEGORY_ID,
+  SAMPLE_PRODUCTS,
+  SAMPLE_WORKSPACE_ID,
+} from "./sample-identity";
 
 /**
  * ★ これは仮置きの見本データです（スタブ）。★
@@ -46,48 +50,47 @@ export function sampleProductNotice(): string {
 }
 
 const WS = SAMPLE_WORKSPACE_ID as WorkspaceId;
-const CATEGORY = taggedString<"CategoryId">("cat_laptop");
 const RETRIEVED_AT = new Date("2026-07-01T00:00:00Z");
 
 /** 仕様の項目名は 4 商品で必ず揃える。揃わない項目は比較表の列にならない。 */
 const SPEC_BY_PRODUCT: Readonly<Record<string, Readonly<Record<string, string | number>>>> = {
   p_alpha_15: {
-    画面の大きさ: "15.3インチ",
-    重さ: "1.68kg",
-    書き出し時間: "6分12秒",
-    連続稼働時間: "7.5時間",
-    メモリ: "32GB",
+    座面の高さ: "42〜54cm",
+    座面の奥行き: "43〜48cm",
+    肘掛けの調整: "上下・前後・左右・角度",
+    "8時間後の腰部圧力": "38kPa",
+    保証期間: "5年",
   },
   p_beta_14: {
-    画面の大きさ: "14.0インチ",
-    重さ: "1.29kg",
-    書き出し時間: "8分40秒",
-    連続稼働時間: "9.0時間",
-    メモリ: "16GB",
+    座面の高さ: "39〜51cm",
+    座面の奥行き: "42〜47cm",
+    肘掛けの調整: "上下・前後",
+    "8時間後の腰部圧力": "44kPa",
+    保証期間: "3年",
   },
   p_gamma_16: {
-    画面の大きさ: "16.2インチ",
-    重さ: "2.14kg",
-    書き出し時間: "5分05秒",
-    連続稼働時間: "5.5時間",
-    メモリ: "64GB",
+    座面の高さ: "43〜52cm",
+    座面の奥行き: "45cm",
+    肘掛けの調整: "なし（固定）",
+    "8時間後の腰部圧力": "52kPa",
+    保証期間: "1年",
     // この 1 つだけ他に無い項目。比較表では「揃っていない項目」として別枠に出る。
-    冷却方式: "デュアルファン",
+    張地: "メッシュ",
   },
   p_delta_13: {
-    画面の大きさ: "13.4インチ",
-    重さ: "1.05kg",
-    書き出し時間: "12分30秒",
-    連続稼働時間: "11.0時間",
-    メモリ: "16GB",
+    座面の高さ: "44cm（固定）",
+    座面の奥行き: "39cm",
+    肘掛けの調整: "なし",
+    "8時間後の腰部圧力": "68kPa",
+    保証期間: "1年",
   },
 };
 
 const DESCRIPTION_BY_PRODUCT: Readonly<Record<string, string>> = {
-  p_alpha_15: "書き出しの速さと持ち運びやすさの釣り合いが取れた機種。",
-  p_beta_14: "軽さを優先しつつ、日常の編集に足りる性能を持つ機種。",
-  p_gamma_16: "最も速いが重い。据え置きで使う人向け。",
-  p_delta_13: "最も軽く電池が長持ちする。書き出しは時間がかかる。",
+  p_alpha_15: "腰の負担が最も小さく、肘掛けを細かく合わせられる椅子。",
+  p_beta_14: "座面がやわらかく、小柄な人でも足を床につけやすい椅子。",
+  p_gamma_16: "価格を抑えたメッシュ椅子。肘掛けと座面の奥行きは調整できない。",
+  p_delta_13: "背もたれと肘掛けのない木製スツール。長時間の作業には向かない。",
 };
 
 function build(id: ProductId, name: string): Product {
@@ -98,7 +101,7 @@ function build(id: ProductId, name: string): Product {
     brand: name.split(" ")[0] ?? name,
     name,
     manufacturer: null,
-    categoryId: CATEGORY,
+    categoryId: SAMPLE_CATEGORY_ID,
     identityKeys: [{ kind: "model_number", value: key.toUpperCase() }],
     description: DESCRIPTION_BY_PRODUCT[key] ?? null,
     specifications: SPEC_BY_PRODUCT[key] ?? {},
@@ -159,16 +162,16 @@ function evidenceOf(id: string, title: string, owner: string, summary: string): 
  */
 export const SAMPLE_EVIDENCE: readonly Evidence[] = [
   evidenceOf(
-    "ev_export_time",
-    "同一素材の書き出し時間（3回の中央値）",
+    "ev_lumbar_pressure",
+    "8時間着座後の腰部圧力",
     "編集部",
-    "4K・10分の素材を同じ設定で3回書き出し、中央値を記録した見本の値です。",
+    "同じ被験者が同じ机で8時間座り、腰部の圧力を10分ごとに記録した見本の値です。",
   ),
   evidenceOf(
-    "ev_weight",
-    "本体重量の実測",
+    "ev_seat_height",
+    "座面高の実測",
     "編集部",
-    "電源アダプタを含まない本体のみを台ばかりで測った見本の値です。",
+    "無荷重の状態で、床から座面中央までの高さを測った見本の値です。",
   ),
 ];
 
@@ -203,17 +206,35 @@ function claimOf(
 /** 同上。商品との紐付けは保存先の関心事なので、見本でも表の形で持つ。 */
 export const CLAIMS_BY_PRODUCT: Readonly<Record<string, readonly Claim[]>> = {
   p_alpha_15: [
-    claimOf("cl_alpha_export", "4K10分の素材を6分12秒で書き出せます。", "measured", ["ev_export_time"], 0.9),
-    claimOf("cl_alpha_fit", "1日中持ち歩く用途にも耐えると考えられます。", "inference", [], 0.6),
+    claimOf(
+      "cl_alpha_pressure",
+      "8時間着座後の腰部圧力は平均38kPaでした。",
+      "measured",
+      ["ev_lumbar_pressure"],
+      0.9,
+    ),
+    claimOf(
+      "cl_alpha_fit",
+      "身長160〜185cmの人は座面と肘掛けを作業姿勢に合わせやすいと考えられます。",
+      "inference",
+      [],
+      0.6,
+    ),
   ],
   p_beta_14: [
-    claimOf("cl_beta_weight", "本体の重さは1.29kgです。", "measured", ["ev_weight"], 0.95),
+    claimOf("cl_beta_height", "座面の高さは39〜51cmです。", "measured", ["ev_seat_height"], 0.95),
   ],
   p_gamma_16: [
-    claimOf("cl_gamma_export", "4K10分の素材を5分05秒で書き出せます。", "measured", ["ev_export_time"], 0.9),
+    claimOf(
+      "cl_gamma_pressure",
+      "8時間着座後の腰部圧力は平均52kPaでした。",
+      "measured",
+      ["ev_lumbar_pressure"],
+      0.9,
+    ),
   ],
   p_delta_13: [
-    claimOf("cl_delta_weight", "本体の重さは1.05kgです。", "measured", ["ev_weight"], 0.95),
+    claimOf("cl_delta_height", "座面の高さは44cmです。", "measured", ["ev_seat_height"], 0.95),
   ],
 };
 

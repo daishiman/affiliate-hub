@@ -19,6 +19,7 @@ import {
 import { SITE_WIZARD_STEPS } from "@/domain/authoring";
 import type { ActorContext } from "@/domain/shared";
 import { SAMPLE_WORKSPACE_ID } from "@/infrastructure/persistence/sample/ranking-sample-repository";
+import { SAMPLE_SITE_SLUG } from "@/infrastructure/persistence/sample/site-sample-repository";
 import { OTHER_WORKSPACE, anOwner } from "../support/actors";
 import { recordingAuditLog } from "../support/doubles";
 
@@ -206,7 +207,7 @@ describe("下書きから読者向けの 1 本になるまで（1 本の道）",
     expect(view.value.slug).toBe("first-lens");
   });
 
-  it("作ると、読者向けの一覧に載る（見本の 3 本は消えない）", async () => {
+  it("作ると、読者向けの一覧に載る（見本は消えない）", async () => {
     const draftId = await completeDraft("first-lens");
     const created = await createCreateSiteFromDraftUseCase(deps).execute(owner, { draftId });
     expect(created.ok).toBe(true);
@@ -343,7 +344,14 @@ describe("下書きから読者向けの 1 本になるまで（1 本の道）",
   });
 
   it("見本と同じslugを取り下げても、見本がfallbackで再露出しない", async () => {
-    const slug = "video-editing-gear";
+    /*
+      **見本の slug を書き写さない。**2026-08-30 の統合まで
+      `"video-editing-gear"` と直書きしてあり、見本の中身が入れ替わった日に
+      その名前は消えた。名前が消えても検査は「見本サイトがありません」で
+      落ちるだけで、**何を確かめたかったのかは読み取れない**。
+      見本の正本から取れば、見本を差し替えても検査の意味は動かない。
+    */
+    const slug = SAMPLE_SITE_SLUG;
     const sample = await sites.findBySlug(slug);
     if (!sample.ok || sample.value === null) throw new Error("見本サイトがありません");
 

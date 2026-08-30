@@ -61,6 +61,8 @@ const PRIMARY_TASK_BY_ROUTE_ID = {
   "content/packages": "何のために記事を書くかを決める",
   "content/packages/new": "企画を 1 つ立てる",
   "content/new": "記事を 1 本作る",
+  "content/published": "読者に出ている記事から、訂正する 1 本を探す",
+  "content/published/[site]/[slug]/edit": "読者に出ている文章を訂正し、変更理由を残す",
   distribution: "止まっている配信を見つけて対処する",
   "distribution/[publication]": "1 配信の進行を確かめ、次の操作をする",
   "distribution/[publication]/edit": "予定した配信の出し先と日時を直す",
@@ -313,6 +315,24 @@ export const ADMIN_SCREEN_RUNTIME_ENTRIES: readonly AdminScreenRuntimeEntry[] = 
     "content/[variant]",
     edge("src/app/admin/content/[variant]/page.tsx", "ContentDetailPage"),
     edge("src/presentation/admin/delete-form-action.ts", "deleteContentVariantAction"),
+  ),
+  /*
+    2026-08-30 の統合で合流した 2 件。**同じ画面の同じ form が 2 つの action を持つ。**
+    訂正（`update`）と取り下げ（`archive`）は、どちらも読者に出ている文を変える
+    業務状態変更だが、後戻りの仕方が違う——訂正は書き直せるが、取り下げは
+    読者から消える。畳んで 1 件にすると、片方だけを止めた履歴が残らなくなる。
+  */
+  screenMutation(
+    "published-article.update",
+    "content/published/[site]/[slug]/edit",
+    edge("src/presentation/admin/published-article-form.tsx", "PublishedArticleForm"),
+    edge("src/presentation/admin/published-article-action.ts", "updatePublishedArticleAction"),
+  ),
+  screenMutation(
+    "published-article.archive",
+    "content/published/[site]/[slug]/edit",
+    edge("src/presentation/admin/published-article-form.tsx", "PublishedArticleForm"),
+    edge("src/presentation/admin/published-article-action.ts", "archivePublishedArticleAction"),
   ),
   screenMutation(
     "distribution.schedule",

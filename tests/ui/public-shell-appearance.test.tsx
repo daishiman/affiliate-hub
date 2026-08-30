@@ -39,6 +39,10 @@ const chrome: SiteChrome = {
   tagline: "音の小さい家電だけを比べる",
   brandTheme: "teal-clay",
   nav: [{ href: "/s/quiet", label: "記事" }],
+  categoryNav: [{ href: "/s/quiet/categories/kitchen", label: "台所" }],
+  homeHref: "/s/quiet",
+  searchHref: "/s/quiet/search",
+  aboutHref: "/s/quiet/editorial-policy",
   footer: [{ href: "/s/quiet/policy", label: "方針" }],
 };
 

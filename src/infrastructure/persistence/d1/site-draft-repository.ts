@@ -256,7 +256,7 @@ export function createD1SiteDraftRepository(db: DrizzleD1): EditorialSiteDraftRe
 /**
  * 保存先にある、作られたブログの一覧。
  *
- * 読者向けの一覧（`site-repository.ts`）が見本の 3 本とこれを合わせる。
+ * 読者向けの一覧（`site-repository.ts`）が見本とこれを合わせる。
  * **読者側の画面は 2 種類を区別しない。**
  */
 export async function listPublishedBlueprints(

@@ -1,4 +1,10 @@
 import {
+  createArchivePublishedArticleUseCase,
+  createGetPublishedArticleUseCase,
+  createListPublishedArticlesUseCase,
+  createUpdatePublishedArticleUseCase,
+} from "@/application/usecases/site/manage-published-articles";
+import {
   createGetArticleUseCase,
   createGetPersonUseCase,
   createGetPolicyDocumentUseCase,
@@ -974,6 +980,24 @@ export async function contentUseCases() {
     advanceState: createAdvanceContentStateUseCase(content),
     approve: createApproveContentUseCase(content),
   });
+}
+
+/** 公開後の記事を訂正・非表示化する管理画面の入口。 */
+export async function publishedArticleAdminUseCases() {
+  const deps = createDeps({ db: await tryGetDb() });
+  const read = { articles: deps.publishedArticleAdmin };
+  const write = {
+    ...read,
+    auditLog: deps.auditLog,
+    ids: deps.ids,
+    now: () => new Date(),
+  };
+  return {
+    list: createListPublishedArticlesUseCase(read),
+    get: createGetPublishedArticleUseCase(read),
+    update: createUpdatePublishedArticleUseCase(write),
+    archive: createArchivePublishedArticleUseCase(write),
+  };
 }
 
 /**
@@ -2035,7 +2059,7 @@ export async function siteDraftNotice(): Promise<StorageStatus> {
 /**
  * ブログの一覧がいま何で動いているかを画面に出すための一文。
  *
- * 保存先がつながっていても**見本の 3 本は残す**ので、
+ * 保存先がつながっていても**見本は残す**ので、
  * 「並んでいるものの一部は見本」であることは、つながったあとも黙らない。
  */
 export async function siteStorageNotice(): Promise<StorageStatus> {

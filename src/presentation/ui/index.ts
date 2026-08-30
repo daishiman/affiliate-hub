@@ -209,13 +209,20 @@ export {
 export {
   SiteShell,
   SitePage,
+  SiteSection,
+  SiteHomeHero,
+  CategoryDirectory,
+  CategoryArticleGroups,
   PublicShell,
   FocusedTask,
   type SiteChrome,
   type SiteNavItem,
+  type CategoryDirectoryItem,
+  type CategoryArticleGroupView,
 } from "./templates/site-shell";
 export {
   ArticleView,
+  ArticleTableOfContents,
   ArticleList,
   PersonView,
   PolicyView,

@@ -128,7 +128,20 @@ const GUARDED: Record<string, Guard> = {
 
 const CSS_FILES = cssFilesUnder(join(CSS_ROOT, "src"));
 const ALL: readonly Rule[] = CSS_FILES.flatMap(rulesOf);
-const BY_KEY = new Map(ALL.map((r) => [keyOf(r), r] as const));
+/**
+ * 鍵から規則を引く。**`@media` の中の同名は、枠の外の規則を隠さない。**
+ *
+ * `rulesOf` は枠の中も外と同じ高さで拾うので、`.header` のように狭い画面用の
+ * 上書きを持つ規則は**同じ鍵で 2 回**現れる。素直に `new Map(...)` を作ると
+ * 後ろ（＝`@media` の中の断片）が勝ち、`display: flex` を書いていない上書きが
+ * 正本として読まれて「在るべき宣言が消えた」と誤って赤くなる。
+ *
+ * この一覧が押さえているのは**既定の形**なので、枠の外が勝つように並べ替える
+ * （`Map` は後から入れたほうが勝つので、枠の外を**後ろ**へ回す）。
+ */
+const BY_KEY = new Map(
+  [...ALL].sort((a, b) => Number(b.inAtRule) - Number(a.inAtRule)).map((r) => [keyOf(r), r] as const),
+);
 
 /** 横並びの器。`flex-direction` が縦のものは、折り返しの話が別になるので外す。 */
 function isRowContainer(rule: Rule): boolean {

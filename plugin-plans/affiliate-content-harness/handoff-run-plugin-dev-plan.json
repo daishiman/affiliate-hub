@@ -1,0 +1,302 @@
+{
+  "plan_dir": "plugin-plans/affiliate-content-harness",
+  "target_plugin_slug": "affiliate-content-harness",
+  "mode": "create",
+  "task_graph_ref": {
+    "path": "task-graph.json",
+    "schema_version": "1.0"
+  },
+  "routes": [
+    {
+      "id": "C16",
+      "component_kind": "script",
+      "name": "validate-campaign-brief.mjs",
+      "spec": "phase-05-implementation.md",
+      "depends_on": [],
+      "placement_scope": "plugin-root",
+      "builder": "plugin-scaffold",
+      "builder_status": "contract-only",
+      "gap_ref": "GAP-SCRIPT-BUILDER",
+      "build_kind": "script",
+      "build_args": {
+        "script_path": "scripts/validate-campaign-brief.mjs"
+      },
+      "build_target": "plugins/affiliate-content-harness/scripts/validate-campaign-brief.mjs",
+      "status": "planned"
+    },
+    {
+      "id": "C12",
+      "component_kind": "script",
+      "name": "validate-blog-content.mjs",
+      "spec": "phase-05-implementation.md",
+      "depends_on": [],
+      "placement_scope": "plugin-root",
+      "builder": "plugin-scaffold",
+      "builder_status": "contract-only",
+      "gap_ref": "GAP-SCRIPT-BUILDER",
+      "build_kind": "script",
+      "build_args": {
+        "script_path": "scripts/validate-blog-content.mjs"
+      },
+      "build_target": "plugins/affiliate-content-harness/scripts/validate-blog-content.mjs",
+      "status": "planned"
+    },
+    {
+      "id": "C13",
+      "component_kind": "script",
+      "name": "validate-media-post.mjs",
+      "spec": "phase-05-implementation.md",
+      "depends_on": [],
+      "placement_scope": "plugin-root",
+      "builder": "plugin-scaffold",
+      "builder_status": "contract-only",
+      "gap_ref": "GAP-SCRIPT-BUILDER",
+      "build_kind": "script",
+      "build_args": {
+        "script_path": "scripts/validate-media-post.mjs"
+      },
+      "build_target": "plugins/affiliate-content-harness/scripts/validate-media-post.mjs",
+      "status": "planned"
+    },
+    {
+      "id": "C14",
+      "component_kind": "script",
+      "name": "validate-cross-media-consistency.mjs",
+      "spec": "phase-05-implementation.md",
+      "depends_on": [],
+      "placement_scope": "plugin-root",
+      "builder": "plugin-scaffold",
+      "builder_status": "contract-only",
+      "gap_ref": "GAP-SCRIPT-BUILDER",
+      "build_kind": "script",
+      "build_args": {
+        "script_path": "scripts/validate-cross-media-consistency.mjs"
+      },
+      "build_target": "plugins/affiliate-content-harness/scripts/validate-cross-media-consistency.mjs",
+      "status": "planned"
+    },
+    {
+      "id": "C15",
+      "component_kind": "script",
+      "name": "validate-affiliate-disclosure.mjs",
+      "spec": "phase-05-implementation.md",
+      "depends_on": [],
+      "placement_scope": "plugin-root",
+      "builder": "plugin-scaffold",
+      "builder_status": "contract-only",
+      "gap_ref": "GAP-SCRIPT-BUILDER",
+      "build_kind": "script",
+      "build_args": {
+        "script_path": "scripts/validate-affiliate-disclosure.mjs"
+      },
+      "build_target": "plugins/affiliate-content-harness/scripts/validate-affiliate-disclosure.mjs",
+      "status": "planned"
+    },
+    {
+      "id": "C01",
+      "component_kind": "skill",
+      "name": "run-campaign-brief",
+      "spec": "phase-05-implementation.md",
+      "depends_on": ["C16"],
+      "builder": "run-skill-create",
+      "build_kind": "skill",
+      "build_args": {
+        "skill_name": "run-campaign-brief",
+        "kind": "run",
+        "brief_path": "briefs/skill-brief-C01.json"
+      },
+      "build_target": "plugins/affiliate-content-harness/skills/run-campaign-brief/",
+      "status": "planned"
+    },
+    {
+      "id": "C02",
+      "component_kind": "skill",
+      "name": "run-blog-create",
+      "spec": "phase-05-implementation.md",
+      "depends_on": ["C12"],
+      "builder": "run-skill-create",
+      "build_kind": "skill",
+      "build_args": {
+        "skill_name": "run-blog-create",
+        "kind": "run",
+        "brief_path": "briefs/skill-brief-C02.json"
+      },
+      "build_target": "plugins/affiliate-content-harness/skills/run-blog-create/",
+      "status": "planned"
+    },
+    {
+      "id": "C03",
+      "component_kind": "skill",
+      "name": "run-blog-article",
+      "spec": "phase-05-implementation.md",
+      "depends_on": ["C12"],
+      "builder": "run-skill-create",
+      "build_kind": "skill",
+      "build_args": {
+        "skill_name": "run-blog-article",
+        "kind": "run",
+        "brief_path": "briefs/skill-brief-C03.json"
+      },
+      "build_target": "plugins/affiliate-content-harness/skills/run-blog-article/",
+      "status": "planned"
+    },
+    {
+      "id": "C04",
+      "component_kind": "skill",
+      "name": "run-social-post",
+      "spec": "phase-05-implementation.md",
+      "depends_on": ["C13", "C15"],
+      "builder": "run-skill-create",
+      "build_kind": "skill",
+      "build_args": {
+        "skill_name": "run-social-post",
+        "kind": "run",
+        "brief_path": "briefs/skill-brief-C04.json"
+      },
+      "build_target": "plugins/affiliate-content-harness/skills/run-social-post/",
+      "status": "planned"
+    },
+    {
+      "id": "C05",
+      "component_kind": "sub-agent",
+      "name": "apply-style-genome",
+      "spec": "phase-05-implementation.md",
+      "depends_on": ["C02"],
+      "builder": "run-build-skill",
+      "build_kind": "agent",
+      "build_args": {
+        "kind": "agent",
+        "name": "apply-style-genome"
+      },
+      "build_target": "plugins/affiliate-content-harness/agents/apply-style-genome.md",
+      "status": "planned"
+    },
+    {
+      "id": "C06",
+      "component_kind": "sub-agent",
+      "name": "optimize-media-length",
+      "spec": "phase-05-implementation.md",
+      "depends_on": ["C13"],
+      "builder": "run-build-skill",
+      "build_kind": "agent",
+      "build_args": {
+        "kind": "agent",
+        "name": "optimize-media-length"
+      },
+      "build_target": "plugins/affiliate-content-harness/agents/optimize-media-length.md",
+      "status": "planned"
+    },
+    {
+      "id": "C07",
+      "component_kind": "sub-agent",
+      "name": "assign-blog-content-reviewer",
+      "spec": "phase-05-implementation.md",
+      "depends_on": ["C03"],
+      "builder": "run-build-skill",
+      "build_kind": "agent",
+      "build_args": {
+        "kind": "agent",
+        "name": "assign-blog-content-reviewer"
+      },
+      "build_target": "plugins/affiliate-content-harness/agents/assign-blog-content-reviewer.md",
+      "status": "planned"
+    },
+    {
+      "id": "C08",
+      "component_kind": "sub-agent",
+      "name": "assign-social-post-reviewer",
+      "spec": "phase-05-implementation.md",
+      "depends_on": ["C04"],
+      "builder": "run-build-skill",
+      "build_kind": "agent",
+      "build_args": {
+        "kind": "agent",
+        "name": "assign-social-post-reviewer"
+      },
+      "build_target": "plugins/affiliate-content-harness/agents/assign-social-post-reviewer.md",
+      "status": "planned"
+    },
+    {
+      "id": "C09",
+      "component_kind": "slash-command",
+      "name": "create-campaign",
+      "spec": "phase-05-implementation.md",
+      "depends_on": ["C01"],
+      "builder": "run-build-skill",
+      "build_kind": "command",
+      "build_args": {
+        "kind": "command",
+        "name": "create-campaign"
+      },
+      "build_target": "plugins/affiliate-content-harness/commands/create-campaign.md",
+      "status": "planned"
+    },
+    {
+      "id": "C10",
+      "component_kind": "slash-command",
+      "name": "publish-content-set",
+      "spec": "phase-05-implementation.md",
+      "depends_on": ["C03", "C04", "C14", "C15"],
+      "builder": "run-build-skill",
+      "build_kind": "command",
+      "build_args": {
+        "kind": "command",
+        "name": "publish-content-set"
+      },
+      "build_target": "plugins/affiliate-content-harness/commands/publish-content-set.md",
+      "status": "planned"
+    },
+    {
+      "id": "C11",
+      "component_kind": "hook",
+      "name": "guard-blocked-affiliate-link",
+      "spec": "phase-05-implementation.md",
+      "depends_on": [],
+      "builder": "run-build-skill",
+      "build_kind": "hook",
+      "build_args": {
+        "kind": "hook",
+        "name": "guard-blocked-affiliate-link"
+      },
+      "build_target": "plugins/affiliate-content-harness/hooks/guard-blocked-affiliate-link.mjs",
+      "status": "planned"
+    }
+  ],
+  "envelope": {
+    "manifest": {
+      "owner": "plugin-scaffold",
+      "status": "external_gap",
+      "build_target": "plugins/affiliate-content-harness/.claude-plugin/plugin.json",
+      "draft_path": "envelope-draft/plugin.json",
+      "gap_reason": "manifest scaffold executor は現時点で本 planner の外部。GAP-ENVELOPE-001 として tracking し、script route 用 GAP-SCRIPT-BUILDER とは分離する"
+    },
+    "marketplace": {
+      "owner": "plugin-scaffold",
+      "status": "manual-user-gated",
+      "build_target": ".claude-plugin/marketplace.json",
+      "approval_reason": "本プラグインは distributable:false のため配布登録は行わない想定だが、方針転換時はユーザー承認後に実行する"
+    }
+  },
+  "open_issues": [
+    {
+      "id": "GAP-ENVELOPE-001",
+      "severity": "medium",
+      "text": "plugin envelope executor is external to run-plugin-dev-plan"
+    },
+    {
+      "id": "GAP-SCRIPT-BUILDER",
+      "severity": "medium",
+      "text": "plugin-scaffold は run-build-skill の7 capability kind ではなく planner 上の contract-only builder 語彙。script route (C12-C16) は harness-creator の build-script-route.py が消費し、gap_ref は routing 語彙の明示参照として維持する"
+    },
+    {
+      "id": "GAP-NODE-SCRIPT-CONVENTION",
+      "severity": "low",
+      "text": "本プラグインの成果物 script (C12-C16) は Node.js標準モジュールのみで実装する意図的な逸脱(既存 validate-blog-content.mjs と同じ流儀を踏襲)。plugin-dev-planner 自身の Python 標準スクリプト規約は planner 自身の資産にのみ適用され、量産先の成果物には適用しない。P02 design note として記録済み"
+    },
+    {
+      "id": "GAP-TASK-GRAPH-SHAPE-001",
+      "severity": "low",
+      "text": "本 plan は index.md の shape_marker=fixed-13-phase (task-graph-contract.md の bootstrap→target 移行 gate (l) が定める非発火・後方互換経路) を採用しており、task-graph.json の全302 nodeは execution_kind ∈ {verification-claim, phase-gate} のみで component-build/direct-task は0件。これは既存6 bootstrap plan と同じ意図的な設計であり欠陥ではない。build dispatch は task_graph_ref ではなく routes[](16件)が単独で担う。render-task-execution-envelope.py --task-id はtarget shape(shape_marker=task-graph-derived・task-specs/*.md必須)専用の合成器であるため本 plan では exit1 が期待どおりの挙動(fail-closedのnon-applicable)。target shapeへの移行(task-specs/*.mdの新規著述)は本 plan のスコープ外として明示的に据え置く"
+    }
+  ]
+}

@@ -99,10 +99,79 @@ export function createSampleShortlistRepository(): EditorialShortlistPort {
 /**
  * 作り付けの道具（1 つだけ）。
  *
- * **計算はもう見本ではない。** 式は本物と同じ読み取り機
- * (`domain/authoring/reader-tool-formula.ts`) が解くので、
- * 保存先が無い環境でも読者は正しい数字を受け取る。
- * 保存先がある環境では、運営者が登録した道具がこれに置き換わる。
+ * 定義（入力欄と読み方）は本物の形にし、式が登録されたものから計算も本物になる。
+ *
+ * **ブログごとに違う道具を置く。** 道具は「そのブログの読者が最初につまずくこと」
+ * に対応して初めて意味を持つ。全ブログに同じ道具が出る状態では、
+ * 「道具を持つブログと持たないブログで案内がどう変わるか」を確かめられない。
+ * 道具を 1 つも持たないブログ（`first-camera`・`run-and-recover`）も残してある。
+ * 空のときの見え方は、道具を足したあとには確かめられない。
+ *
+ * **式を持つ道具の計算は見本ではない。** 式は本物と同じ読み取り機
+ * (`domain/authoring/reader-tool-formula.ts`) が解くので、保存先が無い環境でも
+ * 読者は正しい数字を受け取る。式が無い道具は、数字をでっち上げずに未登録と答える。
+ */
+const TOOLS_BY_SITE: Readonly<Record<string, readonly ReaderToolDefinition[]>> = {
+  "home-office-desk": [
+    {
+      slug: "desk-fit",
+      name: "机と椅子の高さの目安",
+      purpose: "身長と机の高さから、椅子の座面をどこに合わせればよいかを出す。",
+      inputs: [
+        { key: "height", label: "身長", unit: "cm", hint: "半角数字で入力してください。" },
+        { key: "desk_height", label: "いま使っている机の高さ", unit: "cm" },
+        { key: "shoe", label: "室内で靴を履くか", hint: "「はい」か「いいえ」で入力してください。" },
+      ],
+      howToRead:
+        "出てくるのは出発点の数字です。座って肘が 90 度になるかを必ず確かめ、合わなければ 1cm ずつ動かしてください。",
+    },
+    {
+      slug: "monitor-distance",
+      name: "画面までの距離の目安",
+      purpose: "画面の大きさと解像度から、目が疲れにくい距離を出す。",
+      inputs: [
+        { key: "inch", label: "画面の大きさ", unit: "インチ" },
+        { key: "resolution", label: "横方向の画素数", unit: "px", hint: "例: 2560" },
+      ],
+      howToRead: "距離を取れない場合は、文字の大きさを上げるほうが先です。",
+    },
+  ],
+  "compact-kitchen-gear": [
+    {
+      slug: "counter-space",
+      name: "調理台に置けるかの確認",
+      purpose: "調理台の寸法と、置きたい機器の寸法から、作業できる場所が残るかを出す。",
+      inputs: [
+        { key: "counter_width", label: "調理台の幅", unit: "cm" },
+        { key: "counter_depth", label: "調理台の奥行き", unit: "cm" },
+        { key: "device_width", label: "置きたい機器の幅", unit: "cm" },
+        { key: "device_depth", label: "置きたい機器の奥行き", unit: "cm" },
+      ],
+      howToRead:
+        "本体の寸法だけでは足りません。蒸気の逃げ道として、上方向に 10cm 以上あるかも確かめてください。",
+    },
+  ],
+  "mobile-plan-navi": [
+    {
+      slug: "data-plan-fit",
+      name: "必要なデータ量の目安",
+      purpose: "動画や地図の使い方から、月に必要なデータ量を出す。",
+      inputs: [
+        { key: "video_minutes", label: "1 日に外で見る動画の時間", unit: "分" },
+        { key: "map_days", label: "1 か月に地図を使う日数", unit: "日" },
+        { key: "wifi", label: "自宅に固定回線があるか", hint: "「はい」か「いいえ」で入力してください。" },
+      ],
+      howToRead:
+        "出てくるのは平均の月の目安です。旅行のある月は 1.5 倍で見てください。上限を超えた月の速度制限は、プランごとに違います。",
+    },
+  ],
+};
+
+/**
+ * 作り付けの道具の定義。
+ *
+ * これはブログ別の一覧とは別枠で、**保存先がある環境からも重ねて使う**。
+ * どのブログにも属さないので `TOOLS_BY_SITE` には載せない。
  */
 const STORAGE_ESTIMATOR: ReaderToolDefinition = {
   slug: "storage-estimator",
@@ -165,16 +234,29 @@ export const BUILT_IN_READER_TOOLS: readonly {
   readonly formula: ReaderToolFormula;
 }[] = [{ definition: STORAGE_ESTIMATOR, formula: STORAGE_ESTIMATOR_FORMULA }];
 
+/**
+ * そのブログで読者に出す道具。
+ *
+ * ブログ別に置いたものへ、作り付けの道具を重ねる。重ねる順は作り付けが後で、
+ * 同じ `slug` があればブログ側の定義が勝つ（D1 側と同じ重ね方にしてある）。
+ */
+function toolsFor(siteSlug: string): readonly ReaderToolDefinition[] {
+  const own = TOOLS_BY_SITE[siteSlug] ?? [];
+  const ownSlugs = new Set(own.map((t) => t.slug));
+  return [...own, ...BUILT_IN_READER_TOOLS.map((t) => t.definition).filter((d) => !ownSlugs.has(d.slug))];
+}
+
 export function createSampleReaderToolRepository(): EditorialReaderToolPort {
   return markEditorial({
-    async find(_siteSlug: string, slug: string) {
-      return ok(slug === STORAGE_ESTIMATOR.slug ? STORAGE_ESTIMATOR : null);
+    async find(siteSlug: string, slug: string) {
+      return ok(toolsFor(siteSlug).find((t) => t.slug === slug) ?? null);
     },
-    async list(_siteSlug: string) {
-      return ok([STORAGE_ESTIMATOR]);
+    async list(siteSlug: string) {
+      return ok(toolsFor(siteSlug));
     },
-    async run(_siteSlug: string, slug: string, values: Readonly<Record<string, string>>) {
-      if (slug !== STORAGE_ESTIMATOR.slug) {
+    async run(siteSlug: string, slug: string, values: Readonly<Record<string, string>>) {
+      const definition = toolsFor(siteSlug).find((t) => t.slug === slug);
+      if (definition === undefined) {
         // 知らない道具の数字をでっち上げると、読者はそれを信じて機材を買う。
         // 出せないものは出せないと返す。
         return err(
@@ -184,7 +266,18 @@ export function createSampleReaderToolRepository(): EditorialReaderToolPort {
           }),
         );
       }
-      return runReaderToolFormula(STORAGE_ESTIMATOR_FORMULA, STORAGE_ESTIMATOR.inputs, values);
+      const builtIn = BUILT_IN_READER_TOOLS.find((t) => t.definition.slug === slug);
+      if (builtIn === undefined) {
+        // 道具はあるが式がまだ無い。入力欄と読み方までは見せて、数字は出さない。
+        return err(
+          domainError("NOT_IMPLEMENTED", `「${slug}」の計算はまだ登録されていません。`, {
+            suggestedAction:
+              "計算式の登録が済むと結果が出ます。それまでは入力欄と結果の読み方だけをご覧ください。",
+            retryable: false,
+          }),
+        );
+      }
+      return runReaderToolFormula(builtIn.formula, definition.inputs, values);
     },
   });
 }

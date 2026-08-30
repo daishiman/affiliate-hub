@@ -1146,7 +1146,7 @@ describe("自分のブログへ記事を出す操作", () => {
       // 状態の判定で先に断られ、その先（保存できるか）を一度も通らない。
       publicationId: "pub_own_site_ready",
       siteSlug: SAMPLE_SITE_SLUG,
-      categorySlug: "laptops",
+      categorySlug: "chairs",
       articleType: "guide",
       slug: "quiet-laptop",
       title: "静かなノートパソコンの選び方",

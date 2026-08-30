@@ -1,0 +1,46 @@
+{
+  "name": "affiliate-content-harness",
+  "distributable": false,
+  "version": "0.1.0",
+  "description": "1 つのアフィリエイト案件（campaign-brief.json）を正本にして、ブログ記事と各媒体の投稿文（X 長文 / X 短文 / Instagram / note / Facebook）を、同じコンセプト・同じペルソナ・同じ根拠から生成し、媒体をまたいでも主張が食い違わない状態で公開するための harness。案件を作る run-campaign-brief、ブログを作る run-blog-create、記事 1 本を書く run-blog-article、媒体別の投稿文を書く run-social-post の 4 skill と、文体・長さ・検品を担う 4 agent、案件を起こす /create-campaign と一式を出す /publish-content-set の 2 command、提携の無い商品へ導線が混入するのを止める hook 1 本、決定論の検品 script 5 本と公開前の content-set 入口 1 本で構成する。使ってよい値・記事の型・導線の契約は src/ から実行時に読むため、コード側が変わると検品も追随する。旧 blog-authoring を統合したもの。",
+  "author": {
+    "name": "affiliate-hub maintainers"
+  },
+  "owner": "affiliate-hub",
+  "since": "2026-08-28",
+  "source": ".claude/plugins/affiliate-content-harness/",
+  "supersedes": [
+    "blog-authoring"
+  ],
+  "entry_points": {
+    "skills": [
+      "run-campaign-brief",
+      "run-blog-create",
+      "run-blog-article",
+      "run-social-post"
+    ],
+    "agents": [
+      "apply-style-genome",
+      "optimize-media-length",
+      "assign-blog-content-reviewer",
+      "assign-social-post-reviewer"
+    ],
+    "commands": [
+      "create-campaign",
+      "publish-content-set"
+    ],
+    "hooks": [
+      "guard-blocked-affiliate-link"
+    ],
+    "scripts": [
+      "validate-content-set",
+      "validate-campaign-brief",
+      "validate-blog-content",
+      "validate-media-post",
+      "validate-cross-media-consistency",
+      "validate-affiliate-disclosure"
+    ]
+  },
+  "depends_on": [],
+  "runbook": "RUNBOOK.md"
+}

@@ -25,7 +25,7 @@ import {
   sampleContentVariantVersion,
   sampleContentVariants,
 } from "./content-editorial-sample-repository";
-import { SAMPLE_WORKSPACE_ID } from "./ranking-sample-repository";
+import { SAMPLE_WORKSPACE_ID } from "./sample-identity";
 
 /**
  * ★ これは仮置きの見本データです（スタブ）。★

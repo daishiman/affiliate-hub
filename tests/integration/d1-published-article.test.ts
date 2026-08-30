@@ -5,6 +5,7 @@ import { drizzle } from "drizzle-orm/d1";
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import { getPlatformProxy } from "wrangler";
 import type {
+  EditorialPublishedArticleAdminPort,
   EditorialPublishedArticleWriterPort,
   EditorialPublishedContentPort,
   EditorialSiteDocumentRepositoryPort,
@@ -14,6 +15,7 @@ import * as schema from "@/db/schema";
 import type { WorkspaceId } from "@/domain/shared";
 import {
   createD1PublishedArticleWriter,
+  createD1PublishedArticleAdminRepository,
   createD1ContentRepository,
 } from "@/infrastructure/persistence/d1/published-article-repository";
 import { createD1SiteDocumentRepository } from "@/infrastructure/persistence/d1/site-document-repository";
@@ -49,6 +51,7 @@ type Proxy = Awaited<ReturnType<typeof getPlatformProxy<TestEnv>>>;
 let proxy: Proxy;
 let writer: EditorialPublishedArticleWriterPort;
 let content: EditorialPublishedContentPort;
+let admin: EditorialPublishedArticleAdminPort;
 let documents: EditorialSiteDocumentRepositoryPort;
 
 const workspaceId = SAMPLE_WORKSPACE_ID as WorkspaceId;
@@ -80,6 +83,7 @@ beforeAll(async () => {
   const db = drizzle(proxy.env.DB, { schema });
   writer = createD1PublishedArticleWriter(db);
   content = createD1ContentRepository(db);
+  admin = createD1PublishedArticleAdminRepository(db);
   documents = createD1SiteDocumentRepository({
     db,
     now: () => new Date("2026-08-26T00:00:00Z"),
@@ -112,7 +116,7 @@ function anArticle(over: Partial<PublishedArticle> = {}): PublishedArticle {
     type: "guide",
     title: "静かなノートパソコンの選び方",
     summary: "ファンの音が気になるなら、まず放熱の設計を見てください。",
-    categorySlug: "laptops",
+    categorySlug: "chairs",
     publishedAt: "2026-08-17",
     updatedAt: "2026-08-17",
     author: {
@@ -392,15 +396,15 @@ describe("出した記事を読み直す", () => {
 
   it("見本の記事は消えない", async () => {
     await writer.save(workspaceId, anArticle());
-    const sample = await content.findArticle(SAMPLE_SITE_SLUG, "laptops-for-video-editing");
+    const sample = await content.findArticle(SAMPLE_SITE_SLUG, "chairs-for-long-hours");
     expect(sample.ok).toBe(true);
     if (!sample.ok) throw new Error("読み取りに失敗しました");
     expect(sample.value?.stub).toBeDefined();
   });
 
   it("見本と同じ URL 名で出したら、出したほうが勝つ", async () => {
-    await writer.save(workspaceId, anArticle({ slug: "laptops-for-video-editing" }));
-    const found = await content.findArticle(SAMPLE_SITE_SLUG, "laptops-for-video-editing");
+    await writer.save(workspaceId, anArticle({ slug: "chairs-for-long-hours" }));
+    const found = await content.findArticle(SAMPLE_SITE_SLUG, "chairs-for-long-hours");
     expect(found.ok).toBe(true);
     if (!found.ok) throw new Error("読み取りに失敗しました");
     expect(found.value?.title).toBe("静かなノートパソコンの選び方");
@@ -454,7 +458,7 @@ describe("一覧と検索に出る", () => {
 
   it("カテゴリーの一覧に出る", async () => {
     await writer.save(workspaceId, anArticle());
-    const listed = await content.listByCategory(SAMPLE_SITE_SLUG, "laptops");
+    const listed = await content.listByCategory(SAMPLE_SITE_SLUG, "chairs");
     if (!listed.ok) throw new Error("一覧を読めませんでした");
     expect(listed.value.map((a) => a.slug)).toContain("quiet-laptop");
   });
@@ -503,7 +507,7 @@ describe("書き手のページ", () => {
 
   it("見本の書き手も引ける（重ねても消さない）", async () => {
     await writer.save(workspaceId, anArticle());
-    const person = await content.findPerson(SAMPLE_SITE_SLUG, "author", "miwa");
+    const person = await content.findPerson(SAMPLE_SITE_SLUG, "author", "mochizuki");
     if (!person.ok) throw new Error("人物を読めませんでした");
     expect(person.value).not.toBeNull();
   });
@@ -556,5 +560,105 @@ describe("固定文書は保存したものだけが出る", () => {
     const others = await documents.listBySite("ws_other" as WorkspaceId, SAMPLE_SITE_SLUG);
     if (!others.ok) throw new Error("読み取りに失敗しました");
     expect(others.value).toEqual([]);
+  });
+});
+
+describe("公開済み記事の非表示化", () => {
+  it("読者の一覧・本文・検索からは消え、管理一覧には残る", async () => {
+    await writer.save(workspaceId, anArticle({ updatedAt: "2099-01-01" }));
+    const archived = await admin.archive(
+      workspaceId,
+      SAMPLE_SITE_SLUG,
+      "quiet-laptop",
+      "2026-08-28T09:00:00.000Z",
+    );
+    expect(archived.ok && archived.value).toBe(true);
+
+    const [recent, found, searched, managed] = await Promise.all([
+      content.listRecent(SAMPLE_SITE_SLUG, 20),
+      content.findArticle(SAMPLE_SITE_SLUG, "quiet-laptop"),
+      content.search(SAMPLE_SITE_SLUG, "静かな", 10),
+      admin.list(workspaceId),
+    ]);
+    if (!recent.ok || !found.ok || !searched.ok || !managed.ok) {
+      throw new Error("非表示後の読み込みに失敗しました");
+    }
+    expect(recent.value.map((item) => item.slug)).not.toContain("quiet-laptop");
+    expect(found.value).toBeNull();
+    expect(searched.value.map((item) => item.slug)).not.toContain("quiet-laptop");
+    expect(managed.value.find((item) => item.article.slug === "quiet-laptop")?.archivedAt).toBe(
+      "2026-08-28T09:00:00.000Z",
+    );
+  });
+
+  it("見本と同じ URL の保存記事を非表示にしても見本へ逆戻りしない", async () => {
+    await writer.save(workspaceId, anArticle({ slug: "chairs-for-long-hours" }));
+    await admin.archive(
+      workspaceId,
+      SAMPLE_SITE_SLUG,
+      "chairs-for-long-hours",
+      "2026-08-28T09:00:00.000Z",
+    );
+    const found = await content.findArticle(SAMPLE_SITE_SLUG, "chairs-for-long-hours");
+    if (!found.ok) throw new Error("記事を読み込めませんでした");
+    expect(found.value).toBeNull();
+  });
+});
+
+describe("公開済み記事の管理ポート", () => {
+  it("workspace とブログと URL 名が一致する記事だけを引く", async () => {
+    await writer.save(workspaceId, anArticle());
+
+    const [found, otherSite, otherWorkspace] = await Promise.all([
+      admin.find(workspaceId, SAMPLE_SITE_SLUG, "quiet-laptop"),
+      admin.find(workspaceId, SECOND_SITE_SLUG, "quiet-laptop"),
+      admin.find("workspace_other" as WorkspaceId, SAMPLE_SITE_SLUG, "quiet-laptop"),
+    ]);
+
+    if (!found.ok || !otherSite.ok || !otherWorkspace.ok) {
+      throw new Error("管理用の記事を読み込めませんでした");
+    }
+    expect(found.value?.article.title).toBe("静かなノートパソコンの選び方");
+    expect(found.value?.archivedAt).toBeNull();
+    expect(otherSite.value).toBeNull();
+    expect(otherWorkspace.value).toBeNull();
+  });
+
+  it("訂正した本文と一覧用の列を同時に差し替え、別 workspace は変えない", async () => {
+    await writer.save(workspaceId, anArticle());
+    const changed = anArticle({
+      title: "静音ノートを実測から選ぶ",
+      summary: "騒音値と排気方向を同時に見ます。",
+      categorySlug: "workstations",
+      updatedAt: "2026-08-28",
+      author: {
+        ...anArticle().author,
+        name: "中田 涼（編集部）",
+      },
+    });
+
+    const refused = await admin.replace("workspace_other" as WorkspaceId, changed);
+    const replaced = await admin.replace(workspaceId, changed);
+    const [managed, searched] = await Promise.all([
+      admin.find(workspaceId, SAMPLE_SITE_SLUG, "quiet-laptop"),
+      content.search(SAMPLE_SITE_SLUG, "騒音値", 10),
+    ]);
+
+    expect(refused.ok && refused.value).toBe(false);
+    expect(replaced.ok && replaced.value).toBe(true);
+    if (!managed.ok || !searched.ok) throw new Error("訂正した記事を読み込めませんでした");
+    expect(managed.value?.article).toEqual(changed);
+    expect(searched.value.map((article) => article.slug)).toContain("quiet-laptop");
+  });
+
+  it("存在しない記事は非表示にしたことにしない", async () => {
+    const archived = await admin.archive(
+      workspaceId,
+      SAMPLE_SITE_SLUG,
+      "nothing-here",
+      "2026-08-28T09:00:00.000Z",
+    );
+
+    expect(archived.ok && archived.value).toBe(false);
   });
 });

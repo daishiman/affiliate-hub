@@ -1595,6 +1595,14 @@ export const CHECKS = [
     why: "スキーマだけ変えて公開すると、存在しない列を読んで本番が落ちる。1 秒で終わるので手元でも走らせる",
   },
   {
+    id: "affiliate-content-set",
+    label: "公開前コンテンツ一式の検品",
+    command: ["pnpm", "run", "content:validate"],
+    blocking: true,
+    tier: 1,
+    why: "記事・投稿を個別に通しても媒体間の食い違いと成果物の渡し忘れは残る。実在する2案件を単一入口で5検品へ通し、媒体の不足と過剰も公開前に止める",
+  },
+  {
     id: "acceptance-reconciliation",
     label: "受入IDの証跡突合",
     command: ["pnpm", "run", "acceptance:reconcile"],
@@ -1965,14 +1973,17 @@ export const PORT_WIRING_MAX_AUDIT_BEST_EFFORT = 2;
  * 手で数えた表を置かないのは、**手で書いた数字は古くなっても古く見えない**ため。
  *
  * --- 0 にしない理由 ---
- * 2 語は**機能そのものがまだ無い**。1 語ずつの理由は下の
+ * 残り 1 語は**機能そのものがまだ無い**。1 語ずつの理由は下の
  * `AUDIT_ACTIONS_WITHOUT_EMITTER_REASONS` に書く。
+ *
+ * 2026-08-30: `content.corrected` を外して 2 → 1。公開済み記事を訂正する画面が
+ * 合流し、出す場所ができた。**機能が入ったら、待っていた語は表から消す。**
  * 出す場所を先に作っても、呼ばれないコードが増えるだけである。
  *
  * **上げて緑にすることは禁止。下げる方向にしか動かさない。**
  * 語を消して下げるのも正しい（要件がその記録を求めていないなら、語を残さない）。
  */
-export const AUDIT_ACTIONS_MAX_WITHOUT_EMITTER = 2;
+export const AUDIT_ACTIONS_MAX_WITHOUT_EMITTER = 1;
 
 /**
  * 出す場所を持たない語の、**1 語ずつの理由**。
@@ -1997,9 +2008,6 @@ export const AUDIT_ACTIONS_MAX_WITHOUT_EMITTER = 2;
  * 次に読む人が何を待てばよいのか分からない。
  */
 export const AUDIT_ACTIONS_WITHOUT_EMITTER_REASONS = Object.freeze({
-  "content.corrected":
-    "公開後の記事を訂正する操作が無い。記事を直す道は下書き（variants）だけで、" +
-    "読者へ出したものを直す口が存在しない。訂正の機能が入った時点で出す。",
   "connector.disconnected":
     "外部媒体へつなぐ操作は付いたが、既存の接続を切る操作はまだ無い。" +
     "切断usecaseと監査記録を同じ変更で追加する。",

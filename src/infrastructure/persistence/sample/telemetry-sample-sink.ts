@@ -57,7 +57,7 @@ const SAMPLE_AI_USAGE: readonly TelemetryEvent<"ai_model_usage">[] = [
     payload: {
       workspaceId: "ws_sample",
       brandId: "brand_sample",
-      siteSlug: "video-editing-gear",
+      siteSlug: "home-office-desk",
       actorId: "author_ai",
       modelId: "claude-sonnet-5",
       provider: "anthropic",
@@ -80,7 +80,7 @@ const SAMPLE_AI_USAGE: readonly TelemetryEvent<"ai_model_usage">[] = [
     payload: {
       workspaceId: "ws_sample",
       brandId: "brand_sample",
-      siteSlug: "video-editing-gear",
+      siteSlug: "home-office-desk",
       actorId: "author_ai",
       modelId: "claude-opus-5",
       provider: "anthropic",
@@ -104,7 +104,7 @@ const SAMPLE_AI_USAGE: readonly TelemetryEvent<"ai_model_usage">[] = [
     payload: {
       workspaceId: "ws_sample",
       brandId: "brand_sample",
-      siteSlug: "gear-for-small-kitchen",
+      siteSlug: "compact-kitchen-gear",
       actorId: "author_ai",
       modelId: "claude-haiku-4-5",
       provider: "anthropic",
@@ -129,7 +129,7 @@ const SAMPLE_AI_USAGE: readonly TelemetryEvent<"ai_model_usage">[] = [
     payload: {
       workspaceId: "ws_sample",
       brandId: "brand_sample",
-      siteSlug: "gear-for-small-kitchen",
+      siteSlug: "compact-kitchen-gear",
       actorId: "author_human",
       modelId: "some-experimental-model",
       provider: "other",

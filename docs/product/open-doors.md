@@ -11,7 +11,7 @@
 
 適用範囲: `/admin` 以下（読者のページとログインの往復は通す）
 
-開いている扉: **0 件** / 全 190 件
+開いている扉: **0 件** / 全 194 件
 
 「誰でも」と宣言してある行: **40 件**
 （宣言すればその扉は差の数から消える。だから宣言の件数そのものにも上限がある）
@@ -141,6 +141,8 @@
 | `src/app/admin/content/packages/new/page.tsx` | 管理画面 | ログイン | ログイン | — |
 | `src/app/admin/content/packages/page.tsx` | 管理画面 | ログイン | ログイン | — |
 | `src/app/admin/content/page.tsx` | 管理画面 | ログイン | ログイン | — |
+| `src/app/admin/content/published/[site]/[slug]/edit/page.tsx` | 管理画面 | ログイン | ログイン | — |
+| `src/app/admin/content/published/page.tsx` | 管理画面 | ログイン | ログイン | — |
 | `src/app/admin/distribution/[publication]/edit/page.tsx` | 管理画面 | ログイン | ログイン | — |
 | `src/app/admin/distribution/[publication]/page.tsx` | 管理画面 | ログイン | ログイン | — |
 | `src/app/admin/distribution/calendar/page.tsx` | 管理画面 | ログイン | ログイン | — |
@@ -287,6 +289,7 @@
 | `advanceLinkIngestionAction()` | 成果リンクの取り込みを進める（src/presentation/admin/inbox-action.ts） | ログイン | ログイン | — | つく |
 | `approveContentAction()` | 記事を承認する（src/presentation/admin/content-progress-action.ts） | ログイン | ログイン | — | つく |
 | `approveVariantSpecAction()` | 見せ方の試作を承認する（比較に出せる状態にする）（src/presentation/admin/improvement-action.ts） | ログイン | ログイン | — | つく |
+| `archivePublishedArticleAction()` | 公開済み記事を非表示にする（データは残す）（src/presentation/admin/published-article-action.ts） | ログイン | ログイン | — | つく |
 | `changeFeedbackStatusAction()` | 指摘の状態を変える（src/presentation/admin/feedback-action.ts） | ログイン | ログイン | — | つく |
 | `checkFactBoundaryAction()` | 書ける範囲の判定を試す（src/presentation/admin/fact-boundary-action.ts） | ログイン | ログイン | — | つく |
 | `createAudiencePersonaAction()` | 読者像（誰に向けて書くか・何を比べたいか）を登録する（src/presentation/admin/persona-form-action.ts） | ログイン | ログイン | — | つく |
@@ -327,5 +330,6 @@
 | `updateContentVariantAction()` | 記事の題名・本文・要約を直す（src/presentation/admin/content-form-action.ts） | ログイン | ログイン | — | つく |
 | `updateManagedSiteAction()` | ブログの設定を直す（src/presentation/admin/site-form-action.ts） | ログイン | ログイン | — | つく |
 | `updateProductAction()` | 商品の内容を直す（src/presentation/admin/product-form-action.ts） | ログイン | ログイン | — | つく |
+| `updatePublishedArticleAction()` | 公開済み記事を訂正する（src/presentation/admin/published-article-action.ts） | ログイン | ログイン | — | つく |
 | `updateWorkspaceAction()` | 作業場所の名前・契約の区分・時間帯・通貨を直す（src/presentation/admin/settings-form-action.ts） | ログイン | ログイン | — | つく |
-<!-- 生成物の指紋 sha256:9e96545a8c39a1dbfe9a8155c0090c3ce7dfadc076df7665bff6930181fe3212 -->
+<!-- 生成物の指紋 sha256:b6f2a4402c31a7efc47abebb52c3bc4387b64585511670617678273adb46e58d -->

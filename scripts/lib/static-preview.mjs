@@ -71,6 +71,37 @@ export function findModuleCss(root) {
 }
 
 /**
+ * 本物の CSS を読む唯一の場所。**根ごとに 1 回だけ読む。**
+ *
+ * 冊子は 1 回の実行で数十枚を焼く。写しごとに postcss を回すと、
+ * 同じ入口 CSS を数十回変換することになり、焼くのに数分かかる。
+ * 同じ実行の中で入口 CSS が変わることは無いので、結果を持ち回してよい。
+ *
+ * @type {Map<string, { tailwindCss: string, moduleCss: readonly { path: string, text: string }[] }>}
+ */
+const STYLE_CACHE = new Map();
+
+/**
+ * @param {string} root
+ * @returns {Promise<{ tailwindCss: string, moduleCss: readonly { path: string, text: string }[] }>}
+ */
+async function loadStyles(root) {
+  const cached = STYLE_CACHE.get(root);
+  if (cached !== undefined) return cached;
+  const from = join(root, ENTRY_CSS);
+  const result = await postcss([tailwind()]).process(readFileSync(from, "utf8"), { from });
+  const styles = {
+    tailwindCss: result.css,
+    moduleCss: findModuleCss(root).map((path) => ({
+      path,
+      text: readFileSync(join(root, path), "utf8"),
+    })),
+  };
+  STYLE_CACHE.set(root, styles);
+  return styles;
+}
+
+/**
  * 本物の CSS と描画済みの中身を 1 枚に焼き、アプリが配らない `docs/` へ書き出す。
  *
  * CSS の入口・変換手段・部品 CSS の探索・書き出し先の境界を writer ごとに
@@ -83,7 +114,9 @@ export function findModuleCss(root) {
  * @param {string} input.generatedAt
  * @param {string} [input.title]
  * @param {string} [input.source]
+ * @param {string} [input.navHtml] 冊子の中を移る案内。冊子の写しだけが渡す。
  * @param {string} [input.writtenLabel] 完了表示へ添える件数など
+ * @param {boolean} [input.quiet] 1 枚ずつの完了表示を出さない（冊子はまとめて数える）
  * @returns {Promise<string>} 書き出した HTML
  */
 export async function writeStaticPreview({
@@ -93,7 +126,9 @@ export async function writeStaticPreview({
   generatedAt,
   title,
   source,
+  navHtml,
   writtenLabel,
+  quiet = false,
 }) {
   if (!out.startsWith("docs/")) {
     throw new Error(`静止した写しは docs/ 配下にだけ書き出せます: ${out}`);
@@ -107,25 +142,24 @@ export async function writeStaticPreview({
     throw new Error(`静止した写しの出力先が docs/ の外を指しています: ${out}`);
   }
 
-  const from = join(root, ENTRY_CSS);
-  const result = await postcss([tailwind()]).process(readFileSync(from, "utf8"), { from });
+  const styles = await loadStyles(root);
   const html = buildDocument({
-    tailwindCss: result.css,
-    moduleCss: findModuleCss(root).map((path) => ({
-      path,
-      text: readFileSync(join(root, path), "utf8"),
-    })),
+    tailwindCss: styles.tailwindCss,
+    moduleCss: styles.moduleCss,
     bodyHtml,
     htmlAttributes,
     generatedAt,
     title,
     source,
+    navHtml,
   });
 
   mkdirSync(dirname(outputPath), { recursive: true });
   writeFileSync(outputPath, html);
-  const suffix = writtenLabel === undefined ? "" : `（${writtenLabel}）`;
-  console.log(`書き出しました: ${out}${suffix}`);
+  if (!quiet) {
+    const suffix = writtenLabel === undefined ? "" : `（${writtenLabel}）`;
+    console.log(`書き出しました: ${out}${suffix}`);
+  }
   return html;
 }
 
@@ -137,13 +171,18 @@ export async function writeStaticPreview({
  * どちらかが空なら投げる。空のまま焼くと、見た目の無い写しが
  * 「これが実物です」という顔で残る。
  *
+ * `title` と `navHtml` は写しが 1 枚から**冊子**になったときだけ要る。
+ * `navHtml` は `inert` の**外**に置く。中に入れると、写しを渡した相手は
+ * 隣のページへ移れず、冊子であることに気づかないまま 1 枚だけ見て帰る。
+ *
  * @param {object} input
  * @param {string} input.tailwindCss
  * @param {readonly { readonly path: string, readonly text: string }[]} input.moduleCss
  * @param {string} input.bodyHtml
  * @param {Record<string, string>} input.htmlAttributes
  * @param {string} input.generatedAt
- * @param {string} [input.title] 開いた人がタブで見る題。写しが 2 枚以上になったので足した。
+ * @param {string} [input.title] ページの題。省かれたら 1 枚ものの既定。
+ * @param {string} [input.navHtml] 冊子の中を移る案内。`inert` の外に出す。
  * @param {string} [input.source] 書き出した本。「手で直さない」の宛先が写しごとに違う。
  * @returns {string}
  */
@@ -153,7 +192,8 @@ export function buildDocument({
   bodyHtml,
   htmlAttributes,
   generatedAt,
-  title = "静止した写し — 案内の分類と、詰まり具合の見比べ",
+  title,
+  navHtml,
   source = "scripts/write-static-preview.tsx",
 }) {
   if (tailwindCss.trim() === "") {
@@ -181,7 +221,7 @@ export function buildDocument({
     "<head>",
     '<meta charset="utf-8">',
     '<meta name="viewport" content="width=device-width, initial-scale=1">',
-    `<title>${escapeText(title)}</title>`,
+    `<title>${escapeText(title ?? DEFAULT_TITLE)}</title>`,
     `<!-- 生成物。${generatedAt} に ${source} が書き出した。手で直さない（次の書き出しで消える）。 -->`,
     "<style>",
     "/* ここから下は src/app/globals.css を本物の道具に通した結果。写しではない。 */",
@@ -204,6 +244,8 @@ export function buildDocument({
     ...KNOWN_DIFFERENCES.map((line) => `<li>${escapeText(line)}</li>`),
     "</ul>",
     "</div>",
+    // 冊子の案内だけは `inert` の外。中身は押せないが、隣のページへは移れる。
+    ...(navHtml === undefined ? [] : ['<nav class="static-nav">', navHtml, "</nav>"]),
     `<div ${INERT_ATTRIBUTE}>`,
     bodyHtml,
     "</div>",
@@ -213,13 +255,17 @@ export function buildDocument({
   ].join("\n");
 }
 
+/** 1 枚ものだったころの題。冊子の各ページは自分の題を渡す。 */
+const DEFAULT_TITLE = "静止した写し — 案内の分類と、詰まり具合の見比べ";
+
 /**
- * 断り書きの見た目。
+ * 断り書きと冊子案内の見た目。
  *
  * ここだけはトークンを使わず素の値で書いている。**断り書きは、
  * 見た目の仕組みが壊れていても読めなければならない**ためで、
  * トークンが読めていないときに一緒に消えると、
  * 「押しても動かない」という肝心の断りが見えないまま残る。
+ * 冊子案内も同じ理由でここに置く。トークンごと消えると隣へ移れなくなる。
  */
 const STATIC_NOTE_STYLE = `
 .static-note {
@@ -233,6 +279,18 @@ const STATIC_NOTE_STYLE = `
   line-height: 1.7;
 }
 .static-note ul { margin: 6px 0 0; padding-left: 1.2em; }
+.static-nav {
+  margin: 0;
+  padding: 10px 16px;
+  background: #eef2f7;
+  color: #1f2937;
+  border-bottom: 1px solid #c7d2de;
+  font-family: system-ui, sans-serif;
+  font-size: 13px;
+  line-height: 2;
+}
+.static-nav a { color: #1d4ed8; margin-right: 14px; }
+.static-nav strong { margin-right: 10px; }
 `;
 
 /**

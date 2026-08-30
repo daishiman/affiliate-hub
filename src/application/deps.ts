@@ -61,6 +61,7 @@ import type {
 } from "./ports/reader-interaction";
 import type {
   EditorialArticleOfferPort,
+  EditorialPublishedArticleAdminPort,
   EditorialPublishedArticleWriterPort,
   EditorialPublishedContentPort,
   EditorialSiteDocumentRepositoryPort,
@@ -94,6 +95,8 @@ export type AppDeps = {
   readonly siteDocuments: EditorialSiteDocumentRepositoryPort;
   /** 記事を読者ページへ出す口。読み口と分けている理由は ports/site.ts に書いた。 */
   readonly publishedArticles: EditorialPublishedArticleWriterPort;
+  /** 公開後の訂正と非表示化。読者用の口に混ぜない。 */
+  readonly publishedArticleAdmin: EditorialPublishedArticleAdminPort;
   /**
    * 記事の版が指している成果リンクを、読者に見せる写しへ引き当てる口。
    *
