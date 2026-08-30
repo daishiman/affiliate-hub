@@ -1,5 +1,5 @@
 {
-  "graph_revision": 306,
+  "graph_revision": 307,
   "nodes": [
     {
       "acceptance": [],
@@ -18144,6 +18144,144 @@
       "title": "development段階展開・rollback確認・仕様書への書き戻し",
       "tracker_binding": "beads",
       "updated_at": "2026-08-29T14:56:20Z"
+    },
+    {
+      "acceptance": [
+        "改善ボタンから撮られた写しに、送信モーダルと右下固定の起動ボタンが 1 画素も含まれない",
+        "「撮り直す」で取り直した写しにも同じ除外規則が効く",
+        "写しの取得が拒否・非対応・失敗のとき、送信 UI は待たずに開き、待ちが無限に伸びない",
+        "押した勢い (transient activation) を失わず、許可の窓が出る",
+        "写しの確定後、撮影中に隠した要素が元の状態へ戻り、隠れたまま残らない",
+        "data-floating-overlay=\"true\" が写し除外と重なり監査 (tests/e2e/app-routes.spec.ts) の同一の手掛かりとして使われている",
+        "属性の付与漏れがある浮遊要素を検査が失敗として拾う"
+      ],
+      "architecture_refs": [
+        "arch-two-layer-platform"
+      ],
+      "artifact_kind": "feature",
+      "artifact_subtypes": [],
+      "beads_linkage": {
+        "bd_issue_id": "ah-0d2q",
+        "github_mirror": null,
+        "linked_at": "2026-08-30T04:17:10Z",
+        "sync_state": "linked"
+      },
+      "classification_candidates": [
+        {
+          "artifact_kind": "feature",
+          "candidate_path": "features/feat-feedback-capture-self-exclusion.md",
+          "confidence": 0.95
+        }
+      ],
+      "classification_confidence": 0.95,
+      "classification_reason": "system-spec frontend×web 確定質疑 qa-frontend-web-capture-self-occlusion を作業単位として登録",
+      "completion_evidence": {
+        "completed_at": null,
+        "evidence_refs": [],
+        "policy": "manual",
+        "reconciled_at": null,
+        "source": null,
+        "status": "open"
+      },
+      "confirmation_evidence": {
+        "evaluated_digest": "892cd5611c443a5f90b97047a9542489c44be963ff4d775c30b640e7aca40b7d",
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-feedback-capture-self-exclusion/892cd5611c443a5f90b97047a9542489c44be963ff4d775c30b640e7aca40b7d/plan-findings.json"
+      },
+      "confirmation_status": "confirmed",
+      "created_at": "2026-08-30T03:37:16Z",
+      "depends_on": [
+        "feat-improvement-feedback"
+      ],
+      "domain": "operations",
+      "evaluation_status": "pass",
+      "execution_contexts": [],
+      "feature_package_id": null,
+      "file_path": "features/feat-feedback-capture-self-exclusion.md",
+      "github_project_linkages": [],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "goal": "改善ボタンを押して撮られた写しに送信 UI が 1 画素も写らず、撮り直しでも同じ規則が効き、写しが撮れない環境でも送信 UI が待たずに開く",
+      "graph_node_id": "feat-feedback-capture-self-exclusion",
+      "implementation_readiness": {
+        "checked_at": "2026-08-30T03:45:47Z",
+        "missing_sections": [],
+        "status": "complete"
+      },
+      "issue_linkage": null,
+      "iteration": null,
+      "mvp_alignment": {
+        "background": "送信モーダルが画面の中央を占有した状態で写しが撮られるため、伝えたい箇所が隠れて要望が成立しない",
+        "mvp_fit": "direct",
+        "purpose": "改善要望を写しで伝える経路を、実際に伝わる状態にする",
+        "rationale": "写しが被写体を隠している間は、改善要望そのものが機能していない"
+      },
+      "owners": [
+        "daishiman"
+      ],
+      "parent_feature": null,
+      "phase_ref": null,
+      "priority": "high",
+      "project_id": "affiliate-hub",
+      "pull_request_linkages": [],
+      "purpose": "改善要望に添える画面の写しから、送信モーダルと起動ボタン自身を外し、利用者が本当に伝えたい箇所が写るようにする",
+      "related_nodes": [],
+      "resource_scope": [
+        "src/presentation/ui/patterns",
+        "tests/e2e",
+        "tests/ui",
+        "docs/spec/12-改善要望フィードバック仕様.md",
+        "docs/spec/feat-feedback-capture-self-exclusion",
+        "docs/requirements/feat-feedback-capture-self-exclusion-implementation-requirements.md",
+        "features/feat-feedback-capture-self-exclusion.md",
+        "features/feat-feedback-capture-self-exclusion.context.json",
+        "tasks/feat-feedback-capture-self-exclusion",
+        ".dev-graph/handoff",
+        ".dev-graph/published/feature-package-feat-feedback-capture-self-exclusion",
+        ".dev-graph/state/graph.json",
+        "system-spec/frontend.md"
+      ],
+      "scope_in": [
+        "撮影開始 (getDisplayMedia 呼出) と送信 UI の可視化を別の時点へ分ける",
+        "写しの取得が確定するまで送信モーダルを描かない",
+        "右下固定の起動ボタンを写しの対象から外す",
+        "撮り直し (再撮影) 経路にも同じ規則を効かせる",
+        "写しが撮れない・拒否・非対応のときは待たずに送信 UI を開く退避経路",
+        "data-floating-overlay 属性を写し除外と重なり監査の共通の手掛かりにする",
+        "属性の付与漏れを拾う検査"
+      ],
+      "scope_out": [
+        "改善要望フィードバック機能そのものの無効化",
+        "起動ボタンの撤去",
+        "写しの書き込み (手書き/四角/矢印/文字/黒塗り) の仕様変更",
+        "一覧・詳細・払い出し経路の変更",
+        "写し以外の添付手段の追加"
+      ],
+      "source_lineage": {
+        "imported_at": "2026-08-30T03:37:16Z",
+        "origin_kind": "system-spec-harness",
+        "source_digest": "b93d1aea10645fc18c39e5bd209cbb90ebd6e494bf493d263e3d9e1112a36217",
+        "source_path": "system-spec/frontend.md",
+        "source_plugin": "system-spec-harness",
+        "source_version": "0.1.0"
+      },
+      "start_date": "2026-08-30",
+      "status": "active",
+      "tags": [
+        "feedback",
+        "capture",
+        "ui"
+      ],
+      "target_date": null,
+      "template_id": "feature",
+      "template_version": "1.0.0",
+      "title": "改善要望の写しから送信 UI 自身を外す（撮影中だけ自動で隠す）",
+      "tracker_binding": "beads",
+      "updated_at": "2026-08-30T13:34:38.306257Z"
     }
   ],
   "repository_id": "github:daishiman/affiliate-hub",
