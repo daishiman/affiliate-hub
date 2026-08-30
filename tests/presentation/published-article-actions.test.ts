@@ -23,7 +23,7 @@ vi.mock("@/presentation/composition", () => ({
 }));
 
 const { archivePublishedArticleAction, updatePublishedArticleAction } = await import(
-  "@/presentation/admin/published-article-action"
+  "@/presentation/admin/publish/published-article-action"
 );
 
 const IDLE = { status: "idle", message: "" } as const;

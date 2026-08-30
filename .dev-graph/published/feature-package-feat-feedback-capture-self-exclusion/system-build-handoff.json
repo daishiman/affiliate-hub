@@ -1,0 +1,224 @@
+{
+  "digest_contract": {
+    "algorithm": "sha256",
+    "final_manifest_digest_scope": "all manifest files including handoff; manifest itself excluded",
+    "handoff_digest_location": "staging-manifest.json#files/system-build-handoff.json",
+    "self_reference_policy": "handoff omits its own digest and final manifest digest",
+    "source_digest_scope": "source_inputs only; handoff and manifest excluded"
+  },
+  "execution_tasks": [
+    {
+      "build_target_kind": "application-code",
+      "depends_on": [],
+      "phase_ref": "P01",
+      "task_id": "SYS-FB-CAPTURE-EXCLUSION-P01",
+      "task_spec_path": "task-specs/phase-01-requirements.md"
+    },
+    {
+      "build_target_kind": "application-code",
+      "depends_on": [
+        "SYS-FB-CAPTURE-EXCLUSION-P01"
+      ],
+      "phase_ref": "P02",
+      "task_id": "SYS-FB-CAPTURE-EXCLUSION-P02",
+      "task_spec_path": "task-specs/phase-02-architecture.md"
+    },
+    {
+      "build_target_kind": "application-code",
+      "depends_on": [
+        "SYS-FB-CAPTURE-EXCLUSION-P02"
+      ],
+      "phase_ref": "P03",
+      "task_id": "SYS-FB-CAPTURE-EXCLUSION-P03",
+      "task_spec_path": "task-specs/phase-03-design-review.md"
+    },
+    {
+      "build_target_kind": "application-code",
+      "depends_on": [
+        "SYS-FB-CAPTURE-EXCLUSION-P03"
+      ],
+      "phase_ref": "P04",
+      "task_id": "SYS-FB-CAPTURE-EXCLUSION-P04",
+      "task_spec_path": "task-specs/phase-04-test-design.md"
+    },
+    {
+      "build_target_kind": "application-code",
+      "depends_on": [
+        "SYS-FB-CAPTURE-EXCLUSION-P04"
+      ],
+      "phase_ref": "P05",
+      "task_id": "SYS-FB-CAPTURE-EXCLUSION-P05",
+      "task_spec_path": "task-specs/phase-05-implementation.md"
+    },
+    {
+      "build_target_kind": "application-code",
+      "depends_on": [
+        "SYS-FB-CAPTURE-EXCLUSION-P05"
+      ],
+      "phase_ref": "P06",
+      "task_id": "SYS-FB-CAPTURE-EXCLUSION-P06",
+      "task_spec_path": "task-specs/phase-06-test-run.md"
+    },
+    {
+      "build_target_kind": "application-code",
+      "depends_on": [
+        "SYS-FB-CAPTURE-EXCLUSION-P06"
+      ],
+      "phase_ref": "P07",
+      "task_id": "SYS-FB-CAPTURE-EXCLUSION-P07",
+      "task_spec_path": "task-specs/phase-07-acceptance.md"
+    },
+    {
+      "build_target_kind": "application-code",
+      "depends_on": [
+        "SYS-FB-CAPTURE-EXCLUSION-P07"
+      ],
+      "phase_ref": "P08",
+      "task_id": "SYS-FB-CAPTURE-EXCLUSION-P08",
+      "task_spec_path": "task-specs/phase-08-refactoring-migration.md"
+    },
+    {
+      "build_target_kind": "application-code",
+      "depends_on": [
+        "SYS-FB-CAPTURE-EXCLUSION-P08"
+      ],
+      "phase_ref": "P09",
+      "task_id": "SYS-FB-CAPTURE-EXCLUSION-P09",
+      "task_spec_path": "task-specs/phase-09-quality-assurance.md"
+    },
+    {
+      "build_target_kind": "application-code",
+      "depends_on": [
+        "SYS-FB-CAPTURE-EXCLUSION-P09"
+      ],
+      "phase_ref": "P10",
+      "task_id": "SYS-FB-CAPTURE-EXCLUSION-P10",
+      "task_spec_path": "task-specs/phase-10-final-review.md"
+    },
+    {
+      "build_target_kind": "application-code",
+      "depends_on": [
+        "SYS-FB-CAPTURE-EXCLUSION-P10"
+      ],
+      "phase_ref": "P11",
+      "task_id": "SYS-FB-CAPTURE-EXCLUSION-P11",
+      "task_spec_path": "task-specs/phase-11-evidence.md"
+    },
+    {
+      "build_target_kind": "application-code",
+      "depends_on": [
+        "SYS-FB-CAPTURE-EXCLUSION-P11"
+      ],
+      "phase_ref": "P12",
+      "task_id": "SYS-FB-CAPTURE-EXCLUSION-P12",
+      "task_spec_path": "task-specs/phase-12-documentation-operations.md"
+    },
+    {
+      "build_target_kind": "application-code",
+      "depends_on": [
+        "SYS-FB-CAPTURE-EXCLUSION-P12"
+      ],
+      "phase_ref": "P13",
+      "task_id": "SYS-FB-CAPTURE-EXCLUSION-P13",
+      "task_spec_path": "task-specs/phase-13-release-deploy.md"
+    }
+  ],
+  "identity": {
+    "feature_id": "feat-feedback-capture-self-exclusion",
+    "feature_package_id": "feature-package/feat-feedback-capture-self-exclusion",
+    "parent_feature": "feat-feedback-capture-self-exclusion",
+    "repository_id": "github:daishiman/affiliate-hub",
+    "source_feature_digest": "sha256:3ff191c19523cd47fb620ed9b27ade3221ab8e58124bc02b4d3550447727da28"
+  },
+  "kind": "system-build-handoff",
+  "registration_request": {
+    "consumer": "dev-graph/C02",
+    "owner": "system-dev-planner/C11",
+    "path": "dev-graph-registration.json",
+    "promotion_receipt": {
+      "owner": "system-dev-planner/C11",
+      "path": "atomic-promotion-receipt.json",
+      "produced_by_this_component": false,
+      "status": "not-emitted"
+    },
+    "registration_receipt": {
+      "owner": "dev-graph/C02",
+      "path": "dev-graph-registration-receipt.json",
+      "produced_by_this_component": false,
+      "status": "not-emitted"
+    },
+    "status": "deferred-until-promotion"
+  },
+  "schema_version": "1.0.0",
+  "source_inputs": [
+    {
+      "path": "feature-package.json",
+      "sha256": "f16758ee58a8a96112b4bac24ae5a2267496549f227bc873e46f1a500c4acfe7"
+    },
+    {
+      "path": "workstream-inventory.json",
+      "sha256": "3fd8beda756629fc8f9e2bcc921b60beddcdea50e6ee0255572493873e7bee0c"
+    },
+    {
+      "path": "task-graph.json",
+      "sha256": "e6cd0d21be7a61e79770845306dca0ac7ef353d34a186dd50c2398aa8f4a62d9"
+    },
+    {
+      "path": "task-specs/phase-01-requirements.md",
+      "sha256": "d9e39195938ac3115ba8374ba172535ec1d0735b7c391a573ab76aa935fb755a"
+    },
+    {
+      "path": "task-specs/phase-02-architecture.md",
+      "sha256": "247b8e8b4bbbb5b8e429bc633b251d5433e8053a49584e724b3621f9c8227136"
+    },
+    {
+      "path": "task-specs/phase-03-design-review.md",
+      "sha256": "84d58b8a2492471505bc6e10fb4eb0f26c763391d250e2f14ca04e6df2624fc7"
+    },
+    {
+      "path": "task-specs/phase-04-test-design.md",
+      "sha256": "e3360b6423fc7d7b7e244b6798e21b32e0d4d33684df940d786a9063525a52c1"
+    },
+    {
+      "path": "task-specs/phase-05-implementation.md",
+      "sha256": "f92bdbc6263012dbd56f2575ef2cdbd58f3fdf7a7d25a5e0a10ac523d387b31a"
+    },
+    {
+      "path": "task-specs/phase-06-test-run.md",
+      "sha256": "1854c81ba6cc5fa6286b1a3e35998e1f84a4eadc9aa2ac780a1e8f428c0e2c9e"
+    },
+    {
+      "path": "task-specs/phase-07-acceptance.md",
+      "sha256": "4526ec7e7a13e95214bf14cc24bfcf57aa8d6d2d55c1c283672f9b464d397923"
+    },
+    {
+      "path": "task-specs/phase-08-refactoring-migration.md",
+      "sha256": "0023229c322e7d787abee49026e7db22f54fefc4b18d5c7c65b30f5c5938473c"
+    },
+    {
+      "path": "task-specs/phase-09-quality-assurance.md",
+      "sha256": "35e6c3224ff58cd5c3886f662ca243c58108ec97e32b98ff2c4f5d988d30bfef"
+    },
+    {
+      "path": "task-specs/phase-10-final-review.md",
+      "sha256": "126d73f9f01b1877ae06ece58830dfc603d376e6a429d77c14b758c5bb9315cb"
+    },
+    {
+      "path": "task-specs/phase-11-evidence.md",
+      "sha256": "2d795955c67a7042e2ddacd65671b5b86385635b6472333ab2996ed8f13149ae"
+    },
+    {
+      "path": "task-specs/phase-12-documentation-operations.md",
+      "sha256": "8ea05de04d754a3b80e272c08389a0a0bc1a5ae46aaa1f305fa3c3d0369549dd"
+    },
+    {
+      "path": "task-specs/phase-13-release-deploy.md",
+      "sha256": "e585ff7ccca64d5524258d98335917238f6302d8c3cc51d7bb7094a82c71e826"
+    }
+  ],
+  "source_manifest": {
+    "canonical_digest_before_handoff": "sha256:28373c639c5e742a1f99a2fb2ce258f2cec2396bf26b9d139feefa17b8e64dec",
+    "path": "staging-manifest.json",
+    "sha256_before_handoff": "45f6e95c5d4e40cb840eb07d4c86ab9b730b80ad90182c9e5937d84134b79dfd"
+  }
+}

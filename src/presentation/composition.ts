@@ -130,6 +130,8 @@ import {
   createListAffiliateLinksUseCase,
 } from "@/application/usecases/monetization/manage-affiliate-links";
 import { createRegisterAffiliateLinkUseCase } from "@/application/usecases/monetization/register-affiliate-link";
+import { createPreviewAffiliateUrlUseCase } from "@/application/usecases/monetization/preview-affiliate-url";
+import { createAffiliatePreviewFetcher } from "@/infrastructure/http/affiliate-preview-fetcher";
 import {
   createListLinkInboxUseCase,
   createMatchLinkIngestionUseCase,
@@ -1339,6 +1341,11 @@ export async function linkInboxUseCases() {
   };
   return auditDenials(deps, {
     list: createListLinkInboxUseCase(inbox),
+    preview: createPreviewAffiliateUrlUseCase({
+      fetcher: createAffiliatePreviewFetcher(),
+      inbox: deps.linkInbox,
+      links: deps.affiliateLinks,
+    }),
     submit: createSubmitAffiliateUrlUseCase(inbox),
     resolve: createResolveLinkIngestionUseCase(inbox),
     match: createMatchLinkIngestionUseCase(inbox),

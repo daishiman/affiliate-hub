@@ -56,8 +56,8 @@ vi.mock("@/presentation/composition", async (importOriginal) => {
   };
 });
 
-const { updateManagedSiteAction } = await import("@/presentation/admin/site-form-action");
-const { updatePublicationAction } = await import("@/presentation/admin/publication-form-action");
+const { updateManagedSiteAction } = await import("@/presentation/admin/publish/site-form-action");
+const { updatePublicationAction } = await import("@/presentation/admin/publish/publication-form-action");
 
 function form(entries: Record<string, string>): FormData {
   const data = new FormData();

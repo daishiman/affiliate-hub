@@ -25,6 +25,7 @@
  */
 
 import { describe, expect, it } from "vitest";
+import { SITE_DOCUMENT_ONLY_STORAGE_KINDS } from "@/domain/authoring";
 import {
   ARTICLE_BLOCK_KINDS,
   ARTICLE_TEMPLATES,
@@ -36,6 +37,9 @@ import {
   TOP_BANDS,
 } from "@/domain/blogops";
 import {
+  SEED_AFFILIATE_LINKS,
+  SEED_AFFILIATE_PLACEMENTS,
+  SEED_AFFILIATE_PROGRAMS,
   SEED_ARTICLES,
   SEED_HUB_SLUG,
   SEED_SUB_SLUG,
@@ -171,7 +175,58 @@ describe("版面が、両方のブログに全種そろっている", () => {
         ).toBe(true);
       }
     });
+
+    it(`${site} に専用routeの方針文書 ${SITE_DOCUMENT_ONLY_STORAGE_KINDS.length} 種がそろっている`, () => {
+      for (const kind of SITE_DOCUMENT_ONLY_STORAGE_KINDS) {
+        expect(
+          SQL.some(
+            (line) =>
+              line.includes("INSERT INTO legal_page") &&
+              line.includes(`'${site}'`) &&
+              line.includes(`'${kind}'`),
+          ),
+          `${site} に方針文書 ${kind} がありません`,
+        ).toBe(true);
+      }
+    });
   }
+});
+
+describe("成果リンクの判断に必要な分かれ目がそろっている", () => {
+  it("稼働中・期限切れ・停止済みの3状態がある", () => {
+    expect(new Set(SEED_AFFILIATE_LINKS.map((link) => link.state))).toEqual(
+      new Set(["usable", "expired", "disabled"]),
+    );
+  });
+
+  it("提携先が複数ある", () => {
+    expect(new Set(SEED_AFFILIATE_PROGRAMS.map((program) => program.asp)).size).toBeGreaterThan(1);
+  });
+
+  it("最終確認は新しい・古い・未確認の3種がある", () => {
+    const checked = SEED_AFFILIATE_LINKS.map((link) => link.lastCheckedDaysAgo);
+    expect(checked).toContain(null);
+    expect(checked.some((days) => days !== null && days <= 7)).toBe(true);
+    expect(checked.some((days) => days !== null && days >= 30)).toBe(true);
+  });
+
+  it("稼働中・掲載終了・リンクID未登録の旧形式を比較できる", () => {
+    expect(SEED_AFFILIATE_PLACEMENTS.some((placement) => placement.status === "active")).toBe(true);
+    expect(SEED_AFFILIATE_PLACEMENTS.some((placement) => placement.status === "removed")).toBe(true);
+    expect(SEED_AFFILIATE_PLACEMENTS.some((placement) => placement.affiliateLinkId === null)).toBe(
+      true,
+    );
+  });
+
+  it("価格・通貨・取得方法・正規URLの写しがある", () => {
+    for (const link of SEED_AFFILIATE_LINKS) {
+      expect(link.canonicalUrl).toMatch(/^https:\/\//);
+      expect(link.merchantName).not.toBe("");
+      expect(link.priceMinor).toBeGreaterThan(0);
+      expect(link.currency).toBe("JPY");
+      expect(link.sourceMethod).not.toBe("");
+    }
+  });
 });
 
 describe("入れる SQL そのものの決まり", () => {

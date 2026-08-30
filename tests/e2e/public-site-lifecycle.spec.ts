@@ -22,6 +22,7 @@ const PUBLIC_STATE_RETRY = {
 type PublicTarget = {
   readonly path: string;
   readonly visibleTexts: readonly string[];
+  readonly links?: readonly { readonly name: string; readonly href: string }[];
 };
 
 function publicTargets(fixture: PublicSiteLifecycleFixture): readonly PublicTarget[] {
@@ -37,6 +38,7 @@ function publicTargets(fixture: PublicSiteLifecycleFixture): readonly PublicTarg
         fixture.articleBlockHeading,
         fixture.articleBlockBody,
       ],
+      links: [{ name: "記事一覧", href: `${root}/blog` }],
     },
     {
       path: `${root}/profile`,
@@ -58,6 +60,12 @@ async function expectAvailable(
           page.getByText(text, { exact: true }).first(),
           `browser content ${target.path}: ${text}`,
         ).toBeVisible({ timeout: 1_000 });
+      }
+      for (const link of target.links ?? []) {
+        await expect(page.getByRole("link", { name: link.name })).toHaveAttribute(
+          "href",
+          link.href,
+        );
       }
     }).toPass(PUBLIC_STATE_RETRY);
   }

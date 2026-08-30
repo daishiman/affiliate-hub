@@ -69,7 +69,7 @@ blog_template/blog_theme/page_theme_override/legal_page/blog_affiliate_placement
 
 ## 背景
 
-system-spec/database.md はblog_template/blog_theme/page_theme_override/legal_page/blog_affiliate_placement/guideline_references を追加エンティティとして確定し、system-spec/frontend.md はdecision-ui-theme-implementation (opt-css-light-dark) と qa-frontend-web-seo-ai-search-v2 (JSON-LD/sitemap/IndexNow契約) を確定している。既存 src/db/schema.ts・src/infrastructure/persistence/d1 配下のリポジトリ実装、src/presentation/ui/templates・src/presentation/ui/patterns の既存コンポーネント資産を土台に、P01の要求ベースラインを満たす設計へ変換する。参考ブログ (makuring.jp) は構成・配置・表記法の参照のみに用い、文章・素材・デザインをそのまま複製しない。source_feature_digest: sha256:8953a167a43f5fc55998ebfcaa83f437d59f0d567cde6e7c15e8b568ab470d7b
+system-spec/database.md はblog_template/blog_theme/page_theme_override/legal_page/blog_affiliate_placement/guideline_references を追加エンティティとして確定し、system-spec/frontend.md はdecision-ui-theme-implementation (opt-css-light-dark) と qa-frontend-web-seo-ai-search-v2 (JSON-LD/sitemap/IndexNow契約) を確定している。既存 src/db/schema.ts・src/infrastructure/persistence/d1 配下のリポジトリ実装、src/presentation/ui/templates・src/presentation/ui/patterns の既存コンポーネント資産を土台に、P01の要求ベースラインを満たす設計へ変換する。参考ブログ (実名は docs/spec/feat-reference-blog-admin-ux/evidence/reference-site-profile.json) は構成・配置・表記法の参照のみに用い、文章・素材・デザインをそのまま複製しない。source_feature_digest: sha256:8953a167a43f5fc55998ebfcaa83f437d59f0d567cde6e7c15e8b568ab470d7b
 
 ## 前提条件
 

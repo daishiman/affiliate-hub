@@ -1,5 +1,5 @@
 import { AdminShell } from "@/presentation/admin/admin-shell";
-import { CreateClaimForm } from "@/presentation/admin/claim-form";
+import { CreateClaimForm } from "@/presentation/admin/material/claim-form";
 import { claimTypeOptions, currentActor, productUseCases } from "@/presentation/composition";
 import { Callout, EmptyView, ErrorView, Section, TextLink } from "@/presentation/ui";
 

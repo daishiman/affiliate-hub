@@ -1,4 +1,4 @@
-import { and, eq, sql } from "drizzle-orm";
+import { and, eq, inArray, sql } from "drizzle-orm";
 import type { PortResult } from "@/application/ports/common";
 import type {
   AffiliateLinkWithSnapshot,
@@ -16,7 +16,11 @@ import {
   ok,
   taggedString,
 } from "@/domain/shared";
-import { type AffiliateLinkRow, affiliateLinks } from "@/db/schema";
+import {
+  type AffiliateLinkRow,
+  affiliateLinks,
+  blogAffiliatePlacements,
+} from "@/db/schema";
 import { sampleAffiliateLinks } from "../sample/affiliate-sample-repository";
 import type { DrizzleD1 } from "./link-inbox-repository";
 import { mergeWithSamples, storageFailure } from "./storage-failure";
@@ -73,9 +77,17 @@ function toRow(link: AffiliateLink, snapshot: ProductSnapshot): AffiliateLinkRow
     brand: snapshot.brand,
     oneLine: snapshot.oneLine,
     originalUrl: link.originalUrl,
+    canonicalUrl: null,
+    merchantName: null,
+    imageUrl: null,
+    priceMinor: null,
+    currency: null,
+    retrievedAt: null,
+    sourceMethod: null,
     alterationProhibited: link.alterationProhibited,
     trackingRef: link.trackingRef,
     createdAt: link.createdAt,
+    lastCheckedAt: link.createdAt,
     expiresAt: link.expiresAt,
     disabledAt: link.disabledAt,
   };
@@ -197,13 +209,14 @@ export function createD1AffiliateLinkRepository(
         const inserted = await db.run(sql`
           INSERT INTO affiliate_links (
             id, workspace_id, program_id, product_id, product_name, brand, one_line,
-            original_url, alteration_prohibited, tracking_ref, created_at, expires_at, disabled_at
+            original_url, alteration_prohibited, tracking_ref, created_at, last_checked_at,
+            expires_at, disabled_at
           )
           SELECT
             ${row.id}, ${row.workspaceId}, ${row.programId}, ${row.productId},
             ${row.productName}, ${row.brand}, ${row.oneLine}, ${row.originalUrl},
             ${row.alterationProhibited ? 1 : 0}, ${row.trackingRef}, ${createdAt},
-            ${expiresAt}, ${disabledAt}
+            ${createdAt}, ${expiresAt}, ${disabledAt}
           WHERE NOT EXISTS (
             SELECT 1 FROM affiliate_links
             WHERE workspace_id = ${row.workspaceId}
@@ -251,6 +264,19 @@ export function createD1AffiliateLinkRepository(
           .select()
           .from(affiliateLinks)
           .where(eq(affiliateLinks.workspaceId, String(workspaceId)));
+        const linkIds = rows.map((row) => row.id);
+        const placements =
+          linkIds.length === 0
+            ? []
+            : await db
+                .select()
+                .from(blogAffiliatePlacements)
+                .where(
+                  and(
+                    eq(blogAffiliatePlacements.workspaceId, String(workspaceId)),
+                    inArray(blogAffiliatePlacements.affiliateLinkId, linkIds),
+                  ),
+                );
         return ok(
           rows.map((row) => ({
             link: toDomain(row),
@@ -259,6 +285,20 @@ export function createD1AffiliateLinkRepository(
               brand: row.brand,
               oneLine: row.oneLine,
             },
+            lastCheckedAt: row.lastCheckedAt,
+            placements: placements
+              .filter((placement) => placement.affiliateLinkId === row.id)
+              .map((placement) => ({
+                placementId: placement.id,
+                siteSlug: placement.siteSlug,
+                articleSlug: placement.articleSlug,
+                blockId: placement.blockId,
+                placement: placement.placement,
+                position: placement.position,
+                status: placement.status,
+                lastRenderedAt: placement.lastRenderedAt,
+                updatedAt: placement.updatedAt,
+              })),
           })),
         );
       } catch (cause) {

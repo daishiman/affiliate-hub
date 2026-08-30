@@ -79,7 +79,15 @@ describe("受け取ってよい URL かの判定", () => {
       "172.31.255.255",
       "169.254.169.254", // クラウドのメタデータ
       "0.0.0.0",
+      "::",
+      "::1",
+      "::ffff:127.0.0.1",
+      "fe80::1",
+      "ff02::1",
+      "224.0.0.1",
       "printer.local",
+      "localhost.",
+      "metadata.google.internal.",
     ]) {
       expect(isInternalHost(host), host).toBe(true);
       expect(normalizeAffiliateUrl(`http://${host}/x`).ok, host).toBe(false);

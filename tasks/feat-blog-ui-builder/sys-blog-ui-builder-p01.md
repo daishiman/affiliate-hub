@@ -20,7 +20,7 @@ resource_scope: ["docs/spec/feat-blog-ui-builder/requirements-baseline.md","docs
 purpose: "feat-blog-ui-builder の受入14件 (A1-A14) を実装着手前に一意で検証可能な要求ベースラインへ確定し、テンプレート6種・配色2層・sticky常時表示・固定ページ6種・記事表現ブロック5種・blog_affiliate_placement一覧/逆引き・SEO/AI検索最適化 (JSON-LD/sitemap/robots/llms.txt/IndexNow/guideline_references) の各要求を、既存 src/app/admin/sites 配下と src/app/s/[site] 配下の画面棚卸しに接地させた状態を成立させる。"
 goal: "feat-blog-ui-builder の受入14件 (A1-A14) を実装着手前に一意で検証可能な要求ベースラインへ確定し、テンプレート6種・配色2層・sticky常時表示・固定ページ6種・記事表現ブロック5種・blog_affiliate_placement一覧/逆引き・SEO/AI検索最適化 (JSON-LD/sitemap/robots/llms.txt/IndexNow/guideline_references) の各要求を、既存 src/app/admin/sites 配下と src/app/s/[site] 配下の画面棚卸しに接地させた状態を成立させる。"
 scope_in: ["Produced artifacts: docs/spec/feat-blog-ui-builder/requirements-baseline.md (A1-A14の検証可能化と参照仕様の対応表); docs/spec/feat-blog-ui-builder/screen-inventory.md (既存 src/app/admin/sites・src/app/s/[site] の棚卸しと新規画面差分); docs/spec/feat-blog-ui-builder/information-priority-map.json (画面別の残す/落とす/加工する情報の優先度束)","Consumed artifacts: features/feat-blog-ui-builder.md, features/feat-blog-ui-builder.context.json, system-spec/ui-ux.md, system-spec/frontend.md, system-spec/database.md","Write scope/touches: docs/spec/feat-blog-ui-builder/requirements-baseline.md, docs/spec/feat-blog-ui-builder/screen-inventory.md, docs/spec/feat-blog-ui-builder/information-priority-map.json"]
-scope_out: ["feat-blog-ui-builder の scope_out (記事本文のAI生成本体・アフィリエイトURL登録/商品識別・クリック計測分析基盤・管理画面全体の単一用途画面再編・独自ドメイン運用) に該当する変更","makuring.jp の機械取得や文章・素材の複製"]
+scope_out: ["feat-blog-ui-builder の scope_out (記事本文のAI生成本体・アフィリエイトURL登録/商品識別・クリック計測分析基盤・管理画面全体の単一用途画面再編・独自ドメイン運用) に該当する変更","参考ブログの機械取得や文章・素材の複製"]
 acceptance: ["Automated commands: `pnpm run typecheck` (要求文書中の information-priority-map.json が既存型契約と矛盾しないことを静的に確認する)","Automated commands: `python3 .claude/plugins/system-dev-planner/scripts/validate-system-plan.py --repo-root . --feature-package feature-package/feat-blog-ui-builder` (本 package の C12 決定論検証を世代非依存に再実行する)","Required evidence: P01 の 成果物 section に記載した produced artifacts のパス"]
 architecture_refs: ["arch-two-layer-platform"]
 parent_feature: "feat-blog-ui-builder"
@@ -69,7 +69,7 @@ feat-blog-ui-builder の受入14件 (A1-A14) を実装着手前に一意で検�
 
 ## 背景
 
-system-spec/ui-ux.md の qa-uiux-web-blog-builder は、ブログごとのテンプレート作成・配色2層・sticky常時表示・固定ページ6種・表現ブロック・アフィリエイト配置管理・SEO/AI検索チェックパネルを利用者本人の回答として確定している。system-spec/frontend.md の qa-frontend-web-seo-ai-search-v2 は、SSRによるJSON-LD自動生成・sitemap/robots/llms.txt・IndexNow・guideline_references を確定している。既存 src/app/admin/sites は単一サイト単位の管理はあるが、ブログ単位のテンプレート/配色/固定ページ/表現ブロック/SEO/AI検索スキーマと画面が存在しないため、本 phase で要求を検証可能な形へ書き下ろし、後続設計の判断根拠にする。参考ブログ (makuring.jp) は構成・配置・表記法の参照のみに用い、文章・素材・デザインをそのまま複製しない。一次根拠は system-spec/ui-ux.md・frontend.md の qa-* に記録された利用者本人の説明であり、makuring.jp 自体の機械取得は行わない (取得拒否済み)。source_feature_digest: sha256:8953a167a43f5fc55998ebfcaa83f437d59f0d567cde6e7c15e8b568ab470d7b
+system-spec/ui-ux.md の qa-uiux-web-blog-builder は、ブログごとのテンプレート作成・配色2層・sticky常時表示・固定ページ6種・表現ブロック・アフィリエイト配置管理・SEO/AI検索チェックパネルを利用者本人の回答として確定している。system-spec/frontend.md の qa-frontend-web-seo-ai-search-v2 は、SSRによるJSON-LD自動生成・sitemap/robots/llms.txt・IndexNow・guideline_references を確定している。既存 src/app/admin/sites は単一サイト単位の管理はあるが、ブログ単位のテンプレート/配色/固定ページ/表現ブロック/SEO/AI検索スキーマと画面が存在しないため、本 phase で要求を検証可能な形へ書き下ろし、後続設計の判断根拠にする。参考ブログ (実名は docs/spec/feat-reference-blog-admin-ux/evidence/reference-site-profile.json) は構成・配置・表記法の参照のみに用い、文章・素材・デザインをそのまま複製しない。一次根拠は system-spec/ui-ux.md・frontend.md の qa-* に記録された利用者本人の説明であり、参考ブログ自体の機械取得は行わない (取得拒否済み)。source_feature_digest: sha256:8953a167a43f5fc55998ebfcaa83f437d59f0d567cde6e7c15e8b568ab470d7b
 
 ## 前提条件
 
@@ -124,7 +124,7 @@ system-spec/ui-ux.md の qa-uiux-web-blog-builder は、ブログごとのテン
 ## スコープ外
 
 - feat-blog-ui-builder の scope_out (記事本文のAI生成本体・アフィリエイトURL登録/商品識別・クリック計測分析基盤・管理画面全体の単一用途画面再編・独自ドメイン運用) に該当する変更
-- makuring.jp の機械取得や文章・素材の複製
+- 参考ブログの機械取得や文章・素材の複製
 
 ## テスト戦略
 

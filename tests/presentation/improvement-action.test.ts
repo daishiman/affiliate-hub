@@ -41,7 +41,7 @@ const {
   approveVariantSpecAction,
   startLoopRunAction,
   advanceLoopRunAction,
-} = await import("@/presentation/admin/improvement-action");
+} = await import("@/presentation/admin/observe/improvement-action");
 
 const IDLE = { status: "idle", message: "" } as const;
 const PATH = "/admin/improvement";

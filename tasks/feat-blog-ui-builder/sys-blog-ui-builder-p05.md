@@ -69,7 +69,7 @@ implementation_readiness: {"checked_at":"2026-08-28T00:00:00Z","missing_sections
 
 ## 背景
 
-既存 src/app/admin/sites はサイト単位の基本CRUDを持つが、ブログ単位のテンプレート/配色2層/固定ページ/表現ブロック/SEO/AI検索/アフィリエイト配置は未実装である。既存 src/presentation/ui/templates (app-shell.tsx, site-shell.tsx等)、src/presentation/ui/patterns (appearance-picker.tsx, comparison-table.tsx等) を土台に、P02の契約に沿って拡張・新規追加する。src/application/seo/ 配下にJSON-LD生成・IndexNow送信・structured-data純関数を実装する。src/application/ports/guideline-reference.ts のポート契約に従い guideline-reference-repository を実装する。参考ブログ (makuring.jp) は構成・配置・表記法の参照のみに用い、文章・素材・デザインをそのまま複製しない。source_feature_digest: sha256:8953a167a43f5fc55998ebfcaa83f437d59f0d567cde6e7c15e8b568ab470d7b
+既存 src/app/admin/sites はサイト単位の基本CRUDを持つが、ブログ単位のテンプレート/配色2層/固定ページ/表現ブロック/SEO/AI検索/アフィリエイト配置は未実装である。既存 src/presentation/ui/templates (app-shell.tsx, site-shell.tsx等)、src/presentation/ui/patterns (appearance-picker.tsx, comparison-table.tsx等) を土台に、P02の契約に沿って拡張・新規追加する。src/application/seo/ 配下にJSON-LD生成・IndexNow送信・structured-data純関数を実装する。src/application/ports/guideline-reference.ts のポート契約に従い guideline-reference-repository を実装する。参考ブログ (実名は docs/spec/feat-reference-blog-admin-ux/evidence/reference-site-profile.json) は構成・配置・表記法の参照のみに用い、文章・素材・デザインをそのまま複製しない。source_feature_digest: sha256:8953a167a43f5fc55998ebfcaa83f437d59f0d567cde6e7c15e8b568ab470d7b
 
 ## 前提条件
 

@@ -458,6 +458,10 @@ const NON_WRITE_VERBS = [
   // `resolveIdentity`）。**外へ問い合わせても、こちら側は何も書き換えない。**
   "derive",
   "resolve",
+  // 貼られた URL の先を 1 度読んで、9 項目の抽出結果だけを返す
+  // （`AffiliatePreviewFetcherPort.retrieve`）。本文も画像も持ち帰らず、
+  // こちら側には何も残さない。**外へ出る手続きだが、書き込みではない。**
+  "retrieve",
 ];
 /**
  * 動詞で始まらないが、読み取りだと分かっている名前。

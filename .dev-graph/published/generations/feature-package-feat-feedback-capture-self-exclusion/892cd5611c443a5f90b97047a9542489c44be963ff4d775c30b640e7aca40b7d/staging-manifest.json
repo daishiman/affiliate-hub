@@ -1,0 +1,30 @@
+{
+  "canonical_digest": "sha256:892cd5611c443a5f90b97047a9542489c44be963ff4d775c30b640e7aca40b7d",
+  "files": {
+    "feature-package.json": "f16758ee58a8a96112b4bac24ae5a2267496549f227bc873e46f1a500c4acfe7",
+    "system-build-handoff.json": "ef2b0da1a49668ac55c09fbc68e727abcea9da39a3e34fe47b8cbb367195c6ba",
+    "task-graph.json": "11e8e3a8507647e03f09d40025366ce3ed8ff7c910d4e268f014958c7befdffa",
+    "task-specs/phase-01-requirements.md": "704d38b372eafaa99be855ebf54153918d6191348d8a18dbe837192068a649f1",
+    "task-specs/phase-02-architecture.md": "3650cefc8c54abad7061f64bd8127273933e0dcd0efe26b881ec6aad773b44cd",
+    "task-specs/phase-03-design-review.md": "60d557e06b5be26ec781e49f5a1c0cf1547625b92b765dc2629946f1a3d72ac5",
+    "task-specs/phase-04-test-design.md": "cec50970d28847e88bcdf95b53f582cdbd9ab677c8736929f84b4fff44c222bf",
+    "task-specs/phase-05-implementation.md": "da2dada3d070e7623a491fd6896e3421deff7250313b534c533bf1646e3bff91",
+    "task-specs/phase-06-test-run.md": "79e6aa52bdfabdb06c188024582b0f6926a9e6d9c999c8a16d573e78395585e3",
+    "task-specs/phase-07-acceptance.md": "48c1ff82897d4f75e8eab7649fb7843e50e93dcf7a8b11b34d71aa7c7ad4ec46",
+    "task-specs/phase-08-refactoring-migration.md": "4c50d374c7761f2d8527cb256cc7ff69812768813c895d9c2f1f1eee5e6b798c",
+    "task-specs/phase-09-quality-assurance.md": "1665d4d46417fb3faeefc478132680632e447456ef1d9ffee0237767f10cc456",
+    "task-specs/phase-10-final-review.md": "28f717a3bedfec7351a0167be863df6c73d33ea05ec16fdfb1e3cb3677344ba5",
+    "task-specs/phase-11-evidence.md": "f0f28c7db0a65aae8ae84692122d4951d12b1bbcf32080ea415740deff5fff2e",
+    "task-specs/phase-12-documentation-operations.md": "d7ab87621e75c034f73eec1c223b2d119ebef7a37bd151614f1d691671dc1e8e",
+    "task-specs/phase-13-release-deploy.md": "25418b98f20aacfcf11e099383d9a398df84636caff0236f4567107f560e929b",
+    "workstream-inventory.json": "7c9deb7782b714e745044c6a93a1593e0e8eca9ea509c81afb45f912e7eb6788"
+  },
+  "handoff_contract": {
+    "manifest_is_commit_point": true,
+    "path": "system-build-handoff.json",
+    "schema_version": "1.0.0",
+    "self_reference_policy": "handoff hash and final digest are manifest-only",
+    "sha256": "ef2b0da1a49668ac55c09fbc68e727abcea9da39a3e34fe47b8cbb367195c6ba",
+    "source_canonical_digest": "sha256:8ff25ff0468651d0ab0aa57dca2104138efc4be76ecfa9dad235f822595f698a"
+  }
+}

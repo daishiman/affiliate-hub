@@ -1,5 +1,5 @@
 import { AdminShell } from "@/presentation/admin/admin-shell";
-import { SiteNetworkRestoreForm } from "@/presentation/admin/site-network-form";
+import { SiteNetworkRestoreForm } from "@/presentation/admin/publish/site-network-form";
 import { blogOpsEntry, currentActor } from "@/presentation/composition";
 import { DataTable, EmptyView, ErrorView, Section, TextLink } from "@/presentation/ui";
 

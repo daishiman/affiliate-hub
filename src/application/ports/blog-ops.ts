@@ -149,6 +149,8 @@ export type SaveBlogArticleInput = {
     readonly position: number;
   }[];
   readonly tagIds: readonly string[];
+  /** null/undefined は新規作成。更新は画面が読んだ版番を渡す。 */
+  readonly expectedRevision?: number | null;
 };
 
 /**

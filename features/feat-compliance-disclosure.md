@@ -12,9 +12,9 @@ iteration: null
 title: "広告表示・コンプライアンス"
 owners: ["daishiman"]
 created_at: "2026-08-16T12:20:00Z"
-updated_at: "2026-08-24T13:30:00Z"
-status: "active"
-depends_on: ["feat-affiliate-hub","feat-data-model"]
+updated_at: "2026-08-24T13:18:17Z"
+status: "closed"
+depends_on: []
 related_nodes: ["spec-system-spec-index"]
 resource_scope: ["src","drizzle","docs/spec","system-spec"]
 purpose: "広告であることの表示を、記事・AI回答・WebMCP のどこから見ても同じにする"
@@ -43,10 +43,9 @@ github_publication: {"labels":[],"milestone":null,"mode":"local_only","project_a
 github_project_linkages: []
 pull_request_linkages: []
 execution_contexts: []
-completion_evidence: {"completed_at":null,"evidence_refs":["src/app/admin/settings/compliance/page.tsx","src/application/usecases/compliance/manage-compliance.ts","drizzle/0023_orange_mystique.sql","beads:ah-099"],"policy":"manual","reconciled_at":"2026-08-24T13:30:00Z","source":"manual","status":"in_progress"}
+completion_evidence: {"completed_at":null,"evidence_refs":[],"policy":"manual","reconciled_at":null,"source":null,"status":"in_progress"}
 implementation_readiness: {"checked_at":"2026-08-16T13:30:00Z","missing_sections":[],"status":"complete"}
 ---
-
 
 # 目的
 

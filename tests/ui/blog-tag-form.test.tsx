@@ -10,7 +10,7 @@ vi.mock("react", async (importOriginal) => {
   };
 });
 
-const { BlogTagForm } = await import("@/presentation/admin/blog-tag-form");
+const { BlogTagForm } = await import("@/presentation/admin/publish/blog-tag-form");
 
 describe("タグを消す前の案内", () => {
   it("記事件数を取得していないとき、「いま 0 本」と断定しない", () => {

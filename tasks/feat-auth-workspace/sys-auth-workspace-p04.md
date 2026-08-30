@@ -12,8 +12,8 @@ iteration: null
 title: "受け入れ条件に基づくテストファースト設計"
 owners: ["daishiman"]
 created_at: "2026-08-16T12:39:37Z"
-updated_at: "2026-08-24T13:30:00Z"
-status: "done"
+updated_at: "2026-08-24T12:54:42Z"
+status: "closed"
 depends_on: ["SYS-AUTH-WORKSPACE-P03"]
 related_nodes: []
 resource_scope: ["src/lib/auth/__tests__/login-redirect.spec.ts","src/lib/workspace/__tests__/workspace-isolation.spec.ts","src/lib/brand/__tests__/brand-defaults.spec.ts","src/lib/rbac/__tests__/role-403.spec.ts","docs/spec/feat-auth-workspace/test-design.md"]
@@ -41,9 +41,9 @@ tracker_binding: "beads"
 beads_linkage: {"bd_issue_id":"ah-361.4","github_mirror":null,"linked_at":"2026-08-16T13:00:16Z","sync_state":"linked"}
 github_publication: {"labels":[],"milestone":null,"mode":"local_only","project_aliases":[]}
 github_project_linkages: []
-pull_request_linkages: [{"number":29,"url":"https://github.com/daishiman/affiliate-hub/pull/29","base":"dev","head":"devgraph/feat-auth-workspace","draft":true}]
+pull_request_linkages: []
 execution_contexts: []
-completion_evidence: {"completed_at":"2026-08-24T12:00:00Z","evidence_refs":["docs/spec/feat-auth-workspace/test-design.md","beads:ah-361.4"],"policy":"manual","reconciled_at":"2026-08-24T13:30:00Z","source":"manual","status":"done"}
+completion_evidence: {"completed_at":null,"evidence_refs":[],"policy":"manual","reconciled_at":null,"source":null,"status":"in_progress"}
 implementation_readiness: {"checked_at":"2026-08-16T21:00:00Z","missing_sections":[],"status":"complete"}
 ---
 

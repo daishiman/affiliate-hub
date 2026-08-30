@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "feature_id": "feat-reference-blog-admin-ux",
+  "requirements": [
+    {"id":"A1","screens":["ADM-ANALYSIS"],"data":["sitemap-snapshot"],"evidence":["sitemap-snapshot.json"]},
+    {"id":"A2","screens":["ADM-ANALYSIS"],"data":["reference-url-inventory"],"evidence":["reference-url-inventory.json"]},
+    {"id":"A3","screens":["PUB-HOME","PUB-LIST","PUB-ARTICLE","PUB-TAXONOMY","PUB-AUTHOR","ADM-OVERVIEW","ADM-CONTENT-LIST","ADM-ARTICLE-NEW","ADM-ARTICLE-EDIT","ADM-IMPROVEMENT","ADM-AFFILIATE-LIST","ADM-AFFILIATE-NEW","ADM-AFFILIATE-DETAIL","ADM-ANALYSIS"],"data":["screen-inventory"],"evidence":["screen-inventory.md"]},
+    {"id":"A4","screens":["PUB-HOME","PUB-ARTICLE"],"data":["component-contract"],"evidence":["page-archetype-analysis.md","non-copying-design-system.md"]},
+    {"id":"A5","screens":["ADM-ARTICLE-NEW"],"data":["blog-article"],"evidence":["test-design.md"]},
+    {"id":"A6","screens":["ADM-ARTICLE-EDIT"],"data":["article-revision","local-draft"],"evidence":["interaction-state-machine.md"]},
+    {"id":"A7","screens":["ADM-IMPROVEMENT"],"data":["article-improvement-read-model"],"evidence":["component-contract.md"]},
+    {"id":"A8","screens":["ADM-AFFILIATE-NEW"],"data":["affiliate-preview"],"evidence":["affiliate-preview-contract.md"]},
+    {"id":"A9","screens":["ADM-AFFILIATE-LIST","ADM-AFFILIATE-DETAIL"],"data":["affiliate-link-snapshot","affiliate-placement"],"evidence":["data-model.md"]},
+    {"id":"A10","screens":["ADM-ARTICLE-NEW","ADM-ARTICLE-EDIT","ADM-IMPROVEMENT","ADM-AFFILIATE-LIST"],"data":["usability-observations"],"evidence":["usability-test-protocol.md"]},
+    {"id":"A11","screens":["PUB-ARTICLE","ADM-ARTICLE-EDIT","ADM-AFFILIATE-NEW","ADM-AFFILIATE-LIST"],"data":["a11y-results"],"evidence":["test-design.md"]},
+    {"id":"A12","screens":["ADM-ANALYSIS"],"data":["gap-ledger","evidence-index"],"evidence":["current-screen-gap-ledger.md","evidence/index.json"]}
+  ],
+  "missing": []
+}

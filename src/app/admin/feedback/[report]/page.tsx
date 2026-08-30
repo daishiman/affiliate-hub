@@ -4,7 +4,7 @@ import {
   FeedbackHandoffForm,
   FeedbackPullCommand,
   FeedbackStatusForm,
-} from "@/presentation/admin/feedback-forms";
+} from "@/presentation/admin/maintain/feedback-forms";
 import type { SuccessOf } from "@/presentation/admin/use-case-result";
 import { currentActor, feedbackCaptureNotice, feedbackUseCases } from "@/presentation/composition";
 import {

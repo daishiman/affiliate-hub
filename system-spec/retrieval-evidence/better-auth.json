@@ -1,21 +1,19 @@
 {
- "target_id": "better-auth",
- "source_url": "https://www.better-auth.com/docs/introduction",
- "retrieved_at": "2026-08-28T14:07:27Z",
- "http_status": 200,
- "content_bytes": 195801,
- "content_sha256": "a14b2d02d3cf22e21b3e0ae954c4e0dad41534dc5a80670e4a8ca51eb727e196",
- "page_title": "Introduction | Better Auth",
- "freshness_extraction": {
-  "freshness_source": "publisher-registry",
-  "value": "1.7.2",
-  "found_in": [
-   "2026-08-28T14:07:27Z に https://registry.npmjs.org/better-auth/latest を HTTP 取得し version = '1.7.2' を得た",
-   "2026-08-28T14:07:27Z に https://www.better-auth.com/docs/introduction を HTTP 取得。195801 bytes の raw response を SHA-256 へ束縛し、ページは 'v1.7 (Latest)' と表示 (patch 番号なし)。registry の 1.7.2 と矛盾しない",
-   "2026-08-28T07:17:17Z に https://registry.npmjs.org/better-auth/1.7.2 を WebFetch で照会し、publish user = GitHub Actions (npm-oidc-no-reply@github.com) を確認した"
-  ],
-  "doc_page_declares_version": false,
-  "body_search_method": "Accept-Encoding: identity の HTTP raw response 195801 bytes を取得し SHA-256 を計算。ページタイトル 'Introduction | Better Auth'。本文に正確な semver 1.7.2 は 0 件で、patch 番号は npm registry の latest dist-tag のみが持つ。",
-  "note": "C08 鮮度監査 (2026-08-28) が旧記録 1.7.1 と公式 registry 現行版 1.7.2 の差分を検出したため再取得を実施。npm registry の latest dist-tag が 1.7.2 を返した。前回 evidence (2026-08-19 取得) は 1.7.1 だった。"
- }
+  "target_id": "better-auth",
+  "source_url": "https://better-auth.com/docs/introduction",
+  "retrieved_at": "2026-08-29T23:02:28Z",
+  "http_status": 200,
+  "content_bytes": 627145,
+  "content_sha256": "f44876ac638146c65aff133568bbee0c589e7a8423ae6182097972e2e5d97b1d",
+  "page_title": "Introduction | Better Auth",
+  "retrieval_method": "official page HTTP fetch (Accept-Encoding: identity)",
+  "freshness_extraction": {
+    "freshness_source": "page-declared",
+    "value": "1.7.2",
+    "found_in": [
+      "公式 Introduction ページの Latest Version 表示: 1.7.2"
+    ],
+    "body_search_method": "公式ページ本文の Latest Version 表示を WebFetch で確認した。",
+    "note": "公式ドキュメント自身が現行版を表明するようになったため、配布 registry の補助値ではなく page-declared を採用する。"
+  }
 }

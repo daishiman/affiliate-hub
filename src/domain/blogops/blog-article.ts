@@ -66,6 +66,8 @@ export type BlogArticle = {
   readonly authorName: string;
   readonly publishedAt: Date | null;
   readonly updatedAt: Date;
+  /** 同時編集の古い保存を断る版番。legacy fixture は未指定=1と読む。 */
+  readonly revision?: number;
 };
 
 /**

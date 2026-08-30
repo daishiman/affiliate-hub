@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "note": "Source identity for the reference-site collector. Quarantined here per non-copying-design-system.md gate 2. Nothing outside evidence/ may repeat these values.",
+  "root_sitemap": "https://makuring.jp/sitemap.xml",
+  "article_index_paths": {
+    "/blog": "all-posts",
+    "/sitemap": "html-sitemap"
+  },
+  "navigator_paths": [
+    "/charger-comparison",
+    "/charging-dictionary",
+    "/makunavi",
+    "/powerbank-comparison",
+    "/recommend_battery",
+    "/recommend_charger"
+  ],
+  "policy_or_contact_paths": [
+    "/commercial-transaction",
+    "/mail",
+    "/privacy-policy",
+    "/review-guidelines",
+    "/site-policy"
+  ],
+  "publisher_profile_paths": [
+    "/profile"
+  ]
+}

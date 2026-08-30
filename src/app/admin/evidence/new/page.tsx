@@ -1,5 +1,5 @@
 import { AdminShell } from "@/presentation/admin/admin-shell";
-import { CreateEvidenceForm } from "@/presentation/admin/evidence-form";
+import { CreateEvidenceForm } from "@/presentation/admin/material/evidence-form";
 import { evidenceTypeOptions } from "@/presentation/composition";
 import { Callout, Section, TextLink } from "@/presentation/ui";
 

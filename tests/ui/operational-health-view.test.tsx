@@ -25,7 +25,7 @@ import {
   OperationalHealthControls,
   OperationalHealthView,
   parseOperationalHealthQuery,
-} from "@/presentation/admin/operational-health-view";
+} from "@/presentation/admin/publish/operational-health-view";
 
 describe("URL から絞り込みを読む", () => {
   it("既定は「すべて」と「要確認が先」", () => {

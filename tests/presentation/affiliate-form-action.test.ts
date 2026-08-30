@@ -28,7 +28,7 @@ vi.mock("@/presentation/composition", () => ({
 }));
 
 const { saveAffiliateAccountAction, saveAffiliateProgramAction } = await import(
-  "@/presentation/admin/affiliate-form-action"
+  "@/presentation/admin/earn/affiliate-form-action"
 );
 
 const IDLE = { status: "idle", message: "" } as const;

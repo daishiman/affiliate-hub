@@ -23,7 +23,7 @@ vi.mock("@/presentation/composition", () => ({
   contactUseCases: async () => ({ markHandled: { execute: executeMarkHandled } }),
 }));
 
-const { markContactHandledAction } = await import("@/presentation/admin/contact-action");
+const { markContactHandledAction } = await import("@/presentation/admin/maintain/contact-action");
 
 const IDLE = { status: "idle", message: "" } as const;
 
