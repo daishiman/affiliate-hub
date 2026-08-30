@@ -1,4 +1,5 @@
 import { AdminShell } from "@/presentation/admin/admin-shell";
+import { AffiliatePreviewCard } from "@/presentation/admin/earn/affiliate-preview-card";
 import { DEFAULT_APPEARANCE } from "@/domain/authoring/appearance";
 import { appearanceOptions } from "@/presentation/appearance";
 import {
@@ -16,6 +17,7 @@ import {
   Conversation,
   CriteriaDisclosure,
   DisclosureNotice,
+  DiagramFallback,
   EmptyView,
   ErrorView,
   EvidenceList,
@@ -91,6 +93,24 @@ const criteria: readonly CriterionView[] = [
   { key: "speed", label: "書き出し速度", weight: 0.4, measurement: "同一素材の書き出し時間（秒）" },
   { key: "value", label: "価格性能比", weight: 0.3, measurement: "総合点 ÷ 実売価格" },
 ];
+
+const sampleAffiliatePreview = {
+  status: "ready" as const,
+  rawUrl: "https://shop.example/items/sample?ref=demo",
+  canonicalUrl: "https://shop.example/items/sample",
+  productName: "図で比べる机上ライト",
+  merchantName: "見本ストア",
+  providerLabel: "見本の提携先",
+  imageUrl: null,
+  price: "4,980",
+  currency: "JPY",
+  retrievedAt: "2026-08-30T00:00:00.000Z",
+  method: "provider-metadata",
+  sourceHost: "shop.example",
+  duplicateCandidates: [],
+  reason: null,
+  oneLine: "保存する前に、取得内容と掲載先を短く確認する見本です。",
+};
 
 /**
  * モデル選びの見本。
@@ -790,6 +810,22 @@ export default function UiCatalogPage() {
           <TextLink href="/admin">別のブログ</TextLink>
           <TextLink href="/admin">さらに別のブログ</TextLink>
         </ScopeSwitch>
+      </Section>
+
+      <Section title="30. 成果リンクの保存前確認" lead={<>
+          URLを保存する前に、取得できた9項目と画像の代わりの図を一つのカードで確認します。
+          詳細は閉じておき、まず商品・提携先・価格・重複だけを見せます。
+        </>}
+      >
+        <Stack>
+          {/*
+            この 2 つは棚が違う。
+            AffiliatePreviewCard は管理面限定（`@/presentation/admin/earn/affiliate-preview-card`）で、
+            金額を出すため読者面へは出さない。DiagramFallback は汎用（`@/presentation/ui`）。
+          */}
+          <AffiliatePreviewCard preview={sampleAffiliatePreview} />
+          <DiagramFallback label="画像を使わない場合" />
+        </Stack>
       </Section>
     </AdminShell>
   );

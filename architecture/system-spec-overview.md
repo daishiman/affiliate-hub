@@ -11,8 +11,8 @@ target_date: null
 iteration: null
 title: "system-spec architecture overview"
 owners: ["system-spec-harness"]
-created_at: "2026-08-28T08:34:56Z"
-updated_at: "2026-08-28T08:34:56Z"
+created_at: "2026-08-29T14:27:14Z"
+updated_at: "2026-08-29T14:27:14Z"
 status: "active"
 depends_on: []
 related_nodes: []
@@ -31,8 +31,8 @@ template_id: "architecture"
 template_version: "1.0.0"
 confirmation_status: "confirmed"
 evaluation_status: "pass"
-confirmation_evidence: {"evaluated_digest":"8397bc1442ca97442364acb4d0897583f6c56ca267d0e84c1f7c2b7cfa5000fd","evaluator":"system-spec-harness/assign-system-spec-completeness-evaluator","evidence_ref":"system-spec/completeness-report.json"}
-source_lineage: {"imported_at":"2026-08-28T08:34:56Z","origin_kind":"system-spec-harness","source_digest":"af460e02930459d08ad7ac2414875f4d5ab4fdc2489ce7cafe51c99263467058","source_path":"system-spec/00-requirements-definition.md","source_plugin":"system-spec-harness","source_version":"0.1.0"}
+confirmation_evidence: {"evaluated_digest":"aebfe3781f374c60b41c2a6698ec24c90e9aa58bed3903675e1b174fc75597a1","evaluator":"system-spec-harness/assign-system-spec-completeness-evaluator","evidence_ref":"system-spec/completeness-report.json"}
+source_lineage: {"imported_at":"2026-08-29T14:27:14Z","origin_kind":"system-spec-harness","source_digest":"af460e02930459d08ad7ac2414875f4d5ab4fdc2489ce7cafe51c99263467058","source_path":"system-spec/00-requirements-definition.md","source_plugin":"system-spec-harness","source_version":"0.1.0"}
 classification_confidence: 1.0
 classification_reason: "system-spec-harness が確定した architecture context の import。"
 classification_candidates: [{"artifact_kind":"architecture","candidate_path":"architecture/system-spec-overview.md","confidence":1.0}]
@@ -43,8 +43,8 @@ github_publication: {"labels":[],"milestone":null,"mode":"local_only","project_a
 github_project_linkages: []
 pull_request_linkages: []
 execution_contexts: []
-completion_evidence: {"completed_at":"2026-08-28T08:34:56Z","evidence_refs":["system-spec/completeness-report.json"],"policy":"manual","reconciled_at":"2026-08-28T08:34:56Z","source":"manual","status":"done"}
-implementation_readiness: {"checked_at":"2026-08-28T08:34:56Z","missing_sections":[],"status":"complete"}
+completion_evidence: {"completed_at":"2026-08-29T14:27:14Z","evidence_refs":["system-spec/completeness-report.json"],"policy":"manual","reconciled_at":"2026-08-29T14:27:14Z","source":"manual","status":"done"}
+implementation_readiness: {"checked_at":"2026-08-29T14:27:14Z","missing_sections":[],"status":"complete"}
 ---
 
 # 要件定義書 (上位概念)

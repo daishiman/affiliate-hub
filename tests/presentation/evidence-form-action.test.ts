@@ -36,7 +36,7 @@ vi.mock("@/presentation/composition", () => ({
 }));
 
 const { createEvidenceAction, createClaimAction, createTestRunAction } = await import(
-  "@/presentation/admin/evidence-form-action"
+  "@/presentation/admin/material/evidence-form-action"
 );
 
 const IDLE = { status: "idle", message: "" } as const;

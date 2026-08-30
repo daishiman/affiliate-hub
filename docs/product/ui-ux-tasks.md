@@ -528,7 +528,7 @@ UX-09 でも起きていた。**この節では 5 行のうち 3 行が説明文
   `type="hidden"`**、残り 1 件が既出のチェックボックス。生の `<button>` は
   `presentation/ui/` の外に **0 件**。**範囲を 2 倍にしても結論は動かなかった。**
 - **外れは 1 件。上の「`<select>` `<textarea>` … 0 箇所」は誤りで、`<textarea>` は 1 件ある。**
-  `src/presentation/admin/feedback-forms.tsx:121` に `className` を持たない `<textarea readOnly>`。
+  `src/presentation/admin/maintain/feedback-forms.tsx:121` に `className` を持たない `<textarea readOnly>`。
   `primitives/textarea.tsx` は在るのに通っていない。
 - **そしてこれが「選択子に入っている ≠ 見られている」の 2 例目である。**
   `screen-hit-and-current.test.tsx` の 44px 走査は選択子に `textarea` を**含んでいる**

@@ -1595,12 +1595,12 @@ export const CHECKS = [
     why: "スキーマだけ変えて公開すると、存在しない列を読んで本番が落ちる。1 秒で終わるので手元でも走らせる",
   },
   {
-    id: "affiliate-content-set",
-    label: "公開前コンテンツ一式の検品",
-    command: ["pnpm", "run", "content:validate"],
+    id: "reference-reuse",
+    label: "参考サイトの転用",
+    command: ["pnpm", "run", "check:reference-reuse"],
     blocking: true,
     tier: 1,
-    why: "記事・投稿を個別に通しても媒体間の食い違いと成果物の渡し忘れは残る。実在する2案件を単一入口で5検品へ通し、媒体の不足と過剰も公開前に止める",
+    why: "参考サイトの実ホスト・実URL・他所のCMS由来の語形・生の色値が、抽象化したはずの仕様と実装へ戻っていないか見る。手元で走らせるだけでは、走らせなかった日の混入が誰にも見えない。走査対象が痩せたこと自体も落ちる（母集団に対する逆向きの被覆検査）ので、ファイルが増えたときの見落としも同じ赤になる",
   },
   {
     id: "acceptance-reconciliation",
@@ -1609,6 +1609,14 @@ export const CHECKS = [
     blocking: true,
     tier: 1,
     why: "A1〜A10の仕様・実装・検査・報告・trackingを共通IDとdigestで結び、古いPASSや公開状態の相反をテスト前に止める",
+  },
+  {
+    id: "affiliate-content-set",
+    label: "公開前コンテンツ一式の検品",
+    command: ["pnpm", "run", "content:validate"],
+    blocking: true,
+    tier: 1,
+    why: "記事・投稿を個別に通しても媒体間の食い違いと成果物の渡し忘れは残る。実在する2案件を単一入口で5検品へ通し、媒体の不足と過剰も公開前に止める",
   },
   {
     id: "test",

@@ -786,6 +786,20 @@ export function createSampleBlogOpsRepository(): BlogOpsRepositoryPort {
           ),
         );
       }
+      const existingArticle = ARTICLES.find((candidate) => candidate.article.id === input.id)?.article;
+      const currentRevision = existingArticle?.revision ?? 1;
+      if (
+        existingArticle !== undefined &&
+        input.expectedRevision !== undefined &&
+        input.expectedRevision !== null &&
+        input.expectedRevision !== currentRevision
+      ) {
+        return err(
+          domainError("CONFLICT", "ほかの人が先にこの記事を保存しました。", {
+            field: "revision",
+          }),
+        );
+      }
       const article: BlogArticle = {
         id: input.id,
         siteSlug: input.siteSlug,
@@ -797,6 +811,7 @@ export function createSampleBlogOpsRepository(): BlogOpsRepositoryPort {
         authorName: input.authorName,
         publishedAt: input.publishedAt,
         updatedAt: input.updatedAt,
+        revision: existingArticle === undefined ? 1 : currentRevision + 1,
       };
       const blocks: readonly BlogArticleBlock[] = input.blocks.map((b) => ({ ...b }));
       const at = ARTICLES.findIndex((a) => a.article.id === input.id);

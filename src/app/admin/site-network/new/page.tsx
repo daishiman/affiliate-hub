@@ -1,6 +1,6 @@
 import { AdminShell } from "@/presentation/admin/admin-shell";
-import { blogSiteOptions } from "@/presentation/admin/blog-site-options";
-import { SiteNetworkForm } from "@/presentation/admin/site-network-form";
+import { blogSiteOptions } from "@/presentation/admin/publish/blog-site-options";
+import { SiteNetworkForm } from "@/presentation/admin/publish/site-network-form";
 import { Prose, Section, TextLink } from "@/presentation/ui";
 
 export const dynamic = "force-dynamic";

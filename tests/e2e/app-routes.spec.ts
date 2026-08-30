@@ -28,6 +28,11 @@ async function auditLayout(page: Page): Promise<LayoutAudit> {
   return page.evaluate(() => {
     const visible = (element: Element): boolean => {
       const style = getComputedStyle(element);
+      const closedDetails = element.closest("details:not([open])");
+      const closedSummary = closedDetails?.querySelector(":scope > summary") ?? null;
+      // Chromiumは閉じたdetailsの子にもrectを返す場合がある。実際に押せる
+      // summary以外を残すと、折り畳み内の欄同士を「重なり」と誤検出する。
+      if (closedDetails !== null && !closedSummary?.contains(element)) return false;
       return (
         style.display !== "none" &&
         style.visibility !== "hidden" &&
@@ -213,18 +218,18 @@ async function auditLayout(page: Page): Promise<LayoutAudit> {
 }
 
 /*
- * **54 ではなく 87 である**（2026-08-26 に数え直した。同日中に
- * `admin/blog/evaluate/[article]` が 1 枚増えて 86 → 87）。
+ * **54 ではなく 111 である**（2026-08-30 に再度数え直した。
+ * 2026-08-26 の 87 画面から、管理・公開画面が 24 枚増えた）。
  *
  * 54 は、この spec が最後に実際に走った日の数である。以後この spec は
  * `readBrowserRoutes()` が投げるようになり（`source-registries.ts` 冒頭に経緯）、
  * **収集の時点で落ちて 1 件も走らないまま**、画面だけが 32 枚増えていた。
  * 落ちていたので、数が合わないことも誰にも見えていなかった。
  */
-test("route registryは87画面、signin確認済みを除く監査対象は86画面", () => {
-  expect(ALL_ROUTES).toHaveLength(87);
-  expect(AUDITED_ROUTES).toHaveLength(86);
-  expect(new Set(AUDITED_ROUTES.map((route) => urlOf(route))).size).toBe(86);
+test("route registryは111画面、signin確認済みを除く監査対象は110画面", () => {
+  expect(ALL_ROUTES).toHaveLength(111);
+  expect(AUDITED_ROUTES).toHaveLength(110);
+  expect(new Set(AUDITED_ROUTES.map((route) => urlOf(route))).size).toBe(110);
 });
 
 for (const route of AUDITED_ROUTES) {

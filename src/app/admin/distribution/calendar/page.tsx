@@ -1,5 +1,5 @@
 import { AdminShell } from "@/presentation/admin/admin-shell";
-import { RescheduleForm } from "@/presentation/admin/reschedule-form";
+import { RescheduleForm } from "@/presentation/admin/publish/reschedule-form";
 import {
   currentActor,
   distributionNotice,

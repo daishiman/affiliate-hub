@@ -24,7 +24,7 @@ vi.mock("@/presentation/composition", () => ({
 }));
 
 const { createContentPackageAction } = await import(
-  "@/presentation/admin/content-package-form-action"
+  "@/presentation/admin/write/content-package-form-action"
 );
 
 const IDLE = { status: "idle", message: "" } as const;

@@ -13,20 +13,20 @@
   },
   "artifacts": {
     "system-spec/00-requirements-definition.md": "af460e02930459d08ad7ac2414875f4d5ab4fdc2489ce7cafe51c99263467058",
-    "system-spec/completeness-report.json": "011f4cfb680f49d6c15311a2f9ed5c3568a8b1ec23ebe538cbbeede4e62bea5a",
-    "system-spec/fetched-references.json": "195a2e2c596da9ccd58f538157ef3f84c83ced54ab0fc0d180a9f45187cb8a49",
-    "system-spec/index.md": "f60154b16fc76f1dd2c5af25dc0ef4cf944fbf3bef8eff23770f4e6d15ce56b6",
-    "system-spec/spec-state.json": "53e7f667ef84a3bc68edc899452e427245ed9281be0704db27985456c858407f"
+    "system-spec/completeness-report.json": "aebfe3781f374c60b41c2a6698ec24c90e9aa58bed3903675e1b174fc75597a1",
+    "system-spec/fetched-references.json": "22e3cba13d35032c387098e341b2caf6f98690b2df33a659ff7bcbb180450547",
+    "system-spec/index.md": "d3be7225ce351be5424414a85e715da82fb0e398f6bae1eb7de14a9d08498726",
+    "system-spec/spec-state.json": "d136370d94c5830abc5c57d7981b49a8da79484afb5011ca88dff3e23967ab8d"
   },
   "inputs": {
-    "file_count": 94,
-    "sha256": "28d0131a3ba07466f3b47d84f4bcb5211360974becf6de963fb8c7d6b8f79a28"
+    "file_count": 81,
+    "sha256": "bddbe24e3be31479ea6a841b498da2f889a58194bf3f4da98b1dc88a0303513f"
   },
   "evaluator": {
     "report_path": "system-spec/completeness-report.json",
-    "report_sha256": "011f4cfb680f49d6c15311a2f9ed5c3568a8b1ec23ebe538cbbeede4e62bea5a",
+    "report_sha256": "aebfe3781f374c60b41c2a6698ec24c90e9aa58bed3903675e1b174fc75597a1",
     "fork_ledger_path": "eval-log/system-spec-harness/audit-fork-ledger.jsonl",
-    "session_id": "7a204a69-a528-482d-ac75-72729041ce80"
+    "session_id": "3365a00b-6f3e-4ca0-baf9-27c73645d41c"
   },
-  "created_at": "2026-08-30T13:50:16Z"
+  "created_at": "2026-08-29T14:25:20Z"
 }

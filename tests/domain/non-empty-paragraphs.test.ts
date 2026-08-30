@@ -35,7 +35,7 @@ describe("空行区切りの本文入力", () => {
     const consumers = [
       "src/application/usecases/site/publish-article.ts",
       "src/application/usecases/site/manage-published-articles.ts",
-      "src/presentation/admin/site-document-action.ts",
+      "src/presentation/admin/publish/site-document-action.ts",
     ];
 
     for (const consumer of consumers) {

@@ -88,22 +88,22 @@ vi.mock("@/infrastructure/persistence/sample/settings-sample-repository", async 
 const {
   advanceLinkIngestionAction,
   submitAffiliateUrlAction,
-} = await import("@/presentation/admin/inbox-action");
-const { checkFactBoundaryAction } = await import("@/presentation/admin/fact-boundary-action");
-const { reschedulePublicationAction } = await import("@/presentation/admin/reschedule-action");
+} = await import("@/presentation/admin/earn/inbox-action");
+const { checkFactBoundaryAction } = await import("@/presentation/admin/write/fact-boundary-action");
+const { reschedulePublicationAction } = await import("@/presentation/admin/publish/reschedule-action");
 const {
   createSiteFromDraftAction,
   saveSiteDraftStepAction,
   startSiteDraftAction,
-} = await import("@/presentation/admin/site-wizard-action");
+} = await import("@/presentation/admin/publish/site-wizard-action");
 const {
   advanceContentStateAction,
   approveContentAction,
-} = await import("@/presentation/admin/content-progress-action");
-const { adjustConversionAction } = await import("@/presentation/admin/adjust-conversion-action");
-const { publishArticleAction } = await import("@/presentation/admin/publish-article-action");
+} = await import("@/presentation/admin/write/content-progress-action");
+const { adjustConversionAction } = await import("@/presentation/admin/earn/adjust-conversion-action");
+const { publishArticleAction } = await import("@/presentation/admin/publish/publish-article-action");
 const { editDisclosureAction, editPolicyRuleAction } = await import(
-  "@/presentation/admin/compliance-action"
+  "@/presentation/admin/maintain/compliance-action"
 );
 const { schedulePublicationAction } = await import(
   "@/presentation/admin/schedule-publication-action"

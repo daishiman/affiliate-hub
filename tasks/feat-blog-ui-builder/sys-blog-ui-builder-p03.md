@@ -17,8 +17,8 @@ status: "active"
 depends_on: ["SYS-BLOG-UI-BUILDER-P02"]
 related_nodes: []
 resource_scope: ["docs/spec/feat-blog-ui-builder/design-review.md"]
-purpose: "P02の設計に対する独立レビューを行い、makuring.jp参照が構成・配置・表記法の参照に留まり丸パクリになっていないこと、配色2層 (blog_theme/page_theme_override) の一貫性、sticky要素のWCAG 2.2 reflow/focus-not-obscured適合、記事表現ブロックのスロット差替可能性、JSON-LD自動生成とSSR出力の整合 (A10対応)、IndexNow鍵のリポジトリ非保存ポリシー (A13対応)、guideline_references の90日再確認設計 (A14対応) の各観点で指摘が反映または残課題化された状態を成立させる。"
-goal: "P02の設計に対する独立レビューを行い、makuring.jp参照が構成・配置・表記法の参照に留まり丸パクリになっていないこと、配色2層 (blog_theme/page_theme_override) の一貫性、sticky要素のWCAG 2.2 reflow/focus-not-obscured適合、記事表現ブロックのスロット差替可能性、JSON-LD自動生成とSSR出力の整合 (A10対応)、IndexNow鍵のリポジトリ非保存ポリシー (A13対応)、guideline_references の90日再確認設計 (A14対応) の各観点で指摘が反映または残課題化された状態を成立させる。"
+purpose: "P02の設計に対する独立レビューを行い、参考ブログ参照が構成・配置・表記法の参照に留まり丸パクリになっていないこと、配色2層 (blog_theme/page_theme_override) の一貫性、sticky要素のWCAG 2.2 reflow/focus-not-obscured適合、記事表現ブロックのスロット差替可能性、JSON-LD自動生成とSSR出力の整合 (A10対応)、IndexNow鍵のリポジトリ非保存ポリシー (A13対応)、guideline_references の90日再確認設計 (A14対応) の各観点で指摘が反映または残課題化された状態を成立させる。"
+goal: "P02の設計に対する独立レビューを行い、参考ブログ参照が構成・配置・表記法の参照に留まり丸パクリになっていないこと、配色2層 (blog_theme/page_theme_override) の一貫性、sticky要素のWCAG 2.2 reflow/focus-not-obscured適合、記事表現ブロックのスロット差替可能性、JSON-LD自動生成とSSR出力の整合 (A10対応)、IndexNow鍵のリポジトリ非保存ポリシー (A13対応)、guideline_references の90日再確認設計 (A14対応) の各観点で指摘が反映または残課題化された状態を成立させる。"
 scope_in: ["Produced artifacts: docs/spec/feat-blog-ui-builder/design-review.md (観点別の指摘・反映結果・残課題)","Consumed artifacts: docs/spec/feat-blog-ui-builder/data-model.md, docs/spec/feat-blog-ui-builder/theme-contract.md, docs/spec/feat-blog-ui-builder/component-contract.md, docs/spec/feat-blog-ui-builder/admin-api-contract.md, docs/spec/feat-blog-ui-builder/seo-ai-search-contract.md","Write scope/touches: docs/spec/feat-blog-ui-builder/design-review.md"]
 scope_out: ["feat-blog-ui-builder の scope_out に該当する変更","P02設計文書そのものの書き換え (指摘の反映はP02再訪または残課題記録に限る)"]
 acceptance: ["Automated commands: `pnpm run lint` (design-review.md記載の指摘に対応するコード規約が既存lint設定と矛盾しないことを確認する)","Automated commands: `python3 .claude/plugins/system-dev-planner/scripts/validate-system-plan.py --repo-root . --feature-package feature-package/feat-blog-ui-builder` (本 package の C12 決定論検証を世代非依存に再実行する)","Required evidence: P03 の 成果物 section に記載した produced artifacts のパス"]
@@ -65,7 +65,7 @@ implementation_readiness: {"checked_at":"2026-08-28T00:00:00Z","missing_sections
 
 ## 目的
 
-P02の設計に対する独立レビューを行い、makuring.jp参照が構成・配置・表記法の参照に留まり丸パクリになっていないこと、配色2層 (blog_theme/page_theme_override) の一貫性、sticky要素のWCAG 2.2 reflow/focus-not-obscured適合、記事表現ブロックのスロット差替可能性、JSON-LD自動生成とSSR出力の整合 (A10対応)、IndexNow鍵のリポジトリ非保存ポリシー (A13対応)、guideline_references の90日再確認設計 (A14対応) の各観点で指摘が反映または残課題化された状態を成立させる。
+P02の設計に対する独立レビューを行い、参考ブログ参照が構成・配置・表記法の参照に留まり丸パクリになっていないこと、配色2層 (blog_theme/page_theme_override) の一貫性、sticky要素のWCAG 2.2 reflow/focus-not-obscured適合、記事表現ブロックのスロット差替可能性、JSON-LD自動生成とSSR出力の整合 (A10対応)、IndexNow鍵のリポジトリ非保存ポリシー (A13対応)、guideline_references の90日再確認設計 (A14対応) の各観点で指摘が反映または残課題化された状態を成立させる。
 
 ## 背景
 
@@ -135,7 +135,7 @@ system-spec/ui-ux.md はsticky要素にWCAG 2.2 reflow/focus-not-obscuredを適�
 
 ## 完了条件
 
-- design-review.md に全観点 (makuring.jp参照妥当性・配色2層一貫性・sticky WCAG適合・スロット拡張性・JSON-LD/SSR整合・IndexNow鍵ポリシー・guideline_references 90日設計) の指摘記録がある
+- design-review.md に全観点 (参考ブログ参照妥当性・配色2層一貫性・sticky WCAG適合・スロット拡張性・JSON-LD/SSR整合・IndexNow鍵ポリシー・guideline_references 90日設計) の指摘記録がある
 
 ## 判定項目
 
@@ -153,7 +153,7 @@ system-spec/ui-ux.md はsticky要素にWCAG 2.2 reflow/focus-not-obscuredを適�
 ## Inner goal-seek execution loop
 
 - Methodology contract: `system-task-goal-seek/v1`
-- Goal: P02の設計に対する独立レビューを行い、makuring.jp参照妥当性・配色2層一貫性・sticky WCAG適合・スロット差替可能性・JSON-LD/SSR整合・IndexNow鍵ポリシー・guideline_references 90日設計の各観点で指摘が反映または残課題化された状態を成立させる。
+- Goal: P02の設計に対する独立レビューを行い、参考ブログ参照妥当性・配色2層一貫性・sticky WCAG適合・スロット差替可能性・JSON-LD/SSR整合・IndexNow鍵ポリシー・guideline_references 90日設計の各観点で指摘が反映または残課題化された状態を成立させる。
 - Generic execution prompt: feat-blog-ui-builder の goal と本 task の 前提条件/成果物/write_scope/スコープ外 を渡し、実装手段は固定せず P03 の目的を満たす成果物を作らせる
 - Rubric: 受け入れ条件 (本 task の acceptance)・カバレッジ目標 (既定80%) green・既存テストの回帰0件・Required evidence の証跡取得・write_scope 内へのスコープ厳守、の5点をすべて満たすこと
 - Feedback loop: 実装から独立評価 (P03/P09/P10相当) へ渡し、findingをGeneric execution promptへ反映して再実行し、rubric verdict=PASSまで反復する。上限到達時はfail-closedで停止し前段phaseへ差し戻す

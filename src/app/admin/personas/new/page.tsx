@@ -1,5 +1,5 @@
 import { AdminShell } from "@/presentation/admin/admin-shell";
-import { CreateAuthorPersonaForm } from "@/presentation/admin/persona-form";
+import { CreateAuthorPersonaForm } from "@/presentation/admin/write/persona-form";
 import { Prose, Section, TextLink } from "@/presentation/ui";
 
 export const dynamic = "force-dynamic";

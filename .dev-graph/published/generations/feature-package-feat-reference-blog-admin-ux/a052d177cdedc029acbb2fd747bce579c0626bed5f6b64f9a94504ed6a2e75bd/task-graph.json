@@ -1,0 +1,208 @@
+{
+  "schema_version": "1.0.0",
+  "feature_package_id": "feature-package/feat-reference-blog-admin-ux",
+  "parent_feature": "feat-reference-blog-admin-ux",
+  "nodes": [
+    {
+      "id": "SYS-REFERENCE-BLOG-ADMIN-UX-P01",
+      "phase_ref": "P01",
+      "feature_package_id": "feature-package/feat-reference-blog-admin-ux",
+      "parent_feature": "feat-reference-blog-admin-ux",
+      "depends_on": []
+    },
+    {
+      "id": "SYS-REFERENCE-BLOG-ADMIN-UX-P02",
+      "phase_ref": "P02",
+      "feature_package_id": "feature-package/feat-reference-blog-admin-ux",
+      "parent_feature": "feat-reference-blog-admin-ux",
+      "depends_on": [
+        "SYS-REFERENCE-BLOG-ADMIN-UX-P01"
+      ]
+    },
+    {
+      "id": "SYS-REFERENCE-BLOG-ADMIN-UX-P03",
+      "phase_ref": "P03",
+      "feature_package_id": "feature-package/feat-reference-blog-admin-ux",
+      "parent_feature": "feat-reference-blog-admin-ux",
+      "depends_on": [
+        "SYS-REFERENCE-BLOG-ADMIN-UX-P02"
+      ]
+    },
+    {
+      "id": "SYS-REFERENCE-BLOG-ADMIN-UX-P04",
+      "phase_ref": "P04",
+      "feature_package_id": "feature-package/feat-reference-blog-admin-ux",
+      "parent_feature": "feat-reference-blog-admin-ux",
+      "depends_on": [
+        "SYS-REFERENCE-BLOG-ADMIN-UX-P03"
+      ]
+    },
+    {
+      "id": "SYS-REFERENCE-BLOG-ADMIN-UX-P05",
+      "phase_ref": "P05",
+      "feature_package_id": "feature-package/feat-reference-blog-admin-ux",
+      "parent_feature": "feat-reference-blog-admin-ux",
+      "depends_on": [
+        "SYS-REFERENCE-BLOG-ADMIN-UX-P04"
+      ]
+    },
+    {
+      "id": "SYS-REFERENCE-BLOG-ADMIN-UX-P06",
+      "phase_ref": "P06",
+      "feature_package_id": "feature-package/feat-reference-blog-admin-ux",
+      "parent_feature": "feat-reference-blog-admin-ux",
+      "depends_on": [
+        "SYS-REFERENCE-BLOG-ADMIN-UX-P05"
+      ]
+    },
+    {
+      "id": "SYS-REFERENCE-BLOG-ADMIN-UX-P07",
+      "phase_ref": "P07",
+      "feature_package_id": "feature-package/feat-reference-blog-admin-ux",
+      "parent_feature": "feat-reference-blog-admin-ux",
+      "depends_on": [
+        "SYS-REFERENCE-BLOG-ADMIN-UX-P06"
+      ]
+    },
+    {
+      "id": "SYS-REFERENCE-BLOG-ADMIN-UX-P08",
+      "phase_ref": "P08",
+      "feature_package_id": "feature-package/feat-reference-blog-admin-ux",
+      "parent_feature": "feat-reference-blog-admin-ux",
+      "depends_on": [
+        "SYS-REFERENCE-BLOG-ADMIN-UX-P05"
+      ]
+    },
+    {
+      "id": "SYS-REFERENCE-BLOG-ADMIN-UX-P09",
+      "phase_ref": "P09",
+      "feature_package_id": "feature-package/feat-reference-blog-admin-ux",
+      "parent_feature": "feat-reference-blog-admin-ux",
+      "depends_on": [
+        "SYS-REFERENCE-BLOG-ADMIN-UX-P07",
+        "SYS-REFERENCE-BLOG-ADMIN-UX-P08"
+      ]
+    },
+    {
+      "id": "SYS-REFERENCE-BLOG-ADMIN-UX-P10",
+      "phase_ref": "P10",
+      "feature_package_id": "feature-package/feat-reference-blog-admin-ux",
+      "parent_feature": "feat-reference-blog-admin-ux",
+      "depends_on": [
+        "SYS-REFERENCE-BLOG-ADMIN-UX-P09"
+      ]
+    },
+    {
+      "id": "SYS-REFERENCE-BLOG-ADMIN-UX-P11",
+      "phase_ref": "P11",
+      "feature_package_id": "feature-package/feat-reference-blog-admin-ux",
+      "parent_feature": "feat-reference-blog-admin-ux",
+      "depends_on": [
+        "SYS-REFERENCE-BLOG-ADMIN-UX-P07",
+        "SYS-REFERENCE-BLOG-ADMIN-UX-P09",
+        "SYS-REFERENCE-BLOG-ADMIN-UX-P10"
+      ]
+    },
+    {
+      "id": "SYS-REFERENCE-BLOG-ADMIN-UX-P12",
+      "phase_ref": "P12",
+      "feature_package_id": "feature-package/feat-reference-blog-admin-ux",
+      "parent_feature": "feat-reference-blog-admin-ux",
+      "depends_on": [
+        "SYS-REFERENCE-BLOG-ADMIN-UX-P10",
+        "SYS-REFERENCE-BLOG-ADMIN-UX-P11"
+      ]
+    },
+    {
+      "id": "SYS-REFERENCE-BLOG-ADMIN-UX-P13",
+      "phase_ref": "P13",
+      "feature_package_id": "feature-package/feat-reference-blog-admin-ux",
+      "parent_feature": "feat-reference-blog-admin-ux",
+      "depends_on": [
+        "SYS-REFERENCE-BLOG-ADMIN-UX-P12"
+      ]
+    }
+  ],
+  "edges": [
+    {
+      "from": "SYS-REFERENCE-BLOG-ADMIN-UX-P01",
+      "to": "SYS-REFERENCE-BLOG-ADMIN-UX-P02",
+      "type": "depends_on"
+    },
+    {
+      "from": "SYS-REFERENCE-BLOG-ADMIN-UX-P02",
+      "to": "SYS-REFERENCE-BLOG-ADMIN-UX-P03",
+      "type": "depends_on"
+    },
+    {
+      "from": "SYS-REFERENCE-BLOG-ADMIN-UX-P03",
+      "to": "SYS-REFERENCE-BLOG-ADMIN-UX-P04",
+      "type": "depends_on"
+    },
+    {
+      "from": "SYS-REFERENCE-BLOG-ADMIN-UX-P04",
+      "to": "SYS-REFERENCE-BLOG-ADMIN-UX-P05",
+      "type": "depends_on"
+    },
+    {
+      "from": "SYS-REFERENCE-BLOG-ADMIN-UX-P05",
+      "to": "SYS-REFERENCE-BLOG-ADMIN-UX-P06",
+      "type": "depends_on"
+    },
+    {
+      "from": "SYS-REFERENCE-BLOG-ADMIN-UX-P06",
+      "to": "SYS-REFERENCE-BLOG-ADMIN-UX-P07",
+      "type": "depends_on"
+    },
+    {
+      "from": "SYS-REFERENCE-BLOG-ADMIN-UX-P05",
+      "to": "SYS-REFERENCE-BLOG-ADMIN-UX-P08",
+      "type": "depends_on"
+    },
+    {
+      "from": "SYS-REFERENCE-BLOG-ADMIN-UX-P07",
+      "to": "SYS-REFERENCE-BLOG-ADMIN-UX-P09",
+      "type": "depends_on"
+    },
+    {
+      "from": "SYS-REFERENCE-BLOG-ADMIN-UX-P08",
+      "to": "SYS-REFERENCE-BLOG-ADMIN-UX-P09",
+      "type": "depends_on"
+    },
+    {
+      "from": "SYS-REFERENCE-BLOG-ADMIN-UX-P09",
+      "to": "SYS-REFERENCE-BLOG-ADMIN-UX-P10",
+      "type": "depends_on"
+    },
+    {
+      "from": "SYS-REFERENCE-BLOG-ADMIN-UX-P07",
+      "to": "SYS-REFERENCE-BLOG-ADMIN-UX-P11",
+      "type": "depends_on"
+    },
+    {
+      "from": "SYS-REFERENCE-BLOG-ADMIN-UX-P09",
+      "to": "SYS-REFERENCE-BLOG-ADMIN-UX-P11",
+      "type": "depends_on"
+    },
+    {
+      "from": "SYS-REFERENCE-BLOG-ADMIN-UX-P10",
+      "to": "SYS-REFERENCE-BLOG-ADMIN-UX-P11",
+      "type": "depends_on"
+    },
+    {
+      "from": "SYS-REFERENCE-BLOG-ADMIN-UX-P10",
+      "to": "SYS-REFERENCE-BLOG-ADMIN-UX-P12",
+      "type": "depends_on"
+    },
+    {
+      "from": "SYS-REFERENCE-BLOG-ADMIN-UX-P11",
+      "to": "SYS-REFERENCE-BLOG-ADMIN-UX-P12",
+      "type": "depends_on"
+    },
+    {
+      "from": "SYS-REFERENCE-BLOG-ADMIN-UX-P12",
+      "to": "SYS-REFERENCE-BLOG-ADMIN-UX-P13",
+      "type": "depends_on"
+    }
+  ]
+}

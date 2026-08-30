@@ -98,10 +98,10 @@ export function buildPublicSiteLifecycleSeedSql({
          VALUES (${q(fixture.nodeId)}, ${q(workspaceId)}, ${q(fixture.siteSlug)}, 'sub', ${q(parentSiteSlug)}, ${q(fixture.siteName)}, ${q("公開状態のE2E検証用。")}, 90, 'active', ${nowSeconds}, ${nowSeconds});`,
       `INSERT INTO articles (id, workspace_id, site_slug, slug, article_template, type, title, lead, status, author_name, published_at, created_at, updated_at)
          VALUES (${q(fixture.articleId)}, ${q(workspaceId)}, ${q(fixture.siteSlug)}, ${q(fixture.articleSlug)}, 'T1', 'ranking', ${q(fixture.articleTitle)}, ${q(fixture.articleLead)}, 'published', 'Playwright', ${nowSeconds}, ${nowSeconds}, ${nowSeconds});`,
-      `INSERT INTO blog_article_block (id, article_id, kind, heading, body, position)
-         VALUES (${q(`bb_${fixture.articleId}`)}, ${q(fixture.articleId)}, 'summary-section', ${q(fixture.articleBlockHeading)}, ${q(fixture.articleBlockBody)}, 0);`,
-      `INSERT INTO legal_page (id, site_slug, kind, title, body, status, deleted_at, updated_at)
-         VALUES (${q(fixture.fixedPageId)}, ${q(fixture.siteSlug)}, 'profile', ${q(fixture.fixedPageTitle)}, ${q(fixture.fixedPageBody)}, 'published', NULL, ${nowSeconds});`,
+      `INSERT INTO blog_article_block (id, workspace_id, article_id, kind, heading, body, position)
+         VALUES (${q(`bb_${fixture.articleId}`)}, ${q(workspaceId)}, ${q(fixture.articleId)}, 'summary-section', ${q(fixture.articleBlockHeading)}, ${q(fixture.articleBlockBody)}, 0);`,
+      `INSERT INTO legal_page (id, workspace_id, site_slug, kind, title, body, status, deleted_at, updated_at)
+         VALUES (${q(fixture.fixedPageId)}, ${q(workspaceId)}, ${q(fixture.siteSlug)}, 'profile', ${q(fixture.fixedPageTitle)}, ${q(fixture.fixedPageBody)}, 'published', NULL, ${nowSeconds});`,
     );
   }
   return out;

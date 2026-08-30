@@ -142,7 +142,7 @@ export function siteTools(deps: AppDeps): readonly AnyToolDefinition[] {
         item: z.object({
           productId: z.string().min(1),
           productName: z.string().min(1),
-          savedAt: z.string().min(1),
+          shortlistedAt: z.string().min(1),
           fromArticleHref: z.string().optional(),
           oneLine: z.string().optional(),
         }),

@@ -29,7 +29,7 @@ vi.mock("@/presentation/composition", () => ({
 }));
 
 const { saveBrandAction, updateWorkspaceAction } = await import(
-  "@/presentation/admin/settings-form-action"
+  "@/presentation/admin/maintain/settings-form-action"
 );
 
 const IDLE = { status: "idle", message: "" } as const;

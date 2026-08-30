@@ -59,7 +59,6 @@ const UNWIRED: ReadonlySet<string> = new Set([
   "blog_theme",
   "page_theme_override",
   "blog_template",
-  "blog_affiliate_placement",
 ]);
 
 const TABLE_EXEMPT: Readonly<
@@ -149,7 +148,6 @@ const INDEX_EXEMPT: Readonly<Record<string, string>> = {
    * 最初の口を書く人が、索引を作業場所始まりに直す。
    */
   blog_template: "未配線。site_slug 始まりの索引しか無い。最初の口を書くときに直す",
-  blog_affiliate_placement: "未配線。site_slug 始まりの索引しか無い。最初の口を書くときに直す",
 };
 
 /**
@@ -549,7 +547,7 @@ describe("使われていないことを根拠にした免除は、使われて�
 
   it("未配線の一覧は、実在する表だけを指している", () => {
     // 表を消した／名前を変えたのに一覧が残ると、次に同じ名前の表を足した日に黙って免除される。
-    expect(UNWIRED.size).toBeGreaterThan(3);
+    expect(UNWIRED.size).toBeGreaterThan(2);
     expect(TABLES.length).toBeGreaterThan(35);
     const known = new Set(TABLES.map((t) => t.name));
     expect([...UNWIRED].filter((name) => !known.has(name))).toEqual([]);
@@ -561,7 +559,7 @@ describe("使われていないことを根拠にした免除は、使われて�
      * `INDEX_EXEMPT` にだけ足して `UNWIRED` に足し忘れると、
      * その表は**見張りの外**で免除され続ける。
      */
-    expect(UNWIRED.size).toBeGreaterThan(3);
+    expect(UNWIRED.size).toBeGreaterThan(2);
     const claimed = [
       ...Object.entries(TABLE_EXEMPT)
         .filter(([, v]) => v.kind === "unwired")
@@ -570,7 +568,7 @@ describe("使われていないことを根拠にした免除は、使われて�
         .filter(([, why]) => why.startsWith("未配線"))
         .map(([name]) => name),
     ];
-    expect(claimed.length).toBeGreaterThan(3);
+    expect(claimed.length).toBeGreaterThan(2);
     expect(
       claimed.filter((name) => !UNWIRED.has(name)),
       "未配線を理由に免除した表が UNWIRED に載っていません。載せないと、使い始めても赤くなりません。",

@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "rejected_hosts": [
+    "http://127.0.0.1/",
+    "http://169.254.169.254/latest/meta-data/",
+    "http://10.0.0.1/",
+    "http://[::1]/",
+    "http://[::ffff:127.0.0.1]/"
+  ],
+  "dns_cases": [
+    {"name":"no-answer","answers":[],"allowed":false},
+    {"name":"mixed","answers":["203.0.113.2","10.0.0.2"],"allowed":false},
+    {"name":"failure","error":"SERVFAIL","allowed":false}
+  ],
+  "host_policy": {
+    "default": "deny",
+    "deny_precedes_allow": true,
+    "redirect_recheck": true
+  },
+  "image_cases": [
+    {"url":"https://images.provider.test/item.png","imageDisplayAllowed":true,"hostAllowed":true,"display":"remote"},
+    {"url":"http://images.provider.test/item.png","imageDisplayAllowed":true,"hostAllowed":true,"display":"diagram"},
+    {"url":"https://127.0.0.1/item.png","imageDisplayAllowed":true,"hostAllowed":false,"display":"diagram"},
+    {"url":"https://unknown.test/item.png","imageDisplayAllowed":false,"hostAllowed":false,"display":"diagram"}
+  ]
+}
