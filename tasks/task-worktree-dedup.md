@@ -12,7 +12,7 @@ iteration: null
 title: "今回のワークツリーの重複除去とコンポーネント整理"
 owners: ["daishiman"]
 created_at: "2026-08-21T00:00:00Z"
-updated_at: "2026-08-22T00:00:00Z"
+updated_at: "2026-08-30T00:00:00Z"
 status: "active"
 depends_on: []
 related_nodes: ["feat-ui-foundation", "feat-improvement-feedback"]
@@ -71,6 +71,9 @@ implementation_readiness: {"checked_at":"2026-08-22T00:00:00Z","missing_sections
 - `domain/feedback/diagnostics.ts` による保存前の縮約
 - `MembershipRepositoryPort.countCurrent`
 - `pnpm test:e2e` の入口
+- `domain/authoring/non-empty-paragraphs.ts` による本文欄の段落分けの一本化（2026-08-30）
+- `mergeSummariesWithSamples` による読者向け一覧の重ね方の一本化（2026-08-30）
+- `resolveSampleSiteDocument` による見本の固定文書の解決の一本化（2026-08-30）
 
 ## 依存関係
 
@@ -107,6 +110,10 @@ implementation_readiness: {"checked_at":"2026-08-22T00:00:00Z","missing_sections
 4. 担当者数を `countCurrent` に移す
 5. MCP catalog の二重生成を止める
 6. `pnpm run verify --tier 1` を通す
+7. （2026-08-30）本文欄の段落分けを `parseNonEmptyParagraphs` へ、読者向け一覧の重ね方を
+   `mergeSummariesWithSamples` へ、見本の固定文書の解決を `resolveSampleSiteDocument` へ寄せる
+8. （2026-08-30）寄せた先が再び分岐しないよう、構造そのものを検査で固定する。
+   製品文書が挙げる migration と正本 source は実在を機械で確かめる
 
 ## 受入条件
 
@@ -114,11 +121,15 @@ implementation_readiness: {"checked_at":"2026-08-22T00:00:00Z","missing_sections
 - [x] 診断の保存値に生の token / メール / 例外本文が残らない
 - [x] 担当者数が見本件数と D1 で食い違わない
 - [ ] 仕様完全性評価が PASS（`ah-8h2.2`）
-- [ ] 関連する lint / 型検査 / テストが緑
+- [x] 関連する lint / 型検査 / テストが緑（2026-08-30 `pnpm run verify --tier 1` exit 0）
+- [x] 本文欄の段落分け・読者向け一覧の重ね方・見本の固定文書の解決が、それぞれ 1 つの関数を通る
+- [x] 製品文書が挙げる migration と正本 source が実在する
 
 ## 検証方法
 
 - 自動検証: `pnpm run verify --tier 1`
+- 2026-08-30 実測: verify --tier 1 全 7 項目 OK。単体は `tests/{application,infrastructure,domain,architecture}`
+  228 files / 4,513 tests と `tests/{presentation,integration,ui,security,e2e-lite}` 166 files / 5,146 tests が PASS
 - 実ブラウザ: `pnpm test:e2e`（preview 起動を含む。既定の verify には入れない）
 - 証跡: `docs/spec-writeback-receipt.md`
 

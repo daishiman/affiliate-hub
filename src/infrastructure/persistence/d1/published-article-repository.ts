@@ -64,6 +64,22 @@ function byUpdatedDesc(a: ArticleSummary, b: ArticleSummary): number {
   return b.updatedAt.localeCompare(a.updatedAt) || a.slug.localeCompare(b.slug);
 }
 
+type StoredSummaryState = {
+  readonly active: readonly ArticleSummary[];
+  readonly reservedSlugs: readonly string[];
+};
+
+/** reader ごとに同じ「見本を戻さない」判定と並び順を分岐させない。 */
+function mergeSummariesWithSamples(
+  stored: StoredSummaryState,
+  sample: readonly ArticleSummary[],
+  hidden: ReadonlySet<string>,
+): readonly ArticleSummary[] {
+  return [
+    ...mergeBySlug(stored.active, sample, stored.reservedSlugs, hidden),
+  ].sort(byUpdatedDesc);
+}
+
 const URL_STATE_CONFLICT = "published_article_url_state_conflict";
 
 function isUrlStateConflict(cause: unknown): boolean {
@@ -232,9 +248,7 @@ export function createD1ContentRepository(db: DrizzleD1): EditorialPublishedCont
   }
 
   /** そのブログで出した記事を、更新日の新しい順で読む。 */
-  async function storedSummaries(
-    siteSlug: string,
-  ): Promise<{ readonly active: readonly ArticleSummary[]; readonly reservedSlugs: readonly string[] }> {
+  async function storedSummaries(siteSlug: string): Promise<StoredSummaryState> {
     const rows = await db
       .select({
         slug: publishedArticles.slug,
@@ -258,14 +272,11 @@ export function createD1ContentRepository(db: DrizzleD1): EditorialPublishedCont
         const sample = await samples.listRecent(siteSlug, limit);
         if (!sample.ok) return sample;
         const stored = await storedSummaries(siteSlug);
-        const merged = [
-          ...mergeBySlug(
-            stored.active,
-            sample.value,
-            stored.reservedSlugs,
-            await hiddenSlugs(siteSlug),
-          ),
-        ].sort(byUpdatedDesc);
+        const merged = mergeSummariesWithSamples(
+          stored,
+          sample.value,
+          await hiddenSlugs(siteSlug),
+        );
         return ok(merged.slice(0, limit));
       } catch (cause) {
         return storageFailure("新着記事の読み込み", cause);
@@ -293,14 +304,13 @@ export function createD1ContentRepository(db: DrizzleD1): EditorialPublishedCont
         const stored = rows
           .filter((row) => row.archivedAt === null)
           .map((row) => toSummary(parse(row.articleJson)));
-        return ok([
-          ...mergeBySlug(
-            stored,
+        return ok(
+          mergeSummariesWithSamples(
+            { active: stored, reservedSlugs: rows.map((row) => row.slug) },
             sample.value,
-            rows.map((row) => row.slug),
             await hiddenSlugs(siteSlug),
           ),
-        ].sort(byUpdatedDesc));
+        );
       } catch (cause) {
         return storageFailure("カテゴリー内の記事の読み込み", cause);
       }
@@ -357,14 +367,13 @@ export function createD1ContentRepository(db: DrizzleD1): EditorialPublishedCont
               )
                 .filter((row) => row.archivedAt === null)
                 .map((row) => toSummary(parse(row.articleJson)));
-        return ok([
-          ...mergeBySlug(
-            stored,
+        return ok(
+          mergeSummariesWithSamples(
+            { active: stored, reservedSlugs: allStored.reservedSlugs },
             sample.value,
-            allStored.reservedSlugs,
             await hiddenSlugs(siteSlug),
-          ),
-        ].sort(byUpdatedDesc).slice(0, limit));
+          ).slice(0, limit),
+        );
       } catch (cause) {
         return storageFailure("記事の検索", cause);
       }
@@ -422,14 +431,13 @@ export function createD1ContentRepository(db: DrizzleD1): EditorialPublishedCont
         const stored = rows
           .filter((row) => row.archivedAt === null)
           .map((row) => toSummary(parse(row.articleJson)));
-        return ok([
-          ...mergeBySlug(
-            stored,
+        return ok(
+          mergeSummariesWithSamples(
+            { active: stored, reservedSlugs: rows.map((row) => row.slug) },
             sample.value,
-            rows.map((row) => row.slug),
             await hiddenSlugs(siteSlug),
           ),
-        ].sort(byUpdatedDesc));
+        );
       } catch (cause) {
         return storageFailure("書き手の記事の読み込み", cause);
       }

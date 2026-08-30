@@ -4,15 +4,10 @@ import { revalidatePath } from "next/cache";
 import { articleHref } from "@/application/read-models/published-article";
 import { siteBasePathBySlug } from "@/domain/authoring";
 import { publishedArticleAdminUseCases, signedInActor } from "@/presentation/composition";
+import { parseNonEmptyLines } from "./non-empty-lines";
 import type { PublishedArticleFormState } from "./published-article-state";
 import { failureFromDomainError, notSignedInFailure } from "./use-case-result";
 
-function lines(value: FormDataEntryValue | null): readonly string[] {
-  return String(value ?? "")
-    .split("\n")
-    .map((line) => line.trim())
-    .filter(Boolean);
-}
 function sections(formData: FormData) {
   const ids = formData.getAll("sectionId").map(String);
   const headings = formData.getAll("sectionHeading").map(String);
@@ -39,7 +34,7 @@ export async function updatePublishedArticleAction(
     summary: String(formData.get("summary") ?? ""),
     authorName: String(formData.get("authorName") ?? ""),
     authorBio: String(formData.get("authorBio") ?? ""),
-    authorCredentials: lines(formData.get("authorCredentials")),
+    authorCredentials: parseNonEmptyLines(String(formData.get("authorCredentials") ?? "")),
     sections: sections(formData),
     reason: String(formData.get("reason") ?? ""),
   });

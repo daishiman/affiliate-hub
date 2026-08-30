@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { parseNonEmptyParagraphs } from "@/domain/authoring";
 import { siteBasePathBySlug } from "@/domain/authoring/site";
 import { signedInActor, siteDocumentUseCases } from "@/presentation/composition";
 import type { SiteDocumentState } from "./site-document-state";
@@ -25,10 +26,7 @@ export async function saveSiteDocumentAction(
 
   const siteSlug = String(formData.get("siteSlug") ?? "");
   const key = String(formData.get("key") ?? "");
-  const body = String(formData.get("body") ?? "")
-    .split(/\n\s*\n/)
-    .map((paragraph) => paragraph.trim())
-    .filter((paragraph) => paragraph !== "");
+  const body = parseNonEmptyParagraphs(String(formData.get("body") ?? ""));
 
   const result = await (await siteDocumentUseCases()).save.execute(actor, {
     siteSlug,

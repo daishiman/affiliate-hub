@@ -3,6 +3,7 @@ import type { IdGeneratorPort } from "@/application/ports/common";
 import type { AuditLogPort } from "@/application/ports/compliance";
 import type { EditorialPublishedArticleAdminPort } from "@/application/ports/site";
 import type { PublishedArticle } from "@/application/read-models/published-article";
+import { parseNonEmptyParagraphs } from "@/domain/authoring";
 import { requireCapability } from "@/domain/identity";
 import {
   type ActorContext,
@@ -100,13 +101,6 @@ function notFound(): Result<never, DomainError> {
   );
 }
 
-function splitParagraphs(body: string): readonly string[] {
-  return body
-    .split(/\n\s*\n/u)
-    .map((paragraph) => paragraph.trim())
-    .filter((paragraph) => paragraph !== "");
-}
-
 export function createUpdatePublishedArticleUseCase(
   deps: WriteDeps,
 ): UseCase<UpdatePublishedArticleInput, PublishedArticle> {
@@ -147,7 +141,7 @@ export function createUpdatePublishedArticleUseCase(
         if (edited === undefined) continue;
         const heading = required(edited.heading, "節の見出し", `sections.${section.id}.heading`);
         if (!heading.ok) return heading;
-        const paragraphs = splitParagraphs(edited.body);
+        const paragraphs = parseNonEmptyParagraphs(edited.body);
         if (paragraphs.length === 0) {
           return err(validationError("節の本文を入力してください。", `sections.${section.id}.body`));
         }

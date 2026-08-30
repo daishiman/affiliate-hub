@@ -5,9 +5,9 @@
 要件 → テストの向きは `docs/product/traceability.md` が正本で、ここはその裏返しに
 テスト側の `@req` 印を重ねたもの。
 
-- 最終更新: 2026-08-29
-- テストファイル: 405 件
-- 由来の要件が分かる: 403 件
+- 最終更新: 2026-08-30
+- テストファイル: 409 件
+- 由来の要件が分かる: 407 件
 - **由来不明: 2 件**（上限 2 件）
 
 由来不明とは「どの要件のために書いたのか、機械から辿れない」という意味で、
@@ -123,6 +123,8 @@
 | `tests/architecture/native-dependencies.test.ts` | REQ-CI01 | 印 |
 | `tests/architecture/open-doors.test.ts` | REQ-S10, REQ-TS12 | 印と表 |
 | `tests/architecture/package-manager-source.test.ts` | REQ-CI01 | 印と表 |
+| `tests/architecture/product-source-links.test.ts` | REQ-TS12 | 印 |
+| `tests/architecture/published-article-reader-merge.test.ts` | REQ-TS09 | 印 |
 | `tests/architecture/qa-scope-notes-coverage.test.ts` | REQ-TS19 | 印と表 |
 | `tests/architecture/qa-source-digest-meaning.test.ts` | REQ-TS20 | 印と表 |
 | `tests/architecture/quality-gates.test.ts` | REQ-CI02, REQ-CI03, REQ-CI09, REQ-TS09, REQ-TS10 | 印 |
@@ -184,6 +186,7 @@
 | `tests/domain/loop-record.test.ts` | REQ-IM13 | 印 |
 | `tests/domain/membership-write.test.ts` | REQ-P01 | 印 |
 | `tests/domain/metrics-from-telemetry.test.ts` | REQ-P10, REQ-TM01, REQ-TM04 | 印 |
+| `tests/domain/non-empty-paragraphs.test.ts` | REQ-TS12 | 印 |
 | `tests/domain/permissions.test.ts` | REQ-API02, REQ-R01, REQ-R02, REQ-R03, REQ-R04, REQ-R05, REQ-R06, REQ-R07, REQ-R08, REQ-R09, REQ-R10, REQ-R11, REQ-R12 | 印と表 |
 | `tests/domain/planning.test.ts` | REQ-E23, REQ-P06, REQ-SEC07 | 印と表 |
 | `tests/domain/policy-channel-scope.test.ts` | REQ-SEC07 | 印と表 |
@@ -244,6 +247,7 @@
 | `tests/infrastructure/sample-distribution-pagination.test.ts` | REQ-P08 | 印 |
 | `tests/infrastructure/sample-feedback-repository.test.ts` | REQ-FB04, REQ-FB06, REQ-FB07, REQ-FB08 | 印 |
 | `tests/infrastructure/sample-integration-keys.test.ts` | REQ-FB07, REQ-FB08 | 印 |
+| `tests/infrastructure/sample-site-document-repository.test.ts` | REQ-P07 | 印 |
 | `tests/infrastructure/secret-minter.test.ts` | REQ-FB12 | 印と表 |
 | `tests/infrastructure/session-actor.test.ts` | REQ-S10 | 印 |
 | `tests/infrastructure/session-issuer.test.ts` | REQ-S10 | 印 |
@@ -425,4 +429,4 @@
 | `tests/ui/uiux-spacing-and-copy.test.ts` | REQ-UX08, REQ-UX10 | 印と表 |
 | `tests/ui/zz-probe-tone.test.tsx` | REQ-TM07 | 表 |
 | `tests/visual/visual-regression.test.ts` | REQ-S09, REQ-TS12, REQ-UX08 | 印 |
-<!-- 生成物の指紋 sha256:df7ec0a550cbd3eefa36935c7eef51c0b8e5501b21ce1d3004b0e09778a5adc0 -->
+<!-- 生成物の指紋 sha256:a816bbfdc941b5355db547b5658dcca8f5f9f708964ae25280bf2ed3872290ce -->

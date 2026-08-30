@@ -4,7 +4,7 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { parseNonEmptyLines } from "@/presentation/admin/non-empty-lines";
 
-const repeatedNonEmptyLinesParser = /\.split\(\s*["']\\n["']\s*\)\s*\.map\(\s*\(\s*([A-Za-z_$][\w$]*)\s*\)\s*=>\s*\1\.trim\(\)\s*\)\s*\.filter\(\s*\(\s*([A-Za-z_$][\w$]*)\s*\)\s*=>\s*\2\s*!==\s*["']["']\s*\)/;
+const repeatedNonEmptyLinesParser = /\.split\(\s*["']\\n["']\s*\)\s*\.map\(\s*\(\s*([A-Za-z_$][\w$]*)\s*\)\s*=>\s*\1\.trim\(\)\s*\)\s*\.filter\(\s*(?:Boolean|\(\s*([A-Za-z_$][\w$]*)\s*\)\s*=>\s*\2\s*!==\s*["']["'])\s*\)/;
 
 function repeatsNonEmptyLinesParser(source: string) {
   return repeatedNonEmptyLinesParser.test(source);
@@ -22,13 +22,14 @@ describe("1 行 1 件の管理画面入力", () => {
     expect(parseNonEmptyLines("ひとつ\r\nふたつ\r\n")).toEqual(["ひとつ", "ふたつ"]);
   });
 
-  it("同じ行パーサーを使う 5 つの入口は、共通関数から読む", () => {
+  it("同じ行パーサーを使う 6 つの入口は、共通関数から読む", () => {
     const consumers = [
       "evidence-form-state.ts",
       "publish-article-action.ts",
       "persona-form-state.ts",
       "settings-form-state.ts",
       "affiliate-form-action.ts",
+      "published-article-action.ts",
     ];
     for (const file of consumers) {
       const source = readFileSync(
@@ -48,6 +49,12 @@ describe("1 行 1 件の管理画面入力", () => {
       .filter((entry) => entry !== "");`;
 
     expect(repeatsNonEmptyLinesParser(duplicate)).toBe(true);
+    expect(
+      repeatsNonEmptyLinesParser(String.raw`const lines = (text: string) => text
+        .split("\n")
+        .map((line) => line.trim())
+        .filter(Boolean);`),
+    ).toBe(true);
   });
 
   it("管理画面に同じ行パーサーを再実装していない", () => {

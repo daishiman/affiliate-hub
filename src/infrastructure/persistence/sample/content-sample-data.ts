@@ -1798,9 +1798,12 @@ export const SAMPLE_CORRECTIONS: readonly {
  * 広告掲載だけのブログに「リンクを経由して購入されると報酬が支払われます」と
  * 出るのは、事実として誤っている。
  */
-export const SAMPLE_BASE_POLICIES: Readonly<
-  Record<SiteDocumentKey, { title: string; body: readonly string[] }>
-> = {
+type SampleSiteDocument = Readonly<{
+  title: string;
+  body: readonly string[];
+}>;
+
+export const SAMPLE_BASE_POLICIES: Readonly<Record<SiteDocumentKey, SampleSiteDocument>> = {
   methodology: {
     title: "評価方法",
     body: [
@@ -1872,7 +1875,7 @@ export const SAMPLE_BASE_POLICIES: Readonly<
  * 既定を直したときに上書き側だけが古いまま残る。
  */
 export const SAMPLE_SITE_POLICY_OVERRIDES: Readonly<
-  Record<string, Readonly<Record<string, { title: string; body: readonly string[] }>>>
+  Record<string, Readonly<Partial<Record<SiteDocumentKey, SampleSiteDocument>>>>
 > = {
   // 広告の掲載だけで運営しているブログ。成果報酬の説明をそのまま出すと事実に反する。
   [FOURTH_SITE_SLUG]: {
@@ -1898,6 +1901,14 @@ export const SAMPLE_SITE_POLICY_OVERRIDES: Readonly<
     },
   },
 };
+
+/** ブログ固有の文面があれば優先し、無ければ全ブログ共通の文面を返す。 */
+export function resolveSampleSiteDocument(
+  siteSlug: string,
+  key: SiteDocumentKey,
+): SampleSiteDocument {
+  return SAMPLE_SITE_POLICY_OVERRIDES[siteSlug]?.[key] ?? SAMPLE_BASE_POLICIES[key];
+}
 
 export function sampleArticlesBySite(siteSlug: string): readonly PublishedArticle[] {
   return SAMPLE_ARTICLES.filter((a) => a.siteSlug === siteSlug);

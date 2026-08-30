@@ -12,10 +12,9 @@ import { stubCall } from "../../stub-registry";
 import {
   CONTENT_SAMPLE_STUB,
   SAMPLE_ARTICLES,
-  SAMPLE_BASE_POLICIES,
   SAMPLE_CORRECTIONS,
   SAMPLE_PEOPLE,
-  SAMPLE_SITE_POLICY_OVERRIDES,
+  resolveSampleSiteDocument,
   sampleArticleSummaries,
   sampleArticlesBySite,
 } from "./content-sample-data";
@@ -60,12 +59,11 @@ export function createSampleTrackingCoverage(): TrackingCoveragePort {
  */
 export function createSampleSiteDocumentRepository(): EditorialSiteDocumentRepositoryPort {
   return markEditorial({
-    async listBySite(_workspaceId: WorkspaceId, _siteSlug: string) {
+    async listBySite(_workspaceId: WorkspaceId, siteSlug: string) {
       return ok(
         SITE_DOCUMENT_KEYS.map((key) => ({
           key,
-          title: SAMPLE_BASE_POLICIES[key].title,
-          body: SAMPLE_BASE_POLICIES[key].body,
+          ...resolveSampleSiteDocument(siteSlug, key),
           // 見本に「いつ直したか」は無い。作り話の日付を入れない。
           updatedAt: null,
         })),
@@ -165,7 +163,7 @@ export function createSampleContentRepository(): EditorialPublishedContentPort {
       // 「画面はあるのに文書が出ない」の原因がルート表かデータか分からなくなる。
       if (!(SITE_DOCUMENT_KEYS as readonly string[]).includes(key)) return ok(null);
       const documentKey = key as SiteDocumentKey;
-      return ok(SAMPLE_SITE_POLICY_OVERRIDES[siteSlug]?.[documentKey] ?? SAMPLE_BASE_POLICIES[documentKey]);
+      return ok(resolveSampleSiteDocument(siteSlug, documentKey));
     },
   });
 }
