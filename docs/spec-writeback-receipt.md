@@ -64,9 +64,20 @@ P08 の Acceptance state は「migration/backfill が再実行可能」「legacy
 | `check-reference-site-reuse` / `acceptance-reconciliation` / `tier-audit` | PASS |
 | `traceability` / `required-test-types` / `port-wiring` | PASS |
 | `verify_evidence_index.py` | PASS（20 entry すべて一致） |
-| `migration-generated` | 生成物を本コミットに含めることで解消 |
+| `migration-generated` | PASS（生成物を本コミットに含めて解消） |
+| `content:validate` / `run-tests --coverage` | PASS |
+| `required-test-types` | PASS |
+| `mutation --changed` | **NG。58.7%（下限 65%）**（下記） |
+| `coverage-report` | **NG。domain 分岐 92%（下限 93%）／presentation 分岐 79.9%（下限 80%）／presentation 関数 86.4%（下限 87%）** |
 | `spec-freshness` | **STALE。本変更以前からの状態**（下記） |
-| `coverage-report` | 未実行（カバレッジ収集をしていない。MVP のため省略） |
+
+**赤い 3 つは独立していない。**出所はどれも本ブランチで新規に足した 5 ファイル
+（`preview-affiliate-url.ts` / `affiliate-preview.ts` / `manage-affiliate-links.ts` /
+`manage-blog-articles.ts` / `link-ingestion.ts`、合計 1,484 行）で、
+実装の厚みにテストが追いついていない。`mutation.mjs` は**変更したところだけ**を測るので、
+新しい実装が薄ければ必ず赤くなる。緑にする道はテストを足すことだけである。
+**閾値は下げていない。** 下げれば「薄いまま増やせる」状態が恒久化する。
+これが本 PR を draft のまま出す理由でもある。
 
 ### dev を取り込んだときに下した判断（2026-08-30）
 
@@ -111,9 +122,14 @@ P08 の Acceptance state は「migration/backfill が再実行可能」「legacy
    ただし `resume-receipt.json` の `report_sha256` と実体の digest は依然一致しない。
    **これは本ブランチ以前から dev 上に在る不一致で、こちらが作ったものではない。**
    解消は再評価によってのみ可能で、digest を書き換えて合わせることはしない（残課題 1 と同じ対象）。
-3. **A10 の初見 10 名 usability test が未実施。** 実参加者を集められず BLOCKED。事業判断待ち。
-4. **記事品質検査 24 種の指摘が画面に出ていない。** 上記のとおり bd memory で追跡中。
-5. **MCP `save_to_shortlist` の `savedAt` → `shortlistedAt`。** 外部 AI クライアントから
+3. **新規 5 ファイルのテストが薄い（本 PR を draft に留める理由）。**
+   `mutation --changed` 58.7%（下限 65%、生き残り 478・テストが無い 149）と
+   `coverage-report` の 3 下限割れは同じ原因。最も薄いのは
+   `preview-affiliate-url.ts`（28.2%）→ `affiliate-preview.ts`（50.3%）→
+   `manage-blog-articles.ts`（55.4%）の順。ここから埋めるのが最短。
+4. **A10 の初見 10 名 usability test が未実施。** 実参加者を集められず BLOCKED。事業判断待ち。
+5. **記事品質検査 24 種の指摘が画面に出ていない。** 上記のとおり bd memory で追跡中。
+6. **MCP `save_to_shortlist` の `savedAt` → `shortlistedAt`。** 外部 AI クライアントから
    見えるフィールド名の変更のため保留。
 
 ## 以前の受領書（2026-08-30 01:20）
