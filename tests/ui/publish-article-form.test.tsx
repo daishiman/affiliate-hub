@@ -4,7 +4,7 @@ import { describe, expect, it } from "vitest";
 import type { PublishArticleFormOptions } from "@/application/usecases/site/publish-article";
 import { ARTICLE_TYPES, ARTICLE_TYPE_LABEL, authoredSectionsFor } from "@/domain/authoring";
 import { RELATIONSHIP_LABEL } from "@/domain/compliance";
-import { PublishArticleForm } from "@/presentation/admin/publish-article-form";
+import { PublishArticleForm } from "@/presentation/admin/publish/publish-article-form";
 
 /**
  * 「いまサイトに出す」欄。

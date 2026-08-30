@@ -11,6 +11,7 @@ import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { describe, expect, it } from "vitest";
 import {
+  collectPatternCoverage,
   computeEvaluationDigest,
   reconcileAcceptance,
   reconcileRepository,
@@ -157,5 +158,36 @@ describe("受入reconciliationの正経路", () => {
       ),
     ) as { evaluated_digest: string };
     expect(manifest.evaluated_digest).toBe(result.digest);
+  });
+
+  it("証跡が検査対象パターンの内訳を持つ", () => {
+    /*
+     * 総数（`evidence_file_count`）だけを残していた頃、digest がずれたときに
+     * **どのパターンの母集団が動いたのか**を証跡から辿れなかった。
+     * パターンを書き換えて別のファイル群を数えても総数は一致し得るので、
+     * 総数は母集団が入れ替わっていないことの証明にならない。
+     */
+    const manifest = JSON.parse(
+      readFileSync(
+        join(ROOT, "docs/spec/feat-uiux-overhaul/acceptance-reconciliation.json"),
+        "utf8",
+      ),
+    ) as unknown;
+    const coverage = collectPatternCoverage(manifest, ROOT);
+
+    // 母集団の床。パターンが 0 件なら「全部が下限を満たす」は常に成り立つ。
+    expect(coverage.length, "パターン参照が拾えていません").toBeGreaterThan(2);
+
+    const evidence = readFileSync(
+      join(ROOT, "docs/spec/feat-uiux-overhaul/evidence/09-acceptance-reconciliation.txt"),
+      "utf8",
+    );
+    for (const row of coverage) {
+      expect(row.actual, `${row.pattern} が下限を割っています`).toBeGreaterThanOrEqual(row.min);
+      expect(
+        evidence,
+        `${row.pattern} の実測が証跡にありません。--write で再生成してください`,
+      ).toContain(`\`${row.pattern}\`: min ${row.min} / actual ${row.actual}`);
+    }
   });
 });

@@ -446,6 +446,8 @@ export function createSampleAffiliateLinkRepository(): CommercialAffiliateLinkRe
                     brand: display.brand,
                     oneLine: display.oneLine,
                   },
+                  lastCheckedAt: link.createdAt,
+                  placements: [],
                 },
               ];
         }),

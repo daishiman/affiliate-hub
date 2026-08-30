@@ -1,4 +1,4 @@
-/** @tier 1 */
+/** @tier 1 @req REQ-FD06 */
 /**
  * 見張り (guard-confirmed-chapter-overwrite.py) が「書込の形」は見るが「書き手」は見ないことを固定する。
  *

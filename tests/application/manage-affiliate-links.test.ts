@@ -111,6 +111,7 @@ function deps(seed: readonly AffiliateLink[], over: Partial<AffiliateLinkDeps> =
   const links = linksOf(seed);
   const built: AffiliateLinkDeps = {
     links: links.port,
+    programs: base.affiliatePrograms,
     ids: base.ids,
     auditLog: audit.port,
     now: () => NOW,
@@ -161,6 +162,62 @@ describe("登録したリンクを並べる", () => {
     if (!r.ok) return;
     // 名前が無いと ID だけで選ぶことになり、別のリンクを止める事故が起きる。
     expect(r.value.rows[0]?.productName).toBe("Alpha Studio 15");
+  });
+
+  it("状態・provider・要確認で絞り、リンクから掲載先を1手で逆引きする", async () => {
+    const live = linkOf({ id: "lnk_placed" });
+    const { deps: original } = deps([live]);
+    const links = markCommercial({
+      ...original.links,
+      async listWithSnapshot(workspaceId: WorkspaceId) {
+        if (workspaceId !== WS) return ok([]);
+        return ok([
+          {
+            link: live,
+            snapshot: SNAPSHOT,
+            lastCheckedAt: null,
+            placements: [
+              {
+                placementId: "bap_article_pick",
+                siteSlug: "quiet-tools",
+                articleSlug: "desk-setup",
+                blockId: "bab_pick",
+                placement: "pick-section",
+                position: 2,
+                status: "active" as const,
+                lastRenderedAt: new Date("2026-08-29T03:00:00Z"),
+                updatedAt: new Date("2026-08-29T03:00:00Z"),
+              },
+            ],
+          },
+        ]);
+      },
+    }) as CommercialAffiliateLinkRepositoryPort;
+
+    const result = await createListAffiliateLinksUseCase({ ...original, links }).execute(manager, {
+      state: "usable",
+      provider: "amazon_associates",
+      attention: true,
+    });
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.value.rows).toMatchObject([
+      {
+        affiliateLinkId: "lnk_placed",
+        providerId: "amazon_associates",
+        placementCount: 1,
+        lastCheckedAt: null,
+        needsAttention: true,
+        placements: [
+          {
+            siteSlug: "quiet-tools",
+            articleSlug: "desk-setup",
+            blockId: "bab_pick",
+            position: 2,
+          },
+        ],
+      },
+    ]);
   });
 });
 

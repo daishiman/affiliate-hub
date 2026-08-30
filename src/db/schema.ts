@@ -36,6 +36,7 @@ import {
   CONTENT_STATES,
   CONTENT_VARIANT_STATUSES,
   CTA_TYPES,
+  SITE_DOCUMENT_ONLY_STORAGE_KINDS,
   type ComplianceStatus,
   type ContentAngle,
   type ContentState,
@@ -85,6 +86,10 @@ const COMPLIANCE_STATUS_VALUES = [...COMPLIANCE_STATUSES] as [
   ComplianceStatus,
   ...ComplianceStatus[],
 ];
+const LEGAL_PAGE_KIND_VALUES = [
+  ...FIXED_PAGE_KINDS,
+  ...SITE_DOCUMENT_ONLY_STORAGE_KINDS,
+] as const;
 const LOOP_RUN_STATUS_VALUES = [...LOOP_RUN_STATUSES] as [LoopRunStatus, ...LoopRunStatus[]];
 const COMPARISON_VERDICT_VALUES = [...COMPARISON_VERDICTS] as [
   ComparisonVerdict,
@@ -391,6 +396,13 @@ export const articles = sqliteTable(
     updatedAt: integer("updated_at", { mode: "timestamp" })
       .notNull()
       .default(sql`(unixepoch())`),
+    /** 古い画面の保存で新しい本文を上書きしないための CAS 版番。 */
+    revision: integer("revision").notNull().default(1),
+    /**
+     * D1 batch 内で CAS 成功を証明する内部トークン。画面やドメインへは公開しない。
+     * 同じ revision を読んだ保存が競合しても、勝者の子要素だけを更新するために使う。
+     */
+    saveToken: text("save_token"),
     // 検証を実施した日 (§8 の「検証日」)
     testedAt: integer("tested_at", { mode: "timestamp" }),
     /**
@@ -1580,6 +1592,15 @@ export const affiliateLinks = sqliteTable(
     oneLine: text("one_line"),
     /** ASP が発行した URL。**1 文字も変えずに入れ、1 文字も変えずに出す。** */
     originalUrl: text("original_url").notNull(),
+    /** preview時の正規URL。originalUrlは不変のまま別列に保持する。 */
+    canonicalUrl: text("canonical_url"),
+    merchantName: text("merchant_name"),
+    /** 権利・host gateを通過した画像だけ。未確認・legacyはnull。 */
+    imageUrl: text("image_url"),
+    priceMinor: integer("price_minor"),
+    currency: text("currency"),
+    retrievedAt: integer("retrieved_at", { mode: "timestamp" }),
+    sourceMethod: text("source_method"),
     alterationProhibited: integer("alteration_prohibited", { mode: "boolean" })
       .notNull()
       .default(true),
@@ -1588,6 +1609,8 @@ export const affiliateLinks = sqliteTable(
     createdAt: integer("created_at", { mode: "timestamp" })
       .notNull()
       .default(sql`(unixepoch())`),
+    /** 最後に商品情報と遷移先を確認した日時。legacyはnull=要確認。 */
+    lastCheckedAt: integer("last_checked_at", { mode: "timestamp" }),
     expiresAt: integer("expires_at", { mode: "timestamp" }),
     disabledAt: integer("disabled_at", { mode: "timestamp" }),
   },
@@ -2269,7 +2292,9 @@ export const pageThemeOverrides = sqliteTable(
 );
 
 /**
- * 固定ページ 8 種。語彙は domain/blogops/fixed-page が唯一の正本。
+ * ブログ運用の固定ページ8種と、単独の方針文書4種。
+ * 前者の語彙は domain/blogops/fixed-page、後者は
+ * domain/authoring/site-routes がそれぞれ正本。
  * 1 ブログにつき各 1 枚。draft と削除済みは公開経路から必ず除く。
  * 無いことは「未整備」であって既定文を出さない（見本の文を本物として配らない）。
  *
@@ -2294,7 +2319,7 @@ export const legalPages = sqliteTable(
      */
     workspaceId: text("workspace_id").notNull().default(""),
     siteSlug: text("site_slug").notNull(),
-    kind: text("kind", { enum: FIXED_PAGE_KINDS }).notNull(),
+    kind: text("kind", { enum: LEGAL_PAGE_KIND_VALUES }).notNull(),
     title: text("title").notNull(),
     body: text("body").notNull(),
     status: text("status", { enum: ["draft", "published"] })
@@ -2321,13 +2346,34 @@ export const blogAffiliatePlacements = sqliteTable(
   {
     id: text("id").primaryKey(),
     workspaceId: text("workspace_id").notNull(),
+    /** legacy行はnullのまま「要確認」として保持する。 */
+    affiliateLinkId: text("affiliate_link_id"),
     siteSlug: text("site_slug").notNull(),
     articleSlug: text("article_slug").notNull(),
+    blockId: text("block_id"),
     placement: text("placement").notNull(),
     trackingCode: text("tracking_code"),
+    status: text("status", { enum: ["active", "removed"] }).notNull().default("active"),
     position: integer("position").notNull().default(0),
+    lastRenderedAt: integer("last_rendered_at", { mode: "timestamp" }),
+    updatedAt: integer("updated_at", { mode: "timestamp" })
+      .notNull()
+      .default(sql`(unixepoch())`),
   },
-  (t) => [index("blog_affiliate_placement_site_article_idx").on(t.siteSlug, t.articleSlug)],
+  (t) => [
+    index("blog_affiliate_placement_workspace_link_idx").on(
+      t.workspaceId,
+      t.affiliateLinkId,
+      t.status,
+    ),
+    index("blog_affiliate_placement_workspace_location_idx").on(
+      t.workspaceId,
+      t.siteSlug,
+      t.articleSlug,
+      t.blockId,
+      t.position,
+    ),
+  ],
 );
 
 /**
@@ -2392,6 +2438,10 @@ export const readerShortlistItems = sqliteTable(
     readerKey: text("reader_key").notNull(),
     productId: text("product_id").notNull(),
     productName: text("product_name").notNull(),
+    /**
+     * 読者が「気になる」を押した時刻。型の側は `ShortlistItem.shortlistedAt`。
+     * **列名と欄名がずれているのは、改名に migration が要るため据え置いたから。**
+     */
     savedAt: text("saved_at").notNull(),
     /** どの記事から保存したか。「なぜ保存したか」を思い出す手がかり。 */
     fromArticleHref: text("from_article_href"),

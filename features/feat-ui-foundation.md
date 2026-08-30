@@ -12,9 +12,9 @@ iteration: null
 title: "UI/UX 共通基盤"
 owners: ["daishiman"]
 created_at: "2026-08-16T13:20:00Z"
-updated_at: "2026-08-22T00:00:00Z"
-status: "active"
-depends_on: ["feat-auth-workspace"]
+updated_at: "2026-08-17T14:11:39Z"
+status: "closed"
+depends_on: []
 related_nodes: ["spec-system-spec-index"]
 resource_scope: ["src","drizzle","docs/spec","system-spec"]
 purpose: "全画面で同じ操作作法・状態表現・アクセシビリティ水準を保ち、画面ごとの作り起こしをなくす"

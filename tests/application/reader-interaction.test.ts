@@ -50,7 +50,7 @@ function anItem(over: Partial<ShortlistItem> = {}): ShortlistItem {
   return {
     productId: "prd_lens_50",
     productName: "標準レンズ 50mm",
-    savedAt: AT,
+    shortlistedAt: AT,
     ...over,
   };
 }

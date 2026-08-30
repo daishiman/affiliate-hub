@@ -1,0 +1,110 @@
+{
+  "schema": "dev-graph-requirements-trace/v1",
+  "feature_id": "feat-reference-blog-admin-ux",
+  "scope_digest": "sha256:7d6e7ce01c9bac96b4f5c52f41ab401d2e311269dab4d0d0ba5b0e2c30b4eee8",
+  "trace_plan_digest": "sha256:0415415a913dc5088baca2ef57cc6bf22d5ae539bd80f81ca92f7c7b40a0fc2c",
+  "trace_plan_digest_algorithm": "sha256(canonical-json(entries): utf8, keys sorted, no insignificant whitespace)",
+  "verdict": "PASS",
+  "entry_count": 12,
+  "requirement_ids": ["A1", "A2", "A3", "A4", "A5", "A6", "A7", "A8", "A9", "A10", "A11", "A12"],
+  "entries": [
+    {
+      "requirement_id": "A1",
+      "requirement": "全公開URL台帳",
+      "confirmed_sources": ["feature:A1", "context:A1", "frontend:sitemap-read-model"],
+      "system_tasks": ["P01", "P04", "P07", "P10", "P11"],
+      "handoff_fields": ["requirements_document#traceability.A1", "tasks[phase_ref=P01|P04|P07|P10|P11]", "lineage_closure", "promoted_generation", "feature_package_id"]
+    },
+    {
+      "requirement_id": "A2",
+      "requirement": "画面型とdesktop/mobile代表解析",
+      "confirmed_sources": ["feature:A2", "context:A2", "frontend:blog-builder", "architecture"],
+      "system_tasks": ["P01", "P02", "P04", "P07", "P10", "P11"],
+      "handoff_fields": ["requirements_document#traceability.A2", "tasks[phase_ref=P01|P02|P04|P07|P10|P11]", "lineage_closure", "promoted_generation", "feature_package_id"]
+    },
+    {
+      "requirement_id": "A3",
+      "requirement": "公開面と管理面の詳細画面一覧",
+      "confirmed_sources": ["feature:A3", "context:A3", "ui_ux:UIUX-REQ", "frontend:blog-builder"],
+      "system_tasks": ["P01", "P02", "P04", "P07", "P10", "P11"],
+      "handoff_fields": ["requirements_document#traceability.A3", "tasks[phase_ref=P01|P02|P04|P07|P10|P11]", "lineage_closure", "promoted_generation", "feature_package_id"]
+    },
+    {
+      "requirement_id": "A4",
+      "requirement": "非模倣・独自token・図解置換",
+      "confirmed_sources": ["feature:A4", "context:A4", "requirements:U7", "frontend:non-copying", "blog_ops:A13", "architecture"],
+      "system_tasks": ["P01", "P02", "P03", "P04", "P05", "P06", "P07", "P09", "P10", "P11", "P13"],
+      "handoff_fields": ["requirements_document#traceability.A4", "tasks[phase_ref=P01|P02|P03|P04|P05|P06|P07|P09|P10|P11|P13]", "lineage_closure", "promoted_generation", "feature_package_id"]
+    },
+    {
+      "requirement_id": "A5",
+      "requirement": "新規作成の単一主導線",
+      "confirmed_sources": ["feature:A5", "context:A5", "ui_ux:cognitive-load", "ui_ux:UIUX-REQ", "frontend:single-purpose-crud", "blog_ui_builder"],
+      "system_tasks": ["P01", "P02", "P03", "P04", "P05", "P06", "P07", "P09", "P10", "P12"],
+      "handoff_fields": ["requirements_document#traceability.A5", "tasks[phase_ref=P01|P02|P03|P04|P05|P06|P07|P09|P10|P12]", "lineage_closure", "promoted_generation", "feature_package_id"]
+    },
+    {
+      "requirement_id": "A6",
+      "requirement": "保存5状態・競合・復元",
+      "confirmed_sources": ["feature:A6", "context:A6", "ui_ux:cognitive-load", "ui_ux:UIUX-REQ", "frontend:preview"],
+      "system_tasks": ["P02", "P03", "P04", "P05", "P06", "P07", "P08", "P09", "P10", "P12", "P13"],
+      "handoff_fields": ["requirements_document#traceability.A6", "tasks[phase_ref=P02|P03|P04|P05|P06|P07|P08|P09|P10|P12|P13]", "lineage_closure", "promoted_generation", "feature_package_id"]
+    },
+    {
+      "requirement_id": "A7",
+      "requirement": "改善の個別preview・適用・取消し",
+      "confirmed_sources": ["feature:A7", "context:A7", "ui_ux:cognitive-load", "ui_ux:UIUX-REQ", "frontend:single-purpose-crud"],
+      "system_tasks": ["P02", "P03", "P04", "P05", "P06", "P07", "P09", "P10", "P12"],
+      "handoff_fields": ["requirements_document#traceability.A7", "tasks[phase_ref=P02|P03|P04|P05|P06|P07|P09|P10|P12]", "lineage_closure", "promoted_generation", "feature_package_id"]
+    },
+    {
+      "requirement_id": "A8",
+      "requirement": "affiliate URL rich preview",
+      "confirmed_sources": ["feature:A8", "context:A8", "frontend:affiliate-preview", "architecture", "affiliate_inbox"],
+      "system_tasks": ["P01", "P02", "P03", "P04", "P05", "P06", "P07", "P08", "P09", "P10", "P12", "P13"],
+      "handoff_fields": ["requirements_document#traceability.A8", "tasks[phase_ref=P01|P02|P03|P04|P05|P06|P07|P08|P09|P10|P12|P13]", "lineage_closure", "promoted_generation", "feature_package_id"]
+    },
+    {
+      "requirement_id": "A9",
+      "requirement": "affiliate一覧と掲載先逆引き",
+      "confirmed_sources": ["feature:A9", "context:A9", "ui_ux:cognitive-load", "frontend:blog-builder", "blog_ui_builder", "affiliate_hub"],
+      "system_tasks": ["P01", "P02", "P03", "P04", "P05", "P06", "P07", "P08", "P09", "P10", "P12", "P13"],
+      "handoff_fields": ["requirements_document#traceability.A9", "tasks[phase_ref=P01|P02|P03|P04|P05|P06|P07|P08|P09|P10|P12|P13]", "lineage_closure", "promoted_generation", "feature_package_id"]
+    },
+    {
+      "requirement_id": "A10",
+      "requirement": "初見操作成功率90%以上",
+      "confirmed_sources": ["feature:A10", "context:A10", "ui_ux:cognitive-load", "ui_ux:UIUX-ACC-004"],
+      "system_tasks": ["P04", "P06", "P07", "P09", "P10", "P11"],
+      "handoff_fields": ["requirements_document#traceability.A10", "tasks[phase_ref=P04|P06|P07|P09|P10|P11]", "lineage_closure", "promoted_generation", "feature_package_id"]
+    },
+    {
+      "requirement_id": "A11",
+      "requirement": "axe・zoom・keyboard・非色依存",
+      "confirmed_sources": ["feature:A11", "context:A11", "ui_ux:UIUX-ACC-004", "architecture"],
+      "system_tasks": ["P02", "P03", "P04", "P05", "P06", "P07", "P09", "P10", "P11"],
+      "handoff_fields": ["requirements_document#traceability.A11", "tasks[phase_ref=P02|P03|P04|P05|P06|P07|P09|P10|P11]", "lineage_closure", "promoted_generation", "feature_package_id"]
+    },
+    {
+      "requirement_id": "A12",
+      "requirement": "gap ledgerから受入証跡への対応",
+      "confirmed_sources": ["feature:A12", "context:A12", "ui_ux:UIUX-REQ", "frontend:single-purpose-crud"],
+      "system_tasks": ["P01", "P04", "P07", "P10", "P11", "P13"],
+      "handoff_fields": ["requirements_document#traceability.A12", "tasks[phase_ref=P01|P04|P07|P10|P11|P13]", "lineage_closure", "promoted_generation", "feature_package_id"]
+    }
+  ],
+  "common_handoff_fields": ["lineage_closure", "promoted_generation", "feature_package_id", "tasks"],
+  "implementation_code_planned": 0,
+  "source_aliases": {
+    "feature": "features/feat-reference-blog-admin-ux.md",
+    "context": "features/feat-reference-blog-admin-ux.context.json",
+    "ui_ux": "system-spec/ui-ux.md",
+    "frontend": "system-spec/frontend.md",
+    "requirements": "system-spec/00-requirements-definition.md",
+    "architecture": ["architecture/system-spec-overview.md", "architecture/arch-two-layer-platform.md"],
+    "blog_ops": "features/feat-blog-ops-crud.md",
+    "blog_ui_builder": "features/feat-blog-ui-builder.md",
+    "affiliate_inbox": "features/feat-affiliate-inbox.md",
+    "affiliate_hub": "features/feat-affiliate-hub.md"
+  }
+}

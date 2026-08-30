@@ -25,7 +25,7 @@ import { articleHref } from "@/application/read-models/published-article";
 import { SAMPLE_SITE_SLUG } from "@/infrastructure/persistence/sample/site-sample-repository";
 import { intoDom, renderRoute, textOf } from "../support/render";
 
-const TOOL_SLUG = "storage-estimator";
+const TOOL_SLUG = "desk-fit";
 const IMPORT_PATH = "@/app/s/[site]/tools/[tool]/page";
 
 function props(searchParams: Record<string, string> = {}) {
@@ -60,7 +60,7 @@ describe("道具と記事が同じ 1 枚に出る", () => {
     const text = textOf(html);
 
     // 道具の側（定義から来るもの）
-    expect(text).toContain("1 か月に撮影する時間");
+    expect(text).toContain("身長");
     expect(text).toContain("結果の読み方");
     // 記事の側（公開記事から来るもの）
     expect(text).toContain("計算・判定の根拠");
@@ -92,12 +92,12 @@ describe("道具と記事が同じ 1 枚に出る", () => {
   it("空のまま送信したら、未送信に戻さず必須入力エラーを出す", async () => {
     const html = await renderRoute(
       IMPORT_PATH,
-      props({ minutes: "", bitrate: "", months: "" }),
+      props({ height: "", desk_height: "", shoe: "" }),
     );
     const text = textOf(html);
 
     expect(text).toContain("入力を見直してください");
-    expect(text).toContain("「1 か月に撮影する時間」が入力されていません。");
+    expect(text).toContain("「身長」が入力されていません。");
   });
 });
 
@@ -134,7 +134,7 @@ describe("片方しか無いとき", () => {
 
     const html = await renderRoute(IMPORT_PATH, props());
     const text = textOf(html);
-    expect(text).toContain("必要な保存容量の目安");
+    expect(text).toContain("机と椅子の高さの目安");
     expect(text).toContain("結果の読み方");
     /*
       記事の側が本当に消えていること。ここを見ないと、差し替えが効かないまま

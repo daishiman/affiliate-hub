@@ -353,6 +353,13 @@ export type ArticleCardView = {
   readonly authorName: string;
 };
 
+export type CategoryArticleGroupView = {
+  readonly href: string;
+  readonly label: string;
+  readonly description: string;
+  readonly articles: readonly ArticleCardView[];
+};
+
 /**
  * 記事の一覧。
  *
@@ -385,6 +392,39 @@ export function ArticleList({
           <span className={styles.cardMeta}>
             {UI_COPY.article.updatedAt} {a.updatedAt} / {a.authorName}
           </span>
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+/**
+ * カテゴリとその代表記事をひとまとめにした、公開サイト用の案内。
+ *
+ * ホームごとに「カテゴリ名→説明→記事」の並びを書き起こさない。
+ * 一覧の記事表示は `ArticleList` を使い、0 件のカテゴリは
+ * カテゴリ自体への導線だけを残す。
+ */
+export function CategoryArticleDirectory({
+  groups,
+}: {
+  readonly groups: readonly CategoryArticleGroupView[];
+}) {
+  return (
+    <ul className={styles.cardList}>
+      {groups.map((group) => (
+        <li key={group.href} className={styles.cardItem}>
+          <h3 className={styles.cardTitle}>
+            <Link href={group.href}>{group.label}</Link>
+          </h3>
+          <p>{group.description}</p>
+          {group.articles.length > 0 && (
+            <ArticleList
+              articles={group.articles}
+              emptyTitle={UI_COPY.article.emptyListTitle}
+              emptyBody={UI_COPY.article.emptyListBody}
+            />
+          )}
         </li>
       ))}
     </ul>

@@ -29,8 +29,7 @@ import { sampleProductName } from "./sample-identity";
  * 表示が分かれる条件を、**すべて 1 回以上出す**ように選んである。
  * 運営する人が「この入力だと画面はこう出る」を実物で確かめるための台本である。
  *
- *   記事タイプ        ranking / review / comparison / guide
- *                     （`tool` は入れていない。理由は下の「tool 型について」）
+ *   記事タイプ        ranking / review / comparison / guide / tool
  *   言い切りの種類    fact / inference / opinion
  *   根拠              出典リンクあり / 出典名のみ / 期限切れ（expired）
  *   商品カード        実測値 / 推測値 / 未計測（null）/ 提携なし（理由つき）
@@ -43,13 +42,8 @@ import { sampleProductName } from "./sample-identity";
  *   訂正履歴          2 件 / 1 件 / 0 件（空のときの見え方）
  *   書き手の経歴      複数あり / 空（「無い」ことを隠さない表示）
  *
- * --- tool 型について ---
- *
- * `articleHref()` は `tool` 型記事を `/tools/<名前>` へ送るが、その道は
- * **記事ではなく読者の道具（診断・計算）を描く**。つまり今の実装では
- * tool 型の記事は記事として表示されない。見本に入れると
- * 「入れたのに出ない」を仕様と誤解させるので入れていない。
- * 道具そのものの見え方は `reader-interaction-sample.ts` の定義で確かめる。
+ * `tool` 型の記事は、`reader-interaction-sample.ts` の同じ slug の道具と
+ * `/tools/<名前>` で合流する。操作を先に、使い方と判定根拠を後に出す。
  *
  * 見本記事はすべて `stub` 欄を持ち、画面に「見本」と表示される。
  * 中身の無いものを本物に見せない。
@@ -132,7 +126,7 @@ const MIKAMI: PublishedPerson = {
 };
 
 // ---------------------------------------------------------------------------
-// 1 本目のブログ「在宅ワークの机まわり」の記事（6 本）
+// 1 本目のブログ「在宅ワークの机まわり」の記事（7 本）
 // ---------------------------------------------------------------------------
 
 /**
@@ -636,6 +630,53 @@ const LIGHTING_GUIDE: PublishedArticle = {
       id: "checklist",
       heading: "買う前に測るもの",
       paragraphs: ["机の奥行き、画面の高さ、部屋の主照明の位置。この 3 つだけで決まります。"],
+    },
+  ],
+  stub: STUB_MARK,
+};
+
+/** 計算フォームと同じ URL に置く説明記事。操作のあとに根拠を読める見本。 */
+const DESK_FIT_TOOL: PublishedArticle = {
+  slug: "desk-fit",
+  siteSlug: SAMPLE_SITE_SLUG,
+  type: "tool",
+  title: "机と椅子の高さを合わせる計算ツール",
+  summary: "身長と机の高さから座面の出発点を計算し、最後は肘の角度で調整します。",
+  categorySlug: "chairs",
+  publishedAt: "2026-08-24",
+  updatedAt: "2026-08-30",
+  author: MOCHIZUKI,
+  reviewedBy: SAKUMA,
+  disclosureRequired: false,
+  sections: [
+    {
+      id: "what-it-does",
+      heading: "このツールでできること",
+      paragraphs: [
+        "身長から座面高の出発点を出し、いまの机と座面にどれくらい高さの差があるかを確認できます。数字は正解ではなく、最初に試す位置として使ってください。",
+      ],
+    },
+    {
+      id: "rationale",
+      heading: "計算・判定の根拠",
+      paragraphs: [
+        "座面高は身長の 4 分の 1 を目安にしています。室内で靴を履く場合は靴底ぶんを差し引き、座ったときに肘が約 90 度になるよう 1cm ずつ調整してください。",
+        "痛みやしびれがある場合は、この計算だけで判断せず専門家へ相談してください。",
+      ],
+      claims: [
+        {
+          id: "c1",
+          statement: "座面の最終位置は体格だけでなく、机の高さと肘の角度を合わせて決める必要があります。",
+          kind: "fact",
+          evidence: [
+            {
+              id: "e1",
+              sourceLabel: "自社検証（体格の異なる 5 名で座面を 1cm ずつ調整、2026-08-22）",
+              checkedAt: "2026-08-22",
+            },
+          ],
+        },
+      ],
     },
   ],
   stub: STUB_MARK,
@@ -1635,6 +1676,7 @@ export const SAMPLE_ARTICLES: readonly PublishedArticle[] = [
   CHAIR_COMPARISON,
   DESK_REVIEW,
   LIGHTING_GUIDE,
+  DESK_FIT_TOOL,
   // せまい台所の道具
   RICE_COOKER_COMPARISON,
   OVEN_RANKING,
@@ -1780,6 +1822,20 @@ export const SAMPLE_BASE_POLICIES: Readonly<
     body: [
       "問い合わせでいただいた情報は、返信以外の目的に使いません。",
       "アクセス状況の把握には、個人を特定しない形の記録のみを使います。",
+    ],
+  },
+  operator: {
+    title: "運営者情報",
+    body: [
+      "このブログは、在宅作業の道具を実際に使って比べる編集部が運営しています。",
+      "ご連絡と掲載内容の指摘・訂正の依頼は、問い合わせページで受け付けています。",
+    ],
+  },
+  tokushoho: {
+    title: "特定商取引法に基づく表記",
+    body: [
+      "このブログは商品を販売していません。購入の契約は、リンク先の販売店と読者の間で成立します。",
+      "価格・送料・返品・支払いの条件は、購入前に販売店のページでご確認ください。",
     ],
   },
   terms: {

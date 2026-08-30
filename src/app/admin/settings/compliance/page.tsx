@@ -3,12 +3,12 @@ import {
   POLICY_CHANNEL_LABEL,
   POLICY_DOMAIN_LABEL,
   POLICY_SEVERITY_LABEL,
-} from "@/presentation/admin/compliance-labels";
+} from "@/presentation/admin/maintain/compliance-labels";
 import {
   AddPolicyRuleForm,
   EditDisclosureForm,
   StopPolicyRuleForm,
-} from "@/presentation/admin/compliance-forms";
+} from "@/presentation/admin/maintain/compliance-forms";
 import { currentActor, settingsUseCases } from "@/presentation/composition";
 import {
   Callout,

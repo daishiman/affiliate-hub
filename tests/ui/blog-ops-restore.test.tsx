@@ -12,9 +12,9 @@ vi.mock("react", async (importOriginal) => {
   };
 });
 
-const { BlogArticleRestoreForm } = await import("@/presentation/admin/blog-article-form");
-const { SiteNetworkRestoreForm } = await import("@/presentation/admin/site-network-form");
-const { BlogPageRestoreForm } = await import("@/presentation/admin/blog-page-form");
+const { BlogArticleRestoreForm } = await import("@/presentation/admin/publish/blog-article-form");
+const { SiteNetworkRestoreForm } = await import("@/presentation/admin/publish/site-network-form");
+const { BlogPageRestoreForm } = await import("@/presentation/admin/publish/blog-page-form");
 
 const ROOT = resolve(import.meta.dirname, "../..");
 

@@ -1,18 +1,7 @@
 import { AdminShell } from "@/presentation/admin/admin-shell";
-import { DeleteConfirm } from "@/presentation/admin/delete-confirm";
-import { disableAffiliateLinkAction } from "@/presentation/admin/delete-form-action";
+import { AffiliateLedger } from "@/presentation/admin/earn/affiliate-ledger";
 import { affiliateUseCases, currentActor } from "@/presentation/composition";
-import {
-  Callout,
-  DataTable,
-  EmptyView,
-  ErrorView,
-  Note,
-  Prose,
-  Section,
-  SubSection,
-  TextLink,
-} from "@/presentation/ui";
+import { Callout, EmptyView, ErrorView, TextLink } from "@/presentation/ui";
 
 export const dynamic = "force-dynamic";
 
@@ -43,9 +32,27 @@ export const dynamic = "force-dynamic";
  * 見せた相手にそのまま成果を横取りされる形の文字列を配ることになる。
  * どの提携先へ飛ぶかの判断には接続先（ドメイン）だけで足りる。
  */
-export default async function AffiliateLinksPage() {
+const LINK_STATES = ["usable", "expired", "disabled"] as const;
+
+export default async function AffiliateLinksPage({
+  searchParams,
+}: {
+  readonly searchParams: Promise<{
+    readonly state?: string;
+    readonly provider?: string;
+    readonly attention?: string;
+  }>;
+}) {
+  const requested = await searchParams;
+  const state = LINK_STATES.find((candidate) => candidate === requested.state) ?? null;
+  const provider = requested.provider?.trim() || null;
+  const attention = requested.attention === "yes" ? true : null;
   const actor = await currentActor();
-  const links = await (await affiliateUseCases()).listLinks.execute(actor, {});
+  const links = await (await affiliateUseCases()).listLinks.execute(actor, {
+    state,
+    provider,
+    attention,
+  });
 
   return (
     <AdminShell
@@ -66,7 +73,7 @@ export default async function AffiliateLinksPage() {
           suggestedAction={links.error.suggestedAction ?? null}
           action={<TextLink href="/admin/affiliate">提携と成果へ戻る</TextLink>}
         />
-      ) : links.value.rows.length === 0 ? (
+      ) : links.value.totalCount === 0 ? (
         <EmptyView
           title="登録したリンクがありません"
           body="受信箱に届いた URL を広告主と商品まで決めると、ここに並びます。記事に成果リンクが出るのはそのあとです。"
@@ -80,64 +87,12 @@ export default async function AffiliateLinksPage() {
             reason="商品名も URL も登録した日の写しです。上書きすると、読者が実際に見た表記が後から分からなくなり、「この説明だったから買った」に答えられなくなります。"
           />
 
-          <Section title="いま読者に出ているもの">
-            <Prose>
-              {links.value.usableCount === 0
-                ? "読者に出ているリンクが 1 件もありません。記事に成果リンクは表示されていません。"
-                : `${links.value.usableCount}件が読者に出ています。ASP の管理画面に出ている商品名と見比べてください。`}
-            </Prose>
-            <DataTable
-              caption="登録してある成果リンクと、いまの状態"
-              columns={[
-                { key: "product", label: "読者に出ている名前" },
-                { key: "brand", label: "作り手" },
-                { key: "host", label: "接続先" },
-                { key: "registered", label: "登録した日" },
-                { key: "state", label: "いまの状態" },
-              ]}
-              rows={links.value.rows.map((row) => ({
-                key: row.affiliateLinkId,
-                cells: [
-                  row.productName,
-                  row.brand ?? "—",
-                  row.host,
-                  row.registeredAt,
-                  row.stateLabel,
-                ],
-              }))}
-            />
-            <Note>
-              リンクの全体（ASP が発行した URL）は出しません。成果の割り当て先が入っているためです。
-            </Note>
-          </Section>
-
-          <Section title="止める">
-            {links.value.rows.filter((row) => row.canDisable).length === 0 ? (
-              <Note>止められるリンクはありません。すべて止め終わっています。</Note>
-            ) : (
-              links.value.rows
-                .filter((row) => row.canDisable)
-                .map((row) => (
-                  <SubSection
-                    key={row.affiliateLinkId}
-                    title={`${row.productName}（${row.stateLabel}）`}
-                  >
-                    {row.oneLine === null ? null : <Prose>{row.oneLine}</Prose>}
-                    <DeleteConfirm
-                      action={disableAffiliateLinkAction}
-                      toolName="affiliate_link_disable"
-                      toolDescription="登録済みの成果リンクを止める。記事に貼ったままでも、公開のときに読者へ出なくなる。"
-                      idName="affiliateLinkId"
-                      idValue={row.affiliateLinkId}
-                      label={row.productName}
-                      verb="止める"
-                      consequence="記事に貼ったままでも、公開のときに読者へ出なくなります。行は消えないので、いつまで出ていたかは後から辿れます。止めたリンクは元へ戻せません。表記を直すときは、受信箱から新しいリンクとして登録し直してください。"
-                      acknowledgement="止めたら元へ戻せないことを確かめました"
-                    />
-                  </SubSection>
-                ))
-            )}
-          </Section>
+          <AffiliateLedger
+            result={links.value}
+            state={state}
+            provider={provider}
+            attention={attention}
+          />
         </>
       )}
     </AdminShell>

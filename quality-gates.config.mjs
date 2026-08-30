@@ -1595,6 +1595,14 @@ export const CHECKS = [
     why: "スキーマだけ変えて公開すると、存在しない列を読んで本番が落ちる。1 秒で終わるので手元でも走らせる",
   },
   {
+    id: "reference-reuse",
+    label: "参考サイトの転用",
+    command: ["pnpm", "run", "check:reference-reuse"],
+    blocking: true,
+    tier: 1,
+    why: "参考サイトの実ホスト・実URL・他所のCMS由来の語形・生の色値が、抽象化したはずの仕様と実装へ戻っていないか見る。手元で走らせるだけでは、走らせなかった日の混入が誰にも見えない。走査対象が痩せたこと自体も落ちる（母集団に対する逆向きの被覆検査）ので、ファイルが増えたときの見落としも同じ赤になる",
+  },
+  {
     id: "acceptance-reconciliation",
     label: "受入IDの証跡突合",
     command: ["pnpm", "run", "acceptance:reconcile"],

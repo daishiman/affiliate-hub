@@ -3,7 +3,7 @@ import {
   ChangeMemberRolesForm,
   InviteMemberForm,
   RevokeMemberForm,
-} from "@/presentation/admin/member-forms";
+} from "@/presentation/admin/maintain/member-forms";
 import { currentActor, settingsUseCases } from "@/presentation/composition";
 import {
   Callout,

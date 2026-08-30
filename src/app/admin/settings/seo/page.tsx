@@ -4,7 +4,7 @@ import {
   RecheckGuidelineReferenceForm,
   RegisterGuidelineReferenceForm,
   VerifyGuidelineSourceForm,
-} from "@/presentation/admin/guideline-reference-form";
+} from "@/presentation/admin/maintain/guideline-reference-form";
 import { currentActor, guidelineReferenceEntry } from "@/presentation/composition";
 import type { GuidelineReferenceListRow } from "@/application/usecases/seo/manage-guideline-references";
 import {

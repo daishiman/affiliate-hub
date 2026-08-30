@@ -11,6 +11,7 @@ import type {
 } from "@/application/ports/site";
 import type { PublishedArticle } from "@/application/read-models/published-article";
 import * as schema from "@/db/schema";
+import { SITE_DOCUMENT_KEYS, SITE_DOCUMENT_LABEL } from "@/domain/authoring";
 import type { WorkspaceId } from "@/domain/shared";
 import {
   createD1PublishedArticleWriter,
@@ -189,7 +190,7 @@ describe("出した記事を読み直す", () => {
   });
 
   it("見本と同じURLの記事を取り下げても、見本が同じURLへ再露出しない", async () => {
-    const slug = "laptops-for-video-editing";
+    const slug = "chairs-for-long-hours";
     await writer.save(workspaceId, anArticle({ slug }));
 
     const unpublished = await writer.unpublish(workspaceId, SAMPLE_SITE_SLUG, slug);
@@ -227,32 +228,32 @@ describe("出した記事を読み直す", () => {
   });
 
   it("再公開と取り下げが競合しても、公開行と墓標が半端な組み合わせにならない", async () => {
-    await writer.save(workspaceId, anArticle({ slug: "laptops-for-video-editing" }));
+    await writer.save(workspaceId, anArticle({ slug: "chairs-for-long-hours" }));
 
     await Promise.all([
-      writer.unpublish(workspaceId, SAMPLE_SITE_SLUG, "laptops-for-video-editing"),
+      writer.unpublish(workspaceId, SAMPLE_SITE_SLUG, "chairs-for-long-hours"),
       writer.save(
         workspaceId,
-        anArticle({ slug: "laptops-for-video-editing", title: "競合後の再公開" }),
+        anArticle({ slug: "chairs-for-long-hours", title: "競合後の再公開" }),
       ),
     ]);
 
     const article = await proxy.env.DB.prepare(
       "SELECT count(*) as total FROM published_articles WHERE site_slug = ? AND slug = ?",
     )
-      .bind(SAMPLE_SITE_SLUG, "laptops-for-video-editing")
+      .bind(SAMPLE_SITE_SLUG, "chairs-for-long-hours")
       .first<{ total: number }>();
     const tombstone = await proxy.env.DB.prepare(
       "SELECT count(*) as total FROM published_article_tombstones WHERE site_slug = ? AND slug = ?",
     )
-      .bind(SAMPLE_SITE_SLUG, "laptops-for-video-editing")
+      .bind(SAMPLE_SITE_SLUG, "chairs-for-long-hours")
       .first<{ total: number }>();
     expect([article?.total, tombstone?.total]).toEqual(
       expect.arrayContaining([0, 1]),
     );
     expect((article?.total ?? 0) + (tombstone?.total ?? 0)).toBe(1);
 
-    const visible = await content.findArticle(SAMPLE_SITE_SLUG, "laptops-for-video-editing");
+    const visible = await content.findArticle(SAMPLE_SITE_SLUG, "chairs-for-long-hours");
     if (!visible.ok) throw new Error("競合後の記事を読めませんでした");
     if (article?.total === 1) expect(visible.value?.title).toBe("競合後の再公開");
     else expect(visible.value).toBeNull();
@@ -392,15 +393,15 @@ describe("出した記事を読み直す", () => {
 
   it("見本の記事は消えない", async () => {
     await writer.save(workspaceId, anArticle());
-    const sample = await content.findArticle(SAMPLE_SITE_SLUG, "laptops-for-video-editing");
+    const sample = await content.findArticle(SAMPLE_SITE_SLUG, "chairs-for-long-hours");
     expect(sample.ok).toBe(true);
     if (!sample.ok) throw new Error("読み取りに失敗しました");
     expect(sample.value?.stub).toBeDefined();
   });
 
   it("見本と同じ URL 名で出したら、出したほうが勝つ", async () => {
-    await writer.save(workspaceId, anArticle({ slug: "laptops-for-video-editing" }));
-    const found = await content.findArticle(SAMPLE_SITE_SLUG, "laptops-for-video-editing");
+    await writer.save(workspaceId, anArticle({ slug: "chairs-for-long-hours" }));
+    const found = await content.findArticle(SAMPLE_SITE_SLUG, "chairs-for-long-hours");
     expect(found.ok).toBe(true);
     if (!found.ok) throw new Error("読み取りに失敗しました");
     expect(found.value?.title).toBe("静かなノートパソコンの選び方");
@@ -503,7 +504,7 @@ describe("書き手のページ", () => {
 
   it("見本の書き手も引ける（重ねても消さない）", async () => {
     await writer.save(workspaceId, anArticle());
-    const person = await content.findPerson(SAMPLE_SITE_SLUG, "author", "miwa");
+    const person = await content.findPerson(SAMPLE_SITE_SLUG, "author", "mochizuki");
     if (!person.ok) throw new Error("人物を読めませんでした");
     expect(person.value).not.toBeNull();
   });
@@ -549,6 +550,22 @@ describe("固定文書は保存したものだけが出る", () => {
       title: "運営者情報",
       // 段落の区切りが保存先を往復しても消えない（1 列に畳んでいるので、ここが要）。
       body: ["この記事は編集部が書いています。", "連絡先は問い合わせ欄からどうぞ。"],
+    });
+  });
+
+  it.each(SITE_DOCUMENT_KEYS)("%s を保存すると、同じ鍵の読者画面で読める", async (key) => {
+    const title = SITE_DOCUMENT_LABEL[key];
+    const saved = await documents.save(workspaceId, SAMPLE_SITE_SLUG, {
+      key,
+      title,
+      body: [`${title}の本文です。`],
+    });
+    expect(saved.ok).toBe(true);
+
+    const policy = await content.findPolicyDocument(SAMPLE_SITE_SLUG, key);
+    expect(policy).toEqual({
+      ok: true,
+      value: { title, body: [`${title}の本文です。`] },
     });
   });
 

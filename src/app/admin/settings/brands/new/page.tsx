@@ -1,5 +1,5 @@
 import { AdminShell } from "@/presentation/admin/admin-shell";
-import { SaveBrandForm } from "@/presentation/admin/brand-form";
+import { SaveBrandForm } from "@/presentation/admin/maintain/brand-form";
 import {
   brandPolitenessOptions,
   brandVocabularyOptions,

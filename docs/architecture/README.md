@@ -13,7 +13,7 @@
 | 6 | [changeability-scenarios.md](changeability-scenarios.md) | よくある変更で触るファイルの記録 | 設計が崩れていないか点検するとき |
 | 7 | [feedback-loop.md](feedback-loop.md) | 改善要望の置き場所・画面の写しの作り方・指示文の組み立て | 改善要望まわりを触るとき |
 
-全体像（二層構造と外部境界）は `architecture/arch-two-layer-platform.md` にある。
+全体像（二層構造と外部境界）は [二層構造の全体像](../../architecture/arch-two-layer-platform.md) にある。
 
 ## 守られていることの確認方法
 

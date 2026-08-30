@@ -99,7 +99,7 @@ serves_goals: [G1]
 
 - 確定要件: OWASP Top 10 準拠、Web/モバイル/タブレットのみ
 - 設計解釈の記録経路: `unrecorded`
-- 設計原則の採否根拠: (未記録 — qa_log[].design_applications を writer 経由で補完すること)
+- 設計原則の採否根拠: 未記録。この質疑に `design_applications` が無いため、章はこの質疑を根拠に設計原則の採否を主張しない
 - 資するゴール: G1
 
 ## 最新ドキュメント出典

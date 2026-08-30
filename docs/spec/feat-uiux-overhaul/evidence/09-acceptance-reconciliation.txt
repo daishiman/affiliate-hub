@@ -1,14 +1,24 @@
 # acceptance reconciliation（自動生成）
 
-- generated_at: 2026-08-28T14:38:18.827Z
+- generated_at: 2026-08-30T03:28:29.369Z
 - feature_id: feat-uiux-overhaul
 - implementation_status: pass
 - release_status: unpublished
 - tracking_status: active
 - acceptance_count: 10
-- evidence_file_count: 193
-- evaluated_digest: sha256:2698a17d8a6e47c13180bab5545fa508ec998076f09fcfc1421eeedd6c9613ad
+- evidence_file_count: 195
+- evaluated_digest: sha256:cb1895d442d249cf8c59a173bed3de361eac456aabd48c27104764ef1a6b8cd4
 - verdict: PASS
+
+## 検査対象パターンと実測（下限 / 実測）
+
+件数の総和ではなく、どのパターンが何件を掴んでいたかを残す。
+パターンを書き換えて別の母集団を数えても総数は変わらないことがあるため。
+
+- `src/app/admin/{content,products,sites,distribution}/**/page.tsx`: min 16 / actual 23
+- `src/app/admin/**/page.tsx`: min 49 / actual 84
+- `src/presentation/admin/**/*form*.tsx`: min 10 / actual 40
+- `src/presentation/ui/**/*.tsx`: min 30 / actual 46
 
 A1〜A10は、仕様・runtime・test・report・trackingの共通IDでjoin済み。
 この証跡はreconciliationの結果であり、テスト実行件数の代替ではない。

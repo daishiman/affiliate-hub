@@ -109,10 +109,10 @@ vi.mock("@/presentation/composition", async (importOriginal) => {
 });
 
 const { manageBlogLayoutAction, manageBlogDeliveryAction, checkBlogDeliveryAction } = await import(
-  "@/presentation/admin/blog-layout-action"
+  "@/presentation/admin/publish/blog-layout-action"
 );
-const { manageBlogArticleAction } = await import("@/presentation/admin/blog-article-action");
-const { manageBlogPageAction } = await import("@/presentation/admin/blog-page-action");
+const { manageBlogArticleAction } = await import("@/presentation/admin/publish/blog-article-action");
+const { manageBlogPageAction } = await import("@/presentation/admin/publish/blog-page-action");
 
 const IDLE = { status: "idle", message: "" } as const;
 

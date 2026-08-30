@@ -413,6 +413,10 @@ describe("手元と機械で同じ検査が走る（REQ-CI01 / REQ-CI03）", () 
       "0037_opposite_harrier",
       // 指針本文の再評価完了版を正本化し、再取得だけでは変更警告を消さない。
       "0038_flimsy_hobgoblin",
+      // 記事保存の楽観ロック（既存行は revision 1）。
+      "0039_daily_masque",
+      // 成果リンクの取得snapshotと掲載先逆引きを後方互換で追加。
+      "0040_outgoing_valkyrie",
     ];
     const journal = JSON.parse(read("drizzle/meta/_journal.json")) as {
       entries: Array<{ tag: string }>;
@@ -827,6 +831,7 @@ describe("重い検査の置き場所（REQ-CI09 / REQ-CI10 / REQ-CI11）", () =
     expect(normal?.test?.include).toEqual(["tests/**/*.test.ts", "tests/**/*.test.tsx"]);
     expect(workerRuntime?.test?.include).toEqual([
       "tests/integration/d1-*.test.ts",
+      "tests/integration/local-seed-idempotency.test.ts",
       "tests/integration/r2-feedback-capture.test.ts",
     ]);
     expect(normal?.test?.exclude).toEqual(
@@ -862,7 +867,10 @@ describe("重い検査の置き場所（REQ-CI09 / REQ-CI10 / REQ-CI11）", () =
     expect(proxyUsers.length, "getPlatformProxy の利用箇所を読めていません").toBeGreaterThan(0);
     expect(
       proxyUsers.filter(
-        (name) => !/^d1-.+\.test\.ts$/.test(name) && name !== "r2-feedback-capture.test.ts",
+        (name) =>
+          !/^d1-.+\.test\.ts$/.test(name) &&
+          name !== "local-seed-idempotency.test.ts" &&
+          name !== "r2-feedback-capture.test.ts",
       ),
       "直列 project の glob に入らない getPlatformProxy テストがあります",
     ).toEqual([]);

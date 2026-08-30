@@ -67,11 +67,11 @@ async function measurementsOn(
   }, { route });
 }
 
-test("screen-hit-and-currentの保留は0件で、監査対象は86画面", () => {
+test("screen-hit-and-currentの保留は0件で、監査対象は110画面", () => {
   expect(PENDING_SELECTORS, "jsdom側に実ブラウザ未計測の保留が残っています").toEqual([]);
-  // 53 → 85 → 86（2026-08-26 に数え直し、同日 `admin/blog/evaluate/[article]` が 1 枚増えた）。この spec は `readBrowserRoutes()` が
-  // 投げるようになってから収集の時点で落ちており、その間に画面が 32 枚増えていた。
-  expect(ROUTES).toHaveLength(86);
+  // 53 → 85 → 86 → 110。2026-08-30 に、新しく登録された 24 画面も
+  // 実ブラウザ監査の対象に含まれることを数え直した。
+  expect(ROUTES).toHaveLength(110);
 });
 
 /*

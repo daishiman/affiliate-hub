@@ -2,29 +2,29 @@
   "references": [
     {
       "target_id": "better-auth",
-      "retrieved_at": "2026-08-28T14:07:27Z",
-      "source_url": "https://www.better-auth.com/docs/introduction",
+      "retrieved_at": "2026-08-29T14:02:13Z",
+      "source_url": "https://better-auth.com/docs/introduction",
       "official_publisher": "Better Auth",
-      "official_host": "www.better-auth.com",
+      "official_host": "better-auth.com",
       "version": "1.7.2",
-      "freshness_source": "publisher-registry",
-      "latest_checked_at": "2026-08-28T14:07:27Z",
+      "freshness_source": "page-declared",
+      "latest_checked_at": "2026-08-29T14:02:13Z",
       "evidence_ref": "system-spec/retrieval-evidence/better-auth.json",
-      "evidence_sha256": "620b4c90db4d31388940e8e2e84c42ae320aec250b148c1d36a09e4312496469",
-      "summary": "Better Auth 公式ドキュメント導入章。TypeScript 向け自己ホスト認証フレームワーク。OAuth (Google 含む)・セッション管理・組織/マルチテナント・パスキー等のプラグインと Drizzle アダプタを提供。docs は rolling で版を表明しないため、version は publisher の配布 registry が示す現行版 1.7.2 (この repo の導入版 1.7.0 とは別物)。2026-08-28T14:07:27Z に公式 docs と registry を raw HTTP 再取得し、内容 digest を証跡へ記録した。"
+      "evidence_sha256": "1b4c913ed590a4629d4a793aeb660d721dc59cef8b0dae8c3f3b2c6b68770a96",
+      "summary": "Better Auth 公式 Introduction。TypeScript 向け認証・認可フレームワークで、公式ページ自身の Latest Version 表示 1.7.2 を 2026-08-29 に再取得して確認した。OAuth、セッション、組織、パスキー等のプラグインと Drizzle アダプタを提供する。"
     },
     {
       "target_id": "nextjs",
-      "retrieved_at": "2026-08-28T14:07:27Z",
+      "retrieved_at": "2026-08-29T14:02:13Z",
       "source_url": "https://nextjs.org/docs",
       "official_publisher": "Vercel",
       "official_host": "nextjs.org",
       "version": "16.3.3",
-      "freshness_source": "publisher-registry",
-      "latest_checked_at": "2026-08-28T14:07:27Z",
+      "freshness_source": "page-declared",
+      "latest_checked_at": "2026-08-29T14:02:13Z",
       "evidence_ref": "system-spec/retrieval-evidence/nextjs.json",
-      "evidence_sha256": "7dedfbf1117b886d69b5066087e825edfc7e2b87c0463bf07267a53a710303fd",
-      "summary": "Next.js 公式ドキュメント。App Router・Server Components・ルーティング/データ取得の現行仕様。frontend カテゴリの正本参照。docs は rolling で版を表明しないため、version は publisher の配布 registry (npm) が示す現行版 16.3.3。2026-08-28T14:07:27Z に公式 docs と registry を raw HTTP 再取得し、docs 内の版表記と内容 digest を証跡へ記録した。"
+      "evidence_sha256": "051de46ff2c8429e5973b85cecc6d5576bbb70488681631156d8feae13d7f8ac",
+      "summary": "Next.js 公式 Docs。App Router、Server Components、データ取得・変更等の現行仕様。公式 Docs の Latest Version と Vercel の npm registry latest がともに 16.3.3 であることを 2026-08-29 に再取得して確認した。"
     },
     {
       "target_id": "cloudflare-workers",
@@ -80,16 +80,16 @@
     },
     {
       "target_id": "apple-hig",
-      "retrieved_at": "2026-08-29T13:28:38Z",
-      "source_url": "https://developer.apple.com/design/human-interface-guidelines",
+      "retrieved_at": "2026-08-29T14:02:13Z",
+      "source_url": "https://developer.apple.com/design/human-interface-guidelines/design-principles",
       "official_publisher": "Apple",
       "official_host": "developer.apple.com",
-      "last_updated": "2026-08-27",
-      "freshness_source": "http-last-modified",
-      "latest_checked_at": "2026-08-29T13:28:38Z",
+      "last_updated": "2026-06-08",
+      "freshness_source": "page-declared",
+      "latest_checked_at": "2026-08-29T14:02:13Z",
       "evidence_ref": "system-spec/retrieval-evidence/apple-hig.json",
-      "evidence_sha256": "54ab7d78f9012c7a905ca0de915cafaa40939fbf06f22e87dd1fb86f627945ef",
-      "summary": "Apple Human Interface Guidelines 公式ページ。presentation concern の doctrine authority。本文は版・更新日を表明しないため、2026-08-29 の公式 レスポンスが返した Last-Modified 2026-08-27 を制約付きで採用した。前回 (2026-08-25) からヘッダ値は進んだが本文 sha256 は同一で、内容は動いていない。"
+      "evidence_sha256": "e8757217ccc68d47bc67274d3f921ccbd2df2613fae50c336f9d8329e6c75f2c",
+      "summary": "Apple Human Interface Guidelines の公式 Design principles。presentation concern の doctrine authority。HIG 入口の再現困難な Last-Modified ではなく、公式ページ自身が表明する 2026-06-08 の公開・再導入日を採用し、2026-08-29 に再取得した。"
     },
     {
       "target_id": "google-sre",
@@ -115,7 +115,7 @@
       "latest_checked_at": "2026-08-29T13:28:38Z",
       "evidence_ref": "system-spec/retrieval-evidence/anthropic-claude.json",
       "evidence_sha256": "ded7e0c260afed6459ede6950730518afd5c81f58880c9a9b360fb8f524b5d31",
-      "summary": "Claude Platform Docs のモデル一覧。ai-integration concern の一次出典。2026-08-29 の再取得で、埋め込みモデルデータの lifecycle=active entry が ちょうど 4 件 (claude-fable-5 / claude-opus-5 / claude-sonnet-5 / claude-haiku-4-5-20251001) であることを機械的に確認した。ページの体裁は 前回から変わったが、この target が根拠にする現行 active モデルは同一である。"
+      "summary": "Anthropic Claude 公式モデル一覧。現行比較表と埋め込みデータが active と表明する model ID を記録した。旧記録の claude-mythos-5 は案内見出しには残るが active model ID ではないため除外し、恒久移送後の canonical URL へ更新した。"
     },
     {
       "target_id": "openai-platform",

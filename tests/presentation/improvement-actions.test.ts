@@ -55,7 +55,7 @@ const {
   approveVariantSpecAction,
   draftVariantSpecAction,
   startLoopRunAction,
-} = await import("@/presentation/admin/improvement-action");
+} = await import("@/presentation/admin/observe/improvement-action");
 const { improvementUseCases } = await import("@/presentation/composition");
 
 const SITE = "video-editing-gear";

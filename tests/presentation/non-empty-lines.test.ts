@@ -1,6 +1,6 @@
 /** @tier 1 @req REQ-UX02 @types equivalence, boundary */
-import { readFileSync, readdirSync } from "node:fs";
-import { join } from "node:path";
+import { readFileSync, readdirSync, statSync } from "node:fs";
+import { join, relative } from "node:path";
 import { describe, expect, it } from "vitest";
 import { parseNonEmptyLines } from "@/presentation/admin/non-empty-lines";
 
@@ -8,6 +8,22 @@ const repeatedNonEmptyLinesParser = /\.split\(\s*["']\\n["']\s*\)\s*\.map\(\s*\(
 
 function repeatsNonEmptyLinesParser(source: string) {
   return repeatedNonEmptyLinesParser.test(source);
+}
+
+const ADMIN_DIR = join(process.cwd(), "src/presentation/admin");
+
+/**
+ * `admin/` は業務分類 (`ADMIN_NAV_GROUP_LABELS`) 別のサブディレクトリへ割れている。
+ * 1 階層しか見ないと走査対象がほぼ空になるので、再帰で集める。
+ */
+function adminFiles(dir: string = ADMIN_DIR): readonly string[] {
+  const out: string[] = [];
+  for (const name of readdirSync(dir)) {
+    const full = join(dir, name);
+    if (statSync(full).isDirectory()) out.push(...adminFiles(full));
+    else out.push(relative(ADMIN_DIR, full));
+  }
+  return out;
 }
 
 describe("1 行 1 件の管理画面入力", () => {
@@ -24,19 +40,16 @@ describe("1 行 1 件の管理画面入力", () => {
 
   it("同じ行パーサーを使う 5 つの入口は、共通関数から読む", () => {
     const consumers = [
-      "evidence-form-state.ts",
-      "publish-article-action.ts",
-      "persona-form-state.ts",
-      "settings-form-state.ts",
-      "affiliate-form-action.ts",
+      "material/evidence-form-state.ts",
+      "publish/publish-article-action.ts",
+      "write/persona-form-state.ts",
+      "maintain/settings-form-state.ts",
+      "earn/affiliate-form-action.ts",
     ];
     for (const file of consumers) {
-      const source = readFileSync(
-        join(process.cwd(), "src/presentation/admin", file),
-        "utf8",
-      );
+      const source = readFileSync(join(ADMIN_DIR, file), "utf8");
       expect(source, `${file} だけ別の行パーサーを持っています`).toContain(
-        '"./non-empty-lines"',
+        '/non-empty-lines"',
       );
     }
   });
@@ -51,14 +64,13 @@ describe("1 行 1 件の管理画面入力", () => {
   });
 
   it("管理画面に同じ行パーサーを再実装していない", () => {
-    const directory = join(process.cwd(), "src/presentation/admin");
-    const candidates = readdirSync(directory).filter(
+    const candidates = adminFiles().filter(
       (file) => /\.tsx?$/.test(file) && file !== "non-empty-lines.ts",
     );
     expect(candidates.length, "管理画面の走査対象が空です").toBeGreaterThan(0);
 
     const offenders = candidates
-      .filter((file) => repeatsNonEmptyLinesParser(readFileSync(join(directory, file), "utf8")));
+      .filter((file) => repeatsNonEmptyLinesParser(readFileSync(join(ADMIN_DIR, file), "utf8")));
 
     expect(offenders).toEqual([]);
   });

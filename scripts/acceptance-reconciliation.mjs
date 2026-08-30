@@ -74,6 +74,38 @@ function collectEvidence(manifest, root, issues = []) {
   return [...files].sort();
 }
 
+/**
+ * パターン参照ごとの「下限と実測」。証跡に残すために使う。
+ *
+ * 総数（`evidence_file_count`）だけでは、**どのパターンが何件を掴んでいたか**が
+ * 残らない。パターンを書き換えて別のファイル群を数えても総数は同じになり得るし、
+ * 下限にどれだけ余裕があったのかも後から読めない。digest がずれたときに
+ * 「何が動いたのか」を証跡だけで辿れるようにする。
+ *
+ * 同じパターンが複数の受入 ID に現れるので、パターン文字列で畳む。
+ * 下限が違う場合は厳しい方を残す（緩い方を残すと、証跡が実際の条件より甘くなる）。
+ */
+export function collectPatternCoverage(manifest, root = process.cwd()) {
+  const byPattern = new Map();
+  for (const entry of acceptanceEntries(manifest)) {
+    for (const field of EVALUATION_FIELDS) {
+      const refs = Array.isArray(entry?.[field]) ? entry[field] : [];
+      for (const ref of refs) {
+        const pattern = refLabel(ref);
+        if (typeof ref !== "object" || !Number.isInteger(ref.min_matches)) continue;
+        const expanded = expandRef(ref, root);
+        const previous = byPattern.get(pattern);
+        byPattern.set(pattern, {
+          pattern,
+          min: previous === undefined ? ref.min_matches : Math.max(previous.min, ref.min_matches),
+          actual: expanded.files.length,
+        });
+      }
+    }
+  }
+  return [...byPattern.values()].sort((a, b) => a.pattern.localeCompare(b.pattern));
+}
+
 export function computeEvaluationDigest(manifest, root = process.cwd()) {
   const files = collectEvidence(manifest, root);
   const records = files.map((path) => ({
@@ -320,6 +352,15 @@ function writeCurrentEvaluation(root, manifestPath) {
     `- evidence_file_count: ${result.evidenceFileCount}`,
     `- evaluated_digest: ${result.digest}`,
     "- verdict: PASS",
+    "",
+    "## 検査対象パターンと実測（下限 / 実測）",
+    "",
+    "件数の総和ではなく、どのパターンが何件を掴んでいたかを残す。",
+    "パターンを書き換えて別の母集団を数えても総数は変わらないことがあるため。",
+    "",
+    ...collectPatternCoverage(manifest, root).map(
+      (row) => `- \`${row.pattern}\`: min ${row.min} / actual ${row.actual}`,
+    ),
     "",
     "A1〜A10は、仕様・runtime・test・report・trackingの共通IDでjoin済み。",
     "この証跡はreconciliationの結果であり、テスト実行件数の代替ではない。",

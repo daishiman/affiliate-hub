@@ -27,7 +27,7 @@
 - 固定ページ 6 種の構築 UI: 運営者情報 / 全カテゴリー / サイトポリシー / プライバシーポリシー / 特定商取引法に基づく表記 / お問い合わせ (legal_page)
 - 記事表現ブロック: figure (図解) / comparison (比較表) / cta / summary / spec-table と、ガジェット依存部分の差し替え可能なスロット
 - ブログ×アフィリエイト配置 (blog_affiliate_placement) の管理一覧・逆引き (アフィリエイト→掲載ブログ/ページ) と、公開面・作成・保存の各面での表示
-- 参考ブログ (makuring.jp) の構成・配置・表記法の参照を反映した情報設計 (丸パクリはしない。利用者説明を一次根拠とする)
+- 参考ブログ (実名は docs/spec/feat-reference-blog-admin-ux/evidence/reference-site-profile.json) の構成・配置・表記法の参照を反映した情報設計 (丸パクリはしない。利用者説明を一次根拠とする)
 - SEO/AI 検索 (AI Overviews・AI Mode・ChatGPT search・Perplexity 等) への最適化: SSR で本文を HTML に含める semantic HTML、robots.txt で AI クローラ許可を既定、ページ種別ごとの JSON-LD (BlogPosting/Person/Organization/BreadcrumbList/FAQPage/HowTo/Product/Review) をブロック木から自動生成、generateMetadata、sitemap.xml/RSS/llms.txt の自動生成、IndexNow 送信、dateModified の可視化 (仕様章 frontend §SEO/AI 検索)
 - AI 引用されやすい記事構造の標準ブロック: 結論 (answer) / 要点 (key-points) / FAQ / 出典 (sources) / 最終更新 (freshness) と著者プロフィール固定ページ、管理画面の SEO/AI チェックパネル (仕様章 ui-ux §SEO/AI 検索)
 - 最新 SEO/AI 検索ガイドラインの参照レジストリ (guideline_references): 海外・日本の出典 URL・発行元・確認日を登録し 90 日で再確認を促す。fetched-references.json の公式 4 出典 (Google AI 最適化ガイド / AI features / llms.txt / IndexNow) を初期データにする
@@ -148,5 +148,5 @@ python3 .claude/plugins/system-dev-planner/scripts/validate-system-plan.py \
 ## 実装着手時の不変条件
 
 - 各 task は `tasks/feat-blog-ui-builder/*.md` の write scope 内でのみ変更し、`feat-uiux-overhaul` が所有する管理画面全体の再編には踏み込まない (evaluator medium finding C1-scope-boundary)
-- 参考ブログ (makuring.jp) は構成・配置・表記法の参考に留め、デザイン・文言の複製をしない
+- 参考ブログ (実名は docs/spec/feat-reference-blog-admin-ux/evidence/reference-site-profile.json) は構成・配置・表記法の参考に留め、デザイン・文言の複製をしない
 - worktree lease は `dev-graph worktree claim` 経由でのみ取得し、1 task 1 branch を守る

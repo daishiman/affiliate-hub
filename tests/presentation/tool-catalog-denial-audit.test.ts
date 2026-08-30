@@ -117,7 +117,7 @@ describe("production tool catalog の拒否監査", () => {
 describe("成果リンク登録の画面宣言と tool catalog", () => {
   it("ToolForm が名乗る register_affiliate_link を catalog が同じ名前で 1 件配る", () => {
     const formSource = readFileSync(
-      new URL("../../src/presentation/admin/inbox-forms.tsx", import.meta.url),
+      new URL("../../src/presentation/admin/earn/inbox-forms.tsx", import.meta.url),
       "utf8",
     );
     const declared = [...formSource.matchAll(/toolName="([a-z0-9_]+)"/g)].map((match) => match[1]);
@@ -130,7 +130,7 @@ describe("成果リンク登録の画面宣言と tool catalog", () => {
     const input = validInputFor(registered);
     expect(input).toEqual({
       linkIngestionId: "li_matched_1",
-      productName: "Alpha Studio 15",
+      productName: "ErgoOne Pro",
     });
     expect(registered.parse(input).ok).toBe(true);
   });

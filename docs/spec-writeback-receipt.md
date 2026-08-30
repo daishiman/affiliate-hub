@@ -1,6 +1,102 @@
 # 仕様反映 受領書
 
 ```yaml
+receipt_id: spec-writeback-2026-08-30-feat-reference-blog-admin-ux-elegant-review
+recorded_at: 2026-08-30T04:00:00Z
+beads_ids: [ah-z8x6, ah-z8x6.8]
+dev_graph_node_id: feat-reference-blog-admin-ux
+base_branch: dev
+head_branch: devgraph/feat-reference-blog-admin-ux
+draft_pr: (下の「残課題」を参照。作成後にここへ追記する)
+verdict: accepted-with-open-blockers
+```
+
+## 2026-08-30 elegant-review（P0〜P2）の判定
+
+本変更は**確定済みの製品要求を増減しない。** 新しい画面契約も新しい要求 ID も足していない。
+やったのは (1) 既にある実装の置き場を分類の正本に従わせること、(2) 検査が見ていなかった
+母集団を見えるようにすること、(3) 証跡を更新する手段が無かった箇所に手段を作ることである。
+
+### 仕様・設計への影響が「有る」と判断した 1 件
+
+`src/presentation/admin/` の `.ts`（action / state / 対応表）が
+**production から到達可能でなければならない**という不変条件は、これまでどの仕様にも
+書かれていなかった。孤児検査が `.tsx` だけを見ていたため、規則が無くても誰も困らなかった。
+実測（2026-08-30）で admin 配下 72 件の `.ts` のうち **2 件が到達不能**だった。
+
+→ `docs/spec/feat-reference-blog-admin-ux/component-contract.md` に節を追加し、
+除外を `by-design` / `unfinished` の 2 種に分けること、後者には追跡先を必須にすることを明記した。
+
+| 層 | 今回の反映 |
+|---|---|
+| `docs/` | `spec/13-*.md`（「残す判断」と理由の表、ASM-001 の撤回）、`spec/06-*.md`（機械取得の訂正）、`product/ledgers.md`（ASM-001 に status 追記）、`spec/feat-reference-blog-admin-ux/component-contract.md`（到達性の節）、`analysis-refresh-runbook.md`（`--refresh` の使い方）、`spec/feat-uiux-overhaul/acceptance-reconciliation.json`（A6 の test_refs と再署名）、`product/port-wiring-report.md`（自動更新）、本受領書 |
+| `features/` | `feat-reference-blog-admin-ux.md` に本 PR を紐付ける（feature 全体は done にしない） |
+| `specs/` | 変更なし。索引が指す実装状態は今回動いていない |
+| `system-spec/` | **章本文の変更なし。** 確定章の直接編集は禁止で、`index.md` は compile 出力のため触らない |
+| `architecture/` | 変更なし。層構造も依存の向きも変えていない（`ui` の tokens ← primitives ← patterns ← templates は不変） |
+| `tasks/` | **本文は 1 バイトも変えていない。** 各 spec の「実行契約」が `source spec: 昇格済み generation の task spec 本文 (byte-for-byte 不変)` と定めている。`completion_evidence` も **done にしていない**（理由は下記） |
+| Beads | `ah-z8x6`（epic）と `ah-z8x6.8`（P08）へ実施内容を追記。新規起票はしない（理由は下記） |
+
+### `completion_evidence` を done にしなかった理由
+
+P08 の Acceptance state は「migration/backfill が再実行可能」「legacy route の redirect 収束」
+「rollback rehearsal 成功」「migration-report に件数差 0」を含む。今回やったのは
+**重複解消の部分だけ**である。部分の達成を phase の完了として署名すると、
+残りが未了であることが記録から消える。
+
+### 新規 Beads 起票をしなかった（できなかった）理由
+
+記事品質検査 24 種の指摘が画面に出ていない件は、負債として残っている。
+`bd-bridge.py --op create` は `--graph-node-id` を要求し、Beads 課題は dev-graph node と
+対でしか作れない。node の新設は計画プロセスの領分なので、
+`bd remember --key quality-check-issues-not-shown` に事実を記録し、
+`tests/architecture/admin-component-orphans.test.ts` の `unfinished` 除外の追跡先を
+そこへ向けた。**手段が無いことを「追跡先が無い」ことにしていない。**
+
+### 品質ゲート（MVP）
+
+| ゲート | 結果 |
+|---|---|
+| `tsc --noEmit` | PASS |
+| `vitest run` 全件 | PASS（413 files / 9,837 tests） |
+| ESLint（src / tests / scripts） | PASS |
+| `validate-system-plan.py --feature-package feature-package/feat-reference-blog-admin-ux` | PASS（violations 0） |
+| `check-reference-site-reuse` / `acceptance-reconciliation` / `tier-audit` | PASS |
+| `traceability` / `required-test-types` / `port-wiring` | PASS |
+| `verify_evidence_index.py` | PASS（20 entry すべて一致） |
+| `migration-generated` | 生成物を本コミットに含めることで解消 |
+| `spec-freshness` | **STALE。本変更以前からの状態**（下記） |
+| `coverage-report` | 未実行（カバレッジ収集をしていない。MVP のため省略） |
+
+### 意図的にやらなかったこと
+
+- **確定済み digest を語の統一のために割らない。** 「画面型」→「ページ種別」の統一は
+  `docs/spec/` 配下に限った。`docs/requirements/`・`tasks/`・`features/`・`.dev-graph/published/**`
+  には残っており、これは未処理ではなく**残す判断**である（理由は `docs/spec/13-*.md` §10 の表）。
+- **ASM-001 を格下げしない。** `docs/spec/13-*.md` §9 の旧版は「部分解消へ更新する」と
+  書いていたが、URL を 1,072 件数えられても記事の中を見たことにはならない。
+  `docs/product/ledgers.md` の ASM-001 は open のままにした。
+- **床なしの上限を上げない。** 追加した検査が `form2-population-floor` の上限 24 に触れたが、
+  上げずに床を各 `it` の中へ移した。
+
+### 残課題
+
+1. **`spec-freshness` が STALE。** 完全性評価は 81 件時点の仕様書に対するもので、いまは 106 件ある。
+   既存の open 課題（`ah-8h2.2` / `ah-670` / `ah-tod`）と同じ対象。
+2. **`system-spec/completeness-report.json` の 81 件の内訳が失われた。**
+   2026-08-30 に `spec-freshness.mjs --write` を、内容を再評価しないまま実行して
+   `inputs` を現在の 106 件で上書きしたためである。`sha256` と `file_count` は
+   `resume-receipt.json` の同じ評価の記録から復元したが、per-file の一覧は戻せなかった。
+   これに伴い `resume-receipt.json` の `report_sha256` と実体の digest が一致しない。
+   **解消は再評価によってのみ可能で、digest を書き換えて合わせることはしない。**
+3. **A10 の初見 10 名 usability test が未実施。** 実参加者を集められず BLOCKED。事業判断待ち。
+4. **記事品質検査 24 種の指摘が画面に出ていない。** 上記のとおり bd memory で追跡中。
+5. **MCP `save_to_shortlist` の `savedAt` → `shortlistedAt`。** 外部 AI クライアントから
+   見えるフィールド名の変更のため保留。
+
+## 以前の受領書（2026-08-24 13:30）
+
+```yaml
 receipt_id: spec-writeback-2026-08-24-feat-auth-workspace-final-review-2
 recorded_at: 2026-08-24T13:30:00Z
 beads_ids: [ah-361, ah-361.1, ah-361.2, ah-361.3, ah-361.4, ah-361.5, ah-361.6, ah-361.7, ah-361.8, ah-361.9, ah-361.10, ah-361.11, ah-361.12, ah-361.13, ah-099, ah-lqu, ah-au4, ah-xp8, ah-6hc.5]
