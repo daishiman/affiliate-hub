@@ -1,7 +1,7 @@
 /**
  * @tier 2
  * @req REQ-FB02
- * @types static-analysis
+ * @types code-boundary
  */
 import { readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
