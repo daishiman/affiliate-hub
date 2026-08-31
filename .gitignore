@@ -1,5 +1,11 @@
 # 依存関係
-node_modules/
+#
+# **末尾のスラッシュを付けないこと。** `node_modules/` はディレクトリにしか
+# 当たらない。git worktree で作業するとき `node_modules` を本体へ向けた
+# symlink にすることがあり、それはディレクトリではないので素通りする。
+# 2026-08-31 に実際に混入し、CI が `ENOTDIR: not a directory, mkdir
+# '.../node_modules'` で install の段階から落ちた。
+node_modules
 .pnp
 .pnp.js
 
