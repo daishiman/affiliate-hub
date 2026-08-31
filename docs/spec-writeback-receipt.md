@@ -741,6 +741,7 @@ dev_graph_node_id: SYS-BLOG-UI-BUILDER-P13
 parent_feature: feat-blog-ui-builder
 base_branch: dev
 head_branch: devgraph/SYS-BLOG-UI-BUILDER-P13
+pull_request: https://github.com/daishiman/affiliate-hub/pull/46
 verdict: spec-impact-written-back
 ```
 
@@ -793,10 +794,10 @@ SQLite は ON CONFLICT の対象に**一致する UNIQUE 制約が無いと INSE
 ## 反映しなかったもの（理由つき）
 
 **確定済み章 `system-spec/*.md` の転記節と出典表が、正本 `spec-state.json` /
-`fetched-references.json` に追随していない（4 件）。**
+`fetched-references.json` に追随していない（7 件）。**
 
 - `frontend` / `infrastructure` / `maintenance-ops` / `ui-ux` の `qa_ref`・`serves_goals`
-  4 セル: `dev` が先に進めた値を正本は正しく持つが、章の
+  6 セル: `dev` が先に進めた値を正本は正しく持つが、章の
   `## 確定セルの記録 (正本 spec-state.json)` は**人が書く節**で compile が生成しないため、
   古い値のまま残っている。
 - `ui-ux.md` の出典表 `apple-hig` の更新日: 章は `2026-08-27`（HTTP `Last-Modified` 由来）、
@@ -812,10 +813,13 @@ SQLite は ON CONFLICT の対象に**一致する UNIQUE 制約が無いと INSE
 | ゲート | 結果 |
 |---|---|
 | `npx tsc --noEmit` | **PASS** |
-| `npx vitest run`（全体） | 451 files / 10288 tests — 10284 passed, 4 failed |
-| 4 件の赤 | すべて上記「反映しなかったもの」1 因。実装の欠陥ではない |
+| `npx vitest run`（全体） | 451 files / 10288 tests — **10281 passed, 7 failed**（失敗は 2 ファイル） |
+| 7 件の赤 | すべて上記「反映しなかったもの」1 因。実装の欠陥ではない |
+
+赤の内訳: `chapter-confirmed-cell-transcript.test.ts` 6 件（転記セル）、
+`doc-source-version-gap.test.ts` 1 件（出典表の更新日）。
 
 ## 残課題
 
-- 🟡 確定済み章 4 件を R4-reopen 経由で正本へ追随させる（上記）
+- 🟡 確定済み章の転記 7 件を R4-reopen 経由で正本へ追随させる（上記）
 - 直前の受領書 `spec-writeback-2026-08-31-feat-blog-ui-builder-p13` の残課題はそのまま有効

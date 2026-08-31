@@ -320,3 +320,70 @@ ui-ux     ceiling 612 → 700   (678 + 余裕 22)
 「3 度目にここへ来たら、天井を動かす前に『この章だけが何を増やし続けているのか』を
 先に見ること」と宿題を残していた。** その場で答えを書いた（今回は 3 章同時に
 当たっており「この章だけ」ではない。ただし `章の注記` が 2 度続けて主因である旨）。
+
+---
+
+# 追記（2026-08-31・`dev` 取り込みと PR 提出）
+
+**上の §1〜§7 は 2026-08-30 時点の snapshot である。書き換えていない。**
+以下がその後に起きたことで、**§1 の判定項目 1 と §4 の 1 はここで状態が変わった。**
+
+## A. 判定項目 1（PR）— ⬜ 未実施 → 🟢 提出済み
+
+利用者の指示が「PR を出さない」から「出す」へ変わったため、
+`dev` を取り込んだうえで draft PR を `dev` 向けに提出した。
+
+- PR: https://github.com/daishiman/affiliate-hub/pull/46
+- ブランチ: `devgraph/SYS-BLOG-UI-BUILDER-P13`（基点 `dev`）
+- base: `dev`（`main` ではない。`branch-flow.yml` が落とすため）
+- 状態: **draft**。自動マージは走らない
+
+## B. §4 の 1（migration 未コミット）— 🔴 → 🟢 解消
+
+`0040` は `dev` 側の採番と衝突したため **`0041_blog_appearance_workspace.sql` へ
+採番し直してコミット済み**である。`pnpm run verify` の
+`git status --porcelain drizzle` を見る門は、これで緑になる条件を満たす。
+
+**あわせて、掲載表の部分 UNIQUE 索引を落とした判断を取り消した。**
+`blog-affiliate-placement-repository.ts` の `save` は `onConflictDoUpdate` で
+自然identityを指す。SQLite は ON CONFLICT の対象に一致する UNIQUE 制約が無いと
+**INSERT ごと拒む**ので、索引が無いと保存が全部失敗する。
+型検査は通り、実行時テスト 16 件が落ちてはじめて見えた。
+
+`tracking_code` は NULL を取り、SQL では `NULL = NULL` が真にならない。
+索引を 1 本にすると「コード無しの掲載」が何件でも作れるため、
+`WHERE tracking_code IS NULL` / `IS NOT NULL` の 2 本に分けてある。
+
+## C. §4 の 3（固定ページ 12 経路が 404）— 解の道筋が定まった
+
+`dev` が `SITE_DOCUMENT_KIND_BY_KEY` を入れ、経路の鍵（`operator`）と
+保管上の名前（`profile`）を 1 か所で対応づけた。旧 `0040` が持っていた
+`legal_page.kind` の語彙移行は**要らなくなった**ので落としてある
+（移行を消して問題を隠したのではなく、問題の形が変わった）。
+
+## D. §7 の検証 — 現在値
+
+| 検査 | 結果 |
+| --- | --- |
+| `npx tsc --noEmit` | 🟢 0 件 |
+| `npx vitest run` | 🟡 **7 failed / 10281 passed**（451 files、失敗は 2 ファイル） |
+
+§4.1 の lineage 1 件（`blog-ui-spec-governance.test.ts`）は
+`ui-ux.md` の実バイト列で digest を更新して**緑になった**。
+代わりに、`dev` 取り込みで新しく 7 件が赤い。
+
+| 検査 | 件数 | 内容 |
+| --- | --- | --- |
+| `chapter-confirmed-cell-transcript.test.ts` | 6 | 4 章の `qa_ref`・`serves_goals` が正本の値と食い違う |
+| `doc-source-version-gap.test.ts` | 1 | `ui-ux.md` の出典表 `apple-hig` の更新日が `fetched-references.json` と食い違う |
+
+**どちらも `dev` 側に元からあった食い違いを、本ブランチの新しい検査が
+初めて検出したものである。**前者の検査は `dev` に存在しない。
+章の直接編集は `guard-confirmed-chapter-overwrite` が遮断する。**迂回していない。**
+追随は根拠つき R4-reopen 経由で別途行う（残課題）。
+
+## E. まだ 🔴 のまま
+
+§4 の 2（配色の保存と掲載の増減が操作の記録に届かない）と
+4（公開記事の本文が HTML に出ていない）は手つかずである。
+**とくに 2 は本番（`main`）へ進める前に閉じること。**掲載の増減は金銭に直結する。
