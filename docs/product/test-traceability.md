@@ -6,8 +6,8 @@
 テスト側の `@req` 印を重ねたもの。
 
 - 最終更新: 2026-08-31
-- テストファイル: 426 件
-- 由来の要件が分かる: 426 件
+- テストファイル: 429 件
+- 由来の要件が分かる: 429 件
 - **由来不明: 0 件**（上限 2 件）
 
 由来不明とは「どの要件のために書いたのか、機械から辿れない」という意味で、
@@ -112,6 +112,7 @@
 | `tests/architecture/component-contract-identity.test.ts` | REQ-UX06 | 印 |
 | `tests/architecture/dependency-direction.test.ts` | REQ-FD01, REQ-FD02, REQ-SEC02, REQ-SEC04, REQ-TM12, REQ-TS09 | 印と表 |
 | `tests/architecture/doc-source-version-gap.test.ts` | REQ-TS14 | 印と表 |
+| `tests/architecture/doctrine-anchor-covers-required-info.test.ts` | REQ-TS15 | 印 |
 | `tests/architecture/doctrine-citation-gap.test.ts` | REQ-TS13 | 印と表 |
 | `tests/architecture/doctrine-clause-citation.test.ts` | REQ-TS13 | 印 |
 | `tests/architecture/documentation-links.test.ts` | REQ-TS09 | 印 |
@@ -142,6 +143,8 @@
 | `tests/architecture/secrets-not-in-repo.test.ts` | REQ-CI07, REQ-SEC10 | 印と表 |
 | `tests/architecture/seed-and-sample-agree.test.ts` | REQ-FD06 | 印 |
 | `tests/architecture/seed-covers-cases.test.ts` | REQ-FD06 | 印 |
+| `tests/architecture/seed-satisfies-public-entry.test.ts` | REQ-FD06 | 印 |
+| `tests/architecture/seed-writes-workspace-id.test.ts` | REQ-FD06 | 印 |
 | `tests/architecture/server-action-exports.test.ts` | REQ-FD06 | 印と表 |
 | `tests/architecture/single-definition.test.ts` | REQ-FD05, REQ-TS09 | 印と表 |
 | `tests/architecture/spec-chapter-fences.test.ts` | REQ-TS11 | 印と表 |
@@ -447,4 +450,4 @@
 | `tests/ui/use-draft.test.tsx` | REQ-BOPS04, REQ-BOPS05 | 印 |
 | `tests/ui/zz-probe-tone.test.tsx` | REQ-TM07 | 表 |
 | `tests/visual/visual-regression.test.ts` | REQ-S09, REQ-TS12, REQ-UX08 | 印 |
-<!-- 生成物の指紋 sha256:aafce74caa6c633e77d9cb15120a2e9f91b0a6024d375d817fea17a4104516ee -->
+<!-- 生成物の指紋 sha256:d20b001b57a9bea84f939bdff6c8a3028af1c27ec8e7bd1baa5bb8152b4b072b -->
