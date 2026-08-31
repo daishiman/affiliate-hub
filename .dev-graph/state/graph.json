@@ -1,5 +1,5 @@
 {
-  "graph_revision": 356,
+  "graph_revision": 357,
   "nodes": [
     {
       "acceptance": [],
@@ -19854,19 +19854,21 @@
       "classification_confidence": 0.9,
       "classification_reason": "公開範囲の決め方そのものを問う仕様判断。実装ではなく決定が先に要る",
       "completion_evidence": {
-        "completed_at": null,
-        "evidence_refs": [],
+        "completed_at": "2026-08-31T09:10:00Z",
+        "evidence_refs": [
+          "https://github.com/daishiman/affiliate-hub/pull/43"
+        ],
         "policy": "manual",
-        "reconciled_at": null,
+        "reconciled_at": "2026-08-31T09:10:00Z",
         "source": "manual",
-        "status": "in_progress"
+        "status": "done"
       },
       "confirmation_evidence": {
         "evaluated_digest": null,
         "evaluator": null,
         "evidence_ref": null
       },
-      "confirmation_status": "draft",
+      "confirmation_status": "confirmed",
       "created_at": "2026-08-31T06:30:00Z",
       "depends_on": [
         "task-seed-satisfies-public-entry"
@@ -19925,7 +19927,7 @@
         "source_version": null
       },
       "start_date": null,
-      "status": "draft",
+      "status": "done",
       "tags": [
         "data",
         "dx"
@@ -19935,7 +19937,7 @@
       "template_version": "1.0.0",
       "title": "設計図を持つ 5 本のうち 2 本しか公開していないのは、決めた結果ではない",
       "tracker_binding": "beads",
-      "updated_at": "2026-08-31T06:30:00Z"
+      "updated_at": "2026-08-31T09:10:00Z"
     }
   ],
   "repository_id": "github:daishiman/affiliate-hub",

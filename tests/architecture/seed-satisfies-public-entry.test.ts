@@ -76,7 +76,7 @@ describe("見本データが読者側の入口を通ること", () => {
     );
   });
 
-  it("網に載せる 2 本には、必ず設計図が在る", () => {
+  it("網に載せたブログには、必ず設計図が在る", () => {
     // 入口が要求する組。網にだけ在るブログは、画面から
     // 「まだ作っていない」と区別が付かないまま 404 になる。
     const designed = new Set(blueprintSlugs());
@@ -86,11 +86,36 @@ describe("見本データが読者側の入口を通ること", () => {
     expect(orphans, "設計図の無い URL 名を網に載せています").toEqual([]);
   });
 
-  it("網の 2 本は active で、親を持たない中心が 1 本だけである", () => {
+  it("設計図を持つブログは、1 本残らず網にも載っている", () => {
+    // **組のもう片方向。** 上の検査は「網にだけ在る」を止めるが、
+    // 「設計図にだけ在る」は止めない。2026-08-31 まで 3 本がその状態で、
+    // 設計図は在るのに網に無いまま `/s/first-camera` などが 404 だった。
+    //
+    // 公開する本数は 2026-08-31 に**見本の全部**と決めた（`seedNetwork()` の
+    // 但し書きに理由）。だからここは「決めた本数」を数字で書かず、
+    // 見本と 1 対 1 であることを見る。見本にブログを足した日、
+    // 網に載せ忘れれば**ここが赤くなる。**
+    const networked = seedNetwork()
+      .map((node) => node.siteSlug)
+      .sort();
+    expect(networked).toEqual(blueprintSlugs());
+    // 0 本どうしの一致で緑にならないよう、母数を同じ検査に置く。
+    expect(networked.length).toBe(sampleSites().length);
+    expect(networked.length).toBeGreaterThan(1);
+  });
+
+  it("網は全部 active で、親を持たない中心が 1 本だけである", () => {
     // `status !== 'active'` でも入口は null を返す。**組の残り半分。**
+    //
+    // 中心が 1 本であることは `SiteNetworkNode` の但し書き（ハブが 1 つ、
+    // その下にサブサイト）が決めている。5 本を全部ハブにすると木が森になり、
+    // 姉妹サイトの帯とパンくずが「どこが入口か」を決められなくなる。
     const nodes = seedNetwork();
     expect(nodes.every((n) => n.status === "active")).toBe(true);
     expect(nodes.filter((n) => n.parentSlug === null)).toHaveLength(1);
+    // 中心以外は全部その下。宙に浮いた親を指す行を作らない。
+    const hub = nodes.find((n) => n.parentSlug === null);
+    expect(nodes.filter((n) => n !== hub).every((n) => n.parentSlug === hub?.siteSlug)).toBe(true);
   });
 
   it("親子の URL 名は、どちらも見本の 1 本目・2 本目を指している", () => {

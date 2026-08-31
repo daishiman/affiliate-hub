@@ -68,15 +68,20 @@ pnpm dev
 2. `site_network_node` に同じ URL 名が `status='active'` で在る
 
 片方だけだと画面は 404 を返しますが、これは「まだ作っていないページ」と見分けが付きません。
-入れ終わったら次の 2 本が 200 で開けることを確かめてください。
+入れ終わったら、見本のブログ **5 本すべて**が 200 で開けることを確かめてください。
 
 ```bash
-curl -o /dev/null -w '%{http_code}\n' http://localhost:3000/s/home-office-desk
-curl -o /dev/null -w '%{http_code}\n' http://localhost:3000/s/compact-kitchen-gear
+for s in home-office-desk compact-kitchen-gear first-camera run-and-recover mobile-plan-navi; do
+  printf '%-22s %s\n' "$s" "$(curl -o /dev/null -sw '%{http_code}' "http://localhost:3000/s/$s")"
+done
 
 # Workers ランタイム(workerd)での動作確認 — 本番に近い
 pnpm preview
 ```
+
+見本は「まだ 1 本も作っていない状態でも読者側の画面が空にならない」ためのものなので、
+**5 本とも公開します**（1 本目が網の中心で、残り 4 本がその下）。
+1 本でも 404 なら、`site_network_node` への登録が抜けています。
 
 ## 環境とデプロイフロー
 

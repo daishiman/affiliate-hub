@@ -779,30 +779,55 @@ export function seedFixedPages(
   }));
 }
 
-/** サイト網。親を持たない中心が 1 本だけであること自体が見本になる。 */
+/**
+ * サイト網。**見本の 5 本すべてを載せる。**
+ *
+ * --- なぜ 5 本か（2026-08-31 に決めた）---
+ *
+ * ここは 2026-08-31 まで親と子の 2 本だけを載せていた。設計図は
+ * `sampleSites()` が 5 本持っているので、残り 3 本
+ * （`first-camera` / `run-and-recover` / `mobile-plan-navi`）は
+ * `site_blueprints` に行を持ちながら網に行が無く、`/s/<名前>` が 404 だった。
+ * `resolvePublicSiteIdentity` は 2 つの表の組を要求するので、
+ * **網に載っていないブログは、設計図が在っても公開されない。**
+ *
+ * これは実装の誤りではなかった。しかし決めた結果でもなかった——
+ * 「3 本目以降を公開しない」と誰かが判断した記録はどこにも無く、
+ * seed がそう書いてあるからそうなっていただけである。
+ *
+ * 見本 5 本の狙いは `sampleSites()` の但し書きに書いてある——
+ * 「まだ 1 本も作っていない状態で読者側の画面が全部空になり、
+ * 『作っていない』のか『壊れている』のかを見分けられなくなる」のを防ぐこと。
+ * **3 本が 404 だと、その狙いを果たさないどころか自分で壊している。**
+ * だから 5 本とも公開する。
+ *
+ * --- なぜ木を 1 つに保つか ---
+ *
+ * `SiteNetworkNode` の但し書きは「ハブが 1 つ、その下にサブサイト」と
+ * 決めている。5 本を全部ハブにすると木が 5 つの森になり、姉妹サイトの帯や
+ * パンくずが「どこが入口か」を決められない。**中心は 1 本のまま**、
+ * 増えた 3 本は残りと同じくその下に並べる。
+ *
+ * --- なぜ書き並べないか ---
+ *
+ * 一覧は `sampleSites()` から作る。**書き写さないので載せ忘れが作れない。**
+ * 見本にブログを足した日、ここは何もしなくても網に載る。
+ * 名前と一行説明も設計図から借りる（2 か所に同じ文字列を置かない）。
+ */
 export function seedNetwork(): readonly SiteNetworkRecord[] {
-  return [
-    {
-      id: "sn_seed_hub",
-      siteSlug: SEED_HUB_SLUG,
-      role: "hub",
-      parentSlug: null,
-      name: "編集の道具",
-      oneLine: "道具選びの入口をここに集めます。",
-      position: 0,
+  return sampleSites().map((site, index) => {
+    const isHub = site.slug === SEED_HUB_SLUG;
+    return {
+      id: `sn_seed_${site.slug.replace(/-/g, "_")}`,
+      siteSlug: site.slug,
+      role: isHub ? "hub" : "sub",
+      parentSlug: isHub ? null : SEED_HUB_SLUG,
+      name: site.blueprint.name,
+      oneLine: site.blueprint.purpose,
+      position: index,
       status: "active",
-    },
-    {
-      id: "sn_seed_sub",
-      siteSlug: SEED_SUB_SLUG,
-      role: "sub",
-      parentSlug: SEED_HUB_SLUG,
-      name: "台所まわりの道具",
-      oneLine: "中心から分けた、狭い題目のほう。",
-      position: 1,
-      status: "active",
-    },
-  ];
+    };
+  });
 }
 
 /** 記事 1 本を、保存されている形（`BlogArticle`）で返す。 */

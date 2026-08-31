@@ -589,3 +589,68 @@ verdict: no-spec-impact
   （`task-network-reach-decision`。`ah-ghmb` に依存）
 - `docs/product/test-traceability.md` は本 PR のマージ結果で再生成済み（427 件）。
   他セッションの未コミットテストが出そろったら、そちらでもう一度生成し直す
+
+---
+
+# 仕様反映 受領書（2026-08-31・公開する本数を決める）
+
+```yaml
+receipt_id: spec-writeback-2026-08-31-task-network-reach-decision
+graph_node_id: task-network-reach-decision
+beads_ids: [ah-vctm]
+verdict: no-spec-impact
+decided_by: daishiman
+decided_at: 2026-08-31
+```
+
+## 何を決めたか
+
+**見本の 5 本すべてを読者側で公開する。** 中心（`home-office-desk`）は 1 本のまま、
+残る 4 本をその下に並べる。
+
+直前の受領書で「本数を変えるのは仕様判断なので触っていない」と書いた項目である。
+**その判断をここで行い、結果を反映した。**
+
+## なぜ 5 本か
+
+| 論点 | 判断 |
+| --- | --- |
+| 見本 5 本は何のために在るか | `sampleSites()` の但し書きが「まだ 1 本も作っていない状態で読者側の画面が全部空になり、『作っていない』のか『壊れている』のかを見分けられなくなる」のを防ぐためと明記している |
+| いまの 404 はその狙いに沿うか | **沿わない。** 3 本が 404 では、見分けが付かない状態を自分で作っている |
+| 全部をハブにしてよいか | **だめ。** `SiteNetworkNode` の但し書きが「ハブが 1 つ、その下にサブサイト」と決めている。森にすると姉妹サイトの帯とパンくずが入口を決められない |
+| 本数を数字で固定するか | **しない。** `seedNetwork()` を `sampleSites()` から作り、「網と設計図が 1 対 1」を検査で見張る |
+
+## なぜ仕様への反映が要らないか
+
+| 確かめたこと | 結果 |
+| --- | --- |
+| 公開条件そのものを変えたか | 変えていない。`resolvePublicSiteIdentity` は無改変で、満たす行を増やしただけ |
+| ドメインの型・不変条件を変えたか | 変えていない。木が 1 つであることは維持し、むしろ検査で明示した |
+| 読者側・管理側の画面仕様を変えたか | 変えていない。見本データの内容だけが変わる |
+| 本番データへの影響 | 無い。`scripts/seed/` は開発機の D1 専用 |
+
+確定済み仕様章（`system-spec/*.md`）への反映は不要と判断した。
+変わったのは**見本データが何本のブログを持つか**であり、製品の決まりではない。
+判断の記録は `tasks/task-network-reach-decision.md` の「決定」節と、
+`seedNetwork()` の但し書きに置いた。
+
+## 品質ゲート
+
+| ゲート | 結果 |
+| --- | --- |
+| `tsc --noEmit` | PASS（本変更分にエラーなし。`src/app/layout.tsx` の `LayoutProps` は Next.js 生成型が未作成なための既存事象） |
+| `vitest run tests/architecture` | PASS（71 files / **816** tests。前回 815 → 新検査 1 件） |
+| `vitest run`（全体） | PASS（427 files / **10080** tests。前回 10079 → +1） |
+
+## 変えたもの
+
+| ファイル | 変更 |
+| --- | --- |
+| `scripts/seed/local-seed-data.ts` | `seedNetwork()` を `sampleSites()` からの生成に変更。名前と一行説明も設計図から借りる |
+| `tests/architecture/seed-satisfies-public-entry.test.ts` | 「設計図を持つブログは 1 本残らず網にも載っている」を追加。親子関係の主張を強化 |
+| `README.md` | 確認手順を 5 本すべてに。公開する本数とその理由を明記 |
+| `tasks/task-network-reach-decision.md` | 「決定」節を追加。`status: draft → done` |
+
+## 残課題
+
+無し。`ah-ghmb` から引き継いだ残課題はこれで閉じた。

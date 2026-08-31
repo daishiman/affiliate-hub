@@ -12,8 +12,8 @@ iteration: null
 title: "設計図を持つ 5 本のうち 2 本しか公開していないのは、決めた結果ではない"
 owners: ["daishiman"]
 created_at: "2026-08-31T06:30:00Z"
-updated_at: "2026-08-31T06:30:00Z"
-status: "draft"
+updated_at: "2026-08-31T09:10:00Z"
+status: "done"
 depends_on: ["task-seed-satisfies-public-entry"]
 related_nodes: ["task-seed-satisfies-public-entry"]
 resource_scope: ["scripts","tests"]
@@ -30,7 +30,7 @@ phase_ref: null
 file_path: "tasks/task-network-reach-decision.md"
 template_id: "task"
 template_version: "1.0.0"
-confirmation_status: "draft"
+confirmation_status: "confirmed"
 evaluation_status: "pending"
 confirmation_evidence: {"evaluated_digest":null,"evaluator":null,"evidence_ref":null}
 source_lineage: {"imported_at":"2026-08-31T06:30:00Z","origin_kind":"manual","source_digest":null,"source_path":"src/infrastructure/persistence/d1/blog-ops-repository.ts","source_plugin":null,"source_version":null}
@@ -44,7 +44,7 @@ github_publication: {"labels":[],"milestone":null,"mode":"local_only","project_a
 github_project_linkages: []
 pull_request_linkages: []
 execution_contexts: []
-completion_evidence: {"completed_at":null,"evidence_refs":[],"policy":"manual","reconciled_at":null,"source":"manual","status":"in_progress"}
+completion_evidence: {"completed_at":"2026-08-31T09:10:00Z","evidence_refs":["https://github.com/daishiman/affiliate-hub/pull/43"],"policy":"manual","reconciled_at":"2026-08-31T09:10:00Z","source":"manual","status":"done"}
 implementation_readiness: {"checked_at":null,"missing_sections":[],"status":"incomplete"}
 ---
 
@@ -68,6 +68,23 @@ seed が網に載せるのは親と子の 2 本で、そう書いてあるから
 
 **決めていないことと、決めた結果 2 本であることは、画面から区別が付かない。**
 `task-seed-satisfies-public-entry` で直した 3 つの壊れ方と、症状が同じ形をしている。
+
+### 決定（2026-08-31）
+
+**見本の 5 本すべてを公開する。** 中心は 1 本のまま、増えた 3 本もその下に並べる。
+
+理由は `sampleSites()` の但し書きにある。見本 5 本が存在するのは
+「まだ 1 本も作っていない状態で読者側の画面が全部空になり、**『作っていない』のか
+『壊れている』のかを見分けられなくなる**」のを防ぐためである。
+3 本が 404 では、その狙いを果たさないどころか自分で壊している。
+
+木を 1 つに保つのは `SiteNetworkNode` の但し書き（「ハブが 1 つ、その下にサブサイト」）に
+従うため。5 本を全部ハブにすると木が 5 つの森になり、姉妹サイトの帯とパンくずが
+「どこが入口か」を決められなくなる。
+
+本数は数字で固定しない。`seedNetwork()` を `sampleSites()` から作るように変え、
+**網と設計図が 1 対 1 であること**を検査で見張る。見本にブログを足した日、
+seed 側は何もしなくても網に載り、載せ忘れる書き方ができなくなる。
 
 ## 実装対象
 
@@ -120,8 +137,13 @@ seed が網に載せるのは親と子の 2 本で、そう書いてあるから
 ## Handoff
 
 **「404 が出ているから壊れている」でも「仕様どおりだから正しい」でもない。**
-仕様どおりではあるが、その仕様を誰も決めていない、という状態である。
-決めるところから始めること。
+仕様どおりではあるが、その仕様を誰も決めていない、という状態だった。
+2026-08-31 に「見本の 5 本すべてを公開する」と決めた（→「決定」節）。
+
+決めた形は数字ではなく**関係**で固定してある。`seedNetwork()` は
+`sampleSites()` から作られ、検査は「網と設計図が 1 対 1」を見る。
+見本を 6 本に増やしたい人は `sampleSites()` に足すだけでよく、
+seed 側を直し忘れても検査が止める。**次に触る人が同じ穴を掘れない。**
 
 ## GitHub publication
 
