@@ -728,3 +728,94 @@ verdict: spec-impact-written-back
   **本番（`main`）へ進める前にこれを閉じること。**掲載の増減は金銭に直結する
 - 🟡 受入 A3「sticky 常時表示」の受入文言が未定義
 - 🟡 `guideline_references` の登録が 0 件（判定は動くが対象が無い）
+
+---
+
+# 仕様反映 受領書（2026-08-31・`dev` 取り込み時の設計判断）
+
+```yaml
+receipt_id: spec-writeback-2026-08-31-feat-blog-ui-builder-p13-dev-merge
+recorded_at: 2026-08-31T03:40:00Z
+beads_ids: [ah-45ba, ah-45ba.13]
+dev_graph_node_id: SYS-BLOG-UI-BUILDER-P13
+parent_feature: feat-blog-ui-builder
+base_branch: dev
+head_branch: devgraph/SYS-BLOG-UI-BUILDER-P13
+verdict: spec-impact-written-back
+```
+
+## 判定
+
+`dev` の取り込みで**設計が動いた点が 3 つあり、うち 2 つを設計文書へ反映した。**
+残り 1 つは正本 `spec-state.json` 側が既に `dev` の値を持っており、追加の書き戻しは不要である。
+
+## 1. 掲載表の部分 UNIQUE 索引を戻した（設計の取り消し）
+
+取り込みの途中で「掲載の一意制約は repository の DELETE→INSERT が守るから索引は要らない」と
+いったん判断し、索引を落とした。**これは誤りで、取り消した。**
+
+`blog-affiliate-placement-repository.ts` の `save` は `onConflictDoUpdate` で自然identityを指す。
+SQLite は ON CONFLICT の対象に**一致する UNIQUE 制約が無いと INSERT ごと拒む**ので、
+索引を落とすと保存が全部失敗する。型検査は通り、`d1-blog-affiliate-placement.test.ts` の
+16 件が実行時に落ちてはじめて見えた。
+
+`tracking_code` は NULL を取り、SQL では `NULL = NULL` が真にならない。索引を 1 本にすると
+「コード無しの掲載」が何件でも作れてしまうので、`WHERE tracking_code IS NULL` と
+`IS NOT NULL` の 2 本に分けている。索引を置く前に既存の重複を `max(rowid)` で
+決定的に 1 件へ寄せる（寄せないと索引作成そのものが既存行で落ちる）。
+
+反映先: `drizzle/0041_blog_appearance_workspace.sql`（意図をコメントで併記）、
+`tests/integration/d1-migration-0041.test.ts`。
+
+## 2. `legal_page.kind` の語彙移行を落とした（移行が要らなくなった）
+
+旧 `0040` は `legal_page.kind` の値そのものを書き換える移行を持っていた。
+`dev` が同じ問題へ別の解を先に出しており、`SITE_DOCUMENT_KIND_BY_KEY` が
+**経路の鍵（`operator`）と保管上の名前（`profile`）を 1 か所で対応づける。**
+保管されている値を書き換える必要がそもそも無くなったため、移行を落とした。
+**移行を消して問題を隠したのではなく、問題の形が変わった。**
+
+正本 `database` の 🔴「`legal_page` の語彙 2 系統統合」は、この対応表の導入で解の道筋が
+定まった。対応そのものの検査は `tests/integration/d1-published-article.test.ts` が持つ。
+
+反映先: `docs/spec/feat-blog-ops-crud/component-contract.md`（`SiteDocumentForm` の行）、
+`docs/spec/feat-blog-ui-builder/component-contract.md`（§5 実装の割り当て）。
+
+## 3. presentation 部品を `publish/` へ寄せた（置き場所の統一）
+
+`dev` が管理画面の presentation モジュール約 49 個を
+`src/presentation/admin/publish/` へ移していた。本 feature が新設した 6 つだけ
+`admin/` 直下に残ると、同じ役割の部品が 2 か所に散る。`git mv` で寄せ、
+契約表のファイル列を実在するパスへ更新した。
+
+反映先: 上記 2 つの `component-contract.md`、`admin-screen-task-manifest.ts`。
+
+## 反映しなかったもの（理由つき）
+
+**確定済み章 `system-spec/*.md` の転記節と出典表が、正本 `spec-state.json` /
+`fetched-references.json` に追随していない（4 件）。**
+
+- `frontend` / `infrastructure` / `maintenance-ops` / `ui-ux` の `qa_ref`・`serves_goals`
+  4 セル: `dev` が先に進めた値を正本は正しく持つが、章の
+  `## 確定セルの記録 (正本 spec-state.json)` は**人が書く節**で compile が生成しないため、
+  古い値のまま残っている。
+- `ui-ux.md` の出典表 `apple-hig` の更新日: 章は `2026-08-27`（HTTP `Last-Modified` 由来）、
+  `fetched-references.json` は `2026-06-08`（ページ自身の表明）。**後者のほうが根拠が強い。**
+
+いずれも `dev` 側に元からあった食い違いで、`chapter-confirmed-cell-transcript.test.ts` と
+`doc-source-version-gap.test.ts` が本ブランチで**新しく検出した**ものである（前者は `dev` に存在しない）。
+章の直接編集は `guard-confirmed-chapter-overwrite` が遮断する。**遮断を迂回していない。**
+追随は根拠つき R4-reopen 経由で行う必要があり、本 MVP リリースの scope の外に置いた。
+
+## 品質ゲート（MVP）
+
+| ゲート | 結果 |
+|---|---|
+| `npx tsc --noEmit` | **PASS** |
+| `npx vitest run`（全体） | 451 files / 10288 tests — 10284 passed, 4 failed |
+| 4 件の赤 | すべて上記「反映しなかったもの」1 因。実装の欠陥ではない |
+
+## 残課題
+
+- 🟡 確定済み章 4 件を R4-reopen 経由で正本へ追随させる（上記）
+- 直前の受領書 `spec-writeback-2026-08-31-feat-blog-ui-builder-p13` の残課題はそのまま有効
