@@ -6,7 +6,6 @@
 import { describe, expect, it, vi } from "vitest";
 import { ok } from "@/domain/shared";
 import {
-  projectPublicSiteChrome,
   readPublicSiteProjection,
 } from "@/presentation/site/public-site-projection";
 
@@ -19,7 +18,6 @@ describe("PublicSiteProjection", () => {
       listPublished: vi.fn(async () => ok([])),
       listNetwork: vi.fn(async () => ok([])),
       listTags: vi.fn(async () => ok([])),
-      listFixedPages: vi.fn(async () => ok([])),
       listDeliveryParts: vi.fn(async () => ok([])),
       findArticleBySlug: vi.fn(async () => ok(null)),
     };
@@ -39,7 +37,6 @@ describe("PublicSiteProjection", () => {
       reader.listPublished,
       reader.listNetwork,
       reader.listTags,
-      reader.listFixedPages,
       reader.listDeliveryParts,
     ]) {
       expect(read).toHaveBeenCalledTimes(1);
@@ -55,25 +52,27 @@ describe("PublicSiteProjection", () => {
     expect(port.openSite).toHaveBeenCalledTimes(1);
   });
 
-  it("公開中の固定ページを正本 URL で footer へ投影する", () => {
-    const chrome = projectPublicSiteChrome("hub", {
-      fixedPages: [
-        {
-          id: "page-profile",
-          siteSlug: "hub",
-          kind: "profile",
-          title: "運営者",
-          body: "本文",
-          status: "published",
-          deletedAt: null,
-          updatedAt: new Date("2026-08-27T00:00:00.000Z"),
-        },
-      ],
-      slots: [],
+  it("公開投影は旧固定ページ一覧へ依存せず、正本文書の可否を各canonical routeへ委ねる", async () => {
+    const reader = {
+      blueprint: {} as never,
+      listLayoutSlots: async () => ok([]),
+      listLayoutBands: async () => ok([]),
+      listPublished: async () => ok([]),
+      listNetwork: async () => ok([]),
+      listTags: async () => ok([]),
+      listDeliveryParts: async () => ok([]),
+      findArticleBySlug: async () => ok(null),
+    };
+
+    const result = await readPublicSiteProjection("hub", {
+      source: "sample",
+      port: { openSite: async () => ok(reader) },
     });
 
-    expect(chrome.fixedPageLinks).toEqual([
-      { href: "/s/hub/profile", label: "運営者" },
-    ]);
+    expect(result.ok && result.value).not.toBeNull();
+    if (result.ok && result.value !== null) {
+      expect(result.value).not.toHaveProperty("fixedPages");
+      expect(result.value.chrome).not.toHaveProperty("fixedPageLinks");
+    }
   });
 });

@@ -7,6 +7,7 @@
  */
 
 import type { AiSearchCheck } from "@/application/seo/ai-search-audit";
+import type { RecordedIndexNowOutcome } from "@/application/seo/indexnow-outcome-audit";
 
 export type PublishArticleFormState = {
   readonly status: "idle" | "done" | "failed";
@@ -49,6 +50,13 @@ export type PublishArticleFormState = {
    * あちらは法令と根拠に関わる。
    */
   readonly aiSearch?: readonly AiSearchCheck[];
+  /**
+   * 公開後の IndexNow 通知と、その結末を永続監査へ残せたか。
+   *
+   * 記事公開の成功とは分ける。通知先または監査の保存先が落ちても記事は
+   * すでに公開済みであり、フォーム全体を失敗へ言い換えない。
+   */
+  readonly indexNow?: RecordedIndexNowOutcome;
 };
 
 export const INITIAL_PUBLISH_ARTICLE_STATE: PublishArticleFormState = {

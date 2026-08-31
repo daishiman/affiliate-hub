@@ -7,8 +7,6 @@
  * `drizzle/*.sql` を順に当てた実物の D1 に対して書いて読む。
  * 印が付いていなかっただけで、検査は前からここにあった。
  */
-import { readFileSync, readdirSync } from "node:fs";
-import path from "node:path";
 import { drizzle } from "drizzle-orm/d1";
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import { getPlatformProxy } from "wrangler";
@@ -21,6 +19,7 @@ import { RETENTION_DAYS } from "@/domain/analytics";
 import type { ActorContext } from "@/domain/shared";
 import { createDeps } from "@/infrastructure/composition";
 import { OTHER_WORKSPACE, WORKSPACE, anOwner } from "../support/actors";
+import { migrationStatements } from "../support/migrations";
 
 /**
  * 計測を **本物の D1 と本物のマイグレーション**で受け取り、
@@ -78,19 +77,6 @@ const EMPTY_DIMENSIONS: MetricDimensions = {
 };
 
 /** マイグレーションの本文を、実行できる単位に割る。 */
-function migrationStatements(): readonly string[] {
-  const dir = path.resolve(process.cwd(), "drizzle");
-  const files = readdirSync(dir)
-    .filter((f) => f.endsWith(".sql"))
-    .sort();
-  expect(files.length).toBeGreaterThan(0);
-  return files.flatMap((file) =>
-    readFileSync(path.join(dir, file), "utf8")
-      .split("--> statement-breakpoint")
-      .map((s) => s.trim())
-      .filter((s) => s !== ""),
-  );
-}
 
 beforeAll(async () => {
   proxy = await getPlatformProxy<TestEnv>({

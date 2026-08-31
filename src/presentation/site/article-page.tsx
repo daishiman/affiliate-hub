@@ -1,4 +1,3 @@
-import { headers } from "next/headers";
 import type { ReactNode } from "react";
 import { articleHref } from "@/application/read-models/published-article";
 import {
@@ -6,13 +5,14 @@ import {
   buildBreadcrumbList,
   buildFaqPage,
   buildItemList,
-  serializeJsonLd,
 } from "@/application/seo/structured-data";
 import { siteBasePathBySlug } from "@/domain/authoring/site";
-import { readerActor, siteUseCases } from "@/presentation/composition";
+import { publicArticleBlockOrder, readerActor, siteUseCases } from "@/presentation/composition";
+import { requestOriginFromNextHeaders } from "@/presentation/http/request-origin";
 import type { PageKind } from "@/presentation/tools/webmcp-policy";
 import { ArticleTableOfContents, ArticleView } from "@/presentation/ui";
 import { ShortlistSaveButton } from "./shortlist-buttons";
+import { JsonLdScript } from "./json-ld-script";
 import { ReadFailureBody, SiteFrame, stopIfMissing } from "./page-frame";
 import { siteHref, toArticleCards, toArticleView } from "./view-model";
 
@@ -78,9 +78,15 @@ export async function ArticlePage({
 }) {
   const useCases = await siteUseCases();
   const actor = readerActor();
-  const [result, recent] = await Promise.all([
+  const [result, recent, blockOrder] = await Promise.all([
     useCases.getArticle.execute(actor, { siteSlug, slug }),
     useCases.listRecent.execute(actor, { siteSlug, limit: 4 }),
+    /*
+      ブログが選んだ見せ方の並び（受入 A1・A5）。選んでいなければ `null` で、
+      記事画面が既定の並びで描く。**記事の中身は 1 文字も変わらない**——
+      並び替えても塊は 1 つも落ちない、が A1「差し替えても既存記事が壊れない」の中身。
+    */
+    publicArticleBlockOrder(siteSlug),
   ]);
 
   /*
@@ -101,17 +107,16 @@ export async function ArticlePage({
         recent.value.filter((candidate) => candidate.slug !== slug).slice(0, 3),
       )
     : undefined;
-  const article = result.ok ? toArticleView(siteSlug, result.value, relatedArticles) : null;
+  const article = result.ok
+    ? toArticleView(siteSlug, result.value, relatedArticles, blockOrder ?? undefined)
+    : null;
 
   /*
     JSON-LD に入れる絶対 URL の origin。届いたリクエストの Host から作る。
     環境変数に固定すると、開発と本番で構造化データの URL がずれたまま配られる。
-    Host が読めない事故のときは origin 無しの相対 URL で出す（嘘の絶対 URL を出さない）。
+    信頼できる origin が読めない事故のときは JSON-LD 自体を出さない。
   */
-  const requestHeaders = await headers();
-  const host = requestHeaders.get("x-forwarded-host") ?? requestHeaders.get("host");
-  const proto = requestHeaders.get("x-forwarded-proto") ?? "https";
-  const origin = host === null ? "" : `${proto}://${host}`;
+  const origin = await requestOriginFromNextHeaders();
   const basePath = siteBasePathBySlug(siteSlug);
 
   return (
@@ -137,67 +142,47 @@ export async function ArticlePage({
               構造化データ。本文と同じ読み取りモデル（result.value）から
               純関数で作る。値は serializeJsonLd が < を逃がしてから埋める。
             */}
-            <script
-              type="application/ld+json"
-              // biome-ignore lint/security/noDangerouslySetInnerHtml: serializeJsonLd が < を \u003c に逃がした JSON のみを埋める
-              dangerouslySetInnerHTML={{
-                __html: serializeJsonLd(
-                  buildBlogPosting(result.value, {
+            {origin === null ? null : (
+              <>
+                <JsonLdScript
+                  value={buildBlogPosting(result.value, {
                     siteName: blueprint.name,
                     origin,
                     basePath,
-                  }),
-                ),
-              }}
-            />
-            <script
-              type="application/ld+json"
-              // biome-ignore lint/security/noDangerouslySetInnerHtml: serializeJsonLd が < を \u003c に逃がした JSON のみを埋める
-              dangerouslySetInnerHTML={{
-                __html: serializeJsonLd(
-                  buildBreadcrumbList([
+                  })}
+                />
+                <JsonLdScript
+                  value={buildBreadcrumbList([
                     { name: blueprint.name, url: `${origin}${basePath}` },
                     {
                       name: result.value.title,
                       url: `${origin}${basePath}${articleHref(result.value)}`,
                     },
-                  ]),
-                ),
-              }}
-            />
-            {/*
-              順位記事だけ ItemList を追加で出す。buildItemList は順位が無い記事で
-              null を返し、null は「出さない」に写す（嘘の順位表を出さない）。
-            */}
-            {(() => {
-              const itemList = buildItemList(result.value, {
-                siteName: blueprint.name,
-                origin,
-                basePath,
-              });
-              return itemList === null ? null : (
-                <script
-                  type="application/ld+json"
-                  // biome-ignore lint/security/noDangerouslySetInnerHtml: serializeJsonLd が < を \u003c に逃がした JSON のみを埋める
-                  dangerouslySetInnerHTML={{ __html: serializeJsonLd(itemList) }}
+                  ])}
                 />
-              );
-            })()}
-            {/*
-              よくある質問がある記事だけ FAQPage を出す。読者に見えている
-              問いと答えを**そのまま**渡す。ここで文言を整えると、画面に無い
-              答えが検索結果に出る（構造化データの誤用そのもの）。
-            */}
-            {(() => {
-              const faq = buildFaqPage(result.value);
-              return faq === null ? null : (
-                <script
-                  type="application/ld+json"
-                  // biome-ignore lint/security/noDangerouslySetInnerHtml: serializeJsonLd が < を \u003c に逃がした JSON のみを埋める
-                  dangerouslySetInnerHTML={{ __html: serializeJsonLd(faq) }}
-                />
-              );
-            })()}
+                {/*
+                  順位記事だけ ItemList を追加で出す。buildItemList は順位が無い記事で
+                  null を返し、null は「出さない」に写す（嘘の順位表を出さない）。
+                */}
+                {(() => {
+                  const itemList = buildItemList(result.value, {
+                    siteName: blueprint.name,
+                    origin,
+                    basePath,
+                  });
+                  return itemList === null ? null : <JsonLdScript value={itemList} />;
+                })()}
+                {/*
+                  よくある質問がある記事だけ FAQPage を出す。読者に見えている
+                  問いと答えを**そのまま**渡す。ここで文言を整えると、画面に無い
+                  答えが検索結果に出る（構造化データの誤用そのもの）。
+                */}
+                {(() => {
+                  const faq = buildFaqPage(result.value);
+                  return faq === null ? null : <JsonLdScript value={faq} />;
+                })()}
+              </>
+            )}
             {/*
               操作できる部分（道具の入力欄と結果）。**本文より先に出す。**
               道具を使いに来た読者に、先に説明を読ませない。

@@ -85,7 +85,7 @@ describe("案内の分類の読み上げ", () => {
 });
 
 describe("管理画面route metadataの正本", () => {
-  it("86画面・ナビ・分類は同じmetadataから派生する", () => {
+  it("88画面・ナビ・分類は同じmetadataから派生する", () => {
     // 2026-08-27: 51 → 84。**両側が別々に画面を足していた。**dev が blog 運用の
     // 15 枚を、こちらが書き手・企画・順位・根拠・設定の 18 枚を足しており、
     // どちらの枝も単独では自分の数（66 と 69）を書いていた。
@@ -93,7 +93,8 @@ describe("管理画面route metadataの正本", () => {
     // 2026-08-30: 84 → 86。統合で `content/published` と、その
     // `[site]/[slug]/edit` の 2 枚が加わった。数は手で決めず、
     // `find src/app/admin -name page.tsx | wc -l` で数え直すこと。
-    expect(ADMIN_ROUTE_METADATA).toHaveLength(86);
+    // 2026-08-30: 86 → 88。ブログの「見せ方と配色」と「成果リンクの掲載」を足した。
+    expect(ADMIN_ROUTE_METADATA).toHaveLength(88);
 
     const navRoutes = ADMIN_ROUTE_METADATA.filter((route) => route.nav !== null);
     expect(ADMIN_NAV.map((item) => item.href)).toEqual(navRoutes.map((route) => route.pattern));

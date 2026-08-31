@@ -3,8 +3,6 @@
  * @req REQ-IM13, REQ-E14
  * @types db-migration, tenant-isolation, state-transition, equivalence, decision-table
  */
-import { readFileSync, readdirSync } from "node:fs";
-import path from "node:path";
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import { drizzle } from "drizzle-orm/d1";
 import { getPlatformProxy } from "wrangler";
@@ -13,6 +11,7 @@ import type { ImprovementRepositoryPort } from "@/application/ports/improvement"
 import { createD1ImprovementRepository } from "@/infrastructure/persistence/d1/improvement-repository";
 import type { LoopRun, VariantSetting, VariantSpec } from "@/domain/analytics";
 import { asExperimentId, asWorkspaceId, isExpired, type WorkspaceId } from "@/domain/shared";
+import { migrationStatements } from "../support/migrations";
 
 /**
  * 改善ループの記録先（`variant_specs` / `loop_runs` / `loop_observations`）を、
@@ -59,20 +58,6 @@ const NON_OPTIMIZABLE_KEYS = [
   "consent_prominence",
   "factuality_labeling",
 ] as const;
-
-function migrationStatements(): readonly string[] {
-  const dir = path.resolve(process.cwd(), "drizzle");
-  const files = readdirSync(dir)
-    .filter((f) => f.endsWith(".sql"))
-    .sort();
-  expect(files.length).toBeGreaterThan(0);
-  return files.flatMap((file) =>
-    readFileSync(path.join(dir, file), "utf8")
-      .split("--> statement-breakpoint")
-      .map((s) => s.trim())
-      .filter((s) => s !== ""),
-  );
-}
 
 /** 入口（`createVariantSpec`）を通さずに組み立てる。保存側だけを測るため。 */
 function aSpec(over: Partial<VariantSpec> & { readonly id: string }): VariantSpec {

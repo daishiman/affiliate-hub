@@ -1,12 +1,11 @@
 /** @tier 2 @req REQ-B18, REQ-SEC01, REQ-TS07 */
-import { readFileSync, readdirSync } from "node:fs";
-import path from "node:path";
 import { drizzle } from "drizzle-orm/d1";
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import { getPlatformProxy } from "wrangler";
 import * as schema from "@/db/schema";
 import type { WorkspaceId } from "@/domain/shared";
 import { createD1ContactRepository } from "@/infrastructure/persistence/d1/contact-repository";
+import { migrationStatements } from "../support/migrations";
 
 type TestEnv = { readonly DB: D1Database };
 type Proxy = Awaited<ReturnType<typeof getPlatformProxy<TestEnv>>>;
@@ -17,19 +16,6 @@ const SITE = "atomic-contact-site";
 const NOW = () => new Date("2026-08-27T09:00:00.000Z");
 
 let proxy: Proxy;
-
-function migrationStatements(): readonly string[] {
-  const dir = path.resolve(process.cwd(), "drizzle");
-  return readdirSync(dir)
-    .filter((file) => file.endsWith(".sql"))
-    .sort()
-    .flatMap((file) =>
-      readFileSync(path.join(dir, file), "utf8")
-        .split("--> statement-breakpoint")
-        .map((statement) => statement.trim())
-        .filter(Boolean),
-    );
-}
 
 beforeAll(async () => {
   proxy = await getPlatformProxy<TestEnv>({

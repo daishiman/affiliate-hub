@@ -220,6 +220,7 @@ export function createDeps(
     db === null
       ? createSampleTelemetrySink()
       : createD1TelemetrySink({ db, newId: () => idGenerator.newId() });
+  const sites = db === null ? createSampleSiteRepository() : createD1SiteRepository(db);
   return {
     // 順位づけの基準と採点表も、保存先が用意できていれば本物（D1）。
     // **入れる口（/admin/rankings/models/new と /admin/rankings/scores）を
@@ -250,10 +251,11 @@ export function createDeps(
     // 「いまサイトに出す」）を先に作ってからつないでいる**。読む口だけを
     // 本物にすると、書き込む操作が無いので一覧が永久に空のままになる。
     // 保存先が無い環境では、出す操作は**失敗を返す**（保存できたことにしない）。
-    sites: db === null ? createSampleSiteRepository() : createD1SiteRepository(db),
+    sites,
     siteDrafts: db === null ? createSampleSiteDraftRepository() : createD1SiteDraftRepository(db),
     blogOps: db === null ? createSampleBlogOpsRepository() : createD1BlogOpsRepository(db),
-    publishedContent: db === null ? createSampleContentRepository() : createD1ContentRepository(db),
+    publishedContent:
+      db === null ? createSampleContentRepository() : createD1ContentRepository(db, sites),
     // ブログの固定文書（運営者情報・各方針・規約・特商法表記）。
     // **見本へ落とさない。** 落とすと、まだ書いていない運営者情報の位置に
     // 見本の運営者情報が出て、読者にはそれが本物として読まれる。

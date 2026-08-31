@@ -395,3 +395,77 @@ verdict: no-spec-impact
 - 網に載せる本数を 2 本のままにするかの仕様判断（未起票）
 - `docs/product/test-traceability.md` の再生成は、他セッションの変更が
   出そろってからまとめて行う
+
+---
+
+# 仕様反映 受領書（2026-08-31・ブログ UI ビルダーの開発環境リリース）
+
+```yaml
+receipt_id: spec-writeback-2026-08-31-feat-blog-ui-builder-p13
+recorded_at: 2026-08-31T03:20:00Z
+beads_ids: [ah-45ba, ah-45ba.13]
+dev_graph_node_id: SYS-BLOG-UI-BUILDER-P13
+parent_feature: feat-blog-ui-builder
+base_branch: dev
+head_branch: devgraph/SYS-BLOG-UI-BUILDER-P13
+verdict: spec-impact-written-back
+```
+
+## 判定
+
+本変更は**仕様・設計へ影響する。反映済みである。**
+
+`feat-blog-ui-builder`（P01〜P12）の実装で確定した契約を、正本 `system-spec/spec-state.json` の
+`chapter_notes` へ `set-chapter-note` で記録し、章 `.md` を `compile-spec-doc.py` で再生成した。
+**章を直接編集していない。**確定済みセルの直接 Edit は `guard-confirmed-chapter-overwrite` が拒否する。
+章は正本の純関数であり、正本に無い散文は compile のたび消えるためでもある。
+
+## 反映した正本と投影
+
+| 正本（`chapter_notes` の章） | 記録した内容 | 投影先 |
+|---|---|---|
+| `ui-ux` | 規則の 3 層（不変／契約／運用）、テンプレートの不変条件、配色 2 層の適用範囲、アクセシビリティの床、design token 制約、受入 4 件の保留 | `system-spec/ui-ux.md` |
+| `frontend` | テーマ実装契約（2 層 + 単一読み取り口）、コンポーネント契約、SEO/AI 検索実装契約（JSON-LD / sitemap / IndexNow / guideline_references） | `system-spec/frontend.md` |
+| `database` | 6 表のデータモデル、`workspace_id` を列として持つ理由、索引の 1 段目、行の不在で状態を表す設計、未解決の欠陥 3 件 | `system-spec/database.md` |
+| `database`（本リリースで追加） | §4.1 の 🔴「migration が未コミット」を本 commit で解消した記録と、0040 の停止条件 | `system-spec/database.md` |
+
+`infrastructure.md` / `maintenance-ops.md` は生成の副次差分（4 行）のみで、契約は増減していない。
+
+## 方針を上書きせず差分として足した理由
+
+書き戻しはすべて `## 章の注記 (chapter_notes)` という**別の節**へ入れてある。
+上の「確定内容（質疑録）」は利用者の逐語であり、そこへ実装の都合を混ぜると
+**利用者が言っていないことが利用者の声の顔で残る。**
+
+方針と実装がずれた点も、ずれを消して片方だけを残さず並べてある。
+上書きで消すと、なぜその形になったかが後から読めなくなる。
+
+## 品質ゲート（MVP）
+
+| ゲート | 結果 |
+|---|---|
+| `npx vitest run`（全体） | **PASS** — 434 files / 10101 tests |
+| `validate-system-plan.py --feature-package feature-package/feat-blog-ui-builder` | **PASS** — `"violations": []` |
+| `pnpm run build` | 本リリース commit 前に実行 |
+| `pnpm run preview`（Workers ランタイム） | PASS — 証跡 `docs/spec/feat-blog-ui-builder/evidence/13-preview-workers-runtime.txt` |
+| 受入 A1〜A14 | 証跡 `docs/spec/feat-blog-ui-builder/evidence/` 配下、判定は同 `final-review.md` |
+
+## 意図的にやらなかったこと
+
+- **受入 A4（固定ページ 18 経路中 12 経路が 404）を本リリースで直すこと。**
+  原因は `legal_page` を `SiteDocumentKey`（9 種）と `FixedPageKind`（8 種）の
+  2 系統の語彙が触っていることで、語彙の統合は本 feature の scope の外にある。
+  正本 `database` §4.2 に 🔴 として記録済みで、隠していない。
+- **視覚回帰の見本の撮り直し（`pnpm run visual --accept`）。**
+  差分の原因は本 feature が変えていない部品（`0ed9e2b` / `e97e5bc`、すでに main）である。
+  撮り直しは「この変化は正しい」と宣言する取り消しにくい操作であり、
+  **変えていない側の担当が署名するのは筋が通らない。**
+
+## 残課題
+
+- 🔴 `legal_page` の語彙 2 系統統合（受入 A4／正本 `database` §4.2）
+- 🔴 公開記事の本文が HTML に出ていない（受入 A5 / A12／正本 `frontend` §4）
+- ⚠️ 配色の保存と掲載の増減が操作の記録に届かない（正本 `database` §4.3）。
+  **本番（`main`）へ進める前にこれを閉じること。**掲載の増減は金銭に直結する
+- 🟡 受入 A3「sticky 常時表示」の受入文言が未定義
+- 🟡 `guideline_references` の登録が 0 件（判定は動くが対象が無い）

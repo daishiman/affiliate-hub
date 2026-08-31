@@ -95,7 +95,22 @@ describe("入口ページの見た目（UX-05）", () => {
     expect(el).toBeTruthy();
   });
 
-  it("どちらの枠も明暗を持たない。明暗は一番外側（layout）が当てる", () => {
+  /**
+   * 2026-08-30、受入 A2（ブログ既定の明暗）で**意図を変えた**。
+   *
+   * 以前ここは「どちらの枠も明暗を持たない」を固定していた。理由は
+   * 「枠が持ち始めたら、持っていない側の画面だけ読者の選択が効かなくなる」。
+   * その心配は、渡す値を**読者の選択を合成し終えた結果**に限れば起きない。
+   *
+   * 変えた理由は、ブログ既定の明暗（`blog_theme.color_mode`）を読者へ届ける道が
+   * 他に無いこと。`<html>` を書けるのは根の layout だけで、
+   * 根はどのブログを開いているかを知らない（`/s/[site]` は middleware の
+   * 見張り対象でもない）。だからブログの枠だけが明暗を持つ。
+   *
+   * **入口の枠は今も持たない。** あちらはどのブログでもないので、
+   * 合成すべきブログ既定が存在しない。
+   */
+  it("ブログの枠だけが明暗を持つ。入口の枠は持たず、layout が当てる", () => {
     const publicTag = rootTag(
       renderToStaticMarkup(<PublicShell title="affiliate-hub">中身</PublicShell>),
     );
@@ -106,9 +121,28 @@ describe("入口ページの見た目（UX-05）", () => {
         </SiteShell>,
       ),
     );
-    // 枠が明暗を持ち始めたら、持っていない側の画面だけ選択が効かなくなる。
     expect(publicTag).not.toContain(APPEARANCE_ATTR.mode);
+    // 渡さなければ出さない。「持てる」ことと「勝手に出す」ことは別。
     expect(siteTag).not.toContain(APPEARANCE_ATTR.mode);
+
+    const darkTag = rootTag(
+      renderToStaticMarkup(
+        <SiteShell chrome={{ ...chrome, colorMode: "dark" }} currentPath="/s/quiet">
+          <p>本文</p>
+        </SiteShell>,
+      ),
+    );
+    expect(darkTag).toContain(`${APPEARANCE_ATTR.mode}="dark"`);
+
+    // `auto` は出さない。出さないことが「端末の設定に従う」の意味である。
+    const autoTag = rootTag(
+      renderToStaticMarkup(
+        <SiteShell chrome={{ ...chrome, colorMode: "auto" }} currentPath="/s/quiet">
+          <p>本文</p>
+        </SiteShell>,
+      ),
+    );
+    expect(autoTag).not.toContain(APPEARANCE_ATTR.mode);
 
     // 代わりに当てている 1 箇所が生きていること。ここが消えると、
     // 枠が持たない作りのままなので、**明暗がどこにも当たらなくなる**。

@@ -15,11 +15,11 @@ export async function GET(
   const { site } = await context.params;
   const loaded = await loadSeoSite(request, site, SEO_ARTICLE_POLICY.feed);
   if (!loaded.ok) return loaded.response;
-  const { origin, basePath, blueprint, articles } = loaded.value;
+  const { origin, basePath, blueprint, items } = loaded.value;
   return seoTextResponse(
     buildRssXml(
       { siteName: blueprint.name, origin, basePath, description: blueprint.purpose },
-      articles,
+      items,
     ),
     "application/rss+xml; charset=utf-8",
   );

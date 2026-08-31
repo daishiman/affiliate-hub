@@ -33,6 +33,7 @@ import {
   validationError,
 } from "@/domain/shared";
 import type { UseCase } from "../usecase";
+import { isExpressionArticleBlock } from "@/application/adapters/expression-article-block";
 
 /**
  * ブログ記事の CRUD。
@@ -283,7 +284,9 @@ export function createGetBlogArticleUseCase(
         titleRule: ARTICLE_TEMPLATE_TITLE_RULE[article.template],
         status: article.status,
         authorName: article.authorName,
+        // 表現 carrier は専用フォームで直す。JSON transport を汎用本文欄へ漏らさない。
         blocks: ordered
+          .filter((block) => !isExpressionArticleBlock(block))
           .map((b) => ({
             id: b.id,
             kind: b.kind,
@@ -404,6 +407,13 @@ export type UpdateBlogArticleInput = {
     readonly heading: string;
     readonly body: string;
   }[];
+  /** 既存aggregateを全置換せず、その末尾へ足す専用操作。 */
+  readonly appendBlocks?: readonly {
+    readonly id?: string;
+    readonly kind: ArticleBlockKind;
+    readonly heading: string;
+    readonly body: string;
+  }[];
 };
 
 export type UpdateBlogArticleOutput = {
@@ -436,16 +446,50 @@ export function createUpdateBlogArticleUseCase(
       }
       const status = input.status ?? before.article.status;
 
+      if (input.blocks !== undefined && input.appendBlocks !== undefined) {
+        return err(
+          validationError(
+            "記事の部品は、全体編集と追加を同時には行えません。画面を読み直してください。",
+            "blocks",
+          ),
+        );
+      }
+
       const blocks =
-        input.blocks === undefined
+        input.appendBlocks !== undefined
+          ? (() => {
+              const firstPosition =
+                before.blocks.reduce((max, block) => Math.max(max, block.position), -1) + 1;
+              return [
+                ...before.blocks,
+                ...input.appendBlocks.map((block, index) => ({
+                  id: block.id ?? `bab_${deps.ids.newId()}`,
+                  kind: block.kind,
+                  heading: block.heading.trim(),
+                  body: block.body,
+                  position: firstPosition + index,
+                })),
+              ];
+            })()
+          : input.blocks === undefined
           ? before.blocks
-          : input.blocks.map((b, index) => ({
-              id: b.id ?? `bab_${deps.ids.newId()}`,
-              kind: b.kind,
-              heading: b.heading.trim(),
-              body: b.body,
-              position: index,
-            }));
+          : (() => {
+              const submitted = input.blocks.map((b, index) => ({
+                id: b.id ?? `bab_${deps.ids.newId()}`,
+                kind: b.kind,
+                heading: b.heading.trim(),
+                body: b.body,
+                position: index,
+              }));
+              const submittedIds = new Set(submitted.map((block) => block.id));
+              // 汎用編集フォームに carrier を出さないため、送られてこなかった既存 carrier は保持する。
+              return [
+                ...submitted,
+                ...before.blocks.filter(
+                  (block) => isExpressionArticleBlock(block) && !submittedIds.has(block.id),
+                ),
+              ];
+            })();
 
       const missing = missingBlocks(template, blocks);
 
@@ -490,7 +534,7 @@ export function createUpdateBlogArticleUseCase(
       if (template !== before.article.template) changed.push("template");
       if (status !== before.article.status) changed.push("status");
       if (input.lead !== undefined && input.lead.trim() !== before.article.lead) changed.push("lead");
-      if (input.blocks !== undefined) changed.push("blocks");
+      if (input.blocks !== undefined || input.appendBlocks !== undefined) changed.push("blocks");
       if (input.tagIds !== undefined) changed.push("tags");
 
       const entry = buildAuditEntry(deps, actor, {

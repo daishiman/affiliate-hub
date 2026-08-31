@@ -281,6 +281,13 @@
       "when": 1787897292758,
       "tag": "0039_gentle_archive",
       "breakpoints": true
+    },
+    {
+      "idx": 40,
+      "version": "6",
+      "when": 1788065458975,
+      "tag": "0040_serious_madelyne_pryor",
+      "breakpoints": true
     }
   ]
 }

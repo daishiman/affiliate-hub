@@ -38,6 +38,11 @@ import {
 } from "@/domain/shared";
 import type { UseCase } from "../usecase";
 import type { CapacityGuardPort } from "@/application/capacity";
+import {
+  BLOG_TEMPLATES,
+  findBlogTemplate,
+  type BlogTemplateId,
+} from "@/domain/authoring/blog-template";
 
 /**
  * ブログ作成ウィザード（プラットフォーム層 §16.2・§22.6）。
@@ -686,7 +691,11 @@ function applyCategories(draft: SiteDraft, raw: string): Result<SiteDraft, Domai
 
 // --- 作る -------------------------------------------------------------------
 
-export type CreateSiteInput = { readonly draftId: string };
+export type CreateSiteInput = {
+  readonly draftId: string;
+  /** 作成画面で選ぶ6種。旧callerは設計図patternに対応する先頭の種類へ寄せる。 */
+  readonly templateId?: string;
+};
 export type CreateSiteOutput = {
   readonly slug: string;
   readonly name: string;
@@ -735,6 +744,15 @@ export function createCreateSiteFromDraftUseCase(
       if (draft.pattern === null || draft.revenueModel === null || draft.theme === null) {
         return err(validationError("選択項目が空のままです。前の段階に戻って選んでください。", "draftId"));
       }
+      const selectedTheme = draft.theme;
+
+      const template =
+        input.templateId === undefined
+          ? (BLOG_TEMPLATES.find((candidate) => candidate.pattern === draft.pattern) ?? null)
+          : findBlogTemplate(input.templateId);
+      if (template === null) {
+        return err(validationError("ブログの見せ方は 6 種から選んでください。", "templateId"));
+      }
 
       const siteSlug = draft.createdSiteSlug ?? draft.slug;
       const blueprint = createSiteBlueprint({
@@ -753,7 +771,10 @@ export function createCreateSiteFromDraftUseCase(
       if (!blueprint.ok) return blueprint;
 
       const publish = async (): Promise<Result<CreateSiteOutput, DomainError>> => {
-        const published = await deps.drafts.publishBlueprint(siteSlug, blueprint.value);
+        const published = await deps.drafts.publishBlueprint(siteSlug, blueprint.value, {
+          templateId: template.id as BlogTemplateId,
+          theme: { brandTheme: selectedTheme, colorMode: "auto" },
+        });
         if (!published.ok) return published;
 
         const saved = await deps.drafts.save({ ...draft, createdSiteSlug: siteSlug });
@@ -778,6 +799,7 @@ export function createCreateSiteFromDraftUseCase(
             name: draft.name,
             pattern: draft.pattern,
             revenueModel: draft.revenueModel,
+            templateId: template.id,
             pageCount: blueprint.value.pages.length,
             categoryCount: blueprint.value.categories.length,
             recreated: draft.createdSiteSlug !== null,

@@ -16,6 +16,7 @@ import {
 import { createSiteFromDraftAction, saveSiteDraftStepAction } from "./site-wizard-action";
 import { INITIAL_SITE_WIZARD_STATE } from "./site-wizard-state";
 import { adminOperation } from "./admin-operation-manifest";
+import { BLOG_TEMPLATES } from "@/domain/authoring/blog-template";
 
 /**
  * ブログ作成ウィザードの 1 段階。
@@ -135,9 +136,10 @@ function WizardField({ field, error }: { readonly field: WizardFieldSpec; readon
  * どこが足りないかと、そこへ戻る導線を一緒に出す。
  * 押せない理由が分からないボタンは、故障と区別がつかない。
  */
-function CreateSiteForm({ draft }: { readonly draft: SiteDraftView }) {
+export function CreateSiteForm({ draft }: { readonly draft: SiteDraftView }) {
   const operation = adminOperation("site.create");
   const [state, action, pending] = useActionState(createSiteFromDraftAction, INITIAL_SITE_WIZARD_STATE);
+  const [templateId, setTemplateId] = useState("");
 
   const ready = draft.incomplete.length === 0;
 
@@ -155,6 +157,20 @@ function CreateSiteForm({ draft }: { readonly draft: SiteDraftView }) {
     <ToolForm action={action} toolName={operation.tool} toolDescription="下書きからブログを作る">
       <FormValue name="draftId" value={draft.draftId} />
 
+      <Select
+        name="templateId"
+        label="ブログの見せ方"
+        value={templateId}
+        onValueChange={setTemplateId}
+        options={BLOG_TEMPLATES.map((template) => ({
+          value: template.id,
+          label: template.label,
+        }))}
+        placeholder="6 種から選んでください"
+        hint="記事の中身は変えず、トップと記事部品の推奨順を決めます。"
+        error={state.field === "templateId" ? state.message : null}
+      />
+
       {ready ? null : (
         <Callout
           tone="warn"
@@ -167,7 +183,13 @@ function CreateSiteForm({ draft }: { readonly draft: SiteDraftView }) {
         />
       )}
 
-      <Button type="submit" tone="primary" busy={pending} busyLabel="作っています" disabled={!ready}>
+      <Button
+        type="submit"
+        tone="primary"
+        busy={pending}
+        busyLabel="作っています"
+        disabled={!ready || templateId === ""}
+      >
         このブログを作る
       </Button>
 

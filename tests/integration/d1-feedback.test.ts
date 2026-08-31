@@ -1,6 +1,4 @@
 /** @tier 2 @req REQ-FB07, REQ-FB08, REQ-FB09, REQ-FB10, REQ-FB12, REQ-TM09, REQ-TS07 */
-import { readFileSync, readdirSync } from "node:fs";
-import path from "node:path";
 import { drizzle } from "drizzle-orm/d1";
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import { getPlatformProxy } from "wrangler";
@@ -22,6 +20,7 @@ import {
 } from "@/infrastructure/platform/feedback-diagnostics-purge";
 import { createD1FeedbackRepository } from "@/infrastructure/persistence/d1/feedback-repository";
 import { OTHER_WORKSPACE, WORKSPACE, anOwner } from "../support/actors";
+import { migrationStatements } from "../support/migrations";
 
 /**
  * 改善要望と取得用の鍵を、**本物の D1 と本物のマイグレーション**で通す結合テスト。
@@ -60,20 +59,6 @@ const owner: ActorContext = anOwner({ workspaceId: WORKSPACE });
 const otherOwner: ActorContext = anOwner({ workspaceId: OTHER_WORKSPACE });
 
 /** マイグレーションの本文を、実行できる単位に割る。 */
-function migrationStatements(): readonly string[] {
-  const dir = path.resolve(process.cwd(), "drizzle");
-  const files = readdirSync(dir)
-    .filter((f) => f.endsWith(".sql"))
-    .sort();
-  // 1 件も読めていないのに緑になるのが最悪なので、そこだけ先に落とす。
-  expect(files.length).toBeGreaterThan(0);
-  return files.flatMap((file) =>
-    readFileSync(path.join(dir, file), "utf8")
-      .split("--> statement-breakpoint")
-      .map((s) => s.trim())
-      .filter((s) => s !== ""),
-  );
-}
 
 beforeAll(async () => {
   proxy = await getPlatformProxy<TestEnv>({
@@ -520,7 +505,6 @@ describe("取りに来るときの鍵", () => {
     expect(listed.ok && listed.value.rows).toEqual([]);
   });
 });
-
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 /** 掃除を流す時刻。ここを基準に「いつ届いたか」を決める。 */

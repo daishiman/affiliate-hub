@@ -427,6 +427,14 @@ describe("手元と機械で同じ検査が走る（REQ-CI01 / REQ-CI03）", () 
         取りこぼしても公開の手前で止まる。）
       */
       "0039_gentle_archive",
+      /*
+        2026-08-30: ブログ用 4 表の作業場所（`workspace_id` 2 列と索引 4 本）。
+
+        `ADD COLUMN … NOT NULL` は既定値なしでは SQLite が受け付けないので
+        `DEFAULT ''` を付けてある。空文字と一致する作業場所は存在しないため、
+        取り残された行は**誰にも読めない**（他所から読めるのではない）方へ倒れる。
+      */
+      "0040_serious_madelyne_pryor",
     ];
     const journal = JSON.parse(read("drizzle/meta/_journal.json")) as {
       entries: Array<{ tag: string }>;

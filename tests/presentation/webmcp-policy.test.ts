@@ -141,6 +141,30 @@ describe("オリジン制約", () => {
     expect(checkOrigin(req("https://hub.example.com")).ok).toBe(true);
   });
 
+  it("proxy配下でも公開originを共通resolverで比較する", () => {
+    const request = new Request("https://internal.example/api/mcp", {
+      method: "POST",
+      headers: {
+        origin: "https://hub.example.com",
+        "x-forwarded-host": "hub.example.com",
+        "x-forwarded-proto": "https",
+      },
+    });
+    expect(checkOrigin(request).ok).toBe(true);
+  });
+
+  it("不正なforwarded hostならOrigin一致を推測せず断る", () => {
+    const request = new Request("https://internal.example/api/mcp", {
+      method: "POST",
+      headers: {
+        origin: "https://hub.example.com",
+        "x-forwarded-host": "hub.example.com, attacker.example",
+        "x-forwarded-proto": "https",
+      },
+    });
+    expect(checkOrigin(request).ok).toBe(false);
+  });
+
   it("よそのサイトからは断り、理由を返す", () => {
     const d = checkOrigin(req("https://evil.example.net"));
     expect(d.ok).toBe(false);

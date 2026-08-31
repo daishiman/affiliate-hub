@@ -1,6 +1,4 @@
 /** @tier 2 @req REQ-SEC09 @types audit-log */
-import { readFileSync, readdirSync } from "node:fs";
-import path from "node:path";
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import { drizzle } from "drizzle-orm/d1";
 import { getPlatformProxy } from "wrangler";
@@ -21,6 +19,7 @@ import { ok, taggedString } from "@/domain/shared";
 import { SAMPLE_WORKSPACE_ID } from "@/infrastructure/persistence/sample/ranking-sample-repository";
 import { anOwner } from "../support/actors";
 import { failing } from "../support/doubles";
+import { migrationStatements } from "../support/migrations";
 
 /**
  * 記事の進行を、**本物の D1 と本物のマイグレーション**で通す結合テスト。
@@ -59,20 +58,6 @@ const editor: ActorContext = anOwner({ workspaceId: SAMPLE_WORKSPACE_ID });
 const IN_FACT_CHECK = "cv_alpha_review";
 /** 表示のきまりを確認中（COMPLIANCE_REVIEW）の見本。承認の出発点になる。 */
 const IN_COMPLIANCE = "cv_beta_short";
-
-function migrationStatements(): readonly string[] {
-  const dir = path.resolve(process.cwd(), "drizzle");
-  const files = readdirSync(dir)
-    .filter((f) => f.endsWith(".sql"))
-    .sort();
-  expect(files.length).toBeGreaterThan(0);
-  return files.flatMap((file) =>
-    readFileSync(path.join(dir, file), "utf8")
-      .split("--> statement-breakpoint")
-      .map((s) => s.trim())
-      .filter((s) => s !== ""),
-  );
-}
 
 beforeAll(async () => {
   proxy = await getPlatformProxy<TestEnv>({

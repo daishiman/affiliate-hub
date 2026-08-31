@@ -3,8 +3,6 @@
  * @req REQ-A06
  * @types idempotency, db-concurrency, db-migration
  */
-import { readFileSync, readdirSync } from "node:fs";
-import path from "node:path";
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import { drizzle } from "drizzle-orm/d1";
 import { getPlatformProxy } from "wrangler";
@@ -15,6 +13,7 @@ import {
 } from "@/infrastructure/persistence/d1/distribution-repository";
 import type { PublicationId } from "@/domain/shared";
 import { aChannelConnection, aPublication } from "../support/factories";
+import { migrationStatements } from "../support/migrations";
 
 type TestEnv = { readonly DB: D1Database };
 type Proxy = Awaited<ReturnType<typeof getPlatformProxy<TestEnv>>>;
@@ -22,18 +21,6 @@ type Proxy = Awaited<ReturnType<typeof getPlatformProxy<TestEnv>>>;
 let proxy: Proxy;
 let connections: ReturnType<typeof createD1ChannelConnectionRepository>;
 let publications: ReturnType<typeof createD1PublicationRepository>;
-
-function migrationStatements(): readonly string[] {
-  return readdirSync(path.resolve(process.cwd(), "drizzle"))
-    .filter((file) => file.endsWith(".sql"))
-    .sort()
-    .flatMap((file) =>
-      readFileSync(path.resolve(process.cwd(), "drizzle", file), "utf8")
-        .split("--> statement-breakpoint")
-        .map((statement) => statement.trim())
-        .filter(Boolean),
-    );
-}
 
 beforeAll(async () => {
   proxy = await getPlatformProxy<TestEnv>({

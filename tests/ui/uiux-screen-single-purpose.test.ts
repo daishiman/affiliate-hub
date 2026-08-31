@@ -146,26 +146,37 @@ function exportedRuntimeEdgesOf(file: string): readonly {
   readonly action: SourceEdge;
 }[] {
   const found: { readonly uiExportName: string; readonly action: SourceEdge }[] = [];
+  const declarations = new Map<string, ts.FunctionDeclaration>();
   const exportedFunctions: ts.FunctionDeclaration[] = [];
   for (const statement of parse(file).statements) {
-    if (!ts.isFunctionDeclaration(statement) || statement.name === undefined || !hasExportModifier(statement)) {
-      continue;
-    }
-    exportedFunctions.push(statement);
-    for (const action of runtimeActionEdgesForNames(file, runtimeNamesInNode(statement))) {
-      found.push({ uiExportName: statement.name.text, action });
-    }
+    if (!ts.isFunctionDeclaration(statement) || statement.name === undefined) continue;
+    declarations.set(statement.name.text, statement);
+    if (hasExportModifier(statement)) exportedFunctions.push(statement);
   }
 
-  // page moduleや単一export componentでは、local helperに分けたformも同じ公開入口の責務。
-  // 複数export componentでは各function内だけを採用し、別formのactionを混ぜない。
-  if (exportedFunctions.length === 1) {
-    const owner = exportedFunctions[0]?.name?.text;
-    const alreadyOwned = new Set(found.map((entry) => edgeKey(entry.action)));
-    if (owner !== undefined) {
-      for (const action of runtimeActionEdgesOf(file)) {
-        if (!alreadyOwned.has(edgeKey(action))) found.push({ uiExportName: owner, action });
+  for (const exported of exportedFunctions) {
+    const actionByKey = new Map<string, SourceEdge>();
+    const pending = [exported];
+    const visited = new Set<string>();
+    while (pending.length > 0) {
+      const current = pending.pop();
+      if (current?.name === undefined || visited.has(current.name.text)) continue;
+      visited.add(current.name.text);
+      for (const action of runtimeActionEdgesForNames(file, runtimeNamesInNode(current))) {
+        actionByKey.set(edgeKey(action), action);
       }
+
+      const visitRendered = (node: ts.Node): void => {
+        if (ts.isJsxOpeningElement(node) || ts.isJsxSelfClosingElement(node)) {
+          const rendered = declarations.get(node.tagName.getText());
+          if (rendered !== undefined) pending.push(rendered);
+        }
+        ts.forEachChild(node, visitRendered);
+      };
+      visitRendered(current);
+    }
+    for (const action of actionByKey.values()) {
+      found.push({ uiExportName: exported.name!.text, action });
     }
   }
   return found;
@@ -318,7 +329,7 @@ describe("A1 §1 全管理画面は primary task をちょうど 1 つ持つ", (
     **直す画面**を割ってある。訂正は取り返しがつかないので、探している最中に
     書き換えの口が出ていない形を保つ。
   */
-  it("実在route・route metadata・task manifest・priority mapが86件で1対1になる", () => {
+  it("実在route・route metadata・task manifest・priority mapが88件で1対1になる", () => {
     const priority = JSON.parse(readFileSync(PRIORITY_MAP, "utf8")) as {
       readonly screens: readonly { readonly route: string; readonly primary_task: string }[];
     };
@@ -327,12 +338,13 @@ describe("A1 §1 全管理画面は primary task をちょうど 1 つ持つ", (
     const tasks = ADMIN_SCREEN_TASK_MANIFEST.map((screen) => screen.route).sort();
     const documented = priority.screens.map((screen) => screen.route).sort();
 
-    expect(actual).toHaveLength(86);
+    // 2026-08-30: 86 → 88。ブログの「見せ方と配色」と「成果リンクの掲載」を足した。
+    expect(actual).toHaveLength(88);
     expect(metadata).toEqual(actual);
     expect(tasks).toEqual(actual);
     expect(documented).toEqual(actual);
-    expect(new Set(ADMIN_SCREEN_TASK_MANIFEST.map((screen) => screen.routeId)).size).toBe(86);
-    expect(new Set(priority.screens.map((screen) => screen.route)).size).toBe(86);
+    expect(new Set(ADMIN_SCREEN_TASK_MANIFEST.map((screen) => screen.routeId)).size).toBe(88);
+    expect(new Set(priority.screens.map((screen) => screen.route)).size).toBe(88);
     expect(ADMIN_SCREEN_TASK_MANIFEST.map((screen) => [screen.route, screen.primaryTask]).sort()).toEqual(
       priority.screens.map((screen) => [screen.route, screen.primary_task]).sort(),
     );
@@ -354,16 +366,18 @@ describe("A1 §2 全business mutationを単一のprimary taskへ所属させる"
       （`bluesky-connection-form.tsx` → `registerBlueskyConnectionAction`）。
       認証情報を保存する操作は業務状態の変更なので、申告しないまま動かさない。
     */
-    expect(discovered).toHaveLength(63);
+    // 2026-08-30: 63 → 65。ブログの見せ方と掲載台帳の 2 つの form module が増えた。
+    expect(discovered).toHaveLength(65);
     expect(declared, "未申告または実在しないexecution siteがあります").toEqual(discovered);
+    // 旧固定ページ action 3 語を除去し、canonical文書 actionへ一本化した現在値。
     expect(new Set(
       ADMIN_SCREEN_RUNTIME_ENTRIES
         .filter((entry) => entry.classification === "business-mutation")
         .map((entry) => edgeKey(entry.action)),
-    ).size).toBe(61);
+    ).size).toBe(62);
   });
 
-  it("同じactionの複数route・複数form用途を畳まず、意味entry 81件を床固定する", () => {
+  it("同じactionの複数route・複数form用途を畳まず、意味entry 84件を床固定する", () => {
     const discovered = DISCOVERED_SCREEN_EXECUTION_SITES;
     const declared = ADMIN_SCREEN_RUNTIME_ENTRIES
       .filter((entry) => entry.scope === "screen")
@@ -380,9 +394,13 @@ describe("A1 §2 全business mutationを単一のprimary taskへ所属させる"
     // 原典取得とは別の業務操作なので、同じactionでも畳まない。
     // 2026-08-30: 79 → 81。公開済み記事の訂正と取り下げが合流した。
     // 同じ form が 2 つの action を持つが、後戻りの仕方が違うので畳まない。
-    expect(discovered).toHaveLength(81);
-    expect(ADMIN_SCREEN_RUNTIME_ENTRIES).toHaveLength(82);
-    expect(new Set(ADMIN_SCREEN_RUNTIME_ENTRIES.map((entry) => entry.id)).size).toBe(82);
+    // 2026-08-30: 81 → 84。見せ方の画面が form を 2 つ持つ（全体の配色と
+    // ページ単位の例外）。同じ action でも、間違えたときに何ページへ出るかが
+    // 違うので畳まない。掲載台帳が 1 つ。
+    // 旧固定ページ管理2口を除き、expression追加フォーム1口を足した現在値。
+    expect(discovered).toHaveLength(83);
+    expect(ADMIN_SCREEN_RUNTIME_ENTRIES).toHaveLength(84);
+    expect(new Set(ADMIN_SCREEN_RUNTIME_ENTRIES.map((entry) => entry.id)).size).toBe(84);
   });
 
   it("screen意味entryはどの1件を削ってもdiscoveryとの差分になる", () => {
@@ -397,7 +415,7 @@ describe("A1 §2 全business mutationを単一のprimary taskへ所属させる"
       }))
       .sort();
 
-    expect(new Set(declared).size).toBe(81);
+    expect(new Set(declared).size).toBe(83);
     for (let index = 0; index < declared.length; index += 1) {
       expect(declared.filter((_, candidate) => candidate !== index)).not.toEqual(discovered);
     }
@@ -443,7 +461,7 @@ describe("A1 §3 route → component → action edgeが実在する", () => {
 
     if (entry.scope === "global-shell") {
       expect(entry.uiEntry.module).toBe("src/presentation/admin/admin-shell.tsx");
-      for (const route of ADMIN_ROUTE_METADATA) {
+      for (const route of ADMIN_ROUTE_METADATA.filter((candidate) => !candidate.redirectOnly)) {
         const page = join(ROOT, "src/app", route.file);
         expect(importsAndRenders(page, {
           module: "src/presentation/admin/admin-shell.tsx",

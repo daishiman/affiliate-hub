@@ -19,7 +19,6 @@ import {
   ARTICLE_TEMPLATES,
   BLOG_TAG_KINDS,
   DELIVERY_PARTS,
-  FIXED_PAGE_KINDS,
   LAYOUT_REGIONS,
   NETWORK_ROLES,
   NETWORK_STATUSES,
@@ -30,6 +29,7 @@ import {
   POLICY_DOMAIN_SCOPES,
   POLICY_SEVERITIES,
 } from "@/domain/compliance";
+import type { SiteDocumentKey } from "@/domain/authoring/site-routes";
 import {
   COMPLIANCE_STATUSES,
   CONTENT_ANGLES,
@@ -2234,7 +2234,10 @@ export const blogTemplateSelections = sqliteTable(
       .notNull()
       .default(sql`(unixepoch())`),
   },
-  (t) => [uniqueIndex("blog_template_site_idx").on(t.siteSlug)],
+  (t) => [
+    uniqueIndex("blog_template_site_idx").on(t.siteSlug),
+    index("blog_template_workspace_idx").on(t.workspaceId, t.siteSlug),
+  ],
 );
 
 /**
@@ -2245,13 +2248,28 @@ export const blogThemes = sqliteTable(
   "blog_theme",
   {
     id: text("id").primaryKey(),
+    /*
+      `workspace_id` は最初の読み書きの口を書く段（feat-blog-ui-builder P05）で足した。
+      設計 (`data-model.md` §8) は「使い始めるときに理由を添えて判断する」として
+      先送りしていた。その判断がここである。
+
+      保管庫は `site_blueprints` を経由した所有確認も併せて行うが、
+      **経由の確認は書き手が正しく書いた場合しか効かない**。
+      作業場所の列は、誰が次の問い合わせを書いても外せない床になる。
+    */
+    workspaceId: text("workspace_id").notNull(),
     siteSlug: text("site_slug").notNull(),
     brandTheme: text("brand_theme").notNull(),
     colorMode: text("color_mode", { enum: ["auto", "light", "dark"] })
       .notNull()
       .default("auto"),
   },
-  (t) => [uniqueIndex("blog_theme_site_idx").on(t.siteSlug)],
+  (t) => [
+    // 一意性は「1 ブログ 1 配色」なので site_slug のまま（作業場所は跨がない）。
+    uniqueIndex("blog_theme_site_idx").on(t.siteSlug),
+    // 走査は必ず作業場所始まり。索引が site 始まりだけだと、他所の行まで読む。
+    index("blog_theme_workspace_idx").on(t.workspaceId, t.siteSlug),
+  ],
 );
 
 /**
@@ -2262,25 +2280,27 @@ export const pageThemeOverrides = sqliteTable(
   "page_theme_override",
   {
     id: text("id").primaryKey(),
+    /** 足した理由は [[blogThemes]] と同じ。2 表は同じ画面から同時に書かれる。 */
+    workspaceId: text("workspace_id").notNull(),
     siteSlug: text("site_slug").notNull(),
     pagePath: text("page_path").notNull(),
     brandTheme: text("brand_theme"),
     colorMode: text("color_mode", { enum: ["auto", "light", "dark"] }),
   },
-  (t) => [uniqueIndex("page_theme_override_site_page_idx").on(t.siteSlug, t.pagePath)],
+  (t) => [
+    uniqueIndex("page_theme_override_site_page_idx").on(t.siteSlug, t.pagePath),
+    index("page_theme_override_workspace_idx").on(t.workspaceId, t.siteSlug),
+  ],
 );
 
 /**
- * 固定ページ 8 種。語彙は domain/blogops/fixed-page が唯一の正本。
+ * 固定文書 8 種。語彙は `SITE_ROUTES` から導く `SITE_DOCUMENT_KEYS` が唯一の正本。
  * 1 ブログにつき各 1 枚。draft と削除済みは公開経路から必ず除く。
  * 無いことは「未整備」であって既定文を出さない（見本の文を本物として配らない）。
  *
- * `/admin/sites/[site]/documents` からの固定文書編集も同じ表へ入る。
- * あちらのルート鍵（`SITE_DOCUMENT_KEYS`）は URL のための名前で、
- * この表の名札とは別物なので、repository が写像してから書く
- * （`src/infrastructure/persistence/d1/site-document-repository.ts`）。
- * **名札を 2 系統このまま同居させない。** 同居させると、同じ 1 枚を
- * 2 つの画面が別の行として作り、後から書いたほうが黙って勝つ。
+ * `/admin/sites/[site]/documents` は `SiteDocumentKey` をこの表へ直接保存する。
+ * `domain/blogops/fixed-page` は旧公開 URL を canonical URL へ転送するための
+ * 互換写像に限り、保存語彙や公開可否の正本にはしない。
  */
 export const legalPages = sqliteTable(
   "legal_page",
@@ -2296,7 +2316,7 @@ export const legalPages = sqliteTable(
      */
     workspaceId: text("workspace_id").notNull().default(""),
     siteSlug: text("site_slug").notNull(),
-    kind: text("kind", { enum: FIXED_PAGE_KINDS }).notNull(),
+    kind: text("kind").$type<SiteDocumentKey>().notNull(),
     title: text("title").notNull(),
     body: text("body").notNull(),
     status: text("status", { enum: ["draft", "published"] })
@@ -2329,7 +2349,17 @@ export const blogAffiliatePlacements = sqliteTable(
     trackingCode: text("tracking_code"),
     position: integer("position").notNull().default(0),
   },
-  (t) => [index("blog_affiliate_placement_site_article_idx").on(t.siteSlug, t.articleSlug)],
+  (t) => [
+    index("blog_affiliate_placement_site_article_idx").on(t.siteSlug, t.articleSlug),
+    /* A7 の逆引きは作業場所で絞ってから追跡コードを見る。索引もその順に置く。 */
+    index("blog_affiliate_placement_workspace_idx").on(t.workspaceId, t.siteSlug),
+    uniqueIndex("blog_affiliate_placement_identity_without_code_idx")
+      .on(t.workspaceId, t.siteSlug, t.articleSlug, t.placement)
+      .where(sql`${t.trackingCode} is null`),
+    uniqueIndex("blog_affiliate_placement_identity_with_code_idx")
+      .on(t.workspaceId, t.siteSlug, t.articleSlug, t.placement, t.trackingCode)
+      .where(sql`${t.trackingCode} is not null`),
+  ],
 );
 
 /**

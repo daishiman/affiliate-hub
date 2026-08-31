@@ -1,0 +1,56 @@
+ ✓ |normal| tests/acceptance/feat-blog-ui-builder/article-html-contract.test.ts > A10 記事 HTML の構造化データ > 読み込んだ画面の本文が空でない（テスト自身の前提） 1ms
+ ✓ |normal| tests/acceptance/feat-blog-ui-builder/article-html-contract.test.ts > A10 記事 HTML の構造化データ > T-A10-4 buildBlogPosting が JSON-LD として画面に置かれている（記事そのもの（A10 の本体）） 0ms
+ ✓ |normal| tests/acceptance/feat-blog-ui-builder/article-html-contract.test.ts > A10 記事 HTML の構造化データ > T-A10-4 buildBreadcrumbList が JSON-LD として画面に置かれている（現在地。検索結果のパンくず表示に効く） 0ms
+ ✓ |normal| tests/acceptance/feat-blog-ui-builder/article-html-contract.test.ts > A10 記事 HTML の構造化データ > T-A10-4 buildItemList が JSON-LD として画面に置かれている（順位記事の順位表） 0ms
+ ✓ |normal| tests/acceptance/feat-blog-ui-builder/article-html-contract.test.ts > A10 記事 HTML の構造化データ > T-A10-4 buildFaqPage が JSON-LD として画面に置かれている（FAQ ブロック） 0ms
+ ✓ |normal| tests/acceptance/feat-blog-ui-builder/article-html-contract.test.ts > A10 記事 HTML の構造化データ > T-A10-5 構造化データは読み取りモデルから直接作る 0ms
+ ✓ |normal| tests/acceptance/feat-blog-ui-builder/article-html-contract.test.ts > A10 記事 HTML の構造化データ > T-A10-5b origin を環境変数へ固定していない 0ms
+ ✓ |normal| tests/acceptance/feat-blog-ui-builder/article-html-contract.test.ts > A10 ブログ運用で書いた記事の構造化データ > 読み込んだ画面の本文が空でない（テスト自身の前提） 0ms
+ ✓ |normal| tests/acceptance/feat-blog-ui-builder/article-html-contract.test.ts > A10 ブログ運用で書いた記事の構造化データ > buildBlogOpsPosting が JSON-LD として画面に置かれている（記事そのもの） 0ms
+ ✓ |normal| tests/acceptance/feat-blog-ui-builder/article-html-contract.test.ts > A10 ブログ運用で書いた記事の構造化データ > buildBreadcrumbList が JSON-LD として画面に置かれている（現在地） 0ms
+ ✓ |normal| tests/acceptance/feat-blog-ui-builder/article-html-contract.test.ts > A10 ブログ運用で書いた記事の構造化データ > generateMetadata を持ち、記事ごとの metadata を作る 0ms
+ ✓ |normal| tests/acceptance/feat-blog-ui-builder/article-html-contract.test.ts > A10 ブログ運用で書いた記事の構造化データ > origin を環境変数へ固定していない 0ms
+ ✓ |normal| tests/acceptance/feat-blog-ui-builder/article-html-contract.test.ts > A10 ブログ運用で書いた記事の構造化データ > 構造化データは画面と同じ記事集約から作る 0ms
+ ✓ |normal| tests/acceptance/feat-blog-ui-builder/article-html-contract.test.ts > A12 最終更新日の 2 経路 > T-A12-2 画面が最終更新日を独自に組み立て直していない 0ms
+ ✓ |normal| tests/acceptance/feat-blog-ui-builder/sticky-layout.test.ts > A3 3 領域の常時表示 > 読み込んだ CSS が空でない（テスト自身の前提） 1ms
+ ✓ |normal| tests/acceptance/feat-blog-ui-builder/sticky-layout.test.ts > A3 3 領域の常時表示 > T-A3-1 ヘッダーがスクロール中も見える 0ms
+ ✓ |normal| tests/acceptance/feat-blog-ui-builder/sticky-layout.test.ts > A3 3 領域の常時表示 > T-A3-2 サイドバーがスクロール中も見える 0ms
+ ✓ |normal| tests/acceptance/feat-blog-ui-builder/sticky-layout.test.ts > A3 3 領域の常時表示 > T-A3-3 フッターは追従しない — 受入 A3 に対する既知の未達 0ms
+ ✓ |normal| tests/acceptance/feat-blog-ui-builder/sticky-layout.test.ts > A3 3 領域の常時表示 > T-A3-4 狭幅（< 64rem）でサイドバーが折りたたまれる 0ms
+ ✓ |normal| tests/acceptance/feat-blog-ui-builder/sticky-layout.test.ts > A3 追従の代償（焦点と可読領域） > T-A3-7 ページ内遷移で見出しが固定領域に隠れない仕掛けがある 0ms
+ ✓ |normal| tests/acceptance/feat-blog-ui-builder/sticky-layout.test.ts > A3 追従の代償（焦点と可読領域） > T-A3-5 追従する箱が本文の可読領域を食い潰さない 0ms
+ ✓ |normal| tests/acceptance/feat-blog-ui-builder/template-and-theme.test.ts > A1 テンプレート 6 種 > 6 種すべてが引ける（語彙と定義が一致している） 2ms
+ ✓ |normal| tests/acceptance/feat-blog-ui-builder/template-and-theme.test.ts > A1 テンプレート 6 種 > 知らない名前は null（外から来た値を素通しさせない） 0ms
+ ✓ |normal| tests/acceptance/feat-blog-ui-builder/template-and-theme.test.ts > A1 テンプレート 6 種 > どのテンプレートへ差し替えてもブロックの集合が変わらない 1ms
+ ✓ |normal| tests/acceptance/feat-blog-ui-builder/template-and-theme.test.ts > A1 テンプレート 6 種 > 推奨順に無いブロックは飛ばされる（消えない） 0ms
+ ✓ |normal| tests/acceptance/feat-blog-ui-builder/template-and-theme.test.ts > A1 テンプレート 6 種 > テンプレートは『使えるブロック』を決めない 0ms
+ ✓ |normal| tests/acceptance/feat-blog-ui-builder/template-and-theme.test.ts > A2 配色 2 層（既定と上書き） > 上書きが無ければブログ既定が効く 0ms
+ ✓ |normal| tests/acceptance/feat-blog-ui-builder/template-and-theme.test.ts > A2 配色 2 層（既定と上書き） > 上書きを外すと既定へ戻る（A2 の本体） 0ms
+ ✓ |normal| tests/acceptance/feat-blog-ui-builder/template-and-theme.test.ts > A2 配色 2 層（既定と上書き） > 軸ごとに独立して上書きできる（境界） 0ms
+ ✓ |normal| tests/acceptance/feat-blog-ui-builder/template-and-theme.test.ts > A2 配色 2 層（既定と上書き） > 空の上書きは既定と同じ（＝行を作る意味が無い） 0ms
+ ✓ |normal| tests/acceptance/feat-blog-ui-builder/template-and-theme.test.ts > A5 スロット差し替え > 差し替え先があれば置き換わる 0ms
+ ✓ |normal| tests/acceptance/feat-blog-ui-builder/template-and-theme.test.ts > A5 スロット差し替え > 差し替え先が無ければ fallback が出る（空にならない） 0ms
+ ✓ |normal| tests/acceptance/feat-blog-ui-builder/template-and-theme.test.ts > A5 スロット差し替え > スロットの無いブロックは触られない 0ms
+ ✓ |normal| tests/acceptance/feat-blog-ui-builder/public-appearance.test.ts > A2-4 公開面の配色は保存された 2 層から決まる > ブログ既定が保存されていれば、設計図ではなくそちらが出る 3ms
+ ✓ |normal| tests/acceptance/feat-blog-ui-builder/public-appearance.test.ts > A2-4 公開面の配色は保存された 2 層から決まる > ブログ既定が未登録なら設計図へ落ちる（行が無いのは正常） 0ms
+ ✓ |normal| tests/acceptance/feat-blog-ui-builder/public-appearance.test.ts > A2-4 公開面の配色は保存された 2 層から決まる > ページ上書きは軸ごとに効き、指定していない軸はブログ既定のまま 0ms
+ ✓ |normal| tests/acceptance/feat-blog-ui-builder/public-appearance.test.ts > A2-4 公開面の配色は保存された 2 層から決まる > 上書きが無い（行の不在）ならブログ既定へ戻る 0ms
+ ✓ |normal| tests/acceptance/feat-blog-ui-builder/public-appearance.test.ts > A2-4 公開面の配色は保存された 2 層から決まる > 語彙の外の名札は既定へ落ちる（素通ししない） 0ms
+ ✓ |normal| tests/acceptance/feat-blog-ui-builder/public-appearance.test.ts > A2-4 公開面の配色は保存された 2 層から決まる > 保存先が読めなくても記事は出る。ただし落ちたことは隠さない 0ms
+ ✓ |normal| tests/acceptance/feat-blog-ui-builder/public-appearance.test.ts > A2-4 公開面の配色は保存された 2 層から決まる > 末尾スラッシュの有無で上書きが外れない 0ms
+ ✓ |normal| tests/acceptance/feat-blog-ui-builder/machine-feeds.test.ts > A11 配信物に載る記事 > 2 系統の記事がどちらも載る 13ms
+ ✓ |normal| tests/acceptance/feat-blog-ui-builder/machine-feeds.test.ts > A11 配信物に載る記事 > 新しい順に並ぶ（どちらの系統から来たかで順が決まらない） 0ms
+ ✓ |normal| tests/acceptance/feat-blog-ui-builder/machine-feeds.test.ts > A11 配信物に載る記事 > ブログ運用の記事は導入文を説明にする（空文字を出さない） 0ms
+ ✓ |normal| tests/acceptance/feat-blog-ui-builder/machine-feeds.test.ts > A11 配信物に載る記事 > 配信物の日付は YYYY-MM-DD（時刻を持ち込まない） 0ms
+ ✓ |normal| tests/acceptance/feat-blog-ui-builder/machine-feeds.test.ts > A11 配信物に載る記事 > RSS は合流したあとの件数で上限を守る 1ms
+ ✓ |normal| tests/acceptance/feat-blog-ui-builder/machine-feeds.test.ts > A11 配信物に載る記事 > 網羅が目的の配信物では件数を切らない 0ms
+ ✓ |normal| tests/acceptance/feat-blog-ui-builder/machine-feeds.test.ts > A11 配信物に載る記事 > 記事を要らない配信物（robots.txt）では、記事を 1 度も読みに行かない 0ms
+ ✓ |normal| tests/acceptance/feat-blog-ui-builder/machine-feeds.test.ts > A11 配信物に載る記事 > ブログ運用側が読めなければ、欠けた配信物を 200 で配らない 1ms
+ ✓ |normal| tests/acceptance/feat-blog-ui-builder/machine-feeds.test.ts > A11 配信物に載る記事 > 公開サイトの記事が 1 本も無くても、編集済みの記事は配る 1ms
+ ✓ |normal| tests/acceptance/feat-blog-ui-builder/machine-feeds.test.ts > A11 配信物に載る記事 > sitemap の行は、合流した道をそのまま使う 0ms
+ ✓ |normal| tests/acceptance/feat-blog-ui-builder/article-block-order.test.tsx > A5 記事の中の塊は、選んだ見せ方の並びで出る > 見せ方を選ばなければ、これまでの並びで出る 11ms
+ ✓ |normal| tests/acceptance/feat-blog-ui-builder/article-block-order.test.tsx > A5 記事の中の塊は、選んだ見せ方の並びで出る > 見せ方を選ぶと並びが変わる（比較と買う導線が本文より前へ） 2ms
+ ✓ |normal| tests/acceptance/feat-blog-ui-builder/article-block-order.test.tsx > A5 記事の中の塊は、選んだ見せ方の並びで出る > どの見せ方でも、中身のある塊はすべて出る 19ms
+ ✓ |normal| tests/acceptance/feat-blog-ui-builder/article-block-order.test.tsx > A5 記事の中の塊は、選んだ見せ方の並びで出る > 知らない名前が並びに混ざっても、塊は落ちず末尾へ回るだけ 3ms
+ Test Files  6 passed (6)
+      Tests  54 passed (54)

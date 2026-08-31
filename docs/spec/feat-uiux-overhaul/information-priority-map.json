@@ -2898,6 +2898,92 @@
       }
     },
     {
+      "route": "/admin/sites/[site]/appearance",
+      "primary_task": "このブログの見せ方と配色を決め、ページ単位の例外を管理する",
+      "task_frequency": "low",
+      "failure_cost": "low",
+      "keep": [
+        {
+          "item": "今選んでいる見せ方と全体の配色",
+          "why": "選択欄の初期値だけでは「既定のまま」と「既定と同じ値を選んだ」が見分けられない"
+        },
+        {
+          "item": "例外を置いているページの一覧",
+          "why": "上書きは 1 枚ずつ効くので、どこに置いたかを忘れると解除できない"
+        },
+        {
+          "item": "読者が見る場所への導線",
+          "why": "変えた結果を確かめる先が画面から辿れる必要がある"
+        }
+      ],
+      "drop": [
+        {
+          "item": "見せ方ごとの見本画像",
+          "why": "6 種の見本を並べると画面が見本の一覧になり、決める操作が下へ落ちる",
+          "method": "remove"
+        }
+      ],
+      "transform": [
+        {
+          "item": "配色の 2 層",
+          "to": "全体の欄とページ単位の欄を別のフォームに割る",
+          "why": "全体を変えるつもりで 1 枚だけ変える事故を、フォームの境界で防ぐ"
+        }
+      ],
+      "note": "AI から呼べる。見た目の選び直しは何度でも取り消せるので、人だけに限る理由が無い",
+      "baseline": {
+        "source": "src/app/admin/sites/[site]/appearance/page.tsx",
+        "lines": 120,
+        "lead_chars": 32,
+        "always_visible_callouts": 0,
+        "cards": 0,
+        "forms": 2
+      }
+    },
+    {
+      "route": "/admin/sites/[site]/placements",
+      "primary_task": "記事のどこに成果リンクを出しているかを確かめ、掲載の抜けを埋める",
+      "task_frequency": "medium",
+      "failure_cost": "medium",
+      "keep": [
+        {
+          "item": "掲載が 1 件も無い記事の本数",
+          "why": "この画面がいちばん答えたい問い。載っているものだけ並べると画面から消える"
+        },
+        {
+          "item": "記事ごとの掲載位置と追跡コード",
+          "why": "抜けを埋めるには、既に何がどこに在るかが要る"
+        },
+        {
+          "item": "ここは記録であって公開面ではないという断り",
+          "why": "書いても読者ページが変わらないことを、最初に言わないと問い合わせになる"
+        }
+      ],
+      "drop": [
+        {
+          "item": "成果額と報酬率",
+          "why": "この台帳に金額は 1 つも無い。出すと報酬の表と読み違える",
+          "method": "remove"
+        }
+      ],
+      "transform": [
+        {
+          "item": "掲載 0 件の記事",
+          "to": "「掲載なし」と書いた行として残す",
+          "why": "行が消えると、抜けが数としても見た目としても画面から消える"
+        }
+      ],
+      "note": "AI から呼べる。台帳の記録は取り消せる操作で、読者に出る文を書き換えない",
+      "baseline": {
+        "source": "src/app/admin/sites/[site]/placements/page.tsx",
+        "lines": 104,
+        "lead_chars": 47,
+        "always_visible_callouts": 0,
+        "cards": 0,
+        "forms": 1
+      }
+    },
+    {
       "route": "/admin/settings/workspaces/edit",
       "primary_task": "作業場所の名前・契約の区分・時間帯・通貨を直す",
       "task_frequency": "low",

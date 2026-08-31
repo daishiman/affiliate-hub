@@ -9,7 +9,6 @@ import type {
   BlogOpsRepositoryPort,
   BlogTagRecord,
   DeletedSiteNetworkRecord,
-  FixedPageRecord,
   PublicBlogPort,
   PublicSiteReader,
   SaveBlogArticleInput,
@@ -25,9 +24,6 @@ import {
   type BlogArticle,
   type BlogArticleStatus,
   type DeliveryPart,
-  type FixedPageKind,
-  FIXED_PAGE_KINDS,
-  type FixedPageStatus,
   type LayoutRegion,
   type NetworkRole,
   type NetworkStatus,
@@ -46,7 +42,6 @@ import {
   blogLayoutBands,
   blogLayoutSlots,
   blogTags,
-  legalPages,
   siteNetworkNodes,
 } from "@/db/schema";
 import type { DrizzleD1 } from "./link-inbox-repository";
@@ -162,19 +157,6 @@ function toTag(row: typeof blogTags.$inferSelect): BlogTagRecord {
   };
 }
 
-function toPage(row: typeof legalPages.$inferSelect): FixedPageRecord {
-  return {
-    id: row.id,
-    siteSlug: row.siteSlug,
-    kind: row.kind as FixedPageKind,
-    title: row.title,
-    body: row.body,
-    status: row.status as FixedPageStatus,
-    deletedAt: row.deletedAt,
-    updatedAt: row.updatedAt,
-  };
-}
-
 /** 記事 1 本ぶんの部品とタグを読み揃える。3 回の問い合わせを 1 か所にまとめる。 */
 async function loadDetail(db: DrizzleD1, row: BlogArticleRow): Promise<BlogArticleDetail> {
   // `articles.workspace_id` は旧AI記事のぶんが null のままなので、子表側の
@@ -216,19 +198,6 @@ function ownedResourceNotFound(what: string) {
       suggestedAction: "一覧から選び直してください。",
     }),
   );
-}
-
-async function ownsUniqueSiteSlug(
-  db: DrizzleD1,
-  workspaceId: string,
-  siteSlug: string,
-): Promise<boolean> {
-  const rows = await db
-    .select({ workspaceId: siteNetworkNodes.workspaceId })
-    .from(siteNetworkNodes)
-    .where(and(eq(siteNetworkNodes.siteSlug, siteSlug), isNull(siteNetworkNodes.deletedAt)))
-    .limit(2);
-  return rows.length === 1 && rows[0]?.workspaceId === workspaceId;
 }
 
 type PublicSiteIdentity = {
@@ -979,187 +948,6 @@ export function createD1BlogOpsRepository(db: DrizzleD1): BlogOpsRepositoryPort 
       }
     },
 
-    /*
-     * 固定ページは `workspace_id` を持ち、そのうえで `site_slug` の帰属も確かめる。
-     *
-     * 列だけでは足りない。`site_slug` は `site_blueprints` の索引 1 本が一意性を
-     * 支えているだけで、作業場所ごとに slug を再利用したくなった日に崩れる。
-     * 逆に slug の確認だけでも足りない。**1 本のクエリが単体で作業場所に絞れること**を
-     * 表の側でも持たせる（`tests/architecture/tenant-scoped-schema.test.ts`）。
-     * 同名のブログが複数 workspace にあるときは、帰属先を決められないので見せない。
-     */
-    async listFixedPages(workspaceId, siteSlug): PortResult<readonly FixedPageRecord[]> {
-      try {
-        // 親サイトがこの workspace のものでなければ、子の存在も漏らさない。
-        if (!(await ownsUniqueSiteSlug(db, workspaceId, siteSlug))) return ok([]);
-        const rows = await db
-          .select()
-          .from(legalPages)
-          .where(
-            and(
-              eq(legalPages.workspaceId, workspaceId),
-              eq(legalPages.siteSlug, siteSlug),
-              inArray(legalPages.kind, [...FIXED_PAGE_KINDS]),
-              isNull(legalPages.deletedAt),
-            ),
-          );
-        return ok(rows.map(toPage));
-      } catch (cause) {
-        return storageFailure("固定ページの読み取り", cause);
-      }
-    },
-
-    async listDeletedFixedPages(workspaceId, siteSlug): PortResult<readonly FixedPageRecord[]> {
-      try {
-        if (!(await ownsUniqueSiteSlug(db, workspaceId, siteSlug))) return ok([]);
-        const rows = await db
-          .select()
-          .from(legalPages)
-          .where(
-            and(
-              eq(legalPages.workspaceId, workspaceId),
-              eq(legalPages.siteSlug, siteSlug),
-              inArray(legalPages.kind, [...FIXED_PAGE_KINDS]),
-              isNotNull(legalPages.deletedAt),
-            ),
-          );
-        return ok(rows.map(toPage));
-      } catch (cause) {
-        return storageFailure("削除済み固定ページの読み取り", cause);
-      }
-    },
-
-    async saveFixedPage(workspaceId, input): PortResult<true> {
-      try {
-        if (!(await ownsUniqueSiteSlug(db, workspaceId, input.siteSlug))) {
-          return ownedResourceNotFound("固定ページ");
-        }
-        // id が既に別サイトの行を指すなら、upsert でその本文を書き換えない。
-        const existing = await db
-          .select({ siteSlug: legalPages.siteSlug, workspaceId: legalPages.workspaceId })
-          .from(legalPages)
-          .where(eq(legalPages.id, input.id))
-          .limit(1);
-        if (
-          existing[0] !== undefined &&
-          (existing[0].siteSlug !== input.siteSlug || existing[0].workspaceId !== workspaceId)
-        ) {
-          return ownedResourceNotFound("固定ページ");
-        }
-        const sameKind = await db
-          .select({ deletedAt: legalPages.deletedAt })
-          .from(legalPages)
-          .where(
-            and(
-              eq(legalPages.workspaceId, workspaceId),
-              eq(legalPages.siteSlug, input.siteSlug),
-              eq(legalPages.kind, input.kind),
-            ),
-          )
-          .limit(1);
-        if (sameKind[0]?.deletedAt !== null && sameKind[0]?.deletedAt !== undefined) {
-          return err(
-            domainError(
-              "CONFLICT",
-              "削除済みの固定ページは保存では戻せません。削除済み一覧から復元してください。",
-              { field: "kind" },
-            ),
-          );
-        }
-        await db
-          .insert(legalPages)
-          .values({
-            id: input.id,
-            workspaceId,
-            siteSlug: input.siteSlug,
-            kind: input.kind,
-            title: input.title,
-            body: input.body,
-            status: input.status,
-            deletedAt: null,
-            updatedAt: input.updatedAt,
-          })
-          .onConflictDoUpdate({
-            target: [legalPages.siteSlug, legalPages.kind],
-            set: {
-              title: input.title,
-              body: input.body,
-              status: input.status,
-              updatedAt: input.updatedAt,
-            },
-          });
-        return ok(true);
-      } catch (cause) {
-        return storageFailure("固定ページの保存", cause);
-      }
-    },
-
-    async deleteFixedPage(workspaceId, pageId): PortResult<true> {
-      try {
-        const pages = await db
-          .select({ siteSlug: legalPages.siteSlug })
-          .from(legalPages)
-          .where(and(eq(legalPages.workspaceId, workspaceId), eq(legalPages.id, pageId)))
-          .limit(1);
-        const page = pages[0];
-        if (page === undefined || !(await ownsUniqueSiteSlug(db, workspaceId, page.siteSlug))) {
-          return ownedResourceNotFound("固定ページ");
-        }
-        const deleted = await db
-          .update(legalPages)
-          .set({ deletedAt: new Date() })
-          .where(
-            and(
-              eq(legalPages.workspaceId, workspaceId),
-              eq(legalPages.id, pageId),
-              eq(legalPages.siteSlug, page.siteSlug),
-              isNull(legalPages.deletedAt),
-            ),
-          )
-          .returning({ id: legalPages.id });
-        if (deleted.length === 0) return ownedResourceNotFound("固定ページ");
-        return ok(true);
-      } catch (cause) {
-        return storageFailure("固定ページの削除", cause);
-      }
-    },
-
-    async restoreFixedPage(workspaceId, pageId, restoredAt): PortResult<true> {
-      try {
-        const pages = await db
-          .select({ siteSlug: legalPages.siteSlug })
-          .from(legalPages)
-          .where(
-            and(
-              eq(legalPages.workspaceId, workspaceId),
-              eq(legalPages.id, pageId),
-              isNotNull(legalPages.deletedAt),
-            ),
-          )
-          .limit(1);
-        const page = pages[0];
-        if (page === undefined || !(await ownsUniqueSiteSlug(db, workspaceId, page.siteSlug))) {
-          return ownedResourceNotFound("削除済み固定ページ");
-        }
-        const restored = await db
-          .update(legalPages)
-          .set({ deletedAt: null, updatedAt: restoredAt })
-          .where(
-            and(
-              eq(legalPages.workspaceId, workspaceId),
-              eq(legalPages.id, pageId),
-              eq(legalPages.siteSlug, page.siteSlug),
-              isNotNull(legalPages.deletedAt),
-            ),
-          )
-          .returning({ id: legalPages.id });
-        if (restored.length === 0) return ownedResourceNotFound("削除済み固定ページ");
-        return ok(true);
-      } catch (cause) {
-        return storageFailure("固定ページの復元", cause);
-      }
-    },
-
     async summarizeRatings(
       workspaceId,
       articleIds,
@@ -1516,26 +1304,6 @@ export function createD1PublicBlogPort(
             return ok(rows.map(toTag));
           } catch (cause) {
             return storageFailure("タグの読み取り", cause);
-          }
-        },
-        async listFixedPages() {
-          try {
-            const rows = await db
-              .select()
-              .from(legalPages)
-              .where(
-                and(
-                  eq(legalPages.workspaceId, identity.workspaceId),
-                  eq(legalPages.siteSlug, identity.siteSlug),
-                  inArray(legalPages.kind, [...FIXED_PAGE_KINDS]),
-                  eq(legalPages.status, "published"),
-                  isNull(legalPages.deletedAt),
-                ),
-              )
-              .orderBy(asc(legalPages.kind));
-            return ok(rows.map(toPage));
-          } catch (cause) {
-            return storageFailure("固定ページの公開読み取り", cause);
           }
         },
       });

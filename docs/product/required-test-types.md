@@ -197,6 +197,7 @@
 | REQ-SEC08 | has-screen | — |
 | REQ-SEC09 | has-input, has-secret, has-db-table, has-recorded-operation | — |
 | REQ-SEC10 | has-secret, has-runtime-config | — |
+| REQ-SEC11 | has-runtime-config | — |
 | REQ-A01 | has-input, has-state, has-user-supplied-url | — |
 | REQ-A02 | has-input | — |
 | REQ-A03 | has-input | — |

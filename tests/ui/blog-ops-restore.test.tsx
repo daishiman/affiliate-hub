@@ -14,7 +14,6 @@ vi.mock("react", async (importOriginal) => {
 
 const { BlogArticleRestoreForm } = await import("@/presentation/admin/blog-article-form");
 const { SiteNetworkRestoreForm } = await import("@/presentation/admin/site-network-form");
-const { BlogPageRestoreForm } = await import("@/presentation/admin/blog-page-form");
 
 const ROOT = resolve(import.meta.dirname, "../..");
 
@@ -37,17 +36,6 @@ describe("削除済みのブログ運用を戻す画面", () => {
     expect(html).toContain('name="intent" value="restore"');
     expect(html).toContain('name="nodeId" value="snn_deleted"');
     expect(html).toContain("同じ URL で戻す");
-  });
-
-  it("固定ページを元のID・本文・公開状態へ戻す操作を表示する", () => {
-    const html = renderToStaticMarkup(
-      <BlogPageRestoreForm pageId="lgp_deleted" siteSlug="hub" kind="profile" />,
-    );
-
-    expect(html).toContain('name="intent" value="restore"');
-    expect(html).toContain('name="pageId" value="lgp_deleted"');
-    expect(html).toContain('name="siteSlug" value="hub"');
-    expect(html).toContain("元の内容で戻す");
   });
 
   it("通常一覧から削除済み一覧へ辿れ、削除済み一覧の画面がある", () => {

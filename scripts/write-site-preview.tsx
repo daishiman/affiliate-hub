@@ -57,7 +57,6 @@ import {
   seedArticleBlocks,
   seedArticleRecord,
   seedDeliveryParts,
-  seedFixedPages,
   seedLayoutBands,
   seedLayoutSlots,
   seedNetwork,
@@ -124,9 +123,6 @@ function seedPublicBlogPort(): PublicBlogPort {
         },
         async listTags() {
           return ok(seedTags().filter((tag) => tag.siteSlug === siteSlug));
-        },
-        async listFixedPages() {
-          return ok(seedFixedPages(siteKey, NOW));
         },
       };
       return ok(reader);

@@ -13,9 +13,18 @@ vi.mock("next/headers", () => ({
   headers: async () => metadataRequest.headers,
 }));
 
-vi.mock("@/presentation/composition", () => ({
-  readerActor: () => ({ kind: "anonymous" }),
-  siteUseCases: async () => ({
+vi.mock("@/presentation/composition", async () => {
+  const { resolveRequestOrigin } = await import("@/infrastructure/http/request-origin");
+  return {
+    requestOriginFromNextHeaders: async () =>
+      resolveRequestOrigin({
+        host: metadataRequest.headers.get("host"),
+        forwardedHost: metadataRequest.headers.get("x-forwarded-host"),
+        forwardedProtocol: metadataRequest.headers.get("x-forwarded-proto"),
+        defaultProtocol: "https",
+      }),
+    readerActor: () => ({ kind: "anonymous" }),
+    siteUseCases: async () => ({
     getArticle: {
       execute: async (_actor: unknown, input: { readonly slug: string }) => ({
         ok: true as const,
@@ -40,8 +49,9 @@ vi.mock("@/presentation/composition", () => ({
         value: { blueprint: { name: "ガジェット研究室" } },
       }),
     },
-  }),
-}));
+    }),
+  };
+});
 
 const { createArticlePageMetadata, siteCanonicalPath, siteMetadataUrl } = await import(
   "@/presentation/site/site-metadata"
@@ -101,5 +111,19 @@ describe("公開ページのmetadata共通アダプター", () => {
 
     expect(metadata.alternates).toBeUndefined();
     expect(metadata.openGraph).not.toHaveProperty("url");
+  });
+
+  it.each([
+    "blog.example.jp, attacker.example",
+    "attacker.example/path",
+    "user@attacker.example",
+  ])("不正なforwarded hostをcanonicalへ混ぜず安全側に失敗する: %s", async (host) => {
+    metadataRequest.headers = new Headers({
+      host: "internal.example",
+      "x-forwarded-host": host,
+      "x-forwarded-proto": "https",
+    });
+
+    await expect(siteMetadataUrl("gadget", "/tools/diagnosis")).resolves.toBeNull();
   });
 });

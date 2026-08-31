@@ -18,7 +18,6 @@
  * 壊したときに赤くなることは別物で、後者はこの置き方でしか測れない。
  */
 import { describe, expect, it } from "vitest";
-import type { ArticleSummary } from "@/application/read-models/published-article";
 import {
   AI_CRAWLERS,
   buildLlmsTxt,
@@ -26,18 +25,25 @@ import {
   buildRssXml,
   buildSitemapXml,
   canonicalSiteUrl,
+  type FeedItem,
 } from "@/application/seo/feeds";
 
-const items: readonly ArticleSummary[] = [
+/**
+ * 配信物の行。**記事の型ではなく `FeedItem`** である。
+ *
+ * 2026-08-30 まで、ここは `ArticleSummary` を渡していた。それが
+ * 「配信物に載るのは編集済みの記事だけ」という前提を検査に焼き付け、
+ * ブログ運用で書いた記事（`/blog/<slug>`）が
+ * **1 本も載っていないことに誰も気付けなかった**。
+ * 道は呼ぶ側が引き終えて渡す（`seo-routes.ts`）ので、
+ * ここは「引き終わった道」だけを見る。
+ */
+const items: readonly FeedItem[] = [
   {
-    slug: "laptops",
-    siteSlug: "gadget",
-    type: "ranking",
+    path: "/best/laptops",
     title: "10 万円台 & <おすすめ> ノート",
     summary: "実測で比べた \"結論\" を先に。",
-    categorySlug: "laptop",
     updatedAt: "2026-08-20",
-    authorName: "編集部",
   },
 ];
 
@@ -140,9 +146,31 @@ describe("RSS", () => {
     expect(xml).toContain("&apos;あて推量ではない&apos;");
   });
 
-  it("リンクは articleHref の道と一致する", () => {
+  it("リンクは渡された道をそのまま使う", () => {
     const xml = buildRssXml(rssSite, items);
     expect(xml).toContain("<link>https://example.com/s/gadget/best/laptops</link>");
+  });
+
+  /**
+   * 道の形を勝手に決めないこと。
+   *
+   * ここが `/best/<slug>` のような形を組み立て直していた頃、
+   * `/blog/<slug>` の記事は配信物に載せようがなかった。
+   * 記事の種類が 3 つ目になっても、この器は変わらないことを固定する。
+   */
+  it("編集済み記事とブログ運用記事が、同じ 1 本の道を通る", () => {
+    const xml = buildRssXml(rssSite, [
+      ...items,
+      {
+        path: "/blog/quiet-desk",
+        title: "静かな机の作り方",
+        summary: "騒音を測って選んだ。",
+        updatedAt: "2026-08-21",
+      },
+    ]);
+    expect(xml).toContain("<link>https://example.com/s/gadget/best/laptops</link>");
+    expect(xml).toContain("<link>https://example.com/s/gadget/blog/quiet-desk</link>");
+    expect(xml.match(/<item>/g)).toHaveLength(2);
   });
 
   it("guid は link と同じ値を isPermaLink=true で持つ", () => {
@@ -215,5 +243,27 @@ describe("llms.txt", () => {
     expect(text).toContain("# 研究室");
     expect(text).toContain("## 記事一覧");
     expect(text).not.toContain("- [");
+  });
+
+  it("ブログ運用で書いた記事も同じ形で並ぶ", () => {
+    const text = buildLlmsTxt(
+      {
+        siteName: "ガジェット研究室",
+        purpose: "実測で比べる。",
+        origin: "https://example.com",
+        basePath: "/s/gadget",
+      },
+      [
+        {
+          path: "/blog/quiet-desk",
+          title: "静かな机の作り方",
+          summary: "騒音を測って選んだ。",
+          updatedAt: "2026-08-21",
+        },
+      ],
+    );
+    expect(text).toContain(
+      "- [静かな机の作り方](https://example.com/s/gadget/blog/quiet-desk): 騒音を測って選んだ。",
+    );
   });
 });

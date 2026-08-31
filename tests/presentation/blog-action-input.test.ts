@@ -21,7 +21,6 @@ import {
   manageBlogLayoutAction,
 } from "@/presentation/admin/blog-layout-action";
 import { manageBlogArticleAction } from "@/presentation/admin/blog-article-action";
-import { manageBlogPageAction } from "@/presentation/admin/blog-page-action";
 import { INITIAL_BLOG_OPS_STATE } from "@/presentation/admin/blog-ops-state";
 import { manageSiteNetworkAction } from "@/presentation/admin/site-network-action";
 
@@ -61,10 +60,6 @@ const actionDoubles = vi.hoisted(() => ({
       title: "戻す記事",
     },
   })),
-  restoreFixedPage: vi.fn(async () => ({
-    ok: true as const,
-    value: { pageId: "lgp_owned", siteSlug: "owned-blog", kind: "profile" as const },
-  })),
 }));
 
 vi.mock("next/cache", () => ({ revalidatePath: vi.fn() }));
@@ -81,7 +76,6 @@ vi.mock("@/presentation/composition", () => ({
     deleteNetworkNode: { execute: actionDoubles.deleteNetworkNode },
     restoreNetworkNode: { execute: actionDoubles.restoreNetworkNode },
     restoreArticle: { execute: actionDoubles.restoreArticle },
-    restoreFixedPage: { execute: actionDoubles.restoreFixedPage },
   })),
 }));
 
@@ -124,28 +118,6 @@ describe("ブログ管理の操作指定", () => {
       expect.anything(),
       { articleId: "bar_owned" },
     );
-  });
-
-  it("削除済み固定ページの restore は必須IDを検証して復元口へ渡す", async () => {
-    const missing = new FormData();
-    missing.set("intent", "restore");
-    missing.set("siteSlug", "owned-blog");
-    missing.set("kind", "profile");
-    expect((await manageBlogPageAction(INITIAL_BLOG_OPS_STATE, missing)).status).toBe("failed");
-    expect(actionDoubles.restoreFixedPage).not.toHaveBeenCalled();
-
-    const data = new FormData();
-    data.set("intent", "restore");
-    data.set("siteSlug", "owned-blog");
-    data.set("kind", "profile");
-    data.set("pageId", "lgp_owned");
-    const restored = await manageBlogPageAction(INITIAL_BLOG_OPS_STATE, data);
-    expect(restored.status).toBe("done");
-    expect(actionDoubles.restoreFixedPage).toHaveBeenCalledWith(
-      expect.anything(),
-      { siteSlug: "owned-blog", pageId: "lgp_owned" },
-    );
-    expect(revalidatePath).toHaveBeenCalledWith("/s/owned-blog", "layout");
   });
 
   it("知らない操作を作成や保存に変換せず、操作欄の失敗として返す", () => {

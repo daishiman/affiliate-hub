@@ -13,7 +13,14 @@ import { join, relative } from "node:path";
 import { type RouteWorld, renderRoute, renderRouteIn } from "../support/render";
 import { SITE } from "./route-cases";
 
-export { ADMIN_ROUTE_CASES, ROUTE_CASES, type RouteCase } from "./route-cases";
+export {
+  ADMIN_ROUTE_CASES,
+  RENDERABLE_ADMIN_ROUTE_CASES,
+  RENDERABLE_ROUTE_CASES,
+  ROUTE_CASES,
+  isRedirectRoute,
+  type RouteCase,
+} from "./route-cases";
 import type { RouteCase } from "./route-cases";
 
 /**

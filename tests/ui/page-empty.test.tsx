@@ -10,7 +10,7 @@
  * @types screen-states
  */
 import { afterAll, describe, expect, it, vi } from "vitest";
-import { ROUTE_CASES, importPathOf, propsOf } from "./route-table";
+import { RENDERABLE_ROUTE_CASES, importPathOf, propsOf } from "./route-table";
 import { headingLevels, intoDom, renderRoute, textOf } from "../support/render";
 import { describeViolations, findA11yViolations } from "../support/a11y";
 
@@ -105,7 +105,7 @@ vi.mock("@/infrastructure/composition", async (importOriginal) => {
 });
 
 /** 読者側は「そのブログが無い」ときに 404 を返す作りなので、同じ物差しでは測らない。 */
-const EMPTY_CASES = ROUTE_CASES.filter((r) => r.file.startsWith("admin/"));
+const EMPTY_CASES = RENDERABLE_ROUTE_CASES.filter((r) => r.file.startsWith("admin/"));
 
 describe("対象の画面", () => {
   it("運営側の画面が並んでいる（絞り込みが効かなくなったら気づけるように）", () => {

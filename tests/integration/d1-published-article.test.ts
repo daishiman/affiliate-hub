@@ -1,6 +1,4 @@
 /** @tier 2 */
-import { readFileSync, readdirSync } from "node:fs";
-import path from "node:path";
 import { drizzle } from "drizzle-orm/d1";
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import { getPlatformProxy } from "wrangler";
@@ -19,9 +17,15 @@ import {
   createD1ContentRepository,
 } from "@/infrastructure/persistence/d1/published-article-repository";
 import { createD1SiteDocumentRepository } from "@/infrastructure/persistence/d1/site-document-repository";
+import { createD1SiteRepository } from "@/infrastructure/persistence/d1/site-repository";
 import { SAMPLE_WORKSPACE_ID } from "@/infrastructure/persistence/sample/ranking-sample-repository";
-import { SAMPLE_SITE_SLUG, SECOND_SITE_SLUG } from "@/infrastructure/persistence/sample/site-sample-repository";
+import {
+  SAMPLE_SITE_SLUG,
+  SECOND_SITE_SLUG,
+  sampleSites,
+} from "@/infrastructure/persistence/sample/site-sample-repository";
 import { OTHER_WORKSPACE } from "../support/actors";
+import { migrationStatements } from "../support/migrations";
 
 /**
  * 出した記事が**本物の D1 と本物のマイグレーション**で読み直せることを見る。
@@ -55,21 +59,10 @@ let admin: EditorialPublishedArticleAdminPort;
 let documents: EditorialSiteDocumentRepositoryPort;
 
 const workspaceId = SAMPLE_WORKSPACE_ID as WorkspaceId;
+const sampleBlueprint = sampleSites().find((site) => site.slug === SAMPLE_SITE_SLUG)?.blueprint;
+if (sampleBlueprint === undefined) throw new Error("見本ブログの設計図が見つかりません。");
 
 /** マイグレーションの本文を、実行できる単位に割る。 */
-function migrationStatements(): readonly string[] {
-  const dir = path.resolve(process.cwd(), "drizzle");
-  const files = readdirSync(dir)
-    .filter((f) => f.endsWith(".sql"))
-    .sort();
-  expect(files.length).toBeGreaterThan(0);
-  return files.flatMap((file) =>
-    readFileSync(path.join(dir, file), "utf8")
-      .split("--> statement-breakpoint")
-      .map((s) => s.trim())
-      .filter((s) => s !== ""),
-  );
-}
 
 beforeAll(async () => {
   proxy = await getPlatformProxy<TestEnv>({
@@ -82,7 +75,7 @@ beforeAll(async () => {
   }
   const db = drizzle(proxy.env.DB, { schema });
   writer = createD1PublishedArticleWriter(db);
-  content = createD1ContentRepository(db);
+  content = createD1ContentRepository(db, createD1SiteRepository(db));
   admin = createD1PublishedArticleAdminRepository(db);
   documents = createD1SiteDocumentRepository({
     db,
@@ -99,13 +92,14 @@ beforeEach(async () => {
   await proxy.env.DB.prepare("DELETE FROM published_articles").run();
   await proxy.env.DB.prepare("DELETE FROM published_article_tombstones").run();
   await proxy.env.DB.prepare("DELETE FROM legal_page").run();
+  await proxy.env.DB.prepare("DELETE FROM site_network_node").run();
   await proxy.env.DB.prepare("DELETE FROM site_blueprints").run();
   await proxy.env.DB.prepare(
     `INSERT INTO site_blueprints
       (id, workspace_id, slug, name, pattern, published_at, blueprint_json)
-     VALUES ('sb_article_owner', ?, ?, '所有ブログ', 'specialist_review', unixepoch(), '{}')`,
+     VALUES ('sb_article_owner', ?, ?, '所有ブログ', 'specialist_review', unixepoch(), ?)`,
   )
-    .bind(String(workspaceId), SAMPLE_SITE_SLUG)
+    .bind(String(workspaceId), SAMPLE_SITE_SLUG, JSON.stringify(sampleBlueprint))
     .run();
 });
 
@@ -539,7 +533,14 @@ describe("固定文書は保存したものだけが出る", () => {
     expect(policy.value).toBeNull();
   });
 
-  it("保存した本文が、段落のまま読者向けの経路へ出る", async () => {
+  it("公開済みの設計図だけで、保存した本文が読者向けの経路へ出る", async () => {
+    const networkRows = await proxy.env.DB.prepare(
+      "SELECT COUNT(*) AS n FROM site_network_node WHERE site_slug = ?",
+    )
+      .bind(SAMPLE_SITE_SLUG)
+      .first<{ n: number }>();
+    expect(networkRows?.n).toBe(0);
+
     const saved = await documents.save(workspaceId, SAMPLE_SITE_SLUG, {
       key: "operator",
       title: "運営者情報",
@@ -556,10 +557,57 @@ describe("固定文書は保存したものだけが出る", () => {
     });
   });
 
+  it("削除済みの文書を保存し直すと、公開状態で復元される", async () => {
+    await proxy.env.DB.prepare(
+      `INSERT INTO legal_page
+        (id, workspace_id, site_slug, kind, title, body, status, deleted_at)
+       VALUES ('lp_restore_by_save', ?, ?, 'operator', '古い文書', '古い本文', 'draft', ?)`,
+    )
+      .bind(String(workspaceId), SAMPLE_SITE_SLUG, 1_787_990_400)
+      .run();
+
+    const saved = await documents.save(workspaceId, SAMPLE_SITE_SLUG, {
+      key: "operator",
+      title: "復元した運営者情報",
+      body: ["新しい本文"],
+    });
+    expect(saved.ok).toBe(true);
+
+    const row = await proxy.env.DB.prepare(
+      "SELECT status, deleted_at AS deletedAt FROM legal_page WHERE id = 'lp_restore_by_save'",
+    ).first<{ status: string; deletedAt: number | null }>();
+    expect(row).toEqual({ status: "published", deletedAt: null });
+
+    const policy = await content.findPolicyDocument(SAMPLE_SITE_SLUG, "operator");
+    expect(policy.ok && policy.value).toEqual({
+      title: "復元した運営者情報",
+      body: ["新しい本文"],
+    });
+  });
+
   it("別の作業場所からは、同じブログの文書が見えない", async () => {
     const others = await documents.listBySite("ws_other" as WorkspaceId, SAMPLE_SITE_SLUG);
     if (!others.ok) throw new Error("読み取りに失敗しました");
     expect(others.value).toEqual([]);
+  });
+
+  it.each([
+    ["下書き", String(workspaceId), "draft", null],
+    ["削除済み", String(workspaceId), "published", 1_787_990_400],
+    ["別 workspace", String(OTHER_WORKSPACE), "published", null],
+  ] as const)("%s の文書は読者向け経路から読めない", async (_case, owner, status, deletedAt) => {
+    await proxy.env.DB.prepare(
+      `INSERT INTO legal_page
+        (id, workspace_id, site_slug, kind, title, body, status, deleted_at)
+       VALUES ('lp_hidden', ?, ?, 'operator', '公開してはいけない文書', '本文', ?, ?)`,
+    )
+      .bind(owner, SAMPLE_SITE_SLUG, status, deletedAt)
+      .run();
+
+    const policy = await content.findPolicyDocument(SAMPLE_SITE_SLUG, "operator");
+
+    expect(policy.ok).toBe(true);
+    if (policy.ok) expect(policy.value).toBeNull();
   });
 });
 

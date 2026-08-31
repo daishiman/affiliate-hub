@@ -15,6 +15,8 @@ import {
 } from "./blog-action-input";
 import type { BlogOpsState } from "./blog-ops-state";
 import { failureFromDomainError, notSignedInFailure } from "./use-case-result";
+import { parseExpressionBlockInput } from "./expression-block-input";
+import { toExpressionArticleBlock } from "@/application/adapters/expression-article-block";
 
 const LIST_PATH = "/admin/blog/articles";
 
@@ -39,9 +41,28 @@ export async function manageBlogArticleAction(
   const text = (name: string) => String(formData.get(name) ?? "").trim();
   const intent = parseIntentOrFailure(
     text("intent"),
-    ["create", "update", "delete", "restore"] as const,
+    ["create", "update", "delete", "restore", "append_expression"] as const,
   );
   if (!intent.ok) return intent.failure;
+
+  if (intent.value === "append_expression") {
+    const articleId = text("articleId");
+    const expression = parseExpressionBlockInput(formData);
+    if (!expression.ok) return expression.failure;
+    const found = await entry.getArticle.execute(actor, { articleId });
+    if (!found.ok) return failureFromDomainError(found.error);
+    const carrier = toExpressionArticleBlock(expression.value, "", 0);
+    const updated = await entry.updateArticle.execute(actor, {
+      articleId,
+      // 表示用getArticleはcarrierを隠すため、全置換入力へ流用しない。
+      // repositoryの現行aggregateへusecaseが追記する専用DTOだけを渡す。
+      appendBlocks: [{ kind: carrier.kind, heading: carrier.heading, body: carrier.body }],
+    });
+    if (!updated.ok) return failureFromDomainError(updated.error);
+    revalidatePath(`${LIST_PATH}/${articleId}`);
+    revalidatePath(`/s/${found.value.siteSlug}/blog/${found.value.slug}`);
+    return { status: "done", message: "表現ブロックを記事へ追加し、公開表示へ反映しました。" };
+  }
 
   if (intent.value === "delete") {
     const result = await entry.deleteArticle.execute(actor, {

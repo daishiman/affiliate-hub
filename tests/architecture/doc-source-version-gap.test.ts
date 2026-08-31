@@ -156,6 +156,45 @@ function references(): Map<string, Reference> {
   return new Map(parsed.references.map((r) => [r.target_id, r]));
 }
 
+/**
+ * ── 判定を入力から切り離す（2026-08-30 / ah-5nu）─────────────────
+ *
+ * 反転後の 3 件は「実ファイルを読んで 0 件」という形だったので、
+ * **わざと壊して赤を見る**には確定章を書き換えるしかなかった。それは
+ * `guard-confirmed-chapter-overwrite` が止める道で、迂回しないと決めてある。
+ * その結果「検査が動いている証拠が無い」状態が残っていた——**0 件検出と、
+ * 検出する側が動いていないことは、出力では区別がつかない。**
+ *
+ * そこで判定だけを引数を取る関数にした。**章は 1 バイトも触らない。**
+ * 実ファイルを読む it はこの関数へ実物を渡し、下の陽性対照は合成した行を渡す。
+ * 同じ関数が両方を通るので、「実物で 0 件」が「判定が何も当たらない」ではないことが
+ * 同じ試験の中で言える。
+ *
+ * **判定の中身は 1 つも変えていない。**渡す先を実ファイル固定から引数へ移しただけである。
+ */
+function retrievalDated(rows: readonly Row[]): string[] {
+  return rows.filter(isRetrievalDate).map((r) => `${r.target}=${r.version}`);
+}
+
+/** 章 md と `fetched-references.json` の食い違い。名指しで返す。 */
+function driftBetween(rows: readonly Row[], refs: Map<string, Reference>): string[] {
+  const drifted: string[] = [];
+  for (const row of rows) {
+    const ref = refs.get(row.target);
+    if (ref === undefined) {
+      drifted.push(`${row.target}: 章に在るが fetched-references に無い`);
+      continue;
+    }
+    // 章のバージョン欄 1 つに対し、参照側は版と更新日の 2 欄を持つ。
+    // 版を公表する対象は版を、公表しない対象は公式表明の更新日を、章が写すべき値とみなす。
+    const expected = ref.version ?? ref.last_updated;
+    if (row.version !== expected) {
+      drifted.push(`${row.target}: 章=${row.version} / 参照=${expected}`);
+    }
+  }
+  return drifted;
+}
+
 const CHAPTERS = Object.keys(CHAPTER_TARGETS);
 
 describe("最新ドキュメント出典の欄が欄名どおりの値を持っているか", () => {
@@ -181,7 +220,11 @@ describe("最新ドキュメント出典の欄が欄名どおりの値を持っ�
   });
 
   it("版の欄が取得日そのものになっている行は 0 件——戻れば赤くなる", () => {
-    expect(rows.filter(isRetrievalDate).map((r) => `${r.target}=${r.version}`)).toEqual([]);
+    expect(retrievalDated(rows)).toEqual([]);
+    // **0 件の主張が母数 0 由来でないことを、同じ it で示す。**
+    // 上の等号は rows が空でも通る。読み取りが黙って全滅した日に、
+    // この検査が「違反なし」と報せるのを止めている。
+    expect(rows.length).toBe(15);
   });
 
   it("全 15 出典が freshness_source を持つ（版・更新日の出所が空欄へ戻らない）", () => {
@@ -196,21 +239,8 @@ describe("最新ドキュメント出典の欄が欄名どおりの値を持っ�
    * **食い違いが減っても増えても赤くする**のがこの検査の役目である。
    */
   it("章 md と fetched-references の食い違いは 0 件（主対象だけでなく全 15 行）", () => {
-    const drifted: string[] = [];
-    for (const row of rows) {
-      const ref = refs.get(row.target);
-      if (ref === undefined) {
-        drifted.push(`${row.target}: 章に在るが fetched-references に無い`);
-        continue;
-      }
-      // 章のバージョン欄 1 つに対し、参照側は版と更新日の 2 欄を持つ。
-      // 版を公表する対象は版を、公表しない対象は公式表明の更新日を、章が写すべき値とみなす。
-      const expected = ref.version ?? ref.last_updated;
-      if (row.version !== expected) {
-        drifted.push(`${row.target}: 章=${row.version} / 参照=${expected}`);
-      }
-    }
-    expect(drifted).toEqual([]);
+    expect(driftBetween(rows, refs)).toEqual([]);
+    expect(rows.length).toBe(15); // 母数。突合する相手が消えたら赤くする。
   });
 
   /**
@@ -291,6 +321,72 @@ describe("最新ドキュメント出典の欄が欄名どおりの値を持っ�
 
     it("出典表を持たない名前でも throw せず空を返す（収集時に試験ごと沈黙させない）", () => {
       expect(sourceRows("index")).toEqual([]);
+    });
+
+    /**
+     * ── 壊したら赤くなることを、章を触らずに示す（ah-5nu）──────────
+     *
+     * 上の 3 件は実物に対して「0 件」「実測どおり」と言っている。**言えているのは
+     * 実物がそうだということだけで、違反が起きたときに気づけるかは別の話である。**
+     * それを確かめるには壊した入力が要るが、壊す先は確定章で、
+     * `guard-confirmed-chapter-overwrite` が止める。迂回はしない。
+     *
+     * **判定を引数を取る形にしたので、壊すのは合成した行で足りる。**
+     * ここで通しているのは実物と同じ関数である（別の写しを検査しているのではない）。
+     */
+    const row = (over: Partial<Row> = {}): Row => ({
+      chapter: "c",
+      target: "t",
+      version: "1.0.0",
+      retrievedAt: "2026-08-19T15:30:39Z",
+      confirmedAt: "2026-08-19T15:30:39Z",
+      ...over,
+    });
+
+    it("版が取得日で埋まった行を混ぜると、名指しで挙がる", () => {
+      const dirty = [
+        row({ target: "ok", version: "1.6.29" }),
+        row({ target: "bad", version: "2026-08-19" }),
+      ];
+      expect(retrievalDated(dirty)).toEqual(["bad=2026-08-19"]);
+    });
+
+    it("章と参照の値がずれた行を混ぜると、両方の値つきで挙がる", () => {
+      const refs = new Map<string, Reference>([
+        ["same", { target_id: "same", version: "1.0.0", last_updated: null, freshness_source: "x" }],
+        ["moved", { target_id: "moved", version: "2.0.0", last_updated: null, freshness_source: "x" }],
+      ]);
+      const dirty = [row({ target: "same" }), row({ target: "moved" })];
+      expect(driftBetween(dirty, refs)).toEqual(["moved: 章=1.0.0 / 参照=2.0.0"]);
+    });
+
+    it("参照に居ない対象を章が名乗ると、それも食い違いとして挙がる", () => {
+      // 値が一致しないのではなく**突き合わせる相手が無い**場合。
+      // ここを黙って飛ばすと、参照から消えた対象は永久に一致扱いになる。
+      expect(driftBetween([row({ target: "ghost" })], new Map())).toEqual([
+        "ghost: 章に在るが fetched-references に無い",
+      ]);
+    });
+
+    it("版を公表しない対象は、参照の更新日と突き合わせる", () => {
+      // `version: null` の対象は `last_updated` が写すべき値である。
+      // この分岐が消えると、公表しない 4 件が常に食い違い扱いになる。
+      const refs = new Map<string, Reference>([
+        ["d1", { target_id: "d1", version: null, last_updated: "2026-04-30", freshness_source: "x" }],
+      ]);
+      expect(driftBetween([row({ target: "d1", version: "2026-04-30" })], refs)).toEqual([]);
+      expect(driftBetween([row({ target: "d1", version: "2026-08-19" })], refs)).toEqual([
+        "d1: 章=2026-08-19 / 参照=2026-04-30",
+      ]);
+    });
+
+    it("違反が無い入力では、どちらの判定も空を返す（陰性対照）", () => {
+      // 上の 4 件が「何を渡しても挙がる」ではないことを示す。
+      const refs = new Map<string, Reference>([
+        ["t", { target_id: "t", version: "1.0.0", last_updated: null, freshness_source: "x" }],
+      ]);
+      expect(retrievalDated([row()])).toEqual([]);
+      expect(driftBetween([row()], refs)).toEqual([]);
     });
   });
 });

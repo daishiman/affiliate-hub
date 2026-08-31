@@ -368,6 +368,22 @@ const ACTION_INTENT: Readonly<
     今日外へ出るので、`reschedulePublicationAction` と同じ扱いにしてある。
   */
   updateManagedSiteAction: { intent: "ログイン", what: "ブログの設定を直す", reversible: "つく" },
+  /*
+    どちらも「つく」。見せ方と配色は選び直せば元に戻り、
+    掲載台帳は運営が見る記録で、読者に出ている文を 1 文字も書き換えない。
+    同じ `sites/[site]` の下でも `saveSiteDocumentAction`（法的表示）とは
+    取り返しのつき方が正反対なので、並べて置いて対比が見えるようにする。
+  */
+  manageBlogAppearanceAction: {
+    intent: "ログイン",
+    what: "ブログの見せ方と配色を決める（ページ単位の例外を含む）",
+    reversible: "つく",
+  },
+  manageBlogPlacementAction: {
+    intent: "ログイン",
+    what: "記事のどこに成果リンクを出しているかを台帳へ記録する・外す",
+    reversible: "つく",
+  },
   createContentVariantAction: { intent: "ログイン", what: "記事の枠を作る", reversible: "つく" },
   updateContentVariantAction: {
     intent: "ログイン",
@@ -587,11 +603,6 @@ const ACTION_INTENT: Readonly<
     intent: "ログイン",
     what: "タグを作る・直す・消す（消したタグの説明は残らない）",
     reversible: "つかない",
-  },
-  manageBlogPageAction: {
-    intent: "ログイン",
-    what: "固定ページを作る・直す・論理削除し、削除済み一覧から元の本文と公開状態で復元する",
-    reversible: "つく",
   },
   manageBlogLayoutAction: {
     intent: "ログイン",

@@ -18,6 +18,7 @@ import type {
   WorkspaceId,
 } from "@/domain/shared";
 import type { BrandScopeFilter, PageRequest, Paged, PortResult } from "./common";
+import type { BlogTemplateId, BlogTheme } from "@/domain/authoring/blog-template";
 
 export type ContentPackageRepositoryPort = {
   findById(workspaceId: WorkspaceId, id: ContentPackageId): PortResult<ContentPackage | null>;
@@ -125,7 +126,14 @@ export type SiteDraftRepositoryPort = {
    * 完成した設計図をブログとして登録する。
    * ここを通ったものだけが読者から見える。
    */
-  publishBlueprint(slug: string, blueprint: SiteBlueprint): PortResult<SiteBlueprint>;
+  publishBlueprint(
+    slug: string,
+    blueprint: SiteBlueprint,
+    appearance?: {
+      readonly templateId: BlogTemplateId;
+      readonly theme: BlogTheme;
+    },
+  ): PortResult<SiteBlueprint>;
   /**
    * 登録済みのブログを取り下げる。`publishBlueprint` の対。
    *

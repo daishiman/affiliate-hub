@@ -367,6 +367,15 @@ export type AuditAction =
   | "blog_delivery.changed"
   | "blog_delivery.checked"
   /**
+   * 公開 URL を IndexNow へ知らせた結末（送信・スキップ・失敗）。
+   *
+   * 記事の公開 (`content.published`) とは別の語にする。公開は済んでいても
+   * 通知だけ失敗しうるため、同じ行にすると「公開失敗」と読み違える。
+   * 鍵・送信本文・外部例外の detail は入れず、対象 URL と列挙済み status、
+   * この操作の固定理由だけを残す。
+   */
+  | "indexnow.notification_finished"
+  /**
    * ブログ記事を作った／直した／消した。
    *
    * 生成の流れに乗る記事（`content.*`）とは別の語にしている。あちらは
@@ -379,15 +388,6 @@ export type AuditAction =
   | "blog_article.changed"
   | "blog_article.deleted"
   | "blog_article.restored"
-  /**
-   * 固定ページ（運営者情報・各種方針など 8 種）を保存／論理削除／復元した。
-   *
-   * 削除だけ理由を必須にする。行と本文は残り、`blog_page.restored` の
-   * 明示操作で元の ID・URL・内容へ戻す。通常保存で暗黙に復活させない。
-   */
-  | "blog_page.changed"
-  | "blog_page.deleted"
-  | "blog_page.restored"
   /** ブランドタグを保存した／消した。 */
   | "blog_tag.changed"
   | "blog_tag.deleted"
@@ -512,7 +512,6 @@ const REASON_REQUIRED: ReadonlySet<AuditAction> = new Set<AuditAction>([
   "content.deleted",
   "site_network.deleted",
   "blog_article.deleted",
-  "blog_page.deleted",
   "blog_tag.deleted",
   /*
    * 読者が書いたものを見えなくする／戻す操作。行は消えないので `before`/`after` に

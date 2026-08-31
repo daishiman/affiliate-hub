@@ -4,8 +4,7 @@
  * @types equivalence, decision-table, boundary
  *
  * 版面（`manageBlogLayoutAction`）・配信（`manageBlogDeliveryAction` /
- * `checkBlogDeliveryAction`）・記事（`manageBlogArticleAction`）・
- * 固定ページ（`manageBlogPageAction`）の 5 つの口。
+ * `checkBlogDeliveryAction`）・記事（`manageBlogArticleAction`）の 4 つの口。
  *
  * --- なぜ画面のテストでは足りないのか ---
  *
@@ -14,7 +13,7 @@
  * 間違えても画面は動き、押した人には「保存しました」と出る。
  *
  * 実測（2026-08-27）では `blog-layout-action.ts` の分岐が 26.78%、
- * `blog-article-action.ts` が 20.58%、`blog-page-action.ts` が 44.11%。
+ * `blog-article-action.ts` が 20.58%。
  * **書いた日から一度も振り分けが確かめられていない。**
  *
  * 保存そのものの正しさは `tests/application/blog-ops-usecases.test.ts` が
@@ -27,6 +26,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { type DomainError, type Result, domainError, err, ok } from "@/domain/shared";
 import { SAMPLE_ACTOR } from "@/infrastructure/identity/sample-actor";
+import { expressionBlockOfArticleBody } from "@/application/adapters/expression-article-block";
 
 /** 再描画の指示は、呼ばれた宛先だけを控える。 */
 const revalidated: string[] = [];
@@ -52,11 +52,13 @@ vi.mock("next/navigation", () => ({
 
 /** 届いたリクエストのヘッダ。住所の起点をここから作る。 */
 let requestHost: string | null = "blog.example.test";
+let forwardedHost: string | null = null;
 let forwardedProto: string | null = null;
 vi.mock("next/headers", () => ({
   headers: async () => ({
     get: (name: string) => {
       if (name === "host") return requestHost;
+      if (name === "x-forwarded-host") return forwardedHost;
       if (name === "x-forwarded-proto") return forwardedProto;
       return null;
     },
@@ -96,12 +98,10 @@ vi.mock("@/presentation/composition", async (importOriginal) => {
             saveDeliveryPart: recording("delivery.save"),
             checkDelivery: recording("delivery.check"),
             createArticle: recording("article.create"),
+            getArticle: recording("article.get"),
             updateArticle: recording("article.update"),
             deleteArticle: recording("article.delete"),
             restoreArticle: recording("article.restore"),
-            saveFixedPage: recording("page.save"),
-            deleteFixedPage: recording("page.delete"),
-            restoreFixedPage: recording("page.restore"),
           }
         : { ready: false, reason: "保存先 (D1) が用意されていません。" },
     siteUseCases: async () => ({ getSite: recording("site.get") }),
@@ -112,7 +112,6 @@ const { manageBlogLayoutAction, manageBlogDeliveryAction, checkBlogDeliveryActio
   "@/presentation/admin/blog-layout-action"
 );
 const { manageBlogArticleAction } = await import("@/presentation/admin/blog-article-action");
-const { manageBlogPageAction } = await import("@/presentation/admin/blog-page-action");
 
 const IDLE = { status: "idle", message: "" } as const;
 
@@ -129,6 +128,7 @@ beforeEach(() => {
   loggedIn = true;
   storageReady = true;
   requestHost = "blog.example.test";
+  forwardedHost = null;
   forwardedProto = null;
   revalidated.length = 0;
   redirected.length = 0;
@@ -139,6 +139,12 @@ beforeEach(() => {
   results["delivery.save"] = ok({});
   results["delivery.check"] = ok({ checked: 9, missing: [] });
   results["article.create"] = ok({ requiredBlocks: ["breadcrumb", "article-title"] });
+  results["article.get"] = ok({
+    articleId: "bar_1",
+    siteSlug: "owned-blog",
+    slug: "note",
+    blocks: [],
+  });
   results["article.update"] = ok({ changed: ["題名"], missing: [] });
   results["article.delete"] = ok({ siteSlug: "owned-blog", slug: "note", title: "消した記事" });
   results["article.restore"] = ok({ siteSlug: "owned-blog", slug: "note", title: "戻した記事" });
@@ -397,6 +403,15 @@ describe("配信物の点検", () => {
     expect(seen["delivery.check"]).toMatchObject({ origin: "http://blog.example.test" });
   });
 
+  it("不正なforwarded hostでは配信点検を始めない", async () => {
+    forwardedHost = "blog.example.test, attacker.example";
+    const state = await checkBlogDeliveryAction(IDLE, form(CHECK));
+
+    expect(state.status).toBe("failed");
+    expect(state.message).toContain("住所の起点");
+    expect(seen["delivery.check"]).toBeUndefined();
+  });
+
   it("設計図が読めなければ、点検へ進まない", async () => {
     results["site.get"] = err(domainError("NOT_FOUND", "ブログが見つかりません。"));
     const state = await checkBlogDeliveryAction(IDLE, form(CHECK));
@@ -572,6 +587,33 @@ describe("記事の口", () => {
     });
   });
 
+  it.each([
+    ["answer", "先に答えます。", ""],
+    ["key_points", "速い\n軽い", ""],
+    ["faq", "保証は？ | 1年です。", ""],
+    ["sources", "公式仕様 | 2026-08-31 | https://example.com/spec", ""],
+    ["freshness", "2026-08-31", "確認済み"],
+    ["figure", "内部構造", "製品内部の図"],
+    ["comparison", "用途別に比較", ""],
+    ["cta", "公式サイトを見る", "/go/offer-1"],
+    ["summary", "軽さを優先します", ""],
+    ["spec_table", "重さ: 900g", ""],
+  ] as const)("%s表現を専用append DTOで保存し、フィルタ済みread modelを全置換へ使わない", async (kind, content, detail) => {
+    const state = await manageBlogArticleAction(
+      IDLE,
+      form({ intent: "append_expression", articleId: "bar_1", kind, content, detail }),
+    );
+
+    expect(state.status).toBe("done");
+    const input = seen["article.update"] as {
+      readonly blocks?: readonly unknown[];
+      readonly appendBlocks?: readonly { readonly body: string }[];
+    };
+    expect(input.blocks).toBeUndefined();
+    expect(input.appendBlocks).toHaveLength(1);
+    expect(expressionBlockOfArticleBody(input.appendBlocks?.[0]?.body ?? "")?.kind).toBe(kind);
+  });
+
   it("変わっていなければ、保存したと言わない", async () => {
     results["article.update"] = ok({ changed: [], missing: [] });
     const state = await manageBlogArticleAction(IDLE, form(UPDATE));
@@ -631,142 +673,6 @@ describe("記事の口", () => {
   it("復元を断られたら、失敗として返す", async () => {
     results["article.restore"] = err(domainError("CONFLICT", "すでに戻っています。"));
     const state = await manageBlogArticleAction(IDLE, form({ intent: "restore", articleId: "bar_1" }));
-
-    expect(state.status).toBe("failed");
-  });
-});
-
-describe("固定ページの口", () => {
-  const SAVE = {
-    intent: "save",
-    kind: "profile",
-    siteSlug: "owned-blog",
-    status: "published",
-    title: "運営者情報",
-    body: "だれが運営しているか。",
-  } as const;
-
-  it("ログインしていない人には理由が返る", async () => {
-    loggedIn = false;
-    const state = await manageBlogPageAction(IDLE, form(SAVE));
-
-    expect(state.status).toBe("failed");
-    expect(state.message).toContain("固定ページ");
-  });
-
-  it("保存先が無いとき、見本へ落ちずに断る", async () => {
-    storageReady = false;
-    const state = await manageBlogPageAction(IDLE, form(SAVE));
-
-    expect(state.status).toBe("failed");
-    expect(state.message).toContain("保存先");
-  });
-
-  it("知らない種類の固定ページは作らない", async () => {
-    const state = await manageBlogPageAction(IDLE, form({ ...SAVE, kind: "自己紹介" }));
-
-    expect(state).toMatchObject({ status: "failed", field: "kind" });
-    expect(seen["page.save"]).toBeUndefined();
-  });
-
-  it("知らない操作の指定は、保存にも削除にも寄せない", async () => {
-    const state = await manageBlogPageAction(IDLE, form({ ...SAVE, intent: "publish" }));
-
-    expect(state).toMatchObject({ status: "failed", field: "intent" });
-    expect(seen["page.save"]).toBeUndefined();
-  });
-
-  it("対象のブログが空なら断る", async () => {
-    const state = await manageBlogPageAction(IDLE, form({ ...SAVE, siteSlug: "  " }));
-
-    expect(state.status).toBe("failed");
-    expect(state.message).toContain("対象のブログ");
-    expect(seen["page.save"]).toBeUndefined();
-  });
-
-  it("対象のブログの欄そのものが無ければ断る", async () => {
-    const { siteSlug: _drop, ...withoutSite } = SAVE;
-    const state = await manageBlogPageAction(IDLE, form(withoutSite));
-
-    expect(state.status).toBe("failed");
-    expect(seen["page.save"]).toBeUndefined();
-  });
-
-  it("知らない公開状態は断る", async () => {
-    const state = await manageBlogPageAction(IDLE, form({ ...SAVE, status: "こうかい" }));
-
-    expect(state).toMatchObject({ status: "failed", field: "status" });
-    expect(seen["page.save"]).toBeUndefined();
-  });
-
-  it("保存したら、読者側の枠ごと描き直す", async () => {
-    const state = await manageBlogPageAction(IDLE, form(SAVE));
-
-    expect(seen["page.save"]).toMatchObject({
-      siteSlug: "owned-blog",
-      kind: "profile",
-      title: "運営者情報",
-      status: "published",
-    });
-    expect(revalidated).toContain("/s/owned-blog");
-    expect(state.status).toBe("done");
-  });
-
-  it("保存を断られたら、原因の欄ごと返す", async () => {
-    results["page.save"] = err(domainError("VALIDATION_FAILED", "本文が空です。", { field: "body" }));
-    const state = await manageBlogPageAction(IDLE, form(SAVE));
-
-    expect(state).toMatchObject({ status: "failed", field: "body" });
-  });
-
-  it("消すときは、不足として一覧に戻ることも伝える", async () => {
-    const state = await manageBlogPageAction(
-      IDLE,
-      form({ ...SAVE, intent: "delete", reason: "作り直す" }),
-    );
-
-    expect(seen["page.delete"]).toMatchObject({ kind: "profile", reason: "作り直す" });
-    expect(state.message).toContain("不足として一覧に戻ります");
-  });
-
-  it("削除を断られたら、失敗として返す", async () => {
-    results["page.delete"] = err(domainError("FORBIDDEN", "権限がありません。"));
-    const state = await manageBlogPageAction(IDLE, form({ ...SAVE, intent: "delete" }));
-
-    expect(state.status).toBe("failed");
-  });
-
-  it("復元する行の指定が空なら断る", async () => {
-    const state = await manageBlogPageAction(IDLE, form({ ...SAVE, intent: "restore", pageId: "" }));
-
-    expect(state.status).toBe("failed");
-    expect(state.message).toContain("復元する固定ページ");
-    expect(seen["page.restore"]).toBeUndefined();
-  });
-
-  it("復元する行の欄そのものが無ければ断る", async () => {
-    const state = await manageBlogPageAction(IDLE, form({ ...SAVE, intent: "restore" }));
-
-    expect(state.status).toBe("failed");
-    expect(seen["page.restore"]).toBeUndefined();
-  });
-
-  it("戻したときは、元の内容で戻ったことを伝える", async () => {
-    const state = await manageBlogPageAction(
-      IDLE,
-      form({ ...SAVE, intent: "restore", pageId: "bfp_1" }),
-    );
-
-    expect(seen["page.restore"]).toMatchObject({ siteSlug: "owned-blog", pageId: "bfp_1" });
-    expect(state.message).toContain("元の内容で戻しました");
-  });
-
-  it("復元を断られたら、失敗として返す", async () => {
-    results["page.restore"] = err(domainError("CONFLICT", "すでに戻っています。"));
-    const state = await manageBlogPageAction(
-      IDLE,
-      form({ ...SAVE, intent: "restore", pageId: "bfp_1" }),
-    );
 
     expect(state.status).toBe("failed");
   });

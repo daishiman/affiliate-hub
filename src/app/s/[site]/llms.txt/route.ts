@@ -19,19 +19,19 @@ export async function GET(
   const { site } = await context.params;
   const loaded = await loadSeoSite(request, site, SEO_ARTICLE_POLICY.completeIndex);
   if (!loaded.ok) return loaded.response;
-  const { origin, basePath, blueprint, articles } = loaded.value;
+  const { origin, basePath, blueprint, items } = loaded.value;
   if (!blueprint.emitLlmsTxt) {
     return new Response("このブログは llms.txt を出さない設定です。", {
       status: 404,
       headers: { "cache-control": "no-store", "content-type": "text/plain; charset=utf-8" },
     });
   }
-  const capacityError = completeArticleSetError(articles);
+  const capacityError = completeArticleSetError(items);
   if (capacityError !== null) return capacityError;
   return seoTextResponse(
     buildLlmsTxt(
       { siteName: blueprint.name, purpose: blueprint.purpose, origin, basePath },
-      articles,
+      items,
     ),
     "text/plain; charset=utf-8",
   );

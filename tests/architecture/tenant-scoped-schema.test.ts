@@ -55,12 +55,17 @@ const SCHEMA_FILES = ["src/db/schema.ts", "src/db/auth-schema.ts"];
  * 未配線を根拠にした免除は、列が無い側と索引が無い側の両方に出る。
  * 根拠が 1 つなら置き場所も 1 つにしないと、片側だけ剥がれて穴が残る。
  */
-const UNWIRED: ReadonlySet<string> = new Set([
-  "blog_theme",
-  "page_theme_override",
-  "blog_template",
-  "blog_affiliate_placement",
-]);
+/*
+ * 2026-08-30 現在、この一覧は空である。ブログ用の 4 表
+ * （`blog_theme` / `page_theme_override` / `blog_template` / `blog_affiliate_placement`）は
+ * 最初の口が書かれたので、migration 0040 で `workspace_id` と
+ * 作業場所始まりの索引を足し、免除を返上した。
+ *
+ * **空でも消さない。** 次に「表だけ先に足す」人が現れたとき、
+ * 置き場所がここに在ることと、置いた瞬間に見張りが付くことが、
+ * この空の宣言から読める。
+ */
+const UNWIRED: ReadonlySet<string> = new Set([]);
 
 const TABLE_EXEMPT: Readonly<
   Record<
@@ -116,19 +121,12 @@ const TABLE_EXEMPT: Readonly<
   },
 
   /*
-   * --- まだ配線していない（2026-08-24 実測: src/ のどこからも import されていない） ---
+   * --- まだ配線していない ---
    *
-   * dev が足したブログ用の表。作業場所ではなく `site_slug` を鍵にしている。
-   * `site_blueprints_slug_idx` は slug 単独の一意索引なので、slug は**全作業場所を通して一意**であり、
-   * いまのところ slug が分かれば作業場所も一意に決まる。**だから安全なのではない。**
-   * その一意性は `site_blueprints` の索引 1 本が支えているだけで、
-   * 作業場所ごとに slug を再利用したくなった日（`sites` を作業場所つきにした日）に黙って崩れる。
-   *
-   * それでも今ここで `workspace_id` を足す移行を書かないのは、**読み書きする口がまだ 1 つも無い**からで、
-   * 列の形は最初の口を書く人が決めたほうが正しい。前提は 2 が見張る。
+   * 2026-08-30 現在 0 件。ブログ用の 4 表はここに `unwired` で載っていたが、
+   * 最初の口（`blog-appearance-repository.ts` ほか）を書いたので、
+   * 免除ではなく `workspace_id` 列そのものを足して返上した（migration 0040）。
    */
-  blog_theme: { kind: "unwired", why: "site_slug 鍵。読み書きする口がまだ無い" },
-  page_theme_override: { kind: "unwired", why: "site_slug 鍵。読み書きする口がまだ無い" },
 };
 
 /**
@@ -143,13 +141,7 @@ const INDEX_EXEMPT: Readonly<Record<string, string>> = {
   integration_key_usages:
     "鍵 id で数える。鍵そのものが 1 つの作業場所に属するので、鍵 id が既に作業場所を含んでいる",
 
-  /*
-   * この 2 本は `workspace_id` **列は持っている**が、索引が `site_slug` で始まる。
-   * 上の 2 本と根拠は同じ（未配線）なので `UNWIRED` に載っていることを機械が確かめる。
-   * 最初の口を書く人が、索引を作業場所始まりに直す。
-   */
-  blog_template: "未配線。site_slug 始まりの索引しか無い。最初の口を書くときに直す",
-  blog_affiliate_placement: "未配線。site_slug 始まりの索引しか無い。最初の口を書くときに直す",
+  // 未配線を根拠にした索引の免除は 2026-08-30 現在 0 件（migration 0040 で返上）。
 };
 
 /**
@@ -159,10 +151,6 @@ const INDEX_EXEMPT: Readonly<Record<string, string>> = {
  * 上に 1 行足しただけで免除が外れて赤くなるのを避けるためである。
  */
 const QUERY_EXEMPT: Readonly<Record<string, { readonly count: number; readonly why: string }>> = {
-  "infrastructure/persistence/d1/site-document-repository.ts::legalPages::findSiteDocument": {
-    count: 1,
-    why: "読者向けの 1 枚引き。読者に作業場所は無い（URL 名がそのまま公開の単位）",
-  },
   "infrastructure/persistence/d1/site-document-repository.ts::legalPages::save": {
     count: 1,
     why: "書き換え先の id は直前の作業場所つきの検索で得たもので、主キー 1 件を指す",
@@ -548,8 +536,13 @@ describe("使われていないことを根拠にした免除は、使われて�
   });
 
   it("未配線の一覧は、実在する表だけを指している", () => {
-    // 表を消した／名前を変えたのに一覧が残ると、次に同じ名前の表を足した日に黙って免除される。
-    expect(UNWIRED.size).toBeGreaterThan(3);
+    /*
+     * 表を消した／名前を変えたのに一覧が残ると、次に同じ名前の表を足した日に黙って免除される。
+     *
+     * 一覧が空であること自体は不備ではない（未配線の免除が 1 件も無い状態）。
+     * 空を不備にすると、免除を正しく返上した人が**免除を足し直す**ことになる。
+     * 床は「表を読めているか」だけに置く。
+     */
     expect(TABLES.length).toBeGreaterThan(35);
     const known = new Set(TABLES.map((t) => t.name));
     expect([...UNWIRED].filter((name) => !known.has(name))).toEqual([]);
@@ -561,7 +554,6 @@ describe("使われていないことを根拠にした免除は、使われて�
      * `INDEX_EXEMPT` にだけ足して `UNWIRED` に足し忘れると、
      * その表は**見張りの外**で免除され続ける。
      */
-    expect(UNWIRED.size).toBeGreaterThan(3);
     const claimed = [
       ...Object.entries(TABLE_EXEMPT)
         .filter(([, v]) => v.kind === "unwired")
@@ -570,7 +562,8 @@ describe("使われていないことを根拠にした免除は、使われて�
         .filter(([, why]) => why.startsWith("未配線"))
         .map(([name]) => name),
     ];
-    expect(claimed.length).toBeGreaterThan(3);
+    // 両側とも空でよい。突き合わせは「片側だけに載っている」を見るもので、
+    // 件数そのものを見るものではない。
     expect(
       claimed.filter((name) => !UNWIRED.has(name)),
       "未配線を理由に免除した表が UNWIRED に載っていません。載せないと、使い始めても赤くなりません。",

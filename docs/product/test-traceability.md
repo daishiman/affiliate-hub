@@ -6,8 +6,8 @@
 テスト側の `@req` 印を重ねたもの。
 
 - 最終更新: 2026-08-30
-- テストファイル: 409 件
-- 由来の要件が分かる: 407 件
+- テストファイル: 434 件
+- 由来の要件が分かる: 432 件
 - **由来不明: 2 件**（上限 2 件）
 
 由来不明とは「どの要件のために書いたのか、機械から辿れない」という意味で、
@@ -24,10 +24,16 @@
 | --- | --- | --- |
 | `tests/acceptance/acceptance-criteria.test.ts` | REQ-A01, REQ-A02, REQ-A03, REQ-A04, REQ-A05, REQ-A06, REQ-A07, REQ-A08 | 印 |
 | `tests/acceptance/feat-auth-workspace/access-boundary.test.ts` | REQ-API02, REQ-P01, REQ-R07, REQ-R11, REQ-S10, REQ-SEC01 | 印 |
-| `tests/acceptance/feat-auth-workspace/admin-entry-middleware.test.ts` | REQ-API02, REQ-S10, REQ-SEC01 | 印 |
+| `tests/acceptance/feat-auth-workspace/admin-entry-middleware.test.ts` | REQ-API02, REQ-S10, REQ-SEC01, REQ-SEC11 | 印 |
 | `tests/acceptance/feat-auth-workspace/brand-defaults-wiring.test.ts` | REQ-E04, REQ-G02, REQ-P01 | 印 |
 | `tests/acceptance/feat-auth-workspace/brand-defaults.test.ts` | REQ-E04, REQ-G02, REQ-P01 | 印 |
 | `tests/acceptance/feat-auth-workspace/denial-audit.test.ts` | REQ-P01, REQ-R08, REQ-SEC01, REQ-SEC09 | 印 |
+| `tests/acceptance/feat-blog-ui-builder/article-block-order.test.tsx` | REQ-BLOG01, REQ-BLOG03 | 印 |
+| `tests/acceptance/feat-blog-ui-builder/article-html-contract.test.ts` | REQ-SEO01 | 印 |
+| `tests/acceptance/feat-blog-ui-builder/machine-feeds.test.ts` | REQ-SEO02 | 印 |
+| `tests/acceptance/feat-blog-ui-builder/public-appearance.test.ts` | REQ-BLOG02 | 印 |
+| `tests/acceptance/feat-blog-ui-builder/sticky-layout.test.ts` | REQ-UX08 | 印 |
+| `tests/acceptance/feat-blog-ui-builder/template-and-theme.test.ts` | REQ-BLOG01, REQ-BLOG02 | 印 |
 | `tests/application/access-denial-recording.test.ts` | REQ-SEC01, REQ-SEC09 | 印 |
 | `tests/application/affiliate.test.ts` | REQ-A07, REQ-P09 | 印と表 |
 | `tests/application/ai-usage-report.test.ts` | REQ-TM03 | 印と表 |
@@ -37,6 +43,7 @@
 | `tests/application/blog-delivery-check.test.ts` | REQ-BLOG04, REQ-BOPS08 | 印と表 |
 | `tests/application/blog-ops-storage-failures.test.ts` | REQ-BOPS01, REQ-BOPS02, REQ-BOPS03, REQ-BOPS04, REQ-BOPS06, REQ-BOPS07, REQ-BOPS08, REQ-BOPS09, REQ-BOPS10 | 印 |
 | `tests/application/blog-ops-usecases.test.ts` | REQ-BLOG04, REQ-BOPS01, REQ-BOPS02, REQ-BOPS03, REQ-BOPS04, REQ-BOPS05, REQ-BOPS06, REQ-BOPS07, REQ-BOPS08, REQ-BOPS09, REQ-BOPS10 | 印と表 |
+| `tests/application/blog-placement-journey.test.tsx` | REQ-A07 | 印 |
 | `tests/application/build-site.test.ts` | REQ-A05, REQ-P07, REQ-S06 | 印と表 |
 | `tests/application/capacity.test.ts` | REQ-P01 | 印 |
 | `tests/application/concept-drafts.test.ts` | REQ-UX02 | 印 |
@@ -47,6 +54,7 @@
 | `tests/application/edit-sites.test.ts` | REQ-UX03 | 印 |
 | `tests/application/execute-due-publications.test.ts` | REQ-A06 | 印 |
 | `tests/application/explain-telemetry.test.ts` | REQ-TM10 | 印と表 |
+| `tests/application/expression-article-block.test.ts` | REQ-BLOG01, REQ-BLOG05, REQ-SEO01 | 印 |
 | `tests/application/feedback.test.ts` | REQ-FB07, REQ-FB08, REQ-FB09, REQ-FB12 | 印と表 |
 | `tests/application/filter-metrics.test.ts` | REQ-P10, REQ-S08 | 印と表 |
 | `tests/application/generation-matrix.test.ts` | REQ-A04, REQ-P06, REQ-S05 | 印と表 |
@@ -89,6 +97,7 @@
 | `tests/application/seo/ai-search-audit.test.ts` | REQ-SEO03 | 印と表 |
 | `tests/application/seo/expression-blocks.test.ts` | REQ-SEO03 | 印と表 |
 | `tests/application/seo/feeds.test.ts` | REQ-SEO02 | 印と表 |
+| `tests/application/seo/indexnow-outcome-audit.test.ts` | REQ-SEO04 | 印 |
 | `tests/application/seo/structured-data.test.ts` | REQ-SEO01 | 印と表 |
 | `tests/application/writing-method.test.ts` | REQ-W01, REQ-W02, REQ-W05, REQ-W06, REQ-W07, REQ-W08, REQ-W09 | 印と表 |
 | `tests/architecture/acceptance-reconciliation.test.ts` | REQ-UX01, REQ-UX02, REQ-UX03, REQ-UX04, REQ-UX05, REQ-UX06, REQ-UX07, REQ-UX08, REQ-UX09, REQ-UX10 | 印 |
@@ -102,6 +111,7 @@
 | `tests/architecture/blog-ops-content-separation.test.ts` | REQ-BOPS05, REQ-BOPS14, REQ-FD06 | 印と表 |
 | `tests/architecture/blog-ops-spec-governance.test.ts` | REQ-BOPS13, REQ-BOPS14, REQ-FD06 | 印と表 |
 | `tests/architecture/blog-ui-spec-governance.test.ts` | REQ-SEO01, REQ-SEO02, REQ-SEO03 | 印 |
+| `tests/architecture/chapter-confirmed-cell-transcript.test.ts` | REQ-TS15 | 印 |
 | `tests/architecture/chapter-normative-body-unreproducible.test.ts` | REQ-TS15 | 印 |
 | `tests/architecture/chapter-regeneration-floor.test.ts` | REQ-TS15 | 印と表 |
 | `tests/architecture/ci-budget.test.ts` | REQ-CI12 | 印と表 |
@@ -109,6 +119,7 @@
 | `tests/architecture/commercial-isolation.test.ts` | REQ-FD02 | 印と表 |
 | `tests/architecture/dependency-direction.test.ts` | REQ-FD01, REQ-FD02, REQ-SEC02, REQ-SEC04, REQ-TM12, REQ-TS09 | 印と表 |
 | `tests/architecture/doc-source-version-gap.test.ts` | REQ-TS14 | 印と表 |
+| `tests/architecture/doctrine-anchor-covers-required-info.test.ts` | REQ-TS15 | 印 |
 | `tests/architecture/doctrine-citation-gap.test.ts` | REQ-TS13 | 印と表 |
 | `tests/architecture/doctrine-clause-citation.test.ts` | REQ-TS13 | 印 |
 | `tests/architecture/documentation-links.test.ts` | REQ-TS09 | 印 |
@@ -118,6 +129,7 @@
 | `tests/architecture/generated-doc-freshness.test.ts` | REQ-TS09 | 印 |
 | `tests/architecture/generated-docs.test.ts` | REQ-TS09 | 印 |
 | `tests/architecture/guideline-reevaluation-migration.test.ts` | REQ-SEO05 | 印と表 |
+| `tests/architecture/indexnow-audit-wiring.test.ts` | REQ-SEO04 | 印 |
 | `tests/architecture/llm-credential-leak.test.ts` | REQ-SEC01, REQ-SEC05 | 印 |
 | `tests/architecture/mutation-config-alias.test.ts` | REQ-CI09, REQ-TS09 | 印 |
 | `tests/architecture/native-dependencies.test.ts` | REQ-CI01 | 印 |
@@ -137,6 +149,8 @@
 | `tests/architecture/secrets-not-in-repo.test.ts` | REQ-CI07, REQ-SEC10 | 印と表 |
 | `tests/architecture/seed-and-sample-agree.test.ts` | REQ-FD06 | 印 |
 | `tests/architecture/seed-covers-cases.test.ts` | REQ-FD06 | 印 |
+| `tests/architecture/seed-satisfies-public-entry.test.ts` | REQ-FD06 | 印 |
+| `tests/architecture/seed-writes-workspace-id.test.ts` | REQ-FD06 | 印 |
 | `tests/architecture/server-action-exports.test.ts` | REQ-FD06 | 印と表 |
 | `tests/architecture/single-definition.test.ts` | REQ-FD05, REQ-TS09 | 印と表 |
 | `tests/architecture/spec-chapter-fences.test.ts` | REQ-TS11 | 印と表 |
@@ -187,6 +201,7 @@
 | `tests/domain/membership-write.test.ts` | REQ-P01 | 印 |
 | `tests/domain/metrics-from-telemetry.test.ts` | REQ-P10, REQ-TM01, REQ-TM04 | 印 |
 | `tests/domain/non-empty-paragraphs.test.ts` | REQ-TS12 | 印 |
+| `tests/domain/page-path.test.ts` | REQ-BLOG02 | 印 |
 | `tests/domain/permissions.test.ts` | REQ-API02, REQ-R01, REQ-R02, REQ-R03, REQ-R04, REQ-R05, REQ-R06, REQ-R07, REQ-R08, REQ-R09, REQ-R10, REQ-R11, REQ-R12 | 印と表 |
 | `tests/domain/planning.test.ts` | REQ-E23, REQ-P06, REQ-SEC07 | 印と表 |
 | `tests/domain/policy-channel-scope.test.ts` | REQ-SEC07 | 印と表 |
@@ -241,6 +256,7 @@
 | `tests/infrastructure/page-by-id.test.ts` | REQ-P01 | 印 |
 | `tests/infrastructure/product-sample-repository.test.ts` | REQ-B01 | 印 |
 | `tests/infrastructure/prompt-assembly.test.ts` | REQ-P06 | 表 |
+| `tests/infrastructure/request-origin.test.ts` | REQ-SEO01, REQ-SEO02, REQ-SEO04 | 印 |
 | `tests/infrastructure/sample-blog-ops-repository.test.ts` | REQ-BOPS01, REQ-BOPS02, REQ-BOPS03, REQ-BOPS06, REQ-BOPS07, REQ-BOPS08, REQ-BOPS09 | 印 |
 | `tests/infrastructure/sample-blog-ops-tenancy.test.ts` | REQ-BOPS01, REQ-BOPS04, REQ-BOPS05, REQ-BOPS06, REQ-BOPS08, REQ-BOPS09, REQ-BOPS12, REQ-BOPS14 | 印と表 |
 | `tests/infrastructure/sample-catalog-consistency.test.ts` | REQ-B07, REQ-P03, REQ-P07 | 印 |
@@ -249,6 +265,7 @@
 | `tests/infrastructure/sample-integration-keys.test.ts` | REQ-FB07, REQ-FB08 | 印 |
 | `tests/infrastructure/sample-site-document-repository.test.ts` | REQ-P07 | 印 |
 | `tests/infrastructure/secret-minter.test.ts` | REQ-FB12 | 印と表 |
+| `tests/infrastructure/security-headers.test.ts` | REQ-SEC11 | 印と表 |
 | `tests/infrastructure/session-actor.test.ts` | REQ-S10 | 印 |
 | `tests/infrastructure/session-issuer.test.ts` | REQ-S10 | 印 |
 | `tests/infrastructure/settings-sample-repository.test.ts` | REQ-P01 | 印 |
@@ -257,6 +274,8 @@
 | `tests/infrastructure/turnstile.test.ts` | REQ-B18 | 印 |
 | `tests/integration/d1-affiliate-link.test.ts` | REQ-E13, REQ-TS07 | 印 |
 | `tests/integration/d1-audit-log.test.ts` | REQ-SEC09 | 印と表 |
+| `tests/integration/d1-blog-affiliate-placement.test.ts` | REQ-A07 | 印 |
+| `tests/integration/d1-blog-appearance.test.ts` | REQ-BLOG01, REQ-BLOG02 | 印 |
 | `tests/integration/d1-blog-ops-tenancy.test.ts` | REQ-BOPS01, REQ-BOPS02, REQ-BOPS03, REQ-BOPS04, REQ-BOPS05, REQ-BOPS06, REQ-BOPS07, REQ-BOPS08, REQ-BOPS09, REQ-BOPS11, REQ-BOPS14 | 印と表 |
 | `tests/integration/d1-capacity-atomicity.test.ts` | REQ-P01 | 印 |
 | `tests/integration/d1-compliance.test.ts` | REQ-QC09, REQ-QC11, REQ-SEC06, REQ-SEC07 | 印と表 |
@@ -266,9 +285,11 @@
 | `tests/integration/d1-distribution.test.ts` | REQ-P08 | 印と表 |
 | `tests/integration/d1-feedback.test.ts` | REQ-FB07, REQ-FB08, REQ-FB09, REQ-FB10, REQ-FB12, REQ-TM09, REQ-TS07 | 印と表 |
 | `tests/integration/d1-improvement.test.ts` | REQ-E14, REQ-IM05, REQ-IM13 | 印と表 |
+| `tests/integration/d1-indexnow-outcome-audit.test.ts` | REQ-SEO04 | 印 |
 | `tests/integration/d1-link-inbox.test.ts` | REQ-S02, REQ-TS07 | 印と表 |
 | `tests/integration/d1-membership.test.ts` | REQ-P01 | 印 |
 | `tests/integration/d1-migration-0035.test.ts` | REQ-P08, REQ-TS07 | 印 |
+| `tests/integration/d1-migration-0040.test.ts` | REQ-A01, REQ-A04, REQ-A07 | 印 |
 | `tests/integration/d1-provider-delivery-boundary.test.ts` | REQ-A06 | 印 |
 | `tests/integration/d1-published-article.test.ts` | REQ-P08 | 表 |
 | `tests/integration/d1-site-draft.test.ts` | REQ-P07, REQ-S06, REQ-TS07, REQ-W10 | 印 |
@@ -299,6 +320,7 @@
 | `tests/presentation/entry-points.test.ts` | REQ-API01, REQ-M03, REQ-TS04, REQ-WB02, REQ-WC08 | 印と表 |
 | `tests/presentation/error-format.test.ts` | REQ-WC07 | 印と表 |
 | `tests/presentation/evidence-form-action.test.ts` | REQ-E19, REQ-E21 | 印 |
+| `tests/presentation/expression-block-input.test.ts` | REQ-BLOG05 | 印 |
 | `tests/presentation/feedback-actions.test.ts` | REQ-FB08, REQ-FB12 | 表 |
 | `tests/presentation/feedback-capture-route.test.ts` | REQ-FB13 | 印と表 |
 | `tests/presentation/feedback-pending-route.test.ts` | REQ-FB09 | 表 |
@@ -308,6 +330,7 @@
 | `tests/presentation/guideline-reference-actions.test.ts` | REQ-SEO05 | 印と表 |
 | `tests/presentation/improvement-action.test.ts` | REQ-IM06, REQ-IM09 | 印 |
 | `tests/presentation/improvement-actions.test.ts` | REQ-IM06, REQ-IM09 | 印と表 |
+| `tests/presentation/json-ld-script.test.tsx` | REQ-SEO01 | 印 |
 | `tests/presentation/llm-credential-actions.test.ts` | REQ-SEC01 | 印 |
 | `tests/presentation/llm-credential-entry.test.ts` | REQ-SEC01 | 印 |
 | `tests/presentation/member-action.test.ts` | REQ-P01, REQ-R01 | 印 |
@@ -352,6 +375,7 @@
 | `tests/ui/audit-log-notice.test.tsx` | REQ-SEC09 | 印 |
 | `tests/ui/axe-blind-spots.test.ts` | REQ-TS06 | 印と表 |
 | `tests/ui/axe-rule-coverage.test.ts` | REQ-SEC08, REQ-TS06 | 印と表 |
+| `tests/ui/blog-appearance-form.test.tsx` | REQ-BOPS07, REQ-UX02 | 印 |
 | `tests/ui/blog-article-view.test.tsx` | REQ-BLOG03 | 印 |
 | `tests/ui/blog-enabled-marker.test.tsx` | REQ-BOPS02, REQ-BOPS03, REQ-BOPS08 | 印 |
 | `tests/ui/blog-ops-a11y-floor.test.tsx` | REQ-BLOG04, REQ-BOPS03, REQ-BOPS04, REQ-BOPS05, REQ-BOPS06, REQ-BOPS07, REQ-BOPS08, REQ-BOPS09, REQ-BOPS10, REQ-BOPS11, REQ-BOPS14 | 印と表 |
@@ -409,6 +433,7 @@
 | `tests/ui/site-aside.test.tsx` | REQ-TM06 | 印 |
 | `tests/ui/site-not-found.test.tsx` | REQ-B01 | 表 |
 | `tests/ui/site-wizard-form.test.tsx` | REQ-P07, REQ-S06 | 印 |
+| `tests/ui/site-wizard-template.test.tsx` | REQ-A01 | 印 |
 | `tests/ui/surface-outline-count.test.ts` | REQ-S09 | 印 |
 | `tests/ui/table-through-component.test.ts` | REQ-S09, REQ-TS06 | 印 |
 | `tests/ui/tap-target-floor.test.ts` | REQ-P01 | 印 |
@@ -429,4 +454,4 @@
 | `tests/ui/uiux-spacing-and-copy.test.ts` | REQ-UX08, REQ-UX10 | 印と表 |
 | `tests/ui/zz-probe-tone.test.tsx` | REQ-TM07 | 表 |
 | `tests/visual/visual-regression.test.ts` | REQ-S09, REQ-TS12, REQ-UX08 | 印 |
-<!-- 生成物の指紋 sha256:a816bbfdc941b5355db547b5658dcca8f5f9f708964ae25280bf2ed3872290ce -->
+<!-- 生成物の指紋 sha256:572936b42c7fa21b6254a6088fea7a744586c13241c5365b73963890f1b25e38 -->

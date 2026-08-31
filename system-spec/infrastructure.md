@@ -396,8 +396,8 @@ serves_goals: [G1, G2]
 |---|---|
 | セル | infrastructure × web |
 | 状態 | 確定 |
-| 確定質疑 (qa_ref) | `qa-infra-web-spec-intake` |
-| 資するゴール (serves_goals) | G2, G1 |
+| 確定質疑 (qa_ref) | `qa-infra-web-post-deploy-smoke` |
+| 資するゴール (serves_goals) | G1, G2 |
 | required-info | なし (この確定に block 指定の必須情報は登録されていない) |
 | 出典 kind | written-requirements |
 | 出典 path | `docs/spec/11-CI-CD・品質ゲート仕様.md` |

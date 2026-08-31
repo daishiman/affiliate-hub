@@ -1,5 +1,5 @@
-import { readFileSync } from "node:fs";
-import { join } from "node:path";
+import { existsSync, readFileSync } from "node:fs";
+import { dirname, join } from "node:path";
 import * as ts from "typescript";
 import { ROUTE_CASES } from "../ui/route-cases";
 
@@ -33,6 +33,13 @@ function sourceFile(path: string): ts.SourceFile {
 }
 
 function variableInitializer(file: ts.SourceFile, name: string): ts.Expression {
+  const found = declaredInitializer(file, name);
+  if (found === undefined) throw new Error(`${file.fileName} に ${name} の定義がありません。`);
+  return found;
+}
+
+/** そのファイル自身が `const name = ...` を持っているか。 */
+function declaredInitializer(file: ts.SourceFile, name: string): ts.Expression | undefined {
   let found: ts.Expression | undefined;
   file.forEachChild((node) => {
     if (!ts.isVariableStatement(node)) return;
@@ -46,8 +53,84 @@ function variableInitializer(file: ts.SourceFile, name: string): ts.Expression {
       }
     }
   });
-  if (found === undefined) throw new Error(`${file.fileName} に ${name} の定義がありません。`);
   return found;
+}
+
+/**
+ * `export { name } from "./x"` の行き先。無ければ `undefined`。
+ *
+ * 元の名前で書き出しているとき (`export { A as B }`) は `A` を返す。
+ * 追う先で探すべき名前が変わるので、名前も一緒に返す。
+ */
+function reexportSource(
+  file: ts.SourceFile,
+  name: string,
+): { readonly path: string; readonly name: string } | undefined {
+  let hit: { path: string; name: string } | undefined;
+  file.forEachChild((node) => {
+    if (!ts.isExportDeclaration(node)) return;
+    const from = node.moduleSpecifier;
+    if (from === undefined || !ts.isStringLiteral(from)) return;
+    const clause = node.exportClause;
+    if (clause === undefined || !ts.isNamedExports(clause)) return;
+    for (const element of clause.elements) {
+      if (element.name.text !== name) continue;
+      hit = {
+        path: resolveModule(file.fileName, from.text),
+        name: (element.propertyName ?? element.name).text,
+      };
+    }
+  });
+  return hit;
+}
+
+/** 相対指定を実ファイルへ。この器が読むのは repo 内の相対 import だけである。 */
+function resolveModule(fromFile: string, specifier: string): string {
+  if (!specifier.startsWith(".")) {
+    throw new Error(`${fromFile} の ${specifier} は相対指定ではないので辿れません。`);
+  }
+  const base = join(dirname(fromFile), specifier);
+  for (const candidate of [`${base}.ts`, `${base}.tsx`, join(base, "index.ts")]) {
+    if (existsSync(candidate)) return candidate;
+  }
+  throw new Error(`${fromFile} の ${specifier} に対応するファイルが見つかりません。`);
+}
+
+/**
+ * 名前の**定義**まで辿って初期化子を返す。再エクスポートを 1 段ずつ追う。
+ *
+ * ## なぜ「そのファイルの const だけ」では駄目なのか
+ *
+ * この器は 2026-08-30 に 3 度目の同型事故を起こした。値の正本が
+ * `sample-identity.ts` へ移り、`ranking-sample-repository.ts` は
+ * `export { SAMPLE_WORKSPACE_ID } from "./sample-identity"` の
+ * 素通しだけになった。**実行時の意味は 1 文字も変わっていない**——
+ * import 側から見れば同じ値が同じ名前で取れる。壊れたのは
+ * 「`const` の形でそこに書いてある」ことに寄りかかったこの器だけである。
+ *
+ * 落ち方が悪い。投げるのは spec ファイルのトップレベルなので、
+ * **E2E は 1 件も走らないまま「サーバーが起動できない」だけを言う。**
+ * 0 件実行を失敗と区別しない運用なら、これは緑に見える。
+ *
+ * だから移動に追随させる。**パスを新しい正本へ書き換えるだけにしない。**
+ * それは 4 度目を待つのと同じである。
+ */
+function resolveInitializer(path: string, name: string): ts.Expression {
+  const seen = new Set<string>();
+  let current = { path, name };
+  for (;;) {
+    const key = `${current.path}#${current.name}`;
+    if (seen.has(key)) throw new Error(`${name} の再エクスポートが輪になっています。`);
+    seen.add(key);
+    const file = sourceFile(current.path);
+    const declared = declaredInitializer(file, current.name);
+    if (declared !== undefined) return declared;
+    const next = reexportSource(file, current.name);
+    if (next === undefined) {
+      throw new Error(`${current.path} に ${current.name} の定義がありません。`);
+    }
+    current = next;
+  }
 }
 
 function propertyName(name: ts.PropertyName): string {
@@ -63,6 +146,20 @@ function readValue(
 ): SourceValue {
   if (ts.isStringLiteral(expression) || ts.isNoSubstitutionTemplateLiteral(expression)) {
     return expression.text;
+  }
+  /*
+    型だけの覆いは実行時の値を変えないので剥がす
+    (`x as T` / `x satisfies T` / `(x)`)。
+    剥がさないと、`SAMPLE_WORKSPACE_ID` のように
+    「値は文字列のまま、型だけ厳しくした」日にこの器が読めなくなる。
+  */
+  if (
+    ts.isAsExpression(expression) ||
+    ts.isSatisfiesExpression(expression) ||
+    ts.isParenthesizedExpression(expression) ||
+    ts.isTypeAssertionExpression(expression)
+  ) {
+    return readValue(expression.expression, bindings);
   }
   if (ts.isIdentifier(expression)) {
     const bound = bindings[expression.text];
@@ -96,7 +193,7 @@ function readValue(
 }
 
 function readExportedString(path: string, name: string): string {
-  const value = readValue(variableInitializer(sourceFile(path), name), {});
+  const value = readValue(resolveInitializer(path, name), {});
   if (typeof value !== "string") throw new Error(`${name} が文字列ではありません。`);
   return value;
 }

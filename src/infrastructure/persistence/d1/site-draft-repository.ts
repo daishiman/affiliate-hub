@@ -13,6 +13,8 @@ import {
 import {
   type SiteBlueprintRow,
   type SiteDraftRow,
+  blogTemplateSelections,
+  blogThemes,
   siteBlueprints,
   siteRetirements,
   siteDrafts,
@@ -149,9 +151,9 @@ export function createD1SiteDraftRepository(db: DrizzleD1): EditorialSiteDraftRe
       }
     },
 
-    async publishBlueprint(slug: string, blueprint: SiteBlueprint) {
+    async publishBlueprint(slug: string, blueprint: SiteBlueprint, appearance) {
       try {
-        const saved = await db
+        const blueprintMutation = db
           .insert(siteBlueprints)
           .values({
             id: String(blueprint.id),
@@ -177,6 +179,59 @@ export function createD1SiteDraftRepository(db: DrizzleD1): EditorialSiteDraftRe
             setWhere: eq(siteBlueprints.workspaceId, String(blueprint.workspaceId)),
           })
           .returning({ workspaceId: siteBlueprints.workspaceId });
+        const saved =
+          appearance === undefined
+            ? await blueprintMutation
+            : (
+                await db.batch([
+                  blueprintMutation,
+                  db
+                    .insert(blogTemplateSelections)
+                    // appearanceは「同じworkspaceの設計図が保存できた」場合だけ作る。
+                    // values()で無条件に入れると、slug競合でblueprintが0行でも
+                    // batchの後続だけが残り、正規ownerの保存を妨害できてしまう。
+                    .select(sql`
+                      SELECT
+                        ${`bt_${String(blueprint.id)}`},
+                        ${String(blueprint.workspaceId)},
+                        ${slug},
+                        ${appearance.templateId},
+                        unixepoch()
+                      FROM ${siteBlueprints}
+                      WHERE ${siteBlueprints.slug} = ${slug}
+                        AND ${siteBlueprints.workspaceId} = ${String(blueprint.workspaceId)}
+                    `)
+                    .onConflictDoUpdate({
+                      target: blogTemplateSelections.siteSlug,
+                      set: { templateId: appearance.templateId, updatedAt: new Date() },
+                      setWhere: eq(
+                        blogTemplateSelections.workspaceId,
+                        String(blueprint.workspaceId),
+                      ),
+                    }),
+                  db
+                    .insert(blogThemes)
+                    .select(sql`
+                      SELECT
+                        ${`bth_${String(blueprint.id)}`},
+                        ${String(blueprint.workspaceId)},
+                        ${slug},
+                        ${appearance.theme.brandTheme},
+                        ${appearance.theme.colorMode}
+                      FROM ${siteBlueprints}
+                      WHERE ${siteBlueprints.slug} = ${slug}
+                        AND ${siteBlueprints.workspaceId} = ${String(blueprint.workspaceId)}
+                    `)
+                    .onConflictDoUpdate({
+                      target: blogThemes.siteSlug,
+                      set: {
+                        brandTheme: appearance.theme.brandTheme,
+                        colorMode: appearance.theme.colorMode,
+                      },
+                      setWhere: eq(blogThemes.workspaceId, String(blueprint.workspaceId)),
+                    }),
+                ] as const)
+              )[0];
         if (saved.length === 0) {
           return err(
             domainError("CONFLICT", "この URL の名前は使えません。", {

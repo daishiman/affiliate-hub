@@ -15,7 +15,7 @@
  * 減ったのは**主張のほう**である。
  */
 import { describe, expect, it, vi } from "vitest";
-import { ADMIN_ROUTE_CASES, importPathOf, propsOf } from "./route-table";
+import { RENDERABLE_ADMIN_ROUTE_CASES, importPathOf, propsOf } from "./route-table";
 import { renderRoute, textOf } from "../support/render";
 
 /**
@@ -48,10 +48,10 @@ vi.mock("@/infrastructure/identity/sample-actor", async (importOriginal) => {
 
 describe("権限を持った身元での描画", () => {
   it("運営側の画面が 1 枚以上ある（表が空になっていない）", () => {
-    expect(ADMIN_ROUTE_CASES.length).toBeGreaterThan(20);
+    expect(RENDERABLE_ADMIN_ROUTE_CASES.length).toBeGreaterThan(20);
   });
 
-  for (const route of ADMIN_ROUTE_CASES) {
+  for (const route of RENDERABLE_ADMIN_ROUTE_CASES) {
     it(`${route.file} が権限のある人の側で描ける`, async () => {
       const html = await renderRoute(importPathOf(route.file), propsOf(route));
       const text = textOf(html);

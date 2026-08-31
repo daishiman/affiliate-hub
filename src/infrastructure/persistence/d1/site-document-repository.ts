@@ -1,12 +1,12 @@
-import { and, eq } from "drizzle-orm";
+import { and, eq, isNull } from "drizzle-orm";
 import type {
   EditorialSiteDocumentRepositoryPort,
+  EditorialSiteRepositoryPort,
   SiteDocument,
 } from "@/application/ports/site";
 import { type LegalPageRow, legalPages } from "@/db/schema";
-import { type SiteDocumentKey } from "@/domain/authoring";
-import type { FixedPageKind } from "@/domain/blogops/fixed-page";
-import { domainError, err, markEditorial, ok } from "@/domain/shared";
+import { SITE_DOCUMENT_KEYS, type SiteDocumentKey } from "@/domain/authoring";
+import { err, markEditorial, ok } from "@/domain/shared";
 import type { DrizzleD1 } from "./link-inbox-repository";
 import { storageFailure } from "./storage-failure";
 
@@ -25,54 +25,10 @@ import { storageFailure } from "./storage-failure";
 /** 段落の区切り。空行 1 つ。書く人の打ち方（改行 1 つ）と同じにしない。 */
 const PARAGRAPH_SEPARATOR = "\n\n";
 
-/**
- * 編集画面のルート鍵 → 表の名札。
- *
- * **この 2 つは別物である。** ルート鍵は URL のための名前で、表の名札
- * （`FIXED_PAGE_KINDS`）は公開ページの語彙。同じ 1 枚を指すのに綴りが違う。
- * 写さずに書くと、`/blog/pages` から作った「運営者プロフィール」と
- * `/admin/sites/[site]/documents` から作った「運営者情報」が**別の行**になり、
- * 読者にはどちらか片方しか出ない（しかも、どちらが出るかは URL しだい）。
- *
- * 表に無いものは写さない。`methodology` などは公開ページの語彙に相手が居らず、
- * 無理に近い名札へ寄せると 1 ブログ 1 種 1 枚の約束が壊れる（2 つの鍵が
- * 同じ名札に落ちて、後から書いたほうが前を消す）。
- */
-const KEY_TO_KIND = {
-  operator: "profile",
-  privacy: "privacy_policy",
-  terms: "site_policy",
-  tokushoho: "commercial_transaction",
-} as const satisfies Partial<Record<SiteDocumentKey, FixedPageKind>>;
-
-type MappedKey = keyof typeof KEY_TO_KIND;
-
-const KIND_TO_KEY = Object.fromEntries(
-  Object.entries(KEY_TO_KIND).map(([key, kind]) => [kind, key]),
-) as Readonly<Record<string, MappedKey | undefined>>;
-
-/** 写せない鍵は、黙って別名で保存せずに断る。 */
-function unmappedKey(key: string) {
-  return err(
-    domainError(
-      "NOT_IMPLEMENTED",
-      `「${key}」は、まだ公開ページの置き場がありません。`,
-      {
-        suggestedAction:
-          "公開ページの語彙（src/domain/blogops/fixed-page.ts）に相手を足してから保存してください。",
-        field: "key",
-      },
-    ),
-  );
-}
-
 function toDocument(row: LegalPageRow): SiteDocument | null {
-  const key = KIND_TO_KEY[row.kind];
-  // 公開ページにしか居ない名札（`sitemap` など）は、この画面の担当ではない。
-  // 例外で止めると、1 枚のせいで一覧が丸ごと開かなくなる。
-  if (key === undefined) return null;
+  if (!(SITE_DOCUMENT_KEYS as readonly string[]).includes(row.kind)) return null;
   return {
-    key,
+    key: row.kind as SiteDocumentKey,
     title: row.title,
     body: row.body.split(PARAGRAPH_SEPARATOR).filter((p) => p.trim() !== ""),
     updatedAt: row.updatedAt,
@@ -108,8 +64,7 @@ export function createD1SiteDocumentRepository(
     },
 
     async save(workspaceId, siteSlug, document) {
-      const kind = KEY_TO_KIND[document.key as MappedKey] as FixedPageKind | undefined;
-      if (kind === undefined) return unmappedKey(document.key);
+      const kind = document.key;
       try {
         // 1 ブログ 1 種 1 枚。すでに在れば書き換える。
         // 追記にすると、読者にどれが出るかが行の並び順しだいになる。
@@ -131,6 +86,12 @@ export function createD1SiteDocumentRepository(
           kind,
           title: document.title,
           body: document.body.join(PARAGRAPH_SEPARATOR),
+          // この編集口の既存契約は「保存後に読者面へ反映」。
+          // 読み取り側で draft を閉じても操作を行き止まりにしない。
+          status: "published" as const,
+          // 同じ文書を保存し直す操作は、削除済み行も公開状態へ戻す。
+          // status だけ戻すと deleted_at が残り、保存成功なのに 404 のままになる。
+          deletedAt: null,
           updatedAt: now(),
         };
 
@@ -154,24 +115,45 @@ export function createD1SiteDocumentRepository(
  * 管理画面と**同じ表**を読む。読者向けだけ別の場所から読むと、
  * 直したのに読者に出ない（あるいはその逆）が起きる。
  */
-export function findSiteDocument(deps: { readonly db: DrizzleD1 }) {
+export function findSiteDocument(deps: {
+  readonly db: DrizzleD1;
+  readonly sites: EditorialSiteRepositoryPort;
+}) {
   return async (siteSlug: string, key: string) => {
-    const kind = KEY_TO_KIND[key as MappedKey] as FixedPageKind | undefined;
-    // 知らない鍵で 1 枚も無いのは正しい状態。断りにすると読者面が 500 になる。
-    if (kind === undefined) return ok(null);
+    if (!(SITE_DOCUMENT_KEYS as readonly string[]).includes(key)) return ok(null);
+    const site = await deps.sites.findBySlug(siteSlug);
+    if (!site.ok) return err(site.error);
+    if (site.value === null) return ok(null);
+
     try {
+      /*
+       * 固定文書の公開資格は、通常の create-site が作る公開済み設計図で決まる。
+       * site network はサイト同士の構造であり、単独サイトの公開条件にはしない。
+       * workspace は設計図から解決し、行側でも同じ値を必須にする。
+       */
       const rows = await deps.db
-        .select()
+        .select({ title: legalPages.title, body: legalPages.body })
         .from(legalPages)
-        .where(and(eq(legalPages.siteSlug, siteSlug), eq(legalPages.kind, kind)))
+        .where(
+          and(
+            eq(legalPages.workspaceId, site.value.workspaceId),
+            eq(legalPages.siteSlug, siteSlug),
+            eq(legalPages.kind, key as SiteDocumentKey),
+            eq(legalPages.status, "published"),
+            isNull(legalPages.deletedAt),
+          ),
+        )
         .limit(1);
-      const row = rows[0];
-      if (row === undefined) return ok(null);
-      const doc = toDocument(row);
-      if (doc === null) return ok(null);
-      return ok({ title: doc.title, body: doc.body });
+      const page = rows[0];
+      if (page === undefined) return ok(null);
+      return ok({
+        title: page.title,
+        body: page.body
+          .split(PARAGRAPH_SEPARATOR)
+          .filter((paragraph) => paragraph.trim() !== ""),
+      });
     } catch (cause) {
-      return storageFailure("固定ページの取得", cause);
+      return storageFailure("固定ページの公開読み取り", cause);
     }
   };
 }

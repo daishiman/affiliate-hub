@@ -1,6 +1,6 @@
 {
   "schema_version": "1.0",
-  "description": "ドメインごと (UI-UX/フロントエンド/バックエンド/API/DB/認証/セキュリティ/インフラ/保守運用) にシステム構築へ不可欠な必須情報の item カタログ (goal-spec C16)。C01 (run-system-spec-elicit) が所有し、R2/R3 の質問順と R5-decision-guide の収集完了判定 (coverage_certificate) へ供給する。形状・domain 被覆・収集順序・coverage certificate は validate-knowledge-graph.py --profile required-info が検証する。missing_effect=block の item が未回答なら confirmed を禁止する。item別回答の決定論的な writer 接地検査は future gate として別管理する。",
+  "description": "ドメインごと (UI-UX/フロントエンド/バックエンド/API/DB/認証/セキュリティ/インフラ/保守運用) にシステム構築へ不可欠な必須情報の item カタログ (goal-spec C16)。C01 (run-system-spec-elicit) が所有し、R2/R3 の質問順と R5-decision-guide の収集完了判定 (coverage_certificate) へ供給する。形状・domain 被覆・収集順序・coverage certificate は validate-knowledge-graph.py --profile required-info が検証する。missing_effect=block の item が未回答なら confirmed を禁止する。item別回答の決定論的な writer 接地検査は稼働中である (2026-08-30 実測): apply-spec-transition の confirm op が normalize_required_info(allow_ungrounded=False) を通し、block item の status=ungrounded では確定を拒み、status=grounded の grounded_by は qa_log に実在する id でなければ拒む。missing_effect は呼び出し側から受け取らず本カタログの値を書き込むので、呼び出し側が block を warn と名乗ってゲートを外すことはできない。coverage_certificate.blocking_items は『未解決の一覧』ではなく『missing_effect=block の item ID 一覧』であり (本 validator は spec-state.json を参照しない)、空にはならない。確定セル側との突合は validate-coverage-matrix.py --require-counted-required-info が担う。",
   "validated_by": "validate-knowledge-graph.py --profile required-info",
   "in_scope_domains": ["ui-ux", "frontend", "backend", "api", "database", "auth", "security", "infrastructure", "maintenance-ops"],
   "na_domains": [],

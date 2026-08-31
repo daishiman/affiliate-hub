@@ -1,7 +1,6 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { headers } from "next/headers";
 import {
   DELIVERY_PARTS,
   LAYOUT_REGIONS,
@@ -9,6 +8,7 @@ import {
 } from "@/domain/blogops";
 import { siteBasePathBySlug } from "@/domain/authoring";
 import { blogOpsEntry, siteUseCases, signedInActor } from "@/presentation/composition";
+import { requestOriginFromNextHeaders } from "@/presentation/http/request-origin";
 import {
   parseCheckboxWithMarkerOrFailure,
   parseEnumOrFailure,
@@ -178,16 +178,13 @@ export async function checkBlogDeliveryAction(
   if (!entry.ready) return { status: "failed", message: entry.reason };
 
   const siteSlug = String(formData.get("siteSlug") ?? "").trim();
-  const requestHeaders = await headers();
-  const host = requestHeaders.get("host");
-  if (host === null) {
+  const origin = await requestOriginFromNextHeaders();
+  if (origin === null) {
     return {
       status: "failed",
       message: "住所の起点が分からないため点検できません。ブラウザから開き直してください。",
     };
   }
-  const origin = `${requestHeaders.get("x-forwarded-proto") ?? "https"}://${host}`;
-
   // 設計図（名前・目的・案内文を出すか）は読者側と同じ口から引く。
   // ここで別に持つと、点検した設計図と実際に配る設計図がずれる。
   const site = await (await siteUseCases()).getSite.execute(actor, { siteSlug });

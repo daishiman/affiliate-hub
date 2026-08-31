@@ -5,8 +5,8 @@
 宣言は `docs/product/required-test-types.md`、語彙と上限は `quality-gates.config.mjs` が正本。
 
 - 最終更新: 2026-08-30
-- 要件表の要件: 289 件
-- 性質を宣言済: 284 件
+- 要件表の要件: 290 件
+- 性質を宣言済: 285 件
 - **未宣言: 5 件**（上限 5 件）
 - 理由つきの除外: 6 件（上限 7 件）
 
@@ -173,6 +173,7 @@
 | REQ-SEC08 | has-screen | `a11y` `keyboard` `screen-states` | `a11y` `keyboard` `screen-states` | — |
 | REQ-SEC09 | has-input, has-secret, has-db-table, has-recorded-operation | `audit-log` `boundary` `db-migration` `equivalence` `secrets` | `audit-log` `boundary` `db-migration` `equivalence` `secrets` | — |
 | REQ-SEC10 | has-secret, has-runtime-config | `infra-config` `secrets` | `infra-config` `secrets` | — |
+| REQ-SEC11 | has-runtime-config | `infra-config` | `infra-config` | — |
 | REQ-A01 | has-input, has-state, has-user-supplied-url | `boundary` `equivalence` `ssrf` `state-transition` | `boundary` `equivalence` `ssrf` `state-transition` | — |
 | REQ-A02 | has-input | `boundary` `equivalence` | `boundary` `equivalence` | — |
 | REQ-A03 | has-input | `boundary` `equivalence` | `boundary` `equivalence` | — |
@@ -320,4 +321,4 @@
 ## 未宣言の要件
 
 `REQ-TH04` `REQ-TH05` `REQ-TS02` `REQ-TS03` `REQ-TS10`
-<!-- 生成物の指紋 sha256:3831748caad9c1a5e4ee869be345e30e33ea09dd766e2a2ee8422eb46cdb7483 -->
+<!-- 生成物の指紋 sha256:c7d68c60bd6868b3fdda0d36f27465974e60895c602c7a536e490191112ec294 -->
