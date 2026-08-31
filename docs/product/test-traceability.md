@@ -5,9 +5,9 @@
 要件 → テストの向きは `docs/product/traceability.md` が正本で、ここはその裏返しに
 テスト側の `@req` 印を重ねたもの。
 
-- 最終更新: 2026-08-30
-- テストファイル: 424 件
-- 由来の要件が分かる: 424 件
+- 最終更新: 2026-08-31
+- テストファイル: 426 件
+- 由来の要件が分かる: 426 件
 - **由来不明: 0 件**（上限 2 件）
 
 由来不明とは「どの要件のために書いたのか、機械から辿れない」という意味で、
@@ -155,8 +155,10 @@
 | `tests/architecture/test-foundation.test.ts` | REQ-TS01 | 印と表 |
 | `tests/architecture/test-honesty.test.ts` | REQ-CI07, REQ-CI14 | 表 |
 | `tests/architecture/webmcp-reachability.test.ts` | REQ-FD04 | 印と表 |
+| `tests/architecture/worker-entry-weight.test.ts` | REQ-CI16 | 印と表 |
 | `tests/architecture/worker-entry.test.ts` | REQ-FB04 | 印 |
 | `tests/architecture/worker-env-wiring.test.ts` | REQ-SEC01 | 印 |
+| `tests/architecture/worker-size.test.ts` | REQ-CI16 | 印 |
 | `tests/architecture/writer-absence.test.ts` | REQ-TS16 | 印と表 |
 | `tests/architecture/written-source-quotation.test.ts` | REQ-TS18 | 印 |
 | `tests/domain/affiliate-preview.test.ts` | REQ-A07, REQ-P02 | 印 |
@@ -445,4 +447,4 @@
 | `tests/ui/use-draft.test.tsx` | REQ-BOPS04, REQ-BOPS05 | 印 |
 | `tests/ui/zz-probe-tone.test.tsx` | REQ-TM07 | 表 |
 | `tests/visual/visual-regression.test.ts` | REQ-S09, REQ-TS12, REQ-UX08 | 印 |
-<!-- 生成物の指紋 sha256:5f98268968a2d35c2f8f78e70ac1b64ce9d0eed04b002fb2b384cd04b47751e7 -->
+<!-- 生成物の指紋 sha256:aafce74caa6c633e77d9cb15120a2e9f91b0a6024d375d817fea17a4104516ee -->
