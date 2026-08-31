@@ -875,35 +875,65 @@ SQLite は ON CONFLICT の対象に**一致する UNIQUE 制約が無いと INSE
 
 反映先: 上記 2 つの `component-contract.md`、`admin-screen-task-manifest.ts`。
 
-## 反映しなかったもの（理由つき）
+## 4. 確定済み章の転記ずれ 7 件を R4-reopen で追随させた
 
 **確定済み章 `system-spec/*.md` の転記節と出典表が、正本 `spec-state.json` /
-`fetched-references.json` に追随していない（7 件）。**
+`fetched-references.json` に追随していなかった（7 件）。**章の
+`## 確定セルの記録 (正本 spec-state.json)` は**人が書く節**で compile が生成しないため、
+`dev` が先に進めた値を正本は正しく持つのに、章だけが古いまま残っていた。
 
 - `frontend` / `infrastructure` / `maintenance-ops` / `ui-ux` の `qa_ref`・`serves_goals`
-  6 セル: `dev` が先に進めた値を正本は正しく持つが、章の
-  `## 確定セルの記録 (正本 spec-state.json)` は**人が書く節**で compile が生成しないため、
-  古い値のまま残っている。
+  6 セル
 - `ui-ux.md` の出典表 `apple-hig` の更新日: 章は `2026-08-27`（HTTP `Last-Modified` 由来）、
-  `fetched-references.json` は `2026-06-08`（ページ自身の表明）。**後者のほうが根拠が強い。**
+  `fetched-references.json` は `2026-06-08`（ページ自身の表明）。**後者のほうが根拠が強い**ので、
+  章を `2026-06-08` へ寄せた。
 
 いずれも `dev` 側に元からあった食い違いで、`chapter-confirmed-cell-transcript.test.ts` と
 `doc-source-version-gap.test.ts` が本ブランチで**新しく検出した**ものである（前者は `dev` に存在しない）。
+
 章の直接編集は `guard-confirmed-chapter-overwrite` が遮断する。**遮断を迂回していない。**
-追随は根拠つき R4-reopen 経由で行う必要があり、本 MVP リリースの scope の外に置いた。
+唯一の正規経路である **R4-reopen → `reaffirm: true` を名乗った再確定 →
+`record-required-info-check`** を、`auth` / `frontend` / `infrastructure` /
+`maintenance-ops` / `ui-ux` の web セルに対して踏んだ（`ui-ux` は 2 回）。
+`reopen_log` に 6 件が残っている。
+`matrix` の値は `required_info_checks` を除き**完全保存**であることを機械で確認した
+（差分照合の結果: `checks 以外の差分: []`）。
+
+**正直に書いておく副作用が 1 つある。** `confirm` は `required_info_checks` を
+復元しないため、過去の計測日（08-24 / 08-25 / 08-30）が失われ、`record-required-info-check`
+で数え直した 08-31 の 1 件だけが残った。**必須情報が満たされている事実は変わらないが、
+いつ数えたかの履歴は消えている。**これは harness 側の欠落で、迂回して手で書き戻すことは
+していない（正本の手編集は `guard-graph-schema` が遮断する対象でもある）。
+
+加えて `ui-ux.md` / `auth.md` の散文にあった「出典が `user-dialogue` なのは本章だけ」という
+記述が実態と反転していたので、実測に合わせて
+「**web セル 8 件のうち 6 件が `user-dialogue`。書面由来は backend と security の 2 件だけ**」
+「**2026-08-31 時点で少数派は書面由来のほうである**」へ書き換えた。
+ブログ構築 UI 以降の確定が対話で積み上がった結果で、**穴は広がる向きに動いている。**
+
+## 反映しなかったもの（理由つき）
+
+無し。上記 4 で全件を追随させた。
 
 ## 品質ゲート（MVP）
 
 | ゲート | 結果 |
 |---|---|
 | `npx tsc --noEmit` | **PASS** |
-| `npx vitest run`（全体） | 451 files / 10288 tests — **10281 passed, 7 failed**（失敗は 2 ファイル） |
-| 7 件の赤 | すべて上記「反映しなかったもの」1 因。実装の欠陥ではない |
+| `verify --tier 1` | **全門 OK**（333 files / 6445 passed） |
+| `npx vitest run tests/ui/` | **PASS**（95 files / 3367 passed） |
+| `npx vitest run`（全体） | **PASS**（452 files / 10297 passed、赤 0 件） |
 
-赤の内訳: `chapter-confirmed-cell-transcript.test.ts` 6 件（転記セル）、
-`doc-source-version-gap.test.ts` 1 件（出典表の更新日）。
+**赤は 1 件も残していない。**閾値を下げて緑にしたものも無い。
+床を動かした 4 か所（63→65 / 81→83 / 61→62 / 82→84）はいずれも**上げ**で、
+manifest の実数に検査側の床が追いついていなかった分の修正である。
 
 ## 残課題
 
-- 🟡 確定済み章の転記 7 件を R4-reopen 経由で正本へ追随させる（上記）
 - 直前の受領書 `spec-writeback-2026-08-31-feat-blog-ui-builder-p13` の残課題はそのまま有効
+- 🟡 `confirm` が `required_info_checks` を復元しない harness の欠落（上記 4 の副作用）。
+  再確定のたびに計測日の履歴が消える。harness 側で直すべきもので、章や正本を手で
+  書き戻して隠すべきものではない
+- 🔴 リリースレポート §E の 2 件（配色の保存と掲載の増減が操作の記録に届かない／
+  公開記事の本文が HTML に出ていない）は手つかず。**とくに前者は本番（`main`）へ
+  進める前に閉じること。**掲載の増減は金銭に直結する

@@ -466,14 +466,14 @@ site_blueprint.theme（設計図の既定）
 |---|---|
 | セル | frontend × web |
 | 状態 | 確定 |
-| 確定質疑 (qa_ref) | `qa-frontend-web-seo-ai-search-v2` |
+| 確定質疑 (qa_ref) | `qa-frontend-web-capture-self-occlusion` |
 | 資するゴール (serves_goals) | G1, G2 |
 | required-info | なし (この確定に block 指定の必須情報は登録されていない) |
-| 出典 kind | written-requirements |
-| 出典 path | `docs/spec/12-改善要望フィードバック仕様.md` |
-| 出典 節 | §5 送信モーダル（FB-AC-04〜10） |
-| 出典 sha256 | `ccd052dfcbf69cbd8a0b5b4d16f2912267dd15afef81fb3dd23717ba50a36c39` |
-| 適用された設計知識 (design_applications) | 6 件 — 本章 `## 適用された設計知識` を参照 |
+| 出典 kind | user-dialogue |
+| 出典 path | — (対話に基づくため path/節/sha256 を持たない) |
+| 出典 節 | — |
+| 出典 sha256 | — |
+| 適用された設計知識 (design_applications) | 2 件 — 本章 `## 適用された設計知識` を参照 |
 
 ### 本節を「転記」に留めた理由
 

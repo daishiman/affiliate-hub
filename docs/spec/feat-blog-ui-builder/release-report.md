@@ -366,21 +366,24 @@ ui-ux     ceiling 612 → 700   (678 + 余裕 22)
 | 検査 | 結果 |
 | --- | --- |
 | `npx tsc --noEmit` | 🟢 0 件 |
-| `npx vitest run` | 🟡 **7 failed / 10281 passed**（451 files、失敗は 2 ファイル） |
+| `verify --tier 1` | 🟢 全門 OK（333 files / 6445 passed） |
+| `npx vitest run tests/ui/` | 🟢 95 files / 3367 passed |
+| `npx vitest run`（全体） | 🟢 **452 files / 10297 passed**（赤 0 件） |
 
-§4.1 の lineage 1 件（`blog-ui-spec-governance.test.ts`）は
-`ui-ux.md` の実バイト列で digest を更新して**緑になった**。
-代わりに、`dev` 取り込みで新しく 7 件が赤い。
+途中で赤かったものは、いずれも**閾値を下げずに**閉じた。
 
-| 検査 | 件数 | 内容 |
+| 検査 | 件数 | どう閉じたか |
 | --- | --- | --- |
-| `chapter-confirmed-cell-transcript.test.ts` | 6 | 4 章の `qa_ref`・`serves_goals` が正本の値と食い違う |
-| `doc-source-version-gap.test.ts` | 1 | `ui-ux.md` の出典表 `apple-hig` の更新日が `fetched-references.json` と食い違う |
+| `blog-ui-spec-governance.test.ts` | 1 | `ui-ux.md` の実バイト列で lineage digest を更新 |
+| `chapter-confirmed-cell-transcript.test.ts` | 6 | 5 章を R4-reopen → `reaffirm` 再確定して転記を正本へ追随（受領書 §4） |
+| `doc-source-version-gap.test.ts` | 1 | 出典表 `apple-hig` の更新日を、根拠の強いページ自身の表明 `2026-06-08` へ |
+| `uiux-screen-single-purpose.test.ts` | 4 | discovery が**同一ファイル内の非 export 部品への委譲**を辿れていなかった。`reachableInFile` を足して edge を公開入口へ帰属させ、床 63→65 / 81→83 / 61→62 / 82→84 を理由つきで更新 |
+| `flex-row-shape.test.ts` | 1 | 一覧の selector が実在しない統合形になっていた。CSS 実物の `.breadcrumb a, nav.section a` と `.cardTitle a` へ揃えた |
 
-**どちらも `dev` 側に元からあった食い違いを、本ブランチの新しい検査が
-初めて検出したものである。**前者の検査は `dev` に存在しない。
+**赤は 1 件も残していない。**床の数字を下げて緑にしたものも無い
+（`toBe(61)→62`・`toHaveLength(82)→84` はいずれも**上げ**であり、
+manifest の実数に床が追いついていなかった側の修正である）。
 章の直接編集は `guard-confirmed-chapter-overwrite` が遮断する。**迂回していない。**
-追随は根拠つき R4-reopen 経由で別途行う（残課題）。
 
 ## E. まだ 🔴 のまま
 

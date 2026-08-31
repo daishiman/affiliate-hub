@@ -561,7 +561,7 @@ Callout は 1 画面につき 2 個まで (`tests/ui/uiux-spacing-and-copy.test.
 
 | 対象 | バージョン | 公式発行元 | 出典URL | 取得 | 最新確認 |
 |---|---|---|---|---|---|
-| apple-hig | 2026-08-27 | Apple (developer.apple.com) | https://developer.apple.com/design/human-interface-guidelines | 2026-08-29T13:28:38Z | 2026-08-29T13:28:38Z |
+| apple-hig | 2026-06-08 | Apple (developer.apple.com) | https://developer.apple.com/design/human-interface-guidelines/design-principles | 2026-08-29T23:02:28Z | 2026-08-29T23:02:28Z |
 
 ## 状態の意味 (State semantics)
 
@@ -614,18 +614,18 @@ Callout は 1 画面につき 2 個まで (`tests/ui/uiux-spacing-and-copy.test.
 |---|---|
 | セル | ui-ux × web |
 | 状態 | 確定 |
-| 確定質疑 (qa_ref) | `qa-uiux-web-seo-ai-search-v2` |
+| 確定質疑 (qa_ref) | `qa-uiux-web-cognitive-load-affiliate-visibility-v3` |
 | 資するゴール (serves_goals) | G1, G2 |
 | required-info | `product-goal` — missing_effect: block / 接地: 済 (`qa-foundation-u1`)<br>`target-platforms` — missing_effect: block / 接地: 済 (`qa-platform-scope`)<br>`screen-information-priority` — missing_effect: block / 接地: 済 (`qa-uiux-web-screen-priority`) |
 | 出典 kind | user-dialogue |
 | 出典 path | — (対話に基づくため path/節/sha256 を持たない) |
 | 出典 節 | — |
 | 出典 sha256 | — |
-| 適用された設計知識 (design_applications) | 4 件 (`qa-uiux-web-screen-priority`) — 本章 `## 適用された設計知識` > `#### 本章での適用` を参照 |
+| 適用された設計知識 (design_applications) | 2 件 (`qa-uiux-web-cognitive-load-affiliate-visibility-v3`) — 本章 `## 適用された設計知識` > `#### 本章での適用` を参照 |
 
 - **本セルは 2026-08-20 に R4-reopen を 2 回経て再確定した**。1 回目は `screen-information-priority` を利用者根拠へ接地させるため、2 回目は本節を含む 3 節を章へ載せるため (再確定は同じ `qa_ref`・同じ `required_info`)。`reopen_log` に 2 件とも残っている。**2 回目は順序を誤った結果である**——章を編集する前に再確定したので、見張りが章を `protected` に戻し、もう一度開ける必要が出た。回数を隠さないために書いておく。
 - **`screen-information-priority` は 2026-08-20 まで `status: ungrounded` の負債だった**。C16 の block ゲートが導入される前に確定していたセルで、ゲートがあれば拒否されていた確定である。`grounded` へ変わったのは、利用者本人がカタログ `completion_rule` の 9 項目すべてに回答したためであって、判定を緩めたからではない。
-- **出典が `user-dialogue` なのは本章と auth 章の 2 件**である (分母 = `matrix` の web セル 8 件)。したがって本章の確定は `docs/spec/*.md` の sha256 に束縛されておらず、**元文書が書き換わっても検知できない**。auth.md 同名節と同じ穴で、塞がる条件も同じ (この確定内容が `docs/spec` のいずれかの節として書き起こされたとき)。
+- **出典が `user-dialogue` なのは 6 件**である (分母 = `matrix` の web セル 8 件。`written-requirements` は backend と security の 2 件だけ)。したがって本章の確定は `docs/spec/*.md` の sha256 に束縛されておらず、**元文書が書き換わっても検知できない**。auth.md 同名節と同じ穴で、塞がる条件も同じ (この確定内容が `docs/spec` のいずれかの節として書き起こされたとき)。**2026-08-31 時点で少数派は書面由来のほうである**——ブログ構築 UI 以降の確定が対話で積み上がった結果で、穴は広がる向きに動いている。
 
 ### 本節を「転記」に留めた理由
 

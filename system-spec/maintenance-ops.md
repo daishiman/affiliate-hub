@@ -292,14 +292,14 @@ codeを、次の変更者が意図・制約・failureを短時間で理解し、
 |---|---|
 | セル | maintenance-ops × web |
 | 状態 | 確定 |
-| 確定質疑 (qa_ref) | `qa-ops-web-rollback` |
-| 資するゴール (serves_goals) | G1 |
+| 確定質疑 (qa_ref) | `qa-ops-web-migration-guard` |
+| 資するゴール (serves_goals) | G1, G2 |
 | required-info | なし (この確定に block 指定の必須情報は登録されていない) |
-| 出典 kind | written-requirements |
-| 出典 path | `docs/spec/10-テスト戦略仕様.md` |
-| 出典 節 | §2 数字を偽らないための規律 |
-| 出典 sha256 | `2c6b9edb34293ed9481df28c12f8b8343a21d99ab275d2c6e6984293d1b82430` |
-| 適用された設計知識 (design_applications) | 5 件 — 本章 `## 適用された設計知識` を参照 |
+| 出典 kind | user-dialogue |
+| 出典 path | — (対話に基づくため path/節/sha256 を持たない) |
+| 出典 節 | — |
+| 出典 sha256 | — |
+| 適用された設計知識 (design_applications) | 2 件 — 本章 `## 適用された設計知識` を参照 |
 
 ### 本節を「転記」に留めた理由
 

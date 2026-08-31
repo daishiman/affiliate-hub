@@ -817,12 +817,7 @@
         ],
         "required_info_checks": [
           {
-            "checked_on": "2026-08-24",
-            "checked_with": "record-required-info-check",
-            "blocking_item_count": 1
-          },
-          {
-            "checked_on": "2026-08-25",
+            "checked_on": "2026-08-31",
             "checked_with": "record-required-info-check",
             "blocking_item_count": 1,
             "unmet_blocking_items": 0
@@ -889,7 +884,7 @@
         ],
         "required_info_checks": [
           {
-            "checked_on": "2026-08-30",
+            "checked_on": "2026-08-31",
             "checked_with": "record-required-info-check",
             "blocking_item_count": 3,
             "unmet_blocking_items": 0
@@ -975,24 +970,19 @@
       "web": {
         "state": "確定",
         "qa_ref": "qa-infra-web-migration-guard",
-        "serves_goals": [
-          "G2",
-          "G1"
-        ],
         "qa_refs": [
           "qa-infra-web-migration-guard",
           "qa-infra-web-spec-intake",
           "qa-infra-web",
           "qa-infra-web-redirect"
         ],
+        "serves_goals": [
+          "G2",
+          "G1"
+        ],
         "required_info_checks": [
           {
-            "checked_on": "2026-08-25",
-            "checked_with": "record-required-info-check",
-            "blocking_item_count": 0
-          },
-          {
-            "checked_on": "2026-08-25",
+            "checked_on": "2026-08-31",
             "checked_with": "record-required-info-check",
             "blocking_item_count": 0,
             "unmet_blocking_items": 0
@@ -1092,7 +1082,7 @@
         ],
         "required_info_checks": [
           {
-            "checked_on": "2026-08-30",
+            "checked_on": "2026-08-31",
             "checked_with": "record-required-info-check",
             "blocking_item_count": 0,
             "unmet_blocking_items": 0
@@ -1124,23 +1114,18 @@
       "web": {
         "state": "確定",
         "qa_ref": "qa-ops-web-migration-guard",
-        "serves_goals": [
-          "G1",
-          "G2"
-        ],
         "qa_refs": [
           "qa-ops-web-migration-guard",
           "qa-ops-web-spec-intake",
           "qa-ops-web"
         ],
+        "serves_goals": [
+          "G1",
+          "G2"
+        ],
         "required_info_checks": [
           {
-            "checked_on": "2026-08-25",
-            "checked_with": "record-required-info-check",
-            "blocking_item_count": 0
-          },
-          {
-            "checked_on": "2026-08-25",
+            "checked_on": "2026-08-31",
             "checked_with": "record-required-info-check",
             "blocking_item_count": 0,
             "unmet_blocking_items": 0
@@ -4275,6 +4260,233 @@
             "checked_on": "2026-08-29",
             "checked_with": "record-required-info-check",
             "blocking_item_count": 0,
+            "unmet_blocking_items": 0
+          }
+        ]
+      }
+    },
+    {
+      "category": "frontend",
+      "platform": "web",
+      "reason": "章の「確定セルの記録」節が正本と食い違っている。正本の qa_ref / serves_goals が後の質疑で動いたのに、この節には生成器が無く追随しなかった。章本文を現行の正本値へ揃えるために開ける (収集内容は変えない)。",
+      "from": "確定",
+      "discarded": {
+        "qa_ref": "qa-frontend-web-capture-self-occlusion",
+        "qa_refs": [
+          "qa-frontend-web-capture-self-occlusion",
+          "qa-frontend-web-affiliate-link-preview-v3",
+          "qa-frontend-web-seo-ai-search-v2",
+          "qa-frontend-web-blog-builder",
+          "qa-frontend-web-spec-intake",
+          "qa-frontend-web",
+          "qa-frontend-web-analytics",
+          "qa-frontend-web-overhaul-v2"
+        ],
+        "serves_goals": [
+          "G1",
+          "G2"
+        ],
+        "required_info_checks": [
+          {
+            "checked_on": "2026-08-30",
+            "checked_with": "record-required-info-check",
+            "blocking_item_count": 0,
+            "unmet_blocking_items": 0
+          }
+        ]
+      }
+    },
+    {
+      "category": "infrastructure",
+      "platform": "web",
+      "reason": "章の「確定セルの記録」節が正本と食い違っている。正本の qa_ref / serves_goals が後の質疑で動いたのに、この節には生成器が無く追随しなかった。章本文を現行の正本値へ揃えるために開ける (収集内容は変えない)。",
+      "from": "確定",
+      "discarded": {
+        "qa_ref": "qa-infra-web-migration-guard",
+        "qa_refs": [
+          "qa-infra-web-migration-guard",
+          "qa-infra-web-spec-intake",
+          "qa-infra-web",
+          "qa-infra-web-redirect"
+        ],
+        "serves_goals": [
+          "G2",
+          "G1"
+        ],
+        "required_info_checks": [
+          {
+            "checked_on": "2026-08-25",
+            "checked_with": "record-required-info-check",
+            "blocking_item_count": 0
+          },
+          {
+            "checked_on": "2026-08-25",
+            "checked_with": "record-required-info-check",
+            "blocking_item_count": 0,
+            "unmet_blocking_items": 0
+          }
+        ]
+      }
+    },
+    {
+      "category": "maintenance-ops",
+      "platform": "web",
+      "reason": "章の「確定セルの記録」節が正本と食い違っている。正本の qa_ref / serves_goals が後の質疑で動いたのに、この節には生成器が無く追随しなかった。章本文を現行の正本値へ揃えるために開ける (収集内容は変えない)。",
+      "from": "確定",
+      "discarded": {
+        "qa_ref": "qa-ops-web-migration-guard",
+        "qa_refs": [
+          "qa-ops-web-migration-guard",
+          "qa-ops-web-spec-intake",
+          "qa-ops-web"
+        ],
+        "serves_goals": [
+          "G1",
+          "G2"
+        ],
+        "required_info_checks": [
+          {
+            "checked_on": "2026-08-25",
+            "checked_with": "record-required-info-check",
+            "blocking_item_count": 0
+          },
+          {
+            "checked_on": "2026-08-25",
+            "checked_with": "record-required-info-check",
+            "blocking_item_count": 0,
+            "unmet_blocking_items": 0
+          }
+        ]
+      }
+    },
+    {
+      "category": "ui-ux",
+      "platform": "web",
+      "reason": "章の「確定セルの記録」節が正本と食い違っている。正本の qa_ref / serves_goals が後の質疑で動いたのに、この節には生成器が無く追随しなかった。章本文を現行の正本値へ揃えるために開ける (収集内容は変えない)。",
+      "from": "確定",
+      "discarded": {
+        "qa_ref": "qa-uiux-web-cognitive-load-affiliate-visibility-v3",
+        "qa_refs": [
+          "qa-uiux-web-cognitive-load-affiliate-visibility-v3",
+          "qa-uiux-web-seo-ai-search-v2",
+          "qa-uiux-web-blog-builder",
+          "qa-uiux-web-screen-priority",
+          "qa-uiux-web-spec-intake",
+          "qa-uiux-web",
+          "qa-uiux-web-overhaul-v2"
+        ],
+        "serves_goals": [
+          "G1",
+          "G2"
+        ],
+        "required_info": [
+          {
+            "item_id": "product-goal",
+            "missing_effect": "block",
+            "status": "grounded",
+            "grounded_by": "qa-foundation-u1"
+          },
+          {
+            "item_id": "screen-information-priority",
+            "missing_effect": "block",
+            "status": "grounded",
+            "grounded_by": "qa-uiux-web-screen-priority"
+          },
+          {
+            "item_id": "target-platforms",
+            "missing_effect": "block",
+            "status": "grounded",
+            "grounded_by": "qa-platform-scope"
+          }
+        ],
+        "required_info_checks": [
+          {
+            "checked_on": "2026-08-30",
+            "checked_with": "record-required-info-check",
+            "blocking_item_count": 3,
+            "unmet_blocking_items": 0
+          }
+        ]
+      }
+    },
+    {
+      "category": "auth",
+      "platform": "web",
+      "reason": "章の「確定セルの記録」に添えた散文が事実と食い違っている。出典 kind が user-dialogue のセルは 1 件から 6 件へ増えたのに、本章の注記は「本章だけ」のまま残っていた。章本文を現行の正本値へ揃えるために開ける (収集内容は変えない)。",
+      "from": "確定",
+      "discarded": {
+        "qa_ref": "qa-auth-web",
+        "serves_goals": [
+          "G1"
+        ],
+        "required_info": [
+          {
+            "item_id": "auth-model",
+            "missing_effect": "block",
+            "status": "grounded",
+            "grounded_by": "qa-auth-web"
+          }
+        ],
+        "required_info_checks": [
+          {
+            "checked_on": "2026-08-24",
+            "checked_with": "record-required-info-check",
+            "blocking_item_count": 1
+          },
+          {
+            "checked_on": "2026-08-25",
+            "checked_with": "record-required-info-check",
+            "blocking_item_count": 1,
+            "unmet_blocking_items": 0
+          }
+        ]
+      }
+    },
+    {
+      "category": "ui-ux",
+      "platform": "web",
+      "reason": "章「最新ドキュメント出典」の apple-hig 行が正本 fetched-references.json と食い違っている。版 (公式表明の更新日) は 2026-06-08、取得と最新確認は 2026-08-29T23:02:28Z、URL は design-principles が正本の値。章本文を正本へ揃えるために開ける (収集内容は変えない)。",
+      "from": "確定",
+      "discarded": {
+        "qa_ref": "qa-uiux-web-cognitive-load-affiliate-visibility-v3",
+        "qa_refs": [
+          "qa-uiux-web-cognitive-load-affiliate-visibility-v3",
+          "qa-uiux-web-seo-ai-search-v2",
+          "qa-uiux-web-blog-builder",
+          "qa-uiux-web-screen-priority",
+          "qa-uiux-web-spec-intake",
+          "qa-uiux-web",
+          "qa-uiux-web-overhaul-v2"
+        ],
+        "serves_goals": [
+          "G1",
+          "G2"
+        ],
+        "required_info": [
+          {
+            "item_id": "product-goal",
+            "missing_effect": "block",
+            "status": "grounded",
+            "grounded_by": "qa-foundation-u1"
+          },
+          {
+            "item_id": "screen-information-priority",
+            "missing_effect": "block",
+            "status": "grounded",
+            "grounded_by": "qa-uiux-web-screen-priority"
+          },
+          {
+            "item_id": "target-platforms",
+            "missing_effect": "block",
+            "status": "grounded",
+            "grounded_by": "qa-platform-scope"
+          }
+        ],
+        "required_info_checks": [
+          {
+            "checked_on": "2026-08-31",
+            "checked_with": "record-required-info-check",
+            "blocking_item_count": 3,
             "unmet_blocking_items": 0
           }
         ]
