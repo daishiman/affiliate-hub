@@ -4,9 +4,9 @@
 末尾の指紋がその見張りで、手で 1 文字でも書くと次の実行が**上書きせずに止まる**（書いた行は残る）。
 宣言は `docs/product/required-test-types.md`、語彙と上限は `quality-gates.config.mjs` が正本。
 
-- 最終更新: 2026-08-30
-- 要件表の要件: 289 件
-- 性質を宣言済: 284 件
+- 最終更新: 2026-08-31
+- 要件表の要件: 290 件
+- 性質を宣言済: 285 件
 - **未宣言: 5 件**（上限 5 件）
 - 理由つきの除外: 6 件（上限 7 件）
 
@@ -282,6 +282,7 @@
 | REQ-CI13 | has-runtime-config | `infra-config` | `infra-config` | — |
 | REQ-CI14 | has-runtime-config, has-input, has-secret | `boundary` `equivalence` `infra-config` `secrets` | `boundary` `equivalence` `infra-config` `secrets` | — |
 | REQ-CI15 | has-runtime-config, has-input | `boundary` `equivalence` `infra-config` | `boundary` `equivalence` `infra-config` | — |
+| REQ-CI16 | has-runtime-config, has-input, has-code-placement-rule | `boundary` `code-boundary` `equivalence` `infra-config` | `boundary` `code-boundary` `equivalence` `infra-config` | — |
 | REQ-FB01 | has-enumerated-input | `decision-table` `equivalence` | `decision-table` `equivalence` | — |
 | REQ-FB02 | has-screen, has-permission | `a11y` `keyboard` `permission-matrix` `screen-states` | `a11y` `keyboard` `permission-matrix` `screen-states` | — |
 | REQ-FB03 | has-input, has-screen | `a11y` `boundary` `equivalence` `keyboard` `screen-states` | `a11y` `boundary` `equivalence` `keyboard` `screen-states` | — |
@@ -320,4 +321,4 @@
 ## 未宣言の要件
 
 `REQ-TH04` `REQ-TH05` `REQ-TS02` `REQ-TS03` `REQ-TS10`
-<!-- 生成物の指紋 sha256:3831748caad9c1a5e4ee869be345e30e33ea09dd766e2a2ee8422eb46cdb7483 -->
+<!-- 生成物の指紋 sha256:aac56b68d05d2f7117ab03edb0c4bfdd28e2b9d6d8ed34fd490394f19282e0cb -->
