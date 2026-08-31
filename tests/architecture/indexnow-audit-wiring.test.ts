@@ -7,7 +7,7 @@ import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 
 const composition = readFileSync("src/presentation/composition.ts", "utf8");
-const action = readFileSync("src/presentation/admin/publish-article-action.ts", "utf8");
+const action = readFileSync("src/presentation/admin/publish/publish-article-action.ts", "utf8");
 
 describe("IndexNow 永続監査の production wiring", () => {
   it("composition が通知結果を application の監査境界へ渡す", () => {

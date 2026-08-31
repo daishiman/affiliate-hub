@@ -409,13 +409,6 @@ describe("下書きから読者向けの 1 本になるまで（1 本の道）",
   });
 
   it("見本と同じslugを取り下げても、見本がfallbackで再露出しない", async () => {
-    /*
-      **見本の slug を書き写さない。**2026-08-30 の統合まで
-      `"video-editing-gear"` と直書きしてあり、見本の中身が入れ替わった日に
-      その名前は消えた。名前が消えても検査は「見本サイトがありません」で
-      落ちるだけで、**何を確かめたかったのかは読み取れない**。
-      見本の正本から取れば、見本を差し替えても検査の意味は動かない。
-    */
     const slug = SAMPLE_SITE_SLUG;
     const sample = await sites.findBySlug(slug);
     if (!sample.ok || sample.value === null) throw new Error("見本サイトがありません");

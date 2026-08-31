@@ -12,7 +12,7 @@ vi.mock("react", async (importOriginal) => {
   };
 });
 
-const { CreateSiteForm } = await import("@/presentation/admin/site-wizard-form");
+const { CreateSiteForm } = await import("@/presentation/admin/publish/site-wizard-form");
 
 describe("A1 ブログ作成時の見せ方選択", () => {
   it("6種を可視ラベルで選び、templateIdとして作成Actionへ送れる", () => {

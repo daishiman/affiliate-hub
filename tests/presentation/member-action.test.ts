@@ -23,7 +23,7 @@ vi.mock("@/presentation/composition", () => ({
   settingsUseCases: async () => ({ manageMembers: { execute: executeMembers } }),
 }));
 
-const { manageMemberAction } = await import("@/presentation/admin/member-action");
+const { manageMemberAction } = await import("@/presentation/admin/maintain/member-action");
 
 const IDLE = { status: "idle", message: "" } as const;
 

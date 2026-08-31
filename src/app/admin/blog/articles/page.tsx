@@ -1,13 +1,13 @@
 import { AdminShell } from "@/presentation/admin/admin-shell";
-import { blogSiteOptions, pickSiteSlug } from "@/presentation/admin/blog-site-options";
-import { BlogSiteSwitch } from "@/presentation/admin/blog-site-switch";
+import { blogSiteOptions, pickSiteSlug } from "@/presentation/admin/publish/blog-site-options";
+import { BlogSiteSwitch } from "@/presentation/admin/publish/blog-site-switch";
 import { blogOpsEntry, currentActor } from "@/presentation/composition";
 import { selectOperationalRows } from "@/domain/blogops";
 import {
   OperationalHealthControls,
   OperationalHealthView,
   parseOperationalHealthQuery,
-} from "@/presentation/admin/operational-health-view";
+} from "@/presentation/admin/publish/operational-health-view";
 import {
   Callout,
   DataTable,

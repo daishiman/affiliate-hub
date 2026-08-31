@@ -58,7 +58,9 @@ export default async function BlogArticlePage({
       siteSlug={site}
       currentPath={siteHref(site, `/blog/${article}`)}
       trail={[
-        { label: "記事一覧", path: siteHref(site, "/blog") },
+        // SiteFrame が site の接頭辞を1度だけ付ける。完成URLを渡すと
+        // `/s/<site>/s/<site>/blog` と二重になる。
+        { label: "記事一覧", path: "/blog" },
         { label: "記事" },
       ]}
       pageKind="article"

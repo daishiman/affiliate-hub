@@ -1,5 +1,5 @@
 import { AdminShell } from "@/presentation/admin/admin-shell";
-import { SiteDocumentForm } from "@/presentation/admin/site-document-form";
+import { SiteDocumentForm } from "@/presentation/admin/publish/site-document-form";
 import { siteBasePathBySlug } from "@/domain/authoring/site";
 import { currentActor, siteDocumentUseCases } from "@/presentation/composition";
 import { Callout, ErrorView, Prose, Section, TextLink } from "@/presentation/ui";

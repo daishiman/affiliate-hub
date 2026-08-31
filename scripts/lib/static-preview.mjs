@@ -1,9 +1,8 @@
 /**
- * ログインの要らない「静止した写し」を 1 枚の HTML に焼いて書き出す。
+ * ログインの要らない「静止した写し」を 1 枚の HTML に組み立てる。
  *
- * 描画する中身だけを各 writer から受け取り、本物の CSS を集めるところから
- * `docs/` へ書き出すところまでをここ 1 か所で行う。分けてあるのは、
- * 次の 1 点を検査で固定するためである。
+ * ここに置いてあるのは**組み立てだけ**で、描画も書き出しもしない。
+ * 分けてあるのは、次の 1 点を検査で固定するためである。
  *
  *   **本物の CSS を読まずに書き出せてしまう経路が無いこと。**
  *
@@ -71,53 +70,19 @@ export function findModuleCss(root) {
 }
 
 /**
- * 本物の CSS を読む唯一の場所。**根ごとに 1 回だけ読む。**
- *
- * 冊子は 1 回の実行で数十枚を焼く。写しごとに postcss を回すと、
- * 同じ入口 CSS を数十回変換することになり、焼くのに数分かかる。
- * 同じ実行の中で入口 CSS が変わることは無いので、結果を持ち回してよい。
- *
- * @type {Map<string, { tailwindCss: string, moduleCss: readonly { path: string, text: string }[] }>}
- */
-const STYLE_CACHE = new Map();
-
-/**
- * @param {string} root
- * @returns {Promise<{ tailwindCss: string, moduleCss: readonly { path: string, text: string }[] }>}
- */
-async function loadStyles(root) {
-  const cached = STYLE_CACHE.get(root);
-  if (cached !== undefined) return cached;
-  const from = join(root, ENTRY_CSS);
-  const result = await postcss([tailwind()]).process(readFileSync(from, "utf8"), { from });
-  const styles = {
-    tailwindCss: result.css,
-    moduleCss: findModuleCss(root).map((path) => ({
-      path,
-      text: readFileSync(join(root, path), "utf8"),
-    })),
-  };
-  STYLE_CACHE.set(root, styles);
-  return styles;
-}
-
-/**
  * 本物の CSS と描画済みの中身を 1 枚に焼き、アプリが配らない `docs/` へ書き出す。
- *
- * CSS の入口・変換手段・部品 CSS の探索・書き出し先の境界を writer ごとに
- * 書かせない。ここを通る限り、どの写しにも同じ安全条件が当たる。
+ * CSS の取得・安全判定・書き出し先の境界を全 writer で共有する。
  *
  * @param {object} input
- * @param {string} input.out リポジトリルートから見た `docs/` 配下の出力先
- * @param {string} input.bodyHtml React などで静的描画済みの中身
+ * @param {string} input.out
+ * @param {string} input.bodyHtml
  * @param {Record<string, string>} input.htmlAttributes
  * @param {string} input.generatedAt
  * @param {string} [input.title]
  * @param {string} [input.source]
- * @param {string} [input.navHtml] 冊子の中を移る案内。冊子の写しだけが渡す。
- * @param {string} [input.writtenLabel] 完了表示へ添える件数など
- * @param {boolean} [input.quiet] 1 枚ずつの完了表示を出さない（冊子はまとめて数える）
- * @returns {Promise<string>} 書き出した HTML
+ * @param {string} [input.navHtml]
+ * @param {string} [input.writtenLabel]
+ * @returns {Promise<string>}
  */
 export async function writeStaticPreview({
   out,
@@ -128,7 +93,6 @@ export async function writeStaticPreview({
   source,
   navHtml,
   writtenLabel,
-  quiet = false,
 }) {
   if (!out.startsWith("docs/")) {
     throw new Error(`静止した写しは docs/ 配下にだけ書き出せます: ${out}`);
@@ -142,10 +106,14 @@ export async function writeStaticPreview({
     throw new Error(`静止した写しの出力先が docs/ の外を指しています: ${out}`);
   }
 
-  const styles = await loadStyles(root);
+  const from = join(root, ENTRY_CSS);
+  const result = await postcss([tailwind()]).process(readFileSync(from, "utf8"), { from });
   const html = buildDocument({
-    tailwindCss: styles.tailwindCss,
-    moduleCss: styles.moduleCss,
+    tailwindCss: result.css,
+    moduleCss: findModuleCss(root).map((path) => ({
+      path,
+      text: readFileSync(join(root, path), "utf8"),
+    })),
     bodyHtml,
     htmlAttributes,
     generatedAt,
@@ -156,10 +124,8 @@ export async function writeStaticPreview({
 
   mkdirSync(dirname(outputPath), { recursive: true });
   writeFileSync(outputPath, html);
-  if (!quiet) {
-    const suffix = writtenLabel === undefined ? "" : `（${writtenLabel}）`;
-    console.log(`書き出しました: ${out}${suffix}`);
-  }
+  const suffix = writtenLabel === undefined ? "" : `（${writtenLabel}）`;
+  console.log(`書き出しました: ${out}${suffix}`);
   return html;
 }
 
@@ -182,8 +148,8 @@ export async function writeStaticPreview({
  * @param {Record<string, string>} input.htmlAttributes
  * @param {string} input.generatedAt
  * @param {string} [input.title] ページの題。省かれたら 1 枚ものの既定。
+ * @param {string} [input.source] 書き出した writer のパス。
  * @param {string} [input.navHtml] 冊子の中を移る案内。`inert` の外に出す。
- * @param {string} [input.source] 書き出した本。「手で直さない」の宛先が写しごとに違う。
  * @returns {string}
  */
 export function buildDocument({
@@ -193,8 +159,8 @@ export function buildDocument({
   htmlAttributes,
   generatedAt,
   title,
-  navHtml,
   source = "scripts/write-static-preview.tsx",
+  navHtml,
 }) {
   if (tailwindCss.trim() === "") {
     throw new Error("トークンの CSS が空です。本物の CSS を読めていないまま焼こうとしています。");

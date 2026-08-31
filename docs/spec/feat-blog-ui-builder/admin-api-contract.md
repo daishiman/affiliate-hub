@@ -61,7 +61,7 @@ export async function <name>Action(
 
 | | |
 |---|---|
-| 置き場所 | `src/presentation/admin/blog-appearance-action.ts` |
+| 置き場所 | `src/presentation/admin/publish/blog-appearance-action.ts` |
 | PATH | `/admin/sites/[site]/appearance` |
 | intent | `select_template` |
 | 入力 | `siteSlug`, `templateId` |
@@ -88,7 +88,7 @@ export async function <name>Action(
 
 | | |
 |---|---|
-| 置き場所 | `src/presentation/admin/blog-appearance-action.ts` |
+| 置き場所 | `src/presentation/admin/publish/blog-appearance-action.ts` |
 | PATH | `/admin/sites/[site]/appearance` |
 | intent | `save_theme` |
 | 入力 | `siteSlug`, `brandTheme`, `colorMode` |
@@ -143,7 +143,7 @@ canonical な操作口は `saveSiteDocumentAction`
 
 | | |
 |---|---|
-| 置き場所 | `src/presentation/admin/blog-placement-action.ts` |
+| 置き場所 | `src/presentation/admin/publish/blog-placement-action.ts` |
 | PATH | `/admin/sites/[site]/placements` |
 | intent | `save` \| `remove` |
 | 入力 | `siteSlug`, `articleSlug`, `placement`, `trackingCode?`, `position?` |

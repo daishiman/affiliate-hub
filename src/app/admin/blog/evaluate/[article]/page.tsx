@@ -1,5 +1,5 @@
 import { AdminShell } from "@/presentation/admin/admin-shell";
-import { BlogRatingHideForm } from "@/presentation/admin/blog-rating-form";
+import { BlogRatingHideForm } from "@/presentation/admin/publish/blog-rating-form";
 import { blogOpsEntry, currentActor } from "@/presentation/composition";
 import {
   Callout,

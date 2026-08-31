@@ -1,0 +1,13 @@
+{
+  "schema_version": "1.0.0",
+  "status": "completed",
+  "staging": ".dev-graph/staging/run-20260829-feat-reference-blog-admin-ux",
+  "destination": ".dev-graph/published/generations/feature-package-feat-reference-blog-admin-ux/a052d177cdedc029acbb2fd747bce579c0626bed5f6b64f9a94504ed6a2e75bd",
+  "digest": "sha256:a052d177cdedc029acbb2fd747bce579c0626bed5f6b64f9a94504ed6a2e75bd",
+  "feature_package_id": "feature-package/feat-reference-blog-admin-ux",
+  "package_slug": "feature-package-feat-reference-blog-admin-ux",
+  "generation_id": "a052d177cdedc029acbb2fd747bce579c0626bed5f6b64f9a94504ed6a2e75bd",
+  "supersedes": null,
+  "receipt": ".dev-graph/published/generations/feature-package-feat-reference-blog-admin-ux/a052d177cdedc029acbb2fd747bce579c0626bed5f6b64f9a94504ed6a2e75bd/atomic-promotion-receipt.json",
+  "completed_at": "2026-08-29T14:56:20Z"
+}

@@ -1,5 +1,5 @@
 import { AdminShell } from "@/presentation/admin/admin-shell";
-import { BlogPlacementForm } from "@/presentation/admin/blog-placement-form";
+import { BlogPlacementForm } from "@/presentation/admin/publish/blog-placement-form";
 import { AffiliatePlacementLookup } from "@/presentation/admin/affiliate-placement-lookup";
 import { blogPlacementEntry, currentActor } from "@/presentation/composition";
 import { Callout, ErrorView, Prose, Section, TextLink } from "@/presentation/ui";

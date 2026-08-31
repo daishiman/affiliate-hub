@@ -1,5 +1,5 @@
 import { AdminShell } from "@/presentation/admin/admin-shell";
-import { UpdateWorkspaceForm } from "@/presentation/admin/workspace-form";
+import { UpdateWorkspaceForm } from "@/presentation/admin/maintain/workspace-form";
 import { currentActor, settingsUseCases, workspacePlanOptions } from "@/presentation/composition";
 import { Callout, ErrorView, Section, TextLink } from "@/presentation/ui";
 

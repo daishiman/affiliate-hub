@@ -4,7 +4,7 @@ import { AdminShell } from "@/presentation/admin/admin-shell";
 import {
   BlogAppearanceForm,
   PageThemeOverrideForms,
-} from "@/presentation/admin/blog-appearance-form";
+} from "@/presentation/admin/publish/blog-appearance-form";
 import { blogAppearanceEntry, currentActor } from "@/presentation/composition";
 import { Callout, ErrorView, Prose, Section, TextLink } from "@/presentation/ui";
 

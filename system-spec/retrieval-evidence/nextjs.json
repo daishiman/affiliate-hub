@@ -1,21 +1,20 @@
 {
- "target_id": "nextjs",
- "source_url": "https://nextjs.org/docs",
- "retrieved_at": "2026-08-28T14:07:27Z",
- "http_status": 200,
- "content_bytes": 385590,
- "content_sha256": "a7d0cedb2816db31874a9876df2c9c2e76d3f3ba824892781e2f581a9db141e7",
- "page_title": "Next.js Docs | Next.js",
- "freshness_extraction": {
-  "freshness_source": "publisher-registry",
-  "value": "16.3.3",
-  "found_in": [
-   "2026-08-28T14:07:27Z に https://registry.npmjs.org/next/latest を HTTP 取得し version = '16.3.3' を得た",
-   "2026-08-28T14:07:27Z に https://nextjs.org/docs を HTTP 取得。385590 bytes の raw response を SHA-256 へ束縛し、本文中の 16.3.3 表記 2 件を確認して registry と一致した",
-   "2026-08-28T07:17:15Z に https://registry.npmjs.org/next/16.3.3 を WebFetch で照会し、publish user = GitHub Actions (npm-oidc-no-reply@github.com) を確認した"
-  ],
-  "body_declares_date": null,
-  "body_search_method": "Accept-Encoding: identity の HTTP raw response 385590 bytes を取得し SHA-256 を計算。ページタイトル 'Next.js Docs | Next.js'、本文中の 16.3.3 表記 2 件を確認。rolling doc のため更新日の明示表明は無い。",
-  "note": "C08 鮮度監査 (2026-08-28) が旧記録 16.3.2 と公式 registry 現行版 16.3.3 の差分を検出したため再取得を実施。npm registry の latest dist-tag が 16.3.3 を返し、docs ページも同版を表示した。前回 evidence (2026-08-16 取得・2026-08-22 registry 照会) は 16.3.2 だった。"
- }
+  "target_id": "nextjs",
+  "source_url": "https://nextjs.org/docs",
+  "retrieved_at": "2026-08-29T23:02:28Z",
+  "http_status": 200,
+  "content_bytes": 456587,
+  "content_sha256": "ec2674ff944e77e0b6f34ca134fbffcfe7568c15ffdab9975d12301bef859624",
+  "page_title": "Next.js Docs | Next.js",
+  "retrieval_method": "official page HTTP fetch (Accept-Encoding: identity)",
+  "freshness_extraction": {
+    "freshness_source": "page-declared",
+    "value": "16.3.3",
+    "found_in": [
+      "公式 Docs ページの Latest Version 表示: 16.3.3",
+      "公式 npm registry latest の version: 16.3.3"
+    ],
+    "body_search_method": "公式 Docs ページ本文の Latest Version と Vercel が発行する npm package の latest record を WebFetch で突合した。",
+    "note": "docs 本文と publisher registry が同じ 16.3.3 を表明している。"
+  }
 }

@@ -1,7 +1,7 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "e28c85d1-5eca-4786-99a4-d0e869507405",
+  "id": "73800e71-ca90-4469-bd0e-d1e8bf9713f9",
   "prevId": "ae3c7884-9123-4a0c-ac37-438bf2ca6ef1",
   "tables": {
     "affiliate_accounts": {
@@ -279,6 +279,55 @@
           "notNull": true,
           "autoincrement": false
         },
+        "canonical_url": {
+          "name": "canonical_url",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "merchant_name": {
+          "name": "merchant_name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "image_url": {
+          "name": "image_url",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "price_minor": {
+          "name": "price_minor",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "currency": {
+          "name": "currency",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "retrieved_at": {
+          "name": "retrieved_at",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "source_method": {
+          "name": "source_method",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
         "alteration_prohibited": {
           "name": "alteration_prohibited",
           "type": "integer",
@@ -301,6 +350,13 @@
           "notNull": true,
           "autoincrement": false,
           "default": "(unixepoch())"
+        },
+        "last_checked_at": {
+          "name": "last_checked_at",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
         },
         "expires_at": {
           "name": "expires_at",
@@ -762,6 +818,21 @@
           "autoincrement": false,
           "default": "(unixepoch())"
         },
+        "revision": {
+          "name": "revision",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 1
+        },
+        "save_token": {
+          "name": "save_token",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
         "tested_at": {
           "name": "tested_at",
           "type": "integer",
@@ -1217,6 +1288,13 @@
           "notNull": true,
           "autoincrement": false
         },
+        "affiliate_link_id": {
+          "name": "affiliate_link_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
         "site_slug": {
           "name": "site_slug",
           "type": "text",
@@ -1229,6 +1307,13 @@
           "type": "text",
           "primaryKey": false,
           "notNull": true,
+          "autoincrement": false
+        },
+        "block_id": {
+          "name": "block_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
           "autoincrement": false
         },
         "placement": {
@@ -1245,6 +1330,14 @@
           "notNull": false,
           "autoincrement": false
         },
+        "status": {
+          "name": "status",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "'active'"
+        },
         "position": {
           "name": "position",
           "type": "integer",
@@ -1252,47 +1345,43 @@
           "notNull": true,
           "autoincrement": false,
           "default": 0
+        },
+        "last_rendered_at": {
+          "name": "last_rendered_at",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "(unixepoch())"
         }
       },
       "indexes": {
-        "blog_affiliate_placement_site_article_idx": {
-          "name": "blog_affiliate_placement_site_article_idx",
-          "columns": [
-            "site_slug",
-            "article_slug"
-          ],
-          "isUnique": false
-        },
-        "blog_affiliate_placement_workspace_idx": {
-          "name": "blog_affiliate_placement_workspace_idx",
+        "blog_affiliate_placement_workspace_link_idx": {
+          "name": "blog_affiliate_placement_workspace_link_idx",
           "columns": [
             "workspace_id",
-            "site_slug"
+            "affiliate_link_id",
+            "status"
           ],
           "isUnique": false
         },
-        "blog_affiliate_placement_identity_without_code_idx": {
-          "name": "blog_affiliate_placement_identity_without_code_idx",
+        "blog_affiliate_placement_workspace_location_idx": {
+          "name": "blog_affiliate_placement_workspace_location_idx",
           "columns": [
             "workspace_id",
             "site_slug",
             "article_slug",
-            "placement"
+            "block_id",
+            "position"
           ],
-          "isUnique": true,
-          "where": "\"blog_affiliate_placement\".\"tracking_code\" is null"
-        },
-        "blog_affiliate_placement_identity_with_code_idx": {
-          "name": "blog_affiliate_placement_identity_with_code_idx",
-          "columns": [
-            "workspace_id",
-            "site_slug",
-            "article_slug",
-            "placement",
-            "tracking_code"
-          ],
-          "isUnique": true,
-          "where": "\"blog_affiliate_placement\".\"tracking_code\" is not null"
+          "isUnique": false
         }
       },
       "foreignKeys": {},
@@ -1972,14 +2061,6 @@
             "site_slug"
           ],
           "isUnique": true
-        },
-        "blog_template_workspace_idx": {
-          "name": "blog_template_workspace_idx",
-          "columns": [
-            "workspace_id",
-            "site_slug"
-          ],
-          "isUnique": false
         }
       },
       "foreignKeys": {},
@@ -1994,13 +2075,6 @@
           "name": "id",
           "type": "text",
           "primaryKey": true,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "workspace_id": {
-          "name": "workspace_id",
-          "type": "text",
-          "primaryKey": false,
           "notNull": true,
           "autoincrement": false
         },
@@ -2034,14 +2108,6 @@
             "site_slug"
           ],
           "isUnique": true
-        },
-        "blog_theme_workspace_idx": {
-          "name": "blog_theme_workspace_idx",
-          "columns": [
-            "workspace_id",
-            "site_slug"
-          ],
-          "isUnique": false
         }
       },
       "foreignKeys": {},
@@ -4632,13 +4698,6 @@
           "notNull": true,
           "autoincrement": false
         },
-        "workspace_id": {
-          "name": "workspace_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
         "site_slug": {
           "name": "site_slug",
           "type": "text",
@@ -4676,14 +4735,6 @@
             "page_path"
           ],
           "isUnique": true
-        },
-        "page_theme_override_workspace_idx": {
-          "name": "page_theme_override_workspace_idx",
-          "columns": [
-            "workspace_id",
-            "site_slug"
-          ],
-          "isUnique": false
         }
       },
       "foreignKeys": {},

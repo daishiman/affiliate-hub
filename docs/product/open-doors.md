@@ -11,7 +11,7 @@
 
 適用範囲: `/admin` 以下（読者のページとログインの往復は通す）
 
-開いている扉: **0 件** / 全 197 件
+開いている扉: **0 件** / 全 198 件
 
 「誰でも」と宣言してある行: **40 件**
 （宣言すればその扉は差の数から消える。だから宣言の件数そのものにも上限がある）
@@ -267,72 +267,73 @@
 
 | 入口・操作 | 何ができるか | 本来 | いま | 差 | 取り返し |
 |---|---|---|---|---|---|
-| `advanceLoopRunAction()` | 比較に観測値を書く・判定する・打ち切る（判定は採用した見せ方を残す）（src/presentation/admin/improvement-action.ts） | ログイン | ログイン | — | **つかない** |
+| `advanceLoopRunAction()` | 比較に観測値を書く・判定する・打ち切る（判定は採用した見せ方を残す）（src/presentation/admin/observe/improvement-action.ts） | ログイン | ログイン | — | **つかない** |
 | `cancelPublicationAction()` | 予定していた配信を取りやめる（取りやめた先は終点で、予定へは戻せない）（src/presentation/admin/delete-form-action.ts） | ログイン | ログイン | — | **つかない** |
-| `checkBlogDeliveryAction()` | 配信物を組み立て直して、結果を履歴に積む（src/presentation/admin/blog-layout-action.ts） | ログイン | ログイン | — | **つかない** |
-| `createSiteFromDraftAction()` | 下書きからサイトを作る（消す口が無い）（src/presentation/admin/site-wizard-action.ts） | ログイン | ログイン | — | **つかない** |
+| `checkBlogDeliveryAction()` | 配信物を組み立て直して、結果を履歴に積む（src/presentation/admin/publish/blog-layout-action.ts） | ログイン | ログイン | — | **つかない** |
+| `createSiteFromDraftAction()` | 下書きからサイトを作る（消す口が無い）（src/presentation/admin/publish/site-wizard-action.ts） | ログイン | ログイン | — | **つかない** |
 | `deleteContentVariantAction()` | 記事を消す（本文を後から確かめる手段が残らない）（src/presentation/admin/delete-form-action.ts） | ログイン | ログイン | — | **つかない** |
 | `deleteManagedSiteAction()` | ブログを消す（記事ごと消える）（src/presentation/admin/delete-form-action.ts） | ログイン | ログイン | — | **つかない** |
 | `deleteProductAction()` | 商品を消す（順位表と比較表の入力が消える）（src/presentation/admin/delete-form-action.ts） | ログイン | ログイン | — | **つかない** |
 | `disableAffiliateLinkAction()` | 登録済みの成果リンクを止める（記事に貼ったままでも読者へ出なくなる。戻すには新しいリンクとして登録し直す）（src/presentation/admin/delete-form-action.ts） | ログイン | ログイン | — | **つかない** |
-| `manageBlogTagAction()` | タグを作る・直す・消す（消したタグの説明は残らない）（src/presentation/admin/blog-tag-action.ts） | ログイン | ログイン | — | **つかない** |
+| `manageBlogTagAction()` | タグを作る・直す・消す（消したタグの説明は残らない）（src/presentation/admin/publish/blog-tag-action.ts） | ログイン | ログイン | — | **つかない** |
 | `manageIntegrationAccessAction()` | 外部連携の鍵を作る・失効させる（src/presentation/admin/feedback-action.ts） | ログイン | ログイン | — | **つかない** |
-| `manageLlmCredentialAction()` | 生成 AI の API キーを預ける・消す（預けた鍵で課金が発生する）（src/presentation/admin/llm-credential-action.ts） | ログイン | ログイン | — | **つかない** |
-| `manageMemberAction()` | 担当者を招く・役割を変える・担当から外す（入ってよい人の一覧が変わる）（src/presentation/admin/member-action.ts） | ログイン | ログイン | — | **つかない** |
-| `publishArticleAction()` | 記事を公開する（src/presentation/admin/publish-article-action.ts） | ログイン | ログイン | — | **つかない** |
-| `registerBlueskyConnectionAction()` | Blueskyへ実認証し、workspace共通の配信先DIDを固定する（src/presentation/admin/bluesky-connection-action.ts） | ログイン | ログイン | — | **つかない** |
-| `reschedulePublicationAction()` | 投稿予定日を変える（前倒しにすれば今日出せる）（src/presentation/admin/reschedule-action.ts） | ログイン | ログイン | — | **つかない** |
-| `saveSiteDocumentAction()` | ブログの固定ページを書き換える（運営者情報・特定商取引法に基づく表記を含む）（src/presentation/admin/site-document-action.ts） | ログイン | ログイン | — | **つかない** |
+| `manageLlmCredentialAction()` | 生成 AI の API キーを預ける・消す（預けた鍵で課金が発生する）（src/presentation/admin/maintain/llm-credential-action.ts） | ログイン | ログイン | — | **つかない** |
+| `manageMemberAction()` | 担当者を招く・役割を変える・担当から外す（入ってよい人の一覧が変わる）（src/presentation/admin/maintain/member-action.ts） | ログイン | ログイン | — | **つかない** |
+| `publishArticleAction()` | 記事を公開する（src/presentation/admin/publish/publish-article-action.ts） | ログイン | ログイン | — | **つかない** |
+| `registerBlueskyConnectionAction()` | Blueskyへ実認証し、workspace共通の配信先DIDを固定する（src/presentation/admin/publish/bluesky-connection-action.ts） | ログイン | ログイン | — | **つかない** |
+| `reschedulePublicationAction()` | 投稿予定日を変える（前倒しにすれば今日出せる）（src/presentation/admin/publish/reschedule-action.ts） | ログイン | ログイン | — | **つかない** |
+| `saveSiteDocumentAction()` | ブログの固定ページを書き換える（運営者情報・特定商取引法に基づく表記を含む）（src/presentation/admin/publish/site-document-action.ts） | ログイン | ログイン | — | **つかない** |
 | `schedulePublicationAction()` | 投稿を予定に入れる（時刻が来たら外へ出る）（src/presentation/admin/schedule-publication-action.ts） | ログイン | ログイン | — | **つかない** |
-| `startLoopRunAction()` | 見せ方の比較を始める（2 通りが読者へ配られ始める）（src/presentation/admin/improvement-action.ts） | ログイン | ログイン | — | **つかない** |
-| `updatePublicationAction()` | 配信の予定を直す（前倒しにすれば今日出せる）（src/presentation/admin/publication-form-action.ts） | ログイン | ログイン | — | **つかない** |
-| `adjustConversionAction()` | 成果の実績を手で直す（src/presentation/admin/adjust-conversion-action.ts） | ログイン | ログイン | — | つく |
-| `advanceContentStateAction()` | 記事の作業段階を進める（src/presentation/admin/content-progress-action.ts） | ログイン | ログイン | — | つく |
-| `advanceLinkIngestionAction()` | 成果リンクの取り込みを進める（src/presentation/admin/inbox-action.ts） | ログイン | ログイン | — | つく |
-| `approveContentAction()` | 記事を承認する（src/presentation/admin/content-progress-action.ts） | ログイン | ログイン | — | つく |
-| `approveVariantSpecAction()` | 見せ方の試作を承認する（比較に出せる状態にする）（src/presentation/admin/improvement-action.ts） | ログイン | ログイン | — | つく |
-| `archivePublishedArticleAction()` | 公開済み記事を非表示にする（データは残す）（src/presentation/admin/published-article-action.ts） | ログイン | ログイン | — | つく |
+| `startLoopRunAction()` | 見せ方の比較を始める（2 通りが読者へ配られ始める）（src/presentation/admin/observe/improvement-action.ts） | ログイン | ログイン | — | **つかない** |
+| `updatePublicationAction()` | 配信の予定を直す（前倒しにすれば今日出せる）（src/presentation/admin/publish/publication-form-action.ts） | ログイン | ログイン | — | **つかない** |
+| `adjustConversionAction()` | 成果の実績を手で直す（src/presentation/admin/earn/adjust-conversion-action.ts） | ログイン | ログイン | — | つく |
+| `advanceContentStateAction()` | 記事の作業段階を進める（src/presentation/admin/write/content-progress-action.ts） | ログイン | ログイン | — | つく |
+| `advanceLinkIngestionAction()` | 成果リンクの取り込みを進める（src/presentation/admin/earn/inbox-action.ts） | ログイン | ログイン | — | つく |
+| `approveContentAction()` | 記事を承認する（src/presentation/admin/write/content-progress-action.ts） | ログイン | ログイン | — | つく |
+| `approveVariantSpecAction()` | 見せ方の試作を承認する（比較に出せる状態にする）（src/presentation/admin/observe/improvement-action.ts） | ログイン | ログイン | — | つく |
+| `archivePublishedArticleAction()` | 公開済み記事を非表示にする（データは残す）（src/presentation/admin/publish/published-article-action.ts） | ログイン | ログイン | — | つく |
 | `changeFeedbackStatusAction()` | 指摘の状態を変える（src/presentation/admin/feedback-action.ts） | ログイン | ログイン | — | つく |
-| `checkFactBoundaryAction()` | 書ける範囲の判定を試す（src/presentation/admin/fact-boundary-action.ts） | ログイン | ログイン | — | つく |
-| `createAudiencePersonaAction()` | 読者像（誰に向けて書くか・何を比べたいか）を登録する（src/presentation/admin/persona-form-action.ts） | ログイン | ログイン | — | つく |
-| `createAuthorPersonaAction()` | 書き手（記事をどの立場・文体で書かせるか）を登録する（src/presentation/admin/persona-form-action.ts） | ログイン | ログイン | — | つく |
-| `createClaimAction()` | 商品について記事に書ける 1 文と、その裏付けを登録する（確認待ちで入る）（src/presentation/admin/evidence-form-action.ts） | ログイン | ログイン | — | つく |
-| `createConceptDraftsAction()` | 1 つの商品から、ブログごとの切り口で下書きをまとめて作る（src/presentation/admin/concept-drafts-action.ts） | ログイン | ログイン | — | つく |
-| `createContentPackageAction()` | 企画（どの商品を・誰が・誰に向けて・何のために書くか）を立てる（src/presentation/admin/content-package-form-action.ts） | ログイン | ログイン | — | つく |
-| `createContentVariantAction()` | 記事の枠を作る（src/presentation/admin/content-form-action.ts） | ログイン | ログイン | — | つく |
-| `createEvidenceAction()` | 記事に書くことの出所になる資料を 1 つ登録する（src/presentation/admin/evidence-form-action.ts） | ログイン | ログイン | — | つく |
-| `createProductAction()` | 商品を登録する（src/presentation/admin/product-form-action.ts） | ログイン | ログイン | — | つく |
-| `createRankingModelAction()` | 順位づけの基準（何をどれだけ重く見るか・どう測るか）を立てる（src/presentation/admin/ranking-form-action.ts） | ログイン | ログイン | — | つく |
-| `createTestRunAction()` | いつ・誰が・どの方法で測ったかの記録を登録する（src/presentation/admin/evidence-form-action.ts） | ログイン | ログイン | — | つく |
-| `draftVariantSpecAction()` | 見せ方の試作を登録する（src/presentation/admin/improvement-action.ts） | ログイン | ログイン | — | つく |
-| `editDisclosureAction()` | 広告であることの断り書きを登録・変更する（読者に出る文が変わる）（src/presentation/admin/compliance-action.ts） | ログイン | ログイン | — | つく |
-| `editPolicyRuleAction()` | 表記のきまりを足す・止める・効かせ直す（止めている間は記事の表現が確認されない）（src/presentation/admin/compliance-action.ts） | ログイン | ログイン | — | つく |
+| `checkFactBoundaryAction()` | 書ける範囲の判定を試す（src/presentation/admin/write/fact-boundary-action.ts） | ログイン | ログイン | — | つく |
+| `createAudiencePersonaAction()` | 読者像（誰に向けて書くか・何を比べたいか）を登録する（src/presentation/admin/write/persona-form-action.ts） | ログイン | ログイン | — | つく |
+| `createAuthorPersonaAction()` | 書き手（記事をどの立場・文体で書かせるか）を登録する（src/presentation/admin/write/persona-form-action.ts） | ログイン | ログイン | — | つく |
+| `createClaimAction()` | 商品について記事に書ける 1 文と、その裏付けを登録する（確認待ちで入る）（src/presentation/admin/material/evidence-form-action.ts） | ログイン | ログイン | — | つく |
+| `createConceptDraftsAction()` | 1 つの商品から、ブログごとの切り口で下書きをまとめて作る（src/presentation/admin/write/concept-drafts-action.ts） | ログイン | ログイン | — | つく |
+| `createContentPackageAction()` | 企画（どの商品を・誰が・誰に向けて・何のために書くか）を立てる（src/presentation/admin/write/content-package-form-action.ts） | ログイン | ログイン | — | つく |
+| `createContentVariantAction()` | 記事の枠を作る（src/presentation/admin/write/content-form-action.ts） | ログイン | ログイン | — | つく |
+| `createEvidenceAction()` | 記事に書くことの出所になる資料を 1 つ登録する（src/presentation/admin/material/evidence-form-action.ts） | ログイン | ログイン | — | つく |
+| `createProductAction()` | 商品を登録する（src/presentation/admin/material/product-form-action.ts） | ログイン | ログイン | — | つく |
+| `createRankingModelAction()` | 順位づけの基準（何をどれだけ重く見るか・どう測るか）を立てる（src/presentation/admin/material/ranking-form-action.ts） | ログイン | ログイン | — | つく |
+| `createTestRunAction()` | いつ・誰が・どの方法で測ったかの記録を登録する（src/presentation/admin/material/evidence-form-action.ts） | ログイン | ログイン | — | つく |
+| `draftVariantSpecAction()` | 見せ方の試作を登録する（src/presentation/admin/observe/improvement-action.ts） | ログイン | ログイン | — | つく |
+| `editDisclosureAction()` | 広告であることの断り書きを登録・変更する（読者に出る文が変わる）（src/presentation/admin/maintain/compliance-action.ts） | ログイン | ログイン | — | つく |
+| `editPolicyRuleAction()` | 表記のきまりを足す・止める・効かせ直す（止めている間は記事の表現が確認されない）（src/presentation/admin/maintain/compliance-action.ts） | ログイン | ログイン | — | つく |
 | `handOffFeedbackAction()` | 指摘を引き継ぐ（src/presentation/admin/feedback-action.ts） | ログイン | ログイン | — | つく |
-| `manageBlogAppearanceAction()` | ブログの見せ方と配色を決める（ページ単位の例外を含む）（src/presentation/admin/blog-appearance-action.ts） | ログイン | ログイン | — | つく |
-| `manageBlogArticleAction()` | 記事を作る・直す・論理削除し、本文・タグ・評価ごと同じURLへ復元する（src/presentation/admin/blog-article-action.ts） | ログイン | ログイン | — | つく |
-| `manageBlogDeliveryAction()` | 配信部品を出し入れする（src/presentation/admin/blog-layout-action.ts） | ログイン | ログイン | — | つく |
-| `manageBlogLayoutAction()` | 版面の枠と帯を並べ替える・出し入れする（src/presentation/admin/blog-layout-action.ts） | ログイン | ログイン | — | つく |
-| `manageBlogPlacementAction()` | 記事のどこに成果リンクを出しているかを台帳へ記録する・外す（src/presentation/admin/blog-placement-action.ts） | ログイン | ログイン | — | つく |
-| `manageBlogRatingAction()` | 読者が付けた評価を伏せる・戻す（票は消えず、平均と件数から外れるだけ）（src/presentation/admin/blog-rating-action.ts） | ログイン | ログイン | — | つく |
-| `manageGuidelineReferenceAction()` | SEO/AI 指針の出典を登録する・確認日を更新する（一覧に残り、後から直せる）（src/presentation/admin/guideline-reference-action.ts） | ログイン | ログイン | — | つく |
-| `manageSiteNetworkAction()` | サイト網の枝を足す・直す・論理削除し、削除済み一覧から同じURLへ復元する（src/presentation/admin/site-network-action.ts） | ログイン | ログイン | — | つく |
-| `markContactHandledAction()` | 読者からの問い合わせに対応済みの印を付ける・外す（src/presentation/admin/contact-action.ts） | ログイン | ログイン | — | つく |
+| `manageBlogAppearanceAction()` | ブログの見せ方と配色を決める（ページ単位の例外を含む）（src/presentation/admin/publish/blog-appearance-action.ts） | ログイン | ログイン | — | つく |
+| `manageBlogArticleAction()` | 記事を作る・直す・論理削除し、本文・タグ・評価ごと同じURLへ復元する（src/presentation/admin/publish/blog-article-action.ts） | ログイン | ログイン | — | つく |
+| `manageBlogDeliveryAction()` | 配信部品を出し入れする（src/presentation/admin/publish/blog-layout-action.ts） | ログイン | ログイン | — | つく |
+| `manageBlogLayoutAction()` | 版面の枠と帯を並べ替える・出し入れする（src/presentation/admin/publish/blog-layout-action.ts） | ログイン | ログイン | — | つく |
+| `manageBlogPlacementAction()` | 記事のどこに成果リンクを出しているかを台帳へ記録する・外す（src/presentation/admin/publish/blog-placement-action.ts） | ログイン | ログイン | — | つく |
+| `manageBlogRatingAction()` | 読者が付けた評価を伏せる・戻す（票は消えず、平均と件数から外れるだけ）（src/presentation/admin/publish/blog-rating-action.ts） | ログイン | ログイン | — | つく |
+| `manageGuidelineReferenceAction()` | SEO/AI 指針の出典を登録する・確認日を更新する（一覧に残り、後から直せる）（src/presentation/admin/maintain/guideline-reference-action.ts） | ログイン | ログイン | — | つく |
+| `manageSiteNetworkAction()` | サイト網の枝を足す・直す・論理削除し、削除済み一覧から同じURLへ復元する（src/presentation/admin/publish/site-network-action.ts） | ログイン | ログイン | — | つく |
+| `markContactHandledAction()` | 読者からの問い合わせに対応済みの印を付ける・外す（src/presentation/admin/maintain/contact-action.ts） | ログイン | ログイン | — | つく |
+| `previewAffiliateUrlAction()` | 成果リンクを保存する前に、安全な接続先から取得できる情報だけを確認する（保存はしない）（src/presentation/admin/earn/inbox-action.ts） | ログイン | ログイン | — | つく |
 | `removeFromShortlistAction()` | 読者が自分の「気になる商品」から 1 件外す（src/presentation/site/shortlist-action.ts） | 誰でも | 誰でも | — | つく |
 | `sampleAction()` | 見本帳のボタンの見本（何もしない）（src/app/admin/ui-catalog/sample-action.ts） | ログイン | ログイン | — | つく |
-| `saveAffiliateAccountAction()` | 提携先（ASP のアカウント）を登録・変更する（src/presentation/admin/affiliate-form-action.ts） | ログイン | ログイン | — | つく |
-| `saveAffiliateProgramAction()` | 提携条件（広告主と報酬の決め方）を登録・変更する（src/presentation/admin/affiliate-form-action.ts） | ログイン | ログイン | — | つく |
-| `saveBrandAction()` | 読者から見た書き手（名前・問い合わせ先・文体）を 1 つ作る・直す（src/presentation/admin/settings-form-action.ts） | ログイン | ログイン | — | つく |
-| `saveScoreCardAction()` | 決めた基準で測った商品 1 つの点と、その根拠を登録する（src/presentation/admin/ranking-form-action.ts） | ログイン | ログイン | — | つく |
-| `saveSiteDraftStepAction()` | サイトの下書きを保存する（src/presentation/admin/site-wizard-action.ts） | ログイン | ログイン | — | つく |
+| `saveAffiliateAccountAction()` | 提携先（ASP のアカウント）を登録・変更する（src/presentation/admin/earn/affiliate-form-action.ts） | ログイン | ログイン | — | つく |
+| `saveAffiliateProgramAction()` | 提携条件（広告主と報酬の決め方）を登録・変更する（src/presentation/admin/earn/affiliate-form-action.ts） | ログイン | ログイン | — | つく |
+| `saveBrandAction()` | 読者から見た書き手（名前・問い合わせ先・文体）を 1 つ作る・直す（src/presentation/admin/maintain/settings-form-action.ts） | ログイン | ログイン | — | つく |
+| `saveScoreCardAction()` | 決めた基準で測った商品 1 つの点と、その根拠を登録する（src/presentation/admin/material/ranking-form-action.ts） | ログイン | ログイン | — | つく |
+| `saveSiteDraftStepAction()` | サイトの下書きを保存する（src/presentation/admin/publish/site-wizard-action.ts） | ログイン | ログイン | — | つく |
 | `saveToShortlistAction()` | 読者が自分の「気になる商品」へ 1 件保存する（src/presentation/site/shortlist-action.ts） | 誰でも | 誰でも | — | つく |
-| `startSiteDraftAction()` | サイトの下書きを始める（src/presentation/admin/site-wizard-action.ts） | ログイン | ログイン | — | つく |
-| `submitAffiliateUrlAction()` | 成果リンクを登録する（src/presentation/admin/inbox-action.ts） | ログイン | ログイン | — | つく |
+| `startSiteDraftAction()` | サイトの下書きを始める（src/presentation/admin/publish/site-wizard-action.ts） | ログイン | ログイン | — | つく |
+| `submitAffiliateUrlAction()` | 成果リンクを登録する（src/presentation/admin/earn/inbox-action.ts） | ログイン | ログイン | — | つく |
 | `submitContactAction()` | 読者からの問い合わせ（公開フォーム）（src/presentation/site/contact-action.ts） | 誰でも | 誰でも | — | つく |
 | `submitFeedbackAction()` | 指摘を登録する（src/presentation/admin/feedback-action.ts） | ログイン | ログイン | — | つく |
 | `submitReaderRatingAction()` | 記事に点を付ける（公開フォーム。押し直すと上書きされる）（src/presentation/site/reader-rating-action.ts） | 誰でも | 誰でも | — | つく |
-| `updateContentVariantAction()` | 記事の題名・本文・要約を直す（src/presentation/admin/content-form-action.ts） | ログイン | ログイン | — | つく |
-| `updateManagedSiteAction()` | ブログの設定を直す（src/presentation/admin/site-form-action.ts） | ログイン | ログイン | — | つく |
-| `updateProductAction()` | 商品の内容を直す（src/presentation/admin/product-form-action.ts） | ログイン | ログイン | — | つく |
-| `updatePublishedArticleAction()` | 公開済み記事を訂正する（src/presentation/admin/published-article-action.ts） | ログイン | ログイン | — | つく |
-| `updateWorkspaceAction()` | 作業場所の名前・契約の区分・時間帯・通貨を直す（src/presentation/admin/settings-form-action.ts） | ログイン | ログイン | — | つく |
-<!-- 生成物の指紋 sha256:4b9ba122f9f436c10afe96335cd40caac9bb943178f126a9bd69dd62213666d1 -->
+| `updateContentVariantAction()` | 記事の題名・本文・要約を直す（src/presentation/admin/write/content-form-action.ts） | ログイン | ログイン | — | つく |
+| `updateManagedSiteAction()` | ブログの設定を直す（src/presentation/admin/publish/site-form-action.ts） | ログイン | ログイン | — | つく |
+| `updateProductAction()` | 商品の内容を直す（src/presentation/admin/material/product-form-action.ts） | ログイン | ログイン | — | つく |
+| `updatePublishedArticleAction()` | 公開済み記事を訂正する（src/presentation/admin/publish/published-article-action.ts） | ログイン | ログイン | — | つく |
+| `updateWorkspaceAction()` | 作業場所の名前・契約の区分・時間帯・通貨を直す（src/presentation/admin/maintain/settings-form-action.ts） | ログイン | ログイン | — | つく |
+<!-- 生成物の指紋 sha256:7615e2d0fe7cc1c7282f947205f30ef3921bb15d913a2be4fdc2f353f081f5cf -->

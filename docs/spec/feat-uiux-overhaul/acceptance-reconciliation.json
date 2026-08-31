@@ -6,7 +6,7 @@
     "release": "unpublished",
     "tracking": "active"
   },
-  "evaluated_digest": "sha256:0f347e4d5270cdc7668ac1c4476c6d60e7a8dc2e0b163e0aa567f08c3d1e97b1",
+  "evaluated_digest": "sha256:faac0174f559e9ff599e41350bbe534d3dd9c40edc04705c65fd1f53719ff8e3",
   "evidence_output": "docs/spec/feat-uiux-overhaul/evidence/09-acceptance-reconciliation.txt",
   "acceptance": [
     {
@@ -138,7 +138,8 @@
         }
       ],
       "test_refs": [
-        "tests/ui/uiux-duplicate-implementation.test.ts"
+        "tests/ui/uiux-duplicate-implementation.test.ts",
+        "tests/architecture/admin-component-orphans.test.ts"
       ],
       "report_refs": [
         "docs/spec/feat-uiux-overhaul/acceptance-report.md",

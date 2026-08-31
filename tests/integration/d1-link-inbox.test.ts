@@ -365,8 +365,21 @@ describe("重複", () => {
       ...baseInbox,
       async claimNormalizedUrl(...args: Parameters<typeof baseInbox.claimNormalizedUrl>) {
         const claimed = await baseInbox.claimNormalizedUrl(...args);
-        if (claimed.ok && String(claimed.value) === String(args[2])) {
-          winnerId = args[2];
+        /*
+         * **勝った呼び出しだけで控えない。**
+         *
+         * 2026-08-30 に全件並列で 1 度落ちた（単独では 3 回とも緑）。控えを
+         * 「自分が勝ったとき」に限ると、`winnerId` が埋まるのは**勝者側の JS の代入**なのに、
+         * 敗者が負けを知るのは**取り合いのコミット**である。この 2 つの間に隙間があり、
+         * 負荷が高いと敗者のほうが先に `save` へ着いて `winnerId` がまだ null になる。
+         * **競合を試す仕掛けが、自分の中に競合を持っていた。**
+         *
+         * この port は「いま最初の 1 本として扱われている ID」を勝者・敗者どちらの
+         * 呼び出しにも返す（`LinkIngestionRepositoryPort` の約束）。控えをその戻り値に
+         * 置き換えると、敗者は**自分の取り合いが終わった時点で**勝者を知っており、隙間が消える。
+         */
+        if (claimed.ok) {
+          winnerId = claimed.value;
         }
         return claimed;
       },

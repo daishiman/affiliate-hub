@@ -355,6 +355,36 @@ export const SITE_DOCUMENT_KEYS: readonly SiteDocumentKey[] = SITE_ROUTES.filter
   isSiteDocumentRoute,
 ).map((route) => route.key);
 
+/**
+ * `legal_page.kind` で、8種のブログ固定ページと共有できない4種。
+ *
+ * privacy / terms / operator / tokushoho は既存の公開語彙に対応するが、
+ * この4種には対応先が無い。近い名前へ寄せると、2つの画面が同じ行を
+ * 上書きするため、保存上だけの独立した名札を持つ。
+ */
+export const SITE_DOCUMENT_ONLY_STORAGE_KINDS = [
+  "methodology",
+  "editorial_policy",
+  "advertising_policy",
+  "ai_policy",
+] as const;
+export type SiteDocumentOnlyStorageKind =
+  (typeof SITE_DOCUMENT_ONLY_STORAGE_KINDS)[number];
+
+/** 編集画面のURL鍵 → `legal_page.kind`。全鍵の写像はここ1か所に限定する。 */
+export const SITE_DOCUMENT_KIND_BY_KEY = {
+  methodology: "methodology",
+  "editorial-policy": "editorial_policy",
+  "advertising-policy": "advertising_policy",
+  "ai-policy": "ai_policy",
+  privacy: "privacy_policy",
+  terms: "site_policy",
+  operator: "profile",
+  tokushoho: "commercial_transaction",
+} as const satisfies Readonly<Record<SiteDocumentKey, string>>;
+export type SiteDocumentStorageKind =
+  (typeof SITE_DOCUMENT_KIND_BY_KEY)[SiteDocumentKey];
+
 /** 固定文書の名札。画面の見出しと同じ言葉を使う（別名を作らない）。 */
 export const SITE_DOCUMENT_LABEL = Object.fromEntries(
   SITE_DOCUMENT_KEYS.map((key) => [key, findRoute(key)?.label ?? key]),

@@ -1,5 +1,5 @@
 {
-  "graph_revision": 307,
+  "graph_revision": 357,
   "nodes": [
     {
       "acceptance": [],
@@ -778,7 +778,7 @@
         "source_version": null
       },
       "start_date": "2026-08-16",
-      "status": "draft",
+      "status": "closed",
       "tags": [
         "spec-canonicalization",
         "mvp"
@@ -788,7 +788,7 @@
       "template_version": "1.0.0",
       "title": "仕様整理の最終レビューと draft PR",
       "tracker_binding": "beads",
-      "updated_at": "2026-08-16T11:23:49.692375Z"
+      "updated_at": "2026-08-17T10:36:03Z"
     },
     {
       "acceptance": [
@@ -813,22 +813,22 @@
       "classification_confidence": 1.0,
       "classification_reason": "system-spec-harness が確定した architecture context の import。",
       "completion_evidence": {
-        "completed_at": "2026-08-28T08:34:56Z",
+        "completed_at": "2026-08-29T14:27:14Z",
         "evidence_refs": [
           "system-spec/completeness-report.json"
         ],
         "policy": "manual",
-        "reconciled_at": "2026-08-28T08:34:56Z",
+        "reconciled_at": "2026-08-29T14:27:14Z",
         "source": "manual",
         "status": "done"
       },
       "confirmation_evidence": {
-        "evaluated_digest": "8397bc1442ca97442364acb4d0897583f6c56ca267d0e84c1f7c2b7cfa5000fd",
+        "evaluated_digest": "aebfe3781f374c60b41c2a6698ec24c90e9aa58bed3903675e1b174fc75597a1",
         "evaluator": "system-spec-harness/assign-system-spec-completeness-evaluator",
         "evidence_ref": "system-spec/completeness-report.json"
       },
       "confirmation_status": "confirmed",
-      "created_at": "2026-08-28T08:34:56Z",
+      "created_at": "2026-08-29T14:27:14Z",
       "depends_on": [],
       "domain": "system-spec",
       "evaluation_status": "pass",
@@ -845,7 +845,7 @@
       "goal": "仕様由来の architecture context を feature から参照できる状態。",
       "graph_node_id": "arch-system-spec-overview",
       "implementation_readiness": {
-        "checked_at": "2026-08-28T08:34:56Z",
+        "checked_at": "2026-08-29T14:27:14Z",
         "missing_sections": [],
         "status": "complete"
       },
@@ -872,7 +872,7 @@
         "confirmed artifacts are not rewritten by this adapter"
       ],
       "source_lineage": {
-        "imported_at": "2026-08-28T08:34:56Z",
+        "imported_at": "2026-08-29T14:27:14Z",
         "origin_kind": "system-spec-harness",
         "source_digest": "af460e02930459d08ad7ac2414875f4d5ab4fdc2489ce7cafe51c99263467058",
         "source_path": "system-spec/00-requirements-definition.md",
@@ -891,7 +891,7 @@
       "template_version": "1.0.0",
       "title": "system-spec architecture overview",
       "tracker_binding": "none",
-      "updated_at": "2026-08-28T08:34:56Z"
+      "updated_at": "2026-08-29T14:27:14Z"
     },
     {
       "acceptance": [
@@ -919,22 +919,22 @@
       "classification_confidence": 1.0,
       "classification_reason": "system-spec-harness が compile した specification index の import。",
       "completion_evidence": {
-        "completed_at": "2026-08-28T08:34:56Z",
+        "completed_at": "2026-08-29T14:27:14Z",
         "evidence_refs": [
           "system-spec/completeness-report.json"
         ],
         "policy": "manual",
-        "reconciled_at": "2026-08-28T08:34:56Z",
+        "reconciled_at": "2026-08-29T14:27:14Z",
         "source": "manual",
         "status": "done"
       },
       "confirmation_evidence": {
-        "evaluated_digest": "8397bc1442ca97442364acb4d0897583f6c56ca267d0e84c1f7c2b7cfa5000fd",
+        "evaluated_digest": "aebfe3781f374c60b41c2a6698ec24c90e9aa58bed3903675e1b174fc75597a1",
         "evaluator": "system-spec-harness/assign-system-spec-completeness-evaluator",
         "evidence_ref": "system-spec/completeness-report.json"
       },
       "confirmation_status": "confirmed",
-      "created_at": "2026-08-28T08:34:56Z",
+      "created_at": "2026-08-29T14:27:14Z",
       "depends_on": [],
       "domain": "system-spec",
       "evaluation_status": "pass",
@@ -951,7 +951,7 @@
       "goal": "仕様と architecture context を source lineage 付きで結ぶ。",
       "graph_node_id": "spec-system-spec-index",
       "implementation_readiness": {
-        "checked_at": "2026-08-28T08:34:56Z",
+        "checked_at": "2026-08-29T14:27:14Z",
         "missing_sections": [],
         "status": "complete"
       },
@@ -978,7 +978,7 @@
         "confirmed artifacts are not rewritten by this adapter"
       ],
       "source_lineage": {
-        "imported_at": "2026-08-28T08:34:56Z",
+        "imported_at": "2026-08-29T14:27:14Z",
         "origin_kind": "system-spec-harness",
         "source_digest": "d3be7225ce351be5424414a85e715da82fb0e398f6bae1eb7de14a9d08498726",
         "source_path": "system-spec/index.md",
@@ -997,7 +997,7 @@
       "template_version": "1.0.0",
       "title": "system-spec compiled specification",
       "tracker_binding": "none",
-      "updated_at": "2026-08-28T08:34:56Z"
+      "updated_at": "2026-08-29T14:27:14Z"
     },
     {
       "acceptance": [
@@ -1102,7 +1102,7 @@
         "source_version": "0.1.0"
       },
       "start_date": "2026-08-16",
-      "status": "active",
+      "status": "closed",
       "tags": [
         "auth",
         "workspace",
@@ -1114,7 +1114,7 @@
       "template_version": "1.0.0",
       "title": "認証とWorkspace/Brand基盤",
       "tracker_binding": "beads",
-      "updated_at": "2026-08-16T14:35:00Z"
+      "updated_at": "2026-08-24T13:18:15Z"
     },
     {
       "acceptance": [
@@ -1520,7 +1520,6 @@
       "confirmation_status": "confirmed",
       "created_at": "2026-08-16T12:20:00Z",
       "depends_on": [
-        "feat-auth-workspace",
         "feat-data-model"
       ],
       "domain": "editorial",
@@ -1594,7 +1593,7 @@
       "template_version": "1.0.0",
       "title": "Persona Studio",
       "tracker_binding": "beads",
-      "updated_at": "2026-08-16T14:35:00Z"
+      "updated_at": "2026-08-17T05:01:01Z"
     },
     {
       "acceptance": [
@@ -2125,7 +2124,6 @@
       "confirmation_status": "confirmed",
       "created_at": "2026-08-16T12:20:00Z",
       "depends_on": [
-        "feat-auth-workspace",
         "feat-affiliate-inbox",
         "feat-data-model"
       ],
@@ -2201,7 +2199,7 @@
       "template_version": "1.0.0",
       "title": "Affiliate Hub (アフィリエイト一元管理)",
       "tracker_binding": "beads",
-      "updated_at": "2026-08-16T14:35:00Z"
+      "updated_at": "2026-08-17T05:00:58Z"
     },
     {
       "acceptance": [
@@ -2246,10 +2244,7 @@
       },
       "confirmation_status": "confirmed",
       "created_at": "2026-08-16T12:20:00Z",
-      "depends_on": [
-        "feat-affiliate-hub",
-        "feat-data-model"
-      ],
+      "depends_on": [],
       "domain": "compliance",
       "evaluation_status": "pass",
       "execution_contexts": [],
@@ -2309,7 +2304,7 @@
         "source_version": "0.1.0"
       },
       "start_date": "2026-08-16",
-      "status": "active",
+      "status": "closed",
       "tags": [
         "disclosure",
         "compliance",
@@ -2321,7 +2316,7 @@
       "template_version": "1.0.0",
       "title": "広告表示・コンプライアンス",
       "tracker_binding": "beads",
-      "updated_at": "2026-08-16T14:35:00Z"
+      "updated_at": "2026-08-24T13:18:17Z"
     },
     {
       "acceptance": [
@@ -3025,7 +3020,7 @@
         "source_version": "0.1.0"
       },
       "start_date": null,
-      "status": "active",
+      "status": "closed",
       "tags": [
         "p01",
         "feat-auth-workspace"
@@ -3035,7 +3030,7 @@
       "template_version": "1.1.0",
       "title": "認証/Workspace 基盤の要求ベースライン確定",
       "tracker_binding": "beads",
-      "updated_at": "2026-08-16T13:01:14.641299Z"
+      "updated_at": "2026-08-24T12:54:41Z"
     },
     {
       "acceptance": [
@@ -3134,7 +3129,7 @@
         "source_version": "0.1.0"
       },
       "start_date": null,
-      "status": "active",
+      "status": "closed",
       "tags": [
         "p02",
         "feat-auth-workspace"
@@ -3144,7 +3139,7 @@
       "template_version": "1.1.0",
       "title": "認証/Workspace/Brand/RBAC アーキテクチャ設計",
       "tracker_binding": "beads",
-      "updated_at": "2026-08-16T13:01:17.955435Z"
+      "updated_at": "2026-08-24T12:54:41Z"
     },
     {
       "acceptance": [
@@ -3242,7 +3237,7 @@
         "source_version": "0.1.0"
       },
       "start_date": null,
-      "status": "active",
+      "status": "closed",
       "tags": [
         "p03",
         "feat-auth-workspace"
@@ -3252,7 +3247,7 @@
       "template_version": "1.1.0",
       "title": "アーキテクチャ独立設計レビュー",
       "tracker_binding": "beads",
-      "updated_at": "2026-08-16T13:01:21.466055Z"
+      "updated_at": "2026-08-24T12:54:42Z"
     },
     {
       "acceptance": [
@@ -3354,7 +3349,7 @@
         "source_version": "0.1.0"
       },
       "start_date": null,
-      "status": "active",
+      "status": "closed",
       "tags": [
         "p04",
         "feat-auth-workspace"
@@ -3364,7 +3359,7 @@
       "template_version": "1.1.0",
       "title": "受け入れ条件に基づくテストファースト設計",
       "tracker_binding": "beads",
-      "updated_at": "2026-08-16T13:01:24.707942Z"
+      "updated_at": "2026-08-24T12:54:42Z"
     },
     {
       "acceptance": [
@@ -3468,7 +3463,7 @@
         "source_version": "0.1.0"
       },
       "start_date": null,
-      "status": "active",
+      "status": "closed",
       "tags": [
         "p05",
         "feat-auth-workspace"
@@ -3478,7 +3473,7 @@
       "template_version": "1.1.0",
       "title": "Better Auth・Workspace・RBAC 実装",
       "tracker_binding": "beads",
-      "updated_at": "2026-08-16T13:01:28.069852Z"
+      "updated_at": "2026-08-24T12:54:42Z"
     },
     {
       "acceptance": [
@@ -3577,7 +3572,7 @@
         "source_version": "0.1.0"
       },
       "start_date": null,
-      "status": "active",
+      "status": "closed",
       "tags": [
         "p06",
         "feat-auth-workspace"
@@ -3587,7 +3582,7 @@
       "template_version": "1.1.0",
       "title": "認証/Workspace/RBAC テスト実行",
       "tracker_binding": "beads",
-      "updated_at": "2026-08-16T13:01:31.416972Z"
+      "updated_at": "2026-08-24T12:54:42Z"
     },
     {
       "acceptance": [
@@ -3686,7 +3681,7 @@
         "source_version": "0.1.0"
       },
       "start_date": null,
-      "status": "active",
+      "status": "closed",
       "tags": [
         "p07",
         "feat-auth-workspace"
@@ -3696,7 +3691,7 @@
       "template_version": "1.1.0",
       "title": "feat-auth-workspace 受け入れ判定",
       "tracker_binding": "beads",
-      "updated_at": "2026-08-16T13:01:34.646583Z"
+      "updated_at": "2026-08-24T12:54:42Z"
     },
     {
       "acceptance": [
@@ -3795,7 +3790,7 @@
         "source_version": "0.1.0"
       },
       "start_date": null,
-      "status": "active",
+      "status": "closed",
       "tags": [
         "p08",
         "feat-auth-workspace"
@@ -3805,7 +3800,7 @@
       "template_version": "1.1.0",
       "title": "workspace_id 移行とスキーマ整備",
       "tracker_binding": "beads",
-      "updated_at": "2026-08-16T13:01:37.844023Z"
+      "updated_at": "2026-08-24T12:54:43Z"
     },
     {
       "acceptance": [
@@ -3904,7 +3899,7 @@
         "source_version": "0.1.0"
       },
       "start_date": null,
-      "status": "active",
+      "status": "closed",
       "tags": [
         "p09",
         "feat-auth-workspace"
@@ -3914,7 +3909,7 @@
       "template_version": "1.1.0",
       "title": "品質・セキュリティ・運用保証",
       "tracker_binding": "beads",
-      "updated_at": "2026-08-16T13:01:40.973534Z"
+      "updated_at": "2026-08-24T12:54:43Z"
     },
     {
       "acceptance": [
@@ -4013,7 +4008,7 @@
         "source_version": "0.1.0"
       },
       "start_date": null,
-      "status": "active",
+      "status": "closed",
       "tags": [
         "p10",
         "feat-auth-workspace"
@@ -4023,7 +4018,7 @@
       "template_version": "1.1.0",
       "title": "独立最終レビュー",
       "tracker_binding": "beads",
-      "updated_at": "2026-08-16T13:01:44.113128Z"
+      "updated_at": "2026-08-24T12:54:43Z"
     },
     {
       "acceptance": [
@@ -4123,7 +4118,7 @@
         "source_version": "0.1.0"
       },
       "start_date": null,
-      "status": "active",
+      "status": "closed",
       "tags": [
         "p11",
         "feat-auth-workspace"
@@ -4133,7 +4128,7 @@
       "template_version": "1.1.0",
       "title": "再現可能な証跡取得",
       "tracker_binding": "beads",
-      "updated_at": "2026-08-16T13:01:47.453091Z"
+      "updated_at": "2026-08-24T12:54:43Z"
     },
     {
       "acceptance": [
@@ -4233,7 +4228,7 @@
         "source_version": "0.1.0"
       },
       "start_date": null,
-      "status": "active",
+      "status": "closed",
       "tags": [
         "p12",
         "feat-auth-workspace"
@@ -4243,7 +4238,7 @@
       "template_version": "1.1.0",
       "title": "ドキュメント・ランブック・引き継ぎ",
       "tracker_binding": "beads",
-      "updated_at": "2026-08-16T13:01:50.646150Z"
+      "updated_at": "2026-08-24T12:54:43Z"
     },
     {
       "acceptance": [
@@ -4344,7 +4339,7 @@
         "source_version": "0.1.0"
       },
       "start_date": null,
-      "status": "active",
+      "status": "closed",
       "tags": [
         "p13",
         "feat-auth-workspace"
@@ -4354,7 +4349,7 @@
       "template_version": "1.1.0",
       "title": "リリース/デプロイとクローズアウト",
       "tracker_binding": "beads",
-      "updated_at": "2026-08-16T13:01:53.889082Z"
+      "updated_at": "2026-08-24T13:18:16Z"
     },
     {
       "acceptance": [
@@ -4520,9 +4515,7 @@
       },
       "confirmation_status": "confirmed",
       "created_at": "2026-08-16T13:20:00Z",
-      "depends_on": [
-        "feat-auth-workspace"
-      ],
+      "depends_on": [],
       "domain": "data",
       "evaluation_status": "pass",
       "execution_contexts": [],
@@ -4594,7 +4587,7 @@
       "template_version": "1.0.0",
       "title": "データモデル基盤 (32エンティティ)",
       "tracker_binding": "beads",
-      "updated_at": "2026-08-16T14:20:00Z"
+      "updated_at": "2026-08-17T15:17:48Z"
     },
     {
       "acceptance": [
@@ -4638,9 +4631,7 @@
       },
       "confirmation_status": "confirmed",
       "created_at": "2026-08-16T13:20:00Z",
-      "depends_on": [
-        "feat-auth-workspace"
-      ],
+      "depends_on": [],
       "domain": "frontend",
       "evaluation_status": "pass",
       "execution_contexts": [],
@@ -4701,7 +4692,7 @@
         "source_version": "0.1.0"
       },
       "start_date": "2026-08-16",
-      "status": "active",
+      "status": "closed",
       "tags": [
         "frontend",
         "ux",
@@ -4713,7 +4704,7 @@
       "template_version": "1.0.0",
       "title": "UI/UX 共通基盤",
       "tracker_binding": "beads",
-      "updated_at": "2026-08-16T14:20:00Z"
+      "updated_at": "2026-08-17T14:11:39Z"
     },
     {
       "acceptance": [
@@ -4757,10 +4748,7 @@
       },
       "confirmation_status": "confirmed",
       "created_at": "2026-08-16T13:20:00Z",
-      "depends_on": [
-        "feat-persona-studio",
-        "feat-product-intelligence"
-      ],
+      "depends_on": [],
       "domain": "generation",
       "evaluation_status": "pass",
       "execution_contexts": [],
@@ -4822,7 +4810,7 @@
         "source_version": "0.1.0"
       },
       "start_date": "2026-08-16",
-      "status": "active",
+      "status": "closed",
       "tags": [
         "ai",
         "generation",
@@ -4834,7 +4822,7 @@
       "template_version": "1.0.0",
       "title": "生成基盤 (プロンプト・スキル・サブエージェント・評価セット)",
       "tracker_binding": "beads",
-      "updated_at": "2026-08-16T14:20:00Z"
+      "updated_at": "2026-08-17T16:23:16Z"
     },
     {
       "acceptance": [
@@ -4941,7 +4929,7 @@
         "source_version": "0.1.0"
       },
       "start_date": "2026-08-16",
-      "status": "active",
+      "status": "closed",
       "tags": [
         "content",
         "writing",
@@ -4953,7 +4941,7 @@
       "template_version": "1.0.0",
       "title": "文章作成メソッドと品質検査",
       "tracker_binding": "beads",
-      "updated_at": "2026-08-16T14:20:00Z"
+      "updated_at": "2026-08-17T16:24:18Z"
     },
     {
       "acceptance": [
@@ -5885,7 +5873,7 @@
         "source_version": null
       },
       "start_date": "2026-08-17",
-      "status": "draft",
+      "status": "closed",
       "tags": [
         "backlog",
         "mvp"
@@ -5893,9 +5881,9 @@
       "target_date": null,
       "template_id": "task",
       "template_version": "1.0.0",
-      "title": "`pnpm verify` と自動チェック 3 本の設置",
+      "title": "pnpm verify と自動チェック 3 本の設置",
       "tracker_binding": "beads",
-      "updated_at": "2026-08-17T02:21:43.593642Z"
+      "updated_at": "2026-08-17T14:10:24Z"
     },
     {
       "acceptance": [],
@@ -5984,7 +5972,7 @@
         "source_version": null
       },
       "start_date": "2026-08-17",
-      "status": "blocked",
+      "status": "closed",
       "tags": [
         "backlog",
         "mvp"
@@ -5994,7 +5982,7 @@
       "template_version": "1.0.0",
       "title": "評価セットを実際に走らせる仕組み",
       "tracker_binding": "beads",
-      "updated_at": "2026-08-17T02:21:49.358890Z"
+      "updated_at": "2026-08-17T13:55:59Z"
     },
     {
       "acceptance": [],
@@ -6084,7 +6072,7 @@
         "source_version": null
       },
       "start_date": "2026-08-17",
-      "status": "draft",
+      "status": "closed",
       "tags": [
         "backlog",
         "mvp"
@@ -6094,7 +6082,7 @@
       "template_version": "1.0.0",
       "title": "同時に同じリンクを貼ったときの重複の取りこぼし",
       "tracker_binding": "beads",
-      "updated_at": "2026-08-17T02:21:55.000818Z"
+      "updated_at": "2026-08-21T05:08:51Z"
     },
     {
       "acceptance": [],
@@ -6430,13 +6418,16 @@
       ],
       "classification_confidence": 0.95,
       "classification_reason": "docs/product/backlog.md の残課題を作業単位として登録",
+      "closed_at": "2026-08-17T04:25:22Z",
       "completion_evidence": {
-        "completed_at": null,
-        "evidence_refs": [],
+        "completed_at": "2026-08-17T04:25:22Z",
+        "evidence_refs": [
+          "beads:ah-w6y"
+        ],
         "policy": "manual",
-        "reconciled_at": null,
-        "source": null,
-        "status": "open"
+        "reconciled_at": "2026-08-30T12:03:07Z",
+        "source": "reconciliation",
+        "status": "done"
       },
       "confirmation_evidence": {
         "evaluated_digest": "f814f1a62e30eebb4512ba0c7964bfdb6986c4007af406aab7d8d7e58e17a856",
@@ -6518,7 +6509,7 @@
         "source_version": "1.0.0"
       },
       "start_date": "2026-08-17",
-      "status": "draft",
+      "status": "closed",
       "tags": [
         "feedback",
         "loop",
@@ -6529,7 +6520,7 @@
       "template_version": "1.0.0",
       "title": "改善要望フィードバック（受け取り → 一覧 → 払い出し）",
       "tracker_binding": "beads",
-      "updated_at": "2026-08-17T02:22:22.471785Z"
+      "updated_at": "2026-08-30T12:03:07Z"
     },
     {
       "acceptance": [],
@@ -14062,7 +14053,7 @@
         "独自ドメイン・DNS 運用、テーマの外部販売"
       ],
       "source_lineage": {
-        "imported_at": "2026-08-24T02:20:00Z",
+        "imported_at": "2026-08-29T23:02:28Z",
         "origin_kind": "generated",
         "source_digest": "6dba5f055a8452644ce8d57807fb62a77cb9356a6018dcaa32c7c62b4c9d81a3",
         "source_path": "system-spec/ui-ux.md",
@@ -16833,6 +16824,2925 @@
       "updated_at": "2026-08-25T14:00:26Z"
     },
     {
+      "acceptance": [
+        "参照サイトの14サブサイトマップに含まれる全公開canonical URLが重複を除いて台帳化され、URL数・取得日・画面型・代表証跡が欠落なく記録されている",
+        "全URLが画面型のいずれかに分類され、各画面型にデスクトップとモバイルの代表詳細解析が対応している",
+        "公開面と管理面の詳細画面一覧表が、本文/サイドバー/ヘッダー/フッターの位置、構成、状態、主操作、必要データ、受入基準を含む",
+        "参照元の文章・写真・ロゴ・固有名・色値を含まず、同等の情報階層を独自トークンと図解ブロックで表現できる",
+        "記事作成はテンプレート選択から最初の下書き保存まで主導線が1本で、必須項目だけで開始でき、不要な分岐や同等の主ボタンが表示されない",
+        "編集中は未保存・保存中・保存済み時刻・失敗・競合が常に文字とアイコンで判別でき、失敗時に入力を失わず再試行または差分復元できる",
+        "改善画面は指摘を重要度と該当箇所でまとめ、1件ずつ適用・プレビュー・取消しでき、一括適用は差分確認後に限定される",
+        "アフィリエイトURLを貼ると保存前にcanonical URL、商品名、販売元、画像または図解フォールバック、価格と取得時刻、取得元、重複候補、取得失敗理由がプレビューされる",
+        "アフィリエイト一覧で状態・提携先・最終確認・掲載数を絞り込みでき、1操作で掲載サイト/ページ/ブロックへ逆引きできる",
+        "新規作成・改善・保存・アフィリエイト確認のユーザビリティテストで、初見参加者がナビゲーション説明なしで主タスクを完了し、保存済み判別と掲載先特定の成功率が90%以上である",
+        "公開面と管理面の主要フローはaxe-coreの重大違反0件、200% zoomで機能欠落なし、キーボードのみで完結し、状態を色のみに依存しない",
+        "実装前の現行画面gap ledgerと実装後の受入証跡が同じ画面IDと要件IDで対応し、未解決の欠落が一覧で確認できる"
+      ],
+      "architecture_refs": [
+        "arch-system-spec-overview",
+        "arch-two-layer-platform"
+      ],
+      "artifact_kind": "feature",
+      "artifact_subtypes": [],
+      "beads_linkage": null,
+      "classification_candidates": [
+        {
+          "artifact_kind": "feature",
+          "candidate_path": "features/feat-reference-blog-admin-ux.md",
+          "confidence": 0.98
+        }
+      ],
+      "classification_confidence": 0.98,
+      "classification_reason": "今回の新規要望を、参照サイトの全URL台帳と画面型別詳細解析、非模倣の公開面ブループリント、低認知負荷の管理CRUD、アフィリエイト即時プレビュー/掲載先逆引きを一体の観測可能なenhancement featureにマクロ分解した。既存CRUD基盤は再定義せずdepends_onで再利用する",
+      "completion_evidence": {
+        "completed_at": null,
+        "evidence_refs": [],
+        "policy": "manual",
+        "reconciled_at": null,
+        "source": null,
+        "status": "in_progress"
+      },
+      "confirmation_evidence": {
+        "evaluated_digest": "a052d177cdedc029acbb2fd747bce579c0626bed5f6b64f9a94504ed6a2e75bd",
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-reference-blog-admin-ux/a052d177cdedc029acbb2fd747bce579c0626bed5f6b64f9a94504ed6a2e75bd/plan-findings.json"
+      },
+      "confirmation_status": "confirmed",
+      "created_at": "2026-08-29T14:36:00Z",
+      "depends_on": [
+        "feat-blog-ops-crud",
+        "feat-blog-ui-builder",
+        "feat-affiliate-inbox"
+      ],
+      "domain": "frontend",
+      "evaluation_status": "pass",
+      "execution_contexts": [],
+      "feature_package_id": null,
+      "file_path": "features/feat-reference-blog-admin-ux.md",
+      "github_project_linkages": [],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "goal": "14サブサイトマップの全公開URLを台帳化し、ページ型ごとの詳細解析・画面一覧・共通レイアウト・記事会話構成・非模倣トークンが実装可能な仕様になり、管理画面では1画面1目的、1つの主要操作、進行開示、自動保存と明示的保存の状態可視化、アフィリエイトURL貼付時の画像・商品・販売元・価格・重複プレビュー、掲載ページ逆引きまでが視覚的に一貫して操作できる状態になっている",
+      "graph_node_id": "feat-reference-blog-admin-ux",
+      "implementation_readiness": {
+        "checked_at": "2026-08-29T14:38:12Z",
+        "missing_sections": [],
+        "status": "complete"
+      },
+      "issue_linkage": null,
+      "iteration": null,
+      "owners": [
+        "daishiman"
+      ],
+      "parent_feature": null,
+      "phase_ref": null,
+      "priority": "high",
+      "project_id": "affiliate-hub",
+      "pull_request_linkages": [],
+      "purpose": "参照ブログの公開ページ群と現行管理画面を証跡付きで解析し、著作物・ブランドを複製せずに読みやすいブログ構成へ抽象化するとともに、運営者が新規作成・改善・保存・アフィリエイト確認を迷わず完了できる管理体験を作る",
+      "related_nodes": [
+        "spec-system-spec-index",
+        "arch-system-spec-overview",
+        "feat-affiliate-hub",
+        "feat-reader-surface"
+      ],
+      "resource_scope": [
+        "src",
+        "drizzle",
+        "docs/spec",
+        "system-spec",
+        "features/feat-reference-blog-admin-ux.context.json"
+      ],
+      "scope_in": [
+        "参照サイトの14サブサイトマップと全公開canonical URLの台帳化。各URLを記事年別・固定ページ・カテゴリ・タグ・著者・比較/ナビゲーター等の画面型に分類し、型ごとに複数代表ページを詳細分析する",
+        "公開面の詳細画面一覧と解剖表: ヘッダー、フッター、本文カラム、サイドバー、パンくず、目次、開示、導入、H2/H3、会話/注意/比較/スペック/CTA、関連記事、著者、コメント、法務導線の順序・位置・表示条件",
+        "タイトル・導入・要約・会話・比較・まとめのリズムを再利用可能な記事構成ルールへ抽象化し、写真は独自の図解・比較図・フロー・アイコン・データ表に置換する",
+        "参照元の固有文章・写真・ロゴ・固有名・色値・テーマ資産は転用せず、情報階層と操作原則のみを独自デザイントークンと部品ルールに変換する非模倣ゲート",
+        "現行コードの公開面と管理面を実画面で点検し、実装済み・欠落・重複・迷いやすい操作・データが見えない箇所を画面単位のgap ledgerにする",
+        "管理画面の認知負荷低減: 1画面1目的、1つの視覚的主操作、日本語の動詞ラベル、進行開示、既定値、直接編集、インライン検証、キーボード対応、危険操作の分離、次にすべきことの明示",
+        "記事とサイトの新規作成→改善→保存→プレビュー→公開フロー。自動保存中/保存済み/未保存/競合/失敗を常時表示し、再試行と差分復元で入力を失わない",
+        "アフィリエイトURL貼付時にcanonical URL、商品名、販売元、画像、価格/取得時刻、取得元、重複候補、取得失敗理由、画像無しの図解フォールバックを確定前にプレビューする",
+        "アフィリエイト一覧に商品・提携先・状態・最終確認・掲載数・要確認を表示し、リンクから掲載サイト/ページ/ブロックへ逆引きしてその場で確認・差し替えできる",
+        "詳細画面一覧表と管理CRUD一覧表に、利用者、目的、入口、主操作、表示データ、空/読込/失敗/成功/権限状態、デスクトップ/モバイル構成、必要API/データ、受入基準を対応付ける",
+        "主要フローのaxe-core重大違反0、200% zoom、キーボード完結、状態の色のみ依存禁止、ユーザビリティ試験で保存状態判別とアフィリエイト掲載先特定を検証する"
+      ],
+      "scope_out": [
+        "参照サイトの有料・非公開・認証必要ページへのアクセス、robotsやアクセス制御の回避",
+        "参照元の文章・写真・ロゴ・イラスト・固有名・色値・CSS/テーマ/プラグインの複製",
+        "アフィリエイト成果の広告主別確定、報酬支払い、会計処理、自動の購入判定",
+        "第三者ECの保護されたAPIへの無断接続や画像の無断再配信",
+        "この段階での本番公開、全記事の再編集、既存データの一括破壊的移行"
+      ],
+      "source_lineage": {
+        "imported_at": "2026-08-29T14:36:00Z",
+        "origin_kind": "generated",
+        "source_digest": "8f2dd8dc377e624cd882aadb912d57638f3e6e41c268cc68845e4da5b84ed1d4",
+        "source_path": "system-spec/frontend.md",
+        "source_plugin": "dev-graph",
+        "source_version": "0.1.0"
+      },
+      "start_date": "2026-08-29",
+      "status": "active",
+      "tags": [
+        "reference-analysis",
+        "blog",
+        "admin",
+        "cognitive-load",
+        "affiliate-preview",
+        "screen-inventory",
+        "non-copying"
+      ],
+      "target_date": null,
+      "template_id": "feature",
+      "template_version": "1.0.0",
+      "title": "参照ブログ解析と低認知負荷の運用 UX",
+      "tracker_binding": "beads",
+      "updated_at": "2026-08-29T14:56:20Z"
+    },
+    {
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "beads_linkage": null,
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "candidate_path": "tasks/feat-reference-blog-admin-ux/sys-reference-blog-admin-ux-p01.md",
+          "confidence": 1
+        }
+      ],
+      "classification_confidence": 1,
+      "classification_reason": "feat-reference-blog-admin-ux の P01 lifecycle責務への確定写像",
+      "completion_evidence": {
+        "completed_at": null,
+        "evidence_refs": [],
+        "policy": "manual",
+        "reconciled_at": null,
+        "source": null,
+        "status": "in_progress"
+      },
+      "confirmation_evidence": {
+        "evaluated_digest": "a052d177cdedc029acbb2fd747bce579c0626bed5f6b64f9a94504ed6a2e75bd",
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-reference-blog-admin-ux/a052d177cdedc029acbb2fd747bce579c0626bed5f6b64f9a94504ed6a2e75bd/plan-findings.json"
+      },
+      "confirmation_status": "confirmed",
+      "created_at": "2026-08-29T14:56:20Z",
+      "depends_on": [],
+      "domain": "documentation",
+      "evaluation_status": "pass",
+      "execution_contexts": [],
+      "feature_package_id": "feature-package/feat-reference-blog-admin-ux",
+      "file_path": "tasks/feat-reference-blog-admin-ux/sys-reference-blog-admin-ux-p01.md",
+      "github_project_linkages": [],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "graph_node_id": "SYS-REFERENCE-BLOG-ADMIN-UX-P01",
+      "implementation_readiness": {
+        "checked_at": "2026-08-29T14:38:12Z",
+        "missing_sections": [],
+        "status": "complete"
+      },
+      "issue_linkage": null,
+      "iteration": null,
+      "owners": [
+        "daishiman"
+      ],
+      "parent_feature": "feat-reference-blog-admin-ux",
+      "phase_ref": "P01",
+      "priority": null,
+      "project_id": "feature-package-feat-reference-blog-admin-ux",
+      "pull_request_linkages": [],
+      "related_nodes": [
+        "spec-system-spec-index",
+        "arch-system-spec-overview"
+      ],
+      "resource_scope": [
+        "docs/spec/feat-reference-blog-admin-ux/requirements-baseline.md",
+        "docs/spec/feat-reference-blog-admin-ux/reference-url-inventory.json",
+        "docs/spec/feat-reference-blog-admin-ux/sitemap-snapshot.json",
+        "docs/spec/feat-reference-blog-admin-ux/page-archetype-analysis.md",
+        "docs/spec/feat-reference-blog-admin-ux/screen-inventory.md",
+        "docs/spec/feat-reference-blog-admin-ux/current-screen-gap-ledger.md",
+        "docs/spec/feat-reference-blog-admin-ux/acceptance-traceability.json"
+      ],
+      "source_lineage": {
+        "imported_at": "2026-08-29T14:56:20Z",
+        "origin_kind": "system-dev-planner",
+        "source_digest": "a052d177cdedc029acbb2fd747bce579c0626bed5f6b64f9a94504ed6a2e75bd",
+        "source_path": ".dev-graph/published/generations/feature-package-feat-reference-blog-admin-ux/a052d177cdedc029acbb2fd747bce579c0626bed5f6b64f9a94504ed6a2e75bd/task-specs/phase-01-requirements.md",
+        "source_plugin": "system-dev-planner",
+        "source_version": "0.1.0"
+      },
+      "start_date": null,
+      "status": "active",
+      "tags": [
+        "p01",
+        "feat-reference-blog-admin-ux"
+      ],
+      "target_date": null,
+      "template_id": "task",
+      "template_version": "1.1.0",
+      "title": "全公開URL・画面型・現行画面の要求ベースライン確定",
+      "tracker_binding": "beads",
+      "updated_at": "2026-08-29T14:56:20Z"
+    },
+    {
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "beads_linkage": null,
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "candidate_path": "tasks/feat-reference-blog-admin-ux/sys-reference-blog-admin-ux-p02.md",
+          "confidence": 1
+        }
+      ],
+      "classification_confidence": 1,
+      "classification_reason": "feat-reference-blog-admin-ux の P02 lifecycle責務への確定写像",
+      "completion_evidence": {
+        "completed_at": null,
+        "evidence_refs": [],
+        "policy": "manual",
+        "reconciled_at": null,
+        "source": null,
+        "status": "in_progress"
+      },
+      "confirmation_evidence": {
+        "evaluated_digest": "a052d177cdedc029acbb2fd747bce579c0626bed5f6b64f9a94504ed6a2e75bd",
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-reference-blog-admin-ux/a052d177cdedc029acbb2fd747bce579c0626bed5f6b64f9a94504ed6a2e75bd/plan-findings.json"
+      },
+      "confirmation_status": "confirmed",
+      "created_at": "2026-08-29T14:56:20Z",
+      "depends_on": [
+        "SYS-REFERENCE-BLOG-ADMIN-UX-P01"
+      ],
+      "domain": "documentation",
+      "evaluation_status": "pass",
+      "execution_contexts": [],
+      "feature_package_id": "feature-package/feat-reference-blog-admin-ux",
+      "file_path": "tasks/feat-reference-blog-admin-ux/sys-reference-blog-admin-ux-p02.md",
+      "github_project_linkages": [],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "graph_node_id": "SYS-REFERENCE-BLOG-ADMIN-UX-P02",
+      "implementation_readiness": {
+        "checked_at": "2026-08-29T14:38:12Z",
+        "missing_sections": [],
+        "status": "complete"
+      },
+      "issue_linkage": null,
+      "iteration": null,
+      "owners": [
+        "daishiman"
+      ],
+      "parent_feature": "feat-reference-blog-admin-ux",
+      "phase_ref": "P02",
+      "priority": null,
+      "project_id": "feature-package-feat-reference-blog-admin-ux",
+      "pull_request_linkages": [],
+      "related_nodes": [
+        "spec-system-spec-index",
+        "arch-system-spec-overview"
+      ],
+      "resource_scope": [
+        "docs/spec/feat-reference-blog-admin-ux/data-model.md",
+        "docs/spec/feat-reference-blog-admin-ux/api-contract.md",
+        "docs/spec/feat-reference-blog-admin-ux/interaction-state-machine.md",
+        "docs/spec/feat-reference-blog-admin-ux/component-contract.md",
+        "docs/spec/feat-reference-blog-admin-ux/non-copying-design-system.md",
+        "docs/spec/feat-reference-blog-admin-ux/affiliate-preview-contract.md"
+      ],
+      "source_lineage": {
+        "imported_at": "2026-08-29T14:56:20Z",
+        "origin_kind": "system-dev-planner",
+        "source_digest": "a052d177cdedc029acbb2fd747bce579c0626bed5f6b64f9a94504ed6a2e75bd",
+        "source_path": ".dev-graph/published/generations/feature-package-feat-reference-blog-admin-ux/a052d177cdedc029acbb2fd747bce579c0626bed5f6b64f9a94504ed6a2e75bd/task-specs/phase-02-architecture.md",
+        "source_plugin": "system-dev-planner",
+        "source_version": "0.1.0"
+      },
+      "start_date": null,
+      "status": "active",
+      "tags": [
+        "p02",
+        "feat-reference-blog-admin-ux"
+      ],
+      "target_date": null,
+      "template_id": "task",
+      "template_version": "1.1.0",
+      "title": "低認知負荷UI・URLプレビュー・非模倣公開面の設計",
+      "tracker_binding": "beads",
+      "updated_at": "2026-08-29T14:56:20Z"
+    },
+    {
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "beads_linkage": null,
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "candidate_path": "tasks/feat-reference-blog-admin-ux/sys-reference-blog-admin-ux-p03.md",
+          "confidence": 1
+        }
+      ],
+      "classification_confidence": 1,
+      "classification_reason": "feat-reference-blog-admin-ux の P03 lifecycle責務への確定写像",
+      "completion_evidence": {
+        "completed_at": null,
+        "evidence_refs": [],
+        "policy": "manual",
+        "reconciled_at": null,
+        "source": null,
+        "status": "in_progress"
+      },
+      "confirmation_evidence": {
+        "evaluated_digest": "a052d177cdedc029acbb2fd747bce579c0626bed5f6b64f9a94504ed6a2e75bd",
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-reference-blog-admin-ux/a052d177cdedc029acbb2fd747bce579c0626bed5f6b64f9a94504ed6a2e75bd/plan-findings.json"
+      },
+      "confirmation_status": "confirmed",
+      "created_at": "2026-08-29T14:56:20Z",
+      "depends_on": [
+        "SYS-REFERENCE-BLOG-ADMIN-UX-P02"
+      ],
+      "domain": "quality",
+      "evaluation_status": "pass",
+      "execution_contexts": [],
+      "feature_package_id": "feature-package/feat-reference-blog-admin-ux",
+      "file_path": "tasks/feat-reference-blog-admin-ux/sys-reference-blog-admin-ux-p03.md",
+      "github_project_linkages": [],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "graph_node_id": "SYS-REFERENCE-BLOG-ADMIN-UX-P03",
+      "implementation_readiness": {
+        "checked_at": "2026-08-29T14:38:12Z",
+        "missing_sections": [],
+        "status": "complete"
+      },
+      "issue_linkage": null,
+      "iteration": null,
+      "owners": [
+        "daishiman"
+      ],
+      "parent_feature": "feat-reference-blog-admin-ux",
+      "phase_ref": "P03",
+      "priority": null,
+      "project_id": "feature-package-feat-reference-blog-admin-ux",
+      "pull_request_linkages": [],
+      "related_nodes": [
+        "spec-system-spec-index",
+        "arch-system-spec-overview"
+      ],
+      "resource_scope": [
+        "docs/spec/feat-reference-blog-admin-ux/design-review.md"
+      ],
+      "source_lineage": {
+        "imported_at": "2026-08-29T14:56:20Z",
+        "origin_kind": "system-dev-planner",
+        "source_digest": "a052d177cdedc029acbb2fd747bce579c0626bed5f6b64f9a94504ed6a2e75bd",
+        "source_path": ".dev-graph/published/generations/feature-package-feat-reference-blog-admin-ux/a052d177cdedc029acbb2fd747bce579c0626bed5f6b64f9a94504ed6a2e75bd/task-specs/phase-03-design-review.md",
+        "source_plugin": "system-dev-planner",
+        "source_version": "0.1.0"
+      },
+      "start_date": null,
+      "status": "active",
+      "tags": [
+        "p03",
+        "feat-reference-blog-admin-ux"
+      ],
+      "target_date": null,
+      "template_id": "task",
+      "template_version": "1.1.0",
+      "title": "設計の独立レビューと非模倣・安全性ゲート",
+      "tracker_binding": "beads",
+      "updated_at": "2026-08-29T14:56:20Z"
+    },
+    {
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "beads_linkage": null,
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "candidate_path": "tasks/feat-reference-blog-admin-ux/sys-reference-blog-admin-ux-p04.md",
+          "confidence": 1
+        }
+      ],
+      "classification_confidence": 1,
+      "classification_reason": "feat-reference-blog-admin-ux の P04 lifecycle責務への確定写像",
+      "completion_evidence": {
+        "completed_at": null,
+        "evidence_refs": [],
+        "policy": "manual",
+        "reconciled_at": null,
+        "source": null,
+        "status": "in_progress"
+      },
+      "confirmation_evidence": {
+        "evaluated_digest": "a052d177cdedc029acbb2fd747bce579c0626bed5f6b64f9a94504ed6a2e75bd",
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-reference-blog-admin-ux/a052d177cdedc029acbb2fd747bce579c0626bed5f6b64f9a94504ed6a2e75bd/plan-findings.json"
+      },
+      "confirmation_status": "confirmed",
+      "created_at": "2026-08-29T14:56:20Z",
+      "depends_on": [
+        "SYS-REFERENCE-BLOG-ADMIN-UX-P03"
+      ],
+      "domain": "quality",
+      "evaluation_status": "pass",
+      "execution_contexts": [],
+      "feature_package_id": "feature-package/feat-reference-blog-admin-ux",
+      "file_path": "tasks/feat-reference-blog-admin-ux/sys-reference-blog-admin-ux-p04.md",
+      "github_project_linkages": [],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "graph_node_id": "SYS-REFERENCE-BLOG-ADMIN-UX-P04",
+      "implementation_readiness": {
+        "checked_at": "2026-08-29T14:38:12Z",
+        "missing_sections": [],
+        "status": "complete"
+      },
+      "issue_linkage": null,
+      "iteration": null,
+      "owners": [
+        "daishiman"
+      ],
+      "parent_feature": "feat-reference-blog-admin-ux",
+      "phase_ref": "P04",
+      "priority": null,
+      "project_id": "feature-package-feat-reference-blog-admin-ux",
+      "pull_request_linkages": [],
+      "related_nodes": [
+        "spec-system-spec-index",
+        "arch-system-spec-overview"
+      ],
+      "resource_scope": [
+        "docs/spec/feat-reference-blog-admin-ux/test-design.md",
+        "docs/spec/feat-reference-blog-admin-ux/usability-test-protocol.md",
+        "tests/fixtures/reference-blog-admin-ux/"
+      ],
+      "source_lineage": {
+        "imported_at": "2026-08-29T14:56:20Z",
+        "origin_kind": "system-dev-planner",
+        "source_digest": "a052d177cdedc029acbb2fd747bce579c0626bed5f6b64f9a94504ed6a2e75bd",
+        "source_path": ".dev-graph/published/generations/feature-package-feat-reference-blog-admin-ux/a052d177cdedc029acbb2fd747bce579c0626bed5f6b64f9a94504ed6a2e75bd/task-specs/phase-04-test-design.md",
+        "source_plugin": "system-dev-planner",
+        "source_version": "0.1.0"
+      },
+      "start_date": null,
+      "status": "active",
+      "tags": [
+        "p04",
+        "feat-reference-blog-admin-ux"
+      ],
+      "target_date": null,
+      "template_id": "task",
+      "template_version": "1.1.0",
+      "title": "受入・回帰・アクセシビリティ・ユーザビリティのテスト設計",
+      "tracker_binding": "beads",
+      "updated_at": "2026-08-29T14:56:20Z"
+    },
+    {
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "beads_linkage": null,
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "candidate_path": "tasks/feat-reference-blog-admin-ux/sys-reference-blog-admin-ux-p05.md",
+          "confidence": 1
+        }
+      ],
+      "classification_confidence": 1,
+      "classification_reason": "feat-reference-blog-admin-ux の P05 lifecycle責務への確定写像",
+      "completion_evidence": {
+        "completed_at": null,
+        "evidence_refs": [],
+        "policy": "manual",
+        "reconciled_at": null,
+        "source": null,
+        "status": "in_progress"
+      },
+      "confirmation_evidence": {
+        "evaluated_digest": "a052d177cdedc029acbb2fd747bce579c0626bed5f6b64f9a94504ed6a2e75bd",
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-reference-blog-admin-ux/a052d177cdedc029acbb2fd747bce579c0626bed5f6b64f9a94504ed6a2e75bd/plan-findings.json"
+      },
+      "confirmation_status": "confirmed",
+      "created_at": "2026-08-29T14:56:20Z",
+      "depends_on": [
+        "SYS-REFERENCE-BLOG-ADMIN-UX-P04"
+      ],
+      "domain": "frontend",
+      "evaluation_status": "pass",
+      "execution_contexts": [],
+      "feature_package_id": "feature-package/feat-reference-blog-admin-ux",
+      "file_path": "tasks/feat-reference-blog-admin-ux/sys-reference-blog-admin-ux-p05.md",
+      "github_project_linkages": [],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "graph_node_id": "SYS-REFERENCE-BLOG-ADMIN-UX-P05",
+      "implementation_readiness": {
+        "checked_at": "2026-08-29T14:38:12Z",
+        "missing_sections": [],
+        "status": "complete"
+      },
+      "issue_linkage": null,
+      "iteration": null,
+      "owners": [
+        "daishiman"
+      ],
+      "parent_feature": "feat-reference-blog-admin-ux",
+      "phase_ref": "P05",
+      "priority": null,
+      "project_id": "feature-package-feat-reference-blog-admin-ux",
+      "pull_request_linkages": [],
+      "related_nodes": [
+        "spec-system-spec-index",
+        "arch-system-spec-overview"
+      ],
+      "resource_scope": [
+        "scripts/reference-site-analysis/",
+        "src/app/admin/blog/",
+        "src/app/admin/content/",
+        "src/app/admin/affiliate/links/",
+        "src/app/s/[site]/",
+        "src/presentation/admin/",
+        "src/presentation/site/",
+        "src/presentation/ui/",
+        "src/domain/blogops/",
+        "src/domain/monetization/",
+        "src/application/usecases/blog-ops/",
+        "src/application/usecases/monetization/",
+        "src/application/read-models/",
+        "src/application/ports/",
+        "src/infrastructure/persistence/d1/",
+        "src/infrastructure/persistence/sample/",
+        "src/db/schema.ts",
+        "drizzle/",
+        "tests/"
+      ],
+      "source_lineage": {
+        "imported_at": "2026-08-29T14:56:20Z",
+        "origin_kind": "system-dev-planner",
+        "source_digest": "a052d177cdedc029acbb2fd747bce579c0626bed5f6b64f9a94504ed6a2e75bd",
+        "source_path": ".dev-graph/published/generations/feature-package-feat-reference-blog-admin-ux/a052d177cdedc029acbb2fd747bce579c0626bed5f6b64f9a94504ed6a2e75bd/task-specs/phase-05-implementation.md",
+        "source_plugin": "system-dev-planner",
+        "source_version": "0.1.0"
+      },
+      "start_date": null,
+      "status": "active",
+      "tags": [
+        "p05",
+        "feat-reference-blog-admin-ux"
+      ],
+      "target_date": null,
+      "template_id": "task",
+      "template_version": "1.1.0",
+      "title": "分析基盤・公開面・直感的管理CRUD・affiliate可視化の実装",
+      "tracker_binding": "beads",
+      "updated_at": "2026-08-29T14:56:20Z"
+    },
+    {
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "beads_linkage": null,
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "candidate_path": "tasks/feat-reference-blog-admin-ux/sys-reference-blog-admin-ux-p06.md",
+          "confidence": 1
+        }
+      ],
+      "classification_confidence": 1,
+      "classification_reason": "feat-reference-blog-admin-ux の P06 lifecycle責務への確定写像",
+      "completion_evidence": {
+        "completed_at": null,
+        "evidence_refs": [],
+        "policy": "manual",
+        "reconciled_at": null,
+        "source": null,
+        "status": "in_progress"
+      },
+      "confirmation_evidence": {
+        "evaluated_digest": "a052d177cdedc029acbb2fd747bce579c0626bed5f6b64f9a94504ed6a2e75bd",
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-reference-blog-admin-ux/a052d177cdedc029acbb2fd747bce579c0626bed5f6b64f9a94504ed6a2e75bd/plan-findings.json"
+      },
+      "confirmation_status": "confirmed",
+      "created_at": "2026-08-29T14:56:20Z",
+      "depends_on": [
+        "SYS-REFERENCE-BLOG-ADMIN-UX-P05"
+      ],
+      "domain": "quality",
+      "evaluation_status": "pass",
+      "execution_contexts": [],
+      "feature_package_id": "feature-package/feat-reference-blog-admin-ux",
+      "file_path": "tasks/feat-reference-blog-admin-ux/sys-reference-blog-admin-ux-p06.md",
+      "github_project_linkages": [],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "graph_node_id": "SYS-REFERENCE-BLOG-ADMIN-UX-P06",
+      "implementation_readiness": {
+        "checked_at": "2026-08-29T14:38:12Z",
+        "missing_sections": [],
+        "status": "complete"
+      },
+      "issue_linkage": null,
+      "iteration": null,
+      "owners": [
+        "daishiman"
+      ],
+      "parent_feature": "feat-reference-blog-admin-ux",
+      "phase_ref": "P06",
+      "priority": null,
+      "project_id": "feature-package-feat-reference-blog-admin-ux",
+      "pull_request_linkages": [],
+      "related_nodes": [
+        "spec-system-spec-index",
+        "arch-system-spec-overview"
+      ],
+      "resource_scope": [
+        "docs/spec/feat-reference-blog-admin-ux/test-run-report.md",
+        "test-results/reference-blog-admin-ux/"
+      ],
+      "source_lineage": {
+        "imported_at": "2026-08-29T14:56:20Z",
+        "origin_kind": "system-dev-planner",
+        "source_digest": "a052d177cdedc029acbb2fd747bce579c0626bed5f6b64f9a94504ed6a2e75bd",
+        "source_path": ".dev-graph/published/generations/feature-package-feat-reference-blog-admin-ux/a052d177cdedc029acbb2fd747bce579c0626bed5f6b64f9a94504ed6a2e75bd/task-specs/phase-06-test-run.md",
+        "source_plugin": "system-dev-planner",
+        "source_version": "0.1.0"
+      },
+      "start_date": null,
+      "status": "active",
+      "tags": [
+        "p06",
+        "feat-reference-blog-admin-ux"
+      ],
+      "target_date": null,
+      "template_id": "task",
+      "template_version": "1.1.0",
+      "title": "単体・結合・E2E・securityテストの実行と緑化",
+      "tracker_binding": "beads",
+      "updated_at": "2026-08-29T14:56:20Z"
+    },
+    {
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "beads_linkage": null,
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "candidate_path": "tasks/feat-reference-blog-admin-ux/sys-reference-blog-admin-ux-p07.md",
+          "confidence": 1
+        }
+      ],
+      "classification_confidence": 1,
+      "classification_reason": "feat-reference-blog-admin-ux の P07 lifecycle責務への確定写像",
+      "completion_evidence": {
+        "completed_at": null,
+        "evidence_refs": [],
+        "policy": "manual",
+        "reconciled_at": null,
+        "source": null,
+        "status": "in_progress"
+      },
+      "confirmation_evidence": {
+        "evaluated_digest": "a052d177cdedc029acbb2fd747bce579c0626bed5f6b64f9a94504ed6a2e75bd",
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-reference-blog-admin-ux/a052d177cdedc029acbb2fd747bce579c0626bed5f6b64f9a94504ed6a2e75bd/plan-findings.json"
+      },
+      "confirmation_status": "confirmed",
+      "created_at": "2026-08-29T14:56:20Z",
+      "depends_on": [
+        "SYS-REFERENCE-BLOG-ADMIN-UX-P06"
+      ],
+      "domain": "quality",
+      "evaluation_status": "pass",
+      "execution_contexts": [],
+      "feature_package_id": "feature-package/feat-reference-blog-admin-ux",
+      "file_path": "tasks/feat-reference-blog-admin-ux/sys-reference-blog-admin-ux-p07.md",
+      "github_project_linkages": [],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "graph_node_id": "SYS-REFERENCE-BLOG-ADMIN-UX-P07",
+      "implementation_readiness": {
+        "checked_at": "2026-08-29T14:38:12Z",
+        "missing_sections": [],
+        "status": "complete"
+      },
+      "issue_linkage": null,
+      "iteration": null,
+      "owners": [
+        "daishiman"
+      ],
+      "parent_feature": "feat-reference-blog-admin-ux",
+      "phase_ref": "P07",
+      "priority": null,
+      "project_id": "feature-package-feat-reference-blog-admin-ux",
+      "pull_request_linkages": [],
+      "related_nodes": [
+        "spec-system-spec-index",
+        "arch-system-spec-overview"
+      ],
+      "resource_scope": [
+        "docs/spec/feat-reference-blog-admin-ux/acceptance-report.md",
+        "docs/spec/feat-reference-blog-admin-ux/usability-report.md"
+      ],
+      "source_lineage": {
+        "imported_at": "2026-08-29T14:56:20Z",
+        "origin_kind": "system-dev-planner",
+        "source_digest": "a052d177cdedc029acbb2fd747bce579c0626bed5f6b64f9a94504ed6a2e75bd",
+        "source_path": ".dev-graph/published/generations/feature-package-feat-reference-blog-admin-ux/a052d177cdedc029acbb2fd747bce579c0626bed5f6b64f9a94504ed6a2e75bd/task-specs/phase-07-acceptance.md",
+        "source_plugin": "system-dev-planner",
+        "source_version": "0.1.0"
+      },
+      "start_date": null,
+      "status": "active",
+      "tags": [
+        "p07",
+        "feat-reference-blog-admin-ux"
+      ],
+      "target_date": null,
+      "template_id": "task",
+      "template_version": "1.1.0",
+      "title": "A1–A12と初見操作性のfeature受入",
+      "tracker_binding": "beads",
+      "updated_at": "2026-08-29T14:56:20Z"
+    },
+    {
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "beads_linkage": null,
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "candidate_path": "tasks/feat-reference-blog-admin-ux/sys-reference-blog-admin-ux-p08.md",
+          "confidence": 1
+        }
+      ],
+      "classification_confidence": 1,
+      "classification_reason": "feat-reference-blog-admin-ux の P08 lifecycle責務への確定写像",
+      "completion_evidence": {
+        "completed_at": null,
+        "evidence_refs": [],
+        "policy": "manual",
+        "reconciled_at": null,
+        "source": null,
+        "status": "in_progress"
+      },
+      "confirmation_evidence": {
+        "evaluated_digest": "a052d177cdedc029acbb2fd747bce579c0626bed5f6b64f9a94504ed6a2e75bd",
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-reference-blog-admin-ux/a052d177cdedc029acbb2fd747bce579c0626bed5f6b64f9a94504ed6a2e75bd/plan-findings.json"
+      },
+      "confirmation_status": "confirmed",
+      "created_at": "2026-08-29T14:56:20Z",
+      "depends_on": [
+        "SYS-REFERENCE-BLOG-ADMIN-UX-P05"
+      ],
+      "domain": "data",
+      "evaluation_status": "pass",
+      "execution_contexts": [],
+      "feature_package_id": "feature-package/feat-reference-blog-admin-ux",
+      "file_path": "tasks/feat-reference-blog-admin-ux/sys-reference-blog-admin-ux-p08.md",
+      "github_project_linkages": [],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "graph_node_id": "SYS-REFERENCE-BLOG-ADMIN-UX-P08",
+      "implementation_readiness": {
+        "checked_at": "2026-08-29T14:38:12Z",
+        "missing_sections": [],
+        "status": "complete"
+      },
+      "issue_linkage": null,
+      "iteration": null,
+      "owners": [
+        "daishiman"
+      ],
+      "parent_feature": "feat-reference-blog-admin-ux",
+      "phase_ref": "P08",
+      "priority": null,
+      "project_id": "feature-package-feat-reference-blog-admin-ux",
+      "pull_request_linkages": [],
+      "related_nodes": [
+        "spec-system-spec-index",
+        "arch-system-spec-overview"
+      ],
+      "resource_scope": [
+        "src/db/schema.ts",
+        "drizzle/",
+        "src/domain/blogops/",
+        "src/domain/monetization/",
+        "src/application/usecases/blog-ops/",
+        "src/application/usecases/monetization/",
+        "src/infrastructure/persistence/d1/",
+        "src/presentation/admin/",
+        "docs/spec/feat-reference-blog-admin-ux/migration-report.md"
+      ],
+      "source_lineage": {
+        "imported_at": "2026-08-29T14:56:20Z",
+        "origin_kind": "system-dev-planner",
+        "source_digest": "a052d177cdedc029acbb2fd747bce579c0626bed5f6b64f9a94504ed6a2e75bd",
+        "source_path": ".dev-graph/published/generations/feature-package-feat-reference-blog-admin-ux/a052d177cdedc029acbb2fd747bce579c0626bed5f6b64f9a94504ed6a2e75bd/task-specs/phase-08-refactoring-migration.md",
+        "source_plugin": "system-dev-planner",
+        "source_version": "0.1.0"
+      },
+      "start_date": null,
+      "status": "active",
+      "tags": [
+        "p08",
+        "feat-reference-blog-admin-ux"
+      ],
+      "target_date": null,
+      "template_id": "task",
+      "template_version": "1.1.0",
+      "title": "既存blog-ops・affiliate・保存モデルとの移行と重複解消",
+      "tracker_binding": "beads",
+      "updated_at": "2026-08-29T14:56:20Z"
+    },
+    {
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "beads_linkage": null,
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "candidate_path": "tasks/feat-reference-blog-admin-ux/sys-reference-blog-admin-ux-p09.md",
+          "confidence": 1
+        }
+      ],
+      "classification_confidence": 1,
+      "classification_reason": "feat-reference-blog-admin-ux の P09 lifecycle責務への確定写像",
+      "completion_evidence": {
+        "completed_at": null,
+        "evidence_refs": [],
+        "policy": "manual",
+        "reconciled_at": null,
+        "source": null,
+        "status": "in_progress"
+      },
+      "confirmation_evidence": {
+        "evaluated_digest": "a052d177cdedc029acbb2fd747bce579c0626bed5f6b64f9a94504ed6a2e75bd",
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-reference-blog-admin-ux/a052d177cdedc029acbb2fd747bce579c0626bed5f6b64f9a94504ed6a2e75bd/plan-findings.json"
+      },
+      "confirmation_status": "confirmed",
+      "created_at": "2026-08-29T14:56:20Z",
+      "depends_on": [
+        "SYS-REFERENCE-BLOG-ADMIN-UX-P07",
+        "SYS-REFERENCE-BLOG-ADMIN-UX-P08"
+      ],
+      "domain": "quality",
+      "evaluation_status": "pass",
+      "execution_contexts": [],
+      "feature_package_id": "feature-package/feat-reference-blog-admin-ux",
+      "file_path": "tasks/feat-reference-blog-admin-ux/sys-reference-blog-admin-ux-p09.md",
+      "github_project_linkages": [],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "graph_node_id": "SYS-REFERENCE-BLOG-ADMIN-UX-P09",
+      "implementation_readiness": {
+        "checked_at": "2026-08-29T14:38:12Z",
+        "missing_sections": [],
+        "status": "complete"
+      },
+      "issue_linkage": null,
+      "iteration": null,
+      "owners": [
+        "daishiman"
+      ],
+      "parent_feature": "feat-reference-blog-admin-ux",
+      "phase_ref": "P09",
+      "priority": null,
+      "project_id": "feature-package-feat-reference-blog-admin-ux",
+      "pull_request_linkages": [],
+      "related_nodes": [
+        "spec-system-spec-index",
+        "arch-system-spec-overview"
+      ],
+      "resource_scope": [
+        "docs/spec/feat-reference-blog-admin-ux/qa-report.md",
+        "test-results/reference-blog-admin-ux/qa/"
+      ],
+      "source_lineage": {
+        "imported_at": "2026-08-29T14:56:20Z",
+        "origin_kind": "system-dev-planner",
+        "source_digest": "a052d177cdedc029acbb2fd747bce579c0626bed5f6b64f9a94504ed6a2e75bd",
+        "source_path": ".dev-graph/published/generations/feature-package-feat-reference-blog-admin-ux/a052d177cdedc029acbb2fd747bce579c0626bed5f6b64f9a94504ed6a2e75bd/task-specs/phase-09-quality-assurance.md",
+        "source_plugin": "system-dev-planner",
+        "source_version": "0.1.0"
+      },
+      "start_date": null,
+      "status": "active",
+      "tags": [
+        "p09",
+        "feat-reference-blog-admin-ux"
+      ],
+      "target_date": null,
+      "template_id": "task",
+      "template_version": "1.1.0",
+      "title": "アクセシビリティ・性能・安全性・非模倣の独立QA",
+      "tracker_binding": "beads",
+      "updated_at": "2026-08-29T14:56:20Z"
+    },
+    {
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "beads_linkage": null,
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "candidate_path": "tasks/feat-reference-blog-admin-ux/sys-reference-blog-admin-ux-p10.md",
+          "confidence": 1
+        }
+      ],
+      "classification_confidence": 1,
+      "classification_reason": "feat-reference-blog-admin-ux の P10 lifecycle責務への確定写像",
+      "completion_evidence": {
+        "completed_at": null,
+        "evidence_refs": [],
+        "policy": "manual",
+        "reconciled_at": null,
+        "source": null,
+        "status": "in_progress"
+      },
+      "confirmation_evidence": {
+        "evaluated_digest": "a052d177cdedc029acbb2fd747bce579c0626bed5f6b64f9a94504ed6a2e75bd",
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-reference-blog-admin-ux/a052d177cdedc029acbb2fd747bce579c0626bed5f6b64f9a94504ed6a2e75bd/plan-findings.json"
+      },
+      "confirmation_status": "confirmed",
+      "created_at": "2026-08-29T14:56:20Z",
+      "depends_on": [
+        "SYS-REFERENCE-BLOG-ADMIN-UX-P09"
+      ],
+      "domain": "quality",
+      "evaluation_status": "pass",
+      "execution_contexts": [],
+      "feature_package_id": "feature-package/feat-reference-blog-admin-ux",
+      "file_path": "tasks/feat-reference-blog-admin-ux/sys-reference-blog-admin-ux-p10.md",
+      "github_project_linkages": [],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "graph_node_id": "SYS-REFERENCE-BLOG-ADMIN-UX-P10",
+      "implementation_readiness": {
+        "checked_at": "2026-08-29T14:38:12Z",
+        "missing_sections": [],
+        "status": "complete"
+      },
+      "issue_linkage": null,
+      "iteration": null,
+      "owners": [
+        "daishiman"
+      ],
+      "parent_feature": "feat-reference-blog-admin-ux",
+      "phase_ref": "P10",
+      "priority": null,
+      "project_id": "feature-package-feat-reference-blog-admin-ux",
+      "pull_request_linkages": [],
+      "related_nodes": [
+        "spec-system-spec-index",
+        "arch-system-spec-overview"
+      ],
+      "resource_scope": [
+        "docs/spec/feat-reference-blog-admin-ux/final-review.md"
+      ],
+      "source_lineage": {
+        "imported_at": "2026-08-29T14:56:20Z",
+        "origin_kind": "system-dev-planner",
+        "source_digest": "a052d177cdedc029acbb2fd747bce579c0626bed5f6b64f9a94504ed6a2e75bd",
+        "source_path": ".dev-graph/published/generations/feature-package-feat-reference-blog-admin-ux/a052d177cdedc029acbb2fd747bce579c0626bed5f6b64f9a94504ed6a2e75bd/task-specs/phase-10-final-review.md",
+        "source_plugin": "system-dev-planner",
+        "source_version": "0.1.0"
+      },
+      "start_date": null,
+      "status": "active",
+      "tags": [
+        "p10",
+        "feat-reference-blog-admin-ux"
+      ],
+      "target_date": null,
+      "template_id": "task",
+      "template_version": "1.1.0",
+      "title": "目的・受入・品質証跡の独立最終レビュー",
+      "tracker_binding": "beads",
+      "updated_at": "2026-08-29T14:56:20Z"
+    },
+    {
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "beads_linkage": null,
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "candidate_path": "tasks/feat-reference-blog-admin-ux/sys-reference-blog-admin-ux-p11.md",
+          "confidence": 1
+        }
+      ],
+      "classification_confidence": 1,
+      "classification_reason": "feat-reference-blog-admin-ux の P11 lifecycle責務への確定写像",
+      "completion_evidence": {
+        "completed_at": null,
+        "evidence_refs": [],
+        "policy": "manual",
+        "reconciled_at": null,
+        "source": null,
+        "status": "in_progress"
+      },
+      "confirmation_evidence": {
+        "evaluated_digest": "a052d177cdedc029acbb2fd747bce579c0626bed5f6b64f9a94504ed6a2e75bd",
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-reference-blog-admin-ux/a052d177cdedc029acbb2fd747bce579c0626bed5f6b64f9a94504ed6a2e75bd/plan-findings.json"
+      },
+      "confirmation_status": "confirmed",
+      "created_at": "2026-08-29T14:56:20Z",
+      "depends_on": [
+        "SYS-REFERENCE-BLOG-ADMIN-UX-P07",
+        "SYS-REFERENCE-BLOG-ADMIN-UX-P09",
+        "SYS-REFERENCE-BLOG-ADMIN-UX-P10"
+      ],
+      "domain": "documentation",
+      "evaluation_status": "pass",
+      "execution_contexts": [],
+      "feature_package_id": "feature-package/feat-reference-blog-admin-ux",
+      "file_path": "tasks/feat-reference-blog-admin-ux/sys-reference-blog-admin-ux-p11.md",
+      "github_project_linkages": [],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "graph_node_id": "SYS-REFERENCE-BLOG-ADMIN-UX-P11",
+      "implementation_readiness": {
+        "checked_at": "2026-08-29T14:38:12Z",
+        "missing_sections": [],
+        "status": "complete"
+      },
+      "issue_linkage": null,
+      "iteration": null,
+      "owners": [
+        "daishiman"
+      ],
+      "parent_feature": "feat-reference-blog-admin-ux",
+      "phase_ref": "P11",
+      "priority": null,
+      "project_id": "feature-package-feat-reference-blog-admin-ux",
+      "pull_request_linkages": [],
+      "related_nodes": [
+        "spec-system-spec-index",
+        "arch-system-spec-overview"
+      ],
+      "resource_scope": [
+        "docs/spec/feat-reference-blog-admin-ux/evidence/"
+      ],
+      "source_lineage": {
+        "imported_at": "2026-08-29T14:56:20Z",
+        "origin_kind": "system-dev-planner",
+        "source_digest": "a052d177cdedc029acbb2fd747bce579c0626bed5f6b64f9a94504ed6a2e75bd",
+        "source_path": ".dev-graph/published/generations/feature-package-feat-reference-blog-admin-ux/a052d177cdedc029acbb2fd747bce579c0626bed5f6b64f9a94504ed6a2e75bd/task-specs/phase-11-evidence.md",
+        "source_plugin": "system-dev-planner",
+        "source_version": "0.1.0"
+      },
+      "start_date": null,
+      "status": "active",
+      "tags": [
+        "p11",
+        "feat-reference-blog-admin-ux"
+      ],
+      "target_date": null,
+      "template_id": "task",
+      "template_version": "1.1.0",
+      "title": "全URL分析・受入・QA証跡の再現可能な集約",
+      "tracker_binding": "beads",
+      "updated_at": "2026-08-29T14:56:20Z"
+    },
+    {
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "beads_linkage": null,
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "candidate_path": "tasks/feat-reference-blog-admin-ux/sys-reference-blog-admin-ux-p12.md",
+          "confidence": 1
+        }
+      ],
+      "classification_confidence": 1,
+      "classification_reason": "feat-reference-blog-admin-ux の P12 lifecycle責務への確定写像",
+      "completion_evidence": {
+        "completed_at": null,
+        "evidence_refs": [],
+        "policy": "manual",
+        "reconciled_at": null,
+        "source": null,
+        "status": "in_progress"
+      },
+      "confirmation_evidence": {
+        "evaluated_digest": "a052d177cdedc029acbb2fd747bce579c0626bed5f6b64f9a94504ed6a2e75bd",
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-reference-blog-admin-ux/a052d177cdedc029acbb2fd747bce579c0626bed5f6b64f9a94504ed6a2e75bd/plan-findings.json"
+      },
+      "confirmation_status": "confirmed",
+      "created_at": "2026-08-29T14:56:20Z",
+      "depends_on": [
+        "SYS-REFERENCE-BLOG-ADMIN-UX-P10",
+        "SYS-REFERENCE-BLOG-ADMIN-UX-P11"
+      ],
+      "domain": "documentation",
+      "evaluation_status": "pass",
+      "execution_contexts": [],
+      "feature_package_id": "feature-package/feat-reference-blog-admin-ux",
+      "file_path": "tasks/feat-reference-blog-admin-ux/sys-reference-blog-admin-ux-p12.md",
+      "github_project_linkages": [],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "graph_node_id": "SYS-REFERENCE-BLOG-ADMIN-UX-P12",
+      "implementation_readiness": {
+        "checked_at": "2026-08-29T14:38:12Z",
+        "missing_sections": [],
+        "status": "complete"
+      },
+      "issue_linkage": null,
+      "iteration": null,
+      "owners": [
+        "daishiman"
+      ],
+      "parent_feature": "feat-reference-blog-admin-ux",
+      "phase_ref": "P12",
+      "priority": null,
+      "project_id": "feature-package-feat-reference-blog-admin-ux",
+      "pull_request_linkages": [],
+      "related_nodes": [
+        "spec-system-spec-index",
+        "arch-system-spec-overview"
+      ],
+      "resource_scope": [
+        "docs/spec/feat-reference-blog-admin-ux/admin-guide.md",
+        "docs/spec/feat-reference-blog-admin-ux/analysis-refresh-runbook.md",
+        "docs/spec/feat-reference-blog-admin-ux/affiliate-preview-runbook.md",
+        "docs/spec/feat-reference-blog-admin-ux/operations.md",
+        "docs/spec/feat-reference-blog-admin-ux/api-contract.md",
+        "docs/spec/feat-reference-blog-admin-ux/data-model.md"
+      ],
+      "source_lineage": {
+        "imported_at": "2026-08-29T14:56:20Z",
+        "origin_kind": "system-dev-planner",
+        "source_digest": "a052d177cdedc029acbb2fd747bce579c0626bed5f6b64f9a94504ed6a2e75bd",
+        "source_path": ".dev-graph/published/generations/feature-package-feat-reference-blog-admin-ux/a052d177cdedc029acbb2fd747bce579c0626bed5f6b64f9a94504ed6a2e75bd/task-specs/phase-12-documentation-operations.md",
+        "source_plugin": "system-dev-planner",
+        "source_version": "0.1.0"
+      },
+      "start_date": null,
+      "status": "active",
+      "tags": [
+        "p12",
+        "feat-reference-blog-admin-ux"
+      ],
+      "target_date": null,
+      "template_id": "task",
+      "template_version": "1.1.0",
+      "title": "管理者ガイド・分析更新runbook・障害対応の確定",
+      "tracker_binding": "beads",
+      "updated_at": "2026-08-29T14:56:20Z"
+    },
+    {
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "beads_linkage": null,
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "candidate_path": "tasks/feat-reference-blog-admin-ux/sys-reference-blog-admin-ux-p13.md",
+          "confidence": 1
+        }
+      ],
+      "classification_confidence": 1,
+      "classification_reason": "feat-reference-blog-admin-ux の P13 lifecycle責務への確定写像",
+      "completion_evidence": {
+        "completed_at": null,
+        "evidence_refs": [],
+        "policy": "manual",
+        "reconciled_at": null,
+        "source": null,
+        "status": "in_progress"
+      },
+      "confirmation_evidence": {
+        "evaluated_digest": "a052d177cdedc029acbb2fd747bce579c0626bed5f6b64f9a94504ed6a2e75bd",
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-reference-blog-admin-ux/a052d177cdedc029acbb2fd747bce579c0626bed5f6b64f9a94504ed6a2e75bd/plan-findings.json"
+      },
+      "confirmation_status": "confirmed",
+      "created_at": "2026-08-29T14:56:20Z",
+      "depends_on": [
+        "SYS-REFERENCE-BLOG-ADMIN-UX-P12"
+      ],
+      "domain": "operations",
+      "evaluation_status": "pass",
+      "execution_contexts": [],
+      "feature_package_id": "feature-package/feat-reference-blog-admin-ux",
+      "file_path": "tasks/feat-reference-blog-admin-ux/sys-reference-blog-admin-ux-p13.md",
+      "github_project_linkages": [],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "graph_node_id": "SYS-REFERENCE-BLOG-ADMIN-UX-P13",
+      "implementation_readiness": {
+        "checked_at": "2026-08-29T14:38:12Z",
+        "missing_sections": [],
+        "status": "complete"
+      },
+      "issue_linkage": null,
+      "iteration": null,
+      "owners": [
+        "daishiman"
+      ],
+      "parent_feature": "feat-reference-blog-admin-ux",
+      "phase_ref": "P13",
+      "priority": null,
+      "project_id": "feature-package-feat-reference-blog-admin-ux",
+      "pull_request_linkages": [],
+      "related_nodes": [
+        "spec-system-spec-index",
+        "arch-system-spec-overview"
+      ],
+      "resource_scope": [
+        "docs/spec/feat-reference-blog-admin-ux/release-report.md",
+        "system-spec/ui-ux.md",
+        "system-spec/frontend.md",
+        "system-spec/backend.md",
+        "system-spec/database.md",
+        "architecture/system-spec-overview.md"
+      ],
+      "source_lineage": {
+        "imported_at": "2026-08-29T14:56:20Z",
+        "origin_kind": "system-dev-planner",
+        "source_digest": "a052d177cdedc029acbb2fd747bce579c0626bed5f6b64f9a94504ed6a2e75bd",
+        "source_path": ".dev-graph/published/generations/feature-package-feat-reference-blog-admin-ux/a052d177cdedc029acbb2fd747bce579c0626bed5f6b64f9a94504ed6a2e75bd/task-specs/phase-13-release-deploy.md",
+        "source_plugin": "system-dev-planner",
+        "source_version": "0.1.0"
+      },
+      "start_date": null,
+      "status": "active",
+      "tags": [
+        "p13",
+        "feat-reference-blog-admin-ux"
+      ],
+      "target_date": null,
+      "template_id": "task",
+      "template_version": "1.1.0",
+      "title": "development段階展開・rollback確認・仕様書への書き戻し",
+      "tracker_binding": "beads",
+      "updated_at": "2026-08-29T14:56:20Z"
+    },
+    {
+      "acceptance": [
+        "改善ボタンから撮られた写しに、送信モーダルと右下固定の起動ボタンが 1 画素も含まれない",
+        "「撮り直す」で取り直した写しにも同じ除外規則が効く",
+        "写しの取得が拒否・非対応・失敗のとき、送信 UI は待たずに開き、待ちが無限に伸びない",
+        "押した勢い (transient activation) を失わず、許可の窓が出る",
+        "写しの確定後、撮影中に隠した要素が元の状態へ戻り、隠れたまま残らない",
+        "data-floating-overlay=\"true\" が写し除外と重なり監査 (tests/e2e/app-routes.spec.ts) の同一の手掛かりとして使われている",
+        "属性の付与漏れがある浮遊要素を検査が失敗として拾う"
+      ],
+      "architecture_refs": [
+        "arch-two-layer-platform"
+      ],
+      "artifact_kind": "feature",
+      "artifact_subtypes": [],
+      "beads_linkage": {
+        "bd_issue_id": "ah-0d2q",
+        "github_mirror": null,
+        "linked_at": "2026-08-30T04:17:10Z",
+        "sync_state": "linked"
+      },
+      "classification_candidates": [
+        {
+          "artifact_kind": "feature",
+          "candidate_path": "features/feat-feedback-capture-self-exclusion.md",
+          "confidence": 0.95
+        }
+      ],
+      "classification_confidence": 0.95,
+      "classification_reason": "system-spec frontend×web 確定質疑 qa-frontend-web-capture-self-occlusion を作業単位として登録",
+      "completion_evidence": {
+        "completed_at": null,
+        "evidence_refs": [],
+        "policy": "manual",
+        "reconciled_at": null,
+        "source": null,
+        "status": "open"
+      },
+      "confirmation_evidence": {
+        "evaluated_digest": "892cd5611c443a5f90b97047a9542489c44be963ff4d775c30b640e7aca40b7d",
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-feedback-capture-self-exclusion/892cd5611c443a5f90b97047a9542489c44be963ff4d775c30b640e7aca40b7d/plan-findings.json"
+      },
+      "confirmation_status": "confirmed",
+      "created_at": "2026-08-30T03:37:16Z",
+      "depends_on": [
+        "feat-improvement-feedback"
+      ],
+      "domain": "operations",
+      "evaluation_status": "pass",
+      "execution_contexts": [],
+      "feature_package_id": null,
+      "file_path": "features/feat-feedback-capture-self-exclusion.md",
+      "github_project_linkages": [],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "goal": "改善ボタンを押して撮られた写しに送信 UI が 1 画素も写らず、撮り直しでも同じ規則が効き、写しが撮れない環境でも送信 UI が待たずに開く",
+      "graph_node_id": "feat-feedback-capture-self-exclusion",
+      "implementation_readiness": {
+        "checked_at": "2026-08-30T03:45:47Z",
+        "missing_sections": [],
+        "status": "complete"
+      },
+      "issue_linkage": null,
+      "iteration": null,
+      "mvp_alignment": {
+        "background": "送信モーダルが画面の中央を占有した状態で写しが撮られるため、伝えたい箇所が隠れて要望が成立しない",
+        "mvp_fit": "direct",
+        "purpose": "改善要望を写しで伝える経路を、実際に伝わる状態にする",
+        "rationale": "写しが被写体を隠している間は、改善要望そのものが機能していない"
+      },
+      "owners": [
+        "daishiman"
+      ],
+      "parent_feature": null,
+      "phase_ref": null,
+      "priority": "high",
+      "project_id": "affiliate-hub",
+      "pull_request_linkages": [],
+      "purpose": "改善要望に添える画面の写しから、送信モーダルと起動ボタン自身を外し、利用者が本当に伝えたい箇所が写るようにする",
+      "related_nodes": [],
+      "resource_scope": [
+        "src/presentation/ui/patterns",
+        "tests/e2e",
+        "tests/ui",
+        "docs/spec/12-改善要望フィードバック仕様.md",
+        "docs/spec/feat-feedback-capture-self-exclusion",
+        "docs/requirements/feat-feedback-capture-self-exclusion-implementation-requirements.md",
+        "features/feat-feedback-capture-self-exclusion.md",
+        "features/feat-feedback-capture-self-exclusion.context.json",
+        "tasks/feat-feedback-capture-self-exclusion",
+        ".dev-graph/handoff",
+        ".dev-graph/published/feature-package-feat-feedback-capture-self-exclusion",
+        ".dev-graph/state/graph.json",
+        "system-spec/frontend.md"
+      ],
+      "scope_in": [
+        "撮影開始 (getDisplayMedia 呼出) と送信 UI の可視化を別の時点へ分ける",
+        "写しの取得が確定するまで送信モーダルを描かない",
+        "右下固定の起動ボタンを写しの対象から外す",
+        "撮り直し (再撮影) 経路にも同じ規則を効かせる",
+        "写しが撮れない・拒否・非対応のときは待たずに送信 UI を開く退避経路",
+        "data-floating-overlay 属性を写し除外と重なり監査の共通の手掛かりにする",
+        "属性の付与漏れを拾う検査"
+      ],
+      "scope_out": [
+        "改善要望フィードバック機能そのものの無効化",
+        "起動ボタンの撤去",
+        "写しの書き込み (手書き/四角/矢印/文字/黒塗り) の仕様変更",
+        "一覧・詳細・払い出し経路の変更",
+        "写し以外の添付手段の追加"
+      ],
+      "source_lineage": {
+        "imported_at": "2026-08-30T03:37:16Z",
+        "origin_kind": "system-spec-harness",
+        "source_digest": "b93d1aea10645fc18c39e5bd209cbb90ebd6e494bf493d263e3d9e1112a36217",
+        "source_path": "system-spec/frontend.md",
+        "source_plugin": "system-spec-harness",
+        "source_version": "0.1.0"
+      },
+      "start_date": "2026-08-30",
+      "status": "active",
+      "tags": [
+        "feedback",
+        "capture",
+        "ui"
+      ],
+      "target_date": null,
+      "template_id": "feature",
+      "template_version": "1.0.0",
+      "title": "改善要望の写しから送信 UI 自身を外す（撮影中だけ自動で隠す）",
+      "tracker_binding": "beads",
+      "updated_at": "2026-08-30T13:34:38.306257Z"
+    },
+    {
+      "acceptance": [
+        "Automated commands: `pnpm run typecheck`",
+        "Automated commands: `python3 .claude/plugins/system-dev-planner/scripts/validate-system-plan.py --repo-root . --feature-package feature-package/feat-feedback-capture-self-exclusion`",
+        "Required evidence: P01 の 成果物 section に記した produced artifacts のパス"
+      ],
+      "architecture_refs": [
+        "arch-two-layer-platform"
+      ],
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "beads_linkage": {
+        "bd_issue_id": "ah-0d2q.1",
+        "github_mirror": null,
+        "linked_at": "2026-08-30T04:17:13Z",
+        "sync_state": "linked"
+      },
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "candidate_path": "tasks/feat-feedback-capture-self-exclusion/sys-fb-capture-exclusion-p01.md",
+          "confidence": 1.0
+        }
+      ],
+      "classification_confidence": 1.0,
+      "classification_reason": "feat-feedback-capture-self-exclusion の P01 lifecycle 責務への確定写像",
+      "closed_at": "2026-08-30T09:09:24Z",
+      "completion_evidence": {
+        "completed_at": "2026-08-30T09:09:24Z",
+        "evidence_refs": [
+          "beads:ah-0d2q.1"
+        ],
+        "policy": "manual",
+        "reconciled_at": "2026-08-30T12:05:00Z",
+        "source": "reconciliation",
+        "status": "done"
+      },
+      "confirmation_evidence": {
+        "evaluated_digest": "892cd5611c443a5f90b97047a9542489c44be963ff4d775c30b640e7aca40b7d",
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-feedback-capture-self-exclusion/892cd5611c443a5f90b97047a9542489c44be963ff4d775c30b640e7aca40b7d/plan-findings.json"
+      },
+      "confirmation_status": "confirmed",
+      "created_at": "2026-08-30T12:31:04Z",
+      "depends_on": [],
+      "domain": "documentation",
+      "evaluation_status": "pass",
+      "execution_contexts": [],
+      "feature_package_id": "feature-package/feat-feedback-capture-self-exclusion",
+      "file_path": "tasks/feat-feedback-capture-self-exclusion/sys-fb-capture-exclusion-p01.md",
+      "github_project_linkages": [],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "goal": "feat-feedback-capture-self-exclusion の受入7件それぞれを、観測可能な条件文と現行コードの該当箇所へ一意対応させ、撮影が始まる時点と送信 UI が描かれる時点の現状を棚卸しした状態を成立させる。",
+      "graph_node_id": "SYS-FB-CAPTURE-EXCLUSION-P01",
+      "implementation_readiness": {
+        "checked_at": "2026-08-30T03:45:47Z",
+        "missing_sections": [],
+        "status": "complete"
+      },
+      "issue_linkage": null,
+      "iteration": null,
+      "owners": [
+        "daishiman"
+      ],
+      "parent_feature": "feat-feedback-capture-self-exclusion",
+      "phase_ref": "P01",
+      "priority": null,
+      "project_id": "feature-package-feat-feedback-capture-self-exclusion",
+      "pull_request_linkages": [],
+      "purpose": "feat-feedback-capture-self-exclusion の受入7件それぞれを、観測可能な条件文と現行コードの該当箇所へ一意対応させ、撮影が始まる時点と送信 UI が描かれる時点の現状を棚卸しした状態を成立させる。",
+      "related_nodes": [],
+      "resource_scope": [
+        "docs/spec/feat-feedback-capture-self-exclusion/requirements-baseline.md",
+        "docs/spec/feat-feedback-capture-self-exclusion/capture-timeline.md",
+        "docs/spec/feat-feedback-capture-self-exclusion/floating-overlay-inventory.json"
+      ],
+      "scope_in": [
+        "Produced artifacts: docs/spec/feat-feedback-capture-self-exclusion/requirements-baseline.md (受入7件の観測可能化と現行コード該当箇所の対応表); docs/spec/feat-feedback-capture-self-exclusion/capture-timeline.md (撮影開始・許可・描画・確定の各時点と送信 UI の可視状態の棚卸し); docs/spec/feat-feedback-capture-self-exclusion/floating-overlay-inventory.json (本文の上に浮く要素と data-floating-overlay 付与状況の機械可読一覧)",
+        "Consumed artifacts: features/feat-feedback-capture-self-exclusion.md, features/feat-feedback-capture-self-exclusion.context.json, system-spec/frontend.md, docs/spec/12-改善要望フィードバック仕様.md",
+        "Write scope/touches: docs/spec/feat-feedback-capture-self-exclusion/requirements-baseline.md, docs/spec/feat-feedback-capture-self-exclusion/capture-timeline.md, docs/spec/feat-feedback-capture-self-exclusion/floating-overlay-inventory.json"
+      ],
+      "scope_out": [
+        "feat-feedback-capture-self-exclusion の scope_out (改善要望フィードバック機能そのものの無効化・起動ボタンの撤去・写しの書き込み (手書き/四角/矢印/文字/黒塗り) の仕様変更・一覧/詳細/払い出し経路の変更・写し以外の添付手段の追加) に該当する変更",
+        "他 phase が所有する成果物への書き込み (write_scope 外への変更)"
+      ],
+      "source_lineage": {
+        "imported_at": "2026-08-30T12:31:04Z",
+        "origin_kind": "system-dev-planner",
+        "source_digest": "892cd5611c443a5f90b97047a9542489c44be963ff4d775c30b640e7aca40b7d",
+        "source_path": ".dev-graph/published/generations/feature-package-feat-feedback-capture-self-exclusion/892cd5611c443a5f90b97047a9542489c44be963ff4d775c30b640e7aca40b7d/task-specs/phase-01-requirements.md",
+        "source_plugin": "system-dev-planner",
+        "source_version": "0.1.0"
+      },
+      "start_date": null,
+      "status": "closed",
+      "tags": [
+        "p01",
+        "feat-feedback-capture-self-exclusion"
+      ],
+      "target_date": null,
+      "template_id": "task",
+      "template_version": "1.1.0",
+      "title": "改善要望の写しに送信 UI が写り込む条件の要求ベースライン確定",
+      "tracker_binding": "beads",
+      "updated_at": "2026-08-30T13:30:52.202435Z"
+    },
+    {
+      "acceptance": [
+        "Automated commands: `pnpm run typecheck`",
+        "Automated commands: `python3 .claude/plugins/system-dev-planner/scripts/validate-system-plan.py --repo-root . --feature-package feature-package/feat-feedback-capture-self-exclusion`",
+        "Required evidence: P02 の 成果物 section に記した produced artifacts のパス"
+      ],
+      "architecture_refs": [
+        "arch-two-layer-platform"
+      ],
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "beads_linkage": {
+        "bd_issue_id": "ah-0d2q.2",
+        "github_mirror": null,
+        "linked_at": "2026-08-30T04:17:14Z",
+        "sync_state": "linked"
+      },
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "candidate_path": "tasks/feat-feedback-capture-self-exclusion/sys-fb-capture-exclusion-p02.md",
+          "confidence": 1.0
+        }
+      ],
+      "classification_confidence": 1.0,
+      "classification_reason": "feat-feedback-capture-self-exclusion の P02 lifecycle 責務への確定写像",
+      "closed_at": "2026-08-30T09:09:26Z",
+      "completion_evidence": {
+        "completed_at": "2026-08-30T09:09:26Z",
+        "evidence_refs": [
+          "beads:ah-0d2q.2"
+        ],
+        "policy": "manual",
+        "reconciled_at": "2026-08-30T12:05:00Z",
+        "source": "reconciliation",
+        "status": "done"
+      },
+      "confirmation_evidence": {
+        "evaluated_digest": "892cd5611c443a5f90b97047a9542489c44be963ff4d775c30b640e7aca40b7d",
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-feedback-capture-self-exclusion/892cd5611c443a5f90b97047a9542489c44be963ff4d775c30b640e7aca40b7d/plan-findings.json"
+      },
+      "confirmation_status": "confirmed",
+      "created_at": "2026-08-30T12:31:04Z",
+      "depends_on": [
+        "SYS-FB-CAPTURE-EXCLUSION-P01"
+      ],
+      "domain": "frontend",
+      "evaluation_status": "pass",
+      "execution_contexts": [],
+      "feature_package_id": "feature-package/feat-feedback-capture-self-exclusion",
+      "file_path": "tasks/feat-feedback-capture-self-exclusion/sys-fb-capture-exclusion-p02.md",
+      "github_project_linkages": [],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "goal": "撮影の開始と送信 UI の描画を別の時点へ分ける設計を、押した勢い (transient activation) を失わない形で確定し、写しが撮れない場合の退避経路と、隠した要素を元へ戻す責務の所在を決めた状態を成立させる。",
+      "graph_node_id": "SYS-FB-CAPTURE-EXCLUSION-P02",
+      "implementation_readiness": {
+        "checked_at": "2026-08-30T03:45:47Z",
+        "missing_sections": [],
+        "status": "complete"
+      },
+      "issue_linkage": null,
+      "iteration": null,
+      "owners": [
+        "daishiman"
+      ],
+      "parent_feature": "feat-feedback-capture-self-exclusion",
+      "phase_ref": "P02",
+      "priority": null,
+      "project_id": "feature-package-feat-feedback-capture-self-exclusion",
+      "pull_request_linkages": [],
+      "purpose": "撮影の開始と送信 UI の描画を別の時点へ分ける設計を、押した勢い (transient activation) を失わない形で確定し、写しが撮れない場合の退避経路と、隠した要素を元へ戻す責務の所在を決めた状態を成立させる。",
+      "related_nodes": [],
+      "resource_scope": [
+        "docs/spec/feat-feedback-capture-self-exclusion/capture-sequence-design.md",
+        "docs/spec/feat-feedback-capture-self-exclusion/floating-overlay-contract.md"
+      ],
+      "scope_in": [
+        "Produced artifacts: docs/spec/feat-feedback-capture-self-exclusion/capture-sequence-design.md (撮影要求・許可・写し確定・UI 可視化の順序と状態遷移); docs/spec/feat-feedback-capture-self-exclusion/floating-overlay-contract.md (data-floating-overlay の意味・付与規則・写し除外と重なり監査での用法)",
+        "Consumed artifacts: features/feat-feedback-capture-self-exclusion.md, features/feat-feedback-capture-self-exclusion.context.json, system-spec/frontend.md, docs/spec/12-改善要望フィードバック仕様.md",
+        "Write scope/touches: docs/spec/feat-feedback-capture-self-exclusion/capture-sequence-design.md, docs/spec/feat-feedback-capture-self-exclusion/floating-overlay-contract.md"
+      ],
+      "scope_out": [
+        "feat-feedback-capture-self-exclusion の scope_out (改善要望フィードバック機能そのものの無効化・起動ボタンの撤去・写しの書き込み (手書き/四角/矢印/文字/黒塗り) の仕様変更・一覧/詳細/払い出し経路の変更・写し以外の添付手段の追加) に該当する変更",
+        "他 phase が所有する成果物への書き込み (write_scope 外への変更)"
+      ],
+      "source_lineage": {
+        "imported_at": "2026-08-30T12:31:04Z",
+        "origin_kind": "system-dev-planner",
+        "source_digest": "892cd5611c443a5f90b97047a9542489c44be963ff4d775c30b640e7aca40b7d",
+        "source_path": ".dev-graph/published/generations/feature-package-feat-feedback-capture-self-exclusion/892cd5611c443a5f90b97047a9542489c44be963ff4d775c30b640e7aca40b7d/task-specs/phase-02-architecture.md",
+        "source_plugin": "system-dev-planner",
+        "source_version": "0.1.0"
+      },
+      "start_date": null,
+      "status": "closed",
+      "tags": [
+        "p02",
+        "feat-feedback-capture-self-exclusion"
+      ],
+      "target_date": null,
+      "template_id": "task",
+      "template_version": "1.1.0",
+      "title": "撮影と送信 UI 可視化を別の時点へ分ける設計の確定",
+      "tracker_binding": "beads",
+      "updated_at": "2026-08-30T13:31:09.761092Z"
+    },
+    {
+      "acceptance": [
+        "Automated commands: `pnpm run typecheck`",
+        "Automated commands: `python3 .claude/plugins/system-dev-planner/scripts/validate-system-plan.py --repo-root . --feature-package feature-package/feat-feedback-capture-self-exclusion`",
+        "Required evidence: P03 の 成果物 section に記した produced artifacts のパス"
+      ],
+      "architecture_refs": [
+        "arch-two-layer-platform"
+      ],
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "beads_linkage": {
+        "bd_issue_id": "ah-0d2q.3",
+        "github_mirror": null,
+        "linked_at": "2026-08-30T04:17:16Z",
+        "sync_state": "linked"
+      },
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "candidate_path": "tasks/feat-feedback-capture-self-exclusion/sys-fb-capture-exclusion-p03.md",
+          "confidence": 1.0
+        }
+      ],
+      "classification_confidence": 1.0,
+      "classification_reason": "feat-feedback-capture-self-exclusion の P03 lifecycle 責務への確定写像",
+      "closed_at": "2026-08-30T09:09:28Z",
+      "completion_evidence": {
+        "completed_at": "2026-08-30T09:09:28Z",
+        "evidence_refs": [
+          "beads:ah-0d2q.3"
+        ],
+        "policy": "manual",
+        "reconciled_at": "2026-08-30T12:05:00Z",
+        "source": "reconciliation",
+        "status": "done"
+      },
+      "confirmation_evidence": {
+        "evaluated_digest": "892cd5611c443a5f90b97047a9542489c44be963ff4d775c30b640e7aca40b7d",
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-feedback-capture-self-exclusion/892cd5611c443a5f90b97047a9542489c44be963ff4d775c30b640e7aca40b7d/plan-findings.json"
+      },
+      "confirmation_status": "confirmed",
+      "created_at": "2026-08-30T12:31:04Z",
+      "depends_on": [
+        "SYS-FB-CAPTURE-EXCLUSION-P02"
+      ],
+      "domain": "quality",
+      "evaluation_status": "pass",
+      "execution_contexts": [],
+      "feature_package_id": "feature-package/feat-feedback-capture-self-exclusion",
+      "file_path": "tasks/feat-feedback-capture-self-exclusion/sys-fb-capture-exclusion-p03.md",
+      "github_project_linkages": [],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "goal": "P02 の設計を実装着手前に独立の観点で検査し、押した勢いの喪失・待ちの無限延長・隠したまま戻らない要素という三つの失敗様式が設計上塞がれていることを判定した状態を成立させる。",
+      "graph_node_id": "SYS-FB-CAPTURE-EXCLUSION-P03",
+      "implementation_readiness": {
+        "checked_at": "2026-08-30T03:45:47Z",
+        "missing_sections": [],
+        "status": "complete"
+      },
+      "issue_linkage": null,
+      "iteration": null,
+      "owners": [
+        "daishiman"
+      ],
+      "parent_feature": "feat-feedback-capture-self-exclusion",
+      "phase_ref": "P03",
+      "priority": null,
+      "project_id": "feature-package-feat-feedback-capture-self-exclusion",
+      "pull_request_linkages": [],
+      "purpose": "P02 の設計を実装着手前に独立の観点で検査し、押した勢いの喪失・待ちの無限延長・隠したまま戻らない要素という三つの失敗様式が設計上塞がれていることを判定した状態を成立させる。",
+      "related_nodes": [],
+      "resource_scope": [
+        "docs/spec/feat-feedback-capture-self-exclusion/design-review-findings.md"
+      ],
+      "scope_in": [
+        "Produced artifacts: docs/spec/feat-feedback-capture-self-exclusion/design-review-findings.md (三つの失敗様式に対する設計上の遮断根拠と残課題の判定)",
+        "Consumed artifacts: features/feat-feedback-capture-self-exclusion.md, features/feat-feedback-capture-self-exclusion.context.json, system-spec/frontend.md, docs/spec/12-改善要望フィードバック仕様.md",
+        "Write scope/touches: docs/spec/feat-feedback-capture-self-exclusion/design-review-findings.md"
+      ],
+      "scope_out": [
+        "feat-feedback-capture-self-exclusion の scope_out (改善要望フィードバック機能そのものの無効化・起動ボタンの撤去・写しの書き込み (手書き/四角/矢印/文字/黒塗り) の仕様変更・一覧/詳細/払い出し経路の変更・写し以外の添付手段の追加) に該当する変更",
+        "他 phase が所有する成果物への書き込み (write_scope 外への変更)"
+      ],
+      "source_lineage": {
+        "imported_at": "2026-08-30T12:31:04Z",
+        "origin_kind": "system-dev-planner",
+        "source_digest": "892cd5611c443a5f90b97047a9542489c44be963ff4d775c30b640e7aca40b7d",
+        "source_path": ".dev-graph/published/generations/feature-package-feat-feedback-capture-self-exclusion/892cd5611c443a5f90b97047a9542489c44be963ff4d775c30b640e7aca40b7d/task-specs/phase-03-design-review.md",
+        "source_plugin": "system-dev-planner",
+        "source_version": "0.1.0"
+      },
+      "start_date": null,
+      "status": "closed",
+      "tags": [
+        "p03",
+        "feat-feedback-capture-self-exclusion"
+      ],
+      "target_date": null,
+      "template_id": "task",
+      "template_version": "1.1.0",
+      "title": "設計の独立レビューと退避経路の妥当性判定",
+      "tracker_binding": "beads",
+      "updated_at": "2026-08-30T13:31:27.119191Z"
+    },
+    {
+      "acceptance": [
+        "Automated commands: `pnpm run typecheck`",
+        "Automated commands: `python3 .claude/plugins/system-dev-planner/scripts/validate-system-plan.py --repo-root . --feature-package feature-package/feat-feedback-capture-self-exclusion`",
+        "Required evidence: P04 の 成果物 section に記した produced artifacts のパス"
+      ],
+      "architecture_refs": [
+        "arch-two-layer-platform"
+      ],
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "beads_linkage": {
+        "bd_issue_id": "ah-0d2q.4",
+        "github_mirror": null,
+        "linked_at": "2026-08-30T04:17:17Z",
+        "sync_state": "linked"
+      },
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "candidate_path": "tasks/feat-feedback-capture-self-exclusion/sys-fb-capture-exclusion-p04.md",
+          "confidence": 1.0
+        }
+      ],
+      "classification_confidence": 1.0,
+      "classification_reason": "feat-feedback-capture-self-exclusion の P04 lifecycle 責務への確定写像",
+      "closed_at": "2026-08-30T09:09:30Z",
+      "completion_evidence": {
+        "completed_at": "2026-08-30T09:09:30Z",
+        "evidence_refs": [
+          "beads:ah-0d2q.4"
+        ],
+        "policy": "manual",
+        "reconciled_at": "2026-08-30T12:05:00Z",
+        "source": "reconciliation",
+        "status": "done"
+      },
+      "confirmation_evidence": {
+        "evaluated_digest": "892cd5611c443a5f90b97047a9542489c44be963ff4d775c30b640e7aca40b7d",
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-feedback-capture-self-exclusion/892cd5611c443a5f90b97047a9542489c44be963ff4d775c30b640e7aca40b7d/plan-findings.json"
+      },
+      "confirmation_status": "confirmed",
+      "created_at": "2026-08-30T12:31:04Z",
+      "depends_on": [
+        "SYS-FB-CAPTURE-EXCLUSION-P03"
+      ],
+      "domain": "quality",
+      "evaluation_status": "pass",
+      "execution_contexts": [],
+      "feature_package_id": "feature-package/feat-feedback-capture-self-exclusion",
+      "file_path": "tasks/feat-feedback-capture-self-exclusion/sys-fb-capture-exclusion-p04.md",
+      "github_project_linkages": [],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "goal": "受入7件を自動で判定できるテストの構成を確定し、写しに送信 UI が含まれないことの観測手段と、拒否・非対応・失敗の各経路の再現手段を設計した状態を成立させる。",
+      "graph_node_id": "SYS-FB-CAPTURE-EXCLUSION-P04",
+      "implementation_readiness": {
+        "checked_at": "2026-08-30T03:45:47Z",
+        "missing_sections": [],
+        "status": "complete"
+      },
+      "issue_linkage": null,
+      "iteration": null,
+      "owners": [
+        "daishiman"
+      ],
+      "parent_feature": "feat-feedback-capture-self-exclusion",
+      "phase_ref": "P04",
+      "priority": null,
+      "project_id": "feature-package-feat-feedback-capture-self-exclusion",
+      "pull_request_linkages": [],
+      "purpose": "受入7件を自動で判定できるテストの構成を確定し、写しに送信 UI が含まれないことの観測手段と、拒否・非対応・失敗の各経路の再現手段を設計した状態を成立させる。",
+      "related_nodes": [],
+      "resource_scope": [
+        "docs/spec/feat-feedback-capture-self-exclusion/test-design.md",
+        "docs/spec/feat-feedback-capture-self-exclusion/capture-test-fixtures.md"
+      ],
+      "scope_in": [
+        "Produced artifacts: docs/spec/feat-feedback-capture-self-exclusion/test-design.md (受入7件とテストケースの一意対応・観測手段・偽陽性の回避方針); docs/spec/feat-feedback-capture-self-exclusion/capture-test-fixtures.md (getDisplayMedia の差し替えによる拒否/非対応/失敗の再現手順)",
+        "Consumed artifacts: features/feat-feedback-capture-self-exclusion.md, features/feat-feedback-capture-self-exclusion.context.json, system-spec/frontend.md, docs/spec/12-改善要望フィードバック仕様.md",
+        "Write scope/touches: docs/spec/feat-feedback-capture-self-exclusion/test-design.md, docs/spec/feat-feedback-capture-self-exclusion/capture-test-fixtures.md"
+      ],
+      "scope_out": [
+        "feat-feedback-capture-self-exclusion の scope_out (改善要望フィードバック機能そのものの無効化・起動ボタンの撤去・写しの書き込み (手書き/四角/矢印/文字/黒塗り) の仕様変更・一覧/詳細/払い出し経路の変更・写し以外の添付手段の追加) に該当する変更",
+        "他 phase が所有する成果物への書き込み (write_scope 外への変更)"
+      ],
+      "source_lineage": {
+        "imported_at": "2026-08-30T12:31:04Z",
+        "origin_kind": "system-dev-planner",
+        "source_digest": "892cd5611c443a5f90b97047a9542489c44be963ff4d775c30b640e7aca40b7d",
+        "source_path": ".dev-graph/published/generations/feature-package-feat-feedback-capture-self-exclusion/892cd5611c443a5f90b97047a9542489c44be963ff4d775c30b640e7aca40b7d/task-specs/phase-04-test-design.md",
+        "source_plugin": "system-dev-planner",
+        "source_version": "0.1.0"
+      },
+      "start_date": null,
+      "status": "closed",
+      "tags": [
+        "p04",
+        "feat-feedback-capture-self-exclusion"
+      ],
+      "target_date": null,
+      "template_id": "task",
+      "template_version": "1.1.0",
+      "title": "写り込み検査と退避経路のテスト設計",
+      "tracker_binding": "beads",
+      "updated_at": "2026-08-30T13:31:43.545200Z"
+    },
+    {
+      "acceptance": [
+        "Automated commands: `pnpm run typecheck`",
+        "Automated commands: `pnpm run lint`",
+        "Automated commands: `python3 .claude/plugins/system-dev-planner/scripts/validate-system-plan.py --repo-root . --feature-package feature-package/feat-feedback-capture-self-exclusion`",
+        "Required evidence: P05 の write_scope 配下の変更と、typecheck および lint の実行結果"
+      ],
+      "architecture_refs": [
+        "arch-two-layer-platform"
+      ],
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "beads_linkage": {
+        "bd_issue_id": "ah-0d2q.5",
+        "github_mirror": null,
+        "linked_at": "2026-08-30T04:17:19Z",
+        "sync_state": "linked"
+      },
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "candidate_path": "tasks/feat-feedback-capture-self-exclusion/sys-fb-capture-exclusion-p05.md",
+          "confidence": 1.0
+        }
+      ],
+      "classification_confidence": 1.0,
+      "classification_reason": "feat-feedback-capture-self-exclusion の P05 lifecycle 責務への確定写像",
+      "closed_at": "2026-08-30T09:09:32Z",
+      "completion_evidence": {
+        "completed_at": "2026-08-30T09:09:32Z",
+        "evidence_refs": [
+          "beads:ah-0d2q.5"
+        ],
+        "policy": "manual",
+        "reconciled_at": "2026-08-30T12:05:00Z",
+        "source": "reconciliation",
+        "status": "done"
+      },
+      "confirmation_evidence": {
+        "evaluated_digest": "892cd5611c443a5f90b97047a9542489c44be963ff4d775c30b640e7aca40b7d",
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-feedback-capture-self-exclusion/892cd5611c443a5f90b97047a9542489c44be963ff4d775c30b640e7aca40b7d/plan-findings.json"
+      },
+      "confirmation_status": "confirmed",
+      "created_at": "2026-08-30T12:31:04Z",
+      "depends_on": [
+        "SYS-FB-CAPTURE-EXCLUSION-P04"
+      ],
+      "domain": "frontend",
+      "evaluation_status": "pass",
+      "execution_contexts": [],
+      "feature_package_id": "feature-package/feat-feedback-capture-self-exclusion",
+      "file_path": "tasks/feat-feedback-capture-self-exclusion/sys-fb-capture-exclusion-p05.md",
+      "github_project_linkages": [],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "goal": "撮影の要求と送信 UI の可視化を別の時点へ分け、撮影中は起動ボタンと送信モーダルを写しの対象から外し、写しが撮れない場合は待たずに送信 UI を開く実装を成立させる。",
+      "graph_node_id": "SYS-FB-CAPTURE-EXCLUSION-P05",
+      "implementation_readiness": {
+        "checked_at": "2026-08-30T03:45:47Z",
+        "missing_sections": [],
+        "status": "complete"
+      },
+      "issue_linkage": null,
+      "iteration": null,
+      "owners": [
+        "daishiman"
+      ],
+      "parent_feature": "feat-feedback-capture-self-exclusion",
+      "phase_ref": "P05",
+      "priority": null,
+      "project_id": "feature-package-feat-feedback-capture-self-exclusion",
+      "pull_request_linkages": [],
+      "purpose": "撮影の要求と送信 UI の可視化を別の時点へ分け、撮影中は起動ボタンと送信モーダルを写しの対象から外し、写しが撮れない場合は待たずに送信 UI を開く実装を成立させる。",
+      "related_nodes": [],
+      "resource_scope": [
+        "src/presentation/ui/patterns"
+      ],
+      "scope_in": [
+        "Produced artifacts: src/presentation/ui/patterns/feedback-button.tsx (撮影と可視化の時点分離・撮影中の退避・復元・退避経路); src/presentation/ui/patterns (本文の上に浮く要素への data-floating-overlay 付与)",
+        "Consumed artifacts: features/feat-feedback-capture-self-exclusion.md, features/feat-feedback-capture-self-exclusion.context.json, system-spec/frontend.md, docs/spec/12-改善要望フィードバック仕様.md",
+        "Write scope/touches: src/presentation/ui/patterns"
+      ],
+      "scope_out": [
+        "feat-feedback-capture-self-exclusion の scope_out (改善要望フィードバック機能そのものの無効化・起動ボタンの撤去・写しの書き込み (手書き/四角/矢印/文字/黒塗り) の仕様変更・一覧/詳細/払い出し経路の変更・写し以外の添付手段の追加) に該当する変更",
+        "他 phase が所有する成果物への書き込み (write_scope 外への変更)"
+      ],
+      "source_lineage": {
+        "imported_at": "2026-08-30T12:31:04Z",
+        "origin_kind": "system-dev-planner",
+        "source_digest": "892cd5611c443a5f90b97047a9542489c44be963ff4d775c30b640e7aca40b7d",
+        "source_path": ".dev-graph/published/generations/feature-package-feat-feedback-capture-self-exclusion/892cd5611c443a5f90b97047a9542489c44be963ff4d775c30b640e7aca40b7d/task-specs/phase-05-implementation.md",
+        "source_plugin": "system-dev-planner",
+        "source_version": "0.1.0"
+      },
+      "start_date": null,
+      "status": "closed",
+      "tags": [
+        "p05",
+        "feat-feedback-capture-self-exclusion"
+      ],
+      "target_date": null,
+      "template_id": "task",
+      "template_version": "1.1.0",
+      "title": "撮影中だけ送信 UI を写しの対象から外す実装",
+      "tracker_binding": "beads",
+      "updated_at": "2026-08-30T13:32:00.645294Z"
+    },
+    {
+      "acceptance": [
+        "Automated commands: `pnpm run test`",
+        "Automated commands: `pnpm run test:e2e`",
+        "Automated commands: `python3 .claude/plugins/system-dev-planner/scripts/validate-system-plan.py --repo-root . --feature-package feature-package/feat-feedback-capture-self-exclusion`",
+        "Required evidence: P06 のテスト実行結果と、失敗 0 件を示す実行ログ"
+      ],
+      "architecture_refs": [
+        "arch-two-layer-platform"
+      ],
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "beads_linkage": {
+        "bd_issue_id": "ah-0d2q.6",
+        "github_mirror": null,
+        "linked_at": "2026-08-30T04:17:20Z",
+        "sync_state": "linked"
+      },
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "candidate_path": "tasks/feat-feedback-capture-self-exclusion/sys-fb-capture-exclusion-p06.md",
+          "confidence": 1.0
+        }
+      ],
+      "classification_confidence": 1.0,
+      "classification_reason": "feat-feedback-capture-self-exclusion の P06 lifecycle 責務への確定写像",
+      "closed_at": "2026-08-30T09:26:47Z",
+      "completion_evidence": {
+        "completed_at": "2026-08-30T09:26:47Z",
+        "evidence_refs": [
+          "beads:ah-0d2q.6"
+        ],
+        "policy": "manual",
+        "reconciled_at": "2026-08-30T12:05:00Z",
+        "source": "reconciliation",
+        "status": "done"
+      },
+      "confirmation_evidence": {
+        "evaluated_digest": "892cd5611c443a5f90b97047a9542489c44be963ff4d775c30b640e7aca40b7d",
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-feedback-capture-self-exclusion/892cd5611c443a5f90b97047a9542489c44be963ff4d775c30b640e7aca40b7d/plan-findings.json"
+      },
+      "confirmation_status": "confirmed",
+      "created_at": "2026-08-30T12:31:04Z",
+      "depends_on": [
+        "SYS-FB-CAPTURE-EXCLUSION-P05"
+      ],
+      "domain": "quality",
+      "evaluation_status": "pass",
+      "execution_contexts": [],
+      "feature_package_id": "feature-package/feat-feedback-capture-self-exclusion",
+      "file_path": "tasks/feat-feedback-capture-self-exclusion/sys-fb-capture-exclusion-p06.md",
+      "github_project_linkages": [],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "goal": "P04 で設計した検査を実装として書き下ろして実行し、写り込み・撮り直し・退避経路・復元の各条件が自動で緑になり、既存テストの失敗が 0 件である状態を成立させる。",
+      "graph_node_id": "SYS-FB-CAPTURE-EXCLUSION-P06",
+      "implementation_readiness": {
+        "checked_at": "2026-08-30T03:45:47Z",
+        "missing_sections": [],
+        "status": "complete"
+      },
+      "issue_linkage": null,
+      "iteration": null,
+      "owners": [
+        "daishiman"
+      ],
+      "parent_feature": "feat-feedback-capture-self-exclusion",
+      "phase_ref": "P06",
+      "priority": null,
+      "project_id": "feature-package-feat-feedback-capture-self-exclusion",
+      "pull_request_linkages": [],
+      "purpose": "P04 で設計した検査を実装として書き下ろして実行し、写り込み・撮り直し・退避経路・復元の各条件が自動で緑になり、既存テストの失敗が 0 件である状態を成立させる。",
+      "related_nodes": [],
+      "resource_scope": [
+        "tests/ui",
+        "tests/e2e"
+      ],
+      "scope_in": [
+        "Produced artifacts: tests/ui 配下の単体テスト (撮影と可視化の順序・退避経路・復元の振る舞い); tests/e2e 配下の E2E テスト (改善ボタンからの写しに送信 UI が含まれないこと・撮り直し・属性付与漏れの検出)",
+        "Consumed artifacts: features/feat-feedback-capture-self-exclusion.md, features/feat-feedback-capture-self-exclusion.context.json, system-spec/frontend.md, docs/spec/12-改善要望フィードバック仕様.md",
+        "Write scope/touches: tests/ui, tests/e2e"
+      ],
+      "scope_out": [
+        "feat-feedback-capture-self-exclusion の scope_out (改善要望フィードバック機能そのものの無効化・起動ボタンの撤去・写しの書き込み (手書き/四角/矢印/文字/黒塗り) の仕様変更・一覧/詳細/払い出し経路の変更・写し以外の添付手段の追加) に該当する変更",
+        "他 phase が所有する成果物への書き込み (write_scope 外への変更)"
+      ],
+      "source_lineage": {
+        "imported_at": "2026-08-30T12:31:04Z",
+        "origin_kind": "system-dev-planner",
+        "source_digest": "892cd5611c443a5f90b97047a9542489c44be963ff4d775c30b640e7aca40b7d",
+        "source_path": ".dev-graph/published/generations/feature-package-feat-feedback-capture-self-exclusion/892cd5611c443a5f90b97047a9542489c44be963ff4d775c30b640e7aca40b7d/task-specs/phase-06-test-run.md",
+        "source_plugin": "system-dev-planner",
+        "source_version": "0.1.0"
+      },
+      "start_date": null,
+      "status": "closed",
+      "tags": [
+        "p06",
+        "feat-feedback-capture-self-exclusion"
+      ],
+      "target_date": null,
+      "template_id": "task",
+      "template_version": "1.1.0",
+      "title": "写り込み検査と回帰テストの実行と緑化",
+      "tracker_binding": "beads",
+      "updated_at": "2026-08-30T13:41:28.779123Z"
+    },
+    {
+      "acceptance": [
+        "Automated commands: `pnpm run typecheck`",
+        "Automated commands: `python3 .claude/plugins/system-dev-planner/scripts/validate-system-plan.py --repo-root . --feature-package feature-package/feat-feedback-capture-self-exclusion`",
+        "Required evidence: P07 の 成果物 section に記した produced artifacts のパスと P06 の実行ログ"
+      ],
+      "architecture_refs": [
+        "arch-two-layer-platform"
+      ],
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "beads_linkage": {
+        "bd_issue_id": "ah-0d2q.7",
+        "github_mirror": null,
+        "linked_at": "2026-08-30T04:17:22Z",
+        "sync_state": "linked"
+      },
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "candidate_path": "tasks/feat-feedback-capture-self-exclusion/sys-fb-capture-exclusion-p07.md",
+          "confidence": 1.0
+        }
+      ],
+      "classification_confidence": 1.0,
+      "classification_reason": "feat-feedback-capture-self-exclusion の P07 lifecycle 責務への確定写像",
+      "closed_at": null,
+      "completion_evidence": {
+        "completed_at": null,
+        "evidence_refs": [
+          "docs/spec/feat-feedback-capture-self-exclusion/acceptance-report.md"
+        ],
+        "policy": "manual",
+        "reconciled_at": "2026-08-30T13:20:30Z",
+        "source": "reconciliation",
+        "status": "open"
+      },
+      "confirmation_evidence": {
+        "evaluated_digest": "892cd5611c443a5f90b97047a9542489c44be963ff4d775c30b640e7aca40b7d",
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-feedback-capture-self-exclusion/892cd5611c443a5f90b97047a9542489c44be963ff4d775c30b640e7aca40b7d/plan-findings.json"
+      },
+      "confirmation_status": "confirmed",
+      "created_at": "2026-08-30T12:31:04Z",
+      "depends_on": [
+        "SYS-FB-CAPTURE-EXCLUSION-P06"
+      ],
+      "domain": "quality",
+      "evaluation_status": "pass",
+      "execution_contexts": [],
+      "feature_package_id": "feature-package/feat-feedback-capture-self-exclusion",
+      "file_path": "tasks/feat-feedback-capture-self-exclusion/sys-fb-capture-exclusion-p07.md",
+      "github_project_linkages": [],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "goal": "feat-feedback-capture-self-exclusion の受入7件それぞれについて、P06 のどの検査が満たしたかを一意に対応付け、未達 0 件で受入と言える状態を成立させる。",
+      "graph_node_id": "SYS-FB-CAPTURE-EXCLUSION-P07",
+      "implementation_readiness": {
+        "checked_at": "2026-08-30T03:45:47Z",
+        "missing_sections": [],
+        "status": "complete"
+      },
+      "issue_linkage": null,
+      "iteration": null,
+      "owners": [
+        "daishiman"
+      ],
+      "parent_feature": "feat-feedback-capture-self-exclusion",
+      "phase_ref": "P07",
+      "priority": null,
+      "project_id": "feature-package-feat-feedback-capture-self-exclusion",
+      "pull_request_linkages": [],
+      "purpose": "feat-feedback-capture-self-exclusion の受入7件それぞれについて、P06 のどの検査が満たしたかを一意に対応付け、未達 0 件で受入と言える状態を成立させる。",
+      "related_nodes": [],
+      "resource_scope": [
+        "docs/spec/feat-feedback-capture-self-exclusion/acceptance-report.md"
+      ],
+      "scope_in": [
+        "Produced artifacts: docs/spec/feat-feedback-capture-self-exclusion/acceptance-report.md (受入7件と検査結果の一意対応・未達の有無)",
+        "Consumed artifacts: features/feat-feedback-capture-self-exclusion.md, features/feat-feedback-capture-self-exclusion.context.json, system-spec/frontend.md, docs/spec/12-改善要望フィードバック仕様.md",
+        "Write scope/touches: docs/spec/feat-feedback-capture-self-exclusion/acceptance-report.md"
+      ],
+      "scope_out": [
+        "feat-feedback-capture-self-exclusion の scope_out (改善要望フィードバック機能そのものの無効化・起動ボタンの撤去・写しの書き込み (手書き/四角/矢印/文字/黒塗り) の仕様変更・一覧/詳細/払い出し経路の変更・写し以外の添付手段の追加) に該当する変更",
+        "他 phase が所有する成果物への書き込み (write_scope 外への変更)"
+      ],
+      "source_lineage": {
+        "imported_at": "2026-08-30T12:31:04Z",
+        "origin_kind": "system-dev-planner",
+        "source_digest": "892cd5611c443a5f90b97047a9542489c44be963ff4d775c30b640e7aca40b7d",
+        "source_path": ".dev-graph/published/generations/feature-package-feat-feedback-capture-self-exclusion/892cd5611c443a5f90b97047a9542489c44be963ff4d775c30b640e7aca40b7d/task-specs/phase-07-acceptance.md",
+        "source_plugin": "system-dev-planner",
+        "source_version": "0.1.0"
+      },
+      "start_date": null,
+      "status": "active",
+      "tags": [
+        "p07",
+        "feat-feedback-capture-self-exclusion"
+      ],
+      "target_date": null,
+      "template_id": "task",
+      "template_version": "1.1.0",
+      "title": "受入7件の受入判定",
+      "tracker_binding": "beads",
+      "updated_at": "2026-08-30T13:32:33.979235Z"
+    },
+    {
+      "acceptance": [
+        "Automated commands: `pnpm run typecheck`",
+        "Automated commands: `pnpm run lint`",
+        "Automated commands: `pnpm run test:e2e`",
+        "Automated commands: `python3 .claude/plugins/system-dev-planner/scripts/validate-system-plan.py --repo-root . --feature-package feature-package/feat-feedback-capture-self-exclusion`",
+        "Required evidence: P08 の write_scope 配下の変更と E2E 実行結果"
+      ],
+      "architecture_refs": [
+        "arch-two-layer-platform"
+      ],
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "beads_linkage": {
+        "bd_issue_id": "ah-0d2q.8",
+        "github_mirror": null,
+        "linked_at": "2026-08-30T04:17:23Z",
+        "sync_state": "linked"
+      },
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "candidate_path": "tasks/feat-feedback-capture-self-exclusion/sys-fb-capture-exclusion-p08.md",
+          "confidence": 1.0
+        }
+      ],
+      "classification_confidence": 1.0,
+      "classification_reason": "feat-feedback-capture-self-exclusion の P08 lifecycle 責務への確定写像",
+      "closed_at": null,
+      "completion_evidence": {
+        "completed_at": null,
+        "evidence_refs": [
+          "dev-graph:SYS-FB-CAPTURE-EXCLUSION-P07"
+        ],
+        "policy": "manual",
+        "reconciled_at": "2026-08-30T13:20:30Z",
+        "source": "reconciliation",
+        "status": "blocked"
+      },
+      "confirmation_evidence": {
+        "evaluated_digest": "892cd5611c443a5f90b97047a9542489c44be963ff4d775c30b640e7aca40b7d",
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-feedback-capture-self-exclusion/892cd5611c443a5f90b97047a9542489c44be963ff4d775c30b640e7aca40b7d/plan-findings.json"
+      },
+      "confirmation_status": "confirmed",
+      "created_at": "2026-08-30T12:31:04Z",
+      "depends_on": [
+        "SYS-FB-CAPTURE-EXCLUSION-P07"
+      ],
+      "domain": "frontend",
+      "evaluation_status": "pass",
+      "execution_contexts": [],
+      "feature_package_id": "feature-package/feat-feedback-capture-self-exclusion",
+      "file_path": "tasks/feat-feedback-capture-self-exclusion/sys-fb-capture-exclusion-p08.md",
+      "github_project_linkages": [],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "goal": "本文の上に浮く要素の名乗りを data-floating-overlay へ統一し、写し除外と重なり監査が同一の手掛かりを共有する形へ整理した状態を成立させる。",
+      "graph_node_id": "SYS-FB-CAPTURE-EXCLUSION-P08",
+      "implementation_readiness": {
+        "checked_at": "2026-08-30T03:45:47Z",
+        "missing_sections": [],
+        "status": "complete"
+      },
+      "issue_linkage": null,
+      "iteration": null,
+      "owners": [
+        "daishiman"
+      ],
+      "parent_feature": "feat-feedback-capture-self-exclusion",
+      "phase_ref": "P08",
+      "priority": null,
+      "project_id": "feature-package-feat-feedback-capture-self-exclusion",
+      "pull_request_linkages": [],
+      "purpose": "本文の上に浮く要素の名乗りを data-floating-overlay へ統一し、写し除外と重なり監査が同一の手掛かりを共有する形へ整理した状態を成立させる。",
+      "related_nodes": [],
+      "resource_scope": [
+        "src/presentation/ui/patterns",
+        "tests/e2e/app-routes.spec.ts"
+      ],
+      "scope_in": [
+        "Produced artifacts: src/presentation/ui/patterns 配下の浮遊要素への data-floating-overlay 付与の統一; tests/e2e/app-routes.spec.ts (重なり監査の判定を共通の手掛かりへ寄せる)",
+        "Consumed artifacts: features/feat-feedback-capture-self-exclusion.md, features/feat-feedback-capture-self-exclusion.context.json, system-spec/frontend.md, docs/spec/12-改善要望フィードバック仕様.md",
+        "Write scope/touches: src/presentation/ui/patterns, tests/e2e/app-routes.spec.ts"
+      ],
+      "scope_out": [
+        "feat-feedback-capture-self-exclusion の scope_out (改善要望フィードバック機能そのものの無効化・起動ボタンの撤去・写しの書き込み (手書き/四角/矢印/文字/黒塗り) の仕様変更・一覧/詳細/払い出し経路の変更・写し以外の添付手段の追加) に該当する変更",
+        "他 phase が所有する成果物への書き込み (write_scope 外への変更)"
+      ],
+      "source_lineage": {
+        "imported_at": "2026-08-30T12:31:04Z",
+        "origin_kind": "system-dev-planner",
+        "source_digest": "892cd5611c443a5f90b97047a9542489c44be963ff4d775c30b640e7aca40b7d",
+        "source_path": ".dev-graph/published/generations/feature-package-feat-feedback-capture-self-exclusion/892cd5611c443a5f90b97047a9542489c44be963ff4d775c30b640e7aca40b7d/task-specs/phase-08-refactoring-migration.md",
+        "source_plugin": "system-dev-planner",
+        "source_version": "0.1.0"
+      },
+      "start_date": null,
+      "status": "active",
+      "tags": [
+        "p08",
+        "feat-feedback-capture-self-exclusion"
+      ],
+      "target_date": null,
+      "template_id": "task",
+      "template_version": "1.1.0",
+      "title": "浮遊要素の属性統一と重なり監査との共通化",
+      "tracker_binding": "beads",
+      "updated_at": "2026-08-30T13:41:46.440805Z"
+    },
+    {
+      "acceptance": [
+        "Automated commands: `pnpm run test:e2e`",
+        "Automated commands: `pnpm run typecheck`",
+        "Automated commands: `python3 .claude/plugins/system-dev-planner/scripts/validate-system-plan.py --repo-root . --feature-package feature-package/feat-feedback-capture-self-exclusion`",
+        "Required evidence: P09 の 成果物 section に記した produced artifacts のパスと検査実行結果"
+      ],
+      "architecture_refs": [
+        "arch-two-layer-platform"
+      ],
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "beads_linkage": {
+        "bd_issue_id": "ah-0d2q.9",
+        "github_mirror": null,
+        "linked_at": "2026-08-30T04:17:25Z",
+        "sync_state": "linked"
+      },
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "candidate_path": "tasks/feat-feedback-capture-self-exclusion/sys-fb-capture-exclusion-p09.md",
+          "confidence": 1.0
+        }
+      ],
+      "classification_confidence": 1.0,
+      "classification_reason": "feat-feedback-capture-self-exclusion の P09 lifecycle 責務への確定写像",
+      "closed_at": null,
+      "completion_evidence": {
+        "completed_at": null,
+        "evidence_refs": [
+          "dev-graph:SYS-FB-CAPTURE-EXCLUSION-P08"
+        ],
+        "policy": "manual",
+        "reconciled_at": "2026-08-30T13:20:30Z",
+        "source": "reconciliation",
+        "status": "blocked"
+      },
+      "confirmation_evidence": {
+        "evaluated_digest": "892cd5611c443a5f90b97047a9542489c44be963ff4d775c30b640e7aca40b7d",
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-feedback-capture-self-exclusion/892cd5611c443a5f90b97047a9542489c44be963ff4d775c30b640e7aca40b7d/plan-findings.json"
+      },
+      "confirmation_status": "confirmed",
+      "created_at": "2026-08-30T12:31:04Z",
+      "depends_on": [
+        "SYS-FB-CAPTURE-EXCLUSION-P08"
+      ],
+      "domain": "quality",
+      "evaluation_status": "pass",
+      "execution_contexts": [],
+      "feature_package_id": "feature-package/feat-feedback-capture-self-exclusion",
+      "file_path": "tasks/feat-feedback-capture-self-exclusion/sys-fb-capture-exclusion-p09.md",
+      "github_project_linkages": [],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "goal": "変更後の送信 UI について、支援技術からの到達性・操作の一貫性・既存画面への副作用が基準を満たすことを確かめた状態を成立させる。",
+      "graph_node_id": "SYS-FB-CAPTURE-EXCLUSION-P09",
+      "implementation_readiness": {
+        "checked_at": "2026-08-30T03:45:47Z",
+        "missing_sections": [],
+        "status": "complete"
+      },
+      "issue_linkage": null,
+      "iteration": null,
+      "owners": [
+        "daishiman"
+      ],
+      "parent_feature": "feat-feedback-capture-self-exclusion",
+      "phase_ref": "P09",
+      "priority": null,
+      "project_id": "feature-package-feat-feedback-capture-self-exclusion",
+      "pull_request_linkages": [],
+      "purpose": "変更後の送信 UI について、支援技術からの到達性・操作の一貫性・既存画面への副作用が基準を満たすことを確かめた状態を成立させる。",
+      "related_nodes": [],
+      "resource_scope": [
+        "docs/spec/feat-feedback-capture-self-exclusion/quality-report.md"
+      ],
+      "scope_in": [
+        "Produced artifacts: docs/spec/feat-feedback-capture-self-exclusion/quality-report.md (アクセシビリティ検査結果・副作用の有無・回帰の判定)",
+        "Consumed artifacts: features/feat-feedback-capture-self-exclusion.md, features/feat-feedback-capture-self-exclusion.context.json, system-spec/frontend.md, docs/spec/12-改善要望フィードバック仕様.md",
+        "Write scope/touches: docs/spec/feat-feedback-capture-self-exclusion/quality-report.md"
+      ],
+      "scope_out": [
+        "feat-feedback-capture-self-exclusion の scope_out (改善要望フィードバック機能そのものの無効化・起動ボタンの撤去・写しの書き込み (手書き/四角/矢印/文字/黒塗り) の仕様変更・一覧/詳細/払い出し経路の変更・写し以外の添付手段の追加) に該当する変更",
+        "他 phase が所有する成果物への書き込み (write_scope 外への変更)"
+      ],
+      "source_lineage": {
+        "imported_at": "2026-08-30T12:31:04Z",
+        "origin_kind": "system-dev-planner",
+        "source_digest": "892cd5611c443a5f90b97047a9542489c44be963ff4d775c30b640e7aca40b7d",
+        "source_path": ".dev-graph/published/generations/feature-package-feat-feedback-capture-self-exclusion/892cd5611c443a5f90b97047a9542489c44be963ff4d775c30b640e7aca40b7d/task-specs/phase-09-quality-assurance.md",
+        "source_plugin": "system-dev-planner",
+        "source_version": "0.1.0"
+      },
+      "start_date": null,
+      "status": "active",
+      "tags": [
+        "p09",
+        "feat-feedback-capture-self-exclusion"
+      ],
+      "target_date": null,
+      "template_id": "task",
+      "template_version": "1.1.0",
+      "title": "品質保証と非機能の確認",
+      "tracker_binding": "beads",
+      "updated_at": "2026-08-30T13:33:11.719297Z"
+    },
+    {
+      "acceptance": [
+        "Automated commands: `pnpm run typecheck`",
+        "Automated commands: `python3 .claude/plugins/system-dev-planner/scripts/validate-system-plan.py --repo-root . --feature-package feature-package/feat-feedback-capture-self-exclusion`",
+        "Required evidence: P10 の 成果物 section に記した produced artifacts のパス"
+      ],
+      "architecture_refs": [
+        "arch-two-layer-platform"
+      ],
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "beads_linkage": {
+        "bd_issue_id": "ah-0d2q.10",
+        "github_mirror": null,
+        "linked_at": "2026-08-30T04:17:27Z",
+        "sync_state": "linked"
+      },
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "candidate_path": "tasks/feat-feedback-capture-self-exclusion/sys-fb-capture-exclusion-p10.md",
+          "confidence": 1.0
+        }
+      ],
+      "classification_confidence": 1.0,
+      "classification_reason": "feat-feedback-capture-self-exclusion の P10 lifecycle 責務への確定写像",
+      "closed_at": null,
+      "completion_evidence": {
+        "completed_at": null,
+        "evidence_refs": [
+          "dev-graph:SYS-FB-CAPTURE-EXCLUSION-P09"
+        ],
+        "policy": "manual",
+        "reconciled_at": "2026-08-30T13:20:30Z",
+        "source": "reconciliation",
+        "status": "blocked"
+      },
+      "confirmation_evidence": {
+        "evaluated_digest": "892cd5611c443a5f90b97047a9542489c44be963ff4d775c30b640e7aca40b7d",
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-feedback-capture-self-exclusion/892cd5611c443a5f90b97047a9542489c44be963ff4d775c30b640e7aca40b7d/plan-findings.json"
+      },
+      "confirmation_status": "confirmed",
+      "created_at": "2026-08-30T12:31:04Z",
+      "depends_on": [
+        "SYS-FB-CAPTURE-EXCLUSION-P09"
+      ],
+      "domain": "quality",
+      "evaluation_status": "pass",
+      "execution_contexts": [],
+      "feature_package_id": "feature-package/feat-feedback-capture-self-exclusion",
+      "file_path": "tasks/feat-feedback-capture-self-exclusion/sys-fb-capture-exclusion-p10.md",
+      "github_project_linkages": [],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "goal": "P01 から P09 までの成果を通しで読み、設計の意図・実装・検査・文書の間に食い違いが無いことを独立の観点で判定した状態を成立させる。",
+      "graph_node_id": "SYS-FB-CAPTURE-EXCLUSION-P10",
+      "implementation_readiness": {
+        "checked_at": "2026-08-30T03:45:47Z",
+        "missing_sections": [],
+        "status": "complete"
+      },
+      "issue_linkage": null,
+      "iteration": null,
+      "owners": [
+        "daishiman"
+      ],
+      "parent_feature": "feat-feedback-capture-self-exclusion",
+      "phase_ref": "P10",
+      "priority": null,
+      "project_id": "feature-package-feat-feedback-capture-self-exclusion",
+      "pull_request_linkages": [],
+      "purpose": "P01 から P09 までの成果を通しで読み、設計の意図・実装・検査・文書の間に食い違いが無いことを独立の観点で判定した状態を成立させる。",
+      "related_nodes": [],
+      "resource_scope": [
+        "docs/spec/feat-feedback-capture-self-exclusion/final-review.md"
+      ],
+      "scope_in": [
+        "Produced artifacts: docs/spec/feat-feedback-capture-self-exclusion/final-review.md (設計意図と現物の突合・P03 指摘の反映状況・残課題の帰属)",
+        "Consumed artifacts: features/feat-feedback-capture-self-exclusion.md, features/feat-feedback-capture-self-exclusion.context.json, system-spec/frontend.md, docs/spec/12-改善要望フィードバック仕様.md",
+        "Write scope/touches: docs/spec/feat-feedback-capture-self-exclusion/final-review.md"
+      ],
+      "scope_out": [
+        "feat-feedback-capture-self-exclusion の scope_out (改善要望フィードバック機能そのものの無効化・起動ボタンの撤去・写しの書き込み (手書き/四角/矢印/文字/黒塗り) の仕様変更・一覧/詳細/払い出し経路の変更・写し以外の添付手段の追加) に該当する変更",
+        "他 phase が所有する成果物への書き込み (write_scope 外への変更)"
+      ],
+      "source_lineage": {
+        "imported_at": "2026-08-30T12:31:04Z",
+        "origin_kind": "system-dev-planner",
+        "source_digest": "892cd5611c443a5f90b97047a9542489c44be963ff4d775c30b640e7aca40b7d",
+        "source_path": ".dev-graph/published/generations/feature-package-feat-feedback-capture-self-exclusion/892cd5611c443a5f90b97047a9542489c44be963ff4d775c30b640e7aca40b7d/task-specs/phase-10-final-review.md",
+        "source_plugin": "system-dev-planner",
+        "source_version": "0.1.0"
+      },
+      "start_date": null,
+      "status": "active",
+      "tags": [
+        "p10",
+        "feat-feedback-capture-self-exclusion"
+      ],
+      "target_date": null,
+      "template_id": "task",
+      "template_version": "1.1.0",
+      "title": "最終レビューと反映漏れの判定",
+      "tracker_binding": "beads",
+      "updated_at": "2026-08-30T13:33:29.116089Z"
+    },
+    {
+      "acceptance": [
+        "Automated commands: `pnpm run typecheck`",
+        "Automated commands: `python3 .claude/plugins/system-dev-planner/scripts/validate-system-plan.py --repo-root . --feature-package feature-package/feat-feedback-capture-self-exclusion`",
+        "Required evidence: P11 の 成果物 section に記した produced artifacts のパス"
+      ],
+      "architecture_refs": [
+        "arch-two-layer-platform"
+      ],
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "beads_linkage": {
+        "bd_issue_id": "ah-0d2q.11",
+        "github_mirror": null,
+        "linked_at": "2026-08-30T04:17:28Z",
+        "sync_state": "linked"
+      },
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "candidate_path": "tasks/feat-feedback-capture-self-exclusion/sys-fb-capture-exclusion-p11.md",
+          "confidence": 1.0
+        }
+      ],
+      "classification_confidence": 1.0,
+      "classification_reason": "feat-feedback-capture-self-exclusion の P11 lifecycle 責務への確定写像",
+      "closed_at": null,
+      "completion_evidence": {
+        "completed_at": null,
+        "evidence_refs": [
+          "dev-graph:SYS-FB-CAPTURE-EXCLUSION-P10"
+        ],
+        "policy": "manual",
+        "reconciled_at": "2026-08-30T13:20:30Z",
+        "source": "reconciliation",
+        "status": "blocked"
+      },
+      "confirmation_evidence": {
+        "evaluated_digest": "892cd5611c443a5f90b97047a9542489c44be963ff4d775c30b640e7aca40b7d",
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-feedback-capture-self-exclusion/892cd5611c443a5f90b97047a9542489c44be963ff4d775c30b640e7aca40b7d/plan-findings.json"
+      },
+      "confirmation_status": "confirmed",
+      "created_at": "2026-08-30T12:31:04Z",
+      "depends_on": [
+        "SYS-FB-CAPTURE-EXCLUSION-P10"
+      ],
+      "domain": "documentation",
+      "evaluation_status": "pass",
+      "execution_contexts": [],
+      "feature_package_id": "feature-package/feat-feedback-capture-self-exclusion",
+      "file_path": "tasks/feat-feedback-capture-self-exclusion/sys-fb-capture-exclusion-p11.md",
+      "github_project_linkages": [],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "goal": "受入判定の根拠となる検査結果・実行ログ・判定文書を一箇所へ集め、後から同じ結論へ辿り着ける状態を成立させる。",
+      "graph_node_id": "SYS-FB-CAPTURE-EXCLUSION-P11",
+      "implementation_readiness": {
+        "checked_at": "2026-08-30T03:45:47Z",
+        "missing_sections": [],
+        "status": "complete"
+      },
+      "issue_linkage": null,
+      "iteration": null,
+      "owners": [
+        "daishiman"
+      ],
+      "parent_feature": "feat-feedback-capture-self-exclusion",
+      "phase_ref": "P11",
+      "priority": null,
+      "project_id": "feature-package-feat-feedback-capture-self-exclusion",
+      "pull_request_linkages": [],
+      "purpose": "受入判定の根拠となる検査結果・実行ログ・判定文書を一箇所へ集め、後から同じ結論へ辿り着ける状態を成立させる。",
+      "related_nodes": [],
+      "resource_scope": [
+        "docs/spec/feat-feedback-capture-self-exclusion/evidence"
+      ],
+      "scope_in": [
+        "Produced artifacts: docs/spec/feat-feedback-capture-self-exclusion/evidence/index.md (受入7件ごとの証跡の所在と取得条件)",
+        "Consumed artifacts: features/feat-feedback-capture-self-exclusion.md, features/feat-feedback-capture-self-exclusion.context.json, system-spec/frontend.md, docs/spec/12-改善要望フィードバック仕様.md",
+        "Write scope/touches: docs/spec/feat-feedback-capture-self-exclusion/evidence"
+      ],
+      "scope_out": [
+        "feat-feedback-capture-self-exclusion の scope_out (改善要望フィードバック機能そのものの無効化・起動ボタンの撤去・写しの書き込み (手書き/四角/矢印/文字/黒塗り) の仕様変更・一覧/詳細/払い出し経路の変更・写し以外の添付手段の追加) に該当する変更",
+        "他 phase が所有する成果物への書き込み (write_scope 外への変更)"
+      ],
+      "source_lineage": {
+        "imported_at": "2026-08-30T12:31:04Z",
+        "origin_kind": "system-dev-planner",
+        "source_digest": "892cd5611c443a5f90b97047a9542489c44be963ff4d775c30b640e7aca40b7d",
+        "source_path": ".dev-graph/published/generations/feature-package-feat-feedback-capture-self-exclusion/892cd5611c443a5f90b97047a9542489c44be963ff4d775c30b640e7aca40b7d/task-specs/phase-11-evidence.md",
+        "source_plugin": "system-dev-planner",
+        "source_version": "0.1.0"
+      },
+      "start_date": null,
+      "status": "active",
+      "tags": [
+        "p11",
+        "feat-feedback-capture-self-exclusion"
+      ],
+      "target_date": null,
+      "template_id": "task",
+      "template_version": "1.1.0",
+      "title": "証跡の収集と保全",
+      "tracker_binding": "beads",
+      "updated_at": "2026-08-30T13:33:45.505889Z"
+    },
+    {
+      "acceptance": [
+        "Automated commands: `pnpm run typecheck`",
+        "Automated commands: `python3 .claude/plugins/system-dev-planner/scripts/validate-system-plan.py --repo-root . --feature-package feature-package/feat-feedback-capture-self-exclusion`",
+        "Required evidence: P12 の 成果物 section に記した produced artifacts のパス"
+      ],
+      "architecture_refs": [
+        "arch-two-layer-platform"
+      ],
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "beads_linkage": {
+        "bd_issue_id": "ah-0d2q.12",
+        "github_mirror": null,
+        "linked_at": "2026-08-30T04:17:30Z",
+        "sync_state": "linked"
+      },
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "candidate_path": "tasks/feat-feedback-capture-self-exclusion/sys-fb-capture-exclusion-p12.md",
+          "confidence": 1.0
+        }
+      ],
+      "classification_confidence": 1.0,
+      "classification_reason": "feat-feedback-capture-self-exclusion の P12 lifecycle 責務への確定写像",
+      "closed_at": null,
+      "completion_evidence": {
+        "completed_at": null,
+        "evidence_refs": [
+          "dev-graph:SYS-FB-CAPTURE-EXCLUSION-P11"
+        ],
+        "policy": "manual",
+        "reconciled_at": "2026-08-30T13:20:30Z",
+        "source": "reconciliation",
+        "status": "blocked"
+      },
+      "confirmation_evidence": {
+        "evaluated_digest": "892cd5611c443a5f90b97047a9542489c44be963ff4d775c30b640e7aca40b7d",
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-feedback-capture-self-exclusion/892cd5611c443a5f90b97047a9542489c44be963ff4d775c30b640e7aca40b7d/plan-findings.json"
+      },
+      "confirmation_status": "confirmed",
+      "created_at": "2026-08-30T12:31:04Z",
+      "depends_on": [
+        "SYS-FB-CAPTURE-EXCLUSION-P11"
+      ],
+      "domain": "documentation",
+      "evaluation_status": "pass",
+      "execution_contexts": [],
+      "feature_package_id": "feature-package/feat-feedback-capture-self-exclusion",
+      "file_path": "tasks/feat-feedback-capture-self-exclusion/sys-fb-capture-exclusion-p12.md",
+      "github_project_linkages": [],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "goal": "写しが自分自身を含む場合の条件を既存の改善要望フィードバック仕様へ追補し、新しい浮遊要素を足すときに属性を付ける手順を運用として残した状態を成立させる。",
+      "graph_node_id": "SYS-FB-CAPTURE-EXCLUSION-P12",
+      "implementation_readiness": {
+        "checked_at": "2026-08-30T03:45:47Z",
+        "missing_sections": [],
+        "status": "complete"
+      },
+      "issue_linkage": null,
+      "iteration": null,
+      "owners": [
+        "daishiman"
+      ],
+      "parent_feature": "feat-feedback-capture-self-exclusion",
+      "phase_ref": "P12",
+      "priority": null,
+      "project_id": "feature-package-feat-feedback-capture-self-exclusion",
+      "pull_request_linkages": [],
+      "purpose": "写しが自分自身を含む場合の条件を既存の改善要望フィードバック仕様へ追補し、新しい浮遊要素を足すときに属性を付ける手順を運用として残した状態を成立させる。",
+      "related_nodes": [],
+      "resource_scope": [
+        "docs/spec/12-改善要望フィードバック仕様.md",
+        "docs/spec/feat-feedback-capture-self-exclusion/operations.md"
+      ],
+      "scope_in": [
+        "Produced artifacts: docs/spec/12-改善要望フィードバック仕様.md (写しの自己写り込みに関する受入条件の追補); docs/spec/feat-feedback-capture-self-exclusion/operations.md (浮遊要素を追加するときの属性付与手順と検査の効かせ方)",
+        "Consumed artifacts: features/feat-feedback-capture-self-exclusion.md, features/feat-feedback-capture-self-exclusion.context.json, system-spec/frontend.md, docs/spec/12-改善要望フィードバック仕様.md",
+        "Write scope/touches: docs/spec/12-改善要望フィードバック仕様.md, docs/spec/feat-feedback-capture-self-exclusion/operations.md"
+      ],
+      "scope_out": [
+        "feat-feedback-capture-self-exclusion の scope_out (改善要望フィードバック機能そのものの無効化・起動ボタンの撤去・写しの書き込み (手書き/四角/矢印/文字/黒塗り) の仕様変更・一覧/詳細/払い出し経路の変更・写し以外の添付手段の追加) に該当する変更",
+        "他 phase が所有する成果物への書き込み (write_scope 外への変更)"
+      ],
+      "source_lineage": {
+        "imported_at": "2026-08-30T12:31:04Z",
+        "origin_kind": "system-dev-planner",
+        "source_digest": "892cd5611c443a5f90b97047a9542489c44be963ff4d775c30b640e7aca40b7d",
+        "source_path": ".dev-graph/published/generations/feature-package-feat-feedback-capture-self-exclusion/892cd5611c443a5f90b97047a9542489c44be963ff4d775c30b640e7aca40b7d/task-specs/phase-12-documentation-operations.md",
+        "source_plugin": "system-dev-planner",
+        "source_version": "0.1.0"
+      },
+      "start_date": null,
+      "status": "active",
+      "tags": [
+        "p12",
+        "feat-feedback-capture-self-exclusion"
+      ],
+      "target_date": null,
+      "template_id": "task",
+      "template_version": "1.1.0",
+      "title": "仕様書と運用手順の追補",
+      "tracker_binding": "beads",
+      "updated_at": "2026-08-30T13:34:02.200918Z"
+    },
+    {
+      "acceptance": [
+        "Automated commands: `pnpm run typecheck`",
+        "Automated commands: `pnpm run test`",
+        "Automated commands: `python3 .claude/plugins/system-dev-planner/scripts/validate-system-plan.py --repo-root . --feature-package feature-package/feat-feedback-capture-self-exclusion`",
+        "Required evidence: P13 の PR と CI 実行結果および release-notes.md"
+      ],
+      "architecture_refs": [
+        "arch-two-layer-platform"
+      ],
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "beads_linkage": {
+        "bd_issue_id": "ah-0d2q.13",
+        "github_mirror": null,
+        "linked_at": "2026-08-30T04:17:32Z",
+        "sync_state": "linked"
+      },
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "candidate_path": "tasks/feat-feedback-capture-self-exclusion/sys-fb-capture-exclusion-p13.md",
+          "confidence": 1.0
+        }
+      ],
+      "classification_confidence": 1.0,
+      "classification_reason": "feat-feedback-capture-self-exclusion の P13 lifecycle 責務への確定写像",
+      "closed_at": null,
+      "completion_evidence": {
+        "completed_at": null,
+        "evidence_refs": [
+          "dev-graph:SYS-FB-CAPTURE-EXCLUSION-P12"
+        ],
+        "policy": "manual",
+        "reconciled_at": "2026-08-30T13:20:30Z",
+        "source": "reconciliation",
+        "status": "blocked"
+      },
+      "confirmation_evidence": {
+        "evaluated_digest": "892cd5611c443a5f90b97047a9542489c44be963ff4d775c30b640e7aca40b7d",
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-feedback-capture-self-exclusion/892cd5611c443a5f90b97047a9542489c44be963ff4d775c30b640e7aca40b7d/plan-findings.json"
+      },
+      "confirmation_status": "confirmed",
+      "created_at": "2026-08-30T12:31:04Z",
+      "depends_on": [
+        "SYS-FB-CAPTURE-EXCLUSION-P12"
+      ],
+      "domain": "documentation",
+      "evaluation_status": "pass",
+      "execution_contexts": [],
+      "feature_package_id": "feature-package/feat-feedback-capture-self-exclusion",
+      "file_path": "tasks/feat-feedback-capture-self-exclusion/sys-fb-capture-exclusion-p13.md",
+      "github_project_linkages": [],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "goal": "本 feature の全変更を作業ブランチから dev への PR として出し、品質ゲートを通したうえで反映し、仕様と graph への書き戻しを完了した状態を成立させる。",
+      "graph_node_id": "SYS-FB-CAPTURE-EXCLUSION-P13",
+      "implementation_readiness": {
+        "checked_at": "2026-08-30T03:45:47Z",
+        "missing_sections": [],
+        "status": "complete"
+      },
+      "issue_linkage": null,
+      "iteration": null,
+      "owners": [
+        "daishiman"
+      ],
+      "parent_feature": "feat-feedback-capture-self-exclusion",
+      "phase_ref": "P13",
+      "priority": null,
+      "project_id": "feature-package-feat-feedback-capture-self-exclusion",
+      "pull_request_linkages": [],
+      "purpose": "本 feature の全変更を作業ブランチから dev への PR として出し、品質ゲートを通したうえで反映し、仕様と graph への書き戻しを完了した状態を成立させる。",
+      "related_nodes": [],
+      "resource_scope": [
+        "docs/spec/feat-feedback-capture-self-exclusion/release-notes.md",
+        "docs/spec/12-改善要望フィードバック仕様.md",
+        "system-spec/frontend.md"
+      ],
+      "scope_in": [
+        "Produced artifacts: dev ブランチへの PR (本 feature の全変更); docs/spec/feat-feedback-capture-self-exclusion/release-notes.md (変更点・影響範囲・切り戻し手順); docs/spec/12-改善要望フィードバック仕様.md と system-spec/frontend.md (実行結果・確定した設計判断・改善 findings の canonical writeback)",
+        "Consumed artifacts: features/feat-feedback-capture-self-exclusion.md, features/feat-feedback-capture-self-exclusion.context.json, system-spec/frontend.md, docs/spec/12-改善要望フィードバック仕様.md",
+        "Write scope/touches: docs/spec/feat-feedback-capture-self-exclusion/release-notes.md, docs/spec/12-改善要望フィードバック仕様.md, system-spec/frontend.md"
+      ],
+      "scope_out": [
+        "feat-feedback-capture-self-exclusion の scope_out (改善要望フィードバック機能そのものの無効化・起動ボタンの撤去・写しの書き込み (手書き/四角/矢印/文字/黒塗り) の仕様変更・一覧/詳細/払い出し経路の変更・写し以外の添付手段の追加) に該当する変更",
+        "他 phase が所有する成果物への書き込み (write_scope 外への変更)"
+      ],
+      "source_lineage": {
+        "imported_at": "2026-08-30T12:31:04Z",
+        "origin_kind": "system-dev-planner",
+        "source_digest": "892cd5611c443a5f90b97047a9542489c44be963ff4d775c30b640e7aca40b7d",
+        "source_path": ".dev-graph/published/generations/feature-package-feat-feedback-capture-self-exclusion/892cd5611c443a5f90b97047a9542489c44be963ff4d775c30b640e7aca40b7d/task-specs/phase-13-release-deploy.md",
+        "source_plugin": "system-dev-planner",
+        "source_version": "0.1.0"
+      },
+      "start_date": null,
+      "status": "active",
+      "tags": [
+        "p13",
+        "feat-feedback-capture-self-exclusion"
+      ],
+      "target_date": null,
+      "template_id": "task",
+      "template_version": "1.1.0",
+      "title": "dev への反映と公開",
+      "tracker_binding": "beads",
+      "updated_at": "2026-08-30T13:42:03.953799Z"
+    },
+    {
       "acceptance": [],
       "architecture_refs": [],
       "artifact_kind": "task",
@@ -16944,19 +19854,21 @@
       "classification_confidence": 0.9,
       "classification_reason": "公開範囲の決め方そのものを問う仕様判断。実装ではなく決定が先に要る",
       "completion_evidence": {
-        "completed_at": null,
-        "evidence_refs": [],
+        "completed_at": "2026-08-31T09:10:00Z",
+        "evidence_refs": [
+          "https://github.com/daishiman/affiliate-hub/pull/43"
+        ],
         "policy": "manual",
-        "reconciled_at": null,
+        "reconciled_at": "2026-08-31T09:10:00Z",
         "source": "manual",
-        "status": "in_progress"
+        "status": "done"
       },
       "confirmation_evidence": {
         "evaluated_digest": null,
         "evaluator": null,
         "evidence_ref": null
       },
-      "confirmation_status": "draft",
+      "confirmation_status": "confirmed",
       "created_at": "2026-08-31T06:30:00Z",
       "depends_on": [
         "task-seed-satisfies-public-entry"
@@ -17015,7 +19927,7 @@
         "source_version": null
       },
       "start_date": null,
-      "status": "draft",
+      "status": "done",
       "tags": [
         "data",
         "dx"
@@ -17025,7 +19937,7 @@
       "template_version": "1.0.0",
       "title": "設計図を持つ 5 本のうち 2 本しか公開していないのは、決めた結果ではない",
       "tracker_binding": "beads",
-      "updated_at": "2026-08-31T06:30:00Z"
+      "updated_at": "2026-08-31T09:10:00Z"
     }
   ],
   "repository_id": "github:daishiman/affiliate-hub",

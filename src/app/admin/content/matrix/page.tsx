@@ -6,7 +6,7 @@ import {
   type MatrixRowAxis,
 } from "@/application/usecases/authoring/plan-generation-matrix";
 import { AdminShell } from "@/presentation/admin/admin-shell";
-import { createConceptDraftsAction } from "@/presentation/admin/concept-drafts-action";
+import { createConceptDraftsAction } from "@/presentation/admin/write/concept-drafts-action";
 import type { SuccessOf } from "@/presentation/admin/use-case-result";
 import {
   contentPackageUseCases,

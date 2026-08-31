@@ -269,7 +269,7 @@ domain の変更は 0 になるが、同時に `affiliate_commission` のよう�
  src/domain/shared/ids.ts               |  1 +
  src/infrastructure/composition.ts      | 17 +++++++++---
  src/presentation/composition.ts        | 20 ++++++++++----
- src/presentation/admin/inbox-action.ts |  5 ++--
+ src/presentation/admin/earn/inbox-action.ts |  5 ++--
  src/app/admin/inbox/page.tsx           |  5 ++--
  新規: src/infrastructure/persistence/d1/link-inbox-repository.ts
  新規: src/infrastructure/persistence/d1/connection.ts

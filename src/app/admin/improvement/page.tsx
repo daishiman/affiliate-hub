@@ -5,7 +5,7 @@ import {
   ApproveVariantSpecForm,
   DraftVariantSpecForm,
   StartLoopRunForm,
-} from "@/presentation/admin/improvement-forms";
+} from "@/presentation/admin/observe/improvement-forms";
 import {
   currentActor,
   improvementBlockedBy,

@@ -349,7 +349,7 @@ describe("親リソースと子リソースの workspace 境界", () => {
       status: "active",
     });
 
-    expect(article.ok).toBe(true);
+    expect(article.ok, !article.ok ? JSON.stringify(article.error) : "").toBe(true);
     expect(tag.ok).toBe(true);
     expect(network.ok).toBe(true);
     const rows = await Promise.all([
@@ -368,6 +368,73 @@ describe("親リソースと子リソースの workspace 境界", () => {
       "所有者が更新したタグ",
       "所有者が更新したブログ",
     ]);
+  });
+
+  it("同じ版から競合保存しても勝者1件だけを本体・本文・タグへ原子的に反映する", async () => {
+    const before = await repository().findArticle(OWNER, ARTICLE_ID);
+    if (!before.ok || before.value === null) throw new Error("所有者の記事がありません。");
+    expect(before.value.article.revision).toBe(1);
+
+    const common = {
+      ...before.value.article,
+      expectedRevision: 1,
+      updatedAt: new Date("2026-08-30T03:00:00.000Z"),
+    } as const;
+    const [alpha, beta] = await Promise.all([
+      repository().saveArticle(OWNER, {
+        ...common,
+        title: "競合保存 Alpha",
+        blocks: [
+          {
+            id: "bab_cas_alpha",
+            kind: "summary-section" as const,
+            heading: "Alpha",
+            body: "Alpha の本文",
+            position: 0,
+          },
+        ],
+        tagIds: [TAG_ID],
+      }),
+      repository().saveArticle(OWNER, {
+        ...common,
+        title: "競合保存 Beta",
+        blocks: [
+          {
+            id: "bab_cas_beta",
+            kind: "summary-section" as const,
+            heading: "Beta",
+            body: "Beta の本文",
+            position: 0,
+          },
+        ],
+        tagIds: [],
+      }),
+    ]);
+
+    const results = [alpha, beta];
+    expect(
+      results.filter((result) => result.ok),
+      JSON.stringify(results.filter((result) => !result.ok)),
+    ).toHaveLength(1);
+    const conflict = results.find((result) => !result.ok);
+    expect(conflict?.ok).toBe(false);
+    if (conflict !== undefined && !conflict.ok) expect(conflict.error.code).toBe("CONFLICT");
+
+    const after = await repository().findArticle(OWNER, ARTICLE_ID);
+    if (!after.ok || after.value === null) throw new Error("競合保存後の記事がありません。");
+    expect(after.value.article.revision).toBe(2);
+    if (after.value.article.title === "競合保存 Alpha") {
+      expect(after.value.blocks).toMatchObject([
+        { id: "bab_cas_alpha", heading: "Alpha", body: "Alpha の本文" },
+      ]);
+      expect(after.value.tagIds).toEqual([TAG_ID]);
+    } else {
+      expect(after.value.article.title).toBe("競合保存 Beta");
+      expect(after.value.blocks).toMatchObject([
+        { id: "bab_cas_beta", heading: "Beta", body: "Beta の本文" },
+      ]);
+      expect(after.value.tagIds).toEqual([]);
+    }
   });
 
   it("記事タグが重複・不存在・別site・別workspaceならaggregateを一切変更しない", async () => {

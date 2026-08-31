@@ -1,7 +1,7 @@
 /** @tier 2 @req REQ-P05, REQ-SEC09 */
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
-import { CreateRankingModelForm } from "@/presentation/admin/ranking-model-form";
+import { CreateRankingModelForm } from "@/presentation/admin/material/ranking-model-form";
 
 const CRITERIA = [
   { key: "measured_performance", label: "実際に測った性能" },

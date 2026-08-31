@@ -5,7 +5,12 @@ import type {
   SiteDocument,
 } from "@/application/ports/site";
 import { type LegalPageRow, legalPages } from "@/db/schema";
-import { SITE_DOCUMENT_KEYS, type SiteDocumentKey } from "@/domain/authoring";
+import {
+  SITE_DOCUMENT_KEYS,
+  SITE_DOCUMENT_KIND_BY_KEY,
+  type SiteDocumentKey,
+  type SiteDocumentStorageKind,
+} from "@/domain/authoring";
 import { err, markEditorial, ok } from "@/domain/shared";
 import type { DrizzleD1 } from "./link-inbox-repository";
 import { storageFailure } from "./storage-failure";
@@ -25,10 +30,25 @@ import { storageFailure } from "./storage-failure";
 /** 段落の区切り。空行 1 つ。書く人の打ち方（改行 1 つ）と同じにしない。 */
 const PARAGRAPH_SEPARATOR = "\n\n";
 
+/**
+ * ルート鍵 → 表の名札。正本は `SITE_DOCUMENT_KIND_BY_KEY`（8 鍵すべてを持つ）。
+ *
+ * **ここで写す理由。** ルート鍵は URL のための名前、表の名札は保存のための名前で、
+ * 同じ 1 枚を指すのに綴りが違う。写さずに書くと、既に `legal_page` に入っている
+ * 旧名札の行（`profile` / `privacy_policy` など）が読めなくなる。
+ * 表の側を書き換えて揃える案もあったが、**すでに配ってある行を触らずに済むほう**を採った。
+ */
+const KIND_BY_KEY = SITE_DOCUMENT_KIND_BY_KEY;
+
+const KEY_BY_KIND = Object.fromEntries(
+  Object.entries(KIND_BY_KEY).map(([key, kind]) => [kind, key]),
+) as Readonly<Record<string, SiteDocumentKey | undefined>>;
+
 function toDocument(row: LegalPageRow): SiteDocument | null {
-  if (!(SITE_DOCUMENT_KEYS as readonly string[]).includes(row.kind)) return null;
+  const key = KEY_BY_KIND[row.kind];
+  if (key === undefined) return null;
   return {
-    key: row.kind as SiteDocumentKey,
+    key,
     title: row.title,
     body: row.body.split(PARAGRAPH_SEPARATOR).filter((p) => p.trim() !== ""),
     updatedAt: row.updatedAt,
@@ -64,7 +84,7 @@ export function createD1SiteDocumentRepository(
     },
 
     async save(workspaceId, siteSlug, document) {
-      const kind = document.key;
+      const kind: SiteDocumentStorageKind = KIND_BY_KEY[document.key];
       try {
         // 1 ブログ 1 種 1 枚。すでに在れば書き換える。
         // 追記にすると、読者にどれが出るかが行の並び順しだいになる。
@@ -121,6 +141,7 @@ export function findSiteDocument(deps: {
 }) {
   return async (siteSlug: string, key: string) => {
     if (!(SITE_DOCUMENT_KEYS as readonly string[]).includes(key)) return ok(null);
+    const kind = KIND_BY_KEY[key as SiteDocumentKey];
     const site = await deps.sites.findBySlug(siteSlug);
     if (!site.ok) return err(site.error);
     if (site.value === null) return ok(null);
@@ -138,7 +159,7 @@ export function findSiteDocument(deps: {
           and(
             eq(legalPages.workspaceId, site.value.workspaceId),
             eq(legalPages.siteSlug, siteSlug),
-            eq(legalPages.kind, key as SiteDocumentKey),
+            eq(legalPages.kind, kind),
             eq(legalPages.status, "published"),
             isNull(legalPages.deletedAt),
           ),

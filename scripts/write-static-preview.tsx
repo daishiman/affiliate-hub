@@ -46,7 +46,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { DEFAULT_APPEARANCE } from "@/domain/authoring/appearance";
 import { appearanceAttributes } from "@/presentation/ui/appearance";
 import { Card, Page } from "@/presentation/ui";
-import { ArticleTableOfContents, ArticleView, SiteShell } from "@/presentation/ui";
+import { ArticleView, SiteShell } from "@/presentation/ui";
 import { AppShell } from "@/presentation/ui/templates/app-shell";
 import { DensitySamples } from "@/app/admin/ui-catalog/density-samples";
 import styles from "@/app/admin/admin.module.css";
@@ -57,7 +57,7 @@ import {
   sampleSites,
 } from "@/infrastructure/persistence/sample/site-sample-repository";
 import { SiteHomeContent, toSiteHomeView } from "@/presentation/site/home-content";
-import { siteHref, toArticleCards, toArticleView, toChrome } from "@/presentation/site/view-model";
+import { siteHref, toArticleView, toChrome } from "@/presentation/site/view-model";
 import type { PublicSiteBlueprint } from "@/application/usecases/site/read-site";
 import {
   articleHref,
@@ -272,13 +272,7 @@ function escapeText(value: string): string {
 
 /* --- 書き出し ------------------------------------------------------------ */
 
-/**
- * 1 ページを書き出す。**CSS の取得も書き出し先の判定もここには無い。**
- *
- * 共通の runner（`scripts/lib/static-preview.mjs`）が持っている。写しが 3 本に
- * 増えた日に、同じ安全条件を 3 か所で書き直すことにならないようにするため
- * （検査は `tests/architecture/static-preview-writer.test.ts`）。
- */
+/** 1 ページを文書へ組み立てて書く。データ取得や React 描画はここへ持ち込まない。 */
 async function writeSheet(sheet: Sheet, generatedAt: string): Promise<void> {
   await writeStaticPreview({
     out: sheet.out,
@@ -286,10 +280,8 @@ async function writeSheet(sheet: Sheet, generatedAt: string): Promise<void> {
     htmlAttributes: { lang: "ja", ...appearanceAttributes(DEFAULT_APPEARANCE) },
     generatedAt,
     title: sheet.title,
-    navHtml: navHtml(sheet.out),
     source: "scripts/write-static-preview.tsx",
-    // 1 枚ずつは黙って焼く。数十行の完了表示に、最後の件数が埋もれる。
-    quiet: true,
+    navHtml: navHtml(sheet.out),
   });
 }
 
@@ -306,10 +298,10 @@ async function collectPreviewSites(): Promise<readonly PreviewSiteData[]> {
     }
     const blueprint = found.value;
 
-    // 全記事が要る。1 本だけだと、その 1 本に出る分岐しか確かめられない。
+    // 存在する記事は全件読む。記事がまだ無いサイトもトップの空状態を描く。
+    // 1 本だけに絞ると、その 1 本に出る分岐しか確かめられない。
     const recent = await content.listRecent(slug, 200);
     if (!recent.ok) throw new Error(`記事の一覧を読み込めませんでした: ${slug}`);
-    if (recent.value.length === 0) throw new Error(`記事が 1 本もありません: ${slug}`);
 
     const articles: PublishedArticle[] = [];
     for (const summary of recent.value) {
@@ -341,11 +333,7 @@ function renderSheets(sites: readonly PreviewSiteData[]): readonly Sheet[] {
 
     const chrome = toChrome(slug, blueprint);
     for (const current of articles) {
-      const related = toArticleCards(
-        slug,
-        summaries.filter((candidate) => candidate.slug !== current.slug).slice(0, 3),
-      );
-      const view = toArticleView(slug, current, related);
+      const view = toArticleView(slug, current);
       const appHref = siteHref(slug, articleHref(current));
       sheets.push({
         out: `${ARTICLES_DIR_OUT}/${slug}__${current.slug}.html`,
@@ -355,10 +343,9 @@ function renderSheets(sites: readonly PreviewSiteData[]): readonly Sheet[] {
             chrome={chrome}
             currentPath={appHref}
             breadcrumbs={[
-              { label: blueprint.name, href: chrome.homeHref },
+              { label: blueprint.name, href: siteHref(slug, "/") },
               { label: view.title },
             ]}
-            sidebar={<ArticleTableOfContents sections={view.sections} placement="sidebar" />}
           >
             <ArticleView article={view} />
           </SiteShell>,

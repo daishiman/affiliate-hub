@@ -190,6 +190,11 @@ ol.list {
  * 押せる場所であることが見た目から消える。
  */
 .foldableSummary {
+  /*
+   * 指で押せる大きさを確保する。畳んだ塊は summary の 1 行しか掴む場所が無く、
+   * 文字の高さだけだと親指では外す。
+   */
+  min-height: var(--tap-target-min);
   cursor: pointer;
   font-size: var(--text-sm);
   color: var(--color-text-muted);

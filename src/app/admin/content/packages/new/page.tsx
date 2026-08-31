@@ -4,7 +4,7 @@ import {
   FUNNEL_STAGE_LABELS,
 } from "@/application/usecases/authoring/manage-content-packages";
 import { AdminShell } from "@/presentation/admin/admin-shell";
-import { CreateContentPackageForm } from "@/presentation/admin/content-package-form";
+import { CreateContentPackageForm } from "@/presentation/admin/write/content-package-form";
 import { CONTENT_ANGLES, FUNNEL_STAGES } from "@/domain/authoring";
 import { POLICY_DOMAIN_SCOPES } from "@/domain/compliance";
 import {

@@ -12,9 +12,9 @@ iteration: null
 title: "生成基盤 (プロンプト・スキル・サブエージェント・評価セット)"
 owners: ["daishiman"]
 created_at: "2026-08-16T13:20:00Z"
-updated_at: "2026-08-16T14:20:00Z"
-status: "active"
-depends_on: ["feat-persona-studio","feat-product-intelligence"]
+updated_at: "2026-08-17T16:23:16Z"
+status: "closed"
+depends_on: []
 related_nodes: ["spec-system-spec-index"]
 resource_scope: ["src","drizzle","docs/spec","system-spec"]
 purpose: "AIに自由に書かせず、承認済みの事実・根拠・ペルソナ・媒体ルールを入力として生成させる仕組みを持つ"

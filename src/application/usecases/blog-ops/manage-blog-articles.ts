@@ -27,6 +27,7 @@ import {
   type DomainError,
   type Result,
   containsCommercial,
+  domainError,
   err,
   notFound,
   ok,
@@ -249,6 +250,7 @@ export type GetBlogArticleOutput = {
    */
   readonly outOfOrder: readonly ArticleBlockKind[];
   readonly outOfOrderLabels: readonly string[];
+  readonly revision: number;
 };
 
 export function createGetBlogArticleUseCase(
@@ -300,6 +302,7 @@ export function createGetBlogArticleUseCase(
         missingLabels: missing.map((k) => ARTICLE_BLOCK_LABEL[k]),
         outOfOrder,
         outOfOrderLabels: outOfOrder.map((k) => ARTICLE_BLOCK_LABEL[k]),
+        revision: article.revision ?? 1,
       });
     },
   };
@@ -370,6 +373,7 @@ export function createCreateBlogArticleUseCase(
         updatedAt: at,
         blocks: [],
         tagIds: [],
+        expectedRevision: null,
       });
       if (!saved.ok) return saved;
 
@@ -395,6 +399,7 @@ export function createCreateBlogArticleUseCase(
 
 export type UpdateBlogArticleInput = {
   readonly articleId: string;
+  readonly expectedRevision?: number;
   readonly title?: string;
   readonly lead?: string;
   readonly template?: ArticleTemplate;
@@ -420,6 +425,9 @@ export type UpdateBlogArticleOutput = {
   readonly articleId: string;
   readonly changed: readonly string[];
   readonly missing: readonly ArticleBlockKind[];
+  readonly revision: number;
+  /** サーバーが保存へ使った時刻。端末下書きの `draftSavedAt` とは別物。 */
+  readonly persistedAt: string;
 };
 
 export function createUpdateBlogArticleUseCase(
@@ -438,6 +446,16 @@ export function createUpdateBlogArticleUseCase(
       if (!found.ok) return found;
       if (found.value === null) return err(notFound("ブログ記事", input.articleId));
       const before = found.value;
+      const currentRevision = before.article.revision ?? 1;
+      if (input.expectedRevision !== undefined && input.expectedRevision !== currentRevision) {
+        return err(
+          domainError("CONFLICT", "ほかの人が先にこの記事を保存しました。", {
+            field: "revision",
+            suggestedAction: "この画面の内容は端末下書きに残っています。最新版を開き、差分を確認してください。",
+            details: { expectedRevision: input.expectedRevision, currentRevision },
+          }),
+        );
+      }
 
       const template = input.template ?? before.article.template;
       const title = input.title?.trim() ?? before.article.title;
@@ -526,6 +544,7 @@ export function createUpdateBlogArticleUseCase(
         updatedAt: at,
         blocks,
         tagIds: input.tagIds ?? before.tagIds,
+        expectedRevision: input.expectedRevision ?? currentRevision,
       });
       if (!saved.ok) return saved;
 
@@ -550,7 +569,13 @@ export function createUpdateBlogArticleUseCase(
         return err(auditWriteFailure(`記事「${title}」を保存しました`, { articleId: before.article.id }));
       }
 
-      return ok({ articleId: before.article.id, changed, missing });
+      return ok({
+        articleId: before.article.id,
+        changed,
+        missing,
+        revision: currentRevision + 1,
+        persistedAt: at.toISOString(),
+      });
     },
   };
 }

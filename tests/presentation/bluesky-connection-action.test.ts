@@ -18,7 +18,7 @@ vi.mock("@/presentation/composition", () => ({
 }));
 
 const { registerBlueskyConnectionAction } = await import(
-  "@/presentation/admin/bluesky-connection-action"
+  "@/presentation/admin/publish/bluesky-connection-action"
 );
 
 const IDLE = { status: "idle", message: "" } as const;

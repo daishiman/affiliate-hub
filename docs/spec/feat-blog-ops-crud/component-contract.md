@@ -14,11 +14,16 @@
 
 | 部品 | ファイル | 役割 |
 |---|---|---|
-| `SiteNetworkForm` | `src/presentation/admin/site-network-form.tsx` | 節点の作成・更新 |
-| `BlogLayoutForm` | `src/presentation/admin/blog-layout-form.tsx` | 枠・帯・配信部品の保存 |
-| `BlogArticleForm` | `src/presentation/admin/blog-article-form.tsx` | 記事の作成・更新 (ブロック列を含む) |
-| `BlogPageForm` | `src/presentation/admin/blog-page-form.tsx` | 固定ページ 8 種 |
-| `BlogTagForm` | `src/presentation/admin/blog-tag-form.tsx` | ブランドタグ |
+| `SiteNetworkForm` `SiteNetworkRestoreForm` | `src/presentation/admin/publish/site-network-form.tsx` | 節点の作成・更新・復元 |
+| `BlogLayoutSlotForm` `BlogLayoutBandForm` | `src/presentation/admin/publish/blog-layout-form.tsx` | 枠・帯・配信部品の保存 |
+| `BlogArticleCreateForm` `BlogArticleEditForm` `BlogArticleRestoreForm` | `src/presentation/admin/publish/blog-article-form.tsx` | 記事の作成・更新・復元 (ブロック列を含む) |
+| `SiteDocumentForm` | `src/presentation/admin/publish/site-document-form.tsx` | 固定ページ 8 種。旧 `BlogPageForm` は feat-blog-ui-builder で `/admin/sites/[site]/documents` へ寄せ、経路の鍵 (`SiteDocumentKey`) を口の単位にした |
+| `BlogTagForm` | `src/presentation/admin/publish/blog-tag-form.tsx` | ブランドタグ |
+
+`部品` 列は **実在する export 名**を書く。1 ファイルが複数の口を出しているならすべて並べる。
+`BlogArticleForm` / `BlogLayoutForm` という単数の記述は 1 度も実在したことがなく、
+契約が機械検査されていなかったあいだ気付かれずに残っていた
+(`tests/architecture/component-contract-identity.test.ts` が現在これを見る)。
 
 `AdminRouteId` は `ADMIN_ROUTE_DEFINITIONS` のキーの集合なので、
 新しい route を足すときは同ファイルへ 1 行足す。足さないと型検査が止める

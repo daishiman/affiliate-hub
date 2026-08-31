@@ -1,5 +1,5 @@
 import { AdminShell } from "@/presentation/admin/admin-shell";
-import { BlueskyConnectionForm } from "@/presentation/admin/bluesky-connection-form";
+import { BlueskyConnectionForm } from "@/presentation/admin/publish/bluesky-connection-form";
 import {
   adminOperation,
   adminOperationRouteId,

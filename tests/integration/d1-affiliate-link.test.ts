@@ -113,6 +113,7 @@ afterAll(async () => {
 });
 
 beforeEach(async () => {
+  await proxy.env.DB.prepare("DELETE FROM blog_affiliate_placement").run();
   await proxy.env.DB.prepare("DELETE FROM affiliate_links").run();
   await proxy.env.DB.prepare("DELETE FROM link_ingestions").run();
   await proxy.env.DB.prepare("DELETE FROM link_ingestion_url_claims").run();
@@ -307,6 +308,51 @@ describe("登録から公開記事のカードまで（1 本の道）", () => {
 });
 
 describe("作業場所の境界", () => {
+  it("掲載先の逆引きはworkspaceを越えず、active/removedを保ちlegacy nullを誤結合しない", async () => {
+    const outsider = anOutsider();
+    await proxy.env.DB.prepare(
+      `INSERT INTO affiliate_links
+        (id, workspace_id, program_id, product_name, original_url, tracking_ref)
+       VALUES
+        ('al_placement_owner', ?, 'prg_owner', '所有者の商品', 'https://owner.example/link', 'ref_owner'),
+        ('al_placement_other', ?, 'prg_other', '別会社の商品', 'https://other.example/link', 'ref_other')`,
+    )
+      .bind(String(owner.workspaceId), String(outsider.workspaceId))
+      .run();
+    await proxy.env.DB.prepare(
+      `INSERT INTO blog_affiliate_placement
+        (id, workspace_id, affiliate_link_id, site_slug, article_slug, block_id, placement, status, position)
+       VALUES
+        ('bap_owner_active', ?, 'al_placement_owner', 'owner-site', 'owner-article', 'bab_pick', 'pick-section', 'active', 0),
+        ('bap_owner_removed', ?, 'al_placement_owner', 'owner-site', 'old-article', 'bab_old', 'summary-section', 'removed', 1),
+        ('bap_other_active', ?, 'al_placement_other', 'other-site', 'other-article', 'bab_other', 'pick-section', 'active', 0),
+        ('bap_owner_legacy', ?, NULL, 'owner-site', 'legacy-article', NULL, 'legacy', 'active', 0)`,
+    )
+      .bind(
+        String(owner.workspaceId),
+        String(owner.workspaceId),
+        String(outsider.workspaceId),
+        String(owner.workspaceId),
+      )
+      .run();
+
+    const result = await registerDeps.links.listWithSnapshot(owner.workspaceId);
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.value).toHaveLength(1);
+    expect(String(result.value[0]?.link.id)).toBe("al_placement_owner");
+    expect(result.value[0]?.placements?.map((placement) => [
+      placement.placementId,
+      placement.status,
+      placement.articleSlug,
+    ])).toEqual([
+      ["bap_owner_active", "active", "owner-article"],
+      ["bap_owner_removed", "removed", "old-article"],
+    ]);
+    expect(JSON.stringify(result.value)).not.toContain("other-article");
+    expect(JSON.stringify(result.value)).not.toContain("legacy-article");
+  });
+
   it("別の作業場所からは、登録した成果リンクを引けない", async () => {
     const url = "https://af.example.com/click?a=4&asp=amazon";
     const ingestionId = await matchedIngestion(url);

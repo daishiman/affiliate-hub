@@ -1,7 +1,7 @@
 /** @tier 2 */
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
-import { AdjustConversionForm } from "@/presentation/admin/adjust-conversion-form";
+import { AdjustConversionForm } from "@/presentation/admin/earn/adjust-conversion-form";
 
 /**
  * 成果の画面から金額を直す欄。

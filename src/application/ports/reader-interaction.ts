@@ -15,7 +15,14 @@ import type { PortResult } from "./common";
 export type ShortlistItem = {
   readonly productId: string;
   readonly productName: string;
-  readonly savedAt: string;
+  /**
+   * 読者が「気になる」を押した時刻（サーバーが決める）。
+   *
+   * 運営者の記事保存時刻（`persistedAt`）や端末下書きの保存時刻（`draftSavedAt`）と
+   * 同じ `savedAt` という名前だったので、名前で意味を分ける。
+   * **保存列の名前は `saved_at` のまま**で、変えるには migration が要るため据え置き。
+   */
+  readonly shortlistedAt: string;
   /** 保存元の記事。「なぜ保存したか」を思い出せるようにする。 */
   readonly fromArticleHref?: string;
   readonly oneLine?: string;

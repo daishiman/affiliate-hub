@@ -12,8 +12,8 @@ vi.mock("react", async (importOriginal) => {
   };
 });
 
-const { BlogArticleRestoreForm } = await import("@/presentation/admin/blog-article-form");
-const { SiteNetworkRestoreForm } = await import("@/presentation/admin/site-network-form");
+const { BlogArticleRestoreForm } = await import("@/presentation/admin/publish/blog-article-form");
+const { SiteNetworkRestoreForm } = await import("@/presentation/admin/publish/site-network-form");
 
 const ROOT = resolve(import.meta.dirname, "../..");
 

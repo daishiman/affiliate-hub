@@ -61,7 +61,7 @@ describe("見た目の切り替えの出どころ", () => {
     const consumers = [
       "src/application/read-models/public-blog-appearance.ts",
       "src/application/usecases/authoring/manage-blog-appearance.ts",
-      "src/presentation/admin/blog-appearance-action.ts",
+      "src/presentation/admin/publish/blog-appearance-action.ts",
     ];
 
     for (const file of consumers) {

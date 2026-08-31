@@ -34,7 +34,7 @@ vi.mock("@/presentation/composition", () => ({
 }));
 
 const { createRankingModelAction, saveScoreCardAction } = await import(
-  "@/presentation/admin/ranking-form-action"
+  "@/presentation/admin/material/ranking-form-action"
 );
 
 const IDLE = { status: "idle", message: "" } as const;

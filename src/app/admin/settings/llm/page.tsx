@@ -4,7 +4,7 @@ import {
   RegisterLlmKeyForm,
   RevokeLlmKeyForm,
   VerifyLlmKeyForm,
-} from "@/presentation/admin/llm-credential-form";
+} from "@/presentation/admin/maintain/llm-credential-form";
 import { currentActor, llmCredentialEntry } from "@/presentation/composition";
 import {
   ActionNote,

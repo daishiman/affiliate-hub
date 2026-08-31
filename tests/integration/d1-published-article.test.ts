@@ -10,6 +10,7 @@ import type {
 } from "@/application/ports/site";
 import type { PublishedArticle } from "@/application/read-models/published-article";
 import * as schema from "@/db/schema";
+import { SITE_DOCUMENT_KEYS, SITE_DOCUMENT_LABEL } from "@/domain/authoring";
 import type { WorkspaceId } from "@/domain/shared";
 import {
   createD1PublishedArticleWriter,
@@ -187,7 +188,7 @@ describe("出した記事を読み直す", () => {
   });
 
   it("見本と同じURLの記事を取り下げても、見本が同じURLへ再露出しない", async () => {
-    const slug = "laptops-for-video-editing";
+    const slug = "chairs-for-long-hours";
     await writer.save(workspaceId, anArticle({ slug }));
 
     const unpublished = await writer.unpublish(workspaceId, SAMPLE_SITE_SLUG, slug);
@@ -225,32 +226,32 @@ describe("出した記事を読み直す", () => {
   });
 
   it("再公開と取り下げが競合しても、公開行と墓標が半端な組み合わせにならない", async () => {
-    await writer.save(workspaceId, anArticle({ slug: "laptops-for-video-editing" }));
+    await writer.save(workspaceId, anArticle({ slug: "chairs-for-long-hours" }));
 
     await Promise.all([
-      writer.unpublish(workspaceId, SAMPLE_SITE_SLUG, "laptops-for-video-editing"),
+      writer.unpublish(workspaceId, SAMPLE_SITE_SLUG, "chairs-for-long-hours"),
       writer.save(
         workspaceId,
-        anArticle({ slug: "laptops-for-video-editing", title: "競合後の再公開" }),
+        anArticle({ slug: "chairs-for-long-hours", title: "競合後の再公開" }),
       ),
     ]);
 
     const article = await proxy.env.DB.prepare(
       "SELECT count(*) as total FROM published_articles WHERE site_slug = ? AND slug = ?",
     )
-      .bind(SAMPLE_SITE_SLUG, "laptops-for-video-editing")
+      .bind(SAMPLE_SITE_SLUG, "chairs-for-long-hours")
       .first<{ total: number }>();
     const tombstone = await proxy.env.DB.prepare(
       "SELECT count(*) as total FROM published_article_tombstones WHERE site_slug = ? AND slug = ?",
     )
-      .bind(SAMPLE_SITE_SLUG, "laptops-for-video-editing")
+      .bind(SAMPLE_SITE_SLUG, "chairs-for-long-hours")
       .first<{ total: number }>();
     expect([article?.total, tombstone?.total]).toEqual(
       expect.arrayContaining([0, 1]),
     );
     expect((article?.total ?? 0) + (tombstone?.total ?? 0)).toBe(1);
 
-    const visible = await content.findArticle(SAMPLE_SITE_SLUG, "laptops-for-video-editing");
+    const visible = await content.findArticle(SAMPLE_SITE_SLUG, "chairs-for-long-hours");
     if (!visible.ok) throw new Error("競合後の記事を読めませんでした");
     if (article?.total === 1) expect(visible.value?.title).toBe("競合後の再公開");
     else expect(visible.value).toBeNull();
@@ -558,10 +559,13 @@ describe("固定文書は保存したものだけが出る", () => {
   });
 
   it("削除済みの文書を保存し直すと、公開状態で復元される", async () => {
+    // 直に入れる行の `kind` は経路の鍵ではなく**保管上の名前**（`operator` → `profile`）。
+    // 対応は `SITE_DOCUMENT_KIND_BY_KEY` が正本で、ここを鍵のまま書くと
+    // repository の既存行探しが空振りし、別行が増えるだけで復元を検査できない。
     await proxy.env.DB.prepare(
       `INSERT INTO legal_page
         (id, workspace_id, site_slug, kind, title, body, status, deleted_at)
-       VALUES ('lp_restore_by_save', ?, ?, 'operator', '古い文書', '古い本文', 'draft', ?)`,
+       VALUES ('lp_restore_by_save', ?, ?, 'profile', '古い文書', '古い本文', 'draft', ?)`,
     )
       .bind(String(workspaceId), SAMPLE_SITE_SLUG, 1_787_990_400)
       .run();
@@ -582,6 +586,22 @@ describe("固定文書は保存したものだけが出る", () => {
     expect(policy.ok && policy.value).toEqual({
       title: "復元した運営者情報",
       body: ["新しい本文"],
+    });
+  });
+
+  it.each(SITE_DOCUMENT_KEYS)("%s を保存すると、同じ鍵の読者画面で読める", async (key) => {
+    const title = SITE_DOCUMENT_LABEL[key];
+    const saved = await documents.save(workspaceId, SAMPLE_SITE_SLUG, {
+      key,
+      title,
+      body: [`${title}の本文です。`],
+    });
+    expect(saved.ok).toBe(true);
+
+    const policy = await content.findPolicyDocument(SAMPLE_SITE_SLUG, key);
+    expect(policy).toEqual({
+      ok: true,
+      value: { title, body: [`${title}の本文です。`] },
     });
   });
 

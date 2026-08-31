@@ -203,7 +203,21 @@ type BlockSlot = {
 これは**レイアウトの代償を測る 1 本**であり、
 「この要素がこの座標にある」という検査ではない。
 
-## 5. 次 phase への引き継ぎ
+## 5. 実装の割り当て（P13 時点）
+
+上の §1〜§4 で決めた契約を、**どのファイルのどの export が持っているか**。
+`部品` 列には実在する export 名だけを書く（複数の口を出すファイルはすべて並べる）。
+ここが実装と食い違うと `tests/architecture/component-contract-identity.test.ts` が赤くなる。
+
+| 部品 | ファイル | 役割 |
+|---|---|---|
+| `BlogAppearanceForm` `PageThemeOverrideForm` `PageThemeOverrideForms` | `src/presentation/admin/publish/blog-appearance-form.tsx` | §1 テンプレートと配色の 2 層選択（ブログ既定とページ単位の上書き） |
+| `BlogPlacementForm` | `src/presentation/admin/publish/blog-placement-form.tsx` | 掲載の追加・削除（A6） |
+| `AffiliatePlacementLookup` | `src/presentation/admin/affiliate-placement-lookup.tsx` | アフィリエイトから掲載先への逆引き（A7） |
+| `ExpressionBlockAppendForm` | `src/presentation/admin/publish/expression-block-form.tsx` | §3 記事ブロックの追加 |
+| `SiteDocumentForm` | `src/presentation/admin/publish/site-document-form.tsx` | 固定ページ 8 種。口の単位は経路の鍵 (`SiteDocumentKey`) |
+
+## 6. 次 phase への引き継ぎ
 
 | 項目 | 引き継ぎ先 |
 |---|---|

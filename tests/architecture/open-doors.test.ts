@@ -251,6 +251,11 @@ type Reversible = "つく" | "つかない";
 const ACTION_INTENT: Readonly<
   Record<string, { readonly intent: Gate; readonly what: string; readonly reversible: Reversible }>
 > = {
+  previewAffiliateUrlAction: {
+    intent: "ログイン",
+    what: "成果リンクを保存する前に、安全な接続先から取得できる情報だけを確認する（保存はしない）",
+    reversible: "つく",
+  },
   // --- 取り返しがつかない（公開・配信・失効・削除） ---
   publishArticleAction: { intent: "ログイン", what: "記事を公開する", reversible: "つかない" },
   saveSiteDocumentAction: {

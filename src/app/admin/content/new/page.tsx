@@ -1,5 +1,5 @@
 import { AdminShell } from "@/presentation/admin/admin-shell";
-import { CreateContentForm } from "@/presentation/admin/content-form";
+import { CreateContentForm } from "@/presentation/admin/write/content-form";
 import {
   contentPackageUseCases,
   currentActor,

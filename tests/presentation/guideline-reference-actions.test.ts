@@ -18,7 +18,7 @@
  */
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { domainError, err, ok, validationError } from "@/domain/shared";
-import { INITIAL_GUIDELINE_REFERENCE_STATE } from "@/presentation/admin/guideline-reference-state";
+import { INITIAL_GUIDELINE_REFERENCE_STATE } from "@/presentation/admin/maintain/guideline-reference-state";
 
 const revalidated: string[] = [];
 vi.mock("next/cache", () => ({
@@ -44,7 +44,7 @@ vi.mock("@/presentation/composition", async (importOriginal) => {
 });
 
 const { manageGuidelineReferenceAction } = await import(
-  "@/presentation/admin/guideline-reference-action"
+  "@/presentation/admin/maintain/guideline-reference-action"
 );
 
 /** 見本の身元と別物にしてある（同じだと身元が渡っているかの試験が空振りする）。 */

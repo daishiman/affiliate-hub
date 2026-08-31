@@ -81,15 +81,15 @@ vi.mock("@/presentation/composition", async (importOriginal) => {
 });
 
 const { createProductAction, updateProductAction } = await import(
-  "@/presentation/admin/product-form-action"
+  "@/presentation/admin/material/product-form-action"
 );
 const { createContentVariantAction, updateContentVariantAction } = await import(
-  "@/presentation/admin/content-form-action"
+  "@/presentation/admin/write/content-form-action"
 );
 const { deleteContentVariantAction, deleteManagedSiteAction, deleteProductAction } = await import(
   "@/presentation/admin/delete-form-action"
 );
-const { createConceptDraftsAction } = await import("@/presentation/admin/concept-drafts-action");
+const { createConceptDraftsAction } = await import("@/presentation/admin/write/concept-drafts-action");
 
 function form(entries: Record<string, string>): FormData {
   const data = new FormData();

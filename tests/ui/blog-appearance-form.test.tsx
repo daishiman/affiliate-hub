@@ -11,7 +11,7 @@ vi.mock("react", async (importOriginal) => {
 });
 
 const { PageThemeOverrideForms } = await import(
-  "@/presentation/admin/blog-appearance-form"
+  "@/presentation/admin/publish/blog-appearance-form"
 );
 
 describe("ページ単位の配色上書き", () => {

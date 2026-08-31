@@ -1,8 +1,8 @@
 /** @tier 2 @req REQ-P08 */
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
-import { PublishArticleResult } from "@/presentation/admin/publish-article-result";
-import type { PublishArticleFormState } from "@/presentation/admin/publish-article-state";
+import { PublishArticleResult } from "@/presentation/admin/publish/publish-article-result";
+import type { PublishArticleFormState } from "@/presentation/admin/publish/publish-article-state";
 
 /**
  * 「いまサイトに出す」を押したあとの知らせ。

@@ -1,5 +1,5 @@
 import { AdminShell } from "@/presentation/admin/admin-shell";
-import { SaveAffiliateAccountForm } from "@/presentation/admin/affiliate-account-form";
+import { SaveAffiliateAccountForm } from "@/presentation/admin/earn/affiliate-account-form";
 import { affiliateAspOptions } from "@/presentation/composition";
 import { Callout, Section, TextLink } from "@/presentation/ui";
 

@@ -1,4 +1,4 @@
-import { AdjustConversionForm } from "@/presentation/admin/adjust-conversion-form";
+import { AdjustConversionForm } from "@/presentation/admin/earn/adjust-conversion-form";
 import { AdminShell } from "@/presentation/admin/admin-shell";
 import {
   affiliateStorageNotice,

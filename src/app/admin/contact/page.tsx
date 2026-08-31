@@ -1,5 +1,5 @@
 import { AdminShell } from "@/presentation/admin/admin-shell";
-import { ContactHandledForm } from "@/presentation/admin/contact-forms";
+import { ContactHandledForm } from "@/presentation/admin/maintain/contact-forms";
 import { contactUseCases, currentActor } from "@/presentation/composition";
 import {
   Callout,

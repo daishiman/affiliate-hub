@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   INSERTABLE_EXPRESSION_BLOCK_KINDS,
   parseExpressionBlockInput,
-} from "@/presentation/admin/expression-block-input";
+} from "@/presentation/admin/publish/expression-block-input";
 import { EXPRESSION_BLOCK_KINDS } from "@/domain/authoring/blog-template";
 
 function data(values: Record<string, string>): FormData {

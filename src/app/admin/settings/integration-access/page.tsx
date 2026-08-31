@@ -2,7 +2,7 @@ import { AdminShell } from "@/presentation/admin/admin-shell";
 import {
   IssueIntegrationAccessForm,
   RevokeIntegrationAccessForm,
-} from "@/presentation/admin/integration-access-form";
+} from "@/presentation/admin/maintain/integration-access-form";
 import { currentActor, feedbackUseCases } from "@/presentation/composition";
 import {
   Callout,

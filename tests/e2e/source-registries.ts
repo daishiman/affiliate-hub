@@ -16,9 +16,9 @@ interface SourceObject {
 type SourceValue = string | readonly SourceValue[] | SourceObject;
 
 const ROOT = process.cwd();
-const RANKING_REPOSITORY = join(
+const LOCAL_SEED_DATA = join(
   ROOT,
-  "src/infrastructure/persistence/sample/ranking-sample-repository.ts",
+  "scripts/seed/local-seed-data.ts",
 );
 const HIT_TARGET_TEST = join(ROOT, "tests/ui/screen-hit-and-current.test.tsx");
 
@@ -199,7 +199,8 @@ function readExportedString(path: string, name: string): string {
 }
 
 export function readSampleWorkspaceId(): string {
-  return readExportedString(RANKING_REPOSITORY, "SAMPLE_WORKSPACE_ID");
+  // previewが実際に入れるローカルseedと同じ正本を読む。
+  return readExportedString(LOCAL_SEED_DATA, "SEED_WORKSPACE_ID");
 }
 
 /**
