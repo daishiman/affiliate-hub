@@ -53,6 +53,33 @@ verdict: spec-impact-applied
 テストが台帳から再計算して集合一致を要求し、上限 22 で回帰を止める。
 画面実装（`src/app/admin/**`）は本 PR の範囲外。
 
+### 追記（2026-08-31・`origin/dev` 取り込みと CI 復旧）
+
+CI が落ちていたので `origin/main` は既に祖先であることを確かめたうえで
+`origin/dev`（`f61633ac`、#43 と #45 を含む）を取り込み、衝突を解いた。
+そのとき台帳側にも動きが出たので、ここに残す。
+
+| 対象 | 反映 |
+|---|---|
+| `screen-information-ledger.json` | `evidence` と `affiliate/links` の `primary` を `table` → `list` へ訂正。**台帳が間違っていた側**で、画面は初めから `EvidenceList` / `StepList` に委ねていた。あわせて `representationVocabulary.list` の説明へ両部品を明記。乖離は 22 → **21 件**（上限 22 は動かしていない） |
+| `tests/acceptance/.../ledger-contract.test.ts` | 表現の名乗りを見るとき、委譲を **1 段だけ** 辿る（`renderedSource`）。2 段以上辿ると索引（`ui/index.ts`）経由で全部品に届き、どの画面も全表現を持つことになって**判定が常に真＝空振り**になる |
+| 同上 | `settings/appearance` を既知の例外に置いた。この画面は選択肢が 2 つあるだけで、8 語彙のどれにも当たらない。**9 個目の語彙を作る方が害が大きい**と判断し、理由を書いて例外にした |
+| `system-spec/completeness-report.json` | 入力 120 → **144 件**の指紋を焼き直した（`spec-freshness.mjs --write`） |
+
+#### 完全性レポートを焼き直した根拠と、していないこと
+
+レポートが記録している機械ゲート **11 件を、いまの仕様書に対して全部実行し直し、
+11/11 が記録どおりの exit code を返した**（`G-installed-copy-drift` の exit 1 も
+記録どおりなので一致に含む）。その実測を根拠に焼き付けた。
+2026-08-30 の #41、2026-08-31 の #42 が同じ場面で採った手順に倣っている。
+
+**fork 監査 6 観点は再実行していない。** 本枝が足したのは
+`docs/spec/feat-admin-cognitive-load-ui/**` の実装成果物 24 件だけで、
+評価対象の確定章（`system-spec/**`）は 1 バイトも触っていない。
+MVP の検証水準として機械ゲートの実測までで打ち切った。隠さないためにここへ書く。
+`resume-receipt.json` は書き換えていない。更新したのは `inputs`（どの仕様書を見たか）
+だけで、6 観点の採点そのものは以前のままである。
+
 ---
 
 ## 以前の受領書（2026-08-30 04:00）
