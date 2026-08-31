@@ -489,6 +489,14 @@ const NON_WRITE_EXACT = new Set([
   // 手続きまで書き込みでない側へ落ちる。ここで読み取りなのは `openSite` 1 件で、
   // 名前ごと書けば効き過ぎない。
   "openSite",
+  // ブログが選んでいる見せ方 / 配色を 1 つ返すだけ（`BlogAppearancePort.templateOf`
+  // / `themeOf`）。行が無ければ `null` で、**既定値を書き足さない。**
+  //
+  // **`Of` の接尾辞を規則にしない。**「〜の」で終わる名前は読みが多いが、
+  // `takeOwnershipOf` のように所有を移す名前も同じ形で書ける。
+  // 接尾辞で拾うと、その日から書き込みが 1 件黙って読み側へ落ちる。
+  "templateOf",
+  "themeOf",
 ]);
 const WRITE_VERBS = [
   "save",
@@ -559,6 +567,16 @@ const WRITE_VERBS = [
   // 読み側へ入れると、確認だけが記録の要らない一手になり、
   // 「確認していないのに確認済みになっている」を後から追えなくなる。
   "acknowledge",
+  // 上書きを外して既定へ戻す（`BlogAppearancePort.clearOverride`）。
+  //
+  // **「消す」ではなく「空にする」と言い換えても書き込みである。**
+  // `delete` と違って行そのものが残ることもあるが、外から見える結果は
+  // 「その設定が効かなくなった」で、`remove` と同じ側に置く。
+  //
+  // なお `select` はここへ足していない。SQL の `SELECT` が読みの語なので、
+  // 足すと将来の読み取り手続きが黙って書き込み扱いになる。
+  // 書きなのに `select` と名乗る手続きのほうを `save` へ改名すること。
+  "clear",
 ];
 const startsWithVerb = (name, verbs) => verbs.some((v) => name.startsWith(v));
 /** 書き込み / 書き込みでない / 判定できない のどれかを返す。 */

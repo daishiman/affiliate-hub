@@ -92,7 +92,7 @@ describe("A1/A8 テンプレート選択の永続化", () => {
   });
 
   it("選ぶと保存され、読み直しで同じ値が返る（A8 の本体）", async () => {
-    const saved = await repo().selectTemplate({
+    const saved = await repo().saveTemplate({
       workspaceId: OWNER,
       siteSlug: SITE,
       templateId: "gadget",
@@ -106,8 +106,8 @@ describe("A1/A8 テンプレート選択の永続化", () => {
 
   it("選び直すと行が増えず上書きされる（site_slug 一意）", async () => {
     const r = repo();
-    await r.selectTemplate({ workspaceId: OWNER, siteSlug: SITE, templateId: "news" });
-    await r.selectTemplate({ workspaceId: OWNER, siteSlug: SITE, templateId: "minimal" });
+    await r.saveTemplate({ workspaceId: OWNER, siteSlug: SITE, templateId: "news" });
+    await r.saveTemplate({ workspaceId: OWNER, siteSlug: SITE, templateId: "minimal" });
 
     const rows = await proxy.env.DB.prepare(
       "SELECT COUNT(*) AS n FROM blog_template WHERE site_slug = ?",
@@ -121,13 +121,13 @@ describe("A1/A8 テンプレート選択の永続化", () => {
   });
 
   it("他所の作業場所からは読めない（存在も答えない）", async () => {
-    await repo().selectTemplate({ workspaceId: OWNER, siteSlug: SITE, templateId: "howto" });
+    await repo().saveTemplate({ workspaceId: OWNER, siteSlug: SITE, templateId: "howto" });
     const got = await repo().templateOf({ workspaceId: OUTSIDER, siteSlug: SITE });
     expect(got.ok && got.value).toBeNull();
   });
 
   it("他所の作業場所からは書けない", async () => {
-    const wrote = await repo().selectTemplate({
+    const wrote = await repo().saveTemplate({
       workspaceId: OUTSIDER,
       siteSlug: SITE,
       templateId: "howto",

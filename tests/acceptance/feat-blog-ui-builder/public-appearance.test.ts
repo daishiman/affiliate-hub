@@ -36,7 +36,7 @@ function fakePort(input: {
     themeOf: async () => (input.broken === true ? fail() : ok(input.theme ?? null)),
     overrideOf: async () => (input.broken === true ? fail() : ok(input.override ?? null)),
     templateOf: unused,
-    selectTemplate: unused,
+    saveTemplate: unused,
     saveTheme: unused,
     listOverrides: unused,
     saveOverride: unused,

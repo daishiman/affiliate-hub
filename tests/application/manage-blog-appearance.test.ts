@@ -34,6 +34,19 @@ import type {
 } from "@/domain/authoring/blog-template";
 import { type ActorContext, domainError, err, ok } from "@/domain/shared";
 import { taggedString } from "@/domain/shared/tagged";
+import { NOW } from "../support/clock";
+import { recordingAuditLog } from "../support/doubles";
+import { sequentialIds } from "../support/blog-ops-fake";
+import { createUnavailableAuditLog } from "@/infrastructure/persistence/sample/audit-log-sample-repository";
+
+/**
+ * 記録の置き場と時計。**見た目の変更も 1 操作ずつ `audit_log` へ残す**ので、
+ * ユースケースを組むにはこの 3 つが要る（2026-08-31 に足した）。
+ */
+function auditParts() {
+  const audit = recordingAuditLog();
+  return { audit, deps: { auditLog: audit.port, ids: sequentialIds(), now: () => NOW } };
+}
 
 /** 見た目を決められる人。`site.manage` を持つ。 */
 const manager: ActorContext = {
@@ -68,8 +81,8 @@ function fakePort(initial: Partial<Store> = {}) {
       calls.push({ op: "templateOf", arg: null });
       return ok(store.templateId);
     },
-    async selectTemplate(input) {
-      calls.push({ op: "selectTemplate", arg: input });
+    async saveTemplate(input) {
+      calls.push({ op: "saveTemplate", arg: input });
       store.templateId = input.templateId;
       return ok(input.templateId);
     },
@@ -111,7 +124,12 @@ function fakePort(initial: Partial<Store> = {}) {
 
 function useCaseWith(initial: Partial<Store> = {}) {
   const fake = fakePort(initial);
-  return { ...fake, uc: createManageBlogAppearanceUseCase({ appearance: fake.port }) };
+  const { audit, deps } = auditParts();
+  return {
+    ...fake,
+    audit,
+    uc: createManageBlogAppearanceUseCase({ appearance: fake.port, ...deps }),
+  };
 }
 
 describe("ブログの見た目 — 権限の振り分け", () => {
@@ -392,7 +410,7 @@ describe("ブログの見た目 — 保存先が落ちているとき", () => {
         ...fake.port,
         [failing]: async () => err(domainError("UPSTREAM_UNAVAILABLE", "保存先が落ちています")),
       };
-      const uc = createManageBlogAppearanceUseCase({ appearance: broken });
+      const uc = createManageBlogAppearanceUseCase({ appearance: broken, ...auditParts().deps });
       const result = await uc.execute(manager, { action: "read", siteSlug: "blog" });
 
       // 読めなかったものを「0 件」として返すと、画面には
@@ -409,7 +427,7 @@ describe("ブログの見た目 — 保存先が落ちているとき", () => {
         return err(domainError("UPSTREAM_UNAVAILABLE", "書き込めません"));
       },
     };
-    const uc = createManageBlogAppearanceUseCase({ appearance: broken });
+    const uc = createManageBlogAppearanceUseCase({ appearance: broken, ...auditParts().deps });
     const result = await uc.execute(manager, {
       action: "save_theme",
       siteSlug: "blog",
@@ -420,5 +438,84 @@ describe("ブログの見た目 — 保存先が落ちているとき", () => {
     expect(result.ok).toBe(false);
     // 書けていないのに読み直した値を返すと、画面は「保存できた」と読む。
     expect(fake.opsOf()).toEqual([]);
+  });
+});
+
+/**
+ * 見た目の変更を記録へ残す（2026-08-31 に足した）。
+ *
+ * 見た目は**上書きで消える設定**である。変える前の値はどこにも残らないので、
+ * 「いつから見え方が変わったか」を言えるのは `audit_log` だけになる。
+ */
+describe("ブログの見た目 — 操作の記録", () => {
+  it.each([
+    [
+      { action: "select_template", siteSlug: "blog", templateId: "howto" } as const,
+      "blog_appearance",
+      "blog",
+    ],
+    [
+      { action: "save_theme", siteSlug: "blog", brandTheme: "blue", colorMode: "dark" } as const,
+      "blog_appearance",
+      "blog",
+    ],
+    [
+      { action: "save_override", siteSlug: "blog", pagePath: "/about", brandTheme: "blue" } as const,
+      "blog_page_appearance",
+      "blog/about",
+    ],
+    [
+      { action: "clear_override", siteSlug: "blog", pagePath: "/about" } as const,
+      "blog_page_appearance",
+      "blog/about",
+    ],
+  ])("%o を 1 行残す", async (input, targetType, targetId) => {
+    const { uc, audit } = useCaseWith();
+    const result = await uc.execute(manager, input);
+
+    expect(result.ok).toBe(true);
+    expect(audit.actions()).toEqual(["blog_appearance.changed"]);
+    const [entry] = audit.entries();
+    expect(entry?.targetType).toBe(targetType);
+    expect(entry?.targetId).toBe(targetId);
+  });
+
+  it("読むだけでは何も残さない", async () => {
+    const { uc, audit } = useCaseWith();
+    await uc.execute(writer, { action: "read", siteSlug: "blog" });
+
+    expect(audit.entries()).toHaveLength(0);
+  });
+
+  it("上書きを外したことは、`after` に `override: null` として残す", async () => {
+    const { uc, audit } = useCaseWith({
+      overrides: [{ pagePath: "/about", override: { brandTheme: "blue" } }],
+    });
+    await uc.execute(manager, { action: "clear_override", siteSlug: "blog", pagePath: "/about" });
+
+    // 行ごと消えるので、消えたことは差分からは読めない。明示して残す。
+    expect(audit.entries()[0]?.after).toMatchObject({ pagePath: "/about", override: null });
+  });
+
+  it("記録が書けなかったら「変えました」で終わらせない", async () => {
+    const fake = fakePort();
+    const uc = createManageBlogAppearanceUseCase({
+      appearance: fake.port,
+      auditLog: createUnavailableAuditLog(),
+      ids: sequentialIds(),
+      now: () => NOW,
+    });
+    const result = await uc.execute(manager, {
+      action: "save_theme",
+      siteSlug: "blog",
+      brandTheme: "blue",
+      colorMode: "dark",
+    });
+
+    // **保存は取り消さない。**取り消すと、押した人には「効かなかった」に見えるのに
+    // 保存先には残っている、という別の食い違いを作る。
+    expect(result.ok).toBe(false);
+    expect(!result.ok && result.error.code).toBe("UPSTREAM_UNAVAILABLE");
+    expect(fake.store.theme).not.toBeNull();
   });
 });

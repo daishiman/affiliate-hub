@@ -108,7 +108,7 @@ export function createD1BlogAppearanceRepository(
       }
     },
 
-    async selectTemplate({ workspaceId, siteSlug, templateId }) {
+    async saveTemplate({ workspaceId, siteSlug, templateId }) {
       try {
         if (!(await ownsSite(workspaceId, siteSlug))) {
           return storageFailure("ブログの見せ方の選択", new Error(`ブログが見つからない: ${siteSlug}`));

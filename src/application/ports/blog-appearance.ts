@@ -16,7 +16,13 @@ import type { PortResult } from "./common";
  * 途中で落ちたときの状態が画面ごとに違う形で残る。
  *
  * --- 口を絞る理由 ---
- * `select` / `save` / `clear` / 読み取りだけを置く。
+ * `save` / `clear` / 読み取りだけを置く。
+ *
+ * **書く口は `save` で始める。** 見せ方を決める操作は日本語では「選ぶ」だが、
+ * `selectTemplate` と名乗っていた頃、`scripts/port-wiring.mjs` が
+ * 読み書きを判定できずに止まった（SQL の `SELECT` は読みの語である）。
+ * 語彙表へ `select` を足して黙らせることもできたが、それをすると
+ * **将来の読み取り手続きが黙って書き込み扱いになる。**名前の側を直した。
  * **一括更新の口を作らない。** 作ると「テンプレートも配色も同時に変えた」
  * 操作が 1 行の監査記録になり、後からどちらが原因か辿れなくなる。
  *
@@ -45,7 +51,7 @@ export type BlogAppearancePort = {
    * **記事に触らない。** 触ると差し替えで記事が壊れる
    * （`component-contract.md` §1.1、受入 A1 の本体）。
    */
-  selectTemplate(input: {
+  saveTemplate(input: {
     readonly workspaceId: WorkspaceId;
     readonly siteSlug: string;
     readonly templateId: BlogTemplateId;

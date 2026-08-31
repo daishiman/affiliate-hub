@@ -1795,6 +1795,9 @@ export async function blogAppearanceEntry(): Promise<BlogAppearanceEntry> {
     ready: true,
     manage: createManageBlogAppearanceUseCase({
       appearance: createD1BlogAppearanceRepository({ db, newId: () => deps.ids.newId() }),
+      auditLog: deps.auditLog,
+      ids: deps.ids,
+      now: () => new Date(),
     }),
   };
 }
@@ -1889,6 +1892,9 @@ export async function blogPlacementEntry(): Promise<BlogPlacementEntry> {
         newId: () => deps.ids.newId(),
       }),
       blogOps: deps.blogOps,
+      auditLog: deps.auditLog,
+      ids: deps.ids,
+      now: () => new Date(),
     }),
   };
 }

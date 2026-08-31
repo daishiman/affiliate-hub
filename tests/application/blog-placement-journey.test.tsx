@@ -12,7 +12,8 @@ import { AffiliatePlacementLookup } from "@/presentation/admin/affiliate-placeme
 import { BlogArticleView } from "@/presentation/site/blog-article-view";
 import { anOwner } from "../support/actors";
 import { NOW } from "../support/clock";
-import { article, fakeRepository } from "../support/blog-ops-fake";
+import { article, fakeRepository, sequentialIds } from "../support/blog-ops-fake";
+import { recordingAuditLog } from "../support/doubles";
 
 describe("成果リンク起点の管理 journey と 3 面一致 (A7)", () => {
   it("保存した CTA が再読込・逆引き・公開記事で同じ集合になる", async () => {
@@ -91,6 +92,9 @@ describe("成果リンク起点の管理 journey と 3 面一致 (A7)", () => {
     const useCase = createReviewBlogPlacementsUseCase({
       placements,
       blogOps: repository.port,
+      auditLog: recordingAuditLog().port,
+      ids: sequentialIds(),
+      now: () => NOW,
     });
 
     const saved = await useCase.execute(anOwner(), {

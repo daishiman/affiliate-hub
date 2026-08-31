@@ -4,6 +4,9 @@ import type {
   BlogAffiliatePlacementPort,
 } from "@/application/ports/blog-affiliate-placement";
 import type { BlogOpsRepositoryPort } from "@/application/ports/blog-ops";
+import type { AuditLogPort } from "@/application/ports/compliance";
+import type { IdGeneratorPort } from "@/application/ports/common";
+import { auditWriteFailure, buildAuditEntry } from "@/application/audit";
 import { requireCapability } from "@/domain/identity";
 import {
   type ActorContext,
@@ -35,10 +38,23 @@ import type { BlogArticleStatus } from "@/domain/blogops";
  * この台帳に金額は 1 つも無い）。読み取りを `monetization` 側の権限に
  * すると、記事を直す人が自分の記事の抜けを確認できなくなる。
  * 一方、台帳を**書き換える**のはサイトの見せ方を決める操作なので `site.manage`。
+ *
+ * --- 足し引きは必ず記録へ残す ---
+ * 台帳の行は**外すと物理削除される**（所在の記録であって履歴ではない、
+ * `ports/blog-affiliate-placement.ts` の doc）。つまり
+ * **外した事実が残る場所は `audit_log` しかない。**
+ * 掲載の増減は報酬に直結し、「いつから出ていなかったか」を後から言えないと、
+ * 収益の段差を記事側の問題と取り違える。
+ *
+ * `deps.auditLog.append()` の呼び出しは**このファイルの中に置く**
+ * （`src/application/audit.ts` の doc を参照）。
  */
 
 export type ReviewBlogPlacementsDeps = {
   readonly placements: BlogAffiliatePlacementPort;
+  readonly auditLog: AuditLogPort;
+  readonly ids: IdGeneratorPort;
+  readonly now: () => Date;
   /** 記事の全体集合を知っている唯一の口。掲載漏れの分母になる。 */
   readonly blogOps: Pick<BlogOpsRepositoryPort, "listArticles">;
 };
@@ -223,6 +239,28 @@ export function createReviewBlogPlacementsUseCase(
           },
         });
         if (!saved.ok) return saved;
+
+        const entry = buildAuditEntry(deps, actor, {
+          action: "blog_placement.changed",
+          targetType: "blog_affiliate_placement",
+          targetId: `${input.siteSlug}${input.articleSlug}${slot.value}`,
+          after: {
+            siteSlug: input.siteSlug,
+            articleSlug: input.articleSlug,
+            placement: slot.value,
+            position: saved.value.position,
+            ...(trackingCode === undefined ? {} : { trackingCode }),
+          },
+        });
+        if (!entry.ok) return entry;
+        const appended = await deps.auditLog.append(entry.value);
+        if (!appended.ok) {
+          return err(
+            auditWriteFailure(`記事「${input.articleSlug}」への掲載を記録しました`, {
+              placement: slot.value,
+            }),
+          );
+        }
         return bySite(actor, input.siteSlug);
       }
 
@@ -241,6 +279,32 @@ export function createReviewBlogPlacementsUseCase(
         }),
       });
       if (!removed.ok) return removed;
+
+      /*
+        外した行はもう無い。`before` に写しを置いても台帳から確かめられないので、
+        **何を外したかを `after` に平文で並べる。**後から読む人が要るのは
+        「どの記事のどの位置から、どのコードの掲載が消えたか」だけである。
+      */
+      const entry = buildAuditEntry(deps, actor, {
+        action: "blog_placement.removed",
+        targetType: "blog_affiliate_placement",
+        targetId: `${input.siteSlug}${input.articleSlug}${slot.value}`,
+        after: {
+          siteSlug: input.siteSlug,
+          articleSlug: input.articleSlug,
+          placement: slot.value,
+          ...(trackingCode === undefined ? {} : { trackingCode }),
+        },
+      });
+      if (!entry.ok) return entry;
+      const appended = await deps.auditLog.append(entry.value);
+      if (!appended.ok) {
+        return err(
+          auditWriteFailure(`記事「${input.articleSlug}」から掲載を外しました`, {
+            placement: slot.value,
+          }),
+        );
+      }
       return bySite(actor, input.siteSlug);
     },
   };

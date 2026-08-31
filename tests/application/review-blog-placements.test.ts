@@ -33,6 +33,19 @@ import { createReviewBlogPlacementsUseCase } from "@/application/usecases/author
 import type { BlogArticle } from "@/domain/blogops";
 import { type ActorContext, domainError, err, ok } from "@/domain/shared";
 import { taggedString } from "@/domain/shared/tagged";
+import { NOW } from "../support/clock";
+import { recordingAuditLog } from "../support/doubles";
+import { sequentialIds } from "../support/blog-ops-fake";
+import { createUnavailableAuditLog } from "@/infrastructure/persistence/sample/audit-log-sample-repository";
+
+/**
+ * 記録の置き場と時計。**掲載の足し引きは 1 操作ずつ `audit_log` へ残す**ので、
+ * ユースケースを組むにはこの 3 つが要る（2026-08-31 に足した）。
+ */
+function auditParts() {
+  const audit = recordingAuditLog();
+  return { audit, deps: { auditLog: audit.port, ids: sequentialIds(), now: () => NOW } };
+}
 
 const manager: ActorContext = {
   userId: taggedString("user_manager"),
@@ -125,13 +138,15 @@ function fakes(fixture: Fixture = {}) {
     },
   };
 
+  const { audit, deps: auditDeps } = auditParts();
   return {
     placements,
     blogOps,
     ledger,
     calls,
     opsOf: () => calls.map((c) => c.op),
-    uc: createReviewBlogPlacementsUseCase({ placements, blogOps }),
+    audit,
+    uc: createReviewBlogPlacementsUseCase({ placements, blogOps, ...auditDeps }),
   };
 }
 
@@ -222,6 +237,7 @@ describe("掲載状況 — ブログ 1 つぶんの一覧（A6）", () => {
   it("記事表が落ちたら台帳を読まずに失敗を返す", async () => {
     const base = fakes();
     const uc = createReviewBlogPlacementsUseCase({
+      ...auditParts().deps,
       placements: base.placements,
       blogOps: {
         async listArticles() {
@@ -436,6 +452,7 @@ describe("掲載状況 — 記録する", () => {
   it("台帳への書き込みが落ちたら、一覧を読み直さず失敗を返す", async () => {
     const base = fakes({ articles: [article("a")] });
     const uc = createReviewBlogPlacementsUseCase({
+      ...auditParts().deps,
       placements: {
         ...base.placements,
         async save() {
@@ -532,6 +549,7 @@ describe("掲載状況 — 取り消す", () => {
   it("台帳の削除が落ちたら、一覧を読み直さず失敗を返す", async () => {
     const base = fakes({ articles: [article("a")] });
     const uc = createReviewBlogPlacementsUseCase({
+      ...auditParts().deps,
       placements: {
         ...base.placements,
         async remove() {
@@ -550,4 +568,91 @@ describe("掲載状況 — 取り消す", () => {
     expect(result.ok).toBe(false);
     expect(base.opsOf()).not.toContain("listBySite");
   });
+});
+
+/**
+ * 掲載の足し引きを記録へ残す（2026-08-31 に足した）。
+ *
+ * 外した行は**物理削除**される。外した事実が残る場所は `audit_log` しかない。
+ * 掲載の増減は報酬に直結し、「いつから出ていなかったか」を言えないと、
+ * 収益の段差を記事側の問題と取り違える。
+ */
+describe("掲載状況 — 操作の記録", () => {
+  it("足したことを 1 行残す", async () => {
+    const { uc, audit } = fakes({ articles: [article("a")] });
+    const result = await uc.execute(manager, {
+      action: "save",
+      siteSlug: "blog",
+      articleSlug: "a",
+      placement: "intro",
+      trackingCode: "tc-1",
+    });
+
+    expect(result.ok).toBe(true);
+    expect(audit.actions()).toEqual(["blog_placement.changed"]);
+    expect(audit.entries()[0]?.after).toMatchObject({
+      siteSlug: "blog",
+      articleSlug: "a",
+      placement: "intro",
+      trackingCode: "tc-1",
+    });
+  });
+
+  /**
+   * **足すと外すを別の語にしている。**1 語だと「掲載が消えている」を
+   * 差分から読むことになるが、消えた行の差分は消えているので読めない。
+   */
+  it("外したことは別の語で残す", async () => {
+    const { uc, audit } = fakes({
+      articles: [article("a")],
+      ledger: [{ siteSlug: "blog", articleSlug: "a", placement: "intro", position: 0 }],
+    });
+    const result = await uc.execute(manager, {
+      action: "remove",
+      siteSlug: "blog",
+      articleSlug: "a",
+      placement: "intro",
+    });
+
+    expect(result.ok).toBe(true);
+    expect(audit.actions()).toEqual(["blog_placement.removed"]);
+    // 消えた行は台帳から確かめられない。何を外したかを平文で並べる。
+    expect(audit.entries()[0]?.after).toMatchObject({ articleSlug: "a", placement: "intro" });
+  });
+
+  it("見るだけでは何も残さない", async () => {
+    const { uc, audit } = fakes({ articles: [article("a")] });
+    await uc.execute(writer, { action: "by_site", siteSlug: "blog" });
+
+    expect(audit.entries()).toHaveLength(0);
+  });
+
+  it.each(["save", "remove"] as const)(
+    "%s の記録が書けなかったら「済みました」で終わらせない",
+    async (action) => {
+      const base = fakes({
+        articles: [article("a")],
+        ledger: [{ siteSlug: "blog", articleSlug: "a", placement: "intro", position: 0 }],
+      });
+      const uc = createReviewBlogPlacementsUseCase({
+        placements: base.placements,
+        blogOps: base.blogOps,
+        auditLog: createUnavailableAuditLog(),
+        ids: sequentialIds(),
+        now: () => NOW,
+      });
+      const result = await uc.execute(manager, {
+        action,
+        siteSlug: "blog",
+        articleSlug: "a",
+        placement: "intro",
+      });
+
+      // 台帳のほうは取り消さない。取り消すと、押した人に見える結果と
+      // 保存先の中身が食い違う形を新しく 1 つ作ることになる。
+      expect(result.ok).toBe(false);
+      expect(!result.ok && result.error.code).toBe("UPSTREAM_UNAVAILABLE");
+      expect(base.opsOf()).not.toContain("listBySite");
+    },
+  );
 });

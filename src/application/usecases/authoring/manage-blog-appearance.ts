@@ -1,4 +1,7 @@
 import type { BlogAppearancePort } from "@/application/ports/blog-appearance";
+import type { AuditLogPort } from "@/application/ports/compliance";
+import type { IdGeneratorPort } from "@/application/ports/common";
+import { auditWriteFailure, buildAuditEntry } from "@/application/audit";
 import {
   BLOG_TEMPLATE_IDS,
   type BlogTemplateId,
@@ -26,12 +29,20 @@ import type { UseCase } from "../usecase";
 /**
  * ブログの見た目（テンプレート・配色 2 層）を画面から決める。
  *
- * --- 監査記録を書かない理由 ---
- * 隣の `manage-guideline-references` は 1 操作ずつ `audit_log` へ残すが、
- * ここは残さない。あちらが残すのは、出典が
- * **規制対応で「何を根拠にそう決めたか」を問われる証跡**だからである。
- * 配色とテンプレートは読者の目に映るだけで、法令上の主張を 1 つも含まない。
- * 何でも記録すると、本当に読む必要がある行が薄まる。
+ * --- 監査記録を書く（2026-08-31 に方針を変えた） ---
+ * ここは以前「配色とテンプレートは読者の目に映るだけで、法令上の主張を
+ * 1 つも含まない」として記録を書いていなかった。**その理由は間違いではないが、
+ * 足りなかった。**記録が要るのは法令上の主張があるときだけではない。
+ *
+ * 見た目は**上書きで消える設定**である。誰かが配色を変えた翌日に
+ * 「読みにくくなった」と言われても、変える前の値はどこにも残っていない。
+ * `blog_layout.changed`（枠の並び）を残していて、こちらだけ残さないのは
+ * 一貫していなかった——後から読む人にとって問いは同じ
+ * （「そのとき読者に何がどう見えていたか」）である。
+ *
+ * 4 操作とも `blog_appearance.changed` 1 語で、差は `targetType` と
+ * `after` に出す。`deps.auditLog.append()` の呼び出しは
+ * **このファイルの中に置く**（`src/application/audit.ts` の doc を参照）。
  *
  * --- 解決順をここに書かない ---
  * ページに効く配色の決め方は `resolvePageTheme`（ドメイン）ただ 1 つである。
@@ -52,6 +63,9 @@ import type { UseCase } from "../usecase";
 
 export type ManageBlogAppearanceDeps = {
   readonly appearance: BlogAppearancePort;
+  readonly auditLog: AuditLogPort;
+  readonly ids: IdGeneratorPort;
+  readonly now: () => Date;
 };
 
 export type ManageBlogAppearanceInput =
@@ -119,6 +133,37 @@ export function createManageBlogAppearanceUseCase(
 ): UseCase<ManageBlogAppearanceInput, BlogAppearanceView> {
   const { appearance } = deps;
 
+  /**
+   * 見た目を 1 つ変えたことを記録へ残す。
+   *
+   * **保存が済んでから呼ぶ。** 先に記録を書くと、保存が落ちた操作の行が
+   * 記録にだけ残り、「変えたはずなのに反映されていない」を追う人が
+   * 記録のほうを信じてしまう。
+   */
+  async function record(
+    actor: ActorContext,
+    entryInput: {
+      readonly targetType: string;
+      readonly targetId: string;
+      readonly after: Readonly<Record<string, unknown>>;
+      /** 記録に失敗したとき「もう済んでいること」として画面へ出す一文。 */
+      readonly doneAlready: string;
+    },
+  ): Promise<Result<null, DomainError>> {
+    const entry = buildAuditEntry(deps, actor, {
+      action: "blog_appearance.changed",
+      targetType: entryInput.targetType,
+      targetId: entryInput.targetId,
+      after: entryInput.after,
+    });
+    if (!entry.ok) return entry;
+    const appended = await deps.auditLog.append(entry.value);
+    if (!appended.ok) {
+      return err(auditWriteFailure(entryInput.doneAlready, { targetId: entryInput.targetId }));
+    }
+    return ok(null);
+  }
+
   /** 変更のあとは必ず読み直して返す。画面が自前で状態を継ぎ足さない。 */
   async function view(
     workspaceId: ActorContext["workspaceId"],
@@ -174,12 +219,19 @@ export function createManageBlogAppearanceUseCase(
             validationError("ブログの見せ方は 6 種から選んでください。", "templateId"),
           );
         }
-        const saved = await appearance.selectTemplate({
+        const saved = await appearance.saveTemplate({
           workspaceId,
           siteSlug: input.siteSlug,
           templateId: input.templateId as BlogTemplateId,
         });
         if (!saved.ok) return saved;
+        const recorded = await record(actor, {
+          targetType: "blog_appearance",
+          targetId: input.siteSlug,
+          after: { templateId: saved.value },
+          doneAlready: "ブログの見せ方を変えました",
+        });
+        if (!recorded.ok) return recorded;
         return view(workspaceId, input.siteSlug);
       }
 
@@ -195,6 +247,13 @@ export function createManageBlogAppearanceUseCase(
           theme: { brandTheme: brandTheme.value, colorMode: colorMode.value },
         });
         if (!saved.ok) return saved;
+        const recorded = await record(actor, {
+          targetType: "blog_appearance",
+          targetId: input.siteSlug,
+          after: { brandTheme: saved.value.brandTheme, colorMode: saved.value.colorMode },
+          doneAlready: "ブログ既定の配色を変えました",
+        });
+        if (!recorded.ok) return recorded;
         return view(workspaceId, input.siteSlug);
       }
 
@@ -225,6 +284,13 @@ export function createManageBlogAppearanceUseCase(
           override,
         });
         if (!saved.ok) return saved;
+        const recorded = await record(actor, {
+          targetType: "blog_page_appearance",
+          targetId: `${input.siteSlug}${path}`,
+          after: { pagePath: path, override },
+          doneAlready: `ページ「${path}」の配色の上書きを保存しました`,
+        });
+        if (!recorded.ok) return recorded;
         return view(workspaceId, input.siteSlug, path);
       }
 
@@ -236,6 +302,14 @@ export function createManageBlogAppearanceUseCase(
           pagePath: path,
         });
         if (!cleared.ok) return cleared;
+        const recorded = await record(actor, {
+          targetType: "blog_page_appearance",
+          targetId: `${input.siteSlug}${path}`,
+          // 消えたことは差分に出ない（行ごと消える）。`after` に明示して残す。
+          after: { pagePath: path, override: null },
+          doneAlready: `ページ「${path}」の配色の上書きを外しました`,
+        });
+        if (!recorded.ok) return recorded;
         return view(workspaceId, input.siteSlug, path);
       }
 
