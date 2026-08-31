@@ -421,6 +421,45 @@ manifest の実数に床が追いついていなかった側の修正である�
 中心である。ここを倒すにはテストではなく実装の側を素直にする必要があり、
 下限を満たしている今は手を入れていない。
 
+### D.2 層別カバレッジの下限割れ — 🔴 → 🟢
+
+ミューテーションが通ると、その次の門（層別の記録）が落ちた。
+**前の門で止まっていたので、それまで一度も実行されていなかった。**
+
+```
+presentation の 分岐 78%（下限 80%）
+```
+
+`dev` の時点で presentation の分岐は 80.3 / 下限 80 で、**余裕は 0.3pt しか
+無かった**。本 feature が足した分岐がそれを食い切った形である。
+穴は本 feature の追加分に集中していた。
+
+| ファイル | 未到達分岐 | 当時 |
+| --- | --- | --- |
+| `admin/publish/blog-appearance-action.ts` | 36 | **0%** |
+| `admin/publish/blog-placement-action.ts` | 30 | **0%** |
+| `admin/publish/blog-rating-form.tsx` | 16 | **0%** |
+| `site/site-metadata.ts`（`blogArticleMetadata`） | 22 | 31.25% |
+
+どれも server action と client 部品で、**1 つの実装が 2〜4 の操作を兼ねる**。
+画面は同じ欄の並びを使い回し、`intent` の hidden 欄だけで行き先を変える。
+だから振り分けを間違えても画面は動き、押した人には「保存しました」と出る。
+
+下限は動かさず、3 ファイルを足した。
+
+| 追加したもの | 件数 |
+| --- | --- |
+| `tests/presentation/blog-appearance-and-placement-actions.test.ts` | 55 |
+| `tests/presentation/blog-article-metadata.test.ts` | 13 |
+| `tests/ui/blog-rating-hide-form.test.tsx` | 7 |
+
+結果は presentation の分岐 78 → **80.3%**、全体 81 → **81.6%**。
+全層が下限を満たした。テストは **457 files / 10434 passed**。
+
+`blog-rating-hide-form.test.tsx` は axe を使うので `vitest.projects.mjs` の
+`A11Y_TEST_FILES` へも登録した。ここに載せ忘れると重い検査が通常テストに
+混ざり、`tests/architecture/ci-config.test.ts` が落とす。
+
 ## E. まだ 🔴 のまま
 
 §4 の 2（配色の保存と掲載の増減が操作の記録に届かない）と

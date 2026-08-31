@@ -12,6 +12,7 @@ export const A11Y_TEST_FILES = [
   "tests/ui/axe-blind-spots.test.ts",
   "tests/ui/axe-rule-coverage.test.ts",
   "tests/ui/blog-ops-a11y-floor.test.tsx",
+  "tests/ui/blog-rating-hide-form.test.tsx",
   "tests/ui/capture-canvas.test.tsx",
   "tests/ui/feedback-admin-forms.test.tsx",
   "tests/ui/feedback-button.test.tsx",

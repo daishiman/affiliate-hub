@@ -6,8 +6,8 @@
 テスト側の `@req` 印を重ねたもの。
 
 - 最終更新: 2026-08-31
-- テストファイル: 454 件
-- 由来の要件が分かる: 454 件
+- テストファイル: 457 件
+- 由来の要件が分かる: 457 件
 - **由来不明: 0 件**（上限 2 件）
 
 由来不明とは「どの要件のために書いたのか、機械から辿れない」という意味で、
@@ -320,6 +320,8 @@
 | `tests/presentation/api-routes.test.ts` | REQ-M03, REQ-TM11, REQ-WA02, REQ-WC06 | 印と表 |
 | `tests/presentation/api-scope-actor.test.ts` | REQ-API02, REQ-FB13 | 印 |
 | `tests/presentation/blog-action-input.test.ts` | REQ-BOPS01, REQ-BOPS02, REQ-BOPS03, REQ-BOPS04, REQ-BOPS05, REQ-BOPS08 | 印 |
+| `tests/presentation/blog-appearance-and-placement-actions.test.ts` | REQ-P07, REQ-UX01 | 印 |
+| `tests/presentation/blog-article-metadata.test.ts` | REQ-P07 | 印 |
 | `tests/presentation/blog-ops-actions.test.ts` | REQ-BOPS03, REQ-BOPS04, REQ-BOPS05, REQ-BOPS06, REQ-BOPS08, REQ-BOPS12 | 印 |
 | `tests/presentation/blog-ops-tools.test.ts` | REQ-BLOG06 | 印と表 |
 | `tests/presentation/blog-rating-actions.test.ts` | REQ-BOPS09 | 印 |
@@ -398,6 +400,7 @@
 | `tests/ui/blog-enabled-marker.test.tsx` | REQ-BOPS02, REQ-BOPS03, REQ-BOPS08 | 印 |
 | `tests/ui/blog-ops-a11y-floor.test.tsx` | REQ-BLOG04, REQ-BOPS03, REQ-BOPS04, REQ-BOPS05, REQ-BOPS06, REQ-BOPS07, REQ-BOPS08, REQ-BOPS09, REQ-BOPS10, REQ-BOPS11, REQ-BOPS14 | 印と表 |
 | `tests/ui/blog-ops-restore.test.tsx` | REQ-BOPS01, REQ-BOPS05, REQ-BOPS06, REQ-UX02 | 印と表 |
+| `tests/ui/blog-rating-hide-form.test.tsx` | REQ-BOPS09 | 印 |
 | `tests/ui/blog-tag-form.test.tsx` | REQ-BOPS07, REQ-UX02 | 印と表 |
 | `tests/ui/blueprint-theme.test.ts` | REQ-P07, REQ-TH02, REQ-TS06 | 表 |
 | `tests/ui/bluesky-connection-form.test.tsx` | REQ-P08 | 印 |
@@ -475,4 +478,4 @@
 | `tests/ui/use-draft.test.tsx` | REQ-BOPS04, REQ-BOPS05 | 印 |
 | `tests/ui/zz-probe-tone.test.tsx` | REQ-TM07 | 表 |
 | `tests/visual/visual-regression.test.ts` | REQ-S09, REQ-TS12, REQ-UX08 | 印 |
-<!-- 生成物の指紋 sha256:dafa3bc2d4698d948c035fde0d02413c625ecf29ff16faac77f374b7d27de49f -->
+<!-- 生成物の指紋 sha256:4f8c194f95040b4b87958da636483fc41d0ecf5f228960c966234a0b202dd77a -->

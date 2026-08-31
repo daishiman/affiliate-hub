@@ -923,7 +923,9 @@ SQLite は ON CONFLICT の対象に**一致する UNIQUE 制約が無いと INSE
 | `verify --tier 1` | **全門 OK**（333 files / 6445 passed） |
 | `npx vitest run tests/ui/` | **PASS**（95 files / 3367 passed） |
 | `npx vitest run`（全体） | **PASS**（452 files / 10297 passed、赤 0 件） |
-| 変更したところのミューテーション | **PASS**（61.21% → 約 68.6%、下限 65%） |
+| 変更したところのミューテーション | **PASS**（61.21% → **68.7%**、下限 65%） |
+| 層別の記録（カバレッジ） | **PASS**（presentation 分岐 78% → **80.3%**、下限 80%） |
+| `npx vitest run`（追加後） | **PASS**（457 files / 10434 passed、赤 0 件） |
 
 ### ミューテーションの下限割れは仕様反映ではなくテスト不足だった
 
@@ -936,6 +938,14 @@ SQLite は ON CONFLICT の対象に**一致する UNIQUE 制約が無いと INSE
 ユースケースの振る舞いは既に確定章の記述どおりで、それを検査が確かめていなかった
 だけである。よって R4-reopen は使わず、`tests/application/` へ 62 件を足した
 （`manage-blog-appearance` 30 件で 88.10%、`review-blog-placements` 32 件で 72.52%）。
+
+同じことが、その次の門（層別の記録）でも起きた。ミューテーションで止まって
+いたので、それまで一度も実行されていなかった門である。presentation の分岐が
+78%（下限 80%）で、穴は本 feature の server action 3 本（`blog-appearance-action` /
+`blog-placement-action` / `blog-rating-form`、いずれも **0%**）と
+`site-metadata.ts` の `blogArticleMetadata`（31%）に集中していた。
+これも仕様への影響ではなくテスト不足なので、`tests/presentation/` と
+`tests/ui/` へ 75 件を足して 80.3% にした。詳細はリリースレポート §D.2。
 
 **赤は 1 件も残していない。**閾値を下げて緑にしたものも無い
 （ミューテーションの下限 65% も動かしていない）。
