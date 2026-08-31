@@ -195,7 +195,7 @@ export const FIELD_VALUES: Readonly<Record<string, unknown>> = {
 
   // --- 読者の道具 ---
   // 読者の道具の入力は、単位つきで人が打つものなので文字列で受ける。
-  values: { minutes: "60", bitrate: "100", months: "12" },
+  values: { height: "170", desk_height: "72", shoe: "2" },
   item: {
     productId: "p_alpha_15",
     productName: "ErgoOne Pro",
@@ -216,8 +216,8 @@ export const TOOL_OVERRIDES: Readonly<Record<string, Readonly<Record<string, unk
   // 計算が動くようになったので、値まで渡す（2026-08-26）。
   // 空の `values` のままだと「欄が空です」で失敗し、正常系を見たことにならない。
   run_reader_tool: {
-    slug: "storage-estimator",
-    values: { minutes: "60", bitrate: "100", months: "12" },
+    slug: "desk-fit",
+    values: { height: "170", desk_height: "72", shoe: "2" },
   },
   get_policy_document: { key: "methodology" },
   get_article: { slug: "chairs-for-long-hours" },

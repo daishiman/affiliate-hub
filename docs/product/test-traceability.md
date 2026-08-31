@@ -6,8 +6,8 @@
 テスト側の `@req` 印を重ねたもの。
 
 - 最終更新: 2026-08-31
-- テストファイル: 451 件
-- 由来の要件が分かる: 451 件
+- テストファイル: 452 件
+- 由来の要件が分かる: 452 件
 - **由来不明: 0 件**（上限 2 件）
 
 由来不明とは「どの要件のために書いたのか、機械から辿れない」という意味で、
@@ -22,6 +22,7 @@
 | テスト | 要件 | 由来 |
 | --- | --- | --- |
 | `tests/acceptance/acceptance-criteria.test.ts` | REQ-A01, REQ-A02, REQ-A03, REQ-A04, REQ-A05, REQ-A06, REQ-A07, REQ-A08 | 印 |
+| `tests/acceptance/feat-admin-cognitive-load-ui/ledger-contract.test.ts` | REQ-A08, REQ-S09, REQ-SEC08 | 印 |
 | `tests/acceptance/feat-auth-workspace/access-boundary.test.ts` | REQ-API02, REQ-P01, REQ-R07, REQ-R11, REQ-S10, REQ-SEC01 | 印 |
 | `tests/acceptance/feat-auth-workspace/admin-entry-middleware.test.ts` | REQ-API02, REQ-S10, REQ-SEC01, REQ-SEC11 | 印 |
 | `tests/acceptance/feat-auth-workspace/brand-defaults-wiring.test.ts` | REQ-E04, REQ-G02, REQ-P01 | 印 |
@@ -299,7 +300,7 @@
 | `tests/integration/d1-link-inbox.test.ts` | REQ-S02, REQ-TS07 | 印と表 |
 | `tests/integration/d1-membership.test.ts` | REQ-P01 | 印 |
 | `tests/integration/d1-migration-0035.test.ts` | REQ-P08, REQ-TS07 | 印 |
-| `tests/integration/d1-migration-0040.test.ts` | REQ-A01, REQ-A04, REQ-A07 | 印 |
+| `tests/integration/d1-migration-0041.test.ts` | REQ-A01, REQ-A04, REQ-A07 | 印 |
 | `tests/integration/d1-provider-delivery-boundary.test.ts` | REQ-A06 | 印 |
 | `tests/integration/d1-published-article.test.ts` | REQ-P08 | 表 |
 | `tests/integration/d1-site-draft.test.ts` | REQ-P07, REQ-S06, REQ-TS07, REQ-W10 | 印 |
@@ -472,4 +473,4 @@
 | `tests/ui/use-draft.test.tsx` | REQ-BOPS04, REQ-BOPS05 | 印 |
 | `tests/ui/zz-probe-tone.test.tsx` | REQ-TM07 | 表 |
 | `tests/visual/visual-regression.test.ts` | REQ-S09, REQ-TS12, REQ-UX08 | 印 |
-<!-- 生成物の指紋 sha256:bd9e6a9c9bcf236b08c0b707c34a302f416dcb2d1286b7cf5fcbe18bfd1738d3 -->
+<!-- 生成物の指紋 sha256:c369c3fdfaf55db0a61d0717d071ba663323fd9cfe24f607be856bb35a7fe8d1 -->

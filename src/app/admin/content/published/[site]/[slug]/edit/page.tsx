@@ -29,25 +29,35 @@ export default async function EditPublishedArticlePage({
           <ErrorView title="公開済み記事を開けませんでした" body={result.error.message} suggestedAction={result.error.suggestedAction ?? null} />
         ) : result.value !== null ? (
           <div className={styles.publishedEditor}>
-            <Card>
-              {/*
-                項目と値の並びは `FactList` が 1 か所で持つ。ここで `dl` を
-                書き起こすと、読み上げの対の作り方が 2 通りになる
-                （`tests/ui/uiux-duplicate-implementation.test.ts`）。
-              */}
-              <FactList
-                rows={[
-                  { key: "site", label: "サイト", value: result.value.article.siteSlug },
-                  { key: "slug", label: "URL", value: result.value.article.slug },
-                  {
-                    key: "status",
-                    label: "状態",
-                    value: result.value.archivedAt === null ? "公開中" : "非表示",
-                  },
-                ]}
-              />
-            </Card>
-            <Card><PublishedArticleForm article={result.value.article} archivedAt={result.value.archivedAt} /></Card>
+            {/*
+              **判断の単位は「この記事 1 本」なので、カードも 1 枚。**
+              住所と公開状態を別のカードに分けていたが、それは独立した判断ではなく
+              訂正の可否を決めるための材料である。分けると「主張が 2 つある画面」に
+              見え、どちらを先に読むかが読む人ごとに変わる。
+              材料は `supporting`（補助 4 つまで）へ入れて、主情報 1 つ＝訂正の操作にする。
+
+              項目と値の並びは `FactList` が 1 か所で持つ。ここで `dl` を
+              書き起こすと、読み上げの対の作り方が 2 通りになる
+              （`tests/ui/uiux-duplicate-implementation.test.ts`）。
+            */}
+            <Card
+              claim="記事を訂正するか、読者から取り下げる"
+              main={<PublishedArticleForm article={result.value.article} archivedAt={result.value.archivedAt} />}
+              supporting={[
+                <FactList
+                  key="whereabouts"
+                  rows={[
+                    { key: "site", label: "サイト", value: result.value.article.siteSlug },
+                    { key: "slug", label: "URL", value: result.value.article.slug },
+                    {
+                      key: "status",
+                      label: "状態",
+                      value: result.value.archivedAt === null ? "公開中" : "非表示",
+                    },
+                  ]}
+                />,
+              ]}
+            />
           </div>
         ) : (
           <EmptyView

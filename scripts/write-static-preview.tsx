@@ -49,7 +49,6 @@ import { Card, Page } from "@/presentation/ui";
 import { ArticleView, SiteShell } from "@/presentation/ui";
 import { AppShell } from "@/presentation/ui/templates/app-shell";
 import { DensitySamples } from "@/app/admin/ui-catalog/density-samples";
-import styles from "@/app/admin/admin.module.css";
 import { createSampleContentRepository } from "@/infrastructure/persistence/sample/content-sample-repository";
 import {
   createSampleSiteRepository,
@@ -91,10 +90,10 @@ function adminBody(): string {
         title="画面部品の見本"
         lead="実物の部品を、実物の見た目のまま並べています。ここで見えている間隔と行の長さが、アプリでもそのまま出ます。"
       >
-        <Card>
-          <h2 className={styles.sectionTitle}>22. 詰まり具合の見比べ</h2>
-          <DensitySamples />
-        </Card>
+        <Card
+          claim="22. 詰まり具合の見比べ"
+          main={<DensitySamples />}
+        />
       </Page>
     </AppShell>,
   );

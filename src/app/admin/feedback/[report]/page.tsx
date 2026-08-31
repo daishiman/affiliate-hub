@@ -175,7 +175,18 @@ function FeedbackReport({
         ) : (
           <>
             <Note>{`このまま置くと ${v.diagnosticsExpiresAt.toLocaleString("ja-JP")} に消えます。`}</Note>
-            <Foldable summary="中身を見る（開発者向けの記録です）">
+            {/*
+              開く前の 1 行に件数を出す。「中身を見る」とだけ書くと、
+              開かないと記録が有るのか空なのかが分からず、全員が必ず開く。
+              それでは折りたたんだ意味が無くなる。
+            */}
+            <Foldable
+              summary={`環境・エラー記録 ${
+                v.technical.jsErrors.length +
+                v.technical.failedRequests.length +
+                v.technical.recentActions.length
+              }件（開発者向け）`}
+            >
               <FactList
                 rows={[
                   {

@@ -143,9 +143,12 @@ const added: LinkIngestion[] = [];
  * 種のうち対象外（`rejected`）のものは最初から降りている。
  * 捨てたリンクを相手に指した「重複」を出さないため。
  */
+const claimKey = (workspaceId: WorkspaceId, normalizedUrl: string) =>
+  `${String(workspaceId)}\u0000${normalizedUrl}`;
+
 const claims = new Map<string, LinkIngestionId>(
   SEED.filter((i) => i.state !== "rejected").map((i) => [
-    `${String(i.workspaceId)} ${i.normalizedUrl}`,
+    claimKey(i.workspaceId, i.normalizedUrl),
     i.id,
   ]),
 );
@@ -194,7 +197,7 @@ export function createSampleLinkIngestionRepository(): CommercialLinkIngestionRe
        * 他の受け取りが割り込めないため。保存先が別の場所にある D1 では
        * 同じ書き方は成り立たないので、あちらは一手で決着させてある。
        */
-      const key = `${String(workspaceId)}\u0000${normalizedUrl}`;
+      const key = claimKey(workspaceId, normalizedUrl);
       const holder = claims.get(key);
       if (holder !== undefined) return ok(holder);
       claims.set(key, candidateId);
@@ -206,7 +209,7 @@ export function createSampleLinkIngestionRepository(): CommercialLinkIngestionRe
       normalizedUrl: string,
       id: LinkIngestionId,
     ) {
-      const key = `${String(workspaceId)}\u0000${normalizedUrl}`;
+      const key = claimKey(workspaceId, normalizedUrl);
       // 最初の 1 本でなければ何もしない（他人の取り分を消さない）。
       if (claims.get(key) === id) claims.delete(key);
       return ok(undefined);

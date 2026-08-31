@@ -1,0 +1,95 @@
+{
+  "allowed": [
+    "summary",
+    "graph",
+    "comparison",
+    "table",
+    "card",
+    "board",
+    "list",
+    "timeline"
+  ],
+  "rules": [
+    {
+      "id": "summary",
+      "question": "current-priority",
+      "requires": [
+        "label",
+        "value",
+        "meaning",
+        "nextAction"
+      ]
+    },
+    {
+      "id": "graph",
+      "question": "trend-or-distribution",
+      "requires": [
+        "unit",
+        "period",
+        "pointValues",
+        "textSummary"
+      ]
+    },
+    {
+      "id": "comparison",
+      "question": "choose-between-candidates",
+      "requires": [
+        "axes",
+        "candidateNames",
+        "differences",
+        "decisionAction"
+      ]
+    },
+    {
+      "id": "table",
+      "question": "scan-many-by-shared-columns",
+      "requires": [
+        "caption",
+        "columnHeaders",
+        "rowHeaders",
+        "stickyHeaders"
+      ]
+    },
+    {
+      "id": "card",
+      "question": "understand-one-claim-or-input",
+      "requires": [
+        "singleClaim",
+        "primaryFact",
+        "supportingFacts",
+        "singlePrimaryAction"
+      ]
+    },
+    {
+      "id": "board",
+      "question": "triage-what-needs-attention",
+      "requires": [
+        "caption",
+        "tone",
+        "reason",
+        "actionLabel",
+        "unavailableReason"
+      ]
+    },
+    {
+      "id": "list",
+      "question": "go-somewhere-or-follow-order",
+      "requires": [
+        "itemLabel",
+        "destination",
+        "orderMeaning"
+      ]
+    },
+    {
+      "id": "timeline",
+      "question": "when-is-it-scheduled",
+      "requires": [
+        "caption",
+        "date",
+        "headline",
+        "attentionReason"
+      ]
+    }
+  ],
+  "undecided": []
+}

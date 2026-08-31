@@ -2,14 +2,16 @@ import { AdminShell } from "@/presentation/admin/admin-shell";
 import { currentActor, telemetryNotice, telemetryUseCases } from "@/presentation/composition";
 import {
   ActionNote,
+  BarChart,
   DataTable,
+  DecisionStatus,
   EmptyView,
   ErrorView,
-  FactList,
   ListView,
   Note,
   Section,
   StorageNotice,
+  SummaryStrip,
   TextLink,
 } from "@/presentation/ui";
 
@@ -43,6 +45,27 @@ export default async function AiUsagePage({
   const uc = await telemetryUseCases();
   const report = await uc.aiUsage.execute(actor, { days, siteSlug });
 
+  /*
+   * 棒にするのは費用だけ。呼び出し回数やトークン数を同じ棒へ混ぜない。
+   * 単位が違うものを並べると、棒の長さだけが比べられそうに見えてしまう。
+   *
+   * 上位 8 件で切る。全件を棒にすると「どこに寄っているか」が
+   * 棒の本数に埋もれ、表と同じ読み方に戻ってしまう。
+   * 価格未登録の行は費用 0 として扱われるため、棒からは外す
+   * （0 の棒は「使っていない」に見えるが、実際は「値段が分からない」）。
+   */
+  const rows = report.ok ? report.value.rows : [];
+  const costPoints = rows
+    .filter((r) => r.priced && r.costJpy > 0)
+    .slice(0, 8)
+    .map((r) => ({
+      key: `${r.siteSlug}-${r.modelId}`,
+      label: `${r.siteSlug} / ${r.modelLabel}`,
+      value: r.costJpy,
+      valueLabel: r.costLabel,
+    }));
+  const unpricedCalls = rows.reduce((sum, r) => sum + r.unpricedCalls, 0);
+
   return (
     <AdminShell
       routeId="ai-usage"
@@ -62,19 +85,30 @@ export default async function AiUsagePage({
           <StorageNotice status={await telemetryNotice()} />
 
           <Section title={`直近 ${days} 日の合計`}>
-            <FactList
-              rows={[
+            <SummaryStrip
+              label={`直近 ${days} 日の合計`}
+              metrics={[
                 {
                   key: "calls",
                   label: "呼び出し",
-                  value: `${report.value.totalCalls.toLocaleString("ja-JP")}回（うち失敗 ${
-                    report.value.totalFailures
-                  }回）`,
+                  value: `${report.value.totalCalls.toLocaleString("ja-JP")}回`,
+                  meaning: `うち失敗 ${report.value.totalFailures}回。失敗が増えていれば、生成の設定かモデルの選び方を見直します。`,
                 },
                 {
                   key: "cost",
                   label: "概算費用",
-                  value: `${report.value.totalCostLabel}（請求額とは一致しません）`,
+                  value: report.value.totalCostLabel,
+                  meaning: "請求額とは一致しません。予算の目安としてだけ使います。",
+                  action: (
+                    <DecisionStatus
+                      status={unpricedCalls > 0 ? "insufficient-n" : "provisional"}
+                      detail={
+                        unpricedCalls > 0
+                          ? `価格未登録のモデルが ${unpricedCalls.toLocaleString("ja-JP")} 回ぶんあり、実際より少なく見えています。`
+                          : "概算のため、請求が確定するまで値は変わります。"
+                      }
+                    />
+                  ),
                 },
               ]}
             />
@@ -84,6 +118,15 @@ export default async function AiUsagePage({
           </Section>
 
           <Section title="ブログ × モデル">
+            {costPoints.length === 0 ? null : (
+              <BarChart
+                title="費用がどこに寄っているか"
+                unit="円（概算）"
+                period={`直近 ${days} 日`}
+                textSummary={`費用の多い順に上位 ${costPoints.length} 件。棒の長さは、いちばん高い組み合わせを 1 とした割合です。`}
+                pointValues={costPoints}
+              />
+            )}
             {report.value.rows.length === 0 ? (
               <EmptyView
                 title="この期間に AI の利用はありません"

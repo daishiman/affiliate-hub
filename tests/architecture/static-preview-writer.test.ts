@@ -291,7 +291,12 @@ describe("実際に書き出した静止冊子", () => {
 
     expect(adminHtml).toContain("--color-surface-default");
     expect(adminHtml).toContain(".sectionTitle");
-    expect(adminHtml).toContain('class="sectionTitle"');
+    // 本文側の適用先は `subTitle` で見る（2026-08-31 に `sectionTitle` から変更）。
+    // `Card` が `claim` / `main` を受け取る形になり、器の中へ生の見出しを
+    // 置かなくなったため、この写しに `sectionTitle` の付く要素はもう出ない。
+    // **見たいのは「部品の CSS に、本文の側の当たり先があるか」**なので、
+    // 同じ `screen-parts.module.css` から出て実際に描かれる名前へ移す。
+    expect(adminHtml).toContain('class="subTitle"');
   });
 });
 

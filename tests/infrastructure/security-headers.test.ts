@@ -12,7 +12,11 @@ import {
 } from "@/infrastructure/http/security-headers";
 
 function headersFor(surface: "public" | "admin" | "auth"): Headers {
-  return new Headers(buildSecurityHeaders(surface).map(({ key, value }) => [key, value]));
+  // タプルとして書かないと `string[][]` に推論され、`HeadersInit` が要求する
+  // `[string, string][]` に代入できない（要素数 2 を型が保証しないため）。
+  return new Headers(
+    buildSecurityHeaders(surface).map(({ key, value }): [string, string] => [key, value]),
+  );
 }
 
 describe("配信面ごとの security headers", () => {

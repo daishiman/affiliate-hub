@@ -4,9 +4,9 @@ import styles from "./patterns.module.css";
 /**
  * 注記。本文より一段弱く出す、独立した段落。
  *
- * **なぜ在るか。** `.linkNote`（`admin.module.css:73` / `signin.module.css:44`）は
- * 宣言を 2 つしか持っていない——`font-size: var(--text-sm)` と
- * `color: var(--color-text-muted)` だけである。**構造も余白も表示種別も持たない。**
+ * **なぜ在るか。** かつて `admin.module.css` に在った `.linkNote` は
+ * 宣言を 2 つしか持っていなかった——`font-size: var(--text-sm)` と
+ * `color: var(--color-text-muted)` だけだった。**構造も余白も表示種別も持たない。**
  * だから同じクラスが `<p>` に付けば塊として、`<span>` に付けば行内として出る。
  * **出方を決めているのは要素であって、クラスではない。**
  *
@@ -33,9 +33,13 @@ import styles from "./patterns.module.css";
  *     実測は 35 だった。**対の片割れだけを部品にすると、一覧の 1 行が
  *     部品と生クラスの継ぎ目で割れる。
  *
- *     **2026-08-21 に済んだ**（残課題 156）。`.linkList` ごと `StackedList` /
- *     `StackedRow` へ上げ、行の注記は `StackedRow` の `note` が受け持っている
- *     （26 ファイル・`StackedList` 51・`StackedRow` 61・note 35）。
+ *     **この回は済んでいる**（残課題 156）。ただし**上がった先は
+ *     `StackedList` / `StackedRow` ではない**——その名前の部品は
+ *     作られなかった（2026-08-31 に grep して確かめた。src 側の出現は
+ *     コメントだけで、定義も呼び出しも 0 件）。実際に役を引き継いだのは
+ *     `templates/screen-parts.tsx` の `ListView` / `StepList` で、
+ *     行の注記は `ListRow` の `note` が受け持っている
+ *     （2026-08-31 実測: `ListView` 34 ファイル・`StepList` 1 ファイル）。
  *     だからここへ寄せてはいけないのは変わらないが、理由が
  *     「まだ上げていないから」から「**別の部品が持っているから**」に変わった。
  *   - **行内の小書き（5 箇所、`<li>` の外の `<span>`）。**

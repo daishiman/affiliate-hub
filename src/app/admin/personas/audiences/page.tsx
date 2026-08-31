@@ -4,6 +4,7 @@ import {
   EmptyView,
   ErrorView,
   FactList,
+  Foldable,
   ListView,
   Note,
   Section,
@@ -72,7 +73,20 @@ export default async function AudiencePersonasPage() {
             <Note>知識量が 1 種類に偏っていると、同じ書き方の記事ばかりになります。</Note>
           </Section>
 
-          {audiences.value.items.map((audience) => (
+          {audiences.value.items.map((audience) => {
+            /*
+             * 折りたたむ側の件数。
+             *
+             * 開く前の 1 行に件数を出す。「詳細」とだけ書くと、
+             * 開かないと中身が有るのか空なのかが分からず、全員が必ず開く。
+             * それでは折りたたんだ意味が無くなる。
+             */
+            const detailCount =
+              audience.decisionCriteria.length +
+              audience.painPoints.length +
+              audience.objections.length +
+              audience.trustRequirements.length;
+            return (
             <Section key={audience.personaId} title={audience.name} lead={audience.primaryJob}>
               <FactList
                 rows={[
@@ -96,21 +110,23 @@ export default async function AudiencePersonasPage() {
               />
               <Note>「—」は、まだ決まっていないという意味です。該当なしではありません。</Note>
 
-              <SubSection title="選ぶときの基準">
-                <ListView rows={audience.decisionCriteria.map((c) => ({ key: c, label: c }))} />
-              </SubSection>
+              <Foldable summary={`書き方の手がかり ${detailCount}件（基準・困りごと・引っかかり・信じる条件）`}>
+                <SubSection title="選ぶときの基準">
+                  <ListView rows={audience.decisionCriteria.map((c) => ({ key: c, label: c }))} />
+                </SubSection>
 
-              <SubSection title="困っていること">
-                <ListView rows={audience.painPoints.map((p) => ({ key: p, label: p }))} />
-              </SubSection>
+                <SubSection title="困っていること">
+                  <ListView rows={audience.painPoints.map((p) => ({ key: p, label: p }))} />
+                </SubSection>
 
-              <SubSection title="読む前に感じている引っかかり">
-                <ListView rows={audience.objections.map((o) => ({ key: o, label: o }))} />
-              </SubSection>
+                <SubSection title="読む前に感じている引っかかり">
+                  <ListView rows={audience.objections.map((o) => ({ key: o, label: o }))} />
+                </SubSection>
 
-              <SubSection title="信じてもらうために要ること">
-                <ListView rows={audience.trustRequirements.map((t) => ({ key: t, label: t }))} />
-              </SubSection>
+                <SubSection title="信じてもらうために要ること">
+                  <ListView rows={audience.trustRequirements.map((t) => ({ key: t, label: t }))} />
+                </SubSection>
+              </Foldable>
 
               {audience.prohibitedAssumptions.length > 0 ? (
                 <Note>
@@ -118,7 +134,8 @@ export default async function AudiencePersonasPage() {
                 </Note>
               ) : null}
             </Section>
-          ))}
+            );
+          })}
         </>
       )}
     </AdminShell>

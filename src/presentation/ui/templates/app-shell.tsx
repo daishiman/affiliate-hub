@@ -1,5 +1,7 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
+import { adminScreenStateContract, type OperationalScreenState } from "../admin-screen-state-contract";
+import { adminDisclosureContract } from "../admin-disclosure-contract";
 import {
   ADMIN_NAV_GROUP_LABELS,
   ADMIN_ROUTE_METADATA,
@@ -9,6 +11,15 @@ import { FeedbackButton, type FeedbackSubmission } from "../patterns/feedback-bu
 import { NavCollapseToggle } from "../patterns/nav-collapse-toggle";
 import { Icon, type IconName } from "../primitives/icon";
 import styles from "../primitives/ui.module.css";
+
+const SCREEN_STATE_LABEL: Readonly<Record<OperationalScreenState, string>> = {
+  ideal: "通常",
+  empty: "0件",
+  loading: "読み込み中",
+  partial: "一部のみ",
+  error: "失敗",
+  slow: "低速",
+};
 
 /**
  * 画面の骨格。
@@ -215,6 +226,8 @@ export function AppShell({
   actions,
   capabilities,
   feedback,
+  routeId,
+  screenState = "ideal",
   navCollapsed = false,
   children,
 }: {
@@ -229,6 +242,9 @@ export function AppShell({
   readonly capabilities?: readonly string[];
   /** 渡さない場面（権限の概念が無い画面）では、ボタンを出さない。 */
   readonly feedback?: ShellFeedback;
+  /** 全6状態をroute固有のevent・安全な情報・次行動へ結ぶキー。 */
+  readonly routeId?: import("../admin-route-metadata").AdminRouteId;
+  readonly screenState?: OperationalScreenState;
   /**
    * 案内を最初から畳んでおくか。前回の選択を復元するときに渡す。
    *
@@ -240,6 +256,9 @@ export function AppShell({
 }) {
   const nav = groupedNav(ADMIN_NAV, ADMIN_NAV_GROUPS, capabilities);
   const currentHref = currentNavHref(ADMIN_NAV, navContextPath);
+  const stateInstruction =
+    routeId === undefined ? null : adminScreenStateContract(routeId).states[screenState];
+  const disclosure = routeId === undefined ? null : adminDisclosureContract(routeId);
   const navLink = (item: NavItem) => {
     const current = currentHref === item.href;
     return (
@@ -268,6 +287,9 @@ export function AppShell({
         本文へ移動
       </a>
       <nav className={styles.sidebar} aria-label="主な案内">
+        <a className={styles.skipLink} href="#admin-main-content">
+          本文へ移動
+        </a>
         <div className={styles.sidebarHead}>
           <div className={styles.brandBlock}>
             <Link href="/admin" className={styles.brandName}>
@@ -326,7 +348,31 @@ export function AppShell({
           {actions !== undefined && <div className={styles.headerActions}>{actions}</div>}
         </header>
 
-        <main id="admin-main-content" className={styles.content}>
+        <main
+          id="admin-main-content"
+          className={styles.content}
+          tabIndex={-1}
+          data-admin-route-id={routeId}
+          data-screen-state={routeId === undefined ? undefined : screenState}
+          data-screen-state-event={stateInstruction?.event}
+          data-screen-state-safe-data={stateInstruction?.safeData}
+          data-screen-state-next-action={stateInstruction?.nextAction}
+          data-detail-disclosure={disclosure?.strategy}
+          data-detail-route={
+            disclosure?.strategy === "dedicated-route" ? disclosure.targetRouteId : undefined
+          }
+        >
+          {stateInstruction === null || screenState === "ideal" ? null : (
+            <aside
+              className={styles.screenStateSummary}
+              aria-label={`画面の状態: ${SCREEN_STATE_LABEL[screenState]}`}
+              data-screen-state-summary={screenState}
+            >
+              <strong>{SCREEN_STATE_LABEL[screenState]}</strong>
+              <span>確定している情報: {stateInstruction.safeData}</span>
+              <span>次にできること: {stateInstruction.nextAction}</span>
+            </aside>
+          )}
           {children}
         </main>
       </div>
@@ -367,6 +413,45 @@ export function Page({
   );
 }
 
-export function Card({ children }: { readonly children: ReactNode }) {
-  return <section className={styles.card}>{children}</section>;
+type CardSupportingItems =
+  | readonly []
+  | readonly [ReactNode]
+  | readonly [ReactNode, ReactNode]
+  | readonly [ReactNode, ReactNode, ReactNode]
+  | readonly [ReactNode, ReactNode, ReactNode, ReactNode];
+
+type StructuredCardProps = {
+  /** 1枚のカードが伝える主張。120字を超える説明は本文へ移す。 */
+  readonly claim: string;
+  /** 主情報は必ず1つ。 */
+  readonly main: ReactNode;
+  /** 主情報を補う情報は4つまで。 */
+  readonly supporting?: CardSupportingItems;
+  /** 主操作は0または1つ。 */
+  readonly primaryAction?: ReactNode;
+  readonly children?: never;
+};
+
+/**
+ * 情報を束ねるカード。
+ *
+ * 新しい呼び出しは structured props を使い、主張1・本文1・補助4以下・主操作1以下を
+ * 呼び出し口で固定する。既存の2箇所は移行中も壊さないため children も受け付ける。
+ */
+export function Card(props: StructuredCardProps) {
+  if (props.claim.length > 120) throw new Error("Card claim must be 120 characters or fewer");
+  const supporting = props.supporting ?? [];
+  if (supporting.length > 4) throw new Error("Card supporting items must be 4 or fewer");
+  return (
+    <section className={styles.card} data-card-claim={props.claim}>
+      <p className={styles.cardClaim}>{props.claim}</p>
+      <div className={styles.cardMain} data-card-main="true">{props.main}</div>
+      {supporting.map((item, index) => (
+        <div key={index} className={styles.cardSupport} data-card-support="true">{item}</div>
+      ))}
+      {props.primaryAction === undefined ? null : (
+        <div className={styles.cardAction} data-card-primary-action="true">{props.primaryAction}</div>
+      )}
+    </section>
+  );
 }
