@@ -6,8 +6,8 @@
 テスト側の `@req` 印を重ねたもの。
 
 - 最終更新: 2026-08-31
-- テストファイル: 452 件
-- 由来の要件が分かる: 452 件
+- テストファイル: 454 件
+- 由来の要件が分かる: 454 件
 - **由来不明: 0 件**（上限 2 件）
 
 由来不明とは「どの要件のために書いたのか、機械から辿れない」という意味で、
@@ -62,6 +62,7 @@
 | `tests/application/list-improvement-dimensions.test.ts` | REQ-FD02, REQ-P10 | 印 |
 | `tests/application/list-selectable-models.test.ts` | REQ-G11 | 印 |
 | `tests/application/manage-affiliate-links.test.ts` | REQ-E13 | 印 |
+| `tests/application/manage-blog-appearance.test.ts` | REQ-P07, REQ-UX01 | 印 |
 | `tests/application/manage-compliance.test.ts` | REQ-QC09, REQ-QC11, REQ-SEC06, REQ-SEC07, REQ-SEC09 | 印と表 |
 | `tests/application/manage-contact.test.ts` | REQ-B18 | 印 |
 | `tests/application/manage-content-packages.test.ts` | REQ-A03, REQ-P05 | 印 |
@@ -91,6 +92,7 @@
 | `tests/application/record-telemetry.test.ts` | REQ-P10 | 印 |
 | `tests/application/register-affiliate-link.test.ts` | REQ-A07, REQ-E13 | 印 |
 | `tests/application/register-channel-connection.test.ts` | REQ-A06 | 印 |
+| `tests/application/review-blog-placements.test.ts` | REQ-BOPS06, REQ-BOPS07 | 印 |
 | `tests/application/review-loop-runs.test.ts` | REQ-IM01, REQ-IM08, REQ-IM09 | 印 |
 | `tests/application/run-improvement-loop.test.ts` | REQ-IM06, REQ-IM09 | 印 |
 | `tests/application/save-affiliate.test.ts` | REQ-A07, REQ-P09 | 印 |
@@ -473,4 +475,4 @@
 | `tests/ui/use-draft.test.tsx` | REQ-BOPS04, REQ-BOPS05 | 印 |
 | `tests/ui/zz-probe-tone.test.tsx` | REQ-TM07 | 表 |
 | `tests/visual/visual-regression.test.ts` | REQ-S09, REQ-TS12, REQ-UX08 | 印 |
-<!-- 生成物の指紋 sha256:c369c3fdfaf55db0a61d0717d071ba663323fd9cfe24f607be856bb35a7fe8d1 -->
+<!-- 生成物の指紋 sha256:dafa3bc2d4698d948c035fde0d02413c625ecf29ff16faac77f374b7d27de49f -->

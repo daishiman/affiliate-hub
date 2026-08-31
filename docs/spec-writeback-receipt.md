@@ -923,8 +923,22 @@ SQLite は ON CONFLICT の対象に**一致する UNIQUE 制約が無いと INSE
 | `verify --tier 1` | **全門 OK**（333 files / 6445 passed） |
 | `npx vitest run tests/ui/` | **PASS**（95 files / 3367 passed） |
 | `npx vitest run`（全体） | **PASS**（452 files / 10297 passed、赤 0 件） |
+| 変更したところのミューテーション | **PASS**（61.21% → 約 68.6%、下限 65%） |
 
-**赤は 1 件も残していない。**閾値を下げて緑にしたものも無い。
+### ミューテーションの下限割れは仕様反映ではなくテスト不足だった
+
+検査が全緑になったあとも CI の広い門は落ちていた。落としていたのは
+`usecases/authoring/manage-blog-appearance.ts`（126 mutants）と
+`review-blog-placements.ts`（131 mutants）が **coverage 0.00%** だったことである。
+本 feature が足したユースケースに、テストが 1 本も当たっていなかった。
+
+**これは仕様への影響ではない。**確定章にも `spec-state.json` にも触れていない。
+ユースケースの振る舞いは既に確定章の記述どおりで、それを検査が確かめていなかった
+だけである。よって R4-reopen は使わず、`tests/application/` へ 62 件を足した
+（`manage-blog-appearance` 30 件で 88.10%、`review-blog-placements` 32 件で 72.52%）。
+
+**赤は 1 件も残していない。**閾値を下げて緑にしたものも無い
+（ミューテーションの下限 65% も動かしていない）。
 床を動かした 4 か所（63→65 / 81→83 / 61→62 / 82→84）はいずれも**上げ**で、
 manifest の実数に検査側の床が追いついていなかった分の修正である。
 
