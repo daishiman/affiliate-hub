@@ -2,10 +2,12 @@ export const TEST_FILES = ["tests/**/*.test.ts", "tests/**/*.test.tsx"];
 
 export const WORKER_RUNTIME_TEST_FILES = [
   "tests/integration/d1-*.test.ts",
+  "tests/integration/local-seed-idempotency.test.ts",
   "tests/integration/r2-feedback-capture.test.ts",
 ];
 
 export const A11Y_TEST_FILES = [
+  "tests/ui/affiliate-preview-card.test.tsx",
   "tests/ui/ai-usage-page.test.tsx",
   "tests/ui/axe-blind-spots.test.ts",
   "tests/ui/axe-rule-coverage.test.ts",

@@ -57,6 +57,10 @@
 }
 
 .siteName {
+  /* ブログ名は 1 行が丸ごと入口。押しどころの下限を持たせる。 */
+  display: inline-flex;
+  align-items: center;
+  min-block-size: var(--tap-target-min);
   font-size: var(--text-2xl);
   line-height: var(--leading-heading);
   font-weight: var(--weight-bold);
@@ -117,42 +121,38 @@
   padding: var(--space-5) var(--space-5) var(--space-8);
   display: grid;
   gap: var(--space-4);
+  /*
+   * **`flex: 1` と `display: grid` を同じ箱に置いたら、これが要る。**
+   *
+   * 枠は `min-height: 100vh` なので、中身が短い画面ではこの箱が画面の高さまで
+   * 引き伸ばされる。grid の `align-content` の初期値は `stretch` で、行がすべて
+   * `auto` のときは**余った高さを全部の行へ均等に配ぶんする**。結果、塊と塊の間が
+   * どこも同じだけ間延びし、`gap` に書いた値が意味を持たなくなる。
+   * 中身の少ない画面（ログイン・0 件の一覧・エラー）ほどひどく崩れる。
+   *
+   * この 1 行は 2026-08-30 の統合で一度落ちた。`.siteBody`（本文と補助列を割る
+   * 新しい箱）が `.siteMain` と説明の間へ挿し込まれ、宣言だけが下の箱へ移った。
+   */
+  align-content: start;
 }
 
-.siteBody {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) var(--layout-sidebar-width);
-  align-items: start;
-  gap: var(--space-6);
-}
-
-.siteContent {
+/* 読者画面でも、grid子の内容幅は本文全体ではなく各scroll包みが受け持つ。 */
+.siteMain > * {
   min-width: 0;
   container-type: inline-size;
 }
 
-.siteContent > * {
-  width: 100%;
-}
+/*
+  `.siteContent` の 5 規則は 2026-08-30 の統合で消した。
 
-.siteContent > div {
-  display: grid;
-  gap: var(--space-7);
-}
+  読者向けの枠は `.siteMain` / `.siteBody` / `.siteAside` の 3 つに決まり、
+  `.siteContent` を付ける場所がどこにも無くなった。**当たらない規則は、
+  当たっているように読める分だけ害がある**——`container-type: inline-size`
+  が残っていたが、この repo に `@container` は 1 つも無い。
 
-.siteContent > div > section {
-  display: grid;
-  gap: var(--space-4);
-}
-
-.siteContent > div > section > h2 {
-  margin: 0;
-  padding-bottom: var(--space-3);
-  border-bottom: var(--border-width-emphasis) solid var(--color-border-strong);
-  color: var(--color-text-strong);
-  font-size: var(--text-xl);
-  line-height: var(--leading-heading);
-}
+  節の間隔は `.siteMain` の `gap`、節見出しは `.siteSectionTitle` が持つ。
+  同じ役目の規則を 2 通り置かない。
+*/
 
 .siteSidebar {
   display: grid;
@@ -343,15 +343,16 @@
   background: var(--color-surface-raised);
 }
 
-.homeHero h1,
+.homeHeroTitle,
 .homeHero p {
   margin: 0;
 }
 
-.homeHero h1 {
+.homeHeroTitle {
   max-width: var(--readable-max-width);
   color: var(--color-text-strong);
   font-size: var(--text-3xl);
+  font-weight: var(--weight-bold);
   line-height: var(--leading-heading);
   text-wrap: balance;
 }
@@ -385,7 +386,7 @@
 }
 
 .siteSectionHead p,
-.siteSectionHead h2,
+.siteSectionTitle,
 .siteSectionHead span {
   margin: 0;
 }
@@ -415,15 +416,16 @@
   gap: var(--space-1);
 }
 
-.categoryArticleGroupHead h3,
+.categoryArticleGroupTitle,
 .categoryArticleGroupHead p,
 .categoryArticleGroupEmpty {
   margin: 0;
 }
 
-.categoryArticleGroupHead h3 {
+.categoryArticleGroupTitle {
   color: var(--color-text-strong);
   font-size: var(--text-lg);
+  font-weight: var(--weight-semibold);
   line-height: var(--leading-heading);
 }
 
@@ -447,9 +449,10 @@
   letter-spacing: var(--tracking-wide);
 }
 
-.siteSectionHead h2 {
+.siteSectionTitle {
   color: var(--color-text-strong);
   font-size: var(--text-xl);
+  font-weight: var(--weight-bold);
   line-height: var(--leading-heading);
 }
 
@@ -566,7 +569,17 @@
   padding-inline-start: var(--space-5);
 }
 
+/*
+  目次の項目は**単独で置かれた押しどころ**で、連れの文字がない。
+  行の高さのままだと指で外しやすいので、下限を当てる（WCAG 2.5.8）。
+  `.cardTitle a` と同じ作り方——`inline-flex` にして高さだけを伸ばし、
+  文字の位置は真ん中へ寄せる。`display: block` にすると、
+  下線が行末まで伸びて「押せる幅」が実際より広く見える。
+*/
 .tableOfContents a {
+  display: inline-flex;
+  align-items: center;
+  min-block-size: var(--tap-target-min);
   color: var(--color-text-default);
   text-underline-offset: var(--space-1);
 }
@@ -597,7 +610,7 @@
   background: var(--color-surface-raised);
 }
 
-.articleIntroAuthor h2,
+.articleIntroAuthorName,
 .articleIntroAuthor p {
   margin-block: 0;
 }
@@ -610,15 +623,28 @@
   background: var(--color-surface-raised);
 }
 
-.articleAuthorProfile h2,
+.articleAuthorProfileName,
 .articleAuthorProfile p,
 .articleAuthorProfile ul {
   margin: 0;
 }
 
-.articleAuthorProfile h2 {
+.articleAuthorProfileName {
   color: var(--color-text-strong);
   font-size: var(--text-lg);
+  font-weight: var(--weight-semibold);
+}
+
+/*
+  書き手の名前は、見出しの中に**リンクだけ**が入っている。
+  連れの文字がないので文中リンクの除外に当たらず、押しどころの下限が要る。
+  2 か所（冒頭の紹介と末尾のプロフィール）で同じ名前へ飛ぶので、規則も 1 つにまとめる。
+*/
+.articleIntroAuthorName a,
+.articleAuthorProfileName a {
+  display: inline-flex;
+  align-items: center;
+  min-block-size: var(--tap-target-min);
 }
 
 .articleAuthorProfile ul {
@@ -633,9 +659,10 @@
   padding-block-start: var(--space-2);
 }
 
-.articleIntroAuthor h2 {
+.articleIntroAuthorName {
   color: var(--color-text-strong);
   font-size: var(--text-lg);
+  font-weight: var(--weight-semibold);
 }
 
 .section p {
@@ -838,7 +865,7 @@
     margin-inline: calc(-1 * var(--space-4));
   }
 
-  .homeHero h1 {
+  .homeHeroTitle {
     font-size: var(--text-2xl);
   }
 

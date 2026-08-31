@@ -6,7 +6,10 @@ import {
   type GuidelineReference,
   type GuidelineRegion,
   INITIAL_GUIDELINE_REFERENCES,
+  type ReferenceReviewStatus,
+  type SpecReopenRequest,
   referenceReviewStatus,
+  specReopenRequests,
 } from "@/domain/seo/guideline-reference";
 import {
   type ActorContext,
@@ -59,21 +62,50 @@ export type ManageGuidelineReferencesInput =
       readonly checkedAt: string;
       readonly note?: string;
     }
-  | { readonly action: "recheck"; readonly id: string; readonly checkedAt: string };
+  | { readonly action: "recheck"; readonly id: string; readonly checkedAt: string }
+  | {
+      readonly action: "verify_source";
+      readonly id: string;
+      /** 原典から取ってきた本文そのもの。保存はせず、指紋だけを控える。 */
+      readonly body: string;
+    }
+  | {
+      readonly action: "acknowledge_reopen";
+      readonly id: string;
+      /** 利用者が画面で確認した本文版。保存中の最新版との一致を保存先でも検査する。 */
+      readonly expectedContentSha256: string;
+    };
 
 export type GuidelineReferenceListRow = {
   readonly reference: GuidelineReference;
-  /** `review_due` は確認日から 90 日超。画面では「再確認」と表示する。 */
-  readonly status: "fresh" | "review_due";
+  /** 判定はドメインの `referenceReviewStatus` の写し。画面で数え直さない。 */
+  readonly status: ReferenceReviewStatus;
   /** 保存先に在る行か。`false` は初期候補（未登録）。 */
   readonly registered: boolean;
 };
 
 export type ManageGuidelineReferencesOutput = {
   readonly rows: readonly GuidelineReferenceListRow[];
+  /**
+   * 仕様を評価し直す必要がある出典。閉ループの「戻り」の側で、
+   * 一覧を開いた人がそのまま R4 reopen の対象を読めるように毎回返す。
+   */
+  readonly reopenRequests: readonly SpecReopenRequest[];
 };
 
+/**
+ * 原典本文の指紋。
+ *
+ * 本文はここから先へ渡さない。保存するのは 64 文字の指紋だけで、
+ * 「変わったか」は分かるが「何が書いてあったか」は残さない。
+ */
+async function sha256Hex(body: string): Promise<string> {
+  const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(body.normalize("NFC")));
+  return Array.from(new Uint8Array(digest), (b) => b.toString(16).padStart(2, "0")).join("");
+}
+
 const YMD = /^\d{4}-\d{2}-\d{2}$/;
+const SHA256_HEX = /^[0-9a-f]{64}$/;
 
 /** YYYY-MM-DD として読めるか。形だけでなく実在する日付かまで見る。 */
 function isValidYmd(value: string): boolean {
@@ -111,6 +143,8 @@ function checkAddInput(
     publisher,
     region: input.region as GuidelineRegion,
     checkedAt: input.checkedAt,
+    // 登録は「その URL を追う」と決めた操作でしかない。原典を読んだかは別の操作で立てる。
+    verification: { kind: "summary_only" },
     ...(note === "" ? {} : { note }),
   });
 }
@@ -193,6 +227,92 @@ export function createManageGuidelineReferencesUseCase(
         }
       }
 
+      if (input.action === "verify_source") {
+        if (input.id.trim() === "") {
+          return err(validationError("どの出典かが分かりませんでした。", "id"));
+        }
+        if (input.body.trim() === "") {
+          return err(
+            validationError(
+              "原典の本文を貼り付けてください。取得できた本文が無いと「確かめた」とは言えません。",
+              "body",
+            ),
+          );
+        }
+
+        // 取得時刻はサーバの時計で打つ。呼び出し側に渡させると、
+        // 取ってもいない時刻で「取得済み」を作れてしまう。
+        const fetchedAt = deps.now().toISOString();
+        const contentSha256 = await sha256Hex(input.body);
+        const recorded = await deps.references.recordSourceFetch({
+          workspaceId: actor.workspaceId,
+          id: input.id,
+          fetchedAt,
+          contentSha256,
+          checkedAt: fetchedAt.slice(0, 10),
+        });
+        if (!recorded.ok) return recorded;
+
+        const entry = buildAuditEntry(deps, actor, {
+          action: "guideline_reference.source_verified",
+          targetType: "guideline_reference",
+          targetId: input.id,
+          before: null,
+          // 本文は記録にも残さない。残すのは「いつ・何の指紋を得たか」だけ。
+          after: { fetchedAt, contentSha256 },
+        });
+        if (!entry.ok) return entry;
+        const appended = await deps.auditLog.append(entry.value);
+        if (!appended.ok) {
+          return err(
+            auditWriteFailure("原典の取得は記録されています", { id: input.id, contentSha256 }),
+          );
+        }
+      }
+
+      if (input.action === "acknowledge_reopen") {
+        if (input.id.trim() === "") {
+          return err(validationError("どの出典かが分かりませんでした。", "id"));
+        }
+        if (!SHA256_HEX.test(input.expectedContentSha256)) {
+          return err(
+            validationError(
+              "画面で確認した本文の指紋が正しくありません。画面を読み込み直してください。",
+            ),
+          );
+        }
+
+        const reEvaluatedAt = deps.now().toISOString();
+        const acknowledged = await deps.references.acknowledgeReevaluation({
+          workspaceId: actor.workspaceId,
+          id: input.id,
+          expectedContentSha256: input.expectedContentSha256,
+          reEvaluatedAt,
+        });
+        if (!acknowledged.ok) return acknowledged;
+
+        const entry = buildAuditEntry(deps, actor, {
+          action: "guideline_reference.reopen_acknowledged",
+          targetType: "guideline_reference",
+          targetId: input.id,
+          before: null,
+          after: {
+            contentSha256: input.expectedContentSha256,
+            reEvaluatedAt,
+          },
+        });
+        if (!entry.ok) return entry;
+        const appended = await deps.auditLog.append(entry.value);
+        if (!appended.ok) {
+          return err(
+            auditWriteFailure("仕様の再評価完了は記録されています", {
+              id: input.id,
+              contentSha256: input.expectedContentSha256,
+            }),
+          );
+        }
+      }
+
       const stored = await deps.references.list(actor.workspaceId);
       if (!stored.ok) return stored;
 
@@ -213,6 +333,9 @@ export function createManageGuidelineReferencesUseCase(
           ...stored.value.map((r) => toRow(r, true)),
           ...candidates.map((r) => toRow(r, false)),
         ],
+        // 再評価の要求は登録済みの行からだけ出す。未登録の候補は
+        // まだ誰も根拠にしていないので、仕様を開き直す理由にならない。
+        reopenRequests: specReopenRequests(stored.value, today),
       });
     },
   };

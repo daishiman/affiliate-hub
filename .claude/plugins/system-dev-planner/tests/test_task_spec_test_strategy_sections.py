@@ -25,13 +25,10 @@ import test_runtime as fx
 VALIDATOR = fx.VALIDATOR
 HANDOFF = fx.HANDOFF
 PLUGIN = fx.PLUGIN
-TEMPLATE = PLUGIN / "references" / "system-task-spec-template.md"
-PLAN_TEMPLATE = (
-    PLUGIN.parents[1]
-    / "plugin-plans"
-    / "system-dev-planner"
-    / "references"
-    / "system-task-spec-template.md"
+TEMPLATE_RELATIVE = Path("references/system-task-spec-template.md")
+TEMPLATE = PLUGIN / TEMPLATE_RELATIVE
+SOURCE_TEMPLATE_RELATIVE = Path(
+    "plugin-plans/system-dev-planner/references/system-task-spec-template.md"
 )
 # テスト戦略 section を必須化した契約版と、その直前版。段階適用は package の自己申告では
 # なく契約 version 台帳 (canonical digest -> version) が決めるため、テスト側も
@@ -47,6 +44,17 @@ ITEMS: dict[str, str] = {
     "層別方針": "N/A: 実行基盤の層を触らない変更である。",
     "保守性制約": "pixel 位置依存と DOM 構造依存のテストを禁止する。",
 }
+
+
+def optional_source_template(plugin_root: Path) -> Path | None:
+    """source checkout に plan 正本が同居するときだけ parity peer を返す。
+
+    配布先 repository は ``.claude/plugins/system-dev-planner`` だけを持つのが正当で、
+    実行時正本は常に ``plugin_root/references`` である。開発元 checkout では同じ root の
+    ``plugin-plans`` も存在するため、その場合に限り byte parity を追加検査する。
+    """
+    candidate = plugin_root.parents[1] / SOURCE_TEMPLATE_RELATIVE
+    return candidate if candidate.is_file() else None
 
 
 def strategy_block(items: dict[str, str] | None = None, order: list[str] | None = None) -> str:
@@ -283,9 +291,37 @@ class TestStrategySectionContractTests(unittest.TestCase):
 class TemplateAndParityTests(unittest.TestCase):
     """生成側正本と検証側定数の drift 検出 (finding F-1 の緩和策を含む)。"""
 
-    def test_plan_ssot_and_built_template_are_byte_identical(self):
-        """TS-A16: plan 正本と配布用 plugin copy の片側更新を拒否する。"""
-        self.assertEqual(PLAN_TEMPLATE.read_bytes(), TEMPLATE.read_bytes())
+    def test_runtime_template_authority_is_plugin_relative(self):
+        """TS-A16: downstream でも実行時正本は plugin package 内で自己完結する。"""
+        self.assertEqual(TEMPLATE, PLUGIN / TEMPLATE_RELATIVE)
+        self.assertTrue(TEMPLATE.is_file())
+
+    def test_plan_ssot_and_built_template_are_byte_identical_when_source_exists(self):
+        """TS-A16: 開発元 checkout では plan 正本との片側更新も拒否する。
+
+        downstream install に ``plugin-plans`` は配布されない。その正常な layout では
+        plugin-relative の実行時正本だけを上の test で検査し、存在しない source tree を
+        必須入力にしない。
+        """
+        source_template = optional_source_template(PLUGIN)
+        if source_template is not None:
+            self.assertEqual(source_template.read_bytes(), TEMPLATE.read_bytes())
+
+    def test_optional_source_template_supports_source_and_downstream_layouts(self):
+        """source peer の有無は layout 差であり、欠落 artifact と誤判定しない。"""
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            plugin_root = root / ".claude/plugins/system-dev-planner"
+            runtime_template = plugin_root / TEMPLATE_RELATIVE
+            runtime_template.parent.mkdir(parents=True)
+            runtime_template.write_text("runtime authority\n", encoding="utf-8")
+
+            self.assertIsNone(optional_source_template(plugin_root))
+
+            source_template = root / ".claude" / SOURCE_TEMPLATE_RELATIVE
+            source_template.parent.mkdir(parents=True)
+            source_template.write_text("source parity peer\n", encoding="utf-8")
+            self.assertEqual(optional_source_template(plugin_root), source_template)
 
     def test_template_reference_declares_section_and_items(self):
         """TS-A12: 生成器が読むテンプレート正本に見出しと 4 ラベルが正順で存在する。

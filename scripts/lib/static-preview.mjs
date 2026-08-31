@@ -15,8 +15,12 @@
  * 認証なしで見せる仕掛けではなく、**別に作った静止画**である。
  */
 
-import { readdirSync, statSync } from "node:fs";
-import { join, relative } from "node:path";
+import { mkdirSync, readdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
+import { dirname, isAbsolute, join, relative, resolve, sep } from "node:path";
+import postcss from "postcss";
+import tailwind from "@tailwindcss/postcss";
+
+const ENTRY_CSS = "src/app/globals.css";
 
 /** 押しても動かないことを、開いた人が最初に読む場所に置く。 */
 export const STATIC_NOTE =
@@ -66,6 +70,66 @@ export function findModuleCss(root) {
 }
 
 /**
+ * 本物の CSS と描画済みの中身を 1 枚に焼き、アプリが配らない `docs/` へ書き出す。
+ * CSS の取得・安全判定・書き出し先の境界を全 writer で共有する。
+ *
+ * @param {object} input
+ * @param {string} input.out
+ * @param {string} input.bodyHtml
+ * @param {Record<string, string>} input.htmlAttributes
+ * @param {string} input.generatedAt
+ * @param {string} [input.title]
+ * @param {string} [input.source]
+ * @param {string} [input.navHtml]
+ * @param {string} [input.writtenLabel]
+ * @returns {Promise<string>}
+ */
+export async function writeStaticPreview({
+  out,
+  bodyHtml,
+  htmlAttributes,
+  generatedAt,
+  title,
+  source,
+  navHtml,
+  writtenLabel,
+}) {
+  if (!out.startsWith("docs/")) {
+    throw new Error(`静止した写しは docs/ 配下にだけ書き出せます: ${out}`);
+  }
+
+  const root = process.cwd();
+  const docsRoot = resolve(root, "docs");
+  const outputPath = resolve(root, out);
+  const pathFromDocs = relative(docsRoot, outputPath);
+  if (pathFromDocs === "" || pathFromDocs.startsWith(`..${sep}`) || isAbsolute(pathFromDocs)) {
+    throw new Error(`静止した写しの出力先が docs/ の外を指しています: ${out}`);
+  }
+
+  const from = join(root, ENTRY_CSS);
+  const result = await postcss([tailwind()]).process(readFileSync(from, "utf8"), { from });
+  const html = buildDocument({
+    tailwindCss: result.css,
+    moduleCss: findModuleCss(root).map((path) => ({
+      path,
+      text: readFileSync(join(root, path), "utf8"),
+    })),
+    bodyHtml,
+    htmlAttributes,
+    generatedAt,
+    title,
+    source,
+    navHtml,
+  });
+
+  mkdirSync(dirname(outputPath), { recursive: true });
+  writeFileSync(outputPath, html);
+  const suffix = writtenLabel === undefined ? "" : `（${writtenLabel}）`;
+  console.log(`書き出しました: ${out}${suffix}`);
+  return html;
+}
+
+/**
  * 1 枚の HTML を組み立てる。
  *
  * `tailwindCss` は本物の入口（`src/app/globals.css`）を本物の道具に通した結果、
@@ -84,6 +148,7 @@ export function findModuleCss(root) {
  * @param {Record<string, string>} input.htmlAttributes
  * @param {string} input.generatedAt
  * @param {string} [input.title] ページの題。省かれたら 1 枚ものの既定。
+ * @param {string} [input.source] 書き出した writer のパス。
  * @param {string} [input.navHtml] 冊子の中を移る案内。`inert` の外に出す。
  * @returns {string}
  */
@@ -94,6 +159,7 @@ export function buildDocument({
   htmlAttributes,
   generatedAt,
   title,
+  source = "scripts/write-static-preview.tsx",
   navHtml,
 }) {
   if (tailwindCss.trim() === "") {
@@ -122,7 +188,7 @@ export function buildDocument({
     '<meta charset="utf-8">',
     '<meta name="viewport" content="width=device-width, initial-scale=1">',
     `<title>${escapeText(title ?? DEFAULT_TITLE)}</title>`,
-    `<!-- 生成物。${generatedAt} に scripts/write-static-preview.tsx が書き出した。手で直さない（次の書き出しで消える）。 -->`,
+    `<!-- 生成物。${generatedAt} に ${source} が書き出した。手で直さない（次の書き出しで消える）。 -->`,
     "<style>",
     "/* ここから下は src/app/globals.css を本物の道具に通した結果。写しではない。 */",
     tailwindCss,

@@ -104,11 +104,11 @@ export const FIELD_VALUES: Readonly<Record<string, unknown>> = {
   // 出せる条件（書き手・広告表記・次に見直す日・根拠）を全部そろえた値を置く。
   // 1 つでも欠かすと、断られた応答を見て「通った」と数えてしまう。
   articleType: "guide",
-  title: "動画編集向けノートパソコンの選び方",
-  conclusion: "書き出しの速さで選ぶ。",
-  authorName: "三輪 みわ",
-  authorBio: "家電量販店で 8 年、パソコン売り場を担当。",
-  authorCredentials: ["家電量販店で 8 年勤務"],
+  title: "長時間座る人のためのオフィスチェアの選び方",
+  conclusion: "座面の調整範囲と長時間座ったあとの腰の負担で選ぶ。",
+  authorName: "望月 かおる",
+  authorBio: "在宅勤務の作業環境を 6 年ぶん記録してきました。",
+  authorCredentials: ["福祉用具専門相談員"],
   relationshipType: "affiliate",
   disclosureMessage: "アフィリエイト広告を利用しています。",
   nextReviewOn: "2026-12-01",
@@ -199,7 +199,7 @@ export const FIELD_VALUES: Readonly<Record<string, unknown>> = {
   item: {
     productId: "p_alpha_15",
     productName: "ErgoOne Pro",
-    savedAt: "2026-08-17T00:00:00.000Z",
+    shortlistedAt: "2026-08-17T00:00:00.000Z",
   },
 };
 
@@ -212,7 +212,7 @@ export const FIELD_VALUES: Readonly<Record<string, unknown>> = {
 export const TOOL_OVERRIDES: Readonly<Record<string, Readonly<Record<string, unknown>>>> = {
   register_channel_connection: { channelKind: "bluesky" },
   get_person: { slug: "mochizuki" },
-  get_reader_tool: { slug: "desk-fit" },
+  get_reader_tool: { slug: "storage-estimator" },
   // 計算が動くようになったので、値まで渡す（2026-08-26）。
   // 空の `values` のままだと「欄が空です」で失敗し、正常系を見たことにならない。
   run_reader_tool: {

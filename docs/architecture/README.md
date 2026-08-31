@@ -6,7 +6,7 @@
 | # | 文書 | 何が書いてあるか | 読む場面 |
 | --- | --- | --- | --- |
 | 1 | [layers.md](layers.md) | 4 つの層の責務。次に書くコードをどこへ置くか | コードを書く前に必ず |
-| 2 | [context-map.md](context-map.md) | 業務領域の分け方と、禁止された参照関係 | 新しい機能の置き場所に迷ったとき |
+| 2 | [context-map.md](context-map.md) | 10 の業務領域の分け方と、禁止された参照関係 | 新しい機能の置き場所に迷ったとき |
 | 3 | [ubiquitous-language.md](ubiquitous-language.md) | 言葉の辞書。仕様・コード・DB・画面で同じ言葉を使う | 名前を決めるとき |
 | 4 | [ui-system.md](ui-system.md) | 見た目・言葉・操作の作法を 1 か所に集める仕組み | 画面を作るとき |
 | 5 | [testing-architecture.md](testing-architecture.md) | テストの置き場所・土台の部品・CI の流れ | テストを書くとき / 検査を足すとき |

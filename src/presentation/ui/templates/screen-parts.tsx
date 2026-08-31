@@ -44,7 +44,7 @@ export function Section({
 }) {
   return (
     <section className={styles.section}>
-      <h2 className={styles.title}>{title}</h2>
+      <h2 className={styles.sectionTitle}>{title}</h2>
       {lead === undefined ? null : <p className={styles.lead}>{lead}</p>}
       {children}
     </section>

@@ -44,6 +44,7 @@ export default async function ContentPage() {
       actions={
         <>
           <TextLink href="/admin/content/new">記事を作る</TextLink>
+          <TextLink href="/admin/content/published">公開済み記事</TextLink>
           <TextLink href="/admin">ホームへ戻る</TextLink>
         </>
       }

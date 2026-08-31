@@ -103,20 +103,69 @@ const REPRESENTATION_MARKER = {
   table: /<DataTable\b|<RankingTable\b/,
   card: CARD_MARKER,
   board: /<WorkBoard\b/,
-  list: /<ListView\b|<StepList\b/,
+  list: /<ListView\b|<StepList\b|<EvidenceList\b/,
   timeline: /<ScheduleCalendar\b/,
 } as const;
 
 /**
- * 主表現の宣言に対して実 page に印が 1 つも無い、既知の例外。
+ * 主表現の突合で読む「その画面が実際に描くもの」。
+ *
+ * page.tsx の字面だけを見ると、本体を共通部品へ切り出した画面が
+ * 「印が 1 つも無い」と判定される。切り出しはこの改修が進めたい方向なので、
+ * 字面だけで判定すると**部品化するほどテストが赤くなる**。それでは
+ * 画面ごとに同じ並べ方を書き写す側が有利になり、契約が目的と逆を向く。
+ *
+ * そこで **1 段だけ**委譲を辿る。page が `<Name` として実際に描いている
+ * `@/presentation/**` の部品について、その部品の中身も突合対象へ足す。
+ *
+ * 2 段以上は辿らない。辿ると `@/presentation/ui` の索引を経由して全部品へ
+ * 届き、どの画面でもどの印も見つかる＝判定が常に真になる。
+ * 索引そのもの（`@/presentation/ui`）も辿らないのは同じ理由。
+ */
+const RENDERED_SOURCE_SKIP = new Set(["@/presentation/ui", "@/presentation/composition"]);
+const renderedSource = (file: string): string => {
+  const page = source(file);
+  const parts = [page];
+  for (const match of page.matchAll(/import\s*\{([^}]+)\}\s*from\s*"(@\/presentation\/[^"]+)"/g)) {
+    const specifier = match[2];
+    if (RENDERED_SOURCE_SKIP.has(specifier)) continue;
+    const names = match[1]
+      .split(",")
+      .map((name) => name.replace(/^\s*type\s+/, "").split(/\s+as\s+/).pop()?.trim() ?? "")
+      .filter((name) => /^[A-Z]/.test(name));
+    // 「import してあるだけ」を通さない。実際に描いている部品だけを足す。
+    if (!names.some((name) => new RegExp(`<${name}\\b`).test(page))) continue;
+    for (const extension of [".tsx", ".ts"]) {
+      try {
+        parts.push(source(`src/presentation/${specifier.slice("@/presentation/".length)}${extension}`));
+        break;
+      } catch {
+        // 次の拡張子を試す。どちらも無ければ page 側だけで突合する。
+      }
+    }
+  }
+  return parts.join("\n");
+};
+
+/**
+ * 主表現の宣言に対して、1 段辿ってもなお印が 1 つも無い既知の例外。
  *
  * `ui-catalog` は部品の見本帳で、1 画面 1 表現に収まらない（見本そのものが
  * WorkBoard から ScheduleCalendar まで全部出てくる）。索引として使うので
  * primary/plannedPrimary は list と宣言しているが、実装は見本を Section へ
- * 直に並べており ListView / StepList を通していない。ここだけ明示的に許容する。
+ * 直に並べており ListView / StepList を通していない。
+ *
+ * `settings/appearance` は「配色と文字の大きさを選ぶ」だけの画面で、
+ * 並べて読むものが 1 つも無い。台帳の 8 分類は**並べ方**の語彙なので、
+ * 選択肢を 2 つ出すだけの画面に当てはまる分類が無い。分類を増やすと
+ * 他 85 画面の宣言をやり直すことになるため、ここは例外として明示する。
+ *
  * 黙って通さないよう、実際に見逃した件数はテスト中に出力する。
  */
-const REPRESENTATION_MARKER_KNOWN_EXCEPTIONS: readonly string[] = ["ui-catalog"];
+const REPRESENTATION_MARKER_KNOWN_EXCEPTIONS: readonly string[] = [
+  "ui-catalog",
+  "settings/appearance",
+];
 
 /** 見逃した route を報告する。件数が既知例外より増えたらテストを落とす。 */
 const reportMarkerExceptions = (skipped: readonly string[]): void => {
@@ -250,13 +299,13 @@ describe("管理画面の情報台帳", () => {
       ];
       if (
         REPRESENTATION_MARKER_KNOWN_EXCEPTIONS.includes(route.routeId) &&
-        !pattern.test(source(route.file))
+        !pattern.test(renderedSource(route.file))
       ) {
         skipped.push(route.routeId);
         continue;
       }
       expect(
-        source(route.file),
+        renderedSource(route.file),
         `${route.routeId || "home"} のprimary=${route.representation.primary}が実pageへ結線されていません`,
       ).toMatch(pattern);
     }

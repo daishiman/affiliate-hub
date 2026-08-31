@@ -11,10 +11,10 @@ import {
 import { siteBasePathBySlug } from "@/domain/authoring/site";
 import { readerActor, siteUseCases } from "@/presentation/composition";
 import type { PageKind } from "@/presentation/tools/webmcp-policy";
-import { ArticleView } from "@/presentation/ui";
+import { ArticleTableOfContents, ArticleView } from "@/presentation/ui";
 import { ShortlistSaveButton } from "./shortlist-buttons";
 import { ReadFailureBody, SiteFrame, stopIfMissing } from "./page-frame";
-import { siteHref, toArticleView } from "./view-model";
+import { siteHref, toArticleCards, toArticleView } from "./view-model";
 
 /**
  * 記事 1 本の画面。
@@ -76,7 +76,12 @@ export async function ArticlePage({
    */
   readonly fallbackTitle?: string;
 }) {
-  const result = await (await siteUseCases()).getArticle.execute(readerActor(), { siteSlug, slug });
+  const useCases = await siteUseCases();
+  const actor = readerActor();
+  const [result, recent] = await Promise.all([
+    useCases.getArticle.execute(actor, { siteSlug, slug }),
+    useCases.listRecent.execute(actor, { siteSlug, limit: 4 }),
+  ]);
 
   /*
     無い記事なら、ここで 404 として打ち切る。**JSX を組み立てる前に呼ぶ。**
@@ -90,6 +95,13 @@ export async function ArticlePage({
   if (!result.ok && whenArticleMissing === undefined) stopIfMissing(result.error);
 
   const path = `${pathPrefix}/${slug}`;
+  const relatedArticles = recent.ok
+    ? toArticleCards(
+        siteSlug,
+        recent.value.filter((candidate) => candidate.slug !== slug).slice(0, 3),
+      )
+    : undefined;
+  const article = result.ok ? toArticleView(siteSlug, result.value, relatedArticles) : null;
 
   /*
     JSON-LD に入れる絶対 URL の origin。届いたリクエストの Host から作る。
@@ -111,6 +123,12 @@ export async function ArticlePage({
         { label: result.ok ? result.value.title : (fallbackTitle ?? "記事") },
       ]}
       pageKind={PAGE_KIND_BY_PREFIX[pathPrefix] ?? "article"}
+      sidebar
+      asideSlot={
+        article === null ? undefined : (
+          <ArticleTableOfContents sections={article.sections} placement="sidebar" />
+        )
+      }
     >
       {({ blueprint }) =>
         result.ok ? (
@@ -171,7 +189,7 @@ export async function ArticlePage({
               答えが検索結果に出る（構造化データの誤用そのもの）。
             */}
             {(() => {
-              const faq = buildFaqPage(result.value.faq ?? []);
+              const faq = buildFaqPage(result.value);
               return faq === null ? null : (
                 <script
                   type="application/ld+json"
@@ -191,32 +209,29 @@ export async function ArticlePage({
               どの記事から保存したかも一緒に渡す。読者があとで一覧を開いたとき、
               「なぜ保存したか」を思い出す手がかりがそれしか無い。
             */}
-            {(() => {
-              const view = toArticleView(siteSlug, result.value);
-              return (
-                <ArticleView
-                  article={{
-                    ...view,
-                    productCards: view.productCards?.map((card) =>
-                      card.productId === undefined
-                        ? card
-                        : {
-                            ...card,
-                            saveSlot: (
-                              <ShortlistSaveButton
-                                siteSlug={siteSlug}
-                                productId={card.productId}
-                                productName={card.name}
-                                fromArticleHref={siteHref(siteSlug, path)}
-                                oneLine={card.oneLine}
-                              />
-                            ),
-                          },
-                    ),
-                  }}
-                />
-              );
-            })()}
+            {article === null ? null : (
+              <ArticleView
+                article={{
+                  ...article,
+                  productCards: article.productCards?.map((card) =>
+                    card.productId === undefined
+                      ? card
+                      : {
+                          ...card,
+                          saveSlot: (
+                            <ShortlistSaveButton
+                              siteSlug={siteSlug}
+                              productId={card.productId}
+                              productName={card.name}
+                              fromArticleHref={siteHref(siteSlug, path)}
+                              oneLine={card.oneLine}
+                            />
+                          ),
+                        },
+                  ),
+                }}
+              />
+            )}
           </>
         ) : (
           (whenArticleMissing ?? <ReadFailureBody what="記事" siteSlug={siteSlug} />)

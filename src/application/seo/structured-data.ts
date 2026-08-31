@@ -3,6 +3,7 @@ import {
   type PublishedPerson,
   articleHref,
 } from "@/application/read-models/published-article";
+import { expressionBlocksOf } from "./expression-blocks";
 
 /**
  * 構造化データ（JSON-LD）の組み立て（feat-blog-ui-builder）。
@@ -59,17 +60,52 @@ export function buildBlogPosting(
   site: SiteJsonLdInput,
 ): JsonLdObject {
   const url = `${site.origin}${site.basePath}${articleHref(article)}`;
+  /*
+    構造化データも画面と**同じ射影**（`expressionBlocksOf`）から作る。
+    ここで `sections[].claims[].evidence` を自前で辿り直すと、
+    重複のまとめ方や期限切れの扱いが監査と別々に育ち、
+    公開判定と検索エンジンへ渡す集約出典が食い違う。
+
+    画面内の EvidenceList は「どの主張の根拠か」という文脈を持つため、
+    同じ出典を主張ごとに残す。記事全体の citation とは別の表示責務である。
+  */
+  const blocks = expressionBlocksOf(article);
+  const answer = blocks.find((b) => b.kind === "answer");
+  const sources = blocks.find((b) => b.kind === "sources");
+  const keyPoints = blocks.find((b) => b.kind === "key_points");
+  const freshness = blocks.find((b) => b.kind === "freshness");
   return {
     "@context": "https://schema.org",
     "@type": "BlogPosting",
     headline: article.title,
-    description: article.summary,
+    ...(answer === undefined ? {} : { description: answer.text }),
     // 日本語の記事だと明示する。多言語の検索・AI 抽出は言語不明の文書を後回しにする。
     inLanguage: "ja",
     articleSection: article.categorySlug,
     datePublished: article.publishedAt,
-    dateModified: article.updatedAt,
+    ...(freshness === undefined ? {} : { dateModified: freshness.asOf }),
     author: buildPerson(article.author, site),
+    /*
+      要点を abstract に出す。読者に見えている箇条書きを**そのまま**
+      1 件 1 行で連ねるだけで、ここで文を作らない。
+      画面に無い要約が検索結果に出るのは構造化データの誤用そのもの。
+    */
+    ...(keyPoints === undefined ? {} : { abstract: keyPoints.items.join("\n") }),
+    /*
+      出典を citation に出す。URL のある出典は URL 付きで、
+      無い出典（書籍・実測など）は名前だけで出す。
+      URL を持たないことを理由に落とすと、出典欄には並んでいるのに
+      機械には「出典が無い記事」に見える。
+    */
+    ...(sources === undefined
+      ? {}
+      : {
+          citation: sources.items.map((item) => ({
+            "@type": "CreativeWork",
+            name: item.label,
+            ...(item.url === undefined ? {} : { url: item.url }),
+          })),
+        }),
     // 監修者が付いている記事だけ contributor を出す。付いていない記事に
     // 空の監修者を出すと「監修されている風」の嘘になる。
     ...(article.reviewedBy === undefined
@@ -137,14 +173,13 @@ export function buildBreadcrumbList(
  * 空の FAQPage を出すと「質問の無い FAQ」という嘘の構造になる。
  * 無いものは出さない（呼び出し側は null をそのまま「出さない」に写す）。
  */
-export function buildFaqPage(
-  items: readonly { readonly question: string; readonly answer: string }[],
-): JsonLdObject | null {
-  if (items.length === 0) return null;
+export function buildFaqPage(article: PublishedArticle): JsonLdObject | null {
+  const faq = expressionBlocksOf(article).find((block) => block.kind === "faq");
+  if (faq === undefined) return null;
   return {
     "@context": "https://schema.org",
     "@type": "FAQPage",
-    mainEntity: items.map((item) => ({
+    mainEntity: faq.items.map((item) => ({
       "@type": "Question",
       name: item.question,
       acceptedAnswer: {
@@ -158,7 +193,7 @@ export function buildFaqPage(
 /**
  * JSON-LD を HTML に埋め込める文字列にする。
  *
- * `<` を `<` に置き換える。置き換えないと、値の中の
+ * `<` を `\\u003c` に置き換える。置き換えないと、値の中の
  * `</script>` がタグとして解釈され、記事の本文（利用者が書ける文字列）から
  * スクリプトを差し込める（XSS）。JSON としての意味は変わらない。
  */

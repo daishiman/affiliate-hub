@@ -1,26 +1,25 @@
 {
-  "target_id": "anthropic-claude",
-  "source_url": "https://platform.claude.com/docs/en/models/overview",
-  "requested_url": "https://platform.claude.com/docs/en/about-claude/models/overview",
-  "retrieved_at": "2026-08-25T12:13:56Z",
-  "http_status": 200,
-  "content_bytes": 902926,
-  "content_sha256": "007393f8700d0900b85db8cf0df2d9358fd9ce04fafa13da4a6952363574bfb2",
-  "page_title": "Models overview - Claude Platform Docs",
-  "redirect_note": "旧 overview path は同じ公式 host の /docs/en/models/overview へ 307 移送されたため、source_url は最終 URL を採る。",
-  "freshness_extraction": {
-    "freshness_source": "page-declared",
-    "value": "現行 active モデル (claude-fable-5 / claude-opus-5 / claude-sonnet-5 / claude-haiku-4-5-20251001)",
-    "found_in": [
-      "現行モデル比較表の model ID: claude-fable-5",
-      "現行モデル比較表の model ID: claude-opus-5",
-      "現行モデル比較表の model ID: claude-sonnet-5",
-      "現行モデル比較表の model ID: claude-haiku-4-5-20251001",
-      "埋め込みモデルデータで各 entry の lifecycle が active と表明されている"
-    ],
-    "http_last_modified": null,
-    "body_declares_date": true,
-    "body_search_method": "現行モデル比較表と埋め込みモデルデータを照合し、model ID・generation・lifecycle=active を確認した。claude-mythos-5 は What's new/移行案内の表題には残るが、現行 active モデル表の model ID ではないため版の値から除外した。",
-    "note": "ページ自身が現行 active モデル ID を列挙するため page-declared とする。取得日を version へ代入していない。"
-  }
+ "target_id": "anthropic-claude",
+ "source_url": "https://platform.claude.com/docs/en/models/overview",
+ "requested_url": "https://platform.claude.com/docs/en/models/overview",
+ "retrieved_at": "2026-08-29T13:28:38Z",
+ "http_status": 200,
+ "content_bytes": 439751,
+ "content_sha256": "c06be9257a3794fe97b944dd69d4275f1f38933e2f4c17dc8d4106bbd88ceb79",
+ "page_title": "Models overview - Claude Platform Docs",
+ "redirect_note": "旧 overview path は同じ公式 host の /docs/en/models/overview へ 307 移送される。今回は最終 URL を直接要求した。",
+ "freshness_extraction": {
+  "freshness_source": "page-declared",
+  "value": "現行 active モデル (claude-fable-5 / claude-opus-5 / claude-sonnet-5 / claude-haiku-4-5-20251001)",
+  "found_in": [
+   "埋め込みモデルデータ中の lifecycle=\"active\" entry: claude-fable-5",
+   "埋め込みモデルデータ中の lifecycle=\"active\" entry: claude-opus-5",
+   "埋め込みモデルデータ中の lifecycle=\"active\" entry: claude-sonnet-5",
+   "埋め込みモデルデータ中の lifecycle=\"active\" entry: claude-haiku-4-5-20251001"
+  ],
+  "http_last_modified": null,
+  "body_declares_date": true,
+  "body_search_method": "このページは SPA でモデル比較表がクライアント側描画されるため、表の DOM ではなく本文へ埋め込まれたモデルデータを直接数えた。lifecycle=\"active\" を持つ entry は本文全体でちょうど 4 件で、各 entry の直前に現れる model ID は上記 4 件と一対一に対応する。リンクや移行案内として本文に現れる他の ID は lifecycle 欄を持たないため、この数え方で active な掲載モデルと区別できる。",
+  "note": "2026-08-29 の再取得で本文の bytes と sha256 は前回 (902926 bytes) から変化したが、**lifecycle=active の model ID 集合は前回記録と同一**である。すなわちページの体裁は変わったが、この target が根拠にしている『現行 active モデル』の内容は動いていない。前回 note にあった claude-mythos-5 の扱い (What's new/移行案内の表題には残るが active 表の ID ではない) も、lifecycle 欄の有無で機械的に区別できることを今回確認した。"
+ }
 }

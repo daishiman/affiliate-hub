@@ -11,12 +11,12 @@ target_date: null
 iteration: null
 title: "system-spec compiled specification"
 owners: ["system-spec-harness"]
-created_at: "2026-08-16T12:08:04Z"
-updated_at: "2026-08-24T13:30:00Z"
+created_at: "2026-08-29T14:27:14Z"
+updated_at: "2026-08-29T14:27:14Z"
 status: "active"
 depends_on: []
-related_nodes: ["feat-uiux-overhaul", "feat-blog-ui-builder"]
-resource_scope: ["system-spec/index.md","system-spec/completeness-report.json","docs/spec/feat-uiux-overhaul/spec-writeback-receipt.md","docs/spec/feat-blog-ui-builder/spec-writeback-receipt.md"]
+related_nodes: []
+resource_scope: ["system-spec/index.md","system-spec/completeness-report.json"]
 purpose: "確定済み system-spec の index を参照可能にする。"
 goal: "仕様と architecture context を source lineage 付きで結ぶ。"
 scope_in: ["confirmed system-spec index artifact"]
@@ -31,8 +31,8 @@ template_id: "specification"
 template_version: "1.0.0"
 confirmation_status: "confirmed"
 evaluation_status: "pass"
-confirmation_evidence: {"evaluated_digest":"0615d70d74973bac98929d7e3ce7b444933ac7e7280718ebbb74b8fef7676ca6","evaluator":"system-spec-harness/assign-system-spec-completeness-evaluator","evidence_ref":"system-spec/completeness-report.json"}
-source_lineage: {"imported_at":"2026-08-16T12:08:04Z","origin_kind":"system-spec-harness","source_digest":"409add2dc4ceef4637f1a2048bdd9a2e54a4a9873cc4e70a9d160a13c5d63e44","source_path":"system-spec/index.md","source_plugin":"system-spec-harness","source_version":"0.1.0"}
+confirmation_evidence: {"evaluated_digest":"aebfe3781f374c60b41c2a6698ec24c90e9aa58bed3903675e1b174fc75597a1","evaluator":"system-spec-harness/assign-system-spec-completeness-evaluator","evidence_ref":"system-spec/completeness-report.json"}
+source_lineage: {"imported_at":"2026-08-29T14:27:14Z","origin_kind":"system-spec-harness","source_digest":"d3be7225ce351be5424414a85e715da82fb0e398f6bae1eb7de14a9d08498726","source_path":"system-spec/index.md","source_plugin":"system-spec-harness","source_version":"0.1.0"}
 classification_confidence: 1.0
 classification_reason: "system-spec-harness が compile した specification index の import。"
 classification_candidates: [{"artifact_kind":"specification","candidate_path":"specs/system-spec-index.md","confidence":1.0}]
@@ -43,16 +43,46 @@ github_publication: {"labels":[],"milestone":null,"mode":"local_only","project_a
 github_project_linkages: []
 pull_request_linkages: []
 execution_contexts: []
-completion_evidence: {"completed_at":"2026-08-16T12:08:04Z","evidence_refs":["system-spec/completeness-report.json"],"policy":"manual","reconciled_at":"2026-08-16T12:08:04Z","source":"manual","status":"done"}
-implementation_readiness: {"checked_at":"2026-08-16T12:08:04Z","missing_sections":[],"status":"complete"}
+completion_evidence: {"completed_at":"2026-08-29T14:27:14Z","evidence_refs":["system-spec/completeness-report.json"],"policy":"manual","reconciled_at":"2026-08-29T14:27:14Z","source":"manual","status":"done"}
+implementation_readiness: {"checked_at":"2026-08-29T14:27:14Z","missing_sections":[],"status":"complete"}
 ---
 
 # システム構築仕様書 index
 
-収集マトリクス (カテゴリ×プラットフォーム) の各章と収集状態の相互参照。
-収集状態は 未着手 / 収集中 / 確定 / 対象外 の 4 値 (真理値表導出)。
+収集マトリクス (カテゴリ×プラットフォーム) の各章と集約状態の相互参照。
+集約状態は 未着手 / 収集中 / 確定 / 対象外 の 4 値 (真理値表導出)。
 
-> **重要:** この index の `確定` / `confirmed` は「対応セルの要求判断を収集済み」を意味する。文書確定、実装完了、試験合格を意味しない。実装や検証の判断には、下記の状態軸と各章の As-Is / To-Be / Delta / Acceptance を使う。
+> **重要:** この index の `確定` / `confirmed` の意味は正本 `lifecycle.confirmed_semantics` が定める — matrix.state=確定 と frontmatter status=confirmed は要求判断の収集済みのみを表し、文書承認・実装完了・検証合格を表さない。実装や検証の判断には、下記の状態軸と各章の As-Is / To-Be / Delta / Acceptance を使う。
+
+## 要件定義書 (上位概念・憲法)
+
+- [要件定義書](./00-requirements-definition.md) — 上位概念 U1-U9 の正本 (確定マーカー: `confirmed`)。各技術章は serves_goals でここのゴールへトレース (anchor) する。
+- **本質的目的 (U1)**: 発信者が、一つの信頼できる商品・サービス情報を起点に、複数のブログやSNSへ「誰が・誰に・何を・なぜ伝えるか」が一貫した高品質コンテンツを効率的に生成・公開・改善できる状態をつくり、読者の意思決定品質と発信者の継続的な収益性を同時に高める。
+- **ゴール (U3)**: G1=一つのアフィリエイトURLを起点に、正しい商品情報・比較候補・根拠・書き手・読者・媒体・広告表示を統合し、目的の異なる高品質コンテンツを安全に作成・公開・改善できる, G2=どういう情報・切り口・媒体・配置がクリック率とアフィリエイト成果に有効かを計測・分析し、一元管理できる
+
+## 章一覧と集約状態
+
+| カテゴリ | 章 | 集約状態 | 確定マーカー | 資するゴール | 対応セル |
+|---|---|---|---|---|---|
+| データベース (database) | [database.md](./database.md) | 確定 | `confirmed` | G1 G2 | database.web database.mobile database.tablet database.desktop-windows database.desktop-linux database.desktop-macos |
+| 認証(ログイン) (auth) | [auth.md](./auth.md) | 確定 | `confirmed` | G1 | auth.web auth.mobile auth.tablet auth.desktop-windows auth.desktop-linux auth.desktop-macos |
+| UI-UX (ui-ux) | [ui-ux.md](./ui-ux.md) | 確定 | `confirmed` | G1 G2 | ui-ux.web ui-ux.mobile ui-ux.tablet ui-ux.desktop-windows ui-ux.desktop-linux ui-ux.desktop-macos |
+| セキュリティ (security) | [security.md](./security.md) | 確定 | `confirmed` | G1 | security.web security.mobile security.tablet security.desktop-windows security.desktop-linux security.desktop-macos |
+| インフラ (infrastructure) | [infrastructure.md](./infrastructure.md) | 確定 | `confirmed` | G2 G1 | infrastructure.web infrastructure.mobile infrastructure.tablet infrastructure.desktop-windows infrastructure.desktop-linux infrastructure.desktop-macos |
+| バックエンド (backend) | [backend.md](./backend.md) | 確定 | `confirmed` | G2 G1 | backend.web backend.mobile backend.tablet backend.desktop-windows backend.desktop-linux backend.desktop-macos |
+| フロントエンド (frontend) | [frontend.md](./frontend.md) | 確定 | `confirmed` | G1 G2 | frontend.web frontend.mobile frontend.tablet frontend.desktop-windows frontend.desktop-linux frontend.desktop-macos |
+| 保守運用管理 (maintenance-ops) | [maintenance-ops.md](./maintenance-ops.md) | 確定 | `confirmed` | G1 G2 | maintenance-ops.web maintenance-ops.mobile maintenance-ops.tablet maintenance-ops.desktop-windows maintenance-ops.desktop-linux maintenance-ops.desktop-macos |
+
+## 集約状態サマリ
+
+- **未着手**: —
+- **収集中**: —
+- **確定**: database, auth, ui-ux, security, infrastructure, backend, frontend, maintenance-ops
+- **対象外**: —
+
+## 全体ドキュメント出典 (未割当参照)
+
+- (全ての取得済みドキュメントは各章へ割り当て済み)
 
 ## 仕様統制と状態軸
 
@@ -66,32 +96,6 @@ implementation_readiness: {"checked_at":"2026-08-16T12:08:04Z","missing_sections
 規範の優先順位と関心ごとの正本は [docs/spec/00-README.md](../docs/spec/00-README.md) に従う。要約すると、`docs/spec/01` は上位要求、`docs/spec/03` は Analytics 詳細の正本、`docs/spec/02` は差分・決定台帳、`spec-state.json` は収集・追跡・レビュー証跡の機械可読正本である。各 `system-spec/*.md` はこれらを実装へ投影する技術ビューであり、上流本文を上書きしない。
 
 各章の「確定内容 (質疑録)」と `spec-state.json.qa_log` は収集時点の不変な履歴であり、現在の詳細契約ではない。履歴の旧schema・過剰な絶対表現と、章先頭の To-Be 契約または `docs/spec/03` が異なる場合は、後者と `review_runs` の変更記録を現在の規範とする。
-
-## 要件定義書 (上位概念・憲法)
-
-- [要件定義書](./00-requirements-definition.md) — 上位概念 U1-U9 の正本 (確定マーカー: `confirmed`)。各技術章は serves_goals でここのゴールへトレース (anchor) する。
-- **本質的目的 (U1)**: 発信者が、一つの信頼できる商品・サービス情報を起点に、複数のブログやSNSへ「誰が・誰に・何を・なぜ伝えるか」が一貫した高品質コンテンツを効率的に生成・公開・改善できる状態をつくり、読者の意思決定品質と発信者の継続的な収益性を同時に高める。
-- **ゴール (U3)**: G1=一つのアフィリエイトURLを起点に、正しい商品情報・比較候補・根拠・書き手・読者・媒体・広告表示を統合し、目的の異なる高品質コンテンツを安全に作成・公開・改善できる, G2=どういう情報・切り口・媒体・配置がクリック率とアフィリエイト成果に有効かを計測・分析し、一元管理できる
-
-## 章一覧と集約状態
-
-| カテゴリ | 章 | 収集状態 | 実装状態 | 検証状態 | 資するゴール | 対応セル |
-|---|---|---|---|---|---|---|
-| データベース (database) | [database.md](./database.md) | 確定 | `partial` (単一D1・運営者3テーブル + Phase 1 読者ドメイン + ブログ UI 6 テーブルはスキーマのみ) | `unverified` | G1 G2 | database.web database.mobile database.tablet database.desktop-windows database.desktop-linux database.desktop-macos |
-| 認証(ログイン) (auth) | [auth.md](./auth.md) | 確定 | `partial` (Better Auth / Workspace / tenant / capability はローカル実装。Google 実往復と remote D1 は未検証) | `pass` (ローカル受入) / `unverified` (Workers・本番) | G1 | auth.web auth.mobile auth.tablet auth.desktop-windows auth.desktop-linux auth.desktop-macos |
-| UI-UX (ui-ux) | [ui-ux.md](./ui-ux.md) | 確定 | `partial` (管理画面 51 を単一用途へ分割。規則は feat-uiux-overhaul。読者面の SEO/AI 指針画面は feat-blog-ui-builder MVP) | `unverified` | G1 | ui-ux.web ui-ux.mobile ui-ux.tablet ui-ux.desktop-windows ui-ux.desktop-linux ui-ux.desktop-macos |
-| セキュリティ (security) | [security.md](./security.md) | 確定 | `partial` (tenant 分離と capability 認可はローカル実装。同意ゲートは未実装) | `unverified` | G1 | security.web security.mobile security.tablet security.desktop-windows security.desktop-linux security.desktop-macos |
-| インフラ (infrastructure) | [infrastructure.md](./infrastructure.md) | 確定 | `partial` (Workers・単一D1・R2) | `unverified` | G2 G1 | infrastructure.web infrastructure.mobile infrastructure.tablet infrastructure.desktop-windows infrastructure.desktop-linux infrastructure.desktop-macos |
-| バックエンド (backend) | [backend.md](./backend.md) | 確定 | `partial` (3 MCPツールのPoC) | `unverified` | G2 G1 | backend.web backend.mobile backend.tablet backend.desktop-windows backend.desktop-linux backend.desktop-macos |
-| フロントエンド (frontend) | [frontend.md](./frontend.md) | 確定 | `partial` (管理画面の共通部品 3 段と CRUD。公開面の sitemap/robots/RSS/llms.txt/JSON-LD/IndexNow は feat-blog-ui-builder MVP) | `unverified` | G1 G2 | frontend.web frontend.mobile frontend.tablet frontend.desktop-windows frontend.desktop-linux frontend.desktop-macos |
-| 保守運用管理 (maintenance-ops) | [maintenance-ops.md](./maintenance-ops.md) | 確定 | `not_started` (Analytics運用) | `unverified` | G1 G2 | maintenance-ops.web maintenance-ops.mobile maintenance-ops.tablet maintenance-ops.desktop-windows maintenance-ops.desktop-linux maintenance-ops.desktop-macos |
-
-## 集約状態サマリ
-
-- **未着手**: —
-- **収集中**: —
-- **確定**: database, auth, ui-ux, security, infrastructure, backend, frontend, maintenance-ops
-- **対象外**: —
 
 ## 実装依存順
 
@@ -108,19 +112,3 @@ implementation_readiness: {"checked_at":"2026-08-16T12:08:04Z","missing_sections
 ```
 
 この順序を飛ばして後続を実装した場合、`implementation_status` は上げない。各章の Acceptance evidence が揃ったときだけ `verification_status=pass` とする。
-
-## 実装からの書き戻し（feat-uiux-overhaul）
-
-2026-08-23 時点で、運営者面の UI/UX 全面改善は実装受入に合格し、未公開である。章の質疑録への投影（`qa-uiux-web-overhaul-v2` ほか）と、画面規則の正本（`docs/spec/feat-uiux-overhaul/`）の所在は [`docs/spec/feat-uiux-overhaul/spec-writeback-receipt.md`](../docs/spec/feat-uiux-overhaul/spec-writeback-receipt.md) に受領した。`system-spec/*.md` を手で太らせて completeness を緑にはしていない。
-
-## 実装からの書き戻し（feat-auth-workspace / 2026-08-24）
-
-認証章 `system-spec/auth.md` は R4 reopen で実装投影だけを更新済み。本ファイルは completeness 指紋の外にある投影であり、上表の auth / security 実装状態を 2026-08-24 の実測へ揃えた。`system-spec/index.md` は C03 compile 出力のため、再 compile が手書き節を落とす既知リスク（`ah-a0o`）がある間は触らない。受領は [`docs/spec-writeback-receipt.md`](../docs/spec-writeback-receipt.md)。
-
-## 実装からの書き戻し（feat-blog-ui-builder）
-
-2026-08-24 時点で、ブログ UI ビルダーの **SEO / AI 検索 MVP** を実装した。テンプレート差し替え・配色 2 層・sticky 常時表示・固定ページ 6 種・アフィリエイト配置 UI は未接続（`ah-6lf.4`）。機械可読の質疑は `system-spec/spec-state.json` の qa_log にあり、章 Markdown への compile 投影は行っていない（compile が規範本文を消す測定済み。`ah-6lf.3`）。受領は [`docs/spec/feat-blog-ui-builder/spec-writeback-receipt.md`](../docs/spec/feat-blog-ui-builder/spec-writeback-receipt.md)。
-
-## 全体ドキュメント出典 (未割当参照)
-
-- (全ての取得済みドキュメントは各章へ割り当て済み)

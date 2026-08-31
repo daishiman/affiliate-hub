@@ -15,7 +15,7 @@ serves_goals: [G1, G2]
 
 | プラットフォーム | 状態 | 根拠 |
 |---|---|---|
-| Web (web) | 確定 | 確定質疑: qa-frontend-web-seo-ai-search-v2。裏付け質疑 (`qa_refs`): `qa-frontend-web-blog-builder`, `qa-frontend-web-spec-intake`, `qa-frontend-web`, `qa-frontend-web-analytics`, `qa-frontend-web-overhaul-v2` — 本章の「確定内容 (質疑録)」へ接地根拠として併記 |
+| Web (web) | 確定 | 確定質疑: qa-frontend-web-capture-self-occlusion。裏付け質疑 (`qa_refs`): `qa-frontend-web-affiliate-link-preview-v3`, `qa-frontend-web-seo-ai-search-v2`, `qa-frontend-web-blog-builder`, `qa-frontend-web-spec-intake`, `qa-frontend-web`, `qa-frontend-web-analytics`, `qa-frontend-web-overhaul-v2` — 本章の「確定内容 (質疑録)」へ接地根拠として併記 |
 | モバイル (mobile) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |
 | タブレット (tablet) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |
 | デスクトップ (Windows) (desktop-windows) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |
@@ -24,7 +24,19 @@ serves_goals: [G1, G2]
 
 ## 確定内容 (質疑録)
 
-### qa-frontend-web-seo-ai-search-v2 (対応セル: web)
+### qa-frontend-web-capture-self-occlusion (対応セル: web)
+
+**質問**: frontend×web: 改善要望フィードバックで画面の写しを撮るとき、送信モーダルと固定ボタン自身の写り込みをどう扱うか (2026-08-30 利用者ヒアリング)
+
+**回答**: 利用者本人の回答を逐語主旨で記録する。(1) 「改善したい箇所のスクリーンショットを撮ると、編集画面の『改善したいことを送る』という画面が表示され、そのスクリーンショットが貼られてしまう」。(2) 「これでは本当に改善したい箇所を伝えることができない」。(3) 対処の範囲を 3 案 (機能ごと無効化 / 撮影中だけ自動で隠す / モーダルの自動表示だけ止める) で確認したところ、利用者は「撮影中だけ自動で隠す」を選択した。すなわちフィードバック機能そのものは残し、写しの取得が確定するまでの間だけ、送信モーダルと右下の固定ボタンを写しの対象から外す。(4) 撮り直し (再撮影) のときも同じ扱いとする。
+
+### qa-frontend-web-affiliate-link-preview-v3 (対応セル: web) — 接地根拠 (required_info/qa_refs が名指す裏付け)
+
+**質問**: frontend×web: 成果リンクを貼り付けた直後、登録判断のために何を画面へ表示するか（2026-08-29 利用者追加入力）
+
+**回答**: アフィリエイトの、えーと、リンクを貼ったら、えーと、その画像、えーと、が表示されるとか、えー、この辺、えー、とりあえず、えー、画面を見て、えー、確認もしておいてください。
+
+### qa-frontend-web-seo-ai-search-v2 (対応セル: web) — 接地根拠 (required_info/qa_refs が名指す裏付け)
 
 **質問**: frontend×web: SEO と AI 検索最適化 (SSR・構造化データ自動生成・robots/sitemap/RSS/llms.txt・IndexNow・鮮度表示) の実装契約と、最新ガイドライン出典の取り込み経路をどうするか。2026-08-24 対話ヒアリング (利用者原文を逐語主旨で記録) + 同日ウェブ調査。
 
@@ -170,22 +182,38 @@ serves_goals: [G1, G2]
 
 #### 本章での適用
 
-##### 確定内容 qa-frontend-web-seo-ai-search-v2 (対応セル: web)
+##### 確定内容 qa-frontend-web-capture-self-occlusion (対応セル: web)
 
-- 確定要件: 利用者本人の回答を逐語主旨で記録する。
-(1) 合わせて、SEO や AI による『その SEO に変わるやつ』(AI 検索・生成 AI 回答での引用) にも対応できるようにしておく。AI からの検索や評価が高くなるような仕組みにしておく。
-(2) 最新のこれらの情報 (SEO / AI 検索最適化のガイドライン) をウェブから、海外も日本の情報も含めて取得した上で、それを反映できるようなブログを構築できるようにしておく。
-###### 調査結果 (2026-08-24、海外+日本。一次情報と業者推定を区別)
-- 一次情報: Google Search Central『AI 最適化ガイド』(2026-05-15 公開) は、AI Overviews / AI Mode が既存ランキング+RAG+query fan-out で動き、追加の技術要件は無く、index 可能かつ snippet 表示可能であることが唯一の条件、llms.txt や特別な schema は不要と明言する。Search Console に AI 機能由来の impressions を見る report がある。
-- 一次情報: llms.txt (Answer.AI) は root の /llms.txt に Markdown を置く規約で正式標準ではない。IndexNow (Bing/Yandex/Naver/Seznam) は URL 更新 push で Google 非対応。ChatGPT search の retrieval は Bing index 由来のため IndexNow が AI 検索への到達経路になる。
-- 海外/日本の業者知見 (推定値扱い): AI クローラ (GPTBot / ClaudeBot / PerplexityBot / Google-Extended) を遮断しない、各節冒頭に 2〜3 文の『答え』、統計・出典の明記、FAQPage/HowTo/Article/Person/Organization/BreadcrumbList の JSON-LD、最終更新日と『〜時点』の可視化、著者ページ (E-E-A-T)、AI 引用の定点観測。日本では FAQ 構造化データと結論ファーストを優先する論調が多く、アフィリエイト記事は一次体験・独自比較表・図解が有利。
-###### frontend 章への反映方針
-- 公開面は SSR/ISR で本文を HTML に含め、semantic HTML (article/section/h1〜h3/time) で出力する。robots.txt はテンプレート既定で AI クローラを許可し、ブログ単位で拒否リストを設定できる。
-- ブロック構造から JSON-LD を自動生成する: BlogPosting/Article・Person (著者)・Organization・BreadcrumbList・FAQPage (FAQ ブロック)・HowTo (手順ブロック)・Product/Review (比較表・レビュー)。schema.org の型・必須プロパティを検証する pure 関数を置き、テストで妥当性を確認する。
-- 配信: sitemap.xml・RSS/Atom・/llms.txt (低コスト・効果未確認と明記) を自動生成し、公開・更新時に IndexNow へ送信する (API key はブログ単位、秘密はサーバ側のみ)。
-- 鮮度: 各記事に dateModified を出し、公開面にも『最終更新日』『〜時点』を表示する。
-- 最新情報の取り込み: SEO / AI 検索ガイドラインの出典 (Google AI 最適化ガイド・AI 機能ページ・llms.txt・IndexNow) を仕様状態の targets / fetched-references に登録し、doc-fetch (C02) と鮮度監査 (C08) で再取得・再照合できるようにする。アプリ側は参照レジストリ (guideline_references) を DB に持ち、管理画面で確認日・要約を更新できる。
-- (注記: 正本 qa_log[qa-frontend-web-seo-ai-search-v2].answer が見出しを含むため、章の階層を守ってコンパイラが深い階層へ押し下げた。文字は変えていない)
+- 確定要件: 利用者本人の回答を逐語主旨で記録する。(1) 「改善したい箇所のスクリーンショットを撮ると、編集画面の『改善したいことを送る』という画面が表示され、そのスクリーンショットが貼られてしまう」。(2) 「これでは本当に改善したい箇所を伝えることができない」。(3) 対処の範囲を 3 案 (機能ごと無効化 / 撮影中だけ自動で隠す / モーダルの自動表示だけ止める) で確認したところ、利用者は「撮影中だけ自動で隠す」を選択した。すなわちフィードバック機能そのものは残し、写しの取得が確定するまでの間だけ、送信モーダルと右下の固定ボタンを写しの対象から外す。(4) 撮り直し (再撮影) のときも同じ扱いとする。
+- 設計解釈の記録経路: `dialogue`
+- 原則: 自己観測する UI は、観測の対象から自分自身を外す (観測器を被写体に含めない) (`user-dialogue:2026-08-30#撮影中だけ自動で隠す`)
+  - 採否: `applied`
+  - 章固有の根拠: 写しの用途は『利用者が伝えたい箇所』の提示であり、送信 UI 自身はその情報を 1 ビットも運ばない。むしろ画面の中央を占有して被写体を隠すため、写りは純粋な損失である。撮影開始 (getDisplayMedia 呼出) と、送信 UI の可視化を別の時点に分け、写しが確定するまで送信 UI を描かない。撮影開始そのものは押した勢い (transient activation) を失わないよう onClick 内に留める。
+  - トレードオフ:
+    - モーダルの出現が写しの確定まで遅れるため、押してから開くまでの体感が伸びる。写しが撮れない・断られた環境では即座に開く経路を残し、待ちが無限に伸びないようにする
+    - 『押した瞬間に開く』という既存の設計意図 (feedback-button.tsx の注記) を意図的に変更するため、変更理由をコード側にも残さないと元へ戻される
+- 原則: 本文の上に浮く操作は、記録・監査の対象になるときだけ自分を名乗り、それ以外では退く (`ref-system-design-knowledge:information-design`)
+  - 採否: `applied`
+  - 章固有の根拠: 右下固定の起動ボタンは data-floating-overlay で本文の上に居ることを名乗っている。同じ理由で、写しという記録の中では退く側に回る。名乗りと退避を同じ属性系で扱うことで、重なり監査 (tests/e2e/app-routes.spec.ts) と写しの除外規則が別々の手掛かりに分岐しない。
+  - トレードオフ:
+    - 隠す対象を属性で選ぶため、将来別の浮遊要素が増えたときに同じ属性を付け忘れると写り込みが再発する。属性の付与漏れを検査で拾う必要がある
+##### 接地根拠 qa-frontend-web-affiliate-link-preview-v3 (対応セル: web)
+
+- 本文: 「確定内容 (質疑録)」の `qa-frontend-web-affiliate-link-preview-v3` を参照
+- 設計解釈の記録経路: `dialogue`
+- 原則: 識別子ではなく判断対象そのものを先に見せ、入力と確認結果を同じ文脈に置く (`ref-system-design-knowledge:information-design`)
+  - 採否: `applied`
+  - 章固有の根拠: 現行の成果リンク受信箱はホスト名、URL、状態、商品IDの手入力を中心に表示し、リンクが指す商品を視覚的に照合できない。URL入力後は安全なサーバー取得を経て、取得元、正規URL、商品タイトル、販売元、利用可能な商品画像、価格の取得時点、既存商品候補、重複候補を一つの確認カードに表示する。画像が取得できない場合も壊れた枠にせず、取得不可の理由と手動選択を同じ位置に出す。確認前は保存可能な成果リンクとして扱わない
+  - トレードオフ:
+    - 外部URLからのメタデータ取得には遅延・失敗・画像利用条件・SSRFの危険があるため、貼り付けと同時にクライアントから直接取得せず、許可済み接続先をサーバー側で検査し、取得結果の出典と確認日時を表示する
+- 原則: 非同期処理の進行、成功、部分成功、失敗と回復手段を利用者が見失わないようにする (`ref-system-design-knowledge:usability-accessibility`)
+  - 採否: `applied`
+  - 章固有の根拠: リンク貼り付け後は解析中、確認待ち、取得済み、画像のみ未取得、重複、取得失敗を可視テキストで区別し、入力値を保持したまま再試行、手動補完、対象外を選べるようにする。保存後は保存済み時刻と掲載先件数を表示し、一覧へ戻っても同じ状態語彙を使う
+  - トレードオフ:
+    - 状態を細分化すると表示語彙が増えるため、内部状態をそのまま露出せず、利用者が次に行える操作が同じものは一つの表示状態にまとめる
+##### 接地根拠 qa-frontend-web-seo-ai-search-v2 (対応セル: web)
+
+- 本文: 「確定内容 (質疑録)」の `qa-frontend-web-seo-ai-search-v2` を参照
 - 設計解釈の記録経路: `dialogue`
 - 原則: 画面描画と機械向け出力 (JSON-LD / sitemap / RSS / llms.txt / robots) を同じ読み取りモデルから派生させる (`information-design.md#中核概念`)
   - 採否: `applied`
@@ -271,7 +299,7 @@ serves_goals: [G1, G2]
 
 | 対象 | バージョン | 公式発行元 | 出典URL | 取得 | 最新確認 |
 |---|---|---|---|---|---|
-| nextjs | 16.3.2 | Vercel (nextjs.org) | https://nextjs.org/docs | 2026-08-16T09:01:51Z | 2026-08-22T22:20:35Z |
+| nextjs | 16.3.3 | Vercel (nextjs.org) | https://nextjs.org/docs | 2026-08-29T23:02:28Z | 2026-08-29T23:02:28Z |
 | mdn-light-dark | 2026-04-18 | Mozilla (developer.mozilla.org) | https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Values/color_value/light-dark | 2026-08-22T15:05:07Z | 2026-08-22T15:05:07Z |
 
 ## 状態の意味 (State semantics)

@@ -15,7 +15,7 @@ serves_goals: [G1, G2]
 
 | プラットフォーム | 状態 | 根拠 |
 |---|---|---|
-| Web (web) | 確定 | 確定質疑: qa-uiux-web-seo-ai-search-v2。裏付け質疑 (`qa_refs`): `qa-uiux-web-blog-builder`, `qa-uiux-web-screen-priority`, `qa-uiux-web-spec-intake`, `qa-uiux-web`, `qa-uiux-web-overhaul-v2` — 本章の「確定内容 (質疑録)」へ接地根拠として併記 |
+| Web (web) | 確定 | 確定質疑: qa-uiux-web-cognitive-load-affiliate-visibility-v3。裏付け質疑 (`qa_refs`): `qa-uiux-web-seo-ai-search-v2`, `qa-uiux-web-blog-builder`, `qa-uiux-web-screen-priority`, `qa-uiux-web-spec-intake`, `qa-uiux-web`, `qa-uiux-web-overhaul-v2` — 本章の「確定内容 (質疑録)」へ接地根拠として併記 |
 | モバイル (mobile) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |
 | タブレット (tablet) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |
 | デスクトップ (Windows) (desktop-windows) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |
@@ -24,7 +24,13 @@ serves_goals: [G1, G2]
 
 ## 確定内容 (質疑録)
 
-### qa-uiux-web-seo-ai-search-v2 (対応セル: web)
+### qa-uiux-web-cognitive-load-affiliate-visibility-v3 (対応セル: web)
+
+**質問**: ui-ux×web: 管理画面の新規作成・改善・保存・アフィリエイト一覧・リンク設定を、どの程度直感的にし、画面確認をどう要件化するか（2026-08-29 利用者追加入力）
+
+**回答**: 認知負荷を極限まで下げ、直感的に操作できる仕組みにしてください。特に、管理画面での新規作成、改善、保存、およびアフィリエイトの一覧表示やリンク設定などについて、直感的な操作性を重視してください。とりあえず、画面を見て、確認もしておいてください。
+
+### qa-uiux-web-seo-ai-search-v2 (対応セル: web) — 接地根拠 (required_info/qa_refs が名指す裏付け)
 
 **質問**: ui-ux×web: SEO と AI 検索 (AI Overviews / AI Mode / ChatGPT search / Perplexity 等) からの評価・引用を高めるために、ブログ UI ビルダーの記事構造・固定ページ・管理画面をどう整えるか。また海外・日本の最新ガイドラインを取得して反映する運用をどう見せるか。2026-08-24 対話ヒアリング (利用者原文を逐語主旨で記録) + 同日ウェブ調査。
 
@@ -332,21 +338,23 @@ serves_goals: [G1, G2]
 
 #### 本章での適用
 
-##### 確定内容 qa-uiux-web-seo-ai-search-v2 (対応セル: web)
+##### 確定内容 qa-uiux-web-cognitive-load-affiliate-visibility-v3 (対応セル: web)
 
-- 確定要件: 利用者本人の回答を逐語主旨で記録する。
-(1) 合わせて、SEO や AI による『その SEO に変わるやつ』(AI 検索・生成 AI 回答での引用) にも対応できるようにしておく。AI からの検索や評価が高くなるような仕組みにしておく。
-(2) 最新のこれらの情報 (SEO / AI 検索最適化のガイドライン) をウェブから、海外も日本の情報も含めて取得した上で、それを反映できるようなブログを構築できるようにしておく。
-###### 調査結果 (2026-08-24、海外+日本。一次情報と業者推定を区別)
-- 一次情報: Google Search Central『AI 最適化ガイド』(2026-05-15 公開) は、AI Overviews / AI Mode が既存ランキング+RAG+query fan-out で動き、追加の技術要件は無く、index 可能かつ snippet 表示可能であることが唯一の条件、llms.txt や特別な schema は不要と明言する。Search Console に AI 機能由来の impressions を見る report がある。
-- 一次情報: llms.txt (Answer.AI) は root の /llms.txt に Markdown を置く規約で正式標準ではない。IndexNow (Bing/Yandex/Naver/Seznam) は URL 更新 push で Google 非対応。ChatGPT search の retrieval は Bing index 由来のため IndexNow が AI 検索への到達経路になる。
-- 海外/日本の業者知見 (推定値扱い): AI クローラ (GPTBot / ClaudeBot / PerplexityBot / Google-Extended) を遮断しない、各節冒頭に 2〜3 文の『答え』、統計・出典の明記、FAQPage/HowTo/Article/Person/Organization/BreadcrumbList の JSON-LD、最終更新日と『〜時点』の可視化、著者ページ (E-E-A-T)、AI 引用の定点観測。日本では FAQ 構造化データと結論ファーストを優先する論調が多く、アフィリエイト記事は一次体験・独自比較表・図解が有利。
-###### ui-ux 章への反映方針
-- 記事テンプレートに『結論ブロック (冒頭 2〜3 文の答え)』『要点リスト』『比較表』『FAQ ブロック』『出典ブロック』『最終更新日 / 〜時点 表示』を標準ブロックとして追加し、AI が引用しやすい構造を編集 UI で促す (必須ではなく既定で配置)。
-- 固定ページ 6 種に『著者プロフィール』を加え、記事に著者・監修者・一次体験の明示欄を置く (E-E-A-T)。
-- 管理画面に『SEO / AI 検索 チェック』パネルを置く: index 可否 (noindex / robots)・構造化データの有無・最終更新からの経過日数 (90 日超で更新推奨)・AI 引用定点観測の記録欄 (手動)。数値目標は業者推定値なので受入条件に置かず、検証可能項目 (index 可能・JSON-LD 妥当・更新日表示) だけを受入条件にする。
-- 『最新ガイドライン反映』の運用 UI: 参照レジストリ (出典 URL・発行元・確認日・要約) を管理画面で一覧し、確認日から 90 日超を要再確認として表示する。ガイドライン変更時に仕様セルを R4-reopen する運用を README に明記する。
-- (注記: 正本 qa_log[qa-uiux-web-seo-ai-search-v2].answer が見出しを含むため、章の階層を守ってコンパイラが深い階層へ押し下げた。文字は変えていない)
+- 確定要件: 認知負荷を極限まで下げ、直感的に操作できる仕組みにしてください。特に、管理画面での新規作成、改善、保存、およびアフィリエイトの一覧表示やリンク設定などについて、直感的な操作性を重視してください。とりあえず、画面を見て、確認もしておいてください。
+- 設計解釈の記録経路: `dialogue`
+- 原則: 各画面は主要タスクを一つに絞り、次に行う操作・現在状態・完了結果を同じ視線の流れで判断できるようにする (`ref-system-design-knowledge:information-design`)
+  - 採否: `applied`
+  - 章固有の根拠: 現行管理画面は単一用途への分割と処理結果表示が進んでいる一方、成果リンクの登録は受信、広告主確定、商品対応、読者表示用登録が別々の手入力として並ぶ。今回の要求を満たすため、一覧から対象を選ぶ、リンクを貼る、取得結果を確認する、保存する、掲載先を確認する、という一方向の主導線とし、各段階で未完了理由と次の一操作だけを強調する。新規作成・改善・保存では同じ配置、語彙、結果表示を共有し、保存済みかどうかを利用者の記憶に委ねない
+  - トレードオフ:
+    - 一画面の説明量を減らすと例外条件を見落としやすいため、危険操作・広告規約・リンク改変禁止の説明は削除せず、該当操作の直前に必要な分だけ段階表示する
+- 原則: 認知負荷の低減を色や慣れだけに依存させず、可視ラベル、キーボード操作、取り消し、保存状態、エラー回復を一貫させる (`ref-system-design-knowledge:usability-accessibility`)
+  - 採否: `applied`
+  - 章固有の根拠: PC中心・週1回程度という既確定の利用状況では、操作手順の暗記よりも前回状態、未保存差分、次の操作を再認識できることが重要である。主要操作は動詞を揃え、保存中・保存済み・未保存・失敗を常時区別し、破壊的操作だけ確認を要求する。アフィリエイト一覧は掲載中、確認待ち、停止、リンク切れを色だけでなく文言と件数で区別し、ブログまたは記事からリンクへ、リンクから掲載先へ往復できる
+  - トレードオフ:
+    - 状態ラベルと戻り導線を常時出すぶん表示要素は増えるため、主要操作と状態以外の補助情報は段階的開示にし、一覧の列は利用頻度と誤操作コストで固定する
+##### 接地根拠 qa-uiux-web-seo-ai-search-v2 (対応セル: web)
+
+- 本文: 「確定内容 (質疑録)」の `qa-uiux-web-seo-ai-search-v2` を参照
 - 設計解釈の記録経路: `dialogue`
 - 原則: 表現物ごとに残す・落とす・加工する情報を task 頻度×失敗コストで順位付けする (`information-design.md#中核概念`)
   - 採否: `applied`
@@ -460,19 +468,19 @@ serves_goals: [G1, G2]
 
 - 本文: 「確定内容 (質疑録)」の `qa-foundation-u1` を参照
 - 設計解釈の記録経路: `unrecorded`
-- 設計原則の採否根拠: (未記録 — qa_log[].design_applications を writer 経由で補完すること)
+- 設計原則の採否根拠: 未記録。この質疑に `design_applications` が無いため、章はこの質疑を根拠に設計原則の採否を主張しない
 ##### 接地根拠 qa-platform-scope (対応セル: web)
 
 - 本文: 「確定内容 (質疑録)」の `qa-platform-scope` を参照
 - 設計解釈の記録経路: `unrecorded`
-- 設計原則の採否根拠: (未記録 — qa_log[].design_applications を writer 経由で補完すること)
+- 設計原則の採否根拠: 未記録。この質疑に `design_applications` が無いため、章はこの質疑を根拠に設計原則の採否を主張しない
 - 資するゴール: G1, G2
 
 ## 最新ドキュメント出典
 
 | 対象 | バージョン | 公式発行元 | 出典URL | 取得 | 最新確認 |
 |---|---|---|---|---|---|
-| apple-hig | 2026-08-24 | Apple (developer.apple.com) | https://developer.apple.com/design/human-interface-guidelines | 2026-08-25T12:13:56Z | 2026-08-25T12:13:56Z |
+| apple-hig | 2026-06-08 | Apple (developer.apple.com) | https://developer.apple.com/design/human-interface-guidelines/design-principles | 2026-08-29T14:02:13Z | 2026-08-29T14:02:13Z |
 
 ## 状態の意味 (State semantics)
 

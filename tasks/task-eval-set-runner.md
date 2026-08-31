@@ -12,8 +12,8 @@ iteration: null
 title: "評価セットを実際に走らせる仕組み"
 owners: ["daishiman"]
 created_at: "2026-08-17T00:00:00Z"
-updated_at: "2026-08-17T02:21:49.358890Z"
-status: "blocked"
+updated_at: "2026-08-17T13:55:59Z"
+status: "closed"
 depends_on: []
 related_nodes: []
 resource_scope: ["evals/generation"]

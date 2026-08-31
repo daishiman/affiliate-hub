@@ -1,0 +1,10 @@
+{
+  "schema_version": "1.0.0",
+  "status": "completed",
+  "staging": ".dev-graph/staging/feature-package-feat-feedback-capture-self-exclusion/run-20260830T035936Z-fcse",
+  "destination": ".dev-graph/published/feature-package-feat-feedback-capture-self-exclusion",
+  "digest": "sha256:13ad980aa71b9f1c7e2e661bdfc41f4cc44de5f2854df51ae40f4c676d1d6f9b",
+  "feature_package_id": "feature-package/feat-feedback-capture-self-exclusion",
+  "receipt": ".dev-graph/published/feature-package-feat-feedback-capture-self-exclusion/atomic-promotion-receipt.json",
+  "completed_at": "2026-08-30T04:06:53Z"
+}

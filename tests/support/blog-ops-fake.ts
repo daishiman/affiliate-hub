@@ -23,7 +23,7 @@ import type {
   SaveSiteNetworkInput,
 } from "@/application/ports/blog-ops";
 import type { ArticleRating, BlogArticle, RatingSummary, SiteNetworkNode } from "@/domain/blogops";
-import { type DomainError, type Result, err, notFound, ok } from "@/domain/shared";
+import { type DomainError, type Result, domainError, err, notFound, ok } from "@/domain/shared";
 import { NOW } from "./clock";
 import { WORKSPACE } from "./actors";
 
@@ -175,6 +175,16 @@ export function fakeRepository(seed: Partial<Store> = {}): {
       ),
     saveArticle: async (ws, input: SaveBlogArticleInput) => {
       const s = of(ws);
+      const current = s.articles.find((detail) => detail.article.id === input.id);
+      const currentRevision = current?.article.revision ?? 1;
+      if (
+        current !== undefined &&
+        input.expectedRevision !== undefined &&
+        input.expectedRevision !== null &&
+        input.expectedRevision !== currentRevision
+      ) {
+        return err(domainError("CONFLICT", "ほかの人が先に保存しました。", { field: "revision" }));
+      }
       const detail: BlogArticleDetail = {
         article: {
           id: input.id,
@@ -187,6 +197,7 @@ export function fakeRepository(seed: Partial<Store> = {}): {
           authorName: input.authorName,
           publishedAt: input.publishedAt,
           updatedAt: input.updatedAt,
+          revision: current === undefined ? 1 : currentRevision + 1,
         },
         blocks: input.blocks,
         tagIds: input.tagIds,
@@ -302,5 +313,6 @@ export function article(over: Partial<BlogArticle> & { id: string }): BlogArticl
     authorName: over.authorName ?? "編集部",
     publishedAt: over.publishedAt ?? null,
     updatedAt: over.updatedAt ?? NOW,
+    revision: over.revision ?? 1,
   };
 }

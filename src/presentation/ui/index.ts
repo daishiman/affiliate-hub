@@ -91,6 +91,13 @@ export {
   type Speaker,
 } from "./patterns/conversation";
 export { ProductCard, type ProductCardSpec } from "./patterns/product-card";
+/*
+  AffiliatePreviewCard はここから公開しない。管理面限定の部品で、
+  `src/presentation/admin/earn/affiliate-preview-card.tsx` が所有する。
+  読者面の部品と同じ棚から出すと、読者面のページが金額付きの確認カードを
+  そのまま import できてしまう（理由は product-card.tsx の priceNote と同じ）。
+*/
+export { DiagramFallback } from "./patterns/diagram-fallback";
 export { StubNotice, StubLabel, StorageNotice } from "./patterns/stub-notice";
 export type { StorageStatus } from "./patterns/stub-notice";
 export { AppearancePicker } from "./patterns/appearance-picker";
@@ -109,6 +116,7 @@ export {
 } from "./patterns/decision-status";
 export { FilterBar, type FilterAxis } from "./patterns/filter-bar";
 export { FormResult, type FormOutcome } from "./patterns/form-result";
+export { useDraft } from "./patterns/use-draft";
 export { MaterialReview, type MaterialFinding } from "./patterns/material-review";
 export {
   ModelPicker,

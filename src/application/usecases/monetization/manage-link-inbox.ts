@@ -254,27 +254,21 @@ export function createSubmitAffiliateUrlUseCase(
         return released.ok ? failure : released;
       }
 
-      /*
-       * 取れなかったときだけ、相手を読みに行く。
-       *
-       * 相手の中身を渡すのは、**重複かどうかを決めるのはドメインの側**だから。
-       * 「対象外にしたものは重複相手にしない」といった決めごとが
-       * `createLinkIngestion` にあり、ここに書き写すと二重管理になる。
-       */
-      let existing: readonly LinkIngestion[] = [];
-      if (String(claimed.value) !== String(id)) {
-        const holder = await deps.inbox.findById(actor.workspaceId, claimed.value);
-        if (!holder.ok) return holder;
-        if (holder.value !== null) existing = [holder.value];
-      }
-
       const created = createLinkIngestion({
         id,
         workspaceId: actor.workspaceId,
         submittedUrl: input.url,
         source: input.source,
         submittedAt: new Date(),
-        existing,
+        /*
+         * 取り合いの返り値が重複判定の正本。
+         *
+         * 負けたあとに勝者本体を読み直すと、勝者がまだ保存前の瞬間だけ
+         * null が返り、確定済みの負けを「重複なし」へ戻してしまう。
+         * 対象外の勝者は取り合いから降りるため、claim が残っている間は
+         * その ID をそのまま相手としてよい。
+         */
+        duplicateOf: ownsClaim ? null : claimed.value,
         note: input.note ?? null,
       });
       if (!created.ok) return failAfterClaim(created);
@@ -503,8 +497,8 @@ export function createRejectLinkIngestionUseCase(
        * 対象外にしたら、その URL の取り合いから降りる。
        *
        * 降ろさないと、捨てたリンクを相手に指した「重複」が次から延々と出る。
-       * 「対象外のものは重複相手にしない」という決めごと（`findDuplicate`）と、
-       * 保存先が覚えている最初の 1 本が食い違ったままになるため。
+       * claim の勝者 ID が重複相手の正本なので、対象外になった勝者を
+       * 取り合いに残すと、その ID を次の貼り付けが指し続けるため。
        */
       const released = await deps.inbox.releaseNormalizedUrl(
         actor.workspaceId,

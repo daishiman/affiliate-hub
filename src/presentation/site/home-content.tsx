@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import type { ArticleSummary } from "@/application/read-models/published-article";
 import type { PublicSiteBlueprint } from "@/application/usecases/site/read-site";
 import {
@@ -10,7 +11,7 @@ import {
   type ArticleCardView,
   type CategoryArticleGroupView,
 } from "@/presentation/ui";
-import { siteHref, toArticleCards } from "./view-model";
+import { siteHref, toArticleCards, toChrome } from "./view-model";
 
 /** ブログトップを描くために必要な、取得処理を含まない表示用の形。 */
 export type SiteHomeView = {
@@ -38,10 +39,11 @@ export function toSiteHomeView(
   blueprint: PublicSiteBlueprint,
   recent: readonly ArticleSummary[],
 ): SiteHomeView {
+  const chrome = toChrome(siteSlug, blueprint);
   return {
     name: blueprint.name,
     purpose: blueprint.purpose,
-    searchHref: siteHref(siteSlug, "/search"),
+    searchHref: chrome.searchHref,
     recentArticles: toArticleCards(siteSlug, recent),
     categoryGroups: blueprint.categories.map((category) => ({
       href: siteHref(siteSlug, `/categories/${category.slug}`),
@@ -64,13 +66,23 @@ export function toSiteHomeView(
 export function SiteHomeContent({
   view,
   recentError,
+  bandsSlot,
 }: {
   readonly view: SiteHomeView;
   readonly recentError?: SiteHomeRecentErrorView;
+  /**
+   * 管理画面で並べた帯（§3.3）。**この部品は中身を知らない。**
+   *
+   * ブログ名のすぐ下に置く。ここより上へ出すと、読者はどのブログに来たのかを
+   * 見る前に運営者の並べた棚を見ることになる。静的 preview は渡さない
+   * （保存値を持たない実行なので、帯は「まだ並べていない」が正しい）。
+   */
+  readonly bandsSlot?: ReactNode;
 }) {
   return (
     <div>
       <SiteHomeHero name={view.name} purpose={view.purpose} searchHref={view.searchHref} />
+      {bandsSlot}
       <SiteSection
         id="recent-articles"
         eyebrow="新着"

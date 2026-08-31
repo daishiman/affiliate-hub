@@ -21,8 +21,10 @@ from typing import Generator
 
 import pytest
 
+from plugin_layout_contract import repository_root
+
 PLUGIN = Path(__file__).resolve().parents[1]
-REPO_ROOT = PLUGIN.parents[1]
+REPO_ROOT = repository_root(PLUGIN)
 
 # baseline 検証で共有する疑似 node id。本番 baseline から借りず tmp 側に置くのは、
 # 本番 baseline の縮小 (= 正しい変化) でテストが壊れないようにするため。借りると

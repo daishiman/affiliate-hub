@@ -2,7 +2,7 @@ import { AdminShell } from "@/presentation/admin/admin-shell";
 import {
   AdvanceContentStateForm,
   ApproveContentForm,
-} from "@/presentation/admin/content-progress-form";
+} from "@/presentation/admin/write/content-progress-form";
 import { SchedulePublicationForm } from "@/presentation/admin/schedule-publication-form";
 import {
   contentUseCases,

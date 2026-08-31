@@ -366,6 +366,63 @@ def test_the_residue_survives_when_the_line_is_gone_from_the_body(tmp_path: Path
     assert carried == [STRAY]  # 写しだけが持っている
 
 
+def test_acknowledging_prior_residue_removes_the_reviewed_copy(tmp_path: Path) -> None:
+    """明示ackした旧residueは次回へ持ち越さない。
+
+    版更新で正しく消えた旧行を人がレビューしても、default carryしか無ければ章末から
+    正規writerで消せない。ackは本文を書き換えず、前回までの写しだけを対象にする。
+    """
+    target = tmp_path / "infrastructure.md"
+    target.write_text(_with_stray(GENERATED), encoding="utf-8")
+    foundation.write_docset(
+        {"infrastructure.md": GENERATED}, tmp_path, on_handwritten="preserve"
+    )
+    assert f"- `{STRAY}`" in target.read_text(encoding="utf-8")
+
+    losses: list = []
+    foundation.write_docset(
+        {"infrastructure.md": GENERATED},
+        tmp_path,
+        on_handwritten="preserve",
+        loss_report=losses,
+        acknowledge_prior_residue=True,
+    )
+
+    out = target.read_text(encoding="utf-8")
+    assert foundation.RESIDUE_HEADING not in out
+    assert STRAY not in out
+    assert losses == []
+
+
+def test_acknowledging_prior_residue_still_reports_a_new_loss(tmp_path: Path) -> None:
+    """ackと同じrunで本文から新たに消える行は、旧写しと一緒に捨てない。"""
+    target = tmp_path / "infrastructure.md"
+    target.write_text(_with_stray(GENERATED), encoding="utf-8")
+    foundation.write_docset(
+        {"infrastructure.md": GENERATED}, tmp_path, on_handwritten="preserve"
+    )
+
+    new_stray = "| runtime | `2.0.0` | 今回初めて消える行 |"
+    current = target.read_text(encoding="utf-8")
+    target.write_text(
+        current.replace("**回答**: 今の答え。", f"**回答**: 今の答え。\n{new_stray}"),
+        encoding="utf-8",
+    )
+    losses: list = []
+    foundation.write_docset(
+        {"infrastructure.md": GENERATED},
+        tmp_path,
+        on_handwritten="preserve",
+        loss_report=losses,
+        acknowledge_prior_residue=True,
+    )
+
+    out = target.read_text(encoding="utf-8")
+    assert f"- `{STRAY}`" not in out
+    assert f"- `{new_stray}`" in out
+    assert losses == [("infrastructure.md", [new_stray])]
+
+
 def test_refuse_writes_nothing_when_it_stops(tmp_path: Path) -> None:
     """節の消失で止まった回は 1 文字も書かない。報告だけ書き足すのは部分適用である。"""
     original = _with_stray(EXISTING)

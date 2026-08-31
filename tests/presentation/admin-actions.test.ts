@@ -88,22 +88,22 @@ vi.mock("@/infrastructure/persistence/sample/settings-sample-repository", async 
 const {
   advanceLinkIngestionAction,
   submitAffiliateUrlAction,
-} = await import("@/presentation/admin/inbox-action");
-const { checkFactBoundaryAction } = await import("@/presentation/admin/fact-boundary-action");
-const { reschedulePublicationAction } = await import("@/presentation/admin/reschedule-action");
+} = await import("@/presentation/admin/earn/inbox-action");
+const { checkFactBoundaryAction } = await import("@/presentation/admin/write/fact-boundary-action");
+const { reschedulePublicationAction } = await import("@/presentation/admin/publish/reschedule-action");
 const {
   createSiteFromDraftAction,
   saveSiteDraftStepAction,
   startSiteDraftAction,
-} = await import("@/presentation/admin/site-wizard-action");
+} = await import("@/presentation/admin/publish/site-wizard-action");
 const {
   advanceContentStateAction,
   approveContentAction,
-} = await import("@/presentation/admin/content-progress-action");
-const { adjustConversionAction } = await import("@/presentation/admin/adjust-conversion-action");
-const { publishArticleAction } = await import("@/presentation/admin/publish-article-action");
+} = await import("@/presentation/admin/write/content-progress-action");
+const { adjustConversionAction } = await import("@/presentation/admin/earn/adjust-conversion-action");
+const { publishArticleAction } = await import("@/presentation/admin/publish/publish-article-action");
 const { editDisclosureAction, editPolicyRuleAction } = await import(
-  "@/presentation/admin/compliance-action"
+  "@/presentation/admin/maintain/compliance-action"
 );
 const { schedulePublicationAction } = await import(
   "@/presentation/admin/schedule-publication-action"
@@ -1314,6 +1314,43 @@ describe("自分のブログへ記事を出す操作", () => {
     loggedIn = false;
     const state = await publishArticleAction(IDLE, fullForm());
     expect(state.message, "断る理由が画面に出ていません").toContain("ログイン");
+  });
+
+  /**
+   * 公開前の点検（REQ-SEO03）。
+   *
+   * ここは見本の保存先なので**出そうとすると必ず落ちる**。その差がそのまま
+   * 検査になる。点検が保存まで進んでいれば、同じ理由で落ちるはずである。
+   */
+  it("点検は何も出さずに結果だけ返す（出す道は同じ入力で落ちる）", async () => {
+    asPublisher();
+    const checked = await publishArticleAction(IDLE, fullForm({ intent: "check" }));
+
+    expect(checked.status).toBe("done");
+    expect(checked.phase).toBe("checked");
+    // **読者ページへの導線を付けない。** まだ何も出ていない。
+    expect(checked.url).toBeUndefined();
+    expect(checked.message).toContain("まだ公開していません");
+    expect(checked.aiSearch?.length ?? 0).toBeGreaterThan(0);
+
+    // 同じ入力で出そうとすると保存で落ちる = 点検は保存へ進んでいない。
+    expect((await publishArticleAction(IDLE, fullForm())).status).toBe("failed");
+  });
+
+  it("点検でも、公開と同じ理由で断られる（点検だけ通る抜け道を作らない）", async () => {
+    asPublisher();
+    const state = await publishArticleAction(IDLE, fullForm({ intent: "check", slug: "静かなノート" }));
+
+    expect(state.status).toBe("failed");
+    expect(state.field).toBe("slug");
+  });
+
+  it("ログインしていない人は、点検もできない", async () => {
+    asPublisher();
+    loggedIn = false;
+    const state = await publishArticleAction(IDLE, fullForm({ intent: "check" }));
+    expect(state.status).toBe("failed");
+    expect(state.message).toContain("ログイン");
   });
 });
 

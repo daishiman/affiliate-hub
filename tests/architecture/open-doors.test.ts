@@ -251,6 +251,11 @@ type Reversible = "つく" | "つかない";
 const ACTION_INTENT: Readonly<
   Record<string, { readonly intent: Gate; readonly what: string; readonly reversible: Reversible }>
 > = {
+  previewAffiliateUrlAction: {
+    intent: "ログイン",
+    what: "成果リンクを保存する前に、安全な接続先から取得できる情報だけを確認する（保存はしない）",
+    reversible: "つく",
+  },
   // --- 取り返しがつかない（公開・配信・失効・削除） ---
   publishArticleAction: { intent: "ログイン", what: "記事を公開する", reversible: "つかない" },
   saveSiteDocumentAction: {
@@ -357,6 +362,11 @@ const ACTION_INTENT: Readonly<
   },
 
   // --- 取り返しがつく（記録が残り、後から直せる） ---
+  archivePublishedArticleAction: {
+    intent: "ログイン",
+    what: "公開済み記事を非表示にする（データは残す）",
+    reversible: "つく",
+  },
   /*
     作成と更新は「つく」。作ったものは消せるし、直した内容は上書きで戻せる。
     ただし `updatePublicationAction` だけは別で、予定日を前倒しにすると
@@ -535,6 +545,11 @@ const ACTION_INTENT: Readonly<
   submitContactAction: {
     intent: "誰でも",
     what: "読者からの問い合わせ（公開フォーム）",
+    reversible: "つく",
+  },
+  updatePublishedArticleAction: {
+    intent: "ログイン",
+    what: "公開済み記事を訂正する",
     reversible: "つく",
   },
   // 読者が自分の「気になる」を出し入れするだけの 2 つ。ログインは求めない。

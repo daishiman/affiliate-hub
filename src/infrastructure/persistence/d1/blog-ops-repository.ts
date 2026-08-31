@@ -1,4 +1,4 @@
-import { and, asc, desc, eq, inArray, isNotNull, isNull } from "drizzle-orm";
+import { and, asc, desc, eq, inArray, isNotNull, isNull, ne, or } from "drizzle-orm";
 import type {
   ArticleRatingPort,
   BlogArticleDetail,
@@ -65,8 +65,8 @@ import { storageFailure } from "./storage-failure";
  *   3. **例外はそのまま画面へ出さない**（`storageFailure`）。
  *
  * 記事の保存だけは 3 つの表（本体・部品・タグの結び）を D1 batch へまとめる。
- * batch は 1 取引なので、部品の競合などで途中の文が失敗しても、公開中の本体と
- * 既存部品・タグ結合は書き換わらない。
+ * batch は 1 取引なので、CAS 競合や部品の競合などで途中の文が失敗しても、
+ * 公開中の本体と既存部品・タグ結合は書き換わらない。
  */
 
 function toNetwork(row: typeof siteNetworkNodes.$inferSelect): SiteNetworkRecord {
@@ -104,6 +104,7 @@ function toArticle(row: BlogArticleRow): BlogArticle {
     authorName: row.authorName,
     publishedAt: row.publishedAt,
     updatedAt: row.updatedAt,
+    revision: row.revision,
   };
 }
 
@@ -767,6 +768,7 @@ export function createD1BlogOpsRepository(db: DrizzleD1): BlogOpsRepositoryPort 
             workspaceId: blogArticles.workspaceId,
             siteSlug: blogArticles.siteSlug,
             deletedAt: blogArticles.deletedAt,
+            revision: blogArticles.revision,
           })
           .from(blogArticles)
           .where(eq(blogArticles.id, input.id))
@@ -781,9 +783,10 @@ export function createD1BlogOpsRepository(db: DrizzleD1): BlogOpsRepositoryPort 
           return ownedResourceNotFound("記事");
         }
 
-        const articleMutation =
-          current === undefined
-            ? db.insert(blogArticles).values({
+        let articleMutation;
+        let casGuard = null;
+        if (current === undefined) {
+          articleMutation = db.insert(blogArticles).values({
             id: input.id,
             workspaceId,
             siteSlug: input.siteSlug,
@@ -796,27 +799,88 @@ export function createD1BlogOpsRepository(db: DrizzleD1): BlogOpsRepositoryPort 
                 authorName: input.authorName,
                 publishedAt: input.publishedAt,
                 updatedAt: input.updatedAt,
+                revision: 1,
+              });
+        } else {
+          const expectedRevision = input.expectedRevision ?? current.revision;
+          if (expectedRevision !== current.revision) {
+            return err(
+              domainError("CONFLICT", "ほかの人が先にこの記事を保存しました。", {
+                field: "revision",
+                suggestedAction: "最新版を開き、端末下書きとの差分を確認してください。",
+              }),
+            );
+          }
+          const nextRevision = current.revision + 1;
+          const saveToken = crypto.randomUUID();
+          articleMutation = db
+            .update(blogArticles)
+            .set({
+              template: input.template,
+              type: ARTICLE_TYPE_BY_TEMPLATE[input.template],
+              title: input.title,
+              lead: input.lead,
+              status: input.status,
+              authorName: input.authorName,
+              publishedAt: input.publishedAt,
+              updatedAt: input.updatedAt,
+              revision: nextRevision,
+              saveToken,
+            })
+            .where(
+              and(
+                eq(blogArticles.workspaceId, workspaceId),
+                eq(blogArticles.siteSlug, input.siteSlug),
+                eq(blogArticles.id, input.id),
+                eq(blogArticles.revision, expectedRevision),
+                isNull(blogArticles.deletedAt),
+              ),
+            );
+
+          // CAS update が 0 件だった場合だけ、同じ主キーを INSERT して batch を失敗させる。
+          // revision だけでは「同じ版を読んだ2保存」を区別できないため、勝者固有の
+          // saveToken まで一致したときだけ 0 行 SELECT になる。失敗時は本体・部品・タグを
+          // まとめて rollback でき、古い画面が新しい本文の子要素だけ消すこともない。
+          casGuard = db.insert(blogArticles).select(
+            db
+              .select({
+                id: blogArticles.id,
+                slug: blogArticles.slug,
+                workspaceId: blogArticles.workspaceId,
+                siteSlug: blogArticles.siteSlug,
+                template: blogArticles.template,
+                type: blogArticles.type,
+                title: blogArticles.title,
+                summary: blogArticles.summary,
+                lead: blogArticles.lead,
+                status: blogArticles.status,
+                categoryId: blogArticles.categoryId,
+                disclosureId: blogArticles.disclosureId,
+                ownerId: blogArticles.ownerId,
+                authorName: blogArticles.authorName,
+                publishedAt: blogArticles.publishedAt,
+                deletedAt: blogArticles.deletedAt,
+                updatedAt: blogArticles.updatedAt,
+                revision: blogArticles.revision,
+                saveToken: blogArticles.saveToken,
+                testedAt: blogArticles.testedAt,
+                nextReviewAt: blogArticles.nextReviewAt,
+                targetAudience: blogArticles.targetAudience,
+                suitableFor: blogArticles.suitableFor,
+                notSuitableFor: blogArticles.notSuitableFor,
+                createdAt: blogArticles.createdAt,
               })
-            : db
-                .update(blogArticles)
-                .set({
-                  template: input.template,
-                  type: ARTICLE_TYPE_BY_TEMPLATE[input.template],
-                  title: input.title,
-                  lead: input.lead,
-                  status: input.status,
-                  authorName: input.authorName,
-                  publishedAt: input.publishedAt,
-                  updatedAt: input.updatedAt,
-                })
-                .where(
-                  and(
-                    eq(blogArticles.workspaceId, workspaceId),
-                    eq(blogArticles.siteSlug, input.siteSlug),
-                    eq(blogArticles.id, input.id),
-                    isNull(blogArticles.deletedAt),
-                  ),
-                );
+              .from(blogArticles)
+              .where(
+                and(
+                  eq(blogArticles.workspaceId, workspaceId),
+                  eq(blogArticles.siteSlug, input.siteSlug),
+                  eq(blogArticles.id, input.id),
+                  or(isNull(blogArticles.saveToken), ne(blogArticles.saveToken, saveToken)),
+                ),
+              ),
+          );
+        }
         // 子表も作業場所で絞る。記事 ID だけで消すと、他所の作業場所の記事 ID を
         // 渡された時に消せてしまう。ID が推測しにくいことを守りにしない。
         const deleteBlocks = db
@@ -856,14 +920,23 @@ export function createD1BlogOpsRepository(db: DrizzleD1): BlogOpsRepositoryPort 
                 .insert(blogArticleTags)
                 .values(input.tagIds.map((tagId) => ({ workspaceId, articleId: input.id, tagId })));
 
-        if (insertBlocks !== null && insertTags !== null) {
+        if (casGuard !== null && insertBlocks !== null && insertTags !== null) {
           await db.batch([
             articleMutation,
+            casGuard,
             deleteBlocks,
             insertBlocks,
             deleteTags,
             insertTags,
           ]);
+        } else if (casGuard !== null && insertBlocks !== null) {
+          await db.batch([articleMutation, casGuard, deleteBlocks, insertBlocks, deleteTags]);
+        } else if (casGuard !== null && insertTags !== null) {
+          await db.batch([articleMutation, casGuard, deleteBlocks, deleteTags, insertTags]);
+        } else if (casGuard !== null) {
+          await db.batch([articleMutation, casGuard, deleteBlocks, deleteTags]);
+        } else if (insertBlocks !== null && insertTags !== null) {
+          await db.batch([articleMutation, deleteBlocks, insertBlocks, deleteTags, insertTags]);
         } else if (insertBlocks !== null) {
           await db.batch([articleMutation, deleteBlocks, insertBlocks, deleteTags]);
         } else if (insertTags !== null) {
@@ -873,6 +946,20 @@ export function createD1BlogOpsRepository(db: DrizzleD1): BlogOpsRepositoryPort 
         }
         return ok(true);
       } catch (cause) {
+        const reason = cause instanceof Error ? cause.message.toLowerCase() : "";
+        if (
+          reason.includes("unique constraint failed: articles.id") ||
+          reason.includes(
+            "unique constraint failed: articles.workspace_id, articles.site_slug, articles.slug",
+          )
+        ) {
+          return err(
+            domainError("CONFLICT", "ほかの人が先にこの記事を保存しました。", {
+              field: "revision",
+              suggestedAction: "最新版を開き、端末下書きとの差分を確認してください。",
+            }),
+          );
+        }
         return storageFailure("記事の保存", cause);
       }
     },

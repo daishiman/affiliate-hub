@@ -1177,6 +1177,20 @@
   outline-offset: var(--focus-ring-offset);
 }
 
+/*
+ * 撮影のあいだ、本文の上に浮いている操作を写しの対象から外す。
+ *
+ * `visibility` を使い `display` を使わないのは、**画面の形を変えないため**である。
+ * `display: none` にすると、浮いていない要素の位置まで動きうる——写したいのは
+ * 「押した瞬間に見えていた画面」であって、操作が抜けて詰まった画面ではない。
+ *
+ * 手掛かりは `data-floating-overlay` 一本に揃える (`capture-exclusion.ts`)。
+ * 重なり監査 (`tests/e2e/app-routes.spec.ts`) が見ているのと同じ属性である。
+ */
+:global(html[data-capturing="true"] [data-floating-overlay]) {
+  visibility: hidden;
+}
+
 .feedbackDialog {
   position: fixed;
   inset: 0;

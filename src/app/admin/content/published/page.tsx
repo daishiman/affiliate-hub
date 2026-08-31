@@ -9,11 +9,26 @@ import styles from "../../admin.module.css";
 
 export const dynamic = "force-dynamic";
 
-const VISIBILITY_OPTIONS = [
+/**
+ * 絞り込みで選べる公開状態。**読み取りと表示を同じ 1 つの並びから作る。**
+ *
+ * 選択肢を `<option>` として直に 3 つ並べていたときは、住所から来た値を
+ * 別の場所（`rawVisibility === "public" || ...`）で判定していた。**片方だけ
+ * 増やせる形**で、増やしたほうが黙って無視される。ここを正本にすると、
+ * 足した選択肢は必ず判定の側にも現れる。
+ */
+const VISIBILITY_FILTERS = [
   { value: "all", label: "すべて" },
   { value: "public", label: "公開中" },
   { value: "archived", label: "非表示" },
 ] as const;
+
+type VisibilityFilter = (typeof VISIBILITY_FILTERS)[number]["value"];
+
+function toVisibility(raw: string | undefined): VisibilityFilter {
+  const found = VISIBILITY_FILTERS.find((option) => option.value === raw);
+  return found?.value ?? "all";
+}
 
 export default async function PublishedArticlesPage({
   searchParams,
@@ -22,8 +37,7 @@ export default async function PublishedArticlesPage({
 }) {
   const params = await searchParams;
   const query = (Array.isArray(params.q) ? params.q[0] : params.q)?.trim() ?? "";
-  const rawVisibility = Array.isArray(params.visibility) ? params.visibility[0] : params.visibility;
-  const visibility = rawVisibility === "public" || rawVisibility === "archived" ? rawVisibility : "all";
+  const visibility = toVisibility(Array.isArray(params.visibility) ? params.visibility[0] : params.visibility);
   const result = await (await publishedArticleAdminUseCases()).list.execute(await currentActor(), {
     query,
     visibility,
@@ -33,52 +47,78 @@ export default async function PublishedArticlesPage({
     <AdminShell
       routeId="content/published"
       title="公開済み記事"
-      lead="読者に出ている記事を探し、訂正または非表示化します。"
+      lead="読者に出ている記事を探し、訂正または非表示にします。"
       actions={<Link href="/admin/content/new">新しい記事を作る</Link>}
     >
-      <Section title="記事を絞り込む" lead="タイトル・結論・サイト名と公開状態で、直す記事を探します。">
+        {/*
+          **画面まるごとを `Card` で包まない。**`Card` は「1 つの主張と、その根拠」を
+          1 枚に閉じるための器で、画面そのものの見出しではない。器として使うと、
+          画面に主張が 1 つしか無いように見え、`Card` が「枠線の付いた div」に退化する
+          （台帳の `cardRepresentationBinding.routeWrapper: false`）。
+          画面の区切りは `Section` が持つ。
+        */}
+        <Section title="読者に出ている記事を絞り込む">
           <Form action="/admin/content/published" className={styles.publishedFilter}>
             <label htmlFor="published-query"><span>記事を検索</span><input id="published-query" type="search" name="q" defaultValue={query} placeholder="タイトル・結論・サイト名" /></label>
             <label htmlFor="published-visibility"><span>公開状態</span><select id="published-visibility" name="visibility" defaultValue={visibility}>
-                {VISIBILITY_OPTIONS.map((option) => (
+                {VISIBILITY_FILTERS.map((option) => (
                   <option key={option.value} value={option.value}>{option.label}</option>
                 ))}
               </select></label>
             <button type="submit">絞り込む</button>
           </Form>
-      </Section>
+        </Section>
 
         {!result.ok ? (
           <ErrorView title="公開済み記事を出せませんでした" body={result.error.message} suggestedAction={result.error.suggestedAction ?? null} />
         ) : result.value.length === 0 ? (
-          <Section title="記事の一覧">
+          <Section title="条件に合う公開済み記事がありません">
             <EmptyView title="条件に合う公開済み記事がありません" body="検索条件を変えるか、承認済み原稿から新しい記事を公開してください。" action={<Link href="/admin/content/new">記事の作り方を見る</Link>} />
           </Section>
         ) : (
-          <Section title="記事の一覧" lead={`${result.value.length}件。列見出しと記事名は、表を送っても表示位置に残ります。`}>
+          <Section title="読者に出ている記事の一覧">
+            {/*
+              **生の `<table>` を書かない。**表の作法（見出しが列か行かを名乗る・
+              横スクロールを表の器へ閉じ込める・読み上げが最初に読む説明を持つ）は
+              `DataTable` が 1 か所で持っている。ここで書き直すと、
+              作法の直しが片方にだけ入る日が来る（`tests/ui/table-through-component.test.ts`）。
+            */}
             <DataTable
-              caption="公開済み記事。記事名、サイト、状態、更新日を比べて、編集する記事を選びます。"
+              caption="読者に出ている記事の一覧"
               columns={[
                 { key: "article", label: "記事" },
                 { key: "site", label: "サイト" },
                 { key: "status", label: "状態" },
-                { key: "updated", label: "更新日" },
+                { key: "updatedAt", label: "更新日" },
                 { key: "actions", label: "操作" },
               ]}
               rows={result.value.map(({ article, archivedAt }) => ({
                 key: `${article.siteSlug}/${article.slug}`,
                 cells: [
-                  <span key="article" className={styles.publishedArticleCell}>
+                  <>
                     <strong>{article.title}</strong>
                     <span>{article.summary}</span>
-                  </span>,
+                  </>,
                   article.siteSlug,
-                  <span key="status" className={styles.publishedStatus}>{archivedAt === null ? "公開中" : "非表示"}</span>,
-                  article.updatedAt,
-                  <span key="actions" className={styles.publishedActions}>
-                    <Link href={`/admin/content/published/${encodeURIComponent(article.siteSlug)}/${encodeURIComponent(article.slug)}/edit`}>編集</Link>
-                    {archivedAt === null && <Link href={`${siteBasePathBySlug(article.siteSlug)}${articleHref(article)}`} target="_blank" rel="noreferrer noopener">公開画面</Link>}
+                  <span key="visibility" className={styles.publishedStatus}>
+                    {archivedAt === null ? "公開中" : "非表示"}
                   </span>,
+                  article.updatedAt,
+                  <>
+                    <Link
+                      href={`/admin/content/published/${encodeURIComponent(article.siteSlug)}/${encodeURIComponent(article.slug)}/edit`}
+                    >
+                      編集
+                    </Link>
+                    {archivedAt === null && (
+                      <Link
+                        href={`${siteBasePathBySlug(article.siteSlug)}${articleHref(article)}`}
+                        target="_blank"
+                      >
+                        公開画面
+                      </Link>
+                    )}
+                  </>,
                 ],
               }))}
             />

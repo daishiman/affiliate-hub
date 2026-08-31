@@ -1,5 +1,5 @@
 import { AdminShell } from "@/presentation/admin/admin-shell";
-import { CreateRankingModelForm } from "@/presentation/admin/ranking-model-form";
+import { CreateRankingModelForm } from "@/presentation/admin/material/ranking-model-form";
 import {
   currentActor,
   rankingCriteriaOptions,

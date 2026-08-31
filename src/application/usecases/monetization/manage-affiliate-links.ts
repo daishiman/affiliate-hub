@@ -1,9 +1,12 @@
 import { auditWriteFailure, buildAuditEntry } from "@/application/audit";
 import type { IdGeneratorPort } from "@/application/ports/common";
 import type { AuditLogPort } from "@/application/ports/compliance";
-import type { CommercialAffiliateLinkRepositoryPort } from "@/application/ports/monetization";
+import type {
+  AffiliateProgramRepositoryPort,
+  CommercialAffiliateLinkRepositoryPort,
+} from "@/application/ports/monetization";
 import { requireCapability } from "@/domain/identity";
-import { disableAffiliateLink, isLinkUsable } from "@/domain/monetization";
+import { ASP_LABEL, disableAffiliateLink, isLinkUsable } from "@/domain/monetization";
 import {
   type ActorContext,
   type AffiliateLinkId,
@@ -43,6 +46,7 @@ import type { UseCase } from "../usecase";
 
 export type AffiliateLinkDeps = {
   readonly links: CommercialAffiliateLinkRepositoryPort;
+  readonly programs: AffiliateProgramRepositoryPort;
   readonly ids: IdGeneratorPort;
   /** 誰がいつ止めたか。**残せなければ成功にしない。** */
   readonly auditLog: AuditLogPort;
@@ -59,6 +63,22 @@ export type AffiliateLinkRow = {
   /** ASP が発行した URL の**接続先だけ**。全体は出さない（成果の割り当て先が入っている）。 */
   readonly host: string;
   readonly registeredAt: string;
+  readonly providerId: string;
+  readonly providerLabel: string;
+  readonly lastCheckedAt: string | null;
+  readonly placementCount: number;
+  readonly placements: readonly {
+    readonly placementId: string;
+    readonly siteSlug: string;
+    readonly articleSlug: string;
+    readonly blockId: string | null;
+    readonly placement: string;
+    readonly position: number;
+    readonly status: "active" | "removed";
+    readonly lastRenderedAt: string | null;
+  }[];
+  readonly needsAttention: boolean;
+  readonly attentionReasons: readonly string[];
   readonly state: "usable" | "disabled" | "expired";
   readonly stateLabel: string;
   /** 止められるか。止まっているものは押せる形にしない。 */
@@ -69,6 +89,14 @@ export type ListAffiliateLinksOutput = {
   readonly rows: readonly AffiliateLinkRow[];
   /** いま読者に出ている本数。0 なら記事に成果リンクが 1 件も出ない。 */
   readonly usableCount: number;
+  readonly totalCount: number;
+  readonly providerOptions: readonly { readonly value: string; readonly label: string }[];
+};
+
+export type ListAffiliateLinksInput = {
+  readonly state?: AffiliateLinkRow["state"] | null;
+  readonly provider?: string | null;
+  readonly attention?: boolean | null;
 };
 
 function guardCommercial(deps: AffiliateLinkDeps): void {
@@ -96,10 +124,13 @@ const STATE_LABEL: Readonly<Record<AffiliateLinkRow["state"], string>> = {
 
 export function createListAffiliateLinksUseCase(
   deps: AffiliateLinkDeps,
-): UseCase<Record<string, never>, ListAffiliateLinksOutput> {
+): UseCase<ListAffiliateLinksInput, ListAffiliateLinksOutput> {
   guardCommercial(deps);
   return {
-    async execute(actor: ActorContext): Promise<Result<ListAffiliateLinksOutput, DomainError>> {
+    async execute(
+      actor: ActorContext,
+      input,
+    ): Promise<Result<ListAffiliateLinksOutput, DomainError>> {
       /*
         一覧は**読むだけなので `read_revenue` で足りる。** `manage` を求めると、
         数字を見る役（analyst）が「いま読者に何が出ているか」を確かめられない。
@@ -111,8 +142,28 @@ export function createListAffiliateLinksUseCase(
       const found = await deps.links.listWithSnapshot(actor.workspaceId);
       if (!found.ok) return found;
 
+      const programIds = [...new Set(found.value.map(({ link }) => String(link.programId)))];
+      const programResults = await Promise.all(
+        programIds.map(async (programId) => ({
+          programId,
+          result: await deps.programs.findById(
+            actor.workspaceId,
+            taggedString<"AffiliateProgramId">(programId),
+          ),
+        })),
+      );
+      const failedProgram = programResults.find(({ result }) => !result.ok);
+      if (failedProgram !== undefined && !failedProgram.result.ok) return failedProgram.result;
+      const providerByProgram = new Map(
+        programResults.flatMap(({ programId, result }) =>
+          result.ok && result.value !== null
+            ? [[programId, { id: result.value.asp, label: ASP_LABEL[result.value.asp] }] as const]
+            : [],
+        ),
+      );
+
       const at = deps.now();
-      const rows = found.value.map(({ link, snapshot }) => {
+      const allRows = found.value.map(({ link, snapshot, lastCheckedAt, placements = [] }) => {
         /*
           止めたのか、期限が来たのかを分けて出す。
           まとめて「使えません」にすると、押して止めたのか ASP 側の都合なのかが
@@ -124,6 +175,21 @@ export function createListAffiliateLinksUseCase(
             : isLinkUsable(link, at)
               ? "usable"
               : "expired";
+        const provider = providerByProgram.get(String(link.programId)) ?? {
+          id: "unknown",
+          label: "提携先未確認",
+        };
+        const activePlacements = placements.filter((placement) => placement.status === "active");
+        const checkedAt = lastCheckedAt ?? null;
+        const attentionReasons = [
+          ...(state === "usable" ? [] : [STATE_LABEL[state]]),
+          ...(checkedAt === null
+            ? ["最終確認日がありません"]
+            : at.getTime() - checkedAt.getTime() > 30 * 24 * 60 * 60 * 1000
+              ? ["最終確認から30日を超えています"]
+              : []),
+          ...(activePlacements.length === 0 ? ["掲載先がありません"] : []),
+        ];
         return {
           affiliateLinkId: String(link.id),
           productName: snapshot.productName,
@@ -131,6 +197,22 @@ export function createListAffiliateLinksUseCase(
           oneLine: snapshot.oneLine,
           host: hostOf(link.originalUrl),
           registeredAt: link.createdAt.toISOString().slice(0, 10),
+          providerId: provider.id,
+          providerLabel: provider.label,
+          lastCheckedAt: checkedAt?.toISOString() ?? null,
+          placementCount: activePlacements.length,
+          placements: placements.map((placement) => ({
+            placementId: placement.placementId,
+            siteSlug: placement.siteSlug,
+            articleSlug: placement.articleSlug,
+            blockId: placement.blockId,
+            placement: placement.placement,
+            position: placement.position,
+            status: placement.status,
+            lastRenderedAt: placement.lastRenderedAt?.toISOString() ?? null,
+          })),
+          needsAttention: attentionReasons.length > 0,
+          attentionReasons,
           state,
           stateLabel: STATE_LABEL[state],
           // 期限切れも止められる。ASP 側で復活したときに、
@@ -139,7 +221,27 @@ export function createListAffiliateLinksUseCase(
         };
       });
 
-      return ok({ rows, usableCount: rows.filter((r) => r.state === "usable").length });
+      const rows = allRows.filter(
+        (row) =>
+          (input.state === undefined || input.state === null || row.state === input.state) &&
+          (input.provider === undefined ||
+            input.provider === null ||
+            row.providerId === input.provider) &&
+          (input.attention !== true || row.needsAttention),
+      );
+      const providerOptions = [...new Map(
+        allRows.map((row) => [
+          row.providerId,
+          { value: row.providerId, label: row.providerLabel },
+        ]),
+      ).values()].sort((left, right) => left.label.localeCompare(right.label, "ja"));
+
+      return ok({
+        rows,
+        usableCount: allRows.filter((row) => row.state === "usable").length,
+        totalCount: allRows.length,
+        providerOptions,
+      });
     },
   };
 }

@@ -1,7 +1,7 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "c7842a5a-e01e-4b5b-b2e5-c814f2d03be7",
+  "id": "d17d4e1f-3be1-4efa-aadc-527f10719132",
   "prevId": "16db91e9-91c6-4a97-ac3a-71def188d22e",
   "tables": {
     "affiliate_accounts": {
@@ -3598,6 +3598,27 @@
           "notNull": true,
           "autoincrement": false
         },
+        "source_fetched_at": {
+          "name": "source_fetched_at",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "source_sha256": {
+          "name": "source_sha256",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "previous_source_sha256": {
+          "name": "previous_source_sha256",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
         "note": {
           "name": "note",
           "type": "text",
@@ -5474,13 +5495,6 @@
           "type": "text",
           "primaryKey": false,
           "notNull": true,
-          "autoincrement": false
-        },
-        "archived_at": {
-          "name": "archived_at",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
           "autoincrement": false
         },
         "article_json": {

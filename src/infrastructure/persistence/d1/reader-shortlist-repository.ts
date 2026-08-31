@@ -30,7 +30,8 @@ function toItem(row: ReaderShortlistItemRow): ShortlistItem {
   return {
     productId: row.productId,
     productName: row.productName,
-    savedAt: row.savedAt,
+    // 列名は `saved_at`（migration が要るため据え置き）。型の側は意味で名前を分ける。
+    shortlistedAt: row.savedAt,
     ...(row.fromArticleHref === null ? {} : { fromArticleHref: row.fromArticleHref }),
     ...(row.oneLine === null ? {} : { oneLine: row.oneLine }),
   };
@@ -69,7 +70,8 @@ export function createD1ShortlistRepository(db: DrizzleD1): EditorialShortlistPo
             readerKey,
             productId: item.productId,
             productName: item.productName,
-            savedAt: item.savedAt,
+            // 左が列名（`saved_at`。migration が要るため据え置き）、右が型の欄名。
+            savedAt: item.shortlistedAt,
             fromArticleHref: item.fromArticleHref ?? null,
             oneLine: item.oneLine ?? null,
           })

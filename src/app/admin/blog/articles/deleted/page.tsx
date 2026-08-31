@@ -1,5 +1,5 @@
 import { AdminShell } from "@/presentation/admin/admin-shell";
-import { BlogArticleRestoreForm } from "@/presentation/admin/blog-article-form";
+import { BlogArticleRestoreForm } from "@/presentation/admin/publish/blog-article-form";
 import { blogOpsEntry, currentActor } from "@/presentation/composition";
 import { DataTable, EmptyView, ErrorView, Section, TextLink } from "@/presentation/ui";
 

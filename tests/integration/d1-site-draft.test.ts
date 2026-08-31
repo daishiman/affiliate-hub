@@ -19,6 +19,7 @@ import {
 import { SITE_WIZARD_STEPS } from "@/domain/authoring";
 import type { ActorContext } from "@/domain/shared";
 import { SAMPLE_WORKSPACE_ID } from "@/infrastructure/persistence/sample/ranking-sample-repository";
+import { SAMPLE_SITE_SLUG } from "@/infrastructure/persistence/sample/site-sample-repository";
 import { OTHER_WORKSPACE, anOwner } from "../support/actors";
 import { recordingAuditLog } from "../support/doubles";
 
@@ -343,7 +344,7 @@ describe("下書きから読者向けの 1 本になるまで（1 本の道）",
   });
 
   it("見本と同じslugを取り下げても、見本がfallbackで再露出しない", async () => {
-    const slug = "video-editing-gear";
+    const slug = SAMPLE_SITE_SLUG;
     const sample = await sites.findBySlug(slug);
     if (!sample.ok || sample.value === null) throw new Error("見本サイトがありません");
 

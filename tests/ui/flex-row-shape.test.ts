@@ -109,9 +109,20 @@ const EXEMPT: Record<string, Exemption> = {
     measured: "Chromium実DOMで修正前の高さ28px（2026-08-21）",
     reason: "見出し文字1つを包むリンクで、44pxの的を作るためだけのinline-flex",
   },
-  "src/presentation/ui/templates/site.module.css :: .cardTitle a": {
-    measured: "Chromium実DOMで修正前の高さ23px（2026-08-21）",
-    reason: "記事題の文字1つを包むリンクで、44pxの的を作るためだけのinline-flex",
+  // ブログ名・本文中の行き先・記事題の 3 つは、同じ「文字 1 つを包んで 44px の
+  // 押しどころを作る」規則なので 1 本にまとめてある（2026-08-31 の統合）。
+  // 3 つに分かれていたときは、下限を直すのに 3 か所を直す必要があった。
+  "src/presentation/ui/templates/site.module.css :: .siteName,\n.article a,\n.cardTitle a": {
+    measured: "文字 1 つを包むリンク 3 種（ブログ名・本文中の行き先・記事題）（2026-08-31）",
+    reason: "44px の押しどころを作るためだけの inline-flex。中身は文字だけで折り返す先が無い",
+  },
+  "src/presentation/ui/templates/site.module.css :: .tableOfContents a": {
+    measured: "目次 1 項目のリンク。中身は節の見出し文字だけ（2026-08-30）",
+    reason: "44px の押しどころを作るためだけの inline-flex。折り返しは器の ul 側が持つ",
+  },
+  "src/presentation/ui/templates/site.module.css :: .articleIntroAuthorName a,\n.articleAuthorProfileName a": {
+    measured: "書き手の名前を包むリンク。見出しの中に単独で在る（2026-08-30）",
+    reason: "44px の押しどころを作るためだけの inline-flex。中身は名前の文字 1 つ",
   },
   "src/presentation/ui/templates/site.module.css :: .siteName": {
     measured: "Chromium実DOMで修正前の高さ32.39px（2026-08-21）",
@@ -132,12 +143,6 @@ const EXEMPT: Record<string, Exemption> = {
   "src/presentation/ui/templates/screen-parts.module.css :: .rowSelector": {
     measured: "表の行を選ぶチェック箱と説明の対（2026-08-23）",
     reason: "チェック箱と説明が別の行に分かれると対応が読めないため、一つの選択肢として保つ",
-  },
-  "src/app/admin/admin.module.css :: .rankTable td > a": {
-    measured: "11 回 / 子 0 のみ（18:20）",
-    reason:
-      "升目に単独で置かれた行き先。中身が文字だけ。**inline-flex は min-height を効かせるために要る**" +
-      "——`td` は flex の器ではないので、下限だけ書いても素の inline には当たらない",
   },
   "src/presentation/ui/patterns/patterns.module.css :: .table td > a,\n.table th > a": {
     measured: "17 回 / 子 0 のみ（18:20。`td` 側 5・`th` 側 12）",
@@ -244,12 +249,9 @@ const EXEMPT: Record<string, Exemption> = {
     measured: "168 回 / 子 0 のみ（18:20）",
     reason: "中身が文字だけ。折り返しは器の .footerLinks 側が持っている",
   },
-  "src/presentation/ui/templates/site.module.css :: .breadcrumb a,\nnav.section a": {
-    measured:
-      "80 回 / 子 0 のみ（18:20。うち 77 回は上の ui.module.css の行と同じ物——" +
-      "クラス名が同じでファイルが違うものは分けられない。差の 3 回が `nav.section a`）",
-    reason: "中身が文字だけ。折り返しは器の側が持っている",
-  },
+  // `site.module.css :: .breadcrumb a, nav.section a` はここに在ったが、
+  // パンくずの押しどころが `ui.module.css` の 1 本に寄り、こちら側は色の指定だけに
+  // なった（2026-08-31）。折り返さない規則ではなくなったので一覧から外す。
 
   // --- 直の子が 1 つまで --------------------------------------------------
   // 子が 1 つなら、折り返しても並びが変わらない（折り返す相手がいない）。
@@ -300,15 +302,15 @@ const EXEMPT: Record<string, Exemption> = {
   // 「**この一覧で唯一、子が 2 つ以上入る**」も外している——**この行を足した瞬間に
   // その文が誤りになるため。**一覧に 1 行足すことが、離れた行の**理由の文**を
   // 誤りにする形である。数と違って、こちらは走らせても赤にならない。
-  "src/app/admin/admin.module.css :: .rankTable label": {
-    measured:
-      "9 回 / 子 2 のみ（18:20。EHIJ の赤 3 塊 / 9 テストと同数だが、量は別物）。" +
-      "出どころは `admin/feedback/page.tsx:208` の 1 か所だけ（" +
-      "チェックの箱と、それを説明する `span` の対）",
+  //
+  // `.rankTable label` と `.rankTable td > a` はここに在ったが、順位の表が
+  // 共通の `RankingTable` へ移り、`admin.module.css` から規則ごと消えた（2026-08-31）。
+  // 一覧から外す。**残しておくと、もう存在しない規則が理由つきで居座る。**
+  "src/presentation/ui/patterns/patterns.module.css :: .decisionStatus": {
+    measured: "判断状態の札。印 1 個と「まだ判定できません」等の短い文（2026-08-31）",
     reason:
-      "チェックの箱と、その説明の文字。**この 2 つが別の行に割れると、" +
-      "箱がどの行のものか読めなくなる**ので、折り返さないことのほうが正しい。" +
-      "文字側は縮む項目なので、狭いときは `span` の中で折れて器を超えない",
+      "札は状態そのもので、途中で折れると印だけが行に取り残されて別の状態に読める。" +
+      "中身は短い決まり文句だけなので、折り返す先が無い",
   },
   // ── 記事本文の断片（`presentation/prose`）────────────────────────────
   // **5 件とも「折り返させない」ではなく「折り返す先が無い」。**
@@ -345,6 +347,53 @@ const EXEMPT: Record<string, Exemption> = {
       "横並びにしているのは中身を並べるためではなく、押しどころの下限 " +
       "(`--tap-target-min`) を素の `<a>` へ効かせるため。子は文字ひとかたまりだけで、" +
       "**折り返す先が無い**（長い項目名は文字の側が普通に折り返す）",
+  },
+  // ── 読者向けブログの骨格（2026-08-30 の統合で合流）──────────────────
+  // **7 件とも、縮む役を別の規則が持っている。**折り返しを足すのではなく、
+  // 「どこが縮むか」を辿ってから除外している。辿れないものは除外しない。
+  "src/app/admin/admin.module.css :: .publishedStatus": {
+    measured: "公開済み記事の一覧に付く状態の印。中身は「公開中」「非表示」程度の短い語（2026-08-30）",
+    reason:
+      "丸い枠の中の 1 語。`white-space: nowrap` を自分で持っていて、" +
+      "**枠と語が割れないことが印の意味そのもの**である。長い語は入らない",
+  },
+  "src/presentation/ui/primitives/ui.module.css :: .headerActions a": {
+    measured: "上端の帯に並ぶ操作 1 個ぶん。押しどころの下限を素の `<a>` へ効かせる包み（2026-08-30）",
+    reason:
+      "横並びにしているのは中身を並べるためではなく、`min-height: var(--tap-target-min)` の" +
+      "中央へ文字を置くため。子は文字ひとかたまりだけで**折り返す先が無い**。" +
+      "帯の側（`.headerActions`）が `flex-wrap: wrap` を持ち、操作と操作の間で折れる",
+  },
+  "src/presentation/ui/templates/site.module.css :: .categoryArticleGroupHead": {
+    measured: "分類ごとの見出し帯。左に題と説明の列、右に「もっと見る」1 個（2026-08-30）",
+    reason:
+      "題の列と、その分類へ進むリンク。**割れると「もっと見る」がどの分類のものか読めなくなる**。" +
+      "縮む役は左の `div`（`display: grid`）が持ち、題も説明も文字の側で折り返す",
+  },
+  "src/presentation/ui/templates/site.module.css :: .categoryArticleGroupHead > a": {
+    measured: "上の帯の右端のリンク 1 個。中身は「もっと見る」程度の短い語（2026-08-30）",
+    reason: "押しどころの下限へ文字を収めるための包み。子は文字ひとかたまりだけで、折り返す先が無い",
+  },
+  "src/presentation/ui/templates/site.module.css :: .sidebarLinks a": {
+    measured: "補助列の 1 項目。中身は分類名か記事の題（2026-08-30）",
+    reason:
+      "押しどころの下限（`--tap-target-min`）を素の `<a>` へ効かせるための横並び。" +
+      "子は文字ひとかたまりだけで、長い題は文字の側が普通に折り返す",
+  },
+  "src/presentation/ui/templates/site.module.css :: .siteHeaderInner": {
+    measured: "読者向けブログの上端。左にブログ名、右に検索の 2 つ（2026-08-30）",
+    reason:
+      "**名前と検索が上下に割れると、検索が本文の始まりに見える。**" +
+      "縮む役は両側が持っていて、名前は `.siteIdentity` の `min-width: 0`、" +
+      "検索は `.siteSearch input` の `min-width: 0` で受ける",
+  },
+  "src/presentation/ui/templates/site.module.css :: .siteNav": {
+    measured: "ブログの分類の並び。項目数はブログの分類の数（見本は 3〜4）（2026-08-30）",
+    reason:
+      "**逃げ道が折り返しではなく `overflow-x: auto` である。**分類の並びは" +
+      "「全部で何本あるか」が一目で分かることに意味があり、折り返すと段数が" +
+      "分類の数で変わって上端の高さが画面ごとに動く。横へ流して、" +
+      "はみ出した先は指と車輪で辿れるようにしてある",
   },
 };
 
@@ -492,6 +541,43 @@ describe("折り返さない横並びは、理由つきで数えられている"
 
 /** 縮められるようにしてある規則。**消えたら赤。** */
 const SHRINKABLE: Record<string, Exemption> = {
+  // ── 入力欄と、それを包む器 ──────────────────────────────────────────
+  // **入力欄は既定で `size` 属性ぶんの幅を主張する。**`width: 100%` だけでは
+  // 器を超えるので、`min-width: 0` が要る。器の側にも要るのは、器が縮まなければ
+  // 中身をいくら縮めても意味が無いため。
+  "src/presentation/ui/primitives/ui.module.css :: .input": {
+    measured: "共通の入力欄。管理画面のすべての form が通る（2026-08-31）",
+    reason:
+      "入力欄は既定の最小幅（`size` 属性ぶん）を主張する。" +
+      "**これが無いと、狭い画面で入力欄だけが器の外へ突き出る**",
+  },
+  "src/presentation/ui/primitives/ui.module.css :: .field": {
+    measured: "入力欄 1 つと、その名札・説明の縦の組（2026-08-31）",
+    reason: "中に横へ伸びるもの（入力欄・長い説明）が入る器。器が縮まないと中身も縮めない",
+  },
+  // 字下げ 2 つは media query の中に在るという意味（狭い画面のときだけ効く）。
+  "src/app/admin/admin.module.css :: .publishedFilter input,\n  .publishedFilter select,\n  .publishedFilter button": {
+    measured: "公開済み記事の絞り込み。検索欄・公開状態・実行の 3 つ（2026-08-31）",
+    reason:
+      "3 列の grid に置く入力欄と選ぶ欄。**`minmax(0, …)` は列の下限を外すだけで、" +
+      "入力欄自身の最小幅は消えない**ので、子の側にも要る。" +
+      "狭い画面では 1 列へ落ちるため、そのときだけ効かせる",
+  },
+  // ── 共通の節と、項目・値の対 ────────────────────────────────────────
+  "src/presentation/ui/templates/screen-parts.module.css :: .section": {
+    measured: "管理画面 86 枚すべての節の器（2026-08-31）",
+    reason: "中に表・長い URL・選択肢の長い form が入る。器が縮まないと画面ごと横へ溢れる",
+  },
+  "src/presentation/ui/templates/screen-parts.module.css :: .section > *": {
+    measured: "節の直の子。表の包み・form・注意書き（2026-08-31）",
+    reason: "grid の子の最小幅は中身の幅で決まる。**節を縮めても、子が縮まなければ溢れる**",
+  },
+  "src/presentation/ui/templates/screen-parts.module.css :: .factRow dd": {
+    measured: "項目と値の対の、値の側（2026-08-31）",
+    reason:
+      "値には切れない長い文字列（URL・識別子）が入る。" +
+      "`overflow-wrap: anywhere` と対で使い、途中で折って器の中に収める",
+  },
   "src/presentation/ui/primitives/ui.module.css :: .main": {
     measured: "2026-08-21。管理画面 32 枚の本文の器",
     reason:
@@ -551,6 +637,38 @@ const SHRINKABLE: Record<string, Exemption> = {
     reason:
       "入力欄は既定で中身に応じた最小幅を持つ。下げておかないと、" +
       "`width: 100%` を書いても行ごと横へ溢れて印が画面外へ出る",
+  },
+  // ── 読者向けブログの骨格（2026-08-30 の統合で合流）──────────────────
+  // 上の 2 本（`.siteMain > *` / `.article > *`）が「本文の中身」を閉じ込めるのに対し、
+  // ここは**本文の柱そのもの**が横へ広がらないようにする側。柱が広がると、
+  // 中の包みがいくら縮んでも上端の帯と補助列ごと画面外へ出る。
+  "src/presentation/ui/templates/site.module.css :: .article": {
+    measured: "記事 1 本の器。表・長い URL・引用を含みうる（2026-08-30）",
+    reason:
+      "`.siteMain` の grid の子。これが無いと記事の最小内容幅が本文の柱へ伝わり、" +
+      "内側の `.article > *` で閉じ込めた横スクロールが効かなくなる",
+  },
+  "src/presentation/ui/templates/site.module.css :: .articleListBody": {
+    measured: "一覧に並ぶ記事 1 件ぶんの題と要約（2026-08-30）",
+    reason:
+      "日付や印と横に並ぶ列。長い題が行ごと横へ押し出すのを止め、" +
+      "**題の側で折り返させる**ため（切り落とすと、どの記事か読めなくなる）",
+  },
+  "src/presentation/ui/templates/site.module.css :: .categoryDirectory li": {
+    measured: "分類の一覧の 1 項目。分類名と本数が横に並ぶ（2026-08-30）",
+    reason: "長い分類名が本数を項目の外へ押し出さないよう、名前の側を縮めて折り返させるため",
+  },
+  "src/presentation/ui/templates/site.module.css :: .siteIdentity": {
+    measured: "上端のブログ名と一言説明。検索と横に並ぶ（2026-08-30）",
+    reason:
+      "flex の子の最小幅は既定で `auto`。長いブログ名がそのまま幅になると、" +
+      "**折り返さない上端（`.siteHeaderInner`）ごと検索を画面外へ押し出す**",
+  },
+  "src/presentation/ui/templates/site.module.css :: .siteSearch input": {
+    measured: "上端の検索欄。入力欄は既定で中身に応じた最小幅を持つ（2026-08-30）",
+    reason:
+      "`grid-template-columns: minmax(0, 1fr) auto` の 1fr 側。下げておかないと" +
+      "入力欄の既定幅が上端の幅を決めてしまい、狭い画面でブログ名が消える",
   },
 };
 

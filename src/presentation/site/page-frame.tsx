@@ -52,6 +52,7 @@ export async function SiteFrame({
   trail = [],
   pageKind = "article",
   sidebar = false,
+  asideSlot,
   requiredFixedPageKind,
   children,
 }: {
@@ -75,6 +76,14 @@ export async function SiteFrame({
    * 脇に別の入口を並べると本題から目を離させる。
    */
   readonly sidebar?: boolean;
+  /**
+   * 記事目次など、**その画面にだけ要る**補助導線。
+   *
+   * `sidebar` と分けているのは、あちらが「管理画面で組んだ枠を出すか」で、
+   * こちらは「この画面が自前で持ち込む中身」だから。同じ名前にすると、
+   * 管理画面で枠を全部消した日に目次まで消える。
+   */
+  readonly asideSlot?: ReactNode;
   /** 指定した公開中固定ページが無ければ、骨格を描く前に 404 にする。 */
   readonly requiredFixedPageKind?: FixedPageKind;
   readonly children: (ctx: SiteContext) => ReactNode | Promise<ReactNode>;
@@ -124,7 +133,7 @@ export async function SiteFrame({
     カテゴリーは設計図から渡す。**保存先へもう一度引きに行かない**
     (`blueprint.categories` がこの時点で手元にある)。
   */
-  const [asideNormal, asideSticky] = sidebar
+  const [projectedAside, asideSticky] = sidebar
     ? [
         blogSidebar({ siteSlug, region: "sidebar", categories: blueprint.categories, projection }),
         blogSidebar({
@@ -135,6 +144,19 @@ export async function SiteFrame({
         }),
       ]
     : [null, null];
+  /*
+    画面が自前で持ち込む中身（記事目次）は、保存された枠より**前**に置く。
+    いま読んでいる記事の中の移動が、他の記事への入口より先に来る。
+  */
+  const asideNormal =
+    asideSlot === undefined ? (
+      projectedAside
+    ) : (
+      <>
+        {asideSlot}
+        {projectedAside}
+      </>
+    );
 
   return (
     <SiteShell

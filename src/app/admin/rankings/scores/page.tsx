@@ -1,5 +1,5 @@
 import { AdminShell } from "@/presentation/admin/admin-shell";
-import { SaveScoreCardForm } from "@/presentation/admin/score-card-form";
+import { SaveScoreCardForm } from "@/presentation/admin/material/score-card-form";
 import { currentActor, productUseCases, rankingUseCases } from "@/presentation/composition";
 import { EmptyView, ErrorView, ListView, Section, TextLink } from "@/presentation/ui";
 

@@ -42,7 +42,7 @@ export async function saveToShortlistAction(
       productName,
       // 押した時刻はサーバで決める。ブラウザの時計を信じると、
       // 時計のずれた端末で保存したものだけが一覧の先頭に居座る。
-      savedAt: new Date().toISOString(),
+      shortlistedAt: new Date().toISOString(),
       ...(fromArticleHref === "" ? {} : { fromArticleHref }),
       ...(oneLine === "" ? {} : { oneLine }),
     },

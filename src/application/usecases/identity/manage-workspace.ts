@@ -868,6 +868,8 @@ export const AUDIT_ACTION_LABEL: Readonly<Record<AuditAction, string>> = {
   "policy_rule.changed": "表記のきまりを変えた",
   "guideline_reference.registered": "SEO/AI 指針の出典を登録した",
   "guideline_reference.rechecked": "SEO/AI 指針の出典を再確認した",
+  "guideline_reference.source_verified": "SEO/AI 指針の原典本文を取得して指紋を控えた",
+  "guideline_reference.reopen_acknowledged": "SEO/AI 指針の変更後に仕様章を再評価した",
   // 受信箱の 3 語。読む人が「受け取り → 宛先決め → 対象外」の順で追えるようにする。
   "affiliate_link.created": "成果リンクを受け取った",
   "affiliate_link.changed": "成果リンクの宛先を決めた",

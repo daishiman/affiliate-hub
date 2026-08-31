@@ -43,35 +43,15 @@
   cursor: pointer;
 }
 
-.publishedArticleCell {
-  display: grid;
-  min-width: var(--card-min-width);
-  gap: var(--space-1);
-}
-
-.publishedArticleCell span {
-  display: block;
-  color: var(--color-text-muted);
-  font-weight: var(--weight-normal);
-}
-
-.publishedActions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-3);
-  white-space: nowrap;
-}
-
-.publishedActions a {
-  display: inline-flex;
-  flex-wrap: wrap;
-  align-items: center;
-  min-height: var(--tap-target-min);
-}
+/*
+  `.publishedArticleCell` / `.publishedActions` の 4 規則は消した（2026-08-31）。
+  一覧の升目の中身は `DataTable` の行へ直に組み立てるようになり、
+  この 4 つを付ける場所がどこにも無くなっている。**当たらない規則は、
+  当たっているように読める分だけ害がある。**
+*/
 
 .publishedStatus {
   display: inline-flex;
-  flex-wrap: wrap;
   align-items: center;
   min-height: var(--space-6);
   padding-inline: var(--space-2);
@@ -81,6 +61,39 @@
   font-size: var(--text-xs);
   font-weight: var(--weight-semibold);
   white-space: nowrap;
+}
+
+.publishedEditor {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.creationSteps {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-4);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.creationSteps li > * {
+  height: 100%;
+}
+
+.creationSteps span {
+  color: var(--color-text-muted);
+  font-variant-numeric: tabular-nums;
+  font-weight: var(--weight-bold);
+}
+
+.creationSteps h2,
+.creationSteps p {
+  margin: 0;
+}
+
+.creationSteps h2 {
+  font-size: var(--text-lg);
 }
 
 /* --- 順位の表 ---------------------------------------------------------- */

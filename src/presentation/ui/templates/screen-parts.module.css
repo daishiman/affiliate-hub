@@ -18,7 +18,14 @@
   max-width: 100%;
 }
 
-.title {
+/*
+ * 節の見出し。
+ *
+ * `.title` ではなく `.sectionTitle` と名乗る。静止冊子
+ * （`scripts/write-static-preview.tsx`）はクラス名をそのまま書き出すので、
+ * **CSS Modules の中では衝突しない短い名前が、書き出した先では衝突する。**
+ */
+.sectionTitle {
   margin: 0;
   font-size: var(--text-lg);
   line-height: var(--leading-heading);
@@ -232,6 +239,11 @@ ol.list {
  * 押せる場所であることが見た目から消える。
  */
 .foldableSummary {
+  /*
+   * 指で押せる大きさを確保する。畳んだ塊は summary の 1 行しか掴む場所が無く、
+   * 文字の高さだけだと親指では外す。
+   */
+  min-height: var(--tap-target-min);
   cursor: pointer;
   font-size: var(--text-sm);
   color: var(--color-text-muted);

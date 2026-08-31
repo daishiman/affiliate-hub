@@ -40,6 +40,7 @@ const goodArticle: PublishedArticle = {
       ],
     },
   ],
+  keyPoints: ["書き出し速度で選ぶなら A", "色の正確さなら B", "持ち運びなら C"],
   faq: [{ question: "予算はいくら見ればよい?", answer: "10 万円台から選べます。" }],
 };
 
@@ -56,16 +57,45 @@ describe("AI 検索への備えの点検", () => {
     }
   });
 
-  it("先頭の節に本文が無ければ「冒頭に結論」で落ちる", () => {
-    const broken = {
-      ...goodArticle,
-      sections: [{ id: "s1", heading: "結論", paragraphs: [] as const }],
-    };
-    expect(checkOf(broken, "結論")).toBe(false);
+  it("一文の結論が空なら「冒頭に結論」で落ちる", () => {
+    // 見ているのは `answer` ブロックが出たかどうか。節の本文の有無ではない。
+    // 節に何か書いてあっても、読者と AI が最初に読む 1 文が無ければ落ちる。
+    expect(checkOf({ ...goodArticle, summary: "   " }, "結論")).toBe(false);
   });
 
-  it("節が 1 つも無くても「冒頭に結論」で落ちる（先頭参照で壊れない）", () => {
-    expect(checkOf({ ...goodArticle, sections: [] }, "結論")).toBe(false);
+  it("節が 1 つも無くても結論があれば「冒頭に結論」は通る", () => {
+    // 結論の正本は `summary` であって節ではない。節の数で判定していた頃は、
+    // 本文を書いただけで結論の無い記事に合格印が付いていた。
+    expect(checkOf({ ...goodArticle, sections: [] }, "結論")).toBe(true);
+  });
+
+  it("要点が無ければ落ちる（空配列でも落ちる）", () => {
+    expect(checkOf({ ...goodArticle, keyPoints: undefined }, "要点")).toBe(false);
+    expect(checkOf({ ...goodArticle, keyPoints: [] }, "要点")).toBe(false);
+    // 空白だけの行は要点として数えない（画面にも空の項目は出ない）。
+    expect(checkOf({ ...goodArticle, keyPoints: ["  "] }, "要点")).toBe(false);
+  });
+
+  it("出典の名前が空なら「出典」で落ちる（欄はあるが読者には出ない）", () => {
+    const broken: PublishedArticle = {
+      ...goodArticle,
+      sections: [
+        {
+          id: "s1",
+          heading: "結論",
+          paragraphs: ["まず 10 万円台ならこの 1 台。"],
+          claims: [
+            {
+              id: "c1",
+              statement: "最速",
+              kind: "fact",
+              evidence: [{ id: "e1", sourceLabel: "  ", checkedAt: "2026-08-19" }],
+            },
+          ],
+        },
+      ],
+    };
+    expect(checkOf(broken, "出典")).toBe(false);
   });
 
   it("更新日が空なら落ちる", () => {

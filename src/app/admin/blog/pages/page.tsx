@@ -1,7 +1,7 @@
 import { AdminShell } from "@/presentation/admin/admin-shell";
-import { BlogPageForm, BlogPageRestoreForm } from "@/presentation/admin/blog-page-form";
-import { blogSiteOptions, pickSiteSlug } from "@/presentation/admin/blog-site-options";
-import { BlogSiteSwitch } from "@/presentation/admin/blog-site-switch";
+import { BlogPageForm, BlogPageRestoreForm } from "@/presentation/admin/publish/blog-page-form";
+import { blogSiteOptions, pickSiteSlug } from "@/presentation/admin/publish/blog-site-options";
+import { BlogSiteSwitch } from "@/presentation/admin/publish/blog-site-switch";
 import { blogOpsEntry, currentActor } from "@/presentation/composition";
 import {
   Callout,

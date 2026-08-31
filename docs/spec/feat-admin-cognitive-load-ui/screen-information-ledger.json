@@ -47,9 +47,8 @@
       "feedback"
     ],
     "foldableRouteIds": [
-      "evidence",
-      "personas/audiences",
-      "feedback/[report]"
+      "feedback/[report]",
+      "personas/audiences"
     ],
     "foldableComponent": "Foldable",
     "initialOpen": false,
@@ -128,11 +127,11 @@
       "primaryAction": "条件で絞り込み、目的の商品の詳細へ進む",
       "permission": "product.read",
       "representation": {
-        "primary": "table",
+        "primary": "list",
         "secondary": [
           "summary"
         ],
-        "plannedPrimary": "table"
+        "plannedPrimary": "list"
       },
       "keep": [
         "対象を識別する名前",
@@ -343,7 +342,7 @@
       "primaryAction": "出所の欠けた主張を見つけて根拠を足す",
       "permission": "content.read",
       "representation": {
-        "primary": "table",
+        "primary": "list",
         "secondary": [
           "summary"
         ],
@@ -558,11 +557,11 @@
       "primaryAction": "測り方と重みを読み、対象の順位へ進む",
       "permission": "content.read",
       "representation": {
-        "primary": "table",
+        "primary": "card",
         "secondary": [
           "summary"
         ],
-        "plannedPrimary": "table"
+        "plannedPrimary": "card"
       },
       "keep": [
         "対象を識別する名前",
@@ -687,11 +686,11 @@
       "primaryAction": "評価項目ごとに点を入れて記録する",
       "permission": "content.read",
       "representation": {
-        "primary": "table",
+        "primary": "list",
         "secondary": [
           "summary"
         ],
-        "plannedPrimary": "table"
+        "plannedPrimary": "list"
       },
       "keep": [
         "対象を識別する名前",
@@ -730,7 +729,7 @@
       "primaryAction": "段階の止まった記事を見つけて次へ進める",
       "permission": "content.read",
       "representation": {
-        "primary": "table",
+        "primary": "list",
         "secondary": [
           "summary"
         ],
@@ -859,7 +858,7 @@
       "primaryAction": "いまの段階を確かめ、次の段階へ進める",
       "permission": "content.read",
       "representation": {
-        "primary": "table",
+        "primary": "card",
         "secondary": [
           "summary"
         ],
@@ -1246,7 +1245,7 @@
       "primaryAction": "読者像ごとの目的と知識量を読み、向ける相手を決める",
       "permission": "content.read",
       "representation": {
-        "primary": "table",
+        "primary": "list",
         "secondary": [
           "summary"
         ],
@@ -1676,7 +1675,7 @@
       "primaryAction": "直す対象の画面へ移動する",
       "permission": "content.read",
       "representation": {
-        "primary": "table",
+        "primary": "list",
         "secondary": [
           "summary"
         ],
@@ -2020,11 +2019,11 @@
       "primaryAction": "帯と枠に出す内容を保存する",
       "permission": "content.read",
       "representation": {
-        "primary": "table",
+        "primary": "card",
         "secondary": [
           "summary"
         ],
-        "plannedPrimary": "table"
+        "plannedPrimary": "card"
       },
       "keep": [
         "対象を識別する名前",
@@ -2063,7 +2062,7 @@
       "primaryAction": "足りない固定ページを見つけて書く",
       "permission": "content.read",
       "representation": {
-        "primary": "table",
+        "primary": "card",
         "secondary": [
           "summary"
         ],
@@ -2106,11 +2105,11 @@
       "primaryAction": "タグの名前と結び付きを直す",
       "permission": "content.read",
       "representation": {
-        "primary": "table",
+        "primary": "card",
         "secondary": [
           "summary"
         ],
-        "plannedPrimary": "table"
+        "plannedPrimary": "card"
       },
       "keep": [
         "対象を識別する名前",
@@ -2149,7 +2148,7 @@
       "primaryAction": "運用するブログを選ぶか、新しく作る",
       "permission": "content.read",
       "representation": {
-        "primary": "table",
+        "primary": "card",
         "secondary": [
           "summary"
         ],
@@ -2278,7 +2277,7 @@
       "primaryAction": "未記入の法定ページを見つけて書く",
       "permission": "content.read",
       "representation": {
-        "primary": "table",
+        "primary": "card",
         "secondary": [
           "summary"
         ],
@@ -2752,7 +2751,7 @@
       "primaryAction": "表記が古くなったリンクを見つけて止める",
       "permission": "affiliate.read_revenue",
       "representation": {
-        "primary": "table",
+        "primary": "list",
         "secondary": [
           "summary"
         ],
@@ -3013,7 +3012,7 @@
       "primaryAction": "未対応の問い合わせを読み、対応済みの印を付ける",
       "permission": "feedback.read",
       "representation": {
-        "primary": "table",
+        "primary": "card",
         "secondary": [
           "summary"
         ],
@@ -3529,11 +3528,11 @@
       "primaryAction": "役割ごとに許される操作を確かめる",
       "permission": "content.read",
       "representation": {
-        "primary": "table",
+        "primary": "list",
         "secondary": [
           "summary"
         ],
-        "plannedPrimary": "table"
+        "plannedPrimary": "list"
       },
       "keep": [
         "対象を識別する名前",
@@ -3786,14 +3785,13 @@
     "table": "同種の行を並べて読む・引く (DataTable / RankingTable)",
     "card": "1 個体の判断単位を区切って示す (Card / 用途別 Form / FactList)",
     "board": "手当てが要る順に並べ、なぜ要るかと次の 1 手を各件に付ける (WorkBoard)",
-    "list": "行き先または段階を順に並べる (ListView / StepList)",
+    "list": "行き先または段階を順に並べる (ListView / StepList / EvidenceList)",
     "timeline": "日付の並びの上に予定を置く (ScheduleCalendar)"
   },
   "plannedPrimaryPolicy": "primary は実装に結線されている現在の主表現、plannedPrimary は src/presentation/admin/admin-screen-task-manifest.ts の primary task から導いたあるべき主表現。2 つが食い違う route は plannedPrimaryGapRouteIds に列挙し、画面実装が追いつくまで乖離として数える。decision は表現方式を決めたかどうかを指すため decided のままとし、実装の遅れは undecidedCount へ混ぜない。",
-  "plannedPrimaryGapCount": 22,
+  "plannedPrimaryGapCount": 21,
   "plannedPrimaryGapRouteIds": [
     "affiliate/links",
-    "blog",
     "blog/articles",
     "blog/evaluate",
     "blog/pages",

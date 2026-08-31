@@ -55,7 +55,304 @@ verdict: spec-impact-applied
 
 ---
 
-## 以前の受領書（2026-08-24 13:30）
+## 以前の受領書（2026-08-30 04:00）
+
+```yaml
+receipt_id: spec-writeback-2026-08-30-feat-reference-blog-admin-ux-elegant-review
+recorded_at: 2026-08-30T04:00:00Z
+beads_ids: [ah-z8x6, ah-z8x6.8]
+dev_graph_node_id: feat-reference-blog-admin-ux
+base_branch: dev
+head_branch: devgraph/feat-reference-blog-admin-ux
+draft_pr: https://github.com/daishiman/affiliate-hub/pull/41
+verdict: accepted-with-open-blockers
+```
+
+## 2026-08-30 elegant-review（P0〜P2）の判定
+
+本変更は**確定済みの製品要求を増減しない。** 新しい画面契約も新しい要求 ID も足していない。
+やったのは (1) 既にある実装の置き場を分類の正本に従わせること、(2) 検査が見ていなかった
+母集団を見えるようにすること、(3) 証跡を更新する手段が無かった箇所に手段を作ることである。
+
+### 仕様・設計への影響が「有る」と判断した 1 件
+
+`src/presentation/admin/` の `.ts`（action / state / 対応表）が
+**production から到達可能でなければならない**という不変条件は、これまでどの仕様にも
+書かれていなかった。孤児検査が `.tsx` だけを見ていたため、規則が無くても誰も困らなかった。
+実測（2026-08-30）で admin 配下 72 件の `.ts` のうち **2 件が到達不能**だった。
+
+→ `docs/spec/feat-reference-blog-admin-ux/component-contract.md` に節を追加し、
+除外を `by-design` / `unfinished` の 2 種に分けること、後者には追跡先を必須にすることを明記した。
+
+| 層 | 今回の反映 |
+|---|---|
+| `docs/` | `spec/13-*.md`（「残す判断」と理由の表、ASM-001 の撤回）、`spec/06-*.md`（機械取得の訂正）、`product/ledgers.md`（ASM-001 に status 追記）、`spec/feat-reference-blog-admin-ux/component-contract.md`（到達性の節）、`analysis-refresh-runbook.md`（`--refresh` の使い方）、`spec/feat-uiux-overhaul/acceptance-reconciliation.json`（A6 の test_refs と再署名）、`product/port-wiring-report.md`（自動更新）、本受領書 |
+| `features/` | `feat-reference-blog-admin-ux.md` に本 PR を紐付ける（feature 全体は done にしない） |
+| `specs/` | 変更なし。索引が指す実装状態は今回動いていない |
+| `system-spec/` | **章本文の変更なし。** 確定章の直接編集は禁止で、`index.md` は compile 出力のため触らない |
+| `architecture/` | 変更なし。層構造も依存の向きも変えていない（`ui` の tokens ← primitives ← patterns ← templates は不変） |
+| `tasks/` | **本文は 1 バイトも変えていない。** 各 spec の「実行契約」が `source spec: 昇格済み generation の task spec 本文 (byte-for-byte 不変)` と定めている。`completion_evidence` も **done にしていない**（理由は下記） |
+| Beads | `ah-z8x6`（epic）と `ah-z8x6.8`（P08）へ実施内容を追記。新規起票はしない（理由は下記） |
+
+### `completion_evidence` を done にしなかった理由
+
+P08 の Acceptance state は「migration/backfill が再実行可能」「legacy route の redirect 収束」
+「rollback rehearsal 成功」「migration-report に件数差 0」を含む。今回やったのは
+**重複解消の部分だけ**である。部分の達成を phase の完了として署名すると、
+残りが未了であることが記録から消える。
+
+### 新規 Beads 起票をしなかった（できなかった）理由
+
+記事品質検査 24 種の指摘が画面に出ていない件は、負債として残っている。
+`bd-bridge.py --op create` は `--graph-node-id` を要求し、Beads 課題は dev-graph node と
+対でしか作れない。node の新設は計画プロセスの領分なので、
+`bd remember --key quality-check-issues-not-shown` に事実を記録し、
+`tests/architecture/admin-component-orphans.test.ts` の `unfinished` 除外の追跡先を
+そこへ向けた。**手段が無いことを「追跡先が無い」ことにしていない。**
+
+### 品質ゲート（MVP）
+
+| ゲート | 結果 |
+|---|---|
+| `tsc --noEmit` | PASS |
+| `vitest run` 全件 | PASS（421 files / 9,941 tests。dev 取り込み後の再実測） |
+| ESLint（src / tests / scripts） | PASS |
+| `validate-system-plan.py --feature-package feature-package/feat-reference-blog-admin-ux` | PASS（violations 0） |
+| `check-reference-site-reuse` / `acceptance-reconciliation` / `tier-audit` | PASS |
+| `traceability` / `required-test-types` / `port-wiring` | PASS |
+| `verify_evidence_index.py` | PASS（20 entry すべて一致） |
+| `migration-generated` | PASS（生成物を本コミットに含めて解消） |
+| `content:validate` / `run-tests --coverage` | PASS |
+| `required-test-types` | PASS |
+| `mutation --changed` | **NG。58.7%（下限 65%）**（下記） |
+| `coverage-report` | **NG。domain 分岐 92%（下限 93%）／presentation 分岐 79.9%（下限 80%）／presentation 関数 86.4%（下限 87%）** |
+| `spec-freshness` | **STALE。本変更以前からの状態**（下記） |
+
+**赤い 3 つは独立していない。**出所はどれも本ブランチで新規に足した 5 ファイル
+（`preview-affiliate-url.ts` / `affiliate-preview.ts` / `manage-affiliate-links.ts` /
+`manage-blog-articles.ts` / `link-ingestion.ts`、合計 1,484 行）で、
+実装の厚みにテストが追いついていない。`mutation.mjs` は**変更したところだけ**を測るので、
+新しい実装が薄ければ必ず赤くなる。緑にする道はテストを足すことだけである。
+**閾値は下げていない。** 下げれば「薄いまま増やせる」状態が恒久化する。
+これが本 PR を draft のまま出す理由でもある。
+
+### dev を取り込んだときに下した判断（2026-08-30）
+
+`origin/dev` の `#40`（同じ重複除去を別セッションで別に行ったもの）を取り込み、36 件が衝突した。
+**「どちらが新しいか」では決めていない。**片側は自分のコミット本文で
+「テストで検証していない。この worktree では vitest が起動しないため CI に委ねる」と
+宣言しており、こちらは全件緑を実測している。**検証の有無を優先の根拠にした。**
+
+| 対象 | 採った側 | 根拠 |
+|---|---|---|
+| 見本データ一式（`sample/`・`seed/`・静的プレビュー） | 本ブランチ | dev 側を採ると 12 件が落ちた（実測）。dev が真に足していた 3 点（`bandsSlot` を持つ home 本文、公開記事の管理口、固定ページ本文の 1 行規則）だけを個別に取り込んだ |
+| `T3` / `T4` / `architecture/README` / 許容値表 / `feat-ui-foundation` | dev | 参照先のファイル名・パスが実体と一致しているのは dev 側 |
+| `T2-experience-spec.md` | 本ブランチ | dev 側の行に実ホスト名が残っており `check-reference-site-reuse` に反する |
+| `use-draft.ts` | 本ブランチ | `savedAt` が 3 つの別の時刻を指していた取り違えの解消を含む真の上位集合 |
+| `completeness-report.json` | dev | 81 件の内訳が無傷で残っている。こちらは前回 `--write` で壊していた（下の残課題 2 を解消） |
+| `CategoryArticleDirectory` | 削除 | dev の home 本文を採った時点で死んだ。同じ意味の型と部品が 2 か所に在る状態は、本ブランチが消しに来た重複そのもの |
+| マイグレーション 0039 / 0040 | **1 本へ作り直し** | 0039 を両側が別の中身で名乗っていた。dev の `0039_gentle_archive` は dev 環境へ既に流れており、こちらの 2 本はどこへも流れていない。**実体が動いていない側**を捨て、`schema.ts` から `drizzle-kit generate` で `0040_merged_blog_ops` を引き直した（中身は捨てた 2 本の和、宣言は不変） |
+
+取り込みで `[slug]` を持つ画面が走査に乗り、`route-cases.ts` の値の表に例が無いまま
+`undefined` が渡って 18 件が実行時例外で落ちた。値を足すだけでなく、
+**例の無い名前を射影の時点で名指しして止める**ようにした。次に画面を足す人が、
+描画の失敗ではなく「表に 1 行足す」として受け取れる。
+
+### 意図的にやらなかったこと
+
+- **確定済み digest を語の統一のために割らない。** 「画面型」→「ページ種別」の統一は
+  `docs/spec/` 配下に限った。`docs/requirements/`・`tasks/`・`features/`・`.dev-graph/published/**`
+  には残っており、これは未処理ではなく**残す判断**である（理由は `docs/spec/13-*.md` §10 の表）。
+- **ASM-001 を格下げしない。** `docs/spec/13-*.md` §9 の旧版は「部分解消へ更新する」と
+  書いていたが、URL を 1,072 件数えられても記事の中を見たことにはならない。
+  `docs/product/ledgers.md` の ASM-001 は open のままにした。
+- **床なしの上限を上げない。** 追加した検査が `form2-population-floor` の上限 24 に触れたが、
+  上げずに床を各 `it` の中へ移した。
+
+### 残課題
+
+1. ~~**`spec-freshness` が STALE。**~~ **解消（2026-08-30）。**
+
+   **前の版でこれを「本ブランチ以前から dev 上に在る」と書いたのは誤りだった。訂正する。**
+   `origin/dev` の CI は緑で、dev 側の入力は 81 件、指紋も一致していた。STALE にしたのは
+   本ブランチである。内訳は `docs/spec/feat-reference-blog-admin-ux/` の **新規 25 件**と、
+   `system-spec/{auth,frontend,ui-ux}.md`・`spec-state.json` ほか **書き換え 10 件**。
+   どれも正規フローで書いた本ブランチの成果物で、レポートだけが 81 件時点に取り残されていた。
+
+   焼き直す前に、**完全性レポートが記録している機械ゲート 11 件を、いまの 106 件の仕様書に
+   対して全部実行し直した。11/11 が記録どおりの exit code を返した。**その実測を根拠に
+   `node scripts/spec-freshness.mjs --write` で指紋を焼き付けた。
+
+   **fork 監査 6 観点（`foundation_trace` / `decision_guidance` / `matrix_coverage` /
+   `design_knowledge_reflection` / `doc_freshness` / `prompt_quality`）は再実行していない。**
+   新しい確定質疑 2 件（`qa-frontend-web-affiliate-link-preview-v3` /
+   `qa-uiux-web-cognitive-load-affiliate-visibility-v3`）が加わっているので、厳密には
+   再監査の対象である。MVP の検証水準として機械ゲートの実測までで打ち切ることを
+   利用者が選んだ。**この判断を隠さないためにここへ書く。**
+
+2. **証跡と索引の割れを直した（本ブランチが持ち込んだもの）。**
+   `system-spec/fetched-references.json` の `better-auth` / `nextjs` / `apple-hig` の
+   3 件で、`evidence_sha256` と `retrieved_at` が `retrieval-evidence/*.json` の実体と
+   食い違っていた。`origin/dev` では 3 件とも一致していたので、割ったのは本ブランチである。
+
+   `source_url`・`freshness_source`・`last_updated` は証跡と一致していたので、
+   **同じ取得回のペアでありながら索引だけが追随していなかった**形。証跡ファイルが
+   後から整形し直されて指紋が動いたと見られる。
+
+   **直した向きは索引 → 一次記録。**証跡（HTTP 取得の生記録）は 1 バイトも触っていない。
+   逆向き（証跡を索引に合わせる）は、取得していない事実を作ることになる。
+   `resume-receipt.json` の `report_sha256` を書き換えないのと同じ理由である。
+   これで `G-source-citation` と `G-evidence-transcription` が PASS へ戻った。
+
+   `resume-receipt.json` の `report_sha256` と実体 digest の不一致は**残っている**。
+   こちらは再評価によってのみ解消でき、digest を書き換えて合わせることはしない。
+3. ~~**新規 5 ファイルのテストが薄い（本 PR を draft に留める理由）。**~~
+   **解消（2026-08-30）。CI の `verify` を落としていたのはこの 1 件だけだった。**
+   薄い 2 ファイルへテストを足し、`mutation --changed` は **58.56% → 72.11%**（下限 65%）。
+
+   | ファイル | 前 | 後 |
+   |---|---|---|
+   | `preview-affiliate-url.ts` | 28.16% | **95.41%** |
+   | `affiliate-preview.ts` | 50.30% | **89.35%** |
+
+   **閾値は 1 つも動かしていない。**倒した変異が 889 → 1,099 に増えたことによる。
+
+   このとき実装を 1 か所広げた。`preview-affiliate-url.ts` の商品名による重複照合は
+   `trim().toLocaleLowerCase()` だけで、`Alpha Studio 15` と `ＡＬＰＨＡ　ＳＴＵＤＩＯ１５`、
+   `AlphaStudio15` を別商品として扱っていた。ASP ごとの表記揺れで実際に起きる形である。
+   **候補欄は保存を止めるものではなく人が確定前に見る一覧なので、誤検出は 1 行余計に
+   読むだけで済み、見逃すと同じ商品が二重登録されて成果が 2 本に割れる。**
+   コストが対称でないため、NFKC + 空白除去 + `ja-JP` 固定の小文字化へ広げた
+   （`productKey`）。型番が 1 文字違うものまでは寄せない。
+
+   残る薄さ（`manage-blog-articles.ts` 55.4% / `manage-affiliate-links.ts` 57.1% /
+   `link-ingestion.ts` 70.8%）は**下限を満たしたうえでの改善余地**であり、
+   ゲートを止めるものではない。
+
+   併せて層別カバレッジの 2 か所の不足も閉じた。**全層が下限を満たしている。**
+
+   | 層 | 指標 | 前 | 後 | 下限 |
+   |---|---|---|---|---|
+   | domain | 分岐 | 92.0 | **93.1** | 93 |
+   | presentation | 分岐 | 79.9 | **80.3** | 80 |
+   | presentation | 関数 | 86.4 | **88.6** | 87 |
+
+   presentation を動かしたのは `blog-article-form.tsx` の編集画面と
+   `publish-article-form.tsx` の選び直しである。どちらも**描かれてはいたが
+   1 度も操作されていなかった**。並べ替えの端（先頭を上へ／末尾を下へ）、
+   記事の種類の選び直し、出し先ブログの選び直し — いずれも
+   「書きかけを消さない」ための作りなのに、消えても緑のままだった。
+   `fireEvent` で状態遷移を起こして初めて、ハンドラと `useMemo` の中身が分母から出る。
+4. **A10 の初見 10 名 usability test が未実施。** 実参加者を集められず BLOCKED。事業判断待ち。
+5. **記事品質検査 24 種の指摘が画面に出ていない。** 上記のとおり bd memory で追跡中。
+6. **MCP `save_to_shortlist` の `savedAt` → `shortlistedAt`。** 外部 AI クライアントから
+   見えるフィールド名の変更のため保留。
+
+## 以前の受領書（2026-08-30 01:20）
+
+```yaml
+receipt_id: spec-writeback-2026-08-30-task-worktree-dedup-parsers
+recorded_at: 2026-08-30T01:20:00Z
+beads_ids: [ah-6lf]
+dev_graph_node_id: task-worktree-dedup
+parent_feature: feat-ui-foundation
+base_branch: dev
+head_branch: daishiman/task-20
+verdict: no-spec-impact
+```
+
+## 2026-08-30 最終レビューの判定
+
+本変更は**仕様・設計へ影響しない。** 確定済みの製品要求・画面契約・データ契約を一切増減していない。
+`system-spec/` `specs/` `architecture/` は変更していない。
+
+### 影響が無いと判断した理由
+
+| 変更 | 種類 | 判断根拠 |
+|---|---|---|
+| `parseNonEmptyParagraphs` の新設と 3 入口の差し替え | 挙動保存の共通化 | 差し替え前後で分割規則 `\n\s*\n` → trim → 空段落除去が同一。入出力契約は不変 |
+| `parseNonEmptyLines` を `published-article-action.ts` へ適用 | 挙動保存の共通化 | 旧実装の `.filter(Boolean)` と新実装の `!== ""` は trim 済み文字列に対して同値 |
+| `mergeSummariesWithSamples` の抽出（D1 reader 4 箇所） | 挙動保存の共通化 | 抽出前後で `mergeBySlug` の引数・`byUpdatedDesc` の並び順・`slice(0, limit)` の位置が同一。SQL 絞り込みは各 reader に残置 |
+| `resolveSampleSiteDocument` の新設 | 見本データの不整合修正 | 見本の管理画面一覧がブログ固有の上書きを無視していた。読者画面は既に上書きを反映済みで、**読者画面の挙動が正**。管理画面を読者画面へ揃えた修正であり、要求の変更ではない |
+| `SAMPLE_SITE_POLICY_OVERRIDES` の型を `Partial<Record<SiteDocumentKey, …>>` へ | 型の厳格化 | 実データは変えていない。`string` キーだった箇所を既存 enum へ縛っただけ |
+| `docs/product/T3` `T4` の migration 名 `0019` → `0039` | 文書の誤り訂正 | 実ファイルは当初から `0039_gentle_archive.sql`。文書側が実体を誤って指していた |
+| `allowed-values.md` の正本パス訂正 | 文書の誤り訂正 | `src/domain/reading/published-article.ts` は存在せず、正本は `src/application/read-models/published-article.ts` |
+
+### 完全性レポートの指紋を焼き直した根拠（2026-08-30 追記）
+
+`node scripts/spec-freshness.mjs` が `STALE` を返していた。**本タスクの変更が原因ではない。**
+リビジョンごとに指紋を機械で再計算すると、境目はマージコミット `b344bfe` にある。
+
+| リビジョン | 仕様入力 | verdict | 鮮度 |
+|---|---|---|---|
+| `origin/main` | 28 件 | PASS | FRESH |
+| `origin/dev` | 81 件 | PASS | FRESH |
+| `b344bfe`（main を取り込んだマージ） | 81 件 | PASS | **STALE** |
+| `HEAD` | 81 件 | PASS | **STALE** |
+
+レポートに焼かれた 81 件の逐一 sha256 と現在の中身を突き合わせると、動いたのは 3 件だけ。
+その 3 件の実差分は**各 1 行、`acceptance-reconciliation` の `evaluated_digest` のみ**である。
+
+```
+docs/spec/feat-uiux-overhaul/acceptance-report.md
+docs/spec/feat-uiux-overhaul/final-review.md
+docs/spec/feat-uiux-overhaul/release-report.md
+
+-"evaluated_digest":"sha256:2698a17d8a6e…"
++"evaluated_digest":"sha256:1c5a67484bce…"
+```
+
+これは `pnpm run acceptance:reconcile` がマージ後の証跡に対して**再生成した機械の値**であり、
+人が仕様を書き換えたものではない。値そのものの正しさは別の門
+`受入IDの証跡突合`（同 CI で OK）が見ている。**2 つの指紋機構の玉突き**であり、
+完全性評価の 6 観点（上位概念 trace / 意思決定 / マトリクス網羅性 / 設計知識反映 /
+最新ドキュメント出典 / prompt 品質）はこのフィールドを読まないため、判定は動かない。
+
+以上を確認したうえで `node scripts/spec-freshness.mjs --write` で指紋を焼き直した。
+**評価の中身を再実行してはいない。** 上の 3 件以外に 1 バイトの差も無いことを
+逐一 digest で示したことが、その代わりの根拠である。
+仕様書の本文が動いたときは、この近道を使わず正規の再評価（`ah-8h2.2`）へ回すこと。
+
+### 反映した層
+
+| 層 | 今回の反映 |
+|---|---|
+| `docs/` | `product/T3-technical-spec.md` / `product/T4-delivery-plan.md` の migration 名訂正、`product/test-traceability.md` の再生成、本受領書 |
+| `features/` | `feat-ui-foundation.md` に「実装の現在地（2026-08-30）」を追記。受入 4 番目「入力作法が全画面で 1 組に統一」の現在地 |
+| `tasks/` | `task-worktree-dedup.md` の出力・実行手順・受入・検証方法を 2026-08-30 実測へ更新 |
+| `specs/` | **変更なし**（製品要求の増減が無いため） |
+| `system-spec/` | **変更なし**（実装投影に変化が無く、完全性レポートの指紋対象を無用に汚さないため） |
+| `architecture/` | **変更なし**（二層構造の責務境界・依存方向は不変。domain → application → infrastructure の向きを保っている） |
+| Beads | `ah-6lf` に本レビューの実測と PR を追記。親は残件があるため in_progress を維持 |
+
+### 品質ゲート（2026-08-30 実測）
+
+| ゲート | 結果 |
+|---|---|
+| `pnpm run verify --tier 1` | PASS（exit 0、7 項目すべて OK） |
+| `pnpm run typecheck` | PASS（exit 0） |
+| `pnpm run lint` | PASS（exit 0） |
+| `tests/{application,infrastructure,domain,architecture}` | 228 files / 4,513 tests PASS |
+| `tests/{presentation,integration,ui,security,e2e-lite}` | 166 files / 5,146 tests PASS |
+| `node scripts/traceability.mjs` | PASS（409 files / 由来不明 2 件、上限 2 以内） |
+| `node scripts/migration-generated.mjs` | PASS（スキーマと migration が揃っている） |
+| `pnpm run acceptance:reconcile` | PASS |
+
+### 意図的にやらなかったこと
+
+- スキーマ変更・migration 追加（不要）
+- `system-spec/**` `docs/spec/**` の編集（完全性評価の指紋対象。要求変更が無い以上は触らない）
+- 実ブラウザ E2E（`pnpm test:e2e`）と mutation testing（MVP のため最小検証に留める）
+
+### 残課題
+
+- `ah-8h2.2`: 仕様完全性評価を PASS へ戻す（本変更の対象外）
+- `ah-6lf.12` / `.14` / `.15` / `.17`: Turnstile 実往復、外部媒体 worker、remote D1 migration 履歴、dev 公開 smoke
+- 見本の固定文書は「いつ直したか」を持たない（`updatedAt: null`）。本物の運用データが入るまで作り話の日付を入れない方針を継続
+
+---
+
+## 以前の受領書（2026-08-24）
 
 ```yaml
 receipt_id: spec-writeback-2026-08-24-feat-auth-workspace-final-review-2
@@ -281,3 +578,136 @@ verdict: accepted-with-follow-up
 - `ah-7lo`: `system-spec/completeness-report.json` が STALE。入力 hash 付きで再評価する
 - `ah-ez9`: 読者面と発信者面の接続境界は 02 §9 項 5 が open
 - Auth / Workspace / 2 D1 / Redirect / Insight は未実装（本 PR の対象外）
+
+---
+
+# 仕様反映 受領書（2026-08-31・見本データと読者側の入口）
+
+```yaml
+receipt_id: spec-writeback-2026-08-31-task-seed-satisfies-public-entry
+recorded_at: 2026-08-31T06:10:00Z
+beads_ids: [ah-ghmb]
+dev_graph_node_id: task-seed-satisfies-public-entry
+base_branch: dev
+head_branch: devgraph/task-seed-satisfies-public-entry
+verdict: no-spec-impact
+```
+
+## 判定
+
+本変更は **仕様・設計へ影響しない。** 確定済みの製品要求・画面契約・データ契約を
+一切増減していない。`system-spec/` `specs/` `architecture/` は変更していない。
+
+変えたのは **開発機に入れる見本データ**と、それを見張る回帰検査だけである。
+
+## 影響が無いと判断した理由
+
+| 変更 | 種類 | 判断根拠 |
+|---|---|---|
+| `site_blueprints` への `DELETE` + `INSERT` を追加 | 見本データの欠落補填 | 公開の条件は `resolvePublicSiteIdentity` が既に定めており、そこは変えていない。**条件を満たすデータを入れていなかった側**を直した |
+| `SEED_SUB_SLUG` を `SECOND_SITE_SLUG` の import へ | 見本データの不整合修正 | 手書きの `gear-for-small-kitchen` は見本のどこにも存在しない URL 名だった。正本（`sampleSites()`）を指し直しただけ |
+| `legal_page` の `DELETE` を id 接頭辞へ | 冪等性の修正 | 同じ行を 2 度当てても増えない、という既存の性質を保つための修正。表の定義は不変 |
+| `seed-covers-cases.test.ts` の id 抽出を列名基準へ | 検査の誤報修正 | 「1 番目の値が id」の決め打ちが、列を足した日に別の値を id と誤認していた。判定の意味は不変 |
+| 新規検査 3 本 | 回帰の固定 | 検査の追加は仕様を増やさない。既に正本にある条件を機械で確かめるだけ |
+
+## 仕様側に反映したこと（文書のみ）
+
+`README.md` のセットアップに `pnpm seed:local` と、読者側の公開が
+**`site_blueprints` と `site_network_node` の組**で決まることの明記を足した。
+
+これは要求の追加ではなく、**既にコードが要求していた条件を人が読める場所に書いた**ものである。
+手順を飛ばすと `/s/` 以下が 404 になることが、いままでどこにも書かれていなかった。
+
+## 品質ゲート
+
+| ゲート | 結果 |
+| --- | --- |
+| `npx tsc --noEmit --incremental false` | PASS（出力なし） |
+| `npx eslint`（対象 5 ファイル） | PASS（出力なし） |
+| `npx vitest run tests/architecture` | PASS（69 files / 837 tests） |
+| `npx vitest run`（全体） | PASS（434 files / 10101 tests） |
+| `pytest test_compile_heading_demotion_real_data.py` | PASS（7 passed） |
+| `upsert-node.py`（dev-graph node 登録） | PASS（revision 305 → 306） |
+| `bd-bridge.py --op create` | PASS（ah-ghmb） |
+
+## 意図的にやらなかったこと
+
+- **網に載せるブログの本数を増やすこと。** 3〜5 本目（`first-camera` /
+  `run-and-recover` / `mobile-plan-navi`）は設計図は在るが `site_network_node` に
+  載っておらず 404 になる。これは `resolvePublicSiteIdentity` の定めどおりであり、
+  本数を変えるのは仕様判断なので触っていない。
+- `docs/product/test-traceability.md` の再生成分のコミット。生成物であり、
+  他セッションの未コミットテストを大量に含むため、含めると docs が実在しない
+  ファイルを指すことになる。
+
+## 残課題
+
+- 網に載せる本数を 2 本のままにするかの仕様判断 → **`ah-vctm`** で起票済み
+  （`task-network-reach-decision`。`ah-ghmb` に依存）
+- `docs/product/test-traceability.md` は本 PR のマージ結果で再生成済み（427 件）。
+  他セッションの未コミットテストが出そろったら、そちらでもう一度生成し直す
+
+---
+
+# 仕様反映 受領書（2026-08-31・公開する本数を決める）
+
+```yaml
+receipt_id: spec-writeback-2026-08-31-task-network-reach-decision
+graph_node_id: task-network-reach-decision
+beads_ids: [ah-vctm]
+verdict: no-spec-impact
+decided_by: daishiman
+decided_at: 2026-08-31
+```
+
+## 何を決めたか
+
+**見本の 5 本すべてを読者側で公開する。** 中心（`home-office-desk`）は 1 本のまま、
+残る 4 本をその下に並べる。
+
+直前の受領書で「本数を変えるのは仕様判断なので触っていない」と書いた項目である。
+**その判断をここで行い、結果を反映した。**
+
+## なぜ 5 本か
+
+| 論点 | 判断 |
+| --- | --- |
+| 見本 5 本は何のために在るか | `sampleSites()` の但し書きが「まだ 1 本も作っていない状態で読者側の画面が全部空になり、『作っていない』のか『壊れている』のかを見分けられなくなる」のを防ぐためと明記している |
+| いまの 404 はその狙いに沿うか | **沿わない。** 3 本が 404 では、見分けが付かない状態を自分で作っている |
+| 全部をハブにしてよいか | **だめ。** `SiteNetworkNode` の但し書きが「ハブが 1 つ、その下にサブサイト」と決めている。森にすると姉妹サイトの帯とパンくずが入口を決められない |
+| 本数を数字で固定するか | **しない。** `seedNetwork()` を `sampleSites()` から作り、「網と設計図が 1 対 1」を検査で見張る |
+
+## なぜ仕様への反映が要らないか
+
+| 確かめたこと | 結果 |
+| --- | --- |
+| 公開条件そのものを変えたか | 変えていない。`resolvePublicSiteIdentity` は無改変で、満たす行を増やしただけ |
+| ドメインの型・不変条件を変えたか | 変えていない。木が 1 つであることは維持し、むしろ検査で明示した |
+| 読者側・管理側の画面仕様を変えたか | 変えていない。見本データの内容だけが変わる |
+| 本番データへの影響 | 無い。`scripts/seed/` は開発機の D1 専用 |
+
+確定済み仕様章（`system-spec/*.md`）への反映は不要と判断した。
+変わったのは**見本データが何本のブログを持つか**であり、製品の決まりではない。
+判断の記録は `tasks/task-network-reach-decision.md` の「決定」節と、
+`seedNetwork()` の但し書きに置いた。
+
+## 品質ゲート
+
+| ゲート | 結果 |
+| --- | --- |
+| `tsc --noEmit` | PASS（本変更分にエラーなし。`src/app/layout.tsx` の `LayoutProps` は Next.js 生成型が未作成なための既存事象） |
+| `vitest run tests/architecture` | PASS（71 files / **816** tests。前回 815 → 新検査 1 件） |
+| `vitest run`（全体） | PASS（427 files / **10080** tests。前回 10079 → +1） |
+
+## 変えたもの
+
+| ファイル | 変更 |
+| --- | --- |
+| `scripts/seed/local-seed-data.ts` | `seedNetwork()` を `sampleSites()` からの生成に変更。名前と一行説明も設計図から借りる |
+| `tests/architecture/seed-satisfies-public-entry.test.ts` | 「設計図を持つブログは 1 本残らず網にも載っている」を追加。親子関係の主張を強化 |
+| `README.md` | 確認手順を 5 本すべてに。公開する本数とその理由を明記 |
+| `tasks/task-network-reach-decision.md` | 「決定」節を追加。`status: draft → done` |
+
+## 残課題
+
+無し。`ah-ghmb` から引き継いだ残課題はこれで閉じた。

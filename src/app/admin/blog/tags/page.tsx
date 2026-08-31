@@ -1,8 +1,8 @@
 import { BLOG_TAG_KIND_LABEL } from "@/domain/blogops";
 import { AdminShell } from "@/presentation/admin/admin-shell";
-import { blogSiteOptions, pickSiteSlug } from "@/presentation/admin/blog-site-options";
-import { BlogSiteSwitch } from "@/presentation/admin/blog-site-switch";
-import { BlogTagForm } from "@/presentation/admin/blog-tag-form";
+import { blogSiteOptions, pickSiteSlug } from "@/presentation/admin/publish/blog-site-options";
+import { BlogSiteSwitch } from "@/presentation/admin/publish/blog-site-switch";
+import { BlogTagForm } from "@/presentation/admin/publish/blog-tag-form";
 import { blogOpsEntry, currentActor } from "@/presentation/composition";
 import {
   EmptyView,

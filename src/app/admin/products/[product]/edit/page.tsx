@@ -1,6 +1,6 @@
 import { AdminShell } from "@/presentation/admin/admin-shell";
-import { UpdateProductForm } from "@/presentation/admin/product-form";
-import { formatSpecifications } from "@/presentation/admin/product-form-state";
+import { UpdateProductForm } from "@/presentation/admin/material/product-form";
+import { formatSpecifications } from "@/presentation/admin/material/product-form-state";
 import { currentActor, productUseCases } from "@/presentation/composition";
 import { ErrorView, Prose, Section, TextLink } from "@/presentation/ui";
 

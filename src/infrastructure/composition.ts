@@ -55,8 +55,8 @@ import { MIN_MASTER_SECRET_LENGTH } from "./platform/secret-box";
 import {
   createSampleContentRepository,
   createSamplePublishedArticleAdminRepository,
-  createSampleSiteDocumentRepository,
   createSamplePublishedArticleWriter,
+  createSampleSiteDocumentRepository,
   createSampleTrackingCoverage,
 } from "./persistence/sample/content-sample-repository";
 import {

@@ -4,8 +4,10 @@ import { AdminShell } from "@/presentation/admin/admin-shell";
 import { analyticsNotice, analyticsUseCases, currentActor } from "@/presentation/composition";
 import {
   ActionNote,
+  BarChart,
   Callout,
   DataTable,
+  DecisionStatus,
   EmptyView,
   ErrorView,
   FilterBar,
@@ -14,6 +16,7 @@ import {
   Section,
   StorageNotice,
   SubSection,
+  SummaryStrip,
   TextLink,
 } from "@/presentation/ui";
 
@@ -66,6 +69,28 @@ export default async function AnalyticsPage({
 
   const groups = ["reader", "ai", "quality", "commercial"] as const;
 
+  /*
+   * 棒にできるのは「割合」の数字だけ。
+   *
+   * 数字の一覧には件数と割合が混ざっている。混ぜて 1 本の棒にすると、
+   * 「1200 件」と「12%」が同じ物差しで並び、棒の長さだけが比べられそうに見える。
+   * 割合かどうかの見分け方は domain 側の規則（key が `_rate` / `_ratio` で終わる）
+   * に合わせる。画面で判定を書き起こすと、軸を足した日にここだけ古くなる。
+   *
+   * 未計測（value が null）は棒から外す。0 の棒は「0%だった」に見えるが、
+   * 実際は「まだ数えていない」で、意味がまったく違う。
+   */
+  const ratioPoints = !metrics.ok
+    ? []
+    : metrics.value.rows
+        .filter((r) => (r.key.endsWith("_rate") || r.key.endsWith("_ratio")) && r.value !== null)
+        .map((r) => ({
+          key: r.key,
+          label: r.label,
+          value: r.value ?? 0,
+          valueLabel: r.valueLabel,
+        }));
+
   return (
     <AdminShell
       routeId="analytics"
@@ -83,6 +108,45 @@ export default async function AnalyticsPage({
       ) : (
         <>
           <StorageNotice status={await analyticsNotice()} />
+
+          <Section title="いまの数字の要点">
+            <SummaryStrip
+              label="いまの数字の要点"
+              metrics={[
+                {
+                  key: "measured",
+                  label: "数えられている数字",
+                  value: `${metrics.value.measuredCount}件`,
+                  meaning: "この件数の範囲でしか、数字を根拠にできません。",
+                },
+                {
+                  key: "missing",
+                  label: "まだ数えていない数字",
+                  value: `${metrics.value.missingCount}件`,
+                  meaning: "「未計測」は 0 ではありません。無いものとして扱わないでください。",
+                  action: (
+                    <DecisionStatus
+                      status={metrics.value.missingCount > 0 ? "insufficient-n" : "provisional"}
+                      detail={
+                        metrics.value.missingCount > 0
+                          ? `${metrics.value.missingCount} 件がまだ数えられていません。全体像としては読めません。`
+                          : "直近 30 日ぶんの集計です。期間が動けば値も動きます。"
+                      }
+                    />
+                  ),
+                },
+              ]}
+            />
+            {ratioPoints.length === 0 ? null : (
+              <BarChart
+                title="割合で見る数字"
+                unit="割合"
+                period="直近 30 日"
+                textSummary="件数の数字は混ぜていません。単位がそろっているものだけを並べています。"
+                pointValues={ratioPoints}
+              />
+            )}
+          </Section>
 
           {/*
             クリック数を並べる前に、その数字がどこまでを含んでいるかを出す。

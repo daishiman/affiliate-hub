@@ -18,7 +18,11 @@ import {
   createSubmitAffiliateUrlUseCase,
 } from "@/application/usecases/monetization/manage-link-inbox";
 import type { ManageLinkInboxDeps } from "@/application/usecases/monetization/manage-link-inbox";
-import type { ActorContext } from "@/domain/shared";
+import {
+  markCommercial,
+  type ActorContext,
+  type LinkIngestionId,
+} from "@/domain/shared";
 import { SAMPLE_WORKSPACE_ID } from "@/infrastructure/persistence/sample/ranking-sample-repository";
 import { anOwner, anOutsider } from "../support/actors";
 
@@ -350,6 +354,76 @@ describe("重複", () => {
       "select count(*) as n from link_ingestion_url_claims",
     ).all<{ n: number }>();
     expect(held.results[0]?.n).toBe(1);
+  });
+
+  it("勝者の保存前に敗者が取り合い結果を読んでも、敗者の重複の印を失わない", async () => {
+    /*
+     * 実際の競合順を、待ち時間ではなく保存先の境界で固定する。
+     *
+     *   1. 先着が URL の取り合いに勝つ
+     *   2. 先着の本体保存だけを止める
+     *   3. 後着は取り合いに負け、勝者 ID を受け取る
+     *   4. 後着が保存直前へ進む。この時点でも勝者本体はまだ無い
+     *
+     * 取り合い結果が既に敗者を確定しているため、4 の null を理由に
+     * duplicate=false へ戻してはいけない。
+     */
+    const baseInbox = deps.inbox;
+    let winnerId: LinkIngestionId | null = null;
+    let loserObservedMissingWinner = false;
+    let releaseWinnerSave = () => {};
+    const loserReachedSave = new Promise<void>((resolve) => {
+      releaseWinnerSave = resolve;
+    });
+
+    const inbox = markCommercial({
+      ...baseInbox,
+      async claimNormalizedUrl(...args: Parameters<typeof baseInbox.claimNormalizedUrl>) {
+        const claimed = await baseInbox.claimNormalizedUrl(...args);
+        /*
+         * **勝った呼び出しだけで控えない。**
+         *
+         * 2026-08-30 に全件並列で 1 度落ちた（単独では 3 回とも緑）。控えを
+         * 「自分が勝ったとき」に限ると、`winnerId` が埋まるのは**勝者側の JS の代入**なのに、
+         * 敗者が負けを知るのは**取り合いのコミット**である。この 2 つの間に隙間があり、
+         * 負荷が高いと敗者のほうが先に `save` へ着いて `winnerId` がまだ null になる。
+         * **競合を試す仕掛けが、自分の中に競合を持っていた。**
+         *
+         * この port は「いま最初の 1 本として扱われている ID」を勝者・敗者どちらの
+         * 呼び出しにも返す（`LinkIngestionRepositoryPort` の約束）。控えをその戻り値に
+         * 置き換えると、敗者は**自分の取り合いが終わった時点で**勝者を知っており、隙間が消える。
+         */
+        if (claimed.ok) {
+          winnerId = claimed.value;
+        }
+        return claimed;
+      },
+      async save(item: Parameters<typeof baseInbox.save>[0]) {
+        if (String(item.id) === String(winnerId)) {
+          await loserReachedSave;
+        } else {
+          if (winnerId === null) throw new Error("取り合いの勝者が確定していません");
+          const winnerBeforeSave = await baseInbox.findById(item.workspaceId, winnerId);
+          loserObservedMissingWinner = winnerBeforeSave.ok && winnerBeforeSave.value === null;
+          releaseWinnerSave();
+        }
+        return baseInbox.save(item);
+      },
+    }) as ManageLinkInboxDeps["inbox"];
+    const raceDeps: ManageLinkInboxDeps = { ...deps, inbox };
+    const raceSubmit = () => createSubmitAffiliateUrlUseCase(raceDeps);
+
+    const url = "https://af.example.com/click?winner-not-saved=1";
+    const [first, second] = await Promise.all([
+      raceSubmit().execute(owner, { url, source: "paste" }),
+      raceSubmit().execute(owner, { url, source: "webmcp" }),
+    ]);
+
+    expect(loserObservedMissingWinner).toBe(true);
+    expect(first.ok).toBe(true);
+    expect(second.ok).toBe(true);
+    if (!first.ok || !second.ok) return;
+    expect([first.value, second.value].filter((result) => result.duplicate)).toHaveLength(1);
   });
 
   it("対象外にしたリンクは、次に同じ URL を貼っても重複相手にならない", async () => {

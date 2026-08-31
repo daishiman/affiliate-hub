@@ -23,7 +23,7 @@ vi.mock("@/presentation/composition", () => ({
   siteDocumentUseCases: async () => ({ save: { execute: executeSave } }),
 }));
 
-const { saveSiteDocumentAction } = await import("@/presentation/admin/site-document-action");
+const { saveSiteDocumentAction } = await import("@/presentation/admin/publish/site-document-action");
 
 const IDLE = { status: "idle", message: "" } as const;
 

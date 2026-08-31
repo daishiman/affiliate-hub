@@ -2,6 +2,7 @@ import type {
   AffiliateAccount,
   AffiliateLink,
   AffiliateProgram,
+  AffiliatePreview,
   AspKind,
   Conversion,
   LinkIngestion,
@@ -119,6 +120,21 @@ export type AffiliateLinkRepositoryPort = {
 export type AffiliateLinkWithSnapshot = {
   readonly link: AffiliateLink;
   readonly snapshot: ProductSnapshot;
+  /** legacy adapterは省略可。省略は「未確認・掲載先不明」として扱う。 */
+  readonly lastCheckedAt?: Date | null;
+  readonly placements?: readonly AffiliateLinkPlacement[];
+};
+
+export type AffiliateLinkPlacement = {
+  readonly placementId: string;
+  readonly siteSlug: string;
+  readonly articleSlug: string;
+  readonly blockId: string | null;
+  readonly placement: string;
+  readonly position: number;
+  readonly status: "active" | "removed";
+  readonly lastRenderedAt: Date | null;
+  readonly updatedAt: Date;
 };
 
 export type ConversionRepositoryPort = {
@@ -181,6 +197,17 @@ export type CommercialLinkIngestionRepositoryPort = Commercial<LinkIngestionRepo
 
 export type CommercialAffiliateLinkRepositoryPort = Commercial<AffiliateLinkRepositoryPort>;
 export type CommercialConversionRepositoryPort = Commercial<ConversionRepositoryPort>;
+
+export type AffiliatePreviewFetchResult =
+  | { readonly kind: "ok"; readonly preview: AffiliatePreview }
+  | { readonly kind: "rejected" | "failed"; readonly reason: string };
+
+/**
+ * URL preview は読み取り専用。本文や画像バイナリを返さず、9項目の抽出結果だけを返す。
+ */
+export type AffiliatePreviewFetcherPort = {
+  retrieve(rawUrl: string): Promise<AffiliatePreviewFetchResult>;
+};
 
 /**
  * ASP との通信。

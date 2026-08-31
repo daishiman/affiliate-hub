@@ -80,6 +80,38 @@ const STAMPED = [
 ] as const;
 
 /**
+ * 静止した写しを焼く本。**手で並べずに `scripts/` からさがす。**
+ *
+ * 2026-08-28 に 2 本目・3 本目が増えた。1 本目だけを名指ししていたあいだ、
+ * 増えた本はこの検査の外に落ちる（除外にも入らず、条件の検査にも掛からない）。
+ * さがして拾えば、足した時点で同じ決まりが当たる。名前の付け方
+ * （`write-*-preview.tsx`）は `tests/architecture/static-preview-writer.test.ts` と同じ。
+ */
+const PREVIEW_WRITERS = readdirSync(join(ROOT, "scripts"))
+  .filter((name) => name.startsWith("write-") && name.endsWith("-preview.tsx"))
+  .sort();
+
+/**
+ * 写しを焼く本の除外理由。**全部同じ条件なので、1 文を全部に配る。**
+ *
+ * 書き出し先 `docs/product/preview/` は `.gitignore` に入っていて git が追わない。
+ * 焼くのは人が `pnpm run preview:*` を打ったときだけで、`pnpm run verify` は呼ばない。
+ * つまり「verify を打った瞬間に黙って消える」は起きない。
+ *
+ * **これは条件であって、性質ではない。**追跡され始めた日か、verify の並びに
+ * 入った日に、この除外は静かに間違いになる。だから下の
+ * 「除外の条件がまだ成り立っている」で、見つかった本を全部見ている。
+ */
+const PREVIEW_WRITER_EXCEPTIONS: Readonly<Record<string, string>> = Object.fromEntries(
+  PREVIEW_WRITERS.map((name) => [
+    name,
+    "書き出す HTML は `.gitignore` 済みで git が追わず、`pnpm run verify` も焼かない。" +
+      "**この除外は、その 2 つが両方とも真であるあいだだけ成り立つ。**" +
+      "追跡する日か verify に入れる日には、先に writeGeneratedDoc を通すこと（HTML なので指紋の置き場所はある）。",
+  ]),
+);
+
+/**
  * 道具を通さずに `docs/` へ書いてよいもの。**理由を必ず書く。**
  * 理由の無い除外は、次に見た人には「そういうものだ」としか読めない。
  */
@@ -95,17 +127,7 @@ const WRITE_EXCEPTIONS: Readonly<Record<string, string>> = {
     "**この除外は `pnpm run verify` が `llm-live-proof.mjs` を呼ばないあいだだけ成り立つ。**" +
     "verify の並びに入れる日には、先に指紋の置き方（別ファイルか JSON の一項目か）を決めること。",
 
-  // 書き出し先 `docs/product/preview/` は `.gitignore` に入っていて git が追わない。
-  // 焼くのは `pnpm run preview:static` を人が打ったときだけで、`pnpm run verify` は
-  // これを呼ばない。つまり「verify を打った瞬間に黙って消える」は起きない。
-  //
-  // **この 2 つは条件であって、性質ではない。**追跡され始めた日か、
-  // verify の並びに入った日に、この除外は静かに間違いになる。
-  // だから下の「除外の条件がまだ成り立っている」で両方とも検査にしてある。
-  "write-static-preview.tsx":
-    "書き出す HTML は `.gitignore` 済みで git が追わず、`pnpm run verify` も焼かない。" +
-    "**この除外は、その 2 つが両方とも真であるあいだだけ成り立つ。**" +
-    "追跡する日か verify に入れる日には、先に writeGeneratedDoc を通すこと（HTML なので指紋の置き場所はある）。",
+  ...PREVIEW_WRITER_EXCEPTIONS,
 };
 
 /**
@@ -461,8 +483,16 @@ describe("生成物であることの保証", () => {
     expect(commands, "verify の一覧が読めていません（CHECKS の名前が変わった？）").toContain(
       "scripts/port-wiring.mjs",
     );
+    // **名前を 1 本だけ見ていると、増えた本は除外されたまま verify に入っても
+    // 誰も気づかない。**さがして拾った本を全部見る。`preview:<名>` の呼び名も
+    // 同じ本を指すので、本の名前から作って両方を当てる。
+    const previewNames = PREVIEW_WRITERS.flatMap((name) => {
+      const stem = name.replace(/\.tsx$/, "");
+      return [stem, `preview:${stem.replace(/^write-/, "").replace(/-preview$/, "")}`];
+    });
+    expect(previewNames.length, "写しを焼く本が 1 本も見つかっていません").toBeGreaterThanOrEqual(4);
     expect(
-      commands.filter((a) => a.includes("write-static-preview") || a.includes("preview:static")),
+      commands.filter((a) => previewNames.some((name) => a.includes(name))),
       "pnpm run verify が静的プレビューを焼くようになりました。除外の理由はもう成り立ちません。",
     ).toEqual([]);
   });

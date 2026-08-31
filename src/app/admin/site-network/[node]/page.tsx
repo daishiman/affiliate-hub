@@ -1,6 +1,6 @@
 import { AdminShell } from "@/presentation/admin/admin-shell";
-import { blogSiteOptions } from "@/presentation/admin/blog-site-options";
-import { SiteNetworkForm } from "@/presentation/admin/site-network-form";
+import { blogSiteOptions } from "@/presentation/admin/publish/blog-site-options";
+import { SiteNetworkForm } from "@/presentation/admin/publish/site-network-form";
 import { blogOpsEntry, currentActor } from "@/presentation/composition";
 import { ErrorView, Section, TextLink } from "@/presentation/ui";
 

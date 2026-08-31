@@ -283,12 +283,20 @@ export function AppShell({
 
   return (
     <div className={styles.shell} data-nav-collapsed={navCollapsed}>
+      <a className={styles.skipLink} href="#admin-main-content">
+        本文へ移動
+      </a>
       <nav className={styles.sidebar} aria-label="主な案内">
         <a className={styles.skipLink} href="#admin-main-content">
           本文へ移動
         </a>
         <div className={styles.sidebarHead}>
-          <span className={styles.brandName}>affiliate-hub</span>
+          <div className={styles.brandBlock}>
+            <Link href="/admin" className={styles.brandName}>
+              affiliate-hub
+            </Link>
+            <span className={styles.brandContext}>ブログ運営メニュー</span>
+          </div>
           <NavCollapseToggle defaultCollapsed={navCollapsed} />
         </div>
         {/*
@@ -396,6 +404,7 @@ export function Page({
       {/* 見出しと説明文をひとまとめにする。ばらばらに置くと、
           画面全体の縦の間隔と、見出し・説明文の間隔を 1 箇所で決められない。 */}
       <header className={styles.pageHead}>
+        <p className={styles.pageEyebrow}>運営画面</p>
         <h1 className={styles.pageTitle}>{title}</h1>
         <p className={styles.pageLead}>{lead}</p>
       </header>

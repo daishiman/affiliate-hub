@@ -118,7 +118,7 @@ serves_goals: [G1]
 
 | 対象 | バージョン | 公式発行元 | 出典URL | 取得 | 最新確認 |
 |---|---|---|---|---|---|
-| better-auth | 1.7.1 | Better Auth (www.better-auth.com) | https://www.better-auth.com/docs/introduction | 2026-08-19T15:30:39Z | 2026-08-19T15:30:39Z |
+| better-auth | 1.7.2 | Better Auth (better-auth.com) | https://better-auth.com/docs/introduction | 2026-08-29T14:02:13Z | 2026-08-29T14:02:13Z |
 
 ## 状態の意味 (State semantics)
 

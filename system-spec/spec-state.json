@@ -853,8 +853,9 @@
     "ui-ux": {
       "web": {
         "state": "確定",
-        "qa_ref": "qa-uiux-web-seo-ai-search-v2",
+        "qa_ref": "qa-uiux-web-cognitive-load-affiliate-visibility-v3",
         "qa_refs": [
+          "qa-uiux-web-cognitive-load-affiliate-visibility-v3",
           "qa-uiux-web-seo-ai-search-v2",
           "qa-uiux-web-blog-builder",
           "qa-uiux-web-screen-priority",
@@ -888,7 +889,7 @@
         ],
         "required_info_checks": [
           {
-            "checked_on": "2026-08-25",
+            "checked_on": "2026-08-30",
             "checked_with": "record-required-info-check",
             "blocking_item_count": 3,
             "unmet_blocking_items": 0
@@ -1074,8 +1075,10 @@
     "frontend": {
       "web": {
         "state": "確定",
-        "qa_ref": "qa-frontend-web-seo-ai-search-v2",
+        "qa_ref": "qa-frontend-web-capture-self-occlusion",
         "qa_refs": [
+          "qa-frontend-web-capture-self-occlusion",
+          "qa-frontend-web-affiliate-link-preview-v3",
           "qa-frontend-web-seo-ai-search-v2",
           "qa-frontend-web-blog-builder",
           "qa-frontend-web-spec-intake",
@@ -1089,7 +1092,7 @@
         ],
         "required_info_checks": [
           {
-            "checked_on": "2026-08-25",
+            "checked_on": "2026-08-30",
             "checked_with": "record-required-info-check",
             "blocking_item_count": 0,
             "unmet_blocking_items": 0
@@ -2667,6 +2670,109 @@
         ],
         "recorded_with": "set-qa-scope-notes"
       }
+    },
+    {
+      "id": "qa-uiux-web-cognitive-load-affiliate-visibility-v3",
+      "question": "ui-ux×web: 管理画面の新規作成・改善・保存・アフィリエイト一覧・リンク設定を、どの程度直感的にし、画面確認をどう要件化するか（2026-08-29 利用者追加入力）",
+      "answer": "認知負荷を極限まで下げ、直感的に操作できる仕組みにしてください。特に、管理画面での新規作成、改善、保存、およびアフィリエイトの一覧表示やリンク設定などについて、直感的な操作性を重視してください。とりあえず、画面を見て、確認もしておいてください。",
+      "source": {
+        "kind": "user-dialogue"
+      },
+      "asks_for": [
+        {
+          "category": "ui-ux",
+          "platform": "web"
+        }
+      ],
+      "design_applications": [
+        {
+          "knowledge_ref": "ref-system-design-knowledge:information-design",
+          "principle": "各画面は主要タスクを一つに絞り、次に行う操作・現在状態・完了結果を同じ視線の流れで判断できるようにする",
+          "applicability": "applied",
+          "rationale": "現行管理画面は単一用途への分割と処理結果表示が進んでいる一方、成果リンクの登録は受信、広告主確定、商品対応、読者表示用登録が別々の手入力として並ぶ。今回の要求を満たすため、一覧から対象を選ぶ、リンクを貼る、取得結果を確認する、保存する、掲載先を確認する、という一方向の主導線とし、各段階で未完了理由と次の一操作だけを強調する。新規作成・改善・保存では同じ配置、語彙、結果表示を共有し、保存済みかどうかを利用者の記憶に委ねない",
+          "tradeoffs": [
+            "一画面の説明量を減らすと例外条件を見落としやすいため、危険操作・広告規約・リンク改変禁止の説明は削除せず、該当操作の直前に必要な分だけ段階表示する"
+          ]
+        },
+        {
+          "knowledge_ref": "ref-system-design-knowledge:usability-accessibility",
+          "principle": "認知負荷の低減を色や慣れだけに依存させず、可視ラベル、キーボード操作、取り消し、保存状態、エラー回復を一貫させる",
+          "applicability": "applied",
+          "rationale": "PC中心・週1回程度という既確定の利用状況では、操作手順の暗記よりも前回状態、未保存差分、次の操作を再認識できることが重要である。主要操作は動詞を揃え、保存中・保存済み・未保存・失敗を常時区別し、破壊的操作だけ確認を要求する。アフィリエイト一覧は掲載中、確認待ち、停止、リンク切れを色だけでなく文言と件数で区別し、ブログまたは記事からリンクへ、リンクから掲載先へ往復できる",
+          "tradeoffs": [
+            "状態ラベルと戻り導線を常時出すぶん表示要素は増えるため、主要操作と状態以外の補助情報は段階的開示にし、一覧の列は利用頻度と誤操作コストで固定する"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "qa-frontend-web-affiliate-link-preview-v3",
+      "question": "frontend×web: 成果リンクを貼り付けた直後、登録判断のために何を画面へ表示するか（2026-08-29 利用者追加入力）",
+      "answer": "アフィリエイトの、えーと、リンクを貼ったら、えーと、その画像、えーと、が表示されるとか、えー、この辺、えー、とりあえず、えー、画面を見て、えー、確認もしておいてください。",
+      "source": {
+        "kind": "user-dialogue"
+      },
+      "asks_for": [
+        {
+          "category": "frontend",
+          "platform": "web"
+        }
+      ],
+      "design_applications": [
+        {
+          "knowledge_ref": "ref-system-design-knowledge:information-design",
+          "principle": "識別子ではなく判断対象そのものを先に見せ、入力と確認結果を同じ文脈に置く",
+          "applicability": "applied",
+          "rationale": "現行の成果リンク受信箱はホスト名、URL、状態、商品IDの手入力を中心に表示し、リンクが指す商品を視覚的に照合できない。URL入力後は安全なサーバー取得を経て、取得元、正規URL、商品タイトル、販売元、利用可能な商品画像、価格の取得時点、既存商品候補、重複候補を一つの確認カードに表示する。画像が取得できない場合も壊れた枠にせず、取得不可の理由と手動選択を同じ位置に出す。確認前は保存可能な成果リンクとして扱わない",
+          "tradeoffs": [
+            "外部URLからのメタデータ取得には遅延・失敗・画像利用条件・SSRFの危険があるため、貼り付けと同時にクライアントから直接取得せず、許可済み接続先をサーバー側で検査し、取得結果の出典と確認日時を表示する"
+          ]
+        },
+        {
+          "knowledge_ref": "ref-system-design-knowledge:usability-accessibility",
+          "principle": "非同期処理の進行、成功、部分成功、失敗と回復手段を利用者が見失わないようにする",
+          "applicability": "applied",
+          "rationale": "リンク貼り付け後は解析中、確認待ち、取得済み、画像のみ未取得、重複、取得失敗を可視テキストで区別し、入力値を保持したまま再試行、手動補完、対象外を選べるようにする。保存後は保存済み時刻と掲載先件数を表示し、一覧へ戻っても同じ状態語彙を使う",
+          "tradeoffs": [
+            "状態を細分化すると表示語彙が増えるため、内部状態をそのまま露出せず、利用者が次に行える操作が同じものは一つの表示状態にまとめる"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "qa-frontend-web-capture-self-occlusion",
+      "question": "frontend×web: 改善要望フィードバックで画面の写しを撮るとき、送信モーダルと固定ボタン自身の写り込みをどう扱うか (2026-08-30 利用者ヒアリング)",
+      "answer": "利用者本人の回答を逐語主旨で記録する。(1) 「改善したい箇所のスクリーンショットを撮ると、編集画面の『改善したいことを送る』という画面が表示され、そのスクリーンショットが貼られてしまう」。(2) 「これでは本当に改善したい箇所を伝えることができない」。(3) 対処の範囲を 3 案 (機能ごと無効化 / 撮影中だけ自動で隠す / モーダルの自動表示だけ止める) で確認したところ、利用者は「撮影中だけ自動で隠す」を選択した。すなわちフィードバック機能そのものは残し、写しの取得が確定するまでの間だけ、送信モーダルと右下の固定ボタンを写しの対象から外す。(4) 撮り直し (再撮影) のときも同じ扱いとする。",
+      "source": {
+        "kind": "user-dialogue"
+      },
+      "asks_for": [
+        {
+          "category": "frontend",
+          "platform": "web"
+        }
+      ],
+      "design_applications": [
+        {
+          "knowledge_ref": "user-dialogue:2026-08-30#撮影中だけ自動で隠す",
+          "principle": "自己観測する UI は、観測の対象から自分自身を外す (観測器を被写体に含めない)",
+          "applicability": "applied",
+          "rationale": "写しの用途は『利用者が伝えたい箇所』の提示であり、送信 UI 自身はその情報を 1 ビットも運ばない。むしろ画面の中央を占有して被写体を隠すため、写りは純粋な損失である。撮影開始 (getDisplayMedia 呼出) と、送信 UI の可視化を別の時点に分け、写しが確定するまで送信 UI を描かない。撮影開始そのものは押した勢い (transient activation) を失わないよう onClick 内に留める。",
+          "tradeoffs": [
+            "モーダルの出現が写しの確定まで遅れるため、押してから開くまでの体感が伸びる。写しが撮れない・断られた環境では即座に開く経路を残し、待ちが無限に伸びないようにする",
+            "『押した瞬間に開く』という既存の設計意図 (feedback-button.tsx の注記) を意図的に変更するため、変更理由をコード側にも残さないと元へ戻される"
+          ]
+        },
+        {
+          "knowledge_ref": "ref-system-design-knowledge:information-design",
+          "principle": "本文の上に浮く操作は、記録・監査の対象になるときだけ自分を名乗り、それ以外では退く",
+          "applicability": "applied",
+          "rationale": "右下固定の起動ボタンは data-floating-overlay で本文の上に居ることを名乗っている。同じ理由で、写しという記録の中では退く側に回る。名乗りと退避を同じ属性系で扱うことで、重なり監査 (tests/e2e/app-routes.spec.ts) と写しの除外規則が別々の手掛かりに分岐しない。",
+          "tradeoffs": [
+            "隠す対象を属性で選ぶため、将来別の浮遊要素が増えたときに同じ属性を付け忘れると写り込みが再発する。属性の付与漏れを検査で拾う必要がある"
+          ]
+        }
+      ]
     }
   ],
   "approval_log": [
@@ -4065,6 +4171,114 @@
           }
         ]
       }
+    },
+    {
+      "category": "ui-ux",
+      "platform": "web",
+      "reason": "2026-08-29 利用者が、管理画面の認知負荷を極限まで下げ、新規作成・改善・保存・アフィリエイト一覧・リンク設定を直感的にし、現行画面を実見して確認するよう追加要求した。既存確定は単一用途と一覧を含むが、操作完了までの認知負荷と掲載状態の可視化を追加ヒアリングへ戻す必要がある。",
+      "from": "確定",
+      "discarded": {
+        "qa_ref": "qa-uiux-web-seo-ai-search-v2",
+        "qa_refs": [
+          "qa-uiux-web-seo-ai-search-v2",
+          "qa-uiux-web-blog-builder",
+          "qa-uiux-web-screen-priority",
+          "qa-uiux-web-spec-intake",
+          "qa-uiux-web",
+          "qa-uiux-web-overhaul-v2"
+        ],
+        "serves_goals": [
+          "G1",
+          "G2"
+        ],
+        "required_info": [
+          {
+            "item_id": "product-goal",
+            "missing_effect": "block",
+            "status": "grounded",
+            "grounded_by": "qa-foundation-u1"
+          },
+          {
+            "item_id": "screen-information-priority",
+            "missing_effect": "block",
+            "status": "grounded",
+            "grounded_by": "qa-uiux-web-screen-priority"
+          },
+          {
+            "item_id": "target-platforms",
+            "missing_effect": "block",
+            "status": "grounded",
+            "grounded_by": "qa-platform-scope"
+          }
+        ],
+        "required_info_checks": [
+          {
+            "checked_on": "2026-08-25",
+            "checked_with": "record-required-info-check",
+            "blocking_item_count": 3,
+            "unmet_blocking_items": 0
+          }
+        ]
+      }
+    },
+    {
+      "category": "frontend",
+      "platform": "web",
+      "reason": "2026-08-29 利用者が、アフィリエイトリンク貼り付け直後に商品画像が表示されることを具体例として追加要求した。現行受信箱はURL・ホスト・状態・手入力項目のみで画像プレビューが無いため、フロントエンド表示契約を追加ヒアリングへ戻す。",
+      "from": "確定",
+      "discarded": {
+        "qa_ref": "qa-frontend-web-seo-ai-search-v2",
+        "qa_refs": [
+          "qa-frontend-web-seo-ai-search-v2",
+          "qa-frontend-web-blog-builder",
+          "qa-frontend-web-spec-intake",
+          "qa-frontend-web",
+          "qa-frontend-web-analytics",
+          "qa-frontend-web-overhaul-v2"
+        ],
+        "serves_goals": [
+          "G1",
+          "G2"
+        ],
+        "required_info_checks": [
+          {
+            "checked_on": "2026-08-25",
+            "checked_with": "record-required-info-check",
+            "blocking_item_count": 0,
+            "unmet_blocking_items": 0
+          }
+        ]
+      }
+    },
+    {
+      "category": "frontend",
+      "platform": "web",
+      "reason": "dev の qa-frontend-web-affiliate-link-preview-v3 と、本枝の qa-frontend-web-capture-self-occlusion が同じ frontend.web セルを確定させた。マージ結果を手で書かず、正規 writer で再確定させるため一度開ける。",
+      "from": "確定",
+      "discarded": {
+        "qa_ref": "qa-frontend-web-affiliate-link-preview-v3",
+        "qa_refs": [
+          "qa-frontend-web-affiliate-link-preview-v3",
+          "qa-frontend-web-seo-ai-search-v2",
+          "qa-frontend-web-blog-builder",
+          "qa-frontend-web-spec-intake",
+          "qa-frontend-web",
+          "qa-frontend-web-analytics",
+          "qa-frontend-web-overhaul-v2"
+        ],
+        "serves_goals": [
+          "G1",
+          "G2"
+        ],
+        "required_info_checks": [
+          {
+            "checked_on": "2026-08-29",
+            "checked_with": "record-required-info-check",
+            "blocking_item_count": 0,
+            "unmet_blocking_items": 0
+          }
+        ]
+      }
     }
   ],
   "category_aggregate": {
@@ -5442,7 +5656,7 @@
   ],
   "knowledge_candidates": [],
   "hearing_progress": {
-    "loop_count": 2,
+    "loop_count": 1,
     "next_question": null,
     "complete": true,
     "max_loops": 5,

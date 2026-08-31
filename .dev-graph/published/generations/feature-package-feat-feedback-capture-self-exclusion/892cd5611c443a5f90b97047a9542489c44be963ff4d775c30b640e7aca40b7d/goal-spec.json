@@ -1,0 +1,54 @@
+{
+  "acceptance": [
+    "改善ボタンから撮られた写しに、送信モーダルと右下固定の起動ボタンが 1 画素も含まれない",
+    "「撮り直す」で取り直した写しにも同じ除外規則が効く",
+    "写しの取得が拒否・非対応・失敗のとき、送信 UI は待たずに開き、待ちが無限に伸びない",
+    "押した勢い (transient activation) を失わず、許可の窓が出る",
+    "写しの確定後、撮影中に隠した要素が元の状態へ戻り、隠れたまま残らない",
+    "data-floating-overlay=\"true\" が写し除外と重なり監査 (tests/e2e/app-routes.spec.ts) の同一の手掛かりとして使われている",
+    "属性の付与漏れがある浮遊要素を検査が失敗として拾う"
+  ],
+  "architecture_refs": [
+    "architecture/arch-two-layer-platform.md",
+    "system-spec/frontend.md",
+    "system-spec/ui-ux.md"
+  ],
+  "artifact_kind": "feature",
+  "feature_id": "feat-feedback-capture-self-exclusion",
+  "generated_at": "2026-08-30T03:45:47Z",
+  "goal": "改善ボタンを押して撮られた写しに送信 UI が 1 画素も写らず、撮り直しでも同じ規則が効き、写しが撮れない環境でも送信 UI が待たずに開く",
+  "graph_node_id": "feat-feedback-capture-self-exclusion",
+  "lineage": {
+    "feature_context": {
+      "source_digest": "sha256:3ff191c19523cd47fb620ed9b27ade3221ab8e58124bc02b4d3550447727da28",
+      "source_path": "features/feat-feedback-capture-self-exclusion.context.json",
+      "source_plugin": "dev-graph"
+    },
+    "system_spec": {
+      "evidence_ref": "system-spec/frontend.md#qa-frontend-web-capture-self-occlusion",
+      "source_path": "system-spec/frontend.md",
+      "source_plugin": "system-spec-harness",
+      "source_version": "0.1.0"
+    }
+  },
+  "purpose": "改善要望に添える画面の写しから、送信モーダルと起動ボタン自身を外し、利用者が本当に伝えたい箇所が写るようにする",
+  "run_id": "run-20260830T115648Z-elegant",
+  "schema": "system-dev-planner/R1-elicit/goal-spec",
+  "scope_in": [
+    "撮影開始 (getDisplayMedia 呼出) と送信 UI の可視化を別の時点へ分ける",
+    "写しの取得が確定するまで送信モーダルを描かない",
+    "右下固定の起動ボタンを写しの対象から外す",
+    "撮り直し (再撮影) 経路にも同じ規則を効かせる",
+    "写しが撮れない・拒否・非対応のときは待たずに送信 UI を開く退避経路",
+    "data-floating-overlay 属性を写し除外と重なり監査の共通の手掛かりにする",
+    "属性の付与漏れを拾う検査"
+  ],
+  "scope_out": [
+    "改善要望フィードバック機能そのものの無効化",
+    "起動ボタンの撤去",
+    "写しの書き込み (手書き/四角/矢印/文字/黒塗り) の仕様変更",
+    "一覧・詳細・払い出し経路の変更",
+    "写し以外の添付手段の追加"
+  ],
+  "session_owner": "9e4fb88c-120a-4130-9c31-287824a2edae"
+}

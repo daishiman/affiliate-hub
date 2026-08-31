@@ -1,11 +1,13 @@
-import { and, eq } from "drizzle-orm";
+import { and, eq, isNull } from "drizzle-orm";
 import type {
   EditorialSiteDocumentRepositoryPort,
   SiteDocument,
 } from "@/application/ports/site";
 import { type LegalPageRow, legalPages } from "@/db/schema";
-import { type SiteDocumentKey } from "@/domain/authoring";
-import type { FixedPageKind } from "@/domain/blogops/fixed-page";
+import {
+  SITE_DOCUMENT_KIND_BY_KEY,
+  type SiteDocumentStorageKind,
+} from "@/domain/authoring";
 import { domainError, err, markEditorial, ok } from "@/domain/shared";
 import type { DrizzleD1 } from "./link-inbox-repository";
 import { storageFailure } from "./storage-failure";
@@ -34,16 +36,11 @@ const PARAGRAPH_SEPARATOR = "\n\n";
  * `/admin/sites/[site]/documents` から作った「運営者情報」が**別の行**になり、
  * 読者にはどちらか片方しか出ない（しかも、どちらが出るかは URL しだい）。
  *
- * 表に無いものは写さない。`methodology` などは公開ページの語彙に相手が居らず、
- * 無理に近い名札へ寄せると 1 ブログ 1 種 1 枚の約束が壊れる（2 つの鍵が
- * 同じ名札に落ちて、後から書いたほうが前を消す）。
+ * 公開語彙に相手が無い方針は、`SITE_DOCUMENT_KIND_BY_KEY` の
+ * 独立した保存名へ写す。近い名札へ寄せないのは、2つの鍵が
+ * 同じ行へ落ち、後から書いたほうが前を消すのを防ぐため。
  */
-const KEY_TO_KIND = {
-  operator: "profile",
-  privacy: "privacy_policy",
-  terms: "site_policy",
-  tokushoho: "commercial_transaction",
-} as const satisfies Partial<Record<SiteDocumentKey, FixedPageKind>>;
+const KEY_TO_KIND = SITE_DOCUMENT_KIND_BY_KEY;
 
 type MappedKey = keyof typeof KEY_TO_KIND;
 
@@ -59,7 +56,7 @@ function unmappedKey(key: string) {
       `「${key}」は、まだ公開ページの置き場がありません。`,
       {
         suggestedAction:
-          "公開ページの語彙（src/domain/blogops/fixed-page.ts）に相手を足してから保存してください。",
+          "公開ルートと保存名の対応表を追加してから保存してください。",
         field: "key",
       },
     ),
@@ -99,7 +96,14 @@ export function createD1SiteDocumentRepository(
         const rows = await db
           .select()
           .from(legalPages)
-          .where(and(eq(legalPages.workspaceId, workspaceId), eq(legalPages.siteSlug, siteSlug)));
+          .where(
+            and(
+              eq(legalPages.workspaceId, workspaceId),
+              eq(legalPages.siteSlug, siteSlug),
+              eq(legalPages.status, "published"),
+              isNull(legalPages.deletedAt),
+            ),
+          );
         // 写せない名札は落とす（この画面が扱えないだけで、行としては正しい）。
         return ok(rows.map(toDocument).filter((doc): doc is SiteDocument => doc !== null));
       } catch (cause) {
@@ -108,7 +112,9 @@ export function createD1SiteDocumentRepository(
     },
 
     async save(workspaceId, siteSlug, document) {
-      const kind = KEY_TO_KIND[document.key as MappedKey] as FixedPageKind | undefined;
+      const kind = KEY_TO_KIND[document.key as MappedKey] as
+        | SiteDocumentStorageKind
+        | undefined;
       if (kind === undefined) return unmappedKey(document.key);
       try {
         // 1 ブログ 1 種 1 枚。すでに在れば書き換える。
@@ -131,6 +137,8 @@ export function createD1SiteDocumentRepository(
           kind,
           title: document.title,
           body: document.body.join(PARAGRAPH_SEPARATOR),
+          status: "published" as const,
+          deletedAt: null,
           updatedAt: now(),
         };
 
@@ -156,14 +164,21 @@ export function createD1SiteDocumentRepository(
  */
 export function findSiteDocument(deps: { readonly db: DrizzleD1 }) {
   return async (siteSlug: string, key: string) => {
-    const kind = KEY_TO_KIND[key as MappedKey] as FixedPageKind | undefined;
+    const kind = KEY_TO_KIND[key as MappedKey] as SiteDocumentStorageKind | undefined;
     // 知らない鍵で 1 枚も無いのは正しい状態。断りにすると読者面が 500 になる。
     if (kind === undefined) return ok(null);
     try {
       const rows = await deps.db
         .select()
         .from(legalPages)
-        .where(and(eq(legalPages.siteSlug, siteSlug), eq(legalPages.kind, kind)))
+        .where(
+          and(
+            eq(legalPages.siteSlug, siteSlug),
+            eq(legalPages.kind, kind),
+            eq(legalPages.status, "published"),
+            isNull(legalPages.deletedAt),
+          ),
+        )
         .limit(1);
       const row = rows[0];
       if (row === undefined) return ok(null);

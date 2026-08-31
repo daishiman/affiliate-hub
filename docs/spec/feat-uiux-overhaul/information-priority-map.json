@@ -460,58 +460,6 @@
       }
     },
     {
-      "route": "/admin/content/published",
-      "primary_task": "公開済み記事から訂正または非表示にする記事を選ぶ",
-      "task_frequency": "medium",
-      "failure_cost": "high",
-      "keep": [
-        {
-          "item": "記事名・サイト・公開状態・更新日",
-          "why": "訂正対象を取り違えずに選ぶための最小情報"
-        },
-        {
-          "item": "検索と公開状態の絞り込み",
-          "why": "公開記事が増えても対象へ短く到達するため"
-        }
-      ],
-      "drop": [],
-      "transform": [],
-      "baseline": {
-        "source": "src/app/admin/content/published/page.tsx",
-        "lines": 76,
-        "lead_chars": 31,
-        "always_visible_callouts": 0,
-        "cards": 2,
-        "forms": 1
-      }
-    },
-    {
-      "route": "/admin/content/published/[site]/[slug]/edit",
-      "primary_task": "公開済み記事を訂正し、変更理由を記録する",
-      "task_frequency": "low",
-      "failure_cost": "high",
-      "keep": [
-        {
-          "item": "公開中の本文と変更理由",
-          "why": "読者に出ている情報を安全に訂正するため"
-        },
-        {
-          "item": "サイト・URL・公開状態",
-          "why": "別の記事を訂正する事故を防ぐため"
-        }
-      ],
-      "drop": [],
-      "transform": [],
-      "baseline": {
-        "source": "src/app/admin/content/published/[site]/[slug]/edit/page.tsx",
-        "lines": 51,
-        "lead_chars": 34,
-        "always_visible_callouts": 0,
-        "cards": 2,
-        "forms": 1
-      }
-    },
-    {
       "route": "/admin/distribution",
       "primary_task": "止まっている配信を見つけて対処する",
       "task_frequency": "high",
@@ -2370,6 +2318,88 @@
         "lead_chars": 33,
         "always_visible_callouts": 1,
         "cards": 0,
+        "forms": 1
+      }
+    },
+    {
+      "route": "/admin/content/published",
+      "primary_task": "読者に出ている記事から、訂正する 1 本を探す",
+      "task_frequency": "medium",
+      "failure_cost": "high",
+      "keep": [
+        {
+          "item": "記事・サイト・状態（公開中／非表示）・更新日の表",
+          "why": "訂正する 1 本を選ぶための最小の手掛かり。状態が見えないと、止めた記事をもう一度止めようとする"
+        },
+        {
+          "item": "タイトル・結論・サイト名での絞り込み",
+          "why": "読者から指摘が来るのは題名か本文の一節で、その語から辿る以外の入口が無い"
+        }
+      ],
+      "drop": [
+        {
+          "item": "記事の本文・節・主張の中身",
+          "why": "ここは探す画面。読む・直すのは編集画面が持つ。並べると「探している」のか「直している」のか分からなくなる",
+          "method": "remove"
+        }
+      ],
+      "transform": [
+        {
+          "item": "取り下げ日時（archivedAt）の生の値",
+          "to": "「公開中」「非表示」の 2 語",
+          "why": "日時そのものは選ぶ判断に効かない。効くのは読者に出ているか否かの一点"
+        }
+      ],
+      "note": "訂正の入口。**探す画面と直す画面を割ってある**ので、ここに編集の口は置かない",
+      "baseline": {
+        "source": "src/app/admin/content/published/page.tsx",
+        "lines": 122,
+        "lead_chars": 28,
+        "always_visible_callouts": 0,
+        "cards": 3,
+        "forms": 1
+      }
+    },
+    {
+      "route": "/admin/content/published/[site]/[slug]/edit",
+      "primary_task": "読者に出ている文章を訂正し、変更理由を残す",
+      "task_frequency": "low",
+      "failure_cost": "high",
+      "keep": [
+        {
+          "item": "サイト・URL・状態の 3 項目",
+          "why": "いま直しているのがどの読者に出ている記事かを、直す前に確かめる口"
+        },
+        {
+          "item": "訂正の理由を書く欄",
+          "why": "safety-critical: 公開済みの文の書き換えは取り返しがつかない。何をなぜ直したかが残らないと、後から検証できない"
+        },
+        {
+          "item": "非表示にする操作",
+          "why": "直しきれない記事を読者から外す最後の手段。訂正と同じ画面に無いと、間違ったまま公開が続く"
+        }
+      ],
+      "drop": [
+        {
+          "item": "他の公開済み記事への横断リンク",
+          "why": "1 本を直す画面。隣の記事へ移れると、直しかけのまま離れる",
+          "method": "remove"
+        }
+      ],
+      "transform": [
+        {
+          "item": "記事が見つからないときの空表示",
+          "to": "「URL が古いか別サイトの記事」の説明と、一覧へ戻る導線",
+          "why": "空白のままだと、消えたのか権限が無いのか判断できない"
+        }
+      ],
+      "note": "訂正は公開の取り消しではない。**理由を残す欄と非表示の操作を同居させる**のは、直せないと分かった時点で外せるようにするため",
+      "baseline": {
+        "source": "src/app/admin/content/published/[site]/[slug]/edit/page.tsx",
+        "lines": 61,
+        "lead_chars": 27,
+        "always_visible_callouts": 0,
+        "cards": 2,
         "forms": 1
       }
     },

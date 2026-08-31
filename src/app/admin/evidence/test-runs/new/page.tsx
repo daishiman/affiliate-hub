@@ -1,5 +1,5 @@
 import { AdminShell } from "@/presentation/admin/admin-shell";
-import { CreateTestRunForm } from "@/presentation/admin/test-run-form";
+import { CreateTestRunForm } from "@/presentation/admin/material/test-run-form";
 import {
   currentActor,
   productUseCases,

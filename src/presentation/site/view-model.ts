@@ -4,6 +4,7 @@ import {
   articleHref,
   outboundHref,
 } from "@/application/read-models/published-article";
+import { expressionBlocksOf } from "@/application/seo/expression-blocks";
 import type { PublicSiteBlueprint } from "@/application/usecases/site/read-site";
 import {
   type ArticleType,
@@ -73,16 +74,19 @@ export function toChrome(
   const routes = routesFor(blueprint);
   const home = routes.find((r) => r.key === "home");
   const search = routes.find((r) => r.key === "search");
+  const editorialPolicy = routes.find((r) => r.key === "editorial-policy");
+
+  const categoryNav = blueprint.categories.map((c) => ({
+    href: siteHref(siteSlug, `/categories/${c.slug}`),
+    label: c.name,
+  }));
 
   const headerSlots = projection?.chrome.headerSlots ?? [];
   const savedHeader = headerSlots.length > 0;
   const headerBrand = headerSlots.find((slot) => slot.slotKey === "header-brand");
   const nav = [
     ...(home === undefined ? [] : [{ href: siteRouteHref(siteSlug, home), label: "トップ" }]),
-    ...blueprint.categories.map((c) => ({
-      href: siteHref(siteSlug, `/categories/${c.slug}`),
-      label: c.name,
-    })),
+    ...categoryNav,
     ...(search === undefined || (savedHeader && !headerSlots.some((s) => s.slotKey === "header-search-modal"))
       ? []
       : [{ href: siteRouteHref(siteSlug, search), label: search.label }]),
@@ -116,6 +120,14 @@ export function toChrome(
     tagline: blueprint.purpose,
     brandTheme: blueprint.theme.brandTheme,
     nav,
+    categoryNav,
+    homeHref: home === undefined ? siteBasePathBySlug(siteSlug) : siteRouteHref(siteSlug, home),
+    searchHref:
+      search === undefined ? `${siteBasePathBySlug(siteSlug)}/search` : siteRouteHref(siteSlug, search),
+    aboutHref:
+      editorialPolicy === undefined
+        ? siteBasePathBySlug(siteSlug)
+        : siteRouteHref(siteSlug, editorialPolicy),
     footer,
   };
 }
@@ -144,11 +156,17 @@ export function toArticleView(
   article: PublishedArticle,
   relatedArticles?: readonly ArticleCardView[],
 ): ArticleViewModel {
+  const blocks = expressionBlocksOf(article);
+  const answer = blocks.find((block) => block.kind === "answer");
+  const keyPoints = blocks.find((block) => block.kind === "key_points");
+  const faq = blocks.find((block) => block.kind === "faq");
+  const freshness = blocks.find((block) => block.kind === "freshness");
+
   return {
     title: article.title,
-    summary: article.summary,
+    summary: answer?.text ?? "",
     publishedAt: article.publishedAt,
-    updatedAt: article.updatedAt,
+    updatedAt: freshness?.asOf ?? "",
     authorName: article.author.name,
     authorHref: siteHref(siteSlug, `/authors/${article.author.slug}`),
     authorBio: article.author.bio,
@@ -179,9 +197,10 @@ export function toArticleView(
       })),
     })),
     conversation: article.conversation,
-    // よくある質問はそのまま渡す。ここで並べ替えたり丸めたりしない
-    //（同じ並びで JSON-LD にも出すので、片方だけ変わると読者と機械で中身がずれる）。
-    faq: article.faq,
+    // answer / key_points / faq / freshness は画面で読み直さない。
+    // 公開前監査・JSON-LD と同じ射影に、空白の扱いまで揃える。
+    keyPoints: keyPoints?.items,
+    faq: faq?.items,
     productCards: article.productCards?.map((card) => ({
       // どの商品かを画面まで運ぶ。「気になる」の保存先を決めるのに要る。
       productId: card.productId,

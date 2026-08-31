@@ -72,7 +72,9 @@ const ADMIN_ROUTE_DEFINITIONS = {
   "content/packages/new": child("content/packages", "企画を立てる"),
   "content/new": child("content", "記事を作る"),
   "content/published": child("content", "公開済み記事"),
-  "content/published/[site]/[slug]/edit": child("content/published", "編集"),
+  // 公開済みの記事は「どのブログの、どの記事か」で 1 本に決まる。
+  // 下書き（`content/[variant]`）と id の体系が別なので、親を分けている。
+  "content/published/[site]/[slug]/edit": child("content/published", "公開済み記事を直す"),
   personas: nav("書き手と読者像", "write", "content.read", "audience"),
   "personas/new": child("personas", "書き手を作る"),
   "personas/audiences": child("personas", "読者像"),

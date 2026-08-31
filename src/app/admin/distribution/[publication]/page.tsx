@@ -2,8 +2,8 @@ import { AdminShell } from "@/presentation/admin/admin-shell";
 import { adminOperation } from "@/presentation/admin/admin-operation-manifest";
 import { cancelPublicationAction } from "@/presentation/admin/delete-form-action";
 import { DeleteConfirm } from "@/presentation/admin/delete-confirm";
-import { ManualDraftCopy } from "@/presentation/admin/manual-draft-copy";
-import { PublishArticleForm } from "@/presentation/admin/publish-article-form";
+import { ManualDraftCopy } from "@/presentation/admin/publish/manual-draft-copy";
+import { PublishArticleForm } from "@/presentation/admin/publish/publish-article-form";
 import type { SuccessOf } from "@/presentation/admin/use-case-result";
 import { currentActor, distributionNotice, distributionUseCases } from "@/presentation/composition";
 import {

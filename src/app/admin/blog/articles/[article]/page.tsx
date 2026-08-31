@@ -1,5 +1,5 @@
 import { AdminShell } from "@/presentation/admin/admin-shell";
-import { BlogArticleEditForm } from "@/presentation/admin/blog-article-form";
+import { BlogArticleEditForm } from "@/presentation/admin/publish/blog-article-form";
 import { blogOpsEntry, currentActor } from "@/presentation/composition";
 import { ErrorView, FactList, Note, Section, TextLink } from "@/presentation/ui";
 
@@ -88,6 +88,7 @@ export default async function BlogArticleEditPage({
       <Section title="中身">
         <BlogArticleEditForm
           articleId={view.articleId}
+          revision={view.revision}
           title={view.title}
           lead={view.lead}
           template={view.template}
@@ -105,7 +106,6 @@ export default async function BlogArticleEditPage({
               : []
           }
           selectedTagIds={view.tagIds}
-          missing={view.missing}
         />
       </Section>
     </AdminShell>

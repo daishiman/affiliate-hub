@@ -36,6 +36,14 @@ export type SiteChrome = {
   readonly brandTheme: string;
   /** ヘッダーの案内。カテゴリーと探す画面。 */
   readonly nav: readonly SiteNavItem[];
+  /** サイドバーに出すカテゴリーだけの案内。 */
+  readonly categoryNav: readonly SiteNavItem[];
+  /** ロゴとサイドバーから戻るブログの入口。 */
+  readonly homeHref: string;
+  /** 共通検索フォームの送信先。 */
+  readonly searchHref: string;
+  /** ブログの運営方針。フッター配列の並びに依存させない。 */
+  readonly aboutHref: string;
   /** 足元の案内。方針・訂正・問い合わせ。 */
   readonly footer: readonly SiteNavItem[];
 };
@@ -97,7 +105,7 @@ export function SiteShell({
 }) {
   const hasAside = sidebar !== undefined || sidebarSticky !== undefined;
   const main = (
-    <main className={[styles.siteMain, hasAside ? styles.siteMainWithAside : ""].join(" ").trim()}>
+    <main id="site-main-content" className={[styles.siteMain, hasAside ? styles.siteMainWithAside : ""].join(" ").trim()}>
       {breadcrumbs !== undefined && breadcrumbs.length > 0 && (
         <nav className={styles.breadcrumb} aria-label="現在の場所">
           {breadcrumbs.map((crumb, i) => (
@@ -119,12 +127,25 @@ export function SiteShell({
   return (
     <div className={styles.siteShell} {...{ [APPEARANCE_ATTR.scheme]: chrome.brandTheme }}>
       {telemetry}
+      <a className={styles.skipLink} href="#site-main-content">
+        本文へ移動
+      </a>
       <header className={styles.siteHeader}>
         <div className={styles.siteHeaderInner}>
-          <Link href={chrome.nav[0]?.href ?? currentPath} className={styles.siteName}>
-            {chrome.siteName}
-          </Link>
-          <span className={styles.siteTagline}>{chrome.tagline}</span>
+          <div className={styles.siteIdentity}>
+            <Link href={chrome.homeHref} className={styles.siteName}>
+              {chrome.siteName}
+            </Link>
+            <span className={styles.siteTagline}>{chrome.tagline}</span>
+          </div>
+          <SiteSearch
+            action={chrome.searchHref}
+            inputId="site-header-search"
+            landmarkLabel="ヘッダーから記事を探す"
+            compact
+          />
+        </div>
+        <div className={styles.siteNavBar}>
           <nav className={styles.siteNav} aria-label="このブログの案内">
             {chrome.nav.map((item) => (
               <Link
@@ -161,6 +182,12 @@ export function SiteShell({
 
       <footer className={styles.siteFooter}>
         <div className={styles.siteFooterInner}>
+          <div className={styles.footerAbout}>
+            <Link href={chrome.homeHref} className={styles.footerSiteName}>
+              {chrome.siteName}
+            </Link>
+            <p>{chrome.tagline}</p>
+          </div>
           <nav aria-label="方針と問い合わせ">
             <ul className={styles.footerLinks}>
               {chrome.footer.map((item) => (
@@ -187,6 +214,7 @@ export function SiteShell({
               description="暗い場所で読むときは「暗い画面」を選べます。"
             />
           )}
+          <p className={styles.copyright}>© {new Date().getFullYear()} {chrome.siteName}</p>
         </div>
       </footer>
     </div>
@@ -197,17 +225,38 @@ function SiteSearch({
   action,
   inputId,
   landmarkLabel,
+  compact = false,
 }: {
   readonly action: string;
   readonly inputId: string;
   readonly landmarkLabel: string;
+  readonly compact?: boolean;
 }) {
   return (
-    <form action={action} role="search" aria-label={landmarkLabel} className={styles.siteSearch}>
+    <form
+      action={action}
+      /*
+       * **既定と同じ `get` を、あえて書いてある。**書かなければ既定で `get` に
+       * なるが、それはタグを読んだだけでは分からない。この検索は住所を変えて
+       * 別の画面へ行くだけで、何も書き換えない——その宣言をタグの上に残す
+       * （`tests/ui/uiux-form-declaration.test.ts`）。
+       */
+      method="get"
+      role="search"
+      aria-label={landmarkLabel}
+      className={[styles.siteSearch, compact ? styles.siteSearchCompact : null]
+        .filter(Boolean)
+        .join(" ")}
+    >
       <label htmlFor={inputId} className={styles.srOnly}>
         記事をキーワードで探す
       </label>
-      <input id={inputId} type="search" name="q" placeholder="記事を検索" />
+      <input
+        id={inputId}
+        type="search"
+        name="q"
+        placeholder="記事を検索"
+      />
       <button type="submit">検索</button>
     </form>
   );
@@ -233,7 +282,9 @@ export function SiteSection({
     <section className={styles.siteSection} aria-labelledby={id}>
       <header className={styles.siteSectionHead}>
         <p>{eyebrow}</p>
-        <h2 id={id}>{title}</h2>
+        <h2 id={id} className={styles.siteSectionTitle}>
+          {title}
+        </h2>
         <span>{lead}</span>
       </header>
       {children}
@@ -257,7 +308,7 @@ export function CategoryArticleGroups({
         <li key={group.href}>
           <header className={styles.categoryArticleGroupHead}>
             <div>
-              <h3>{group.label}</h3>
+              <h3 className={styles.categoryArticleGroupTitle}>{group.label}</h3>
               <p>{group.description}</p>
             </div>
             <Link href={group.href}>このカテゴリーをすべて見る</Link>
@@ -293,7 +344,7 @@ export function SiteHomeHero({
   return (
     <section className={styles.homeHero}>
       <p className={styles.homeEyebrow}>知りたいことから、記事を探せます</p>
-      <h1>{name}</h1>
+      <h1 className={styles.homeHeroTitle}>{name}</h1>
       <p>{purpose}</p>
       <SiteSearch
         action={searchHref}
@@ -378,17 +429,44 @@ export function PublicShell({
 }) {
   return (
     <div className={styles.siteShell}>
+      <a className={styles.skipLink} href="#public-main-content">
+        本文へ移動
+      </a>
       <header className={styles.siteHeader}>
         <div className={styles.siteHeaderInner}>
-          <Link href="/" className={styles.siteName}>
-            {title}
-          </Link>
+          <div className={styles.siteIdentity}>
+            <Link href="/" className={styles.siteName}>
+              {title}
+            </Link>
+            <span className={styles.siteTagline}>運営するブログと記事を一か所から案内します</span>
+          </div>
+        </div>
+        <div className={styles.siteNavBar}>
+          <nav className={styles.siteNav} aria-label="サイトの案内">
+            <Link href="/">ブログ一覧</Link>
+            <Link href="/signin">運営者ログイン</Link>
+          </nav>
         </div>
       </header>
-      <main className={styles.siteMain}>{children}</main>
+      <main id="public-main-content" className={styles.siteMain}>
+        {children}
+      </main>
       <footer className={styles.siteFooter}>
         <div className={styles.siteFooterInner}>
+          <div className={styles.footerAbout}>
+            <Link href="/" className={styles.footerSiteName}>
+              {title}
+            </Link>
+            <p>ブログを読む人と運営する人の入口です。</p>
+          </div>
+          <nav aria-label="サイトの足元の案内">
+            <ul className={styles.footerLinks}>
+              <li><Link href="/">ブログ一覧</Link></li>
+              <li><Link href="/signin">運営者ログイン</Link></li>
+            </ul>
+          </nav>
           <p className={styles.footerNote}>{UI_COPY.disclosure.footerNote}</p>
+          <p className={styles.copyright}>© {new Date().getFullYear()} {title}</p>
         </div>
       </footer>
     </div>

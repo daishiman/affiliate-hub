@@ -560,6 +560,7 @@ def write_docset(
     *,
     on_handwritten: str = "refuse",
     loss_report: "list[tuple[str, list[str]]] | None" = None,
+    acknowledge_prior_residue: bool = False,
 ) -> list[Path]:
     """組み立てた docset を out_dir へ書き出す。書き出したパス一覧を返す。
 
@@ -578,6 +579,11 @@ def write_docset(
     報告として残せば、消えはせず、表も壊れず、正本へ戻す動機が章の上に残る。
     **preserve は「正本と一致した」という意味ではない。**呼び手はこの節を読んで、
     正本へ接続するか不要と確かめて消すこと。
+
+    acknowledge_prior_residue:
+      - False (既定): 前回までの residue を今回の報告へ持ち越す
+      - True: レビュー済みの前回 residue は持ち越さない。ただし今回の既存本文から
+        新たに消える行は通常どおり residue と loss_report へ残す
     """
     if on_handwritten not in ("refuse", "preserve"):
         raise CompileError(f"on_handwritten は refuse|preserve のいずれか (受領: {on_handwritten!r})")
@@ -642,8 +648,9 @@ def write_docset(
                 + "\n".join(body for _, body in carried_sub[name])
             )
         residue = vanishing_lines(before, text) if before is not None else []
-        # 持ち越し分を先に置く。順序を回ごとに入れ替えると、差分が中身の変化に見える。
-        residue = [l for l in prior_residue if l not in residue] + residue
+        if not acknowledge_prior_residue:
+            # 持ち越し分を先に置く。順序を回ごとに入れ替えると、差分が中身の変化に見える。
+            residue = [l for l in prior_residue if l not in residue] + residue
         if loss_report is not None and residue:
             loss_report.append((name, residue))
         if residue:

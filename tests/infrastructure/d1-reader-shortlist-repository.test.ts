@@ -109,11 +109,12 @@ describe("気になる商品の保存先（D1）", () => {
     await createD1ShortlistRepository(db).add(SITE, READER, {
       productId: "prd_1",
       productName: "名前を直した商品 1",
-      savedAt: "2026-08-26T00:00:00.000Z",
+      shortlistedAt: "2026-08-26T00:00:00.000Z",
     });
 
     // 上書きすると、間違って押し直しただけで「いつ気になったか」が今日へ動き、
     // 並び順が入れ替わる。読者は自分が何もしていないのに並びが変わったと見る。
+    // 列名は `saved_at`（migration が要るため据え置き）なので、ここは列側の名前で見る。
     expect(updates[0]).not.toHaveProperty("savedAt");
     expect(updates[0]).toHaveProperty("productName", "名前を直した商品 1");
   });
@@ -123,7 +124,7 @@ describe("気になる商品の保存先（D1）", () => {
     await createD1ShortlistRepository(db).add(SITE, READER, {
       productId: "prd_1",
       productName: "商品 1",
-      savedAt: "2026-08-26T00:00:00.000Z",
+      shortlistedAt: "2026-08-26T00:00:00.000Z",
       fromArticleHref: "/s/sample-site/reviews/prd-1",
     });
 
@@ -144,7 +145,7 @@ describe("気になる商品の保存先（D1）", () => {
     const added = await repo.add(SITE, READER, {
       productId: "prd_1",
       productName: "商品 1",
-      savedAt: "2026-08-26T00:00:00.000Z",
+      shortlistedAt: "2026-08-26T00:00:00.000Z",
     });
     const removed = await repo.remove(SITE, READER, "prd_1");
 

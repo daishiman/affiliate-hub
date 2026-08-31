@@ -7,7 +7,7 @@ import {
   ADMIN_ROUTE_METADATA,
   resolveAdminRoute,
 } from "@/presentation/ui";
-import { AppShell } from "@/presentation/ui/templates/app-shell";
+import { AppShell, Page } from "@/presentation/ui/templates/app-shell";
 
 /**
  * 分類が読み上げにも届いていること。
@@ -29,6 +29,31 @@ function markup(capabilities?: readonly string[]): string {
     </AppShell>,
   );
 }
+
+describe("全管理画面の共通骨格", () => {
+  it("ブランドから運営ホームへ戻れ、本文へ直接移動できる", () => {
+    const html = markup();
+
+    expect(html).toContain('href="/admin"');
+    expect(html).toContain("ブログ運営メニュー");
+    expect(html).toContain('href="#admin-main-content"');
+    expect(html).toContain('id="admin-main-content"');
+  });
+
+  it("一覧・作成・編集が同じ運営画面の見出し順を使う", () => {
+    const html = renderToStaticMarkup(
+      <Page title="記事を編集" lead="内容を確かめ、公開中の記事を更新します。">
+        <p>編集フォーム</p>
+      </Page>,
+    );
+
+    expect(html.indexOf("運営画面")).toBeLessThan(html.indexOf("記事を編集"));
+    expect(html.indexOf("記事を編集")).toBeLessThan(
+      html.indexOf("内容を確かめ、公開中の記事を更新します。"),
+    );
+    expect((html.match(/<h1/g) ?? []).length).toBe(1);
+  });
+});
 
 describe("案内の分類の読み上げ", () => {
   it("分類ごとに、まとまりの印と、それが指す見出しが出る", () => {
@@ -65,7 +90,9 @@ describe("管理画面route metadataの正本", () => {
     // 15 枚を、こちらが書き手・企画・順位・根拠・設定の 18 枚を足しており、
     // どちらの枝も単独では自分の数（66 と 69）を書いていた。
     // **片側の数をそのまま採ると、数え上げが実物とずれたまま緑になる。**
-    // 2026-08-29: 公開済み記事の一覧と編集を加え、実物は 86 枚になった。
+    // 2026-08-30: 84 → 86。統合で `content/published` と、その
+    // `[site]/[slug]/edit` の 2 枚が加わった。数は手で決めず、
+    // `find src/app/admin -name page.tsx | wc -l` で数え直すこと。
     expect(ADMIN_ROUTE_METADATA).toHaveLength(86);
 
     const navRoutes = ADMIN_ROUTE_METADATA.filter((route) => route.nav !== null);

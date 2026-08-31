@@ -298,6 +298,7 @@ describe("作ったブログ", () => {
 import type { SiteDraft } from "@/domain/authoring";
 import { createSiteDraft } from "@/domain/authoring";
 import {
+  STEP_FIELDS,
   createCreateSiteFromDraftUseCase,
   createGetSiteDraftUseCase,
   createListSiteDraftsUseCase,
@@ -651,6 +652,48 @@ describe("住所の段階", () => {
     expect(result.ok, result.ok ? "" : result.error.message).toBe(true);
     if (!result.ok) return;
     expect(result.value.currentStep).toBe("create");
+  });
+});
+
+/**
+ * REQ-S06 の「未入力のステップは次へ進めない理由を表示」を、**段階ごとに**押さえる。
+ *
+ * ここを足した理由（実測、2026-08-29）。`createSaveSiteDraftStepUseCase` の
+ * `isStepComplete` の門を丸ごと素通しにしたとき、赤くなったのは 2 件だけだった
+ *（この段の「空欄のまま進もうとしたら…」と `admin-actions.test.ts` の 1 件）。
+ * さらに `purpose` と `content_plan` の 2 段階だけ検査を残して**残り 11 段階を
+ * 素通し**にしたところ、この 2 ファイル 123 件すべて緑だった。
+ *
+ * つまり要件は 13 段階について書かれているのに、機械が見ていたのは 2 段階だけだった。
+ * 段階を足したときも同じ穴が空く（新しい段階の検査は誰も見ていない）。
+ *
+ * `create` は入力欄を持たない最終段階なので除く（`STEP_FIELDS.create` が空）。
+ */
+describe("REQ-S06: どの段階も、空欄のままでは次へ進めない", () => {
+  const inputSteps = SITE_WIZARD_STEPS.filter((s) => STEP_FIELDS[s].length > 0);
+
+  it("入力欄を持つ段階が 12 ある（段階を足したらこの数も動く）", () => {
+    expect(inputSteps).toHaveLength(12);
+  });
+
+  it.each(inputSteps)("%s: 空欄で保存しようとすると断られる", async (step) => {
+    // その段階の入力欄をすべて空文字で埋めて保存を試みる。
+    const answers = Object.fromEntries(STEP_FIELDS[step].map((f) => [f, "  "]));
+    const result = await save(memoryDrafts([filledDraft()]).port, step, answers);
+
+    // 「次へ進めない」。どちらの門が断ったかは問わない
+    //（段階によっては `isStepComplete` より先に `applyStep` が断る）。
+    expect(result.ok, `${step} が空欄のまま通った`).toBe(false);
+    if (result.ok) return;
+
+    // 「理由を表示」。文言そのものは写さない——実装から期待値を組み立てると、
+    // 文言を変えたときテストも一緒に動いて何も守らなくなる。
+    // 代わりに**直す場所を指しているか**を見る。読者にとっての「理由」は
+    // 「どこを直せばよいか」であって、文章の言い回しではない。
+    expect(result.error.message.trim()).not.toBe("");
+    expect(STEP_FIELDS[step], `${step} の誤りが、この段階の入力欄を指していない`).toContain(
+      result.error.field,
+    );
   });
 });
 

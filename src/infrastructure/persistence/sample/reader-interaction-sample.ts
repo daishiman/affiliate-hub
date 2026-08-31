@@ -11,6 +11,7 @@ import {
 } from "@/domain/authoring/reader-tool-formula";
 import { domainError, err, markEditorial, ok } from "@/domain/shared";
 import { registerStub } from "../../stub-registry";
+import { SAMPLE_SITE_SLUG } from "./site-sample-repository";
 
 /**
  * 読者向けの 3 つの控え。
@@ -153,6 +154,7 @@ const STORAGE_ESTIMATOR_FORMULA: ReaderToolFormula = {
     "素材だけで {残しておく期間ぶん} になります。編集の作業ぶんを足すと {余裕を見た目安} ほど見ておくと安心です。",
 };
 
+/** 在宅作業の見本ブログで使う、机と椅子の高さを合わせる道具。 */
 const DESK_FIT: ReaderToolDefinition = {
   slug: "desk-fit",
   name: "机と椅子の高さの目安",
@@ -160,29 +162,30 @@ const DESK_FIT: ReaderToolDefinition = {
   inputs: [
     { key: "height", label: "身長", unit: "cm", hint: "半角数字で入力してください。" },
     { key: "desk_height", label: "いま使っている机の高さ", unit: "cm" },
-    { key: "shoe", label: "室内履きの厚さ", unit: "cm" },
+    { key: "shoe", label: "室内で靴を履くか", hint: "履くなら1、履かないなら0を入力してください。" },
   ],
   howToRead:
-    "出てくるのは出発点の数字です。座って肘が 90 度になるかを確かめ、合わなければ 1cm ずつ動かしてください。",
+    "出てくるのは出発点です。座って肘が 90 度になるかを確かめ、合わなければ 1cm ずつ動かしてください。",
 };
 
 const DESK_FIT_FORMULA: ReaderToolFormula = {
   rows: [
     {
-      label: "座面高の出発点",
-      expression: "height * 0.25 + shoe",
+      label: "座面の高さの出発点",
+      expression: "height * 0.25 - shoe * 2",
       unit: " cm",
-      decimals: 0,
+      decimals: 1,
       as: "seat",
     },
     {
-      label: "机と座面の差",
+      label: "机と座面の高さの差",
       expression: "desk_height - seat",
       unit: " cm",
-      decimals: 0,
+      decimals: 1,
     },
   ],
-  summary: "座面は {座面高の出発点} から試し、机との差を {机と座面の差} ほどにします。",
+  summary:
+    "座面の高さは {\u5ea7面の高さの出発点} から試し、肘の角度を見ながら調整してください。",
 };
 
 /**
@@ -195,21 +198,29 @@ const DESK_FIT_FORMULA: ReaderToolFormula = {
 export const BUILT_IN_READER_TOOLS: readonly {
   readonly definition: ReaderToolDefinition;
   readonly formula: ReaderToolFormula;
+  /** 指定があるものは、そのブログでだけ案内する。 */
+  readonly siteSlugs?: readonly string[];
 }[] = [
   { definition: STORAGE_ESTIMATOR, formula: STORAGE_ESTIMATOR_FORMULA },
-  { definition: DESK_FIT, formula: DESK_FIT_FORMULA },
+  { definition: DESK_FIT, formula: DESK_FIT_FORMULA, siteSlugs: [SAMPLE_SITE_SLUG] },
 ];
+
+function builtInToolsFor(siteSlug: string) {
+  return BUILT_IN_READER_TOOLS.filter(
+    (tool) => tool.siteSlugs === undefined || tool.siteSlugs.includes(siteSlug),
+  );
+}
 
 export function createSampleReaderToolRepository(): EditorialReaderToolPort {
   return markEditorial({
-    async find(_siteSlug: string, slug: string) {
-      return ok(BUILT_IN_READER_TOOLS.find((tool) => tool.definition.slug === slug)?.definition ?? null);
+    async find(siteSlug: string, slug: string) {
+      return ok(builtInToolsFor(siteSlug).find((tool) => tool.definition.slug === slug)?.definition ?? null);
     },
-    async list(_siteSlug: string) {
-      return ok(BUILT_IN_READER_TOOLS.map((tool) => tool.definition));
+    async list(siteSlug: string) {
+      return ok(builtInToolsFor(siteSlug).map((tool) => tool.definition));
     },
-    async run(_siteSlug: string, slug: string, values: Readonly<Record<string, string>>) {
-      const tool = BUILT_IN_READER_TOOLS.find((candidate) => candidate.definition.slug === slug);
+    async run(siteSlug: string, slug: string, values: Readonly<Record<string, string>>) {
+      const tool = builtInToolsFor(siteSlug).find((candidate) => candidate.definition.slug === slug);
       if (tool === undefined) {
         // 知らない道具の数字をでっち上げると、読者はそれを信じて機材を買う。
         // 出せないものは出せないと返す。

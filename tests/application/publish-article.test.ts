@@ -10,17 +10,22 @@ import type {
   EditorialSiteRepositoryPort,
 } from "@/application/ports/site";
 import type { ArticleOffer } from "@/application/read-models/article-offer";
+import type { AuditLogPort } from "@/application/ports/compliance";
 import type { PublicationRepositoryPort } from "@/application/ports/distribution";
 import type {
   EditorialContentPackageRepositoryPort,
   EditorialContentVariantRepositoryPort,
 } from "@/application/ports/authoring";
 import type { PublishedArticle } from "@/application/read-models/published-article";
+import { auditArticleForAiSearch } from "@/application/seo/ai-search-audit";
 import {
+  type AuditArticleDraftOutput,
   type PreparePublishArticleInput,
   type PublishArticleFormOptions,
   type PublishArticleInput,
   type PublishArticleOutput,
+  articleDraftWarnings,
+  createAuditArticleDraftUseCase,
   createPreparePublishArticleUseCase,
   createPublishArticleUseCase,
 } from "@/application/usecases/site/publish-article";
@@ -189,6 +194,11 @@ type Harness = {
     input?: Partial<PreparePublishArticleInput>,
     actor?: ReturnType<typeof anOwner>,
   ) => Promise<Result<PublishArticleFormOptions, ReturnType<typeof domainError>>>;
+  /** 出す前の点検（REQ-SEO03）。何も保存しない道。 */
+  readonly check: (
+    input?: Partial<PublishArticleInput>,
+    actor?: ReturnType<typeof anOwner>,
+  ) => Promise<Result<AuditArticleDraftOutput, ReturnType<typeof domainError>>>;
 };
 
 function harness(options: {
@@ -287,7 +297,13 @@ function harness(options: {
 
   const auditLog = recordingAuditLog();
   const base = testDeps();
-  const uc = createPublishArticleUseCase({
+  // 記録の口だけ差し替えた偽物を三項で作ると、型が「本物 | 差し替え」の
+  // 和に広がって、同じ組み立てを 2 つのユースケースへ渡せなくなる。
+  // 先に `AuditLogPort` として畳んでおく。
+  const auditPort: AuditLogPort = options.auditFails
+    ? { ...auditLog.port, append: async () => failing("記録の保存先に繋がりません。") }
+    : auditLog.port;
+  const publishDeps = {
     sites,
     packages,
     variants,
@@ -295,10 +311,12 @@ function harness(options: {
     articles,
     offers,
     ids: base.ids,
-    auditLog: options.auditFails
-      ? { ...auditLog.port, append: async () => failing("記録の保存先に繋がりません。") }
-      : auditLog.port,
-  });
+    auditLog: auditPort,
+  };
+  const uc = createPublishArticleUseCase(publishDeps);
+  // 出す前の点検。**公開と同じ依存**を渡す。別の組み立てを渡すと、
+  // 点検が見ている記事と実際に出る記事が違っていても気づけない。
+  const checkUc = createAuditArticleDraftUseCase(publishDeps);
   const prepareUc = createPreparePublishArticleUseCase({
     sites,
     packages,
@@ -312,6 +330,7 @@ function harness(options: {
     publications,
     audit: auditLog.entries,
     run: (input = {}, actor = anOwner()) => uc.execute(actor, fullInput(input)) as never,
+    check: (input = {}, actor = anOwner()) => checkUc.execute(actor, fullInput(input)) as never,
     prepare: (input = {}, actor = anOwner()) =>
       prepareUc.execute(actor, { publicationId: "pub_own", ...input }),
   };
@@ -855,5 +874,85 @@ describe("版の成果リンクが読者の記事に出る", () => {
     const h2 = withLinks([LINK_ID], { [LINK_ID]: anOffer() }, {});
     await h2.run({ articleType: "guide" });
     expect(h2.saved[0].ranking).toBeUndefined();
+  });
+});
+
+/**
+ * 公開前の点検（REQ-SEO03）。
+ *
+ * 要件は「公開前に不足を利用者へ**示す**」であって、止めることではない。
+ * だからここで確かめるのは 2 つ。
+ *   1. 押しても**何も起きない**（記事も配信の記録も操作の記録も動かない）
+ *   2. 点検の中身が、公開したときの点検と**同じ結果**になる
+ *
+ * 2 が崩れると「点検では緑だったのに出したら赤」が起き、点検が信用を失う。
+ */
+describe("出す前の点検", () => {
+  it("公開と点検が共有する警告射影は、ゲート未実施と未登録リンクを同じ順で返す", () => {
+    expect(
+      articleDraftWarnings(
+        [{ requirement: "structured_data", reason: "構造化データの検証が未実施です。" }],
+        ["lnk_missing"],
+      ),
+    ).toEqual([
+      { label: "構造化データの検証", reason: "構造化データの検証が未実施です。" },
+      {
+        label: "成果リンク",
+        reason: "lnk_missing の登録が見つからないため、記事に出していません。",
+      },
+    ]);
+  });
+
+  it("点検しても記事は保存されず、配信も記録も動かない", async () => {
+    const h2 = harness();
+    const result = await h2.check();
+
+    expect(result.ok).toBe(true);
+    expect(h2.saved).toHaveLength(0);
+    expect(h2.publications).toHaveLength(0);
+    expect(h2.audit()).toHaveLength(0);
+  });
+
+  it("点検の結果は、同じ入力で公開したときの点検と一致する", async () => {
+    // 別々に組み立てていたら、ここが最初にずれる。
+    const checked = await harness().check();
+    const h2 = harness();
+    await h2.run();
+
+    if (!checked.ok) throw new Error(checked.error.message);
+    expect(checked.value.aiSearch).toEqual(auditArticleForAiSearch(h2.saved[0]));
+  });
+
+  it("公開と点検は、ゲート未実施と未登録リンクを同じ警告として返す", async () => {
+    const variant = aVariant({ affiliateLinkIds: ["lnk_missing"] as never });
+    const checked = await harness({ variant, offers: {} }).check();
+    const published = await harness({ variant, offers: {} }).run();
+
+    if (!checked.ok) throw new Error(checked.error.message);
+    if (!published.ok) throw new Error(published.error.message);
+    expect(checked.value.skipped).toEqual(published.value.skipped);
+  });
+
+  it("要点を書けば「要点がある」が通り、書かなければ落ちる", async () => {
+    const okOf = (r: Awaited<ReturnType<Harness["check"]>>) => {
+      if (!r.ok) throw new Error(r.error.message);
+      return r.value.aiSearch.find((c) => c.check.includes("要点"))?.ok;
+    };
+    expect(okOf(await harness().check({ keyPoints: ["静音性は 30dB 以下"] }))).toBe(true);
+    expect(okOf(await harness().check())).toBe(false);
+  });
+
+  it("引き当てられなかった成果リンクを、点検の時点で名指しで出す", async () => {
+    // 出してから知らせても遅い。読者にはもう買う導線の無い記事が見えている。
+    const h2 = harness({ variant: aVariant({ affiliateLinkIds: ["lnk_missing"] as never }), offers: {} });
+    const result = await h2.check();
+    if (!result.ok) throw new Error(result.error.message);
+    expect(result.value.skipped.some((s) => s.reason.includes("lnk_missing"))).toBe(true);
+  });
+
+  it("公開できない入力は、点検でも同じ理由で断られる", async () => {
+    // 断り方が違うと「点検は通ったのに出せない」が起きる。
+    const result = await harness().check({ title: "  " });
+    expect(result.ok).toBe(false);
   });
 });

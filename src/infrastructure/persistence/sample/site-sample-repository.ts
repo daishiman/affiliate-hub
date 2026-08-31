@@ -83,7 +83,7 @@ const HOME_OFFICE = build(SAMPLE_SITE_SLUG, {
       slug: "chairs",
       name: "椅子",
       oneLine: "8 時間座り続けたときの腰の負担で選んだ椅子。",
-      initialArticleTypes: ["ranking", "review", "comparison"],
+      initialArticleTypes: ["ranking", "review", "comparison", "tool"],
     },
     {
       slug: "desks",

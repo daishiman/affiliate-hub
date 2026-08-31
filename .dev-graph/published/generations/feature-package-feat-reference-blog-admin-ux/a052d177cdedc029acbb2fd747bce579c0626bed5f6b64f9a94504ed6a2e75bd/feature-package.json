@@ -1,0 +1,52 @@
+{
+  "schema_version": "1.0.0",
+  "feature_package_id": "feature-package/feat-reference-blog-admin-ux",
+  "parent_feature": "feat-reference-blog-admin-ux",
+  "source_feature_digest": "sha256:fa33ed568cc66d4464e229eb5a72980f7c51c8679da9c01e5ca4d25ef7b69b1c",
+  "task_count": 13,
+  "phase_refs": [
+    "P01",
+    "P02",
+    "P03",
+    "P04",
+    "P05",
+    "P06",
+    "P07",
+    "P08",
+    "P09",
+    "P10",
+    "P11",
+    "P12",
+    "P13"
+  ],
+  "task_spec_paths": [
+    "task-specs/phase-01-requirements.md",
+    "task-specs/phase-02-architecture.md",
+    "task-specs/phase-03-design-review.md",
+    "task-specs/phase-04-test-design.md",
+    "task-specs/phase-05-implementation.md",
+    "task-specs/phase-06-test-run.md",
+    "task-specs/phase-07-acceptance.md",
+    "task-specs/phase-08-refactoring-migration.md",
+    "task-specs/phase-09-quality-assurance.md",
+    "task-specs/phase-10-final-review.md",
+    "task-specs/phase-11-evidence.md",
+    "task-specs/phase-12-documentation-operations.md",
+    "task-specs/phase-13-release-deploy.md"
+  ],
+  "task_node_ids": [
+    "SYS-REFERENCE-BLOG-ADMIN-UX-P01",
+    "SYS-REFERENCE-BLOG-ADMIN-UX-P02",
+    "SYS-REFERENCE-BLOG-ADMIN-UX-P03",
+    "SYS-REFERENCE-BLOG-ADMIN-UX-P04",
+    "SYS-REFERENCE-BLOG-ADMIN-UX-P05",
+    "SYS-REFERENCE-BLOG-ADMIN-UX-P06",
+    "SYS-REFERENCE-BLOG-ADMIN-UX-P07",
+    "SYS-REFERENCE-BLOG-ADMIN-UX-P08",
+    "SYS-REFERENCE-BLOG-ADMIN-UX-P09",
+    "SYS-REFERENCE-BLOG-ADMIN-UX-P10",
+    "SYS-REFERENCE-BLOG-ADMIN-UX-P11",
+    "SYS-REFERENCE-BLOG-ADMIN-UX-P12",
+    "SYS-REFERENCE-BLOG-ADMIN-UX-P13"
+  ]
+}
