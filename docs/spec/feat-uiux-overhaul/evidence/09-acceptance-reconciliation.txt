@@ -1,13 +1,13 @@
 # acceptance reconciliation（自動生成）
 
-- generated_at: 2026-08-31T02:09:06.067Z
+- generated_at: 2026-08-31T03:58:25.593Z
 - feature_id: feat-uiux-overhaul
 - implementation_status: pass
 - release_status: unpublished
 - tracking_status: active
 - acceptance_count: 10
-- evidence_file_count: 201
-- evaluated_digest: sha256:506596b1557040f55bc5e42d9d4593171c51207e94230d6ab386e6adbca4cf8b
+- evidence_file_count: 205
+- evaluated_digest: sha256:7e2fc860114783be0c9f3c35e2c22825ab0808bbebeb042cb765aa6715befb62
 - verdict: PASS
 
 ## 検査対象パターンと実測（下限 / 実測）
@@ -15,9 +15,9 @@
 件数の総和ではなく、どのパターンが何件を掴んでいたかを残す。
 パターンを書き換えて別の母集団を数えても総数は変わらないことがあるため。
 
-- `src/app/admin/{content,products,sites,distribution}/**/page.tsx`: min 16 / actual 25
-- `src/app/admin/**/page.tsx`: min 49 / actual 86
-- `src/presentation/admin/**/*form*.tsx`: min 10 / actual 41
+- `src/app/admin/{content,products,sites,distribution}/**/page.tsx`: min 16 / actual 27
+- `src/app/admin/**/page.tsx`: min 49 / actual 88
+- `src/presentation/admin/**/*form*.tsx`: min 10 / actual 43
 - `src/presentation/ui/**/*.tsx`: min 30 / actual 49
 
 A1〜A10は、仕様・runtime・test・report・trackingの共通IDでjoin済み。
