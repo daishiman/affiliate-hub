@@ -1,6 +1,6 @@
 # acceptance reconciliation（自動生成）
 
-- generated_at: 2026-08-31T08:21:21.594Z
+- generated_at: 2026-08-31T08:53:07.973Z
 - feature_id: feat-uiux-overhaul
 - implementation_status: pass
 - release_status: unpublished

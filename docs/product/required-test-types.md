@@ -47,7 +47,7 @@
 | REQ-P04 | has-calculation, has-screen | — |
 | REQ-P05 | has-input, has-screen | — |
 | REQ-P06 | has-input, has-screen, has-ai-text | — |
-| REQ-P07 | has-input, has-state, has-screen | boundary: ウィザードの入力は選択肢と自由記述で、長さ上限を設けていないため端が無い。上限を入れる時に同時に書く |
+| REQ-P07 | has-input, has-state, has-screen | — |
 | REQ-P08 | has-state, has-external, has-screen, has-db-table, has-recorded-operation | fault-injection: 各媒体への実送信がスタブで、失敗・遅延・一部成功を注入する先が無い（残課題 45） |
 | REQ-P09 | has-input, has-tenant, has-external, has-screen, has-db-table, has-recorded-operation | fault-injection: ASP への実接続がスタブで、落とす外部接続が実在しない |
 | REQ-P10 | has-input, has-screen | — |
