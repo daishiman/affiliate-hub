@@ -925,7 +925,11 @@ SQLite は ON CONFLICT の対象に**一致する UNIQUE 制約が無いと INSE
 | `npx vitest run`（全体） | **PASS**（452 files / 10297 passed、赤 0 件） |
 | 変更したところのミューテーション | **PASS**（61.21% → **68.7%**、下限 65%） |
 | 層別の記録（カバレッジ） | **PASS**（presentation 分岐 78% → **80.3%**、下限 80%） |
-| `npx vitest run`（追加後） | **PASS**（457 files / 10434 passed、赤 0 件） |
+| `npx vitest run`（追加後） | **PASS**（457 files / 10447 passed、赤 0 件） |
+| つなぎ目の呼び出し | **PASS**（届いていない 2 → **0**、判定できない 4 → **0**、上限はどちらも 0 のまま） |
+| 受入 reconciliation | **PASS**（10 IDs / 205 evidence files） |
+| テストと要件の対応 | **PASS**（由来不明 0、上限 2） |
+| 要件ごとの必須テスト種別 | **PASS**（未宣言 5、上限 5） |
 
 ### ミューテーションの下限割れは仕様反映ではなくテスト不足だった
 
@@ -958,6 +962,35 @@ manifest の実数に検査側の床が追いついていなかった分の修�
 - 🟡 `confirm` が `required_info_checks` を復元しない harness の欠落（上記 4 の副作用）。
   再確定のたびに計測日の履歴が消える。harness 側で直すべきもので、章や正本を手で
   書き戻して隠すべきものではない
-- 🔴 リリースレポート §E の 2 件（配色の保存と掲載の増減が操作の記録に届かない／
-  公開記事の本文が HTML に出ていない）は手つかず。**とくに前者は本番（`main`）へ
-  進める前に閉じること。**掲載の増減は金銭に直結する
+- 🔴 リリースレポート §E の 2 件のうち、**前者（配色の保存と掲載の増減が操作の記録に
+  届かない）は閉じた**（下記）。後者（公開記事の本文が HTML に出ていない）は手つかず
+
+## 6. 書き込みが操作の記録に届かない状態を解消（§4.3 / リリースレポート §D.4）
+
+「つなぎ目の呼び出し」（`node scripts/port-wiring.mjs`）が
+**届いていない 2 件・判定できない 4 件**で赤だった。閾値を上げずに閉じた。
+
+**判定できない 4 件は名前の側を直した。**`clear` を `WRITE_VERBS` へ、
+`templateOf` / `themeOf` を `NON_WRITE_EXACT` へ足し、`selectTemplate` は
+`saveTemplate` へ**改名した**。語彙表へ `select` を足せば黙らせられたが、
+それをすると将来の読み取り手続きが黙って書き込み扱いになる（SQL の `SELECT` は読みの語）。
+
+**届いていない 2 件は `audit_log` へ 1 行残すようにした。**
+`createManageBlogAppearanceUseCase`（4 操作）と `createReviewBlogPlacementsUseCase`
+（掲載の足し引き）から `deps.auditLog.append()` を同じファイルの中で呼ぶ。
+語は `blog_appearance.changed` / `blog_placement.changed` / `blog_placement.removed` の 3 つ。
+
+### これは仕様への影響である（テスト不足ではない）
+
+上の 4・5 と違い、こちらは**確定章の記述そのものが現状と食い違う**。
+`system-spec/database.md` §4.3 は「操作の記録に届いていない」と書いており、
+それが解消された以上、正本を現状に一致させないと章が嘘になる。
+
+`apply-spec-transition.py set-chapter-note` の正規経路で
+`chapter_notes.database` へ「書き込みが操作の記録に届かない状態を解消 —
+feat-blog-ui-builder リリース (P13、2026-08-31)」を足し、
+`compile-spec-doc.py compile --only database.md --on-handwritten preserve` で章を作り直した。
+**前の §4.3 の記録は消していない**（消すと「一度この状態で出そうとしていた」事実が引けなくなる）。
+確定セルの reopen は要らなかった——matrix の値は 1 つも動いていないためである。
+
+`guard-confirmed-chapter-overwrite` は迂回していない。

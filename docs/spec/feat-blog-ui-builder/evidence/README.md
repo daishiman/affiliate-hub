@@ -309,10 +309,10 @@ tests/acceptance/feat-blog-ui-builder/template-and-theme.test.ts   : invariant
 あわせて「読み書きを判定できない手続き」が 4 件（上限 0）。
 
 ```
-BlogAppearancePort.clearOverride / selectTemplate / templateOf / themeOf
+BlogAppearancePort.clearOverride / saveTemplate / templateOf / themeOf
 ```
 
-`templateOf` / `themeOf` は読み取り、`selectTemplate` / `clearOverride` は書き込みだが、
+`templateOf` / `themeOf` は読み取り、`saveTemplate` / `clearOverride` は書き込みだが、
 名前が `NON_WRITE_VERBS` / `WRITE_VERBS` のどちらにも登録されていない。
 
 ### 4.5 🔴 仕様レポートの鮮度
