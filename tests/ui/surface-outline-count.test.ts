@@ -155,17 +155,11 @@ type Exemption = {
  */
 const EXEMPT: Record<string, Exemption> = {
   // --- 数に出るが、別のセレクタが同じ要素に輪郭を与えている（4 件）-------
-  "src/presentation/ui/patterns/patterns.module.css :: .table thead th": {
-    measured: "2026-08-21。同じファイルの `.table th, .table td` を読んで確認",
-    reason:
-      "**壊れていない。**`.table th, .table td` が border-bottom を実線で持っており、" +
-      "この要素はそれを受け取っている。セレクタの包含関係を機械で解くのはこの検査の外なので、" +
-      "数には出る",
-  },
-  "src/presentation/ui/patterns/patterns.module.css :: .table tbody th": {
-    measured: "2026-08-21。同上",
-    reason: "**壊れていない。**同じく `.table th, .table td` の border-bottom を受け取っている",
-  },
+  // `.table thead th` / `.table tbody th` の 2 件はここに在ったが、どちらも
+  // `border-bottom` を自分で書くようになり、数に出なくなった（2026-08-31）。
+  // **上位のセレクタから受け取る形をやめたのは、この 2 つが `position: sticky` で
+  // 貼り付く見出しだからである**——横スクロール中に自分の輪郭を持たないと、
+  // 下の行が透けて重なる。一覧から外す。
   "src/presentation/prose/prose.module.css :: .proseTable th": {
     measured: "2026-08-26。同じファイルの `.proseTable th, .proseTable td` を読んで確認",
     reason:

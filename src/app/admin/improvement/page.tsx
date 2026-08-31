@@ -15,16 +15,18 @@ import {
 } from "@/presentation/composition";
 import {
   ActionNote,
+  BarChart,
   Callout,
   DataTable,
+  DecisionStatus,
   EmptyView,
   ErrorView,
-  FactList,
   ListView,
   Note,
   Prose,
   Section,
   StubNotice,
+  SummaryStrip,
   TextLink,
 } from "@/presentation/ui";
 
@@ -73,6 +75,25 @@ export default async function ImprovementPage({
   const metricOptions = METRIC_DEFINITIONS.map((m) => ({ value: m.key, label: m.label }));
   const siteOptions = sites.ok ? sites.value.items : [];
 
+  /*
+   * 状態ごとの件数を棒にする。単位は「件」だけで、期間は全件で固定する。
+   *
+   * 見たいのは「どの段階で止まっているか」であって、順位ではない。
+   * だから表の行を数え直すのではなく、状態の見出しをそのまま軸に使う
+   * （見出しの文言は application が持つ `statusLabel` を正本にする）。
+   */
+  const statusPoints = Object.entries(
+    (review.ok ? review.value.rows : []).reduce<Record<string, number>>((acc, r) => {
+      acc[r.statusLabel] = (acc[r.statusLabel] ?? 0) + 1;
+      return acc;
+    }, {}),
+  ).map(([label, count]) => ({
+    key: label,
+    label,
+    value: count,
+    valueLabel: `${count}件`,
+  }));
+
   return (
     <AdminShell
       routeId="improvement"
@@ -100,20 +121,42 @@ export default async function ImprovementPage({
           </StubNotice>
 
           <Section title="いまの状況">
-            <FactList
-              rows={[
+            <SummaryStrip
+              label="いまの状況"
+              metrics={[
                 {
                   key: "running",
                   label: "実施中",
-                  value: `${review.value.runningCount}件（結果が出るまで待ちます）`,
+                  value: `${review.value.runningCount}件`,
+                  meaning: "結果が出るまで待ちます。ここを増やしすぎると、どれが効いたか分からなくなります。",
                 },
                 {
                   key: "pending",
                   label: "まだ判定できないもの",
-                  value: `${review.value.pendingCount}件（件数が足りていません）`,
+                  value: `${review.value.pendingCount}件`,
+                  meaning: "件数が足りていません。足りるまで、良し悪しを言ってはいけません。",
+                  action: (
+                    <DecisionStatus
+                      status={review.value.pendingCount > 0 ? "insufficient-n" : "final"}
+                      detail={
+                        review.value.pendingCount > 0
+                          ? "母数が足りない比較が残っています。この画面の判定を根拠にしないでください。"
+                          : "保留中の比較はありません。出ている判定はそのまま使えます。"
+                      }
+                    />
+                  ),
                 },
               ]}
             />
+            {statusPoints.length === 0 ? null : (
+              <BarChart
+                title="比較がどの段階で止まっているか"
+                unit="件"
+                period="登録されている比較の全件"
+                textSummary="実施中が積み上がっていれば手が足りておらず、判定保留が積み上がっていれば件数が足りていません。"
+                pointValues={statusPoints}
+              />
+            )}
             {review.value.caveats.map((c) => (
               <ActionNote key={c}>この数字の読み方: {c}</ActionNote>
             ))}

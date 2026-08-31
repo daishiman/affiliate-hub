@@ -173,10 +173,10 @@ function Catalog({
       breadcrumbs={[{ label: "ホーム", href: "/admin" }, { label: title }]}
     >
       <Page title={title} lead="実物の部品を、実物の見た目のまま並べています。">
-        <Card>
-          <h2>{heading}</h2>
-          {children}
-        </Card>
+        <Card
+          claim={heading}
+          main={children}
+        />
       </Page>
     </AppShell>
   );

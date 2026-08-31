@@ -4,7 +4,7 @@ import { articleHref } from "@/application/read-models/published-article";
 import { siteBasePathBySlug } from "@/domain/authoring";
 import { AdminShell } from "@/presentation/admin/admin-shell";
 import { currentActor, publishedArticleAdminUseCases } from "@/presentation/composition";
-import { Card, DataTable, EmptyView, ErrorView } from "@/presentation/ui";
+import { DataTable, EmptyView, ErrorView, Section } from "@/presentation/ui";
 import styles from "../../admin.module.css";
 
 export const dynamic = "force-dynamic";
@@ -50,7 +50,14 @@ export default async function PublishedArticlesPage({
       lead="読者に出ている記事を探し、訂正または非表示にします。"
       actions={<Link href="/admin/content/new">新しい記事を作る</Link>}
     >
-        <Card>
+        {/*
+          **画面まるごとを `Card` で包まない。**`Card` は「1 つの主張と、その根拠」を
+          1 枚に閉じるための器で、画面そのものの見出しではない。器として使うと、
+          画面に主張が 1 つしか無いように見え、`Card` が「枠線の付いた div」に退化する
+          （台帳の `cardRepresentationBinding.routeWrapper: false`）。
+          画面の区切りは `Section` が持つ。
+        */}
+        <Section title="読者に出ている記事を絞り込む">
           <Form action="/admin/content/published" className={styles.publishedFilter}>
             <label htmlFor="published-query"><span>記事を検索</span><input id="published-query" type="search" name="q" defaultValue={query} placeholder="タイトル・結論・サイト名" /></label>
             <label htmlFor="published-visibility"><span>公開状態</span><select id="published-visibility" name="visibility" defaultValue={visibility}>
@@ -60,16 +67,16 @@ export default async function PublishedArticlesPage({
               </select></label>
             <button type="submit">絞り込む</button>
           </Form>
-        </Card>
+        </Section>
 
         {!result.ok ? (
           <ErrorView title="公開済み記事を出せませんでした" body={result.error.message} suggestedAction={result.error.suggestedAction ?? null} />
         ) : result.value.length === 0 ? (
-          <Card>
+          <Section title="条件に合う公開済み記事がありません">
             <EmptyView title="条件に合う公開済み記事がありません" body="検索条件を変えるか、承認済み原稿から新しい記事を公開してください。" action={<Link href="/admin/content/new">記事の作り方を見る</Link>} />
-          </Card>
+          </Section>
         ) : (
-          <Card>
+          <Section title="読者に出ている記事の一覧">
             {/*
               **生の `<table>` を書かない。**表の作法（見出しが列か行かを名乗る・
               横スクロールを表の器へ閉じ込める・読み上げが最初に読む説明を持つ）は
@@ -115,7 +122,7 @@ export default async function PublishedArticlesPage({
                 ],
               }))}
             />
-          </Card>
+          </Section>
         )}
     </AdminShell>
   );

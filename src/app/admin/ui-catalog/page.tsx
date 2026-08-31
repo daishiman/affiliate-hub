@@ -17,6 +17,8 @@ import {
   Conversation,
   CriteriaDisclosure,
   DisclosureNotice,
+  BarChart,
+  DecisionStatus,
   DiagramFallback,
   EmptyView,
   ErrorView,
@@ -26,10 +28,12 @@ import {
   FactualityBadge,
   FilterBar,
   Icon,
+  IdealView,
   LoadingView,
   MaterialReview,
   ModelPicker,
   Note,
+  PartialView,
   Prose,
   Row,
   Section,
@@ -42,6 +46,8 @@ import {
   SectionHeading,
   ScopeSwitch,
   SeeAlso,
+  SlowView,
+  SummaryStrip,
   StubLabel,
   StorageNotice,
   StubNotice,
@@ -825,6 +831,75 @@ export default function UiCatalogPage() {
           */}
           <AffiliatePreviewCard preview={sampleAffiliatePreview} />
           <DiagramFallback label="画像を使わない場合" />
+        </Stack>
+      </Section>
+
+      <Section title="31. 画面の状態を名乗る 3 つ" lead={<>
+          読み込み中・空・失敗の 3 つでは足りない状態があります。
+          <strong>「一部だけ出せた」</strong>と<strong>「遅れている」</strong>を、
+          正常と同じ形で名乗ります。監視は <code>data-screen-state</code> を読むので、
+          画面が黙って正常に見えることがなくなります。
+        </>}
+      >
+        <Stack>
+          <IdealView title="今月の成果" body="12 件すべてを取り込みました。" />
+          <PartialView
+            title="今月の成果"
+            body="提携先 3 社のうち 1 社から取り込めていません。"
+            safeToUse="取り込めた 2 社ぶんの件数と金額"
+            action={<TextLink href="/admin/affiliate">取り込み状況を見る</TextLink>}
+          />
+          <SlowView
+            title="今月の成果"
+            body="提携先の応答を待っています。開いたまま置いても構いません。"
+          />
+        </Stack>
+      </Section>
+
+      <Section title="32. 数字を判断に使うための 3 つ" lead={<>
+          数字は、そのままでは判断になりません。
+          <strong>意味</strong>（何を決める数字か）・<strong>比較の条件</strong>（同じ単位と期間か）・
+          <strong>使ってよい段階か</strong>（母数は足りているか）を、部品の側で必須にします。
+        </>}
+      >
+        <Stack>
+          <SummaryStrip
+            label="今月の成果の要約"
+            metrics={[
+              {
+                key: "clicks",
+                label: "クリック",
+                value: "1,284",
+                meaning: "記事から提携先へ移った回数。少なければ導線を見直す。",
+              },
+              {
+                key: "cvr",
+                label: "成約率",
+                value: "2.1%",
+                meaning: "移った人のうち買った割合。低ければ提携先の選び方を見直す。",
+                action: <TextLink href="/admin/affiliate">内訳を見る</TextLink>,
+              },
+            ]}
+          />
+          <BarChart
+            title="サイト別のクリック数"
+            unit="件"
+            period="2026-08"
+            textSummary="mobile-plan-navi が 812 件で最も多く、次が home-work-desk の 341 件です。"
+            pointValues={[
+              { key: "a", label: "mobile-plan-navi", value: 812, valueLabel: "812 件" },
+              { key: "b", label: "home-work-desk", value: 341, valueLabel: "341 件" },
+              { key: "c", label: "camp-gear-note", value: 131, valueLabel: "131 件" },
+            ]}
+          />
+          <Row>
+            <DecisionStatus status="final" detail="30 日ぶんが揃っています。そのまま判断に使えます。" />
+            <DecisionStatus status="provisional" detail="当月ぶんのため、月末に値が変わります。" />
+            <DecisionStatus
+              status="insufficient-n"
+              detail="母数が 30 件未満です。割合の上下は偶然の幅に収まります。"
+            />
+          </Row>
         </Stack>
       </Section>
     </AdminShell>

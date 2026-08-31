@@ -193,6 +193,14 @@
   --readable-max-width: var(--measure-narrow); /* 説明文・空状態の本文 */
   --layout-sidebar-width: var(--measure-sidebar);
   --card-min-width: var(--measure-card); /* 一覧カードの下限幅 */
+  /* 表の器だけを縦へ送るときの上限。`.tableWrap` が 1 か所で使う。 */
+  --table-scroll-max-block: var(--measure-table-scroll);
+  /*
+   * アイコンと文字の間隔。`docs/spec/feat-admin-cognitive-load-ui/
+   * sidebar-spacing-contract.md` が既定値を `--space-3` と定めている。
+   * 項目ごとの margin で調整しないための、単一の正本。
+   */
+  --layout-nav-icon-label-gap: var(--space-3);
 
   /* === 重なり順 ========================================================= */
   --z-raised: var(--layer-raised);

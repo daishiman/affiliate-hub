@@ -147,6 +147,7 @@
 .field {
   display: flex;
   flex-direction: column;
+  min-width: 0;
   gap: var(--space-1);
   margin-bottom: var(--space-4);
 }
@@ -164,6 +165,10 @@
 }
 
 .input {
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
   min-height: var(--tap-target-min);
   padding: var(--space-2) var(--space-3);
   background: var(--color-surface-default);
@@ -309,6 +314,22 @@
   max-width: var(--readable-max-width);
   font-size: var(--text-base);
   line-height: var(--leading-body);
+}
+
+.screenStateSummary {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-2) var(--space-4);
+  padding: var(--space-2) var(--space-3);
+  border-inline-start: var(--border-width-default) solid var(--color-border-strong);
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+  line-height: var(--leading-body);
+}
+
+.screenStateSummary strong {
+  color: var(--color-text-strong);
 }
 
 .skeleton {
@@ -573,6 +594,7 @@
      block のままだと、下限の高さだけ確保された箱の上端に文字が張り付く。 */
   display: flex;
   align-items: center;
+  gap: var(--layout-nav-icon-label-gap);
   min-height: var(--tap-target-min);
   padding: var(--space-2) var(--space-3);
   border-radius: var(--radius-md);
@@ -814,6 +836,21 @@
   box-shadow: var(--shadow-raised);
 }
 
+.cardClaim {
+  margin: 0 0 var(--space-2);
+  font-weight: var(--weight-semibold);
+}
+
+.cardMain,
+.cardSupport,
+.cardAction {
+  margin-block-start: var(--space-2);
+}
+
+.cardSupport {
+  color: var(--color-text-muted);
+}
+
 /* 狭い画面。左の一覧は上へ回り込ませ、退避先は残す。 */
 @media (width < 48rem) { /* --breakpoint-md */
   .shell {
@@ -828,10 +865,34 @@
     overflow-y: visible;
     flex-direction: row;
     overflow-x: auto;
+    overscroll-behavior-inline: contain;
+    scroll-snap-type: inline proximity;
+    scroll-padding-inline: var(--space-4);
     border-right: none;
     border-bottom: var(--border-width-default) solid var(--color-border-subtle);
   }
 
+  /*
+   * 項目を縮めて 1 文字ずつ縦積みにしない。
+   * 名前を読める幅のまま保ち、この案内の中だけを横へ送る。
+   */
+  .sidebarHead,
+  .sidebar > .navLink,
+  .navGroup {
+    flex: none;
+  }
+
+  .navLink {
+    flex: none;
+    scroll-snap-align: start;
+    white-space: nowrap;
+  }
+
+  /*
+   * 統合で 2 つの名前が並んだ。`.brandBlock` は名前と副題を包む新しい箱、
+   * `.brandName` は名前そのもの。狭い画面ではどちらも隠すので 1 つの規則にする。
+   */
+  .brandName,
   .brandBlock {
     display: none;
   }
@@ -962,8 +1023,9 @@
  *
  * `Card`（`.card`）は `gap` を持たない素のブロックなので、**見出しの下余白を
  * 落とすと本文がくっつく。**管理画面 179 箇所が使っていた `.sectionTitle`
- * （`admin.module.css:41`）が `margin: 0 0 var(--space-2)` を持っていたのは
- * このためで、通す側が同じものを持たないと 179 箇所が同時に詰まる。
+ * （`admin.module.css` に在った。参照ゼロになったので 2026-08-31 に削除済み）が
+ * `margin: 0 0 var(--space-2)` を持っていたのはこのためで、
+ * 通す側が同じものを持たないと 179 箇所が同時に詰まる。
  *
  * **段ごとに余白を変えないこと。**「深い段ほど詰める」は一見もっともらしいが、
  * `.card` の中で段が混ざると、**同じ見出しでも隣の段の有無で間隔が変わって

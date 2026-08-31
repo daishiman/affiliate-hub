@@ -1,6 +1,90 @@
 # 仕様反映 受領書
 
 ```yaml
+receipt_id: spec-writeback-2026-08-31-admin-representation-revaluation
+recorded_at: 2026-08-31T08:40:00Z
+beads_ids: [ah-6lf, ah-0i08]
+dev_graph_node_id: feat-admin-cognitive-load-ui
+base_branch: dev
+head_branch: devgraph/feat-admin-cognitive-load-ui
+verdict: spec-impact-applied
+```
+
+## 2026-08-31 表現語彙の拡張と主表現の再判定
+
+**本変更は確定済みの製品要求を増減しない。** 増えたのは
+「どの表現でその要求を満たすか」の選択肢で、要求そのものは同一である。
+ただし**情報表現の規則表は正本なので、台帳と食い違わせないために反映した。**
+
+| 層 | 今回の反映 |
+|---|---|
+| `docs/spec/feat-admin-cognitive-load-ui/` | `representation-rule-table.json` / `.md` の許可表現を 5 → 8 (board / list / timeline を追加)。決定順に「まず board を判定する」を追加し、table が既定値になっていた原因を明記。`operations-runbook.md` の新規 route 手順に、目的を具体的な動詞で書く工程と `plannedPrimary` 宣言を追加。`screen-information-ledger.json` / `.md` は 86 route の目的・主操作・主表現を再判定 |
+| `features/` | **変更なし。** `feat-ui-foundation` / `feat-uiux-overhaul` の scope_in は「状態表現 4 種」「単一用途画面」の水準で書かれており、表現語彙の粒度を持たない |
+| `specs/` | **変更なし。** `system-spec-index.md` に情報表現語彙の記載は無い |
+| `system-spec/` | **変更なし。** 確定章の直接編集は禁止。To-Be は変わらない |
+| `architecture/` | **変更なし。** 層構成・依存方向・テナント境界に変更なし。`admin-shell.tsx` の追加は presentation 層内で完結する |
+| `tasks/` | **変更なし。** published task spec は byte-for-byte 不変。P12 の acceptance 2 件は更新後も充足 |
+| Beads | `ah-6lf` に本レビューの実測値を追記。新規課題は残乖離 22 件として記録 |
+
+### 要求変更が無い判断理由
+
+- 「画面目的に応じて表現を使い分ける」は既に feature goal に含まれる。今回はその
+  **使い分けが機能していなかった事実**（`purpose` のユニーク率 1/86）を直した。
+- 新しい画面・新しい API・新しい権限は 1 つも増えていない。
+- `board` / `list` / `timeline` の 3 部品（`WorkBoard` / `ListView` / `StepList` /
+  `ScheduleCalendar`）は**すべて実装済みで既に使われている**。語彙が実装に追いついた
+  だけで、逆ではない。
+
+### 品質ゲート（本レビュー）
+
+- `validate-system-plan.py --feature-package feature-package/feat-admin-cognitive-load-ui`:
+  `violations: []`、13 phase、contract_version 1.3.0
+- `tests/acceptance` + `tests/architecture`: 63 files / 786 tests PASS
+- `tests/ui`: 89 files / 3305 tests PASS
+- `npx tsc --noEmit`: exit 0
+- `npx eslint`（変更 10 ファイル）: exit 0
+- `node scripts/acceptance-reconciliation.mjs --write`: PASS（10 IDs / 199 evidence files）、
+  digest `sha256:c485a5450e0b85866dff1f5878c300b71cbfe2ae793d5c7ae4cfbec8aca18921`
+
+### 残る乖離（意図的に残した 22 件）
+
+あるべき表現 (`plannedPrimary`) と実装 (`primary`) が食い違う 22 route を
+`plannedPrimaryGapRouteIds` に実名で記録した。台帳側を下げて乖離を消せないよう、
+テストが台帳から再計算して集合一致を要求し、上限 22 で回帰を止める。
+画面実装（`src/app/admin/**`）は本 PR の範囲外。
+
+### 追記（2026-08-31・`origin/dev` 取り込みと CI 復旧）
+
+CI が落ちていたので `origin/main` は既に祖先であることを確かめたうえで
+`origin/dev`（`f61633ac`、#43 と #45 を含む）を取り込み、衝突を解いた。
+そのとき台帳側にも動きが出たので、ここに残す。
+
+| 対象 | 反映 |
+|---|---|
+| `screen-information-ledger.json` | `evidence` と `affiliate/links` の `primary` を `table` → `list` へ訂正。**台帳が間違っていた側**で、画面は初めから `EvidenceList` / `StepList` に委ねていた。あわせて `representationVocabulary.list` の説明へ両部品を明記。乖離は 22 → **21 件**（上限 22 は動かしていない） |
+| `tests/acceptance/.../ledger-contract.test.ts` | 表現の名乗りを見るとき、委譲を **1 段だけ** 辿る（`renderedSource`）。2 段以上辿ると索引（`ui/index.ts`）経由で全部品に届き、どの画面も全表現を持つことになって**判定が常に真＝空振り**になる |
+| 同上 | `settings/appearance` を既知の例外に置いた。この画面は選択肢が 2 つあるだけで、8 語彙のどれにも当たらない。**9 個目の語彙を作る方が害が大きい**と判断し、理由を書いて例外にした |
+| `system-spec/completeness-report.json` | 入力 120 → **144 件**の指紋を焼き直した（`spec-freshness.mjs --write`） |
+
+#### 完全性レポートを焼き直した根拠と、していないこと
+
+レポートが記録している機械ゲート **11 件を、いまの仕様書に対して全部実行し直し、
+11/11 が記録どおりの exit code を返した**（`G-installed-copy-drift` の exit 1 も
+記録どおりなので一致に含む）。その実測を根拠に焼き付けた。
+2026-08-30 の #41、2026-08-31 の #42 が同じ場面で採った手順に倣っている。
+
+**fork 監査 6 観点は再実行していない。** 本枝が足したのは
+`docs/spec/feat-admin-cognitive-load-ui/**` の実装成果物 24 件だけで、
+評価対象の確定章（`system-spec/**`）は 1 バイトも触っていない。
+MVP の検証水準として機械ゲートの実測までで打ち切った。隠さないためにここへ書く。
+`resume-receipt.json` は書き換えていない。更新したのは `inputs`（どの仕様書を見たか）
+だけで、6 観点の採点そのものは以前のままである。
+
+---
+
+## 以前の受領書（2026-08-30 04:00）
+
+```yaml
 receipt_id: spec-writeback-2026-08-30-feat-reference-blog-admin-ux-elegant-review
 recorded_at: 2026-08-30T04:00:00Z
 beads_ids: [ah-z8x6, ah-z8x6.8]

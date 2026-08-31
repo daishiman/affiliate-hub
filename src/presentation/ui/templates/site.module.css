@@ -136,37 +136,10 @@
   align-content: start;
 }
 
-.siteBody {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) var(--layout-sidebar-width);
-  align-items: start;
-  gap: var(--space-6);
-  /* 上と同じ理由。こちらは親から高さを渡されうる 1 行の grid。 */
-  align-content: start;
-}
-
 /* 読者画面でも、grid子の内容幅は本文全体ではなく各scroll包みが受け持つ。 */
 .siteMain > * {
   min-width: 0;
-}
-
-/*
- * 1 つの作業だけの画面の箱（UX-06）。`FocusedTask` が使う。
- *
- * 枠・背景・角・影は共通部品の `.card` から来る。ここでは**重ねて書かない**
- * （同じ箱が 2 通りの定義を持つと、片方だけ直る日が来る）。
- * ここが決めるのは、置き方（横中央）と幅の上限と、中の間隔だけ。
- *
- * 幅は `--readable-max-width`。本文幅（`--prose-max-width`）より狭いのは、
- * ここに入るのが読み物ではなく**短い説明と操作**だからで、
- * 行が長いと「読む画面」に見えてしまう。
- */
-.focusedTask {
-  width: 100%;
-  max-width: var(--readable-max-width);
-  margin-inline: auto;
-  display: grid;
-  gap: var(--space-5);
+  container-type: inline-size;
 }
 
 /*
@@ -358,15 +331,6 @@
 .breadcrumb {
   font-size: var(--text-sm);
   color: var(--color-text-muted);
-}
-
-/* 読者側の案内リンク（パンくずと目次）。**文の中のリンクではなく、
-   1 行が丸ごと 1 つの行き先**なので、押しどころの下限を持たせる。 */
-.breadcrumb a,
-nav.section a {
-  display: inline-flex;
-  align-items: center;
-  min-height: var(--tap-target-min);
 }
 
 /* --- ホーム ---------------------------------------------------------- */
@@ -790,15 +754,20 @@ nav.section a {
 }
 
 .cardTitle a {
-  display: inline-flex;
-  align-items: center;
-  min-block-size: var(--tap-target-min);
   color: var(--color-text-strong);
   text-decoration: none;
 }
 
 .cardTitle a:hover {
   text-decoration: underline;
+}
+
+.siteName,
+.article a,
+.cardTitle a {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--tap-target-min);
 }
 
 .cardMeta {
@@ -929,13 +898,7 @@ nav.section a {
   }
 }
 
-/*
- * 本文と脇の欄の 2 段組み（§3.4）。
- *
- * **脇の欄が無いブログでは、この箱ごと出さない。**出すと、脇が空のまま
- * 本文の幅だけが狭くなる。段組みは「置くものがある」ことの結果であって、
- * 枠組みの既定ではない。
- */
+/* `SiteShell` の脇欄契約。ホーム用スタイルと同じ正本で段組みを管理する。 */
 .siteBody {
   flex: 1;
   width: 100%;
@@ -945,14 +908,9 @@ nav.section a {
   grid-template-columns: minmax(0, 1fr) var(--layout-sidebar-width);
   gap: var(--space-6);
   align-items: start;
-  /*
-   * `flex: 1` で画面の高さまで伸びる箱の grid。既定の `stretch` のままだと、
-   * 中身の短い画面で行の間が均等に引き伸ばされる（`.siteMain` と同じ理由）。
-   */
   align-content: start;
 }
 
-/* 2 段組みのときは、幅の上限と横中央を外側（`.siteBody`）が持つ。 */
 .siteMainWithAside {
   max-width: none;
   margin-inline: 0;
@@ -967,15 +925,6 @@ nav.section a {
   font-size: var(--text-sm);
 }
 
-/*
- * 追従する枠。
- *
- * **箱の高さを画面の内側に収める。**追従する箱が画面より高いと、
- * 下端が永久に見えなくなる（巻いても付いてくるので、下へ逃げられない）。
- * 高さの閾値で追従を切る書き方もあるが、`--breakpoint-*` は幅の折り返し位置しか
- * 持っていないので、注記が嘘になるうえ閾値ちょうどの画面で挙動が飛ぶ。
- * `max-height` なら**どの高さでも同じ規則**で、中身が短ければ何も起きない。
- */
 .siteAsideSticky {
   display: grid;
   gap: var(--space-5);
@@ -983,33 +932,28 @@ nav.section a {
   top: var(--space-5);
   max-height: calc(100vh - var(--space-5) * 2);
   overflow-y: auto;
-  /* 枠の中で巻き終わったあと、そのまま本文が動き出さないようにする。 */
   overscroll-behavior: contain;
 }
 
+.focusedTask {
+  width: 100%;
+  max-width: var(--readable-max-width);
+  margin-inline: auto;
+  display: grid;
+  gap: var(--space-5);
+}
+
 @media (width < 64rem) { /* --breakpoint-lg */
-  /*
-   * 狭い画面では 1 段にして、脇の欄を**本文の下へ降ろす**。
-   * 上に置くと、記事を読みに来た読者が毎回 8 個の枠を通り過ぎることになる。
-   */
   .siteBody {
     grid-template-columns: minmax(0, 1fr);
   }
 
-  .siteMainWithAside {
-    padding-inline: var(--space-5);
-  }
-
+  .siteMainWithAside,
   .siteAside {
     padding-inline: var(--space-5);
   }
 
   .siteAsideSticky {
-    /*
-      1 段になった時点で「巻いても付いてくる」意味が無い。
-      高さの上限も外す。外さないと、本文の下に置いた枠が
-      **枠の中だけで巻ける入れ子の箱**になり、指の動きが本文と食い合う。
-    */
     position: static;
     max-height: none;
     overflow-y: visible;

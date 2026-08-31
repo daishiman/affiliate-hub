@@ -1,0 +1,3816 @@
+{
+  "featureId": "feat-admin-cognitive-load-ui",
+  "generatedFrom": "ADMIN_ROUTE_METADATA",
+  "generatedAt": "2026-08-31",
+  "routeCount": 86,
+  "undecidedCount": 0,
+  "allowedRepresentations": [
+    "summary",
+    "graph",
+    "comparison",
+    "table",
+    "card",
+    "board",
+    "list",
+    "timeline"
+  ],
+  "operationalStateBinding": {
+    "runtimeSource": "src/presentation/ui/admin-screen-state-contract.ts",
+    "states": [
+      "ideal",
+      "empty",
+      "loading",
+      "partial",
+      "error",
+      "slow"
+    ],
+    "event": "admin.<routeId>.load.<state>",
+    "safeData": "routeごとの表示済み確定情報。未確定の入力値は含めない",
+    "nextAction": "主操作へ進む、欠けた区分を再読込する、待つか親へ戻る、再試行する、のいずれか1手"
+  },
+  "detailDisclosureBinding": {
+    "strategies": [
+      "none",
+      "foldable",
+      "dedicated-route"
+    ],
+    "runtimeSource": "src/presentation/ui/admin-disclosure-contract.ts",
+    "defaultStrategy": "none",
+    "noneIsExplicit": true,
+    "dedicatedRouteIds": [
+      "products",
+      "content",
+      "blog/articles",
+      "sites",
+      "distribution",
+      "affiliate",
+      "feedback"
+    ],
+    "foldableRouteIds": [
+      "feedback/[report]",
+      "personas/audiences"
+    ],
+    "foldableComponent": "Foldable",
+    "initialOpen": false,
+    "forbiddenSummaryLabels": [
+      "詳細",
+      "もっと見る",
+      "中身を見る"
+    ]
+  },
+  "cardRepresentationBinding": {
+    "contractSource": "src/presentation/ui/admin-card-contract.ts",
+    "runtimeSource": "src/app/admin/",
+    "structuredRenderer": "Card",
+    "unitRenderers": [
+      "Card",
+      "Form",
+      "FactList"
+    ],
+    "routeWrapper": false,
+    "singleClaim": true,
+    "mainCount": 1,
+    "supportingMax": 4,
+    "primaryActionMax": 1,
+    "claimCharacterMax": 120
+  },
+  "routes": [
+    {
+      "routeId": "",
+      "path": "/admin",
+      "file": "src/app/admin/page.tsx",
+      "screenName": "ホーム",
+      "purpose": "次に手を付ける仕事へ移動する",
+      "primaryAction": "板に出た最優先の 1 件へ移動する",
+      "permission": "authenticated",
+      "representation": {
+        "primary": "board",
+        "secondary": [
+          "card"
+        ],
+        "plannedPrimary": "board"
+      },
+      "keep": [
+        "対象を識別する名前",
+        "判断に必要な現在状態",
+        "次の操作"
+      ],
+      "removeOrFold": [
+        "内部ID・API・endpoint・ツール名",
+        "同じ意味の重複説明",
+        "通常判断に不要な詳細"
+      ],
+      "removalRationale": "現在の判断と次の操作に直接使わず、常時表示すると主情報を押し下げるため",
+      "states": [
+        "ideal",
+        "empty",
+        "loading",
+        "partial",
+        "error",
+        "slow"
+      ],
+      "decision": "decided",
+      "keyboardAction": {
+        "role": "link",
+        "accessibleName": "設定を見る",
+        "occurrence": 1,
+        "completion": "internal-navigation",
+        "viewportCondition": "384px CSS viewport (768px at 200% zoom equivalent)"
+      }
+    },
+    {
+      "routeId": "products",
+      "path": "/admin/products",
+      "file": "src/app/admin/products/page.tsx",
+      "screenName": "商品",
+      "purpose": "商品をさがして詳細へ進む",
+      "primaryAction": "条件で絞り込み、目的の商品の詳細へ進む",
+      "permission": "product.read",
+      "representation": {
+        "primary": "list",
+        "secondary": [
+          "summary"
+        ],
+        "plannedPrimary": "list"
+      },
+      "keep": [
+        "対象を識別する名前",
+        "判断に必要な現在状態",
+        "次の操作"
+      ],
+      "removeOrFold": [
+        "内部ID・API・endpoint・ツール名",
+        "同じ意味の重複説明",
+        "通常判断に不要な詳細"
+      ],
+      "removalRationale": "現在の判断と次の操作に直接使わず、常時表示すると主情報を押し下げるため",
+      "states": [
+        "ideal",
+        "empty",
+        "loading",
+        "partial",
+        "error",
+        "slow"
+      ],
+      "decision": "decided",
+      "keyboardAction": {
+        "role": "button",
+        "accessibleName": "さがす",
+        "occurrence": 1,
+        "completion": "form-submit",
+        "viewportCondition": "384px CSS viewport (768px at 200% zoom equivalent)"
+      }
+    },
+    {
+      "routeId": "products/[product]",
+      "path": "/admin/products/[product]",
+      "file": "src/app/admin/products/[product]/page.tsx",
+      "screenName": "対象の詳細",
+      "purpose": "1 商品の内容を確かめ、素材として残すか判断する",
+      "primaryAction": "評価項目ごとの測り方と点数を読み、素材として残すか決める",
+      "permission": "product.read",
+      "representation": {
+        "primary": "card",
+        "secondary": [
+          "summary"
+        ],
+        "plannedPrimary": "card"
+      },
+      "keep": [
+        "対象を識別する名前",
+        "判断に必要な現在状態",
+        "次の操作"
+      ],
+      "removeOrFold": [
+        "内部ID・API・endpoint・ツール名",
+        "同じ意味の重複説明",
+        "通常判断に不要な詳細"
+      ],
+      "removalRationale": "現在の判断と次の操作に直接使わず、常時表示すると主情報を押し下げるため",
+      "states": [
+        "ideal",
+        "empty",
+        "loading",
+        "partial",
+        "error",
+        "slow"
+      ],
+      "decision": "decided",
+      "keyboardAction": {
+        "role": "group",
+        "accessibleName": "評価項目ごとの、測り方と重みと点数",
+        "occurrence": 1,
+        "completion": "review-complete",
+        "viewportCondition": "384px CSS viewport (768px at 200% zoom equivalent)"
+      }
+    },
+    {
+      "routeId": "products/[product]/edit",
+      "path": "/admin/products/[product]/edit",
+      "file": "src/app/admin/products/[product]/edit/page.tsx",
+      "screenName": "編集",
+      "purpose": "登録済みの商品の値を直す",
+      "primaryAction": "直した商品の値を保存する",
+      "permission": "product.read",
+      "representation": {
+        "primary": "card",
+        "secondary": [
+          "summary"
+        ],
+        "plannedPrimary": "card"
+      },
+      "keep": [
+        "対象を識別する名前",
+        "判断に必要な現在状態",
+        "次の操作"
+      ],
+      "removeOrFold": [
+        "内部ID・API・endpoint・ツール名",
+        "同じ意味の重複説明",
+        "通常判断に不要な詳細"
+      ],
+      "removalRationale": "現在の判断と次の操作に直接使わず、常時表示すると主情報を押し下げるため",
+      "states": [
+        "ideal",
+        "empty",
+        "loading",
+        "partial",
+        "error",
+        "slow"
+      ],
+      "decision": "decided",
+      "keyboardAction": {
+        "role": "button",
+        "accessibleName": "この内容で保存する",
+        "occurrence": 1,
+        "completion": "form-submit",
+        "viewportCondition": "384px CSS viewport (768px at 200% zoom equivalent)"
+      }
+    },
+    {
+      "routeId": "products/compare",
+      "path": "/admin/products/compare",
+      "file": "src/app/admin/products/compare/page.tsx",
+      "screenName": "商品を比べる",
+      "purpose": "複数商品を同じ項目で比べる",
+      "primaryAction": "同じ項目で並べた結果から採る商品を決める",
+      "permission": "product.read",
+      "representation": {
+        "primary": "comparison",
+        "secondary": [
+          "table"
+        ],
+        "plannedPrimary": "comparison"
+      },
+      "keep": [
+        "対象を識別する名前",
+        "判断に必要な現在状態",
+        "次の操作"
+      ],
+      "removeOrFold": [
+        "内部ID・API・endpoint・ツール名",
+        "同じ意味の重複説明",
+        "通常判断に不要な詳細"
+      ],
+      "removalRationale": "現在の判断と次の操作に直接使わず、常時表示すると主情報を押し下げるため",
+      "states": [
+        "ideal",
+        "empty",
+        "loading",
+        "partial",
+        "error",
+        "slow"
+      ],
+      "decision": "decided",
+      "keyboardAction": {
+        "role": "link",
+        "accessibleName": "商品の一覧へ",
+        "occurrence": 1,
+        "completion": "internal-navigation",
+        "viewportCondition": "384px CSS viewport (768px at 200% zoom equivalent)"
+      }
+    },
+    {
+      "routeId": "products/new",
+      "path": "/admin/products/new",
+      "file": "src/app/admin/products/new/page.tsx",
+      "screenName": "商品を追加",
+      "purpose": "商品を 1 つ登録する",
+      "primaryAction": "入力した商品を登録する",
+      "permission": "product.read",
+      "representation": {
+        "primary": "card",
+        "secondary": [
+          "summary"
+        ],
+        "plannedPrimary": "card"
+      },
+      "keep": [
+        "対象を識別する名前",
+        "判断に必要な現在状態",
+        "次の操作"
+      ],
+      "removeOrFold": [
+        "内部ID・API・endpoint・ツール名",
+        "同じ意味の重複説明",
+        "通常判断に不要な詳細"
+      ],
+      "removalRationale": "現在の判断と次の操作に直接使わず、常時表示すると主情報を押し下げるため",
+      "states": [
+        "ideal",
+        "empty",
+        "loading",
+        "partial",
+        "error",
+        "slow"
+      ],
+      "decision": "decided",
+      "keyboardAction": {
+        "role": "button",
+        "accessibleName": "この商品を登録する",
+        "occurrence": 1,
+        "completion": "form-submit",
+        "viewportCondition": "384px CSS viewport (768px at 200% zoom equivalent)"
+      }
+    },
+    {
+      "routeId": "evidence",
+      "path": "/admin/evidence",
+      "file": "src/app/admin/evidence/page.tsx",
+      "screenName": "根拠",
+      "purpose": "出所のない内容を見つける",
+      "primaryAction": "出所の欠けた主張を見つけて根拠を足す",
+      "permission": "content.read",
+      "representation": {
+        "primary": "list",
+        "secondary": [
+          "summary"
+        ],
+        "plannedPrimary": "board"
+      },
+      "keep": [
+        "対象を識別する名前",
+        "判断に必要な現在状態",
+        "次の操作"
+      ],
+      "removeOrFold": [
+        "内部ID・API・endpoint・ツール名",
+        "同じ意味の重複説明",
+        "通常判断に不要な詳細"
+      ],
+      "removalRationale": "現在の判断と次の操作に直接使わず、常時表示すると主情報を押し下げるため",
+      "states": [
+        "ideal",
+        "empty",
+        "loading",
+        "partial",
+        "error",
+        "slow"
+      ],
+      "decision": "decided",
+      "keyboardAction": {
+        "role": "group",
+        "accessibleName": "商品ごとの根拠状態と、確認できる主張・出所",
+        "occurrence": 1,
+        "completion": "review-complete",
+        "viewportCondition": "384px CSS viewport (768px at 200% zoom equivalent)"
+      }
+    },
+    {
+      "routeId": "evidence/new",
+      "path": "/admin/evidence/new",
+      "file": "src/app/admin/evidence/new/page.tsx",
+      "screenName": "根拠を登録する",
+      "purpose": "根拠を 1 つ登録する",
+      "primaryAction": "入力した根拠を登録する",
+      "permission": "content.read",
+      "representation": {
+        "primary": "card",
+        "secondary": [
+          "summary"
+        ],
+        "plannedPrimary": "card"
+      },
+      "keep": [
+        "対象を識別する名前",
+        "判断に必要な現在状態",
+        "次の操作"
+      ],
+      "removeOrFold": [
+        "内部ID・API・endpoint・ツール名",
+        "同じ意味の重複説明",
+        "通常判断に不要な詳細"
+      ],
+      "removalRationale": "現在の判断と次の操作に直接使わず、常時表示すると主情報を押し下げるため",
+      "states": [
+        "ideal",
+        "empty",
+        "loading",
+        "partial",
+        "error",
+        "slow"
+      ],
+      "decision": "decided",
+      "keyboardAction": {
+        "role": "button",
+        "accessibleName": "この根拠を登録する",
+        "occurrence": 1,
+        "completion": "form-submit",
+        "viewportCondition": "384px CSS viewport (768px at 200% zoom equivalent)"
+      }
+    },
+    {
+      "routeId": "evidence/claims/new",
+      "path": "/admin/evidence/claims/new",
+      "file": "src/app/admin/evidence/claims/new/page.tsx",
+      "screenName": "言えることを登録する",
+      "purpose": "商品について言えることを 1 つ登録する",
+      "primaryAction": "入力した主張を登録する",
+      "permission": "content.read",
+      "representation": {
+        "primary": "card",
+        "secondary": [
+          "summary"
+        ],
+        "plannedPrimary": "card"
+      },
+      "keep": [
+        "対象を識別する名前",
+        "判断に必要な現在状態",
+        "次の操作"
+      ],
+      "removeOrFold": [
+        "内部ID・API・endpoint・ツール名",
+        "同じ意味の重複説明",
+        "通常判断に不要な詳細"
+      ],
+      "removalRationale": "現在の判断と次の操作に直接使わず、常時表示すると主情報を押し下げるため",
+      "states": [
+        "ideal",
+        "empty",
+        "loading",
+        "partial",
+        "error",
+        "slow"
+      ],
+      "decision": "decided",
+      "keyboardAction": {
+        "role": "button",
+        "accessibleName": "これを登録する",
+        "occurrence": 1,
+        "completion": "form-submit",
+        "viewportCondition": "384px CSS viewport (768px at 200% zoom equivalent)"
+      }
+    },
+    {
+      "routeId": "evidence/test-runs/new",
+      "path": "/admin/evidence/test-runs/new",
+      "file": "src/app/admin/evidence/test-runs/new/page.tsx",
+      "screenName": "検証記録を登録する",
+      "purpose": "実際に測った記録を 1 つ登録する",
+      "primaryAction": "入力した検証記録を登録する",
+      "permission": "content.read",
+      "representation": {
+        "primary": "card",
+        "secondary": [
+          "summary"
+        ],
+        "plannedPrimary": "card"
+      },
+      "keep": [
+        "対象を識別する名前",
+        "判断に必要な現在状態",
+        "次の操作"
+      ],
+      "removeOrFold": [
+        "内部ID・API・endpoint・ツール名",
+        "同じ意味の重複説明",
+        "通常判断に不要な詳細"
+      ],
+      "removalRationale": "現在の判断と次の操作に直接使わず、常時表示すると主情報を押し下げるため",
+      "states": [
+        "ideal",
+        "empty",
+        "loading",
+        "partial",
+        "error",
+        "slow"
+      ],
+      "decision": "decided",
+      "keyboardAction": {
+        "role": "button",
+        "accessibleName": "この記録を登録する",
+        "occurrence": 1,
+        "completion": "form-submit",
+        "viewportCondition": "384px CSS viewport (768px at 200% zoom equivalent)"
+      }
+    },
+    {
+      "routeId": "rankings",
+      "path": "/admin/rankings",
+      "file": "src/app/admin/rankings/page.tsx",
+      "screenName": "評価基準と順位",
+      "purpose": "決めた基準での順位と、その理由を確かめる",
+      "primaryAction": "順位とその理由を読み、掲載する並びを確かめる",
+      "permission": "content.read",
+      "representation": {
+        "primary": "table",
+        "secondary": [
+          "summary"
+        ],
+        "plannedPrimary": "table"
+      },
+      "keep": [
+        "対象を識別する名前",
+        "判断に必要な現在状態",
+        "次の操作"
+      ],
+      "removeOrFold": [
+        "内部ID・API・endpoint・ツール名",
+        "同じ意味の重複説明",
+        "通常判断に不要な詳細"
+      ],
+      "removalRationale": "現在の判断と次の操作に直接使わず、常時表示すると主情報を押し下げるため",
+      "states": [
+        "ideal",
+        "empty",
+        "loading",
+        "partial",
+        "error",
+        "slow"
+      ],
+      "decision": "decided",
+      "keyboardAction": {
+        "role": "group",
+        "accessibleName": "1 日 8 時間、机に向かう人向けの順位",
+        "occurrence": 1,
+        "completion": "review-complete",
+        "viewportCondition": "384px CSS viewport (768px at 200% zoom equivalent)"
+      }
+    },
+    {
+      "routeId": "rankings/criteria",
+      "path": "/admin/rankings/criteria",
+      "file": "src/app/admin/rankings/criteria/page.tsx",
+      "screenName": "評価基準",
+      "purpose": "何をどう測って並べているかを読む",
+      "primaryAction": "測り方と重みを読み、対象の順位へ進む",
+      "permission": "content.read",
+      "representation": {
+        "primary": "card",
+        "secondary": [
+          "summary"
+        ],
+        "plannedPrimary": "card"
+      },
+      "keep": [
+        "対象を識別する名前",
+        "判断に必要な現在状態",
+        "次の操作"
+      ],
+      "removeOrFold": [
+        "内部ID・API・endpoint・ツール名",
+        "同じ意味の重複説明",
+        "通常判断に不要な詳細"
+      ],
+      "removalRationale": "現在の判断と次の操作に直接使わず、常時表示すると主情報を押し下げるため",
+      "states": [
+        "ideal",
+        "empty",
+        "loading",
+        "partial",
+        "error",
+        "slow"
+      ],
+      "decision": "decided",
+      "keyboardAction": {
+        "role": "link",
+        "accessibleName": "順位",
+        "occurrence": 1,
+        "completion": "internal-navigation",
+        "viewportCondition": "384px CSS viewport (768px at 200% zoom equivalent)"
+      }
+    },
+    {
+      "routeId": "rankings/models",
+      "path": "/admin/rankings/models",
+      "file": "src/app/admin/rankings/models/page.tsx",
+      "screenName": "評価基準を管理する",
+      "purpose": "保存されている評価基準を並べ、次に使う版を選ぶ",
+      "primaryAction": "保存された版から次に使う評価基準を選ぶ",
+      "permission": "content.read",
+      "representation": {
+        "primary": "table",
+        "secondary": [
+          "summary"
+        ],
+        "plannedPrimary": "board"
+      },
+      "keep": [
+        "対象を識別する名前",
+        "判断に必要な現在状態",
+        "次の操作"
+      ],
+      "removeOrFold": [
+        "内部ID・API・endpoint・ツール名",
+        "同じ意味の重複説明",
+        "通常判断に不要な詳細"
+      ],
+      "removalRationale": "現在の判断と次の操作に直接使わず、常時表示すると主情報を押し下げるため",
+      "states": [
+        "ideal",
+        "empty",
+        "loading",
+        "partial",
+        "error",
+        "slow"
+      ],
+      "decision": "decided",
+      "keyboardAction": {
+        "role": "link",
+        "accessibleName": "2026.08-2",
+        "occurrence": 1,
+        "completion": "internal-navigation",
+        "viewportCondition": "384px CSS viewport (768px at 200% zoom equivalent)"
+      }
+    },
+    {
+      "routeId": "rankings/models/new",
+      "path": "/admin/rankings/models/new",
+      "file": "src/app/admin/rankings/models/new/page.tsx",
+      "screenName": "評価基準を作る",
+      "purpose": "評価基準を 1 つ作る",
+      "primaryAction": "項目と重みを入れて評価基準の版を作る",
+      "permission": "content.read",
+      "representation": {
+        "primary": "card",
+        "secondary": [
+          "summary"
+        ],
+        "plannedPrimary": "card"
+      },
+      "keep": [
+        "対象を識別する名前",
+        "判断に必要な現在状態",
+        "次の操作"
+      ],
+      "removeOrFold": [
+        "内部ID・API・endpoint・ツール名",
+        "同じ意味の重複説明",
+        "通常判断に不要な詳細"
+      ],
+      "removalRationale": "現在の判断と次の操作に直接使わず、常時表示すると主情報を押し下げるため",
+      "states": [
+        "ideal",
+        "empty",
+        "loading",
+        "partial",
+        "error",
+        "slow"
+      ],
+      "decision": "decided",
+      "keyboardAction": {
+        "role": "textbox",
+        "accessibleName": "この基準の版",
+        "occurrence": 1,
+        "completion": "form-entry",
+        "viewportCondition": "384px CSS viewport (768px at 200% zoom equivalent)"
+      }
+    },
+    {
+      "routeId": "rankings/scores",
+      "path": "/admin/rankings/scores",
+      "file": "src/app/admin/rankings/scores/page.tsx",
+      "screenName": "点を入れる",
+      "purpose": "決めた基準で、商品 1 つの点を記録する",
+      "primaryAction": "評価項目ごとに点を入れて記録する",
+      "permission": "content.read",
+      "representation": {
+        "primary": "list",
+        "secondary": [
+          "summary"
+        ],
+        "plannedPrimary": "list"
+      },
+      "keep": [
+        "対象を識別する名前",
+        "判断に必要な現在状態",
+        "次の操作"
+      ],
+      "removeOrFold": [
+        "内部ID・API・endpoint・ツール名",
+        "同じ意味の重複説明",
+        "通常判断に不要な詳細"
+      ],
+      "removalRationale": "現在の判断と次の操作に直接使わず、常時表示すると主情報を押し下げるため",
+      "states": [
+        "ideal",
+        "empty",
+        "loading",
+        "partial",
+        "error",
+        "slow"
+      ],
+      "decision": "decided",
+      "keyboardAction": {
+        "role": "button",
+        "accessibleName": "この点を登録する",
+        "occurrence": 1,
+        "completion": "form-submit",
+        "viewportCondition": "384px CSS viewport (768px at 200% zoom equivalent)"
+      }
+    },
+    {
+      "routeId": "content",
+      "path": "/admin/content",
+      "file": "src/app/admin/content/page.tsx",
+      "screenName": "記事",
+      "purpose": "次に手を付ける記事を決める",
+      "primaryAction": "段階の止まった記事を見つけて次へ進める",
+      "permission": "content.read",
+      "representation": {
+        "primary": "list",
+        "secondary": [
+          "summary"
+        ],
+        "plannedPrimary": "board"
+      },
+      "keep": [
+        "対象を識別する名前",
+        "判断に必要な現在状態",
+        "次の操作"
+      ],
+      "removeOrFold": [
+        "内部ID・API・endpoint・ツール名",
+        "同じ意味の重複説明",
+        "通常判断に不要な詳細"
+      ],
+      "removalRationale": "現在の判断と次の操作に直接使わず、常時表示すると主情報を押し下げるため",
+      "states": [
+        "ideal",
+        "empty",
+        "loading",
+        "partial",
+        "error",
+        "slow"
+      ],
+      "decision": "decided",
+      "keyboardAction": {
+        "role": "group",
+        "accessibleName": "記事の現在の段階と次に進める先",
+        "occurrence": 1,
+        "completion": "review-complete",
+        "viewportCondition": "384px CSS viewport (768px at 200% zoom equivalent)"
+      }
+    },
+    {
+      "routeId": "content/[variant]",
+      "path": "/admin/content/[variant]",
+      "file": "src/app/admin/content/[variant]/page.tsx",
+      "screenName": "対象の詳細",
+      "purpose": "本文を読み、残すか次へ進めるか判断する",
+      "primaryAction": "本文を読み、進行と配信の操作へ進む",
+      "permission": "content.read",
+      "representation": {
+        "primary": "card",
+        "secondary": [
+          "summary"
+        ],
+        "plannedPrimary": "card"
+      },
+      "keep": [
+        "対象を識別する名前",
+        "判断に必要な現在状態",
+        "次の操作"
+      ],
+      "removeOrFold": [
+        "内部ID・API・endpoint・ツール名",
+        "同じ意味の重複説明",
+        "通常判断に不要な詳細"
+      ],
+      "removalRationale": "現在の判断と次の操作に直接使わず、常時表示すると主情報を押し下げるため",
+      "states": [
+        "ideal",
+        "empty",
+        "loading",
+        "partial",
+        "error",
+        "slow"
+      ],
+      "decision": "decided",
+      "keyboardAction": {
+        "role": "link",
+        "accessibleName": "進行と配信の操作へ",
+        "occurrence": 1,
+        "completion": "internal-navigation",
+        "viewportCondition": "384px CSS viewport (768px at 200% zoom equivalent)"
+      }
+    },
+    {
+      "routeId": "content/[variant]/edit",
+      "path": "/admin/content/[variant]/edit",
+      "file": "src/app/admin/content/[variant]/edit/page.tsx",
+      "screenName": "文章を直す",
+      "purpose": "記事の文章を直す",
+      "primaryAction": "直した本文を保存する",
+      "permission": "content.read",
+      "representation": {
+        "primary": "card",
+        "secondary": [
+          "summary"
+        ],
+        "plannedPrimary": "card"
+      },
+      "keep": [
+        "対象を識別する名前",
+        "判断に必要な現在状態",
+        "次の操作"
+      ],
+      "removeOrFold": [
+        "内部ID・API・endpoint・ツール名",
+        "同じ意味の重複説明",
+        "通常判断に不要な詳細"
+      ],
+      "removalRationale": "現在の判断と次の操作に直接使わず、常時表示すると主情報を押し下げるため",
+      "states": [
+        "ideal",
+        "empty",
+        "loading",
+        "partial",
+        "error",
+        "slow"
+      ],
+      "decision": "decided",
+      "keyboardAction": {
+        "role": "button",
+        "accessibleName": "この記事を直す",
+        "occurrence": 1,
+        "completion": "form-submit",
+        "viewportCondition": "384px CSS viewport (768px at 200% zoom equivalent)"
+      }
+    },
+    {
+      "routeId": "content/[variant]/progress",
+      "path": "/admin/content/[variant]/progress",
+      "file": "src/app/admin/content/[variant]/progress/page.tsx",
+      "screenName": "公開までの進み具合",
+      "purpose": "この記事を公開へ向けて次の段階へ進める",
+      "primaryAction": "いまの段階を確かめ、次の段階へ進める",
+      "permission": "content.read",
+      "representation": {
+        "primary": "card",
+        "secondary": [
+          "summary"
+        ],
+        "plannedPrimary": "list"
+      },
+      "keep": [
+        "対象を識別する名前",
+        "判断に必要な現在状態",
+        "次の操作"
+      ],
+      "removeOrFold": [
+        "内部ID・API・endpoint・ツール名",
+        "同じ意味の重複説明",
+        "通常判断に不要な詳細"
+      ],
+      "removalRationale": "現在の判断と次の操作に直接使わず、常時表示すると主情報を押し下げるため",
+      "states": [
+        "ideal",
+        "empty",
+        "loading",
+        "partial",
+        "error",
+        "slow"
+      ],
+      "decision": "decided",
+      "keyboardAction": {
+        "role": "link",
+        "accessibleName": "本文と指摘を見る",
+        "occurrence": 1,
+        "completion": "internal-navigation",
+        "viewportCondition": "384px CSS viewport (768px at 200% zoom equivalent)"
+      }
+    },
+    {
+      "routeId": "content/matrix",
+      "path": "/admin/content/matrix",
+      "file": "src/app/admin/content/matrix/page.tsx",
+      "screenName": "記事案をまとめて作る",
+      "purpose": "誰に・どの切り口で・どの媒体へ出すかを決め、記事案を作る",
+      "primaryAction": "読者像と切り口と媒体の組から記事案を作る",
+      "permission": "content.read",
+      "representation": {
+        "primary": "table",
+        "secondary": [
+          "summary"
+        ],
+        "plannedPrimary": "board"
+      },
+      "keep": [
+        "対象を識別する名前",
+        "判断に必要な現在状態",
+        "次の操作"
+      ],
+      "removeOrFold": [
+        "内部ID・API・endpoint・ツール名",
+        "同じ意味の重複説明",
+        "通常判断に不要な詳細"
+      ],
+      "removalRationale": "現在の判断と次の操作に直接使わず、常時表示すると主情報を押し下げるため",
+      "states": [
+        "ideal",
+        "empty",
+        "loading",
+        "partial",
+        "error",
+        "slow"
+      ],
+      "decision": "decided",
+      "keyboardAction": {
+        "role": "link",
+        "accessibleName": "E2E 公開ライフサイクル desktopを選ぶ",
+        "occurrence": 1,
+        "completion": "internal-navigation",
+        "viewportCondition": "384px CSS viewport (768px at 200% zoom equivalent)"
+      }
+    },
+    {
+      "routeId": "content/packages",
+      "path": "/admin/content/packages",
+      "file": "src/app/admin/content/packages/page.tsx",
+      "screenName": "企画",
+      "purpose": "何のために記事を書くかを決める",
+      "primaryAction": "企画の並びから次に進める企画を決める",
+      "permission": "content.read",
+      "representation": {
+        "primary": "table",
+        "secondary": [
+          "summary"
+        ],
+        "plannedPrimary": "board"
+      },
+      "keep": [
+        "対象を識別する名前",
+        "判断に必要な現在状態",
+        "次の操作"
+      ],
+      "removeOrFold": [
+        "内部ID・API・endpoint・ツール名",
+        "同じ意味の重複説明",
+        "通常判断に不要な詳細"
+      ],
+      "removalRationale": "現在の判断と次の操作に直接使わず、常時表示すると主情報を押し下げるため",
+      "states": [
+        "ideal",
+        "empty",
+        "loading",
+        "partial",
+        "error",
+        "slow"
+      ],
+      "decision": "decided",
+      "keyboardAction": {
+        "role": "group",
+        "accessibleName": "企画の一覧",
+        "occurrence": 1,
+        "completion": "review-complete",
+        "viewportCondition": "384px CSS viewport (768px at 200% zoom equivalent)"
+      }
+    },
+    {
+      "routeId": "content/packages/new",
+      "path": "/admin/content/packages/new",
+      "file": "src/app/admin/content/packages/new/page.tsx",
+      "screenName": "企画を立てる",
+      "purpose": "企画を 1 つ立てる",
+      "primaryAction": "入力した企画を立てる",
+      "permission": "content.read",
+      "representation": {
+        "primary": "card",
+        "secondary": [
+          "summary"
+        ],
+        "plannedPrimary": "card"
+      },
+      "keep": [
+        "対象を識別する名前",
+        "判断に必要な現在状態",
+        "次の操作"
+      ],
+      "removeOrFold": [
+        "内部ID・API・endpoint・ツール名",
+        "同じ意味の重複説明",
+        "通常判断に不要な詳細"
+      ],
+      "removalRationale": "現在の判断と次の操作に直接使わず、常時表示すると主情報を押し下げるため",
+      "states": [
+        "ideal",
+        "empty",
+        "loading",
+        "partial",
+        "error",
+        "slow"
+      ],
+      "decision": "decided",
+      "keyboardAction": {
+        "role": "button",
+        "accessibleName": "この企画を立てる",
+        "occurrence": 1,
+        "completion": "form-submit",
+        "viewportCondition": "384px CSS viewport (768px at 200% zoom equivalent)"
+      }
+    },
+    {
+      "routeId": "content/new",
+      "path": "/admin/content/new",
+      "file": "src/app/admin/content/new/page.tsx",
+      "screenName": "記事を作る",
+      "purpose": "記事案から原稿を 1 本作る",
+      "primaryAction": "選んだ企画から原稿を作る",
+      "permission": "content.read",
+      "representation": {
+        "primary": "card",
+        "secondary": [
+          "summary"
+        ],
+        "plannedPrimary": "card"
+      },
+      "keep": [
+        "対象を識別する名前",
+        "判断に必要な現在状態",
+        "次の操作"
+      ],
+      "removeOrFold": [
+        "内部ID・API・endpoint・ツール名",
+        "同じ意味の重複説明",
+        "通常判断に不要な詳細"
+      ],
+      "removalRationale": "現在の判断と次の操作に直接使わず、常時表示すると主情報を押し下げるため",
+      "states": [
+        "ideal",
+        "empty",
+        "loading",
+        "partial",
+        "error",
+        "slow"
+      ],
+      "decision": "decided",
+      "keyboardAction": {
+        "role": "button",
+        "accessibleName": "この記事を作る",
+        "occurrence": 1,
+        "completion": "form-submit",
+        "viewportCondition": "384px CSS viewport (768px at 200% zoom equivalent)"
+      }
+    },
+    {
+      "routeId": "content/published",
+      "path": "/admin/content/published",
+      "file": "src/app/admin/content/published/page.tsx",
+      "screenName": "公開済み記事",
+      "purpose": "公開済み記事から訂正または非表示にする記事を選ぶ",
+      "primaryAction": "公開済みから訂正または非表示にする記事を選ぶ",
+      "permission": "content.read",
+      "representation": {
+        "primary": "table",
+        "secondary": [
+          "summary"
+        ],
+        "plannedPrimary": "board"
+      },
+      "keep": [
+        "対象を識別する名前",
+        "判断に必要な現在状態",
+        "次の操作"
+      ],
+      "removeOrFold": [
+        "内部ID・API・endpoint・ツール名",
+        "同じ意味の重複説明",
+        "通常判断に不要な詳細"
+      ],
+      "removalRationale": "現在の判断と次の操作に直接使わず、常時表示すると主情報を押し下げるため",
+      "states": [
+        "ideal",
+        "empty",
+        "loading",
+        "partial",
+        "error",
+        "slow"
+      ],
+      "decision": "decided",
+      "keyboardAction": {
+        "role": "button",
+        "accessibleName": "絞り込む",
+        "occurrence": 1,
+        "completion": "form-submit",
+        "viewportCondition": "384px CSS viewport (768px at 200% zoom equivalent)"
+      }
+    },
+    {
+      "routeId": "content/published/[site]/[slug]/edit",
+      "path": "/admin/content/published/[site]/[slug]/edit",
+      "file": "src/app/admin/content/published/[site]/[slug]/edit/page.tsx",
+      "screenName": "編集",
+      "purpose": "公開済み記事を訂正し、変更理由を記録する",
+      "primaryAction": "訂正した本文と変更理由を保存する",
+      "permission": "content.read",
+      "representation": {
+        "primary": "card",
+        "secondary": [
+          "summary"
+        ],
+        "plannedPrimary": "card"
+      },
+      "keep": [
+        "対象を識別する名前",
+        "判断に必要な現在状態",
+        "次の操作"
+      ],
+      "removeOrFold": [
+        "内部ID・API・endpoint・ツール名",
+        "同じ意味の重複説明",
+        "通常判断に不要な詳細"
+      ],
+      "removalRationale": "現在の判断と次の操作に直接使わず、常時表示すると主情報を押し下げるため",
+      "states": [
+        "ideal",
+        "empty",
+        "loading",
+        "partial",
+        "error",
+        "slow"
+      ],
+      "decision": "decided",
+      "keyboardAction": {
+        "role": "link",
+        "accessibleName": "公開済み記事一覧へ戻る",
+        "occurrence": 1,
+        "completion": "internal-navigation",
+        "viewportCondition": "384px CSS viewport (768px at 200% zoom equivalent)"
+      }
+    },
+    {
+      "routeId": "personas",
+      "path": "/admin/personas",
+      "file": "src/app/admin/personas/page.tsx",
+      "screenName": "書き手と読者像",
+      "purpose": "書き手と読者像を決める",
+      "primaryAction": "書き手が扱える範囲を調べ、担当を決める",
+      "permission": "content.read",
+      "representation": {
+        "primary": "table",
+        "secondary": [
+          "summary"
+        ],
+        "plannedPrimary": "board"
+      },
+      "keep": [
+        "対象を識別する名前",
+        "判断に必要な現在状態",
+        "次の操作"
+      ],
+      "removeOrFold": [
+        "内部ID・API・endpoint・ツール名",
+        "同じ意味の重複説明",
+        "通常判断に不要な詳細"
+      ],
+      "removalRationale": "現在の判断と次の操作に直接使わず、常時表示すると主情報を押し下げるため",
+      "states": [
+        "ideal",
+        "empty",
+        "loading",
+        "partial",
+        "error",
+        "slow"
+      ],
+      "decision": "decided",
+      "keyboardAction": {
+        "role": "button",
+        "accessibleName": "書ける範囲か調べる",
+        "occurrence": 1,
+        "completion": "form-submit",
+        "viewportCondition": "384px CSS viewport (768px at 200% zoom equivalent)"
+      }
+    },
+    {
+      "routeId": "personas/new",
+      "path": "/admin/personas/new",
+      "file": "src/app/admin/personas/new/page.tsx",
+      "screenName": "書き手を作る",
+      "purpose": "書き手を 1 人作る",
+      "primaryAction": "入力した書き手を登録する",
+      "permission": "content.read",
+      "representation": {
+        "primary": "card",
+        "secondary": [
+          "summary"
+        ],
+        "plannedPrimary": "card"
+      },
+      "keep": [
+        "対象を識別する名前",
+        "判断に必要な現在状態",
+        "次の操作"
+      ],
+      "removeOrFold": [
+        "内部ID・API・endpoint・ツール名",
+        "同じ意味の重複説明",
+        "通常判断に不要な詳細"
+      ],
+      "removalRationale": "現在の判断と次の操作に直接使わず、常時表示すると主情報を押し下げるため",
+      "states": [
+        "ideal",
+        "empty",
+        "loading",
+        "partial",
+        "error",
+        "slow"
+      ],
+      "decision": "decided",
+      "keyboardAction": {
+        "role": "button",
+        "accessibleName": "この書き手を登録する",
+        "occurrence": 1,
+        "completion": "form-submit",
+        "viewportCondition": "384px CSS viewport (768px at 200% zoom equivalent)"
+      }
+    },
+    {
+      "routeId": "personas/audiences",
+      "path": "/admin/personas/audiences",
+      "file": "src/app/admin/personas/audiences/page.tsx",
+      "screenName": "読者像",
+      "purpose": "誰に向けて書くかを決める",
+      "primaryAction": "読者像ごとの目的と知識量を読み、向ける相手を決める",
+      "permission": "content.read",
+      "representation": {
+        "primary": "list",
+        "secondary": [
+          "summary"
+        ],
+        "plannedPrimary": "board"
+      },
+      "keep": [
+        "対象を識別する名前",
+        "判断に必要な現在状態",
+        "次の操作"
+      ],
+      "removeOrFold": [
+        "内部ID・API・endpoint・ツール名",
+        "同じ意味の重複説明",
+        "通常判断に不要な詳細"
+      ],
+      "removalRationale": "現在の判断と次の操作に直接使わず、常時表示すると主情報を押し下げるため",
+      "states": [
+        "ideal",
+        "empty",
+        "loading",
+        "partial",
+        "error",
+        "slow"
+      ],
+      "decision": "decided",
+      "keyboardAction": {
+        "role": "group",
+        "accessibleName": "読者像ごとの目的・現在地・知識量・次の行動",
+        "occurrence": 1,
+        "completion": "review-complete",
+        "viewportCondition": "384px CSS viewport (768px at 200% zoom equivalent)"
+      }
+    },
+    {
+      "routeId": "personas/audiences/new",
+      "path": "/admin/personas/audiences/new",
+      "file": "src/app/admin/personas/audiences/new/page.tsx",
+      "screenName": "読者像を作る",
+      "purpose": "読者像を 1 つ作る",
+      "primaryAction": "入力した読者像を登録する",
+      "permission": "content.read",
+      "representation": {
+        "primary": "card",
+        "secondary": [
+          "summary"
+        ],
+        "plannedPrimary": "card"
+      },
+      "keep": [
+        "対象を識別する名前",
+        "判断に必要な現在状態",
+        "次の操作"
+      ],
+      "removeOrFold": [
+        "内部ID・API・endpoint・ツール名",
+        "同じ意味の重複説明",
+        "通常判断に不要な詳細"
+      ],
+      "removalRationale": "現在の判断と次の操作に直接使わず、常時表示すると主情報を押し下げるため",
+      "states": [
+        "ideal",
+        "empty",
+        "loading",
+        "partial",
+        "error",
+        "slow"
+      ],
+      "decision": "decided",
+      "keyboardAction": {
+        "role": "button",
+        "accessibleName": "この読者像を登録する",
+        "occurrence": 1,
+        "completion": "form-submit",
+        "viewportCondition": "384px CSS viewport (768px at 200% zoom equivalent)"
+      }
+    },
+    {
+      "routeId": "writing",
+      "path": "/admin/writing",
+      "file": "src/app/admin/writing/page.tsx",
+      "screenName": "書き方の決めごと",
+      "purpose": "書き方の決めごとを調べる（参照専用）",
+      "primaryAction": "決めごとの一覧から該当箇所を引く",
+      "permission": "content.read",
+      "representation": {
+        "primary": "table",
+        "secondary": [
+          "summary"
+        ],
+        "plannedPrimary": "table"
+      },
+      "keep": [
+        "対象を識別する名前",
+        "判断に必要な現在状態",
+        "次の操作"
+      ],
+      "removeOrFold": [
+        "内部ID・API・endpoint・ツール名",
+        "同じ意味の重複説明",
+        "通常判断に不要な詳細"
+      ],
+      "removalRationale": "現在の判断と次の操作に直接使わず、常時表示すると主情報を押し下げるため",
+      "states": [
+        "ideal",
+        "empty",
+        "loading",
+        "partial",
+        "error",
+        "slow"
+      ],
+      "decision": "decided",
+      "keyboardAction": {
+        "role": "link",
+        "accessibleName": "1 つを詳しく見る記事を見る",
+        "occurrence": 1,
+        "completion": "internal-navigation",
+        "viewportCondition": "384px CSS viewport (768px at 200% zoom equivalent)"
+      }
+    },
+    {
+      "routeId": "generation",
+      "path": "/admin/generation",
+      "file": "src/app/admin/generation/page.tsx",
+      "screenName": "生成の仕組み",
+      "purpose": "AI に何を渡し、どこから人が決めるかを調べる（参照専用）",
+      "primaryAction": "渡す項目と人が決める範囲を引く",
+      "permission": "content.read",
+      "representation": {
+        "primary": "table",
+        "secondary": [
+          "summary"
+        ],
+        "plannedPrimary": "table"
+      },
+      "keep": [
+        "対象を識別する名前",
+        "判断に必要な現在状態",
+        "次の操作"
+      ],
+      "removeOrFold": [
+        "内部ID・API・endpoint・ツール名",
+        "同じ意味の重複説明",
+        "通常判断に不要な詳細"
+      ],
+      "removalRationale": "現在の判断と次の操作に直接使わず、常時表示すると主情報を押し下げるため",
+      "states": [
+        "ideal",
+        "empty",
+        "loading",
+        "partial",
+        "error",
+        "slow"
+      ],
+      "decision": "decided",
+      "keyboardAction": {
+        "role": "link",
+        "accessibleName": "渡す項目（18件）",
+        "occurrence": 1,
+        "completion": "internal-navigation",
+        "viewportCondition": "384px CSS viewport (768px at 200% zoom equivalent)"
+      }
+    },
+    {
+      "routeId": "generation/inputs",
+      "path": "/admin/generation/inputs",
+      "file": "src/app/admin/generation/inputs/page.tsx",
+      "screenName": "生成に使う情報",
+      "purpose": "AI に渡す素材の過不足を見る",
+      "primaryAction": "渡す素材の欠けを確かめる",
+      "permission": "content.read",
+      "representation": {
+        "primary": "table",
+        "secondary": [
+          "summary"
+        ],
+        "plannedPrimary": "table"
+      },
+      "keep": [
+        "対象を識別する名前",
+        "判断に必要な現在状態",
+        "次の操作"
+      ],
+      "removeOrFold": [
+        "内部ID・API・endpoint・ツール名",
+        "同じ意味の重複説明",
+        "通常判断に不要な詳細"
+      ],
+      "removalRationale": "現在の判断と次の操作に直接使わず、常時表示すると主情報を押し下げるため",
+      "states": [
+        "ideal",
+        "empty",
+        "loading",
+        "partial",
+        "error",
+        "slow"
+      ],
+      "decision": "decided",
+      "keyboardAction": {
+        "role": "button",
+        "accessibleName": "確かめる",
+        "occurrence": 1,
+        "completion": "form-submit",
+        "viewportCondition": "384px CSS viewport (768px at 200% zoom equivalent)"
+      }
+    },
+    {
+      "routeId": "generation/prompt",
+      "path": "/admin/generation/prompt",
+      "file": "src/app/admin/generation/prompt/page.tsx",
+      "screenName": "生成指示",
+      "purpose": "指示文の組み立て方を読む",
+      "primaryAction": "指示文の組み立て順を読み、渡す項目へ進む",
+      "permission": "content.read",
+      "representation": {
+        "primary": "table",
+        "secondary": [
+          "summary"
+        ],
+        "plannedPrimary": "table"
+      },
+      "keep": [
+        "対象を識別する名前",
+        "判断に必要な現在状態",
+        "次の操作"
+      ],
+      "removeOrFold": [
+        "内部ID・API・endpoint・ツール名",
+        "同じ意味の重複説明",
+        "通常判断に不要な詳細"
+      ],
+      "removalRationale": "現在の判断と次の操作に直接使わず、常時表示すると主情報を押し下げるため",
+      "states": [
+        "ideal",
+        "empty",
+        "loading",
+        "partial",
+        "error",
+        "slow"
+      ],
+      "decision": "decided",
+      "keyboardAction": {
+        "role": "link",
+        "accessibleName": "渡す項目",
+        "occurrence": 1,
+        "completion": "internal-navigation",
+        "viewportCondition": "384px CSS viewport (768px at 200% zoom equivalent)"
+      }
+    },
+    {
+      "routeId": "site-network",
+      "path": "/admin/site-network",
+      "file": "src/app/admin/site-network/page.tsx",
+      "screenName": "ブログのつながり",
+      "purpose": "ブログ同士のつながりを見て、行き止まりを見つける",
+      "primaryAction": "行き止まりになっているつながりを見つける",
+      "permission": "content.read",
+      "representation": {
+        "primary": "table",
+        "secondary": [
+          "summary"
+        ],
+        "plannedPrimary": "board"
+      },
+      "keep": [
+        "対象を識別する名前",
+        "判断に必要な現在状態",
+        "次の操作"
+      ],
+      "removeOrFold": [
+        "内部ID・API・endpoint・ツール名",
+        "同じ意味の重複説明",
+        "通常判断に不要な詳細"
+      ],
+      "removalRationale": "現在の判断と次の操作に直接使わず、常時表示すると主情報を押し下げるため",
+      "states": [
+        "ideal",
+        "empty",
+        "loading",
+        "partial",
+        "error",
+        "slow"
+      ],
+      "decision": "decided",
+      "keyboardAction": {
+        "role": "button",
+        "accessibleName": "絞り込む",
+        "occurrence": 1,
+        "completion": "form-submit",
+        "viewportCondition": "384px CSS viewport (768px at 200% zoom equivalent)"
+      }
+    },
+    {
+      "routeId": "site-network/[node]",
+      "path": "/admin/site-network/[node]",
+      "file": "src/app/admin/site-network/[node]/page.tsx",
+      "screenName": "対象の詳細",
+      "purpose": "1 本のつながりを直す / 外す",
+      "primaryAction": "このつながりを直すか外す",
+      "permission": "content.read",
+      "representation": {
+        "primary": "card",
+        "secondary": [
+          "summary"
+        ],
+        "plannedPrimary": "card"
+      },
+      "keep": [
+        "対象を識別する名前",
+        "判断に必要な現在状態",
+        "次の操作"
+      ],
+      "removeOrFold": [
+        "内部ID・API・endpoint・ツール名",
+        "同じ意味の重複説明",
+        "通常判断に不要な詳細"
+      ],
+      "removalRationale": "現在の判断と次の操作に直接使わず、常時表示すると主情報を押し下げるため",
+      "states": [
+        "ideal",
+        "empty",
+        "loading",
+        "partial",
+        "error",
+        "slow"
+      ],
+      "decision": "decided",
+      "keyboardAction": {
+        "role": "link",
+        "accessibleName": "つながりの一覧へ",
+        "occurrence": 1,
+        "completion": "internal-navigation",
+        "viewportCondition": "384px CSS viewport (768px at 200% zoom equivalent)"
+      }
+    },
+    {
+      "routeId": "site-network/deleted",
+      "path": "/admin/site-network/deleted",
+      "file": "src/app/admin/site-network/deleted/page.tsx",
+      "screenName": "削除済み",
+      "purpose": "削除済みのつながりを確かめ、必要なら戻す",
+      "primaryAction": "削除済みのつながりを確かめ、戻す",
+      "permission": "content.read",
+      "representation": {
+        "primary": "table",
+        "secondary": [
+          "summary"
+        ],
+        "plannedPrimary": "table"
+      },
+      "keep": [
+        "対象を識別する名前",
+        "判断に必要な現在状態",
+        "次の操作"
+      ],
+      "removeOrFold": [
+        "内部ID・API・endpoint・ツール名",
+        "同じ意味の重複説明",
+        "通常判断に不要な詳細"
+      ],
+      "removalRationale": "現在の判断と次の操作に直接使わず、常時表示すると主情報を押し下げるため",
+      "states": [
+        "ideal",
+        "empty",
+        "loading",
+        "partial",
+        "error",
+        "slow"
+      ],
+      "decision": "decided",
+      "keyboardAction": {
+        "role": "link",
+        "accessibleName": "通常のつながりへ戻る",
+        "occurrence": 1,
+        "completion": "internal-navigation",
+        "viewportCondition": "384px CSS viewport (768px at 200% zoom equivalent)"
+      }
+    },
+    {
+      "routeId": "site-network/new",
+      "path": "/admin/site-network/new",
+      "file": "src/app/admin/site-network/new/page.tsx",
+      "screenName": "つながりに 1 本足す",
+      "purpose": "つながりに 1 本足す",
+      "primaryAction": "入力したつながりを足す",
+      "permission": "content.read",
+      "representation": {
+        "primary": "card",
+        "secondary": [
+          "summary"
+        ],
+        "plannedPrimary": "card"
+      },
+      "keep": [
+        "対象を識別する名前",
+        "判断に必要な現在状態",
+        "次の操作"
+      ],
+      "removeOrFold": [
+        "内部ID・API・endpoint・ツール名",
+        "同じ意味の重複説明",
+        "通常判断に不要な詳細"
+      ],
+      "removalRationale": "現在の判断と次の操作に直接使わず、常時表示すると主情報を押し下げるため",
+      "states": [
+        "ideal",
+        "empty",
+        "loading",
+        "partial",
+        "error",
+        "slow"
+      ],
+      "decision": "decided",
+      "keyboardAction": {
+        "role": "button",
+        "accessibleName": "つながりに足す",
+        "occurrence": 1,
+        "completion": "form-submit",
+        "viewportCondition": "384px CSS viewport (768px at 200% zoom equivalent)"
+      }
+    },
+    {
+      "routeId": "blog",
+      "path": "/admin/blog",
+      "file": "src/app/admin/blog/page.tsx",
+      "screenName": "ブログの版面",
+      "purpose": "ブログの見た目と中身のどこを直すか決める（索引）",
+      "primaryAction": "直す対象の画面へ移動する",
+      "permission": "content.read",
+      "representation": {
+        "primary": "list",
+        "secondary": [
+          "summary"
+        ],
+        "plannedPrimary": "list"
+      },
+      "keep": [
+        "対象を識別する名前",
+        "判断に必要な現在状態",
+        "次の操作"
+      ],
+      "removeOrFold": [
+        "内部ID・API・endpoint・ツール名",
+        "同じ意味の重複説明",
+        "通常判断に不要な詳細"
+      ],
+      "removalRationale": "現在の判断と次の操作に直接使わず、常時表示すると主情報を押し下げるため",
+      "states": [
+        "ideal",
+        "empty",
+        "loading",
+        "partial",
+        "error",
+        "slow"
+      ],
+      "decision": "decided",
+      "keyboardAction": {
+        "role": "link",
+        "accessibleName": "版面の枠と帯",
+        "occurrence": 1,
+        "completion": "internal-navigation",
+        "viewportCondition": "384px CSS viewport (768px at 200% zoom equivalent)"
+      }
+    },
+    {
+      "routeId": "blog/articles",
+      "path": "/admin/blog/articles",
+      "file": "src/app/admin/blog/articles/page.tsx",
+      "screenName": "記事",
+      "purpose": "ブログに載せる記事のうち、次に手を入れるものを決める",
+      "primaryAction": "絞り込んで次に手を入れる記事を決める",
+      "permission": "content.read",
+      "representation": {
+        "primary": "table",
+        "secondary": [
+          "summary"
+        ],
+        "plannedPrimary": "board"
+      },
+      "keep": [
+        "対象を識別する名前",
+        "判断に必要な現在状態",
+        "次の操作"
+      ],
+      "removeOrFold": [
+        "内部ID・API・endpoint・ツール名",
+        "同じ意味の重複説明",
+        "通常判断に不要な詳細"
+      ],
+      "removalRationale": "現在の判断と次の操作に直接使わず、常時表示すると主情報を押し下げるため",
+      "states": [
+        "ideal",
+        "empty",
+        "loading",
+        "partial",
+        "error",
+        "slow"
+      ],
+      "decision": "decided",
+      "keyboardAction": {
+        "role": "button",
+        "accessibleName": "絞り込む",
+        "occurrence": 1,
+        "completion": "form-submit",
+        "viewportCondition": "384px CSS viewport (768px at 200% zoom equivalent)"
+      }
+    },
+    {
+      "routeId": "blog/articles/[article]",
+      "path": "/admin/blog/articles/[article]",
+      "file": "src/app/admin/blog/articles/[article]/page.tsx",
+      "screenName": "対象の詳細",
+      "purpose": "記事の中身を直し、公開まで進める",
+      "primaryAction": "直した記事を保存し、公開まで進める",
+      "permission": "content.read",
+      "representation": {
+        "primary": "card",
+        "secondary": [
+          "summary"
+        ],
+        "plannedPrimary": "card"
+      },
+      "keep": [
+        "対象を識別する名前",
+        "判断に必要な現在状態",
+        "次の操作"
+      ],
+      "removeOrFold": [
+        "内部ID・API・endpoint・ツール名",
+        "同じ意味の重複説明",
+        "通常判断に不要な詳細"
+      ],
+      "removalRationale": "現在の判断と次の操作に直接使わず、常時表示すると主情報を押し下げるため",
+      "states": [
+        "ideal",
+        "empty",
+        "loading",
+        "partial",
+        "error",
+        "slow"
+      ],
+      "decision": "decided",
+      "keyboardAction": {
+        "role": "button",
+        "accessibleName": "記事を保存",
+        "occurrence": 1,
+        "completion": "form-submit",
+        "viewportCondition": "384px CSS viewport (768px at 200% zoom equivalent)"
+      }
+    },
+    {
+      "routeId": "blog/articles/deleted",
+      "path": "/admin/blog/articles/deleted",
+      "file": "src/app/admin/blog/articles/deleted/page.tsx",
+      "screenName": "削除済み",
+      "purpose": "削除済みの記事を確かめ、必要なら戻す",
+      "primaryAction": "削除済みの記事を確かめ、戻す",
+      "permission": "content.read",
+      "representation": {
+        "primary": "table",
+        "secondary": [
+          "summary"
+        ],
+        "plannedPrimary": "table"
+      },
+      "keep": [
+        "対象を識別する名前",
+        "判断に必要な現在状態",
+        "次の操作"
+      ],
+      "removeOrFold": [
+        "内部ID・API・endpoint・ツール名",
+        "同じ意味の重複説明",
+        "通常判断に不要な詳細"
+      ],
+      "removalRationale": "現在の判断と次の操作に直接使わず、常時表示すると主情報を押し下げるため",
+      "states": [
+        "ideal",
+        "empty",
+        "loading",
+        "partial",
+        "error",
+        "slow"
+      ],
+      "decision": "decided",
+      "keyboardAction": {
+        "role": "link",
+        "accessibleName": "通常の記事へ戻る",
+        "occurrence": 1,
+        "completion": "internal-navigation",
+        "viewportCondition": "384px CSS viewport (768px at 200% zoom equivalent)"
+      }
+    },
+    {
+      "routeId": "blog/articles/new",
+      "path": "/admin/blog/articles/new",
+      "file": "src/app/admin/blog/articles/new/page.tsx",
+      "screenName": "記事を 1 本作る",
+      "purpose": "ブログの記事を 1 本作る",
+      "primaryAction": "下書きを作る",
+      "permission": "content.read",
+      "representation": {
+        "primary": "card",
+        "secondary": [
+          "summary"
+        ],
+        "plannedPrimary": "card"
+      },
+      "keep": [
+        "対象を識別する名前",
+        "判断に必要な現在状態",
+        "次の操作"
+      ],
+      "removeOrFold": [
+        "内部ID・API・endpoint・ツール名",
+        "同じ意味の重複説明",
+        "通常判断に不要な詳細"
+      ],
+      "removalRationale": "現在の判断と次の操作に直接使わず、常時表示すると主情報を押し下げるため",
+      "states": [
+        "ideal",
+        "empty",
+        "loading",
+        "partial",
+        "error",
+        "slow"
+      ],
+      "decision": "decided",
+      "keyboardAction": {
+        "role": "button",
+        "accessibleName": "下書きを作る",
+        "occurrence": 1,
+        "completion": "form-submit",
+        "viewportCondition": "384px CSS viewport (768px at 200% zoom equivalent)"
+      }
+    },
+    {
+      "routeId": "blog/delivery",
+      "path": "/admin/blog/delivery",
+      "file": "src/app/admin/blog/delivery/page.tsx",
+      "screenName": "配信の部品",
+      "purpose": "読者へ届く経路 (feed・sitemap など) の出し入れを決める",
+      "primaryAction": "配信経路の出し入れを保存する",
+      "permission": "content.read",
+      "representation": {
+        "primary": "table",
+        "secondary": [
+          "summary"
+        ],
+        "plannedPrimary": "table"
+      },
+      "keep": [
+        "対象を識別する名前",
+        "判断に必要な現在状態",
+        "次の操作"
+      ],
+      "removeOrFold": [
+        "内部ID・API・endpoint・ツール名",
+        "同じ意味の重複説明",
+        "通常判断に不要な詳細"
+      ],
+      "removalRationale": "現在の判断と次の操作に直接使わず、常時表示すると主情報を押し下げるため",
+      "states": [
+        "ideal",
+        "empty",
+        "loading",
+        "partial",
+        "error",
+        "slow"
+      ],
+      "decision": "decided",
+      "keyboardAction": {
+        "role": "button",
+        "accessibleName": "保存",
+        "occurrence": 9,
+        "completion": "form-submit",
+        "viewportCondition": "384px CSS viewport (768px at 200% zoom equivalent)"
+      }
+    },
+    {
+      "routeId": "blog/evaluate",
+      "path": "/admin/blog/evaluate",
+      "file": "src/app/admin/blog/evaluate/page.tsx",
+      "screenName": "読者の評価",
+      "purpose": "読者の評価から、手を入れる記事を選ぶ",
+      "primaryAction": "評価と鮮度から手を入れる記事を選ぶ",
+      "permission": "content.read",
+      "representation": {
+        "primary": "table",
+        "secondary": [
+          "summary"
+        ],
+        "plannedPrimary": "board"
+      },
+      "keep": [
+        "対象を識別する名前",
+        "判断に必要な現在状態",
+        "次の操作"
+      ],
+      "removeOrFold": [
+        "内部ID・API・endpoint・ツール名",
+        "同じ意味の重複説明",
+        "通常判断に不要な詳細"
+      ],
+      "removalRationale": "現在の判断と次の操作に直接使わず、常時表示すると主情報を押し下げるため",
+      "states": [
+        "ideal",
+        "empty",
+        "loading",
+        "partial",
+        "error",
+        "slow"
+      ],
+      "decision": "decided",
+      "keyboardAction": {
+        "role": "group",
+        "accessibleName": "記事ごとの評価と鮮度",
+        "occurrence": 1,
+        "completion": "review-complete",
+        "viewportCondition": "384px CSS viewport (768px at 200% zoom equivalent)"
+      }
+    },
+    {
+      "routeId": "blog/evaluate/[article]",
+      "path": "/admin/blog/evaluate/[article]",
+      "file": "src/app/admin/blog/evaluate/[article]/page.tsx",
+      "screenName": "対象の詳細",
+      "purpose": "この記事に付いた票を 1 件ずつ見て、伏せるかどうかを決める",
+      "primaryAction": "票を 1 件ずつ見て伏せるかどうかを決める",
+      "permission": "content.read",
+      "representation": {
+        "primary": "card",
+        "secondary": [
+          "summary"
+        ],
+        "plannedPrimary": "card"
+      },
+      "keep": [
+        "対象を識別する名前",
+        "判断に必要な現在状態",
+        "次の操作"
+      ],
+      "removeOrFold": [
+        "内部ID・API・endpoint・ツール名",
+        "同じ意味の重複説明",
+        "通常判断に不要な詳細"
+      ],
+      "removalRationale": "現在の判断と次の操作に直接使わず、常時表示すると主情報を押し下げるため",
+      "states": [
+        "ideal",
+        "empty",
+        "loading",
+        "partial",
+        "error",
+        "slow"
+      ],
+      "decision": "decided",
+      "keyboardAction": {
+        "role": "link",
+        "accessibleName": "記事の編集へ",
+        "occurrence": 1,
+        "completion": "internal-navigation",
+        "viewportCondition": "384px CSS viewport (768px at 200% zoom equivalent)"
+      }
+    },
+    {
+      "routeId": "blog/layout",
+      "path": "/admin/blog/layout",
+      "file": "src/app/admin/blog/layout/page.tsx",
+      "screenName": "版面の枠と帯",
+      "purpose": "ヘッダー・サイドバー・帯に何を出すか決める",
+      "primaryAction": "帯と枠に出す内容を保存する",
+      "permission": "content.read",
+      "representation": {
+        "primary": "card",
+        "secondary": [
+          "summary"
+        ],
+        "plannedPrimary": "card"
+      },
+      "keep": [
+        "対象を識別する名前",
+        "判断に必要な現在状態",
+        "次の操作"
+      ],
+      "removeOrFold": [
+        "内部ID・API・endpoint・ツール名",
+        "同じ意味の重複説明",
+        "通常判断に不要な詳細"
+      ],
+      "removalRationale": "現在の判断と次の操作に直接使わず、常時表示すると主情報を押し下げるため",
+      "states": [
+        "ideal",
+        "empty",
+        "loading",
+        "partial",
+        "error",
+        "slow"
+      ],
+      "decision": "decided",
+      "keyboardAction": {
+        "role": "button",
+        "accessibleName": "この帯を保存",
+        "occurrence": 4,
+        "completion": "form-submit",
+        "viewportCondition": "384px CSS viewport (768px at 200% zoom equivalent)"
+      }
+    },
+    {
+      "routeId": "blog/pages",
+      "path": "/admin/blog/pages",
+      "file": "src/app/admin/blog/pages/page.tsx",
+      "screenName": "固定ページ",
+      "purpose": "運営が示す固定ページの不足を埋める",
+      "primaryAction": "足りない固定ページを見つけて書く",
+      "permission": "content.read",
+      "representation": {
+        "primary": "card",
+        "secondary": [
+          "summary"
+        ],
+        "plannedPrimary": "board"
+      },
+      "keep": [
+        "対象を識別する名前",
+        "判断に必要な現在状態",
+        "次の操作"
+      ],
+      "removeOrFold": [
+        "内部ID・API・endpoint・ツール名",
+        "同じ意味の重複説明",
+        "通常判断に不要な詳細"
+      ],
+      "removalRationale": "現在の判断と次の操作に直接使わず、常時表示すると主情報を押し下げるため",
+      "states": [
+        "ideal",
+        "empty",
+        "loading",
+        "partial",
+        "error",
+        "slow"
+      ],
+      "decision": "decided",
+      "keyboardAction": {
+        "role": "button",
+        "accessibleName": "この固定ページを直す",
+        "occurrence": 8,
+        "completion": "form-submit",
+        "viewportCondition": "384px CSS viewport (768px at 200% zoom equivalent)"
+      }
+    },
+    {
+      "routeId": "blog/tags",
+      "path": "/admin/blog/tags",
+      "file": "src/app/admin/blog/tags/page.tsx",
+      "screenName": "タグ",
+      "purpose": "記事をまとめるタグを整える",
+      "primaryAction": "タグの名前と結び付きを直す",
+      "permission": "content.read",
+      "representation": {
+        "primary": "card",
+        "secondary": [
+          "summary"
+        ],
+        "plannedPrimary": "card"
+      },
+      "keep": [
+        "対象を識別する名前",
+        "判断に必要な現在状態",
+        "次の操作"
+      ],
+      "removeOrFold": [
+        "内部ID・API・endpoint・ツール名",
+        "同じ意味の重複説明",
+        "通常判断に不要な詳細"
+      ],
+      "removalRationale": "現在の判断と次の操作に直接使わず、常時表示すると主情報を押し下げるため",
+      "states": [
+        "ideal",
+        "empty",
+        "loading",
+        "partial",
+        "error",
+        "slow"
+      ],
+      "decision": "decided",
+      "keyboardAction": {
+        "role": "button",
+        "accessibleName": "直す",
+        "occurrence": 5,
+        "completion": "form-submit",
+        "viewportCondition": "384px CSS viewport (768px at 200% zoom equivalent)"
+      }
+    },
+    {
+      "routeId": "sites",
+      "path": "/admin/sites",
+      "file": "src/app/admin/sites/page.tsx",
+      "screenName": "サイト",
+      "purpose": "運用中のブログを選ぶ / 新しく作る",
+      "primaryAction": "運用するブログを選ぶか、新しく作る",
+      "permission": "content.read",
+      "representation": {
+        "primary": "card",
+        "secondary": [
+          "summary"
+        ],
+        "plannedPrimary": "list"
+      },
+      "keep": [
+        "対象を識別する名前",
+        "判断に必要な現在状態",
+        "次の操作"
+      ],
+      "removeOrFold": [
+        "内部ID・API・endpoint・ツール名",
+        "同じ意味の重複説明",
+        "通常判断に不要な詳細"
+      ],
+      "removalRationale": "現在の判断と次の操作に直接使わず、常時表示すると主情報を押し下げるため",
+      "states": [
+        "ideal",
+        "empty",
+        "loading",
+        "partial",
+        "error",
+        "slow"
+      ],
+      "decision": "decided",
+      "keyboardAction": {
+        "role": "link",
+        "accessibleName": "新しいブログを作る",
+        "occurrence": 1,
+        "completion": "internal-navigation",
+        "viewportCondition": "384px CSS viewport (768px at 200% zoom equivalent)"
+      }
+    },
+    {
+      "routeId": "sites/[site]",
+      "path": "/admin/sites/[site]",
+      "file": "src/app/admin/sites/[site]/page.tsx",
+      "screenName": "対象の詳細",
+      "purpose": "1 ブログの設計図を確かめ、運用を続けるか判断する",
+      "primaryAction": "設計図を読み、運用を続けるか判断する",
+      "permission": "content.read",
+      "representation": {
+        "primary": "card",
+        "secondary": [
+          "summary"
+        ],
+        "plannedPrimary": "card"
+      },
+      "keep": [
+        "対象を識別する名前",
+        "判断に必要な現在状態",
+        "次の操作"
+      ],
+      "removeOrFold": [
+        "内部ID・API・endpoint・ツール名",
+        "同じ意味の重複説明",
+        "通常判断に不要な詳細"
+      ],
+      "removalRationale": "現在の判断と次の操作に直接使わず、常時表示すると主情報を押し下げるため",
+      "states": [
+        "ideal",
+        "empty",
+        "loading",
+        "partial",
+        "error",
+        "slow"
+      ],
+      "decision": "decided",
+      "keyboardAction": {
+        "role": "link",
+        "accessibleName": "椅子",
+        "occurrence": 1,
+        "completion": "internal-navigation",
+        "viewportCondition": "384px CSS viewport (768px at 200% zoom equivalent)"
+      }
+    },
+    {
+      "routeId": "sites/[site]/edit",
+      "path": "/admin/sites/[site]/edit",
+      "file": "src/app/admin/sites/[site]/edit/page.tsx",
+      "screenName": "サイトを直す",
+      "purpose": "ブログの設計図を直す",
+      "primaryAction": "直した設計図を保存する",
+      "permission": "content.read",
+      "representation": {
+        "primary": "card",
+        "secondary": [
+          "summary"
+        ],
+        "plannedPrimary": "card"
+      },
+      "keep": [
+        "対象を識別する名前",
+        "判断に必要な現在状態",
+        "次の操作"
+      ],
+      "removeOrFold": [
+        "内部ID・API・endpoint・ツール名",
+        "同じ意味の重複説明",
+        "通常判断に不要な詳細"
+      ],
+      "removalRationale": "現在の判断と次の操作に直接使わず、常時表示すると主情報を押し下げるため",
+      "states": [
+        "ideal",
+        "empty",
+        "loading",
+        "partial",
+        "error",
+        "slow"
+      ],
+      "decision": "decided",
+      "keyboardAction": {
+        "role": "button",
+        "accessibleName": "この設計図を直す",
+        "occurrence": 1,
+        "completion": "form-submit",
+        "viewportCondition": "384px CSS viewport (768px at 200% zoom equivalent)"
+      }
+    },
+    {
+      "routeId": "sites/[site]/documents",
+      "path": "/admin/sites/[site]/documents",
+      "file": "src/app/admin/sites/[site]/documents/page.tsx",
+      "screenName": "固定ページ",
+      "purpose": "運営者情報・各方針・規約・特定商取引法に基づく表記を書き、未記入を無くす",
+      "primaryAction": "未記入の法定ページを見つけて書く",
+      "permission": "content.read",
+      "representation": {
+        "primary": "card",
+        "secondary": [
+          "summary"
+        ],
+        "plannedPrimary": "board"
+      },
+      "keep": [
+        "対象を識別する名前",
+        "判断に必要な現在状態",
+        "次の操作"
+      ],
+      "removeOrFold": [
+        "内部ID・API・endpoint・ツール名",
+        "同じ意味の重複説明",
+        "通常判断に不要な詳細"
+      ],
+      "removalRationale": "現在の判断と次の操作に直接使わず、常時表示すると主情報を押し下げるため",
+      "states": [
+        "ideal",
+        "empty",
+        "loading",
+        "partial",
+        "error",
+        "slow"
+      ],
+      "decision": "decided",
+      "keyboardAction": {
+        "role": "button",
+        "accessibleName": "この内容で保存する",
+        "occurrence": 8,
+        "completion": "form-submit",
+        "viewportCondition": "384px CSS viewport (768px at 200% zoom equivalent)"
+      }
+    },
+    {
+      "routeId": "sites/new",
+      "path": "/admin/sites/new",
+      "file": "src/app/admin/sites/new/page.tsx",
+      "screenName": "サイトを作る",
+      "purpose": "ブログを 1 本作る",
+      "primaryAction": "13 の質問に答えてブログを作る",
+      "permission": "content.read",
+      "representation": {
+        "primary": "card",
+        "secondary": [
+          "summary"
+        ],
+        "plannedPrimary": "card"
+      },
+      "keep": [
+        "対象を識別する名前",
+        "判断に必要な現在状態",
+        "次の操作"
+      ],
+      "removeOrFold": [
+        "内部ID・API・endpoint・ツール名",
+        "同じ意味の重複説明",
+        "通常判断に不要な詳細"
+      ],
+      "removalRationale": "現在の判断と次の操作に直接使わず、常時表示すると主情報を押し下げるため",
+      "states": [
+        "ideal",
+        "empty",
+        "loading",
+        "partial",
+        "error",
+        "slow"
+      ],
+      "decision": "decided",
+      "keyboardAction": {
+        "role": "button",
+        "accessibleName": "13 の質問を始める",
+        "occurrence": 1,
+        "completion": "form-submit",
+        "viewportCondition": "384px CSS viewport (768px at 200% zoom equivalent)"
+      }
+    },
+    {
+      "routeId": "distribution",
+      "path": "/admin/distribution",
+      "file": "src/app/admin/distribution/page.tsx",
+      "screenName": "配信",
+      "purpose": "止まっている配信を見つけて対処する",
+      "primaryAction": "止まっている配信を見つけて接続を確かめる",
+      "permission": "content.read",
+      "representation": {
+        "primary": "table",
+        "secondary": [
+          "summary"
+        ],
+        "plannedPrimary": "board"
+      },
+      "keep": [
+        "対象を識別する名前",
+        "判断に必要な現在状態",
+        "次の操作"
+      ],
+      "removeOrFold": [
+        "内部ID・API・endpoint・ツール名",
+        "同じ意味の重複説明",
+        "通常判断に不要な詳細"
+      ],
+      "removalRationale": "現在の判断と次の操作に直接使わず、常時表示すると主情報を押し下げるため",
+      "states": [
+        "ideal",
+        "empty",
+        "loading",
+        "partial",
+        "error",
+        "slow"
+      ],
+      "decision": "decided",
+      "keyboardAction": {
+        "role": "button",
+        "accessibleName": "Blueskyとの接続を確認する",
+        "occurrence": 1,
+        "completion": "form-submit",
+        "viewportCondition": "384px CSS viewport (768px at 200% zoom equivalent)"
+      }
+    },
+    {
+      "routeId": "distribution/[publication]",
+      "path": "/admin/distribution/[publication]",
+      "file": "src/app/admin/distribution/[publication]/page.tsx",
+      "screenName": "対象の詳細",
+      "purpose": "1 配信の進行を確かめ、次の操作をする",
+      "primaryAction": "この配信の進行を確かめ、次の操作をする",
+      "permission": "content.read",
+      "representation": {
+        "primary": "card",
+        "secondary": [
+          "summary"
+        ],
+        "plannedPrimary": "card"
+      },
+      "keep": [
+        "対象を識別する名前",
+        "判断に必要な現在状態",
+        "次の操作"
+      ],
+      "removeOrFold": [
+        "内部ID・API・endpoint・ツール名",
+        "同じ意味の重複説明",
+        "通常判断に不要な詳細"
+      ],
+      "removalRationale": "現在の判断と次の操作に直接使わず、常時表示すると主情報を押し下げるため",
+      "states": [
+        "ideal",
+        "empty",
+        "loading",
+        "partial",
+        "error",
+        "slow"
+      ],
+      "decision": "decided",
+      "keyboardAction": {
+        "role": "link",
+        "accessibleName": "記事を見る",
+        "occurrence": 1,
+        "completion": "internal-navigation",
+        "viewportCondition": "384px CSS viewport (768px at 200% zoom equivalent)"
+      }
+    },
+    {
+      "routeId": "distribution/[publication]/edit",
+      "path": "/admin/distribution/[publication]/edit",
+      "file": "src/app/admin/distribution/[publication]/edit/page.tsx",
+      "screenName": "配信を直す",
+      "purpose": "予定した配信の出し先と日時を直す",
+      "primaryAction": "直した出し先と日時を保存する",
+      "permission": "content.read",
+      "representation": {
+        "primary": "card",
+        "secondary": [
+          "summary"
+        ],
+        "plannedPrimary": "card"
+      },
+      "keep": [
+        "対象を識別する名前",
+        "判断に必要な現在状態",
+        "次の操作"
+      ],
+      "removeOrFold": [
+        "内部ID・API・endpoint・ツール名",
+        "同じ意味の重複説明",
+        "通常判断に不要な詳細"
+      ],
+      "removalRationale": "現在の判断と次の操作に直接使わず、常時表示すると主情報を押し下げるため",
+      "states": [
+        "ideal",
+        "empty",
+        "loading",
+        "partial",
+        "error",
+        "slow"
+      ],
+      "decision": "decided",
+      "keyboardAction": {
+        "role": "button",
+        "accessibleName": "この配信を直す",
+        "occurrence": 1,
+        "completion": "form-submit",
+        "viewportCondition": "384px CSS viewport (768px at 200% zoom equivalent)"
+      }
+    },
+    {
+      "routeId": "distribution/calendar",
+      "path": "/admin/distribution/calendar",
+      "file": "src/app/admin/distribution/calendar/page.tsx",
+      "screenName": "配信カレンダー",
+      "purpose": "予定の偏りと承認漏れを確かめ、必要なら日時を直す",
+      "primaryAction": "日付の並びから偏りを見つけ、予定日を変える",
+      "permission": "content.read",
+      "representation": {
+        "primary": "timeline",
+        "secondary": [
+          "summary",
+          "table"
+        ],
+        "plannedPrimary": "timeline"
+      },
+      "keep": [
+        "対象を識別する名前",
+        "判断に必要な現在状態",
+        "次の操作"
+      ],
+      "removeOrFold": [
+        "内部ID・API・endpoint・ツール名",
+        "同じ意味の重複説明",
+        "通常判断に不要な詳細"
+      ],
+      "removalRationale": "現在の判断と次の操作に直接使わず、常時表示すると主情報を押し下げるため",
+      "states": [
+        "ideal",
+        "empty",
+        "loading",
+        "partial",
+        "error",
+        "slow"
+      ],
+      "decision": "decided",
+      "keyboardAction": {
+        "role": "button",
+        "accessibleName": "予定日を変える",
+        "occurrence": 6,
+        "completion": "form-submit",
+        "viewportCondition": "384px CSS viewport (768px at 200% zoom equivalent)"
+      }
+    },
+    {
+      "routeId": "distribution/new",
+      "path": "/admin/distribution/new",
+      "file": "src/app/admin/distribution/new/page.tsx",
+      "screenName": "配信を作る",
+      "purpose": "承認済みの記事を出し先へ登録する",
+      "primaryAction": "出す記事と出し先を選んで登録する",
+      "permission": "content.read",
+      "representation": {
+        "primary": "card",
+        "secondary": [
+          "summary"
+        ],
+        "plannedPrimary": "card"
+      },
+      "keep": [
+        "対象を識別する名前",
+        "判断に必要な現在状態",
+        "次の操作"
+      ],
+      "removeOrFold": [
+        "内部ID・API・endpoint・ツール名",
+        "同じ意味の重複説明",
+        "通常判断に不要な詳細"
+      ],
+      "removalRationale": "現在の判断と次の操作に直接使わず、常時表示すると主情報を押し下げるため",
+      "states": [
+        "ideal",
+        "empty",
+        "loading",
+        "partial",
+        "error",
+        "slow"
+      ],
+      "decision": "decided",
+      "keyboardAction": {
+        "role": "combobox",
+        "accessibleName": "出す記事",
+        "occurrence": 1,
+        "completion": "form-entry",
+        "viewportCondition": "384px CSS viewport (768px at 200% zoom equivalent)"
+      }
+    },
+    {
+      "routeId": "affiliate",
+      "path": "/admin/affiliate",
+      "file": "src/app/admin/affiliate/page.tsx",
+      "screenName": "提携と成果",
+      "purpose": "提携先ごとの成果金額を見る",
+      "primaryAction": "期間ごとの成果金額を読み、1 件ずつの内訳へ進む",
+      "permission": "affiliate.read_revenue",
+      "representation": {
+        "primary": "table",
+        "secondary": [
+          "summary"
+        ],
+        "plannedPrimary": "table"
+      },
+      "keep": [
+        "対象を識別する名前",
+        "判断に必要な現在状態",
+        "次の操作"
+      ],
+      "removeOrFold": [
+        "内部ID・API・endpoint・ツール名",
+        "同じ意味の重複説明",
+        "通常判断に不要な詳細"
+      ],
+      "removalRationale": "現在の判断と次の操作に直接使わず、常時表示すると主情報を押し下げるため",
+      "states": [
+        "ideal",
+        "empty",
+        "loading",
+        "partial",
+        "error",
+        "slow"
+      ],
+      "decision": "decided",
+      "keyboardAction": {
+        "role": "group",
+        "accessibleName": "この期間に発生した成果の 1 件ずつ",
+        "occurrence": 1,
+        "completion": "review-complete",
+        "viewportCondition": "384px CSS viewport (768px at 200% zoom equivalent)"
+      }
+    },
+    {
+      "routeId": "affiliate/[conversion]",
+      "path": "/admin/affiliate/[conversion]",
+      "file": "src/app/admin/affiliate/[conversion]/page.tsx",
+      "screenName": "対象の詳細",
+      "purpose": "1 成果の内訳を確かめ、必要なら金額を直す",
+      "primaryAction": "内訳を確かめ、直した金額を保存する",
+      "permission": "affiliate.read_revenue",
+      "representation": {
+        "primary": "card",
+        "secondary": [
+          "summary"
+        ],
+        "plannedPrimary": "card"
+      },
+      "keep": [
+        "対象を識別する名前",
+        "判断に必要な現在状態",
+        "次の操作"
+      ],
+      "removeOrFold": [
+        "内部ID・API・endpoint・ツール名",
+        "同じ意味の重複説明",
+        "通常判断に不要な詳細"
+      ],
+      "removalRationale": "現在の判断と次の操作に直接使わず、常時表示すると主情報を押し下げるため",
+      "states": [
+        "ideal",
+        "empty",
+        "loading",
+        "partial",
+        "error",
+        "slow"
+      ],
+      "decision": "decided",
+      "keyboardAction": {
+        "role": "spinbutton",
+        "accessibleName": "直したあとの金額",
+        "occurrence": 1,
+        "completion": "form-entry",
+        "viewportCondition": "384px CSS viewport (768px at 200% zoom equivalent)"
+      }
+    },
+    {
+      "routeId": "affiliate/accounts/new",
+      "path": "/admin/affiliate/accounts/new",
+      "file": "src/app/admin/affiliate/accounts/new/page.tsx",
+      "screenName": "提携先を登録する",
+      "purpose": "提携先（ASP アカウント）を 1 つ登録する",
+      "primaryAction": "入力した提携先を登録する",
+      "permission": "affiliate.read_revenue",
+      "representation": {
+        "primary": "card",
+        "secondary": [
+          "summary"
+        ],
+        "plannedPrimary": "card"
+      },
+      "keep": [
+        "対象を識別する名前",
+        "判断に必要な現在状態",
+        "次の操作"
+      ],
+      "removeOrFold": [
+        "内部ID・API・endpoint・ツール名",
+        "同じ意味の重複説明",
+        "通常判断に不要な詳細"
+      ],
+      "removalRationale": "現在の判断と次の操作に直接使わず、常時表示すると主情報を押し下げるため",
+      "states": [
+        "ideal",
+        "empty",
+        "loading",
+        "partial",
+        "error",
+        "slow"
+      ],
+      "decision": "decided",
+      "keyboardAction": {
+        "role": "button",
+        "accessibleName": "この提携先を登録する",
+        "occurrence": 1,
+        "completion": "form-submit",
+        "viewportCondition": "384px CSS viewport (768px at 200% zoom equivalent)"
+      }
+    },
+    {
+      "routeId": "affiliate/programs/new",
+      "path": "/admin/affiliate/programs/new",
+      "file": "src/app/admin/affiliate/programs/new/page.tsx",
+      "screenName": "提携条件を登録する",
+      "purpose": "提携条件（広告主と報酬の決め方）を 1 つ登録する",
+      "primaryAction": "入力した提携条件を登録する",
+      "permission": "affiliate.read_revenue",
+      "representation": {
+        "primary": "card",
+        "secondary": [
+          "summary"
+        ],
+        "plannedPrimary": "card"
+      },
+      "keep": [
+        "対象を識別する名前",
+        "判断に必要な現在状態",
+        "次の操作"
+      ],
+      "removeOrFold": [
+        "内部ID・API・endpoint・ツール名",
+        "同じ意味の重複説明",
+        "通常判断に不要な詳細"
+      ],
+      "removalRationale": "現在の判断と次の操作に直接使わず、常時表示すると主情報を押し下げるため",
+      "states": [
+        "ideal",
+        "empty",
+        "loading",
+        "partial",
+        "error",
+        "slow"
+      ],
+      "decision": "decided",
+      "keyboardAction": {
+        "role": "button",
+        "accessibleName": "この提携条件を登録する",
+        "occurrence": 1,
+        "completion": "form-submit",
+        "viewportCondition": "384px CSS viewport (768px at 200% zoom equivalent)"
+      }
+    },
+    {
+      "routeId": "affiliate/links",
+      "path": "/admin/affiliate/links",
+      "file": "src/app/admin/affiliate/links/page.tsx",
+      "screenName": "登録したリンク",
+      "purpose": "読者に出ているリンクのうち、表記が古くなったものを止める",
+      "primaryAction": "表記が古くなったリンクを見つけて止める",
+      "permission": "affiliate.read_revenue",
+      "representation": {
+        "primary": "list",
+        "secondary": [
+          "summary"
+        ],
+        "plannedPrimary": "board"
+      },
+      "keep": [
+        "対象を識別する名前",
+        "判断に必要な現在状態",
+        "次の操作"
+      ],
+      "removeOrFold": [
+        "内部ID・API・endpoint・ツール名",
+        "同じ意味の重複説明",
+        "通常判断に不要な詳細"
+      ],
+      "removalRationale": "現在の判断と次の操作に直接使わず、常時表示すると主情報を押し下げるため",
+      "states": [
+        "ideal",
+        "empty",
+        "loading",
+        "partial",
+        "error",
+        "slow"
+      ],
+      "decision": "decided",
+      "keyboardAction": {
+        "role": "group",
+        "accessibleName": "登録してある成果リンクと、いまの状態",
+        "occurrence": 1,
+        "completion": "review-complete",
+        "viewportCondition": "384px CSS viewport (768px at 200% zoom equivalent)"
+      }
+    },
+    {
+      "routeId": "inbox",
+      "path": "/admin/inbox",
+      "file": "src/app/admin/inbox/page.tsx",
+      "screenName": "成果リンクの受信箱",
+      "purpose": "成果リンクを受け取り、広告主と商品を決める",
+      "primaryAction": "受け取ったリンクに広告主と商品を割り当てる",
+      "permission": "affiliate.read_revenue",
+      "representation": {
+        "primary": "table",
+        "secondary": [
+          "summary"
+        ],
+        "plannedPrimary": "board"
+      },
+      "keep": [
+        "対象を識別する名前",
+        "判断に必要な現在状態",
+        "次の操作"
+      ],
+      "removeOrFold": [
+        "内部ID・API・endpoint・ツール名",
+        "同じ意味の重複説明",
+        "通常判断に不要な詳細"
+      ],
+      "removalRationale": "現在の判断と次の操作に直接使わず、常時表示すると主情報を押し下げるため",
+      "states": [
+        "ideal",
+        "empty",
+        "loading",
+        "partial",
+        "error",
+        "slow"
+      ],
+      "decision": "decided",
+      "keyboardAction": {
+        "role": "button",
+        "accessibleName": "受信箱に入れる",
+        "occurrence": 1,
+        "completion": "form-submit",
+        "viewportCondition": "384px CSS viewport (768px at 200% zoom equivalent)"
+      }
+    },
+    {
+      "routeId": "analytics",
+      "path": "/admin/analytics",
+      "file": "src/app/admin/analytics/page.tsx",
+      "screenName": "数字",
+      "purpose": "どこに手を入れるべきかを決める",
+      "primaryAction": "数字の伸び縮みから手を入れる先を決める",
+      "permission": "analytics.read",
+      "representation": {
+        "primary": "graph",
+        "secondary": [
+          "summary",
+          "table"
+        ],
+        "plannedPrimary": "graph"
+      },
+      "keep": [
+        "対象を識別する名前",
+        "判断に必要な現在状態",
+        "次の操作"
+      ],
+      "removeOrFold": [
+        "内部ID・API・endpoint・ツール名",
+        "同じ意味の重複説明",
+        "通常判断に不要な詳細"
+      ],
+      "removalRationale": "現在の判断と次の操作に直接使わず、常時表示すると主情報を押し下げるため",
+      "states": [
+        "ideal",
+        "empty",
+        "loading",
+        "partial",
+        "error",
+        "slow"
+      ],
+      "decision": "decided",
+      "keyboardAction": {
+        "role": "button",
+        "accessibleName": "絞り込む",
+        "occurrence": 1,
+        "completion": "form-submit",
+        "viewportCondition": "384px CSS viewport (768px at 200% zoom equivalent)"
+      }
+    },
+    {
+      "routeId": "ai-usage",
+      "path": "/admin/ai-usage",
+      "file": "src/app/admin/ai-usage/page.tsx",
+      "screenName": "AI の利用と費用",
+      "purpose": "AI の利用量と費用を確かめる",
+      "primaryAction": "期間ごとの利用量と費用を確かめる",
+      "permission": "analytics.read",
+      "representation": {
+        "primary": "graph",
+        "secondary": [
+          "summary",
+          "table"
+        ],
+        "plannedPrimary": "graph"
+      },
+      "keep": [
+        "対象を識別する名前",
+        "判断に必要な現在状態",
+        "次の操作"
+      ],
+      "removeOrFold": [
+        "内部ID・API・endpoint・ツール名",
+        "同じ意味の重複説明",
+        "通常判断に不要な詳細"
+      ],
+      "removalRationale": "現在の判断と次の操作に直接使わず、常時表示すると主情報を押し下げるため",
+      "states": [
+        "ideal",
+        "empty",
+        "loading",
+        "partial",
+        "error",
+        "slow"
+      ],
+      "decision": "decided",
+      "keyboardAction": {
+        "role": "link",
+        "accessibleName": "生成の仕組みを見る",
+        "occurrence": 1,
+        "completion": "internal-navigation",
+        "viewportCondition": "384px CSS viewport (768px at 200% zoom equivalent)"
+      }
+    },
+    {
+      "routeId": "improvement",
+      "path": "/admin/improvement",
+      "file": "src/app/admin/improvement/page.tsx",
+      "screenName": "改善の状況",
+      "purpose": "試している比較の結果を見て、次の試作を決める",
+      "primaryAction": "比較の結果を読み、次の試作を決める",
+      "permission": "analytics.read",
+      "representation": {
+        "primary": "graph",
+        "secondary": [
+          "summary",
+          "table"
+        ],
+        "plannedPrimary": "graph"
+      },
+      "keep": [
+        "対象を識別する名前",
+        "判断に必要な現在状態",
+        "次の操作"
+      ],
+      "removeOrFold": [
+        "内部ID・API・endpoint・ツール名",
+        "同じ意味の重複説明",
+        "通常判断に不要な詳細"
+      ],
+      "removalRationale": "現在の判断と次の操作に直接使わず、常時表示すると主情報を押し下げるため",
+      "states": [
+        "ideal",
+        "empty",
+        "loading",
+        "partial",
+        "error",
+        "slow"
+      ],
+      "decision": "decided",
+      "keyboardAction": {
+        "role": "link",
+        "accessibleName": "E2E 公開ライフサイクル desktop",
+        "occurrence": 1,
+        "completion": "internal-navigation",
+        "viewportCondition": "384px CSS viewport (768px at 200% zoom equivalent)"
+      }
+    },
+    {
+      "routeId": "improvement/dimensions",
+      "path": "/admin/improvement/dimensions",
+      "file": "src/app/admin/improvement/dimensions/page.tsx",
+      "screenName": "改善の観点",
+      "purpose": "試してよいもの / 変えないものを調べる（参照専用）",
+      "primaryAction": "試してよい範囲を引き、改善の状況へ進む",
+      "permission": "analytics.read",
+      "representation": {
+        "primary": "table",
+        "secondary": [
+          "summary"
+        ],
+        "plannedPrimary": "table"
+      },
+      "keep": [
+        "対象を識別する名前",
+        "判断に必要な現在状態",
+        "次の操作"
+      ],
+      "removeOrFold": [
+        "内部ID・API・endpoint・ツール名",
+        "同じ意味の重複説明",
+        "通常判断に不要な詳細"
+      ],
+      "removalRationale": "現在の判断と次の操作に直接使わず、常時表示すると主情報を押し下げるため",
+      "states": [
+        "ideal",
+        "empty",
+        "loading",
+        "partial",
+        "error",
+        "slow"
+      ],
+      "decision": "decided",
+      "keyboardAction": {
+        "role": "link",
+        "accessibleName": "改善の状況を見る",
+        "occurrence": 1,
+        "completion": "internal-navigation",
+        "viewportCondition": "384px CSS viewport (768px at 200% zoom equivalent)"
+      }
+    },
+    {
+      "routeId": "contact",
+      "path": "/admin/contact",
+      "file": "src/app/admin/contact/page.tsx",
+      "screenName": "読者からの問い合わせ",
+      "purpose": "読者から届いた問い合わせを読み、対応の済んだものに印を付ける",
+      "primaryAction": "未対応の問い合わせを読み、対応済みの印を付ける",
+      "permission": "feedback.read",
+      "representation": {
+        "primary": "card",
+        "secondary": [
+          "summary"
+        ],
+        "plannedPrimary": "board"
+      },
+      "keep": [
+        "対象を識別する名前",
+        "判断に必要な現在状態",
+        "次の操作"
+      ],
+      "removeOrFold": [
+        "内部ID・API・endpoint・ツール名",
+        "同じ意味の重複説明",
+        "通常判断に不要な詳細"
+      ],
+      "removalRationale": "現在の判断と次の操作に直接使わず、常時表示すると主情報を押し下げるため",
+      "states": [
+        "ideal",
+        "empty",
+        "loading",
+        "partial",
+        "error",
+        "slow"
+      ],
+      "decision": "decided",
+      "keyboardAction": {
+        "role": "link",
+        "accessibleName": "対応済みも見る（消していません）",
+        "occurrence": 1,
+        "completion": "internal-navigation",
+        "viewportCondition": "384px CSS viewport (768px at 200% zoom equivalent)"
+      }
+    },
+    {
+      "routeId": "feedback",
+      "path": "/admin/feedback",
+      "file": "src/app/admin/feedback/page.tsx",
+      "screenName": "使い勝手を直す",
+      "purpose": "届いた改善要望から次に扱うものを選び、実装へ渡す",
+      "primaryAction": "次に扱う要望を選び、実装へ払い出す",
+      "permission": "feedback.read",
+      "representation": {
+        "primary": "table",
+        "secondary": [
+          "summary"
+        ],
+        "plannedPrimary": "board"
+      },
+      "keep": [
+        "対象を識別する名前",
+        "判断に必要な現在状態",
+        "次の操作"
+      ],
+      "removeOrFold": [
+        "内部ID・API・endpoint・ツール名",
+        "同じ意味の重複説明",
+        "通常判断に不要な詳細"
+      ],
+      "removalRationale": "現在の判断と次の操作に直接使わず、常時表示すると主情報を押し下げるため",
+      "states": [
+        "ideal",
+        "empty",
+        "loading",
+        "partial",
+        "error",
+        "slow"
+      ],
+      "decision": "decided",
+      "keyboardAction": {
+        "role": "button",
+        "accessibleName": "払い出し済みにする",
+        "occurrence": 1,
+        "completion": "form-submit",
+        "viewportCondition": "384px CSS viewport (768px at 200% zoom equivalent)"
+      }
+    },
+    {
+      "routeId": "feedback/[report]",
+      "path": "/admin/feedback/[report]",
+      "file": "src/app/admin/feedback/[report]/page.tsx",
+      "screenName": "対象の詳細",
+      "purpose": "1 件の要望を扱うか決め、必要なら実装へ渡す",
+      "primaryAction": "この要望の扱いを決めて保存する",
+      "permission": "feedback.read",
+      "representation": {
+        "primary": "card",
+        "secondary": [
+          "summary"
+        ],
+        "plannedPrimary": "card"
+      },
+      "keep": [
+        "対象を識別する名前",
+        "判断に必要な現在状態",
+        "次の操作"
+      ],
+      "removeOrFold": [
+        "内部ID・API・endpoint・ツール名",
+        "同じ意味の重複説明",
+        "通常判断に不要な詳細"
+      ],
+      "removalRationale": "現在の判断と次の操作に直接使わず、常時表示すると主情報を押し下げるため",
+      "states": [
+        "ideal",
+        "empty",
+        "loading",
+        "partial",
+        "error",
+        "slow"
+      ],
+      "decision": "decided",
+      "keyboardAction": {
+        "role": "button",
+        "accessibleName": "この扱いにする",
+        "occurrence": 1,
+        "completion": "form-submit",
+        "viewportCondition": "384px CSS viewport (768px at 200% zoom equivalent)"
+      }
+    },
+    {
+      "routeId": "tools",
+      "path": "/admin/tools",
+      "file": "src/app/admin/tools/page.tsx",
+      "screenName": "AI から使える道具",
+      "purpose": "AI から使える道具を調べる（参照専用）",
+      "primaryAction": "使える道具とその範囲を引く",
+      "permission": "content.read",
+      "representation": {
+        "primary": "table",
+        "secondary": [
+          "summary"
+        ],
+        "plannedPrimary": "table"
+      },
+      "keep": [
+        "対象を識別する名前",
+        "判断に必要な現在状態",
+        "次の操作"
+      ],
+      "removeOrFold": [
+        "内部ID・API・endpoint・ツール名",
+        "同じ意味の重複説明",
+        "通常判断に不要な詳細"
+      ],
+      "removalRationale": "現在の判断と次の操作に直接使わず、常時表示すると主情報を押し下げるため",
+      "states": [
+        "ideal",
+        "empty",
+        "loading",
+        "partial",
+        "error",
+        "slow"
+      ],
+      "decision": "decided",
+      "keyboardAction": {
+        "role": "group",
+        "accessibleName": "仕様書 §24.1（ページ内AI）・§24.3（外部AI）で決めた道具の数",
+        "occurrence": 1,
+        "completion": "review-complete",
+        "viewportCondition": "384px CSS viewport (768px at 200% zoom equivalent)"
+      }
+    },
+    {
+      "routeId": "ui-catalog",
+      "path": "/admin/ui-catalog",
+      "file": "src/app/admin/ui-catalog/page.tsx",
+      "screenName": "画面部品の見本",
+      "purpose": "使える部品を探す（参照専用・見本帳）",
+      "primaryAction": "部品の見本を出して使えるか確かめる",
+      "permission": "content.read",
+      "representation": {
+        "primary": "list",
+        "secondary": [
+          "summary"
+        ],
+        "plannedPrimary": "list"
+      },
+      "keep": [
+        "対象を識別する名前",
+        "判断に必要な現在状態",
+        "次の操作"
+      ],
+      "removeOrFold": [
+        "内部ID・API・endpoint・ツール名",
+        "同じ意味の重複説明",
+        "通常判断に不要な詳細"
+      ],
+      "removalRationale": "現在の判断と次の操作に直接使わず、常時表示すると主情報を押し下げるため",
+      "states": [
+        "ideal",
+        "empty",
+        "loading",
+        "partial",
+        "error",
+        "slow"
+      ],
+      "decision": "decided",
+      "keyboardAction": {
+        "role": "button",
+        "accessibleName": "案内を畳む",
+        "occurrence": 1,
+        "completion": "local-activation",
+        "viewportCondition": "384px CSS viewport (768px at 200% zoom equivalent)"
+      }
+    },
+    {
+      "routeId": "settings",
+      "path": "/admin/settings",
+      "file": "src/app/admin/settings/page.tsx",
+      "screenName": "設定",
+      "purpose": "設定したい対象へ移動する（索引）",
+      "primaryAction": "設定したい対象の画面へ移動する",
+      "permission": "content.read",
+      "representation": {
+        "primary": "list",
+        "secondary": [
+          "summary"
+        ],
+        "plannedPrimary": "list"
+      },
+      "keep": [
+        "対象を識別する名前",
+        "判断に必要な現在状態",
+        "次の操作"
+      ],
+      "removeOrFold": [
+        "内部ID・API・endpoint・ツール名",
+        "同じ意味の重複説明",
+        "通常判断に不要な詳細"
+      ],
+      "removalRationale": "現在の判断と次の操作に直接使わず、常時表示すると主情報を押し下げるため",
+      "states": [
+        "ideal",
+        "empty",
+        "loading",
+        "partial",
+        "error",
+        "slow"
+      ],
+      "decision": "decided",
+      "keyboardAction": {
+        "role": "link",
+        "accessibleName": "画面の見た目",
+        "occurrence": 1,
+        "completion": "internal-navigation",
+        "viewportCondition": "384px CSS viewport (768px at 200% zoom equivalent)"
+      }
+    },
+    {
+      "routeId": "settings/appearance",
+      "path": "/admin/settings/appearance",
+      "file": "src/app/admin/settings/appearance/page.tsx",
+      "screenName": "見た目",
+      "purpose": "この端末での見た目を選ぶ",
+      "primaryAction": "配色と文字の大きさを選ぶ",
+      "permission": "content.read",
+      "representation": {
+        "primary": "table",
+        "secondary": [
+          "summary"
+        ],
+        "plannedPrimary": "table"
+      },
+      "keep": [
+        "対象を識別する名前",
+        "判断に必要な現在状態",
+        "次の操作"
+      ],
+      "removeOrFold": [
+        "内部ID・API・endpoint・ツール名",
+        "同じ意味の重複説明",
+        "通常判断に不要な詳細"
+      ],
+      "removalRationale": "現在の判断と次の操作に直接使わず、常時表示すると主情報を押し下げるため",
+      "states": [
+        "ideal",
+        "empty",
+        "loading",
+        "partial",
+        "error",
+        "slow"
+      ],
+      "decision": "decided",
+      "keyboardAction": {
+        "role": "combobox",
+        "accessibleName": "配色",
+        "occurrence": 1,
+        "completion": "form-entry",
+        "viewportCondition": "384px CSS viewport (768px at 200% zoom equivalent)"
+      }
+    },
+    {
+      "routeId": "settings/audit",
+      "path": "/admin/settings/audit",
+      "file": "src/app/admin/settings/audit/page.tsx",
+      "screenName": "操作の記録",
+      "purpose": "誰がいつ何をしたかを辿る",
+      "primaryAction": "直近の操作記録を辿る",
+      "permission": "content.read",
+      "representation": {
+        "primary": "table",
+        "secondary": [
+          "summary"
+        ],
+        "plannedPrimary": "table"
+      },
+      "keep": [
+        "対象を識別する名前",
+        "判断に必要な現在状態",
+        "次の操作"
+      ],
+      "removeOrFold": [
+        "内部ID・API・endpoint・ツール名",
+        "同じ意味の重複説明",
+        "通常判断に不要な詳細"
+      ],
+      "removalRationale": "現在の判断と次の操作に直接使わず、常時表示すると主情報を押し下げるため",
+      "states": [
+        "ideal",
+        "empty",
+        "loading",
+        "partial",
+        "error",
+        "slow"
+      ],
+      "decision": "decided",
+      "keyboardAction": {
+        "role": "group",
+        "accessibleName": "直近 50 件の操作",
+        "occurrence": 1,
+        "completion": "review-complete",
+        "viewportCondition": "384px CSS viewport (768px at 200% zoom equivalent)"
+      }
+    },
+    {
+      "routeId": "settings/compliance",
+      "path": "/admin/settings/compliance",
+      "file": "src/app/admin/settings/compliance/page.tsx",
+      "screenName": "広告表記ときまり",
+      "purpose": "広告であることの表示と、表現を止めるきまりを直す",
+      "primaryAction": "止める表現のきまりを足す",
+      "permission": "content.read",
+      "representation": {
+        "primary": "table",
+        "secondary": [
+          "summary"
+        ],
+        "plannedPrimary": "table"
+      },
+      "keep": [
+        "対象を識別する名前",
+        "判断に必要な現在状態",
+        "次の操作"
+      ],
+      "removeOrFold": [
+        "内部ID・API・endpoint・ツール名",
+        "同じ意味の重複説明",
+        "通常判断に不要な詳細"
+      ],
+      "removalRationale": "現在の判断と次の操作に直接使わず、常時表示すると主情報を押し下げるため",
+      "states": [
+        "ideal",
+        "empty",
+        "loading",
+        "partial",
+        "error",
+        "slow"
+      ],
+      "decision": "decided",
+      "keyboardAction": {
+        "role": "button",
+        "accessibleName": "このきまりを足す",
+        "occurrence": 1,
+        "completion": "form-submit",
+        "viewportCondition": "384px CSS viewport (768px at 200% zoom equivalent)"
+      }
+    },
+    {
+      "routeId": "settings/integration-access",
+      "path": "/admin/settings/integration-access",
+      "file": "src/app/admin/settings/integration-access/page.tsx",
+      "screenName": "外部連携の権限",
+      "purpose": "取得用の鍵を発行・失効する",
+      "primaryAction": "取得用の鍵を発行する",
+      "permission": "content.read",
+      "representation": {
+        "primary": "table",
+        "secondary": [
+          "summary"
+        ],
+        "plannedPrimary": "table"
+      },
+      "keep": [
+        "対象を識別する名前",
+        "判断に必要な現在状態",
+        "次の操作"
+      ],
+      "removeOrFold": [
+        "内部ID・API・endpoint・ツール名",
+        "同じ意味の重複説明",
+        "通常判断に不要な詳細"
+      ],
+      "removalRationale": "現在の判断と次の操作に直接使わず、常時表示すると主情報を押し下げるため",
+      "states": [
+        "ideal",
+        "empty",
+        "loading",
+        "partial",
+        "error",
+        "slow"
+      ],
+      "decision": "decided",
+      "keyboardAction": {
+        "role": "button",
+        "accessibleName": "鍵を発行する",
+        "occurrence": 1,
+        "completion": "form-submit",
+        "viewportCondition": "384px CSS viewport (768px at 200% zoom equivalent)"
+      }
+    },
+    {
+      "routeId": "settings/llm",
+      "path": "/admin/settings/llm",
+      "file": "src/app/admin/settings/llm/page.tsx",
+      "screenName": "AI 接続",
+      "purpose": "生成 AI の API キーを登録・確認・失効する",
+      "primaryAction": "生成 AI の鍵を発行元で作り、登録する",
+      "permission": "content.read",
+      "representation": {
+        "primary": "table",
+        "secondary": [
+          "summary"
+        ],
+        "plannedPrimary": "table"
+      },
+      "keep": [
+        "対象を識別する名前",
+        "判断に必要な現在状態",
+        "次の操作"
+      ],
+      "removeOrFold": [
+        "内部ID・API・endpoint・ツール名",
+        "同じ意味の重複説明",
+        "通常判断に不要な詳細"
+      ],
+      "removalRationale": "現在の判断と次の操作に直接使わず、常時表示すると主情報を押し下げるため",
+      "states": [
+        "ideal",
+        "empty",
+        "loading",
+        "partial",
+        "error",
+        "slow"
+      ],
+      "decision": "decided",
+      "keyboardAction": {
+        "role": "link",
+        "accessibleName": "鍵を発行する",
+        "occurrence": 1,
+        "completion": "external-navigation",
+        "viewportCondition": "384px CSS viewport (768px at 200% zoom equivalent)"
+      }
+    },
+    {
+      "routeId": "settings/members",
+      "path": "/admin/settings/members",
+      "file": "src/app/admin/settings/members/page.tsx",
+      "screenName": "メンバー",
+      "purpose": "誰が何を担当しているかを見る",
+      "primaryAction": "担当を確かめ、必要な人を招く",
+      "permission": "content.read",
+      "representation": {
+        "primary": "table",
+        "secondary": [
+          "summary"
+        ],
+        "plannedPrimary": "table"
+      },
+      "keep": [
+        "対象を識別する名前",
+        "判断に必要な現在状態",
+        "次の操作"
+      ],
+      "removeOrFold": [
+        "内部ID・API・endpoint・ツール名",
+        "同じ意味の重複説明",
+        "通常判断に不要な詳細"
+      ],
+      "removalRationale": "現在の判断と次の操作に直接使わず、常時表示すると主情報を押し下げるため",
+      "states": [
+        "ideal",
+        "empty",
+        "loading",
+        "partial",
+        "error",
+        "slow"
+      ],
+      "decision": "decided",
+      "keyboardAction": {
+        "role": "button",
+        "accessibleName": "この人を招待する",
+        "occurrence": 1,
+        "completion": "form-submit",
+        "viewportCondition": "384px CSS viewport (768px at 200% zoom equivalent)"
+      }
+    },
+    {
+      "routeId": "settings/roles",
+      "path": "/admin/settings/roles",
+      "file": "src/app/admin/settings/roles/page.tsx",
+      "screenName": "役割",
+      "purpose": "役割で許される操作を確かめる",
+      "primaryAction": "役割ごとに許される操作を確かめる",
+      "permission": "content.read",
+      "representation": {
+        "primary": "list",
+        "secondary": [
+          "summary"
+        ],
+        "plannedPrimary": "list"
+      },
+      "keep": [
+        "対象を識別する名前",
+        "判断に必要な現在状態",
+        "次の操作"
+      ],
+      "removeOrFold": [
+        "内部ID・API・endpoint・ツール名",
+        "同じ意味の重複説明",
+        "通常判断に不要な詳細"
+      ],
+      "removalRationale": "現在の判断と次の操作に直接使わず、常時表示すると主情報を押し下げるため",
+      "states": [
+        "ideal",
+        "empty",
+        "loading",
+        "partial",
+        "error",
+        "slow"
+      ],
+      "decision": "decided",
+      "keyboardAction": {
+        "role": "link",
+        "accessibleName": "担当者の画面",
+        "occurrence": 1,
+        "completion": "internal-navigation",
+        "viewportCondition": "384px CSS viewport (768px at 200% zoom equivalent)"
+      }
+    },
+    {
+      "routeId": "settings/seo",
+      "path": "/admin/settings/seo",
+      "file": "src/app/admin/settings/seo/page.tsx",
+      "screenName": "SEO/AI 検索の指針",
+      "purpose": "SEO/AI 指針の出典を登録し、90 日超を再確認する",
+      "primaryAction": "90 日を超えた出典を見つけて登録し直す",
+      "permission": "content.read",
+      "representation": {
+        "primary": "table",
+        "secondary": [
+          "summary"
+        ],
+        "plannedPrimary": "board"
+      },
+      "keep": [
+        "対象を識別する名前",
+        "判断に必要な現在状態",
+        "次の操作"
+      ],
+      "removeOrFold": [
+        "内部ID・API・endpoint・ツール名",
+        "同じ意味の重複説明",
+        "通常判断に不要な詳細"
+      ],
+      "removalRationale": "現在の判断と次の操作に直接使わず、常時表示すると主情報を押し下げるため",
+      "states": [
+        "ideal",
+        "empty",
+        "loading",
+        "partial",
+        "error",
+        "slow"
+      ],
+      "decision": "decided",
+      "keyboardAction": {
+        "role": "button",
+        "accessibleName": "この出典を登録する",
+        "occurrence": 1,
+        "completion": "form-submit",
+        "viewportCondition": "384px CSS viewport (768px at 200% zoom equivalent)"
+      }
+    },
+    {
+      "routeId": "settings/workspaces",
+      "path": "/admin/settings/workspaces",
+      "file": "src/app/admin/settings/workspaces/page.tsx",
+      "screenName": "作業場所",
+      "purpose": "この作業場所の契約と表示を確かめる",
+      "primaryAction": "契約と表示を確かめ、ブランドを直す画面へ進む",
+      "permission": "content.read",
+      "representation": {
+        "primary": "table",
+        "secondary": [
+          "summary"
+        ],
+        "plannedPrimary": "table"
+      },
+      "keep": [
+        "対象を識別する名前",
+        "判断に必要な現在状態",
+        "次の操作"
+      ],
+      "removeOrFold": [
+        "内部ID・API・endpoint・ツール名",
+        "同じ意味の重複説明",
+        "通常判断に不要な詳細"
+      ],
+      "removalRationale": "現在の判断と次の操作に直接使わず、常時表示すると主情報を押し下げるため",
+      "states": [
+        "ideal",
+        "empty",
+        "loading",
+        "partial",
+        "error",
+        "slow"
+      ],
+      "decision": "decided",
+      "keyboardAction": {
+        "role": "link",
+        "accessibleName": "このブランドを直す",
+        "occurrence": 1,
+        "completion": "internal-navigation",
+        "viewportCondition": "384px CSS viewport (768px at 200% zoom equivalent)"
+      }
+    },
+    {
+      "routeId": "settings/workspaces/edit",
+      "path": "/admin/settings/workspaces/edit",
+      "file": "src/app/admin/settings/workspaces/edit/page.tsx",
+      "screenName": "設定を直す",
+      "purpose": "作業場所の名前・契約の区分・時間帯・通貨を直す",
+      "primaryAction": "直した作業場所の設定を保存する",
+      "permission": "content.read",
+      "representation": {
+        "primary": "card",
+        "secondary": [
+          "summary"
+        ],
+        "plannedPrimary": "card"
+      },
+      "keep": [
+        "対象を識別する名前",
+        "判断に必要な現在状態",
+        "次の操作"
+      ],
+      "removeOrFold": [
+        "内部ID・API・endpoint・ツール名",
+        "同じ意味の重複説明",
+        "通常判断に不要な詳細"
+      ],
+      "removalRationale": "現在の判断と次の操作に直接使わず、常時表示すると主情報を押し下げるため",
+      "states": [
+        "ideal",
+        "empty",
+        "loading",
+        "partial",
+        "error",
+        "slow"
+      ],
+      "decision": "decided",
+      "keyboardAction": {
+        "role": "button",
+        "accessibleName": "この内容で直す",
+        "occurrence": 1,
+        "completion": "form-submit",
+        "viewportCondition": "384px CSS viewport (768px at 200% zoom equivalent)"
+      }
+    },
+    {
+      "routeId": "settings/brands/new",
+      "path": "/admin/settings/brands/new",
+      "file": "src/app/admin/settings/brands/new/page.tsx",
+      "screenName": "ブランドを作る",
+      "purpose": "ブランドを 1 つ作る",
+      "primaryAction": "入力したブランドを作る",
+      "permission": "content.read",
+      "representation": {
+        "primary": "card",
+        "secondary": [
+          "summary"
+        ],
+        "plannedPrimary": "card"
+      },
+      "keep": [
+        "対象を識別する名前",
+        "判断に必要な現在状態",
+        "次の操作"
+      ],
+      "removeOrFold": [
+        "内部ID・API・endpoint・ツール名",
+        "同じ意味の重複説明",
+        "通常判断に不要な詳細"
+      ],
+      "removalRationale": "現在の判断と次の操作に直接使わず、常時表示すると主情報を押し下げるため",
+      "states": [
+        "ideal",
+        "empty",
+        "loading",
+        "partial",
+        "error",
+        "slow"
+      ],
+      "decision": "decided",
+      "keyboardAction": {
+        "role": "button",
+        "accessibleName": "このブランドを作る",
+        "occurrence": 1,
+        "completion": "form-submit",
+        "viewportCondition": "384px CSS viewport (768px at 200% zoom equivalent)"
+      }
+    },
+    {
+      "routeId": "settings/brands/[brand]",
+      "path": "/admin/settings/brands/[brand]",
+      "file": "src/app/admin/settings/brands/[brand]/page.tsx",
+      "screenName": "ブランドを直す",
+      "purpose": "ブランドの名前・問い合わせ先・文体を直す",
+      "primaryAction": "直したブランドの内容を保存する",
+      "permission": "content.read",
+      "representation": {
+        "primary": "card",
+        "secondary": [
+          "summary"
+        ],
+        "plannedPrimary": "card"
+      },
+      "keep": [
+        "対象を識別する名前",
+        "判断に必要な現在状態",
+        "次の操作"
+      ],
+      "removeOrFold": [
+        "内部ID・API・endpoint・ツール名",
+        "同じ意味の重複説明",
+        "通常判断に不要な詳細"
+      ],
+      "removalRationale": "現在の判断と次の操作に直接使わず、常時表示すると主情報を押し下げるため",
+      "states": [
+        "ideal",
+        "empty",
+        "loading",
+        "partial",
+        "error",
+        "slow"
+      ],
+      "decision": "decided",
+      "keyboardAction": {
+        "role": "button",
+        "accessibleName": "この内容で直す",
+        "occurrence": 1,
+        "completion": "form-submit",
+        "viewportCondition": "384px CSS viewport (768px at 200% zoom equivalent)"
+      }
+    }
+  ],
+  "representationVocabulary": {
+    "summary": "画面全体の状況を数語でまとめる帯 (SummaryStrip)",
+    "graph": "量の大小と推移を図で示す (BarChart)",
+    "comparison": "同じ項目で複数を横に並べて比べる (ComparisonTable)",
+    "table": "同種の行を並べて読む・引く (DataTable / RankingTable)",
+    "card": "1 個体の判断単位を区切って示す (Card / 用途別 Form / FactList)",
+    "board": "手当てが要る順に並べ、なぜ要るかと次の 1 手を各件に付ける (WorkBoard)",
+    "list": "行き先または段階を順に並べる (ListView / StepList / EvidenceList)",
+    "timeline": "日付の並びの上に予定を置く (ScheduleCalendar)"
+  },
+  "plannedPrimaryPolicy": "primary は実装に結線されている現在の主表現、plannedPrimary は src/presentation/admin/admin-screen-task-manifest.ts の primary task から導いたあるべき主表現。2 つが食い違う route は plannedPrimaryGapRouteIds に列挙し、画面実装が追いつくまで乖離として数える。decision は表現方式を決めたかどうかを指すため decided のままとし、実装の遅れは undecidedCount へ混ぜない。",
+  "plannedPrimaryGapCount": 21,
+  "plannedPrimaryGapRouteIds": [
+    "affiliate/links",
+    "blog/articles",
+    "blog/evaluate",
+    "blog/pages",
+    "contact",
+    "content",
+    "content/[variant]/progress",
+    "content/matrix",
+    "content/packages",
+    "content/published",
+    "distribution",
+    "evidence",
+    "feedback",
+    "inbox",
+    "personas",
+    "personas/audiences",
+    "rankings/models",
+    "settings/seo",
+    "site-network",
+    "sites",
+    "sites/[site]/documents"
+  ]
+}

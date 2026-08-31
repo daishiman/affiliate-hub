@@ -109,9 +109,12 @@ const EXEMPT: Record<string, Exemption> = {
     measured: "Chromium実DOMで修正前の高さ28px（2026-08-21）",
     reason: "見出し文字1つを包むリンクで、44pxの的を作るためだけのinline-flex",
   },
-  "src/presentation/ui/templates/site.module.css :: .cardTitle a": {
-    measured: "Chromium実DOMで修正前の高さ23px（2026-08-21）",
-    reason: "記事題の文字1つを包むリンクで、44pxの的を作るためだけのinline-flex",
+  // ブログ名・本文中の行き先・記事題の 3 つは、同じ「文字 1 つを包んで 44px の
+  // 押しどころを作る」規則なので 1 本にまとめてある（2026-08-31 の統合）。
+  // 3 つに分かれていたときは、下限を直すのに 3 か所を直す必要があった。
+  "src/presentation/ui/templates/site.module.css :: .siteName,\n.article a,\n.cardTitle a": {
+    measured: "文字 1 つを包むリンク 3 種（ブログ名・本文中の行き先・記事題）（2026-08-31）",
+    reason: "44px の押しどころを作るためだけの inline-flex。中身は文字だけで折り返す先が無い",
   },
   "src/presentation/ui/templates/site.module.css :: .tableOfContents a": {
     measured: "目次 1 項目のリンク。中身は節の見出し文字だけ（2026-08-30）",
@@ -140,12 +143,6 @@ const EXEMPT: Record<string, Exemption> = {
   "src/presentation/ui/templates/screen-parts.module.css :: .rowSelector": {
     measured: "表の行を選ぶチェック箱と説明の対（2026-08-23）",
     reason: "チェック箱と説明が別の行に分かれると対応が読めないため、一つの選択肢として保つ",
-  },
-  "src/app/admin/admin.module.css :: .rankTable td > a": {
-    measured: "11 回 / 子 0 のみ（18:20）",
-    reason:
-      "升目に単独で置かれた行き先。中身が文字だけ。**inline-flex は min-height を効かせるために要る**" +
-      "——`td` は flex の器ではないので、下限だけ書いても素の inline には当たらない",
   },
   "src/presentation/ui/patterns/patterns.module.css :: .table td > a,\n.table th > a": {
     measured: "17 回 / 子 0 のみ（18:20。`td` 側 5・`th` 側 12）",
@@ -252,12 +249,9 @@ const EXEMPT: Record<string, Exemption> = {
     measured: "168 回 / 子 0 のみ（18:20）",
     reason: "中身が文字だけ。折り返しは器の .footerLinks 側が持っている",
   },
-  "src/presentation/ui/templates/site.module.css :: .breadcrumb a,\nnav.section a": {
-    measured:
-      "80 回 / 子 0 のみ（18:20。うち 77 回は上の ui.module.css の行と同じ物——" +
-      "クラス名が同じでファイルが違うものは分けられない。差の 3 回が `nav.section a`）",
-    reason: "中身が文字だけ。折り返しは器の側が持っている",
-  },
+  // `site.module.css :: .breadcrumb a, nav.section a` はここに在ったが、
+  // パンくずの押しどころが `ui.module.css` の 1 本に寄り、こちら側は色の指定だけに
+  // なった（2026-08-31）。折り返さない規則ではなくなったので一覧から外す。
 
   // --- 直の子が 1 つまで --------------------------------------------------
   // 子が 1 つなら、折り返しても並びが変わらない（折り返す相手がいない）。
@@ -308,15 +302,15 @@ const EXEMPT: Record<string, Exemption> = {
   // 「**この一覧で唯一、子が 2 つ以上入る**」も外している——**この行を足した瞬間に
   // その文が誤りになるため。**一覧に 1 行足すことが、離れた行の**理由の文**を
   // 誤りにする形である。数と違って、こちらは走らせても赤にならない。
-  "src/app/admin/admin.module.css :: .rankTable label": {
-    measured:
-      "9 回 / 子 2 のみ（18:20。EHIJ の赤 3 塊 / 9 テストと同数だが、量は別物）。" +
-      "出どころは `admin/feedback/page.tsx:208` の 1 か所だけ（" +
-      "チェックの箱と、それを説明する `span` の対）",
+  //
+  // `.rankTable label` と `.rankTable td > a` はここに在ったが、順位の表が
+  // 共通の `RankingTable` へ移り、`admin.module.css` から規則ごと消えた（2026-08-31）。
+  // 一覧から外す。**残しておくと、もう存在しない規則が理由つきで居座る。**
+  "src/presentation/ui/patterns/patterns.module.css :: .decisionStatus": {
+    measured: "判断状態の札。印 1 個と「まだ判定できません」等の短い文（2026-08-31）",
     reason:
-      "チェックの箱と、その説明の文字。**この 2 つが別の行に割れると、" +
-      "箱がどの行のものか読めなくなる**ので、折り返さないことのほうが正しい。" +
-      "文字側は縮む項目なので、狭いときは `span` の中で折れて器を超えない",
+      "札は状態そのもので、途中で折れると印だけが行に取り残されて別の状態に読める。" +
+      "中身は短い決まり文句だけなので、折り返す先が無い",
   },
   // ── 記事本文の断片（`presentation/prose`）────────────────────────────
   // **5 件とも「折り返させない」ではなく「折り返す先が無い」。**
@@ -547,6 +541,43 @@ describe("折り返さない横並びは、理由つきで数えられている"
 
 /** 縮められるようにしてある規則。**消えたら赤。** */
 const SHRINKABLE: Record<string, Exemption> = {
+  // ── 入力欄と、それを包む器 ──────────────────────────────────────────
+  // **入力欄は既定で `size` 属性ぶんの幅を主張する。**`width: 100%` だけでは
+  // 器を超えるので、`min-width: 0` が要る。器の側にも要るのは、器が縮まなければ
+  // 中身をいくら縮めても意味が無いため。
+  "src/presentation/ui/primitives/ui.module.css :: .input": {
+    measured: "共通の入力欄。管理画面のすべての form が通る（2026-08-31）",
+    reason:
+      "入力欄は既定の最小幅（`size` 属性ぶん）を主張する。" +
+      "**これが無いと、狭い画面で入力欄だけが器の外へ突き出る**",
+  },
+  "src/presentation/ui/primitives/ui.module.css :: .field": {
+    measured: "入力欄 1 つと、その名札・説明の縦の組（2026-08-31）",
+    reason: "中に横へ伸びるもの（入力欄・長い説明）が入る器。器が縮まないと中身も縮めない",
+  },
+  // 字下げ 2 つは media query の中に在るという意味（狭い画面のときだけ効く）。
+  "src/app/admin/admin.module.css :: .publishedFilter input,\n  .publishedFilter select,\n  .publishedFilter button": {
+    measured: "公開済み記事の絞り込み。検索欄・公開状態・実行の 3 つ（2026-08-31）",
+    reason:
+      "3 列の grid に置く入力欄と選ぶ欄。**`minmax(0, …)` は列の下限を外すだけで、" +
+      "入力欄自身の最小幅は消えない**ので、子の側にも要る。" +
+      "狭い画面では 1 列へ落ちるため、そのときだけ効かせる",
+  },
+  // ── 共通の節と、項目・値の対 ────────────────────────────────────────
+  "src/presentation/ui/templates/screen-parts.module.css :: .section": {
+    measured: "管理画面 86 枚すべての節の器（2026-08-31）",
+    reason: "中に表・長い URL・選択肢の長い form が入る。器が縮まないと画面ごと横へ溢れる",
+  },
+  "src/presentation/ui/templates/screen-parts.module.css :: .section > *": {
+    measured: "節の直の子。表の包み・form・注意書き（2026-08-31）",
+    reason: "grid の子の最小幅は中身の幅で決まる。**節を縮めても、子が縮まなければ溢れる**",
+  },
+  "src/presentation/ui/templates/screen-parts.module.css :: .factRow dd": {
+    measured: "項目と値の対の、値の側（2026-08-31）",
+    reason:
+      "値には切れない長い文字列（URL・識別子）が入る。" +
+      "`overflow-wrap: anywhere` と対で使い、途中で折って器の中に収める",
+  },
   "src/presentation/ui/primitives/ui.module.css :: .main": {
     measured: "2026-08-21。管理画面 32 枚の本文の器",
     reason:

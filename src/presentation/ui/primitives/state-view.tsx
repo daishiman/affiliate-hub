@@ -2,9 +2,9 @@ import type { ReactNode } from "react";
 import styles from "./ui.module.css";
 
 /**
- * 4 つの状態。
+ * 管理画面で扱う 6 状態のうち、共通表示が必要な状態。
  *
- * 一覧・詳細・検索結果は必ずこの 4 つを持つ。
+ * 一覧・詳細・検索結果は、通常・空・読み込み・一部・失敗・低速を区別する。
  * **どの状態にも文言が要る。** 空白のまま出さない。
  *
  *   loading … いま読み込んでいる
@@ -25,7 +25,7 @@ import styles from "./ui.module.css";
 
 export function LoadingView({ label }: { readonly label: string }) {
   return (
-    <div className={styles.state} role="status" aria-live="polite">
+    <div className={styles.state} role="status" aria-live="polite" data-screen-state="loading">
       <span className={styles.srOnly}>{label}</span>
       <span className={styles.stateTitle} aria-hidden="true">
         {label}
@@ -46,8 +46,39 @@ export function EmptyView({
   readonly action?: ReactNode;
 }) {
   return (
-    <div className={styles.state}>
+    <div className={styles.state} data-screen-state="empty">
       <p className={styles.stateTitle}>{title}</p>
+      <p className={styles.stateBody}>{body}</p>
+      {action}
+    </div>
+  );
+}
+
+export function IdealView({ title, body, action }: { readonly title: string; readonly body: string; readonly action?: ReactNode }) {
+  return (
+    <div className={styles.state} role="status" data-screen-state="ideal">
+      <p className={styles.stateTitle}>通常 — {title}</p>
+      <p className={styles.stateBody}>{body}</p>
+      {action}
+    </div>
+  );
+}
+
+export function PartialView({ title, body, safeToUse, action }: { readonly title: string; readonly body: string; readonly safeToUse: string; readonly action?: ReactNode }) {
+  return (
+    <div className={styles.state} role="status" data-screen-state="partial">
+      <p className={styles.stateTitle}>一部のみ — {title}</p>
+      <p className={styles.stateBody}>{body}</p>
+      <p className={styles.stateBody}>いま使える情報: {safeToUse}</p>
+      {action}
+    </div>
+  );
+}
+
+export function SlowView({ title, body, action }: { readonly title: string; readonly body: string; readonly action?: ReactNode }) {
+  return (
+    <div className={styles.state} role="status" aria-live="polite" data-screen-state="slow">
+      <p className={styles.stateTitle}>時間が掛かっています — {title}</p>
       <p className={styles.stateBody}>{body}</p>
       {action}
     </div>
@@ -57,20 +88,26 @@ export function EmptyView({
 export function ErrorView({
   title,
   body,
-  suggestedAction,
+  safeToUse = "現在地と入力済みの内容は保持されています。未確定の値は判断に使われません。",
+  suggestedAction = "もう一度試すか、前の画面へ戻ってください。",
   action,
 }: {
   readonly title: string;
   readonly body: string;
+  /** 失敗しても確定済みとして扱える情報。 */
+  readonly safeToUse?: string;
   /** 次にできること。これが無いと利用者は同じ操作を繰り返す。 */
   readonly suggestedAction?: string | null;
   readonly action?: ReactNode;
 }) {
   return (
-    <div className={styles.state} role="alert">
-      <p className={styles.stateTitle}>{title}</p>
+    <div className={styles.state} role="alert" data-screen-state="error">
+      <p className={styles.stateTitle}>失敗 — {title}</p>
       <p className={styles.stateBody}>{body}</p>
-      {suggestedAction && <p className={styles.stateBody}>{suggestedAction}</p>}
+      <p className={styles.stateBody}>守られた情報: {safeToUse}</p>
+      <p className={styles.stateBody}>
+        次にできること: {suggestedAction ?? "前の画面へ戻って、時間を置いてからもう一度試してください。"}
+      </p>
       {action}
     </div>
   );

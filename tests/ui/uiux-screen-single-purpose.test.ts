@@ -327,12 +327,17 @@ describe("A1 §1 全管理画面は primary task をちょうど 1 つ持つ", (
     const tasks = ADMIN_SCREEN_TASK_MANIFEST.map((screen) => screen.route).sort();
     const documented = priority.screens.map((screen) => screen.route).sort();
 
-    expect(actual).toHaveLength(86);
+    // 画面数の正本は ADMIN_ROUTE_METADATA。数字を各所へ写すと片方だけ古くなるため参照する。
+    // ただし参照だけにすると route が丸ごと消えても緑になるので、空振り防止の下限を併記する。
+    expect(actual).toHaveLength(ADMIN_ROUTE_METADATA.length);
+    expect(actual.length).toBeGreaterThan(80);
     expect(metadata).toEqual(actual);
     expect(tasks).toEqual(actual);
     expect(documented).toEqual(actual);
-    expect(new Set(ADMIN_SCREEN_TASK_MANIFEST.map((screen) => screen.routeId)).size).toBe(86);
-    expect(new Set(priority.screens.map((screen) => screen.route)).size).toBe(86);
+    expect(new Set(ADMIN_SCREEN_TASK_MANIFEST.map((screen) => screen.routeId)).size).toBe(
+      ADMIN_ROUTE_METADATA.length,
+    );
+    expect(new Set(priority.screens.map((screen) => screen.route)).size).toBe(ADMIN_ROUTE_METADATA.length);
     expect(ADMIN_SCREEN_TASK_MANIFEST.map((screen) => [screen.route, screen.primaryTask]).sort()).toEqual(
       priority.screens.map((screen) => [screen.route, screen.primary_task]).sort(),
     );
