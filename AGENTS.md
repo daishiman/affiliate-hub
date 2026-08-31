@@ -31,6 +31,32 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 詳しくは [README の「環境とデプロイフロー」](./README.md#環境とデプロイフロー)。
 
+## 使えるエージェント資産 (AIDD エージェントキット v1.10.4)
+
+このリポジトリはキットの**配布先**です。編集原本はここにはありません。
+原本は `kanjo` リポジトリの `aidd-agent-kit/` にあり、そこから
+`install-mac.command` が各ホストの実行時配置へ写します。
+
+**下表の実行時配置を直接編集しないでください。** 直しても次の同期で消えます。
+直すのは原本side、その後このリポジトリへ再同期して PR を出します。
+
+| 種類 | Codex が読む場所 | Claude Code が読む場所 | 編集原本 (kanjo 側) |
+|---|---|---|---|
+| Skill | `.agents/skills/<name>/SKILL.md` | `.claude/skills/<name>/SKILL.md` | `aidd-agent-kit/skills/<name>/` |
+| ワークフロー Skill | `.agents/skills/<name>/SKILL.md` | `.claude/commands/<name>.md` | `aidd-agent-kit/codex/workflow-skills/<name>/` |
+| サブエージェント | `.codex/agents/app-orchestrator.toml` | `.claude/agents/app-orchestrator.md` | `aidd-agent-kit/codex/agents/`, `aidd-agent-kit/agents/` |
+
+同期後の版は `.claude/aidd-agent-kit.version` に入ります。
+どのファイルがキット所有かは `.claude/aidd-agent-kit.manifest` が持ちます。
+**この一覧に載らないファイルはキットの管理外**で、同期では消えません。
+
+`.codex/` は `.gitignore` で除外しているため、Codex の custom agent TOML は
+各自の作業ツリーにだけ存在し、git には載りません。Codex 側を使うときは
+自分で同期を実行してください。
+
+`.claude/plugins/` 以下の harness 系プラグインはキットとは別系統です。
+キットの同期はそちらに触れません。
+
 <!-- BEGIN BEADS INTEGRATION v:1 profile:minimal hash:970c3bf2 -->
 ## Beads Issue Tracker
 

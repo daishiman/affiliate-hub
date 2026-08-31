@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<title>デザインカタログ — jp-web-design モデルケース</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="theme.js"></script>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<header class="app-header">
+  <div class="app-name">デザインカタログ<span class="app-name-sub">jp-web-design の部品と状態の一覧</span></div>
+  <nav class="app-nav" aria-label="主要ナビゲーション">
+    <a href="index.html" style="font-size:13px; color:var(--text); text-decoration:none; padding:6px 12px">Mode A(Graphite)</a>
+    <a href="pop.html" style="font-size:13px; color:var(--brand-deep); text-decoration:none; padding:6px 12px">モードB(Pop)</a>
+  </nav>
+  <div class="theme-toggle" role="group" aria-label="テーマ切り替え">
+    <button type="button" data-theme-choice="auto" aria-pressed="true">自動</button>
+    <button type="button" data-theme-choice="light" aria-pressed="false">ライト</button>
+    <button type="button" data-theme-choice="dark" aria-pressed="false">ダーク</button>
+  </div>
+</header>
+
+<main>
+  <h1 class="page-title">部品カタログ</h1>
+  <p class="page-lede">Skill jp-web-design の各セクションを、そのまま実装した見本です。色は「意味」にしか使いません。</p>
+
+  <!-- §1-2 カラートークン -->
+  <section class="catalog-section">
+    <h2 class="section-heading">Mode A — Graphite × Amber</h2>
+    <p class="spec-note">primary(グラファイト)=主要CTA・操作・選択。accent(アンバー)=実行中・処理中だけ。AI機能へ専用色を割り当てず、Light/Darkともpage-bg→bg→surface→surface-alt→borderの面階層を保ちます。</p>
+    <div class="swatch-row">
+      <div class="swatch"><div class="sw-color" style="background:var(--primary)"></div><div class="sw-meta"><strong>primary</strong><br><code>theme token</code> CTA・操作・選択</div></div>
+      <div class="swatch"><div class="sw-color" style="background:var(--accent)"></div><div class="sw-meta"><strong>accent</strong><br><code>theme token</code> 実行中の状態だけ</div></div>
+      <div class="swatch"><div class="sw-color" style="background:var(--text)"></div><div class="sw-meta"><strong>text</strong><br><code>theme token</code> 本文・キー数字</div></div>
+      <div class="swatch"><div class="sw-color" style="background:var(--text-muted)"></div><div class="sw-meta"><strong>text-muted</strong><br><code>theme token</code> 補足</div></div>
+      <div class="swatch"><div class="sw-color" style="background:var(--surface)"></div><div class="sw-meta"><strong>surface</strong><br><code>theme token</code> カード・パネル</div></div>
+      <div class="swatch"><div class="sw-color" style="background:var(--surface-alt)"></div><div class="sw-meta"><strong>surface-alt</strong><br><code>theme token</code> 沈んだ面</div></div>
+      <div class="swatch"><div class="sw-color" style="background:var(--success)"></div><div class="sw-meta"><strong>success</strong><br><code>theme token</code> 完了・稼働中</div></div>
+      <div class="swatch"><div class="sw-color" style="background:var(--danger)"></div><div class="sw-meta"><strong>danger</strong><br><code>theme token</code> エラー・破壊的操作</div></div>
+    </div>
+  </section>
+
+  <!-- §5 ボタン -->
+  <section class="catalog-section">
+    <h2 class="section-heading">ボタン(3階層+破壊的)</h2>
+    <p class="spec-note">ラベルは動詞で終える。主要CTAは1画面に基本1つ。実行中は幅を変えずに「送信中…」へ。</p>
+    <div class="card card-pad">
+      <div class="demo-row">
+        <button type="button" class="btn btn-primary pressable">送信する</button>
+        <button type="button" class="btn btn-secondary pressable">編集する</button>
+        <button type="button" class="btn btn-tertiary pressable">キャンセル</button>
+        <button type="button" class="btn btn-danger-outline pressable">削除する</button>
+        <button type="button" class="btn btn-primary" disabled>送信する</button>
+        <button type="button" class="btn btn-primary" style="min-width:112px"><span class="spinner" aria-hidden="true"></span>送信中…</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="catalog-section">
+    <h2 class="section-heading">操作と入場のモーション</h2>
+    <p class="spec-note">hoverはborder/surfaceを90〜140ms、pressedはscale(.985)、新しく現れた要素だけ6px下から180〜220msで入場。最大6要素・全体300ms以内です。reduced-motionでは動きを止めても意味を保ちます。</p>
+    <div class="grid-2">
+      <button type="button" class="card card-pad pressable" style="text-align:left; color:var(--text); cursor:pointer">
+        <strong>hover / pressed</strong>
+        <span style="display:block; color:var(--text-muted); font-size:12px; margin-top:4px">境界と押下だけを短く返す操作対象</span>
+      </button>
+      <div class="card card-pad rise-in" style="--stagger:40ms">
+        <strong>enter</strong>
+        <span style="display:block; color:var(--text-muted); font-size:12px; margin-top:4px">追加された場所を伝える一度だけの入場</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- §5 バッジ -->
+  <section class="catalog-section">
+    <h2 class="section-heading">ステータスバッジ</h2>
+    <p class="spec-note">色+文言+30%相当の縁取りで状態を区別する。accentとwarningは文言・配置でも区別します。</p>
+    <div class="card card-pad">
+      <div class="demo-row">
+        <span class="badge badge-running">実行中</span>
+        <span class="badge badge-success">完了</span>
+        <span class="badge badge-warning">要確認</span>
+        <span class="badge badge-danger">エラー</span>
+        <span class="badge badge-neutral">下書き</span>
+        <span class="badge badge-required">必須</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- §5 フォーム -->
+  <section class="catalog-section">
+    <h2 class="section-heading">フォーム</h2>
+    <p class="spec-note">ラベル上置き・placeholderをラベル代わりにしない・エラーは項目直下に「現象+直し方」。</p>
+    <div class="card card-pad">
+      <div class="grid-2">
+        <div class="field">
+          <label for="cat-email">メールアドレス <span class="badge badge-required">必須</span></label>
+          <input id="cat-email" type="email" inputmode="email" placeholder="taro@example.com">
+          <p class="hint">提案メールの送信先になります。</p>
+        </div>
+        <div class="field has-error">
+          <label for="cat-email-err">メールアドレス <span class="badge badge-required">必須</span></label>
+          <input id="cat-email-err" type="email" inputmode="email" value="sato@example">
+          <p class="error-msg">メールアドレスの形式が正しくありません。「@」以降にドメインを入れてください。</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- §2 プリセット2層(ux-design §2) -->
+  <section class="catalog-section">
+    <h2 class="section-heading">選択チップ(等幅グリッド・孤児折返し禁止)</h2>
+    <p class="spec-note">4個 = grid-cols-2 → sm:4。flex-wrapの成り行きに任せず「1個だけ折返し」を防ぐ。よくある選択肢を上段に。</p>
+    <div class="card card-pad">
+      <div class="chip-grid">
+        <button type="button" class="chip pressable" aria-pressed="true">東京23区</button>
+        <button type="button" class="chip pressable" aria-pressed="false">首都圏</button>
+        <button type="button" class="chip pressable" aria-pressed="false">関西圏</button>
+        <button type="button" class="chip pressable" aria-pressed="false">地元(和歌山県)</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- §5 テーブル -->
+  <section class="catalog-section">
+    <h2 class="section-heading">テーブル — 数値はExcel基準</h2>
+    <p class="spec-note">セルは「生数値+3桁カンマ」のみ。単位は列ヘッダーへ(1列1単位)。右揃え+等幅数字+欧文フォント。桁の圧縮はヘッダーの単位変更(円→万円→百万円)で行い、セル側で概数に丸めない。SPでは主要3項目のカードに組み替える。</p>
+    <div class="card">
+      <div class="table-scroll">
+        <table>
+          <thead>
+            <tr><th>物件</th><th class="col-num">価格(万円)</th><th class="col-num">利回り(%)</th><th>状態</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>練馬区 一棟マンション</td><td class="col-num num">23,048</td><td class="col-num num">7.2</td><td><span class="badge badge-active">進行中</span></td></tr>
+            <tr><td>川口市 一棟アパート</td><td class="col-num num">9,800</td><td class="col-num num">8.1</td><td><span class="badge badge-active">進行中</span></td></tr>
+            <tr><td>船橋市 一棟アパート</td><td class="col-num num">7,350</td><td class="col-num num">8.4</td><td><span class="badge badge-closed">売却済</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- §5 空状態 / スケルトン / 注意の面 -->
+  <section class="catalog-section">
+    <h2 class="section-heading">空状態 / スケルトン / 注意の面</h2>
+    <p class="spec-note">空状態は「状態の説明+次の1歩」をセットで。読み込みはスピナーよりスケルトン。</p>
+    <div class="grid-2">
+      <div class="empty-state">
+        <p class="es-title">まだ物件の登録がありません</p>
+        <p class="es-body">最初の1件を登録すると、ここに提案リストが表示されます。</p>
+        <button type="button" class="btn btn-primary pressable">概要書から登録する</button>
+      </div>
+      <div style="display:grid; gap:12px">
+        <div class="card card-pad" aria-hidden="true" style="display:grid; gap:10px">
+          <div class="skeleton" style="height:16px; width:60%"></div>
+          <div class="skeleton" style="height:16px; width:85%"></div>
+          <div class="skeleton" style="height:16px; width:45%"></div>
+        </div>
+        <div class="caution-panel">この操作は取り消せません。内容をご確認ください。</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- §9 データ表現 -->
+  <section class="catalog-section">
+    <h2 class="section-heading">データ表現 — バーは「100%が定義できる」ときだけ</h2>
+    <p class="spec-note">2〜3値の比較はバーより「数字+差分」。バーを使うのは進捗(分母が明示できる)・構成比・0起点の実数比較のみ。比率同士を恣意的な幅で描かない。裸の棒禁止(ラベル+数値必須)。</p>
+    <div class="grid-2">
+      <div class="card card-pad">
+        <p class="spec-note" style="margin-top:0">正: 少数比較は数字+差分</p>
+        <div class="delta-compare">
+          <div class="dc-item">
+            <div class="dc-label">先月</div>
+            <div class="dc-value" style="color:var(--ink-muted)">11.2<span class="unit">%</span></div>
+          </div>
+          <span class="dc-arrow" aria-hidden="true">→</span>
+          <div class="dc-item">
+            <div class="dc-label">今月</div>
+            <div class="dc-value">18.6<span class="unit">%</span></div>
+          </div>
+          <span class="delta-chip">+7.4pt</span>
+        </div>
+      </div>
+      <div class="card card-pad">
+        <p class="spec-note" style="margin-top:0">正: 分母が明示できる進捗バー</p>
+        <div class="compare-item">
+          <div class="ci-head"><span class="ci-label">目標120通に対する実績</span><span class="ci-value">86<span class="unit">/120通</span></span></div>
+          <div class="bar-track"><div class="bar-fill is-brand" style="width:71.7%"></div></div>
+          <p class="footnote" style="margin:6px 0 0">達成率 71.7%(100% = 月間目標120通)</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- §3 タイポグラフィ・メリハリ -->
+  <section class="catalog-section">
+    <h2 class="section-heading">タイポグラフィ — メリハリと数字のシャープさ</h2>
+    <p class="spec-note">1画面に視覚的主役を1つ。主役と本文のサイズ比は2.5倍以上。数字は欧文フォント+等幅数字。カンマは0.8emに縮小、通貨記号は単位扱い(62%+間隔)で「数字=変数」と見分ける。</p>
+    <div class="card card-pad">
+      <div class="hero-number" style="padding:8px 0 16px">
+        <div class="hn-label">ページ主数字 = 視覚的主役(text色・カンマ縮小・¥は単位扱い)</div>
+        <div class="hn-value"><span class="currency">¥</span>372<span class="num-sep">,</span>160<span class="num-sep">,</span>000</div>
+      </div>
+      <dl class="def-list" style="border-top:1px solid var(--line); padding-top:14px">
+        <dt>ページタイトル</dt><dd style="font-weight:700; font-size:18px">18〜20px・太字</dd>
+        <dt>セクション見出し</dt><dd style="font-weight:700; font-size:13px">13px・太字・静かに</dd>
+        <dt>本文</dt><dd>14px・normal・行間1.7</dd>
+        <dt>補足・ラベル</dt><dd style="font-size:12px; color:var(--ink-muted)">12px・ink-muted(これより薄くしない)</dd>
+        <dt>数字(和文フォント)</dt><dd style="font-family:'Hiragino Kaku Gothic ProN','Hiragino Sans',Meiryo,sans-serif; font-weight:700">123,456,789 — ボサッと見える(禁止)</dd>
+        <dt>数字(欧文フォント)</dt><dd class="num" style="font-weight:700">123,456,789 — シャープ(.num を必ず当てる)</dd>
+      </dl>
+    </div>
+  </section>
+</main>
+
+</body>
+</html>
