@@ -180,11 +180,25 @@ describe("外から来た文字列を外観として読む", () => {
     );
   });
 
-  it("知らない名前は、必ず null になる（素通しさせない）", () => {
+  /*
+   * この 1 件は 2026-08-21 まで
+   * `parsed === null || BRAND_THEMES.includes(parsed)` しか見ていなかった。
+   * その式は**知らない名前に既定値を返す実装でも真になる**（title の主張と逆）。
+   * 実測: `?? null` を `?? BRAND_THEMES[0]` に変えても、このファイルは
+   * 12 件すべて緑のまま。`parseBrandTheme` を呼ぶ試験は他に 1 つも無かった。
+   * いまは「一覧に無い名前なら null」を直接見る。
+   */
+  it("知らない名前は、必ず null になる（素通しも、黙った既定値への差し替えもさせない）", () => {
     fc.assert(
       fc.property(fc.string(), (raw) => {
-        const parsed = parseBrandTheme(raw);
-        expect(parsed === null || (BRAND_THEMES as readonly string[]).includes(parsed)).toBe(true);
+        fc.pre(!(BRAND_THEMES as readonly string[]).includes(raw));
+        expect(parseBrandTheme(raw)).toBe(null);
+      }),
+    );
+    fc.assert(
+      fc.property(fc.string(), (raw) => {
+        fc.pre(!(COLOR_MODES as readonly string[]).includes(raw));
+        expect(parseColorMode(raw)).toBe(null);
       }),
     );
   });

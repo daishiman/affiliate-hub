@@ -6,6 +6,8 @@
 import { describe, expect, it } from "vitest";
 import { createUser, canActAsHuman, isActiveUser } from "@/domain/identity";
 import {
+  ASSET_KINDS,
+  ASSET_KIND_LABELS,
   createSite,
   publishSite,
   isSiteVisible,
@@ -397,6 +399,30 @@ describe("Asset（E26）: 由来と利用条件の無い素材を持たない", 
     createdAt: NOW,
   };
 
+  /**
+   * 素材の種類 5 つ。
+   *
+   * ここを足した理由。**この一覧から 1 項目抜いても、5 項目のどれを抜いても
+   * 8007 件すべて緑だった**（実測、2026-08-28）。`AssetKind` 型の材料なので、
+   * **一覧が縮むと型も一緒に縮む**。「グラフ」が消えれば、グラフを登録する道が
+   * コンパイル時に閉じるだけで、赤くはならない。由来と利用条件を必須にした
+   * 仕組み（§E26）は、まず「その種類の素材が持てること」の上に載っている。
+   *
+   * **期待値を実装から組み立てない。**種類と表示名を手で書き写して並べる。
+   */
+  it("素材の種類は 5 つで、表示名も同じ並びでそろっている", () => {
+    const expected = [
+      ["image", "写真"],
+      ["diagram", "図"],
+      ["chart", "グラフ"],
+      ["table", "表"],
+      ["file", "ファイル"],
+    ];
+    expect([...ASSET_KINDS]).toEqual(expected.map(([key]) => key));
+    // 表示名が欠けると、画面の選択肢に「undefined」が並ぶ。
+    expect(Object.entries(ASSET_KIND_LABELS)).toEqual(expected);
+  });
+
   it("由来つきなら作れる", () => {
     expect(provenance.ok).toBe(true);
     if (!provenance.ok) return;
@@ -404,6 +430,25 @@ describe("Asset（E26）: 由来と利用条件の無い素材を持たない", 
     expect(r.ok).toBe(true);
     if (!r.ok) return;
     expect(isAssetUsable(r.value, NOW)).toBe(true);
+  });
+
+  /*
+   * ここを足した理由（実測、2026-08-29）。`createAsset` の 3 本の門
+   *（保管先・代替テキスト・利用条件）を同時に素通しにしたところ、
+   * **赤くなったのは下の 2 本だけ**で、保管先の門は誰にも見られていなかった。
+   *
+   * 保管先が空の素材は、型の上では作れてしまう（`storageKey: string`）。
+   * 作れたあと記事に載ると、読者には「壊れた画像」だけが届く。
+   * 由来も利用条件も揃っているので、あとから見ても原因が分からない。
+   */
+  it("保管先が空だと作れない", () => {
+    expect(provenance.ok).toBe(true);
+    if (!provenance.ok) return;
+    const r = createAsset({ ...base, storageKey: "  ", provenance: provenance.value });
+    expect(r.ok).toBe(false);
+    if (r.ok) return;
+    expect(r.error.message).toContain("保管先");
+    expect(r.error.field).toBe("storageKey");
   });
 
   it("代替テキストが空だと作れない", () => {

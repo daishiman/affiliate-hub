@@ -161,9 +161,21 @@ def _probe_completeness(repo_root: Path, rel: str, producer_root: Path) -> Probe
          "--fork-ledger", str(fork_ledger)],
         text=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=False,
     )
-    detail = (completed.stderr or completed.stdout).strip()
+    producer_detail = (completed.stderr or completed.stdout).strip()
+    verdict_verified = False
+    verdict_detail = ""
+    try:
+        report_value = json.loads(report.read_text(encoding="utf-8"))
+    except (OSError, UnicodeError, json.JSONDecodeError) as exc:
+        verdict_detail = f"consumer report JSON parse failed: {exc}"
+    else:
+        verdict = report_value.get("verdict") if isinstance(report_value, dict) else None
+        verdict_verified = verdict == "PASS"
+        if not verdict_verified:
+            verdict_detail = f"producer stop verdict is not PASS: {verdict!r}"
+    detail = "\n".join(part for part in (producer_detail, verdict_detail) if part)
     return Probe(rel, True, report.stat().st_size > 0, True, 0,
-                 verified=completed.returncode == 0, detail=detail)
+                 verified=completed.returncode == 0 and verdict_verified, detail=detail)
 
 
 def collect_probes(repo_root: Path, system_spec_root: str, architecture_root: str,

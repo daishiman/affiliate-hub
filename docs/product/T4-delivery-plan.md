@@ -9,7 +9,7 @@
 | 公開済み一覧 | `/admin/content/published` / admin port list | 検索・状態絞り込み、テナント境界、SPカード化 |
 | 訂正 | edit route / update action/use case / D1 replace | 理由必須、操作記録、下書き復元、非表示維持 |
 | 非表示 | archive action/use case / `archived_at` | reader list/find/search/personから除外、adminに残存、見本へ逆戻り防止 |
-| データ移行 | `0019_gentle_archive.sql` + snapshot/journal | migration freshness / D1 integration |
+| データ移行 | `0039_gentle_archive.sql` + snapshot/journal | migration freshness / D1 integration |
 | 成果物 | `preview:static` の記事シェル | HTML生成、空描画検知 |
 
 ## 受け入れ順序

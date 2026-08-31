@@ -1,0 +1,137 @@
+{
+  "feature": {
+    "graph_node_id": "feat-feedback-capture-self-exclusion",
+    "title": "改善要望の写しから送信 UI 自身を外す（撮影中だけ自動で隠す）",
+    "description": "dev-graph feature projection: features/feat-feedback-capture-self-exclusion.md / feature-package/feat-feedback-capture-self-exclusion"
+  },
+  "children": [
+    {
+      "graph_node_id": "SYS-FB-CAPTURE-EXCLUSION-P01",
+      "phase_ref": "P01",
+      "parent_feature": "feat-feedback-capture-self-exclusion",
+      "depends_on": [],
+      "title": "改善要望の写しに送信 UI が写り込む条件の要求ベースライン確定",
+      "description": "dev-graph P01 projection: tasks/feat-feedback-capture-self-exclusion/sys-fb-capture-exclusion-p01.md (feature-package/feat-feedback-capture-self-exclusion)"
+    },
+    {
+      "graph_node_id": "SYS-FB-CAPTURE-EXCLUSION-P02",
+      "phase_ref": "P02",
+      "parent_feature": "feat-feedback-capture-self-exclusion",
+      "depends_on": [
+        "SYS-FB-CAPTURE-EXCLUSION-P01"
+      ],
+      "title": "撮影と送信 UI 可視化を別の時点へ分ける設計の確定",
+      "description": "dev-graph P02 projection: tasks/feat-feedback-capture-self-exclusion/sys-fb-capture-exclusion-p02.md (feature-package/feat-feedback-capture-self-exclusion)"
+    },
+    {
+      "graph_node_id": "SYS-FB-CAPTURE-EXCLUSION-P03",
+      "phase_ref": "P03",
+      "parent_feature": "feat-feedback-capture-self-exclusion",
+      "depends_on": [
+        "SYS-FB-CAPTURE-EXCLUSION-P02"
+      ],
+      "title": "設計の独立レビューと退避経路の妥当性判定",
+      "description": "dev-graph P03 projection: tasks/feat-feedback-capture-self-exclusion/sys-fb-capture-exclusion-p03.md (feature-package/feat-feedback-capture-self-exclusion)"
+    },
+    {
+      "graph_node_id": "SYS-FB-CAPTURE-EXCLUSION-P04",
+      "phase_ref": "P04",
+      "parent_feature": "feat-feedback-capture-self-exclusion",
+      "depends_on": [
+        "SYS-FB-CAPTURE-EXCLUSION-P03"
+      ],
+      "title": "写り込み検査と退避経路のテスト設計",
+      "description": "dev-graph P04 projection: tasks/feat-feedback-capture-self-exclusion/sys-fb-capture-exclusion-p04.md (feature-package/feat-feedback-capture-self-exclusion)"
+    },
+    {
+      "graph_node_id": "SYS-FB-CAPTURE-EXCLUSION-P05",
+      "phase_ref": "P05",
+      "parent_feature": "feat-feedback-capture-self-exclusion",
+      "depends_on": [
+        "SYS-FB-CAPTURE-EXCLUSION-P04"
+      ],
+      "title": "撮影中だけ送信 UI を写しの対象から外す実装",
+      "description": "dev-graph P05 projection: tasks/feat-feedback-capture-self-exclusion/sys-fb-capture-exclusion-p05.md (feature-package/feat-feedback-capture-self-exclusion)"
+    },
+    {
+      "graph_node_id": "SYS-FB-CAPTURE-EXCLUSION-P06",
+      "phase_ref": "P06",
+      "parent_feature": "feat-feedback-capture-self-exclusion",
+      "depends_on": [
+        "SYS-FB-CAPTURE-EXCLUSION-P05"
+      ],
+      "title": "写り込み検査と回帰テストの実行と緑化",
+      "description": "dev-graph P06 projection: tasks/feat-feedback-capture-self-exclusion/sys-fb-capture-exclusion-p06.md (feature-package/feat-feedback-capture-self-exclusion)"
+    },
+    {
+      "graph_node_id": "SYS-FB-CAPTURE-EXCLUSION-P07",
+      "phase_ref": "P07",
+      "parent_feature": "feat-feedback-capture-self-exclusion",
+      "depends_on": [
+        "SYS-FB-CAPTURE-EXCLUSION-P06"
+      ],
+      "title": "受入7件の受入判定",
+      "description": "dev-graph P07 projection: tasks/feat-feedback-capture-self-exclusion/sys-fb-capture-exclusion-p07.md (feature-package/feat-feedback-capture-self-exclusion)"
+    },
+    {
+      "graph_node_id": "SYS-FB-CAPTURE-EXCLUSION-P08",
+      "phase_ref": "P08",
+      "parent_feature": "feat-feedback-capture-self-exclusion",
+      "depends_on": [
+        "SYS-FB-CAPTURE-EXCLUSION-P07"
+      ],
+      "title": "浮遊要素の属性統一と重なり監査との共通化",
+      "description": "dev-graph P08 projection: tasks/feat-feedback-capture-self-exclusion/sys-fb-capture-exclusion-p08.md (feature-package/feat-feedback-capture-self-exclusion)"
+    },
+    {
+      "graph_node_id": "SYS-FB-CAPTURE-EXCLUSION-P09",
+      "phase_ref": "P09",
+      "parent_feature": "feat-feedback-capture-self-exclusion",
+      "depends_on": [
+        "SYS-FB-CAPTURE-EXCLUSION-P08"
+      ],
+      "title": "品質保証と非機能の確認",
+      "description": "dev-graph P09 projection: tasks/feat-feedback-capture-self-exclusion/sys-fb-capture-exclusion-p09.md (feature-package/feat-feedback-capture-self-exclusion)"
+    },
+    {
+      "graph_node_id": "SYS-FB-CAPTURE-EXCLUSION-P10",
+      "phase_ref": "P10",
+      "parent_feature": "feat-feedback-capture-self-exclusion",
+      "depends_on": [
+        "SYS-FB-CAPTURE-EXCLUSION-P09"
+      ],
+      "title": "最終レビューと反映漏れの判定",
+      "description": "dev-graph P10 projection: tasks/feat-feedback-capture-self-exclusion/sys-fb-capture-exclusion-p10.md (feature-package/feat-feedback-capture-self-exclusion)"
+    },
+    {
+      "graph_node_id": "SYS-FB-CAPTURE-EXCLUSION-P11",
+      "phase_ref": "P11",
+      "parent_feature": "feat-feedback-capture-self-exclusion",
+      "depends_on": [
+        "SYS-FB-CAPTURE-EXCLUSION-P10"
+      ],
+      "title": "証跡の収集と保全",
+      "description": "dev-graph P11 projection: tasks/feat-feedback-capture-self-exclusion/sys-fb-capture-exclusion-p11.md (feature-package/feat-feedback-capture-self-exclusion)"
+    },
+    {
+      "graph_node_id": "SYS-FB-CAPTURE-EXCLUSION-P12",
+      "phase_ref": "P12",
+      "parent_feature": "feat-feedback-capture-self-exclusion",
+      "depends_on": [
+        "SYS-FB-CAPTURE-EXCLUSION-P11"
+      ],
+      "title": "仕様書と運用手順の追補",
+      "description": "dev-graph P12 projection: tasks/feat-feedback-capture-self-exclusion/sys-fb-capture-exclusion-p12.md (feature-package/feat-feedback-capture-self-exclusion)"
+    },
+    {
+      "graph_node_id": "SYS-FB-CAPTURE-EXCLUSION-P13",
+      "phase_ref": "P13",
+      "parent_feature": "feat-feedback-capture-self-exclusion",
+      "depends_on": [
+        "SYS-FB-CAPTURE-EXCLUSION-P12"
+      ],
+      "title": "dev への反映と公開",
+      "description": "dev-graph P13 projection: tasks/feat-feedback-capture-self-exclusion/sys-fb-capture-exclusion-p13.md (feature-package/feat-feedback-capture-self-exclusion)"
+    }
+  ]
+}

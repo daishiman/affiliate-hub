@@ -1,16 +1,18 @@
 import type {
   ChannelConnectorPort,
+  ChannelConnectorProviderPort,
   ChannelPublishInput,
   ChannelPublishResult,
   ManualExportPort,
   SecretResolverPort,
 } from "@/application/ports";
-import type { ChannelKind } from "@/domain/distribution";
+import type { ChannelConnection, ChannelKind } from "@/domain/distribution";
 import { CHANNEL_CAPABILITIES, supportsDirectPublish } from "@/domain/distribution";
 import { domainError, err, ok } from "@/domain/shared";
 import type { DomainError, Result } from "@/domain/shared";
 import { registerStub, stubCall } from "../stub-registry";
 import { createManualExport } from "./manual-export";
+import { createBlueskyConnector } from "./bluesky";
 
 /**
  * 配信チャネルの登録所。
@@ -23,7 +25,10 @@ import { createManualExport } from "./manual-export";
  */
 export type ChannelConnectorContext = {
   readonly credentialRef: string | null;
+  readonly expectedProviderIdentity?: string | null;
   readonly secrets: SecretResolverPort;
+  readonly fetch?: typeof globalThis.fetch;
+  readonly now?: () => Date;
 };
 
 type ConnectorFactory = (ctx: ChannelConnectorContext) => ChannelConnectorPort;
@@ -49,6 +54,13 @@ function createStubConnector(
 
   return {
     kind,
+    resolveIdentity: () =>
+      stubCall<{ readonly providerIdentity: string; readonly accountLabel: string }>(
+        entry,
+        "resolveIdentity",
+      ),
+    checkReadiness: () => stubCall<true>(entry, "checkReadiness"),
+    prepareDeliveryKey: () => stubCall<string>(entry, "prepareDeliveryKey"),
     publish: () => stubCall<ChannelPublishResult>(entry, "publish"),
     unpublish: () => stubCall<true>(entry, "unpublish"),
     /**
@@ -81,14 +93,14 @@ const FACTORIES: Readonly<Record<ChannelKind, ConnectorFactory>> = {
    * `publish_article_to_own_site` を呼ぶと、D1 の published_articles に保存され、
    * 読者ページ (src/app/s/[site]/) に出る。
    *
-   * ここが残っているのは、この口が受け持つ**予約投稿と取り下げ**のため。
-   * 「出す」だけ本物に見せて、取り下げが黙って成功すると、
-   * 消したつもりの記事が読者に見え続ける。だから失敗を返し続ける。
+   * 記事本文の即時公開と取り下げは Content のユースケースで実装済み。
+   * ここが残っているのは、予約時刻に実行して Publication 状態へ結果を同期する
+   * connector worker のためであり、接続登録だけでは動かない。
    */
   own_site: (ctx) =>
     createStubConnector(
       "own_site",
-      "予約投稿と取り下げ（公開済みの記事を読者ページから外す道）の実装が必要。出すだけなら配信の画面から今できる",
+      "予約時刻の実行とPublication状態の同期が必要。記事本文の即時公開・取り下げはContent側で実装済み",
       ctx,
     ),
   x: (ctx) => createStubConnector("x", "X API の有料プラン契約とアプリ登録が必要", ctx),
@@ -97,10 +109,12 @@ const FACTORIES: Readonly<Record<ChannelKind, ConnectorFactory>> = {
   youtube: (ctx) => createStubConnector("youtube", "YouTube Data API のクォータ申請が必要", ctx),
   tiktok: (ctx) => createStubConnector("tiktok", "TikTok Content Posting API の審査が必要", ctx),
   threads: (ctx) => createStubConnector("threads", "Threads API のアプリ登録が必要", ctx),
+  facebook: (ctx) =>
+    createStubConnector("facebook", "Facebook ページの連携と Graph API のアプリ審査が必要", ctx),
   note: (ctx) => createStubConnector("note", "note に公開された投稿用 API は存在しない。書き出しのみを提供する", ctx),
   newsletter: (ctx) => createStubConnector("newsletter", "配信基盤 (メール送信) の選定が必要", ctx),
   wordpress: (ctx) => createStubConnector("wordpress", "接続先サイトの REST API とアプリケーションパスワードが必要", ctx),
-  bluesky: (ctx) => createStubConnector("bluesky", "Bluesky (AT Protocol) のアプリパスワード発行が必要", ctx),
+  bluesky: (ctx) => createBlueskyConnector(ctx),
 };
 
 /**
@@ -125,9 +139,36 @@ export function createChannelConnector(
   return ok(FACTORIES[kind](ctx));
 }
 
-/** 公式 API が無いチャネル向けの書き出し。 */
-export function createChannelExporter(kind: ChannelKind): ManualExportPort {
-  return createManualExport(kind);
+/** 接続行を唯一の入力にして、kindとcredentialRefを取り違えないcomposition。 */
+export function createChannelConnectorProvider(
+  context: Omit<ChannelConnectorContext, "credentialRef">,
+): ChannelConnectorProviderPort {
+  const cache = new Map<string, ChannelConnectorPort>();
+  function forConnection(connection: ChannelConnection) {
+    const cacheKey = `${connection.id}:${connection.kind}:${connection.providerIdentity ?? "unbound"}:${connection.credentialRef ?? "none"}`;
+    const cached = cache.get(cacheKey);
+    if (cached !== undefined) return ok(cached);
+    const created = createChannelConnector(connection.kind, {
+      ...context,
+      credentialRef: connection.credentialRef,
+      expectedProviderIdentity: connection.providerIdentity,
+    });
+    if (created.ok) cache.set(cacheKey, created.value);
+    return created;
+  }
+  return {
+    forConnection,
+  };
+}
+
+/**
+ * 公式 API が無いチャネル向けの書き出し。
+ *
+ * 出し先の種類は書き出すときに渡す。1 つの窓口で全部の種類を扱えるので、
+ * 組み立て役（composition）は配信 1 件ごとに作り直さなくてよい。
+ */
+export function createChannelExporter(): ManualExportPort {
+  return createManualExport();
 }
 
 /** 画面の選択肢。表示名も出し方もドメインの能力表から取る。 */

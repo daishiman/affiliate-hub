@@ -1,0 +1,183 @@
+{
+  "schema": "dev-graph-requirements-handoff/v1",
+  "handoff_target": "task-graph",
+  "feature_id": "feat-blog-ui-builder",
+  "feature_package_id": "feature-package/feat-blog-ui-builder",
+  "graph_snapshot_digest": "sha256:6603c7a9867f573bd27c980e047a15a0858f7e4bf6e07136e2fde8b9208f5231",
+  "graph_revision": 303,
+  "requirements_document": "docs/requirements/feat-blog-ui-builder-implementation-requirements.md",
+  "requirements_document_sha256": "3ae18afcd360346f709eb03264b7fa11dc682cf0159ce3f155a0864ad07bb98a",
+  "promoted_generation": ".dev-graph/published/generations/feature-package-feat-blog-ui-builder/168ac050680f91d58ce05948b6b0d3618f062ec304dfdb901713e98bdaa84c48",
+  "promoted_generation_digest": "sha256:168ac050680f91d58ce05948b6b0d3618f062ec304dfdb901713e98bdaa84c48",
+  "lineage_closure": [
+    "SYS-BLOG-UI-BUILDER-P01",
+    "SYS-BLOG-UI-BUILDER-P02",
+    "SYS-BLOG-UI-BUILDER-P03",
+    "SYS-BLOG-UI-BUILDER-P04",
+    "SYS-BLOG-UI-BUILDER-P05",
+    "SYS-BLOG-UI-BUILDER-P06",
+    "SYS-BLOG-UI-BUILDER-P07",
+    "SYS-BLOG-UI-BUILDER-P08",
+    "SYS-BLOG-UI-BUILDER-P09",
+    "SYS-BLOG-UI-BUILDER-P10",
+    "SYS-BLOG-UI-BUILDER-P11",
+    "SYS-BLOG-UI-BUILDER-P12",
+    "SYS-BLOG-UI-BUILDER-P13",
+    "arch-system-spec-overview",
+    "arch-two-layer-platform",
+    "feat-blog-ui-builder"
+  ],
+  "readiness": {
+    "status": "complete",
+    "missing_sections": [],
+    "remediation_owner": null
+  },
+  "gates": {
+    "C11_validate_graph_schema": {
+      "command": "validate-graph-schema.py --graph .dev-graph/state/graph.json --repo-root .",
+      "exit": 0,
+      "valid": true,
+      "violations": 0
+    },
+    "C02_saved_state": {
+      "implementation_readiness": "complete",
+      "evaluation_status": "pass",
+      "confirmation_status": "confirmed",
+      "scope": "closure 16 node"
+    },
+    "source_digest": {
+      "command": "validate-source-digest.py --repo-root . --registered <lineage closure 16 node>",
+      "exit": 0,
+      "checked": 16,
+      "registered_mismatch": 0
+    },
+    "validate_system_plan": {
+      "command": "validate-system-plan.py --repo-root . --feature-package feature-package/feat-blog-ui-builder",
+      "exit": 0,
+      "status": "pass",
+      "violations": 0,
+      "validated_digest": "sha256:168ac050680f91d58ce05948b6b0d3618f062ec304dfdb901713e98bdaa84c48"
+    }
+  },
+  "tasks": [
+    {
+      "graph_node_id": "SYS-BLOG-UI-BUILDER-P01",
+      "phase_ref": "P01",
+      "file_path": "tasks/feat-blog-ui-builder/sys-blog-ui-builder-p01.md",
+      "tracker_binding": "beads",
+      "depends_on": []
+    },
+    {
+      "graph_node_id": "SYS-BLOG-UI-BUILDER-P02",
+      "phase_ref": "P02",
+      "file_path": "tasks/feat-blog-ui-builder/sys-blog-ui-builder-p02.md",
+      "tracker_binding": "beads",
+      "depends_on": [
+        "SYS-BLOG-UI-BUILDER-P01"
+      ]
+    },
+    {
+      "graph_node_id": "SYS-BLOG-UI-BUILDER-P03",
+      "phase_ref": "P03",
+      "file_path": "tasks/feat-blog-ui-builder/sys-blog-ui-builder-p03.md",
+      "tracker_binding": "beads",
+      "depends_on": [
+        "SYS-BLOG-UI-BUILDER-P02"
+      ]
+    },
+    {
+      "graph_node_id": "SYS-BLOG-UI-BUILDER-P04",
+      "phase_ref": "P04",
+      "file_path": "tasks/feat-blog-ui-builder/sys-blog-ui-builder-p04.md",
+      "tracker_binding": "beads",
+      "depends_on": [
+        "SYS-BLOG-UI-BUILDER-P03"
+      ]
+    },
+    {
+      "graph_node_id": "SYS-BLOG-UI-BUILDER-P05",
+      "phase_ref": "P05",
+      "file_path": "tasks/feat-blog-ui-builder/sys-blog-ui-builder-p05.md",
+      "tracker_binding": "beads",
+      "depends_on": [
+        "SYS-BLOG-UI-BUILDER-P04"
+      ]
+    },
+    {
+      "graph_node_id": "SYS-BLOG-UI-BUILDER-P06",
+      "phase_ref": "P06",
+      "file_path": "tasks/feat-blog-ui-builder/sys-blog-ui-builder-p06.md",
+      "tracker_binding": "beads",
+      "depends_on": [
+        "SYS-BLOG-UI-BUILDER-P05"
+      ]
+    },
+    {
+      "graph_node_id": "SYS-BLOG-UI-BUILDER-P07",
+      "phase_ref": "P07",
+      "file_path": "tasks/feat-blog-ui-builder/sys-blog-ui-builder-p07.md",
+      "tracker_binding": "beads",
+      "depends_on": [
+        "SYS-BLOG-UI-BUILDER-P06"
+      ]
+    },
+    {
+      "graph_node_id": "SYS-BLOG-UI-BUILDER-P08",
+      "phase_ref": "P08",
+      "file_path": "tasks/feat-blog-ui-builder/sys-blog-ui-builder-p08.md",
+      "tracker_binding": "beads",
+      "depends_on": [
+        "SYS-BLOG-UI-BUILDER-P05"
+      ]
+    },
+    {
+      "graph_node_id": "SYS-BLOG-UI-BUILDER-P09",
+      "phase_ref": "P09",
+      "file_path": "tasks/feat-blog-ui-builder/sys-blog-ui-builder-p09.md",
+      "tracker_binding": "beads",
+      "depends_on": [
+        "SYS-BLOG-UI-BUILDER-P08"
+      ]
+    },
+    {
+      "graph_node_id": "SYS-BLOG-UI-BUILDER-P10",
+      "phase_ref": "P10",
+      "file_path": "tasks/feat-blog-ui-builder/sys-blog-ui-builder-p10.md",
+      "tracker_binding": "beads",
+      "depends_on": [
+        "SYS-BLOG-UI-BUILDER-P09"
+      ]
+    },
+    {
+      "graph_node_id": "SYS-BLOG-UI-BUILDER-P11",
+      "phase_ref": "P11",
+      "file_path": "tasks/feat-blog-ui-builder/sys-blog-ui-builder-p11.md",
+      "tracker_binding": "beads",
+      "depends_on": [
+        "SYS-BLOG-UI-BUILDER-P07",
+        "SYS-BLOG-UI-BUILDER-P09"
+      ]
+    },
+    {
+      "graph_node_id": "SYS-BLOG-UI-BUILDER-P12",
+      "phase_ref": "P12",
+      "file_path": "tasks/feat-blog-ui-builder/sys-blog-ui-builder-p12.md",
+      "tracker_binding": "beads",
+      "depends_on": [
+        "SYS-BLOG-UI-BUILDER-P10",
+        "SYS-BLOG-UI-BUILDER-P11"
+      ]
+    },
+    {
+      "graph_node_id": "SYS-BLOG-UI-BUILDER-P13",
+      "phase_ref": "P13",
+      "file_path": "tasks/feat-blog-ui-builder/sys-blog-ui-builder-p13.md",
+      "tracker_binding": "beads",
+      "depends_on": [
+        "SYS-BLOG-UI-BUILDER-P12"
+      ]
+    }
+  ],
+  "implementation_code_generated": 0,
+  "emitted_at": "2026-08-28T13:52:39Z"
+}

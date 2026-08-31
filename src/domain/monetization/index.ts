@@ -6,7 +6,9 @@
  * 依存方向テスト (tests/architecture) で失敗する。
  */
 export * from "./affiliate-link";
+export * from "./affiliate-preview";
 export * from "./affiliate-program";
 export * from "./conversion";
 export * from "./link-ingestion";
+export * from "./product-snapshot";
 export * from "./tracking-link";

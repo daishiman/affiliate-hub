@@ -9,12 +9,17 @@ import {
   createListProductLinksUseCase,
 } from "@/application/usecases/monetization/manage-affiliate";
 import {
+  createDisableAffiliateLinkUseCase,
+  createListAffiliateLinksUseCase,
+} from "@/application/usecases/monetization/manage-affiliate-links";
+import {
   createListLinkInboxUseCase,
   createMatchLinkIngestionUseCase,
   createRejectLinkIngestionUseCase,
   createResolveLinkIngestionUseCase,
   createSubmitAffiliateUrlUseCase,
 } from "@/application/usecases/monetization/manage-link-inbox";
+import { createRegisterAffiliateLinkUseCase } from "@/application/usecases/monetization/register-affiliate-link";
 import { defineTool } from "./define-tool";
 import type { AnyToolDefinition } from "./tool-definition";
 
@@ -84,6 +89,32 @@ export function affiliateTools(deps: AppDeps): readonly AnyToolDefinition[] {
       schema: z.object({ productId: z.string().min(1) }),
       readOnly: true,
       useCase: createListProductLinksUseCase(affiliate),
+    }),
+    defineTool({
+      name: "list_affiliate_links",
+      description:
+        "登録済みの成果リンクを、読者に出ている商品名と状態（出ている・止めた・期限切れ）つきで返します。ASP が発行した URL は接続先だけを返し、全体は返しません。",
+      schema: z.object({}),
+      readOnly: true,
+      useCase: createListAffiliateLinksUseCase(affiliate),
+    }),
+    defineTool({
+      name: "disable_affiliate_link",
+      /*
+        **人の操作でのみ実行できる。** 止めると読者に出なくなり、元へは戻せない
+        （戻すには新しいリンクとして登録し直す）。AI が「表記が古そうだ」と
+        判断して止められると、実際には正しかったリンクが消え、
+        記事から成果リンクが静かに減っていく。減ったことは画面に出ない。
+      */
+      description:
+        "登録済みの成果リンクを止めます。記事に貼ったままでも公開のときに読者へ出なくなります。行は消えないので、いつまで出ていたかは後から辿れます。元へは戻せません。理由は必須で、記録に残ります。人の操作でのみ実行できます。",
+      schema: z.object({
+        affiliateLinkId: z.string().min(1),
+        reason: z.string().min(1),
+      }),
+      readOnly: false,
+      requiresHumanApproval: true,
+      useCase: createDisableAffiliateLinkUseCase(affiliate),
     }),
     defineTool({
       name: "adjust_conversion_reward",
@@ -169,6 +200,26 @@ function linkInboxTools(deps: AppDeps): readonly AnyToolDefinition[] {
       readOnly: false,
       requiresHumanApproval: true,
       useCase: createMatchLinkIngestionUseCase(inbox),
+    }),
+    defineTool({
+      name: "register_affiliate_link",
+      description:
+        "商品まで決まった受信箱のリンクを、記事に出せる成果リンクとして登録します。商品名は ASP の管理画面の表記をそのまま指定し、人が確認して実行します。",
+      schema: z.object({
+        linkIngestionId: z.string().min(1),
+        productName: z.string().min(1),
+        brand: z.string().optional(),
+        oneLine: z.string().optional(),
+      }),
+      readOnly: false,
+      requiresHumanApproval: true,
+      useCase: createRegisterAffiliateLinkUseCase({
+        inbox: deps.linkInbox,
+        links: deps.affiliateLinks,
+        ids: deps.ids,
+        auditLog: deps.auditLog,
+        now: () => new Date(),
+      }),
     }),
     defineTool({
       name: "reject_link_ingestion",

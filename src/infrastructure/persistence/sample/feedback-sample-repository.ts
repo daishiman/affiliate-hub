@@ -11,7 +11,10 @@ import {
   createFeedbackReport,
   hasBeenHandedOff,
   isCaptureExpired,
+  isDiagnosticsExpired,
+  isDiagnosticsPurged,
   markUsed,
+  purgeDiagnostics,
 } from "@/domain/feedback";
 import {
   asFeedbackReportId,
@@ -179,11 +182,39 @@ export function createSampleFeedbackRepository(): FeedbackRepositoryPort {
       return ok(found);
     },
 
+    async findByCaptureId(workspaceId, captureId) {
+      const found = [...reports.values()].find(
+        (report) =>
+          report.workspaceId === workspaceId &&
+          report.captureId !== null &&
+          String(report.captureId) === String(captureId),
+      );
+      return ok(found ?? null);
+    },
+
     async list(workspaceId, filter) {
       const rows = [...reports.values()].filter(
         (r) => r.workspaceId === workspaceId && matches(r, filter),
       );
       return ok(rows);
+    },
+
+    async purgeExpiredDiagnostics(workspaceId, now) {
+      // 見本でも本物と同じ判定を使う。ここで自前に書くと、
+      // 期限の境目が 2 通りになり、どちらが正しいか決められなくなる。
+      let purged = 0;
+      for (const report of reports.values()) {
+        if (report.workspaceId !== workspaceId) continue;
+        if (!isDiagnosticsExpired(report.submittedAt, now)) continue;
+        if (isDiagnosticsPurged(report.technical)) continue;
+        reports.set(String(report.id), {
+          ...report,
+          technical: purgeDiagnostics(report.technical, now),
+        });
+        purged += 1;
+      }
+      // 見本は件数が小さいので、1 回で必ず終わる。
+      return ok({ purged, finished: true });
     },
   };
 }

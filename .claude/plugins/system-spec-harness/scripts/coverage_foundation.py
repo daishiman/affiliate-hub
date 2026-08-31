@@ -236,6 +236,40 @@ def validate_decisions(data: dict, goal_ids: set[str]) -> list[str]:
     return findings
 
 
+def _heading_only_quotes(rf: dict) -> list[str]:
+    """封済み出典のうち、引用が見出し 1 行だけのものを列挙する。
+
+    **見出しは必ず逐語で本文に在る。**封の検査 (`seal-foundation-sources`) は
+    「引用が本文に literal で在ること」を見るので、見出しを貼れば無条件で通る。
+    ところが見出しは節の名前であって主張ではない——`## 30.8 追跡可能性` は
+    追跡可能性という語を置くだけで、何が追跡できるとも言っていない。
+    **支えになり得ないものが、支えとして封をされていた。**
+
+    writer 側 (`_quote_asserts_nothing`) はこれから封をするものを止める。
+    こちらは**既に封をされているもの**を見る。writer だけに置くと、穴が開いて
+    いたあいだに入った封は誰にも見つからないまま残る。
+
+    実測 2026-08-25 (独立監査 R6-audit-hearing の指摘を照合し確認): 封済み 23 件中
+    5 件が該当していた。値そのものは節の本文に支えられており創作ではないが、
+    引用がその支えを運んでいなかった。
+    """
+    provenance = rf.get("provenance")
+    if not isinstance(provenance, dict):
+        return []
+    flagged: list[str] = []
+    for record in provenance.get("field_sources") or []:
+        if not isinstance(record, dict) or record.get("kind") != "written-requirements":
+            continue
+        quote = str(record.get("quote") or "").strip()
+        if re.match(r"^#{1,6}\s", quote) and "\n" not in quote:
+            flagged.append(
+                f"requirements_foundation.provenance: {record.get('field')!r} の引用が"
+                f"見出し 1 行だけ ({quote!r})。見出しは節の名前であって主張ではないため、"
+                "値の根拠になり得ない。その節の主張している行を引き直すこと"
+            )
+    return flagged
+
+
 def validate_foundation(data: dict) -> list[str]:
     """上位概念 (requirements_foundation) と serves_goals トレースを検証する (要件 C9・anti-drift)。
 
@@ -254,6 +288,8 @@ def validate_foundation(data: dict) -> list[str]:
             "requirements_foundation: オブジェクトが存在しない (上位概念 U1-U9 が未抽出)"
         )
         return findings
+
+    findings += _heading_only_quotes(rf)
 
     # (a) U1-U9 が値あり、または明示 N/A+理由
     goal_ids: list[str] = []

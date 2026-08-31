@@ -11,12 +11,12 @@ import type { PublishedArticle } from "@/application/read-models/published-artic
 let updateResult: unknown = { status: "idle", message: "" };
 let archiveResult: unknown = { status: "idle", message: "" };
 
-vi.mock("@/presentation/admin/published-article-action", () => ({
+vi.mock("@/presentation/admin/publish/published-article-action", () => ({
   updatePublishedArticleAction: async () => updateResult,
   archivePublishedArticleAction: async () => archiveResult,
 }));
 
-const { PublishedArticleForm } = await import("@/presentation/admin/published-article-form");
+const { PublishedArticleForm } = await import("@/presentation/admin/publish/published-article-form");
 const { useDraft } = await import("@/presentation/ui/patterns/use-draft");
 
 const ARTICLE: PublishedArticle = {
@@ -169,7 +169,7 @@ function DraftHarness({ draftKey, ttl = 1_000 }: { draftKey: string; ttl?: numbe
       </label>
       <button type="button" onClick={draft.clear}>消す</button>
       <output>{draft.restored ? "復元" : "初期"}</output>
-      <output>{draft.savedAt === null ? "未保存" : "保存済み"}</output>
+      <output>{draft.draftSavedAt === null ? "未保存" : "保存済み"}</output>
     </>
   );
 }

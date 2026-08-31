@@ -1,19 +1,20 @@
 {
- "target_id": "apple-hig",
- "source_url": "https://developer.apple.com/design/human-interface-guidelines",
- "retrieved_at": "2026-08-19T15:30:40Z",
- "http_status": 200,
- "content_bytes": 17681,
- "content_sha256": "7367359951847c16af1772013a4aee1f7ab4b4ca59f1f6b7902e875a65de53c0",
- "page_title": "Human Interface Guidelines | Apple Developer Documentation",
- "freshness_extraction": {
-  "freshness_source": "http-last-modified",
-  "value": "2026-08-06",
-  "found_in": [
-   "HTTP ヘッダ Last-Modified: Thu, 06 Aug 2026 02:58:13 GMT"
-  ],
-  "body_declares_date": false,
-  "body_search_method": "本文 17681 bytes 全体に対し 3 通りで探した: (1) 4 桁年トークン (19|20)[0-9]{2} の全抽出 → 2000 が 7 件、全て http://www.w3.org/2000/svg の namespace URI。(2) 日付語彙 (updated/revised/modified/published/copyright/月名/最終更新/更新日) → 0 件。(3) 構造化日付 (<time>, <meta ...date...>, JSON-LD \"*Date\") → 0 件。(1) が上限を与える: 年を含まない更新日は記録できないので、年トークンの全抽出はあらゆる日付表明の上位集合である。陰性対照: 同じ 3 通りを cloudflare-workers/d1 へ適用すると dateModified と <time> を検出するので、探し方は動いている。",
-  "note": "HTTP ヘッダは配信側の都合で動くため内容の更新日とは限らない。2026-08-16 取得分と content_sha256 が一致しており、内容は 3 日間変わっていない。"
- }
+  "target_id": "apple-hig",
+  "source_url": "https://developer.apple.com/design/human-interface-guidelines/design-principles",
+  "retrieved_at": "2026-08-29T23:02:28Z",
+  "http_status": 200,
+  "content_bytes": 17660,
+  "content_sha256": "ccd1a06a2ce9a93eb678589f9dfde444a2abcda1cc7d21de76e1913ca431296b",
+  "page_title": "Design principles | Apple Developer Documentation",
+  "retrieval_method": "official page HTTP fetch (Accept-Encoding: identity)",
+  "freshness_extraction": {
+    "freshness_source": "page-declared",
+    "value": "2026-06-08",
+    "found_in": [
+      "Apple 公式ページの公開表示: June 8, 2026",
+      "Apple 公式ページの変更表示: Reintroduced design principles."
+    ],
+    "body_search_method": "Apple Developer Documentation の公式検索本文で公開日と変更内容を確認し、同じ公式 URL を WebFetch した。",
+    "note": "HIG 入口の Last-Modified は独立監査で再現できなかったため、ページ自身が表明し第三者が再照合できる Design principles の公開日へ根拠を切り替えた。"
+  }
 }

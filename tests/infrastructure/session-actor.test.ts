@@ -1,11 +1,15 @@
-/** @tier 1 */
+/** @tier 1 @req REQ-S10 */
 import { describe, expect, it } from "vitest";
 import {
   createD1SessionReader,
   hashSessionToken,
   type SessionReaderPort,
 } from "@/infrastructure/identity/session-repository";
-import { createSessionActorResolver } from "@/infrastructure/identity/session-actor";
+import {
+  createSessionActorResolver,
+  selectAdminReadActor,
+} from "@/infrastructure/identity/session-actor";
+import { SAMPLE_ACTOR } from "@/infrastructure/identity/sample-actor";
 import type { DrizzleD1 } from "@/infrastructure/persistence/d1/link-inbox-repository";
 import type { MembershipRepositoryPort } from "@/application/ports/identity";
 import type { SessionRow } from "@/db/schema";
@@ -56,7 +60,9 @@ function membershipRepo(membership: Membership | null): MembershipRepositoryPort
   return {
     findById: async () => ok(null),
     findByUser: async () => ok(membership),
+    findByInvitedEmail: async () => ok(membership),
     list: async () => ok({ items: [], nextCursor: null }),
+    countCurrent: async () => ok(membership === null || membership.revokedAt !== null ? 0 : 1),
     save: async (m) => ok(m),
     findOwner: async () => ok(null),
   };
@@ -67,6 +73,7 @@ function membership(over: Partial<Membership> = {}): Membership {
     id: asUserId("m_1") as unknown as Membership["id"],
     workspaceId: WS,
     userId: USER,
+    invitedEmail: "member@example.com",
     roles: ["writer"] as readonly Role[],
     scopedBrandIds: [],
     displayName: "見本 太郎",
@@ -158,7 +165,47 @@ describe("合言葉から「いま操作している人」を決める", () => {
     expect(result.kind).toBe("actor");
     if (result.kind !== "actor") return;
     expect(result.actor.roles).toEqual(["reviewer", "publisher"]);
+    expect(result.actor.scopedBrandIds.map(String)).toEqual([]);
     expect(result.actor.isAiServiceAccount).toBe(false);
+  });
+
+  it("担当ブランドの範囲も、担当者の登録から身元へ引き継ぐ", async () => {
+    const resolve = createSessionActorResolver({
+      sessions: validSessions,
+      memberships: membershipRepo(
+        membership({ scopedBrandIds: ["brand-a", "brand-b"] as never }),
+      ),
+      now: () => NOW,
+    });
+    const result = await resolve("t");
+    expect(result.kind).toBe("actor");
+    if (result.kind !== "actor") return;
+    expect(result.actor.scopedBrandIds.map(String)).toEqual(["brand-a", "brand-b"]);
+  });
+
+  it("別の作業場所の担当者を返されても、その役割を借りない", async () => {
+    const resolve = createSessionActorResolver({
+      sessions: validSessions,
+      memberships: membershipRepo(
+        membership({
+          workspaceId: asWorkspaceId("ws_other") as WorkspaceId,
+          roles: ["publisher"],
+        }),
+      ),
+      now: () => NOW,
+    });
+    expect((await resolve("t")).kind).toBe("not_member");
+  });
+
+  it("別の利用者の担当者を返されても、その役割を借りない", async () => {
+    const resolve = createSessionActorResolver({
+      sessions: validSessions,
+      memberships: membershipRepo(
+        membership({ userId: asUserId("u_other") as UserId, roles: ["publisher"] }),
+      ),
+      now: () => NOW,
+    });
+    expect((await resolve("t")).kind).toBe("not_member");
   });
 
   it("担当を外された人は、合言葉が生きていても操作できない", async () => {
@@ -202,5 +249,17 @@ describe("合言葉から「いま操作している人」を決める", () => {
     // ここを anonymous にすると、保存先が落ちた瞬間に
     // 全員が「見本の権限」で動く状態になる。
     expect(result.kind).toBe("unavailable");
+  });
+});
+
+describe("管理画面の読み取りに渡す身元", () => {
+  it("未ログインの見本表示だけは保ち、失効・未所属を見本へ落とさない", () => {
+    expect(selectAdminReadActor({ kind: "anonymous" }, SAMPLE_ACTOR)).toBe(SAMPLE_ACTOR);
+    expect(
+      selectAdminReadActor({ kind: "not_member", userId: USER }, SAMPLE_ACTOR),
+    ).toBeNull();
+    expect(
+      selectAdminReadActor({ kind: "unavailable", reason: "D1 unavailable" }, SAMPLE_ACTOR),
+    ).toBeNull();
   });
 });

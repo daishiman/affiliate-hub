@@ -1,9 +1,19 @@
-import Link from "next/link";
-import type { ReactNode } from "react";
 import { AdminShell } from "@/presentation/admin/admin-shell";
 import { currentActor, telemetryNotice, telemetryUseCases } from "@/presentation/composition";
-import { Callout, Card, EmptyView, ErrorView, Page, StorageNotice } from "@/presentation/ui";
-import styles from "../admin.module.css";
+import {
+  ActionNote,
+  BarChart,
+  DataTable,
+  DecisionStatus,
+  EmptyView,
+  ErrorView,
+  ListView,
+  Note,
+  Section,
+  StorageNotice,
+  SummaryStrip,
+  TextLink,
+} from "@/presentation/ui";
 
 export const dynamic = "force-dynamic";
 
@@ -18,6 +28,9 @@ export const dynamic = "force-dynamic";
  * 数字と一緒に**その数字の限界**も出す。概算であること、
  * 価格未登録のモデルがあると少なく見えること。
  * 限界を書かない金額は、そのまま予算の根拠にされてしまう。
+ *
+ * 読み方の但し書きは `ActionNote` で出す。`Callout` にしないのは、
+ * 但し書きの件数が増えた日に、画面が注意書きだらけになるため。
  */
 export default async function AiUsagePage({
   searchParams,
@@ -32,120 +45,146 @@ export default async function AiUsagePage({
   const uc = await telemetryUseCases();
   const report = await uc.aiUsage.execute(actor, { days, siteSlug });
 
-  if (!report.ok) {
-    return (
-      <Shell>
+  /*
+   * 棒にするのは費用だけ。呼び出し回数やトークン数を同じ棒へ混ぜない。
+   * 単位が違うものを並べると、棒の長さだけが比べられそうに見えてしまう。
+   *
+   * 上位 8 件で切る。全件を棒にすると「どこに寄っているか」が
+   * 棒の本数に埋もれ、表と同じ読み方に戻ってしまう。
+   * 価格未登録の行は費用 0 として扱われるため、棒からは外す
+   * （0 の棒は「使っていない」に見えるが、実際は「値段が分からない」）。
+   */
+  const rows = report.ok ? report.value.rows : [];
+  const costPoints = rows
+    .filter((r) => r.priced && r.costJpy > 0)
+    .slice(0, 8)
+    .map((r) => ({
+      key: `${r.siteSlug}-${r.modelId}`,
+      label: `${r.siteSlug} / ${r.modelLabel}`,
+      value: r.costJpy,
+      valueLabel: r.costLabel,
+    }));
+  const unpricedCalls = rows.reduce((sum, r) => sum + r.unpricedCalls, 0);
+
+  return (
+    <AdminShell
+      routeId="ai-usage"
+      title="AI の利用と費用"
+      lead="どのモデルをどれだけ使ったかを見ます。"
+      actions={<TextLink href="/admin/analytics">数字を見る</TextLink>}
+    >
+      {!report.ok ? (
         <ErrorView
           title="AI の利用状況を出せませんでした"
           body={report.error.message}
           suggestedAction={report.error.suggestedAction ?? null}
-          action={<Link href="/admin">ホームへ戻る</Link>}
+          action={<TextLink href="/admin">ホームへ戻る</TextLink>}
         />
-      </Shell>
-    );
-  }
+      ) : (
+        <>
+          <StorageNotice status={await telemetryNotice()} />
 
-  const v = report.value;
+          <Section title={`直近 ${days} 日の合計`}>
+            <SummaryStrip
+              label={`直近 ${days} 日の合計`}
+              metrics={[
+                {
+                  key: "calls",
+                  label: "呼び出し",
+                  value: `${report.value.totalCalls.toLocaleString("ja-JP")}回`,
+                  meaning: `うち失敗 ${report.value.totalFailures}回。失敗が増えていれば、生成の設定かモデルの選び方を見直します。`,
+                },
+                {
+                  key: "cost",
+                  label: "概算費用",
+                  value: report.value.totalCostLabel,
+                  meaning: "請求額とは一致しません。予算の目安としてだけ使います。",
+                  action: (
+                    <DecisionStatus
+                      status={unpricedCalls > 0 ? "insufficient-n" : "provisional"}
+                      detail={
+                        unpricedCalls > 0
+                          ? `価格未登録のモデルが ${unpricedCalls.toLocaleString("ja-JP")} 回ぶんあり、実際より少なく見えています。`
+                          : "概算のため、請求が確定するまで値は変わります。"
+                      }
+                    />
+                  ),
+                },
+              ]}
+            />
+            {report.value.caveats.map((c) => (
+              <ActionNote key={c}>この数字の読み方: {c}</ActionNote>
+            ))}
+          </Section>
 
-  return (
-    <Shell>
-      <StorageNotice status={await telemetryNotice()} />
+          <Section title="ブログ × モデル">
+            {costPoints.length === 0 ? null : (
+              <BarChart
+                title="費用がどこに寄っているか"
+                unit="円（概算）"
+                period={`直近 ${days} 日`}
+                textSummary={`費用の多い順に上位 ${costPoints.length} 件。棒の長さは、いちばん高い組み合わせを 1 とした割合です。`}
+                pointValues={costPoints}
+              />
+            )}
+            {report.value.rows.length === 0 ? (
+              <EmptyView
+                title="この期間に AI の利用はありません"
+                body={
+                  report.value.emptyReason ??
+                  "記事を生成すると、ここに使ったモデルと費用が並びます。"
+                }
+                action={<TextLink href="/admin/generation">生成の仕組みを見る</TextLink>}
+              />
+            ) : (
+              <DataTable
+                caption="費用の多い順。同額のときはブログ名の順。"
+                columns={[
+                  { key: "site", label: "ブログ" },
+                  { key: "model", label: "モデル" },
+                  { key: "calls", label: "呼び出し", numeric: true },
+                  { key: "failures", label: "失敗", numeric: true },
+                  { key: "input", label: "入力トークン", numeric: true },
+                  { key: "output", label: "出力トークン", numeric: true },
+                  { key: "duration", label: "平均時間", numeric: true },
+                  { key: "cost", label: "概算費用", numeric: true },
+                ]}
+                rows={report.value.rows.map((r) => ({
+                  key: `${r.siteSlug}-${r.modelId}`,
+                  cells: [
+                    r.siteSlug,
+                    r.modelLabel,
+                    r.calls.toLocaleString("ja-JP"),
+                    String(r.failures),
+                    r.inputTokens.toLocaleString("ja-JP"),
+                    r.outputTokens.toLocaleString("ja-JP"),
+                    `${(r.avgDurationMs / 1000).toFixed(1)} 秒`,
+                    r.priced ? r.costLabel : "価格未登録",
+                  ],
+                }))}
+              />
+            )}
+            <Note>
+              プロンプトの本文と生成された文章は、この記録には含めていません。作られたものへの参照
+              ID だけを持っています。
+            </Note>
+          </Section>
 
-      <Card>
-        <h2 className={styles.sectionTitle}>直近 {days} 日の合計</h2>
-        <ul className={styles.linkList}>
-          <li>
-            呼び出し {v.totalCalls.toLocaleString("ja-JP")} 回
-            <span className={styles.linkNote}>うち失敗 {v.totalFailures} 回</span>
-          </li>
-          <li>
-            概算費用 {v.totalCostLabel}
-            <span className={styles.linkNote}>請求額とは一致しません</span>
-          </li>
-        </ul>
-        {v.caveats.map((c) => (
-          <Callout key={c} tone="info" title="この数字の読み方" reason={c} />
-        ))}
-      </Card>
-
-      <Card>
-        <h2 className={styles.sectionTitle}>ブログ × モデル</h2>
-        {v.rows.length === 0 ? (
-          <EmptyView
-            title="この期間に AI の利用はありません"
-            body={v.emptyReason ?? "記事を生成すると、ここに使ったモデルと費用が並びます。"}
-            action={<Link href="/admin/generation">生成の仕組みを見る</Link>}
-          />
-        ) : (
-          <table className={styles.rankTable}>
-            <caption>費用の多い順。同額のときはブログ名の順。</caption>
-            <thead>
-              <tr>
-                <th scope="col">ブログ</th>
-                <th scope="col">モデル</th>
-                <th scope="col">呼び出し</th>
-                <th scope="col">失敗</th>
-                <th scope="col">入力トークン</th>
-                <th scope="col">出力トークン</th>
-                <th scope="col">平均時間</th>
-                <th scope="col">概算費用</th>
-              </tr>
-            </thead>
-            <tbody>
-              {v.rows.map((r) => (
-                <tr key={`${r.siteSlug}-${r.modelId}`}>
-                  <th scope="row">{r.siteSlug}</th>
-                  <td>{r.modelLabel}</td>
-                  <td className={styles.numeric}>{r.calls.toLocaleString("ja-JP")}</td>
-                  <td className={styles.numeric}>{r.failures}</td>
-                  <td className={styles.numeric}>{r.inputTokens.toLocaleString("ja-JP")}</td>
-                  <td className={styles.numeric}>{r.outputTokens.toLocaleString("ja-JP")}</td>
-                  <td className={styles.numeric}>{(r.avgDurationMs / 1000).toFixed(1)} 秒</td>
-                  <td className={styles.numeric}>
-                    {r.priced ? r.costLabel : "価格未登録"}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
-        <p className={styles.linkNote}>
-          プロンプトの本文と生成された文章は、この記録には含めていません。作られたものへの参照
-          ID だけを持っています。
-        </p>
-      </Card>
-
-      <Card>
-        <h2 className={styles.sectionTitle}>期間を変える</h2>
-        <ul className={styles.linkList}>
-          {[7, 30, 90].map((d) => (
-            <li key={d}>
-              {d === days ? (
-                <span>直近 {d} 日（表示中）</span>
-              ) : (
-                <Link href={`/admin/ai-usage?days=${d}`}>直近 {d} 日を見る</Link>
+          <Section title="期間を変える">
+            <ListView
+              rows={[7, 30, 90].map((d) =>
+                d === days
+                  ? { key: String(d), label: `直近 ${d} 日（表示中）` }
+                  : {
+                      key: String(d),
+                      label: `直近 ${d} 日を見る`,
+                      href: `/admin/ai-usage?days=${d}`,
+                    },
               )}
-            </li>
-          ))}
-        </ul>
-      </Card>
-    </Shell>
-  );
-}
-
-function Shell({ children }: { readonly children: ReactNode }) {
-  return (
-    <AdminShell
-      currentPath="/admin/ai-usage"
-      breadcrumbs={[{ label: "ホーム", href: "/admin" }, { label: "AI の利用と費用" }]}
-      actions={<Link href="/admin/analytics">数字を見る</Link>}
-    >
-      <Page
-        title="AI の利用と費用"
-        lead="どのブログで、誰が、どのモデルをどれだけ使ったかを見る画面です。費用は概算で、請求額とは一致しません。"
-      >
-        {children}
-      </Page>
+            />
+          </Section>
+        </>
+      )}
     </AdminShell>
   );
 }

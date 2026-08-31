@@ -1,0 +1,26 @@
+{
+ "target_id": "stryker-mutator",
+ "source_url": "https://stryker-mutator.io/docs/stryker-js/introduction/",
+ "retrieved_at": "2026-08-22T21:18:38Z",
+ "http_status": 200,
+ "content_bytes": 24224,
+ "content_sha256": "e50222582f2c4043bfd8086cc718f7a181279aa20cfd52748b6e545502da67b2",
+ "page_title": "Introduction | Stryker Mutator",
+ "retrieval_note": "同日 15:05 の 1 回目の取得は HTTP 500 を返した (572 bytes の \"500 Internal Server Error\")。同一 URL への再試行で 200。失敗した試行も記録に残す。",
+ "freshness_extraction": {
+  "freshness_source": "publisher-registry",
+  "value": "10.0.0",
+  "found_in": [
+   "2026-08-22T21:19:48Z に `npm view @stryker-mutator/core version dist-tags.latest time.modified` で照会: version = '10.0.0' / dist-tags.latest = '10.0.0' / time.modified = '2026-08-14T16:51:23.273Z'"
+  ],
+  "http_last_modified": "Sat, 22 Aug 2026 12:22:47 GMT",
+  "body_declares_date": false,
+  "body_search_method": "本文 24224 bytes に対し JSON-LD \"dateModified\"、<time>、\"Last updated\" 語彙、© 年、\"Stryker vN.N\" 形の版表記 の 5 通りで探して全て 0 件。本文が言う最新の年は \"FOSDEM 2024\" の告知バナーのみで、これは講演の年であって文書の更新日ではない。",
+  "rejected_candidate": {
+   "value": "2026-08-22",
+   "source": "HTTP ヘッダ Last-Modified: Sat, 22 Aug 2026 12:22:47 GMT",
+   "reason": "取得日 (2026-08-22) と同日である。Docusaurus の静的サイトはデプロイのたびに全ページの mtime が更新されるため、この値は配信物の生成時刻であって内容の更新日ではない。採ると C13 の取得日代入検査 (freshness substitution) に掛かるべき性質の値を、掛からない体裁で記入することになる。"
+  },
+  "note": "ページ本文が rolling で版も日付も表明しないため、説明対象の版は publisher の配布 registry にしか無い (better-auth / nextjs と同じ扱い)。evidence の content_sha256 は docs ページの取得証跡であり、registry 照会の証跡ではない。"
+ }
+}

@@ -3,17 +3,18 @@ import type {
   EditorialPublishedArticleAdminPort,
   EditorialPublishedArticleWriterPort,
   EditorialPublishedContentPort,
+  EditorialSiteDocumentRepositoryPort,
 } from "@/application/ports/site";
 import { countTrackingCoverage } from "@/application/read-models/article-tracking";
-import { markEditorial, ok } from "@/domain/shared";
+import { SITE_DOCUMENT_KEYS, type SiteDocumentKey } from "@/domain/authoring";
+import { markEditorial, ok, type WorkspaceId } from "@/domain/shared";
 import { stubCall } from "../../stub-registry";
 import {
   CONTENT_SAMPLE_STUB,
   SAMPLE_ARTICLES,
-  SAMPLE_BASE_POLICIES,
   SAMPLE_CORRECTIONS,
   SAMPLE_PEOPLE,
-  SAMPLE_SITE_POLICY_OVERRIDES,
+  resolveSampleSiteDocument,
   sampleArticleSummaries,
   sampleArticlesBySite,
 } from "./content-sample-data";
@@ -49,10 +50,38 @@ export function createSampleTrackingCoverage(): TrackingCoveragePort {
   };
 }
 
+/**
+ * 固定文書の見本。
+ *
+ * 読むほうは本物と同じ形で返す（見本の実行でも法定ページが読める）。
+ * **書くほうは「保存できない」と名乗る。** ここで成功を返すと、
+ * 運営者情報を書き換えたつもりの人が、次に開いたとき元の文を見ることになる。
+ */
+export function createSampleSiteDocumentRepository(): EditorialSiteDocumentRepositoryPort {
+  return markEditorial({
+    async listBySite(_workspaceId: WorkspaceId, siteSlug: string) {
+      return ok(
+        SITE_DOCUMENT_KEYS.map((key) => ({
+          key,
+          ...resolveSampleSiteDocument(siteSlug, key),
+          // 見本に「いつ直したか」は無い。作り話の日付を入れない。
+          updatedAt: null,
+        })),
+      );
+    },
+    async save() {
+      return stubCall<true>(CONTENT_SAMPLE_STUB, "固定ページの保存");
+    },
+  });
+}
+
 export function createSamplePublishedArticleWriter(): EditorialPublishedArticleWriterPort {
   return markEditorial({
     async save() {
       return stubCall<true>(CONTENT_SAMPLE_STUB, "記事の公開");
+    },
+    async unpublish() {
+      return stubCall<true>(CONTENT_SAMPLE_STUB, "記事の取り下げ");
     },
   });
 }
@@ -129,7 +158,12 @@ export function createSampleContentRepository(): EditorialPublishedContentPort {
       return ok(SAMPLE_CORRECTIONS.filter((c) => c.siteSlug === siteSlug));
     },
     async findPolicyDocument(siteSlug: string, key: string) {
-      return ok(SAMPLE_SITE_POLICY_OVERRIDES[siteSlug]?.[key] ?? SAMPLE_BASE_POLICIES[key] ?? null);
+      // ルート表に無い鍵は、上書きも既定も引かずに「無い」と答える。
+      // 既定側を任意の文字列で引けるままにすると、綴り違いが黙って null になり、
+      // 「画面はあるのに文書が出ない」の原因がルート表かデータか分からなくなる。
+      if (!(SITE_DOCUMENT_KEYS as readonly string[]).includes(key)) return ok(null);
+      const documentKey = key as SiteDocumentKey;
+      return ok(resolveSampleSiteDocument(siteSlug, documentKey));
     },
   });
 }

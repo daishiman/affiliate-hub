@@ -101,6 +101,13 @@ implementation_readiness: {"checked_at":null,"missing_sections":[],"status":"inc
 - ADR-02: 運営者ドメインと読者ドメインを同一 D1 に置いても、ランキングと報酬を結合しない
 - ADR-03: Analytics 詳細は 03 のみ。01 と 02 は目的と移行記録に留める
 - ADR-04: Phase 0 の ai-first-webmcp.md は読者面の詳細契約として残す
+- ADR-05: `system-spec/*.md` は `compile-spec-doc.py` が正本から導出する**読み物**であり、
+  writer 宛の作業指示を含まない。記録が無い箇所は「無い」という事実を書き、手順を配らない
+  （配った手順が実行できない状態が実際に発生した。検査は
+  `.claude/plugins/system-spec-harness/tests/test_chapter_has_no_writer_todo.py`）
+- ADR-06: 章の出典表は `fetched-references.json` からの導出であって手で写さない。
+  したがって**出典を取り直したら、採点より先に `compile` を回す**。順序を逆にすると
+  参照側だけが進んで章が置き去りになり、二重管理の再発と区別がつかなくなる
 
 ## Delivery, migration and rollback
 
@@ -112,6 +119,11 @@ implementation_readiness: {"checked_at":null,"missing_sections":[],"status":"inc
 - リスク: 正本が複数あるように見え、実装者が古い文書を更新する
 - 緩和: 00-README の優先表と README の仕様節
 - 検証: system-spec の coverage / knowledge / source-citation ゲートと graph schema 検証
+- リスク: 章が導出物であることが崩れ、手書きの指示や写した値が混ざる（ADR-05 / ADR-06）
+- 緩和: 章への書き込みは `compile-spec-doc.py` 単一 writer に限定し、確定章への
+  Edit/Write は `guard-confirmed-chapter-overwrite.py` が遮断する
+- 検証: `tests/architecture/doc-source-version-gap.test.ts`（出典表と参照正本の食い違いを数える）と
+  `test_chapter_has_no_writer_todo.py`（章に作業指示が混ざったら落ちる）
 
 # Data architecture
 

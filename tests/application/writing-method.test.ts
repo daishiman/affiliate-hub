@@ -1,4 +1,4 @@
-/** @tier 1 */
+/** @tier 1 @req REQ-W01, REQ-W02, REQ-W05, REQ-W06, REQ-W07, REQ-W08, REQ-W09 */
 import { describe, expect, it } from "vitest";
 import { createReadWritingMethodUseCase } from "@/application/usecases/authoring/read-writing-method";
 import { CONVERSATION_MAX_LENGTH, CONVERSATION_MIN_LENGTH } from "@/domain/authoring/conversation-block";
@@ -17,6 +17,7 @@ const actor: ActorContext = {
   userId: taggedString("user_test"),
   workspaceId: taggedString("ws_test"),
   roles: ["writer"],
+  scopedBrandIds: [],
   isAiServiceAccount: false,
   // 身元を確かめてある人。ここは権限の検査で、ログインの有無は見ていない。
   identified: true,

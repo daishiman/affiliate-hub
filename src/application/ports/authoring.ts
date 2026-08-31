@@ -17,23 +17,53 @@ import type {
   SiteDraftId,
   WorkspaceId,
 } from "@/domain/shared";
-import type { PageRequest, Paged, PortResult } from "./common";
+import type { BrandScopeFilter, PageRequest, Paged, PortResult } from "./common";
 
 export type ContentPackageRepositoryPort = {
   findById(workspaceId: WorkspaceId, id: ContentPackageId): PortResult<ContentPackage | null>;
-  list(workspaceId: WorkspaceId, page: PageRequest): PortResult<Paged<ContentPackage>>;
+  list(
+    workspaceId: WorkspaceId,
+    page: PageRequest,
+    brandScope?: BrandScopeFilter,
+  ): PortResult<Paged<ContentPackage>>;
   save(pkg: ContentPackage): PortResult<ContentPackage>;
 };
 
 export type ContentVariantRepositoryPort = {
   findById(workspaceId: WorkspaceId, id: ContentVariantId): PortResult<ContentVariant | null>;
+  /**
+   * 本文と、その保存先が管理する単調増加版を一緒に読む。
+   *
+   * `ContentVariant` は AI 出力契約なので保存用 metadata を混ぜない。
+   * 外部配信はこの版を予約時に固定し、送信権の確保時に現在版と照合する。
+   */
+  findVersionedById(
+    workspaceId: WorkspaceId,
+    id: ContentVariantId,
+  ): PortResult<{
+    readonly variant: ContentVariant;
+    readonly revision: number;
+    /** trueならcontent_variants実表にあり、D1の原子的claim条件で照合できる。 */
+    readonly persisted: boolean;
+  } | null>;
   listByPackage(
     workspaceId: WorkspaceId,
     packageId: ContentPackageId,
   ): PortResult<readonly ContentVariant[]>;
-  listByState(workspaceId: WorkspaceId, state: ContentState, page: PageRequest): PortResult<Paged<ContentVariant>>;
+  listByState(
+    workspaceId: WorkspaceId,
+    state: ContentState,
+    /** brandScope適用後のContentVariantId昇順。cursorは直前ページ末尾のID。 */
+    page: PageRequest,
+    brandScope?: BrandScopeFilter,
+  ): PortResult<Paged<ContentVariant>>;
   /** 次回確認日を過ぎた公開済み記事。運用の起点になる。 */
-  listReviewOverdue(workspaceId: WorkspaceId, at: Date, limit: number): PortResult<readonly ContentVariant[]>;
+  listReviewOverdue(
+    workspaceId: WorkspaceId,
+    at: Date,
+    limit: number,
+    brandScope?: BrandScopeFilter,
+  ): PortResult<readonly ContentVariant[]>;
   save(variant: ContentVariant): PortResult<ContentVariant>;
   /**
    * 進行の現在地（§18.1 の 12 段階）を読む。まだ記録が無ければ `null`。
@@ -54,6 +84,13 @@ export type ContentVariantRepositoryPort = {
     id: ContentVariantId,
     state: ContentState,
   ): PortResult<ContentState>;
+  /**
+   * 記事 1 本を消す。本文と進行の現在地の両方を落とす。
+   *
+   * 片方だけ残すと、本文の無い段階が盤面に居座る。
+   * 見つからないときは成功にせず断りを返す。
+   */
+  remove(workspaceId: WorkspaceId, id: ContentVariantId): PortResult<true>;
 };
 
 export type PersonaRepositoryPort = {
@@ -89,6 +126,16 @@ export type SiteDraftRepositoryPort = {
    * ここを通ったものだけが読者から見える。
    */
   publishBlueprint(slug: string, blueprint: SiteBlueprint): PortResult<SiteBlueprint>;
+  /**
+   * 登録済みのブログを取り下げる。`publishBlueprint` の対。
+   *
+   * 登録と抹消を同じ窓口に置くのは、触る先が同じ 1 つの入れ物だから。
+   * 別の窓口に分けると、片方だけが会社の絞り込みを忘れる形が作れてしまう。
+   *
+   * 見本として最初から入っているブログは消せない（コードの中にあるため）。
+   * 消せないものを「消えた」と返さず、断りを返す。
+   */
+  removeBlueprint(workspaceId: WorkspaceId, slug: string): PortResult<true>;
 };
 
 export type SiteBlueprintRepositoryPort = {

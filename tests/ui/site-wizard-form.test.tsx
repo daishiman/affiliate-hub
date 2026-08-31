@@ -1,8 +1,8 @@
-/** @tier 2 */
+/** @tier 2 @req REQ-P07, REQ-S06 */
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 import type { SiteDraftView, WizardFieldSpec } from "@/application/usecases/site/build-site";
-import { SiteWizardStepForm } from "@/presentation/admin/site-wizard-form";
+import { SiteWizardStepForm } from "@/presentation/admin/publish/site-wizard-form";
 
 /**
  * ブログ作成ウィザードの 1 段階。

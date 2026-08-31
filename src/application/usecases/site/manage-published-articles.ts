@@ -3,6 +3,7 @@ import type { IdGeneratorPort } from "@/application/ports/common";
 import type { AuditLogPort } from "@/application/ports/compliance";
 import type { EditorialPublishedArticleAdminPort } from "@/application/ports/site";
 import type { PublishedArticle } from "@/application/read-models/published-article";
+import { parseNonEmptyParagraphs } from "@/domain/authoring";
 import { requireCapability } from "@/domain/identity";
 import {
   type ActorContext,
@@ -100,13 +101,6 @@ function notFound(): Result<never, DomainError> {
   );
 }
 
-function splitParagraphs(body: string): readonly string[] {
-  return body
-    .split(/\n\s*\n/u)
-    .map((paragraph) => paragraph.trim())
-    .filter((paragraph) => paragraph !== "");
-}
-
 export function createUpdatePublishedArticleUseCase(
   deps: WriteDeps,
 ): UseCase<UpdatePublishedArticleInput, PublishedArticle> {
@@ -130,7 +124,15 @@ export function createUpdatePublishedArticleUseCase(
       const before = found.value.article;
       const byId = new Map(input.sections.map((section) => [section.id, section]));
       if (byId.size !== before.sections.length || before.sections.some((section) => !byId.has(section.id))) {
-        return err(validationError("記事の節構成が変わっています。開き直してから訂正してください。", "sections"));
+        /*
+          **欄の名前を付けない。**この断りは 1 つの欄の話ではなく、
+          開いている画面と保存されている記事の**形そのものがずれている**という
+          報せである。`"sections"` という欄は画面に存在せず（在るのは節ごとの
+          `sectionHeading` / `sectionBody`）、名前を付けても指す先が無い。
+          名前の無い断りは画面上部の状態欄にそのまま出る
+          （`tests/architecture/refusal-field-wiring.test.ts`）。
+        */
+        return err(validationError("記事の節構成が変わっています。開き直してから訂正してください。"));
       }
 
       const nextSections = [];
@@ -139,7 +141,7 @@ export function createUpdatePublishedArticleUseCase(
         if (edited === undefined) continue;
         const heading = required(edited.heading, "節の見出し", `sections.${section.id}.heading`);
         if (!heading.ok) return heading;
-        const paragraphs = splitParagraphs(edited.body);
+        const paragraphs = parseNonEmptyParagraphs(edited.body);
         if (paragraphs.length === 0) {
           return err(validationError("節の本文を入力してください。", `sections.${section.id}.body`));
         }

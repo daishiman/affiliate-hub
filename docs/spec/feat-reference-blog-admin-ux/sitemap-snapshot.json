@@ -1,0 +1,186 @@
+{
+  "schema_version": 1,
+  "captured_at": "2026-08-29T21:28:58+00:00",
+  "collector": "scripts/reference-site-analysis/collect_reference_inventory.py",
+  "root_status": 200,
+  "root_content_type": "application/xml; charset=UTF-8",
+  "root_content_sha256": "09542eed44457d0d36284d080792f07ab80729bf0514eb046ecea1e6bab9febb",
+  "sitemap_part_count": 14,
+  "membership_count": 1073,
+  "canonical_url_count": 1072,
+  "screen_type_counts": {
+    "article": 968,
+    "article-index": 2,
+    "author": 23,
+    "fixed-page": 8,
+    "home": 1,
+    "navigator": 6,
+    "taxonomy": 64
+  },
+  "screen_variant_counts": {
+    "all-posts": 1,
+    "category": 32,
+    "comparison-or-guided-choice": 6,
+    "editorial-home": 1,
+    "html-sitemap": 1,
+    "policy-or-contact": 5,
+    "profile-and-post-list": 23,
+    "publisher-profile": 1,
+    "tag": 32,
+    "utility": 2,
+    "yearly-post": 968
+  },
+  "post_year_counts": {
+    "2018": 45,
+    "2019": 214,
+    "2020": 150,
+    "2021": 137,
+    "2022": 111,
+    "2023": 100,
+    "2024": 81,
+    "2025": 70,
+    "2026": 60
+  },
+  "unclassified_count": 0,
+  "inventory_digest": "bac24ebe95f012964c6d51f7bfaec1266783e09c9505187925edcdc3c352b288",
+  "root_sitemap_part": "sitemap.xml",
+  "root_sitemap_digest": "848e04bd7ef19bed3f5f205a3e81669605d267972960fbfab5ca4ff67b60019c",
+  "raw_evidence": "evidence/sitemap-snapshot.raw.json",
+  "sitemap_parts": [
+    {
+      "part": "sitemap-posttype-post.2026.xml",
+      "url_digest": "309ed852fac9fe451f34921750708971f325698bc3d4119f427135e0302fc67e",
+      "index_last_modified": "2026-08-25T02:01:57+09:00",
+      "status": 200,
+      "content_type": "application/xml; charset=UTF-8",
+      "content_sha256": "7e6db604188c2de5f7bee6ff5e6d157e47e6dbd23e50765af9264f29548c9e55",
+      "url_memberships": 60
+    },
+    {
+      "part": "sitemap-posttype-post.2025.xml",
+      "url_digest": "8fc7b0b9fd34dc2be8f4f2d48660fa21b9d3c501f50bcac54789c9ae4ace9a58",
+      "index_last_modified": "2026-08-12T14:54:04+09:00",
+      "status": 200,
+      "content_type": "application/xml; charset=UTF-8",
+      "content_sha256": "82954ef76fecab79e18dfec46f6d76757dcd6ae0158f8ebb96518a9302939da4",
+      "url_memberships": 70
+    },
+    {
+      "part": "sitemap-posttype-post.2024.xml",
+      "url_digest": "e2de83edab48a5c53dd113b800dd2cb7316b60b9b0eb9a6d965377ccf2789554",
+      "index_last_modified": "2026-07-11T23:44:44+09:00",
+      "status": 200,
+      "content_type": "application/xml; charset=UTF-8",
+      "content_sha256": "7beaee910516e74eebbe2356f54141592c48ff329ab9cff0237f44205f6ac0bf",
+      "url_memberships": 81
+    },
+    {
+      "part": "sitemap-posttype-post.2023.xml",
+      "url_digest": "d52e3015229ede1e500d8849ba8f6f8d7593b625b048449d577b442a16c0a2b2",
+      "index_last_modified": "2026-08-25T02:08:53+09:00",
+      "status": 200,
+      "content_type": "application/xml; charset=UTF-8",
+      "content_sha256": "8f12aaad73ced8b72d739e4aa75616e438145faf5f34a87820c310c756c714e9",
+      "url_memberships": 100
+    },
+    {
+      "part": "sitemap-posttype-post.2022.xml",
+      "url_digest": "0cce0bc4c3cb94c9be45a4fc7ef062ccbf71f099fb696fde1b912f3e28f38abb",
+      "index_last_modified": "2025-08-05T21:50:51+09:00",
+      "status": 200,
+      "content_type": "application/xml; charset=UTF-8",
+      "content_sha256": "d0a09ac87be1b5283e716f34d19a23b405098170badad20c0da85b0c116dff15",
+      "url_memberships": 111
+    },
+    {
+      "part": "sitemap-posttype-post.2021.xml",
+      "url_digest": "d00f70d40d8cd541ffdf480a2b815fb2940f9673d94570639f0abebf2f350c2d",
+      "index_last_modified": "2025-04-12T22:01:17+09:00",
+      "status": 200,
+      "content_type": "application/xml; charset=UTF-8",
+      "content_sha256": "52b45e5c6a5a553d2cf2c03ea0fd756927558c09a75ef2106671700a26da7db7",
+      "url_memberships": 137
+    },
+    {
+      "part": "sitemap-posttype-post.2020.xml",
+      "url_digest": "9d78328c3693ff7d6c6bfe4ea96541143dd27511a8e35ec9207e3123aa16a4ef",
+      "index_last_modified": "2026-05-05T04:13:00+09:00",
+      "status": 200,
+      "content_type": "application/xml; charset=UTF-8",
+      "content_sha256": "5831139880bdc9d1e70f31279416dd4b6e06d2ca13b09f01f88c384ad1873403",
+      "url_memberships": 150
+    },
+    {
+      "part": "sitemap-posttype-post.2019.xml",
+      "url_digest": "9730aafd541902c0b37b8c740166c2276c410c5eb5447708e0cb449043774444",
+      "index_last_modified": "2026-05-05T04:13:42+09:00",
+      "status": 200,
+      "content_type": "application/xml; charset=UTF-8",
+      "content_sha256": "5d26ec9fff34ada3961f6d4bba6db4b8f8bd77d3e5bb5700aca496c05e8ea2f6",
+      "url_memberships": 214
+    },
+    {
+      "part": "sitemap-posttype-post.2018.xml",
+      "url_digest": "dfa9e0bda24cca28005f750ce08a2f9ad053b7ce4a628f91e552272abc343435",
+      "index_last_modified": "2025-04-14T14:08:30+09:00",
+      "status": 200,
+      "content_type": "application/xml; charset=UTF-8",
+      "content_sha256": "e59c8bd387871e76e376a809f37b47d7e7b63e26890df762992b6db917a7c6ac",
+      "url_memberships": 45
+    },
+    {
+      "part": "sitemap-posttype-page.xml",
+      "url_digest": "d4eb441f8aa564ce2c26748ae06f46e815dbb35ba15d2803d2f732f3eff631f4",
+      "index_last_modified": "2026-07-25T03:28:37+09:00",
+      "status": 200,
+      "content_type": "application/xml; charset=UTF-8",
+      "content_sha256": "32df1a415e0e6f55a309e7cb11afd5cbf9230889de8d2780d944eb50e690afe4",
+      "url_memberships": 17
+    },
+    {
+      "part": "sitemap-taxonomy-category.xml",
+      "url_digest": "0da56be225360d9fe758921d061d2e987d98c2da88b902389d358823a66f7d7a",
+      "index_last_modified": "2026-08-24T19:39:15+09:00",
+      "status": 200,
+      "content_type": "application/xml; charset=UTF-8",
+      "content_sha256": "f17bedb94e1a5fb280dc5e320153aed1e5e2f01015d51619097658d89ab51083",
+      "url_memberships": 32
+    },
+    {
+      "part": "sitemap-taxonomy-post_tag.xml",
+      "url_digest": "8f1071f5abce812f680a2aac22152833106f15f19666afca871c79a3cc728e8a",
+      "index_last_modified": "2026-08-24T19:39:15+09:00",
+      "status": 200,
+      "content_type": "application/xml; charset=UTF-8",
+      "content_sha256": "983b343af4bc490dedcb56ddd958bad78fffe533555a291282a9ee9d2ac2a88e",
+      "url_memberships": 32
+    },
+    {
+      "part": "sitemap-author.xml",
+      "url_digest": "d086a183e2b0e4167c2e4bb19ac930d6d27ad1c5acdbc9525190e7bfa74db5eb",
+      "index_last_modified": "2026-08-24T19:39:15+09:00",
+      "status": 200,
+      "content_type": "application/xml; charset=UTF-8",
+      "content_sha256": "8006dc93dc759ef9a52e7ce1b0105e68702931344ebf7957ef11d0067ffd2815",
+      "url_memberships": 23
+    },
+    {
+      "part": "sitemap-news.xml",
+      "url_digest": "208ebcfde61d6aa5d2f654aec1833c8529e6ee2f6a6c115066ecb3bad605c45e",
+      "index_last_modified": "2026-08-24T19:39:15+09:00",
+      "status": 200,
+      "content_type": "application/xml; charset=UTF-8",
+      "content_sha256": "18047b20cba2032c0ac61c05122a7e7606681220609d83e62283e2dce8981272",
+      "url_memberships": 1
+    }
+  ],
+  "duplicate_memberships": [
+    {
+      "url_digest": "3c6bf84be5e9a4eac428ad30a1f40048ec3b3ea1b2ace08ef3f0bae6d2236908",
+      "kept_sitemap_part": "sitemap-posttype-page.xml",
+      "duplicate_sitemap_part": "sitemap-news.xml"
+    }
+  ],
+  "retention_policy": "metadata-and-digests-only; no page body, image, logo, CSS, or theme asset",
+  "abstraction": "host-and-slug-free; the source host lives only in evidence/ per non-copying-design-system.md gate 2"
+}

@@ -15,7 +15,7 @@ import {
   markCommercial,
   ok,
 } from "@/domain/shared";
-import { linkIngestions, type LinkIngestionRow } from "@/db/schema";
+import { linkIngestionUrlClaims, linkIngestions, type LinkIngestionRow } from "@/db/schema";
 import { storageFailure } from "./storage-failure";
 
 /**
@@ -40,8 +40,9 @@ import { storageFailure } from "./storage-failure";
  *      保存先が一意制約で弾くと 2 回目の貼り付けが
  *      **やり直しても永久に通らない失敗**になる。実際の D1 で通した
  *      ときにその形で出た（`tests/integration/d1-link-inbox.test.ts`）。
- *      2 人が同時に入れたときに印が付かない取りこぼしは残るが、
- *      それは表示上の問題であってデータの破損ではない。
+ *      弾かない代わりに、「最初の 1 本は誰か」だけを別表
+ *      （`link_ingestion_url_claims`）の主キーで取り合わせる。
+ *      行は全部入り、印だけが一意に決まる。
  */
 
 /**
@@ -138,24 +139,75 @@ export function createD1LinkInboxRepository(db: DrizzleD1): LinkIngestionReposit
       }
     },
 
-    async findByNormalizedUrl(
+    async claimNormalizedUrl(
       workspaceId: WorkspaceId,
       normalizedUrl: string,
-    ): PortResult<LinkIngestion | null> {
+      candidateId: LinkIngestionId,
+    ): PortResult<LinkIngestionId> {
       try {
+        /*
+         * 入れてから読む。**読んでから入れない。**
+         *
+         * 主キー（作業場所 + 正規化 URL）が 1 行しか許さないので、
+         * 同時に来た 2 本のうち入るのは片方だけになる。入らなかった側は
+         * `onConflictDoNothing()` で黙って素通りし、直後の読み出しで
+         * 先に入った相手の ID を受け取る。これが重複の印になる。
+         *
+         * 入った側にとっても読み出しは無駄ではない。自分が入れた行が
+         * そのまま返るので、勝ち負けの判定を 1 か所（返り値の比較）に寄せられる。
+         */
+        await db
+          .insert(linkIngestionUrlClaims)
+          .values({
+            workspaceId: String(workspaceId),
+            normalizedUrl,
+            linkIngestionId: String(candidateId),
+            claimedAt: new Date(),
+          })
+          .onConflictDoNothing();
+
         const rows = await db
           .select()
-          .from(linkIngestions)
+          .from(linkIngestionUrlClaims)
           .where(
             and(
-              eq(linkIngestions.workspaceId, String(workspaceId)),
-              eq(linkIngestions.normalizedUrl, normalizedUrl),
+              eq(linkIngestionUrlClaims.workspaceId, String(workspaceId)),
+              eq(linkIngestionUrlClaims.normalizedUrl, normalizedUrl),
             ),
           )
           .limit(1);
-        return ok(rows.length === 0 ? null : toDomain(rows[0]));
+
+        // 入れた直後に消える筋道は無いが、消えていたなら自分が最初として扱う。
+        // ここで失敗にすると、取り合いの都合で受け取り自体が通らなくなる。
+        const holder = rows[0]?.linkIngestionId;
+        return ok(
+          holder === undefined ? candidateId : (asLinkIngestionId(holder) as LinkIngestionId),
+        );
       } catch (cause) {
         return storageFailure("重複の確認", cause);
+      }
+    },
+
+    async releaseNormalizedUrl(
+      workspaceId: WorkspaceId,
+      normalizedUrl: string,
+      id: LinkIngestionId,
+    ): PortResult<void> {
+      try {
+        // `link_ingestion_id` も条件に入れる。入れないと、重複側を捨てただけで
+        // 最初の 1 本の取り分まで消え、次の貼り付けが重複でなくなる。
+        await db
+          .delete(linkIngestionUrlClaims)
+          .where(
+            and(
+              eq(linkIngestionUrlClaims.workspaceId, String(workspaceId)),
+              eq(linkIngestionUrlClaims.normalizedUrl, normalizedUrl),
+              eq(linkIngestionUrlClaims.linkIngestionId, String(id)),
+            ),
+          );
+        return ok(undefined);
+      } catch (cause) {
+        return storageFailure("重複の取り下げ", cause);
       }
     },
 

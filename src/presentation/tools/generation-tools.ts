@@ -6,8 +6,9 @@ import {
   createReviewMaterialUseCase,
 } from "@/application/usecases/generation/read-generation-plan";
 import { createDraftContentVariantUseCase } from "@/application/usecases/generation/draft-content-variant";
+import { createCapacityGuard } from "@/application/capacity";
 import { GENERATION_INPUT_KEYS } from "@/domain/generation";
-import { markEditorial } from "@/domain/shared";
+import { asBrandId, markEditorial } from "@/domain/shared";
 import { defineTool } from "./define-tool";
 import {
   type DraftContentVariantRaw,
@@ -31,7 +32,18 @@ import type { AnyToolDefinition } from "./tool-definition";
  * AI サービスアカウントが自分の判断で記事を書き始めることもできない。
  */
 export function generationTools(deps: AppDeps): readonly AnyToolDefinition[] {
-  const draft = createDraftContentVariantUseCase({ llm: deps.llm, costs: deps.llmCosts });
+  const capacity = createCapacityGuard({
+    workspaces: deps.workspaces,
+    now: () => new Date(),
+  });
+  // ブランドを渡すのは、標準 CTA と標準免責を設定画面から運ぶため。
+  // 渡していないと、設定した値が生成に届かないまま「未設定」で断られる。
+  const draft = createDraftContentVariantUseCase({
+    llm: deps.llm,
+    costs: deps.llmCosts,
+    brands: deps.brands,
+    capacity,
+  });
 
   // 入力欄の一覧は domain の定義から作る。ここで並べ直すと片方だけ古くなる。
   const providedShape = Object.fromEntries(
@@ -104,6 +116,7 @@ export function generationTools(deps: AppDeps): readonly AnyToolDefinition[] {
           );
           return draft.execute(actor, {
             ...raw,
+            brandId: raw.brandId === undefined ? undefined : asBrandId(raw.brandId),
             provided: { ...raw.provided, products },
           });
         },

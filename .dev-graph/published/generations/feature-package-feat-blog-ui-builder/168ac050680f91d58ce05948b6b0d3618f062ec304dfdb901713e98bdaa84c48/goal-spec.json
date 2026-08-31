@@ -1,0 +1,179 @@
+{
+  "schema_version": "1.0",
+  "feature_id": "feat-blog-ui-builder",
+  "feature_digest": "sha256:8953a167a43f5fc55998ebfcaa83f437d59f0d567cde6e7c15e8b568ab470d7b",
+  "supersedes": "sha256:9a2832f2d6f8656f3495435827399bed84d70c893a027d828694b07b46506fe1",
+
+  "purpose": "ブログごとにテンプレートと配色を選び、公開面・作成・保存・管理一覧のどの面でも「どのブログにどのアフィリエイトが載っているか」を迷わず把握できるブログ UI を提供する",
+
+  "background": {
+    "summary": "現状、アフィリエイト URL・ASP 管理画面・商品情報・記事原稿・配置データが別々の場所で管理されており、ブログごとのテンプレート選択・配色設定・アフィリエイト配置の一覧把握ができていない。system-spec (ui-ux / frontend / database 各章、verdict=PASS) が確定した技術要件に基づき、読者面 (公開ブログ) と運営者面 (管理画面) の二層構造の中でブログ UI レイヤーを構築する。",
+    "system_essential_purpose": "発信者が、一つの信頼できる商品・サービス情報を起点に、複数のブログや SNS へ「誰が・誰に・何を・なぜ伝えるか」が一貫した高品質コンテンツを効率的に生成・公開・改善できる状態をつくり、読者の意思決定品質と発信者の継続的な収益性を同時に高める (system-spec U1)。",
+    "system_goals": [
+      "G1: 一つのアフィリエイト URL を起点に、正しい商品情報・比較候補・根拠・書き手・読者・媒体・広告表示を統合し、目的の異なる高品質コンテンツを安全に作成・公開・改善できる",
+      "G2: どういう情報・切り口・媒体・配置がクリック率とアフィリエイト成果に有効かを計測・分析し、一元管理できる"
+    ],
+    "architectural_constraints": [
+      "二層構造: プラットフォーム層 (管理面) とブログ層 (読者面) を分離し、src/domain/ の純関数群を共通計算層とする (arch-two-layer-platform ADR-001/ADR-002)",
+      "Editorial/Commercial 分離: Ranking Service の入力型に報酬フィールドを持たせず、報酬データは Commercial 側の型に隔離する (arch-two-layer-platform ADR-003, decision-editorial-commercial-split=opt-two-databases)",
+      "テーマ実装: 配色と明暗の 2 軸を CSS light-dark() と data 属性で実装し、掛け合わせを設定値として持たない (decision-ui-theme-implementation=opt-css-light-dark)",
+      "SSR/ISR: 公開面の本文・構造化データ・フィード・サイトマップ・robots を同一の読み取りモデル (PublishedArticle / PublicSiteBlueprint) から派生させる (arch-two-layer-platform §実装からの書き戻し)",
+      "IndexNow 鍵: サーバー環境変数からのみ読み、リポジトリ・管理画面・DB に保存しない (system-spec/frontend.md qa-frontend-web-seo-ai-search-v2)",
+      "テナント分離: 全クエリに workspace_id 制約を強制し、Repository 層で WorkspaceId branded type を必須引数とする (arch-two-layer-platform §Cross-cutting contracts)",
+      "依存方向: pnpm run lint と pnpm test が機械的に境界違反を検出する (arch-two-layer-platform §System context and boundaries)"
+    ],
+    "feature_dependencies": [
+      "feat-ui-foundation: 共通レイアウト・状態表現の上に sticky レイアウトとテーマを載せる",
+      "feat-site-builder: ブログ作成ウィザードとページ/ポリシーページ生成を入口としてテンプレート選択と固定ページ構築を拡張する",
+      "feat-affiliate-hub: アフィリエイト配置の管理・逆引きはアフィリエイト実体と広告表示ルールのデータモデルに依存する"
+    ],
+    "confirmed_decisions": {
+      "decision-ui-theme-implementation": "opt-css-light-dark (CSS light-dark() + data 属性)",
+      "decision-editorial-commercial-split": "opt-two-databases (D1 を Editorial / Commercial で 2 本に分離)",
+      "decision-test-ci-tooling": "opt-keep-current (Vitest / Stryker / fast-check / axe-core / GitHub Actions)"
+    }
+  },
+
+  "goal": "テンプレートから新規ブログを作成でき、配色をブログ既定とページ単位で選べ、ヘッダー・サイドバー・フッターが常時表示され、運営者情報・全カテゴリー・サイトポリシー・プライバシーポリシー・特定商取引法に基づく表記・お問い合わせの固定ページと図解・比較などの表現ブロックを構築でき、公開面/作成/保存/管理一覧の各面でブログ×アフィリエイトの配置が一覧・逆引きできる状態になっている",
+
+  "scope_in": [
+    "ブログテンプレート (レビュー特化/比較特化/ハウツー/ニュース/ミニマル/ガジェット寄り の 6 種) からのブログ作成と差し替え (system-spec ui-ux §テンプレート)",
+    "配色の 2 層選択: ブログ既定テーマ (blog_theme) とページ単位上書き (page_theme_override)。decision-ui-theme-implementation (CSS light-dark()+data 属性) に従う",
+    "常時表示レイアウト: sticky ヘッダー・サイドバー・フッターと、狭幅でのサイドバー折りたたみ",
+    "固定ページ 6 種の構築 UI: 運営者情報 / 全カテゴリー / サイトポリシー / プライバシーポリシー / 特定商取引法に基づく表記 / お問い合わせ (legal_page)",
+    "記事表現ブロック: figure (図解) / comparison (比較表) / cta / summary / spec-table と、ガジェット依存部分の差し替え可能なスロット",
+    "ブログ×アフィリエイト配置 (blog_affiliate_placement) の管理一覧・逆引き (アフィリエイト→掲載ブログ/ページ) と、公開面・作成・保存の各面での表示",
+    "参考ブログ (makuring.jp) の構成・配置・表記法の参照を反映した情報設計 (丸パクリはしない。利用者説明を一次根拠とする)",
+    "SEO/AI 検索 (AI Overviews・AI Mode・ChatGPT search・Perplexity 等) への最適化: SSR で本文を HTML に含める semantic HTML、robots.txt で AI クローラ許可を既定、ページ種別ごとの JSON-LD (BlogPosting/Person/Organization/BreadcrumbList/FAQPage/HowTo/Product/Review) をブロック木から自動生成、generateMetadata、sitemap.xml/RSS/llms.txt の自動生成、IndexNow 送信、dateModified の可視化 (仕様章 frontend §SEO/AI 検索)",
+    "AI 引用されやすい記事構造の標準ブロック: 結論 (answer) / 要点 (key-points) / FAQ / 出典 (sources) / 最終更新 (freshness) と著者プロフィール固定ページ、管理画面の SEO/AI チェックパネル (仕様章 ui-ux §SEO/AI 検索)",
+    "最新 SEO/AI 検索ガイドラインの参照レジストリ (guideline_references): 海外・日本の出典 URL・発行元・確認日を登録し 90 日で再確認を促す。fetched-references.json の公式 4 出典 (Google AI 最適化ガイド / AI features / llms.txt / IndexNow) を初期データにする"
+  ],
+
+  "scope_out": [
+    "記事本文の AI 生成そのもの (feat-ai-content-studio)",
+    "アフィリエイト URL の登録・商品識別 (feat-affiliate-inbox / feat-affiliate-hub)",
+    "クリック計測・成果突合の分析基盤 (feat-analytics-insight)",
+    "管理画面全体の単一用途画面再編 (feat-uiux-overhaul)",
+    "独自ドメイン・DNS 運用、テーマの外部販売"
+  ],
+
+  "acceptance_ids": ["A1", "A2", "A3", "A4", "A5", "A6", "A7", "A8", "A9", "A10", "A11", "A12", "A13", "A14"],
+  "acceptance": {
+    "canonical_source": "features/feat-blog-ui-builder.md#frontmatter.acceptance",
+    "planner_projection": "features/feat-blog-ui-builder.context.json#/acceptance",
+    "id_mapping": "配列の 1 始まり順番を A1〜A14 に対応させる",
+    "acceptance_source_digest": "sha256:fff6f8476b685441d5651c8b2a0952893e91e690e6a66b64dc4e75e001135a2e",
+    "items": {
+      "A1": "テンプレート 6 種のいずれかを選んで新規ブログを作成でき、作成後もテンプレートを差し替えても既存記事が壊れない",
+      "A2": "ブログ既定の配色を選べ、任意のページで配色を上書きでき、上書きを外すとブログ既定に戻る",
+      "A3": "公開面でヘッダー・サイドバー・フッターがスクロール中も常時表示され、狭幅ではサイドバーが折りたたまれる",
+      "A4": "運営者情報・全カテゴリー・サイトポリシー・プライバシーポリシー・特定商取引法に基づく表記・お問い合わせの 6 ページを管理画面から作成・編集・公開できる",
+      "A5": "記事内で図解・比較表・CTA・要約・スペック表のブロックを挿入でき、ガジェット依存部分はスロット差し替えで別カテゴリでも再利用できる",
+      "A6": "管理一覧でブログごとの掲載アフィリエイトが一覧でき、アフィリエイトから掲載ブログ/ページへ逆引きできる",
+      "A7": "作成・保存・公開面の各面で当該ページに反映されているアフィリエイトが表示され、保存前後で表示が一致する",
+      "A8": "配色・テンプレート・固定ページの設定は D1 (Drizzle) に永続化され、再読み込み後も保持される",
+      "A9": "公開面のレイアウト・配色は axe-core の重大違反 0 件で、light/dark 両方で本文コントラストが基準を満たす",
+      "A10": "記事ページの HTML に本文・タイトル・description・canonical・OGP・JSON-LD (BlogPosting+BreadcrumbList、FAQ ブロックがあれば FAQPage) がサーバー側で含まれ、pure 関数の単体テストで検証できる",
+      "A11": "/s/{site}/sitemap.xml・/s/{site}/robots.txt・/s/{site}/feed.xml・/s/{site}/llms.txt が公開記事から自動生成され、robots.txt が GPTBot/ClaudeBot/PerplexityBot/Google-Extended を遮断しない",
+      "A12": "記事に結論・要点・FAQ・出典・最終更新ブロックを挿入でき、公開面で最終更新日 (dateModified) が可視化される",
+      "A13": "IndexNow 送信は鍵をサーバー環境変数からのみ読み、鍵未設定時は送信をスキップして記録に残す (鍵をリポジトリや管理画面に保存しない)",
+      "A14": "管理画面の参照レジストリで SEO/AI 検索ガイドラインの出典 (URL・発行元・確認日) を登録・一覧でき、確認日から 90 日超は再確認対象として表示される"
+    },
+    "governance_test": "tests/architecture/blog-ui-spec-governance.test.ts"
+  },
+
+  "architecture_refs": [
+    {
+      "node_id": "arch-system-spec-overview",
+      "file_path": "architecture/system-spec-overview.md",
+      "confirmation_status": "confirmed",
+      "evaluation_status": "pass",
+      "source_digest": "sha256:af460e02930459d08ad7ac2414875f4d5ab4fdc2489ce7cafe51c99263467058",
+      "source_path": "system-spec/00-requirements-definition.md",
+      "evidence_ref": "system-spec/completeness-report.json"
+    },
+    {
+      "node_id": "arch-two-layer-platform",
+      "file_path": "architecture/arch-two-layer-platform.md",
+      "confirmation_status": "confirmed",
+      "evaluation_status": "pass",
+      "source_digest": "sha256:d01442b19c1b9e29681719f2768847c39ec0fea34bfdf6438247c814c037f765",
+      "source_path": "docs/spec/04-二層構造統合仕様.md",
+      "evidence_ref": "docs/spec/04-二層構造統合仕様.md"
+    }
+  ],
+
+  "spec_refs": [
+    {
+      "file_path": "system-spec/ui-ux.md",
+      "confirmation_status": "confirmed",
+      "role": "UI-UX 仕様の正本。テンプレート・配色・レイアウト・固定ページ・表現ブロック・SEO/AI チェックパネルの要件を保持する"
+    },
+    {
+      "file_path": "system-spec/frontend.md",
+      "confirmation_status": "confirmed",
+      "role": "フロントエンド仕様の正本。SSR/ISR・JSON-LD 自動生成・sitemap/RSS/llms.txt・IndexNow・guideline_references の実装契約を保持する (qa-frontend-web-seo-ai-search-v2, qa-frontend-web-blog-builder)"
+    },
+    {
+      "file_path": "system-spec/database.md",
+      "confirmation_status": "confirmed",
+      "role": "データベース仕様の正本。blog_template / blog_theme / page_theme_override / legal_page / blog_affiliate_placement / guideline_references テーブル契約を保持する"
+    }
+  ],
+
+  "source_lineage": {
+    "feature_context": {
+      "source_path": "features/feat-blog-ui-builder.context.json",
+      "source_digest": "sha256:8953a167a43f5fc55998ebfcaa83f437d59f0d567cde6e7c15e8b568ab470d7b",
+      "source_plugin": "dev-graph",
+      "source_version": "0.1.0",
+      "imported_at": "2026-08-24T05:30:00Z",
+      "origin_kind": "generated"
+    },
+    "feature_markdown": {
+      "source_path": "features/feat-blog-ui-builder.md",
+      "confirmation_status": "confirmed",
+      "evaluation_status": "pass",
+      "confirmation_evidence": {
+        "evaluated_digest": "sha256:7c28f632dc2de006d755a4c28a4948d1d76b06797ba43c105dc006f80c2a9464",
+        "evaluator": "system-spec-harness/assign-system-spec-completeness-evaluator",
+        "evidence_ref": "system-spec/completeness-report.json"
+      }
+    },
+    "system_spec_resume_receipt": {
+      "source_path": "system-spec/resume-receipt.json",
+      "verdict": "PASS",
+      "gates": {
+        "coverage": "PASS",
+        "source_citation": "PASS",
+        "evaluator": "PASS"
+      },
+      "producer": {
+        "plugin": "system-spec-harness",
+        "version": "0.1.0",
+        "entry_point": "assign-system-spec-completeness-evaluator"
+      },
+      "inputs_sha256": "sha256:6f349362aff6b7d68f893a10d1a501afad2ad349f9dc65dd06f16c7c98cfc43b",
+      "created_at": "2026-08-28T08:27:01Z",
+      "session_id": "105ca20f-2aa3-4efe-a4c9-ec2a403f7606"
+    },
+    "system_spec_index": {
+      "source_path": "specs/system-spec-index.md",
+      "node_id": "spec-system-spec-index",
+      "confirmation_status": "confirmed",
+      "evaluation_status": "pass",
+      "source_digest": "sha256:d3be7225ce351be5424414a85e715da82fb0e398f6bae1eb7de14a9d08498726",
+      "evidence_ref": "system-spec/completeness-report.json"
+    },
+    "requirements_doc": {
+      "source_path": "docs/requirements/feat-blog-ui-builder-implementation-requirements.md",
+      "promoted_generation_digest": "sha256:9a2832f2d6f8656f3495435827399bed84d70c893a027d828694b07b46506fe1",
+      "emitted_at": "2026-08-24T04:10:00Z"
+    }
+  },
+
+  "old_generation_note": "published パッケージ .dev-graph/published/feature-package-feat-blog-ui-builder/ は source_feature_digest=sha256:50ca9e4e… (A10-A14 追加前の世代) のまま自己整合している。published 世代は履歴であり書き換えない。本 goal-spec は sha256:8953a167… を source_feature_digest とする新世代の生成を許可するものである。",
+
+  "generated_at": "2026-08-28T00:00:00Z",
+  "generator": "system-dev-plan-elicitor"
+}
