@@ -2,8 +2,7 @@ import Link from "next/link";
 import { AdminShell } from "@/presentation/admin/admin-shell";
 import { PublishedArticleForm } from "@/presentation/admin/published-article-form";
 import { currentActor, publishedArticleAdminUseCases } from "@/presentation/composition";
-import { Card, EmptyView, ErrorView } from "@/presentation/ui";
-import styles from "../../../../../admin.module.css";
+import { Card, EmptyView, ErrorView, FactList, Section, Stack } from "@/presentation/ui";
 
 export const dynamic = "force-dynamic";
 
@@ -29,16 +28,33 @@ export default async function EditPublishedArticlePage({
       {!result.ok ? (
           <ErrorView title="公開済み記事を開けませんでした" body={result.error.message} suggestedAction={result.error.suggestedAction ?? null} />
         ) : result.value !== null ? (
-          <div className={styles.publishedEditor}>
-            <Card>
-              <dl className={styles.publishedMeta}>
-                <div><dt>サイト</dt><dd>{result.value.article.siteSlug}</dd></div>
-                <div><dt>URL</dt><dd>{result.value.article.slug}</dd></div>
-                <div><dt>状態</dt><dd>{result.value.archivedAt === null ? "公開中" : "非表示"}</dd></div>
-              </dl>
-            </Card>
-            <Card><PublishedArticleForm article={result.value.article} archivedAt={result.value.archivedAt} /></Card>
-          </div>
+          <Stack>
+            <Card
+              claim="読者に出ている記事の現在状態"
+              main={
+                <FactList
+                  rows={[
+                    { key: "site", label: "サイト", value: result.value.article.siteSlug },
+                    { key: "url", label: "URL", value: result.value.article.slug },
+                    {
+                      key: "status",
+                      label: "状態",
+                      value: result.value.archivedAt === null ? "公開中" : "非表示",
+                    },
+                  ]}
+                />
+              }
+            />
+            <Section
+              title="訂正内容と変更理由"
+              lead="変更する内容と理由を確認してから保存します。"
+            >
+              <PublishedArticleForm
+                article={result.value.article}
+                archivedAt={result.value.archivedAt}
+              />
+            </Section>
+          </Stack>
         ) : (
           <EmptyView
             title="この公開済み記事は見つかりません"

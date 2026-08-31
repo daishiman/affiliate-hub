@@ -5,8 +5,21 @@
  * ここに `16px` と書いた瞬間、間隔の決めごとが 2 か所になる。
  */
 
+.section {
+  display: grid;
+  min-width: 0;
+  gap: var(--space-3);
+  padding-block: var(--space-3);
+}
+
+/* 長い選択肢を持つ form でも、節そのものを viewport より広げない。 */
+.section > * {
+  min-width: 0;
+  max-width: 100%;
+}
+
 .title {
-  margin: 0 0 var(--space-2);
+  margin: 0;
   font-size: var(--text-lg);
   line-height: var(--leading-heading);
   font-weight: var(--weight-bold);
@@ -22,7 +35,7 @@
  */
 .lead {
   max-width: var(--readable-max-width);
-  margin: 0 0 var(--space-4);
+  margin: 0;
   font-size: var(--text-sm);
   color: var(--color-text-muted);
 }
@@ -95,8 +108,15 @@ ol.list {
 /* --- 表 ----------------------------------------------------------------- */
 
 .tableWrap {
+  position: relative;
+  width: 100%;
+  max-width: 100%;
+  max-block-size: var(--table-scroll-max-block);
   min-width: 0;
-  overflow-x: auto;
+  overflow: auto;
+  overscroll-behavior: contain;
+  border: var(--border-width-default) solid var(--color-border-subtle);
+  border-radius: var(--radius-md);
 }
 
 .table {
@@ -114,9 +134,29 @@ ol.list {
 }
 
 .table thead th {
+  position: sticky;
+  top: 0;
+  z-index: var(--z-sticky);
+  background: var(--color-surface-raised);
+  border-bottom: var(--border-width-default) solid var(--color-border-subtle);
   color: var(--color-text-muted);
   font-weight: var(--weight-semibold);
   white-space: nowrap;
+}
+
+/* 横へ送っても、どの対象の行かを見失わない。 */
+.table tbody th {
+  position: sticky;
+  left: 0;
+  z-index: var(--z-raised);
+  background: var(--color-surface-default);
+  border-bottom: var(--border-width-default) solid var(--color-border-subtle);
+  color: var(--color-text-strong);
+  font-weight: var(--weight-semibold);
+}
+
+.table thead th:first-child {
+  left: 0;
 }
 
 .table td > a,
@@ -167,8 +207,10 @@ ol.list {
 }
 
 .factRow dd {
+  min-width: 0;
   margin: 0;
   color: var(--color-text-strong);
+  overflow-wrap: anywhere;
 }
 
 .factRow dd > a {

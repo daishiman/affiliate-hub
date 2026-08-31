@@ -1,6 +1,5 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
-import { Card } from "./app-shell";
 import styles from "./screen-parts.module.css";
 
 /**
@@ -28,7 +27,7 @@ import styles from "./screen-parts.module.css";
  */
 
 /**
- * 節。カード 1 枚と、その見出し・説明文。
+ * 節。見出し・説明文・本文をひとまとまりにする。
  *
  * 見出しは必ず `h2`。画面の見出し（`Page` の `h1`）の直下に来るので、
  * ここを `h3` にすると階層が飛ぶ。**選べないことがこの部品の仕事**である。
@@ -44,11 +43,11 @@ export function Section({
   readonly children?: ReactNode;
 }) {
   return (
-    <Card>
+    <section className={styles.section}>
       <h2 className={styles.title}>{title}</h2>
       {lead === undefined ? null : <p className={styles.lead}>{lead}</p>}
       {children}
-    </Card>
+    </section>
   );
 }
 
