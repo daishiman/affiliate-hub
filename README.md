@@ -55,12 +55,33 @@ pnpm install
 # ローカル D1 にスキーマを適用
 pnpm db:migrate:local
 
+# 見本データを入れる（これを飛ばすと /s/ 以下は 1 枚残らず 404 になります）
+pnpm seed:local
+
 # 開発サーバー (Node.js ランタイム / 高速リロード)
 pnpm dev
+```
+
+読者側のページ（`/s/<ブログ>`）が出るかどうかは、**2 つの表がそろっているか**で決まります。
+
+1. `site_blueprints` にそのブログの設計図が在る
+2. `site_network_node` に同じ URL 名が `status='active'` で在る
+
+片方だけだと画面は 404 を返しますが、これは「まだ作っていないページ」と見分けが付きません。
+入れ終わったら、見本のブログ **5 本すべて**が 200 で開けることを確かめてください。
+
+```bash
+for s in home-office-desk compact-kitchen-gear first-camera run-and-recover mobile-plan-navi; do
+  printf '%-22s %s\n' "$s" "$(curl -o /dev/null -sw '%{http_code}' "http://localhost:3000/s/$s")"
+done
 
 # Workers ランタイム(workerd)での動作確認 — 本番に近い
 pnpm preview
 ```
+
+見本は「まだ 1 本も作っていない状態でも読者側の画面が空にならない」ためのものなので、
+**5 本とも公開します**（1 本目が網の中心で、残り 4 本がその下）。
+1 本でも 404 なら、`site_network_node` への登録が抜けています。
 
 ## 環境とデプロイフロー
 
@@ -140,6 +161,7 @@ productionのmigration・deployはdevの成功確認と別承認の後に行い�
 | `pnpm cf-typegen` | バインディングの型 (`cloudflare-env.d.ts`) を生成 |
 | `pnpm db:generate` | スキーマ変更からマイグレーション SQL を生成 |
 | `pnpm db:migrate:local` | ローカル D1 に適用 |
+| `pnpm seed:local` | ローカル D1 に見本データを入れる（何度当てても増えません） |
 | `pnpm run db:migrate:remote --env dev` / `--env production` | 指定環境の D1 に適用 |
 | `pnpm run db:drift --env dev` / `--env production` | 指定環境の D1 と migration の最終形を比較 |
 

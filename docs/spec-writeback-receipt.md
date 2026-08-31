@@ -521,3 +521,136 @@ verdict: accepted-with-follow-up
 - `ah-7lo`: `system-spec/completeness-report.json` が STALE。入力 hash 付きで再評価する
 - `ah-ez9`: 読者面と発信者面の接続境界は 02 §9 項 5 が open
 - Auth / Workspace / 2 D1 / Redirect / Insight は未実装（本 PR の対象外）
+
+---
+
+# 仕様反映 受領書（2026-08-31・見本データと読者側の入口）
+
+```yaml
+receipt_id: spec-writeback-2026-08-31-task-seed-satisfies-public-entry
+recorded_at: 2026-08-31T06:10:00Z
+beads_ids: [ah-ghmb]
+dev_graph_node_id: task-seed-satisfies-public-entry
+base_branch: dev
+head_branch: devgraph/task-seed-satisfies-public-entry
+verdict: no-spec-impact
+```
+
+## 判定
+
+本変更は **仕様・設計へ影響しない。** 確定済みの製品要求・画面契約・データ契約を
+一切増減していない。`system-spec/` `specs/` `architecture/` は変更していない。
+
+変えたのは **開発機に入れる見本データ**と、それを見張る回帰検査だけである。
+
+## 影響が無いと判断した理由
+
+| 変更 | 種類 | 判断根拠 |
+|---|---|---|
+| `site_blueprints` への `DELETE` + `INSERT` を追加 | 見本データの欠落補填 | 公開の条件は `resolvePublicSiteIdentity` が既に定めており、そこは変えていない。**条件を満たすデータを入れていなかった側**を直した |
+| `SEED_SUB_SLUG` を `SECOND_SITE_SLUG` の import へ | 見本データの不整合修正 | 手書きの `gear-for-small-kitchen` は見本のどこにも存在しない URL 名だった。正本（`sampleSites()`）を指し直しただけ |
+| `legal_page` の `DELETE` を id 接頭辞へ | 冪等性の修正 | 同じ行を 2 度当てても増えない、という既存の性質を保つための修正。表の定義は不変 |
+| `seed-covers-cases.test.ts` の id 抽出を列名基準へ | 検査の誤報修正 | 「1 番目の値が id」の決め打ちが、列を足した日に別の値を id と誤認していた。判定の意味は不変 |
+| 新規検査 3 本 | 回帰の固定 | 検査の追加は仕様を増やさない。既に正本にある条件を機械で確かめるだけ |
+
+## 仕様側に反映したこと（文書のみ）
+
+`README.md` のセットアップに `pnpm seed:local` と、読者側の公開が
+**`site_blueprints` と `site_network_node` の組**で決まることの明記を足した。
+
+これは要求の追加ではなく、**既にコードが要求していた条件を人が読める場所に書いた**ものである。
+手順を飛ばすと `/s/` 以下が 404 になることが、いままでどこにも書かれていなかった。
+
+## 品質ゲート
+
+| ゲート | 結果 |
+| --- | --- |
+| `npx tsc --noEmit --incremental false` | PASS（出力なし） |
+| `npx eslint`（対象 5 ファイル） | PASS（出力なし） |
+| `npx vitest run tests/architecture` | PASS（69 files / 837 tests） |
+| `npx vitest run`（全体） | PASS（434 files / 10101 tests） |
+| `pytest test_compile_heading_demotion_real_data.py` | PASS（7 passed） |
+| `upsert-node.py`（dev-graph node 登録） | PASS（revision 305 → 306） |
+| `bd-bridge.py --op create` | PASS（ah-ghmb） |
+
+## 意図的にやらなかったこと
+
+- **網に載せるブログの本数を増やすこと。** 3〜5 本目（`first-camera` /
+  `run-and-recover` / `mobile-plan-navi`）は設計図は在るが `site_network_node` に
+  載っておらず 404 になる。これは `resolvePublicSiteIdentity` の定めどおりであり、
+  本数を変えるのは仕様判断なので触っていない。
+- `docs/product/test-traceability.md` の再生成分のコミット。生成物であり、
+  他セッションの未コミットテストを大量に含むため、含めると docs が実在しない
+  ファイルを指すことになる。
+
+## 残課題
+
+- 網に載せる本数を 2 本のままにするかの仕様判断 → **`ah-vctm`** で起票済み
+  （`task-network-reach-decision`。`ah-ghmb` に依存）
+- `docs/product/test-traceability.md` は本 PR のマージ結果で再生成済み（427 件）。
+  他セッションの未コミットテストが出そろったら、そちらでもう一度生成し直す
+
+---
+
+# 仕様反映 受領書（2026-08-31・公開する本数を決める）
+
+```yaml
+receipt_id: spec-writeback-2026-08-31-task-network-reach-decision
+graph_node_id: task-network-reach-decision
+beads_ids: [ah-vctm]
+verdict: no-spec-impact
+decided_by: daishiman
+decided_at: 2026-08-31
+```
+
+## 何を決めたか
+
+**見本の 5 本すべてを読者側で公開する。** 中心（`home-office-desk`）は 1 本のまま、
+残る 4 本をその下に並べる。
+
+直前の受領書で「本数を変えるのは仕様判断なので触っていない」と書いた項目である。
+**その判断をここで行い、結果を反映した。**
+
+## なぜ 5 本か
+
+| 論点 | 判断 |
+| --- | --- |
+| 見本 5 本は何のために在るか | `sampleSites()` の但し書きが「まだ 1 本も作っていない状態で読者側の画面が全部空になり、『作っていない』のか『壊れている』のかを見分けられなくなる」のを防ぐためと明記している |
+| いまの 404 はその狙いに沿うか | **沿わない。** 3 本が 404 では、見分けが付かない状態を自分で作っている |
+| 全部をハブにしてよいか | **だめ。** `SiteNetworkNode` の但し書きが「ハブが 1 つ、その下にサブサイト」と決めている。森にすると姉妹サイトの帯とパンくずが入口を決められない |
+| 本数を数字で固定するか | **しない。** `seedNetwork()` を `sampleSites()` から作り、「網と設計図が 1 対 1」を検査で見張る |
+
+## なぜ仕様への反映が要らないか
+
+| 確かめたこと | 結果 |
+| --- | --- |
+| 公開条件そのものを変えたか | 変えていない。`resolvePublicSiteIdentity` は無改変で、満たす行を増やしただけ |
+| ドメインの型・不変条件を変えたか | 変えていない。木が 1 つであることは維持し、むしろ検査で明示した |
+| 読者側・管理側の画面仕様を変えたか | 変えていない。見本データの内容だけが変わる |
+| 本番データへの影響 | 無い。`scripts/seed/` は開発機の D1 専用 |
+
+確定済み仕様章（`system-spec/*.md`）への反映は不要と判断した。
+変わったのは**見本データが何本のブログを持つか**であり、製品の決まりではない。
+判断の記録は `tasks/task-network-reach-decision.md` の「決定」節と、
+`seedNetwork()` の但し書きに置いた。
+
+## 品質ゲート
+
+| ゲート | 結果 |
+| --- | --- |
+| `tsc --noEmit` | PASS（本変更分にエラーなし。`src/app/layout.tsx` の `LayoutProps` は Next.js 生成型が未作成なための既存事象） |
+| `vitest run tests/architecture` | PASS（71 files / **816** tests。前回 815 → 新検査 1 件） |
+| `vitest run`（全体） | PASS（427 files / **10080** tests。前回 10079 → +1） |
+
+## 変えたもの
+
+| ファイル | 変更 |
+| --- | --- |
+| `scripts/seed/local-seed-data.ts` | `seedNetwork()` を `sampleSites()` からの生成に変更。名前と一行説明も設計図から借りる |
+| `tests/architecture/seed-satisfies-public-entry.test.ts` | 「設計図を持つブログは 1 本残らず網にも載っている」を追加。親子関係の主張を強化 |
+| `README.md` | 確認手順を 5 本すべてに。公開する本数とその理由を明記 |
+| `tasks/task-network-reach-decision.md` | 「決定」節を追加。`status: draft → done` |
+
+## 残課題
+
+無し。`ah-ghmb` から引き継いだ残課題はこれで閉じた。

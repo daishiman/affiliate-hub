@@ -36,7 +36,6 @@ import type {
   BlogLayoutBandRecord,
   BlogLayoutSlotRecord,
   BlogTagRecord,
-  FixedPageRecord,
   SiteNetworkRecord,
 } from "@/application/ports/blog-ops";
 import {
@@ -44,7 +43,11 @@ import {
   type SiteDocumentOnlyStorageKind,
 } from "@/domain/authoring";
 import { BLOG_OPS_SAMPLE_ROUTE_IDS } from "@/infrastructure/persistence/sample/blog-ops-sample-repository";
-import { SAMPLE_SITE_SLUG } from "@/infrastructure/persistence/sample/site-sample-repository";
+import {
+  SAMPLE_SITE_SLUG,
+  SECOND_SITE_SLUG,
+  sampleSites,
+} from "@/infrastructure/persistence/sample/site-sample-repository";
 
 /** 見本の作業場所。`SAMPLE_WORKSPACE_ID` と同じ値であることを検査が見る。 */
 export const SEED_WORKSPACE_ID = "ws_sample";
@@ -67,7 +70,18 @@ export const SEED_USER_NAME = "ローカル検証用の担当者";
  * `buildSeedSql` がそのブログの行を実際に吐いているかである。
  */
 export const SEED_HUB_SLUG = SAMPLE_SITE_SLUG;
-export const SEED_SUB_SLUG = "gear-for-small-kitchen";
+/**
+ * 子側。**見本の 2 本目をそのまま指す。**
+ *
+ * 2026-08-30 まで、ここだけ手書きの `"gear-for-small-kitchen"` だった。
+ * 見本の 2 本目は `compact-kitchen-gear` なので、**設計図の無い URL 名**へ
+ * 固定ページと版面と記事を入れていたことになる。`/s/gear-for-small-kitchen`
+ * 以下は 1 枚残らず 404 で、しかも「まだ作っていないブログ」と区別が付かない。
+ *
+ * 親側は `SAMPLE_SITE_SLUG` を写した値だったので偶然一致していた。
+ * **偶然の一致は次に見本が変わった日に切れる**ので、両方とも写さずに指す。
+ */
+export const SEED_SUB_SLUG = SECOND_SITE_SLUG;
 
 /**
  * 成果リンク画面の見本。固定IDの行だけを入れ直すため、
@@ -738,10 +752,21 @@ export function seedTags(): readonly BlogTagRecord[] {
 }
 
 /** 固定ページ 8 種。両方のブログに置く。 */
+export type SeedFixedPage = {
+  readonly id: string;
+  readonly siteSlug: string;
+  readonly kind: FixedPageKind;
+  readonly title: string;
+  readonly body: string;
+  readonly status: "published";
+  readonly deletedAt: null;
+  readonly updatedAt: Date;
+};
+
 export function seedFixedPages(
   siteKey: SeedSiteKey,
   updatedAt: Date,
-): readonly FixedPageRecord[] {
+): readonly SeedFixedPage[] {
   return LEGAL_PAGES.map(([kind, title, body]) => ({
     id: `lp_seed_${siteKey}_${kind}`,
     siteSlug: seedSiteSlug(siteKey),
@@ -754,30 +779,55 @@ export function seedFixedPages(
   }));
 }
 
-/** サイト網。親を持たない中心が 1 本だけであること自体が見本になる。 */
+/**
+ * サイト網。**見本の 5 本すべてを載せる。**
+ *
+ * --- なぜ 5 本か（2026-08-31 に決めた）---
+ *
+ * ここは 2026-08-31 まで親と子の 2 本だけを載せていた。設計図は
+ * `sampleSites()` が 5 本持っているので、残り 3 本
+ * （`first-camera` / `run-and-recover` / `mobile-plan-navi`）は
+ * `site_blueprints` に行を持ちながら網に行が無く、`/s/<名前>` が 404 だった。
+ * `resolvePublicSiteIdentity` は 2 つの表の組を要求するので、
+ * **網に載っていないブログは、設計図が在っても公開されない。**
+ *
+ * これは実装の誤りではなかった。しかし決めた結果でもなかった——
+ * 「3 本目以降を公開しない」と誰かが判断した記録はどこにも無く、
+ * seed がそう書いてあるからそうなっていただけである。
+ *
+ * 見本 5 本の狙いは `sampleSites()` の但し書きに書いてある——
+ * 「まだ 1 本も作っていない状態で読者側の画面が全部空になり、
+ * 『作っていない』のか『壊れている』のかを見分けられなくなる」のを防ぐこと。
+ * **3 本が 404 だと、その狙いを果たさないどころか自分で壊している。**
+ * だから 5 本とも公開する。
+ *
+ * --- なぜ木を 1 つに保つか ---
+ *
+ * `SiteNetworkNode` の但し書きは「ハブが 1 つ、その下にサブサイト」と
+ * 決めている。5 本を全部ハブにすると木が 5 つの森になり、姉妹サイトの帯や
+ * パンくずが「どこが入口か」を決められない。**中心は 1 本のまま**、
+ * 増えた 3 本は残りと同じくその下に並べる。
+ *
+ * --- なぜ書き並べないか ---
+ *
+ * 一覧は `sampleSites()` から作る。**書き写さないので載せ忘れが作れない。**
+ * 見本にブログを足した日、ここは何もしなくても網に載る。
+ * 名前と一行説明も設計図から借りる（2 か所に同じ文字列を置かない）。
+ */
 export function seedNetwork(): readonly SiteNetworkRecord[] {
-  return [
-    {
-      id: "sn_seed_hub",
-      siteSlug: SEED_HUB_SLUG,
-      role: "hub",
-      parentSlug: null,
-      name: "編集の道具",
-      oneLine: "道具選びの入口をここに集めます。",
-      position: 0,
+  return sampleSites().map((site, index) => {
+    const isHub = site.slug === SEED_HUB_SLUG;
+    return {
+      id: `sn_seed_${site.slug.replace(/-/g, "_")}`,
+      siteSlug: site.slug,
+      role: isHub ? "hub" : "sub",
+      parentSlug: isHub ? null : SEED_HUB_SLUG,
+      name: site.blueprint.name,
+      oneLine: site.blueprint.purpose,
+      position: index,
       status: "active",
-    },
-    {
-      id: "sn_seed_sub",
-      siteSlug: SEED_SUB_SLUG,
-      role: "sub",
-      parentSlug: SEED_HUB_SLUG,
-      name: "台所まわりの道具",
-      oneLine: "中心から分けた、狭い題目のほう。",
-      position: 1,
-      status: "active",
-    },
-  ];
+    };
+  });
 }
 
 /** 記事 1 本を、保存されている形（`BlogArticle`）で返す。 */
@@ -834,8 +884,45 @@ export function buildSeedSql(nowSeconds: number): readonly string[] {
     `DELETE FROM blog_layout_band WHERE workspace_id = ${ws};`,
     `DELETE FROM blog_delivery_part WHERE workspace_id = ${ws};`,
     `DELETE FROM site_network_node WHERE workspace_id = ${ws};`,
-    `DELETE FROM legal_page WHERE id IN (${seedLegalPageIds});`,
+    /*
+     * 固定ページは **URL 名ではなく id の接頭辞で消す。**
+     *
+     * URL 名で消すと、`SEED_SUB_SLUG` が指す先が変わった日に古い名前の行だけが
+     * 残り、id は同じなので次の `INSERT` が主キー衝突で落ちる。2026-08-30 に
+     * 実際そうなった（`gear-for-small-kitchen` → `compact-kitchen-gear`）。
+     * 種として入れた行は全部 `lp_seed_` で始まるので、そちらを目印にする。
+     */
+    `DELETE FROM legal_page WHERE id LIKE 'lp_seed_%' OR id IN (${seedLegalPageIds});`,
   );
+
+  /*
+   * ブログの設計図。**これが無いと、他を全部入れても画面は 404 しか返さない。**
+   *
+   * 2026-08-30 まで seed はこの表を 1 行も書いていなかった。それでも画面が
+   * 出ていたのは、開発機の D1 に**過去の別経路で入った行が残っていた**だけである。
+   * `pnpm db:migrate:local` から作り直せば表は空になり、`/s/` 以下は全滅する。
+   * 読者側の入口 (`page-frame.tsx`) は設計図を読めなければ骨格を描く前に
+   * `notFound()` するので、**記事も固定ページも版面も、全部あるのに出ない**。
+   *
+   * 値は見本 (`sampleSites()`) をそのまま JSON にする。**写さない。**
+   * 写せば、見本にブログを 1 本足した日に seed だけ古いままになり、
+   * vitest (見本の上で描く) は緑・本物の通信だけが 404 という、
+   * 一番見つけにくい形へ戻る。
+   *
+   * 消す範囲は見本の 5 本に限る。手で作ったブログを巻き込まない。
+   */
+  const blueprints = sampleSites();
+  out.push(
+    `DELETE FROM site_blueprints WHERE workspace_id = ${ws} AND slug IN (${blueprints
+      .map((site) => q(site.slug))
+      .join(", ")});`,
+  );
+  for (const site of blueprints) {
+    out.push(
+      `INSERT INTO site_blueprints (id, workspace_id, slug, name, pattern, published_at, blueprint_json)
+         VALUES (${q(String(site.blueprint.id))}, ${ws}, ${q(site.slug)}, ${q(site.blueprint.name)}, ${q(site.blueprint.pattern)}, ${nowSeconds}, ${q(JSON.stringify(site.blueprint))});`,
+    );
+  }
 
   // 入口（作業場所・担当者・認証基盤の人）。担当の行が無いと通行証が出ない。
   out.push(
@@ -941,7 +1028,7 @@ export function buildSeedSql(nowSeconds: number): readonly string[] {
     for (const page of seedFixedPages(siteKey, new Date(nowSeconds * 1000))) {
       out.push(
         `INSERT INTO legal_page (id, workspace_id, site_slug, kind, title, body, status, deleted_at, updated_at)
-           VALUES (${q(page.id)}, ${ws}, ${q(page.siteSlug)}, ${q(page.kind)}, ${q(page.title)}, ${q(page.body)}, ${q(page.status)}, ${page.deletedAt === null ? "NULL" : String(Math.floor(page.deletedAt.getTime() / 1000))}, ${nowSeconds});`,
+           VALUES (${q(page.id)}, ${ws}, ${q(page.siteSlug)}, ${q(page.kind)}, ${q(page.title)}, ${q(page.body)}, ${q(page.status)}, NULL, ${nowSeconds});`,
       );
     }
     for (const kind of SITE_DOCUMENT_ONLY_STORAGE_KINDS) {
