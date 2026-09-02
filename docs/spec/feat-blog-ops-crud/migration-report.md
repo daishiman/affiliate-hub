@@ -1,8 +1,14 @@
 # 移行報告 (P08)
 
-更新日: 2026-08-27  
-execution status: **in_progress**  
+更新日: 2026-09-01
+
+local implementation status: **complete**
+
 local implementation validation: **GREEN**
+
+remote migration status: **not_applied**
+
+rollout status: **in_progress**（実ドメイン・wildcard route・proxied DNS 証跡待ち）
 
 ## 現行の決着: `articles` が唯一の編集正本
 
@@ -16,17 +22,54 @@ local implementation validation: **GREEN**
 
 ブログ D1 adapter は `articles as blogArticles` を通じて本体を read/write し、`blog_article` へ dual-write しない。用途別の `/admin/content/**` と `/admin/blog/**` は入口を分けたまま、本体の永続正本だけを共有する。`published_articles` は公開read projection であり編集正本ではない。
 
+## 0042 公開 projection 一本化 (2026-09-01、ローカル実装・検証完了)
+
+今回の監査で、編集正本の一本化後も公開経路が二系統残っていることが分かった。
+`/blog`・構成件数・評価は `articles`、型別記事・検索・人物・SEO・feed は
+`published_articles` を読んでおり、同じ site で一覧と本文の集合が一致しない。
+
+是正方針は次のとおり。
+
+- `articles`: 編集 aggregate、revision/CAS、論理削除、評価の親 ID
+- `published_articles`: 唯一の canonical public projection
+- `source_article_id`: ブログ運用由来 projection と既存 `articles.id` の追跡
+- 公開・更新・非公開化・削除: 編集 aggregate と projection を同一 D1 batch で更新
+- AI/BlogOps の同一 URL 並行公開: source 不一致を DB 内 guard で検出し、競合側の
+  aggregate・本文・projection を batch 全体で rollback
+- 公開 reader: `PublishedContentPort` へ統合し、`articles` 直読・sample fallback・union を禁止
+- 配信診断: `articles.status` ではなく実際の canonical public projection だけを点検
+- URL: `articleHref` を単一定義とし、旧 `/blog/:slug` は 308 redirect
+
+既存データは物理削除せず、add-only / idempotent / fail-closed の forward migration で
+補完する。所有者不一致や曖昧な identity は推測で修正しない。
+
+`drizzle/0042_canonical_public_articles.sql` と正規 snapshot
+`drizzle/meta/0042_snapshot.json` を追加した。次回の Drizzle generate は差分 0、
+`drizzle-kit check` も PASS している。remote D1 には適用していないため、ローカル実装の
+完了と rollout 完了を同一視しない。
+
 0030 は表の作り直し前に、結合先の不存在と workspace/site 不一致を
 CHECK guard で fail-fast する。不整合行をフィルタして無断削除はしない。移行末尾で
 `PRAGMA foreign_key_check` を実行し、D1 統合検査も違反 0 件を確認する。
 
-局所検証:
+ローカル検証（2026-09-01）:
 
-- migration canonical SSOT test: 1/1 PASS
-- 関連 runtime: 5 files / 202 tests PASS
+- canonical public projection 対象: 10 files / 318 tests PASS
+- 旧 FAIL の再検証: 15 files / 2,543 tests PASS
+- 全回帰: 435 files / 10,194 tests PASS
+- system-spec architecture: 6 files / 182 tests PASS
 - TypeScript: PASS
+- ESLint: 0 errors（既存 `stryker.config.mjs` warning 1）
+- Next.js production build / OpenNext Cloudflare build: PASS
+- production dependency audit: 既知脆弱性 0
+- Worker gzip: 2,990 KiB / 3,072 KiB（PASS、残り 82 KiB のため容量リスクあり）
+- Drizzle snapshot/check: PASS、次回 generate 差分 0
+- traceability: 435 / 435 test files に由来あり
+- acceptance reconciliation: 10 IDs / 201 evidence files PASS
 
-これは局所 GREEN であり、P07/P09 再検証・全回帰・開発環境 migration 適用はまだ完了していない。したがって P08/P10/P13 の `completion_evidence` は in_progress を維持する。
+P07/P09 を含むローカル実装・検証は完了した。remote D1 適用、deploy、実ドメイン、
+wildcard route、proxied DNS の確認は未実施であり、rollout の `completion_evidence` は
+in_progress を維持する。
 
 published generation は digest で固定した監査履歴のため書き換えない。以下の別表方針は 2026-08-26 の過去判断として保持するが、現行仕様に使用しない。
 

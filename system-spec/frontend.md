@@ -15,7 +15,7 @@ serves_goals: [G1, G2]
 
 | プラットフォーム | 状態 | 根拠 |
 |---|---|---|
-| Web (web) | 確定 | 確定質疑: qa-frontend-web-capture-self-occlusion。裏付け質疑 (`qa_refs`): `qa-frontend-web-affiliate-link-preview-v3`, `qa-frontend-web-seo-ai-search-v2`, `qa-frontend-web-blog-builder`, `qa-frontend-web-spec-intake`, `qa-frontend-web`, `qa-frontend-web-analytics`, `qa-frontend-web-overhaul-v2` — 本章の「確定内容 (質疑録)」へ接地根拠として併記 |
+| Web (web) | 確定 | 確定質疑: qa-frontend-web-blog-composition-visibility。裏付け質疑 (`qa_refs`): `qa-frontend-web-capture-self-occlusion`, `qa-frontend-web-affiliate-link-preview-v3`, `qa-frontend-web-seo-ai-search-v2`, `qa-frontend-web-blog-builder`, `qa-frontend-web-spec-intake`, `qa-frontend-web`, `qa-frontend-web-analytics`, `qa-frontend-web-overhaul-v2` — 本章の「確定内容 (質疑録)」へ接地根拠として併記 |
 | モバイル (mobile) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |
 | タブレット (tablet) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |
 | デスクトップ (Windows) (desktop-windows) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |
@@ -24,7 +24,13 @@ serves_goals: [G1, G2]
 
 ## 確定内容 (質疑録)
 
-### qa-frontend-web-capture-self-occlusion (対応セル: web)
+### qa-frontend-web-blog-composition-visibility (対応セル: web)
+
+**質問**: 作ったブログが何で構成されているかが見えず改善に着手できない。どこまで見えれば解決とみなすか。
+
+**回答**: 4つすべてを満たす。(a) 作成直後に読者側の住所が実際に開き、404にならない。(b) 管理画面にそのブログの構成要素 (固定ページ・版面の帯・スロット・カテゴリー・記事) を実データの件数と各実体へのリンク付きで一覧する。(c) 管理画面の中で読者と同じ見た目をプレビューでき、公開前に確認できる。(d) 作成時点で公開に必要なのに無い要素を名指しで提示し、その場へ移動できる。描画は既存の SiteFrame と public-site-projection を通し、読者用と別の描画経路を作らない。作ると管理画面で見える姿と読者が見る姿がずれる。
+
+### qa-frontend-web-capture-self-occlusion (対応セル: web) — 接地根拠 (required_info/qa_refs が名指す裏付け)
 
 **質問**: frontend×web: 改善要望フィードバックで画面の写しを撮るとき、送信モーダルと固定ボタン自身の写り込みをどう扱うか (2026-08-30 利用者ヒアリング)
 
@@ -182,9 +188,30 @@ serves_goals: [G1, G2]
 
 #### 本章での適用
 
-##### 確定内容 qa-frontend-web-capture-self-occlusion (対応セル: web)
+##### 確定内容 qa-frontend-web-blog-composition-visibility (対応セル: web)
 
-- 確定要件: 利用者本人の回答を逐語主旨で記録する。(1) 「改善したい箇所のスクリーンショットを撮ると、編集画面の『改善したいことを送る』という画面が表示され、そのスクリーンショットが貼られてしまう」。(2) 「これでは本当に改善したい箇所を伝えることができない」。(3) 対処の範囲を 3 案 (機能ごと無効化 / 撮影中だけ自動で隠す / モーダルの自動表示だけ止める) で確認したところ、利用者は「撮影中だけ自動で隠す」を選択した。すなわちフィードバック機能そのものは残し、写しの取得が確定するまでの間だけ、送信モーダルと右下の固定ボタンを写しの対象から外す。(4) 撮り直し (再撮影) のときも同じ扱いとする。
+- 確定要件: 4つすべてを満たす。(a) 作成直後に読者側の住所が実際に開き、404にならない。(b) 管理画面にそのブログの構成要素 (固定ページ・版面の帯・スロット・カテゴリー・記事) を実データの件数と各実体へのリンク付きで一覧する。(c) 管理画面の中で読者と同じ見た目をプレビューでき、公開前に確認できる。(d) 作成時点で公開に必要なのに無い要素を名指しで提示し、その場へ移動できる。描画は既存の SiteFrame と public-site-projection を通し、読者用と別の描画経路を作らない。作ると管理画面で見える姿と読者が見る姿がずれる。
+- 設計解釈の記録経路: `dialogue`
+- 原則: 表示モデル — domain model (正本の意味と値) から view model への変換規則を明示し、表示層は勝手に再計算しない (`information-design.md#中核概念`)
+  - 採否: `applied`
+  - 章固有の根拠: 管理画面の構成要素一覧 (固定ページ・版面の帯・スロット・カテゴリー・記事) は、読者側と同じ public-site-projection を通して読む。記事は published_articles を唯一の canonical public projection とし、一覧・本文・検索・カテゴリー・人物・SEO・composition が同じ PublishedContentPort の identity 集合を使う。管理画面専用の数え直しや PublicBlogPort の articles 直読を残すと、『見えているのに直らない』が再発する。件数も各実体へのリンクも同じ正本から導く
+  - トレードオフ:
+    - 読者用 projection に管理画面の都合 (未公開要素の可視化) を混ぜると読者側へ漏れる危険がある。projection は共有しつつ、可視性の絞り込みは呼び出し側の権限で行う
+    - 共有するぶん、読者側の変更が管理画面を壊しうる。ずれない代わりに結合は強くなる
+    - 旧 /blog/:slug は同じ projection から articleHref の canonical URL へ 308 redirect し、既存入口を残したまま二重本文を作らない
+- 原則: 削除仮説 — 削除候補・代わりの手掛かり・誤読時の影響・検証方法・復元条件を持つ反証可能な仮説にする (`information-design.md#中核概念`)
+  - 採否: `applied`
+  - 章固有の根拠: 作成時点で公開に必要なのに無い要素は、隠さず名指しで提示し、その場へ移動できるようにする。『まだ無い』を画面から省くのは最も影響の大きい削除であり、省いた結果が今回の 404 である。不足の提示は削除候補から外す
+  - トレードオフ:
+    - 不足を全部出すと初回作成直後の画面が赤で埋まる。優先度 (公開を止めている要素か、質を下げるだけの要素か) で強さを分ける必要がある
+- 原則: Screaming architecture — top-level 構造が framework 名でなく system の use case と domain を語る (`clean-architecture.md#中核概念`)
+  - 採否: `applied`
+  - 章固有の根拠: 管理画面内のプレビューは既存の SiteFrame を通して描画し、読者用と別の描画経路を作らない。プレビュー専用のコンポーネント木を立てると『プレビューでは出るが本番では出ない』という第二の乖離を作る
+  - トレードオフ:
+    - SiteFrame は notFound() を呼ぶ前提で書かれており、管理画面の中で使うには『見つからない』の扱いを呼び出し側で受け取れる形に分ける必要がある
+##### 接地根拠 qa-frontend-web-capture-self-occlusion (対応セル: web)
+
+- 本文: 「確定内容 (質疑録)」の `qa-frontend-web-capture-self-occlusion` を参照
 - 設計解釈の記録経路: `dialogue`
 - 原則: 自己観測する UI は、観測の対象から自分自身を外す (観測器を被写体に含めない) (`user-dialogue:2026-08-30#撮影中だけ自動で隠す`)
   - 採否: `applied`

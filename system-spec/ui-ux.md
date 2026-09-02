@@ -15,7 +15,7 @@ serves_goals: [G1, G2]
 
 | プラットフォーム | 状態 | 根拠 |
 |---|---|---|
-| Web (web) | 確定 | 確定質疑: qa-uiux-web-cognitive-load-affiliate-visibility-v3。裏付け質疑 (`qa_refs`): `qa-uiux-web-seo-ai-search-v2`, `qa-uiux-web-blog-builder`, `qa-uiux-web-screen-priority`, `qa-uiux-web-spec-intake`, `qa-uiux-web`, `qa-uiux-web-overhaul-v2` — 本章の「確定内容 (質疑録)」へ接地根拠として併記 |
+| Web (web) | 確定 | 確定質疑: qa-ui-ux-web-creation-completion-feedback。裏付け質疑 (`qa_refs`): `qa-uiux-web-cognitive-load-affiliate-visibility-v3`, `qa-uiux-web-seo-ai-search-v2`, `qa-uiux-web-blog-builder`, `qa-uiux-web-screen-priority`, `qa-uiux-web-spec-intake`, `qa-uiux-web`, `qa-uiux-web-overhaul-v2` — 本章の「確定内容 (質疑録)」へ接地根拠として併記 |
 | モバイル (mobile) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |
 | タブレット (tablet) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |
 | デスクトップ (Windows) (desktop-windows) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |
@@ -24,7 +24,13 @@ serves_goals: [G1, G2]
 
 ## 確定内容 (質疑録)
 
-### qa-uiux-web-cognitive-load-affiliate-visibility-v3 (対応セル: web)
+### qa-ui-ux-web-creation-completion-feedback (対応セル: web)
+
+**質問**: 作成の完了と失敗をどう伝えるか。ブログの住所はどう見せるか。
+
+**回答**: 成功と表示してよいのは、読者が実際に開ける状態になったときだけ。現状は作成済みと告げてから404を出しており、押した人は自分の入力を疑って13問をやり直す。作れなかったときは何が足りないかと次に押す場所を書く。住所は割り当てたサブドメインを正として表示し、パス形式は併記に留める。情報の優先順位は『開けるか』>『不足している要素』>『構成の内訳』とし、この順で画面上の位置と強さを決める。根拠は失敗コスト (開けないブログは全作業が無駄になる) が最大であること。
+
+### qa-uiux-web-cognitive-load-affiliate-visibility-v3 (対応セル: web) — 接地根拠 (required_info/qa_refs が名指す裏付け)
 
 **質問**: ui-ux×web: 管理画面の新規作成・改善・保存・アフィリエイト一覧・リンク設定を、どの程度直感的にし、画面確認をどう要件化するか（2026-08-29 利用者追加入力）
 
@@ -338,9 +344,29 @@ serves_goals: [G1, G2]
 
 #### 本章での適用
 
-##### 確定内容 qa-uiux-web-cognitive-load-affiliate-visibility-v3 (対応セル: web)
+##### 確定内容 qa-ui-ux-web-creation-completion-feedback (対応セル: web)
 
-- 確定要件: 認知負荷を極限まで下げ、直感的に操作できる仕組みにしてください。特に、管理画面での新規作成、改善、保存、およびアフィリエイトの一覧表示やリンク設定などについて、直感的な操作性を重視してください。とりあえず、画面を見て、確認もしておいてください。
+- 確定要件: 成功と表示してよいのは、読者が実際に開ける状態になったときだけ。現状は作成済みと告げてから404を出しており、押した人は自分の入力を疑って13問をやり直す。作れなかったときは何が足りないかと次に押す場所を書く。住所は割り当てたサブドメインを正として表示し、パス形式は併記に留める。情報の優先順位は『開けるか』>『不足している要素』>『構成の内訳』とし、この順で画面上の位置と強さを決める。根拠は失敗コスト (開けないブログは全作業が無駄になる) が最大であること。
+- 設計解釈の記録経路: `dialogue`
+- 原則: システム状態の可視性 — 進行・成功・失敗・権限不足を明示する (`usability-accessibility.md#中核概念`)
+  - 採否: `applied`
+  - 章固有の根拠: 成功と表示してよいのは、読者が実際に開ける状態になったときだけ。現状は「「test」は作成済みです。読者からは /s/test で見えます。」と告げてから 404 を出しており、表示された状態と実際の状態が食い違っている。成功表示の条件を『読者側の到達可否』へ結び直す
+  - トレードオフ:
+    - 到達可否を確かめてから表示するぶん、完了までの待ち時間が延びる。待たせるより嘘をつかないことを優先する
+- 原則: エラー予防とエラーメッセージ — 起きたときは原因と次の操作を平易な語で示す (`usability-accessibility.md#中核概念`)
+  - 採否: `applied`
+  - 章固有の根拠: 作れなかったときは何が足りないかと次に押す場所を書く。現状は成功としか出ないため、押した人は自分の入力を疑って 13 問をやり直す。原因が自分の側にあると誤って帰属させる導線を断つ
+  - トレードオフ:
+    - 不足要素を具体名で出すと内部構造の語 (版面の帯・スロット) が表に出る。利用者の語へ言い換える対応表が要り、言い換えが実体からずれると別の誤解を生む
+- 原則: 表示優先度 — グループ間とグループ内の双方に優先度を付け、サイズ・太さ・色・余白・順序を design token の段階へ写す (`information-design.md#中核概念`)
+  - 採否: `applied`
+  - 章固有の根拠: 情報の優先順位は『開けるか』>『不足している要素』>『構成の内訳』とし、この順で画面上の位置と強さを決める。根拠は失敗コストで、開けないブログは 13 問の入力すべてが無駄になるため最大。住所は割り当てたサブドメインを正として表示し、パス形式は併記に留める
+  - トレードオフ:
+    - 構成の内訳を三番手に置くため、改善のために内訳を見に来た利用者には一手増える。開けないことに気づけない害の方が大きいと判断した
+    - サブドメインを正に据えると、SITE_BASE_DOMAIN 未設定の既存ブログでは正の表示が空になる。その場合はパス形式を正へ繰り上げる規則が要る
+##### 接地根拠 qa-uiux-web-cognitive-load-affiliate-visibility-v3 (対応セル: web)
+
+- 本文: 「確定内容 (質疑録)」の `qa-uiux-web-cognitive-load-affiliate-visibility-v3` を参照
 - 設計解釈の記録経路: `dialogue`
 - 原則: 各画面は主要タスクを一つに絞り、次に行う操作・現在状態・完了結果を同じ視線の流れで判断できるようにする (`ref-system-design-knowledge:information-design`)
   - 採否: `applied`
@@ -480,7 +506,7 @@ serves_goals: [G1, G2]
 
 | 対象 | バージョン | 公式発行元 | 出典URL | 取得 | 最新確認 |
 |---|---|---|---|---|---|
-| apple-hig | 2026-06-08 | Apple (developer.apple.com) | https://developer.apple.com/design/human-interface-guidelines/design-principles | 2026-08-29T14:02:13Z | 2026-08-29T14:02:13Z |
+| apple-hig | 2026-06-08 | Apple (developer.apple.com) | https://developer.apple.com/design/human-interface-guidelines/design-principles | 2026-08-29T23:02:28Z | 2026-08-29T23:02:28Z |
 
 ## 状態の意味 (State semantics)
 

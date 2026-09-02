@@ -5,9 +5,9 @@
 要件 → テストの向きは `docs/product/traceability.md` が正本で、ここはその裏返しに
 テスト側の `@req` 印を重ねたもの。
 
-- 最終更新: 2026-08-31
-- テストファイル: 430 件
-- 由来の要件が分かる: 430 件
+- 最終更新: 2026-09-01
+- テストファイル: 435 件
+- 由来の要件が分かる: 435 件
 - **由来不明: 0 件**（上限 2 件）
 
 由来不明とは「どの要件のために書いたのか、機械から辿れない」という意味で、
@@ -50,6 +50,7 @@
 | `tests/application/feedback.test.ts` | REQ-FB07, REQ-FB08, REQ-FB09, REQ-FB12 | 印と表 |
 | `tests/application/filter-metrics.test.ts` | REQ-P10, REQ-S08 | 印と表 |
 | `tests/application/generation-matrix.test.ts` | REQ-A04, REQ-P06, REQ-S05 | 印と表 |
+| `tests/application/inspect-site-composition.test.ts` | REQ-BLOG01 | 印 |
 | `tests/application/link-inbox.test.ts` | REQ-P02, REQ-S02 | 印と表 |
 | `tests/application/list-improvement-dimensions.test.ts` | REQ-FD02, REQ-P10 | 印 |
 | `tests/application/list-selectable-models.test.ts` | REQ-G11 | 印 |
@@ -170,6 +171,8 @@
 | `tests/domain/article-type-sections.test.ts` | REQ-W02, REQ-W03, REQ-W04, REQ-W05 | 印と表 |
 | `tests/domain/authored-sections.test.ts` | REQ-P08 | 印と表 |
 | `tests/domain/authoring/blog-template.test.ts` | REQ-BLOG01, REQ-BLOG02 | 印と表 |
+| `tests/domain/authoring/site-hostname.test.ts` | REQ-BLOG01 | 印 |
+| `tests/domain/authoring/site-publication.test.ts` | REQ-BLOG01 | 印 |
 | `tests/domain/blog-delivery-snapshot.test.ts` | REQ-BLOG04, REQ-BOPS08 | 印と表 |
 | `tests/domain/blog-ops.test.ts` | REQ-BLOG03, REQ-BOPS01, REQ-BOPS04, REQ-BOPS06, REQ-BOPS09, REQ-BOPS10 | 印と表 |
 | `tests/domain/blog-tag-cloud.test.ts` | REQ-BLOG04, REQ-BOPS07 | 印と表 |
@@ -208,6 +211,7 @@
 | `tests/domain/reader-tool-formula.test.ts` | REQ-B07 | 印 |
 | `tests/domain/records-and-metrics.test.ts` | REQ-E32, REQ-SEC09 | 印 |
 | `tests/domain/redirect-resolution.test.ts` | REQ-E13 | 印 |
+| `tests/domain/sample-blog-reachable.test.ts` | REQ-BLOG01 | 印 |
 | `tests/domain/seo/guideline-reference.test.ts` | REQ-SEO05 | 印と表 |
 | `tests/domain/seo/indexnow.test.ts` | REQ-SEO04 | 印と表 |
 | `tests/domain/site-routes.test.ts` | REQ-B01, REQ-B02, REQ-B03, REQ-B04, REQ-B05, REQ-B06, REQ-B07, REQ-B08, REQ-B09, REQ-B10, REQ-B11, REQ-B13, REQ-B14, REQ-B15, REQ-B16, REQ-B17, REQ-B18, REQ-FB07, REQ-TM10 | 表 |
@@ -284,6 +288,7 @@
 | `tests/integration/d1-membership.test.ts` | REQ-P01 | 印 |
 | `tests/integration/d1-migration-0035.test.ts` | REQ-P08, REQ-TS07 | 印 |
 | `tests/integration/d1-provider-delivery-boundary.test.ts` | REQ-A06 | 印 |
+| `tests/integration/d1-public-article-backfill.test.ts` | REQ-BOPS11 | 印 |
 | `tests/integration/d1-published-article.test.ts` | REQ-P08 | 表 |
 | `tests/integration/d1-site-draft.test.ts` | REQ-P07, REQ-S06, REQ-TS07, REQ-W10 | 印 |
 | `tests/integration/d1-telemetry.test.ts` | REQ-TM13, REQ-TS07 | 印と表 |
@@ -451,4 +456,4 @@
 | `tests/ui/use-draft.test.tsx` | REQ-BOPS04, REQ-BOPS05 | 印 |
 | `tests/ui/zz-probe-tone.test.tsx` | REQ-TM07 | 表 |
 | `tests/visual/visual-regression.test.ts` | REQ-S09, REQ-TS12, REQ-UX08 | 印 |
-<!-- 生成物の指紋 sha256:f0221de6c74d5a9f6a64a2f3799683da6fa3274f87db59a8e9a558c3721e5b1f -->
+<!-- 生成物の指紋 sha256:165bf9bc2d7b950ed9d0a2a7bf258e736cf1a096151c7d21a1c92667b3bb8124 -->

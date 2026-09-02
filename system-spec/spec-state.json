@@ -759,8 +759,9 @@
     "database": {
       "web": {
         "state": "確定",
-        "qa_ref": "qa-database-web-blog-builder",
+        "qa_ref": "qa-database-web-blog-provisioning-integrity",
         "qa_refs": [
+          "qa-database-web-blog-provisioning-integrity",
           "qa-database-web-blog-builder",
           "qa-database-web-spec-intake",
           "qa-database-web",
@@ -772,7 +773,7 @@
         ],
         "required_info_checks": [
           {
-            "checked_on": "2026-08-25",
+            "checked_on": "2026-08-31",
             "checked_with": "record-required-info-check",
             "blocking_item_count": 0,
             "unmet_blocking_items": 0
@@ -853,8 +854,9 @@
     "ui-ux": {
       "web": {
         "state": "確定",
-        "qa_ref": "qa-uiux-web-cognitive-load-affiliate-visibility-v3",
+        "qa_ref": "qa-ui-ux-web-creation-completion-feedback",
         "qa_refs": [
+          "qa-ui-ux-web-creation-completion-feedback",
           "qa-uiux-web-cognitive-load-affiliate-visibility-v3",
           "qa-uiux-web-seo-ai-search-v2",
           "qa-uiux-web-blog-builder",
@@ -889,7 +891,7 @@
         ],
         "required_info_checks": [
           {
-            "checked_on": "2026-08-30",
+            "checked_on": "2026-08-31",
             "checked_with": "record-required-info-check",
             "blocking_item_count": 3,
             "unmet_blocking_items": 0
@@ -974,25 +976,21 @@
     "infrastructure": {
       "web": {
         "state": "確定",
-        "qa_ref": "qa-infra-web-migration-guard",
-        "serves_goals": [
-          "G2",
-          "G1"
-        ],
+        "qa_ref": "qa-infrastructure-web-wildcard-subdomain",
         "qa_refs": [
+          "qa-infrastructure-web-wildcard-subdomain",
           "qa-infra-web-migration-guard",
           "qa-infra-web-spec-intake",
           "qa-infra-web",
           "qa-infra-web-redirect"
         ],
+        "serves_goals": [
+          "G2",
+          "G1"
+        ],
         "required_info_checks": [
           {
-            "checked_on": "2026-08-25",
-            "checked_with": "record-required-info-check",
-            "blocking_item_count": 0
-          },
-          {
-            "checked_on": "2026-08-25",
+            "checked_on": "2026-08-31",
             "checked_with": "record-required-info-check",
             "blocking_item_count": 0,
             "unmet_blocking_items": 0
@@ -1023,8 +1021,9 @@
     "backend": {
       "web": {
         "state": "確定",
-        "qa_ref": "qa-backend-web-spec-intake",
+        "qa_ref": "qa-backend-web-blog-creation-atomicity",
         "qa_refs": [
+          "qa-backend-web-blog-creation-atomicity",
           "qa-backend-web-spec-intake",
           "qa-backend-web",
           "qa-backend-web-analytics",
@@ -1044,7 +1043,7 @@
         ],
         "required_info_checks": [
           {
-            "checked_on": "2026-08-25",
+            "checked_on": "2026-08-31",
             "checked_with": "record-required-info-check",
             "blocking_item_count": 1,
             "unmet_blocking_items": 0
@@ -1075,8 +1074,9 @@
     "frontend": {
       "web": {
         "state": "確定",
-        "qa_ref": "qa-frontend-web-capture-self-occlusion",
+        "qa_ref": "qa-frontend-web-blog-composition-visibility",
         "qa_refs": [
+          "qa-frontend-web-blog-composition-visibility",
           "qa-frontend-web-capture-self-occlusion",
           "qa-frontend-web-affiliate-link-preview-v3",
           "qa-frontend-web-seo-ai-search-v2",
@@ -1092,7 +1092,7 @@
         ],
         "required_info_checks": [
           {
-            "checked_on": "2026-08-30",
+            "checked_on": "2026-08-31",
             "checked_with": "record-required-info-check",
             "blocking_item_count": 0,
             "unmet_blocking_items": 0
@@ -2773,6 +2773,249 @@
           ]
         }
       ]
+    },
+    {
+      "id": "qa-database-web-blog-provisioning-integrity",
+      "question": "13問のウィザードで作ったブログが読者側で404になる。作成が書き切るべき保存の境界と、サブドメイン割り当てに必要な保存項目は何か。",
+      "answer": "原因は作成が site_blueprints 1表しか書かないこと。公開判定 (resolvePublicSiteIdentity) は site_blueprints に加えて site_network_nodes に active かつ未削除の行がちょうど1件あることを要求するため、作成後も読者側は null 解決となり404になる。したがって新規作成を create-only の Unit of Work とし、source_draft_id と source_draft_revision の DB claim、site_blueprints、active network node、8 種の固定ページ draft、既定 bands/slots、下書き完了、作成監査を 1 回の D1 batch で逐次実行する。site_drafts は秒精度時刻ではなく単調 revision を持ち、保存は expected revision の CAS、作成は current revision の trigger 検証で stale request を拒否する。カテゴリーは blueprint JSON を正本とし、別表へ複製しない。1 ステップでも失敗すれば全体を巻き戻す。公開表示は enabled bands/slots、provisioningComplete は保存済みの全 provisioned bands/slots を同じ投影で数える。reader hostname は永続化せず、slug と環境ごとの SITE_BASE_DOMAIN から実行時に一意に導出する。既存行の hostname backfill と slug 変更時の追随書き込みは持たない。",
+      "source": {
+        "kind": "user-dialogue"
+      },
+      "asks_for": [
+        {
+          "category": "database",
+          "platform": "web"
+        }
+      ],
+      "design_applications": [
+        {
+          "knowledge_ref": "ddd.md#中核概念",
+          "principle": "Aggregate — 強い invariant を一 transaction で守る整合性境界。外部変更は aggregate root を経由する",
+          "applicability": "applied",
+          "rationale": "新規作成の invariant は site_blueprints 1 表では表せない。source draft id + monotonic revision claim / active network node / 8 種の固定ページ draft / 既定 bands と slots / 下書き完了 / 作成監査をひとつの整合性境界として扱い、D1 batch で逐次実行する。CAS と trigger で stale create/save を明示的な conflict にする。カテゴリーは blueprint JSON が正本である。provisioningComplete は全 provisioned layout を含む作成責務を検証し、enabled layout の表示や、公開固定ページと article を要求する contentReady とは分離する",
+          "tradeoffs": [
+            "境界を広げるぶん 1 回の作成が触る表が増える。D1 batch に収まらない規模になったら境界の引き直しを再検討する",
+            "既存の site_blueprints 単独行 (site_network_nodes を持たない過去データ) は invariant を満たさないため、移行で補填するか公開対象外として明示的に落とす必要がある"
+          ]
+        },
+        {
+          "knowledge_ref": "clean-architecture.md#中核概念",
+          "principle": "Boundary data — 境界を跨ぐ値は内側に都合のよい単純な model とし、DB row を持ち込まない",
+          "applicability": "applied",
+          "rationale": "reader hostname は site_blueprints に保存せず、slug の一意制約と環境ごとの SITE_BASE_DOMAIN から siteHostname の 1 か所で導出する。ホスト解決の結果はアプリ内側へ『どのブログか』という単純な identity として渡し、middleware が D1 の row 形状を presentation 層へ持ち出さない",
+          "tradeoffs": [
+            "hostname を永続化しないため追随書き込みは不要。slug を変更すると次の request から導出住所が変わるので、旧住所の転送方針は別途明示する",
+            "hostname のデータ移行は不要であり、既存行も現在の SITE_BASE_DOMAIN と slug から同じ規則で住所を導出する"
+          ]
+        },
+        {
+          "knowledge_ref": "site-reliability-engineering.md#中核概念",
+          "principle": "観測可能性 — 稼働中の実体を外部から確認でき、症状から原因へ辿れる状態を保つ",
+          "applicability": "applied",
+          "rationale": "『作成済みと表示されたのに 404』は、症状 (404) から原因 (site_network_nodes 不在) へ辿る手段が保存値の側に無いために起きた。作成直後に『公開に必要なのに無い実体』を機械が数えられるよう、公開必須要素の充足を保存値から判定できる形で持つ",
+          "tradeoffs": [
+            "充足判定を保存値から導出する以上、公開必須要素の定義を増やすたびに判定側も更新が要る。定義の正本を 1 か所に置かないと判定が実体から遅れる"
+          ]
+        },
+        {
+          "knowledge_ref": "ddd.md#中核概念",
+          "principle": "Projection — 編集 aggregate と公開読み取りモデルの責務を分け、状態遷移の境界で一貫して投影する",
+          "applicability": "applied",
+          "rationale": "articles は編集 aggregate に限定し、published_articles を唯一の canonical public projection とする。ブログ運用由来の行は source_article_id で既存 articles.id を追跡し、公開・更新・非公開化・論理削除・復元と projection/墓標更新を同じ D1 batch に含める。公開 reader は articles を直読せず、一覧・本文・検索・カテゴリー・人物・SEO・composition を PublishedContentPort の同一集合から導く。新規公開は blueprint のカテゴリーを明示選択し、旧カテゴリー欠落は任意の分類を推測せず uncategorized（未分類）として公開継続する",
+          "tradeoffs": [
+            "projection を原子的に保つため公開境界の repository が触る表は増える。通常の下書き保存は境界外のままにし、公開状態を跨ぐ操作と公開中記事の復元だけを Unit of Work に含める",
+            "既存データに所有者不一致や曖昧な site/slug がある場合は推測で結ばず、forward migration を fail-fast で止める"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "qa-backend-web-blog-creation-atomicity",
+      "question": "ブログ作成の完了条件をどう定義し、サブドメインから slug への解決をどこで行うか。",
+      "answer": "作成ユースケースは create-only の Unit of Work が完了したときだけ成功を返す。1つでも失敗したら全体を巻き戻し、成功メッセージも読者リンクも出さない。下書き保存は expected revision の CAS、作成は同じ revision の DB claim を要求し、古い回答や作成後の遅延保存を conflict にする。作成直後は provisioningComplete を fixed pages/全 provisioned bands・slots/categories/network から判定し、公開表示用の enabled layout、および公開固定ページと articles を要求する contentReady と分離する。D1/live の公開 reader へ code sample fallback を混ぜず、記事一覧・本文・composition は同じ PublicBlog の保存実体を読む。ホスト→slug の解決は middleware が単一の場所で行い、<slug>.<基底ドメイン> を受けたら既存の /s/<slug> ルートへ内部委譲する。ブログ1本ごとにルートもコードも増やさない。未知ホストは404とし、存在するブログの一覧を推測させない。",
+      "source": {
+        "kind": "user-dialogue"
+      },
+      "asks_for": [
+        {
+          "category": "backend",
+          "platform": "web"
+        }
+      ],
+      "design_applications": [
+        {
+          "knowledge_ref": "clean-architecture.md#中核概念",
+          "principle": "Use Cases — application 固有の処理を delivery/persistence から独立して表し、成功の定義を use case 側が持つ",
+          "applicability": "applied",
+          "rationale": "createCreateSiteFromDraftUseCase は新規作成専用とし、既存 slug を上書きしない。source draft claim・設計図・必須実体・下書き完了・作成監査を persistence の 1 Unit of Work に渡し、1 つでも失敗したら全体を巻き戻して成功を返さない",
+          "tradeoffs": [
+            "use case が知る実体が増えるため、persistence 側の port が太る。port を分割しすぎると原子性を保証する主体が曖昧になるので、transaction 境界を握る port を 1 つに保つ"
+          ]
+        },
+        {
+          "knowledge_ref": "clean-architecture.md#中核概念",
+          "principle": "Ports and Adapters / DIP — 内側が必要な port を定義し、外側 adapter が実装する",
+          "applicability": "applied",
+          "rationale": "ホスト名から slug を導く解決は middleware という単一の場所で行い、<slug>.<基底ドメイン> を受けたら既存の /s/<slug> ルートへ内部委譲する。ブログ 1 本ごとにルートもコードも増やさない。ホスト解決は外側 adapter の関心で、内側の use case は解決済みの site identity だけを受け取る",
+          "tradeoffs": [
+            "middleware に判定が集まるため、ここが単一障害点になる。逆に判定箇所が 1 か所に閉じることでテナント境界の検査対象も 1 か所で済む",
+            "未知ホストを 404 とする方針は、設定ミスとブログ不在を利用者から区別できなくする。存在するブログ一覧を推測させないことを優先し、切り分けは運用ログ側で行う"
+          ]
+        },
+        {
+          "knowledge_ref": "secure-by-design.md#中核概念",
+          "principle": "Least privilege / deny by default — 判断不能時は fail closed",
+          "applicability": "applied",
+          "rationale": "ホスト解決が一意に定まらない場合 (未知ホスト・導出 slug の公開 identity 欠落または曖昧・workspace 不一致) は配信せず 404 を返す。resolvePublicSiteIdentity が rows.length !== 1 で null を返す現行の fail-closed 判定はこの原則に合致しており、変えるのは『作成側が満たすべき前提を書き切っていない』側であって、読者側の厳格さではない",
+          "tradeoffs": [
+            "読者側の判定を緩めれば 404 は即座に消えるが、それは不完全なブログを公開することと同義になる。是正の向きを作成側に固定するぶん、修正範囲は広くなる"
+          ]
+        },
+        {
+          "knowledge_ref": "clean-architecture.md#中核概念",
+          "principle": "CQRS / Ports and Adapters — 編集用 aggregate と公開用 projection を分離し、公開側の port を一つにする",
+          "applicability": "applied",
+          "rationale": "D1/live の公開記事は published_articles を唯一の canonical public projection とする。PublicBlogPort の記事一覧・詳細は PublishedContentPort へ委譲し、articles の直読、sample fallback、union、独自件数集計を持たない。ブログ運用と AI 生成の公開 writer は同じ projection statement builder を使い、公開・更新・非公開化・削除・復元の状態遷移で独立 writer を増やさない。source_article_id のある行は BlogOps 管理だけが更新し、AI 公開記事用 published admin から除外する",
+          "tradeoffs": [
+            "公開 projection へ書けなければ編集 aggregate だけを公開済みにしない fail-closed 動作が必要で、単純な status 更新より transaction 境界が広がる",
+            "旧 /blog/:slug は削除せず同じ projection を引いて articleHref の canonical URL へ 308 redirect するため、入口は残るが本文の描画経路は一つになる"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "qa-frontend-web-blog-composition-visibility",
+      "question": "作ったブログが何で構成されているかが見えず改善に着手できない。どこまで見えれば解決とみなすか。",
+      "answer": "4つすべてを満たす。(a) 作成直後に読者側の住所が実際に開き、404にならない。(b) 管理画面にそのブログの構成要素 (固定ページ・版面の帯・スロット・カテゴリー・記事) を実データの件数と各実体へのリンク付きで一覧する。(c) 管理画面の中で読者と同じ見た目をプレビューでき、公開前に確認できる。(d) 作成時点で公開に必要なのに無い要素を名指しで提示し、その場へ移動できる。描画は既存の SiteFrame と public-site-projection を通し、読者用と別の描画経路を作らない。作ると管理画面で見える姿と読者が見る姿がずれる。",
+      "source": {
+        "kind": "user-dialogue"
+      },
+      "asks_for": [
+        {
+          "category": "frontend",
+          "platform": "web"
+        }
+      ],
+      "design_applications": [
+        {
+          "knowledge_ref": "information-design.md#中核概念",
+          "principle": "表示モデル — domain model (正本の意味と値) から view model への変換規則を明示し、表示層は勝手に再計算しない",
+          "applicability": "applied",
+          "rationale": "管理画面の構成要素一覧 (固定ページ・版面の帯・スロット・カテゴリー・記事) は、読者側と同じ public-site-projection を通して読む。記事は published_articles を唯一の canonical public projection とし、一覧・本文・検索・カテゴリー・人物・SEO・composition が同じ PublishedContentPort の identity 集合を使う。管理画面専用の数え直しや PublicBlogPort の articles 直読を残すと、『見えているのに直らない』が再発する。件数も各実体へのリンクも同じ正本から導く",
+          "tradeoffs": [
+            "読者用 projection に管理画面の都合 (未公開要素の可視化) を混ぜると読者側へ漏れる危険がある。projection は共有しつつ、可視性の絞り込みは呼び出し側の権限で行う",
+            "共有するぶん、読者側の変更が管理画面を壊しうる。ずれない代わりに結合は強くなる",
+            "旧 /blog/:slug は同じ projection から articleHref の canonical URL へ 308 redirect し、既存入口を残したまま二重本文を作らない"
+          ]
+        },
+        {
+          "knowledge_ref": "information-design.md#中核概念",
+          "principle": "削除仮説 — 削除候補・代わりの手掛かり・誤読時の影響・検証方法・復元条件を持つ反証可能な仮説にする",
+          "applicability": "applied",
+          "rationale": "作成時点で公開に必要なのに無い要素は、隠さず名指しで提示し、その場へ移動できるようにする。『まだ無い』を画面から省くのは最も影響の大きい削除であり、省いた結果が今回の 404 である。不足の提示は削除候補から外す",
+          "tradeoffs": [
+            "不足を全部出すと初回作成直後の画面が赤で埋まる。優先度 (公開を止めている要素か、質を下げるだけの要素か) で強さを分ける必要がある"
+          ]
+        },
+        {
+          "knowledge_ref": "clean-architecture.md#中核概念",
+          "principle": "Screaming architecture — top-level 構造が framework 名でなく system の use case と domain を語る",
+          "applicability": "applied",
+          "rationale": "管理画面内のプレビューは既存の SiteFrame を通して描画し、読者用と別の描画経路を作らない。プレビュー専用のコンポーネント木を立てると『プレビューでは出るが本番では出ない』という第二の乖離を作る",
+          "tradeoffs": [
+            "SiteFrame は notFound() を呼ぶ前提で書かれており、管理画面の中で使うには『見つからない』の扱いを呼び出し側で受け取れる形に分ける必要がある"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "qa-infrastructure-web-wildcard-subdomain",
+      "question": "サブドメイン方式をどう配信構成へ落とすか。ブログを増やすたびの手作業をどう避けるか。",
+      "answer": "ワイルドカード DNS (*.<基底ドメイン>) を Worker へ向け、wrangler の routes に *.<基底ドメイン>/* を1本だけ置く。ブログを増やしても DNS も routes も触らない。証明書は Cloudflare のワイルドカード証明書で賄い、ブログごとの発行・検証フローを持たない。開発環境の workers.dev はサブドメインを任意に生やせないため、パス方式 /s/<slug> を後方互換として残し、ホスト解決が効かない実行では従来どおり動く。既存の公開URLを壊さず、SITE_BASE_DOMAIN 未設定のブログもパス方式で到達できる。",
+      "source": {
+        "kind": "user-dialogue"
+      },
+      "asks_for": [
+        {
+          "category": "infrastructure",
+          "platform": "web"
+        }
+      ],
+      "design_applications": [
+        {
+          "knowledge_ref": "site-reliability-engineering.md#中核概念",
+          "principle": "環境の再現性 (Infrastructure as Code) — 環境と binding を宣言として持ち、差分を人手手順ではなく差分適用で解消する",
+          "applicability": "applied",
+          "rationale": "ワイルドカード DNS (*.<基底ドメイン>) を Worker へ向け、wrangler の routes に *.<基底ドメイン>/* を 1 本だけ宣言する。ブログを増やしても DNS も routes も触らない。証明書は Cloudflare のワイルドカード証明書で賄い、ブログごとの発行・検証フローを持たない。現状 wrangler.jsonc / wrangler.toml に routes の宣言が 1 つも無く、住所がコードの外で決まっている状態を宣言側へ戻す",
+          "tradeoffs": [
+            "基底ドメインを 1 つ用意し、そのワイルドカード DNS を Worker へ向ける初回作業が人手で要る。以後の運用操作は発生しない",
+            "ワイルドカードで受けるため、意図しないサブドメインもすべて Worker へ到達する。未知ホストの 404 判定がアプリ側の責務になる"
+          ]
+        },
+        {
+          "knowledge_ref": "continuous-delivery.md#中核概念",
+          "principle": "一度だけビルドして昇格させる — 環境ごとに再ビルドせず、同一成果物へ環境固有の構成を注入する",
+          "applicability": "applied",
+          "rationale": "開発環境の workers.dev は任意サブドメインを生やせないため、基底ドメインを構成値として注入し、ホスト解決が効かない実行ではパス方式 /s/<slug> を後方互換として残す。同じ成果物が本番ではサブドメイン方式、開発環境ではパス方式で動く。SITE_BASE_DOMAIN 未設定のブログもパス方式で到達でき、既存の公開 URL を壊さない",
+          "tradeoffs": [
+            "経路が 2 本になるため、片方だけで動く不具合が生まれうる。両経路が同じ SiteFrame へ収束する形にして分岐をホスト解決の 1 か所に閉じる",
+            "開発環境で本番と同じ住所を確かめられない。サブドメイン固有の不具合 (cookie scope 等) は本番相当の環境でしか検証できない"
+          ]
+        },
+        {
+          "knowledge_ref": "secure-by-design.md#中核概念",
+          "principle": "Data lifecycle / trust boundary — サブドメイン間の信頼境界を設計前提にする",
+          "applicability": "applied",
+          "rationale": "サブドメインを共有するため、cookie の scope を親ドメインへ広げない設定を明示的に行う。既定のまま親ドメインへ scope を広げると、あるブログの読者データが別ブログから読める。ホスト→slug の変換が middleware の 1 か所に閉じることで、テナント境界の判定箇所を増やさない",
+          "tradeoffs": [
+            "cookie を親ドメインで共有しないため、ブログを跨ぐログイン状態の引き継ぎはできない。読者側にその要求が生じたら別の仕組み (明示的な連携) が要る"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "qa-ui-ux-web-creation-completion-feedback",
+      "question": "作成の完了と失敗をどう伝えるか。ブログの住所はどう見せるか。",
+      "answer": "成功と表示してよいのは、読者が実際に開ける状態になったときだけ。現状は作成済みと告げてから404を出しており、押した人は自分の入力を疑って13問をやり直す。作れなかったときは何が足りないかと次に押す場所を書く。住所は割り当てたサブドメインを正として表示し、パス形式は併記に留める。情報の優先順位は『開けるか』>『不足している要素』>『構成の内訳』とし、この順で画面上の位置と強さを決める。根拠は失敗コスト (開けないブログは全作業が無駄になる) が最大であること。",
+      "source": {
+        "kind": "user-dialogue"
+      },
+      "asks_for": [
+        {
+          "category": "ui-ux",
+          "platform": "web"
+        }
+      ],
+      "design_applications": [
+        {
+          "knowledge_ref": "usability-accessibility.md#中核概念",
+          "principle": "システム状態の可視性 — 進行・成功・失敗・権限不足を明示する",
+          "applicability": "applied",
+          "rationale": "成功と表示してよいのは、読者が実際に開ける状態になったときだけ。現状は「「test」は作成済みです。読者からは /s/test で見えます。」と告げてから 404 を出しており、表示された状態と実際の状態が食い違っている。成功表示の条件を『読者側の到達可否』へ結び直す",
+          "tradeoffs": [
+            "到達可否を確かめてから表示するぶん、完了までの待ち時間が延びる。待たせるより嘘をつかないことを優先する"
+          ]
+        },
+        {
+          "knowledge_ref": "usability-accessibility.md#中核概念",
+          "principle": "エラー予防とエラーメッセージ — 起きたときは原因と次の操作を平易な語で示す",
+          "applicability": "applied",
+          "rationale": "作れなかったときは何が足りないかと次に押す場所を書く。現状は成功としか出ないため、押した人は自分の入力を疑って 13 問をやり直す。原因が自分の側にあると誤って帰属させる導線を断つ",
+          "tradeoffs": [
+            "不足要素を具体名で出すと内部構造の語 (版面の帯・スロット) が表に出る。利用者の語へ言い換える対応表が要り、言い換えが実体からずれると別の誤解を生む"
+          ]
+        },
+        {
+          "knowledge_ref": "information-design.md#中核概念",
+          "principle": "表示優先度 — グループ間とグループ内の双方に優先度を付け、サイズ・太さ・色・余白・順序を design token の段階へ写す",
+          "applicability": "applied",
+          "rationale": "情報の優先順位は『開けるか』>『不足している要素』>『構成の内訳』とし、この順で画面上の位置と強さを決める。根拠は失敗コストで、開けないブログは 13 問の入力すべてが無駄になるため最大。住所は割り当てたサブドメインを正として表示し、パス形式は併記に留める",
+          "tradeoffs": [
+            "構成の内訳を三番手に置くため、改善のために内訳を見に来た利用者には一手増える。開けないことに気づけない害の方が大きいと判断した",
+            "サブドメインを正に据えると、SITE_BASE_DOMAIN 未設定の既存ブログでは正の表示が空になる。その場合はパス形式を正へ繰り上げる規則が要る"
+          ]
+        }
+      ]
     }
   ],
   "approval_log": [
@@ -4279,6 +4522,181 @@
           }
         ]
       }
+    },
+    {
+      "category": "database",
+      "platform": "web",
+      "reason": "ブログ作成が site_blueprints のみを書き、公開判定が要求する site_network_nodes を作らないため作成直後に404となる欠落を確定仕様へ反映する。あわせてサブドメイン方式の reader hostname を slug + SITE_BASE_DOMAIN の実行時導出へ統一し、保存対象を増やさない。",
+      "from": "確定",
+      "discarded": {
+        "qa_ref": "qa-database-web-blog-builder",
+        "qa_refs": [
+          "qa-database-web-blog-builder",
+          "qa-database-web-spec-intake",
+          "qa-database-web",
+          "qa-database-web-analytics"
+        ],
+        "serves_goals": [
+          "G1",
+          "G2"
+        ],
+        "required_info_checks": [
+          {
+            "checked_on": "2026-08-25",
+            "checked_with": "record-required-info-check",
+            "blocking_item_count": 0,
+            "unmet_blocking_items": 0
+          }
+        ]
+      }
+    },
+    {
+      "category": "backend",
+      "platform": "web",
+      "reason": "作成の成功報告と実際の公開可否が食い違う欠陥を閉じ、ホスト解決の責務境界 (middleware 単一経路) を確定仕様へ加える。",
+      "from": "確定",
+      "discarded": {
+        "qa_ref": "qa-backend-web-spec-intake",
+        "qa_refs": [
+          "qa-backend-web-spec-intake",
+          "qa-backend-web",
+          "qa-backend-web-analytics",
+          "qa-backend-web-overhaul-v2"
+        ],
+        "serves_goals": [
+          "G2",
+          "G1"
+        ],
+        "required_info": [
+          {
+            "item_id": "domain-model",
+            "missing_effect": "block",
+            "status": "grounded",
+            "grounded_by": "qa-backend-web-spec-intake"
+          }
+        ],
+        "required_info_checks": [
+          {
+            "checked_on": "2026-08-25",
+            "checked_with": "record-required-info-check",
+            "blocking_item_count": 1,
+            "unmet_blocking_items": 0
+          }
+        ]
+      }
+    },
+    {
+      "category": "frontend",
+      "platform": "web",
+      "reason": "構成要素が可視でないため作成済みブログの改善に着手できない。可視化の4要件を確定仕様へ加える。",
+      "from": "確定",
+      "discarded": {
+        "qa_ref": "qa-frontend-web-capture-self-occlusion",
+        "qa_refs": [
+          "qa-frontend-web-capture-self-occlusion",
+          "qa-frontend-web-affiliate-link-preview-v3",
+          "qa-frontend-web-seo-ai-search-v2",
+          "qa-frontend-web-blog-builder",
+          "qa-frontend-web-spec-intake",
+          "qa-frontend-web",
+          "qa-frontend-web-analytics",
+          "qa-frontend-web-overhaul-v2"
+        ],
+        "serves_goals": [
+          "G1",
+          "G2"
+        ],
+        "required_info_checks": [
+          {
+            "checked_on": "2026-08-30",
+            "checked_with": "record-required-info-check",
+            "blocking_item_count": 0,
+            "unmet_blocking_items": 0
+          }
+        ]
+      }
+    },
+    {
+      "category": "infrastructure",
+      "platform": "web",
+      "reason": "ブログの住所がドメインと無関係な状態を解消するため、ワイルドカードサブドメイン方式の配信構成を確定仕様へ加える。",
+      "from": "確定",
+      "discarded": {
+        "qa_ref": "qa-infra-web-migration-guard",
+        "qa_refs": [
+          "qa-infra-web-migration-guard",
+          "qa-infra-web-spec-intake",
+          "qa-infra-web",
+          "qa-infra-web-redirect"
+        ],
+        "serves_goals": [
+          "G2",
+          "G1"
+        ],
+        "required_info_checks": [
+          {
+            "checked_on": "2026-08-25",
+            "checked_with": "record-required-info-check",
+            "blocking_item_count": 0
+          },
+          {
+            "checked_on": "2026-08-25",
+            "checked_with": "record-required-info-check",
+            "blocking_item_count": 0,
+            "unmet_blocking_items": 0
+          }
+        ]
+      }
+    },
+    {
+      "category": "ui-ux",
+      "platform": "web",
+      "reason": "成功報告と実際の到達可否が食い違い、利用者が原因を自分の入力へ誤帰属する。完了判定の表示条件と住所表記を確定仕様へ加える。",
+      "from": "確定",
+      "discarded": {
+        "qa_ref": "qa-uiux-web-cognitive-load-affiliate-visibility-v3",
+        "qa_refs": [
+          "qa-uiux-web-cognitive-load-affiliate-visibility-v3",
+          "qa-uiux-web-seo-ai-search-v2",
+          "qa-uiux-web-blog-builder",
+          "qa-uiux-web-screen-priority",
+          "qa-uiux-web-spec-intake",
+          "qa-uiux-web",
+          "qa-uiux-web-overhaul-v2"
+        ],
+        "serves_goals": [
+          "G1",
+          "G2"
+        ],
+        "required_info": [
+          {
+            "item_id": "product-goal",
+            "missing_effect": "block",
+            "status": "grounded",
+            "grounded_by": "qa-foundation-u1"
+          },
+          {
+            "item_id": "screen-information-priority",
+            "missing_effect": "block",
+            "status": "grounded",
+            "grounded_by": "qa-uiux-web-screen-priority"
+          },
+          {
+            "item_id": "target-platforms",
+            "missing_effect": "block",
+            "status": "grounded",
+            "grounded_by": "qa-platform-scope"
+          }
+        ],
+        "required_info_checks": [
+          {
+            "checked_on": "2026-08-30",
+            "checked_with": "record-required-info-check",
+            "blocking_item_count": 3,
+            "unmet_blocking_items": 0
+          }
+        ]
+      }
     }
   ],
   "category_aggregate": {
@@ -4385,7 +4803,7 @@
     ],
     "stakeholders": [
       "読者: 自分に合う商品かを根拠と弱点込みで判断でき、広告であることを認識できる",
-      "発信者 (個人〜小規模チームのアフィリエイト運営者): 商品調査を媒体ごとに繰り返さず、複数ブログ・SNSを一元運営し、何が成果につながったかを確認できる",
+      "発信者: 商品調査を媒体ごとに繰り返さず、複数ブログ・SNSを一元運営し、何が成果につながったかを確認できる",
       "チームメンバー: Researcher/Writer/Reviewer/Publisher/Analyst のロールで分業する"
     ],
     "scope": {
@@ -4419,11 +4837,12 @@
       ]
     },
     "constraints": [
-      "媒体ごとに公式APIの認証・権限・投稿形式・利用料金・審査条件が異なる (X APIは従量課金)",
+      "媒体ごとに公式APIの認証・権限・投稿形式・利用料金・審査条件が異なる",
       "noteは一般公開の公式投稿APIがなく、出力・手動連携のみで設計する",
       "ASPのリンク・広告コード改変禁止 (original_urlを無改変で保持)",
       "景品表示法ステルスマーケティング規制への適合 (広告表記必須)",
-      "外部公開・予約投稿等の重要操作は人間の承認を必須とする"
+      "外部公開・予約投稿等の重要操作は人間の承認を必須とする",
+      "X APIは投稿作成に対応するが従量課金型で提供されるため、投稿件数だけでなくAPI利用コストもConnector側で監視する"
     ],
     "concrete_intents": [
       {
@@ -4639,7 +5058,7 @@
           "section": "§32 (L2441)",
           "quote": "一つのアフィリエイトURLを起点に、正しい商品情報、比較候補、根拠、書き手、読者、媒体、広告表示を統合し、目的の異なる高品質コンテンツを安全に作成・公開・改善できること。",
           "sha256": "b5fc60987cb79c08c30db4cd94b075a0bf89cd7acba7c8d1ffc8558af6439385",
-          "sealed_on": "2026-08-25",
+          "sealed_on": "2026-08-31",
           "sealed_with": "seal-foundation-sources"
         },
         {
@@ -4650,7 +5069,7 @@
           "quote": "* どの商品、媒体、文章パターンが成果につながったか確認できる",
           "note": "G2 は §32 (U3 の sha256 束縛済み原文) に対応記述が無い。§2.3 の 2 行へ分かれて在る。L110 の「* アフィリエイトリンクを一元管理できる」が「一元管理」側の対応。",
           "sha256": "b5fc60987cb79c08c30db4cd94b075a0bf89cd7acba7c8d1ffc8558af6439385",
-          "sealed_on": "2026-08-25",
+          "sealed_on": "2026-08-31",
           "sealed_with": "seal-foundation-sources"
         },
         {
@@ -4660,7 +5079,7 @@
           "section": "§27.1",
           "quote": "根拠確認と人間承認を完了し、複数媒体へ展開されたコンテンツパッケージ数",
           "sha256": "b5fc60987cb79c08c30db4cd94b075a0bf89cd7acba7c8d1ffc8558af6439385",
-          "sealed_on": "2026-08-25",
+          "sealed_on": "2026-08-31",
           "sealed_with": "seal-foundation-sources"
         },
         {
@@ -4670,7 +5089,7 @@
           "section": "§27.1",
           "quote": "単なる生成数や投稿数を中心指標にしない。",
           "sha256": "b5fc60987cb79c08c30db4cd94b075a0bf89cd7acba7c8d1ffc8558af6439385",
-          "sealed_on": "2026-08-25",
+          "sealed_on": "2026-08-31",
           "sealed_with": "seal-foundation-sources"
         },
         {
@@ -4680,7 +5099,7 @@
           "section": "§7.1 (L489)",
           "quote": "蓄積されたロールアップから「クリック率・成果に効いている要因」を定期的に抽出し",
           "sha256": "5d84913a2422b9e697422b0656f90cf90633b0bd75adcebe0c6696e01fc9e45f",
-          "sealed_on": "2026-08-25",
+          "sealed_on": "2026-08-31",
           "sealed_with": "seal-foundation-sources"
         },
         {
@@ -4690,7 +5109,7 @@
           "section": "L475",
           "quote": "突合率(sub_id一致の割合)自体を運用KPIとし、sub_id非対応プログラムには「詳細分析不可」バッジを付ける",
           "sha256": "5d84913a2422b9e697422b0656f90cf90633b0bd75adcebe0c6696e01fc9e45f",
-          "sealed_on": "2026-08-25",
+          "sealed_on": "2026-08-31",
           "sealed_with": "seal-foundation-sources"
         },
         {
@@ -4700,7 +5119,7 @@
           "section": "§30.8",
           "quote": "次の経路を双方向に追跡できる。",
           "sha256": "b5fc60987cb79c08c30db4cd94b075a0bf89cd7acba7c8d1ffc8558af6439385",
-          "sealed_on": "2026-08-25",
+          "sealed_on": "2026-08-31",
           "sealed_with": "seal-foundation-sources"
         },
         {
@@ -4710,7 +5129,7 @@
           "section": "§30 (L2278)",
           "quote": "## 30.1 URL登録\n\n* アフィリエイトURLを元の状態で保存できる\n* 商品を識別できる\n* 不確実な場合は確認待ちになる\n* 情報源を確認できる\n* 危険なURLを拒否できる",
           "sha256": "b5fc60987cb79c08c30db4cd94b075a0bf89cd7acba7c8d1ffc8558af6439385",
-          "sealed_on": "2026-08-25",
+          "sealed_on": "2026-08-31",
           "sealed_with": "seal-foundation-sources"
         },
         {
@@ -4720,7 +5139,7 @@
           "section": "L683",
           "quote": "| パフォーマンス概要 | 期間比較付きの主要KPI(PV/クリック/CTR/発生・承認CVR/承認・支払EPC/承認・支払報酬)。watermarkによる速報・確定・遅延を区別 |",
           "sha256": "5d84913a2422b9e697422b0656f90cf90633b0bd75adcebe0c6696e01fc9e45f",
-          "sealed_on": "2026-08-25",
+          "sealed_on": "2026-08-31",
           "sealed_with": "seal-foundation-sources"
         },
         {
@@ -4730,7 +5149,7 @@
           "section": "§2.2",
           "quote": "* 自分に合う商品か判断できる\n* 商品の長所だけでなく弱点も確認できる\n* 他の商品との違いが分かる\n* おすすめの根拠を確認できる\n* 広告・アフィリエイトであることを認識できる",
           "sha256": "b5fc60987cb79c08c30db4cd94b075a0bf89cd7acba7c8d1ffc8558af6439385",
-          "sealed_on": "2026-08-25",
+          "sealed_on": "2026-08-31",
           "sealed_with": "seal-foundation-sources"
         },
         {
@@ -4740,7 +5159,7 @@
           "section": "§2.3",
           "quote": "* 商品調査を媒体ごとに繰り返さなくてよい\n* 一つの情報から複数媒体向けコンテンツを作れる\n* 自分らしい文章表現を維持できる\n* 読者層ごとに文章を変えられる\n* 複数ブログを一つの管理画面で運営できる\n* アフィリエイトリンクを一元管理できる\n* 公開済みコンテンツの古い情報を検出できる\n* どの商品、媒体、文章パターンが成果につながったか確認できる",
           "sha256": "b5fc60987cb79c08c30db4cd94b075a0bf89cd7acba7c8d1ffc8558af6439385",
-          "sealed_on": "2026-08-25",
+          "sealed_on": "2026-08-31",
           "sealed_with": "seal-foundation-sources"
         },
         {
@@ -4750,7 +5169,7 @@
           "section": "§25 (L2006-2019)",
           "quote": "| Researcher         | 商品、比較、根拠        |\n| Writer             | 原稿、生成、修正        |\n| Reviewer           | 事実、表現、広告確認      |\n| Publisher          | 予約、公開、更新        |\n| Analyst            | 分析、レポート         |",
           "sha256": "b5fc60987cb79c08c30db4cd94b075a0bf89cd7acba7c8d1ffc8558af6439385",
-          "sealed_on": "2026-08-25",
+          "sealed_on": "2026-08-31",
           "sealed_with": "seal-foundation-sources"
         },
         {
@@ -4760,7 +5179,7 @@
           "section": "§2.1 (L85)",
           "quote": "> 発信者が、一つの信頼できる商品・サービス情報を起点に、複数のブログやSNSへ、「誰が・誰に・何を・なぜ伝えるか」が一貫した高品質コンテンツを効率的に生成・公開・改善できる状態をつくり、読者の意思決定品質と発信者の継続的な収益性を同時に高める。",
           "sha256": "b5fc60987cb79c08c30db4cd94b075a0bf89cd7acba7c8d1ffc8558af6439385",
-          "sealed_on": "2026-08-25",
+          "sealed_on": "2026-08-31",
           "sealed_with": "seal-foundation-sources"
         },
         {
@@ -4770,7 +5189,7 @@
           "section": "§3.1 (L121)",
           "quote": "現在のコンテンツ運営では、次の情報が別々の場所で管理されやすい。",
           "sha256": "b5fc60987cb79c08c30db4cd94b075a0bf89cd7acba7c8d1ffc8558af6439385",
-          "sealed_on": "2026-08-25",
+          "sealed_on": "2026-08-31",
           "sealed_with": "seal-foundation-sources"
         },
         {
@@ -4780,7 +5199,7 @@
           "section": "§3.4 (L184)",
           "quote": "WordPress、X、Instagram、Threadsなどは公式APIによる投稿連携が可能だが、認証、権限、投稿形式、利用料金、審査条件が異なる。",
           "sha256": "b5fc60987cb79c08c30db4cd94b075a0bf89cd7acba7c8d1ffc8558af6439385",
-          "sealed_on": "2026-08-25",
+          "sealed_on": "2026-08-31",
           "sealed_with": "seal-foundation-sources"
         },
         {
@@ -4790,7 +5209,7 @@
           "section": "§3.4 (L186)",
           "quote": "一方、noteは2026年8月16日時点で一般公開の公式投稿APIを提供していない。そのため、noteについては非公式APIやログイン自動操作を前提にせず、コピー用原稿、ファイル出力、WXR／MT形式のインポート支援として設計する。noteは公式にWXRまたはMT形式のインポートを案内している。",
           "sha256": "b5fc60987cb79c08c30db4cd94b075a0bf89cd7acba7c8d1ffc8558af6439385",
-          "sealed_on": "2026-08-25",
+          "sealed_on": "2026-08-31",
           "sealed_with": "seal-foundation-sources"
         },
         {
@@ -4800,7 +5219,7 @@
           "section": "§10.1 (L767)",
           "quote": "`original_url` は、成果計測に必要な情報を保持するため変更しない。",
           "sha256": "b5fc60987cb79c08c30db4cd94b075a0bf89cd7acba7c8d1ffc8558af6439385",
-          "sealed_on": "2026-08-25",
+          "sealed_on": "2026-08-31",
           "sealed_with": "seal-foundation-sources"
         },
         {
@@ -4810,7 +5229,7 @@
           "section": "§20 (L1614)",
           "quote": "日本では、広告であるにもかかわらず広告であることを判別しにくい表示が、景品表示法上のステルスマーケティング規制の対象となる。",
           "sha256": "b5fc60987cb79c08c30db4cd94b075a0bf89cd7acba7c8d1ffc8558af6439385",
-          "sealed_on": "2026-08-25",
+          "sealed_on": "2026-08-31",
           "sealed_with": "seal-foundation-sources"
         },
         {
@@ -4820,7 +5239,7 @@
           "section": "§5.5 (L326)",
           "quote": "外部公開、予約投稿、個人情報送信、アフィリエイトリンク挿入などの重要操作は、原則として人間の確認を経る。",
           "sha256": "b5fc60987cb79c08c30db4cd94b075a0bf89cd7acba7c8d1ffc8558af6439385",
-          "sealed_on": "2026-08-25",
+          "sealed_on": "2026-08-31",
           "sealed_with": "seal-foundation-sources"
         },
         {
@@ -4830,7 +5249,7 @@
           "section": "§1 (L38)",
           "quote": "同一商品・類似商品・比較候補を抽出",
           "sha256": "b5fc60987cb79c08c30db4cd94b075a0bf89cd7acba7c8d1ffc8558af6439385",
-          "sealed_on": "2026-08-25",
+          "sealed_on": "2026-08-31",
           "sealed_with": "seal-foundation-sources"
         },
         {
@@ -4840,7 +5259,7 @@
           "section": "§1 (L44)",
           "quote": "ブログ・X・Instagram・Threads・note等の媒体別に文章を生成",
           "sha256": "b5fc60987cb79c08c30db4cd94b075a0bf89cd7acba7c8d1ffc8558af6439385",
-          "sealed_on": "2026-08-25",
+          "sealed_on": "2026-08-31",
           "sealed_with": "seal-foundation-sources"
         },
         {
@@ -4850,7 +5269,7 @@
           "section": "§1 (L50)",
           "quote": "クリック・成果・反応を収集",
           "sha256": "b5fc60987cb79c08c30db4cd94b075a0bf89cd7acba7c8d1ffc8558af6439385",
-          "sealed_on": "2026-08-25",
+          "sealed_on": "2026-08-31",
           "sealed_with": "seal-foundation-sources"
         },
         {
@@ -4860,7 +5279,17 @@
           "section": "§27.5 (L2174)",
           "quote": "商品の編集評価には自動反映しない。",
           "sha256": "b5fc60987cb79c08c30db4cd94b075a0bf89cd7acba7c8d1ffc8558af6439385",
-          "sealed_on": "2026-08-25",
+          "sealed_on": "2026-08-31",
+          "sealed_with": "seal-foundation-sources"
+        },
+        {
+          "field": "constraints[5]",
+          "kind": "written-requirements",
+          "path": "docs/spec/01-要求仕様書-v1.0.md",
+          "section": "§21 (L1425)",
+          "quote": "X APIは投稿作成に対応し、現在は従量課金型で提供されているため、投稿件数だけでなくAPI利用コストもConnector側で監視する。",
+          "sha256": "b5fc60987cb79c08c30db4cd94b075a0bf89cd7acba7c8d1ffc8558af6439385",
+          "sealed_on": "2026-08-31",
           "sealed_with": "seal-foundation-sources"
         }
       ]
@@ -5652,11 +6081,143 @@
         "note": "利用者本人が「本人回答（成績比較が先頭）」を選択。qa-uiux-web-screen-priority に記録された逐語回答と一致する。UIUX-REQ-001 の本文更新は設計側の作業として残す。"
       },
       "recorded_with": "set-decision"
+    },
+    {
+      "id": "dec-blog-domain-strategy",
+      "question": "作成した各ブログにどうやって固有の住所 (ドメイン) を割り当てるか。現状はホスト解決が無く、全ブログが単一 Worker 上の /s/<slug> パスで、ドメインがブログの内容と無関係になっている。",
+      "status": "confirmed",
+      "serves_goals": [
+        "G1"
+      ],
+      "options": [
+        {
+          "id": "opt-wildcard-subdomain",
+          "label": "ワイルドカードサブドメイン方式 (<slug>.<基底ドメイン>)",
+          "cost_model": {
+            "category": "free",
+            "amount": 0,
+            "currency": "JPY",
+            "billing_period": "monthly",
+            "tco": "基底ドメインの年間登録料のみ。ワイルドカード DNS レコード1件と Worker route 1本で全ブログを賄い、ブログ追加時の追加費用と追加操作が発生しない。証明書は Cloudflare のワイルドカード証明書に含まれ、ブログごとの発行費用が無い。"
+          },
+          "free_tier_limits": "Workers の無料枠 (1日あたりのリクエスト数と CPU 時間) の範囲内。ホスト解決は middleware の文字列処理だけで、追加のサブリクエストを発生させないため無料枠の消費を増やさない。",
+          "goal_fit": "G1 の『複数ブランド・複数ブログ構築』に直接資する。ブログごとに独立した住所を持ちながら、ブログを1本増やすのに DNS も設定も触らずに済むため、コードもルートも増やさない既存方針と一致する。",
+          "security_fit": "ホスト名から slug を導く経路が middleware の1か所に閉じるため、テナント境界の判定箇所が増えない。未知ホストは404とし、存在するブログ一覧を推測させない。サブドメインを共有するため cookie の scope を親ドメインへ広げない設定が必要。",
+          "pros": [
+            "ブログを増やしても DNS・route・証明書の手作業が一切発生しない",
+            "ブログごとに独立した住所を持て、読者から見て別サイトとして成立する",
+            "既存の /s/<slug> ルートへ内部委譲でき、画面もルートも増やさない"
+          ],
+          "cons": [
+            "基底ドメインを1つ用意する必要がある",
+            "ブログごとに完全に無関係なドメイン名は選べない",
+            "開発環境の workers.dev では任意サブドメインを生やせず、パス方式の後方互換が必要になる"
+          ],
+          "risks": [
+            "サブドメイン間で cookie を共有する設定を誤ると、あるブログの読者データが別ブログから読める",
+            "slug を後から変えるとブログの住所が変わり、既存の被リンクと検索順位を失う"
+          ],
+          "lock_in": "低い。ホスト→slug の変換は middleware の1関数で、パス方式へ戻すのも別方式へ移るのもこの1か所の差し替えで済む。hostname の保存列は追加せず、環境変更時も同じ slug から現在の住所を導出できる。",
+          "ops_burden": "低い。ワイルドカード DNS 1件と route 1本を初回に置くだけで、以後の運用操作が無い。",
+          "evidence_refs": [
+            "https://developers.cloudflare.com/workers/",
+            "https://nextjs.org/docs"
+          ]
+        },
+        {
+          "id": "opt-custom-hostname",
+          "label": "独自ドメイン持ち込み (Cloudflare for SaaS のカスタムホスト名)",
+          "cost_model": {
+            "category": "paid",
+            "amount": 1000,
+            "currency": "JPY",
+            "billing_period": "monthly",
+            "tco": "Cloudflare for SaaS のカスタムホスト名は有料枠での従量課金となり、加えてブログごとにドメイン登録料が発生する。証明書の発行・更新・失効の状態管理も自前で持つため、実装と運用の両方が最も重い。"
+          },
+          "free_tier_limits": "無料枠に含まれない。カスタムホスト名の従量課金が前提となる。",
+          "goal_fit": "G1 に資するが過剰。1発信者が複数ブログを運営する規模では、ブログごとに別ドメインを取得・維持する必要性が現時点で無い。",
+          "security_fit": "ドメイン所有権の確認フローを正しく実装しないと、他人のドメインを自サービスへ向けさせる乗っ取りの入口になる。検証状態を保存し、未検証のホストを配信対象にしない実装が必須。",
+          "pros": [
+            "ブログごとに完全に自由なドメイン名を選べる",
+            "読者から見て運営元との関連が一切見えない独立サイトにできる"
+          ],
+          "cons": [
+            "ドメイン登録・DNS 設定・所有権確認という人手の工程がブログ追加ごとに入る",
+            "証明書の発行状態と失効を自前で状態管理する必要がある",
+            "課金が発生する"
+          ],
+          "risks": [
+            "所有権確認の実装漏れがドメイン乗っ取りの経路になる",
+            "証明書の発行待ちや失効でブログが無言で開けなくなり、原因が外部要因のため切り分けが難しい"
+          ],
+          "lock_in": "高い。カスタムホスト名 API と証明書状態機械が実装へ深く入り込み、別方式へ移すと保存データと運用手順の両方を作り直すことになる。",
+          "ops_burden": "高い。ブログ追加ごとに DNS 設定と所有権確認の人手が入り、証明書の期限を監視し続ける必要がある。",
+          "evidence_refs": [
+            "https://developers.cloudflare.com/workers/"
+          ]
+        },
+        {
+          "id": "opt-path-only",
+          "label": "パス方式 (/s/<slug>) を正式仕様として据える",
+          "cost_model": {
+            "category": "free",
+            "amount": 0,
+            "currency": "JPY",
+            "billing_period": "monthly",
+            "tco": "追加費用ゼロ。現状の構成をそのまま正式仕様として認めるだけで、新たな資源を持たない。"
+          },
+          "free_tier_limits": "現状と同じ Workers 無料枠の範囲。追加の消費が無い。",
+          "goal_fit": "G1 に部分的にしか資さない。ブログは作れるが、住所がブログの内容と結びつかず『ドメインが全く関係のないものになる』という提起された問題がそのまま残る。",
+          "security_fit": "テナント境界は現状どおりパスの slug で判定し、新たな攻撃面を持ち込まない点だけは優れる。",
+          "pros": [
+            "実装が不要で、今回は404の解消と可視化だけに集中できる",
+            "新しい失敗経路 (DNS・証明書) を一切増やさない"
+          ],
+          "cons": [
+            "全ブログが同一ドメイン配下に並び、読者から見て独立したブログとして成立しない",
+            "提起された『ドメインが無関係』という問題が未解決のまま残る",
+            "後からドメインを導入すると既存の公開URLが全て変わる"
+          ],
+          "risks": [
+            "先送りするほど公開済み記事が増え、後日の移行で失う被リンクと検索順位が大きくなる"
+          ],
+          "lock_in": "無い。ただし何も進まないため、将来の移行コストが時間とともに増える。",
+          "ops_burden": "無い。",
+          "evidence_refs": [
+            "https://nextjs.org/docs"
+          ]
+        }
+      ],
+      "recommendation": {
+        "option_id": "opt-wildcard-subdomain",
+        "rationale": "ブログを1本増やすのに DNS も route も証明書も触らないのはワイルドカードサブドメイン方式だけで、これは『ブログを増やすときに書き足すのは設定値だけ』という本システムの既存方針とそのまま一致する。独自ドメイン持ち込みは自由度と引き換えに、所有権確認と証明書状態管理という2つの状態機械を持ち込み、1発信者が複数ブログを運営する現在の規模では負担が便益を上回る。パス方式は提起された問題そのものを解決しない。",
+        "caveats": [
+          "基底ドメインを1つ用意し、そのワイルドカード DNS を Worker へ向ける初回作業が必要である",
+          "開発環境の workers.dev では任意サブドメインを生やせないため、パス方式 /s/<slug> を後方互換として残す必要がある。これが無いと開発環境で公開面を確認できなくなる",
+          "サブドメイン間で cookie を共有しない設定を明示的に行う必要がある。既定のまま親ドメインへ scope を広げると、あるブログの読者データが別ブログから読める",
+          "根拠として引用した公式資料は harness が取得済みの入口ページ (Cloudflare Workers は 2026-08-19、Next.js は 2026-08-29 取得) であり、ワイルドカード route と証明書の個別ページを本セッションで再取得してはいない。実装着手時に route の記法と証明書の適用条件を公式資料で再確認すること"
+        ],
+        "confidence": "high",
+        "latest_checked_at": "2026-08-29T23:02:28Z",
+        "comparison_basis": {
+          "goal_fit": "G1 の複数ブログ構築に対し、サブドメイン方式は独立した住所と増設コスト0を両立する。独自ドメインは自由度が過剰で、パス方式は住所の独立性を満たさない。",
+          "tco": "サブドメイン方式は基底ドメインの年間登録料のみ。独自ドメインはカスタムホスト名の従量課金とブログごとの登録料が積み上がる。パス方式は0だが問題が未解決。",
+          "security": "サブドメイン方式はホスト→slug 変換が1か所に閉じ判定箇所が増えない。独自ドメインは所有権確認という新たな攻撃面を持ち込む。パス方式は新規の攻撃面が無い。",
+          "operations": "サブドメイン方式は初回のみ。独自ドメインはブログ追加ごとに人手の DNS 設定と証明書監視が入る。パス方式は運用操作が無い。",
+          "lock_in": "サブドメイン方式は middleware の1関数の差し替えで方式転換でき最も低い。独自ドメインは状態機械が実装へ深く入り最も高い。"
+        }
+      },
+      "user_decision": {
+        "option_id": "opt-wildcard-subdomain",
+        "confirmed_at": "2026-08-31T00:00:00Z",
+        "note": "利用者がサブドメイン方式を選択し、あわせてドメイン対応を今回の実装範囲に含めることを選択した。"
+      },
+      "recorded_with": "set-decision"
     }
   ],
   "knowledge_candidates": [],
   "hearing_progress": {
-    "loop_count": 1,
+    "loop_count": 5,
     "next_question": null,
     "complete": true,
     "max_loops": 5,
