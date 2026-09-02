@@ -1,4 +1,5 @@
 import { and, asc, desc, eq, inArray, isNotNull, isNull, ne, or } from "drizzle-orm";
+import type { BatchItem } from "drizzle-orm/batch";
 import type {
   ArticleRatingPort,
   BlogArticleDetail,
@@ -17,7 +18,11 @@ import type {
   SiteNetworkRecord,
 } from "@/application/ports/blog-ops";
 import type { PortResult } from "@/application/ports/common";
-import type { EditorialSiteRepositoryPort } from "@/application/ports/site";
+import type {
+  EditorialPublishedContentPort,
+  EditorialSiteRepositoryPort,
+} from "@/application/ports/site";
+import { projectBlogArticle } from "@/application/read-models/published-article";
 import {
   type ArticleBlockKind,
   type ArticleTemplate,
@@ -33,6 +38,7 @@ import {
   type NetworkStatus,
   type RatingSummary,
   summarizeRatings,
+  UNCATEGORIZED_ARTICLE_CATEGORY,
 } from "@/domain/blogops";
 import { domainError, err, ok, validationError } from "@/domain/shared";
 import {
@@ -47,9 +53,17 @@ import {
   blogLayoutSlots,
   blogTags,
   legalPages,
+  publishedArticles,
+  publishedArticleTombstones,
+  siteBlueprints,
   siteNetworkNodes,
 } from "@/db/schema";
 import type { DrizzleD1 } from "./link-inbox-repository";
+import {
+  createD1ContentRepository,
+  publishedArticleSaveStatements,
+  sourcedPublishedArticleUnpublishStatements,
+} from "./published-article-repository";
 import { storageFailure } from "./storage-failure";
 
 /**
@@ -102,6 +116,7 @@ function toArticle(row: BlogArticleRow): BlogArticle {
     lead: row.lead,
     status: row.status as BlogArticleStatus,
     authorName: row.authorName,
+    categorySlug: row.publicCategorySlug,
     publishedAt: row.publishedAt,
     updatedAt: row.updatedAt,
     revision: row.revision,
@@ -769,6 +784,7 @@ export function createD1BlogOpsRepository(db: DrizzleD1): BlogOpsRepositoryPort 
             siteSlug: blogArticles.siteSlug,
             deletedAt: blogArticles.deletedAt,
             revision: blogArticles.revision,
+            publicCategorySlug: blogArticles.publicCategorySlug,
           })
           .from(blogArticles)
           .where(eq(blogArticles.id, input.id))
@@ -783,6 +799,121 @@ export function createD1BlogOpsRepository(db: DrizzleD1): BlogOpsRepositoryPort 
           return ownedResourceNotFound("記事");
         }
 
+        const [publicRows, tombstoneRows] = await Promise.all([
+          db
+            .select({
+              workspaceId: publishedArticles.workspaceId,
+              sourceArticleId: publishedArticles.sourceArticleId,
+            })
+            .from(publishedArticles)
+            .where(
+              and(
+                eq(publishedArticles.siteSlug, input.siteSlug),
+                eq(publishedArticles.slug, input.slug),
+              ),
+            )
+            .limit(1),
+          db
+            .select({ workspaceId: publishedArticleTombstones.workspaceId })
+            .from(publishedArticleTombstones)
+            .where(
+              and(
+                eq(publishedArticleTombstones.siteSlug, input.siteSlug),
+                eq(publishedArticleTombstones.slug, input.slug),
+              ),
+            )
+            .limit(1),
+        ]);
+        const publicRow = publicRows[0];
+        const tombstone = tombstoneRows[0];
+        if (
+          input.status === "published" &&
+          ((publicRow !== undefined &&
+            (publicRow.workspaceId !== workspaceId || publicRow.sourceArticleId !== input.id)) ||
+            (tombstone !== undefined && tombstone.workspaceId !== workspaceId))
+        ) {
+          return err(
+            domainError("CONFLICT", "この URL には別の公開記事があります。", {
+              field: "slug",
+              suggestedAction: "公開済み記事を確認し、別の URL 名を使ってください。",
+            }),
+          );
+        }
+        if (input.status === "published" && input.publishedAt === null) {
+          return err(validationError("公開日時の無い記事は公開できません。", "publishedAt"));
+        }
+        const categorySlug = input.categorySlug ?? current?.publicCategorySlug ?? null;
+        const blueprintRows =
+          categorySlug === null
+            ? []
+            : await db
+                .select({ blueprintJson: siteBlueprints.blueprintJson })
+                .from(siteBlueprints)
+                .where(
+                  and(
+                    eq(siteBlueprints.workspaceId, workspaceId),
+                    eq(siteBlueprints.slug, input.siteSlug),
+                  ),
+                )
+                .limit(1);
+        const blueprint =
+          blueprintRows[0] === undefined
+            ? null
+            : (JSON.parse(blueprintRows[0].blueprintJson) as {
+                readonly categories?: readonly { readonly slug?: string }[];
+              });
+        const categoryBelongsToSite =
+          categorySlug !== null &&
+          (blueprint?.categories?.some((category) => category.slug === categorySlug) === true ||
+            (current?.publicCategorySlug === UNCATEGORIZED_ARTICLE_CATEGORY.slug &&
+              categorySlug === UNCATEGORIZED_ARTICLE_CATEGORY.slug));
+        if (categorySlug !== null && !categoryBelongsToSite) {
+          return err(
+            validationError("カテゴリをブログの設計図から選んでください。", "categorySlug"),
+          );
+        }
+        if (input.status === "published" && categorySlug === null) {
+          return err(validationError("公開するカテゴリを選んでください。", "categorySlug"));
+        }
+        if (input.status === "published" && input.authorName.trim() === "") {
+          return err(validationError("公開記事の書き手が入っていません。", "authorName"));
+        }
+
+        const projectionStatements: BatchItem<"sqlite">[] = [];
+        if (input.status === "published" && input.publishedAt !== null) {
+          projectionStatements.push(
+            ...publishedArticleSaveStatements(
+              db,
+              workspaceId,
+              projectBlogArticle({
+                id: input.id,
+                siteSlug: input.siteSlug,
+                slug: input.slug,
+                type: ARTICLE_TYPE_BY_TEMPLATE[input.template],
+                title: input.title,
+                lead: input.lead,
+                authorName: input.authorName,
+                publishedAt: input.publishedAt,
+                updatedAt: input.updatedAt,
+                categorySlug: categorySlug ?? "",
+                blocks: input.blocks,
+              }),
+              input.id,
+            ),
+          );
+        } else if (publicRow?.sourceArticleId === input.id) {
+          projectionStatements.push(
+            ...sourcedPublishedArticleUnpublishStatements(
+              db,
+              workspaceId,
+              input.siteSlug,
+              input.slug,
+              input.id,
+              input.updatedAt,
+            ),
+          );
+        }
+
         let articleMutation;
         let casGuard = null;
         if (current === undefined) {
@@ -793,14 +924,15 @@ export function createD1BlogOpsRepository(db: DrizzleD1): BlogOpsRepositoryPort 
             slug: input.slug,
             type: ARTICLE_TYPE_BY_TEMPLATE[input.template],
             template: input.template,
-                title: input.title,
-                lead: input.lead,
-                status: input.status,
-                authorName: input.authorName,
-                publishedAt: input.publishedAt,
-                updatedAt: input.updatedAt,
-                revision: 1,
-              });
+            title: input.title,
+            lead: input.lead,
+            status: input.status,
+            publicCategorySlug: categorySlug,
+            authorName: input.authorName,
+            publishedAt: input.publishedAt,
+            updatedAt: input.updatedAt,
+            revision: 1,
+          });
         } else {
           const expectedRevision = input.expectedRevision ?? current.revision;
           if (expectedRevision !== current.revision) {
@@ -821,6 +953,7 @@ export function createD1BlogOpsRepository(db: DrizzleD1): BlogOpsRepositoryPort 
               title: input.title,
               lead: input.lead,
               status: input.status,
+              publicCategorySlug: categorySlug,
               authorName: input.authorName,
               publishedAt: input.publishedAt,
               updatedAt: input.updatedAt,
@@ -855,6 +988,7 @@ export function createD1BlogOpsRepository(db: DrizzleD1): BlogOpsRepositoryPort 
                 lead: blogArticles.lead,
                 status: blogArticles.status,
                 categoryId: blogArticles.categoryId,
+                publicCategorySlug: blogArticles.publicCategorySlug,
                 disclosureId: blogArticles.disclosureId,
                 ownerId: blogArticles.ownerId,
                 authorName: blogArticles.authorName,
@@ -920,30 +1054,14 @@ export function createD1BlogOpsRepository(db: DrizzleD1): BlogOpsRepositoryPort 
                 .insert(blogArticleTags)
                 .values(input.tagIds.map((tagId) => ({ workspaceId, articleId: input.id, tagId })));
 
-        if (casGuard !== null && insertBlocks !== null && insertTags !== null) {
-          await db.batch([
-            articleMutation,
-            casGuard,
-            deleteBlocks,
-            insertBlocks,
-            deleteTags,
-            insertTags,
-          ]);
-        } else if (casGuard !== null && insertBlocks !== null) {
-          await db.batch([articleMutation, casGuard, deleteBlocks, insertBlocks, deleteTags]);
-        } else if (casGuard !== null && insertTags !== null) {
-          await db.batch([articleMutation, casGuard, deleteBlocks, deleteTags, insertTags]);
-        } else if (casGuard !== null) {
-          await db.batch([articleMutation, casGuard, deleteBlocks, deleteTags]);
-        } else if (insertBlocks !== null && insertTags !== null) {
-          await db.batch([articleMutation, deleteBlocks, insertBlocks, deleteTags, insertTags]);
-        } else if (insertBlocks !== null) {
-          await db.batch([articleMutation, deleteBlocks, insertBlocks, deleteTags]);
-        } else if (insertTags !== null) {
-          await db.batch([articleMutation, deleteBlocks, deleteTags, insertTags]);
-        } else {
-          await db.batch([articleMutation, deleteBlocks, deleteTags]);
-        }
+        const batch: BatchItem<"sqlite">[] = [articleMutation];
+        if (casGuard !== null) batch.push(casGuard);
+        batch.push(deleteBlocks);
+        if (insertBlocks !== null) batch.push(insertBlocks);
+        batch.push(deleteTags);
+        if (insertTags !== null) batch.push(insertTags);
+        batch.push(...projectionStatements);
+        await db.batch(batch as [BatchItem<"sqlite">, ...BatchItem<"sqlite">[]]);
         return ok(true);
       } catch (cause) {
         const reason = cause instanceof Error ? cause.message.toLowerCase() : "";
@@ -960,13 +1078,51 @@ export function createD1BlogOpsRepository(db: DrizzleD1): BlogOpsRepositoryPort 
             }),
           );
         }
+        if (
+          reason.includes("published_article_source_conflict") ||
+          reason.includes("published_article_url_state_conflict") ||
+          reason.includes(
+            "unique constraint failed: published_articles.site_slug, published_articles.slug",
+          )
+        ) {
+          return err(
+            domainError("CONFLICT", "この URL には別の公開記事があります。", {
+              field: "slug",
+              suggestedAction: "公開済み記事を確認し、別の URL 名を使ってください。",
+            }),
+          );
+        }
         return storageFailure("記事の保存", cause);
       }
     },
 
     async deleteArticle(workspaceId, articleId, deletedAt): PortResult<true> {
       try {
-        const deleted = await db
+        const articles = await db
+          .select({ siteSlug: blogArticles.siteSlug, slug: blogArticles.slug })
+          .from(blogArticles)
+          .where(
+            and(
+              eq(blogArticles.workspaceId, workspaceId),
+              eq(blogArticles.id, articleId),
+              isNull(blogArticles.deletedAt),
+            ),
+          )
+          .limit(1);
+        const article = articles[0];
+        if (article?.siteSlug === null || article === undefined) return ownedResourceNotFound("記事");
+        const publicRows = await db
+          .select({ sourceArticleId: publishedArticles.sourceArticleId })
+          .from(publishedArticles)
+          .where(
+            and(
+              eq(publishedArticles.workspaceId, workspaceId),
+              eq(publishedArticles.siteSlug, article.siteSlug),
+              eq(publishedArticles.slug, article.slug),
+            ),
+          )
+          .limit(1);
+        const mutation = db
           .update(blogArticles)
           .set({ deletedAt, updatedAt: deletedAt })
           .where(
@@ -977,6 +1133,22 @@ export function createD1BlogOpsRepository(db: DrizzleD1): BlogOpsRepositoryPort 
             ),
           )
           .returning({ id: blogArticles.id });
+        const deleted =
+          publicRows[0]?.sourceArticleId === articleId
+            ? (
+                await db.batch([
+                  mutation,
+                  ...sourcedPublishedArticleUnpublishStatements(
+                    db,
+                    workspaceId,
+                    article.siteSlug,
+                    article.slug,
+                    articleId,
+                    deletedAt,
+                  ),
+                ] as const)
+              )[0]
+            : await mutation;
         if (deleted.length === 0) return ownedResourceNotFound("記事");
         return ok(true);
       } catch (cause) {
@@ -986,7 +1158,21 @@ export function createD1BlogOpsRepository(db: DrizzleD1): BlogOpsRepositoryPort 
 
     async restoreArticle(workspaceId, articleId, restoredAt): PortResult<true> {
       try {
-        const restored = await db
+        const rows = await db
+          .select()
+          .from(blogArticles)
+          .where(
+            and(
+              eq(blogArticles.workspaceId, workspaceId),
+              eq(blogArticles.id, articleId),
+              isNotNull(blogArticles.deletedAt),
+            ),
+          )
+          .limit(1);
+        const row = rows[0];
+        if (row === undefined) return ownedResourceNotFound("削除済み記事");
+
+        const mutation = db
           .update(blogArticles)
           .set({ deletedAt: null, updatedAt: restoredAt })
           .where(
@@ -997,7 +1183,97 @@ export function createD1BlogOpsRepository(db: DrizzleD1): BlogOpsRepositoryPort 
             ),
           )
           .returning({ id: blogArticles.id });
-        if (restored.length === 0) return ownedResourceNotFound("削除済み記事");
+        if (row.status !== "published") {
+          const restored = await mutation;
+          if (restored.length === 0) return ownedResourceNotFound("削除済み記事");
+          return ok(true);
+        }
+
+        if (
+          row.siteSlug === null ||
+          row.template === null ||
+          row.publishedAt === null ||
+          row.publicCategorySlug === null
+        ) {
+          return err(
+            domainError("CONFLICT", "公開記事を同じ内容で戻すための記録が足りません。", {
+              suggestedAction: "カテゴリと公開日時を修復してから、もう一度戻してください。",
+            }),
+          );
+        }
+        const [tombstoneRows, blueprintRows, detail] = await Promise.all([
+          db
+            .select({ workspaceId: publishedArticleTombstones.workspaceId })
+            .from(publishedArticleTombstones)
+            .where(
+              and(
+                eq(publishedArticleTombstones.siteSlug, row.siteSlug),
+                eq(publishedArticleTombstones.slug, row.slug),
+              ),
+            )
+            .limit(1),
+          db
+            .select({ blueprintJson: siteBlueprints.blueprintJson })
+            .from(siteBlueprints)
+            .where(
+              and(
+                eq(siteBlueprints.workspaceId, workspaceId),
+                eq(siteBlueprints.slug, row.siteSlug),
+              ),
+            )
+            .limit(1),
+          loadDeletedDetail(db, row),
+        ]);
+        if (tombstoneRows[0]?.workspaceId !== String(workspaceId)) {
+          return err(
+            domainError("CONFLICT", "元の公開URLを安全に確認できないため戻せません。", {
+              suggestedAction: "公開記事の取り下げ記録を確認してください。",
+            }),
+          );
+        }
+        const blueprint =
+          blueprintRows[0] === undefined
+            ? null
+            : (JSON.parse(blueprintRows[0].blueprintJson) as {
+                readonly categories?: readonly { readonly slug?: string }[];
+              });
+        const categoryStillValid =
+          row.publicCategorySlug === UNCATEGORIZED_ARTICLE_CATEGORY.slug ||
+          blueprint?.categories?.some(
+            (category) => category.slug === row.publicCategorySlug,
+          ) === true;
+        if (!categoryStillValid) {
+          return err(
+            validationError(
+              "元の公開カテゴリがブログの設計図に無いため戻せません。",
+              "categorySlug",
+            ),
+          );
+        }
+
+        const restoredArticle = projectBlogArticle({
+          id: row.id,
+          siteSlug: row.siteSlug,
+          slug: row.slug,
+          type: ARTICLE_TYPE_BY_TEMPLATE[row.template as ArticleTemplate],
+          title: row.title,
+          lead: row.lead,
+          authorName: row.authorName,
+          categorySlug: row.publicCategorySlug,
+          publishedAt: row.publishedAt,
+          updatedAt: restoredAt,
+          blocks: detail.blocks,
+        });
+        const results = await db.batch([
+          mutation,
+          ...publishedArticleSaveStatements(
+            db,
+            workspaceId,
+            restoredArticle,
+            row.id,
+          ),
+        ] as const);
+        if (results[0].length === 0) return ownedResourceNotFound("削除済み記事");
         return ok(true);
       } catch (cause) {
         return storageFailure("記事の復元", cause);
@@ -1459,6 +1735,7 @@ export function createD1ArticleRatingPort(db: DrizzleD1): ArticleRatingPort {
 export function createD1PublicBlogPort(
   db: DrizzleD1,
   sites: EditorialSiteRepositoryPort,
+  publishedContent: EditorialPublishedContentPort = createD1ContentRepository(db),
 ): PublicBlogPort {
   return {
     async openSite(siteSlug): PortResult<PublicSiteReader | null> {
@@ -1467,84 +1744,89 @@ export function createD1PublicBlogPort(
       const identity = resolved.value;
       if (identity === null) return ok(null);
 
+      const readLayoutSlots = async (
+        enabledOnly: boolean,
+      ): PortResult<readonly BlogLayoutSlotRecord[]> => {
+        try {
+          const ownership = and(
+            eq(blogLayoutSlots.workspaceId, identity.workspaceId),
+            eq(blogLayoutSlots.siteSlug, identity.siteSlug),
+          );
+          const rows = await db
+            .select()
+            .from(blogLayoutSlots)
+            .where(
+              enabledOnly
+                ? and(ownership, eq(blogLayoutSlots.enabled, true))
+                : ownership,
+            )
+            .orderBy(asc(blogLayoutSlots.position));
+          return ok(rows.map(toSlot));
+        } catch (cause) {
+          return storageFailure("枠の設定の読み取り", cause);
+        }
+      };
+      const readLayoutBands = async (
+        enabledOnly: boolean,
+      ): PortResult<readonly BlogLayoutBandRecord[]> => {
+        try {
+          const ownership = and(
+            eq(blogLayoutBands.workspaceId, identity.workspaceId),
+            eq(blogLayoutBands.siteSlug, identity.siteSlug),
+          );
+          const rows = await db
+            .select()
+            .from(blogLayoutBands)
+            .where(
+              enabledOnly
+                ? and(ownership, eq(blogLayoutBands.enabled, true))
+                : ownership,
+            )
+            .orderBy(asc(blogLayoutBands.position));
+          return ok(rows.map(toBand));
+        } catch (cause) {
+          return storageFailure("帯の設定の読み取り", cause);
+        }
+      };
+
       return ok({
         blueprint: identity.blueprint,
         async findArticleBySlug(slug) {
+          return publishedContent.findArticle(identity.siteSlug, slug);
+        },
+        async listPublished(limit) {
+          return publishedContent.listRecent(identity.siteSlug, limit);
+        },
+        async findSourceArticleId(slug) {
           try {
             const rows = await db
-              .select()
-              .from(blogArticles)
+              .select({ sourceArticleId: publishedArticles.sourceArticleId })
+              .from(publishedArticles)
               .where(
                 and(
-                  eq(blogArticles.workspaceId, identity.workspaceId),
-                  eq(blogArticles.siteSlug, identity.siteSlug),
-                  eq(blogArticles.slug, slug),
-                  eq(blogArticles.status, "published"),
-                  isNull(blogArticles.deletedAt),
+                  eq(publishedArticles.workspaceId, identity.workspaceId),
+                  eq(publishedArticles.siteSlug, identity.siteSlug),
+                  eq(publishedArticles.slug, slug),
+                  isNull(publishedArticles.archivedAt),
                 ),
               )
               .limit(1);
-            const row = rows[0];
-            return row === undefined ? ok(null) : ok(await loadDetail(db, row));
+            return ok(rows[0]?.sourceArticleId ?? null);
           } catch (cause) {
-            return storageFailure("記事の読み取り", cause);
-          }
-        },
-        async listPublished(limit) {
-          try {
-            const rows = await db
-              .select()
-              .from(blogArticles)
-              .where(
-                and(
-                  eq(blogArticles.workspaceId, identity.workspaceId),
-                  eq(blogArticles.siteSlug, identity.siteSlug),
-                  eq(blogArticles.status, "published"),
-                  isNull(blogArticles.deletedAt),
-                ),
-              )
-              .orderBy(desc(blogArticles.publishedAt))
-              .limit(limit);
-            return ok(rows.map(toArticle));
-          } catch (cause) {
-            return storageFailure("記事の読み取り", cause);
+            return storageFailure("公開記事の由来の読み取り", cause);
           }
         },
         async listLayoutSlots() {
-          try {
-            const rows = await db
-              .select()
-              .from(blogLayoutSlots)
-              .where(
-                and(
-                  eq(blogLayoutSlots.workspaceId, identity.workspaceId),
-                  eq(blogLayoutSlots.siteSlug, identity.siteSlug),
-                  eq(blogLayoutSlots.enabled, true),
-                ),
-              )
-              .orderBy(asc(blogLayoutSlots.position));
-            return ok(rows.map(toSlot));
-          } catch (cause) {
-            return storageFailure("枠の設定の読み取り", cause);
-          }
+          return readLayoutSlots(true);
+        },
+        async listProvisionedLayoutSlots() {
+          return readLayoutSlots(false);
         },
         async listLayoutBands() {
-          try {
-            const rows = await db
-              .select()
-              .from(blogLayoutBands)
-              .where(
-                and(
-                  eq(blogLayoutBands.workspaceId, identity.workspaceId),
-                  eq(blogLayoutBands.siteSlug, identity.siteSlug),
-                  eq(blogLayoutBands.enabled, true),
-                ),
-              )
-              .orderBy(asc(blogLayoutBands.position));
-            return ok(rows.map(toBand));
-          } catch (cause) {
-            return storageFailure("帯の設定の読み取り", cause);
-          }
+          return readLayoutBands(true);
+        },
+        async listProvisionedLayoutBands() {
+          return readLayoutBands(false);
         },
         async listDeliveryParts() {
           try {
@@ -1623,6 +1905,25 @@ export function createD1PublicBlogPort(
             return ok(rows.map(toPage));
           } catch (cause) {
             return storageFailure("固定ページの公開読み取り", cause);
+          }
+        },
+        async listProvisionedFixedPages() {
+          try {
+            const rows = await db
+              .select()
+              .from(legalPages)
+              .where(
+                and(
+                  eq(legalPages.workspaceId, identity.workspaceId),
+                  eq(legalPages.siteSlug, identity.siteSlug),
+                  inArray(legalPages.kind, [...FIXED_PAGE_KINDS]),
+                  isNull(legalPages.deletedAt),
+                ),
+              )
+              .orderBy(asc(legalPages.kind));
+            return ok(rows.map(toPage));
+          } catch (cause) {
+            return storageFailure("固定ページの作成状態の読み取り", cause);
           }
         },
       });

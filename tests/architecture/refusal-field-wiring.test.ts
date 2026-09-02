@@ -107,7 +107,6 @@ const KNOWN_UNWIRED: readonly string[] = [
   "articleTypes",
   "authorName",
   "categoriesText",
-  "categorySlug",
   "conclusion",
   "connectionId",
   "draftId",

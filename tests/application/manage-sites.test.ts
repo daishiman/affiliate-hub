@@ -205,22 +205,12 @@ describe("運用中のブログ一覧", () => {
     ]);
     expect(view.items[0]?.differentiation.targetReader).toBe(BASE_AXES.targetReader);
   });
-});
-
-describe("公開できない理由", () => {
-  it("信頼ページが揃っていれば、止める理由は無い", async () => {
-    const view = await listSites([{ slug: "mine", blueprint: blueprint("mine") }]);
-    expect(view.items[0]?.missingTrustPages).toHaveLength(0);
-    expect(view.items[0]?.launchBlockedReason).toBeNull();
-  });
-
-  it("信頼ページが 1 枚でも欠けていれば、欠けている名前を挙げて止める", async () => {
-    // 「後で作る」で公開すると、広告表記の説明先が無い記事が世に出る。
+  it("設計図一覧に実公開状態を混ぜない", async () => {
     const bp = blueprint("mine", { pages: ["home", "category"] });
     const view = await listSites([{ slug: "mine", blueprint: bp }]);
     const item = view.items[0];
-    expect(item?.missingTrustPages.length).toBeGreaterThan(0);
-    expect(item?.launchBlockedReason).toContain("advertising_policy");
+    expect(item).not.toHaveProperty("missingTrustPages");
+    expect(item).not.toHaveProperty("launchBlockedReason");
   });
 });
 

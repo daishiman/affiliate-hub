@@ -8,6 +8,7 @@ import type {
   PublishedPerson,
 } from "@/application/read-models/published-article";
 import { type SiteBlueprint, routesFor } from "@/domain/authoring";
+import { UNCATEGORIZED_ARTICLE_CATEGORY } from "@/domain/blogops";
 import {
   type ActorContext,
   type DomainError,
@@ -185,7 +186,10 @@ export function createListByCategoryUseCase(
       if (!site.ok) return site;
       if (site.value === null) return err(notFound("ブログ"));
 
-      const category = site.value.categories.find((c) => c.slug === input.categorySlug);
+      const category =
+        input.categorySlug === UNCATEGORIZED_ARTICLE_CATEGORY.slug
+          ? UNCATEGORIZED_ARTICLE_CATEGORY
+          : site.value.categories.find((c) => c.slug === input.categorySlug);
       if (category === undefined) return err(notFound("カテゴリー"));
 
       const articles = await deps.content.listByCategory(input.siteSlug, input.categorySlug);
@@ -292,7 +296,7 @@ export function createGetPersonUseCase(deps: ReadSiteDeps): UseCase<GetPersonInp
       if (person.value === null) {
         return err(notFound(input.kind === "author" ? "書き手" : "監修者"));
       }
-      const articles = await deps.content.listByPerson(input.siteSlug, input.slug);
+      const articles = await deps.content.listByPerson(input.siteSlug, input.kind, input.slug);
       if (!articles.ok) return articles;
       return ok({ person: person.value, kind: input.kind, articles: articles.value });
     },

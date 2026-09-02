@@ -227,6 +227,7 @@ describe("削除済みの記事を戻す決まり", () => {
     lead: "",
     status: "published" as const,
     authorName: "編集部",
+    categorySlug: "chairs",
     publishedAt: NOW,
     updatedAt: NOW,
   };

@@ -85,8 +85,35 @@ const gateSource = gateFile === undefined ? "" : readFileSync(join(ROOT, gateFil
  * 範囲を絞れるので、範囲を狭めれば守りは黙って外れる。
  * だから「門がある」と「その URL が範囲に入っている」を別に測る。
  */
-const gateCoversAdmin = /matcher[\s\S]{0,200}["'`]\/admin/.test(gateSource) &&
-  /decideEntry\s*\(/.test(gateSource);
+/**
+ * 範囲は**字面ではなく実際の判定で測る**。
+ *
+ * もとは `matcher` の近くに文字列 `"/admin"` があるかを見ていた。
+ * 住所（サブドメイン）でブログを振り分けるために `matcher` をほぼ全 path へ
+ * 広げた日、その字面は消えた。**守る範囲は 1 文字も狭まっていない**のに
+ * 「範囲が測れない」と読み、管理画面 86 枚が丸ごと「開いている」と数えられた。
+ *
+ * 字面を追いかけて `"/admin"` を書き足す形に直すと、次に書き方が変わった日に
+ * 同じことが起きる。だから `matcher` を実際に当て、`isGuardedPath` を実際に呼ぶ。
+ * 守りが本当に外れた日にだけ落ちる。
+ */
+const gateCoversAdmin = await (async () => {
+  if (gateFile === undefined) return false;
+  if (!/decideEntry\s*\(/.test(gateSource)) return false;
+  const { isGuardedPath } = await import("@/infrastructure/identity/entry-gate");
+  const { config } = await import("@/middleware");
+  // `matcher` を素の正規表現として当てる。門へ届かない path は守りようがない。
+  const reaches = (path: string) =>
+    config.matcher.some((m: string) => new RegExp(`^${m}$`).test(path));
+  return (
+    reaches("/admin") &&
+    reaches("/admin/sites") &&
+    isGuardedPath("/admin") &&
+    isGuardedPath("/admin/sites") &&
+    // 守りすぎていないことも同時に見る。ログインの往復まで守ると誰も入れない。
+    !isGuardedPath("/signin")
+  );
+})();
 
 /** `src/app/admin/settings/page.tsx` → `/admin/settings` */
 function urlOfPage(id: string): string {

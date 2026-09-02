@@ -49,7 +49,11 @@ export type { ArticleBlockDraft } from "./article-block-draft";
 export function BlogArticleCreateForm({
   siteOptions,
 }: {
-  readonly siteOptions: readonly { readonly value: string; readonly label: string }[];
+  readonly siteOptions: readonly {
+    readonly value: string;
+    readonly label: string;
+    readonly categories: readonly { readonly value: string; readonly label: string }[];
+  }[];
 }) {
   const [state, action, pending] = useActionState(
     manageBlogArticleAction,
@@ -61,6 +65,7 @@ export function BlogArticleCreateForm({
   const [title, setTitle] = useState("");
   const [lead, setLead] = useState("");
   const [authorName, setAuthorName] = useState("");
+  const [categorySlug, setCategorySlug] = useState(siteOptions[0]?.categories[0]?.value ?? "");
 
   const picked = (ARTICLE_TEMPLATES.find((c) => c === template) ?? "T1") as ArticleTemplate;
 
@@ -76,9 +81,26 @@ export function BlogArticleCreateForm({
         label="どのブログに置くか"
         name="siteSlug"
         value={siteSlug}
-        onValueChange={setSiteSlug}
+        onValueChange={(value) => {
+          setSiteSlug(value);
+          setCategorySlug(
+            siteOptions.find((option) => option.value === value)?.categories[0]?.value ?? "",
+          );
+        }}
         options={siteOptions}
         toolParamDescription="記事を置くブログの識別名"
+      />
+      <Select
+        label="公開カテゴリ"
+        name="categorySlug"
+        value={categorySlug}
+        onValueChange={setCategorySlug}
+        options={
+          siteOptions.find((option) => option.value === siteSlug)?.categories ?? []
+        }
+        error={state.field === "categorySlug" ? state.message : null}
+        hint="下書きの時点で選び、公開後も同じ分類を使います。"
+        toolParamDescription="サイト設計図にある記事カテゴリ"
       />
       <Field
         label="記事の住所"
@@ -147,6 +169,7 @@ type BlogArticleDraftValues = {
   readonly template: string;
   readonly status: string;
   readonly authorName: string;
+  readonly categorySlug: string;
   readonly tagIds: readonly string[];
   readonly rows: readonly ArticleBlockDraft[];
 };
@@ -166,6 +189,8 @@ export function BlogArticleEditForm({
   template,
   status,
   authorName,
+  categorySlug,
+  categoryOptions,
   blocks,
   tagOptions,
   selectedTagIds,
@@ -177,6 +202,8 @@ export function BlogArticleEditForm({
   readonly template: ArticleTemplate;
   readonly status: string;
   readonly authorName: string;
+  readonly categorySlug: string;
+  readonly categoryOptions: readonly { readonly value: string; readonly label: string }[];
   readonly blocks: readonly ArticleBlockDraft[];
   readonly tagOptions: readonly { readonly value: string; readonly label: string }[];
   readonly selectedTagIds: readonly string[];
@@ -193,10 +220,11 @@ export function BlogArticleEditForm({
       template,
       status,
       authorName,
+      categorySlug,
       tagIds: [...selectedTagIds],
       rows: blocks.map((block) => ({ ...block })),
     }),
-    [authorName, blocks, lead, revision, selectedTagIds, status, template, title],
+    [authorName, blocks, categorySlug, lead, revision, selectedTagIds, status, template, title],
   );
   const draft = useDraft(initialDraft, { key: `blog-article-draft:${articleId}` });
   const forgetDraft = draft.forget;
@@ -206,6 +234,7 @@ export function BlogArticleEditForm({
     template: templateValue,
     status: statusValue,
     authorName: authorValue,
+    categorySlug: categoryValue,
     tagIds,
     rows,
   } = draft.values;
@@ -312,6 +341,16 @@ export function BlogArticleEditForm({
           onValueChange={(value) => draft.update({ title: value })}
           error={state.field === "title" ? state.message : null}
           toolParamDescription="記事の見出し"
+        />
+        <Select
+          label="公開カテゴリ"
+          name="categorySlug"
+          value={categoryValue}
+          onValueChange={(value) => draft.update({ categorySlug: value })}
+          options={categoryOptions}
+          error={state.field === "categorySlug" ? state.message : null}
+          hint="このブログの設計図にある分類だけを選べます。"
+          toolParamDescription="サイト設計図にある記事カテゴリ"
         />
         <TextArea
           label="書き出し"

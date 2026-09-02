@@ -14,18 +14,23 @@ import type {
   SaveSiteNetworkInput,
   SiteNetworkRecord,
 } from "@/application/ports/blog-ops";
-import type { EditorialSiteRepositoryPort } from "@/application/ports/site";
+import type {
+  EditorialPublishedContentPort,
+  EditorialSiteRepositoryPort,
+} from "@/application/ports/site";
 import type { ArticleRating, BlogArticle, BlogArticleBlock, RatingSummary } from "@/domain/blogops";
 import { FIXED_PAGE_KINDS, FIXED_PAGE_LABEL, summarizeRatings } from "@/domain/blogops";
 import type { WorkspaceId } from "@/domain/shared";
 import { domainError, err, notFound, ok, validationError } from "@/domain/shared";
 import { registerStub } from "../../stub-registry";
-import { SAMPLE_WORKSPACE_ID } from "./ranking-sample-repository";
-import {
-  SAMPLE_SITE_SLUG,
-  SECOND_SITE_SLUG,
-  createSampleSiteRepository,
-} from "./site-sample-repository";
+// 住所と作業場は `sample-identity` から取る。**保存先からは借りない。**
+// 借りると `site-draft` → ここ → `site-sample` → `site-draft` の輪ができ、
+// この module の種データが組み上がる時点で住所がまだ `undefined` になる。
+import { SAMPLE_SITE_SLUG, SAMPLE_WORKSPACE_ID, SECOND_SITE_SLUG } from "./sample-identity";
+// これは既定の引数の中でだけ呼ぶ（module が読まれる時点では動かない）ので、
+// 輪になっても値を掴み損ねない。
+import { createSampleSiteRepository } from "./site-sample-repository";
+import { createSampleContentRepository } from "./content-sample-repository";
 
 /**
  * これは仮置きの見本データです（スタブ）。
@@ -162,6 +167,7 @@ const ARTICLES: SampleArticle[] = [
       lead: "予算・置き場所・音の 3 点で絞り込み、迷いどころを先に片づけます。",
       status: "published",
       authorName: "編集部",
+      categorySlug: "chairs",
       publishedAt: new Date("2026-07-20T09:00:00.000Z"),
       updatedAt: new Date("2026-07-28T09:00:00.000Z"),
     },
@@ -224,6 +230,7 @@ const ARTICLES: SampleArticle[] = [
       lead: "カタログの数値と、実際に机に向かったときの感じ方の差を確かめました。",
       status: "published",
       authorName: "編集部",
+      categorySlug: "desks",
       publishedAt: new Date("2026-07-05T09:00:00.000Z"),
       updatedAt: new Date("2026-07-06T09:00:00.000Z"),
     },
@@ -272,6 +279,7 @@ const ARTICLES: SampleArticle[] = [
       lead: "",
       status: "draft",
       authorName: "編集部",
+      categorySlug: "lighting",
       publishedAt: null,
       updatedAt: NOW,
     },
@@ -437,6 +445,99 @@ function maySave(
   return owner === undefined || owner === String(workspaceId);
 }
 
+/**
+ * 見本版でも、ブログ作成が住所と版面を一緒に作る。
+ *
+ * **見本版だけ作らない、を許さない。** `pnpm dev` は既定でこちらを使う。
+ * ここで住所を作らないと、手元では作成直後のブログが開けるのに
+ * （見本の一覧が設計図だけで返すため）本番では 404、という
+ * 環境ごとに違う挙動になる。同じ手順を踏ませて、同じ形で失敗させる。
+ */
+export function provisionSampleComposition(input: {
+  readonly workspaceId: WorkspaceId;
+  readonly siteSlug: string;
+  readonly displayName: string;
+  readonly oneLine: string;
+  readonly bands: readonly {
+    readonly band: BlogLayoutBandRecord["band"];
+    readonly title: string;
+    readonly enabled: boolean;
+    readonly position: number;
+    readonly itemLimit: number;
+  }[];
+  readonly slots: readonly {
+    readonly region: BlogLayoutSlotRecord["region"];
+    readonly slotKey: string;
+    readonly title: string;
+    readonly body: string;
+    readonly enabled: boolean;
+    readonly position: number;
+  }[];
+}): void {
+  const ws = String(input.workspaceId);
+  const nodeAt = NETWORK.findIndex((n) => n.siteSlug === input.siteSlug && owns(networkOwners, n.id, ws));
+  if (nodeAt === -1) {
+    const id = `snn_${input.siteSlug}`;
+    NETWORK.push({
+      id,
+      siteSlug: input.siteSlug,
+      role: "hub",
+      parentSlug: null,
+      name: input.displayName,
+      oneLine: input.oneLine,
+      position: NETWORK.length + 1,
+      status: "active",
+    });
+    networkOwners.set(id, ws);
+  } else {
+    NETWORK[nodeAt] = {
+      ...NETWORK[nodeAt],
+      name: input.displayName,
+      oneLine: input.oneLine,
+      status: "active",
+    };
+  }
+
+  for (const band of input.bands) {
+    if (BANDS.some((b) => b.siteSlug === input.siteSlug && b.band === band.band)) continue;
+    const id = `blb_${input.siteSlug}_${band.band}`;
+    BANDS.push({ id, siteSlug: input.siteSlug, ...band });
+    bandOwners.set(id, ws);
+  }
+
+  for (const slot of input.slots) {
+    if (
+      SLOTS.some(
+        (s) =>
+          s.siteSlug === input.siteSlug && s.region === slot.region && s.slotKey === slot.slotKey,
+      )
+    ) {
+      continue;
+    }
+    const id = `bls_${input.siteSlug}_${slot.region}_${slot.slotKey}`;
+    SLOTS.push({ id, siteSlug: input.siteSlug, ...slot });
+    slotOwners.set(id, ws);
+  }
+
+  for (const kind of FIXED_PAGE_KINDS) {
+    if (FIXED_PAGES.some((page) => page.siteSlug === input.siteSlug && page.kind === kind)) {
+      continue;
+    }
+    const id = `lgp_${input.siteSlug}_${kind}`;
+    FIXED_PAGES.push({
+      id,
+      siteSlug: input.siteSlug,
+      kind,
+      title: FIXED_PAGE_LABEL[kind],
+      body: "",
+      status: "draft",
+      deletedAt: null,
+      updatedAt: new Date(),
+    });
+    fixedPageOwners.set(id, ws);
+  }
+}
+
 /** 記事 id + 読者の目印 → 点。押し直しは上書き（票が増えない）。 */
 /** 見本の票。伏せた印も一緒に持つ（本物と同じ形にしないと、見本だけ通る書き方が残る）。 */
 const ratingMemory = new Map<string, ArticleRating>();
@@ -476,6 +577,7 @@ async function resolveSamplePublicSiteIdentity(
 
 export function createSamplePublicBlogPort(
   sites: EditorialSiteRepositoryPort = createSampleSiteRepository(),
+  publishedContent: EditorialPublishedContentPort = createSampleContentRepository(),
 ): PublicBlogPort {
   return {
     async openSite(siteSlug) {
@@ -483,9 +585,27 @@ export function createSamplePublicBlogPort(
       if (!identity.ok) return err(identity.error);
       if (identity.value === null) return ok(null);
       const scoped = identity.value;
+      const layoutSlots = () =>
+        SLOTS.filter(
+          (slot) =>
+            owns(slotOwners, slot.id, scoped.workspaceId) &&
+            slot.siteSlug === scoped.siteSlug,
+        );
+      const layoutBands = () =>
+        BANDS.filter(
+          (band) =>
+            owns(bandOwners, band.id, scoped.workspaceId) &&
+            band.siteSlug === scoped.siteSlug,
+        );
       return ok({
         blueprint: scoped.blueprint,
         async findArticleBySlug(slug) {
+          return publishedContent.findArticle(scoped.siteSlug, slug);
+        },
+        async listPublished(limit) {
+          return publishedContent.listRecent(scoped.siteSlug, limit);
+        },
+        async findSourceArticleId(slug) {
           const found = ARTICLES.find(
             (article) =>
               owns(articleOwners, article.article.id, scoped.workspaceId) &&
@@ -493,30 +613,19 @@ export function createSamplePublicBlogPort(
               article.article.slug === slug &&
               article.article.status === "published",
           );
-          return ok(
-            found === undefined
-              ? null
-              : { article: found.article, blocks: found.blocks, tagIds: found.tagIds },
-          );
-        },
-        async listPublished(limit) {
-          const rows: readonly BlogArticle[] = ARTICLES.filter(
-            (article) =>
-              owns(articleOwners, article.article.id, scoped.workspaceId) &&
-              article.siteSlug === scoped.siteSlug &&
-              article.article.status === "published",
-          )
-            .map((article) => article.article)
-            .sort((left, right) =>
-              (right.publishedAt?.getTime() ?? 0) - (left.publishedAt?.getTime() ?? 0))
-            .slice(0, limit);
-          return ok(rows);
+          return ok(found?.article.id ?? null);
         },
         async listLayoutSlots() {
-          return ok(SLOTS.filter((slot) => owns(slotOwners, slot.id, scoped.workspaceId) && slot.siteSlug === scoped.siteSlug && slot.enabled));
+          return ok(layoutSlots().filter((slot) => slot.enabled));
+        },
+        async listProvisionedLayoutSlots() {
+          return ok(layoutSlots());
         },
         async listLayoutBands() {
-          return ok(BANDS.filter((band) => owns(bandOwners, band.id, scoped.workspaceId) && band.siteSlug === scoped.siteSlug && band.enabled));
+          return ok(layoutBands().filter((band) => band.enabled));
+        },
+        async listProvisionedLayoutBands() {
+          return ok(layoutBands());
         },
         async listDeliveryParts() {
           return ok(PARTS.filter((part) => owns(partOwners, part.id, scoped.workspaceId) && part.siteSlug === scoped.siteSlug));
@@ -529,6 +638,16 @@ export function createSamplePublicBlogPort(
         },
         async listFixedPages() {
           return ok(FIXED_PAGES.filter((page) => owns(fixedPageOwners, page.id, scoped.workspaceId) && page.siteSlug === scoped.siteSlug && page.status === "published" && page.deletedAt === null));
+        },
+        async listProvisionedFixedPages() {
+          return ok(
+            FIXED_PAGES.filter(
+              (page) =>
+                owns(fixedPageOwners, page.id, scoped.workspaceId) &&
+                page.siteSlug === scoped.siteSlug &&
+                page.deletedAt === null,
+            ),
+          );
         },
       });
     },
@@ -809,6 +928,7 @@ export function createSampleBlogOpsRepository(): BlogOpsRepositoryPort {
         lead: input.lead,
         status: input.status,
         authorName: input.authorName,
+        categorySlug: input.categorySlug,
         publishedAt: input.publishedAt,
         updatedAt: input.updatedAt,
         revision: existingArticle === undefined ? 1 : currentRevision + 1,

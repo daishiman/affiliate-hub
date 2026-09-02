@@ -17,10 +17,7 @@
  * ここで DOM を触ると、決まりが変わっていないのに文言だけで落ちるようになる。
  */
 import { describe, expect, it } from "vitest";
-import type {
-  BlogArticleDetail,
-  FixedPageRecord,
-} from "@/application/ports/blog-ops";
+import type { FixedPageRecord } from "@/application/ports/blog-ops";
 import {
   createCreateBlogArticleUseCase,
   createCreateSiteNetworkNodeUseCase,
@@ -53,7 +50,12 @@ import {
   createUpdateBlogArticleUseCase,
   createUpdateSiteNetworkNodeUseCase,
 } from "@/application/usecases/blog-ops";
+import type {
+  ArticleSummary,
+  PublishedArticle,
+} from "@/application/read-models/published-article";
 import {
+  ARTICLE_TYPE_BY_TEMPLATE,
   DELIVERY_PARTS,
   FIXED_PAGE_KINDS,
   FOOTER_SLOT_KEYS,
@@ -81,7 +83,7 @@ import {
   sequentialIds,
 } from "../support/blog-ops-fake";
 
-function depsWith(seed: Partial<Store> = {}) {
+function depsWith(seed: Partial<Store> = {}, publicArticles?: readonly ArticleSummary[]) {
   const repo = fakeRepository(seed);
   const audit = recordingAuditLog();
   return {
@@ -89,6 +91,27 @@ function depsWith(seed: Partial<Store> = {}) {
     audit,
     deps: {
       repository: repo.port,
+      publishedContent: {
+        listRecent: async (siteSlug: string, limit: number) =>
+          ok(
+            (publicArticles ??
+              repo.store.articles
+                .map((detail) => detail.article)
+                .filter((candidate) => candidate.status === "published")
+                .map((candidate) => ({
+                  slug: candidate.slug,
+                  siteSlug: candidate.siteSlug,
+                  type: ARTICLE_TYPE_BY_TEMPLATE[candidate.template],
+                  title: candidate.title,
+                  summary: candidate.lead,
+                  categorySlug: candidate.categorySlug ?? "uncategorized",
+                  updatedAt: candidate.updatedAt.toISOString(),
+                  authorName: candidate.authorName,
+                })))
+              .filter((candidate) => candidate.siteSlug === siteSlug)
+              .slice(0, limit),
+          ),
+      },
       ids: sequentialIds(),
       auditLog: audit.port,
       now: () => NOW,
@@ -553,7 +576,13 @@ describe("記事の一覧と閲覧", () => {
 
   it("1 本を開くと、足りない部品を名前で返す", async () => {
     const { deps } = depsWith({
-      articles: [{ article: article({ id: "a1", template: "T1" }), blocks: [], tagIds: [] }],
+      articles: [
+        {
+          article: article({ id: "a1", template: "T1", categorySlug: "chairs" }),
+          blocks: [],
+          tagIds: [],
+        },
+      ],
     });
     const r = await createGetBlogArticleUseCase(deps).execute(anOwner(), { articleId: "a1" });
     expect(isOk(r) && r.value.missing).toHaveLength(7);
@@ -595,6 +624,7 @@ describe("記事の作成・変更・削除", () => {
       title: "選び方",
       lead: "",
       authorName: "編集部",
+      categorySlug: "chairs",
     });
     expect(isOk(r) && r.value.requiredBlocks).toHaveLength(7);
     expect(repo.store.articles[0]?.article.status).toBe("draft");
@@ -612,6 +642,7 @@ describe("記事の作成・変更・削除", () => {
       title: "別の記事",
       lead: "",
       authorName: "編集部",
+      categorySlug: "chairs",
     });
     expect(isErr(r) && r.error.field).toBe("slug");
   });
@@ -628,6 +659,7 @@ describe("記事の作成・変更・削除", () => {
       title: "別の記事",
       lead: "",
       authorName: "編集部",
+      categorySlug: "chairs",
     });
 
     expect(isErr(r) && r.error.field).toBe("slug");
@@ -642,6 +674,7 @@ describe("記事の作成・変更・削除", () => {
       title: "  ",
       lead: "",
       authorName: "編集部",
+      categorySlug: "chairs",
     });
     expect(isErr(r) && r.error.field).toBe("title");
   });
@@ -661,7 +694,13 @@ describe("記事の作成・変更・削除", () => {
 
   it("部品が欠けたままの公開だけを断る", async () => {
     const { deps } = depsWith({
-      articles: [{ article: article({ id: "a1", template: "T1" }), blocks: [], tagIds: [] }],
+      articles: [
+        {
+          article: article({ id: "a1", template: "T1", categorySlug: "chairs" }),
+          blocks: [],
+          tagIds: [],
+        },
+      ],
     });
     const r = await createUpdateBlogArticleUseCase(deps).execute(aWriter(), {
       articleId: "a1",
@@ -681,10 +720,12 @@ describe("記事の作成・変更・削除", () => {
     const r = await createUpdateBlogArticleUseCase(deps).execute(aWriter(), {
       articleId: "a1",
       status: "published",
+      categorySlug: "chairs",
       blocks,
     });
     expect(r.ok).toBe(true);
     expect(repo.store.articles[0]?.article.publishedAt).toEqual(NOW);
+    expect(repo.store.articles[0]?.article.categorySlug).toBe("chairs");
   });
 
   it("2 度目の公開で公開日を書き換えない", async () => {
@@ -692,7 +733,13 @@ describe("記事の作成・変更・削除", () => {
     const { deps, repo } = depsWith({
       articles: [
         {
-          article: article({ id: "a1", template: "T4", status: "published", publishedAt: first }),
+          article: article({
+            id: "a1",
+            template: "T4",
+            status: "published",
+            publishedAt: first,
+            categorySlug: "chairs",
+          }),
           blocks: [{ id: "b1", kind: "intro-box", heading: "", body: "", position: 0 }],
           tagIds: [],
         },
@@ -1161,15 +1208,18 @@ describe("読者の評価の受け取り", () => {
     readonly summary?: RatingSummary;
   } = {}) {
     const puts: unknown[] = [];
-    const detail: BlogArticleDetail = {
-      article: article({
-        id: "a1",
-        siteSlug: "hub",
-        slug: "review",
-        status: seed.published === false ? "draft" : "published",
-      }),
-      blocks: [],
-      tagIds: [],
+    const detail: PublishedArticle = {
+      slug: "review",
+      siteSlug: "hub",
+      type: "review",
+      title: "レビュー",
+      summary: "要約",
+      categorySlug: "review",
+      publishedAt: NOW.toISOString(),
+      updatedAt: NOW.toISOString(),
+      author: { slug: "writer", name: "書き手", bio: "", credentials: [] },
+      disclosureRequired: false,
+      sections: [],
     };
     return {
       puts,
@@ -1185,14 +1235,20 @@ describe("読者の評価の受け取り", () => {
           openSite: async (siteSlug: string) =>
             ok(siteSlug !== "hub" ? null : {
               blueprint: {} as never,
-              findArticleBySlug: async (slug: string) => ok(slug === "review" ? detail : null),
+              findArticleBySlug: async (slug: string) =>
+                ok(slug === "review" && seed.published !== false ? detail : null),
+              findSourceArticleId: async (slug: string) =>
+                ok(slug === "review" && seed.published !== false ? "a1" : null),
               listPublished: async () => ok([]),
               listLayoutSlots: async () => ok([]),
+              listProvisionedLayoutSlots: async () => ok([]),
               listLayoutBands: async () => ok([]),
+              listProvisionedLayoutBands: async () => ok([]),
               listDeliveryParts: async () => ok([]),
               listNetwork: async () => ok([]),
               listTags: async () => ok([]),
               listFixedPages: async () => ok([]),
+              listProvisionedFixedPages: async () => ok([]),
             }),
         },
         ids: sequentialIds(),
@@ -1498,6 +1554,59 @@ describe("配信物の点検 (A9)", () => {
 
     expect(isOk(r) && r.value.missing).toContain("sitemap_index");
     expect(repo.store.snapshots.find((s) => s.part === "sitemap_index")?.ok).toBe(false);
+  });
+
+  it("編集 aggregate だけが公開でも projection に無ければ sitemap を緑にしない", async () => {
+    const { deps, repo } = depsWith(
+      {
+        articles: [
+          {
+            article: article({ id: "a1", slug: "aggregate-only", status: "published" }),
+            blocks: [],
+            tagIds: [],
+          },
+        ],
+      },
+      [],
+    );
+
+    const r = await createCheckBlogDeliveryUseCase(deps).execute(anOwner(), CHECK);
+
+    expect(isOk(r) && r.value.missing).toContain("sitemap_index");
+    expect(repo.store.snapshots.find((s) => s.part === "sitemap_index")?.ok).toBe(false);
+  });
+
+  it("projection だけにある AI 記事も sitemap の公開集合として数える", async () => {
+    const { deps, repo } = depsWith(
+      {
+        articles: [
+          {
+            article: article({ id: "a1", slug: "editing-draft", status: "draft" }),
+            blocks: [],
+            tagIds: [],
+          },
+        ],
+      },
+      [
+        {
+          slug: "ai-guide",
+          siteSlug: "hub",
+          type: "guide",
+          title: "AI 公開記事",
+          summary: "公開 projection にだけ存在する記事",
+          categorySlug: "camera",
+          updatedAt: NOW.toISOString(),
+          authorName: "公開著者",
+        },
+      ],
+    );
+
+    const r = await createCheckBlogDeliveryUseCase(deps).execute(anOwner(), CHECK);
+
+    expect(isOk(r) && r.value.missing).not.toContain("sitemap_index");
+    expect(repo.store.snapshots.find((s) => s.part === "sitemap_index")?.detail).toContain(
+      "公開記事 1 本",
+    );
   });
 
   it("住所の起点が無いまま点検させない", async () => {

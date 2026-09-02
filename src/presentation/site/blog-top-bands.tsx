@@ -1,4 +1,5 @@
 import type { BlogLayoutBandRecord } from "@/application/ports/blog-ops";
+import { articleHref } from "@/application/read-models/published-article";
 import { brandTagCloud, TOP_BAND_LABEL } from "@/domain/blogops";
 import { EmptyView, ListView, Section } from "@/presentation/ui";
 import type { PublicSiteProjection } from "./public-site-projection";
@@ -32,10 +33,10 @@ function bandRows(
 
   if (band.band === "latest_posts") {
     return projection.articles.slice(0, band.itemLimit).map((a) => ({
-      key: a.id,
+      key: a.slug,
       label: a.title,
-      href: siteHref(siteSlug, `/blog/${a.slug}`),
-      note: a.lead === "" ? a.updatedAt.toISOString().slice(0, 10) : a.lead,
+      href: siteHref(siteSlug, articleHref(a)),
+      note: a.summary === "" ? a.updatedAt.slice(0, 10) : a.summary,
     }));
   }
 

@@ -1,5 +1,6 @@
 import { AdminShell } from "@/presentation/admin/admin-shell";
 import { BlogArticleEditForm } from "@/presentation/admin/publish/blog-article-form";
+import { blogSiteOptions } from "@/presentation/admin/publish/blog-site-options";
 import { blogOpsEntry, currentActor } from "@/presentation/composition";
 import { ErrorView, FactList, Note, Section, TextLink } from "@/presentation/ui";
 
@@ -63,7 +64,12 @@ export default async function BlogArticleEditPage({
   }
 
   const view = found.value;
-  const tags = await entry.listTags.execute(actor, { siteSlug: view.siteSlug });
+  const [tags, sites] = await Promise.all([
+    entry.listTags.execute(actor, { siteSlug: view.siteSlug }),
+    blogSiteOptions(),
+  ]);
+  const categoryOptions =
+    sites.options.find((site) => site.value === view.siteSlug)?.categories ?? [];
 
   return (
     <AdminShell
@@ -94,6 +100,8 @@ export default async function BlogArticleEditPage({
           template={view.template}
           status={view.status}
           authorName={view.authorName}
+          categorySlug={view.categorySlug ?? categoryOptions[0]?.value ?? ""}
+          categoryOptions={categoryOptions}
           blocks={view.blocks.map((block) => ({
             id: block.id,
             kind: block.kind,

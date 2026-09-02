@@ -41,6 +41,10 @@
 
 import { renderToStaticMarkup } from "react-dom/server";
 import type { PublicBlogPort, PublicSiteReader } from "@/application/ports/blog-ops";
+import {
+  projectBlogArticle,
+  toSummary,
+} from "@/application/read-models/published-article";
 import { toPublicBlueprint } from "@/application/usecases/site/read-site";
 import { DEFAULT_APPEARANCE } from "@/domain/authoring/appearance";
 import { ok } from "@/domain/shared";
@@ -95,25 +99,46 @@ function seedPublicBlogPort(): PublicBlogPort {
         (article) => seedArticleRecord(article, NOW).siteSlug === siteSlug,
       );
       const published = articles.filter((article) => article.status === "published");
+      const toPublished = (article: (typeof articles)[number]) => {
+        const record = seedArticleRecord(article, NOW);
+        return projectBlogArticle({
+          id: record.id,
+          siteSlug: record.siteSlug,
+          slug: record.slug,
+          type: record.template === "T1" ? "ranking" : record.template === "T2" ? "review" : "guide",
+          title: record.title,
+          lead: record.lead,
+          authorName: record.authorName,
+          categorySlug: blueprint.categories[0]?.slug ?? "uncategorized",
+          publishedAt: record.publishedAt ?? record.updatedAt,
+          updatedAt: record.updatedAt,
+          blocks: seedArticleBlocks(article),
+        });
+      };
 
       const reader: PublicSiteReader = {
         blueprint,
         async findArticleBySlug(slug: string) {
           const found = articles.find((article) => article.slug === slug);
-          if (found === undefined) return ok(null);
-          return ok({
-            article: seedArticleRecord(found, NOW),
-            blocks: seedArticleBlocks(found),
-            tagIds: [],
-          });
+          return ok(found === undefined || found.status !== "published" ? null : toPublished(found));
         },
         async listPublished(limit: number) {
-          return ok(published.slice(0, limit).map((article) => seedArticleRecord(article, NOW)));
+          return ok(published.slice(0, limit).map((article) => toSummary(toPublished(article))));
+        },
+        async findSourceArticleId(slug: string) {
+          const found = published.find((article) => article.slug === slug);
+          return ok(found === undefined ? null : seedArticleRecord(found, NOW).id);
         },
         async listLayoutSlots() {
           return ok(seedLayoutSlots(siteKey));
         },
+        async listProvisionedLayoutSlots() {
+          return ok(seedLayoutSlots(siteKey));
+        },
         async listLayoutBands() {
+          return ok(seedLayoutBands(siteKey));
+        },
+        async listProvisionedLayoutBands() {
           return ok(seedLayoutBands(siteKey));
         },
         async listDeliveryParts() {
@@ -126,6 +151,9 @@ function seedPublicBlogPort(): PublicBlogPort {
           return ok(seedTags().filter((tag) => tag.siteSlug === siteSlug));
         },
         async listFixedPages() {
+          return ok(seedFixedPages(siteKey, NOW));
+        },
+        async listProvisionedFixedPages() {
           return ok(seedFixedPages(siteKey, NOW));
         },
       };

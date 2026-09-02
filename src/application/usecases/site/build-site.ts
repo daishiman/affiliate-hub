@@ -1,7 +1,7 @@
 import type { EditorialSiteDraftRepositoryPort } from "@/application/ports/authoring";
 import type { IdGeneratorPort } from "@/application/ports/common";
 import type { AuditLogPort } from "@/application/ports/compliance";
-import { auditWriteFailure, buildAuditEntry } from "@/application/audit";
+import { buildAuditEntry } from "@/application/audit";
 import {
   ARTICLE_TYPE_LABEL,
   ARTICLE_TYPES,
@@ -14,17 +14,21 @@ import {
   SITE_WIZARD_STEPS,
   SITE_WIZARD_STEP_LABEL,
   SITE_WIZARD_STEP_QUESTION,
+  type CompositionCounts,
+  type SiteCompositionGap,
   type SiteDraft,
   type SiteWizardStep,
   createSiteBlueprint,
   createSiteDraft,
   incompleteSteps,
   isStepComplete,
-  missingTrustPages,
+  isUsableSiteLabel,
+  siteHostname,
   toDifferentiationAxes,
   validateSlug,
 } from "@/domain/authoring";
 import { requireCapability } from "@/domain/identity";
+import { FIXED_PAGE_KINDS } from "@/domain/blogops";
 import {
   type DomainError,
   type Result,
@@ -55,6 +59,13 @@ export type BuildSiteDeps = {
   readonly auditLog: AuditLogPort;
   readonly now: () => Date;
   readonly capacity: CapacityGuardPort;
+  /**
+   * 読者が打つ住所の基底ドメイン。無ければ `null`。
+   *
+   * ユースケースが構成値を直に読みに行かないよう、組み立て側から渡す。
+   * `null` の環境（手元・自動テスト）では `/s/<URL名>` だけが住所になる。
+   */
+  readonly siteBaseDomain?: string | null;
   readonly affiliateLinks?: never;
 };
 
@@ -692,10 +703,33 @@ export type CreateSiteOutput = {
   readonly name: string;
   /** 読者から見える住所。作った直後にここを開いて確かめられる。 */
   readonly readerPath: string;
+  /**
+   * 読者が打つホスト名。基底ドメインを設定していない環境では `null`。
+   *
+   * `readerPath` と**両方返す。** 住所が 1 つしか出ないと、
+   * サブドメインが引けない環境で「開けない住所」だけを見せることになる。
+   */
+  readonly readerHost: string | null;
   readonly pageCount: number;
   readonly categoryCount: number;
   /** 信頼のために必要なページのうち、まだ無いもの。 */
   readonly missingTrustPages: readonly string[];
+  /**
+   * 読者がこのブログを開けるか。
+   *
+   * **ここが false のときに「作成済み」と言ってはいけない。**
+   * この欄が無かったことが、13 問に答えて緑の成功表示が出たのに
+   * `/s/<URL名>` が 404 になった事故の原因である。
+   */
+  readonly reachable: boolean;
+  /** 作成ウィザードが責任を持つ必須実体が揃ったか。 */
+  readonly provisioningComplete: boolean;
+  /** 公開固定ページと記事を含む、内容の公開準備が終わったか。 */
+  readonly contentReady: boolean;
+  /** 足りていない構成要素。強さ（公開を止めるか・薄いだけか）付き。 */
+  readonly gaps: readonly SiteCompositionGap[];
+  /** 保存先から数え直した構成要素の件数。 */
+  readonly counts: CompositionCounts;
   readonly summary: string;
 };
 
@@ -720,6 +754,18 @@ export function createCreateSiteFromDraftUseCase(
       if (!found.ok) return found;
       if (found.value === null) return err(notFound("ブログ作成の下書き", input.draftId));
       const draft = found.value;
+
+      // この口は新規作成専用。既存サイトの変更は edit-sites を通す。
+      // 作り直しをここで許すと、新規 draft が既存 slug を上書きする口と
+      // 見分けられなくなり、失敗時の補償削除が既存データを巻き込む。
+      if (draft.createdSiteSlug !== null) {
+        return err(
+          validationError(
+            `この下書きからは「${draft.createdSiteSlug}」を作成済みです。変更はブログの編集画面から行ってください。`,
+            "draftId",
+          ),
+        );
+      }
 
       const missing = incompleteSteps(draft);
       if (missing.length > 0) {
@@ -752,24 +798,33 @@ export function createCreateSiteFromDraftUseCase(
       });
       if (!blueprint.ok) return blueprint;
 
+      const baseDomain = deps.siteBaseDomain ?? null;
+      /*
+       * 住所を先に決める。基底ドメインがあるのに使えない URL 名
+       * （`admin` などの予約語）なら、**1 行も書く前に断る。**
+       * 書いてから断ると、開けないブログが残る。
+       */
+      if (baseDomain !== null && !isUsableSiteLabel(siteSlug)) {
+        return err(
+          validationError(
+            `URL の名前「${siteSlug}」は住所として使えません。別の名前を付けてください。`,
+            "slug",
+          ),
+        );
+      }
+      const hostname = siteHostname(siteSlug, baseDomain);
+
       const publish = async (): Promise<Result<CreateSiteOutput, DomainError>> => {
-        const published = await deps.drafts.publishBlueprint(siteSlug, blueprint.value);
-        if (!published.ok) return published;
-
-        const saved = await deps.drafts.save({ ...draft, createdSiteSlug: siteSlug });
-        if (!saved.ok) return saved;
-
         /*
-         * 誰がこのブログを作ったかを残す。**記録は保存の後**に書く。
-         * 先に書くと、作れていないブログの記録だけが残る。
+         * 設計図・住所・版面を 1 回で揃える。
          *
-         * ブログを消す口はまだ無い。つまりこれは**取り消せない操作**で、
-         * 「誰が・いつ・どんな設計で作ったか」はここでしか残せない。
-         *
-         * `recreated` を入れてあるのは、同じ下書きから 2 度目を通したときに
-         * 設計図が上書きされるため。「作った」が 2 行並んだとき、
-         * どちらが最初かを後から読めるようにしておく。
+         * ここが `publishBlueprint`（設計図だけを書く口）だったころ、
+         * 作成は成功を返すのに読者側は 404 だった。設計図の保存が
+         * 成功の条件で、読者に届く条件は別だったからである。
+         * 作成の成功条件を「読者が開ける」に寄せるため、
+         * 揃える処理も判定もこの 1 か所に集める。
          */
+        const completedDraft = { ...draft, createdSiteSlug: siteSlug };
         const entry = buildAuditEntry({ ids: deps.ids, now: deps.now }, actor, {
           action: "site.created",
           targetType: "site",
@@ -780,34 +835,51 @@ export function createCreateSiteFromDraftUseCase(
             revenueModel: draft.revenueModel,
             pageCount: blueprint.value.pages.length,
             categoryCount: blueprint.value.categories.length,
-            recreated: draft.createdSiteSlug !== null,
+            recreated: false,
           },
         });
         if (!entry.ok) return entry;
-        const appended = await deps.auditLog.append(entry.value);
-        if (!appended.ok) {
-          return err(
-            auditWriteFailure(
-              `「${draft.name}」は作られていて、読む人からも見えます`,
-              appended.error.details,
-            ),
-          );
-        }
 
-        const trustGaps = missingTrustPages(blueprint.value);
+        const provisioned = await deps.drafts.provisionSite({
+          // 作業場は**操作している人**から取る。設計図の中の値から取ると、
+          // 設計図の組み立てを間違えた日に、書き込み先まで一緒にずれる。
+          workspaceId: actor.workspaceId,
+          slug: siteSlug,
+          blueprint: blueprint.value,
+          completedDraft,
+          expectedDraftRevision: draft.revision,
+          audit: entry.value,
+          displayName: draft.name,
+          oneLine: draft.purpose,
+        });
+        if (!provisioned.ok) return provisioned;
+        const report = provisioned.value.composition;
+
+        const where =
+          hostname === null
+            ? `/s/${siteSlug} で見えます`
+            : `${hostname} で見えます（/s/${siteSlug} でも同じものが開きます）`;
         return ok({
           slug: siteSlug,
           name: draft.name,
           readerPath: `/s/${siteSlug}`,
-          pageCount: blueprint.value.pages.length,
-          categoryCount: blueprint.value.categories.length,
-          missingTrustPages: trustGaps.map(String),
-          summary: `「${draft.name}」を作りました。${blueprint.value.pages.length}種類のページと${blueprint.value.categories.length}個のカテゴリーが用意されています。`,
+          readerHost: hostname,
+          pageCount: report.counts.fixed_pages,
+          categoryCount: report.counts.categories,
+          missingTrustPages: report.gaps.some((gap) => gap.element === "fixed_pages")
+            ? FIXED_PAGE_KINDS
+            : [],
+          reachable: report.reachable,
+          provisioningComplete: report.provisioningComplete,
+          contentReady: report.contentReady,
+          gaps: report.gaps,
+          counts: report.counts,
+          summary: report.contentReady
+            ? `「${draft.name}」を作りました。読者からは ${where}。公開準備も完了しています。`
+            : `「${draft.name}」を作りました。読者からは ${where}。公開準備には未完了の項目があります。`,
         });
       };
 
-      // 作り直しは同じ設計図を上書きするだけで、ブログ件数を増やさない。
-      if (draft.createdSiteSlug !== null) return publish();
       return deps.capacity.withLease(actor.workspaceId, "site", publish);
     },
   };

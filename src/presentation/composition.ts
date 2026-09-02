@@ -163,6 +163,7 @@ import {
   createSaveSiteDraftStepUseCase,
   createStartSiteDraftUseCase,
 } from "@/application/usecases/site/build-site";
+import { createInspectSiteCompositionUseCase } from "@/application/usecases/site/inspect-site-composition";
 import {
   createCheckSiteDifferentiationUseCase,
   createGetManagedSiteUseCase,
@@ -241,7 +242,6 @@ import {
 } from "@/infrastructure/persistence/sample/affiliate-sample-repository";
 import {
   createSampleArticleRatingPort,
-  createSamplePublicBlogPort,
 } from "@/infrastructure/persistence/sample/blog-ops-sample-repository";
 import { sampleAnalyticsNotice } from "@/infrastructure/persistence/sample/analytics-sample-repository";
 import { sampleLinkInboxNotice } from "@/infrastructure/persistence/sample/link-inbox-sample-repository";
@@ -254,7 +254,6 @@ import { createD1GuidelineReferenceRepository } from "@/infrastructure/persisten
 import { tryGetDb } from "@/infrastructure/persistence/d1/connection";
 import {
   createD1ArticleRatingPort,
-  createD1PublicBlogPort,
 } from "@/infrastructure/persistence/d1/blog-ops-repository";
 import {
   createCreateBlogArticleUseCase,
@@ -292,6 +291,10 @@ import { tryGetBucket } from "@/infrastructure/platform/bucket-connection";
 import { submitToIndexNow } from "@/infrastructure/indexnow/indexnow-client";
 import { CAPTURE_RETENTION_DAYS } from "@/domain/feedback";
 import type { ArticleRatingPort, PublicBlogPort } from "@/application/ports/blog-ops";
+import {
+  readPublicSiteComposition,
+  type PublicProjectionEntry,
+} from "@/presentation/site/public-site-projection";
 import { sampleProductNotice } from "@/infrastructure/persistence/sample/product-sample-repository";
 import { sampleSettingsNotice } from "@/infrastructure/persistence/sample/settings-sample-repository";
 import {
@@ -1106,12 +1109,21 @@ export function sampleContentPackageId(): string {
  * 変わるのは保存されている設計図の設定値だけ。
  */
 export async function platformUseCases() {
-  const app = createDeps({ db: await tryGetDb() });
+  // 環境も一緒に渡す。`db` だけ渡すと住所の基底ドメインが `null` になり、
+  // この画面だけ「サブドメインは未設定です」と言い続ける。
+  const app = createDeps(await appContext());
+  const publicEntry = publicProjectionEntry(app.publicBlogSource, app.publicBlog);
   const sites = { sites: app.sites };
   return auditDenials(app, {
     listSites: createListManagedSitesUseCase(sites),
     getSite: createGetManagedSiteUseCase(sites),
     checkDifferentiation: createCheckSiteDifferentiationUseCase(sites),
+    // 設計図（`getSite`）と対にする「実際に置かれているか」の口。
+    // 同じ入口から取るのは、片方だけ別の保存先を向くのを防ぐため。
+    inspectComposition: createInspectSiteCompositionUseCase({
+      readComposition: (siteSlug) => readPublicSiteComposition(siteSlug, publicEntry),
+      siteBaseDomain: app.siteBaseDomain,
+    }),
   });
 }
 
@@ -2066,8 +2078,8 @@ export async function siteDraftNotice(): Promise<StorageStatus> {
 /**
  * ブログの一覧がいま何で動いているかを画面に出すための一文。
  *
- * 保存先がつながっていても**見本は残す**ので、
- * 「並んでいるものの一部は見本」であることは、つながったあとも黙らない。
+ * D1 モードでは保存実体だけ、sample モードでは見本だけを返す。
+ * 一覧と公開解決のモードを揃え、開けない見本を保存済みのように見せない。
  */
 export async function siteStorageNotice(): Promise<StorageStatus> {
   const db = await tryGetDb();
@@ -2079,7 +2091,7 @@ export async function siteStorageNotice(): Promise<StorageStatus> {
     message:
       db === null
         ? siteSampleNotice()
-        : "作ったブログは保存されます（保存先: D1 の site_blueprints）。はじめから並んでいる 3 本は見本で、消さずに残してあります。",
+        : "作ったブログだけが表示・保存されます（保存先: D1 の site_blueprints）。見本は D1 の一覧には混ざりません。",
   };
 }
 
@@ -2096,7 +2108,10 @@ export function productDisplayName(productId: string): string {
  * 読者向けの画面 (`/s/<URL名>`) は既存のものをそのまま使う。
  */
 export async function siteBuilderUseCases() {
-  const deps = createDeps({ db: await tryGetDb() });
+  // 保存先と環境を 1 度にそろえる。環境を省くと住所の基底ドメインが
+  // `null` になり、画面から作ったブログだけ住所を持たない形になる。
+  const deps = createDeps(await appContext());
+  const publicEntry = publicProjectionEntry(deps.publicBlogSource, deps.publicBlog);
   const capacity = createCapacityGuard({
     workspaces: deps.workspaces,
     now: () => new Date(),
@@ -2107,6 +2122,10 @@ export async function siteBuilderUseCases() {
     auditLog: deps.auditLog,
     now: () => new Date(),
     capacity,
+    // 住所の基底ドメインは組み立て（`createDeps`）が 1 回だけ解釈したものを使う。
+    // ユースケースに読ませると、手元と本番で同じ入力に別の答えを返す関数になる。
+    siteBaseDomain: deps.siteBaseDomain,
+    readComposition: (siteSlug: string) => readPublicSiteComposition(siteSlug, publicEntry),
   };
   return auditDenials(deps, {
     listDrafts: createListSiteDraftsUseCase(builder),
@@ -2212,7 +2231,13 @@ export async function blogOpsEntry(): Promise<BlogOpsEntry> {
   */
   const repository = deps.blogOps;
   const now = () => new Date();
-  const base = { repository, ids: deps.ids, auditLog: deps.auditLog, now };
+  const base = {
+    repository,
+    publishedContent: deps.publishedContent,
+    ids: deps.ids,
+    auditLog: deps.auditLog,
+    now,
+  };
   return {
     ready: true,
     listNetwork: createListSiteNetworkUseCase(base),
@@ -2273,16 +2298,25 @@ export type PublicBlogEntry = {
   readonly summarizeRating: ArticleRatingPort["summarize"];
 };
 
+/** 読者面・管理表示・作成判定が共有する公開 reader の組み立て。 */
+function publicProjectionEntry(
+  source: PublicProjectionEntry["source"],
+  port: PublicBlogPort,
+): PublicProjectionEntry {
+  return {
+    source,
+    port,
+  };
+}
+
 export async function publicBlogEntry(): Promise<PublicBlogEntry> {
   const db = await tryGetDb();
   const deps = createDeps({ db });
-  const publicBlog =
-    db === null
-      ? createSamplePublicBlogPort(deps.sites)
-      : createD1PublicBlogPort(db, deps.sites);
+  const entry = publicProjectionEntry(deps.publicBlogSource, deps.publicBlog);
+  const publicBlog = entry.port;
   const ratings = db === null ? createSampleArticleRatingPort() : createD1ArticleRatingPort(db);
   return {
-    source: db === null ? "sample" : "live",
+    source: entry.source,
     port: publicBlog,
     summarizeRating: ratings.summarize,
     submitRating: createSubmitArticleRatingUseCase({

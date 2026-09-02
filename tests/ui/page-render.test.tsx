@@ -25,7 +25,12 @@ import {
   PublicShell,
   SiteSection,
 } from "@/presentation/ui/templates/site-shell";
-import { ROUTE_CASES, ROUTE_STATE_CASES, renderCase } from "./route-table";
+import {
+  RENDERABLE_ROUTE_CASES,
+  ROUTE_CASES,
+  ROUTE_STATE_CASES,
+  renderCase,
+} from "./route-table";
 import { headingLevels, intoDom } from "../support/render";
 import { describeViolations, findA11yViolations } from "../support/a11y";
 
@@ -262,7 +267,9 @@ describe("画面の一覧", () => {
   });
 });
 
-describe.each(ROUTE_CASES.map((r) => [r.file, r] as const))("%s", (_file, route) => {
+describe.each(RENDERABLE_ROUTE_CASES.map((r) => [r.file, r] as const))(
+  "%s",
+  (_file, route) => {
   it("描ける", async () => {
     const html = await renderCase(route);
     // 「例外にならない」だけでは、中身が空でも通る。
@@ -355,7 +362,8 @@ describe.each(ROUTE_CASES.map((r) => [r.file, r] as const))("%s", (_file, route)
     cleanup();
     expect(unnamed, `名前の無いまとまり: ${unnamed.join(" / ")}`).toEqual([]);
   });
-});
+  },
+);
 
 describe.each(ROUTE_STATE_CASES.map((r) => [`${r.file} — ${r.state}`, r] as const))(
   "%s",

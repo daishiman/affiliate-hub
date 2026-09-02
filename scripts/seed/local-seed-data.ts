@@ -842,6 +842,9 @@ export function seedArticleRecord(article: SeedArticle, now: Date): BlogArticle 
     lead: article.lead,
     status: article.status,
     authorName: SEED_USER_NAME,
+    categorySlug:
+      sampleSites().find((site) => site.slug === seedSiteSlug(article.site ?? "hub"))
+        ?.blueprint.categories[0]?.slug ?? null,
     publishedAt: article.status === "published" ? at : null,
     updatedAt: at,
   };

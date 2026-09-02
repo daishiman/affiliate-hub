@@ -17,11 +17,14 @@ import {
   createStartSiteDraftUseCase,
 } from "@/application/usecases/site/build-site";
 import { SITE_WIZARD_STEPS } from "@/domain/authoring";
+import type { SiteProvisionRequest } from "@/application/ports/authoring";
 import type { ActorContext } from "@/domain/shared";
+import { domainError, err, markEditorial } from "@/domain/shared";
 import { SAMPLE_WORKSPACE_ID } from "@/infrastructure/persistence/sample/ranking-sample-repository";
 import { SAMPLE_SITE_SLUG } from "@/infrastructure/persistence/sample/site-sample-repository";
 import { OTHER_WORKSPACE, anOwner } from "../support/actors";
 import { recordingAuditLog } from "../support/doubles";
+import { readPublicSiteComposition } from "@/presentation/site/public-site-projection";
 
 /**
  * ブログ作成ウィザードを、**本物の D1 と本物のマイグレーション**で通す結合テスト。
@@ -35,7 +38,7 @@ import { recordingAuditLog } from "../support/doubles";
  *
  *   1. マイグレーション 0006 が 2 つの表を本当に作れるか
  *   2. 13 段階ぶんの回答を JSON 1 列に畳んで、読み直したとき同じ形に戻るか
- *   3. 同じ URL 名で作り直したとき、**弾かれずに差し替わる**か
+ *   3. 同じ URL 名で作り直したとき、**既存サイトを変更せず弾く**か
  *
  * 3 は特に、一意索引の付け方を間違えると
  * 「やり直しても永久に通らない失敗」になる。ここで実測する。
@@ -55,22 +58,27 @@ let deps: BuildSiteDeps;
 let sites: ReturnType<typeof createD1SiteRepository>;
 /** 読者側の入口を、作る側と**同じ保存先**から組み立てるための一式。 */
 let readerSide: ReturnType<typeof createDeps>;
+let migrationBackfill: { readonly count: number; readonly name: string | null };
 
 const owner: ActorContext = anOwner({ workspaceId: SAMPLE_WORKSPACE_ID });
 
 /** マイグレーションの本文を、実行できる単位に割る。 */
-function migrationStatements(): readonly string[] {
+function migrationFiles(): readonly {
+  readonly file: string;
+  readonly statements: readonly string[];
+}[] {
   const dir = path.resolve(process.cwd(), "drizzle");
   const files = readdirSync(dir)
     .filter((f) => f.endsWith(".sql"))
     .sort();
   expect(files.length).toBeGreaterThan(0);
-  return files.flatMap((file) =>
-    readFileSync(path.join(dir, file), "utf8")
+  return files.map((file) => ({
+    file,
+    statements: readFileSync(path.join(dir, file), "utf8")
       .split("--> statement-breakpoint")
       .map((s) => s.trim())
       .filter((s) => s !== ""),
-  );
+  }));
 }
 
 beforeAll(async () => {
@@ -79,14 +87,38 @@ beforeAll(async () => {
     environment: "dev",
     persist: false,
   });
-  for (const statement of migrationStatements()) {
-    await proxy.env.DB.prepare(statement).run();
+  for (const migration of migrationFiles()) {
+    if (migration.file === "0041_small_amphibian.sql") {
+      await proxy.env.DB.prepare(
+        `INSERT INTO site_blueprints
+          (id, workspace_id, slug, name, pattern, blueprint_json)
+         VALUES (?, ?, ?, ?, ?, ?)`,
+      )
+        .bind(
+          "sb_migration_backfill",
+          String(SAMPLE_WORKSPACE_ID),
+          "migration-backfill",
+          "移行前のブログ",
+          "beginner_guide",
+          JSON.stringify({ migrationFixture: true }),
+        )
+        .run();
+    }
+    for (const statement of migration.statements) {
+      await proxy.env.DB.prepare(statement).run();
+    }
+    if (migration.file === "0041_small_amphibian.sql") {
+      const rows = await proxy.env.DB.prepare(
+        "select count(*) as count, max(name) as name from site_network_node where site_slug = 'migration-backfill'",
+      ).first<{ count: number; name: string | null }>();
+      migrationBackfill = rows ?? { count: 0, name: null };
+    }
   }
   const db = drizzle(proxy.env.DB, { schema });
   // 分解して組み直すと、商業データの印が落ちる（印は入れ物ごと持ち回る）。
   const all = createDeps({ db });
-  // 見本の記録は書き足しを断る（保存先が無い）ので、溜める版を使う。
-  // ここで見たいのは D1 に下書きとブログが残るかで、記録の保存先は別の試験で見る。
+  // サイト作成は設計図と監査を同じ D1 batch に入れる。
+  // BuildSiteDeps の auditLog はその他のユースケース用にだけ残る。
   deps = {
     drafts: all.siteDrafts,
     ids: all.ids,
@@ -103,6 +135,14 @@ afterAll(async () => {
 });
 
 beforeEach(async () => {
+  // 親だけ消すと、前の試験の他構成要素が一意制約に残る。
+  // 本番の取り下げは物理削除しないが、試験間分離では全子要素を初期化する。
+  await proxy.env.DB.prepare("DELETE FROM audit_logs WHERE action = 'site.created'").run();
+  await proxy.env.DB.prepare("DELETE FROM legal_page").run();
+  await proxy.env.DB.prepare("DELETE FROM blog_layout_slot").run();
+  await proxy.env.DB.prepare("DELETE FROM blog_layout_band").run();
+  await proxy.env.DB.prepare("DELETE FROM site_network_node").run();
+  await proxy.env.DB.prepare("DELETE FROM site_retirements").run();
   await proxy.env.DB.prepare("DELETE FROM site_drafts").run();
   await proxy.env.DB.prepare("DELETE FROM site_blueprints").run();
 });
@@ -135,8 +175,12 @@ const ANSWERS: Readonly<Record<string, Readonly<Record<string, string>>>> = {
 };
 
 /** 13 段階すべてに答えた下書きを、本物の保存先の上で作る。 */
-async function completeDraft(slug: string, name = "はじめてのレンズ"): Promise<string> {
-  const started = await createStartSiteDraftUseCase(deps).execute(owner, {});
+async function completeDraft(
+  slug: string,
+  name = "はじめてのレンズ",
+  actor: ActorContext = owner,
+): Promise<string> {
+  const started = await createStartSiteDraftUseCase(deps).execute(actor, {});
   expect(started.ok).toBe(true);
   if (!started.ok) throw new Error("下書きを始められませんでした");
   const draftId = started.value.draftId;
@@ -144,7 +188,7 @@ async function completeDraft(slug: string, name = "はじめてのレンズ"): P
   const saveStep = createSaveSiteDraftStepUseCase(deps);
   for (const step of SITE_WIZARD_STEPS) {
     if (step === "create") continue;
-    const saved = await saveStep.execute(owner, {
+    const saved = await saveStep.execute(actor, {
       draftId,
       step,
       answers: step === "domain" ? { name, slug } : (ANSWERS[step] ?? {}),
@@ -157,6 +201,71 @@ async function completeDraft(slug: string, name = "はじめてのレンズ"): P
     expect(saved.ok, `${step} の保存に失敗しました`).toBe(true);
   }
   return draftId;
+}
+
+/**
+ * 1 slug にひも付く作成 Unit of Work の全行。
+ * 件数だけでなく値まで比べ、衝突失敗が既存行を書き換えていないことを見る。
+ */
+async function siteState(slug: string) {
+  const [blueprints, nodes, bands, slots, pages, audits] = await Promise.all([
+    proxy.env.DB.prepare(
+      "select id, workspace_id, slug, name, pattern, blueprint_json from site_blueprints where slug = ? order by id",
+    )
+      .bind(slug)
+      .all(),
+    proxy.env.DB.prepare(
+      "select id, workspace_id, site_slug, role, parent_slug, name, one_line, position, status, deleted_at from site_network_node where site_slug = ? order by id",
+    )
+      .bind(slug)
+      .all(),
+    proxy.env.DB.prepare(
+      "select id, workspace_id, site_slug, band, title, enabled, position, item_limit from blog_layout_band where site_slug = ? order by id",
+    )
+      .bind(slug)
+      .all(),
+    proxy.env.DB.prepare(
+      "select id, workspace_id, site_slug, region, slot_key, title, body, enabled, position from blog_layout_slot where site_slug = ? order by id",
+    )
+      .bind(slug)
+      .all(),
+    proxy.env.DB.prepare(
+      "select id, workspace_id, site_slug, kind, title, body, status, deleted_at from legal_page where site_slug = ? order by id",
+    )
+      .bind(slug)
+      .all(),
+    proxy.env.DB.prepare(
+      "select workspace_id, action, target_type, target_id, after_json from audit_logs where action = 'site.created' and target_id = ? order by id",
+    )
+      .bind(slug)
+      .all(),
+  ]);
+  return {
+    blueprints: blueprints.results,
+    nodes: nodes.results,
+    bands: bands.results,
+    slots: slots.results,
+    pages: pages.results,
+    audits: audits.results,
+  };
+}
+
+async function expectNoProvisioningFootprint(slug: string, draftId: string): Promise<void> {
+  expect(await siteState(slug)).toEqual({
+    blueprints: [],
+    nodes: [],
+    bands: [],
+    slots: [],
+    pages: [],
+    audits: [],
+  });
+  const draft = await proxy.env.DB.prepare(
+    "select created_site_slug as createdSiteSlug, draft_json as draftJson from site_drafts where id = ?",
+  )
+    .bind(draftId)
+    .first<{ createdSiteSlug: string | null; draftJson: string }>();
+  expect(draft?.createdSiteSlug).toBeNull();
+  expect(JSON.parse(draft?.draftJson ?? "{}").createdSiteSlug).toBeNull();
 }
 
 describe("マイグレーションそのもの", () => {
@@ -189,6 +298,10 @@ describe("マイグレーションそのもの", () => {
       expect(index.unique, `${index.name} が一意になっています`).toBe(0);
     }
   });
+
+  it("0041 適用前からある blueprint に active network node を1件補填する", () => {
+    expect(migrationBackfill).toEqual({ count: 1, name: "移行前のブログ" });
+  });
 });
 
 describe("下書きから読者向けの 1 本になるまで（1 本の道）", () => {
@@ -207,7 +320,7 @@ describe("下書きから読者向けの 1 本になるまで（1 本の道）",
     expect(view.value.slug).toBe("first-lens");
   });
 
-  it("作ると、読者向けの一覧に載る（見本は消えない）", async () => {
+  it("作ると、D1 に実在するブログだけが一覧に載る", async () => {
     const draftId = await completeDraft("first-lens");
     const created = await createCreateSiteFromDraftUseCase(deps).execute(owner, { draftId });
     expect(created.ok).toBe(true);
@@ -224,8 +337,7 @@ describe("下書きから読者向けの 1 本になるまで（1 本の道）",
     if (!listed.ok) return;
     const slugs = listed.value.map((entry) => entry.slug);
     expect(slugs).toContain("first-lens");
-    // まだ 1 本も作っていない人の画面が空にならないよう、見本は残す。
-    expect(slugs.length).toBeGreaterThan(1);
+    expect(slugs).toEqual(["first-lens"]);
   });
 
   /*
@@ -234,15 +346,36 @@ describe("下書きから読者向けの 1 本になるまで（1 本の道）",
    * 作れなくなった**（残せない記録を「残した」ことにしないため）。
    * 見る値は変えずに、保存先が本物のここへ移してある。
    */
-  it("読者向けの入口から、見本のブログと同じ扱いで引ける", async () => {
+  it("読者向けの入口から、D1 に作ったブログを引ける", async () => {
     const draftId = await completeDraft("first-lens");
     const created = await createCreateSiteFromDraftUseCase(deps).execute(owner, { draftId });
     if (!created.ok) throw created.error;
 
     expect(created.value.readerPath).toBe("/s/first-lens");
     expect(created.value.categoryCount).toBe(2);
-    // 画面の種類は型（beginner_guide）から自動で決まる。手で並べていない。
-    expect(created.value.pageCount).toBeGreaterThan(0);
+    // 8 種の固定ページは下書き実体まで作る。公開準備とは分ける。
+    expect(created.value.pageCount).toBe(8);
+    expect(created.value.counts.fixed_pages).toBe(8);
+    expect(created.value.counts.articles).toBe(0);
+    expect(created.value.reachable).toBe(true);
+    expect(created.value.provisioningComplete).toBe(true);
+    expect(created.value.contentReady).toBe(false);
+
+    const opened = await readerSide.publicBlog.openSite("first-lens");
+    expect(opened.ok).toBe(true);
+    if (!opened.ok) return;
+    expect(opened.value).not.toBeNull();
+    const reloaded = await readPublicSiteComposition("first-lens", {
+      source: readerSide.publicBlogSource,
+      port: readerSide.publicBlog,
+    });
+    expect(reloaded.ok).toBe(true);
+    if (!reloaded.ok) return;
+    expect(reloaded.value).not.toBeNull();
+    expect(reloaded.value?.counts).toEqual(created.value.counts);
+    expect(reloaded.value?.reachable).toBe(created.value.reachable);
+    expect(reloaded.value?.provisioningComplete).toBe(created.value.provisioningComplete);
+    expect(reloaded.value?.contentReady).toBe(created.value.contentReady);
 
     // 読者側の入口は、見本のブログと同じユースケース。
     const site = await createGetSiteUseCase({
@@ -261,31 +394,55 @@ describe("下書きから読者向けの 1 本になるまで（1 本の道）",
     expect(created.ok, created.ok ? "" : created.error.message).toBe(true);
   });
 
-  it("同じ URL 名で作り直すと、弾かれずに差し替わる", async () => {
+  it("同じ作業場所の新規下書きでも、同じ URL 名の既存サイトを変更しない", async () => {
     const first = await completeDraft("first-lens", "はじめてのレンズ");
     const created = await createCreateSiteFromDraftUseCase(deps).execute(owner, {
       draftId: first,
     });
     expect(created.ok).toBe(true);
 
+    const before = await siteState("first-lens");
+
     // 名前だけ変えて、同じ URL 名でもう一度作る。
     const second = await completeDraft("first-lens", "はじめてのレンズ 改訂版");
     const again = await createCreateSiteFromDraftUseCase(deps).execute(owner, {
       draftId: second,
     });
-    // **ここが弾かれると、名前を決め直す以外に先へ進めなくなる。**
-    expect(again.ok, "同じ URL 名の作り直しが失敗しました").toBe(true);
+    expect(again.ok).toBe(false);
 
     const found = await sites.findBySlug("first-lens");
     expect(found.ok).toBe(true);
     if (!found.ok) return;
-    expect(found.value?.name).toBe("はじめてのレンズ 改訂版");
+    expect(found.value?.name).toBe("はじめてのレンズ");
 
     // 差し替えであって追記ではない（同じ URL 名が 2 行にならない）。
     const rows = await proxy.env.DB.prepare(
       "select count(*) as n from site_blueprints where slug = 'first-lens'",
     ).all<{ n: number }>();
     expect(rows.results[0]?.n).toBe(1);
+    expect(await siteState("first-lens")).toEqual(before);
+  });
+
+  it("別の作業場所の新規下書きでも、同じ URL 名の既存サイトを変更しない", async () => {
+    const first = await completeDraft("shared-lens", "元のサイト");
+    const created = await createCreateSiteFromDraftUseCase(deps).execute(owner, { draftId: first });
+    if (!created.ok) throw created.error;
+    const before = await siteState("shared-lens");
+
+    const outsider = anOwner({ workspaceId: OTHER_WORKSPACE, userId: "user-other-owner" });
+    const second = await completeDraft("shared-lens", "他社の新規サイト", outsider);
+    const attacked = await createCreateSiteFromDraftUseCase(deps).execute(outsider, {
+      draftId: second,
+    });
+
+    expect(attacked.ok).toBe(false);
+    expect(await siteState("shared-lens")).toEqual(before);
+    const secondDraft = await createGetSiteDraftUseCase(deps).execute(outsider, {
+      draftId: second,
+      step: "create",
+    });
+    expect(secondDraft.ok).toBe(true);
+    if (secondDraft.ok) expect(secondDraft.value.createdSiteSlug).toBeNull();
   });
 
   it("同じ URL 名を別の作業場所から登録しても、所有者は入れ替わらない", async () => {
@@ -343,22 +500,9 @@ describe("下書きから読者向けの 1 本になるまで（1 本の道）",
     expect(hidden).toEqual({ ok: true, value: null });
   });
 
-  it("見本と同じslugを取り下げても、見本がfallbackで再露出しない", async () => {
-    const slug = SAMPLE_SITE_SLUG;
-    const sample = await sites.findBySlug(slug);
-    if (!sample.ok || sample.value === null) throw new Error("見本サイトがありません");
-
-    const published = await deps.drafts.publishBlueprint(slug, {
-      ...sample.value,
-      workspaceId: owner.workspaceId,
-      name: "所有者が公開した同名サイト",
-    });
-    expect(published.ok).toBe(true);
-    const removed = await deps.drafts.removeBlueprint(owner.workspaceId, slug);
-    expect(removed.ok).toBe(true);
-
-    const hidden = await sites.findBySlug(slug);
-    expect(hidden).toEqual({ ok: true, value: null });
+  it("D1 モードの管理一覧に、公開経路で引けない見本を混ぜない", async () => {
+    expect(await sites.findBySlug(SAMPLE_SITE_SLUG)).toEqual({ ok: true, value: null });
+    expect(await sites.list()).toEqual({ ok: true, value: [] });
   });
 
   it("作りかけの下書きは、2 本とも一覧に残る", async () => {
@@ -389,5 +533,188 @@ describe("下書きから読者向けの 1 本になるまで（1 本の道）",
     if (created.ok) return;
     // 「失敗しました」だけでは直せない。足りない段階の名前が要る。
     expect(created.error.message).toContain("まだ埋まっていない段階があります");
+  });
+});
+
+describe("D1 batch の原子性", () => {
+  const failures = [
+    { name: "サイト網", table: "site_network_node", operation: "INSERT", column: "site_slug" },
+    { name: "帯の途中", table: "blog_layout_band", operation: "INSERT", column: "site_slug" },
+    { name: "枠の途中", table: "blog_layout_slot", operation: "INSERT", column: "site_slug" },
+    { name: "固定ページ", table: "legal_page", operation: "INSERT", column: "site_slug" },
+    { name: "下書き完了更新", table: "site_drafts", operation: "UPDATE", column: "created_site_slug" },
+    { name: "作成監査", table: "audit_logs", operation: "INSERT", column: "target_id" },
+  ] as const;
+
+  it.each(failures)("$name が失敗しても、1 行も作成済みにしない", async (failure) => {
+    const slug = `atomic-${failure.table.replaceAll("_", "-")}`;
+    const draftId = await completeDraft(slug, `原子性 ${failure.name}`);
+    const trigger = `fail_site_creation_${failure.table}`;
+    await proxy.env.DB.prepare(
+      `CREATE TRIGGER ${trigger} BEFORE ${failure.operation} ON ${failure.table}
+       WHEN NEW.${failure.column} = '${slug}'
+       BEGIN SELECT RAISE(ABORT, 'forced site creation failure'); END`,
+    ).run();
+    try {
+      const created = await createCreateSiteFromDraftUseCase(deps).execute(owner, { draftId });
+      expect(created.ok).toBe(false);
+      await expectNoProvisioningFootprint(slug, draftId);
+    } finally {
+      await proxy.env.DB.prepare(`DROP TRIGGER IF EXISTS ${trigger}`).run();
+    }
+  });
+
+  it("同一 draft の stale request と最新 request を並行実行しても、最新 slug だけを作る", async () => {
+    const draftId = await completeDraft("parallel-old", "並行更新前");
+    const captured: SiteProvisionRequest[] = [];
+    const captureDeps: BuildSiteDeps = {
+      ...deps,
+      drafts: markEditorial({
+        ...deps.drafts,
+        async provisionSite(request) {
+          captured.push(request);
+          return err(domainError("UPSTREAM_UNAVAILABLE", "capture only"));
+        },
+      }),
+    };
+
+    // 1 本目は作成直前まで進めるが、書き込まず request だけ保持する。
+    expect(
+      (await createCreateSiteFromDraftUseCase(captureDeps).execute(owner, { draftId })).ok,
+    ).toBe(false);
+
+    // 別 request が domain 段階を更新し、新しい slug で作成を始める。
+    const renamed = await createSaveSiteDraftStepUseCase(deps).execute(owner, {
+      draftId,
+      step: "domain",
+      answers: { name: "並行更新後", slug: "parallel-new" },
+    });
+    expect(renamed.ok).toBe(true);
+    expect(
+      (await createCreateSiteFromDraftUseCase(captureDeps).execute(owner, { draftId })).ok,
+    ).toBe(false);
+    expect(captured).toHaveLength(2);
+
+    const [oldResult, newResult] = await Promise.all([
+      deps.drafts.provisionSite(captured[0]!),
+      deps.drafts.provisionSite(captured[1]!),
+    ]);
+
+    expect(oldResult.ok).toBe(false);
+    expect(newResult.ok).toBe(true);
+    expect((await siteState("parallel-old")).blueprints).toEqual([]);
+    expect((await siteState("parallel-new")).blueprints).toHaveLength(1);
+    const stored = await proxy.env.DB.prepare(
+      "select slug, created_site_slug as createdSiteSlug from site_drafts where id = ?",
+    )
+      .bind(draftId)
+      .first<{ slug: string; createdSiteSlug: string | null }>();
+    expect(stored).toEqual({ slug: "parallel-new", createdSiteSlug: "parallel-new" });
+  });
+
+  it.each(["stale-first", "latest-first"] as const)(
+    "slug が同じでも回答 revision が古い create を拒否する（%s）",
+    async (order) => {
+      const slug = `revision-${order}`;
+      const draftId = await completeDraft(slug, "更新前の名前");
+      const captured: SiteProvisionRequest[] = [];
+      const captureDeps: BuildSiteDeps = {
+        ...deps,
+        drafts: markEditorial({
+          ...deps.drafts,
+          async provisionSite(request) {
+            captured.push(request);
+            return err(domainError("UPSTREAM_UNAVAILABLE", "capture only"));
+          },
+        }),
+      };
+
+      expect(
+        (await createCreateSiteFromDraftUseCase(captureDeps).execute(owner, { draftId })).ok,
+      ).toBe(false);
+      const renamed = await createSaveSiteDraftStepUseCase(deps).execute(owner, {
+        draftId,
+        step: "domain",
+        answers: { name: "更新後の名前", slug },
+      });
+      expect(renamed.ok).toBe(true);
+      const recategorized = await createSaveSiteDraftStepUseCase(deps).execute(owner, {
+        draftId,
+        step: "categories",
+        answers: {},
+        categoriesText: "latest / 最新カテゴリー / 最新回答だけを作成に使う",
+      });
+      expect(recategorized.ok).toBe(true);
+      expect(
+        (await createCreateSiteFromDraftUseCase(captureDeps).execute(owner, { draftId })).ok,
+      ).toBe(false);
+      expect(captured).toHaveLength(2);
+
+      const [stale, latest] = captured;
+      const first = order === "stale-first" ? stale! : latest!;
+      const second = order === "stale-first" ? latest! : stale!;
+      const firstResult = await deps.drafts.provisionSite(first);
+      const secondResult = await deps.drafts.provisionSite(second);
+
+      if (order === "stale-first") {
+        expect(firstResult.ok).toBe(false);
+        expect(secondResult.ok).toBe(true);
+      } else {
+        expect(firstResult.ok).toBe(true);
+        expect(secondResult.ok).toBe(false);
+      }
+      const stored = await sites.findBySlug(slug);
+      expect(stored.ok).toBe(true);
+      if (!stored.ok) return;
+      expect(stored.value?.name).toBe("更新後の名前");
+      expect(stored.value?.categories.map((category) => category.slug)).toEqual(["latest"]);
+    },
+  );
+
+  it("create 完了後に古い save が到着しても、createdSiteSlug を null へ戻さない", async () => {
+    const slug = "stale-save-after-create";
+    const draftId = await completeDraft(slug, "作成時の名前");
+    const stale = await deps.drafts.find(owner.workspaceId, draftId as never);
+    expect(stale.ok && stale.value !== null).toBe(true);
+    if (!stale.ok || stale.value === null) return;
+
+    const created = await createCreateSiteFromDraftUseCase(deps).execute(owner, { draftId });
+    expect(created.ok).toBe(true);
+    const overwritten = await deps.drafts.save({
+      ...stale.value,
+      name: "遅れて到着した保存",
+      createdSiteSlug: null,
+    });
+    expect(overwritten.ok).toBe(false);
+
+    const current = await deps.drafts.find(owner.workspaceId, stale.value.id);
+    expect(current.ok).toBe(true);
+    if (!current.ok) return;
+    expect(current.value?.createdSiteSlug).toBe(slug);
+    expect(current.value?.name).toBe("作成時の名前");
+  });
+
+  it("同じ revision を読んだ並行 save は片方だけを成功させる", async () => {
+    const started = await createStartSiteDraftUseCase(deps).execute(owner, {});
+    expect(started.ok).toBe(true);
+    if (!started.ok) return;
+    const firstRead = await deps.drafts.find(owner.workspaceId, started.value.draftId as never);
+    const secondRead = await deps.drafts.find(owner.workspaceId, started.value.draftId as never);
+    expect(firstRead.ok && firstRead.value !== null).toBe(true);
+    expect(secondRead.ok && secondRead.value !== null).toBe(true);
+    if (!firstRead.ok || firstRead.value === null || !secondRead.ok || secondRead.value === null) {
+      return;
+    }
+
+    const [firstSave, secondSave] = await Promise.all([
+      deps.drafts.save({ ...firstRead.value, purpose: "並行保存 A" }),
+      deps.drafts.save({ ...secondRead.value, purpose: "並行保存 B" }),
+    ]);
+    expect([firstSave.ok, secondSave.ok].filter(Boolean)).toHaveLength(1);
+
+    const current = await deps.drafts.find(owner.workspaceId, firstRead.value.id);
+    expect(current.ok).toBe(true);
+    if (!current.ok) return;
+    expect(["並行保存 A", "並行保存 B"]).toContain(current.value?.purpose);
   });
 });

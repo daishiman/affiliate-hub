@@ -9,11 +9,12 @@ import {
   serializeJsonLd,
 } from "@/application/seo/structured-data";
 import { siteBasePathBySlug } from "@/domain/authoring/site";
-import { readerActor, siteUseCases } from "@/presentation/composition";
+import { publicBlogEntry, readerActor, siteUseCases } from "@/presentation/composition";
 import type { PageKind } from "@/presentation/tools/webmcp-policy";
-import { ArticleTableOfContents, ArticleView } from "@/presentation/ui";
+import { ArticleTableOfContents, ArticleView, Section } from "@/presentation/ui";
 import { ShortlistSaveButton } from "./shortlist-buttons";
 import { ReadFailureBody, SiteFrame, stopIfMissing } from "./page-frame";
+import { ReaderRatingForm } from "./reader-rating-form";
 import { siteHref, toArticleCards, toArticleView } from "./view-model";
 
 /**
@@ -130,8 +131,15 @@ export async function ArticlePage({
         )
       }
     >
-      {({ blueprint }) =>
-        result.ok ? (
+      {async ({ blueprint, projection }) => {
+        const sourceArticleId = result.ok
+          ? await projection.reader.findSourceArticleId(slug)
+          : null;
+        const ratingSummary =
+          sourceArticleId?.ok === true && sourceArticleId.value !== null
+            ? await (await publicBlogEntry()).summarizeRating(sourceArticleId.value)
+            : null;
+        return result.ok ? (
           <>
             {/*
               構造化データ。本文と同じ読み取りモデル（result.value）から
@@ -232,11 +240,24 @@ export async function ArticlePage({
                 }}
               />
             )}
+            {sourceArticleId?.ok === true && sourceArticleId.value !== null ? (
+              <Section
+                title="この記事の評価"
+                lead="点は誰でも付けられます。名前や連絡先は要りません。"
+              >
+                <ReaderRatingForm
+                  siteSlug={siteSlug}
+                  articleSlug={slug}
+                  initialCount={ratingSummary?.ok === true ? ratingSummary.value.count : 0}
+                  initialAverage={ratingSummary?.ok === true ? ratingSummary.value.average : null}
+                />
+              </Section>
+            ) : null}
           </>
         ) : (
           (whenArticleMissing ?? <ReadFailureBody what="記事" siteSlug={siteSlug} />)
-        )
-      }
+        );
+      }}
     </SiteFrame>
   );
 }

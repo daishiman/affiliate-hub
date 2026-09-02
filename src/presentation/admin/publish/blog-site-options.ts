@@ -1,4 +1,4 @@
-import { blogOpsEntry, currentActor } from "@/presentation/composition";
+import { blogOpsEntry, currentActor, platformUseCases } from "@/presentation/composition";
 
 /**
  * 「どのブログの話か」を決めるための選択肢。
@@ -10,7 +10,11 @@ import { blogOpsEntry, currentActor } from "@/presentation/composition";
  * **親子の関係が読めなくなる**ため。中心のブログの直後に、その子が並ぶ。
  */
 export type BlogSiteOptions = {
-  readonly options: readonly { readonly value: string; readonly label: string }[];
+  readonly options: readonly {
+    readonly value: string;
+    readonly label: string;
+    readonly categories: readonly { readonly value: string; readonly label: string }[];
+  }[];
   /** 選択肢が 1 つも無いときの理由。空なら null。 */
   readonly emptyReason: string | null;
 };
@@ -22,11 +26,24 @@ export async function blogSiteOptions(): Promise<BlogSiteOptions> {
   const actor = await currentActor();
   const result = await entry.listNetwork.execute(actor, {});
   if (!result.ok) return { options: [], emptyReason: result.error.message };
+  const sites = await platformUseCases();
+  const blueprints = await Promise.all(
+    result.value.rows.map((row) =>
+      sites.getSite.execute(actor, { siteSlug: row.siteSlug }),
+    ),
+  );
 
-  const options = result.value.rows.map((row) => ({
+  const options = result.value.rows.map((row, index) => ({
     value: row.siteSlug,
     // 深さを全角空白で表すのは、選択肢の中で木を見せられる唯一の手だから。
     label: `${"　".repeat(row.depth)}${row.name}（${row.roleLabel}）`,
+    categories:
+      blueprints[index]?.ok === true
+        ? blueprints[index].value.blueprint.categories.map((category) => ({
+            value: category.slug,
+            label: category.name,
+          }))
+        : [],
   }));
   return {
     options,

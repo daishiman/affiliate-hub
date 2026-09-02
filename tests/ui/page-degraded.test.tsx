@@ -10,7 +10,7 @@
  * @types screen-states
  */
 import { describe, expect, it, vi } from "vitest";
-import { ROUTE_CASES, importPathOf, propsOf } from "./route-table";
+import { RENDERABLE_ROUTE_CASES, importPathOf, propsOf } from "./route-table";
 import { headingLevels, intoDom, renderRoute, textOf } from "../support/render";
 import { describeViolations, findA11yViolations } from "../support/a11y";
 
@@ -103,7 +103,7 @@ vi.mock("@/presentation/composition", async (importOriginal) => {
  * ここを直すには骨格に既定値が要る。別の課題として残す。
  * だからこの検査では設計図だけ本物を通す。
  */
-const DEGRADED_CASES = ROUTE_CASES.filter(
+const DEGRADED_CASES = RENDERABLE_ROUTE_CASES.filter(
   (r) => r.file.startsWith("admin/") || r.file.startsWith("s/"),
 );
 

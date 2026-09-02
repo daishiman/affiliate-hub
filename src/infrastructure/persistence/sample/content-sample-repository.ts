@@ -145,11 +145,16 @@ export function createSampleContentRepository(): EditorialPublishedContentPort {
         )?.person ?? null,
       );
     },
-    async listByPerson(siteSlug: string, personSlug: string) {
+    async listByPerson(
+      siteSlug: string,
+      kind: "author" | "expert",
+      personSlug: string,
+    ) {
       return ok(
         sampleArticleSummaries(
           sampleArticlesBySite(siteSlug).filter(
-            (a) => a.author.slug === personSlug || a.reviewedBy?.slug === personSlug,
+            (a) =>
+              (kind === "author" ? a.author.slug : a.reviewedBy?.slug) === personSlug,
           ),
         ),
       );

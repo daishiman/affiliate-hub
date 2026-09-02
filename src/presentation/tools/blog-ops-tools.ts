@@ -100,6 +100,7 @@ export function blogOpsTools(deps: AppDeps): readonly AnyToolDefinition[] {
         title: z.string().min(1),
         lead: z.string(),
         authorName: z.string().min(1),
+        categorySlug: z.string().min(1),
       }),
       readOnly: false,
       useCase: createCreateBlogArticleUseCase(base),

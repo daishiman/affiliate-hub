@@ -113,7 +113,11 @@ describe("実在するブログの中の、無い記事・商品・人", () => {
     ).toEqual([]);
   });
 
-  it.each(existingResourceCases().map((route) => [route.file, route] as const))(
+  it.each(
+    existingResourceCases()
+      .filter((route) => route.behavior !== "redirect")
+      .map((route) => [route.file, route] as const),
+  )(
     "実在する資源では 404 にしない — %s",
     async (_file, route) => {
       // 上の検査だけだと、全部 404 にしてしまっても緑になる。
@@ -123,6 +127,23 @@ describe("実在するブログの中の、無い記事・商品・人", () => {
       expect(textOf(html)).not.toContain("見つかりませんでした");
     },
   );
+
+  it("実在する旧記事URLは、404やHTMLではなくcanonical URLへ308で返す", async () => {
+    const route = existingResourceCases().find((candidate) => candidate.behavior === "redirect");
+    expect(route, "redirect入口が経路表から消えています").toBeDefined();
+    if (route === undefined) return;
+
+    let redirectDigest: unknown;
+    try {
+      await renderRoute(importPathOf(route.file), propsOf(route));
+    } catch (thrown) {
+      redirectDigest = (thrown as { digest?: unknown }).digest;
+    }
+
+    expect(redirectDigest, "旧URLが308を返していません").toEqual(
+      expect.stringMatching(/^NEXT_REDIRECT;[^;]+;\/s\/[^;]+;308;$/),
+    );
+  });
 
   it("打ち切るのは「無い」だけで、「取れなかった」は打ち切らない", () => {
     /*

@@ -380,6 +380,11 @@ export const articles = sqliteTable(
       .notNull()
       .default("draft"),
     categoryId: text("category_id").references(() => categories.id, { onDelete: "set null" }),
+    /**
+     * 公開projectionに写すサイト内カテゴリ。グローバルcategory masterとは別のURL語彙。
+     * 下書きはnullを許すが、公開時は利用者が選んだ値を必須にする。
+     */
+    publicCategorySlug: text("public_category_slug"),
     disclosureId: text("disclosure_id").references(() => disclosures.id, {
       onDelete: "restrict",
     }),
@@ -798,6 +803,8 @@ export const siteDrafts = sqliteTable(
     slug: text("slug").notNull().default(""),
     /** 作りきったら、できたブログの URL 名が入る。作りかけは NULL。 */
     createdSiteSlug: text("created_site_slug"),
+    /** CAS 用の単調増加版。updated_at の秒精度へ競合判定を委ねない。 */
+    revision: integer("revision").notNull().default(1),
     updatedAt: integer("updated_at", { mode: "timestamp" })
       .notNull()
       .default(sql`(unixepoch())`),
@@ -814,14 +821,27 @@ export const siteDrafts = sqliteTable(
  * `slug` に一意の索引を置く。読者の URL（`/s/<URL名>`）がこの値そのもので、
  * 同じ URL 名が 2 つあると、どちらを出すか決められないためである。
  * 受信箱の URL（重複しても受け取る）と違い、ここは重複に意味が無い。
- * 同じ workspace からの作り直しだけを**上書き**として扱う。
- * 取り下げ後も行を残すため、別 workspace へ URL 名を移管せず読者データを守れる。
+ * 新規作成は workspace が同じでも上書きしない。編集と新規作成を別経路にし、
+ * 作成失敗時の巻き戻しが既存サイトを消せる状態を作らない。取り下げ後も行を残し、
+ * 別 workspace へ URL 名を移管せず読者データを守る。
+ *
+ * 読者向けホスト名は保存しない。slug と実行環境の SITE_BASE_DOMAIN から
+ * `siteHostname` が導出する。環境ごとに異なる値を行に焼き込むと、同じデータを
+ * dev/prod で移しただけで住所が古くなるためである。
  */
 export const siteBlueprints = sqliteTable(
   "site_blueprints",
   {
     id: text("id").primaryKey(),
     workspaceId: text("workspace_id").notNull(),
+    /**
+     * 新規作成の元になった下書き。既存行と編集経路は null。
+     * 同じ下書きの stale request が別 slug で並行しても、
+     * 一意制約により両方を新規作成できない。
+     */
+    sourceDraftId: text("source_draft_id"),
+    /** 作成が読み取った下書きの版。trigger が現在版と照合する。 */
+    sourceDraftRevision: integer("source_draft_revision"),
     slug: text("slug").notNull(),
     name: text("name").notNull(),
     /** 10 パターンのどれか。一覧の絞り込みに使うので列に出す。 */
@@ -833,6 +853,7 @@ export const siteBlueprints = sqliteTable(
   },
   (t) => [
     uniqueIndex("site_blueprints_slug_idx").on(t.slug),
+    uniqueIndex("site_blueprints_source_draft_idx").on(t.sourceDraftId),
     index("site_blueprints_workspace_idx").on(t.workspaceId),
   ],
 );
@@ -877,6 +898,13 @@ export const publishedArticles = sqliteTable(
     siteSlug: text("site_slug").notNull(),
     slug: text("slug").notNull(),
     workspaceId: text("workspace_id").notNull(),
+    /**
+     * 編集 aggregate から決定的に作った projection の由来。
+     * AI 公開など、`articles` を経由しない公開は null。
+     */
+    sourceArticleId: text("source_article_id").references(() => articles.id, {
+      onDelete: "restrict",
+    }),
     /** 記事の種類。URL の道筋がこれで決まるので列に出す。 */
     type: text("type").notNull(),
     title: text("title").notNull(),
@@ -898,6 +926,9 @@ export const publishedArticles = sqliteTable(
     index("published_articles_site_updated_idx").on(t.siteSlug, t.updatedAt),
     index("published_articles_site_author_idx").on(t.siteSlug, t.authorSlug),
     index("published_articles_workspace_idx").on(t.workspaceId),
+    uniqueIndex("published_articles_source_article_idx")
+      .on(t.sourceArticleId)
+      .where(sql`${t.sourceArticleId} is not null`),
   ],
 );
 

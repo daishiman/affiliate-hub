@@ -8,6 +8,7 @@ import { join, relative } from "node:path";
 import { describe, expect, it } from "vitest";
 import {
   ADMIN_ROUTE_CASES,
+  RENDERABLE_ROUTE_CASES,
   ROUTE_CASES,
   ROUTE_STATE_CASES,
   renderCase,
@@ -449,7 +450,7 @@ describe("押しどころの大きさ", () => {
     );
   });
 
-  it.each([...ROUTE_CASES, ...ROUTE_STATE_CASES].map((r) => [labelOf(r), r] as const))(
+  it.each([...RENDERABLE_ROUTE_CASES, ...ROUTE_STATE_CASES].map((r) => [labelOf(r), r] as const))(
     "%s の操作部品と案内のリンクが、押しどころの下限を持っている",
     async (_label, route) => {
       const html = unhashClasses(await renderCase(route));

@@ -2,7 +2,10 @@ import { auditWriteFailure, buildAuditEntry } from "@/application/audit";
 import type { BlogOpsRepositoryPort } from "@/application/ports/blog-ops";
 import type { IdGeneratorPort } from "@/application/ports/common";
 import type { AuditLogPort } from "@/application/ports/compliance";
+import type { EditorialPublishedContentPort } from "@/application/ports/site";
+import { articleHref } from "@/application/read-models/published-article";
 import { buildRobotsTxt, buildSitemapXml } from "@/application/seo/feeds";
+import type { ArticleType } from "@/domain/authoring";
 import {
   DELIVERY_PARTS,
   type DeliveryPart,
@@ -30,7 +33,7 @@ import type { UseCase } from "../usecase";
  *
  * 点検の中身は部品ごとに 2 通りある。**混ぜて 1 語にしない。**
  *
- * 1. **本当に組み立てる**（sitemap・robots）。blogops が持っている
+ * 1. **本当に組み立てる**（sitemap・robots）。公開 projection が持っている
  *    材料だけで最後まで作れるので、作った結果を数えて確かめる。
  * 2. **材料が揃っているかを見る**（残り 7 種）。RSS と llms.txt の
  *    組み立て器は `ArticleSummary`（記事型・分類・要約を持つ別の読み型）を
@@ -42,9 +45,10 @@ import type { UseCase } from "../usecase";
  * 「何をもって緑なのか」を読めるようにするため。
  */
 
-/** 点検が見る記事 1 本分。`BlogArticle` から必要なぶんだけ写したもの。 */
+/** 点検が見る記事 1 本分。canonical public projection から必要なぶんだけ写したもの。 */
 export type DeliveryCheckArticle = {
   readonly slug: string;
+  readonly type: ArticleType;
   readonly title: string;
   readonly authorName: string;
   readonly updatedAt: Date;
@@ -94,7 +98,7 @@ export function checkDeliveryParts(input: DeliveryCheckInput): readonly Delivery
   const sitemap = buildSitemapXml(
     input.origin,
     input.basePath,
-    published.map((a) => ({ path: `/blog/${a.slug}`, updatedAt: isoDate(a.updatedAt) })),
+    published.map((a) => ({ path: articleHref(a), updatedAt: isoDate(a.updatedAt) })),
   );
   const urlCount = countOf(sitemap, "<loc>");
   put(
@@ -199,6 +203,8 @@ export function checkDeliveryParts(input: DeliveryCheckInput): readonly Delivery
 
 export type ManageBlogDeliveryDeps = {
   readonly repository: BlogOpsRepositoryPort;
+  /** 公開面と同じ記事集合。編集 aggregate を公開済みと推測してはならない。 */
+  readonly publishedContent: Pick<EditorialPublishedContentPort, "listRecent">;
   readonly ids: IdGeneratorPort;
   readonly auditLog: AuditLogPort;
   readonly now: () => Date;
@@ -238,7 +244,10 @@ export function createCheckBlogDeliveryUseCase(
         return err(validationError("配信物の点検には住所の起点が要ります。"));
       }
 
-      const articles = await deps.repository.listArticles(actor.workspaceId, input.siteSlug);
+      const articles = await deps.publishedContent.listRecent(
+        input.siteSlug,
+        Number.MAX_SAFE_INTEGER,
+      );
       if (!articles.ok) return articles;
 
       const results = checkDeliveryParts({
@@ -247,14 +256,13 @@ export function createCheckBlogDeliveryUseCase(
         origin: input.origin,
         basePath: input.basePath,
         emitLlmsTxt: input.emitLlmsTxt,
-        articles: articles.value
-          .filter((a) => a.status === "published")
-          .map((a) => ({
-            slug: a.slug,
-            title: a.title,
-            authorName: a.authorName,
-            updatedAt: a.updatedAt,
-          })),
+        articles: articles.value.map((a) => ({
+          slug: a.slug,
+          type: a.type,
+          title: a.title,
+          authorName: a.authorName,
+          updatedAt: new Date(a.updatedAt),
+        })),
       });
 
       const checkedAt = deps.now();

@@ -4,6 +4,7 @@ import type {
   ContentPackage,
   ContentState,
   ContentVariant,
+  CompositionReport,
   SiteBlueprint,
   SiteDraft,
 } from "@/domain/authoring";
@@ -18,6 +19,7 @@ import type {
   WorkspaceId,
 } from "@/domain/shared";
 import type { BrandScopeFilter, PageRequest, Paged, PortResult } from "./common";
+import type { AuditLogEntry } from "@/domain/compliance";
 
 export type ContentPackageRepositoryPort = {
   findById(workspaceId: WorkspaceId, id: ContentPackageId): PortResult<ContentPackage | null>;
@@ -116,16 +118,67 @@ export type PersonaRepositoryPort = {
  * 設計図とは別に持つ。途中の状態を設計図として保存すると、
  * 空欄のまま公開されたブログが生まれる。
  */
+/**
+ * ブログを 1 回で作り切るための入力。
+ *
+ * 公開実体・下書きの完了・監査記録を分けて渡さない。
+ * 3 つを別メソッドにすると、真ん中で失敗したときに
+ * 「作れているが下書きは未完了」が必ず作れる。
+ */
+export type SiteProvisionRequest = {
+  /**
+   * どの作業場のものとして書くか。
+   *
+   * `blueprint.workspaceId` があるから省ける、とはしない。省くと
+   * 「設計図はよその作業場のものだが、住所と版面はこちらに置かれた」という
+   * ちぐはぐな行が作れる。**書くたびに 1 つの値から絞る**ことを型で強いる。
+   */
+  readonly workspaceId: WorkspaceId;
+  readonly slug: string;
+  readonly blueprint: SiteBlueprint;
+  /** `createdSiteSlug` を今回の slug にした完了後の下書き。 */
+  readonly completedDraft: SiteDraft;
+  /** 作成開始時に読んだ下書きの版。DB claim が現在版と一致することを要求する。 */
+  readonly expectedDraftRevision: number;
+  /** 作成行と同じ transaction に入れる監査記録。 */
+  readonly audit: AuditLogEntry;
+  /** サイト網の節点に出す表示名と一行説明。 */
+  readonly displayName: string;
+  readonly oneLine: string;
+};
+
+export type SiteProvisionOutcome = {
+  readonly blueprint: SiteBlueprint;
+  /** 保存した初期行数を、公開投影と同じ判定関数に通した結果。 */
+  readonly composition: CompositionReport;
+};
+
 export type SiteDraftRepositoryPort = {
   find(workspaceId: WorkspaceId, id: SiteDraftId): PortResult<SiteDraft | null>;
   /** 作りかけの一覧。放置された下書きに気づけるようにする。 */
   list(workspaceId: WorkspaceId): PortResult<readonly SiteDraft[]>;
+  /** `draft.revision` を期待版として CAS 保存し、成功時は次の版を返す。 */
   save(draft: SiteDraft): PortResult<SiteDraft>;
   /**
    * 完成した設計図をブログとして登録する。
    * ここを通ったものだけが読者から見える。
+   *
+   * **新規作成からは呼ばない。** 設計図だけを差し替える編集
+   * （`edit-sites.ts`）のための口である。作成は `provisionSite` を通す。
+   * 作成でここを直に呼ぶと、設計図はあるがサイト網の節点が無いブログ、
+   * つまり「作成済みと出るのに 404」が再び作れてしまう。
    */
   publishBlueprint(slug: string, blueprint: SiteBlueprint): PortResult<SiteBlueprint>;
+  /**
+   * ブログを**読者が開ける状態にして**作る。
+   *
+   * 設計図・サイト網の節点・版面の帯・版面のスロットを 1 回の書き込みで揃える。
+   * 途中で失敗したら何も残さない。部分成功を正常系として残さないため、
+   * 個別の口に分けずここ 1 つにまとめてある。
+   *
+   * 作成後の確認は、読者向け公開投影を通して行う。保存層が別の数え方を持たない。
+   */
+  provisionSite(request: SiteProvisionRequest): PortResult<SiteProvisionOutcome>;
   /**
    * 登録済みのブログを取り下げる。`publishBlueprint` の対。
    *

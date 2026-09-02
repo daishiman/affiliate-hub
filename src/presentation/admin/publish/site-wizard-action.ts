@@ -141,5 +141,9 @@ export async function createSiteFromDraftAction(
     status: "done",
     message: result.value.summary,
     createdPath: result.value.readerPath,
+    createdHost: result.value.readerHost,
+    // 残っている不足はここで初めて画面へ渡す。
+    // 「作成済みです」だけを出していた版では、開けないブログも同じ緑だった。
+    gaps: result.value.gaps.map((gap) => ({ label: gap.label, remedy: gap.remedy })),
   };
 }

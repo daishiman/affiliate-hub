@@ -429,6 +429,17 @@ describe("手元と機械で同じ検査が走る（REQ-CI01 / REQ-CI03）", () 
         掲載先の逆引き）で、宣言側は変えていない。
       */
       "0040_merged_blog_ops",
+      /*
+        site作成claimのDB保証と、設計図だけあってサイト網の節点が無い
+        ブログの補填。後者が「13 問に答えて作成済みと出るのに
+        `/s/<URL名>` が 404」の実体である。hostname移行は担わない。
+      */
+      "0041_small_amphibian",
+      /*
+        編集aggregateと公開projectionを由来IDで結び、公開記事の二正本を解消する。
+        既存データは消さず、曖昧な所有権・URL競合・墓標共存では適用を停止する。
+      */
+      "0042_canonical_public_articles",
     ];
     const journal = JSON.parse(read("drizzle/meta/_journal.json")) as {
       entries: Array<{ tag: string }>;
@@ -1058,5 +1069,56 @@ describe("必須チェックの名前が保護設定と噛み合う（REQ-CI01�
       /execFileSync\(\s*["']gh["']|fetch\(.*api\.github\.com/.test(code),
       "保護設定を実際に読む道ができたようです。⑤に従って反転させてください",
     ).toBe(false);
+  });
+});
+
+describe("ブログ用 wildcard domain の構成は、未設定を準備完了と扱わない", () => {
+  type DomainReadiness = {
+    readonly status: "ready" | "blocked";
+    readonly baseDomain: string | null;
+    readonly workerRoute: string | null;
+    readonly proxiedWildcardDnsEvidence: string | null;
+    readonly blockers: readonly string[];
+  };
+
+  const wranglerCode = read("wrangler.jsonc")
+    .split("\n")
+    .filter((line) => !/^\s*\/\//.test(line))
+    .join("\n");
+  const baseDomains = [...wranglerCode.matchAll(/"SITE_BASE_DOMAIN"\s*:\s*"([^"]*)"/g)].map(
+    (match) => match[1] ?? "",
+  );
+  const activeRoutes = [...wranglerCode.matchAll(/"pattern"\s*:\s*"(\*\.[^"]+\/\*)"/g)].map(
+    (match) => match[1] ?? "",
+  );
+  const readiness = JSON.parse(read("config/site-domain-readiness.json")) as DomainReadiness;
+
+  it("手元・dev・production の 3 構成を見落とさない", () => {
+    expect(baseDomains).toHaveLength(3);
+  });
+
+  it("実ドメイン・route・DNS 証跡が揃うまで blocked を明示する", () => {
+    const configuredDomains = baseDomains.filter((domain) => domain.trim() !== "");
+    const fullyConfigured =
+      configuredDomains.length === baseDomains.length &&
+      new Set(configuredDomains).size === 1 &&
+      activeRoutes.length === 1 &&
+      readiness.proxiedWildcardDnsEvidence !== null;
+
+    if (!fullyConfigured) {
+      expect(readiness.status).toBe("blocked");
+      expect(readiness.baseDomain).toBeNull();
+      expect(readiness.workerRoute).toBeNull();
+      expect(readiness.proxiedWildcardDnsEvidence).toBeNull();
+      expect(readiness.blockers.length).toBeGreaterThan(0);
+      return;
+    }
+
+    const baseDomain = configuredDomains[0];
+    expect(readiness.status).toBe("ready");
+    expect(readiness.baseDomain).toBe(baseDomain);
+    expect(readiness.workerRoute).toBe(`*.${baseDomain}/*`);
+    expect(activeRoutes).toEqual([`*.${baseDomain}/*`]);
+    expect(readiness.blockers).toEqual([]);
   });
 });

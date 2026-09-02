@@ -18,6 +18,10 @@ import type {
 } from "@/domain/blogops";
 import type { WorkspaceId } from "@/domain/shared";
 import type { SiteBlueprint } from "@/domain/authoring";
+import type {
+  ArticleSummary,
+  PublishedArticle,
+} from "@/application/read-models/published-article";
 import type { PortResult } from "./common";
 
 /**
@@ -139,6 +143,8 @@ export type SaveBlogArticleInput = {
   readonly lead: string;
   readonly status: BlogArticleStatus;
   readonly authorName: string;
+  /** 公開projectionの分類。下書きはnull、公開時はsite blueprintとの一致が必須。 */
+  readonly categorySlug: string | null;
   readonly publishedAt: Date | null;
   readonly updatedAt: Date;
   readonly blocks: readonly {
@@ -277,15 +283,34 @@ export type ArticleRatingPort = {
 export type PublicSiteReader = {
   /** workspaceId を落とした公開用設計図。request 内で解決した正本と同じもの。 */
   readonly blueprint: Omit<SiteBlueprint, "workspaceId">;
-  findArticleBySlug(slug: string): PortResult<BlogArticleDetail | null>;
-  listPublished(limit: number): PortResult<readonly BlogArticle[]>;
+  /** 公開本文は canonical public projection からだけ読む。 */
+  findArticleBySlug(slug: string): PortResult<PublishedArticle | null>;
+  /** 公開一覧は本文と同じ projection の要約。 */
+  listPublished(limit: number): PortResult<readonly ArticleSummary[]>;
+  /** 編集 aggregate から公開した記事だけが持つ、評価の対象 ID。 */
+  findSourceArticleId(slug: string): PortResult<string | null>;
+  /** 描画用。enabled の枠だけを返す。 */
   listLayoutSlots(): PortResult<readonly BlogLayoutSlotRecord[]>;
+  /** 作成完了判定用。disabled を含む未削除の枠実体を返す。 */
+  listProvisionedLayoutSlots(): PortResult<readonly BlogLayoutSlotRecord[]>;
+  /** 描画用。enabled の帯だけを返す。 */
   listLayoutBands(): PortResult<readonly BlogLayoutBandRecord[]>;
+  /** 作成完了判定用。disabled を含む未削除の帯実体を返す。 */
+  listProvisionedLayoutBands(): PortResult<readonly BlogLayoutBandRecord[]>;
   listDeliveryParts(): PortResult<readonly BlogDeliveryPartRecord[]>;
   listNetwork(): PortResult<readonly SiteNetworkRecord[]>;
   listTags(): PortResult<readonly BlogTagRecord[]>;
   /** published かつ未削除の 8 種だけを返す。 */
   listFixedPages(): PortResult<readonly FixedPageRecord[]>;
+  /**
+   * 作成時に実体化された未削除の固定ページ。
+   *
+   * 本文を描画するための読み口ではなく、公開投影が
+   * `provisioningComplete` を判定するための件数確認。
+   * 下書きの本文は投影せず、公開中の行だけが `listFixedPages`
+   * を通って画面へ届く。
+   */
+  listProvisionedFixedPages(): PortResult<readonly FixedPageRecord[]>;
 };
 
 export type PublicBlogPort = {

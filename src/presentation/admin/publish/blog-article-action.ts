@@ -119,6 +119,7 @@ export async function manageBlogArticleAction(
       template: template.value,
       status: status.value,
       authorName: text("authorName"),
+      categorySlug: text("categorySlug"),
       tagIds: formData.getAll("tagIds").map(String).filter((id) => id !== ""),
       blocks: blocks.value,
       expectedRevision,
@@ -157,6 +158,7 @@ export async function manageBlogArticleAction(
     title: text("title"),
     lead: text("lead"),
     authorName: text("authorName"),
+    categorySlug: text("categorySlug"),
   });
   if (!result.ok) {
     return failureFromDomainError(result.error);

@@ -661,13 +661,8 @@ describe("ブログ作成ウィザードの操作", () => {
 
   /*
    * 記録が残せない置き場（`createUnavailableAuditLog`）へ差し替えて動かす。
-   * ブログを作ると記録が要るので、その置き場では**必ず断られる**。
-   * それでよいと決めた理由は
-   * docs/product/port-wiring.md「記録を足すと、見本モードでは操作が断られる」。
-   *
-   * ここで見るのは、断り方が**押した人を二度押しへ誘導しないか**である。
-   * 記録は作った後に書くので、断られた時点でブログはもう読者から見えている。
-   * 断り文がそれを隠すと、押した人は名前を変えてもう一度作り、同じブログが 2 本並ぶ。
+   * サイト実体と作成監査は同じ Unit of Work なので、監査が書けなければ
+   * サイトも作られない。失敗後に「読者からは見える」と案内する旧補償前提を残さない。
    */
   it("記録を残せない段では、作れたことにせず断る", async () => {
     auditWritable = false;
@@ -679,20 +674,20 @@ describe("ブログ作成ウィザードの操作", () => {
     expect(state.createdPath).toBeUndefined();
   });
 
-  it("断り文が、すでに読者から見えていることを隠さない", async () => {
+  it("監査を残せないときは、サイト実体も作らない", async () => {
     auditWritable = false;
     const slug = `action-test-${Date.now()}`;
     const draftId = await completeDraftThroughForms(slug);
     const state = await createSiteFromDraftAction({ status: "idle", message: "" }, form({ draftId }));
 
-    // 済んだこと（もう見えている）と、次にすること（記録の直し方）の両方が要る。
-    expect(state.message).toContain("読む人からも見えます");
-    expect(state.message.trim().split("\n").length).toBeGreaterThan(1);
+    expect(state.status).toBe("failed");
+    expect(state.message).toContain("操作の記録");
+    expect(state.message).not.toContain("読む人からも見えます");
 
-    // 実際に読者側の一覧へ増えている。増えていないなら断り文の方が嘘になる。
+    // 実際の一覧にも増えない。監査だけ失敗した残骸を正常系にしない。
     const listed = await (await siteUseCases()).listSites.execute(SAMPLE_ACTOR, {});
     expect(listed.ok).toBe(true);
-    if (listed.ok) expect(listed.value.some((s) => s.slug === slug)).toBe(true);
+    if (listed.ok) expect(listed.value.some((s) => s.slug === slug)).toBe(false);
   });
 
   /*

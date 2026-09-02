@@ -1,6 +1,20 @@
 import { and, desc, eq, sql } from "drizzle-orm";
-import type { EditorialSiteDraftRepositoryPort } from "@/application/ports/authoring";
-import type { SiteBlueprint, SiteDraft } from "@/domain/authoring";
+import type {
+  EditorialSiteDraftRepositoryPort,
+  SiteProvisionRequest,
+} from "@/application/ports/authoring";
+import {
+  SITE_PROVISIONING_REQUIRED_COUNTS,
+  evaluateSiteComposition,
+  type SiteBlueprint,
+  type SiteDraft,
+} from "@/domain/authoring";
+import {
+  FIXED_PAGE_KINDS,
+  FIXED_PAGE_LABEL,
+  defaultLayoutBandSeeds,
+  defaultLayoutSlotSeeds,
+} from "@/domain/blogops";
 import {
   type SiteDraftId,
   type WorkspaceId,
@@ -13,12 +27,18 @@ import {
 import {
   type SiteBlueprintRow,
   type SiteDraftRow,
+  blogLayoutBands,
+  blogLayoutSlots,
+  auditLogs,
+  legalPages,
   siteBlueprints,
+  siteNetworkNodes,
   siteRetirements,
   siteDrafts,
 } from "@/db/schema";
 import type { DrizzleD1 } from "./link-inbox-repository";
 import { storageFailure } from "./storage-failure";
+import { auditLogValues } from "./audit-log-repository";
 
 /**
  * 0034旧版がretired_at列を追加した途中状態も、独立墓標へ一度だけ救出する。
@@ -77,12 +97,34 @@ async function clearLegacyRetirement(
 
 /** 行 → ドメイン。ID の作り方を知っているのはこの層だけ。 */
 function toDraft(row: SiteDraftRow): SiteDraft {
-  const stored = JSON.parse(row.draftJson) as Omit<SiteDraft, "id" | "workspaceId">;
+  const stored = JSON.parse(row.draftJson) as Omit<
+    SiteDraft,
+    "id" | "workspaceId" | "revision"
+  >;
   return {
     ...stored,
     id: taggedString<"SiteDraftId">(row.id) as SiteDraftId,
     workspaceId: taggedString<"WorkspaceId">(row.workspaceId) as WorkspaceId,
+    revision: row.revision,
   };
+}
+
+function draftJson(draft: SiteDraft): string {
+  const {
+    id: _id,
+    workspaceId: _workspaceId,
+    revision: _revision,
+    ...stored
+  } = draft;
+  return JSON.stringify(stored);
+}
+
+function draftConflict() {
+  return err(
+    domainError("CONFLICT", "この下書きは別の操作で更新されました。", {
+      suggestedAction: "画面を開き直し、最新の内容を確認してからもう一度保存してください。",
+    }),
+  );
 }
 
 function toBlueprint(row: SiteBlueprintRow): SiteBlueprint {
@@ -120,30 +162,47 @@ export function createD1SiteDraftRepository(db: DrizzleD1): EditorialSiteDraftRe
     },
 
     async save(draft: SiteDraft) {
-      const { id, workspaceId, ...rest } = draft;
       try {
-        await db
-          .insert(siteDrafts)
-          .values({
-            id: String(id),
-            workspaceId: String(workspaceId),
-            name: draft.name,
-            slug: draft.slug,
-            createdSiteSlug: draft.createdSiteSlug,
-            updatedAt: new Date(),
-            draftJson: JSON.stringify(rest),
-          })
-          .onConflictDoUpdate({
-            target: siteDrafts.id,
-            set: {
+        const now = new Date();
+        if (draft.revision === 0) {
+          const inserted = await db
+            .insert(siteDrafts)
+            .values({
+              id: String(draft.id),
+              workspaceId: String(draft.workspaceId),
               name: draft.name,
               slug: draft.slug,
               createdSiteSlug: draft.createdSiteSlug,
-              updatedAt: new Date(),
-              draftJson: JSON.stringify(rest),
-            },
-          });
-        return ok(draft);
+              revision: 1,
+              updatedAt: now,
+              draftJson: draftJson(draft),
+            })
+            .onConflictDoNothing({ target: siteDrafts.id })
+            .returning({ revision: siteDrafts.revision });
+          if (inserted.length === 0) return draftConflict();
+          return ok({ ...draft, revision: inserted[0]!.revision });
+        }
+
+        const saved = await db
+          .update(siteDrafts)
+          .set({
+            name: draft.name,
+            slug: draft.slug,
+            createdSiteSlug: draft.createdSiteSlug,
+            revision: sql`${siteDrafts.revision} + 1`,
+            updatedAt: now,
+            draftJson: draftJson(draft),
+          })
+          .where(
+            and(
+              eq(siteDrafts.id, String(draft.id)),
+              eq(siteDrafts.workspaceId, String(draft.workspaceId)),
+              eq(siteDrafts.revision, draft.revision),
+            ),
+          )
+          .returning({ revision: siteDrafts.revision });
+        if (saved.length === 0) return draftConflict();
+        return ok({ ...draft, revision: saved[0]!.revision });
       } catch (cause) {
         return storageFailure("下書きの保存", cause);
       }
@@ -196,6 +255,134 @@ export function createD1SiteDraftRepository(db: DrizzleD1): EditorialSiteDraftRe
         return ok(blueprint);
       } catch (cause) {
         return storageFailure("ブログの登録", cause);
+      }
+    },
+
+    async provisionSite(request: SiteProvisionRequest) {
+      const { blueprint, slug, completedDraft, audit } = request;
+      // 作業場は**渡された値**から取る。設計図の中の値から取ると、
+      // 設計図を組み違えた日に、書き込み先の会社まで一緒にずれる。
+      const workspaceId = String(request.workspaceId);
+      try {
+        const now = new Date();
+        const bandSeeds = defaultLayoutBandSeeds();
+        const slotSeeds = defaultLayoutSlotSeeds();
+        if (completedDraft.revision !== request.expectedDraftRevision) {
+          return draftConflict();
+        }
+
+        /*
+         * 設計図・住所・固定ページ・帯・枠・下書き完了・監査を 1 回で書く。
+         *
+         * ここを 4 回の書き込みに分けると、設計図だけ書けて住所が書けない
+         * 状態が正常系として残りうる。それがこの機能を作る原因になった
+         * 「作成済みと出るのに 404」そのものである。
+         */
+        await db.batch([
+          // 新規作成は必ず INSERT。同じ workspace でも既存 slug は
+          // 上書きしない。一意制約の失敗が batch 全体を巻き戻す。
+          db.insert(siteBlueprints).values({
+            id: String(blueprint.id),
+            workspaceId,
+            sourceDraftId: String(completedDraft.id),
+            sourceDraftRevision: request.expectedDraftRevision,
+            slug,
+            name: blueprint.name,
+            pattern: blueprint.pattern,
+            publishedAt: now,
+            blueprintJson: JSON.stringify(blueprint),
+          }),
+          db
+            .insert(siteNetworkNodes)
+            .values({
+              id: `snn_${crypto.randomUUID()}`,
+              workspaceId,
+              siteSlug: slug,
+              // 1 本目は必ずハブ。上位を持たせる操作は作成後の画面で行う。
+              role: "hub",
+              parentSlug: null,
+              name: request.displayName,
+              oneLine: request.oneLine,
+              position: 0,
+              status: "active",
+              deletedAt: null,
+              createdAt: now,
+              updatedAt: now,
+            }),
+          ...bandSeeds.map((seed) =>
+            db
+              .insert(blogLayoutBands)
+              .values({
+                id: `blb_${crypto.randomUUID()}`,
+                workspaceId,
+                siteSlug: slug,
+                band: seed.band,
+                title: seed.title,
+                enabled: seed.enabled,
+                position: seed.position,
+                itemLimit: seed.itemLimit,
+              }),
+          ),
+          ...slotSeeds.map((seed) =>
+            db
+              .insert(blogLayoutSlots)
+              .values({
+                id: `bls_${crypto.randomUUID()}`,
+                workspaceId,
+                siteSlug: slug,
+                region: seed.region,
+                slotKey: seed.slotKey,
+                title: seed.title,
+                body: seed.body,
+                enabled: seed.enabled,
+                position: seed.position,
+              }),
+          ),
+          ...FIXED_PAGE_KINDS.map((kind) =>
+            db.insert(legalPages).values({
+              id: `lp_${crypto.randomUUID()}`,
+              workspaceId,
+              siteSlug: slug,
+              kind,
+              title: FIXED_PAGE_LABEL[kind],
+              // 法的・運営上の文言を勝手に作らない。実体だけを下書きで作る。
+              body: "",
+              status: "draft",
+              deletedAt: null,
+              updatedAt: now,
+            }),
+          ),
+          db
+            .update(siteDrafts)
+            .set({
+              name: completedDraft.name,
+              slug: completedDraft.slug,
+              createdSiteSlug: completedDraft.createdSiteSlug,
+              revision: sql`${siteDrafts.revision} + 1`,
+              updatedAt: now,
+              draftJson: draftJson(completedDraft),
+            })
+            .where(
+              and(
+                eq(siteDrafts.id, String(completedDraft.id)),
+                eq(siteDrafts.workspaceId, workspaceId),
+                eq(siteDrafts.revision, request.expectedDraftRevision),
+              ),
+            ),
+          db.insert(auditLogs).values(auditLogValues(audit)),
+        ]);
+
+        const composition = evaluateSiteComposition(
+          {
+            ...SITE_PROVISIONING_REQUIRED_COUNTS,
+            categories: blueprint.categories.length,
+            articles: 0,
+          },
+          ["fixed_pages"],
+        );
+        return ok({ blueprint, composition });
+      } catch (cause) {
+        return storageFailure("ブログの作成", cause);
       }
     },
 
@@ -256,8 +443,8 @@ export function createD1SiteDraftRepository(db: DrizzleD1): EditorialSiteDraftRe
 /**
  * 保存先にある、作られたブログの一覧。
  *
- * 読者向けの一覧（`site-repository.ts`）が見本とこれを合わせる。
- * **読者側の画面は 2 種類を区別しない。**
+ * D1 モードの読者向け一覧（`site-repository.ts`）はこの実体だけを返す。
+ * コード上の見本は sample モードに閉じ、一覧だけに偽物を混ぜない。
  */
 export async function listPublishedBlueprints(
   db: DrizzleD1,

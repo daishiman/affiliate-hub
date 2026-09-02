@@ -16,7 +16,7 @@
  * @types keyboard
  */
 import { describe, expect, it } from "vitest";
-import { ROUTE_CASES, ROUTE_STATE_CASES, renderCase } from "./route-table";
+import { RENDERABLE_ROUTE_CASES, ROUTE_STATE_CASES, renderCase } from "./route-table";
 import { focusableOrder, intoDom } from "../support/render";
 
 /**
@@ -58,7 +58,7 @@ const OPERABLE_ROLES = ["button", "link", "tab", "checkbox", "switch", "menuitem
 const NATIVELY_FOCUSABLE = ["a", "button", "input", "select", "textarea"];
 
 const ALL_ROUTES = [
-  ...ROUTE_CASES.map((r) => ({ ...r, state: "既定の表示" })),
+  ...RENDERABLE_ROUTE_CASES.map((r) => ({ ...r, state: "既定の表示" })),
   ...ROUTE_STATE_CASES,
 ];
 

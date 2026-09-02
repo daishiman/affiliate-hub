@@ -39,10 +39,14 @@ export type RouteCase = {
   readonly params?: Readonly<Record<string, string>>;
   /** `?` 以降。既定の表示を見たいときは省く。 */
   readonly searchParams?: Readonly<Record<string, string | readonly string[]>>;
+  /** 本文を描かず別URLへ返す入口。DOM検査ではなく専用の応答検査が受け持つ。 */
+  readonly behavior?: "redirect";
 };
 
 /** 見本のブログ 1 つ。読者側の画面はすべてこれで開く。 */
 export const SITE = SAMPLE_SITE_SLUG;
+const CANONICAL_ARTICLE_SLUG =
+  SAMPLE_ARTICLES.find((article) => article.siteSlug === SITE)?.slug ?? "";
 
 /** productionの正本から射影した運営側の画面。 */
 const ADMIN_PARAM_EXAMPLES: Readonly<Record<string, string>> = {
@@ -63,7 +67,7 @@ const ADMIN_PARAM_EXAMPLES: Readonly<Record<string, string>> = {
   // `/admin/content/published/[site]/[slug]/edit` — 見本のブログに載っている
   // 公開記事 1 本。文字列を手で書かないのは `article` と同じ理由で、
   // 見本の記事が入れ替わった日に「見つかりません」を描いたまま緑になるため。
-  slug: SAMPLE_ARTICLES.find((article) => article.siteSlug === SITE)?.slug ?? "",
+  slug: CANONICAL_ARTICLE_SLUG,
   variant: "cv_alpha_review",
 };
 
@@ -107,7 +111,11 @@ const READER: readonly RouteCase[] = [
   { file: "s/[site]/authors/[author]/page.tsx", params: { site: SITE, author: "mochizuki" } },
   { file: "s/[site]/best/[topic]/page.tsx", params: { site: SITE, topic: "chairs-for-long-hours" } },
   { file: "s/[site]/blog/page.tsx", params: { site: SITE } },
-  { file: "s/[site]/blog/[article]/page.tsx", params: { site: SITE, article: BLOG_OPS_SAMPLE_ROUTE_IDS.articleSlug } },
+  {
+    file: "s/[site]/blog/[article]/page.tsx",
+    params: { site: SITE, article: CANONICAL_ARTICLE_SLUG },
+    behavior: "redirect",
+  },
   { file: "s/[site]/categories/[category]/page.tsx", params: { site: SITE, category: "chairs" } },
   { file: "s/[site]/compare/[comparison]/page.tsx", params: { site: SITE, comparison: "ergo-one-vs-flexseat" } },
   { file: "s/[site]/contact/page.tsx", params: { site: SITE } },
@@ -131,6 +139,11 @@ const READER: readonly RouteCase[] = [
 const ENTRY: readonly RouteCase[] = [{ file: "page.tsx" }, { file: "signin/page.tsx" }];
 
 export const ROUTE_CASES: readonly RouteCase[] = [...ENTRY, ...ADMIN, ...READER];
+
+/** HTMLを返す経路だけ。redirect入口を描画して404/308を握り潰さない。 */
+export const RENDERABLE_ROUTE_CASES: readonly RouteCase[] = ROUTE_CASES.filter(
+  (route) => route.behavior !== "redirect",
+);
 
 /**
  * 運営側の画面だけ。**権限を持った身元で描き直す**検査が使う。

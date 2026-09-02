@@ -36,8 +36,7 @@ import { OTHER_WORKSPACE } from "../support/actors";
  *   1. マイグレーション 0011 が表を本当に作れるか
  *   2. 節・言い切り・根拠を JSON 1 列に畳んで、読み直したとき同じ形に戻るか
  *   3. 同じ URL 名で出し直したとき、**弾かれずに差し替わる**か
- *   4. 見本の記事が消えないか（消えると、まだ 1 本も出していない読者ページが
- *      全部空になり、「出していない」のか「壊れている」のか見分けられない）
+ *   4. D1/live では保存していない見本記事が読者面へ混ざらないか
  *
  * --- ここで見ないこと ---
  * 出してよいかの判定（公開ゲート）と権限は単体側で見る。
@@ -99,6 +98,7 @@ afterAll(async () => {
 beforeEach(async () => {
   await proxy.env.DB.prepare("DELETE FROM published_articles").run();
   await proxy.env.DB.prepare("DELETE FROM published_article_tombstones").run();
+  await proxy.env.DB.prepare("DELETE FROM articles").run();
   await proxy.env.DB.prepare("DELETE FROM legal_page").run();
   await proxy.env.DB.prepare("DELETE FROM site_blueprints").run();
   await proxy.env.DB.prepare(
@@ -395,12 +395,13 @@ describe("出した記事を読み直す", () => {
     expect(found.value?.title).toBe("元の作業場所が公開した記事");
   });
 
-  it("見本の記事は消えない", async () => {
-    await writer.save(workspaceId, anArticle());
+  it("D1 に無い見本記事を live の本文として返さない", async () => {
     const sample = await content.findArticle(SAMPLE_SITE_SLUG, "chairs-for-long-hours");
     expect(sample.ok).toBe(true);
     if (!sample.ok) throw new Error("読み取りに失敗しました");
-    expect(sample.value?.stub).toBeDefined();
+    expect(sample.value).toBeNull();
+    const recent = await content.listRecent(SAMPLE_SITE_SLUG, 20);
+    expect(recent).toEqual({ ok: true, value: [] });
   });
 
   it("見本と同じ URL 名で出したら、出したほうが勝つ", async () => {
@@ -453,8 +454,7 @@ describe("一覧と検索に出る", () => {
     const listed = await content.listRecent(SAMPLE_SITE_SLUG, 5);
     if (!listed.ok) throw new Error("一覧を読めませんでした");
     expect(listed.value[0]?.slug).toBe("quiet-laptop");
-    // 見本も一緒に並ぶ。出した 1 本だけになると、読者ページが急に痩せる。
-    expect(listed.value.length).toBeGreaterThan(1);
+    expect(listed.value.map((article) => article.slug)).toEqual(["quiet-laptop"]);
   });
 
   it("カテゴリーの一覧に出る", async () => {
@@ -475,7 +475,7 @@ describe("一覧と検索に出る", () => {
     await writer.save(workspaceId, anArticle());
     const listed = await content.listRecent(SECOND_SITE_SLUG, 20);
     if (!listed.ok) throw new Error("一覧を読めませんでした");
-    expect(listed.value.map((a) => a.slug)).not.toContain("quiet-laptop");
+    expect(listed.value).toEqual([]);
   });
 
   it("題名と結論のどちらでも探せる", async () => {
@@ -501,24 +501,44 @@ describe("書き手のページ", () => {
 
   it("その人が書いた記事が並ぶ", async () => {
     await writer.save(workspaceId, anArticle());
-    const listed = await content.listByPerson(SAMPLE_SITE_SLUG, "author-nakata");
+    const listed = await content.listByPerson(SAMPLE_SITE_SLUG, "author", "author-nakata");
     if (!listed.ok) throw new Error("一覧を読めませんでした");
     expect(listed.value.map((a) => a.slug)).toEqual(["quiet-laptop"]);
   });
 
-  it("見本の書き手も引ける（重ねても消さない）", async () => {
+  it("監修者リンクと監修記事一覧を同じprojectionから引ける", async () => {
+    const expert = {
+      slug: "expert-sato",
+      name: "佐藤 監修者",
+      bio: "検証方法を監修しています。",
+      credentials: ["専門資格"],
+    };
+    await writer.save(workspaceId, anArticle({ reviewedBy: expert }));
+
+    const [person, listed] = await Promise.all([
+      content.findPerson(SAMPLE_SITE_SLUG, "expert", expert.slug),
+      content.listByPerson(SAMPLE_SITE_SLUG, "expert", expert.slug),
+    ]);
+
+    expect(person).toEqual({ ok: true, value: expert });
+    expect(listed.ok && listed.value.map((article) => article.slug)).toEqual([
+      "quiet-laptop",
+    ]);
+  });
+
+  it("D1 に無い見本の書き手を live の人物として返さない", async () => {
     await writer.save(workspaceId, anArticle());
     const person = await content.findPerson(SAMPLE_SITE_SLUG, "author", "mochizuki");
     if (!person.ok) throw new Error("人物を読めませんでした");
-    expect(person.value).not.toBeNull();
+    expect(person.value).toBeNull();
   });
 });
 
-describe("訂正は見本のまま", () => {
-  it("記事を出しても訂正の一覧は失敗しない", async () => {
+describe("訂正も live 保存実体だけ", () => {
+  it("保存先がまだ無い訂正に見本を混ぜず、空で返す", async () => {
     await writer.save(workspaceId, anArticle());
     const corrections = await content.listCorrections(SAMPLE_SITE_SLUG);
-    expect(corrections.ok).toBe(true);
+    expect(corrections).toEqual({ ok: true, value: [] });
   });
 });
 
@@ -623,6 +643,40 @@ describe("公開済み記事の非表示化", () => {
 });
 
 describe("公開済み記事の管理ポート", () => {
+  it("BlogOps由来projectionはAI公開の管理口から直接変更できない", async () => {
+    await writer.save(workspaceId, anArticle());
+    await proxy.env.DB.prepare(
+      `INSERT INTO articles
+        (id, workspace_id, site_slug, slug, article_template, type, title, lead, status,
+         author_name, public_category_slug, published_at)
+       VALUES ('bar_admin_guard', ?, ?, 'quiet-laptop', 'T3', 'guide', '編集aggregate',
+         '本文', 'published', '運営者', 'chairs', unixepoch())`,
+    )
+      .bind(String(workspaceId), SAMPLE_SITE_SLUG)
+      .run();
+    await proxy.env.DB.prepare(
+      "UPDATE published_articles SET source_article_id = 'bar_admin_guard' WHERE site_slug = ? AND slug = 'quiet-laptop'",
+    )
+      .bind(SAMPLE_SITE_SLUG)
+      .run();
+
+    const [listed, found, replaced, archived] = await Promise.all([
+      admin.list(workspaceId),
+      admin.find(workspaceId, SAMPLE_SITE_SLUG, "quiet-laptop"),
+      admin.replace(workspaceId, anArticle({ title: "AI管理口からの上書き" })),
+      admin.archive(workspaceId, SAMPLE_SITE_SLUG, "quiet-laptop", "2026-09-01"),
+    ]);
+
+    expect(listed.ok && listed.value).toEqual([]);
+    expect(found).toEqual({ ok: true, value: null });
+    expect(replaced).toEqual({ ok: true, value: false });
+    expect(archived).toEqual({ ok: true, value: false });
+    const publicArticle = await content.findArticle(SAMPLE_SITE_SLUG, "quiet-laptop");
+    expect(publicArticle.ok && publicArticle.value?.title).toBe(
+      "静かなノートパソコンの選び方",
+    );
+  });
+
   it("workspace とブログと URL 名が一致する記事だけを引く", async () => {
     await writer.save(workspaceId, anArticle());
 
