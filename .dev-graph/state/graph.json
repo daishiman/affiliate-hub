@@ -1,5 +1,5 @@
 {
-  "graph_revision": 365,
+  "graph_revision": 392,
   "nodes": [
     {
       "acceptance": [],
@@ -2125,6 +2125,7 @@
       "created_at": "2026-08-16T12:20:00Z",
       "depends_on": [
         "feat-affiliate-inbox",
+        "feat-auth-workspace",
         "feat-data-model"
       ],
       "domain": "affiliate",
@@ -2199,7 +2200,7 @@
       "template_version": "1.0.0",
       "title": "Affiliate Hub (アフィリエイト一元管理)",
       "tracker_binding": "beads",
-      "updated_at": "2026-08-17T05:00:58Z"
+      "updated_at": "2026-08-30T15:16:06Z"
     },
     {
       "acceptance": [
@@ -14088,7 +14089,12 @@
       ],
       "artifact_kind": "task",
       "artifact_subtypes": [],
-      "beads_linkage": null,
+      "beads_linkage": {
+        "bd_issue_id": "ah-45ba.1",
+        "github_mirror": null,
+        "linked_at": "2026-08-28T13:02:37Z",
+        "sync_state": "linked"
+      },
       "classification_candidates": [
         {
           "artifact_kind": "task",
@@ -14168,7 +14174,7 @@
         "source_version": "0.1.0"
       },
       "start_date": null,
-      "status": "active",
+      "status": "closed",
       "tags": [
         "p01",
         "feat-blog-ui-builder"
@@ -14178,7 +14184,7 @@
       "template_version": "1.1.0",
       "title": "ブログ UI ビルダーの要求ベースライン確定",
       "tracker_binding": "beads",
-      "updated_at": "2026-08-28T13:02:37Z"
+      "updated_at": "2026-08-30T03:59:19Z"
     },
     {
       "acceptance": [
@@ -14191,7 +14197,12 @@
       ],
       "artifact_kind": "task",
       "artifact_subtypes": [],
-      "beads_linkage": null,
+      "beads_linkage": {
+        "bd_issue_id": "ah-45ba.2",
+        "github_mirror": null,
+        "linked_at": "2026-08-28T13:02:37Z",
+        "sync_state": "linked"
+      },
       "classification_candidates": [
         {
           "artifact_kind": "task",
@@ -14275,7 +14286,7 @@
         "source_version": "0.1.0"
       },
       "start_date": null,
-      "status": "active",
+      "status": "closed",
       "tags": [
         "p02",
         "feat-blog-ui-builder"
@@ -14285,7 +14296,7 @@
       "template_version": "1.1.0",
       "title": "データモデル・テーマ契約・コンポーネント契約・管理API契約・SEO/AI検索契約の設計",
       "tracker_binding": "beads",
-      "updated_at": "2026-08-28T13:02:37Z"
+      "updated_at": "2026-08-30T04:07:37Z"
     },
     {
       "acceptance": [
@@ -14298,7 +14309,12 @@
       ],
       "artifact_kind": "task",
       "artifact_subtypes": [],
-      "beads_linkage": null,
+      "beads_linkage": {
+        "bd_issue_id": "ah-45ba.3",
+        "github_mirror": null,
+        "linked_at": "2026-08-28T13:02:37Z",
+        "sync_state": "linked"
+      },
       "classification_candidates": [
         {
           "artifact_kind": "task",
@@ -14378,7 +14394,7 @@
         "source_version": "0.1.0"
       },
       "start_date": null,
-      "status": "active",
+      "status": "closed",
       "tags": [
         "p03",
         "feat-blog-ui-builder"
@@ -14388,7 +14404,7 @@
       "template_version": "1.1.0",
       "title": "設計レビューと参照妥当性・テーマ一貫性・SEO/AI検索設計の独立検証",
       "tracker_binding": "beads",
-      "updated_at": "2026-08-28T13:02:37Z"
+      "updated_at": "2026-08-30T04:10:51Z"
     },
     {
       "acceptance": [
@@ -14401,7 +14417,12 @@
       ],
       "artifact_kind": "task",
       "artifact_subtypes": [],
-      "beads_linkage": null,
+      "beads_linkage": {
+        "bd_issue_id": "ah-45ba.4",
+        "github_mirror": null,
+        "linked_at": "2026-08-28T13:02:37Z",
+        "sync_state": "linked"
+      },
       "classification_candidates": [
         {
           "artifact_kind": "task",
@@ -14485,7 +14506,7 @@
         "source_version": "0.1.0"
       },
       "start_date": null,
-      "status": "active",
+      "status": "closed",
       "tags": [
         "p04",
         "feat-blog-ui-builder"
@@ -14495,7 +14516,7 @@
       "template_version": "1.1.0",
       "title": "受入14件に対応するテスト設計",
       "tracker_binding": "beads",
-      "updated_at": "2026-08-28T13:02:37Z"
+      "updated_at": "2026-08-30T04:22:56Z"
     },
     {
       "acceptance": [
@@ -14510,7 +14531,12 @@
       ],
       "artifact_kind": "task",
       "artifact_subtypes": [],
-      "beads_linkage": null,
+      "beads_linkage": {
+        "bd_issue_id": "ah-45ba.5",
+        "github_mirror": null,
+        "linked_at": "2026-08-28T13:02:37Z",
+        "sync_state": "linked"
+      },
       "classification_candidates": [
         {
           "artifact_kind": "task",
@@ -14605,7 +14631,7 @@
         "source_version": "0.1.0"
       },
       "start_date": null,
-      "status": "active",
+      "status": "closed",
       "tags": [
         "p05",
         "feat-blog-ui-builder"
@@ -14615,7 +14641,7 @@
       "template_version": "1.1.0",
       "title": "テンプレート・配色2層・sticky常時表示・固定ページ・表現ブロック・配置管理・SEO/AI検索の実装",
       "tracker_binding": "beads",
-      "updated_at": "2026-08-28T13:02:37Z"
+      "updated_at": "2026-08-30T06:05:35Z"
     },
     {
       "acceptance": [
@@ -14629,7 +14655,12 @@
       ],
       "artifact_kind": "task",
       "artifact_subtypes": [],
-      "beads_linkage": null,
+      "beads_linkage": {
+        "bd_issue_id": "ah-45ba.6",
+        "github_mirror": null,
+        "linked_at": "2026-08-28T13:02:37Z",
+        "sync_state": "linked"
+      },
       "classification_candidates": [
         {
           "artifact_kind": "task",
@@ -14709,7 +14740,7 @@
         "source_version": "0.1.0"
       },
       "start_date": null,
-      "status": "active",
+      "status": "closed",
       "tags": [
         "p06",
         "feat-blog-ui-builder"
@@ -14719,7 +14750,7 @@
       "template_version": "1.1.0",
       "title": "テスト全量実行と回帰0件の確認",
       "tracker_binding": "beads",
-      "updated_at": "2026-08-28T13:02:37Z"
+      "updated_at": "2026-08-30T06:19:13Z"
     },
     {
       "acceptance": [
@@ -14733,7 +14764,12 @@
       ],
       "artifact_kind": "task",
       "artifact_subtypes": [],
-      "beads_linkage": null,
+      "beads_linkage": {
+        "bd_issue_id": "ah-45ba.7",
+        "github_mirror": null,
+        "linked_at": "2026-08-28T13:02:37Z",
+        "sync_state": "linked"
+      },
       "classification_candidates": [
         {
           "artifact_kind": "task",
@@ -14813,7 +14849,7 @@
         "source_version": "0.1.0"
       },
       "start_date": null,
-      "status": "active",
+      "status": "closed",
       "tags": [
         "p07",
         "feat-blog-ui-builder"
@@ -14823,7 +14859,7 @@
       "template_version": "1.1.0",
       "title": "受入14件の受け入れ判定",
       "tracker_binding": "beads",
-      "updated_at": "2026-08-28T13:02:37Z"
+      "updated_at": "2026-08-30T08:51:18Z"
     },
     {
       "acceptance": [
@@ -14837,7 +14873,12 @@
       ],
       "artifact_kind": "task",
       "artifact_subtypes": [],
-      "beads_linkage": null,
+      "beads_linkage": {
+        "bd_issue_id": "ah-45ba.8",
+        "github_mirror": null,
+        "linked_at": "2026-08-28T13:02:37Z",
+        "sync_state": "linked"
+      },
       "classification_candidates": [
         {
           "artifact_kind": "task",
@@ -14920,7 +14961,7 @@
         "source_version": "0.1.0"
       },
       "start_date": null,
-      "status": "active",
+      "status": "closed",
       "tags": [
         "p08",
         "feat-blog-ui-builder"
@@ -14930,7 +14971,7 @@
       "template_version": "1.1.0",
       "title": "既存サイト管理画面の新エンティティへの移行と重複実装の解消",
       "tracker_binding": "beads",
-      "updated_at": "2026-08-28T13:02:37Z"
+      "updated_at": "2026-08-30T09:56:43Z"
     },
     {
       "acceptance": [
@@ -14945,7 +14986,12 @@
       ],
       "artifact_kind": "task",
       "artifact_subtypes": [],
-      "beads_linkage": null,
+      "beads_linkage": {
+        "bd_issue_id": "ah-45ba.9",
+        "github_mirror": null,
+        "linked_at": "2026-08-28T13:02:37Z",
+        "sync_state": "linked"
+      },
       "classification_candidates": [
         {
           "artifact_kind": "task",
@@ -15025,7 +15071,7 @@
         "source_version": "0.1.0"
       },
       "start_date": null,
-      "status": "active",
+      "status": "closed",
       "tags": [
         "p09",
         "feat-blog-ui-builder"
@@ -15035,7 +15081,7 @@
       "template_version": "1.1.0",
       "title": "品質保証とアクセシビリティ・非機能検査",
       "tracker_binding": "beads",
-      "updated_at": "2026-08-28T13:02:37Z"
+      "updated_at": "2026-08-30T10:01:38Z"
     },
     {
       "acceptance": [
@@ -15048,7 +15094,12 @@
       ],
       "artifact_kind": "task",
       "artifact_subtypes": [],
-      "beads_linkage": null,
+      "beads_linkage": {
+        "bd_issue_id": "ah-45ba.10",
+        "github_mirror": null,
+        "linked_at": "2026-08-28T13:02:37Z",
+        "sync_state": "linked"
+      },
       "classification_candidates": [
         {
           "artifact_kind": "task",
@@ -15128,7 +15179,7 @@
         "source_version": "0.1.0"
       },
       "start_date": null,
-      "status": "active",
+      "status": "closed",
       "tags": [
         "p10",
         "feat-blog-ui-builder"
@@ -15138,7 +15189,7 @@
       "template_version": "1.1.0",
       "title": "最終レビューと残課題の確定",
       "tracker_binding": "beads",
-      "updated_at": "2026-08-28T13:02:37Z"
+      "updated_at": "2026-08-30T10:08:31Z"
     },
     {
       "acceptance": [
@@ -15151,7 +15202,12 @@
       ],
       "artifact_kind": "task",
       "artifact_subtypes": [],
-      "beads_linkage": null,
+      "beads_linkage": {
+        "bd_issue_id": "ah-45ba.11",
+        "github_mirror": null,
+        "linked_at": "2026-08-28T13:02:37Z",
+        "sync_state": "linked"
+      },
       "classification_candidates": [
         {
           "artifact_kind": "task",
@@ -15232,7 +15288,7 @@
         "source_version": "0.1.0"
       },
       "start_date": null,
-      "status": "active",
+      "status": "closed",
       "tags": [
         "p11",
         "feat-blog-ui-builder"
@@ -15242,7 +15298,7 @@
       "template_version": "1.1.0",
       "title": "受入・品質証跡の集約と検証可能性の確保",
       "tracker_binding": "beads",
-      "updated_at": "2026-08-28T13:02:37Z"
+      "updated_at": "2026-08-30T10:19:00Z"
     },
     {
       "acceptance": [
@@ -15255,7 +15311,12 @@
       ],
       "artifact_kind": "task",
       "artifact_subtypes": [],
-      "beads_linkage": null,
+      "beads_linkage": {
+        "bd_issue_id": "ah-45ba.12",
+        "github_mirror": null,
+        "linked_at": "2026-08-28T13:02:37Z",
+        "sync_state": "linked"
+      },
       "classification_candidates": [
         {
           "artifact_kind": "task",
@@ -15337,7 +15398,7 @@
         "source_version": "0.1.0"
       },
       "start_date": null,
-      "status": "active",
+      "status": "closed",
       "tags": [
         "p12",
         "feat-blog-ui-builder"
@@ -15347,7 +15408,7 @@
       "template_version": "1.1.0",
       "title": "UI規則・SEO/AI検索運用規則と運用手順の文書化",
       "tracker_binding": "beads",
-      "updated_at": "2026-08-28T13:02:37Z"
+      "updated_at": "2026-08-30T10:25:24Z"
     },
     {
       "acceptance": [
@@ -15361,7 +15422,12 @@
       ],
       "artifact_kind": "task",
       "artifact_subtypes": [],
-      "beads_linkage": null,
+      "beads_linkage": {
+        "bd_issue_id": "ah-45ba.13",
+        "github_mirror": null,
+        "linked_at": "2026-08-28T13:02:37Z",
+        "sync_state": "linked"
+      },
       "classification_candidates": [
         {
           "artifact_kind": "task",
@@ -15444,7 +15510,7 @@
         "source_version": "0.1.0"
       },
       "start_date": null,
-      "status": "active",
+      "status": "closed",
       "tags": [
         "p13",
         "feat-blog-ui-builder"
@@ -15454,7 +15520,7 @@
       "template_version": "1.1.0",
       "title": "開発環境へのリリースとsystem-specへの書き戻し",
       "tracker_binding": "beads",
-      "updated_at": "2026-08-28T13:02:37Z"
+      "updated_at": "2026-09-02T08:56:57Z"
     },
     {
       "acceptance": [

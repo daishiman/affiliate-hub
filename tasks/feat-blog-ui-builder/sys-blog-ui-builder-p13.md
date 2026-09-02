@@ -12,8 +12,8 @@ iteration: null
 title: "開発環境へのリリースとsystem-specへの書き戻し"
 owners: ["daishiman"]
 created_at: "2026-08-28T13:02:37Z"
-updated_at: "2026-08-28T13:02:37Z"
-status: "active"
+updated_at: "2026-09-02T08:56:57Z"
+status: "closed"
 depends_on: ["SYS-BLOG-UI-BUILDER-P12"]
 related_nodes: []
 resource_scope: ["docs/spec/feat-blog-ui-builder/release-report.md","system-spec/ui-ux.md","system-spec/frontend.md","system-spec/database.md"]
@@ -38,7 +38,7 @@ classification_reason: "feat-blog-ui-builder の P13 lifecycle 責務への確�
 classification_candidates: [{"artifact_kind":"task","candidate_path":"tasks/feat-blog-ui-builder/sys-blog-ui-builder-p13.md","confidence":1}]
 issue_linkage: null
 tracker_binding: "beads"
-beads_linkage: null
+beads_linkage: {"bd_issue_id":"ah-45ba.13","github_mirror":null,"linked_at":"2026-08-28T13:02:37Z","sync_state":"linked"}
 github_publication: {"labels":[],"milestone":null,"mode":"local_only","project_aliases":[]}
 github_project_linkages: []
 pull_request_linkages: []

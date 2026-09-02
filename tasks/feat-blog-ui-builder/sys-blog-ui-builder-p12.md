@@ -12,8 +12,8 @@ iteration: null
 title: "UI規則・SEO/AI検索運用規則と運用手順の文書化"
 owners: ["daishiman"]
 created_at: "2026-08-28T13:02:37Z"
-updated_at: "2026-08-28T13:02:37Z"
-status: "active"
+updated_at: "2026-08-30T10:25:24Z"
+status: "closed"
 depends_on: ["SYS-BLOG-UI-BUILDER-P10","SYS-BLOG-UI-BUILDER-P11"]
 related_nodes: []
 resource_scope: ["docs/spec/feat-blog-ui-builder/ui-rules.md","docs/spec/feat-blog-ui-builder/operations.md"]
@@ -38,7 +38,7 @@ classification_reason: "feat-blog-ui-builder の P12 lifecycle 責務への確�
 classification_candidates: [{"artifact_kind":"task","candidate_path":"tasks/feat-blog-ui-builder/sys-blog-ui-builder-p12.md","confidence":1}]
 issue_linkage: null
 tracker_binding: "beads"
-beads_linkage: null
+beads_linkage: {"bd_issue_id":"ah-45ba.12","github_mirror":null,"linked_at":"2026-08-28T13:02:37Z","sync_state":"linked"}
 github_publication: {"labels":[],"milestone":null,"mode":"local_only","project_aliases":[]}
 github_project_linkages: []
 pull_request_linkages: []

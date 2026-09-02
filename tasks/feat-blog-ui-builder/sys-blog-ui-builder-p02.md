@@ -12,8 +12,8 @@ iteration: null
 title: "データモデル・テーマ契約・コンポーネント契約・管理API契約・SEO/AI検索契約の設計"
 owners: ["daishiman"]
 created_at: "2026-08-28T13:02:37Z"
-updated_at: "2026-08-28T13:02:37Z"
-status: "active"
+updated_at: "2026-08-30T04:07:37Z"
+status: "closed"
 depends_on: ["SYS-BLOG-UI-BUILDER-P01"]
 related_nodes: []
 resource_scope: ["docs/spec/feat-blog-ui-builder/data-model.md","docs/spec/feat-blog-ui-builder/theme-contract.md","docs/spec/feat-blog-ui-builder/component-contract.md","docs/spec/feat-blog-ui-builder/admin-api-contract.md","docs/spec/feat-blog-ui-builder/seo-ai-search-contract.md"]
@@ -38,7 +38,7 @@ classification_reason: "feat-blog-ui-builder の P02 lifecycle 責務への確�
 classification_candidates: [{"artifact_kind":"task","candidate_path":"tasks/feat-blog-ui-builder/sys-blog-ui-builder-p02.md","confidence":1}]
 issue_linkage: null
 tracker_binding: "beads"
-beads_linkage: null
+beads_linkage: {"bd_issue_id":"ah-45ba.2","github_mirror":null,"linked_at":"2026-08-28T13:02:37Z","sync_state":"linked"}
 github_publication: {"labels":[],"milestone":null,"mode":"local_only","project_aliases":[]}
 github_project_linkages: []
 pull_request_linkages: []

@@ -12,9 +12,9 @@ iteration: null
 title: "Affiliate Hub (アフィリエイト一元管理)"
 owners: ["daishiman"]
 created_at: "2026-08-16T12:20:00Z"
-updated_at: "2026-08-17T05:00:58Z"
+updated_at: "2026-08-30T15:16:06Z"
 status: "active"
-depends_on: ["feat-affiliate-inbox","feat-data-model"]
+depends_on: ["feat-affiliate-inbox","feat-auth-workspace","feat-data-model"]
 related_nodes: ["spec-system-spec-index"]
 resource_scope: ["src","drizzle","docs/spec","system-spec"]
 purpose: "ASP・プログラム・リンク・成果・報酬を一箇所で管理し、リンク切れや終了を取りこぼさない"
