@@ -127,8 +127,12 @@ export async function createSiteFromDraftAction(
   }
 
   const draftId = String(formData.get("draftId") ?? "");
+  const templateId = String(formData.get("templateId") ?? "");
 
-  const result = await (await siteBuilderUseCases()).createSite.execute(actor, { draftId });
+  const result = await (await siteBuilderUseCases()).createSite.execute(actor, {
+    draftId,
+    templateId,
+  });
 
   if (!result.ok) {
     return failureFromDomainError(result.error);

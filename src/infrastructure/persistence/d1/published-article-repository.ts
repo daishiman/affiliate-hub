@@ -3,6 +3,7 @@ import type {
   EditorialPublishedArticleAdminPort,
   EditorialPublishedArticleWriterPort,
   EditorialPublishedContentPort,
+  EditorialSiteRepositoryPort,
 } from "@/application/ports/site";
 import {
   type ArticleSummary,
@@ -315,7 +316,10 @@ export function createD1PublishedArticleWriter(db: DrizzleD1): EditorialPublishe
   });
 }
 
-export function createD1ContentRepository(db: DrizzleD1): EditorialPublishedContentPort {
+export function createD1ContentRepository(
+  db: DrizzleD1,
+  sites: EditorialSiteRepositoryPort,
+): EditorialPublishedContentPort {
   /** そのブログで出した記事を、更新日の新しい順で読む。 */
   async function storedSummaries(siteSlug: string): Promise<readonly ArticleSummary[]> {
     const rows = await db
@@ -496,7 +500,7 @@ export function createD1ContentRepository(db: DrizzleD1): EditorialPublishedCont
       本物として読まれる。未整備は未整備のまま返し（null → 404）、
       どれが未整備かは管理画面の一覧で見えるようにしてある。
     */
-    findPolicyDocument: findSiteDocument({ db }),
+    findPolicyDocument: findSiteDocument({ db, sites }),
   });
 }
 

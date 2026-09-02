@@ -58,6 +58,24 @@ describe("記事を出したあとの知らせ", () => {
     expect(html).toContain("記事を公開しました");
   });
 
+  it("通知結果の記録だけ失敗しても、公開成功と記録失敗を両方表示する", () => {
+    const html = render({
+      status: "done",
+      phase: "published",
+      message: "記事を公開しました。",
+      url: "/s/quiet-desk/guides/quiet-laptop",
+      indexNow: {
+        status: "sent",
+        auditStatus: "failed",
+        detail: "1 件を通知しました。ただし、通知結果の記録を保存できませんでした。",
+      },
+    });
+
+    expect(html).toContain("記事を公開しました");
+    expect(html).toContain("検索エンジンへの更新通知");
+    expect(html).toContain("記録を保存できませんでした");
+  });
+
   it("AI 検索への備えが全て揃っていれば、点数と一言だけを出す", () => {
     const html = render({
       status: "done",

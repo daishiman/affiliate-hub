@@ -39,9 +39,13 @@ import type {
   SiteNetworkRecord,
 } from "@/application/ports/blog-ops";
 import {
+  SITE_DOCUMENT_KEYS,
+  SITE_DOCUMENT_KIND_BY_KEY,
   SITE_DOCUMENT_ONLY_STORAGE_KINDS,
   type SiteDocumentOnlyStorageKind,
+  type SiteDocumentStorageKind,
 } from "@/domain/authoring";
+import type { SiteDocument } from "@/application/ports/site";
 import { BLOG_OPS_SAMPLE_ROUTE_IDS } from "@/infrastructure/persistence/sample/blog-ops-sample-repository";
 import {
   SAMPLE_SITE_SLUG,
@@ -777,6 +781,43 @@ export function seedFixedPages(
     deletedAt: null,
     updatedAt,
   }));
+}
+
+/**
+ * 見本のブログに置くサイト文書 8 種。
+ *
+ * **`seedFixedPages` の言い換えではない。**あちらは `legal_page` の行を
+ * 保存の名札（`kind`）で並べたもので、こちらは読者に見えるルートの鍵
+ * （`SITE_DOCUMENT_KEYS`）で並べたものである。2 つの語彙は
+ * `SITE_DOCUMENT_KIND_BY_KEY` の 1 か所だけで噛み合う。
+ *
+ * 8 種すべてを返すのは、`pnpm seed:local` が 8 種すべての行を入れているからで、
+ * 「見本を本物より緩くしない」ため。ここだけ 4 種にすると、写しの上では
+ * 文書が揃っているのに D1 では欠けている、という状態が作れる。
+ */
+export function seedSiteDocuments(
+  siteKey: SeedSiteKey,
+  updatedAt: Date,
+): readonly SiteDocument[] {
+  return SITE_DOCUMENT_KEYS.map((key) => {
+    const kind = SITE_DOCUMENT_KIND_BY_KEY[key];
+    const text = isDocumentOnlyKind(kind)
+      ? SITE_DOCUMENT_ONLY_TEXT[kind]
+      : { title: FIXED_PAGE_LABEL[kind], body: LEGAL_PAGE_BODY[kind] };
+    return {
+      key,
+      title: text.title,
+      // 保存先は 1 本の文字列、読み口は段落の配列。境目はここ 1 か所。
+      body: text.body.split("\n"),
+      updatedAt,
+    };
+  });
+}
+
+function isDocumentOnlyKind(
+  kind: SiteDocumentStorageKind,
+): kind is SiteDocumentOnlyStorageKind {
+  return (SITE_DOCUMENT_ONLY_STORAGE_KINDS as readonly string[]).includes(kind);
 }
 
 /**

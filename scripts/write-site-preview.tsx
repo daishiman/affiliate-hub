@@ -61,10 +61,10 @@ import {
   seedArticleBlocks,
   seedArticleRecord,
   seedDeliveryParts,
-  seedFixedPages,
   seedLayoutBands,
   seedLayoutSlots,
   seedNetwork,
+  seedSiteDocuments,
   seedSiteSlug,
   seedTags,
   type SeedSiteKey,
@@ -150,11 +150,8 @@ function seedPublicBlogPort(): PublicBlogPort {
         async listTags() {
           return ok(seedTags().filter((tag) => tag.siteSlug === siteSlug));
         },
-        async listFixedPages() {
-          return ok(seedFixedPages(siteKey, NOW));
-        },
-        async listProvisionedFixedPages() {
-          return ok(seedFixedPages(siteKey, NOW));
+        async listDocuments() {
+          return ok(seedSiteDocuments(siteKey, NOW));
         },
       };
       return ok(reader);

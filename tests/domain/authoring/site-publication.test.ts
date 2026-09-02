@@ -91,7 +91,7 @@ describe("evaluateSiteComposition", () => {
 
   it("作成の必須実体が足りなければ、開けても作成完了にしない", () => {
     const report = evaluateSiteComposition(
-      withZero("fixed_pages", "layout_bands", "layout_slots", "categories"),
+      withZero("site_documents", "layout_bands", "layout_slots", "categories"),
     );
 
     expect(report.reachable, "薄いだけで開けなくなってはいけない").toBe(true);
@@ -111,24 +111,27 @@ describe("evaluateSiteComposition", () => {
   });
 
   it("件数があっても必須の内訳が不完全な要素は不足にする", () => {
-    const report = evaluateSiteComposition(FULL, ["fixed_pages"]);
+    const report = evaluateSiteComposition(FULL, ["site_documents"]);
 
-    expect(report.counts.fixed_pages).toBe(SITE_PROVISIONING_REQUIRED_COUNTS.fixed_pages);
+    // 件数は満ちている（FULL = 公開準備に要る全種）。それでも内訳が不完全なら不足にする、が主題。
+    // 作成側の必須（`SITE_PROVISIONING_REQUIRED_COUNTS.site_documents`）は 0 なので、
+    // ここでそちらと比べると「満ちている」の前提が崩れる。
+    expect(report.counts.site_documents).toBe(SITE_CONTENT_REQUIRED_COUNTS.site_documents);
     expect(report.provisioningComplete).toBe(true);
     expect(report.contentReady).toBe(false);
-    expect(report.gaps.map((gap) => gap.element)).toEqual(["fixed_pages"]);
+    expect(report.gaps.map((gap) => gap.element)).toEqual(["site_documents"]);
   });
 
   it("固定ページ8種が下書きで実体化されていれば作成は完了、公開準備は未完了", () => {
     const report = evaluateSiteComposition(
       { ...SITE_PROVISIONING_REQUIRED_COUNTS, articles: 0 },
-      ["fixed_pages"],
+      ["site_documents"],
     );
 
     expect(report.reachable).toBe(true);
     expect(report.provisioningComplete).toBe(true);
     expect(report.contentReady).toBe(false);
-    expect(report.gaps.map((gap) => gap.element)).toEqual(["fixed_pages", "articles"]);
+    expect(report.gaps.map((gap) => gap.element)).toEqual(["site_documents", "articles"]);
   });
 
   it("不足には、画面に出す言葉と直し方が必ず付く", () => {

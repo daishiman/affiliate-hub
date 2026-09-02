@@ -158,10 +158,11 @@ describe("作る段階", () => {
     expect(html).toContain("disabled");
   });
 
-  it("全部埋まっていれば、理由の表示を出さずに押せる状態にする", () => {
+  it("既存の段階が全部埋まっていても、見せ方を選ぶまでは作成を押せない", () => {
     const html = render(aDraftView(createStep));
     expect(html).not.toContain("まだ埋まっていない段階があります");
-    expect(html).not.toContain("disabled");
+    expect(html).toContain("6 種から選んでください");
+    expect(html).toContain("disabled");
     expect(html).toContain("このブログを作る");
   });
 

@@ -17,11 +17,11 @@ export async function GET(
   const { site } = await context.params;
   const loaded = await loadSeoSite(request, site, SEO_ARTICLE_POLICY.completeIndex);
   if (!loaded.ok) return loaded.response;
-  const { origin, basePath, articles } = loaded.value;
-  const capacityError = completeArticleSetError(articles);
+  const { origin, basePath, items } = loaded.value;
+  const capacityError = completeArticleSetError(items);
   if (capacityError !== null) return capacityError;
   return seoTextResponse(
-    buildSitemapXml(origin, basePath, sitemapEntries(articles)),
+    buildSitemapXml(origin, basePath, sitemapEntries(items)),
     "application/xml; charset=utf-8",
   );
 }

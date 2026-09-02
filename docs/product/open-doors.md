@@ -11,7 +11,7 @@
 
 適用範囲: `/admin` 以下（読者のページとログインの往復は通す）
 
-開いている扉: **0 件** / 全 195 件
+開いている扉: **0 件** / 全 198 件
 
 「誰でも」と宣言してある行: **40 件**
 （宣言すればその扉は差の数から消える。だから宣言の件数そのものにも上限がある）
@@ -192,9 +192,11 @@
 | `src/app/admin/site-network/deleted/page.tsx` | 管理画面 | ログイン | ログイン | — |
 | `src/app/admin/site-network/new/page.tsx` | 管理画面 | ログイン | ログイン | — |
 | `src/app/admin/site-network/page.tsx` | 管理画面 | ログイン | ログイン | — |
+| `src/app/admin/sites/[site]/appearance/page.tsx` | 管理画面 | ログイン | ログイン | — |
 | `src/app/admin/sites/[site]/documents/page.tsx` | 管理画面 | ログイン | ログイン | — |
 | `src/app/admin/sites/[site]/edit/page.tsx` | 管理画面 | ログイン | ログイン | — |
 | `src/app/admin/sites/[site]/page.tsx` | 管理画面 | ログイン | ログイン | — |
+| `src/app/admin/sites/[site]/placements/page.tsx` | 管理画面 | ログイン | ログイン | — |
 | `src/app/admin/sites/new/page.tsx` | 管理画面 | ログイン | ログイン | — |
 | `src/app/admin/sites/page.tsx` | 管理画面 | ログイン | ログイン | — |
 | `src/app/admin/tools/page.tsx` | 管理画面 | ログイン | ログイン | — |
@@ -306,10 +308,11 @@
 | `editDisclosureAction()` | 広告であることの断り書きを登録・変更する（読者に出る文が変わる）（src/presentation/admin/maintain/compliance-action.ts） | ログイン | ログイン | — | つく |
 | `editPolicyRuleAction()` | 表記のきまりを足す・止める・効かせ直す（止めている間は記事の表現が確認されない）（src/presentation/admin/maintain/compliance-action.ts） | ログイン | ログイン | — | つく |
 | `handOffFeedbackAction()` | 指摘を引き継ぐ（src/presentation/admin/feedback-action.ts） | ログイン | ログイン | — | つく |
+| `manageBlogAppearanceAction()` | ブログの見せ方と配色を決める（ページ単位の例外を含む）（src/presentation/admin/publish/blog-appearance-action.ts） | ログイン | ログイン | — | つく |
 | `manageBlogArticleAction()` | 記事を作る・直す・論理削除し、本文・タグ・評価ごと同じURLへ復元する（src/presentation/admin/publish/blog-article-action.ts） | ログイン | ログイン | — | つく |
 | `manageBlogDeliveryAction()` | 配信部品を出し入れする（src/presentation/admin/publish/blog-layout-action.ts） | ログイン | ログイン | — | つく |
 | `manageBlogLayoutAction()` | 版面の枠と帯を並べ替える・出し入れする（src/presentation/admin/publish/blog-layout-action.ts） | ログイン | ログイン | — | つく |
-| `manageBlogPageAction()` | 固定ページを作る・直す・論理削除し、削除済み一覧から元の本文と公開状態で復元する（src/presentation/admin/publish/blog-page-action.ts） | ログイン | ログイン | — | つく |
+| `manageBlogPlacementAction()` | 記事のどこに成果リンクを出しているかを台帳へ記録する・外す（src/presentation/admin/publish/blog-placement-action.ts） | ログイン | ログイン | — | つく |
 | `manageBlogRatingAction()` | 読者が付けた評価を伏せる・戻す（票は消えず、平均と件数から外れるだけ）（src/presentation/admin/publish/blog-rating-action.ts） | ログイン | ログイン | — | つく |
 | `manageGuidelineReferenceAction()` | SEO/AI 指針の出典を登録する・確認日を更新する（一覧に残り、後から直せる）（src/presentation/admin/maintain/guideline-reference-action.ts） | ログイン | ログイン | — | つく |
 | `manageSiteNetworkAction()` | サイト網の枝を足す・直す・論理削除し、削除済み一覧から同じURLへ復元する（src/presentation/admin/publish/site-network-action.ts） | ログイン | ログイン | — | つく |
@@ -333,4 +336,4 @@
 | `updateProductAction()` | 商品の内容を直す（src/presentation/admin/material/product-form-action.ts） | ログイン | ログイン | — | つく |
 | `updatePublishedArticleAction()` | 公開済み記事を訂正する（src/presentation/admin/publish/published-article-action.ts） | ログイン | ログイン | — | つく |
 | `updateWorkspaceAction()` | 作業場所の名前・契約の区分・時間帯・通貨を直す（src/presentation/admin/maintain/settings-form-action.ts） | ログイン | ログイン | — | つく |
-<!-- 生成物の指紋 sha256:620c7b2b9d9d2551399703ae32b168f443c58d223f85f5270c65a82014bd59fe -->
+<!-- 生成物の指紋 sha256:7615e2d0fe7cc1c7282f947205f30ef3921bb15d913a2be4fdc2f353f081f5cf -->

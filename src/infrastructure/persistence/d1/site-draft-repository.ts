@@ -10,8 +10,6 @@ import {
   type SiteDraft,
 } from "@/domain/authoring";
 import {
-  FIXED_PAGE_KINDS,
-  FIXED_PAGE_LABEL,
   defaultLayoutBandSeeds,
   defaultLayoutSlotSeeds,
 } from "@/domain/blogops";
@@ -30,7 +28,8 @@ import {
   blogLayoutBands,
   blogLayoutSlots,
   auditLogs,
-  legalPages,
+  blogTemplateSelections,
+  blogThemes,
   siteBlueprints,
   siteNetworkNodes,
   siteRetirements,
@@ -208,9 +207,9 @@ export function createD1SiteDraftRepository(db: DrizzleD1): EditorialSiteDraftRe
       }
     },
 
-    async publishBlueprint(slug: string, blueprint: SiteBlueprint) {
+    async publishBlueprint(slug: string, blueprint: SiteBlueprint, appearance) {
       try {
-        const saved = await db
+        const blueprintMutation = db
           .insert(siteBlueprints)
           .values({
             id: String(blueprint.id),
@@ -236,6 +235,59 @@ export function createD1SiteDraftRepository(db: DrizzleD1): EditorialSiteDraftRe
             setWhere: eq(siteBlueprints.workspaceId, String(blueprint.workspaceId)),
           })
           .returning({ workspaceId: siteBlueprints.workspaceId });
+        const saved =
+          appearance === undefined
+            ? await blueprintMutation
+            : (
+                await db.batch([
+                  blueprintMutation,
+                  db
+                    .insert(blogTemplateSelections)
+                    // appearanceは「同じworkspaceの設計図が保存できた」場合だけ作る。
+                    // values()で無条件に入れると、slug競合でblueprintが0行でも
+                    // batchの後続だけが残り、正規ownerの保存を妨害できてしまう。
+                    .select(sql`
+                      SELECT
+                        ${`bt_${String(blueprint.id)}`},
+                        ${String(blueprint.workspaceId)},
+                        ${slug},
+                        ${appearance.templateId},
+                        unixepoch()
+                      FROM ${siteBlueprints}
+                      WHERE ${siteBlueprints.slug} = ${slug}
+                        AND ${siteBlueprints.workspaceId} = ${String(blueprint.workspaceId)}
+                    `)
+                    .onConflictDoUpdate({
+                      target: blogTemplateSelections.siteSlug,
+                      set: { templateId: appearance.templateId, updatedAt: new Date() },
+                      setWhere: eq(
+                        blogTemplateSelections.workspaceId,
+                        String(blueprint.workspaceId),
+                      ),
+                    }),
+                  db
+                    .insert(blogThemes)
+                    .select(sql`
+                      SELECT
+                        ${`bth_${String(blueprint.id)}`},
+                        ${String(blueprint.workspaceId)},
+                        ${slug},
+                        ${appearance.theme.brandTheme},
+                        ${appearance.theme.colorMode}
+                      FROM ${siteBlueprints}
+                      WHERE ${siteBlueprints.slug} = ${slug}
+                        AND ${siteBlueprints.workspaceId} = ${String(blueprint.workspaceId)}
+                    `)
+                    .onConflictDoUpdate({
+                      target: blogThemes.siteSlug,
+                      set: {
+                        brandTheme: appearance.theme.brandTheme,
+                        colorMode: appearance.theme.colorMode,
+                      },
+                      setWhere: eq(blogThemes.workspaceId, String(blueprint.workspaceId)),
+                    }),
+                ] as const)
+              )[0];
         if (saved.length === 0) {
           return err(
             domainError("CONFLICT", "この URL の名前は使えません。", {
@@ -272,7 +324,7 @@ export function createD1SiteDraftRepository(db: DrizzleD1): EditorialSiteDraftRe
         }
 
         /*
-         * 設計図・住所・固定ページ・帯・枠・下書き完了・監査を 1 回で書く。
+         * 設計図・住所・見せ方・帯・枠・下書き完了・監査を 1 回で書く。
          *
          * ここを 4 回の書き込みに分けると、設計図だけ書けて住所が書けない
          * 状態が正常系として残りうる。それがこの機能を作る原因になった
@@ -338,20 +390,30 @@ export function createD1SiteDraftRepository(db: DrizzleD1): EditorialSiteDraftRe
                 position: seed.position,
               }),
           ),
-          ...FIXED_PAGE_KINDS.map((kind) =>
-            db.insert(legalPages).values({
-              id: `lp_${crypto.randomUUID()}`,
-              workspaceId,
-              siteSlug: slug,
-              kind,
-              title: FIXED_PAGE_LABEL[kind],
-              // 法的・運営上の文言を勝手に作らない。実体だけを下書きで作る。
-              body: "",
-              status: "draft",
-              deletedAt: null,
-              updatedAt: now,
-            }),
-          ),
+          /*
+            サイト文書（運営者情報・各方針）の空の枠はここで作らない。
+
+            以前は 8 枚を `body: ""` の下書きで置いていた。行があると
+            「整備済み」に数えられ、まだ 1 文字も書かれていない運営者情報が
+            作成完了の根拠になる。文書は**書いたときに 1 枚できる**。
+            不足は作成を止めず、構成レポートの `degrading` として残す。
+          */
+          // 見せ方と色。設計図と同じ batch に置く。別の書き込みに分けると
+          // 「作れたが既定の見た目のまま」が正常系として残る。
+          db.insert(blogTemplateSelections).values({
+            id: `bt_${String(blueprint.id)}`,
+            workspaceId,
+            siteSlug: slug,
+            templateId: request.appearance.templateId,
+            updatedAt: now,
+          }),
+          db.insert(blogThemes).values({
+            id: `bth_${String(blueprint.id)}`,
+            workspaceId,
+            siteSlug: slug,
+            brandTheme: request.appearance.theme.brandTheme,
+            colorMode: request.appearance.theme.colorMode,
+          }),
           db
             .update(siteDrafts)
             .set({
@@ -372,14 +434,11 @@ export function createD1SiteDraftRepository(db: DrizzleD1): EditorialSiteDraftRe
           db.insert(auditLogs).values(auditLogValues(audit)),
         ]);
 
-        const composition = evaluateSiteComposition(
-          {
-            ...SITE_PROVISIONING_REQUIRED_COUNTS,
-            categories: blueprint.categories.length,
-            articles: 0,
-          },
-          ["fixed_pages"],
-        );
+        const composition = evaluateSiteComposition({
+          ...SITE_PROVISIONING_REQUIRED_COUNTS,
+          categories: blueprint.categories.length,
+          articles: 0,
+        });
         return ok({ blueprint, composition });
       } catch (cause) {
         return storageFailure("ブログの作成", cause);

@@ -1,0 +1,14 @@
+記事の表現ブロック / SEO 標準ブロックの実測
+取得: 2026-08-30
+採取方法: 描画済み HTML の <main> から見出し階層を抽出
+
+
+## /s/home-office-desk/blog/starter-kit-2026
+見出し 2 個
+  H1  はじめての編集机まわり おすすめ 5 選
+  H2  この記事の評価
+
+## /s/home-office-desk/blog/choosing-a-laptop-for-long-timeline-editing
+見出し 2 個
+  H1  長い尺の編集で止まらないノートパソコンの選び方と、買う前に確かめておきたい 7 つのこと
+  H2  この記事の評価

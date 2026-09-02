@@ -4,12 +4,13 @@
  * @types contract
  */
 import { describe, expect, it, vi } from "vitest";
-import { SITE_PROVISIONING_REQUIRED_COUNTS } from "@/domain/authoring";
-import { FIXED_PAGE_KINDS } from "@/domain/blogops";
+import {
+  SITE_DOCUMENT_KEYS,
+  SITE_PROVISIONING_REQUIRED_COUNTS,
+} from "@/domain/authoring";
 import { err, ok } from "@/domain/shared";
 import {
   projectPublicSiteComposition,
-  projectPublicSiteChrome,
   readPublicSiteProjection,
   type PublicSiteProjection,
 } from "@/presentation/site/public-site-projection";
@@ -33,77 +34,58 @@ function projectionWith(
     articles: [],
     network: [{}] as never,
     tags: [],
-    provisionedFixedPages: [],
-    fixedPages: [],
+    documents: [],
     deliveryParts: [],
-    chrome: { headerSlots: [], footerSlots: [], fixedPageLinks: [] },
+    chrome: { headerSlots: [], footerSlots: [] },
     ...over,
   };
 }
 
 describe("PublicSiteProjection", () => {
-  it("設計図に固定ページ宣言があっても実固定ページ0件なら公開準備完了にしない", () => {
+  it("設計図に文書宣言があっても実サイト文書 0 件なら公開準備完了にしない", () => {
     const report = projectPublicSiteComposition(projectionWith());
 
-    expect(report.counts.fixed_pages).toBe(0);
+    expect(report.counts.site_documents).toBe(0);
     expect(report.reachable).toBe(true);
     expect(report.provisioningComplete).toBe(false);
     expect(report.contentReady).toBe(false);
-    expect(report.gaps.map((gap) => gap.element)).toContain("fixed_pages");
+    expect(report.gaps.map((gap) => gap.element)).toContain("site_documents");
   });
 
-  it("実固定ページが一部だけなら、実件数を保ったまま未完了にする", () => {
+  it("実サイト文書が一部だけなら、実件数を保ったまま未完了にする", () => {
     const report = projectPublicSiteComposition(
       projectionWith({
-        provisionedFixedPages: [
+        documents: [
           {
-            id: "page-profile",
-            siteSlug: "hub",
-            kind: "profile",
+            key: "operator",
             title: "運営者",
-            body: "本文",
-            status: "published",
-            deletedAt: null,
-            updatedAt: new Date("2026-08-27T00:00:00.000Z"),
-          },
-        ],
-        fixedPages: [
-          {
-            id: "page-profile",
-            siteSlug: "hub",
-            kind: "profile",
-            title: "運営者",
-            body: "本文",
-            status: "published",
-            deletedAt: null,
+            body: ["本文"],
             updatedAt: new Date("2026-08-27T00:00:00.000Z"),
           },
         ],
       }),
     );
 
-    expect(report.counts.fixed_pages).toBe(1);
-    expect(report.missingFixedPages.length).toBeGreaterThan(0);
+    expect(report.counts.site_documents).toBe(1);
+    expect(report.missingDocuments.length).toBeGreaterThan(0);
     expect(report.provisioningComplete).toBe(false);
     expect(report.contentReady).toBe(false);
-    expect(report.gaps.map((gap) => gap.element)).toContain("fixed_pages");
+    expect(report.gaps.map((gap) => gap.element)).toContain("site_documents");
   });
 
-  it("8 種の下書き固定ページは作成完了に数えるが、公開準備完了にはしない", () => {
-    const provisionedFixedPages = FIXED_PAGE_KINDS.map((kind) => ({
-      id: `page-${kind}`,
-      siteSlug: "hub",
-      kind,
-      title: kind,
-      body: "",
-      status: "draft" as const,
-      deletedAt: null,
-      updatedAt: new Date("2026-08-27T00:00:00.000Z"),
-    }));
+  /*
+    以前ここは「8 種の下書き固定ページは作成完了に数える」を固定していた。
+    空の枠を 8 行先に作る作りをやめた（`SITE_PROVISIONING_REQUIRED_COUNTS`
+    の `site_documents: 0`）ので、確かめる中身も裏返す。
+
+    **「0 件でも作成完了」は緩めたのではない。**まだ 1 文字も書かれていない
+    運営者情報を「整備済み」と数える形をやめた結果で、不足は
+    `missingDocuments` と `degrading` な gap として画面に残り続ける。
+  */
+  it("サイト文書が 1 件も無くても作成完了と数え、公開準備完了にはしない", () => {
     const report = projectPublicSiteComposition(
       projectionWith({
-        provisionedFixedPages,
-        fixedPages: [],
+        documents: [],
         provisionedBands: Array.from(
           { length: SITE_PROVISIONING_REQUIRED_COUNTS.layout_bands },
           () => ({}),
@@ -115,10 +97,13 @@ describe("PublicSiteProjection", () => {
       }),
     );
 
-    expect(report.counts.fixed_pages).toBe(FIXED_PAGE_KINDS.length);
+    expect(report.counts.site_documents).toBe(0);
     expect(report.provisioningComplete).toBe(true);
     expect(report.contentReady).toBe(false);
-    expect(report.missingFixedPages).toEqual(FIXED_PAGE_KINDS);
+    expect(report.missingDocuments).toEqual(SITE_DOCUMENT_KEYS);
+    expect(
+      report.gaps.find((gap) => gap.element === "site_documents")?.severity,
+    ).toBe("degrading");
   });
 
   it("公開投影の記事を構成要素から漏らさない", () => {
@@ -140,8 +125,7 @@ describe("PublicSiteProjection", () => {
       listPublished: vi.fn(async () => ok([])),
       listNetwork: vi.fn(async () => ok([])),
       listTags: vi.fn(async () => ok([])),
-      listProvisionedFixedPages: vi.fn(async () => ok([])),
-      listFixedPages: vi.fn(async () => ok([])),
+      listDocuments: vi.fn(async () => ok([])),
       listDeliveryParts: vi.fn(async () => ok([])),
       findArticleBySlug: vi.fn(async () => ok(null)),
       findSourceArticleId: vi.fn(async () => ok(null)),
@@ -164,8 +148,7 @@ describe("PublicSiteProjection", () => {
       reader.listPublished,
       reader.listNetwork,
       reader.listTags,
-      reader.listProvisionedFixedPages,
-      reader.listFixedPages,
+      reader.listDocuments,
       reader.listDeliveryParts,
     ]) {
       expect(read).toHaveBeenCalledTimes(1);
@@ -185,8 +168,7 @@ describe("PublicSiteProjection", () => {
       listPublished: vi.fn(async () => ok([])),
       listNetwork: vi.fn(async () => ok([])),
       listTags: vi.fn(async () => err({ kind: "storage", message: "タグが読めません" })),
-      listProvisionedFixedPages: vi.fn(async () => ok([])),
-      listFixedPages: vi.fn(async () => ok([])),
+      listDocuments: vi.fn(async () => ok([])),
       listDeliveryParts: vi.fn(async () => ok([])),
       findArticleBySlug: vi.fn(async () => ok(null)),
       findSourceArticleId: vi.fn(async () => ok(null)),
@@ -207,25 +189,36 @@ describe("PublicSiteProjection", () => {
     expect(port.openSite).toHaveBeenCalledTimes(1);
   });
 
-  it("公開中の固定ページを正本 URL で footer へ投影する", () => {
-    const chrome = projectPublicSiteChrome("hub", {
-      fixedPages: [
-        {
-          id: "page-profile",
-          siteSlug: "hub",
-          kind: "profile",
-          title: "運営者",
-          body: "本文",
-          status: "published",
-          deletedAt: null,
-          updatedAt: new Date("2026-08-27T00:00:00.000Z"),
-        },
-      ],
-      slots: [],
+  it("公開投影は旧固定ページ一覧へ依存せず、正本文書の可否を各canonical routeへ委ねる", async () => {
+    const reader = {
+      blueprint: {} as never,
+      listLayoutSlots: async () => ok([]),
+      listLayoutBands: async () => ok([]),
+      // 描画用（enabled のみ）とは別に、作成完了の判定が読む「未削除の実体」。
+      // ここを省くと、版面が 0 枚のまま provisioningComplete を語れなくなる。
+      listProvisionedLayoutSlots: async () => ok([]),
+      listProvisionedLayoutBands: async () => ok([]),
+      listPublished: async () => ok([]),
+      findSourceArticleId: async () => ok(null),
+      listNetwork: async () => ok([]),
+      listTags: async () => ok([]),
+      listDocuments: async () => ok([]),
+      listDeliveryParts: async () => ok([]),
+      findArticleBySlug: async () => ok(null),
+    };
+
+    const result = await readPublicSiteProjection("hub", {
+      source: "sample",
+      port: { openSite: async () => ok(reader) },
     });
 
-    expect(chrome.fixedPageLinks).toEqual([
-      { href: "/s/hub/profile", label: "運営者" },
-    ]);
+    expect(result.ok && result.value).not.toBeNull();
+    if (result.ok && result.value !== null) {
+      expect(result.value).not.toHaveProperty("fixedPages");
+      expect(result.value.chrome).not.toHaveProperty("fixedPageLinks");
+      // 正本は `documents` 1 本。旧語彙が消えたことと、新語彙が生えたことを
+      // 同じ箇所で見る。片方だけ確かめると、両方無い状態が緑になる。
+      expect(result.value.documents).toEqual([]);
+    }
   });
 });

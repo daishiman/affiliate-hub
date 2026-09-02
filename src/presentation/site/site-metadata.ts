@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
-import { headers } from "next/headers";
 import { articleHref } from "@/application/read-models/published-article";
 import { siteBasePathBySlug } from "@/domain/authoring/site";
 import { readerActor, siteUseCases } from "@/presentation/composition";
+import { requestOriginFromNextHeaders } from "@/presentation/http/request-origin";
 
 /**
  * generateMetadata の中身（feat-blog-ui-builder §SEO/AI 検索）。
@@ -46,23 +46,8 @@ export function siteCanonicalPath(siteSlug: string, path = ""): string {
  * いる場合は、推測したcanonicalを配らずnullにする。
  */
 export async function siteMetadataUrl(siteSlug: string, path = ""): Promise<string | null> {
-  const requestHeaders = await headers();
-  const forwardedHost = requestHeaders.get("x-forwarded-host");
-  const rawHost = (forwardedHost ?? requestHeaders.get("host"))?.split(",", 1)[0]?.trim();
-  if (!rawHost || /[\s/@\\]/u.test(rawHost)) return null;
-
-  const rawProtocol = requestHeaders
-    .get("x-forwarded-proto")
-    ?.split(",", 1)[0]
-    ?.trim()
-    .toLowerCase();
-  const protocol = rawProtocol === "http" ? "http" : "https";
-  try {
-    const origin = new URL(`${protocol}://${rawHost}`).origin;
-    return `${origin}${siteCanonicalPath(siteSlug, path)}`;
-  } catch {
-    return null;
-  }
+  const origin = await requestOriginFromNextHeaders();
+  return origin === null ? null : `${origin}${siteCanonicalPath(siteSlug, path)}`;
 }
 
 export async function siteHomeMetadata(siteSlug: string): Promise<Metadata> {

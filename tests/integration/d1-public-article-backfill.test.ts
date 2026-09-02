@@ -49,7 +49,7 @@ async function openBeforeCanonical(): Promise<Proxy> {
 }
 
 async function applyCanonical(target: Proxy): Promise<void> {
-  for (const statement of statements(path.join(DRIZZLE_DIR, "0042_canonical_public_articles.sql"))) {
+  for (const statement of statements(path.join(DRIZZLE_DIR, "0043_canonical_public_articles.sql"))) {
     await target.env.DB.prepare(statement).run();
   }
 }
@@ -235,7 +235,7 @@ describe("canonical public article forward backfill", () => {
   });
 
   it("backfill UPDATE/INSERT を再実行しても公開行を増減・上書きしない", async () => {
-    const file = path.resolve(process.cwd(), "drizzle/0042_canonical_public_articles.sql");
+    const file = path.resolve(process.cwd(), "drizzle/0043_canonical_public_articles.sql");
     const dataStatements = statements(file).filter(
       (statement) =>
         statement.includes("UPDATE `articles`") ||

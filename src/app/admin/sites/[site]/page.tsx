@@ -1,9 +1,15 @@
+import { BRAND_THEME_LABELS, COLOR_MODE_LABELS } from "@/domain/authoring/site-blueprint";
 import { AdminShell } from "@/presentation/admin/admin-shell";
 import { adminOperation } from "@/presentation/admin/admin-operation-manifest";
 import { DeleteConfirm } from "@/presentation/admin/delete-confirm";
 import { deleteManagedSiteAction } from "@/presentation/admin/delete-form-action";
 import type { SuccessOf } from "@/presentation/admin/use-case-result";
-import { currentActor, platformUseCases, siteSampleNotice } from "@/presentation/composition";
+import {
+  currentActor,
+  platformUseCases,
+  publicBlogAppearance,
+  siteSampleNotice,
+} from "@/presentation/composition";
 import { hasSiteOverrides, siteOverrideReason } from "@/presentation/sites";
 import {
   ActionNote,
@@ -42,6 +48,7 @@ export default async function SiteDetailPage({
     ? await platform.inspectComposition.execute(actor, { siteSlug })
     : null;
 
+
   /*
     骨格を 2 回書かない。失敗しても出す骨格は同じで、変わるのは題と中身だけ。
     早期 return で骨格ごと分けると、パンくずや戻り先を片方だけ直した状態が作れる。
@@ -66,6 +73,20 @@ export default async function SiteDetailPage({
           */}
           <TextLink href={`/admin/sites/${encodeURIComponent(siteSlug)}/documents`}>
             固定ページ
+          </TextLink>
+          {/*
+            **見せ方と掲載の口を、ここに出す（P08 の移行）。**
+
+            この 2 画面は P05 で足されたが、入口はどこにも無かった。
+            住所を知っている人だけが開ける状態で、`/admin/sites/[site]` から
+            辿れないので、配色を変えたい運営者はこの画面の「色の組み合わせ」を
+            見て、それが読めない値だと気付かないまま引き返していた。
+          */}
+          <TextLink href={`/admin/sites/${encodeURIComponent(siteSlug)}/appearance`}>
+            見せ方と配色
+          </TextLink>
+          <TextLink href={`/admin/sites/${encodeURIComponent(siteSlug)}/placements`}>
+            掲載の台帳
           </TextLink>
           <TextLink href="/admin/sites">ブログの一覧へ戻る</TextLink>
         </>
@@ -214,10 +235,38 @@ function SiteReachability({
   );
 }
 
-function SiteBody({ siteSlug, value }: { readonly siteSlug: string; readonly value: SiteView }) {
+/**
+ * **設計図の配色をそのまま出さない（P08 の移行）。**
+ *
+ * 2026-08-30 まで、この画面は `blueprint.theme` の 4 項目を「このブログの配色」
+ * として出していた。P05 が `blog_theme` / `page_theme_override` を足し、
+ * 公開面はそちらを読むようになった時点で、**この画面の数字は読者に効かなくなった**。
+ * それでも同じ場所に同じ顔で出ていたので、見分けはつかなかった。
+ *
+ * 読者に効いている値を読む口（`publicBlogAppearance`）を通す。管理画面から
+ * 読んでも安全なのは、あれが読み取りだけで能力を要求しないためである。
+ * 保存先が無い実行では `resolved: false` で設計図の値へ落ちる——そのときは
+ * 「落ちた」と画面に書く。落ちたことを黙ると、また同じ取り違えが起きる。
+ */
+async function SiteBody({
+  siteSlug,
+  value,
+}: {
+  readonly siteSlug: string;
+  readonly value: SiteView;
+}) {
   const operation = adminOperation("site.delete");
   const { summary, blueprint, routes, axes } = value;
   const emptyAxes = axes.filter((a) => a.value.trim() === "");
+  const appearancePath = `/admin/sites/${encodeURIComponent(siteSlug)}/appearance`;
+  const appearance = await publicBlogAppearance({
+    siteSlug,
+    pagePath: "/",
+    fallback: {
+      brandTheme: blueprint.theme.brandTheme,
+      colorMode: blueprint.theme.colorScheme,
+    },
+  });
 
   return (
     <>
@@ -235,14 +284,6 @@ function SiteBody({ siteSlug, value }: { readonly siteSlug: string; readonly val
             { key: "pattern", label: "型", value: summary.patternLabel },
             { key: "genre", label: "扱う分野", value: blueprint.genre },
             { key: "revenue", label: "収益の形", value: summary.revenueModelLabel },
-            { key: "theme", label: "色の組み合わせ", value: blueprint.theme.brandTheme },
-            {
-              key: "density",
-              label: "余白の詰め方",
-              value: blueprint.theme.density === "compact" ? "詰める" : "ゆったり",
-            },
-            { key: "radius", label: "角の丸み", value: blueprint.theme.radius },
-            { key: "scheme", label: "明暗の切り替え", value: blueprint.theme.colorScheme },
             {
               key: "llms",
               label: "AI 向けの案内ファイル",
@@ -254,9 +295,66 @@ function SiteBody({ siteSlug, value }: { readonly siteSlug: string; readonly val
 
       {/*
         公開できるかは「このブログは読者に届くか」の節へ移した。
-        開けるか（保存先の行）と公開できるか（固定ページ）は同じ問いの裏表で、
+        開けるか（保存先の行）と公開できるか（サイト文書）は同じ問いの裏表で、
         別々の注意書きにすると片方だけ緑という並びが作れる。
       */}
+
+      {/*
+        **配色は独立した節にする（P08 の移行）。**
+
+        上の「位置づけ」に混ぜていたのが取り違えの原因だった。位置づけの項目は
+        設計図に書いてあるものがそのまま読者に効くが、配色だけは
+        `blog_theme` / `page_theme_override` を解決した結果が効く。
+        出所の違う値を同じ表に並べると、片方だけ古いことに気付けない。
+      */}
+      <Section
+        title="読者に出ている配色"
+        lead="ここは設計図ではなく、保存された配色（ブログ既定とページ単位の例外）を解いた結果です。"
+      >
+        {/*
+          **注意書き（Callout）にしない。** この画面の常時表示の注意書きは
+          上限 2 個で（`tests/ui/uiux-spacing-and-copy.test.ts`）、既に
+          「公開できません」と「観点が空欄」が使っている。3 個目を足すと、
+          金銭と公開に関わる警告の重みが薄まる。ここは事実の断り書きなので
+          値の並びの前に地の文で置く。
+        */}
+        {appearance.resolved ? null : (
+          <Prose>
+            保存された配色をまだ読めていません（保存先につながっていないか、このブログの配色を
+            1 度も保存していない）。下の値は設計図の既定で、保存先のある実行では別の色が出ます。
+          </Prose>
+        )}
+        <FactList
+          rows={[
+            {
+              key: "brandTheme",
+              label: "色の組み合わせ",
+              value: BRAND_THEME_LABELS[appearance.appearance.brandTheme],
+            },
+            {
+              key: "colorMode",
+              label: "明暗の切り替え",
+              value: COLOR_MODE_LABELS[appearance.appearance.colorMode],
+            },
+            /*
+              余白と角丸は 2 層の対象外で、設計図の値がそのまま効く。
+              **同じ表に置くが、出所を値の側に書く。** 書かないと
+              「配色を変えたのに余白が変わらない」の理由が画面から消える。
+            */
+            {
+              key: "density",
+              label: "余白の詰め方",
+              value: `${blueprint.theme.density === "compact" ? "詰める" : "ゆったり"}（設計図）`,
+            },
+            { key: "radius", label: "角の丸み", value: `${blueprint.theme.radius}（設計図）` },
+          ]}
+        />
+        <Prose>
+          変えるには <TextLink href={appearancePath}>見せ方と配色</TextLink> を開きます。
+          この画面からは変えられません（同じものを 2 か所で直せると、後から書いたほうが
+          静かに勝ちます）。
+        </Prose>
+      </Section>
 
       <Section title="ほかのブログとの違い（10 個の観点）">
         {emptyAxes.length > 0 ? (

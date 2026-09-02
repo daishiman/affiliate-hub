@@ -5,10 +5,10 @@
 宣言は `docs/product/required-test-types.md`、語彙と上限は `quality-gates.config.mjs` が正本。
 
 - 最終更新: 2026-09-02
-- 要件表の要件: 290 件
-- 性質を宣言済: 285 件
+- 要件表の要件: 291 件
+- 性質を宣言済: 286 件
 - **未宣言: 5 件**（上限 5 件）
-- 理由つきの除外: 6 件（上限 7 件）
+- 理由つきの除外: 5 件（上限 7 件）
 
 未宣言とは「必須種別をまだ決めていない」という意味で、
 テストが無いという意味ではない。**新しい要件は宣言しないと CI が落ちる。**
@@ -23,7 +23,7 @@
 | REQ-P04 | has-calculation, has-screen | `a11y` `boundary` `keyboard` `mutation` `screen-states` | `a11y` `boundary` `keyboard` `mutation` `screen-states` | — |
 | REQ-P05 | has-input, has-screen | `a11y` `boundary` `equivalence` `keyboard` `screen-states` | `a11y` `boundary` `equivalence` `keyboard` `screen-states` | — |
 | REQ-P06 | has-input, has-screen, has-ai-text | `a11y` `boundary` `equivalence` `keyboard` `prompt-injection` `screen-states` | `a11y` `boundary` `equivalence` `keyboard` `prompt-injection` `screen-states` | — |
-| REQ-P07 | has-input, has-state, has-screen | `a11y` `boundary` `equivalence` `keyboard` `screen-states` `state-transition` | `a11y` `equivalence` `keyboard` `screen-states` `state-transition` | `boundary` |
+| REQ-P07 | has-input, has-state, has-screen | `a11y` `boundary` `equivalence` `keyboard` `screen-states` `state-transition` | `a11y` `boundary` `equivalence` `keyboard` `screen-states` `state-transition` | — |
 | REQ-P08 | has-state, has-external, has-screen, has-db-table, has-recorded-operation | `a11y` `audit-log` `db-migration` `fault-injection` `idempotency` `keyboard` `screen-states` `state-transition` | `a11y` `audit-log` `db-migration` `idempotency` `keyboard` `screen-states` `state-transition` | `fault-injection` |
 | REQ-P09 | has-input, has-tenant, has-external, has-screen, has-db-table, has-recorded-operation | `a11y` `audit-log` `boundary` `db-migration` `equivalence` `fault-injection` `idempotency` `keyboard` `screen-states` `tenant-isolation` | `a11y` `audit-log` `boundary` `db-migration` `equivalence` `idempotency` `keyboard` `screen-states` `tenant-isolation` | `fault-injection` |
 | REQ-P10 | has-input, has-screen | `a11y` `boundary` `equivalence` `keyboard` `screen-states` | `a11y` `boundary` `equivalence` `keyboard` `screen-states` | — |
@@ -173,6 +173,7 @@
 | REQ-SEC08 | has-screen | `a11y` `keyboard` `screen-states` | `a11y` `keyboard` `screen-states` | — |
 | REQ-SEC09 | has-input, has-secret, has-db-table, has-recorded-operation | `audit-log` `boundary` `db-migration` `equivalence` `secrets` | `audit-log` `boundary` `db-migration` `equivalence` `secrets` | — |
 | REQ-SEC10 | has-secret, has-runtime-config | `infra-config` `secrets` | `infra-config` `secrets` | — |
+| REQ-SEC11 | has-runtime-config | `infra-config` | `infra-config` | — |
 | REQ-A01 | has-input, has-state, has-user-supplied-url | `boundary` `equivalence` `ssrf` `state-transition` | `boundary` `equivalence` `ssrf` `state-transition` | — |
 | REQ-A02 | has-input | `boundary` `equivalence` | `boundary` `equivalence` | — |
 | REQ-A03 | has-input | `boundary` `equivalence` | `boundary` `equivalence` | — |
@@ -309,8 +310,6 @@
   - `fault-injection`: 取込元のうち API と拡張機能がまだスタブで、落とす外部接続が実在しない（残課題 45）
 - **REQ-P03**
   - `boundary`: 同一判定は識別子の一致・不一致だけで、大小の端が無い
-- **REQ-P07**
-  - `boundary`: ウィザードの入力は選択肢と自由記述で、長さ上限を設けていないため端が無い。上限を入れる時に同時に書く
 - **REQ-P08**
   - `fault-injection`: 各媒体への実送信がスタブで、失敗・遅延・一部成功を注入する先が無い（残課題 45）
 - **REQ-P09**
@@ -321,4 +320,4 @@
 ## 未宣言の要件
 
 `REQ-TH04` `REQ-TH05` `REQ-TS02` `REQ-TS03` `REQ-TS10`
-<!-- 生成物の指紋 sha256:5a3d86d4bd556418a908f7de697d0cd4df201137b02c4ae6d2152fae0d3328e8 -->
+<!-- 生成物の指紋 sha256:8b6097dbaf7ca1a85c02d3ba6f51eb242f394859bb4c4cdbc8d091066e1689ae -->

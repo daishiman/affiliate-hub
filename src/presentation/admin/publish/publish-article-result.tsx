@@ -66,6 +66,19 @@ export function PublishArticleResult({ state }: { state: PublishArticleFormState
           }
         />
       ) : null}
+      {state.status === "done" && state.phase === "published" && state.indexNow !== undefined ? (
+        <Callout
+          tone={
+            state.indexNow.auditStatus === "failed" || state.indexNow.status === "failed"
+              ? "warn"
+              : state.indexNow.status === "sent"
+                ? "success"
+                : "info"
+          }
+          title="検索エンジンへの更新通知"
+          reason={state.indexNow.detail}
+        />
+      ) : null}
     </FormResult>
   );
 }

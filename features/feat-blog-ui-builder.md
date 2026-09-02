@@ -32,7 +32,7 @@ template_version: "1.0.0"
 confirmation_status: "confirmed"
 evaluation_status: "pass"
 confirmation_evidence: {"evaluated_digest":"168ac050680f91d58ce05948b6b0d3618f062ec304dfdb901713e98bdaa84c48","evaluator":"system-dev-plan-evaluator","evidence_ref":".dev-graph/published/generations/feature-package-feat-blog-ui-builder/168ac050680f91d58ce05948b6b0d3618f062ec304dfdb901713e98bdaa84c48/plan-findings.json"}
-source_lineage: {"imported_at":"2026-08-31T00:00:00Z","origin_kind":"generated","source_digest":"d50e5e674db550e3813f54e0bcbc633b3cb08f332278396e35ee2152000c680d","source_path":"system-spec/ui-ux.md","source_plugin":"dev-graph","source_version":"0.1.0"}
+source_lineage: {"imported_at":"2026-09-02T00:00:00Z","origin_kind":"generated","source_digest":"033646202cb79d49d8581d081494ad95a33caa5980bdf30157745b794a81c18d","source_path":"system-spec/ui-ux.md","source_plugin":"dev-graph","source_version":"0.1.0"}
 classification_confidence: 0.95
 classification_reason: "利用者要望 (ブログ UI 更新: テンプレート/配色/常時表示/固定ページ/表現ブロック/アフィリエイト配置管理) を C14 macro 分解で 1 feature 化。細分は system-dev-planner の P01..P13 に委譲"
 classification_candidates: [{"artifact_kind":"feature","candidate_path":"features/feat-blog-ui-builder.md","confidence":0.95}]

@@ -2,9 +2,9 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { ReactNode } from "react";
 import type { PublicSiteBlueprint } from "@/application/usecases/site/read-site";
-import type { FixedPageKind } from "@/domain/blogops";
 import { appearanceOptions, readAppearance } from "@/presentation/appearance";
 import {
+  publicBlogAppearance,
   publicBlogEntry,
   readerWebMcpDescriptors,
 } from "@/presentation/composition";
@@ -53,7 +53,6 @@ export async function SiteFrame({
   pageKind = "article",
   sidebar = false,
   asideSlot,
-  requiredFixedPageKind,
   children,
 }: {
   readonly siteSlug: string;
@@ -84,8 +83,6 @@ export async function SiteFrame({
    * 管理画面で枠を全部消した日に目次まで消える。
    */
   readonly asideSlot?: ReactNode;
-  /** 指定した公開中固定ページが無ければ、骨格を描く前に 404 にする。 */
-  readonly requiredFixedPageKind?: FixedPageKind;
   readonly children: (ctx: SiteContext) => ReactNode | Promise<ReactNode>;
 }) {
   const publicEntry = await publicBlogEntry();
@@ -96,23 +93,41 @@ export async function SiteFrame({
   if (projected.value === null) notFound();
   const projection = projected.value;
   const blueprint = projection.reader.blueprint;
-  if (
-    requiredFixedPageKind !== undefined &&
-    !projection.fixedPages.some((page) => page.kind === requiredFixedPageKind)
-  ) {
-    notFound();
-  }
-  const chrome = toChrome(siteSlug, blueprint, projection);
+  const baseChrome = toChrome(siteSlug, blueprint, projection);
 
   /*
     読者の明るさの選択を読む。**18 本のルートで別々に読まない。**
-    配色（brandTheme）はブログの設計図が正本なので、ここでは基準として渡し、
+    配色（brandTheme）はブログ側が決めるので、ここでは基準として渡し、
     読者の個人設定で上書きさせない。
+
+    基準は**保存された 2 層**（`blog_theme` → `page_theme_override`）から取る。
+    設計図（`site_blueprints.theme`）はブログ既定が未登録のときの土台へ降格した
+    （`data-model.md` §0 の V3、受入 A2-4）。設計図を正本のままにすると、
+    管理画面で選んだ色が保存されるのに読者には一生出ない。
   */
-  const appearance = await readAppearance({
-    brandTheme: blueprint.theme.brandTheme,
-    colorMode: blueprint.theme.colorScheme,
+  const siteDefault = await publicBlogAppearance({
+    siteSlug,
+    pagePath: currentPath.startsWith(siteBasePath(siteSlug))
+      ? currentPath.slice(siteBasePath(siteSlug).length)
+      : currentPath,
+    fallback: {
+      brandTheme: blueprint.theme.brandTheme,
+      colorMode: blueprint.theme.colorScheme,
+    },
   });
+  const appearance = await readAppearance(siteDefault.appearance);
+
+  /*
+    解き終えた見た目を枠へ渡す。**枠が自分でもう一度解かない。**
+    `toChrome` は設計図から作るので、ここで配色と明暗だけを差し替える。
+    差し替えずに `toChrome` へ 2 層を渡す形にすると、
+    「どのブログか」を組み立てる仕事と「何色で出すか」を決める仕事が混ざる。
+  */
+  const chrome = {
+    ...baseChrome,
+    brandTheme: appearance.brandTheme,
+    colorMode: appearance.colorMode,
+  };
 
   /*
     計測してよいかを 1 箇所で決める。**18 本のルートで別々に判断しない。**

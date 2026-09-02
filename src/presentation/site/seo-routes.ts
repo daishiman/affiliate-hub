@@ -1,8 +1,13 @@
 import { type ArticleSummary, articleHref } from "@/application/read-models/published-article";
+import type { FeedItem } from "@/application/seo/feeds";
 import type { PublicSiteBlueprint } from "@/application/usecases/site/read-site";
 import { siteBasePathBySlug } from "@/domain/authoring/site";
 import type { DomainError } from "@/domain/shared/errors";
-import { readerActor, siteUseCases } from "@/presentation/composition";
+import {
+  readerActor,
+  requestOriginFromWebRequest,
+  siteUseCases,
+} from "@/presentation/composition";
 
 /**
  * 機械向け配信ルート（sitemap / robots / feed / llms.txt）の共通の読み取り口。
@@ -54,14 +59,50 @@ export type SeoSiteContext = {
   readonly origin: string;
   readonly basePath: string;
   readonly blueprint: PublicSiteBlueprint;
-  readonly articles: readonly ArticleSummary[];
+  /**
+   * 配信物に載せる記事（新しい順）。
+   *
+   * **2026-09-02 まで、ここは 2 系統を合流させていた。**編集済みの読み取り
+   * モデル（`/best` `/guides` `/reviews` `/compare` `/tools`）と、ブログ運用で
+   * 書いた記事（`/blog/<slug>`）を別の入口として読み、`mergeByRecency` で
+   * 束ねていた。P07 の実測で「4 種とも 200 なのに公開記事 7 本が 1 本も
+   * 載っていない」が出たときの手当てである。
+   *
+   * いま合流は要らない。`published_articles` が**唯一の公開 projection** に
+   * なり（`drizzle/0043_canonical_public_articles.sql`）、ブログ運用側の
+   * `listPublished` は編集側と**同じ `listRecent` を呼ぶ**ようになった。
+   * 2 系統として読むと、同じ記事が 2 行ずつ並ぶ sitemap になる。
+   */
+  readonly items: readonly FeedItem[];
 };
+
+/** 編集済み読み取りモデルを配信物の行へ。道は `articleHref` が正本。 */
+function toFeedItem(article: ArticleSummary): FeedItem {
+  return {
+    path: articleHref(article),
+    title: article.title,
+    summary: article.summary,
+    updatedAt: article.updatedAt,
+  };
+}
 
 export async function loadSeoSite(
   request: Request,
   siteSlug: string,
   articlePolicy: SeoArticlePolicy,
 ): Promise<{ ok: true; value: SeoSiteContext } | { ok: false; response: Response }> {
+  const origin = requestOriginFromWebRequest(request);
+  if (origin === null) {
+    return {
+      ok: false,
+      response: seoTextResponse(
+        "リクエストの公開元を安全に読み取れませんでした。",
+        "text/plain; charset=utf-8",
+        400,
+      ),
+    };
+  }
+
   const useCases = await siteUseCases();
   const site = await useCases.getSite.execute(readerActor(), { siteSlug });
   if (!site.ok) return { ok: false, response: seoErrorResponse(site.error) };
@@ -73,15 +114,20 @@ export async function loadSeoSite(
           limit: articlePolicy.limit,
         });
   if (!articles.ok) return { ok: false, response: seoErrorResponse(articles.error) };
+
   return {
     ok: true,
     value: {
-      // 配信 URL は届いたリクエストの origin から作る。環境変数に持つと
-      // 開発・本番で URL がずれたまま配られる。
-      origin: new URL(request.url).origin,
+      // metadata / JSON-LD / IndexNow と同じ厳格な request-origin 規則を通す。
+      origin,
       basePath: siteBasePathBySlug(siteSlug),
       blueprint: site.value.blueprint,
-      articles: articles.value,
+      /*
+        `listRecent` は `published_articles`（唯一の公開 projection）を
+        新しい順で返す。並べ替えも再度の上限切りもここでは要らない。
+        ブログ運用の記事もこの表に載るので、別の口から読んで足すと二重になる。
+      */
+      items: articles.value.map(toFeedItem),
     },
   };
 }
@@ -90,8 +136,8 @@ export async function loadSeoSite(
  * 50,000 件を超えたら「全件」と偽らない。
  * 分割 sitemap を実装するまでは、一部だけの200より明示的な503が安全。
  */
-export function completeArticleSetError(articles: readonly ArticleSummary[]): Response | null {
-  if (articles.length <= SITEMAP_URL_LIMIT) return null;
+export function completeArticleSetError(items: readonly FeedItem[]): Response | null {
+  if (items.length <= SITEMAP_URL_LIMIT) return null;
   return seoTextResponse(
     `公開記事が ${SITEMAP_URL_LIMIT.toLocaleString("en-US")} 件を超えているため、分割 sitemap が必要です。`,
     "text/plain; charset=utf-8",
@@ -99,9 +145,15 @@ export function completeArticleSetError(articles: readonly ArticleSummary[]): Re
   );
 }
 
-/** サイトマップの行。記事の道は articleHref から引く（組み立て直さない）。 */
+/**
+ * サイトマップの行。
+ *
+ * 道は既に `FeedItem.path` として引き終わっている（`toFeedItem` /
+ * `blogToFeedItem` が正本）。ここで組み立て直すと、記事の種類が
+ * 増えた日にこの関数だけ古い写し方のまま残る。
+ */
 export function sitemapEntries(
-  articles: readonly ArticleSummary[],
+  items: readonly FeedItem[],
 ): readonly { readonly path: string; readonly updatedAt: string }[] {
-  return articles.map((a) => ({ path: articleHref(a), updatedAt: a.updatedAt }));
+  return items.map((item) => ({ path: item.path, updatedAt: item.updatedAt }));
 }

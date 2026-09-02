@@ -12,16 +12,16 @@
  * 数える元は**保存された値**であって、作成手続きが返した戻り値ではない。
  * 手続きの戻り値を数えると、書けていないものを書けたと数えられる。
  */
-import { FIXED_PAGE_KINDS } from "../blogops/fixed-page";
 import {
   defaultLayoutBandSeeds,
   defaultLayoutSlotSeeds,
 } from "../blogops/site-provisioning-defaults";
+import { SITE_DOCUMENT_KEYS } from "./site-routes";
 
 /** 公開に関わる構成要素。`site_blueprints` 以外の実体を種類で表す。 */
 export const SITE_COMPOSITION_ELEMENTS = [
   "network_node",
-  "fixed_pages",
+  "site_documents",
   "layout_bands",
   "layout_slots",
   "categories",
@@ -39,7 +39,7 @@ export type SiteCompositionElement = (typeof SITE_COMPOSITION_ELEMENTS)[number];
  */
 export const SITE_COMPOSITION_LABEL: Readonly<Record<SiteCompositionElement, string>> = {
   network_node: "ブログの住所の登録",
-  fixed_pages: "運営者・お問い合わせなどの固定ページ",
+  site_documents: "運営者情報・各方針などのサイト文書",
   layout_bands: "トップページに並ぶ帯",
   layout_slots: "ヘッダー・サイドバー・フッターの中身",
   categories: "記事のカテゴリー",
@@ -49,7 +49,7 @@ export const SITE_COMPOSITION_LABEL: Readonly<Record<SiteCompositionElement, str
 /** 不足していたとき、その場で何を直せばよいか。 */
 export const SITE_COMPOSITION_REMEDY: Readonly<Record<SiteCompositionElement, string>> = {
   network_node: "ブログを作り直すと住所が登録されます。",
-  fixed_pages: "固定ページの画面から追加できます。",
+  site_documents: "サイト文書の画面から書けます。",
   layout_bands: "トップページの構成画面から並べられます。",
   layout_slots: "版面の画面からヘッダー・サイドバー・フッターを設定できます。",
   categories: "カテゴリーの画面から追加できます。",
@@ -63,24 +63,36 @@ export type CompositionCounts = Readonly<Record<SiteCompositionElement, number>>
  * 「ブログ作成」が終わったと言うために必要な保存行数。
  *
  * 保存層と画面で「1 件あれば十分」を別々に決めない。
- * 固定ページは 8 種、帯とスロットは現行の既定構成を
- * すべて作る。記事は作成ウィザードの責務外なのでここに含めない。
+ * 帯とスロットは現行の既定構成をすべて作る。この数は
+ * `site-provisioning-defaults.ts` の配列から導く。数値を複製すると、
+ * 既定構成を足した日に作成側だけが古くなる。
  *
- * この数は `site-provisioning-defaults.ts` / `fixed-page.ts` の配列から
- * 導く。数値を複製すると、既定構成を足した日に作成側だけが古くなる。
+ * **サイト文書と記事はここに含めない（0）。** どちらも「書いた行だけが
+ * 保存される」もので、空の枠を先に作ってしまうと、まだ 1 文字も書かれて
+ * いない運営者情報が「整備済み」として数えられる。それは 13 問に答えた人へ
+ * 偽の完了を返すことで、この表がそもそも直そうとした事故と同じ形になる。
+ * 文書の不足は作成を止めず、`SITE_CONTENT_REQUIRED_COUNTS` 側の
+ * `degrading` な不足として画面に残す。
  */
 export const SITE_PROVISIONING_REQUIRED_COUNTS: CompositionCounts = {
   network_node: 1,
-  fixed_pages: FIXED_PAGE_KINDS.length,
+  site_documents: 0,
   layout_bands: defaultLayoutBandSeeds().length,
   layout_slots: defaultLayoutSlotSeeds().length,
   categories: 1,
   articles: 0,
 };
 
-/** 作成後、内容の公開準備まで終えたと言うための追加件数。 */
+/**
+ * 作成後、内容の公開準備まで終えたと言うための件数。
+ *
+ * サイト文書はルート表が定める全種。**ルート表から導く**のは、
+ * ルートを 1 本足した日に「画面はあるのに準備完了と言う」ずれを
+ * 作らないためである。
+ */
 export const SITE_CONTENT_REQUIRED_COUNTS: CompositionCounts = {
   ...SITE_PROVISIONING_REQUIRED_COUNTS,
+  site_documents: SITE_DOCUMENT_KEYS.length,
   articles: 1,
 };
 
@@ -98,7 +110,7 @@ export type CompositionReport = {
   readonly reachable: boolean;
   /** 作成ウィザードが責任を持つ必須実体がすべて保存されたか。 */
   readonly provisioningComplete: boolean;
-  /** 公開固定ページと記事を含む、読者に内容を届ける準備が終わったか。 */
+  /** 公開済みのサイト文書と記事を含む、読者に内容を届ける準備が終わったか。 */
   readonly contentReady: boolean;
   readonly gaps: readonly SiteCompositionGap[];
   readonly counts: CompositionCounts;
@@ -124,7 +136,7 @@ export const SITE_COMPOSITION_SEVERITY: Readonly<
   Record<SiteCompositionElement, "blocking" | "degrading">
 > = {
   network_node: "blocking",
-  fixed_pages: "degrading",
+  site_documents: "degrading",
   layout_bands: "degrading",
   layout_slots: "degrading",
   categories: "degrading",

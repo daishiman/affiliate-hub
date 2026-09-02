@@ -30,8 +30,6 @@ import {
   BLOG_TEMPLATES,
   EXPRESSION_BLOCK_KINDS,
   EXPRESSION_BLOCK_LABEL,
-  LEGAL_PAGE_KINDS,
-  LEGAL_PAGE_LABEL,
   type ExpressionBlock,
   fillSlots,
   findBlogTemplate,
@@ -227,21 +225,6 @@ describe("表現ブロックと固定ページの名札", () => {
     });
   });
 
-  it("固定ページは公開語彙 8 種と同じ正本を指す", () => {
-    expect([...LEGAL_PAGE_KINDS]).toEqual([
-      "profile", "sitemap", "site_policy", "privacy_policy", "commercial_transaction", "contact", "review_guidelines", "company",
-    ]);
-    expect(LEGAL_PAGE_LABEL).toEqual({
-      profile: "運営者プロフィール",
-      sitemap: "サイトマップ",
-      site_policy: "サイトポリシー",
-      privacy_policy: "プライバシーポリシー",
-      commercial_transaction: "特定商取引法に基づく表記",
-      contact: "お問い合わせ",
-      review_guidelines: "レビュー方針",
-      company: "運営会社",
-    });
-  });
 });
 
 describe("型を ID から引く", () => {

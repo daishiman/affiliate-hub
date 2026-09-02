@@ -8,7 +8,6 @@ import type {
   BlogTagRecord,
   DeletedBlogArticleRecord,
   DeletedSiteNetworkRecord,
-  FixedPageRecord,
   PublicBlogPort,
   SaveBlogArticleInput,
   SaveSiteNetworkInput,
@@ -19,7 +18,9 @@ import type {
   EditorialSiteRepositoryPort,
 } from "@/application/ports/site";
 import type { ArticleRating, BlogArticle, BlogArticleBlock, RatingSummary } from "@/domain/blogops";
-import { FIXED_PAGE_KINDS, FIXED_PAGE_LABEL, summarizeRatings } from "@/domain/blogops";
+import { summarizeRatings } from "@/domain/blogops";
+import { SITE_DOCUMENT_KEYS } from "@/domain/authoring";
+import { resolveSampleSiteDocument } from "./content-sample-data";
 import type { WorkspaceId } from "@/domain/shared";
 import { domainError, err, notFound, ok, validationError } from "@/domain/shared";
 import { registerStub } from "../../stub-registry";
@@ -519,23 +520,14 @@ export function provisionSampleComposition(input: {
     slotOwners.set(id, ws);
   }
 
-  for (const kind of FIXED_PAGE_KINDS) {
-    if (FIXED_PAGES.some((page) => page.siteSlug === input.siteSlug && page.kind === kind)) {
-      continue;
-    }
-    const id = `lgp_${input.siteSlug}_${kind}`;
-    FIXED_PAGES.push({
-      id,
-      siteSlug: input.siteSlug,
-      kind,
-      title: FIXED_PAGE_LABEL[kind],
-      body: "",
-      status: "draft",
-      deletedAt: null,
-      updatedAt: new Date(),
-    });
-    fixedPageOwners.set(id, ws);
-  }
+  /*
+    サイト文書（運営者情報・各方針）はここで作らない。
+
+    以前は 8 種の空の枠を先に置いていた。枠があると「整備済み」に数えられ、
+    まだ 1 文字も書かれていない運営者情報が作成完了の根拠になる。
+    文書は**書いたときに 1 枚できる**。不足は作成を止めず、構成レポートの
+    `degrading` な不足として管理画面に残す。
+  */
 }
 
 /** 記事 id + 読者の目印 → 点。押し直しは上書き（票が増えない）。 */
@@ -636,17 +628,16 @@ export function createSamplePublicBlogPort(
         async listTags() {
           return ok(TAGS.filter((tag) => owns(tagOwners, tag.id, scoped.workspaceId) && tag.siteSlug === scoped.siteSlug));
         },
-        async listFixedPages() {
-          return ok(FIXED_PAGES.filter((page) => owns(fixedPageOwners, page.id, scoped.workspaceId) && page.siteSlug === scoped.siteSlug && page.status === "published" && page.deletedAt === null));
-        },
-        async listProvisionedFixedPages() {
+        async listDocuments() {
+          // 見本は 8 種すべて揃っている扱い。**本物より緩くしない**ために、
+          // 文面は編集口（`createSampleSiteDocumentRepository`）と同じ元から引く。
           return ok(
-            FIXED_PAGES.filter(
-              (page) =>
-                owns(fixedPageOwners, page.id, scoped.workspaceId) &&
-                page.siteSlug === scoped.siteSlug &&
-                page.deletedAt === null,
-            ),
+            SITE_DOCUMENT_KEYS.map((key) => ({
+              key,
+              ...resolveSampleSiteDocument(scoped.siteSlug, key),
+              // 見本に「いつ直したか」は無い。作り話の日付を入れない。
+              updatedAt: null,
+            })),
           );
         },
       });
@@ -688,25 +679,9 @@ export function createSampleArticleRatingPort(): ArticleRatingPort {
   };
 }
 
-/**
- * 公開見本は 8 種の route/footer を確かめられるよう、明示的に見本として持つ。
- * `PublicBlogEntry.source` と SiteFrame の表示で live とは区別される。
- * 点検履歴だけは実行前なので空で始める。
- */
-const FIXED_PAGES: FixedPageRecord[] = FIXED_PAGE_KINDS.map((kind) => ({
-  id: `lgp_sample_${kind}`,
-  siteSlug: SAMPLE_SITE_SLUG,
-  kind,
-  title: FIXED_PAGE_LABEL[kind],
-  body: `これは「${FIXED_PAGE_LABEL[kind]}」の見本本文です。`,
-  status: "published",
-  deletedAt: null,
-  updatedAt: NOW,
-}));
 const SNAPSHOTS: BlogDeliverySnapshotRecord[] = [];
 const DELETED_NETWORK: DeletedSiteNetworkRecord[] = [];
 const DELETED_ARTICLES: DeletedBlogArticleRecord[] = [];
-const fixedPageOwners = initialOwners(FIXED_PAGES);
 const snapshotOwners = initialOwners(SNAPSHOTS);
 
 /** id が同じ行を差し替える。無ければ足す。本物の `onConflictDoUpdate` と同じ振る舞い。 */
@@ -1001,77 +976,6 @@ export function createSampleBlogOpsRepository(): BlogOpsRepositoryPort {
         if (row === undefined || !owns(articleOwners, row.article.id, workspaceId)) continue;
         ARTICLES[index] = { ...row, tagIds: row.tagIds.filter((id) => id !== tagId) };
       }
-      return ok(true);
-    },
-
-    async listFixedPages(workspaceId, siteSlug) {
-      return ok(
-        FIXED_PAGES.filter(
-          (page) =>
-            page.siteSlug === siteSlug &&
-            owns(fixedPageOwners, page.id, workspaceId) &&
-            page.deletedAt === null,
-        ),
-      );
-    },
-    async listDeletedFixedPages(workspaceId, siteSlug) {
-      return ok(
-        FIXED_PAGES.filter(
-          (page) =>
-            page.siteSlug === siteSlug &&
-            owns(fixedPageOwners, page.id, workspaceId) &&
-            page.deletedAt !== null,
-        ),
-      );
-    },
-    async saveFixedPage(workspaceId, input) {
-      if (!maySave(fixedPageOwners, input.id, workspaceId)) {
-        return err(notFound("固定ページ", input.id));
-      }
-      const sameKind = FIXED_PAGES.find(
-        (page) => page.siteSlug === input.siteSlug && page.kind === input.kind,
-      );
-      if (sameKind !== undefined && !owns(fixedPageOwners, sameKind.id, workspaceId)) {
-        return err(notFound("固定ページ", input.id));
-      }
-      if (sameKind?.deletedAt !== null && sameKind?.deletedAt !== undefined) {
-        return err(
-          domainError(
-            "CONFLICT",
-            "削除済みの固定ページは保存では戻せません。削除済み一覧から復元してください。",
-            { field: "kind" },
-          ),
-        );
-      }
-      const id = sameKind?.id ?? input.id;
-      upsert(FIXED_PAGES, { ...input, id });
-      fixedPageOwners.set(id, String(workspaceId));
-      return ok(true);
-    },
-    async deleteFixedPage(workspaceId, pageId) {
-      if (
-        !owns(fixedPageOwners, pageId, workspaceId) ||
-        !FIXED_PAGES.some((page) => page.id === pageId)
-      ) {
-        return err(notFound("固定ページ", pageId));
-      }
-      const index = FIXED_PAGES.findIndex((page) => page.id === pageId && page.deletedAt === null);
-      if (index < 0) return err(notFound("固定ページ", pageId));
-      const page = FIXED_PAGES[index];
-      if (page === undefined) return err(notFound("固定ページ", pageId));
-      FIXED_PAGES[index] = { ...page, deletedAt: new Date() };
-      return ok(true);
-    },
-    async restoreFixedPage(workspaceId, pageId, restoredAt) {
-      const index = FIXED_PAGES.findIndex(
-        (page) =>
-          page.id === pageId &&
-          page.deletedAt !== null &&
-          owns(fixedPageOwners, page.id, workspaceId),
-      );
-      const page = FIXED_PAGES[index];
-      if (page === undefined) return err(notFound("削除済み固定ページ", pageId));
-      FIXED_PAGES[index] = { ...page, deletedAt: null, updatedAt: restoredAt };
       return ok(true);
     },
 

@@ -357,6 +357,30 @@ export type AuditAction =
    */
   | "blog_layout.changed"
   /**
+   * ブログの見せ方（6 種のどれか）と配色（ブログ既定・ページ上書き）が変わった。
+   *
+   * **枠の並び（`blog_layout.changed`）と分けている。** 並べ替えは「何がどの順で
+   * 見えていたか」を問われるが、こちらが問われるのは「**いつから見た目が変わったか**」で、
+   * 読者の苦情や指標の段差と突き合わせる時刻が要る。1 語にまとめると、
+   * 帯を 1 つ動かした行に埋もれて、配色を変えた日を探せない。
+   *
+   * **4 つの操作（見せ方の選択・ブログ既定・ページ上書き・上書きの取り消し）を
+   * 1 語にしている。** どれも「このブログはいまどう見えるか」という同じ問いへの
+   * 答えで、差は `targetType` と `after` に出る。
+   */
+  | "blog_appearance.changed"
+  /**
+   * 記事のどこに成果リンクを載せたか／外したか（受入 A6・A7）。
+   *
+   * **足すと外すを 2 語に分ける。** 台帳は所在の記録であって履歴ではなく、
+   * 外した行は物理削除される（`blog-affiliate-placement.ts` の doc）。
+   * つまり**外した事実がどこにも残らない唯一の場所がここ**である。
+   * 1 語にまとめると「掲載が消えている」を差分から読むことになり、
+   * 消えた行の差分は消えているので読めない。
+   */
+  | "blog_placement.changed"
+  | "blog_placement.removed"
+  /**
    * 配信部品（RSS・sitemap・機械可読の要約など）の入切が変わった。
    *
    * 見た目の枠（`blog_layout.changed`）と分けているのは、**外へ出るものだから**である。
@@ -366,6 +390,15 @@ export type AuditAction =
    */
   | "blog_delivery.changed"
   | "blog_delivery.checked"
+  /**
+   * 公開 URL を IndexNow へ知らせた結末（送信・スキップ・失敗）。
+   *
+   * 記事の公開 (`content.published`) とは別の語にする。公開は済んでいても
+   * 通知だけ失敗しうるため、同じ行にすると「公開失敗」と読み違える。
+   * 鍵・送信本文・外部例外の detail は入れず、対象 URL と列挙済み status、
+   * この操作の固定理由だけを残す。
+   */
+  | "indexnow.notification_finished"
   /**
    * ブログ記事を作った／直した／消した。
    *
@@ -379,15 +412,6 @@ export type AuditAction =
   | "blog_article.changed"
   | "blog_article.deleted"
   | "blog_article.restored"
-  /**
-   * 固定ページ（運営者情報・各種方針など 8 種）を保存／論理削除／復元した。
-   *
-   * 削除だけ理由を必須にする。行と本文は残り、`blog_page.restored` の
-   * 明示操作で元の ID・URL・内容へ戻す。通常保存で暗黙に復活させない。
-   */
-  | "blog_page.changed"
-  | "blog_page.deleted"
-  | "blog_page.restored"
   /** ブランドタグを保存した／消した。 */
   | "blog_tag.changed"
   | "blog_tag.deleted"
@@ -512,7 +536,6 @@ const REASON_REQUIRED: ReadonlySet<AuditAction> = new Set<AuditAction>([
   "content.deleted",
   "site_network.deleted",
   "blog_article.deleted",
-  "blog_page.deleted",
   "blog_tag.deleted",
   /*
    * 読者が書いたものを見えなくする／戻す操作。行は消えないので `before`/`after` に

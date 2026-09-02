@@ -355,7 +355,7 @@ function memoryDrafts(seed: readonly SiteDraft[] = []) {
             categories: request.blueprint.categories.length,
             articles: 0,
           },
-          ["fixed_pages"],
+          ["site_documents"],
         ),
       });
     },
@@ -765,10 +765,17 @@ describe("ブログを作る（つなぎ目を差し替えて）", () => {
     expect(result.value.readerPath).toBe("/s/lens-start");
     expect(drafts.published).toContain("lens-start");
     expect(result.value.missingTrustPages).toHaveLength(8);
-    expect(result.value.pageCount).toBe(8);
+    /*
+      `pageCount` は**中身のあるサイト文書の実数**であって、枠の数ではない。
+      空の枠を 8 行先に作るのをやめた（`SITE_PROVISIONING_REQUIRED_COUNTS`
+      の `site_documents: 0`）ので、作った直後は 0 で、8 種すべてが
+      `missingTrustPages` に並ぶ。ここを 8 に戻すと、まだ 1 文字も書かれて
+      いない運営者情報を「作成済みのページ」として数えることになる。
+    */
+    expect(result.value.pageCount).toBe(0);
     expect(result.value.provisioningComplete).toBe(true);
     expect(result.value.contentReady).toBe(false);
-    expect(result.value.gaps.map((gap) => gap.element)).toEqual(["fixed_pages", "articles"]);
+    expect(result.value.gaps.map((gap) => gap.element)).toEqual(["site_documents", "articles"]);
     expect(result.value.summary).toContain("はじめてのレンズ");
     expect(result.value.summary).toContain("公開準備には未完了");
   });
@@ -963,7 +970,7 @@ describe("作れたと言えるのは、原子的な一括保存が完了した�
     expect(result.value.reachable).toBe(true);
     expect(result.value.provisioningComplete).toBe(true);
     expect(result.value.contentReady).toBe(false);
-    expect(result.value.gaps.map((gap) => gap.element)).toEqual(["fixed_pages", "articles"]);
+    expect(result.value.gaps.map((gap) => gap.element)).toEqual(["site_documents", "articles"]);
     expect(result.value.counts.network_node).toBe(1);
     expect(result.value.counts.layout_slots).toBe(defaultLayoutSlotSeeds().length);
     expect(result.value.counts.articles).toBe(0);

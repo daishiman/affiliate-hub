@@ -77,7 +77,7 @@ function manageHref(element: SiteCompositionElement, slug: string): string | nul
   switch (element) {
     case "network_node":
       return null;
-    case "fixed_pages":
+    case "site_documents":
       return `/admin/sites/${site}/documents`;
     case "layout_bands":
     case "layout_slots":

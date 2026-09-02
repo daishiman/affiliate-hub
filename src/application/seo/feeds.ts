@@ -1,14 +1,37 @@
-import {
-  type ArticleSummary,
-  articleHref,
-} from "@/application/read-models/published-article";
-
 /**
  * 機械向けの配信ファイル（sitemap / RSS / llms.txt / robots.txt）の組み立て。
  *
  * すべて純関数で、文字列を返すだけ。どの URL で配るかはルート側の仕事。
- * 記事の URL は `articleHref` から引き、ここで組み立て直さない。
+ *
+ * ## なぜ記事の型ではなく `FeedItem` を受けるのか
+ *
+ * 2026-08-30 まで、ここは `ArticleSummary` を受けて `articleHref` で
+ * 道を引いていた。公開面の記事が 1 種類だった頃はそれで正しかった。
+ *
+ * いまは 2 種類ある。編集済みの読み取りモデル（`/best` `/guides` …）と、
+ * ブログ運用で書いた記事（`/blog/<slug>`）で、**道の作り方が違う**。
+ * `articleHref` は前者しか写せないので、後者は
+ * **sitemap にも llms.txt にも RSS にも 1 本も載っていなかった**
+ * （実測: 公開記事 7 本に対し sitemap の該当 URL 0 件）。
+ *
+ * 型を 1 つ増やして片方だけ足す、では 3 種類目が来た日に同じ穴が空く。
+ * だから**この器は道を引かない**。引くのは呼ぶ側で、ここへは
+ * 「引き終わった道」だけが来る。どの記事種でも同じ 1 本を通る。
  */
+
+/**
+ * 配信物 1 行分。記事の種類に依らない最小の形。
+ *
+ * `path` はブログ内の道（例 `/best/laptops`、`/blog/quiet-desk`）。
+ * ホストとブログ基底パスは `canonicalSiteUrl` が付ける。
+ */
+export type FeedItem = {
+  readonly path: string;
+  readonly title: string;
+  readonly summary: string;
+  /** `YYYY-MM-DD`。読めない値は pubDate を出さないことで表す。 */
+  readonly updatedAt: string;
+};
 
 /** XML の本文・属性に入れる文字列の逃がし。5 文字とも逃がす。 */
 function escapeXml(value: string): string {
@@ -71,11 +94,11 @@ export type RssSiteInput = {
  * pubDate は RFC 822 形式が決まりなので、YYYY-MM-DD を UTC 0 時として読み替える。
  * 読めない日付の item は pubDate を**出さない**（壊れた日付を配るより無い方がよい）。
  */
-export function buildRssXml(site: RssSiteInput, items: readonly ArticleSummary[]): string {
+export function buildRssXml(site: RssSiteInput, items: readonly FeedItem[]): string {
   const channelLink = canonicalSiteUrl(site);
   const itemXml = items
     .map((item) => {
-      const link = escapeXml(canonicalSiteUrl(site, articleHref(item)));
+      const link = escapeXml(canonicalSiteUrl(site, item.path));
       const updated = new Date(`${item.updatedAt}T00:00:00Z`);
       const pubDate = Number.isNaN(updated.getTime())
         ? ""
@@ -118,13 +141,10 @@ export function buildLlmsTxt(
     readonly origin: string;
     readonly basePath: string;
   },
-  items: readonly ArticleSummary[],
+  items: readonly FeedItem[],
 ): string {
   const links = items
-    .map(
-      (item) =>
-        `- [${item.title}](${canonicalSiteUrl(site, articleHref(item))}): ${item.summary}`,
-    )
+    .map((item) => `- [${item.title}](${canonicalSiteUrl(site, item.path)}): ${item.summary}`)
     .join("\n");
   return [`# ${site.siteName}`, ``, `> ${site.purpose}`, ``, `## 記事一覧`, ``, links, ``].join(
     "\n",

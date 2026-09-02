@@ -37,4 +37,20 @@ describe("IndexNow の通知本文", () => {
     const submission = buildIndexNowSubmission("http://localhost:3000", "k", ["http://localhost:3000/x"]);
     expect(submission?.host).toBe("localhost:3000");
   });
+
+  it.each(["ftp://example.com", "https://example.com/path", "https://user@example.com"])(
+    "http/httpsの純粋なorigin以外は通知本文にしない: %s",
+    (origin) => {
+      expect(buildIndexNowSubmission(origin, "k", ["https://example.com/x"])).toBeNull();
+    },
+  );
+
+  it("originと異なるhostのURLを同じ通知へ混ぜない", () => {
+    expect(
+      buildIndexNowSubmission("https://example.com", "k", [
+        "https://example.com/owned",
+        "https://attacker.example/not-owned",
+      ]),
+    ).toBeNull();
+  });
 });

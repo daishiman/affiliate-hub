@@ -35,7 +35,7 @@
  * やがて「文言を直したくないから検査を消す」に行き着く。
  */
 import { beforeAll, describe, expect, it, vi } from "vitest";
-import { ADMIN_ROUTE_CASES, importPathOf, propsOf } from "./route-table";
+import { RENDERABLE_ADMIN_ROUTE_CASES, importPathOf, propsOf } from "./route-table";
 import { renderRoute, textOf } from "../support/render";
 import { SCREEN_SWEEP_BUDGET_MS } from "../../quality-gates.config.mjs";
 
@@ -83,7 +83,7 @@ function splitShell(html: string): Rendered {
 
 async function renderAs(roles: readonly string[], file: string): Promise<Rendered> {
   identity.roles = roles;
-  const route = ADMIN_ROUTE_CASES.find((r) => r.file === file)!;
+  const route = RENDERABLE_ADMIN_ROUTE_CASES.find((r) => r.file === file)!;
   return splitShell(await renderRoute(importPathOf(route.file), propsOf(route)));
 }
 
@@ -127,7 +127,7 @@ describe("できてはいけない側", () => {
   const seen: { file: string; owner: Rendered; reader: Rendered }[] = [];
 
   beforeAll(async () => {
-    for (const route of ADMIN_ROUTE_CASES) {
+    for (const route of RENDERABLE_ADMIN_ROUTE_CASES) {
       const owner = await renderAs(OWNER, route.file);
       const reader = await renderAs(READER, route.file);
       seen.push({ file: route.file, owner, reader });

@@ -128,6 +128,8 @@ const PRIMARY_TASK_BY_ROUTE_ID = {
   "sites/[site]/edit": "ブログの設計図を直す",
   "sites/[site]/documents":
     "運営者情報・各方針・規約・特定商取引法に基づく表記を書き、未記入を無くす",
+  "sites/[site]/appearance": "このブログの見せ方と配色を決め、ページ単位の例外を管理する",
+  "sites/[site]/placements": "記事のどこに成果リンクを出しているかを確かめ、掲載の抜けを埋める",
   "sites/new": "ブログを 1 本作る",
   tools: "AI から使える道具を調べる (参照専用)",
   "ui-catalog": "使える部品を探す (参照専用・見本帳)",
@@ -617,6 +619,29 @@ export const ADMIN_SCREEN_RUNTIME_ENTRIES: readonly AdminScreenRuntimeEntry[] = 
     edge("src/presentation/admin/publish/site-document-action.ts", "saveSiteDocumentAction"),
   ),
   screenMutation(
+    "site.save-appearance",
+    "sites/[site]/appearance",
+    edge("src/presentation/admin/publish/blog-appearance-form.tsx", "BlogAppearanceForm"),
+    edge("src/presentation/admin/publish/blog-appearance-action.ts", "manageBlogAppearanceAction"),
+  ),
+  /*
+    同じ画面・同じ action だが、form を畳まない。
+    全体の配色を決める操作と、1 ページだけ例外を置く操作は、
+    間違えたときの直し方が違う（前者は全ページに出る、後者は 1 枚だけ）。
+  */
+  screenMutation(
+    "site.save-page-theme-override",
+    "sites/[site]/appearance",
+    edge("src/presentation/admin/publish/blog-appearance-form.tsx", "PageThemeOverrideForms"),
+    edge("src/presentation/admin/publish/blog-appearance-action.ts", "manageBlogAppearanceAction"),
+  ),
+  screenMutation(
+    "site.save-placement",
+    "sites/[site]/placements",
+    edge("src/presentation/admin/publish/blog-placement-form.tsx", "BlogPlacementForm"),
+    edge("src/presentation/admin/publish/blog-placement-action.ts", "manageBlogPlacementAction"),
+  ),
+  screenMutation(
     "site.delete",
     "sites/[site]",
     edge("src/app/admin/sites/[site]/page.tsx", "SiteDetailPage"),
@@ -708,22 +733,16 @@ export const ADMIN_SCREEN_RUNTIME_ENTRIES: readonly AdminScreenRuntimeEntry[] = 
     edge("src/presentation/admin/publish/blog-article-action.ts", "manageBlogArticleAction"),
   ),
   screenMutation(
+    "blog.append-expression-block",
+    "blog/articles/[article]",
+    edge("src/presentation/admin/publish/expression-block-form.tsx", "ExpressionBlockAppendForm"),
+    edge("src/presentation/admin/publish/blog-article-action.ts", "manageBlogArticleAction"),
+  ),
+  screenMutation(
     "blog.restore-article",
     "blog/articles/deleted",
     edge("src/presentation/admin/publish/blog-article-form.tsx", "BlogArticleRestoreForm"),
     edge("src/presentation/admin/publish/blog-article-action.ts", "manageBlogArticleAction"),
-  ),
-  screenMutation(
-    "blog.save-fixed-page",
-    "blog/pages",
-    edge("src/presentation/admin/publish/blog-page-form.tsx", "BlogPageForm"),
-    edge("src/presentation/admin/publish/blog-page-action.ts", "manageBlogPageAction"),
-  ),
-  screenMutation(
-    "blog.restore-fixed-page",
-    "blog/pages",
-    edge("src/presentation/admin/publish/blog-page-form.tsx", "BlogPageRestoreForm"),
-    edge("src/presentation/admin/publish/blog-page-action.ts", "manageBlogPageAction"),
   ),
   screenMutation(
     "blog.hide-rating",

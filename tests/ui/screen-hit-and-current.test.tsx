@@ -7,7 +7,7 @@ import { readFileSync, readdirSync, statSync } from "node:fs";
 import { join, relative } from "node:path";
 import { describe, expect, it } from "vitest";
 import {
-  ADMIN_ROUTE_CASES,
+  RENDERABLE_ADMIN_ROUTE_CASES,
   RENDERABLE_ROUTE_CASES,
   ROUTE_CASES,
   ROUTE_STATE_CASES,
@@ -524,7 +524,11 @@ function belongsTo(path: string, href: string): boolean {
 }
 
 describe("現在地", () => {
-  it.each(ADMIN_ROUTE_CASES.map((r) => [r.file, r] as const))(
+  it.each(
+    RENDERABLE_ADMIN_ROUTE_CASES.map(
+      (r) => [r.file, r] as const,
+    ),
+  )(
     "%s のパンくずの末尾が、いまいる画面だと名乗っている",
     async (_file, route) => {
       const html = await renderCase(route);
@@ -547,7 +551,11 @@ describe("現在地", () => {
     },
   );
 
-  it.each(ADMIN_ROUTE_CASES.map((r) => [r.file, r] as const))(
+  it.each(
+    RENDERABLE_ADMIN_ROUTE_CASES.map(
+      (r) => [r.file, r] as const,
+    ),
+  )(
     "%s の案内の印が、いま開いている経路に付いている",
     async (_file, route) => {
       const html = await renderCase(route);

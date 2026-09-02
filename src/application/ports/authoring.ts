@@ -20,6 +20,7 @@ import type {
 } from "@/domain/shared";
 import type { BrandScopeFilter, PageRequest, Paged, PortResult } from "./common";
 import type { AuditLogEntry } from "@/domain/compliance";
+import type { BlogTemplateId, BlogTheme } from "@/domain/authoring/blog-template";
 
 export type ContentPackageRepositoryPort = {
   findById(workspaceId: WorkspaceId, id: ContentPackageId): PortResult<ContentPackage | null>;
@@ -145,6 +146,17 @@ export type SiteProvisionRequest = {
   /** サイト網の節点に出す表示名と一行説明。 */
   readonly displayName: string;
   readonly oneLine: string;
+  /**
+   * 作成時に選んだ見せ方と色。
+   *
+   * `publishBlueprint` の `appearance` と違い**省略できない。**
+   * 作成は 13 問で見せ方を必ず選ばせる経路なので、省ける形にすると
+   * 「選んだのに既定のまま」という取りこぼしが型の上で許される。
+   */
+  readonly appearance: {
+    readonly templateId: BlogTemplateId;
+    readonly theme: BlogTheme;
+  };
 };
 
 export type SiteProvisionOutcome = {
@@ -168,7 +180,14 @@ export type SiteDraftRepositoryPort = {
    * 作成でここを直に呼ぶと、設計図はあるがサイト網の節点が無いブログ、
    * つまり「作成済みと出るのに 404」が再び作れてしまう。
    */
-  publishBlueprint(slug: string, blueprint: SiteBlueprint): PortResult<SiteBlueprint>;
+  publishBlueprint(
+    slug: string,
+    blueprint: SiteBlueprint,
+    appearance?: {
+      readonly templateId: BlogTemplateId;
+      readonly theme: BlogTheme;
+    },
+  ): PortResult<SiteBlueprint>;
   /**
    * ブログを**読者が開ける状態にして**作る。
    *

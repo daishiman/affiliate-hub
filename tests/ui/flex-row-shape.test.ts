@@ -109,12 +109,13 @@ const EXEMPT: Record<string, Exemption> = {
     measured: "Chromium実DOMで修正前の高さ28px（2026-08-21）",
     reason: "見出し文字1つを包むリンクで、44pxの的を作るためだけのinline-flex",
   },
-  // ブログ名・本文中の行き先・記事題の 3 つは、同じ「文字 1 つを包んで 44px の
-  // 押しどころを作る」規則なので 1 本にまとめてある（2026-08-31 の統合）。
-  // 3 つに分かれていたときは、下限を直すのに 3 か所を直す必要があった。
-  "src/presentation/ui/templates/site.module.css :: .siteName,\n.article a,\n.cardTitle a": {
-    measured: "文字 1 つを包むリンク 3 種（ブログ名・本文中の行き先・記事題）（2026-08-31）",
-    reason: "44px の押しどころを作るためだけの inline-flex。中身は文字だけで折り返す先が無い",
+  "src/presentation/ui/templates/site.module.css :: .breadcrumb a,\nnav.section a": {
+    measured: "現在地を辿る道しるべと節の案内のリンク（2026-08-31）",
+    reason: "44px の押しどころを作るためだけの inline-flex。中身は行き先の名前 1 つ",
+  },
+  "src/presentation/ui/templates/site.module.css :: .cardTitle a": {
+    measured: "一覧に並ぶ札の題を包むリンク（2026-08-31）",
+    reason: "44px の押しどころを作るためだけの inline-flex。折り返しは札の器が持つ",
   },
   "src/presentation/ui/templates/site.module.css :: .tableOfContents a": {
     measured: "目次 1 項目のリンク。中身は節の見出し文字だけ（2026-08-30）",

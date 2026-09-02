@@ -28,6 +28,8 @@ type RouteDefinition = {
   readonly label: string | null;
   readonly parent: string | null;
   readonly nav: NavDefinition | null;
+  /** DOMを持たずcanonical画面へ移すだけのlegacy adapter。 */
+  readonly redirectOnly?: boolean;
 };
 
 const nav = (
@@ -97,12 +99,14 @@ const ADMIN_ROUTE_DEFINITIONS = {
   // 一覧の「評価件数」から飛ぶ先。1 本の記事に付いた票を 1 件ずつ見る画面。
   "blog/evaluate/[article]": child("blog/evaluate", null),
   "blog/layout": child("blog", "版面の枠と帯"),
-  "blog/pages": child("blog", "固定ページ"),
+  "blog/pages": { ...child("blog", "固定ページ"), redirectOnly: true },
   "blog/tags": child("blog", "タグ"),
   sites: nav("サイト", "publish", "content.read", "site"),
   "sites/[site]": child("sites", null),
   "sites/[site]/edit": child("sites/[site]", "サイトを直す"),
   "sites/[site]/documents": child("sites/[site]", "固定ページ"),
+  "sites/[site]/appearance": child("sites/[site]", "見せ方と配色"),
+  "sites/[site]/placements": child("sites/[site]", "成果リンクの掲載"),
   "sites/new": child("sites", "サイトを作る"),
   distribution: nav("配信", "publish", "content.read", "distribution"),
   "distribution/[publication]": child("distribution", null),
@@ -158,6 +162,7 @@ export type AdminRouteMetadata = {
   readonly label: string | null;
   readonly parent: AdminRouteId | null;
   readonly nav: NavDefinition | null;
+  readonly redirectOnly: boolean;
 };
 
 const patternOf = (id: AdminRouteId): string => (id === "" ? "/admin" : `/admin/${id}`);
@@ -173,6 +178,7 @@ export const ADMIN_ROUTE_METADATA: readonly AdminRouteMetadata[] = Object.entrie
   label: definition.label,
   parent: definition.parent as AdminRouteId | null,
   nav: definition.nav,
+  redirectOnly: (definition as RouteDefinition).redirectOnly ?? false,
 }));
 
 const ROUTE_BY_ID = new Map(ADMIN_ROUTE_METADATA.map((route) => [route.id, route]));

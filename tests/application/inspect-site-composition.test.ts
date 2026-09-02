@@ -95,7 +95,7 @@ describe("inspectSiteComposition", () => {
   it("公開投影のCompositionReportを管理表示へ数え直さず渡す", async () => {
     const counts: CompositionCounts = {
       ...FULL,
-      fixed_pages: 0,
+      site_documents: 0,
       articles: 2,
     };
     const report = evaluateSiteComposition(counts);
@@ -128,7 +128,7 @@ describe("inspectSiteComposition", () => {
   });
 
   it("件数があってもレポートが不足とした要素に直し方を出す", async () => {
-    const fixedPageGap = evaluateSiteComposition({ ...FULL, fixed_pages: 0 }).gaps[0];
+    const fixedPageGap = evaluateSiteComposition({ ...FULL, site_documents: 0 }).gaps[0];
     const report = {
       ...evaluateSiteComposition(FULL),
       provisioningComplete: true,
@@ -143,10 +143,10 @@ describe("inspectSiteComposition", () => {
 
     expect(result.ok).toBe(true);
     if (!result.ok) return;
-    expect(result.value.elements.find((e) => e.element === "fixed_pages")?.count).toBe(
-      FULL.fixed_pages,
+    expect(result.value.elements.find((e) => e.element === "site_documents")?.count).toBe(
+      FULL.site_documents,
     );
-    expect(result.value.elements.find((e) => e.element === "fixed_pages")?.remedy).toBeTruthy();
+    expect(result.value.elements.find((e) => e.element === "site_documents")?.remedy).toBeTruthy();
   });
 
   it("0 件の要素には必ず直し方が付く", async () => {

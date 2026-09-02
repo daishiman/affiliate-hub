@@ -1,6 +1,5 @@
 /** @tier 2 @req REQ-P07, REQ-S06, REQ-W10, REQ-TS07 */
-import { readFileSync, readdirSync } from "node:fs";
-import path from "node:path";
+import { readFileSync } from "node:fs";
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import { drizzle } from "drizzle-orm/d1";
 import { getPlatformProxy } from "wrangler";
@@ -25,6 +24,7 @@ import { SAMPLE_SITE_SLUG } from "@/infrastructure/persistence/sample/site-sampl
 import { OTHER_WORKSPACE, anOwner } from "../support/actors";
 import { recordingAuditLog } from "../support/doubles";
 import { readPublicSiteComposition } from "@/presentation/site/public-site-projection";
+import { migrationFiles, splitStatements } from "../support/migrations";
 
 /**
  * ブログ作成ウィザードを、**本物の D1 と本物のマイグレーション**で通す結合テスト。
@@ -62,24 +62,20 @@ let migrationBackfill: { readonly count: number; readonly name: string | null };
 
 const owner: ActorContext = anOwner({ workspaceId: SAMPLE_WORKSPACE_ID });
 
-/** マイグレーションの本文を、実行できる単位に割る。 */
-function migrationFiles(): readonly {
-  readonly file: string;
-  readonly statements: readonly string[];
-}[] {
-  const dir = path.resolve(process.cwd(), "drizzle");
-  const files = readdirSync(dir)
-    .filter((f) => f.endsWith(".sql"))
-    .sort();
-  expect(files.length).toBeGreaterThan(0);
-  return files.map((file) => ({
-    file,
-    statements: readFileSync(path.join(dir, file), "utf8")
-      .split("--> statement-breakpoint")
-      .map((s) => s.trim())
-      .filter((s) => s !== ""),
-  }));
-}
+/**
+ * 移行の**途中に**値を仕込むために、1 本ずつ流す。
+ *
+ * 読み方そのもの（並び順・区切り・0 件で投げること）は
+ * `tests/support/migrations.ts` に 1 つだけ置いてある。ここで読み直さないのは、
+ * 17 ファイルに写した結果、母数を張る側と張らない側の 2 系統に割れていた
+ * のと同じことを繰り返さないため。
+ *
+ * このファイルだけ `migrationStatements()`（全部を平らに繋いだ列）を使えないのは、
+ * **移行の前に行を 1 つ入れておかないと確かめられない検査**があるからで、
+ * 割り方は共有のものをそのまま使う。
+ */
+const BACKFILL_MIGRATION = "0042_small_amphibian.sql";
+
 
 beforeAll(async () => {
   proxy = await getPlatformProxy<TestEnv>({
@@ -87,8 +83,9 @@ beforeAll(async () => {
     environment: "dev",
     persist: false,
   });
-  for (const migration of migrationFiles()) {
-    if (migration.file === "0041_small_amphibian.sql") {
+  for (const file of migrationFiles()) {
+    const name = file.slice(file.lastIndexOf("/") + 1);
+    if (name === BACKFILL_MIGRATION) {
       await proxy.env.DB.prepare(
         `INSERT INTO site_blueprints
           (id, workspace_id, slug, name, pattern, blueprint_json)
@@ -104,10 +101,10 @@ beforeAll(async () => {
         )
         .run();
     }
-    for (const statement of migration.statements) {
+    for (const statement of splitStatements(readFileSync(file, "utf8"))) {
       await proxy.env.DB.prepare(statement).run();
     }
-    if (migration.file === "0041_small_amphibian.sql") {
+    if (name === BACKFILL_MIGRATION) {
       const rows = await proxy.env.DB.prepare(
         "select count(*) as count, max(name) as name from site_network_node where site_slug = 'migration-backfill'",
       ).first<{ count: number; name: string | null }>();
@@ -143,6 +140,11 @@ beforeEach(async () => {
   await proxy.env.DB.prepare("DELETE FROM blog_layout_band").run();
   await proxy.env.DB.prepare("DELETE FROM site_network_node").run();
   await proxy.env.DB.prepare("DELETE FROM site_retirements").run();
+  // 配色も同じ理由で消す。子を 1 種類でも残すと、次の試験が
+  // 「前の試験が置いた配色」を自分の結果として読む。
+  await proxy.env.DB.prepare("DELETE FROM page_theme_override").run();
+  await proxy.env.DB.prepare("DELETE FROM blog_theme").run();
+  await proxy.env.DB.prepare("DELETE FROM blog_template").run();
   await proxy.env.DB.prepare("DELETE FROM site_drafts").run();
   await proxy.env.DB.prepare("DELETE FROM site_blueprints").run();
 });
@@ -340,6 +342,28 @@ describe("下書きから読者向けの 1 本になるまで（1 本の道）",
     expect(slugs).toEqual(["first-lens"]);
   });
 
+  it("A1: 選んだ見せ方とウィザードの配色を設計図と同時に永続する", async () => {
+    const draftId = await completeDraft("appearance-lens");
+    const created = await createCreateSiteFromDraftUseCase(deps).execute(owner, {
+      draftId,
+      templateId: "comparison_focus",
+    });
+    expect(created.ok, created.ok ? "" : created.error.message).toBe(true);
+
+    const template = await proxy.env.DB.prepare(
+      "SELECT template_id FROM blog_template WHERE site_slug = 'appearance-lens'",
+    ).first<{ template_id: string }>();
+    const theme = await proxy.env.DB.prepare(
+      "SELECT workspace_id, brand_theme, color_mode FROM blog_theme WHERE site_slug = 'appearance-lens'",
+    ).first<{ workspace_id: string; brand_theme: string; color_mode: string }>();
+    expect(template?.template_id).toBe("comparison_focus");
+    expect(theme).toEqual({
+      workspace_id: String(owner.workspaceId),
+      brand_theme: "indigo-clay",
+      color_mode: "auto",
+    });
+  });
+
   /*
    * 下の 2 件は、以前は見本の保存先の上（単体側）で見ていた。
    * 作ったことを記録に残すようになり、**記録の保存先が無い状態では
@@ -353,9 +377,14 @@ describe("下書きから読者向けの 1 本になるまで（1 本の道）",
 
     expect(created.value.readerPath).toBe("/s/first-lens");
     expect(created.value.categoryCount).toBe(2);
-    // 8 種の固定ページは下書き実体まで作る。公開準備とは分ける。
-    expect(created.value.pageCount).toBe(8);
-    expect(created.value.counts.fixed_pages).toBe(8);
+    /*
+      固定ページは**枠を先に作らない**。作成直後は 0 件で、8 種すべてが
+      公開準備の不足として残る（`SITE_PROVISIONING_REQUIRED_COUNTS` の
+      `site_documents: 0` / `SITE_CONTENT_REQUIRED_COUNTS` は 8）。
+      作成完了と公開準備完了を分けるのがここの主題である。
+    */
+    expect(created.value.pageCount).toBe(0);
+    expect(created.value.counts.site_documents).toBe(0);
     expect(created.value.counts.articles).toBe(0);
     expect(created.value.reachable).toBe(true);
     expect(created.value.provisioningComplete).toBe(true);
@@ -468,6 +497,60 @@ describe("下書きから読者向けの 1 本になるまで（1 本の道）",
     ]);
   });
 
+  it("A1: 別workspaceのslug競合ではappearanceを1行も残さず、ownerの後続保存を妨げない", async () => {
+    const draftId = await completeDraft("tenant-appearance", "元の所有者のブログ");
+    const created = await createCreateSiteFromDraftUseCase(deps).execute(owner, { draftId });
+    if (!created.ok) throw created.error;
+
+    // 攻撃前の条件を明示する。設計図だけがあり、appearanceはまだ無い。
+    await proxy.env.DB.prepare(
+      "DELETE FROM blog_template WHERE site_slug = 'tenant-appearance'",
+    ).run();
+    await proxy.env.DB.prepare(
+      "DELETE FROM blog_theme WHERE site_slug = 'tenant-appearance'",
+    ).run();
+
+    const current = await sites.findBySlug("tenant-appearance");
+    if (!current.ok || current.value === null) throw new Error("owner blueprintを読めませんでした");
+
+    const attacked = await deps.drafts.publishBlueprint(
+      "tenant-appearance",
+      { ...current.value, workspaceId: OTHER_WORKSPACE, name: "攻撃側の差し替え" },
+      {
+        templateId: "comparison_focus",
+        theme: { brandTheme: "graphite-amber", colorMode: "dark" },
+      },
+    );
+    expect(attacked.ok).toBe(false);
+
+    const appearanceCount = async (table: string) =>
+      proxy.env.DB.prepare(
+        `SELECT count(*) AS n FROM ${table} WHERE site_slug = 'tenant-appearance'`,
+      ).first<{ n: number }>();
+    expect((await appearanceCount("blog_template"))?.n).toBe(0);
+    expect((await appearanceCount("blog_theme"))?.n).toBe(0);
+    expect((await appearanceCount("page_theme_override"))?.n).toBe(0);
+
+    const ownerSaved = await deps.drafts.publishBlueprint(
+      "tenant-appearance",
+      current.value,
+      {
+        templateId: "comparison_focus",
+        theme: { brandTheme: "indigo-clay", colorMode: "auto" },
+      },
+    );
+    expect(ownerSaved.ok).toBe(true);
+
+    const templates = await proxy.env.DB.prepare(
+      "SELECT workspace_id FROM blog_template WHERE site_slug = 'tenant-appearance'",
+    ).all<{ workspace_id: string }>();
+    const themes = await proxy.env.DB.prepare(
+      "SELECT workspace_id FROM blog_theme WHERE site_slug = 'tenant-appearance'",
+    ).all<{ workspace_id: string }>();
+    expect(templates.results).toEqual([{ workspace_id: String(owner.workspaceId) }]);
+    expect(themes.results).toEqual([{ workspace_id: String(owner.workspaceId) }]);
+  });
+
   it("取り下げた URL 名も、別の作業場所へ再割り当てしない", async () => {
     const draftId = await completeDraft("retired-lens", "取り下げ前のブログ");
     const created = await createCreateSiteFromDraftUseCase(deps).execute(owner, { draftId });
@@ -541,7 +624,15 @@ describe("D1 batch の原子性", () => {
     { name: "サイト網", table: "site_network_node", operation: "INSERT", column: "site_slug" },
     { name: "帯の途中", table: "blog_layout_band", operation: "INSERT", column: "site_slug" },
     { name: "枠の途中", table: "blog_layout_slot", operation: "INSERT", column: "site_slug" },
-    { name: "固定ページ", table: "legal_page", operation: "INSERT", column: "site_slug" },
+    /*
+      「固定ページ」（`legal_page`）はここに無い。作成の batch が空の枠を
+      8 行先に作るのをやめたので、作成中にこの表へは 1 行も書かない
+      （書くのは運営者が本文を保存したとき＝`site-document-repository`）。
+      **書かない表に原子性は無い。**触らない表への trigger を残すと、
+      発火しないまま緑になり、原子性を見ていないのに見たつもりになる。
+      代わりに、同じ batch に実在する「見せ方」を対象へ入れてある。
+    */
+    { name: "見せ方", table: "blog_template", operation: "INSERT", column: "site_slug" },
     { name: "下書き完了更新", table: "site_drafts", operation: "UPDATE", column: "created_site_slug" },
     { name: "作成監査", table: "audit_logs", operation: "INSERT", column: "target_id" },
   ] as const;

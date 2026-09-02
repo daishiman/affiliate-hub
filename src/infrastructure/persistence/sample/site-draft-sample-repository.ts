@@ -201,14 +201,11 @@ export function createSampleSiteDraftRepository(
       };
       return ok({
         blueprint,
-        composition: evaluateSiteComposition(
-          {
-            ...SITE_PROVISIONING_REQUIRED_COUNTS,
-            categories: blueprint.categories.length,
-            articles: 0,
-          },
-          ["fixed_pages"],
-        ),
+        composition: evaluateSiteComposition({
+          ...SITE_PROVISIONING_REQUIRED_COUNTS,
+          categories: blueprint.categories.length,
+          articles: 0,
+        }),
       });
     },
 

@@ -28,8 +28,6 @@
  *       docs/spec/01-要求仕様書-v1.0.md §19.2 / REQ-E13、
  *       tasks/task-publish-article-affiliate-links.md
  */
-import { readFileSync, readdirSync } from "node:fs";
-import path from "node:path";
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import { drizzle } from "drizzle-orm/d1";
 import { getPlatformProxy } from "wrangler";
@@ -57,6 +55,7 @@ import { taggedString } from "@/domain/shared";
 import { createDeps } from "@/infrastructure/composition";
 import { SAMPLE_WORKSPACE_ID } from "@/infrastructure/persistence/sample/ranking-sample-repository";
 import { anOutsider, anOwner } from "../support/actors";
+import { migrationStatements } from "../support/migrations";
 
 /** 使う結び付きは D1 だけ。`CloudflareEnv` 全体を要求しない。 */
 type TestEnv = { readonly DB: D1Database };
@@ -72,20 +71,6 @@ const owner: ActorContext = anOwner({ workspaceId: SAMPLE_WORKSPACE_ID });
 /** 見本にある提携プログラムと商品。受信箱を `matched` まで進めるのに要る。 */
 const PROGRAM_ID = "prg_amazon_pc";
 const PRODUCT_ID = "prd_sample_1";
-
-function migrationStatements(): readonly string[] {
-  const dir = path.resolve(process.cwd(), "drizzle");
-  const files = readdirSync(dir)
-    .filter((f) => f.endsWith(".sql"))
-    .sort();
-  expect(files.length).toBeGreaterThan(0);
-  return files.flatMap((file) =>
-    readFileSync(path.join(dir, file), "utf8")
-      .split("--> statement-breakpoint")
-      .map((s) => s.trim())
-      .filter((s) => s !== ""),
-  );
-}
 
 beforeAll(async () => {
   proxy = await getPlatformProxy<TestEnv>({

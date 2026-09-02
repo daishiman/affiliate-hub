@@ -14,6 +14,43 @@
   color: var(--color-text-default);
   font-size: var(--text-base);
   line-height: var(--leading-body);
+
+  /*
+   * 飛び先が固定ヘッダーの下へ潜らないための、ヘッダー高さの**見積もり**。
+   *
+   * ヘッダーの実寸は中身しだいで、CSS からは取れない。だから見積もる。
+   * 大きめに外す——大きいぶんは見出しの上に余白が出るだけだが、
+   * 小さいと見出しが隠れる。片側の誤差だけを許す。
+   *
+   * 実測は 1280x900 で 177px（約 11rem）。刻みの上に乗せて 12rem とする。
+   * `12rem` と直に書かず `--space-8` の 3 倍で書くのは、寸法の正本を
+   * トークンに一本化する規則（`design-tokens.test.ts`）による。
+   * ここだけ生の値を許すと、刻みを外れた寸法の入口が 1 つ開く。
+   */
+  --site-header-block-size: calc(var(--space-8) * 3);
+
+  /*
+   * ページ内アンカーで飛んだ先が、固定ヘッダーの下へ潜らないための余白。
+   *
+   * WCAG 2.2 SC 2.4.11 Focus Not Obscured。**axe-core はこれを検出できない**。
+   * 潜っていても自動検査は緑のまま通るので、規則側で潰しておく。
+   *
+   * ヘッダーの実寸ではなく上限を使う。実寸より大きいぶんは
+   * 見出しの上に余白が出るだけだが、小さいと見出しが隠れる。
+   * 外す方向の誤差だけを許す。
+   */
+  --site-scroll-inset: calc(var(--site-header-block-size) + var(--space-4));
+}
+
+/*
+ * 飛び先になりうる要素すべてに余白を付ける。
+ *
+ * 見出しだけに付けると、脚注・FAQ の項目・比較表の行など
+ * `id` を持つ他の飛び先が隠れる。`id` があることが飛び先の定義なので、
+ * そこへ付けるのが漏れない唯一の書き方である。
+ */
+.siteShell [id] {
+  scroll-margin-top: var(--site-scroll-inset);
 }
 
 .skipLink {
@@ -32,11 +69,50 @@
   transform: translateY(0);
 }
 
+/*
+ * ヘッダーは巻いても付いてくる（受入 A3）。
+ *
+ * `sticky` であって `fixed` ではない。`fixed` にすると要素が流れから外れ、
+ * 直下の本文が自分でヘッダーぶんの余白を持たねばならなくなる。
+ * その余白は必ずヘッダーの実寸とずれ、ずれた日に本文の頭が隠れる。
+ * `sticky` なら場所は流れが決め、巻いたときだけ付いてくる。
+ *
+ * 背景は不透明でなければならない。半透明にすると本文が透けて重なり、
+ * ヘッダーの文字のコントラスト比が本文次第で変わる（A9 が測れなくなる）。
+ * `--color-surface-raised` は不透明。
+ */
+/*
+ * --- 2026-08-30、高さの上限と `overflow: hidden` を外した ---
+ *
+ * ここには `max-block-size: 12dvh` と `overflow: hidden` が在った。
+ * どちらも実害を出したので外す。**理由を 2 つとも残す。**
+ *
+ * 1. 上限を `dvh` で決めたのが誤りだった。
+ *    フッターの取り分は「画面のどれだけを譲るか」なので `dvh` でよい。
+ *    だがヘッダーの中身（サイト名・ナビ・検索）の高さは
+ *    **画面の高さに比例しない**。小さい画面ほど 12dvh は縮むのに、
+ *    ナビの高さは変わらない。**小さい画面ほど確実に潰れる。**
+ *    実測（1280x900）で上限 108px に対し中身 177px だった。
+ *
+ * 2. `overflow: hidden` は、潰れたことを隠しただけだった。
+ *    切られた要素は見えなくなるが**矩形は元の場所に残る**ので、
+ *    ヘッダーからはみ出したナビ（top=122.2、下端 177）が
+ *    本文の先頭（top=132）と重なり続けた。
+ *    E2E の重なり検査が 77 件で落ちて初めて表に出た。
+ *    元の註は「隠れて気付くほうがよい」と書いていたが、
+ *    **隠れたものには誰も気付かない。**
+ *
+ * 常時表示が本文を食う心配は消えていない。ヘッダーが 2 行にも 3 行にも
+ * 伸びれば狭い画面の本文は減る。だがそれは**ヘッダーの中身を足した人が
+ * 見て決めること**で、規則で黙って切ってよいものではない。
+ * 切ると「ナビが消えているのに誰も知らない」が起きる——現に起きた。
+ */
 .siteHeader {
   border-bottom: var(--border-width-default) solid var(--color-border-subtle);
   background: var(--color-surface-raised);
-  position: relative;
-  z-index: var(--z-raised);
+  position: sticky;
+  inset-block-start: 0;
+  z-index: var(--z-sticky);
 }
 
 .siteHeaderInner {
@@ -136,10 +212,37 @@
   align-content: start;
 }
 
+.siteBody {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) var(--layout-sidebar-width);
+  align-items: start;
+  gap: var(--space-6);
+  /* 上と同じ理由。こちらは親から高さを渡されうる 1 行の grid。 */
+  align-content: start;
+}
+
 /* 読者画面でも、grid子の内容幅は本文全体ではなく各scroll包みが受け持つ。 */
 .siteMain > * {
   min-width: 0;
-  container-type: inline-size;
+}
+
+/*
+ * 1 つの作業だけの画面の箱（UX-06）。`FocusedTask` が使う。
+ *
+ * 枠・背景・角・影は共通部品の `.card` から来る。ここでは**重ねて書かない**
+ * （同じ箱が 2 通りの定義を持つと、片方だけ直る日が来る）。
+ * ここが決めるのは、置き方（横中央）と幅の上限と、中の間隔だけ。
+ *
+ * 幅は `--readable-max-width`。本文幅（`--prose-max-width`）より狭いのは、
+ * ここに入るのが読み物ではなく**短い説明と操作**だからで、
+ * 行が長いと「読む画面」に見えてしまう。
+ */
+.focusedTask {
+  width: 100%;
+  max-width: var(--readable-max-width);
+  margin-inline: auto;
+  display: grid;
+  gap: var(--space-5);
 }
 
 /*
@@ -267,6 +370,39 @@
   border: 0;
 }
 
+/*
+ * フッターは追従させない。
+ *
+ * --- 経緯（撤回して、また撤回した） ---
+ * P02 §2.2 は「フッターは追従させない」と決め、P03 もそれを是とした。
+ * P05 はそれを覆した——**受入 A3 がフッターを名指ししている**以上、
+ * 設計 phase に受入文を書き換える権限は無い、という理由で。
+ * 筋は通っている。だが実装して測ったら、害のほうが大きかった。
+ *
+ * --- 何が起きたか（2026-08-30、実測） ---
+ * `position: sticky; inset-block-end: 0` の要素は
+ * **画面下端の帯を常に占有する**。これは設定の問題ではなく性質である。
+ *   - 本文側に下余白を積んでも、守れるのは「最後まで巻き切ったとき」だけ。
+ *     途中のスクロール位置では、下端に居るフッターが必ず何かを覆う。
+ *   - 1280x900 で本文のリンク（top=839.9）が
+ *     フッター（top=792、下端に貼付き）の下に 9.5px 潜っていた。
+ *   - 脇の欄も同様に裾を覆われ、E2E の重なり検査が **77 件**落ちた。
+ *
+ * 上限を 28dvh から 12dvh へ下げ、本文と脇の欄に帯ぶんの余白を積み、
+ * それでも消えなかった。**構造上、消えない。**
+ *
+ * --- なぜ検査を緩める道を採らないか ---
+ * この検査には `data-floating-overlay`（浮くと自分で名乗る）という
+ * 逃げ道が用意されている。付ければ緑になる。付けない。
+ * あれは右下の小さなボタン 1 個のためのもので、
+ * 画面幅いっぱいの帯に付ければ「重なりを検出する検査」自体が死ぬ。
+ * 緑になるのと、読者の指が届くのは、別のことである。
+ *
+ * --- 受入 A3 との関係 ---
+ * ヘッダーと脇の欄は追従する（A3 の 3 領域のうち 2 つ）。
+ * フッターは追従しない。**満たしていない**ことを
+ * `acceptance-report.md` の A3 に根拠付きで書いた。緑には数えない。
+ */
 .siteFooter {
   border-top: var(--border-width-default) solid var(--color-border-subtle);
   background: var(--color-surface-sunken);
@@ -331,6 +467,15 @@
 .breadcrumb {
   font-size: var(--text-sm);
   color: var(--color-text-muted);
+}
+
+/* 読者側の案内リンク（パンくずと目次）。**文の中のリンクではなく、
+   1 行が丸ごと 1 つの行き先**なので、押しどころの下限を持たせる。 */
+.breadcrumb a,
+nav.section a {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--tap-target-min);
 }
 
 /* --- ホーム ---------------------------------------------------------- */
@@ -754,20 +899,15 @@
 }
 
 .cardTitle a {
+  display: inline-flex;
+  align-items: center;
+  min-block-size: var(--tap-target-min);
   color: var(--color-text-strong);
   text-decoration: none;
 }
 
 .cardTitle a:hover {
   text-decoration: underline;
-}
-
-.siteName,
-.article a,
-.cardTitle a {
-  display: inline-flex;
-  align-items: center;
-  min-height: var(--tap-target-min);
 }
 
 .cardMeta {
@@ -898,7 +1038,13 @@
   }
 }
 
-/* `SiteShell` の脇欄契約。ホーム用スタイルと同じ正本で段組みを管理する。 */
+/*
+ * 本文と脇の欄の 2 段組み（§3.4）。
+ *
+ * **脇の欄が無いブログでは、この箱ごと出さない。**出すと、脇が空のまま
+ * 本文の幅だけが狭くなる。段組みは「置くものがある」ことの結果であって、
+ * 枠組みの既定ではない。
+ */
 .siteBody {
   flex: 1;
   width: 100%;
@@ -908,9 +1054,14 @@
   grid-template-columns: minmax(0, 1fr) var(--layout-sidebar-width);
   gap: var(--space-6);
   align-items: start;
+  /*
+   * `flex: 1` で画面の高さまで伸びる箱の grid。既定の `stretch` のままだと、
+   * 中身の短い画面で行の間が均等に引き伸ばされる（`.siteMain` と同じ理由）。
+   */
   align-content: start;
 }
 
+/* 2 段組みのときは、幅の上限と横中央を外側（`.siteBody`）が持つ。 */
 .siteMainWithAside {
   max-width: none;
   margin-inline: 0;
@@ -925,35 +1076,69 @@
   font-size: var(--text-sm);
 }
 
+/*
+ * 追従する枠。
+ *
+ * **箱の高さを画面の内側に収める。**追従する箱が画面より高いと、
+ * 下端が永久に見えなくなる（巻いても付いてくるので、下へ逃げられない）。
+ * 高さの閾値で追従を切る書き方もあるが、`--breakpoint-*` は幅の折り返し位置しか
+ * 持っていないので、注記が嘘になるうえ閾値ちょうどの画面で挙動が飛ぶ。
+ * `max-height` なら**どの高さでも同じ規則**で、中身が短ければ何も起きない。
+ */
+/*
+ * 脇の欄も巻いても付いてくる（受入 A3）。
+ *
+ * --- 2026-08-30、ヘッダーの帯のぶんを勘定に入れた ---
+ *
+ * ここは `top: var(--space-5)` と `max-height: calc(100vh - space-5*2)` で、
+ * **画面いっぱいを自分のものだと思っていた**。ヘッダーが追従するように
+ * なった今、その前提は成り立たない。実測でヘッダー（高さ 178px）の下へ
+ * 欄の頭が潜っていた。
+ * `100vh` を `100dvh` にするのも同じ理由で、携帯のアドレスバーが
+ * 出ている間 `vh` は実際より大きい高さを指す。
+ *
+ * **引くのはヘッダーのぶんだけ**である。フッターは追従しない
+ * （`.siteFooter` の註）ので、画面下端に帯は無い。無い帯のぶんを
+ * 引くと、欄がその高さぶん短く畳まれるだけで誰も得をしない。
+ *
+ * ヘッダーの高さは見積もり（`--site-header-block-size`）を使う。
+ * 実寸は CSS から取れない。大きめに外すと欄が少し下がるだけで済むが、
+ * 小さいと頭が隠れる。
+ */
 .siteAsideSticky {
   display: grid;
   gap: var(--space-5);
   position: sticky;
-  top: var(--space-5);
-  max-height: calc(100vh - var(--space-5) * 2);
+  top: calc(var(--site-header-block-size) + var(--space-5));
+  max-height: calc(100dvh - var(--site-header-block-size) - var(--space-5) * 2);
   overflow-y: auto;
+  /* 枠の中で巻き終わったあと、そのまま本文が動き出さないようにする。 */
   overscroll-behavior: contain;
 }
 
-.focusedTask {
-  width: 100%;
-  max-width: var(--readable-max-width);
-  margin-inline: auto;
-  display: grid;
-  gap: var(--space-5);
-}
-
 @media (width < 64rem) { /* --breakpoint-lg */
+  /*
+   * 狭い画面では 1 段にして、脇の欄を**本文の下へ降ろす**。
+   * 上に置くと、記事を読みに来た読者が毎回 8 個の枠を通り過ぎることになる。
+   */
   .siteBody {
     grid-template-columns: minmax(0, 1fr);
   }
 
-  .siteMainWithAside,
+  .siteMainWithAside {
+    padding-inline: var(--space-5);
+  }
+
   .siteAside {
     padding-inline: var(--space-5);
   }
 
   .siteAsideSticky {
+    /*
+      1 段になった時点で「巻いても付いてくる」意味が無い。
+      高さの上限も外す。外さないと、本文の下に置いた枠が
+      **枠の中だけで巻ける入れ子の箱**になり、指の動きが本文と食い合う。
+    */
     position: static;
     max-height: none;
     overflow-y: visible;

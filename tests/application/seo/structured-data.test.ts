@@ -6,12 +6,15 @@
 import { describe, expect, it } from "vitest";
 import type { PublishedArticle } from "@/application/read-models/published-article";
 import {
+  buildBlogOpsFaqPage,
+  buildBlogOpsPosting,
   buildBlogPosting,
   buildBreadcrumbList,
   buildFaqPage,
   buildItemList,
   serializeJsonLd,
 } from "@/application/seo/structured-data";
+import { toExpressionArticleBlock } from "@/application/adapters/expression-article-block";
 
 /** テスト用の最小の記事。必須欄だけ埋める。 */
 const article: PublishedArticle = {
@@ -224,6 +227,130 @@ describe("FAQ", () => {
         acceptedAnswer: { "@type": "Answer", text: "まず書き出し速度。" },
       },
     ]);
+  });
+
+  it("運用側の記事 carrier も公開表示と同じ FAQPage に写る", () => {
+    const faq = buildBlogOpsFaqPage([
+      toExpressionArticleBlock(
+        { kind: "faq", items: [{ question: "保証は?", answer: "1 年です。" }] },
+        "faq_1",
+        0,
+      ),
+    ]);
+    expect(faq?.mainEntity).toEqual([
+      {
+        "@type": "Question",
+        name: "保証は?",
+        acceptedAnswer: { "@type": "Answer", text: "1 年です。" },
+      },
+    ]);
+  });
+});
+
+/**
+ * ブログ運用で書いた記事（`/blog/<slug>`）の BlogPosting。
+ *
+ * 出典も監修者も持たない経路なので、**出せない項目はキーごと省く**ことを見る。
+ * 空の著者・空の出典を出すと、機械には「情報がある記事」に見えて中身が無い。
+ */
+describe("運用側の記事の BlogPosting", () => {
+  const site = { siteName: "静かな家電の話", origin: "https://x.test", basePath: "/s/quiet" };
+  const base = {
+    slug: "keyboards",
+    title: "静かなキーボードの選び方",
+    lead: "打鍵音を気にする人向けに 3 機種を比べます。",
+    authorName: "見本 太郎",
+    publishedAt: new Date("2026-08-01T00:00:00Z"),
+    updatedAt: new Date("2026-08-20T00:00:00Z"),
+  };
+
+  it("題名・導入・著者・更新日を写し、URL は /blog/<slug> を指す", () => {
+    const ld = buildBlogOpsPosting({ article: base, blocks: [], site });
+
+    expect(ld.headline).toBe(base.title);
+    expect(ld.description).toBe(base.lead);
+    expect(ld.inLanguage).toBe("ja");
+    expect(ld.author).toEqual({ "@type": "Person", name: "見本 太郎" });
+    expect(ld.datePublished).toBe("2026-08-01T00:00:00.000Z");
+    expect(ld.dateModified).toBe("2026-08-20T00:00:00.000Z");
+    expect(ld.mainEntityOfPage).toEqual({
+      "@type": "WebPage",
+      "@id": "https://x.test/s/quiet/blog/keyboards",
+    });
+  });
+
+  it("著者ページを持たないので url を出さない（存在しない住所へ送らない）", () => {
+    const ld = buildBlogOpsPosting({ article: base, blocks: [], site });
+
+    expect(ld.author).not.toHaveProperty("url");
+  });
+
+  it("まだ公開していない記事に公開日を出さない", () => {
+    const ld = buildBlogOpsPosting({
+      article: { ...base, publishedAt: null },
+      blocks: [],
+      site,
+    });
+
+    expect(ld).not.toHaveProperty("datePublished");
+    // 更新日は下書きでも出る。いつ触られたかは嘘にならない。
+    expect(ld.dateModified).toBe("2026-08-20T00:00:00.000Z");
+  });
+
+  it("まとめの節があれば abstract に本文をそのまま写す", () => {
+    const ld = buildBlogOpsPosting({
+      article: base,
+      blocks: [
+        { kind: "intro-box", body: "導入。" },
+        { kind: "summary-section", body: "静かさ重視なら B。" },
+      ],
+      site,
+    });
+
+    expect(ld.abstract).toBe("静かさ重視なら B。");
+  });
+
+  it("表現ブロックのまとめは carrier JSON ではなく読者に見える本文を写す", () => {
+    const ld = buildBlogOpsPosting({
+      article: base,
+      blocks: [
+        toExpressionArticleBlock(
+          { kind: "summary", text: "軽さを優先します。" },
+          "expression_summary",
+          0,
+        ),
+      ],
+      site,
+    });
+
+    expect(ld.abstract).toBe("軽さを優先します。");
+    expect(JSON.stringify(ld)).not.toContain("expression-block:v1");
+  });
+
+  it("壊れたsummary carrierは通常本文へfallbackせずabstractへ出さない", () => {
+    const ld = buildBlogOpsPosting({
+      article: base,
+      blocks: [
+        {
+          kind: "summary-section",
+          body: "expression-block:v1:not-json",
+        },
+      ],
+      site,
+    });
+
+    expect(ld).not.toHaveProperty("abstract");
+    expect(JSON.stringify(ld)).not.toContain("expression-block:v1:not-json");
+  });
+
+  it("まとめの節が無ければ abstract を出さない", () => {
+    const ld = buildBlogOpsPosting({
+      article: base,
+      blocks: [{ kind: "intro-box", body: "導入。" }],
+      site,
+    });
+
+    expect(ld).not.toHaveProperty("abstract");
   });
 });
 

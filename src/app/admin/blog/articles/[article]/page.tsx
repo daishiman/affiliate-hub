@@ -1,6 +1,7 @@
 import { AdminShell } from "@/presentation/admin/admin-shell";
 import { BlogArticleEditForm } from "@/presentation/admin/publish/blog-article-form";
 import { blogSiteOptions } from "@/presentation/admin/publish/blog-site-options";
+import { ExpressionBlockAppendForm } from "@/presentation/admin/publish/expression-block-form";
 import { blogOpsEntry, currentActor } from "@/presentation/composition";
 import { ErrorView, FactList, Note, Section, TextLink } from "@/presentation/ui";
 
@@ -115,6 +116,9 @@ export default async function BlogArticleEditPage({
           }
           selectedTagIds={view.tagIds}
         />
+      </Section>
+      <Section title="図解・比較・CTA・要約・スペック表を足す">
+        <ExpressionBlockAppendForm articleId={view.articleId} />
       </Section>
     </AdminShell>
   );

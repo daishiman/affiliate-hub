@@ -141,18 +141,70 @@ function hasExportModifier(node: ts.Node): boolean {
     (ts.getModifiers(node)?.some((modifier) => modifier.kind === ts.SyntaxKind.ExportKeyword) ?? false);
 }
 
+/** ファイル内で宣言された関数を名前で引く。export の有無は問わない。 */
+function declaredFunctionsOf(source: ts.SourceFile): ReadonlyMap<string, ts.FunctionDeclaration> {
+  const found = new Map<string, ts.FunctionDeclaration>();
+  for (const statement of source.statements) {
+    if (ts.isFunctionDeclaration(statement) && statement.name !== undefined) {
+      found.set(statement.name.text, statement);
+    }
+  }
+  return found;
+}
+
+/**
+ * `entry` が描いている名前を、同じファイルの中だけ推移的に追う。
+ *
+ * **公開入口が action を自分で持っているとは限らない。**実物 2 件がそうだった
+ * （2026-08-31 実測）——`SiteWizardStepForm` は段階に応じて `StepFieldsForm`
+ * (非 export) と `CreateSiteForm` へ、`PageThemeOverrideForms` は
+ * `PageThemeOverrideForm` (非 export) へ、それぞれ描画を委ねている。
+ * `useActionState` を呼ぶのは委ね先で、公開入口の関数本体には action が現れない。
+ *
+ * 委ね先だけを見て「申告が実在しない」と報せると、**正しい申告のほうを消す圧力**に
+ * なる。route から見える入口は公開されている名前 1 つなので、そこへ帰属させるのが
+ * 実態に合う。追うのは同一ファイル内に限る——別ファイルへ渡った時点で、それは
+ * `renderedImportsOf` が別の候補モジュールとして拾う担当だからである。
+ */
+function reachableInFile(source: ts.SourceFile, entry: ts.FunctionDeclaration): readonly ts.FunctionDeclaration[] {
+  const declared = declaredFunctionsOf(source);
+  const seen = new Set<ts.FunctionDeclaration>([entry]);
+  const queue = [entry];
+  while (queue.length > 0) {
+    const current = queue.shift();
+    if (current === undefined) continue;
+    const visit = (node: ts.Node): void => {
+      if (ts.isJsxOpeningElement(node) || ts.isJsxSelfClosingElement(node)) {
+        const target = declared.get(node.tagName.getText());
+        if (target !== undefined && !seen.has(target)) {
+          seen.add(target);
+          queue.push(target);
+        }
+      }
+      ts.forEachChild(node, visit);
+    };
+    visit(current);
+  }
+  return [...seen];
+}
+
 function exportedRuntimeEdgesOf(file: string): readonly {
   readonly uiExportName: string;
   readonly action: SourceEdge;
 }[] {
   const found: { readonly uiExportName: string; readonly action: SourceEdge }[] = [];
   const exportedFunctions: ts.FunctionDeclaration[] = [];
-  for (const statement of parse(file).statements) {
+  const source = parse(file);
+  for (const statement of source.statements) {
     if (!ts.isFunctionDeclaration(statement) || statement.name === undefined || !hasExportModifier(statement)) {
       continue;
     }
     exportedFunctions.push(statement);
-    for (const action of runtimeActionEdgesForNames(file, runtimeNamesInNode(statement))) {
+    const names = new Set<string>();
+    for (const reached of reachableInFile(source, statement)) {
+      for (const name of runtimeNamesInNode(reached)) names.add(name);
+    }
+    for (const action of runtimeActionEdgesForNames(file, names)) {
       found.push({ uiExportName: statement.name.text, action });
     }
   }
@@ -359,13 +411,20 @@ describe("A1 §2 全business mutationを単一のprimary taskへ所属させる"
       （`bluesky-connection-form.tsx` → `registerBlueskyConnectionAction`）。
       認証情報を保存する操作は業務状態の変更なので、申告しないまま動かさない。
     */
-    expect(discovered).toHaveLength(63);
+    /*
+      2026-08-31: 63 → 65。**画面が増えたのではなく、機械の目が届くようになった。**
+      公開入口が同じファイルの非 export component へ描画を委ねている 2 件
+      （`SiteWizardStepForm` → `StepFieldsForm`、`PageThemeOverrideForms` →
+      `PageThemeOverrideForm`）を `reachableInFile` が辿るようになった。
+      申告は前から正しく、discovery が届いていなかった側である。
+    */
+    expect(discovered).toHaveLength(65);
     expect(declared, "未申告または実在しないexecution siteがあります").toEqual(discovered);
     expect(new Set(
       ADMIN_SCREEN_RUNTIME_ENTRIES
         .filter((entry) => entry.classification === "business-mutation")
         .map((entry) => edgeKey(entry.action)),
-    ).size).toBe(61);
+    ).size).toBe(62);
   });
 
   it("同じactionの複数route・複数form用途を畳まず、意味entry 81件を床固定する", () => {
@@ -385,9 +444,12 @@ describe("A1 §2 全business mutationを単一のprimary taskへ所属させる"
     // 原典取得とは別の業務操作なので、同じactionでも畳まない。
     // 2026-08-30: 79 → 81。公開済み記事の訂正と取り下げが合流した。
     // 同じ form が 2 つの action を持つが、後戻りの仕方が違うので畳まない。
-    expect(discovered).toHaveLength(81);
-    expect(ADMIN_SCREEN_RUNTIME_ENTRIES).toHaveLength(82);
-    expect(new Set(ADMIN_SCREEN_RUNTIME_ENTRIES.map((entry) => entry.id)).size).toBe(82);
+    // 2026-08-31: 81 → 83。上の 63 → 65 と同じ 2 件。画面ではなく discovery が増えた。
+    expect(discovered).toHaveLength(83);
+    // 2026-08-31: 82 → 84。manifest は dev の合流で先に 84 件になっていたが、
+    // ここの床だけが古い数のまま残っていた（申告漏れではなく数え漏れ）。
+    expect(ADMIN_SCREEN_RUNTIME_ENTRIES).toHaveLength(84);
+    expect(new Set(ADMIN_SCREEN_RUNTIME_ENTRIES.map((entry) => entry.id)).size).toBe(84);
   });
 
   it("screen意味entryはどの1件を削ってもdiscoveryとの差分になる", () => {
@@ -402,7 +464,7 @@ describe("A1 §2 全business mutationを単一のprimary taskへ所属させる"
       }))
       .sort();
 
-    expect(new Set(declared).size).toBe(81);
+    expect(new Set(declared).size).toBe(83);
     for (let index = 0; index < declared.length; index += 1) {
       expect(declared.filter((_, candidate) => candidate !== index)).not.toEqual(discovered);
     }
@@ -448,7 +510,14 @@ describe("A1 §3 route → component → action edgeが実在する", () => {
 
     if (entry.scope === "global-shell") {
       expect(entry.uiEntry.module).toBe("src/presentation/admin/admin-shell.tsx");
-      for (const route of ADMIN_ROUTE_METADATA) {
+      // 転送だけの route は Shell を通らない。`permanentRedirect` を呼んで終わりで、
+      // 描くものが無いからである。除外の根拠は正本 `redirectOnly` に置く——ここで
+      // route 名を書き並べると、転送をやめた日に緑のまま通ってしまう。
+      // 「本当に転送しているか」は tests/ui/route-cases.ts が転送先込みで実測する。
+      const shellRoutes = ADMIN_ROUTE_METADATA.filter((route) => !route.redirectOnly);
+      // 除外を増やして緑にする逃げ道を塞ぐ床。2026-08-31 実測 1 件 (blog/pages)。
+      expect(ADMIN_ROUTE_METADATA.length - shellRoutes.length).toBe(1);
+      for (const route of shellRoutes) {
         const page = join(ROOT, "src/app", route.file);
         expect(importsAndRenders(page, {
           module: "src/presentation/admin/admin-shell.tsx",

@@ -7,8 +7,6 @@ import type {
   BlogArticleStatus,
   BlogTagKind,
   DeliveryPart,
-  FixedPageKind,
-  FixedPageStatus,
   LayoutRegion,
   NetworkRole,
   NetworkStatus,
@@ -22,6 +20,7 @@ import type {
   ArticleSummary,
   PublishedArticle,
 } from "@/application/read-models/published-article";
+import type { SiteDocument } from "./site";
 import type { PortResult } from "./common";
 
 /**
@@ -110,17 +109,6 @@ export type BlogArticleDetail = {
 /** 記事集約を丸ごと保持する削除済み read model。本文・タグ結合は削除しない。 */
 export type DeletedBlogArticleRecord = BlogArticleDetail & {
   readonly deletedAt: Date;
-};
-
-export type FixedPageRecord = {
-  readonly id: string;
-  readonly siteSlug: string;
-  readonly kind: FixedPageKind;
-  readonly title: string;
-  readonly body: string;
-  readonly status: FixedPageStatus;
-  readonly deletedAt: Date | null;
-  readonly updatedAt: Date;
 };
 
 export type SaveSiteNetworkInput = {
@@ -213,15 +201,6 @@ export type BlogOpsRepositoryPort = {
   saveTag(workspaceId: WorkspaceId, input: BlogTagRecord): PortResult<true>;
   deleteTag(workspaceId: WorkspaceId, tagId: string): PortResult<true>;
 
-  listFixedPages(workspaceId: WorkspaceId, siteSlug: string): PortResult<readonly FixedPageRecord[]>;
-  listDeletedFixedPages(
-    workspaceId: WorkspaceId,
-    siteSlug: string,
-  ): PortResult<readonly FixedPageRecord[]>;
-  saveFixedPage(workspaceId: WorkspaceId, input: FixedPageRecord): PortResult<true>;
-  deleteFixedPage(workspaceId: WorkspaceId, pageId: string): PortResult<true>;
-  restoreFixedPage(workspaceId: WorkspaceId, pageId: string, restoredAt: Date): PortResult<true>;
-
   /** 記事ごとの評価の集計。 */
   summarizeRatings(
     workspaceId: WorkspaceId,
@@ -300,17 +279,14 @@ export type PublicSiteReader = {
   listDeliveryParts(): PortResult<readonly BlogDeliveryPartRecord[]>;
   listNetwork(): PortResult<readonly SiteNetworkRecord[]>;
   listTags(): PortResult<readonly BlogTagRecord[]>;
-  /** published かつ未削除の 8 種だけを返す。 */
-  listFixedPages(): PortResult<readonly FixedPageRecord[]>;
   /**
-   * 作成時に実体化された未削除の固定ページ。
+   * このブログに保存されているサイト文書。**未整備のものは返さない。**
    *
-   * 本文を描画するための読み口ではなく、公開投影が
-   * `provisioningComplete` を判定するための件数確認。
-   * 下書きの本文は投影せず、公開中の行だけが `listFixedPages`
-   * を通って画面へ届く。
+   * 描画のための読み口ではなく、公開投影が `provisioningComplete` を
+   * 判定するための件数確認である。文書の本文は `PolicyPage` が
+   * `findPolicyDocument` から直接読む（同じ行を 2 つの道で読まない）。
    */
-  listProvisionedFixedPages(): PortResult<readonly FixedPageRecord[]>;
+  listDocuments(): PortResult<readonly SiteDocument[]>;
 };
 
 export type PublicBlogPort = {

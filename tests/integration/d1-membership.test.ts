@@ -1,6 +1,4 @@
 /** @tier 2 @req REQ-P01 */
-import { readFileSync, readdirSync } from "node:fs";
-import path from "node:path";
 import { drizzle } from "drizzle-orm/d1";
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import { getPlatformProxy } from "wrangler";
@@ -12,6 +10,7 @@ import { createD1SessionIssuer } from "@/infrastructure/identity/session-issuer"
 import { createD1MembershipRepository } from "@/infrastructure/persistence/d1/membership-repository";
 import { recordingAuditLog } from "../support/doubles";
 import { WORKSPACE, anOwner } from "../support/actors";
+import { migrationStatements } from "../support/migrations";
 
 /**
  * 担当者の登録を、**本物の D1 と本物のマイグレーション**で一周させる結合テスト。
@@ -40,20 +39,6 @@ let db: ReturnType<typeof drizzle<typeof schema>>;
 
 const NOW = new Date("2026-08-21T03:00:00Z");
 const owner: ActorContext = anOwner();
-
-function migrationStatements(): readonly string[] {
-  const dir = path.resolve(process.cwd(), "drizzle");
-  const files = readdirSync(dir)
-    .filter((f) => f.endsWith(".sql"))
-    .sort();
-  expect(files.length).toBeGreaterThan(0);
-  return files.flatMap((file) =>
-    readFileSync(path.join(dir, file), "utf8")
-      .split("--> statement-breakpoint")
-      .map((s) => s.trim())
-      .filter((s) => s !== ""),
-  );
-}
 
 beforeAll(async () => {
   proxy = await getPlatformProxy<TestEnv>({

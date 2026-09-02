@@ -57,6 +57,22 @@ function stripComments(source: string): string {
 }
 
 describe("見た目の切り替えの出どころ", () => {
+  it("公開read modelと管理usecaseは、互いではなくdomainのパス正本に依存する", () => {
+    const consumers = [
+      "src/application/read-models/public-blog-appearance.ts",
+      "src/application/usecases/authoring/manage-blog-appearance.ts",
+      "src/presentation/admin/publish/blog-appearance-action.ts",
+    ];
+
+    for (const file of consumers) {
+      const body = stripComments(readFileSync(join(ROOT, file), "utf8"));
+      expect(body, file).toContain("@/domain/authoring/page-path");
+      expect(body, file).not.toContain(
+        "@/application/usecases/authoring/manage-blog-appearance",
+      );
+    }
+  });
+
   it("属性名と cookie 名を生で書いているのは、正本の 1 ファイルだけ", () => {
     const files = sourceFiles();
     // **母集団の床。**歩き先を外すと 0 件になり、違反 0 件で緑になる。

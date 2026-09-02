@@ -28,7 +28,7 @@ import {
   validateSlug,
 } from "@/domain/authoring";
 import { requireCapability } from "@/domain/identity";
-import { FIXED_PAGE_KINDS } from "@/domain/blogops";
+import { SITE_DOCUMENT_KEYS } from "@/domain/authoring/site-routes";
 import {
   type DomainError,
   type Result,
@@ -42,6 +42,11 @@ import {
 } from "@/domain/shared";
 import type { UseCase } from "../usecase";
 import type { CapacityGuardPort } from "@/application/capacity";
+import {
+  BLOG_TEMPLATES,
+  findBlogTemplate,
+  type BlogTemplateId,
+} from "@/domain/authoring/blog-template";
 
 /**
  * ブログ作成ウィザード（プラットフォーム層 §16.2・§22.6）。
@@ -697,7 +702,11 @@ function applyCategories(draft: SiteDraft, raw: string): Result<SiteDraft, Domai
 
 // --- 作る -------------------------------------------------------------------
 
-export type CreateSiteInput = { readonly draftId: string };
+export type CreateSiteInput = {
+  readonly draftId: string;
+  /** 作成画面で選ぶ6種。旧callerは設計図patternに対応する先頭の種類へ寄せる。 */
+  readonly templateId?: string;
+};
 export type CreateSiteOutput = {
   readonly slug: string;
   readonly name: string;
@@ -781,6 +790,15 @@ export function createCreateSiteFromDraftUseCase(
       if (draft.pattern === null || draft.revenueModel === null || draft.theme === null) {
         return err(validationError("選択項目が空のままです。前の段階に戻って選んでください。", "draftId"));
       }
+      const selectedTheme = draft.theme;
+
+      const template =
+        input.templateId === undefined
+          ? (BLOG_TEMPLATES.find((candidate) => candidate.pattern === draft.pattern) ?? null)
+          : findBlogTemplate(input.templateId);
+      if (template === null) {
+        return err(validationError("ブログの見せ方は 6 種から選んでください。", "templateId"));
+      }
 
       const siteSlug = draft.createdSiteSlug ?? draft.slug;
       const blueprint = createSiteBlueprint({
@@ -833,6 +851,7 @@ export function createCreateSiteFromDraftUseCase(
             name: draft.name,
             pattern: draft.pattern,
             revenueModel: draft.revenueModel,
+            templateId: template.id,
             pageCount: blueprint.value.pages.length,
             categoryCount: blueprint.value.categories.length,
             recreated: false,
@@ -851,6 +870,12 @@ export function createCreateSiteFromDraftUseCase(
           audit: entry.value,
           displayName: draft.name,
           oneLine: draft.purpose,
+          // 見せ方と色も同じ書き込みで置く。あとから別の口で足す形にすると、
+          // 「作れたが既定の見た目のまま」という中途半端な状態が正常系になる。
+          appearance: {
+            templateId: template.id as BlogTemplateId,
+            theme: { brandTheme: selectedTheme, colorMode: "auto" },
+          },
         });
         if (!provisioned.ok) return provisioned;
         const report = provisioned.value.composition;
@@ -864,10 +889,10 @@ export function createCreateSiteFromDraftUseCase(
           name: draft.name,
           readerPath: `/s/${siteSlug}`,
           readerHost: hostname,
-          pageCount: report.counts.fixed_pages,
+          pageCount: report.counts.site_documents,
           categoryCount: report.counts.categories,
-          missingTrustPages: report.gaps.some((gap) => gap.element === "fixed_pages")
-            ? FIXED_PAGE_KINDS
+          missingTrustPages: report.gaps.some((gap) => gap.element === "site_documents")
+            ? SITE_DOCUMENT_KEYS
             : [],
           reachable: report.reachable,
           provisioningComplete: report.provisioningComplete,

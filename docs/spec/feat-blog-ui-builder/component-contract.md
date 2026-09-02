@@ -1,0 +1,229 @@
+# コンポーネント契約（feat-blog-ui-builder / P02）
+
+記録日: 2026-08-30
+graph_node_id: `SYS-BLOG-UI-BUILDER-P02`
+Beads: `ah-45ba.2`
+受入: **A1**（テンプレート 6 種）、**A3**（sticky）、**A5**（表現ブロック + スロット）、**A9**（a11y）、**A12**（SEO/AI 標準ブロック）
+
+## この文書の役割
+
+sticky レイアウト・記事表現ブロック 5 種・スロット差し替え・
+SEO/AI 引用用標準ブロック 5 種の**部品としての契約**を確定する。
+
+## 1. テンプレート契約（A1）
+
+正本: `src/domain/authoring/blog-template.ts:11`
+
+| id | 想定 |
+|---|---|
+| `review_focus` | レビュー中心 |
+| `comparison_focus` | 比較中心 |
+| `howto` | 手順・解説 |
+| `news` | 更新の速さ |
+| `minimal` | 装飾を削る（サイドバー無し） |
+| `gadget` | ガジェット |
+
+### 1.1 テンプレートが決めてよいこと / 決めてはいけないこと
+
+| | |
+|---|---|
+| **決めてよい** | トップの区画の並び（`homeSections`）、記事ブロックの推奨順（`articleBlockOrder`）、サイドバーを既定で出すか（`sidebar`）、追加で薦める固定ページ（`suggestedPages`）、設計図の型との対応（`pattern`） |
+| **決めてはいけない** | どのブロックが**使えるか**。「このテンプレートでは `figure` が使えない」の類 |
+
+**後者を書くと、テンプレートを差し替えた瞬間に記事の一部が消える。**
+`blog-template.ts:6-9` が既にこれを禁じている。
+
+`articleBlockOrder` は**推奨順**であって必須順ではない。
+無いブロックは**飛ばす（消さない）**。この不変条件を P04 が検査で固定する:
+
+> 記事 X をテンプレート A で保存 → テンプレート B へ差し替え → 記事 X のブロック集合が同一
+
+### 1.2 テンプレート選択 UI
+
+- 置き場所: `/admin/sites/new` の段階に 1 つ追加 + `/admin/blog/layout` に差し替え口
+- 見せるもの: 6 種の名前・得意な記事の型・**選んだときの記事の並びの見本**
+- 見せないもの: 内部 ID、ブロック並び順の生データ
+- **必ず添える一文**:「あとから差し替えられます。記事は壊れません」
+  差し替え不能という誤解が最大の離脱要因（P01 `information-priority-map.json` N1）
+
+## 2. sticky レイアウト契約（A3）
+
+### 2.1 現状（P01 実測、`src/presentation/ui/templates/site.module.css`）
+
+| 領域 | 現状 | 行 |
+|---|---|---|
+| ヘッダー `.siteHeader` | `position: relative` — **sticky でない** | `:34-39` |
+| サイドバー `.siteAsideSticky` | sticky 済み | `:982` |
+| 目次 `.tocSidebar` | sticky 済み | `:633` |
+| 狭幅の折りたたみ | `@media (width < 64rem)` 済み | `:990` |
+| フッター `.siteFooter` | **sticky でない** | `:297` |
+
+**欠けているのはヘッダーとフッターの 2 領域だけ。**
+
+### 2.2 Q4 の決着 — フッターは sticky にしない
+
+P01 が P02 へ委ねた Q4（「常時表示」がフッターにも掛かるか）を決着させる。
+
+**決定: ヘッダーのみ sticky。フッターは sticky にしない。**
+
+理由:
+
+1. フッターに置くのは方針ページへの導線・運営者表記であり、
+   **スクロール中に必要になる操作ではない**。
+2. 375px でヘッダーとフッターを両方固定すると、
+   本文の可読領域が 2 段分削れる。sticky の代償は狭幅で最も重い。
+3. `/admin/blog/layout` の既存設定は `header` / `sidebar` /
+   `sidebar_sticky` / `footer` の 4 帯を持つが、
+   **sticky の設定を持つのは `sidebar_sticky` だけ**であり、
+   既存の設計もフッターを固定対象と見ていない。
+
+要求文の「常時表示」はヘッダー（＝どこにいるか・どこへ行けるか）に掛かる。
+フッターを固定すべきという読みは、**代償を数えると成り立たない**。
+
+### 2.3 ヘッダー sticky の契約
+
+```css
+.siteHeader {
+  position: sticky;
+  top: 0;
+  z-index: <site-shell の重なり順で header に割り当てた値>;
+  /* 背景を必ず不透明にする。透けると本文が下に流れて読めなくなる */
+  background: var(--surface-…);
+}
+```
+
+| # | 契約 | 理由 |
+|---|---|---|
+| S1 | 背景は不透明 | 透けると本文が下を流れて読めない |
+| S2 | 狭幅（`width < 48rem`）では高さを縮める | 固定したぶん本文が削れる代償を最小にする |
+| S3 | `z-index` は既存の重なり順の語彙から採る。数字を直書きしない | 重なりの正本が 2 箇所になる |
+| S4 | 375px で本文の可読領域が **560px 以上**残ること | sticky の代償を数値で固定する（P01 N8 の `derive`） |
+| S5 | キーボード焦点がヘッダーに隠れないこと（`scroll-margin-top`） | sticky の典型的な a11y 事故 |
+
+**S5 は A9（a11y）と A3 の交点である。**
+sticky ヘッダーを入れると、本文中のリンクへ Tab で移動したとき
+焦点がヘッダーの下に潜る。`scroll-margin-top` を本文の
+見出し・リンクへ与えて防ぐ。これを忘れると axe-core は通るのに
+キーボードで使えない画面になる（自動検査で捕まらない種類の破れ）。
+
+### 2.4 サイドバーの折りたたみ
+
+既存の `@media (width < 64rem)` を変更しない。
+本 feature が足すのはヘッダーだけであり、既に動いているものを触らない。
+
+## 3. 記事ブロック契約（A5 / A12）
+
+正本: `src/domain/authoring/blog-template.ts:43`（`EXPRESSION_BLOCK_KINDS`、10 種）
+
+`data-model.md` §0 の V1 決着により、**本 feature の正本はこの 10 種**である。
+
+### 3.1 SEO/AI 引用用の標準ブロック 5 種（A12）
+
+| kind | 表示名 | 役割 |
+|---|---|---|
+| `answer` | 結論（先に答え） | 問いに対する答えを冒頭に置く |
+| `key_points` | 要点 | 箇条書きで要約 |
+| `faq` | よくある質問 | 問いと答えの対 |
+| `sources` | 出典 | 根拠の所在 |
+| `freshness` | 最終更新・〜時点 | いつの情報か |
+
+Google の「AI 機能での最適化ガイド」は追加の技術要件を求めていない。
+この 5 種は**引用されやすい構造**として置くものであり、
+「これを入れると順位が上がる」という主張はしない
+（`blog-template.ts:38-41` の注記に従う）。
+
+`faq` と `sources` と `freshness` は JSON-LD へも落ちる（`seo-ai-search-contract.md` §3）。
+**同じ 1 つの値から可視テキストと JSON-LD の両方を出す。**
+2 経路で別々に組み立てると、片方だけ更新される事故が起きる。
+
+### 3.2 記事表現ブロック 5 種（A5）
+
+| kind | 表示名 |
+|---|---|
+| `figure` | 図解 |
+| `comparison` | 比較表 |
+| `cta` | 行動の呼びかけ |
+| `summary` | まとめ |
+| `spec_table` | スペック表 |
+
+`cta` が成果リンクを持つ唯一のブロックである。
+`blog_affiliate_placement` は**管理側の所在把握**であり、
+読者に出すリンクはこのブロックが持つ（`data-model.md` §5）。
+
+### 3.3 スロット差し替え契約
+
+```ts
+type BlockSlot = {
+  readonly name: string;
+  readonly fallback: string;
+};
+```
+
+| # | 契約 | 理由 |
+|---|---|---|
+| B1 | 差し替え先が無いときは `fallback` を出す。**黙って空にしない** | 空になると「書き忘れ」と「差し替え先が無い」が区別できない |
+| B2 | `fallback` は空文字を許さない | B1 が意味を失う |
+| B3 | スロット名はブログをまたいで共有してよい | 別カテゴリのブログで中身だけ差し替えて再利用する、がスロットの目的 |
+| B4 | スロットを持てるのは 10 種すべて | 一部だけ持てると、後から持たせたくなったときに型が割れる |
+
+### 3.4 編集 UI（N4）
+
+- 置き場所: `/admin/blog/articles/[article]`
+- 見せるもの: 挿入できる種類とそれが読者に何を伝えるか、
+  スロットに何が入っているか、差し替えなかったときの `fallback`
+- 見せないもの: 内部 kind 文字列、永続テーブルの行 ID
+- **導出して見せるもの**: この記事に標準ブロック 5 種が揃っているか
+  （A12 の充足を、公開してからでなく編集中に気づける形にする）
+
+## 4. a11y の床（A9）
+
+既存 `tests/ui/blog-ops-a11y-floor.test.tsx` が床を持っている。
+
+> **番号の衝突に注意。** 同ファイル `:16` の条文は「A14」を指しているが、
+> これは `feat-blog-ops-crud` の受入番号であり、本 feature の A14
+> （guideline_references の 90 日再確認）とは別物である。
+> P04 はこの参照を触らない。触ると他 feature の受入が動く。
+
+本 feature が足す床:
+
+| # | 対象 | 検査 |
+|---|---|---|
+| Y1 | 新規 6 画面（N1〜N6） | axe-core 重大違反 0 件 |
+| Y2 | sticky ヘッダー | キーボード焦点がヘッダーに隠れない（§2.3 S5） |
+| Y3 | 配色 10 種 × light/dark | 本文コントラスト（`theme-contract.md` §6） |
+| Y4 | 表現ブロック 10 種 | 見出し階層が飛ばない（`h2` の次に `h4` が来ない） |
+
+### 4.1 テストの書き方の制約
+
+**pixel 位置依存・DOM 構造依存のテストを書かない。**
+可視ラベル・アクセシブル名・レスポンスステータス・返却データの属性など、
+振る舞いの検証に限定する（本 task の「保守性制約」）。
+
+§2.3 の S4（可読領域 560px 以上）は数値の検査だが、
+これは**レイアウトの代償を測る 1 本**であり、
+「この要素がこの座標にある」という検査ではない。
+
+## 5. 実装の割り当て（P13 時点）
+
+上の §1〜§4 で決めた契約を、**どのファイルのどの export が持っているか**。
+`部品` 列には実在する export 名だけを書く（複数の口を出すファイルはすべて並べる）。
+ここが実装と食い違うと `tests/architecture/component-contract-identity.test.ts` が赤くなる。
+
+| 部品 | ファイル | 役割 |
+|---|---|---|
+| `BlogAppearanceForm` `PageThemeOverrideForm` `PageThemeOverrideForms` | `src/presentation/admin/publish/blog-appearance-form.tsx` | §1 テンプレートと配色の 2 層選択（ブログ既定とページ単位の上書き） |
+| `BlogPlacementForm` | `src/presentation/admin/publish/blog-placement-form.tsx` | 掲載の追加・削除（A6） |
+| `AffiliatePlacementLookup` | `src/presentation/admin/affiliate-placement-lookup.tsx` | アフィリエイトから掲載先への逆引き（A7） |
+| `ExpressionBlockAppendForm` | `src/presentation/admin/publish/expression-block-form.tsx` | §3 記事ブロックの追加 |
+| `SiteDocumentForm` | `src/presentation/admin/publish/site-document-form.tsx` | 固定ページ 8 種。口の単位は経路の鍵 (`SiteDocumentKey`) |
+
+## 6. 次 phase への引き継ぎ
+
+| 項目 | 引き継ぎ先 |
+|---|---|
+| §1.1 のテンプレート差し替え不変条件の検査 | P04 |
+| §2.3 S1〜S5 の実装 | P06 |
+| §3.3 スロット `fallback` の境界値（空文字拒否） | P04 |
+| §3.4 標準ブロック充足の導出関数 | P06 |
+| §4 Y1〜Y4 の a11y 検査 | P04 |
+| 視覚基準の更新（sticky で動く） | P09 |

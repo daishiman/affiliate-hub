@@ -34,6 +34,22 @@ export type SiteChrome = {
   readonly tagline: string;
   /** ブランドテーマの名前。トークンの差し替え集合を指す。 */
   readonly brandTheme: string;
+  /**
+   * 明暗。**読者の選択を合成し終えた結果**を渡す（受入 A2）。
+   *
+   * 以前この枠は明暗を持たなかった。理由は「枠が持つと、持たない側の画面
+   * （`PublicShell`）だけ読者の選択が効かなくなる」だった。その心配は
+   * ここでは起きない —— 渡ってくるのは `readAppearance()` が
+   * **cookie を最優先で解いた後の値**で、読者が選んでいればその値そのものである。
+   *
+   * 持たせた理由は、ブログ既定の明暗（`blog_theme.color_mode`）を
+   * 読者へ届ける道が他に無いからである。`<html>` を書けるのは根の layout だけで、
+   * 根はどのブログを開いているかを知らない。
+   *
+   * `auto` と未指定は**属性を出さない**。出さないことが「端末の設定に従う」の意味で、
+   * `data-color-mode=""` は当たらないのに残る（`appearance.ts` の既存の約束）。
+   */
+  readonly colorMode?: "auto" | "light" | "dark";
   /** ヘッダーの案内。カテゴリーと探す画面。 */
   readonly nav: readonly SiteNavItem[];
   /** サイドバーに出すカテゴリーだけの案内。 */
@@ -125,7 +141,13 @@ export function SiteShell({
   );
 
   return (
-    <div className={styles.siteShell} {...{ [APPEARANCE_ATTR.scheme]: chrome.brandTheme }}>
+    <div
+      className={styles.siteShell}
+      {...{ [APPEARANCE_ATTR.scheme]: chrome.brandTheme }}
+      {...(chrome.colorMode === undefined || chrome.colorMode === "auto"
+        ? {}
+        : { [APPEARANCE_ATTR.mode]: chrome.colorMode })}
+    >
       {telemetry}
       <a className={styles.skipLink} href="#site-main-content">
         本文へ移動

@@ -230,8 +230,9 @@ export function createDeps(
   const sites = db === null ? createSampleSiteRepository() : createD1SiteRepository(db);
   const auditLog = db === null ? createSampleAuditLog() : createD1AuditLog(db);
   // 公開一覧・本文・SEO・構成レポートは、この 1 reader instance を共有する。
+  // D1 版は住所の解決に `sites` を要るので、`sites` より後に組む。
   const publishedContent =
-    db === null ? createSampleContentRepository() : createD1ContentRepository(db);
+    db === null ? createSampleContentRepository() : createD1ContentRepository(db, sites);
   return {
     // 順位づけの基準と採点表も、保存先が用意できていれば本物（D1）。
     // **入れる口（/admin/rankings/models/new と /admin/rankings/scores）を

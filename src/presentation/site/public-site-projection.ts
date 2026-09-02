@@ -3,7 +3,6 @@ import type {
   BlogLayoutBandRecord,
   BlogLayoutSlotRecord,
   BlogTagRecord,
-  FixedPageRecord,
   PublicBlogPort,
   PublicSiteReader,
   SiteNetworkRecord,
@@ -12,18 +11,15 @@ import type {
   ArticleSummary,
   PublishedArticle,
 } from "@/application/read-models/published-article";
+import type { SiteDocument } from "@/application/ports/site";
 import {
   evaluateSiteComposition,
+  SITE_DOCUMENT_KEYS,
   type CompositionReport,
+  type SiteDocumentKey,
 } from "@/domain/authoring";
-import {
-  FIXED_PAGE_KINDS,
-  FIXED_PAGE_PATH,
-  type FixedPageKind,
-} from "@/domain/blogops";
 import { collectAll, err, ok } from "@/domain/shared";
 import type { PortResult } from "@/application/ports/common";
-import type { SiteNavItem } from "@/presentation/ui";
 
 export type PublicDataSource = "live" | "sample";
 
@@ -46,9 +42,13 @@ export type PublicSiteProjection = {
   readonly articles: readonly ArticleSummary[];
   readonly network: readonly SiteNetworkRecord[];
   readonly tags: readonly BlogTagRecord[];
-  /** 下書きを含む作成済み実体。描画には使わない。 */
-  readonly provisionedFixedPages: readonly FixedPageRecord[];
-  readonly fixedPages: readonly FixedPageRecord[];
+  /**
+   * 保存済みのサイト文書。**未整備のものは含まれない。**
+   *
+   * 描画には使わない（本文は `PolicyPage` が直接読む）。ここにあるのは
+   * 作成完了を判定するための件数だけである。
+   */
+  readonly documents: readonly SiteDocument[];
   readonly deliveryParts: readonly BlogDeliveryPartRecord[];
   readonly chrome: PublicSiteChromeProjection;
 };
@@ -56,7 +56,6 @@ export type PublicSiteProjection = {
 export type PublicSiteChromeProjection = {
   readonly headerSlots: readonly BlogLayoutSlotRecord[];
   readonly footerSlots: readonly BlogLayoutSlotRecord[];
-  readonly fixedPageLinks: readonly SiteNavItem[];
 };
 
 export type PublicProjectionEntry = {
@@ -67,50 +66,44 @@ export type PublicProjectionEntry = {
 const PROJECTION_ARTICLE_LIMIT = 100;
 
 export type PublicSiteCompositionReport = CompositionReport & {
-  /** 公開投影に実在しない固定ページ。設計図の pages 宣言からは導かない。 */
-  readonly missingFixedPages: readonly FixedPageKind[];
+  /** 公開投影に実在しないサイト文書。設計図の pages 宣言からは導かない。 */
+  readonly missingDocuments: readonly SiteDocumentKey[];
 };
 
 /**
  * 読者が実際に見る公開投影から、管理表示と作成判定が共有する構成レポートを作る。
- * 宣言済みの `blueprint.pages` は数えない。作成完了には下書きを含む固定ページ実体を、
- * 内容の公開準備には公開中の固定ページ種別を使い、2 つの状態を混ぜない。
+ *
+ * 宣言済みの `blueprint.pages` は数えない。**数えるのは保存された行だけ**である。
+ * サイト文書は「まだ書いていないものは行が無い」形で保存されるので、
+ * 件数と不足種別はどちらも同じ 1 つの読み取りから導ける。
+ * 旧・固定ページのように下書きと公開の 2 状態を持たないぶん、
+ * 「作成は終わったが読者には出ていない」というずれがそもそも作れない。
  */
 export function projectPublicSiteComposition(
   projection: PublicSiteProjection,
 ): PublicSiteCompositionReport {
-  const presentKinds = new Set(projection.fixedPages.map((page) => page.kind));
-  const missingFixedPages = FIXED_PAGE_KINDS.filter((kind) => !presentKinds.has(kind));
-  const report = evaluateSiteComposition(
-    {
-      network_node: projection.network.length,
-      fixed_pages: projection.provisionedFixedPages.length,
-      layout_bands: projection.provisionedBands.length,
-      layout_slots: projection.provisionedSlots.length,
-      categories: projection.reader.blueprint.categories.length,
-      articles: projection.articles.length,
-    },
-    missingFixedPages.length > 0 ? ["fixed_pages"] : [],
-  );
+  const presentKeys = new Set(projection.documents.map((document) => document.key));
+  const missingDocuments = SITE_DOCUMENT_KEYS.filter((key) => !presentKeys.has(key));
+  const report = evaluateSiteComposition({
+    network_node: projection.network.length,
+    site_documents: projection.documents.length,
+    layout_bands: projection.provisionedBands.length,
+    layout_slots: projection.provisionedSlots.length,
+    categories: projection.reader.blueprint.categories.length,
+    articles: projection.articles.length,
+  });
   return {
     ...report,
-    missingFixedPages,
+    missingDocuments,
   };
 }
 
 export function projectPublicSiteChrome(
-  siteSlug: string,
-  input: Pick<PublicSiteProjection, "fixedPages" | "slots">,
+  input: Pick<PublicSiteProjection, "slots">,
 ): PublicSiteChromeProjection {
   return {
     headerSlots: input.slots.filter((slot) => slot.region === "header" && slot.enabled),
     footerSlots: input.slots.filter((slot) => slot.region === "footer" && slot.enabled),
-    fixedPageLinks: FIXED_PAGE_KINDS.flatMap((kind) => {
-      const page = input.fixedPages.find((candidate) => candidate.kind === kind);
-      return page === undefined
-        ? []
-        : [{ href: `/s/${siteSlug}${FIXED_PAGE_PATH[kind]}`, label: page.title }];
-    }),
   };
 }
 
@@ -131,8 +124,7 @@ export async function readPublicSiteProjection(
     reader.listPublished(PROJECTION_ARTICLE_LIMIT),
     reader.listNetwork(),
     reader.listTags(),
-    reader.listProvisionedFixedPages(),
-    reader.listFixedPages(),
+    reader.listDocuments(),
     reader.listDeliveryParts(),
   ]);
   // 失敗の判定と型の絞り込みを 1 つの番人に集める。
@@ -147,8 +139,7 @@ export async function readPublicSiteProjection(
     articles,
     network,
     tags,
-    provisionedFixedPages,
-    fixedPages,
+    documents,
     deliveryParts,
   ] = collected.value;
   const base = {
@@ -161,11 +152,10 @@ export async function readPublicSiteProjection(
     articles,
     network,
     tags,
-    provisionedFixedPages,
-    fixedPages,
+    documents,
     deliveryParts,
   } as const;
-  return ok({ ...base, chrome: projectPublicSiteChrome(siteSlug, base) });
+  return ok({ ...base, chrome: projectPublicSiteChrome(base) });
 }
 
 /** 公開面と同じ fail-closed reader を通した構成レポート。 */

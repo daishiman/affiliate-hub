@@ -431,16 +431,39 @@ describe("手元と機械で同じ検査が走る（REQ-CI01 / REQ-CI03）", () 
       */
       "0040_merged_blog_ops",
       /*
+        2026-08-31: ブログの見た目 3 表の作業場所（`workspace_id` 2 列と索引 3 本）。
+
+        当初は 0040 として作ったが、dev 側が同じ番号を `0040_merged_blog_ops` で
+        先に埋めていたため **0041 として作り直した**。番号の重なりは
+        d1_migrations がファイル名でしか照合しないので、放置すると
+        「適用済みに見えるのに中身が違う」が本番で起きる。
+
+        `ADD COLUMN … NOT NULL` は既定値なしでは SQLite が受け付けないので
+        `DEFAULT ''` を付けてある。空文字と一致する作業場所は存在しないため、
+        取り残された行は**誰にも読めない**（他所から読めるのではない）方へ倒れる。
+        そもそも取り残しが出る状態では、列を足す前に guard 表の CHECK で止まる。
+      */
+      "0041_blog_appearance_workspace",
+      /*
+        2026-09-02: dev を取り込んだとき、0041 を**両側が別の中身で名乗って**いた。
+        0036 / 0039 のときと同じ規準で決める——dev の `0041_blog_appearance_workspace`
+        は dev 環境の d1_migrations に名前が入っており、こちらの 2 本はまだ
+        どこへも流れていない。**実体が動いていない側**をずらす。
+
+        触る表は重ならない（dev は `blog_theme` / `page_theme_override` /
+        `blog_affiliate_placement`、こちらは `site_drafts` / `site_blueprints` /
+        `articles` / `published_articles`）ので、番号を振り直せば両立する。
+
         site作成claimのDB保証と、設計図だけあってサイト網の節点が無い
         ブログの補填。後者が「13 問に答えて作成済みと出るのに
         `/s/<URL名>` が 404」の実体である。hostname移行は担わない。
       */
-      "0041_small_amphibian",
+      "0042_small_amphibian",
       /*
         編集aggregateと公開projectionを由来IDで結び、公開記事の二正本を解消する。
         既存データは消さず、曖昧な所有権・URL競合・墓標共存では適用を停止する。
       */
-      "0042_canonical_public_articles",
+      "0043_canonical_public_articles",
     ];
     const journal = JSON.parse(read("drizzle/meta/_journal.json")) as {
       entries: Array<{ tag: string }>;

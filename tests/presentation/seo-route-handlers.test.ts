@@ -5,9 +5,17 @@
  */
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { ArticleSummary } from "@/application/read-models/published-article";
+import type { BlogArticle } from "@/domain/blogops/blog-article";
 
 const routeState = vi.hoisted(() => ({
   articles: [] as ArticleSummary[],
+  /**
+   * ブログ運用で書いた記事（`/blog/<slug>`）。**編集済みの記事とは別の入口**で、
+   * 配信物はこの 2 系統を合流させたものを配る。
+   * ここが空のままでも編集済み側の検査はすべて緑になるので、
+   * 合流そのものは `tests/acceptance/feat-blog-ui-builder/machine-feeds.test.ts` が持つ。
+   */
+  blogArticles: [] as BlogArticle[],
   requestedLimits: [] as Array<number | undefined>,
   emitLlmsTxt: true,
   indexNowKey: undefined as string | undefined,
@@ -15,9 +23,12 @@ const routeState = vi.hoisted(() => ({
   articleError: null as null | { code: "UPSTREAM_UNAVAILABLE"; message: string },
 }));
 
-vi.mock("@/presentation/composition", () => ({
-  readerActor: () => ({ kind: "anonymous" }),
-  siteUseCases: async () => ({
+vi.mock("@/presentation/composition", async () => {
+  const { requestOriginFromRequest } = await import("@/infrastructure/http/request-origin");
+  return {
+    requestOriginFromWebRequest: requestOriginFromRequest,
+    readerActor: () => ({ kind: "anonymous" }),
+    siteUseCases: async () => ({
     getSite: {
       execute: async () =>
         routeState.siteError === null
@@ -41,8 +52,19 @@ vi.mock("@/presentation/composition", () => ({
           : { ok: false as const, error: routeState.articleError };
       },
     },
-  }),
-}));
+    }),
+    publicBlogEntry: async () => ({
+      port: {
+        openSite: async () => ({
+          ok: true as const,
+          value: {
+            listPublished: async () => ({ ok: true as const, value: routeState.blogArticles }),
+          },
+        }),
+      },
+    }),
+  };
+});
 
 vi.mock("@/infrastructure/platform/worker-env", () => ({
   tryGetWorkerEnv: async () => ({ INDEXNOW_KEY: routeState.indexNowKey }),
@@ -71,6 +93,7 @@ const context = { params: Promise.resolve({ site: "gadget" }) };
 
 beforeEach(() => {
   routeState.articles = [];
+  routeState.blogArticles = [];
   routeState.requestedLimits = [];
   routeState.emitLlmsTxt = true;
   routeState.indexNowKey = undefined;

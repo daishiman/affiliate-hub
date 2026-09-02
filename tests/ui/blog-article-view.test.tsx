@@ -13,6 +13,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 import type { ArticleTemplate, BlogArticleBlock } from "@/domain/blogops";
 import { PRODUCT_CARD_PLACEMENTS } from "@/domain/blogops";
+import { toExpressionArticleBlock } from "@/application/adapters/expression-article-block";
 import { BlogArticleView } from "@/presentation/site/blog-article-view";
 
 /**
@@ -132,5 +133,101 @@ describe("階層のある目次 (A5)", () => {
       block({ kind: "intro-box", position: 1, heading: "", body: "本文だけ。" }),
     ]);
     expect(html).toContain("この記事にはまだ見出しがありません。");
+  });
+});
+
+describe("表現ブロックの公開 composition (A5/A12)", () => {
+  it("壊れたcarrierは本文へfallbackせず、読者から見えない", () => {
+    const html = render("T4", [
+      block({ kind: "intro-box", position: 0, heading: "通常本文", body: "これは残ります。" }),
+      block({
+        kind: "summary-section",
+        position: 1,
+        heading: "壊れた運搬データ",
+        body: "expression-block:v1:not-json",
+      }),
+    ]);
+
+    expect(html).toContain("これは残ります。");
+    expect(html).not.toContain("壊れた運搬データ");
+    expect(html).not.toContain("expression-block:v1:not-json");
+  });
+
+  it("編集画面から入る10種すべてを公開表示へ反映し、carrier文字列は漏らさない", () => {
+    const expressions = [
+      { kind: "answer", text: "先に答えます。" },
+      { kind: "key_points", items: ["速い", "軽い"] },
+      { kind: "faq", items: [{ question: "保証は？", answer: "1年です。" }] },
+      { kind: "sources", items: [{ label: "公式仕様", checkedAt: "2026-08-31", url: "https://example.com/spec" }] },
+      { kind: "freshness", asOf: "2026-08-31", note: "確認済み" },
+      { kind: "figure", caption: "内部構造", alt: "製品内部の図" },
+      { kind: "comparison", caption: "用途別に比較" },
+      { kind: "cta", label: "公式サイトを見る", href: "/go/offer-1" },
+      { kind: "summary", text: "軽さを優先します。" },
+      { kind: "spec_table", rows: [{ label: "重さ", value: "900g" }] },
+    ] as const;
+    const html = render(
+      "T4",
+      expressions.map((expression, index) =>
+        toExpressionArticleBlock(expression, `expression_${index}`, index),
+      ),
+    );
+
+    for (const visible of [
+      "先に答えます。",
+      "速い",
+      "保証は？",
+      "1年です。",
+      "公式仕様",
+      "2026-08-31",
+      "確認済み",
+      "内部構造",
+      "製品内部の図",
+      "用途別に比較",
+      "公式サイトを見る",
+      "軽さを優先します。",
+      "900g",
+    ]) {
+      expect(html).toContain(visible);
+    }
+    expect(html).toContain('href="https://example.com/spec"');
+    expect(html).toContain('href="/go/offer-1"');
+    expect(html).not.toContain("expression-block:v1");
+  });
+
+  it("永続 carrier を内部文字列のまま漏らさず、CTA と FAQ として描く", () => {
+    const html = render("T4", [
+      block({ kind: "intro-box", position: 0, heading: "導入", body: "本文" }),
+      toExpressionArticleBlock(
+        { kind: "cta", label: "公式サイトを見る", href: "/go/offer-1" },
+        "expression_cta",
+        1,
+      ),
+      toExpressionArticleBlock(
+        { kind: "faq", items: [{ question: "保証は？", answer: "1 年です。" }] },
+        "expression_faq",
+        2,
+      ),
+    ]);
+
+    expect(html).toContain('href="/go/offer-1"');
+    expect(html).toContain("公式サイトを見る");
+    expect(html).toContain("保証は？");
+    expect(html).toContain("1 年です。");
+    expect(html).not.toContain("expression-block:v1");
+  });
+
+  it("商品カードを再掲する型でも CTA carrier を商品カードとして二重表示しない", () => {
+    const html = render("T1", [
+      ...t1Blocks(),
+      toExpressionArticleBlock(
+        { kind: "cta", label: "公式サイトを見る", href: "/go/offer-1" },
+        "expression_cta",
+        9,
+      ),
+    ]);
+
+    expect(countOf(html, "公式サイトを見る")).toBe(1);
+    expect(html).not.toContain("expression-block:v1");
   });
 });

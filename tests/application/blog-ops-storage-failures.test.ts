@@ -28,7 +28,6 @@ import {
   createCreateSiteNetworkNodeUseCase,
   createDeleteBlogArticleUseCase,
   createDeleteBlogTagUseCase,
-  createDeleteFixedPageUseCase,
   createDeleteSiteNetworkNodeUseCase,
   createEvaluateBlogArticlesUseCase,
   createGetBlogArticleUseCase,
@@ -36,24 +35,20 @@ import {
   createListBlogArticlesUseCase,
   createListBlogTagsUseCase,
   createListDeletedBlogArticlesUseCase,
-  createListDeletedFixedPagesUseCase,
   createListDeletedSiteNetworkUseCase,
-  createListFixedPagesUseCase,
   createListSiteNetworkUseCase,
   createReadBlogLayoutUseCase,
   createRestoreBlogArticleUseCase,
-  createRestoreFixedPageUseCase,
   createRestoreSiteNetworkNodeUseCase,
   createSaveBlogLayoutBandUseCase,
   createSaveBlogLayoutSlotUseCase,
   createSaveBlogTagUseCase,
   createSaveDeliveryPartUseCase,
-  createSaveFixedPageUseCase,
   createSetArticleRatingHiddenUseCase,
   createUpdateBlogArticleUseCase,
   createUpdateSiteNetworkNodeUseCase,
 } from "@/application/usecases/blog-ops";
-import { DELIVERY_PARTS, FIXED_PAGE_KINDS, SIDEBAR_SLOT_KEYS, TOP_BANDS } from "@/domain/blogops";
+import { DELIVERY_PARTS, SIDEBAR_SLOT_KEYS, TOP_BANDS } from "@/domain/blogops";
 import { type DomainError, type Result, domainError, err, isErr, ok } from "@/domain/shared";
 import { WORKSPACE, anOwner } from "../support/actors";
 import { NOW } from "../support/clock";
@@ -128,16 +123,6 @@ function expectOutage(result: Result<unknown, DomainError>): void {
 
 const HUB = node({ siteSlug: "hub", role: "hub" });
 const DETAIL = { article: article({ id: "art1", siteSlug: "hub" }), blocks: [], tagIds: [] };
-const PAGE = {
-  id: "pg1",
-  siteSlug: "hub",
-  kind: FIXED_PAGE_KINDS[0],
-  title: "運営者について",
-  body: "本文",
-  status: "published" as const,
-  deletedAt: null,
-  updatedAt: NOW,
-};
 const TAG = {
   id: "tag1",
   siteSlug: "hub",
@@ -308,69 +293,8 @@ describe("記事 — 口が 1 本落ちたら断る", () => {
   );
 });
 
-describe("固定ページとタグ — 口が 1 本落ちたら断る", () => {
-  const seed = { network: [HUB], pages: [PAGE], tags: [TAG] };
-
-  it("固定ページの一覧は、読めなければ断る", async () => {
-    const { deps } = brokenDeps("listFixedPages", seed);
-    expectOutage(await createListFixedPagesUseCase(deps).execute(anOwner(), { siteSlug: "hub" }));
-  });
-
-  it("削除済み固定ページの一覧も、読めなければ空とは言わない", async () => {
-    const { deps } = brokenDeps("listDeletedFixedPages", seed);
-    expectOutage(
-      await createListDeletedFixedPagesUseCase(deps).execute(anOwner(), { siteSlug: "hub" }),
-    );
-  });
-
-  it.each(["listFixedPages", "saveFixedPage"] as const)(
-    "固定ページの保存は %s が落ちていれば断り、記録も残さない",
-    async (port) => {
-      const { deps, audit } = brokenDeps(port, seed);
-      expectOutage(
-        await createSaveFixedPageUseCase(deps).execute(anOwner(), {
-          siteSlug: "hub",
-          kind: FIXED_PAGE_KINDS[0],
-          title: "運営者について",
-          body: "だれが書いているか。",
-          status: "published",
-        }),
-      );
-      expect(audit.entries()).toHaveLength(0);
-    },
-  );
-
-  it.each(["listFixedPages", "deleteFixedPage"] as const)(
-    "固定ページの削除は %s が落ちていれば断り、記録も残さない",
-    async (port) => {
-      const { deps, audit } = brokenDeps(port, seed);
-      expectOutage(
-        await createDeleteFixedPageUseCase(deps).execute(anOwner(), {
-          siteSlug: "hub",
-          kind: FIXED_PAGE_KINDS[0],
-          reason: "作り直すため",
-        }),
-      );
-      expect(audit.entries()).toHaveLength(0);
-    },
-  );
-
-  it.each(["listDeletedFixedPages", "restoreFixedPage"] as const)(
-    "固定ページの復元は %s が落ちていれば断り、記録も残さない",
-    async (port) => {
-      const { deps, audit } = brokenDeps(port, {
-        network: [HUB],
-        deletedPages: [{ ...PAGE, deletedAt: NOW }],
-      });
-      expectOutage(
-        await createRestoreFixedPageUseCase(deps).execute(anOwner(), {
-          siteSlug: "hub",
-          pageId: PAGE.id,
-        }),
-      );
-      expect(audit.entries()).toHaveLength(0);
-    },
-  );
+describe("タグ — 口が 1 本落ちたら断る", () => {
+  const seed = { network: [HUB], tags: [TAG] };
 
   it("タグの一覧は、読めなければ断る", async () => {
     const { deps } = brokenDeps("listTags", seed);
