@@ -16,18 +16,39 @@ concurrency:
 
 permissions:
   contents: write # 本番へ公開できた版にタグを打つため
+  actions: read # 前回の公開が適用の最中に終わっていないかを見るため
 
+# **仕事を 2 つの器へ分けてある。** 1 つの job に入れていた日の事故が下にある。
+#
+# `inspect`（測る）はやり直せる。途中で止めてよい。所要は変更の大きさに比例して伸びる。
+# `release`（出す）はやり直せない。途中で止めてはいけない。所要はほぼ一定。
+#
+# 2026-09-02、この 2 つが同じ 30 分の器に入っていた。PR #46 の合流で
+# `検査一式` が 29 分 53 秒かかり、器を使い切ったところで打ち切られた。
+# 控え・適用・公開・動作確認は**1 歩も踏み出さないまま skip** され、
+# dev には配られていないのに run は「終わった」という顔をしていた。
+#
+# **時間切れそのものより危ないのは、逆に転んだときである。**
+# 検査が 26 分で終われば、残り 4 分で控えを取り、適用が始まる。上限は
+# `db:migrate:remote` の**最中に**発火しうる。控えは在るが「途中で止まった」と
+# 告げるものは無く、次に来た人は台帳と実体がずれた D1 を引き継ぐ。
+# `cancel-in-progress: false` はこれを防がない——あれが断るのは concurrency の
+# 割り込みだけで、job の上限は同じ道を通らない。
+#
+# 器を分けると、上限は**それぞれの仕事の性質に合わせて**置ける。
+# 測る側が伸びても、出す側の持ち時間は 1 秒も削られない。
+# 落ちた場所も job の名前で分かるので、ログの末尾まで降りずに済む。
 jobs:
-  deploy:
-    name: 公開
+  # 測る側。**`verify` という id を避けている。**`main` の保護設定が必須にしている
+  # 検査の名前が `verify`（ci.yml の job id）で、ここに同じ id を置くと、
+  # 表示名を外した誰かが 2 つ目の `verify` を報告させてしまう。
+  inspect:
+    name: 検査（公開の前に）
     runs-on: ubuntu-latest
-    timeout-minutes: 30
-    # main のときだけ production。Environment に承認者を登録すると、
-    # **マージしても人が承認するまで本番へ出ない**（このリポジトリは公開設定のため使える）。
-    # 登録手順は docs/product/ci-cd-guide.md ⑤。
-    environment:
-      name: ${{ github.ref == 'refs/heads/main' && 'production' || 'dev' }}
-      url: ${{ github.ref == 'refs/heads/main' && vars.APP_URL || vars.PREVIEW_URL }}
+    # ci.yml の広い門と**同じ検査の集合**を走らせるので、安全弁も同じ位置に置く。
+    # 実測は準備 15 分 + 変異 15 分でちょうど 30 分に届く。正常に終わる仕事が
+    # 触らない位置に置くのが安全弁の役目で、30 分はその内側だった。
+    timeout-minutes: 45
     env:
       CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
       CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
@@ -83,6 +104,67 @@ jobs:
           MUTATION_BASE: ${{ github.event.before || 'HEAD^' }}
         run: pnpm run verify
 
+  # 出す側。ここから先はやり直せない。**測り終えてから入る。**
+  #
+  # `needs` は順番の指定であると同時に関門でもある。`inspect` が赤でも
+  # 時間切れでも、この job はそもそも始まらない。以前は同じ job の中で
+  # 「前のステップが落ちたら後ろは走らない」に頼っていたが、その頼り方だと
+  # 前半が持ち時間を食い潰した回に、後半が**走れなかったのか走って落ちたのか**が
+  # run の見た目から区別できなかった。
+  release:
+    name: 公開
+    needs: inspect
+    runs-on: ubuntu-latest
+    # 控え → 適用 → 公開 → 動作確認だけの持ち時間。実測はどれも分単位で、
+    # 変更の大きさでは伸びない。**伸びない仕事にだけ、この器を使う。**
+    timeout-minutes: 30
+    # main のときだけ production。Environment に承認者を登録すると、
+    # **マージしても人が承認するまで本番へ出ない**（このリポジトリは公開設定のため使える）。
+    # 登録手順は docs/product/ci-cd-guide.md ⑤。
+    #
+    # 承認をこちら側の job に置いたことで、**人は検査が通ったのを見てから押す**。
+    # 1 つの job だった頃は、押してから 30 分測って、その先で落ちることがあった。
+    environment:
+      name: ${{ github.ref == 'refs/heads/main' && 'production' || 'dev' }}
+      url: ${{ github.ref == 'refs/heads/main' && vars.APP_URL || vars.PREVIEW_URL }}
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      IS_PRODUCTION: ${{ github.ref == 'refs/heads/main' }}
+      D1_ENV: ${{ github.ref == 'refs/heads/main' && 'production' || 'dev' }}
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # 本番へ公開できた版にタグを打つ。浅い取得だと打つ先が無い。
+          fetch-depth: 0
+
+      # **控えは「戻れる」ことしか言わない。「戻るべきか」は別に見る必要がある。**
+      #
+      # 上限が適用の最中に発火すると、そこまでの変更は D1 に残るのに台帳には載らない。
+      # 次の公開は「未適用がある」と見て同じ移行を頭から当て直し、
+      # `duplicate column name` で落ちる（2026-08-24 の run #22）。落ちること自体は
+      # 正しいが、**なぜ落ちたのかが run の見た目から分からない。**
+      #
+      # だからここで、前回が適用の最中に打ち切られていないかを先に見る。
+      # 残っていれば自動では進まない。人が実際の形を確かめるまで待つ。
+      - name: 前回の公開が途中で終わっていないか
+        env:
+          # `github.token` と同じ自動発行のトークンだが、こちらの書き方にする。
+          # 見張り（REQ-CI07）は「秘密は `secrets.` から来ること」で平文の直書きを
+          # 見分けている。同義でも別の綴りを通し始めると、その見分けが鈍る。
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: bash .github/scripts/require-previous-apply-complete.sh
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
       # ここから 3 ステップが「データの形を合わせる」本体で、**どちらの環境でも走る**。
       #
       # 以前は dev だけ自動、本番は `migrate.yml` の手動起動＋`APPLY` だった。
@@ -123,7 +205,16 @@ jobs:
           retention-days: 30
 
       # 未適用が無ければ wrangler が何もせずに終わるので、条件で囲まなくてよい。
+      #
+      # **job の上限（30 分）より先に、ここで切る。**
+      # job の上限が発火すると、走っていたステップは道半ばのまま run ごと畳まれ、
+      # 「どこで終わったか」が残らない。ステップに上限を置いておけば、
+      # 切れたときこのステップが `cancelled` として run に**確定して残る**。
+      # 上の「前回の公開が途中で終わっていないか」が次の回にそれを読む。
+      #
+      # 10 分は実測（数十秒）から見て十分に広い。正常に終わる適用は触らない。
       - name: データの形を合わせる
+        timeout-minutes: 10
         run: pnpm run db:migrate:remote --env "$D1_ENV"
 
       # 順番（データの形の変更 → 公開）が守られたかを、人の記憶ではなく機械が見る。

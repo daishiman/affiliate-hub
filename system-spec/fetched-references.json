@@ -15,16 +15,16 @@
     },
     {
       "target_id": "nextjs",
-      "retrieved_at": "2026-08-29T23:02:28Z",
+      "retrieved_at": "2026-09-02T09:14:35Z",
       "source_url": "https://nextjs.org/docs",
       "official_publisher": "Vercel",
       "official_host": "nextjs.org",
-      "version": "16.3.3",
+      "version": "16.3.4",
       "freshness_source": "page-declared",
-      "latest_checked_at": "2026-08-29T23:02:28Z",
+      "latest_checked_at": "2026-09-02T09:14:35Z",
       "evidence_ref": "system-spec/retrieval-evidence/nextjs.json",
-      "evidence_sha256": "48e6294a256d752713676d28fdb020a58571c35f66583bc3be57c0be41720f1e",
-      "summary": "Next.js 公式 Docs。App Router、Server Components、データ取得・変更等の現行仕様。公式 Docs の Latest Version と Vercel の npm registry latest がともに 16.3.3 であることを 2026-08-29 に再取得して確認した。"
+      "evidence_sha256": "e0c63811ba16e882df57299f971c0f2da5b1d1abdae7d88a069a4f1a59a5c5b9",
+      "summary": "Next.js 公式 Docs。App Router、Server Components、データ取得・変更等の現行仕様。公式 Docs の Latest Version と Vercel の npm registry latest がともに 16.3.4 であることを 2026-09-02 に再取得して確認した (2026-08-29 時点の 16.3.3 から上流が進んだ)。"
     },
     {
       "target_id": "cloudflare-workers",
@@ -86,10 +86,10 @@
       "official_host": "developer.apple.com",
       "last_updated": "2026-06-08",
       "freshness_source": "page-declared",
-      "latest_checked_at": "2026-08-29T23:02:28Z",
+      "latest_checked_at": "2026-09-02T08:19:28Z",
       "evidence_ref": "system-spec/retrieval-evidence/apple-hig.json",
-      "evidence_sha256": "64ebcd442e70fd283191fe9f664106e2a05345efc6fdca2e2fb7e46ad1cc71d6",
-      "summary": "Apple Human Interface Guidelines の公式 Design principles。presentation concern の doctrine authority。HIG 入口の再現困難な Last-Modified ではなく、公式ページ自身が表明する 2026-06-08 の公開・再導入日を採用し、2026-08-29 に再取得した。"
+      "evidence_sha256": "2edd4f0f30bb016d5552d87a3c22d8437938233bdf587627b56a693680e4b50b",
+      "summary": "Apple Human Interface Guidelines の公式 Design principles。presentation concern の doctrine authority。HIG 入口の再現困難な Last-Modified ではなく、公式ページ自身が表明する 2026-06-08 の公開・再導入日を採用している。2026-09-02 に同一公式 URL と公式ドキュメントデータ endpoint を再取得し、表明値が 2026-06-08 のまま動いていないことを確認したため、last_updated は据え置き latest_checked_at のみ進めた。"
     },
     {
       "target_id": "google-sre",
@@ -106,16 +106,16 @@
     },
     {
       "target_id": "anthropic-claude",
-      "retrieved_at": "2026-08-29T13:28:38Z",
+      "retrieved_at": "2026-09-02T08:19:13Z",
       "source_url": "https://platform.claude.com/docs/en/models/overview",
       "official_publisher": "Anthropic",
       "official_host": "platform.claude.com",
-      "version": "現行 active モデル (claude-fable-5 / claude-opus-5 / claude-sonnet-5 / claude-haiku-4-5-20251001)",
+      "version": "現行 active モデル (claude-fable-5-1 / claude-opus-5 / claude-sonnet-5 / claude-haiku-4-5-20251001)",
       "freshness_source": "page-declared",
-      "latest_checked_at": "2026-08-29T13:28:38Z",
+      "latest_checked_at": "2026-09-02T08:19:13Z",
       "evidence_ref": "system-spec/retrieval-evidence/anthropic-claude.json",
-      "evidence_sha256": "ded7e0c260afed6459ede6950730518afd5c81f58880c9a9b360fb8f524b5d31",
-      "summary": "Anthropic Claude 公式モデル一覧。現行比較表と埋め込みデータが active と表明する model ID を記録した。旧記録の claude-mythos-5 は案内見出しには残るが active model ID ではないため除外し、恒久移送後の canonical URL へ更新した。"
+      "evidence_sha256": "68c6f3d4af27b0d264fc12d53b4beb2737fd50c9bbc43e4a185dcc83d8c44a72",
+      "summary": "Anthropic Claude 公式モデル一覧。2026-09-02 の再取得で、本文に埋め込まれた lifecycle=\"active\" の model ID が claude-fable-5-1 / claude-opus-5 / claude-sonnet-5 / claude-haiku-4-5-20251001 の 4 件であることを確認した。前回記録の claude-fable-5 は active entry から外れ、Claude Fable 5.1 (releasedOn=2026-09-01) が現行ラインナップに入っている。claude-fable-5 / claude-mythos-5 の文字列は navigation の path・見出しに残るが lifecycle 欄を持たないため active model ID ではない。"
     },
     {
       "target_id": "openai-platform",
