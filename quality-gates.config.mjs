@@ -224,9 +224,52 @@ export function judgeLayerInventory(entries, layers = LAYER_COVERAGE) {
 export function judgeLayerCoverage(measured, layer) {
   const label = { lines: "行", branches: "分岐", functions: "関数", statements: "文" };
   return COVERAGE_AXES.filter((axis) => measured[axis] < layer.floors[axis]).map(
-    (axis) => `${layer.layer} の ${label[axis]} ${measured[axis]}%（下限 ${layer.floors[axis]}%）`,
+    (axis) =>
+      // **比べるのは渡された実数、印刷するのは丸めた値。**
+      // 丸めてから比べると 79.96% が「80」になって下限 80 を通る。
+      // 実測 2026-09-02、presentation の分岐がまさにその帯にいた。
+      `${layer.layer} の ${label[axis]} ${Math.round(measured[axis] * 10) / 10}%（下限 ${layer.floors[axis]}%）`,
   );
 }
+
+/**
+ * 下限を割るまで**あと何本**あるか。
+ *
+ * --- なぜ割合ではなく本数で出すのか ---
+ *
+ * 「分岐 80.3%（下限 80%）」を見て、次に赤くなるまでどれだけ猶予があるかは
+ * 誰にも分からない。**0.3pt は、分母が 4000 なら 12 本、400 なら 1 本である。**
+ * 一方、増える側はいつも本数で来る——画面を 1 つ足すと分岐が 10〜30 本増える。
+ * 単位を揃えないと、赤くなるのは常に「突然」になる。
+ *
+ * 実測 2026-09-02: presentation の分岐は 3247/4061 で、表示は「80」だった。
+ * 下限ちょうどに見えていたが、実際は**下限を 1.8 本下回っていた**。
+ * 本数で出していれば、その前の週に気づけた。
+ *
+ * @param {Record<string, {covered: number, total: number}>} boxes 軸名 → 実測の内訳
+ * @param {{layer: string, floors: Record<string, number>}} layer
+ * @returns {{axis: string, margin: number, total: number}[]} margin が負なら既に不足
+ */
+export function layerCoverageMargins(boxes, layer) {
+  return COVERAGE_AXES.map((axis) => {
+    const { covered, total } = boxes[axis];
+    // 下限を満たす最小の被覆数。`%` は離散量の比なので、床は必ず切り上げ。
+    const need = Math.ceil((layer.floors[axis] * total) / 100);
+    return { axis, margin: covered - need, total };
+  });
+}
+
+/**
+ * 余裕がこの本数を下回ったら知らせる。**落ちる前に見えることが目的。**
+ *
+ * 落ちてから直すと、14 分の門を 2 回通ることになる（落ちた回と、直した回）。
+ * 手前で知らせれば、その枝の作業のついでに塞げる。
+ *
+ * 20 本という数は、画面 1 つぶんの分岐がだいたい 10〜30 本であることから来ている。
+ * **これは下限ではないので、超えても落とさない。**落とすと「警告を消すために
+ * テストを書く」が始まり、下限そのものと区別がつかなくなる。
+ */
+export const COVERAGE_MARGIN_WARN = 20;
 
 /**
  * ミューテーションスコアの下限。

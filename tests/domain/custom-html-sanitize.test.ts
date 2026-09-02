@@ -126,3 +126,41 @@ describe("貼られた HTML を、描いてよい形だけに削る", () => {
     expect(sanitizeSlotHtml(once)).toBe(once);
   });
 });
+
+/**
+ * **行き先の書き方と、属性の囲み方。**
+ *
+ * どちらも「運営者がどう書くか」であって、こちらが決められない。
+ * 引用符は二重・一重・無しの 3 通りが実際に来るし、行き先は絶対と相対の
+ * 両方が来る。**削る側が知っているのは 1 通りだけ、では守れない。**
+ *
+ * ここが抜けていると、危ないほうではなく**安全なほうが落ちる**。
+ * `href='/about'` が消えて、運営者から見ると「リンクが勝手に外れた」になる。
+ * 落ちたことは画面に出ないので、気づくのは読者がクリックできないと言ってきた日である。
+ */
+describe("貼られた HTML を削る — 行き先と引用符の書き分け", () => {
+  it("同じサイトの中を指す相対の道は、そのまま通す", () => {
+    // `:` を含まない値は scheme を持たない＝同じサイトの中。落とす理由が無い。
+    expect(sanitizeSlotHtml('<a href="/about">会社案内</a>')).toContain('href="/about"');
+    expect(sanitizeSlotHtml('<a href="../記事">前の記事</a>')).toContain("href=");
+  });
+
+  it("一重引用符でも引用符なしでも、同じように読み取る", () => {
+    // 引用符の付け方は書く人の癖で決まる。**癖で結果が変わらないこと。**
+    for (const written of ["<a href='/about'>案内</a>", "<a href=/about>案内</a>"]) {
+      expect(sanitizeSlotHtml(written), written).toContain('href="/about"');
+    }
+  });
+
+  it("引用符の書き方を変えても、危ないものは同じように落ちる", () => {
+    // **抜け道は必ず「別の書き方」で来る。**二重引用符のときだけ塞がっている、
+    // という状態が最も危ない（塞いだつもりになる）。
+    for (const written of [
+      '<a href="javascript:alert(1)">押して</a>',
+      "<a href='javascript:alert(1)'>押して</a>",
+      "<a href=javascript:alert(1)>押して</a>",
+    ]) {
+      expect(sanitizeSlotHtml(written), written).not.toContain("javascript:");
+    }
+  });
+});

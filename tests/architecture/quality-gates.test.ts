@@ -24,6 +24,7 @@ import {
   checksForTiers,
   isMeasuredSource,
   judgeLayerCoverage,
+  layerCoverageMargins,
   judgeLayerInventory,
   judgeStubGap,
 } from "../../quality-gates.config.mjs";
@@ -298,6 +299,74 @@ describe("層別カバレッジの床", () => {
         { layer: "app", floors: { ...layer.floors, branches: 70 } },
       ),
     ).toHaveLength(1);
+  });
+
+  it("下限をわずかに割った実測を、丸めで通さない", () => {
+    // **これは実際に通っていた。**2026-09-02、presentation の分岐は
+    // 3247/4061 = 79.956% で、表示も判定も「80」だった。下限 80 に
+    // 1.8 本足りないまま「すべての層が下限を満たしています」と出ていた。
+    //
+    // 直したのは判定側ではなく**渡す値**である。判定は昔から `<` で正しく、
+    // 呼ぶ側が丸めた値を渡していた。だからここでは、丸めていない値を渡せば
+    // 噛むことを固定する。呼ぶ側が丸めに戻ったら、次の検査が捕まえる。
+    const layer = LAYER_COVERAGE.find((l) => l.layer === "app");
+    if (!layer) throw new Error("app 層が LAYER_COVERAGE にありません");
+
+    const justBelow = Object.fromEntries(AXES.map((a) => [a, layer.floors[a] - 0.04]));
+    for (const axis of AXES) {
+      const found = judgeLayerCoverage({ ...justBelow }, layer);
+      expect(found.length, `${axis} 軸を含め、床をわずかに割った 4 軸が検出されません`).toBe(
+        AXES.length,
+      );
+    }
+    // 文面に出す数字のほうは丸める。79.95999999 と印刷しても読めない。
+    expect(judgeLayerCoverage({ ...justBelow }, layer)[0]).not.toMatch(/\d\.\d\d/);
+  });
+
+  it("判定へ渡す実測が、表示用に丸めた値ではない", () => {
+    // 上の検査は判定関数だけを見ている。**丸めた値を渡す側**が戻ると素通りする。
+    // 呼び出しの形をここで固定する。`row` は表示用（1 桁）、`exact` は判定用。
+    const script = read("scripts/coverage-report.mjs");
+    const calls = script
+      .split("\n")
+      .filter((line) => !line.trimStart().startsWith("//"))
+      .filter((line) => line.includes("judgeLayerCoverage("));
+    expect(calls.length, "judgeLayerCoverage の呼び出しが見つかりません").toBeGreaterThan(0);
+    for (const call of calls) {
+      expect(call, "丸めた row(...) を判定へ渡しています").toContain("exact(");
+    }
+  });
+
+  it("余裕を本数で数え、下限ちょうどを 0 本と言う", () => {
+    // 割合で出すと「80.3%」の猶予が 12 本なのか 1 本なのか読めない。
+    // 増える側はいつも本数で来るので、単位を揃える。
+    const layer = { layer: "合成", floors: { lines: 80, branches: 80, functions: 80, statements: 80 } };
+    const box = (covered: number) => ({ covered, total: 100 });
+
+    const atFloor = layerCoverageMargins(
+      { lines: box(80), branches: box(80), functions: box(80), statements: box(80) },
+      layer,
+    );
+    for (const m of atFloor) expect(m.margin, `${m.axis} の床ちょうど`).toBe(0);
+
+    // 1 本足りなければ負。ここが 0 のままだと「不足」と「ぎりぎり」が同じ顔になる。
+    const below = layerCoverageMargins(
+      { lines: box(79), branches: box(79), functions: box(79), statements: box(79) },
+      layer,
+    );
+    for (const m of below) expect(m.margin).toBe(-1);
+
+    // 床は切り上げる。33/40 は 82.5% で通るが、80% ちょうどに要るのは 32 本。
+    const [rounded] = layerCoverageMargins(
+      {
+        lines: { covered: 33, total: 40 },
+        branches: box(80),
+        functions: box(80),
+        statements: box(80),
+      },
+      layer,
+    );
+    expect(rounded.margin).toBe(1);
   });
 
   it("既知の不足: app の分岐の床は、宣言した target に届いていない", () => {

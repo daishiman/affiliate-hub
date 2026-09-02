@@ -6,8 +6,8 @@
 テスト側の `@req` 印を重ねたもの。
 
 - 最終更新: 2026-09-02
-- テストファイル: 437 件
-- 由来の要件が分かる: 437 件
+- テストファイル: 439 件
+- 由来の要件が分かる: 439 件
 - **由来不明: 0 件**（上限 2 件）
 
 由来不明とは「どの要件のために書いたのか、機械から辿れない」という意味で、
@@ -376,11 +376,13 @@
 | `tests/ui/audit-log-notice.test.tsx` | REQ-SEC09 | 印 |
 | `tests/ui/axe-blind-spots.test.ts` | REQ-TS06 | 印と表 |
 | `tests/ui/axe-rule-coverage.test.ts` | REQ-SEC08, REQ-TS06 | 印と表 |
+| `tests/ui/blog-article-create-form.test.tsx` | REQ-BOPS01 | 印 |
 | `tests/ui/blog-article-edit-form.test.tsx` | REQ-BOPS01, REQ-BOPS05, REQ-UX02 | 印 |
 | `tests/ui/blog-article-view.test.tsx` | REQ-BLOG03 | 印 |
 | `tests/ui/blog-enabled-marker.test.tsx` | REQ-BOPS02, REQ-BOPS03, REQ-BOPS08 | 印 |
 | `tests/ui/blog-ops-a11y-floor.test.tsx` | REQ-BLOG04, REQ-BOPS03, REQ-BOPS04, REQ-BOPS05, REQ-BOPS06, REQ-BOPS07, REQ-BOPS08, REQ-BOPS09, REQ-BOPS10, REQ-BOPS11, REQ-BOPS14 | 印と表 |
 | `tests/ui/blog-ops-restore.test.tsx` | REQ-BOPS01, REQ-BOPS05, REQ-BOPS06, REQ-UX02 | 印と表 |
+| `tests/ui/blog-rating-form.test.tsx` | REQ-BOPS06 | 印 |
 | `tests/ui/blog-site-options.test.ts` | REQ-BLOG01 | 印 |
 | `tests/ui/blog-tag-form.test.tsx` | REQ-BOPS07, REQ-UX02 | 印と表 |
 | `tests/ui/blueprint-theme.test.ts` | REQ-P07, REQ-TH02, REQ-TS06 | 表 |
@@ -458,4 +460,4 @@
 | `tests/ui/use-draft.test.tsx` | REQ-BOPS04, REQ-BOPS05 | 印 |
 | `tests/ui/zz-probe-tone.test.tsx` | REQ-TM07 | 表 |
 | `tests/visual/visual-regression.test.ts` | REQ-S09, REQ-TS12, REQ-UX08 | 印 |
-<!-- 生成物の指紋 sha256:d4b9ddff89e3e269b9c2899263c366fb53a5090f1e8f327d00beadab3711392c -->
+<!-- 生成物の指紋 sha256:3d8ca6c364f28185075eedb031733da62d48681ee2491e4a4d3e8c0ec8e9429e -->

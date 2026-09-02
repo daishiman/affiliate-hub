@@ -166,3 +166,54 @@ describe("本文の断片 — メニューの表", () => {
     }
   });
 });
+
+/**
+ * **記法として読めない書き方をされたとき、何が残るか。**
+ *
+ * ここに並ぶのは、どれも「運営者が保存を押した結果」である。AI に本文を
+ * 書かせる作りなので、記法を半分だけ守った文字列は必ず来る。
+ * そのとき **捨てずに段落として残す**のがこの層の約束で、
+ * 約束が守られていることを型ではなく実際の入力で確かめる。
+ *
+ * 捨ててしまうと、運営者から見た出来事は「保存したら文章が消えた」になる。
+ * 記法が生のまま見えていれば、少なくとも直せる。
+ */
+describe("本文の断片 — 記法として読めなかったとき", () => {
+  it("表のつもりでも区切り行が無ければ、表にせず段落として残す", () => {
+    // `| 見出し |` の次の行に `| --- |` が要る。書き忘れは頻繁に起きる。
+    const nodes = parseProse("| 商品 | 値段 |\n| A | 100 円 |");
+
+    expect(nodes).toHaveLength(1);
+    expect(nodes[0]?.kind).toBe("paragraph");
+    // **中身が残っていること。**表として読めなかった行が消えるのがいちばん困る。
+    expect(nodes[0]).toMatchObject({ text: "| 商品 | 値段 |\n| A | 100 円 |" });
+  });
+
+  it("囲みの名前が読めなければ、囲みごと段落として残す", () => {
+    const nodes = parseProse("::: \n中身\n:::");
+
+    expect(nodes[0]?.kind).toBe("paragraph");
+    expect(nodes.map((n) => ("text" in n ? n.text : "")).join("")).toContain("中身");
+  });
+
+  it("注意書きの調子が知らない名前なら info として読む", () => {
+    // 調子は見た目の色だけを決める。知らない名前で本文ごと落とす理由が無い。
+    const [node] = parseProse(':::callout tone=いちごおれ title="題"\n本文\n:::');
+
+    expect(node).toMatchObject({ kind: "callout", tone: "info", title: "題", text: "本文" });
+  });
+
+  it("注意書きに題が無くても読める（題は空になる）", () => {
+    const [node] = parseProse(":::callout tone=warn\n本文\n:::");
+
+    expect(node).toMatchObject({ kind: "callout", tone: "warn", title: "", text: "本文" });
+  });
+
+  it("商品カードに商品の指定が無くても読める（指定は空になる）", () => {
+    // 空の商品カードは、画面側が「商品を選んでください」と出すための状態である。
+    // ここで null を返すと、その空カードが段落の文字列に化けて選び直せなくなる。
+    const [node] = parseProse(":::product-card\n:::");
+
+    expect(node).toMatchObject({ kind: "product-card", productId: "" });
+  });
+});

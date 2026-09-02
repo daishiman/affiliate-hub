@@ -6,8 +6,9 @@
  * 印を 1 行に収めてあるのは、`scripts/required-test-types.mjs` の `@req` の
  * 読み取りが `*` で止まるためで、折り返すと 2 行目の要件が黙って落ちる。
  */
+import { execFileSync } from "node:child_process";
 import { existsSync, readFileSync, readdirSync } from "node:fs";
-import { join } from "node:path";
+import { isAbsolute, join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { EVAL_CASES } from "../../evals/generation/cases";
 import { AI_EVAL_BUDGET, CHECKS, LAYER_COVERAGE, TIERS } from "../../quality-gates.config.mjs";
@@ -1120,5 +1121,52 @@ describe("ブログ用 wildcard domain の構成は、未設定を準備完了�
     expect(readiness.workerRoute).toBe(`*.${baseDomain}/*`);
     expect(activeRoutes).toEqual([`*.${baseDomain}/*`]);
     expect(readiness.blockers).toEqual([]);
+  });
+});
+
+/**
+ * git のフック置き場。**設定ファイルではなく、手元の git 設定にだけ存在する。**
+ *
+ * だからリポジトリを読むどの検査にも映らない。実測 2026-09-02、この
+ * ワークツリーの `core.hooksPath` は `.beads/hooks` を指していたが、
+ * **そのディレクトリはどこにも無かった。**git は文句を言わない。
+ * 指し先が無いときは「フックが 1 つも無い」として黙って進む。
+ *
+ * いまは実フックが 1 つも無いので実害は出ていない。**危ないのはこの先である。**
+ * pre-commit を導入した日、それは動かないまま「入れた」ことになる。
+ * 動かない見張りは、無い見張りより悪い。あると思われているぶんだけ悪い。
+ */
+describe("git のフック置き場", () => {
+  /** 手元の git 設定を読む。未設定なら `null`（CI と素の checkout がこれ）。 */
+  function hooksPath(): string | null {
+    try {
+      const value = execFileSync("git", ["config", "core.hooksPath"], {
+        encoding: "utf8",
+        cwd: process.cwd(),
+      }).trim();
+      return value === "" ? null : value;
+    } catch {
+      // 未設定のとき git は終了コード 1 を返す。これは異常ではない。
+      return null;
+    }
+  }
+
+  it("向き先を決めているなら、そこが実在する", () => {
+    const configured = hooksPath();
+    // **設定していないこと自体は責めない。**既定の `.git/hooks` が使われる。
+    // ここが見張っているのは「決めたのに、そこが無い」という状態だけである。
+    if (configured === null) return;
+
+    const resolved = isAbsolute(configured) ? configured : join(process.cwd(), configured);
+    expect(
+      existsSync(resolved),
+      [
+        `core.hooksPath が ${configured} を指していますが、そこにディレクトリがありません。`,
+        "この状態の git は、フックを 1 つも実行しないまま黙って成功します。",
+        "",
+        "使っていない設定なら外してください: `git config --unset core.hooksPath`",
+        "（外すと既定の .git/hooks に戻ります）",
+      ].join("\n"),
+    ).toBe(true);
   });
 });
