@@ -1,42 +1,23 @@
 {
   "target_id": "apple-hig",
-  "source_url": "https://developer.apple.com/design/human-interface-guidelines/design-principles",
-  "retrieved_at": "2026-08-29T23:02:28Z",
+  "source_url": "https://developer.apple.com/tutorials/data/design/human-interface-guidelines/design-principles.json",
+  "retrieved_at": "2026-09-02T21:40:54Z",
   "http_status": 200,
-  "content_bytes": 17660,
-  "content_sha256": "ccd1a06a2ce9a93eb678589f9dfde444a2abcda1cc7d21de76e1913ca431296b",
-  "page_title": "Design principles | Apple Developer Documentation",
-  "retrieval_method": "official page HTTP fetch (Accept-Encoding: identity)",
-  "recheck": {
-    "checked_at": "2026-09-02T08:19:28Z",
-    "http_status": 200,
-    "content_bytes": 17660,
-    "content_sha256": "ccd1a06a2ce9a93eb678589f9dfde444a2abcda1cc7d21de76e1913ca431296b",
-    "content_unchanged": true,
-    "http_last_modified": "Tue, 01 Sep 2026 10:12:52 GMT",
-    "retrieval_method": "official page HTTPS GET (Accept-Encoding: identity)。この worker には WebFetch tool が付与されていなかったため、同じ公式 URL を HTTP で直接取得した。",
-    "corroborating_fetch": {
-      "url": "https://developer.apple.com/tutorials/data/design/human-interface-guidelines/design-principles.json",
-      "note": "同一公式 host の Apple Developer Documentation データ endpoint。HTML 側は SPA shell で日付を含まないため、ページ本文を組み立てる公式 JSON を併せて取得し、表明値を機械的に確かめた。",
-      "http_status": 200,
-      "content_bytes": 26295,
-      "content_sha256": "69ea6425412bcb6410f8b6355e4d113c773731056e31b9ef730f07515045fa36",
-      "declared": {
-        "metadata.customMetadata.alert-date": "2026-06-08",
-        "metadata.customMetadata.alert-text": "Reintroduced design principles."
-      }
-    },
-    "note": "ページが表明する更新日は 2026-06-08 のままで動いていない。したがって last_updated は据え置き、latest_checked_at だけを実再取得時刻へ進めた。HTTP Last-Modified は 2026-09-01 を返すが、これは配信側の都合で動く値であり、本文の表明 (page-declared) を上書きしない。"
-  },
+  "content_bytes": 26295,
+  "content_sha256": "69ea6425412bcb6410f8b6355e4d113c773731056e31b9ef730f07515045fa36",
+  "page_title": "Design principles",
   "freshness_extraction": {
     "freshness_source": "page-declared",
     "value": "2026-06-08",
     "found_in": [
-      "Apple 公式ページの公開表示: June 8, 2026",
-      "Apple 公式ページの変更表示: Reintroduced design principles.",
-      "公式データ endpoint metadata.customMetadata.alert-date = \"2026-06-08\" / alert-text = \"Reintroduced design principles.\" (2026-09-02 再確認)"
+      "metadata.customMetadata.alert-date = \"2026-06-08\"",
+      "metadata.customMetadata.alert-text = \"Reintroduced design principles.\"",
+      "metadata.title = \"Design principles\""
     ],
-    "body_search_method": "Apple Developer Documentation の公式検索本文で公開日と変更内容を確認し、同じ公式 URL を取得した。2026-09-02 の再確認では、同一公式 host のドキュメントデータ endpoint (design-principles.json) の customMetadata から alert-date を直接読み取った。",
-    "note": "HIG 入口の Last-Modified は独立監査で再現できなかったため、ページ自身が表明し第三者が再照合できる Design principles の公開日へ根拠を切り替えた。2026-09-02 の再取得でも表明値は 2026-06-08 のまま。"
+    "http_last_modified": null,
+    "body_declares_date": true,
+    "body_declared_date": "2026-06-08",
+    "body_search_method": "同一公式 host developer.apple.com の Human Interface Guidelines ドキュメントデータ endpoint を GET し、metadata.customMetadata から alert-date を直接読み取った。人間向け URL (https://developer.apple.com/design/human-interface-guidelines/design-principles) は JavaScript レンダリングの殻しか返さず、表明日を含む本文を取得できない。",
+    "note": "出典を人間向けページから同一公式 host の機械可読 endpoint へ寄せた。**表明値そのものは 2026-06-08 のまま動いていない**。変えたのは値ではなく、独立監査が値を再現できるかどうかである。独立監査 C08 は 2026-09-02 の実行で apple-hig を『鮮度未確認 (SPA のため本文取得不能)』とし、鮮度未確認 2 件で MAX_UNVERIFIED_FRESHNESS=1 を超過して FAIL を返した。再現できない出典は鮮度を名乗れていないのと同じであるため、閾値ではなく出典の側を直す。取得日を last_updated へ代入していない。"
   }
 }

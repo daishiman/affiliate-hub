@@ -886,7 +886,7 @@
         ],
         "required_info_checks": [
           {
-            "checked_on": "2026-08-31",
+            "checked_on": "2026-09-03",
             "checked_with": "record-required-info-check",
             "blocking_item_count": 3,
             "unmet_blocking_items": 0
@@ -1039,7 +1039,7 @@
         ],
         "required_info_checks": [
           {
-            "checked_on": "2026-08-31",
+            "checked_on": "2026-09-03",
             "checked_with": "record-required-info-check",
             "blocking_item_count": 1,
             "unmet_blocking_items": 0
@@ -5079,6 +5079,144 @@
             "checked_on": "2026-09-02",
             "checked_with": "record-required-info-check",
             "blocking_item_count": 0,
+            "unmet_blocking_items": 0
+          }
+        ]
+      }
+    },
+    {
+      "category": "backend",
+      "platform": "web",
+      "reason": "google-gemini を再取得し、正本 fetched-references.json の version が gemini-3.8-flash を含む世代へ動いた。章 backend.md の「最新ドキュメント出典」表 1 行だけが取り残されて doc-source-version-gap が赤になっている。転記を正本へ合わせるあいだだけセルを開ける。収集内容は変えない (reaffirm)",
+      "from": "確定",
+      "discarded": {
+        "qa_ref": "qa-backend-web-blog-creation-atomicity",
+        "qa_refs": [
+          "qa-backend-web-blog-creation-atomicity",
+          "qa-backend-web-spec-intake",
+          "qa-backend-web",
+          "qa-backend-web-analytics",
+          "qa-backend-web-overhaul-v2"
+        ],
+        "serves_goals": [
+          "G2",
+          "G1"
+        ],
+        "required_info": [
+          {
+            "item_id": "domain-model",
+            "missing_effect": "block",
+            "status": "grounded",
+            "grounded_by": "qa-backend-web-spec-intake"
+          }
+        ],
+        "required_info_checks": [
+          {
+            "checked_on": "2026-08-31",
+            "checked_with": "record-required-info-check",
+            "blocking_item_count": 1,
+            "unmet_blocking_items": 0
+          }
+        ]
+      }
+    },
+    {
+      "category": "ui-ux",
+      "platform": "web",
+      "reason": "出典表の apple-hig 行の latest_checked_at (2026-08-29T23:02:28Z) が正本 fetched-references.json の 2026-09-02T08:19:28Z より古く、章の転記が正本から遅れている。独立監査 C08 の medium finding に対応し転記を揃えるため再オープンする。",
+      "from": "確定",
+      "discarded": {
+        "qa_ref": "qa-ui-ux-web-creation-completion-feedback",
+        "qa_refs": [
+          "qa-ui-ux-web-creation-completion-feedback",
+          "qa-uiux-web-cognitive-load-affiliate-visibility-v3",
+          "qa-uiux-web-seo-ai-search-v2",
+          "qa-uiux-web-blog-builder",
+          "qa-uiux-web-screen-priority",
+          "qa-uiux-web-spec-intake",
+          "qa-uiux-web",
+          "qa-uiux-web-overhaul-v2"
+        ],
+        "serves_goals": [
+          "G1",
+          "G2"
+        ],
+        "required_info": [
+          {
+            "item_id": "product-goal",
+            "missing_effect": "block",
+            "status": "grounded",
+            "grounded_by": "qa-foundation-u1"
+          },
+          {
+            "item_id": "screen-information-priority",
+            "missing_effect": "block",
+            "status": "grounded",
+            "grounded_by": "qa-uiux-web-screen-priority"
+          },
+          {
+            "item_id": "target-platforms",
+            "missing_effect": "block",
+            "status": "grounded",
+            "grounded_by": "qa-platform-scope"
+          }
+        ],
+        "required_info_checks": [
+          {
+            "checked_on": "2026-08-31",
+            "checked_with": "record-required-info-check",
+            "blocking_item_count": 3,
+            "unmet_blocking_items": 0
+          }
+        ]
+      }
+    },
+    {
+      "category": "ui-ux",
+      "platform": "web",
+      "reason": "apple-hig の出典を、独立監査が表明日を再現できない JavaScript レンダリングの人間向けページから、同一公式 host developer.apple.com の機械可読ドキュメントデータ endpoint へ寄せた。表明値 2026-06-08 は据え置きで、変わったのは source_url と取得時刻。章の出典表をこの正本へ揃えるため再オープンする。",
+      "from": "確定",
+      "discarded": {
+        "qa_ref": "qa-ui-ux-web-creation-completion-feedback",
+        "qa_refs": [
+          "qa-ui-ux-web-creation-completion-feedback",
+          "qa-uiux-web-cognitive-load-affiliate-visibility-v3",
+          "qa-uiux-web-seo-ai-search-v2",
+          "qa-uiux-web-blog-builder",
+          "qa-uiux-web-screen-priority",
+          "qa-uiux-web-spec-intake",
+          "qa-uiux-web",
+          "qa-uiux-web-overhaul-v2"
+        ],
+        "serves_goals": [
+          "G1",
+          "G2"
+        ],
+        "required_info": [
+          {
+            "item_id": "product-goal",
+            "missing_effect": "block",
+            "status": "grounded",
+            "grounded_by": "qa-foundation-u1"
+          },
+          {
+            "item_id": "screen-information-priority",
+            "missing_effect": "block",
+            "status": "grounded",
+            "grounded_by": "qa-uiux-web-screen-priority"
+          },
+          {
+            "item_id": "target-platforms",
+            "missing_effect": "block",
+            "status": "grounded",
+            "grounded_by": "qa-platform-scope"
+          }
+        ],
+        "required_info_checks": [
+          {
+            "checked_on": "2026-09-03",
+            "checked_with": "record-required-info-check",
+            "blocking_item_count": 3,
             "unmet_blocking_items": 0
           }
         ]

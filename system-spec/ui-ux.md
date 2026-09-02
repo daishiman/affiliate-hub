@@ -595,7 +595,7 @@ Callout は 1 画面につき 2 個まで (`tests/ui/uiux-spacing-and-copy.test.
 
 | 対象 | バージョン | 公式発行元 | 出典URL | 取得 | 最新確認 |
 |---|---|---|---|---|---|
-| apple-hig | 2026-06-08 | Apple (developer.apple.com) | https://developer.apple.com/design/human-interface-guidelines/design-principles | 2026-08-29T23:02:28Z | 2026-08-29T23:02:28Z |
+| apple-hig | 2026-06-08 | Apple (developer.apple.com) | https://developer.apple.com/tutorials/data/design/human-interface-guidelines/design-principles.json | 2026-09-02T21:40:54Z | 2026-09-02T21:40:54Z |
 
 ## 状態の意味 (State semantics)
 

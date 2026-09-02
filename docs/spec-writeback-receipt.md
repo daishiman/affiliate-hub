@@ -1412,3 +1412,111 @@ Error: 前回の公開を読めませんでした（{"message":"Not Found","stat
 3. `inspect` 45 分の妥当性は未実測（本番公開時にしか走らない）。
 4. `release` の他ステップ（Workers 配信）には step 上限を置いていない。
 5. `tests/integration/local-seed-idempotency.test.ts` の `TODO(human)` は未着手・未コミット。
+
+# 仕様反映 受領書（2026-09-02・出典が自分を再現できなかった件）
+
+- 対象 feature: `feat-blog-ui-builder`
+- Beads: `ah-45ba`（epic） / `ah-45ba.13`
+- dev-graph node: `SYS-BLOG-UI-BUILDER-P13`
+- 判定: **仕様への反映あり**（`system-spec/ui-ux.md` / `system-spec/backend.md` の出典表）
+
+## 何が起きていたか
+
+PR #49 の `verify` が赤かった。表に出ていた文言は「仕様レポートの鮮度 STALE」だが、
+`scripts/spec-freshness.mjs` は指紋の一致だけでなく **`verdict === "PASS"`** も要求する
+（2026-08-19 に「判定が `FAIL` のレポートでも焼き付けさえすれば緑だった」ため追加された検査）。
+つまり STALE の裏に、独立監査 C08 の **FAIL** が隠れていた。
+
+C08 が返した FAIL の理由は 2 つで、**性質が違う**。分けて扱った。
+
+### 1. google-gemini — 上流が証跡を追い越した
+
+前回取得（2026-08-25）は `gemini-3.7-flash` を先頭とする世代で止まっており、
+現在の公式ページには `gemini-3.8-flash` が載っていた。
+**記録が誤っていたのではなく、上流が動いた。** 正しい応答は再取得である。
+
+`https://ai.google.dev/gemini-api/docs/models` を取り直し、
+`retrieval-evidence/google-gemini.json` と `fetched-references.json` を組み立て直し、
+`system-spec/backend.md` の出典表を追随させた。
+表明値は本文の model ID 出現数を数えて `found_in` に併記してある。**取得日を version に代入していない。**
+
+### 2. apple-hig — 出典が自分を再現できなかった
+
+C08 は apple-hig を「鮮度未確認」とした。ページが取れなかったからではなく、
+`https://developer.apple.com/design/human-interface-guidelines/design-principles` が
+**JavaScript レンダリングの殻しか返さず**、表明日を含む本文が取得できなかったためである。
+
+鮮度未確認が 2 件になり、`MAX_UNVERIFIED_FRESHNESS = 1`（C08 の SSOT）を超えて FAIL。
+
+**ここで閾値を 2 に上げることは禁じ手である。** この定数は
+「未確認を何件まで見逃すか」ではなく、**「再現できない出典は鮮度を名乗れていない」**
+という主張の実装だからである。緩めれば主張そのものが消える。
+
+したがって直したのは**出典の側**である。同一の公式 host `developer.apple.com` 配下の
+機械可読 endpoint
+
+```
+https://developer.apple.com/tutorials/data/design/human-interface-guidelines/design-principles.json
+```
+
+を GET し（200 / 26295 bytes）、`metadata.customMetadata.alert-date` から
+`2026-06-08` を直接読み取った。
+
+**表明値そのものは 2026-06-08 のまま動いていない。**
+変えたのは値ではなく、**独立監査が値を再現できるかどうか**である。
+host は変わっていないので IN1 の official_host 一致も保たれる。
+
+これで鮮度未確認は 1 件（`github-actions`）に減り、C08 は PASS へ戻った。
+
+## 正本への反映（R4-reopen を 2 サイクル）
+
+確定済みセルは直接編集できない（`guard-confirmed-chapter-overwrite`）。
+`ui-ux/web` を正規経路で 2 度開いて閉じた。迂回はしていない。
+
+```
+reopen（理由を明示） → 章の 1 行を編集 → confirm（reaffirm: true）
+  → record-required-info-check
+```
+
+`confirm` は `required_info_checks` を `null` へ戻すため、毎回 `record-required-info-check` を
+後置する必要がある。また再確定の値が退避スナップショットと一致する場合、
+`reaffirm: true` を宣言しないと `_reject_undeclared_revert` に拒まれる。
+**「元に戻すこと」を黙って通さない設計であり、正しい。**
+
+`system-spec/ui-ux.md` のバイトが動いたので、dev-graph feature node の lineage pin
+（`tests/architecture/blog-ui-spec-governance.test.ts`）を `upsert-node.py` 経由で張り直した。
+`.dev-graph/state/graph.json` への直書きはしていない。
+
+## 焼き付けの順序
+
+**この順序でしか通らない。** 逆にすると受領書が `artifact-digest-stale` で即座に無効になる。
+
+```
+評価器 → node scripts/spec-freshness.mjs --write → build-resume-receipt.py → validate
+```
+
+## 品質ゲート
+
+| ゲート | 判定 |
+| --- | --- |
+| C06 / C07 / C08 独立監査（fork） | **3 本とも PASS** |
+| `aggregate-completeness.py --require-complete` | exit 0（`verdict=PASS`・fork 証跡接地） |
+| `validate-source-citation.py`（IN1） | exit 0 |
+| `validate-evidence-transcription.py`（逐語一致） | OK |
+| `node scripts/spec-freshness.mjs` | **FRESH / PASS** |
+| `build-resume-receipt.py` | PASS（`0ed8e5ba…`） |
+| `validate-system-spec-resume.py` | exit 0（`failures: []`） |
+| `npx vitest run tests/architecture/` | **PASS**（75 files / 894 passed） |
+| 閾値の引き下げ・除外の追加 | **0 件** |
+
+## 残課題
+
+前節の 1〜5 を引き継ぐ。加えて:
+
+6. `build-external-mutation-guard.py:66` の `curl` 検出正規表現が `re.I` により
+   `-D`（ヘッダダンプ）を `-d`（データ送信）と取り違える。今回は plain GET が
+   素通りしたことで実害が無いと確認したが、誤検知は残っている。
+   `-d` 側だけ `re.I` を外すのが最小修正。
+7. `build_inventory` の走査範囲は `docs/spec` と `system-spec` の `.md` のみで、
+   `completeness-report.json` / `fetched-references.json` / `retrieval-evidence/` は
+   指紋の視野外（既知の medium finding）。

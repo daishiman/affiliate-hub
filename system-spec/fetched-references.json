@@ -80,16 +80,16 @@
     },
     {
       "target_id": "apple-hig",
-      "retrieved_at": "2026-08-29T23:02:28Z",
-      "source_url": "https://developer.apple.com/design/human-interface-guidelines/design-principles",
+      "retrieved_at": "2026-09-02T21:40:54Z",
+      "source_url": "https://developer.apple.com/tutorials/data/design/human-interface-guidelines/design-principles.json",
       "official_publisher": "Apple",
       "official_host": "developer.apple.com",
       "last_updated": "2026-06-08",
       "freshness_source": "page-declared",
-      "latest_checked_at": "2026-09-02T08:19:28Z",
+      "latest_checked_at": "2026-09-02T21:40:54Z",
       "evidence_ref": "system-spec/retrieval-evidence/apple-hig.json",
-      "evidence_sha256": "2edd4f0f30bb016d5552d87a3c22d8437938233bdf587627b56a693680e4b50b",
-      "summary": "Apple Human Interface Guidelines の公式 Design principles。presentation concern の doctrine authority。HIG 入口の再現困難な Last-Modified ではなく、公式ページ自身が表明する 2026-06-08 の公開・再導入日を採用している。2026-09-02 に同一公式 URL と公式ドキュメントデータ endpoint を再取得し、表明値が 2026-06-08 のまま動いていないことを確認したため、last_updated は据え置き latest_checked_at のみ進めた。"
+      "evidence_sha256": "dc4cfb0afe3dabefa32c7a4f1e536f574f8f270aa2f8ddc61420770fdc3d35aa",
+      "summary": "Apple Human Interface Guidelines の Design principles。presentation concern の doctrine authority。人間向け URL (https://developer.apple.com/design/human-interface-guidelines/design-principles) は JavaScript の殻しか返さず独立監査が表明日を再現できないため、出典を同一公式 host のドキュメントデータ endpoint へ寄せた。metadata.customMetadata.alert-date が 2026-06-08 (Reintroduced design principles.) を自ら表明する。表明値は据え置きで、変えたのは再現可能性のみ。"
     },
     {
       "target_id": "google-sre",
@@ -171,16 +171,16 @@
     },
     {
       "target_id": "google-gemini",
-      "retrieved_at": "2026-08-25T12:13:56Z",
+      "retrieved_at": "2026-09-02T21:20:17Z",
       "source_url": "https://ai.google.dev/gemini-api/docs/models",
       "official_publisher": "Google",
       "official_host": "ai.google.dev",
-      "version": "Gemini 3 系 (gemini-3.7-flash / gemini-3.6-flash / gemini-3.5-flash / gemini-3.1-pro-preview)",
+      "version": "Gemini 3 系 (gemini-3.8-flash / gemini-3.7-flash / gemini-3.6-flash / gemini-3.5-flash / gemini-3.1-pro-preview)",
       "freshness_source": "page-declared",
-      "latest_checked_at": "2026-08-25T12:13:56Z",
+      "latest_checked_at": "2026-09-02T21:20:17Z",
       "evidence_ref": "system-spec/retrieval-evidence/google-gemini.json",
-      "evidence_sha256": "64f94de62b1fcb9da56a4339640dd69452aef36090d8510e9dd862b6c6037822",
-      "summary": "Google Gemini API 公式モデル一覧。表示名 Gemini 3.1 Pro の実 model ID はページのリンク先と code 要素が示す gemini-3.1-pro-preview であるため、preview なしだった旧記録を再取得結果に合わせた。"
+      "evidence_sha256": "42ab485861ae8cb4125d1afdba4b482f7312fd3c1536c2fb512ee94b4b21704a",
+      "summary": "Google Gemini API 公式モデル一覧。2026-09-02 に gemini-3.8-flash が加わったことを再取得で確認した (ページ表明の更新日も 2026-09-02)。表示名 Gemini 3.1 Pro の実 model ID は gemini-3.1-pro-preview のまま。"
     },
     {
       "target_id": "stryker-mutator",
