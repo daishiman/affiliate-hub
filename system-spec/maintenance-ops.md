@@ -250,7 +250,7 @@ codeを、次の変更者が意図・制約・failureを短時間で理解し、
 |---|---|
 | セル | maintenance-ops × web |
 | 状態 | 確定 |
-| 確定質疑 (qa_ref) | `qa-ops-web-migration-guard` |
+| 確定質疑 (qa_ref) | `qa-ops-web-migration-guard-v2` |
 | 資するゴール (serves_goals) | G1, G2 |
 | required-info | なし (この確定に block 指定の必須情報は登録されていない) |
 | 出典 kind | user-dialogue |

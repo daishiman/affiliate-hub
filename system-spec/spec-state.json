@@ -5056,6 +5056,33 @@
           }
         ]
       }
+    },
+    {
+      "category": "maintenance-ops",
+      "platform": "web",
+      "reason": "dev の合流で正本の qa_ref が qa-ops-web-migration-guard から qa-ops-web-migration-guard-v2 へ動いたが、章 maintenance-ops.md の `## 確定セルの記録` は生成器を持たない転記節のため取り残された。転記を正本へ合わせるあいだだけセルを開ける。値は同じまま戻す (reaffirm)",
+      "from": "確定",
+      "discarded": {
+        "qa_ref": "qa-ops-web-migration-guard-v2",
+        "qa_refs": [
+          "qa-ops-web-migration-guard-v2",
+          "qa-ops-web-migration-guard",
+          "qa-ops-web-spec-intake",
+          "qa-ops-web"
+        ],
+        "serves_goals": [
+          "G1",
+          "G2"
+        ],
+        "required_info_checks": [
+          {
+            "checked_on": "2026-09-02",
+            "checked_with": "record-required-info-check",
+            "blocking_item_count": 0,
+            "unmet_blocking_items": 0
+          }
+        ]
+      }
     }
   ],
   "category_aggregate": {
@@ -6576,7 +6603,7 @@
   ],
   "knowledge_candidates": [],
   "hearing_progress": {
-    "loop_count": 4,
+    "loop_count": 1,
     "next_question": null,
     "complete": true,
     "max_loops": 10,
