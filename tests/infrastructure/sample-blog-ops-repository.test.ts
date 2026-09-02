@@ -63,6 +63,7 @@ function articleInput(over: Partial<SaveBlogArticleInput> = {}): SaveBlogArticle
     lead: over.lead ?? "",
     status: over.status ?? "draft",
     authorName: over.authorName ?? "編集部",
+    categorySlug: over.categorySlug ?? "chairs",
     publishedAt: over.publishedAt ?? null,
     updatedAt: over.updatedAt ?? AT,
     blocks: over.blocks ?? [],

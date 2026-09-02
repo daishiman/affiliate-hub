@@ -8,7 +8,10 @@ import {
   createCommercialD1LinkInboxRepository,
   type DrizzleD1,
 } from "./persistence/d1/link-inbox-repository";
-import { createD1BlogOpsRepository } from "./persistence/d1/blog-ops-repository";
+import {
+  createD1BlogOpsRepository,
+  createD1PublicBlogPort,
+} from "./persistence/d1/blog-ops-repository";
 import { createD1SiteDraftRepository } from "./persistence/d1/site-draft-repository";
 import {
   createD1ChannelConnectionRepository,
@@ -93,6 +96,7 @@ import {
   createChannelExporter,
 } from "./channels/channel-registry";
 import { createSecretResolver } from "./platform/secret-resolver";
+import { pickSiteBaseDomain } from "./platform/site-base-domain";
 import {
   createSampleClickTracking,
   createSampleMetricsRepository,
@@ -149,7 +153,10 @@ import {
 import { createHandoffTemplates } from "./generation/handoff-templates";
 import { hashSecret, mintSecret } from "./platform/secret-minter";
 import { createSampleLinkIngestionRepository } from "./persistence/sample/link-inbox-sample-repository";
-import { createSampleBlogOpsRepository } from "./persistence/sample/blog-ops-sample-repository";
+import {
+  createSampleBlogOpsRepository,
+  createSamplePublicBlogPort,
+} from "./persistence/sample/blog-ops-sample-repository";
 import { createSampleSiteDraftRepository } from "./persistence/sample/site-draft-sample-repository";
 import { createSampleSiteRepository } from "./persistence/sample/site-sample-repository";
 import { idGenerator } from "./platform/id-generator";
@@ -221,6 +228,11 @@ export function createDeps(
       ? createSampleTelemetrySink()
       : createD1TelemetrySink({ db, newId: () => idGenerator.newId() });
   const sites = db === null ? createSampleSiteRepository() : createD1SiteRepository(db);
+  const auditLog = db === null ? createSampleAuditLog() : createD1AuditLog(db);
+  // 公開一覧・本文・SEO・構成レポートは、この 1 reader instance を共有する。
+  // D1 版は住所の解決に `sites` を要るので、`sites` より後に組む。
+  const publishedContent =
+    db === null ? createSampleContentRepository() : createD1ContentRepository(db, sites);
   return {
     // 順位づけの基準と採点表も、保存先が用意できていれば本物（D1）。
     // **入れる口（/admin/rankings/models/new と /admin/rankings/scores）を
@@ -252,10 +264,19 @@ export function createDeps(
     // 本物にすると、書き込む操作が無いので一覧が永久に空のままになる。
     // 保存先が無い環境では、出す操作は**失敗を返す**（保存できたことにしない）。
     sites,
-    siteDrafts: db === null ? createSampleSiteDraftRepository() : createD1SiteDraftRepository(db),
+    siteDrafts:
+      db === null ? createSampleSiteDraftRepository(auditLog) : createD1SiteDraftRepository(db),
+    // 住所の基底ドメインはここで 1 回だけ解釈する。
+    // 入口が `env` を渡し忘れると `null` になり、住所なし（`/s/<URL名>` だけ）で
+    // 動く。**作成を止めない**のは、住所未設定は障害ではなく構成の状態だから。
+    siteBaseDomain: pickSiteBaseDomain(options.env ?? {}),
     blogOps: db === null ? createSampleBlogOpsRepository() : createD1BlogOpsRepository(db),
-    publishedContent:
-      db === null ? createSampleContentRepository() : createD1ContentRepository(db, sites),
+    publicBlog:
+      db === null
+        ? createSamplePublicBlogPort(sites, publishedContent)
+        : createD1PublicBlogPort(db, sites, publishedContent),
+    publicBlogSource: db === null ? "sample" : "live",
+    publishedContent,
     // ブログの固定文書（運営者情報・各方針・規約・特商法表記）。
     // **見本へ落とさない。** 落とすと、まだ書いていない運営者情報の位置に
     // 見本の運営者情報が出て、読者にはそれが本物として読まれる。
@@ -418,7 +439,7 @@ export function createDeps(
     // 接続の無い実行では見本のまま（読み取りは初期ルール、保存は失敗を返す）。
     policyRules:
       db === null ? createSamplePolicyRuleRepository() : createD1PolicyRuleRepository(db),
-    auditLog: db === null ? createSampleAuditLog() : createD1AuditLog(db),
+    auditLog,
     // 起きたことの発行。購読側（通知・再生成・リンク切れ検出）はまだ無いので
     // 記録だけする。購読を足すときに変えるのはこの 1 行だけ。
     events: createEventPublisher(null),

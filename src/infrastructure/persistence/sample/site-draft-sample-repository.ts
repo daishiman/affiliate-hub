@@ -1,6 +1,16 @@
-import type { EditorialSiteDraftRepositoryPort } from "@/application/ports/authoring";
+import type {
+  EditorialSiteDraftRepositoryPort,
+  SiteProvisionRequest,
+} from "@/application/ports/authoring";
+import type { AuditLogPort } from "@/application/ports/compliance";
 import type { SiteBlueprint, SiteDraft } from "@/domain/authoring";
-import { createSiteDraft } from "@/domain/authoring";
+import {
+  SITE_PROVISIONING_REQUIRED_COUNTS,
+  createSiteDraft,
+  evaluateSiteComposition,
+} from "@/domain/authoring";
+import { defaultLayoutBandSeeds, defaultLayoutSlotSeeds } from "@/domain/blogops";
+import { provisionSampleComposition } from "./blog-ops-sample-repository";
 import {
   type WorkspaceId,
   domainError,
@@ -83,6 +93,7 @@ const SAMPLE_DRAFT: SiteDraft = {
     },
   ],
   articleTypes: ["guide", "comparison"],
+  revision: 1,
 } as SiteDraft;
 
 const DRAFTS: SiteDraft[] = [SAMPLE_DRAFT];
@@ -98,7 +109,9 @@ export function createdSites(): readonly { readonly slug: string; readonly bluep
   return CREATED;
 }
 
-export function createSampleSiteDraftRepository(): EditorialSiteDraftRepositoryPort {
+export function createSampleSiteDraftRepository(
+  auditLog?: AuditLogPort,
+): EditorialSiteDraftRepositoryPort {
   return markEditorial({
     async find(workspaceId: WorkspaceId, id) {
       return ok(
@@ -110,9 +123,28 @@ export function createSampleSiteDraftRepository(): EditorialSiteDraftRepositoryP
     },
     async save(draft: SiteDraft) {
       const i = DRAFTS.findIndex((d) => String(d.id) === String(draft.id));
-      if (i === -1) DRAFTS.push(draft);
-      else DRAFTS[i] = draft;
-      return ok(draft);
+      if (i === -1) {
+        if (draft.revision !== 0) {
+          return err(
+            domainError("CONFLICT", "この下書きは別の操作で更新されました。", {
+              suggestedAction: "画面を開き直してから、もう一度保存してください。",
+            }),
+          );
+        }
+        const inserted = { ...draft, revision: 1 };
+        DRAFTS.push(inserted);
+        return ok(inserted);
+      }
+      if (DRAFTS[i]!.workspaceId !== draft.workspaceId || DRAFTS[i]!.revision !== draft.revision) {
+        return err(
+          domainError("CONFLICT", "この下書きは別の操作で更新されました。", {
+            suggestedAction: "画面を開き直してから、もう一度保存してください。",
+          }),
+        );
+      }
+      const saved = { ...draft, revision: draft.revision + 1 };
+      DRAFTS[i] = saved;
+      return ok(saved);
     },
     async publishBlueprint(slug: string, blueprint: SiteBlueprint) {
       const i = CREATED.findIndex((c) => c.slug === slug);
@@ -120,6 +152,63 @@ export function createSampleSiteDraftRepository(): EditorialSiteDraftRepositoryP
       else CREATED[i] = { slug, blueprint };
       return ok(blueprint);
     },
+    async provisionSite(request: SiteProvisionRequest) {
+      // 作業場は**渡された値**から取る（設計図の中の値から取らない）。
+      const { blueprint, slug, workspaceId } = request;
+      const clash = CREATED.find((c) => c.slug === slug);
+      if (clash !== undefined) {
+        return err(
+          domainError("CONFLICT", "この URL の名前は使えません。", {
+            suggestedAction: "別の URL の名前を付けて、もう一度作成してください。",
+          }),
+        );
+      }
+      const draftAt = DRAFTS.findIndex(
+        (draft) =>
+          String(draft.id) === String(request.completedDraft.id) &&
+          draft.workspaceId === workspaceId,
+      );
+      const currentDraft = DRAFTS[draftAt];
+      if (
+        currentDraft === undefined ||
+        currentDraft.revision !== request.expectedDraftRevision ||
+        request.completedDraft.revision !== request.expectedDraftRevision ||
+        currentDraft.createdSiteSlug !== null ||
+        currentDraft.slug !== slug
+      ) {
+        return err(
+          domainError("CONFLICT", "この下書きは別の操作で更新されました。", {
+            suggestedAction: "画面を開き直してから、もう一度作成してください。",
+          }),
+        );
+      }
+      if (auditLog !== undefined) {
+        const appended = await auditLog.append(request.audit);
+        if (!appended.ok) return appended;
+      }
+      CREATED.push({ slug, blueprint });
+      provisionSampleComposition({
+        workspaceId,
+        siteSlug: slug,
+        displayName: request.displayName,
+        oneLine: request.oneLine,
+        bands: defaultLayoutBandSeeds(),
+        slots: defaultLayoutSlotSeeds(),
+      });
+      DRAFTS[draftAt] = {
+        ...request.completedDraft,
+        revision: request.expectedDraftRevision + 1,
+      };
+      return ok({
+        blueprint,
+        composition: evaluateSiteComposition({
+          ...SITE_PROVISIONING_REQUIRED_COUNTS,
+          categories: blueprint.categories.length,
+          articles: 0,
+        }),
+      });
+    },
+
     /**
      * 取り下げ。この場でしか生きていない一覧から 1 件外す。
      *

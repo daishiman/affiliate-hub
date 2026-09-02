@@ -27,7 +27,37 @@ P08 corrective migration の実ファイルは `drizzle/0030_unify_blog_article_
 legacy AI 行はブログ属性を推測せず NULL のまま保つ。`blog_article` 行は ID を維持して `articles` へ backfill し、
 `article_template` から既存 `type` を domain mapping で導出する。子表の article ID は変更しない。backfill と子参照の整合を検査した後に `blog_article` を DROP する。
 
-`published_articles` は公開 snapshot として残す。ブログ adapter は migration 後 `articles` のみを read/write し、dual-write は行わない。
+`published_articles` は公開 snapshot として残す。ブログ adapter は migration 後
+`articles` を編集 aggregate として read/write し、公開状態へ移る操作だけが同じ
+Unit of Work で canonical public projection を更新する。公開 reader は
+`published_articles` だけを読み、`articles` との union や fallback を行わない。
+
+## 0042: 公開記事 projection の一本化 (実装中)
+
+次の migration は add-only で `articles.public_category_slug` と
+`published_articles.source_article_id` を追加する。
+既存の本文・評価・監査・墓標は物理削除しない。
+
+1. 所有 workspace / site / slug の対応が一意かを事前検査する。cross-tenant の一致や
+   複数候補は推測で選ばず、migration 全体を fail-fast で止める。
+2. 同一 workspace / site / slug の projection が既にあれば公開 snapshot を保持し、
+   対応する既存 `articles.id` だけを `source_article_id` へ結ぶ。
+3. `articles` にだけある公開中・未削除の記事は、ブロックから deterministic に
+   `PublishedArticle` を作り、projection が無い場合だけ補完する。旧データの
+   カテゴリー欠落は任意値へ推測せず `uncategorized`（未分類）へ、
+   空の書き手は「著者未設定」へ正規化し、従来公開されていた記事を落とさない。
+4. tombstone、論理削除、archive、非公開状態は可視 projection より優先し、
+   勝手に再公開しない。
+5. 再実行しても既存 projection を上書きせず、同じ行数・identity に収束させる。
+
+runtime の新規公開は blueprint に実在するカテゴリーの明示選択と
+空でない書き手名を要求する。ブログ運用の
+publish/update/unpublish/delete/restore と projection 更新を 1 回の
+D1 batch に含める。AI 公開 writer も同じ statement builder を使い、直接 SQL の複製を
+持たない。旧 `/blog/:slug` はデータ移行で別 URL を保存せず、実行時に
+`articleHref` の canonical URL へ 308 redirect する。
+また `source_article_id` のある行は BlogOps 管理だけが更新し、AI 公開記事用の
+published admin からは一覧・訂正・非表示化しない。
 
 ## `legal_page.kind` の 6 種 → 8 種
 
@@ -43,6 +73,10 @@ SQLite に列挙型は無く、Drizzle の `enum` は TypeScript の制約にす
 pnpm db:generate           # schema.ts から SQL を出す
 pnpm db:migrate:local      # ローカル D1 へ当てる
 ```
+
+0042 は SQL fixture で only-articles / only-projection / 同一 identity / tombstone /
+削除済み / owner 不一致 / 再実行を先に検証する。remote 適用はこの作業の範囲外で、
+ローカル GREEN だけを remote 適用済みの証拠として扱わない。
 
 ## ロールバック
 

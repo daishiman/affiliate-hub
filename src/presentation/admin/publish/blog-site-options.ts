@@ -1,4 +1,4 @@
-import { blogOpsEntry, currentActor } from "@/presentation/composition";
+import { blogOpsEntry, currentActor, platformUseCases } from "@/presentation/composition";
 
 /**
  * 「どのブログの話か」を決めるための選択肢。
@@ -10,7 +10,11 @@ import { blogOpsEntry, currentActor } from "@/presentation/composition";
  * **親子の関係が読めなくなる**ため。中心のブログの直後に、その子が並ぶ。
  */
 export type BlogSiteOptions = {
-  readonly options: readonly { readonly value: string; readonly label: string }[];
+  readonly options: readonly {
+    readonly value: string;
+    readonly label: string;
+    readonly categories: readonly { readonly value: string; readonly label: string }[];
+  }[];
   /** 選択肢が 1 つも無いときの理由。空なら null。 */
   readonly emptyReason: string | null;
 };
@@ -22,12 +26,27 @@ export async function blogSiteOptions(): Promise<BlogSiteOptions> {
   const actor = await currentActor();
   const result = await entry.listNetwork.execute(actor, {});
   if (!result.ok) return { options: [], emptyReason: result.error.message };
-
-  const options = result.value.rows.map((row) => ({
-    value: row.siteSlug,
-    // 深さを全角空白で表すのは、選択肢の中で木を見せられる唯一の手だから。
-    label: `${"　".repeat(row.depth)}${row.name}（${row.roleLabel}）`,
-  }));
+  const sites = await platformUseCases();
+  // 行と設計図を添字で突き合わせない。長さは必ず揃うので、
+  // `blueprints[index]?.` の `?.` は決して真にならない枝として残るだけになる。
+  const options = await Promise.all(
+    result.value.rows.map(async (row) => {
+      const site = await sites.getSite.execute(actor, { siteSlug: row.siteSlug });
+      return {
+        value: row.siteSlug,
+        // 深さを全角空白で表すのは、選択肢の中で木を見せられる唯一の手だから。
+        label: `${"　".repeat(row.depth)}${row.name}（${row.roleLabel}）`,
+        // 設計図が読めなかったブログは、カテゴリ無しで選択肢に残す。
+        // 1 本読めないだけで選択肢ごと消すと、他のブログの操作まで止まる。
+        categories: site.ok
+          ? site.value.blueprint.categories.map((category) => ({
+              value: category.slug,
+              label: category.name,
+            }))
+          : [],
+      };
+    }),
+  );
   return {
     options,
     emptyReason:

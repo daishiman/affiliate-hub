@@ -14,7 +14,7 @@
  * 仕様 §13 の表を動かす話なので、この検査 1 本の都合では決めない。
  */
 import { describe, expect, it } from "vitest";
-import { RENDERABLE_ROUTE_CASES, ROUTE_CASES, ROUTE_STATE_CASES, renderCase } from "./route-table";
+import { RENDERABLE_ROUTE_CASES, ROUTE_STATE_CASES, renderCase } from "./route-table";
 import { intoDom } from "../support/render";
 import { SCREEN_RENDER_BUDGET_MS } from "../../quality-gates.config.mjs";
 
@@ -71,7 +71,9 @@ import { SCREEN_RENDER_BUDGET_MS } from "../../quality-gates.config.mjs";
 /** 断りの画面が使う文言。`ErrorView` の題ではなく、権限側の決まり文句。 */
 const DENIED = "権限がありません";
 
-type Case = (typeof ROUTE_STATE_CASES)[number] | (typeof ROUTE_CASES)[number];
+type Case =
+  | (typeof ROUTE_STATE_CASES)[number]
+  | (typeof RENDERABLE_ROUTE_CASES)[number];
 
 function labelOf(route: Case): string {
   return "state" in route && route.state !== undefined
@@ -112,10 +114,7 @@ const PARTIAL: Record<string, string> = {
     "測る側が測れなくなる。2026-08-21 実測: 残り 7 節（h2 15 本 / リンク 23 本）は描けている",
 };
 
-const ALL: readonly Case[] = [
-  ...RENDERABLE_ROUTE_CASES,
-  ...ROUTE_STATE_CASES,
-];
+const ALL: readonly Case[] = [...RENDERABLE_ROUTE_CASES, ...ROUTE_STATE_CASES];
 
 describe("走査が、権限の断りではなく画面の中身に届いている", () => {
   it("走査そのものが空振りしていない（母集団の床）", () => {

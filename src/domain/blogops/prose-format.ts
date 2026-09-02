@@ -75,7 +75,17 @@ function parseAttrs(source: string): Readonly<Record<string, string>> {
   const pattern = /(\w+)=(?:"((?:[^"\\]|\\.)*)"|(\S+))/g;
   let hit = pattern.exec(source);
   while (hit !== null) {
-    const raw = hit[2] !== undefined ? hit[2].replace(/\\(.)/g, "$1") : (hit[3] ?? "");
+    /*
+      **`hit[3]` に `?? ""` を足さない。**式の 2 つの選択肢は `"..."` と `\S+` で、
+      片方が必ず当たる。だから `hit[2]` が空なら `hit[3]` は必ず埋まっている。
+
+      以前ここに `?? ""` があった。読むと丁寧に見えるが、**その右辺へは
+      どんな入力でも到達しない**。到達しない枝は分岐の分母だけを増やし、
+      「テストが薄い」という顔をして下限を押し下げる。式が保証している
+      ことをもう一度確かめる形は、安全側に見えて測り方を壊す。
+    */
+    const raw =
+      hit[2] !== undefined ? hit[2].replace(/\\(.)/g, "$1") : (hit[3] as string);
     found[hit[1] as string] = raw;
     hit = pattern.exec(source);
   }

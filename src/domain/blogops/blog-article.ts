@@ -64,11 +64,45 @@ export type BlogArticle = {
   readonly lead: string;
   readonly status: BlogArticleStatus;
   readonly authorName: string;
+  /**
+   * サイト設計図にある公開カテゴリのslug。下書き中は未選択を許す。
+   * グローバルcategory masterのIDとは責務が違う。
+   */
+  readonly categorySlug: string | null;
   readonly publishedAt: Date | null;
   readonly updatedAt: Date;
   /** 同時編集の古い保存を断る版番。legacy fixture は未指定=1と読む。 */
   readonly revision?: number;
 };
+
+/** 0042より前の公開記事でカテゴリを持たなかった事実を、架空カテゴリにせず表す。 */
+export const UNCATEGORIZED_ARTICLE_CATEGORY = {
+  slug: "uncategorized",
+  name: "未分類",
+  oneLine: "移行前に公開され、カテゴリが記録されていない記事です。",
+} as const;
+
+/** 0042より前の公開記事で署名が無かった事実を、架空の編集者名にせず表す。 */
+export const UNKNOWN_ARTICLE_AUTHOR = {
+  slug: "unknown-author",
+  name: "著者未設定",
+} as const;
+
+export function validateArticleCategorySlug(slug: string): Result<string, DomainError> {
+  const value = slug.trim();
+  if (value === "") {
+    return err(validationError("公開するカテゴリを選んでください。", "categorySlug"));
+  }
+  if (!/^[a-z0-9]([a-z0-9-]*[a-z0-9])?$/.test(value)) {
+    return err(
+      validationError(
+        "カテゴリのURL名は、小文字の英数字とハイフンだけで、ハイフンで終われません。",
+        "categorySlug",
+      ),
+    );
+  }
+  return ok(value);
+}
 
 /**
  * 記事型ごとに欠かせない部品列 (§4)。

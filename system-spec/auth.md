@@ -118,7 +118,7 @@ serves_goals: [G1]
 
 | 対象 | バージョン | 公式発行元 | 出典URL | 取得 | 最新確認 |
 |---|---|---|---|---|---|
-| better-auth | 1.7.2 | Better Auth (www.better-auth.com) | https://www.better-auth.com/docs/introduction | 2026-08-28T14:07:27Z | 2026-08-28T14:07:27Z |
+| better-auth | 1.7.2 | Better Auth (better-auth.com) | https://better-auth.com/docs/introduction | 2026-08-29T23:02:28Z | 2026-08-29T23:02:28Z |
 
 ## 状態の意味 (State semantics)
 
@@ -196,7 +196,7 @@ serves_goals: [G1]
 | 出典 sha256 | — |
 | 適用された設計知識 (design_applications) | 2 件 — 本章 `## 適用された設計知識` を参照 |
 
-- **出典が `user-dialogue` なのは 6 件**である (分母 = `matrix` の web セル 8 件。`written-requirements` は backend と security の 2 件だけ)。本節はかつて「本章だけ」と書いていたが、ブログ構築 UI 以降の確定が対話で積み上がり、**2026-08-31 時点で少数派は書面由来のほうへ入れ替わった**。したがって本章の確定は `docs/spec/*.md` の sha256 に束縛されておらず、**元文書が書き換わっても検知できない**。これは穴だが、対話由来の確定に後から path を与えると出典を偽ることになるため塞がない。塞がる条件は、この確定内容が `docs/spec` のいずれかの節として書き起こされたとき。
+- **出典が `user-dialogue` なのは本章だけ**である (分母 = `coverage_matrix` の web セル 8 件。残り 7 件は `written-requirements`)。したがって本章の確定は `docs/spec/*.md` の sha256 に束縛されておらず、**元文書が書き換わっても検知できない**。これは穴だが、対話由来の確定に後から path を与えると出典を偽ることになるため塞がない。塞がる条件は、この確定内容が `docs/spec` のいずれかの節として書き起こされたとき。
 
 ### 本節を「転記」に留めた理由
 

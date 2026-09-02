@@ -218,10 +218,6 @@ const QUERY_EXEMPT: Readonly<Record<string, { readonly count: number; readonly w
     count: 1,
     why: "同上（読者向け）",
   },
-  "infrastructure/persistence/d1/published-article-repository.ts::publishedArticleTombstones::hiddenSlugs": {
-    count: 1,
-    why: "読者向けの公開ページ。URL名に対応する墓標を全workspace横断で確認し、見本の再露出を防ぐ",
-  },
   "infrastructure/persistence/d1/redirect-repository.ts::redirectResolutions::resolve": {
     count: 1,
     why: "読者が押した転送の引き当て。手がかりは合言葉（主キー）だけ",

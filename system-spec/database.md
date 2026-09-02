@@ -15,7 +15,7 @@ serves_goals: [G1, G2]
 
 | プラットフォーム | 状態 | 根拠 |
 |---|---|---|
-| Web (web) | 確定 | 確定質疑: qa-database-web-blog-builder。裏付け質疑 (`qa_refs`): `qa-database-web-spec-intake`, `qa-database-web`, `qa-database-web-analytics` — 本章の「確定内容 (質疑録)」へ接地根拠として併記 |
+| Web (web) | 確定 | 確定質疑: qa-database-web-blog-provisioning-integrity。裏付け質疑 (`qa_refs`): `qa-database-web-blog-builder`, `qa-database-web-spec-intake`, `qa-database-web`, `qa-database-web-analytics` — 本章の「確定内容 (質疑録)」へ接地根拠として併記 |
 | モバイル (mobile) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |
 | タブレット (tablet) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |
 | デスクトップ (Windows) (desktop-windows) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |
@@ -24,7 +24,13 @@ serves_goals: [G1, G2]
 
 ## 確定内容 (質疑録)
 
-### qa-database-web-blog-builder (対応セル: web)
+### qa-database-web-blog-provisioning-integrity (対応セル: web)
+
+**質問**: 13問のウィザードで作ったブログが読者側で404になる。作成が書き切るべき保存の境界と、サブドメイン割り当てに必要な保存項目は何か。
+
+**回答**: 原因は作成が site_blueprints 1表しか書かないこと。公開判定 (resolvePublicSiteIdentity) は site_blueprints に加えて site_network_nodes に active かつ未削除の行がちょうど1件あることを要求するため、作成後も読者側は null 解決となり404になる。したがって新規作成を create-only の Unit of Work とし、source_draft_id と source_draft_revision の DB claim、site_blueprints、active network node、8 種の固定ページ draft、既定 bands/slots、下書き完了、作成監査を 1 回の D1 batch で逐次実行する。site_drafts は秒精度時刻ではなく単調 revision を持ち、保存は expected revision の CAS、作成は current revision の trigger 検証で stale request を拒否する。カテゴリーは blueprint JSON を正本とし、別表へ複製しない。1 ステップでも失敗すれば全体を巻き戻す。公開表示は enabled bands/slots、provisioningComplete は保存済みの全 provisioned bands/slots を同じ投影で数える。reader hostname は永続化せず、slug と環境ごとの SITE_BASE_DOMAIN から実行時に一意に導出する。既存行の hostname backfill と slug 変更時の追随書き込みは持たない。
+
+### qa-database-web-blog-builder (対応セル: web) — 接地根拠 (required_info/qa_refs が名指す裏付け)
 
 **質問**: database×web: ブログテンプレート・テーマ・固定ページ・ブログ×アフィリエイト対応の永続化をどうするか。2026-08-24 対話ヒアリング (利用者原文を逐語主旨で記録)。参考ブログ https://makuring.jp/ は構成のみ参考にし、文章・素材は転用しない。同サイトの機械取得は本セッションで拒否されたため、構成の一次根拠は利用者の説明とする。
 
@@ -387,23 +393,36 @@ businessの重要なruleと用語をmodel/code/会話で一致させ、複雑性
 
 #### 本章での適用
 
-##### 確定内容 qa-database-web-blog-builder (対応セル: web)
+##### 確定内容 qa-database-web-blog-provisioning-integrity (対応セル: web)
 
-- 確定要件: 利用者本人の回答を逐語主旨で記録する。
-(1) ブログを作成するための UI を構築・変更したい。今後様々なブログを作るため、ブログごとにテンプレートを元に作成できるようにする。
-(2) ブログの色合い (配色) はその都度選択して構成を変更できるようにする。ページ単位で「このページはこの色合い」と調整できるようにする。
-(3) ブログに関して、見える部分 (公開面)・作成する部分 (編集)・保存する部分 (永続化)・管理上で一覧表示する部分 (管理一覧) のそれぞれで、どのブログにどのアフィリエイトが反映されているかを管理できる UI/UX にする。
-(4) 参考ブログ (makuring.jp) を丸パクリせず、配置・構成・タイトルの表記方法・トップページから作れるページ種別を参考に構築する。文章はそのまま使わない。
-(5) 運営者情報・全カテゴリー・サイトポリシー・プライバシーポリシー・特定商取引法に基づく表記・お問い合わせを含めて全て構築できるようにする。
-(6) 各ページの構成・記事の見やすい配置・図解・比較などの表現パターンも参考にして構築できるようにする。
-(7) 参考ブログはガジェット前提だが本システムはガジェット限定ではないので、ジャンル依存部分 (スペック表など) は差し替え・調整できるようにする。
-(8) サイドバー・ヘッダー・フッターは常に見えるようにする。参考ブログはスクロールで流れてしまうので、スクロール追従 (sticky) で整える。
-(9) 今回で全ての内容を実装したいので、要件定義からタスク管理表まで作成する。
-###### database 章への反映方針
-- 追加エンティティ: blog_template (セクション構成の宣言データ)、blog_theme (デザイントークン集合、ブログ既定)、page_theme_override (ページ単位の配色上書き)、legal_page (固定ページ種別と本文、ブログ単位)、blog_affiliate_placement (ブログ/記事×アフィリエイト案件の反映対応)。
-- 既存 32 エンティティ (Site/Brand/Article/Offer 等) を拡張し、複製しない。テンプレート・テーマは version を持ち、公開済みブログが参照する版を固定できる。
-- 保存先は既存 D1 (Drizzle) を継続する。
-- (注記: 正本 qa_log[qa-database-web-blog-builder].answer が見出しを含むため、章の階層を守ってコンパイラが深い階層へ押し下げた。文字は変えていない)
+- 確定要件: 原因は作成が site_blueprints 1表しか書かないこと。公開判定 (resolvePublicSiteIdentity) は site_blueprints に加えて site_network_nodes に active かつ未削除の行がちょうど1件あることを要求するため、作成後も読者側は null 解決となり404になる。したがって新規作成を create-only の Unit of Work とし、source_draft_id と source_draft_revision の DB claim、site_blueprints、active network node、8 種の固定ページ draft、既定 bands/slots、下書き完了、作成監査を 1 回の D1 batch で逐次実行する。site_drafts は秒精度時刻ではなく単調 revision を持ち、保存は expected revision の CAS、作成は current revision の trigger 検証で stale request を拒否する。カテゴリーは blueprint JSON を正本とし、別表へ複製しない。1 ステップでも失敗すれば全体を巻き戻す。公開表示は enabled bands/slots、provisioningComplete は保存済みの全 provisioned bands/slots を同じ投影で数える。reader hostname は永続化せず、slug と環境ごとの SITE_BASE_DOMAIN から実行時に一意に導出する。既存行の hostname backfill と slug 変更時の追随書き込みは持たない。
+- 設計解釈の記録経路: `dialogue`
+- 原則: Aggregate — 強い invariant を一 transaction で守る整合性境界。外部変更は aggregate root を経由する (`ddd.md#中核概念`)
+  - 採否: `applied`
+  - 章固有の根拠: 新規作成の invariant は site_blueprints 1 表では表せない。source draft id + monotonic revision claim / active network node / 8 種の固定ページ draft / 既定 bands と slots / 下書き完了 / 作成監査をひとつの整合性境界として扱い、D1 batch で逐次実行する。CAS と trigger で stale create/save を明示的な conflict にする。カテゴリーは blueprint JSON が正本である。provisioningComplete は全 provisioned layout を含む作成責務を検証し、enabled layout の表示や、公開固定ページと article を要求する contentReady とは分離する
+  - トレードオフ:
+    - 境界を広げるぶん 1 回の作成が触る表が増える。D1 batch に収まらない規模になったら境界の引き直しを再検討する
+    - 既存の site_blueprints 単独行 (site_network_nodes を持たない過去データ) は invariant を満たさないため、移行で補填するか公開対象外として明示的に落とす必要がある
+- 原則: Boundary data — 境界を跨ぐ値は内側に都合のよい単純な model とし、DB row を持ち込まない (`clean-architecture.md#中核概念`)
+  - 採否: `applied`
+  - 章固有の根拠: reader hostname は site_blueprints に保存せず、slug の一意制約と環境ごとの SITE_BASE_DOMAIN から siteHostname の 1 か所で導出する。ホスト解決の結果はアプリ内側へ『どのブログか』という単純な identity として渡し、middleware が D1 の row 形状を presentation 層へ持ち出さない
+  - トレードオフ:
+    - hostname を永続化しないため追随書き込みは不要。slug を変更すると次の request から導出住所が変わるので、旧住所の転送方針は別途明示する
+    - hostname のデータ移行は不要であり、既存行も現在の SITE_BASE_DOMAIN と slug から同じ規則で住所を導出する
+- 原則: 観測可能性 — 稼働中の実体を外部から確認でき、症状から原因へ辿れる状態を保つ (`site-reliability-engineering.md#中核概念`)
+  - 採否: `applied`
+  - 章固有の根拠: 『作成済みと表示されたのに 404』は、症状 (404) から原因 (site_network_nodes 不在) へ辿る手段が保存値の側に無いために起きた。作成直後に『公開に必要なのに無い実体』を機械が数えられるよう、公開必須要素の充足を保存値から判定できる形で持つ
+  - トレードオフ:
+    - 充足判定を保存値から導出する以上、公開必須要素の定義を増やすたびに判定側も更新が要る。定義の正本を 1 か所に置かないと判定が実体から遅れる
+- 原則: Projection — 編集 aggregate と公開読み取りモデルの責務を分け、状態遷移の境界で一貫して投影する (`ddd.md#中核概念`)
+  - 採否: `applied`
+  - 章固有の根拠: articles は編集 aggregate に限定し、published_articles を唯一の canonical public projection とする。ブログ運用由来の行は source_article_id で既存 articles.id を追跡し、公開・更新・非公開化・論理削除・復元と projection/墓標更新を同じ D1 batch に含める。公開 reader は articles を直読せず、一覧・本文・検索・カテゴリー・人物・SEO・composition を PublishedContentPort の同一集合から導く。新規公開は blueprint のカテゴリーを明示選択し、旧カテゴリー欠落は任意の分類を推測せず uncategorized（未分類）として公開継続する
+  - トレードオフ:
+    - projection を原子的に保つため公開境界の repository が触る表は増える。通常の下書き保存は境界外のままにし、公開状態を跨ぐ操作と公開中記事の復元だけを Unit of Work に含める
+    - 既存データに所有者不一致や曖昧な site/slug がある場合は推測で結ばず、forward migration を fail-fast で止める
+##### 接地根拠 qa-database-web-blog-builder (対応セル: web)
+
+- 本文: 「確定内容 (質疑録)」の `qa-database-web-blog-builder` を参照
 - 設計解釈の記録経路: `dialogue`
 - 原則: Aggregate 境界: Blog を root にテンプレート/テーマ/固定ページ/アフィリエイト配置を集約する (`ddd.md#中核概念`)
   - 採否: `applied`
@@ -526,7 +545,7 @@ businessの重要なruleと用語をmodel/code/会話で一致させ、複雑性
 |---|---|
 | セル | database × web |
 | 状態 | 確定 |
-| 確定質疑 (qa_ref) | `qa-database-web-blog-builder` |
+| 確定質疑 (qa_ref) | `qa-database-web-blog-provisioning-integrity` |
 | 資するゴール (serves_goals) | G1, G2 |
 | required-info | なし (この確定に block 指定の必須情報は登録されていない) |
 | 出典 kind | written-requirements |
@@ -576,3 +595,27 @@ C05 gaps[0] は「8 章 + 00 を再生成して確定セル内容と decisions[]
 | `decision-screen-priority` | ui-ux×web の画面で、記事の成績比較と回復すべき業務状態のどちらを先頭に置くか | `opt-performance-first` | confirmed | G1, G2 | ui-ux |
 
 - **`decision-editorial-commercial-split` が本章に効く形**: 「報酬額をランキングの入力にしない」という禁止を、コードの中ではなく **D1 を 2 本に分ける**位置で担保する。越えるには設定を書き換えるしかなくなり、越えた事実が差分に残る。
+
+## 章にしか無い記述 (正本へ未接続)
+
+> 以下の 1 件は正本 `spec-state.json` の `qa_ref` / `qa_refs` / `required_info[].grounded_by` のいずれからも導けない (`###### database 章への反映方針`)。compile が消さずに引き継いでいるだけで、**章が正本の投影である性質はここだけ破れている**。正本へ接続するか、不要と確かめて消すこと。
+
+###### database 章への反映方針
+- 追加エンティティ: blog_template (セクション構成の宣言データ)、blog_theme (デザイントークン集合、ブログ既定)、page_theme_override (ページ単位の配色上書き)、legal_page (固定ページ種別と本文、ブログ単位)、blog_affiliate_placement (ブログ/記事×アフィリエイト案件の反映対応)。
+- 既存 32 エンティティ (Site/Brand/Article/Offer 等) を拡張し、複製しない。テンプレート・テーマは version を持ち、公開済みブログが参照する版を固定できる。
+- 保存先は既存 D1 (Drizzle) を継続する。
+- (注記: 正本 qa_log[qa-database-web-blog-builder].answer が見出しを含むため、章の階層を守ってコンパイラが深い階層へ押し下げた。文字は変えていない)
+- 設計解釈の記録経路: `dialogue`
+- 原則: Aggregate 境界: Blog を root にテンプレート/テーマ/固定ページ/アフィリエイト配置を集約する (`ddd.md#中核概念`)
+  - 採否: `applied`
+  - 章固有の根拠: 『見える・作る・保存する・一覧する』の 4 面で同じブログ×アフィリエイト対応を参照するため、blog_affiliate_placement を Blog 集約下に置き、Offer (アフィリエイト案件) は既存 Commercial 境界を参照のみとする
+  - トレードオフ:
+    - テンプレート/テーマに version を持たせると公開済みブログの参照固定が要り、移行時の二重管理が発生する
+    - 既存 32 エンティティへ 5 エンティティを追加するため、データモデル基盤 feature との整合レビューが必要
+
+## compile が保てなかった行 (要判断)
+
+> 正本から導出できず、節・小節の引き継ぎでも守れなかった 2 行。版の更新のように**正しく消える行**も混ざる。正本へ接続するか、不要と確かめて消すこと。この節は compile のたびに作り直す。
+
+- `  - 章固有の根拠: articles は編集 aggregate に限定し、published_articles を唯一の canonical public projection とする。ブログ運用由来の行は source_article_id で既存 articles.id を追跡し、公開・更新・非公開化・論理削除と projection 更新を同じ D1 batch に含める。公開 reader は articles を直読せず、一覧・本文・検索・カテゴリー・人物・SEO・composition を PublishedContentPort の同一集合から導く`
+- `    - projection を原子的に保つため公開境界の repository が触る表は増える。通常の下書き保存は境界外のままにし、公開状態を跨ぐ操作だけを Unit of Work に含める`

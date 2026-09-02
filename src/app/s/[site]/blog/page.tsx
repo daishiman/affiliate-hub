@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { articleHref } from "@/application/read-models/published-article";
 import { SiteFrame } from "@/presentation/site/page-frame";
 import { siteHref } from "@/presentation/site/view-model";
 import { siteHomeMetadata } from "@/presentation/site/site-metadata";
@@ -48,13 +49,10 @@ export default async function BlogIndex({ params }: { params: Promise<{ site: st
               ) : (
                 <ListView
                   rows={articles.map((a) => ({
-                    key: a.id,
+                    key: a.slug,
                     label: a.title,
-                    href: siteHref(site, `/blog/${a.slug}`),
-                    note:
-                      a.lead === ""
-                        ? `最終更新 ${a.updatedAt.toISOString().slice(0, 10)}`
-                        : a.lead,
+                    href: siteHref(site, articleHref(a)),
+                    note: a.summary === "" ? `最終更新 ${a.updatedAt.slice(0, 10)}` : a.summary,
                   }))}
                 />
               )}

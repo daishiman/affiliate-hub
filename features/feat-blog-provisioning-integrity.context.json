@@ -1,0 +1,71 @@
+{
+ "graph_node_id": "feat-blog-provisioning-integrity",
+ "artifact_kind": "feature",
+ "purpose": "ブログ新規作成を create-only の Unit of Work に閉じ、必須実体・下書き完了・作成監査の部分成功と、衝突失敗時の既存サイト破壊をなくす",
+ "goal": "13 問の回答から作られた新規ブログが、site_blueprints・active network node・8 種の下書き固定ページ・既定の帯とスロット・カテゴリー正本・下書き完了・作成監査を D1 batch で揃えたときだけ provisioningComplete を返し、記事と公開固定ページを含む contentReady と分離されている",
+ "scope_in": [
+  "新規作成を plain INSERT に限定し、same/cross workspace の slug 衝突で既存サイトを上書きまたは削除しない",
+  "active network node 1 行、8 種の固定ページ draft、既定の帯とスロットを同一 D1 batch に含める",
+  "カテゴリーは blueprint JSON を正本とし、別表に複製しない",
+  "provisioningComplete を network/fixed pages/bands/slots/categories から、contentReady をそれらの公開状態と articles から判定する",
+  "設計図・必須実体・下書き完了・作成監査を同一 D1 batch に閉じ、1 失敗で全巻き戻しする",
+  "site_drafts の単調 revision を正本とし、保存は expected revision の CAS、作成は source_draft_id と source_draft_revision の DB claim で古い回答を拒否する",
+  "読者表示に使う enabled layout と作成充足を測る全 provisioned layout を public-site-projection 内で分離し、作成直後と再読込後の判定を一致させる",
+  "public-site-projection の公開 identity と構成投影を管理画面でも再利用し、別経路の重複カウントを持たない",
+  "site_network_nodes を持たない既存 site_blueprints 行を migration で補填する",
+  "D1 batch に収まらない規模になった場合の境界引き直し条件を明文化する"
+ ],
+ "scope_out": [
+  "サブドメイン住所の付与とホスト解決 (feat-blog-subdomain-routing)",
+  "管理画面での構成要素一覧・プレビュー・不足提示の UI (feat-blog-composition-visibility)",
+  "ウィザードの 13 問そのものの設計と入口 (feat-site-builder)",
+  "記事本文の AI 生成 (feat-ai-content-studio)",
+  "閲覧者向けレンダリングの部品仕様 (feat-blog-ops-crud)"
+ ],
+ "acceptance": [
+  "作成直後に /s/<slug> の公開 identity へ解決でき、404 にならない",
+  "active network node が当該 workspace に 1 件だけ存在し、resolvePublicSiteIdentity が非 null を返す",
+  "network・band/slot 途中・fixed page・draft 更新・audit の各障害注入で batch 全体が巻き戻る",
+  "same/cross workspace の slug 衝突で、既存の blueprint/network/bands/slots/fixed pages/audit が不変である",
+  "provisioningComplete は required fixed pages/bands/slots/categories/network を検証し、articles を含めない",
+  "contentReady は公開固定ページと article も要求し、reachable とも分離される",
+  "8 種の固定ページ draft・既定 bands/slots・network が同時に生成され、categories は blueprint JSON から数えられる",
+  "site_network_nodes を持たない既存 site_blueprints 行が migration で補填される",
+  "同じ draft からの二重新規作成は編集画面へ誘導して拒否される",
+  "slug が同じでも name/categories を変更した stale create は実行順にかかわらず拒否され、最新の draft と site が不変である",
+  "作成後に遅れて到着した stale save と同じ revision からの並行 save は CONFLICT となり、created_site_slug と最新 draft_json を巻き戻さない",
+  "作成直後に実 PublicBlogPort.openSite が non-null を返し、作成返却と再読込の件数・provisioningComplete が一致する結合テストが CI で走る",
+  "公開画面は enabled bands/slots のみを描画し、provisioningComplete は保存済みの全 provisioned bands/slots を数える",
+  "0041 適用前から存在する site_blueprints 行が migration fixture で active network node に補填される",
+  "公開構成投影は public-site-projection を再利用し、管理画面専用の重複カウントが 0 件である",
+  "resolvePublicSiteIdentity の fail-closed 判定 (rows.length !== 1 で null) を緩めていない",
+  "作成監査が同一 batch で保存され、失敗した作成の虚偽の成功監査は残らない"
+ ],
+ "architecture_refs": [
+  "architecture/system-spec-overview.md",
+  "system-spec/database.md",
+  "system-spec/backend.md",
+  "system-spec/index.md"
+ ],
+ "depends_on": [
+  "feat-site-builder",
+  "feat-blog-ops-crud"
+ ],
+ "resource_scope": [
+  "src/application/usecases/site",
+  "src/infrastructure/persistence/d1",
+  "src/presentation/admin/publish",
+  "drizzle",
+  "system-spec",
+  "features/feat-blog-provisioning-integrity.context.json"
+ ],
+ "source_lineage": {
+  "imported_at": "2026-08-31T00:00:00Z",
+  "origin_kind": "generated",
+  "source_digest": "9853917fad7f15aca04f95d9c8e47819b99ad56f3bcb59e030191c1ee62e7a62",
+  "source_path": "system-spec/index.md",
+  "source_plugin": "dev-graph",
+  "source_version": "0.1.0"
+ },
+ "updated_at": "2026-09-01T00:00:00Z"
+}

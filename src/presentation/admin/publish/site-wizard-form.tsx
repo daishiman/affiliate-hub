@@ -196,11 +196,21 @@ export function CreateSiteForm({ draft }: { readonly draft: SiteDraftView }) {
       {state.status === "failed" ? <Callout tone="warn" reason={state.message} /> : null}
 
       {state.status === "done" && state.createdPath !== undefined ? (
-        <Callout
-          tone="success"
-          reason={state.message}
-          action={<Link href={state.createdPath}>できたブログを見る</Link>}
-        />
+        <>
+          <Callout
+            tone="success"
+            reason={state.message}
+            action={<Link href={state.createdPath}>できたブログを見る</Link>}
+          />
+          {/*
+            後から直せる不足は、作れたことと**同じ画面で**出す。
+            別の画面へ回すと、作った直後の人はここで手を止めてしまい、
+            帯や枠が空のままのブログが読者に見え続ける。
+          */}
+          {(state.gaps ?? []).map((gap) => (
+            <Callout key={gap.label} tone="warn" reason={`${gap.label}がまだありません。${gap.remedy}`} />
+          ))}
+        </>
       ) : null}
     </ToolForm>
   );

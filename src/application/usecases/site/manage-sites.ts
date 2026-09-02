@@ -5,9 +5,7 @@ import {
   type SiteBlueprint,
   type SitePattern,
   type SiteRoute,
-  type StandardPage,
   differentiationGap,
-  missingTrustPages,
   routesFor,
 } from "@/domain/authoring";
 import {
@@ -92,9 +90,6 @@ export type ManagedSiteSummary = {
     readonly searchIntent: string;
     readonly conclusionStance: string;
   };
-  /** 揃っていない信頼ページ。空でないブログは公開できない。 */
-  readonly missingTrustPages: readonly StandardPage[];
-  readonly launchBlockedReason: string | null;
 };
 
 /**
@@ -121,12 +116,6 @@ export type ListManagedSitesOutput = {
   readonly emptyReason: string | null;
 };
 
-function launchBlockedReason(blueprint: SiteBlueprint): string | null {
-  const missing = missingTrustPages(blueprint);
-  if (missing.length === 0) return null;
-  return `信頼のための固定ページが揃っていません（${missing.join(" / ")}）。広告表記の説明先が無い記事を公開させないため、ここが空になるまで公開できません。`;
-}
-
 function summarize(slug: string, blueprint: SiteBlueprint): ManagedSiteSummary {
   return {
     slug,
@@ -143,8 +132,6 @@ function summarize(slug: string, blueprint: SiteBlueprint): ManagedSiteSummary {
       searchIntent: blueprint.differentiation.searchIntent,
       conclusionStance: blueprint.differentiation.conclusionStance,
     },
-    missingTrustPages: missingTrustPages(blueprint),
-    launchBlockedReason: launchBlockedReason(blueprint),
   };
 }
 

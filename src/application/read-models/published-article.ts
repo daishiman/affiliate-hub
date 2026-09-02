@@ -1,4 +1,5 @@
 import type { ArticleType } from "@/domain/authoring";
+import { UNKNOWN_ARTICLE_AUTHOR } from "@/domain/blogops";
 import { trackingPathForCode } from "@/domain/monetization";
 
 /**
@@ -235,6 +236,62 @@ const PATH_PREFIX: Readonly<Record<ArticleType, string>> = {
 
 export function articleHref(article: Pick<ArticleSummary, "type" | "slug">): string {
   return `${PATH_PREFIX[article.type]}/${article.slug}`;
+}
+
+/**
+ * BlogOps の編集 aggregate を、公開時点の rich projection へ決定的に写す。
+ *
+ * この変換を D1 adapter に書くと migration と公開操作で本文の形が分かれる。
+ * 入力に無い経歴・根拠・カテゴリは作り話で補わない。
+ */
+export function projectBlogArticle(input: {
+  readonly id: string;
+  readonly siteSlug: string;
+  readonly slug: string;
+  readonly type: ArticleType;
+  readonly title: string;
+  readonly lead: string;
+  readonly authorName: string;
+  readonly publishedAt: Date;
+  readonly updatedAt: Date;
+  readonly categorySlug: string;
+  readonly blocks: readonly {
+    readonly id: string;
+    readonly kind: string;
+    readonly heading: string;
+    readonly body: string;
+  }[];
+}): PublishedArticle {
+  const author =
+    input.authorName.trim() === ""
+      ? UNKNOWN_ARTICLE_AUTHOR
+      : { slug: `source-${input.id}`, name: input.authorName.trim() };
+  const summary = input.lead.trim() === "" ? input.title : input.lead.trim();
+  const sections =
+    input.blocks.length === 0
+      ? [{ id: `${input.id}-body`, heading: "本文", paragraphs: [summary] }]
+      : input.blocks.map((block) => ({
+          id: block.id,
+          heading: block.heading.trim() === "" ? "本文" : block.heading.trim(),
+          paragraphs: [block.body],
+        }));
+  return {
+    slug: input.slug,
+    siteSlug: input.siteSlug,
+    type: input.type,
+    title: input.title,
+    summary,
+    categorySlug: input.categorySlug,
+    publishedAt: input.publishedAt.toISOString(),
+    updatedAt: input.updatedAt.toISOString(),
+    author: {
+      ...author,
+      bio: "",
+      credentials: [],
+    },
+    disclosureRequired: input.blocks.some((block) => block.kind === "disclosure-notice"),
+    sections,
+  };
 }
 
 /**

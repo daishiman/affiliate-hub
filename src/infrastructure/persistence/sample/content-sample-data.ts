@@ -12,8 +12,8 @@ import {
   SAMPLE_SITE_SLUG,
   SECOND_SITE_SLUG,
   THIRD_SITE_SLUG,
-} from "./site-sample-repository";
-import { sampleProductName } from "./sample-identity";
+  sampleProductName,
+} from "./sample-identity";
 
 /**
  * ★ これは仮置きの見本記事です（スタブ）。★

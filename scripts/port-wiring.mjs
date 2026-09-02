@@ -185,6 +185,46 @@ function reachablePortCalls(program, entry, localFns) {
 }
 
 /**
+ * 記録を**引数として受け取る**書き込みの口を集める。
+ *
+ * 記録の届け方は 2 つある。`AuditLogPort.append` を別に呼ぶ形と、
+ * 書き込みの依頼に `audit` を同梱して**同じ取引の中で書かせる**形である。
+ * 後者のほうが強い。別に呼ぶ形は、書き込みだけ成功して記録だけ落ちる隙間が
+ * 残るが、同梱の形にはその隙間が無い。
+ *
+ * それなのに、この検査は前者しか知らなかった。結果、**より強い届け方をした
+ * 入口ほど「記録へ届いていない」と数えられる**。検査が良い設計を罰する形で、
+ * 逃げ道は「除外簿に登録する」しかなかった。除外簿に積むと、本物の抜けと
+ * 見分けが付かなくなる。
+ *
+ * 見分け方は「その口の依頼の型が `audit` を持っているか」。持っていれば、
+ * 記録は**口の約束のほう**に書かれている。呼ぶ側が忘れることはできない
+ * （忘れたら型検査が落ちる）ので、`append` を呼んだのと同じかそれ以上に固い。
+ * 「`buildAuditEntry` を呼んだか」で見ないのは、作って捨てても通ってしまうため。
+ */
+function portMethodsCarryingAudit(program) {
+  const checker = program.getTypeChecker();
+  /** @type {Set<string>} `Port.method` の形 */
+  const carrying = new Set();
+  for (const sf of program.getSourceFiles()) {
+    if (!isPortFile(sf.fileName) || sf.isDeclarationFile) continue;
+    ts.forEachChild(sf, (node) => {
+      if (!ts.isTypeAliasDeclaration(node)) return;
+      if (!node.name.text.endsWith("Port")) return;
+      if (!ts.isTypeLiteralNode(node.type)) return;
+      for (const member of node.type.members) {
+        if (!ts.isMethodSignature(member) || !ts.isIdentifier(member.name)) continue;
+        const hasAudit = member.parameters.some(
+          (p) => checker.getTypeAtLocation(p).getProperty("audit") !== undefined,
+        );
+        if (hasAudit) carrying.add(`${node.name.text}.${member.name.text}`);
+      }
+    });
+  }
+  return carrying;
+}
+
+/**
  * 「書き込みをするのに、操作の記録へ届いていない入口」を集める。
  *
  * これが 4 件目の穴の形である。記録の口は呼ばれている（＝上の総ざらいは緑）が、
@@ -192,6 +232,7 @@ function reachablePortCalls(program, entry, localFns) {
  * 上の検査は原理的に拾えない。手続き単位で「1 回でも呼ばれたか」しか見ないためである。
  */
 function collectWriteEntryPoints(program, unknownVerbs) {
+  const auditCarrying = portMethodsCarryingAudit(program);
   /** @type {{name: string, file: string, writes: string[]}[]} */
   const rows = [];
   for (const sf of program.getSourceFiles()) {
@@ -228,6 +269,8 @@ function collectWriteEntryPoints(program, unknownVerbs) {
       for (const r of own.filter((x) => classify(x.split(".")[1]) === "unknown")) unknownVerbs.add(r);
       if (writes.length === 0) return;
       if (reach.has("AuditLogPort.append")) return;
+      // 記録を同梱して書かせる口を呼んでいれば、記録には届いている。
+      if (writes.some((w) => auditCarrying.has(w))) return;
       rows.push({
         name: node.name.text,
         file: sf.fileName.replace(`${process.cwd()}/`, ""),
@@ -512,6 +555,10 @@ const WRITE_VERBS = [
   "put",
   "append",
   "publish",
+  // ブログ 1 本ぶんの器（版面・帯・固定ページ）を保存先に作る
+  // （`SiteDraftRepositoryPort.provisionSite`）。`create` と同じ側だが、
+  // 「1 件を作る」ではなく「一式を揃える」という語感なので名前を曲げずに足す。
+  "provision",
   "record",
   "revoke",
   "archive",

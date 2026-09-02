@@ -68,6 +68,10 @@ function article(slug: string, siteSlug = "blog", status: BlogArticle["status"] 
     title: slug,
     lead: "",
     status,
+    // 既定が `published` なので、公開に必要なカテゴリを実在の slug で埋める。
+    // `null` にすると「公開なのにカテゴリ未選択」という、ドメインが禁じた
+    // 組み合わせを検査の前提にしてしまう。
+    categorySlug: "chairs",
     authorName: "編集部",
     publishedAt: null,
     updatedAt: new Date("2026-08-31T00:00:00Z"),

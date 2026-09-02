@@ -1,4 +1,4 @@
-import { and, desc, eq, isNull, like, or } from "drizzle-orm";
+import { and, desc, eq, isNotNull, isNull, like, ne, or, sql } from "drizzle-orm";
 import type {
   EditorialPublishedArticleAdminPort,
   EditorialPublishedArticleWriterPort,
@@ -13,7 +13,6 @@ import {
 } from "@/application/read-models/published-article";
 import { publishedArticles, publishedArticleTombstones } from "@/db/schema";
 import { domainError, err, markEditorial, ok, type WorkspaceId } from "@/domain/shared";
-import { createSampleContentRepository } from "../sample/content-sample-repository";
 import type { DrizzleD1 } from "./link-inbox-repository";
 import { findSiteDocument } from "./site-document-repository";
 import { storageFailure } from "./storage-failure";
@@ -32,29 +31,11 @@ import { storageFailure } from "./storage-failure";
  * （`toSummary`）。列と JSON の両方から作ると、片方だけ古い行ができたときに
  * 一覧と本文で違うことが書かれる。
  *
- * --- 見本を消さない ---
- * 保存された記事と見本を重ねて返す。まだ 1 本も出していない状態で読者ページが
- * 空になると、「出していない」のか「壊れている」のかを画面から見分けられない。
- * **同じ URL 名なら、出したほうが勝つ**（`storage-failure.ts` の
- * `mergeWithSamples` と同じ考え方。こちらは鍵が URL 名なので個別に書く）。
+ * --- live と sample を混ぜない ---
+ * D1 を使う実行では `published_articles` に実在する記事だけを返す。
+ * 一覧へ見本を混ぜると、そのURLを別の公開readerで開いたとき404になり、
+ * 「一覧にある記事」と「本文を読める記事」が一致しないためである。
  */
-
-const samples = createSampleContentRepository();
-
-/** 記事の URL 名を鍵にして重ねる。保存された分を先に置き、見本で埋める。 */
-function mergeBySlug<T extends { readonly slug: string }>(
-  stored: readonly T[],
-  sample: readonly T[],
-  reservedSlugs: readonly string[] = stored.map((article) => article.slug),
-  hidden: ReadonlySet<string> = new Set(),
-): readonly T[] {
-  // 伏せた記事（`archived_at`）と取り下げた記事（墓標）は、どちらも読者に出さない。
-  // **どちらの slug も見本で埋めない。** 埋めると、運営者が下ろした記事の住所に
-  // 見本の記事が現れる。読者から見ると「消したはずのものが別内容で戻った」になる。
-  const visibleStored = stored.filter((article) => !hidden.has(article.slug));
-  const taken = new Set([...reservedSlugs, ...hidden]);
-  return [...visibleStored, ...sample.filter((article) => !taken.has(article.slug))];
-}
 
 function parse(json: string): PublishedArticle {
   return JSON.parse(json) as PublishedArticle;
@@ -65,26 +46,19 @@ function byUpdatedDesc(a: ArticleSummary, b: ArticleSummary): number {
   return b.updatedAt.localeCompare(a.updatedAt) || a.slug.localeCompare(b.slug);
 }
 
-type StoredSummaryState = {
-  readonly active: readonly ArticleSummary[];
-  readonly reservedSlugs: readonly string[];
-};
-
-/** reader ごとに同じ「見本を戻さない」判定と並び順を分岐させない。 */
-function mergeSummariesWithSamples(
-  stored: StoredSummaryState,
-  sample: readonly ArticleSummary[],
-  hidden: ReadonlySet<string>,
-): readonly ArticleSummary[] {
-  return [
-    ...mergeBySlug(stored.active, sample, stored.reservedSlugs, hidden),
-  ].sort(byUpdatedDesc);
-}
-
 const URL_STATE_CONFLICT = "published_article_url_state_conflict";
 
 function isUrlStateConflict(cause: unknown): boolean {
   return String(cause).includes(URL_STATE_CONFLICT);
+}
+
+function isPublicationIdentityConflict(cause: unknown): boolean {
+  const reason = String(cause);
+  return (
+    isUrlStateConflict(cause) ||
+    reason.includes("published_article_source_conflict") ||
+    reason.includes("UNIQUE constraint failed: published_articles.site_slug, published_articles.slug")
+  );
 }
 
 function articleUrlConflict() {
@@ -101,6 +75,133 @@ function unpublishNotFound() {
       suggestedAction: "記事の一覧を開き直して、公開状態を確認してください。",
     }),
   );
+}
+
+/**
+ * canonical public projection の保存文。AI 公開と BlogOps 公開が共有する。
+ *
+ * source が違う同 URL は上書きしない。事前 read だけでなく UPDATE の
+ * 条件にも由来を入れ、競合しても勝者を推測しない。
+ */
+export function publishedArticleSaveStatements(
+  db: DrizzleD1,
+  workspaceId: WorkspaceId,
+  article: PublishedArticle,
+  sourceArticleId: string | null,
+) {
+  const row = {
+    siteSlug: article.siteSlug,
+    slug: article.slug,
+    workspaceId: String(workspaceId),
+    sourceArticleId,
+    type: article.type,
+    title: article.title,
+    summary: article.summary,
+    categorySlug: article.categorySlug,
+    authorSlug: article.author.slug,
+    authorName: article.author.name,
+    publishedAt: article.publishedAt,
+    updatedAt: article.updatedAt,
+    archivedAt: null,
+    articleJson: JSON.stringify(article),
+  };
+  return [
+    db
+      .delete(publishedArticleTombstones)
+      .where(
+        and(
+          eq(publishedArticleTombstones.workspaceId, String(workspaceId)),
+          eq(publishedArticleTombstones.siteSlug, article.siteSlug),
+          eq(publishedArticleTombstones.slug, article.slug),
+        ),
+      ),
+    db
+      .insert(publishedArticles)
+      .values(row)
+      .onConflictDoUpdate({
+        target: [publishedArticles.siteSlug, publishedArticles.slug],
+        set: row,
+        setWhere: and(
+          eq(publishedArticles.workspaceId, String(workspaceId)),
+          sourceArticleId === null
+            ? isNull(publishedArticles.sourceArticleId)
+            : eq(publishedArticles.sourceArticleId, sourceArticleId),
+        ),
+      })
+      .returning({ workspaceId: publishedArticles.workspaceId }),
+    /*
+     * ON CONFLICT の setWhere が false でも D1 は batch を失敗にしない。
+     * 同URLを別sourceが先に取った場合は既存行を同じPKへINSERTして意図的に
+     * 制約違反にし、同じbatch内の編集aggregateまでrollbackする。
+     */
+    db.insert(publishedArticles).select(
+      db
+        .select({
+          siteSlug: publishedArticles.siteSlug,
+          slug: publishedArticles.slug,
+          workspaceId: publishedArticles.workspaceId,
+          sourceArticleId: publishedArticles.sourceArticleId,
+          type: publishedArticles.type,
+          title: publishedArticles.title,
+          summary: publishedArticles.summary,
+          categorySlug: publishedArticles.categorySlug,
+          authorSlug: publishedArticles.authorSlug,
+          authorName: publishedArticles.authorName,
+          publishedAt: publishedArticles.publishedAt,
+          updatedAt: publishedArticles.updatedAt,
+          archivedAt: publishedArticles.archivedAt,
+          articleJson: publishedArticles.articleJson,
+        })
+        .from(publishedArticles)
+        .where(
+          and(
+            eq(publishedArticles.siteSlug, article.siteSlug),
+            eq(publishedArticles.slug, article.slug),
+            or(
+              ne(publishedArticles.workspaceId, String(workspaceId)),
+              sourceArticleId === null
+                ? isNotNull(publishedArticles.sourceArticleId)
+                : or(
+                    isNull(publishedArticles.sourceArticleId),
+                    ne(publishedArticles.sourceArticleId, sourceArticleId),
+                  ),
+            ),
+          ),
+        ),
+    ),
+  ] as const;
+}
+
+/** BlogOps 由来の projection だけを取り下げ、同 URL の意図しない復活を防ぐ。 */
+export function sourcedPublishedArticleUnpublishStatements(
+  db: DrizzleD1,
+  workspaceId: WorkspaceId,
+  siteSlug: string,
+  slug: string,
+  sourceArticleId: string,
+  unpublishedAt: Date,
+) {
+  return [
+    db
+      .delete(publishedArticles)
+      .where(
+        and(
+          eq(publishedArticles.workspaceId, String(workspaceId)),
+          eq(publishedArticles.siteSlug, siteSlug),
+          eq(publishedArticles.slug, slug),
+          eq(publishedArticles.sourceArticleId, sourceArticleId),
+        ),
+      ),
+    db
+      .insert(publishedArticleTombstones)
+      .values({ siteSlug, slug, workspaceId: String(workspaceId), unpublishedAt })
+      .onConflictDoUpdate({
+        target: [publishedArticleTombstones.siteSlug, publishedArticleTombstones.slug],
+        set: { unpublishedAt },
+        setWhere: eq(publishedArticleTombstones.workspaceId, String(workspaceId)),
+      })
+      .returning({ slug: publishedArticleTombstones.slug }),
+  ] as const;
 }
 
 export function createD1PublishedArticleWriter(db: DrizzleD1): EditorialPublishedArticleWriterPort {
@@ -123,50 +224,18 @@ export function createD1PublishedArticleWriter(db: DrizzleD1): EditorialPublishe
         ) {
           return articleUrlConflict();
         }
-        const row = {
-          siteSlug: article.siteSlug,
-          slug: article.slug,
-          workspaceId: String(workspaceId),
-          type: article.type,
-          title: article.title,
-          summary: article.summary,
-          categorySlug: article.categorySlug,
-          authorSlug: article.author.slug,
-          authorName: article.author.name,
-          publishedAt: article.publishedAt,
-          updatedAt: article.updatedAt,
-          archivedAt: null,
-          articleJson: JSON.stringify(article),
-        };
         // 出し直しは**上書き**。断ると、直した記事を出せない状態が永久に続く。
         // 墓標を外してから公開行を置く。この2文はD1 batchの同一transactionで動き、
         // migrationの相互排他triggerが別workspaceの割り込みをDB境界で拒否する。
-        const [, saved] = await db.batch([
-          db
-            .delete(publishedArticleTombstones)
-            .where(
-              and(
-                eq(publishedArticleTombstones.workspaceId, String(workspaceId)),
-                eq(publishedArticleTombstones.siteSlug, article.siteSlug),
-                eq(publishedArticleTombstones.slug, article.slug),
-              ),
-            ),
-          db
-            .insert(publishedArticles)
-            .values(row)
-            .onConflictDoUpdate({
-              target: [publishedArticles.siteSlug, publishedArticles.slug],
-              set: row,
-              setWhere: eq(publishedArticles.workspaceId, String(workspaceId)),
-            })
-            .returning({ workspaceId: publishedArticles.workspaceId }),
-        ] as const);
+        const [, saved] = await db.batch(
+          publishedArticleSaveStatements(db, workspaceId, article, null),
+        );
         if (saved.length === 0) {
           return articleUrlConflict();
         }
         return ok(true as const);
       } catch (cause) {
-        if (isUrlStateConflict(cause)) return articleUrlConflict();
+        if (isPublicationIdentityConflict(cause)) return articleUrlConflict();
         return storageFailure("記事の公開", cause);
       }
     },
@@ -175,7 +244,10 @@ export function createD1PublishedArticleWriter(db: DrizzleD1): EditorialPublishe
       try {
         const [articles, tombstones] = await Promise.all([
           db
-            .select({ workspaceId: publishedArticles.workspaceId })
+            .select({
+              workspaceId: publishedArticles.workspaceId,
+              sourceArticleId: publishedArticles.sourceArticleId,
+            })
             .from(publishedArticles)
             .where(
               and(eq(publishedArticles.siteSlug, siteSlug), eq(publishedArticles.slug, slug)),
@@ -199,6 +271,10 @@ export function createD1PublishedArticleWriter(db: DrizzleD1): EditorialPublishe
         if (owner !== String(workspaceId)) {
           return unpublishNotFound();
         }
+        // AI 公開の取り下げ口から BlogOps 由来の projection を消さない。
+        if (articles[0]?.sourceArticleId !== null && articles[0]?.sourceArticleId !== undefined) {
+          return unpublishNotFound();
+        }
 
         // 公開行を外してから墓標を置く。batch外へ中間状態は公開されず、
         // 相互排他triggerにより別workspaceの公開行との共存も成立しない。
@@ -210,6 +286,7 @@ export function createD1PublishedArticleWriter(db: DrizzleD1): EditorialPublishe
                 eq(publishedArticles.workspaceId, String(workspaceId)),
                 eq(publishedArticles.siteSlug, siteSlug),
                 eq(publishedArticles.slug, slug),
+                isNull(publishedArticles.sourceArticleId),
               ),
             ),
           db
@@ -243,16 +320,8 @@ export function createD1ContentRepository(
   db: DrizzleD1,
   sites: EditorialSiteRepositoryPort,
 ): EditorialPublishedContentPort {
-  async function hiddenSlugs(siteSlug: string): Promise<ReadonlySet<string>> {
-    const rows = await db
-      .select({ slug: publishedArticleTombstones.slug })
-      .from(publishedArticleTombstones)
-      .where(eq(publishedArticleTombstones.siteSlug, siteSlug));
-    return new Set(rows.map((row) => row.slug));
-  }
-
   /** そのブログで出した記事を、更新日の新しい順で読む。 */
-  async function storedSummaries(siteSlug: string): Promise<StoredSummaryState> {
+  async function storedSummaries(siteSlug: string): Promise<readonly ArticleSummary[]> {
     const rows = await db
       .select({
         slug: publishedArticles.slug,
@@ -262,26 +331,16 @@ export function createD1ContentRepository(
       .from(publishedArticles)
       .where(eq(publishedArticles.siteSlug, siteSlug))
       .orderBy(desc(publishedArticles.updatedAt));
-    return {
-      active: rows
-        .filter((row) => row.archivedAt === null)
-        .map((row) => toSummary(parse(row.articleJson))),
-      reservedSlugs: rows.map((row) => row.slug),
-    };
+    return rows
+      .filter((row) => row.archivedAt === null)
+      .map((row) => toSummary(parse(row.articleJson)))
+      .sort(byUpdatedDesc);
   }
 
   return markEditorial({
     async listRecent(siteSlug: string, limit: number) {
       try {
-        const sample = await samples.listRecent(siteSlug, limit);
-        if (!sample.ok) return sample;
-        const stored = await storedSummaries(siteSlug);
-        const merged = mergeSummariesWithSamples(
-          stored,
-          sample.value,
-          await hiddenSlugs(siteSlug),
-        );
-        return ok(merged.slice(0, limit));
+        return ok((await storedSummaries(siteSlug)).slice(0, limit));
       } catch (cause) {
         return storageFailure("新着記事の読み込み", cause);
       }
@@ -289,8 +348,6 @@ export function createD1ContentRepository(
 
     async listByCategory(siteSlug: string, categorySlug: string) {
       try {
-        const sample = await samples.listByCategory(siteSlug, categorySlug);
-        if (!sample.ok) return sample;
         const rows = await db
           .select({
             slug: publishedArticles.slug,
@@ -305,16 +362,10 @@ export function createD1ContentRepository(
             ),
           )
           .orderBy(desc(publishedArticles.updatedAt));
-        const stored = rows
+        return ok(rows
           .filter((row) => row.archivedAt === null)
-          .map((row) => toSummary(parse(row.articleJson)));
-        return ok(
-          mergeSummariesWithSamples(
-            { active: stored, reservedSlugs: rows.map((row) => row.slug) },
-            sample.value,
-            await hiddenSlugs(siteSlug),
-          ),
-        );
+          .map((row) => toSummary(parse(row.articleJson)))
+          .sort(byUpdatedDesc));
       } catch (cause) {
         return storageFailure("カテゴリー内の記事の読み込み", cause);
       }
@@ -322,8 +373,6 @@ export function createD1ContentRepository(
 
     async findArticle(siteSlug: string, slug: string) {
       try {
-        const hidden = await hiddenSlugs(siteSlug);
-        if (hidden.has(slug)) return ok(null);
         const rows = await db
           .select({
             archivedAt: publishedArticles.archivedAt,
@@ -333,9 +382,7 @@ export function createD1ContentRepository(
           .where(and(eq(publishedArticles.siteSlug, siteSlug), eq(publishedArticles.slug, slug)))
           .limit(1);
         const row = rows[0];
-        // 出したものが先。見本と同じ URL 名で出した人が、自分の記事を開けないのはおかしい。
-        if (row !== undefined) return ok(row.archivedAt === null ? parse(row.articleJson) : null);
-        return samples.findArticle(siteSlug, slug);
+        return ok(row !== undefined && row.archivedAt === null ? parse(row.articleJson) : null);
       } catch (cause) {
         return storageFailure("記事の読み込み", cause);
       }
@@ -343,9 +390,6 @@ export function createD1ContentRepository(
 
     async search(siteSlug: string, query: string, limit: number) {
       try {
-        const sample = await samples.search(siteSlug, query, limit);
-        if (!sample.ok) return sample;
-        const allStored = await storedSummaries(siteSlug);
         const trimmed = query.trim();
         // 空の検索語で全件を返さない（一覧と区別がつかなくなる）。
         const stored =
@@ -371,13 +415,7 @@ export function createD1ContentRepository(
               )
                 .filter((row) => row.archivedAt === null)
                 .map((row) => toSummary(parse(row.articleJson)));
-        return ok(
-          mergeSummariesWithSamples(
-            { active: stored, reservedSlugs: allStored.reservedSlugs },
-            sample.value,
-            await hiddenSlugs(siteSlug),
-          ).slice(0, limit),
-        );
+        return ok(stored.sort(byUpdatedDesc).slice(0, limit));
       } catch (cause) {
         return storageFailure("記事の検索", cause);
       }
@@ -387,7 +425,6 @@ export function createD1ContentRepository(
       try {
         // 出した記事に付いている書き手は、その記事の写しから返す。
         // ここを見本だけに任せると、出した記事の署名が行き止まりのリンクになる。
-        const hidden = await hiddenSlugs(siteSlug);
         const rows = await db
           .select({
             archivedAt: publishedArticles.archivedAt,
@@ -397,27 +434,33 @@ export function createD1ContentRepository(
           .where(
             and(
               eq(publishedArticles.siteSlug, siteSlug),
-              eq(publishedArticles.authorSlug, slug),
+              kind === "author"
+                ? eq(publishedArticles.authorSlug, slug)
+                : sql`json_extract(${publishedArticles.articleJson}, '$.reviewedBy.slug') = ${slug}`,
               isNull(publishedArticles.archivedAt),
             ),
           )
           .orderBy(desc(publishedArticles.updatedAt))
           .limit(1);
-        const row = rows.find((candidate) => !hidden.has(parse(candidate.articleJson).slug));
-        if (kind === "author" && row !== undefined) {
-          const person: PublishedPerson = parse(row.articleJson).author;
-          return ok(person);
+        const row = rows[0];
+        if (row !== undefined) {
+          const article = parse(row.articleJson);
+          const person: PublishedPerson | undefined =
+            kind === "author" ? article.author : article.reviewedBy;
+          return ok(person ?? null);
         }
-        return samples.findPerson(siteSlug, kind, slug);
+        return ok(null);
       } catch (cause) {
         return storageFailure("書き手の読み込み", cause);
       }
     },
 
-    async listByPerson(siteSlug: string, personSlug: string) {
+    async listByPerson(
+      siteSlug: string,
+      kind: "author" | "expert",
+      personSlug: string,
+    ) {
       try {
-        const sample = await samples.listByPerson(siteSlug, personSlug);
-        if (!sample.ok) return sample;
         const rows = await db
           .select({
             slug: publishedArticles.slug,
@@ -428,29 +471,24 @@ export function createD1ContentRepository(
           .where(
             and(
               eq(publishedArticles.siteSlug, siteSlug),
-              eq(publishedArticles.authorSlug, personSlug),
+              kind === "author"
+                ? eq(publishedArticles.authorSlug, personSlug)
+                : sql`json_extract(${publishedArticles.articleJson}, '$.reviewedBy.slug') = ${personSlug}`,
             ),
           )
           .orderBy(desc(publishedArticles.updatedAt));
-        const stored = rows
+        return ok(rows
           .filter((row) => row.archivedAt === null)
-          .map((row) => toSummary(parse(row.articleJson)));
-        return ok(
-          mergeSummariesWithSamples(
-            { active: stored, reservedSlugs: rows.map((row) => row.slug) },
-            sample.value,
-            await hiddenSlugs(siteSlug),
-          ),
-        );
+          .map((row) => toSummary(parse(row.articleJson)))
+          .sort(byUpdatedDesc));
       } catch (cause) {
         return storageFailure("書き手の記事の読み込み", cause);
       }
     },
 
-    // 訂正は、まだ入れる口が無いので見本のまま返す。
-    // ここで空配列を返すと「訂正が 1 件も無いブログ」に見えてしまう。
-    listCorrections(siteSlug: string) {
-      return samples.listCorrections(siteSlug);
+    // live の訂正保存先は未実装。見本を実データとして出さず、空で閉じる。
+    async listCorrections(_siteSlug: string) {
+      return ok([]);
     },
 
     /*
@@ -479,7 +517,12 @@ export function createD1PublishedArticleAdminRepository(
             archivedAt: publishedArticles.archivedAt,
           })
           .from(publishedArticles)
-          .where(eq(publishedArticles.workspaceId, String(workspaceId)))
+          .where(
+            and(
+              eq(publishedArticles.workspaceId, String(workspaceId)),
+              isNull(publishedArticles.sourceArticleId),
+            ),
+          )
           .orderBy(desc(publishedArticles.updatedAt))
           .limit(100);
         return ok(rows.map((row) => ({ article: parse(row.articleJson), archivedAt: row.archivedAt })));
@@ -500,6 +543,7 @@ export function createD1PublishedArticleAdminRepository(
               eq(publishedArticles.workspaceId, String(workspaceId)),
               eq(publishedArticles.siteSlug, siteSlug),
               eq(publishedArticles.slug, slug),
+              isNull(publishedArticles.sourceArticleId),
             ),
           )
           .limit(1);
@@ -527,6 +571,7 @@ export function createD1PublishedArticleAdminRepository(
               eq(publishedArticles.workspaceId, String(workspaceId)),
               eq(publishedArticles.siteSlug, article.siteSlug),
               eq(publishedArticles.slug, article.slug),
+              isNull(publishedArticles.sourceArticleId),
             ),
           );
         return ok(changed.meta.changes > 0);
@@ -544,6 +589,7 @@ export function createD1PublishedArticleAdminRepository(
               eq(publishedArticles.workspaceId, String(workspaceId)),
               eq(publishedArticles.siteSlug, siteSlug),
               eq(publishedArticles.slug, slug),
+              isNull(publishedArticles.sourceArticleId),
             ),
           );
         return ok(changed.meta.changes > 0);

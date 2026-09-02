@@ -17,6 +17,22 @@ export type SiteWizardState = {
   readonly field?: string;
   /** 作れたときだけ入る。読者から見える住所。 */
   readonly createdPath?: string;
+  /**
+   * 作れたときだけ入る。読者が打つホスト名。住所未設定の環境では `null`。
+   *
+   * `createdPath` と両方持つのは、**同じブログに 2 通りの入口がある**ことを
+   * 画面でそのまま見せるため。片方だけ出すと、住所を設定したのに
+   * 管理画面はパスを案内し続ける、という食い違いに気づけない。
+   */
+  readonly createdHost?: string | null;
+  /**
+   * 作れたが、まだ足りていないもの。
+   *
+   * ここに入るのは**読者が開けなくなるほどではない**不足だけである
+   * （開けなくなる不足は作成そのものが断られる）。
+   * 空でないまま成功と言うのは、後から直せる欄が残っているという意味。
+   */
+  readonly gaps?: readonly { readonly label: string; readonly remedy: string }[];
 };
 
 export const INITIAL_SITE_WIZARD_STATE: SiteWizardState = { status: "idle", message: "" };

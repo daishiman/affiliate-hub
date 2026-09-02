@@ -20,7 +20,9 @@ import { join, relative } from "node:path";
 import { writeGeneratedBlock } from "./lib/generated-doc.mjs";
 import {
   COVERAGE_AXES,
+  COVERAGE_MARGIN_WARN,
   GLOBAL_COVERAGE,
+  layerCoverageMargins,
   LAYER_COVERAGE,
   MAX_STUB_GAP_POINTS,
   STUB_PATTERNS,
@@ -73,6 +75,21 @@ for (const [file, value] of Object.entries(raw)) {
 
 const pct = (box) => (box.total === 0 ? 0 : Math.round((box.covered * 1000) / box.total) / 10);
 const row = (name) => Object.fromEntries(KEYS.map((k) => [k, pct(buckets.get(name)[k])]));
+/**
+ * 丸めない実測。**判定にはこちらを渡す。**
+ *
+ * `row` は表示用に小数第 1 位まで丸める。それを判定へ回すと、
+ * 79.96% が「80」になって下限 80 を通ってしまう（実測 2026-09-02）。
+ * 表示を細かくする手もあるが、読む側には 1 桁で十分なので、
+ * **見せる値と比べる値を分ける**ほうを採った。
+ */
+const exact = (name) =>
+  Object.fromEntries(
+    KEYS.map((k) => {
+      const box = buckets.get(name)[k];
+      return [k, box.total === 0 ? 0 : (box.covered * 100) / box.total];
+    }),
+  );
 
 const overall = row("全体");
 const real = row("実質");
@@ -93,6 +110,8 @@ process.stdout.write(`\nカバレッジ（${today} 実測）\n`);
 process.stdout.write(`${pad("対象", 18)}${COVERAGE_AXES.map((a) => AXIS_LABEL[a].padStart(8)).join("")}\n`);
 
 let failures = [];
+/** 落とさないが伝える。下限を割る手前で気づくための行。 */
+let warnings = [];
 for (const layer of LAYER_COVERAGE) {
   const r = row(layer.layer);
   // **4 列すべてを見る。**かつては `r.lines >= layer.target` だけを見ながら
@@ -100,9 +119,17 @@ for (const layer of LAYER_COVERAGE) {
   // 実測 2026-08-21: app の分岐 62.5 が、隣に印刷された 70 を下回ったまま緑を通っていた。
   // 判定式はここに書かない。`judgeLayerCoverage` を呼ぶ（正本は quality-gates.config.mjs）。
   // ここに式を持つと、外から合成例（分岐 62.5 など）を通せず、今回の穴が再び黙って通る。
-  const shortfalls = judgeLayerCoverage(r, layer);
+  const shortfalls = judgeLayerCoverage(exact(layer.layer), layer);
   const ok = shortfalls.length === 0;
   failures.push(...shortfalls);
+  // 余裕は**本数**で出す。理由は `layerCoverageMargins` の doc を見ること。
+  // 落ちていなくても印刷する。細っていく過程が見えることに意味がある。
+  const thin = layerCoverageMargins(buckets.get(layer.layer), layer).filter(
+    (m) => m.margin >= 0 && m.margin < COVERAGE_MARGIN_WARN,
+  );
+  for (const { axis, margin } of thin) {
+    warnings.push(`${layer.layer} の ${AXIS_LABEL[axis]} は、あと ${margin} 本で下限を割ります`);
+  }
   // 下限は**軸ごとに**印刷する。1 つの「下限」列を 4 列の隣に置くと、
   // その 1 個が 4 列すべてに効いていると読める（それが 2026-08-21 まで実際に起きていた）。
   process.stdout.write(
@@ -135,7 +162,7 @@ const table = [
   ...LAYER_COVERAGE.map((l) => {
     const r = row(l.layer);
     const cells = COVERAGE_AXES.map((a) => `${r[a]} / ${l.floors[a]}`);
-    const ok = judgeLayerCoverage(r, l).length === 0;
+    const ok = judgeLayerCoverage(exact(l.layer), l).length === 0;
     return `| ${l.dir} | ${cells.join(" | ")} | ${ok ? "達成" : "不足"} |`;
   }),
   `| **全体** | ${overall.lines} | ${overall.branches} | ${overall.functions} | ${overall.statements} | ${GLOBAL_COVERAGE.lines} | ${overall.lines >= GLOBAL_COVERAGE.lines ? "達成" : "不足"} |`,
@@ -167,6 +194,15 @@ if (existsSync(DOC)) {
     /<!-- ここから下は scripts\/coverage-report\.mjs[\s\S]*?<!-- ここまで -->(?:\n<!-- 生成物の指紋[^\n]*-->)?/;
   writeGeneratedBlock(DOC, marker, block);
   process.stdout.write(`\n${relative(ROOT, DOC)} を更新しました。\n`);
+}
+
+if (warnings.length > 0) {
+  // **落とさない。**ここで落とすと、下限との区別がつかなくなる（`COVERAGE_MARGIN_WARN` の doc）。
+  process.stdout.write(`\n下限に近づいています（あと ${COVERAGE_MARGIN_WARN} 本以内）:\n`);
+  process.stdout.write(`  - ${warnings.join("\n  - ")}\n`);
+  process.stdout.write(
+    "その層に触る枝のついでに塞いでください。落ちてから直すと、14 分の門を 2 回通ります。\n",
+  );
 }
 
 if (failures.length > 0) {

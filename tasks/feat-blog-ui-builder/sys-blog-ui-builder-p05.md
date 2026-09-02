@@ -12,8 +12,8 @@ iteration: null
 title: "テンプレート・配色2層・sticky常時表示・固定ページ・表現ブロック・配置管理・SEO/AI検索の実装"
 owners: ["daishiman"]
 created_at: "2026-08-28T13:02:37Z"
-updated_at: "2026-08-28T13:02:37Z"
-status: "active"
+updated_at: "2026-08-30T06:05:35Z"
+status: "closed"
 depends_on: ["SYS-BLOG-UI-BUILDER-P04"]
 related_nodes: []
 resource_scope: ["src/app/admin/sites/","src/app/admin/sites/new/","src/app/admin/settings/seo/","src/app/api/admin/","src/presentation/ui/templates/","src/presentation/ui/patterns/","src/presentation/ui/tokens.css","src/app/s/[site]/","src/application/usecases/","src/application/read-models/","src/application/seo/","src/application/ports/","src/infrastructure/persistence/d1/","src/db/schema.ts","drizzle/"]
@@ -38,7 +38,7 @@ classification_reason: "feat-blog-ui-builder の P05 lifecycle 責務への確�
 classification_candidates: [{"artifact_kind":"task","candidate_path":"tasks/feat-blog-ui-builder/sys-blog-ui-builder-p05.md","confidence":1}]
 issue_linkage: null
 tracker_binding: "beads"
-beads_linkage: null
+beads_linkage: {"bd_issue_id":"ah-45ba.5","github_mirror":null,"linked_at":"2026-08-28T13:02:37Z","sync_state":"linked"}
 github_publication: {"labels":[],"milestone":null,"mode":"local_only","project_aliases":[]}
 github_project_linkages: []
 pull_request_linkages: []

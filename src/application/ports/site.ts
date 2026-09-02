@@ -41,8 +41,12 @@ export type PublishedContentPort = {
     kind: "author" | "expert",
     slug: string,
   ): PortResult<PublishedPerson | null>;
-  /** その人が書いた記事。 */
-  listByPerson(siteSlug: string, personSlug: string): PortResult<readonly ArticleSummary[]>;
+  /** その人が書いた／監修した記事。役割を混ぜない。 */
+  listByPerson(
+    siteSlug: string,
+    kind: "author" | "expert",
+    personSlug: string,
+  ): PortResult<readonly ArticleSummary[]>;
   /** 訂正の履歴。訂正が無いことも「無い」と表示するために、空配列で返す。 */
   listCorrections(
     siteSlug: string,

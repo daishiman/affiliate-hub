@@ -18,6 +18,7 @@ import {
   deliveryHealth,
   deliveryOperationalState,
   missingBlocks,
+  validateArticleCategorySlug,
   validateArticleRestore,
   validateArticleSlug,
 } from "@/domain/blogops";
@@ -236,6 +237,7 @@ export type GetBlogArticleOutput = {
   readonly titleRule: string;
   readonly status: BlogArticleStatus;
   readonly authorName: string;
+  readonly categorySlug: string | null;
   readonly blocks: readonly BlogArticleBlockView[];
   readonly tagIds: readonly string[];
   /** 版面が要求していて、まだ無い部品。空なら公開できる。 */
@@ -286,6 +288,7 @@ export function createGetBlogArticleUseCase(
         titleRule: ARTICLE_TEMPLATE_TITLE_RULE[article.template],
         status: article.status,
         authorName: article.authorName,
+        categorySlug: article.categorySlug,
         // 表現 carrier は専用フォームで直す。JSON transport を汎用本文欄へ漏らさない。
         blocks: ordered
           .filter((block) => !isExpressionArticleBlock(block))
@@ -315,6 +318,7 @@ export type CreateBlogArticleInput = {
   readonly title: string;
   readonly lead: string;
   readonly authorName: string;
+  readonly categorySlug: string;
 };
 
 export type CreateBlogArticleOutput = {
@@ -341,6 +345,8 @@ export function createCreateBlogArticleUseCase(
       if (title === "") {
         return err(validationError("記事の題名を入れてください。", "title"));
       }
+      const categorySlug = validateArticleCategorySlug(input.categorySlug);
+      if (!categorySlug.ok) return categorySlug;
 
       const existing = await deps.repository.listArticles(actor.workspaceId, input.siteSlug);
       if (!existing.ok) return existing;
@@ -369,6 +375,7 @@ export function createCreateBlogArticleUseCase(
         lead: input.lead.trim(),
         status: "draft",
         authorName: input.authorName.trim(),
+        categorySlug: categorySlug.value,
         publishedAt: null,
         updatedAt: at,
         blocks: [],
@@ -405,6 +412,7 @@ export type UpdateBlogArticleInput = {
   readonly template?: ArticleTemplate;
   readonly status?: BlogArticleStatus;
   readonly authorName?: string;
+  readonly categorySlug?: string;
   readonly tagIds?: readonly string[];
   readonly blocks?: readonly {
     readonly id?: string;
@@ -463,6 +471,17 @@ export function createUpdateBlogArticleUseCase(
         return err(validationError("記事の題名を空にはできません。", "title"));
       }
       const status = input.status ?? before.article.status;
+      const askedCategory = input.categorySlug?.trim();
+      const categorySlug =
+        askedCategory === undefined
+          ? before.article.categorySlug
+          : askedCategory === ""
+            ? null
+            : askedCategory;
+      if (status === "published") {
+        const validCategory = validateArticleCategorySlug(categorySlug ?? "");
+        if (!validCategory.ok) return validCategory;
+      }
 
       if (input.blocks !== undefined && input.appendBlocks !== undefined) {
         return err(
@@ -540,6 +559,7 @@ export function createUpdateBlogArticleUseCase(
         lead: input.lead?.trim() ?? before.article.lead,
         status,
         authorName: input.authorName?.trim() ?? before.article.authorName,
+        categorySlug,
         publishedAt,
         updatedAt: at,
         blocks,

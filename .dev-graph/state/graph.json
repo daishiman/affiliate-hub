@@ -1,5 +1,5 @@
 {
-  "graph_revision": 358,
+  "graph_revision": 392,
   "nodes": [
     {
       "acceptance": [],
@@ -2125,6 +2125,7 @@
       "created_at": "2026-08-16T12:20:00Z",
       "depends_on": [
         "feat-affiliate-inbox",
+        "feat-auth-workspace",
         "feat-data-model"
       ],
       "domain": "affiliate",
@@ -2199,7 +2200,7 @@
       "template_version": "1.0.0",
       "title": "Affiliate Hub (アフィリエイト一元管理)",
       "tracker_binding": "beads",
-      "updated_at": "2026-08-17T05:00:58Z"
+      "updated_at": "2026-08-30T15:16:06Z"
     },
     {
       "acceptance": [
@@ -14053,9 +14054,9 @@
         "独自ドメイン・DNS 運用、テーマの外部販売"
       ],
       "source_lineage": {
-        "imported_at": "2026-08-31T00:00:00Z",
+        "imported_at": "2026-09-02T00:00:00Z",
         "origin_kind": "generated",
-        "source_digest": "230bb6700e585338d5ed630da90e12e590af731cbe24f4bebddf9dbd0b3ae091",
+        "source_digest": "033646202cb79d49d8581d081494ad95a33caa5980bdf30157745b794a81c18d",
         "source_path": "system-spec/ui-ux.md",
         "source_plugin": "dev-graph",
         "source_version": "0.1.0"
@@ -14075,7 +14076,7 @@
       "template_version": "1.0.0",
       "title": "ブログ UI ビルダー (テンプレート・配色・アフィリエイト配置管理)",
       "tracker_binding": "beads",
-      "updated_at": "2026-08-31T04:31:48.615664Z"
+      "updated_at": "2026-08-31T13:37:47.520501Z"
     },
     {
       "acceptance": [
@@ -14088,7 +14089,12 @@
       ],
       "artifact_kind": "task",
       "artifact_subtypes": [],
-      "beads_linkage": null,
+      "beads_linkage": {
+        "bd_issue_id": "ah-45ba.1",
+        "github_mirror": null,
+        "linked_at": "2026-08-28T13:02:37Z",
+        "sync_state": "linked"
+      },
       "classification_candidates": [
         {
           "artifact_kind": "task",
@@ -14168,7 +14174,7 @@
         "source_version": "0.1.0"
       },
       "start_date": null,
-      "status": "active",
+      "status": "closed",
       "tags": [
         "p01",
         "feat-blog-ui-builder"
@@ -14178,7 +14184,7 @@
       "template_version": "1.1.0",
       "title": "ブログ UI ビルダーの要求ベースライン確定",
       "tracker_binding": "beads",
-      "updated_at": "2026-08-28T13:02:37Z"
+      "updated_at": "2026-08-30T03:59:19Z"
     },
     {
       "acceptance": [
@@ -14191,7 +14197,12 @@
       ],
       "artifact_kind": "task",
       "artifact_subtypes": [],
-      "beads_linkage": null,
+      "beads_linkage": {
+        "bd_issue_id": "ah-45ba.2",
+        "github_mirror": null,
+        "linked_at": "2026-08-28T13:02:37Z",
+        "sync_state": "linked"
+      },
       "classification_candidates": [
         {
           "artifact_kind": "task",
@@ -14275,7 +14286,7 @@
         "source_version": "0.1.0"
       },
       "start_date": null,
-      "status": "active",
+      "status": "closed",
       "tags": [
         "p02",
         "feat-blog-ui-builder"
@@ -14285,7 +14296,7 @@
       "template_version": "1.1.0",
       "title": "データモデル・テーマ契約・コンポーネント契約・管理API契約・SEO/AI検索契約の設計",
       "tracker_binding": "beads",
-      "updated_at": "2026-08-28T13:02:37Z"
+      "updated_at": "2026-08-30T04:07:37Z"
     },
     {
       "acceptance": [
@@ -14298,7 +14309,12 @@
       ],
       "artifact_kind": "task",
       "artifact_subtypes": [],
-      "beads_linkage": null,
+      "beads_linkage": {
+        "bd_issue_id": "ah-45ba.3",
+        "github_mirror": null,
+        "linked_at": "2026-08-28T13:02:37Z",
+        "sync_state": "linked"
+      },
       "classification_candidates": [
         {
           "artifact_kind": "task",
@@ -14378,7 +14394,7 @@
         "source_version": "0.1.0"
       },
       "start_date": null,
-      "status": "active",
+      "status": "closed",
       "tags": [
         "p03",
         "feat-blog-ui-builder"
@@ -14388,7 +14404,7 @@
       "template_version": "1.1.0",
       "title": "設計レビューと参照妥当性・テーマ一貫性・SEO/AI検索設計の独立検証",
       "tracker_binding": "beads",
-      "updated_at": "2026-08-28T13:02:37Z"
+      "updated_at": "2026-08-30T04:10:51Z"
     },
     {
       "acceptance": [
@@ -14401,7 +14417,12 @@
       ],
       "artifact_kind": "task",
       "artifact_subtypes": [],
-      "beads_linkage": null,
+      "beads_linkage": {
+        "bd_issue_id": "ah-45ba.4",
+        "github_mirror": null,
+        "linked_at": "2026-08-28T13:02:37Z",
+        "sync_state": "linked"
+      },
       "classification_candidates": [
         {
           "artifact_kind": "task",
@@ -14485,7 +14506,7 @@
         "source_version": "0.1.0"
       },
       "start_date": null,
-      "status": "active",
+      "status": "closed",
       "tags": [
         "p04",
         "feat-blog-ui-builder"
@@ -14495,7 +14516,7 @@
       "template_version": "1.1.0",
       "title": "受入14件に対応するテスト設計",
       "tracker_binding": "beads",
-      "updated_at": "2026-08-28T13:02:37Z"
+      "updated_at": "2026-08-30T04:22:56Z"
     },
     {
       "acceptance": [
@@ -14510,7 +14531,12 @@
       ],
       "artifact_kind": "task",
       "artifact_subtypes": [],
-      "beads_linkage": null,
+      "beads_linkage": {
+        "bd_issue_id": "ah-45ba.5",
+        "github_mirror": null,
+        "linked_at": "2026-08-28T13:02:37Z",
+        "sync_state": "linked"
+      },
       "classification_candidates": [
         {
           "artifact_kind": "task",
@@ -14605,7 +14631,7 @@
         "source_version": "0.1.0"
       },
       "start_date": null,
-      "status": "active",
+      "status": "closed",
       "tags": [
         "p05",
         "feat-blog-ui-builder"
@@ -14615,7 +14641,7 @@
       "template_version": "1.1.0",
       "title": "テンプレート・配色2層・sticky常時表示・固定ページ・表現ブロック・配置管理・SEO/AI検索の実装",
       "tracker_binding": "beads",
-      "updated_at": "2026-08-28T13:02:37Z"
+      "updated_at": "2026-08-30T06:05:35Z"
     },
     {
       "acceptance": [
@@ -14629,7 +14655,12 @@
       ],
       "artifact_kind": "task",
       "artifact_subtypes": [],
-      "beads_linkage": null,
+      "beads_linkage": {
+        "bd_issue_id": "ah-45ba.6",
+        "github_mirror": null,
+        "linked_at": "2026-08-28T13:02:37Z",
+        "sync_state": "linked"
+      },
       "classification_candidates": [
         {
           "artifact_kind": "task",
@@ -14709,7 +14740,7 @@
         "source_version": "0.1.0"
       },
       "start_date": null,
-      "status": "active",
+      "status": "closed",
       "tags": [
         "p06",
         "feat-blog-ui-builder"
@@ -14719,7 +14750,7 @@
       "template_version": "1.1.0",
       "title": "テスト全量実行と回帰0件の確認",
       "tracker_binding": "beads",
-      "updated_at": "2026-08-28T13:02:37Z"
+      "updated_at": "2026-08-30T06:19:13Z"
     },
     {
       "acceptance": [
@@ -14733,7 +14764,12 @@
       ],
       "artifact_kind": "task",
       "artifact_subtypes": [],
-      "beads_linkage": null,
+      "beads_linkage": {
+        "bd_issue_id": "ah-45ba.7",
+        "github_mirror": null,
+        "linked_at": "2026-08-28T13:02:37Z",
+        "sync_state": "linked"
+      },
       "classification_candidates": [
         {
           "artifact_kind": "task",
@@ -14813,7 +14849,7 @@
         "source_version": "0.1.0"
       },
       "start_date": null,
-      "status": "active",
+      "status": "closed",
       "tags": [
         "p07",
         "feat-blog-ui-builder"
@@ -14823,7 +14859,7 @@
       "template_version": "1.1.0",
       "title": "受入14件の受け入れ判定",
       "tracker_binding": "beads",
-      "updated_at": "2026-08-28T13:02:37Z"
+      "updated_at": "2026-08-30T08:51:18Z"
     },
     {
       "acceptance": [
@@ -14837,7 +14873,12 @@
       ],
       "artifact_kind": "task",
       "artifact_subtypes": [],
-      "beads_linkage": null,
+      "beads_linkage": {
+        "bd_issue_id": "ah-45ba.8",
+        "github_mirror": null,
+        "linked_at": "2026-08-28T13:02:37Z",
+        "sync_state": "linked"
+      },
       "classification_candidates": [
         {
           "artifact_kind": "task",
@@ -14920,7 +14961,7 @@
         "source_version": "0.1.0"
       },
       "start_date": null,
-      "status": "active",
+      "status": "closed",
       "tags": [
         "p08",
         "feat-blog-ui-builder"
@@ -14930,7 +14971,7 @@
       "template_version": "1.1.0",
       "title": "既存サイト管理画面の新エンティティへの移行と重複実装の解消",
       "tracker_binding": "beads",
-      "updated_at": "2026-08-28T13:02:37Z"
+      "updated_at": "2026-08-30T09:56:43Z"
     },
     {
       "acceptance": [
@@ -14945,7 +14986,12 @@
       ],
       "artifact_kind": "task",
       "artifact_subtypes": [],
-      "beads_linkage": null,
+      "beads_linkage": {
+        "bd_issue_id": "ah-45ba.9",
+        "github_mirror": null,
+        "linked_at": "2026-08-28T13:02:37Z",
+        "sync_state": "linked"
+      },
       "classification_candidates": [
         {
           "artifact_kind": "task",
@@ -15025,7 +15071,7 @@
         "source_version": "0.1.0"
       },
       "start_date": null,
-      "status": "active",
+      "status": "closed",
       "tags": [
         "p09",
         "feat-blog-ui-builder"
@@ -15035,7 +15081,7 @@
       "template_version": "1.1.0",
       "title": "品質保証とアクセシビリティ・非機能検査",
       "tracker_binding": "beads",
-      "updated_at": "2026-08-28T13:02:37Z"
+      "updated_at": "2026-08-30T10:01:38Z"
     },
     {
       "acceptance": [
@@ -15048,7 +15094,12 @@
       ],
       "artifact_kind": "task",
       "artifact_subtypes": [],
-      "beads_linkage": null,
+      "beads_linkage": {
+        "bd_issue_id": "ah-45ba.10",
+        "github_mirror": null,
+        "linked_at": "2026-08-28T13:02:37Z",
+        "sync_state": "linked"
+      },
       "classification_candidates": [
         {
           "artifact_kind": "task",
@@ -15128,7 +15179,7 @@
         "source_version": "0.1.0"
       },
       "start_date": null,
-      "status": "active",
+      "status": "closed",
       "tags": [
         "p10",
         "feat-blog-ui-builder"
@@ -15138,7 +15189,7 @@
       "template_version": "1.1.0",
       "title": "最終レビューと残課題の確定",
       "tracker_binding": "beads",
-      "updated_at": "2026-08-28T13:02:37Z"
+      "updated_at": "2026-08-30T10:08:31Z"
     },
     {
       "acceptance": [
@@ -15151,7 +15202,12 @@
       ],
       "artifact_kind": "task",
       "artifact_subtypes": [],
-      "beads_linkage": null,
+      "beads_linkage": {
+        "bd_issue_id": "ah-45ba.11",
+        "github_mirror": null,
+        "linked_at": "2026-08-28T13:02:37Z",
+        "sync_state": "linked"
+      },
       "classification_candidates": [
         {
           "artifact_kind": "task",
@@ -15232,7 +15288,7 @@
         "source_version": "0.1.0"
       },
       "start_date": null,
-      "status": "active",
+      "status": "closed",
       "tags": [
         "p11",
         "feat-blog-ui-builder"
@@ -15242,7 +15298,7 @@
       "template_version": "1.1.0",
       "title": "受入・品質証跡の集約と検証可能性の確保",
       "tracker_binding": "beads",
-      "updated_at": "2026-08-28T13:02:37Z"
+      "updated_at": "2026-08-30T10:19:00Z"
     },
     {
       "acceptance": [
@@ -15255,7 +15311,12 @@
       ],
       "artifact_kind": "task",
       "artifact_subtypes": [],
-      "beads_linkage": null,
+      "beads_linkage": {
+        "bd_issue_id": "ah-45ba.12",
+        "github_mirror": null,
+        "linked_at": "2026-08-28T13:02:37Z",
+        "sync_state": "linked"
+      },
       "classification_candidates": [
         {
           "artifact_kind": "task",
@@ -15337,7 +15398,7 @@
         "source_version": "0.1.0"
       },
       "start_date": null,
-      "status": "active",
+      "status": "closed",
       "tags": [
         "p12",
         "feat-blog-ui-builder"
@@ -15347,7 +15408,7 @@
       "template_version": "1.1.0",
       "title": "UI規則・SEO/AI検索運用規則と運用手順の文書化",
       "tracker_binding": "beads",
-      "updated_at": "2026-08-28T13:02:37Z"
+      "updated_at": "2026-08-30T10:25:24Z"
     },
     {
       "acceptance": [
@@ -15361,7 +15422,12 @@
       ],
       "artifact_kind": "task",
       "artifact_subtypes": [],
-      "beads_linkage": null,
+      "beads_linkage": {
+        "bd_issue_id": "ah-45ba.13",
+        "github_mirror": null,
+        "linked_at": "2026-08-28T13:02:37Z",
+        "sync_state": "linked"
+      },
       "classification_candidates": [
         {
           "artifact_kind": "task",
@@ -15444,7 +15510,7 @@
         "source_version": "0.1.0"
       },
       "start_date": null,
-      "status": "active",
+      "status": "closed",
       "tags": [
         "p13",
         "feat-blog-ui-builder"
@@ -15454,7 +15520,7 @@
       "template_version": "1.1.0",
       "title": "開発環境へのリリースとsystem-specへの書き戻し",
       "tracker_binding": "beads",
-      "updated_at": "2026-08-28T13:02:37Z"
+      "updated_at": "2026-09-02T08:56:57Z"
     },
     {
       "acceptance": [
@@ -19938,6 +20004,740 @@
       "title": "設計図を持つ 5 本のうち 2 本しか公開していないのは、決めた結果ではない",
       "tracker_binding": "beads",
       "updated_at": "2026-08-31T09:10:00Z"
+    },
+    {
+      "acceptance": [
+        "作成直後に /s/<slug> の公開 identity へ解決でき、404 にならない",
+        "active network node が当該 workspace に 1 件だけ存在し、resolvePublicSiteIdentity が非 null を返す",
+        "network・band/slot 途中・fixed page・draft 更新・audit の各障害注入で batch 全体が巻き戻る",
+        "same/cross workspace の slug 衝突で、既存の blueprint/network/bands/slots/fixed pages/audit が不変である",
+        "provisioningComplete は required fixed pages/bands/slots/categories/network を検証し、articles を含めない",
+        "contentReady は公開固定ページと article も要求し、reachable とも分離される",
+        "8 種の固定ページ draft・既定 bands/slots・network が同時生成され、categories は blueprint JSON から数える",
+        "site_network_nodes を持たない既存 site_blueprints 行が migration で補填される",
+        "同じ draft からの二重新規作成は編集画面へ誘導して拒否される",
+        "slug が同じでも name/categories を変更した stale create は実行順にかかわらず拒否され、最新の draft と site が不変である",
+        "作成後に遅れて到着した stale save と同じ revision からの並行 save は CONFLICT となり、created_site_slug と最新 draft_json を巻き戻さない",
+        "作成直後に実 PublicBlogPort.openSite が non-null を返し、作成返却と再読込の件数・provisioningComplete が一致する結合テストが CI で走る",
+        "公開画面は enabled bands/slots のみを描画し、provisioningComplete は保存済みの全 provisioned bands/slots を数える",
+        "0041 適用前から存在する site_blueprints 行が migration fixture で active network node に補填される",
+        "公開構成投影は public-site-projection を再利用し、管理専用の重複カウントが 0 件である",
+        "resolvePublicSiteIdentity の fail-closed 判定 (rows.length !== 1 で null) を緩めていない",
+        "作成監査が同一 batch で保存され、失敗した作成の虚偽の成功監査は残らない"
+      ],
+      "architecture_refs": [
+        "arch-system-spec-overview",
+        "arch-two-layer-platform"
+      ],
+      "artifact_kind": "feature",
+      "artifact_subtypes": [],
+      "beads_linkage": null,
+      "classification_candidates": [
+        {
+          "artifact_kind": "feature",
+          "candidate_path": "features/feat-blog-provisioning-integrity.md",
+          "confidence": 0.95
+        }
+      ],
+      "classification_confidence": 0.95,
+      "classification_reason": "利用者報告『13 問に答えてもブログが作成できない (作成済み表示のあと /s/<slug> が 404)』を C14 macro 分解の 1 feature 化。確定質疑 qa-database-web-blog-provisioning-integrity / qa-backend-web-blog-creation-atomicity を lineage 参照し、細分は system-dev-planner の P01..P13 へ委譲",
+      "completion_evidence": {
+        "completed_at": null,
+        "evidence_refs": [],
+        "policy": "manual",
+        "reconciled_at": null,
+        "source": null,
+        "status": "in_progress"
+      },
+      "confirmation_evidence": {
+        "evaluated_digest": "9853917fad7f15aca04f95d9c8e47819b99ad56f3bcb59e030191c1ee62e7a62",
+        "evaluator": "system-spec-harness/assign-system-spec-completeness-evaluator",
+        "evidence_ref": "system-spec/completeness-report.json"
+      },
+      "confirmation_status": "confirmed",
+      "created_at": "2026-08-31T00:00:00Z",
+      "depends_on": [
+        "feat-site-builder",
+        "feat-blog-ops-crud"
+      ],
+      "domain": "backend",
+      "evaluation_status": "pass",
+      "execution_contexts": [],
+      "feature_package_id": null,
+      "file_path": "features/feat-blog-provisioning-integrity.md",
+      "github_project_linkages": [],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "goal": "13 問の回答から作られた新規ブログが、site_blueprints・active network node・8 種の下書き固定ページ・既定の帯とスロット・カテゴリー正本・下書き完了・作成監査を D1 batch で揃えたときだけ provisioningComplete を返し、記事と公開固定ページを含む contentReady と分離されている",
+      "graph_node_id": "feat-blog-provisioning-integrity",
+      "implementation_readiness": {
+        "checked_at": "2026-08-31T00:00:00Z",
+        "missing_sections": [],
+        "status": "complete"
+      },
+      "issue_linkage": null,
+      "iteration": null,
+      "owners": [
+        "daishiman"
+      ],
+      "parent_feature": null,
+      "phase_ref": null,
+      "priority": "high",
+      "project_id": "affiliate-hub",
+      "pull_request_linkages": [],
+      "purpose": "ブログ新規作成を create-only の Unit of Work に閉じ、必須実体・下書き完了・作成監査の部分成功と、衝突失敗時の既存サイト破壊をなくす",
+      "related_nodes": [
+        "spec-system-spec-index",
+        "arch-system-spec-overview",
+        "feat-site-blueprint",
+        "feat-data-model"
+      ],
+      "resource_scope": [
+        "src/application/usecases/site",
+        "src/infrastructure/persistence/d1",
+        "src/presentation/admin/publish",
+        "drizzle",
+        "system-spec",
+        "features/feat-blog-provisioning-integrity.context.json"
+      ],
+      "scope_in": [
+        "新規作成を plain INSERT に限定し、same/cross workspace の slug 衝突で既存サイトを上書きまたは削除しない",
+        "active network node 1 行、8 種の固定ページ draft、既定の帯とスロットを同一 D1 batch に含める",
+        "カテゴリーは blueprint JSON を正本とし、別表に複製しない",
+        "provisioningComplete を network/fixed pages/bands/slots/categories から、contentReady をそれらの公開状態と articles から判定する",
+        "設計図・必須実体・下書き完了・作成監査を同一 D1 batch に閉じ、1 失敗で全巻き戻しする",
+        "site_drafts の単調 revision を正本とし、保存は expected revision の CAS、作成は source_draft_id と source_draft_revision の DB claim で古い回答を拒否する",
+        "読者表示に使う enabled layout と作成充足を測る全 provisioned layout を public-site-projection 内で分離し、作成直後と再読込後の判定を一致させる",
+        "public-site-projection の公開 identity と構成投影を管理画面でも再利用し、別経路の重複カウントを持たない",
+        "site_network_nodes を持たない既存 site_blueprints 行を migration で補填する",
+        "D1 batch に収まらない規模になった場合の境界引き直し条件を明文化する"
+      ],
+      "scope_out": [
+        "サブドメイン住所の付与とホスト解決 (feat-blog-subdomain-routing)",
+        "管理画面での構成要素一覧・プレビュー・不足提示の UI (feat-blog-composition-visibility)",
+        "ウィザードの 13 問そのものの設計と入口 (feat-site-builder)",
+        "記事本文の AI 生成 (feat-ai-content-studio)",
+        "閲覧者向けレンダリングの部品仕様 (feat-blog-ops-crud)"
+      ],
+      "source_lineage": {
+        "imported_at": "2026-08-31T00:00:00Z",
+        "origin_kind": "generated",
+        "source_digest": "9853917fad7f15aca04f95d9c8e47819b99ad56f3bcb59e030191c1ee62e7a62",
+        "source_path": "system-spec/index.md",
+        "source_plugin": "dev-graph",
+        "source_version": "0.1.0"
+      },
+      "start_date": "2026-08-31",
+      "status": "active",
+      "tags": [
+        "blog",
+        "provisioning",
+        "atomicity",
+        "aggregate",
+        "site-network-nodes",
+        "404"
+      ],
+      "target_date": null,
+      "template_id": "feature",
+      "template_version": "1.0.0",
+      "title": "ブログ作成の原子性と公開必須要素の充足 (作成済み表示と読者到達の一致)",
+      "tracker_binding": "beads",
+      "updated_at": "2026-08-31T00:00:00Z"
+    },
+    {
+      "acceptance": [
+        "外部 DNS/route 構成完了後、作成したブログが <slug>.<基底ドメイン> と /s/<slug> で同じ内容を返す",
+        "wrangler の routes 宣言が *.<基底ドメイン>/* の 1 本だけで、ブログを増やしても routes を編集しない",
+        "存在しないサブドメインへのアクセスが 404 を返し、存在するブログ一覧を推測できる情報を返さない",
+        "hostname を永続化せず、slug の一意制約と SITE_BASE_DOMAIN から一意のホスト名を導出する",
+        "導出 slug の公開 identity が欠落・曖昧または workspace 不一致なら配信せず 404 を返す",
+        "cookie の scope が親ドメインへ広がらず、あるブログの cookie が別ブログから読めない",
+        "ホスト名と slug の対応が siteHostname/siteSlugFromHost の 1 モジュールに閉じる",
+        "基底ドメインが構成値として注入され、環境ごとの再ビルドが不要である",
+        "ホスト解決が効かない環境ではパス方式で到達でき、既存の公開 URL が壊れない",
+        "既存ブログも hostname のデータ移行なしに slug + SITE_BASE_DOMAIN から住所が決まり、中身と一致する",
+        "slug を変更すると追随書き込みなしに導出住所が変わり、旧住所では到達しないか明示的に転送される",
+        "SITE_BASE_DOMAIN・wildcard route・proxied wildcard DNS 証跡が揃うまで構成状態を blocked と判定する",
+        "両経路 (サブドメイン / パス) が同じ SiteFrame へ収束することをテストが確認する"
+      ],
+      "architecture_refs": [
+        "arch-system-spec-overview",
+        "arch-two-layer-platform"
+      ],
+      "artifact_kind": "feature",
+      "artifact_subtypes": [],
+      "beads_linkage": null,
+      "classification_candidates": [
+        {
+          "artifact_kind": "feature",
+          "candidate_path": "features/feat-blog-subdomain-routing.md",
+          "confidence": 0.95
+        }
+      ],
+      "classification_confidence": 0.95,
+      "classification_reason": "利用者報告『ドメインを構築してドメインを作成し、ブログを構築できる形にしておかないと、ドメインが全く関係のないものになってしまう』への対応。利用者選択 (サブドメイン方式) を dec-blog-domain-strategy として確定済み。確定質疑 qa-infrastructure-web-wildcard-subdomain を lineage 参照",
+      "completion_evidence": {
+        "completed_at": null,
+        "evidence_refs": [],
+        "policy": "manual",
+        "reconciled_at": null,
+        "source": null,
+        "status": "in_progress"
+      },
+      "confirmation_evidence": {
+        "evaluated_digest": "9853917fad7f15aca04f95d9c8e47819b99ad56f3bcb59e030191c1ee62e7a62",
+        "evaluator": "system-spec-harness/assign-system-spec-completeness-evaluator",
+        "evidence_ref": "system-spec/completeness-report.json"
+      },
+      "confirmation_status": "confirmed",
+      "created_at": "2026-08-31T00:00:00Z",
+      "depends_on": [
+        "feat-blog-provisioning-integrity"
+      ],
+      "domain": "infrastructure",
+      "evaluation_status": "pass",
+      "execution_contexts": [],
+      "feature_package_id": null,
+      "file_path": "features/feat-blog-subdomain-routing.md",
+      "github_project_linkages": [],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "goal": "ワイルドカード DNS と wrangler routes 1 本で任意のブログ用サブドメインが Worker へ到達し、middleware がホスト名から slug を一意に解決して既存の読者面へ内部委譲し、解決できないホストは fail closed で 404 を返し、ホスト解決が効かない実行ではパス方式 /s/<slug> が後方互換として残る状態になっている",
+      "graph_node_id": "feat-blog-subdomain-routing",
+      "implementation_readiness": {
+        "checked_at": "2026-08-31T00:00:00Z",
+        "missing_sections": [],
+        "status": "complete"
+      },
+      "issue_linkage": null,
+      "iteration": null,
+      "owners": [
+        "daishiman"
+      ],
+      "parent_feature": null,
+      "phase_ref": null,
+      "priority": "high",
+      "project_id": "affiliate-hub",
+      "pull_request_linkages": [],
+      "purpose": "ブログごとの住所を slug と環境ごとの基底ドメインから導出し、保存値との二重管理を持たずに読者が指すホスト名とブログの中身を一対一で結びつける",
+      "related_nodes": [
+        "spec-system-spec-index",
+        "arch-system-spec-overview",
+        "feat-reader-surface"
+      ],
+      "resource_scope": [
+        "src/middleware.ts",
+        "src/app",
+        "src/infrastructure/persistence/d1",
+        "drizzle",
+        "wrangler.jsonc",
+        "system-spec",
+        "features/feat-blog-subdomain-routing.context.json"
+      ],
+      "scope_in": [
+        "slug + SITE_BASE_DOMAIN からの hostname 導出 (site_blueprints へ永続化しない)",
+        "基底ドメインを環境ごとの構成値として注入する仕組み (再ビルドせず同一成果物へ注入)",
+        "wrangler の routes へ *.<基底ドメイン>/* を 1 本だけ宣言する (ブログ追加で DNS も routes も触らない)",
+        "middleware でのホスト名→slug 解決と、既存 /s/<slug> ルートへの内部委譲",
+        "未知ホスト・導出 slug の公開 identity 欠落/曖昧・workspace 不一致を fail closed の 404 とする判定",
+        "cookie の scope を親ドメインへ広げない設定 (サブドメイン間の信頼境界)",
+        "hostname のデータ移行を持たず、既存行も slug + SITE_BASE_DOMAIN から実行時に住所を導出する",
+        "slug 変更時に永続 hostname への追随書き込みなしで導出住所を変える規則",
+        "ホスト解決が効かない実行 (workers.dev 等) でのパス方式 /s/<slug> 後方互換"
+      ],
+      "scope_out": [
+        "ワイルドカード DNS レコードと証明書の初回登録そのもの (人手作業・手順書として残す)",
+        "ブログ 1 本ごとの独自ドメイン持ち込み (BYO domain)",
+        "作成の原子性と公開必須要素の充足 (feat-blog-provisioning-integrity)",
+        "管理画面での住所表示 UI (feat-blog-composition-visibility)"
+      ],
+      "source_lineage": {
+        "imported_at": "2026-08-31T00:00:00Z",
+        "origin_kind": "generated",
+        "source_digest": "9853917fad7f15aca04f95d9c8e47819b99ad56f3bcb59e030191c1ee62e7a62",
+        "source_path": "system-spec/index.md",
+        "source_plugin": "dev-graph",
+        "source_version": "0.1.0"
+      },
+      "start_date": "2026-08-31",
+      "status": "active",
+      "tags": [
+        "blog",
+        "domain",
+        "subdomain",
+        "wildcard-dns",
+        "routing",
+        "middleware"
+      ],
+      "target_date": null,
+      "template_id": "feature",
+      "template_version": "1.0.0",
+      "title": "サブドメイン方式のブログ住所付与とホスト解決",
+      "tracker_binding": "beads",
+      "updated_at": "2026-08-31T00:00:00Z"
+    },
+    {
+      "acceptance": [
+        "管理画面のブログ詳細から、そのブログが読者側で開けるかどうかが最初に分かる",
+        "構成要素 (固定ページ・版面の帯・スロット・カテゴリー・記事) の件数と一覧が表示され、各項目から実体の編集画面へ移動できる",
+        "一覧の件数が読者面の public-site-projection と一致し、管理画面専用の数え直し経路が 0 件である",
+        "作成直後の返却 report と PublicBlogPort.openSite から再投影した report の件数・readiness が一致する",
+        "D1 が空なら code sample の記事一覧・本文が出ず、一覧・本文・検索・カテゴリー・人物・SEO・composition が published_articles の同じ article identity 集合を返す",
+        "PublicBlogPort の公開記事実装に articles 直読・sample fallback・union・独自件数集計が 0 件である",
+        "公開一覧とトップ帯は articleHref だけで URL を作り、旧 /blog/:slug は同じ projection を引いて canonical URL へ 308 redirect する",
+        "管理画面内で読者面と同じ SiteFrame による描画をプレビューでき、プレビュー専用のコンポーネント木が 0 件である",
+        "SiteFrame が『見つからない』を呼び出し側へ返せる形になっており、管理画面の中で 404 が全画面に伝播しない",
+        "公開に必要なのに無い要素が名指しで表示され、その場から補完先へ移動できる",
+        "不足が『公開を止めている』か『質を下げるだけ』かで表示の強さが分かれる",
+        "画面上の位置と強さが『開けるか』>『不足している要素』>『構成の内訳』の順になっている",
+        "住所欄が割り当てサブドメインを正として表示し、パス形式を併記する",
+        "SITE_BASE_DOMAIN 未設定の既存ブログではパス形式が正へ繰り上がって表示される",
+        "内部構造の語が利用者の語へ言い換えられ、言い換え対応表が 1 か所にある",
+        "初回作成直後の画面が不足表示で埋まらず、優先度による強弱が効いている",
+        "管理画面の当該 3 画面 (詳細 / 構成要素一覧 / プレビュー) が axe-core の重大違反 0 件である"
+      ],
+      "architecture_refs": [
+        "arch-system-spec-overview",
+        "arch-two-layer-platform"
+      ],
+      "artifact_kind": "feature",
+      "artifact_subtypes": [],
+      "beads_linkage": null,
+      "classification_candidates": [
+        {
+          "artifact_kind": "feature",
+          "candidate_path": "features/feat-blog-composition-visibility.md",
+          "confidence": 0.95
+        }
+      ],
+      "classification_confidence": 0.95,
+      "classification_reason": "利用者報告『ブログを構成するための要素や、どのような形でブログができるのかが見えないため、構築されたブログの改善が行えない』への対応。利用者選択 (可視化 4 種すべて) を反映。確定質疑 qa-frontend-web-blog-composition-visibility / qa-ui-ux-web-creation-completion-feedback を lineage 参照",
+      "completion_evidence": {
+        "completed_at": null,
+        "evidence_refs": [],
+        "policy": "manual",
+        "reconciled_at": null,
+        "source": null,
+        "status": "in_progress"
+      },
+      "confirmation_evidence": {
+        "evaluated_digest": "9853917fad7f15aca04f95d9c8e47819b99ad56f3bcb59e030191c1ee62e7a62",
+        "evaluator": "system-spec-harness/assign-system-spec-completeness-evaluator",
+        "evidence_ref": "system-spec/completeness-report.json"
+      },
+      "confirmation_status": "confirmed",
+      "created_at": "2026-08-31T00:00:00Z",
+      "depends_on": [
+        "feat-blog-provisioning-integrity"
+      ],
+      "domain": "frontend",
+      "evaluation_status": "pass",
+      "execution_contexts": [],
+      "feature_package_id": null,
+      "file_path": "features/feat-blog-composition-visibility.md",
+      "github_project_linkages": [],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "goal": "管理画面から、実ブログが実際に開けること・構成要素 (固定ページ・版面の帯・スロット・カテゴリー・記事) の一覧・管理画面内でのプレビュー・作成時点で不足している要素の 4 つを、読者面と同じ正本 (public-site-projection) を通して確認でき、管理画面で見える姿と読者が実際に見る姿がずれない状態になっている",
+      "graph_node_id": "feat-blog-composition-visibility",
+      "implementation_readiness": {
+        "checked_at": "2026-08-31T00:00:00Z",
+        "missing_sections": [],
+        "status": "complete"
+      },
+      "issue_linkage": null,
+      "iteration": null,
+      "owners": [
+        "daishiman"
+      ],
+      "parent_feature": null,
+      "phase_ref": null,
+      "priority": "high",
+      "project_id": "affiliate-hub",
+      "pull_request_linkages": [],
+      "purpose": "作られたブログが何で構成され、どんな形で読者に見えるのかを管理画面から確認できるようにし、見えないままでは改善できないという状態を解消する",
+      "related_nodes": [
+        "spec-system-spec-index",
+        "arch-system-spec-overview",
+        "feat-blog-ops-crud",
+        "feat-reference-blog-admin-ux"
+      ],
+      "resource_scope": [
+        "src/presentation/admin",
+        "src/presentation/site",
+        "src/application/usecases/site",
+        "system-spec",
+        "features/feat-blog-composition-visibility.context.json"
+      ],
+      "scope_in": [
+        "管理画面の構成要素一覧 (固定ページ・版面の帯・スロット・カテゴリー・記事) を public-site-projection 経由で読む (管理画面専用の別経路で数え直さない)",
+        "公開表示は enabled bands/slots を、作成充足の件数は全 provisioned bands/slots を同じ public-site-projection で一度だけ読み分ける",
+        "D1/live では published_articles を唯一の canonical public projection とし、記事一覧・本文・検索・カテゴリー・人物・SEO・composition を同じ PublishedContentPort へ揃える。PublicBlogPort は articles を公開用に直読せず、code sample fallback・union・件数の足し合わせを行わない",
+        "各構成要素からその実体の編集画面への導線",
+        "管理画面内プレビュー: 既存 SiteFrame を通して描画し、プレビュー専用のコンポーネント木を作らない",
+        "SiteFrame の『見つからない』の扱いを呼び出し側で受け取れる形へ分離 (notFound() 直呼びからの切り出し)",
+        "作成時点で公開に必要なのに無い要素の名指し提示と、その場へ移動できる導線",
+        "不足の強さの区別 (公開を止めている要素 / 質を下げるだけの要素) と表示の強弱",
+        "情報の優先順位を『開けるか』>『不足している要素』>『構成の内訳』とした画面配置",
+        "住所表示: slug + SITE_BASE_DOMAIN の導出サブドメインを正、パス形式を併記 (SITE_BASE_DOMAIN 未設定時はパス形式を正へ繰り上げ)",
+        "内部構造の語 (版面の帯・スロット) を利用者の語へ言い換える対応表"
+      ],
+      "scope_out": [
+        "構成要素そのものの CRUD (feat-blog-ops-crud)",
+        "作成の原子性と充足判定の実装 (feat-blog-provisioning-integrity)",
+        "導出 hostname と slug のホスト解決 (feat-blog-subdomain-routing)",
+        "テンプレート・配色の選択 UI (feat-blog-ui-builder)"
+      ],
+      "source_lineage": {
+        "imported_at": "2026-08-31T00:00:00Z",
+        "origin_kind": "generated",
+        "source_digest": "9853917fad7f15aca04f95d9c8e47819b99ad56f3bcb59e030191c1ee62e7a62",
+        "source_path": "system-spec/index.md",
+        "source_plugin": "dev-graph",
+        "source_version": "0.1.0"
+      },
+      "start_date": "2026-08-31",
+      "status": "active",
+      "tags": [
+        "blog",
+        "admin",
+        "visibility",
+        "preview",
+        "projection",
+        "missing-elements"
+      ],
+      "target_date": null,
+      "template_id": "feature",
+      "template_version": "1.0.0",
+      "title": "ブログ構成要素の可視化・管理画面プレビュー・不足要素の提示",
+      "tracker_binding": "beads",
+      "updated_at": "2026-08-31T00:00:00Z"
+    },
+    {
+      "acceptance": [
+        "spec_docset_chapters.py が確定 8 章の意思決定表を正本 decisions[] から生成する",
+        "章を再生成すると 8 章すべての表が正本と全件一致する",
+        "chapter-regeneration-floor.test.ts の手書き側の検査を、00 章と同じ toEqual へ戻して緑になる"
+      ],
+      "architecture_refs": [],
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "beads_linkage": null,
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "candidate_path": "tasks/task-chapter-decisions-generated-by-compile.md",
+          "confidence": 0.9
+        }
+      ],
+      "classification_confidence": 0.9,
+      "classification_reason": "章は status: confirmed なので C11 hook が Edit を遮断する。つまり『章の表を正本と一致させる』を満たす正規経路が、いまのハーネスに存在しない。2026-08-31 に dec-blog-domain-strategy が増えて実際にそうなった。",
+      "completion_evidence": {
+        "completed_at": null,
+        "evidence_refs": [],
+        "policy": "manual",
+        "reconciled_at": null,
+        "source": "manual",
+        "status": "open"
+      },
+      "confirmation_evidence": {
+        "evaluated_digest": null,
+        "evaluator": null,
+        "evidence_ref": null
+      },
+      "confirmation_status": "confirmed",
+      "created_at": "2026-08-31T14:00:00Z",
+      "depends_on": [],
+      "domain": "data",
+      "evaluation_status": "pending",
+      "execution_contexts": [],
+      "feature_package_id": null,
+      "file_path": "tasks/task-chapter-decisions-generated-by-compile.md",
+      "github_project_linkages": [],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "goal": null,
+      "graph_node_id": "task-chapter-decisions-generated-by-compile",
+      "implementation_readiness": {
+        "checked_at": null,
+        "missing_sections": [],
+        "status": "incomplete"
+      },
+      "issue_linkage": null,
+      "iteration": null,
+      "mvp_alignment": {
+        "background": "00 章の意思決定支援表は spec_docset_foundation.py が正本 decisions[] から生成する。一方、確定 8 章の意思決定表は spec_docset_chapters.py に生成コードが 1 行も無く、完全な手書き節で、再生成時は --on-handwritten preserve が引き継ぐだけである。",
+        "mvp_fit": "enabling",
+        "purpose": "決定が 1 件増えるたびに 8 ファイルを人が手で直す形をやめ、正本から機械が描くようにする",
+        "rationale": "章は status: confirmed なので C11 hook が Edit を遮断する。つまり『章の表を正本と一致させる』を満たす正規経路が、いまのハーネスに存在しない。2026-08-31 に dec-blog-domain-strategy が増えて実際にそうなった。"
+      },
+      "owners": [
+        "daishiman"
+      ],
+      "parent_feature": null,
+      "phase_ref": null,
+      "priority": "medium",
+      "project_id": "affiliate-hub",
+      "pull_request_linkages": [],
+      "purpose": "決定が 1 件増えるたびに 8 ファイルを人が手で直す形をやめ、正本から機械が描くようにする",
+      "related_nodes": [
+        "task-seed-satisfies-public-entry"
+      ],
+      "resource_scope": [
+        "scripts",
+        "tests"
+      ],
+      "scope_in": [
+        "spec_docset_chapters.py の生成節",
+        "chapter-regeneration-floor.test.ts の検査の戻し"
+      ],
+      "scope_out": [
+        "正本 spec-state.json の変更",
+        "章 Markdown の直接編集"
+      ],
+      "source_lineage": {
+        "imported_at": "2026-08-31T14:00:00Z",
+        "origin_kind": "manual",
+        "source_digest": null,
+        "source_path": "tests/architecture/chapter-regeneration-floor.test.ts",
+        "source_plugin": null,
+        "source_version": null
+      },
+      "start_date": null,
+      "status": "draft",
+      "tags": [
+        "spec-harness",
+        "dx"
+      ],
+      "target_date": null,
+      "template_id": "task",
+      "template_version": "1.0.0",
+      "title": "確定 8 章の意思決定表を、人の手ではなく compile に描かせる",
+      "tracker_binding": "beads",
+      "updated_at": "2026-08-31T14:00:00Z"
+    },
+    {
+      "acceptance": [
+        "正本 decisions[] の ID 接頭辞が 1 通りに揃っている",
+        "dev-graph / Beads 側の参照が新しい ID へ追随している",
+        "chapter-regeneration-floor.test.ts の decisionIdsInSection が 1 通りだけを見る形へ戻せる"
+      ],
+      "architecture_refs": [],
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "beads_linkage": null,
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "candidate_path": "tasks/task-decision-id-prefix-alignment.md",
+          "confidence": 0.9
+        }
+      ],
+      "classification_confidence": 0.9,
+      "classification_reason": "decision- だけを見ていた検査が、載っている 1 件を『載っていない』と読んで落ちた。検査側は両方を拾うよう広げて回避してあるが、これは追認ではなく先送りである。ID を書き換えるには C01 の writer を通す必要があり、すでに dev-graph / Beads 側がこの ID を参照しているため、参照側の追随も要る。",
+      "completion_evidence": {
+        "completed_at": null,
+        "evidence_refs": [],
+        "policy": "manual",
+        "reconciled_at": null,
+        "source": "manual",
+        "status": "open"
+      },
+      "confirmation_evidence": {
+        "evaluated_digest": null,
+        "evaluator": null,
+        "evidence_ref": null
+      },
+      "confirmation_status": "confirmed",
+      "created_at": "2026-08-31T14:00:00Z",
+      "depends_on": [],
+      "domain": "data",
+      "evaluation_status": "pending",
+      "execution_contexts": [],
+      "feature_package_id": null,
+      "file_path": "tasks/task-decision-id-prefix-alignment.md",
+      "github_project_linkages": [],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "goal": null,
+      "graph_node_id": "task-decision-id-prefix-alignment",
+      "implementation_readiness": {
+        "checked_at": null,
+        "missing_sections": [],
+        "status": "incomplete"
+      },
+      "issue_linkage": null,
+      "iteration": null,
+      "mvp_alignment": {
+        "background": "正本 spec-state.json の decisions[] は 7 件が decision- で始まり、2026-08-31 に足した住所 (サブドメイン) の 1 件だけが dec-blog-domain-strategy である。",
+        "mvp_fit": "enabling",
+        "purpose": "dec- と decision- の 2 通りを 1 通りに揃え、ID を字面で拾う検査が取りこぼさないようにする",
+        "rationale": "decision- だけを見ていた検査が、載っている 1 件を『載っていない』と読んで落ちた。検査側は両方を拾うよう広げて回避してあるが、これは追認ではなく先送りである。ID を書き換えるには C01 の writer を通す必要があり、すでに dev-graph / Beads 側がこの ID を参照しているため、参照側の追随も要る。"
+      },
+      "owners": [
+        "daishiman"
+      ],
+      "parent_feature": null,
+      "phase_ref": null,
+      "priority": "low",
+      "project_id": "affiliate-hub",
+      "pull_request_linkages": [],
+      "purpose": "dec- と decision- の 2 通りを 1 通りに揃え、ID を字面で拾う検査が取りこぼさないようにする",
+      "related_nodes": [
+        "task-seed-satisfies-public-entry"
+      ],
+      "resource_scope": [
+        "spec",
+        "tests"
+      ],
+      "scope_in": [
+        "正本 spec-state.json の decisions[] の ID",
+        "参照側の追随"
+      ],
+      "scope_out": [
+        "決定の内容そのものの見直し"
+      ],
+      "source_lineage": {
+        "imported_at": "2026-08-31T14:00:00Z",
+        "origin_kind": "manual",
+        "source_digest": null,
+        "source_path": "system-spec/spec-state.json",
+        "source_plugin": null,
+        "source_version": null
+      },
+      "start_date": null,
+      "status": "draft",
+      "tags": [
+        "spec-harness"
+      ],
+      "target_date": null,
+      "template_id": "task",
+      "template_version": "1.0.0",
+      "title": "正本 decisions[] の ID 接頭辞が 1 件だけ揃っていない",
+      "tracker_binding": "beads",
+      "updated_at": "2026-08-31T14:00:00Z"
+    },
+    {
+      "acceptance": [
+        "括弧書きの中身が正本 requirements_foundation から引ける",
+        "再生成しても当該行が『保てなかった行』に載らない"
+      ],
+      "architecture_refs": [],
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "beads_linkage": null,
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "candidate_path": "tasks/task-u6-parenthetical-to-truth.md",
+          "confidence": 0.9
+        }
+      ],
+      "classification_confidence": 0.9,
+      "classification_reason": "生成節の中の手書きは節の引き継ぎでは守れない。正本へ移すか、独立した ## 節へ移すかのどちらかでしか残らない。",
+      "completion_evidence": {
+        "completed_at": null,
+        "evidence_refs": [],
+        "policy": "manual",
+        "reconciled_at": null,
+        "source": "manual",
+        "status": "open"
+      },
+      "confirmation_evidence": {
+        "evaluated_digest": null,
+        "evaluator": null,
+        "evidence_ref": null
+      },
+      "confirmation_status": "confirmed",
+      "created_at": "2026-08-31T14:00:00Z",
+      "depends_on": [],
+      "domain": "data",
+      "evaluation_status": "pending",
+      "execution_contexts": [],
+      "feature_package_id": null,
+      "file_path": "tasks/task-u6-parenthetical-to-truth.md",
+      "github_project_linkages": [],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "goal": null,
+      "graph_node_id": "task-u6-parenthetical-to-truth",
+      "implementation_readiness": {
+        "checked_at": null,
+        "missing_sections": [],
+        "status": "incomplete"
+      },
+      "issue_linkage": null,
+      "iteration": null,
+      "mvp_alignment": {
+        "background": "00-requirements-definition.md の U6『発信者』に付いた括弧書き (個人〜小規模チームのアフィリエイト運営者) が正本 requirements_foundation から引けず、章末の『compile が保てなかった行 (要判断)』に逐語で残っている。",
+        "mvp_fit": "enabling",
+        "purpose": "章にだけ在って正本から引けない記述をなくし、再生成で消える行を残さない",
+        "rationale": "生成節の中の手書きは節の引き継ぎでは守れない。正本へ移すか、独立した ## 節へ移すかのどちらかでしか残らない。"
+      },
+      "owners": [
+        "daishiman"
+      ],
+      "parent_feature": null,
+      "phase_ref": null,
+      "priority": "low",
+      "project_id": "affiliate-hub",
+      "pull_request_linkages": [],
+      "purpose": "章にだけ在って正本から引けない記述をなくし、再生成で消える行を残さない",
+      "related_nodes": [
+        "task-seed-satisfies-public-entry"
+      ],
+      "resource_scope": [
+        "spec"
+      ],
+      "scope_in": [
+        "正本 requirements_foundation の U6"
+      ],
+      "scope_out": [
+        "U6 以外の U 項目"
+      ],
+      "source_lineage": {
+        "imported_at": "2026-08-31T14:00:00Z",
+        "origin_kind": "manual",
+        "source_digest": null,
+        "source_path": "system-spec/00-requirements-definition.md",
+        "source_plugin": null,
+        "source_version": null
+      },
+      "start_date": null,
+      "status": "draft",
+      "tags": [
+        "spec-harness"
+      ],
+      "target_date": null,
+      "template_id": "task",
+      "template_version": "1.0.0",
+      "title": "00 章 U6 の括弧書きが正本に接続されていない",
+      "tracker_binding": "beads",
+      "updated_at": "2026-08-31T14:00:00Z"
     }
   ],
   "repository_id": "github:daishiman/affiliate-hub",

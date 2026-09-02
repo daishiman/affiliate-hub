@@ -81,11 +81,35 @@ afterEach(() => {
 });
 
 describe("AWS-ACC-01 門の配線: どこを守ると宣言しているか", () => {
-  it("`/admin` とその下だけを守り、ログインの往復と読者のページは宣言に含めない", async () => {
+  /*
+   * `config.matcher` は「どこを**守る**か」ではなく「どこを**通す**か」の宣言である。
+   * ブログの住所（`<URL名>.example.com`）で来た読者を振り分けるために、
+   * 2026-08-31 から matcher はほぼ全 path を拾う。守る範囲を決めているのは
+   * 今までどおり `isGuardedPath` 一本で、そこは変わっていない。
+   *
+   * そこでこの節は matcher の字面ではなく、**守る範囲そのもの**を固定する。
+   * 字面で固定していると、振り分けを足しただけでここが赤くなり、
+   * 「門が壊れた」と「宣言が広がった」の区別がつかない。
+   */
+  it("守るのは `/admin` とその下だけで、ログインの往復と読者のページは守らない", async () => {
+    const { isGuardedPath } = await import("@/infrastructure/identity/entry-gate");
+
+    for (const guarded of ["/admin", "/admin/sites", "/admin/sites/new"]) {
+      expect(isGuardedPath(guarded)).toBe(true);
+    }
+    // `/api/auth` を守ると誰もログインできなくなる。守っていないことを固定する。
+    for (const open of ["/api/auth/callback", "/signin", "/s/home-office-desk", "/"]) {
+      expect(isGuardedPath(open)).toBe(false);
+    }
+  });
+
+  it("宣言は静的ファイルと Cloudflare の内部 path を拾わない", async () => {
     const { config } = await import("@/middleware");
-    expect(config.matcher).toEqual(["/admin", "/admin/:path*"]);
-    // `/api/auth` を含めると誰もログインできなくなる。含めていないことを固定する。
-    for (const m of config.matcher) expect(m.startsWith("/api")).toBe(false);
+    // 拾うと画像や JS まで門を通り、1 ページ開くたびに保存先を叩くことになる。
+    for (const m of config.matcher) {
+      expect(m).toContain("_next/");
+      expect(m).toContain("cdn-cgi/");
+    }
   });
 });
 

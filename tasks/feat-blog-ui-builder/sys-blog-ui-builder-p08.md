@@ -12,8 +12,8 @@ iteration: null
 title: "既存サイト管理画面の新エンティティへの移行と重複実装の解消"
 owners: ["daishiman"]
 created_at: "2026-08-28T13:02:37Z"
-updated_at: "2026-08-28T13:02:37Z"
-status: "active"
+updated_at: "2026-08-30T09:56:43Z"
+status: "closed"
 depends_on: ["SYS-BLOG-UI-BUILDER-P05"]
 related_nodes: []
 resource_scope: ["src/app/admin/sites/","src/app/admin/sites/[site]/","src/presentation/ui/templates/","docs/spec/feat-blog-ui-builder/migration-report.md"]
@@ -38,7 +38,7 @@ classification_reason: "feat-blog-ui-builder の P08 lifecycle 責務への確�
 classification_candidates: [{"artifact_kind":"task","candidate_path":"tasks/feat-blog-ui-builder/sys-blog-ui-builder-p08.md","confidence":1}]
 issue_linkage: null
 tracker_binding: "beads"
-beads_linkage: null
+beads_linkage: {"bd_issue_id":"ah-45ba.8","github_mirror":null,"linked_at":"2026-08-28T13:02:37Z","sync_state":"linked"}
 github_publication: {"labels":[],"milestone":null,"mode":"local_only","project_aliases":[]}
 github_project_linkages: []
 pull_request_linkages: []
