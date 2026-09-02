@@ -12,13 +12,13 @@ iteration: null
 title: "設計レビューと参照妥当性・テーマ一貫性・SEO/AI検索設計の独立検証"
 owners: ["daishiman"]
 created_at: "2026-08-28T13:02:37Z"
-updated_at: "2026-08-28T13:02:37Z"
-status: "active"
+updated_at: "2026-08-30T04:10:51Z"
+status: "closed"
 depends_on: ["SYS-BLOG-UI-BUILDER-P02"]
 related_nodes: []
 resource_scope: ["docs/spec/feat-blog-ui-builder/design-review.md"]
-purpose: "P02の設計に対する独立レビューを行い、参考ブログ参照が構成・配置・表記法の参照に留まり丸パクリになっていないこと、配色2層 (blog_theme/page_theme_override) の一貫性、sticky要素のWCAG 2.2 reflow/focus-not-obscured適合、記事表現ブロックのスロット差替可能性、JSON-LD自動生成とSSR出力の整合 (A10対応)、IndexNow鍵のリポジトリ非保存ポリシー (A13対応)、guideline_references の90日再確認設計 (A14対応) の各観点で指摘が反映または残課題化された状態を成立させる。"
-goal: "P02の設計に対する独立レビューを行い、参考ブログ参照が構成・配置・表記法の参照に留まり丸パクリになっていないこと、配色2層 (blog_theme/page_theme_override) の一貫性、sticky要素のWCAG 2.2 reflow/focus-not-obscured適合、記事表現ブロックのスロット差替可能性、JSON-LD自動生成とSSR出力の整合 (A10対応)、IndexNow鍵のリポジトリ非保存ポリシー (A13対応)、guideline_references の90日再確認設計 (A14対応) の各観点で指摘が反映または残課題化された状態を成立させる。"
+purpose: "P02の設計に対する独立レビューを行い、makuring.jp参照が構成・配置・表記法の参照に留まり丸パクリになっていないこと、配色2層 (blog_theme/page_theme_override) の一貫性、sticky要素のWCAG 2.2 reflow/focus-not-obscured適合、記事表現ブロックのスロット差替可能性、JSON-LD自動生成とSSR出力の整合 (A10対応)、IndexNow鍵のリポジトリ非保存ポリシー (A13対応)、guideline_references の90日再確認設計 (A14対応) の各観点で指摘が反映または残課題化された状態を成立させる。"
+goal: "P02の設計に対する独立レビューを行い、makuring.jp参照が構成・配置・表記法の参照に留まり丸パクリになっていないこと、配色2層 (blog_theme/page_theme_override) の一貫性、sticky要素のWCAG 2.2 reflow/focus-not-obscured適合、記事表現ブロックのスロット差替可能性、JSON-LD自動生成とSSR出力の整合 (A10対応)、IndexNow鍵のリポジトリ非保存ポリシー (A13対応)、guideline_references の90日再確認設計 (A14対応) の各観点で指摘が反映または残課題化された状態を成立させる。"
 scope_in: ["Produced artifacts: docs/spec/feat-blog-ui-builder/design-review.md (観点別の指摘・反映結果・残課題)","Consumed artifacts: docs/spec/feat-blog-ui-builder/data-model.md, docs/spec/feat-blog-ui-builder/theme-contract.md, docs/spec/feat-blog-ui-builder/component-contract.md, docs/spec/feat-blog-ui-builder/admin-api-contract.md, docs/spec/feat-blog-ui-builder/seo-ai-search-contract.md","Write scope/touches: docs/spec/feat-blog-ui-builder/design-review.md"]
 scope_out: ["feat-blog-ui-builder の scope_out に該当する変更","P02設計文書そのものの書き換え (指摘の反映はP02再訪または残課題記録に限る)"]
 acceptance: ["Automated commands: `pnpm run lint` (design-review.md記載の指摘に対応するコード規約が既存lint設定と矛盾しないことを確認する)","Automated commands: `python3 .claude/plugins/system-dev-planner/scripts/validate-system-plan.py --repo-root . --feature-package feature-package/feat-blog-ui-builder` (本 package の C12 決定論検証を世代非依存に再実行する)","Required evidence: P03 の 成果物 section に記載した produced artifacts のパス"]
@@ -38,7 +38,7 @@ classification_reason: "feat-blog-ui-builder の P03 lifecycle 責務への確�
 classification_candidates: [{"artifact_kind":"task","candidate_path":"tasks/feat-blog-ui-builder/sys-blog-ui-builder-p03.md","confidence":1}]
 issue_linkage: null
 tracker_binding: "beads"
-beads_linkage: null
+beads_linkage: {"bd_issue_id":"ah-45ba.3","github_mirror":null,"linked_at":"2026-08-28T13:02:37Z","sync_state":"linked"}
 github_publication: {"labels":[],"milestone":null,"mode":"local_only","project_aliases":[]}
 github_project_linkages: []
 pull_request_linkages: []

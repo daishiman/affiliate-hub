@@ -5,7 +5,12 @@ acceptance source digest: `sha256:7d03855a6d54fdd216e92734e92d4ff5e6baf89dd094c6
 
 方針: 記事本体の canonical write model は既存 `articles` に一本化する。
 `blog_article` は過渡表であり、P08 migration がデータを `articles` へ backfill した後に削除する。
-`published_articles` は公開時の読み取り専用 snapshot であり、編集正本や dual-write 先として扱わない。
+`published_articles` は公開時の内容を保持する、唯一の canonical public projection である。
+編集正本ではなく、`articles` と独立して公開可否を決める第二の正本にもしてはならない。
+ブログ運用由来の projection は nullable な `source_article_id` で `articles.id` を追跡し、
+公開・更新・非公開化・論理削除の境界で同じ Unit of Work により更新する。
+AI 生成経路も同じ projection writer を使い、公開 reader ごとの fallback・union・
+独自 writer を持たない。
 
 既存 AI コンテンツ行の `content_variants` / `publications` 外部キーと旧来列は維持する。
 ブログ運用の付加属性は nullable 列とし、legacy AI 行に値を推測して埋めない。
@@ -58,17 +63,49 @@ unique(`workspace_id`, `site_slug`, `region`, `slot_key`)
 | type | 既存列。ブログ保存時は domain SSOT で T1→`ranking`, T2→`review`, T3/T4→`guide` を導出 |
 | title / lead / author_name | 題名・1 文要約・表示上の書き手 |
 | status | 既存 `draft` / `review` / `published` / `archived` |
+| public_category_slug | 公開 projection に写すサイト内カテゴリー。新規公開時は site blueprint から明示選択し、下書きは NULL を許す |
 | deleted_at | NULL=有効、値あり=論理削除。復元は NULL へ戻す |
 | published_at / updated_at | 公開時刻と鮮度の判定 |
 
 ブログ adapter は `articles` のみを read/write し、`blog_article` へ dual-write しない。
 `blog_article_block` / `blog_article_tag` / `blog_article_rating` は `articles.id` を親とする子データとして維持する。
 
+## 4-2. `published_articles` — canonical public projection
+
+公開面が読む記事集合はこの表だけから導く。一覧・本文・検索・カテゴリー・人物・
+SEO・feed・sitemap・`public-site-projection` の composition 件数で別の集合を作らない。
+
+| 列 | 内容 |
+|---|---|
+| `site_slug` / `slug` | 公開記事 identity。組で一意 |
+| `workspace_id` | 所有 workspace |
+| `source_article_id` | ブログ運用由来なら `articles.id`。AI 生成など対応する編集 aggregate が無い場合は NULL |
+| `article_json` | 読者へ出した内容の snapshot |
+| 一覧・検索用列 | `type` / `title` / `summary` / `category_slug` / `author_*` / 公開・更新時刻 |
+| `archived_at` | 管理用の非表示状態。public reader は NULL の行だけを返す |
+
+`source_article_id` は評価の親 ID と再投影元を安定させる追跡キーであり、公開 URL を
+組み立てるための第二の identity ではない。公開 URL は `articleHref` が `type` と
+`slug` から一度だけ導出する。旧 `/blog/:slug` は projection を引いた後、同じ
+`articleHref` の URL へ 308 redirect する。
+
+公開 reader は `articles` を直読しない。`articles.status='published'` だけが立ち、
+projection が無い行は公開しない。逆に projection にしかない AI 生成記事も、同じ
+reader から一覧・本文・composition へ一貫して現れる。
+
+新規のブログ運用記事は、公開時に blueprint に実在するカテゴリーと
+空でない書き手名を必須とする。旧スキーマでカテゴリーを持てなかった
+既存公開記事は、任意のカテゴリーを推測せず `uncategorized`（表示名「未分類」）へ
+正規化する。旧データの空の書き手も「編集部」と作り話で補わず、
+「著者未設定」として明示する。
+
 ## 5. `blog_article_block` — 記事本文の部品列 (§3.3)
 
 `kind` は §3.3 の部品 id。`position` で並ぶ。通常の記事削除は `articles.deleted_at` を
-設定するだけで、ブロック・タグ結合・評価は保持する。復元時は同じ ID・URL・
-本文へ戻す。FK の cascade は通常の論理削除では発火しない。
+設定するだけで、ブロック・タグ結合・評価は保持する。公開中記事の削除と
+復元は、編集 aggregate・projection・墓標を同一 Unit of Work で更新する。
+復元後は同じ ID・URL・本文へ戻り、公開 reader からも再び読める。
+FK の cascade は通常の論理削除では発火しない。
 
 ## 6. `blog_tag` / 7. `blog_article_tag` — ブランドタグ (§3.4 `brand-tag-cloud`)
 

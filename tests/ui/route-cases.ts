@@ -26,6 +26,8 @@
  * vitest も Playwright も同じものを普通に import する。構文木の解釈は消えた。
  */
 
+import { articleHref } from "@/application/read-models/published-article";
+import { siteHref } from "@/presentation/site/view-model";
 import { BLOG_OPS_SAMPLE_ROUTE_IDS } from "@/infrastructure/persistence/sample/blog-ops-sample-repository";
 import { SAMPLE_ARTICLES } from "@/infrastructure/persistence/sample/content-sample-data";
 import { SAMPLE_SITE_SLUG } from "@/infrastructure/persistence/sample/site-sample-repository";
@@ -39,12 +41,29 @@ export type RouteCase = {
   readonly params?: Readonly<Record<string, string>>;
   /** `?` 以降。既定の表示を見たいときは省く。 */
   readonly searchParams?: Readonly<Record<string, string | readonly string[]>>;
-  /** DOMを描かず、この既知pathへ移すだけのlegacy adapter。 */
+  /**
+   * DOMを描かず、この既知pathへ移すだけのlegacy adapter。
+   *
+   * **`behavior: "redirect"` のような印だけにしない。**行き先まで書かせると、
+   * 「移しはするが、どこへ移すかは誰も見ていない」という検査を作れなくなる。
+   */
   readonly redirectTo?: string;
 };
 
 /** 見本のブログ 1 つ。読者側の画面はすべてこれで開く。 */
 export const SITE = SAMPLE_SITE_SLUG;
+const CANONICAL_ARTICLE = SAMPLE_ARTICLES.find((article) => article.siteSlug === SITE);
+const CANONICAL_ARTICLE_SLUG = CANONICAL_ARTICLE?.slug ?? "";
+/*
+  旧 `/blog/:slug` の移し先を**手で書かない。**行き先は記事の種別で変わる
+  （順位は `/best`、比較は `/compare`…）ので、固定の path を書くと
+  見本の記事が入れ替わった日に、検査だけが古い行き先を要求する。
+  画面と同じ `articleHref` から引けば、ずれようがない。
+*/
+const CANONICAL_ARTICLE_PATH =
+  CANONICAL_ARTICLE === undefined
+    ? ""
+    : siteHref(SITE, articleHref(CANONICAL_ARTICLE));
 
 /** productionの正本から射影した運営側の画面。 */
 const ADMIN_PARAM_EXAMPLES: Readonly<Record<string, string>> = {
@@ -65,7 +84,7 @@ const ADMIN_PARAM_EXAMPLES: Readonly<Record<string, string>> = {
   // `/admin/content/published/[site]/[slug]/edit` — 見本のブログに載っている
   // 公開記事 1 本。文字列を手で書かないのは `article` と同じ理由で、
   // 見本の記事が入れ替わった日に「見つかりません」を描いたまま緑になるため。
-  slug: SAMPLE_ARTICLES.find((article) => article.siteSlug === SITE)?.slug ?? "",
+  slug: CANONICAL_ARTICLE_SLUG,
   variant: "cv_alpha_review",
 };
 
@@ -119,7 +138,11 @@ const READER: readonly RouteCase[] = [
   { file: "s/[site]/authors/[author]/page.tsx", params: { site: SITE, author: "mochizuki" } },
   { file: "s/[site]/best/[topic]/page.tsx", params: { site: SITE, topic: "chairs-for-long-hours" } },
   { file: "s/[site]/blog/page.tsx", params: { site: SITE } },
-  { file: "s/[site]/blog/[article]/page.tsx", params: { site: SITE, article: BLOG_OPS_SAMPLE_ROUTE_IDS.articleSlug } },
+  {
+    file: "s/[site]/blog/[article]/page.tsx",
+    params: { site: SITE, article: CANONICAL_ARTICLE_SLUG },
+    redirectTo: CANONICAL_ARTICLE_PATH,
+  },
   { file: "s/[site]/categories/[category]/page.tsx", params: { site: SITE, category: "chairs" } },
   { file: "s/[site]/compare/[comparison]/page.tsx", params: { site: SITE, comparison: "ergo-one-vs-flexseat" } },
   { file: "s/[site]/contact/page.tsx", params: { site: SITE } },
@@ -144,6 +167,12 @@ const ENTRY: readonly RouteCase[] = [{ file: "page.tsx" }, { file: "signin/page.
 
 export const ROUTE_CASES: readonly RouteCase[] = [...ENTRY, ...ADMIN, ...READER];
 
+/**
+ * 移すだけの入口かどうか。
+ *
+ * HTMLを返す経路と分けるのは、redirect入口を描画して
+ * 404/308 を握り潰さないため。
+ */
 export function isRedirectRoute(
   route: RouteCase,
 ): route is RouteCase & { readonly redirectTo: string } {
@@ -154,7 +183,6 @@ export function isRedirectRoute(
 export const RENDERABLE_ROUTE_CASES: readonly RouteCase[] = ROUTE_CASES.filter(
   (route) => !isRedirectRoute(route),
 );
-
 /**
  * 運営側の画面だけ。**権限を持った身元で描き直す**検査が使う。
  *

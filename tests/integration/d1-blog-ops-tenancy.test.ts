@@ -13,13 +13,16 @@ import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import { drizzle } from "drizzle-orm/d1";
 import { getPlatformProxy } from "wrangler";
 import * as schema from "@/db/schema";
+import type { PublishedArticle } from "@/application/read-models/published-article";
 import type { WorkspaceId } from "@/domain/shared";
 import {
   createD1BlogOpsRepository,
   createD1PublicBlogPort,
 } from "@/infrastructure/persistence/d1/blog-ops-repository";
 import { createD1SiteRepository } from "@/infrastructure/persistence/d1/site-repository";
+import { createD1PublishedArticleWriter } from "@/infrastructure/persistence/d1/published-article-repository";
 import { sampleSites } from "@/infrastructure/persistence/sample/site-sample-repository";
+import { readPublicSiteComposition } from "@/presentation/site/public-site-projection";
 import { migrationStatements } from "../support/migrations";
 
 type TestEnv = { readonly DB: D1Database };
@@ -52,6 +55,8 @@ afterAll(async () => {
 });
 
 beforeEach(async () => {
+  await proxy.env.DB.prepare("DELETE FROM published_article_tombstones").run();
+  await proxy.env.DB.prepare("DELETE FROM published_articles").run();
   await proxy.env.DB.prepare("DELETE FROM blog_article_rating").run();
   await proxy.env.DB.prepare("DELETE FROM blog_article_tag").run();
   await proxy.env.DB.prepare("DELETE FROM blog_article_block").run();
@@ -64,11 +69,22 @@ beforeEach(async () => {
   await proxy.env.DB.prepare("DELETE FROM legal_page").run();
   await proxy.env.DB.prepare("DELETE FROM site_network_node").run();
   await proxy.env.DB.prepare("DELETE FROM site_blueprints").run();
+  await proxy.env.DB.prepare(
+    "INSERT OR IGNORE INTO categories (id, slug, name) VALUES ('cat_tenant_guide', 'tenant-guide', 'テナントガイド')",
+  ).run();
 
   const blueprint = {
     ...sampleSites()[0]!.blueprint,
     id: "sb_tenant_owned",
     workspaceId: OWNER,
+    categories: [
+      {
+        slug: "tenant-guide",
+        name: "テナントガイド",
+        oneLine: "所有者の記事カテゴリ",
+        initialArticleTypes: ["guide"],
+      },
+    ],
   };
   await proxy.env.DB.prepare(
     "INSERT INTO site_blueprints (id, workspace_id, slug, name, pattern, blueprint_json) VALUES (?, ?, ?, ?, ?, ?)",
@@ -89,7 +105,7 @@ beforeEach(async () => {
     .bind("snn_tenant_owned", String(OWNER), SITE, "所有者のブログ")
     .run();
   await proxy.env.DB.prepare(
-    "INSERT INTO articles (id, workspace_id, site_slug, slug, article_template, type, title) VALUES (?, ?, ?, ?, 'T1', 'ranking', ?)",
+    "INSERT INTO articles (id, workspace_id, site_slug, slug, article_template, type, title, category_id) VALUES (?, ?, ?, ?, 'T1', 'ranking', ?, 'cat_tenant_guide')",
   )
     .bind(ARTICLE_ID, String(OWNER), SITE, "owned-article", "所有者の記事")
     .run();
@@ -122,6 +138,35 @@ function repository() {
 function publicRepository() {
   const db = drizzle(proxy.env.DB, { schema });
   return createD1PublicBlogPort(db, createD1SiteRepository(db));
+}
+
+function publishedArticleInput(
+  over: Partial<Parameters<ReturnType<typeof repository>["saveArticle"]>[1]> = {},
+) {
+  return {
+    id: ARTICLE_ID,
+    siteSlug: SITE,
+    slug: "owned-article",
+    template: "T1" as const,
+    title: "公開する編集記事",
+    lead: "公開projectionと同じ要約",
+    status: "published" as const,
+    authorName: "所有者編集部",
+    categorySlug: "tenant-guide",
+    publishedAt: new Date("2026-09-01T00:00:00.000Z"),
+    updatedAt: new Date("2026-09-01T00:00:00.000Z"),
+    blocks: [
+      {
+        id: "bab_public_projection",
+        kind: "summary-section" as const,
+        heading: "公開本文",
+        body: "編集aggregateから決定的に写した本文",
+        position: 0,
+      },
+    ],
+    tagIds: [] as readonly string[],
+    ...over,
+  };
 }
 
 describe("記事タグ結合の DB 整合性", () => {
@@ -254,6 +299,7 @@ describe("親リソースと子リソースの workspace 境界", () => {
       lead: "",
       status: "draft",
       authorName: "",
+      categorySlug: null,
       publishedAt: null,
       updatedAt: new Date("2026-08-26T00:00:00.000Z"),
       blocks: [],
@@ -317,6 +363,7 @@ describe("親リソースと子リソースの workspace 境界", () => {
       lead: "",
       status: "draft",
       authorName: "",
+      categorySlug: "tenant-guide",
       publishedAt: null,
       updatedAt: new Date("2026-08-26T00:00:00.000Z"),
       blocks: [
@@ -596,7 +643,8 @@ describe("親リソースと子リソースの workspace 境界", () => {
       title: "途中まで書き換わってはいけない",
       lead: "",
       status: "published",
-      authorName: "",
+      authorName: "所有者編集部",
+      categorySlug: "tenant-guide",
       publishedAt: new Date("2026-08-26T00:00:00.000Z"),
       updatedAt: new Date("2026-08-26T00:00:00.000Z"),
       blocks: [
@@ -630,6 +678,277 @@ describe("親リソースと子リソースの workspace 境界", () => {
     expect(article).toEqual({ title: "所有者の記事", status: "published" });
     expect(block?.id).toBe(BLOCK_ID);
     expect(tag?.id).toBe(TAG_ID);
+    const projection = await proxy.env.DB.prepare(
+      "SELECT slug FROM published_articles WHERE source_article_id = ?",
+    )
+      .bind(ARTICLE_ID)
+      .first<{ slug: string }>();
+    expect(projection).toBeNull();
+  });
+
+  it("BlogOps公開は編集aggregate・本文・canonical projectionを1つのbatchで確定する", async () => {
+    const saved = await repository().saveArticle(OWNER, publishedArticleInput());
+    expect(saved.ok, !saved.ok ? JSON.stringify(saved.error) : "").toBe(true);
+
+    const opened = await publicRepository().openSite(SITE);
+    if (!opened.ok || opened.value === null) throw new Error("公開サイトを開けません。");
+    const [detail, list, source, composition] = await Promise.all([
+      opened.value.findArticleBySlug("owned-article"),
+      opened.value.listPublished(20),
+      opened.value.findSourceArticleId("owned-article"),
+      readPublicSiteComposition(SITE, { source: "live", port: publicRepository() }),
+    ]);
+
+    expect(detail.ok && detail.value?.sections[0]?.paragraphs).toEqual([
+      "編集aggregateから決定的に写した本文",
+    ]);
+    expect(list.ok && list.value.map((row) => row.slug)).toEqual(["owned-article"]);
+    expect(source).toEqual({ ok: true, value: ARTICLE_ID });
+    expect(composition.ok && composition.value?.counts.articles).toBe(1);
+  });
+
+  it("公開カテゴリがnullならrepository境界で拒否し空分類をprojectionへ保存しない", async () => {
+    const saved = await repository().saveArticle(
+      OWNER,
+      publishedArticleInput({ categorySlug: null }),
+    );
+    expect(saved.ok).toBe(false);
+    if (!saved.ok) {
+      expect(saved.error).toMatchObject({ code: "VALIDATION_FAILED", field: "categorySlug" });
+    }
+    const projection = await proxy.env.DB.prepare(
+      "SELECT category_slug AS categorySlug FROM published_articles WHERE site_slug = ? AND slug = ?",
+    )
+      .bind(SITE, "owned-article")
+      .first();
+    expect(projection).toBeNull();
+  });
+
+  it("AIとBlogOpsの同URL並行公開は勝者だけを確定しaggregateを分裂させない", async () => {
+    const db = drizzle(proxy.env.DB, { schema });
+    const aiWriter = createD1PublishedArticleWriter(db);
+    const aiArticle: PublishedArticle = {
+      slug: "owned-article",
+      siteSlug: SITE,
+      type: "guide",
+      title: "AI公開が作った記事",
+      summary: "AI公開の要約",
+      categorySlug: "tenant-guide",
+      publishedAt: "2026-09-01T00:00:00.000Z",
+      updatedAt: "2026-09-01T00:00:00.000Z",
+      author: { slug: "ai-author", name: "AI著者", bio: "", credentials: [] },
+      disclosureRequired: false,
+      sections: [{ id: "ai", heading: "本文", paragraphs: ["AI本文"] }],
+    };
+
+    const [ai, blogOps] = await Promise.all([
+      aiWriter.save(OWNER, aiArticle),
+      repository().saveArticle(OWNER, publishedArticleInput()),
+    ]);
+    expect([ai.ok, blogOps.ok].filter(Boolean)).toHaveLength(1);
+
+    const projection = await proxy.env.DB.prepare(
+      `SELECT source_article_id AS sourceArticleId, title
+       FROM published_articles WHERE site_slug = ? AND slug = 'owned-article'`,
+    )
+      .bind(SITE)
+      .first<{ sourceArticleId: string | null; title: string }>();
+    const aggregate = await proxy.env.DB.prepare(
+      "SELECT status, title FROM articles WHERE id = ?",
+    )
+      .bind(ARTICLE_ID)
+      .first<{ status: string; title: string }>();
+    if (projection?.sourceArticleId === null) {
+      expect(ai.ok).toBe(true);
+      expect(blogOps.ok).toBe(false);
+      expect(projection.title).toBe("AI公開が作った記事");
+      expect(aggregate).toEqual({ status: "draft", title: "所有者の記事" });
+    } else {
+      expect(ai.ok).toBe(false);
+      expect(blogOps.ok).toBe(true);
+      expect(projection).toEqual({
+        sourceArticleId: ARTICLE_ID,
+        title: "公開する編集記事",
+      });
+      expect(aggregate).toEqual({
+        status: "published",
+        title: "公開する編集記事",
+      });
+    }
+  });
+
+  it("公開中の更新とarchiveは全公開入口へ同時に反映する", async () => {
+    expect((await repository().saveArticle(OWNER, publishedArticleInput())).ok).toBe(true);
+    const updated = await repository().saveArticle(
+      OWNER,
+      publishedArticleInput({
+        title: "更新後の題名",
+        lead: "更新後の要約",
+        updatedAt: new Date("2026-09-02T00:00:00.000Z"),
+        blocks: [
+          {
+            id: "bab_public_projection_updated",
+            kind: "summary-section",
+            heading: "更新後",
+            body: "更新後の本文",
+            position: 0,
+          },
+        ],
+      }),
+    );
+    expect(updated.ok).toBe(true);
+    const afterUpdate = await publicRepository().openSite(SITE);
+    if (!afterUpdate.ok || afterUpdate.value === null) throw new Error("公開サイトを開けません。");
+    const updatedArticle = await afterUpdate.value.findArticleBySlug("owned-article");
+    expect(updatedArticle.ok && updatedArticle.value?.title).toBe("更新後の題名");
+
+    const archived = await repository().saveArticle(
+      OWNER,
+      publishedArticleInput({
+        title: "更新後の題名",
+        status: "archived",
+        updatedAt: new Date("2026-09-03T00:00:00.000Z"),
+      }),
+    );
+    expect(archived.ok).toBe(true);
+    const afterArchive = await publicRepository().openSite(SITE);
+    if (!afterArchive.ok || afterArchive.value === null) throw new Error("公開サイトを開けません。");
+    expect(await afterArchive.value.findArticleBySlug("owned-article")).toEqual({ ok: true, value: null });
+    expect(await afterArchive.value.listPublished(20)).toEqual({ ok: true, value: [] });
+    const tombstone = await proxy.env.DB.prepare(
+      "SELECT workspace_id AS workspaceId FROM published_article_tombstones WHERE site_slug = ? AND slug = ?",
+    )
+      .bind(SITE, "owned-article")
+      .first<{ workspaceId: string }>();
+    expect(tombstone?.workspaceId).toBe(String(OWNER));
+  });
+
+  it("projection書き込み失敗で編集aggregateと本文を一切変更しない", async () => {
+    await proxy.env.DB.prepare(`
+      CREATE TRIGGER fail_public_projection
+      BEFORE INSERT ON published_articles
+      BEGIN SELECT RAISE(ABORT, 'injected public projection failure'); END
+    `).run();
+    try {
+      const saved = await repository().saveArticle(OWNER, publishedArticleInput());
+      expect(saved.ok).toBe(false);
+      const article = await repository().findArticle(OWNER, ARTICLE_ID);
+      expect(article.ok && article.value?.article).toMatchObject({
+        title: "所有者の記事",
+        status: "draft",
+        revision: 1,
+      });
+      expect(article.ok && article.value?.blocks.map((block) => block.id)).toEqual([BLOCK_ID]);
+      const projection = await proxy.env.DB.prepare(
+        "SELECT slug FROM published_articles WHERE site_slug = ? AND slug = ?",
+      )
+        .bind(SITE, "owned-article")
+        .first<{ slug: string }>();
+      expect(projection).toBeNull();
+    } finally {
+      await proxy.env.DB.prepare("DROP TRIGGER IF EXISTS fail_public_projection").run();
+    }
+  });
+
+  it("削除時の墓標書き込み失敗でaggregateと公開projectionを両方戻す", async () => {
+    expect((await repository().saveArticle(OWNER, publishedArticleInput())).ok).toBe(true);
+    await proxy.env.DB.prepare(`
+      CREATE TRIGGER fail_public_tombstone
+      BEFORE INSERT ON published_article_tombstones
+      BEGIN SELECT RAISE(ABORT, 'injected public tombstone failure'); END
+    `).run();
+    try {
+      const deleted = await repository().deleteArticle(OWNER, ARTICLE_ID, DELETED_AT);
+      expect(deleted.ok).toBe(false);
+      const article = await proxy.env.DB.prepare(
+        "SELECT deleted_at AS deletedAt FROM articles WHERE id = ?",
+      )
+        .bind(ARTICLE_ID)
+        .first<{ deletedAt: number | null }>();
+      expect(article?.deletedAt).toBeNull();
+      const projection = await proxy.env.DB.prepare(
+        "SELECT source_article_id AS sourceArticleId FROM published_articles WHERE site_slug = ? AND slug = ?",
+      )
+        .bind(SITE, "owned-article")
+        .first<{ sourceArticleId: string }>();
+      expect(projection?.sourceArticleId).toBe(ARTICLE_ID);
+    } finally {
+      await proxy.env.DB.prepare("DROP TRIGGER IF EXISTS fail_public_tombstone").run();
+    }
+  });
+
+  it("公開記事を同じID・URL・本文のprojectionとして原子的に復元する", async () => {
+    expect((await repository().saveArticle(OWNER, publishedArticleInput())).ok).toBe(true);
+    expect((await repository().deleteArticle(OWNER, ARTICLE_ID, DELETED_AT)).ok).toBe(true);
+    const hidden = await publicRepository().openSite(SITE);
+    if (!hidden.ok || hidden.value === null) throw new Error("公開サイトを開けません。");
+    expect(await hidden.value.findArticleBySlug("owned-article")).toEqual({
+      ok: true,
+      value: null,
+    });
+
+    const restored = await repository().restoreArticle(
+      OWNER,
+      ARTICLE_ID,
+      new Date("2026-09-04T00:00:00.000Z"),
+    );
+    expect(restored.ok).toBe(true);
+    const opened = await publicRepository().openSite(SITE);
+    if (!opened.ok || opened.value === null) throw new Error("復元サイトを開けません。");
+    const article = await opened.value.findArticleBySlug("owned-article");
+    expect(article.ok && article.value).toMatchObject({
+      slug: "owned-article",
+      siteSlug: SITE,
+      title: "公開する編集記事",
+      sections: [
+        {
+          id: "bab_public_projection",
+          paragraphs: ["編集aggregateから決定的に写した本文"],
+        },
+      ],
+    });
+    expect(await opened.value.findSourceArticleId("owned-article")).toEqual({
+      ok: true,
+      value: ARTICLE_ID,
+    });
+  });
+
+  it("復元projectionの障害でaggregate復元と墓標削除をrollbackする", async () => {
+    expect((await repository().saveArticle(OWNER, publishedArticleInput())).ok).toBe(true);
+    expect((await repository().deleteArticle(OWNER, ARTICLE_ID, DELETED_AT)).ok).toBe(true);
+    await proxy.env.DB.prepare(`
+      CREATE TRIGGER fail_restore_projection
+      BEFORE INSERT ON published_articles
+      BEGIN SELECT RAISE(ABORT, 'injected restore projection failure'); END
+    `).run();
+    try {
+      const restored = await repository().restoreArticle(
+        OWNER,
+        ARTICLE_ID,
+        new Date("2026-09-04T00:00:00.000Z"),
+      );
+      expect(restored.ok).toBe(false);
+      const article = await proxy.env.DB.prepare(
+        "SELECT deleted_at AS deletedAt FROM articles WHERE id = ?",
+      )
+        .bind(ARTICLE_ID)
+        .first<{ deletedAt: number | null }>();
+      expect(article?.deletedAt).not.toBeNull();
+      const tombstone = await proxy.env.DB.prepare(
+        "SELECT workspace_id AS workspaceId FROM published_article_tombstones WHERE site_slug = ? AND slug = ?",
+      )
+        .bind(SITE, "owned-article")
+        .first<{ workspaceId: string }>();
+      expect(tombstone?.workspaceId).toBe(String(OWNER));
+      const projection = await proxy.env.DB.prepare(
+        "SELECT slug FROM published_articles WHERE site_slug = ? AND slug = ?",
+      )
+        .bind(SITE, "owned-article")
+        .first();
+      expect(projection).toBeNull();
+    } finally {
+      await proxy.env.DB.prepare("DROP TRIGGER IF EXISTS fail_restore_projection").run();
+    }
   });
 });
 
@@ -655,6 +974,56 @@ describe("公開 identity の workspace 境界", () => {
     )
       .bind(String(OWNER), SITE)
       .run();
+    await proxy.env.DB.prepare(
+      "INSERT INTO articles (id, workspace_id, site_slug, slug, article_template, type, title, status, published_at) VALUES ('bar_editing_only', ?, ?, 'editing-only', 'T1', 'ranking', '編集表にしかない公開印', 'published', unixepoch())",
+    )
+      .bind(String(OWNER), SITE)
+      .run();
+
+    const projectedOnly = {
+      slug: "projection-only",
+      siteSlug: SITE,
+      type: "guide",
+      title: "公開projectionにだけある記事",
+      summary: "読者が読む正本の要約",
+      categorySlug: "guide",
+      publishedAt: "2026-09-02",
+      updatedAt: "2026-09-02",
+      author: { slug: "canonical-author", name: "正本著者", bio: "経歴", credentials: [] },
+      disclosureRequired: false,
+      sections: [{ id: "body", heading: "本文", paragraphs: ["公開projectionのみにある本文"] }],
+    };
+    const canonicalOwned = {
+      ...projectedOnly,
+      slug: "owned-article",
+      title: "不一致では公開projectionが勝つ",
+      summary: "編集aggregateの題名は公開読み取りに使わない",
+      updatedAt: "2026-09-01",
+      sections: [{ id: "body", heading: "正本本文", paragraphs: ["編集側と不一致の本文"] }],
+    };
+    for (const article of [projectedOnly, canonicalOwned]) {
+      await proxy.env.DB.prepare(
+        `INSERT INTO published_articles
+          (site_slug, slug, workspace_id, type, title, summary, category_slug,
+           author_slug, author_name, published_at, updated_at, article_json)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      )
+        .bind(
+          article.siteSlug,
+          article.slug,
+          String(OWNER),
+          article.type,
+          article.title,
+          article.summary,
+          article.categorySlug,
+          article.author.slug,
+          article.author.name,
+          article.publishedAt,
+          article.updatedAt,
+          JSON.stringify(article),
+        )
+        .run();
+    }
     await proxy.env.DB.prepare(
       "INSERT INTO blog_layout_slot (id, workspace_id, site_slug, region, slot_key, title) VALUES ('bls_public_owner', ?, ?, 'header', 'global-nav', '所有者の枠')",
     )
@@ -716,17 +1085,30 @@ describe("公開 identity の workspace 境界", () => {
     expect(opened.ok && opened.value).not.toBeNull();
     if (!opened.ok || opened.value === null) return;
     const detail = await opened.value.findArticleBySlug("owned-article");
-    const draft = await opened.value.findArticleBySlug("owner-draft");
+    const editingOnly = await opened.value.findArticleBySlug("editing-only");
+    const projectionOnly = await opened.value.findArticleBySlug("projection-only");
     const list = await opened.value.listPublished(10);
     const slots = await opened.value.listLayoutSlots();
     const bands = await opened.value.listLayoutBands();
     const parts = await opened.value.listDeliveryParts();
     const network = await opened.value.listNetwork();
     const tags = await opened.value.listTags();
+    const composition = await readPublicSiteComposition(SITE, {
+      source: "live",
+      port: publicBlog,
+    });
 
-    expect(detail.ok && detail.value?.article.id).toBe(ARTICLE_ID);
-    expect(draft.ok && draft.value).toBeNull();
-    expect(list.ok && list.value.map((row) => row.id)).toEqual([ARTICLE_ID]);
+    expect(detail.ok && detail.value?.title).toBe("不一致では公開projectionが勝つ");
+    expect(detail.ok && detail.value?.sections[0]?.paragraphs).toEqual([
+      "編集側と不一致の本文",
+    ]);
+    expect(editingOnly.ok && editingOnly.value).toBeNull();
+    expect(projectionOnly.ok && projectionOnly.value?.title).toBe("公開projectionにだけある記事");
+    expect(list.ok && list.value.map((row) => row.slug)).toEqual([
+      "projection-only",
+      "owned-article",
+    ]);
+    expect(composition.ok && composition.value?.counts.articles).toBe(2);
     expect(slots.ok && slots.value.map((row) => row.id)).toEqual(["bls_public_owner"]);
     expect(bands.ok && bands.value.map((row) => row.id)).toEqual(["blb_public_owner"]);
     expect(parts.ok && parts.value.map((row) => row.id)).toEqual(["bdp_public_owner"]);
@@ -743,10 +1125,6 @@ describe("公開 identity の workspace 境界", () => {
 
 describe("サイト網と記事の論理削除・復元", () => {
   it("記事は二重削除・別 tenant・二重復元を断り、同じ ID と URL で戻る", async () => {
-    await proxy.env.DB.prepare("UPDATE articles SET status = 'published' WHERE id = ?")
-      .bind(ARTICLE_ID)
-      .run();
-
     const deleted = await repository().deleteArticle(OWNER, ARTICLE_ID, DELETED_AT);
     const twiceDeleted = await repository().deleteArticle(OWNER, ARTICLE_ID, DELETED_AT);
     const outsiderRestore = await repository().restoreArticle(OUTSIDER, ARTICLE_ID, new Date());

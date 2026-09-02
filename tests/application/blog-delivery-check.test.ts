@@ -28,6 +28,7 @@ const SITE = {
 function article(slug: string, over: Partial<{ title: string; authorName: string }> = {}) {
   return {
     slug,
+    type: "guide" as const,
     title: over.title ?? `${slug} の記事`,
     authorName: over.authorName ?? "編集部",
     updatedAt: new Date("2026-08-20T00:00:00Z"),

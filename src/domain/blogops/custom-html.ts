@@ -123,14 +123,25 @@ function hasSafeScheme(value: string): boolean {
 
 /** 1 つのタグの属性列を、残してよいものだけに削る。 */
 function keepAttributes(tagName: string, rawAttributes: string): string {
-  const allowed = ALLOWED_HTML[tagName] ?? [];
+  /*
+    **`?? []` を足さない。**この関数は、呼ぶ側が `ALLOWED_HTML[tagName] !== undefined`
+    を確かめたあとにしか呼ばれない（`sanitizeSlotHtml` の 3.）。ここでもう一度
+    確かめる形は、丁寧に見えて**どんな入力でも右辺へ到達しない枝**を作る。
+
+    到達しない枝は分岐の分母だけを増やし、「テストが薄い」という顔をして
+    層のカバレッジを押し下げる。守りを足したつもりで、測り方を壊している。
+    呼ぶ側で確かめる、という置き場所のほうを正本にする。
+  */
+  const allowed = ALLOWED_HTML[tagName] as readonly string[];
   if (allowed.length === 0) return "";
 
   const kept: string[] = [];
   const pattern = /([a-zA-Z_:][-a-zA-Z0-9_:.]*)\s*=\s*("([^"]*)"|'([^']*)'|([^\s"'>]+))/g;
   for (const match of rawAttributes.matchAll(pattern)) {
     const name = match[1].toLowerCase();
-    const value = match[3] ?? match[4] ?? match[5] ?? "";
+    // 3 つは二重引用符・一重引用符・引用符なしで、式が **どれか 1 つを必ず** 埋める。
+    // だから末尾に `?? ""` を置かない（置くと到達しない枝が 1 本増える）。
+    const value = (match[3] ?? match[4] ?? match[5]) as string;
     // `on...` は一覧に入っていても落とす (二重の留め。一覧の書き間違いを事故にしない)。
     if (name.startsWith("on")) continue;
     if (!allowed.includes(name)) continue;

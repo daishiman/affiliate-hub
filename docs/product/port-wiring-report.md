@@ -6,7 +6,7 @@
 **製品コード（`src/application` `src/presentation` `src/app`）から**
 呼ばれていないポートの手続きの一覧。テストからの呼び出しは数えない。
 
-- ポート 77 件 / 手続き 276 件
+- ポート 77 件 / 手続き 277 件
 - 呼ばれていない 50 件（上限 79）
 - 理由つきの除外 0 件（上限 0）
 
@@ -92,6 +92,6 @@
 
 | 入口 | 場所 |
 | --- | --- |
-| `createStartSiteDraftUseCase` | `src/application/usecases/site/build-site.ts:424` |
-| `createSaveSiteDraftStepUseCase` | `src/application/usecases/site/build-site.ts:516` |
-<!-- 生成物の指紋 sha256:283e211584a88047132ccdd98a35fcaf42563bfa25681bcb530b977caf39df27 -->
+| `createStartSiteDraftUseCase` | `src/application/usecases/site/build-site.ts:435` |
+| `createSaveSiteDraftStepUseCase` | `src/application/usecases/site/build-site.ts:527` |
+<!-- 生成物の指紋 sha256:b43df0e5ad174ad154531c4fd14e3c5fe58b45029c13db9cb0e2d85b7f1039c1 -->

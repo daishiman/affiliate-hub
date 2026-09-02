@@ -44,7 +44,14 @@ const KEY_BY_KIND = Object.fromEntries(
   Object.entries(KIND_BY_KEY).map(([key, kind]) => [kind, key]),
 ) as Readonly<Record<string, SiteDocumentKey | undefined>>;
 
-function toDocument(row: LegalPageRow): SiteDocument | null {
+/**
+ * 表の 1 行をサイト文書へ写す。写せない名札（この画面が扱わない `kind`）は `null`。
+ *
+ * **export しているのは、読者面の公開投影が同じ写し方を使うため。**
+ * 同じ表を 2 か所で別々に写すと、綴りの対応表が 2 つになり、
+ * 片方だけが新しい鍵を知っている日が来る。
+ */
+export function toSiteDocument(row: LegalPageRow): SiteDocument | null {
   const key = KEY_BY_KIND[row.kind];
   if (key === undefined) return null;
   return {
@@ -77,7 +84,7 @@ export function createD1SiteDocumentRepository(
           .from(legalPages)
           .where(and(eq(legalPages.workspaceId, workspaceId), eq(legalPages.siteSlug, siteSlug)));
         // 写せない名札は落とす（この画面が扱えないだけで、行としては正しい）。
-        return ok(rows.map(toDocument).filter((doc): doc is SiteDocument => doc !== null));
+        return ok(rows.map(toSiteDocument).filter((doc): doc is SiteDocument => doc !== null));
       } catch (cause) {
         return storageFailure("固定ページの取得", cause);
       }

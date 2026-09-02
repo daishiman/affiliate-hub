@@ -219,14 +219,19 @@ export function createSubmitArticleRatingUseCase(
       }
       const article = await opened.value.findArticleBySlug(input.articleSlug);
       if (!article.ok) return article;
-      if (article.value === null || article.value.article.status !== "published") {
+      if (article.value === null) {
         return err(notFound("記事", `${input.siteSlug}/${input.articleSlug}`));
+      }
+      const sourceArticleId = await opened.value.findSourceArticleId(input.articleSlug);
+      if (!sourceArticleId.ok) return sourceArticleId;
+      if (sourceArticleId.value === null) {
+        return err(notFound("評価できる記事", `${input.siteSlug}/${input.articleSlug}`));
       }
 
       const comment = input.comment?.trim() ?? "";
       const put = await deps.ratings.put({
         id: `brt_${deps.ids.newId()}`,
-        articleId: article.value.article.id,
+        articleId: sourceArticleId.value,
         readerKey,
         score: score.value,
         comment: comment === "" ? null : comment,
@@ -234,7 +239,7 @@ export function createSubmitArticleRatingUseCase(
       });
       if (!put.ok) return put;
 
-      const summary = await deps.ratings.summarize(article.value.article.id);
+      const summary = await deps.ratings.summarize(sourceArticleId.value);
       if (!summary.ok) return summary;
 
       return ok({ count: summary.value.count, average: summary.value.average });

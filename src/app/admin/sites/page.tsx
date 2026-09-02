@@ -37,8 +37,6 @@ export default async function SitesPage() {
     uc.checkDifferentiation.execute(actor, {}),
   ]);
 
-  const blocked = list.ok ? list.value.items.filter((s) => s.launchBlockedReason !== null) : [];
-
   return (
     <AdminShell
       routeId={adminOperationRouteId(operation)}
@@ -68,17 +66,9 @@ export default async function SitesPage() {
           ) : (
             <>
               <Callout
-                tone={blocked.length === 0 ? "info" : "warn"}
-                title={
-                  blocked.length === 0
-                    ? `${list.value.total}本すべて、公開に必要な固定ページが揃っています`
-                    : `${blocked.length}本に、公開に必要な固定ページが足りません`
-                }
-                reason={
-                  blocked.length === 0
-                    ? "どのブログも同じ画面と同じ部品で動いています。増やすときに書き足すのは設定値だけです。"
-                    : "広告表記の説明先が無い記事を公開させないため、固定ページが揃うまで公開できません。"
-                }
+                tone="info"
+                title={`${list.value.total}本のブログ設計図`}
+                reason="実際の公開状態と不足内容は、各ブログの詳細で確認できます。"
                 action={<TextLink href="/admin/sites/new">新しいブログを作る</TextLink>}
               />
 
@@ -95,19 +85,10 @@ export default async function SitesPage() {
                       { key: "routes", label: "出す画面", value: `${site.routeCount}種類` },
                     ]}
                   />
-                  {/*
-                    公開できない理由は `ActionNote` で出す。`Callout` にすると
-                    ブログの数だけ告知が積まれ、画面の上にある全体の告知と区別が付かない。
-                  */}
-                  {site.launchBlockedReason === null ? null : (
-                    <ActionNote tone="danger">
-                      いまは公開できません。{site.launchBlockedReason}
-                    </ActionNote>
-                  )}
                   <Note>
-                    設計図:{" "}
+                    設計図と公開状態:{" "}
                     <TextLink href={`/admin/sites/${encodeURIComponent(site.slug)}`}>
-                      {site.name}の設定を見る
+                      {site.name}の詳細を見る
                     </TextLink>
                     ／読者が見る画面:{" "}
                     <TextLink href={`/s/${encodeURIComponent(site.slug)}`}>

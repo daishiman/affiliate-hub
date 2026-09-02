@@ -13,6 +13,7 @@ export * from "./delivery-snapshot";
 export * from "./fixed-page";
 export * from "./operational-health";
 export * from "./site-network";
+export * from "./site-provisioning-defaults";
 export * from "./blog-article";
 export * from "./reader-rating";
 export * from "./prose-node";

@@ -18,6 +18,7 @@ import {
   createListManagedSitesUseCase,
 } from "@/application/usecases/site/manage-sites";
 import { SITE_WIZARD_STEPS } from "@/domain/authoring";
+import { readPublicSiteComposition } from "@/presentation/site/public-site-projection";
 import { defineTool } from "./define-tool";
 import type { AnyToolDefinition } from "./tool-definition";
 
@@ -125,6 +126,14 @@ function siteBuilderTools(deps: AppDeps): readonly AnyToolDefinition[] {
     auditLog: deps.auditLog,
     now: () => new Date(),
     capacity,
+    // 画面と同じ住所を割り当てる。ここだけ `null` を渡すと、
+    // 道具から作ったブログだけがサブドメインを持たない形になる。
+    siteBaseDomain: deps.siteBaseDomain,
+    readComposition: (siteSlug: string) =>
+      readPublicSiteComposition(siteSlug, {
+        source: deps.publicBlogSource,
+        port: deps.publicBlog,
+      }),
   };
 
   return [

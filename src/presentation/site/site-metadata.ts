@@ -1,9 +1,8 @@
 import type { Metadata } from "next";
 import { articleHref } from "@/application/read-models/published-article";
 import { siteBasePathBySlug } from "@/domain/authoring/site";
-import { publicBlogEntry, readerActor, siteUseCases } from "@/presentation/composition";
+import { readerActor, siteUseCases } from "@/presentation/composition";
 import { requestOriginFromNextHeaders } from "@/presentation/http/request-origin";
-import { findProjectedArticle, readPublicSiteProjection } from "./public-site-projection";
 
 /**
  * generateMetadata の中身（feat-blog-ui-builder §SEO/AI 検索）。
@@ -111,55 +110,6 @@ export async function articleMetadata(siteSlug: string, slug: string): Promise<M
       card: "summary",
       title: article.title,
       description: article.summary,
-    },
-  };
-}
-
-/**
- * ブログ運用で書いた記事（`/blog/<slug>`）の metadata（受入 A10）。
- *
- * **`articleMetadata` を使い回せない。**あちらは編集済みの読み取りモデルを
- * `getArticle` から引くが、この経路の記事は運用側の保管庫にしかない。
- * 無理に片方へ寄せると、片方の記事だけ静かに空の metadata になる
- * （2026-08-30 まで、この経路には canonical も OGP も出ていなかった）。
- *
- * 読めなかったときは空を返す。誤った canonical を配るより、無い方がよい。
- */
-export async function blogArticleMetadata(
-  siteSlug: string,
-  articleSlug: string,
-): Promise<Metadata> {
-  const entry = await publicBlogEntry();
-  const projected = await readPublicSiteProjection(siteSlug, entry);
-  if (!projected.ok || projected.value === null) return {};
-  const found = await findProjectedArticle(projected.value.reader, articleSlug);
-  if (!found.ok || found.value === null) return {};
-  const article = found.value.article;
-  const siteName = projected.value.reader.blueprint.name;
-  const canonical = await siteMetadataUrl(siteSlug, `/blog/${article.slug}`);
-  return {
-    title: article.title,
-    description: article.lead,
-    ...(canonical === null ? {} : { alternates: { canonical } }),
-    robots: ROBOTS,
-    openGraph: {
-      title: article.title,
-      description: article.lead,
-      type: "article",
-      ...(canonical === null ? {} : { url: canonical }),
-      siteName,
-      locale: "ja_JP",
-      // 下書きに公開日を出さない（まだ無い記事が「公開済み」に見える）。
-      ...(article.publishedAt === null
-        ? {}
-        : { publishedTime: article.publishedAt.toISOString() }),
-      modifiedTime: article.updatedAt.toISOString(),
-      authors: [article.authorName],
-    },
-    twitter: {
-      card: "summary",
-      title: article.title,
-      description: article.lead,
     },
   };
 }

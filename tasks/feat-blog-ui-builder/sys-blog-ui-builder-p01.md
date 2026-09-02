@@ -12,15 +12,15 @@ iteration: null
 title: "ブログ UI ビルダーの要求ベースライン確定"
 owners: ["daishiman"]
 created_at: "2026-08-28T13:02:37Z"
-updated_at: "2026-08-28T13:02:37Z"
-status: "active"
+updated_at: "2026-08-30T03:59:19Z"
+status: "closed"
 depends_on: []
 related_nodes: []
 resource_scope: ["docs/spec/feat-blog-ui-builder/requirements-baseline.md","docs/spec/feat-blog-ui-builder/screen-inventory.md","docs/spec/feat-blog-ui-builder/information-priority-map.json"]
 purpose: "feat-blog-ui-builder の受入14件 (A1-A14) を実装着手前に一意で検証可能な要求ベースラインへ確定し、テンプレート6種・配色2層・sticky常時表示・固定ページ6種・記事表現ブロック5種・blog_affiliate_placement一覧/逆引き・SEO/AI検索最適化 (JSON-LD/sitemap/robots/llms.txt/IndexNow/guideline_references) の各要求を、既存 src/app/admin/sites 配下と src/app/s/[site] 配下の画面棚卸しに接地させた状態を成立させる。"
 goal: "feat-blog-ui-builder の受入14件 (A1-A14) を実装着手前に一意で検証可能な要求ベースラインへ確定し、テンプレート6種・配色2層・sticky常時表示・固定ページ6種・記事表現ブロック5種・blog_affiliate_placement一覧/逆引き・SEO/AI検索最適化 (JSON-LD/sitemap/robots/llms.txt/IndexNow/guideline_references) の各要求を、既存 src/app/admin/sites 配下と src/app/s/[site] 配下の画面棚卸しに接地させた状態を成立させる。"
 scope_in: ["Produced artifacts: docs/spec/feat-blog-ui-builder/requirements-baseline.md (A1-A14の検証可能化と参照仕様の対応表); docs/spec/feat-blog-ui-builder/screen-inventory.md (既存 src/app/admin/sites・src/app/s/[site] の棚卸しと新規画面差分); docs/spec/feat-blog-ui-builder/information-priority-map.json (画面別の残す/落とす/加工する情報の優先度束)","Consumed artifacts: features/feat-blog-ui-builder.md, features/feat-blog-ui-builder.context.json, system-spec/ui-ux.md, system-spec/frontend.md, system-spec/database.md","Write scope/touches: docs/spec/feat-blog-ui-builder/requirements-baseline.md, docs/spec/feat-blog-ui-builder/screen-inventory.md, docs/spec/feat-blog-ui-builder/information-priority-map.json"]
-scope_out: ["feat-blog-ui-builder の scope_out (記事本文のAI生成本体・アフィリエイトURL登録/商品識別・クリック計測分析基盤・管理画面全体の単一用途画面再編・独自ドメイン運用) に該当する変更","参考ブログの機械取得や文章・素材の複製"]
+scope_out: ["feat-blog-ui-builder の scope_out (記事本文のAI生成本体・アフィリエイトURL登録/商品識別・クリック計測分析基盤・管理画面全体の単一用途画面再編・独自ドメイン運用) に該当する変更","makuring.jp の機械取得や文章・素材の複製"]
 acceptance: ["Automated commands: `pnpm run typecheck` (要求文書中の information-priority-map.json が既存型契約と矛盾しないことを静的に確認する)","Automated commands: `python3 .claude/plugins/system-dev-planner/scripts/validate-system-plan.py --repo-root . --feature-package feature-package/feat-blog-ui-builder` (本 package の C12 決定論検証を世代非依存に再実行する)","Required evidence: P01 の 成果物 section に記載した produced artifacts のパス"]
 architecture_refs: ["arch-two-layer-platform"]
 parent_feature: "feat-blog-ui-builder"
@@ -38,7 +38,7 @@ classification_reason: "feat-blog-ui-builder の P01 lifecycle 責務への確�
 classification_candidates: [{"artifact_kind":"task","candidate_path":"tasks/feat-blog-ui-builder/sys-blog-ui-builder-p01.md","confidence":1}]
 issue_linkage: null
 tracker_binding: "beads"
-beads_linkage: null
+beads_linkage: {"bd_issue_id":"ah-45ba.1","github_mirror":null,"linked_at":"2026-08-28T13:02:37Z","sync_state":"linked"}
 github_publication: {"labels":[],"milestone":null,"mode":"local_only","project_aliases":[]}
 github_project_linkages: []
 pull_request_linkages: []

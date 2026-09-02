@@ -3,59 +3,45 @@
  * @req REQ-TS09
  * @types code-boundary
  *
- * 読者向けの一覧は、保存済み・予約済み URL・非表示 URL・見本を
- * 同じ規則で重ねる。この規則が reader ごとに複製されると、たとえば
- * archive だけ見本へ戻る、という差が生まれる。
- *
- * SQL の絞り込みはカテゴリ・検索・書き手それぞれに残し、
- * 重ねる規則だけを DB に触れない 1 つの pure helper へ集める。
+ * D1/live の読者向け一覧は、D1 に保存された公開記事だけを返す。
+ * sample repository を混ぜると、一覧に出たURLを別readerで開いたとき
+ * 404になるため、adapter境界でimport自体を禁止する。
  */
 
-import { readFileSync } from "node:fs";
+import { readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
-import ts from "typescript";
 import { describe, expect, it } from "vitest";
 
 const SOURCE_PATH = "src/infrastructure/persistence/d1/published-article-repository.ts";
 const source = readFileSync(join(process.cwd(), SOURCE_PATH), "utf8");
-const sourceFile = ts.createSourceFile(
-  SOURCE_PATH,
-  source,
-  ts.ScriptTarget.Latest,
-  true,
-  ts.ScriptKind.TS,
+const blogOpsSource = readFileSync(
+  join(process.cwd(), "src/infrastructure/persistence/d1/blog-ops-repository.ts"),
+  "utf8",
 );
-
-function callsOf(name: string): readonly ts.CallExpression[] {
-  const found: ts.CallExpression[] = [];
-  function visit(node: ts.Node): void {
-    if (ts.isCallExpression(node) && ts.isIdentifier(node.expression) && node.expression.text === name) {
-      found.push(node);
-    }
-    ts.forEachChild(node, visit);
-  }
-  visit(sourceFile);
-  return found;
-}
-
-describe("公開済み記事 reader の重ね方", () => {
-  it("保存済み・見本・非表示の merge 規則を 1 つの pure helper からだけ呼ぶ", () => {
-    const calls = callsOf("mergeBySlug");
-    expect(
-      calls,
-      "mergeBySlug を reader ごとに呼ぶと、archive/tombstone の見本補完規則が分岐します。",
-    ).toHaveLength(1);
-
-    const owner = calls[0]?.parent;
-    let enclosing: ts.Node | undefined = owner;
-    while (enclosing !== undefined && !ts.isFunctionLike(enclosing)) enclosing = enclosing.parent;
-    expect(
-      ts.isFunctionDeclaration(enclosing) && enclosing.parent === sourceFile,
-      "merge の統合点は repository factory の外に置いた pure helper にしてください。",
-    ).toBe(true);
-
-    const helperSource = enclosing?.getText(sourceFile) ?? "";
-    expect(helperSource).not.toMatch(/\b(?:await|db)\b/);
+const publicBlogAdapter = blogOpsSource.slice(
+  blogOpsSource.indexOf("export function createD1PublicBlogPort"),
+);
+const blogIndexSource = readFileSync(
+  join(process.cwd(), "src/app/s/[site]/blog/page.tsx"),
+  "utf8",
+);
+const legacyDetailSource = readFileSync(
+  join(process.cwd(), "src/app/s/[site]/blog/[article]/page.tsx"),
+  "utf8",
+);
+const topBandsSource = readFileSync(
+  join(process.cwd(), "src/presentation/site/blog-top-bands.tsx"),
+  "utf8",
+);
+const adminSource = source.slice(
+  source.indexOf("export function createD1PublishedArticleAdminRepository"),
+);
+describe("公開済み記事 reader の live/sample 境界", () => {
+  it("D1 adapter が sample repository を import・fallbackしない", () => {
+    expect(source).not.toMatch(/from\s+["'][^"']*\/sample\//);
+    expect(source).not.toContain("createSampleContentRepository");
+    expect(source).not.toContain("samples.");
+    expect(source).not.toContain("mergeBySlug");
   });
 
   it("カテゴリ・検索・書き手の SQL 条件はそれぞれの reader に残す", () => {
@@ -63,5 +49,43 @@ describe("公開済み記事 reader の重ね方", () => {
     expect(source).toContain("like(publishedArticles.title, `%${trimmed}%`)");
     expect(source).toContain("like(publishedArticles.summary, `%${trimmed}%`)");
     expect(source).toContain("eq(publishedArticles.authorSlug, personSlug)");
+  });
+
+  it("PublicBlog は編集 aggregate を公開用に直読みせず canonical reader へ委譲する", () => {
+    expect(publicBlogAdapter).not.toContain(".from(blogArticles)");
+    expect(publicBlogAdapter).toContain("publishedContent.findArticle");
+    expect(publicBlogAdapter).toContain("publishedContent.listRecent");
+  });
+
+  it("公開一覧・トップ帯は articleHref を唯一の URL 組み立てに使う", () => {
+    expect(blogIndexSource).toContain("articleHref(a)");
+    expect(topBandsSource).toContain("articleHref(a)");
+    expect(blogIndexSource).not.toContain("`/blog/${a.slug}`");
+    expect(topBandsSource).not.toContain("`/blog/${a.slug}`");
+  });
+
+  it("過去の /blog/:slug は同じ公開projectionからcanonical URLへ308にする", () => {
+    expect(legacyDetailSource).toContain("permanentRedirect");
+    expect(legacyDetailSource).toContain("articleHref(");
+    expect(legacyDetailSource).not.toContain("BlogArticleView");
+  });
+
+  it("公開projectionの直接writerは共有statement builderの1ファイルだけ", () => {
+    const d1Dir = join(process.cwd(), "src/infrastructure/persistence/d1");
+    const writers = readdirSync(d1Dir)
+      .filter((file) => file.endsWith(".ts"))
+      .filter((file) => {
+        const body = readFileSync(join(d1Dir, file), "utf8");
+        return /\.(insert|update|delete)\(publishedArticles\)/.test(body);
+      })
+      .map((file) => `src/infrastructure/persistence/d1/${file}`);
+    expect(writers).toEqual([SOURCE_PATH]);
+    expect(blogOpsSource).not.toMatch(/\.(insert|update|delete)\(publishedArticles\)/);
+  });
+
+  it("AI公開の管理口はBlogOps由来projectionを一覧・訂正・archive対象にしない", () => {
+    expect(
+      adminSource.match(/isNull\(publishedArticles\.sourceArticleId\)/g),
+    ).toHaveLength(4);
   });
 });

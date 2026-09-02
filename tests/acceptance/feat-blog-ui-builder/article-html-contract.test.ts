@@ -117,65 +117,66 @@ describe("A10 記事 HTML の構造化データ", () => {
 });
 
 /**
- * A10 のもう一方の入口。
+ * A10 のもう一方の入口——**だったところ**。
  *
- * 公開面には記事の入口が **2 系統**ある。
+ * 2026-08-30 の時点で、公開面には記事の入口が 2 系統あった。
  *   - `/best` `/guides` `/reviews` `/compare` → `article-page.tsx`（上で見た）
  *   - `/blog/<slug>` → `src/app/s/[site]/blog/[article]/page.tsx`
+ * 前者は編集済みの読み取りモデル、後者は運用側の記事集約を通り、
+ * **後者には canonical も OGP も JSON-LD も無かった**（実測: `ld+json` 0 件）。
+ * 当時の手当ては、後者にも同じ 4 つを置くことだった。
  *
- * 前者は編集済みの読み取りモデル、後者は運用側の記事集約を通る。
- * 2026-08-30 まで**後者には canonical も OGP も JSON-LD も無かった**
- * （実測: `curl` の応答に `ld+json` が 0 件）。同じ受入 A10 の対象なのに、
- * 上の検査は前者のファイルしか読んでいないので気づけなかった。
+ * **2026-09-02 に、入口の数が 1 つに戻った。**`published_articles` が唯一の
+ * 公開 projection になり、ブログ運用で書いた記事も種別に応じた正規 URL
+ * （`/reviews/<slug>` など）で開くようになった。`/blog/<slug>` は 308 で
+ * そこへ寄せるだけの旧入口である。
  *
- * 「同じ画面に見えるものが同じ経路とは限らない」——入口ごとに見る。
+ * だからここで見るものが裏返る。**この画面が構造化データを持たないこと**を
+ * 見る。308 の応答は本文を返さず、読む側は必ず寄せた先を読む。ここに
+ * JSON-LD や `generateMetadata` を置くと、誰も読まない題名のために記事を
+ * 1 回余計に読み、題名の作り方を 2 か所に持つことになる（受入 A10 の中身は
+ * 上の `article-page.tsx` の describe が持つ）。
  */
 const BLOG_PAGE = readFileSync(
   new URL("../../../src/app/s/[site]/blog/[article]/page.tsx", import.meta.url),
   "utf8",
 );
 
-describe("A10 ブログ運用で書いた記事の構造化データ", () => {
+describe("A10 旧 `/blog/` の入口は、本文を描かず正規 URL へ寄せる", () => {
   it("読み込んだ画面の本文が空でない（テスト自身の前提）", () => {
-    expect(BLOG_PAGE.length).toBeGreaterThan(1000);
-    expect(BLOG_PAGE).toContain("BlogArticlePage");
+    expect(BLOG_PAGE.length).toBeGreaterThan(200);
+    expect(BLOG_PAGE).toContain("LegacyBlogArticlePage");
   });
 
+  /**
+   * 行き先を**この画面で組み立てない。**`/reviews/<slug>` のような道を
+   * ここへ書くと、記事の種別が増えた日にこの 1 枚だけ古い写し方で残り、
+   * 旧 URL から来た読者が消えた道へ 308 で送られる。
+   */
+  it("308 で寄せ、行き先は `articleHref` から引く", () => {
+    expect(BLOG_PAGE).toContain("permanentRedirect(");
+    expect(BLOG_PAGE).toContain("articleHref(found.value)");
+  });
+
+  /**
+   * 無い記事を 308 で送ると、寄せた先で 404 になる。
+   * 旧 URL の時点で無いと答える方が、読者にも検索側にも短い。
+   */
+  it("無い記事は寄せずに 404 で閉じる", () => {
+    expect(BLOG_PAGE).toContain("notFound()");
+  });
+
+  /*
+    見るのは**書き出しの宣言**であって、語の出現ではない。
+    ただの `toContain("generateMetadata")` にすると、
+    「ここに generateMetadata を残すな」と説明したコメント自身に当たって
+    赤くなる——理由を書いた文章が検査を壊す形になってしまう。
+  */
   it.each([
-    ["buildBlogOpsPosting", "記事そのもの"],
-    ["buildBreadcrumbList", "現在地"],
-  ])("%s が JSON-LD として画面に置かれている（%s）", (builder) => {
-    const tags = BLOG_PAGE.split("<JsonLdScript")
-      .slice(1)
-      .filter((body) => body.includes("value="));
-    expect(
-      tags.some((body) => body.includes(builder)),
-      `${builder} が ld+json の外にある／消えている`,
-    ).toBe(true);
-  });
-
-  /**
-   * canonical と OGP は `generateMetadata` からしか出せない。
-   * 無いと、この経路の記事だけ検索結果と SNS で無題のまま扱われる。
-   */
-  it("generateMetadata を持ち、記事ごとの metadata を作る", () => {
-    expect(BLOG_PAGE).toMatch(/export\s+async\s+function\s+generateMetadata/);
-    expect(BLOG_PAGE).toContain("blogArticleMetadata(site, article)");
-  });
-
-  it("origin を環境変数へ固定していない", () => {
-    expect(BLOG_PAGE).toContain("requestOriginFromNextHeaders()");
-    expect(BLOG_PAGE).not.toContain("x-forwarded-host");
-    expect(BLOG_PAGE).not.toMatch(/process\.env\.[A-Z_]*(ORIGIN|SITE_URL|BASE_URL)/);
-  });
-
-  /**
-   * 構造化データは**本文と同じ記事集約**から作る。
-   * 画面用に別途読み直すと、読者に見える更新日と `dateModified` がずれる。
-   */
-  it("構造化データは画面と同じ記事集約から作る", () => {
-    expect(BLOG_PAGE).toContain("article: detail.article");
-    expect(BLOG_PAGE).toContain("blocks: detail.blocks");
+    [/<JsonLdScript/, "構造化データ"],
+    [/export\s+(async\s+function|const)\s+generateMetadata\b/, "題名と canonical"],
+  ])("%s を持たない（%s は寄せた先が持つ）", (marker) => {
+    expect(BLOG_PAGE).not.toMatch(marker);
   });
 });
 

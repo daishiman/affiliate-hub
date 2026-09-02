@@ -384,7 +384,8 @@ describe.each(
     cleanup();
     expect(unnamed, `名前の無いまとまり: ${unnamed.join(" / ")}`).toEqual([]);
   });
-});
+  },
+);
 
 describe.each(ROUTE_STATE_CASES.map((r) => [`${r.file} — ${r.state}`, r] as const))(
   "%s",

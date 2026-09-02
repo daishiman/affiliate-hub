@@ -91,7 +91,18 @@ type PortMethod = {
   readonly params: readonly { name: string; typeText: string }[];
 };
 
-/** `export type X = {...}` の本文に `workspaceId` があるか、domain 全体を読んで表にする。 */
+/**
+ * `export type X = {...}` の本文に `workspaceId` があるか、型宣言を読んで表にする。
+ *
+ * 読む先は domain だけでなく **ports も**含める。この検査が確かめたいのは
+ * 「渡している型が保存の時点で作業場所を知っているか」であって、
+ * その型がどの層で宣言されているかではない。domain だけを読んでいると、
+ * 入口専用の入力型（`SiteProvisionRequest` のような、実体ではなく
+ * 「これから書くもの一式」を表す型）に `workspaceId` を足しても
+ * 検査からは見えず、直したのに落ち続ける。
+ * 直し方が「型を domain へ動かす」になってしまうと、層の分け方のほうが
+ * 検査に引きずられる。
+ */
 function domainTypesWithWorkspaceId(): ReadonlySet<string> {
   const found = new Set<string>();
   const walk = (dir: string): string[] =>
@@ -99,7 +110,7 @@ function domainTypesWithWorkspaceId(): ReadonlySet<string> {
       e.isDirectory() ? walk(join(dir, e.name)) : e.name.endsWith(".ts") ? [join(dir, e.name)] : [],
     );
 
-  for (const file of walk(DOMAIN_DIR)) {
+  for (const file of [...walk(DOMAIN_DIR), ...walk(PORTS_DIR)]) {
     const src = ts.createSourceFile(
       file,
       readFileSync(file, "utf8"),

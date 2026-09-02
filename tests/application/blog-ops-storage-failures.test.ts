@@ -49,7 +49,7 @@ import {
   createUpdateSiteNetworkNodeUseCase,
 } from "@/application/usecases/blog-ops";
 import { DELIVERY_PARTS, SIDEBAR_SLOT_KEYS, TOP_BANDS } from "@/domain/blogops";
-import { type DomainError, type Result, domainError, err, isErr } from "@/domain/shared";
+import { type DomainError, type Result, domainError, err, isErr, ok } from "@/domain/shared";
 import { WORKSPACE, anOwner } from "../support/actors";
 import { NOW } from "../support/clock";
 import { type Store, article, fakeRepository, node, sequentialIds } from "../support/blog-ops-fake";
@@ -84,6 +84,24 @@ function brokenDeps(name: keyof BlogOpsRepositoryPort, seed: Partial<Store> = {}
     audit,
     deps: {
       repository: breaking(repo.port, name),
+      publishedContent: {
+        listRecent: async () =>
+          ok(
+            repo.store.articles
+              .map((detail) => detail.article)
+              .filter((candidate) => candidate.status === "published")
+              .map((candidate) => ({
+                slug: candidate.slug,
+                siteSlug: candidate.siteSlug,
+                type: "guide" as const,
+                title: candidate.title,
+                summary: candidate.lead,
+                categorySlug: candidate.categorySlug ?? "uncategorized",
+                updatedAt: candidate.updatedAt.toISOString(),
+                authorName: candidate.authorName,
+              })),
+          ),
+      },
       ids: sequentialIds(),
       auditLog: audit.port,
       now: () => NOW,
@@ -225,6 +243,7 @@ describe("記事 — 口が 1 本落ちたら断る", () => {
           title: "新しい記事",
           lead: "",
           authorName: "編集部",
+          categorySlug: "chairs",
         }),
       );
       expect(audit.entries()).toHaveLength(0);
@@ -389,6 +408,31 @@ describe("版面と配信物 — 口が 1 本落ちたら断る", () => {
     });
     expectOutage(
       await createCheckBlogDeliveryUseCase(deps).execute(anOwner(), {
+        siteSlug: "hub",
+        siteName: "中心のブログ",
+        purpose: "道具選びの記録",
+        origin: "https://example.test",
+        basePath: "/s/hub",
+        emitLlmsTxt: true,
+      }),
+    );
+    expect(audit.entries()).toHaveLength(0);
+  });
+
+  it("点検は、公開 projection を読めなければ記事 0 件として続けない", async () => {
+    const { deps, audit } = brokenDeps("saveDeliverySnapshot", {
+      network: [HUB],
+      articles: [DETAIL],
+    });
+    const failedPublicRead = {
+      ...deps,
+      publishedContent: {
+        listRecent: async (): Promise<Result<never, DomainError>> => err(OUTAGE),
+      },
+    };
+
+    expectOutage(
+      await createCheckBlogDeliveryUseCase(failedPublicRead).execute(anOwner(), {
         siteSlug: "hub",
         siteName: "中心のブログ",
         purpose: "道具選びの記録",

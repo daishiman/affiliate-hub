@@ -6,8 +6,9 @@
  * 印を 1 行に収めてあるのは、`scripts/required-test-types.mjs` の `@req` の
  * 読み取りが `*` で止まるためで、折り返すと 2 行目の要件が黙って落ちる。
  */
+import { execFileSync } from "node:child_process";
 import { existsSync, readFileSync, readdirSync } from "node:fs";
-import { join } from "node:path";
+import { isAbsolute, join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { EVAL_CASES } from "../../evals/generation/cases";
 import { AI_EVAL_BUDGET, CHECKS, LAYER_COVERAGE, TIERS } from "../../quality-gates.config.mjs";
@@ -443,6 +444,26 @@ describe("手元と機械で同じ検査が走る（REQ-CI01 / REQ-CI03）", () 
         そもそも取り残しが出る状態では、列を足す前に guard 表の CHECK で止まる。
       */
       "0041_blog_appearance_workspace",
+      /*
+        2026-09-02: dev を取り込んだとき、0041 を**両側が別の中身で名乗って**いた。
+        0036 / 0039 のときと同じ規準で決める——dev の `0041_blog_appearance_workspace`
+        は dev 環境の d1_migrations に名前が入っており、こちらの 2 本はまだ
+        どこへも流れていない。**実体が動いていない側**をずらす。
+
+        触る表は重ならない（dev は `blog_theme` / `page_theme_override` /
+        `blog_affiliate_placement`、こちらは `site_drafts` / `site_blueprints` /
+        `articles` / `published_articles`）ので、番号を振り直せば両立する。
+
+        site作成claimのDB保証と、設計図だけあってサイト網の節点が無い
+        ブログの補填。後者が「13 問に答えて作成済みと出るのに
+        `/s/<URL名>` が 404」の実体である。hostname移行は担わない。
+      */
+      "0042_small_amphibian",
+      /*
+        編集aggregateと公開projectionを由来IDで結び、公開記事の二正本を解消する。
+        既存データは消さず、曖昧な所有権・URL競合・墓標共存では適用を停止する。
+      */
+      "0043_canonical_public_articles",
     ];
     const journal = JSON.parse(read("drizzle/meta/_journal.json")) as {
       entries: Array<{ tag: string }>;
@@ -1072,5 +1093,103 @@ describe("必須チェックの名前が保護設定と噛み合う（REQ-CI01�
       /execFileSync\(\s*["']gh["']|fetch\(.*api\.github\.com/.test(code),
       "保護設定を実際に読む道ができたようです。⑤に従って反転させてください",
     ).toBe(false);
+  });
+});
+
+describe("ブログ用 wildcard domain の構成は、未設定を準備完了と扱わない", () => {
+  type DomainReadiness = {
+    readonly status: "ready" | "blocked";
+    readonly baseDomain: string | null;
+    readonly workerRoute: string | null;
+    readonly proxiedWildcardDnsEvidence: string | null;
+    readonly blockers: readonly string[];
+  };
+
+  const wranglerCode = read("wrangler.jsonc")
+    .split("\n")
+    .filter((line) => !/^\s*\/\//.test(line))
+    .join("\n");
+  const baseDomains = [...wranglerCode.matchAll(/"SITE_BASE_DOMAIN"\s*:\s*"([^"]*)"/g)].map(
+    (match) => match[1] ?? "",
+  );
+  const activeRoutes = [...wranglerCode.matchAll(/"pattern"\s*:\s*"(\*\.[^"]+\/\*)"/g)].map(
+    (match) => match[1] ?? "",
+  );
+  const readiness = JSON.parse(read("config/site-domain-readiness.json")) as DomainReadiness;
+
+  it("手元・dev・production の 3 構成を見落とさない", () => {
+    expect(baseDomains).toHaveLength(3);
+  });
+
+  it("実ドメイン・route・DNS 証跡が揃うまで blocked を明示する", () => {
+    const configuredDomains = baseDomains.filter((domain) => domain.trim() !== "");
+    const fullyConfigured =
+      configuredDomains.length === baseDomains.length &&
+      new Set(configuredDomains).size === 1 &&
+      activeRoutes.length === 1 &&
+      readiness.proxiedWildcardDnsEvidence !== null;
+
+    if (!fullyConfigured) {
+      expect(readiness.status).toBe("blocked");
+      expect(readiness.baseDomain).toBeNull();
+      expect(readiness.workerRoute).toBeNull();
+      expect(readiness.proxiedWildcardDnsEvidence).toBeNull();
+      expect(readiness.blockers.length).toBeGreaterThan(0);
+      return;
+    }
+
+    const baseDomain = configuredDomains[0];
+    expect(readiness.status).toBe("ready");
+    expect(readiness.baseDomain).toBe(baseDomain);
+    expect(readiness.workerRoute).toBe(`*.${baseDomain}/*`);
+    expect(activeRoutes).toEqual([`*.${baseDomain}/*`]);
+    expect(readiness.blockers).toEqual([]);
+  });
+});
+
+/**
+ * git のフック置き場。**設定ファイルではなく、手元の git 設定にだけ存在する。**
+ *
+ * だからリポジトリを読むどの検査にも映らない。実測 2026-09-02、この
+ * ワークツリーの `core.hooksPath` は `.beads/hooks` を指していたが、
+ * **そのディレクトリはどこにも無かった。**git は文句を言わない。
+ * 指し先が無いときは「フックが 1 つも無い」として黙って進む。
+ *
+ * いまは実フックが 1 つも無いので実害は出ていない。**危ないのはこの先である。**
+ * pre-commit を導入した日、それは動かないまま「入れた」ことになる。
+ * 動かない見張りは、無い見張りより悪い。あると思われているぶんだけ悪い。
+ */
+describe("git のフック置き場", () => {
+  /** 手元の git 設定を読む。未設定なら `null`（CI と素の checkout がこれ）。 */
+  function hooksPath(): string | null {
+    try {
+      const value = execFileSync("git", ["config", "core.hooksPath"], {
+        encoding: "utf8",
+        cwd: process.cwd(),
+      }).trim();
+      return value === "" ? null : value;
+    } catch {
+      // 未設定のとき git は終了コード 1 を返す。これは異常ではない。
+      return null;
+    }
+  }
+
+  it("向き先を決めているなら、そこが実在する", () => {
+    const configured = hooksPath();
+    // **設定していないこと自体は責めない。**既定の `.git/hooks` が使われる。
+    // ここが見張っているのは「決めたのに、そこが無い」という状態だけである。
+    if (configured === null) return;
+
+    const resolved = isAbsolute(configured) ? configured : join(process.cwd(), configured);
+    expect(
+      existsSync(resolved),
+      [
+        `core.hooksPath が ${configured} を指していますが、そこにディレクトリがありません。`,
+        "この状態の git は、フックを 1 つも実行しないまま黙って成功します。",
+        "",
+        "使っていない設定なら外してください: `git config --unset core.hooksPath`",
+        "（外すと既定の .git/hooks に戻ります）",
+      ].join("\n"),
+    ).toBe(true);
   });
 });

@@ -15,7 +15,7 @@ serves_goals: [G2, G1]
 
 | プラットフォーム | 状態 | 根拠 |
 |---|---|---|
-| Web (web) | 確定 | 確定質疑: qa-backend-web-spec-intake。裏付け質疑 (`qa_refs`): `qa-backend-web`, `qa-backend-web-analytics`, `qa-backend-web-overhaul-v2` — 本章の「確定内容 (質疑録)」へ接地根拠として併記 |
+| Web (web) | 確定 | 確定質疑: qa-backend-web-blog-creation-atomicity。裏付け質疑 (`qa_refs`): `qa-backend-web-spec-intake`, `qa-backend-web`, `qa-backend-web-analytics`, `qa-backend-web-overhaul-v2` — 本章の「確定内容 (質疑録)」へ接地根拠として併記 |
 | モバイル (mobile) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |
 | タブレット (tablet) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |
 | デスクトップ (Windows) (desktop-windows) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |
@@ -24,7 +24,13 @@ serves_goals: [G2, G1]
 
 ## 確定内容 (質疑録)
 
-### qa-backend-web-spec-intake (対応セル: web)
+### qa-backend-web-blog-creation-atomicity (対応セル: web)
+
+**質問**: ブログ作成の完了条件をどう定義し、サブドメインから slug への解決をどこで行うか。
+
+**回答**: 作成ユースケースは create-only の Unit of Work が完了したときだけ成功を返す。1つでも失敗したら全体を巻き戻し、成功メッセージも読者リンクも出さない。下書き保存は expected revision の CAS、作成は同じ revision の DB claim を要求し、古い回答や作成後の遅延保存を conflict にする。作成直後は provisioningComplete を fixed pages/全 provisioned bands・slots/categories/network から判定し、公開表示用の enabled layout、および公開固定ページと articles を要求する contentReady と分離する。D1/live の公開 reader へ code sample fallback を混ぜず、記事一覧・本文・composition は同じ PublicBlog の保存実体を読む。ホスト→slug の解決は middleware が単一の場所で行い、<slug>.<基底ドメイン> を受けたら既存の /s/<slug> ルートへ内部委譲する。ブログ1本ごとにルートもコードも増やさない。未知ホストは404とし、存在するブログの一覧を推測させない。
+
+### qa-backend-web-spec-intake (対応セル: web) — 接地根拠 (required_info/qa_refs が名指す裏付け)
 
 **質問**: backend×web: 二層構造での WebMCP 契約・禁止依存・生成基盤の設計制約は何か (書面入力 docs/spec/04 §3 §4 / 05 / 07 §0)
 
@@ -239,13 +245,35 @@ consumerとproviderの独立変更を支える安定した契約を作り、再�
 
 #### 本章での適用
 
-##### 確定内容 qa-backend-web-spec-intake (対応セル: web)
+##### 確定内容 qa-backend-web-blog-creation-atomicity (対応セル: web)
 
-- 確定要件: | 登録先 | **`document.modelContext`**。`navigator.modelContext` は Chrome 150 で非推奨のため legacy fallback 専用（CHG-001） |
-| ツール数 | 1ページあたり原則6個以下 |
-| FD-1 | ランキング式を UI 層・WebMCP 層へ重複実装する | `src/lib/domain/ranking.ts` 以外に重み計算が現れないことを grep テストで固定 |
-| FD-2 | 報酬データを推薦スコアの入力にする | Ranking Service の入力型に Commercial DB 由来の型が含まれないことを型で担保 |
-| FD-4 | WebMCP でしか到達できない機能を作る | 全 WebMCP ツールに対応する通常 UI 経路が存在することをトレーサビリティ表で確認 |
+- 確定要件: 作成ユースケースは create-only の Unit of Work が完了したときだけ成功を返す。1つでも失敗したら全体を巻き戻し、成功メッセージも読者リンクも出さない。下書き保存は expected revision の CAS、作成は同じ revision の DB claim を要求し、古い回答や作成後の遅延保存を conflict にする。作成直後は provisioningComplete を fixed pages/全 provisioned bands・slots/categories/network から判定し、公開表示用の enabled layout、および公開固定ページと articles を要求する contentReady と分離する。D1/live の公開 reader へ code sample fallback を混ぜず、記事一覧・本文・composition は同じ PublicBlog の保存実体を読む。ホスト→slug の解決は middleware が単一の場所で行い、<slug>.<基底ドメイン> を受けたら既存の /s/<slug> ルートへ内部委譲する。ブログ1本ごとにルートもコードも増やさない。未知ホストは404とし、存在するブログの一覧を推測させない。
+- 設計解釈の記録経路: `dialogue`
+- 原則: Use Cases — application 固有の処理を delivery/persistence から独立して表し、成功の定義を use case 側が持つ (`clean-architecture.md#中核概念`)
+  - 採否: `applied`
+  - 章固有の根拠: createCreateSiteFromDraftUseCase は新規作成専用とし、既存 slug を上書きしない。source draft claim・設計図・必須実体・下書き完了・作成監査を persistence の 1 Unit of Work に渡し、1 つでも失敗したら全体を巻き戻して成功を返さない
+  - トレードオフ:
+    - use case が知る実体が増えるため、persistence 側の port が太る。port を分割しすぎると原子性を保証する主体が曖昧になるので、transaction 境界を握る port を 1 つに保つ
+- 原則: Ports and Adapters / DIP — 内側が必要な port を定義し、外側 adapter が実装する (`clean-architecture.md#中核概念`)
+  - 採否: `applied`
+  - 章固有の根拠: ホスト名から slug を導く解決は middleware という単一の場所で行い、<slug>.<基底ドメイン> を受けたら既存の /s/<slug> ルートへ内部委譲する。ブログ 1 本ごとにルートもコードも増やさない。ホスト解決は外側 adapter の関心で、内側の use case は解決済みの site identity だけを受け取る
+  - トレードオフ:
+    - middleware に判定が集まるため、ここが単一障害点になる。逆に判定箇所が 1 か所に閉じることでテナント境界の検査対象も 1 か所で済む
+    - 未知ホストを 404 とする方針は、設定ミスとブログ不在を利用者から区別できなくする。存在するブログ一覧を推測させないことを優先し、切り分けは運用ログ側で行う
+- 原則: Least privilege / deny by default — 判断不能時は fail closed (`secure-by-design.md#中核概念`)
+  - 採否: `applied`
+  - 章固有の根拠: ホスト解決が一意に定まらない場合 (未知ホスト・導出 slug の公開 identity 欠落または曖昧・workspace 不一致) は配信せず 404 を返す。resolvePublicSiteIdentity が rows.length !== 1 で null を返す現行の fail-closed 判定はこの原則に合致しており、変えるのは『作成側が満たすべき前提を書き切っていない』側であって、読者側の厳格さではない
+  - トレードオフ:
+    - 読者側の判定を緩めれば 404 は即座に消えるが、それは不完全なブログを公開することと同義になる。是正の向きを作成側に固定するぶん、修正範囲は広くなる
+- 原則: CQRS / Ports and Adapters — 編集用 aggregate と公開用 projection を分離し、公開側の port を一つにする (`clean-architecture.md#中核概念`)
+  - 採否: `applied`
+  - 章固有の根拠: D1/live の公開記事は published_articles を唯一の canonical public projection とする。PublicBlogPort の記事一覧・詳細は PublishedContentPort へ委譲し、articles の直読、sample fallback、union、独自件数集計を持たない。ブログ運用と AI 生成の公開 writer は同じ projection statement builder を使い、公開・更新・非公開化・削除・復元の状態遷移で独立 writer を増やさない。source_article_id のある行は BlogOps 管理だけが更新し、AI 公開記事用 published admin から除外する
+  - トレードオフ:
+    - 公開 projection へ書けなければ編集 aggregate だけを公開済みにしない fail-closed 動作が必要で、単純な status 更新より transaction 境界が広がる
+    - 旧 /blog/:slug は削除せず同じ projection を引いて articleHref の canonical URL へ 308 redirect するため、入口は残るが本文の描画経路は一つになる
+##### 接地根拠 qa-backend-web-spec-intake (対応セル: web)
+
+- 本文: 「確定内容 (質疑録)」の `qa-backend-web-spec-intake` を参照
 - 設計解釈の記録経路: `dialogue`
 - 原則: ランキング計算・比較候補の分類・公開ゲート判定・広告表記の要否判定は src/lib/domain/ の純関数 1 箇所に置き、管理画面・公開ブログ・WebMCP・MCP のすべてがそこを呼ぶ (`docs/spec/04-二層構造統合仕様.md#§2-3`)
   - 採否: `applied`
@@ -378,7 +406,7 @@ consumerとproviderの独立変更を支える安定した契約を作り、再�
 |---|---|
 | セル | backend × web |
 | 状態 | 確定 |
-| 確定質疑 (qa_ref) | `qa-backend-web-spec-intake` |
+| 確定質疑 (qa_ref) | `qa-backend-web-blog-creation-atomicity` |
 | 資するゴール (serves_goals) | G2, G1 |
 | required-info | `domain-model` — missing_effect: block / 接地: 済 (`qa-backend-web-spec-intake`) |
 | 出典 kind | written-requirements |
@@ -407,3 +435,9 @@ C05 gaps[0] の「再生成して本文へ載せる」を採らず、本節は�
 
 - **`decision-llm-provider` が本章に効く形**: 複数プロバイダを保つのは選択肢を増やすためではなく、07 §0 GC-5 (レビュー系を執筆系から分離し、自作自演の検証にしない) を**書き手と検査役に別モデルを当てる**ことで満たすためである。1 社固定にするとこの分離が構成では表せなくなる。単価は `vars` に置き、値上げに気づける状態を保つ。
 - **鍵の扱い**: API 鍵は利用者本人がブラウザまたは別端末で登録する。値も断片もこの作業場所には置かない。
+
+## compile が保てなかった行 (要判断)
+
+> 正本から導出できず、節・小節の引き継ぎでも守れなかった 1 行。版の更新のように**正しく消える行**も混ざる。正本へ接続するか、不要と確かめて消すこと。この節は compile のたびに作り直す。
+
+- `  - 章固有の根拠: D1/live の公開記事は published_articles を唯一の canonical public projection とする。PublicBlogPort の記事一覧・詳細は PublishedContentPort へ委譲し、articles の直読、sample fallback、union、独自件数集計を持たない。ブログ運用と AI 生成の公開 writer は同じ projection statement builder を使い、公開・更新・非公開化・削除の状態遷移で独立 writer を増やさない`

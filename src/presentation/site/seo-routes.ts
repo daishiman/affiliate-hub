@@ -2,10 +2,8 @@ import { type ArticleSummary, articleHref } from "@/application/read-models/publ
 import type { FeedItem } from "@/application/seo/feeds";
 import type { PublicSiteBlueprint } from "@/application/usecases/site/read-site";
 import { siteBasePathBySlug } from "@/domain/authoring/site";
-import type { BlogArticle } from "@/domain/blogops/blog-article";
 import type { DomainError } from "@/domain/shared/errors";
 import {
-  publicBlogEntry,
   readerActor,
   requestOriginFromWebRequest,
   siteUseCases,
@@ -62,12 +60,18 @@ export type SeoSiteContext = {
   readonly basePath: string;
   readonly blueprint: PublicSiteBlueprint;
   /**
-   * 配信物に載せる記事。**2 系統を合流させたもの**（新しい順）。
+   * 配信物に載せる記事（新しい順）。
    *
-   * 公開面の記事には入口が 2 つある。編集済みの読み取りモデル
-   * （`/best` `/guides` `/reviews` `/compare` `/tools`）と、
-   * ブログ運用で書いた記事（`/blog/<slug>`）である。
-   * ここで合流させないと、機械向け配信からは後者が存在しないことになる。
+   * **2026-09-02 まで、ここは 2 系統を合流させていた。**編集済みの読み取り
+   * モデル（`/best` `/guides` `/reviews` `/compare` `/tools`）と、ブログ運用で
+   * 書いた記事（`/blog/<slug>`）を別の入口として読み、`mergeByRecency` で
+   * 束ねていた。P07 の実測で「4 種とも 200 なのに公開記事 7 本が 1 本も
+   * 載っていない」が出たときの手当てである。
+   *
+   * いま合流は要らない。`published_articles` が**唯一の公開 projection** に
+   * なり（`drizzle/0043_canonical_public_articles.sql`）、ブログ運用側の
+   * `listPublished` は編集側と**同じ `listRecent` を呼ぶ**ようになった。
+   * 2 系統として読むと、同じ記事が 2 行ずつ並ぶ sitemap になる。
    */
   readonly items: readonly FeedItem[];
 };
@@ -79,23 +83,6 @@ function toFeedItem(article: ArticleSummary): FeedItem {
     title: article.title,
     summary: article.summary,
     updatedAt: article.updatedAt,
-  };
-}
-
-/**
- * ブログ運用で書いた記事を配信物の行へ。
- *
- * 要約は導入文（`lead`）を使う。運用側の記事は `summary` を持たないので、
- * **空文字を出さない**——空の説明が並ぶ llms.txt は、AI から見て
- * 「説明の無い記事が 7 本ある」に読めてしまう。
- */
-function blogToFeedItem(article: BlogArticle): FeedItem {
-  return {
-    path: `/blog/${article.slug}`,
-    title: article.title,
-    summary: article.lead,
-    // 配信物の日付は `YYYY-MM-DD`。時刻は sitemap でも RSS でも要らない。
-    updatedAt: article.updatedAt.toISOString().slice(0, 10),
   };
 }
 
@@ -128,19 +115,6 @@ export async function loadSeoSite(
         });
   if (!articles.ok) return { ok: false, response: seoErrorResponse(articles.error) };
 
-  /*
-    ブログ運用で書いた記事。読者向けの口（公開状態のものしか返さない）を通す。
-    ここを作成者向けの口にすると、下書きが sitemap から漏れる。
-
-    読めなかったときは**配信を止める**。片方だけ載った sitemap を 200 で配ると、
-    検索エンジンには「載っていない記事は消えた」と読める。
-  */
-  const blogItems =
-    articlePolicy.purpose === "none"
-      ? { ok: true as const, value: [] as readonly FeedItem[] }
-      : await readPublishedBlogArticles(siteSlug, articlePolicy.limit);
-  if (!blogItems.ok) return { ok: false, response: blogItems.response };
-
   return {
     ok: true,
     value: {
@@ -148,48 +122,14 @@ export async function loadSeoSite(
       origin,
       basePath: siteBasePathBySlug(siteSlug),
       blueprint: site.value.blueprint,
-      items: mergeByRecency(articles.value.map(toFeedItem), blogItems.value, articlePolicy),
+      /*
+        `listRecent` は `published_articles`（唯一の公開 projection）を
+        新しい順で返す。並べ替えも再度の上限切りもここでは要らない。
+        ブログ運用の記事もこの表に載るので、別の口から読んで足すと二重になる。
+      */
+      items: articles.value.map(toFeedItem),
     },
   };
-}
-
-/**
- * 公開済みのブログ運用記事を読む。ブログ自体が無いときは空（404 にしない）。
- *
- * `openSite` が `null` を返すのは「公開サイトが無い」ときだが、そこは
- * 手前の `getSite` が既に判定している。ここまで来て `null` なら
- * 運用側の記事が 1 本も無いだけなので、空として扱う。
- */
-async function readPublishedBlogArticles(
-  siteSlug: string,
-  limit: number,
-): Promise<
-  { ok: true; value: readonly FeedItem[] } | { ok: false; response: Response }
-> {
-  const entry = await publicBlogEntry();
-  const opened = await entry.port.openSite(siteSlug);
-  if (!opened.ok) return { ok: false, response: seoErrorResponse(opened.error) };
-  if (opened.value === null) return { ok: true, value: [] };
-  const published = await opened.value.listPublished(limit);
-  if (!published.ok) return { ok: false, response: seoErrorResponse(published.error) };
-  return { ok: true, value: published.value.map(blogToFeedItem) };
-}
-
-/**
- * 2 系統を新しい順にひとつへ。
- *
- * **新着配信（RSS）では合流後にもう一度上限で切る。** 切らないと、
- * 片方から 20 本・もう片方から 20 本で 40 本の「新着 20 件」ができる。
- * 網羅が目的の sitemap / llms.txt では切らない——そこで切ると、
- * 落ちた記事が「公開されていない」と読まれてしまう。
- */
-function mergeByRecency(
-  left: readonly FeedItem[],
-  right: readonly FeedItem[],
-  policy: SeoArticlePolicy,
-): readonly FeedItem[] {
-  const merged = [...left, ...right].sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
-  return policy.purpose === "recent-feed" ? merged.slice(0, policy.limit) : merged;
 }
 
 /**

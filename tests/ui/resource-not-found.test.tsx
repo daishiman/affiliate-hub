@@ -6,7 +6,13 @@ import { describe, expect, it } from "vitest";
 import { SAMPLE_SITE_SLUG } from "@/infrastructure/persistence/sample/site-sample-repository";
 import { stopIfMissing } from "@/presentation/site/page-frame";
 import { intoDom, renderRoute, textOf } from "../support/render";
-import { RENDERABLE_ROUTE_CASES, importPathOf, propsOf } from "./route-table";
+import {
+  RENDERABLE_ROUTE_CASES,
+  ROUTE_CASES,
+  importPathOf,
+  isRedirectRoute,
+  propsOf,
+} from "./route-table";
 
 /**
  * **実在するブログの中で**無いものを開いたときに、通信の答えも 404 になることの確認。
@@ -113,7 +119,11 @@ describe("実在するブログの中の、無い記事・商品・人", () => {
     ).toEqual([]);
   });
 
-  it.each(existingResourceCases().map((route) => [route.file, route] as const))(
+  it.each(
+    // 移すだけの入口はここに来ない。`RENDERABLE_ROUTE_CASES` が
+    // `isRedirectRoute` で既に除いている（route-cases.ts）。
+    existingResourceCases().map((route) => [route.file, route] as const),
+  )(
     "実在する資源では 404 にしない — %s",
     async (_file, route) => {
       // 上の検査だけだと、全部 404 にしてしまっても緑になる。
@@ -123,6 +133,35 @@ describe("実在するブログの中の、無い記事・商品・人", () => {
       expect(textOf(html)).not.toContain("見つかりませんでした");
     },
   );
+
+  it("実在する旧記事URLは、404やHTMLではなくcanonical URLへ308で返す", async () => {
+    /*
+      移すだけの入口は `RENDERABLE_ROUTE_CASES` から抜かれているので、
+      ここは母集団を `ROUTE_CASES` に取る。行き先は経路表が `redirectTo` に
+      持っているので、この検査でも path を書き起こさない。**「移しはするが、
+      どこへ移すかは誰も見ていない」検査にしないため**（route-cases.ts）。
+    */
+    const route = ROUTE_CASES.filter(isRedirectRoute).find(
+      (candidate) => candidate.file === "s/[site]/blog/[article]/page.tsx",
+    );
+    expect(route, "旧記事URLのredirect入口が経路表から消えています").toBeDefined();
+    if (route === undefined) return;
+
+    let redirectDigest: unknown;
+    try {
+      await renderRoute(importPathOf(route.file), propsOf(route));
+    } catch (thrown) {
+      redirectDigest = (thrown as { digest?: unknown }).digest;
+    }
+
+    expect(redirectDigest, "旧URLが正規URLへ308で返っていません").toEqual(
+      expect.stringMatching(
+        new RegExp(
+          `^NEXT_REDIRECT;[^;]+;${route.redirectTo.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")};308;$`,
+        ),
+      ),
+    );
+  });
 
   it("打ち切るのは「無い」だけで、「取れなかった」は打ち切らない", () => {
     /*
