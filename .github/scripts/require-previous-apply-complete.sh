@@ -55,9 +55,12 @@ fail() {
   exit 1
 }
 
+# `-X GET` は省けない。`gh api` は `-f` が 1 つでも付くとメソッドを POST へ
+# 切り替えるため、この GET 専用 endpoint が 404 を返す（2026-09-02 の run #34 が
+# これで止まった）。`-X GET` を明示すると -f は query string へ回る。
 runs_json=""
 if ! runs_json="$(
-  gh api \
+  gh api -X GET \
     "repos/${GITHUB_REPOSITORY}/actions/workflows/$(basename "$workflow_file")/runs" \
     -f branch="${GITHUB_REF_NAME}" -f per_page=20 --jq '.workflow_runs' 2>&1
 )"; then
