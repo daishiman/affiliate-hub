@@ -964,6 +964,15 @@ manifest の実数に検査側の床が追いついていなかった分の修�
   書き戻して隠すべきものではない
 - 🔴 リリースレポート §E の 2 件のうち、**前者（配色の保存と掲載の増減が操作の記録に
   届かない）は閉じた**（下記）。後者（公開記事の本文が HTML に出ていない）は手つかず
+- 🟡 完全性の再評価（2026-08-31）が出した gaps 4 件。**いずれも総合 PASS を妨げない**
+  - medium: `nextjs` の取得証跡が上流に追い越された（記録 16.3.3 / 現行 16.3.4）。
+    層0 が逐語一致を返すので記録誤りではなく、宛先は C02 再取得
+  - medium: `system-spec/maintenance-ops.md` の frontmatter `serves_goals: [G1]` が
+    正本セル `[G1, G2]` より狭い。宛先は C03 compile だが、同章は compile が
+    規範本文 366 行を消した実測が reopen_log にあるため frontmatter のみ手編集も選択肢
+  - low: `system-spec/ui-ux.md` の接地根拠 2 件が `unrecorded` のまま
+  - low: `decisions[]` 4 件が「`schema_version` を検査しない writer で書いた」と自己申告。
+    宛先は harness 側
 
 ## 6. 書き込みが操作の記録に届かない状態を解消（§4.3 / リリースレポート §D.4）
 
@@ -994,3 +1003,70 @@ feat-blog-ui-builder リリース (P13、2026-08-31)」を足し、
 確定セルの reopen は要らなかった——matrix の値は 1 つも動いていないためである。
 
 `guard-confirmed-chapter-overwrite` は迂回していない。
+
+### 品質ゲート（2026-08-31 実測・§6 の変更後）
+
+| ゲート | 結果 |
+| --- | --- |
+| `pnpm run typecheck` | PASS |
+| `pnpm run lint` | PASS（既存 warning 2 件のみ。エラー 0） |
+| `pnpm run test:coverage` | **PASS**（457 files / 10447 passed、赤 0 件） |
+| `node scripts/port-wiring.mjs` | **PASS**（届いていない **0**／判定できない **0**。上限はどちらも 0） |
+| `node scripts/coverage-report.mjs` | PASS（全層が下限を満たす。最も薄いのは presentation 分岐 80.3%／下限 80） |
+| `node scripts/traceability.mjs` | PASS（由来不明 0／上限 2） |
+| `node scripts/required-test-types.mjs` | PASS（未宣言 5／上限 5） |
+| `node scripts/acceptance-reconciliation.mjs --write` | PASS（10 ID / 205 evidence file） |
+| `MUTATION_BASE=origin/dev node scripts/mutation.mjs --changed` | **PASS。68.84%（下限 65%）** |
+
+ミューテーションは前回 `--changed` を付け忘れて全体走査（226 files / 25,855 mutant）へ
+落ちていた。`MUTATION_BASE` は `--changed` の分岐の中でしか読まれない。
+環境変数ではなく引数で対象を宣言させる作りで、**意図しない全体走査が黙って走らない**側に倒してある。
+
+倒した 1974 / 生き残った 737 / テストが無い 157 / 対象外 392（分母外）。
+`テストが無い` は分母に入るので、テストの当たっていないコードを足すと必ずスコアが下がる。
+カバレッジ門をすり抜けた穴をここが拾う。**閾値は 1 つも動かしていない。**
+
+### 章の行数の天井を、余裕 15 行のまま置き直した
+
+`tests/architecture/chapter-regeneration-floor.test.ts` が
+「`database.md` の行数が 219 以上 528 以下」で赤くなった（実測 578 行）。
+
+この門が守っているのは**床と余裕**であって天井の絶対値ではない。
+設計意図に「増えるのは通す。減るところだけを止める」と明記があり、
+この章はこれまで 2 回（470→485、513→528）同じ形で置き直している。
+今回が 3 度目で、**床 219 も余裕 15 行も動かしていない**（578 + 15 = 593）。
+
+増えた 50 行は §4.3 を「解消した」という追記で、痩せた結果ではない。
+緩めたのか置き直したのかの見分けが後から付くよう、
+**余裕そのものを広げた日が来たらそれは緩めたのだ**という判定基準を宣言のそばに書いた。
+
+### 完全性レポートは近道を使わず正規に再評価した
+
+`node scripts/spec-freshness.mjs` が `STALE` を返していた。
+
+2026-08-30 の追記（上記）では「動いたのは機械が再生成した `evaluated_digest` 1 行だけ」
+と逐一 digest で示したうえで `--write` の近道を使い、そのとき
+**「仕様書の本文が動いたときは、この近道を使わず正規の再評価へ回すこと」**と条件を書き残した。
+
+今回は `system-spec/database.md` の本文が動いている。近道の適用範囲外である。
+ブランチ全体では仕様入力 33 件が動いており、前回の 81 入力に対し今回は 160 入力で、
+指紋も `bddbe24e…` → `51bb3e1a…` と一致しない。**前回の PASS は再利用できない。**
+
+そこで `assign-system-spec-completeness-evaluator` を fork で起動し、6 観点を再評価した。
+
+| 観点 | 判定 | 担当 |
+| --- | --- | --- |
+| foundation_trace | PASS | C05 自己評価 |
+| decision_guidance | PASS | C05 自己評価 |
+| matrix_coverage | PASS | C07（primary）+ C06（sub_input） |
+| design_knowledge_reflection | PASS | C05 自己評価 |
+| doc_freshness | PASS | C08（primary） |
+| prompt_quality | PASS | C05 自己評価 |
+
+**総合 PASS・high finding 0 件。**独立監査 3 件はいずれも本 session の実 fork で、
+台帳の pending 残 0（手による補正はしていない）。決定論ゲート 13 本すべて exit 0。
+評価は read-only で、**仕様書本文への書き込みは 0 件**である。
+
+そのうえで `--write` により指紋を焼き付けた。再判定は `FRESH` / `PASS`。
+
+再評価が出した gaps 4 件（総合 PASS は妨げない）は下の残課題へ送った。

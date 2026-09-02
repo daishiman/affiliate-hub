@@ -13,20 +13,20 @@
   },
   "artifacts": {
     "system-spec/00-requirements-definition.md": "af460e02930459d08ad7ac2414875f4d5ab4fdc2489ce7cafe51c99263467058",
-    "system-spec/completeness-report.json": "aebfe3781f374c60b41c2a6698ec24c90e9aa58bed3903675e1b174fc75597a1",
-    "system-spec/fetched-references.json": "22e3cba13d35032c387098e341b2caf6f98690b2df33a659ff7bcbb180450547",
+    "system-spec/completeness-report.json": "52f5d60b18d836802aee0e97544ac6245df121210265df7a622162c6397d13b4",
+    "system-spec/fetched-references.json": "978e1ffd768f9530c96a125728e57089d3ce1ad86c65792bb2a58c356686c954",
     "system-spec/index.md": "d3be7225ce351be5424414a85e715da82fb0e398f6bae1eb7de14a9d08498726",
-    "system-spec/spec-state.json": "d136370d94c5830abc5c57d7981b49a8da79484afb5011ca88dff3e23967ab8d"
+    "system-spec/spec-state.json": "cb54d7bc3b082d6dcdc115840949de2e181ac8ad3543ea57b2490a11618564cc"
   },
   "inputs": {
-    "file_count": 81,
-    "sha256": "bddbe24e3be31479ea6a841b498da2f889a58194bf3f4da98b1dc88a0303513f"
+    "file_count": 160,
+    "sha256": "51bb3e1a18e0b567db6670b210c0200d2fb6215eab3d09c8912f814902776e08"
   },
   "evaluator": {
     "report_path": "system-spec/completeness-report.json",
-    "report_sha256": "aebfe3781f374c60b41c2a6698ec24c90e9aa58bed3903675e1b174fc75597a1",
+    "report_sha256": "52f5d60b18d836802aee0e97544ac6245df121210265df7a622162c6397d13b4",
     "fork_ledger_path": "eval-log/system-spec-harness/audit-fork-ledger.jsonl",
-    "session_id": "3365a00b-6f3e-4ca0-baf9-27c73645d41c"
+    "session_id": "d2286971-7c5f-4a02-9803-0b11e8c4e19f"
   },
-  "created_at": "2026-08-29T14:25:20Z"
+  "created_at": "2026-09-02T05:51:22Z"
 }
