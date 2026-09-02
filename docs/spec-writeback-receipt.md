@@ -1284,3 +1284,131 @@ GitHub の run 履歴はすでに残っているので、**増やすものが無
 9. **`tests/integration/local-seed-idempotency.test.ts` に `TODO(human)` が残っている。**
    見本の記事本文を、画面が実際に使う口（`createD1PublicBlogPort`）から読み直して
    照合する部分である。**このファイルは本 PR に含めていない**（未完成のまま入れない）。
+
+---
+
+# 仕様反映 受領書（2026-09-02・見張りが自分の欠陥で公開を止めた件）
+
+```yaml
+receipt_id: spec-writeback-2026-09-02-guard-self-defect
+recorded_at: 2026-09-02T12:40:00Z
+beads_ids: [ah-45ba, ah-45ba.13]
+dev_graph_node_id: SYS-BLOG-UI-BUILDER-P13
+parent_feature: feat-blog-ui-builder
+base_branch: dev
+head_branch: devgraph/SYS-BLOG-UI-BUILDER-P13
+supersedes_context: spec-writeback-2026-09-02-deploy-timeout-guard
+verdict: spec-impact-written-back-with-declared-divergence
+```
+
+## 判定
+
+**設計仕様（`docs/spec/11`）へは反映済み。確定章（`system-spec/infrastructure.md`）には
+反映できていない。**その理由と、開いたままの差分を下に名指しする。
+
+## 何が起きたか
+
+前の受領書で入れた見張り `require-previous-apply-complete.sh` が、**自分の欠陥で
+本番の公開を止めた**（`公開` run #34）。
+
+```
+Error: 前回の公開を読めませんでした（{"message":"Not Found","status":"404"}）。測れなかったので止めます。
+```
+
+`gh api` は `-f` が 1 つでも付くと**メソッドを POST へ切り替える**。
+`actions/workflows/<file>/runs` は GET 専用なので 404 になっていた。`-X GET` で解消。
+
+**この欠陥が公開を止める形で出たこと自体は、設計が意図どおり働いた証拠である。**
+読めないときに通す作りだったら、404 を返しながら永久に緑になり、
+何も見ていない見張りが本番に居座っていた。fail-closed の元は取れている。
+
+## 実 API に当てて分かった、2 つ目の欠陥
+
+404 を直したうえで見張りを実 API に対して通しで走らせたところ、**まだ印を飛び越えた。**
+
+| run | 何が起きたか | 適用ステップ |
+| --- | --- | --- |
+| #33 | 適用の手前（`検査一式`）で時間切れ | `skipped` |
+| #34 | この見張り自身が 404 で停止 | `skipped` |
+| #35 | 直前の 1 件だけを見る作りでは **#34 しか見ない** | — |
+
+公開の job が無い回と、job は在るが適用が `skipped` の回は、どちらも適用に触れていない。
+**印について何も語らないので、通しも止めもせず、さらに前を見る**のが正しい。
+印を消せるのは、適用が結論（`success` / `failure`）まで走った回だけである。
+
+実 API で通し確認済み: `#34 skipped → #33 skipped → #32 success で通す`。
+
+**この 2 つ目は、コードを読んでいるだけでは出なかった。**
+見張りを実際の API に当てて初めて出た。以後、この種の script は
+出す前に実 API へ通しで当てる。
+
+## 反映した先
+
+| 種別 | ファイル | 内容 |
+| --- | --- | --- |
+| 設計 | `docs/spec/11-CI-CD・品質ゲート仕様.md` | §4-1-3 に「見るのは直前の run ではなく、適用が実際に走ったいちばん新しい run」を明記。`skipped` は印を消さないこと、遡る対象と止める対象の切り分けを追加 |
+| 手引き | `docs/product/ci-cd-guide.md` | 手順 0 に「記録に `さらに前を見ます` と出るのは異常ではない」旨 |
+| 実装 | `.github/scripts/require-previous-apply-complete.sh` | `-X GET` の明示、完了 run の遡り、`skipped` を `continue` へ |
+
+## 確定章へ反映**できなかった**こと（宣言する差分）
+
+`system-spec/infrastructure.md:37` の確定回答は、末尾でこう述べている。
+
+> 前回の run を読めない・**公開の job が見当たらない**・適用ステップの名前が見つからないは、
+> いずれも『測れなかった』として止める側へ倒す
+
+**実装はこのうち「公開の job が見当たらない」だけを、止めるのではなく遡るへ変えた。**
+止める側に倒すと、検査で 1 回落ちた翌回から永久に公開できなくなるためである。
+残り 2 つ（読み取り失敗・ステップ名の不一致）は従来どおり止める。
+
+これを正本へ入れようとして、次の順に**すべて拒まれた**。迂回はしていない。
+
+1. `spec-state.json` を inline python で読み書き
+   → `guard-confirmed-chapter-overwrite` が遮断（書込先不明の inline 書込）
+2. 正規 writer `apply-spec-transition.py set-qa-design-applications` で
+   `design_applications` へ 5 件目として追記
+   → `TransitionError: provenance の無い既存 design_applications は対話経路として保護し、
+   legacy_backfill への変更を拒否`
+
+2 が本質である。この writer は `legacy_exempt=true` を持つ**旧い質疑への後追い補完専用**で、
+対話経路で確定した `design_applications` には触れられない。
+**対話で決めたことを、後から機械で書き換えさせない**ための保護であり、正しい。
+
+したがって正規経路は `supersede-qa` による `-v3` の起票、すなわち
+**再オープン → 再ヒアリング → 再確定 → 完全性の再評価**である。
+一文の精緻化に対してこの往復は MVP の範囲を超えるので、本 PR では回さず、
+**差分をここに名指しして開いたままにする。**黙って食い違わせない。
+
+規範の所在としては、章は CI の判定規則を `docs/spec/11` に委ねており、
+そちらは更新済みである。**実装と規範は一致していて、章の要約文だけが古い。**
+
+## 品質ゲート
+
+| ゲート | 判定 |
+| --- | --- |
+| `npx vitest run tests/architecture/` | **PASS**（75 files / 894 passed） |
+| 見張りを実 API へ通しで実行（3 パターン） | PASS |
+| 閾値の引き下げ・除外の追加 | **0 件** |
+
+## `dev` の取り込み（競合解消）
+
+`origin/dev` が #48（squash）と #47 で 2 つ進み、`system-spec/` の 5 ファイルが競合した。
+
+`qa_log` の ID 集合を機械的に突き合わせ、**dev に無い ID がゼロ**（= dev は本ブランチの
+仕様内容の上位集合）であることを確認したうえで、**dev 側を丸ごと採用**した。
+`completeness-report.json` / `resume-receipt.json` は `spec-state.json` の digest に
+束縛されているため、正本だけ混ぜると受領書が即座に無効化される。
+**片側を丸ごと採るのが整合を保つ唯一の形である。**
+
+唯一の後退: `frontend.web` の `required_info_checks.checked_on` が 09-02 → 08-31。
+他 2 セルは dev のほうが新しい。
+
+## 残課題
+
+1. **上の「宣言する差分」。** `system-spec/infrastructure.md:37` の一文と実装のずれ。
+   閉じるには `supersede-qa` で `qa-infra-web-migration-guard-v3` を立てる往復が要る。
+2. **遡りは取得した直近 20 件まで。** それより前は見ない。
+   20 件すべてが適用に触れていない場合は通す。
+3. `inspect` 45 分の妥当性は未実測（本番公開時にしか走らない）。
+4. `release` の他ステップ（Workers 配信）には step 上限を置いていない。
+5. `tests/integration/local-seed-idempotency.test.ts` の `TODO(human)` は未着手・未コミット。
