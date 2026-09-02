@@ -39,6 +39,8 @@ export type RouteCase = {
   readonly params?: Readonly<Record<string, string>>;
   /** `?` 以降。既定の表示を見たいときは省く。 */
   readonly searchParams?: Readonly<Record<string, string | readonly string[]>>;
+  /** DOMを描かず、この既知pathへ移すだけのlegacy adapter。 */
+  readonly redirectTo?: string;
 };
 
 /** 見本のブログ 1 つ。読者側の画面はすべてこれで開く。 */
@@ -71,6 +73,12 @@ const ADMIN: readonly RouteCase[] = ADMIN_ROUTE_METADATA.map((route) => {
   const names = [...route.pattern.matchAll(/\[([^\]]+)\]/g)].map((match) => match[1]);
   return {
     file: route.file,
+    ...(route.redirectOnly
+      ? {
+          searchParams: { site: SITE },
+          redirectTo: `/admin/sites/${encodeURIComponent(SITE)}/documents`,
+        }
+      : {}),
     ...(names.length === 0
       ? {}
       : {
@@ -101,7 +109,11 @@ const ADMIN: readonly RouteCase[] = ADMIN_ROUTE_METADATA.map((route) => {
 /** 読者側の画面。すべて見本のブログ 1 つで開く。 */
 const READER: readonly RouteCase[] = [
   { file: "s/[site]/page.tsx", params: { site: SITE } },
-  { file: "s/[site]/[fixedPage]/page.tsx", params: { site: SITE, fixedPage: "profile" } },
+  {
+    file: "s/[site]/[fixedPage]/page.tsx",
+    params: { site: SITE, fixedPage: "profile" },
+    redirectTo: `/s/${encodeURIComponent(SITE)}/operator`,
+  },
   { file: "s/[site]/advertising-policy/page.tsx", params: { site: SITE } },
   { file: "s/[site]/ai-policy/page.tsx", params: { site: SITE } },
   { file: "s/[site]/authors/[author]/page.tsx", params: { site: SITE, author: "mochizuki" } },
@@ -132,6 +144,17 @@ const ENTRY: readonly RouteCase[] = [{ file: "page.tsx" }, { file: "signin/page.
 
 export const ROUTE_CASES: readonly RouteCase[] = [...ENTRY, ...ADMIN, ...READER];
 
+export function isRedirectRoute(
+  route: RouteCase,
+): route is RouteCase & { readonly redirectTo: string } {
+  return route.redirectTo !== undefined;
+}
+
+/** DOM・a11y・空状態など、描画結果を分類する検査だけが使う母集団。 */
+export const RENDERABLE_ROUTE_CASES: readonly RouteCase[] = ROUTE_CASES.filter(
+  (route) => !isRedirectRoute(route),
+);
+
 /**
  * 運営側の画面だけ。**権限を持った身元で描き直す**検査が使う。
  *
@@ -147,3 +170,6 @@ export const ROUTE_CASES: readonly RouteCase[] = [...ENTRY, ...ADMIN, ...READER]
  * 読むときは説明を信じる前に、その前提を足しているコードが実在するかを見ること。
  */
 export const ADMIN_ROUTE_CASES: readonly RouteCase[] = ADMIN;
+export const RENDERABLE_ADMIN_ROUTE_CASES: readonly RouteCase[] = ADMIN.filter(
+  (route) => !isRedirectRoute(route),
+);

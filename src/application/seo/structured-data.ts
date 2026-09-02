@@ -4,6 +4,12 @@ import {
   articleHref,
 } from "@/application/read-models/published-article";
 import { expressionBlocksOf } from "./expression-blocks";
+import {
+  expressionBlockOfArticleBlock,
+  expressionBlockOfArticleBody,
+  isExpressionArticleBody,
+} from "@/application/adapters/expression-article-block";
+import type { BlogArticleBlock } from "@/domain/blogops";
 
 /**
  * 構造化データ（JSON-LD）の組み立て（feat-blog-ui-builder）。
@@ -187,6 +193,93 @@ export function buildFaqPage(article: PublishedArticle): JsonLdObject | null {
         text: item.answer,
       },
     })),
+  };
+}
+
+/** 運用側の記事 carrier から、読者に見える FAQ と同じ内容を機械向けにも出す。 */
+export function buildBlogOpsFaqPage(
+  blocks: readonly BlogArticleBlock[],
+): JsonLdObject | null {
+  const faq = blocks
+    .map(expressionBlockOfArticleBlock)
+    .find((block) => block?.kind === "faq");
+  if (faq === undefined || faq === null || faq.kind !== "faq" || faq.items.length === 0) {
+    return null;
+  }
+  return {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: faq.items.map((item) => ({
+      "@type": "Question",
+      name: item.question,
+      acceptedAnswer: { "@type": "Answer", text: item.answer },
+    })),
+  };
+}
+
+/**
+ * ブログ運用で書いた記事 1 本の BlogPosting（受入 A10・A12）。
+ *
+ * **`buildBlogPosting` と別関数にする。**あちらは編集済みの読み取りモデル
+ * (`PublishedArticle`) を取り、要点・出典・監修者・鮮度をそこから引く。
+ * こちらが受け取るのは運用側の記事集約 (`BlogArticle` + 部品列) で、
+ * 出典も監修者も持たない。1 つの関数に両方を通そうとすると、
+ * 引数の半分が常に `undefined` になり、「無い」と「渡し忘れた」が混ざる。
+ *
+ * 出せない項目は**キーごと省く**。空の著者・空の出典を出すと、
+ * 機械には「情報がある記事」に見えて中身が無い、という嘘になる。
+ */
+export function buildBlogOpsPosting(input: {
+  readonly article: {
+    readonly slug: string;
+    readonly title: string;
+    readonly lead: string;
+    readonly authorName: string;
+    readonly publishedAt: Date | null;
+    readonly updatedAt: Date;
+  };
+  /** 記事本文の部品。まとめの節があれば abstract に写す。 */
+  readonly blocks: readonly { readonly kind: string; readonly body: string }[];
+  readonly site: SiteJsonLdInput;
+}): JsonLdObject {
+  const { article, blocks, site } = input;
+  const url = `${site.origin}${site.basePath}/blog/${article.slug}`;
+  /*
+    まとめの節を abstract に出す。**読者に見えている本文をそのまま渡す。**
+    ここで要約を作ると、画面に無い文が検索結果と AI の引用に出る。
+  */
+  const expressionSummary = blocks
+    .map((block) => expressionBlockOfArticleBody(block.body))
+    .find((block) => block?.kind === "summary");
+  const summary = blocks.find(
+    (block) =>
+      block.kind === "summary-section" && !isExpressionArticleBody(block.body),
+  );
+  const abstract =
+    expressionSummary?.kind === "summary" ? expressionSummary.text : summary?.body;
+  return {
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    headline: article.title,
+    description: article.lead,
+    inLanguage: "ja",
+    /*
+      公開日は**公開されていれば**出す。下書きのまま日付を出すと、
+      まだ無い記事が「その日に公開された」と機械に読まれる。
+      更新日は必ず出す（A12 の dateModified）。
+    */
+    ...(article.publishedAt === null
+      ? {}
+      : { datePublished: article.publishedAt.toISOString() }),
+    dateModified: article.updatedAt.toISOString(),
+    /*
+      著者は名前だけ。運用側の記事は著者ページを持たないので `url` を出さない。
+      出すと、検索エンジンを存在しない住所へ送る。
+    */
+    author: { "@type": "Person", name: article.authorName },
+    ...(abstract === undefined ? {} : { abstract }),
+    publisher: { "@type": "Organization", name: site.siteName },
+    mainEntityOfPage: { "@type": "WebPage", "@id": url },
   };
 }
 

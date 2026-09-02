@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { SESSION_COOKIE_NAME } from "@/infrastructure/identity/session-actor";
 import { decideEntry, isGuardedPath } from "@/infrastructure/identity/entry-gate";
+import { buildSecurityHeaders } from "@/infrastructure/http/security-headers";
 
 /**
  * 画面を一括で守る入口。
@@ -47,7 +48,13 @@ export async function middleware(request: NextRequest): Promise<NextResponse> {
   // 外のアドレスへ飛ばされないことを検査で固定してからにする。
   // 断る言葉は入口と奥で分ける。ここは「ログインしてください」だけを意味する。
   const signin = new URL("/signin", request.nextUrl);
-  return NextResponse.redirect(signin);
+  const response = NextResponse.redirect(signin);
+  // Proxy が直接返す応答は Next 設定の headers が Cloudflare adapter で落ちる。
+  // 値を書き写さず、通常応答と同じ正本を redirect にも適用する。
+  for (const { key, value } of buildSecurityHeaders("admin")) {
+    response.headers.set(key, value);
+  }
+  return response;
 }
 
 /**

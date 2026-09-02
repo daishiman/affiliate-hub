@@ -23,7 +23,7 @@ export type RouteKind =
   | "profile"
   /** 方針・規約などの固定文書。 */
   | "policy"
-  /** 保存済み固定ページ。実際の語彙と公開可否は blogops の正本で決める。 */
+  /** 旧固定ページ URL。互換写像で canonical policy URL へ転送する。 */
   | "fixed-page"
   /** 操作する画面（検索・候補の保存・問い合わせ）。 */
   | "interactive";
@@ -139,15 +139,15 @@ export const SITE_ROUTES = [
   },
   {
     /*
-      固定ページ8種のうち contact 以外を受ける動的route。
-      `{fixedPage}` を既定footerへ直接出さず、保存済み・公開済みの具体的なリンクは
-      PublicSiteProjection が canonical 語彙から組み立てる。
+      固定文書8種のうち contact 以外に使われていた旧URLを受ける動的route。
+      `FixedPageKind` は互換写像にだけ使い、`SiteDocumentKey` の canonical URLへ
+      308転送する。文書の読み取り・公開可否判定・footer投影はこのrouteで行わない。
     */
     key: "fixed-page",
     path: "/{fixedPage}",
-    label: "運営情報の固定ページ",
+    label: "旧固定ページURL（転送）",
     kind: "fixed-page",
-    reachedFrom: "公開済み固定ページのフッターリンク",
+    reachedFrom: "旧URLの外部リンク・ブックマーク",
     page: null,
     requiresDisclosure: false,
   },

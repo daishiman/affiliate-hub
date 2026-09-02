@@ -1,6 +1,6 @@
 /**
  * @tier 1
- * @req REQ-S10, REQ-SEC01, REQ-API02
+ * @req REQ-S10, REQ-SEC01, REQ-SEC11, REQ-API02
  * @types equivalence, boundary, permission-matrix
  *
  * AWS-ACC-01 の門「そのもの」を動かす。
@@ -20,6 +20,7 @@ import { NextRequest } from "next/server";
 import { SESSION_COOKIE_NAME } from "@/infrastructure/identity/session-actor";
 import type { SessionReaderPort } from "@/infrastructure/identity/session-repository";
 import { asUserId, asWorkspaceId, domainError, err, ok } from "@/domain/shared";
+import { buildSecurityHeaders } from "@/infrastructure/http/security-headers";
 
 const NOW_PLUS = () => new Date(Date.now() + 60_000);
 
@@ -95,6 +96,11 @@ describe("AWS-ACC-01 未ログインは入れない（本文を 1 バイトも�
     expect(res.status).toBeGreaterThanOrEqual(300);
     expect(res.status).toBeLessThan(400);
     expect(new URL(res.headers.get("location") ?? "").pathname).toBe("/signin");
+
+    // Proxy が直接返す redirect にも、Next 設定を通る通常応答と同じ正本を適用する。
+    for (const { key, value } of buildSecurityHeaders("admin")) {
+      expect(res.headers.get(key)).toBe(value);
+    }
 
     // 「見えないだけで中身は届いている」を許さない。本文の実測が 0 バイト。
     expect(res.body).toBeNull();

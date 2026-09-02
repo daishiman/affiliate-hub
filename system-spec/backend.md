@@ -321,7 +321,7 @@ consumerとproviderの独立変更を支える安定した契約を作り、再�
 | 対象 | バージョン | 公式発行元 | 出典URL | 取得 | 最新確認 |
 |---|---|---|---|---|---|
 | drizzle-orm | 0.45.2 | Drizzle Team (orm.drizzle.team) | https://orm.drizzle.team/docs/overview | 2026-08-16T09:01:52Z | 2026-08-22T22:20:35Z |
-| anthropic-claude | 現行 active モデル (claude-fable-5 / claude-opus-5 / claude-sonnet-5 / claude-haiku-4-5-20251001) | Anthropic (platform.claude.com) | https://platform.claude.com/docs/en/models/overview | 2026-08-29T13:28:38Z | 2026-08-29T13:28:38Z |
+| anthropic-claude | 現行 active モデル (claude-fable-5 / claude-opus-5 / claude-sonnet-5 / claude-haiku-4-5-20251001) | Anthropic (platform.claude.com) | https://platform.claude.com/docs/en/models/overview | 2026-08-25T12:13:56Z | 2026-08-25T12:13:56Z |
 | openai-platform | gpt-5.6 | OpenAI (developers.openai.com) | https://developers.openai.com/api/docs/models | 2026-08-22T15:05:04Z | 2026-08-22T15:05:04Z |
 | google-gemini | Gemini 3 系 (gemini-3.7-flash / gemini-3.6-flash / gemini-3.5-flash / gemini-3.1-pro-preview) | Google (ai.google.dev) | https://ai.google.dev/gemini-api/docs/models | 2026-08-25T12:13:56Z | 2026-08-25T12:13:56Z |
 

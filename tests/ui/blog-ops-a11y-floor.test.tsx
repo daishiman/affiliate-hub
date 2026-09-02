@@ -39,7 +39,8 @@ const A14_SUBJECTS: readonly { readonly subject: string; readonly file: string }
   { subject: "トップ構成 (帯)", file: "admin/blog/layout/page.tsx" },
   { subject: "レイアウト (枠)", file: "admin/blog/layout/page.tsx" },
   { subject: "記事編集", file: "admin/blog/articles/[article]/page.tsx" },
-  { subject: "固定ページ", file: "admin/blog/pages/page.tsx" },
+  // 旧 `/admin/blog/pages` は canonical 管理口へ redirect する legacy adapter。
+  { subject: "固定ページ", file: "admin/sites/[site]/documents/page.tsx" },
   { subject: "評価一覧", file: "admin/blog/evaluate/page.tsx" },
 ];
 

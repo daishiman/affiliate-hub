@@ -7,6 +7,12 @@ import {
 } from "@/domain/blogops";
 import { blockAnchor, ProseOutline, ProseSection } from "@/presentation/prose";
 import { DisclosureNotice, SectionHeading } from "@/presentation/ui";
+import {
+  composeExpressionArticleBlocks,
+  expressionBlockOfArticleBlock,
+  isExpressionArticleBlock,
+} from "@/application/adapters/expression-article-block";
+import { ExpressionArticleSection } from "./expression-block-view";
 
 /**
  * ブログ運用で作った記事の、読者側の描き方。
@@ -79,7 +85,9 @@ export function BlogArticleView({
   /** 本文のあとに続けるもの（評価フォームなど）。 */
   readonly children?: React.ReactNode;
 }) {
-  const ordered = [...blocks].sort((a, b) => a.position - b.position);
+  const ordered = [...composeExpressionArticleBlocks(blocks, {})].sort(
+    (a, b) => a.position - b.position,
+  );
   const outline = buildOutline(ordered);
   const note = freshnessNote(updatedAt, now);
 
@@ -88,7 +96,9 @@ export function BlogArticleView({
     記事型が決めた場所 (紹介・比較・まとめ) で同じ並びを出す。
     その場で描くと、再掲と合わせて 4 回出ることになる。
   */
-  const cards = ordered.filter((b) => b.kind === "product-card");
+  const cards = ordered.filter(
+    (block) => block.kind === "product-card" && !isExpressionArticleBlock(block),
+  );
   const placements = PRODUCT_CARD_PLACEMENTS[template];
   /** その節の直後にカードを再掲するか。既に出した場所は二度出さない。 */
   const shown = new Set<string>();
@@ -103,6 +113,20 @@ export function BlogArticleView({
       {note !== "" && <p>{note}</p>}
 
       {ordered.map((block) => {
+        const expression = expressionBlockOfArticleBlock(block);
+        if (expression !== null) {
+          return (
+            <ExpressionArticleSection
+              key={block.id}
+              heading={block.heading}
+              block={expression}
+            />
+          );
+        }
+
+        // prefix が在るのに解釈できない carrier は、内部表現を本文へ漏らさない。
+        if (isExpressionArticleBlock(block)) return null;
+
         if (block.kind === "disclosure-notice") {
           // 広告表記は共通部品が正本。記事ごとの本文で書き換えさせない。
           return <DisclosureNotice key={block.id} />;

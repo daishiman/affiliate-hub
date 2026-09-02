@@ -396,14 +396,14 @@ serves_goals: [G1, G2]
 |---|---|
 | セル | infrastructure × web |
 | 状態 | 確定 |
-| 確定質疑 (qa_ref) | `qa-infra-web-spec-intake` |
+| 確定質疑 (qa_ref) | `qa-infra-web-migration-guard` |
 | 資するゴール (serves_goals) | G2, G1 |
 | required-info | なし (この確定に block 指定の必須情報は登録されていない) |
-| 出典 kind | written-requirements |
-| 出典 path | `docs/spec/11-CI-CD・品質ゲート仕様.md` |
-| 出典 節 | §8 検査の段 |
-| 出典 sha256 | `2168cedf14afef2f3aee7b7863fade240ab3710fd26f2051a6198db46034ff77` |
-| 適用された設計知識 (design_applications) | 7 件 — 本章 `## 適用された設計知識` を参照 |
+| 出典 kind | user-dialogue |
+| 出典 path | — (対話に基づくため path/節/sha256 を持たない) |
+| 出典 節 | — |
+| 出典 sha256 | — |
+| 適用された設計知識 (design_applications) | 2 件 — 本章 `## 適用された設計知識` を参照 |
 
 ### 本節を「転記」に留めた理由
 

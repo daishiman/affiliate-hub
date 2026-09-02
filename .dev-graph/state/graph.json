@@ -1,5 +1,5 @@
 {
-  "graph_revision": 357,
+  "graph_revision": 358,
   "nodes": [
     {
       "acceptance": [],
@@ -14053,9 +14053,9 @@
         "独自ドメイン・DNS 運用、テーマの外部販売"
       ],
       "source_lineage": {
-        "imported_at": "2026-08-29T23:02:28Z",
+        "imported_at": "2026-08-31T00:00:00Z",
         "origin_kind": "generated",
-        "source_digest": "2a4248717f4ad9540be1bf2cb17b4a24e1fdc97a5baf4664ad6a023f8e8d77bd",
+        "source_digest": "230bb6700e585338d5ed630da90e12e590af731cbe24f4bebddf9dbd0b3ae091",
         "source_path": "system-spec/ui-ux.md",
         "source_plugin": "dev-graph",
         "source_version": "0.1.0"
@@ -14075,7 +14075,7 @@
       "template_version": "1.0.0",
       "title": "ブログ UI ビルダー (テンプレート・配色・アフィリエイト配置管理)",
       "tracker_binding": "beads",
-      "updated_at": "2026-08-29T23:07:00.498916Z"
+      "updated_at": "2026-08-31T04:31:48.615664Z"
     },
     {
       "acceptance": [

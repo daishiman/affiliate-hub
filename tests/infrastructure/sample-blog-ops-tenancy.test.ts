@@ -58,7 +58,6 @@ describe("見本ブログ保存先の workspace 境界", () => {
       opened.value.listDeliveryParts(),
       opened.value.listNetwork(),
       opened.value.listTags(),
-      opened.value.listFixedPages(),
       opened.value.findArticleBySlug("missing"),
     ]);
     expect(findBySlug).toHaveBeenCalledTimes(1);
@@ -86,7 +85,6 @@ describe("見本ブログ保存先の workspace 境界", () => {
       repo.listArticles(OUTSIDER, SAMPLE_SITE_SLUG),
       repo.listDeletedArticles(OUTSIDER, SAMPLE_SITE_SLUG),
       repo.listTags(OUTSIDER, SAMPLE_SITE_SLUG),
-      repo.listFixedPages(OUTSIDER, SAMPLE_SITE_SLUG),
       repo.listRatings(OUTSIDER, BLOG_OPS_SAMPLE_ROUTE_IDS.article),
     ]);
 
@@ -155,18 +153,8 @@ describe("見本ブログ保存先の workspace 境界", () => {
     expect(afterTag.ok && afterTag.value[0]?.name).toBe(tag.name);
   });
 
-  it("所有者が作った固定ページ・点検・評価も別 workspace へ漏らさない", async () => {
+  it("所有者が作った点検・評価を別 workspace へ漏らさない", async () => {
     const repo = createSampleBlogOpsRepository();
-    const page = {
-      id: "lgp_sample_tenant_test",
-      siteSlug: SAMPLE_SITE_SLUG,
-      kind: "profile" as const,
-      title: "所有者のページ",
-      body: "所有者の本文",
-      status: "published" as const,
-      deletedAt: null,
-      updatedAt: AT,
-    };
     const snapshot = {
       id: "bds_sample_tenant_test",
       siteSlug: SAMPLE_SITE_SLUG,
@@ -175,7 +163,6 @@ describe("見本ブログ保存先の workspace 境界", () => {
       detail: "所有者の点検",
       checkedAt: AT,
     };
-    expect((await repo.saveFixedPage(OWNER, page)).ok).toBe(true);
     expect((await repo.saveDeliverySnapshot(OWNER, snapshot)).ok).toBe(true);
 
     const rating = createSampleArticleRatingPort();
@@ -193,58 +180,23 @@ describe("見本ブログ保存先の workspace 境界", () => {
     ).toBe(true);
 
     const attempts = await Promise.all([
-      repo.saveFixedPage(OUTSIDER, { ...page, title: "他社が変更" }),
-      repo.deleteFixedPage(OUTSIDER, page.id),
       repo.saveDeliverySnapshot(OUTSIDER, { ...snapshot, detail: "他社が変更" }),
       repo.setRatingHidden(OUTSIDER, "brt_sample_tenant_test", true),
     ]);
     expect(attempts.every((result) => !result.ok)).toBe(true);
-    const outsiderPages = await repo.listFixedPages(OUTSIDER, SAMPLE_SITE_SLUG);
     const outsiderSnapshots = await repo.listDeliverySnapshots(OUTSIDER, SAMPLE_SITE_SLUG);
     const outsiderSummary = await repo.summarizeRatings(OUTSIDER, [
       BLOG_OPS_SAMPLE_ROUTE_IDS.article,
     ]);
-    expect(outsiderPages.ok && outsiderPages.value).toEqual([]);
     expect(outsiderSnapshots.ok && outsiderSnapshots.value).toEqual([]);
     expect(
       outsiderSummary.ok && outsiderSummary.value[BLOG_OPS_SAMPLE_ROUTE_IDS.article],
     ).toEqual({ count: 0, average: null });
 
-    const ownerPages = await repo.listFixedPages(OWNER, SAMPLE_SITE_SLUG);
     const ownerSnapshots = await repo.listDeliverySnapshots(OWNER, SAMPLE_SITE_SLUG);
     const ownerRatings = await repo.listRatings(OWNER, BLOG_OPS_SAMPLE_ROUTE_IDS.article);
-    expect(ownerPages.ok && ownerPages.value[0]?.title).toBe(page.title);
     expect(ownerSnapshots.ok && ownerSnapshots.value[0]?.detail).toBe(snapshot.detail);
     expect(ownerRatings.ok && ownerRatings.value[0]?.hidden).toBe(false);
-
-    const activePage = ownerPages.ok ? ownerPages.value[0] : undefined;
-    if (activePage === undefined) throw new Error("所有者の固定ページがありません。");
-    expect((await repo.deleteFixedPage(OWNER, activePage.id)).ok).toBe(true);
-    const deletedPages = await repo.listDeletedFixedPages(OWNER, SAMPLE_SITE_SLUG);
-    expect(deletedPages.ok && deletedPages.value[0]).toMatchObject({
-      id: activePage.id,
-      title: activePage.title,
-      body: activePage.body,
-      status: activePage.status,
-    });
-    const implicitRestore = await repo.saveFixedPage(OWNER, {
-      ...activePage,
-      title: "暗黙上書き",
-      deletedAt: null,
-      updatedAt: AT,
-    });
-    expect(implicitRestore.ok).toBe(false);
-    expect((await repo.restoreFixedPage(OUTSIDER, activePage.id, AT)).ok).toBe(false);
-    expect((await repo.restoreFixedPage(OWNER, activePage.id, AT)).ok).toBe(true);
-    expect((await repo.restoreFixedPage(OWNER, activePage.id, AT)).ok).toBe(false);
-    const restoredPages = await repo.listFixedPages(OWNER, SAMPLE_SITE_SLUG);
-    expect(restoredPages.ok && restoredPages.value[0]).toMatchObject({
-      id: activePage.id,
-      title: activePage.title,
-      body: activePage.body,
-      status: activePage.status,
-      deletedAt: null,
-    });
   });
 
   it("記事タグが重複・不存在・別site・別workspaceなら記事全体を変更しない", async () => {

@@ -1,0 +1,8 @@
+ RUN  v4.1.10 /Users/dm/orca/workspaces/affiliate-hub/task-20
+
+
+ Test Files  5 passed (5)
+      Tests  855 passed (855)
+   Start at  19:09:41
+   Duration  149.60s (transform 6.40s, setup 75ms, import 3.63s, tests 145.26s, environment 0ms)
+

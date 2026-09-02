@@ -9,8 +9,6 @@
  * 二重にしてあるのは、片方だけだと 1 本のクエリが単体では他所の行に届くからで、
  * その両方を本物の D1 と migration で確かめる。
  */
-import { readFileSync, readdirSync } from "node:fs";
-import path from "node:path";
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import { drizzle } from "drizzle-orm/d1";
 import { getPlatformProxy } from "wrangler";
@@ -22,6 +20,7 @@ import {
 } from "@/infrastructure/persistence/d1/blog-ops-repository";
 import { createD1SiteRepository } from "@/infrastructure/persistence/d1/site-repository";
 import { sampleSites } from "@/infrastructure/persistence/sample/site-sample-repository";
+import { migrationStatements } from "../support/migrations";
 
 type TestEnv = { readonly DB: D1Database };
 type Proxy = Awaited<ReturnType<typeof getPlatformProxy<TestEnv>>>;
@@ -29,7 +28,6 @@ type Proxy = Awaited<ReturnType<typeof getPlatformProxy<TestEnv>>>;
 const OWNER = "ws_blog_owner" as WorkspaceId;
 const OUTSIDER = "ws_blog_outsider" as WorkspaceId;
 const SITE = "tenant-owned-blog";
-const PAGE_ID = "lgp_tenant_owned";
 const ARTICLE_ID = "bar_tenant_owned";
 const BLOCK_ID = "bab_tenant_owned";
 const TAG_ID = "btg_tenant_owned";
@@ -37,19 +35,6 @@ const RATING_ID = "brt_tenant_owned";
 const DELETED_AT = new Date("2026-08-26T00:30:00.000Z");
 
 let proxy: Proxy;
-
-function migrationStatements(): readonly string[] {
-  const dir = path.resolve(process.cwd(), "drizzle");
-  return readdirSync(dir)
-    .filter((file) => file.endsWith(".sql"))
-    .sort()
-    .flatMap((file) =>
-      readFileSync(path.join(dir, file), "utf8")
-        .split("--> statement-breakpoint")
-        .map((statement) => statement.trim())
-        .filter((statement) => statement !== ""),
-    );
-}
 
 beforeAll(async () => {
   proxy = await getPlatformProxy<TestEnv>({
@@ -104,11 +89,6 @@ beforeEach(async () => {
     .bind("snn_tenant_owned", String(OWNER), SITE, "所有者のブログ")
     .run();
   await proxy.env.DB.prepare(
-    "INSERT INTO legal_page (id, workspace_id, site_slug, kind, title, body) VALUES (?, ?, ?, 'profile', ?, ?)",
-  )
-    .bind(PAGE_ID, String(OWNER), SITE, "運営者情報", "所有者だけが読める本文")
-    .run();
-  await proxy.env.DB.prepare(
     "INSERT INTO articles (id, workspace_id, site_slug, slug, article_template, type, title) VALUES (?, ?, ?, ?, 'T1', 'ranking', ?)",
   )
     .bind(ARTICLE_ID, String(OWNER), SITE, "owned-article", "所有者の記事")
@@ -157,165 +137,6 @@ describe("記事タグ結合の DB 整合性", () => {
     ]);
     const violations = await proxy.env.DB.prepare("PRAGMA foreign_key_check").all();
     expect(violations.results).toEqual([]);
-  });
-});
-
-describe("固定ページの workspace 境界", () => {
-  it("公開口は published かつ未削除の正本語彙だけを返す", async () => {
-    await proxy.env.DB.prepare(
-      "UPDATE legal_page SET kind = 'profile', status = 'published' WHERE id = ?",
-    )
-      .bind(PAGE_ID)
-      .run();
-    await proxy.env.DB.prepare(
-      "INSERT INTO legal_page (id, workspace_id, site_slug, kind, title, body, status, deleted_at) VALUES ('lgp_draft', ?, ?, 'contact', 'draft', 'draft', 'draft', NULL), ('lgp_deleted', ?, ?, 'company', 'deleted', 'deleted', 'published', ?)",
-    )
-      .bind(
-        String(OWNER),
-        SITE,
-        String(OWNER),
-        SITE,
-        Math.floor(DELETED_AT.getTime() / 1000),
-      )
-      .run();
-
-    const opened = await publicRepository().openSite(SITE);
-    expect(opened.ok && opened.value).not.toBeNull();
-    if (!opened.ok || opened.value === null) return;
-    const result = await opened.value.listFixedPages();
-
-    expect(result.ok).toBe(true);
-    if (result.ok) {
-      expect(result.value.map((page) => page.kind)).toEqual(["profile"]);
-    }
-  });
-
-  it("別 workspace からは読めず、存在の有無も漏らさない", async () => {
-    const result = await repository().listFixedPages(OUTSIDER, SITE);
-
-    expect(result.ok).toBe(true);
-    if (result.ok) expect(result.value).toEqual([]);
-  });
-
-  it("別 workspace からの保存を断り、元の本文を変えない", async () => {
-    const result = await repository().saveFixedPage(OUTSIDER, {
-      id: PAGE_ID,
-      siteSlug: SITE,
-      kind: "profile",
-      title: "書き換え後",
-      body: "別 workspace からの本文",
-      status: "draft",
-      deletedAt: null,
-      updatedAt: new Date("2026-08-26T00:00:00.000Z"),
-    });
-
-    expect(result.ok).toBe(false);
-    const row = await proxy.env.DB.prepare("SELECT title, body FROM legal_page WHERE id = ?")
-      .bind(PAGE_ID)
-      .first<{ title: string; body: string }>();
-    expect(row).toEqual({ title: "運営者情報", body: "所有者だけが読める本文" });
-  });
-
-  it("別 workspace からの削除を断り、行を残す", async () => {
-    const result = await repository().deleteFixedPage(OUTSIDER, PAGE_ID);
-
-    expect(result.ok).toBe(false);
-    const row = await proxy.env.DB.prepare("SELECT id FROM legal_page WHERE id = ?")
-      .bind(PAGE_ID)
-      .first<{ id: string }>();
-    expect(row?.id).toBe(PAGE_ID);
-  });
-
-  it("削除済み本文を保存で上書きせず、所有者だけが同じ行を明示復元する", async () => {
-    expect((await repository().deleteFixedPage(OWNER, PAGE_ID)).ok).toBe(true);
-    const deleted = await repository().listDeletedFixedPages(OWNER, SITE);
-    expect(deleted.ok && deleted.value[0]).toMatchObject({
-      id: PAGE_ID,
-      title: "運営者情報",
-      body: "所有者だけが読める本文",
-      status: "draft",
-    });
-
-    const implicitRestore = await repository().saveFixedPage(OWNER, {
-      id: PAGE_ID,
-      siteSlug: SITE,
-      kind: "profile",
-      title: "暗黙上書き",
-      body: "変えてはいけない本文",
-      status: "draft",
-      deletedAt: null,
-      updatedAt: DELETED_AT,
-    });
-    expect(implicitRestore.ok).toBe(false);
-    expect((await repository().restoreFixedPage(OUTSIDER, PAGE_ID, DELETED_AT)).ok).toBe(false);
-    expect((await repository().restoreFixedPage(OWNER, PAGE_ID, DELETED_AT)).ok).toBe(true);
-    expect((await repository().restoreFixedPage(OWNER, PAGE_ID, DELETED_AT)).ok).toBe(false);
-
-    const restored = await repository().listFixedPages(OWNER, SITE);
-    expect(restored.ok && restored.value[0]).toMatchObject({
-      id: PAGE_ID,
-      title: "運営者情報",
-      body: "所有者だけが読める本文",
-      status: "draft",
-      deletedAt: null,
-    });
-  });
-
-  it("同じ siteSlug を別 workspace も持つとき、固定ページをどちらにも見せない", async () => {
-    await proxy.env.DB.prepare(
-      "INSERT INTO site_network_node (id, workspace_id, site_slug, role, name) VALUES (?, ?, ?, 'hub', ?)",
-    )
-      .bind("snn_tenant_ambiguous", String(OUTSIDER), SITE, "同名の別ブログ")
-      .run();
-
-    const ownerResult = await repository().listFixedPages(OWNER, SITE);
-    const outsiderResult = await repository().listFixedPages(OUTSIDER, SITE);
-
-    expect(ownerResult.ok).toBe(true);
-    if (ownerResult.ok) expect(ownerResult.value).toEqual([]);
-    expect(outsiderResult.ok).toBe(true);
-    if (outsiderResult.ok) expect(outsiderResult.value).toEqual([]);
-  });
-
-  it("同じ siteSlug を別 workspace も持つとき、固定ページを上書きできない", async () => {
-    await proxy.env.DB.prepare(
-      "INSERT INTO site_network_node (id, workspace_id, site_slug, role, name) VALUES (?, ?, ?, 'hub', ?)",
-    )
-      .bind("snn_tenant_ambiguous", String(OUTSIDER), SITE, "同名の別ブログ")
-      .run();
-
-    const result = await repository().saveFixedPage(OUTSIDER, {
-      id: PAGE_ID,
-      siteSlug: SITE,
-      kind: "profile",
-      title: "書き換え後",
-      body: "曖昧な slug からの本文",
-      status: "published",
-      deletedAt: null,
-      updatedAt: new Date("2026-08-26T00:00:00.000Z"),
-    });
-
-    expect(result.ok).toBe(false);
-    const row = await proxy.env.DB.prepare("SELECT title FROM legal_page WHERE id = ?")
-      .bind(PAGE_ID)
-      .first<{ title: string }>();
-    expect(row?.title).toBe("運営者情報");
-  });
-
-  it("同じ siteSlug を別 workspace も持つとき、固定ページを削除できない", async () => {
-    await proxy.env.DB.prepare(
-      "INSERT INTO site_network_node (id, workspace_id, site_slug, role, name) VALUES (?, ?, ?, 'hub', ?)",
-    )
-      .bind("snn_tenant_ambiguous", String(OUTSIDER), SITE, "同名の別ブログ")
-      .run();
-
-    const result = await repository().deleteFixedPage(OUTSIDER, PAGE_ID);
-
-    expect(result.ok).toBe(false);
-    const row = await proxy.env.DB.prepare("SELECT id FROM legal_page WHERE id = ?")
-      .bind(PAGE_ID)
-      .first<{ id: string }>();
-    expect(row?.id).toBe(PAGE_ID);
   });
 });
 

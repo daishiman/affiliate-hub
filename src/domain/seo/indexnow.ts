@@ -33,15 +33,36 @@ export function buildIndexNowSubmission(
 ): IndexNowSubmission | null {
   if (urls.length === 0) return null;
 
-  let host: string;
+  let parsedOrigin: URL;
   try {
-    host = new URL(origin).host;
+    parsedOrigin = new URL(origin);
   } catch {
     return null;
   }
+  if (
+    (parsedOrigin.protocol !== "http:" && parsedOrigin.protocol !== "https:") ||
+    parsedOrigin.origin !== origin ||
+    parsedOrigin.username !== "" ||
+    parsedOrigin.password !== ""
+  ) {
+    return null;
+  }
+
+  const sameOriginUrls = urls.every((rawUrl) => {
+    try {
+      const url = new URL(rawUrl);
+      return (
+        (url.protocol === "http:" || url.protocol === "https:") &&
+        url.origin === parsedOrigin.origin
+      );
+    } catch {
+      return false;
+    }
+  });
+  if (!sameOriginUrls) return null;
 
   return {
-    host,
+    host: parsedOrigin.host,
     key,
     keyLocation: `${origin}/indexnow.txt`,
     urlList: [...urls],

@@ -1,7 +1,7 @@
 import type { ReaderToolDefinition } from "@/application/ports/reader-interaction";
 import type { DomainError } from "@/domain/shared";
 import { ProseSection } from "@/presentation/prose";
-import { ErrorView, Note } from "@/presentation/ui";
+import { ErrorView, FactList, Note } from "@/presentation/ui";
 import { ReaderToolForm } from "./reader-tool-form";
 
 /**
@@ -41,14 +41,13 @@ export function ReaderToolSection({
 
       {run === null ? null : run.ok ? (
         <ProseSection title="結果" body={run.value.summary}>
-          <dl>
-            {run.value.rows.map((row) => (
-              <div key={row.label}>
-                <dt>{row.label}</dt>
-                <dd>{row.value}</dd>
-              </div>
-            ))}
-          </dl>
+          <FactList
+            rows={run.value.rows.map((row) => ({
+              key: row.label,
+              label: row.label,
+              value: row.value,
+            }))}
+          />
           <Note>入力した数字から計算した目安です。実際の値は使い方や機器によって変わります。</Note>
         </ProseSection>
       ) : (

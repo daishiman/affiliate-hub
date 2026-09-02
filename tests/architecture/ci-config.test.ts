@@ -429,6 +429,20 @@ describe("手元と機械で同じ検査が走る（REQ-CI01 / REQ-CI03）", () 
         掲載先の逆引き）で、宣言側は変えていない。
       */
       "0040_merged_blog_ops",
+      /*
+        2026-08-31: ブログの見た目 3 表の作業場所（`workspace_id` 2 列と索引 3 本）。
+
+        当初は 0040 として作ったが、dev 側が同じ番号を `0040_merged_blog_ops` で
+        先に埋めていたため **0041 として作り直した**。番号の重なりは
+        d1_migrations がファイル名でしか照合しないので、放置すると
+        「適用済みに見えるのに中身が違う」が本番で起きる。
+
+        `ADD COLUMN … NOT NULL` は既定値なしでは SQLite が受け付けないので
+        `DEFAULT ''` を付けてある。空文字と一致する作業場所は存在しないため、
+        取り残された行は**誰にも読めない**（他所から読めるのではない）方へ倒れる。
+        そもそも取り残しが出る状態では、列を足す前に guard 表の CHECK で止まる。
+      */
+      "0041_blog_appearance_workspace",
     ];
     const journal = JSON.parse(read("drizzle/meta/_journal.json")) as {
       entries: Array<{ tag: string }>;

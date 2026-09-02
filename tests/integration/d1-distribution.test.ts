@@ -3,8 +3,6 @@
  * @req REQ-P08
  * @types idempotency, db-migration
  */
-import { readFileSync, readdirSync } from "node:fs";
-import path from "node:path";
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import { drizzle } from "drizzle-orm/d1";
 import { getPlatformProxy } from "wrangler";
@@ -37,6 +35,7 @@ import {
   type PublicationDeliveryAudit,
 } from "@/domain/distribution";
 import { createD1PublicationDeliveryAuditOutbox } from "@/infrastructure/persistence/d1/publication-delivery-audit-outbox";
+import { migrationStatements } from "../support/migrations";
 
 /**
  * 配信の予約を、**本物の D1 と本物のマイグレーション**で通す結合テスト。
@@ -75,20 +74,6 @@ const APPROVED_VARIANT = "cv_alpha_approved";
 /** 未来の時刻。過ぎた時刻は予約できない仕様なので、実行時から先へ取る。 */
 function future(days: number): string {
   return new Date(Date.now() + days * 24 * 60 * 60 * 1000).toISOString();
-}
-
-function migrationStatements(): readonly string[] {
-  const dir = path.resolve(process.cwd(), "drizzle");
-  const files = readdirSync(dir)
-    .filter((f) => f.endsWith(".sql"))
-    .sort();
-  expect(files.length).toBeGreaterThan(0);
-  return files.flatMap((file) =>
-    readFileSync(path.join(dir, file), "utf8")
-      .split("--> statement-breakpoint")
-      .map((s) => s.trim())
-      .filter((s) => s !== ""),
-  );
 }
 
 beforeAll(async () => {

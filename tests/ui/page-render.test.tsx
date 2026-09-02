@@ -25,7 +25,13 @@ import {
   PublicShell,
   SiteSection,
 } from "@/presentation/ui/templates/site-shell";
-import { ROUTE_CASES, ROUTE_STATE_CASES, renderCase } from "./route-table";
+import {
+  RENDERABLE_ROUTE_CASES,
+  ROUTE_CASES,
+  ROUTE_STATE_CASES,
+  isRedirectRoute,
+  renderCase,
+} from "./route-table";
 import { headingLevels, intoDom } from "../support/render";
 import { describeViolations, findA11yViolations } from "../support/a11y";
 
@@ -262,7 +268,30 @@ describe("画面の一覧", () => {
   });
 });
 
-describe.each(ROUTE_CASES.map((r) => [r.file, r] as const))("%s", (_file, route) => {
+describe.each(
+  ROUTE_CASES.filter(isRedirectRoute).map(
+    (route) => [route.file, route] as const,
+  ),
+)("%s — redirect adapter", (_file, route) => {
+  it("既知のcanonical pathへ移し、DOMを二重管理しない", async () => {
+    try {
+      await renderCase(route);
+      throw new Error("redirectせずに描画が完了しました");
+    } catch (cause) {
+      const digest =
+        cause !== null && typeof cause === "object" && "digest" in cause
+          ? String(cause.digest)
+          : "";
+      expect(digest).toContain(`;${route.redirectTo};`);
+    }
+  });
+});
+
+describe.each(
+  RENDERABLE_ROUTE_CASES.map(
+    (route) => [route.file, route] as const,
+  ),
+)("%s", (_file, route) => {
   it("描ける", async () => {
     const html = await renderCase(route);
     // 「例外にならない」だけでは、中身が空でも通る。

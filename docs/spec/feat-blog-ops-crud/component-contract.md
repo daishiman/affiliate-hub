@@ -17,7 +17,7 @@
 | `SiteNetworkForm` `SiteNetworkRestoreForm` | `src/presentation/admin/publish/site-network-form.tsx` | 節点の作成・更新・復元 |
 | `BlogLayoutSlotForm` `BlogLayoutBandForm` | `src/presentation/admin/publish/blog-layout-form.tsx` | 枠・帯・配信部品の保存 |
 | `BlogArticleCreateForm` `BlogArticleEditForm` `BlogArticleRestoreForm` | `src/presentation/admin/publish/blog-article-form.tsx` | 記事の作成・更新・復元 (ブロック列を含む) |
-| `BlogPageForm` `BlogPageRestoreForm` | `src/presentation/admin/publish/blog-page-form.tsx` | 固定ページ 8 種 |
+| `SiteDocumentForm` | `src/presentation/admin/publish/site-document-form.tsx` | 固定ページ 8 種。旧 `BlogPageForm` は feat-blog-ui-builder で `/admin/sites/[site]/documents` へ寄せ、経路の鍵 (`SiteDocumentKey`) を口の単位にした |
 | `BlogTagForm` | `src/presentation/admin/publish/blog-tag-form.tsx` | ブランドタグ |
 
 `部品` 列は **実在する export 名**を書く。1 ファイルが複数の口を出しているならすべて並べる。

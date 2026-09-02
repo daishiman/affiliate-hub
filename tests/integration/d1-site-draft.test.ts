@@ -1,6 +1,4 @@
 /** @tier 2 @req REQ-P07, REQ-S06, REQ-W10, REQ-TS07 */
-import { readFileSync, readdirSync } from "node:fs";
-import path from "node:path";
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import { drizzle } from "drizzle-orm/d1";
 import { getPlatformProxy } from "wrangler";
@@ -22,6 +20,7 @@ import { SAMPLE_WORKSPACE_ID } from "@/infrastructure/persistence/sample/ranking
 import { SAMPLE_SITE_SLUG } from "@/infrastructure/persistence/sample/site-sample-repository";
 import { OTHER_WORKSPACE, anOwner } from "../support/actors";
 import { recordingAuditLog } from "../support/doubles";
+import { migrationStatements } from "../support/migrations";
 
 /**
  * ブログ作成ウィザードを、**本物の D1 と本物のマイグレーション**で通す結合テスト。
@@ -59,19 +58,6 @@ let readerSide: ReturnType<typeof createDeps>;
 const owner: ActorContext = anOwner({ workspaceId: SAMPLE_WORKSPACE_ID });
 
 /** マイグレーションの本文を、実行できる単位に割る。 */
-function migrationStatements(): readonly string[] {
-  const dir = path.resolve(process.cwd(), "drizzle");
-  const files = readdirSync(dir)
-    .filter((f) => f.endsWith(".sql"))
-    .sort();
-  expect(files.length).toBeGreaterThan(0);
-  return files.flatMap((file) =>
-    readFileSync(path.join(dir, file), "utf8")
-      .split("--> statement-breakpoint")
-      .map((s) => s.trim())
-      .filter((s) => s !== ""),
-  );
-}
 
 beforeAll(async () => {
   proxy = await getPlatformProxy<TestEnv>({
@@ -103,6 +89,9 @@ afterAll(async () => {
 });
 
 beforeEach(async () => {
+  await proxy.env.DB.prepare("DELETE FROM page_theme_override").run();
+  await proxy.env.DB.prepare("DELETE FROM blog_theme").run();
+  await proxy.env.DB.prepare("DELETE FROM blog_template").run();
   await proxy.env.DB.prepare("DELETE FROM site_drafts").run();
   await proxy.env.DB.prepare("DELETE FROM site_blueprints").run();
 });
@@ -228,6 +217,28 @@ describe("下書きから読者向けの 1 本になるまで（1 本の道）",
     expect(slugs.length).toBeGreaterThan(1);
   });
 
+  it("A1: 選んだ見せ方とウィザードの配色を設計図と同時に永続する", async () => {
+    const draftId = await completeDraft("appearance-lens");
+    const created = await createCreateSiteFromDraftUseCase(deps).execute(owner, {
+      draftId,
+      templateId: "comparison_focus",
+    });
+    expect(created.ok, created.ok ? "" : created.error.message).toBe(true);
+
+    const template = await proxy.env.DB.prepare(
+      "SELECT template_id FROM blog_template WHERE site_slug = 'appearance-lens'",
+    ).first<{ template_id: string }>();
+    const theme = await proxy.env.DB.prepare(
+      "SELECT workspace_id, brand_theme, color_mode FROM blog_theme WHERE site_slug = 'appearance-lens'",
+    ).first<{ workspace_id: string; brand_theme: string; color_mode: string }>();
+    expect(template?.template_id).toBe("comparison_focus");
+    expect(theme).toEqual({
+      workspace_id: String(owner.workspaceId),
+      brand_theme: "indigo-clay",
+      color_mode: "auto",
+    });
+  });
+
   /*
    * 下の 2 件は、以前は見本の保存先の上（単体側）で見ていた。
    * 作ったことを記録に残すようになり、**記録の保存先が無い状態では
@@ -309,6 +320,60 @@ describe("下書きから読者向けの 1 本になるまで（1 本の道）",
     expect(rows.results).toEqual([
       { workspaceId: String(owner.workspaceId), name: "元の所有者のブログ" },
     ]);
+  });
+
+  it("A1: 別workspaceのslug競合ではappearanceを1行も残さず、ownerの後続保存を妨げない", async () => {
+    const draftId = await completeDraft("tenant-appearance", "元の所有者のブログ");
+    const created = await createCreateSiteFromDraftUseCase(deps).execute(owner, { draftId });
+    if (!created.ok) throw created.error;
+
+    // 攻撃前の条件を明示する。設計図だけがあり、appearanceはまだ無い。
+    await proxy.env.DB.prepare(
+      "DELETE FROM blog_template WHERE site_slug = 'tenant-appearance'",
+    ).run();
+    await proxy.env.DB.prepare(
+      "DELETE FROM blog_theme WHERE site_slug = 'tenant-appearance'",
+    ).run();
+
+    const current = await sites.findBySlug("tenant-appearance");
+    if (!current.ok || current.value === null) throw new Error("owner blueprintを読めませんでした");
+
+    const attacked = await deps.drafts.publishBlueprint(
+      "tenant-appearance",
+      { ...current.value, workspaceId: OTHER_WORKSPACE, name: "攻撃側の差し替え" },
+      {
+        templateId: "comparison_focus",
+        theme: { brandTheme: "graphite-amber", colorMode: "dark" },
+      },
+    );
+    expect(attacked.ok).toBe(false);
+
+    const appearanceCount = async (table: string) =>
+      proxy.env.DB.prepare(
+        `SELECT count(*) AS n FROM ${table} WHERE site_slug = 'tenant-appearance'`,
+      ).first<{ n: number }>();
+    expect((await appearanceCount("blog_template"))?.n).toBe(0);
+    expect((await appearanceCount("blog_theme"))?.n).toBe(0);
+    expect((await appearanceCount("page_theme_override"))?.n).toBe(0);
+
+    const ownerSaved = await deps.drafts.publishBlueprint(
+      "tenant-appearance",
+      current.value,
+      {
+        templateId: "comparison_focus",
+        theme: { brandTheme: "indigo-clay", colorMode: "auto" },
+      },
+    );
+    expect(ownerSaved.ok).toBe(true);
+
+    const templates = await proxy.env.DB.prepare(
+      "SELECT workspace_id FROM blog_template WHERE site_slug = 'tenant-appearance'",
+    ).all<{ workspace_id: string }>();
+    const themes = await proxy.env.DB.prepare(
+      "SELECT workspace_id FROM blog_theme WHERE site_slug = 'tenant-appearance'",
+    ).all<{ workspace_id: string }>();
+    expect(templates.results).toEqual([{ workspace_id: String(owner.workspaceId) }]);
+    expect(themes.results).toEqual([{ workspace_id: String(owner.workspaceId) }]);
   });
 
   it("取り下げた URL 名も、別の作業場所へ再割り当てしない", async () => {

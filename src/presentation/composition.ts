@@ -62,6 +62,12 @@ import {
   createSaveTestRunUseCase,
   createSearchEvidenceUseCase,
 } from "@/application/usecases/evidence/manage-evidence";
+import {
+  readPublicArticleBlockOrder,
+  readPublicBlogAppearance,
+  type PublicBlogAppearance,
+} from "@/application/read-models/public-blog-appearance";
+import type { Appearance } from "@/domain/authoring/appearance";
 import { createGetGenerationMatrixUseCase } from "@/application/usecases/authoring/plan-generation-matrix";
 import { createReadWritingMethodUseCase } from "@/application/usecases/authoring/read-writing-method";
 import {
@@ -212,13 +218,20 @@ import { ensureFeedbackAccess } from "@/application/usecases/feedback/feedback-a
 import { requestIdOf, withRequestId } from "@/presentation/http/request-id";
 import { appContext } from "@/infrastructure/app-context";
 import {
+  requestOriginFromRequest as resolveRequestOriginFromWebRequest,
+  resolveRequestOrigin,
+} from "@/infrastructure/http/request-origin";
+import {
   createManageLlmCredentialsUseCase,
   type ManageLlmCredentialsInput,
   type ManageLlmCredentialsOutput,
 } from "@/application/usecases/generation/manage-llm-credentials";
 import type { LlmProviderDescriptor } from "@/application/ports/llm-credential";
 import type { UseCase } from "@/application/usecases/usecase";
-import { auditLogStubNotice } from "@/infrastructure/persistence/sample/audit-log-sample-repository";
+import {
+  auditLogStubNotice,
+  createUnavailableAuditLog,
+} from "@/infrastructure/persistence/sample/audit-log-sample-repository";
 import { telemetryStubNotice } from "@/infrastructure/persistence/sample/telemetry-sample-sink";
 import {
   improvementStubBlockedBy,
@@ -251,6 +264,22 @@ import {
   createManageGuidelineReferencesUseCase,
 } from "@/application/usecases/seo/manage-guideline-references";
 import { createD1GuidelineReferenceRepository } from "@/infrastructure/persistence/d1/guideline-reference-repository";
+import {
+  recordIndexNowOutcome,
+  type RecordedIndexNowOutcome,
+} from "@/application/seo/indexnow-outcome-audit";
+import {
+  type BlogAppearanceView,
+  type ManageBlogAppearanceInput,
+  createManageBlogAppearanceUseCase,
+} from "@/application/usecases/authoring/manage-blog-appearance";
+import {
+  type BlogPlacementsView,
+  type ReviewBlogPlacementsInput,
+  createReviewBlogPlacementsUseCase,
+} from "@/application/usecases/authoring/review-blog-placements";
+import { createD1BlogAppearanceRepository } from "@/infrastructure/persistence/d1/blog-appearance-repository";
+import { createD1BlogAffiliatePlacementRepository } from "@/infrastructure/persistence/d1/blog-affiliate-placement-repository";
 import { tryGetDb } from "@/infrastructure/persistence/d1/connection";
 import {
   createD1ArticleRatingPort,
@@ -261,15 +290,12 @@ import {
   createCreateSiteNetworkNodeUseCase,
   createDeleteBlogArticleUseCase,
   createDeleteBlogTagUseCase,
-  createDeleteFixedPageUseCase,
   createDeleteSiteNetworkNodeUseCase,
   createEvaluateBlogArticlesUseCase,
   createGetBlogArticleUseCase,
   createListBlogArticlesUseCase,
   createListDeletedBlogArticlesUseCase,
   createListBlogTagsUseCase,
-  createListFixedPagesUseCase,
-  createListDeletedFixedPagesUseCase,
   createListSiteNetworkUseCase,
   createListDeletedSiteNetworkUseCase,
   createReadBlogLayoutUseCase,
@@ -278,11 +304,9 @@ import {
   createSaveBlogTagUseCase,
   createCheckBlogDeliveryUseCase,
   createSaveDeliveryPartUseCase,
-  createSaveFixedPageUseCase,
   createListArticleRatingsUseCase,
   createSetArticleRatingHiddenUseCase,
   createRestoreBlogArticleUseCase,
-  createRestoreFixedPageUseCase,
   createRestoreSiteNetworkNodeUseCase,
   createSubmitArticleRatingUseCase,
   createUpdateBlogArticleUseCase,
@@ -530,6 +554,23 @@ async function currentRequestId(): Promise<string | null> {
   } catch {
     return null;
   }
+}
+
+/** Next Server Component / Server Action の見出しを request-origin の純規則へ写す。 */
+export async function requestOriginFromNextHeaders(): Promise<string | null> {
+  const { headers } = await import("next/headers");
+  const requestHeaders = await headers();
+  return resolveRequestOrigin({
+    host: requestHeaders.get("host"),
+    forwardedHost: requestHeaders.get("x-forwarded-host"),
+    forwardedProtocol: requestHeaders.get("x-forwarded-proto"),
+    defaultProtocol: "https",
+  });
+}
+
+/** Web Request の薄い adapter も、presentation からはこの composition 境界を通す。 */
+export function requestOriginFromWebRequest(request: Request): string | null {
+  return resolveRequestOriginFromWebRequest(request);
 }
 
 /**
@@ -1727,6 +1768,138 @@ export async function guidelineReferenceEntry(): Promise<GuidelineReferenceEntry
 }
 
 /**
+ * ブログの見た目（テンプレート・配色 2 層）の入口。
+ *
+ * 出典レジストリと同じく、保存先が無ければ `ready: false` を理由つきで返す。
+ * 見本へ落とすと、選んだテンプレートが次の実行で消えているのに
+ * 画面上は保存できたように見える（受入 A8 が最も壊れやすい形）。
+ */
+export type BlogAppearanceEntry =
+  | {
+      readonly ready: true;
+      readonly manage: UseCase<ManageBlogAppearanceInput, BlogAppearanceView>;
+    }
+  | { readonly ready: false; readonly reason: string };
+
+export async function blogAppearanceEntry(): Promise<BlogAppearanceEntry> {
+  const db = await tryGetDb();
+  if (db === null) {
+    return {
+      ready: false,
+      reason:
+        "保存先 (D1) が用意されていません。ブログの見せ方と配色の設定は、保存先がある実行でだけ使えます。",
+    };
+  }
+  const deps = createDeps({ db });
+  return {
+    ready: true,
+    manage: createManageBlogAppearanceUseCase({
+      appearance: createD1BlogAppearanceRepository({ db, newId: () => deps.ids.newId() }),
+      auditLog: deps.auditLog,
+      ids: deps.ids,
+      now: () => new Date(),
+    }),
+  };
+}
+
+/**
+ * 公開面に効く配色を、保存された 2 層から読む（受入 A2-4）。
+ *
+ * **管理画面の入口（`blogAppearanceEntry`）と分けてある。** あちらは能力を要求する
+ * ユースケースで、読者は能力を 1 つも持たない。読み取り専用のここを通す。
+ *
+ * 保存先が無い実行（見本データ）では設計図の配色をそのまま返す。
+ * ここで `ready: false` を返して画面を止めると、保存先を繋ぐ前は
+ * ブログが 1 本も開けなくなる。
+ */
+export async function publicBlogAppearance(input: {
+  readonly siteSlug: string;
+  readonly pagePath: string;
+  readonly fallback: Appearance;
+}): Promise<PublicBlogAppearance> {
+  const db = await tryGetDb();
+  if (db === null) return { appearance: input.fallback, resolved: false };
+  const deps = createDeps({ db });
+  /*
+    読者は作業場所を持たない。**保存先の絞り込みを緩めずに**、
+    ブログの持ち主の作業場所を引いてから読む（`readerActorForSite` と同じ形）。
+    引けなければ読まない —— 誰の作業場所か分からないまま
+    `blog_theme` を引くと、同じ名前のブログが別の作業場所にある日に
+    他所の配色が出る。
+  */
+  const found = await deps.sites.findBySlug(input.siteSlug);
+  if (!found.ok || found.value === null) {
+    return { appearance: input.fallback, resolved: false };
+  }
+  return readPublicBlogAppearance({
+    port: createD1BlogAppearanceRepository({ db, newId: () => deps.ids.newId() }),
+    workspaceId: found.value.workspaceId,
+    siteSlug: input.siteSlug,
+    pagePath: input.pagePath,
+    fallback: input.fallback,
+  });
+}
+
+/**
+ * 記事の中の塊の並び。ブログが選んだ見せ方から取る（受入 A1・A5）。
+ *
+ * 配色と同じ理由でここに置く（読者は能力を持たない）。
+ * 選んでいない・保存先が無いときは `null` を返し、記事画面が既定の並びで描く。
+ */
+export async function publicArticleBlockOrder(
+  siteSlug: string,
+): Promise<readonly string[] | null> {
+  const db = await tryGetDb();
+  if (db === null) return null;
+  const deps = createDeps({ db });
+  const found = await deps.sites.findBySlug(siteSlug);
+  if (!found.ok || found.value === null) return null;
+  return readPublicArticleBlockOrder({
+    port: createD1BlogAppearanceRepository({ db, newId: () => deps.ids.newId() }),
+    workspaceId: found.value.workspaceId,
+    siteSlug,
+  });
+}
+
+/**
+ * ブログ×成果リンクの掲載台帳の入口（受入 A6・A7）。
+ *
+ * 見た目の入口と分けてある。掲載の一覧は**記事の全体集合**を要するので
+ * `blogOps` の保管庫まで引き連れる。配色の画面がその重さを払う理由は無い。
+ */
+export type BlogPlacementEntry =
+  | {
+      readonly ready: true;
+      readonly review: UseCase<ReviewBlogPlacementsInput, BlogPlacementsView>;
+    }
+  | { readonly ready: false; readonly reason: string };
+
+export async function blogPlacementEntry(): Promise<BlogPlacementEntry> {
+  const db = await tryGetDb();
+  if (db === null) {
+    return {
+      ready: false,
+      reason:
+        "保存先 (D1) が用意されていません。成果リンクの掲載状況は、保存先がある実行でだけ使えます。",
+    };
+  }
+  const deps = createDeps({ db });
+  return {
+    ready: true,
+    review: createReviewBlogPlacementsUseCase({
+      placements: createD1BlogAffiliatePlacementRepository({
+        db,
+        newId: () => deps.ids.newId(),
+      }),
+      blogOps: deps.blogOps,
+      auditLog: deps.auditLog,
+      ids: deps.ids,
+      now: () => new Date(),
+    }),
+  };
+}
+
+/**
  * 18 項目がそろった状態の見本。
  *
  * **見本データ（スタブ）である。** 画面で「そろった状態」を実際に押して
@@ -2126,18 +2299,43 @@ export async function siteBuilderUseCases() {
  * 現れない。skipped/failed の別は呼び出し元が記録する。
  */
 export async function notifyIndexNowOfPublish(
-  origin: string,
-  urls: readonly string[],
-): Promise<{ readonly status: "skipped" | "sent" | "failed"; readonly detail: string }> {
-  const result = await submitToIndexNow(origin, urls);
-  switch (result.status) {
-    case "sent":
-      return { status: "sent", detail: `${result.count} 件を通知しました。` };
-    case "skipped":
-      return { status: "skipped", detail: result.reason };
-    case "failed":
-      return { status: "failed", detail: result.error };
-  }
+  actor: ActorContext,
+  origin: string | null,
+  targetPath: string,
+): Promise<RecordedIndexNowOutcome> {
+  const targetUrl = origin === null ? targetPath : `${origin}${targetPath}`;
+  const outcome = await (async () => {
+    if (origin === null) {
+      return {
+        status: "skipped" as const,
+        detail: "信頼できる公開元 URL を確定できなかったため、IndexNow 通知をスキップしました。",
+      };
+    }
+
+    const result = await submitToIndexNow(origin, [targetUrl]);
+    switch (result.status) {
+      case "sent":
+        return { status: "sent" as const, detail: `${result.count} 件を通知しました。` };
+      case "skipped":
+        return { status: "skipped" as const, detail: result.reason };
+      case "failed":
+        return { status: "failed" as const, detail: result.error };
+    }
+  })();
+
+  const db = await tryGetDb();
+  const deps = createDeps({ db });
+  return recordIndexNowOutcome(
+    {
+      // D1 が無い実行で、処理中のメモリへ書いただけなのに「永続記録済み」と
+      // 返さない。公開環境では D1、本当に無い環境では明示的な失敗を返す。
+      auditLog: db === null ? createUnavailableAuditLog() : deps.auditLog,
+      ids: deps.ids,
+      now: () => new Date(),
+    },
+    actor,
+    { targetUrl, outcome },
+  );
 }
 
 /* ------------------------------------------------------------------ *
@@ -2173,11 +2371,6 @@ export type BlogOpsEntry =
       readonly updateArticle: ReturnType<typeof createUpdateBlogArticleUseCase>;
       readonly deleteArticle: ReturnType<typeof createDeleteBlogArticleUseCase>;
       readonly restoreArticle: ReturnType<typeof createRestoreBlogArticleUseCase>;
-      readonly listFixedPages: ReturnType<typeof createListFixedPagesUseCase>;
-      readonly listDeletedFixedPages: ReturnType<typeof createListDeletedFixedPagesUseCase>;
-      readonly saveFixedPage: ReturnType<typeof createSaveFixedPageUseCase>;
-      readonly deleteFixedPage: ReturnType<typeof createDeleteFixedPageUseCase>;
-      readonly restoreFixedPage: ReturnType<typeof createRestoreFixedPageUseCase>;
       readonly listTags: ReturnType<typeof createListBlogTagsUseCase>;
       readonly saveTag: ReturnType<typeof createSaveBlogTagUseCase>;
       readonly deleteTag: ReturnType<typeof createDeleteBlogTagUseCase>;
@@ -2233,11 +2426,6 @@ export async function blogOpsEntry(): Promise<BlogOpsEntry> {
     updateArticle: createUpdateBlogArticleUseCase(base),
     deleteArticle: createDeleteBlogArticleUseCase(base),
     restoreArticle: createRestoreBlogArticleUseCase(base),
-    listFixedPages: createListFixedPagesUseCase(base),
-    listDeletedFixedPages: createListDeletedFixedPagesUseCase(base),
-    saveFixedPage: createSaveFixedPageUseCase(base),
-    deleteFixedPage: createDeleteFixedPageUseCase(base),
-    restoreFixedPage: createRestoreFixedPageUseCase(base),
     listTags: createListBlogTagsUseCase(base),
     saveTag: createSaveBlogTagUseCase(base),
     deleteTag: createDeleteBlogTagUseCase(base),

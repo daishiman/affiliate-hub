@@ -738,3 +738,335 @@ decided_at: 2026-08-31
 ## 残課題
 
 無し。`ah-ghmb` から引き継いだ残課題はこれで閉じた。
+
+---
+
+# 仕様反映 受領書（2026-08-31・ブログ UI ビルダーの開発環境リリース）
+
+```yaml
+receipt_id: spec-writeback-2026-08-31-feat-blog-ui-builder-p13
+recorded_at: 2026-08-31T03:20:00Z
+beads_ids: [ah-45ba, ah-45ba.13]
+dev_graph_node_id: SYS-BLOG-UI-BUILDER-P13
+parent_feature: feat-blog-ui-builder
+base_branch: dev
+head_branch: devgraph/SYS-BLOG-UI-BUILDER-P13
+verdict: spec-impact-written-back
+```
+
+## 判定
+
+本変更は**仕様・設計へ影響する。反映済みである。**
+
+`feat-blog-ui-builder`（P01〜P12）の実装で確定した契約を、正本 `system-spec/spec-state.json` の
+`chapter_notes` へ `set-chapter-note` で記録し、章 `.md` を `compile-spec-doc.py` で再生成した。
+**章を直接編集していない。**確定済みセルの直接 Edit は `guard-confirmed-chapter-overwrite` が拒否する。
+章は正本の純関数であり、正本に無い散文は compile のたび消えるためでもある。
+
+## 反映した正本と投影
+
+| 正本（`chapter_notes` の章） | 記録した内容 | 投影先 |
+|---|---|---|
+| `ui-ux` | 規則の 3 層（不変／契約／運用）、テンプレートの不変条件、配色 2 層の適用範囲、アクセシビリティの床、design token 制約、受入 4 件の保留 | `system-spec/ui-ux.md` |
+| `frontend` | テーマ実装契約（2 層 + 単一読み取り口）、コンポーネント契約、SEO/AI 検索実装契約（JSON-LD / sitemap / IndexNow / guideline_references） | `system-spec/frontend.md` |
+| `database` | 6 表のデータモデル、`workspace_id` を列として持つ理由、索引の 1 段目、行の不在で状態を表す設計、未解決の欠陥 3 件 | `system-spec/database.md` |
+| `database`（本リリースで追加） | §4.1 の 🔴「migration が未コミット」を本 commit で解消した記録と、0040 の停止条件 | `system-spec/database.md` |
+
+`infrastructure.md` / `maintenance-ops.md` は生成の副次差分（4 行）のみで、契約は増減していない。
+
+## 方針を上書きせず差分として足した理由
+
+書き戻しはすべて `## 章の注記 (chapter_notes)` という**別の節**へ入れてある。
+上の「確定内容（質疑録）」は利用者の逐語であり、そこへ実装の都合を混ぜると
+**利用者が言っていないことが利用者の声の顔で残る。**
+
+方針と実装がずれた点も、ずれを消して片方だけを残さず並べてある。
+上書きで消すと、なぜその形になったかが後から読めなくなる。
+
+## 品質ゲート（MVP）
+
+| ゲート | 結果 |
+|---|---|
+| `npx vitest run`（全体） | **PASS** — 434 files / 10101 tests |
+| `validate-system-plan.py --feature-package feature-package/feat-blog-ui-builder` | **PASS** — `"violations": []` |
+| `pnpm run build` | 本リリース commit 前に実行 |
+| `pnpm run preview`（Workers ランタイム） | PASS — 証跡 `docs/spec/feat-blog-ui-builder/evidence/13-preview-workers-runtime.txt` |
+| 受入 A1〜A14 | 証跡 `docs/spec/feat-blog-ui-builder/evidence/` 配下、判定は同 `final-review.md` |
+
+## 意図的にやらなかったこと
+
+- **受入 A4（固定ページ 18 経路中 12 経路が 404）を本リリースで直すこと。**
+  原因は `legal_page` を `SiteDocumentKey`（9 種）と `FixedPageKind`（8 種）の
+  2 系統の語彙が触っていることで、語彙の統合は本 feature の scope の外にある。
+  正本 `database` §4.2 に 🔴 として記録済みで、隠していない。
+- **視覚回帰の見本の撮り直し（`pnpm run visual --accept`）。**
+  差分の原因は本 feature が変えていない部品（`0ed9e2b` / `e97e5bc`、すでに main）である。
+  撮り直しは「この変化は正しい」と宣言する取り消しにくい操作であり、
+  **変えていない側の担当が署名するのは筋が通らない。**
+
+## 残課題
+
+- 🔴 `legal_page` の語彙 2 系統統合（受入 A4／正本 `database` §4.2）
+- 🔴 公開記事の本文が HTML に出ていない（受入 A5 / A12／正本 `frontend` §4）
+- ⚠️ 配色の保存と掲載の増減が操作の記録に届かない（正本 `database` §4.3）。
+  **本番（`main`）へ進める前にこれを閉じること。**掲載の増減は金銭に直結する
+- 🟡 受入 A3「sticky 常時表示」の受入文言が未定義
+- 🟡 `guideline_references` の登録が 0 件（判定は動くが対象が無い）
+
+---
+
+# 仕様反映 受領書（2026-08-31・`dev` 取り込み時の設計判断）
+
+```yaml
+receipt_id: spec-writeback-2026-08-31-feat-blog-ui-builder-p13-dev-merge
+recorded_at: 2026-08-31T03:40:00Z
+beads_ids: [ah-45ba, ah-45ba.13]
+dev_graph_node_id: SYS-BLOG-UI-BUILDER-P13
+parent_feature: feat-blog-ui-builder
+base_branch: dev
+head_branch: devgraph/SYS-BLOG-UI-BUILDER-P13
+pull_request: https://github.com/daishiman/affiliate-hub/pull/46
+verdict: spec-impact-written-back
+```
+
+## 判定
+
+`dev` の取り込みで**設計が動いた点が 3 つあり、うち 2 つを設計文書へ反映した。**
+残り 1 つは正本 `spec-state.json` 側が既に `dev` の値を持っており、追加の書き戻しは不要である。
+
+## 1. 掲載表の部分 UNIQUE 索引を戻した（設計の取り消し）
+
+取り込みの途中で「掲載の一意制約は repository の DELETE→INSERT が守るから索引は要らない」と
+いったん判断し、索引を落とした。**これは誤りで、取り消した。**
+
+`blog-affiliate-placement-repository.ts` の `save` は `onConflictDoUpdate` で自然identityを指す。
+SQLite は ON CONFLICT の対象に**一致する UNIQUE 制約が無いと INSERT ごと拒む**ので、
+索引を落とすと保存が全部失敗する。型検査は通り、`d1-blog-affiliate-placement.test.ts` の
+16 件が実行時に落ちてはじめて見えた。
+
+`tracking_code` は NULL を取り、SQL では `NULL = NULL` が真にならない。索引を 1 本にすると
+「コード無しの掲載」が何件でも作れてしまうので、`WHERE tracking_code IS NULL` と
+`IS NOT NULL` の 2 本に分けている。索引を置く前に既存の重複を `max(rowid)` で
+決定的に 1 件へ寄せる（寄せないと索引作成そのものが既存行で落ちる）。
+
+反映先: `drizzle/0041_blog_appearance_workspace.sql`（意図をコメントで併記）、
+`tests/integration/d1-migration-0041.test.ts`。
+
+## 2. `legal_page.kind` の語彙移行を落とした（移行が要らなくなった）
+
+旧 `0040` は `legal_page.kind` の値そのものを書き換える移行を持っていた。
+`dev` が同じ問題へ別の解を先に出しており、`SITE_DOCUMENT_KIND_BY_KEY` が
+**経路の鍵（`operator`）と保管上の名前（`profile`）を 1 か所で対応づける。**
+保管されている値を書き換える必要がそもそも無くなったため、移行を落とした。
+**移行を消して問題を隠したのではなく、問題の形が変わった。**
+
+正本 `database` の 🔴「`legal_page` の語彙 2 系統統合」は、この対応表の導入で解の道筋が
+定まった。対応そのものの検査は `tests/integration/d1-published-article.test.ts` が持つ。
+
+反映先: `docs/spec/feat-blog-ops-crud/component-contract.md`（`SiteDocumentForm` の行）、
+`docs/spec/feat-blog-ui-builder/component-contract.md`（§5 実装の割り当て）。
+
+## 3. presentation 部品を `publish/` へ寄せた（置き場所の統一）
+
+`dev` が管理画面の presentation モジュール約 49 個を
+`src/presentation/admin/publish/` へ移していた。本 feature が新設した 6 つだけ
+`admin/` 直下に残ると、同じ役割の部品が 2 か所に散る。`git mv` で寄せ、
+契約表のファイル列を実在するパスへ更新した。
+
+反映先: 上記 2 つの `component-contract.md`、`admin-screen-task-manifest.ts`。
+
+## 4. 確定済み章の転記ずれ 7 件を R4-reopen で追随させた
+
+**確定済み章 `system-spec/*.md` の転記節と出典表が、正本 `spec-state.json` /
+`fetched-references.json` に追随していなかった（7 件）。**章の
+`## 確定セルの記録 (正本 spec-state.json)` は**人が書く節**で compile が生成しないため、
+`dev` が先に進めた値を正本は正しく持つのに、章だけが古いまま残っていた。
+
+- `frontend` / `infrastructure` / `maintenance-ops` / `ui-ux` の `qa_ref`・`serves_goals`
+  6 セル
+- `ui-ux.md` の出典表 `apple-hig` の更新日: 章は `2026-08-27`（HTTP `Last-Modified` 由来）、
+  `fetched-references.json` は `2026-06-08`（ページ自身の表明）。**後者のほうが根拠が強い**ので、
+  章を `2026-06-08` へ寄せた。
+
+いずれも `dev` 側に元からあった食い違いで、`chapter-confirmed-cell-transcript.test.ts` と
+`doc-source-version-gap.test.ts` が本ブランチで**新しく検出した**ものである（前者は `dev` に存在しない）。
+
+章の直接編集は `guard-confirmed-chapter-overwrite` が遮断する。**遮断を迂回していない。**
+唯一の正規経路である **R4-reopen → `reaffirm: true` を名乗った再確定 →
+`record-required-info-check`** を、`auth` / `frontend` / `infrastructure` /
+`maintenance-ops` / `ui-ux` の web セルに対して踏んだ（`ui-ux` は 2 回）。
+`reopen_log` に 6 件が残っている。
+`matrix` の値は `required_info_checks` を除き**完全保存**であることを機械で確認した
+（差分照合の結果: `checks 以外の差分: []`）。
+
+**正直に書いておく副作用が 1 つある。** `confirm` は `required_info_checks` を
+復元しないため、過去の計測日（08-24 / 08-25 / 08-30）が失われ、`record-required-info-check`
+で数え直した 08-31 の 1 件だけが残った。**必須情報が満たされている事実は変わらないが、
+いつ数えたかの履歴は消えている。**これは harness 側の欠落で、迂回して手で書き戻すことは
+していない（正本の手編集は `guard-graph-schema` が遮断する対象でもある）。
+
+加えて `ui-ux.md` / `auth.md` の散文にあった「出典が `user-dialogue` なのは本章だけ」という
+記述が実態と反転していたので、実測に合わせて
+「**web セル 8 件のうち 6 件が `user-dialogue`。書面由来は backend と security の 2 件だけ**」
+「**2026-08-31 時点で少数派は書面由来のほうである**」へ書き換えた。
+ブログ構築 UI 以降の確定が対話で積み上がった結果で、**穴は広がる向きに動いている。**
+
+## 反映しなかったもの（理由つき）
+
+無し。上記 4 で全件を追随させた。
+
+## 品質ゲート（MVP）
+
+| ゲート | 結果 |
+|---|---|
+| `npx tsc --noEmit` | **PASS** |
+| `verify --tier 1` | **全門 OK**（333 files / 6445 passed） |
+| `npx vitest run tests/ui/` | **PASS**（95 files / 3367 passed） |
+| `npx vitest run`（全体） | **PASS**（452 files / 10297 passed、赤 0 件） |
+| 変更したところのミューテーション | **PASS**（61.21% → **68.7%**、下限 65%） |
+| 層別の記録（カバレッジ） | **PASS**（presentation 分岐 78% → **80.3%**、下限 80%） |
+| `npx vitest run`（追加後） | **PASS**（457 files / 10447 passed、赤 0 件） |
+| つなぎ目の呼び出し | **PASS**（届いていない 2 → **0**、判定できない 4 → **0**、上限はどちらも 0 のまま） |
+| 受入 reconciliation | **PASS**（10 IDs / 205 evidence files） |
+| テストと要件の対応 | **PASS**（由来不明 0、上限 2） |
+| 要件ごとの必須テスト種別 | **PASS**（未宣言 5、上限 5） |
+
+### ミューテーションの下限割れは仕様反映ではなくテスト不足だった
+
+検査が全緑になったあとも CI の広い門は落ちていた。落としていたのは
+`usecases/authoring/manage-blog-appearance.ts`（126 mutants）と
+`review-blog-placements.ts`（131 mutants）が **coverage 0.00%** だったことである。
+本 feature が足したユースケースに、テストが 1 本も当たっていなかった。
+
+**これは仕様への影響ではない。**確定章にも `spec-state.json` にも触れていない。
+ユースケースの振る舞いは既に確定章の記述どおりで、それを検査が確かめていなかった
+だけである。よって R4-reopen は使わず、`tests/application/` へ 62 件を足した
+（`manage-blog-appearance` 30 件で 88.10%、`review-blog-placements` 32 件で 72.52%）。
+
+同じことが、その次の門（層別の記録）でも起きた。ミューテーションで止まって
+いたので、それまで一度も実行されていなかった門である。presentation の分岐が
+78%（下限 80%）で、穴は本 feature の server action 3 本（`blog-appearance-action` /
+`blog-placement-action` / `blog-rating-form`、いずれも **0%**）と
+`site-metadata.ts` の `blogArticleMetadata`（31%）に集中していた。
+これも仕様への影響ではなくテスト不足なので、`tests/presentation/` と
+`tests/ui/` へ 75 件を足して 80.3% にした。詳細はリリースレポート §D.2。
+
+**赤は 1 件も残していない。**閾値を下げて緑にしたものも無い
+（ミューテーションの下限 65% も動かしていない）。
+床を動かした 4 か所（63→65 / 81→83 / 61→62 / 82→84）はいずれも**上げ**で、
+manifest の実数に検査側の床が追いついていなかった分の修正である。
+
+## 残課題
+
+- 直前の受領書 `spec-writeback-2026-08-31-feat-blog-ui-builder-p13` の残課題はそのまま有効
+- 🟡 `confirm` が `required_info_checks` を復元しない harness の欠落（上記 4 の副作用）。
+  再確定のたびに計測日の履歴が消える。harness 側で直すべきもので、章や正本を手で
+  書き戻して隠すべきものではない
+- 🔴 リリースレポート §E の 2 件のうち、**前者（配色の保存と掲載の増減が操作の記録に
+  届かない）は閉じた**（下記）。後者（公開記事の本文が HTML に出ていない）は手つかず
+- 🟡 完全性の再評価（2026-08-31）が出した gaps 4 件。**いずれも総合 PASS を妨げない**
+  - medium: `nextjs` の取得証跡が上流に追い越された（記録 16.3.3 / 現行 16.3.4）。
+    層0 が逐語一致を返すので記録誤りではなく、宛先は C02 再取得
+  - medium: `system-spec/maintenance-ops.md` の frontmatter `serves_goals: [G1]` が
+    正本セル `[G1, G2]` より狭い。宛先は C03 compile だが、同章は compile が
+    規範本文 366 行を消した実測が reopen_log にあるため frontmatter のみ手編集も選択肢
+  - low: `system-spec/ui-ux.md` の接地根拠 2 件が `unrecorded` のまま
+  - low: `decisions[]` 4 件が「`schema_version` を検査しない writer で書いた」と自己申告。
+    宛先は harness 側
+
+## 6. 書き込みが操作の記録に届かない状態を解消（§4.3 / リリースレポート §D.4）
+
+「つなぎ目の呼び出し」（`node scripts/port-wiring.mjs`）が
+**届いていない 2 件・判定できない 4 件**で赤だった。閾値を上げずに閉じた。
+
+**判定できない 4 件は名前の側を直した。**`clear` を `WRITE_VERBS` へ、
+`templateOf` / `themeOf` を `NON_WRITE_EXACT` へ足し、`selectTemplate` は
+`saveTemplate` へ**改名した**。語彙表へ `select` を足せば黙らせられたが、
+それをすると将来の読み取り手続きが黙って書き込み扱いになる（SQL の `SELECT` は読みの語）。
+
+**届いていない 2 件は `audit_log` へ 1 行残すようにした。**
+`createManageBlogAppearanceUseCase`（4 操作）と `createReviewBlogPlacementsUseCase`
+（掲載の足し引き）から `deps.auditLog.append()` を同じファイルの中で呼ぶ。
+語は `blog_appearance.changed` / `blog_placement.changed` / `blog_placement.removed` の 3 つ。
+
+### これは仕様への影響である（テスト不足ではない）
+
+上の 4・5 と違い、こちらは**確定章の記述そのものが現状と食い違う**。
+`system-spec/database.md` §4.3 は「操作の記録に届いていない」と書いており、
+それが解消された以上、正本を現状に一致させないと章が嘘になる。
+
+`apply-spec-transition.py set-chapter-note` の正規経路で
+`chapter_notes.database` へ「書き込みが操作の記録に届かない状態を解消 —
+feat-blog-ui-builder リリース (P13、2026-08-31)」を足し、
+`compile-spec-doc.py compile --only database.md --on-handwritten preserve` で章を作り直した。
+**前の §4.3 の記録は消していない**（消すと「一度この状態で出そうとしていた」事実が引けなくなる）。
+確定セルの reopen は要らなかった——matrix の値は 1 つも動いていないためである。
+
+`guard-confirmed-chapter-overwrite` は迂回していない。
+
+### 品質ゲート（2026-08-31 実測・§6 の変更後）
+
+| ゲート | 結果 |
+| --- | --- |
+| `pnpm run typecheck` | PASS |
+| `pnpm run lint` | PASS（既存 warning 2 件のみ。エラー 0） |
+| `pnpm run test:coverage` | **PASS**（457 files / 10447 passed、赤 0 件） |
+| `node scripts/port-wiring.mjs` | **PASS**（届いていない **0**／判定できない **0**。上限はどちらも 0） |
+| `node scripts/coverage-report.mjs` | PASS（全層が下限を満たす。最も薄いのは presentation 分岐 80.3%／下限 80） |
+| `node scripts/traceability.mjs` | PASS（由来不明 0／上限 2） |
+| `node scripts/required-test-types.mjs` | PASS（未宣言 5／上限 5） |
+| `node scripts/acceptance-reconciliation.mjs --write` | PASS（10 ID / 205 evidence file） |
+| `MUTATION_BASE=origin/dev node scripts/mutation.mjs --changed` | **PASS。68.84%（下限 65%）** |
+
+ミューテーションは前回 `--changed` を付け忘れて全体走査（226 files / 25,855 mutant）へ
+落ちていた。`MUTATION_BASE` は `--changed` の分岐の中でしか読まれない。
+環境変数ではなく引数で対象を宣言させる作りで、**意図しない全体走査が黙って走らない**側に倒してある。
+
+倒した 1974 / 生き残った 737 / テストが無い 157 / 対象外 392（分母外）。
+`テストが無い` は分母に入るので、テストの当たっていないコードを足すと必ずスコアが下がる。
+カバレッジ門をすり抜けた穴をここが拾う。**閾値は 1 つも動かしていない。**
+
+### 章の行数の天井を、余裕 15 行のまま置き直した
+
+`tests/architecture/chapter-regeneration-floor.test.ts` が
+「`database.md` の行数が 219 以上 528 以下」で赤くなった（実測 578 行）。
+
+この門が守っているのは**床と余裕**であって天井の絶対値ではない。
+設計意図に「増えるのは通す。減るところだけを止める」と明記があり、
+この章はこれまで 2 回（470→485、513→528）同じ形で置き直している。
+今回が 3 度目で、**床 219 も余裕 15 行も動かしていない**（578 + 15 = 593）。
+
+増えた 50 行は §4.3 を「解消した」という追記で、痩せた結果ではない。
+緩めたのか置き直したのかの見分けが後から付くよう、
+**余裕そのものを広げた日が来たらそれは緩めたのだ**という判定基準を宣言のそばに書いた。
+
+### 完全性レポートは近道を使わず正規に再評価した
+
+`node scripts/spec-freshness.mjs` が `STALE` を返していた。
+
+2026-08-30 の追記（上記）では「動いたのは機械が再生成した `evaluated_digest` 1 行だけ」
+と逐一 digest で示したうえで `--write` の近道を使い、そのとき
+**「仕様書の本文が動いたときは、この近道を使わず正規の再評価へ回すこと」**と条件を書き残した。
+
+今回は `system-spec/database.md` の本文が動いている。近道の適用範囲外である。
+ブランチ全体では仕様入力 33 件が動いており、前回の 81 入力に対し今回は 160 入力で、
+指紋も `bddbe24e…` → `51bb3e1a…` と一致しない。**前回の PASS は再利用できない。**
+
+そこで `assign-system-spec-completeness-evaluator` を fork で起動し、6 観点を再評価した。
+
+| 観点 | 判定 | 担当 |
+| --- | --- | --- |
+| foundation_trace | PASS | C05 自己評価 |
+| decision_guidance | PASS | C05 自己評価 |
+| matrix_coverage | PASS | C07（primary）+ C06（sub_input） |
+| design_knowledge_reflection | PASS | C05 自己評価 |
+| doc_freshness | PASS | C08（primary） |
+| prompt_quality | PASS | C05 自己評価 |
+
+**総合 PASS・high finding 0 件。**独立監査 3 件はいずれも本 session の実 fork で、
+台帳の pending 残 0（手による補正はしていない）。決定論ゲート 13 本すべて exit 0。
+評価は read-only で、**仕様書本文への書き込みは 0 件**である。
+
+そのうえで `--write` により指紋を焼き付けた。再判定は `FRESH` / `PASS`。
+
+再評価が出した gaps 4 件（総合 PASS は妨げない）は下の残課題へ送った。

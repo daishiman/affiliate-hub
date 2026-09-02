@@ -1,0 +1,20 @@
+# 在宅ワークの机まわり
+
+> 家で 1 日 8 時間働く人が、体を痛めない机まわりを選べるようにする
+
+## 記事一覧
+
+- [はじめての編集机まわり おすすめ 5 選](http://localhost:3001/s/home-office-desk/blog/starter-kit-2026): 予算・置き場所・音の 3 点で絞り込み、迷いどころを先に片づけます。
+- [持ち歩ける SSD を 3 か月使ってみた](http://localhost:3001/s/home-office-desk/blog/portable-ssd-for-editing): 速さより、持ち運びで壊れないかを先に見ました。
+- [8 時間座る人のための椅子の順位](http://localhost:3001/s/home-office-desk/best/chairs-for-long-hours): 同じ人が同じ姿勢で 8 時間座り、腰まわりの圧力を測って並べました。
+- [画面に映り込まない手元照明の選び方](http://localhost:3001/s/home-office-desk/guides/choosing-desk-lighting): 明るさより、光の来る向きです。机の右奥から当てると映り込みません。
+- [配線を片づける最初の一歩](http://localhost:3001/s/home-office-desk/blog/cable-management-first-step): 抜き差しするものだけを手前に集めます。
+- [ErgoOne Pro を 3 か月使った記録](http://localhost:3001/s/home-office-desk/reviews/ergo-one-pro): 腰は楽になりました。ただし部屋が狭いと後ろに下がれません。
+- [録音しながら編集できる机の作り方](http://localhost:3001/s/home-office-desk/blog/quiet-workspace-setup): 音の出るものを机から離すだけで、録り直しが減ります。
+- [ErgoOne Pro と FlexSeat 2 の比較](http://localhost:3001/s/home-office-desk/compare/ergo-one-vs-flexseat): 腰の負担を取るか、体格の合わせやすさを取るか。数字で並べました。
+- [手元の明かりをどこに置くか](http://localhost:3001/s/home-office-desk/blog/desk-lighting-notes): 画面の反射を減らす向きから決めます。
+- [必要な保存容量の目安を出す](http://localhost:3001/s/home-office-desk/tools/storage-estimator): 撮影する時間と記録レートから、素材を置いておくのに要る大きさを計算します。
+- [幅 160cm の昇降デスクを 2 か月使う](http://localhost:3001/s/home-office-desk/reviews/wide-desk-w160): 揺れは天板の厚みで決まりました。脚のロックは緩みます。
+- [長い尺の編集で止まらないノートパソコンの選び方と、買う前に確かめておきたい 7 つのこと](http://localhost:3001/s/home-office-desk/blog/choosing-a-laptop-for-long-timeline-editing): 画面の大きさ・冷え方・電池の持ち・端子の数・重さ・保証・下取りの 7 点を、優先する順に並べ替えられる状態にします。どれを削ってよいかは使い方で変わるので、削ってよい順も一緒に書きます。
+- [FlexSeat 2 は小柄な人に合うのか](http://localhost:3001/s/home-office-desk/reviews/flexseat-2): 体重 50kg でも座面が沈みます。肘掛けの前後調整はありません。
+- [色合わせの手順を、道具を増やさずに始める](http://localhost:3001/s/home-office-desk/blog/color-calibration-basics): まず今ある画面で測ってから、足りないものを足します。

@@ -15,7 +15,7 @@ serves_goals: [G1, G2]
 
 | プラットフォーム | 状態 | 根拠 |
 |---|---|---|
-| Web (web) | 確定 | 確定質疑: qa-uiux-web-cognitive-load-affiliate-visibility-v3。裏付け質疑 (`qa_refs`): `qa-uiux-web-seo-ai-search-v2`, `qa-uiux-web-blog-builder`, `qa-uiux-web-screen-priority`, `qa-uiux-web-spec-intake`, `qa-uiux-web`, `qa-uiux-web-overhaul-v2` — 本章の「確定内容 (質疑録)」へ接地根拠として併記 |
+| Web (web) | 確定 | 確定質疑: qa-uiux-web-seo-ai-search-v2。裏付け質疑 (`qa_refs`): `qa-uiux-web-blog-builder`, `qa-uiux-web-screen-priority`, `qa-uiux-web-spec-intake`, `qa-uiux-web`, `qa-uiux-web-overhaul-v2` — 本章の「確定内容 (質疑録)」へ接地根拠として併記 |
 | モバイル (mobile) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |
 | タブレット (tablet) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |
 | デスクトップ (Windows) (desktop-windows) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |
@@ -24,13 +24,7 @@ serves_goals: [G1, G2]
 
 ## 確定内容 (質疑録)
 
-### qa-uiux-web-cognitive-load-affiliate-visibility-v3 (対応セル: web)
-
-**質問**: ui-ux×web: 管理画面の新規作成・改善・保存・アフィリエイト一覧・リンク設定を、どの程度直感的にし、画面確認をどう要件化するか（2026-08-29 利用者追加入力）
-
-**回答**: 認知負荷を極限まで下げ、直感的に操作できる仕組みにしてください。特に、管理画面での新規作成、改善、保存、およびアフィリエイトの一覧表示やリンク設定などについて、直感的な操作性を重視してください。とりあえず、画面を見て、確認もしておいてください。
-
-### qa-uiux-web-seo-ai-search-v2 (対応セル: web) — 接地根拠 (required_info/qa_refs が名指す裏付け)
+### qa-uiux-web-seo-ai-search-v2 (対応セル: web)
 
 **質問**: ui-ux×web: SEO と AI 検索 (AI Overviews / AI Mode / ChatGPT search / Perplexity 等) からの評価・引用を高めるために、ブログ UI ビルダーの記事構造・固定ページ・管理画面をどう整えるか。また海外・日本の最新ガイドラインを取得して反映する運用をどう見せるか。2026-08-24 対話ヒアリング (利用者原文を逐語主旨で記録) + 同日ウェブ調査。
 
@@ -221,6 +215,95 @@ serves_goals: [G1, G2]
 
 - 正本へ入れた理由: 2026-08-25: この散文は章 ui-ux.md にしか無く、生成節 `## 確定内容 (質疑録)` の内側 (`####`) に書かれていたため compile のたび消失していた。節の引き継ぎは `##` 単位でしか効かず、生成節の内側は原理上守れない。利用者の逐語 (qa_log[].answer) へ足すと利用者が言っていないことが利用者の声で残るため、突き合わせの記録として別欄へ置く。
 
+### 実装確定の書き戻し — feat-blog-ui-builder (P13、2026-08-30)
+
+`feat-blog-ui-builder` (P01〜P12) の実装で確定した UI/UX 契約を記録する。
+規則の全文は `docs/spec/feat-blog-ui-builder/ui-rules.md`、
+手順は同 `operations.md` にある。**ここには、章として保つべき契約だけを書く。**
+
+### 1. 規則は 3 層に分かれる
+
+| 層 | 何か | 変えるとき |
+|---|---|---|
+| **不変** | 変えると既存記事や読者の入口が壊れる | 変えない。変えたいなら仕様から |
+| **契約** | 実装が守ることを検査で強制している | 実装と検査を同時に直す |
+| **運用** | 人が判断する余地がある | 運用手順で決める |
+
+**層を分けずに 1 枚の規則表にすると、変えてよいものと変えてはいけないものが
+同じ重さに見え、「規則だから変えられない」か「規則だから守らなくていい」の
+どちらかに倒れる。**
+
+### 2. 不変 — テンプレートは記事の中身を知らない
+
+テンプレート 6 種は並び方だけを決める。
+**「このテンプレートでは図解が使えない」の類を書いてはならない。**
+書くと、テンプレートを差し替えた瞬間に既存記事の図解が消える。
+
+受入 A1「差し替えても既存記事が壊れない」はこの一点で成り立っている。
+
+### 3. 不変 — スロットは黙って空にしない
+
+`slot` 付きブロックは別カテゴリのブログで中身だけ差し替えて再利用できる。
+**差し替え先が無いときは `fallback` を `summary` ブロックとして出す。**
+空にすると、記事の途中が理由なく飛ぶ。
+
+### 4. 契約 — 配色の 2 層が触るのは色と明暗だけ
+
+余白 (`density`) と角丸 (`radius`) は設計図のみ。
+**ページごとに骨格が変わると読者が「同じサイトだ」と思えなくなる。**
+色は季節や特集で変えてよい。骨格は変えない。
+
+管理画面で余白・角丸を出すときは、値の横に「（設計図）」と出所を書く。
+書かないと「配色を変えたのに余白が変わらない」の理由が画面から消える。
+
+### 5. 契約 — アクセシビリティの床
+
+- axe-core の重大 (`serious` / `critical`) 違反は 0 件。
+  検査は `tests/support/a11y.ts` の共通口を通る (855 件が緑)
+- 11 配色 × light/dark = 22 通りが WCAG 2.2 AA
+- **`tests/ui/axe-blind-spots.test.ts` を併走させる。**
+  axe は自動検査で拾える範囲しか拾わない。
+  「axe が緑」を「アクセシブル」と読み替えると、自動検査の穴がそのまま製品の穴になる。
+  この spec は穴を明示的に列挙し、穴が黙って増えていないことを検査する
+
+### 6. 契約 — 部品の余白・色は design token のみ
+
+生の `px` / `rem` / `ms` を部品に書けない (`design-tokens.test.ts` が止める)。
+token 経由でないと、配色の 2 層も密度の設定も部品に届かない。
+
+Callout は 1 画面につき 2 個まで (`tests/ui/uiux-spacing-and-copy.test.ts` A8 §3)。
+**全部が目立つ画面は、何も目立たない画面と同じである。**
+
+### 7. 受入判定で保留になった点 (2026-08-30 時点)
+
+| 受入 | 状態 | 理由 |
+|---|---|---|
+| A3 sticky 常時表示 | 🟡 | 単体・受入テストは緑だが、**「常時表示」の言葉の意味が受入文言として定まっていない** |
+| A4 固定ページ | 🔴 | 18 経路のうち 12 経路が 404。語彙が 2 系統に割れている |
+| A5 / A12 表現ブロック | 🟡 | **公開記事の本文が 1 文字も出ていない** (H1 記事名と H2「この記事の評価」のみ) |
+| A14 出典レジストリ | 🟡 | 判定は動くが、登録が 0 件で判定する対象が無い |
+
+証跡は `docs/spec/feat-blog-ui-builder/evidence/` 配下、
+判定の根拠は同 `final-review.md`。
+
+**A5 / A12 の 🟡 は「一部できている」ではなく「載る場所そのものが空」である。**
+ブロックの並べ替えも配色も動くが、並べ替える対象が無い。
+
+### 8. 視覚回帰の見本が古い (本 feature の外に原因がある)
+
+`pnpm run visual` の 5 枚すべてが差分になる。陽性対照は OK なので検査は生きている。
+
+見本の最終更新は 2026-08-28 (`a07a9e0`) で、
+`src/presentation/ui` はその後 2 回変わっている
+(`0ed9e2b` / `e97e5bc`、いずれも 2026-08-30。**すでに main へ入っている**)。
+撮影対象の 3 部品は本 feature の変更に含まれていない。
+
+**撮り直し (`--accept`) は「この変化は正しい」と宣言する取り消しにくい操作であり、
+本 feature が変えていない部品について本 feature の担当が署名するのは筋が通らない。**
+`0ed9e2b` / `e97e5bc` の変更意図を知っている側が判断する。
+
+- 正本へ入れた理由: feat-blog-ui-builder P01〜P12 で確定した UI/UX 契約 (規則の3層・テンプレートの不変条件・配色2層の適用範囲・アクセシビリティの床・design token 制約) と、受入判定で保留になった4件を正本へ記録する。章へ直接書くと compile で消えるため。
+
 ## 上流指針 (doctrine anchor)
 
 | concern | authority (正本) | 導く上流原則 | 出典 |
@@ -338,23 +421,21 @@ serves_goals: [G1, G2]
 
 #### 本章での適用
 
-##### 確定内容 qa-uiux-web-cognitive-load-affiliate-visibility-v3 (対応セル: web)
+##### 確定内容 qa-uiux-web-seo-ai-search-v2 (対応セル: web)
 
-- 確定要件: 認知負荷を極限まで下げ、直感的に操作できる仕組みにしてください。特に、管理画面での新規作成、改善、保存、およびアフィリエイトの一覧表示やリンク設定などについて、直感的な操作性を重視してください。とりあえず、画面を見て、確認もしておいてください。
-- 設計解釈の記録経路: `dialogue`
-- 原則: 各画面は主要タスクを一つに絞り、次に行う操作・現在状態・完了結果を同じ視線の流れで判断できるようにする (`ref-system-design-knowledge:information-design`)
-  - 採否: `applied`
-  - 章固有の根拠: 現行管理画面は単一用途への分割と処理結果表示が進んでいる一方、成果リンクの登録は受信、広告主確定、商品対応、読者表示用登録が別々の手入力として並ぶ。今回の要求を満たすため、一覧から対象を選ぶ、リンクを貼る、取得結果を確認する、保存する、掲載先を確認する、という一方向の主導線とし、各段階で未完了理由と次の一操作だけを強調する。新規作成・改善・保存では同じ配置、語彙、結果表示を共有し、保存済みかどうかを利用者の記憶に委ねない
-  - トレードオフ:
-    - 一画面の説明量を減らすと例外条件を見落としやすいため、危険操作・広告規約・リンク改変禁止の説明は削除せず、該当操作の直前に必要な分だけ段階表示する
-- 原則: 認知負荷の低減を色や慣れだけに依存させず、可視ラベル、キーボード操作、取り消し、保存状態、エラー回復を一貫させる (`ref-system-design-knowledge:usability-accessibility`)
-  - 採否: `applied`
-  - 章固有の根拠: PC中心・週1回程度という既確定の利用状況では、操作手順の暗記よりも前回状態、未保存差分、次の操作を再認識できることが重要である。主要操作は動詞を揃え、保存中・保存済み・未保存・失敗を常時区別し、破壊的操作だけ確認を要求する。アフィリエイト一覧は掲載中、確認待ち、停止、リンク切れを色だけでなく文言と件数で区別し、ブログまたは記事からリンクへ、リンクから掲載先へ往復できる
-  - トレードオフ:
-    - 状態ラベルと戻り導線を常時出すぶん表示要素は増えるため、主要操作と状態以外の補助情報は段階的開示にし、一覧の列は利用頻度と誤操作コストで固定する
-##### 接地根拠 qa-uiux-web-seo-ai-search-v2 (対応セル: web)
-
-- 本文: 「確定内容 (質疑録)」の `qa-uiux-web-seo-ai-search-v2` を参照
+- 確定要件: 利用者本人の回答を逐語主旨で記録する。
+(1) 合わせて、SEO や AI による『その SEO に変わるやつ』(AI 検索・生成 AI 回答での引用) にも対応できるようにしておく。AI からの検索や評価が高くなるような仕組みにしておく。
+(2) 最新のこれらの情報 (SEO / AI 検索最適化のガイドライン) をウェブから、海外も日本の情報も含めて取得した上で、それを反映できるようなブログを構築できるようにしておく。
+###### 調査結果 (2026-08-24、海外+日本。一次情報と業者推定を区別)
+- 一次情報: Google Search Central『AI 最適化ガイド』(2026-05-15 公開) は、AI Overviews / AI Mode が既存ランキング+RAG+query fan-out で動き、追加の技術要件は無く、index 可能かつ snippet 表示可能であることが唯一の条件、llms.txt や特別な schema は不要と明言する。Search Console に AI 機能由来の impressions を見る report がある。
+- 一次情報: llms.txt (Answer.AI) は root の /llms.txt に Markdown を置く規約で正式標準ではない。IndexNow (Bing/Yandex/Naver/Seznam) は URL 更新 push で Google 非対応。ChatGPT search の retrieval は Bing index 由来のため IndexNow が AI 検索への到達経路になる。
+- 海外/日本の業者知見 (推定値扱い): AI クローラ (GPTBot / ClaudeBot / PerplexityBot / Google-Extended) を遮断しない、各節冒頭に 2〜3 文の『答え』、統計・出典の明記、FAQPage/HowTo/Article/Person/Organization/BreadcrumbList の JSON-LD、最終更新日と『〜時点』の可視化、著者ページ (E-E-A-T)、AI 引用の定点観測。日本では FAQ 構造化データと結論ファーストを優先する論調が多く、アフィリエイト記事は一次体験・独自比較表・図解が有利。
+###### ui-ux 章への反映方針
+- 記事テンプレートに『結論ブロック (冒頭 2〜3 文の答え)』『要点リスト』『比較表』『FAQ ブロック』『出典ブロック』『最終更新日 / 〜時点 表示』を標準ブロックとして追加し、AI が引用しやすい構造を編集 UI で促す (必須ではなく既定で配置)。
+- 固定ページ 6 種に『著者プロフィール』を加え、記事に著者・監修者・一次体験の明示欄を置く (E-E-A-T)。
+- 管理画面に『SEO / AI 検索 チェック』パネルを置く: index 可否 (noindex / robots)・構造化データの有無・最終更新からの経過日数 (90 日超で更新推奨)・AI 引用定点観測の記録欄 (手動)。数値目標は業者推定値なので受入条件に置かず、検証可能項目 (index 可能・JSON-LD 妥当・更新日表示) だけを受入条件にする。
+- 『最新ガイドライン反映』の運用 UI: 参照レジストリ (出典 URL・発行元・確認日・要約) を管理画面で一覧し、確認日から 90 日超を要再確認として表示する。ガイドライン変更時に仕様セルを R4-reopen する運用を README に明記する。
+- (注記: 正本 qa_log[qa-uiux-web-seo-ai-search-v2].answer が見出しを含むため、章の階層を守ってコンパイラが深い階層へ押し下げた。文字は変えていない)
 - 設計解釈の記録経路: `dialogue`
 - 原則: 表現物ごとに残す・落とす・加工する情報を task 頻度×失敗コストで順位付けする (`information-design.md#中核概念`)
   - 採否: `applied`
@@ -480,7 +561,7 @@ serves_goals: [G1, G2]
 
 | 対象 | バージョン | 公式発行元 | 出典URL | 取得 | 最新確認 |
 |---|---|---|---|---|---|
-| apple-hig | 2026-06-08 | Apple (developer.apple.com) | https://developer.apple.com/design/human-interface-guidelines/design-principles | 2026-08-29T14:02:13Z | 2026-08-29T14:02:13Z |
+| apple-hig | 2026-06-08 | Apple (developer.apple.com) | https://developer.apple.com/design/human-interface-guidelines/design-principles | 2026-08-29T23:02:28Z | 2026-08-29T23:02:28Z |
 
 ## 状態の意味 (State semantics)
 
@@ -533,18 +614,18 @@ serves_goals: [G1, G2]
 |---|---|
 | セル | ui-ux × web |
 | 状態 | 確定 |
-| 確定質疑 (qa_ref) | `qa-uiux-web-screen-priority` |
-| 資するゴール (serves_goals) | G1 |
-| required-info | `product-goal` — block / 接地: 済 (`qa-foundation-u1`)<br>`target-platforms` — block / 接地: 済 (`qa-platform-scope`)<br>`screen-information-priority` — block / 接地: 済 (`qa-uiux-web-screen-priority`) |
+| 確定質疑 (qa_ref) | `qa-uiux-web-cognitive-load-affiliate-visibility-v3` |
+| 資するゴール (serves_goals) | G1, G2 |
+| required-info | `product-goal` — missing_effect: block / 接地: 済 (`qa-foundation-u1`)<br>`target-platforms` — missing_effect: block / 接地: 済 (`qa-platform-scope`)<br>`screen-information-priority` — missing_effect: block / 接地: 済 (`qa-uiux-web-screen-priority`) |
 | 出典 kind | user-dialogue |
 | 出典 path | — (対話に基づくため path/節/sha256 を持たない) |
 | 出典 節 | — |
 | 出典 sha256 | — |
-| 適用された設計知識 (design_applications) | 4 件 (`qa-uiux-web-screen-priority`) — 本章 `## 適用された設計知識` > `#### 本章での適用` を参照 |
+| 適用された設計知識 (design_applications) | 2 件 (`qa-uiux-web-cognitive-load-affiliate-visibility-v3`) — 本章 `## 適用された設計知識` > `#### 本章での適用` を参照 |
 
 - **本セルは 2026-08-20 に R4-reopen を 2 回経て再確定した**。1 回目は `screen-information-priority` を利用者根拠へ接地させるため、2 回目は本節を含む 3 節を章へ載せるため (再確定は同じ `qa_ref`・同じ `required_info`)。`reopen_log` に 2 件とも残っている。**2 回目は順序を誤った結果である**——章を編集する前に再確定したので、見張りが章を `protected` に戻し、もう一度開ける必要が出た。回数を隠さないために書いておく。
 - **`screen-information-priority` は 2026-08-20 まで `status: ungrounded` の負債だった**。C16 の block ゲートが導入される前に確定していたセルで、ゲートがあれば拒否されていた確定である。`grounded` へ変わったのは、利用者本人がカタログ `completion_rule` の 9 項目すべてに回答したためであって、判定を緩めたからではない。
-- **出典が `user-dialogue` なのは本章と auth 章の 2 件**である (分母 = `matrix` の web セル 8 件)。したがって本章の確定は `docs/spec/*.md` の sha256 に束縛されておらず、**元文書が書き換わっても検知できない**。auth.md 同名節と同じ穴で、塞がる条件も同じ (この確定内容が `docs/spec` のいずれかの節として書き起こされたとき)。
+- **出典が `user-dialogue` なのは 6 件**である (分母 = `matrix` の web セル 8 件。`written-requirements` は backend と security の 2 件だけ)。したがって本章の確定は `docs/spec/*.md` の sha256 に束縛されておらず、**元文書が書き換わっても検知できない**。auth.md 同名節と同じ穴で、塞がる条件も同じ (この確定内容が `docs/spec` のいずれかの節として書き起こされたとき)。**2026-08-31 時点で少数派は書面由来のほうである**——ブログ構築 UI 以降の確定が対話で積み上がった結果で、穴は広がる向きに動いている。
 
 ### 本節を「転記」に留めた理由
 

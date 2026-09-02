@@ -1,0 +1,28 @@
+# A4/A13 実測: HTTP ステータス一覧
+# 取得: 2026-08-30  対象: http://localhost:3001/s/home-office-desk
+
+## 固定ページ（FixedPageKind 語彙・8 種）
+/profile                     404
+/sitemap                     404
+/site-policy                 404
+/privacy-policy              404
+/commercial-transaction      404
+/contact                     404
+/review-guidelines           404
+/company                     404
+
+## 固定ページ（SiteDocumentKey 語彙・名前付きルート）
+/operator                    200
+/privacy                     200
+/terms                       200
+/tokushoho                   200
+/ai-policy                   404
+/methodology                 404
+/editorial-policy            404
+/advertising-policy          404
+/corrections                 200
+/measurement                 200
+
+## A13 IndexNow 鍵ファイル（404 = 鍵が commit されていない）
+/indexnow.txt                404
+/affiliate-hub-indexnow-key.txt 404

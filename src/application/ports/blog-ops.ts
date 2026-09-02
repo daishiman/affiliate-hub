@@ -7,8 +7,6 @@ import type {
   BlogArticleStatus,
   BlogTagKind,
   DeliveryPart,
-  FixedPageKind,
-  FixedPageStatus,
   LayoutRegion,
   NetworkRole,
   NetworkStatus,
@@ -108,17 +106,6 @@ export type DeletedBlogArticleRecord = BlogArticleDetail & {
   readonly deletedAt: Date;
 };
 
-export type FixedPageRecord = {
-  readonly id: string;
-  readonly siteSlug: string;
-  readonly kind: FixedPageKind;
-  readonly title: string;
-  readonly body: string;
-  readonly status: FixedPageStatus;
-  readonly deletedAt: Date | null;
-  readonly updatedAt: Date;
-};
-
 export type SaveSiteNetworkInput = {
   readonly id: string;
   readonly siteSlug: string;
@@ -207,15 +194,6 @@ export type BlogOpsRepositoryPort = {
   saveTag(workspaceId: WorkspaceId, input: BlogTagRecord): PortResult<true>;
   deleteTag(workspaceId: WorkspaceId, tagId: string): PortResult<true>;
 
-  listFixedPages(workspaceId: WorkspaceId, siteSlug: string): PortResult<readonly FixedPageRecord[]>;
-  listDeletedFixedPages(
-    workspaceId: WorkspaceId,
-    siteSlug: string,
-  ): PortResult<readonly FixedPageRecord[]>;
-  saveFixedPage(workspaceId: WorkspaceId, input: FixedPageRecord): PortResult<true>;
-  deleteFixedPage(workspaceId: WorkspaceId, pageId: string): PortResult<true>;
-  restoreFixedPage(workspaceId: WorkspaceId, pageId: string, restoredAt: Date): PortResult<true>;
-
   /** 記事ごとの評価の集計。 */
   summarizeRatings(
     workspaceId: WorkspaceId,
@@ -284,8 +262,6 @@ export type PublicSiteReader = {
   listDeliveryParts(): PortResult<readonly BlogDeliveryPartRecord[]>;
   listNetwork(): PortResult<readonly SiteNetworkRecord[]>;
   listTags(): PortResult<readonly BlogTagRecord[]>;
-  /** published かつ未削除の 8 種だけを返す。 */
-  listFixedPages(): PortResult<readonly FixedPageRecord[]>;
 };
 
 export type PublicBlogPort = {

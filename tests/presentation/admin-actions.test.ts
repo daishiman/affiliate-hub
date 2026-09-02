@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { ActorContext } from "@/domain/shared";
 import { SAMPLE_ACTOR } from "@/infrastructure/identity/sample-actor";
 import { SITE_WIZARD_STEPS, authoredSectionsFor } from "@/domain/authoring";
+import { BLOG_TEMPLATES } from "@/domain/authoring/blog-template";
 import { SAMPLE_SITE_SLUG } from "@/infrastructure/persistence/sample/site-sample-repository";
 
 /**
@@ -590,6 +591,10 @@ describe("ブログ作成ウィザードの操作", () => {
     },
   };
 
+  /** 実画面が送る見せ方まで含めた、作成ボタンの入力。 */
+  const creationForm = (draftId: string): FormData =>
+    form({ draftId, templateId: BLOG_TEMPLATES[0].id });
+
   async function completeDraftThroughForms(slug: string): Promise<string> {
     const started = await movedTo(() => startSiteDraftAction());
     const draftId = new URL(started, "https://example.invalid").searchParams.get("draftId") ?? "";
@@ -653,7 +658,7 @@ describe("ブログ作成ウィザードの操作", () => {
   it("居ない下書きは作れない", async () => {
     const state = await createSiteFromDraftAction(
       { status: "idle", message: "" },
-      form({ draftId: "sd_missing" }),
+      creationForm("sd_missing"),
     );
     expect(state.status).toBe("failed");
     expect(state.message.trim()).not.toBe("");
@@ -672,7 +677,7 @@ describe("ブログ作成ウィザードの操作", () => {
   it("記録を残せない段では、作れたことにせず断る", async () => {
     auditWritable = false;
     const draftId = await completeDraftThroughForms(`action-test-${Date.now()}`);
-    const state = await createSiteFromDraftAction({ status: "idle", message: "" }, form({ draftId }));
+    const state = await createSiteFromDraftAction({ status: "idle", message: "" }, creationForm(draftId));
 
     expect(state.status).toBe("failed");
     // 「できました」と読める場所を残さない。
@@ -683,7 +688,7 @@ describe("ブログ作成ウィザードの操作", () => {
     auditWritable = false;
     const slug = `action-test-${Date.now()}`;
     const draftId = await completeDraftThroughForms(slug);
-    const state = await createSiteFromDraftAction({ status: "idle", message: "" }, form({ draftId }));
+    const state = await createSiteFromDraftAction({ status: "idle", message: "" }, creationForm(draftId));
 
     // 済んだこと（もう見えている）と、次にすること（記録の直し方）の両方が要る。
     expect(state.message).toContain("読む人からも見えます");
@@ -703,7 +708,7 @@ describe("ブログ作成ウィザードの操作", () => {
   it("記録が残せる置き場では、作れて、作った先への道が返る", async () => {
     const slug = `action-test-${Date.now()}`;
     const draftId = await completeDraftThroughForms(slug);
-    const state = await createSiteFromDraftAction({ status: "idle", message: "" }, form({ draftId }));
+    const state = await createSiteFromDraftAction({ status: "idle", message: "" }, creationForm(draftId));
 
     expect(state.status).toBe("done");
     // 「できました」で終えない。次に開く場所が無いと、押した人はそこで止まる。
@@ -733,7 +738,7 @@ describe("ブログ作成ウィザードの操作", () => {
   it("ログインしていない人は、ブログを作れない", async () => {
     const draftId = await completeDraftThroughForms(`action-test-${Date.now()}`);
     loggedIn = false;
-    const state = await createSiteFromDraftAction({ status: "idle", message: "" }, form({ draftId }));
+    const state = await createSiteFromDraftAction({ status: "idle", message: "" }, creationForm(draftId));
     expect(state.status, "ログインを見ずにブログが作れています").toBe("failed");
   });
 
@@ -748,7 +753,7 @@ describe("ブログ作成ウィザードの操作", () => {
     if (!before.ok) throw new Error("ブログの一覧が読めませんでした");
 
     loggedIn = false;
-    await createSiteFromDraftAction({ status: "idle", message: "" }, form({ draftId }));
+    await createSiteFromDraftAction({ status: "idle", message: "" }, creationForm(draftId));
 
     const after = await (await siteUseCases()).listSites.execute(SAMPLE_ACTOR, {});
     if (!after.ok) throw new Error("ブログの一覧が読めませんでした");
@@ -758,7 +763,7 @@ describe("ブログ作成ウィザードの操作", () => {
   it("ログインしていない断りは、理由が画面に出る", async () => {
     const draftId = await completeDraftThroughForms(`action-test-${Date.now()}`);
     loggedIn = false;
-    const state = await createSiteFromDraftAction({ status: "idle", message: "" }, form({ draftId }));
+    const state = await createSiteFromDraftAction({ status: "idle", message: "" }, creationForm(draftId));
     expect(state.message, "断る理由が画面に出ていません").toContain("ログイン");
   });
 

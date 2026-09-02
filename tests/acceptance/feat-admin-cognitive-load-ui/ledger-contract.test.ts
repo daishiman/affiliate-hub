@@ -167,6 +167,21 @@ const REPRESENTATION_MARKER_KNOWN_EXCEPTIONS: readonly string[] = [
   "settings/appearance",
 ];
 
+/**
+ * 転送だけの route。`permanentRedirect` を呼んで終わりで、何も描かない。
+ *
+ * 既知例外（実装が台帳に追いついていない）とは別の枠にする。こちらは
+ * 「いつか結線する」ものではなく、**結線する画面がそもそも無い**。
+ * 判定の出どころは正本 `ADMIN_ROUTE_METADATA.redirectOnly` に置き、
+ * ここで route 名を書き並べない。書き並べると転送をやめた日に緑のまま通る。
+ *
+ * 「実際に転送しているか」は `tests/ui/route-cases.ts` の `redirectTo` が
+ * 転送先まで込みで実測する。ここで二重に見ない。
+ */
+const REDIRECT_ONLY_ROUTE_IDS = new Set(
+  ADMIN_ROUTE_METADATA.filter((route) => route.redirectOnly).map((route) => route.id as string),
+);
+
 /** 見逃した route を報告する。件数が既知例外より増えたらテストを落とす。 */
 const reportMarkerExceptions = (skipped: readonly string[]): void => {
   if (skipped.length > 0) {
@@ -294,6 +309,7 @@ describe("管理画面の情報台帳", () => {
   it("primary表現は実pageの共通部品へ結線され、table宣言だけが残らない", () => {
     const skipped: string[] = [];
     for (const route of ledger.routes) {
+      if (REDIRECT_ONLY_ROUTE_IDS.has(route.routeId)) continue;
       const pattern = REPRESENTATION_MARKER[
         route.representation.primary as keyof typeof REPRESENTATION_MARKER
       ];
@@ -436,6 +452,7 @@ describe("管理画面の情報台帳", () => {
 
     for (const routeId of ADMIN_CARD_ROUTE_IDS) {
       const route = ledger.routes.find((candidate) => candidate.routeId === routeId)!;
+      if (REDIRECT_ONLY_ROUTE_IDS.has(routeId)) continue;
       expect(
         source(route.file),
         `${routeId} は route 全体ではなく、個体の判断単位を Card・Form・FactList で分けます`,

@@ -6,7 +6,7 @@ import { describe, expect, it } from "vitest";
 import { SAMPLE_SITE_SLUG } from "@/infrastructure/persistence/sample/site-sample-repository";
 import { stopIfMissing } from "@/presentation/site/page-frame";
 import { intoDom, renderRoute, textOf } from "../support/render";
-import { ROUTE_CASES, importPathOf, propsOf } from "./route-table";
+import { RENDERABLE_ROUTE_CASES, importPathOf, propsOf } from "./route-table";
 
 /**
  * **実在するブログの中で**無いものを開いたときに、通信の答えも 404 になることの確認。
@@ -76,7 +76,7 @@ function paramsFor(importPath: string): Record<string, string> {
 
 /** 見本データの実在する値で開く読者側の画面。`route-table` が正本。 */
 function existingResourceCases() {
-  return ROUTE_CASES.filter(
+  return RENDERABLE_ROUTE_CASES.filter(
     (route) =>
       route.file.startsWith("s/[site]/") &&
       Object.keys(route.params ?? {}).some((key) => key !== "site"),

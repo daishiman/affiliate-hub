@@ -2,7 +2,7 @@
   "featureId": "feat-admin-cognitive-load-ui",
   "generatedFrom": "ADMIN_ROUTE_METADATA",
   "generatedAt": "2026-08-31",
-  "routeCount": 86,
+  "routeCount": 88,
   "undecidedCount": 0,
   "allowedRepresentations": [
     "summary",
@@ -2307,6 +2307,92 @@
         "role": "button",
         "accessibleName": "この内容で保存する",
         "occurrence": 8,
+        "completion": "form-submit",
+        "viewportCondition": "384px CSS viewport (768px at 200% zoom equivalent)"
+      }
+    },
+    {
+      "routeId": "sites/[site]/appearance",
+      "path": "/admin/sites/[site]/appearance",
+      "file": "src/app/admin/sites/[site]/appearance/page.tsx",
+      "screenName": "見せ方と配色",
+      "purpose": "並び方と色をブログ単位で決め、ページ単位の例外も同じ画面で見せる",
+      "primaryAction": "見せ方と配色を選んで保存する",
+      "permission": "content.read",
+      "representation": {
+        "primary": "card",
+        "secondary": [
+          "summary"
+        ],
+        "plannedPrimary": "card"
+      },
+      "keep": [
+        "対象を識別する名前",
+        "判断に必要な現在状態",
+        "次の操作"
+      ],
+      "removeOrFold": [
+        "内部ID・API・endpoint・ツール名",
+        "同じ意味の重複説明",
+        "通常判断に不要な詳細"
+      ],
+      "removalRationale": "現在の判断と次の操作に直接使わず、常時表示すると主情報を押し下げるため",
+      "states": [
+        "ideal",
+        "empty",
+        "loading",
+        "partial",
+        "error",
+        "slow"
+      ],
+      "decision": "decided",
+      "keyboardAction": {
+        "role": "button",
+        "accessibleName": "この見せ方と配色で保存する",
+        "occurrence": 1,
+        "completion": "form-submit",
+        "viewportCondition": "384px CSS viewport (768px at 200% zoom equivalent)"
+      }
+    },
+    {
+      "routeId": "sites/[site]/placements",
+      "path": "/admin/sites/[site]/placements",
+      "file": "src/app/admin/sites/[site]/placements/page.tsx",
+      "screenName": "成果リンクの掲載",
+      "purpose": "記事ごとの掲載漏れを埋め、成果リンクから掲載先を逆引きする",
+      "primaryAction": "掲載を記録する、または外す",
+      "permission": "content.read",
+      "representation": {
+        "primary": "card",
+        "secondary": [
+          "summary"
+        ],
+        "plannedPrimary": "card"
+      },
+      "keep": [
+        "対象を識別する名前",
+        "判断に必要な現在状態",
+        "次の操作"
+      ],
+      "removeOrFold": [
+        "内部ID・API・endpoint・ツール名",
+        "同じ意味の重複説明",
+        "通常判断に不要な詳細"
+      ],
+      "removalRationale": "現在の判断と次の操作に直接使わず、常時表示すると主情報を押し下げるため",
+      "states": [
+        "ideal",
+        "empty",
+        "loading",
+        "partial",
+        "error",
+        "slow"
+      ],
+      "decision": "decided",
+      "keyboardAction": {
+        "role": "button",
+        "accessibleName": "この掲載を記録する",
+        "occurrence": 1,
         "completion": "form-submit",
         "viewportCondition": "384px CSS viewport (768px at 200% zoom equivalent)"
       }

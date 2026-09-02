@@ -15,7 +15,7 @@ serves_goals: [G1, G2]
 
 | プラットフォーム | 状態 | 根拠 |
 |---|---|---|
-| Web (web) | 確定 | 確定質疑: qa-frontend-web-capture-self-occlusion。裏付け質疑 (`qa_refs`): `qa-frontend-web-affiliate-link-preview-v3`, `qa-frontend-web-seo-ai-search-v2`, `qa-frontend-web-blog-builder`, `qa-frontend-web-spec-intake`, `qa-frontend-web`, `qa-frontend-web-analytics`, `qa-frontend-web-overhaul-v2` — 本章の「確定内容 (質疑録)」へ接地根拠として併記 |
+| Web (web) | 確定 | 確定質疑: qa-frontend-web-seo-ai-search-v2。裏付け質疑 (`qa_refs`): `qa-frontend-web-blog-builder`, `qa-frontend-web-spec-intake`, `qa-frontend-web`, `qa-frontend-web-analytics`, `qa-frontend-web-overhaul-v2` — 本章の「確定内容 (質疑録)」へ接地根拠として併記 |
 | モバイル (mobile) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |
 | タブレット (tablet) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |
 | デスクトップ (Windows) (desktop-windows) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |
@@ -24,19 +24,7 @@ serves_goals: [G1, G2]
 
 ## 確定内容 (質疑録)
 
-### qa-frontend-web-capture-self-occlusion (対応セル: web)
-
-**質問**: frontend×web: 改善要望フィードバックで画面の写しを撮るとき、送信モーダルと固定ボタン自身の写り込みをどう扱うか (2026-08-30 利用者ヒアリング)
-
-**回答**: 利用者本人の回答を逐語主旨で記録する。(1) 「改善したい箇所のスクリーンショットを撮ると、編集画面の『改善したいことを送る』という画面が表示され、そのスクリーンショットが貼られてしまう」。(2) 「これでは本当に改善したい箇所を伝えることができない」。(3) 対処の範囲を 3 案 (機能ごと無効化 / 撮影中だけ自動で隠す / モーダルの自動表示だけ止める) で確認したところ、利用者は「撮影中だけ自動で隠す」を選択した。すなわちフィードバック機能そのものは残し、写しの取得が確定するまでの間だけ、送信モーダルと右下の固定ボタンを写しの対象から外す。(4) 撮り直し (再撮影) のときも同じ扱いとする。
-
-### qa-frontend-web-affiliate-link-preview-v3 (対応セル: web) — 接地根拠 (required_info/qa_refs が名指す裏付け)
-
-**質問**: frontend×web: 成果リンクを貼り付けた直後、登録判断のために何を画面へ表示するか（2026-08-29 利用者追加入力）
-
-**回答**: アフィリエイトの、えーと、リンクを貼ったら、えーと、その画像、えーと、が表示されるとか、えー、この辺、えー、とりあえず、えー、画面を見て、えー、確認もしておいてください。
-
-### qa-frontend-web-seo-ai-search-v2 (対応セル: web) — 接地根拠 (required_info/qa_refs が名指す裏付け)
+### qa-frontend-web-seo-ai-search-v2 (対応セル: web)
 
 **質問**: frontend×web: SEO と AI 検索最適化 (SSR・構造化データ自動生成・robots/sitemap/RSS/llms.txt・IndexNow・鮮度表示) の実装契約と、最新ガイドライン出典の取り込み経路をどうするか。2026-08-24 対話ヒアリング (利用者原文を逐語主旨で記録) + 同日ウェブ調査。
 
@@ -116,6 +104,147 @@ serves_goals: [G1, G2]
 
 **回答**: 利用者本人の回答を逐語主旨で記録する。(1) 管理画面を単一用途ごとの画面に分割する (一覧・詳細・作成・編集の分離)。(2) 各管理対象に新規作成・削除を含む基本 CRUD 操作の UI を備える。(3) 1 つの商品に対して複数のブログを対応付けられる構成にする。各ブログにはそれぞれのコンセプトがあり、コンセプトごとに文章を作成できる UI にする。(4) SNS は X・Facebook など様々なものに対応できる拡張可能なチャネル構成とし、各 SNS への投稿状態が画面に反映されるようにする。(5) UI はコンポーネント化して再利用する。ハードコーディングの重複を書かず共通化する。(6) ブログごとにブログの構成を作成したい。新しくブログを構築する際には、そのブログごとにコンポーネントを作成できる仕様にする (ブログ単位の構成テンプレート/コンポーネントセットを定義・管理できる)。(7) 既存スタック (Next.js/React) を継続使用する。
 
+## 章の注記 (chapter_notes)
+
+> 正本 `spec-state.json` の `chapter_notes` を描く。**利用者の回答ではない。**確定内容 (質疑録) と混ぜて読まないために節を分けてある。
+
+### 実装確定の書き戻し — feat-blog-ui-builder (P13、2026-08-30)
+
+> 上の「確定内容 (質疑録)」は**方針**である。本節は `feat-blog-ui-builder` (P01〜P12) の
+> 実装で**実際に確定した契約**と、方針と実装がずれた点を記録する。
+> **方針を書き換えず、差分として足してある。**ずれを上書きで消すと、なぜその形になったかが読めなくなる。
+
+### 1. テーマ実装契約 — 2 層 + 単一読み取り口
+
+配色は 3 段で解決する。
+
+```
+page_theme_override（ページ単位の例外）
+        ↓ 無ければ
+blog_theme（ブログ既定）
+        ↓ 無ければ
+site_blueprint.theme（設計図の既定）
+```
+
+**確定した契約 — 読む口は `publicBlogAppearance()` の 1 本だけ。** 公開面も管理画面もここを通る。
+別の読み方を作ると、同じブログの配色について 2 つの画面が別の値を出す
+(2026-08-30 に実際に発生。`docs/spec/feat-blog-ui-builder/migration-report.md` §2)。
+
+**確定した契約 — 2 層で上書きできるのは色 (`brandTheme`) と明暗 (`colorMode`) だけ。**
+余白 (`density`) と角丸 (`radius`) は設計図のみ。
+ページごとに骨格が変わると読者が「同じサイトだ」と思えなくなるためである。
+
+**確定した契約 — dark を light の単純反転にしない**
+(`tests/ui/theme-contrast.test.ts` が止める)。数値上 AA を満たしても暗所で眩しくなる。
+11 配色 × light/dark = 22 通りが WCAG 2.2 AA を満たすことを実測済み。
+
+方針の「色は light-dark() で解決」はそのまま成立している。
+
+### 2. コンポーネント契約 — テンプレートは「並び方」だけを決める
+
+テンプレートは 6 種で確定した (`src/domain/authoring/blog-template.ts`)。
+`review_focus` / `comparison_focus` / `howto` / `news` / `minimal` / `gadget`。
+
+**確定した契約 — テンプレートは記事の中身を知らない。** 決めるのは 4 つのみである。
+
+- トップの区画の並び (`homeSections`)
+- 記事ブロックの推奨順 (`articleBlockOrder`)
+- サイドバーを既定で出すか (`sidebar`。`news` と `minimal` は `false`)
+- 追加で薦める固定ページ (`suggestedPages`)
+
+**「このテンプレートでは図解が使えない」の類を書いてはならない。**
+書くとテンプレート差し替えの瞬間に既存記事の図解が消える。
+`orderBlocksForTemplate()` は推奨順に無い種類を末尾へ元の順のまま付け、**1 つも落とさない**。
+
+方針にあった `StickyHeader` / `StickySidebar` / `Footer` は実装済みである。
+ただし受入 A3 (sticky 常時表示) の判定は保留で、単体・受入テストは緑だが
+**「常時表示」の言葉の意味が受入文言として定まっていない**
+(`docs/spec/feat-blog-ui-builder/final-review.md`)。
+
+表現ブロックは 10 種で確定した。`answer` `key_points` `faq` `sources` `freshness`
+`figure` `comparison` `cta` `summary` `spec_table`。
+方針の 5 種 (figure/comparison/cta/summary/spec-table) に、AI 検索向けの 5 種が加わった形である。
+記事ブロックの並びは全テンプレート共通で
+`[answer, key_points]` で始まり `[faq, sources, freshness]` で終わる。
+先頭が結論でないと AI 検索に途中から切り取られ、
+信頼を確かめる材料は読み終わったところに置くためである。
+
+### 3. SEO / AI 検索実装契約 (A10〜A14)
+
+#### 3.1 JSON-LD — 画面と機械向け出力は同じ読み取りモデルから作る
+
+**確定した契約 — 別の組み立てを置かない。**
+置くと、記事を直したのに sitemap だけ古い、が起きる。
+
+**確定した契約 — 構造化データを HTML に埋めるときは `<` を `<` に逃がしてから埋める。**
+逃がさないと、本文に `</script>` を含む記事でスクリプトが途中で閉じ、
+以降の JSON が本文として描画される。
+
+**確定した契約 — 更新日は JSON-LD の `dateModified` と `<time dateTime>` で同じ値を出す。**
+2 か所で別々に組み立てると、読者に見える日付と機械が読む日付がずれる。
+
+**確定した契約 — 報酬・運営情報は読者向け読み取りポートを通さない。**
+
+#### 3.2 sitemap / robots / RSS / llms.txt
+
+**確定した契約 — origin は届いたリクエストの Host から作る。環境変数に固定しない。**
+固定すると、プレビュー環境が本番の URL を書いた sitemap を出す。
+
+**確定した契約 — `llms.txt` は設計図の任意項目。出さない設定なら 404 を返す (空ファイルを返さない)。**
+空ファイルは「用意したが中身が無い」と読まれ、404 は「用意していない」と読まれる。意味が違う。
+
+方針の「効果未確認と明記」は維持する。**Google は llms.txt を使わないと明言している。**
+
+#### 3.3 IndexNow — 鍵の環境変数分離
+
+**確定した契約 — 鍵はリポジトリ・管理画面・D1 のいずれにも置かず、Worker の環境変数 `INDEXNOW_KEY` だけに置く。**
+鍵ファイル `/indexnow.txt` の中身が鍵そのもので、それが所有権の証明であるためである。
+方針の「API key はブログ単位、秘密はサーバ側のみ」のうち、
+**実装は環境変数 1 本に確定した** (ブログ単位ではない)。
+
+**確定した契約 — 鍵が無いときは記事の公開は通り、通知だけが飛ばない。**
+通知は届けば早くなるだけのもので、届かなくても記事は出る。
+公開を止める設計にすると、鍵の設定漏れが公開停止として現れる。
+
+担保している spec は 4 本ある。`tests/domain/seo/indexnow.test.ts` (送信判断の純関数) /
+`tests/infrastructure/indexnow-client.test.ts` (鍵が無いときの送信スキップ) /
+`tests/presentation/publish-article-indexnow.test.ts` (公開時の連動) /
+`tests/architecture/open-doors.test.ts` (外向きに開いた口の台帳)。
+
+#### 3.4 guideline_references — 90 日再確認
+
+**確定した契約 — 90 日の判定は `referenceReviewStatus` だけが行う。画面側で数え直さない。**
+2 か所で数えると、時差や境界の扱いが食い違ったときどちらが正しいか決められなくなる。
+
+**確定した契約 — 90 日を超えた行は「再確認」と表示し、自動では消さない。**
+消すと、古い指針に基づいた記事が残っていることに気付けなくなる。
+
+**確定した契約 — ガイドラインの中身が変わったときは仕様セルを R4-reopen する。**
+アプリのレジストリを直しただけでは仕様は動かない。
+方針にあった「doc-fetch (C02) と鮮度監査 (C08) で再取得・再照合」はこの経路である。
+
+**確定した契約 — 記事公開後の AI 検索点検は公開の条件にしない。**
+条件にすると、点検を通すために内容を歪める力が働く。足りない項目は直し方 (hint) まで出す。
+
+2026-08-30 時点の実測では、レジストリの登録は 0 件で、コードに書かれた候補 4 件
+(Google AI 最適化ガイド / AI features and your website / llms.txt / IndexNow) は
+すべて「原典未取得」である。**90 日の判定は動くが、判定する対象が無い。**
+
+### 4. 方針どおりにならなかった点 (2026-08-30 時点で未解決)
+
+| 方針 | 実装の現状 | 影響 |
+|---|---|---|
+| 固定ページ 6 種を固定ページ型テンプレートから生成しフッターへ自動導線 | **固定ページの語彙が 2 系統に割れている** (`SiteDocumentKey` 9 種 / `FixedPageKind` 8 種、同じ `legal_page` 表) | 18 経路のうち 12 経路が 404。新しい種別を足せない |
+| 公開面は SSR/ISR で本文を HTML に含める | **公開記事の本文が 1 文字も出ていない** (H1 記事名 / H2「この記事の評価」のみ) | JSON-LD の元になるブロックが載る場所そのものが空 |
+
+証跡は `docs/spec/feat-blog-ui-builder/evidence/11-a4-a13-http-status.txt` および
+同 `evidence/README.md` §3.1 にある。原因の分析は `migration-report.md` §3。
+
+**この 2 件を解いていない状態では、§3.1 の JSON-LD 契約は「あるべき契約」であって
+現状の説明ではない。** 契約が守られていることの確認は、本文が出てから行う。
+
+- 正本へ入れた理由: feat-blog-ui-builder P01〜P12 の実装で確定したテーマ実装契約・コンポーネント契約・SEO/AI検索実装契約 (JSON-LD/sitemap/IndexNow/guideline_references) を、方針を上書きせず差分として正本へ記録する。章へ直接書くと compile で消えるため。
+
 ## 上流指針 (doctrine anchor)
 
 | concern | authority (正本) | 導く上流原則 | 出典 |
@@ -182,38 +311,22 @@ serves_goals: [G1, G2]
 
 #### 本章での適用
 
-##### 確定内容 qa-frontend-web-capture-self-occlusion (対応セル: web)
+##### 確定内容 qa-frontend-web-seo-ai-search-v2 (対応セル: web)
 
-- 確定要件: 利用者本人の回答を逐語主旨で記録する。(1) 「改善したい箇所のスクリーンショットを撮ると、編集画面の『改善したいことを送る』という画面が表示され、そのスクリーンショットが貼られてしまう」。(2) 「これでは本当に改善したい箇所を伝えることができない」。(3) 対処の範囲を 3 案 (機能ごと無効化 / 撮影中だけ自動で隠す / モーダルの自動表示だけ止める) で確認したところ、利用者は「撮影中だけ自動で隠す」を選択した。すなわちフィードバック機能そのものは残し、写しの取得が確定するまでの間だけ、送信モーダルと右下の固定ボタンを写しの対象から外す。(4) 撮り直し (再撮影) のときも同じ扱いとする。
-- 設計解釈の記録経路: `dialogue`
-- 原則: 自己観測する UI は、観測の対象から自分自身を外す (観測器を被写体に含めない) (`user-dialogue:2026-08-30#撮影中だけ自動で隠す`)
-  - 採否: `applied`
-  - 章固有の根拠: 写しの用途は『利用者が伝えたい箇所』の提示であり、送信 UI 自身はその情報を 1 ビットも運ばない。むしろ画面の中央を占有して被写体を隠すため、写りは純粋な損失である。撮影開始 (getDisplayMedia 呼出) と、送信 UI の可視化を別の時点に分け、写しが確定するまで送信 UI を描かない。撮影開始そのものは押した勢い (transient activation) を失わないよう onClick 内に留める。
-  - トレードオフ:
-    - モーダルの出現が写しの確定まで遅れるため、押してから開くまでの体感が伸びる。写しが撮れない・断られた環境では即座に開く経路を残し、待ちが無限に伸びないようにする
-    - 『押した瞬間に開く』という既存の設計意図 (feedback-button.tsx の注記) を意図的に変更するため、変更理由をコード側にも残さないと元へ戻される
-- 原則: 本文の上に浮く操作は、記録・監査の対象になるときだけ自分を名乗り、それ以外では退く (`ref-system-design-knowledge:information-design`)
-  - 採否: `applied`
-  - 章固有の根拠: 右下固定の起動ボタンは data-floating-overlay で本文の上に居ることを名乗っている。同じ理由で、写しという記録の中では退く側に回る。名乗りと退避を同じ属性系で扱うことで、重なり監査 (tests/e2e/app-routes.spec.ts) と写しの除外規則が別々の手掛かりに分岐しない。
-  - トレードオフ:
-    - 隠す対象を属性で選ぶため、将来別の浮遊要素が増えたときに同じ属性を付け忘れると写り込みが再発する。属性の付与漏れを検査で拾う必要がある
-##### 接地根拠 qa-frontend-web-affiliate-link-preview-v3 (対応セル: web)
-
-- 本文: 「確定内容 (質疑録)」の `qa-frontend-web-affiliate-link-preview-v3` を参照
-- 設計解釈の記録経路: `dialogue`
-- 原則: 識別子ではなく判断対象そのものを先に見せ、入力と確認結果を同じ文脈に置く (`ref-system-design-knowledge:information-design`)
-  - 採否: `applied`
-  - 章固有の根拠: 現行の成果リンク受信箱はホスト名、URL、状態、商品IDの手入力を中心に表示し、リンクが指す商品を視覚的に照合できない。URL入力後は安全なサーバー取得を経て、取得元、正規URL、商品タイトル、販売元、利用可能な商品画像、価格の取得時点、既存商品候補、重複候補を一つの確認カードに表示する。画像が取得できない場合も壊れた枠にせず、取得不可の理由と手動選択を同じ位置に出す。確認前は保存可能な成果リンクとして扱わない
-  - トレードオフ:
-    - 外部URLからのメタデータ取得には遅延・失敗・画像利用条件・SSRFの危険があるため、貼り付けと同時にクライアントから直接取得せず、許可済み接続先をサーバー側で検査し、取得結果の出典と確認日時を表示する
-- 原則: 非同期処理の進行、成功、部分成功、失敗と回復手段を利用者が見失わないようにする (`ref-system-design-knowledge:usability-accessibility`)
-  - 採否: `applied`
-  - 章固有の根拠: リンク貼り付け後は解析中、確認待ち、取得済み、画像のみ未取得、重複、取得失敗を可視テキストで区別し、入力値を保持したまま再試行、手動補完、対象外を選べるようにする。保存後は保存済み時刻と掲載先件数を表示し、一覧へ戻っても同じ状態語彙を使う
-  - トレードオフ:
-    - 状態を細分化すると表示語彙が増えるため、内部状態をそのまま露出せず、利用者が次に行える操作が同じものは一つの表示状態にまとめる
-##### 接地根拠 qa-frontend-web-seo-ai-search-v2 (対応セル: web)
-
-- 本文: 「確定内容 (質疑録)」の `qa-frontend-web-seo-ai-search-v2` を参照
+- 確定要件: 利用者本人の回答を逐語主旨で記録する。
+(1) 合わせて、SEO や AI による『その SEO に変わるやつ』(AI 検索・生成 AI 回答での引用) にも対応できるようにしておく。AI からの検索や評価が高くなるような仕組みにしておく。
+(2) 最新のこれらの情報 (SEO / AI 検索最適化のガイドライン) をウェブから、海外も日本の情報も含めて取得した上で、それを反映できるようなブログを構築できるようにしておく。
+###### 調査結果 (2026-08-24、海外+日本。一次情報と業者推定を区別)
+- 一次情報: Google Search Central『AI 最適化ガイド』(2026-05-15 公開) は、AI Overviews / AI Mode が既存ランキング+RAG+query fan-out で動き、追加の技術要件は無く、index 可能かつ snippet 表示可能であることが唯一の条件、llms.txt や特別な schema は不要と明言する。Search Console に AI 機能由来の impressions を見る report がある。
+- 一次情報: llms.txt (Answer.AI) は root の /llms.txt に Markdown を置く規約で正式標準ではない。IndexNow (Bing/Yandex/Naver/Seznam) は URL 更新 push で Google 非対応。ChatGPT search の retrieval は Bing index 由来のため IndexNow が AI 検索への到達経路になる。
+- 海外/日本の業者知見 (推定値扱い): AI クローラ (GPTBot / ClaudeBot / PerplexityBot / Google-Extended) を遮断しない、各節冒頭に 2〜3 文の『答え』、統計・出典の明記、FAQPage/HowTo/Article/Person/Organization/BreadcrumbList の JSON-LD、最終更新日と『〜時点』の可視化、著者ページ (E-E-A-T)、AI 引用の定点観測。日本では FAQ 構造化データと結論ファーストを優先する論調が多く、アフィリエイト記事は一次体験・独自比較表・図解が有利。
+###### frontend 章への反映方針
+- 公開面は SSR/ISR で本文を HTML に含め、semantic HTML (article/section/h1〜h3/time) で出力する。robots.txt はテンプレート既定で AI クローラを許可し、ブログ単位で拒否リストを設定できる。
+- ブロック構造から JSON-LD を自動生成する: BlogPosting/Article・Person (著者)・Organization・BreadcrumbList・FAQPage (FAQ ブロック)・HowTo (手順ブロック)・Product/Review (比較表・レビュー)。schema.org の型・必須プロパティを検証する pure 関数を置き、テストで妥当性を確認する。
+- 配信: sitemap.xml・RSS/Atom・/llms.txt (低コスト・効果未確認と明記) を自動生成し、公開・更新時に IndexNow へ送信する (API key はブログ単位、秘密はサーバ側のみ)。
+- 鮮度: 各記事に dateModified を出し、公開面にも『最終更新日』『〜時点』を表示する。
+- 最新情報の取り込み: SEO / AI 検索ガイドラインの出典 (Google AI 最適化ガイド・AI 機能ページ・llms.txt・IndexNow) を仕様状態の targets / fetched-references に登録し、doc-fetch (C02) と鮮度監査 (C08) で再取得・再照合できるようにする。アプリ側は参照レジストリ (guideline_references) を DB に持ち、管理画面で確認日・要約を更新できる。
+- (注記: 正本 qa_log[qa-frontend-web-seo-ai-search-v2].answer が見出しを含むため、章の階層を守ってコンパイラが深い階層へ押し下げた。文字は変えていない)
 - 設計解釈の記録経路: `dialogue`
 - 原則: 画面描画と機械向け出力 (JSON-LD / sitemap / RSS / llms.txt / robots) を同じ読み取りモデルから派生させる (`information-design.md#中核概念`)
   - 採否: `applied`
@@ -299,7 +412,7 @@ serves_goals: [G1, G2]
 
 | 対象 | バージョン | 公式発行元 | 出典URL | 取得 | 最新確認 |
 |---|---|---|---|---|---|
-| nextjs | 16.3.3 | Vercel (nextjs.org) | https://nextjs.org/docs | 2026-08-29T23:02:28Z | 2026-08-29T23:02:28Z |
+| nextjs | 16.3.3 | Vercel (nextjs.org) | https://nextjs.org/docs | 2026-08-28T14:07:27Z | 2026-08-28T14:07:27Z |
 | mdn-light-dark | 2026-04-18 | Mozilla (developer.mozilla.org) | https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Values/color_value/light-dark | 2026-08-22T15:05:07Z | 2026-08-22T15:05:07Z |
 
 ## 状態の意味 (State semantics)
@@ -353,14 +466,14 @@ serves_goals: [G1, G2]
 |---|---|
 | セル | frontend × web |
 | 状態 | 確定 |
-| 確定質疑 (qa_ref) | `qa-frontend-web-spec-intake` |
+| 確定質疑 (qa_ref) | `qa-frontend-web-capture-self-occlusion` |
 | 資するゴール (serves_goals) | G1, G2 |
 | required-info | なし (この確定に block 指定の必須情報は登録されていない) |
-| 出典 kind | written-requirements |
-| 出典 path | `docs/spec/12-改善要望フィードバック仕様.md` |
-| 出典 節 | §5 送信モーダル（FB-AC-04〜10） |
-| 出典 sha256 | `ccd052dfcbf69cbd8a0b5b4d16f2912267dd15afef81fb3dd23717ba50a36c39` |
-| 適用された設計知識 (design_applications) | 6 件 — 本章 `## 適用された設計知識` を参照 |
+| 出典 kind | user-dialogue |
+| 出典 path | — (対話に基づくため path/節/sha256 を持たない) |
+| 出典 節 | — |
+| 出典 sha256 | — |
+| 適用された設計知識 (design_applications) | 2 件 — 本章 `## 適用された設計知識` を参照 |
 
 ### 本節を「転記」に留めた理由
 

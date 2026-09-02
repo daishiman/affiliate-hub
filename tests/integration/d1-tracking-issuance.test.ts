@@ -1,6 +1,4 @@
 /** @tier 2 @req REQ-E13, REQ-P09 @types db-migration, idempotency, tenant-isolation, state-transition */
-import { readFileSync, readdirSync } from "node:fs";
-import path from "node:path";
 import { drizzle } from "drizzle-orm/d1";
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import { getPlatformProxy } from "wrangler";
@@ -21,6 +19,7 @@ import {
   createD1PublishedArticleWriter,
   createD1ContentRepository,
 } from "@/infrastructure/persistence/d1/published-article-repository";
+import { createD1SiteRepository } from "@/infrastructure/persistence/d1/site-repository";
 import {
   createD1RedirectResolver,
   createD1TrackingCoverage,
@@ -33,6 +32,7 @@ import {
 } from "@/infrastructure/persistence/d1/telemetry-repository";
 import { withTrackingLinkIssuance } from "@/infrastructure/persistence/tracking-issuing-writer";
 import { SAMPLE_WORKSPACE_ID } from "@/infrastructure/persistence/sample/ranking-sample-repository";
+import { migrationStatements } from "../support/migrations";
 
 /**
  * 記事を出したときに合言葉が発行され、押されたクリックが
@@ -70,20 +70,6 @@ const owner = SAMPLE_WORKSPACE_ID as WorkspaceId;
 /** 読者の身元。写しにこれが入ると「貯まっているのに 0」になる。 */
 const reader = asWorkspaceId("ws_public");
 
-function migrationStatements(): readonly string[] {
-  const dir = path.resolve(process.cwd(), "drizzle");
-  const files = readdirSync(dir)
-    .filter((f) => f.endsWith(".sql"))
-    .sort();
-  expect(files.length).toBeGreaterThan(0);
-  return files.flatMap((file) =>
-    readFileSync(path.join(dir, file), "utf8")
-      .split("--> statement-breakpoint")
-      .map((s) => s.trim())
-      .filter((s) => s !== ""),
-  );
-}
-
 beforeAll(async () => {
   proxy = await getPlatformProxy<TestEnv>({
     configPath: "wrangler.jsonc",
@@ -99,7 +85,7 @@ beforeAll(async () => {
     createD1PublishedArticleWriter(db),
     createD1TrackingLinkIssuer(db),
   );
-  content = createD1ContentRepository(db);
+  content = createD1ContentRepository(db, createD1SiteRepository(db));
   resolver = createD1RedirectResolver(db);
   coverage = createD1TrackingCoverage(db);
   metrics = createD1TelemetryMetricsRepository(db);

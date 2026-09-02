@@ -17,24 +17,18 @@
  * ここで DOM を触ると、決まりが変わっていないのに文言だけで落ちるようになる。
  */
 import { describe, expect, it } from "vitest";
-import type {
-  BlogArticleDetail,
-  FixedPageRecord,
-} from "@/application/ports/blog-ops";
+import type { BlogArticleDetail } from "@/application/ports/blog-ops";
 import {
   createCreateBlogArticleUseCase,
   createCreateSiteNetworkNodeUseCase,
   createDeleteBlogArticleUseCase,
   createDeleteBlogTagUseCase,
-  createDeleteFixedPageUseCase,
   createDeleteSiteNetworkNodeUseCase,
   createEvaluateBlogArticlesUseCase,
   createGetBlogArticleUseCase,
   createListArticleRatingsUseCase,
   createListBlogArticlesUseCase,
   createListBlogTagsUseCase,
-  createListFixedPagesUseCase,
-  createListDeletedFixedPagesUseCase,
   createListSiteNetworkUseCase,
   createListDeletedBlogArticlesUseCase,
   createListDeletedSiteNetworkUseCase,
@@ -44,18 +38,15 @@ import {
   createSaveBlogLayoutSlotUseCase,
   createSaveBlogTagUseCase,
   createSaveDeliveryPartUseCase,
-  createSaveFixedPageUseCase,
   createSetArticleRatingHiddenUseCase,
   createRestoreBlogArticleUseCase,
   createRestoreSiteNetworkNodeUseCase,
-  createRestoreFixedPageUseCase,
   createSubmitArticleRatingUseCase,
   createUpdateBlogArticleUseCase,
   createUpdateSiteNetworkNodeUseCase,
 } from "@/application/usecases/blog-ops";
 import {
   DELIVERY_PARTS,
-  FIXED_PAGE_KINDS,
   FOOTER_SLOT_KEYS,
   HEADER_SLOT_KEYS,
   SIDEBAR_SLOT_KEYS,
@@ -823,147 +814,6 @@ describe("削除済み記事の一覧と復元", () => {
   });
 });
 
-describe("固定ページ", () => {
-  it("8 種を必ず並べ、無いものに印を立てる", async () => {
-    const { deps } = depsWith();
-    const r = await createListFixedPagesUseCase(deps).execute(anOwner(), { siteSlug: "hub" });
-    expect(isOk(r) && r.value.pages.length).toBe(FIXED_PAGE_KINDS.length);
-    expect(FIXED_PAGE_KINDS).toHaveLength(8);
-    expect(isOk(r) && r.value.missingCount).toBe(8);
-    expect(isOk(r) && r.value.launchBlockedReason).not.toBeNull();
-  });
-
-  it("無いページを既定文で埋めない", async () => {
-    const { deps } = depsWith();
-    const r = await createListFixedPagesUseCase(deps).execute(anOwner(), { siteSlug: "hub" });
-    expect(isOk(r) && r.value.pages.every((p) => p.title === "" && p.body === "")).toBe(true);
-  });
-
-  it("8 種が揃えば公開を止める理由が消える", async () => {
-    const { deps } = depsWith();
-    const save = createSaveFixedPageUseCase(deps);
-    for (const kind of FIXED_PAGE_KINDS) {
-      const r = await save.execute(anOwner(), {
-        siteSlug: "hub",
-        kind,
-        title: "題名",
-        body: "本文",
-        status: "published",
-      });
-      expect(r.ok).toBe(true);
-    }
-    const r = await createListFixedPagesUseCase(deps).execute(anOwner(), { siteSlug: "hub" });
-    expect(isOk(r) && r.value.missingCount).toBe(0);
-    expect(isOk(r) && r.value.launchBlockedReason).toBeNull();
-  });
-
-  it("題名か本文が空なら保存を断る", async () => {
-    const { deps } = depsWith();
-    const save = createSaveFixedPageUseCase(deps);
-    const noTitle = await save.execute(anOwner(), { siteSlug: "hub", kind: "contact", title: " ", body: "本文", status: "draft" });
-    const noBody = await save.execute(anOwner(), { siteSlug: "hub", kind: "contact", title: "題名", body: " ", status: "draft" });
-    expect(isErr(noTitle) && noTitle.error.field).toBe("title");
-    expect(isErr(noBody) && noBody.error.field).toBe("body");
-  });
-
-  it("同じ種類を 2 度保存しても 2 枚に増えない", async () => {
-    const { deps, repo } = depsWith();
-    const save = createSaveFixedPageUseCase(deps);
-    await save.execute(anOwner(), { siteSlug: "hub", kind: "contact", title: "1", body: "1", status: "draft" });
-    await save.execute(anOwner(), { siteSlug: "hub", kind: "contact", title: "2", body: "2", status: "published" });
-    expect(repo.store.pages).toHaveLength(1);
-    expect(repo.store.pages[0]?.title).toBe("2");
-  });
-
-  it("理由の無い削除は断り、無いページの削除は見つからないとして断る", async () => {
-    const { deps } = depsWith();
-    const del = createDeleteFixedPageUseCase(deps);
-    const noReason = await del.execute(anOwner(), { siteSlug: "hub", kind: "contact", reason: "" });
-    expect(isErr(noReason) && noReason.error.field).toBe("reason");
-    const missing = await del.execute(anOwner(), { siteSlug: "hub", kind: "contact", reason: "廃止" });
-    expect(isErr(missing) && missing.error.code).toBe("NOT_FOUND");
-  });
-
-  it("削除後も本文と公開状態を保って別一覧に出し、保存では暗黙復活しない", async () => {
-    const page: FixedPageRecord = {
-      id: "page-contact",
-      siteSlug: "hub",
-      kind: "contact",
-      title: "問い合わせ",
-      body: "保存してある本文",
-      status: "published",
-      deletedAt: null,
-      updatedAt: NOW,
-    };
-    const { deps, repo } = depsWith({ pages: [page] });
-    const deleted = await createDeleteFixedPageUseCase(deps).execute(anOwner(), {
-      siteSlug: "hub",
-      kind: "contact",
-      reason: "内容を見直すため",
-    });
-    expect(deleted.ok).toBe(true);
-
-    const list = await createListDeletedFixedPagesUseCase(deps).execute(anOwner(), {
-      siteSlug: "hub",
-    });
-    expect(isOk(list) && list.value.pages[0]).toMatchObject({
-      pageId: page.id,
-      title: page.title,
-      body: page.body,
-      status: page.status,
-    });
-
-    const save = await createSaveFixedPageUseCase(deps).execute(anOwner(), {
-      siteSlug: "hub",
-      kind: "contact",
-      title: "上書き",
-      body: "上書き本文",
-      status: "draft",
-    });
-    expect(isErr(save) && save.error.code).toBe("CONFLICT");
-    expect(repo.store.deletedPages[0]).toMatchObject({ title: page.title, body: page.body });
-  });
-
-  it("所有者だけが同じID・本文・公開状態で明示復元でき、二重復元を断る", async () => {
-    const page: FixedPageRecord = {
-      id: "page-profile",
-      siteSlug: "hub",
-      kind: "profile",
-      title: "運営者",
-      body: "元の本文",
-      status: "published",
-      deletedAt: NOW,
-      updatedAt: daysFrom(NOW, -1),
-    };
-    const { deps, repo, audit } = depsWith({ deletedPages: [page] });
-    const outsider = await createRestoreFixedPageUseCase(deps).execute(anOutsider(), {
-      siteSlug: "hub",
-      pageId: page.id,
-    });
-    expect(isErr(outsider) && outsider.error.code).toBe("NOT_FOUND");
-
-    const restored = await createRestoreFixedPageUseCase(deps).execute(anOwner(), {
-      siteSlug: "hub",
-      pageId: page.id,
-    });
-    expect(isOk(restored) && restored.value.pageId).toBe(page.id);
-    expect(repo.store.pages[0]).toMatchObject({
-      id: page.id,
-      title: page.title,
-      body: page.body,
-      status: page.status,
-      deletedAt: null,
-    });
-    expect(audit.actions()).toContain("blog_page.restored");
-
-    const twice = await createRestoreFixedPageUseCase(deps).execute(anOwner(), {
-      siteSlug: "hub",
-      pageId: page.id,
-    });
-    expect(isErr(twice) && twice.error.code).toBe("NOT_FOUND");
-  });
-});
-
 describe("タグ", () => {
   it("1 件も無ければ、サイドバーが空になることを言葉で返す", async () => {
     const { deps } = depsWith();
@@ -1192,7 +1042,6 @@ describe("読者の評価の受け取り", () => {
               listDeliveryParts: async () => ok([]),
               listNetwork: async () => ok([]),
               listTags: async () => ok([]),
-              listFixedPages: async () => ok([]),
             }),
         },
         ids: sequentialIds(),

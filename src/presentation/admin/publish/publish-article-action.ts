@@ -1,7 +1,6 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { headers } from "next/headers";
 import type { ArticleType } from "@/domain/authoring";
 import type { RelationshipType } from "@/domain/compliance";
 import { auditArticleForAiSearch } from "@/application/seo/ai-search-audit";
@@ -12,6 +11,7 @@ import {
   signedInActor,
   siteUseCases,
 } from "@/presentation/composition";
+import { requestOriginFromNextHeaders } from "@/presentation/http/request-origin";
 import type { PublishArticleFormState } from "./publish-article-state";
 import { parseNonEmptyLines } from "../non-empty-lines";
 import { failureFromDomainError, notSignedInFailure } from "../use-case-result";
@@ -174,15 +174,8 @@ export async function publishArticleAction(
   // 公開できた記事を IndexNow で検索エンジンへ知らせる（feat-blog-ui-builder §SEO/AI 検索）。
   // 通知は公開の条件ではない。skipped/failed でも公開の結果は変えず、記録だけ残す。
   // origin は届いたリクエストから作る（環境変数に持つと環境ごとの値がずれたまま気づけない）。
-  const requestHeaders = await headers();
-  const host = requestHeaders.get("host");
-  if (host !== null) {
-    const proto = requestHeaders.get("x-forwarded-proto") ?? "https";
-    const origin = `${proto}://${host}`;
-    const notice = await notifyIndexNowOfPublish(origin, [`${origin}${result.value.url}`]);
-    // 鍵はこの経路に現れない（submitToIndexNow の契約）。状態だけを記録する。
-    console.info(JSON.stringify({ event: "indexnow_publish", ...notice }));
-  }
+  const origin = await requestOriginFromNextHeaders();
+  const indexNow = await notifyIndexNowOfPublish(actor, origin, result.value.url);
 
   // 公開した記事を**読者と同じ読み取り口**から読み直し、AI 検索への備え
   // （結論が先か・更新日・著者・出典・説明文の長さ）を点検する。
@@ -204,5 +197,6 @@ export async function publishArticleAction(
     url: result.value.url,
     skipped: result.value.skipped,
     aiSearch,
+    indexNow,
   };
 }

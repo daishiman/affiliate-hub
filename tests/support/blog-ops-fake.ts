@@ -18,7 +18,6 @@ import type {
   BlogTagRecord,
   DeletedBlogArticleRecord,
   DeletedSiteNetworkRecord,
-  FixedPageRecord,
   SaveBlogArticleInput,
   SaveSiteNetworkInput,
 } from "@/application/ports/blog-ops";
@@ -48,8 +47,6 @@ export type Store = {
   articles: BlogArticleDetail[];
   deletedArticles: DeletedBlogArticleRecord[];
   tags: BlogTagRecord[];
-  pages: FixedPageRecord[];
-  deletedPages: FixedPageRecord[];
   ratings: Record<string, RatingSummary>;
   /** 記事ごとの票を 1 件ずつ。集計 (`ratings`) とは別に持つ。 */
   votes: ArticleRating[];
@@ -66,8 +63,6 @@ export function emptyStore(): Store {
     articles: [],
     deletedArticles: [],
     tags: [],
-    pages: [],
-    deletedPages: [],
     ratings: {},
     votes: [],
   };
@@ -235,34 +230,6 @@ export function fakeRepository(seed: Partial<Store> = {}): {
     deleteTag: async (ws, id) => {
       const s = of(ws);
       s.tags = s.tags.filter((t) => t.id !== id);
-      return done();
-    },
-
-    listFixedPages: async (ws, siteSlug) => ok(of(ws).pages.filter((p) => p.siteSlug === siteSlug)),
-    listDeletedFixedPages: async (ws, siteSlug) =>
-      ok(of(ws).deletedPages.filter((p) => p.siteSlug === siteSlug)),
-    saveFixedPage: async (ws, input) => {
-      const s = of(ws);
-      if (s.deletedPages.some((p) => p.siteSlug === input.siteSlug && p.kind === input.kind)) {
-        return err(notFound("固定ページ", `${input.siteSlug}:${input.kind}`));
-      }
-      s.pages = [...s.pages.filter((p) => p.id !== input.id), input];
-      return done();
-    },
-    deleteFixedPage: async (ws, id) => {
-      const s = of(ws);
-      const target = s.pages.find((p) => p.id === id);
-      if (target === undefined) return err(notFound("固定ページ", id));
-      s.pages = s.pages.filter((p) => p.id !== id);
-      s.deletedPages.push({ ...target, deletedAt: NOW });
-      return done();
-    },
-    restoreFixedPage: async (ws, id, restoredAt) => {
-      const s = of(ws);
-      const target = s.deletedPages.find((p) => p.id === id);
-      if (target === undefined) return err(notFound("削除済み固定ページ", id));
-      s.deletedPages = s.deletedPages.filter((p) => p.id !== id);
-      s.pages.push({ ...target, deletedAt: null, updatedAt: restoredAt });
       return done();
     },
 

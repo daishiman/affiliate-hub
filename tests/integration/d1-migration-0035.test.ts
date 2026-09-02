@@ -1,8 +1,7 @@
 /** @tier 2 @req REQ-P08, REQ-TS07 @types db-migration, idempotency */
-import { readFileSync } from "node:fs";
-import { resolve } from "node:path";
 import { getPlatformProxy } from "wrangler";
 import { describe, expect, it } from "vitest";
+import { readMigration, statementsOf } from "../support/migrations";
 
 /**
  * 0035 は**手で書いた 1 本**なので、手で書いた分の責任をここで見る。
@@ -24,13 +23,7 @@ import { describe, expect, it } from "vitest";
 
 type TestEnv = { readonly DB: D1Database };
 
-const STATEMENTS = readFileSync(
-  resolve(process.cwd(), "drizzle/0035_non_generated_boundaries.sql"),
-  "utf8",
-)
-  .split("--> statement-breakpoint")
-  .map((statement) => statement.trim())
-  .filter((statement) => statement !== "");
+const STATEMENTS = statementsOf("0035_non_generated_boundaries.sql");
 
 /** 0034 まで流れ終わった直後の姿。0035 が触る表だけを起こす。 */
 const PRE_0035 = [
@@ -149,10 +142,7 @@ const EXPECTED_TRIGGERS = [
 
 describe("0035 生成器が書けない境界の移行", () => {
   it("D1 remote の trigger 分割器が誤認する未括弧 CASE を含まない", () => {
-    const sql = readFileSync(
-      resolve(process.cwd(), "drizzle/0035_non_generated_boundaries.sql"),
-      "utf8",
-    );
+    const sql = readMigration("0035_non_generated_boundaries.sql");
     expect(sql).not.toMatch(/\bSELECT\s+CASE\b/);
   });
 

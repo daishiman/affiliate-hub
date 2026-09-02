@@ -36,6 +36,8 @@ export const ADMIN_CARD_ROUTE_IDS = [
   "sites/[site]",
   "sites/[site]/edit",
   "sites/[site]/documents",
+  "sites/[site]/appearance",
+  "sites/[site]/placements",
   "sites/new",
   "distribution/[publication]",
   "distribution/[publication]/edit",

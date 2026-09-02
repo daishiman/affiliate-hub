@@ -3,8 +3,6 @@
  * @req REQ-TS07
  * @types db-migration
  */
-import { readFileSync, readdirSync } from "node:fs";
-import path from "node:path";
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import { drizzle } from "drizzle-orm/d1";
 import { getPlatformProxy } from "wrangler";
@@ -25,6 +23,7 @@ import {
 } from "@/domain/shared";
 import { SAMPLE_WORKSPACE_ID } from "@/infrastructure/persistence/sample/ranking-sample-repository";
 import { anOwner, anOutsider } from "../support/actors";
+import { migrationStatements } from "../support/migrations";
 
 /**
  * 成果リンク受信箱を、**本物の D1 と本物のマイグレーション**で通す結合テスト。
@@ -87,20 +86,6 @@ let deps: ManageLinkInboxDeps;
 const owner: ActorContext = anOwner({ workspaceId: SAMPLE_WORKSPACE_ID });
 
 /** マイグレーションの本文を、実行できる単位に割る。 */
-function migrationStatements(): readonly string[] {
-  const dir = path.resolve(process.cwd(), "drizzle");
-  const files = readdirSync(dir)
-    .filter((f) => f.endsWith(".sql"))
-    .sort();
-  // 1 件も読めていないのに緑になるのが最悪なので、そこだけ先に落とす。
-  expect(files.length).toBeGreaterThan(0);
-  return files.flatMap((file) =>
-    readFileSync(path.join(dir, file), "utf8")
-      .split("--> statement-breakpoint")
-      .map((s) => s.trim())
-      .filter((s) => s !== ""),
-  );
-}
 
 beforeAll(async () => {
   proxy = await getPlatformProxy<TestEnv>({

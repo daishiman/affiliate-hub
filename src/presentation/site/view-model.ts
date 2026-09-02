@@ -111,7 +111,7 @@ export function toChrome(
               }))
             : []),
         ];
-  const footer = [...projectedFooter, ...(projection?.chrome.fixedPageLinks ?? [])].filter(
+  const footer = projectedFooter.filter(
     (item, index, all) => all.findIndex((candidate) => candidate.href === item.href) === index,
   );
 
@@ -155,6 +155,8 @@ export function toArticleView(
   siteSlug: string,
   article: PublishedArticle,
   relatedArticles?: readonly ArticleCardView[],
+  /** ブログが選んだ見せ方の並び（受入 A1・A5）。未選択なら渡さない。 */
+  blockOrder?: readonly string[],
 ): ArticleViewModel {
   const blocks = expressionBlocksOf(article);
   const answer = blocks.find((block) => block.kind === "answer");
@@ -197,6 +199,7 @@ export function toArticleView(
       })),
     })),
     conversation: article.conversation,
+    blockOrder,
     // answer / key_points / faq / freshness は画面で読み直さない。
     // 公開前監査・JSON-LD と同じ射影に、空白の扱いまで揃える。
     keyPoints: keyPoints?.items,

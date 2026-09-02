@@ -1,5 +1,5 @@
 import Link from "next/link";
-import type { ReactNode } from "react";
+import { Fragment, type ReactNode } from "react";
 import { UI_COPY } from "../copy";
 import { ComparisonTable, type ComparisonColumn, type ComparisonRow } from "../patterns/comparison-table";
 import { DisclosureNotice } from "../patterns/disclosure";
@@ -16,6 +16,7 @@ import {
 import { StubNotice } from "../patterns/stub-notice";
 import { EmptyView } from "../primitives/state-view";
 import { type TelemetrySectionKind, telemetrySectionAttrs } from "../telemetry-attrs";
+import { FactList } from "./screen-parts";
 import styles from "./site.module.css";
 
 /**
@@ -120,7 +121,53 @@ export type ArticleViewModel = {
   readonly relatedArticles?: readonly ArticleCardView[];
   /** 中身がまだ無い記事であることの明示。見本を本物に見せない。 */
   readonly stub?: { readonly label: string; readonly blockedBy: string; readonly stubId: string };
+  /**
+   * ブログが選んだ見せ方の、記事の中の並び（受入 A1・A5）。
+   *
+   * **文字列の配列で受け取る。** テンプレートの定義は業務のきまり
+   * （`@/domain/authoring`）にあり、共通UIはそれを読まない。読んだ時点で
+   * 部品が業務を抱え、別の用途で使い回せなくなる（`tests/ui/ui-layers.test.ts`）。
+   *
+   * 渡さなければ既定の並び（`DEFAULT_BLOCK_ORDER`）で描く。
+   * 見せ方を選んでいないブログと、保存先が無い実行がそれに当たる。
+   */
+  readonly blockOrder?: readonly string[];
 };
+
+/**
+ * 並べ替えの効く塊。
+ *
+ * **記事の中身の全部ではない。** 題・書き手・開示・著者紹介・次に読む記事は
+ * 位置が意味を持つ（開示は本文より前でなければ意味が無い）ので動かさない。
+ * 動かすのは「読む順を変えても筋が通る」塊だけにする。
+ *
+ * `answer`（結論）はここに無い。題のすぐ下の要約として既に描かれており、
+ * 動かす場所が無いからである。`sources` も同じく根拠の中に埋まっている。
+ * **並べ替えの対象に無い種類は、テンプレートの並びから静かに落ちる**のではなく、
+ * そもそも動かせる形をしていない。
+ */
+const MOVABLE_BLOCKS = ["key_points", "summary", "comparison", "cta", "faq", "freshness"] as const;
+type MovableBlock = (typeof MOVABLE_BLOCKS)[number];
+
+/** 見せ方を選んでいないブログの並び。いまの記事画面の並びをそのまま写す。 */
+const DEFAULT_BLOCK_ORDER: readonly MovableBlock[] = MOVABLE_BLOCKS;
+
+/**
+ * 並べ替える。**塊は 1 つも落とさない。**
+ *
+ * テンプレートの並びに無い種類は末尾へ元の順のまま付ける。
+ * これが「見せ方を差し替えても既存記事が壊れない」の中身で、
+ * ドメイン側の `orderBlocksForTemplate` と同じ約束をここでも守る
+ * （あちらはブロックの列、こちらは描き出す塊）。
+ */
+function orderMovableBlocks(order: readonly string[]): readonly MovableBlock[] {
+  const rank = new Map(order.map((kind, index) => [kind, index]));
+  return [...MOVABLE_BLOCKS].sort((a, b) => {
+    const ra = rank.get(a) ?? Number.MAX_SAFE_INTEGER;
+    const rb = rank.get(b) ?? Number.MAX_SAFE_INTEGER;
+    return ra === rb ? MOVABLE_BLOCKS.indexOf(a) - MOVABLE_BLOCKS.indexOf(b) : ra - rb;
+  });
+}
 
 /**
  * 目次。節の見出しからその場で作る。
@@ -235,14 +282,13 @@ function FaqSection({ items }: { readonly items: readonly FaqItemView[] }) {
       {...telemetrySectionAttrs({ kind: "faq", id: "faq" })}
     >
       <h2 className={styles.sectionHeading}>{UI_COPY.article.faqTitle}</h2>
-      <dl>
-        {items.map((item) => (
-          <div key={item.question}>
-            <dt>{item.question}</dt>
-            <dd>{item.answer}</dd>
-          </div>
-        ))}
-      </dl>
+      <FactList
+        rows={items.map((item) => ({
+          key: item.question,
+          label: item.question,
+          value: item.answer,
+        }))}
+      />
     </section>
   );
 }
@@ -271,6 +317,73 @@ function Section({ section }: { readonly section: SectionView }) {
 
 export function ArticleView({ article }: { readonly article: ArticleViewModel }) {
   const wide = article.ranking !== undefined || article.comparison !== undefined;
+  const blocks = orderMovableBlocks(article.blockOrder ?? DEFAULT_BLOCK_ORDER);
+
+  /*
+    塊ごとの描き出し。**中身が無い塊は `null` にする**（欄だけ出さない）。
+
+    目次を `summary` の中に入れてあるのは、目次が指す先が節そのものだからである。
+    別の塊にすると、見せ方によっては節より後ろに目次が回り、
+    「これから読むものの一覧」が読み終えた人の前に出る。
+
+    順位表を `comparison` に同梱するのも同じ理由で、
+    どちらも「並べて比べる表」で、間に別の話を挟むと読者が比較を中断する。
+  */
+  const movable: Readonly<Record<MovableBlock, ReactNode>> = {
+    key_points:
+      article.keyPoints !== undefined && article.keyPoints.length > 0 ? (
+        <KeyPointsSection items={article.keyPoints} />
+      ) : null,
+    summary: (
+      <>
+        <ArticleTableOfContents sections={article.sections} />
+        {article.sections.map((section) => (
+          <Section key={section.id} section={section} />
+        ))}
+      </>
+    ),
+    comparison: (
+      <>
+        {article.ranking !== undefined && (
+          <RankingTable
+            caption={article.ranking.caption}
+            criteria={article.ranking.criteria}
+            rows={article.ranking.rows}
+            excluded={article.ranking.excluded}
+            updatedAt={article.ranking.updatedAt}
+          />
+        )}
+        {article.comparison !== undefined && (
+          <ComparisonTable
+            caption={article.comparison.caption}
+            columns={article.comparison.columns}
+            rows={article.comparison.rows}
+          />
+        )}
+      </>
+    ),
+    cta:
+      article.productCards !== undefined && article.productCards.length > 0 ? (
+        <section
+          className={styles.section}
+          aria-label="この記事で取り上げた商品"
+          {...telemetrySectionAttrs({ kind: "cta", id: "product-cards" })}
+        >
+          <h2 className={styles.sectionHeading}>この記事で取り上げた商品</h2>
+          <div className={styles.cardList}>
+            {article.productCards.map((card) => (
+              <ProductCard key={card.productId ?? card.name} {...card} />
+            ))}
+          </div>
+        </section>
+      ) : null,
+    // 本文を読み終えた読者に残る問いへ、ここで先に答える。
+    faq:
+      article.faq !== undefined && article.faq.length > 0 ? (
+        <FaqSection items={article.faq} />
+      ) : null,
+    freshness: <UpdateHistory publishedAt={article.publishedAt} updatedAt={article.updatedAt} />,
+  };
 
   return (
     <article className={[styles.article, wide ? styles.wide : null].filter(Boolean).join(" ")}>
@@ -316,56 +429,11 @@ export function ArticleView({ article }: { readonly article: ArticleViewModel })
         {article.authorBio !== undefined && <p>{article.authorBio}</p>}
       </section>
 
-      {/* 結論の次に要点。読む順とテンプレートの並びを一致させる。 */}
-      {article.keyPoints !== undefined && article.keyPoints.length > 0 && (
-        <KeyPointsSection items={article.keyPoints} />
-      )}
-
       {article.conversation !== undefined && <Conversation lines={article.conversation} />}
 
-      <ArticleTableOfContents sections={article.sections} />
-
-      {article.sections.map((section) => (
-        <Section key={section.id} section={section} />
+      {blocks.map((kind) => (
+        <Fragment key={kind}>{movable[kind]}</Fragment>
       ))}
-
-      {article.ranking !== undefined && (
-        <RankingTable
-          caption={article.ranking.caption}
-          criteria={article.ranking.criteria}
-          rows={article.ranking.rows}
-          excluded={article.ranking.excluded}
-          updatedAt={article.ranking.updatedAt}
-        />
-      )}
-
-      {article.comparison !== undefined && (
-        <ComparisonTable
-          caption={article.comparison.caption}
-          columns={article.comparison.columns}
-          rows={article.comparison.rows}
-        />
-      )}
-
-      {article.productCards !== undefined && article.productCards.length > 0 && (
-        <section
-          className={styles.section}
-          aria-label="この記事で取り上げた商品"
-          {...telemetrySectionAttrs({ kind: "cta", id: "product-cards" })}
-        >
-          <h2 className={styles.sectionHeading}>この記事で取り上げた商品</h2>
-          <div className={styles.cardList}>
-            {article.productCards.map((card) => (
-              <ProductCard key={card.productId ?? card.name} {...card} />
-            ))}
-          </div>
-        </section>
-      )}
-
-      {/* 本文を読み終えた読者に残る問いへ、ここで先に答える。 */}
-      {article.faq !== undefined && article.faq.length > 0 && <FaqSection items={article.faq} />}
-
-      <UpdateHistory publishedAt={article.publishedAt} updatedAt={article.updatedAt} />
 
       <section className={styles.articleAuthorProfile} aria-label="詳細な著者プロフィール">
         <p className={styles.authorCardLabel}>この記事を書いた人</p>
