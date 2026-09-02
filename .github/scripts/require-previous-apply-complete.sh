@@ -67,61 +67,82 @@ if ! runs_json="$(
   fail "前回の公開を読めませんでした（${runs_json}）。測れなかったので止めます。"
 fi
 
-# 自分より前に始まった run のうち、いちばん新しいもの。
-previous_id="$(
+# 自分より前に**終わった** run を新しい順に並べる。
+#
+# 直前の 1 件だけを見てはいけない。公開まで進まなかった回（検査で落ちた回）が
+# 間に挟まると、その手前の中断を飛び越えてしまう。2026-09-02 に実際に
+# #33 = 適用の最中に cancelled、#34 = 検査の手前で失敗、という並びができた。
+# ここで #34 だけを見て通すと、#33 の印は誰にも読まれない。
+#
+# 印は「直前」ではなく「**適用に実際に到達した、いちばん新しい回**」に在る。
+previous_ids="$(
   printf '%s' "$runs_json" |
     jq -r --argjson me "${GITHUB_RUN_ID}" \
-      '[.[] | select(.id < $me)] | sort_by(.id) | last | .id // empty'
+      '[.[] | select(.id < $me) | select(.status == "completed")]
+       | sort_by(.id) | reverse | .[].id'
 )"
 
-if [ -z "$previous_id" ]; then
+if [ -z "$previous_ids" ]; then
   echo "前回の公開はありません（この枝では初回）。通します。"
   exit 0
 fi
 
-jobs_json=""
-if ! jobs_json="$(
-  gh api "repos/${GITHUB_REPOSITORY}/actions/runs/${previous_id}/jobs" \
-    --jq '.jobs' 2>&1
-)"; then
-  fail "前回の公開 (${previous_id}) の中身を読めませんでした（${jobs_json}）。測れなかったので止めます。"
-fi
+for previous_id in $previous_ids; do
+  jobs_json=""
+  if ! jobs_json="$(
+    gh api "repos/${GITHUB_REPOSITORY}/actions/runs/${previous_id}/jobs" \
+      --jq '.jobs' 2>&1
+  )"; then
+    fail "前回の公開 (${previous_id}) の中身を読めませんでした（${jobs_json}）。測れなかったので止めます。"
+  fi
 
-# 前回の run に公開の job が無いこともある（検査で止まった回）。それは通す。
-release_job="$(printf '%s' "$jobs_json" | jq -c --arg n "$RELEASE_JOB_NAME" \
-  '[.[] | select(.name == $n)] | last // empty')"
-if [ -z "$release_job" ]; then
-  echo "前回の公開 (${previous_id}) は公開の手前で終わっています。適用は始まっていません。"
-  exit 0
-fi
+  # 公開の job が無い回は、適用に触れていないので判断材料にならない。
+  # **通さずに**、さらに前を見に行く。
+  release_job="$(printf '%s' "$jobs_json" | jq -c --arg n "$RELEASE_JOB_NAME" \
+    '[.[] | select(.name == $n)] | last // empty')"
+  if [ -z "$release_job" ]; then
+    echo "run ${previous_id} は公開の手前で終わっています。さらに前を見ます。"
+    continue
+  fi
 
-apply_step="$(printf '%s' "$release_job" | jq -c --arg n "$APPLY_STEP_NAME" \
-  '[.steps[]? | select(.name == $n)] | last // empty')"
-if [ -z "$apply_step" ]; then
-  # 名前を変えた・ステップを消した、のどちらでもここへ来る。
-  # 「見つからない」を通すと、名前がずれた日からこの検査は何も見なくなる。
-  fail "前回の公開 (${previous_id}) に「${APPLY_STEP_NAME}」が見当たりません。名前がずれた可能性があります。測れなかったので止めます。"
-fi
+  apply_step="$(printf '%s' "$release_job" | jq -c --arg n "$APPLY_STEP_NAME" \
+    '[.steps[]? | select(.name == $n)] | last // empty')"
+  if [ -z "$apply_step" ]; then
+    # 名前を変えた・ステップを消した、のどちらでもここへ来る。
+    # 「見つからない」を通すと、名前がずれた日からこの検査は何も見なくなる。
+    fail "前回の公開 (${previous_id}) に「${APPLY_STEP_NAME}」が見当たりません。名前がずれた可能性があります。測れなかったので止めます。"
+  fi
 
-status="$(printf '%s' "$apply_step" | jq -r '.status // "unknown"')"
-conclusion="$(printf '%s' "$apply_step" | jq -r '.conclusion // "none"')"
+  status="$(printf '%s' "$apply_step" | jq -r '.status // "unknown"')"
+  conclusion="$(printf '%s' "$apply_step" | jq -r '.conclusion // "none"')"
 
-case "$conclusion" in
-  cancelled)
-    fail "前回の公開 (${previous_id}) は「${APPLY_STEP_NAME}」の最中に打ち切られました。$(
-      printf '\n'
-    )D1 に途中までの変更が残っている可能性があります。控えは残っているので、
+  case "$conclusion" in
+    cancelled)
+      fail "前回の公開 (${previous_id}) は「${APPLY_STEP_NAME}」の最中に打ち切られました。$(
+        printf '\n'
+      )D1 に途中までの変更が残っている可能性があります。控えは残っているので、
 まず docs/spec/11-CI-CD・品質ゲート仕様.md §4-1-3 の手順で実際の形を確かめてください。
 確かめずにこの公開をやり直すと、部分的に当たった移行の上へ同じ移行を当て直します。"
-    ;;
-  none)
-    if [ "$status" != "completed" ]; then
-      fail "前回の公開 (${previous_id}) の「${APPLY_STEP_NAME}」が終わっていません（status=${status}）。測れなかったので止めます。"
-    fi
-    fail "前回の公開 (${previous_id}) の「${APPLY_STEP_NAME}」に結論がありません。測れなかったので止めます。"
-    ;;
-  *)
-    echo "前回の公開 (${previous_id}) の「${APPLY_STEP_NAME}」は ${conclusion} で終わっています。通します。"
-    exit 0
-    ;;
-esac
+      ;;
+    skipped)
+      # job は在るが適用は走っていない（このガード自身が止めた回など）。
+      # 手前の印はまだ消えていないので、**通さずに**さらに前を見る。
+      echo "run ${previous_id} は「${APPLY_STEP_NAME}」を実行していません。さらに前を見ます。"
+      continue
+      ;;
+    none)
+      if [ "$status" != "completed" ]; then
+        fail "前回の公開 (${previous_id}) の「${APPLY_STEP_NAME}」が終わっていません（status=${status}）。測れなかったので止めます。"
+      fi
+      fail "前回の公開 (${previous_id}) の「${APPLY_STEP_NAME}」に結論がありません。測れなかったので止めます。"
+      ;;
+    *)
+      echo "前回の公開 (${previous_id}) の「${APPLY_STEP_NAME}」は ${conclusion} で終わっています。通します。"
+      exit 0
+      ;;
+  esac
+done
+
+# 取得した範囲（直近 20 件）に適用まで進んだ回が無い。
+echo "直近の run に適用まで進んだ回がありません。通します。"
+exit 0
