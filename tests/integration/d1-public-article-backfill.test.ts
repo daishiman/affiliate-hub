@@ -1,7 +1,7 @@
 /**
  * @tier 2
  * @req REQ-BOPS11
- * @types db-migration, data-preservation, idempotency, conflict
+ * @types db-migration, db-concurrency, idempotency, tenant-isolation
  *
  * `articles` から canonical public projection への forward backfill。
  * 公開側の既存値・墓標・archive・tenant 境界を推測で上書きしない。

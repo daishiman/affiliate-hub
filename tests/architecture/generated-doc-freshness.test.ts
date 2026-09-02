@@ -156,7 +156,9 @@ describe("生成物が古くなっていないこと", () => {
         }) ?? "",
         "",
         `許してある古さは ${KNOWN_STALE_MAX} 件までです。`,
-        "`node scripts/traceability.mjs` を走らせて生成し直してください。",
+        // 単体の script 名ではなく入口の名前を出す。どの生成物が古いかで
+        // 走らせる script が変わると、覚えていない人は結局 14 分の門を通す。
+        "`pnpm run generate` を走らせて生成し直してください（8 秒で終わります）。",
         "**KNOWN_STALE_MAX を上げて緑にしないこと。**上げた時点で、この検査は何も見なくなります。",
       ].join("\n"),
     ).toBeLessThanOrEqual(KNOWN_STALE_MAX);

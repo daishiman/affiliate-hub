@@ -1550,6 +1550,19 @@ export const AI_EVAL_BUDGET = {
  * `tier` はその検査が属する段。`node scripts/verify.mjs --tier 1` のように選べる。
  * 指定しなければ 1 段と 2 段を続けて走らせる（＝これまでと同じ内容）。
  */
+/**
+ * 判定のついでに**生成物を書き直す**検査の id。`pnpm run generate` の中身。
+ *
+ * ここに名前を並べておくのは、「どれを走らせれば生成物が最新になるか」を
+ * 人の記憶から外へ出すためである。以前この知識は 3 か所に散っていた——
+ * 失敗メッセージの文面、`CHECKS` の並び、そして覚えている人の頭の中。
+ * 3 か所目が正本になっていたので、覚えていない日に生成物が古くなった。
+ *
+ * **`CHECKS` の id を参照する形にしてある。** 別に並べ直すと、検査を
+ * 増やしたときに片方だけ増える。`scripts/generate.mjs` が実在を確かめる。
+ */
+export const GENERATED_DOC_CHECKS = ["traceability", "required-test-types", "port-wiring"];
+
 export const CHECKS = [
   {
     id: "typecheck",
@@ -1618,30 +1631,28 @@ export const CHECKS = [
     tier: 1,
     why: "記事・投稿を個別に通しても媒体間の食い違いと成果物の渡し忘れは残る。実在する2案件を単一入口で5検品へ通し、媒体の不足と過剰も公開前に止める",
   },
-  {
-    id: "test",
-    label: "テストとカバレッジ",
-    command: ["node", "scripts/run-tests.mjs", "--coverage"],
-    blocking: true,
-    tier: 1,
-    why: "単体・結合・画面・契約検査はすべてここで走る。閾値未達もここで落ちる",
-  },
-  {
-    id: "mutation-changed",
-    label: "変更したところのミューテーション",
-    command: ["node", "scripts/mutation.mjs", "--changed"],
-    blocking: true,
-    tier: 2,
-    why: "カバレッジは「通ったか」しか見ない。**書き換えても気づかないテスト**をここで見つける",
-  },
-  {
-    id: "coverage-report",
-    label: "層別の記録",
-    command: ["node", "scripts/coverage-report.mjs"],
-    blocking: true,
-    tier: 2,
-    why: "層別の下限と、スタブとの差を見る。全体 80% だけでは薄い場所が隠れる",
-  },
+  /*
+   * --- ここから 3 件は「生成してから測る」ために、テストより前に置く ---
+   *
+   * この 3 件は判定するだけでなく、判定のついでに生成物を書き直す。
+   * そして生成物の鮮度は `tests/architecture/generated-doc-freshness.test.ts`
+   * ——**テストの中**——が見張っている。
+   *
+   * 以前はこの 3 件がテストの後ろにあった。その並びだと、こうなる。
+   *
+   *   テストを 1 本足す → 生成物が古くなる → 鮮度のテストが落ちる
+   *   → 止める検査なので `verify` はそこで終わる
+   *   → **生成し直す 3 件に、永久に到達しない**
+   *
+   * 直し方は失敗の文面に書いてあるのに、`verify` を何度走らせても直らない。
+   * 人が別の script 名を覚えていて手で叩いたときだけ直る、という形だった。
+   * **道具が自分で直せる状態に置いてある不具合を、人の記憶に頼らせていた。**
+   *
+   * 前へ出すと 2 つ効く。生成物がテストの前に最新化されるので鮮度の赤が
+   * ひとりでに消え、秒で分かる赤（種別名の誤り・つなぎ目の抜け）が
+   * 14 分待たずに出る。3 件とも実測 8 秒以内で、順番を変える以外に
+   * 何も緩めていない。
+   */
   {
     id: "traceability",
     label: "テストと要件の対応",
@@ -1665,6 +1676,30 @@ export const CHECKS = [
     blocking: true,
     tier: 2,
     why: "**口はあるが誰も呼んでいない**を見る。表現ポリシー・読者ページの道具・操作の記録で 3 回続いた形で、3 つとも画面上は正常に見えるため使っても気づけない。接続を渡しているかを見る検査（composition-wiring）はこれを通り抜けた",
+  },
+  {
+    id: "test",
+    label: "テストとカバレッジ",
+    command: ["node", "scripts/run-tests.mjs", "--coverage"],
+    blocking: true,
+    tier: 1,
+    why: "単体・結合・画面・契約検査はすべてここで走る。閾値未達もここで落ちる",
+  },
+  {
+    id: "mutation-changed",
+    label: "変更したところのミューテーション",
+    command: ["node", "scripts/mutation.mjs", "--changed"],
+    blocking: true,
+    tier: 2,
+    why: "カバレッジは「通ったか」しか見ない。**書き換えても気づかないテスト**をここで見つける",
+  },
+  {
+    id: "coverage-report",
+    label: "層別の記録",
+    command: ["node", "scripts/coverage-report.mjs"],
+    blocking: true,
+    tier: 2,
+    why: "層別の下限と、スタブとの差を見る。全体 80% だけでは薄い場所が隠れる",
   },
   {
     id: "spec-freshness",

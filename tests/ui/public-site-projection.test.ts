@@ -6,7 +6,7 @@
 import { describe, expect, it, vi } from "vitest";
 import { SITE_PROVISIONING_REQUIRED_COUNTS } from "@/domain/authoring";
 import { FIXED_PAGE_KINDS } from "@/domain/blogops";
-import { ok } from "@/domain/shared";
+import { err, ok } from "@/domain/shared";
 import {
   projectPublicSiteComposition,
   projectPublicSiteChrome,
@@ -171,6 +171,32 @@ describe("PublicSiteProjection", () => {
       expect(read).toHaveBeenCalledTimes(1);
     }
     if (result.ok) expect(result.value?.source).toBe("sample");
+  });
+
+  it("読み取りが 1 つ失敗したら、他が揃っていても投影を作らず閉じる", async () => {
+    // 「一部だけ古い公開面を描かない」は本体のコメントが宣言している約束で、
+    // ここで初めて機械が確かめる。番人を 1 つに束ねた後も約束が残ることを固定する。
+    const reader = {
+      blueprint: {} as never,
+      listLayoutSlots: vi.fn(async () => ok([])),
+      listProvisionedLayoutSlots: vi.fn(async () => ok([])),
+      listLayoutBands: vi.fn(async () => ok([])),
+      listProvisionedLayoutBands: vi.fn(async () => ok([])),
+      listPublished: vi.fn(async () => ok([])),
+      listNetwork: vi.fn(async () => ok([])),
+      listTags: vi.fn(async () => err({ kind: "storage", message: "タグが読めません" })),
+      listProvisionedFixedPages: vi.fn(async () => ok([])),
+      listFixedPages: vi.fn(async () => ok([])),
+      listDeliveryParts: vi.fn(async () => ok([])),
+      findArticleBySlug: vi.fn(async () => ok(null)),
+      findSourceArticleId: vi.fn(async () => ok(null)),
+    };
+    const port = { openSite: vi.fn(async () => ok(reader)) };
+
+    const result = await readPublicSiteProjection("hub", { source: "live", port } as never);
+
+    expect(result.ok).toBe(false);
+    if (!result.ok) expect(result.error).toEqual({ kind: "storage", message: "タグが読めません" });
   });
 
   it("公開identityが無ければ空の投影を作らずnullで閉じる", async () => {

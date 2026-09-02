@@ -21,7 +21,7 @@ import {
   FIXED_PAGE_PATH,
   type FixedPageKind,
 } from "@/domain/blogops";
-import { err, ok } from "@/domain/shared";
+import { collectAll, err, ok } from "@/domain/shared";
 import type { PortResult } from "@/application/ports/common";
 import type { SiteNavItem } from "@/presentation/ui";
 
@@ -123,18 +123,7 @@ export async function readPublicSiteProjection(
   if (!opened.ok) return err(opened.error);
   if (opened.value === null) return ok(null);
   const reader = opened.value;
-  const [
-    slots,
-    provisionedSlots,
-    bands,
-    provisionedBands,
-    articles,
-    network,
-    tags,
-    provisionedFixedPages,
-    fixedPages,
-    deliveryParts,
-  ] = await Promise.all([
+  const reads = await Promise.all([
     reader.listLayoutSlots(),
     reader.listProvisionedLayoutSlots(),
     reader.listLayoutBands(),
@@ -146,7 +135,11 @@ export async function readPublicSiteProjection(
     reader.listFixedPages(),
     reader.listDeliveryParts(),
   ]);
-  for (const result of [
+  // 失敗の判定と型の絞り込みを 1 つの番人に集める。
+  // 2 つに分けると、後ろ側は決して真にならない枝として残る。
+  const collected = collectAll(...reads);
+  if (!collected.ok) return err(collected.error);
+  const [
     slots,
     provisionedSlots,
     bands,
@@ -157,36 +150,20 @@ export async function readPublicSiteProjection(
     provisionedFixedPages,
     fixedPages,
     deliveryParts,
-  ]) {
-    if (!result.ok) return err(result.error);
-  }
-  if (
-    !slots.ok ||
-    !provisionedSlots.ok ||
-    !bands.ok ||
-    !provisionedBands.ok ||
-    !articles.ok ||
-    !network.ok ||
-    !tags.ok ||
-    !provisionedFixedPages.ok ||
-    !fixedPages.ok ||
-    !deliveryParts.ok
-  ) {
-    throw new Error("公開投影の Result 絞り込みに失敗しました。");
-  }
+  ] = collected.value;
   const base = {
     source: entry.source,
     reader,
-    slots: slots.value,
-    provisionedSlots: provisionedSlots.value,
-    bands: bands.value,
-    provisionedBands: provisionedBands.value,
-    articles: articles.value,
-    network: network.value,
-    tags: tags.value,
-    provisionedFixedPages: provisionedFixedPages.value,
-    fixedPages: fixedPages.value,
-    deliveryParts: deliveryParts.value,
+    slots,
+    provisionedSlots,
+    bands,
+    provisionedBands,
+    articles,
+    network,
+    tags,
+    provisionedFixedPages,
+    fixedPages,
+    deliveryParts,
   } as const;
   return ok({ ...base, chrome: projectPublicSiteChrome(siteSlug, base) });
 }

@@ -5,6 +5,7 @@ import { describe, expect, it } from "vitest";
 import {
   AI_EVAL_BUDGET,
   CHECKS,
+  GENERATED_DOC_CHECKS,
   GLOBAL_COVERAGE,
   LAYER_COVERAGE,
   LAYER_EXEMPTION_RULES,
@@ -368,6 +369,41 @@ describe("検査の一覧", () => {
     expect(order.indexOf("typecheck")).toBeLessThan(order.indexOf("test"));
     expect(order.indexOf("lint")).toBeLessThan(order.indexOf("test"));
     expect(order.indexOf("test")).toBeLessThan(order.indexOf("coverage-report"));
+  });
+
+  it("生成物を作り直す検査が、テストより前に並んでいる", () => {
+    // **この並びは好みではなく、直せるかどうかを決めている。**
+    //
+    // 生成物の鮮度を見張っているのはテストの中
+    // （`tests/architecture/generated-doc-freshness.test.ts`）である。
+    // 生成し直すのはこの 3 件である。後ろに置くと、こうなる。
+    //
+    //   テストを 1 本足す → 生成物が古くなる → 鮮度のテストが落ちる
+    //   → 止める検査なので `verify` はそこで終わる
+    //   → **生成し直す 3 件に到達しない**
+    //
+    // 失敗の文面には直し方が書いてあるのに、`verify` を何度走らせても直らない。
+    // 実際そうなっていて、CI が毎回この形で落ちていた。
+    // 元の並びへ戻すと、同じ行き止まりがそのまま戻る。
+    const order = CHECKS.map((c) => c.id);
+    for (const id of GENERATED_DOC_CHECKS) {
+      expect(
+        order.indexOf(id),
+        `${id} は test より前に置いてください（後ろだと鮮度の赤を自分で直せなくなります）`,
+      ).toBeLessThan(order.indexOf("test"));
+    }
+  });
+
+  it("生成物を作り直す検査の名簿が、実在する検査だけを指している", () => {
+    // 名簿と検査が別々に育つと、`pnpm run generate` が
+    // **走らせたつもりで 1 本も走らせない**状態になれる。
+    for (const id of GENERATED_DOC_CHECKS) {
+      expect(
+        CHECKS.map((c) => c.id),
+        `GENERATED_DOC_CHECKS の ${id} に対応する検査がありません`,
+      ).toContain(id);
+    }
+    expect(GENERATED_DOC_CHECKS.length).toBeGreaterThan(0);
   });
 
   it("止める検査と警告どまりの検査が、どちらも 1 つ以上ある", () => {
