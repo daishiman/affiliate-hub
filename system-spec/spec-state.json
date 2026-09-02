@@ -969,20 +969,21 @@
     "infrastructure": {
       "web": {
         "state": "確定",
-        "qa_ref": "qa-infra-web-migration-guard",
+        "qa_ref": "qa-infra-web-migration-guard-v2",
+        "serves_goals": [
+          "G2",
+          "G1"
+        ],
         "qa_refs": [
+          "qa-infra-web-migration-guard-v2",
           "qa-infra-web-migration-guard",
           "qa-infra-web-spec-intake",
           "qa-infra-web",
           "qa-infra-web-redirect"
         ],
-        "serves_goals": [
-          "G2",
-          "G1"
-        ],
         "required_info_checks": [
           {
-            "checked_on": "2026-08-31",
+            "checked_on": "2026-09-02",
             "checked_with": "record-required-info-check",
             "blocking_item_count": 0,
             "unmet_blocking_items": 0
@@ -1066,6 +1067,10 @@
       "web": {
         "state": "確定",
         "qa_ref": "qa-frontend-web-capture-self-occlusion",
+        "serves_goals": [
+          "G1",
+          "G2"
+        ],
         "qa_refs": [
           "qa-frontend-web-capture-self-occlusion",
           "qa-frontend-web-affiliate-link-preview-v3",
@@ -1076,13 +1081,9 @@
           "qa-frontend-web-analytics",
           "qa-frontend-web-overhaul-v2"
         ],
-        "serves_goals": [
-          "G1",
-          "G2"
-        ],
         "required_info_checks": [
           {
-            "checked_on": "2026-08-31",
+            "checked_on": "2026-09-02",
             "checked_with": "record-required-info-check",
             "blocking_item_count": 0,
             "unmet_blocking_items": 0
@@ -1113,19 +1114,20 @@
     "maintenance-ops": {
       "web": {
         "state": "確定",
-        "qa_ref": "qa-ops-web-migration-guard",
-        "qa_refs": [
-          "qa-ops-web-migration-guard",
-          "qa-ops-web-spec-intake",
-          "qa-ops-web"
-        ],
+        "qa_ref": "qa-ops-web-migration-guard-v2",
         "serves_goals": [
           "G1",
           "G2"
         ],
+        "qa_refs": [
+          "qa-ops-web-migration-guard-v2",
+          "qa-ops-web-migration-guard",
+          "qa-ops-web-spec-intake",
+          "qa-ops-web"
+        ],
         "required_info_checks": [
           {
-            "checked_on": "2026-08-31",
+            "checked_on": "2026-09-02",
             "checked_with": "record-required-info-check",
             "blocking_item_count": 0,
             "unmet_blocking_items": 0
@@ -2755,6 +2757,92 @@
           "rationale": "右下固定の起動ボタンは data-floating-overlay で本文の上に居ることを名乗っている。同じ理由で、写しという記録の中では退く側に回る。名乗りと退避を同じ属性系で扱うことで、重なり監査 (tests/e2e/app-routes.spec.ts) と写しの除外規則が別々の手掛かりに分岐しない。",
           "tradeoffs": [
             "隠す対象を属性で選ぶため、将来別の浮遊要素が増えたときに同じ属性を付け忘れると写り込みが再発する。属性の付与漏れを検査で拾う必要がある"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "qa-infra-web-migration-guard-v2",
+      "question": "infrastructure×web: 本番 D1 のスキーマ変更を公開ワークフローが自動で適用してよい条件を、控えが取れることの 1 点のままにするか。deploy.yml を検査と公開の 2 job へ分けたとき、それぞれの持ち時間をどう置き、上限が適用の最中に発火したらどうふるまうべきか。承認は検査の前と後のどちらに置くか",
+      "answer": "控えが取れて、かつ途中で止まったことが次の回に分かるなら本番も自動でよい。控えは『戻れる』ことしか言わない。『戻るべきか』を判断するには、途中で止まったことが見えていなければならない。deploy.yml は検査 (inspect) と公開 (release) の 2 job に分け、持ち時間は仕事の性質に合わせて置く (inspect は ci.yml と同じ検査の集合なので同じ 45 分、release は変更の大きさで伸びない仕事だけなので 30 分)。release は needs: inspect なので、検査が赤でも時間切れでも始まらない。適用ステップ『データの形を合わせる』には job 上限より先に切れる step 上限 (10 分) を置く。job 上限が発火すると走っていたステップは道半ばのまま run ごと畳まれて『どこで終わったか』が残らないが、step 上限で切れればそのステップが cancelled として run に確定して残る。次の run は release の先頭でその記録を読み、cancelled または結論なしなら自動では進まない。うまくいった回には記録が残らないので、印を消す操作は誰にも要求しない。印を D1 の表として持たないのは、その表が形のずれ検査に『余り』として出て、アプリのスキーマへ運用用の表を混ぜるか検査を緩めるかの二択になるためである。承認 (environment: production) は release 側に付けるので、人は検査が通ったのを見てから押す。前回の run を読めない・公開の job が見当たらない・適用ステップの名前が見つからないは、いずれも『測れなかった』として止める側へ倒す",
+      "source": {
+        "kind": "user-dialogue"
+      },
+      "asks_for": [
+        {
+          "category": "infrastructure",
+          "platform": "web"
+        }
+      ],
+      "design_applications": [
+        {
+          "knowledge_ref": "docs/spec/11-CI-CD・品質ゲート仕様.md#§4-1",
+          "principle": "戻せない変更を機械にやらせる条件は、戻る先が在ることと、途中で止まったことが次の回に見えることの 2 点である",
+          "applicability": "applied",
+          "rationale": "控えの有無だけを条件にしていた間、適用が道半ばで畳まれた事実を告げるものが無く、次に来た人は台帳と実体がずれた D1 を揃っているつもりで引き継いだ。deploy.yml の release へ『前回の公開が途中で終わっていないか』を控えより前に置き、条件 2 を並びの先頭で満たす",
+          "tradeoffs": [
+            "前回の run を読むために actions: read の権限が要る。権限を落とすとこの見張りは unknown で止まり続けるので、権限の欠落が公開の停止として現れる"
+          ]
+        },
+        {
+          "knowledge_ref": "docs/spec/11-CI-CD・品質ゲート仕様.md#§4-1-3",
+          "principle": "上限は階層で置く。外側の上限が発火する前に、内側で切れるようにする",
+          "applicability": "applied",
+          "rationale": "job 上限 (30 分) が発火するとステップは道半ばのまま run ごと畳まれ、どこで終わったかが残らない。適用ステップへ 10 分の step 上限を置くと、切れたときそのステップが cancelled として run に確定して残り、その記録がそのまま次の回の印になる。実測は数十秒なので、正常に終わる適用はこの上限に触れない",
+          "tradeoffs": [
+            "10 分を超える正当な適用 (大規模なデータ移行) は切られる。切られても控えは在り、次の run が止めて人へ渡すので、静かに壊れる側へは倒れない"
+          ]
+        },
+        {
+          "knowledge_ref": "docs/spec/11-CI-CD・品質ゲート仕様.md#§4-1-2",
+          "principle": "見張りを足すために、別の見張りが見ている範囲を削らない",
+          "applicability": "applied",
+          "rationale": "『適用の直前に行を書き、終わったら消す』を D1 の表で実装すると、その表が drift 検査に extra として出る。アプリのスキーマへ運用用の表を混ぜるか、余っている側を緩めるかの二択になり、後者は 0035 のトリガー消失を見えなくする。すでに残っている GitHub の run 履歴を読めば、増やすものが無い",
+          "tradeoffs": [
+            "印の所在が GitHub 側にあるため、run 履歴の保持期間を過ぎると前回を読めなくなる。読めなければ unknown として止まるので、判定は緩まない"
+          ]
+        },
+        {
+          "knowledge_ref": "docs/spec/11-CI-CD・品質ゲート仕様.md#§4-2",
+          "principle": "人が判断する場所は、判断材料が出そろった後に置く",
+          "applicability": "applied",
+          "rationale": "environment: production を release 側へ移したので、承認を求められた時点で検査は通っている。1 つの job だった頃は、押してから 30 分測ってその先で落ちることがあった",
+          "tradeoffs": [
+            "承認までの待ち時間が検査ぶん延びる。押した後に落ちる回が減るほうが、判断としては確かである"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "qa-ops-web-migration-guard-v2",
+      "question": "maintenance-ops×web: 本番 D1 への適用が途中で打ち切られた疑いがあるとき、次の公開はどうふるまい、運用者は何をどの順で確かめるか。控えの空判定と保管期間は変えるか",
+      "answer": "次の公開は自動で進まず、release の先頭で止める。運用者は 4 つを順に確かめる。(1) 止められた実行が指す前回の実行を開き、控えの成果物 (d1-backup-*) が残っていることを確かめる。控えは適用より先に保存しているので必ず在る。(2) やり直しで押し切らない。部分的に当たった移行の上へ同じ移行を当て直すと duplicate column name で止まる (run #22 と同じ形)。(3) pnpm run db:drift --env <環境> で実際の形を読み、どこまで当たったかを確かめる。(4) missing / extra / changed が出たら形のずれの直し方 (新しい番号の前方修復) へ移り、すべて 0 なら形は揃っているので公開を再実行してよい。控えが空なら適用を中止すること、成果物として 30 日保管すること、保管に失敗したこと自体も落ちる扱いにすることは変えない",
+      "source": {
+        "kind": "user-dialogue"
+      },
+      "asks_for": [
+        {
+          "category": "maintenance-ops",
+          "platform": "web"
+        }
+      ],
+      "design_applications": [
+        {
+          "knowledge_ref": "docs/spec/11-CI-CD・品質ゲート仕様.md#§4-1-3",
+          "principle": "自動を止めた先に、人が踏む手順を必ず用意する",
+          "applicability": "applied",
+          "rationale": "止めるだけで手順が無いと、止められた人は最も手近な操作 (再実行) を選ぶ。それは部分適用の上へ同じ移行を当て直す操作で、まさに避けたい道である。控えの所在の確認から drift での実測、前方修復への合流までを 4 手順で書き、再実行してよい条件も明示する",
+          "tradeoffs": [
+            "止まったときに人の作業が要る。無人で復旧させるには『どこまで当たったか』を機械が判断する必要があり、部分適用の判定を誤ると壊れる側へ倒れるため採らない"
+          ]
+        },
+        {
+          "knowledge_ref": "docs/spec/11-CI-CD・品質ゲート仕様.md#§4-1",
+          "principle": "控えの空判定と保管条件は、条件が 1 つ増えても緩めない",
+          "applicability": "applied",
+          "rationale": "途中終了が見えるようになっても、戻る先が要ることは変わらない。中身の空判定 ([ ! -s ])、30 日保管、if-no-files-found: error はそのまま残す",
+          "tradeoffs": [
+            "空でないことしか見ておらず、中身が壊れた控えは通る。復元まで試す費用に見合わないという判断は据え置く"
           ]
         }
       ]
@@ -4491,6 +4579,145 @@
           }
         ]
       }
+    },
+    {
+      "category": "infrastructure",
+      "platform": "web",
+      "reason": "本番 D1 自動適用の十分条件を利用者が置き直した (2026-09-02)。控えが取れることの 1 点だけでは足りず、途中で止まったことが次の回に分かることを条件へ足す。あわせて deploy.yml を inspect / release の 2 job へ分けた持ち時間の置き方と、上限が適用の最中に発火したときのふるまい、承認と検査の前後関係を問い直す",
+      "from": "確定",
+      "discarded": {
+        "qa_ref": "qa-infra-web-migration-guard",
+        "qa_refs": [
+          "qa-infra-web-migration-guard",
+          "qa-infra-web-spec-intake",
+          "qa-infra-web",
+          "qa-infra-web-redirect"
+        ],
+        "serves_goals": [
+          "G2",
+          "G1"
+        ],
+        "required_info_checks": [
+          {
+            "checked_on": "2026-08-31",
+            "checked_with": "record-required-info-check",
+            "blocking_item_count": 0,
+            "unmet_blocking_items": 0
+          }
+        ]
+      }
+    },
+    {
+      "category": "maintenance-ops",
+      "platform": "web",
+      "reason": "本番 D1 自動適用の十分条件に『途中終了が次の回に見えること』が足された (2026-09-02) ことに伴い、印が残っていて公開が止められたときに運用者が何をどの順で確かめるかを問い直す",
+      "from": "確定",
+      "discarded": {
+        "qa_ref": "qa-ops-web-migration-guard",
+        "qa_refs": [
+          "qa-ops-web-migration-guard",
+          "qa-ops-web-spec-intake",
+          "qa-ops-web"
+        ],
+        "serves_goals": [
+          "G1",
+          "G2"
+        ],
+        "required_info_checks": [
+          {
+            "checked_on": "2026-08-31",
+            "checked_with": "record-required-info-check",
+            "blocking_item_count": 0,
+            "unmet_blocking_items": 0
+          }
+        ]
+      }
+    },
+    {
+      "category": "infrastructure",
+      "platform": "web",
+      "reason": "章本文を現行 qa_ref へ揃えるだけ。収集内容は変えない (確定セルの記録節の転記行を qa-infra-web-migration-guard-v2 へ更新する)",
+      "from": "確定",
+      "discarded": {
+        "qa_ref": "qa-infra-web-migration-guard-v2",
+        "qa_refs": [
+          "qa-infra-web-migration-guard-v2",
+          "qa-infra-web-migration-guard",
+          "qa-infra-web-spec-intake",
+          "qa-infra-web",
+          "qa-infra-web-redirect"
+        ],
+        "serves_goals": [
+          "G2",
+          "G1"
+        ],
+        "required_info_checks": [
+          {
+            "checked_on": "2026-09-02",
+            "checked_with": "record-required-info-check",
+            "blocking_item_count": 0,
+            "unmet_blocking_items": 0
+          }
+        ]
+      }
+    },
+    {
+      "category": "maintenance-ops",
+      "platform": "web",
+      "reason": "章本文を現行 qa_ref へ揃えるだけ。収集内容は変えない (確定セルの記録節の転記行を qa-ops-web-migration-guard-v2 へ更新する)",
+      "from": "確定",
+      "discarded": {
+        "qa_ref": "qa-ops-web-migration-guard-v2",
+        "qa_refs": [
+          "qa-ops-web-migration-guard-v2",
+          "qa-ops-web-migration-guard",
+          "qa-ops-web-spec-intake",
+          "qa-ops-web"
+        ],
+        "serves_goals": [
+          "G1",
+          "G2"
+        ],
+        "required_info_checks": [
+          {
+            "checked_on": "2026-09-02",
+            "checked_with": "record-required-info-check",
+            "blocking_item_count": 0,
+            "unmet_blocking_items": 0
+          }
+        ]
+      }
+    },
+    {
+      "category": "frontend",
+      "platform": "web",
+      "reason": "章の最新ドキュメント出典表 1 行を現行 fetched-references.json へ揃えるだけ。収集内容は変えない (nextjs 16.3.3 -> 16.3.4 の上流追い越しに追随する)",
+      "from": "確定",
+      "discarded": {
+        "qa_ref": "qa-frontend-web-capture-self-occlusion",
+        "qa_refs": [
+          "qa-frontend-web-capture-self-occlusion",
+          "qa-frontend-web-affiliate-link-preview-v3",
+          "qa-frontend-web-seo-ai-search-v2",
+          "qa-frontend-web-blog-builder",
+          "qa-frontend-web-spec-intake",
+          "qa-frontend-web",
+          "qa-frontend-web-analytics",
+          "qa-frontend-web-overhaul-v2"
+        ],
+        "serves_goals": [
+          "G1",
+          "G2"
+        ],
+        "required_info_checks": [
+          {
+            "checked_on": "2026-08-31",
+            "checked_with": "record-required-info-check",
+            "blocking_item_count": 0,
+            "unmet_blocking_items": 0
+          }
+        ]
+      }
     }
   ],
   "category_aggregate": {
@@ -5868,10 +6095,10 @@
   ],
   "knowledge_candidates": [],
   "hearing_progress": {
-    "loop_count": 1,
+    "loop_count": 2,
     "next_question": null,
     "complete": true,
-    "max_loops": 5,
+    "max_loops": 10,
     "max_loops_policy": "strict"
   },
   "asks_for_contract": {

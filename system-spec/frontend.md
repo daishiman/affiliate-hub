@@ -412,7 +412,7 @@ site_blueprint.theme（設計図の既定）
 
 | 対象 | バージョン | 公式発行元 | 出典URL | 取得 | 最新確認 |
 |---|---|---|---|---|---|
-| nextjs | 16.3.3 | Vercel (nextjs.org) | https://nextjs.org/docs | 2026-08-28T14:07:27Z | 2026-08-28T14:07:27Z |
+| nextjs | 16.3.4 | Vercel (nextjs.org) | https://nextjs.org/docs | 2026-09-02T09:14:35Z | 2026-09-02T09:14:35Z |
 | mdn-light-dark | 2026-04-18 | Mozilla (developer.mozilla.org) | https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Values/color_value/light-dark | 2026-08-22T15:05:07Z | 2026-08-22T15:05:07Z |
 
 ## 状態の意味 (State semantics)

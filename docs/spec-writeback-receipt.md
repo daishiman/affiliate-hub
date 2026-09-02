@@ -1070,3 +1070,217 @@ feat-blog-ui-builder リリース (P13、2026-08-31)」を足し、
 そのうえで `--write` により指紋を焼き付けた。再判定は `FRESH` / `PASS`。
 
 再評価が出した gaps 4 件（総合 PASS は妨げない）は下の残課題へ送った。
+
+---
+
+# 仕様反映 受領書（2026-09-02・公開が時間切れで畳まれた件の本質対処）
+
+```yaml
+receipt_id: spec-writeback-2026-09-02-deploy-timeout-guard
+recorded_at: 2026-09-02T08:55:00Z
+beads_ids: [ah-45ba, ah-45ba.13]
+dev_graph_node_id: SYS-BLOG-UI-BUILDER-P13
+parent_feature: feat-blog-ui-builder
+base_branch: dev
+head_branch: devgraph/SYS-BLOG-UI-BUILDER-P13
+verdict: spec-impact-written-back
+```
+
+## 判定
+
+本変更は**仕様・設計へ影響する。反映済みである。**
+
+## 何が起きたか
+
+PR #46 の `公開` ワークフローが **30 分 16 秒で `cancelled`** になった。
+末尾は `Error: The operation was canceled.`、直前まではミューテーション検査が
+2804 / 2869 まで進んでいた。つまり**検査の途中で job の持ち時間を使い切った**。
+
+## 根本原因
+
+1 つの job が、性質の違う 2 つの仕事を同じ 30 分で賄っていた。
+
+| 仕事 | 繰り返せるか | 途中で止まってよいか | 時間の伸び方 |
+| --- | --- | --- | --- |
+| 検査（型・lint・テスト・ミューテーション） | 何度でも | 止まってよい | **変更の大きさで伸びる** |
+| 公開（控え→D1 適用→デプロイ→動作確認） | 戻さないと繰り返せない | **止まってはいけない** | ほぼ一定 |
+
+伸びる側と止まってはいけない側が同じ器に入っていたので、
+**変更が大きい回ほど、止まってはいけない側が時間切れに近づく**。
+今回はその一歩手前（適用の前）で切れたので実害は出ていない。
+
+## 直したこと
+
+### 1. 器を分けた（`.github/workflows/deploy.yml`）
+
+| job | 持ち時間 | 中身 |
+| --- | --- | --- |
+| `inspect` | 45 分 | 検査だけ。`ci.yml` と同じ集合なので同じ 45 分 |
+| `release` | 30 分 | 控え→適用→デプロイ→動作確認だけ。`needs: inspect` |
+
+`environment: production`（人の承認）を `release` 側へ移した。
+**人は検査が緑になったのを見てから押す。**
+1 つの job だった頃は、押してから 30 分測ってその先で落ちることがあった。
+
+### 2. 途中で止まったことが、次の回に分かるようにした
+
+器を分けても、適用の最中に切れる可能性が消えるわけではない。
+利用者が置いた条件は「控えが取れて、**かつ途中で止まったことが次の回に分かる**なら自動でよい」だった。
+
+> 控えは「戻れる」ことしか言わない。
+> 「戻るべきか」を判断するには、途中で止まったことが見えていなければならない。
+
+そこで**上限を階層で置いた**。
+
+- 適用ステップ `データの形を合わせる` に **step 上限 10 分**（job 上限 30 分より先に切れる）
+- job 上限が発火するとステップは道半ばのまま run ごと畳まれて「どこで終わったか」が残らない
+- step 上限で切れれば、**そのステップが `cancelled` として run に確定して残る**
+- 次の run は `release` の先頭で前回の run を読み、`cancelled` か結論なしなら**自動で進まない**
+  （`.github/scripts/require-previous-apply-complete.sh`・新規）
+
+**うまくいった回には記録が残らないので、印を消す操作を誰にも要求しない。**
+「置いて消す」印は、消し忘れがそのまま偽の停止になる。残らないものを印にした。
+
+### 3. 印を D1 の表として持たなかった理由
+
+「適用の直前に行を書き、終わったら消す」を D1 の表でやると、
+その表が `db:drift` に **`extra` として出る**。
+アプリのスキーマへ運用用の表を混ぜるか、余っている側の検査を緩めるかの二択になり、
+後者は 0035 のトリガー消失を見えなくする。
+GitHub の run 履歴はすでに残っているので、**増やすものが無い**。
+
+### 4. 測れなかったときは止める側へ倒した
+
+前回の run を読めない・公開の job が見当たらない・適用ステップの名前が見つからない。
+いずれも「安全と確かめられなかった」であって「安全」ではない。**すべて fail で止める。**
+
+権限（`actions: read`）を落とすと、この見張りは止まり続ける。
+**権限の欠落が、公開の停止として目に見える。**
+
+## 反映した正本と投影
+
+| 種別 | ファイル | 内容 |
+| --- | --- | --- |
+| 正本 | `system-spec/spec-state.json` | `qa-infra-web-migration-guard-v2` / `qa-ops-web-migration-guard-v2` を追加（`design_applications` 付き）。両セルを R4-reopen → 手編集 → 再確定 |
+| 章 | `system-spec/infrastructure.md` | 確定質疑を `-v2` へ。質疑録に 2 job 分割・45/30 分・step 上限 10 分・次回ガード・印を D1 に置かない理由・承認の位置を記録 |
+| 章 | `system-spec/maintenance-ops.md` | 確定質疑を `-v2` へ。止められたときの 4 手順を記録。控えの空判定・30 日保管・`if-no-files-found: error` は**変えていない** |
+| 設計 | `docs/spec/11-CI-CD・品質ゲート仕様.md` | §4-1 の原則を「戻る先がある」1 点から**2 点**へ。§4-1-3「途中で止まったことが、次の回に分かる」を新設 |
+| 手引き | `docs/product/ci-cd-guide.md` | §6 に手順 0、10 分の意味、トラブル表 1 行、「途中で止まった回のあとに進めない」節 |
+| 実装 | `.github/workflows/deploy.yml` | job 分割・持ち時間・`actions: read`・前回確認ステップ・step 上限 |
+| 実装 | `.github/scripts/require-previous-apply-complete.sh` | 新規。前回 run の適用ステップの結論を読む |
+| 設計 | `docs/architecture/testing-architecture.md` | ワークフロー図を 2 job 構成へ。器を分けた理由（速さではない）を追記 |
+| 章 | `system-spec/backend.md` | 出典側の現行モデルが `claude-fable-5-1` へ動いたことに追随（1 行） |
+| 出典 | `system-spec/fetched-references.json` ほか | `anthropic-claude`（`claude-fable-5-1`）と `nextjs`（16.3.3 → **16.3.4**）を再取得。`apple-hig` の証跡を更新 |
+
+`nextjs` は独立監査（C08）が上流追い越しを指摘したものである。
+公式 Docs の `Latest Version` と Vercel が発行する npm registry の `latest` が
+**ともに 16.3.4** であることを実取得で突合した。**記録の誤りではなく、上流が動いていた。**
+記録する `version` は**その出典が説明している対象の版**であって、このリポジトリの依存版ではない。
+
+## 意図的にやらなかったこと
+
+- **`${{ github.token }}` を使わなかった。** REQ-CI07 は「秘密は `secrets.` から来ること」で
+  平文の直書きを見分けている。同義でも別の綴りを通し始めると、その見分けが鈍る。
+  `${{ secrets.GITHUB_TOKEN }}` と書いた。**検査側は 1 文字も緩めていない。**
+- **`system-spec/*.md` を compile で作り直さなかった。** 試したところ 43 行の
+  接地根拠が落ち、行数の門も破った（472 > 天井 460）。
+  **HEAD の章は HEAD 自身の `spec-state.json` から再現できない（293 行差）。**
+  これは今回より前からある乖離で、この PR に混ぜると原因が見えなくなる。章は手編集で保った。
+- **閾値を 1 つも下げていない。**
+
+## 品質ゲート
+
+| ゲート | 判定 |
+| --- | --- |
+| `npx vitest run tests/architecture/` | **PASS**（75 files / 872 passed、赤 0 件） |
+| `bash -n .github/scripts/require-previous-apply-complete.sh` | PASS |
+| `validate-coverage-matrix.py`（4 本すべて） | PASS |
+| `validate-source-citation.py` / `validate-evidence-transcription.py` | PASS（exit 0） |
+| 完全性評価（6 観点・独立監査 3 fork） | 下記 |
+
+### 完全性評価は近道を使わず 2 度回した
+
+入力指紋は `482dddb7…` → `a6afd8435d11e936…` へ移った（差分 5 件）。
+**前回の判定は再利用していない。**監査 fork（C06 / C07 / C08）は本 run で起動し直し、
+台帳の起動行（pending）と解決行（resolved）が `agent_id` 一致で畳み込めている。
+
+| 観点 | 1 回目 | 是正後 | 担当 |
+| --- | --- | --- | --- |
+| foundation_trace | PASS | PASS | C05 |
+| decision_guidance | PASS | PASS | C05 |
+| matrix_coverage | PASS | PASS | C07（primary）+ C06（sub_input） |
+| design_knowledge_reflection | **FAIL** | **PASS** | C05 |
+| doc_freshness | **FAIL** | **PASS** | C08（primary） |
+| prompt_quality | PASS | PASS | C05 |
+
+**最終: 総合 PASS / high finding 0 件 / `spec-freshness` = FRESH**
+（指紋 `40636e1e9455c8c9…`、160 入力。`resume-receipt.json` まで生成済み）。
+評価は 3 度回した。1 度目 FAIL → 2 度目 PASS → 出典表 1 行の是正で STALE → 3 度目 PASS。
+**近道（`--write` 単独）は 1 度も使っていない。**本文が動いた回に近道を使わないのは、
+2026-08-30 の受領書で自分に課した条件である。
+
+1 回目の FAIL は 2 つで、どちらもこの PR の中で解消した。
+
+- `design_knowledge_reflection`: §4-1 の改訂が確定章へ届いていなかった。
+  1 回目は該当語 0 件。転記後の再測定で、2 job 分割・45/30 分・`needs: inspect`・
+  10 分 step 上限・`cancelled` の印・承認の移動が**具体適用として届いている**ことを実測。
+- `doc_freshness`: `anthropic-claude`（解消済み）と `nextjs`（16.3.3 → 16.3.4、上記のとおり再取得）。
+
+**決定論ゲートは 13 本すべて exit 0。**総合判定が割れたのは意味層だけである。
+評価は read-only で、仕様書本文への書き込みは 0 件。
+
+### 出典表の 1 行は、compile ではなく再オープン窓で揃えた
+
+`nextjs` を 16.3.4 へ取り直したことで、`frontend.md` の「最新ドキュメント出典」表が
+正本より古くなり、`doc-source-version-gap` が**赤になった**（`章=16.3.3 / 参照=16.3.4`）。
+
+`compile-spec-doc.py --only frontend.md` で作り直すと直るが、**同時に 85 行が動いた。**
+天井 546 行を破り（564 行）、節構成も変わる。これは今回より前からある章と正本の乖離を
+1 つの PR で一気に吸収することになり、**時間切れ対策の変更が何だったか読めなくなる。**
+
+そこで `frontend×web` を R4-reopen（理由: 出典表 1 行を現行 `fetched-references.json` へ
+揃えるだけ、収集内容は変えない）してガードの窓を開け、**当該 1 行だけ**を書き換え、
+同じ `qa_ref`（`qa-frontend-web-capture-self-occlusion`）で再確定した。
+`restore-qa-refs` で裏付け質疑 8 件も戻っている。
+
+**赤を消すために天井を上げる、という手は取っていない。**
+
+## 残課題
+
+1. **章と正本の乖離（既存・今回より前から）。** `system-spec/infrastructure.md` は
+   HEAD の `spec-state.json` から再現できない（293 行差）。
+   全章を対象にした再現性の一斉確認は、**未計測**（実行しようとしたコマンドが
+   `rm -rf` を含み承認されなかったため。迂回はしていない）。
+2. **`maintenance-ops.md` の frontmatter `serves_goals` が `[G1]`、正本は `[G1, G2]`。**
+   8 章のうちこの 1 章だけ。決定論ゲートには映らない。
+   直す経路は今回 `frontend.md` で実証できた（再オープン窓で 1 行だけ書き換える）。
+   ただしこの章は**今日すでに `required_info_checks` を記録している**ため、
+   もう一度再オープンすると `record-required-info-check` が同日同数を拒否して復元できない。
+   **同じセルを 1 日に 2 度直せない**という制約で、日を改めれば閉じられる。
+3. **各章の「カテゴリ別収集状態」表と「最新ドキュメント出典」表が、正本より古い。**
+   確定質疑は `infrastructure` が `qa-infra-web-post-deploy-smoke`、
+   `maintenance-ops` が `qa-ops-web-rollback` のまま（正本はいずれも `…-migration-guard-v2`）。
+   出典表も `ui-ux` の `apple-hig` などが古い（`frontend` の `nextjs` は上記のとおり揃えた）。
+   1 と同じ既存乖離で、どちらも compile が描くべき箇所である（Beads `ah-lwmf`）。
+4. **`apply-spec-transition.py chunk` の `max_loops` が黙って切る。**
+   既定 5 を超えた turn は**適用されないまま exit 0** になる。
+   今回 6 turn を投げて 5 しか当たらず、`maintenance-ops` が `qa_refs` 無しで残った。
+   `--max-loops 10` で回避したが、**切ったことが出力に現れない**のは危うい。
+5. **入力インベントリの視野が狭い。** 走査範囲が `docs/spec` と `system-spec` の
+   `.md` に限られており、次の 2 つが**指紋に一切寄与しない**。
+   - `docs/product` 配下の利用者向け文書（今回は `docs/spec/11-…` と同時に動いたので気づけた）
+   - `system-spec/fetched-references.json` と `retrieval-evidence/`（本 run の新規指摘）。
+     **出典を取り直しただけの回は、受領書が「入力は変わっていない」と答えてしまう。**
+
+   直すには `spec_input_inventory.py` と `scripts/spec-freshness.mjs` を**同時に**変える
+   必要がある（テストが同一定義を縛っているため、片方だけ変えると指紋が食い違う）。
+6. **ui-ux 章の接地根拠 2 件**（`qa-foundation-u1` / `qa-platform-scope`）が
+   「設計解釈の記録経路: unrecorded」のまま。前回 run から未解消。
+7. **`spec-state.json` の writer が `schema_version` を検査しない**旨の自己申告が 5 箇所。
+   前回 run から未解消。
+8. **`openai-platform` の鮮度が裏取りできなかった**（medium・1 件）。
+   到達不能ではなく確認手段の限界による。上限 1 件以内なので単独では判定を左右しないが、
+   次回へ持ち越すと未確認が積み上がる。
+9. **`tests/integration/local-seed-idempotency.test.ts` に `TODO(human)` が残っている。**
+   見本の記事本文を、画面が実際に使う口（`createD1PublicBlogPort`）から読み直して
+   照合する部分である。**このファイルは本 PR に含めていない**（未完成のまま入れない）。
