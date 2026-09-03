@@ -1587,6 +1587,24 @@ export const AI_EVAL_BUDGET = {
  * 型が合っていないコードのテストを 30 秒かけて走らせても、分かるのは同じことである。
  * この並びは CI 側でも崩さない（`ci.yml` は段を呼ぶだけで、中身を持たない）。
  *
+ * --- `cost` と `needs`（2026-09-03 に足した）---
+ *
+ * **上の「安いものから先に落とす」は、長いあいだ文章でしか存在しなかった。**
+ * 守らせていたのは `typecheck < test` / `lint < test` / `test < coverage-report` の
+ * 3 組を名指しした検査だけで、**名指ししていない検査は素通り**だった。
+ * その結果、実測 0.1 秒の `spec-freshness` が 858 秒の `test` の後ろに居座り、
+ * 0.1 秒で分かる事実を知るのに毎回 14 分の門を通していた（2026-09-03 の #533）。
+ * 直したのは spec-freshness ではない。**例示でしか守られていなかった不変条件**である。
+ *
+ *   `cost: "static"`  他の検査の出力に依らず、単独で答えを出せる
+ *   `cost: "heavy"`   テストや変異を実際に走らせる（分の単位）
+ *   `needs: [...]`    後ろの検査が要る成果物。これを持つ static だけが heavy の後ろに居られる
+ *   `produces: [...]` その検査が作る成果物
+ *
+ * `needs` を書かない限り static は heavy より前でなければならない。
+ * これを `orderViolations` が判定し、`tests/architecture/quality-gates.test.ts` が
+ * **全件について**確かめる。並べ替えを人の注意力に任せない。
+ *
  * `blocking: false` は「落ちても止めないが、必ず出力する」もの。
  * 依存の脆弱性は上流の更新待ちで手が止まるため、警告どまりにする。
  *
@@ -1609,6 +1627,7 @@ export const GENERATED_DOC_CHECKS = ["traceability", "required-test-types", "por
 export const CHECKS = [
   {
     id: "typecheck",
+    cost: "static",
     label: "型検査",
     command: ["pnpm", "run", "typecheck"],
     blocking: true,
@@ -1628,6 +1647,7 @@ export const CHECKS = [
   },
   {
     id: "lint",
+    cost: "static",
     label: "書き方の検査",
     command: ["pnpm", "run", "lint"],
     blocking: true,
@@ -1636,6 +1656,7 @@ export const CHECKS = [
   },
   {
     id: "tier-audit",
+    cost: "static",
     label: "段の指定漏れ",
     command: ["node", "scripts/tier-audit.mjs"],
     blocking: true,
@@ -1644,6 +1665,7 @@ export const CHECKS = [
   },
   {
     id: "migration-generated",
+    cost: "static",
     label: "マイグレーションの作り忘れ",
     command: ["node", "scripts/migration-generated.mjs"],
     blocking: true,
@@ -1652,6 +1674,7 @@ export const CHECKS = [
   },
   {
     id: "reference-reuse",
+    cost: "static",
     label: "参考サイトの転用",
     command: ["pnpm", "run", "check:reference-reuse"],
     blocking: true,
@@ -1660,6 +1683,7 @@ export const CHECKS = [
   },
   {
     id: "acceptance-reconciliation",
+    cost: "static",
     label: "受入IDの証跡突合",
     command: ["pnpm", "run", "acceptance:reconcile"],
     blocking: true,
@@ -1668,6 +1692,7 @@ export const CHECKS = [
   },
   {
     id: "affiliate-content-set",
+    cost: "static",
     label: "公開前コンテンツ一式の検品",
     command: ["pnpm", "run", "content:validate"],
     blocking: true,
@@ -1698,6 +1723,7 @@ export const CHECKS = [
    */
   {
     id: "traceability",
+    cost: "static",
     label: "テストと要件の対応",
     command: ["node", "scripts/traceability.mjs"],
     blocking: true,
@@ -1706,6 +1732,7 @@ export const CHECKS = [
   },
   {
     id: "required-test-types",
+    cost: "static",
     label: "要件ごとの必須テスト種別",
     command: ["node", "scripts/required-test-types.mjs"],
     blocking: true,
@@ -1714,6 +1741,7 @@ export const CHECKS = [
   },
   {
     id: "port-wiring",
+    cost: "static",
     label: "つなぎ目の呼び出し",
     command: ["node", "scripts/port-wiring.mjs"],
     blocking: true,
@@ -1721,31 +1749,8 @@ export const CHECKS = [
     why: "**口はあるが誰も呼んでいない**を見る。表現ポリシー・読者ページの道具・操作の記録で 3 回続いた形で、3 つとも画面上は正常に見えるため使っても気づけない。接続を渡しているかを見る検査（composition-wiring）はこれを通り抜けた",
   },
   {
-    id: "test",
-    label: "テストとカバレッジ",
-    command: ["node", "scripts/run-tests.mjs", "--coverage"],
-    blocking: true,
-    tier: 1,
-    why: "単体・結合・画面・契約検査はすべてここで走る。閾値未達もここで落ちる",
-  },
-  {
-    id: "mutation-changed",
-    label: "変更したところのミューテーション",
-    command: ["node", "scripts/mutation.mjs", "--changed"],
-    blocking: true,
-    tier: 2,
-    why: "カバレッジは「通ったか」しか見ない。**書き換えても気づかないテスト**をここで見つける",
-  },
-  {
-    id: "coverage-report",
-    label: "層別の記録",
-    command: ["node", "scripts/coverage-report.mjs"],
-    blocking: true,
-    tier: 2,
-    why: "層別の下限と、スタブとの差を見る。全体 80% だけでは薄い場所が隠れる",
-  },
-  {
     id: "spec-freshness",
+    cost: "static",
     label: "仕様レポートの鮮度",
     command: ["node", "scripts/spec-freshness.mjs"],
     blocking: true,
@@ -1754,6 +1759,7 @@ export const CHECKS = [
   },
   {
     id: "spec-evidence-transcription",
+    cost: "static",
     label: "取得記録と証跡の逐語一致",
     command: [
       "python3",
@@ -1767,6 +1773,7 @@ export const CHECKS = [
   },
   {
     id: "audit",
+    cost: "static",
     label: "依存の脆弱性",
     command: ["pnpm", "audit", "--audit-level", "high"],
     blocking: false,
@@ -1774,7 +1781,40 @@ export const CHECKS = [
     why: "数秒で済む。ただし上流待ちで作業が止まるのを避けるため警告どまり",
   },
   {
+    id: "test",
+    cost: "heavy",
+    produces: ["coverage"],
+    label: "テストとカバレッジ",
+    command: ["node", "scripts/run-tests.mjs", "--coverage"],
+    blocking: true,
+    tier: 1,
+    why: "単体・結合・画面・契約検査はすべてここで走る。閾値未達もここで落ちる",
+  },
+  {
+    id: "mutation-changed",
+    cost: "heavy",
+    label: "変更したところのミューテーション",
+    command: ["node", "scripts/mutation.mjs", "--changed"],
+    blocking: true,
+    tier: 2,
+    why: "カバレッジは「通ったか」しか見ない。**書き換えても気づかないテスト**をここで見つける",
+  },
+  {
+    id: "coverage-report",
+    cost: "static",
+    // **この検査だけが、重い検査の後ろに居てよい理由を持っている。**
+    // `scripts/coverage-report.mjs` は `coverage/coverage-summary.json` を読む。
+    // 前に出すと、読むものが無くて落ちる。
+    needs: ["coverage"],
+    label: "層別の記録",
+    command: ["node", "scripts/coverage-report.mjs"],
+    blocking: true,
+    tier: 2,
+    why: "層別の下限と、スタブとの差を見る。全体 80% だけでは薄い場所が隠れる",
+  },
+  {
     id: "mutation",
+    cost: "heavy",
     label: "全体のミューテーション",
     command: ["node", "scripts/mutation.mjs"],
     blocking: true,
@@ -1783,6 +1823,7 @@ export const CHECKS = [
   },
   {
     id: "visual-regression",
+    cost: "heavy",
     label: "見た目の回帰",
     command: ["pnpm", "run", "visual"],
     blocking: true,
@@ -1801,6 +1842,78 @@ export const CHECKS = [
      */
   },
 ];
+
+/**
+ * 並びが「安いものから先に落とす」を守っているかを判定する。
+ *
+ * **例示ではなく性質で見る。** 名指しの比較（`typecheck < test` など）は、
+ * 名指ししなかった検査を必ず取りこぼす。実際それで 0.1 秒の検査が
+ * 858 秒の後ろに 2 週間居座った。ここは全件を見る。
+ *
+ * 返すのは違反の一覧である。**真偽値ではなく一覧を返す**のは、
+ * 落ちたときに「どれをどこへ動かすか」まで画面に出すため。
+ * 「順番が違います」だけでは、直す人がもう一度この規則を読み直すことになる。
+ *
+ * @param {typeof CHECKS} checks 実行順に並んだ検査
+ * @returns {{ id: string, after: string, message: string }[]} 違反。空なら守れている
+ */
+export function orderViolations(checks) {
+  const violations = [];
+  /** ここまでに現れた重い検査の id。最初の 1 つが「どこより前へ動かすか」になる。 */
+  const heavySeen = [];
+  /** ここまでに重い検査が作った成果物。static が後ろに居てよい唯一の理由。 */
+  const available = new Set();
+
+  for (const check of checks) {
+    if (check.cost === "heavy") {
+      heavySeen.push(check.id);
+      for (const artifact of check.produces ?? []) available.add(artifact);
+      continue;
+    }
+    if (check.cost !== "static") continue; // 分類漏れは専用の検査が落とす
+    if (heavySeen.length === 0) continue;
+
+    // **満たされている needs が 1 つでもあれば、後ろに居てよい。**
+    // coverage-report がこれで、`coverage` を読むために後ろへ置いてある。
+    if ((check.needs ?? []).some((artifact) => available.has(artifact))) continue;
+
+    // **違反は「この検査 1 つ」として 1 件だけ数える。**
+    // 後ろに重い検査が 3 つあっても、人がする操作は「1 つ前へ動かす」の 1 回である。
+    // 3 件に散らすと、件数が壊れ具合ではなく重い検査の本数を表してしまい、
+    // 「9 件も違反がある」ように見えて、直す側が全体の並べ直しを考え始める。
+    const after = heavySeen[0];
+    violations.push({
+      id: check.id,
+      after,
+      message:
+        `${check.id} は ${after} より前へ動かしてください。` +
+        `${check.id} は cost: "static" で、${after} の出力を要りません` +
+        `（needs: ${JSON.stringify(check.needs ?? [])}）。` +
+        `後ろに置くと、${after} が落ちた回は ${check.id} に到達せず、` +
+        "通った回でもその待ち時間ぶんだけ結果が遅れます。" +
+        `本当に ${after} の出力が要るなら、cost ではなく needs にその成果物を書いてください。`,
+    });
+  }
+
+  return violations;
+}
+
+/**
+ * 単独で答えを出せる検査だけを選ぶ。`pnpm run verify --static` の中身。
+ *
+ * **これは「速い門」ではなく「手元で先に気づくための覗き窓」である。**
+ * 段（`TIERS`）は実行する場所と時期の話で、こちらは費用の話なので混ぜない。
+ * 実際 `spec-freshness` は 2 段に属していて、1 段だけを走らせる道からは
+ * 見えなかった。0.1 秒で分かることが、手元のどの入口からも届かなかった。
+ *
+ * `needs` を持つものは外す。要る成果物がまだ無いので、走らせても落ちるだけである。
+ *
+ * @param {typeof CHECKS} checks
+ * @returns {typeof CHECKS}
+ */
+export function staticChecks(checks) {
+  return checks.filter((c) => c.cost === "static" && (c.needs ?? []).length === 0);
+}
 
 /**
  * `--tier` の指定から、走らせる検査を選ぶ。
