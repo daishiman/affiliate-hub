@@ -1,23 +1,25 @@
 {
   "target_id": "google-gemini",
   "source_url": "https://ai.google.dev/gemini-api/docs/models",
-  "retrieved_at": "2026-08-25T12:13:56Z",
+  "retrieved_at": "2026-09-02T21:20:17Z",
   "http_status": 200,
-  "content_bytes": 145149,
-  "content_sha256": "609df23c5b8e23d263030f182ff5d5d3fe1935f4bd105841ec85f46a67df3775",
+  "content_bytes": 148307,
+  "content_sha256": "4e10bd929b2188abd3d718fae106a6f957afb3b74c348d01e7bb8d08e105831a",
   "page_title": "Models | Gemini API | Google AI for Developers",
   "freshness_extraction": {
     "freshness_source": "page-declared",
-    "value": "Gemini 3 系 (gemini-3.7-flash / gemini-3.6-flash / gemini-3.5-flash / gemini-3.1-pro-preview)",
+    "value": "Gemini 3 系 (gemini-3.8-flash / gemini-3.7-flash / gemini-3.6-flash / gemini-3.5-flash / gemini-3.1-pro-preview)",
     "found_in": [
-      "本文の model ID: gemini-3.7-flash",
-      "本文の model ID: gemini-3.6-flash",
-      "本文の model ID: gemini-3.5-flash",
-      "Gemini 3.1 Pro の実 model ID: gemini-3.1-pro-preview"
+      "本文の model ID: gemini-3.8-flash (6 箇所)",
+      "本文の model ID: gemini-3.7-flash (5 箇所)",
+      "本文の model ID: gemini-3.6-flash (6 箇所)",
+      "本文の model ID: gemini-3.5-flash (9 箇所)",
+      "Gemini 3.1 Pro の実 model ID: gemini-3.1-pro-preview (4 箇所)"
     ],
-    "http_last_modified": "Fri, 14 Aug 2026 16:14:26 GMT",
-    "body_declares_date": false,
-    "body_search_method": "現行モデル一覧のカード・表・code 要素を照合した。表示名 Gemini 3.1 Pro のリンク先と code 要素はいずれも gemini-3.1-pro-preview であり、preview なしの gemini-3.1-pro を実 model ID として扱わない。",
-    "note": "本文がモデル ID を直接表明するため page-declared を採る。HTTP Last-Modified は配信物の更新時刻として併記し、version の代用にはしない。取得日を version へ代入していない。"
+    "http_last_modified": "Wed, 02 Sep 2026 15:04:03 GMT",
+    "body_declares_date": true,
+    "body_declared_date": "2026-09-02",
+    "body_search_method": "取得した HTML の生バイトに対して model ID を直接数え、出現数を found_in へ併記した。ページ末尾の `Last updated 2026-09-02 UTC` も本文表明として確認している。表示名 Gemini 3.1 Pro の実 model ID は従前どおり gemini-3.1-pro-preview であり、preview なしの gemini-3.1-pro は採らない。",
+    "note": "2026-08-25 の前回取得は gemini-3.7-flash を先頭とする世代で止まっていた。本取得で gemini-3.8-flash が加わっていることを確認した。**記録の誤りではなく上流が動いた**ため、独立監査 C08 の high finding はこの再取得で解消する。version へ取得日を代入していない。"
   }
 }

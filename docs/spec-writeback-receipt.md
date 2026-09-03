@@ -1284,3 +1284,239 @@ GitHub の run 履歴はすでに残っているので、**増やすものが無
 9. **`tests/integration/local-seed-idempotency.test.ts` に `TODO(human)` が残っている。**
    見本の記事本文を、画面が実際に使う口（`createD1PublicBlogPort`）から読み直して
    照合する部分である。**このファイルは本 PR に含めていない**（未完成のまま入れない）。
+
+---
+
+# 仕様反映 受領書（2026-09-02・見張りが自分の欠陥で公開を止めた件）
+
+```yaml
+receipt_id: spec-writeback-2026-09-02-guard-self-defect
+recorded_at: 2026-09-02T12:40:00Z
+beads_ids: [ah-45ba, ah-45ba.13]
+dev_graph_node_id: SYS-BLOG-UI-BUILDER-P13
+parent_feature: feat-blog-ui-builder
+base_branch: dev
+head_branch: devgraph/SYS-BLOG-UI-BUILDER-P13
+supersedes_context: spec-writeback-2026-09-02-deploy-timeout-guard
+verdict: spec-impact-written-back-with-declared-divergence
+```
+
+## 判定
+
+**設計仕様（`docs/spec/11`）へは反映済み。確定章（`system-spec/infrastructure.md`）には
+反映できていない。**その理由と、開いたままの差分を下に名指しする。
+
+## 何が起きたか
+
+前の受領書で入れた見張り `require-previous-apply-complete.sh` が、**自分の欠陥で
+本番の公開を止めた**（`公開` run #34）。
+
+```
+Error: 前回の公開を読めませんでした（{"message":"Not Found","status":"404"}）。測れなかったので止めます。
+```
+
+`gh api` は `-f` が 1 つでも付くと**メソッドを POST へ切り替える**。
+`actions/workflows/<file>/runs` は GET 専用なので 404 になっていた。`-X GET` で解消。
+
+**この欠陥が公開を止める形で出たこと自体は、設計が意図どおり働いた証拠である。**
+読めないときに通す作りだったら、404 を返しながら永久に緑になり、
+何も見ていない見張りが本番に居座っていた。fail-closed の元は取れている。
+
+## 実 API に当てて分かった、2 つ目の欠陥
+
+404 を直したうえで見張りを実 API に対して通しで走らせたところ、**まだ印を飛び越えた。**
+
+| run | 何が起きたか | 適用ステップ |
+| --- | --- | --- |
+| #33 | 適用の手前（`検査一式`）で時間切れ | `skipped` |
+| #34 | この見張り自身が 404 で停止 | `skipped` |
+| #35 | 直前の 1 件だけを見る作りでは **#34 しか見ない** | — |
+
+公開の job が無い回と、job は在るが適用が `skipped` の回は、どちらも適用に触れていない。
+**印について何も語らないので、通しも止めもせず、さらに前を見る**のが正しい。
+印を消せるのは、適用が結論（`success` / `failure`）まで走った回だけである。
+
+実 API で通し確認済み: `#34 skipped → #33 skipped → #32 success で通す`。
+
+**この 2 つ目は、コードを読んでいるだけでは出なかった。**
+見張りを実際の API に当てて初めて出た。以後、この種の script は
+出す前に実 API へ通しで当てる。
+
+## 反映した先
+
+| 種別 | ファイル | 内容 |
+| --- | --- | --- |
+| 設計 | `docs/spec/11-CI-CD・品質ゲート仕様.md` | §4-1-3 に「見るのは直前の run ではなく、適用が実際に走ったいちばん新しい run」を明記。`skipped` は印を消さないこと、遡る対象と止める対象の切り分けを追加 |
+| 手引き | `docs/product/ci-cd-guide.md` | 手順 0 に「記録に `さらに前を見ます` と出るのは異常ではない」旨 |
+| 実装 | `.github/scripts/require-previous-apply-complete.sh` | `-X GET` の明示、完了 run の遡り、`skipped` を `continue` へ |
+
+## 確定章へ反映**できなかった**こと（宣言する差分）
+
+`system-spec/infrastructure.md:37` の確定回答は、末尾でこう述べている。
+
+> 前回の run を読めない・**公開の job が見当たらない**・適用ステップの名前が見つからないは、
+> いずれも『測れなかった』として止める側へ倒す
+
+**実装はこのうち「公開の job が見当たらない」だけを、止めるのではなく遡るへ変えた。**
+止める側に倒すと、検査で 1 回落ちた翌回から永久に公開できなくなるためである。
+残り 2 つ（読み取り失敗・ステップ名の不一致）は従来どおり止める。
+
+これを正本へ入れようとして、次の順に**すべて拒まれた**。迂回はしていない。
+
+1. `spec-state.json` を inline python で読み書き
+   → `guard-confirmed-chapter-overwrite` が遮断（書込先不明の inline 書込）
+2. 正規 writer `apply-spec-transition.py set-qa-design-applications` で
+   `design_applications` へ 5 件目として追記
+   → `TransitionError: provenance の無い既存 design_applications は対話経路として保護し、
+   legacy_backfill への変更を拒否`
+
+2 が本質である。この writer は `legacy_exempt=true` を持つ**旧い質疑への後追い補完専用**で、
+対話経路で確定した `design_applications` には触れられない。
+**対話で決めたことを、後から機械で書き換えさせない**ための保護であり、正しい。
+
+したがって正規経路は `supersede-qa` による `-v3` の起票、すなわち
+**再オープン → 再ヒアリング → 再確定 → 完全性の再評価**である。
+一文の精緻化に対してこの往復は MVP の範囲を超えるので、本 PR では回さず、
+**差分をここに名指しして開いたままにする。**黙って食い違わせない。
+
+規範の所在としては、章は CI の判定規則を `docs/spec/11` に委ねており、
+そちらは更新済みである。**実装と規範は一致していて、章の要約文だけが古い。**
+
+## 品質ゲート
+
+| ゲート | 判定 |
+| --- | --- |
+| `npx vitest run tests/architecture/` | **PASS**（75 files / 894 passed） |
+| 見張りを実 API へ通しで実行（3 パターン） | PASS |
+| 閾値の引き下げ・除外の追加 | **0 件** |
+
+## `dev` の取り込み（競合解消）
+
+`origin/dev` が #48（squash）と #47 で 2 つ進み、`system-spec/` の 5 ファイルが競合した。
+
+`qa_log` の ID 集合を機械的に突き合わせ、**dev に無い ID がゼロ**（= dev は本ブランチの
+仕様内容の上位集合）であることを確認したうえで、**dev 側を丸ごと採用**した。
+`completeness-report.json` / `resume-receipt.json` は `spec-state.json` の digest に
+束縛されているため、正本だけ混ぜると受領書が即座に無効化される。
+**片側を丸ごと採るのが整合を保つ唯一の形である。**
+
+唯一の後退: `frontend.web` の `required_info_checks.checked_on` が 09-02 → 08-31。
+他 2 セルは dev のほうが新しい。
+
+## 残課題
+
+1. **上の「宣言する差分」。** `system-spec/infrastructure.md:37` の一文と実装のずれ。
+   閉じるには `supersede-qa` で `qa-infra-web-migration-guard-v3` を立てる往復が要る。
+2. **遡りは取得した直近 20 件まで。** それより前は見ない。
+   20 件すべてが適用に触れていない場合は通す。
+3. `inspect` 45 分の妥当性は未実測（本番公開時にしか走らない）。
+4. `release` の他ステップ（Workers 配信）には step 上限を置いていない。
+5. `tests/integration/local-seed-idempotency.test.ts` の `TODO(human)` は未着手・未コミット。
+
+# 仕様反映 受領書（2026-09-02・出典が自分を再現できなかった件）
+
+- 対象 feature: `feat-blog-ui-builder`
+- Beads: `ah-45ba`（epic） / `ah-45ba.13`
+- dev-graph node: `SYS-BLOG-UI-BUILDER-P13`
+- 判定: **仕様への反映あり**（`system-spec/ui-ux.md` / `system-spec/backend.md` の出典表）
+
+## 何が起きていたか
+
+PR #49 の `verify` が赤かった。表に出ていた文言は「仕様レポートの鮮度 STALE」だが、
+`scripts/spec-freshness.mjs` は指紋の一致だけでなく **`verdict === "PASS"`** も要求する
+（2026-08-19 に「判定が `FAIL` のレポートでも焼き付けさえすれば緑だった」ため追加された検査）。
+つまり STALE の裏に、独立監査 C08 の **FAIL** が隠れていた。
+
+C08 が返した FAIL の理由は 2 つで、**性質が違う**。分けて扱った。
+
+### 1. google-gemini — 上流が証跡を追い越した
+
+前回取得（2026-08-25）は `gemini-3.7-flash` を先頭とする世代で止まっており、
+現在の公式ページには `gemini-3.8-flash` が載っていた。
+**記録が誤っていたのではなく、上流が動いた。** 正しい応答は再取得である。
+
+`https://ai.google.dev/gemini-api/docs/models` を取り直し、
+`retrieval-evidence/google-gemini.json` と `fetched-references.json` を組み立て直し、
+`system-spec/backend.md` の出典表を追随させた。
+表明値は本文の model ID 出現数を数えて `found_in` に併記してある。**取得日を version に代入していない。**
+
+### 2. apple-hig — 出典が自分を再現できなかった
+
+C08 は apple-hig を「鮮度未確認」とした。ページが取れなかったからではなく、
+`https://developer.apple.com/design/human-interface-guidelines/design-principles` が
+**JavaScript レンダリングの殻しか返さず**、表明日を含む本文が取得できなかったためである。
+
+鮮度未確認が 2 件になり、`MAX_UNVERIFIED_FRESHNESS = 1`（C08 の SSOT）を超えて FAIL。
+
+**ここで閾値を 2 に上げることは禁じ手である。** この定数は
+「未確認を何件まで見逃すか」ではなく、**「再現できない出典は鮮度を名乗れていない」**
+という主張の実装だからである。緩めれば主張そのものが消える。
+
+したがって直したのは**出典の側**である。同一の公式 host `developer.apple.com` 配下の
+機械可読 endpoint
+
+```
+https://developer.apple.com/tutorials/data/design/human-interface-guidelines/design-principles.json
+```
+
+を GET し（200 / 26295 bytes）、`metadata.customMetadata.alert-date` から
+`2026-06-08` を直接読み取った。
+
+**表明値そのものは 2026-06-08 のまま動いていない。**
+変えたのは値ではなく、**独立監査が値を再現できるかどうか**である。
+host は変わっていないので IN1 の official_host 一致も保たれる。
+
+これで鮮度未確認は 1 件（`github-actions`）に減り、C08 は PASS へ戻った。
+
+## 正本への反映（R4-reopen を 2 サイクル）
+
+確定済みセルは直接編集できない（`guard-confirmed-chapter-overwrite`）。
+`ui-ux/web` を正規経路で 2 度開いて閉じた。迂回はしていない。
+
+```
+reopen（理由を明示） → 章の 1 行を編集 → confirm（reaffirm: true）
+  → record-required-info-check
+```
+
+`confirm` は `required_info_checks` を `null` へ戻すため、毎回 `record-required-info-check` を
+後置する必要がある。また再確定の値が退避スナップショットと一致する場合、
+`reaffirm: true` を宣言しないと `_reject_undeclared_revert` に拒まれる。
+**「元に戻すこと」を黙って通さない設計であり、正しい。**
+
+`system-spec/ui-ux.md` のバイトが動いたので、dev-graph feature node の lineage pin
+（`tests/architecture/blog-ui-spec-governance.test.ts`）を `upsert-node.py` 経由で張り直した。
+`.dev-graph/state/graph.json` への直書きはしていない。
+
+## 焼き付けの順序
+
+**この順序でしか通らない。** 逆にすると受領書が `artifact-digest-stale` で即座に無効になる。
+
+```
+評価器 → node scripts/spec-freshness.mjs --write → build-resume-receipt.py → validate
+```
+
+## 品質ゲート
+
+| ゲート | 判定 |
+| --- | --- |
+| C06 / C07 / C08 独立監査（fork） | **3 本とも PASS** |
+| `aggregate-completeness.py --require-complete` | exit 0（`verdict=PASS`・fork 証跡接地） |
+| `validate-source-citation.py`（IN1） | exit 0 |
+| `validate-evidence-transcription.py`（逐語一致） | OK |
+| `node scripts/spec-freshness.mjs` | **FRESH / PASS** |
+| `build-resume-receipt.py` | PASS（`0ed8e5ba…`） |
+| `validate-system-spec-resume.py` | exit 0（`failures: []`） |
+| `npx vitest run tests/architecture/` | **PASS**（75 files / 894 passed） |
+| 閾値の引き下げ・除外の追加 | **0 件** |
+
+## 残課題
+
+前節の 1〜5 を引き継ぐ。加えて:
+
+6. `build-external-mutation-guard.py:66` の `curl` 検出正規表現が `re.I` により
+   `-D`（ヘッダダンプ）を `-d`（データ送信）と取り違える。今回は plain GET が
+   素通りしたことで実害が無いと確認したが、誤検知は残っている。
+   `-d` 側だけ `re.I` を外すのが最小修正。
+7. `build_inventory` の走査範囲は `docs/spec` と `system-spec` の `.md` のみで、
+   `completeness-report.json` / `fetched-references.json` / `retrieval-evidence/` は
+   指紋の視野外（既知の medium finding）。

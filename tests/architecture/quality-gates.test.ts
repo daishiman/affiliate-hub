@@ -27,6 +27,7 @@ import {
   layerCoverageMargins,
   judgeLayerInventory,
   judgeStubGap,
+  orderViolations,
 } from "../../quality-gates.config.mjs";
 import { readTier, scanTiers } from "../../scripts/tier-scan.mjs";
 
@@ -432,12 +433,66 @@ describe("検査の一覧", () => {
     }
   });
 
-  it("安いものから順に並んでいる", () => {
-    // 型が合っていないコードのテストを 30 秒かけて走らせても、分かるのは同じことである。
-    const order = CHECKS.map((c) => c.id);
-    expect(order.indexOf("typecheck")).toBeLessThan(order.indexOf("test"));
-    expect(order.indexOf("lint")).toBeLessThan(order.indexOf("test"));
-    expect(order.indexOf("test")).toBeLessThan(order.indexOf("coverage-report"));
+  it("すべての検査に費用の分類が付いている", () => {
+    // 分類の無い検査があると、下の性質検査はそれを**黙って見逃す**。
+    // 「全件を見ている」と言えなくなる穴は、ここで塞ぐ。
+    for (const check of CHECKS) {
+      expect(
+        ["static", "heavy"],
+        `${check.id} に cost がありません（static か heavy を書いてください）`,
+      ).toContain((check as { cost?: string }).cost);
+    }
+  });
+
+  it("安いものから順に並んでいる（全件）", () => {
+    // **以前ここは 3 組を名指しするだけだった。**
+    // 名指ししなかった検査は素通りし、実測 0.1 秒の spec-freshness が
+    // 858 秒の test の後ろに居座って、0.1 秒で分かる事実に毎回 14 分かかっていた。
+    // 例示で守った不変条件は、要素が増えた日に守られなくなる。
+    const violations = orderViolations(CHECKS);
+    expect(violations.map((v) => v.message).join("\n")).toBe("");
+    expect(violations).toEqual([]);
+  });
+
+  it("並びの判定が、1 本目を走らせる前に置かれている", () => {
+    // **この検査自身が `test` の中に居る。** つまり並びが壊れたことを
+    // 858 秒の門の中で知ることになり、直そうとしている遅さをそのまま持つ。
+    // なので `verify.mjs` の側にも同じ判定を置き、ここではその存在を見る。
+    const source = read("scripts/verify.mjs");
+    expect(source, "verify.mjs が orderViolations を取り込んでいません").toContain(
+      "orderViolations",
+    );
+    // 「取り込んだが呼んでいない」を塞ぐ。答えを捨てる形は、このリポジトリで
+    // 3 回起きている（spec-freshness.mjs の冒頭に記録がある）。
+    expect(source).toMatch(/orderViolations\(CHECKS\)/);
+    // 呼ぶ位置。検査を回す for より後ろだと、0 秒で言えることを最後に言う。
+    expect(
+      source.indexOf("orderViolations(CHECKS)"),
+      "並びの判定が、検査を回す for より後ろにあります",
+    ).toBeLessThan(source.indexOf("for (const check of CHECKS)"));
+  });
+
+  it("重い検査の後ろへ静的な検査を移すと検出する（合成例による陽性対照）", () => {
+    // 落ちない検査は、無い検査と見分けが付かない。
+    // 実際に違反を作って、上の検査が本当に反応することを確かめる。
+    const heavy = { id: "heavy-example", cost: "heavy" as const };
+    const cheap = { id: "cheap-example", cost: "static" as const };
+    const broken = [heavy, cheap] as unknown as typeof CHECKS;
+
+    const violations = orderViolations(broken);
+    expect(violations.length, "重い検査の後ろの静的検査を見逃しています").toBeGreaterThan(0);
+    expect(violations[0].id).toBe("cheap-example");
+    expect(violations[0].after).toBe("heavy-example");
+  });
+
+  it("成果物を要る検査は、重い検査の後ろに居てよい", () => {
+    // coverage-report は coverage/coverage-summary.json を読む。
+    // 前に出すと読むものが無くて落ちる。**規則が現実を壊さない**ことを確かめる。
+    const heavy = { id: "heavy-example", cost: "heavy" as const, produces: ["artifact"] };
+    const consumer = { id: "consumer-example", cost: "static" as const, needs: ["artifact"] };
+    const legit = [heavy, consumer] as unknown as typeof CHECKS;
+
+    expect(orderViolations(legit)).toEqual([]);
   });
 
   it("生成物を作り直す検査が、テストより前に並んでいる", () => {
